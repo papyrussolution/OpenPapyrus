@@ -49,24 +49,10 @@
 #define ENOUGH_DATA_THRESHOLD 1024
 #define MINIMUM_DATA_THRESHOLD   4
 
-#define NS_FILTER_CHINESE_SIMPLIFIED  0x01
-#define NS_FILTER_CHINESE_TRADITIONAL 0x02
-#define NS_FILTER_JAPANESE            0x04
-#define NS_FILTER_KOREAN              0x08
-#define NS_FILTER_NON_CJK             0x10
-#define NS_FILTER_ALL                 0x1F
-#define NS_FILTER_CHINESE (NS_FILTER_CHINESE_SIMPLIFIED | NS_FILTER_CHINESE_TRADITIONAL)
-#define NS_FILTER_CJK (NS_FILTER_CHINESE_SIMPLIFIED | NS_FILTER_CHINESE_TRADITIONAL | NS_FILTER_JAPANESE | NS_FILTER_KOREAN)
-
 #define PCK16BITS(a, b)            ((uint32)(((b) << 16) | (a)))
 #define PCK8BITS(a, b, c, d)         PCK16BITS(((uint32)(((b) << 8) | (a))), ((uint32)(((d) << 8) | (c))))
 #define PCK4BITS(a, b, c, d, e, f, g, h) PCK8BITS(((uint32)(((b) << 4)|(a))), ((uint32)(((d) << 4)|(c))), ((uint32)(((f) << 4)|(e))), ((uint32)(((h) << 4)|(g))))
 #define GETFROMPCK(i, c) (((((c).data)[(i)>>(c).idxsft])>>(((i)&(c).sftmsk)<<(c).bitsft))&(c).unitmsk)
-
-enum nsresult {
-	NS_OK,
-	NS_ERROR_OUT_OF_MEMORY
-};
 //
 //#include <nsPkgInt.h>
 //
@@ -105,7 +91,6 @@ struct nsPkgInt {
 //
 //
 //#define DEBUG_chardet // Uncomment this for debug dump.
-
 enum nsProbingState {
 	eDetecting = 0, //We are still detecting, no sure answer yet, but caller can ask for confidence.
 	eFoundIt = 1, //That's a positive answer
@@ -165,38 +150,7 @@ protected:
 //
 //
 //
-enum nsInputState {
-	ePureAscii = 0,
-	eEscAscii  = 1,
-	eHighbyte  = 2
-};
 
-class nsUniversalDetector {
-public:
-	nsUniversalDetector(uint32 aLanguageFilter);
-	virtual ~nsUniversalDetector();
-	virtual nsresult HandleData(const char* aBuf, uint32 aLen);
-	virtual void DataEnd();
-protected:
-	virtual void Report(const char* aCharset) = 0;
-	virtual void Reset();
-	nsInputState mInputState;
-	enum {
-		fNbspFound = 0x0001,
-		fDone      = 0x0002,
-		fInTag     = 0x0004,
-		fStart     = 0x0008,
-		fGotData   = 0x0010
-	};
-	uint   Flags;
-	const  char * mDetectedCharset;
-	int32  mBestGuess;
-	uint32 mLanguageFilter;
-	nsCharSetProber  * mCharSetProbers[3];
-	nsCharSetProber  * mEscCharSetProber;
-	char   mLastChar;
-	uint8  Reserve[3]; // @alignment
-};
 //
 // Codepoints 
 //

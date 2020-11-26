@@ -344,7 +344,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -400,7 +401,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -435,7 +437,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
@@ -453,7 +455,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -505,7 +508,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -553,7 +557,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -602,7 +607,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
@@ -653,7 +659,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
@@ -704,7 +711,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -752,7 +760,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
@@ -801,7 +810,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
@@ -852,7 +862,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
@@ -903,7 +914,8 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ..\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
@@ -3642,6 +3654,7 @@
     <ClInclude Include="..\Include\json.h" />
     <ClInclude Include="..\Include\layout-2d.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />
+    <ClInclude Include="..\Include\slib-internal.h" />
     <ClInclude Include="..\Include\Slib.h" />
     <ClInclude Include="..\Include\slport.h" />
     <ClInclude Include="..\Include\snet.h" />

@@ -59,30 +59,30 @@
 #endif
 #ifdef _MSC_VER
 /* 'inline' is available only in C++ in MSVC */
-#   define inline __inline
-#   define force_inline __forceinline
-#   define noinline __declspec(noinline)
+#define inline __inline
+#define force_inline __forceinline
+#define noinline __declspec(noinline)
 #elif defined __GNUC__ || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))
-#   define inline __inline__
-#   define force_inline __inline__ __attribute__ ((__always_inline__))
-#   define noinline __attribute__((noinline))
+#define inline __inline__
+#define force_inline __inline__ __attribute__ ((__always_inline__))
+#define noinline __attribute__((noinline))
 #else
-#   ifndef force_inline
+#ifndef force_inline
 #define force_inline inline
-#   endif
-#   ifndef noinline
+#endif
+#ifndef noinline
 #define noinline
-#   endif
+#endif
 #endif
 
 /* GCC visibility */
 #if defined(__GNUC__) && __GNUC__ >= 4 && !defined(_WIN32)
-#   define PIXMAN_EXPORT __attribute__ ((visibility("default")))
+#define PIXMAN_EXPORT __attribute__ ((visibility("default")))
 /* Sun Studio 8 visibility */
 #elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550)
-#   define PIXMAN_EXPORT __global
+#define PIXMAN_EXPORT __global
 #else
-#   define PIXMAN_EXPORT
+#define PIXMAN_EXPORT
 #endif
 
 /* member offsets */
@@ -97,9 +97,9 @@
 
 #elif defined(TLS)
 
-#   define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                       \
+#define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                       \
 	static TLS type name
-#   define PIXMAN_GET_THREAD_LOCAL(name)                                \
+#define PIXMAN_GET_THREAD_LOCAL(name)                                \
 	(&name)
 
 #elif defined(__MINGW32__)
@@ -107,7 +107,7 @@
 	#define _NO_W32_PSEUDO_MODIFIERS
 	#include <windows.h>
 
-#   define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                       \
+#define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                       \
 	static volatile int tls_ ## name ## _initialized = 0;               \
 	static void * tls_ ## name ## _mutex = NULL;                         \
 	static unsigned tls_ ## name ## _index;                             \
@@ -188,7 +188,7 @@
 		return value;                                                   \
 	}
 
-#   define PIXMAN_GET_THREAD_LOCAL(name)                                \
+#define PIXMAN_GET_THREAD_LOCAL(name)                                \
 	tls_ ## name ## _get()
 
 #else

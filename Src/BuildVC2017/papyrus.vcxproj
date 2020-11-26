@@ -2087,6 +2087,7 @@
     <None Include="..\Rsrc\Ico\twoarr_vert.cur" />
     <None Include="..\Rsrc\Ico\typelib1.bin" />
     <None Include="..\Rsrc\Ico\Wait07.cur" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\PPMain\ppbrow-embed.rc">

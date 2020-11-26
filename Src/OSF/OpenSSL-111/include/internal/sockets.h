@@ -25,16 +25,16 @@
 
 # elif defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_MSDOS)
 #if defined(__DJGPP__)
-#   include <sys/socket.h>
-#   include <sys/un.h>
-#   include <tcp.h>
-#   include <netdb.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <tcp.h>
+#include <netdb.h>
 #elif defined(_WIN32_WCE) && _WIN32_WCE<410
-#   define getservbyname _masked_declaration_getservbyname
+#define getservbyname _masked_declaration_getservbyname
 #endif
 #if !defined(IPPROTO_IP)
     /* winsock[2].h was included already? */
-#   include <winsock.h>
+#include <winsock.h>
 #endif
 #ifdef getservbyname
      /* this is used to be wcecompat/include/winsock_extras.h */
@@ -50,59 +50,59 @@ struct servent *PASCAL getservbyname(const char *, const char *);
  * Windows run on happen to be two's-complement, which allows to
  * interchange INVALID_SOCKET and -1.
  */
-#   define socket(d,t,p)   ((int)socket(d,t,p))
-#   define accept(s,f,l)   ((int)accept(s,f,l))
+#define socket(d,t,p)   ((int)socket(d,t,p))
+#define accept(s,f,l)   ((int)accept(s,f,l))
 #endif
 
 # else
 
 #ifndef NO_SYS_PARAM_H
-#   include <sys/param.h>
+#include <sys/param.h>
 #endif
 #ifdef OPENSSL_SYS_VXWORKS
-#   include <time.h>
+#include <time.h>
 #endif
 
 #include <netdb.h>
 #if defined(OPENSSL_SYS_VMS_NODECC)
-#   include <socket.h>
-#   include <in.h>
-#   include <inet.h>
+#include <socket.h>
+#include <in.h>
+#include <inet.h>
 #else
-#   include <sys/socket.h>
-#   ifndef NO_SYS_UN_H
+#include <sys/socket.h>
+#ifndef NO_SYS_UN_H
 #include <sys/un.h>
 #    ifndef UNIX_PATH_MAX
 #     define UNIX_PATH_MAX sizeof(((struct sockaddr_un *)NULL)->sun_path)
 #endif
-#   endif
-#   ifdef FILIO_H
+#endif
+#ifdef FILIO_H
 #include <sys/filio.h> /* FIONBIO in some SVR4, e.g. unixware, solaris */
-#   endif
-#   include <netinet/in.h>
-#   include <arpa/inet.h>
-#   include <netinet/tcp.h>
+#endif
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netinet/tcp.h>
 #endif
 
 #ifdef OPENSSL_SYS_AIX
-#   include <sys/select.h>
+#include <sys/select.h>
 #endif
 
 #ifndef VMS
-#   include <sys/ioctl.h>
+#include <sys/ioctl.h>
 #else
 #   if !defined(TCPIP_TYPE_SOCKETSHR) && defined(__VMS_VER) && (__VMS_VER > 70000000)
      /* ioctl is only in VMS > 7.0 and when socketshr is not used */
 #include <sys/ioctl.h>
-#   endif
-#   include <unixio.h>
+#endif
+#include <unixio.h>
 #   if defined(TCPIP_TYPE_SOCKETSHR)
 #include <socketshr.h>
-#   endif
+#endif
 #endif
 
 #ifndef INVALID_SOCKET
-#   define INVALID_SOCKET      (-1)
+#define INVALID_SOCKET      (-1)
 #endif
 #endif
 
@@ -112,9 +112,9 @@ struct servent *PASCAL getservbyname(const char *, const char *);
  */
 #if !defined(OPENSSL_USE_IPV6)
 #if defined(AF_INET6)
-#   define OPENSSL_USE_IPV6 1
+#define OPENSSL_USE_IPV6 1
 #else
-#   define OPENSSL_USE_IPV6 0
+#define OPENSSL_USE_IPV6 0
 #endif
 #endif
 

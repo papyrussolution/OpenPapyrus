@@ -118,15 +118,15 @@
 			#ifdef  EXIT_FAILURE
 				#undef EXIT_FAILURE
 			#endif
-#   ifdef  EXIT_SUCCESS
+#ifdef  EXIT_SUCCESS
 #    undef EXIT_SUCCESS
-#   endif
+#endif
 #  endif /* VAXC */
 #  ifndef  EXIT_FAILURE
-#   define EXIT_FAILURE  0x10000002
+#define EXIT_FAILURE  0x10000002
 #  endif
 #  ifndef  EXIT_SUCCESS
-#   define EXIT_SUCCESS  1
+#define EXIT_SUCCESS  1
 #  endif
 # endif /* VMS */
 #endif /* HAVE_STDLIB_H */

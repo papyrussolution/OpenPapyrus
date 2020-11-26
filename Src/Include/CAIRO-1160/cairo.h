@@ -41,11 +41,11 @@
 #include <slcairo.h> // @sobolev
 
 #ifdef  __cplusplus
-# define CAIRO_BEGIN_DECLS  extern "C" {
-# define CAIRO_END_DECLS    }
+#define CAIRO_BEGIN_DECLS  extern "C" {
+#define CAIRO_END_DECLS    }
 #else
-# define CAIRO_BEGIN_DECLS
-# define CAIRO_END_DECLS
+#define CAIRO_BEGIN_DECLS
+#define CAIRO_END_DECLS
 #endif
 
 #ifndef cairo_public

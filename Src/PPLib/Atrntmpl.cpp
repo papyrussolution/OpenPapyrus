@@ -32,7 +32,7 @@ int FASTCALL PPAccTurn::IsEqual(const PPAccTurn & rS) const
 		eq = 0;
 	else if(CurID != rS.CurID)
 		eq = 0;
-	else if(!feqeps(R2(Amount), R2(rS.Amount), 1e-6)) // @v8.1.2 R2()
+	else if(!feqeps(R2(Amount), R2(rS.Amount), 1e-6))
 		eq = 0;
 	else if(Opr != rS.Opr)
 		eq = 0;
@@ -40,10 +40,6 @@ int FASTCALL PPAccTurn::IsEqual(const PPAccTurn & rS) const
 		eq = 0;
 	else if(strcmp(BillCode, rS.BillCode) != 0)
 		eq = 0;
-	/*
-	else if(RByBill != rS.RByBill)
-		eq = 0;
-	*/
 	return eq;
 }
 
@@ -668,8 +664,8 @@ int PPAccTurnTempl::EnumerateExtLines(const PPBillPacket * pPack, ExtLinesBlock 
 	if(Flags & ATTF_BYADVLINES) {
 		if(pBlk->AccWrOff) {
 			PPObjArticle ar_obj;
+			ArticleTbl::Rec ar_rec;
 			while(!ok && pBlk->Idx < pBlk->SubstArList.getCount()) {
-				ArticleTbl::Rec ar_rec;
 				if(ar_obj.Fetch(pBlk->SubstArList.get(pBlk->Idx), &ar_rec) > 0) {
 					pBlk->SubstAr = ar_rec.Article;
 					ok = 2;
@@ -679,12 +675,13 @@ int PPAccTurnTempl::EnumerateExtLines(const PPBillPacket * pPack, ExtLinesBlock 
 			}
 		}
 		else {
+			PPObjBill * p_bobj = BillObj;
 			PPObjAdvBillKind abk_obj;
 			while(!ok && pBlk->Idx < pBlk->P_Pack->AdvList.GetCount()) {
 				const PPAdvBillItemList::Item & r_abi = pBlk->P_Pack->AdvList.Get(pBlk->Idx);
 				PPAdvBillKind abk_rec;
 				if(&r_abi) {
-					if(r_abi.AdvBillKindID && BillObj->Search(r_abi.AdvBillID, 0) > 0 &&
+					if(r_abi.AdvBillKindID && p_bobj->Search(r_abi.AdvBillID, 0) > 0 &&
 						abk_obj.Search(r_abi.AdvBillKindID, &abk_rec) > 0 && abk_rec.Flags & PPAdvBillKind::fSkipAccturn)
 						ok = -1;
 					else {

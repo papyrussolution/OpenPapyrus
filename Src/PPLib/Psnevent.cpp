@@ -1532,88 +1532,104 @@ void PsnEventDialog::editRegister()
 	RegisterTbl::Rec regrec = Pack.Reg;
 	SETIFZ(regrec.RegTypeID, PokPack.Rec.RegTypeID);
 	SETIFZ(regrec.Dt, getCtrlDate(CTL_PSNEVNT_DATE));
-	if(P_PeObj->RegObj.EditDialog(&regrec, 0, (const PPPersonPacket *)0) > 0)
+	if(P_PeObj->RegObj.EditDialog(&regrec, 0, static_cast<const PPPersonPacket *>(0)) > 0)
 		Pack.Reg = regrec;
 }
 
 void PsnEventDialog::postVK()
 {
 	class PostWallVkDlg: public TDialog {
-		DECL_DIALOG_DATA(VkStruct);
+		//DECL_DIALOG_DATA(VkStruct);
 		enum {
 			ctlgroupVKImg = 1,
 		};
 	public:
-		PostWallVkDlg(): TDialog(DLG_VK_POST)
+		PostWallVkDlg(VkInterface & rIfc, SString & rMsg, SString & rLinkFilePath) : TDialog(DLG_VK_POST), R_Ifc(rIfc),
+			Message(rMsg), LinkFilePath(rLinkFilePath)
 		{
 			addGroup(ctlgroupVKImg, new ImageBrowseCtrlGroup(CTL_VKPOST_IMAGE, cmAddImage, cmDelImage));
-		}
-		DECL_DIALOG_SETDTS()
-		{
-			int ok = 1;
-			RVALUEPTR(Data, pData);
-			setCtrlString(CTL_VK_POST_TEXT, Data.TxtMsg);
+			setCtrlString(CTL_VK_POST_TEXT, Message);
 			{
 				ImageBrowseCtrlGroup::Rec rec;
-				rec.Path = Data.LinkFilePath;
+				rec.Path = LinkFilePath;
 				setGroupData(ctlgroupVKImg, &rec);
 			}
-			return ok;
-		}
-		DECL_DIALOG_GETDTS()
-		{
-			int ok = 1;
-			return ok;
 		}
 	private:
 		DECL_HANDLE_EVENT
 		{
 			if(TVCOMMAND) {
-				if(TVCMD==cmOK) {
+				if(TVCMD == cmOK) {
 					SString temp_buf;
-					PPVkClient vk_client;
+					//VkInterface vk_client;
 					ImageBrowseCtrlGroup::Rec rec;
 					if(getGroupData(ctlgroupVKImg, &rec)) {
-						Data.LinkFilePath = rec.Path;
-						Data.LinkFileType = 1;
+						LinkFilePath = rec.Path;
+						//LinkFileType = 1;
 					}
-					vk_client.WallPost(Data, temp_buf);
+					//vk_client.WallPost(Data, temp_buf);
+					R_Ifc.WallPost(Message, LinkFilePath, temp_buf);
 				}
 			}
 			TDialog::handleEvent(event);
 			clearEvent(event);
 		}
+		VkInterface & R_Ifc;
+		SString Message;
+		SString LinkFilePath;
 	};
+	// @v10.9.4 {
+	VkInterface ifc;
+	if(ifc.Setup(0, 0)) {
+		SString message_buf;
+		SString img_link_buf;
+		getCtrlString(CTL_PSNEVNT_MEMO, message_buf);
+		ImageBrowseCtrlGroup::Rec rec;
+		if(getGroupData(ctlgroupIBG, &rec)) {
+			img_link_buf = rec.Path;
+			//data.LinkFileType = 1;
+		}
+		PostWallVkDlg * dlg = new PostWallVkDlg(ifc, message_buf, img_link_buf);
+		//dlg->setDTS(&data);
+		if(CheckDialogPtrErr(&dlg)) {
+			ExecViewAndDestroy(dlg);
+		}		
+	}
+	// } @v10.9.4 
+	/* @v10.9.4
+	{
+		SString temp_buf;
+		PPObjGlobalUserAcc gua_obj;
+		PPGlobalUserAcc gua_rec;
+		PPGlobalUserAccPacket gua_pack;
+		PPObjTag tag;
+		PPID vk_grp_tag_id, vk_page_tag_id;
 
-	SString temp_buf;
-	PPObjGlobalUserAcc gua_obj;
-	PPGlobalUserAcc gua_rec;
-	PPGlobalUserAccPacket gua_pack;
-	PPObjTag tag;
-	PPID vk_grp_tag_id, vk_page_tag_id;
-	VkStruct data;
-	tag.FetchBySymb("SMGRPID", &vk_grp_tag_id);
-	tag.FetchBySymb("SMPAGEID", &vk_page_tag_id);
-	gua_obj.SearchBySymb("vk_acc", 0, &gua_rec);
-	if(gua_obj.GetPacket(gua_rec.ID, &gua_pack)>0) {
-		if(gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, data.Token.Z())>0) {
-			if(gua_pack.TagL.GetItemStr(vk_page_tag_id, data.PageId.Z())>0) {
-				if(gua_pack.TagL.GetItemStr(vk_grp_tag_id, data.GroupId.Z())>0) {
-					getCtrlString(CTL_PSNEVNT_MEMO, data.TxtMsg);
-					ImageBrowseCtrlGroup::Rec rec;
-					if(getGroupData(ctlgroupIBG, &rec)) {
-						data.LinkFilePath = rec.Path;
-						data.LinkFileType = 1;
-					}
-					PostWallVkDlg * dlg = new PostWallVkDlg();
-					dlg->setDTS(&data);
-					if(CheckDialogPtrErr(&dlg)) {
-						ExecViewAndDestroy(dlg);
+		VkStruct data;
+		tag.FetchBySymb("SMGRPID", &vk_grp_tag_id);
+		tag.FetchBySymb("SMPAGEID", &vk_page_tag_id);
+		gua_obj.SearchBySymb("vk_acc", 0, &gua_rec);
+		if(gua_obj.GetPacket(gua_rec.ID, &gua_pack)>0) {
+			if(gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, data.Token.Z())>0) {
+				if(gua_pack.TagL.GetItemStr(vk_page_tag_id, data.PageId.Z())>0) {
+					if(gua_pack.TagL.GetItemStr(vk_grp_tag_id, data.GroupId.Z())>0) {
+						getCtrlString(CTL_PSNEVNT_MEMO, data.TxtMsg);
+						ImageBrowseCtrlGroup::Rec rec;
+						if(getGroupData(ctlgroupIBG, &rec)) {
+							data.LinkFilePath = rec.Path;
+							data.LinkFileType = 1;
+						}
+						PostWallVkDlg * dlg = new PostWallVkDlg();
+						dlg->setDTS(&data);
+						if(CheckDialogPtrErr(&dlg)) {
+							ExecViewAndDestroy(dlg);
+						}
 					}
 				}
 			}
 		}
 	}
+	*/
 }
 
 IMPL_HANDLE_EVENT(PsnEventDialog)

@@ -560,7 +560,7 @@ static void BobJencHash_Word2(const uint32 * k, size_t length, uint32 * pc, uint
 // In which case, the hash table should have hashsize(10) elements.
 //
 // If you are hashing n strings (uint8 **)k, do it like this:
-// for(i=0, h=0; i<n; ++i) h = BobJencHash_Little( k[i], len[i], h);
+// for(i=0, h=0; i < n; ++i) h = BobJencHash_Little( k[i], len[i], h);
 //
 // By Bob Jenkins, 2006.  bob_jenkins@burtleburtle.net.  You may use this
 // code any way you wish, private, educational, or commercial.  It's free.

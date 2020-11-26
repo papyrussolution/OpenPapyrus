@@ -1,5 +1,5 @@
 // DBTABLEC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Классы и функции DBTable, не зависящие от провайдера DBMS
 //
@@ -80,7 +80,7 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 				//
 				// В строке есть не цифровой символ: трактуем ИД просто как текстовый идентификатор
 				//
-				strnzcpy((char *)S, pStr, sizeof(S));
+				strnzcpy(reinterpret_cast<char *>(S), pStr, sizeof(S));
 				ok = 2;
 				break;
 			}
@@ -1033,12 +1033,10 @@ int DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffe
 	int    ok = 1;
 	int32  c = SVectorBase::GetCount(pList); // @persistent
 	STempBuffer temp_buf(0);
-	// @v9.8.11 {
 	if(dir > 0 && c > 0) { // @v9.9.12 (c > 0)
 		uint32 dbt_id = 0;
 		THROW(pCtx->AddDbtDescr(tableName, &fields, &dbt_id));
 	}
-	// } @v9.8.11 
 	THROW(pCtx->Serialize(dir, c, rBuf));
 	for(int32 i = 0; i < c; i++) {
 		if(pList) {
@@ -1063,13 +1061,13 @@ int DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffe
 int DBTable::SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	if(dir < 0 && pList)
-		pList->clear(); // @v9.8.11 freeAll()-->clear()
+		pList->clear();
 	return Helper_SerializeArrayOfRecords(dir, pList, rBuf, pCtx);
 }
 
 int DBTable::SerializeArrayOfRecords(int dir, SVector * pList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	if(dir < 0 && pList)
-		pList->clear(); // @v9.8.11 freeAll()-->clear()
+		pList->clear();
 	return Helper_SerializeArrayOfRecords(dir, pList, rBuf, pCtx);
 }

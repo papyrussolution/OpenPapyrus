@@ -952,8 +952,7 @@ static int final_server_name(SSL * s, uint context, int sent)
 			OPENSSL_free(s->session->ext.hostname);
 			s->session->ext.hostname = OPENSSL_strdup(s->ext.hostname);
 			if(s->session->ext.hostname == NULL && s->ext.hostname != NULL) {
-				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_FINAL_SERVER_NAME,
-				    ERR_R_INTERNAL_ERROR);
+				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_FINAL_SERVER_NAME, ERR_R_INTERNAL_ERROR);
 			}
 		}
 	}

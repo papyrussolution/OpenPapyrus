@@ -117,7 +117,7 @@ int AccSheetDialog::setupAssoc()
 	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  1, PPOBJ_PERSON);
 	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  2, PPOBJ_LOCATION);
 	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  3, PPOBJ_ACCOUNT2);
-	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  4, PPOBJ_GLOBALUSERACC); // @v9.1.3
+	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  4, PPOBJ_GLOBALUSERACC);
 	SetClusterData(CTL_ACCSHEET_ASSOC, Data.Assoc);
 	disableCtrl(CTLSEL_ACCSHEET_GROUP, !(Data.Assoc == PPOBJ_PERSON));
 	if(Data.Assoc == PPOBJ_PERSON)

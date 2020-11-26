@@ -66,7 +66,7 @@
 #define CAIRO_MUTEX_IMPL_INITIALIZE() CAIRO_MUTEX_IMPL_NOOP
 #endif /* CAIRO_MUTEX_IMPL_INITIALIZE */
 /* and dynamic ones can be initialized using the static initializer. */
-# define CAIRO_MUTEX_IMPL_INIT(mutex) do { cairo_mutex_t _tmp_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER; memcpy(&(mutex), &_tmp_mutex, sizeof(_tmp_mutex)); } while(0)
+#define CAIRO_MUTEX_IMPL_INIT(mutex) do { cairo_mutex_t _tmp_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER; memcpy(&(mutex), &_tmp_mutex, sizeof(_tmp_mutex)); } while(0)
 
 #endif /* CAIRO_MUTEX_IMPL_INIT */
 
@@ -82,7 +82,7 @@
 # ifndef CAIRO_MUTEX_IMPL_FINALIZE
 #define CAIRO_MUTEX_IMPL_FINALIZE() CAIRO_MUTEX_IMPL_NOOP
 #endif /* CAIRO_MUTEX_IMPL_FINALIZE */
-# define CAIRO_MUTEX_IMPL_FINI(mutex)   CAIRO_MUTEX_IMPL_NOOP1(mutex) /* neither do the dynamic ones. */
+#define CAIRO_MUTEX_IMPL_FINI(mutex)   CAIRO_MUTEX_IMPL_NOOP1(mutex) /* neither do the dynamic ones. */
 #endif /* CAIRO_MUTEX_IMPL_FINI */
 
 #ifndef _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER

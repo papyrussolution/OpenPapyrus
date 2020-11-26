@@ -240,7 +240,9 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	BitArray used_retail_quot;
 	PPIniFile ini_file;
 	FILE * p_file = 0;
+	PPObjCashNode cnobj;
 	const  int check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
+	const  int is_vatfree = (cnobj.IsVatFree(NodeID) > 0);
 	THROW(GetNodeData(&cn_data) > 0);
 	const int is_xpos = IsXPos(cn_data);
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
@@ -554,11 +556,10 @@ int ACS_FRONTOL::ExportData(int updOnly)
 							// Номер поля - 13; Обязательное - нет; Тип поля - целое;
 							// Признак предмета расчёта: 0 – товар, кроме подакцизного; 1 – подакцизный товар; 2 – работа;
 							// 3 – услуга; 4 – товар, состоящий из нескольких признаков; 5 – иной товар.
-							// @v9.9.12 {
 							if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 20)) {
 								tail.CatChar('1');                              // #13 - Признак предмета расчёта
 							}
-							else // } @v9.9.12
+							else
 								tail.CatChar('0');                              // #13 - Признак предмета расчёта
 						}
 						else {
@@ -576,7 +577,29 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						tail.Cat(level + 1).Semicol();                  // #18 - Номер уровня иерархического списка
 						tail.CatCharN(';', 3);                          // #19-#21 - Не используем
 						tail.Cat(gds_info.AsscPosNodeSymb).Semicol();   // #22 - Символ кассового аппарата, ассоциированного с товаром
-						tail.Semicol();                                 // #23 Налоговую группу не грузим
+						// @v10.9.4 tail.Semicol();                     // #23 Налоговую группу не грузим
+						// @v10.9.4 {
+						{
+							/*
+								1 - НДС 0%
+								2 - НДС 10%
+								3 - НДС 20%
+								4 - Без НДС
+							*/
+							long   vat_code = 0;
+							if(is_vatfree)
+								vat_code = 4;
+							else if(feqeps(gds_info.VatRate, 0.0, 1E-6))
+								vat_code = 1;
+							else if(feqeps(gds_info.VatRate, 10.0, 1E-6))
+								vat_code = 2;
+							else if(feqeps(gds_info.VatRate, 20.0, 1E-6))
+								vat_code = 3;
+							if(vat_code)
+								tail.Cat(vat_code);                     // #23 Налоговая группа
+							tail.Semicol();
+						}
+						// } @v10.9.4 
 						tail.CatCharN(';', 6);                          // #24-#29 - Не используем
 						tail.Cat(strip(gds_info.LocPrnSymb)).Semicol(); // #30 - Символ локального принтера, ассоциированного с товаром
 						tail.CatCharN(';', 22);                         // #31-#52 - Не используем

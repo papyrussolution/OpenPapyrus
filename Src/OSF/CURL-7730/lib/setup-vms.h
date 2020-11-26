@@ -37,8 +37,8 @@
 #define getenv decc_getenv
 #ifdef __DECC
 #   if __INITIAL_POINTER_SIZE != 64
-#       define getpwuid decc_getpwuid
-#   endif
+#define getpwuid decc_getpwuid
+#endif
 #endif
 #include <stdlib.h>
 char *decc$getenv(const char *__name);
@@ -59,18 +59,18 @@ char *decc$getenv(const char *__name);
 
 #ifdef __DECC
 #   if __INITIAL_POINTER_SIZE
-#       pragma __pointer_size __save
-#   endif
+#pragma __pointer_size __save
+#endif
 #endif
 
 #if __USE_LONG_GID_T
-#   define decc_getpwuid DECC$__LONG_GID_GETPWUID
+#define decc_getpwuid DECC$__LONG_GID_GETPWUID
 #else
 #   if __INITIAL_POINTER_SIZE
-#       define decc_getpwuid decc$__32_getpwuid
-#   else
-#       define decc_getpwuid decc$getpwuid
-#   endif
+#define decc_getpwuid decc$__32_getpwuid
+#else
+#define decc_getpwuid decc$getpwuid
+#endif
 #endif
 
     struct passwd *decc_getpwuid(uid_t uid);
@@ -98,18 +98,18 @@ static char *vms_translate_path(const char *path)
     return (char *)path;
   }
 }
-#   else
+#else
     /* VMS translate path is actually not needed on the current 64 bit */
     /* VMS platforms, so instead of figuring out the pointer settings */
     /* Change it to a noop */
-#   define vms_translate_path(__path) __path
-#   endif
+#define vms_translate_path(__path) __path
+#endif
 #endif
 
 #ifdef __DECC
 #   if __INITIAL_POINTER_SIZE
-#       pragma __pointer_size __restore
-#   endif
+#pragma __pointer_size __restore
+#endif
 #endif
 
 static char *vms_getenv(const char *envvar)
@@ -146,9 +146,9 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #ifdef __DECC
 #   if __INITIAL_POINTER_SIZE
   __char_ptr32 unix_path;
-#   else
+#else
   char *unix_path;
-#   endif
+#endif
 #else
   char *unix_path;
 #endif
@@ -394,16 +394,16 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #ifdef __VAX
 
 #   if (OPENSSL_VERSION_NUMBER < 0x00907001L)
-#       define des_set_odd_parity DES_SET_ODD_PARITY
-#       define des_set_key DES_SET_KEY
-#       define des_ecb_encrypt DES_ECB_ENCRYPT
+#define des_set_odd_parity DES_SET_ODD_PARITY
+#define des_set_key DES_SET_KEY
+#define des_ecb_encrypt DES_ECB_ENCRYPT
 
-#   endif
+#endif
 #   include <openssl/evp.h>
-#   ifndef OpenSSL_add_all_algorithms
-#       define OpenSSL_add_all_algorithms OPENSSL_ADD_ALL_ALGORITHMS
+#ifndef OpenSSL_add_all_algorithms
+#define OpenSSL_add_all_algorithms OPENSSL_ADD_ALL_ALGORITHMS
         void OPENSSL_ADD_ALL_ALGORITHMS(void);
-#   endif
+#endif
 
     /* Curl defines these to lower case and VAX needs them in upper case */
     /* So we need static routines */
@@ -433,10 +433,10 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #endif
 /* Need this to stop a macro redefinition error */
 #if OPENSSL_VERSION_NUMBER < 0x00907000L
-#   ifdef X509_STORE_set_flags
+#ifdef X509_STORE_set_flags
 #       undef X509_STORE_set_flags
-#       define X509_STORE_set_flags(x,y) Curl_nop_stmt
-#   endif
+#define X509_STORE_set_flags(x,y) Curl_nop_stmt
+#endif
 #endif
 #endif
 

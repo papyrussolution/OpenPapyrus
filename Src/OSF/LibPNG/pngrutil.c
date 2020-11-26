@@ -341,7 +341,7 @@ static int png_inflate_claim(png_structrp png_ptr, uint32 owner)
 			png_ptr->zstream_start = 1;
 		}
 # else
-#   define window_bits 0
+#define window_bits 0
 #endif
 #endif
 

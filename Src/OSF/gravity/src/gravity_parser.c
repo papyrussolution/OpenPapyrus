@@ -165,8 +165,8 @@ static void patch_token_node(gnode_t * node, gtoken_s token)
 		gnode_postfix_expr_t * expr = reinterpret_cast<gnode_postfix_expr_t *>(node);
 		if(expr->id) 
 			expr->id->Token = token;
-		const size_t count = gnode_array_size(expr->list);
-		for(size_t i = 0; i < count; ++i) {
+		const uint count = gnode_array_size(expr->list);
+		for(uint i = 0; i < count; ++i) {
 			gnode_t * subnode = gnode_array_get(expr->list, i);
 			if(subnode) 
 				subnode->Token = token;
@@ -2533,8 +2533,8 @@ void gravity_parser_free(gravity_parser_t * parser)
 	if(parser) {
 		// free memory for stack of lexers
 		if(parser->lexer) {
-			size_t _len = parser->lexer->getCount();
-			for(size_t i = 0; i<_len; ++i) {
+			const uint _len = parser->lexer->getCount();
+			for(uint i = 0; i<_len; ++i) {
 				gravity_lexer_t * lexer = (gravity_lexer_t *)parser->lexer->at(i);
 				gravity_lexer_free(lexer);
 			}

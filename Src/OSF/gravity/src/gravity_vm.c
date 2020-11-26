@@ -1689,8 +1689,8 @@ static bool real_set_superclass(gravity_vm * vm, gravity_class_t * c, GravityVal
 	// 1. LOOKUP in current stack hierarchy
 	STATICVALUE_FROM_STRING(superkey, supername, strlen(supername));
 	GravityArray <void *> * stack = static_cast<GravityArray <void *> *>(vm->data);
-	size_t n = stack->getCount();
-	for(size_t i = 0; i<n; i++) {
+	const uint n = stack->getCount();
+	for(uint i = 0; i < n; i++) {
 		gravity_class_t * obj = static_cast<gravity_class_t *>(stack->at(i));
 		// if object is a CLASS then lookup hash table
 		if(obj->IsClass()) {
@@ -1706,8 +1706,8 @@ static bool real_set_superclass(gravity_vm * vm, gravity_class_t * c, GravityVal
 		else if(obj->IsFunction()) {
 			gravity_function_t * f = (gravity_function_t *)obj;
 			if(f->tag == EXEC_TYPE_NATIVE) {
-				size_t count = f->U.Nf.cpool.getCount();
-				for(size_t j = 0; j < count; j++) {
+				const uint count = f->U.Nf.cpool.getCount();
+				for(uint j = 0; j < count; j++) {
 					GravityValue v = f->U.Nf.cpool.at(j);
 					if(v.IsClass()) {
 						gravity_class_t * c2 = static_cast<gravity_class_t *>(v);
@@ -1777,8 +1777,8 @@ static bool vm_set_superclass(gravity_vm * vm, gravity_class_t * obj)
 		// FUNCTION case: scan constant pool and recursively call fixsuper
 		gravity_function_t * f = (gravity_function_t *)obj;
 		if(f->tag == EXEC_TYPE_NATIVE) {
-			size_t n = f->U.Nf.cpool.getCount();
-			for(size_t i = 0; i < n; i++) {
+			const uint n = f->U.Nf.cpool.getCount();
+			for(uint i = 0; i < n; i++) {
 				GravityValue v = f->U.Nf.cpool.at(i);
 				if(v.IsFunction()) 
 					vm_set_superclass(vm, (gravity_class_t *)VALUE_AS_FUNCTION(v));
@@ -1823,7 +1823,7 @@ gravity_closure_t * gravity_vm_loadbuffer(gravity_vm * vm, const char * buffer, 
 	// scan loop
 	gravity_closure_t * closure = NULL;
 	uint32 n = json->u.object.length;
-	for(uint32 i = 0; i<n; ++i) {
+	for(uint32 i = 0; i < n; ++i) {
 		json_value * entry = json->u.object.values[i].value;
 		if(entry->u.object.length == 0) continue;
 		// each entry must be an object
@@ -1852,7 +1852,7 @@ gravity_closure_t * gravity_vm_loadbuffer(gravity_vm * vm, const char * buffer, 
 	json = NULL;
 
 	// fix superclass(es)
-	size_t count = objects.getCount();
+	const uint count = objects.getCount();
 	if(count) {
 		void * saved = vm->data;
 		// prepare stack to help resolve nested super classes
@@ -1860,7 +1860,7 @@ gravity_closure_t * gravity_vm_loadbuffer(gravity_vm * vm, const char * buffer, 
 		// @ctr marray_init(stack);
 		vm->data = &stack;
 		// loop of each processed object
-		for(size_t i = 0; i<count; ++i) {
+		for(uint i = 0; i < count; ++i) {
 			gravity_class_t * obj = static_cast<gravity_class_t *>(objects.at(i));
 			if(!vm_set_superclass(vm, obj)) 
 				goto abort_super;
@@ -1960,8 +1960,8 @@ static void gravity_gc_transform(gravity_hash_t * hashtable, GravityValue key, G
 
 void gravity_vm_initmodule(gravity_vm * vm, gravity_function_t * f) 
 {
-	size_t n = f->U.Nf.cpool.getCount();
-	for(size_t i = 0; i < n; i++) {
+	const uint n = f->U.Nf.cpool.getCount();
+	for(uint i = 0; i < n; i++) {
 		GravityValue v = f->U.Nf.cpool.at(i);
 		if(v.IsClass()) {
 			gravity_class_t * c =  static_cast<gravity_class_t *>(v);

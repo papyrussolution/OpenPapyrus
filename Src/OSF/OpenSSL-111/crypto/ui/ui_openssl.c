@@ -26,16 +26,16 @@
 
 #if !defined(_POSIX_C_SOURCE) && defined(OPENSSL_SYS_VMS)
 #ifndef _POSIX_C_SOURCE
-#   define _POSIX_C_SOURCE 2
+#define _POSIX_C_SOURCE 2
 #endif
 #endif
 #include <signal.h>
 
 #if !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
 #ifdef OPENSSL_UNISTD
-#   include OPENSSL_UNISTD
+#include OPENSSL_UNISTD
 #else
-#   include <unistd.h>
+#include <unistd.h>
 #endif
 /*
  * If unistd.h defines _POSIX_VERSION, we conclude that we are on a POSIX
@@ -43,10 +43,10 @@
  */
 #if defined(_POSIX_VERSION) && _POSIX_VERSION>=199309L
 
-#   define SIGACTION
+#define SIGACTION
 #   if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
 #define TERMIOS
-#   endif
+#endif
 
 #endif
 #endif
@@ -57,7 +57,7 @@
 #ifdef OPENSSL_SYS_VMS          /* prototypes for sys$whatever */
 #include <starlet.h>
 #ifdef __DECC
-#   pragma message disable DOLLARID
+#pragma message disable DOLLARID
 #endif
 #endif
 #ifdef WIN_CONSOLE_BUG
@@ -82,13 +82,13 @@
 
 #if defined(_LIBC)
 #   undef  TERMIOS
-#   define TERMIO
+#define TERMIO
 #   undef  SGTTY
 /*
  * We know that VMS, MSDOS, VXWORKS, use entirely other mechanisms.
  */
 #elif !defined(OPENSSL_SYS_VMS) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VXWORKS)
-#   define TERMIOS
+#define TERMIOS
 #   undef  TERMIO
 #   undef  SGTTY
 #endif
@@ -315,7 +315,7 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 			}
 		}
 		else
-#   endif
+#endif
 		if(ReadConsoleA(GetStdHandle(STD_INPUT_HANDLE),
 		    result, maxsize, &numread, NULL)) {
 			if(numread >= 2 &&
@@ -589,23 +589,23 @@ static void pushsig(void)
 	savsig[SIGTERM] = signal(SIGTERM, recsig);
 #else
 	for(i = 1; i < NX509_SIG; i++) {
-#   ifdef SIGUSR1
+#ifdef SIGUSR1
 		if(i == SIGUSR1)
 			continue;
-#   endif
-#   ifdef SIGUSR2
+#endif
+#ifdef SIGUSR2
 		if(i == SIGUSR2)
 			continue;
-#   endif
-#   ifdef SIGKILL
+#endif
+#ifdef SIGKILL
 		if(i == SIGKILL) /* We can't make any action on that. */
 			continue;
-#   endif
-#   ifdef SIGACTION
+#endif
+#ifdef SIGACTION
 		sigaction(i, &sa, &savsig[i]);
-#   else
+#else
 		savsig[i] = signal(i, recsig);
-#   endif
+#endif
 	}
 #endif
 
@@ -626,19 +626,19 @@ static void popsig(void)
 #else
 	int i;
 	for(i = 1; i < NX509_SIG; i++) {
-#   ifdef SIGUSR1
+#ifdef SIGUSR1
 		if(i == SIGUSR1)
 			continue;
-#   endif
-#   ifdef SIGUSR2
+#endif
+#ifdef SIGUSR2
 		if(i == SIGUSR2)
 			continue;
-#   endif
-#   ifdef SIGACTION
+#endif
+#ifdef SIGACTION
 		sigaction(i, &savsig[i], NULL);
-#   else
+#else
 		signal(i, savsig[i]);
-#   endif
+#endif
 	}
 #endif
 }

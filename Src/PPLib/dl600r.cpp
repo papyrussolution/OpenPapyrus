@@ -751,7 +751,7 @@ private:
 	DLSYMBID   ParentID;
 };
 
-int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
+int DlRtm::SetByJSON_Helper(SJson * pNode, SetScopeBlk & rBlk)
 {
 	int    ok = 1;
 	void * p_buf = NULL;
@@ -759,21 +759,21 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 	SdbField fld;
 	SFormatParam fp;
 	SString temp_buf;
-	for(json_t * p_cur = pNode; p_cur != NULL; p_cur = p_cur->P_Next) {
+	for(SJson * p_cur = pNode; p_cur != NULL; p_cur = p_cur->P_Next) {
 		switch(p_cur->Type) {
-			case json_t::tARRAY:
+			case SJson::tARRAY:
 				THROW(SetByJSON_Helper(p_cur->P_Child, rBlk));   // @recursion
 				break;
-			case json_t::tOBJECT:
+			case SJson::tOBJECT:
                 THROW(SetByJSON_Helper(p_cur->P_Child, rBlk));   // @recursion
 				THROW(Set(rBlk.GetScopeID(), 0));
 				break;
-			case json_t::tSTRING:
+			case SJson::tSTRING:
 				if(p_cur->P_Child) {
 					fld_name = p_cur->Text;
 					switch(p_cur->P_Child->Type) {
-						case json_t::tNUMBER:
-						case json_t::tSTRING:
+						case SJson::tNUMBER:
+						case SJson::tSTRING:
 							THROW(rBlk.GetFieldByName(fld_name, &fld));
 							if(!(fld.T.Flags & STypEx::fFormula)) {
 								//p_value = json_unescape(p_cur->P_Child->P_Text);
@@ -801,7 +801,7 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 	return ok;
 }
 
-int DlRtm::SetByJSON(json_t * pJSONDoc, PPID & ObjId)
+int DlRtm::SetByJSON(SJson * pJSONDoc, PPID & ObjId)
 {
 	int    ok = 1;
 	SetScopeBlk s_blk(this);
@@ -1373,7 +1373,7 @@ int DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 	return ok;
 }
 
-int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj) const
+int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj) const
 {
 	int    ok = 1;
 	const  DlScope * p_scope = 0;
@@ -1397,13 +1397,13 @@ int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj) cons
 	return ok;
 }
 
-int DlRtm::Helper_PutItemToJson(ExportParam & rParam, json_t * pRoot)
+int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 {
 	int     ok = 1;
 	SString left, suffix;
 	const   DlScope * p_data = GetData();
 	DlScope * p_child = 0;
-	json_t  * p_hdr_obj = new json_t(json_t::tOBJECT);
+	SJson  * p_hdr_obj = new SJson(SJson::tOBJECT);
 	for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
 		if(p_child->Name.IsEqiAscii("hdr")) {
 			//THROW(InitData(*pFilt, 0));
@@ -1421,9 +1421,9 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, json_t * pRoot)
 				suffix = p_child->Name;
 			}
 			THROW(InitIteration(iter_id, 0));
-			json_t * p_iter_ary = new json_t(json_t::tARRAY);
+			SJson * p_iter_ary = new SJson(SJson::tARRAY);
 			while(NextIteration(iter_id) > 0) {
-				json_t * p_iter_obj = new json_t(json_t::tOBJECT);
+				SJson * p_iter_obj = new SJson(SJson::tOBJECT);
 				Helper_PutScopeToJson(p_child, p_iter_obj);
 				THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
 			}
@@ -1440,7 +1440,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, json_t * pRoot)
 int DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	json_t * p_root_ary = new json_t(json_t::tARRAY);
+	SJson * p_root_ary = new SJson(SJson::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(pAry);
 	for(uint i = 0, n = pAry->getCount(); i < n; i++) {
@@ -1460,7 +1460,7 @@ int DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags)
 int DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	json_t * p_root_ary = new json_t(json_t::tARRAY);
+	SJson * p_root_ary = new SJson(SJson::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(ptr);
 	{
@@ -1478,7 +1478,7 @@ int DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 int DlRtm::PutToJsonBuffer(PPView * pV, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	json_t * p_root_ary = new json_t(json_t::tARRAY);
+	SJson * p_root_ary = new SJson(SJson::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(pV);
 	{

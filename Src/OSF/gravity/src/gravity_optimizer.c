@@ -47,7 +47,7 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 	gravity_hash_t * labels = gravity_hash_create(0, hash_compute, hash_isequal, NULL, NULL);
 	// determine how big bytecode buffer must be
 	// and collect all LABEL instructions
-	for(uint32 i = 0; i<count; ++i) {
+	for(uint32 i = 0; i < count; ++i) {
 		inst_t * inst = ircode_get(code, i);
 		if(IS_SKIP(inst)) 
 			continue;
@@ -473,7 +473,7 @@ gravity_function_t * gravity_optimizer(gravity_function_t * f, bool add_debug)
 	bool optimizer = true;
 	f->ntemps = static_cast<uint16>(ircode_ntemps(code));
 loop_neg:
-	for(uint32 i = 0; i<count; ++i) {
+	for(uint32 i = 0; i < count; ++i) {
 		inst_t * inst = current_instruction(code, i);
 		if(IS_NEG(inst)) {
 			bool b = optimize_neg_instruction(code, inst, i);
@@ -481,7 +481,7 @@ loop_neg:
 		}
 	}
 loop_math:
-	for(uint32 i = 0; i<count; ++i) {
+	for(uint32 i = 0; i < count; ++i) {
 		inst_t * inst = current_instruction(code, i);
 		if(IS_MATH(inst)) {
 			bool b = optimize_math_instruction(code, inst, i);
@@ -490,7 +490,7 @@ loop_math:
 	}
 loop_move:
 	optimizer = true;
-	for(uint32 i = 0; i<count; ++i) {
+	for(uint32 i = 0; i < count; ++i) {
 		inst_t * inst = current_instruction(code, i);
 		if(IS_PRAGMA_MOVE_OPT(inst)) 
 			optimizer = LOGIC(inst->p1);
@@ -501,7 +501,7 @@ loop_move:
 		}
 	}
 loop_ret:
-	for(uint32 i = 0; i<count; ++i) {
+	for(uint32 i = 0; i < count; ++i) {
 		inst_t * inst = current_instruction(code, i);
 		if(IS_RET(inst)) {
 			bool b = optimize_return_instruction(code, inst, i);
@@ -509,7 +509,7 @@ loop_ret:
 				goto loop_ret;
 		}
 	}
-	for(uint32 i = 0; i<count; ++i) {
+	for(uint32 i = 0; i < count; ++i) {
 		inst_t * inst = current_instruction(code, i);
 		if(IS_NUM(inst)) optimize_num_instruction(inst, f);
 	}

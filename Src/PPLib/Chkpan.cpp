@@ -5075,7 +5075,7 @@ int SelCheckListDialog::SplitCheck()
 					MEMSZERO(item);
 					item.LineNo   = pos;
 					item.GoodsID  = chk_item.GoodsID;
-					item.DivID    = (long)chk_item.DivID;
+					item.DivID    = static_cast<long>(chk_item.DivID);
 					item.Discount = chk_item.Dscnt;
 					item.Price    = intmnytodbl(chk_item.Price);
 					item.Quantity = chk_item.Quantity;

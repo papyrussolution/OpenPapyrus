@@ -41,9 +41,7 @@ int SupplExpFilt::Write(SBuffer & rBuf, long) const
 	{
 		PPIDArray loc_list;
 		LocList.CopyTo(&loc_list);
-		for(uint32 i = 0; i < loc_list.getCount(); i++) {
-			THROW_SL(rBuf.Write(loc_list.at(i)));
-		}
+		SForEachVectorItem(loc_list, i) { THROW_SL(rBuf.Write(loc_list.at(i))); }
 	}
 	THROW_SL(rBuf.Write(RcptOp));
 	THROW_SL(rBuf.Write(SupplRetOp));
@@ -4464,6 +4462,12 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 									Helper_MakeBillEntry(upd_bill_id, &pack, -outerDocType, pRegisteredAgentList, rList);
 									force_bill_list.add(upd_bill_id);
 								}
+								// @v10.9.4 {
+								else if(pack.Rec.Flags2 & BILLF2_DECLINED) {
+									Helper_MakeBillEntry(upd_bill_id, &pack, -outerDocType, pRegisteredAgentList, rList);
+									force_bill_list.add(upd_bill_id);
+								}
+								// } @v10.9.4 
 								else {
 									int    is_my_goods = 0;
 									long   tiiterpos = 0;

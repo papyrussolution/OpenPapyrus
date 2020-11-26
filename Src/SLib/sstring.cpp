@@ -2895,30 +2895,32 @@ int FASTCALL satoi(const char * pT)
 int64 FASTCALL satoi64(const char * pT)
 {
 	int64  result = 0;
-	const char * _p = pT;
-	size_t src_pos = 0;
-	while(oneof2(_p[src_pos], ' ', '\t'))
-		src_pos++;
-	int    is_neg = 0;
-	int    is_hex = 0;
-	if(_p[src_pos] == '-') {
-		src_pos++;
-		is_neg = 1;
+	if(!isempty(pT)) {
+		const char * _p = pT;
+		size_t src_pos = 0;
+		while(oneof2(_p[src_pos], ' ', '\t'))
+			src_pos++;
+		int    is_neg = 0;
+		int    is_hex = 0;
+		if(_p[src_pos] == '-') {
+			src_pos++;
+			is_neg = 1;
+		}
+		else if(_p[src_pos] == '+')
+			src_pos++;
+		if(_p[src_pos] == '0' && oneof2(_p[src_pos+1], 'x', 'X')) {
+			src_pos += 2;
+			is_hex = 1;
+		}
+		if(is_hex) {
+			if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+		}
+		else {
+			if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
+		}
+		if(is_neg && result)
+			result = -result;
 	}
-	else if(_p[src_pos] == '+')
-		src_pos++;
-	if(_p[src_pos] == '0' && oneof2(_p[src_pos+1], 'x', 'X')) {
-		src_pos += 2;
-		is_hex = 1;
-	}
-	if(is_hex) {
-		if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
-	}
-	else {
-		if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
-	}
-	if(is_neg && result)
-		result = -result;
 	return result;
 }
 

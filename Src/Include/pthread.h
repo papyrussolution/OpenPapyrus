@@ -350,7 +350,7 @@ enum { /* Boolean values to make us independent of system includes. */
 #define SEM_VALUE_MAX                           INT_MAX
 
 #if defined(_UWIN) && __PTW32_LEVEL >= __PTW32_LEVEL_MAX
-#   include     <sys/types.h>
+#include     <sys/types.h>
 #else
 /* Generic handle type - intended to provide the lifetime-uniqueness that
  * a simple pointer can't. It should scale for either

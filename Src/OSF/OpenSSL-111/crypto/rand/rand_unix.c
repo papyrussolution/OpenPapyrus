@@ -72,9 +72,9 @@ static uint64_t get_timer_bits(void);
 #if __GLIBC_PREREQ(2, 17)
 #     define OSSL_POSIX_TIMER_OKAY
 #endif
-#   endif
+#endif
 #else
-#   define OSSL_POSIX_TIMER_OKAY
+#define OSSL_POSIX_TIMER_OKAY
 #endif
 #endif
 #endif /* defined(OPENSSL_SYS_UNIX) || defined(__DJGPP__) */
@@ -209,9 +209,9 @@ void rand_pool_keep_random_devices_open(int keep)
 #if defined(OPENSSL_RAND_SEED_OS)
 #   if !defined(DEVRANDOM)
 #error "OS seeding requires DEVRANDOM to be configured"
-#   endif
-#   define OPENSSL_RAND_SEED_GETRANDOM
-#   define OPENSSL_RAND_SEED_DEVRANDOM
+#endif
+#define OPENSSL_RAND_SEED_GETRANDOM
+#define OPENSSL_RAND_SEED_DEVRANDOM
 #endif
 
 #if defined(OPENSSL_RAND_SEED_LIBRANDOM)
@@ -284,7 +284,7 @@ static ssize_t sysctl_random(char * buf, size_t buflen)
 #    elif defined(__x86_64__) && !defined(__ILP32__)
 #     define __NR_getrandom    318
 #endif
-#   endif
+#endif
 
 /*
  * syscall_random(): Try to get random data using a system call
@@ -439,13 +439,13 @@ static int wait_random_seeded(void)
 	return seeded;
 }
 
-#   else /* defined __linux */
+#else /* defined __linux */
 static int wait_random_seeded(void)
 {
 	return 1;
 }
 
-#   endif
+#endif
 
 /*
  * Verify that the file descriptor associated with the random source is
@@ -601,13 +601,13 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 	entropy_available = rand_pool_entropy_available(pool);
 	if(entropy_available > 0)
 		return entropy_available;
-#   endif
+#endif
 
 #   if defined(OPENSSL_RAND_SEED_LIBRANDOM)
 	{
 		/* Not yet implemented. */
 	}
-#   endif
+#endif
 
 #   if defined(OPENSSL_RAND_SEED_DEVRANDOM)
 	if(wait_random_seeded()) {
@@ -648,19 +648,19 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 		if(entropy_available > 0)
 			return entropy_available;
 	}
-#   endif
+#endif
 
 #   if defined(OPENSSL_RAND_SEED_RDTSC)
 	entropy_available = rand_acquire_entropy_from_tsc(pool);
 	if(entropy_available > 0)
 		return entropy_available;
-#   endif
+#endif
 
 #   if defined(OPENSSL_RAND_SEED_RDCPU)
 	entropy_available = rand_acquire_entropy_from_cpu(pool);
 	if(entropy_available > 0)
 		return entropy_available;
-#   endif
+#endif
 
 #   if defined(OPENSSL_RAND_SEED_EGD)
 	{
@@ -687,7 +687,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 		if(entropy_available > 0)
 			return entropy_available;
 	}
-#   endif
+#endif
 
 	return rand_pool_entropy_available(pool);
 #endif
@@ -795,11 +795,11 @@ static uint64_t get_timer_bits(void)
 		struct timespec ts;
 
 #ifdef CLOCK_BOOTTIME
-#   define CLOCK_TYPE CLOCK_BOOTTIME
+#define CLOCK_TYPE CLOCK_BOOTTIME
 #elif defined(_POSIX_MONOTONIC_CLOCK)
-#   define CLOCK_TYPE CLOCK_MONOTONIC
+#define CLOCK_TYPE CLOCK_MONOTONIC
 #else
-#   define CLOCK_TYPE CLOCK_REALTIME
+#define CLOCK_TYPE CLOCK_REALTIME
 #endif
 
 		if(clock_gettime(CLOCK_TYPE, &ts) == 0)

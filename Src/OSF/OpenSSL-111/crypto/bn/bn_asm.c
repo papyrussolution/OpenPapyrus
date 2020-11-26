@@ -832,7 +832,7 @@ void bn_sqr_comba4(BN_ULONG * r, const BN_ULONG * a)
 
 #ifdef OPENSSL_NO_ASM
 #ifdef OPENSSL_BN_ASM_MONT
-#   include <alloca.h>
+#include <alloca.h>
 /*
  * This is essentially reference implementation, which may or may not
  * result in performance improvement. E.g. on IA-32 this routine was
@@ -850,9 +850,9 @@ int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
     const BN_ULONG * np, const BN_ULONG * n0p, int num)
 {
 	BN_ULONG c0, c1, ml, * tp, n0;
-#   ifdef mul64
+#ifdef mul64
 	BN_ULONG mh;
-#   endif
+#endif
 	volatile BN_ULONG * vp;
 	int i = 0, j;
 
@@ -860,22 +860,22 @@ int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
 	                         * implementation */
 	if(ap == bp)
 		return bn_sqr_mont(rp, ap, np, n0p, num);
-#   endif
+#endif
 	vp = tp = alloca((num + 2) * sizeof(BN_ULONG));
 
 	n0 = *n0p;
 
 	c0 = 0;
 	ml = bp[0];
-#   ifdef mul64
+#ifdef mul64
 	mh = HBITS(ml);
 	ml = LBITS(ml);
 	for(j = 0; j < num; ++j)
 		mul(tp[j], ap[j], ml, mh, c0);
-#   else
+#else
 	for(j = 0; j < num; ++j)
 		mul(tp[j], ap[j], ml, c0);
-#   endif
+#endif
 
 	tp[num] = c0;
 	tp[num + 1] = 0;
@@ -884,15 +884,15 @@ int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
 	for(i = 0; i < num; i++) {
 		c0 = 0;
 		ml = bp[i];
-#   ifdef mul64
+#ifdef mul64
 		mh = HBITS(ml);
 		ml = LBITS(ml);
 		for(j = 0; j < num; ++j)
 			mul_add(tp[j], ap[j], ml, mh, c0);
-#   else
+#else
 		for(j = 0; j < num; ++j)
 			mul_add(tp[j], ap[j], ml, c0);
-#   endif
+#endif
 		c1 = (tp[num] + c0) & BN_MASK2;
 		tp[num] = c1;
 		tp[num + 1] = (c1 < c0 ? 1 : 0);
@@ -900,20 +900,20 @@ enter:
 		c1 = tp[0];
 		ml = (c1 * n0) & BN_MASK2;
 		c0 = 0;
-#   ifdef mul64
+#ifdef mul64
 		mh = HBITS(ml);
 		ml = LBITS(ml);
 		mul_add(c1, np[0], ml, mh, c0);
-#   else
+#else
 		mul_add(c1, ml, np[0], c0);
-#   endif
+#endif
 		for(j = 1; j < num; j++) {
 			c1 = tp[j];
-#   ifdef mul64
+#ifdef mul64
 			mul_add(c1, np[j], ml, mh, c0);
-#   else
+#else
 			mul_add(c1, ml, np[j], c0);
-#   endif
+#endif
 			tp[j - 1] = c1 & BN_MASK2;
 		}
 		c1 = (tp[num] + c0) & BN_MASK2;
@@ -990,7 +990,7 @@ void bn_mul_comba8(BN_ULONG * r, BN_ULONG * a, BN_ULONG * b)
 
 #ifdef OPENSSL_NO_ASM
 #ifdef OPENSSL_BN_ASM_MONT
-#   include <alloca.h>
+#include <alloca.h>
 int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
     const BN_ULONG * np, const BN_ULONG * n0p, int num)
 {

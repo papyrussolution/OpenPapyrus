@@ -320,7 +320,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 	 * tool like DebugView which can monitor the output.
 	 */
 	OutputDebugString(buf);
-#   endif
+#endif
 #else
 	/* this -------------v--- guards NT-specific calls */
 	if(check_winnt() && OPENSSL_isservice() > 0) {
@@ -336,7 +336,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 				 * tool like DebugView which can monitor the output.
 				 */
 				OutputDebugString(pmsg);
-#   endif
+#endif
 			}
 			(void)DeregisterEventSource(hEventLog);
 		}

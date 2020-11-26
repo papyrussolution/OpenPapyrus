@@ -138,6 +138,7 @@
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <Midl>
       <TypeLibraryName>..\objwin\dl200\Release/dl200c.tlb</TypeLibraryName>

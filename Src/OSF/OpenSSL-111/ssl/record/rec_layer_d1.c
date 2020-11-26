@@ -457,10 +457,7 @@ start:
 		s->rwstate = SSL_NOTHING;
 		return 0;
 	}
-
-	if(type == SSL3_RECORD_get_type(rr)
-	    || (SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC
-	    && type == SSL3_RT_HANDSHAKE && recvd_type != NULL)) {
+	if(type == SSL3_RECORD_get_type(rr) || (SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC && type == SSL3_RT_HANDSHAKE && recvd_type != NULL)) {
 		/*
 		 * SSL3_RT_APPLICATION_DATA or
 		 * SSL3_RT_HANDSHAKE or

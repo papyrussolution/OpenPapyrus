@@ -590,8 +590,7 @@ typedef struct gz_header_s {
 	Bytef * comment; /* pointer to zero-terminated comment or Z_NULL */
 	uInt comm_max;  /* space at comment (only when reading header) */
 	int hcrc;       /* true if there was or will be a header crc */
-	int done;       /* true when done reading gzip header (not used
-	                   when writing a gzip file) */
+	int done;       /* true when done reading gzip header (not used when writing a gzip file) */
 } gz_header;
 
 typedef gz_header  * gz_headerp;
@@ -2321,7 +2320,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	#      include <unix.h> /* for fdopen */
 	#else
 	#      ifndef fdopen
-	#        define fdopen(fd, mode) NULL /* No fdopen() */
+	#define fdopen(fd, mode) NULL /* No fdopen() */
 	#      endif
 	#endif
 	#endif
@@ -2734,7 +2733,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 			// length.  A higher limit improves compression ratio but degrades the speed.
 		uInt max_lazy_match;     // Attempt to find a better match only when the current match is strictly
 			// smaller than this value. This mechanism is used only for compression levels >= 4.
-	#   define max_insert_length  max_lazy_match
+	#define max_insert_length  max_lazy_match
 		/* Insert new strings in the hash table only if the match length is not
 		 * greater than this length. This saves time but degrades compression.
 		 * max_insert_length is used only for compression levels <= 3.

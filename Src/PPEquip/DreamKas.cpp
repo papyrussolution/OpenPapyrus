@@ -49,11 +49,11 @@ private:
 		long   Flags;
 		CashierEntry Cashier;
 	};
-	int    ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SString & rName);
-	int    ParseSess(const json_t * pJsonObj, SessEntry & rEntry);
-	int    AcceptCheck(const json_t * pJsonObj);
+	int    ParseGoods(const SJson * pJsonObj, S_GUID & rUuid, SString & rName);
+	int    ParseSess(const SJson * pJsonObj, SessEntry & rEntry);
+	int    AcceptCheck(const SJson * pJsonObj);
 	int    ImportGoodsList(UUIDAssocArray & rList);
-	int    SendGoods(json_t ** ppJson, uint & rCount, int update, int force);
+	int    SendGoods(SJson ** ppJson, uint & rCount, int update, int force);
 	int    ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID);
 	int    PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
 
@@ -97,13 +97,13 @@ public:
 
 REGISTER_CMT(DREAMKAS, 0, 1);
 
-int ACS_DREAMKAS::ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SString & rName)
+int ACS_DREAMKAS::ParseGoods(const SJson * pJsonObj, S_GUID & rUuid, SString & rName)
 {
 	rUuid.Z();
 	rName.Z();
 	int    ok = 1;
 	SString temp_buf;
-	for(const json_t * p_cur = pJsonObj; p_cur; p_cur = p_cur->P_Next) {
+	for(const SJson * p_cur = pJsonObj; p_cur; p_cur = p_cur->P_Next) {
 		if(p_cur->Text.IsEqiAscii("id")) {
 			if(p_cur->P_Child) {
 				rUuid.FromStr(p_cur->P_Child->Text);
@@ -120,10 +120,10 @@ int ACS_DREAMKAS::ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SString & 
 	return ok;
 }
 
-int ACS_DREAMKAS::ParseSess(const json_t * pJsonObj, SessEntry & rEntry)
+int ACS_DREAMKAS::ParseSess(const SJson * pJsonObj, SessEntry & rEntry)
 {
 	int    ok = 1;
-	for(const json_t * p_cur = pJsonObj; p_cur; p_cur = p_cur->P_Next) {
+	for(const SJson * p_cur = pJsonObj; p_cur; p_cur = p_cur->P_Next) {
 		if(p_cur->P_Child) {
 			if(p_cur->Text.IsEqiAscii("id"))
 				STRNSCPY(rEntry.Ident, p_cur->P_Child->Text);
@@ -194,7 +194,7 @@ int ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
-	json_t * p_json_doc = 0;
+	SJson * p_json_doc = 0;
 	SString temp_buf;
 	SString goods_name;
 	SString wait_msg_buf;
@@ -225,14 +225,14 @@ int ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
 					long   seq_id = 0;
 					S_GUID goods_uuid;
-					json_t * p_next = 0;
-					for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+					SJson * p_next = 0;
+					for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
 						switch(p_cur->Type) {
-							case json_t::tARRAY:
+							case SJson::tARRAY:
 								p_next = p_cur->P_Child;
 								break;
-							case json_t::tOBJECT:
+							case SJson::tOBJECT:
 								ret_count++;
 								if(ParseGoods(p_cur->P_Child, goods_uuid, goods_name) > 0) {
 									rList.Add(++seq_id, goods_uuid, 0);
@@ -253,7 +253,7 @@ int ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 	return ok;
 }
 
-int ACS_DREAMKAS::SendGoods(json_t ** ppJson, uint & rCount, int update, int force)
+int ACS_DREAMKAS::SendGoods(SJson ** ppJson, uint & rCount, int update, int force)
 {
 	int    ok = -1;
 	if(rCount && (force || rCount >= 100)) {
@@ -288,7 +288,7 @@ int ACS_DREAMKAS::SendGoods(json_t ** ppJson, uint & rCount, int update, int for
 			//
 			json_free_value(ppJson);
 			if(!force) {
-				THROW_MEM(*ppJson = new json_t(json_t::tARRAY));
+				THROW_MEM(*ppJson = new SJson(SJson::tARRAY));
 			}
 			rCount = 0;
 		}
@@ -311,8 +311,8 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 	uint   items_to_create_count = 0;
 	uint   items_to_update_count = 0;
 	char * p_json_buf = 0;
-	json_t * p_iter_ary_to_create = new json_t(json_t::tARRAY);
-	json_t * p_iter_ary_to_update = new json_t(json_t::tARRAY);
+	SJson * p_iter_ary_to_create = new SJson(SJson::tARRAY);
+	SJson * p_iter_ary_to_update = new SJson(SJson::tARRAY);
 	THROW_SL(p_iter_ary_to_create);
 	THROW_SL(p_iter_ary_to_update);
 	THROW(ImportGoodsList(ex_goods_list));
@@ -333,7 +333,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 			}
 			{
 				int    is_wght = 0; // @v10.8.4 Признак весового товара
-				json_t * p_iter_obj = new json_t(json_t::tOBJECT);
+				SJson * p_iter_obj = new SJson(SJson::tOBJECT);
 				THROW_SL(p_iter_obj);
 				THROW_SL(p_iter_obj->InsertString("id", temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL)));
 				THROW_SL(p_iter_obj->InsertString("name", temp_buf.Z().Cat(gds_info.Name).Escape().Transf(CTRANSF_INNER_TO_UTF8)));
@@ -350,14 +350,14 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 				}
 				// } @v10.8.4 
 				THROW_SL(p_iter_obj->InsertString("type", is_wght ? "SCALABLE" : "COUNTABLE"));
-				THROW_SL(p_iter_obj->Insert("departmentId", /*json_new_number(temp_buf.Z().Cat(gds_info.DivN))*/new json_t(json_t::tNULL)));
+				THROW_SL(p_iter_obj->Insert("departmentId", /*json_new_number(temp_buf.Z().Cat(gds_info.DivN))*/new SJson(SJson::tNULL)));
 				THROW_SL(p_iter_obj->Insert("quantity", json_new_number(temp_buf.Z().Cat(1000))));
 				THROW_SL(p_iter_obj->Insert("price", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));
 				if(LogNumList.getCount()) {
-					json_t * p_price_ary = new json_t(json_t::tARRAY);
+					SJson * p_price_ary = new SJson(SJson::tARRAY);
 					THROW_SL(p_price_ary);
 					for(uint i = 0; i < LogNumList.getCount(); i++) {
-						json_t * p_price_obj = new json_t(json_t::tOBJECT);
+						SJson * p_price_obj = new SJson(SJson::tOBJECT);
 						THROW_SL(p_price_obj);
 						THROW_SL(p_price_obj->Insert("deviceId", json_new_number(temp_buf.Z().Cat(LogNumList.get(i)))));
 						THROW_SL(p_price_obj->Insert("value", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));
@@ -380,7 +380,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 						}
 					}
 					if(normal_bc_pos_list.getCount()) {
-						json_t * p_array = new json_t(json_t::tARRAY);
+						SJson * p_array = new SJson(SJson::tARRAY);
 						for(uint j = 0; j < normal_bc_pos_list.getCount(); j++) {
 							const char * p_code = gds_info.P_CodeList->at(normal_bc_pos_list.get(j)-1).Code;
 							THROW_SL(json_insert_child(p_array, json_new_string(p_code)));
@@ -388,7 +388,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 						p_iter_obj->Insert("barcodes", p_array);
 					}
 					{
-						json_t * p_array = new json_t(json_t::tARRAY);
+						SJson * p_array = new SJson(SJson::tARRAY);
 						THROW_SL(json_insert_child(p_array, json_new_string(temp_buf.Z().Cat(gds_info.ID))));
 						if(etc_bc_pos_list.getCount()) {
 							for(uint j = 0; j < etc_bc_pos_list.getCount(); j++) { // @v10.7.1 @fix normal_bc_pos_list-->etc_bc_pos_list
@@ -494,7 +494,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 	else {
 	}
 	{
-		json_t jdoc(json_t::tOBJECT);
+		SJson jdoc(SJson::tOBJECT);
 		long   acgif = 0;
 		if(updOnly) {
 			acgif |= ACGIF_UPDATEDONLY;
@@ -548,7 +548,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 { 
 	Scb.Reset();
 	int    ok = -1;
-	json_t * p_json_doc = 0;
+	SJson * p_json_doc = 0;
 	SString temp_buf;
 	SString qbuf;
 	SString enc_buf;
@@ -604,14 +604,14 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
-					json_t * p_next = 0;
-					for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+					SJson * p_next = 0;
+					for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
 						switch(p_cur->Type) {
-							case json_t::tARRAY:
+							case SJson::tARRAY:
 								p_next = p_cur->P_Child;
 								break;
-							case json_t::tOBJECT:
+							case SJson::tOBJECT:
 								ret_count++;
 								{
 									SessEntry sess_entry;
@@ -649,7 +649,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 	return ok;
 }
 
-int ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
+int ACS_DREAMKAS::AcceptCheck(const SJson * pJsonObj)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -673,12 +673,12 @@ int ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 	SString excise_barcode;
 	SString vendor_code;
 	PPIDArray goods_by_uuid_list;
-	const json_t * p_positions_ary = 0;
-	const json_t * p_payms_ary = 0;
-	for(const json_t * p_cur = pJsonObj; p_cur; p_cur = p_cur->P_Next) {
-		if(p_cur->Type == json_t::tARRAY) {
+	const SJson * p_positions_ary = 0;
+	const SJson * p_payms_ary = 0;
+	for(const SJson * p_cur = pJsonObj; p_cur; p_cur = p_cur->P_Next) {
+		if(p_cur->Type == SJson::tARRAY) {
 		}
-		else if(p_cur->Type == json_t::tOBJECT) {
+		else if(p_cur->Type == SJson::tOBJECT) {
 		}
 		else {
 			if(p_cur->P_Child) {
@@ -715,13 +715,13 @@ int ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 				else if(p_cur->Text.IsEqiAscii("date"))
 					;
 				else if(p_cur->Text.IsEqiAscii("positions")) {
-					const json_t * p_ary = p_cur->P_Child;
-					if(p_ary->Type == json_t::tARRAY)
+					const SJson * p_ary = p_cur->P_Child;
+					if(p_ary->Type == SJson::tARRAY)
 						p_positions_ary = p_ary;
 				}
 				else if(p_cur->Text.IsEqiAscii("payments")) {
-					const json_t * p_ary = p_cur->P_Child;
-					if(p_ary->Type == json_t::tARRAY)
+					const SJson * p_ary = p_cur->P_Child;
+					if(p_ary->Type == SJson::tARRAY)
 						p_payms_ary = p_ary;
 				}
 			}
@@ -739,8 +739,8 @@ int ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 		if(ccr > 0) {
 			assert(cc_id);
 			if(p_positions_ary) {
-				for(const json_t * p_pos = p_positions_ary->P_Child; p_pos; p_pos = p_pos->P_Next) {
-					if(p_pos->Type == json_t::tOBJECT) {
+				for(const SJson * p_pos = p_positions_ary->P_Child; p_pos; p_pos = p_pos->P_Next) {
+					if(p_pos->Type == SJson::tOBJECT) {
 						goods_uuid.Z();
 						goods_name.Z();
 						barcode.Z();
@@ -751,7 +751,7 @@ int ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 						double qtty = 0.0;
 						double price = 0.0;
 						double dscnt = 0.0;
-						for(const json_t * p_obj = p_pos->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						for(const SJson * p_obj = p_pos->P_Child; p_obj; p_obj = p_obj->P_Next) {
 							if(p_obj->P_Child) {
 								if(p_obj->Text.IsEqiAscii("id"))
 									goods_uuid.FromStr(p_obj->P_Child->Text);
@@ -807,12 +807,12 @@ int ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 				}
 			}
 			if(p_payms_ary) {
-				for(const json_t * p_pos = p_payms_ary->P_Child; p_pos; p_pos = p_pos->P_Next) {
-					if(p_pos->Type == json_t::tOBJECT) {
+				for(const SJson * p_pos = p_payms_ary->P_Child; p_pos; p_pos = p_pos->P_Next) {
+					if(p_pos->Type == SJson::tOBJECT) {
 						int    paym_type = 0;
 						double paym_amt = 0.0;
 						PPID   paym_sc_id = 0;
-						for(const json_t * p_obj = p_pos->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						for(const SJson * p_obj = p_pos->P_Child; p_obj; p_obj = p_obj->P_Next) {
 							if(p_obj->P_Child) {
 								if(p_obj->Text.IsEqiAscii("type")) {
 									if(p_obj->P_Child->Text.IsEqiAscii("CASH"))
@@ -860,7 +860,7 @@ int ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 /*virtual*/int ACS_DREAMKAS::ImportSession(int sessIdx)
 { 
 	int    ok = -1;
-	json_t * p_json_doc = 0;
+	SJson * p_json_doc = 0;
 	SString temp_buf;
 	SString qbuf;
 	SString enc_buf;
@@ -915,18 +915,18 @@ int ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				THROW(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
 				{
-					json_t * p_next = 0;
+					SJson * p_next = 0;
 					PPTransaction tra(1);
 					THROW(tra);
-					for(json_t * p_cur = p_json_doc->P_Child; p_cur; p_cur = p_next) {
+					for(SJson * p_cur = p_json_doc->P_Child; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
-						if(p_cur->Type == json_t::tSTRING) {
+						if(p_cur->Type == SJson::tSTRING) {
 							if(p_cur->Text.IsEqiAscii("data"))
 								p_next = p_cur->P_Child;
 						}
-						else if(p_cur->Type == json_t::tARRAY)
+						else if(p_cur->Type == SJson::tARRAY)
 							p_next = p_cur->P_Child;
-						else if(p_cur->Type == json_t::tOBJECT) {
+						else if(p_cur->Type == SJson::tOBJECT) {
 							ret_count++;
 							AcceptCheck(p_cur->P_Child);
 						}

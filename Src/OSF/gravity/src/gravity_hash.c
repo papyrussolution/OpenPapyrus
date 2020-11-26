@@ -474,7 +474,7 @@ bool gravity_hash_compare(gravity_hash_t * hashtable1, gravity_hash_t * hashtabl
 	if(count != keys2.getCount()) 
 		goto cleanup;
 	// 4. compare keys and values
-	for(uint32 i = 0; i<count; ++i) {
+	for(uint32 i = 0; i < count; ++i) {
 		if(!compare(keys1.at(i), keys2.at(i), data)) 
 			goto cleanup;
 		if(!compare(values1.at(i), values2.at(i), data)) 

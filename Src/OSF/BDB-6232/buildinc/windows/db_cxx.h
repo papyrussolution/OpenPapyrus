@@ -132,11 +132,11 @@ class DbRunRecoveryException;                    // forward
 #if defined(_MSC_VER)
 
 #  if defined(DB_CREATE_DLL)
-#    define _exported __declspec(dllexport)      // creator of dll
+#define _exported __declspec(dllexport)      // creator of dll
 #  elif defined(DB_USE_DLL)
-#    define _exported __declspec(dllimport)      // user of dll
+#define _exported __declspec(dllimport)      // user of dll
 #  else
-#    define _exported                            // static lib creator or user
+#define _exported                            // static lib creator or user
 #  endif
 
 #else /* _MSC_VER */

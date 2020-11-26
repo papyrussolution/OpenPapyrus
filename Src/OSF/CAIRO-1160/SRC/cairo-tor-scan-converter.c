@@ -142,7 +142,7 @@ typedef enum {
 #endif
 
 #ifndef I
-# define I /*static*/
+#define I /*static*/
 #endif
 
 /* Opaque type for scan converting. */

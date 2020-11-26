@@ -413,41 +413,30 @@ int ssl_get_new_session(SSL * s, int session)
 	return 1;
 }
 
-SSL_SESSION * lookup_sess_in_cache(SSL * s, const uchar * sess_id,
-    size_t sess_id_len)
+SSL_SESSION * lookup_sess_in_cache(SSL * s, const uchar * sess_id, size_t sess_id_len)
 {
 	SSL_SESSION * ret = NULL;
-
-	if((s->session_ctx->session_cache_mode
-	    & SSL_SESS_CACHE_NO_INTERNAL_LOOKUP) == 0) {
+	if((s->session_ctx->session_cache_mode & SSL_SESS_CACHE_NO_INTERNAL_LOOKUP) == 0) {
 		SSL_SESSION data;
-
 		data.ssl_version = s->version;
 		if(!ossl_assert(sess_id_len <= SSL_MAX_SSL_SESSION_ID_LENGTH))
 			return NULL;
-
 		memcpy(data.session_id, sess_id, sess_id_len);
 		data.session_id_length = sess_id_len;
-
 		CRYPTO_THREAD_read_lock(s->session_ctx->lock);
 		ret = lh_SSL_SESSION_retrieve(s->session_ctx->sessions, &data);
-		if(ret != NULL) {
-			/* don't allow other threads to steal it: */
-			SSL_SESSION_up_ref(ret);
+		if(ret) {
+			SSL_SESSION_up_ref(ret); /* don't allow other threads to steal it: */
 		}
 		CRYPTO_THREAD_unlock(s->session_ctx->lock);
 		if(ret == NULL)
 			tsan_counter(&s->session_ctx->stats.sess_miss);
 	}
-
 	if(ret == NULL && s->session_ctx->get_session_cb != NULL) {
 		int copy = 1;
-
 		ret = s->session_ctx->get_session_cb(s, sess_id, sess_id_len, &copy);
-
-		if(ret != NULL) {
+		if(ret) {
 			tsan_counter(&s->session_ctx->stats.sess_cb_hit);
-
 			/*
 			 * Increment reference count now if the session callback asks us
 			 * to do so (note that if the session structures returned by the
@@ -457,7 +446,6 @@ SSL_SESSION * lookup_sess_in_cache(SSL * s, const uchar * sess_id,
 			 */
 			if(copy)
 				SSL_SESSION_up_ref(ret);
-
 			/*
 			 * Add the externally cached session to the internal cache as
 			 * well if and only if we are supposed to.
@@ -607,18 +595,15 @@ int ssl_get_prev_session(SSL * s, CLIENTHELLO_MSG * hello)
 		SSL_SESSION_free(s->session);
 		s->session = ret;
 	}
-
 	tsan_counter(&s->session_ctx->stats.sess_hit);
 	s->verify_result = s->session->verify_result;
 	return 1;
-
 err:
 	if(ret != NULL) {
 		SSL_SESSION_free(ret);
 		/* In TLSv1.3 s->session was already set to ret, so we NULL it out */
 		if(SSL_IS_TLS13(s))
 			s->session = NULL;
-
 		if(!try_session_cache) {
 			/*
 			 * The session was from a ticket, so we should issue a ticket for
@@ -629,7 +614,6 @@ err:
 	}
 	if(fatal)
 		return -1;
-
 	return 0;
 }
 
@@ -637,7 +621,6 @@ int SSL_CTX_add_session(SSL_CTX * ctx, SSL_SESSION * c)
 {
 	int ret = 0;
 	SSL_SESSION * s;
-
 	/*
 	 * add just 1 reference count for the SSL_CTX's session cache even though
 	 * it has two ways of access: each session is in a doubly linked list and

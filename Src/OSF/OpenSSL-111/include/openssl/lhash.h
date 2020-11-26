@@ -104,9 +104,9 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 #define lh_strhash OPENSSL_LH_strhash
 #define lh_num_items OPENSSL_LH_num_items
 #ifndef OPENSSL_NO_STDIO
-#   define lh_stats OPENSSL_LH_stats
-#   define lh_node_stats OPENSSL_LH_node_stats
-#   define lh_node_usage_stats OPENSSL_LH_node_usage_stats
+#define lh_stats OPENSSL_LH_stats
+#define lh_node_stats OPENSSL_LH_node_stats
+#define lh_node_usage_stats OPENSSL_LH_node_usage_stats
 #endif
 #define lh_stats_bio OPENSSL_LH_stats_bio
 #define lh_node_stats_bio OPENSSL_LH_node_stats_bio

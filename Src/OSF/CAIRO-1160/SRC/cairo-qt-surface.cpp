@@ -1014,13 +1014,8 @@ struct PatternToBrushConverter {
 		if(mAcquiredImageParent)
 			_cairo_surface_release_source_image(mAcquiredImageParent, mAcquiredImage, mAcquiredImageExtra);
 	}
-
-	operator QBrush&() {
-		return mBrush;
-	}
-
+	operator QBrush &() { return mBrush; }
 	QBrush mBrush;
-
 private:
 	cairo_surface_t * mAcquiredImageParent;
 	cairo_image_surface_t * mAcquiredImage;
@@ -1028,13 +1023,10 @@ private:
 };
 
 struct PatternToPenConverter {
-	PatternToPenConverter (const cairo_pattern_t * source,
-	    const cairo_stroke_style_t * style) :
-		mBrushConverter(source)
+	PatternToPenConverter (const cairo_pattern_t * source, const cairo_stroke_style_t * style) : mBrushConverter(source)
 	{
 		Qt::PenJoinStyle join = Qt::MiterJoin;
 		Qt::PenCapStyle cap = Qt::SquareCap;
-
 		switch(style->line_cap) {
 			case CAIRO_LINE_CAP_BUTT:
 			    cap = Qt::FlatCap;

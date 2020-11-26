@@ -793,11 +793,11 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	struct sctp_authchunks * authchunks;
 	socklen_t sockopt_len;
 #ifdef SCTP_AUTHENTICATION_EVENT
-#   ifdef SCTP_EVENT
+#ifdef SCTP_EVENT
 	struct sctp_event event;
-#   else
+#else
 	struct sctp_event_subscribe event;
-#   endif
+#endif
 #endif
 
 	bio = BIO_new(BIO_s_datagram_sctp());
@@ -864,7 +864,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	}
 
 #ifdef SCTP_AUTHENTICATION_EVENT
-#   ifdef SCTP_EVENT
+#ifdef SCTP_EVENT
 	memzero(&event, sizeof(event));
 	event.se_assoc_id = 0;
 	event.se_type = SCTP_AUTHENTICATION_EVENT;
@@ -874,7 +874,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 		BIO_vfree(bio);
 		return NULL;
 	}
-#   else
+#else
 	sockopt_len = (socklen_t)sizeof(struct sctp_event_subscribe);
 	ret = getsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS, &event, &sockopt_len);
 	if(ret < 0) {
@@ -887,7 +887,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 		BIO_vfree(bio);
 		return NULL;
 	}
-#   endif
+#endif
 #endif
 
 	/*
@@ -1250,9 +1250,9 @@ static int dgram_sctp_write(BIO * b, const char * in, int inl)
 	memzero(sndrcvinfo, sizeof(*sndrcvinfo));
 	sndrcvinfo->sinfo_stream = sinfo->snd_sid;
 	sndrcvinfo->sinfo_flags = sinfo->snd_flags;
-#   ifdef __FreeBSD__
+#ifdef __FreeBSD__
 	sndrcvinfo->sinfo_flags |= pinfo->pr_policy;
-#   endif
+#endif
 	sndrcvinfo->sinfo_ppid = sinfo->snd_ppid;
 	sndrcvinfo->sinfo_context = sinfo->snd_context;
 	sndrcvinfo->sinfo_timetolive = pinfo->pr_value;
@@ -1767,7 +1767,7 @@ int BIO_dgram_non_fatal_error(int err)
 #ifdef WSAEWOULDBLOCK
 #   if WSAEWOULDBLOCK != EWOULDBLOCK
 		case EWOULDBLOCK:
-#   endif
+#endif
 #else
 		case EWOULDBLOCK:
 #endif

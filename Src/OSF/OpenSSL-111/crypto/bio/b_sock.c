@@ -182,9 +182,9 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 #else                       /* __INITIAL_POINTER_SIZE == 64 */
 #     define ARG arg
 #endif                      /* __INITIAL_POINTER_SIZE == 64 [else] */
-#   else                        /* defined(OPENSSL_SYS_VMS) */
+#else                        /* defined(OPENSSL_SYS_VMS) */
 #define ARG arg
-#   endif                       /* defined(OPENSSL_SYS_VMS) [else] */
+#endif                       /* defined(OPENSSL_SYS_VMS) [else] */
 
 	i = ioctlsocket(fd, type, static_cast<u_long *>(ARG));
 #endif                        /* __DJGPP__ */
@@ -281,9 +281,9 @@ int BIO_set_tcp_ndelay(int s, int on)
 #ifdef SOL_TCP
 	opt = SOL_TCP;
 #else
-#   ifdef IPPROTO_TCP
+#ifdef IPPROTO_TCP
 	opt = IPPROTO_TCP;
-#   endif
+#endif
 #endif
 	ret = setsockopt(s, opt, TCP_NODELAY, reinterpret_cast<const char *>(&on), sizeof(on));
 #endif

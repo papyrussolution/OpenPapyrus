@@ -261,7 +261,7 @@ int PPViewFreight::Init_(const PPBaseFilt * pFilt)
 	Filt.BillPeriod.Actualize(ZERODATE);
 	Filt.ShipmPeriod.Actualize(ZERODATE);
 	Filt.ArrvlPeriod.Actualize(ZERODATE);
-	StrPool.ClearS(); // @v9.8.4
+	StrPool.ClearS();
 	{
 		ZDELETE(P_TmpTbl);
 		THROW(P_TmpTbl = CreateTempFile());

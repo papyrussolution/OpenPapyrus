@@ -371,7 +371,7 @@ int tls1_set_groups(uint16_t ** pext, size_t * pextlen,
 	return 1;
 }
 
-# define MAX_CURVELIST   OSSL_NELEM(nid_list)
+#define MAX_CURVELIST   OSSL_NELEM(nid_list)
 
 typedef struct {
 	size_t nidcnt;

@@ -1166,7 +1166,7 @@ static unsigned int add_one_chunk(png_bytep list, unsigned int count, png_const_
 	/* Utility function: update the 'keep' state of a chunk if it is already in
 	 * the list, otherwise add it to the list.
 	 */
-	for(i = 0; i<count; ++i, list += 5) {
+	for(i = 0; i < count; ++i, list += 5) {
 		if(memcmp(list, add, 4) == 0) {
 			list[4] = (uint8)keep;
 

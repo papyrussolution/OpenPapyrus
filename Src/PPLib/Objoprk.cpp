@@ -3087,7 +3087,7 @@ int FetchInvOpEx(PPID opID, PPInventoryOpEx * pInvOpEx)
 
 int FASTCALL GetReckonOpList(PPIDArray * pList)
 {
-	OpCache * p_cache = GetDbLocalCachePtr <OpCache> (PPOBJ_OPRKIND);
+	OpCache * p_cache = GetDbLocalCachePtr <OpCache> (PPOBJ_OPRKIND); 
 	return p_cache ? p_cache->GetReckonOpList(pList) : 0;
 }
 

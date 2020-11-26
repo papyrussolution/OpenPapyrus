@@ -201,9 +201,9 @@ typedef struct crypto_threadid_st {
 #define CRYPTO_THREADID_hash(id)                      (0UL)
 
 #if OPENSSL_API_COMPAT < 0x10000000L
-#   define CRYPTO_set_id_callback(func)
-#   define CRYPTO_get_id_callback()                     (NULL)
-#   define CRYPTO_thread_id()                           (0UL)
+#define CRYPTO_set_id_callback(func)
+#define CRYPTO_get_id_callback()                     (NULL)
+#define CRYPTO_thread_id()                           (0UL)
 #endif /* OPENSSL_API_COMPAT < 0x10000000L */
 
 #define CRYPTO_set_dynlock_create_callback(dyn_create_function)
@@ -344,14 +344,14 @@ typedef DWORD CRYPTO_THREAD_ID;
 
 typedef LONG CRYPTO_ONCE;
 #define CRYPTO_ONCE_STATIC_INIT 0
-#   endif
+#endif
 #else
-#   include <pthread.h>
+#include <pthread.h>
 typedef pthread_once_t CRYPTO_ONCE;
 typedef pthread_key_t CRYPTO_THREAD_LOCAL;
 typedef pthread_t CRYPTO_THREAD_ID;
 
-#   define CRYPTO_ONCE_STATIC_INIT PTHREAD_ONCE_INIT
+#define CRYPTO_ONCE_STATIC_INIT PTHREAD_ONCE_INIT
 #endif
 #endif
 

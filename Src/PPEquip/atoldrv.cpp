@@ -737,15 +737,15 @@ SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 			}
 			{
-				json_t * p_json_doc = 0;
+				SJson * p_json_doc = 0;
 				if(json_parse_document(&p_json_doc, settings_buf.cptr()) == JSON_OK) {
-					json_t * p_next = 0;
-					for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+					SJson * p_next = 0;
+					for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
 						switch(p_cur->Type) {
-							case json_t::tARRAY: p_next = p_cur->P_Child; break;
-							case json_t::tOBJECT: p_next = p_cur->P_Child; break;
-							case json_t::tSTRING:
+							case SJson::tARRAY: p_next = p_cur->P_Child; break;
+							case SJson::tOBJECT: p_next = p_cur->P_Child; break;
+							case SJson::tSTRING:
 								if(p_cur->P_Child) {
 									if(sstreqi_ascii(p_cur->Text, "AccessPassword"))
 										P_Fptr10->AccessPassword = (temp_buf = p_cur->P_Child->Text).Unescape();

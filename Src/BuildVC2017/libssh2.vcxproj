@@ -546,6 +546,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -678,6 +679,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>

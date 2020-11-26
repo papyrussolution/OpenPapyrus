@@ -23,7 +23,7 @@
 
 #ifdef HAVE_DLFCN_H
 #ifdef __osf__
-#   define __EXTENSIONS__
+#define __EXTENSIONS__
 #endif
 #include <dlfcn.h>
 #define HAVE_DLINFO 1
@@ -76,13 +76,13 @@ DSO_METHOD * DSO_METHOD_openssl(void)
  */
 #if defined(__OpenBSD__) || defined(__NetBSD__)
 #ifdef DL_LAZY
-#   define DLOPEN_FLAG DL_LAZY
+#define DLOPEN_FLAG DL_LAZY
 #else
-#   ifdef RTLD_NOW
+#ifdef RTLD_NOW
 #define DLOPEN_FLAG RTLD_NOW
-#   else
+#else
 #define DLOPEN_FLAG 0
-#   endif
+#endif
 #endif
 #else
 #define DLOPEN_FLAG RTLD_NOW  /* Hope this works everywhere else */
@@ -297,7 +297,7 @@ static char * dlfcn_name_converter(DSO * dso, const char * filename)
  */
 #include <rld_interface.h>
 #ifndef _RLD_INTERFACE_DLFCN_H_DLADDR
-#   define _RLD_INTERFACE_DLFCN_H_DLADDR
+#define _RLD_INTERFACE_DLFCN_H_DLADDR
 typedef struct Dl_info {
 	const char * dli_fname;
 	void * dli_fbase;

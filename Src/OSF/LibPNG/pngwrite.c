@@ -1384,7 +1384,7 @@ static int png_write_image_16bit(void * argument)
 	uint32 y = image->height;
 
 	if((image->format & PNG_FORMAT_FLAG_ALPHA) != 0) {
-#   ifdef PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED
+#ifdef PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED
 		if((image->format & PNG_FORMAT_FLAG_AFIRST) != 0) {
 			aindex = -1;
 			++input_row; /* To point to the first component */
@@ -1472,7 +1472,7 @@ static int png_write_image_16bit(void * argument)
  * calculation can be done to 15 bits of accuracy; however, the output needs to
  * be scaled in the range 0..255*65535, so include that scaling here.
  */
-#   define UNP_RECIPROCAL(alpha) ((((0xffff*0xff)<<7)+(alpha>>1))/alpha)
+#define UNP_RECIPROCAL(alpha) ((((0xffff*0xff)<<7)+(alpha>>1))/alpha)
 
 static uint8 png_unpremultiply(uint32 component, uint32 alpha,
     uint32 reciprocal /*from the above macro*/)
@@ -1526,14 +1526,14 @@ static int png_write_image_8bit(void * argument)
 	if((image->format & PNG_FORMAT_FLAG_ALPHA) != 0) {
 		png_bytep row_end;
 		int aindex;
-#   ifdef PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED
+#ifdef PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED
 		if((image->format & PNG_FORMAT_FLAG_AFIRST) != 0) {
 			aindex = -1;
 			++input_row; /* To point to the first component */
 			++output_row;
 		}
 		else
-#   endif
+#endif
 		aindex = channels;
 		/* Use row_end in place of a loop counter: */
 		row_end = output_row + image->width * (channels+1);
@@ -1596,15 +1596,15 @@ static void png_image_set_PLTE(png_image_write_control * display)
 	defined(PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED)
 	const int afirst = (format & PNG_FORMAT_FLAG_AFIRST) != 0 &&
 	    (format & PNG_FORMAT_FLAG_ALPHA) != 0;
-#   else
+#else
 #     define afirst 0
-#   endif
+#endif
 
-#   ifdef PNG_FORMAT_BGR_SUPPORTED
+#ifdef PNG_FORMAT_BGR_SUPPORTED
 	const int bgr = (format & PNG_FORMAT_FLAG_BGR) != 0 ? 2 : 0;
-#   else
+#else
 #     define bgr 0
-#   endif
+#endif
 	int i, num_trans;
 	SColorRGB palette[256];
 	uint8 tRNS[256];
@@ -1676,12 +1676,12 @@ static void png_image_set_PLTE(png_image_write_control * display)
 		}
 	}
 
-#   ifdef afirst
+#ifdef afirst
 #     undef afirst
-#   endif
-#   ifdef bgr
+#endif
+#ifdef bgr
 #     undef bgr
-#   endif
+#endif
 
 	png_set_PLTE(image->opaque->png_ptr, image->opaque->info_ptr, palette,
 	    entries);
@@ -1708,10 +1708,10 @@ static int png_image_write_main(void * argument)
 	int alpha = !colormap && (format & PNG_FORMAT_FLAG_ALPHA);
 	int write_16bit = linear && !colormap && (display->convert_to_8bit == 0);
 
-#   ifdef PNG_BENIGN_ERRORS_SUPPORTED
+#ifdef PNG_BENIGN_ERRORS_SUPPORTED
 	/* Make sure we error out on any bad situation */
 	png_set_benign_errors(png_ptr, 0 /*error*/);
-#   endif
+#endif
 
 	/* Default the 'row_stride' parameter if required, also check the row stride
 	 * and total image size to ensure that they are within the system limits.
@@ -1813,21 +1813,21 @@ static int png_image_write_main(void * argument)
 			png_set_swap(png_ptr);
 	}
 
-#   ifdef PNG_SIMPLIFIED_WRITE_BGR_SUPPORTED
+#ifdef PNG_SIMPLIFIED_WRITE_BGR_SUPPORTED
 	if((format & PNG_FORMAT_FLAG_BGR) != 0) {
 		if(colormap == 0 && (format & PNG_FORMAT_FLAG_COLOR) != 0)
 			png_set_bgr(png_ptr);
 		format &= ~PNG_FORMAT_FLAG_BGR;
 	}
-#   endif
+#endif
 
-#   ifdef PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED
+#ifdef PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED
 	if((format & PNG_FORMAT_FLAG_AFIRST) != 0) {
 		if(colormap == 0 && (format & PNG_FORMAT_FLAG_ALPHA) != 0)
 			png_set_swap_alpha(png_ptr);
 		format &= ~PNG_FORMAT_FLAG_AFIRST;
 	}
-#   endif
+#endif
 
 	/* If there are 16 or fewer color-map entries we wrote a lower bit depth
 	 * above, but the application data is still byte packed.
@@ -1862,9 +1862,9 @@ static int png_image_write_main(void * argument)
 		 * it about 50 times.  The speed-up in pngstest was about 10-20% of the
 		 * total (user) time on a heavily loaded system.
 		 */
-#   ifdef PNG_WRITE_CUSTOMIZE_COMPRESSION_SUPPORTED
+#ifdef PNG_WRITE_CUSTOMIZE_COMPRESSION_SUPPORTED
 		png_set_compression_level(png_ptr, 3);
-#   endif
+#endif
 	}
 
 	/* Check for the cases that currently require a pre-transform on the row

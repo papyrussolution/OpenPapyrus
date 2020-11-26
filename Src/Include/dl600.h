@@ -7,7 +7,7 @@
 #include <slib.h>
 #include <db.h>
 #include <tv.h>
-#include <json.h> // @Muxa
+// @v10.9.4 (inlined in slib.h) #include <json.h> // @Muxa
 //
 //
 //
@@ -1204,8 +1204,8 @@ public:
 	void * GetFixFieldData(const DlScope * pScope, uint fldPos);
 	long   FASTCALL GetIterID(const char * pIterName = 0) const;
 	DLSYMBID GetDataId() const { return DataId; }
-	int    SetByJSON(json_t * pJSONDoc, long & ObjId);           // @Muxa
-	int    SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk); // @Muxa
+	int    SetByJSON(SJson * pJSONDoc, long & ObjId);           // @Muxa
+	int    SetByJSON_Helper(SJson * pNode, SetScopeBlk & rBlk); // @Muxa
 
 	struct ExportParam {
 		ExportParam();
@@ -1237,8 +1237,8 @@ public:
 	int    Export(ExportParam & rParam);
 	int    ExportXML(ExportParam & rParam, SString & rOutFileName);
 	int    PutToXmlBuffer(ExportParam & rParam, SString & rBuf);
-	int    Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj) const;
-	int    Helper_PutItemToJson(ExportParam & rParam/*PPFilt * pFilt*/, json_t * pRoot);
+	int    Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj) const;
+	int    Helper_PutItemToJson(ExportParam & rParam/*PPFilt * pFilt*/, SJson * pRoot);
 	int    PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags);
 	int    PutToJsonBuffer(void * ptr, SString & rBuf, int flags);
 	int    PutToJsonBuffer(PPView * pV, SString & rBuf, int flags);

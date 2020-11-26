@@ -1722,10 +1722,9 @@ int PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_ta)
 		p_buf->BcdPrinterID = p_cfg->BcdPrinterID;
 		p_buf->Ver = DS.GetVersion();
 		p_buf->OpItemsCount = op_items_count;
-		p_buf->ExtStrLen = (uint32)ext_str.Len();
-
+		p_buf->ExtStrLen = static_cast<uint32>(ext_str.Len());
 		for(uint i = 0; i < op_items_count; i++) {
-			((SBIIOpInfo *)(p_buf+1))[i] = pPack->P_SBIICfg->P_OpList->at(i);
+			reinterpret_cast<SBIIOpInfo *>(p_buf+1)[i] = pPack->P_SBIICfg->P_OpList->at(i);
 		}
 		if(ext_str.Len()) {
 			memcpy(PTR8(p_buf+1) + op_items_count * sizeof(SBIIOpInfo), ext_str.cptr(), ext_str.Len());

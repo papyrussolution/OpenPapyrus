@@ -4005,31 +4005,25 @@ SSL_CTX * SSL_set_SSL_CTX(SSL * ssl, SSL_CTX * ctx)
 
 	ssl_cert_free(ssl->cert);
 	ssl->cert = new_cert;
-
 	/*
 	 * Program invariant: |sid_ctx| has fixed size (SSL_MAX_SID_CTX_LENGTH),
 	 * so setter APIs must prevent invalid lengths from entering the system.
 	 */
 	if(!ossl_assert(ssl->sid_ctx_length <= sizeof(ssl->sid_ctx)))
 		return NULL;
-
 	/*
 	 * If the session ID context matches that of the parent SSL_CTX,
 	 * inherit it from the new SSL_CTX as well. If however the context does
 	 * not match (i.e., it was set per-ssl with SSL_set_session_id_context),
 	 * leave it unchanged.
 	 */
-	if((ssl->ctx != NULL) &&
-	    (ssl->sid_ctx_length == ssl->ctx->sid_ctx_length) &&
-	    (memcmp(ssl->sid_ctx, ssl->ctx->sid_ctx, ssl->sid_ctx_length) == 0)) {
+	if((ssl->ctx != NULL) && (ssl->sid_ctx_length == ssl->ctx->sid_ctx_length) && (memcmp(ssl->sid_ctx, ssl->ctx->sid_ctx, ssl->sid_ctx_length) == 0)) {
 		ssl->sid_ctx_length = ctx->sid_ctx_length;
 		memcpy(&ssl->sid_ctx, &ctx->sid_ctx, sizeof(ssl->sid_ctx));
 	}
-
 	SSL_CTX_up_ref(ctx);
 	SSL_CTX_free(ssl->ctx); /* decrement reference count */
 	ssl->ctx = ctx;
-
 	return ssl->ctx;
 }
 
@@ -4040,54 +4034,41 @@ int SSL_CTX_set_default_verify_paths(SSL_CTX * ctx)
 
 int SSL_CTX_set_default_verify_dir(SSL_CTX * ctx)
 {
-	X509_LOOKUP * lookup;
-
-	lookup = X509_STORE_add_lookup(ctx->cert_store, X509_LOOKUP_hash_dir());
+	X509_LOOKUP * lookup = X509_STORE_add_lookup(ctx->cert_store, X509_LOOKUP_hash_dir());
 	if(lookup == NULL)
 		return 0;
 	X509_LOOKUP_add_dir(lookup, NULL, X509_FILETYPE_DEFAULT);
-
 	/* Clear any errors if the default directory does not exist */
 	ERR_clear_error();
-
 	return 1;
 }
 
 int SSL_CTX_set_default_verify_file(SSL_CTX * ctx)
 {
-	X509_LOOKUP * lookup;
-
-	lookup = X509_STORE_add_lookup(ctx->cert_store, X509_LOOKUP_file());
+	X509_LOOKUP * lookup = X509_STORE_add_lookup(ctx->cert_store, X509_LOOKUP_file());
 	if(lookup == NULL)
 		return 0;
-
 	X509_LOOKUP_load_file(lookup, NULL, X509_FILETYPE_DEFAULT);
-
 	/* Clear any errors if the default file does not exist */
 	ERR_clear_error();
-
 	return 1;
 }
 
-int SSL_CTX_load_verify_locations(SSL_CTX * ctx, const char * CAfile,
-    const char * CApath)
+int SSL_CTX_load_verify_locations(SSL_CTX * ctx, const char * CAfile, const char * CApath)
 {
 	return X509_STORE_load_locations(ctx->cert_store, CAfile, CApath);
 }
 
-void SSL_set_info_callback(SSL * ssl,
-    void (*cb)(const SSL * ssl, int type, int val))
+void SSL_set_info_callback(SSL * ssl, void (*cb)(const SSL * ssl, int type, int val))
 {
 	ssl->info_callback = cb;
 }
-
 /*
  * One compiler (Diab DCC) doesn't like argument names in returned function
  * pointer.
  */
-void(*SSL_get_info_callback(const SSL *ssl)) (const SSL * /* ssl */,
-    int /* type */,
-    int /* val */) {
+void(*SSL_get_info_callback(const SSL *ssl)) (const SSL * /* ssl */, int /* type */, int /* val */) 
+{
 	return ssl->info_callback;
 }
 
@@ -4121,8 +4102,7 @@ size_t SSL_get_server_random(const SSL * ssl, uchar * out, size_t outlen)
 	return outlen;
 }
 
-size_t SSL_SESSION_get_master_key(const SSL_SESSION * session,
-    uchar * out, size_t outlen)
+size_t SSL_SESSION_get_master_key(const SSL_SESSION * session, uchar * out, size_t outlen)
 {
 	if(outlen == 0)
 		return session->master_key_length;
@@ -4132,12 +4112,10 @@ size_t SSL_SESSION_get_master_key(const SSL_SESSION * session,
 	return outlen;
 }
 
-int SSL_SESSION_set1_master_key(SSL_SESSION * sess, const uchar * in,
-    size_t len)
+int SSL_SESSION_set1_master_key(SSL_SESSION * sess, const uchar * in, size_t len)
 {
 	if(len > sizeof(sess->master_key))
 		return 0;
-
 	memcpy(sess->master_key, in, len);
 	sess->master_key_length = len;
 	return 1;
@@ -5354,11 +5332,9 @@ int bytes_to_cipher_list(SSL * s, PACKET * cipher_suites,
 		/* For SSLv2-compat, ignore leading 0-byte. */
 		c = ssl_get_cipher_by_char(s, sslv2format ? &cipher[1] : cipher, 1);
 		if(c != NULL) {
-			if((c->valid && !sk_SSL_CIPHER_push(sk, c)) ||
-			    (!c->valid && !sk_SSL_CIPHER_push(scsvs, c))) {
+			if((c->valid && !sk_SSL_CIPHER_push(sk, c)) || (!c->valid && !sk_SSL_CIPHER_push(scsvs, c))) {
 				if(fatal)
-					SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-					    SSL_F_BYTES_TO_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
+					SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_BYTES_TO_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
 				else
 					SSLerr(SSL_F_BYTES_TO_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
 				goto err;
@@ -5367,13 +5343,11 @@ int bytes_to_cipher_list(SSL * s, PACKET * cipher_suites,
 	}
 	if(PACKET_remaining(cipher_suites) > 0) {
 		if(fatal)
-			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_BYTES_TO_CIPHER_LIST,
-			    SSL_R_BAD_LENGTH);
+			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_BYTES_TO_CIPHER_LIST, SSL_R_BAD_LENGTH);
 		else
 			SSLerr(SSL_F_BYTES_TO_CIPHER_LIST, SSL_R_BAD_LENGTH);
 		goto err;
 	}
-
 	if(skp != NULL)
 		*skp = sk;
 	else
@@ -5392,7 +5366,6 @@ err:
 int SSL_CTX_set_max_early_data(SSL_CTX * ctx, uint32_t max_early_data)
 {
 	ctx->max_early_data = max_early_data;
-
 	return 1;
 }
 
@@ -5404,7 +5377,6 @@ uint32_t SSL_CTX_get_max_early_data(const SSL_CTX * ctx)
 int SSL_set_max_early_data(SSL * s, uint32_t max_early_data)
 {
 	s->max_early_data = max_early_data;
-
 	return 1;
 }
 
@@ -5416,7 +5388,6 @@ uint32_t SSL_get_max_early_data(const SSL * s)
 int SSL_CTX_set_recv_max_early_data(SSL_CTX * ctx, uint32_t recv_max_early_data)
 {
 	ctx->recv_max_early_data = recv_max_early_data;
-
 	return 1;
 }
 
@@ -5428,7 +5399,6 @@ uint32_t SSL_CTX_get_recv_max_early_data(const SSL_CTX * ctx)
 int SSL_set_recv_max_early_data(SSL * s, uint32_t recv_max_early_data)
 {
 	s->recv_max_early_data = recv_max_early_data;
-
 	return 1;
 }
 
@@ -5450,8 +5420,7 @@ __owur uint ssl_get_max_send_fragment(const SSL * ssl)
 __owur uint ssl_get_split_send_fragment(const SSL * ssl)
 {
 	/* Return a value regarding an active Max Fragment Len extension */
-	if(ssl->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(ssl->session)
-	    && ssl->split_send_fragment > GET_MAX_FRAGMENT_LENGTH(ssl->session))
+	if(ssl->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(ssl->session) && ssl->split_send_fragment > GET_MAX_FRAGMENT_LENGTH(ssl->session))
 		return GET_MAX_FRAGMENT_LENGTH(ssl->session);
 
 	/* else limit |split_send_fragment| to current |max_send_fragment| */
@@ -5465,11 +5434,9 @@ __owur uint ssl_get_split_send_fragment(const SSL * ssl)
 int SSL_stateless(SSL * s)
 {
 	int ret;
-
 	/* Ensure there is no state left over from a previous invocation */
 	if(!SSL_clear(s))
 		return 0;
-
 	ERR_clear_error();
 	s->s3->flags |= TLS1_FLAGS_STATELESS;
 	ret = SSL_accept(s);
@@ -5533,15 +5500,11 @@ int SSL_verify_client_post_handshake(SSL * ssl)
 		SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, SSL_R_INVALID_CONFIG);
 		return 0;
 	}
-
 	ossl_statem_set_in_init(ssl, 1);
 	return 1;
 }
 
-int SSL_CTX_set_session_ticket_cb(SSL_CTX * ctx,
-    SSL_CTX_generate_session_ticket_fn gen_cb,
-    SSL_CTX_decrypt_session_ticket_fn dec_cb,
-    void * arg)
+int SSL_CTX_set_session_ticket_cb(SSL_CTX * ctx, SSL_CTX_generate_session_ticket_fn gen_cb, SSL_CTX_decrypt_session_ticket_fn dec_cb, void * arg)
 {
 	ctx->generate_ticket_cb = gen_cb;
 	ctx->decrypt_ticket_cb = dec_cb;
@@ -5549,17 +5512,13 @@ int SSL_CTX_set_session_ticket_cb(SSL_CTX * ctx,
 	return 1;
 }
 
-void SSL_CTX_set_allow_early_data_cb(SSL_CTX * ctx,
-    SSL_allow_early_data_cb_fn cb,
-    void * arg)
+void SSL_CTX_set_allow_early_data_cb(SSL_CTX * ctx, SSL_allow_early_data_cb_fn cb, void * arg)
 {
 	ctx->allow_early_data_cb = cb;
 	ctx->allow_early_data_cb_data = arg;
 }
 
-void SSL_set_allow_early_data_cb(SSL * s,
-    SSL_allow_early_data_cb_fn cb,
-    void * arg)
+void SSL_set_allow_early_data_cb(SSL * s, SSL_allow_early_data_cb_fn cb, void * arg)
 {
 	s->allow_early_data_cb = cb;
 	s->allow_early_data_cb_data = arg;

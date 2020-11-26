@@ -72,7 +72,7 @@ typedef uchar u8;
  * it appears that for elder non-MMX
  * CPUs this is actually faster!
  */
-#   define OPENSSL_SMALL_FOOTPRINT
+#define OPENSSL_SMALL_FOOTPRINT
 #endif
 #define GO_FOR_MMX(ctx, inp, num)     do {                    \
 		extern ulong OPENSSL_ia32cap_P[];               \
@@ -88,8 +88,8 @@ typedef uchar u8;
 #if defined(_MSC_VER)
 #if defined(_WIN64)            /* applies to both IA-64 and AMD64 */
 		//#include <stdlib.h>
-#   pragma intrinsic(_rotl64)
-#   define ROTATE(a, n) _rotl64((a), n)
+#pragma intrinsic(_rotl64)
+#define ROTATE(a, n) _rotl64((a), n)
 #endif
 # elif defined(__GNUC__) && __GNUC__>=2
 #if defined(__x86_64) || defined(__x86_64__)
@@ -106,7 +106,7 @@ typedef uchar u8;
  */
 #define ROTATE(a, n)       ({ u64 ret; asm ("rorq %1,%0"   \
 				  : "=r" (ret) : "J" (n), "0" (a) : "cc"); ret; })
-#   endif
+#endif
 #elif defined(__ia64) || defined(__ia64__)
 #   if defined(L_ENDIAN)
 #define ROTATE(a, n)       ({ u64 ret; asm ("shrp %0=%1,%1,%2"     \
@@ -114,7 +114,7 @@ typedef uchar u8;
 #   elif defined(B_ENDIAN)
 #define ROTATE(a, n)       ({ u64 ret; asm ("shrp %0=%1,%1,%2"     \
 				  : "=r" (ret) : "r" (a), "M" (n)); ret; })
-#   endif
+#endif
 #endif
 #endif
 #endif
@@ -122,9 +122,9 @@ typedef uchar u8;
 #if defined(OPENSSL_SMALL_FOOTPRINT)
 #if !defined(ROTATE)
 #if defined(L_ENDIAN)         /* little-endians have to rotate left */
-#   define ROTATE(i, n)       ((i)<<(n) ^ (i)>>(64-n))
+#define ROTATE(i, n)       ((i)<<(n) ^ (i)>>(64-n))
 #elif defined(B_ENDIAN)       /* big-endians have to rotate right */
-#   define ROTATE(i, n)       ((i)>>(n) ^ (i)<<(64-n))
+#define ROTATE(i, n)       ((i)>>(n) ^ (i)<<(64-n))
 #endif
 #endif
 #if defined(ROTATE) && !defined(STRICT_ALIGNMENT)

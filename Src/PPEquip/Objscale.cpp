@@ -4859,8 +4859,8 @@ int PPObjScale::IsPassive(PPID id, const PPScale * pScale)
 StrAssocArray * PPObjScale::MakeStrAssocList(void * extraPtr)
 {
 	const  long extra_param = reinterpret_cast<long>(extraPtr);
-	PPID   scale_type = extra_param >> 24;
-	PPID   group_id   = (extra_param & 0x00ffffff);
+	const  PPID scale_type = extra_param >> 24;
+	const  PPID group_id   = (extra_param & 0x00ffffff);
 	PPID   id = 0;
 	StrAssocArray * p_list = new StrAssocArray();
 	THROW_MEM(p_list);

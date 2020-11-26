@@ -123,7 +123,7 @@ static const ushort _Objects[] = {
 	PPOBJ_EVENTSUBSCRIPTION   // @v10.8.9
 };
 
-#define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
+// @v10.9.4 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
 
 static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 {
@@ -1062,7 +1062,7 @@ int FASTCALL PPGetObjTypeList(PPIDArray * pList, long flags)
 	int    ok = 1;
 	if(pList) {
 		pList->clear();
-		for(uint i = 0; i < _ObjectsCount; i++) {
+		for(uint i = 0; i < SIZEOFARRAY(_Objects); i++) {
 			const  PPID obj_type = _Objects[i];
 			int    skip = 0;
 			if(flags & gotlfExcludeObsolete && oneof3(obj_type, PPOBJ_COUNTRY, PPOBJ_REGION, PPOBJ_CITY))
@@ -1377,8 +1377,11 @@ ListWindow * FASTCALL GetPPObjList(PPID obj, uint flags, void * extraPtr)
 {
 	PPObjListWindow * olw = 0;
 	PPObject * o = GetPPObject(obj, extraPtr);
-	if(o && (olw = new PPObjListWindow(o, flags, extraPtr)) == 0)
-		PPSetErrorNoMem();
+	if(o) {
+		olw = new PPObjListWindow(o, flags, extraPtr);
+		if(!olw)
+			PPSetErrorNoMem();
+	}
 	return olw;
 }
 
@@ -1522,13 +1525,13 @@ int PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 	int    ok = -1;
 	PPID   id = DEREFPTRORZ(pObjID);
 	SString temp_buf;
-	ListWindow * p_lw = (ListWindow *)ValidView(GetPPObjList(objType, OLW_CANINSERT, extraPtr));
+	ListWindow * p_lw = static_cast<ListWindow *>(ValidView(GetPPObjList(objType, OLW_CANINSERT, extraPtr)));
 	if(p_lw) {
 		if(id)
 			p_lw->listBox()->TransmitData(+1, &id);
 		if(titleID && PPLoadText(titleID, temp_buf))
 			p_lw->setTitle(temp_buf);
-		p_lw->changeBounds(TRect(0, 0, 96, 36));
+		p_lw->changeBounds(TRect(0, 0, 160, 64)); // @v10.9.4 TRect(0, 0, 96, 36)-->TRect(0, 0, 160, 64)
 		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&id);

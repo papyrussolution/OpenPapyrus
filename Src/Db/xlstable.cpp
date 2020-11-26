@@ -154,7 +154,7 @@ int ExcelDbFile::GetFldNames()
 	FldNames.clear();
 	for(int i = 1; i <= max_items; i++) {
 		if(P_Sheet->GetValue(row, col, temp_buf.Z()) > 0 && temp_buf.NotEmptyS())
-			FldNames.add(temp_buf.ToUpper());
+			FldNames.add(temp_buf.ToUpper1251()); // @v10.9.4 ToUpper()-->ToUpper1251
 		else if(is_vert)
 			FldNames.add(temp_buf.Z().CatChar('$').Cat(row));
 		else

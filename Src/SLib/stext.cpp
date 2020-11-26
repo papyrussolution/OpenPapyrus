@@ -1731,9 +1731,9 @@ char * FASTCALL strupr866(char * str)
 	__asm push ax
 	__asm xor eax,eax
 	__asm pop ax
-	#	else
+	#else
 	return _AL;
-	#	endif
+	#endif
 	#else
 	return 0;
 	#endif
@@ -1761,9 +1761,9 @@ char * FASTCALL strupr866(char * str)
 	__asm push ax
 	__asm xor eax,eax
 	__asm pop ax
-	#	else
+	#else
 	return _AL;
-	#	endif
+	#endif
 	#else
 	return 0;
 	#endif

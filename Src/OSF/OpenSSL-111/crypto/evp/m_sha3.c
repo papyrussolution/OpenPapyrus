@@ -128,35 +128,35 @@ static int shake_ctrl(EVP_MD_CTX * evp_ctx, int cmd, int p1, void * p2)
  */
 # include "s390x_arch.h"
 
-# define S390X_SHA3_FC(ctx)     ((ctx)->pad)
+#define S390X_SHA3_FC(ctx)     ((ctx)->pad)
 
-# define S390X_sha3_224_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
+#define S390X_sha3_224_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
 	S390X_CAPBIT(S390X_SHA3_224)) &&  \
 	(OPENSSL_s390xcap_P.klmd[0] &      \
 	S390X_CAPBIT(S390X_SHA3_224)))
-# define S390X_sha3_256_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
+#define S390X_sha3_256_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
 	S390X_CAPBIT(S390X_SHA3_256)) &&  \
 	(OPENSSL_s390xcap_P.klmd[0] &      \
 	S390X_CAPBIT(S390X_SHA3_256)))
-# define S390X_sha3_384_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
+#define S390X_sha3_384_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
 	S390X_CAPBIT(S390X_SHA3_384)) &&  \
 	(OPENSSL_s390xcap_P.klmd[0] &      \
 	S390X_CAPBIT(S390X_SHA3_384)))
-# define S390X_sha3_512_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
+#define S390X_sha3_512_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
 	S390X_CAPBIT(S390X_SHA3_512)) &&  \
 	(OPENSSL_s390xcap_P.klmd[0] &      \
 	S390X_CAPBIT(S390X_SHA3_512)))
-# define S390X_shake128_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
+#define S390X_shake128_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
 	S390X_CAPBIT(S390X_SHAKE_128)) && \
 	(OPENSSL_s390xcap_P.klmd[0] &      \
 	S390X_CAPBIT(S390X_SHAKE_128)))
-# define S390X_shake256_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
+#define S390X_shake256_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
 	S390X_CAPBIT(S390X_SHAKE_256)) && \
 	(OPENSSL_s390xcap_P.klmd[0] &      \
 	S390X_CAPBIT(S390X_SHAKE_256)))
 
 /* Convert md-size to block-size. */
-# define S390X_KECCAK1600_BSZ(n) ((KECCAK1600_WIDTH - ((n) << 1)) >> 3)
+#define S390X_KECCAK1600_BSZ(n) ((KECCAK1600_WIDTH - ((n) << 1)) >> 3)
 
 static int s390x_sha3_init(EVP_MD_CTX * evp_ctx)
 {
@@ -268,7 +268,7 @@ static int s390x_shake_final(EVP_MD_CTX * evp_ctx, uchar * md)
 	return 1;
 }
 
-# define EVP_MD_SHA3(bitlen)                         \
+#define EVP_MD_SHA3(bitlen)                         \
 	const EVP_MD *EVP_sha3_ ## bitlen(void)                \
 	{                                                    \
 		static const EVP_MD s390x_sha3_ ## bitlen ## _md = { \
@@ -302,7 +302,7 @@ static int s390x_shake_final(EVP_MD_CTX * evp_ctx, uchar * md)
 		       &sha3_ ## bitlen ## _md;                      \
 	}
 
-# define EVP_MD_SHAKE(bitlen)                        \
+#define EVP_MD_SHAKE(bitlen)                        \
 	const EVP_MD *EVP_shake ## bitlen(void)                \
 	{                                                    \
 		static const EVP_MD s390x_shake ## bitlen ## _md = { \
@@ -340,7 +340,7 @@ static int s390x_shake_final(EVP_MD_CTX * evp_ctx, uchar * md)
 
 #else
 
-# define EVP_MD_SHA3(bitlen)                    \
+#define EVP_MD_SHA3(bitlen)                    \
 	const EVP_MD *EVP_sha3_ ## bitlen(void)           \
 	{                                               \
 		static const EVP_MD sha3_ ## bitlen ## _md = {  \
@@ -359,7 +359,7 @@ static int s390x_shake_final(EVP_MD_CTX * evp_ctx, uchar * md)
 		return &sha3_ ## bitlen ## _md;                 \
 	}
 
-# define EVP_MD_SHAKE(bitlen)                   \
+#define EVP_MD_SHAKE(bitlen)                   \
 	const EVP_MD *EVP_shake ## bitlen(void)           \
 	{                                               \
 		static const EVP_MD shake ## bitlen ## _md = {  \

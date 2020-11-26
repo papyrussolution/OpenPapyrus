@@ -61,7 +61,7 @@
  # (i.e. will wrap sooner). This might be useful to emulate some embedded
  # systems.
  #
- # define  __PTW32_THREAD_ID_REUSE_INCREMENT 0
+ #define  __PTW32_THREAD_ID_REUSE_INCREMENT 0
  #
  # ----------------------------------------------------------------------
  */

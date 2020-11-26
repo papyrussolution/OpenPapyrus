@@ -584,7 +584,7 @@ IMPL_HANDLE_EVENT(TDialog)
 	if(event.isCmd(cmExecute)) {
 		ushort retval = 0;
 		if(H()) {
-			BOOL   is_list_win = FALSE;
+			bool is_list_win = false;
 			TView::SetWindowProp(H(), GWLP_USERDATA, this);
 			if(APPL->PushModalWindow(this, H())) {
 				setupPosition();
@@ -596,7 +596,7 @@ IMPL_HANDLE_EVENT(TDialog)
 				::SetActiveWindow(H());
 				::EnableWindow(PrevInStack, 0);
 				if(P_Next && P_Next->IsConsistent() && P_Next->IsSubSign(TV_SUBSIGN_DIALOG) && static_cast<TDialog *>(P_Next)->resourceID == -1) {
-					is_list_win = TRUE;
+					is_list_win = true;
 					::EnableWindow(GetParent(PrevInStack), 0);
 				}
 				// @v10.8.1 {

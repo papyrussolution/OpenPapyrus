@@ -69,61 +69,61 @@
 	#define tsan_st_rel(ptr, val) __atomic_store_n((ptr), (val), __ATOMIC_RELEASE)
 #endif
 #elif defined(_MSC_VER) && _MSC_VER>=1200 && (defined(_M_IX86) || defined(_M_AMD64) || defined(_M_X64) || defined(_M_ARM64) || (defined(_M_ARM) && _M_ARM >= 7 && !defined(_WIN32_WCE)))
-/*
- * There is subtle dependency on /volatile:<iso|ms> command-line option.
- * "ms" implies same semantic as memory_order_acquire for loads and
- * memory_order_release for stores, while "iso" - memory_order_relaxed for
- * either. Real complication is that defaults are different on x86 and ARM.
- * There is explanation for that, "ms" is backward compatible with earlier
- * compiler versions, while multi-processor ARM can be viewed as brand new
- * platform to MSC and its users, and with non-relaxed semantic taking toll
- * with additional instructions and penalties, it kind of makes sense to
- * default to "iso"...
- */
-#define TSAN_QUALIFIER volatile
-#if defined(_M_ARM) || defined(_M_ARM64)
-#define _InterlockedExchangeAdd _InterlockedExchangeAdd_nf
-#pragma intrinsic(_InterlockedExchangeAdd_nf)
-#pragma intrinsic(__iso_volatile_load32, __iso_volatile_store32)
-#ifdef _WIN64
-#   define _InterlockedExchangeAdd64 _InterlockedExchangeAdd64_nf
-#   pragma intrinsic(_InterlockedExchangeAdd64_nf)
-#   pragma intrinsic(__iso_volatile_load64, __iso_volatile_store64)
-#   define tsan_load(ptr) (sizeof(*(ptr)) == 8 ? __iso_volatile_load64(ptr) : __iso_volatile_load32(ptr))
-#   define tsan_store(ptr, val) (sizeof(*(ptr)) == 8 ? __iso_volatile_store64((ptr), (val)) : __iso_volatile_store32((ptr), (val)))
-#else
-#   define tsan_load(ptr) __iso_volatile_load32(ptr)
-#   define tsan_store(ptr, val) __iso_volatile_store32((ptr), (val))
-#endif
-# else
-#define tsan_load(ptr) (*(ptr))
-#define tsan_store(ptr, val) (*(ptr) = (val))
-#endif
-#pragma intrinsic(_InterlockedExchangeAdd)
-#ifdef _WIN64
-	#pragma intrinsic(_InterlockedExchangeAdd64)
-	#define tsan_counter(ptr) (sizeof(*(ptr)) == 8 ? _InterlockedExchangeAdd64((ptr), 1) : _InterlockedExchangeAdd((ptr), 1))
-	#define tsan_decr(ptr) (sizeof(*(ptr)) == 8 ? _InterlockedExchangeAdd64((ptr), -1) : _InterlockedExchangeAdd((ptr), -1))
-#else
-	#define tsan_counter(ptr) InterlockedExchangeAdd(reinterpret_cast<volatile long *>(ptr), 1) // @sobolev _InterlockedExchangeAdd-->InterlockedExchangeAdd
-	#define tsan_decr(ptr) InterlockedExchangeAdd((ptr), -1) // @sobolev _InterlockedExchangeAdd-->InterlockedExchangeAdd
-#endif
-#if !defined(_ISO_VOLATILE)
-	#define tsan_ld_acq(ptr) (*(ptr))
-	#define tsan_st_rel(ptr, val) (*(ptr) = (val))
-#endif
+	/*
+	 * There is subtle dependency on /volatile:<iso|ms> command-line option.
+	 * "ms" implies same semantic as memory_order_acquire for loads and
+	 * memory_order_release for stores, while "iso" - memory_order_relaxed for
+	 * either. Real complication is that defaults are different on x86 and ARM.
+	 * There is explanation for that, "ms" is backward compatible with earlier
+	 * compiler versions, while multi-processor ARM can be viewed as brand new
+	 * platform to MSC and its users, and with non-relaxed semantic taking toll
+	 * with additional instructions and penalties, it kind of makes sense to
+	 * default to "iso"...
+	 */
+	#define TSAN_QUALIFIER volatile
+	#if defined(_M_ARM) || defined(_M_ARM64)
+		#define _InterlockedExchangeAdd _InterlockedExchangeAdd_nf
+		#pragma intrinsic(_InterlockedExchangeAdd_nf)
+		#pragma intrinsic(__iso_volatile_load32, __iso_volatile_store32)
+		#ifdef _WIN64
+			#define _InterlockedExchangeAdd64 _InterlockedExchangeAdd64_nf
+			#pragma intrinsic(_InterlockedExchangeAdd64_nf)
+			#pragma intrinsic(__iso_volatile_load64, __iso_volatile_store64)
+			#define tsan_load(ptr) (sizeof(*(ptr)) == 8 ? __iso_volatile_load64(ptr) : __iso_volatile_load32(ptr))
+			#define tsan_store(ptr, val) (sizeof(*(ptr)) == 8 ? __iso_volatile_store64((ptr), (val)) : __iso_volatile_store32((ptr), (val)))
+		#else
+			#define tsan_load(ptr) __iso_volatile_load32(ptr)
+			#define tsan_store(ptr, val) __iso_volatile_store32((ptr), (val))
+		#endif
+	#else
+		#define tsan_load(ptr) (*(ptr))
+		#define tsan_store(ptr, val) (*(ptr) = (val))
+	#endif
+	#pragma intrinsic(_InterlockedExchangeAdd)
+	#ifdef _WIN64
+		#pragma intrinsic(_InterlockedExchangeAdd64)
+		// @sobolev #define tsan_counter(ptr) ((sizeof(*(ptr)) == 8) ? _InterlockedExchangeAdd64((ptr), 1) : _InterlockedExchangeAdd((ptr), 1))
+		// @sobolev #define tsan_decr(ptr) (sizeof(*(ptr)) == 8 ? _InterlockedExchangeAdd64((ptr), -1) : _InterlockedExchangeAdd((ptr), -1))
+		#define tsan_counter(ptr) _InterlockedExchangeAdd(reinterpret_cast<volatile long *>(ptr), 1) // @sobolev 
+		#define tsan_decr(ptr) _InterlockedExchangeAdd(reinterpret_cast<volatile long *>(ptr), -1) // @sobolev 
+	#else
+		#define tsan_counter(ptr) InterlockedExchangeAdd(reinterpret_cast<volatile long *>(ptr), 1) // @sobolev _InterlockedExchangeAdd-->InterlockedExchangeAdd
+		#define tsan_decr(ptr) InterlockedExchangeAdd((ptr), -1) // @sobolev _InterlockedExchangeAdd-->InterlockedExchangeAdd
+	#endif
+	#if !defined(_ISO_VOLATILE)
+		#define tsan_ld_acq(ptr) (*(ptr))
+		#define tsan_st_rel(ptr, val) (*(ptr) = (val))
+	#endif
 #endif
 #ifndef TSAN_QUALIFIER
-
-#define TSAN_QUALIFIER volatile
-#define tsan_load(ptr) (*(ptr))
-#define tsan_store(ptr, val) (*(ptr) = (val))
-#define tsan_counter(ptr) ((*(ptr))++)
-#define tsan_decr(ptr) ((*(ptr))--)
-/*
- * Lack of tsan_ld_acq and tsan_ld_rel means that compiler support is not
- * sophisticated enough to support them. Code that relies on them should be
- * protected with #ifdef tsan_ld_acq with locked fallback.
- */
-
+	#define TSAN_QUALIFIER volatile
+	#define tsan_load(ptr) (*(ptr))
+	#define tsan_store(ptr, val) (*(ptr) = (val))
+	#define tsan_counter(ptr) ((*(ptr))++)
+	#define tsan_decr(ptr) ((*(ptr))--)
+	/*
+	 * Lack of tsan_ld_acq and tsan_ld_rel means that compiler support is not
+	 * sophisticated enough to support them. Code that relies on them should be
+	 * protected with #ifdef tsan_ld_acq with locked fallback.
+	 */
 #endif

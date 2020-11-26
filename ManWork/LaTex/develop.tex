@@ -42,6 +42,16 @@
 
 \chapter{Введение}
 
+Настоящий документ описывает (часто в беспорядочном виде) внутреннее устройство системы Papyurs 
+и инфраструктуры этой системы. 
+
+Так как система Papyrus представлена одновременно в проприетарном виде (собственно, Papyrus) так 
+и в виде системы с открытыми исходными кодами OpenPapyrus, то в дальнейшем все ссылки на Papyrus 
+в равной степени можно трактовать и как OpenPapyrus. Тем более, что эти две сущности имеют мизерные
+различия и развиваются параллельно.
+
+Документ предназначен, главным образом, для разработчиков.
+
 \chapter{Инструментарий}
 
 В этой главе рассмотрены инструментальные средства разработки и сборки системы.
@@ -170,19 +180,26 @@ Visual Studio версий 7.10 (Visual Studio 2003), 14.0 (Visual Studio 2015) и 15.0
 	\item[libjpeg-turbo]
 	\item[libpng]
 	\item[giflib]
-	\item[libxml]
+	\item[tiff] Версия 4.0.9.
+	\item[libxml] Версия 2.9.2. Значительно переработана - дальнейшие заимствования не предполагаются.
 	\item[BerkeleyDB]
-	\item[gSOAP]
-	\item[Scintilla]
-	\item[cURL]
+	\item[gSOAP] Версия 2.8.8. Значительно переработана - дальнейшие заимствования не предполагаются.
+	\item[Scintilla] Версия 3.7.3. Используется для редактирования текстовых файлов и вывода в окне сообщений.
+	\item[cURL] Версия 7.73.
 	\item[libzip]
-	\item[openssl]
+	\item[openssl] Версия 1.1.1d.
 	\item[libssh2]
 	\item[nginx]
 	\item[pcre]	
 	\item[7zip]	
 	\item[lua] Версия 5.3.4. В планах задействовать LUA в качестве внутреннего скриптового языка.
 	\item[libarchive]
+	\item[jansson] Экспериментальный форк, сделанный ради сборки проекта rehex.
+	\item[capstone]  Версия 4.0.2 (git clone 2020-11-18). Экспериментальный форк, сделанный ради
+	сборки проекта rehex.
+	\item[sqlite] Версия 3.33.00. В отличии от большинства иных заимствованных проектов, эта библиотека
+	пока не подвергалась рефакторингу.
+	\item[mariadb-connector-c] 
 \end{description}
 
 \chapter{Code style}
@@ -522,6 +539,81 @@ include guard с помощью макросов \#ifndef-\#define-\#endif.
 В проекте часто используется целый ряд специальных макросов главным назначением которых является уменьшение кода 
 и улучшение его читаемости. Большинство таких макросов определены в файле slib.h
 
+\subsubsection{BIN булева унификация до целого 0 или 1}
+Если необходимо привести результат выражения к одному из двух значений 0 или 1, то
+вместо: 
+\begin{lstlisting}	
+    int result = some_function_returning_int(argument) ? 1 : 0;      
+\end{lstlisting}
+Следует писать:
+\begin{lstlisting}	
+    int result = BIN(some_function_returning_int(argument));
+\end{lstlisting}
+
+\subsubsection{LOGIC булева унификация до целого false или true}
+Этот макрос аналогичен предыдущему с той лишь разницей, что возвращает true или false:
+\begin{lstlisting}	
+    bool result = some_function_returning_int(argument) ? true : false;
+\end{lstlisting}
+Следует писать:
+\begin{lstlisting}	
+    bool result = LOGIC(some_function_returning_int(argument));
+\end{lstlisting}
+
+\subsubsection{MAX и MIN определение максимального и минимального, соответственно, значения из двух аргументов}
+Это - очень популярные макросы в мире c/c++. Для проектов Papyrus они определены в slib.h и более нигде.
+Используйте только эти макросы, но не min, max или что-либо еще.
+
+\subsubsection{SIZEOFARRAY определение размера статического массива}
+Часто возникает необходимость получить размер статического массива. Каноническим подходом является следующий:
+\begin{lstlisting}	
+       Entry array[591];
+       for(size_t i = 0; i < sizeof(array) / sizeof(array[0]); i++) {
+	       do_somthing_with_entry(array[i]);
+	   }
+\end{lstlisting}
+
+Так как писать каждый раз sizeof(array) / sizeof(array[0]) утомительно, то многие программисты 
+применяют макросы для этой конструкции. В библиотеке SLIB используется макрос SIZEOFARRAY.
+Использование этого макроса в применении к примеру, приведенному выше, выглядит так:
+\begin{lstlisting}	
+       Entry array[591];
+       for(size_t i = 0; i < SIZEOFARRAY(array); i++) {
+	       do_somthing_with_entry(array[i]);
+	   }
+\end{lstlisting}
+
+Будьте внимательны: попытка применить этот макрос к динамически распределяемому массиву или
+к указателю, о размере данных, на которые он ссылается, компилятор ничего не знает, приведет к
+фатальным последствиям.
+
+Например, в следующем коде применение макроса SIZEOFARRAY недопустимо.
+\begin{lstlisting}	
+	void foo(Entry * pArray, uint entryCount) 
+	{
+	   // Не делайте так! НИКОГДА!
+       for(size_t i = 0; i < SIZEOFARRAY(pArray); i++) { // @badcode
+	       do_somthing_with_entry(pArray[i]);
+	   }
+	   // Компилятор не знает на массив какого размера ссылается pArray:
+	   // здесь надо писать так:
+       for(size_t j = 0; j < entryCount; j++) { // @goodcode
+	       do_somthing_with_entry(pArray[j]);
+	   }	
+   }
+\end{lstlisting}
+
+Важным примером использования SIZEOFARRAY является вычисление массива unicode-символов (или 
+же массива, элементы которого потенциально могут быть размером более одного байта).
+Пример:
+\begin{lstlisting}	
+       TCHAR string_buf[591];
+	   // Здесь нелья писать sizeof(string_buf) поскольку в общем случае не известно
+	   // является длина элемента массива 1 байт или 2 байта 
+	   // (это зависит от предопределений сборки проекта).
+       do_somthing_with_string(string_buf, SIZEOFARRAY(string_buf));
+\end{lstlisting}
+
 \subsubsection{oneof}
 
 Вместо конструкции 
@@ -553,6 +645,16 @@ if(oneof2(a, 1, 3))
        следует писать: 
 \begin{lstlisting}	
        SETIFZ(a, b);
+\end{lstlisting}	
+
+\subsubsection{NZOR}
+Вместо 
+\begin{lstlisting}
+       a = b ? b : c; 
+\end{lstlisting}		
+       следует писать: 
+\begin{lstlisting}	
+       a = NZOR(b, c);
 \end{lstlisting}	
 
 \subsubsection{SETMAX}
@@ -698,6 +800,7 @@ Agner Fog (www.agner.org).
 
 Еще один макрос THISZERO() используется для полного обнуления экземпляра структуры или класса.
 Часто используется в конструкторах.
+
 Осторожно: этот макрос ни в коем случае не следует использовать для классов, имеющих виртуальные функции - 
 он обнулит указатель на таблицу виртуальных функций в результате чего программа обязательно аварийно завершится
 при попытке обращения к любой из виртуальных функций класса.
@@ -1114,6 +1217,11 @@ Agner Fog (www.agner.org).
 \section{Битовый массив (BitArray)}
 
 \section{Набор строк (StringSet)}
+
+\chapter{Базовые алгоритмы}
+
+В этой главе я планирую скомпоновать информацию о базовых алгоритмах, используемых не только
+в рамках системы Papyrus, но и вообще имеющих важное значение в программировании.
 
 \chapter{Доступ к базам данных}
 

@@ -219,19 +219,19 @@ typedef int32_t cairo_atomic_int_t;
 
 #if SIZEOF_VOID_P==4
 typedef int32_t cairo_atomic_intptr_t;
-# define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) \
+#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) \
 	OSAtomicCompareAndSwap32Barrier((cairo_atomic_intptr_t)oldv, (cairo_atomic_intptr_t)newv, (cairo_atomic_intptr_t*)x)
 
 #elif SIZEOF_VOID_P==8
 typedef int64_t cairo_atomic_intptr_t;
-# define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) \
+#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) \
 	OSAtomicCompareAndSwap64Barrier((cairo_atomic_intptr_t)oldv, (cairo_atomic_intptr_t)newv, (cairo_atomic_intptr_t*)x)
 
 #else
 #error No matching integer pointer type
 #endif
 
-# define _cairo_atomic_ptr_get(x) (OSMemoryBarrier(), *(x))
+#define _cairo_atomic_ptr_get(x) (OSMemoryBarrier(), *(x))
 
 #endif
 

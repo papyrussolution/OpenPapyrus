@@ -109,7 +109,7 @@ static void scryptROMix(uchar * B, uint64_t r, uint64_t N,
 }
 
 #ifndef SIZE_MAX
-# define SIZE_MAX    ((size_t)-1)
+#define SIZE_MAX    ((size_t)-1)
 #endif
 
 /*
@@ -145,7 +145,7 @@ static void scryptROMix(uchar * B, uint64_t r, uint64_t N,
 #endif
 #else
 /* Default memory limit: 32 MB */
-# define SCRYPT_MAX_MEM  (1024 * 1024 * 32)
+#define SCRYPT_MAX_MEM  (1024 * 1024 * 32)
 #endif
 
 int EVP_PBE_scrypt(const char * pass, size_t passlen,

@@ -109,7 +109,7 @@ static gnode_t * FASTCALL lookup_node(const gnode_t * node, const char * identif
 static gnode_t * lookup_identifier(gvisitor_t * self, const char * identifier, gnode_identifier_expr_t * node) 
 {
 	const GravityArray <gnode_t *> * decls = ((semacheck_t*)self->data)->declarations;
-	size_t len = gnode_array_size(decls);
+	const uint len = gnode_array_size(decls);
 	if(len == 0) 
 		return NULL;
 	uint16 nf = 0; // number of functions traversed
@@ -389,7 +389,7 @@ static bool is_init_infinite_loop(gvisitor_t * self, gnode_identifier_expr_t * i
 
 	// 1. there should be at least 2 declarations in the stack
 	GravityArray <gnode_t *> * decls = ((semacheck_t*)self->data)->declarations;
-	size_t len = gnode_array_size(decls);
+	const uint len = gnode_array_size(decls);
 	if(len < 2) 
 		return false;
 	// 2. current function is init
@@ -436,13 +436,12 @@ static void check_access_storage_specifiers(gvisitor_t * self, gnode_t * node, g
 	}
 }
 
-static bool check_assignment_expression(gvisitor_t * self, gnode_binary_expr_t * node) {
+static bool check_assignment_expression(gvisitor_t * self, gnode_binary_expr_t * node) 
+{
 	// in case of assignment check left node: assure assignment is made to identifier or other valid expressions
 	// for example left expression cannot be a literal (to prevent 3 = 2)
-
 	gnode_n tag = node->left->GetTag();
 	bool result = ((tag == NODE_IDENTIFIER_EXPR) || (tag == NODE_FILE_EXPR) || (tag == NODE_POSTFIX_EXPR));
-
 	// more checks in the postfix case
 	if(tag == NODE_POSTFIX_EXPR) {
 		gnode_postfix_expr_t * expr = (gnode_postfix_expr_t *)node->left;
@@ -459,7 +458,7 @@ static bool check_assignment_expression(gvisitor_t * self, gnode_binary_expr_t *
 				return false;
 			// basically the LATEST node of a postfix expression cannot be a CALL in an assignment
 			// so we are avoiding expressions like: a(123) = ...; or a.b.c(1,2) = ...;
-			size_t count = gnode_array_size(expr->list);
+			const uint count = gnode_array_size(expr->list);
 			const gnode_postfix_subexpr_t * subnode = static_cast<const gnode_postfix_subexpr_t *>(gnode_array_get(expr->list, count-1));
 			if(!subnode) 
 				return false;
@@ -492,11 +491,11 @@ static bool check_range_expression(gvisitor_t * self, gnode_binary_expr_t * node
 
 static bool check_class_ivar(gvisitor_t * self, gnode_class_decl_t * classnode, gnode_variable_decl_t * node) 
 {
-	size_t count = gnode_array_size(node->decls);
+	const uint count = gnode_array_size(node->decls);
 	gnode_class_decl_t * supernode = static_cast<gnode_class_decl_t *>(classnode->superclass);
 	if(!gnode_t::IsA(supernode, NODE_CLASS_DECL)) 
 		return false;
-	for(size_t i = 0; i<count; ++i) {
+	for(uint i = 0; i < count; ++i) {
 		gnode_var_t * p = (gnode_var_t *)gnode_array_get(node->decls, i);
 		if(!p) 
 			continue;
@@ -804,13 +803,13 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 {
 	gnode_t * top = TOP_DECLARATION();
 	symboltable_t * symtable = symtable_from_node(top);
-	const size_t count = gnode_array_size(node->decls);
+	const uint count = gnode_array_size(node->decls);
 	gnode_n env = top->GetTag();
 	const bool env_is_function = (env == NODE_FUNCTION_DECL);
 	// check if optional access and storage specifiers make sense in current context
 	check_access_storage_specifiers(self, node, env, node->access, node->storage);
 	// loop to check each individual declaration
-	for(size_t i = 0; i < count; ++i) {
+	for(uint i = 0; i < count; ++i) {
 		gnode_var_t * p = static_cast<gnode_var_t *>(gnode_array_get(node->decls, i));
 		DEBUG_SEMA2("visit_variable_decl %s", p->identifier);
 		// set enclosing environment
@@ -1098,8 +1097,8 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 	bool is_super = (gnode_t::IsA(node->id, NODE_KEYWORD_EXPR) && (((gnode_keyword_expr_t*)node->id)->Token.type == TOK_KEY_SUPER));
 	bool is_assignment = node->IsAssignment;
 	// process each subnode
-	size_t count = gnode_array_size(node->list);
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = gnode_array_size(node->list);
+	for(uint i = 0; i < count; ++i) {
 		gnode_postfix_subexpr_t * subnode = (gnode_postfix_subexpr_t *)gnode_array_get(node->list, i);
 		gnode_n tag = subnode->Tag; // identify postfix type: NODE_CALL_EXPR, NODE_ACCESS_EXPR, NODE_SUBSCRIPT_EXPR
 		bool is_real_assigment = (is_assignment && (i+1 == count)); // check assignment flag
@@ -1116,8 +1115,8 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 		}
 		// for a function/method call visit each argument
 		if(tag == NODE_CALL_EXPR) {
-			const size_t n = gnode_array_size(subnode->args);
-			for(size_t j = 0; j < n; ++j) {
+			const uint n = gnode_array_size(subnode->args);
+			for(uint j = 0; j < n; ++j) {
 				gnode_t * val = gnode_array_get(subnode->args, j);
 				if(is_expression_assignment(val)) {
 					REPORT_ERROR(val, "Assignment does not have side effects and so cannot be used as function argument."); 
@@ -1151,15 +1150,13 @@ static void visit_file_expr(gvisitor_t * self, gnode_file_expr_t * node)
 	GravityArray <gnode_t *> * decls = ((semacheck_t*)self->data)->declarations;
 	gnode_t * globals = gnode_array_get(decls, 0);
 	gnode_t * target = globals;
-	size_t n = gnode_array_size(node->identifiers);
+	uint n = gnode_array_size(node->identifiers);
 	assert(n);
-
 	// no need to scan the entire list because lookup must be performed at runtime so check just the first element
 	n = 1;
-	for(size_t i = 0; i<n; ++i) {
+	for(uint i = 0; i < n; ++i) {
 		const char * identifier = gnode_array_get(node->identifiers, i);
 		DEBUG_SEMA2("LOOKUP %s", identifier);
-
 		gnode_t * symbol = lookup_node(target, identifier);
 		if(!symbol) {
 			REPORT_ERROR(node, "Module identifier %s not found.", identifier); break;
@@ -1198,15 +1195,15 @@ static void visit_keyword_expr(gvisitor_t * self, gnode_keyword_expr_t * node)
 
 static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node) 
 {
-	size_t n = gnode_array_size(node->list1);
+	const uint n = gnode_array_size(node->list1);
 	bool ismap = (node->list2 != NULL);
 	DEBUG_SEMA2("visit_list_expr (n: %zu ismap: %d)", n, ismap);
-	for(size_t j = 0; j < n; ++j) {
+	for(uint j = 0; j < n; ++j) {
 		gnode_t * e = gnode_array_get(node->list1, j);
 		gvisit(self, e);
 		if(ismap) {
 			// key must be unique
-			for(size_t k = 0; k < n; ++k) {
+			for(uint k = 0; k < n; ++k) {
 				if(k != j) { // do not check itself
 					const gnode_t * key = gnode_array_get(node->list1, k);
 					if(gnode_is_equal(e, key)) {

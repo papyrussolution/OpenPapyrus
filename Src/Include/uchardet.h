@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+/*
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -8,8 +8,7 @@
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
+ * for the specific language governing rights and limitations under the License.
  *
  * The Original Code is Mozilla Universal charset detector code.
  *
@@ -18,8 +17,7 @@
  * Portions created by the Initial Developer are Copyright (C) 2001
  * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s):
- *     BYVoid <byvoid.kcp@gmail.com>
+ * Contributor(s): BYVoid <byvoid.kcp@gmail.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -32,16 +30,24 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
+ */
 #ifndef UCHARDET_H___
 #define UCHARDET_H___
+
+#define NS_FILTER_CHINESE_SIMPLIFIED  0x01
+#define NS_FILTER_CHINESE_TRADITIONAL 0x02
+#define NS_FILTER_JAPANESE            0x04
+#define NS_FILTER_KOREAN              0x08
+#define NS_FILTER_NON_CJK             0x10
+#define NS_FILTER_ALL                 0x1F
+#define NS_FILTER_CHINESE (NS_FILTER_CHINESE_SIMPLIFIED | NS_FILTER_CHINESE_TRADITIONAL)
+#define NS_FILTER_CJK (NS_FILTER_CHINESE_SIMPLIFIED | NS_FILTER_CHINESE_TRADITIONAL | NS_FILTER_JAPANESE | NS_FILTER_KOREAN)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stddef.h>
+//#include <stddef.h>
 
 typedef struct uchardet * uchardet_t;
 /**
@@ -82,5 +88,45 @@ const char * uchardet_get_charset(uchardet_t ud);
 #ifdef __cplusplus
 }
 #endif
+
+class nsCharSetProber;
+
+enum nsresult {
+	NS_OK,
+	NS_ERROR_OUT_OF_MEMORY
+};
+
+enum nsInputState {
+	ePureAscii = 0,
+	eEscAscii  = 1,
+	eHighbyte  = 2
+};
+
+class nsUniversalDetector {
+public:
+	nsUniversalDetector(uint32 aLanguageFilter);
+	virtual ~nsUniversalDetector();
+	virtual nsresult HandleData(const char* aBuf, uint32 aLen);
+	virtual void DataEnd();
+protected:
+	virtual void Report(const char* aCharset) = 0;
+	virtual void Reset();
+	nsInputState mInputState;
+	enum {
+		fNbspFound = 0x0001,
+		fDone      = 0x0002,
+		fInTag     = 0x0004,
+		fStart     = 0x0008,
+		fGotData   = 0x0010
+	};
+	uint   Flags;
+	const  char * mDetectedCharset;
+	int32  mBestGuess;
+	uint32 mLanguageFilter;
+	nsCharSetProber * mCharSetProbers[3];
+	nsCharSetProber * mEscCharSetProber;
+	char   mLastChar;
+	uint8  Reserve[3]; // @alignment
+};
 
 #endif

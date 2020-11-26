@@ -183,7 +183,7 @@ SmartListBox::~SmartListBox()
 	RestoreOnDestruction();
 	delete def;
 	if(HIML)
-		ImageList_Destroy(HIML);
+		ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
 }
 
 int SmartListBox::SearchColumnByIdent(long ident, uint * pPos) const
@@ -612,7 +612,7 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 			//
 			{
 				if(HIML)
-					ImageList_Destroy(HIML);
+					ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
 				HIML = p_def->CreateImageList(TProgram::GetInst());
 				if(HIML)
 					::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, static_cast<WPARAM>(TVSIL_NORMAL), reinterpret_cast<LPARAM>(HIML));
@@ -621,7 +621,7 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 		else {
 			const StdTreeListBoxDef::TreeItem * p_item = static_cast<const StdTreeListBoxDef::TreeItem *>(p_def->T.GetData(parentP));
 			if(p_item)
-				h_parent = p_item->H;
+				h_parent = static_cast<HTREEITEM>(p_item->H);
 		}
 		{
 			SString err_msg;
@@ -1475,7 +1475,7 @@ void SmartListBox::Implement_Draw()
 			::SendMessage(h_lb, LB_RESETCONTENT, 0, 0);
 		{
 			if(HIML) {
-				ImageList_Destroy(HIML);
+				ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
 				HIML = 0;
 			}
 			if(def)

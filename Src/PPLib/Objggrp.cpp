@@ -20,32 +20,9 @@ PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODSGROUP,
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-/*static*/int PPObjGoodsGroup::IsAlt(PPID id)
-{
-	if(id) {
-		PPObjGoodsGroup ggobj;
-		return ggobj.IsAltGroup(id);
-	}
-	return -1;
-}
-
-/*static*/int PPObjGoodsGroup::IsTempAlt(PPID id)
-{
-	if(id) {
-		PPObjGoodsGroup ggobj;
-		return ggobj.IsTempAltGroup(id);
-	}
-	return -1;
-}
-
-/*static*/int PPObjGoodsGroup::IsDynamicAlt(PPID id)
-{
-	if(id) {
-		PPObjGoodsGroup ggobj;
-		return ggobj.IsDynamicAltGroup(id);
-	}
-	return -1;
-}
+/*static*/int PPObjGoodsGroup::IsAlt(PPID id) { return id ? PPObjGoodsGroup().IsAltGroup(id) : -1; }
+/*static*/int PPObjGoodsGroup::IsTempAlt(PPID id) { return id ? PPObjGoodsGroup().IsTempAltGroup(id) : -1; }
+/*static*/int PPObjGoodsGroup::IsDynamicAlt(PPID id) { return id ? PPObjGoodsGroup().IsDynamicAltGroup(id) : -1; }
 
 int PPObjGoodsGroup::SearchCode(const char * pCode, BarcodeTbl::Rec * pRec)
 {
@@ -145,7 +122,6 @@ int PPObjGoodsGroup::DeleteObj(PPID id)
 	int    ok = 1, r;
 	PPID   branch_id = 0;
 	Goods2Tbl::Rec rec;
-	// @v9.4.9 {
 	if(id) {
 		PPGoodsConfig cfg;
 		if(PPObjGoods::ReadConfig(&cfg) > 0) {
@@ -153,7 +129,6 @@ int PPObjGoodsGroup::DeleteObj(PPID id)
 			THROW_PP(cfg.DefGroupID != id, PPERR_GGRPHASREFINGCFG);
 		}
 	}
-	// } @v9.4.9
 	while(ok > 0 && (r = P_Tbl->SearchAnyRef(PPOBJ_GOODSGROUP, id, &branch_id)) > 0) {
 		if(Search(branch_id, &rec) > 0) {
 			//
@@ -337,10 +312,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			Goods2Tbl ggrp_tbl;
 			BExtQuery q(&ggrp_tbl, 1);
 			MEMSZERO(k);
-			if(del_temp_alt)
-				pLogger->LogString(PPTXT_LOG_DELTEMPALTGRP, 0);
-			else
-				pLogger->LogString(PPTXT_LOG_TEMPALTGROUPS, 0);
+			pLogger->LogString(del_temp_alt ? PPTXT_LOG_DELTEMPALTGRP : PPTXT_LOG_TEMPALTGROUPS, 0);
 			k.Kind = PPGDSK_GROUP;
 			k.ParentID = 0;
 			q.select(ggrp_tbl.ID, ggrp_tbl.Name, 0L).where(ggrp_tbl.Kind == PPGDSK_GROUP);
@@ -546,8 +518,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 
 int RecoverGoodsGroups(const GoodsGroupRecoverParam * pParam)
 {
-	PPObjGoodsGroup gg_obj;
-	return gg_obj.Recover(pParam, 0);
+	return PPObjGoodsGroup().Recover(pParam, 0);
 }
 
 int RecoverGoodsGroupsNIA()
@@ -555,8 +526,7 @@ int RecoverGoodsGroupsNIA()
 	GoodsGroupRecoverParam param;
 	PPGetFileName(PPFILNAM_ERR_LOG, param.LogFileName);
 	param.Flags |= GoodsGroupRecoverParam::fCorrect;
-	PPObjGoodsGroup gg_obj;
-	return gg_obj.Recover(&param, 0);
+	return PPObjGoodsGroup().Recover(&param, 0);
 }
 
 int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
@@ -567,9 +537,9 @@ int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 		p_def->ClearImageAssocList();
 		if(p_def->getIdList(list) > 0) {
 			Goods2Tbl::Rec ggrec;
-			MEMSZERO(ggrec);
+			// @v10.9.4 @ctr MEMSZERO(ggrec);
 			for(uint i = 0; i < list.getCount(); i++) {
-				PPID id = list.at(i);
+				const PPID id = list.at(i);
 				long img_id = ICON_GGROUP;
 				if(Fetch(id, &ggrec) > 0) {
 					if(ggrec.Flags & GF_FOLDER)
@@ -789,7 +759,7 @@ int GoodsGroupView::addItem(long * pPos, long * pID)
 
 int GoodsGroupView::editItem(long, long id)
 {
-	int    r = id ? GGObj.Edit(&id, 0) : -1;
+	int    r = (id ? GGObj.Edit(&id, 0) : -1);
 	return (r == cmOK) ? 1 : ((r == 0) ? 0 : -1);
 }
 

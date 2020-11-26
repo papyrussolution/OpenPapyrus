@@ -1720,6 +1720,7 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 	ASSIGN_PTR(pBillID, 0L);
 	THROW(CheckRights(PPR_INS));
 	THROW(pack.CreateBlankByFilt(opID, pFilt, 1));
+	pack.Rec.Dt = getcurdate_(); //@v10.9.4 @SevaSob
 	op_type = GetOpType(pack.Rec.OpID, &op_rec);
 	while(r > 0 && !pack.Rec.LocID) {
 		if(op_type == PPOPT_ACCTURN && op_rec.DefLocID)

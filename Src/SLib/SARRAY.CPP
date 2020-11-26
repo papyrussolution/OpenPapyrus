@@ -1954,81 +1954,6 @@ int UUIDAssocArray::GetMaxKey(long * pMaxKey, uint * pPos) const
 //
 //
 //
-/*static*/TYPEID TaggedString_obsolete::BufType() { return static_cast<TYPEID>(MKSTYPE(S_ZSTRING, TaggedString_obsolete::BufSize())); }
-/*static*/size_t TaggedString_obsolete::BufSize() { return (sizeof(TaggedString_obsolete)-sizeof(long)); }
-
-TaggedString_obsolete::TaggedString_obsolete() : Id(0)
-{
-	PTR32(Txt)[0] = 0;
-}
-
-TaggedStringArray_obsolete::TaggedStringArray_obsolete() : TSArray <TaggedString_obsolete> ()
-{
-}
-
-TaggedStringArray_obsolete & FASTCALL TaggedStringArray_obsolete::operator = (const TaggedStringArray_obsolete & rS)
-{
-	copy(rS);
-	return *this;
-}
-
-int TaggedStringArray_obsolete::Add(long id, const char * pStr)
-{
-	TaggedString_obsolete entry;
-	entry.Id = id;
-	STRNSCPY(entry.Txt, pStr);
-	return insert(&entry);
-}
-
-#if 0 // @v10.7.11 {
-int TaggedStringArray_obsolete::Search(long id, uint * pPos, int binary) const
-{
-	uint   pos = 0;
-	int    ok = binary ? bsearch(&id, &pos, CMPF_LONG) : lsearch(&id, &pos, CMPF_LONG);
-	ASSIGN_PTR(pPos, pos);
-	return ok;
-}
-
-int TaggedStringArray_obsolete::SearchByText(const char * pTxt, uint * pPos) const
-{
-	if(pTxt) {
-		TaggedString_obsolete * p_item;
-		for(uint i = 0; enumItems(&i, (void **)&p_item);)
-			if(stricmp866(p_item->Txt, pTxt) == 0) {
-				ASSIGN_PTR(pPos, i-1);
-				return 1;
-			}
-	}
-	return 0;
-}
-
-int TaggedStringArray_obsolete::Get(long id, SString & rBuf, int binary) const
-{
-	uint   pos = 0;
-	int    ok = Search(id, &pos, binary);
-	if(ok > 0)
-		rBuf = at(pos).Txt;
-	else
-		rBuf.Z();
-	return ok;
-}
-
-int TaggedStringArray_obsolete::Get(long id, char * pBuf, size_t bufLen, int binary) const
-{
-	SString temp_buf;
-	int    r = Get(id, temp_buf, binary);
-	temp_buf.CopyTo(pBuf, bufLen);
-	return r;
-}
-
-IMPL_CMPFUNC(TaggedStringByName, i1, i2) { return stricmp866(static_cast<const char *>(i1)+sizeof(long), static_cast<const char *>(i2)+sizeof(long)); }
-
-void TaggedStringArray_obsolete::SortByText() { SArray::sort(PTR_CMPFUNC(TaggedStringByName)); }
-void TaggedStringArray_obsolete::SortByID() { SArray::sort(CMPF_LONG); }
-#endif // } 0 @v10.7.11
-//
-//
-//
 void SV_Uint32::Init()
 {
 	P_Data = 0;
@@ -2846,29 +2771,6 @@ void StrAssocArray::Reverse()
 {
 	LAssocArray::reverse(0, LAssocArray::getCount());
 }
-
-/* @v10.7.11 int StrAssocArray::Test_Cmp(const TaggedStringArray_obsolete & rTsa, int * pNEqPos) const
-{
-	int    ok = 1;
-	int    neq_pos = -1;
-	uint   c = getCount(), i = 0;
-	THROW(rTsa.getCount() == c);
-	for(i = 0; i < c; i++) {
-		const TaggedString_obsolete & r_ts = rTsa.at(i);
-		Item sa = Get(i);
-		neq_pos = static_cast<int>(i);
-		THROW(sa.Id == r_ts.Id);
-		if(sa.Txt) {
-			THROW(strcmp(sa.Txt, r_ts.Txt) == 0);
-		}
-		else {
-			THROW(r_ts.Txt[0] == 0);
-		}
-	}
-	CATCHZOK
-	ASSIGN_PTR(pNEqPos, neq_pos);
-	return ok;
-}*/
 
 int FASTCALL StrAssocArray::Write(SBuffer & rBuf, long o) const
 {

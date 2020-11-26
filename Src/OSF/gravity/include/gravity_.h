@@ -2752,7 +2752,7 @@ void    FASTCALL gnode_free(gnode_t * node);
 #define gnode_array_pop(r)                  ((r)->getCount() ? r->pop() : NULL)
 #define gnode_array_get(r, i)               (((i) >= 0 && (i) < (r)->getCount()) ? r->at(i) : NULL)
 #define gnode_array_free(r)                 do { r->Z(); mem_free((void*)r); } while(0)
-#define gtype_array_each(r, block, type)    { size_t _len = gnode_array_size(r); for(size_t _i = 0; _i < _len; ++_i) { type val = (type)gnode_array_get(r, _i); block; } }
+#define gtype_array_each(r, block, type)    { uint _len = gnode_array_size(r); for(uint _i = 0; _i < _len; ++_i) { type val = (type)gnode_array_get(r, _i); block; } }
 #define gnode_array_each(r, block)          gtype_array_each(r, block, gnode_t*)
 #define gnode_array_eachbase(r, block)      gtype_array_each(r, block, gnode_base_t*)
 #define cstring_array_free(r)               (r)->Z()

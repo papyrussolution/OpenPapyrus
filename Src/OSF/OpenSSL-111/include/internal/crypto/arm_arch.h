@@ -11,12 +11,12 @@
 
 #if !defined(__ARM_ARCH__)
 #if defined(__CC_ARM)
-#   define __ARM_ARCH__ __TARGET_ARCH_ARM
+#define __ARM_ARCH__ __TARGET_ARCH_ARM
 #   if defined(__BIG_ENDIAN)
 #define __ARMEB__
-#   else
+#else
 #define __ARMEL__
-#   endif
+#endif
 #elif defined(__GNUC__)
 #   if   defined(__aarch64__)
 #define __ARM_ARCH__ 8
@@ -50,9 +50,9 @@
 #define __ARM_ARCH__ 5
 #   elif defined(__ARM_ARCH_4__) || defined(__ARM_ARCH_4T__)
 #define __ARM_ARCH__ 4
-#   else
+#else
 #error "unsupported ARM architecture"
-#   endif
+#endif
 #endif
 #endif
 

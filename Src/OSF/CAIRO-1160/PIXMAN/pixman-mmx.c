@@ -86,7 +86,7 @@ extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artifi
 	return __A;
 }
 
-# define _mm_shuffle_pi16(A, N)                                         \
+#define _mm_shuffle_pi16(A, N)                                         \
 	({                                                                  \
 		__m64 ret;                                                      \
                                                                         \
@@ -135,13 +135,13 @@ extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artifi
  * If __m64 is a double datatype, then define USE_M64_DOUBLE.
  */
 #ifdef _MSC_VER
-# define M64_MEMBER m64_u64
+#define M64_MEMBER m64_u64
 #elif defined(__ICC)
-# define USE_CVT_INTRINSICS
+#define USE_CVT_INTRINSICS
 #elif defined(USE_LOONGSON_MMI)
-# define USE_M64_DOUBLE
+#define USE_M64_DOUBLE
 #elif defined(__GNUC__)
-# define USE_M64_CASTS
+#define USE_M64_CASTS
 #elif defined(__SUNPRO_C)
 #if (__SUNPRO_C >= 0x5120) && !defined(__NOVECTORSIZE__)
 /* Solaris Studio 12.3 (Sun C 5.12) introduces __attribute__(__vector_size__)
@@ -189,11 +189,11 @@ typedef struct {
 } mmx_data_t;
 
 #if defined(_MSC_VER)
-# define MMXDATA_INIT(field, val) { val ## UI64 }
+#define MMXDATA_INIT(field, val) { val ## UI64 }
 #elif defined(M64_MEMBER)       /* __m64 is a struct, not an integral type */
-# define MMXDATA_INIT(field, val) field =   { val ## ULL }
+#define MMXDATA_INIT(field, val) field =   { val ## ULL }
 #else                           /* mmxdatafield is an integral type */
-# define MMXDATA_INIT(field, val) field =   val ## ULL
+#define MMXDATA_INIT(field, val) field =   val ## ULL
 #endif
 
 static const mmx_data_t c =

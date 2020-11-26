@@ -45,8 +45,8 @@
 #define FAILED_FII    ((uint32) -1)
 
 #ifdef HAVE_IEEEFP
-# define TIFFCvtIEEEFloatToNative(tif, n, fp)
-# define TIFFCvtIEEEDoubleToNative(tif, n, dp)
+#define TIFFCvtIEEEFloatToNative(tif, n, fp)
+#define TIFFCvtIEEEDoubleToNative(tif, n, dp)
 #else
 extern void TIFFCvtIEEEFloatToNative(TIFF*, uint32, float*);
 extern void TIFFCvtIEEEDoubleToNative(TIFF*, uint32, double*);

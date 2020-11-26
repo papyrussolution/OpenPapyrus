@@ -106,10 +106,7 @@ public:
 	GoodsSubstList PrmrSggList;
 	GoodsSubstList * P_ScndSggList;
 	PPObjGoods GObj;
-	//
-	// Хранит пары {scndGoodsID, prmrGoodsID}
-	//
-	LAssocArray ProcessedGoodsList;
+	LAssocArray ProcessedGoodsList; // Хранит пары {scndGoodsID, prmrGoodsID}
 	int    IsScndSggListOwn;
 	int    AddTotal;
 };
@@ -971,7 +968,8 @@ int FASTCALL PPViewTSessAnlz::NextIteration(TSessAnlzViewItem * pItem)
 		Counter.Increment();
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 DBQuery * PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -1004,11 +1002,9 @@ DBQuery * PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			PPID   single_sess_id = Filt.SessIdList.Get().getSingle();
 			GetObjectName(PPOBJ_TSESSION, single_sess_id, *pSubTitle, 1);
 		}
-		else {
-			if(Filt.PrcID) {
-				pSubTitle->CatDivIfNotEmpty(';', 0);
-				GetObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle, 1);
-			}
+		else if(Filt.PrcID) {
+			pSubTitle->CatDivIfNotEmpty(';', 0);
+			GetObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle, 1);
 		}
 	}
 	CATCH
@@ -1031,20 +1027,20 @@ void PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 			SString buf;
 			if(Filt.DiffDt) {
 				if(Filt.DiffDt == TSessAnlzFilt::difdtSupersess) {
-					// @v9.2.7 PPGetWord(PPWORD_SUPERSESS, 0, buf);
-					PPLoadString("supersession", buf); // @v9.2.7
+					PPLoadString("supersession", buf);
 				}
 				else //if(Filt.DiffDt == TSessAnlzFilt::difdtDt)
 					PPLoadString("date", buf);
 				pBrw->insertColumn(col_no++, buf, 1, 0, 0, 0);
 			}
 			if(Filt.DiffPrc) {
-				// @v9.0.2 PPGetWord((Filt.DiffPrc == TSessAnlzFilt::difprcAr) ? PPWORD_AR : PPWORD_PRC, 0, buf);
-				PPLoadString(((Filt.DiffPrc == TSessAnlzFilt::difprcAr) ? "article" : "processor"), buf); // @v9.0.2
+				PPLoadString(((Filt.DiffPrc == TSessAnlzFilt::difprcAr) ? "article" : "processor"), buf);
 				pBrw->insertColumn(col_no++, buf, 2, 0, 0, 0);
 			}
 			if(Filt.DiffMg) {
-				pBrw->InsColumnWord(col_no++, PPWORD_PRMRGOODS, 3, 0, 0, 0);
+				PPLoadString("mainware", buf); // @v10.9.4
+				// @v10.9.4 pBrw->InsColumnWord(col_no++, PPWORD_PRMRGOODS, 3, 0, 0, 0);
+				pBrw->insertColumn(col_no++, buf, 3, 0, 0, 0); // @v10.9.4
 			}
 			if(Filt.Flags & TSessAnlzFilt::fCalcCompParts) {
 				pBrw->insertColumn(5+col_no++, "InPart",  10, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);

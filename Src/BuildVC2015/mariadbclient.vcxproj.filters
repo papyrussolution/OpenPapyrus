@@ -1,115 +1,115 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\my_auth.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\plugins\auth\my_auth.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\old_password.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\plugins\auth\old_password.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\pvio\pvio_socket.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\plugins\pvio\pvio_socket.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_array.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_array.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_charset.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_charset.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_hash.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_hash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_net.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_net.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\mariadb_charset.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_charset.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_time.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_time.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_default.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_default.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_errmsg.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_errmsg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\mariadb_lib.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_lib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_list.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_list.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_pvio.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_pvio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_tls.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_tls.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_alloc.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_alloc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_compress.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_compress.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_init.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_init.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_password.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_password.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_ll2str.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_ll2str.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_sha1.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_sha1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\mariadb_stmt.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_stmt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_loaddata.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_loaddata.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_stmt_codec.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_stmt_codec.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_string.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_string.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_dtoa.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_dtoa.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\mariadb_rpl.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_rpl.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\libmariadb\ma_client_plugin.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\__build__\libmariadb\ma_client_plugin.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_io.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_io.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\secure\schannel.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\secure\schannel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\secure\ma_schannel.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\secure\ma_schannel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\secure\schannel_certs.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\secure\schannel_certs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\win-iconv\win_iconv.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\win-iconv\win_iconv.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\win32_errmsg.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\win32_errmsg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\mariadb_dyncol.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_dyncol.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\mariadb_async.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_async.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\ma_context.c">
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb-connector-pch.cpp">

@@ -146,49 +146,69 @@ int TagFilt::IsEmpty() const
 	return BIN(TagsRestrict.getCount() == 0);
 }
 
+static int CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const char * pRawRestrictionString, SColor & rClr)
+{
+	int    select_ok = 0;
+	if(pTagItem) {
+		SString restriction;
+		TagFilt::GetRestriction(pRawRestrictionString, restriction);
+		if(restriction.CmpNC(P_EmptyTagValRestrict) == 0)
+			select_ok = pTagItem->IsZeroVal();
+		else if(restriction.CmpNC(P_ExistTagValRestrict) == 0)
+			select_ok = 1;
+		else if(oneof3(pTagItem->TagDataType, OTTYP_BOOL, OTTYP_ENUM, OTTYP_OBJLINK))
+			select_ok = BIN(restriction.ToLong() == pTagItem->Val.IntVal);
+		else if(pTagItem->TagDataType == OTTYP_NUMBER) {
+			RealRange rr;
+			strtorrng(restriction.cptr(), &rr.low, &rr.upp);
+			select_ok = rr.CheckVal(pTagItem->Val.RealVal);
+		}
+		else if(oneof2(pTagItem->TagDataType, OTTYP_STRING, OTTYP_GUID)) {
+			size_t len = sstrlen(pTagItem->Val.PStr);
+			if(restriction.Len() && len) {
+				if(restriction.C(0) == '*')
+					select_ok = BIN(stristr866(pTagItem->Val.PStr, restriction.ShiftLeft()));
+				else if(restriction.C(restriction.Len() - 1) == '*')
+					select_ok = BIN(strnicmp866(restriction, pTagItem->Val.PStr, restriction.Len() - 1) == 0);
+				else
+					select_ok = BIN(stricmp866(restriction, pTagItem->Val.PStr) == 0);
+			}
+			else
+				select_ok = BIN(!restriction.Len() && !len);
+		}
+		else if(pTagItem->TagDataType == OTTYP_DATE) {
+			DateRange period;
+			strtoperiod(restriction, &period, 0);
+			period.Actualize(pTagItem->Val.DtVal);
+			select_ok = BIN(period.CheckDate(pTagItem->Val.DtVal) > 0);
+		}
+		if(select_ok)
+			TagFilt::GetColor(pRawRestrictionString, rClr);
+	}
+	return select_ok;
+}
+
+int TagFilt::SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const
+{
+	int    select_ok = 0;
+	if(pTagList) {
+		for(uint i = 0; !select_ok && i < TagsRestrict.getCount(); i++) {
+			StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(i);
+			select_ok = CheckTagItemForRawRestriction(pTagList->GetItem(tr_item.Id), tr_item.Txt, rClr);
+		}
+	}
+	return select_ok;
+}
+
 int TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
 {
 	int    select_ok = 0;
-	SString restrict;
 	PPObjTag tag_obj;
 	for(uint i = 0; !select_ok && i < TagsRestrict.getCount(); i++) {
 		StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(i);
 		ObjTagItem item;
-		if(tag_obj.FetchTag(objID, tr_item.Id, &item) > 0) {
-			TagFilt::GetRestriction(tr_item.Txt, restrict);
-			if(restrict.CmpNC(P_EmptyTagValRestrict) == 0)
-				select_ok = item.IsZeroVal();
-			else if(restrict.CmpNC(P_ExistTagValRestrict) == 0)
-				select_ok = 1;
-			else if(oneof3(item.TagDataType, OTTYP_BOOL, OTTYP_ENUM, OTTYP_OBJLINK))
-				select_ok = BIN(restrict.ToLong() == item.Val.IntVal);
-			else if(item.TagDataType == OTTYP_NUMBER) {
-				RealRange rr;
-				strtorrng(restrict.cptr(), &rr.low, &rr.upp);
-				select_ok = rr.CheckVal(item.Val.RealVal);
-			}
-			else if(oneof2(item.TagDataType, OTTYP_STRING, OTTYP_GUID)) {
-				size_t len = item.Val.PStr ? sstrlen(item.Val.PStr) : 0;
-				if(restrict.Len() && len) {
-					if(restrict.C(0) == '*')
-						select_ok = BIN(stristr866(item.Val.PStr, restrict.ShiftLeft()));
-					else if(restrict.C(restrict.Len() - 1) == '*')
-						select_ok = BIN(strnicmp866(restrict, item.Val.PStr, restrict.Len() - 1) == 0);
-					else
-						select_ok = BIN(stricmp866(restrict, item.Val.PStr) == 0);
-				}
-				else
-					select_ok = BIN(!restrict.Len() && !len);
-			}
-			else if(item.TagDataType == OTTYP_DATE) {
-				DateRange period;
-				strtoperiod(restrict, &period, 0);
-				period.Actualize(item.Val.DtVal);
-				select_ok = BIN(period.CheckDate(item.Val.DtVal) > 0);
-			}
-			if(select_ok)
-				TagFilt::GetColor(tr_item.Txt, rClr);
-		}
+		if(tag_obj.FetchTag(objID, tr_item.Id, &item) > 0)
+			select_ok = CheckTagItemForRawRestriction(&item, tr_item.Txt, rClr);
 	}
 	return select_ok;
 }
@@ -624,8 +644,8 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 		void   SetupTagObjType()
 		{
 			LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, PPOBJ_QUOTKIND, PPOBJ_GLOBALUSERACC, 
-				PPOBJ_TAXSYSTEMKIND, PPOBJ_INTERNETACCOUNT, PPOBJ_TRANSPORT, 0); 
-			// @v10.0.05 PPOBJ_GLOBALUSERACC // @v10.6.12 PPOBJ_TAXSYSTEMKIND // @v10.7.11 PPOBJ_INTERNETACCOUNT // @v10.8.12 PPOBJ_TRANSPORT
+				PPOBJ_TAXSYSTEMKIND, PPOBJ_INTERNETACCOUNT, PPOBJ_TRANSPORT, PPOBJ_TAG, 0); 
+			// @v10.0.05 PPOBJ_GLOBALUSERACC // @v10.6.12 PPOBJ_TAXSYSTEMKIND // @v10.7.11 PPOBJ_INTERNETACCOUNT // @v10.8.12 PPOBJ_TRANSPORT // @v10.9.4 PPOBJ_TAG
 			P_ObjTypeList = &LinkObjTypeList;
 			DisableClusterItem(CTL_OBJTAG_TYPE, 7, BIN(!P_ObjTypeList));
 			SetupObjType();
@@ -642,18 +662,23 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 		}
 		void   SetupObjGroup()
 		{
-			PPID   obj_type = getCtrlLong(CTLSEL_OBJTAG_OBJTYP);
-			int    dsbl = 1;
-			if(obj_type == PPOBJ_PERSON) {
-				dsbl = 0;
-				SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PRSNKIND, Data.LinkObjGrp, OLW_CANINSERT, 0);
+			const  PPID obj_type = getCtrlLong(CTLSEL_OBJTAG_OBJTYP);
+			int    dsbl = 0;
+			switch(obj_type) {
+				case PPOBJ_PERSON:
+					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PRSNKIND, Data.LinkObjGrp, OLW_CANINSERT, 0);
+					break;
+				case PPOBJ_GLOBALUSERACC: // @v10.5.5
+					SetupStringCombo(this, CTLSEL_OBJTAG_OBJGRP, PPTXT_GLOBALSERVICELIST, Data.LinkObjGrp);
+					break;
+				case PPOBJ_TAG: // @v10.9.4
+					SetupObjListCombo(this, CTLSEL_OBJTAG_OBJGRP, Data.LinkObjGrp, 0);
+					break;
+				default:
+					setCtrlLong(CTLSEL_OBJTAG_OBJGRP, 0);
+					dsbl = 1;
+					break;
 			}
-			else if(obj_type == PPOBJ_GLOBALUSERACC) { // @v10.5.5
-				dsbl = 0;
-				SetupStringCombo(this, CTLSEL_OBJTAG_OBJGRP, PPTXT_GLOBALSERVICELIST, Data.LinkObjGrp);
-			}
-			else
-				setCtrlLong(CTLSEL_OBJTAG_OBJGRP, 0);
 			disableCtrl(CTLSEL_OBJTAG_OBJGRP, dsbl);
 		}
 		ObjTagFilt Filt;
@@ -703,6 +728,14 @@ ObjTagFilt::ObjTagFilt(PPID objTypeID, long flags, PPID parentID)
 	else
 		ObjTypeID = PPOBJ_PERSON;
 	ParentID = parentID;
+}
+
+ObjTagFilt & ObjTagFilt::Z()
+{
+	ObjTypeID = 0;
+	ParentID = 0;
+	Flags = 0;
+	return *this;
 }
 
 /*static*/PPID PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb)
@@ -788,7 +821,7 @@ int PPObjTag::MakeReserved(long flags)
 		PPObjTagPacket pack;
 		PPID   id = p_rez->getUINT();
 		p_rez->getString(temp_buf.Z(), 2); // Name
-		PPExpandString(temp_buf, CTRANSF_UTF8_TO_INNER); // @v9.2.1
+		PPExpandString(temp_buf, CTRANSF_UTF8_TO_INNER);
 		temp_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 		p_rez->getString(temp_buf.Z(), 2); // Symb
 		temp_buf.CopyTo(pack.Rec.Symb, sizeof(pack.Rec.Symb));
@@ -829,8 +862,32 @@ int PPObjTag::MakeReserved(long flags)
 					pack.Rec.TagDataType = OTTYP_TIMESTAMP;
 				else if(data_type_symb.IsEqiAscii("GUID") || data_type_symb.IsEqiAscii("UUID"))
 					pack.Rec.TagDataType = OTTYP_GUID;
-				else if(data_type_symb.IsEqiAscii("ENUM")) // @v9.4.7
+				else if(data_type_symb.IsEqiAscii("ENUM"))
 					pack.Rec.TagDataType = OTTYP_ENUM;
+				// @v10.9.4 {
+				else if(data_type_symb.HasPrefixIAscii("LINK:")) {
+					// link:tag:goods
+					PPID    link_obj_type = 0;
+					PPID    link_obj_type_group = 0;
+					StringSet ss(':', data_type_symb);
+					for(uint ssp = 0, fldn = 0; ss.get(&ssp, temp_buf); fldn++) {
+						assert(fldn > 0 || temp_buf.IsEqiAscii("LINK"));
+						if(fldn == 1) {
+							link_obj_type = GetObjectTypeBySymb(temp_buf, 0);
+						}
+						else if(fldn == 2) {
+							if(link_obj_type == PPOBJ_TAG) {
+								link_obj_type_group = GetObjectTypeBySymb(temp_buf, 0);
+							}
+						}
+					}
+					if(link_obj_type) {
+						pack.Rec.TagDataType = OTTYP_OBJLINK;
+						pack.Rec.TagEnumID = link_obj_type;
+						pack.Rec.LinkObjGrp = link_obj_type_group;
+					}
+				}
+				// } @v10.9.4 
 				if(pack.Rec.TagDataType) {
 					//
 					// Здесь нельзя использовать PutPacket поскольку добавляется запись
@@ -970,6 +1027,10 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 					dsbl = 0;
 					SetupStringCombo(this, CTLSEL_OBJTAG_OBJGRP, PPTXT_GLOBALSERVICELIST, Data.Rec.LinkObjGrp);
 				}
+				else if(Data.Rec.TagEnumID == PPOBJ_TAG) { // @v10.9.4
+					dsbl = 0;
+					SetupObjListCombo(this, CTLSEL_OBJTAG_OBJGRP, Data.Rec.LinkObjGrp, 0);
+				}
 				else
 					setCtrlLong(CTLSEL_OBJTAG_OBJGRP, 0);
 				disableCtrl(CTLSEL_OBJTAG_OBJGRP, dsbl);
@@ -1032,7 +1093,10 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 			return ok;
 		}
 	};
-	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	ObjTagDialog * dlg = 0;
 	if(*pID && ObjTagFilt::ObjTypeRootIdentToObjType(*pID, 0)) {
 		// Специальный идентификатор, поступивший из списка - тип объекта - его редактировать не надо.
@@ -2062,6 +2126,12 @@ union TagDlgVal {
 
 #define GRP_IMG 1
 
+TagDlgParam::TagDlgParam() : ObjType(0), ObjID(0), BoolDlgID(0), NmbDlgID(0), LnkDlgID(0), StrDlgID(0), DateDlgID(0),
+	TimestampDlgID(0), GuidDlgID(0), ImgDlgID(0), ObjNameCtl(0), TagNameCtl(0), ValBoolCtl(0), ValNmbCtl(0),
+	ValLnkCtl(0), ValStrCtl(0), ValDateCtl(0), ValTimeCtl(0), ValGuidCtl(0), ValImgCtl(0)
+{
+}
+
 int TagDlgParam::GetDlgID(long tagDataType, uint * pDlgID) const
 {
 	uint   rez_id = 0;
@@ -2083,7 +2153,6 @@ int TagDlgParam::GetDlgID(long tagDataType, uint * pDlgID) const
 int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 {
 	int    ok = 1;
-	long   typ;
 	TagDlgVal val;
 	PPObjTag  tag_obj;
 	PPObjectTag tag;
@@ -2099,48 +2168,58 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 	temp_buf = tag.Name;
 	if(TagNameCtl)
 		dlg->setCtrlString(TagNameCtl, temp_buf);
-	typ = pItem->TagDataType;
-	if(typ == OTTYP_BOOL) {
-		dlg->setCtrlData(ValBoolCtl, &(val.b = pItem->Val.IntVal ? 1 : 0));
-		dlg->selectCtrl(ValBoolCtl); // @v9.0.0
-	}
-	else if(typ == OTTYP_STRING) {
-		val.s[0] = 0;
-		dlg->setCtrlData(ValStrCtl, STRNSCPY(val.s, pItem->Val.PStr));
-		dlg->selectCtrl(ValStrCtl); // @v9.0.0
-	}
-	else if(typ == OTTYP_NUMBER) {
-		dlg->setCtrlData(ValNmbCtl, &(val.n = pItem->Val.RealVal));
-		dlg->selectCtrl(ValNmbCtl); // @v9.0.0
-	}
-	else if(oneof2(typ, OTTYP_OBJLINK, OTTYP_ENUM)) {
-		SetupPPObjCombo(dlg, ValLnkCtl, tag.TagEnumID, pItem->Val.IntVal, OLW_CANINSERT, reinterpret_cast<void *>(tag.LinkObjGrp));
-	}
-	else if(typ == OTTYP_DATE) {
-		dlg->SetupCalDate(CTLCAL_TAGV_DATE, ValDateCtl);
-		dlg->setCtrlData(ValDateCtl, &(val.dtm.d = pItem->Val.DtVal));
-		dlg->selectCtrl(ValDateCtl); // @v9.0.0
-	}
-	else if(typ == OTTYP_TIMESTAMP) {
-		val.dtm = pItem->Val.DtmVal;
-		dlg->SetupCalDate(CTLCAL_TAGV_DATE, ValDateCtl);
-		dlg->setCtrlData(ValDateCtl, &val.dtm.d);
-		SetupTimePicker(dlg, CTL_TAGV_TIME, CTLTM_TAGV_TIME);
-		dlg->setCtrlData(ValTimeCtl, &val.dtm.t);
-		dlg->selectCtrl(ValDateCtl); // @v9.0.0
-	}
-	else if(typ == OTTYP_GUID) {
-		val.s[0] = 0;
-		dlg->setCtrlData(ValGuidCtl, STRNSCPY(val.s, pItem->Val.PStr));
-		dlg->selectCtrl(ValGuidCtl); // @v9.0.0
-	}
-	else if(typ == OTTYP_IMAGE) {
-		val.s[0] = 0;
-		const SString path(pItem->Val.PStr);
-		ImageBrowseCtrlGroup::Rec grp_rec(&path);
-		if(dlg->getGroup(GRP_IMG) == 0)
-			dlg->addGroup(GRP_IMG, new ImageBrowseCtrlGroup(/*PPTXT_FILPAT_PICT,*/ValImgCtl, cmAddImage, cmDelImage));
-		dlg->setGroupData(GRP_IMG, &grp_rec);
+	switch(pItem->TagDataType) {
+		case OTTYP_BOOL:
+			dlg->setCtrlData(ValBoolCtl, &(val.b = BIN(pItem->Val.IntVal)));
+			dlg->selectCtrl(ValBoolCtl);
+			break;
+		case OTTYP_STRING:
+			PTR32(val.s)[0] = 0;
+			dlg->setCtrlData(ValStrCtl, STRNSCPY(val.s, pItem->Val.PStr));
+			dlg->selectCtrl(ValStrCtl);
+			break;
+		case OTTYP_NUMBER:
+			dlg->setCtrlData(ValNmbCtl, &(val.n = pItem->Val.RealVal));
+			dlg->selectCtrl(ValNmbCtl);
+			break;
+		case OTTYP_OBJLINK:
+		case OTTYP_ENUM:
+			// @v10.9.4 {
+			if(tag.TagEnumID == PPOBJ_TAG) {
+				LinkTagFilt.Z();
+				LinkTagFilt.ObjTypeID = tag.LinkObjGrp;
+				SetupPPObjCombo(dlg, ValLnkCtl, tag.TagEnumID, pItem->Val.IntVal, OLW_CANINSERT, &LinkTagFilt);
+			} 
+			else /* } @v10.9.4 */ {
+				SetupPPObjCombo(dlg, ValLnkCtl, tag.TagEnumID, pItem->Val.IntVal, OLW_CANINSERT, reinterpret_cast<void *>(tag.LinkObjGrp));
+			}
+			break;
+		case OTTYP_DATE:
+			dlg->SetupCalDate(CTLCAL_TAGV_DATE, ValDateCtl);
+			dlg->setCtrlData(ValDateCtl, &(val.dtm.d = pItem->Val.DtVal));
+			dlg->selectCtrl(ValDateCtl);
+			break;
+		case OTTYP_TIMESTAMP:
+			val.dtm = pItem->Val.DtmVal;
+			dlg->SetupCalDate(CTLCAL_TAGV_DATE, ValDateCtl);
+			dlg->setCtrlData(ValDateCtl, &val.dtm.d);
+			SetupTimePicker(dlg, CTL_TAGV_TIME, CTLTM_TAGV_TIME);
+			dlg->setCtrlData(ValTimeCtl, &val.dtm.t);
+			dlg->selectCtrl(ValDateCtl);
+			break;
+		case OTTYP_GUID:
+			PTR32(val.s)[0] = 0;
+			dlg->setCtrlData(ValGuidCtl, STRNSCPY(val.s, pItem->Val.PStr));
+			dlg->selectCtrl(ValGuidCtl);
+			break;
+		case OTTYP_IMAGE:
+			PTR32(val.s)[0];
+			const SString path(pItem->Val.PStr);
+			ImageBrowseCtrlGroup::Rec grp_rec(&path);
+			if(dlg->getGroup(GRP_IMG) == 0)
+				dlg->addGroup(GRP_IMG, new ImageBrowseCtrlGroup(/*PPTXT_FILPAT_PICT,*/ValImgCtl, cmAddImage, cmDelImage));
+			dlg->setGroupData(GRP_IMG, &grp_rec);
+			break;
 	}
 	CATCHZOK
 	return ok;
@@ -2153,7 +2232,7 @@ int TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
 	TagDlgVal val;
 	if(typ == OTTYP_BOOL) {
 		dlg->getCtrlData(ValBoolCtl, &val.b);
-		pItem->Val.IntVal = val.b ? 1 : 0;
+		pItem->Val.IntVal = BIN(val.b);
 	}
 	else if(typ == OTTYP_STRING) {
 		SString temp_buf, mark_buf;
@@ -2351,7 +2430,7 @@ int FASTCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const 
 	TagValDialog * dlg = 0;
 	uint   dlg_id = 0;
 	TagDlgParam param;
-	MEMSZERO(param);
+	// @v10.9.4 @ctr MEMSZERO(param);
 	param.ObjType = objType;
 	param.ObjID   = objID;
 	param.BoolDlgID  = DLG_TAGVLOG;

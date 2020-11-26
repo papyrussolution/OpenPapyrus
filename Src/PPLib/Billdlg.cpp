@@ -66,7 +66,7 @@ int AccTurnDialog::setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long te
 	else
 		MEMSZERO(Data);
 	if(Data.Flags & PPAF_OUTBAL && Data.Flags & PPAF_OUTBAL_TRANSFER)
-		if(Data.Amount >= 0)
+		if(Data.Amount >= 0.0)
 			Data.SwapDbtCrd();
 		else
 			Data.Amount = -Data.Amount;
@@ -866,7 +866,7 @@ void BillDialog::SetupDiscountCtrls()
 void BillDialog::setDiscount(double d, int inPercent)
 {
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
-		double agt_dscnt = P_Pack->P_Agt ? P_Pack->P_Agt->Dscnt : 0.0;
+		const double agt_dscnt = P_Pack->P_Agt ? P_Pack->P_Agt->Dscnt : 0.0;
 		setCtrlReal(CTL_BILL_DISCOUNT, agt_dscnt);
 	}
 	else {
@@ -991,7 +991,7 @@ int PPLinkFile::Init(const char * pPath)
 	Ext.Z();
 	Path.Z();
 	Description.Z();
-	if(pPath && sstrlen(pPath)) {
+	if(!isempty(pPath)) {
 		pathToUNC(pPath, Path);
 		SPathStruc ps(Path);
 		Ext = ps.Ext;
@@ -1054,9 +1054,13 @@ PPLinkFilesArray & FASTCALL PPLinkFilesArray::operator = (const PPLinkFilesArray
 	freeAll();
 	StoreDir = s.StoreDir;
 	for(uint i = 0; i < s.getCount(); i++) {
-		PPLinkFile * p_flink = new PPLinkFile;
-		*p_flink = *s.at(i);
-		insert(p_flink);
+		// @v10.9.4 PPLinkFile * p_flink = new PPLinkFile;
+		// @v10.9.4 *p_flink = *s.at(i);
+		// @v10.9.4 insert(p_flink);
+		// @v10.9.4 {
+		PPLinkFile * p_flink = CreateNewItem();
+		ASSIGN_PTR(p_flink, *s.at(i));
+		// } @v10.9.4 
 	}
 	return *this;
 }
@@ -1187,8 +1191,7 @@ int PPLinkFilesArray::Add(PPLinkFile * pLink, uint * pPos)
 		pLink->Flags |= PPLNKFILE_ISNEW;
 		*p_flink = *pLink;
 		GetFilePath(p_flink->Id, p_flink->Ext, store_path);
-		// @v9.3.9 if(::CopyFile(p_flink->Path, store_path, 0) > 0) // @unicodeproblem
-		if(SCopyFile(p_flink->Path, store_path, 0, FILE_SHARE_READ, 0)) // @v9.3.9
+		if(SCopyFile(p_flink->Path, store_path, 0, FILE_SHARE_READ, 0))
 			ok = insert(p_flink);
 		if(ok <= 0)
 			delete p_flink;
@@ -1213,13 +1216,26 @@ int PPLinkFilesArray::Remove(uint pos)
 
 int PPLinkFilesArray::RemoveByAry(const PPLinkFilesArray * pAry)
 {
-	for(long i = getCount(); i > 0; i--) {
-		uint   pos = 0;
-		int   found = 0;
-		PPLinkFile * p_flink = at(i-1);
-		if(!pAry || pAry->lsearch(p_flink, &pos, PTR_CMPFUNC(PPLinkFile)) <= 0 || p_flink->Id != pAry->at(pos)->Id)
-			Remove(i-1);
+	// @v10.9.4 {
+	{
+		uint i = getCount();
+		if(i) do {
+			uint   pos = 0;
+			const PPLinkFile * p_flink = at(--i);
+			if(!pAry || !pAry->lsearch(p_flink, &pos, PTR_CMPFUNC(PPLinkFile)) || p_flink->Id != pAry->at(pos)->Id)
+				Remove(i);
+		} while(i);
 	}
+	// } @v10.9.4 
+	/* @v10.9.4 {
+		for(long i = getCount(); i > 0; i--) {
+			uint   pos = 0;
+			int   found = 0;
+			PPLinkFile * p_flink = at(i-1);
+			if(!pAry || pAry->lsearch(p_flink, &pos, PTR_CMPFUNC(PPLinkFile)) <= 0 || p_flink->Id != pAry->at(pos)->Id)
+				Remove(i-1);
+		}
+	}*/
 	RVALUEPTR(*this, pAry);
 	return 1;
 }
@@ -1417,7 +1433,7 @@ private:
 
 IMPL_HANDLE_EVENT(LinkFilesDialog)
 {
-	int    link_cmd = BIN(TVCOMMAND && TVCMD == cmLink);
+	const int link_cmd = BIN(TVCOMMAND && TVCMD == cmLink);
 	PPListDialog::handleEvent(event);
 	if(event.isKeyDown(kbF2)) {
 		if(LinksAry.getCount() && P_Box && P_Box->def && LinksAry.EditDescr(P_Box->def->_curItem()))

@@ -274,7 +274,11 @@ void FASTCALL BillFilt::SetupBrowseBillsType(BrowseBillsType bbt)
 			Flags &= ~(fOrderOnly | fAccturnOnly | fPoolOnly | fInvOnly | fDraftOnly);
 			Flags |= fWmsOnly;
 			break;
+		default: // @v10.9.4
+			bbt = bbtUndef;
+			break;
 	}
+	Bbt = bbt; // @v10.9.4
 }
 
 #define GRP_LOC 1
@@ -785,7 +789,7 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	GetOpList(&Filt, &OpList, &SingleOpID);
 	THROW_PP(OpList.getCount(), PPERR_VIEWBYFILTISEMPTY);
 	if(SingleOpID) {
-		if(Filt.OpID == 0 || IsGenericOp(Filt.OpID) > 0)
+		if(!Filt.OpID || IsGenericOp(Filt.OpID) > 0)
 			Filt.OpID = SingleOpID;
 		else {
 			THROW_PP(Filt.OpID == SingleOpID, PPErrCode = PPERR_VIEWBYFILTISEMPTY);
@@ -2264,15 +2268,13 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 	SetExtToolbar(0);
 	if(Filt.Flags & BillFilt::fAsSelector) {
 		PPGetWord(PPWORD_SELBILL, 0, sub_title);
-		if(Filt.Sel) {
+		if(Filt.Sel)
 			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0);
-		}
 	}
 	// @v10.9.0 {
 	else if(Filt.Sel) {
-		if(CheckIDForFilt(Filt.Sel, 0)) {
+		if(CheckIDForFilt(Filt.Sel, 0))
 			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0);
-		}
 	}
 	// } @v10.9.0 
 	if(Filt.PoolBillID && Filt.AssocID)

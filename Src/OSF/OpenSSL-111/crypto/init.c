@@ -347,9 +347,9 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_engine_dynamic)
 static CRYPTO_ONCE engine_padlock = CRYPTO_ONCE_STATIC_INIT;
 DEFINE_RUN_ONCE_STATIC(ossl_init_engine_padlock)
 {
-#   ifdef OPENSSL_INIT_DEBUG
+#ifdef OPENSSL_INIT_DEBUG
 	fprintf(stderr, "OPENSSL_INIT: ossl_init_engine_padlock: engine_load_padlock_int()\n");
-#   endif
+#endif
 	engine_load_padlock_int();
 	return 1;
 }
@@ -358,9 +358,9 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_engine_padlock)
 static CRYPTO_ONCE engine_capi = CRYPTO_ONCE_STATIC_INIT;
 DEFINE_RUN_ONCE_STATIC(ossl_init_engine_capi)
 {
-#   ifdef OPENSSL_INIT_DEBUG
+#ifdef OPENSSL_INIT_DEBUG
 	fprintf(stderr, "OPENSSL_INIT: ossl_init_engine_capi: engine_load_capi_int()\n");
-#   endif
+#endif
 	engine_load_capi_int();
 	return 1;
 }
@@ -369,9 +369,9 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_engine_capi)
 static CRYPTO_ONCE engine_afalg = CRYPTO_ONCE_STATIC_INIT;
 DEFINE_RUN_ONCE_STATIC(ossl_init_engine_afalg)
 {
-#   ifdef OPENSSL_INIT_DEBUG
+#ifdef OPENSSL_INIT_DEBUG
 	fprintf(stderr, "OPENSSL_INIT: ossl_init_engine_afalg: engine_load_afalg_int()\n");
-#   endif
+#endif
 	engine_load_afalg_int();
 	return 1;
 }

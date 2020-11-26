@@ -2230,8 +2230,9 @@ int PPObjGlobalUserAcc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 	return ok;
 }
 
-class VkGuaCfgDialog: public TDialog {
-	DECL_DIALOG_DATA(VkStruct);
+class VkGuaCfgDialog : public TDialog {
+	//DECL_DIALOG_DATA(VkStruct);
+	DECL_DIALOG_DATA(VkInterface::InitBlock);
 public:
 	VkGuaCfgDialog(): TDialog(DLG_VKGUACFG)
 	{
@@ -2260,7 +2261,7 @@ private:
 		TDialog::handleEvent(event);
 		SString temp_buf;
 		if(event.isCmd(cmGetTokenVk)) {
-			PPVkClient::GetVKAccessToken();
+			VkInterface::GetVKAccessToken();
 		}
 		else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_VKGUACFG_LOGIN_URL)) {
 			static int __lock = 0;
@@ -2276,7 +2277,7 @@ private:
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 						temp_buf.Divide('=', left, right);
 						if(left.IsEqual("access_token"))
-							Data.Token.Z().Cat(right);
+							Data.CliAccsKey.Z().Cat(right);
 						else if(left.IsEqual("user_id"))
 							Data.PageId.Z().Cat(right);
 					}
@@ -2389,13 +2390,13 @@ private:
 					uint change_flag = 0;
 					SString temp_buf;
 					PPLogger logger;
-					VkStruct pack;
+					/*VkStruct*/VkInterface::InitBlock pack;
 					PPID vk_grp_tag_id, vk_page_tag_id;
 					obj_tag.FetchBySymb("SMGRPID", &vk_grp_tag_id);
 					obj_tag.FetchBySymb("SMPAGEID", &vk_page_tag_id);
 					VkGuaCfgDialog * dlg = new VkGuaCfgDialog();
 					dlg->setDTS(&pack);
-					if(ExecView(dlg)==cmOK) {
+					if(ExecView(dlg) == cmOK) {
 						if(dlg->getDTS(&pack)) {
 							if(pack.GroupId.Len() > 0) {
 								ObjTagItem new_obj_tag_item;
@@ -2409,9 +2410,9 @@ private:
 								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0) // @v10.8.3 @fix (remove ';')
 									change_flag++;
 							}
-							if(pack.Token.Len()>0) {
+							if(pack.CliAccsKey.Len()) {
 								ObjTagItem new_obj_tag_item;
-								new_obj_tag_item.SetStr(PPTAG_GUA_ACCESSKEY, pack.Token.Unescape());
+								new_obj_tag_item.SetStr(PPTAG_GUA_ACCESSKEY, pack.CliAccsKey.Unescape());
 								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0)
 									change_flag++;
 							}
@@ -2469,6 +2470,29 @@ int PPObjGlobalUserAcc::Edit(PPID * pID, void * extraPtr)
 	}
 	CATCHZOKPPERR
 	return ok;
+}
+
+/*virtual*/StrAssocArray * PPObjGlobalUserAcc::MakeStrAssocList(void * extraPtr /*ServiceIdent*/)
+{
+	const  long service_ident = reinterpret_cast<long>(extraPtr);
+	PPID   id = 0;
+	StrAssocArray * p_list = new StrAssocArray();
+	THROW_MEM(p_list);
+	{
+		PPGlobalUserAcc rec;
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+			if(!service_ident || rec.ServiceIdent == service_ident) {
+				if(*strip(rec.Name) == 0)
+					ideqvalstr(rec.ID, rec.Name, sizeof(rec.Name));
+				THROW_SL(p_list->Add(rec.ID, 0, rec.Name));
+			}
+		}
+	}
+	p_list->SortByText();
+	CATCH
+		ZDELETE(p_list);
+	ENDCATCH
+	return p_list;
 }
 
 int PPObjGlobalUserAcc::SearchByLocalID(const S_GUID & rDbUuid, PPID localUserID, PPID * pID, PPGlobalUserAcc * pRec)

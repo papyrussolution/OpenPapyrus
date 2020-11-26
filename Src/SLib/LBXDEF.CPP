@@ -185,7 +185,7 @@ int ListBoxDef::TransmitData(int dir, void * pData)
 	return s;
 }
 
-HIMAGELIST ListBoxDef::CreateImageList(HINSTANCE hInst)
+void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(void *)
 {
 	HIMAGELIST himl = NULL;
 	LAssocArray added_list;

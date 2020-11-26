@@ -263,6 +263,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -430,9 +431,10 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -487,7 +489,7 @@
       <EnableModules>false</EnableModules>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -542,7 +544,7 @@
       <EnableModules>false</EnableModules>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -787,7 +789,7 @@
       <EnableModules>false</EnableModules>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -848,7 +850,7 @@
       <EnableModules>false</EnableModules>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
@@ -909,7 +911,7 @@
       <EnableModules>false</EnableModules>
     </ClCompile>
     <Lib>
-      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>

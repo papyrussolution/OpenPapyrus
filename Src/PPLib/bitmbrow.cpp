@@ -474,26 +474,33 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 	int    ok = -1;
 	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(p_brw->getDef());
 		BillItemBrowser::ColumnPosBlock posblk;
 		const  BillGoodsBrwItem * p_item = static_cast<const BillGoodsBrwItem *>(pData);
 		const  long pos = p_item->Pos;
 		const  LongArray & r_price_dev_list = p_brw->GetPriceDevList();
 		const PPBillPacket * p_pack = p_brw->GetPacket();
-		if(p_pack) {
+		if(p_pack && p_def) {
+			if(col >= 0 && col < p_def->getCountI()) {
+				const BroColumn & r_col = p_def->at(col);
+				if(r_col.OrgOffs == 0) {
+					const TagFilt & r_tag_filt = p_brw->P_BObj->GetConfig().LotTagIndFilt;
+					if(!r_tag_filt.IsEmpty()) {
+						ObjTagList * p_lot_tag_list = p_pack->LTagL.Get(pos);
+						SColor clr;
+						if(r_tag_filt.SelectIndicator(p_lot_tag_list, clr) > 0)
+							ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+					}
+				}
+			}
 			if(p_brw->GetColPos(posblk) > 0) {
 				if(col == posblk.QttyPos && pos >= 0) {
 					if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
 						const PPTransferItem & r_ti = p_pack->ConstTI(pos);
-						if(r_ti.Flags & PPTFR_LOTSYNC) {
-							pStyle->Color2 = GetColorRef(SClrIndigo);
-							pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
-							ok = 1;
-						}
-						else if(r_ti.Quantity_ < 0.0 && oneof2(p_pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON)) {
-							pStyle->Color2 = GetColorRef(SClrRed);
-							pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
-							ok = 1;
-						}
+						if(r_ti.Flags & PPTFR_LOTSYNC)
+							ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrIndigo));
+						else if(r_ti.Quantity_ < 0.0 && oneof2(p_pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON))
+							ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
 					}
 				}
 				else if(col == posblk.OrdQttyPos && pos >= 0) {

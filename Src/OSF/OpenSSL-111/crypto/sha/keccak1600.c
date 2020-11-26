@@ -19,11 +19,11 @@ void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r);
  */
 #if !defined(KECCAK_REF) && !defined(KECCAK_1X) && !defined(KECCAK_1X_ALT) && \
 	!defined(KECCAK_2X) && !defined(KECCAK_INPLACE)
-# define KECCAK_2X      /* default to KECCAK_2X variant */
+#define KECCAK_2X      /* default to KECCAK_2X variant */
 #endif
 
 #if defined(__i386) || defined(__i386__) || defined(_M_IX86)
-# define KECCAK_COMPLEMENTING_TRANSFORM
+#define KECCAK_COMPLEMENTING_TRANSFORM
 #endif
 
 #if defined(__x86_64__) || defined(__aarch64__) || \
@@ -34,9 +34,9 @@ void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r);
  * capable of performing 64-bit operations as efficiently as in *P64.
  * Since it's not given that we can use sizeof(void *), just shunt it.
  */
-# define BIT_INTERLEAVE (0)
+#define BIT_INTERLEAVE (0)
 #else
-# define BIT_INTERLEAVE (sizeof(void *) < 8)
+#define BIT_INTERLEAVE (sizeof(void *) < 8)
 #endif
 
 #define ROL32(a, offset) (((a) << (offset)) | ((a) >> ((32 - (offset)) & 31)))

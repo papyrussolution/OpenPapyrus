@@ -89,6 +89,15 @@ long HistGoodsCore::GetNextVer(PPID goodsID)
 	return (Search(goodsID, 0, &rec) > 0) ? (rec.Ver + 1) : 1;
 }
 #endif // } 0
+
+PPObjGoods::ExportToGlbSvcParam::ExportToGlbSvcParam() : GlobalService(0), GuaID(0), Flags(0), CategoryObject(coGoodsGrpName), CategoryTagID(0), DescrExtStrId(0)
+{
+}
+
+PPObjGoods::ExportToGlbSvcItem::ExportToGlbSvcItem() : GoodsID(0), LocID(0), Cost(0.0), Price(0.0), Rest(0.0)
+{
+}
+
 //
 /*static*/int PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)
 {
@@ -2809,6 +2818,30 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 	}
 	return negation ? 0 : 1;
 #undef CFF_RET
+}
+
+int PPObjGoods::GetUuid(PPID goodsID, S_GUID & rUuid, bool generateIfAbsent, int use_ta)
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	const PPID uuid_tag_id = PPTAG_GOODS_UUID;
+	ObjTagItem tag_item;
+	S_GUID temp_uuid;
+	if(p_ref->Ot.GetTag(PPOBJ_GOODS, goodsID, uuid_tag_id, &tag_item) > 0) {
+		if(tag_item.GetGuid(&temp_uuid)) {
+			rUuid = temp_uuid;
+			ok = 1;
+		}
+	}
+	else {
+		temp_uuid.Generate();
+		THROW(tag_item.SetGuid(uuid_tag_id, &temp_uuid));
+		THROW(p_ref->Ot.PutTag(PPOBJ_GOODS, goodsID, &tag_item, use_ta));
+		rUuid = temp_uuid;
+		ok = 2;
+	}
+	CATCHZOK
+	return ok;
 }
 
 int PPObjGoods::GetOpenedList(PPID locID, const PPIDArray * pOverlapList, UintHashTable & rHash)

@@ -26,11 +26,11 @@
 #include "store_locl.h"
 
 #ifdef _WIN32
-# define stat    _stat
+#define stat    _stat
 #endif
 
 #ifndef S_ISDIR
-# define S_ISDIR(a) (((a) & S_IFMT) == S_IFDIR)
+#define S_ISDIR(a) (((a) & S_IFMT) == S_IFDIR)
 #endif
 
 /*-

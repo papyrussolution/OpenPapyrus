@@ -203,11 +203,11 @@ public:
 	int    GetPriceItemInformation(); // GET -s https://api.uds.app/partner/v2/goods/<id>
 private:
 	void   PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
-	int    ReadError(const json_t * pJs, Error & rErr) const;
-	int    ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const;
-	int    ReadCustomer(const json_t * pJs, Customer & rC) const;
-	int    ReadParticipant(const json_t * pJs, Participant & rP) const;
-	int    ReadPurchase(const json_t * pJs, Purchase & rP) const;
+	int    ReadError(const SJson * pJs, Error & rErr) const;
+	int    ReadMembershipTier(const SJson * pJs, MembershipTier & rT) const;
+	int    ReadCustomer(const SJson * pJs, Customer & rC) const;
+	int    ReadParticipant(const SJson * pJs, Participant & rP) const;
+	int    ReadPurchase(const SJson * pJs, Purchase & rP) const;
 	InitBlock Ib;
 	Error LastErr;
 };
@@ -275,14 +275,14 @@ void UdsGameInterface::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 	}
 }
 
-int UdsGameInterface::ReadError(const json_t * pJs, Error & rErr) const
+int UdsGameInterface::ReadError(const SJson * pJs, Error & rErr) const
 {
 	int    ok = -1;
-	const  json_t * p_cur = pJs;
-	if(json_t::IsObject(p_cur)) {
+	const  SJson * p_cur = pJs;
+	if(SJson::IsObject(p_cur)) {
 		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("errorCode")) {
-				rErr.ErrCode = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+				rErr.ErrCode = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 				if(rErr.ErrCode.IsEqiAscii("notFound")) {
 					rErr.Code = 404;
 				}
@@ -313,34 +313,34 @@ int UdsGameInterface::ReadError(const json_t * pJs, Error & rErr) const
 				ok = 1;
 			}
 			else if(p_cur->Text.IsEqiAscii("message")) {
-				rErr.Message = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+				rErr.Message = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 			}
 		}
 	}
 	return ok;
 }
 
-int UdsGameInterface::ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const
+int UdsGameInterface::ReadMembershipTier(const SJson * pJs, MembershipTier & rT) const
 {
 	int    ok = 1;
-	const  json_t * p_cur = pJs;
-	if(p_cur->Type == json_t::tOBJECT) {
+	const  SJson * p_cur = pJs;
+	if(p_cur->Type == SJson::tOBJECT) {
 		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("uid")) {
-				if(json_t::IsString(p_cur->P_Child))
+				if(SJson::IsString(p_cur->P_Child))
 					rT.Uid.FromStr(p_cur->P_Child->Text);
 				else
 					rT.Uid.Z();
 			}
 			else if(p_cur->Text.IsEqiAscii("name")) {
-				rT.Name = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+				rT.Name = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 			}
 			else if(p_cur->Text.IsEqiAscii("rate")) {
-				rT.Rate = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rT.Rate = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("conditions")) {
-				if(p_cur->P_Child && p_cur->P_Child->Type == json_t::tOBJECT) {
-					for(const json_t * p_c = p_cur->P_Child->P_Child; p_c; p_c = p_c->P_Next) {
+				if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tOBJECT) {
+					for(const SJson * p_c = p_cur->P_Child->P_Child; p_c; p_c = p_c->P_Next) {
 						if(p_c->Text.IsEqiAscii("totalCashSpent")) {
 							; // @todo
 						}
@@ -363,7 +363,7 @@ int UdsGameInterface::GetSettings(Settings & rResult)
 	SString log_buf;
 	SString url_buf;
 	SString json_buf;
-	json_t * p_js_doc = 0;
+	SJson * p_js_doc = 0;
 	ScURL c;
 	StrStrAssocArray hdr_flds;
 	SBuffer ack_buf;
@@ -382,43 +382,43 @@ int UdsGameInterface::GetSettings(Settings & rResult)
 				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
-					json_t * p_cur = p_js_doc;
+					SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
 						ok = 0;
 					}
-					else if(json_t::IsObject(p_cur)) {
+					else if(SJson::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 							ok = 1;
 							if(p_cur->Text.IsEqiAscii("id")) {
-								rResult.ID = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
+								rResult.ID = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
 							}
 							else if(p_cur->Text.IsEqiAscii("name")) {
-								rResult.Name = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+								rResult.Name = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 							}
 							else if(p_cur->Text.IsEqiAscii("promoCode")) {
-								rResult.PromoCode = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+								rResult.PromoCode = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 							}
 							else if(p_cur->Text.IsEqiAscii("baseDiscountPolicy")) {
-								rResult.BaseDiscountPolicy = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+								rResult.BaseDiscountPolicy = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 							}
 							else if(p_cur->Text.IsEqiAscii("purchaseByPhone")) {
-								SETFLAG(rResult.Flags, rResult.fPurchaseByPhone, json_t::IsTrue(p_cur->P_Child));
+								SETFLAG(rResult.Flags, rResult.fPurchaseByPhone, SJson::IsTrue(p_cur->P_Child));
 							}
 							else if(p_cur->Text.IsEqiAscii("writeInvoice")) {
-								SETFLAG(rResult.Flags, rResult.fWriteInvoice, json_t::IsTrue(p_cur->P_Child));
+								SETFLAG(rResult.Flags, rResult.fWriteInvoice, SJson::IsTrue(p_cur->P_Child));
 							}
 							else if(p_cur->Text.IsEqiAscii("currency")) {
-								rResult.Currency = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+								rResult.Currency = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 							}
 							else if(p_cur->Text.IsEqiAscii("slug")) {
-								rResult.Slug = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+								rResult.Slug = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 							}
 							else if(p_cur->Text.IsEqiAscii("loyaltyProgramSettings")) {
-								if(p_cur->P_Child && p_cur->P_Child->Type == json_t::tOBJECT) {
-									for(json_t * p_lps_item = p_cur->P_Child->P_Child; p_lps_item; p_lps_item = p_lps_item->P_Next) {
+								if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tOBJECT) {
+									for(SJson * p_lps_item = p_cur->P_Child->P_Child; p_lps_item; p_lps_item = p_lps_item->P_Next) {
 										if(p_lps_item->Text.IsEqiAscii("membershipTiers")) {
-											if(p_lps_item->P_Child && p_lps_item->P_Child->Type == json_t::tARRAY) {
-												for(json_t * p_mt_item = p_lps_item->P_Child->P_Child; p_mt_item; p_mt_item = p_mt_item->P_Next) {
+											if(p_lps_item->P_Child && p_lps_item->P_Child->Type == SJson::tARRAY) {
+												for(SJson * p_mt_item = p_lps_item->P_Child->P_Child; p_mt_item; p_mt_item = p_mt_item->P_Next) {
 													MembershipTier * p_new_mt = rResult.MtList.CreateNewItem();
 													if(p_new_mt) {
 														ReadMembershipTier(p_mt_item, *p_new_mt);
@@ -430,18 +430,18 @@ int UdsGameInterface::GetSettings(Settings & rResult)
 											ReadMembershipTier(p_lps_item->P_Child, rResult.BaseMt);
 										}
 										else if(p_lps_item->Text.IsEqiAscii("deferPointsForDays"))
-											rResult.DeferPointsForDays = json_t::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
+											rResult.DeferPointsForDays = SJson::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
 										else if(p_lps_item->Text.IsEqiAscii("referralCashbackRates")) {
 											; // @todo
 										}
 										else if(p_lps_item->Text.IsEqiAscii("receiptLimit"))
-											rResult.ReceiptLimit = json_t::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
+											rResult.ReceiptLimit = SJson::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
 										else if(p_lps_item->Text.IsEqiAscii("cashierAward"))
-											rResult.CashierAward = json_t::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
+											rResult.CashierAward = SJson::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
 										else if(p_lps_item->Text.IsEqiAscii("referralReward"))
-											rResult.ReferralReward = json_t::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
+											rResult.ReferralReward = SJson::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
 										else if(p_lps_item->Text.IsEqiAscii("maxScoresDiscount"))
-											rResult.MaxScoresDiscount = json_t::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
+											rResult.MaxScoresDiscount = SJson::IsNumber(p_lps_item->P_Child) ? p_lps_item->P_Child->Text.ToReal() : 0.0;
 									}
 								}
 							}
@@ -456,23 +456,23 @@ int UdsGameInterface::GetSettings(Settings & rResult)
 	return ok;
 }
 
-int UdsGameInterface::ReadCustomer(const json_t * pJs, Customer & rC) const
+int UdsGameInterface::ReadCustomer(const SJson * pJs, Customer & rC) const
 {
 	int    ok = 1;
-	const  json_t * p_cur = pJs;
-	if(p_cur->Type == json_t::tOBJECT) {
+	const  SJson * p_cur = pJs;
+	if(p_cur->Type == SJson::tOBJECT) {
 		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("uid")) {
-				if(json_t::IsString(p_cur->P_Child))
+				if(SJson::IsString(p_cur->P_Child))
 					rC.Uid.FromStr(p_cur->P_Child->Text);
 				else
 					rC.Uid.Z();
 			}
 			else if(p_cur->Text.IsEqiAscii("phone")) {
-				rC.Phone = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+				rC.Phone = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 			}
 			else if(p_cur->Text.IsEqiAscii("gender")) {
-				if(json_t::IsString(p_cur->P_Child)) {
+				if(SJson::IsString(p_cur->P_Child)) {
 					if(p_cur->P_Child->Text.IsEqiAscii("male"))
 						rC.Gender = 0;
 					else if(p_cur->P_Child->Text.IsEqiAscii("female"))
@@ -484,16 +484,16 @@ int UdsGameInterface::ReadCustomer(const json_t * pJs, Customer & rC) const
 					rC.Gender = -1;
 			}
 			else if(p_cur->Text.IsEqiAscii("birthDate")) {
-				if(json_t::IsString(p_cur->P_Child))
+				if(SJson::IsString(p_cur->P_Child))
 					rC.DOB = strtodate_(p_cur->P_Child->Text, DATF_ISO8601);
 				else
 					rC.DOB = ZERODATE;
 			}
 			else if(p_cur->Text.IsEqiAscii("avatar")) {
-				rC.Avatar = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+				rC.Avatar = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 			}
 			else if(p_cur->Text.IsEqiAscii("displayName")) {
-				rC.DisplayName = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+				rC.DisplayName = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 			}
 			else if(p_cur->Text.IsEqiAscii("participant")) {
 				ReadParticipant(p_cur->P_Child, rC.P);
@@ -503,38 +503,38 @@ int UdsGameInterface::ReadCustomer(const json_t * pJs, Customer & rC) const
 	return ok;
 }
 
-int UdsGameInterface::ReadParticipant(const json_t * pJs, Participant & rP) const
+int UdsGameInterface::ReadParticipant(const SJson * pJs, Participant & rP) const
 {
 	int    ok = 1;
-	const  json_t * p_cur = pJs;
-	if(p_cur->Type == json_t::tOBJECT) {
+	const  SJson * p_cur = pJs;
+	if(p_cur->Type == SJson::tOBJECT) {
 		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("id")) {
-				rP.ID = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
+				rP.ID = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
 			}
 			else if(p_cur->Text.IsEqiAscii("cashbackRate")) {
-				rP.CashbackRate = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.CashbackRate = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("dateCreated")) {
-				if(json_t::IsString(p_cur->P_Child))
+				if(SJson::IsString(p_cur->P_Child))
 					strtodatetime(p_cur->P_Child->Text, &rP.DtmCreated, DATF_ISO8601, 0);
 				else
 					rP.DtmCreated.Z();
 			}
 			else if(p_cur->Text.IsEqiAscii("discountRate")) {
-				rP.DiscountRate = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.DiscountRate = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("inviterId")) {
-				rP.InviterID = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
+				rP.InviterID = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
 			}
 			else if(p_cur->Text.IsEqiAscii("lastTransactionTime")) {
-				if(json_t::IsString(p_cur->P_Child))
+				if(SJson::IsString(p_cur->P_Child))
 					strtodatetime(p_cur->P_Child->Text, &rP.DtmLastTransaction, DATF_ISO8601, 0);
 				else
 					rP.DtmLastTransaction.Z();
 			}
 			else if(p_cur->Text.IsEqiAscii("points")) {
-				rP.PointCount = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.PointCount = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("membershipTier")) {
 				ReadMembershipTier(p_cur->P_Child, rP.Mt);
@@ -544,44 +544,44 @@ int UdsGameInterface::ReadParticipant(const json_t * pJs, Participant & rP) cons
 	return ok;
 }
 
-int UdsGameInterface::ReadPurchase(const json_t * pJs, Purchase & rP) const
+int UdsGameInterface::ReadPurchase(const SJson * pJs, Purchase & rP) const
 {
 	int    ok = 1;
-	const  json_t * p_cur = pJs;
-	if(p_cur->Type == json_t::tOBJECT) {
+	const  SJson * p_cur = pJs;
+	if(p_cur->Type == SJson::tOBJECT) {
 		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("maxPoints")) {
-				rP.MaxPoints = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.MaxPoints = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("total")) {
-				rP.Total = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.Total = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("skipLoyaltyTotal")) {
-				rP.SkipLoyaltyTotal = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.SkipLoyaltyTotal = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("discountAmount")) {
-				rP.DiscountAmount = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.DiscountAmount = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("discountPercent")) {
-				rP.DiscountPercent = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.DiscountPercent = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("points")) {
-				rP.Points = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.Points = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("pointsPercent")) {
-				rP.PointsPercent = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.PointsPercent = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("netDiscount")) {
-				rP.NetDiscount = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.NetDiscount = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("netDiscountPercent")) {
-				rP.NetDiscountPercent = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.NetDiscountPercent = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("cash")) {
-				rP.Cash = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.Cash = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 			else if(p_cur->Text.IsEqiAscii("cashBack")) {
-				rP.CashBack = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+				rP.CashBack = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
 			}
 		}
 	}
@@ -596,7 +596,7 @@ int UdsGameInterface::GetCustomerInformation(int64 id, Customer & rC) // GET htt
 	SString log_buf;
 	SString url_buf;
 	SString json_buf;
-	json_t * p_js_doc = 0;
+	SJson * p_js_doc = 0;
 	ScURL c;
 	StrStrAssocArray hdr_flds;
 	SBuffer ack_buf;
@@ -633,7 +633,7 @@ int UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET 
 	SString log_buf;
 	SString url_buf;
 	SString json_buf;
-	json_t * p_js_doc = 0;
+	SJson * p_js_doc = 0;
 	ScURL c;
 	StrStrAssocArray hdr_flds;
 	SBuffer ack_buf;
@@ -652,16 +652,16 @@ int UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET 
 				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
-					json_t * p_cur = p_js_doc;
+					SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
 						ok = 0;
 					}
-					else if(json_t::IsObject(p_cur)) {
+					else if(SJson::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Text.IsEqiAscii("rows")) {
 								ok = 1;
-								if(p_cur->P_Child && p_cur->P_Child->Type == json_t::tARRAY) {
-									for(json_t * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
+								if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tARRAY) {
+									for(SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
 										Customer * p_new_cust = rResult.CreateNewItem();
 										if(p_new_cust) {
 											ReadCustomer(p_item, *p_new_cust);
@@ -695,7 +695,7 @@ int UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer & rC, 
 	SString log_buf;
 	SString url_buf;
 	SString json_buf;
-	json_t * p_js_doc = 0;
+	SJson * p_js_doc = 0;
 	ScURL c;
 	StrStrAssocArray hdr_flds;
 	SBuffer ack_buf;
@@ -724,17 +724,17 @@ int UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer & rC, 
 				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
-					json_t * p_cur = p_js_doc;
+					SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
 						ok = 0;
 					}
-					else if(json_t::IsObject(p_cur)) {
+					else if(SJson::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Text.IsEqiAscii("user")) {
 								ReadCustomer(p_cur->P_Child, rC);
 							}
 							else if(p_cur->Text.IsEqiAscii("code")) {
-								rCode = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+								rCode = SJson::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 							}
 							else if(p_cur->Text.IsEqiAscii("purchase")) {
 								ReadPurchase(p_cur->P_Child, rPurchase);
@@ -780,8 +780,8 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 	SString log_buf;
 	SString url_buf;
 	SString json_buf;
-	json_t * p_js_doc = 0;
-	json_t * p_json_req = 0;
+	SJson * p_js_doc = 0;
+	SJson * p_json_req = 0;
 	ScURL c;
 	S_GUID tra_guid;
 	StrStrAssocArray hdr_flds;
@@ -793,11 +793,11 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 		PrepareHtmlFields(hdr_flds);
 	}
 	{
-		p_json_req = new json_t(json_t::tOBJECT);
+		p_json_req = new SJson(SJson::tOBJECT);
 		if(rT.Code.NotEmpty())
 			p_json_req->InsertString("code", rT.Code);
 		if(rT.Cust.Phone.NotEmpty() || !!rT.Cust.Uid) {
-			json_t * p_js_participant = new json_t(json_t::tOBJECT);
+			SJson * p_js_participant = new SJson(SJson::tOBJECT);
 			if(!!rT.Cust.Uid) {
 				rT.Cust.Uid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 				p_js_participant->InsertString("uid", temp_buf);
@@ -816,7 +816,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 		tra_guid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 		p_json_req->InsertString("nonce", temp_buf);
 		if(rT.Cashier.ID || rT.Cashier.Name.NotEmpty()) {
-			json_t * p_js_cashier = new json_t(json_t::tOBJECT);
+			SJson * p_js_cashier = new SJson(SJson::tOBJECT);
 			if(rT.Cashier.ID) {
 				temp_buf.Z().Cat(rT.Cashier.ID);
 				p_js_cashier->InsertString("externalId", temp_buf);
@@ -827,7 +827,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 			p_json_req->Insert("cashier", p_js_cashier);
 		}
 		{
-			json_t * p_js_receipt = new json_t(json_t::tOBJECT);
+			SJson * p_js_receipt = new SJson(SJson::tOBJECT);
 			p_js_receipt->InsertDouble("total", rT.Total, MKSFMTD(0, 2, 0));
 			p_js_receipt->InsertDouble("cash", rT.Cash, MKSFMTD(0, 2, 0));
 			p_js_receipt->InsertDouble("points", rT.Points, MKSFMTD(0, 2, 0));
@@ -850,30 +850,30 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
-					json_t * p_cur = p_js_doc;
+					SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
 						ok = 0;
 					}
-					else if(json_t::IsObject(p_cur)) {
+					else if(SJson::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Text.IsEqiAscii("oneOf")) {
 								ok = 1;
-								if(p_cur->P_Child && p_cur->P_Child->Type == json_t::tARRAY) {
-									for(json_t * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
+								if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tARRAY) {
+									for(SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
 										if(p_item->Text.IsEqiAscii("id")) {
-											rReplyT.ID = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToInt64() : 0;
+											rReplyT.ID = SJson::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToInt64() : 0;
 										}
 										else if(p_item->Text.IsEqiAscii("dateCreated")) {
 										}
 										else if(p_item->Text.IsEqiAscii("action")) {
-											if(json_t::IsString(p_item->P_Child)) {
+											if(SJson::IsString(p_item->P_Child)) {
 												if(p_item->P_Child->Text.IsEqiAscii("PURCHASE")) {
 													rReplyT.Action = tactPurchase;
 												}
 											}
 										}
 										else if(p_item->Text.IsEqiAscii("state")) {
-											if(json_t::IsString(p_item->P_Child)) {
+											if(SJson::IsString(p_item->P_Child)) {
 												if(p_item->P_Child->Text.IsEqiAscii("NORMAL"))
 													rReplyT.State = tstNormal;
 												else if(p_item->P_Child->Text.IsEqiAscii("CANCELED"))
@@ -883,13 +883,13 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 											}
 										}
 										else if(p_item->Text.IsEqiAscii("points")) {
-											rReplyT.Points = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
+											rReplyT.Points = SJson::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
 										}
 										else if(p_item->Text.IsEqiAscii("cash")) {
-											rReplyT.Cash = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
+											rReplyT.Cash = SJson::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
 										}
 										else if(p_item->Text.IsEqiAscii("total")) {
-											rReplyT.Total = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
+											rReplyT.Total = SJson::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
 										}
 										else if(p_item->Text.IsEqiAscii("customer")) {
 											ReadCustomer(p_item->P_Child, rReplyT.Cust);

@@ -3376,136 +3376,47 @@ int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 	return ok;
 }
 
-struct UhttExpGoodsParam {
-	enum {
-		fOnlyUnassocItems = 0x0001
-	};
-	enum {
-		coGoodsGrpName = 0,
-		coTag
-	};
-
-	UhttExpGoodsParam() : Flags(0), CategoryObject(coGoodsGrpName), CategoryTagID(0)
-	{
-	}
-	long   Flags;
-	long   CategoryObject; // Сущность, которую следует выгружать в качестве наименования категории товара
-	PPID   CategoryTagID;
-};
-
 int PPViewGoods::ExportUhtt()
 {
-	class UhttExportGoodsDialog : public TDialog {
-		DECL_DIALOG_DATA(UhttExpGoodsParam);
-	public:
-		explicit UhttExportGoodsDialog(PPViewGoods * pView) : TDialog(DLG_UHTTEXPGOODS), P_View(pView)
-		{
-		}
-		DECL_DIALOG_SETDTS()
-		{
-			RVALUEPTR(Data, pData);
-			int    ok = 1;
-			AddClusterAssoc(CTL_UHTTEXPGOODS_CO, 0, UhttExpGoodsParam::coGoodsGrpName);
-			AddClusterAssoc(CTL_UHTTEXPGOODS_CO, 1, UhttExpGoodsParam::coTag);
-			SetClusterData(CTL_UHTTEXPGOODS_CO, Data.CategoryObject);
-			ObjTagFilt tag_filt(PPOBJ_GOODS);
-			SetupObjTagCombo(this, CTLSEL_UHTTEXPGOODS_COT, Data.CategoryTagID, 0, &tag_filt);
-			disableCtrl(CTLSEL_UHTTEXPGOODS_COT, (Data.CategoryObject != UhttExpGoodsParam::coTag));
-			AddClusterAssoc(CTL_UHTTEXPGOODS_FLAGS, 0, UhttExpGoodsParam::fOnlyUnassocItems);
-			SetClusterData(CTL_UHTTEXPGOODS_FLAGS, Data.Flags);
-			return ok;
-		}
-		DECL_DIALOG_GETDTS()
-		{
-			int    ok = 1;
-			uint   sel = 0;
-            GetClusterData(CTL_UHTTEXPGOODS_CO, &Data.CategoryObject);
-            if(Data.CategoryObject == UhttExpGoodsParam::coTag) {
-            	getCtrlData(sel = CTLSEL_UHTTEXPGOODS_COT, &Data.CategoryTagID);
-            	THROW_PP(Data.CategoryTagID, PPERR_TAGNEEDED);
-            }
-            else
-				Data.CategoryTagID = 0;
-			GetClusterData(CTL_UHTTEXPGOODS_FLAGS, &Data.Flags);
-			ASSIGN_PTR(pData, Data);
-			CATCHZOKPPERRBYDLG
-			return ok;
-		}
-	private:
-		DECL_HANDLE_EVENT
-		{
-			TDialog::handleEvent(event);
-			if(event.isCmd(cmCountUhttRefs)) {
-				GetUhttRef();
-				clearEvent(event);
-			}
-			else if(event.isClusterClk(CTL_UHTTEXPGOODS_CO)) {
-				GetClusterData(CTL_UHTTEXPGOODS_CO, &Data.CategoryObject);
-				disableCtrl(CTLSEL_UHTTEXPGOODS_COT, (Data.CategoryObject != UhttExpGoodsParam::coTag));
-			}
-		}
-		int GetUhttRef()
-		{
-			int    ok = -1, r;
-			SString msg_buf, fmt_buf;
-			if(P_View) {
-				GoodsViewItem item;
-				LongArray uniq_id_list;
-				LAssocArray list;
-				StrAssocArray code_ref_list;
-				PPWait(1);
-				for(P_View->InitIteration(P_View->OrdByDefault); P_View->NextIteration(&item) > 0;) {
-					uniq_id_list.add(item.ID);
-				}
-				uniq_id_list.sortAndUndup();
-				if(uniq_id_list.getCount()) {
-					PPUhttClient uc;
-					for(uint i = 0; i < uniq_id_list.getCount(); i++) {
-						list.Add(uniq_id_list.get(i), 0, 0);
-					}
-					THROW(uc.Auth());
-					THROW(r = uc.GetUhttGoodsRefList(list, &code_ref_list));
-					list.Sort();
-					{
-						uint ref_count = 0;
-						for(uint i = 0; i < list.getCount(); i++) {
-							const PPID goods_id = list.at(i).Key;
-							const PPID uhtt_id = list.at(i).Val;
-							if(uhtt_id && (!i || list.at(i-1).Key != goods_id))
-								ref_count++;
-						}
-						PPFormatT(PPTXT_UHTTEXPGOODS_REFS, &msg_buf, uniq_id_list.getCountI(), static_cast<long>(ref_count));
-						setStaticText(CTL_UHTTEXPGOODS_INFO, msg_buf);
-						ok = 1;
-					}
-				}
-				else {
-					PPLoadText(PPTXT_UHTTEXPGOODS_EMPTY, msg_buf);
-					setStaticText(CTL_UHTTEXPGOODS_INFO, msg_buf);
-				}
-			}
-			CATCH
-				PPGetLastErrorMessage(1, msg_buf);
-				setStaticText(CTL_UHTTEXPGOODS_INFO, msg_buf);
-				ok = 0;
-			ENDCATCH
-			PPWait(0);
-			return ok;
-		}
-		PPViewGoods * P_View; // @notowned
-	};
 	int    ok = -1;
 	Reference * p_ref = PPRef;
+	Transfer * p_trfr = BillObj->trfr;
 	TSCollection <UhttGoodsPacket> uhtt_goods_list;
 	BarcodeArray bc_list;
 	PPUhttClient uc;
 	PPLogger logger;
-	UhttExpGoodsParam param;
-	UhttExportGoodsDialog * dlg = new UhttExportGoodsDialog(this);
-	THROW(CheckDialogPtr(&dlg));
-	dlg->setDTS(&param);
-	while(ExecView(dlg) == cmOK) {
-		if(dlg->getDTS(&param)) {
+	PPObjGoods::ExportToGlbSvcParam param;
+	if(GObj.EditExportToGlbSvcParam(&param) > 0) {
+		if(oneof2(param.GlobalService, PPGLS_VK, PPGLS_UDS)) {
+			TSVector <PPObjGoods::ExportToGlbSvcItem> src_list;
+			GoodsViewItem item;
+			const PPID single_loc_id = Filt.LocList.GetSingle();
+			GoodsRestParam grp;
+			Filt.LocList.Get(grp.LocList);
+			grp.CalcMethod = GoodsRestParam::pcmMostRecent;
+			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+				PPObjGoods::ExportToGlbSvcItem src_item;
+				src_item.GoodsID = item.ID;
+				src_item.LocID = single_loc_id;
+				if(param.Flags & (param.fExportRest|param.fExportPrice)) {
+					grp.GoodsID = item.ID;
+					p_trfr->GetCurRest(grp);
+					src_item.Cost = grp.Total.Cost;
+					src_item.Price = grp.Total.Price;
+					src_item.Rest = grp.Total.Rest;
+				}
+				src_list.insert(&src_item);
+			}
+			if(src_list.getCount()) {
+				if(param.GlobalService == PPGLS_VK) {
+					PPGlobalServiceHighLevelImplementations::ExportGoods_VK(param, src_list, &logger);
+				}
+				else if(param.GlobalService == PPGLS_UDS) {
+					PPGlobalServiceHighLevelImplementations::ExportGoods_UDS(param, src_list, &logger);
+				}
+			}
+		}
+		else if(param.GlobalService == PPGLS_UNIVERSEHTT) {
 			LongArray uniq_id_list;
 			PPObjBrand brand_obj;
 			SString img_path;
@@ -3517,9 +3428,8 @@ int PPViewGoods::ExportUhtt()
 			{
 				PPBarcodeStruc bcs_rec;
 				for(SEnum en = p_ref->Enum(PPOBJ_BCODESTRUC, 0); en.Next(&bcs_rec) > 0;) {
-					if(bcs_rec.Speciality == PPBarcodeStruc::spcUhttSync && bcs_rec.Templ[0]) {
+					if(bcs_rec.Speciality == PPBarcodeStruc::spcUhttSync && bcs_rec.Templ[0])
 						ss_uhttsync_bcode_template.add((temp_buf = bcs_rec.Templ).Strip());
-					}
 				}
 			}
 			ObjLinkFiles lf(PPOBJ_GOODS);
@@ -3542,7 +3452,6 @@ int PPViewGoods::ExportUhtt()
 
 				PPWait(1);
 				THROW(uc.Auth());
-
 				for(i = 0; i < uniq_id_list.getCount(); i++) {
 					ref_list.Add(uniq_id_list.get(i), 0, 0);
 				}
@@ -3568,9 +3477,8 @@ int PPViewGoods::ExportUhtt()
 								bc_list.atFree(bcidx);
 							else {
 								for(uint ssp = 0; ss_uhttsync_bcode_template.get(&ssp, template_buf);) {
-									if(GObj.P_Tbl->IsTemplatedBarcode(goods_rec.ParentID, GObj.GetConfig(), template_buf, r_bc_rec.Code)) {
+									if(GObj.P_Tbl->IsTemplatedBarcode(goods_rec.ParentID, GObj.GetConfig(), template_buf, r_bc_rec.Code))
 										templated_code_pos_list.add(bcidx);
-									}
 								}
 							}
 						} while(bcidx);
@@ -3593,7 +3501,7 @@ int PPViewGoods::ExportUhtt()
 								if(code_ref_list.GetText(temp_uhtt_id, code_buf) > 0) {
 									if(code_buf[0] > '9') {
 										uint   cp = 0;
-										int    ccr = bc_list.SearchCode(code_buf, &cp);
+										const  int ccr = bc_list.SearchCode(code_buf, &cp);
 										assert(ccr); // Не может быть чтобы код не был найден в списке -
 											// мы же его туда положили когда запрашивали соответствие через GetUhttGoodsRefList()
 										if(ccr) {
@@ -3670,7 +3578,7 @@ int PPViewGoods::ExportUhtt()
 										new_pack.ID = uhtt_goods_id;
 										new_pack.BrandID = uhtt_brand_id;
 										new_pack.ManufID = uhtt_manuf_id;
-										if(param.CategoryObject == UhttExpGoodsParam::coTag) {
+										if(param.CategoryObject == PPObjGoods::ExportToGlbSvcParam::coTag) {
 											if(param.CategoryTagID) {
 												// @v10.7.9 {
 												{
@@ -3690,7 +3598,7 @@ int PPViewGoods::ExportUhtt()
 												}*/
 											}
 										}
-										else if(param.CategoryObject == UhttExpGoodsParam::coGoodsGrpName) {
+										else if(param.CategoryObject == PPObjGoods::ExportToGlbSvcParam::coGoodsGrpName) {
 											if(GObj.Fetch(goods_rec.ParentID, &grp_rec) > 0) {
 												UhttTagItem * p_new_item = new UhttTagItem("OuterGroup", temp_buf = grp_rec.Name);
 												THROW_MEM(p_new_item);
@@ -3761,12 +3669,10 @@ int PPViewGoods::ExportUhtt()
 					PPWaitPercent(i, uniq_id_list.getCount());
 				}
 				PPWait(0);
-				break;
 			}
 		}
 	}
 	CATCHZOKPPERR
-	delete dlg;
 	return ok;
 }
 

@@ -2153,6 +2153,12 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 			AssignFnFieldToRecord(*pFnFldList, 0, &brow_);
 		}
 		THROW(pImpExp->ReadRecord(&brow_, sizeof(brow_), &dyn_rec));
+		// @v10.9.4 {
+		(temp_buf = brow_.BillCode).Transf(CTRANSF_OUTER_TO_INNER);
+		STRNSCPY(brow_.BillCode, temp_buf);
+		(temp_buf = brow_.BillID).Transf(CTRANSF_OUTER_TO_INNER);
+		STRNSCPY(brow_.BillID, temp_buf);
+		// } @v10.9.4 
 		(temp_buf = brow_.Barcode).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.Barcode, temp_buf);
 		(temp_buf = brow_.GoodsName).Transf(CTRANSF_OUTER_TO_INNER);
@@ -2300,7 +2306,6 @@ int PPBillImporter::ReadSpecXmlData()
 	CATCHZOK
 	return ok;
 }
-
 /*
 InitImport
 GetErrorMessage
@@ -2310,7 +2315,6 @@ InitImportIter
 NextImportIter
 FinishImpExp
 */
-
 int PPBillImporter::AddBillToList(Sdr_Bill * pBill, long extraBillId)
 {
 	int    ok = 1;
@@ -2714,9 +2718,8 @@ int PPBillImporter::ReadData()
 								last_ident = org_bill_ident;
 								THROW_SL(Bills.insert(&bill));
 							}
-							else {
+							else
 								row_idx_list_to_remove.add(ln);
-							}
 						}
 					}
 					{
@@ -2724,16 +2727,14 @@ int PPBillImporter::ReadData()
 						if(_p) {
 							row_idx_list_to_remove.sortAndUndup();
 							do {
-								uint   row_idx_to_remove = (uint)row_idx_list_to_remove.get(--_p);
+								const uint row_idx_to_remove = (uint)row_idx_list_to_remove.get(--_p);
 								BillsRows.atFree(row_idx_to_remove);
 							} while(_p);
 						}
 					}
 				}
 				{
-					for(uint i = 0; i < BillsRows.getCount(); i++) {
-						THROW_SL(preserve_rows.insert(&BillsRows.at(i)));
-					}
+					SForEachVectorItem(BillsRows, i) { THROW_SL(preserve_rows.insert(&BillsRows.at(i))); }
 					BillsRows = preserve_rows;
 				}
 			}
@@ -2751,9 +2752,8 @@ int PPBillImporter::ReadData()
 					if(CheckBill(&bill)) {
 						int    ir = AddBillToList(&bill, fi);
 						THROW(ir);
-						if(ir > 0) {
+						if(ir > 0)
 							accept_rows = 1;
-						}
 					}
 					PPWaitPercent(bill_line_no + 1, count);
 					if(imp_rows_from_same_file)
@@ -2766,9 +2766,8 @@ int PPBillImporter::ReadData()
 					ie_row.CloseFile();
 				}
 				Bills.sort(PTR_CMPFUNC(Pchar));
-				if(BillParam.BaseFlags & PPImpExpParam::bfDeleteSrcFiles) {
+				if(BillParam.BaseFlags & PPImpExpParam::bfDeleteSrcFiles)
 					ToRemoveFiles.add(filename);
-				}
 			}
 			ok = 1;
 		}

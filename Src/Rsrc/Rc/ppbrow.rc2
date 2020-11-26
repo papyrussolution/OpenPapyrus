@@ -5276,7 +5276,7 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 	"@tsession_incomplete",  12, notype, 0,  3
 	"@processor",             3, notype, 0, 20
 	"@tech",                  4, notype, 0,  6
-	"Основной товар",        15, notype, 0, 20
+	"@mainware",             15, notype, 0, 20
 	"@contractor",           14, notype, 0, 15
 	"@amount",               13, notype, NMBF_NOZERO, 6.2
 	group "@beginning" {
@@ -5333,7 +5333,7 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 	"@tsession_incomplete",  12, notype, 0,  3
 	"@processor",             3, notype, 0, 20
 	"@tech",                  4, notype, 0,  6
-	"Основной товар",        15, notype, 0, 20
+	"@mainware",             15, notype, 0, 20
 	"@contractor",           14, notype, 0, 15
 	"@amount",               13, notype, NMBF_NOZERO, 6.2
 	group "@beginning" {

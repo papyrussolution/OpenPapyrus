@@ -3638,7 +3638,7 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 	SString url = InetUrl::MkHttps("api.cognitive.microsoft.com", "sts/v1.0/issueToken"); // @v9.6.9
 	StrStrAssocArray post_fields;
 	ScURL  curl;
-	json_t * p_json_doc = 0;
+	SJson * p_json_doc = 0;
 	SString result_str;
 	{
 		SBuffer result_buf;
@@ -3661,17 +3661,17 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 	}
 	{
 		if(result_str.C(0) == '{') {
-			json_t * p_next = 0;
+			SJson * p_next = 0;
 			THROW(json_parse_document(&p_json_doc, result_str.cptr()) == JSON_OK);
-			for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+			for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 				p_next = p_cur->P_Next;
 				switch(p_cur->Type) {
-					case json_t::tARRAY:
+					case SJson::tARRAY:
 						break;
-					case json_t::tOBJECT:
+					case SJson::tOBJECT:
 						p_next = p_cur->P_Child;
 						break;
-					case json_t::tSTRING:
+					case SJson::tSTRING:
 						if(p_cur->P_Child) {
 							if(sstreqi_ascii(p_cur->Text, "statusCode")) {
 								LastStatusCode = (temp_buf = p_cur->P_Child->Text).Unescape().ToLong();
@@ -3695,9 +3695,9 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 	}
 	/* @v9.6.9
 	{
-		json_t * p_next = 0;
+		SJson * p_next = 0;
 		THROW(json_parse_document(&p_json_doc, result_str.cptr()) == JSON_OK);
-		for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+		for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 			p_next = p_cur->next;
 			switch(p_cur->type) {
 				case JSON_ARRAY:

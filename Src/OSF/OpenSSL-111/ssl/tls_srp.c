@@ -408,8 +408,8 @@ char * SSL_get_srp_userinfo(SSL * s)
 	return s->ctx->srp_ctx.info;
 }
 
-# define tls1_ctx_ctrl ssl3_ctx_ctrl
-# define tls1_ctx_callback_ctrl ssl3_ctx_callback_ctrl
+#define tls1_ctx_ctrl ssl3_ctx_ctrl
+#define tls1_ctx_callback_ctrl ssl3_ctx_callback_ctrl
 
 int SSL_CTX_set_srp_username(SSL_CTX * ctx, char * name)
 {

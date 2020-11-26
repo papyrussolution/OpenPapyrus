@@ -818,7 +818,7 @@ int PPApp::processCommand(uint cmd)
 		case cmLoadFonts:             BarcodeLabelPrinter::LoadFonts(0, 0);  break;
 		case cmRegisterComServer:     RegisterComServer();             break;
 		case cmCreateGlobalUserAcc:   CreateBizScGlblUserAcct();       break;
-		case cmSetupGlbSvcUDS:        PPSetup_GlobalService_UDS();     break; // @v10.9.0
+		case cmSetupGlbSvcUDS:        PPGlobalServiceHighLevelImplementations::Setup_UDS(); break; // @v10.9.0
 		case cmKeyboardWKeyCfg:       EditDueToKeyboardRights();       break;
 		case cmGenerateGoodsBills:    GenerateGoodsBills();            break;
 		case cmGenerateCliBnkImport:  GenerateCliBnkImpData();         break;

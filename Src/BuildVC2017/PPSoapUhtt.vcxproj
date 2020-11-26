@@ -955,6 +955,9 @@ cd $(SolutionDir)
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</LinkObjects>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

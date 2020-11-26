@@ -27,7 +27,7 @@
 #include <bcrypt.h>
 #pragma comment(lib, "bcrypt.lib")
 #ifndef STATUS_SUCCESS
-#   define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
+#define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
 #endif
 #else
 #include <wincrypt.h>

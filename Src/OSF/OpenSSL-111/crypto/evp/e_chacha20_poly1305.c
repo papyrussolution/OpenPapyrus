@@ -205,9 +205,9 @@ static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
 void * xor128_encrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
 void * xor128_decrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
 static const uchar zero[4 * CHACHA_BLK_SIZE] = { 0 };
-#   else
+#else
 static const uchar zero[2 * CHACHA_BLK_SIZE] = { 0 };
-#   endif
+#endif
 
 static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
     const uchar * in, size_t len)
@@ -223,7 +223,7 @@ static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	ctr = buf + CHACHA_BLK_SIZE;
 	tohash = buf + CHACHA_BLK_SIZE - POLY1305_BLOCK_SIZE;
 
-#   ifdef XOR128_HELPERS
+#ifdef XOR128_HELPERS
 	if(plen <= 3 * CHACHA_BLK_SIZE) {
 		actx->key.counter[0] = 0;
 		buf_len = (plen + 2 * CHACHA_BLK_SIZE - 1) & (0 - CHACHA_BLK_SIZE);
@@ -247,7 +247,7 @@ static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 			tohash_len = (size_t)(ctr - tohash);
 		}
 	}
-#   else
+#else
 	if(plen <= CHACHA_BLK_SIZE) {
 		size_t i;
 
@@ -281,7 +281,7 @@ static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		ctr += i + tail;
 		tohash_len += i + tail;
 	}
-#   endif
+#endif
 	else {
 		actx->key.counter[0] = 0;
 		ChaCha20_ctr32(buf, zero, (buf_len = CHACHA_BLK_SIZE),

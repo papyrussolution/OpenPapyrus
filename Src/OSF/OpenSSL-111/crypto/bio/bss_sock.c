@@ -180,7 +180,7 @@ int BIO_sock_non_fatal_error(int err)
 #ifdef WSAEWOULDBLOCK
 #   if WSAEWOULDBLOCK != EWOULDBLOCK
 		case EWOULDBLOCK:
-#   endif
+#endif
 #else
 		case EWOULDBLOCK:
 #endif

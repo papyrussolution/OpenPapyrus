@@ -16,7 +16,6 @@
  *
  * Author: breese@users.sourceforge.net
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -197,74 +196,66 @@ xmlHashTable * FASTCALL xmlHashCreateDict(int size, xmlDict * dict)
  */
 static int xmlHashGrow(xmlHashTable * table, int size)
 {
-	ulong key;
-	int oldsize, i;
-	xmlHashEntry * iter;
-	xmlHashEntry * next;
-	xmlHashEntry * oldtable;
 #ifdef DEBUG_GROW
 	ulong nbElem = 0;
 #endif
-	if(table == NULL)
+	if(!table || (size < 8) || (size > (8 * 2048)))
 		return -1;
-	if(size < 8)
-		return -1;
-	if(size > 8 * 2048)
-		return -1;
-	oldsize = table->size;
-	oldtable = table->table;
-	if(oldtable == NULL)
-		return -1;
-	table->table = (xmlHashEntry *)SAlloc::M(size * sizeof(xmlHashEntry));
-	if(table->table == NULL) {
-		table->table = oldtable;
-		return -1;
-	}
-	memzero(table->table, size * sizeof(xmlHashEntry));
-	table->size = size;
-
-	/*	If the two loops are merged, there would be situations where
-	    a new entry needs to allocated and data copied into it from
-	    the main table. So instead, we run through the array twice, first
-	    copying all the elements in the main array (where we can't get
-	    conflicts) and then the rest, so we only free (and don't allocate)
-	 */
-	for(i = 0; i < oldsize; i++) {
-		if(oldtable[i].valid) {
-			key = xmlHashComputeKey(table, oldtable[i].name, oldtable[i].name2, oldtable[i].name3);
-			memcpy(&(table->table[key]), &(oldtable[i]), sizeof(xmlHashEntry));
-			table->table[key].next = NULL;
+	else {
+		int i;
+		int oldsize = table->size;
+		xmlHashEntry * oldtable = table->table;
+		if(oldtable == NULL)
+			return -1;
+		table->table = (xmlHashEntry *)SAlloc::M(size * sizeof(xmlHashEntry));
+		if(table->table == NULL) {
+			table->table = oldtable;
+			return -1;
 		}
-	}
-	for(i = 0; i < oldsize; i++) {
-		iter = oldtable[i].next;
-		while(iter) {
-			next = iter->next;
-			/*
-			 * put back the entry in the new table
-			 */
-			key = xmlHashComputeKey(table, iter->name, iter->name2, iter->name3);
-			if(table->table[key].valid == 0) {
-				memcpy(&(table->table[key]), iter, sizeof(xmlHashEntry));
+		memzero(table->table, size * sizeof(xmlHashEntry));
+		table->size = size;
+		// If the two loops are merged, there would be situations where
+		// a new entry needs to allocated and data copied into it from
+		// the main table. So instead, we run through the array twice, first
+		// copying all the elements in the main array (where we can't get
+		// conflicts) and then the rest, so we only free (and don't allocate)
+		for(i = 0; i < oldsize; i++) {
+			if(oldtable[i].valid) {
+				const ulong key = xmlHashComputeKey(table, oldtable[i].name, oldtable[i].name2, oldtable[i].name3);
+				memcpy(&(table->table[key]), &(oldtable[i]), sizeof(xmlHashEntry));
 				table->table[key].next = NULL;
-				SAlloc::F(iter);
 			}
-			else {
-				iter->next = table->table[key].next;
-				table->table[key].next = iter;
-			}
+		}
+		for(i = 0; i < oldsize; i++) {
+			xmlHashEntry * iter = oldtable[i].next;
+			while(iter) {
+				xmlHashEntry * next = iter->next;
+				// 
+				// put back the entry in the new table
+				// 
+				const ulong key = xmlHashComputeKey(table, iter->name, iter->name2, iter->name3);
+				if(table->table[key].valid == 0) {
+					memcpy(&(table->table[key]), iter, sizeof(xmlHashEntry));
+					table->table[key].next = NULL;
+					SAlloc::F(iter);
+				}
+				else {
+					iter->next = table->table[key].next;
+					table->table[key].next = iter;
+				}
 
 #ifdef DEBUG_GROW
-			nbElem++;
+				nbElem++;
 #endif
-			iter = next;
+				iter = next;
+			}
 		}
-	}
-	SAlloc::F(oldtable);
+		SAlloc::F(oldtable);
 #ifdef DEBUG_GROW
-	xmlGenericError(0, "xmlHashGrow : from %d to %d, %d elems\n", oldsize, size, nbElem);
+		xmlGenericError(0, "xmlHashGrow : from %d to %d, %d elems\n", oldsize, size, nbElem);
 #endif
-	return 0;
+		return 0;
+	}
 }
 /**
  * @table: the hash table

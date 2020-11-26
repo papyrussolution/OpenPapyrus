@@ -5789,8 +5789,8 @@ EdiProviderImplementation_Exite::~EdiProviderImplementation_Exite()
 int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList)
 {
 	int    ok = -1;
-	json_t * p_query = 0;
-	json_t * p_reply = 0;
+	SJson * p_query = 0;
+	SJson * p_reply = 0;
 	SString temp_buf;
 	SString left, right;
 	SString json_buf;
@@ -5807,7 +5807,7 @@ int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt 
 		SFile wr_stream(ack_buf, SFile::mWrite);
 		StrStrAssocArray hdr_flds;
 		url.SetComponent(url.cPath, "Api/V1/Edo/Document/GetEdiDocs");
-		THROW_SL(p_query = new json_t(json_t::tOBJECT));
+		THROW_SL(p_query = new SJson(SJson::tOBJECT));
 		THROW_SL(p_query->InsertString("varToken", AT.Token));
 		{
 			if(checkdate(rP.Period.low)) {
@@ -5843,19 +5843,19 @@ int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt 
 				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
-						if(p_cur->Type == json_t::tOBJECT) {
-							for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+					for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+						if(p_cur->Type == SJson::tOBJECT) {
+							for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 								if(p_obj->Text.IsEqiAscii("varMessage"))
 									reply_message = p_obj->P_Child->Text;
 								else if(p_obj->Text.IsEqiAscii("intCode"))
 									reply_code = p_obj->P_Child->Text.ToLong();
 								else if(p_obj->Text.IsEqiAscii("docs")) {
-									if(p_obj->P_Child && p_obj->P_Child->Type == json_t::tARRAY) {
-										for(json_t * p_doc = p_obj->P_Child->P_Child; p_doc; p_doc = p_doc->P_Next) {
-											if(p_doc->Type == json_t::tOBJECT) {
+									if(p_obj->P_Child && p_obj->P_Child->Type == SJson::tARRAY) {
+										for(SJson * p_doc = p_obj->P_Child->P_Child; p_doc; p_doc = p_doc->P_Next) {
+											if(p_doc->Type == SJson::tOBJECT) {
 												PPEdiProcessor::DocumentInfo new_entry;
-												for(const json_t * p_df = p_doc->P_Child; p_df; p_df = p_df->P_Next) {
+												for(const SJson * p_df = p_doc->P_Child; p_df; p_df = p_df->P_Next) {
 													if(p_df->Text.IsEqiAscii("intDocID"))
 														new_entry.SId = p_df->P_Child->Text;
 													else if(p_df->Text.IsEqiAscii("doc_type")) 
@@ -5912,8 +5912,8 @@ int EdiProviderImplementation_Exite::Auth()
 int EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 {
 	int    ok = -1;
-	json_t * p_query = 0;
-	json_t * p_reply = 0;
+	SJson * p_query = 0;
+	SJson * p_reply = 0;
 	ScURL c;
 	SString temp_buf;
 	SString json_buf;
@@ -5926,7 +5926,7 @@ int EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 	StrStrAssocArray hdr_flds;
 	THROW(Epp.MakeUrl(0, url));
 	url.SetComponent(url.cPath, "Api/V1/Edo/Index/Authorize");
-	THROW_SL(p_query = new json_t(json_t::tOBJECT));
+	THROW_SL(p_query = new SJson(SJson::tOBJECT));
 	url.GetComponent(url.cUserName, 0, temp_buf);
 	THROW_SL(p_query->InsertString("varLogin", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)));
 	url.SetComponent(url.cUserName, 0);
@@ -5950,9 +5950,9 @@ int EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 			temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-				for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
-					if(p_cur->Type == json_t::tOBJECT) {
-						for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+				for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Type == SJson::tOBJECT) {
+						for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 							if(p_obj->Text.IsEqiAscii("varToken"))
 								rToken = p_obj->P_Child->Text;
 							else if(p_obj->Text.IsEqiAscii("varMessage"))
@@ -5981,8 +5981,8 @@ int EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, 
 {
 	rRetIdent.Z();
 	int    ok = -1;
-	json_t * p_query = 0;
-	json_t * p_reply = 0;
+	SJson * p_query = 0;
+	SJson * p_reply = 0;
 	ScURL c;
 	SString temp_buf;
 	SString json_buf;
@@ -5996,7 +5996,7 @@ int EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, 
 	THROW(Epp.MakeUrl(0, url));
 	THROW(Auth());
 	url.SetComponent(url.cPath, "Api/V1/Edo/Document/Send");
-	THROW_SL(p_query = new json_t(json_t::tOBJECT));
+	THROW_SL(p_query = new SJson(SJson::tOBJECT));
 	THROW_SL(p_query->InsertString("varToken", AT.Token));
 	THROW_SL(p_query->InsertString("doc_type", pDocType));
 	THROW_SL(p_query->InsertString("document_name", pDocName));
@@ -6019,9 +6019,9 @@ int EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, 
 			temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-				for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
-					if(p_cur->Type == json_t::tOBJECT) {
-						for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+				for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Type == SJson::tOBJECT) {
+						for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 							if(p_obj->Text.IsEqiAscii("varMessage"))
 								reply_message = p_obj->P_Child->Text;
 							else if(p_obj->Text.IsEqiAscii("intCode"))
@@ -6268,8 +6268,8 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 	int    ok = -1;
 	PPEdiProcessor::Packet * p_pack = 0;
 	PPBillPacket * p_bpack = 0; // is owned by p_pack
-	json_t * p_query = 0;
-	json_t * p_reply = 0;
+	SJson * p_query = 0;
+	SJson * p_reply = 0;
 	ScURL c;
 	SString temp_buf;
 	SString json_buf;
@@ -6299,7 +6299,7 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 	THROW(Epp.MakeUrl(0, url));
 	THROW(Auth());
 	url.SetComponent(url.cPath, "Api/V1/Edo/Document/GetEdiDocBody");
-	THROW_SL(p_query = new json_t(json_t::tOBJECT));
+	THROW_SL(p_query = new SJson(SJson::tOBJECT));
 	THROW_SL(p_query->InsertString("varToken", AT.Token));
 	THROW_SL(p_query->InsertString("intDocID", pIdent->SId));
 	url.Composite(0, temp_buf);
@@ -6318,13 +6318,13 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 			const  int edi_op = pIdent->EdiOp;
-			for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
-				if(p_cur->Type == json_t::tOBJECT) {
-					for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+			for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Type == SJson::tOBJECT) {
+					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 						if(p_obj->Text.IsEqiAscii("intDocID")) {
 							//rRetIdent = p_obj->P_Child->Text;
 						}
-						else if(p_obj->Text.IsEqiAscii("body") && p_obj->P_Child && p_obj->P_Child->Type == json_t::tOBJECT) {
+						else if(p_obj->Text.IsEqiAscii("body") && p_obj->P_Child && p_obj->P_Child->Type == SJson::tOBJECT) {
 							int    edipartyq_whoami = 0; // EDIPARTYQ_BUYER || EDIPARTYQ_SUPPLIER
 							if(oneof4(edi_op, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC))
 								edipartyq_whoami = EDIPARTYQ_BUYER;
@@ -6348,13 +6348,13 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.EdiDesadvOpID, 0, 0, 1));
 								p_bpack->Rec.EdiOp = PPEDIOP_DESADV;
-								for(json_t * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
+								for(SJson * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
 									temp_buf = p_bf->P_Child->Text;
 									if(p_bf->Text.IsEqiAscii("HEAD")) {
-										if(p_bf->P_Child && p_bf->P_Child->Type == json_t::tARRAY) {
-											for(json_t * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
-												if(p_hi->Type == json_t::tOBJECT) {
-													for(json_t * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
+										if(p_bf->P_Child && p_bf->P_Child->Type == SJson::tARRAY) {
+											for(SJson * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
+												if(p_hi->Type == SJson::tOBJECT) {
+													for(SJson * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
 														temp_buf = p_hf->P_Child->Text;
 														if(p_hf->Text.IsEqiAscii("SUPPLIER")) {
 															THROW(ResolveContractor(temp_buf, EDIPARTYQ_SUPPLIER, p_bpack));
@@ -6388,18 +6388,18 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 														else if(p_hf->Text.IsEqiAscii("EDIINTERCHANGEID")) {
 														}
 														else if(p_hf->Text.IsEqiAscii("PACKINGSEQUENCE")) {
-															if(p_hf->P_Child && p_hf->P_Child->Type == json_t::tARRAY) {
-																for(json_t * p_psi = p_hf->P_Child->P_Child; p_psi; p_psi = p_psi->P_Next) {
-																	if(p_psi->Type == json_t::tOBJECT) {
-																		for(json_t * p_psf = p_psi->P_Child; p_psf; p_psf = p_psf->P_Next) {
+															if(p_hf->P_Child && p_hf->P_Child->Type == SJson::tARRAY) {
+																for(SJson * p_psi = p_hf->P_Child->P_Child; p_psi; p_psi = p_psi->P_Next) {
+																	if(p_psi->Type == SJson::tOBJECT) {
+																		for(SJson * p_psf = p_psi->P_Child; p_psf; p_psf = p_psf->P_Next) {
 																			if(p_psf->Text.IsEqiAscii("HIERARCHICALID")) {
 																			}
 																			else if(p_psf->Text.IsEqiAscii("POSITION")) {
-																				if(p_psf->P_Child && p_psf->P_Child->Type == json_t::tARRAY) {
-																					for(json_t * p_pli = p_psf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
-																						if(p_pli->Type == json_t::tOBJECT) {
+																				if(p_psf->P_Child && p_psf->P_Child->Type == SJson::tARRAY) {
+																					for(SJson * p_pli = p_psf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
+																						if(p_pli->Type == SJson::tOBJECT) {
 																							THROW(pos_blk.Init(&p_bpack->Rec));
-																							for(json_t * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
+																							for(SJson * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
 																								temp_buf = p_pf->P_Child->Text;
 																								if(p_pf->Text.IsEqiAscii("POSITIONNUMBER")) {
 																									pos_blk.Ti.RByBill = static_cast<int16>(temp_buf.ToLong());
@@ -6670,13 +6670,13 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.OpID, 0, 0, 1));
 								p_bpack->Rec.EdiOp = PPEDIOP_ORDER;
-								for(json_t * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
+								for(SJson * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
 									temp_buf = p_bf->P_Child->Text;
 									if(p_bf->Text.IsEqiAscii("HEAD")) {
-										if(p_bf->P_Child && p_bf->P_Child->Type == json_t::tARRAY) {
-											for(json_t * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
-												if(p_hi->Type == json_t::tOBJECT) {
-													for(json_t * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
+										if(p_bf->P_Child && p_bf->P_Child->Type == SJson::tARRAY) {
+											for(SJson * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
+												if(p_hi->Type == SJson::tOBJECT) {
+													for(SJson * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
 														temp_buf = p_hf->P_Child->Text;
 														if(p_hf->Text.IsEqiAscii("SUPPLIER")) {
 															THROW(ResolveContractor(temp_buf, EDIPARTYQ_SUPPLIER, p_bpack));
@@ -6714,11 +6714,11 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 														else if(p_hf->Text.IsEqiAscii("EDIINTERCHANGEID")) {
 														}
 														else if(p_hf->Text.IsEqiAscii("POSITION")) {
-															if(p_hf->P_Child && p_hf->P_Child->Type == json_t::tARRAY) {
-																for(json_t * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
-																	if(p_pli->Type == json_t::tOBJECT) {
+															if(p_hf->P_Child && p_hf->P_Child->Type == SJson::tARRAY) {
+																for(SJson * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
+																	if(p_pli->Type == SJson::tOBJECT) {
 																		THROW(pos_blk.Init(&p_bpack->Rec));
-																		for(json_t * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
+																		for(SJson * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
 																			temp_buf = p_pf->P_Child->Text;
 																			if(p_pf->Text.IsEqiAscii("POSITIONNUMBER")) {
 																				pos_blk.Ti.RByBill = static_cast<int16>(temp_buf.ToLong());
@@ -6790,8 +6790,8 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 																			else if(p_pf->Text.IsEqiAscii("PACKAGEID")) {
 																			}
 																			else if(p_pf->Text.IsEqiAscii("CHARACTERISTIC")) {
-																				if(p_pf->P_Child && p_pf->P_Child->Type == json_t::tOBJECT) {
-																					for(json_t * p_cf = p_pf->P_Child; p_cf; p_cf = p_cf->P_Next) {
+																				if(p_pf->P_Child && p_pf->P_Child->Type == SJson::tOBJECT) {
+																					for(SJson * p_cf = p_pf->P_Child; p_cf; p_cf = p_cf->P_Next) {
 																						if(p_cf->Text.IsEqiAscii("DESCRIPTION")) {
 																						}
 																					}
@@ -6920,13 +6920,13 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ordrsp_op_id, 0, 0, 1));
 								p_bpack->Rec.EdiOp = p_pack->DocType;
-								for(json_t * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
+								for(SJson * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
 									temp_buf = p_bf->P_Child->Text;
 									if(p_bf->Text.IsEqiAscii("HEAD")) {
-										if(p_bf->P_Child && p_bf->P_Child->Type == json_t::tARRAY) {
-											for(json_t * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
-												if(p_hi->Type == json_t::tOBJECT) {
-													for(json_t * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
+										if(p_bf->P_Child && p_bf->P_Child->Type == SJson::tARRAY) {
+											for(SJson * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
+												if(p_hi->Type == SJson::tOBJECT) {
+													for(SJson * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
 														temp_buf = p_hf->P_Child->Text;
 														if(p_hf->Text.IsEqiAscii("RECIPIENT")) {
 															THROW_PP_S(PsnObj.ResolveGLN(temp_buf, &rcvr_psn_id) > 0, PPERR_EDI_UNBLRSLV_RCVR, temp_buf);
@@ -6956,11 +6956,11 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 														else if(p_hf->Text.IsEqiAscii("EDIINTERCHANGEID")) {
 														}
 														else if(p_hf->Text.IsEqiAscii("POSITION")) {
-															if(p_hf->P_Child && p_hf->P_Child->Type == json_t::tARRAY) {
-																for(json_t * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
-																	if(p_pli->Type == json_t::tOBJECT) {
+															if(p_hf->P_Child && p_hf->P_Child->Type == SJson::tARRAY) {
+																for(SJson * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
+																	if(p_pli->Type == SJson::tOBJECT) {
 																		THROW(pos_blk.Init(&p_bpack->Rec));
-																		for(json_t * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
+																		for(SJson * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
 																			temp_buf = p_pf->P_Child->Text;
 																			if(p_pf->Text.IsEqiAscii("PRODUCT")) {
 																				pos_blk.GTIN = temp_buf;

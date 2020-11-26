@@ -1316,6 +1316,7 @@
 #define PPTAG_LOC_CHZNCODE          93L // @v10.6.4 Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
 #define PPTAG_GUA_CHZNCODE          94L // @v10.6.5 Код своего предприятия в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE но имеет меньший приоритет при идентификации)
 #define PPTAG_GUA_PROTOCOL          95L // @v10.7.10 Протокол либо версия протокола обмена с сервисом, к которому привязана запись.
+#define PPTAG_GUA_OUTERWAREIDTAG    96L // @v10.9.4  Ссылка на тег товара, содержащий внешний идентификатор
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -10163,6 +10164,11 @@
 	#define CTL_UHTTEXPGOODS_COT       (4  + IMPEXP_CTL_BIAS)
 	#define CTLSEL_UHTTEXPGOODS_COT    (5  + IMPEXP_CTL_BIAS)
 	#define CTL_UHTTEXPGOODS_CH        (6  + IMPEXP_CTL_BIAS) //@erik
+	#define CTL_UHTTEXPGOODS_GS        (7  + IMPEXP_CTL_BIAS)
+	#define CTL_UHTTEXPGOODS_RPO       (8  + IMPEXP_CTL_BIAS) // Опции экспорта остатков и цен
+	#define CTL_UHTTEXPGOODS_GUA       (9  + IMPEXP_CTL_BIAS)
+	#define CTLSEL_UHTTEXPGOODS_GUA    (10 + IMPEXP_CTL_BIAS)
+	#define CTL_UHTTEXPGOODS_DEXT      (11 + IMPEXP_CTL_BIAS) // Дополнительное поле товара для экспорта описания //
 #define DLG_GUART                 1265 // Права доступа глобальной учетной записи
 	#define CTL_GUART_FLAGS            (1 + WINDOWS_ID_BIAS)
 #define DLG_TEX2HTM               1266

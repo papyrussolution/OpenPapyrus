@@ -646,7 +646,7 @@ public:
 		void * P_Data;
 	};
 	
-	int    ParseDocument(const json_t * pJsonObj, Document & rItem);
+	int    ParseDocument(const SJson * pJsonObj, Document & rItem);
 	int    ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList);
 	int    SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
 	int    GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf);
@@ -807,13 +807,13 @@ static int ChZnDocTypeFromStr(const char * pText, int * pType, int * pFormat)
 	return BIN(type);
 }
 
-int ChZnInterface::ParseDocument(const json_t * pJsonObj, Document & rItem)
+int ChZnInterface::ParseDocument(const SJson * pJsonObj, Document & rItem)
 {
 	int    ok = -1;
-	if(pJsonObj && pJsonObj->Type == json_t::tOBJECT) {
-		const json_t * p_next = pJsonObj->P_Next;
-		const json_t * p_fld_next = 0;
-		for(const json_t * p_fld = pJsonObj->P_Child; p_fld; p_fld = p_fld_next) {
+	if(pJsonObj && pJsonObj->Type == SJson::tOBJECT) {
+		const SJson * p_next = pJsonObj->P_Next;
+		const SJson * p_fld_next = 0;
+		for(const SJson * p_fld = pJsonObj->P_Child; p_fld; p_fld = p_fld_next) {
 			p_fld_next = p_fld->P_Next;
 			if(p_fld->P_Child) {
 				ok = 1;
@@ -844,7 +844,7 @@ int ChZnInterface::ParseDocument(const json_t * pJsonObj, Document & rItem)
 				else if(sstreqi_ascii(p_fld->Text, "downloadDesc")) {
 				}
 				else if(sstreqi_ascii(p_fld->Text, "input")) { // bool
-					if(p_fld->P_Child->Type == json_t::tTRUE)
+					if(p_fld->P_Child->Type == SJson::tTRUE)
 						rItem.Flags |= rItem.fInput;
 					else
 						rItem.Flags &= ~rItem.fInput;
@@ -874,20 +874,20 @@ int ChZnInterface::ParseDocument(const json_t * pJsonObj, Document & rItem)
 int  ChZnInterface::ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList)
 {
 	int    ok = -1;
-	json_t * p_json_doc = 0;
+	SJson * p_json_doc = 0;
 	if(json_parse_document(&p_json_doc, pJsonInput) == JSON_OK) {
 		SString temp_buf;
-		json_t * p_next = 0;
-		json_t * p_fld_next = 0;
+		SJson * p_next = 0;
+		SJson * p_fld_next = 0;
 		if(p_json_doc) {
-			if(p_json_doc->Type == json_t::tOBJECT) {
-				json_t * p_child = p_json_doc->P_Child;
-				if(p_child && p_child->Type == json_t::tSTRING && sstreqi_ascii(p_child->Text, "results")) {
+			if(p_json_doc->Type == SJson::tOBJECT) {
+				SJson * p_child = p_json_doc->P_Child;
+				if(p_child && p_child->Type == SJson::tSTRING && sstreqi_ascii(p_child->Text, "results")) {
 					ok = 1;
 					p_child = p_child->P_Child;
-					if(p_child && p_child->Type == json_t::tARRAY) {
-						for(json_t * p_cur = p_child->P_Child; p_cur; p_cur = p_next) {
-							if(p_cur->Type == json_t::tOBJECT) {
+					if(p_child && p_child->Type == SJson::tARRAY) {
+						for(SJson * p_cur = p_child->P_Child; p_cur; p_cur = p_next) {
+							if(p_cur->Type == SJson::tOBJECT) {
 								p_next = p_cur->P_Next;
 								Document * p_new_entry = rList.CreateNewItem();
 								ParseDocument(p_cur, *p_new_entry);
@@ -1529,9 +1529,9 @@ int ChZnInterface::MakeAuthRequest(InitBlock & rBlk, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
-	json_t * p_json_req = 0;
+	SJson * p_json_req = 0;
 	{
-		p_json_req = new json_t(json_t::tOBJECT);
+		p_json_req = new SJson(SJson::tOBJECT);
 		p_json_req->InsertString("client_id", rBlk.CliAccsKey);
 		p_json_req->InsertString("client_secret", rBlk.CliSecret);
 		p_json_req->InsertString("user_id", rBlk.CliIdent);
@@ -1548,10 +1548,10 @@ int ChZnInterface::MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SSt
 	rBuf.Z();
 	int    ok = 1;
 	SString code_sign;
-	json_t * p_json_req = 0;
+	SJson * p_json_req = 0;
 	THROW(GetSign(rIb, pAuthCode, sstrlen(pAuthCode), code_sign));
 	{
-		p_json_req = new json_t(json_t::tOBJECT);
+		p_json_req = new SJson(SJson::tOBJECT);
 		p_json_req->InsertString("code", pAuthCode);
 		p_json_req->InsertString("signature", code_sign);
 		THROW_SL(json_tree_to_string(p_json_req, rBuf));
@@ -1568,11 +1568,11 @@ int ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const void * pData
 	SString code_sign;
 	SString temp_buf;
 	SString data_base64_buf;
-	json_t * p_json_req = 0;
+	SJson * p_json_req = 0;
 	THROW(GetSign(rIb, pData, dataLen, code_sign));
 	data_base64_buf.EncodeMime64(pData, dataLen);
 	{
-		p_json_req = new json_t(json_t::tOBJECT);
+		p_json_req = new SJson(SJson::tOBJECT);
 		p_json_req->InsertString("document", data_base64_buf);
 		p_json_req->InsertString("sign", code_sign);
 		rReqId.Generate();
@@ -2130,15 +2130,15 @@ int ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * 
 {
 	rResult.Z();
 	int    ok = -1;
-	json_t * p_json_doc = 0;
+	SJson * p_json_doc = 0;
 	if(json_parse_document(&p_json_doc, pReply) == JSON_OK) {
 		SString temp_buf;
-		json_t * p_next = 0;
-		for(json_t * p_cur = p_json_doc; rResult.Empty() && p_cur; p_cur = p_next) {
+		SJson * p_next = 0;
+		for(SJson * p_cur = p_json_doc; rResult.Empty() && p_cur; p_cur = p_next) {
 			p_next = p_cur->P_Next;
 			switch(p_cur->Type) {
-				case json_t::tOBJECT: p_next = p_cur->P_Child; break;
-				case json_t::tSTRING:
+				case SJson::tOBJECT: p_next = p_cur->P_Child; break;
+				case SJson::tSTRING:
 					if(p_cur->P_Child) {
 						if(sstreqi_ascii(p_cur->Text, pTarget)) {
 							rResult = (temp_buf = p_cur->P_Child->Text).Unescape();
@@ -2156,8 +2156,8 @@ int ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * 
 int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, const InetUrl * pUrl, Document & rDoc)
 {
 	int    ok = -1;
-	json_t * p_json_req = 0;
-	json_t * p_json_doc = 0;
+	SJson * p_json_req = 0;
+	SJson * p_json_doc = 0;
 	SString temp_buf;
 	SString hdr_buf;
 	SString req_buf;
@@ -2227,7 +2227,7 @@ int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, cons
 int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList)
 {
 	int    ok = -1;
-	json_t * p_json_req = 0;
+	SJson * p_json_req = 0;
 	SString temp_buf;
 	SString req_buf;
 	SString url_buf;
@@ -2237,9 +2237,9 @@ int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, 
 		req_buf.Z();
 		{
 			// { "filter": { "doc_status": "PROCESSED_DOCUMENT" }, "start_from": 0, "count": 100 }
-			p_json_req = new json_t(json_t::tOBJECT);
+			p_json_req = new SJson(SJson::tOBJECT);
 			{
-				json_t * p_json_filt = new json_t(json_t::tOBJECT);
+				SJson * p_json_filt = new SJson(SJson::tOBJECT);
 				p_json_filt->InsertString("doc_status", "PROCESSED_DOCUMENT");
 				p_json_req->Insert("filter", p_json_filt);
 			}
@@ -2310,7 +2310,7 @@ int ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 	int    ok = -1;
 	int    wininet_err = 0;
 	int    win_err = 0;
-	json_t * p_json_req = 0;
+	SJson * p_json_req = 0;
 	WinInternetHandleStack hstk;
 	HINTERNET h_inet_sess = 0;
 	HINTERNET h_connection = 0;
@@ -2322,9 +2322,9 @@ int ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 		req_buf.Z();
 		{
 			// { "filter": { "doc_status": "PROCESSED_DOCUMENT" }, "start_from": 0, "count": 100 }
-			p_json_req = new json_t(json_t::tOBJECT);
+			p_json_req = new SJson(SJson::tOBJECT);
 			{
-				json_t * p_json_filt = new json_t(json_t::tOBJECT);
+				SJson * p_json_filt = new SJson(SJson::tOBJECT);
 				p_json_filt->InsertString("doc_status", "PROCESSED_DOCUMENT");
 				p_json_req->Insert("filter", p_json_filt);
 			}
@@ -2507,15 +2507,15 @@ int ChZnInterface::Connect(InitBlock & rIb)
 							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 							LogTalking("rep", 0, temp_buf);
 							{
-								json_t * p_json_doc = 0;
+								SJson * p_json_doc = 0;
 								if(json_parse_document(&p_json_doc, temp_buf) == JSON_OK) {
 									SString temp_buf;
-									json_t * p_next = 0;
-									for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+									SJson * p_next = 0;
+									for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 										p_next = p_cur->P_Next;
 										switch(p_cur->Type) {
-											case json_t::tOBJECT: p_next = p_cur->P_Child; break;
-											case json_t::tSTRING:
+											case SJson::tOBJECT: p_next = p_cur->P_Child; break;
+											case SJson::tSTRING:
 												if(p_cur->P_Child) {
 													if(sstreqi_ascii(p_cur->Text, "uuid"))
 														result_uuid.FromStr((temp_buf = p_cur->P_Child->Text).Unescape());
@@ -2538,7 +2538,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 			SString signed_data;
 			THROW(GetSign(rIb, result_data.cptr(), result_data.Len(), signed_data));
 			{
-				json_t * p_json_req = new json_t(json_t::tOBJECT);
+				SJson * p_json_req = new SJson(SJson::tOBJECT);
 				temp_buf.Z().Cat(result_uuid, S_GUID::fmtIDL|S_GUID::fmtLower);
 				p_json_req->InsertString("uuid", temp_buf);
 				p_json_req->InsertString("data", signed_data);

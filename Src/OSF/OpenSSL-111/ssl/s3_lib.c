@@ -3758,7 +3758,6 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 	    {
 		    const EC_GROUP * group = NULL;
 		    int nid;
-
 		    if(parg == NULL) {
 			    SSLerr(SSL_F_SSL3_CTX_CTRL, ERR_R_PASSED_NULL_PARAMETER);
 			    return 0;
@@ -3771,9 +3770,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    nid = EC_GROUP_get_curve_name(group);
 		    if(nid == NID_undef)
 			    return 0;
-		    return tls1_set_groups(&ctx->ext.supportedgroups,
-			       &ctx->ext.supportedgroups_len,
-			       &nid, 1);
+		    return tls1_set_groups(&ctx->ext.supportedgroups, &ctx->ext.supportedgroups_len, &nid, 1);
 	    }
 #endif                          /* !OPENSSL_NO_EC */
 		case SSL_CTRL_SET_TLSEXT_SERVERNAME_ARG:
@@ -3793,49 +3790,34 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			    return 0;
 		    }
 		    if(cmd == SSL_CTRL_SET_TLSEXT_TICKET_KEYS) {
-			    memcpy(ctx->ext.tick_key_name, keys,
-				sizeof(ctx->ext.tick_key_name));
-			    memcpy(ctx->ext.secure->tick_hmac_key,
-				keys + sizeof(ctx->ext.tick_key_name),
+			    memcpy(ctx->ext.tick_key_name, keys, sizeof(ctx->ext.tick_key_name));
+			    memcpy(ctx->ext.secure->tick_hmac_key, keys + sizeof(ctx->ext.tick_key_name),
 				sizeof(ctx->ext.secure->tick_hmac_key));
-			    memcpy(ctx->ext.secure->tick_aes_key,
-				keys + sizeof(ctx->ext.tick_key_name) +
-				sizeof(ctx->ext.secure->tick_hmac_key),
+			    memcpy(ctx->ext.secure->tick_aes_key, keys + sizeof(ctx->ext.tick_key_name) + sizeof(ctx->ext.secure->tick_hmac_key),
 				sizeof(ctx->ext.secure->tick_aes_key));
 		    }
 		    else {
-			    memcpy(keys, ctx->ext.tick_key_name,
-				sizeof(ctx->ext.tick_key_name));
-			    memcpy(keys + sizeof(ctx->ext.tick_key_name),
-				ctx->ext.secure->tick_hmac_key,
-				sizeof(ctx->ext.secure->tick_hmac_key));
-			    memcpy(keys + sizeof(ctx->ext.tick_key_name) +
-				sizeof(ctx->ext.secure->tick_hmac_key),
-				ctx->ext.secure->tick_aes_key,
-				sizeof(ctx->ext.secure->tick_aes_key));
+			    memcpy(keys, ctx->ext.tick_key_name, sizeof(ctx->ext.tick_key_name));
+			    memcpy(keys + sizeof(ctx->ext.tick_key_name), ctx->ext.secure->tick_hmac_key, sizeof(ctx->ext.secure->tick_hmac_key));
+			    memcpy(keys + sizeof(ctx->ext.tick_key_name) + sizeof(ctx->ext.secure->tick_hmac_key),
+				ctx->ext.secure->tick_aes_key, sizeof(ctx->ext.secure->tick_aes_key));
 		    }
 		    return 1;
 	    }
-
 		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_TYPE:
 		    return ctx->ext.status_type;
-
 		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_TYPE:
 		    ctx->ext.status_type = larg;
 		    break;
-
 		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB_ARG:
 		    ctx->ext.status_arg = parg;
 		    return 1;
-
 		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB_ARG:
 		    *(void**)parg = ctx->ext.status_arg;
 		    break;
-
 		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB:
 		    *(int (**)(SSL*, void*))parg = ctx->ext.status_cb;
 		    break;
-
 #ifndef OPENSSL_NO_SRP
 		case SSL_CTRL_SET_TLS_EXT_SRP_USERNAME:
 		    ctx->srp_ctx.srp_Mask |= SSL_kSRP;
@@ -3898,41 +3880,31 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			    return 0;
 		    }
 		    break;
-
 		case SSL_CTRL_GET_EXTRA_CHAIN_CERTS:
 		    if(ctx->extra_certs == NULL && larg == 0)
 			    *(STACK_OF(X509) **)parg = ctx->cert->key->chain;
 		    else
 			    *(STACK_OF(X509) **)parg = ctx->extra_certs;
 		    break;
-
 		case SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS:
 		    sk_X509_pop_free(ctx->extra_certs, X509_free);
 		    ctx->extra_certs = NULL;
 		    break;
-
 		case SSL_CTRL_CHAIN:
 		    if(larg)
 			    return ssl_cert_set1_chain(NULL, ctx, (STACK_OF(X509) *)parg);
 		    else
 			    return ssl_cert_set0_chain(NULL, ctx, (STACK_OF(X509) *)parg);
-
 		case SSL_CTRL_CHAIN_CERT:
 		    if(larg)
 			    return ssl_cert_add1_chain_cert(NULL, ctx, (X509*)parg);
 		    else
 			    return ssl_cert_add0_chain_cert(NULL, ctx, (X509*)parg);
-
 		case SSL_CTRL_GET_CHAIN_CERTS:
 		    *(STACK_OF(X509) **)parg = ctx->cert->key->chain;
 		    break;
-
-		case SSL_CTRL_SELECT_CURRENT_CERT:
-		    return ssl_cert_select_current(ctx->cert, (X509*)parg);
-
-		case SSL_CTRL_SET_CURRENT_CERT:
-		    return ssl_cert_set_current(ctx->cert, larg);
-
+		case SSL_CTRL_SELECT_CURRENT_CERT: return ssl_cert_select_current(ctx->cert, (X509*)parg);
+		case SSL_CTRL_SET_CURRENT_CERT: return ssl_cert_set_current(ctx->cert, larg);
 		default:
 		    return 0;
 	}
@@ -3952,18 +3924,12 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (*fp)(void))
 		case SSL_CTRL_SET_TLSEXT_SERVERNAME_CB:
 		    ctx->ext.servername_cb = (int (*)(SSL *, int *, void *))fp;
 		    break;
-
 		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB:
 		    ctx->ext.status_cb = (int (*)(SSL *, void *))fp;
 		    break;
-
 		case SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB:
-		    ctx->ext.ticket_key_cb = (int (*)(SSL *, uchar *,
-			uchar *,
-			EVP_CIPHER_CTX *,
-			HMAC_CTX *, int))fp;
+		    ctx->ext.ticket_key_cb = (int (*)(SSL *, uchar *, uchar *, EVP_CIPHER_CTX *, HMAC_CTX *, int))fp;
 		    break;
-
 #ifndef OPENSSL_NO_SRP
 		case SSL_CTRL_SET_SRP_VERIFY_PARAM_CB:
 		    ctx->srp_ctx.srp_Mask |= SSL_kSRP;
@@ -3971,13 +3937,11 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (*fp)(void))
 		    break;
 		case SSL_CTRL_SET_TLS_EXT_SRP_USERNAME_CB:
 		    ctx->srp_ctx.srp_Mask |= SSL_kSRP;
-		    ctx->srp_ctx.TLS_ext_srp_username_callback =
-			(int (*)(SSL *, int *, void *))fp;
+		    ctx->srp_ctx.TLS_ext_srp_username_callback = (int (*)(SSL *, int *, void *))fp;
 		    break;
 		case SSL_CTRL_SET_SRP_GIVE_CLIENT_PWD_CB:
 		    ctx->srp_ctx.srp_Mask |= SSL_kSRP;
-		    ctx->srp_ctx.SRP_give_srp_client_pwd_callback =
-			(char *(*)(SSL *, void *))fp;
+		    ctx->srp_ctx.SRP_give_srp_client_pwd_callback = (char *(*)(SSL *, void *))fp;
 		    break;
 #endif
 		case SSL_CTRL_SET_NOT_RESUMABLE_SESS_CB:
@@ -3995,7 +3959,6 @@ const SSL_CIPHER * ssl3_get_cipher_by_id(uint32_t id)
 {
 	SSL_CIPHER c;
 	const SSL_CIPHER * cp;
-
 	c.id = id;
 	cp = OBJ_bsearch_ssl_cipher_id(&c, tls13_ciphers, TLS13_NUM_CIPHERS);
 	if(cp != NULL)
@@ -4011,7 +3974,6 @@ const SSL_CIPHER * ssl3_get_cipher_by_std_name(const char * stdname)
 	SSL_CIPHER * c = NULL, * tbl;
 	SSL_CIPHER * alltabs[] = {tls13_ciphers, ssl3_ciphers};
 	size_t i, j, tblsize[] = {TLS13_NUM_CIPHERS, SSL3_NUM_CIPHERS};
-
 	/* this is not efficient, necessary to optimize this? */
 	for(j = 0; j < OSSL_NELEM(alltabs); j++) {
 		for(i = 0, tbl = alltabs[j]; i < tblsize[j]; i++, tbl++) {
@@ -4041,9 +4003,7 @@ const SSL_CIPHER * ssl3_get_cipher_by_std_name(const char * stdname)
  */
 const SSL_CIPHER * ssl3_get_cipher_by_char(const uchar * p)
 {
-	return ssl3_get_cipher_by_id(SSL3_CK_CIPHERSUITE_FLAG
-		   | ((uint32_t)p[0] << 8L)
-		   | (uint32_t)p[1]);
+	return ssl3_get_cipher_by_id(SSL3_CK_CIPHERSUITE_FLAG | ((uint32_t)p[0] << 8L) | (uint32_t)p[1]);
 }
 
 int ssl3_put_cipher_by_char(const SSL_CIPHER * c, WPACKET * pkt, size_t * len)
@@ -4052,10 +4012,8 @@ int ssl3_put_cipher_by_char(const SSL_CIPHER * c, WPACKET * pkt, size_t * len)
 		*len = 0;
 		return 1;
 	}
-
 	if(!WPACKET_put_bytes_u16(pkt, c->id & 0xffff))
 		return 0;
-
 	*len = 2;
 	return 1;
 }
@@ -4068,8 +4026,7 @@ int ssl3_put_cipher_by_char(const SSL_CIPHER * c, WPACKET * pkt, size_t * len)
  *
  * Returns the selected cipher or NULL when no common ciphers.
  */
-const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt,
-    STACK_OF(SSL_CIPHER) * srvr)
+const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STACK_OF(SSL_CIPHER) * srvr)
 {
 	const SSL_CIPHER * c, * ret = NULL;
 	STACK_OF(SSL_CIPHER) *prio, *allow;

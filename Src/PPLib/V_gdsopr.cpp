@@ -3382,8 +3382,7 @@ int PPViewGoodsOpAnalyze::ViewGraph()
 			}
 			plot.PutEOR();
 			if(goa_total.Qtty) {
-				// @v9.1.4 PPGetWord(PPWORD_QTTY, 1, temp_buf);
-				PPLoadStringS("qtty", temp_buf).Transf(CTRANSF_INNER_TO_OUTER); // @v9.1.4
+				PPLoadStringS("qtty", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 				plot.PutData(temp_buf, 1);
 				for(c = 0; c < abc_ary.getCount(); c++)
 					plot.PutData(abc_ary.at(c).Quantity / goa_total.Qtty);
@@ -3473,12 +3472,11 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 		//
 		else if(brw_id == BROWSER_GOODSOPER_COMPARE) {
 			SString main_title, add_title, diff_title;
-			PPGetWord(PPWORD_MAIN, 0, main_title);
+			// @v10.9.4 PPGetWord(PPWORD_MAIN, 0, main_title);
+			PPLoadString("main", main_title); // @v10.9.4
 			PPGetWord(PPWORD_ADDITIONAL, 0, add_title);
-			// @v9.2.7 PPGetWord(PPWORD_PERIOD, 0, temp_buf);
-			PPLoadString("daterange", temp_buf); // @v9.2.7
-			// @v9.2.1 PPGetWord(PPWORD_DIFF, 0, diff_title);
-			PPLoadString("difference", diff_title); // @v9.2.1
+			PPLoadString("daterange", temp_buf);
+			PPLoadString("difference", diff_title);
 			main_title.Space().Cat(temp_buf);
 			add_title.Space().Cat(temp_buf);
 			if(Filt.Flags & GoodsOpAnalyzeFilt::fComparePctDiff)
@@ -3492,8 +3490,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 				SString c_title;
 				switch(id) {
 					case GoodsOpAnalyzeFilt::fldidQtty:
-						// @v9.1.4 PPGetWord(PPWORD_QTTY, 0, c_title);
-						PPLoadString("qtty", c_title); // @v9.1.4
+						PPLoadString("qtty", c_title);
 						c  = 3;
 						c2 = 22;
 						c3 = 33;
@@ -3585,12 +3582,10 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 			}
 		}
 		if(P_Ct == 0 && Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation && Filt.ABCAnlzGroup <= 0) {
-			// @v9.0.2 pBrw->InsColumnWord(loc_ins_col, PPWORD_WAREHOUSE, 18, 0, 0, 0);
-			pBrw->InsColumn(loc_ins_col, "@warehouse", 18, 0, 0, 0); // @v9.0.2
+			pBrw->InsColumn(loc_ins_col, "@warehouse", 18, 0, 0, 0);
 		}
 		if(Filt.Sgg == sggNone && !Filt.Sgb) {
-			// @v9.0.2 pBrw->InsColumnWord(1, PPWORD_BARCODE, (P_Ct) ? 3 : 19, 0, 0, 0);
-			pBrw->InsColumn(1, "@barcode", (P_Ct) ? 3 : 19, 0, 0, 0); // @v9.0.2
+			pBrw->InsColumn(1, "@barcode", (P_Ct) ? 3 : 19, 0, 0, 0);
 		}
 		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
 	}

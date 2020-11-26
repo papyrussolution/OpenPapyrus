@@ -4,7 +4,7 @@
 #ifndef __TV_H
 #define __TV_H
 
-#include <slib.h>
+//#include <slib.h>
 #include <tvdefs.h>
 #include <commctrl.h>
 #include <db.h>
@@ -371,6 +371,8 @@ int operator != (const TCommandSet& tc1, const TCommandSet& tc2);
 #define DECL_DIALOG_DATA(typ) typedef typ DlgDataType; DlgDataType Data // @v10.5.8
 #define DECL_DIALOG_SETDTS() int setDTS(const DlgDataType * pData)      // @v10.5.8
 #define DECL_DIALOG_GETDTS() int getDTS(DlgDataType * pData)            // @v10.5.8
+#define IMPL_DIALOG_SETDTS(cls) int cls::setDTS(const DlgDataType * pData)      // @v10.9.4
+#define IMPL_DIALOG_GETDTS(cls) int cls::getDTS(DlgDataType * pData)            // @v10.9.4
 //
 // Descr: Контейнер для GDI-объектов. Удобен тем, что "бесконечное" количество предварительно
 // созданных хандлеров можно затолкать в этот контейнер, а при рисовании манипулировать
@@ -814,7 +816,7 @@ private:
 	int32  Id;
 	int16  T;   // Тип объекта (SPaintObj::tXXX)
 	uint16 F;   //
-	void * H;   // 
+	void * H;   //
 };
 //
 //   Идентификаторы инструментов делятся на три категории:
@@ -937,7 +939,7 @@ private:
 	int    FASTCALL GetType(int ident) const;
 	int32  DynIdentCount;
 	int32  State;
-	int32  DefaultPenId; // 
+	int32  DefaultPenId; //
 	SymbHashTable Hash;  // Используется для хранения символьных идентификаторов, ассоциированных с целочисленными.
 	struct GlyphEntry {
 		int32  I;
@@ -1031,10 +1033,10 @@ private:
 	FPoint EndPoint;          // @*STextLayout::Arrange Точка, до которой простирается собственно текст.
 	SStringU Text;
 	LongArray GlyphIdList;                     // @transient
-	TSVector <CStyle> CStyleList;              // 
+	TSVector <CStyle> CStyleList;              //
 	LAssocArray ParaList;                      // Список параграфов: ассоцииации {позиция первого символа; стиль параграфа}
-	TSVector <STextLayout::Item> List;         // @transient 
-	TSVector <STextLayout::StyleGroup> SgList; // @transient 
+	TSVector <STextLayout::Item> List;         // @transient
+	TSVector <STextLayout::StyleGroup> SgList; // @transient
 
 	friend class TloRowState;
 };
@@ -1810,7 +1812,7 @@ private:
 			long   KeyCode;
 			uint   StrPos;
 		};
-		SVector List; 
+		SVector List;
 		StringSet StrPool;
 		TWindow * P_Win; // @notowned
 	};
@@ -1955,7 +1957,7 @@ public:
 	//   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
 	//   (margin_left, margin_right, padding_left, padding_right).
 	// Returns:
-	//   !0 - номинальная ширина элемента представлена валидным числом (!fisnan(width)). 
+	//   !0 - номинальная ширина элемента представлена валидным числом (!fisnan(width)).
 	//      В этом случае по адресу pS присваивается полная ширина элемента.
 	//    0 - номинальная ширина элемента представлена инвалидным значением (fisnan(width)).
 	//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
@@ -1966,7 +1968,7 @@ public:
 	//   Полная высота включает собственно ширину, а так же верхние и нижние поля и набивки
 	//   (margin_top, margin_bottom, padding_top, padding_bottom).
 	// Returns:
-	//   !0 - номинальная высота элемента представлена валидным числом (!fisnan(height)). 
+	//   !0 - номинальная высота элемента представлена валидным числом (!fisnan(height)).
 	//      В этом случае по адресу pS присваивается полная высота элемента.
 	//    0 - номинальная высота элемента представлена инвалидным значением (fisnan(height)).
 	//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
@@ -2005,7 +2007,7 @@ public:
 	float  shrink; // 1.0
 	float  basis;  // NAN
 	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
-	// An item can provide a self_sizing callback function that will be called 
+	// An item can provide a self_sizing callback function that will be called
 	// during layout and which can customize the dimensions (width and height) of the item.
 	FlexSelfSizingProc CbSelfSizing; // NULL
 	FlexSetupProc CbSetup; // NULL
@@ -2018,7 +2020,7 @@ protected:
 	void   DoLayout(float width, float height);
 	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout);
 	flex_align FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
-	
+
 	int    order;  // 0
 };
 
@@ -2056,7 +2058,7 @@ box (width, height) // 2 values
 box (width, undefined) // 2 values
 box (50%, 10) // 2 values
 box (40%..50%, 10..30) // 2 values
-box (x, y, (width, height)) 
+box (x, y, (width, height))
 
 layout abc rowreverse wrap {
 }
@@ -2239,8 +2241,8 @@ public:
 		TRect  Margins;
 		int16  ContainerDirection;  // DIREC_UNKN(free) || DIREC_HORZ || DIREC_VERT
 		int16  ContainerAdjustment; // ADJ_LEFT || ADJ_RIGHT || ADJ_CENTER || ADJ_ALIGN
-		uint16 ContainerFlags;      // cfXXX 
-		uint16 BehaveFlags;         //  
+		uint16 ContainerFlags;      // cfXXX
+		uint16 BehaveFlags;         //
 		uint8  Reserve[16];
 	};
 	struct Item {
@@ -2415,7 +2417,7 @@ private:
 		int32  Flags;          // @flags
 		uint32 ExtDataP;       // Позиция дополнительных данных в буфере Pool (в кодировке MIME64)
 		uint32 Id;             // Целочисленный идентификатор элемента
-		SColor ReplacedColor;  // 
+		SColor ReplacedColor;  //
 		uint8  Reserve[24];    // @reserve
 	};
 	uint32 SrcFileVer;  // @transient Версия формата хранения файла, из которого был загружен данный экземпляр объекта
@@ -2550,7 +2552,7 @@ public:
 	int    Edit(); // @>>HandleCommand(cmdEdit, 0)
 	//
 	// Descr: Устанавливает параметры объекта в соответствии с элементом
-	//   контейнера инструменов, посредством которого этот объект был создан.
+	//   контейнера инструментов, посредством которого этот объект был создан.
 	//
 	int    Setup(const TWhatmanToolArray::Item * pWtaItem); // @>>HandleCommand(cmdSetupByTool, 0)
 	int    SetBounds(const TRect & rRect); // @>>HandleCommand(cmdSetBounds, 0)
@@ -3102,14 +3104,14 @@ public:
 	int    DefInputLine;
 };
 //
-// Descr: Вспомогательный класс, реализующий высокоуровневый механизм работы с инлайновым списком выбора 
+// Descr: Вспомогательный класс, реализующий высокоуровневый механизм работы с инлайновым списком выбора
 //
 class Helper_WordSelector {
 protected:
 	Helper_WordSelector(WordSel_ExtraBlock * pBlk, uint inputCtlId);
 	~Helper_WordSelector();
 	int    IsWsVisible() const;
-	
+
 	uint   InputCtlId;
 	WordSel_ExtraBlock * P_OuterWordSelBlk; // @notowner
 	WordSelector * P_WordSel;
@@ -3391,7 +3393,7 @@ public:
 	int    GetUserData(void * pData, size_t * pSize) const;
 	int    HasCapability(long c) const { return BIN(CFlags & c); }
 	int    GetImageIdxByID(long id, long * pIDx);
-	HIMAGELIST CreateImageList(HINSTANCE hInst);
+	void * CreateImageList(HINSTANCE hInst); // @v10.9.4 HIMAGELIST-->(void *)
 	//
 	// Descr: Устанавливает ассоциацию элемента списка, имеющего идентификатор itemID, с иконкой,
 	//   идентифицируемой как imageID.
@@ -3516,7 +3518,7 @@ private:
 	struct TreeItem {
 		long   Id;
 		long   ParentId;
-		HTREEITEM H;
+		void * H; // @v10.9.4 HTREEITEM-->(void *)
 		uint   P;
 	};
 	STree  T;
@@ -3658,7 +3660,7 @@ public:
 	int    removeItem(long pos);
 	void   freeAll();
 	void   FASTCALL focusItem(long item);
-	int    SetupTreeWnd(HTREEITEM hParent, long parentID); // @recursion
+	int    SetupTreeWnd(void * hParent, long parentID); // @recursion // @v10.9.4 HTREEITEM-->(void *)
 	void   Scroll(short sbCmd, int value);
 	void   CreateScrollBar(int create);
 	void   SetScrollBarPos(long pos, LPARAM lParam);
@@ -3711,7 +3713,7 @@ private:
 	uint   ColumnsSpcPos;  // Позиция строки спецификации колонок в StrPool
 	SArray Columns;
 	StringSet StrPool;
-	HIMAGELIST HIML;
+	void * HIML; // @v10.9.4 HIMAGELIST-->(void *)
 };
 
 class ListWindowSmartListBox : public SmartListBox {
@@ -3997,7 +3999,7 @@ private:
 //Grid Vert color
 
 struct BrowserColorsSchema {   // size=42
-	uint   SchemaID; // 1, 2 etc. 
+	uint   SchemaID; // 1, 2 etc.
 	COLORREF Title;
 	COLORREF TitleDelim;
 	COLORREF Background;
@@ -4048,7 +4050,7 @@ public:
 	enum {
 		wndVKDefault = 0,
 		wndVKFlat    = 1,
-		wndVKVector  = 2, // 
+		wndVKVector  = 2, //
 		wndVKFancy   = 3  // Схема, ранее именовавшаяся как wndVKKind2 теперь обозначается wndVKFancy. Ее номер меняется,
 			// вместо нее теперь будет использоваться схема wndVKVector
 	};
@@ -4143,7 +4145,7 @@ private:
 	ListWindowItem * GetListWinByCmd(long cmd, uint * pPos);
 	ListWindowItem * GetListWinByHwnd(HWND hWnd, uint * pPos);
 	void   MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList);
-	void   SetupCmdList(HMENU hMenu, HTREEITEM hP);
+	void   SetupCmdList(HMENU hMenu, void * hP); // @v10.9.4 HTREEITEM-->(void *)
 	void   CloseItem(HWND hWnd);
 	void   SelItem(HWND hWnd);
 	void   ShowList(ListWindow * pLw);
@@ -4192,7 +4194,7 @@ public:
 	virtual void run();
 	TView * validView(TView *p);
 	// @v10.0.02 void   idle();
-	void   SetupTreeWnd(HMENU hMenu, HTREEITEM hP);
+	void   SetupTreeWnd(HMENU hMenu, void * hP); // @v10.9.4 HTREEITEM-->(void *)
 	int    SizeMainWnd(HWND);
 	int    GetStatusBarRect(RECT *);
 	int    GetClientRect(RECT *);
@@ -4749,7 +4751,7 @@ public:
 		COLORREF Color2; // Цвет для нижнего левого угла
 		COLORREF RightFigColor; // Цвет фигуры в правой части ячейки
 		long   Flags;
-		SString Description; // @v10.6.3 
+		SString Description; // @v10.6.3
 	private:
 		CellStyle();
 	};
@@ -4923,7 +4925,7 @@ private:
 	SArray * P_RowsHeightAry;   // Высота строк видимой страницы (для многострочных броузеров)
 	UserInterfaceSettings UICfg;
 	LongArray SelectedColumns;  // Выбранные столбцы, для копирования в буфер обмена
-	LongArray SettledOrder;     // @v10.6.3 Индексы столбцов, по которым задана сортировка.  
+	LongArray SettledOrder;     // @v10.6.3 Индексы столбцов, по которым задана сортировка.
 		// Если индекс <0, то сортировка в обратном направлении (какое направление прямое а какое обратное определяет конкретный класс-наследник).
 };
 //

@@ -2245,11 +2245,8 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 				const TagFilt & r_tag_filt = p_view->P_BObj->GetConfig().LotTagIndFilt;
 				if(!r_tag_filt.IsEmpty()) {
 					SColor clr;
-					if(r_tag_filt.SelectIndicator(p_hdr->ID, clr) > 0) {
-						pStyle->Color2 = static_cast<COLORREF>(clr);
-						pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-						ok = 1;
-					}
+					if(r_tag_filt.SelectIndicator(p_hdr->ID, clr) > 0)
+						ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 				}
 			}
 			// } @v10.4.3 
@@ -2276,34 +2273,19 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 				const long cost_col = p_filt->Operation.IsZero() ? 7 : 8;
 				const long price_col = p_filt->Operation.IsZero() ? 8 : 9;
 				if(p_hdr->SFlags && oneof3(col, qtty_col, cost_col, price_col)) {
-					if(col == qtty_col && p_hdr->SFlags & LOTSF_FIRST) {
-						pStyle->Color = GetColorRef(SClrBlue);
-						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-						ok = 1;
-					}
+					if(col == qtty_col && p_hdr->SFlags & LOTSF_FIRST)
+						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrBlue));
 					else if(col == cost_col) {
-						if(p_hdr->SFlags & LOTSF_COSTUP) {
-							pStyle->Color = GetColorRef(SClrGreen);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
-						else if(p_hdr->SFlags & LOTSF_COSTDOWN) {
-							pStyle->Color = GetColorRef(SClrRed);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
+						if(p_hdr->SFlags & LOTSF_COSTUP)
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+						else if(p_hdr->SFlags & LOTSF_COSTDOWN)
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
 					}
 					else if(col == price_col) {
-						if(p_hdr->SFlags & LOTSF_PRICEUP) {
-							pStyle->Color = GetColorRef(SClrGreen);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
-						else if(p_hdr->SFlags & LOTSF_PRICEDOWN) {
-							pStyle->Color = GetColorRef(SClrRed);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
+						if(p_hdr->SFlags & LOTSF_PRICEUP)
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+						else if(p_hdr->SFlags & LOTSF_PRICEDOWN)
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
 					}
 				}
 			}

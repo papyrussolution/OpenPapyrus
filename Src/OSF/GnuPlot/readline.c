@@ -156,29 +156,29 @@ static struct sgttyb orig_termio, rl_termio;
 static struct tchars s_tchars;
 
 #  ifndef VERASE
-#   define VERASE    0
+#define VERASE    0
 #  endif                        /* not VERASE */
 #  ifndef VEOF
-#   define VEOF      1
+#define VEOF      1
 #  endif                        /* not VEOF */
 #  ifndef VKILL
-#   define VKILL     2
+#define VKILL     2
 #  endif                        /* not VKILL */
 #  ifdef TIOCGLTC               /* available only with the 'new' line discipline */
 static struct ltchars s_ltchars;
 
-#   ifndef VWERASE
-#    define VWERASE   3
-#   endif                       /* not VWERASE */
-#   ifndef VREPRINT
-#    define VREPRINT  4
-#   endif                       /* not VREPRINT */
-#   ifndef VSUSP
-#    define VSUSP     5
-#   endif                       /* not VSUP */
+#ifndef VWERASE
+#define VWERASE   3
+#endif                       /* not VWERASE */
+#ifndef VREPRINT
+#define VREPRINT  4
+#endif                       /* not VREPRINT */
+#ifndef VSUSP
+#define VSUSP     5
+#endif                       /* not VSUP */
 #  endif                        /* TIOCGLTC */
 #  ifndef NCCS
-#   define NCCS      6
+#define NCCS      6
 #  endif                        /* not NCCS */
 
 # else                          /* not SGTTY */
@@ -188,23 +188,23 @@ static struct ltchars s_ltchars;
  * (Are there any systems with job control that use termio.h?  I hope not.)
  */
 #  if defined(SIGTSTP) || defined(TERMIOS)
-#   ifndef TERMIOS
-#    define TERMIOS
-#   endif                       /* not TERMIOS */
+#ifndef TERMIOS
+#define TERMIOS
+#endif                       /* not TERMIOS */
 #   include <termios.h>
 /* Added by Robert Eckardt, RobertE@beta.TP2.Ruhr-Uni-Bochum.de */
-#   ifdef ISC22
+#ifdef ISC22
 #    ifndef ONOCR               /* taken from sys/termio.h */
 #     define ONOCR 0000020      /* true at least for ISC 2.2 */
-#    endif                      /* not ONOCR */
+#endif                      /* not ONOCR */
 #    ifndef IUCLC
 #     define IUCLC 0001000
-#    endif                      /* not IUCLC */
-#   endif                       /* ISC22 */
+#endif                      /* not IUCLC */
+#endif                       /* ISC22 */
 #   if !defined(IUCLC)
 /* translate upper to lower case not supported */
-#    define IUCLC 0
-#   endif                       /* not IUCLC */
+#define IUCLC 0
+#endif                       /* not IUCLC */
 
 static struct termios orig_termio, rl_termio;
 
@@ -213,7 +213,7 @@ static struct termios orig_termio, rl_termio;
 static struct termio orig_termio, rl_termio;
 
 /* termio defines NCC instead of NCCS */
-#   define NCCS    NCC
+#define NCCS    NCC
 #  endif                        /* not SIGTSTP || TERMIOS */
 # endif                         /* SGTTY */
 
@@ -1091,15 +1091,15 @@ static void set_termio()
 #  ifdef SGTTY
 		ioctl(0, TIOCGETP, &orig_termio);
 #  else                         /* not SGTTY */
-#   ifdef TERMIOS
+#ifdef TERMIOS
 #    ifdef TCGETS
 		ioctl(0, TCGETS, &orig_termio);
-#    else                       /* not TCGETS */
+#else                       /* not TCGETS */
 		tcgetattr(0, &orig_termio);
-#    endif                      /* not TCGETS */
-#   else                        /* not TERMIOS */
+#endif                      /* not TCGETS */
+#else                        /* not TERMIOS */
 		ioctl(0, TCGETA, &orig_termio);
-#   endif                       /* TERMIOS */
+#endif                       /* TERMIOS */
 #  endif                        /* not SGTTY */
 
 		/*
@@ -1120,7 +1120,7 @@ static void set_termio()
 		term_chars[VERASE] = orig_termio.sg_erase;
 		term_chars[VEOF] = s_tchars.t_eofc;
 		term_chars[VKILL] = orig_termio.sg_kill;
-#   ifdef TIOCGLTC
+#ifdef TIOCGLTC
 		ioctl(0, TIOCGLTC, &s_ltchars);
 		term_chars[VWERASE] = s_ltchars.t_werasc;
 		term_chars[VREPRINT] = s_ltchars.t_rprntc;
@@ -1129,7 +1129,7 @@ static void set_termio()
 		/* disable suspending process on ^Z */
 		s_ltchars.t_suspc = 0;
 		ioctl(0, TIOCSLTC, &s_ltchars);
-#   endif                       /* TIOCGLTC */
+#endif                       /* TIOCGLTC */
 #  else                         /* not SGTTY */
 		rl_termio.c_iflag &= ~(BRKINT | PARMRK | INPCK | IUCLC | IXON | IXOFF);
 		rl_termio.c_iflag |= (IGNBRK | IGNPAR);
@@ -1141,26 +1141,26 @@ static void set_termio()
 		rl_termio.c_cc[VMIN] = 1;
 		rl_termio.c_cc[VTIME] = 0;
 
-#   ifndef VWERASE
-#    define VWERASE 3
-#   endif                       /* VWERASE */
+#ifndef VWERASE
+#define VWERASE 3
+#endif                       /* VWERASE */
 		term_chars[VERASE] = orig_termio.c_cc[VERASE];
 		term_chars[VEOF] = orig_termio.c_cc[VEOF];
 		term_chars[VKILL] = orig_termio.c_cc[VKILL];
-#   ifdef TERMIOS
+#ifdef TERMIOS
 		term_chars[VWERASE] = orig_termio.c_cc[VWERASE];
 #    ifdef VREPRINT
 		term_chars[VREPRINT] = orig_termio.c_cc[VREPRINT];
-#    else                       /* not VREPRINT */
+#else                       /* not VREPRINT */
 #     ifdef VRPRNT
 		term_chars[VRPRNT] = orig_termio.c_cc[VRPRNT];
 #     endif                     /* VRPRNT */
-#    endif                      /* not VREPRINT */
+#endif                      /* not VREPRINT */
 		term_chars[VSUSP] = orig_termio.c_cc[VSUSP];
 
 		/* disable suspending process on ^Z */
 		rl_termio.c_cc[VSUSP] = 0;
-#   endif                       /* TERMIOS */
+#endif                       /* TERMIOS */
 #  endif                        /* not SGTTY */
 
 		/*
@@ -1169,15 +1169,15 @@ static void set_termio()
 #  ifdef SGTTY
 		ioctl(0, TIOCSLTC, &s_ltchars);
 #  else                         /* not SGTTY */
-#   ifdef TERMIOS
+#ifdef TERMIOS
 #    ifdef TCSETSW
 		ioctl(0, TCSETSW, &rl_termio);
-#    else                       /* not TCSETSW */
+#else                       /* not TCSETSW */
 		tcsetattr(0, TCSADRAIN, &rl_termio);
-#    endif                      /* not TCSETSW */
-#   else                        /* not TERMIOS */
+#endif                      /* not TCSETSW */
+#else                        /* not TERMIOS */
 		ioctl(0, TCSETAW, &rl_termio);
-#   endif                       /* not TERMIOS */
+#endif                       /* not TERMIOS */
 #  endif                        /* not SGTTY */
 		term_set = 1;
 	}

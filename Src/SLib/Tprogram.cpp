@@ -477,7 +477,7 @@ int TProgram::AddStatusBarItem(const char * pStr, long icon /* = 0 */, COLORREF 
 	{ return P_Stw ? P_Stw->AddItem(pStr, icon, color, cmd, textColor) : 0; }
 int TProgram::UpdateStatusBar()
 	{ return P_Stw ? P_Stw->Update() : 0; }
-void TProgram::SetupTreeWnd(HMENU hMenu, HTREEITEM hP)
+void TProgram::SetupTreeWnd(HMENU hMenu, void * hP) // @v10.9.4 HTREEITEM-->(void *)
 	{ CALLPTRMEMB(P_TreeWnd, Setup(hMenu)); }
 
 int TProgram::GetClientRect(RECT * pClientRC)

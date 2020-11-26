@@ -32,7 +32,12 @@ pcre         8.41
 libssh2      1.8.1-dev (from original git repo) 
 7z           18.00-beta
 lua          5.3.4
+tiff         4.0.9
 libarchive   
 gravity
 @v9.6.12 giflib encapsulated in slib
 sqlite       3.33.00
+tinyxml2     8.0.0 (git clone 2020-11-23)
+capstone     4.0.2 (git clone 2020-11-18)
+rehex        0.3.1 (git clone 2020-11-17)
+wxWidgets          (git clone 2020-11-18)

@@ -239,8 +239,8 @@ static void fix_superclasses(gvisitor_t * self)
 	// this function cannot fail because superclasses was already checked in samecheck2 so I am sure that they exist somewhere
 	codegen_t * data = (codegen_t *)self->data;
 	gnode_class_r * superfix = &data->superfix;
-	size_t count = gnode_array_size(superfix);
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = gnode_array_size(superfix);
+	for(uint i = 0; i < count; ++i) {
 		gnode_class_decl_t * node = (gnode_class_decl_t *)gnode_array_get(superfix, i);
 		gnode_class_decl_t * super = (gnode_class_decl_t *)node->superclass;
 		gravity_class_t * c = static_cast<gravity_class_t *>(node->data);
@@ -252,8 +252,8 @@ static const char * lookup_superclass_identifier(gvisitor_t * self, gravity_clas
 {
 	codegen_t * data = (codegen_t *)self->data;
 	gnode_class_r * superfix = &data->superfix;
-	size_t count = gnode_array_size(superfix);
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = gnode_array_size(superfix);
+	for(uint i = 0; i < count; ++i) {
 		gnode_class_decl_t * node = (gnode_class_decl_t *)gnode_array_get(superfix, i);
 		gravity_class_t * target = static_cast<gravity_class_t *>(node->data);
 		if(target == c) {
@@ -926,8 +926,8 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 	bool is_constructor = (sstreq(node->identifier, CLASS_CONSTRUCTOR_NAME) && is_class_ctx);
 	// loop at each param to save name and check for default values
 	// loop from 1 in order to skip implicit self argument
-	size_t len = gnode_array_size(node->params);
-	for(size_t i = 1; i < len; ++i) {
+	const uint len = gnode_array_size(node->params);
+	for(uint i = 1; i < len; ++i) {
 		gnode_var_t * param = (gnode_var_t *)gnode_array_get(node->params, i);
 		GravityValue name = gravity_zstring_to_value(NULL, param->identifier);
 		f->U.Nf.pname.insert(name);
@@ -990,8 +990,8 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 	bool is_class = context_object->IsClass();
 	bool is_local = ((is_module == false) && (is_class == false));
 	// loop through declarations
-	size_t count = gnode_array_size(node->decls);
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = gnode_array_size(node->decls);
+	for(uint i = 0; i < count; ++i) {
 		gnode_var_t * p = (gnode_var_t *)gnode_array_get(node->decls, i);
 		DEBUG_CODEGEN("visit_variable_decl %s", p->identifier);
 		// variable declarations can be specified in:
@@ -1320,9 +1320,8 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 
 	// process each subnode and set is_assignment flag
 	bool is_assignment = node->IsAssignment;
-	size_t count = gnode_array_size(node->list);
-
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = gnode_array_size(node->list);
+	for(uint i = 0; i < count; ++i) {
 		// a subnode can be a CALL_EXPR     => id.()
 		// a NODE_ACCESS_EXPR               => id.id2
 		// a NODE_SUBSCRIPT_EXPR            => id[]
@@ -1371,8 +1370,8 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 
 			// process each parameter (each must be temp+2 ... temp+n)
 			GravityArray <uint32> args;
-			size_t n = gnode_array_size(subnode->args);
-			for(size_t j = 0; j<n; ++j) {
+			uint n = gnode_array_size(subnode->args);
+			for(uint j = 0; j < n; ++j) {
 				// process each argument
 				gnode_t * arg = gnode_array_get(subnode->args, j);
 				ircode_pragma(code, PRAGMA_MOVE_OPTIMIZATION, 1, LINE_NUMBER(node));
@@ -1416,7 +1415,7 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 			ircode_register_clear(code, temp_target_register);
 			ircode_register_clear(code, temp_self_register);
 			n = gnode_array_size(subnode->args);
-			for(size_t j = 0; j<n; ++j) {
+			for(uint j = 0; j < n; ++j) {
 				uint32 reg = args.at(j);
 				ircode_register_clear(code, reg);
 			}
@@ -1566,8 +1565,8 @@ static void visit_file_expr(gvisitor_t * self, gnode_file_expr_t * node)
 	CODEGEN_COUNT_REGISTERS(n1);
 	// check if the node is a left expression of an assignment
 	bool is_assignment = node->IsAssignment;
-	size_t count = gnode_array_size(node->identifiers);
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = gnode_array_size(node->identifiers);
+	for(uint i = 0; i < count; ++i) {
 		const char * identifier = gnode_array_get(node->identifiers, i);
 		uint16 kindex = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, identifier));
 		if((is_assignment) && (IS_LAST_LOOP(i, count))) {
@@ -1580,7 +1579,6 @@ static void visit_file_expr(gvisitor_t * self, gnode_file_expr_t * node)
 			ircode_add(code, LOADG, ircode_register_push_temp(code), kindex, 0, LINE_NUMBER(node));
 		}
 	}
-
 	CODEGEN_COUNT_REGISTERS(n2);
 	CODEGEN_ASSERT_REGISTERS(n1, n2, (is_assignment) ? -1 : 1);
 }
@@ -1817,14 +1815,14 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 	// basically nodes are processed in a finite chunk
 	// and then added to the list/map
 	uint32 nloops = n / max_fields;
-	if(n % max_fields != 0) ++nloops;
+	if(n % max_fields != 0) 
+		++nloops;
 	uint32 nprocessed = 0;
-
 	ircode_pragma(code, PRAGMA_MOVE_OPTIMIZATION, 0, LINE_NUMBER(node));
 	while(nprocessed < n) {
-		size_t k = (n - nprocessed > max_fields) ? max_fields : (n - nprocessed);
-		size_t idxstart = nprocessed;
-		size_t idxend = nprocessed + k;
+		uint k = (n - nprocessed > max_fields) ? max_fields : (n - nprocessed);
+		uint idxstart = nprocessed;
+		uint idxend = nprocessed + k;
 		nprocessed += (uint32)k;
 
 		// check if this chunk can be optimized
@@ -1834,7 +1832,7 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 		ircode_push_context(code);
 
 		// process each node
-		for(size_t i = 1, j = idxstart; j<idxend; ++j) {
+		for(uint i = 1, j = idxstart; j < idxend; ++j) {
 			gnode_t * e = gnode_array_get(node->list1, j);
 			gvisit(self, e);
 			uint32 nreg = ircode_register_pop_context_protect(code, true);

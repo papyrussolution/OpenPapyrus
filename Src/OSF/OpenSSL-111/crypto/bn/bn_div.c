@@ -95,12 +95,12 @@ BN_ULONG bn_div_3_words(const BN_ULONG * m, BN_ULONG d1, BN_ULONG d0);
  */
 #if BN_BITS2 == 64 && defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
 #   undef BN_ULLONG
-#   define BN_ULLONG __uint128_t
-#   define BN_LLONG
+#define BN_ULLONG __uint128_t
+#define BN_LLONG
 #endif
 
 #ifdef BN_LLONG
-#   define BN_DIV3W
+#define BN_DIV3W
 /*
  * Interface is somewhat quirky, |m| is pointer to most significant limb,
  * and less significant limb is referred at |m[-1]|. This means that caller
@@ -193,7 +193,7 @@ static int bn_left_align(BIGNUM * num)
 	    q;                                  \
 	})
 #define REMAINDER_IS_ALREADY_CALCULATED
-#   endif                       /* __<cpu> */
+#endif                       /* __<cpu> */
 #endif                        /* __GNUC__ */
 #endif                         /* OPENSSL_NO_ASM */
 
@@ -350,17 +350,17 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 
 #   if defined(BN_LLONG) && defined(BN_DIV2W) && !defined(bn_div_words)
 			q = (BN_ULONG)(((((BN_ULLONG)n0) << BN_BITS2) | n1) / d0);
-#   else
+#else
 			q = bn_div_words(n0, n1, d0);
-#   endif
+#endif
 
-#   ifndef REMAINDER_IS_ALREADY_CALCULATED
+#ifndef REMAINDER_IS_ALREADY_CALCULATED
 			/*
 			 * rem doesn't have to be BN_ULLONG. The least we
 			 * know it's less that d0, isn't it?
 			 */
 			rem = (n1 - q * d0) & BN_MASK2;
-#   endif
+#endif
 			t2 = (BN_ULLONG)d1 *q;
 
 			for(;;) {
@@ -376,16 +376,16 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 			BN_ULONG t2l, t2h;
 
 			q = bn_div_words(n0, n1, d0);
-#   ifndef REMAINDER_IS_ALREADY_CALCULATED
+#ifndef REMAINDER_IS_ALREADY_CALCULATED
 			rem = (n1 - q * d0) & BN_MASK2;
-#   endif
+#endif
 
 #   if defined(BN_UMULT_LOHI)
 			BN_UMULT_LOHI(t2l, t2h, d1, q);
 #   elif defined(BN_UMULT_HIGH)
 			t2l = d1 * q;
 			t2h = BN_UMULT_HIGH(d1, q);
-#   else
+#else
 			{
 				BN_ULONG ql, qh;
 				t2l = LBITS(d1);
@@ -394,7 +394,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 				qh = HBITS(q);
 				mul64(t2l, t2h, ql, qh); /* t2=(BN_ULLONG)d1*q; */
 			}
-#   endif
+#endif
 
 			for(;;) {
 				if((t2h < rem) || ((t2h == rem) && (t2l <= n2)))

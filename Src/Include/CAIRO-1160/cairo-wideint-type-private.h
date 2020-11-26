@@ -84,12 +84,12 @@ typedef unsigned __int64 uint64_t;
 	#include <byteswap.h>
 #endif
 #ifndef bswap_16
-# define bswap_16(p) \
+#define bswap_16(p) \
 	(((((uint16_t)(p)) & 0x00ff) << 8) | \
 	(((uint16_t)(p))           >> 8));
 #endif
 #ifndef bswap_32
-# define bswap_32(p) \
+#define bswap_32(p) \
 	(((((uint32_t)(p)) & 0x000000ff) << 24) | \
 	((((uint32_t)(p)) & 0x0000ff00) << 8)  | \
 	((((uint32_t)(p)) & 0x00ff0000) >> 8)  | \

@@ -288,7 +288,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
@@ -366,7 +366,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
@@ -446,7 +446,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
@@ -526,7 +526,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
@@ -604,7 +604,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
@@ -684,7 +684,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>

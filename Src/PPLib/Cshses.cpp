@@ -12,7 +12,7 @@ PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char 
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Port)[0] = 0;
-	if(CnObj.GetSync(NodeID, &SCn) > 0) 
+	if(CnObj.GetSync(NodeID, &SCn) > 0)
 		P_SlipFmt = new PPSlipFormatter(SCn.SlipFmtPath);
 	else
 		State |= stError;
@@ -638,7 +638,7 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 			ext_strings.Z();
 			if(r_rec.ExtTextSize > 0) { // @v10.7.3
 				t->readLobData(t->VT, sbuf);
-				t->destroyLobData(t->VT); 
+				t->destroyLobData(t->VT);
 				const size_t actual_size = sbuf.GetAvailableSize();
 				if(actual_size == static_cast<size_t>(r_rec.ExtTextSize)) {
 					SSerializeContext sctx;
@@ -681,7 +681,7 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 								p_ccln_extt_item->CheckID = p_item->ChkID;
 							}
 						}
-						CCheckPacket::Helper_SetLineTextExt(line_rec.RByCheck, lnextf_list[lnefidx], p_ccln_extt_item->LnTextList, temp_buf); 
+						CCheckPacket::Helper_SetLineTextExt(line_rec.RByCheck, lnextf_list[lnefidx], p_ccln_extt_item->LnTextList, temp_buf);
 					}
 				}
 			}
@@ -790,7 +790,7 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 							p_tl_entry = &p_total_log_list->at(p_total_log_list->getCount()-1);
 						}
 					}
-					// } @v10.0.05 
+					// } @v10.0.05
 				}
 				chk_rec.SessID = sess_id;
 				if(SurveyPeriod.low == 0 || dtm.d < SurveyPeriod.low)
@@ -815,7 +815,7 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 					p_tl_entry->CcCount++;
 					p_tl_entry->CcAmount += MONEYTOLDBL(chk_rec.Amount);
 				}
-				// } @v10.0.05 
+				// } @v10.0.05
 				{
 					THROW(CCheckCore::Helper_GetPaymList(P_TmpCpTbl, tmp_chk_id, cp_list));
 					const uint plc = cp_list.getCount();
@@ -1010,7 +1010,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 	THROW(GetSessionData(&sess_count, &is_forward_sess, pPrd));
 	LOG_DEBUG(GetSessionData);
 	if(sess_count) {
-		TSVector <TotalLogCSessEntry> total_log_data; // @v10.0.05 
+		TSVector <TotalLogCSessEntry> total_log_data; // @v10.0.05
 		PPWaitMsg(PPSTR_TEXT, PPTXT_ACSCLS_IMPORT, 0);
 		for(i = 0; i < sess_count; i++) {
 			THROW(r = ImportSession(i));
@@ -1029,7 +1029,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 				PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 			}
 		}
-		// } @v10.0.05 
+		// } @v10.0.05
 		THROW(FinishImportSession(&sess_list));
 		LOG_DEBUG(FinishImportSession);
 		PPWaitMsg(PPSTR_TEXT, PPTXT_ACSCLS_TOBILLS, 0);
@@ -1186,7 +1186,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 			dest_nam = efn_ps.Nam;
 			dest_ext = efn_ps.Ext;
 		}
-		// } @v10.8.4 
+		// } @v10.8.4
 		if(EqCfg.FtpAcctID) {
 			THROW(obj_acct.Get(EqCfg.FtpAcctID, &acct));
 		}
@@ -1302,11 +1302,11 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 						sp.Nam = dest_nam;
 					if(dest_ext.NotEmpty())
 						sp.Ext = dest_ext;
-					// } @v10.8.4 
+					// } @v10.8.4
 					sp.Merge(temp_file_name);
 					//STRNSCPY(buf, temp_file_name);
 					dest_file_name = temp_file_name;
-					// } @v10.5.6 
+					// } @v10.5.6
 					if(fileExists(dest_file_name)) {
 						if(action == dfactDelete) { // Remove file
 							SFile::Remove(dest_file_name);
@@ -1522,14 +1522,14 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 			PPLogMessage(PPFILNAM_ERR_LOG, PPSTR_TEXT, PPTXT_ACGIFENSUREUUID_IGNORED, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 	}
-	// } @v10.0.04 
+	// } @v10.0.04
 	{
 		RetailPriceExtractor::ExtQuotBlock eqb(AcnPack.ExtQuotID);
 		// @v10.0.03 {
 		long   rtlpf = 0;
 		if(AcnPack.ExtFlags & CASHFX_IGNCONDQUOTS)
 			rtlpf |= RTLPF_IGNCONDQUOTS;
-		// } @v10.0.03 
+		// } @v10.0.03
 		RetailExtr.Init(LocID, &eqb, 0, ZERODATETIME, rtlpf); // @v10.0.01 flags 0-->RTLPF_IGNCONDQUOTS // @v10.0.03 flags RTLPF_IGNCONDQUOTS-->rtlpf
 	}
 	Rec.Init();
@@ -1655,7 +1655,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 			RmvGoods.sortAndUndup();
 			UpdGoods.add(&RmvGoods);
 		}
-		// } @v10.6.8 
+		// } @v10.6.8
 		UpdGoods.sortAndUndup();
 		if(oneof2(Algorithm, algUpdBillsVerify, algUpdBills)) {
 			IterGoodsList = UpdGoods;
@@ -1674,7 +1674,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 			if(P_Dls && P_Dls->GetCurStatID() && UpdatedBillList.getCount()) {
 				P_Dls->RegisterBillList(P_Dls->GetCurStatID(), UpdatedBillList);
 			}
-			// } @v10.2.11 
+			// } @v10.2.11
 		}
 	}
 	{
@@ -1973,7 +1973,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 						}
 					}
-					Rec.P_CodeList = &Codes; // @v9.0.6
+					Rec.P_CodeList = &Codes;
 					if(grec.Flags & GF_EXTPROP) {
 						PPGoodsPacket __pack;
 						THROW(p_ref->GetPropVlrString(PPOBJ_GOODS, grec.ID, GDSPRP_EXTSTRDATA, __pack.ExtString));
@@ -2013,6 +2013,8 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					}
 					// @v10.0.04 {
 					if(Flags & ACGIF_ENSUREUUID) {
+						THROW(GObj.GetUuid(Rec.ID, Rec.Uuid, true, -1)); // @v10.9.4
+						/* @v10.9.4
 						const PPID uuid_tag_id = PPTAG_GOODS_UUID;
 						ObjTagItem tag_item;
 						S_GUID temp_uuid;
@@ -2027,14 +2029,14 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 								THROW(p_ref->Ot.PutTag(PPOBJ_GOODS, Rec.ID, &tag_item, -1));
 								Rec.Uuid = temp_uuid;
 							}
-						}
+						}*/
 					}
-					// } @v10.0.04 
+					// } @v10.0.04
 					// @v10.6.8 {
 					if(RmvGoods.lsearch(Rec.ID)) {
 						Rec.Flags_ |= AsyncCashGoodsInfo::fDeleted;
 					}
-					// } @v10.6.8 
+					// } @v10.6.8
 				}
 			}
 		}

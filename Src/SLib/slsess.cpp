@@ -405,12 +405,12 @@ static void InitTest()
 		{
 			SString temp_buf;
 			StringSet ss(';', "1;2");
-			ss.get(static_cast<size_t>(0), temp_buf);
+			ss.get(0U, temp_buf);
 			assert(temp_buf == "1");
 		}
 		{
 			SString temp_buf;
-			StringSet(';', "1;2").get(static_cast<size_t>(0), temp_buf);
+			StringSet(';', "1;2").get(0U, temp_buf);
 			assert(temp_buf == "1");
 		}
 	}

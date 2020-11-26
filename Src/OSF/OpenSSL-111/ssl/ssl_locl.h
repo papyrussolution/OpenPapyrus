@@ -788,9 +788,7 @@ struct ssl_ctx_st {
 	 */
 	int (* new_session_cb) (struct ssl_st * ssl, SSL_SESSION * sess);
 	void (* remove_session_cb) (struct ssl_ctx_st * ctx, SSL_SESSION * sess);
-	SSL_SESSION *(* get_session_cb) (struct ssl_st * ssl,
-	    const unsigned char * data, int len,
-	    int * copy);
+	SSL_SESSION *(* get_session_cb) (struct ssl_st * ssl, const unsigned char * data, int len, int * copy);
 	struct {
 		TSAN_QUALIFIER int sess_connect; /* SSL new conn - started */
 		TSAN_QUALIFIER int sess_connect_renegotiate; /* SSL reneg - requested */

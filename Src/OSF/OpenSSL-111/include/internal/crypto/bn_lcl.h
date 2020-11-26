@@ -93,9 +93,9 @@
 #ifdef BN_LLONG
 #   if defined(_WIN32) && !defined(__GNUC__)
 #define BN_ULLONG     unsigned __int64
-#   else
+#else
 #define BN_ULLONG     ulong long
-#   endif
+#endif
 #endif
 #define BN_BITS4        16
 #define BN_MASK2        (0xffffffffL)
@@ -149,7 +149,7 @@
  */
 #define BN_FLG_FIXED_TOP 0x10000
 #ifdef BN_DEBUG_RAND
-#   define bn_pollute(a) \
+#define bn_pollute(a) \
 	do { \
 		const BIGNUM * _bnum1 = (a); \
 		if(_bnum1->top < _bnum1->dmax) { \
@@ -164,7 +164,7 @@
 		} \
 	} while(0)
 #else
-#   define bn_pollute(a)
+#define bn_pollute(a)
 #endif
 #define bn_check_top(a) \
 	do { \
@@ -337,9 +337,9 @@ struct bn_gencb_st {
  */
 #if defined(OPENSSL_SYS_VMS)
 #if __INITIAL_POINTER_SIZE == 64
-#   define PTR_SIZE_INT long long
+#define PTR_SIZE_INT long long
 #else                         /* __INITIAL_POINTER_SIZE == 64 */
-#   define PTR_SIZE_INT int
+#define PTR_SIZE_INT int
 #endif                        /* __INITIAL_POINTER_SIZE == 64 [else] */
 # elif !defined(PTR_SIZE_INT)   /* defined(OPENSSL_SYS_VMS) */
 #define PTR_SIZE_INT size_t
@@ -364,8 +364,8 @@ struct bn_gencb_st {
  */
 #if defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16 && \
 	(defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG))
-#   define BN_UMULT_HIGH(a, b)          (((__uint128_t)(a)*(b))>>64)
-#   define BN_UMULT_LOHI(low, high, a, b) ({       \
+#define BN_UMULT_HIGH(a, b)          (((__uint128_t)(a)*(b))>>64)
+#define BN_UMULT_LOHI(low, high, a, b) ({       \
 		__uint128_t ret = (__uint128_t)(a)*(b);   \
 		(high) = ret>>64; (low) = ret;      })
 #elif defined(__alpha) && (defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
@@ -379,7 +379,7 @@ struct bn_gencb_st {
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
 		ret;                      })
-#   endif                       /* compiler */
+#endif                       /* compiler */
 #elif defined(_ARCH_PPC64) && defined(SIXTY_FOUR_BIT_LONG)
 #   if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b)   ({     \
@@ -388,7 +388,7 @@ struct bn_gencb_st {
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
 		ret;                      })
-#   endif                       /* compiler */
+#endif                       /* compiler */
 #elif (defined(__x86_64) || defined(__x86_64__)) && \
 	(defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
 #   if defined(__GNUC__) && __GNUC__>=2
@@ -404,7 +404,7 @@ struct bn_gencb_st {
 	: "=a" (low), "=d" (high)  \
 	: "a" (a), "g" (b)         \
 	: "cc");
-#   endif
+#endif
 #elif (defined(_M_AMD64) || defined(_M_X64)) && defined(SIXTY_FOUR_BIT)
 #   if defined(_MSC_VER) && _MSC_VER>=1400
 unsigned __int64 __umulh(unsigned __int64 a, unsigned __int64 b);
@@ -413,7 +413,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 #    pragma intrinsic(__umulh,_umul128)
 #define BN_UMULT_HIGH(a, b)           __umulh((a), (b))
 #define BN_UMULT_LOHI(low, high, a, b)  ((low) = _umul128((a), (b), &(high)))
-#   endif
+#endif
 #elif defined(__mips) && (defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG))
 #   if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b) ({       \
@@ -426,7 +426,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 	asm ("dmultu    %2,%3"          \
 	: "=l" (low), "=h" (high)     \
 	: "r" (a), "r" (b));
-#   endif
+#endif
 #elif defined(__aarch64__) && defined(SIXTY_FOUR_BIT_LONG)
 #   if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b)   ({     \
@@ -435,7 +435,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
 		ret;                      })
-#   endif
+#endif
 #endif                        /* cpu */
 #endif                         /* OPENSSL_NO_ASM */
 

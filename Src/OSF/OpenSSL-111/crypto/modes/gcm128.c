@@ -429,7 +429,7 @@ static void gcm_ghash_4bit(u64 Xi[2], const u128 Htable[16],
 			Z.hi ^= Htable[nlo].hi;
 			Z.lo ^= Htable[nlo].lo;
 		}
-#   else
+#else
 	/*
 	 * Extra 256+16 bytes per-key plus 512 bytes shared tables
 	 * [should] give ~50% improvement... One could have PACK()-ed
@@ -522,13 +522,13 @@ static void gcm_ghash_4bit(u64 Xi[2], const u128 Htable[16],
 		Z.hi ^= Htable[nhi].hi;
 		Z.lo ^= Htable[nhi].lo;
 		Z.hi ^= ((u64)rem_8bit[rem << 4]) << 48;
-#   endif
+#endif
 
 		if(is_endian.little) {
-#   ifdef BSWAP8
+#ifdef BSWAP8
 			Xi[0] = BSWAP8(Z.hi);
 			Xi[1] = BSWAP8(Z.lo);
-#   else
+#else
 			u8 * p = (u8*)Xi;
 			u32 v;
 			v = (u32)(Z.hi >> 32);
@@ -539,7 +539,7 @@ static void gcm_ghash_4bit(u64 Xi[2], const u128 Htable[16],
 			PUTU32(p + 8, v);
 			v = (u32)(Z.lo);
 			PUTU32(p + 12, v);
-#   endif
+#endif
 		}
 		else {
 			Xi[0] = Z.hi;
@@ -651,9 +651,9 @@ void gcm_ghash_clmul(u64 Xi[2], const u128 Htable[16], const u8 * inp,
     size_t len);
 
 #if defined(__i386) || defined(__i386__) || defined(_M_IX86)
-#   define gcm_init_avx   gcm_init_clmul
-#   define gcm_gmult_avx  gcm_gmult_clmul
-#   define gcm_ghash_avx  gcm_ghash_clmul
+#define gcm_init_avx   gcm_init_clmul
+#define gcm_gmult_avx  gcm_gmult_clmul
+#define gcm_ghash_avx  gcm_ghash_clmul
 #else
 void gcm_init_avx(u128 Htable[16], const u64 Xi[2]);
 void gcm_gmult_avx(u64 Xi[2], const u128 Htable[16]);
@@ -662,7 +662,7 @@ void gcm_ghash_avx(u64 Xi[2], const u128 Htable[16], const u8 * inp,
 #endif
 
 #if   defined(__i386) || defined(__i386__) || defined(_M_IX86)
-#   define GHASH_ASM_X86
+#define GHASH_ASM_X86
 void gcm_gmult_4bit_mmx(u64 Xi[2], const u128 Htable[16]);
 void gcm_ghash_4bit_mmx(u64 Xi[2], const u128 Htable[16], const u8 * inp,
     size_t len);
@@ -674,12 +674,12 @@ void gcm_ghash_4bit_x86(u64 Xi[2], const u128 Htable[16], const u8 * inp,
 # elif defined(__arm__) || defined(__arm) || defined(__aarch64__)
 #include "arm_arch.h"
 #if __ARM_MAX_ARCH__>=7
-#   define GHASH_ASM_ARM
-#   define GCM_FUNCREF_4BIT
-#   define PMULL_CAPABLE        (OPENSSL_armcap_P & ARMV8_PMULL)
+#define GHASH_ASM_ARM
+#define GCM_FUNCREF_4BIT
+#define PMULL_CAPABLE        (OPENSSL_armcap_P & ARMV8_PMULL)
 #   if defined(__arm__) || defined(__arm)
 #define NEON_CAPABLE        (OPENSSL_armcap_P & ARMV7_NEON)
-#   endif
+#endif
 void gcm_init_neon(u128 Htable[16], const u64 Xi[2]);
 void gcm_gmult_neon(u64 Xi[2], const u128 Htable[16]);
 void gcm_ghash_neon(u64 Xi[2], const u128 Htable[16], const u8 * inp,
@@ -773,9 +773,9 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT * ctx, void * key, block128_f block)
 #if   defined(GHASH_ASM_X86)  /* x86 only */
 #   if  defined(OPENSSL_IA32_SSE2)
 	if(OPENSSL_ia32cap_P[0] & (1 << 25)) { /* check SSE bit */
-#   else
+#else
 	if(OPENSSL_ia32cap_P[0] & (1 << 23)) { /* check MMX bit */
-#   endif
+#endif
 		ctx->gmult = gcm_gmult_4bit_mmx;
 		CTX__GHASH(gcm_ghash_4bit_mmx);
 	}
@@ -1104,11 +1104,11 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 					(*block)(ctx->Yi.c, ctx->EKi.c, key);
 					++ctr;
 					if(is_endian.little)
-#   ifdef BSWAP4
+#ifdef BSWAP4
 						ctx->Yi.d[3] = BSWAP4(ctr);
-#   else
+#else
 						PUTU32(ctx->Yi.c + 12, ctr);
-#   endif
+#endif
 					else
 						ctx->Yi.d[3] = ctr;
 					for(i = 0; i < 16 / sizeof(size_t); ++i)
@@ -1344,11 +1344,11 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 					(*block)(ctx->Yi.c, ctx->EKi.c, key);
 					++ctr;
 					if(is_endian.little)
-#   ifdef BSWAP4
+#ifdef BSWAP4
 						ctx->Yi.d[3] = BSWAP4(ctr);
-#   else
+#else
 						PUTU32(ctx->Yi.c + 12, ctr);
-#   endif
+#endif
 					else
 						ctx->Yi.d[3] = ctr;
 					for(i = 0; i < 16 / sizeof(size_t); ++i)
@@ -1575,11 +1575,11 @@ int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx,
 		(*stream)(in, out, GHASH_CHUNK / 16, key, ctx->Yi.c);
 		ctr += GHASH_CHUNK / 16;
 		if(is_endian.little)
-#   ifdef BSWAP4
+#ifdef BSWAP4
 			ctx->Yi.d[3] = BSWAP4(ctr);
-#   else
+#else
 			PUTU32(ctx->Yi.c + 12, ctr);
-#   endif
+#endif
 		else
 			ctx->Yi.d[3] = ctr;
 		GHASH(ctx, out, GHASH_CHUNK);
@@ -1744,11 +1744,11 @@ int CRYPTO_gcm128_decrypt_ctr32(GCM128_CONTEXT * ctx,
 		(*stream)(in, out, GHASH_CHUNK / 16, key, ctx->Yi.c);
 		ctr += GHASH_CHUNK / 16;
 		if(is_endian.little)
-#   ifdef BSWAP4
+#ifdef BSWAP4
 			ctx->Yi.d[3] = BSWAP4(ctr);
-#   else
+#else
 			PUTU32(ctx->Yi.c + 12, ctr);
-#   endif
+#endif
 		else
 			ctx->Yi.d[3] = ctr;
 		out += GHASH_CHUNK;

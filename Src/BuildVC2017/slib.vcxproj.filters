@@ -253,6 +253,9 @@
     <ClInclude Include="..\SLib\gumbo\gumbo-internal.h">
       <Filter>gumbo\Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\slib-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">

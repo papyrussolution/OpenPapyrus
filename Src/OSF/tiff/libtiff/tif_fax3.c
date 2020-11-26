@@ -300,7 +300,7 @@ EOF2Da:                                 /* premature EOF */
  * machine characteristics.
  */
 #if SIZEOF_UNSIGNED_LONG == 8
-# define FILL(n, cp)							    \
+#define FILL(n, cp)							    \
 	switch(n) {							       \
 		case 15: (cp)[14] = 0xff; /*-fallthrough*/ \
 		case 14: (cp)[13] = 0xff; /*-fallthrough*/ \
@@ -319,7 +319,7 @@ EOF2Da:                                 /* premature EOF */
 		case  1: (cp)[0] = 0xff; (cp) += (n); /*-fallthrough*/ \
 		case 0:;			\
 	}
-# define ZERO(n, cp)							\
+#define ZERO(n, cp)							\
 	switch(n) {							   \
 		case 15: (cp)[14] = 0; /*-fallthrough*/	\
 		case 14: (cp)[13] = 0; /*-fallthrough*/	\
@@ -339,7 +339,7 @@ EOF2Da:                                 /* premature EOF */
 		case 0:;		  \
 	}
 #else
-# define FILL(n, cp)							    \
+#define FILL(n, cp)							    \
 	switch(n) {							       \
 		case 7: (cp)[6] = 0xff; /*-fallthrough*/ \
 		case 6: (cp)[5] = 0xff; /*-fallthrough*/ \
@@ -350,7 +350,7 @@ EOF2Da:                                 /* premature EOF */
 		case 1: (cp)[0] = 0xff; (cp) += (n); /*-fallthrough*/ \
 		case 0:;		      \
 	}
-# define ZERO(n, cp)							\
+#define ZERO(n, cp)							\
 	switch(n) {							   \
 		case 7: (cp)[6] = 0; /*-fallthrough*/ \
 		case 6: (cp)[5] = 0; /*-fallthrough*/ \

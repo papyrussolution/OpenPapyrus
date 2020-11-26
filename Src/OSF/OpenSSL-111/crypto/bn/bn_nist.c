@@ -281,9 +281,9 @@ static void nist_cp_bn(BN_ULONG * dst, const BN_ULONG * src, int top)
 #define bn_cp_32(to, n, from, m)           ((m)>=0) ? bn_cp_32_naked(to, n, from, m) : bn_32_set_0(to, n)
 #if defined(L_ENDIAN)
 #if defined(__arch64__)
-#   define NIST_INT64 long
+#define NIST_INT64 long
 #else
-#   define NIST_INT64 long long
+#define NIST_INT64 long long
 #endif
 #endif
 #else

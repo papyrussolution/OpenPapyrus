@@ -263,7 +263,7 @@
  * indication that PNG_IMPEXP needs to be set to the DLL export
  * attributes.
  */
-#        define PNG_BUILD_DLL
+#define PNG_BUILD_DLL
 #     else
 #        ifdef __DLL__
 /* This is set by the Borland C system when compiling for a DLL
@@ -526,7 +526,7 @@
 #     define png_alignof(type) offsetof(struct {char c; type t; }, t)
 #else
 #     if PNG_ALIGN_TYPE == PNG_ALIGN_ALWAYS
-#        define png_alignof(type) (1)
+#define png_alignof(type) (1)
 #     endif
 /* Else leave png_alignof undefined to prevent use thereof */
 #endif

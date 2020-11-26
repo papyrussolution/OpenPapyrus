@@ -39,34 +39,29 @@
 #pragma hdrstop
 
 #ifdef LIBSSH2_WINCNG /* compile only if we build with wincng */
-
 /* required for cross-compilation against the w64 mingw-runtime package */
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
-#undef _WIN32_WINNT
+	#undef _WIN32_WINNT
 #endif
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600
+	#define _WIN32_WINNT 0x0600
 #endif
-
 /* specify the required libraries for dependencies using MSVC */
 #ifdef _MSC_VER
-#pragma comment(lib, "bcrypt.lib")
-#ifdef HAVE_LIBCRYPT32
-#pragma comment(lib, "crypt32.lib")
+	#pragma comment(lib, "bcrypt.lib")
+	#ifdef HAVE_LIBCRYPT32
+		#pragma comment(lib, "crypt32.lib")
+	#endif
 #endif
-#endif
-
 #include <windows.h>
 #include <bcrypt.h>
 #include <math.h>
-
 #ifdef HAVE_STDLIB_H
-#include <stdlib.h>
+	#include <stdlib.h>
 #endif
 #ifdef HAVE_LIBCRYPT32
-#include <wincrypt.h>
+	#include <wincrypt.h>
 #endif
-
 #define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"

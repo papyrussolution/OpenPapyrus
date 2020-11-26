@@ -441,12 +441,12 @@ static const SHA_LONG64 K512[80] = {
 			    : "=r" (ret)                     \
 			    : "r" (*((const SHA_LONG64*)(&(x))))); ret; })
 #endif
-#   endif
+#endif
 #elif defined(_MSC_VER)
 #   if defined(_WIN64)         /* applies to both IA-64 and AMD64 */
 #    pragma intrinsic(_rotr64)
 #define ROTR(a, n)    _rotr64((a), n)
-#   endif
+#endif
 #   if defined(_M_IX86) && !defined(OPENSSL_NO_ASM) && \
 	!defined(OPENSSL_NO_INLINE_ASM)
 #if defined(I386_ONLY)
@@ -473,7 +473,7 @@ static SHA_LONG64 __fastcall __pull64be(const void * x)
 
 #endif
 #define PULL64(x) __pull64be(&(x))
-#   endif
+#endif
 #endif
 #endif
 #ifndef PULL64
@@ -635,14 +635,12 @@ static void sha512_block_data_order(SHA512_CTX * ctx, const void * in,
 		T1 = X[(j)&0x0f] += s0 + s1 + X[(j+9)&0x0f];    \
 		ROUND_00_15(i+j, a, b, c, d, e, f, g, h);               } while(0)
 
-static void sha512_block_data_order(SHA512_CTX * ctx, const void * in,
-    size_t num)
+static void sha512_block_data_order(SHA512_CTX * ctx, const void * in, size_t num)
 {
-	const SHA_LONG64 * W = in;
+	const SHA_LONG64 * W = static_cast<const SHA_LONG64 *>(in);
 	SHA_LONG64 a, b, c, d, e, f, g, h, s0, s1, T1;
 	SHA_LONG64 X[16];
 	int i;
-
 	while(num--) {
 		a = ctx->h[0];
 		b = ctx->h[1];
@@ -652,7 +650,6 @@ static void sha512_block_data_order(SHA512_CTX * ctx, const void * in,
 		f = ctx->h[5];
 		g = ctx->h[6];
 		h = ctx->h[7];
-
 #ifdef B_ENDIAN
 		T1 = X[0] = W[0];
 		ROUND_00_15(0, a, b, c, d, e, f, g, h);

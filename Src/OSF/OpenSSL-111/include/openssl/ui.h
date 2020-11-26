@@ -21,7 +21,7 @@
 /* For compatibility reasons, the macro OPENSSL_NO_UI is currently retained */
 #if OPENSSL_API_COMPAT < 0x10200000L
 #ifdef OPENSSL_NO_UI_CONSOLE
-#   define OPENSSL_NO_UI
+#define OPENSSL_NO_UI
 #endif
 #endif
 

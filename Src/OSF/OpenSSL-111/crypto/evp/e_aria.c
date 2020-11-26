@@ -131,7 +131,7 @@ IMPLEMENT_BLOCK_CIPHER(aria_256, ks, aria, EVP_ARIA_KEY,
     EVP_CIPHER_get_asn1_iv,
     NULL)
 
-# define IMPLEMENT_ARIA_CFBR(ksize, cbits) \
+#define IMPLEMENT_ARIA_CFBR(ksize, cbits) \
 	IMPLEMENT_CFBR(aria, aria, EVP_ARIA_KEY, ks, ksize, cbits, 16, 0)
 IMPLEMENT_ARIA_CFBR(128, 1)
 IMPLEMENT_ARIA_CFBR(192, 1)
@@ -140,7 +140,7 @@ IMPLEMENT_ARIA_CFBR(128, 8)
 IMPLEMENT_ARIA_CFBR(192, 8)
 IMPLEMENT_ARIA_CFBR(256, 8)
 
-# define BLOCK_CIPHER_generic(nid, keylen, blocksize, ivlen, nmode, mode, MODE, flags) \
+#define BLOCK_CIPHER_generic(nid, keylen, blocksize, ivlen, nmode, mode, MODE, flags) \
 	static const EVP_CIPHER aria_ ## keylen ## _ ## mode = { \
 		nid ## _ ## keylen ## _ ## nmode, blocksize, keylen/8, ivlen, \
 		flags|EVP_CIPH_ ## MODE ## _MODE,   \

@@ -1731,8 +1731,8 @@ static int cert_select_simple(ENGINE * e, SSL * ssl, STACK_OF(X509) * certs)
  */
 
 #ifndef CRYPTUI_SELECT_LOCATION_COLUMN
-#   define CRYPTUI_SELECT_LOCATION_COLUMN                   0x000000010
-#   define CRYPTUI_SELECT_INTENDEDUSE_COLUMN                0x000000004
+#define CRYPTUI_SELECT_LOCATION_COLUMN                   0x000000010
+#define CRYPTUI_SELECT_INTENDEDUSE_COLUMN                0x000000004
 #endif
 
 #define dlg_title L"OpenSSL Application SSL Client Certificate Selection"

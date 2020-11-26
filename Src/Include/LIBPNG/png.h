@@ -360,7 +360,7 @@
     /* If pnglibconf.h is missing, you can
  * copy scripts/pnglibconf.h.prebuilt to pnglibconf.h
      */
-#   include "pnglibconf.h"
+#include "pnglibconf.h"
 #endif
 
 #ifndef PNG_VERSION_INFO_ONLY

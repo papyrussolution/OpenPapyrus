@@ -40,7 +40,7 @@
  * is as questionable, we settle for this poor-man fallback...
  */
 #if !defined(S_ISREG)
-#   define S_ISREG(m) ((m) & S_IFREG)
+#define S_ISREG(m) ((m) & S_IFREG)
 #endif
 
 #define RAND_BUF_SIZE 1024

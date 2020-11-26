@@ -72,7 +72,7 @@
 #        include <stdio.h> /* not included yet */
 #      endif
 #      ifndef PNG_DEBUG_FILE
-#        define PNG_DEBUG_FILE stderr
+#define PNG_DEBUG_FILE stderr
 #      endif /* PNG_DEBUG_FILE */
 
 #      if (PNG_DEBUG > 1)

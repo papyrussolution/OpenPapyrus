@@ -40,39 +40,39 @@
 #define WIN32_LEAN_AND_MEAN
 /* We require Windows 2000 features such as ETO_PDY */
 #if !defined(WINVER) || (WINVER < 0x0500)
-# define WINVER 0x0500
+#define WINVER 0x0500
 #endif
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
-# define _WIN32_WINNT 0x0500
+#define _WIN32_WINNT 0x0500
 #endif
 #include "cairo-win32-private.h"
 
 #if !defined(POSTSCRIPT_IDENTIFY)
-# define POSTSCRIPT_IDENTIFY 0x1015
+#define POSTSCRIPT_IDENTIFY 0x1015
 #endif
 
 #if !defined(PSIDENT_GDICENTRIC)
-# define PSIDENT_GDICENTRIC 0x0000
+#define PSIDENT_GDICENTRIC 0x0000
 #endif
 
 #if !defined(GET_PS_FEATURESETTING)
-# define GET_PS_FEATURESETTING 0x1019
+#define GET_PS_FEATURESETTING 0x1019
 #endif
 
 #if !defined(FEATURESETTING_PSLEVEL)
-# define FEATURESETTING_PSLEVEL 0x0002
+#define FEATURESETTING_PSLEVEL 0x0002
 #endif
 
 #if !defined(GRADIENT_FILL_RECT_H)
-# define GRADIENT_FILL_RECT_H 0x00
+#define GRADIENT_FILL_RECT_H 0x00
 #endif
 
 #if !defined(CHECKJPEGFORMAT)
-# define CHECKJPEGFORMAT 0x1017
+#define CHECKJPEGFORMAT 0x1017
 #endif
 
 #if !defined(CHECKPNGFORMAT)
-# define CHECKPNGFORMAT 0x1018
+#define CHECKPNGFORMAT 0x1018
 #endif
 
 #define PELS_72DPI  ((LONG)(72. / 0.0254))

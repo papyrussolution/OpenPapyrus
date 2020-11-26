@@ -36,33 +36,33 @@ typedef uchar u8;
 #if !defined(PEDANTIC) && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
 #if defined(__GNUC__) && __GNUC__>=2
 #if defined(__x86_64) || defined(__x86_64__)
-#   define BSWAP8(x) ({ u64 ret_=(x);                   \
+#define BSWAP8(x) ({ u64 ret_=(x);                   \
                         asm ("bswapq %0"                \
                         : "+r"(ret_));   ret_;          })
-#   define BSWAP4(x) ({ u32 ret_=(x);                   \
+#define BSWAP4(x) ({ u32 ret_=(x);                   \
                         asm ("bswapl %0"                \
                         : "+r"(ret_));   ret_;          })
 #elif (defined(__i386) || defined(__i386__)) && !defined(I386_ONLY)
-#   define BSWAP8(x) ({ u32 lo_=(u64)(x)>>32,hi_=(x);   \
+#define BSWAP8(x) ({ u32 lo_=(u64)(x)>>32,hi_=(x);   \
                         asm ("bswapl %0; bswapl %1"     \
                         : "+r"(hi_),"+r"(lo_));         \
                         (u64)hi_<<32|lo_;               })
-#   define BSWAP4(x) ({ u32 ret_=(x);                   \
+#define BSWAP4(x) ({ u32 ret_=(x);                   \
                         asm ("bswapl %0"                \
                         : "+r"(ret_));   ret_;          })
 #elif defined(__aarch64__)
-#   define BSWAP8(x) ({ u64 ret_;                       \
+#define BSWAP8(x) ({ u64 ret_;                       \
                         asm ("rev %0,%1"                \
                         : "=r"(ret_) : "r"(x)); ret_;   })
-#   define BSWAP4(x) ({ u32 ret_;                       \
+#define BSWAP4(x) ({ u32 ret_;                       \
                         asm ("rev %w0,%w1"              \
                         : "=r"(ret_) : "r"(x)); ret_;   })
 #elif (defined(__arm__) || defined(__arm)) && !defined(STRICT_ALIGNMENT)
-#   define BSWAP8(x) ({ u32 lo_=(u64)(x)>>32,hi_=(x);   \
+#define BSWAP8(x) ({ u32 lo_=(u64)(x)>>32,hi_=(x);   \
                         asm ("rev %0,%0; rev %1,%1"     \
                         : "+r"(hi_),"+r"(lo_));         \
                         (u64)hi_<<32|lo_;               })
-#   define BSWAP4(x) ({ u32 ret_;                       \
+#define BSWAP4(x) ({ u32 ret_;                       \
                         asm ("rev %0,%1"                \
                         : "=r"(ret_) : "r"((u32)(x)));  \
                         ret_;                           })
@@ -70,14 +70,14 @@ typedef uchar u8;
 # elif defined(_MSC_VER)
 #if _MSC_VER>=1300
 	//#include <stdlib.h>
-#   pragma intrinsic(_byteswap_uint64,_byteswap_ulong)
-#   define BSWAP8(x)    _byteswap_uint64((u64)(x))
-#   define BSWAP4(x)    _byteswap_ulong((u32)(x))
+#pragma intrinsic(_byteswap_uint64,_byteswap_ulong)
+#define BSWAP8(x)    _byteswap_uint64((u64)(x))
+#define BSWAP4(x)    _byteswap_ulong((u32)(x))
 #elif defined(_M_IX86)
 __inline u32 _bswap4(u32 val)
 {
 _asm mov eax, val _asm bswap eax}
-#   define BSWAP4(x)    _bswap4(x)
+#define BSWAP4(x)    _bswap4(x)
 #endif
 #endif
 #endif

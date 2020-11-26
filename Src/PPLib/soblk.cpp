@@ -1334,9 +1334,9 @@ struct LocalSelectorDescr {
 		}
 		return ok;
 	}
-	json_t * CreateJSON() const
+	SJson * CreateJSON() const
 	{
-		json_t * p_jsel = new json_t(json_t::tOBJECT);
+		SJson * p_jsel = new SJson(SJson::tOBJECT);
 		SString temp_buf, o_buf, txt_buf;
 		p_jsel->Insert("ID", json_new_string(temp_buf.Z().Cat(ID)));
 		p_jsel->Insert("Attr", json_new_string(temp_buf.Z().Cat(Attr)));
@@ -1346,11 +1346,11 @@ struct LocalSelectorDescr {
 		p_jsel->Insert("Subcrit", json_new_string(temp_buf.Z()));
 		p_jsel->Insert("Part", json_new_string(Part));
 		//
-		json_t * p_jsel_val_ary = new json_t(json_t::tARRAY);
+		SJson * p_jsel_val_ary = new SJson(SJson::tARRAY);
 		if(Attr != PPUhttStoreSelDescr::attrName) {
 			PPIDArray parent_id_list, named_id_list;
 			for(uint j = 0, k = Values.getCount(); j < k; j++) {
-				json_t * p_jsel_val = new json_t(json_t::tOBJECT);
+				SJson * p_jsel_val = new SJson(SJson::tOBJECT);
 				StrAssocArray::Item _val = Values.Get(j);
 				p_jsel_val->Insert("ID", json_new_string(temp_buf.Z().Cat(_val.Id)));
 				p_jsel_val->Insert("Txt", json_new_string((temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER).Escape())); // @v10.7.7 Escape()
@@ -1376,7 +1376,7 @@ struct LocalSelectorDescr {
 							if(p_ref->GetItem(tag_rec.TagEnumID, parent_id, &tag_item_rec) > 0) {
 								const PPID next_parent_id = tag_item_rec.Val2;
 								assert(tag_item_rec.ObjID == parent_id);
-								json_t * p_jsel_val = new json_t(json_t::tOBJECT);
+								SJson * p_jsel_val = new SJson(SJson::tOBJECT);
 								p_jsel_val->Insert("ID", json_new_string(temp_buf.Z().Cat(parent_id)));
 								p_jsel_val->Insert("Txt", json_new_string((temp_buf = tag_item_rec.ObjName).Transf(CTRANSF_INNER_TO_OUTER)));
 								p_jsel_val->Insert("PID", json_new_string(temp_buf.Z().Cat(next_parent_id)));
@@ -1638,7 +1638,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 				PPObjProcessor prc_obj;
 				PPCheckInPersonMngr ci_mgr;
 				ProcessorPlaceCodeTemplate ppct;
-				json_t * p_jpack = new json_t(json_t::tOBJECT);
+				SJson * p_jpack = new SJson(SJson::tOBJECT);
 				TSCollection <LocalSelectorDescr> sdescr_list;
 				CALLPTRMEMB(p_view, GetSelectorListInfo(selector_list));
 				//
@@ -1659,9 +1659,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 				// Формирование ответа
 				//
 				{
-					json_t * p_jhdr = new json_t(json_t::tOBJECT);
-					json_t * p_jsel_ary = new json_t(json_t::tARRAY);
-					json_t * p_jitem_list = new json_t(json_t::tARRAY);
+					SJson * p_jhdr = new SJson(SJson::tOBJECT);
+					SJson * p_jsel_ary = new SJson(SJson::tARRAY);
+					SJson * p_jitem_list = new SJson(SJson::tARRAY);
 					p_jpack->Insert("Header", p_jhdr);
 					p_jhdr->Insert("Class", json_new_string(temp_buf.Z().Cat(0L)));
 					p_jhdr->Insert("Selectors", p_jsel_ary);
@@ -1723,7 +1723,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 										if(prc_ext.GetPlaceDescription(pdi, pd) && ppct.Parse(pd.Range))
 											ppct.Generate(ss_places);
 								}
-								json_t * p_jitem = new json_t(json_t::tOBJECT);
+								SJson * p_jitem = new SJson(SJson::tOBJECT);
 								//
 								p_jitem->Insert("ID", json_new_string(temp_buf.Z().Cat(tses_rec.ID)));
 								p_jitem->Insert("PrcID", json_new_string(temp_buf.Z().Cat(tses_rec.PrcID)));
@@ -1873,7 +1873,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 			GoodsIterator iter(P_GoodsF, GoodsIterator::ordByName);
 			if(iter.GetSelectorListInfo(&cls_id, selector_list) && selector_list.getCount()) {
 				// StrAssocArray CritList;
-				json_t * p_jpack = new json_t(json_t::tOBJECT);
+				SJson * p_jpack = new SJson(SJson::tOBJECT);
 				TSCollection <LocalSelectorDescr> sdescr_list;
 				//
 				// Формирование списка селекторов
@@ -1893,9 +1893,9 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 				// Формирование ответа
 				//
 				{
-					json_t * p_jhdr = new json_t(json_t::tOBJECT);
-					json_t * p_jsel_ary = new json_t(json_t::tARRAY);
-					json_t * p_jitem_list = new json_t(json_t::tARRAY);
+					SJson * p_jhdr = new SJson(SJson::tOBJECT);
+					SJson * p_jsel_ary = new SJson(SJson::tARRAY);
+					SJson * p_jitem_list = new SJson(SJson::tARRAY);
 					//
 					p_jpack->Insert("Header", p_jhdr);
 					p_jhdr->Insert("Class", json_new_string(temp_buf.Z().Cat(cls_id)));
@@ -1969,7 +1969,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					else {
 						GoodsIterator::Ext iter_ext;
 						while(iter.Next(&goods_rec, &iter_ext) > 0) {
-							json_t * p_jitem = new json_t(json_t::tOBJECT);
+							SJson * p_jitem = new SJson(SJson::tOBJECT);
 							p_jitem->Insert("ID", json_new_string(temp_buf.Z().Cat(goods_rec.ID)));
 							p_jitem->Insert("Name", json_new_string((temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 							p_jitem->Insert("CurID", json_new_string(temp_buf.Z().Cat(iter_ext.CurID)));
@@ -2082,7 +2082,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 		case PPOBJ_DL600DATA:
 			if(Operator == oSet) {
 				// @Muxa {
-				json_t * p_json_doc = NULL;
+				SJson * p_json_doc = NULL;
 				if(json_parse_document(&p_json_doc, JSONString.cptr()) == JSON_OK) {
 					DlContext * p_ctx = NULL;
 					DlRtm * p_rtm = NULL;

@@ -1516,12 +1516,12 @@ static void png_create_colormap_entry(png_image_read_control * display,
 		const int afirst = (image->format & PNG_FORMAT_FLAG_AFIRST) != 0 &&
 		    (image->format & PNG_FORMAT_FLAG_ALPHA) != 0;
 #     else
-#        define afirst 0
+#define afirst 0
 #     endif
 #     ifdef PNG_FORMAT_BGR_SUPPORTED
 		const int bgr = (image->format & PNG_FORMAT_FLAG_BGR) != 0 ? 2 : 0;
 #     else
-#        define bgr 0
+#define bgr 0
 #     endif
 
 		if(output_encoding == P_LINEAR) {

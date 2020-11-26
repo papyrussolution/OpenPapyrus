@@ -357,10 +357,10 @@
 #endif
 #if __GNUC__ >= 3
 #      ifndef PNG_ALLOCATED
-#        define PNG_ALLOCATED  __attribute__((__malloc__))
+#define PNG_ALLOCATED  __attribute__((__malloc__))
 #      endif
 #      ifndef PNG_DEPRECATED
-#        define PNG_DEPRECATED __attribute__((__deprecated__))
+#define PNG_DEPRECATED __attribute__((__deprecated__))
 #      endif
 #      ifndef PNG_PRIVATE
 #        if 0 /* Doesn't work so we use deprecated instead*/
@@ -385,7 +385,7 @@
 #endif
 #    ifndef PNG_ALLOCATED
 #      if (_MSC_VER >= 1400)
-#        define PNG_ALLOCATED __declspec(restrict)
+#define PNG_ALLOCATED __declspec(restrict)
 #      endif
 #endif
 #    ifndef PNG_DEPRECATED
@@ -396,7 +396,7 @@
 #endif
 #    ifndef PNG_RESTRICT
 #      if (_MSC_VER >= 1400)
-#        define PNG_RESTRICT __restrict
+#define PNG_RESTRICT __restrict
 #      endif
 #endif
 

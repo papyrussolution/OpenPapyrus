@@ -153,11 +153,8 @@ void * OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
 	ulong hash;
 	OPENSSL_LH_NODE ** rn;
 	void * ret;
-
 	tsan_store((TSAN_QUALIFIER int*)&lh->error, 0);
-
 	rn = getrn(lh, data, &hash);
-
 	if(*rn == NULL) {
 		tsan_counter(&lh->num_retrieve_miss);
 		return NULL;
@@ -166,20 +163,15 @@ void * OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
 		ret = (*rn)->data;
 		tsan_counter(&lh->num_retrieve);
 	}
-
 	return ret;
 }
 
-static void doall_util_fn(OPENSSL_LHASH * lh, int use_arg,
-    OPENSSL_LH_DOALL_FUNC func,
-    OPENSSL_LH_DOALL_FUNCARG func_arg, void * arg)
+static void doall_util_fn(OPENSSL_LHASH * lh, int use_arg, OPENSSL_LH_DOALL_FUNC func, OPENSSL_LH_DOALL_FUNCARG func_arg, void * arg)
 {
 	int i;
 	OPENSSL_LH_NODE * a, * n;
-
 	if(lh == NULL)
 		return;
-
 	/*
 	 * reverse the order so we search from 'top to bottom' We were having
 	 * memory leaks otherwise
@@ -210,11 +202,11 @@ void OPENSSL_LH_doall_arg(OPENSSL_LHASH * lh, OPENSSL_LH_DOALL_FUNCARG func, voi
 static int expand(OPENSSL_LHASH * lh)
 {
 	OPENSSL_LH_NODE ** n, ** n1, ** n2, * np;
-	uint p, pmax, nni, j;
+	uint j;
 	ulong hash;
-	nni = lh->num_alloc_nodes;
-	p = lh->p;
-	pmax = lh->pmax;
+	uint nni = lh->num_alloc_nodes;
+	uint p = lh->p;
+	uint pmax = lh->pmax;
 	if(p + 1 >= pmax) {
 		j = nni * 2;
 		n = static_cast<OPENSSL_LH_NODE **>(OPENSSL_realloc(lh->b, sizeof(OPENSSL_LH_NODE *) * j));
@@ -238,7 +230,6 @@ static int expand(OPENSSL_LHASH * lh)
 	n1 = &(lh->b[p]);
 	n2 = &(lh->b[p + pmax]);
 	*n2 = NULL;
-
 	for(np = *n1; np != NULL;) {
 		hash = np->hash;
 		if((hash % nni) != p) { /* move it */
@@ -250,14 +241,13 @@ static int expand(OPENSSL_LHASH * lh)
 			n1 = &((*n1)->next);
 		np = *n1;
 	}
-
 	return 1;
 }
 
 static void contract(OPENSSL_LHASH * lh)
 {
-	OPENSSL_LH_NODE ** n, * n1, * np;
-	np = lh->b[lh->p + lh->pmax - 1];
+	OPENSSL_LH_NODE ** n, * n1;
+	OPENSSL_LH_NODE * np = lh->b[lh->p + lh->pmax - 1];
 	lh->b[lh->p + lh->pmax - 1] = NULL; /* 24/07-92 - eay - weird but :-( */
 	if(lh->p == 0) {
 		n = static_cast<OPENSSL_LH_NODE **>(OPENSSL_realloc(lh->b, (uint)(sizeof(OPENSSL_LH_NODE *) * lh->pmax)));
@@ -274,10 +264,8 @@ static void contract(OPENSSL_LHASH * lh)
 	}
 	else
 		lh->p--;
-
 	lh->num_nodes--;
 	lh->num_contracts++;
-
 	n1 = lh->b[(int)lh->p];
 	if(n1 == NULL)
 		lh->b[(int)lh->p] = np;
@@ -288,17 +276,14 @@ static void contract(OPENSSL_LHASH * lh)
 	}
 }
 
-static OPENSSL_LH_NODE ** getrn(OPENSSL_LHASH * lh,
-    const void * data, ulong * rhash)
+static OPENSSL_LH_NODE ** getrn(OPENSSL_LHASH * lh, const void * data, ulong * rhash)
 {
 	OPENSSL_LH_NODE ** ret, * n1;
-	ulong hash, nn;
+	ulong nn;
 	OPENSSL_LH_COMPFUNC cf;
-
-	hash = (*(lh->hash))(data);
+	ulong hash = (*(lh->hash))(data);
 	tsan_counter(&lh->num_hash_calls);
 	*rhash = hash;
-
 	nn = hash % lh->pmax;
 	if(nn < lh->p)
 		nn = hash % lh->num_alloc_nodes;

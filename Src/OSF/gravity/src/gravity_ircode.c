@@ -61,7 +61,7 @@ void ircode_free(ircode_t * code)
 {
 	if(code) {
 		uint32 count = ircode_count(code);
-		for(uint32 i = 0; i<count; ++i) {
+		for(uint32 i = 0; i < count; ++i) {
 			inst_t * inst = code->list->at(i);
 			mem_free(inst);
 		}
@@ -254,7 +254,7 @@ void ircode_dump(const void * _code) // code_dump_function
 		printf("NONE\n");
 		return;
 	}
-	for(uint32 i = 0, line = 0; i<count; ++i) {
+	for(uint32 i = 0, line = 0; i < count; ++i) {
 		const inst_t * inst = list->at(i);
 		opcode_t op = inst->op;
 		int32 p1 = inst->p1;
@@ -320,21 +320,21 @@ void ircode_unsetlabel_check(ircode_t * code) { code->label_check.pop(); }
 
 uint32 ircode_getlabel_true(ircode_t * code) 
 {
-	size_t n = code->label_true.getCount();
+	const uint n = code->label_true.getCount();
 	uint32 v = code->label_true.at(n-1);
 	return v;
 }
 
 uint32 ircode_getlabel_false(ircode_t * code) 
 {
-	size_t n = code->label_false.getCount();
+	const uint n = code->label_false.getCount();
 	uint32 v = code->label_false.at(n-1);
 	return v;
 }
 
 uint32 ircode_getlabel_check(ircode_t * code) 
 {
-	size_t n = code->label_check.getCount();
+	const uint n = code->label_check.getCount();
 	uint32 v = code->label_check.at(n-1);
 	return v;
 }
@@ -562,7 +562,7 @@ void ircode_register_dump(ircode_t * code)
 	uint32 n = code->registers.getCount();
 	if(n == 0) 
 		printf("EMPTY\n");
-	for(uint32 i = 0; i<n; ++i) {
+	for(uint32 i = 0; i < n; ++i) {
 		uint32 value = code->registers.at(i);
 		printf("[%d]\t%d\n", i, value);
 	}

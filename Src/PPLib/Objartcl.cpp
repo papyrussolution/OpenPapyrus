@@ -1332,13 +1332,9 @@ StrAssocArray * PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(A
 //#define DO_GET_NAME_FROM_CACHE // Вариант с раздельным извлечением строк (значительно медленнее прямого метода)q
 	StrAssocArray * p_list = 0;
 	PROFILE_START
-	// @v9.2.1 PPID   acs_id = (PPID)extraPtr;
-	// @v9.2.3 const  ArticleFilt * p_filt = (const  ArticleFilt *)extraPtr; // @v9.2.1
-	const  ArticleFilt * p_filt = &CurrFilt; // @v9.2.3
-	PPID   acs_id = p_filt ? labs(p_filt->AccSheetID) : 0;
+	const  ArticleFilt * p_filt = &CurrFilt;
+	const  PPID acs_id = p_filt ? labs(p_filt->AccSheetID) : 0;
 	ArticleTbl::Key2 k2;
-	// @v9.2.1 const  int full_list = BIN(acs_id < 0);
-	// @v9.2.1 acs_id = labs(acs_id);
 	PPObjAccSheet acc_sheet_obj;
 	PPAccSheet acs_rec;
 	ArticleTbl::Rec ar_rec;
@@ -1352,11 +1348,10 @@ StrAssocArray * PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(A
 #ifdef DO_GET_NAME_FROM_CACHE
 	q.select(p_tbl->ID, p_tbl->ObjID, 0L);
 #else
-	q.select(p_tbl->ID, p_tbl->Name, p_tbl->ObjID, p_tbl->Flags, 0L); // @v9.5.9 P_Tbl->Flags
+	q.select(p_tbl->ID, p_tbl->Name, p_tbl->ObjID, p_tbl->Flags, 0L);
 #endif // DO_GET_NAME_FROM_CACHE
 	if(acs_id)
 		dbq = & (p_tbl->AccSheetID == acs_id);
-	// @v9.2.1 if(!full_list)
 	if(!p_filt || p_filt->Ft_Closed < 0)
 		dbq = & (*dbq && (p_tbl->Closed == 0L));
 	else if(p_filt && p_filt->Ft_Closed > 0)

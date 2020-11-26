@@ -122,7 +122,7 @@ uint32 gravity_module_size(gravity_vm * vm, gravity_module_t * m)
 	SET_OBJECT_VISITED_FLAG(m, true);
 	uint32 hash_size = 0;
 	gravity_hash_iterate2(m->htable, gravity_hash_internalsize, (void*)&hash_size, (void*)vm);
-	uint32 module_size = (sizeof(gravity_module_t)) + sstrlen(m->identifier) + hash_size + gravity_hash_memsize(m->htable);
+	uint32 module_size = static_cast<uint32>((sizeof(gravity_module_t)) + sstrlen(m->identifier) + hash_size + gravity_hash_memsize(m->htable));
 	SET_OBJECT_VISITED_FLAG(m, false);
 	return module_size;
 }
@@ -336,7 +336,7 @@ gravity_class_t * gravity_class_deserialize(gravity_vm * vm, json_value * json)
 	// get its meta class
 	gravity_class_t * meta = gravity_class_get_meta(c);
 	uint32 n = json->u.object.length;
-	for(uint32 i = 2; i<n; ++i) { // from 2 to skip type and identifier
+	for(uint32 i = 2; i < n; ++i) { // from 2 to skip type and identifier
 		// parse values
 		p_value = json->u.object.values[i].value;
 		key = json->u.object.values[i].name;
@@ -484,7 +484,7 @@ gravity_class_t * gravity_class_lookup_class_identifier(gravity_class_t * c, con
 uint32 gravity_class_size(gravity_vm * vm, gravity_class_t * c) 
 {
 	SET_OBJECT_VISITED_FLAG(c, true);
-	uint32 class_size = sizeof(gravity_class_t) + (c->nivars * sizeof(GravityValue)) + sstrlen(c->identifier);
+	uint32 class_size = static_cast<uint32>(sizeof(gravity_class_t) + (c->nivars * sizeof(GravityValue)) + sstrlen(c->identifier));
 	uint32 hash_size = 0;
 	gravity_hash_iterate2(c->htable, gravity_hash_internalsize, (void*)&hash_size, (void*)vm);
 	hash_size += gravity_hash_memsize(c->htable);
@@ -562,8 +562,8 @@ gravity_function_t * gravity_function_new_bridged(gravity_vm * vm, const char * 
 uint16 FASTCALL gravity_function_cpool_add(gravity_vm * vm, gravity_function_t * f, GravityValue v) 
 {
 	assert(f->tag == EXEC_TYPE_NATIVE);
-	size_t n = f->U.Nf.cpool.getCount();
-	for(size_t i = 0; i < n; i++) {
+	const uint n = f->U.Nf.cpool.getCount();
+	for(uint i = 0; i < n; i++) {
 		GravityValue v2 = f->U.Nf.cpool.at(i);
 		if(gravity_value_equals(v, v2)) {
 			gravity_value_free(NULL, v);
@@ -604,8 +604,8 @@ void gravity_function_setxdata(gravity_function_t * f, void * xdata) { f->xdata 
 static void gravity_function_array_serialize(gravity_function_t * f, GravityJson * json, gravity_value_r r) 
 {
 	assert(f->tag == EXEC_TYPE_NATIVE);
-	const size_t n = r.getCount();
-	for(size_t i = 0; i < n; i++) {
+	const uint n = r.getCount();
+	for(uint i = 0; i < n; i++) {
 		GravityValue v = r.at(i);
 		gravity_value_serialize(NULL, v, json);
 	}
@@ -614,52 +614,52 @@ static void gravity_function_array_serialize(gravity_function_t * f, GravityJson
 static void gravity_function_array_dump(gravity_function_t * f, gravity_value_r r) 
 {
 	assert(f->tag == EXEC_TYPE_NATIVE);
-	size_t n = r.getCount();
-	for(size_t i = 0; i<n; i++) {
+	uint n = r.getCount();
+	for(uint i = 0; i < n; i++) {
 		GravityValue v = r.at(i);
 		if(v.IsNull()) {
-			printf("%05zu\tNULL\n", i);
+			printf("%05zu\tNULL\n", static_cast<uint64>(i));
 			continue;
 		}
 		if(v.IsUndefined()) {
-			printf("%05zu\tUNDEFINED\n", i);
+			printf("%05u\tUNDEFINED\n", i);
 			continue;
 		}
 		if(v.IsBool()) {
-			printf("%05zu\tBOOL: %d\n", i, (v.n == 0) ? 0 : 1);
+			printf("%05u\tBOOL: %u\n", i, (v.n == 0) ? 0 : 1);
 			continue;
 		}
 		if(v.IsInt()) {
-			printf("%05zu\tINT: %" PRId64 "\n", i, (int64_t)v.n);
+			printf("%05u\tINT: %" PRId64 "\n", i, (int64_t)v.n);
 			continue;
 		}
 		if(v.IsFloat()) {
-			printf("%05zu\tFLOAT: %g\n", i, (double)v.f);
+			printf("%05u\tFLOAT: %g\n", i, (double)v.f);
 			continue;
 		}
 		if(v.IsFunction()) {
 			gravity_function_t * vf = VALUE_AS_FUNCTION(v);
-			printf("%05zu\tFUNC: %s\n", i, (vf->identifier) ? vf->identifier : "$anon");
+			printf("%05u\tFUNC: %s\n", i, (vf->identifier) ? vf->identifier : "$anon");
 			continue;
 		}
 		if(v.IsClass()) {
 			gravity_class_t * c = static_cast<gravity_class_t *>(v);
-			printf("%05zu\tCLASS: %s\n", i, (c->identifier) ? c->identifier : "$anon");
+			printf("%05u\tCLASS: %s\n", i, (c->identifier) ? c->identifier : "$anon");
 			continue;
 		}
 		if(v.IsString()) {
-			printf("%05zu\tSTRING: %s\n", i, v.GetZString());
+			printf("%05u\tSTRING: %s\n", i, v.GetZString());
 			continue;
 		}
 		if(v.IsList()) {
 			gravity_list_t * value = static_cast<gravity_list_t *>(v);
-			size_t count = value->array.getCount();
-			printf("%05zu\tLIST: %zu items\n", i, count);
+			const uint count = value->array.getCount();
+			printf("%05u\tLIST: %u items\n", i, count);
 			continue;
 		}
 		if(v.IsMap()) {
 			gravity_map_t * map = VALUE_AS_MAP(v);
-			printf("%05zu\tMAP: %u items\n", i, gravity_hash_count(map->hash));
+			printf("%05u\tMAP: %u items\n", i, gravity_hash_count(map->hash));
 			continue;
 		}
 		assert(0); // should never reach this point
@@ -857,7 +857,7 @@ gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * 
 	bool nargs_parsed = false;
 	bool tag_parsed = false;
 	uint32 n = json->u.object.length;
-	for(uint32 i = 1; i<n; ++i) { // from 1 to skip type
+	for(uint32 i = 1; i < n; ++i) { // from 1 to skip type
 		const char * label = json->u.object.values[i].name;
 		json_value * value = json->u.object.values[i].value;
 		size_t label_size = strlen(label);
@@ -1125,15 +1125,15 @@ void gravity_function_free(gravity_vm * vm, gravity_function_t * f)
 			mem_free((void*)f->U.Nf.bytecode);
 			mem_free((void*)f->U.Nf.lineno);
 			// FREE EACH DEFAULT value
-			size_t n = f->U.Nf.pvalue.getCount();
-			for(size_t i = 0; i<n; i++) {
+			uint n = f->U.Nf.pvalue.getCount();
+			for(uint i = 0; i < n; i++) {
 				//GravityValue v = f->U.Nf.pvalue.at(i);
 				gravity_value_free(NULL, /*v*/f->U.Nf.pvalue.at(i));
 			}
 			f->U.Nf.pvalue.Z();
 			// FREE EACH PARAM name
 			n = f->U.Nf.pname.getCount();
-			for(size_t i = 0; i<n; i++) {
+			for(uint i = 0; i < n; i++) {
 				//GravityValue v = f->U.Nf.pname.at(i);
 				gravity_value_free(NULL, /*v*/f->U.Nf.pname.at(i));
 			}
@@ -1148,13 +1148,13 @@ void gravity_function_free(gravity_vm * vm, gravity_function_t * f)
 uint32 gravity_function_size(gravity_vm * vm, gravity_function_t * f)
 {
 	SET_OBJECT_VISITED_FLAG(f, true);
-	uint32 func_size = sizeof(gravity_function_t) + sstrlen(f->identifier);
+	uint32 func_size = static_cast<uint32>(sizeof(gravity_function_t) + sstrlen(f->identifier));
 	if(f->tag == EXEC_TYPE_NATIVE) {
 		if(f->U.Nf.bytecode) 
 			func_size += f->U.Nf.ninsts * sizeof(uint32);
 		// cpool size
-		size_t n = f->U.Nf.cpool.getCount();
-		for(size_t i = 0; i<n; i++) {
+		const uint n = f->U.Nf.cpool.getCount();
+		for(uint i = 0; i < n; i++) {
 			GravityValue v = f->U.Nf.cpool.at(i);
 			func_size += gravity_value_size(vm, v);
 		}
@@ -1382,7 +1382,7 @@ uint32 gravity_fiber_size(gravity_vm * vm, gravity_fiber_t * fiber)
 	for(GravityValue* slot = fiber->stack; slot < fiber->stacktop; ++slot) {
 		fiber_size += gravity_value_size(vm, *slot);
 	}
-	fiber_size += sstrlen(fiber->error);
+	fiber_size += static_cast<uint>(sstrlen(fiber->error));
 	fiber_size += gravity_object_size(vm, (gravity_class_t *)fiber->caller);
 	SET_OBJECT_VISITED_FLAG(fiber, false);
 	return fiber_size;
@@ -1806,8 +1806,8 @@ bool gravity_value_equals(GravityValue v1, GravityValue v2)
 		const gravity_list_t * list2 = static_cast<gravity_list_t *>(v2);
 		if(list1->array.getCount() != list2->array.getCount()) 
 			return false;
-		size_t count = list1->array.getCount();
-		for(size_t i = 0; i<count; ++i) {
+		const uint count = list1->array.getCount();
+		for(uint i = 0; i < count; ++i) {
 			GravityValue value1 = list1->array.at(i);
 			GravityValue value2 = list2->array.at(i);
 			if(!gravity_value_equals(value1, value2)) 
@@ -1918,8 +1918,8 @@ void gravity_value_serialize(const char * key, GravityValue v, GravityJson * jso
 	if(v.IsList()) { // LIST (ARRAY)
 		gravity_list_t * value = static_cast<gravity_list_t *>(v);
 		json_begin_array(json, key);
-		size_t count = value->array.getCount();
-		for(size_t j = 0; j<count; j++) {
+		const uint count = value->array.getCount();
+		for(uint j = 0; j < count; j++) {
 			GravityValue item = value->array.at(j);
 			// here I am sure that value is a literal value
 			gravity_value_serialize(NULL, item, json);
@@ -2147,18 +2147,17 @@ void gravity_list_free(gravity_vm * vm, gravity_list_t * list)
 void gravity_list_append_list(gravity_vm * vm, gravity_list_t * list1, gravity_list_t * list2) 
 {
 	// append list2 to list1
-	size_t count = list2->array.getCount();
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = list2->array.getCount();
+	for(uint i = 0; i < count; ++i)
 		list1->array.insert(list2->array.at(i));
-	}
 }
 
 uint32 gravity_list_size(gravity_vm * vm, gravity_list_t * list) 
 {
 	SET_OBJECT_VISITED_FLAG(list, true);
 	uint32 internal_size = 0;
-	size_t count = list->array.getCount();
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = list->array.getCount();
+	for(uint i = 0; i < count; ++i) {
 		internal_size += gravity_value_size(vm, list->array.at(i));
 	}
 	internal_size += sizeof(gravity_list_t);
@@ -2169,8 +2168,8 @@ uint32 gravity_list_size(gravity_vm * vm, gravity_list_t * list)
 void gravity_list_blacken(gravity_vm * vm, gravity_list_t * list) 
 {
 	gravity_vm_memupdate(vm, gravity_list_size(vm, list));
-	size_t count = list->array.getCount();
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = list->array.getCount();
+	for(uint i = 0; i < count; ++i) {
 		gravity_gray_value(vm, list->array.at(i));
 	}
 }
@@ -2208,7 +2207,7 @@ static gravity_map_t * gravity_map_deserialize(gravity_vm * vm, json_value * jso
 	uint32 n = json->u.object.length;
 	gravity_map_t * map = gravity_map_new(vm, n);
 	DEBUG_DESERIALIZE("DESERIALIZE MAP: %p\n", map);
-	for(uint32 i = 0; i<n; ++i) { // from 1 to skip type
+	for(uint32 i = 0; i < n; ++i) { // from 1 to skip type
 		const char * label = json->u.object.values[i].name;
 		json_value * jsonv = json->u.object.values[i].value;
 		GravityValue key = gravity_zstring_to_value(vm, label);
@@ -2297,7 +2296,7 @@ gravity_range_t * gravity_range_deserialize(gravity_vm * vm, json_value * json)
 	json_int_t from = 0;
 	json_int_t to = 0;
 	uint32 n = json->u.object.length;
-	for(uint32 i = 1; i<n; ++i) { // from 1 to skip type
+	for(uint32 i = 1; i < n; ++i) { // from 1 to skip type
 		const char * label = json->u.object.values[i].name;
 		json_value * value = json->u.object.values[i].value;
 		size_t label_size = strlen(label);

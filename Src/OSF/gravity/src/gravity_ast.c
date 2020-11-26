@@ -53,11 +53,11 @@ void gnode_array_sethead(GravityArray <gnode_t *> * list, gnode_t * node)
 GravityArray <gnode_t *> * gnode_array_remove_byindex(GravityArray <gnode_t *> * old_list, size_t index) 
 {
 	// get old size
-	size_t list_size = gnode_array_size(old_list);
+	const uint list_size = gnode_array_size(old_list);
 	if(index >= list_size) 
 		return NULL;
 	GravityArray <gnode_t *> * new_list = gnode_array_create();
-	for(size_t i = 0; i<list_size; ++i) {
+	for(uint i = 0; i < list_size; ++i) {
 		if(i == index) 
 			continue;
 		gnode_t * node = gnode_array_get(old_list, i);
@@ -495,8 +495,8 @@ gnode_t * gnode_duplicate(gnode_t * node, bool deep)
 		else if(gnode_t::IsA(node, NODE_FILE_EXPR)) {
 			gnode_file_expr_t * expr = (gnode_file_expr_t*)node;
 			GravityArray <const char *> * list = cstring_array_create();
-			size_t count = gnode_array_size(expr->identifiers);
-			for(size_t i = 0; i<count; ++i) {
+			uint count = gnode_array_size(expr->identifiers);
+			for(uint i = 0; i < count; ++i) {
 				const char * identifier = gnode_array_get(expr->identifiers, i);
 				cstring_array_push(list, sstrdup(identifier));
 			}
@@ -688,12 +688,13 @@ static void free_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 	CHECK_REFCOUNT(node);
 	gvisit(self, node->id);
 	// node->list can be NULL due to enum static conversion
-	size_t count = gnode_array_size(node->list);
-	for(size_t i = 0; i<count; ++i) {
+	const uint count = gnode_array_size(node->list);
+	for(uint i = 0; i < count; ++i) {
 		gnode_postfix_subexpr_t * subnode = (gnode_postfix_subexpr_t*)gnode_array_get(node->list, i);
 		free_postfix_subexpr(self, subnode);
 	}
-	if(node->list) gnode_array_free(node->list);
+	if(node->list) 
+		gnode_array_free(node->list);
 	mem_free(node);
 }
 

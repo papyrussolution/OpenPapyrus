@@ -1880,7 +1880,7 @@ struct lzma_options_lzma {
 	 * See pb below for more information about alignment.
 	 */
 	uint32_t lp;
-#       define LZMA_LP_DEFAULT  0
+#define LZMA_LP_DEFAULT  0
 
 	/**
 	 * \brief       Number of position bits

@@ -2946,6 +2946,7 @@ public:
 	int    FASTCALL Check(const ObjTagList * pList) const;
 	int    CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & rRestrict) const;
 	int    SelectIndicator(PPID objID, SColor & rClr) const;
+	int    SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const;
 
 	char   ReserveStart[32];    // @anchor
 	long   Flags;               // @flags
@@ -3075,7 +3076,7 @@ struct PPConfigPrivate {   // @persistent @store(PropertyTbl)
 	long   PropID;         // Const=PPPRP_CFGPRIVATE
 	char   Reserve[28];    // @reserve // @v10.9.3 [60]-->[28]
 	S_GUID DesktopUuid;    // @v10.9.3
-	S_GUID MenuUuid;       // @v10.9.3 
+	S_GUID MenuUuid;       // @v10.9.3
 	long   DesktopID_Obsolete; // Идентификатор рабочего стола, испольуемого пользователем
 	long   Reserve2[2];    // @reserve
 	char   Tail[1024];     //
@@ -6324,7 +6325,7 @@ public:
 
 		uint32 Sign;
 		int64  Marker;
-		PPAdviseEventVector EvqList; 
+		PPAdviseEventVector EvqList;
 		LongArray RegDbList; // Список идентификаторов путей баз данных, в чьих очередях
 			// клиент зарегистрирован. Необходим для ускорения процесса регистрации.
 	};
@@ -10080,7 +10081,7 @@ struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL
 #define BNKPAYMMETHOD_URGENTLY   4 // Срочно
 #define BNKPAYMMETHOD_DEFAULT    BNKPAYMMETHOD_EMAIL // По умолчанию
 
-#define BNKQUEUEING_DEFAULT      5 // 
+#define BNKQUEUEING_DEFAULT      5 //
 
 #define BNKPAYMF_REQ        0x0001L // Платежное требование (иначе поручение)
 #define BNKPAYMF_WOACCEPT   0x0002L // Без акцепта (иначе с акцептом)
@@ -10691,9 +10692,9 @@ private:
 	int    AccsCost;       // Если 0, то доступ к ценам поступления запрещен
 	PPID   FiltGrpID;      // Товарная группа, ограничивающая выборку.
 	LongArray Seen;        // Список позиций документа, которые уже были обработаны
-	TSVector <IndexItem> Index; // 
+	TSVector <IndexItem> Index; //
 	RAssocArray SaldoList; // Список товаров, принадлежащих группе FiltGrpID и ассоциированных с величной сальдо по контаргенту.
-	TSVector <LocTransfTbl::Rec> DispList; // 
+	TSVector <LocTransfTbl::Rec> DispList; //
 };
 //
 //
@@ -10835,7 +10836,7 @@ struct PPLinkFile {
 
 class PPLinkFilesArray : public TSCollection <PPLinkFile> {
 public:
-	PPLinkFilesArray(const char * pStoreDir = 0);
+	explicit PPLinkFilesArray(const char * pStoreDir = 0);
 	PPLinkFilesArray & FASTCALL operator = (const PPLinkFilesArray & s);
 	int    Init(const char * pStoreDir);
 	int    Add(PPLinkFile * pLink, uint * pPos);
@@ -11295,8 +11296,8 @@ public:
 	int    OutAmtType;
 	PPID   QuotKindID;    // @transient Вид котировки, применяемый в документе. Актуально только во время одной сессии редактирования документа.
 	PPID   AgtQuotKindID; // @transient Вид котировки из соглашения с клиентом. Используется в диалогах товарных строк документов для выбора котировки.
-	PPID   OpTypeID;      // 
-	PPID   AccSheetID;    // 
+	PPID   OpTypeID;      //
+	PPID   AccSheetID;    //
 	long   Counter;
 	//
 	// P_ShLots - теневые строки, отражающие исполнение заказов.
@@ -12052,7 +12053,7 @@ public:
 	enum { // flags (Опции)
 		fLabelOnly    = 0x00000040, // Только лоты, созданные помеченными документами
 		fPriceByQuot  = 0x00000080, // Цены по котировке
-		fCostByQuot   = 0x00000100, // @v9.5.8 Цены поступления по котировке
+		fCostByQuot   = 0x00000100, // Цены поступления по котировке
 		fRetailPrice  = 0x00000200, // @v10.3.2 Цены реализации рассчины по правилам, применяемым для определения розничных цен
 		fCWoVat		  = 0x00004000, // Цены поступления без НДС
 		fPWoVat		  = 0x00008000, // @v10.6.6 Цены реализации без НДС
@@ -12550,7 +12551,7 @@ public:
 	// PPTAG_LOT_FSRARLOTGOODSCODE переносить этот код.
 #define TLRF_SETINHQCERT       0x1000 // @v10.4.10 Устанавливать на лоты, у которых нет сертификатов, унаследованные от
 	// предыдущих приходов сертификаты.
-#define TLRF_SETALCOMANUF      0x2000 // @v10.9.1 Устанавливать импортера/производителя ЕГАИС по справкам А из внутренней базы данных  
+#define TLRF_SETALCOMANUF      0x2000 // @v10.9.1 Устанавливать импортера/производителя ЕГАИС по справкам А из внутренней базы данных
 //
 // Флаги функции Transfer::MoveLotOps
 //
@@ -12699,7 +12700,7 @@ public:
 	//
 	// В следующих двух функциях если первый параметр предписывает давать
 	// разбивку по лотам (GoodsRestParam::calcMethod == GoodsRestParam::pcmDiff),
-	// и два последних параметра не равны нулю, параметру *count присваиваетс
+	// и два последних параметра не равны нулю, параметру *count присваивается //
 	// количество лотов с ненулевыми остатками, а по адресу, заданному
 	// последним параметром присваивается динамическая область памяти
 	// со значениями для этих лотов. При этом структура, заданная первым
@@ -12909,7 +12910,7 @@ private:
 			long   ExRestF;    // Значение остатка в текущем состоянии записи
 			long   ValidRestF; // Правильное или новое значение остатка.
 		};
-		TSVector <Item> List; // 
+		TSVector <Item> List; //
 		LotCurRest2Tbl * P_Tbl;
 	};
 	struct LotOpMovParam {
@@ -14688,8 +14689,8 @@ public:
 	int    TurnCheck(CCheckPacket * pPack, int use_ta);
 	int    UpdateCheck(CCheckPacket * pPack, int use_ta);
 	//
-	// Descr: Специализированный метод, позволяющий изменить текст расширения чека непосредственно в базе данных, не трогая все остальные 
-	//   записи и атрибуты чека. 
+	// Descr: Специализированный метод, позволяющий изменить текст расширения чека непосредственно в базе данных, не трогая все остальные
+	//   записи и атрибуты чека.
 	//
 	int    UpdateExtText(PPID id, int fldId, const char * pText, int use_ta);
 	//
@@ -15247,8 +15248,8 @@ struct RegisterFilt : public PPBaseFilt {
     virtual int IsEmpty() const;
 
 	uint8  ReserveStart[20]; // @anchor
-	PPObjID Oid;             // 
-	PPID   ExclLocID;        // 
+	PPObjID Oid;             //
+	PPID   ExclLocID;        //
 	PPID   ExclPersonID;
 	PPID   RegTypeID;
 	DateRange RegPeriod;
@@ -15356,12 +15357,12 @@ public:
 class PPCommandFolder : public PPCommandItem {
 public:
 	//
-	// Descr: Специализированный список командных групп (меню и/или рабочих столов), 
+	// Descr: Специализированный список командных групп (меню и/или рабочих столов),
 	//   состоящий и ассоциаций GUID'ов и наименований, скомбинированных с 4-байтовым идентификаторами
 	//   Проблема, которую призван решить этот контейнер, состоит в том, что многие меню и рабочие
 	//   столы имеют дублированные целочисленные идентификаторы наряду с GUID'ами, и до релиза
 	//   @v10.9.3 идентификация осуществлялась исключительно по этим идентификаторам, что порождало серьезные проблемы.
-	//   
+	//
 	class CommandGroupList : SStrGroup {
 	public:
 		struct Entry {
@@ -15458,7 +15459,7 @@ public:
 	// Descr: Конструктор создает новый экземпляр объекта с заданными атрибутами.
 	//   При этом генерируется новый UUID, то есть этот конструктор нужен именно для
 	//   создания нового объекта.
-	//   Если cmdgrpc == cmdgrpcDesktop && isempty(pDbSymb) то новый экземпляр 
+	//   Если cmdgrpc == cmdgrpcDesktop && isempty(pDbSymb) то новый экземпляр
 	//   получает символ текущей базы данных (если таковая имеется).
 	//
 	PPCommandGroup(PPCommandGroupCategory cmdgrpc, const char * pDbSymb, const char * pName);
@@ -15543,7 +15544,7 @@ public:
 	int    ConvertDesktopTo(const long rwFlag); //@erik v10.7.4
 	int    DeleteGroupByUuid(PPCommandGroupCategory kind, const S_GUID & rUuid);
 	//
-	// Descr: Находит максимальное значение идентификатора среди всех элементов, 
+	// Descr: Находит максимальное значение идентификатора среди всех элементов,
 	//   доступных для загрузки.
 	// Note: Функция очень медленная - вынуждена загружать все, что есть для перебора.
 	//
@@ -15635,7 +15636,7 @@ public:
 	char   Symb[20];           // Уникальный (или пустой) символ задачи
 	PPID   EmailAccID;         // Учетная запись электронной почты
 	LTIME  ScheduleBeforeTime; // Время, после которого задачу выполнять не следует
-	char   Reserve[4];         // @reserve 
+	char   Reserve[4];         // @reserve
 	SBuffer Param;
 };
 //
@@ -16013,7 +16014,6 @@ public:
 	//   0  - ERROR
 	//
 	static int EditCommObjItem(PPCommObjEntry *);
-
 	PPObjReference(PPID aObj, void * extraPtr);
 	virtual int  Browse(void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
@@ -16112,9 +16112,9 @@ struct ObjTagFilt {
 		fOnlyGroups   = 0x0001, // Только группы тегов
 		fOnlyTags     = 0x0002, // Только терминальные теги
 		// @#{fOnlyGroups^fOnlyTags}
-		fAnyObjects   = 0x0004, // @v8.2.8 Исторически, ObjTypeID == 0 трактуется как ObjTypeID = PPOBJ_PERSON,
+		fAnyObjects   = 0x0004, // Исторически ObjTypeID == 0 трактуется как ObjTypeID = PPOBJ_PERSON,
 			// по этому, чтобы получить теги по всем типам объектов необходимо установить данный флаг.
-		fObjTypeRoots = 0x0008  // @v8.5.3 Добавить узлы, соответствующие типам объектов.
+		fObjTypeRoots = 0x0008  // Добавить узлы, соответствующие типам объектов.
 			// Идентификаторы узлов формируются по следующему правилу: ObjType * 100000
 	};
 
@@ -16123,6 +16123,7 @@ struct ObjTagFilt {
 	static long    FASTCALL MakeObjTypeRootIdent(PPID objType);
 	static int     FASTCALL ObjTypeRootIdentToObjType(long rootIdent, PPID * pObjType);
 	explicit ObjTagFilt(PPID objTypeID = 0, long flags = 0, PPID parentID = 0);
+	ObjTagFilt & Z();
 
 	PPID   ObjTypeID;  // Тип связанного объекта данных
 	PPID   ParentID;   // Группа тегов
@@ -16142,10 +16143,9 @@ public:
 	static PPID    Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb);
 	static PPID    Helper_GetTagByID(PPID objType, PPID objID, PPID tagID);
 	static int     RecoverLostUnifiedLinks();
-	PPObjTag(void * extraPtr = 0);
+	explicit PPObjTag(void * extraPtr = 0);
 	~PPObjTag();
 	virtual int  Edit(PPID *, void * extraPtr);
-	// @v8.5.3 virtual int  Browse(long);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	int    CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag & rRec) const;
 	int    GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTable & rList, UintHashTable & rExcludeList);
@@ -16200,7 +16200,6 @@ protected:
 private:
 	ObjTagFilt & InitFilt(void * extraPtr, ObjTagFilt & rFilt) const;
 	int    Helper_CreateEnumObject(PPObjTagPacket & rPack);
-
 	// @v9.8.9 ObjTagFilt OtFilt; // @#{!PPObject::extra || PPObject::extra == &CurFilt}
 };
 //
@@ -16219,7 +16218,7 @@ private:
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual const char * GetNamePtr();
 
-	SString NameBuf; // Returns by GetNamePtr
+	SString NameBuf; // Is returned by GetNamePtr
 };
 //
 //
@@ -16389,7 +16388,7 @@ private:
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual const char * GetNamePtr();
 
-	SString NameBuf; // Returns by GetNamePtr
+	SString NameBuf; // Is returned by GetNamePtr
 };
 //
 // @ModuleDecl(PPObjUnit)
@@ -17359,7 +17358,7 @@ public:
 		float  GenTEA;           // @v10.8.10 Trend-Err-Average at generating phase
 		float  GenTED;           // @v10.8.10 Trend-Err-Deviation at generating phase
 		float  CADF;             // @v10.8.12 Core-Angular-Deviation-Factor фактор отклонения протестированных результатов стратегии от центральной линии канала
-		float  MRSF;             // @v10.8.12 Most-Recently-Stake-Factor фактор близости к текущему моменту последних расчетных ставок 
+		float  MRSF;             // @v10.8.12 Most-Recently-Stake-Factor фактор близости к текущему моменту последних расчетных ставок
 		uint8  Reserve[16];      // @v10.8.10 // @v10.8.12 [24]-->[20]
 		OptimalFactorRange OptDeltaRange;
 		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
@@ -19193,6 +19192,8 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_CHZN          5 // @v10.6.1 честный знак
 #define PPGLS_INSTAGRAM     6 // @v10.8.9
 #define PPGLS_UDS           7 // @v10.8.9 Сервис UDS (бонусная система, интернет-магазин)
+#define PPGLS_UNIVERSEHTT   8 // @v10.9.4 Сервис Universe-HTT (бонусная система, интернет-магазин и др.)
+#define PPGLS_SHOPIFY       9 // @v10.9.4 @construction
 
 struct PPGlobalUserAcc {
 	PPGlobalUserAcc();
@@ -19231,6 +19232,7 @@ public:
 
 	PPObjGlobalUserAcc(void * extraPtr = 0);
 	virtual int Edit(PPID * pID, void * extraPtr);
+	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*ServiceIdent*/);
 	int    Fetch(PPID id, PPGlobalUserAcc * pRec);
 	int    PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int use_ta);
 	int    GetPacket(PPID id, PPGlobalUserAccPacket * pPack);
@@ -20891,7 +20893,6 @@ public:
 	//
 	int    GetBalRest(LDATE, PPID accID, double * pDbt, double * pCrd, uint flags = 0);
 	int    EnumByBill(PPID billID, int * rByBill, PPAccTurn *);
-
 	int    CalcRest(int aco, PPID accID, const DateRange *, double * pInRest, double * pOutRest);
 	int    CalcComplexRest(long aco, PPID accID, PPID curID, PPID personRelID, const DateRange *, AmtList * pInRest, AmtList * pOutRest);
 	int    CalcComplexRestOnGenList(ObjRestrictArray *, PPID curID, const DateRange *, AmtList * pInRest, AmtList * pOutRest);
@@ -21749,7 +21750,7 @@ public:
 	static int PeekDisplayBlock(PPID dvcID, PalmDisplayBlock & rBlk, int lock);
 	static int RemoveDisplayBlock(const PalmDisplayBlock & rBlk);
 	static int PopDisplayBlock(PPID dvcID, PalmDisplayBlock * pBlk, int lock);
-	PPObjStyloPalm(void * extraPtr = 0);
+	explicit PPObjStyloPalm(void * extraPtr = 0);
 	virtual int Edit(PPID * pID, void * extraPtr);
 	int    IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyloPalmPacket & rS2, long flags);
 	int    GetChildList(PPID id, PPIDArray & rPalmList);
@@ -24999,7 +25000,7 @@ private:
 	PPObjWorld * P_WObj;
 	PPObjRegister * P_RegObj;
 	LocationFilt * P_CurrFilt;
-	SString NameBuf; // Returns by GetNamePtr
+	SString NameBuf; // Is returned by GetNamePtr
 public:
 	TLP_MEMB(LocationCore, P_Tbl);
 	void * ExtraPtr;
@@ -27150,7 +27151,7 @@ private:
 	PersonEventTbl::Rec * P_CurEv; // @notowned Если начисление осуществляется по персональным событиям, то
 		// P_CurEv указатель на текущее событие, по которому ведется расчет. В противном случае - 0.
 	PPLogger Logger;
-	TSVector <FuncDescr> FuncList; // 
+	TSVector <FuncDescr> FuncList; //
 	TSRingStack <DateRange> PeriodStack;
 	int    LastFuncId;
 };
@@ -27219,7 +27220,7 @@ struct PersonFilt : public PPBaseFilt {
 	long   Flags;             //
 	RegisterFilt * P_RegF;    // @anchor для отмера "плоского" участка фильтра
 	TagFilt * P_TagF;         //
-	SysJournalFilt * P_SjF;   // 
+	SysJournalFilt * P_SjF;   //
 	ObjIdListFilt List;       // Список идентификаторов персоналий, которые следует показать
 	SString SrchStr_;         //
 private:
@@ -29064,6 +29065,18 @@ public:
 	double CalcLikeness(const Goods2Tbl::Rec * pRec1, const Goods2Tbl::Rec * pRec2, int * pSwap, long extra);
 	int    GetOpenedList(PPID locID, const PPIDArray * pOverlapList, UintHashTable & rHash);
 	//
+	// Descr: Извлекает UUID (зарезервированный тег PPTAG_GOODS_UUID) для товара goodsID.
+	//   Если у товара тега нет и параметр generateIfAbsent == true то генерируется новый UUID
+	//   для этого товара. Использование транзакции при генерации регламентируется параметром use_ta.
+	//   При успешном завершении по ссылке rUuid устанавливается найденный UUID.
+	// Returns:
+	//   1 - для товара goodsID найден UUID
+	//   2 - UUID не был найден и после этого был успешно сгенерирован
+	//  <0 - UUID не был найден (параметр generateIfAbsent == false)
+	//   0 - ошибка (либо ошибка создания нового UUID, либо отсутствие тега PPTAG_GOODS_UUID)
+	//
+	int    GetUuid(PPID goodsID, S_GUID & rUuid, bool generateIfAbsent, int use_ta);
+	//
 	// Descr: Утилитная функция, автоматически расставляющая признак PREFERRED_BARCODE
 	//   по всей выборке товаров.
 	//
@@ -29078,6 +29091,37 @@ public:
 	};
 
 	int    ProcessName(const ProcessNameBlock & rBlk, SString & rResult);
+
+	struct ExportToGlbSvcParam {
+		enum {
+			fOnlyUnassocItems  = 0x0001, // Экспортировать только те позиции, которые остутствуют во внешнем сервисе
+			fBlockAbsenceItems = 0x0002, // Блокировать позиции, отсутствующие в выборке
+			fExportPrice       = 0x0004, // Экспортировать цены
+			fExportRest        = 0x0008  // Экспортировать остатки
+		};
+		enum {
+			coGoodsGrpName = 0,
+			coTag
+		};
+
+		ExportToGlbSvcParam();
+		long   GlobalService;  // @v10.9.4 PPGLS_XXX
+		PPID   GuaID;          // @v10.9.4 ->Ref(DLG_GLOBUSERACC)
+		long   Flags;          // @flags
+		long   CategoryObject; // Сущность, которую следует выгружать в качестве наименования категории товара
+		PPID   CategoryTagID;  // Тег категории
+		long   DescrExtStrId;  // GDSEXSTR_XXX Ид строки расширения товара, используемой как подробное описание товара
+	};
+	struct ExportToGlbSvcItem { // @flat
+		ExportToGlbSvcItem();
+		PPID   GoodsID; // @anchor
+		PPID   LocID;   // @anchor
+		double Cost;
+		double Price;
+		double Rest;
+	};
+
+	int    EditExportToGlbSvcParam(ExportToGlbSvcParam * pData);
 
 	PPObjGoodsStruc GSObj;
 	PPObjGoodsTax   GTxObj;
@@ -30096,8 +30140,8 @@ public:
 			int16  ProofClsDim;   // PPGdsCls2::e... Размерность класса, определяющая крепость алкоголя в одной торговой единице (в объемных %)
 			uint16 Reserve2;
 			PPID   ImporterPersonKindID; // Вид персоналии, идентифицирующий импортера
-			long   Flags;                // 
-			long   WrOffShopWay;         // 
+			long   Flags;                //
+			long   WrOffShopWay;         //
 			PPID   EgaisInvOpID;         // Вид операции инвентаризации - необходим для идентификации видов операций
 				// списания излишков и недостач.
             TimeRange RtlSaleAllwTime;   // @v10.2.4 Время, в течении которого разрешена розничная торговля алкоголем
@@ -33547,7 +33591,7 @@ private:
 	};
 	TSVector <LockSet> locks;
 	GtaBlock GtaB;
-	SString NameBuf;         // Returned by GetNamePtr
+	SString NameBuf;         // Is returned by GetNamePtr
 	PackageCore * P_PckgT;   //
 	CurRateCore * P_Cr;      //
 	InventoryCore * P_InvT;  //
@@ -34039,7 +34083,7 @@ private:
 	int    MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, int byReckon);
 };
 
-class GoodsGrpngArray : public SVector { // @v9.8.11 SArray-->SVector
+class GoodsGrpngArray : public SVector {
 public:
 	explicit GoodsGrpngArray(PPLogger * pLogger = 0);
 	~GoodsGrpngArray();
@@ -34350,7 +34394,7 @@ private:
 	int    RemoveWrOffBills(PPID sessID, int use_ta);
 	int    VerifyAmounts(PPID sessID, const CSessTotal & rTotal, PPLogger & rLogger);
 
-	SString NameBuf; // Returns by GetNamePtr
+	SString NameBuf; // Is returned by GetNamePtr
 	PPEquipConfig * P_EqCfg; // @!GetEqCfg()
 public:
 	TLP_MEMB(CSessionCore, P_Tbl);
@@ -34665,7 +34709,7 @@ public:
 	enum { // @persistent
 		extssMemo     = 1,
 		extssPassword = 2,
-		extssPhone    = 3, // 
+		extssPhone    = 3, //
 		extssOuterId  = 4  // @v10.8.11 Если эмитентом карты является сторонняя организация, то здесь может быть указан ид карты, заданный эмитентом (guid, например)
 	};
 	SCardTbl::Rec Rec;
@@ -34675,7 +34719,7 @@ public:
 //
 #define SCRDSSPCTRT_DEFAULT    0 // default
 #define SCRDSSPCTRT_AZ         1 // AstraZeneca
-#define SCRDSSPCTRT_UDS        2 // @v10.8.9 UDS 
+#define SCRDSSPCTRT_UDS        2 // @v10.8.9 UDS
 #define SCRDSSPCTRT_UHTT       3 // @v10.9.0 Universe-HTT (попытка унифицированного представления для технологии, используюемой до введения понятия SpecialTreatment
 //
 // Descr: Базовый класс для реализации функционала специальной трактовки серий персональных карт
@@ -34686,7 +34730,7 @@ public:
 	// Descr: Опции Capability, определяющие базовые свойства внешнего сервиса
 	//
 	enum {
-		capfVerifyPhone   = 0x0001,  // Есть функция проверки номера телефона 
+		capfVerifyPhone   = 0x0001,  // Есть функция проверки номера телефона
 		capfItemDiscount  = 0x0002,  // Определяет скидку на товарные позиции
 		capfTotalDiscount = 0x0004,  // Определяет скидку на весь чек
 		capfBonus         = 0x0008,  // Функция начисления и списания бонусов
@@ -37876,7 +37920,7 @@ public:
 	PPID   StorageLocID;   // Место хранение, ассоциированное с фрахтом документа
 	int16  EdiRecadvStatus;     // Статус RECADV по каналу EDI. -1 - с нулевым статусом
 	int16  EdiRecadvConfStatus; // Статус подтверждения на RECADV по каналу EDI. -1 - с нулевым статусом
-	uint8  Reserve[8];     // @#0 !Использовать начиная со старших адресов 
+	uint8  Reserve[8];     // @#0 !Использовать начиная со старших адресов
 	BrowseBillsType Bbt;   // @#1f
 	DateRange Period;      //
 	DateRange PaymPeriod;  // Период поступления платежей (Flags & fShowDebt)
@@ -38106,7 +38150,7 @@ private:
 		stCtrlX     = 0x0002,
 	};
 	long   State;
-	// } @v10.9.0 
+	// } @v10.9.0
 	friend int IterProc_CrTmpTbl(const BillViewItem *, void * pExtraPtr);
 };
 //
@@ -39680,11 +39724,12 @@ public:
 		OrdByBarCode,
 		OrdByGrp_BarCode
 	};
-	//@erik v10.7.13 {
-	enum{
+	// @erik v10.7.13 {
+	/*enum {
 		expDirUhtt = 1,
-		expDirVkMarket
-	};
+		expDirVkMarket,
+		expDirUDS        // @v10.9.4
+	};*/
 	// } @erik v10.7.13
 
 	PPViewGoodsRest();
@@ -39720,7 +39765,6 @@ public:
 	int    SetSupplOrderValues(PPID goodsID, PPID locID, double predict, double minStock, double order, int canTrust);
 	int    GetTableName(SString & rBuf) const;
 	int    GetGoodsBarcode(PPID goodsID, char * code, size_t buflen);
-	// @v9.2.2 (replaced by GoodsCore::GetGoodsCodeInAltGrp) int    GetGoodsNumByAlterGroup(PPID goodsID, PPID grpID, long * num);
 	int    GetTotal(GoodsRestTotal *);
 	virtual int Print(const void *);
 	void   GetTabTitle(long tabID, SString & rBuf);
@@ -39755,21 +39799,21 @@ public:
 
 		PPID   GoodsID;       // @anchor По этому и следующему элементам
 		PPID   LocID;         // @anchor осуществляется поиск
-		PPID   LotID;         // @v8.1.0
+		PPID   LotID;         //
 		double UnitPerPack;
 		double Order;
 		double Rest;
 		double PhRest;
 		double Cost;
 		double Price;
-		double SumCVat;       // @v8.3.4 Сумма НДС в ценах поступления //
-		double SumPVat;       // @v8.3.4 Сумма НДС в ценах реализации //
+		double SumCVat;       // Сумма НДС в ценах поступления //
+		double SumPVat;       // Сумма НДС в ценах реализации //
 		double Deficit;       //
 		double DraftRcpt;     //
 		uint32 Counter;
-		uint   SerialP;       // @v8.1.0 Позиция серийного номера в пуле строк
-		uint   LotTagP;       // @v9.7.11 Позиция строки тега лота в пуле строк
-		LDATE  Expiry;        // @v9.7.11 Дата истечения срока годности (из лота)
+		uint   SerialP;       // Позиция серийного номера в пуле строк
+		uint   LotTagP;       // Позиция строки тега лота в пуле строк
+		LDATE  Expiry;        // Дата истечения срока годности (из лота)
 		DBRowId  DBPos;
 	};
 private:
@@ -39789,6 +39833,8 @@ private:
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
 	virtual int  ViewTotal();
 	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	//int    Implement_ExportVK(const TSVector <BrwHdr> & rUniqIdAndLocIdList, PPLogger & rLogger);
+	//int    Implement_ExportUDS(const TSVector <BrwHdr> & rUniqIdAndLocIdList, PPLogger & rLogger);
 	int    ViewLots(PPID __id, const BrwHdr * pHdr, int orderLots);
 	int    ViewPrediction(PPID goodsID, PPID /*locID*/);
 	int    ConvertLinesToBasket();
@@ -42675,7 +42721,7 @@ struct TrfrAnlzViewItem {
 	PPID   GoodsID;        // ->Goods2.ID   ИД товара
 	PPID   SubGoodsClsID;  // ИД класса товара (только для позиций, в которых товар был подстановлен по классификатору)
 	PPID   LotID;          // ->Receipt.ID  ИД лота
-	PPID   LinkBillID;     // 
+	PPID   LinkBillID;     //
 	PPID   DlvrLocID;      // ->Location.ID ИД адреса доставки
 	long   LocCount;       // Количество адресов доставки, попавших эту строку
 	double Qtty;           // Количество торговых единиц
@@ -42689,9 +42735,9 @@ struct TrfrAnlzViewItem {
 	double SaldoAmt;       // Суммовое сальдо в номинальных ценах (для отдельных опций фильтрации)
 	double PVat;           // Сумма НДС в ценах реализации
 	double Brutto;         //
-	double LinkQtty;       // 
-	double LinkCost;       // 
-	double LinkPrice;      // 
+	double LinkQtty;       //
+	double LinkCost;       //
+	double LinkPrice;      //
 	double ExtValue[2];    // Дополнительные показатели, определяемые специальными опциями фильтра
 	SString BillCode_;     // @anchor Номер документа
 	SString DtText_;       // Текстовое представление даты (при подстановке возможны вариации)
@@ -46316,7 +46362,7 @@ private:
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	//
 	// Descr: Интерактивное создание нового элемента.
-	// ARG(kind        IN): Категория нового элемента. Если kind == cmdgrpcUndef то 
+	// ARG(kind        IN): Категория нового элемента. Если kind == cmdgrpcUndef то
 	//   пользователю предлагается выбрать что создавать: меню или рабочий стол.
 	// ARG(rSampleUuid IN): Если !IsZero(), то новый элемент создается по образцу элемента с этим идентификатором.
 	//   Если по заданному идентификатору образец не найден, то - ошибка.
@@ -47299,7 +47345,7 @@ public:
 		bilstfV1                = 0x00004000, // Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
 		bilstfV2                = 0x00008000, // Документы 2-й версии ЕГАИС
 		bilstfV3                = 0x00010000, // Документы 3-й версии ЕГАИС
-		bilstfFixBarcode        = 0x00020000, // @v10.9.0 Постановка маркированной продукции на баланс 
+		bilstfFixBarcode        = 0x00020000, // @v10.9.0 Постановка маркированной продукции на баланс
 	};
 	int    GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
 	int    GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
@@ -51131,6 +51177,7 @@ private:
 };
 
 struct TagDlgParam {
+	TagDlgParam();
 	int    GetDlgID(long tagDataType, uint * dlgCtl) const;
 	int    SetDlgData(TDialog *, const ObjTagItem *);
 	int    GetDlgData(TDialog *, ObjTagItem *);
@@ -51155,6 +51202,8 @@ struct TagDlgParam {
 	uint   ValTimeCtl;
 	uint   ValGuidCtl;
 	uint   ValImgCtl;
+private:
+	ObjTagFilt LinkTagFilt; // @v10.9.4 Для установки фильтра ссылочных тегов
 };
 //
 //
@@ -51836,7 +51885,7 @@ struct SaModifEntry { // @flat
 	double Qtty;
 };
 
-typedef TSVector <SaModifEntry> SaModif; 
+typedef TSVector <SaModifEntry> SaModif;
 
 class CPosProcessor {
 	friend class CPosProcessor_MsgToDisp_Frame;
@@ -52654,8 +52703,8 @@ private:
 	int    Pack();
 
 	PPID   DesktopID_Obsolete; // -1 - не определенный стол (0 - общий пул для всех рабочих столов)
-	S_GUID DesktopUuid; // @v10.9.3 Начиная с этого релиза DesktopUuid является ведущим идентификатором для 
-		// распознавания рабочих столов и пользовательских меню. 
+	S_GUID DesktopUuid; // @v10.9.3 Начиная с этого релиза DesktopUuid является ведущим идентификатором для
+		// распознавания рабочих столов и пользовательских меню.
 		// Перманентный 4-байтовый идентификатор получается из ассоциации UuidRefCore
 	TSVector <Item> L;
 	StringSet P;
@@ -52818,7 +52867,7 @@ public:
 	//
 	// Descr: Открывает окно редактирования файла ватмана pWtmFileName.
 	// ARG(pWtmFileName IN): @#{vptr0} Имя файла ватмана для редактирования.
-	// ARG(pWtaFileName IN): @#{vptr0} Имя файла панели инструменов.
+	// ARG(pWtaFileName IN): @#{vptr0} Имя файла панели инструментов.
 	// Returns:
 	//   >0 - окно успешно создано и запущено
 	//   0  - ошибка
@@ -52971,6 +53020,7 @@ public:
 		InitBlock();
 		InitBlock & Z();
 		PPID   GuaID;
+		PPID   OuterWareIdentTagID;
 		PPGlobalUserAccPacket GuaPack;
 		SString CliIdent;
 		SString CliAccsKey;
@@ -53075,7 +53125,7 @@ public:
 		LDATETIME Dtm;
 		int    Action; // tactXXX
 		int    State;  // tstXXX
-		SString Code;       // При создании транзакции: код, сканируемый с телефона 
+		SString Code;       // При создании транзакции: код, сканируемый с телефона
 		SString BillNumber; // При создании транзакции: номер чека или документа
 		Customer Cust;
 		Ref    Cashier;
@@ -53100,6 +53150,7 @@ public:
 	UdsGameInterface();
 	~UdsGameInterface();
 	int    Setup(PPID guaID);
+	PPID   GetOuterWareIdentTagID() const;
 	//
 	// Descr: Возвращает !0 если последний метод обращения к серверу завершился ошибкой.
 	//   По ссылке rErr возвращает состояние последней ошибки.
@@ -53152,16 +53203,33 @@ public:
 	};
 	int    GetPriceItemList(const GoodsItemFilt & rFilt, TSCollection <GoodsItem> & rList, uint * pFetchedCount, uint * pTotalCount); // GET -s https://api.uds.app/partner/v2/goods
 	int    GetPriceItemInformation(int64 outerId, GoodsItem & rItem); // GET -s https://api.uds.app/partner/v2/goods/<id>
+	//
+	// Descr: Утилитная функция для поиска внешнего идентификатора в коллекции rList, полученной от сервера ранее.
+	// Returns:
+	//   >0 - индекс найденной позиции в rList [1..]
+	//   0  - идентификатор не найден
+	//
+	static uint SearchOuterIdentInCollection(const TSCollection <UdsGameInterface::GoodsItem> & rList, const char * pIdent);
 private:
 	void   PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
-	int    ReadError(const json_t * pJs, Error & rErr) const;
-	int    ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const;
-	int    ReadCustomer(const json_t * pJs, Customer & rC) const;
-	int    ReadParticipant(const json_t * pJs, Participant & rP) const;
-	int    ReadPurchase(const json_t * pJs, Purchase & rP) const;
-	int    ReadPriceItem(const json_t * pJs, GoodsItem & rI) const;
+	int    ReadError(const SJson * pJs, Error & rErr) const;
+	int    ReadMembershipTier(const SJson * pJs, MembershipTier & rT) const;
+	int    ReadCustomer(const SJson * pJs, Customer & rC) const;
+	int    ReadParticipant(const SJson * pJs, Participant & rP) const;
+	int    ReadPurchase(const SJson * pJs, Purchase & rP) const;
+	int    ReadPriceItem(const SJson * pJs, GoodsItem & rI) const;
 	InitBlock Ib;
 	Error LastErr;
+};
+//
+//
+//
+class PPGlobalServiceHighLevelImplementations {
+public:
+	//int    PPSetup_GlobalService_UDS();
+	static int Setup_UDS();
+	static int ExportGoods_VK(const PPObjGoods::ExportToGlbSvcParam & rParam, const TSVector <PPObjGoods::ExportToGlbSvcItem> & rSrcList, PPLogger * pLogger);
+	static int ExportGoods_UDS(const PPObjGoods::ExportToGlbSvcParam & rParam, const TSVector <PPObjGoods::ExportToGlbSvcItem> & rSrcList, PPLogger * pLogger);
 };
 //
 // Standalone functions and supported structures
@@ -53863,7 +53931,6 @@ int    FASTCALL GetRealRangeInput(TDialog *, uint ctl, RealRange *);
 int    FASTCALL SetIntRangeInput(TDialog *, uint ctl, const IntRange *);
 int    FASTCALL GetIntRangeInput(TDialog *, uint ctl, IntRange *);
 int    FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
-int    PPSetup_GlobalService_UDS();
 int    PPExecuteContextMenu(TView * pView, uint menuID);
 int    ViewGoodsTurnover(long);
 int    PrintDialog(SPrinter *);
@@ -54385,7 +54452,7 @@ int    DoDbDump(PPDbEntrySet2 * pDbes);
 int    VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly);
 
 //@erik {
-class VkStruct{
+/* @v10.9.4 class VkStruct {
 public:
 	SString Token;
 	SString GroupId;
@@ -54393,24 +54460,56 @@ public:
 	SString TxtMsg;
 	SString LinkFilePath;
 	long LinkFileType;
-};
+};*/
 
-class PPVkClient {
+class VkInterface {
 public:
+	struct InitBlock {
+		InitBlock();
+		InitBlock & Z();
+		PPID   GuaID;
+		PPGlobalUserAccPacket GuaPack;
+		SString CliIdent;
+		SString CliAccsKey;
+		SString EndPoint; // URL для запросов
+		//
+		// (replaced with CliAccsKey) SString Token;
+		SString GroupId;
+		SString PageId;
+		SString TxtMsg;
+		SString LinkFilePath;
+		long   LinkFileType;
+		PPID   OuterWareIdentTagID;
+	};
 	static void GetVKAccessToken();
-	int AddGoodToMarket(const VkStruct &rVkStruct, const Goods2Tbl::Rec &rGoodsRes, const SString &rDescr, const double price, const double oldPrice, const PPID vkMarketItemID, SString &rOutput);
-	int WallPost(VkStruct &rVkStruct, SString &rOutput);
-	int Market_Add(const VkStruct &rVkStruct, double goodsPrice, const SString &rGoodsName, const SString &rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput);
-	int Market_Edit(const VkStruct &rVkStruct, PPID goods_id, double goodsPrice, const SString &rGoodsName, const SString &rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput); //edit goods from market
-	int Market_Get(const VkStruct &rVkStruct, SString &rOutput); // get all goods from VK market
-	int Photos_SaveMarketPhoto(const VkStruct &rVkStruct, const SString &rPhoto, const SString &rServer, const SString &rHash, const SString &rCropData, const SString &rCropHash, SString &rOutput);
-	int Photos_SaveWallPhoto(const VkStruct &rVkStruct, const SString &rPhoto, const SString &rServer, const SString &rHash, SString &rOutput);
-	int Wall_Post(const VkStruct &rVkStruct, const SString &rVkPhotoName, SString &rOutput);
-	int PhotoToReq(SString &rUrl, const SString &rImgPath, SString &rOutput, const char * rDataName);
-	int ParseUploadServer(SString &rJson, SString &rUploadOut);
-	int Photos_GetMarketUploadServer(const VkStruct &rVkStruct, const uint mainPhotoFlag, SString &rOutput);
-	int Photos_GetWallUploadServer(const VkStruct &rVkStruct, SString &rOutput);
-	int ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const;
+	VkInterface();
+	//
+	// Descr: Опции функции Setup()
+	//
+	enum {
+		sfInitStoreAttributes = 0x0001 // Инициализировать атрибуты доступа к интернет-магазину VK
+	};
+	int    Setup(PPID guaID, uint flags);
+	PPID   GetOuterWareIdentTagID() const;
+	//int    AddGoodToMarket(/*const VkStruct &rVkStruct,*/const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const double price, const double oldPrice, const PPID vkMarketItemID, SString & rOutput);
+	int    AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const SString & rImgPath, 
+		PPObjGoods::ExportToGlbSvcItem & rItem, PPID vkMarketItemID, SString & rOutput);
+	//int    WallPost(VkStruct & rVkStruct, SString & rOutput);
+	int    WallPost(const SString & rMessage, const SString & rLinkFilePath, SString & rOutput);
+	int    Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, const SString & rGoodsName, 
+		const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput);
+	int    Market_Edit(/*const VkStruct &rVkStruct,*/PPID goodsID, double goodsPrice, const SString &rGoodsName, 
+		const SString & rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput); //edit goods from market
+	int    Market_Get(/*const VkStruct &rVkStruct,*/SString & rOutput); // get all goods from VK market
+	int    Photos_SaveMarketPhoto(/*const VkStruct &rVkStruct,*/const SString & rImage, const SString & rServer, 
+		const SString & rHash, const SString & rCropData, const SString & rCropHash, SString & rOutput);
+	int    Photos_SaveWallPhoto(/*const VkStruct &rVkStruct,*/const SString & rPhoto, const SString & rServer, const SString & rHash, SString & rOutput);
+	int    Wall_Post(/*const VkStruct &rVkStruct,*/const SString & rMessage, const SString & rVkPhotoName, SString & rOutput);
+	int    PhotoToReq(SString &rUrl, const SString &rImgPath, SString &rOutput, const char * rDataName);
+	int    ParseUploadServer(SString &rJson, SString &rUploadOut);
+	int    Photos_GetMarketUploadServer(/*const VkStruct &rVkStruct,*/const uint mainPhotoFlag, SString & rOutput);
+	int    Photos_GetWallUploadServer(/*const VkStruct &rVkStruct,*/SString & rOutput);
+	int    ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const;
 
 	enum {
 		usrScopeNotify   = 0x00000001,
@@ -54421,7 +54520,7 @@ public:
 		usrScopeNONE1    = 0x00000020,
 		usrScopeStories  = 0x00000040,
 		usrScopePages    = 0x00000080,
-		usrScopeAddLink  = 0x00000100,    //ХЗ что это
+		usrScopeAddLink  = 0x00000100,    // ХЗ что это
 		usrScopeNONE2    = 0x00000200,
 		usrScopeStatus   = 0x00000400,
 		usrScopeNotes    = 0x00000800,
@@ -54447,9 +54546,9 @@ public:
 		commScopeDocs      = 0x00020000,
 		commScopeManage    = 0x00040000,
 	};
-
 private:
-	int GetRequest(const SString &rUrl, SString &rOutput, int mflags);
+	int    GetRequest(const SString & rUrl, SString & rOutput, int mflags);
+	InitBlock Ib;
 };
 // } @erik
 

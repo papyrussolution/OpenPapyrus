@@ -208,7 +208,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    b->init = 1;
 #if BIO_FLAGS_UPLINK!=0
 #if defined(__MINGW32__) && defined(__MSVCRT__) && !defined(_IOB_ENTRIES)
-#   define _IOB_ENTRIES 20
+#define _IOB_ENTRIES 20
 #endif
 		    /* Safety net to catch purely internal BIO_set_fp calls */
 #if defined(_MSC_VER) && _MSC_VER>=1900

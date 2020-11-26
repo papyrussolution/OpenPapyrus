@@ -59,7 +59,7 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField, int
 			SetupBaseSTypeCombo(this, CTLSEL_FLDCORR_OUTERTYPE, Data.T.Typ);
 			setCtrlString(CTL_FLDCORR_OUTERFLD, (temp_buf = Data.Name).Transf(CTRANSF_OUTER_TO_INNER));
 			setCtrlData(CTL_FLDCORR_USEOUTERF, &use_outer_formula);
-			setCtrlString(CTL_FLDCORR_OUTERFORMULA, Data.OuterFormula);
+			setCtrlString(CTL_FLDCORR_OUTERFORMULA, (Data.OuterFormula).Transf(CTRANSF_OUTER_TO_INNER));  //Cвоими кривыми руками этот код трогал Сева.
 			setupOuterLen();
 			return 1;
 		}
@@ -87,7 +87,8 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField, int
 			Data.OuterFormat = MKSFMTD(sz, prec, 0);
 			ushort use_outer_formula = getCtrlUInt16(CTL_FLDCORR_USEOUTERF);
 			if(use_outer_formula) {
-				getCtrlString(CTL_FLDCORR_OUTERFORMULA, Data.OuterFormula);
+				getCtrlString(CTL_FLDCORR_OUTERFORMULA, temp_buf);
+				Data.OuterFormula = temp_buf.Transf(CTRANSF_INNER_TO_OUTER); //Cвоими кривыми руками это условие трогал Сева.
 			}
 			else
 				Data.OuterFormula.Z();
@@ -1050,7 +1051,7 @@ enum {
 		GlobalUserName = rHdr.OwnerSymb;
 	}
 	THROW_SL(pSCtx->Serialize(dir, DataFormat, rTail));
-	THROW_SL(pSCtx->Serialize(dir, BaseFlags, rTail)); // @v8.4.6
+	THROW_SL(pSCtx->Serialize(dir, BaseFlags, rTail));
 	if(DataFormat == dfText) {
 		THROW_SL(TdfParam.Serialize(dir, rTail, pSCtx));
 	}
@@ -1188,6 +1189,17 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 				THROW(pFile->AppendParam(pSect, symb_buf, "ansi", 1));
 			}
 		}
+		// @v10.9.4 {
+		else if(DataFormat == dfDbf) {
+			THROW(tsl_par.Retranslate(iefCodepage, symb_buf));
+			if(TdfParam.Flags & TextDbFile::fCpOem) {
+				THROW(pFile->AppendParam(pSect, symb_buf, "oem", 1));
+			}
+			else {
+				THROW(pFile->AppendParam(pSect, symb_buf, "ansi", 1));
+			}			
+		}
+		// } @v10.9.4 
 		// } @v10.9.3 
 		// @v10.9.3 THROW(tsl_par.Retranslate(iefOemText, symb_buf));
 		// @v10.9.3 THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(TdfParam.Flags & TextDbFile::fCpOem)));
@@ -2216,11 +2228,14 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 		SString temp_buf, reg_type_symb;
 		SString temp_fld_name;
 		SdbField temp_fld;
+		char   dest_str_buf[1024];
 		PPSymbTranslator st(PPSSYM_IMPEXPFORMULA);
-		(temp_buf = pFormula).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12
-		for(SStrScan scan(temp_buf); *scan != 0;) {
+		// @v10.9.4 (temp_buf = pFormula);// .Transf(CTRANSF_OUTER_TO_INNER); // @v10.3.12
+		SString input_buf(pFormula); // @v10.9.4 
+		SStrScan scan(input_buf);
+		while(*scan != 0) {
 			if(scan.GetQuotedString(temp_buf)) {
-				rResult.Cat(temp_buf);
+				rResult.Cat(temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
 			}
 			else {
 				char cc = scan[0];
@@ -2261,7 +2276,6 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 												fmt = MKSFMT(0, DATF_DMY|DATF_CENTURY);
 											else if(GETSTYPE(temp_fld.T.Typ) == S_FLOAT)
 												fmt = SFMT_MONEY;
-											char  dest_str_buf[512];
 											stcast(temp_fld.T.Typ, MKSTYPE(S_ZSTRING, 256), p_outer_fld_buf, dest_str_buf, fmt);
 											temp_buf = dest_str_buf;
 										}
@@ -2269,7 +2283,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 									// } @v10.9.1 
                                     if(sym == iefrmCats && _count)
 										rResult.Space();
-                                    rResult.Cat(temp_buf);
+                                    rResult.Cat(temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
                                     _count++;
 								}
 							}
@@ -2388,7 +2402,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 				}
 			}
 		}
-		rResult.Transf(CTRANSF_OUTER_TO_INNER); // @v10.3.12
+		//rResult.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12
 	}
 	//CATCHZOK
 	/*if(inner_expr_ctx)

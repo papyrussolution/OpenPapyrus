@@ -220,7 +220,7 @@ static /*inline*/ GravityValue convert_list2string(gravity_vm * vm, gravity_list
 	uint32 pos = 1;
 	// loop to perform string concat
 	uint32 count = list->array.getCount();
-	for(uint32 i = 0; i<count; ++i) {
+	for(uint32 i = 0; i < count; ++i) {
 		GravityValue value = list->array.at(i);
 		gravity_string_t * string;
 		if(value.IsList() && static_cast<gravity_list_t *>(value) == list) {
@@ -1059,8 +1059,8 @@ static bool list_reverse(gravity_vm * vm, GravityValue * args, uint16 nargs, uin
 		return vm->ReturnError(rindex, "Incorrect number of arguments.");
 	GravityValue value = args[0];                      // self parameter
 	gravity_list_t * list = static_cast<gravity_list_t *>(value);
-	size_t count = list->array.getCount();
-	size_t i = 0;
+	const uint count = list->array.getCount();
+	uint i = 0;
 	while(i < count/2) {
 		GravityValue tmp = list->array.at(count-i-1);
 		//marray_set(list->array, count-i-1,  list->array.at(i));
@@ -1079,8 +1079,8 @@ static bool list_reversed(gravity_vm * vm, GravityValue * args, uint16 nargs, ui
 	// self parameter
 	gravity_list_t * list = static_cast<gravity_list_t *>(args[0]);
 	gravity_list_t * newlist = gravity_list_new(vm, (uint32)list->array.n);
-	size_t count = list->array.getCount();
-	size_t i = 0;
+	const uint count = list->array.getCount();
+	uint i = 0;
 	while(i < count) {
 		newlist->array.insert(list->array.at(count-i-1));
 		++i;
@@ -1336,7 +1336,7 @@ static bool list_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32
 	gravity_list_t * list = gravity_list_new(vm, n);
 	if(!list) 
 		return gravity_return_errorv(vm, rindex, "Maximum List allocation size reached (%d).", MAX_ALLOCATION);
-	for(uint32 i = 0; i<n; ++i) {
+	for(uint32 i = 0; i < n; ++i) {
 		list->array.insert(GravityValue::from_null());
 	}
 	return vm->ReturnValue(GravityValue::from_object(reinterpret_cast<gravity_class_t *>(list)), rindex);
@@ -2702,7 +2702,7 @@ static bool string_raw(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 	gravity_string_t * string = static_cast<gravity_string_t *>(args[0]);
 	uint32 ascii = 0;
 	uint32 n = utf8_charbytes(string->cptr(), 0);
-	for(uint32 i = 0; i<n; ++i) {
+	for(uint32 i = 0; i < n; ++i) {
 		// if (n > 1) {printf("%u (%d)\n", (uint8_t)string->s[i], (uint32)pow(10, n-(i+1)));}
 		ascii += (uint32)((uint8_t)string->cptr()[i] * pow(10, n - (i + 1)));
 	}

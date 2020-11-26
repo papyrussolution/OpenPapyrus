@@ -1632,11 +1632,7 @@ void GoodsDialog::printInfoLabel()
 			PPError();
 }
 
-/*
-void GoodsDialog::setupWrOffGrpButton()
-{
-}
-*/
+//void GoodsDialog::setupWrOffGrpButton() {}
 //
 //
 //
@@ -3673,3 +3669,141 @@ void GoodsFiltDialog::SetupCtrls()
 }
 
 int GoodsFilterDialog(GoodsFilt * pFilt) { DIALOG_PROC_BODY(GoodsFiltDialog, pFilt); }
+//
+//
+//
+class ExportGoodsToGlbSvcDialog : public TDialog {
+	DECL_DIALOG_DATA(PPObjGoods::ExportToGlbSvcParam);
+public:
+	explicit ExportGoodsToGlbSvcDialog(/*PPViewGoods * pView*/) : TDialog(DLG_UHTTEXPGOODS)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		int    ok = 1;
+		AddClusterAssoc(CTL_UHTTEXPGOODS_GS, 0, PPGLS_UNIVERSEHTT);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_GS, 1, PPGLS_VK);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_GS, 2, PPGLS_UDS);
+		SetClusterData(CTL_UHTTEXPGOODS_GS, Data.GlobalService);
+		SetupPPObjCombo(this, CTLSEL_UHTTEXPGOODS_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.GlobalService));
+		AddClusterAssoc(CTL_UHTTEXPGOODS_CO, 0, DlgDataType::coGoodsGrpName);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_CO, 1, DlgDataType::coTag);
+		SetClusterData(CTL_UHTTEXPGOODS_CO, Data.CategoryObject);
+		ObjTagFilt tag_filt(PPOBJ_GOODS);
+		SetupObjTagCombo(this, CTLSEL_UHTTEXPGOODS_COT, Data.CategoryTagID, 0, &tag_filt);
+		disableCtrl(CTLSEL_UHTTEXPGOODS_COT, (Data.CategoryObject != DlgDataType::coTag));
+		AddClusterAssoc(CTL_UHTTEXPGOODS_FLAGS, 0, DlgDataType::fExportPrice);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_FLAGS, 1, DlgDataType::fExportRest);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_FLAGS, 2, DlgDataType::fOnlyUnassocItems);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_FLAGS, 3, DlgDataType::fBlockAbsenceItems);
+		SetClusterData(CTL_UHTTEXPGOODS_FLAGS, Data.Flags);
+
+		AddClusterAssoc(CTL_UHTTEXPGOODS_DEXT, 0, GDSEXSTR_A);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_DEXT, 1, GDSEXSTR_B);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_DEXT, 2, GDSEXSTR_C);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_DEXT, 3, GDSEXSTR_D);
+		AddClusterAssoc(CTL_UHTTEXPGOODS_DEXT, 4, GDSEXSTR_E);
+		SetClusterData(CTL_UHTTEXPGOODS_DEXT, Data.DescrExtStrId);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		GetClusterData(CTL_UHTTEXPGOODS_GS, &Data.GlobalService);
+		getCtrlData(CTLSEL_UHTTEXPGOODS_GUA, &Data.GuaID);
+        GetClusterData(CTL_UHTTEXPGOODS_CO, &Data.CategoryObject);
+        if(Data.CategoryObject == DlgDataType::coTag) {
+            getCtrlData(sel = CTLSEL_UHTTEXPGOODS_COT, &Data.CategoryTagID);
+            THROW_PP(Data.CategoryTagID, PPERR_TAGNEEDED);
+        }
+        else
+			Data.CategoryTagID = 0;
+		GetClusterData(CTL_UHTTEXPGOODS_FLAGS, &Data.Flags);
+		GetClusterData(CTL_UHTTEXPGOODS_DEXT, &Data.DescrExtStrId);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmCountUhttRefs)) {
+			GetUhttRef();
+		}
+		else if(event.isClusterClk(CTL_UHTTEXPGOODS_CO)) {
+			GetClusterData(CTL_UHTTEXPGOODS_CO, &Data.CategoryObject);
+			disableCtrl(CTLSEL_UHTTEXPGOODS_COT, (Data.CategoryObject != PPObjGoods::ExportToGlbSvcParam::coTag));
+		}
+		else if(event.isClusterClk(CTL_UHTTEXPGOODS_GS)) {
+			const long preserve_global_service = Data.GlobalService;
+			GetClusterData(CTL_UHTTEXPGOODS_GS, &Data.GlobalService);
+			if(Data.GlobalService != preserve_global_service) {
+				Data.GuaID = 0;
+				SetupPPObjCombo(this, CTLSEL_UHTTEXPGOODS_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.GlobalService));
+			}
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	int GetUhttRef()
+	{
+		int    ok = -1;
+		/*
+		int    r;
+		SString msg_buf, fmt_buf;
+		if(P_View) {
+			GoodsViewItem item;
+			LongArray uniq_id_list;
+			LAssocArray list;
+			StrAssocArray code_ref_list;
+			PPWait(1);
+			for(P_View->InitIteration(P_View->OrdByDefault); P_View->NextIteration(&item) > 0;) {
+				uniq_id_list.add(item.ID);
+			}
+			uniq_id_list.sortAndUndup();
+			if(uniq_id_list.getCount()) {
+				PPUhttClient uc;
+				for(uint i = 0; i < uniq_id_list.getCount(); i++) {
+					list.Add(uniq_id_list.get(i), 0, 0);
+				}
+				THROW(uc.Auth());
+				THROW(r = uc.GetUhttGoodsRefList(list, &code_ref_list));
+				list.Sort();
+				{
+					uint ref_count = 0;
+					for(uint i = 0; i < list.getCount(); i++) {
+						const PPID goods_id = list.at(i).Key;
+						const PPID uhtt_id = list.at(i).Val;
+						if(uhtt_id && (!i || list.at(i-1).Key != goods_id))
+							ref_count++;
+					}
+					PPFormatT(PPTXT_UHTTEXPGOODS_REFS, &msg_buf, uniq_id_list.getCountI(), static_cast<long>(ref_count));
+					setStaticText(CTL_UHTTEXPGOODS_INFO, msg_buf);
+					ok = 1;
+				}
+			}
+			else {
+				PPLoadText(PPTXT_UHTTEXPGOODS_EMPTY, msg_buf);
+				setStaticText(CTL_UHTTEXPGOODS_INFO, msg_buf);
+			}
+		}
+		CATCH
+			PPGetLastErrorMessage(1, msg_buf);
+			setStaticText(CTL_UHTTEXPGOODS_INFO, msg_buf);
+			ok = 0;
+		ENDCATCH
+		PPWait(0);
+		*/
+		return ok;
+	}
+	//PPViewGoods * P_View; // @notowned
+};
+
+int PPObjGoods::EditExportToGlbSvcParam(ExportToGlbSvcParam * pData)
+{
+	DIALOG_PROC_BODY(ExportGoodsToGlbSvcDialog, pData);
+}

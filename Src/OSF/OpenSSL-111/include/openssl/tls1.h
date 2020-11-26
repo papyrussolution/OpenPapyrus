@@ -335,21 +335,21 @@ __owur int SSL_check_chain(SSL *s, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain)
         SSL_ctrl(ssl,SSL_CTRL_SET_DTLS_EXT_HEARTBEAT_NO_REQUESTS,arg,NULL)
 
 #if OPENSSL_API_COMPAT < 0x10100000L
-#   define SSL_CTRL_TLS_EXT_SEND_HEARTBEAT \
+#define SSL_CTRL_TLS_EXT_SEND_HEARTBEAT \
         SSL_CTRL_DTLS_EXT_SEND_HEARTBEAT
-#   define SSL_CTRL_GET_TLS_EXT_HEARTBEAT_PENDING \
+#define SSL_CTRL_GET_TLS_EXT_HEARTBEAT_PENDING \
         SSL_CTRL_GET_DTLS_EXT_HEARTBEAT_PENDING
-#   define SSL_CTRL_SET_TLS_EXT_HEARTBEAT_NO_REQUESTS \
+#define SSL_CTRL_SET_TLS_EXT_HEARTBEAT_NO_REQUESTS \
         SSL_CTRL_SET_DTLS_EXT_HEARTBEAT_NO_REQUESTS
-#   define SSL_TLSEXT_HB_ENABLED \
+#define SSL_TLSEXT_HB_ENABLED \
         SSL_DTLSEXT_HB_ENABLED
-#   define SSL_TLSEXT_HB_DONT_SEND_REQUESTS \
+#define SSL_TLSEXT_HB_DONT_SEND_REQUESTS \
         SSL_DTLSEXT_HB_DONT_SEND_REQUESTS
-#   define SSL_TLSEXT_HB_DONT_RECV_REQUESTS \
+#define SSL_TLSEXT_HB_DONT_RECV_REQUESTS \
         SSL_DTLSEXT_HB_DONT_RECV_REQUESTS
-#   define SSL_get_tlsext_heartbeat_pending(ssl) \
+#define SSL_get_tlsext_heartbeat_pending(ssl) \
         SSL_get_dtlsext_heartbeat_pending(ssl)
-#   define SSL_set_tlsext_heartbeat_no_requests(ssl, arg) \
+#define SSL_set_tlsext_heartbeat_no_requests(ssl, arg) \
         SSL_set_dtlsext_heartbeat_no_requests(ssl,arg)
 #endif
 #endif

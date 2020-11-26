@@ -235,7 +235,7 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_ACTWRITEOFF_V3:
 		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP:
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
-		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: 
+		case PPEDIOP_EGAIS_TRANSFERFROMSHOP:
 		case PPEDIOP_EGAIS_ACTFIXBARCODE: // @v10.9.0
 		case PPEDIOP_EGAIS_ACTUNFIXBARCODE: // @v10.9.0
 			P_Data = new PPBillPacket; break;
@@ -282,7 +282,7 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_ACTWRITEOFF_V3:
 		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP:
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
-		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: 
+		case PPEDIOP_EGAIS_TRANSFERFROMSHOP:
 		case PPEDIOP_EGAIS_ACTFIXBARCODE: // @v10.9.0
 		case PPEDIOP_EGAIS_ACTUNFIXBARCODE: // @v10.9.0
 			delete static_cast<PPBillPacket *>(P_Data); break;
@@ -875,7 +875,7 @@ int PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, con
 				edi_op_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3,
 					PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFF,
 					PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
-					PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, 
+					PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3,
 					PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE, 0); // @v10.9.1 PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE
 				{
 					Reference * p_ref = PPRef;
@@ -1200,8 +1200,8 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_QUERYRESENDDOC,   "QueryResendDoc" }, // @v10.2.12
 	{ PPEDIOP_EGAIS_QUERYRESTBCODE,   "QueryRestBCode" }, // @v10.5.6
 	{ PPEDIOP_EGAIS_REPLYRESTBCODE,   "ReplyRestBCode" }, // @v10.5.8
-	{ PPEDIOP_EGAIS_ACTFIXBARCODE,    "ActFixBarCode"  }, // @v10.9.0 
-	{ PPEDIOP_EGAIS_ACTUNFIXBARCODE,  "ActUnFixBarCode" } // @v10.9.0 
+	{ PPEDIOP_EGAIS_ACTFIXBARCODE,    "ActFixBarCode"  }, // @v10.9.0
+	{ PPEDIOP_EGAIS_ACTUNFIXBARCODE,  "ActUnFixBarCode" } // @v10.9.0
 };
 
 /*static*/int FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType, SString & rTag)
@@ -2026,7 +2026,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						case 10: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "iab"
 						case 11: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "wt"
 						case 12: skip = BIN(doc_type != PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
-						case 13: skip = BIN(oneof5(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTWRITEOFF_V2, 
+						case 13: skip = BIN(oneof5(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTWRITEOFF_V2,
 							PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "awr"
 						case 14: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "qf"
 						case 15: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "bk"
@@ -2558,8 +2558,11 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									else if(is_uncond_accept) {
 										LogTextWithAddendum(PPTXT_EGAIS_BILLUNCNDACCEPTED, bill_text);
 										cmp_result = 0;
+										/* @v10.9.4
 										// @v10.8.10 recadv_status = PPEDI_RECADV_STATUS_ACCEPT;
-										recadv_status = PPEDI_RECADV_STATUS_UNDEF; // @v10.8.10 (экспериментально оставляем статус UNDEF - есть вероятность, что так правильнее) 
+										recadv_status = PPEDI_RECADV_STATUS_UNDEF; // @v10.8.10 (экспериментально оставляем статус UNDEF - есть вероятность, что так правильнее)
+										*/
+										recadv_status = PPEDI_RECADV_STATUS_ACCEPT; // @v10.9.4 Вернули все назад
 									}
 									else if(all_absent) {
 										LogTextWithAddendum(PPTXT_EGAIS_BILLFULLYREJECTED, bill_text);
@@ -2645,7 +2648,12 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 													}
 													{
 														SXml::WNode n_pos(_doc, SXml::nst("wa", "Position"));
-														temp_buf.Z().Cat(r_ti.RByBill);
+														// @v10.9.4 temp_buf.Z().Cat(r_ti.RByBill);
+														// @v10.9.4 {
+														if(p_bp->LTagL.GetTagStr(bi, PPTAG_LOT_ORGLINEIDENT, temp_buf) <= 0) {
+															temp_buf.Z().Cat(r_ti.RByBill);
+														}
+														// } @v10.9.4 
 														n_pos.PutInner(SXml::nst("wa", "Identity"), EncText(temp_buf));
 														//
 														p_bp->LTagL.GetTagStr(bi, PPTAG_LOT_FSRARINFB, temp_buf);
@@ -3144,7 +3152,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						}
 					}
 					// @v10.9.0 {
-					else if(doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE) { 
+					else if(doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE) {
 						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						n_dt.PutInner(SXml::nst("awr", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
@@ -3172,7 +3180,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 												if(ext_codes_set.GetByIdx(markidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
 													n_mci.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
 												}
-											}											
+											}
 										}
 									}
 								}
@@ -3182,7 +3190,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 					else if(doc_type == PPEDIOP_EGAIS_ACTUNFIXBARCODE) {
 						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 					}
-					// } @v10.9.0 
+					// } @v10.9.0
 					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALWB) {
 						const RepealWb * p_rwb = static_cast<const RepealWb *>(rPack.P_Data);
 						/*
@@ -7673,7 +7681,7 @@ int PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP
 		// @v10.9.0 {
 		if(flags & bilstfFixBarcode)
 			base_op_list.add(PPOPK_EDI_CHARGEONWITHMARKS);
-		// } @v10.9.0 
+		// } @v10.9.0
 		if(flags & bilstfLosses) {
 			base_op_list.add(Cfg.ExpndEtcOpID);
 			if(flags & bilstfV3)
@@ -8519,7 +8527,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 						}
 					}
 				}
-				else { // } @v10.9.1 
+				else { // } @v10.9.1
 					BExtQuery q(&P_RefC->RaC, 1);
 					EgaisRefATbl::Key1 k1;
 					MEMSZERO(k1);

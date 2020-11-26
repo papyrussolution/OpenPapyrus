@@ -430,7 +430,7 @@ int TreeWindow::TranslateKeyCode(ushort keyCode, uint * pCmd) const
 	return (P_Toolbar) ? P_Toolbar->TranslateKeyCode(keyCode, pCmd) : 0;
 }
 
-void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
+void TreeWindow::SetupCmdList(HMENU hMenu, void * hP) // @v10.9.4 HTREEITEM-->(void *)
 {
 	HTREEITEM hti;
 	SString temp_buf;
@@ -450,7 +450,7 @@ void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
 		GetMenuItemInfo(hMenu, i, TRUE, &mii); // @unicodeproblem
 		if(menu_name_buf[0] != 0) {
 			TVINSERTSTRUCT is;
-			is.hParent = hP;
+			is.hParent = static_cast<HTREEITEM>(hP);
 			is.hInsertAfter = TVI_LAST;
 			is.item.mask = TVIF_TEXT;
 			if(mii.hSubMenu) {

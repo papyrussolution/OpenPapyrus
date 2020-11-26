@@ -2584,10 +2584,10 @@ static int s390x_aes_ocb_ctrl(EVP_CIPHER_CTX *, int type, int arg, void * ptr);
 #include "arm_arch.h"
 #if __ARM_MAX_ARCH__>=7
 #if defined(BSAES_ASM)
-#   define BSAES_CAPABLE (OPENSSL_armcap_P & ARMV7_NEON)
+#define BSAES_CAPABLE (OPENSSL_armcap_P & ARMV7_NEON)
 #endif
 #if defined(VPAES_ASM)
-#   define VPAES_CAPABLE (OPENSSL_armcap_P & ARMV7_NEON)
+#define VPAES_CAPABLE (OPENSSL_armcap_P & ARMV7_NEON)
 #endif
 #define HWAES_CAPABLE (OPENSSL_armcap_P & ARMV8_AES)
 #define HWAES_set_encrypt_key aes_v8_set_encrypt_key
