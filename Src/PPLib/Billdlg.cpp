@@ -96,10 +96,10 @@ int AccTurnDialog::setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long te
 	ca_rec.CRateDate = Data.Date;
 	setGroupData(GRP_CURAMT, &ca_rec);
 	setupCurrencyCombo();
-	disableCtrl(CTL_ATURN_DACC, (int)(templFlags & ATTF_DACCFIX));
-	disableCtrl(CTL_ATURN_DART, (int)(templFlags & ATTF_DARTFIX));
-	disableCtrl(CTL_ATURN_CACC, (int)(templFlags & ATTF_CACCFIX));
-	disableCtrl(CTL_ATURN_CART, (int)(templFlags & ATTF_CARTFIX));
+	disableCtrl(CTL_ATURN_DACC, BIN(templFlags & ATTF_DACCFIX));
+	disableCtrl(CTL_ATURN_DART, BIN(templFlags & ATTF_DARTFIX));
+	disableCtrl(CTL_ATURN_CACC, BIN(templFlags & ATTF_CACCFIX));
+	disableCtrl(CTL_ATURN_CART, BIN(templFlags & ATTF_CARTFIX));
 	disableCtrl(CTL_ATURN_BASEAMT, 1);
 	if(Data.Flags & PPAF_OUTBAL) {
 		ushort v = 0;

@@ -3119,18 +3119,12 @@ int PPBillImporter::Import(int useTa)
 												psn_pack.Kinds.add(alc_manuf_kind_id);
 												{
 													RegisterTbl::Rec reg_rec;
-                                                	// @ctr MEMSZERO(reg_rec);
-                                                	reg_rec.ObjType = PPOBJ_PERSON;
-                                                	reg_rec.RegTypeID = PPREGT_TPID;
-                                                	STRNSCPY(reg_rec.Num, r_row.ManufINN);
+													PPObjRegister::InitPacket(&reg_rec, PPREGT_TPID, PPObjID(PPOBJ_PERSON, 0), r_row.ManufINN);
 													psn_pack.Regs.insert(&reg_rec);
 												}
 												if(r_row.ManufKPP[0]) {
 													RegisterTbl::Rec reg_rec;
-                                                	// @ctr MEMSZERO(reg_rec);
-                                                	reg_rec.ObjType = PPOBJ_PERSON;
-													reg_rec.RegTypeID = PPREGT_KPP;
-                                                	STRNSCPY(reg_rec.Num, r_row.ManufKPP);
+													PPObjRegister::InitPacket(&reg_rec, PPREGT_KPP, PPObjID(PPOBJ_PERSON, 0), r_row.ManufKPP);
 													psn_pack.Regs.insert(&reg_rec);
 												}
 												THROW(PsnObj.PutPacket(&manuf_id, &psn_pack, 0));

@@ -2234,7 +2234,7 @@ class VkGuaCfgDialog : public TDialog {
 	//DECL_DIALOG_DATA(VkStruct);
 	DECL_DIALOG_DATA(VkInterface::InitBlock);
 public:
-	VkGuaCfgDialog(): TDialog(DLG_VKGUACFG)
+	VkGuaCfgDialog() : TDialog(DLG_VKGUACFG)
 	{
 	}
 	DECL_DIALOG_SETDTS()
@@ -2260,7 +2260,7 @@ private:
 	{
 		TDialog::handleEvent(event);
 		SString temp_buf;
-		if(event.isCmd(cmGetTokenVk)) {
+		if(event.isCmd(cmQueryToken)) {
 			VkInterface::GetVKAccessToken();
 		}
 		else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_VKGUACFG_LOGIN_URL)) {
@@ -2418,9 +2418,9 @@ private:
 							}
 							if(change_flag > 0)
 								ref.Ot.GetList(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &Data.TagL);
-							delete dlg;
 						}
 					}
+					delete dlg;
 				}
 				break;
 			case PPGLS_VETIS:

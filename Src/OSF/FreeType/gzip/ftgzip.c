@@ -1,32 +1,33 @@
-/***************************************************************************/
-/*                                                                         */
-/*  ftgzip.c                                                               */
-/*                                                                         */
-/*    FreeType support for .gz compressed files.                           */
-/*                                                                         */
-/*  This optional component relies on zlib.  It should mainly be used to   */
-/*  parse compressed PCF fonts, as found with many X11 server              */
-/*  distributions.                                                         */
-/*                                                                         */
-/*  Copyright 2002-2017 by                                                 */
-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
-/*                                                                         */
-/*  This file is part of the FreeType project, and may only be used,       */
-/*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
-/***************************************************************************/
+/****************************************************************************
+ *
+ * ftgzip.c
+ *
+ *   FreeType support for .gz compressed files.
+ *
+ * This optional component relies on zlib.  It should mainly be used to
+ * parse compressed PCF fonts, as found with many X11 server
+ * distributions.
+ *
+ * Copyright (C) 2002-2020 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
 #define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
-#include FT_INTERNAL_MEMORY_H
-#include FT_INTERNAL_STREAM_H
-#include FT_INTERNAL_DEBUG_H
-#include FT_GZIP_H
+
+#include <freetype/internal/ftmemory.h>
+#include <freetype/internal/ftstream.h>
+#include <freetype/internal/ftdebug.h>
+#include <freetype/ftgzip.h>
 #include FT_CONFIG_STANDARD_LIBRARY_H
-#include FT_MODULE_ERRORS_H
+#include <freetype/ftmoderr.h>
 
 #undef FTERRORS_H_
 
@@ -34,13 +35,9 @@
 #define FT_ERR_PREFIX  Gzip_Err_
 #define FT_ERR_BASE    FT_Mod_Err_Gzip
 
-#include FT_ERRORS_H
+#include <freetype/fterrors.h>
 
 #ifdef FT_CONFIG_OPTION_USE_ZLIB
-
-#ifdef FT_CONFIG_OPTION_PIC
-#error "gzip code does not support PIC yet"
-#endif
 
 #ifdef FT_CONFIG_OPTION_SYSTEM_ZLIB
 
@@ -121,16 +118,20 @@
 /* it is better to use FreeType memory routines instead of raw
    'malloc/free' */
 
-static voidpf ft_gzip_alloc(FT_Memory memory, uInt items, uInt size)
+static voidpf ft_gzip_alloc(FT_Memory memory,
+    uInt items,
+    uInt size)
 {
 	FT_ULong sz = (FT_ULong)size * items;
 	FT_Error error;
 	FT_Pointer p  = NULL;
+
 	(void)FT_ALLOC(p, sz);
 	return p;
 }
 
-static void ft_gzip_free(FT_Memory memory, voidpf address)
+static void ft_gzip_free(FT_Memory memory,
+    voidpf address)
 {
 	FT_MEM_FREE(address);
 }
@@ -219,7 +220,7 @@ static FT_Error ft_gzip_check_header(FT_Stream stream)
 
 	/* skip original file name */
 	if(head[3] & FT_GZIP_ORIG_NAME)
-		for(;; ) {
+		for(;;) {
 			FT_UInt c;
 
 			if(FT_READ_BYTE(c) )
@@ -231,7 +232,7 @@ static FT_Error ft_gzip_check_header(FT_Stream stream)
 
 	/* skip .gz comment */
 	if(head[3] & FT_GZIP_COMMENT)
-		for(;; ) {
+		for(;;) {
 			FT_UInt c;
 
 			if(FT_READ_BYTE(c) )
@@ -343,13 +344,13 @@ static FT_Error ft_gzip_file_fill_input(FT_GZipFile zip)
 
 	if(stream->read) {
 		size = stream->read(stream, stream->pos, zip->input,
-		    FT_GZIP_BUFFER_SIZE);
+			FT_GZIP_BUFFER_SIZE);
 		if(size == 0) {
 			zip->limit = zip->cursor;
 			return FT_THROW(Invalid_Stream_Operation);
 		}
 	}
-	else {
+	else{
 		size = stream->size - stream->pos;
 		if(size > FT_GZIP_BUFFER_SIZE)
 			size = FT_GZIP_BUFFER_SIZE;
@@ -412,7 +413,7 @@ static FT_Error ft_gzip_file_skip_output(FT_GZipFile zip,
 	FT_Error error = FT_Err_Ok;
 	FT_ULong delta;
 
-	for(;; ) {
+	for(;;) {
 		delta = (FT_ULong)( zip->limit - zip->cursor );
 		if(delta >= count)
 			delta = count;
@@ -459,7 +460,7 @@ static FT_ULong ft_gzip_file_io(FT_GZipFile zip,
 		goto Exit;
 
 	/* now read the data */
-	for(;; ) {
+	for(;;) {
 		FT_ULong delta;
 
 		delta = (FT_ULong)( zip->limit - zip->cursor );
@@ -541,24 +542,19 @@ static FT_ULong ft_gzip_get_uncompressed_size(FT_Stream stream)
 
 /* documentation is in ftgzip.h */
 
-FT_EXPORT_DEF(FT_Error)
-FT_Stream_OpenGzip(FT_Stream stream,
-    FT_Stream source)
+FT_EXPORT_DEF(FT_Error) FT_Stream_OpenGzip(FT_Stream stream, FT_Stream source)
 {
 	FT_Error error;
 	FT_Memory memory;
 	FT_GZipFile zip = NULL;
-
 	if(!stream || !source) {
 		error = FT_THROW(Invalid_Stream_Handle);
 		goto Exit;
 	}
-
 	memory = source->memory;
-
 	/*
-	 *  check the header right now; this prevents allocating un-necessary
-	 *  objects when we don't need them
+	 * check the header right now; this prevents allocating un-necessary
+	 * objects when we don't need them
 	 */
 	error = ft_gzip_check_header(source);
 	if(error)
@@ -578,12 +574,12 @@ FT_Stream_OpenGzip(FT_Stream stream,
 	}
 
 	/*
-	 *  We use the following trick to try to dramatically improve the
-	 *  performance while dealing with small files.  If the original stream
-	 *  size is less than a certain threshold, we try to load the whole font
-	 *  file into memory.  This saves us from using the 32KB buffer needed
-	 *  to inflate the file, plus the two 4KB intermediate input/output
-	 *  buffers used in the `FT_GZipFile' structure.
+	 * We use the following trick to try to dramatically improve the
+	 * performance while dealing with small files.  If the original stream
+	 * size is less than a certain threshold, we try to load the whole font
+	 * file into memory.  This saves us from using the 32KB buffer needed
+	 * to inflate the file, plus the two 4KB intermediate input/output
+	 * buffers used in the `FT_GZipFile' structure.
 	 */
 	{
 		FT_ULong zip_size = ft_gzip_get_uncompressed_size(source);
@@ -619,7 +615,7 @@ FT_Stream_OpenGzip(FT_Stream stream,
 		if(zip_size)
 			stream->size = zip_size;
 		else
-			stream->size  = 0x7FFFFFFFL;  /* don't know the real size! */
+			stream->size  = 0x7FFFFFFFL;/* don't know the real size! */
 	}
 
 	stream->pos   = 0;
@@ -633,34 +629,32 @@ Exit:
 
 /* documentation is in ftgzip.h */
 
-FT_EXPORT_DEF(FT_Error)
-FT_Gzip_Uncompress(FT_Memory memory,
-    FT_Byte*        output,
-    FT_ULong*       output_len,
-    const FT_Byte*  input,
-    FT_ULong input_len)
+FT_EXPORT_DEF(FT_Error) FT_Gzip_Uncompress(FT_Memory memory, FT_Byte* output, FT_ULong*       output_len, const FT_Byte*  input, FT_ULong input_len)
 {
 	z_stream stream;
 	int err;
-
 	/* check for `input' delayed to `inflate' */
-
 	if(!memory || !output_len || !output)
 		return FT_THROW(Invalid_Argument);
-
 	/* this function is modeled after zlib's `uncompress' function */
-
 	stream.next_in  = (Bytef*)input;
 	stream.avail_in = (uInt)input_len;
-
 	stream.next_out  = output;
 	stream.avail_out = (uInt)*output_len;
-
 	stream.zalloc = (alloc_func)ft_gzip_alloc;
 	stream.zfree  = (free_func)ft_gzip_free;
 	stream.opaque = memory;
-
+	/* This is a temporary fix and will be removed once the internal
+	 * copy of zlib is updated to the newest version. The `|32' flag
+	 * is only supported in the new versions of zlib to enable gzip
+	 * encoded header.
+	 */
+#ifdef FT_CONFIG_OPTION_SYSTEM_ZLIB
+	err = inflateInit2(&stream, MAX_WBITS|32);
+#else
 	err = inflateInit2(&stream, MAX_WBITS);
+#endif
+
 	if(err != Z_OK)
 		return FT_THROW(Invalid_Argument);
 
@@ -670,49 +664,36 @@ FT_Gzip_Uncompress(FT_Memory memory,
 		if(err == Z_OK)
 			err = Z_BUF_ERROR;
 	}
-	else {
+	else{
 		*output_len = stream.total_out;
 
 		err = inflateEnd(&stream);
 	}
-
 	if(err == Z_MEM_ERROR)
 		return FT_THROW(Out_Of_Memory);
-
 	if(err == Z_BUF_ERROR)
 		return FT_THROW(Array_Too_Large);
-
 	if(err == Z_DATA_ERROR)
 		return FT_THROW(Invalid_Table);
-
 	return FT_Err_Ok;
 }
 
 #else /* !FT_CONFIG_OPTION_USE_ZLIB */
 
-FT_EXPORT_DEF(FT_Error)
-FT_Stream_OpenGzip(FT_Stream stream,
-    FT_Stream source)
+FT_EXPORT_DEF(FT_Error) FT_Stream_OpenGzip(FT_Stream stream, FT_Stream source)
 {
 	FT_UNUSED(stream);
 	FT_UNUSED(source);
-
 	return FT_THROW(Unimplemented_Feature);
 }
 
-FT_EXPORT_DEF(FT_Error)
-FT_Gzip_Uncompress(FT_Memory memory,
-    FT_Byte*        output,
-    FT_ULong*       output_len,
-    const FT_Byte*  input,
-    FT_ULong input_len)
+FT_EXPORT_DEF(FT_Error) FT_Gzip_Uncompress(FT_Memory memory, FT_Byte*        output, FT_ULong*       output_len, const FT_Byte*  input, FT_ULong input_len)
 {
 	FT_UNUSED(memory);
 	FT_UNUSED(output);
 	FT_UNUSED(output_len);
 	FT_UNUSED(input);
 	FT_UNUSED(input_len);
-
 	return FT_THROW(Unimplemented_Feature);
 }
 

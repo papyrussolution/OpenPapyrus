@@ -7,17 +7,19 @@
 
 TLP_IMPL(PPObjRegister, RegisterCore, P_Tbl);
 
-/*static*/int PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPID objType, PPID objID)
+/*static*/int PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPObjID oid, const char * pNumber)
 {
 	int    ok = 1;
 	if(pRec) {
 		memzero(pRec, sizeof(*pRec));
 		pRec->RegTypeID = regTypeID;
-		if(oneof2(objType, PPOBJ_PERSON, PPOBJ_LOCATION)) {
-			pRec->ObjType = objType;
-			pRec->ObjID = objID;
+		if(!isempty(pNumber))
+			STRNSCPY(pRec->Num, pNumber);
+		if(oneof2(oid.Obj, PPOBJ_PERSON, PPOBJ_LOCATION)) {
+			pRec->ObjType = oid.Obj;
+			pRec->ObjID = oid.Id;
 		}
-		else if(objType)
+		else if(oid.Obj)
 			ok = PPSetError(PPERR_INVREGISTERLINKOBJTYPE);
 	}
 	else
@@ -454,7 +456,7 @@ int PPObjRegister::Edit(PPID * pID, PPID objType, PPID objID, PPID regTypeID)
 		}
 	}
 	else {
-		PPObjRegister::InitPacket(&rec, regTypeID, objType, objID);
+		PPObjRegister::InitPacket(&rec, regTypeID, PPObjID(objType, objID), 0);
 		if(regTypeID)
 			rt_obj.GetCode(regTypeID, &counter, rec.Num, sizeof(rec.Num));
 		local_obj_type = (oneof2(rec.ObjType, PPOBJ_PERSON, PPOBJ_LOCATION)) ? rec.ObjType : PPOBJ_PERSON;
@@ -569,17 +571,14 @@ private:
 	}
 	int Helper_EditItem(RegisterTbl::Rec & rRec)
 	{
-		if(P_LocPack)
-			return RObj.EditDialog(&rRec, P_Data, P_LocPack);
-		else
-			return RObj.EditDialog(&rRec, P_Data, P_PsnPack);
+		return P_LocPack ? RObj.EditDialog(&rRec, P_Data, P_LocPack) : RObj.EditDialog(&rRec, P_Data, P_PsnPack);
 	}
 	virtual int addItem(long * pPos, long * pID)
 	{
 		int    ok = -1;
 		if(RObj.CheckRights(PPR_INS)) {
 			RegisterTbl::Rec rec;
-			PPObjRegister::InitPacket(&rec, 0, Oid.Obj, Oid.Id);
+			PPObjRegister::InitPacket(&rec, 0, Oid, 0);
 			rec.PsnEventID = EventID;
 			while(ok < 0 && Helper_EditItem(rec) > 0)
 				if(RObj.CheckUnique(rec.RegTypeID, P_Data))

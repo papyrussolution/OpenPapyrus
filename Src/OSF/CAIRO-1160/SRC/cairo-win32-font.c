@@ -1471,11 +1471,9 @@ CLEANUP_FONT:
 		_cairo_win32_scaled_font_done_unscaled_font(&scaled_font->base);
 	else
 		cairo_win32_scaled_font_done_font(&scaled_font->base);
-
 CLEANUP_PATH:
 	if(status != CAIRO_STATUS_SUCCESS)
 		_cairo_path_fixed_destroy(path);
-
 	return status;
 }
 
@@ -1800,36 +1798,29 @@ static boolint _cairo_scaled_font_is_win32(cairo_scaled_font_t * scaled_font)
  *
  * Since: 1.0
  **/
-cairo_status_t cairo_win32_scaled_font_select_font(cairo_scaled_font_t * scaled_font,
-    HDC hdc)
+cairo_status_t cairo_win32_scaled_font_select_font(cairo_scaled_font_t * scaled_font, HDC hdc)
 {
 	cairo_status_t status;
 	HFONT hfont;
 	HFONT old_hfont = NULL;
 	int old_mode;
-
 	if(!_cairo_scaled_font_is_win32(scaled_font)) {
 		return _cairo_error(CAIRO_STATUS_FONT_TYPE_MISMATCH);
 	}
-
 	if(scaled_font->status)
 		return scaled_font->status;
-
 	status = _win32_scaled_font_get_scaled_hfont((cairo_win32_scaled_font_t*)scaled_font, &hfont);
 	if(status)
 		return status;
-
 	old_hfont = (HFONT)SelectObject(hdc, hfont);
 	if(!old_hfont)
 		return _cairo_win32_print_gdi_error("cairo_win32_scaled_font_select_font:SelectObject");
-
 	old_mode = SetGraphicsMode(hdc, GM_ADVANCED);
 	if(!old_mode) {
 		status = _cairo_win32_print_gdi_error("cairo_win32_scaled_font_select_font:SetGraphicsMode");
 		SelectObject(hdc, old_hfont);
 		return status;
 	}
-
 	status = _win32_scaled_font_set_world_transform((cairo_win32_scaled_font_t*)scaled_font, hdc);
 	if(status) {
 		SetGraphicsMode(hdc, old_mode);
@@ -1856,7 +1847,6 @@ void cairo_win32_scaled_font_done_font(cairo_scaled_font_t * scaled_font)
 		_cairo_error_throw(CAIRO_STATUS_FONT_TYPE_MISMATCH);
 	}
 }
-
 /**
  * cairo_win32_scaled_font_get_metrics_factor:
  * @scaled_font: a scaled font from the Win32 font backend
@@ -1890,8 +1880,7 @@ double cairo_win32_scaled_font_get_metrics_factor(cairo_scaled_font_t * scaled_f
  *
  * Since: 1.4
  **/
-void cairo_win32_scaled_font_get_logical_to_device(cairo_scaled_font_t * scaled_font,
-    cairo_matrix_t * logical_to_device)
+void cairo_win32_scaled_font_get_logical_to_device(cairo_scaled_font_t * scaled_font, cairo_matrix_t * logical_to_device)
 {
 	cairo_win32_scaled_font_t * win_font = (cairo_win32_scaled_font_t*)scaled_font;
 	if(!_cairo_scaled_font_is_win32(scaled_font)) {
@@ -1912,8 +1901,7 @@ void cairo_win32_scaled_font_get_logical_to_device(cairo_scaled_font_t * scaled_
  *
  * Since: 1.4
  **/
-void cairo_win32_scaled_font_get_device_to_logical(cairo_scaled_font_t * scaled_font,
-    cairo_matrix_t * device_to_logical)
+void cairo_win32_scaled_font_get_device_to_logical(cairo_scaled_font_t * scaled_font, cairo_matrix_t * device_to_logical)
 {
 	cairo_win32_scaled_font_t * win_font = (cairo_win32_scaled_font_t*)scaled_font;
 	if(!_cairo_scaled_font_is_win32(scaled_font)) {

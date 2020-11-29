@@ -1,35 +1,32 @@
-/***************************************************************************/
-/*                                                                         */
-/*  ftcbasic.c                                                             */
-/*                                                                         */
-/*    The FreeType basic cache interface (body).                           */
-/*                                                                         */
-/*  Copyright 2003-2017 by                                                 */
-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
-/*                                                                         */
-/*  This file is part of the FreeType project, and may only be used,       */
-/*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
-/***************************************************************************/
-
-#include <ft2build.h>
-#include FT_INTERNAL_OBJECTS_H
-#include FT_INTERNAL_DEBUG_H
-#include FT_CACHE_H
+/****************************************************************************
+ *
+ * ftcbasic.c
+ *
+ *   The FreeType basic cache interface (body).
+ *
+ * Copyright (C) 2003-2020 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
+#include <freetype/internal/ftobjs.h>
+#include <freetype/internal/ftdebug.h>
+#include <freetype/ftcache.h>
 #include "ftcglyph.h"
 #include "ftcimage.h"
 #include "ftcsbits.h"
-
 #include "ftccback.h"
 #include "ftcerror.h"
 
-#define FT_COMPONENT  trace_cache
+#define FT_COMPONENT  cache
 
 /*
- *  Basic Families
+ * Basic Families
  *
  */
 typedef struct  FTC_BasicAttrRec_ {
@@ -37,11 +34,11 @@ typedef struct  FTC_BasicAttrRec_ {
 	FT_UInt load_flags;
 } FTC_BasicAttrRec, * FTC_BasicAttrs;
 
-#define FTC_BASIC_ATTR_COMPARE(a, b)				     \
+#define FTC_BASIC_ATTR_COMPARE(a, b)                                 \
 	FT_BOOL(FTC_SCALER_COMPARE(&(a)->scaler, &(b)->scaler) && \
 	    (a)->load_flags == (b)->load_flags)
 
-#define FTC_BASIC_ATTR_HASH(a)					   \
+#define FTC_BASIC_ATTR_HASH(a)                                     \
 	( FTC_SCALER_HASH(&(a)->scaler) + 31 * (a)->load_flags )
 
 typedef struct  FTC_BasicQueryRec_ {
@@ -80,43 +77,72 @@ FT_CALLBACK_DEF(FT_UInt) ftc_basic_family_get_count(FTC_Family ftcfamily, FTC_Ma
 	error = FTC_Manager_LookupFace(manager, family->attrs.scaler.face_id, &face);
 	if(error || !face)
 		return result;
-	if((FT_ULong)face->num_glyphs > FT_UINT_MAX || 0 > face->num_glyphs)
-		FT_TRACE1(( "ftc_basic_family_get_count: too large number of glyphs in this face, truncated\n", face->num_glyphs ));
+	if( (FT_ULong)face->num_glyphs > FT_UINT_MAX || 0 > face->num_glyphs)
+		FT_TRACE1(( "ftc_basic_family_get_count:"
+		    " the number of glyphs in this face is %ld,\n"
+		    "                           "
+		    " which is too much and thus truncated\n",
+		    face->num_glyphs ));
+
 	if(!error)
 		result = (FT_UInt)face->num_glyphs;
+
 	return result;
 }
 
-FT_CALLBACK_DEF(FT_Error) ftc_basic_family_load_bitmap(FTC_Family ftcfamily, FT_UInt gindex, FTC_Manager manager, FT_Face     *aface)
+FT_CALLBACK_DEF(FT_Error)
+ftc_basic_family_load_bitmap(FTC_Family ftcfamily,
+    FT_UInt gindex,
+    FTC_Manager manager,
+    FT_Face     *aface)
 {
 	FTC_BasicFamily family = (FTC_BasicFamily)ftcfamily;
+	FT_Error error;
 	FT_Size size;
-	FT_Error error = FTC_Manager_LookupSize(manager, &family->attrs.scaler, &size);
+
+	error = FTC_Manager_LookupSize(manager, &family->attrs.scaler, &size);
 	if(!error) {
 		FT_Face face = size->face;
-		error = FT_Load_Glyph(face, gindex, (FT_Int)family->attrs.load_flags | FT_LOAD_RENDER);
+
+		error = FT_Load_Glyph(
+			face,
+			gindex,
+			(FT_Int)family->attrs.load_flags | FT_LOAD_RENDER);
 		if(!error)
 			*aface = face;
 	}
+
 	return error;
 }
 
-FT_CALLBACK_DEF(FT_Error) ftc_basic_family_load_glyph(FTC_Family ftcfamily, FT_UInt gindex, FTC_Cache cache, FT_Glyph * aglyph)
+FT_CALLBACK_DEF(FT_Error)
+ftc_basic_family_load_glyph(FTC_Family ftcfamily,
+    FT_UInt gindex,
+    FTC_Cache cache,
+    FT_Glyph   *aglyph)
 {
 	FTC_BasicFamily family = (FTC_BasicFamily)ftcfamily;
 	FT_Error error;
 	FTC_Scaler scaler = &family->attrs.scaler;
 	FT_Face face;
 	FT_Size size;
+
 	/* we will now load the glyph image */
-	error = FTC_Manager_LookupSize(cache->manager, scaler, &size);
+	error = FTC_Manager_LookupSize(cache->manager,
+		scaler,
+		&size);
 	if(!error) {
 		face = size->face;
-		error = FT_Load_Glyph(face, gindex, (FT_Int)family->attrs.load_flags);
+
+		error = FT_Load_Glyph(face,
+			gindex,
+			(FT_Int)family->attrs.load_flags);
 		if(!error) {
-			if(face->glyph->format == FT_GLYPH_FORMAT_BITMAP  || face->glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
+			if(face->glyph->format == FT_GLYPH_FORMAT_BITMAP  ||
+			    face->glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
 				/* ok, copy it */
 				FT_Glyph glyph;
+
 				error = FT_Get_Glyph(face->glyph, &glyph);
 				if(!error) {
 					*aglyph = glyph;
@@ -127,16 +153,22 @@ FT_CALLBACK_DEF(FT_Error) ftc_basic_family_load_glyph(FTC_Family ftcfamily, FT_U
 				error = FT_THROW(Invalid_Argument);
 		}
 	}
+
 Exit:
 	return error;
 }
 
-FT_CALLBACK_DEF(FT_Bool) ftc_basic_gnode_compare_faceid(FTC_Node ftcgnode, FT_Pointer ftcface_id, FTC_Cache cache, FT_Bool*    list_changed)
+FT_CALLBACK_DEF(FT_Bool)
+ftc_basic_gnode_compare_faceid(FTC_Node ftcgnode,
+    FT_Pointer ftcface_id,
+    FTC_Cache cache,
+    FT_Bool*    list_changed)
 {
 	FTC_GNode gnode   = (FTC_GNode)ftcgnode;
 	FTC_FaceID face_id = (FTC_FaceID)ftcface_id;
 	FTC_BasicFamily family  = (FTC_BasicFamily)gnode->family;
 	FT_Bool result;
+
 	if(list_changed)
 		*list_changed = FALSE;
 	result = FT_BOOL(family->attrs.scaler.face_id == face_id);
@@ -148,20 +180,25 @@ FT_CALLBACK_DEF(FT_Bool) ftc_basic_gnode_compare_faceid(FTC_Node ftcgnode, FT_Po
 	}
 	return result;
 }
+
 /*
  *
  * basic image cache
  *
  */
-static const FTC_IFamilyClassRec ftc_basic_image_family_class =
+
+static
+const FTC_IFamilyClassRec ftc_basic_image_family_class =
 {
 	{
 		sizeof( FTC_BasicFamilyRec ),
+
 		ftc_basic_family_compare, /* FTC_MruNode_CompareFunc  node_compare */
 		ftc_basic_family_init, /* FTC_MruNode_InitFunc     node_init    */
 		NULL,           /* FTC_MruNode_ResetFunc    node_reset   */
 		NULL            /* FTC_MruNode_DoneFunc     node_done    */
 	},
+
 	ftc_basic_family_load_glyph /* FTC_IFamily_LoadGlyphFunc  family_load_glyph */
 };
 
@@ -190,7 +227,7 @@ FTC_ImageCache_New(FTC_Manager manager,
     FTC_ImageCache  *acache)
 {
 	return FTC_GCache_New(manager, &ftc_basic_image_cache_class,
-	    (FTC_GCache*)acache);
+		   (FTC_GCache*)acache);
 }
 
 /* documentation is in ftcache.h */
@@ -217,10 +254,18 @@ FTC_ImageCache_Lookup(FTC_ImageCache cache,
 	if(anode)
 		*anode  = NULL;
 
-	if( (FT_ULong)( type->flags - FT_INT_MIN ) > FT_UINT_MAX)
+	/*
+	 * Internal `FTC_BasicAttr->load_flags' is of type `FT_UInt',
+	 * but public `FT_ImageType->flags' is of type `FT_Int32'.
+	 *
+	 * On 16bit systems, higher bits of type->flags cannot be handled.
+	 */
+#if 0xFFFFFFFFUL > FT_UINT_MAX
+	if( (type->flags & (FT_ULong)FT_UINT_MAX) )
 		FT_TRACE1(( "FTC_ImageCache_Lookup:"
-			    " higher bits in load_flags 0x%x are dropped\n",
-			    (FT_ULong)type->flags & ~((FT_ULong)FT_UINT_MAX) ));
+		    " higher bits in load_flags 0x%x are dropped\n",
+		    (FT_ULong)type->flags & ~((FT_ULong)FT_UINT_MAX) ));
+#endif
 
 	query.attrs.scaler.face_id = type->face_id;
 	query.attrs.scaler.width   = type->width;
@@ -243,9 +288,9 @@ FTC_ImageCache_Lookup(FTC_ImageCache cache,
 	    error);
 #else
 	error = FTC_GCache_Lookup(FTC_GCACHE(cache),
-	    hash, gindex,
-	    FTC_GQUERY(&query),
-	    &node);
+		hash, gindex,
+		FTC_GQUERY(&query),
+		&node);
 #endif
 	if(!error) {
 		*aglyph = FTC_INODE(node)->glyph;
@@ -285,11 +330,18 @@ FTC_ImageCache_LookupScaler(FTC_ImageCache cache,
 	if(anode)
 		*anode  = NULL;
 
-	/* `FT_Load_Glyph' and `FT_Load_Char' take FT_UInt flags */
+	/*
+	 * Internal `FTC_BasicAttr->load_flags' is of type `FT_UInt',
+	 * but public `FT_Face->face_flags' is of type `FT_Long'.
+	 *
+	 * On long > int systems, higher bits of load_flags cannot be handled.
+	 */
+#if FT_ULONG_MAX > FT_UINT_MAX
 	if(load_flags > FT_UINT_MAX)
 		FT_TRACE1(( "FTC_ImageCache_LookupScaler:"
-			    " higher bits in load_flags 0x%x are dropped\n",
-			    load_flags & ~((FT_ULong)FT_UINT_MAX) ));
+		    " higher bits in load_flags 0x%lx are dropped\n",
+		    load_flags & ~((FT_ULong)FT_UINT_MAX) ));
+#endif
 
 	query.attrs.scaler     = scaler[0];
 	query.attrs.load_flags = (FT_UInt)load_flags;
@@ -362,7 +414,7 @@ FTC_SBitCache_New(FTC_Manager manager,
     FTC_SBitCache  *acache)
 {
 	return FTC_GCache_New(manager, &ftc_basic_sbit_cache_class,
-	    (FTC_GCache*)acache);
+		   (FTC_GCache*)acache);
 }
 
 /* documentation is in ftcache.h */
@@ -388,10 +440,18 @@ FTC_SBitCache_Lookup(FTC_SBitCache cache,
 
 	*ansbit = NULL;
 
-	if( (FT_ULong)( type->flags - FT_INT_MIN ) > FT_UINT_MAX)
+	/*
+	 * Internal `FTC_BasicAttr->load_flags' is of type `FT_UInt',
+	 * but public `FT_ImageType->flags' is of type `FT_Int32'.
+	 *
+	 * On 16bit systems, higher bits of type->flags cannot be handled.
+	 */
+#if 0xFFFFFFFFUL > FT_UINT_MAX
+	if( (type->flags & (FT_ULong)FT_UINT_MAX) )
 		FT_TRACE1(( "FTC_ImageCache_Lookup:"
-			    " higher bits in load_flags 0x%x are dropped\n",
-			    (FT_ULong)type->flags & ~((FT_ULong)FT_UINT_MAX) ));
+		    " higher bits in load_flags 0x%x are dropped\n",
+		    (FT_ULong)type->flags & ~((FT_ULong)FT_UINT_MAX) ));
+#endif
 
 	query.attrs.scaler.face_id = type->face_id;
 	query.attrs.scaler.width   = type->width;
@@ -416,10 +476,10 @@ FTC_SBitCache_Lookup(FTC_SBitCache cache,
 	    error);
 #else
 	error = FTC_GCache_Lookup(FTC_GCACHE(cache),
-	    hash,
-	    gindex,
-	    FTC_GQUERY(&query),
-	    &node);
+		hash,
+		gindex,
+		FTC_GQUERY(&query),
+		&node);
 #endif
 	if(error)
 		goto Exit;
@@ -459,13 +519,27 @@ FTC_SBitCache_LookupScaler(FTC_SBitCache cache,
 		return FT_THROW(Invalid_Argument);
 
 	*ansbit = NULL;
-	/* `FT_Load_Glyph' and `FT_Load_Char' take FT_UInt flags */
+
+	/*
+	 * Internal `FTC_BasicAttr->load_flags' is of type `FT_UInt',
+	 * but public `FT_Face->face_flags' is of type `FT_Long'.
+	 *
+	 * On long > int systems, higher bits of load_flags cannot be handled.
+	 */
+#if FT_ULONG_MAX > FT_UINT_MAX
 	if(load_flags > FT_UINT_MAX)
-		FT_TRACE1(( "FTC_ImageCache_LookupScaler: higher bits in load_flags 0x%x are dropped\n", load_flags & ~((FT_ULong)FT_UINT_MAX) ));
+		FT_TRACE1(( "FTC_ImageCache_LookupScaler:"
+		    " higher bits in load_flags 0x%lx are dropped\n",
+		    load_flags & ~((FT_ULong)FT_UINT_MAX) ));
+#endif
+
 	query.attrs.scaler     = scaler[0];
 	query.attrs.load_flags = (FT_UInt)load_flags;
+
 	/* beware, the hash must be the same for all glyph ranges! */
-	hash = FTC_BASIC_ATTR_HASH(&query.attrs) + gindex / FTC_SBIT_ITEMS_PER_NODE;
+	hash = FTC_BASIC_ATTR_HASH(&query.attrs) +
+	    gindex / FTC_SBIT_ITEMS_PER_NODE;
+
 	FTC_GCACHE_LOOKUP_CMP(cache,
 	    ftc_basic_family_compare,
 	    FTC_SNode_Compare,
@@ -475,7 +549,10 @@ FTC_SBitCache_LookupScaler(FTC_SBitCache cache,
 	    error);
 	if(error)
 		goto Exit;
-	*ansbit = FTC_SNODE(node)->sbits + ( gindex - FTC_GNODE(node)->gindex );
+
+	*ansbit = FTC_SNODE(node)->sbits +
+	    ( gindex - FTC_GNODE(node)->gindex );
+
 	if(anode) {
 		*anode = node;
 		node->ref_count++;

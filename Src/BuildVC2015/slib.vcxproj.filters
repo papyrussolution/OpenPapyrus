@@ -169,6 +169,7 @@
       <Filter>gumbo</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\layout-flex.cpp" />
+    <ClCompile Include="..\SLib\tulipindicators.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

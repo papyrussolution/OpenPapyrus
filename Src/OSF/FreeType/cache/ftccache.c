@@ -1,30 +1,27 @@
-/***************************************************************************/
-/*                                                                         */
-/*  ftccache.c                                                             */
-/*                                                                         */
-/*    The FreeType internal cache interface (body).                        */
-/*                                                                         */
-/*  Copyright 2000-2017 by                                                 */
-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
-/*                                                                         */
-/*  This file is part of the FreeType project, and may only be used,       */
-/*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
-/***************************************************************************/
-
-#include <ft2build.h>
+/****************************************************************************
+ *
+ * ftccache.c
+ *
+ *   The FreeType internal cache interface (body).
+ *
+ * Copyright (C) 2000-2020 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
 #include "ftcmanag.h"
-#include FT_INTERNAL_OBJECTS_H
-#include FT_INTERNAL_DEBUG_H
-
+#include <freetype/internal/ftobjs.h>
+#include <freetype/internal/ftdebug.h>
 #include "ftccback.h"
 #include "ftcerror.h"
 
 #undef  FT_COMPONENT
-#define FT_COMPONENT  trace_cache
+#define FT_COMPONENT  cache
 
 #define FTC_HASH_MAX_LOAD  2
 #define FTC_HASH_MIN_LOAD  1
@@ -66,24 +63,18 @@ static void ftc_node_mru_unlink(FTC_Node node,
 #ifndef FTC_INLINE
 
 /* move a node to the head of the manager's MRU list */
-static void ftc_node_mru_up(FTC_Node node,
-    FTC_Manager manager)
+static void ftc_node_mru_up(FTC_Node node, FTC_Manager manager)
 {
-	FTC_MruNode_Up( (FTC_MruNode*)&manager->nodes_list,
-	    (FTC_MruNode)node);
+	FTC_MruNode_Up( (FTC_MruNode*)&manager->nodes_list, (FTC_MruNode)node);
 }
 
 /* get a top bucket for specified hash from cache,
  * body for FTC_NODE_TOP_FOR_HASH( cache, hash )
  */
-FT_LOCAL_DEF(FTC_Node*)
-ftc_get_top_node_for_hash(FTC_Cache cache,
-    FT_Offset hash)
+FT_LOCAL_DEF(FTC_Node*) ftc_get_top_node_for_hash(FTC_Cache cache, FT_Offset hash)
 {
 	FTC_Node*  pnode;
-	FT_Offset idx;
-
-	idx = hash & cache->mask;
+	FT_Offset idx = hash & cache->mask;
 	if(idx < cache->p)
 		idx = hash & ( 2 * cache->mask + 1 );
 	pnode = cache->buckets + idx;
@@ -98,7 +89,7 @@ ftc_get_top_node_for_hash(FTC_Cache cache,
  */
 static void ftc_cache_resize(FTC_Cache cache)
 {
-	for(;; ) {
+	for(;;) {
 		FTC_Node node, * pnode;
 		FT_UFast p     = cache->p;
 		FT_UFast mask  = cache->mask;
@@ -117,14 +108,14 @@ static void ftc_cache_resize(FTC_Cache cache)
 
 				/* if we can't expand the array, leave immediately */
 				if(FT_RENEW_ARRAY(cache->buckets,
-					    ( mask + 1 ) * 2, ( mask + 1 ) * 4) )
+				    ( mask + 1 ) * 2, ( mask + 1 ) * 4) )
 					break;
 			}
 
 			/* split a single bucket */
 			pnode = cache->buckets + p;
 
-			for(;; ) {
+			for(;;) {
 				node = *pnode;
 				if(!node)
 					break;
@@ -164,7 +155,7 @@ static void ftc_cache_resize(FTC_Cache cache)
 
 				/* if we can't shrink the array, leave immediately */
 				if(FT_RENEW_ARRAY(cache->buckets,
-					    ( mask + 1 ) * 2, mask + 1) )
+				    ( mask + 1 ) * 2, mask + 1) )
 					break;
 
 				cache->mask >>= 1;
@@ -197,7 +188,7 @@ static void ftc_node_hash_unlink(FTC_Node node0,
 {
 	FTC_Node  * pnode = FTC_NODE_TOP_FOR_HASH(cache, node0->hash);
 
-	for(;; ) {
+	for(;;) {
 		FTC_Node node = *pnode;
 
 		if(!node) {
@@ -270,7 +261,7 @@ ftc_node_destroy(FTC_Node node,
 	/* check, just in case of general corruption :-) */
 	if(manager->num_nodes == 0)
 		FT_TRACE0(( "ftc_node_destroy: invalid cache node count (%d)\n",
-			    manager->num_nodes ));
+		    manager->num_nodes ));
 #endif
 }
 
@@ -438,7 +429,7 @@ FTC_Cache_Lookup(FTC_Cache cache,
 
 	/* Lookup a node with exactly same hash and queried properties.  */
 	/* NOTE: _nodcomp() may change the linked list to reduce memory. */
-	for(;; ) {
+	for(;;) {
 		node = *pnode;
 		if(!node)
 			goto NewNode;
@@ -489,21 +480,28 @@ NewNode:
 
 #endif /* !FTC_INLINE */
 
-FT_LOCAL_DEF(void) FTC_Cache_RemoveFaceID(FTC_Cache cache, FTC_FaceID face_id)
+FT_LOCAL_DEF(void)
+FTC_Cache_RemoveFaceID(FTC_Cache cache,
+    FTC_FaceID face_id)
 {
-	FT_UFast i;
+	FT_UFast i, count;
 	FTC_Manager manager = cache->manager;
 	FTC_Node frees   = NULL;
-	FT_UFast count = cache->p + cache->mask + 1;
+
+	count = cache->p + cache->mask + 1;
 	for(i = 0; i < count; i++) {
 		FTC_Node*  bucket = cache->buckets + i;
 		FTC_Node*  pnode  = bucket;
-		for(;; ) {
+
+		for(;;) {
 			FTC_Node node = *pnode;
 			FT_Bool list_changed = FALSE;
+
 			if(!node)
 				break;
-			if(cache->clazz.node_remove_faceid(node, face_id, cache, &list_changed) ) {
+
+			if(cache->clazz.node_remove_faceid(node, face_id,
+			    cache, &list_changed) ) {
 				*pnode     = node->link;
 				node->link = frees;
 				frees      = node;
@@ -512,16 +510,22 @@ FT_LOCAL_DEF(void) FTC_Cache_RemoveFaceID(FTC_Cache cache, FTC_FaceID face_id)
 				pnode = &node->link;
 		}
 	}
+
 	/* remove all nodes in the free list */
 	while(frees) {
 		FTC_Node node;
+
 		node  = frees;
 		frees = node->link;
+
 		manager->cur_weight -= cache->clazz.node_weight(node, cache);
 		ftc_node_mru_unlink(node, manager);
+
 		cache->clazz.node_free(node, cache);
+
 		cache->slack++;
 	}
+
 	ftc_cache_resize(cache);
 }
 

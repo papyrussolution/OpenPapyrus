@@ -1730,6 +1730,7 @@
     <ClCompile Include="..\SLib\trect.cpp" />
     <ClCompile Include="..\SLib\treewnd.cpp" />
     <ClCompile Include="..\SLib\tsstat.cpp" />
+    <ClCompile Include="..\SLib\tulipindicators.cpp" />
     <ClCompile Include="..\SLib\Tview.cpp" />
     <ClCompile Include="..\SLib\Tvrez.cpp">
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
@@ -6389,6 +6390,9 @@
     </ProjectReference>
     <ProjectReference Include="cairo-1.16.0.vcxproj">
       <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
+    </ProjectReference>
+    <ProjectReference Include="freetype.vcxproj">
+      <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
     </ProjectReference>
     <ProjectReference Include="libzip.vcxproj">
       <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>

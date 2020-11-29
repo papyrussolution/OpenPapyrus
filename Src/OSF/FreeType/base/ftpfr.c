@@ -1,33 +1,34 @@
-/***************************************************************************/
-/*                                                                         */
-/*  ftpfr.c                                                                */
-/*                                                                         */
-/*    FreeType API for accessing PFR-specific data (body).                 */
-/*                                                                         */
-/*  Copyright 2002-2017 by                                                 */
-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
-/*                                                                         */
-/*  This file is part of the FreeType project, and may only be used,       */
-/*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
-/***************************************************************************/
-
+/****************************************************************************
+ *
+ * ftpfr.c
+ *
+ *   FreeType API for accessing PFR-specific data (body).
+ *
+ * Copyright (C) 2002-2020 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
 #define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_OBJECTS_H
-#include FT_SERVICE_PFR_H
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftobjs.h>
+#include <freetype/internal/services/svpfr.h>
 
 /* check the format */
 static FT_Service_PfrMetrics ft_pfr_check(FT_Face face)
 {
 	FT_Service_PfrMetrics service = NULL;
+
 	if(face)
 		FT_FACE_LOOKUP_SERVICE(face, service, PFR_METRICS);
+
 	return service;
 }
 
@@ -49,12 +50,12 @@ FT_Get_PFR_Metrics(FT_Face face,
 	service = ft_pfr_check(face);
 	if(service) {
 		error = service->get_metrics(face,
-		    aoutline_resolution,
-		    ametrics_resolution,
-		    ametrics_x_scale,
-		    ametrics_y_scale);
+			aoutline_resolution,
+			ametrics_resolution,
+			ametrics_x_scale,
+			ametrics_y_scale);
 	}
-	else {
+	else{
 		FT_Fixed x_scale, y_scale;
 
 		/* this is not a PFR font */
@@ -104,7 +105,7 @@ FT_Get_PFR_Kerning(FT_Face face,
 		error = service->get_kerning(face, left, right, avector);
 	else
 		error = FT_Get_Kerning(face, left, right,
-		    FT_KERNING_UNSCALED, avector);
+			FT_KERNING_UNSCALED, avector);
 
 	return error;
 }

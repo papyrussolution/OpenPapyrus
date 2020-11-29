@@ -2381,11 +2381,17 @@ public:
 		char   AlcCode[24];
 		char   ManufRarIdent[16];
 		char   ImporterRarIdent[16];
+		char   ShipperRarIdent[16];
+		char   ConsigneeRarIdent[16];
+		char   EgaisNumber[24];
+		char   TTNNumber[48];
 		int16  CountryCode;
 		int32  Volume;
 		LDATE  BottlingDate;
 		LDATE  ActualDate;
 		int32  Flags;
+		LDATE  EgaisDate;
+		LDATE  TTNDate;
 		uint8  Reserve[12]; // raw
 	} data;
 	struct Key0 {
@@ -2402,11 +2408,17 @@ public:
 	DBField AlcCode;
 	DBField ManufRarIdent;
 	DBField ImporterRarIdent;
+	DBField ShipperRarIdent;
+	DBField ConsigneeRarIdent;
+	DBField EgaisNumber;
+	DBField TTNNumber;
 	DBField CountryCode;
 	DBField Volume;
 	DBField BottlingDate;
 	DBField ActualDate;
 	DBField Flags;
+	DBField EgaisDate;
+	DBField TTNDate;
 	DBField Reserve;
 };
 

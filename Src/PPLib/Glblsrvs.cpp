@@ -32,7 +32,7 @@ VkInterface::InitBlock & VkInterface::InitBlock::Z()
 void VkInterface::GetVKAccessToken()
 {
 	SString url("https://oauth.vk.com/authorize?client_id=7402217&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=134225924&response_type=token&v=5.52/");
-	ShellExecute(0, _T("open"), SUcSwitch(url), NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+	ShellExecute(0, _T("open"), SUcSwitch(url), NULL, NULL, SW_SHOWNORMAL);
 }
 
 VkInterface::VkInterface()
@@ -624,86 +624,195 @@ static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, i
 	return ok;
 }
 
-class SetupGlobalServiceUDS_Dialog : public TDialog {
-	DECL_DIALOG_DATA(SetupGlobalServiceUDS_Param);
-public:
-	SetupGlobalServiceUDS_Dialog(DlgDataType & rData) : TDialog(DLG_SU_UDS), Data(rData), State(0)
-	{
-		Setup_GlobalService_UDS_InitParam(Data, 0);
-		setCtrlString(CTL_SUUDS_LOGIN, Data.Login);
-		setCtrlString(CTL_SUUDS_APIKEY, Data.ApiKey);
-		SetupPPObjCombo(this, CTLSEL_SUUDS_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, 0);
-		{
-			SCardSeriesFilt scs_filt;
-			scs_filt.Flags = scs_filt.fOnlySeries;
-			scs_filt.SpecialTreatment = SCRDSSPCTRT_UDS;
-			SetupPPObjCombo(this, CTLSEL_SUUDS_SCARDSER, PPOBJ_SCARDSERIES, Data.SCardSerID, 0);
-		}
-		{
-			SString temp_buf;
-			selectCtrl(CTL_SUUDS_LOGIN);
-			PPLoadStringDescription("setupglbsvc_uds_login", temp_buf);
-			setStaticText(CTL_SUUDS_HINT, temp_buf);
-		}
-	}
-	int    IsSettled() const
-	{
-		return BIN(State & stSettled);
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isCmd(cmConfigure)) {
-			getCtrlString(CTL_SUUDS_LOGIN, Data.Login);
-			getCtrlString(CTL_SUUDS_APIKEY, Data.ApiKey);
-			getCtrlData(CTLSEL_SUUDS_GUA, &Data.GuaID);
-			getCtrlData(CTLSEL_SUUDS_SCARDSER, &Data.SCardSerID);
-			if(!Setup_GlobalService_UDS_InitParam(Data, 1)) {
-				PPError();
-			}
-			else {
-				setCtrlString(CTL_SUUDS_LOGIN, Data.Login);
-				setCtrlString(CTL_SUUDS_APIKEY, Data.ApiKey);
-				//
-				// Комбо-боксы надо перестроить - у нас появились новые объекты, которых не было в списках
-				//
-				SetupPPObjCombo(this, CTLSEL_SUUDS_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, 0);
-				{
-					SCardSeriesFilt scs_filt;
-					scs_filt.Flags = scs_filt.fOnlySeries;
-					scs_filt.SpecialTreatment = SCRDSSPCTRT_UDS;
-					SetupPPObjCombo(this, CTLSEL_SUUDS_SCARDSER, PPOBJ_SCARDSERIES, Data.SCardSerID, 0);
-				}
-				State |= stSettled;
-				//enableCommand(cmConfigure, 0);
-			}
-		}
-		else if(TVBROADCAST && TVCMD == cmReceivedFocus) {
-			SString temp_buf;
-			if(event.isCtlEvent(CTL_SUUDS_LOGIN)) {
-				PPLoadStringDescription("setupglbsvc_uds_login", temp_buf);
-			}
-			else if(event.isCtlEvent(CTL_SUUDS_APIKEY)) {
-				PPLoadStringDescription("setupglbsvc_uds_apikey", temp_buf);
-			}
-			setStaticText(CTL_SUUDS_HINT, temp_buf);
-		}
-		else
-			return;
-		clearEvent(event);
-	}
-	enum {
-		stSettled = 0x0001
-	};
-	long   State;
-};
-
 int PPGlobalServiceHighLevelImplementations::Setup_UDS()
 {
+	class SetupGlobalServiceUDS_Dialog : public TDialog {
+		DECL_DIALOG_DATA(SetupGlobalServiceUDS_Param);
+	public:
+		SetupGlobalServiceUDS_Dialog(DlgDataType & rData) : TDialog(DLG_SU_UDS), Data(rData), State(0)
+		{
+			Setup_GlobalService_UDS_InitParam(Data, 0);
+			setCtrlString(CTL_SUUDS_LOGIN, Data.Login);
+			setCtrlString(CTL_SUUDS_APIKEY, Data.ApiKey);
+			SetupPPObjCombo(this, CTLSEL_SUUDS_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, 0);
+			{
+				SCardSeriesFilt scs_filt;
+				scs_filt.Flags = scs_filt.fOnlySeries;
+				scs_filt.SpecialTreatment = SCRDSSPCTRT_UDS;
+				SetupPPObjCombo(this, CTLSEL_SUUDS_SCARDSER, PPOBJ_SCARDSERIES, Data.SCardSerID, 0);
+			}
+			{
+				SString temp_buf;
+				selectCtrl(CTL_SUUDS_LOGIN);
+				PPLoadStringDescription("setupglbsvc_uds_login", temp_buf);
+				setStaticText(CTL_SUUDS_HINT, temp_buf);
+			}
+		}
+		int    IsSettled() const
+		{
+			return BIN(State & stSettled);
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmConfigure)) {
+				getCtrlString(CTL_SUUDS_LOGIN, Data.Login);
+				getCtrlString(CTL_SUUDS_APIKEY, Data.ApiKey);
+				getCtrlData(CTLSEL_SUUDS_GUA, &Data.GuaID);
+				getCtrlData(CTLSEL_SUUDS_SCARDSER, &Data.SCardSerID);
+				if(!Setup_GlobalService_UDS_InitParam(Data, 1)) {
+					PPError();
+				}
+				else {
+					setCtrlString(CTL_SUUDS_LOGIN, Data.Login);
+					setCtrlString(CTL_SUUDS_APIKEY, Data.ApiKey);
+					//
+					// Комбо-боксы надо перестроить - у нас появились новые объекты, которых не было в списках
+					//
+					SetupPPObjCombo(this, CTLSEL_SUUDS_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, 0);
+					{
+						SCardSeriesFilt scs_filt;
+						scs_filt.Flags = scs_filt.fOnlySeries;
+						scs_filt.SpecialTreatment = SCRDSSPCTRT_UDS;
+						SetupPPObjCombo(this, CTLSEL_SUUDS_SCARDSER, PPOBJ_SCARDSERIES, Data.SCardSerID, 0);
+					}
+					State |= stSettled;
+					//enableCommand(cmConfigure, 0);
+				}
+			}
+			else if(TVBROADCAST && TVCMD == cmReceivedFocus) {
+				SString temp_buf;
+				if(event.isCtlEvent(CTL_SUUDS_LOGIN)) {
+					PPLoadStringDescription("setupglbsvc_uds_login", temp_buf);
+				}
+				else if(event.isCtlEvent(CTL_SUUDS_APIKEY)) {
+					PPLoadStringDescription("setupglbsvc_uds_apikey", temp_buf);
+				}
+				setStaticText(CTL_SUUDS_HINT, temp_buf);
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		enum {
+			stSettled = 0x0001
+		};
+		long   State;
+	};
 	int    ok = -1;
 	SetupGlobalServiceUDS_Param param;
 	SetupGlobalServiceUDS_Dialog * dlg = new SetupGlobalServiceUDS_Dialog(param);
+	if(CheckDialogPtrErr(&dlg)) {
+		ExecView(dlg);
+		if(dlg->IsSettled())
+			ok = 1;
+	}
+	delete dlg;
+	return ok;
+}
+
+struct SetupGlobalServiceVK_Param {
+	SetupGlobalServiceVK_Param() : GuaID(0)
+	{
+	}
+	SString Login;
+	SString ApiKey;
+	SString PageIdent;
+	SString GroupIdent;
+	PPID   GuaID;
+};
+
+int PPGlobalServiceHighLevelImplementations::Setup_VK()
+{
+	/*
+	#define CTL_SUVK_LOGIN            (1 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_APIKEY           (2 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_URL              (3 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_GROUPIDENT       (4 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_HINT             (5 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_INFO             (6 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_GUA              (7 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_SUVK_GUA           (8 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_LOGO             (9 + IMPEXP_CTL_BIAS)
+	*/
+	class SetupGlobalServiceVK_Dialog : public TDialog {
+		DECL_DIALOG_DATA(SetupGlobalServiceVK_Param);
+		//DECL_DIALOG_DATA(VkInterface::InitBlock);
+	public:
+		SetupGlobalServiceVK_Dialog(SetupGlobalServiceVK_Param & rData) : TDialog(/*DLG_VKGUACFG*/DLG_SU_VK)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			PPGlobalUserAccConfig cfg;
+			GuaObj.FetchConfig(&cfg);
+			RVALUEPTR(Data, pData);
+			// нужно установить поле группа
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			SString temp_buf;
+			//нужно вернуть данные о groupid, ownerid and token
+			ASSIGN_PTR(pData, Data);
+			//CATCHZOKPPERRBYDLG
+			return ok;
+		}
+		int    IsSettled()
+		{
+			return 0;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			SString temp_buf;
+			if(event.isCmd(cmQueryToken)) {
+				VkInterface::GetVKAccessToken();
+			}
+			else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_SUVK_URL/*CTL_VKGUACFG_LOGIN_URL*/)) {
+				static int __lock = 0;
+				if(!__lock) {
+					__lock = 1;
+					getCtrlString(CTL_SUVK_URL/*CTL_VKGUACFG_LOGIN_URL*/, temp_buf.Z());
+					{
+						InetUrl url(temp_buf);
+						url.GetComponent(InetUrl::cRef, 0, temp_buf);
+						SString left;
+						SString right;
+						StringSet ss('&', temp_buf);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							temp_buf.Divide('=', left, right);
+							if(left.IsEqual("access_token"))
+								Data.ApiKey.Z().Cat(right);
+							else if(left.IsEqual("user_id"))
+								Data.PageIdent.Z().Cat(right);
+						}
+					}
+					__lock = 0;
+				}
+			}
+			else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_SUVK_GROUPIDENT/*CTL_VKGUACFG_GROUP_ID*/)) {
+				static int __lock = 0;
+				if(!__lock) {
+					__lock = 1;
+					getCtrlString(CTL_SUVK_GROUPIDENT/*CTL_VKGUACFG_GROUP_ID*/, temp_buf.Z());
+					Data.GroupIdent.Z().Cat(temp_buf);
+					__lock = 0;
+				}
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		PPObjGlobalUserAcc GuaObj;
+	};
+	int    ok = -1;
+	SetupGlobalServiceVK_Param param;
+	SetupGlobalServiceVK_Dialog * dlg = new SetupGlobalServiceVK_Dialog(param);
 	if(CheckDialogPtrErr(&dlg)) {
 		ExecView(dlg);
 		if(dlg->IsSettled())

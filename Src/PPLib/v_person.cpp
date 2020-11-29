@@ -520,7 +520,7 @@ int PPViewPerson::EditRegs(PPID id, int oneReg)
 				r = PsnObj.RegObj.EditDialog(&pack.Regs.at(pos - 1), &pack.Regs, &pack);
 			else {
 				RegisterTbl::Rec rec;
-				THROW(PPObjRegister::InitPacket(&rec, Filt.RegTypeID, PPOBJ_PERSON, pack.Rec.ID));
+				THROW(PPObjRegister::InitPacket(&rec, Filt.RegTypeID, PPObjID(PPOBJ_PERSON, pack.Rec.ID), 0));
 				do {
 					r = PsnObj.RegObj.EditDialog(&rec, &pack.Regs, &pack);
 					if(r > 0 && PsnObj.RegObj.CheckUnique(rec.RegTypeID, &pack.Regs)) {

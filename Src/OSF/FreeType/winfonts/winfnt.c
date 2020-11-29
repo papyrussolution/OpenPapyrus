@@ -1,45 +1,43 @@
-/***************************************************************************/
-/*                                                                         */
-/*  winfnt.c                                                               */
-/*                                                                         */
-/*    FreeType font driver for Windows FNT/FON files                       */
-/*                                                                         */
-/*  Copyright 1996-2017 by                                                 */
-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
-/*  Copyright 2003 Huw D M Davies for Codeweavers                          */
-/*  Copyright 2007 Dmitry Timoshkov for Codeweavers                        */
-/*                                                                         */
-/*  This file is part of the FreeType project, and may only be used,       */
-/*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
-/***************************************************************************/
-
+/****************************************************************************
+ *
+ * winfnt.c
+ *
+ *   FreeType font driver for Windows FNT/FON files
+ *
+ * Copyright (C) 1996-2020 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright 2003 Huw D M Davies for Codeweavers
+ * Copyright 2007 Dmitry Timoshkov for Codeweavers
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
 #define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
 
-#include FT_WINFONTS_H
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_STREAM_H
-#include FT_INTERNAL_OBJECTS_H
-#include FT_TRUETYPE_IDS_H
-
+#include <freetype/ftwinfnt.h>
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftstream.h>
+#include <freetype/internal/ftobjs.h>
+#include <freetype/ttnameid.h>
 #include "winfnt.h"
 #include "fnterrs.h"
-#include FT_SERVICE_WINFNT_H
-#include FT_SERVICE_FONT_FORMAT_H
+#include <freetype/internal/services/svwinfnt.h>
+#include <freetype/internal/services/svfntfmt.h>
 
-/*************************************************************************/
-/*                                                                       */
-/* The macro FT_COMPONENT is used in trace mode.  It is an implicit      */
-/* parameter of the FT_TRACE() and FT_ERROR() macros, used to print/log  */
-/* messages during execution.                                            */
-/*                                                                       */
+/**************************************************************************
+ *
+ * The macro FT_COMPONENT is used in trace mode.  It is an implicit
+ * parameter of the FT_TRACE() and FT_ERROR() macros, used to print/log
+ * messages during execution.
+ */
 #undef  FT_COMPONENT
-#define FT_COMPONENT  trace_winfnt
+#define FT_COMPONENT  winfnt
 
 static const FT_Frame_Field winmz_header_fields[] =
 {
@@ -190,23 +188,29 @@ static void fnt_font_done(FNT_Face face)
 	FT_Memory memory = FT_FACE(face)->memory;
 	FT_Stream stream = FT_FACE(face)->stream;
 	FNT_Font font   = face->font;
-	if(font) {
-		if(font->fnt_frame)
-			FT_FRAME_RELEASE(font->fnt_frame);
-		FT_FREE(font->family_name);
-		FT_FREE(font);
-		face->font = NULL;
-	}
+
+	if(!font)
+		return;
+
+	if(font->fnt_frame)
+		FT_FRAME_RELEASE(font->fnt_frame);
+	FT_FREE(font->family_name);
+
+	FT_FREE(font);
+	face->font = NULL;
 }
 
-static FT_Error fnt_font_load(FNT_Font font, FT_Stream stream)
+static FT_Error fnt_font_load(FNT_Font font,
+    FT_Stream stream)
 {
 	FT_Error error;
 	FT_WinFNT_Header header = &font->header;
 	FT_Bool new_format;
 	FT_UInt size;
+
 	/* first of all, read the FNT header */
-	if(FT_STREAM_SEEK(font->offset) || FT_STREAM_READ_FIELDS(winfnt_header_fields, header))
+	if(FT_STREAM_SEEK(font->offset)                        ||
+	    FT_STREAM_READ_FIELDS(winfnt_header_fields, header) )
 		goto Exit;
 
 	/* check header */
@@ -293,7 +297,7 @@ static FT_Error fnt_face_get_dll_font(FNT_Face face,
 
 			if(FT_STREAM_SEEK(res_offset)                    ||
 			    FT_FRAME_ENTER(ne_header.rname_tab_offset -
-				    ne_header.resource_tab_offset) )
+			    ne_header.resource_tab_offset) )
 				goto Exit;
 
 			size_shift = FT_GET_USHORT_LE();
@@ -308,10 +312,10 @@ static FT_Error fnt_face_get_dll_font(FNT_Face face,
 			if(size_shift > 16) {
 				FT_TRACE2(( "invalid alignment shift count for resource data\n" ));
 				error = FT_THROW(Invalid_File_Format);
-				goto Exit;
+				goto Exit1;
 			}
 
-			for(;; ) {
+			for(;;) {
 				FT_UShort type_id, count;
 
 				type_id = FT_GET_USHORT_LE();
@@ -389,14 +393,14 @@ static FT_Error fnt_face_get_dll_font(FNT_Face face,
 				goto Exit;
 
 			FT_TRACE2(( "magic %04lx, machine %02x, number_of_sections %u, "
-				    "size_of_optional_header %02x\n"
-				    "magic32 %02x, rsrc_virtual_address %04lx, "
-				    "rsrc_size %04lx\n",
-				    pe32_header.magic, pe32_header.machine,
-				    pe32_header.number_of_sections,
-				    pe32_header.size_of_optional_header,
-				    pe32_header.magic32, pe32_header.rsrc_virtual_address,
-				    pe32_header.rsrc_size ));
+			    "size_of_optional_header %02x\n"
+			    "magic32 %02x, rsrc_virtual_address %04lx, "
+			    "rsrc_size %04lx\n",
+			    pe32_header.magic, pe32_header.machine,
+			    pe32_header.number_of_sections,
+			    pe32_header.size_of_optional_header,
+			    pe32_header.magic32, pe32_header.rsrc_virtual_address,
+			    pe32_header.rsrc_size ));
 
 			if(pe32_header.magic != WINFNT_PE_MAGIC /* check full signature */ ||
 			    pe32_header.machine != 0x014C /* i386 */                        ||
@@ -411,13 +415,13 @@ static FT_Error fnt_face_get_dll_font(FNT_Face face,
 
 			for(i = 0; i < pe32_header.number_of_sections; i++) {
 				if(FT_STREAM_READ_FIELDS(winpe32_section_fields,
-					    &pe32_section) )
+				    &pe32_section) )
 					goto Exit;
 
 				FT_TRACE2(( "name %.8s, va %04lx, size %04lx, offset %04lx\n",
-					    pe32_section.name, pe32_section.virtual_address,
-					    pe32_section.size_of_raw_data,
-					    pe32_section.pointer_to_raw_data ));
+				    pe32_section.name, pe32_section.virtual_address,
+				    pe32_section.size_of_raw_data,
+				    pe32_section.pointer_to_raw_data ));
 
 				if(pe32_header.rsrc_virtual_address ==
 				    pe32_section.virtual_address)
@@ -441,7 +445,7 @@ Found_rsrc_section:
 			    root_dir.number_of_id_entries; i++) {
 				if(FT_STREAM_SEEK(root_dir_offset + 16 + i * 8)      ||
 				    FT_STREAM_READ_FIELDS(winpe_rsrc_dir_entry_fields,
-					    &dir_entry1)                )
+				    &dir_entry1)                )
 					goto Exit;
 
 				if(!(dir_entry1.offset & 0x80000000UL ) /* DataIsDirectory */) {
@@ -455,7 +459,7 @@ Found_rsrc_section:
 				    dir_entry1.offset;
 
 				if(FT_STREAM_SEEK(pe32_section.pointer_to_raw_data +
-					    dir_entry1.offset)                       ||
+				    dir_entry1.offset)                       ||
 				    FT_STREAM_READ_FIELDS(winpe_rsrc_dir_fields, &name_dir) )
 					goto Exit;
 
@@ -463,7 +467,7 @@ Found_rsrc_section:
 				    name_dir.number_of_id_entries; j++) {
 					if(FT_STREAM_SEEK(name_dir_offset + 16 + j * 8)      ||
 					    FT_STREAM_READ_FIELDS(winpe_rsrc_dir_entry_fields,
-						    &dir_entry2)                )
+					    &dir_entry2)                )
 						goto Exit;
 
 					if(!(dir_entry2.offset & 0x80000000UL ) /* DataIsDirectory */) {
@@ -477,7 +481,7 @@ Found_rsrc_section:
 					    dir_entry2.offset;
 
 					if(FT_STREAM_SEEK(pe32_section.pointer_to_raw_data +
-						    dir_entry2.offset)                     ||
+					    dir_entry2.offset)                     ||
 					    FT_STREAM_READ_FIELDS(winpe_rsrc_dir_fields, &lang_dir) )
 						goto Exit;
 
@@ -485,7 +489,7 @@ Found_rsrc_section:
 					    lang_dir.number_of_id_entries; k++) {
 						if(FT_STREAM_SEEK(lang_dir_offset + 16 + k * 8)      ||
 						    FT_STREAM_READ_FIELDS(winpe_rsrc_dir_entry_fields,
-							    &dir_entry3)                )
+						    &dir_entry3)                )
 							goto Exit;
 
 						if(dir_entry2.offset & 0x80000000UL /* DataIsDirectory */) {
@@ -496,16 +500,16 @@ Found_rsrc_section:
 						if(dir_entry1.name == 8 /* RT_FONT */) {
 							if(FT_STREAM_SEEK(root_dir_offset + dir_entry3.offset) ||
 							    FT_STREAM_READ_FIELDS(winpe_rsrc_data_entry_fields,
-								    &data_entry)                  )
+							    &data_entry)                  )
 								goto Exit;
 
 							FT_TRACE2(( "found font #%lu, offset %04lx, "
-								    "size %04lx, cp %lu\n",
-								    dir_entry2.name,
-								    pe32_section.pointer_to_raw_data +
-								    data_entry.offset_to_data -
-								    pe32_section.virtual_address,
-								    data_entry.size, data_entry.code_page ));
+							    "size %04lx, cp %lu\n",
+							    dir_entry2.name,
+							    pe32_section.pointer_to_raw_data +
+							    data_entry.offset_to_data -
+							    pe32_section.virtual_address,
+							    data_entry.size, data_entry.code_page ));
 
 							if(face_index == face->root.num_faces) {
 								if(FT_NEW(face->font) )
@@ -519,12 +523,12 @@ Found_rsrc_section:
 								error = fnt_font_load(face->font, stream);
 								if(error) {
 									FT_TRACE2(( "font #%lu load error 0x%x\n",
-										    dir_entry2.name, error ));
+									    dir_entry2.name, error ));
 									goto Fail;
 								}
 								else
 									FT_TRACE2(( "font #%lu successfully loaded\n",
-										    dir_entry2.name ));
+									    dir_entry2.name ));
 							}
 
 							face->root.num_faces++;
@@ -552,6 +556,10 @@ Fail:
 
 Exit:
 	return error;
+
+Exit1:
+	FT_FRAME_EXIT();
+	goto Exit;
 }
 
 typedef struct  FNT_CMapRec_ {
@@ -598,7 +606,7 @@ static FT_UInt32 fnt_cmap_char_next(FNT_CMap cmap,
 		result = cmap->first;
 		gindex = 1;
 	}
-	else {
+	else{
 		char_code -= cmap->first;
 		if(char_code < cmap->count) {
 			result = cmap->first + char_code;
@@ -729,14 +737,18 @@ static FT_Error FNT_Face_Init(FT_Stream stream,
 			FT_UShort x_res, y_res;
 
 			bsize->width  = (FT_Short)font->header.avg_width;
-			bsize->height = (FT_Short)( font->header.pixel_height + font->header.external_leading );
+			bsize->height = (FT_Short)( font->header.pixel_height +
+			    font->header.external_leading );
 			bsize->size   = font->header.nominal_point_size << 6;
+
 			x_res = font->header.horizontal_resolution;
 			if(!x_res)
 				x_res = 72;
+
 			y_res = font->header.vertical_resolution;
 			if(!y_res)
 				y_res = 72;
+
 			bsize->y_ppem = FT_MulDiv(bsize->size, y_res, 72);
 			bsize->y_ppem = FT_PIX_ROUND(bsize->y_ppem);
 
@@ -775,15 +787,11 @@ static FT_Error FNT_Face_Init(FT_Stream stream,
 			}
 
 			error = FT_CMap_New(fnt_cmap_class,
-			    NULL,
-			    &charmap,
-			    NULL);
+				NULL,
+				&charmap,
+				NULL);
 			if(error)
 				goto Fail;
-
-			/* Select default charmap */
-			if(root->num_charmaps)
-				root->charmap = root->charmaps[0];
 		}
 
 		/* set up remaining flags */
@@ -818,21 +826,21 @@ static FT_Error FNT_Face_Init(FT_Stream stream,
 		font->family_name[family_size] = '\0';
 
 		if(FT_REALLOC(font->family_name,
-			    family_size,
-			    ft_strlen(font->family_name) + 1) )
+		    family_size,
+		    ft_strlen(font->family_name) + 1) )
 			goto Fail;
 
 		root->family_name = font->family_name;
-		root->style_name  = (char *)"Regular";
+		root->style_name  = (char*)"Regular";
 
 		if(root->style_flags & FT_STYLE_FLAG_BOLD) {
 			if(root->style_flags & FT_STYLE_FLAG_ITALIC)
-				root->style_name = (char *)"Bold Italic";
+				root->style_name = (char*)"Bold Italic";
 			else
-				root->style_name = (char *)"Bold";
+				root->style_name = (char*)"Bold";
 		}
 		else if(root->style_flags & FT_STYLE_FLAG_ITALIC)
-			root->style_name = (char *)"Italic";
+			root->style_name = (char*)"Italic";
 	}
 	goto Exit;
 
@@ -861,32 +869,45 @@ static FT_Error FNT_Size_Select(FT_Size size,
 	return FT_Err_Ok;
 }
 
-static FT_Error FNT_Size_Request(FT_Size size, FT_Size_Request req)
+static FT_Error FNT_Size_Request(FT_Size size,
+    FT_Size_Request req)
 {
 	FNT_Face face    = (FNT_Face)size->face;
 	FT_WinFNT_Header header  = &face->font->header;
 	FT_Bitmap_Size*   bsize   = size->face->available_sizes;
 	FT_Error error   = FT_ERR(Invalid_Pixel_Size);
 	FT_Long height;
+
 	height = FT_REQUEST_HEIGHT(req);
 	height = ( height + 32 ) >> 6;
-	switch(req->type) {
+
+	switch(req->type)
+	{
 		case FT_SIZE_REQUEST_TYPE_NOMINAL:
 		    if(height == ( ( bsize->y_ppem + 32 ) >> 6 ) )
 			    error = FT_Err_Ok;
 		    break;
+
 		case FT_SIZE_REQUEST_TYPE_REAL_DIM:
 		    if(height == header->pixel_height)
 			    error = FT_Err_Ok;
 		    break;
+
 		default:
 		    error = FT_THROW(Unimplemented_Feature);
 		    break;
 	}
-	return error ? error : FNT_Size_Select(size, 0);
+
+	if(error)
+		return error;
+	else
+		return FNT_Size_Select(size, 0);
 }
 
-static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot, FT_Size size, FT_UInt glyph_index, FT_Int32 load_flags)
+static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot,
+    FT_Size size,
+    FT_UInt glyph_index,
+    FT_Int32 load_flags)
 {
 	FNT_Face face   = (FNT_Face)FT_SIZE_FACE(size);
 	FNT_Font font;
@@ -911,26 +932,34 @@ static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot, FT_Size size, FT_UInt glyph_in
 	}
 
 	FT_TRACE1(( "FNT_Load_Glyph: glyph index %d\n", glyph_index ));
+
 	if(glyph_index > 0)
 		glyph_index--;                 /* revert to real index */
 	else
-		glyph_index = font->header.default_char;  /* the `.notdef' glyph  */
+		glyph_index = font->header.default_char; /* the `.notdef' glyph  */
+
 	new_format = FT_BOOL(font->header.version == 0x300);
 	len        = new_format ? 6 : 4;
+
 	/* get glyph width and offset */
 	offset = ( new_format ? 148 : 118 ) + len * glyph_index;
+
 	if(offset >= font->header.file_size - 2 - ( new_format ? 4 : 2 ) ) {
 		FT_TRACE2(( "invalid FNT offset\n" ));
 		error = FT_THROW(Invalid_File_Format);
 		goto Exit;
 	}
+
 	p = font->fnt_frame + offset;
+
 	bitmap->width = FT_NEXT_USHORT_LE(p);
+
 	/* jump to glyph entry */
 	if(new_format)
 		offset = FT_NEXT_ULONG_LE(p);
 	else
 		offset = FT_NEXT_USHORT_LE(p);
+
 	if(offset >= font->header.file_size) {
 		FT_TRACE2(( "invalid FNT offset\n" ));
 		error = FT_THROW(Invalid_File_Format);
@@ -977,7 +1006,7 @@ static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot, FT_Size size, FT_UInt glyph_in
 
 		/* note: since glyphs are stored in columns and not in rows we */
 		/*       can't use ft_glyphslot_set_bitmap                     */
-		if(FT_ALLOC_MULT(bitmap->buffer, pitch, bitmap->rows) )
+		if(FT_ALLOC_MULT(bitmap->buffer, bitmap->rows, pitch) )
 			goto Exit;
 
 		column = (FT_Byte*)bitmap->buffer;
@@ -996,10 +1025,13 @@ Exit:
 	return error;
 }
 
-static FT_Error winfnt_get_header(FT_Face face, FT_WinFNT_HeaderRec  * aheader)
+static FT_Error winfnt_get_header(FT_Face face,
+    FT_WinFNT_HeaderRec  * aheader)
 {
 	FNT_Font font = ((FNT_Face)face)->font;
+
 	*aheader = font->header;
+
 	return 0;
 }
 
@@ -1009,7 +1041,7 @@ static const FT_Service_WinFntRec winfnt_service_rec =
 };
 
 /*
- *  SERVICE LIST
+ * SERVICE LIST
  *
  */
 
@@ -1020,14 +1052,16 @@ static const FT_ServiceDescRec winfnt_services[] =
 	{ NULL, NULL }
 };
 
-static FT_Module_Interface winfnt_get_service(FT_Module module, const FT_String*  service_id)
+static FT_Module_Interface winfnt_get_service(FT_Module module,
+    const FT_String*  service_id)
 {
 	FT_UNUSED(module);
 
 	return ft_service_list_lookup(winfnt_services, service_id);
 }
 
-FT_CALLBACK_TABLE_DEF const FT_Driver_ClassRec winfnt_driver_class =
+FT_CALLBACK_TABLE_DEF
+const FT_Driver_ClassRec winfnt_driver_class =
 {
 	{
 		FT_MODULE_FONT_DRIVER        |

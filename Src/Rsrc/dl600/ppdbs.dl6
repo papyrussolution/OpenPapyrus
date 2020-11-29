@@ -1438,16 +1438,22 @@ file:
 //
 table EgaisRefA {
 	autolong ID;
-    string RefACode[20];
-    string AlcCode[24];
-    string ManufRarIdent[16];
-    string ImporterRarIdent[16];
-    int16  CountryCode;
-    int32  Volume;         // x100000
-    date   BottlingDate;
-    date   ActualDate;
-    long   Flags;
-    raw    Reserve[12];
+	string RefACode[20];
+	string AlcCode[24];
+	string ManufRarIdent[16];
+	string ImporterRarIdent[16];
+	string ShipperRarIdent[16];   // @v10.9.5
+	string ConsigneeRarIdent[16]; // @v10.9.5
+	string EgaisNumber[24];       // @v10.9.5
+	string TTNNumber[48];         // @v10.9.5
+	int16  CountryCode;
+	int32  Volume;         // x100000
+	date   BottlingDate;
+	date   ActualDate;
+	long   Flags;
+	date   EgaisDate;             // @v10.9.5
+	date   TTNDate;               // @v10.9.5
+	raw    Reserve[12];
 index:
 	ID (unique);
 	RefACode (dup mod);

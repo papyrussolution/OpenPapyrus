@@ -64,9 +64,9 @@ local const uInt border[] = { /* Order of the bit length code lengths */
  */
 
 local void inflate_blocks_reset( /* s, z, c) */
-    inflate_blocks_statef * s,
-    z_streamp z,
-    uLongf * c)
+	inflate_blocks_statef * s,
+	z_streamp z,
+	uLongf * c)
 {
 	if(c != Z_NULL)
 		*c = s->check;
@@ -83,17 +83,12 @@ local void inflate_blocks_reset( /* s, z, c) */
 	Tracev((stderr, "inflate:   blocks reset\n"));
 }
 
-local inflate_blocks_statef * inflate_blocks_new( /* z, c, w) */
-    z_streamp z,
-    check_func c,
-    uInt w)
+local inflate_blocks_statef * inflate_blocks_new( /* z, c, w) */ z_streamp z, check_func c, uInt w)
 {
 	inflate_blocks_statef * s;
-	if((s = (inflate_blocks_statef*)ZLIB_ALLOC
-				    (z, 1, sizeof(struct inflate_blocks_state))) == Z_NULL)
+	if((s = (inflate_blocks_statef*)ZLIB_ALLOC(z, 1, sizeof(struct inflate_blocks_state))) == Z_NULL)
 		return s;
-	if((s->hufts =
-			    (inflate_huft*)ZLIB_ALLOC(z, sizeof(inflate_huft), MANY)) == Z_NULL) {
+	if((s->hufts = (inflate_huft*)ZLIB_ALLOC(z, sizeof(inflate_huft), MANY)) == Z_NULL) {
 		ZLIB_FREE(z, s);
 		return Z_NULL;
 	}
@@ -111,9 +106,9 @@ local inflate_blocks_statef * inflate_blocks_new( /* z, c, w) */
 }
 
 local int inflate_blocks( /* s, z, r) */
-    inflate_blocks_statef * s,
-    z_streamp z,
-    int r)
+	inflate_blocks_statef * s,
+	z_streamp z,
+	int r)
 {
 	uInt t;         /* temporary storage */
 	uLong b;        /* bit buffer */
@@ -151,7 +146,7 @@ local int inflate_blocks( /* s, z, r) */
 						inflate_huft * tl, * td;
 
 						inflate_trees_fixed(&bl, &bd, (const inflate_huft**)&tl,
-					    (const inflate_huft**)&td, z);
+						    (const inflate_huft**)&td, z);
 						s->sub.decode.codes = inflate_codes_new(bl, bd, tl, td, z);
 						if(s->sub.decode.codes == Z_NULL) {
 							r = Z_MEM_ERROR;
@@ -201,8 +196,8 @@ local int inflate_blocks( /* s, z, r) */
 			    if((s->sub.left -= t) != 0)
 				    break;
 			    Tracev((stderr, "inflate:       stored end, %lu total out\n",
-				    z->total_out + (q >= s->read ? q - s->read :
-					    (s->end - s->read) + (q - s->window))));
+				z->total_out + (q >= s->read ? q - s->read :
+				(s->end - s->read) + (q - s->window))));
 			    s->mode = s->last ? DRY : TYPE;
 			    break;
 			case TABLE:
@@ -225,6 +220,7 @@ local int inflate_blocks( /* s, z, r) */
 			    s->sub.trees.index = 0;
 			    Tracev((stderr, "inflate:       table sizes ok\n"));
 			    s->mode = BTREE;
+			/* fall through */
 			case BTREE:
 			    while(s->sub.trees.index < 4 + (s->sub.trees.table >> 10)) {
 				    NEEDBITS(3)
@@ -235,7 +231,7 @@ local int inflate_blocks( /* s, z, r) */
 				    s->sub.trees.blens[border[s->sub.trees.index++]] = 0;
 			    s->sub.trees.bb = 7;
 			    t = inflate_trees_bits(s->sub.trees.blens, &s->sub.trees.bb,
-			    &s->sub.trees.tb, s->hufts, z);
+				    &s->sub.trees.tb, s->hufts, z);
 			    if(t != Z_OK) {
 				    r = t;
 				    if(r == Z_DATA_ERROR) {
@@ -247,9 +243,10 @@ local int inflate_blocks( /* s, z, r) */
 			    s->sub.trees.index = 0;
 			    Tracev((stderr, "inflate:       bits tree ok\n"));
 			    s->mode = DTREE;
+			/* fall through */
 			case DTREE:
 			    while(t = s->sub.trees.table,
-			    s->sub.trees.index < 258 + (t & 0x1f) + ((t >> 5) & 0x1f)) {
+				s->sub.trees.index < 258 + (t & 0x1f) + ((t >> 5) & 0x1f)) {
 				    inflate_huft * h;
 				    uInt i, j, c;
 
@@ -272,7 +269,7 @@ local int inflate_blocks( /* s, z, r) */
 					    i = s->sub.trees.index;
 					    t = s->sub.trees.table;
 					    if(i + j > 258 + (t & 0x1f) + ((t >> 5) & 0x1f) ||
-					    (c == 16 && i < 1)) {
+						(c == 16 && i < 1)) {
 						    ZLIB_FREE(z, s->sub.trees.blens);
 						    s->mode = BAD;
 						    z->msg = (char*)"invalid bit length repeat";
@@ -296,8 +293,8 @@ local int inflate_blocks( /* s, z, r) */
 				    bd = 6; /* must be <= 9 for lookahead assumptions */
 				    t = s->sub.trees.table;
 				    t = inflate_trees_dynamic(257 + (t & 0x1f), 1 + ((t >> 5) & 0x1f),
-				    s->sub.trees.blens, &bl, &bd, &tl, &td,
-				    s->hufts, z);
+					    s->sub.trees.blens, &bl, &bd, &tl, &td,
+					    s->hufts, z);
 				    if(t != Z_OK) {
 					    if(t == (uInt)Z_DATA_ERROR) {
 						    ZLIB_FREE(z, s->sub.trees.blens);
@@ -315,6 +312,7 @@ local int inflate_blocks( /* s, z, r) */
 			    }
 			    ZLIB_FREE(z, s->sub.trees.blens);
 			    s->mode = CODES;
+			/* fall through */
 			case CODES:
 			    UPDATE
 			    if((r = inflate_codes(s, z, r)) != Z_STREAM_END)
@@ -322,18 +320,20 @@ local int inflate_blocks( /* s, z, r) */
 			    r = Z_OK;
 			    inflate_codes_free(s->sub.decode.codes, z);
 			    LOAD Tracev((stderr, "inflate:       codes end, %lu total out\n",
-				    z->total_out + (q >= s->read ? q - s->read :
-					    (s->end - s->read) + (q - s->window))));
+				z->total_out + (q >= s->read ? q - s->read :
+				(s->end - s->read) + (q - s->window))));
 			    if(!s->last) {
 				    s->mode = TYPE;
 				    break;
 			    }
 			    s->mode = DRY;
+			/* fall through */
 			case DRY:
 			    FLUSH
 			    if(s->read != s->write)
 				    LEAVE
 				    s->mode = DONE;
+			/* fall through */
 			case DONE:
 			    r = Z_STREAM_END;
 			    LEAVE
@@ -350,8 +350,8 @@ local int inflate_blocks( /* s, z, r) */
 }
 
 local int inflate_blocks_free( /* s, z) */
-    inflate_blocks_statef * s,
-    z_streamp z)
+	inflate_blocks_statef * s,
+	z_streamp z)
 {
 	inflate_blocks_reset(s, z, Z_NULL);
 	ZLIB_FREE(z, s->window);
@@ -360,4 +360,3 @@ local int inflate_blocks_free( /* s, z) */
 	Tracev((stderr, "inflate:   blocks freed\n"));
 	return Z_OK;
 }
-

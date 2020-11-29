@@ -1,29 +1,28 @@
-/***************************************************************************/
-/*                                                                         */
-/*  ttsbit.c                                                               */
-/*                                                                         */
-/*    TrueType and OpenType embedded bitmap support (body).                */
-/*                                                                         */
-/*  Copyright 2005-2017 by                                                 */
-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
-/*                                                                         */
-/*  Copyright 2013 by Google, Inc.                                         */
-/*  Google Author(s): Behdad Esfahbod.                                     */
-/*                                                                         */
-/*  This file is part of the FreeType project, and may only be used,       */
-/*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
-/***************************************************************************/
+/****************************************************************************
+ *
+ * ttsbit.c
+ *
+ *   TrueType and OpenType embedded bitmap support (body).
+ *
+ * Copyright (C) 2005-2020 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * Copyright 2013 by Google, Inc.
+ * Google Author(s): Behdad Esfahbod.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
 
 
-#include <ft2build.h>
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_STREAM_H
-#include FT_TRUETYPE_TAGS_H
-#include FT_BITMAP_H
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftstream.h>
+#include <freetype/tttags.h>
+#include <freetype/ftbitmap.h>
 
 
 #ifdef TT_CONFIG_OPTION_EMBEDDED_BITMAPS
@@ -36,14 +35,14 @@
 #include "pngshim.h"
 
 
-  /*************************************************************************/
-  /*                                                                       */
-  /* The macro FT_COMPONENT is used in trace mode.  It is an implicit      */
-  /* parameter of the FT_TRACE() and FT_ERROR() macros, used to print/log  */
-  /* messages during execution.                                            */
-  /*                                                                       */
+  /**************************************************************************
+   *
+   * The macro FT_COMPONENT is used in trace mode.  It is an implicit
+   * parameter of the FT_TRACE() and FT_ERROR() macros, used to print/log
+   * messages during execution.
+   */
 #undef  FT_COMPONENT
-#define FT_COMPONENT  trace_ttsbit
+#define FT_COMPONENT  ttsbit
 
 
   FT_LOCAL_DEF( FT_Error )
@@ -129,8 +128,8 @@
         }
 
         /*
-         *  Count the number of strikes available in the table.  We are a bit
-         *  paranoid there and don't trust the data.
+         * Count the number of strikes available in the table.  We are a bit
+         * paranoid there and don't trust the data.
          */
         count = (FT_UInt)num_strikes;
         if ( 8 + 48UL * count > table_size )
@@ -182,8 +181,8 @@
                       " expect bad rendering results\n" ));
 
         /*
-         *  Count the number of strikes available in the table.  We are a bit
-         *  paranoid there and don't trust the data.
+         * Count the number of strikes available in the table.  We are a bit
+         * paranoid there and don't trust the data.
          */
         count = (FT_UInt)num_strikes;
         if ( 8 + 4UL * count > table_size )
@@ -348,7 +347,7 @@
             FT_TRACE2(( "tt_face_load_strike_metrics:"
                         " sanitizing invalid ascender and descender\n"
                         "                            "
-                        " values for strike %d (%dppem, %dppem)\n",
+                        " values for strike %ld (%dppem, %dppem)\n",
                         strike_index,
                         metrics->x_ppem, metrics->y_ppem ));
 
@@ -447,6 +446,15 @@
                      ppem_ * 64, upem );
         metrics->max_advance =
           FT_MulDiv( hori->advance_Width_Max, ppem_ * 64, upem );
+
+        /* set the scale values (in 16.16 units) so advances */
+        /* from the hmtx and vmtx table are scaled correctly */
+        metrics->x_scale = FT_MulDiv( metrics->x_ppem,
+                                      64 * 0x10000,
+                                      face->header.Units_Per_EM );
+        metrics->y_scale = FT_MulDiv( metrics->y_ppem,
+                                      64 * 0x10000,
+                                      face->header.Units_Per_EM );
 
         return error;
       }
@@ -998,14 +1006,15 @@
       goto Fail;
     }
 
-    FT_TRACE3(( "tt_sbit_decoder_load_compound: loading %d components\n",
-                num_components ));
+    FT_TRACE3(( "tt_sbit_decoder_load_compound: loading %d component%s\n",
+                num_components,
+                num_components == 1 ? "" : "s" ));
 
     for ( nn = 0; nn < num_components; nn++ )
     {
       FT_UInt  gindex = FT_NEXT_USHORT( p );
-      FT_Byte  dx     = FT_NEXT_BYTE( p );
-      FT_Byte  dy     = FT_NEXT_BYTE( p );
+      FT_Char  dx     = FT_NEXT_CHAR( p );
+      FT_Char  dy     = FT_NEXT_CHAR( p );
 
 
       /* NB: a recursive call */
@@ -1439,10 +1448,17 @@
     return FT_THROW( Invalid_Table );
 
   NoBitmap:
+    if ( recurse_count )
+    {
+      FT_TRACE4(( "tt_sbit_decoder_load_image:"
+                  " missing subglyph sbit with glyph index %d\n",
+                  glyph_index ));
+      return FT_THROW( Invalid_Composite );
+    }
+
     FT_TRACE4(( "tt_sbit_decoder_load_image:"
                 " no sbit found for glyph index %d\n", glyph_index ));
-
-    return FT_THROW( Invalid_Argument );
+    return FT_THROW( Missing_Bitmap );
   }
 
 
@@ -1497,7 +1513,7 @@
     FT_FRAME_EXIT();
 
     if ( glyph_start == glyph_end )
-      return FT_THROW( Invalid_Argument );
+      return FT_THROW( Missing_Bitmap );
     if ( glyph_start > glyph_end                     ||
          glyph_end - glyph_start < 8                 ||
          face->ebdt_size - strike_offset < glyph_end )

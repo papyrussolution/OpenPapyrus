@@ -11,66 +11,137 @@
 #define UEDCAP_HARDLINGSYMB  0x0004 // Сущность имеет твердый символьный идентификатор, ассоциированный с конкретным языком
 //
 // Идентификация типов сущностей
+// Диапазон [1..100] Зарезервирован за мета-типами
+// Если у идентификатора установлен бит 0x8000000000000000, то дескриптор сущности имеет длину 1 байт
+// Если у идентификатора установлен бит 0x4000000000000000, то дескриптор сущности имеет длину 2 байта
 //
 #define UED_META                            1   // Мета-значения (собственно, перечисление определений этого файла)
-#define UED_OPERATOR1                       2   // Оператор с одним аргументом
-#define UED_OPERATOR2                       3   // Оператор с двумя аргументами
-#define UED_CONSTANT                        4   // Универсальные константы
-#define UED_ERROR                           5   // 
-#define UED_DIMENSION                       6   // Размерности
-#define UED_UOM                             7   // Единицы измерения //
-#define UED_UTF32CHAR                       8   // UNICODE-символы
-#define UED_COLORRGB                        9   // 
-#define UED_PARTICULAEELEMENTARIAE         10   // Элементарная частица
-#define UED_ATOM                           11   // Атом
-#define UED_PLANET                         13   // 
-#define UED_BIOTAXON                       14   // 
-#define UED_BIOTAXKINGDOM                  15   // 
-#define UED_BIOTAXPHYLUM                   16   // 
-#define UED_BIOTAXCLASS                    17   // 
-#define UED_BIOTAXORDER                    18   // 
-#define UED_BIOTAXFAMILY                   19   // 
-#define UED_BIOTAXGENUS                    20   // 
-#define UED_BIOTAXSPECIES                  21   // 
-#define UED_LINGUA                         22   // Язык
-#define UED_GENDER                         23   // Пол
-#define UED_TIMEZONE                       24   // Временная зона
-#define UED_CONTINENT                      25   // Земной континент
-#define UED_REGIONEMMUNDI                  26   // Регион мира
-#define UED_STATU                          27   // Country
-#define UED_URBS                           28   // City
-#define UED_CURRENCY                       29   // Валюта
-#define UED_CURRENCYPAIR                   30   // Валютная пара
-#define UED_TICKER                         31   // Биржевой тикер
-#define UED_FISCALTAX                      32   // Типы фискальных налогов
-#define UED_FISCALVATRATE                  33   // Значения ставок НДС
-#define UED_PROGLANG                       34   // Языки программирования
-#define UED_DATATYPE                       35   // Типы данных в программировании
-#define UED_ABSTRACTDATASTRUCT             36   // Абстрактные структуры данных в программировании
-#define UED_DATAFORMATMIME                 37   // Форматы данных MIME
-#define UED_PACKAGE                        38   // Типы упаковки
-#define UED_AIRPORT                        39   // Аэропорты
-#define UED_SCRIPT                         40   // Скрипты
-#define UED_BARCODEENCODING                41   // Стандарты кодирования штрихкодов
+#define UED_PREDEFINEDVALUE                 2   // Предопределенные значения: 0, 1, undefined, unknown, -infinity, +infinity, true, false
+#define UED_METAERROR                       3   // Ошибки, возникающие при обработке данных SARTRE-UED
+#define UED_CONSTANT                        4   // Универсальные константы (pi, e, фундаментальный физические константы, etc)
+#define UED_OPERATOR                        5   // Экземпляры сущности имеют формат: { naked-id: 24bit; number-of-arguments: 8bit }. Примеры: add(2), sub(2), mul(2), inverse(1)
+	// Оператор не определяет типы аргументов. Это - задача правил.
+#define UED_FIXEDSIZEDATATYPE               6   // Экземпляры сущности имеют формат: { naked-id: 16bit; size: 16bit }. Примеры: GUID, SHA-1 hash, AES cipher block   
+#define UED_DIMENSION                     102   // Размерности. Примеры: длина, скорость, электрическая емкость, etc
+#define UED_UOM                           103   // Единицы измерения //
+#define UED_UOM_TIME                      104 // Единицы измерения: Время
+#define UED_UOM_QUANTITY                  104 // Единицы измерения: Количество 
+#define UED_UOM_LENGTH                    104 // Единицы измерения: Длина   meter
+#define UED_UOM_AREA                      104 // Единицы измерения: Площадь length^2
+#define UED_UOM_VOLUME                    104 // Единицы измерения: Объем   length^3
+#define UED_UOM_MASS                      104 // Единицы измерения: Масса   kilogram
+#define UED_UOM_CURRENT                   104 // Единицы измерения: Сила тока ampere
+#define UED_UOM_AMOUNT                    104 // Единицы измерения: Количество вещества mole
+#define UED_UOM_ANGLE                     104 // Единицы измерения: Угол radian
+#define UED_UOM_SOLID_ANGLE               104 // Единицы измерения: Сплошной угол steradian
+#define UED_UOM_FORCE                     104 // Единицы измерения: Сила newton
+#define UED_UOM_PRESSURE                  104 // Единицы измерения: Давление force / area
+#define UED_UOM_CHARGE                    104 // Единицы измерения: Электрический заряд coulomb
+#define UED_UOM_CAPACITANCE               104 // Единицы измерения: Электрическая емкость farad
+#define UED_UOM_RESISTANCE                104 // Единицы измерения: Электрическое сопротивление ohm
+#define UED_UOM_CONDUCTANCE               104 // Единицы измерения: Электрическая проводимость siemens
+#define UED_UOM_INDUCTANCE                104 // Единицы измерения: Электрическая индуктивность henry
+#define UED_UOM_FREQUENCY                 104 // Единицы измерения: Частота колебаний hertz
+#define UED_UOM_VELOCITY                  104 // Единицы измерения: Скорость length / time
+#define UED_UOM_ACCELERATION              104 // Единицы измерения: Ускорение velocity / time
+#define UED_UOM_DENSITY                   104 // Единицы измерения: Плотность вещества mass / volume
+#define UED_UOM_LINEAR_DENSITY            104 // Единицы измерения: Линейная плотность вещества mass / length
+#define UED_UOM_VISCOSITY                 104 // Единицы измерения: Вязкость вещества force time / area
+#define UED_UOM_KINEMATIC_VISCOSITY       104 // Единицы измерения: Кинематическая вязкость вещества viscosity / density
+#define UED_UOM_ENERGY                    104 // Единицы измерения: Энергия (работа)
+#define UED_UOM_POWER                     104 // Единицы измерения: Мощность watt
+#define UED_UOM_MONEY                     104 // Единицы измерения: Денежная размерность us$
+#define UED_UOM_CONCENTRATION             104 // Единицы измерения: Концентрация (относительное значение, как то, процент, промилле etc)
+#define UED_UOM_TEMPERATURE               104 // Единицы измерения: Температура kelvin
 
-#define UED_MOLECULO               0x40000001 // Молекула
-#define UED_POPULUS                0x40000002 // Люди. Как-бы сложно не было фиксировать отдельных людей, этот элемент по крайней мере позволит учесть селебрити.
-#define UED_GLN                    0x40000003 // 
-#define UED_EAN13                  0x40000004 // 
-#define UED_EAN8                   0x40000005 // 
-#define UED_UPC                    0x40000006 // 
-#define UED_RU_INN                 0x40000007 // 
-#define UED_RU_KPP                 0x40000008 // 
-#define UED_INTEGER                0x40000009 // INT48
-#define UED_DECIMAL                0x40000000 // 
-#define UED_FIXEDPOINT8            0x40000000 // 
-#define UED_FIXEDPOINT16           0x40000000 // 
-#define UED_DATASIZE               0x40000000 // INT48
-#define UED_IP4                    0x40000000 // 
-#define UED_IP6                    0x40000000 //
-                                   
-#define UED_TIME                   0x80000000 //
-#define UED_PLANARANGLE            0x80000000 // 2-D angle
-#define UED_PLANARPOINT            0x80000000 // 2-D point {28bit; 28bit} fixed binary point 16bit
-#define UED_PLANARSIZE             0x80000000 // 2-D size {28bit; 28bit} fixed binary point 16bit
-#define UED_GEOLOC                 0x90000000 // {28bit; 28bit}
+#define UED_UTF32CHAR                     104   // UNICODE-символы
+#define UED_MBSTRINGENCODING              106
+#define UED_PARTICULAEELEMENTARIAE        105   // Элементарная частица
+#define UED_ATOM                          106   // Атом
+#define UED_CORPORECAELESTI               107   // Небесное тело (планеты, звезды, etc)
+#define UED_BIOTAXON                      108   // Экземпляр биологической таксономии (царство, род, вид, etc)
+#define UED_BIOTAXKINGDOM                 109   // 
+#define UED_BIOTAXPHYLUM                  110   // 
+#define UED_BIOTAXCLASS                   111   // 
+#define UED_BIOTAXORDER                   112   // 
+#define UED_BIOTAXFAMILY                  113   // 
+#define UED_BIOTAXGENUS                   114   // 
+#define UED_BIOTAXSPECIES                 115   // 
+#define UED_LINGUA                        116   // Язык
+#define UED_SCRIPT                        117   // Скрипт
+#define UED_GENDER                        118   // Пол
+#define UED_TIMEZONE                      119   // Временная зона
+#define UED_TERRA_CONTINENTEM             120   // Земной континент
+#define UED_TERRA_OCEANUM                 121   // Земной океан
+#define UED_TERRA_MARE                    122   // Земное море
+#define UED_TERRA_FLUMEN                  123   // Земная река
+#define UED_TERRA_LACUS                   124   // Земное озеро 
+#define UED_TERRA_MONS                    125   // Земная гора
+#define UED_REGIONEMMUNDI                 126   // Регион мира
+#define UED_STATU                         127   // Country
+#define UED_URBS                          128   // Населенный пункт
+#define UED_CURRENCY                      129   // Валюта. Большинство современных и не очень валют имеют 3-значный ASCII-символ: значения идентификаторов будем формировать преобразованием этих символов в число.
+#define UED_CURRENCYPAIR                  130   // Валютная пара
+#define UED_STOCKTICKER                   131   // Биржевой тикер
+#define UED_FISCALTAX                     132   // Типы фискальных налогов
+#define UED_FISCALVATRATE                 133   // Значения ставок НДС
+#define UED_PROGLANG                      134   // Языки программирования
+#define UED_DATATYPE                      135   // Типы данных в программировании
+#define UED_ABSTRACTDATASTRUCT            136   // Абстрактные структуры данных в программировании
+#define UED_DATAFORMATMIME                137   // Форматы данных MIME
+#define UED_URISCHEME                     138   // Схема данных URI (сетевой протокол обмена)
+#define UED_BRAND                         139   // Бренд
+#define UED_PACKAGE                       140   // Типы упаковки
+#define UED_AIRPORT                       141   // Аэропорты
+#define UED_BARCODEENCODING               142   // Стандарты кодирования штрихкодов
+#define UED_COLORRGB                      143   // 
+#define UED_ICAO                          144   // ICAO-код (4 символа; значение включенное)
+#define UED_IATA                          145   // IATA-код (3 символа; значение включенное)
+
+#define UED_MOLECULO                   0x4001 // Молекула
+#define UED_POPULUS                    0x4002 // Люди. Как-бы сложно не было фиксировать отдельных людей, этот элемент по крайней мере позволит учесть селебрити.
+#define UED_GLN                        0x4003 // 
+#define UED_EAN13                      0x4004 // 
+#define UED_EAN8                       0x4005 // 
+#define UED_UPC                        0x4006 // 
+#define UED_RU_INN                     0x4007 // 
+#define UED_RU_KPP                     0x4008 // 
+#define UED_INTEGER                    0x4009 // INT48
+#define UED_DECIMAL                    0x400A // 
+#define UED_FIXEDPOINT8                0x400B // 
+#define UED_FIXEDPOINT16               0x400C // 
+#define UED_DATASIZE                   0x400D // INT48
+#define UED_IP4                        0x400E // 
+#define UED_IP6                        0x400F //
+#define UED_PHONENUMBER                0x4010 // Телефонный номер (только цифровое представление длиной до 14 символов - никаких +, добавочных и т.д.)
+#define UED_DATE_DAY                   0x4089 // since 0001-01-01 
+#define UED_DATE_MON                   0x408A // since 0001-01-01
+#define UED_DATE_QUART                 0x408B // since 0001-01-01
+#define UED_DATE_SMYR                  0x408C // since 0001-01-01
+#define UED_DATE_YR                    0x408D // since 0001-01-01
+#define UED_DATE_DYR                   0x408E // since 0001-01-01
+#define UED_DATE_SMCENT                0x408F // since 0001-01-01
+#define UED_DATE_CENT                  0x4090 // since 0001-01-01
+#define UED_DATE_MILLENNIUM            0x4091 // since 0001-01-01
+#define UED_DATE_DAYBC                 0x4092 // before 0001-01-01
+#define UED_DATE_MONBC                 0x4093 // before 0001-01-01
+#define UED_DATE_YRBC                  0x4094 // before 0001-01-01
+#define UED_DATE_DYRBC                 0x4095 // before 0001-01-01
+#define UED_DATE_CENTBC                0x4096 // before 0001-01-01
+#define UED_DATE_MILLENNIUMBC          0x4097 // before 0001-01-01
+#define UED_DATE_MLNYRAGO              0x4098
+#define UED_DATE_BLNYRAGO              0x4099
+                                       
+#define UED_TIME_MSEC                    0x80 // milliseconds since 1601-01-01 (UTC).
+#define UED_TIME_SEC                     0x81 // seconds since 1601-01-01 (UTC).
+#define UED_TIME_MIN                     0x82 // minuts  since 1601-01-01 (UTC).
+#define UED_TIME_HR                      0x83 // hours   since 1601-01-01 (UTC).
+#define UED_TIME_TZMSEC                  0x84 // milliseconds since 1601-01-01 (UTC).
+#define UED_TIME_TZCSEC                  0x85 // centiseconds since 1601-01-01 (UTC).
+#define UED_TIME_TZSEC                   0x86 // seconds since 1601-01-01 (UTC).
+#define UED_TIME_TZMIN                   0x87 // minuts  since 1601-01-01 (UTC).
+#define UED_TIME_TZHR                    0x88 // hours   since 1601-01-01 (UTC).
+#define UED_PLANARANGLE                  0x80 // 2-D angle
+#define UED_PLANARPOINT                  0x80 // 2-D point {28bit; 28bit} fixed binary point 16bit
+#define UED_PLANARSIZE                   0x80 // 2-D size {28bit; 28bit} fixed binary point 16bit
+#define UED_GEOLOC                       0x90 // {28bit; 28bit}

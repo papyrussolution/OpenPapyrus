@@ -52,7 +52,7 @@ struct internal_state {
 };
 
 ZEXPORT(int) inflateReset( /* z) */
-    z_streamp z)
+	z_streamp z)
 {
 	if(z == Z_NULL || z->state == Z_NULL)
 		return Z_STREAM_ERROR;
@@ -65,7 +65,7 @@ ZEXPORT(int) inflateReset( /* z) */
 }
 
 ZEXPORT(int) inflateEnd( /* z) */
-    z_streamp z)
+	z_streamp z)
 {
 	if(z == Z_NULL || z->state == Z_NULL || z->zfree == Z_NULL)
 		return Z_STREAM_ERROR;
@@ -78,15 +78,13 @@ ZEXPORT(int) inflateEnd( /* z) */
 }
 
 ZEXPORT(int) inflateInit2_( /* z, w, version, stream_size) */
-    z_streamp z,
-    int w,
-    const char * version,
-    int stream_size)
+	z_streamp z,
+	int w,
+	const char * version,
+	int stream_size)
 {
-	if(version == Z_NULL || version[0] != ZLIB_VERSION[0] ||
-	    stream_size != sizeof(z_stream))
+	if(version == Z_NULL || version[0] != ZLIB_VERSION[0] || stream_size != sizeof(z_stream))
 		return Z_VERSION_ERROR;
-
 	/* initialize state */
 	if(z == Z_NULL)
 		return Z_STREAM_ERROR;
@@ -106,7 +104,6 @@ ZEXPORT(int) inflateInit2_( /* z, w, version, stream_size) */
 		w = -w;
 		z->state->nowrap = 1;
 	}
-
 	/* set window size */
 	if(w < 8 || w > 15) {
 		inflateEnd(z);
@@ -116,7 +113,7 @@ ZEXPORT(int) inflateInit2_( /* z, w, version, stream_size) */
 
 	/* create inflate_blocks state */
 	if((z->state->blocks =
-			    inflate_blocks_new(z, z->state->nowrap ? Z_NULL : adler32, (uInt)1 << w))
+	    inflate_blocks_new(z, z->state->nowrap ? Z_NULL : adler32, (uInt)1 << w))
 	    == Z_NULL) {
 		inflateEnd(z);
 		return Z_MEM_ERROR;
@@ -129,24 +126,21 @@ ZEXPORT(int) inflateInit2_( /* z, w, version, stream_size) */
 }
 
 #undef  NEEDBYTE
-#define NEEDBYTE {if(z->avail_in==0) return r; r = f; }
+#define NEEDBYTE {if(z->avail_in==0) return r; r = f;}
 
 #undef  NEXTBYTE
 #define NEXTBYTE (z->avail_in--, z->total_in++, *z->next_in++)
 
-ZEXPORT(int) inflate( /* z, f) */
-    z_streamp z,
-    int f)
+ZEXPORT(int) inflate( /* z, f) */ z_streamp z, int f)
 {
 	int r;
 	uInt b;
-
 	if(z == Z_NULL || z->state == Z_NULL || z->next_in == Z_NULL)
 		return Z_STREAM_ERROR;
 	f = f == Z_FINISH ? Z_BUF_ERROR : Z_OK;
 	r = Z_BUF_ERROR;
-	while(1) switch(z->state->mode)
-		{
+	while(1) 
+		switch(z->state->mode) {
 			case METHOD:
 			    NEEDBYTE
 			    if(((z->state->sub.method = NEXTBYTE) & 0xf) != Z_DEFLATED) {
@@ -162,9 +156,10 @@ ZEXPORT(int) inflate( /* z, f) */
 				    break;
 			    }
 			    z->state->mode = FLAG;
+			/* fall through */
 			case FLAG:
 			    NEEDBYTE
-			    b = NEXTBYTE;
+				b = NEXTBYTE;
 			    if(((z->state->sub.method << 8) + b) % 31) {
 				    z->state->mode = BAD;
 				    z->msg = (char*)"incorrect header check";
@@ -177,18 +172,22 @@ ZEXPORT(int) inflate( /* z, f) */
 				    break;
 			    }
 			    z->state->mode = DICT4;
+			/* fall through */
 			case DICT4:
 			    NEEDBYTE
 			    z->state->sub.check.need = (uLong)NEXTBYTE << 24;
 			    z->state->mode = DICT3;
+			/* fall through */
 			case DICT3:
 			    NEEDBYTE
 			    z->state->sub.check.need += (uLong)NEXTBYTE << 16;
 			    z->state->mode = DICT2;
+			/* fall through */
 			case DICT2:
 			    NEEDBYTE
 			    z->state->sub.check.need += (uLong)NEXTBYTE << 8;
 			    z->state->mode = DICT1;
+			/* fall through */
 			case DICT1:
 			    NEEDBYTE
 			    z->state->sub.check.need += (uLong)NEXTBYTE;
@@ -218,18 +217,22 @@ ZEXPORT(int) inflate( /* z, f) */
 				    break;
 			    }
 			    z->state->mode = CHECK4;
+			/* fall through */
 			case CHECK4:
 			    NEEDBYTE
 			    z->state->sub.check.need = (uLong)NEXTBYTE << 24;
 			    z->state->mode = CHECK3;
+			/* fall through */
 			case CHECK3:
 			    NEEDBYTE
 			    z->state->sub.check.need += (uLong)NEXTBYTE << 16;
 			    z->state->mode = CHECK2;
+			/* fall through */
 			case CHECK2:
 			    NEEDBYTE
 			    z->state->sub.check.need += (uLong)NEXTBYTE << 8;
 			    z->state->mode = CHECK1;
+			/* fall through */
 			case CHECK1:
 			    NEEDBYTE
 			    z->state->sub.check.need += (uLong)NEXTBYTE;
@@ -242,6 +245,7 @@ ZEXPORT(int) inflate( /* z, f) */
 			    }
 			    Tracev((stderr, "inflate: zlib check ok\n"));
 			    z->state->mode = DONE;
+			/* fall through */
 			case DONE:
 			    return Z_STREAM_END;
 			case BAD:
@@ -253,4 +257,3 @@ ZEXPORT(int) inflate( /* z, f) */
 	return Z_STREAM_ERROR; /* Some dumb compilers complain without this */
 #endif
 }
-

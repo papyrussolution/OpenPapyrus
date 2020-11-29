@@ -2970,6 +2970,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert10507()); // @v10.5.7
 						THROW(Convert10702()); // @v10.7.2
 						THROW(Convert10903()); // @v10.9.3 конвертация ссылок на рабочие столы и меню в группах и пользователях
+						THROW(Convert10905()); // @v10.9.5
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;

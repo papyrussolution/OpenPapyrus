@@ -48,11 +48,11 @@
  * architectures that lack an AND-NOT instruction, just like in Colin Plumb's
  * implementation.
  */
-#define F(x, y, z)			((z) ^ ((x) & ((y) ^ (z))))
-#define G(x, y, z)			((y) ^ ((z) & ((x) ^ (y))))
-#define H(x, y, z)			(((x) ^ (y)) ^ (z))
-#define H2(x, y, z)			((x) ^ ((y) ^ (z)))
-#define I(x, y, z)			((y) ^ ((x) | ~(z)))
+#define F(x, y, z)                      ((z) ^ ((x) & ((y) ^ (z))))
+#define G(x, y, z)                      ((y) ^ ((z) & ((x) ^ (y))))
+#define H(x, y, z)                      (((x) ^ (y)) ^ (z))
+#define H2(x, y, z)                     ((x) ^ ((y) ^ (z)))
+#define I(x, y, z)                      ((y) ^ ((x) | ~(z)))
 
 /*
  * The MD5 transformation for all four rounds.
@@ -79,7 +79,7 @@
  */
 #if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
 #define SET(n) \
-	(*(MD5_u32plus *)&ptr[(n) * 4])
+	(*(MD5_u32plus*)&ptr[(n) * 4])
 #define GET(n) \
 	SET(n)
 #else
@@ -97,13 +97,13 @@
  * This processes one or more 64-byte data blocks, but does NOT update the bit
  * counters.  There are no alignment requirements.
  */
-static const void *body(MD5_CTX *ctx, const void *data, unsigned long size)
+static const void * body(MD5_CTX * ctx, const void * data, unsigned long size)
 {
-	const unsigned char *ptr;
+	const unsigned char * ptr;
 	MD5_u32plus a, b, c, d;
 	MD5_u32plus saved_a, saved_b, saved_c, saved_d;
 
-	ptr = (const unsigned char *)data;
+	ptr = (const unsigned char*)data;
 
 	a = ctx->a;
 	b = ctx->b;
@@ -194,7 +194,7 @@ static const void *body(MD5_CTX *ctx, const void *data, unsigned long size)
 		d += saved_d;
 
 		ptr += 64;
-	} while (size -= 64);
+	} while(size -= 64);
 
 	ctx->a = a;
 	ctx->b = b;
@@ -204,7 +204,7 @@ static const void *body(MD5_CTX *ctx, const void *data, unsigned long size)
 	return ptr;
 }
 
-void MD5_Init(MD5_CTX *ctx)
+void MD5_Init(MD5_CTX * ctx)
 {
 	ctx->a = 0x67452301;
 	ctx->b = 0xefcdab89;
@@ -215,65 +215,58 @@ void MD5_Init(MD5_CTX *ctx)
 	ctx->hi = 0;
 }
 
-void MD5_Update(MD5_CTX *ctx, const void *data, unsigned long size)
+void MD5_Update(MD5_CTX * ctx, const void * data, unsigned long size)
 {
 	MD5_u32plus saved_lo;
 	unsigned long used, available;
 
 	saved_lo = ctx->lo;
-	if ((ctx->lo = (saved_lo + size) & 0x1fffffff) < saved_lo)
+	if((ctx->lo = (saved_lo + size) & 0x1fffffff) < saved_lo)
 		ctx->hi++;
 	ctx->hi += size >> 29;
 
 	used = saved_lo & 0x3f;
 
-	if (used) {
+	if(used) {
 		available = 64 - used;
 
-		if (size < available) {
+		if(size < available) {
 			memcpy(&ctx->buffer[used], data, size);
 			return;
 		}
 
 		memcpy(&ctx->buffer[used], data, available);
-		data = (const unsigned char *)data + available;
+		data = (const unsigned char*)data + available;
 		size -= available;
 		body(ctx, ctx->buffer, 64);
 	}
-
-	if (size >= 64) {
+	if(size >= 64) {
 		data = body(ctx, data, size & ~(unsigned long)0x3f);
 		size &= 0x3f;
 	}
-
 	memcpy(ctx->buffer, data, size);
 }
 
+#undef OUT
 #define OUT(dst, src) \
 	(dst)[0] = (unsigned char)(src); \
 	(dst)[1] = (unsigned char)((src) >> 8); \
 	(dst)[2] = (unsigned char)((src) >> 16); \
 	(dst)[3] = (unsigned char)((src) >> 24);
 
-void MD5_Final(unsigned char *result, MD5_CTX *ctx)
+void MD5_Final(unsigned char * result, MD5_CTX * ctx)
 {
 	unsigned long used, available;
-
 	used = ctx->lo & 0x3f;
-
 	ctx->buffer[used++] = 0x80;
-
 	available = 64 - used;
-
-	if (available < 8) {
+	if(available < 8) {
 		memset(&ctx->buffer[used], 0, available);
 		body(ctx, ctx->buffer, 64);
 		used = 0;
 		available = 64;
 	}
-
 	memset(&ctx->buffer[used], 0, available - 8);
-
 	ctx->lo <<= 3;
 	OUT(&ctx->buffer[56], ctx->lo)
 	OUT(&ctx->buffer[60], ctx->hi)

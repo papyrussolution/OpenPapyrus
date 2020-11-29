@@ -599,6 +599,8 @@
 	#define HELP_BROWSER_VETISDOCUMENT                          277
 #define BROWSER_QUOTEREQANALYZE                        278 // @{view_quotereqanalyze}
 	#define HELP_BROWSER_QUOTEREQANALYZE                        278
+#define BROWSER_FILESYSTEM                             279 // 
+	#define HELP_BROWSER_FILESYSTEM                             279
 
 //
 // PPVIEW COMMAND definitions
@@ -4927,4 +4929,5 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_MENU                            32956
 #define PPDV_LOGOPAPYRUS                     32957
 #define PPDV_LOGOUDS                         32958
+#define PPDV_LOGOVK                          32959
 

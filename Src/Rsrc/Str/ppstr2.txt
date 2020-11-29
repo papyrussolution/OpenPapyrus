@@ -5843,6 +5843,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @scenario                            "Сценарий"
 @scenario_pl                         "Сценарии"
+@query                               "Запрос"
+@querytoken                          "Запрос авторизации"
 @tochoose                            "На выбор"
 @properties                          "Свойства"
 @dontuse                             "Не использовать"
@@ -8131,6 +8133,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_exportdbtbltransfer                  "Экспорт таблицы Transfer"
 @cmd_exportdbtblbill                      "Экспорт таблицы Bill"
 @cmd_setupglbsvc_uds                      "Настройка интеграции с сервисом UDS"
+@cmd_setupglbsvc_vk                       "Настройка интеграции с сервисом VK"
 @cmd_usermenu                             "Пользовательские меню и рабочие столы"
 
 @cmdpu_admin           			          "Админ"
@@ -13982,7 +13985,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @posnodecmd_async_getsess                 "Получить чеки"
 @posnodecmd_async_ccheckview              "@{check_pl}"
 @posnodecmd_async_exc                     "Излишки за день"
-@posnodecmd_async_query                   "Запрос"
+@posnodecmd_async_query                   "@{query}"
 @posnodecmd_sync_opensess                 "Открыть сессию"
 @posnodecmd_sync_closesess                "Закрыть сессию"
 @posnodecmd_sync_lock                     "Блокировать ККМ"
@@ -14889,7 +14892,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @chznprcssrparam                          "Обмен с честным знаком" //
 @chznprcssrparam_gua                      "@{globaluseracc}"
-@chznprcssrparam_what                     "Запрос"
+@chznprcssrparam_what                     "@{query}"
 @chznprcssrparam_param                    "Параметр запроса"
 @chznprcssrparam_ar                       "@{supplier}"
 @chznprcssrparam_afqueryticket            "Запрос тикета по документу"
@@ -15581,6 +15584,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 #{
 В личном кабинете UDS Game перейдите в раздел Интеграция и скопируйте сюда значение поля 'API Key'.
 #}
+@setupglbsvc_vk_groupident                    "Идентификатор группы"
 
 @suprwaretype_goods                           "Базовые товары"
 @suprwaretype_component                       "@{component_pl}"

@@ -109,11 +109,11 @@
 :dim_linear_density:dimension          // Линейная плотность вещества mass / length
 :dim_viscosity:dimension               // Вязкость вещества force time / area
 :dim_kinematic_viscosity:dimension     // Кинематическая вязкость вещества viscosity / density
-:dim_energy::dimension                 // Энергия (работа)
-:dim_power::dimension                  // Мощность watt
-:dim_money::dimension                  // Денежная размерность us$
-:dim_concentration::dimension          // Концентрация (относительное значение, как то, процент, промилле etc)
-:dim_temperature::dimension            // Температура kelvin
+:dim_energy:dimension                  // Энергия (работа)
+:dim_power:dimension                   // Мощность watt
+:dim_money:dimension                   // Денежная размерность us$
+:dim_concentration:dimension           // Концентрация (относительное значение, как то, процент, промилле etc)
+:dim_temperature:dimension             // Температура kelvin
 //
 //
 //

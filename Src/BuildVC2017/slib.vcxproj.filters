@@ -170,6 +170,7 @@
     <ClCompile Include="..\SLib\gumbo\gumbo-lib.c">
       <Filter>gumbo</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\tulipindicators.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

@@ -56,13 +56,13 @@ struct inflate_codes_state {
 };
 
 local inflate_codes_statef * inflate_codes_new( /* bl, bd, tl, td, z) */
-    uInt bl, uInt bd,
-    inflate_huft * tl,
-    inflate_huft * td, /* need separate declaration for Borland C++ */
-    z_streamp z)
+	uInt bl, uInt bd, inflate_huft * tl,
+	inflate_huft * td, /* need separate declaration for Borland C++ */
+	z_streamp z)
 {
 	inflate_codes_statef * c;
-	if((c = (inflate_codes_statef*)ZLIB_ALLOC(z, 1, sizeof(struct inflate_codes_state))) != Z_NULL) {
+	if((c = (inflate_codes_statef*)
+	    ZLIB_ALLOC(z, 1, sizeof(struct inflate_codes_state))) != Z_NULL) {
 		c->mode = START;
 		c->lbits = (Byte)bl;
 		c->dbits = (Byte)bd;
@@ -73,10 +73,7 @@ local inflate_codes_statef * inflate_codes_new( /* bl, bd, tl, td, z) */
 	return c;
 }
 
-local int inflate_codes( /* s, z, r) */
-    inflate_blocks_statef * s,
-    z_streamp z,
-    int r)
+local int inflate_codes( /* s, z, r) */ inflate_blocks_statef * s, z_streamp z, int r)
 {
 	uInt j;         /* temporary storage */
 	inflate_huft * t; /* temporary pointer */
@@ -111,6 +108,7 @@ local int inflate_codes( /* s, z, r) */
 			    c->sub.code.need = c->lbits;
 			    c->sub.code.tree = c->ltree;
 			    c->mode = LEN;
+			/* fall through */
 			case LEN: /* i: get length/literal/eob next */
 			    j = c->sub.code.need;
 			    NEEDBITS(j)
@@ -120,8 +118,8 @@ local int inflate_codes( /* s, z, r) */
 			    if(e == 0) { /* literal */
 				    c->sub.lit = t->base;
 				    Tracevv((stderr, t->base >= 0x20 && t->base < 0x7f ?
-					    "inflate:         literal '%c'\n" :
-					    "inflate:         literal 0x%02x\n", t->base));
+					"inflate:         literal '%c'\n" :
+					"inflate:         literal 0x%02x\n", t->base));
 				    c->mode = LIT;
 				    break;
 			    }
@@ -154,6 +152,7 @@ local int inflate_codes( /* s, z, r) */
 			    c->sub.code.tree = c->dtree;
 			    Tracevv((stderr, "inflate:         length %u\n", c->len));
 			    c->mode = DIST;
+			/* fall through */
 			case DIST: /* i: get distance next */
 			    j = c->sub.code.need;
 			    NEEDBITS(j)
@@ -182,10 +181,11 @@ local int inflate_codes( /* s, z, r) */
 			    DUMPBITS(j)
 			    Tracevv((stderr, "inflate:         distance %u\n", c->sub.copy.dist));
 			    c->mode = COPY;
+			/* fall through */
 			case COPY: /* o: copying bytes in window, waiting for space */
 			    f = q - c->sub.copy.dist;
 			    while(f < s->window) /* modulo window size-"while" instead */
-				    f += s->end - s->window;  /* of "if" handles invalid distances */
+				    f += s->end - s->window; /* of "if" handles invalid distances */
 			    while(c->len) {
 				    NEEDOUT OUTBYTE(* f++)
 				    if(f == s->end)
@@ -209,6 +209,7 @@ local int inflate_codes( /* s, z, r) */
 			    if(s->read != s->write)
 				    LEAVE
 				    c->mode = END;
+			/* fall through */
 			case END:
 			    r = Z_STREAM_END;
 			    LEAVE
@@ -225,10 +226,9 @@ local int inflate_codes( /* s, z, r) */
 }
 
 local void inflate_codes_free( /* c, z) */
-    inflate_codes_statef * c,
-    z_streamp z)
+	inflate_codes_statef * c,
+	z_streamp z)
 {
 	ZLIB_FREE(z, c);
 	Tracev((stderr, "inflate:       codes free\n"));
 }
-

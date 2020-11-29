@@ -1234,6 +1234,9 @@
 				RelativePath="..\SLib\tsstat.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\tulipindicators.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\Tview.cpp">
 			</File>
 			<File

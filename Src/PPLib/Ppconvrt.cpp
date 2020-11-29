@@ -7755,3 +7755,54 @@ int Convert10903()
 	delete p_mgr_menu;
 	return ok;
 }
+//
+//
+//
+class PPCvtEgaisRefA10905 : public PPTableConversion {
+public:
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new EgaisRefATbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(EgaisRefATbl::Rec));
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	{
+		struct EgaisRefATblRec_Before10905 {
+			long   ID;
+			char   RefACode[20];
+			char   AlcCode[24];
+			char   ManufRarIdent[16];
+			char   ImporterRarIdent[16];
+			int16  CountryCode;
+			int32  Volume;         // x100000
+			LDATE  BottlingDate;
+			LDATE  ActualDate;
+			long   Flags;
+			uint8  Reserve[12];
+		};
+		EgaisRefATbl::Rec * p_data = static_cast<EgaisRefATbl::Rec *>(pNewTbl->getDataBuf());
+		EgaisRefATblRec_Before10905 * p_old_rec = static_cast<EgaisRefATblRec_Before10905 *>(pOldRec);
+		memzero(p_data, sizeof(*p_data));
+#define CPYFLD(f) p_data->f = p_old_rec->f
+		CPYFLD(ID);
+		CPYFLD(CountryCode);
+		CPYFLD(Volume);
+		CPYFLD(BottlingDate);
+		CPYFLD(ActualDate);
+		CPYFLD(Flags);
+#undef CPYFLD
+		STRNSCPY(p_data->RefACode, p_old_rec->RefACode);
+		STRNSCPY(p_data->AlcCode, p_old_rec->AlcCode);
+		STRNSCPY(p_data->ManufRarIdent, p_old_rec->ManufRarIdent);
+		STRNSCPY(p_data->ImporterRarIdent, p_old_rec->ImporterRarIdent);
+		return 1;
+	}
+};
+
+CONVERT_PROC(Convert10905, PPCvtEgaisRefA10905);

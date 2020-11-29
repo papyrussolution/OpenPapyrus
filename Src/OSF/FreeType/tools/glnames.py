@@ -6,7 +6,7 @@
 #
 
 
-# Copyright 1996-2017 by
+# Copyright (C) 1996-2020 by
 # David Turner, Robert Wilhelm, and Werner Lemberg.
 #
 # This file is part of the FreeType project, and may only be used, modified,
@@ -151,7 +151,7 @@ mac_standard_names = \
 # The list of standard `SID' glyph names.  For the official list,
 # see Annex A of document at
 #
-#   http://partners.adobe.com/public/developer/en/font/5176.CFF.pdf  .
+#   https://www.adobe.com/content/dam/acom/en/devnet/font/pdfs/5176.CFF.pdf  .
 #
 sid_standard_names = \
 [
@@ -4920,7 +4920,7 @@ class StringTable:
 
   def dump( self, file ):
     write = file.write
-    write( "#ifndef  DEFINE_PS_TABLES\n" )
+    write( "#ifndef  DEFINE_PS_TABLES_DATA\n" )
     write( "#ifdef  __cplusplus\n" )
     write( '  extern "C"\n' )
     write( "#else\n" )
@@ -4929,7 +4929,7 @@ class StringTable:
     write( "#endif\n" )
     write( "  const char  " + self.master_table +
            "[" + repr( self.total ) + "]\n" )
-    write( "#ifdef  DEFINE_PS_TABLES\n" )
+    write( "#ifdef  DEFINE_PS_TABLES_DATA\n" )
     write( "  =\n" )
     write( "  {\n" )
 
@@ -4941,7 +4941,7 @@ class StringTable:
 
     write( line )
     write( "  }\n" )
-    write( "#endif /* DEFINE_PS_TABLES */\n" )
+    write( "#endif /* DEFINE_PS_TABLES_DATA */\n" )
     write( "  ;\n\n\n" )
 
   def dump_sublist( self, file, table_name, macro_name, sublist ):
@@ -4950,7 +4950,7 @@ class StringTable:
 
     write( "  /* Values are offsets into the `" +
            self.master_table + "' table */\n\n" )
-    write( "#ifndef  DEFINE_PS_TABLES\n" )
+    write( "#ifndef  DEFINE_PS_TABLES_DATA\n" )
     write( "#ifdef  __cplusplus\n" )
     write( '  extern "C"\n' )
     write( "#else\n" )
@@ -4959,7 +4959,7 @@ class StringTable:
     write( "#endif\n" )
     write( "  const short  " + table_name +
            "[" + macro_name + "]\n" )
-    write( "#ifdef  DEFINE_PS_TABLES\n" )
+    write( "#ifdef  DEFINE_PS_TABLES_DATA\n" )
     write( "  =\n" )
     write( "  {\n" )
 
@@ -4979,7 +4979,7 @@ class StringTable:
     write( line )
     write( "\n" )
     write( "  }\n" )
-    write( "#endif /* DEFINE_PS_TABLES */\n" )
+    write( "#endif /* DEFINE_PS_TABLES_DATA */\n" )
     write( "  ;\n\n\n" )
 
 
@@ -5213,7 +5213,7 @@ def dump_encoding( file, encoding_name, encoding_list ):
 
   write = file.write
   write( "  /* the following are indices into the SID name table */\n" )
-  write( "#ifndef  DEFINE_PS_TABLES\n" )
+  write( "#ifndef  DEFINE_PS_TABLES_DATA\n" )
   write( "#ifdef  __cplusplus\n" )
   write( '  extern "C"\n' )
   write( "#else\n" )
@@ -5222,7 +5222,7 @@ def dump_encoding( file, encoding_name, encoding_list ):
   write( "#endif\n" )
   write( "  const unsigned short  " + encoding_name +
          "[" + repr( len( encoding_list ) ) + "]\n" )
-  write( "#ifdef  DEFINE_PS_TABLES\n" )
+  write( "#ifdef  DEFINE_PS_TABLES_DATA\n" )
   write( "  =\n" )
   write( "  {\n" )
 
@@ -5241,14 +5241,14 @@ def dump_encoding( file, encoding_name, encoding_list ):
   write( line )
   write( "\n" )
   write( "  }\n" )
-  write( "#endif /* DEFINE_PS_TABLES */\n" )
+  write( "#endif /* DEFINE_PS_TABLES_DATA */\n" )
   write( "  ;\n\n\n" )
 
 
 def dump_array( the_array, write, array_name ):
   """dumps a given encoding"""
 
-  write( "#ifndef  DEFINE_PS_TABLES\n" )
+  write( "#ifndef  DEFINE_PS_TABLES_DATA\n" )
   write( "#ifdef  __cplusplus\n" )
   write( '  extern "C"\n' )
   write( "#else\n" )
@@ -5257,7 +5257,7 @@ def dump_array( the_array, write, array_name ):
   write( "#endif\n" )
   write( "  const unsigned char  " + array_name +
          "[" + repr( len( the_array ) ) + "L]\n" )
-  write( "#ifdef  DEFINE_PS_TABLES\n" )
+  write( "#ifdef  DEFINE_PS_TABLES_DATA\n" )
   write( "  =\n" )
   write( "  {\n" )
 
@@ -5282,7 +5282,7 @@ def dump_array( the_array, write, array_name ):
   write( line )
   write( "\n" )
   write( "  }\n" )
-  write( "#endif /* DEFINE_PS_TABLES */\n" )
+  write( "#endif /* DEFINE_PS_TABLES_DATA */\n" )
   write( "  ;\n\n\n" )
 
 
@@ -5293,7 +5293,7 @@ def main():
     print __doc__ % sys.argv[0]
     sys.exit( 1 )
 
-  file  = open( sys.argv[1], "w\n" )
+  file  = open( sys.argv[1], "wb" )
   write = file.write
 
   count_sid = len( sid_standard_names )
@@ -5310,24 +5310,24 @@ def main():
   mac_extras_count = len( mac_extras )
   base_list        = mac_extras + sid_standard_names
 
-  write( "/***************************************************************************/\n" )
-  write( "/*                                                                         */\n" )
+  write( "/****************************************************************************\n" )
+  write( " *\n" )
 
-  write( "/*  %-71s*/\n" % os.path.basename( sys.argv[1] ) )
+  write( " * %-71s\n" % os.path.basename( sys.argv[1] ) )
 
-  write( "/*                                                                         */\n" )
-  write( "/*    PostScript glyph names.                                              */\n" )
-  write( "/*                                                                         */\n" )
-  write( "/*  Copyright 2005-2017 by                                                 */\n" )
-  write( "/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */\n" )
-  write( "/*                                                                         */\n" )
-  write( "/*  This file is part of the FreeType project, and may only be used,       */\n" )
-  write( "/*  modified, and distributed under the terms of the FreeType project      */\n" )
-  write( "/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */\n" )
-  write( "/*  this file you indicate that you have read the license and              */\n" )
-  write( "/*  understand and accept it fully.                                        */\n" )
-  write( "/*                                                                         */\n" )
-  write( "/***************************************************************************/\n" )
+  write( " *\n" )
+  write( " *   PostScript glyph names.\n" )
+  write( " *\n" )
+  write( " * Copyright 2005-2019 by\n" )
+  write( " * David Turner, Robert Wilhelm, and Werner Lemberg.\n" )
+  write( " *\n" )
+  write( " * This file is part of the FreeType project, and may only be used,\n" )
+  write( " * modified, and distributed under the terms of the FreeType project\n" )
+  write( " * license, LICENSE.TXT.  By continuing to use, modify, or distribute\n" )
+  write( " * this file you indicate that you have read the license and\n" )
+  write( " * understand and accept it fully.\n" )
+  write( " *\n" )
+  write( " */\n" )
   write( "\n" )
   write( "\n" )
   write( "  /* This file has been generated automatically -- do not edit! */\n" )
@@ -5361,12 +5361,12 @@ def main():
 
   write( """\
   /*
-   *  This table is a compressed version of the Adobe Glyph List (AGL),
-   *  optimized for efficient searching.  It has been generated by the
-   *  `glnames.py' python script located in the `src/tools' directory.
+   * This table is a compressed version of the Adobe Glyph List (AGL),
+   * optimized for efficient searching.  It has been generated by the
+   * `glnames.py' python script located in the `src/tools' directory.
    *
-   *  The lookup function to get the Unicode value for a given string
-   *  is defined below the table.
+   * The lookup function to get the Unicode value for a given string
+   * is defined below the table.
    */
 
 #ifdef FT_CONFIG_OPTION_ADOBE_GLYPH_LIST
@@ -5380,7 +5380,7 @@ def main():
   write( """\
 #ifdef  DEFINE_PS_TABLES
   /*
-   *  This function searches the compressed table efficiently.
+   * This function searches the compressed table efficiently.
    */
   static unsigned long
   ft_get_adobe_glyph_index( const char*  name,

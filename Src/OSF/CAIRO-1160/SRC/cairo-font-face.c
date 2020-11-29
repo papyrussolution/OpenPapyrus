@@ -256,22 +256,16 @@ slim_hidden_def(cairo_font_face_get_user_data);
  *
  * Since: 1.0
  **/
-cairo_status_t cairo_font_face_set_user_data(cairo_font_face_t * font_face,
-    const cairo_user_data_key_t * key,
-    void * user_data,
-    cairo_destroy_func_t destroy)
+cairo_status_t cairo_font_face_set_user_data(cairo_font_face_t * font_face, const cairo_user_data_key_t * key, void * user_data, cairo_destroy_func_t destroy)
 {
 	if(CAIRO_REFERENCE_COUNT_IS_INVALID(&font_face->ref_count))
 		return font_face->status;
-
-	return _cairo_user_data_array_set_data(&font_face->user_data,
-		   key, user_data, destroy);
+	return _cairo_user_data_array_set_data(&font_face->user_data, key, user_data, destroy);
 }
 
 slim_hidden_def(cairo_font_face_set_user_data);
 
-void _cairo_unscaled_font_init(cairo_unscaled_font_t * unscaled_font,
-    const cairo_unscaled_font_backend_t * backend)
+void _cairo_unscaled_font_init(cairo_unscaled_font_t * unscaled_font, const cairo_unscaled_font_backend_t * backend)
 {
 	CAIRO_REFERENCE_COUNT_INIT(&unscaled_font->ref_count, 1);
 	unscaled_font->backend = backend;
@@ -281,11 +275,8 @@ cairo_unscaled_font_t * _cairo_unscaled_font_reference(cairo_unscaled_font_t * u
 {
 	if(unscaled_font == NULL)
 		return NULL;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&unscaled_font->ref_count));
-
 	_cairo_reference_count_inc(&unscaled_font->ref_count);
-
 	return unscaled_font;
 }
 
@@ -293,14 +284,10 @@ void _cairo_unscaled_font_destroy(cairo_unscaled_font_t * unscaled_font)
 {
 	if(unscaled_font == NULL)
 		return;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&unscaled_font->ref_count));
-
 	if(__put(&unscaled_font->ref_count))
 		return;
-
 	if(!unscaled_font->backend->destroy(unscaled_font))
 		return;
-
 	SAlloc::F(unscaled_font);
 }

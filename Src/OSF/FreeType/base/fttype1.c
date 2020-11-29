@@ -1,50 +1,43 @@
-/***************************************************************************/
-/*                                                                         */
-/*  fttype1.c                                                              */
-/*                                                                         */
-/*    FreeType utility file for PS names support (body).                   */
-/*                                                                         */
-/*  Copyright 2002-2017 by                                                 */
-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
-/*                                                                         */
-/*  This file is part of the FreeType project, and may only be used,       */
-/*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
-/***************************************************************************/
-
+/****************************************************************************
+ *
+ * fttype1.c
+ *
+ *   FreeType utility file for PS names support (body).
+ *
+ * Copyright (C) 2002-2020 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
 #define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_OBJECTS_H
-#include FT_INTERNAL_SERVICE_H
-#include FT_SERVICE_POSTSCRIPT_INFO_H
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftobjs.h>
+#include <freetype/internal/ftserv.h>
+#include <freetype/internal/services/svpsinfo.h>
 
 /* documentation is in t1tables.h */
 
 FT_EXPORT_DEF(FT_Error)
-FT_Get_PS_Font_Info(FT_Face face,
-    PS_FontInfoRec*  afont_info)
+FT_Get_PS_Font_Info(FT_Face face, PS_FontInfoRec*  afont_info)
 {
 	FT_Error error;
 	FT_Service_PsInfo service;
-
 	if(!face)
 		return FT_THROW(Invalid_Face_Handle);
-
 	if(!afont_info)
 		return FT_THROW(Invalid_Argument);
-
 	FT_FACE_FIND_SERVICE(face, service, POSTSCRIPT_INFO);
-
 	if(service && service->ps_get_font_info)
 		error = service->ps_get_font_info(face, afont_info);
 	else
 		error = FT_THROW(Invalid_Argument);
-
 	return error;
 }
 
@@ -108,7 +101,7 @@ FT_Get_PS_Font_Value(FT_Face face,
 
 		if(service && service->ps_get_font_value)
 			result = service->ps_get_font_value(face, key, idx,
-			    value, value_len);
+				value, value_len);
 	}
 
 	return result;

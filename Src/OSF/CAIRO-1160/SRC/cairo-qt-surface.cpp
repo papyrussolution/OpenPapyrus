@@ -38,7 +38,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 
-#if CAIRO_HAS_FT_FONT // {
+#if CAIRO_HAS_QT_SURFACE && CAIRO_HAS_FT_FONT // {
 #define __STDC_LIMIT_MACROS
 
 //#include "cairo-clip-private.h"
@@ -65,7 +65,7 @@
 #include <QtCore/QVarLengthArray>
 
 #if ((QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)) || defined(QT_GLYPHS_API_BACKPORT)) && 0
-extern void qt_draw_glyphs(QPainter *, const quint32 * glyphs, const QPointF * positions, int count);
+	extern void qt_draw_glyphs(QPainter *, const quint32 * glyphs, const QPointF * positions, int count);
 #endif
 
 #include <sys/time.h>
@@ -372,20 +372,15 @@ static inline QPainterPath path_to_qt(const cairo_path_fixed_t * path, cairo_fil
 	qpath.setFillRule(fill_rule == CAIRO_FILL_RULE_WINDING ? Qt::WindingFill : Qt::OddEvenFill);
 	return qpath;
 }
-
 /*
  * Surface backend methods
  */
-static cairo_surface_t * _cairo_qt_surface_create_similar(void * abstract_surface,
-    cairo_content_t content,
-    int width,
-    int height)
+static cairo_surface_t * _cairo_qt_surface_create_similar(void * abstract_surface, cairo_content_t content,
+    int width, int height)
 {
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 	bool use_pixmap;
-
 	D(fprintf(stderr, "q[%p] create_similar: %d %d [%d] -> ", abstract_surface, width, height, content));
-
 	use_pixmap = qs->image == NULL;
 	if(use_pixmap) {
 		switch(content) {

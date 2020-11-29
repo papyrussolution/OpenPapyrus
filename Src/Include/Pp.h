@@ -6476,8 +6476,8 @@ public:
 		int    Stop();
 		int    Hide();
 		int    Show();
-		int    FASTCALL SetMessage(const char *);
-		int    FASTCALL SetPercent(ulong p, ulong t, const char * msg);
+		void   FASTCALL SetMessage(const char *);
+		void   FASTCALL SetPercent(ulong p, ulong t, const char * msg);
 	private:
 		enum {
 			stValid = 0x0001,
@@ -24680,7 +24680,7 @@ private:
 //
 class PPObjRegister : public PPObject {
 public:
-	static int InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPID objType, PPID objID);
+	static int InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPObjID oid, const char * pNumber);
 	static int Format(const RegisterTbl::Rec & rRec, const char * pFormat, SString & rBuf);
 
 	PPObjRegister(void * extraPtr = 0);
@@ -53227,6 +53227,7 @@ private:
 class PPGlobalServiceHighLevelImplementations {
 public:
 	//int    PPSetup_GlobalService_UDS();
+	static int Setup_VK();
 	static int Setup_UDS();
 	static int ExportGoods_VK(const PPObjGoods::ExportToGlbSvcParam & rParam, const TSVector <PPObjGoods::ExportToGlbSvcItem> & rSrcList, PPLogger * pLogger);
 	static int ExportGoods_UDS(const PPObjGoods::ExportToGlbSvcParam & rParam, const TSVector <PPObjGoods::ExportToGlbSvcItem> & rSrcList, PPLogger * pLogger);
@@ -53840,13 +53841,13 @@ int    FASTCALL GetModelessStatus(int outerModeless = 1);
 void   FASTCALL DisableOKButton(TDialog *);
 int    FASTCALL SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd);
 int    FASTCALL PPWait(int begin);
-int    FASTCALL PPWaitMsg(const char *);
-int    FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * = 0);
-int    FASTCALL PPWaitLong(long);
-int    FASTCALL PPWaitPercent(ulong p, const char * pMsg = 0);
-int    FASTCALL PPWaitPercent(ulong p, ulong t, const char * pMsg = 0);
-int    FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg = 0);
-int    FASTCALL PPWaitDate(LDATE);
+void   FASTCALL PPWaitMsg(const char *);
+void   FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * = 0);
+void   FASTCALL PPWaitLong(long);
+void   FASTCALL PPWaitPercent(ulong p, const char * pMsg = 0);
+void   FASTCALL PPWaitPercent(ulong p, ulong t, const char * pMsg = 0);
+void   FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg = 0);
+void   FASTCALL PPWaitDate(LDATE);
 //
 // Descr: проверяет очередь клавиатуры на Escape.
 //   Если Esc нажата, то выдается запрос на подтверждение. В случае
@@ -54652,6 +54653,7 @@ int Convert10507(); // @v10.5.7 Scale
 int Convert10702(); // @v10.7.2 projects and todo
 int Convert10703(); // @erik @v10.7.2 desktops
 int Convert10903(); // @v10.9.3
+int Convert10905(); // @v10.9.5 EgaisRefA
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

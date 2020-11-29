@@ -744,7 +744,7 @@ int PPThreadLocalArea::WaitBlock::Show()
 	return ok;
 }
 
-int FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
+void FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 {
 	PROFILE_START
 	if(IdleTimer.Check(0) && APPL && APPL->H_MainWnd)
@@ -776,12 +776,10 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 		}
 		TProgram::IdlePaint();
 	}
-	return 1;
 }
 
-int FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const char * msg)
+void FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const char * msg)
 {
-	int    result = 1;
 	const  ulong  percent = static_cast<ulong>(t ? (100.0 * fdivui(p, t)) : 100.0);
 	if(percent != PrevPercent || (msg && msg[0] && PrevMsg.Cmp(msg, 0) != 0)) {
 		PrevPercent = percent;
@@ -801,11 +799,10 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const ch
 		s = b + sstrlen(b);
 		*s++ = '%';
 		*s = 0;
-		result = SetMessage(b);
+		SetMessage(b);
 	}
 	else
-		result = SetMessage(Text);
-	return result;
+		SetMessage(Text);
 }
 
 #define __WD DS.GetTLA().WD
@@ -831,50 +828,44 @@ int FASTCALL PPWait(int begin)
 	if(begin != 1)
 		DS.SetThreadNotification(PPSession::stntMessage, 0);
 	if(!CS_SERVER) {
-		if(begin == 2)
-			__WD.Hide();
-		else if(begin == 3)
-			__WD.Show();
-		else if(begin == 1) {
-			__WD.Start();
-		}
-		else if(begin == 0) {
-			__WD.Stop();
+		switch(begin) {
+			case 0: __WD.Stop(); break;
+			case 1: __WD.Start(); break;
+			case 2: __WD.Hide(); break;
+			case 3: __WD.Show(); break;
 		}
 	}
 	return ok;
 }
 
-int FASTCALL PPWaitMsg(const char * pMsg) { return __WD.SetMessage(pMsg); }
-int FASTCALL PPWaitPercent(ulong p, ulong t, const char * pMsg) { return __WD.SetPercent(p, t, pMsg); }
-int FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg) { return PPWaitPercent(cntr, cntr.GetTotal(), pMsg); }
-int FASTCALL PPWaitPercent(ulong v, const char * pMsg) { return PPWaitPercent(v, 100UL, pMsg); }
+void FASTCALL PPWaitMsg(const char * pMsg) { __WD.SetMessage(pMsg); }
+void FASTCALL PPWaitPercent(ulong p, ulong t, const char * pMsg) { __WD.SetPercent(p, t, pMsg); }
+void FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg) { PPWaitPercent(cntr, cntr.GetTotal(), pMsg); }
+void FASTCALL PPWaitPercent(ulong v, const char * pMsg) { PPWaitPercent(v, 100UL, pMsg); }
 
-int FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * addInfo)
+void FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * addInfo)
 {
-	int    ok = 0;
 	SString fmt_buf;
 	if(PPLoadString(msgGrpID, msgID, fmt_buf)) {
 		if(addInfo) {
 			SString msg_buf;
-			ok = PPWaitMsg(msg_buf.Printf(fmt_buf, addInfo));
+			PPWaitMsg(msg_buf.Printf(fmt_buf, addInfo));
 		}
 		else
-			ok = PPWaitMsg(fmt_buf);
+			PPWaitMsg(fmt_buf);
 	}
-	return ok;
 }
 
-int FASTCALL PPWaitLong(long v)
+void FASTCALL PPWaitLong(long v)
 {
 	char b[32];
-	return PPWaitMsg(ltoa(v, b, 10));
+	PPWaitMsg(ltoa(v, b, 10));
 }
 
-int FASTCALL PPWaitDate(LDATE dt)
+void FASTCALL PPWaitDate(LDATE dt)
 {
 	char   b[32];
-	return PPWaitMsg(datefmt(&dt, DATF_DMY, b));
+	PPWaitMsg(datefmt(&dt, DATF_DMY, b));
 }
 
 static int FASTCALL CheckEscKey(int cmd)
@@ -887,14 +878,10 @@ int PPCheckUserBreak()
 {
 	int    ok = 1;
 	PROFILE_START
-	if(SLS.CheckStopFlag()) {
-		PPSetError(PPERR_PROCESSWASSTOPPED);
-		ok = 0;
-	}
-	else if(DS.IsThreadStopped()) {
-		PPSetError(PPERR_THREADWASSTOPPED);
-		ok = 0;
-	}
+	if(SLS.CheckStopFlag())
+		ok = PPSetError(PPERR_PROCESSWASSTOPPED);
+	else if(DS.IsThreadStopped())
+		ok = PPSetError(PPERR_THREADWASSTOPPED);
 	else if(!CS_SERVER) {
 		if(__WD.GetWindowHandle() && CheckEscKey(1)) {
 			CheckEscKey(0);

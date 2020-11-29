@@ -1841,6 +1841,7 @@
 #define cmAutoFill               1178 // @v10.8.12 ранее была локальной относительно DLG_GDSLST (теперь используется и в других диалогах)
 #define cmCopyToClipboardSpc     1179 // @v10.9.0 Специальное копирование в буфер обмена
 #define cmConfigure              1180 // @v10.9.0
+#define cmQueryToken             1181 // @v10.9.6 (replace cmGetTokenVk)
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -10971,7 +10972,7 @@
 	#define CTL_EDITTEXTPARAM_PATH    (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_EDITTEXTPARAM_PAT  (2 + WINDOWS_ID_BIAS)
 #define DLG_VKGUACFG              1389
-	#define cmGetTokenVk              101
+	// @v10.9.6 (replaced with cmQueryToken) #define cmGetTokenVk              101
 	#define CTL_VKGUACFG_LOGIN_REQ    (1 + IMPEXP_CTL_BIAS)//
 	#define CTL_VKGUACFG_LOGIN_URL    (2 + IMPEXP_CTL_BIAS)//
 	#define CTL_VKGUACFG_GROUP_ID     (3 + IMPEXP_CTL_BIAS)//
@@ -11026,6 +11027,16 @@
 	#define CTL_CMDGROUP_ST_INFO      (10 + IMPEXP_CTL_BIAS)
 #define DLG_SELNEWCMDGROUP        1395
 	#define CTL_SELNEWCMDGROUP_SEL    (1 + WINDOWS_ID_BIAS)
+#define DLG_SU_VK                 1396 // Parameters for set up VK integration (по образу DLG_VKGUACFG)
+	#define CTL_SUVK_LOGIN            (1 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_APIKEY           (2 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_URL              (3 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_GROUPIDENT       (4 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_HINT             (5 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_INFO             (6 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_GUA              (7 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_SUVK_GUA           (8 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_LOGO             (9 + IMPEXP_CTL_BIAS)
 
 // Win32 Dialog Identifiers
 //

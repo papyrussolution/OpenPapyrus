@@ -3322,10 +3322,8 @@ int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPa
 	int    is_unpacked = 0;
 	PPPersonPacket psn_manuf;
 	PPPersonPacket psn_imp;
-	// @v9.3.5 {
 	if(pRefC)
 		pRefC->LastProductP = -1;
-	// } @v9.3.5
 	if(manuf_tag_id) {
 		PPObjectTag tag_rec;
         if(TagObj.Fetch(manuf_tag_id, &tag_rec) > 0) {
@@ -3338,13 +3336,11 @@ int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPa
 			;
 		else if(SXml::IsName(p_n, "Type"))
 			; // Не используем - здесь всегда "АП"
-		// @v9.5.10 {
 		else if(SXml::GetContentByName(p_n, "UnitType", temp_buf)) {
 			if(temp_buf.IsEqiAscii("Unpacked")) {
 				is_unpacked = 1;
 			}
 		}
-		// } @v9.5.10
 		else if(SXml::GetContentByName(p_n, "FullName", full_name))
 			full_name.Utf8ToChar();
 		else if(SXml::GetContentByName(p_n, "ShortName", short_name))
@@ -3359,12 +3355,12 @@ int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPa
 			alc_goods_item.Proof = temp_buf.ToReal();
 		else if(SXml::IsName(p_n, "Producer")) {
 			Read_OrgInfo(p_n->children, manuf_psn_kind_id, EgaisPersonCore::rolefManuf, pPack ? &psn_manuf : 0, pRefC, 0);
-			if(pRefC && pRefC->LastPersonP >= 0) // @v9.4.5 @fix (>0)--(>=0)
+			if(pRefC && pRefC->LastPersonP >= 0)
 				manuf_refc_pos = pRefC->LastPersonP;
 		}
 		else if(SXml::IsName(p_n, "Importer")) {
 			Read_OrgInfo(p_n->children, manuf_psn_kind_id, EgaisPersonCore::rolefImporter, pPack ? &psn_imp : 0, pRefC, 0);
-			if(pRefC && pRefC->LastPersonP >= 0) // @v9.4.5 @fix (>0)--(>=0)
+			if(pRefC && pRefC->LastPersonP >= 0)
 				imp_refc_pos = pRefC->LastPersonP;
 		}
 	}
@@ -3641,11 +3637,10 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 	int    country_code = 0;
 	int    region_code = 0;
 	ObjTagItem tag_item;
+	RegisterTbl::Rec new_reg_rec;
 	SString zip;
-	// @v9.3.5 {
 	if(pRefC)
 		pRefC->LastPersonP = -1;
-	// } @v9.3.5
 	int    j_status = 0;
 	for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		//
@@ -3814,7 +3809,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 								wo_rarid_loc_list.sortAndUndup();
 								uint j = by_kpp_loc_list.getCount();
 								do {
-									PPID loc_id = by_kpp_loc_list.at(--j).Val;
+									const PPID loc_id = by_kpp_loc_list.at(--j).Val;
 									if(!wo_rarid_loc_list.bsearch(loc_id))
 										by_kpp_loc_list.atFree(j);
 								} while(j);
@@ -3881,12 +3876,8 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 							loc_pack.Flags |= LOCF_MANUALADDR;
 						}
 						{
-							RegisterTbl::Rec new_kpp_reg;
-							// @v10.6.4 MEMSZERO(new_kpp_reg);
-							new_kpp_reg.RegTypeID = PPREGT_KPP;
-							STRNSCPY(new_kpp_reg.Num, kpp);
-							new_kpp_reg.ObjType = PPOBJ_LOCATION;
-							loc_pack.Regs.insert(&new_kpp_reg);
+							PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, PPObjID(PPOBJ_LOCATION, 0), kpp);
+							loc_pack.Regs.insert(&new_reg_rec);
 						}
 						{
 							const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_FSRARID);
@@ -3898,12 +3889,8 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 						pPack->AddDlvrLoc(loc_pack);
 					}
 					else {
-						RegisterTbl::Rec new_kpp_reg;
-						// @v10.6.4 MEMSZERO(new_kpp_reg);
-						new_kpp_reg.RegTypeID = PPREGT_KPP;
-						STRNSCPY(new_kpp_reg.Num, kpp);
-						new_kpp_reg.ObjType = PPOBJ_PERSON;
-						pPack->Regs.insert(&new_kpp_reg);
+						PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, PPObjID(PPOBJ_PERSON, 0), kpp);
+						pPack->Regs.insert(&new_reg_rec);
 					}
 				}
 			}
@@ -3935,18 +3922,12 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 				temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
 				STRNSCPY(pPack->Rec.Name, temp_buf);
 				if(inn.NotEmptyS()) {
-					RegisterTbl::Rec new_reg;
-					new_reg.RegTypeID = PPREGT_TPID;
-					STRNSCPY(new_reg.Num, inn);
-					new_reg.ObjType = PPOBJ_PERSON;
-					pPack->Regs.insert(&new_reg);
+					PPObjRegister::InitPacket(&new_reg_rec, PPREGT_TPID, PPObjID(PPOBJ_PERSON, 0), inn);
+					pPack->Regs.insert(&new_reg_rec);
 				}
 				if(kpp.NotEmptyS()) {
-					RegisterTbl::Rec new_reg;
-					new_reg.RegTypeID = PPREGT_KPP;
-					STRNSCPY(new_reg.Num, kpp);
-					new_reg.ObjType = PPOBJ_PERSON;
-					pPack->Regs.insert(&new_reg);
+					PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, PPObjID(PPOBJ_PERSON, 0), kpp);
+					pPack->Regs.insert(&new_reg_rec);
 				}
 				{
 					pPack->Loc.destroy();
@@ -4063,6 +4044,10 @@ int PPEgaisProcessor::Read_Ticket(xmlNode * pFirstNode, Packet * pPack)
 int PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC)
 {
     int    ok = 1;
+	int    shipper_refc_pos = -1;
+	int    consignee_refc_pos = -1;
+	PPPersonPacket psn_shipper;
+	PPPersonPacket psn_consignee;
     SString temp_buf;
     EgaisRefATbl::Rec * p_data = static_cast<EgaisRefATbl::Rec *>(pPack->P_Data);
     for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
@@ -4070,20 +4055,51 @@ int PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, PrcssrAl
 			temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			STRNSCPY(p_data->RefACode, temp_buf);
 		}
+		else if(SXml::GetContentByName(p_n, "BottlingDate", temp_buf))
+			strtodate(temp_buf, DATF_ISO8601, &p_data->BottlingDate);
+		// @v10.9.5 {
+		else if(SXml::GetContentByName(p_n, "TTNNumber", temp_buf)) {
+			temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			STRNSCPY(p_data->TTNNumber, temp_buf);
+		}
+		else if(SXml::GetContentByName(p_n, "TTNDate", temp_buf)) {
+			strtodate(temp_buf, DATF_ISO8601, &p_data->TTNDate);
+		}
+		else if(SXml::GetContentByName(p_n, "EGAISNumber", temp_buf)) {
+			temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			STRNSCPY(p_data->EgaisNumber, temp_buf);
+		}
+		else if(SXml::GetContentByName(p_n, "EGAISDate", temp_buf)) {
+			strtodate(temp_buf, DATF_ISO8601, &p_data->ActualDate);
+			strtodate(temp_buf, DATF_ISO8601, &p_data->EgaisDate); // дубликат
+		}
+		else if(SXml::IsName(p_n, "Shipper")) {
+			Read_OrgInfo(p_n->children, PPPRK_MANUF, EgaisPersonCore::rolefManuf, pPack ? &psn_shipper : 0, pRefC, 0);
+			if(pRefC && pRefC->LastPersonP >= 0) {
+				const EgaisPersonCore::Item * p_person = pRefC->PersonList.at(pRefC->LastPersonP);
+				if(p_person)
+					STRNSCPY(p_data->ShipperRarIdent, p_person->RarIdent);
+			}
+		}
+		else if(SXml::IsName(p_n, "Consignee")) {
+			Read_OrgInfo(p_n->children, PPPRK_MANUF, EgaisPersonCore::rolefManuf, pPack ? &psn_consignee : 0, pRefC, 0);
+			if(pRefC && pRefC->LastPersonP >= 0) {
+				const EgaisPersonCore::Item * p_person = pRefC->PersonList.at(pRefC->LastPersonP);
+				if(p_person)
+					STRNSCPY(p_data->ConsigneeRarIdent, p_person->RarIdent);
+			}
+		}
+		// } @v10.9.5 
 		else if(SXml::IsName(p_n, "Product")) {
 			PrcssrAlcReport::GoodsItem agi;
 			Read_ProductInfo(p_n->children, 0, &agi, pRefC, 0);
 			STRNSCPY(p_data->AlcCode, agi.EgaisCode);
 			STRNSCPY(p_data->ManufRarIdent, agi.RefcManufCode);
 			STRNSCPY(p_data->ImporterRarIdent, agi.RefcImporterCode);
-			p_data->Volume = static_cast<long>(agi.Volume * 100000); // @v9.2.12 @fix 1000000-->100000
+			p_data->Volume = static_cast<long>(agi.Volume * 100000);
 			p_data->CountryCode = agi.CountryCode;
 			p_data->Flags |= EgaisRefACore::fVerified;
 		}
-		else if(SXml::GetContentByName(p_n, "BottlingDate", temp_buf))
-			strtodate(temp_buf, DATF_ISO8601, &p_data->BottlingDate);
-		else if(SXml::GetContentByName(p_n, "EGAISDate", temp_buf))
-			strtodate(temp_buf, DATF_ISO8601, &p_data->ActualDate);
     }
     if(pRefC) {
 		pRefC->SetRefA(*p_data);
@@ -9749,6 +9765,12 @@ int EgaisProductCore::Export(long fmt, const char * pFileName)
 	CMP_MEMBS(AlcCode);
 	CMP_MEMBS(ManufRarIdent);
 	CMP_MEMBS(ImporterRarIdent);
+	CMP_MEMBS(ShipperRarIdent); // @v10.9.5
+	CMP_MEMBS(ConsigneeRarIdent); // @v10.9.5
+	CMP_MEMBS(EgaisNumber); // @v10.9.5
+	CMP_MEMBS(TTNNumber); // @v10.9.5
+	CMP_MEMB(EgaisDate); // @v10.9.5
+	CMP_MEMB(TTNDate); // @v10.9.5
 	CMP_MEMB(CountryCode);
 	CMP_MEMB(Volume);
 	CMP_MEMB(BottlingDate);
@@ -9812,10 +9834,63 @@ int EgaisRefACore::SearchByProductCode(const char * pAlcoCode, TSVector <EgaisRe
 	return ok;
 }
 
+static int OnPut_CopyTextField(const char * pSrc, char * pDest, size_t destBufSize, bool isSrcVerified, long cf, long * pConflictFlags)
+{
+	int    do_update = 0;
+	if(!isempty(pSrc)) {
+		if(isempty(pDest)) {
+			strnzcpy(pDest, pSrc, destBufSize);
+			do_update = 1;
+		}
+		else if(!sstreq(pSrc, pDest)) {
+			if(isSrcVerified) {
+				strnzcpy(pDest, pSrc, destBufSize);
+				do_update = 1;
+			}
+			if(pConflictFlags)
+				*pConflictFlags |= cf;
+		}
+	}
+	return do_update;
+}
+
+static int OnPut_CopyDateField(LDATE srcDate, LDATE * pDestDate, bool isSrcVerified, long cf, long * pConflictFlags)
+{
+	int    do_update = 0;
+	if(checkdate(srcDate)) {
+		if(!checkdate(*pDestDate)) {
+			*pDestDate = srcDate;
+			do_update = 1;
+		}
+		else if(srcDate != *pDestDate) {
+			if(isSrcVerified) {
+				*pDestDate = srcDate;
+				do_update = 1;
+			}
+			if(pConflictFlags)
+				*pConflictFlags |= cf;
+		}
+	}
+	return do_update;
+}
+
 int EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConflictFlags, int use_ta)
 {
 	int    ok = 1;
 	long   conflict_flags = 0;
+		// 0x0001 AlcCode
+		// 0x0002 ManufRarIdent
+		// 0x0004 ImporterRarIdent
+		// 0x0008 Volume
+		// 0x0010 BottlingDate
+		// 0x0020 CountryCode
+		// 0x0040 ShipperRarIdent
+		// 0x0080 ConsigneeRarIdent
+		// 0x0100 TTNNumber
+		// 0x0200 EgaisNumber
+		// 0x0400 EgaisDate
+		// 0x0800 TTNDate
+		// 0x1000 ActualDate
     if(*pID) {
 		EgaisRefATbl::Rec org_rec;
 		THROW(Search(*pID, &org_rec) > 0);
@@ -9833,9 +9908,16 @@ int EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConfl
 			STRNSCPY(rec.AlcCode, pRec->AlcCode);
 			STRNSCPY(rec.ManufRarIdent, pRec->ManufRarIdent);
 			STRNSCPY(rec.ImporterRarIdent, pRec->ImporterRarIdent);
+			STRNSCPY(rec.ShipperRarIdent, pRec->ShipperRarIdent);
+			STRNSCPY(rec.ConsigneeRarIdent, pRec->ConsigneeRarIdent);
+			STRNSCPY(rec.EgaisNumber, pRec->EgaisNumber);
+			STRNSCPY(rec.TTNNumber, pRec->TTNNumber);
 			rec.CountryCode = pRec->CountryCode;
 			rec.Volume = pRec->Volume;
 			rec.BottlingDate = pRec->BottlingDate;
+			rec.TTNDate = pRec->TTNDate;
+			rec.EgaisDate = pRec->EgaisDate;
+			rec.ActualDate = pRec->ActualDate;
 			rec.Flags = pRec->Flags;
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(updateRecBuf(&rec));
@@ -9850,45 +9932,20 @@ int EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConfl
 			int    do_update = 0;
 			EgaisRefATbl::Rec rec;
 			copyBufTo(&rec);
-			if(pRec->AlcCode[0]) {
-				if(rec.AlcCode[0] == 0) {
-					STRNSCPY(rec.AlcCode, pRec->AlcCode);
-					do_update = 1;
-				}
-				else if(!sstreq(rec.AlcCode, pRec->AlcCode)) {
-					if(pRec->Flags & EgaisRefACore::fVerified) {
-						STRNSCPY(rec.AlcCode, pRec->AlcCode);
-						do_update = 1;
-					}
-					conflict_flags |= 0x0001;
-				}
-			}
-			if(pRec->ManufRarIdent[0]) {
-				if(rec.ManufRarIdent[0] == 0) {
-					STRNSCPY(rec.ManufRarIdent, pRec->ManufRarIdent);
-					do_update = 1;
-				}
-				else if(!sstreq(rec.ManufRarIdent, pRec->ManufRarIdent)) {
-					if(pRec->Flags & EgaisRefACore::fVerified) {
-						STRNSCPY(rec.ManufRarIdent, pRec->ManufRarIdent);
-						do_update = 1;
-					}
-					conflict_flags |= 0x0002;
-				}
-			}
-			if(pRec->ImporterRarIdent[0]) {
-				if(rec.ImporterRarIdent[0] == 0) {
-					STRNSCPY(rec.ImporterRarIdent, pRec->ImporterRarIdent);
-					do_update = 1;
-				}
-				else if(!sstreq(rec.ImporterRarIdent, pRec->ImporterRarIdent)) {
-					if(pRec->Flags & EgaisRefACore::fVerified) {
-						STRNSCPY(rec.ImporterRarIdent, pRec->ImporterRarIdent);
-						do_update = 1;
-					}
-					conflict_flags |= 0x0004;
-				}
-			}
+			if(OnPut_CopyTextField(pRec->AlcCode, rec.AlcCode, sizeof(rec.AlcCode), LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x01, &conflict_flags))
+				do_update = 1;
+			if(OnPut_CopyTextField(pRec->ManufRarIdent, rec.ManufRarIdent, sizeof(rec.ManufRarIdent), LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x02, &conflict_flags))
+				do_update = 1;
+			if(OnPut_CopyTextField(pRec->ImporterRarIdent, rec.ImporterRarIdent, sizeof(rec.ImporterRarIdent), LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x04, &conflict_flags))
+				do_update = 1;
+			if(OnPut_CopyTextField(pRec->ShipperRarIdent, rec.ShipperRarIdent, sizeof(rec.ShipperRarIdent), LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x40, &conflict_flags))
+				do_update = 1;
+			if(OnPut_CopyTextField(pRec->ConsigneeRarIdent, rec.ConsigneeRarIdent, sizeof(rec.ConsigneeRarIdent), LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x80, &conflict_flags))
+				do_update = 1;
+			if(OnPut_CopyTextField(pRec->TTNNumber, rec.TTNNumber, sizeof(rec.TTNNumber), LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x100, &conflict_flags))
+				do_update = 1;
+			if(OnPut_CopyTextField(pRec->EgaisNumber, rec.EgaisNumber, sizeof(rec.EgaisNumber), LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x200, &conflict_flags))
+				do_update = 1;
 			if(pRec->Volume > 0) {
                 if(rec.Volume <= 0) {
 					rec.Volume = pRec->Volume;
@@ -9902,19 +9959,14 @@ int EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConfl
 					conflict_flags |= 0x0008;
 				}
 			}
-			if(checkdate(pRec->BottlingDate)) {
-				if(!checkdate(rec.BottlingDate)) {
-					rec.BottlingDate = pRec->BottlingDate;
-					do_update = 1;
-				}
-				else if(pRec->BottlingDate != rec.BottlingDate) {
-					if(pRec->Flags & EgaisRefACore::fVerified) {
-						rec.BottlingDate = pRec->BottlingDate;
-						do_update = 1;
-					}
-					conflict_flags |= 0x0010;
-				}
-			}
+			if(OnPut_CopyDateField(pRec->BottlingDate, &rec.BottlingDate, LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x10, &conflict_flags))
+				do_update = 1;
+			if(OnPut_CopyDateField(pRec->EgaisDate, &rec.EgaisDate, LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x400, &conflict_flags))
+				do_update = 1;
+			if(OnPut_CopyDateField(pRec->TTNDate, &rec.TTNDate, LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x800, &conflict_flags))
+				do_update = 1;
+			if(OnPut_CopyDateField(pRec->ActualDate, &rec.ActualDate, LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x1000, &conflict_flags))
+				do_update = 1;
 			if(pRec->CountryCode > 0) {
 				if(rec.CountryCode <= 0) {
 					rec.CountryCode = pRec->CountryCode;
@@ -9941,9 +9993,16 @@ int EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConfl
 			EgaisRefATbl::Rec rec;
 			STRNSCPY(rec.RefACode, pRec->RefACode);
 			STRNSCPY(rec.AlcCode, pRec->AlcCode);
+			STRNSCPY(rec.EgaisNumber, pRec->EgaisNumber); // @v10.9.5
+			STRNSCPY(rec.TTNNumber, pRec->TTNNumber); // @v10.9.5
 			STRNSCPY(rec.ManufRarIdent, pRec->ManufRarIdent);
 			STRNSCPY(rec.ImporterRarIdent, pRec->ImporterRarIdent);
+			STRNSCPY(rec.ShipperRarIdent, pRec->ShipperRarIdent); // @v10.9.5
+			STRNSCPY(rec.ConsigneeRarIdent, pRec->ConsigneeRarIdent); // @v10.9.5
 			rec.CountryCode = pRec->CountryCode;
+			rec.EgaisDate = pRec->EgaisDate; // @v10.9.5
+			rec.ActualDate = pRec->ActualDate; // @v10.9.5
+			rec.TTNDate = pRec->TTNDate; // @v10.9.5
 			rec.Volume = pRec->Volume;
 			rec.BottlingDate = pRec->BottlingDate;
 			rec.Flags = pRec->Flags;

@@ -854,10 +854,14 @@ int PPViewLot::RecoverLots()
 						if(p_ref->Ot.GetTagStr(PPOBJ_LOT, _lot_id, PPTAG_LOT_FSRARINFA, ref_a) > 0) {
 							char   manuf_rar_ident[32];
 							char   importer_rar_ident[32];
+							char   shipper_rar_ident[32]; // @v10.9.5
 							int    ambig_manuf = 0;
 							int    ambig_imptr = 0;
+							int    ambig_shipper = 0;
+							int    is_foreign_country = 0; // !643
 							PTR32(manuf_rar_ident)[0] = 0;
 							PTR32(importer_rar_ident)[0] = 0;
+							PTR32(shipper_rar_ident)[0] = 0; // @v10.9.5
 							ObjTagItem ex_lot_manuf_tag_item;
 							PPID   ex_lot_manuf_id = 0;
 							if(p_ref->Ot.GetTag(PPOBJ_LOT, _lot_id, manuf_tag_id, &ex_lot_manuf_tag_item) > 0) {
@@ -878,6 +882,14 @@ int PPViewLot::RecoverLots()
 										else
 											ambig_imptr = 1;
 									}
+									if(r_ref_a_rec.ShipperRarIdent[0]) {
+										if(!shipper_rar_ident[0])
+											STRNSCPY(shipper_rar_ident, r_ref_a_rec.ShipperRarIdent);
+										else
+											ambig_shipper = 1;
+									}
+									if(r_ref_a_rec.CountryCode && r_ref_a_rec.CountryCode != 643)
+										is_foreign_country = 1;
 								}
 								PPID   manuf_id_to_set = 0;
 								if(importer_rar_ident[0]) {
@@ -902,6 +914,30 @@ int PPViewLot::RecoverLots()
 										// Справка А лота '%s' ссылается на импортера с кодом '%s', но соответствующая персоналия не в базе данных не найдена
 									}
 								}
+								// @v10.9.5 {
+								else if(is_foreign_country && shipper_rar_ident[0]) {
+									if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, PPTAG_PERSON_FSRARID, shipper_rar_ident, &psn_ref_list) > 0) {
+										assert(psn_ref_list.getCount());
+										if(psn_ref_list.getCount()) {
+											if(!ex_lot_manuf_id || !psn_ref_list.lsearch(ex_lot_manuf_id)) {
+												PPLoadString(PPSTR_ERROR, PPERR_ELOT_DIFEGAISIMPTR, temp_buf);
+												msg_buf.Printf(temp_buf, lot_str.cptr(), shipper_rar_ident);
+												logger.Log(msg_buf);
+												// PPERR_ELOT_DIFEGAISIMPTR
+												// Справка А лота '%s' ссылается на импортера '%s', отличного от того, что установлен в лоте
+												manuf_id_to_set = psn_ref_list.get(0);
+											}
+										}
+									}
+									else {
+										PPLoadString(PPSTR_ERROR, PPERR_ELOT_EGAISIMPTRCODENOTFOUNT, temp_buf);
+										msg_buf.Printf(temp_buf, lot_str.cptr(), shipper_rar_ident);
+										logger.Log(msg_buf);
+										// PPERR_ELOT_EGAISIMPTRCODENOTFOUNT
+										// Справка А лота '%s' ссылается на импортера с кодом '%s', но соответствующая персоналия не в базе данных не найдена
+									}
+								}
+								// } @v10.9.5 
 								else if(manuf_rar_ident[0]) {
 									if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, PPTAG_PERSON_FSRARID, manuf_rar_ident, &psn_ref_list) > 0) {
 										assert(psn_ref_list.getCount());
@@ -1736,8 +1772,7 @@ int PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, UintHash
 				rec.OrgDt   = item.OrgLotDt;
 				rec.OprNo   = item.OprNo;
 				rec.GoodsID = item.GoodsID;
-				// @v9.5.5 GetGoodsName(item.GoodsID, temp_buf);
-				GObj.FetchNameR(item.GoodsID, temp_buf); // @v9.5.5
+				GObj.FetchNameR(item.GoodsID, temp_buf);
 				STRNSCPY(rec.GoodsName, temp_buf);
 				STRNSCPY(rec.Serial, item.Serial);
 				rec.BegRest   = item.BegRest;
@@ -1761,30 +1796,34 @@ int PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, UintHash
 					}
 					else
 						rec.SFlags |= LOTSF_FIRST;
-					if(Filt.CostDevRestr == LotFilt::drBelow) {
-						if(!(rec.SFlags & LOTSF_COSTDOWN))
-							skip = 1;
-					}
-					else if(Filt.CostDevRestr == LotFilt::drAbove) {
-						if(!(rec.SFlags & LOTSF_COSTUP))
-							skip = 1;
-					}
-					else if(Filt.CostDevRestr == LotFilt::drAny) {
-						if(!(rec.SFlags & LOTSF_COSTDOWN) && !(rec.SFlags & LOTSF_COSTUP))
-							skip = 1;
+					switch(Filt.CostDevRestr) {
+						case LotFilt::drBelow:
+							if(!(rec.SFlags & LOTSF_COSTDOWN))
+								skip = 1;
+							break;
+						case LotFilt::drAbove:
+							if(!(rec.SFlags & LOTSF_COSTUP))
+								skip = 1;
+							break;
+						case LotFilt::drAny:
+							if(!(rec.SFlags & LOTSF_COSTDOWN) && !(rec.SFlags & LOTSF_COSTUP))
+								skip = 1;
+							break;
 					}
 					//
-					if(Filt.PriceDevRestr == LotFilt::drBelow) {
-						if(!(rec.SFlags & LOTSF_PRICEDOWN))
-							skip = 1;
-					}
-					else if(Filt.PriceDevRestr == LotFilt::drAbove) {
-						if(!(rec.SFlags & LOTSF_PRICEUP))
-							skip = 1;
-					}
-					else if(Filt.PriceDevRestr == LotFilt::drAny) {
-						if(!(rec.SFlags & LOTSF_PRICEDOWN) && !(rec.SFlags & LOTSF_PRICEUP))
-							skip = 1;
+					switch(Filt.PriceDevRestr) {
+						case LotFilt::drBelow:
+							if(!(rec.SFlags & LOTSF_PRICEDOWN))
+								skip = 1;
+							break;
+						case LotFilt::drAbove:
+							if(!(rec.SFlags & LOTSF_PRICEUP))
+								skip = 1;
+							break;
+						case LotFilt::drAny:
+							if(!(rec.SFlags & LOTSF_PRICEDOWN) && !(rec.SFlags & LOTSF_PRICEUP))
+								skip = 1;
+							break;
 					}
 				}
 				if(!skip) {

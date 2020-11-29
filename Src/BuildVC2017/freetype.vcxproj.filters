@@ -72,9 +72,6 @@
     <ClInclude Include="..\Include\freetype\ftcache.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\freetype\ftcffdrv.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\freetype\internal\ftcalc.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -88,9 +85,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\freetype\internal\ftdebug.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\freetype\internal\ftdriver.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\freetype\fterrdef.h">
@@ -282,9 +276,6 @@
     <ClInclude Include="..\Include\freetype\internal\services\svwinfnt.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\freetype\internal\services\svxf86nm.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\freetype\t1tables.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -301,9 +292,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\freetype\internal\tttypes.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\freetype\ttunpat.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

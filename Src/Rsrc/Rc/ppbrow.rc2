@@ -6491,6 +6491,14 @@ browser QUOTEREQANALYZE north(100), 1, 0, "@{view_quotereqanalyze}", OWNER|GRID,
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
 }
+
+browser FILESYSTEM north(100), 1, 0, "", OWNER|GRID, 0
+{
+	"Name",            0,  zstring(512),  0, 0, BCO_USERPROC
+	"ModTime",         1,  datetime,      0, 0, BCO_USERPROC
+	"Size",            2,  int64,         0, 0, BCO_USERPROC
+	"Type",            3,  zstring(64),   0, 0, BCO_USERPROC
+}
 //
 // -------------- Описания команд меню и рабочих столов
 //
@@ -8953,4 +8961,5 @@ drawvector "..\rsrc\svg" #000000 {
 drawvector "..\rsrc\svg" {
 	PPDV_LOGOPAPYRUS
 	PPDV_LOGOUDS
+	PPDV_LOGOVK
 }

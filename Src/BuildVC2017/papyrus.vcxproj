@@ -2127,6 +2127,9 @@
     <ProjectReference Include="cairo-1.16.0.vcxproj">
       <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
     </ProjectReference>
+    <ProjectReference Include="freetype.vcxproj">
+      <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
+    </ProjectReference>
     <ProjectReference Include="gravity.vcxproj">
       <Project>{ec12be0a-025e-4168-9d2d-419a18cb2ef5}</Project>
     </ProjectReference>

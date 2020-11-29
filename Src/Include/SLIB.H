@@ -322,7 +322,7 @@
 		#define PASCAL           pascal
 	#endif
 	// @v10.9.1 #define SFAR                 far
-	#define SLAPI_unused         pascal SFAR // (since @v10.9.1 unused) 
+	#define SLAPI_unused         pascal SFAR // (since @v10.9.1 unused)
 	#define SLAPIV               cdecl SFAR
 	#define FASTCALL
 #endif
@@ -333,7 +333,7 @@
 #endif
 #ifndef MAXPATH
 	#define MAXPATH 260 // @v10.9.1
-	/* @v10.9.1 
+	/* @v10.9.1
 	#if defined(__WIN32__) || defined(_WIN32)
 		#define MAXPATH 260
 	#else
@@ -2013,10 +2013,10 @@ public:
 		indInvalid      = 0xff, // Используется как внутренний код возврата, означающий ошибку
 
 		indDefault      = 0x00, // 0.1mks since 1601-01-01 (UTC).
-		indMSec         = 0x80, // since 1601-01-01 (UTC).
-        indSec          = 0x81, // since 1601-01-01 (UTC).
-        indMin          = 0x82, // since 1601-01-01 (UTC).
-        indHr           = 0x83, // since 1601-01-01 (UTC).
+		indMSec         = 0x80, // milliseconds since 1601-01-01 (UTC).
+        indSec          = 0x81, // seconds since 1601-01-01 (UTC).
+        indMin          = 0x82, // minuts  since 1601-01-01 (UTC).
+        indHr           = 0x83, // hours   since 1601-01-01 (UTC).
 		indMSecTz       = 0x84, // since 1601-01-01. // timezone - lowest 8 bit
 		indCSecTz       = 0x85, // since 1601-01-01. // timezone - lowest 8 bit
         indSecTz        = 0x86, // since 1601-01-01. // timezone - lowest 8 bit
@@ -2853,7 +2853,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define TIMF_BLANK     0x0010  //
 #define TIMF_NOZERO    TIMF_BLANK // Не отображать нулевое значение
 #define TIMF_TIMEZONE  0x0020  // +0300
-#define TIMF_NODIV     0x0040  // 
+#define TIMF_NODIV     0x0040  //
 #define TIMF_DOTDIV    0x0080  // Разделители часов, минут и секунд - точки. Например: 23.20.59
 //
 // String format flags
@@ -4484,8 +4484,8 @@ uint   FASTCALL hexw(wchar_t c);
 //    проверить эти символы функцией ishex(char).
 //
 uint8  FASTCALL hextobyte(const char * pBuf);
-int    FASTCALL isasciialpha(char ch); 
-int    FASTCALL isasciialnum(char ch); 
+int    FASTCALL isasciialpha(char ch);
+int    FASTCALL isasciialnum(char ch);
 // @v10.9.3 (replaced with isasciialpha) int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
 int    FASTCALL IsLetter1251(int ch);
 int    FASTCALL ToLower1251(int ch);
@@ -4728,7 +4728,7 @@ public:
 		fUppercase   = 0x0040  // DCONVSTR_FLAG_UPPERCASE
 	};
 	static const int DefaultPrecision; // DCONVSTR_DEFAULT_PRECISION
-	// 
+	//
 	// Descr: Print IEEE 754 floating-point double precision value to string
 	// @param  outbuf            Address of variable with a pointer to output buffer filled by the function.
 	//   On entry, this variable is initialized by caller.
@@ -4745,9 +4745,9 @@ public:
 	//   Refer to printf(3) manual for details.
 	// @returns  1  if value was successfully converted to string.
 	//   0  if there is not enough room in buffer or internal error happened during conversion.
-	// 
+	//
 	static int FASTCALL Print(char ** outbuf, int * outbuf_size, double value, int format_char, uint  format_flags, int format_width, int format_precision);
-	// 
+	//
 	// Descr: Convert string to IEEE 754 floating-point double precision value
 	// @param  input          Input buffer, C-style string. Filled by caller.
 	// @param  input_end      Address of pointer to end of scanned value in input buffer.
@@ -4759,12 +4759,12 @@ public:
 	//   1  if there is overflow/underflow condition: strtod(3) would set errno = ERANGE
 	// @returns  1  if there were no internal errors
 	//   0  if there was internal error during conversion.
-	// 
+	//
 	// In general, interface of this function is similar to strtod(3), except for returning overflow
 	// condition instead of setting errno. If you want just to convert C-style string to double with
 	// error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
 	// condition as an indication of successful conversion.
-	// 
+	//
 	static int FASTCALL Scan(const char * input, const char ** input_end, double * output, int * output_erange);
 };
 
@@ -4821,9 +4821,9 @@ enum {
 	strtodatefRelMon   = 0x0020, // Месяц задан в относительной форме
 	strtodatefRelYear  = 0x0040, // Год задан в относительной форме
 	strtodatefThrsMDay = 0x0080, // Дата задана как начало месяца с порогом в виде дня. Если текущий день менее порога, то - начало предыдущего месяца, иначе - текущего.
-	strtodatefAnyDay   = 0x0100, // 
-	strtodatefAnyMon   = 0x0200, // 
-	strtodatefAnyYear  = 0x0400, // 
+	strtodatefAnyDay   = 0x0100, //
+	strtodatefAnyMon   = 0x0200, //
+	strtodatefAnyYear  = 0x0400, //
 	strtodatefInvalid  = 0x0800, // Дата, извлеченная из строки, инвалидная
 	strtodatefRelAny   = (strtodatefRel|strtodatefRelDay|strtodatefRelMon|strtodatefRelYear|strtodatefThrsMDay) // Маска
 };
@@ -5287,8 +5287,8 @@ uint32 FASTCALL swapdw(uint32 dw);
 //
 inline uint16 FASTCALL sbswap16(uint16 n) { return static_cast<uint16>(((n & 0x00FFU) << 8) | ((n & 0xFF00U) >> 8)); }
 inline uint32 FASTCALL sbswap32(uint32 n) { return static_cast<uint32>(((n & 0x000000FFU) << 24) | ((n & 0x0000FF00U) << 8) | ((n & 0x00FF0000U) >> 8) | ((n & 0xFF000000U) >> 24)); }
-inline uint64 FASTCALL sbswap64(uint64 n) { return static_cast<uint64>(((n & 0x00000000000000FFULL) << 56) | ((n & 0x000000000000FF00ULL) << 40) | 
-	((n & 0x0000000000FF0000ULL) << 24) | ((n & 0x00000000FF000000ULL) << 8)  | ((n & 0x000000FF00000000ULL) >> 8) | 
+inline uint64 FASTCALL sbswap64(uint64 n) { return static_cast<uint64>(((n & 0x00000000000000FFULL) << 56) | ((n & 0x000000000000FF00ULL) << 40) |
+	((n & 0x0000000000FF0000ULL) << 24) | ((n & 0x00000000FF000000ULL) << 8)  | ((n & 0x000000FF00000000ULL) >> 8) |
 	((n & 0x0000FF0000000000ULL) >> 24) | ((n & 0x00FF000000000000ULL) >> 40) | ((n & 0xFF00000000000000ULL) >> 56)); }
 //
 // Descr: Находит самый старший установленный бит (MSB) в x.
@@ -6460,7 +6460,7 @@ protected:
 	uint8 * P_VData;   //
 };
 //
-// @v10.7.9 
+// @v10.7.9
 // Descr: Макрос, обеспечивающий короткую запись цикла по всем элементам.
 // Note: Я скептически отношусь к такого рода макросам (равно как и к новым с++-итераторам) но ради эксперимента все же решил сделать.
 //
@@ -9633,7 +9633,7 @@ private:
 	int    SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos) const;
 	int    Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx);
 
-	TSVector <CpEntry> CpL;  // 
+	TSVector <CpEntry> CpL;  //
 	TSVector <MapEntry> MeL; // Список соответствий multibyte-unicode. Отрезок каждой таблицы отсортирован по B[4]
 	TSVector <MapEntry> FbL; // Список fallback-соответствий. Отрезок каждой таблицы отсортирован по U2
 	TSVector <uint16> NScrL; // Список натуральных скриптов, присутствующих в кодовых страницах
@@ -10458,7 +10458,7 @@ typedef TSVector <unsigned long> UlongArray;
 #if !defined(INFINITY)
 	#define INFINITY HUGE_VAL
 #endif
-// } @v10.9.1 
+// } @v10.9.1
 int    IsValidIEEE(double);
 int    fisnan(double);
 int    fisnanf(float);

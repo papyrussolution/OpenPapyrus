@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493299
+LastSignatureCode=2147493303
 LastAutoCodeList=1,12000;102,10177;103,10072;110,10000;111,11997;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -366,6 +366,8 @@ selection_eventstatus=2147493176
 selection_newcmdgroup=2147493236
 scenario=2147491807
 scenario_pl=2147491808
+query=2147493300
+querytoken=2147493301
 tochoose=2147483883
 properties=2147483884
 dontuse=2147483885
@@ -2571,6 +2573,7 @@ cmd_eventsubscription=2147493007
 cmd_exportdbtbltransfer=2147492991
 cmd_exportdbtblbill=2147492992
 cmd_setupglbsvc_uds=2147493112
+cmd_setupglbsvc_vk=2147493302
 cmd_usermenu=2147493200
 cmdpu_admin=2147485677
 cmdpu_salesanalyze=2147485678
@@ -9521,6 +9524,7 @@ addbillfilt=2147493066
 addbillfilt_fshowbrowseraftercreation=2147493067
 setupglbsvc_uds_login=2147493113
 setupglbsvc_uds_apikey=2147493114
+setupglbsvc_vk_groupident=2147493303
 suprwaretype_goods=2147493122
 suprwaretype_component=2147493123
 suprwarefilt=2147493124

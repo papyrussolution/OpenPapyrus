@@ -715,58 +715,43 @@ static cairo_int_status_t _cairo_xml_surface_fill(void * abstract_surface,
 
 #if CAIRO_HAS_FT_FONT
 #include "cairo-ft-private.h"
-static cairo_status_t _cairo_xml_emit_type42_font(cairo_xml_t * xml,
-    cairo_scaled_font_t * scaled_font)
+static cairo_status_t _cairo_xml_emit_type42_font(cairo_xml_t * xml, cairo_scaled_font_t * scaled_font)
 {
-	const cairo_scaled_font_backend_t * backend;
 	cairo_output_stream_t * base64_stream;
 	cairo_output_stream_t * zlib_stream;
 	cairo_status_t status, status2;
 	ulong size;
 	uint32_t len;
 	uint8_t * buf;
-
-	backend = scaled_font->backend;
+	const cairo_scaled_font_backend_t * backend = scaled_font->backend;
 	if(backend->load_truetype_table == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	size = 0;
 	status = backend->load_truetype_table(scaled_font, 0, 0, NULL, &size);
 	if(unlikely(status))
 		return status;
-
-	buf = _cairo_malloc(size);
+	buf = static_cast<uint8_t *>(_cairo_malloc(size));
 	if(unlikely(buf == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	status = backend->load_truetype_table(scaled_font, 0, 0, buf, &size);
 	if(unlikely(status)) {
 		SAlloc::F(buf);
 		return status;
 	}
-
-	_cairo_xml_printf_start(xml, "<font type='42' flags='%d' index='0'>",
-	    _cairo_ft_scaled_font_get_load_flags(scaled_font));
-
+	_cairo_xml_printf_start(xml, "<font type='42' flags='%d' index='0'>", _cairo_ft_scaled_font_get_load_flags(scaled_font));
 	base64_stream = _cairo_base64_stream_create(xml->stream);
 	len = size;
 	_cairo_output_stream_write(base64_stream, &len, sizeof(len));
-
 	zlib_stream = _cairo_deflate_stream_create(base64_stream);
-
 	_cairo_output_stream_write(zlib_stream, buf, size);
 	SAlloc::F(buf);
-
 	status2 = _cairo_output_stream_destroy(zlib_stream);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	status2 = _cairo_output_stream_destroy(base64_stream);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	_cairo_xml_printf_end(xml, "</font>");
-
 	return status;
 }
 

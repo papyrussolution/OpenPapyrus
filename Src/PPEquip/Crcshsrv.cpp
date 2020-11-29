@@ -2683,9 +2683,8 @@ int ACS_CRCSHSRV::GetCashiersList()
 					THROW_SL(psn_pack.Kinds.add(EqCfg.CshrsPsnKindID));
 				}
 				if(!is_reg) {
-					MEMSZERO(reg_rec);
-					THROW(PPObjRegister::InitPacket(&reg_rec, tabnum_reg_id, PPOBJ_PERSON, psn_id));
-					STRNSCPY(reg_rec.Num, cshr_tabnum_);
+					// @v10.9.5 (PPObjRegister::InitPacket willdoit) MEMSZERO(reg_rec);
+					THROW(PPObjRegister::InitPacket(&reg_rec, tabnum_reg_id, PPObjID(PPOBJ_PERSON, psn_id), cshr_tabnum_));
 					THROW_SL(psn_pack.Regs.insert(&reg_rec));
 				}
 				ConvertCrystalRightsSetToCashierRights(rights, &psn_pack.CshrInfo.Rights);

@@ -61,10 +61,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DarkNet", "DarkNet.vcproj",
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TulipIndicators", "TulipIndicators.vcproj", "{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "lua.vcproj", "{95F1BFB0-FD21-4A2A-85B3-3D9BF97C086A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{86B30CD8-8C99-4CFF-804E-16EB5891A1D8} = {86B30CD8-8C99-4CFF-804E-16EB5891A1D8}
@@ -474,28 +470,6 @@ Global
 		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.ServerRelease.Build.0 = Release|Win32
 		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.Universe-HTT.ActiveCfg = Release|Win32
 		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.Universe-HTT.Build.0 = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.Debug.ActiveCfg = Debug|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.Debug.Build.0 = Debug|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.DebugU.ActiveCfg = Debug|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.DebugU.Build.0 = Debug|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.MinSizeRel.ActiveCfg = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.MinSizeRel.Build.0 = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.MtDllDebug.ActiveCfg = Debug|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.MtDllDebug.Build.0 = Debug|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.MtDllRelease.ActiveCfg = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.MtDllRelease.Build.0 = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.Release.ActiveCfg = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.Release.Build.0 = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.ReleaseU.ActiveCfg = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.ReleaseU.Build.0 = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.RelWithDebInfo.ActiveCfg = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.RelWithDebInfo.Build.0 = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.ServerDebug.ActiveCfg = Debug|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.ServerDebug.Build.0 = Debug|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.ServerRelease.ActiveCfg = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.ServerRelease.Build.0 = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.Universe-HTT.ActiveCfg = Release|Win32
-		{D336B99E-768D-4D8F-8A6F-8DEEE886AFF4}.Universe-HTT.Build.0 = Release|Win32
 		{95F1BFB0-FD21-4A2A-85B3-3D9BF97C086A}.Debug.ActiveCfg = Debug|Win32
 		{95F1BFB0-FD21-4A2A-85B3-3D9BF97C086A}.Debug.Build.0 = Debug|Win32
 		{95F1BFB0-FD21-4A2A-85B3-3D9BF97C086A}.DebugU.ActiveCfg = Debug|Win32
