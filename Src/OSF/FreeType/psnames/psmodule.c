@@ -1,11 +1,8 @@
 /****************************************************************************
- *
  * psmodule.c
- *
  *   psnames module implementation (body).
  *
- * Copyright (C) 1996-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 1996-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
@@ -353,32 +350,23 @@ static FT_Error ps_unicodes_init(FT_Memory memory,
 
 		table->num_maps = count;
 	}
-
 	return error;
 }
 
-static FT_UInt ps_unicodes_char_index(PS_Unicodes table,
-    FT_UInt32 unicode)
+static FT_UInt ps_unicodes_char_index(PS_Unicodes table, FT_UInt32 unicode)
 {
 	PS_UniMap  * min, * max, * mid, * result = NULL;
-
 	/* Perform a binary search on the table. */
-
 	min = table->maps;
 	max = min + table->num_maps - 1;
-
 	while(min <= max) {
 		FT_UInt32 base_glyph;
-
 		mid = min + ( ( max - min ) >> 1 );
-
 		if(mid->unicode == unicode) {
 			result = mid;
 			break;
 		}
-
 		base_glyph = BASE_GLYPH(mid->unicode);
-
 		if(base_glyph == unicode)
 			result = mid; /* remember match but continue search for base glyph */
 
@@ -397,45 +385,35 @@ static FT_UInt ps_unicodes_char_index(PS_Unicodes table,
 		return 0;
 }
 
-static FT_UInt32 ps_unicodes_char_next(PS_Unicodes table,
-    FT_UInt32   * unicode)
+static FT_UInt32 ps_unicodes_char_next(PS_Unicodes table, FT_UInt32   * unicode)
 {
 	FT_UInt result    = 0;
 	FT_UInt32 char_code = *unicode + 1;
-
 	{
 		FT_UInt min = 0;
 		FT_UInt max = table->num_maps;
 		FT_UInt mid;
 		PS_UniMap*  map;
 		FT_UInt32 base_glyph;
-
 		while(min < max) {
 			mid = min + ( ( max - min ) >> 1 );
 			map = table->maps + mid;
-
 			if(map->unicode == char_code) {
 				result = map->glyph_index;
 				goto Exit;
 			}
-
 			base_glyph = BASE_GLYPH(map->unicode);
-
 			if(base_glyph == char_code)
 				result = map->glyph_index;
-
 			if(base_glyph < char_code)
 				min = mid + 1;
 			else
 				max = mid;
 		}
-
 		if(result)
 			goto Exit; /* we have a variant glyph */
-
 		/* we didn't find it; check whether we have a map just above it */
 		char_code = 0;
-
 		if(min < table->num_maps) {
 			map       = table->maps + min;
 			result    = map->glyph_index;
@@ -454,7 +432,6 @@ static const char* ps_get_macintosh_name(FT_UInt name_index)
 {
 	if(name_index >= FT_NUM_MAC_NAMES)
 		name_index = 0;
-
 	return ft_standard_glyph_names + ft_mac_names[name_index];
 }
 
@@ -462,7 +439,6 @@ static const char* ps_get_standard_strings(FT_UInt sid)
 {
 	if(sid >= FT_NUM_SID_NAMES)
 		return 0;
-
 	return ft_standard_glyph_names + ft_sid_names[sid];
 }
 
@@ -502,25 +478,19 @@ FT_DEFINE_SERVICE_PSCMAPSREC(
 
 #endif /* FT_CONFIG_OPTION_ADOBE_GLYPH_LIST */
 
-FT_DEFINE_SERVICEDESCREC1(
-	pscmaps_services,
+FT_DEFINE_SERVICEDESCREC1(pscmaps_services, FT_SERVICE_ID_POSTSCRIPT_CMAPS, &pscmaps_interface)
 
-	FT_SERVICE_ID_POSTSCRIPT_CMAPS, &pscmaps_interface)
-
-static FT_Pointer psnames_get_service(FT_Module module,
-    const char*  service_id)
+static FT_Pointer psnames_get_service(FT_Module module, const char*  service_id)
 {
 	FT_UNUSED(module);
-
 	return ft_service_list_lookup(pscmaps_services, service_id);
 }
 
 #endif /* FT_CONFIG_OPTION_POSTSCRIPT_NAMES */
-
 #ifndef FT_CONFIG_OPTION_POSTSCRIPT_NAMES
-#define PUT_PS_NAMES_SERVICE(a)  NULL
+	#define PUT_PS_NAMES_SERVICE(a)  NULL
 #else
-#define PUT_PS_NAMES_SERVICE(a)  a
+	#define PUT_PS_NAMES_SERVICE(a)  a
 #endif
 
 FT_DEFINE_MODULE(
@@ -540,5 +510,3 @@ FT_DEFINE_MODULE(
 	(FT_Module_Destructor)NULL,                                    /* module_done   */
 	(FT_Module_Requester)PUT_PS_NAMES_SERVICE(psnames_get_service) /* get_interface */
 	)
-
-/* END */

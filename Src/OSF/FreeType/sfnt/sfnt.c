@@ -1,5 +1,4 @@
 /****************************************************************************
- *
  * sfnt.c
  *   Single object library component.
  *
@@ -30,4 +29,3 @@
 #include "ttpost.c"
 #include "ttsbit.c"
 #include "woff2tags.c"
-/* END */

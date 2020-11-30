@@ -535,6 +535,6 @@
 #define cmSetupGlbSvcUDS               641 // @v10.9.0 Настройка интеграции с UDS Game
 #define cmEventsForCurrentUser         642 // @v10.9.1 События (актуальные для текущего пользователя)
 #define cmUserMenu                     643 // @v10.9.3 Просмотр пользовательских меню и рабочих столов
-#define cmSetupGlbSvcVK                644 // @v10.9.6 Настройка интеграции с VK
+#define cmSetupGlbSvcVK                644 // @v10.9.5 Настройка интеграции с VK
 
 #endif /* __PPMENU_H */

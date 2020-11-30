@@ -570,11 +570,9 @@ int tls_collect_extensions(SSL * s, PACKET * packet, uint context,
 	num_exts = OSSL_NELEM(ext_defs) + (exts != NULL ? exts->meths_count : 0);
 	raw_extensions = static_cast<RAW_EXTENSION *>(OPENSSL_zalloc(num_exts * sizeof(*raw_extensions)));
 	if(raw_extensions == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_COLLECT_EXTENSIONS,
-		    ERR_R_MALLOC_FAILURE);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_COLLECT_EXTENSIONS, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
-
 	i = 0;
 	while(PACKET_remaining(&extensions) > 0) {
 		uint type, idx;
@@ -583,8 +581,7 @@ int tls_collect_extensions(SSL * s, PACKET * packet, uint context,
 
 		if(!PACKET_get_net_2(&extensions, &type) ||
 		    !PACKET_get_length_prefixed_2(&extensions, &extension)) {
-			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_COLLECT_EXTENSIONS,
-			    SSL_R_BAD_EXTENSION);
+			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_COLLECT_EXTENSIONS, SSL_R_BAD_EXTENSION);
 			goto err;
 		}
 		/*
@@ -597,8 +594,7 @@ int tls_collect_extensions(SSL * s, PACKET * packet, uint context,
 		    || (type == TLSEXT_TYPE_psk
 		    && (context & SSL_EXT_CLIENT_HELLO) != 0
 		    && PACKET_remaining(&extensions) != 0)) {
-			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS_COLLECT_EXTENSIONS,
-			    SSL_R_BAD_EXTENSION);
+			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS_COLLECT_EXTENSIONS, SSL_R_BAD_EXTENSION);
 			goto err;
 		}
 		idx = thisex - raw_extensions;
@@ -629,8 +625,7 @@ int tls_collect_extensions(SSL * s, PACKET * packet, uint context,
 		    && type == TLSEXT_TYPE_cryptopro_bug)
 #endif
 		    ) {
-			SSLfatal(s, SSL_AD_UNSUPPORTED_EXTENSION,
-			    SSL_F_TLS_COLLECT_EXTENSIONS, SSL_R_UNSOLICITED_EXTENSION);
+			SSLfatal(s, SSL_AD_UNSUPPORTED_EXTENSION, SSL_F_TLS_COLLECT_EXTENSIONS, SSL_R_UNSOLICITED_EXTENSION);
 			goto err;
 		}
 		if(thisex != NULL) {
@@ -653,9 +648,7 @@ int tls_collect_extensions(SSL * s, PACKET * packet, uint context,
 		 */
 		for(thisexd = ext_defs, i = 0; i < OSSL_NELEM(ext_defs);
 		    i++, thisexd++) {
-			if(thisexd->init != NULL && (thisexd->context & context) != 0
-			    && extension_is_relevant(s, thisexd->context, context)
-			    && !thisexd->init(s, context)) {
+			if(thisexd->init != NULL && (thisexd->context & context) != 0 && extension_is_relevant(s, thisexd->context, context) && !thisexd->init(s, context)) {
 				/* SSLfatal() already called */
 				goto err;
 			}
@@ -748,42 +741,32 @@ int tls_parse_all_extensions(SSL * s, int context, RAW_EXTENSION * exts, X509 * 
 			return 0;
 		}
 	}
-
 	if(fin) {
 		/*
 		 * Finalise all known extensions relevant to this context,
 		 * whether we have found them or not
 		 */
-		for(i = 0, thisexd = ext_defs; i < OSSL_NELEM(ext_defs);
-		    i++, thisexd++) {
-			if(thisexd->final != NULL && (thisexd->context & context) != 0
-			    && !thisexd->final(s, context, exts[i].present)) {
+		for(i = 0, thisexd = ext_defs; i < OSSL_NELEM(ext_defs); i++, thisexd++) {
+			if(thisexd->final != NULL && (thisexd->context & context) != 0 && !thisexd->final(s, context, exts[i].present)) {
 				/* SSLfatal() already called */
 				return 0;
 			}
 		}
 	}
-
 	return 1;
 }
 
-int should_add_extension(SSL * s, uint extctx, uint thisctx,
-    int max_version)
+int should_add_extension(SSL * s, uint extctx, uint thisctx, int max_version)
 {
 	/* Skip if not relevant for our context */
 	if((extctx & thisctx) == 0)
 		return 0;
-
 	/* Check if this extension is defined for our protocol. If not, skip */
-	if(!extension_is_relevant(s, extctx, thisctx)
-	    || ((extctx & SSL_EXT_TLS1_3_ONLY) != 0
-	    && (thisctx & SSL_EXT_CLIENT_HELLO) != 0
-	    && (SSL_IS_DTLS(s) || max_version < TLS1_3_VERSION)))
+	if(!extension_is_relevant(s, extctx, thisctx) || ((extctx & SSL_EXT_TLS1_3_ONLY) != 0 
+		&& (thisctx & SSL_EXT_CLIENT_HELLO) != 0 && (SSL_IS_DTLS(s) || max_version < TLS1_3_VERSION)))
 		return 0;
-
 	return 1;
 }
-
 /*
  * Construct all the extensions relevant to the current |context| and write
  * them to |pkt|. If this is an extension for a Certificate in a Certificate
@@ -809,20 +792,17 @@ int tls_construct_extensions(SSL * s, WPACKET * pkt, uint context,
 	    (SSL_EXT_CLIENT_HELLO | SSL_EXT_TLS1_2_SERVER_HELLO)) != 0
 	    && !WPACKET_set_flags(pkt,
 	    WPACKET_FLAGS_ABANDON_ON_ZERO_LENGTH))) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_EXTENSIONS,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_EXTENSIONS, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
 
 	if((context & SSL_EXT_CLIENT_HELLO) != 0) {
 		reason = ssl_get_min_max_version(s, &min_version, &max_version, NULL);
 		if(reason != 0) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_EXTENSIONS,
-			    reason);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_EXTENSIONS, reason);
 			return 0;
 		}
 	}
-
 	/* Add custom extensions first */
 	if((context & SSL_EXT_CLIENT_HELLO) != 0) {
 		/* On the server side with initialise during ClientHello parsing */
@@ -832,43 +812,29 @@ int tls_construct_extensions(SSL * s, WPACKET * pkt, uint context,
 		/* SSLfatal() already called */
 		return 0;
 	}
-
 	for(i = 0, thisexd = ext_defs; i < OSSL_NELEM(ext_defs); i++, thisexd++) {
-		EXT_RETURN (* construct)(SSL * s, WPACKET * pkt, uint context,
-		    X509 * x, size_t chainidx);
+		EXT_RETURN (* construct)(SSL * s, WPACKET * pkt, uint context, X509 * x, size_t chainidx);
 		EXT_RETURN ret;
-
 		/* Skip if not relevant for our context */
 		if(!should_add_extension(s, thisexd->context, context, max_version))
 			continue;
-
-		construct = s->server ? thisexd->construct_stoc
-		    : thisexd->construct_ctos;
-
+		construct = s->server ? thisexd->construct_stoc : thisexd->construct_ctos;
 		if(construct == NULL)
 			continue;
-
 		ret = construct(s, pkt, context, x, chainidx);
 		if(ret == EXT_RETURN_FAIL) {
 			/* SSLfatal() already called */
 			return 0;
 		}
-		if(ret == EXT_RETURN_SENT
-		    && (context & (SSL_EXT_CLIENT_HELLO
-		    | SSL_EXT_TLS1_3_CERTIFICATE_REQUEST
-		    | SSL_EXT_TLS1_3_NEW_SESSION_TICKET)) != 0)
+		if(ret == EXT_RETURN_SENT && (context & (SSL_EXT_CLIENT_HELLO|SSL_EXT_TLS1_3_CERTIFICATE_REQUEST|SSL_EXT_TLS1_3_NEW_SESSION_TICKET)) != 0)
 			s->ext.extflags[i] |= SSL_EXT_FLAG_SENT;
 	}
-
 	if(!WPACKET_close(pkt)) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_EXTENSIONS,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_EXTENSIONS, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	return 1;
 }
-
 /*
  * Built in extension finalisation and initialisation functions. All initialise
  * or finalise the associated extension type for the given |context|. For
@@ -883,26 +849,17 @@ static int final_renegotiate(SSL * s, uint context, int sent)
 		 * Check if we can connect to a server that doesn't support safe
 		 * renegotiation
 		 */
-		if(!(s->options & SSL_OP_LEGACY_SERVER_CONNECT)
-		    && !(s->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION)
-		    && !sent) {
-			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_FINAL_RENEGOTIATE,
-			    SSL_R_UNSAFE_LEGACY_RENEGOTIATION_DISABLED);
+		if(!(s->options & SSL_OP_LEGACY_SERVER_CONNECT) && !(s->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION) && !sent) {
+			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_FINAL_RENEGOTIATE, SSL_R_UNSAFE_LEGACY_RENEGOTIATION_DISABLED);
 			return 0;
 		}
-
 		return 1;
 	}
-
 	/* Need RI if renegotiating */
-	if(s->renegotiate
-	    && !(s->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION)
-	    && !sent) {
-		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_FINAL_RENEGOTIATE,
-		    SSL_R_UNSAFE_LEGACY_RENEGOTIATION_DISABLED);
+	if(s->renegotiate && !(s->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION) && !sent) {
+		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_FINAL_RENEGOTIATE, SSL_R_UNSAFE_LEGACY_RENEGOTIATION_DISABLED);
 		return 0;
 	}
-
 	return 1;
 }
 
@@ -910,11 +867,9 @@ static int init_server_name(SSL * s, uint context)
 {
 	if(s->server) {
 		s->servername_done = 0;
-
 		OPENSSL_free(s->ext.hostname);
 		s->ext.hostname = NULL;
 	}
-
 	return 1;
 }
 
@@ -923,20 +878,14 @@ static int final_server_name(SSL * s, uint context, int sent)
 	int ret = SSL_TLSEXT_ERR_NOACK;
 	int altmp = SSL_AD_UNRECOGNIZED_NAME;
 	int was_ticket = (SSL_get_options(s) & SSL_OP_NO_TICKET) == 0;
-
 	if(!ossl_assert(s->ctx != NULL) || !ossl_assert(s->session_ctx != NULL)) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_FINAL_SERVER_NAME,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_FINAL_SERVER_NAME, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	if(s->ctx->ext.servername_cb != NULL)
-		ret = s->ctx->ext.servername_cb(s, &altmp,
-			s->ctx->ext.servername_arg);
+		ret = s->ctx->ext.servername_cb(s, &altmp, s->ctx->ext.servername_arg);
 	else if(s->session_ctx->ext.servername_cb != NULL)
-		ret = s->session_ctx->ext.servername_cb(s, &altmp,
-			s->session_ctx->ext.servername_arg);
-
+		ret = s->session_ctx->ext.servername_cb(s, &altmp, s->session_ctx->ext.servername_arg);
 	/*
 	 * For servers, propagate the SNI hostname from the temporary
 	 * storage in the SSL to the persistent SSL_SESSION, now that we
@@ -976,31 +925,27 @@ static int final_server_name(SSL * s, uint context, int sent)
 		s->ext.ticket_expected = 0;
 		if(!s->hit) {
 			SSL_SESSION* ss = SSL_get_session(s);
-			if(ss != NULL) {
+			if(ss) {
 				OPENSSL_free(ss->ext.tick);
 				ss->ext.tick = NULL;
 				ss->ext.ticklen = 0;
 				ss->ext.tick_lifetime_hint = 0;
 				ss->ext.tick_age_add = 0;
 				if(!ssl_generate_session_id(s, ss)) {
-					SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_FINAL_SERVER_NAME,
-					    ERR_R_INTERNAL_ERROR);
+					SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_FINAL_SERVER_NAME, ERR_R_INTERNAL_ERROR);
 					return 0;
 				}
 			}
 			else {
-				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_FINAL_SERVER_NAME,
-				    ERR_R_INTERNAL_ERROR);
+				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_FINAL_SERVER_NAME, ERR_R_INTERNAL_ERROR);
 				return 0;
 			}
 		}
 	}
-
 	switch(ret) {
 		case SSL_TLSEXT_ERR_ALERT_FATAL:
 		    SSLfatal(s, altmp, SSL_F_FINAL_SERVER_NAME, SSL_R_CALLBACK_FAILED);
 		    return 0;
-
 		case SSL_TLSEXT_ERR_ALERT_WARNING:
 		    /* TLSv1.3 doesn't have warning alerts so we suppress this */
 		    if(!SSL_IS_TLS13(s))
@@ -1618,27 +1563,22 @@ static int final_maxfragmentlen(SSL * s, uint context, int sent)
 	 * Session resumption on server-side with MFL extension active
 	 *  BUT MFL extension packet was not resent (i.e. sent == 0)
 	 */
-	if(s->server && s->hit && USE_MAX_FRAGMENT_LENGTH_EXT(s->session)
-	    && !sent) {
+	if(s->server && s->hit && USE_MAX_FRAGMENT_LENGTH_EXT(s->session) && !sent) {
 		SSLfatal(s, SSL_AD_MISSING_EXTENSION, SSL_F_FINAL_MAXFRAGMENTLEN, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
-
 	/* Current SSL buffer is lower than requested MFL */
-	if(s->session && USE_MAX_FRAGMENT_LENGTH_EXT(s->session)
-	    && s->max_send_fragment < GET_MAX_FRAGMENT_LENGTH(s->session))
+	if(s->session && USE_MAX_FRAGMENT_LENGTH_EXT(s->session) && s->max_send_fragment < GET_MAX_FRAGMENT_LENGTH(s->session))
 		/* trigger a larger buffer reallocation */
 		if(!ssl3_setup_buffers(s)) {
 			/* SSLfatal() already called */
 			return 0;
 		}
-
 	return 1;
 }
 
 static int init_post_handshake_auth(SSL * s, uint context)
 {
 	s->post_handshake_auth = SSL_PHA_NONE;
-
 	return 1;
 }

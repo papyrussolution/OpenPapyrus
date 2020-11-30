@@ -550,9 +550,6 @@
 				RelativePath="..\Include\freetype\ftadvanc.h">
 			</File>
 			<File
-				RelativePath="..\Include\freetype\ftautoh.h">
-			</File>
-			<File
 				RelativePath="..\Include\freetype\ftbbox.h">
 			</File>
 			<File
@@ -571,9 +568,6 @@
 				RelativePath="..\Include\freetype\internal\ftcalc.h">
 			</File>
 			<File
-				RelativePath="..\Include\freetype\ftcffdrv.h">
-			</File>
-			<File
 				RelativePath="..\Include\freetype\ftchapters.h">
 			</File>
 			<File
@@ -584,9 +578,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\freetype\internal\ftdebug.h">
-			</File>
-			<File
-				RelativePath="..\Include\freetype\internal\ftdriver.h">
 			</File>
 			<File
 				RelativePath="..\Include\freetype\fterrdef.h">
@@ -661,9 +652,6 @@
 				RelativePath="..\Include\freetype\ftpfr.h">
 			</File>
 			<File
-				RelativePath="..\Include\freetype\internal\ftpic.h">
-			</File>
-			<File
 				RelativePath="..\Include\freetype\ftrender.h">
 			</File>
 			<File
@@ -700,9 +688,6 @@
 				RelativePath="..\Include\freetype\fttrigon.h">
 			</File>
 			<File
-				RelativePath="..\Include\freetype\ftttdrv.h">
-			</File>
-			<File
 				RelativePath="..\Include\freetype\fttypes.h">
 			</File>
 			<File
@@ -710,12 +695,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\freetype\ftwinfnt.h">
-			</File>
-			<File
-				RelativePath="..\Include\freetype\ftxf86.h">
-			</File>
-			<File
-				RelativePath="..\Include\freetype\internal\internal.h">
 			</File>
 			<File
 				RelativePath="..\Include\freetype\internal\psaux.h">
@@ -778,9 +757,6 @@
 				RelativePath="..\Include\freetype\internal\services\svwinfnt.h">
 			</File>
 			<File
-				RelativePath="..\Include\freetype\internal\services\svxf86nm.h">
-			</File>
-			<File
 				RelativePath="..\Include\freetype\t1tables.h">
 			</File>
 			<File
@@ -797,9 +773,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\freetype\internal\tttypes.h">
-			</File>
-			<File
-				RelativePath="..\Include\freetype\ttunpat.h">
 			</File>
 		</Filter>
 	</Files>

@@ -13902,6 +13902,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prcssrosm_ftestflexia                    "Тестировать словоформы"
 @prcssrosm_ftestconcepts                  "Тестировать концепции"
 @prcssrosm_ftestsyntaxparser              "Тестировать синтаксический анализатор"
+@prcssrsartre_fimporttickers              "Импортировать биржевые тикеры"
+@prcssrsartre_fimport_ued_llcc            "Импортировать языки/локали/страны/валюты"
+@prcssrsartre_uedflags                    "Флаги UED" // generic
 
 @prcssrinvimp                             "Импорт инвентаризации"
 @prcssrinvimp_config                      "@{expimpconfig}"

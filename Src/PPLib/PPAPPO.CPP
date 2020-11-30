@@ -819,7 +819,7 @@ int PPApp::processCommand(uint cmd)
 		case cmRegisterComServer:     RegisterComServer();             break;
 		case cmCreateGlobalUserAcc:   CreateBizScGlblUserAcct();       break;
 		case cmSetupGlbSvcUDS:        PPGlobalServiceHighLevelImplementations::Setup_UDS(); break; // @v10.9.0
-		case cmSetupGlbSvcVK:         PPGlobalServiceHighLevelImplementations::Setup_VK(); break; // @v10.9.6
+		case cmSetupGlbSvcVK:         PPGlobalServiceHighLevelImplementations::Setup_VK(); break; // @v10.9.5
 		case cmKeyboardWKeyCfg:       EditDueToKeyboardRights();       break;
 		case cmGenerateGoodsBills:    GenerateGoodsBills();            break;
 		case cmGenerateCliBnkImport:  GenerateCliBnkImpData();         break;

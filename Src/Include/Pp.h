@@ -15536,7 +15536,7 @@ public:
 	PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesktop*/PPCommandGroupCategory kind);
 	~PPCommandMngr();
 	int    IsValid_() const;
-	int    Save_Obsolete(const PPCommandGroup *);
+	// @v10.9.5 int    Save_Obsolete(const PPCommandGroup *);
 	int    Load_Obsolete(PPCommandGroup *);
 	int    Save__2(const PPCommandGroup *, const long rwFlag); // @erik v10.6.1
 	int    Load__2(PPCommandGroup *, const char * pDbSymb, const long rwFlag); // @erik v10.6.1

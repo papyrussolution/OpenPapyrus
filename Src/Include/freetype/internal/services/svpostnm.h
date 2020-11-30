@@ -1,11 +1,8 @@
 /****************************************************************************
- *
  * svpostnm.h
- *
  *   The FreeType PostScript name services (specification).
  *
- * Copyright (C) 2003-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2003-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
@@ -14,7 +11,6 @@
  * understand and accept it fully.
  *
  */
-
 #ifndef SVPOSTNM_H_
 #define SVPOSTNM_H_
 
@@ -34,24 +30,14 @@ FT_BEGIN_HEADER
 
 #define FT_SERVICE_ID_POSTSCRIPT_FONT_NAME  "postscript-font-name"
 
-typedef const char*
-(* FT_PsName_GetFunc)(FT_Face face);
+typedef const char * (* FT_PsName_GetFunc)(FT_Face face);
 
 FT_DEFINE_SERVICE(PsFontName)
 {
 	FT_PsName_GetFunc get_ps_font_name;
 };
 
-#define FT_DEFINE_SERVICE_PSFONTNAMEREC(class_, get_ps_font_name_) \
-	static const FT_Service_PsFontNameRec class_ =                    \
-	{                                                                  \
-		get_ps_font_name_                                                \
-	};
-
+#define FT_DEFINE_SERVICE_PSFONTNAMEREC(class_, get_ps_font_name_) static const FT_Service_PsFontNameRec class_ = { get_ps_font_name_ };
 /* */
-
 FT_END_HEADER
-
 #endif /* SVPOSTNM_H_ */
-
-/* END */

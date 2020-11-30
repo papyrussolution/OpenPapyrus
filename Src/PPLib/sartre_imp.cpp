@@ -2107,14 +2107,15 @@ int PrcssrSartreFilt::IsEmpty() const
 }
 
 class PrcssrSartreFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(PrcssrSartreFilt);
 public:
 	PrcssrSartreFiltDialog() : TDialog(DLG_PRCRSARTR)
 	{
 	}
-	int    setDTS(const PrcssrSartreFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 0, Data.fImportFlexia);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 1, Data.fImportConcepts);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 2, Data.fImportHumNames);
@@ -2124,22 +2125,25 @@ public:
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 6, Data.fTestConcepts);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 7, Data.fTestSyntaxParser);
 		SetClusterData(CTL_PRCRSARTR_FLAGS, Data.Flags);
+		// @v10.9.5 {
+		AddClusterAssoc(CTL_PRCRSARTR_UEDFLAGS, 0, Data.fImport_UED_Llcc);
+		SetClusterData(CTL_PRCRSARTR_UEDFLAGS, Data.Flags);
+		// } @v10.9.5 
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_PRCRSARTR_SRCPATH, CTL_PRCRSARTR_SRCPATH, 1, 0,
 			0, FileBrowseCtrlGroup::fbcgfPath|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 		setCtrlString(CTL_PRCRSARTR_SRCPATH, Data.SrcPath);
 		return ok;
 	}
-	int    getDTS(PrcssrSartreFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
 		GetClusterData(CTL_PRCRSARTR_FLAGS, &Data.Flags);
+		GetClusterData(CTL_PRCRSARTR_UEDFLAGS, &Data.Flags); // @v10.9.5
 		getCtrlString(sel = CTL_PRCRSARTR_SRCPATH, Data.SrcPath);
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
-private:
-	PrcssrSartreFilt Data;
 };
 
 PrcssrSartre::PrcssrSartre(const char * pDbPath)
@@ -3667,6 +3671,11 @@ int PrcssrSartre::Run()
 		if(P.Flags & P.fTestSyntaxParser) {
 			TestSyntax();
 		}
+		// @v10.9.5 {
+		if(P.Flags & P.fImport_UED_Llcc) {
+			UED_Import_Lingua_LinguaLocus_Country_Currency(llccBaseListOnly);
+		}
+		// } @v10.9.5 
 		/*if(!TestImport_Words_MySpell())
 			ret = -1;*/
 		/*if(!TestImport_AncodeCollection())
@@ -5332,7 +5341,15 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 	SString value_buf;
 	SString temp_buf;
 	StringSet ss(";");
-	StringSet base_list;
+	//StringSet base_list;
+	StringSet lingua_base_list;
+	StringSet locus_base_list;
+	StringSet statu_base_list;
+	StringSet currency_base_list;
+	StrAssocArray lingua_id_list;
+	StrAssocArray locus_id_list;
+	StrAssocArray statu_id_list;
+	StrAssocArray currency_id_list;
 	//
 	// Так как все элементы в этих наборах данных помечаются идентификатором языка,
 	// то в сете base_list_lang соберем список всех таких идентификаторов.
@@ -5347,60 +5364,117 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 	}
 	SFile f_out(path, SFile::mWrite);
 	THROW_SL(f_out.IsValid());
-	for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
-		const SIntToSymbTabEntry & r_entry = entries[i];
-		(path = p_base_path).SetLastDSlash().Cat(r_entry.P_Symb);
-		SFile f_in(path, SFile::mRead);
-		THROW_SL(f_in.IsValid())
-		{
-			base_list.clear();
-			for(uint ln = 0; f_in.ReadLine(line_buf); ln++) {
-				line_buf.Chomp().Strip();
-				if(ln > 0) {
-					// lang;id;value
-					ss.clear();
-					ss.setBuf(line_buf);
-					for(uint fldidx = 1, ssp = 0; ss.get(&ssp, temp_buf); fldidx++) {
-						temp_buf.Strip();
-						switch(fldidx) {
-							case 1: lang_buf = temp_buf; break;
-							case 2: id_buf = temp_buf; break;
-							case 3: value_buf = temp_buf; break;
-						}
-						if(!base_list_lang.searchNcAscii(lang_buf, 0)) {
-							base_list_lang.add(lang_buf);
-						}
-						if(!base_list.searchNcAscii(id_buf, 0)) {
-							base_list.add(id_buf);
-						}
-					}
-
-				}
-			}
-			if(llccFlags & llccBaseListOnly) {
-				base_list.sort();
-				temp_buf.Z();
+	{
+		for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
+			const SIntToSymbTabEntry & r_entry = entries[i];
+			(path = p_base_path).SetLastDSlash().Cat(r_entry.P_Symb);
+			SFile f_in(path, SFile::mRead);
+			THROW_SL(f_in.IsValid())
+			{
+				StringSet * p_base_list = 0;
 				switch(r_entry.Id) {
-					case _idLingua: temp_buf.Cat("//").Space().Cat("lingua"); break;
-					case _idLocus: temp_buf.Cat("//").Space().Cat("locus"); break;
-					case _idStatu: temp_buf.Cat("//").Space().Cat("statu"); break;
-					case _idCurrency: temp_buf.Cat("//").Space().Cat("currency"); break;
+					case _idLingua: p_base_list = &lingua_base_list; break;
+					case _idLocus: p_base_list = &locus_base_list; break;
+					case _idStatu: p_base_list = &statu_base_list; break;
+					case _idCurrency: p_base_list = &currency_base_list; break;
 					default: assert(0); break;
 				}
-				f_out.WriteLine(temp_buf.CR());
-				for(uint blp = 0; base_list.get(&blp, temp_buf);) {
-					f_out.WriteLine(temp_buf.CR());
+				if(p_base_list) {
+					for(uint ln = 0; f_in.ReadLine(line_buf); ln++) {
+						line_buf.Chomp().Strip();
+						if(ln > 0) {
+							// lang;id;value
+							ss.clear();
+							ss.setBuf(line_buf);
+							for(uint fldidx = 1, ssp = 0; ss.get(&ssp, temp_buf); fldidx++) {
+								temp_buf.Strip();
+								switch(fldidx) {
+									case 1: lang_buf = temp_buf; break;
+									case 2: id_buf = temp_buf; break;
+									case 3: value_buf = temp_buf; break;
+								}
+							}
+							if(!base_list_lang.searchNcAscii(lang_buf, 0))
+								base_list_lang.add(lang_buf);
+							if(!p_base_list->searchNcAscii(id_buf, 0))
+								p_base_list->add(id_buf);
+						}
+					}
+					p_base_list->sort();
+					if(llccFlags & llccBaseListOnly) {
+						temp_buf.Z();
+						switch(r_entry.Id) {
+							case _idLingua: temp_buf.Cat("//").Space().Cat("lingua"); break;
+							case _idLocus: temp_buf.Cat("//").Space().Cat("locus"); break;
+							case _idStatu: temp_buf.Cat("//").Space().Cat("statu"); break;
+							case _idCurrency: temp_buf.Cat("//").Space().Cat("currency"); break;
+							default: assert(0); break;
+						}
+						f_out.WriteLine(temp_buf.CR());
+						for(uint blp = 0; p_base_list->get(&blp, temp_buf);) {
+							f_out.WriteLine(temp_buf.CR());
+						}
+					}
 				}
 			}
 		}
+		base_list_lang.sort();
 	}
 	if(llccFlags & llccBaseListOnly) {
-		base_list_lang.sort();
 		temp_buf.Z();
 		temp_buf.Cat("//").Space().Cat("lingua full list");
 		f_out.WriteLine(temp_buf.CR());
-		for(uint blp = 0; base_list_lang.get(&blp, temp_buf);) {
+		for(uint blp = 0; base_list_lang.get(&blp, temp_buf);)
 			f_out.WriteLine(temp_buf.CR());
+	}
+	if(!(llccFlags & llccBaseListOnly)) {
+		for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
+			const SIntToSymbTabEntry & r_entry = entries[i];
+			(path = p_base_path).SetLastDSlash().Cat(r_entry.P_Symb);
+			SFile f_in(path, SFile::mRead);
+			THROW_SL(f_in.IsValid())
+			{
+				StrAssocArray * p_id_list = 0;
+				StringSet * p_base_list = 0;
+				switch(r_entry.Id) {
+					case _idLingua: 
+						p_id_list = &lingua_id_list; 
+						p_base_list = &lingua_base_list;
+						break;
+					case _idLocus: 
+						p_id_list = &locus_id_list; 
+						p_base_list = &locus_base_list;
+						break;
+					case _idStatu: 
+						p_id_list = &statu_id_list; 
+						p_base_list = &statu_base_list;
+						break;
+					case _idCurrency: 
+						p_id_list = &currency_id_list; 
+						p_base_list = &currency_base_list;
+						break;
+					default: assert(0); break;
+				}
+				if(p_id_list) {
+					for(uint ln = 0; f_in.ReadLine(line_buf); ln++) {
+						line_buf.Chomp().Strip();
+						if(ln > 0) {
+							// lang;id;value
+							ss.clear();
+							ss.setBuf(line_buf);
+							for(uint fldidx = 1, ssp = 0; ss.get(&ssp, temp_buf); fldidx++) {
+								temp_buf.Strip();
+								switch(fldidx) {
+									case 1: lang_buf = temp_buf; break;
+									case 2: id_buf = temp_buf; break;
+									case 3: value_buf = temp_buf; break;
+								}
+
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	CATCHZOK

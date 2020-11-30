@@ -12070,7 +12070,7 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,200,110,50,13
 END
 
-DLG_PRCRSARTR DIALOGEX 93, 40, 275, 177
+DLG_PRCRSARTR DIALOGEX 93, 40, 275, 212
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@prcssrsartre"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -12083,12 +12083,14 @@ BEGIN
     CONTROL         "@prcssrosm_fimportconcepts",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,55,215,10
     CONTROL         "@prcssrosm_fimporthumnames",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,65,215,10
     CONTROL         "@prcssrosm_fimportbiotaxonomy",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,220,10
-    CONTROL         "Импортировать биржевые тикеры",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,85,225,10
+    CONTROL         "@prcssrsartre_fimporttickers",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,85,225,10
     CONTROL         "@prcssrosm_ftestflexia",25779,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,95,215,10
     CONTROL         "@prcssrosm_ftestconcepts",29875,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,105,215,10
     CONTROL         "@prcssrosm_ftestsyntaxparser",33971,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,115,220,10
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,140,155,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,200,155,50,13
+    LTEXT           "@prcssrsartre_uedflags",4002,15,155,135,8
+    CONTROL         "@prcssrsartre_fimport_ued_llcc",5300,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,165,235,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,135,190,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,200,190,50,13
 END
 
 DLG_PPOSTFLT DIALOGEX 57, 32, 297, 170
@@ -31770,7 +31772,7 @@ BEGIN
     DLG_PRCRSARTR, DIALOG
     BEGIN
         RIGHTMARGIN, 232
-        BOTTOMMARGIN, 167
+        BOTTOMMARGIN, 202
     END
 
     DLG_PRCFILT, DIALOG

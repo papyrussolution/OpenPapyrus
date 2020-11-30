@@ -1,13 +1,10 @@
 /****************************************************************************
- *
  * pshints.h
- *
  *   Interface to Postscript-specific (Type 1 and Type 2) hints
  *   recorders (specification only).  These are used to support native
  *   T1/T2 hints in the 'type1', 'cid', and 'cff' font drivers.
  *
- * Copyright (C) 2001-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2001-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
@@ -16,7 +13,6 @@
  * understand and accept it fully.
  *
  */
-
 #ifndef PSHINTS_H_
 #define PSHINTS_H_
 
@@ -647,5 +643,3 @@ typedef PSHinter_Interface*  PSHinter_Service;
 FT_END_HEADER
 
 #endif /* PSHINTS_H_ */
-
-/* END */

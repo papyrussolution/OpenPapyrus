@@ -1841,7 +1841,7 @@
 #define cmAutoFill               1178 // @v10.8.12 ранее была локальной относительно DLG_GDSLST (теперь используется и в других диалогах)
 #define cmCopyToClipboardSpc     1179 // @v10.9.0 Специальное копирование в буфер обмена
 #define cmConfigure              1180 // @v10.9.0
-#define cmQueryToken             1181 // @v10.9.6 (replace cmGetTokenVk)
+#define cmQueryToken             1181 // @v10.9.5 (replace cmGetTokenVk)
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -10537,6 +10537,7 @@
 	#define CTL_PRCRSARTR_SRCPATH     (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_PRCRSARTR_SRCPATH  (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRCRSARTR_FLAGS       (3 + WINDOWS_ID_BIAS)
+	#define CTL_PRCRSARTR_UEDFLAGS    (4 + WINDOWS_ID_BIAS)
 #define DLG_PRCBAUTOC             1325 // PPBillAutoCreateParam
 	#define CTL_PRCBAUTOC_WHAT        (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRCBAUTOC_RULE        (2 + WINDOWS_ID_BIAS)
@@ -10974,7 +10975,7 @@
 	#define CTL_EDITTEXTPARAM_PATH    (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_EDITTEXTPARAM_PAT  (2 + WINDOWS_ID_BIAS)
 #define DLG_VKGUACFG              1389
-	// @v10.9.6 (replaced with cmQueryToken) #define cmGetTokenVk              101
+	// @v10.9.5 (replaced with cmQueryToken) #define cmGetTokenVk              101
 	#define CTL_VKGUACFG_LOGIN_REQ    (1 + IMPEXP_CTL_BIAS)//
 	#define CTL_VKGUACFG_LOGIN_URL    (2 + IMPEXP_CTL_BIAS)//
 	#define CTL_VKGUACFG_GROUP_ID     (3 + IMPEXP_CTL_BIAS)//

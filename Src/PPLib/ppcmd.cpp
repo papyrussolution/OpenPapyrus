@@ -1649,9 +1649,9 @@ PPCommandMngr * GetCommandMngr(uint ctrFlags, /*int isDesktop*/PPCommandGroupCat
 	}
 	else
 		path = pPath;
-	if(path.Empty())
+	/* @v10.9.5 if(path.Empty())
 		PPSetError(PPERR_UNDEFCMDFILENAME);
-	else
+	else */
 		p_mgr = new PPCommandMngr(path, /*readOnly*/ctrFlags, /*isDesktop*/kind);
 	if(p_mgr) {
 		if(!p_mgr->IsValid_()) {
@@ -1674,27 +1674,28 @@ PPCommandMngr::PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesk
 {
 	assert(oneof2(kind, cmdgrpcMenu, cmdgrpcDesktop));
 	if(!(CtrFlags & ctrfSkipObsolete)) {
-		SString temp_buf;
-		long   mode = 0;
-		if(CtrFlags & ctrfReadOnly)
-			mode = (SFile::mRead | SFile::mDenyWrite); // @v9.0.11 SFile::mDenyWrite
-		else
-			mode = (SFile::mReadWrite | SFile::mDenyWrite | mDenyRead); // @v9.0.11 mDenyRead
-		mode |= (SFile::mBinary | SFile::mNoStd);
-		//
-		// Так как файл может быть заблокирован другим пользователем,
-		// предпримем несколько попыток его открытия.
-		// Исходим из предположения, что файл для записи открывается на малое время.
-		//
-		for(uint i = 0; i < 10; i++) {
-			if(F_Obsolete.Open(pFileName, mode)) {
-				break;
-			}
+		if(fileExists(pFileName)) { // @v10.9.5
+			long   mode = 0;
+			if(CtrFlags & ctrfReadOnly)
+				mode = (SFile::mRead | SFile::mDenyWrite); // @v9.0.11 SFile::mDenyWrite
 			else
-				SDelay(100);
+				mode = (SFile::mReadWrite | SFile::mDenyWrite | mDenyRead); // @v9.0.11 mDenyRead
+			mode |= (SFile::mBinary | SFile::mNoStd);
+			//
+			// Так как файл может быть заблокирован другим пользователем,
+			// предпримем несколько попыток его открытия.
+			// Исходим из предположения, что файл для записи открывается на малое время.
+			//
+			for(uint i = 0; i < 10; i++) {
+				if(F_Obsolete.Open(pFileName, mode)) {
+					break;
+				}
+				else
+					SDelay(100);
+			}
+			if(!F_Obsolete.IsValid())
+				Status |= stError;
 		}
-		if(!F_Obsolete.IsValid())
-			Status |= stError;
 	}
 	if(/*isDesktop*/kind == cmdgrpcDesktop) {
 		PPCommandMngr::GetDesksDir(XmlDirPath);
@@ -1714,7 +1715,7 @@ int PPCommandMngr::IsValid_() const
 	return (Status & stError) ? PPSetErrorSLib() : 1;
 }
 
-int PPCommandMngr::Save_Obsolete(const PPCommandGroup * pCmdGrp)
+/* @v10.9.5 int PPCommandMngr::Save_Obsolete(const PPCommandGroup * pCmdGrp)
 {
 	int    ok = 1;
 	if(!(CtrFlags & ctrfSkipObsolete)) {
@@ -1739,7 +1740,7 @@ int PPCommandMngr::Save_Obsolete(const PPCommandGroup * pCmdGrp)
 		ok = -1;
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPCommandMngr::Load_Obsolete(PPCommandGroup * pCmdGrp)
 {

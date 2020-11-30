@@ -1,11 +1,8 @@
 /****************************************************************************
- *
  * type1.c
- *
  *   FreeType Type 1 driver component (body only).
  *
- * Copyright (C) 1996-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 1996-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
@@ -23,4 +20,3 @@
 #include "t1load.c"
 #include "t1objs.c"
 #include "t1parse.c"
-/* END */

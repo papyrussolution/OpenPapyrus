@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493303
+LastSignatureCode=2147493306
 LastAutoCodeList=1,12000;102,10177;103,10072;110,10000;111,11997;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -8015,6 +8015,9 @@ prcssrosm_fimportbiotaxonomy=2147490484
 prcssrosm_ftestflexia=2147490485
 prcssrosm_ftestconcepts=2147490486
 prcssrosm_ftestsyntaxparser=2147490487
+prcssrsartre_fimporttickers=2147493304
+prcssrsartre_fimport_ued_llcc=2147493305
+prcssrsartre_uedflags=2147493306
 prcssrinvimp=2147490488
 prcssrinvimp_config=2147490489
 prcssrinvimp_op=2147490490

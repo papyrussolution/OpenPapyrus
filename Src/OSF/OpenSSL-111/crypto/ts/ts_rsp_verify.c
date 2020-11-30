@@ -185,8 +185,7 @@ end:
 	return ret;
 }
 
-static int ts_check_signing_certs(PKCS7_SIGNER_INFO * si,
-    STACK_OF(X509) * chain)
+static int ts_check_signing_certs(PKCS7_SIGNER_INFO * si, STACK_OF(X509) * chain)
 {
 	ESS_SIGNING_CERT * ss = ess_get_signing_cert(si);
 	STACK_OF(ESS_CERT_ID) *cert_ids = NULL;
@@ -195,13 +194,11 @@ static int ts_check_signing_certs(PKCS7_SIGNER_INFO * si,
 	X509 * cert;
 	int i = 0;
 	int ret = 0;
-
-	if(ss != NULL) {
+	if(ss) {
 		cert_ids = ss->cert_ids;
 		cert = sk_X509_value(chain, 0);
 		if(ts_find_cert(cert_ids, cert) != 0)
 			goto err;
-
 		/*
 		 * Check the other certificates of the chain if there are more than one
 		 * certificate ids in cert_ids.
@@ -219,7 +216,6 @@ static int ts_check_signing_certs(PKCS7_SIGNER_INFO * si,
 		cert = sk_X509_value(chain, 0);
 		if(ts_find_cert_v2(cert_ids_v2, cert) != 0)
 			goto err;
-
 		/*
 		 * Check the other certificates of the chain if there are more than one
 		 * certificate ids in cert_ids.
@@ -235,12 +231,10 @@ static int ts_check_signing_certs(PKCS7_SIGNER_INFO * si,
 	else {
 		goto err;
 	}
-
 	ret = 1;
 err:
 	if(!ret)
-		TSerr(TS_F_TS_CHECK_SIGNING_CERTS,
-		    TS_R_ESS_SIGNING_CERTIFICATE_ERROR);
+		TSerr(TS_F_TS_CHECK_SIGNING_CERTS, TS_R_ESS_SIGNING_CERTIFICATE_ERROR);
 	ESS_SIGNING_CERT_free(ss);
 	ESS_SIGNING_CERT_V2_free(ssv2);
 	return ret;
@@ -248,9 +242,8 @@ err:
 
 static ESS_SIGNING_CERT * ess_get_signing_cert(PKCS7_SIGNER_INFO * si)
 {
-	ASN1_TYPE * attr;
 	const uchar * p;
-	attr = PKCS7_get_signed_attribute(si, NID_id_smime_aa_signingCertificate);
+	ASN1_TYPE * attr = PKCS7_get_signed_attribute(si, NID_id_smime_aa_signingCertificate);
 	if(!attr)
 		return NULL;
 	p = attr->value.sequence->data;
@@ -286,7 +279,6 @@ static int ts_find_cert(STACK_OF(ESS_CERT_ID) * cert_ids, X509 * cert)
 				return i;
 		}
 	}
-
 	return -1;
 }
 
@@ -296,50 +288,38 @@ static int ts_find_cert_v2(STACK_OF(ESS_CERT_ID_V2) * cert_ids, X509 * cert)
 	int i;
 	uchar cert_digest[EVP_MAX_MD_SIZE];
 	uint len;
-
 	/* Look for cert in the cert_ids vector. */
 	for(i = 0; i < sk_ESS_CERT_ID_V2_num(cert_ids); ++i) {
 		ESS_CERT_ID_V2 * cid = sk_ESS_CERT_ID_V2_value(cert_ids, i);
 		const EVP_MD * md;
-
 		if(cid->hash_alg != NULL)
 			md = EVP_get_digestbyobj(cid->hash_alg->algorithm);
 		else
 			md = EVP_sha256();
-
 		X509_digest(cert, md, cert_digest, &len);
 		if(cid->hash->length != (int)len)
 			return -1;
-
 		if(memcmp(cid->hash->data, cert_digest, cid->hash->length) == 0) {
 			ESS_ISSUER_SERIAL * is = cid->issuer_serial;
-
 			if(is == NULL || !ts_issuer_serial_cmp(is, cert))
 				return i;
 		}
 	}
-
 	return -1;
 }
 
 static int ts_issuer_serial_cmp(ESS_ISSUER_SERIAL * is, X509 * cert)
 {
 	GENERAL_NAME * issuer;
-
 	if(!is || !cert || sk_GENERAL_NAME_num(is->issuer) != 1)
 		return -1;
-
 	issuer = sk_GENERAL_NAME_value(is->issuer, 0);
-	if(issuer->type != GEN_DIRNAME
-	    || X509_NAME_cmp(issuer->d.dirn, X509_get_issuer_name(cert)))
+	if(issuer->type != GEN_DIRNAME || X509_NAME_cmp(issuer->d.dirn, X509_get_issuer_name(cert)))
 		return -1;
-
 	if(ASN1_INTEGER_cmp(is->serial, X509_get_serialNumber(cert)))
 		return -1;
-
 	return 0;
 }
-
 /*-
  * Verifies whether 'response' contains a valid response with regards
  * to the settings of the context:
@@ -597,18 +577,14 @@ err:
 	return 0;
 }
 
-static int ts_check_imprints(X509_ALGOR * algor_a,
-    const uchar * imprint_a, unsigned len_a,
-    TS_TST_INFO * tst_info)
+static int ts_check_imprints(X509_ALGOR * algor_a, const uchar * imprint_a, unsigned len_a, TS_TST_INFO * tst_info)
 {
 	TS_MSG_IMPRINT * b = tst_info->msg_imprint;
 	X509_ALGOR * algor_b = b->hash_algo;
 	int ret = 0;
-
 	if(algor_a) {
 		if(OBJ_cmp(algor_a->algorithm, algor_b->algorithm))
 			goto err;
-
 		/* The parameter must be NULL in both. */
 		if((algor_a->parameter
 		    && ASN1_TYPE_get(algor_a->parameter) != V_ASN1_NULL)
@@ -616,7 +592,6 @@ static int ts_check_imprints(X509_ALGOR * algor_a,
 		    && ASN1_TYPE_get(algor_b->parameter) != V_ASN1_NULL))
 			goto err;
 	}
-
 	ret = len_a == (uint)ASN1_STRING_length(b->hashed_msg) &&
 	    memcmp(imprint_a, ASN1_STRING_get0_data(b->hashed_msg), len_a) == 0;
 err:
@@ -628,21 +603,17 @@ err:
 static int ts_check_nonces(const ASN1_INTEGER * a, TS_TST_INFO * tst_info)
 {
 	const ASN1_INTEGER * b = tst_info->nonce;
-
 	if(!b) {
 		TSerr(TS_F_TS_CHECK_NONCES, TS_R_NONCE_NOT_RETURNED);
 		return 0;
 	}
-
 	/* No error if a nonce is returned without being requested. */
 	if(ASN1_INTEGER_cmp(a, b) != 0) {
 		TSerr(TS_F_TS_CHECK_NONCES, TS_R_NONCE_MISMATCH);
 		return 0;
 	}
-
 	return 1;
 }
-
 /*
  * Check if the specified TSA name matches either the subject or one of the
  * subject alternative names of the TSA certificate.

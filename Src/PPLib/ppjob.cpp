@@ -2439,13 +2439,15 @@ IMPLEMENT_JOB_HDL_FACTORY(EXPORTBILLS);
 //
 //
 //
-struct ExportGoodsParam { // @persistent
-	ExportGoodsParam() : Ver(DS.GetVersion()), LocID(0)
+class ExportGoodsParam { // @persistent
+private:
+	static const uint32 Signature;// = 49FA91B4;
+public:
+	ExportGoodsParam() : LocID(0)
 	{
 	}
 	ExportGoodsParam & Z()
 	{
-		Ver = DS.GetVersion(); // @v10.9.5
 		LocID = 0; // @v10.9.5
 		Filt.Init(1, 0);
 		ExpCfg.Z();
@@ -2455,6 +2457,14 @@ struct ExportGoodsParam { // @persistent
 	{
 		int    ok = 1;
 		if(rBuf.GetAvailableSize()) {
+			uint32 _signature = 0;
+			THROW_SL(rBuf.Read(_signature));
+			if(_signature == ExportGoodsParam::Signature) {
+				THROW_SL(rBuf.Read(LocID));				
+			}
+			else {
+				rBuf.Unread(sizeof(_signature));
+			}
 			THROW(Filt.Read(rBuf, 0));
 			THROW(rBuf.Read(ExpCfg));
 		}
@@ -2464,17 +2474,22 @@ struct ExportGoodsParam { // @persistent
 	int Write(SBuffer & rBuf, long)
 	{
 		int    ok = 1;
-		//THROW_SL(rBuf.Write(Ver));
+		// @v10.9.5 {
+		uint32 _signature = ExportGoodsParam::Signature; 
+		THROW_SL(rBuf.Write(_signature));
+		THROW_SL(rBuf.Write(LocID));
+		// } @v10.9.5
 		THROW(Filt.Write(rBuf, 0));
 		THROW(rBuf.Write(ExpCfg));
 		CATCHZOK
 		return ok;
 	}
-	SVerT  Ver;   // @v10.9.5
 	PPID   LocID; // @v10.9.5
 	SString ExpCfg;
 	GoodsFilt Filt;
 };
+
+/*static*/const uint32 ExportGoodsParam::Signature = 0x49FA91B4UL;
 
 class ExportGoodsFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(ExportGoodsParam);
@@ -2589,6 +2604,7 @@ public:
 			PPGoodsImpExpParam ie_param;
 			THROW(ExportGoodsFiltDialog::GetParamByName(param.ExpCfg, &ie_param));
 			THROW(view.Init_(&param.Filt));
+			ie_param.LocID = param.LocID; // @v10.9.5
 			ok = view.Export(&ie_param);
 		}
 		CATCHZOK
