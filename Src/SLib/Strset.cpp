@@ -389,6 +389,19 @@ int StringSet::search(const char * pPattern, uint * pPos, int ignoreCase) const
 	return 0;
 }
 
+int StringSet::searchNcAscii(const char * pPattern, uint * pPos) const
+{
+	uint   pos = DEREFPTRORZ(pPos);
+	SString temp_buf;
+	for(uint prev_pos = pos; get(&pos, temp_buf) > 0; prev_pos = pos) {
+		if(temp_buf.IsEqiAscii(pPattern)) {
+			ASSIGN_PTR(pPos, prev_pos);
+			return 1;
+		}
+	}
+	return 0;
+}
+
 int StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const
 {
 	int    ok = 0;

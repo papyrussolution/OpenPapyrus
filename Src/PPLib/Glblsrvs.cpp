@@ -6,7 +6,7 @@
 
 static SString P_VKUrlBase("https://api.vk.com");
 static SString P_VKMethodUrlBase("https://api.vk.com/method");
-static SString P_VKAppId("7402217");
+static const char * P_VKAppId = "7402217"; // Идентификатор приложения (аргумент client_id в запросах)
 
 VkInterface::InitBlock::InitBlock() : GuaID(0), OuterWareIdentTagID(0), LinkFileType(0)
 {
@@ -29,10 +29,96 @@ VkInterface::InitBlock & VkInterface::InitBlock::Z()
 	return *this;
 }
 
+enum VkAccessRightGroup {
+	vkacsrgStories   = 0x00000001, // group Доступ к историям.
+	vkacsrgPhotos    = 0x00000004, // group Доступ к фотографиям.
+	vkacsrgAppWidget = 0x00000040, // group Доступ к виджетам приложений сообществ. Это право можно запросить только с помощью метода Client API showGroupSettingsBox.
+	vkacsrgMessages  = 0x00001000, // group Доступ к сообщениям сообщества.
+	vkacsrgDocs      = 0x00020000, // group Доступ к документам.
+	vkacsrgManage    = 0x00040000, // group Доступ к администрированию сообщества. 
+};
+
+enum VkAccessRightUser {
+	vkacsruNotify        = 0x00000001, // (+1)         (1 << 0) Пользователь разрешил отправлять ему уведомления (для flash/iframe-приложений).
+	vkacsruFriends       = 0x00000002, // (+2)         (1 << 1) Доступ к друзьям.
+	vkacsruPhotos        = 0x00000004, // (+4)         (1 << 2) Доступ к фотографиям.
+	vkacsruAudio         = 0x00000008, // (+8)         (1 << 3) Доступ к аудиозаписям.
+	vkacsruVideo         = 0x00000010, // (+16)        (1 << 4) Доступ к видеозаписям.
+	vkacsruStories       = 0x00000040, // (+64)        (1 << 6) Доступ к историям.
+	vkacsruPages         = 0x00000080, // (+128)       (1 << 7) Доступ к wiki-страницам.
+	vkacsruAddRef        = 0x00000100, // (+256)       (1 << 8) Добавление ссылки на приложение в меню слева.
+	vkacsruStatus        = 0x00000400, // (+1024)      (1 << 10) Доступ к статусу пользователя.
+	vkacsruNotes         = 0x00000800, // (+2048)      (1 << 11) Доступ к заметкам пользователя.
+	vkacsruMessages      = 0x00001000, // (+4096)      (1 << 12) Доступ к расширенным методам работы с сообщениями (только для Standalone-приложений, прошедших модерацию).
+	vkacsruWall          = 0x00002000, // (+8192)      (1 << 13) Доступ к обычным и расширенным методам работы со стеной.
+	// Данное право доступа по умолчанию недоступно для сайтов (игнорируется при попытке авторизации для приложений с типом «Веб-сайт» или по схеме Authorization Code Flow).
+	vkacsruAds           = 0x00008000, // (+32768)     (1 << 15) Доступ к расширенным методам работы с рекламным API. Доступно для авторизации по схеме Implicit Flow или Authorization Code Flow.
+	vkacsruOffline       = 0x00010000, // (+65536)     (1 << 16) Доступ к API в любое время (при использовании этой опции параметр expires_in, возвращаемый вместе с access_token, содержит 0 — токен бессрочный). Не применяется в Open API.
+	vkacsruDocs          = 0x00020000, // (+131072)    (1 << 17) Доступ к документам.
+	vkacsruGroups        = 0x00040000, // (+262144)    (1 << 18) Доступ к группам пользователя.
+	vkacsruNotifications = 0x00080000, // (+524288)    (1 << 19) Доступ к оповещениям об ответах пользователю.
+	vkacsruStats         = 0x00100000, // (+1048576)   (1 << 20) Доступ к статистике групп и приложений пользователя, администратором которых он является.
+	vkacsruEmail         = 0x00400000, // (+4194304)   (1 << 22) Доступ к email пользователя.
+	vkacsruMarket        = 0x08000000, // (+134217728) (1 << 27) Доступ к товарам. 
+};
+
 void VkInterface::GetVKAccessToken()
 {
-	SString url("https://oauth.vk.com/authorize?client_id=7402217&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=134225924&response_type=token&v=5.52/");
-	ShellExecute(0, _T("open"), SUcSwitch(url), NULL, NULL, SW_SHOWNORMAL);
+	/*
+	Права доступа для токена сообщества
+		stories    (+1)      (1 << 0)  Доступ к историям.
+		photos     (+4)      (1 << 2)  Доступ к фотографиям.
+		app_widget (+64)     (1 << 6)  Доступ к виджетам приложений сообществ. Это право можно запросить только с помощью метода Client API showGroupSettingsBox.
+		messages   (+4096)   (1 << 12) Доступ к сообщениям сообщества.
+		docs       (+131072) (1 << 17) Доступ к документам.
+		manage     (+262144) (1 << 18) Доступ к администрированию сообщества. 
+	*/
+	/*
+	Права доступа для токена пользователя
+		notify        (+1)         (1 << 0) Пользователь разрешил отправлять ему уведомления (для flash/iframe-приложений).
+		friends       (+2)         (1 << 1) Доступ к друзьям.
+		photos        (+4)         (1 << 2) Доступ к фотографиям.
+		audio         (+8)         (1 << 3) Доступ к аудиозаписям.
+		video         (+16)        (1 << 4) Доступ к видеозаписям.
+		stories       (+64)        (1 << 6) Доступ к историям.
+		pages         (+128)       (1 << 7) Доступ к wiki-страницам.
+		              (+256)       (1 << 8) Добавление ссылки на приложение в меню слева.
+		status        (+1024)      (1 << 10) Доступ к статусу пользователя.
+		notes         (+2048)      (1 << 11) Доступ к заметкам пользователя.
+		messages      (+4096)      (1 << 12) Доступ к расширенным методам работы с сообщениями (только для Standalone-приложений, прошедших модерацию).
+		wall          (+8192)      (1 << 13) Доступ к обычным и расширенным методам работы со стеной.
+			Данное право доступа по умолчанию недоступно для сайтов (игнорируется при попытке авторизации для приложений с типом «Веб-сайт» или по схеме Authorization Code Flow).
+		ads           (+32768)     (1 << 15) Доступ к расширенным методам работы с рекламным API. Доступно для авторизации по схеме Implicit Flow или Authorization Code Flow.
+		offline       (+65536)     (1 << 16) Доступ к API в любое время (при использовании этой опции параметр expires_in, возвращаемый вместе с access_token, содержит 0 — токен бессрочный). Не применяется в Open API.
+		docs          (+131072)    (1 << 17) Доступ к документам.
+		groups        (+262144)    (1 << 18) Доступ к группам пользователя.
+		notifications (+524288)    (1 << 19) Доступ к оповещениям об ответах пользователю.
+		stats         (+1048576)   (1 << 20) Доступ к статистике групп и приложений пользователя, администратором которых он является.
+		email         (+4194304)   (1 << 22) Доступ к email пользователя.
+		market        (+134217728) (1 << 27) Доступ к товарам. 
+	*/
+	// P_VKAppId
+	SString url_buf(InetUrl::MkHttps("oauth.vk.com", "authorize"));
+	SString redirect_uri_buf(InetUrl::MkHttps("oauth.vk.com", "blank.html"));
+	/*
+				temp_buf.Z();
+				temp_buf.CatEq("limit", count_limit);
+				temp_buf.CatChar('&').CatEq("offset", count_offset);
+				temp_buf.CatChar('&').CatEq("folder", doc_fold_id);
+				temp_buf.CatChar('&').CatEq("created_from", created_from);
+				temp_buf.CatChar('&').CatEq("created_to", created_to);
+
+				134225924 = 0x8002004
+	*/
+	url_buf.CatChar('?').CatEq("client_id", P_VKAppId).
+		CatChar('&').CatEq("display", "page").
+		CatChar('&').CatEq("redirect_uri", redirect_uri_buf).
+		CatChar('&').CatEq("scope", "134225924"). // Права доступа 134225924 = 0x8002004
+		CatChar('&').CatEq("response_type", "token").
+		CatChar('&').CatEq("v", "5.126"); // @v10.9.5 5.52-->5.126
+	//url_buf.SetLastDSlash();
+	//SString url("https://oauth.vk.com/authorize?client_id=7402217&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=134225924&response_type=token&v=5.52/");
+	ShellExecute(0, _T("open"), SUcSwitch(/*url*/url_buf), NULL, NULL, SW_SHOWNORMAL);
 }
 
 VkInterface::VkInterface()

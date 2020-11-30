@@ -1901,15 +1901,10 @@ private:
 	// Параметры lp1 - физический адрес записи
 	//           lp2 - длина записи
 	//           vp  - бинарный образ записи
-#define BREV_ERRSTEP     5 // Ошибка чтения записи из исходного файла
-	// Параметры lp1 - физический адрес предыдущей записи
-	//
-#define BREV_ERRCREATE   6 // Ошибка создания файла-приемника.
-	// Параметры (char *)lp1 - имя файла-приемника
-#define BREV_ERRDELPREV  7 // Ошибка удаления предшествующего файла-приемника
-	// Параметры (char *)lp1 - имя файла-приемника
-#define BREV_ERRRENAME   8 // Ошибка переименования файла
-	// Параметры (const char *)lp1 - имя файла-источника, (const char *)lp2 - имя файла-приемника
+#define BREV_ERRSTEP     5 // Ошибка чтения записи из исходного файла. Параметры lp1 - физический адрес предыдущей записи
+#define BREV_ERRCREATE   6 // Ошибка создания файла-приемника. Параметры (char *)lp1 - имя файла-приемника
+#define BREV_ERRDELPREV  7 // Ошибка удаления предшествующего файла-приемника. Параметры (char *)lp1 - имя файла-приемника
+#define BREV_ERRRENAME   8 // Ошибка переименования файла. Параметры (const char *)lp1 - имя файла-источника, (const char *)lp2 - имя файла-приемника
 //
 // Descr: Структура, передаваемая в качестве параметра функции BDictionary::recoverTable
 //
@@ -1946,7 +1941,6 @@ public:
 	// Note: Функции DbDictionary в структуре DbTableStat по умолчанию должны
 	//   заполнить следующие поля: {ID, OwnerLevel, Flags, TblName, Location}
 	//
-
 	virtual int LoadTableSpec(DBTable * pTbl, const char * pTblName) = 0;
 	virtual int CreateTableSpec(DBTable * pTbl) = 0;
 	virtual int DropTableSpec(const char * pTblName, DbTableStat * pStat) = 0;
@@ -2197,7 +2191,6 @@ public:
 	virtual int Exec(SSqlStmt & rS, uint count, int mode);
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
-
 	int    IsValid() const;
 	long   GetState() const { return State; }
 	long   GetCapability() const { return Capability; }
@@ -2324,7 +2317,7 @@ private:
 //
 #define BCOPYDF_USECOMPRESS 0x00000001
 #define BCOPYDF_USECOPYCONT 0x00000002
-#define BCOPYDF_RELEASECONT 0x00000004 // Форсированное освобождение файлов из режима CopyContinuous
+// @v10.9.5 (упразднен так как приводил к тяжелым последствиям - реализация изменена) #define BCOPYDF_RELEASECONT 0x00000004 // Форсированное освобождение файлов из режима CopyContinuous
 
 struct BCopyData {
 	BCopyData();
@@ -2446,14 +2439,15 @@ public:
 	DBBackup();
 	~DBBackup();
 	int    SetDictionary(DbProvider * pDb);
-	int    Backup(BCopyData *, BackupLogFunc, void * extraPtr);
-	int    Restore(const BCopyData *, BackupLogFunc, void * extraPtr);
+	int    Backup(BCopyData * pParam, BackupLogFunc, void * extraPtr);
+	int    Restore(const BCopyData * pParam, BackupLogFunc, void * extraPtr);
 	int    RemoveCopy(const BCopyData *, BackupLogFunc, void * extraPtr);
 	int    GetCopySet(BCopySet *);
 	int    GetCopyData(long copyID, BCopyData *);
 	uint   GetSpaceSafetyFactor();
 	void   SetSpaceSafetyFactor(uint);
 	int    GetCopyParams(const BCopyData *, DBBackup::CopyParams *);
+	int    ReleaseContinuousMode(BackupLogFunc, void * extraPtr);
 protected:
 	//
 	// Function CBP_CopyProgress must return one of SPRGRS_XXX value

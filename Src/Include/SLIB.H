@@ -4131,6 +4131,12 @@ public:
 	int    search(const char * pPattern, uint * pPos, int ignoreCase) const;
 	int    search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const;
 	//
+	// Descr: Специальный, но часто встречаемый случай: поиск элемента, совпадающего
+	//  с pPattern с точностью до регистра символов, исходя из предположения, что все
+	//  символы в pPattern - ascii.
+	//
+	int    searchNcAscii(const char * pPattern, uint * pPos) const;
+	//
 	// Descr: Сортирует строки набора в лексикографическом порядке
 	//
 	void   sort();

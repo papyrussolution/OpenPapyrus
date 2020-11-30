@@ -20,7 +20,6 @@
 //#include "asn1_locl.h"
 
 IMPLEMENT_ASN1_MSTRING(ASN1_TIME, B_ASN1_TIME)
-
 IMPLEMENT_ASN1_FUNCTIONS(ASN1_TIME)
 
 static int is_utc(const int year)
@@ -28,13 +27,12 @@ static int is_utc(const int year)
 	return BIN(checkirange(year, 50, 149));
 }
 
-static int leap_year(const int year)
+/* @v10.9.5 (replaced with IsLeapYear) static int leap_year(const int year)
 {
 	if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
 		return 1;
 	return 0;
-}
-
+}*/
 /*
  * Compute the day of the week and the day of the year from the year, month
  * and day.  The day of the year is straightforward, the day of the week uses
@@ -43,18 +41,15 @@ static int leap_year(const int year)
  */
 static void determine_days(struct tm * tm)
 {
-	static const int ydays[12] = {
-		0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
-	};
+	static const int ydays[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 	int y = tm->tm_year + 1900;
 	int m = tm->tm_mon;
 	int d = tm->tm_mday;
 	int c;
-
 	tm->tm_yday = ydays[m] + d - 1;
 	if(m >= 2) {
 		/* March and onwards can be one day further into the year */
-		tm->tm_yday += leap_year(y);
+		tm->tm_yday += IsLeapYear(y);
 		m += 2;
 	}
 	else {
@@ -139,9 +134,7 @@ int asn1_time_to_tm(struct tm * tm, const ASN1_TIME * d)
 		/* no more bytes to read, but we haven't seen time-zone yet */
 		if(++o == l)
 			goto err;
-
 		i2 = (d->type == V_ASN1_UTCTIME) ? i + 1 : i;
-
 		if((n < min[i2]) || (n > max[i2]))
 			goto err;
 		switch(i2) {
@@ -162,7 +155,7 @@ int asn1_time_to_tm(struct tm * tm, const ASN1_TIME * d)
 			    /* check if tm_mday is valid in tm_mon */
 			    if(tmp.tm_mon == 1) {
 				    /* it's February */
-				    md = mdays[1] + leap_year(tmp.tm_year + 1900);
+				    md = mdays[1] + IsLeapYear(tmp.tm_year + 1900);
 			    }
 			    else {
 				    md = mdays[tmp.tm_mon];
@@ -387,15 +380,12 @@ int ASN1_TIME_set_string_X509(ASN1_TIME * s, const char * str)
 	t.length = strlen(str);
 	t.data = (uchar *)str;
 	t.flags = ASN1_STRING_FLAG_X509_TIME;
-
 	t.type = V_ASN1_UTCTIME;
-
 	if(!ASN1_TIME_check(&t)) {
 		t.type = V_ASN1_GENERALIZEDTIME;
 		if(!ASN1_TIME_check(&t))
 			goto out;
 	}
-
 	/*
 	 * Per RFC 5280 (section 4.1.2.5.), the valid input time
 	 * strings should be encoded with the following rules:
@@ -427,10 +417,8 @@ int ASN1_TIME_set_string_X509(ASN1_TIME * s, const char * str)
 			t.type = V_ASN1_UTCTIME;
 		}
 	}
-
 	if(s == NULL || ASN1_STRING_copy((ASN1_STRING*)s, (ASN1_STRING*)&t))
 		rv = 1;
-
 	if(t.data != (uchar *)str)
 		OPENSSL_free(t.data);
 out:
@@ -460,10 +448,7 @@ int ASN1_TIME_diff(int * pday, int * psec, const ASN1_TIME * from, const ASN1_TI
 	return OPENSSL_gmtime_diff(pday, psec, &tm_from, &tm_to);
 }
 
-static const char _asn1_mon[12][4] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
+static const char _asn1_mon[12][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 int ASN1_TIME_print(BIO * bp, const ASN1_TIME * tm)
 {
@@ -471,21 +456,17 @@ int ASN1_TIME_print(BIO * bp, const ASN1_TIME * tm)
 	int gmt = 0, l;
 	struct tm stm;
 	const char upper_z = 0x5A, period = 0x2E;
-
 	if(!asn1_time_to_tm(&stm, tm)) {
 		/* asn1_time_to_tm will check the time type */
 		goto err;
 	}
-
 	l = tm->length;
 	v = (char *)tm->data;
 	if(v[l - 1] == upper_z)
 		gmt = 1;
-
 	if(tm->type == V_ASN1_GENERALIZEDTIME) {
 		char * f = NULL;
 		int f_len = 0;
-
 		/*
 		 * Try to parse fractional seconds. '14' is the place of
 		 * 'fraction point' in a GeneralizedTime string.
@@ -496,17 +477,12 @@ int ASN1_TIME_print(BIO * bp, const ASN1_TIME * tm)
 			while(14 + f_len < l && ascii_isdigit(f[f_len]))
 				++f_len;
 		}
-
-		return BIO_printf(bp, "%s %2d %02d:%02d:%02d%.*s %d%s",
-			   _asn1_mon[stm.tm_mon], stm.tm_mday, stm.tm_hour,
-			   stm.tm_min, stm.tm_sec, f_len, f, stm.tm_year + 1900,
-			   (gmt ? " GMT" : "")) > 0;
+		return BIO_printf(bp, "%s %2d %02d:%02d:%02d%.*s %d%s", _asn1_mon[stm.tm_mon], stm.tm_mday, stm.tm_hour,
+			   stm.tm_min, stm.tm_sec, f_len, f, stm.tm_year + 1900, (gmt ? " GMT" : "")) > 0;
 	}
 	else {
-		return BIO_printf(bp, "%s %2d %02d:%02d:%02d %d%s",
-			   _asn1_mon[stm.tm_mon], stm.tm_mday, stm.tm_hour,
-			   stm.tm_min, stm.tm_sec, stm.tm_year + 1900,
-			   (gmt ? " GMT" : "")) > 0;
+		return BIO_printf(bp, "%s %2d %02d:%02d:%02d %d%s", _asn1_mon[stm.tm_mon], stm.tm_mday, stm.tm_hour,
+			   stm.tm_min, stm.tm_sec, stm.tm_year + 1900, (gmt ? " GMT" : "")) > 0;
 	}
 err:
 	BIO_write(bp, "Bad time value", 14);
@@ -517,16 +493,12 @@ int ASN1_TIME_cmp_time_t(const ASN1_TIME * s, time_t t)
 {
 	struct tm stm, ttm;
 	int day, sec;
-
 	if(!ASN1_TIME_to_tm(s, &stm))
 		return -2;
-
 	if(!OPENSSL_gmtime(&t, &ttm))
 		return -2;
-
 	if(!OPENSSL_gmtime_diff(&day, &sec, &ttm, &stm))
 		return -2;
-
 	if(day > 0 || sec > 0)
 		return 1;
 	if(day < 0 || sec < 0)
@@ -537,17 +509,14 @@ int ASN1_TIME_cmp_time_t(const ASN1_TIME * s, time_t t)
 int ASN1_TIME_normalize(ASN1_TIME * t)
 {
 	struct tm tm;
-
 	if(!ASN1_TIME_to_tm(t, &tm))
 		return 0;
-
 	return asn1_time_from_tm(t, &tm, V_ASN1_UNDEF) != NULL;
 }
 
 int ASN1_TIME_compare(const ASN1_TIME * a, const ASN1_TIME * b)
 {
 	int day, sec;
-
 	if(!ASN1_TIME_diff(&day, &sec, b, a))
 		return -2;
 	if(day > 0 || sec > 0)

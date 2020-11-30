@@ -33,11 +33,7 @@
 #define FT_COMPONENT  synth
 
 /*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
 /****   EXPERIMENTAL OBLIQUING SUPPORT                                ****/
-/****                                                                 ****/
-/*************************************************************************/
 /*************************************************************************/
 
 /* documentation is in ftsynth.h */
@@ -72,38 +68,26 @@ FT_GlyphSlot_Oblique(FT_GlyphSlot slot)
 }
 
 /*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
 /****   EXPERIMENTAL EMBOLDENING SUPPORT                              ****/
-/****                                                                 ****/
-/*************************************************************************/
 /*************************************************************************/
 
 /* documentation is in ftsynth.h */
 
-FT_EXPORT_DEF(void)
-FT_GlyphSlot_Embolden(FT_GlyphSlot slot)
+FT_EXPORT_DEF(void) FT_GlyphSlot_Embolden(FT_GlyphSlot slot)
 {
 	FT_Library library;
 	FT_Face face;
 	FT_Error error;
 	FT_Pos xstr, ystr;
-
 	if(!slot)
 		return;
-
 	library = slot->library;
 	face    = slot->face;
-
-	if(slot->format != FT_GLYPH_FORMAT_OUTLINE &&
-	    slot->format != FT_GLYPH_FORMAT_BITMAP)
+	if(slot->format != FT_GLYPH_FORMAT_OUTLINE && slot->format != FT_GLYPH_FORMAT_BITMAP)
 		return;
-
 	/* some reasonable strength */
-	xstr = FT_MulFix(face->units_per_EM,
-		face->size->metrics.y_scale) / 24;
+	xstr = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale) / 24;
 	ystr = xstr;
-
 	if(slot->format == FT_GLYPH_FORMAT_OUTLINE)
 		FT_Outline_EmboldenXY(&slot->outline, xstr, ystr);
 

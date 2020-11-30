@@ -2440,19 +2440,38 @@ IMPLEMENT_JOB_HDL_FACTORY(EXPORTBILLS);
 //
 //
 struct ExportGoodsParam { // @persistent
-	void Init()
+	ExportGoodsParam() : Ver(DS.GetVersion()), LocID(0)
 	{
+	}
+	ExportGoodsParam & Z()
+	{
+		Ver = DS.GetVersion(); // @v10.9.5
+		LocID = 0; // @v10.9.5
 		Filt.Init(1, 0);
 		ExpCfg.Z();
+		return *this;
 	}
 	int Read(SBuffer & rBuf, long)
 	{
-		return BIN(rBuf.GetAvailableSize() && Filt.Read(rBuf, 0) && rBuf.Read(ExpCfg));
+		int    ok = 1;
+		if(rBuf.GetAvailableSize()) {
+			THROW(Filt.Read(rBuf, 0));
+			THROW(rBuf.Read(ExpCfg));
+		}
+		CATCHZOK
+		return ok;
 	}
 	int Write(SBuffer & rBuf, long)
 	{
-		return BIN(Filt.Write(rBuf, 0) && rBuf.Write(ExpCfg));
+		int    ok = 1;
+		//THROW_SL(rBuf.Write(Ver));
+		THROW(Filt.Write(rBuf, 0));
+		THROW(rBuf.Write(ExpCfg));
+		CATCHZOK
+		return ok;
 	}
+	SVerT  Ver;   // @v10.9.5
+	PPID   LocID; // @v10.9.5
 	SString ExpCfg;
 	GoodsFilt Filt;
 };
@@ -2489,11 +2508,12 @@ public:
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
 		{
-			uint    p  = 0, id = 0;
+			uint    p  = 0;
 			PPGoodsImpExpParam param;
 			GetParamByName(Data.ExpCfg, &param);
-			id = (CfgList.SearchByText(param.Name, 1, &p) > 0) ? (uint)CfgList.Get(p).Id : 0;
-			SetupStrAssocCombo(this, CTLSEL_GOODSEXPFILT_CFG, &CfgList, (long)id, 0);
+			const uint id = (CfgList.SearchByText(param.Name, 1, &p) > 0) ? static_cast<uint>(CfgList.Get(p).Id) : 0;
+			SetupStrAssocCombo(this, CTLSEL_GOODSEXPFILT_CFG, &CfgList, static_cast<long>(id), 0);
+			SetupLocationCombo(this, CTLSEL_GOODSEXPFILT_LOC, Data.LocID, 0, 0); // @v10.9.5
 		}
 		return ok;
 	}
@@ -2507,6 +2527,7 @@ public:
 		THROW_PP(id, PPERR_INVGOODSIMPEXPCFG);
 		CfgList.GetText(id, sect);
 		Data.ExpCfg = sect;
+		getCtrlData(CTLSEL_GOODSEXPFILT_LOC, &Data.LocID);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -3031,8 +3052,8 @@ int RFIDDevPrcssr::Add(PPRFIDDevice & rRec)
 
 IMPL_CMPFUNC(ConnectionParam, i1, i2)
 {
-	PPAbstractDevice::ConnectionParam * p_i1 = (PPAbstractDevice::ConnectionParam*)i1;
-	PPAbstractDevice::ConnectionParam * p_i2 = (PPAbstractDevice::ConnectionParam*)i2;
+	const PPAbstractDevice::ConnectionParam * p_i1 = static_cast<const PPAbstractDevice::ConnectionParam *>(i1);
+	const PPAbstractDevice::ConnectionParam * p_i2 = static_cast<const PPAbstractDevice::ConnectionParam *>(i2);
 	if(p_i1->IsEqualAddr(*p_i2))
 		return 0;
 	else
@@ -3127,7 +3148,6 @@ int RFIDDevPrcssr::ProcessBadComList()
 	for(long b = bad_com_count - 1; b >= 0; b--) {
 		int connected = 1;
 		PPAbstractDevice::ConnectionParam cp;
-
 		cp = *BadComList.at(b);
 		cp.NotOwned = 0;
 		cp.P_Conn = 0;

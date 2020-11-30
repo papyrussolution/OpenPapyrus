@@ -1,9 +1,6 @@
 /*
- * schemastypes.c : implementation of the XML Schema Datatypes
- *        definition and validity checking
- *
+ * schemastypes.c : implementation of the XML Schema Datatypes definition and validity checking
  * See Copyright for the status of this software.
- *
  * Daniel Veillard <veillard@redhat.com>
  */
 #define IN_LIBXML
@@ -23,11 +20,10 @@
 #endif
 #define DEBUG
 #ifndef LIBXML_XPATH_ENABLED
-extern double xmlXPathNAN;
-extern double xmlXPathPINF;
-extern double xmlXPathNINF;
+	extern double xmlXPathNAN;
+	extern double xmlXPathPINF;
+	extern double xmlXPathNINF;
 #endif
-
 #define TODO xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 #define XML_SCHEMAS_NAMESPACE_NAME (const xmlChar *)"http://www.w3.org/2001/XMLSchema"
 #define IS_WSP_REPLACE_CH(c)    ((((c) == 0x9) || ((c) == 0xa)) || ((c) == 0xd))
@@ -863,13 +859,13 @@ xmlSchemaType * xmlSchemaGetBuiltInListSimpleTypeItemType(xmlSchemaType * type)
 #define VALID_MIN(min)          ((min >= 0) && (min <= 59))
 #define VALID_SEC(sec)          ((sec >= 0) && (sec < 60))
 #define VALID_TZO(tzo)          ((tzo > -840) && (tzo < 840))
-#define IS_LEAP(y)              (((y % 4 == 0) && (y % 100 != 0)) || (y % 400 == 0))
+//#define IS_LEAP(y)              (((y % 4 == 0) && (y % 100 != 0)) || (y % 400 == 0))
 
 static const uint daysInMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 static const uint daysInMonthLeap[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-#define MAX_DAYINMONTH(yr, mon)      (IS_LEAP(yr) ? daysInMonthLeap[mon - 1] : daysInMonth[mon - 1])
-#define VALID_MDAY(dt)   (IS_LEAP(dt->year) ? (dt->day <= daysInMonthLeap[dt->mon - 1]) : (dt->day <= daysInMonth[dt->mon - 1]))
+#define MAX_DAYINMONTH(yr, mon)      (IsLeapYear(yr) ? daysInMonthLeap[mon - 1] : daysInMonth[mon - 1])
+#define VALID_MDAY(dt)   (IsLeapYear(dt->year) ? (dt->day <= daysInMonthLeap[dt->mon - 1]) : (dt->day <= daysInMonth[dt->mon - 1]))
 #define VALID_DATE(dt)   (VALID_YEAR(dt->year) && VALID_MONTH(dt->mon) && VALID_MDAY(dt))
 #define VALID_TIME(dt)   (VALID_HOUR(dt->hour) && VALID_MIN(dt->min) && VALID_SEC(dt->sec) && VALID_TZO(dt->tzo))
 #define VALID_DATETIME(dt) (VALID_DATE(dt) && VALID_TIME(dt))
@@ -880,7 +876,7 @@ static const uint daysInMonthLeap[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31
 static const long dayInYearByMonth[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 static const long dayInLeapYearByMonth[12] = { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 };
 
-#define DAY_IN_YEAR(day, month, year) ((IS_LEAP(year) ? dayInLeapYearByMonth[month - 1] : dayInYearByMonth[month - 1]) + day)
+#define DAY_IN_YEAR(day, month, year) ((IsLeapYear(year) ? dayInLeapYearByMonth[month - 1] : dayInYearByMonth[month - 1]) + day)
 
 #ifdef DEBUG
 #define DEBUG_DATE(dt)							\

@@ -21,13 +21,13 @@
 #define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
-
 #include <freetype/internal/ftmemory.h>
 #include <freetype/internal/ftstream.h>
 #include <freetype/internal/ftdebug.h>
 #include <freetype/ftgzip.h>
 #include FT_CONFIG_STANDARD_LIBRARY_H
 #include <freetype/ftmoderr.h>
+#include <zlib.h> // @sobolev
 
 #undef FTERRORS_H_
 
@@ -38,10 +38,9 @@
 #include <freetype/fterrors.h>
 
 #ifdef FT_CONFIG_OPTION_USE_ZLIB
-
 #ifdef FT_CONFIG_OPTION_SYSTEM_ZLIB
 
-#include <zlib.h>
+// @sobolev #include <zlib.h>
 
 #else /* !FT_CONFIG_OPTION_SYSTEM_ZLIB */
 
@@ -68,7 +67,7 @@
 /*                                                                   */
 /* so that configuration with `FT_CONFIG_OPTION_SYSTEM_ZLIB' might   */
 /* include the wrong `zconf.h' file, leading to errors.              */
-#include "zlib.h"
+// @sobolev #include "zlib.h"
 
 #undef  SLOW
 #define SLOW  1  /* we can't use asm-optimized sources here! */
@@ -85,21 +84,20 @@
 /* Urgh.  `inflate_mask' must not be declared twice -- C++ doesn't like
    this.  We temporarily disable it and load all necessary header files. */
 #define NO_INFLATE_MASK
-#include "zutil.h"
-#include "inftrees.h"
-#include "infblock.h"
-#include "infcodes.h"
-#include "infutil.h"
+// @sobolev #include "zutil.h"
+// @sobolev #include "inftrees.h"
+// @sobolev #include "infblock.h"
+// @sobolev #include "infcodes.h"
+// @sobolev #include "infutil.h"
 #undef  NO_INFLATE_MASK
-
 /* infutil.c must be included before infcodes.c */
-#include "zutil.c"
-#include "inftrees.c"
-#include "infutil.c"
-#include "infcodes.c"
-#include "infblock.c"
-#include "inflate.c"
-#include "adler32.c"
+// @sobolev #include "zutil.c"
+// @sobolev #include "inftrees.c"
+// @sobolev #include "infutil.c"
+// @sobolev #include "infcodes.c"
+// @sobolev #include "infblock.c"
+// @sobolev #include "inflate.c"
+// @sobolev #include "adler32.c"
 
 #if defined( _MSC_VER )
 #pragma warning( pop )
@@ -108,45 +106,34 @@
 #endif /* !FT_CONFIG_OPTION_SYSTEM_ZLIB */
 
 /***************************************************************************/
-/***************************************************************************/
-/*****                                                                 *****/
 /*****            Z L I B   M E M O R Y   M A N A G E M E N T          *****/
-/*****                                                                 *****/
-/***************************************************************************/
 /***************************************************************************/
 
 /* it is better to use FreeType memory routines instead of raw
    'malloc/free' */
 
-static voidpf ft_gzip_alloc(FT_Memory memory,
-    uInt items,
-    uInt size)
+static voidpf ft_gzip_alloc(FT_Memory memory, uInt items, uInt size)
 {
 	FT_ULong sz = (FT_ULong)size * items;
 	FT_Error error;
 	FT_Pointer p  = NULL;
-
 	(void)FT_ALLOC(p, sz);
 	return p;
 }
 
-static void ft_gzip_free(FT_Memory memory,
-    voidpf address)
+static void ft_gzip_free(FT_Memory memory, voidpf address)
 {
 	FT_MEM_FREE(address);
 }
 
 #if !defined( FT_CONFIG_OPTION_SYSTEM_ZLIB ) && !defined( USE_ZLIB_ZCALLOC )
 
-local voidpf zcalloc(voidpf opaque,
-    unsigned items,
-    unsigned size)
+static/*local*/ voidpf zcalloc(voidpf opaque, unsigned items, unsigned size)
 {
 	return ft_gzip_alloc( (FT_Memory)opaque, items, size);
 }
 
-local void zcfree(voidpf opaque,
-    voidpf ptr)
+static/*local*/ void zcfree(voidpf opaque, voidpf ptr)
 {
 	ft_gzip_free( (FT_Memory)opaque, ptr);
 }
@@ -154,11 +141,7 @@ local void zcfree(voidpf opaque,
 #endif /* !SYSTEM_ZLIB && !USE_ZLIB_ZCALLOC */
 
 /***************************************************************************/
-/***************************************************************************/
-/*****                                                                 *****/
 /*****               Z L I B   F I L E   D E S C R I P T O R           *****/
-/*****                                                                 *****/
-/***************************************************************************/
 /***************************************************************************/
 
 #define FT_GZIP_BUFFER_SIZE  4096
@@ -168,10 +151,8 @@ typedef struct  FT_GZipFileRec_ {
 	FT_Stream stream;      /* embedding stream            */
 	FT_Memory memory;      /* memory allocator            */
 	z_stream zstream;      /* zlib input stream           */
-
 	FT_ULong start;        /* starting position, after .gz header */
 	FT_Byte input[FT_GZIP_BUFFER_SIZE];  /* input read buffer  */
-
 	FT_Byte buffer[FT_GZIP_BUFFER_SIZE]; /* output buffer      */
 	FT_ULong pos;                        /* position in output */
 	FT_Byte*   cursor;
@@ -191,77 +172,55 @@ static FT_Error ft_gzip_check_header(FT_Stream stream)
 {
 	FT_Error error;
 	FT_Byte head[4];
-
-	if(FT_STREAM_SEEK(0)       ||
-	    FT_STREAM_READ(head, 4) )
+	if(FT_STREAM_SEEK(0) || FT_STREAM_READ(head, 4) )
 		goto Exit;
-
 	/* head[0] && head[1] are the magic numbers;    */
 	/* head[2] is the method, and head[3] the flags */
-	if(head[0] != 0x1F              ||
-	    head[1] != 0x8B              ||
-	    head[2] != Z_DEFLATED        ||
-	    (head[3] & FT_GZIP_RESERVED)  ) {
+	if(head[0] != 0x1F || head[1] != 0x8B || head[2] != Z_DEFLATED || (head[3] & FT_GZIP_RESERVED)) {
 		error = FT_THROW(Invalid_File_Format);
 		goto Exit;
 	}
-
 	/* skip time, xflags and os code */
 	(void)FT_STREAM_SKIP(6);
-
 	/* skip the extra field */
 	if(head[3] & FT_GZIP_EXTRA_FIELD) {
 		FT_UInt len;
-
-		if(FT_READ_USHORT_LE(len) ||
-		    FT_STREAM_SKIP(len)    )
+		if(FT_READ_USHORT_LE(len) || FT_STREAM_SKIP(len)    )
 			goto Exit;
 	}
-
 	/* skip original file name */
 	if(head[3] & FT_GZIP_ORIG_NAME)
 		for(;;) {
 			FT_UInt c;
-
 			if(FT_READ_BYTE(c) )
 				goto Exit;
-
 			if(c == 0)
 				break;
 		}
-
 	/* skip .gz comment */
 	if(head[3] & FT_GZIP_COMMENT)
 		for(;;) {
 			FT_UInt c;
-
 			if(FT_READ_BYTE(c) )
 				goto Exit;
-
 			if(c == 0)
 				break;
 		}
-
 	/* skip CRC */
 	if(head[3] & FT_GZIP_HEAD_CRC)
 		if(FT_STREAM_SKIP(2) )
 			goto Exit;
-
 Exit:
 	return error;
 }
 
-static FT_Error ft_gzip_file_init(FT_GZipFile zip,
-    FT_Stream stream,
-    FT_Stream source)
+static FT_Error ft_gzip_file_init(FT_GZipFile zip, FT_Stream stream, FT_Stream source)
 {
 	z_stream*  zstream = &zip->zstream;
 	FT_Error error   = FT_Err_Ok;
-
 	zip->stream = stream;
 	zip->source = source;
 	zip->memory = stream->memory;
-
 	zip->limit  = zip->buffer + FT_GZIP_BUFFER_SIZE;
 	zip->cursor = zip->limit;
 	zip->pos    = 0;
@@ -654,19 +613,16 @@ FT_EXPORT_DEF(FT_Error) FT_Gzip_Uncompress(FT_Memory memory, FT_Byte* output, FT
 #else
 	err = inflateInit2(&stream, MAX_WBITS);
 #endif
-
 	if(err != Z_OK)
 		return FT_THROW(Invalid_Argument);
-
 	err = inflate(&stream, Z_FINISH);
 	if(err != Z_STREAM_END) {
 		inflateEnd(&stream);
 		if(err == Z_OK)
 			err = Z_BUF_ERROR;
 	}
-	else{
+	else {
 		*output_len = stream.total_out;
-
 		err = inflateEnd(&stream);
 	}
 	if(err == Z_MEM_ERROR)
@@ -698,5 +654,3 @@ FT_EXPORT_DEF(FT_Error) FT_Gzip_Uncompress(FT_Memory memory, FT_Byte*        out
 }
 
 #endif /* !FT_CONFIG_OPTION_USE_ZLIB */
-
-/* END */

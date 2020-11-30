@@ -52,7 +52,7 @@ struct NgxModule_Papyrus {
 	struct Config {
 		static void * CreateLocConf(ngx_conf_t * cf)
 		{
-			NgxModule_Papyrus::Config * p_conf = (NgxModule_Papyrus::Config *)ngx_pcalloc(cf->pool, sizeof(NgxModule_Papyrus::Config));
+			NgxModule_Papyrus::Config * p_conf = static_cast<NgxModule_Papyrus::Config *>(ngx_pcalloc(cf->pool, sizeof(NgxModule_Papyrus::Config)));
 			if(p_conf) {
 				memcpy(p_conf->Signature, "PPLC", 4);
 			}
@@ -60,8 +60,8 @@ struct NgxModule_Papyrus {
 		}
 		static char * MergeLocConf(ngx_conf_t * cf, void * parent, void * child)
 		{
-			const NgxModule_Papyrus::Config * prev = (const NgxModule_Papyrus::Config *)parent;
-			NgxModule_Papyrus::Config * conf = (NgxModule_Papyrus::Config *)child;
+			const NgxModule_Papyrus::Config * prev = static_cast<const NgxModule_Papyrus::Config *>(parent);
+			NgxModule_Papyrus::Config * conf = static_cast<NgxModule_Papyrus::Config *>(child);
 			ngx_conf_merge_str_value(conf->DbSymb, prev->DbSymb, "");
 			ngx_conf_merge_str_value(conf->UserName, prev->UserName, "");
 			ngx_conf_merge_str_value(conf->Password, prev->Password, "");
@@ -81,7 +81,7 @@ struct NgxModule_Papyrus {
 	{
 		// Install the papyrus_test handler. 
 		NgxModule_Papyrus::Config * p_cfg = static_cast<NgxModule_Papyrus::Config *>(conf);
-		ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module); // pointer to core location configuration 
+		ngx_http_core_loc_conf_t * clcf = static_cast<ngx_http_core_loc_conf_t *>(ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module)); // pointer to core location configuration 
 		clcf->F_HttpHandler = HttpHandler;
 		if(p_cfg) {
 			if(p_cfg->State & p_cfg->stInited)

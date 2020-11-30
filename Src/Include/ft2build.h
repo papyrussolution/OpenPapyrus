@@ -30,11 +30,6 @@
 
 #ifndef __FT2_BUILD_GENERIC_H__
 #define __FT2_BUILD_GENERIC_H__
-
-#include <slib.h> // @sobolev
-#include <freetype/config/ftheader.h>
-
+	#include <slib.h> // @sobolev
+	#include <freetype/config/ftheader.h>
 #endif /* __FT2_BUILD_GENERIC_H__ */
-
-
-/* END */

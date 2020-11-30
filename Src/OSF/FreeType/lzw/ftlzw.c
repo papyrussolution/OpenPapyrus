@@ -1,15 +1,13 @@
 /****************************************************************************
  *
  * ftlzw.c
- *
  *   FreeType support for .Z compressed files.
  *
  * This optional component relies on NetBSD's zopen().  It should mainly
  * be used to parse compressed PCF fonts, as found with many X11 server
  * distributions.
  *
- * Copyright (C) 2004-2020 by
- * Albert Chin-A-Young.
+ * Copyright (C) 2004-2020 by Albert Chin-A-Young.
  *
  * based on code in `src/gzip/ftgzip.c'
  *
@@ -43,19 +41,11 @@
 #include "ftzopen.h"
 
 /***************************************************************************/
-/***************************************************************************/
-/*****                                                                 *****/
 /*****                  M E M O R Y   M A N A G E M E N T              *****/
-/*****                                                                 *****/
-/***************************************************************************/
 /***************************************************************************/
 
 /***************************************************************************/
-/***************************************************************************/
-/*****                                                                 *****/
 /*****                   F I L E   D E S C R I P T O R                 *****/
-/*****                                                                 *****/
-/***************************************************************************/
 /***************************************************************************/
 
 #define FT_LZW_BUFFER_SIZE  4096
@@ -77,7 +67,6 @@ static FT_Error ft_lzw_check_header(FT_Stream stream)
 {
 	FT_Error error;
 	FT_Byte head[2];
-
 	if(FT_STREAM_SEEK(0)       ||
 	    FT_STREAM_READ(head, 2) )
 		goto Exit;
@@ -91,17 +80,13 @@ Exit:
 	return error;
 }
 
-static FT_Error ft_lzw_file_init(FT_LZWFile zip,
-    FT_Stream stream,
-    FT_Stream source)
+static FT_Error ft_lzw_file_init(FT_LZWFile zip, FT_Stream stream, FT_Stream source)
 {
 	FT_LzwState lzw   = &zip->lzw;
 	FT_Error error;
-
 	zip->stream = stream;
 	zip->source = source;
 	zip->memory = stream->memory;
-
 	zip->limit  = zip->buffer + FT_LZW_BUFFER_SIZE;
 	zip->cursor = zip->limit;
 	zip->pos    = 0;
@@ -320,16 +305,13 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenLZW(FT_Stream stream, FT_Stream source)
 			FT_FREE(zip);
 			goto Exit;
 		}
-
 		stream->descriptor.pointer = zip;
 	}
-
 	stream->size  = 0x7FFFFFFFL;/* don't know the real size! */
 	stream->pos   = 0;
 	stream->base  = 0;
 	stream->read  = ft_lzw_stream_io;
 	stream->close = ft_lzw_stream_close;
-
 Exit:
 	return error;
 }
@@ -337,14 +319,10 @@ Exit:
 #include "ftzopen.c"
 
 #else  /* !FT_CONFIG_OPTION_USE_LZW */
-
-FT_EXPORT_DEF(FT_Error) FT_Stream_OpenLZW(FT_Stream stream, FT_Stream source)
-{
-	FT_UNUSED(stream);
-	FT_UNUSED(source);
-	return FT_THROW(Unimplemented_Feature);
-}
-
+	FT_EXPORT_DEF(FT_Error) FT_Stream_OpenLZW(FT_Stream stream, FT_Stream source)
+	{
+		FT_UNUSED(stream);
+		FT_UNUSED(source);
+		return FT_THROW(Unimplemented_Feature);
+	}
 #endif /* !FT_CONFIG_OPTION_USE_LZW */
-
-/* END */

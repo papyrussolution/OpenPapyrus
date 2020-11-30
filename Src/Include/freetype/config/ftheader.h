@@ -30,13 +30,12 @@
 /*    C++ compiler.                                                      */
 /*                                                                       */
 #ifndef FT_BEGIN_HEADER
-#ifdef __cplusplus
-#define FT_BEGIN_HEADER  extern "C" {
-#else
-#  define FT_BEGIN_HEADER  /* nothing */
+	#ifdef __cplusplus
+		#define FT_BEGIN_HEADER  extern "C" {
+	#else
+		#define FT_BEGIN_HEADER  /* nothing */
+	#endif
 #endif
-#endif
-
 /*@***********************************************************************/
 /*                                                                       */
 /* <Macro>                                                               */
@@ -110,9 +109,8 @@
  *
  */
 #ifndef FT_CONFIG_CONFIG_H
-#define FT_CONFIG_CONFIG_H  <freetype/config/ftconfig.h>
+	#define FT_CONFIG_CONFIG_H  <freetype/config/ftconfig.h>
 #endif
-
 /**************************************************************************
  *
  * @macro:
@@ -124,9 +122,8 @@
  *
  */
 #ifndef FT_CONFIG_STANDARD_LIBRARY_H
-#define FT_CONFIG_STANDARD_LIBRARY_H  <freetype/config/ftstdlib.h>
+	#define FT_CONFIG_STANDARD_LIBRARY_H  <freetype/config/ftstdlib.h>
 #endif
-
 /**************************************************************************
  *
  * @macro:
@@ -138,9 +135,8 @@
  *
  */
 #ifndef FT_CONFIG_OPTIONS_H
-#define FT_CONFIG_OPTIONS_H  <freetype/config/ftoption.h>
+	#define FT_CONFIG_OPTIONS_H  <freetype/config/ftoption.h>
 #endif
-
 /**************************************************************************
  *
  * @macro:

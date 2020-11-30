@@ -181,81 +181,63 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory,
 			FT_UInt shift = bit_last & 7;
 			FT_UInt mask  = 0xFF00U >> shift;
 			FT_UInt count = height;
-
 			for(; count > 0; count--, line += pitch, end += pitch) {
 				FT_Byte*  write = line;
-
 				if(shift > 0) {
 					write[0] = (FT_Byte)( write[0] & mask );
 					write++;
 				}
 				if(write < end)
-					FT_MEM_ZERO(write, end - write);
+					memzero(write, end - write);
 			}
 		}
-
 		return FT_Err_Ok;
 	}
-
 	/* otherwise allocate new buffer */
 	if(FT_QALLOC_MULT(buffer, bitmap->rows + ypixels, new_pitch) )
 		return error;
-
 	/* new rows get added at the top of the bitmap, */
 	/* thus take care of the flow direction         */
 	if(bitmap->pitch > 0) {
 		FT_UInt len = ( width * bpp + 7 ) >> 3;
-
 		unsigned char*  in  = bitmap->buffer;
 		unsigned char*  out = buffer;
-
 		unsigned char*  limit = bitmap->buffer + pitch * bitmap->rows;
 		unsigned int delta = new_pitch - len;
-
-		FT_MEM_ZERO(out, new_pitch * ypixels);
+		memzero(out, new_pitch * ypixels);
 		out += new_pitch * ypixels;
-
 		while(in < limit) {
 			FT_MEM_COPY(out, in, len);
 			in  += pitch;
 			out += len;
-
 			/* we use FT_QALLOC_MULT, which doesn't zero out the buffer;      */
 			/* consequently, we have to manually zero out the remaining bytes */
-			FT_MEM_ZERO(out, delta);
+			memzero(out, delta);
 			out += delta;
 		}
 	}
 	else{
 		FT_UInt len = ( width * bpp + 7 ) >> 3;
-
 		unsigned char*  in  = bitmap->buffer;
 		unsigned char*  out = buffer;
-
 		unsigned char*  limit = bitmap->buffer + pitch * bitmap->rows;
 		unsigned int delta = new_pitch - len;
-
 		while(in < limit) {
 			FT_MEM_COPY(out, in, len);
 			in  += pitch;
 			out += len;
-
-			FT_MEM_ZERO(out, delta);
+			memzero(out, delta);
 			out += delta;
 		}
-
-		FT_MEM_ZERO(out, new_pitch * ypixels);
+		memzero(out, new_pitch * ypixels);
 	}
-
 	FT_FREE(bitmap->buffer);
 	bitmap->buffer = buffer;
-
 	/* set pitch only, width and height are left untouched */
 	if(bitmap->pitch < 0)
 		bitmap->pitch = -(int)new_pitch;
 	else
 		bitmap->pitch = (int)new_pitch;
-
 	return FT_Err_Ok;
 }
 
@@ -268,66 +250,49 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitma
 	FT_Int i, x, pitch;
 	FT_UInt y;
 	FT_Int xstr, ystr;
-
 	if(!library)
 		return FT_THROW(Invalid_Library_Handle);
-
 	if(!bitmap || !bitmap->buffer)
 		return FT_THROW(Invalid_Argument);
-
-	if( ( ( FT_PIX_ROUND(xStrength) >> 6 ) > FT_INT_MAX ) ||
-	    ( ( FT_PIX_ROUND(yStrength) >> 6 ) > FT_INT_MAX ) )
+	if( ( ( FT_PIX_ROUND(xStrength) >> 6 ) > FT_INT_MAX ) || ( ( FT_PIX_ROUND(yStrength) >> 6 ) > FT_INT_MAX ) )
 		return FT_THROW(Invalid_Argument);
-
 	xstr = (FT_Int)FT_PIX_ROUND(xStrength) >> 6;
 	ystr = (FT_Int)FT_PIX_ROUND(yStrength) >> 6;
-
 	if(xstr == 0 && ystr == 0)
 		return FT_Err_Ok;
 	else if(xstr < 0 || ystr < 0)
 		return FT_THROW(Invalid_Argument);
-
-	switch(bitmap->pixel_mode)
-	{
+	switch(bitmap->pixel_mode) {
 		case FT_PIXEL_MODE_GRAY2:
 		case FT_PIXEL_MODE_GRAY4:
 	    {
 		    FT_Bitmap tmp;
-
 		    /* convert to 8bpp */
 		    FT_Bitmap_Init(&tmp);
 		    error = FT_Bitmap_Convert(library, bitmap, &tmp, 1);
 		    if(error)
 			    return error;
-
 		    FT_Bitmap_Done(library, bitmap);
 		    *bitmap = tmp;
 	    }
 	    break;
-
 		case FT_PIXEL_MODE_MONO:
 		    if(xstr > 8)
 			    xstr = 8;
 		    break;
-
 		case FT_PIXEL_MODE_LCD:
 		    xstr *= 3;
 		    break;
-
 		case FT_PIXEL_MODE_LCD_V:
 		    ystr *= 3;
 		    break;
-
 		case FT_PIXEL_MODE_BGRA:
 		    /* We don't embolden color glyphs. */
 		    return FT_Err_Ok;
 	}
-
-	error = ft_bitmap_assure_buffer(library->memory, bitmap,
-		(FT_UInt)xstr, (FT_UInt)ystr);
+	error = ft_bitmap_assure_buffer(library->memory, bitmap, (FT_UInt)xstr, (FT_UInt)ystr);
 	if(error)
 		return error;
-
 	/* take care of bitmap flow */
 	pitch = bitmap->pitch;
 	if(pitch > 0)
@@ -336,7 +301,6 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitma
 		pitch = -pitch;
 		p = bitmap->buffer + (FT_UInt)pitch * ( bitmap->rows - 1 );
 	}
-
 	/* for each row */
 	for(y = 0; y < bitmap->rows; y++) {
 		/*
@@ -346,9 +310,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitma
 		 * `xstr' pixels before it.
 		 */
 		for(x = pitch - 1; x >= 0; x--) {
-			unsigned char tmp;
-
-			tmp = p[x];
+			unsigned char tmp = p[x];
 			for(i = 1; i <= xstr; i++) {
 				if(bitmap->pixel_mode == FT_PIXEL_MODE_MONO) {
 					p[x] |= tmp >> i;
@@ -386,19 +348,14 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitma
 		 * Make the above `ystr' rows or'ed with it.
 		 */
 		for(x = 1; x <= ystr; x++) {
-			unsigned char*  q;
-
-			q = p - bitmap->pitch * x;
+			unsigned char * q = p - bitmap->pitch * x;
 			for(i = 0; i < pitch; i++)
 				q[i] |= p[i];
 		}
-
 		p += bitmap->pitch;
 	}
-
 	bitmap->width += (FT_UInt)xstr;
 	bitmap->rows += (FT_UInt)ystr;
-
 	return FT_Err_Ok;
 }
 
@@ -406,11 +363,9 @@ static FT_Byte ft_gray_for_premultiplied_srgb_bgra(const FT_Byte*  bgra)
 {
 	FT_UInt a = bgra[3];
 	FT_UInt l;
-
 	/* Short-circuit transparent color to avoid division by zero. */
 	if(!a)
 		return 0;
-
 	/*
 	 * Luminosity for sRGB is defined using ~0.2126,0.7152,0.0722
 	 * coefficients for RGB channels *on the linear colors*.
@@ -872,25 +827,16 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 			/* XXX */
 		}
 		else{
-			unsigned char*  p =
-			    target->buffer;
-			unsigned char*  q =
-			    buffer +
-			    ( final_rows - y - target->rows ) * new_pitch +
-			    x * 4;
-			unsigned char*  limit_p =
-			    p + pitch * (int)target->rows;
-
+			unsigned char*  p = target->buffer;
+			unsigned char*  q = buffer + ( final_rows - y - target->rows ) * new_pitch + x * 4;
+			unsigned char*  limit_p = p + pitch * (int)target->rows;
 			while(p < limit_p) {
 				FT_MEM_COPY(q, p, pitch);
-
 				p += pitch;
 				q += new_pitch;
 			}
 		}
-
 		FT_FREE(target->buffer);
-
 		target->width = final_width;
 		target->rows  = final_rows;
 
@@ -908,7 +854,6 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		error = FT_Bitmap_Convert(library, source_, &source_bitmap, 1);
 		if(error)
 			goto Error;
-
 		source             = &source_bitmap;
 		free_source_bitmap = 1;
 	}
@@ -926,56 +871,40 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		/* XXX */
 	}
 	else{
-		unsigned char*  p =
-		    source->buffer;
-		unsigned char*  q =
-		    target->buffer +
-		    ( target->rows - y - source->rows ) * target->pitch +
-		    x * 4;
-		unsigned char*  limit_p =
-		    p + source->pitch * (int)source->rows;
-
+		unsigned char*  p = source->buffer;
+		unsigned char*  q = target->buffer + ( target->rows - y - source->rows ) * target->pitch + x * 4;
+		unsigned char*  limit_p = p + source->pitch * (int)source->rows;
 		while(p < limit_p) {
 			unsigned char*  r       = p;
 			unsigned char*  s       = q;
 			unsigned char*  limit_r = r + source->width;
-
 			while(r < limit_r) {
 				int aa = *r++;
 				int fa = color.alpha * aa / 255;
-
 				int fb = color.blue * fa / 255;
 				int fg = color.green * fa / 255;
 				int fr = color.red * fa / 255;
-
 				int ba2 = 255 - fa;
-
 				int bb = s[0];
 				int bg = s[1];
 				int br = s[2];
 				int ba = s[3];
-
 				*s++ = (unsigned char)( bb * ba2 / 255 + fb );
 				*s++ = (unsigned char)( bg * ba2 / 255 + fg );
 				*s++ = (unsigned char)( br * ba2 / 255 + fr );
 				*s++ = (unsigned char)( ba * ba2 / 255 + fa );
 			}
-
 			p += source->pitch;
 			q += target->pitch;
 		}
 	}
-
 	atarget_offset->x = final_llx;
 	atarget_offset->y = final_lly + ( final_rows << 6 );
-
 Error:
 	if(error && free_target_bitmap_on_error)
 		FT_Bitmap_Done(library, target);
-
 	if(free_source_bitmap)
 		FT_Bitmap_Done(library, &source_bitmap);
-
 	return error;
 }
 
@@ -986,16 +915,13 @@ FT_EXPORT_DEF(FT_Error) FT_GlyphSlot_Own_Bitmap(FT_GlyphSlot slot)
 	if(slot && slot->format == FT_GLYPH_FORMAT_BITMAP   && !( slot->internal->flags & FT_GLYPH_OWN_BITMAP ) ) {
 		FT_Bitmap bitmap;
 		FT_Error error;
-
 		FT_Bitmap_Init(&bitmap);
 		error = FT_Bitmap_Copy(slot->library, &slot->bitmap, &bitmap);
 		if(error)
 			return error;
-
 		slot->bitmap = bitmap;
 		slot->internal->flags |= FT_GLYPH_OWN_BITMAP;
 	}
-
 	return FT_Err_Ok;
 }
 
@@ -1013,5 +939,3 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Done(FT_Library library, FT_Bitmap  *bitmap)
 	*bitmap = null_bitmap;
 	return FT_Err_Ok;
 }
-
-/* END */

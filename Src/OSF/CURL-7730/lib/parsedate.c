@@ -269,24 +269,17 @@ enum assume {
 	DATE_YEAR,
 	DATE_TIME
 };
-
 /*
  * time2epoch: time stamp to seconds since epoch in GMT time zone.  Similar to
  * mktime but for GMT only.
  */
-static time_t time2epoch(int sec, int min, int hour,
-    int mday, int mon, int year)
+static time_t time2epoch(int sec, int min, int hour, int mday, int mon, int year)
 {
-	static const int month_days_cumulative [12] =
-	{ 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+	static const int month_days_cumulative[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 	int leap_days = year - (mon <= 1);
-	leap_days = ((leap_days / 4) - (leap_days / 100) + (leap_days / 400)
-	    - (1969 / 4) + (1969 / 100) - (1969 / 400));
-	return ((((time_t)(year - 1970) * 365
-	       + leap_days + month_days_cumulative[mon] + mday - 1) * 24
-	       + hour) * 60 + min) * 60 + sec;
+	leap_days = ((leap_days / 4) - (leap_days / 100) + (leap_days / 400) - (1969 / 4) + (1969 / 100) - (1969 / 400));
+	return ((((time_t)(year - 1970) * 365 + leap_days + month_days_cumulative[mon] + mday - 1) * 24 + hour) * 60 + min) * 60 + sec;
 }
-
 /*
  * parsedate()
  *

@@ -1,5 +1,5 @@
 // SXML.H
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2019, 2020
 // @codepage UTF-8
 //
 #ifndef __SXML_H
@@ -60,7 +60,6 @@ public:
     class WNode {
 	public:
 		static SString & FASTCALL CDATA(SString & rBuf);
-
         WNode(xmlTextWriter * pWriter, const char * pName);
         WNode(xmlTextWriter * pWriter, const char * pName, const SString & rValue);
         WNode(xmlTextWriter * pWriter, const char * pName, const char * pValue);

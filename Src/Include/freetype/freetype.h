@@ -1,11 +1,9 @@
 /****************************************************************************
  *
  * freetype.h
- *
  *   FreeType high-level API and common types (specification only).
  *
- * Copyright (C) 1996-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 1996-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
@@ -67,11 +65,7 @@ FT_BEGIN_HEADER
  */
 
 /*************************************************************************/
-/*************************************************************************/
-/*                                                                       */
 /*                        B A S I C   T Y P E S                          */
-/*                                                                       */
-/*************************************************************************/
 /*************************************************************************/
 
 /**************************************************************************
@@ -349,11 +343,7 @@ typedef struct  FT_Bitmap_Size_ {
 } FT_Bitmap_Size;
 
 /*************************************************************************/
-/*************************************************************************/
-/*                                                                       */
 /*                     O B J E C T   C L A S S E S                       */
-/*                                                                       */
-/*************************************************************************/
 /*************************************************************************/
 
 /**************************************************************************
@@ -792,11 +782,7 @@ typedef struct  FT_CharMapRec_ {
 } FT_CharMapRec;
 
 /*************************************************************************/
-/*************************************************************************/
-/*                                                                       */
 /*                 B A S E   O B J E C T   C L A S S E S                 */
-/*                                                                       */
-/*************************************************************************/
 /*************************************************************************/
 
 /**************************************************************************
@@ -993,56 +979,39 @@ typedef struct FT_Face_InternalRec_*  FT_Face_Internal;
 typedef struct  FT_FaceRec_ {
 	FT_Long num_faces;
 	FT_Long face_index;
-
 	FT_Long face_flags;
 	FT_Long style_flags;
-
 	FT_Long num_glyphs;
-
 	FT_String*        family_name;
 	FT_String*        style_name;
-
 	FT_Int num_fixed_sizes;
 	FT_Bitmap_Size*   available_sizes;
-
 	FT_Int num_charmaps;
 	FT_CharMap*       charmaps;
-
 	FT_Generic generic;
-
 	/*# The following member variables (down to `underline_thickness`) */
 	/*# are only relevant to scalable outlines; cf. @FT_Bitmap_Size    */
 	/*# for bitmap fonts.                                              */
 	FT_BBox bbox;
-
 	FT_UShort units_per_EM;
 	FT_Short ascender;
 	FT_Short descender;
 	FT_Short height;
-
 	FT_Short max_advance_width;
 	FT_Short max_advance_height;
-
 	FT_Short underline_position;
 	FT_Short underline_thickness;
-
 	FT_GlyphSlot glyph;
 	FT_Size size;
 	FT_CharMap charmap;
-
 	/*@private begin */
-
 	FT_Driver driver;
 	FT_Memory memory;
 	FT_Stream stream;
-
 	FT_ListRec sizes_list;
-
 	FT_Generic autohint;      /* face-specific auto-hinter data */
 	void*             extensions;/* unused                         */
-
 	FT_Face_Internal internal;
-
 	/*@private end */
 } FT_FaceRec;
 
@@ -1839,11 +1808,7 @@ typedef struct  FT_GlyphSlotRec_ {
 } FT_GlyphSlotRec;
 
 /*************************************************************************/
-/*************************************************************************/
-/*                                                                       */
 /*                         F U N C T I O N S                             */
-/*                                                                       */
-/*************************************************************************/
 /*************************************************************************/
 
 /**************************************************************************

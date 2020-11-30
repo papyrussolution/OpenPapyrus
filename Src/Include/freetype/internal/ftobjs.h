@@ -33,11 +33,9 @@
 #include <freetype/internal/autohint.h>
 #include <freetype/internal/ftserv.h>
 #include <freetype/internal/ftcalc.h>
-
 #ifdef FT_CONFIG_OPTION_INCREMENTAL
-#include <freetype/ftincrem.h>
+	#include <freetype/ftincrem.h>
 #endif
-
 #include "compiler-macros.h"
 
 FT_BEGIN_HEADER
@@ -46,18 +44,15 @@ FT_BEGIN_HEADER
  *
  * Some generic definitions.
  */
-#ifndef TRUE
-#define TRUE  1
-#endif
-
-#ifndef FALSE
-#define FALSE  0
-#endif
-
-#ifndef NULL
-#define NULL  (void*)0
-#endif
-
+//#ifndef TRUE
+//#define TRUE  1
+//#endif
+//#ifndef FALSE
+//#define FALSE  0
+//#endif
+//#ifndef NULL
+//#define NULL  (void*)0
+//#endif
 /**************************************************************************
  *
  * The min and max functions missing in C.  As usual, be careful not to
@@ -65,19 +60,13 @@ FT_BEGIN_HEADER
  */
 #define FT_MIN(a, b)  ( (a) < (b) ? (a) : (b) )
 #define FT_MAX(a, b)  ( (a) > (b) ? (a) : (b) )
-
 #define FT_ABS(a)     ( (a) < 0 ? -(a) : (a) )
-
 /*
  * Approximate sqrt(x*x+y*y) using the `alpha max plus beta min' algorithm.
  * We use alpha = 1, beta = 3/8, giving us results with a largest error
  * less than 7% compared to the exact value.
  */
-#define FT_HYPOT(x, y)                 \
-	( x = FT_ABS(x),             \
-	y = FT_ABS(y),             \
-	x > y ? x + ( 3 * y >> 3 )   \
-	: y + ( 3 * x >> 3 ) )
+#define FT_HYPOT(x, y) (x = FT_ABS(x), y = FT_ABS(y), x > y ? x + ( 3 * y >> 3 ) : y + ( 3 * x >> 3 ))
 
 /* we use FT_TYPEOF to suppress signedness compilation warnings */
 #define FT_PAD_FLOOR(x, n)  ( (x) & ~FT_TYPEOF(x)( (n) - 1 ) )
@@ -90,17 +79,13 @@ FT_BEGIN_HEADER
 
 /* specialized versions (for signed values)                   */
 /* that don't produce run-time errors due to integer overflow */
-#define FT_PAD_ROUND_LONG(x, n)  FT_PAD_FLOOR(ADD_LONG( (x), (n) / 2), \
-	    n)
-#define FT_PAD_CEIL_LONG(x, n)   FT_PAD_FLOOR(ADD_LONG( (x), (n) - 1), \
-	    n)
+#define FT_PAD_ROUND_LONG(x, n)  FT_PAD_FLOOR(ADD_LONG( (x), (n) / 2), n)
+#define FT_PAD_CEIL_LONG(x, n)   FT_PAD_FLOOR(ADD_LONG( (x), (n) - 1), n)
 #define FT_PIX_ROUND_LONG(x)     FT_PIX_FLOOR(ADD_LONG( (x), 32) )
 #define FT_PIX_CEIL_LONG(x)      FT_PIX_FLOOR(ADD_LONG( (x), 63) )
 
-#define FT_PAD_ROUND_INT32(x, n)  FT_PAD_FLOOR(ADD_INT32( (x), (n) / 2), \
-	    n)
-#define FT_PAD_CEIL_INT32(x, n)   FT_PAD_FLOOR(ADD_INT32( (x), (n) - 1), \
-	    n)
+#define FT_PAD_ROUND_INT32(x, n)  FT_PAD_FLOOR(ADD_INT32( (x), (n) / 2), n)
+#define FT_PAD_CEIL_INT32(x, n)   FT_PAD_FLOOR(ADD_INT32( (x), (n) - 1), n)
 #define FT_PIX_ROUND_INT32(x)     FT_PIX_FLOOR(ADD_INT32( (x), 32) )
 #define FT_PIX_CEIL_INT32(x)      FT_PIX_FLOOR(ADD_INT32( (x), 63) )
 
@@ -108,37 +93,23 @@ FT_BEGIN_HEADER
  * character classification functions -- since these are used to parse font
  * files, we must not use those in <ctypes.h> which are locale-dependent
  */
-#define  ft_isdigit(x)   ( ( (unsigned)(x) - '0' ) < 10U )
-
-#define  ft_isxdigit(x)  ( ( (unsigned)(x) - '0' ) < 10U || \
-	( (unsigned)(x) - 'a' ) < 6U  || \
-	( (unsigned)(x) - 'A' ) < 6U  )
+#define  ft_isdigit(x)   (((unsigned)(x) - '0' ) < 10U )
+#define  ft_isxdigit(x)  (((unsigned)(x) - '0' ) < 10U || ((unsigned)(x) - 'a' ) < 6U  || ((unsigned)(x) - 'A' ) < 6U)
 
 /* the next two macros assume ASCII representation */
 #define  ft_isupper(x)  ( ( (unsigned)(x) - 'A' ) < 26U )
 #define  ft_islower(x)  ( ( (unsigned)(x) - 'a' ) < 26U )
-
 #define  ft_isalpha(x)  ( ft_isupper(x) || ft_islower(x) )
 #define  ft_isalnum(x)  ( ft_isdigit(x) || ft_isalpha(x) )
 
 /*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
-/****                                                                 ****/
 /****                       C H A R M A P S                           ****/
-/****                                                                 ****/
-/****                                                                 ****/
-/*************************************************************************/
-/*************************************************************************/
 /*************************************************************************/
 
 /* handle to internal charmap object */
 typedef struct FT_CMapRec_*              FT_CMap;
-
 /* handle to charmap class structure */
 typedef const struct FT_CMap_ClassRec_*  FT_CMap_Class;
-
 /* internal charmap object structure */
 typedef struct  FT_CMapRec_ {
 	FT_CharMapRec charmap;
@@ -440,15 +411,7 @@ typedef struct  FT_Size_InternalRec_ {
 } FT_Size_InternalRec;
 
 /*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
-/****                                                                 ****/
 /****                         M O D U L E S                           ****/
-/****                                                                 ****/
-/****                                                                 ****/
-/*************************************************************************/
-/*************************************************************************/
 /*************************************************************************/
 
 /**************************************************************************
@@ -549,15 +512,7 @@ ft_property_string_set(FT_Library library,
 /* */
 
 /*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
-/****                                                                 ****/
 /****   F A C E,   S I Z E   &   G L Y P H   S L O T   O B J E C T S  ****/
-/****                                                                 ****/
-/****                                                                 ****/
-/*************************************************************************/
-/*************************************************************************/
 /*************************************************************************/
 
 /* a few macros used to perform easy typecasts with minimal brain damage */
@@ -678,15 +633,7 @@ ft_glyphslot_set_bitmap(FT_GlyphSlot slot,
     FT_Byte*      buffer);
 
 /*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
-/****                                                                 ****/
 /****                        R E N D E R E R S                        ****/
-/****                                                                 ****/
-/****                                                                 ****/
-/*************************************************************************/
-/*************************************************************************/
 /*************************************************************************/
 
 #define FT_RENDERER(x)       ( (FT_Renderer)(x) )
@@ -706,15 +653,7 @@ typedef struct  FT_RendererRec_ {
 } FT_RendererRec;
 
 /*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
-/****                                                                 ****/
 /****                    F O N T   D R I V E R S                      ****/
-/****                                                                 ****/
-/****                                                                 ****/
-/*************************************************************************/
-/*************************************************************************/
 /*************************************************************************/
 
 /* typecast a module into a driver easily */
@@ -755,15 +694,7 @@ typedef struct  FT_DriverRec_ {
 } FT_DriverRec;
 
 /*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
-/****                                                                 ****/
 /****                       L I B R A R I E S                         ****/
-/****                                                                 ****/
-/****                                                                 ****/
-/*************************************************************************/
-/*************************************************************************/
 /*************************************************************************/
 
 /**************************************************************************

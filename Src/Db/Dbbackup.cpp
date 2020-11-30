@@ -406,22 +406,16 @@ int DBBackup::CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupL
 	return ok;
 }
 
-int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
+int DBBackup::ReleaseContinuousMode(BackupLogFunc fnLog, void * extraPtr)
 {
-	// DbProvider Implement_Open
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
-	const  int use_compression    = 0; //BIN(pData->Flags & BCOPYDF_USECOMPRESS); // @v10.8.3 unconditionally 0
-	const  int use_copycontinouos = BIN(pData->Flags & BCOPYDF_USECOPYCONT);
-	int    do_release_cont = BIN(pData->Flags & BCOPYDF_RELEASECONT);
-	const  LDATETIME cur_dtm = getcurdatetime_();
 	DbTableStat ts;
 	StrAssocArray tbl_list;
-	SString path, spart;
-	SStrCollection file_list2;
-	StringSet copycont_filelist(",");
-	CopyParams cp;
-	cp.TotalSize = 0;
+	SString path;
+	SString spart;
+	// THROW_V(Btrieve::RemoveContinuous(copycont_filelist.getBuf()), SDBERR_BTRIEVE);
+	SString msg_buf;
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
 	P_Db->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
@@ -434,11 +428,27 @@ int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 					if(fileExists(spart)) {
 						SFileUtil::Stat stat;
 						if(SFileUtil::GetStat(spart, &stat)) {
-							cp.TotalSize += stat.Size;
-							THROW_V(cp.SsFiles.add(spart), SDBERR_SLIB);
+							//cp.TotalSize += stat.Size;
+							//THROW_V(cp.SsFiles.add(spart), SDBERR_SLIB);
 							if(is_first) {
-								copycont_filelist.add(spart);
-								file_list2.insert(newStr(spart));
+								DBTable _tbl(item.Txt);
+								if(_tbl.IsOpened()) {
+									int r2 = Btrieve::RemoveContinuous(_tbl.GetFileName());
+									if(r2) {
+										(msg_buf = "Remove continuous").CatDiv(':', 2).Cat("OK for file").Space().Cat(_tbl.GetFileName());
+										SLS.LogMessage(0, msg_buf, 0);
+									}
+									else {
+										const long db_err = BtrError;
+										(msg_buf = "Remove continuous").CatDiv(':', 2).Cat("error removing continuous mode for file").
+										Space().CatChar('(').CatEq("dberr", db_err).CatChar(')').Space().Cat(_tbl.GetFileName());
+										SLS.LogMessage(0, msg_buf, 0);
+									}
+								}
+								else {
+									(msg_buf = "Remove continuous").CatDiv(':', 2).Cat("error opening file").Space().Cat(_tbl.GetFileName());
+									SLS.LogMessage(0, msg_buf, 0);
+								}
 							}
 						}
 						else {
@@ -450,6 +460,58 @@ int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 			}
 		}
 	}
+	CATCHZOK
+	return ok;
+}
+
+int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
+{
+	// DbProvider Implement_Open
+	EXCEPTVAR(DBErrCode);
+	int    ok = 1;
+	const  int use_compression    = 0; //BIN(pData->Flags & BCOPYDF_USECOMPRESS); // @v10.8.3 unconditionally 0
+	const  int use_copycontinouos = BIN(pData->Flags & BCOPYDF_USECOPYCONT);
+	// @v10.9.5 int    do_release_cont = BIN(pData->Flags & BCOPYDF_RELEASECONT);
+	const  LDATETIME cur_dtm = getcurdatetime_();
+	DbTableStat ts;
+	StrAssocArray tbl_list;
+	SString path;
+	SString spart;
+	SStrCollection file_list2;
+	StringSet copycont_filelist(",");
+	CopyParams cp;
+	cp.TotalSize = 0;
+	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
+	P_Db->GetListOfTables(0, &tbl_list);
+	{
+		for(uint j = 0; j < tbl_list.getCount(); j++) {
+			const StrAssocArray::Item item = tbl_list.Get(j);
+			if(P_Db->GetTableInfo(item.Id, &ts) > 0 && !(ts.Flags & XTF_DICT) && ts.Location.NotEmpty()) {
+				TablePartsEnum tpe(0);
+				path = ts.Location;
+				if(tpe.Init(P_Db->MakeFileName_(ts.TblName, path))) {
+					for(int is_first = 1; tpe.Next(spart) > 0; is_first = 0) {
+						if(fileExists(spart)) {
+							SFileUtil::Stat stat;
+							if(SFileUtil::GetStat(spart, &stat)) {
+								cp.TotalSize += stat.Size;
+								THROW_V(cp.SsFiles.add(spart), SDBERR_SLIB);
+								if(is_first) {
+									copycont_filelist.add(spart);
+									file_list2.insert(newStr(spart));
+								}
+							}
+							else {
+								LogMessage(fnLog, BACKUPLOG_ERR_GETFILEPARAM, spart, extraPtr);
+								CALLEXCEPT();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#if 0 // @v10.9.5 (block is moved to DBBackup::ReleaseContinuousMode) {
 	if(do_release_cont) {
 		// THROW_V(Btrieve::RemoveContinuous(copycont_filelist.getBuf()), SDBERR_BTRIEVE);
 		SString msg_buf;
@@ -496,7 +558,9 @@ int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 			}
 		}
 	}
-	else {
+	else 
+#endif // } @v10.9.5 (block is moved to DBBackup::ReleaseContinuousMode)
+	{
 		THROW(MakeCopyPath(pData, cp.Path));
 		cp.TempPath = pData->TempPath;
 		if(pData->BssFactor > 0)

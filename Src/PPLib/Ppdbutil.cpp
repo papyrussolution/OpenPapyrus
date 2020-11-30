@@ -2420,24 +2420,35 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 							while((reply = ExecView(dlg)) != cmCancel) {
 								int    r = -1;
 								dlg->getDTS(&bdd);
-								if(reply == cmBuBackup)
-									r = _DoBackup(ppb, bdd, UseCopyContinouos(pDbes));
-								else if(reply == cmBuRestore)
-						   			r = _DoRestore(ppb, bdd);
-								else if(reply == cmBuRemove)
-   	        		    			r = _DoRemoveCopy(ppb, bdd);
-								else if(reply == cmBuReleaseContinuous && UseCopyContinouos(pDbes)) {
-									BCopyData copy_data;
-									copy_data.Set = bdd.Scen.Name;
-									copy_data.CopyPath = bdd.Scen.BackupPath;
-									copy_data.Flags = (bdd.Scen.Flags | BCOPYDF_RELEASECONT);
-									PPWait(1);
-									if(!ppb->Backup(&copy_data, CallbackBuLog, 0)) {
-										PPSetError(PPERR_DBLIB);
-										PPError();
-										CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
-									}
-									PPWait(0);
+								switch(reply) {
+									case cmBuBackup: r = _DoBackup(ppb, bdd, UseCopyContinouos(pDbes)); break;
+									case cmBuRestore: r = _DoRestore(ppb, bdd); break;
+									case cmBuRemove: r = _DoRemoveCopy(ppb, bdd); break;
+									case cmBuReleaseContinuous:
+										if(UseCopyContinouos(pDbes)) {
+											/* @v10.9.5 
+											BCopyData copy_data;
+											copy_data.Set = bdd.Scen.Name;
+											copy_data.CopyPath = bdd.Scen.BackupPath;
+											copy_data.Flags = (bdd.Scen.Flags | BCOPYDF_RELEASECONT);
+											PPWait(1);
+											if(!ppb->Backup(&copy_data, CallbackBuLog, 0)) {
+												PPSetError(PPERR_DBLIB);
+												PPError();
+												CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+											}
+											*/
+											// @v10.9.5 {
+											PPWait(1);
+											if(!ppb->ReleaseContinuousMode(CallbackBuLog, 0)) {
+												PPSetError(PPERR_DBLIB);
+												PPError();
+												CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+											}
+											// } @v10.9.5 
+											PPWait(0);
+										}
+										break;
 								}
 		   	        			if(r > 0)
 									dlg->updateCopyList();

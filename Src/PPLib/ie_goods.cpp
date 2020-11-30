@@ -609,7 +609,7 @@ GoodsImpExpDialog::GoodsImpExpDialog() : ImpExpParamDialog(DLG_IMPEXPGOODS)
 
 int GoodsImpExpDialog::setDTS(const PPGoodsImpExpParam * pData)
 {
-	Data = *pData;
+	RVALUEPTR(Data, pData);
 	ImpExpParamDialog::setDTS(&Data);
 	{
 		PPObjAccSheet acs_obj;
@@ -695,7 +695,7 @@ IMPL_HANDLE_EVENT(GoodsImpExpDialog)
 void GoodsImpExpDialog::SetupCtrls(long direction)
 {
 	disableCtrls(direction == 0, CTL_IMPEXPGOODS_SUBCODE, CTLSEL_IMPEXPGOODS_SUPPL, CTLSEL_IMPEXPGOODS_UNIT, CTLSEL_IMPEXPGOODS_PHUNI,
-		CTLSEL_IMPEXPGOODS_GRP, CTLSEL_IMPEXPGOODS_OP, CTLSEL_IMPEXPGOODS_LOC, CTL_IMPEXPGOODS_MXACT, 0L);
+		CTLSEL_IMPEXPGOODS_GRP, CTLSEL_IMPEXPGOODS_OP, /* @v10.9.5 CTLSEL_IMPEXPGOODS_LOC,*/ CTL_IMPEXPGOODS_MXACT, 0L);
 	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 0, direction == 0);
 	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 1, direction == 0);
 	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 2, direction == 0);

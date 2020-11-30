@@ -46,29 +46,20 @@
 #define FT_COMPONENT  glyph
 
 /*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
 /****   FT_BitmapGlyph support                                        ****/
-/****                                                                 ****/
-/*************************************************************************/
 /*************************************************************************/
 
-FT_CALLBACK_DEF(FT_Error)
-ft_bitmap_glyph_init(FT_Glyph bitmap_glyph,
-    FT_GlyphSlot slot)
+FT_CALLBACK_DEF(FT_Error) ft_bitmap_glyph_init(FT_Glyph bitmap_glyph, FT_GlyphSlot slot)
 {
 	FT_BitmapGlyph glyph   = (FT_BitmapGlyph)bitmap_glyph;
 	FT_Error error   = FT_Err_Ok;
 	FT_Library library = FT_GLYPH(glyph)->library;
-
 	if(slot->format != FT_GLYPH_FORMAT_BITMAP) {
 		error = FT_THROW(Invalid_Glyph_Format);
 		goto Exit;
 	}
-
 	glyph->left = slot->bitmap_left;
 	glyph->top  = slot->bitmap_top;
-
 	/* do lazy copying whenever possible */
 	if(slot->internal->flags & FT_GLYPH_OWN_BITMAP) {
 		glyph->bitmap          = slot->bitmap;
@@ -83,46 +74,33 @@ Exit:
 	return error;
 }
 
-FT_CALLBACK_DEF(FT_Error)
-ft_bitmap_glyph_copy(FT_Glyph bitmap_source,
-    FT_Glyph bitmap_target)
+FT_CALLBACK_DEF(FT_Error) ft_bitmap_glyph_copy(FT_Glyph bitmap_source, FT_Glyph bitmap_target)
 {
 	FT_Library library = bitmap_source->library;
 	FT_BitmapGlyph source  = (FT_BitmapGlyph)bitmap_source;
 	FT_BitmapGlyph target  = (FT_BitmapGlyph)bitmap_target;
-
 	target->left = source->left;
 	target->top  = source->top;
-
 	return FT_Bitmap_Copy(library, &source->bitmap, &target->bitmap);
 }
 
-FT_CALLBACK_DEF(void)
-ft_bitmap_glyph_done(FT_Glyph bitmap_glyph)
+FT_CALLBACK_DEF(void) ft_bitmap_glyph_done(FT_Glyph bitmap_glyph)
 {
 	FT_BitmapGlyph glyph   = (FT_BitmapGlyph)bitmap_glyph;
 	FT_Library library = FT_GLYPH(glyph)->library;
-
 	FT_Bitmap_Done(library, &glyph->bitmap);
 }
 
-FT_CALLBACK_DEF(void)
-ft_bitmap_glyph_bbox(FT_Glyph bitmap_glyph,
-    FT_BBox*  cbox)
+FT_CALLBACK_DEF(void) ft_bitmap_glyph_bbox(FT_Glyph bitmap_glyph, FT_BBox*  cbox)
 {
 	FT_BitmapGlyph glyph = (FT_BitmapGlyph)bitmap_glyph;
-
 	cbox->xMin = glyph->left * 64;
 	cbox->xMax = cbox->xMin + (FT_Pos)( glyph->bitmap.width * 64 );
 	cbox->yMax = glyph->top * 64;
 	cbox->yMin = cbox->yMax - (FT_Pos)( glyph->bitmap.rows * 64 );
 }
 
-FT_DEFINE_GLYPH(
-	ft_bitmap_glyph_class,
-
-	sizeof( FT_BitmapGlyphRec ),
-	FT_GLYPH_FORMAT_BITMAP,
+FT_DEFINE_GLYPH(ft_bitmap_glyph_class, sizeof( FT_BitmapGlyphRec ), FT_GLYPH_FORMAT_BITMAP,
 
 	ft_bitmap_glyph_init, /* FT_Glyph_InitFunc       glyph_init      */
 	ft_bitmap_glyph_done, /* FT_Glyph_DoneFunc       glyph_done      */
@@ -133,11 +111,7 @@ FT_DEFINE_GLYPH(
 	)
 
 /*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
 /****   FT_OutlineGlyph support                                       ****/
-/****                                                                 ****/
-/*************************************************************************/
 /*************************************************************************/
 
 FT_CALLBACK_DEF(FT_Error)
@@ -219,11 +193,7 @@ FT_DEFINE_GLYPH(ft_outline_glyph_class,
 	)
 
 /*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
 /****   FT_Glyph class and API                                        ****/
-/****                                                                 ****/
-/*************************************************************************/
 /*************************************************************************/
 
 static FT_Error ft_new_glyph(FT_Library library,

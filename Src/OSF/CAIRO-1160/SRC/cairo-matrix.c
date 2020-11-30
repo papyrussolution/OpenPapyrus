@@ -132,10 +132,8 @@ void _cairo_matrix_get_affine(const cairo_matrix_t * matrix, double * xx, double
 	*yx  = matrix->yx;
 	*xy  = matrix->xy;
 	*yy  = matrix->yy;
-	if(x0)
-		*x0 = matrix->x0;
-	if(y0)
-		*y0 = matrix->y0;
+	ASSIGN_PTR(x0, matrix->x0);
+	ASSIGN_PTR(y0, matrix->y0);
 }
 
 /**

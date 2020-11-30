@@ -68,35 +68,36 @@
 #define UED_BIOTAXGENUS                   114   // 
 #define UED_BIOTAXSPECIES                 115   // 
 #define UED_LINGUA                        116   // Язык
-#define UED_SCRIPT                        117   // Скрипт
-#define UED_GENDER                        118   // Пол
-#define UED_TIMEZONE                      119   // Временная зона
-#define UED_TERRA_CONTINENTEM             120   // Земной континент
-#define UED_TERRA_OCEANUM                 121   // Земной океан
-#define UED_TERRA_MARE                    122   // Земное море
-#define UED_TERRA_FLUMEN                  123   // Земная река
-#define UED_TERRA_LACUS                   124   // Земное озеро 
-#define UED_TERRA_MONS                    125   // Земная гора
-#define UED_REGIONEMMUNDI                 126   // Регион мира
-#define UED_STATU                         127   // Country
-#define UED_URBS                          128   // Населенный пункт
-#define UED_CURRENCY                      129   // Валюта. Большинство современных и не очень валют имеют 3-значный ASCII-символ: значения идентификаторов будем формировать преобразованием этих символов в число.
-#define UED_CURRENCYPAIR                  130   // Валютная пара
-#define UED_STOCKTICKER                   131   // Биржевой тикер
-#define UED_FISCALTAX                     132   // Типы фискальных налогов
-#define UED_FISCALVATRATE                 133   // Значения ставок НДС
-#define UED_PROGLANG                      134   // Языки программирования
-#define UED_DATATYPE                      135   // Типы данных в программировании
-#define UED_ABSTRACTDATASTRUCT            136   // Абстрактные структуры данных в программировании
-#define UED_DATAFORMATMIME                137   // Форматы данных MIME
-#define UED_URISCHEME                     138   // Схема данных URI (сетевой протокол обмена)
-#define UED_BRAND                         139   // Бренд
-#define UED_PACKAGE                       140   // Типы упаковки
-#define UED_AIRPORT                       141   // Аэропорты
-#define UED_BARCODEENCODING               142   // Стандарты кодирования штрихкодов
-#define UED_COLORRGB                      143   // 
-#define UED_ICAO                          144   // ICAO-код (4 символа; значение включенное)
-#define UED_IATA                          145   // IATA-код (3 символа; значение включенное)
+#define UED_LINGUALOCUS                   117   // Языковая локаль
+#define UED_SCRIPT                        118   // Скрипт
+#define UED_GENDER                        119   // Пол
+#define UED_TIMEZONE                      120   // Временная зона
+#define UED_TERRA_CONTINENTEM             121   // Земной континент
+#define UED_TERRA_OCEANUM                 122   // Земной океан
+#define UED_TERRA_MARE                    123   // Земное море
+#define UED_TERRA_FLUMEN                  124   // Земная река
+#define UED_TERRA_LACUS                   125   // Земное озеро 
+#define UED_TERRA_MONS                    126   // Земная гора
+#define UED_REGIONEMMUNDI                 127   // Регион мира
+#define UED_STATU                         128   // Country
+#define UED_URBS                          129   // Населенный пункт
+#define UED_CURRENCY                      130   // Валюта. Большинство современных и не очень валют имеют 3-значный ASCII-символ: значения идентификаторов будем формировать преобразованием этих символов в число.
+#define UED_CURRENCYPAIR                  131   // Валютная пара
+#define UED_STOCKTICKER                   132   // Биржевой тикер
+#define UED_FISCALTAX                     133   // Типы фискальных налогов
+#define UED_FISCALVATRATE                 134   // Значения ставок НДС
+#define UED_PROGLANG                      135   // Языки программирования
+#define UED_DATATYPE                      136   // Типы данных в программировании
+#define UED_ABSTRACTDATASTRUCT            137   // Абстрактные структуры данных в программировании
+#define UED_DATAFORMATMIME                138   // Форматы данных MIME
+#define UED_URISCHEME                     139   // Схема данных URI (сетевой протокол обмена)
+#define UED_BRAND                         140   // Бренд
+#define UED_PACKAGE                       141   // Типы упаковки
+#define UED_AIRPORT                       142   // Аэропорты
+#define UED_BARCODEENCODING               143   // Стандарты кодирования штрихкодов
+#define UED_COLORRGB                      144   // 
+#define UED_ICAO                          145   // ICAO-код (4 символа; значение включенное)
+#define UED_IATA                          146   // IATA-код (3 символа; значение включенное)
 
 #define UED_MOLECULO                   0x4001 // Молекула
 #define UED_POPULUS                    0x4002 // Люди. Как-бы сложно не было фиксировать отдельных людей, этот элемент по крайней мере позволит учесть селебрити.

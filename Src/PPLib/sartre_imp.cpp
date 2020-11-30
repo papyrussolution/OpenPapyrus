@@ -5304,3 +5304,105 @@ int PrcssrSartre::TestSyntax()
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+//country-intl.csv 
+
+int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
+{
+	int    ok = 1;
+	const  char * p_base_path = "/papyrus/src/rsrc/data/sartre";
+	enum {
+		_idLingua   = 0x0033,
+		_idLocus    = 0x0034,
+		_idStatu    = 0x003f,
+		_idCurrency = 0x0041,
+	};
+	SIntToSymbTabEntry entries[] = {
+		{ _idLingua, "language-intl.csv" },
+		{ _idLocus, "locale-intl.csv" },
+		{ _idStatu, "country-intl.csv" },
+		{ _idCurrency, "currency-intl.csv" },
+	};
+	SString path;
+	SString line_buf;
+	SString lang_buf;
+	SString id_buf;
+	SString value_buf;
+	SString temp_buf;
+	StringSet ss(";");
+	StringSet base_list;
+	//
+	// Так как все элементы в этих наборах данных помечаются идентификатором языка,
+	// то в сете base_list_lang соберем список всех таких идентификаторов.
+	//
+	StringSet base_list_lang; 
+	(path = p_base_path).SetLastDSlash();
+	if(llccFlags & llccBaseListOnly) {
+		path.Cat("ued_llcc_baselist.txt");
+	}
+	else {
+		path.Cat("ued_llcc.ued");
+	}
+	SFile f_out(path, SFile::mWrite);
+	THROW_SL(f_out.IsValid());
+	for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
+		const SIntToSymbTabEntry & r_entry = entries[i];
+		(path = p_base_path).SetLastDSlash().Cat(r_entry.P_Symb);
+		SFile f_in(path, SFile::mRead);
+		THROW_SL(f_in.IsValid())
+		{
+			base_list.clear();
+			for(uint ln = 0; f_in.ReadLine(line_buf); ln++) {
+				line_buf.Chomp().Strip();
+				if(ln > 0) {
+					// lang;id;value
+					ss.clear();
+					ss.setBuf(line_buf);
+					for(uint fldidx = 1, ssp = 0; ss.get(&ssp, temp_buf); fldidx++) {
+						temp_buf.Strip();
+						switch(fldidx) {
+							case 1: lang_buf = temp_buf; break;
+							case 2: id_buf = temp_buf; break;
+							case 3: value_buf = temp_buf; break;
+						}
+						if(!base_list_lang.searchNcAscii(lang_buf, 0)) {
+							base_list_lang.add(lang_buf);
+						}
+						if(!base_list.searchNcAscii(id_buf, 0)) {
+							base_list.add(id_buf);
+						}
+					}
+
+				}
+			}
+			if(llccFlags & llccBaseListOnly) {
+				base_list.sort();
+				temp_buf.Z();
+				switch(r_entry.Id) {
+					case _idLingua: temp_buf.Cat("//").Space().Cat("lingua"); break;
+					case _idLocus: temp_buf.Cat("//").Space().Cat("locus"); break;
+					case _idStatu: temp_buf.Cat("//").Space().Cat("statu"); break;
+					case _idCurrency: temp_buf.Cat("//").Space().Cat("currency"); break;
+					default: assert(0); break;
+				}
+				f_out.WriteLine(temp_buf.CR());
+				for(uint blp = 0; base_list.get(&blp, temp_buf);) {
+					f_out.WriteLine(temp_buf.CR());
+				}
+			}
+		}
+	}
+	if(llccFlags & llccBaseListOnly) {
+		base_list_lang.sort();
+		temp_buf.Z();
+		temp_buf.Cat("//").Space().Cat("lingua full list");
+		f_out.WriteLine(temp_buf.CR());
+		for(uint blp = 0; base_list_lang.get(&blp, temp_buf);) {
+			f_out.WriteLine(temp_buf.CR());
+		}
+	}
+	CATCHZOK
+	return ok;
+}

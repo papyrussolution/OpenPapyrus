@@ -49650,7 +49650,8 @@ public:
         fTestConcepts      = 0x0010,
 		fTestSyntaxParser  = 0x0020,
 		fImportBioTaxonomy = 0x0040, // @v10.0.0
-		fImportTickers     = 0x0080  // @v10.0.08
+		fImportTickers     = 0x0080, // @v10.0.08
+		fImport_UED_Llcc   = 0x0100  // @v10.9.5 Технология UED: импорт языков/локалей/государств/валют
 	};
 	uint8  ReserveStart[32]; // @ancor
 	long   Flags;
@@ -49678,6 +49679,10 @@ private:
 	int    PreprocessCurrencyNames(const char * pBaseSrcPath);
 	int    PreprocessLocaleNames(const char * pBaseSrcPath);
 	int    PreprocessLanguageNames(const char * pBaseSrcPath);
+	enum {
+		llccBaseListOnly = 0x0001
+	};
+	int    UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags);
 
 	PrcssrSartreFilt P;
 };

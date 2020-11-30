@@ -169,33 +169,23 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 	cairo_status_t status;
 	int screen_idx;
 	int i;
-
 	connection = _cairo_xcb_connection_get(xcb_connection);
 	if(unlikely(connection == NULL))
 		return NULL;
-
 	CAIRO_MUTEX_LOCK(connection->screens_mutex);
-
-	cairo_list_foreach_entry(screen,
-	    cairo_xcb_screen_t,
-	    &connection->screens,
-	    link)
+	cairo_list_foreach_entry(screen, cairo_xcb_screen_t, &connection->screens, link)
 	{
 		if(screen->xcb_screen == xcb_screen) {
 			/* Maintain list in MRU order */
 			if(&screen->link != connection->screens.next)
 				cairo_list_move(&screen->link, &connection->screens);
-
 			goto unlock;
 		}
 	}
-
 	screen = _cairo_malloc(sizeof(cairo_xcb_screen_t));
 	if(unlikely(screen == NULL))
 		goto unlock;
-
 	screen_idx = _get_screen_index(connection, xcb_screen);
-
 	screen->connection = connection;
 	screen->xcb_screen = xcb_screen;
 	screen->has_font_options = FALSE;
@@ -206,37 +196,21 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 	cairo_list_init(&screen->link);
 	cairo_list_init(&screen->surfaces);
 	cairo_list_init(&screen->pictures);
-
 	memset(screen->gc_depths, 0, sizeof(screen->gc_depths));
 	memset(screen->gc, 0, sizeof(screen->gc));
-
 	screen->solid_cache_size = 0;
 	for(i = 0; i < ARRAY_LENGTH(screen->stock_colors); i++)
 		screen->stock_colors[i] = NULL;
-
-	status = _cairo_cache_init(&screen->linear_pattern_cache,
-		_linear_pattern_cache_entry_equal,
-		NULL,
-		_pattern_cache_entry_destroy,
-		16);
+	status = _cairo_cache_init(&screen->linear_pattern_cache, _linear_pattern_cache_entry_equal, NULL, _pattern_cache_entry_destroy, 16);
 	if(unlikely(status))
 		goto error_screen;
-
-	status = _cairo_cache_init(&screen->radial_pattern_cache,
-		_radial_pattern_cache_entry_equal,
-		NULL,
-		_pattern_cache_entry_destroy,
-		4);
+	status = _cairo_cache_init(&screen->radial_pattern_cache, _radial_pattern_cache_entry_equal, NULL, _pattern_cache_entry_destroy, 4);
 	if(unlikely(status))
 		goto error_linear;
-
 	cairo_list_add(&screen->link, &connection->screens);
-
 unlock:
 	CAIRO_MUTEX_UNLOCK(connection->screens_mutex);
-
 	return screen;
-
 error_linear:
 	_cairo_cache_fini(&screen->linear_pattern_cache);
 error_screen:

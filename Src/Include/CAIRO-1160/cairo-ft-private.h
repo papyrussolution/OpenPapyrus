@@ -46,14 +46,12 @@ CAIRO_BEGIN_DECLS
 
 typedef struct _cairo_ft_unscaled_font cairo_ft_unscaled_font_t;
 
-cairo_private boolint
-_cairo_scaled_font_is_ft (cairo_scaled_font_t *scaled_font);
+cairo_private boolint _cairo_scaled_font_is_ft(cairo_scaled_font_t * scaled_font);
 
 /* These functions are needed by the PDF backend, which needs to keep track of the
  * the different fonts-on-disk used by a document, so it can embed them
  */
-cairo_private uint
-_cairo_ft_scaled_font_get_load_flags (cairo_scaled_font_t *scaled_font);
+cairo_private uint _cairo_ft_scaled_font_get_load_flags(cairo_scaled_font_t * scaled_font);
 
 CAIRO_END_DECLS
 

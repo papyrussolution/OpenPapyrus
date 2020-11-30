@@ -1,11 +1,8 @@
 /****************************************************************************
- *
  * ftbbox.c
- *
  *   FreeType bbox computation (body).
  *
- * Copyright (C) 1996-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 1996-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used
  * modified and distributed under the terms of the FreeType project
@@ -447,46 +444,31 @@ FT_Outline_Get_BBox(FT_Outline*  outline,
 	if(outline->n_points == 0 || outline->n_contours <= 0) {
 		abbox->xMin = abbox->xMax = 0;
 		abbox->yMin = abbox->yMax = 0;
-
 		return 0;
 	}
-
 	/* We compute the control box as well as the bounding box of  */
 	/* all `on' points in the outline.  Then, if the two boxes    */
 	/* coincide, we exit immediately.                             */
-
 	vec = outline->points;
-
 	for(n = 0; n < outline->n_points; n++) {
 		FT_UPDATE_BBOX(vec, cbox);
-
 		if(FT_CURVE_TAG(outline->tags[n]) == FT_CURVE_TAG_ON)
 			FT_UPDATE_BBOX(vec, bbox);
-
 		vec++;
 	}
-
 	/* test two boxes for equality */
-	if(cbox.xMin < bbox.xMin || cbox.xMax > bbox.xMax ||
-	    cbox.yMin < bbox.yMin || cbox.yMax > bbox.yMax) {
+	if(cbox.xMin < bbox.xMin || cbox.xMax > bbox.xMax || cbox.yMin < bbox.yMin || cbox.yMax > bbox.yMax) {
 		/* the two boxes are different, now walk over the outline to */
 		/* get the Bezier arc extrema.                               */
-
 		FT_Error error;
 		TBBox_Rec user;
-
 		user.bbox = bbox;
-
 		error = FT_Outline_Decompose(outline, &bbox_interface, &user);
 		if(error)
 			return error;
-
 		*abbox = user.bbox;
 	}
 	else
 		*abbox = bbox;
-
 	return FT_Err_Ok;
 }
-
-/* END */
