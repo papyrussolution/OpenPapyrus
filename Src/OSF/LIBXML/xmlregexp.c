@@ -7402,5 +7402,4 @@ int xmlExpCtxtNbCons(xmlExpCtxtPtr ctxt) { return ctxt ? ctxt->nb_cons : -1; }
 
 #endif /* LIBXML_EXPR_ENABLED */
 #define bottom_xmlregexp
-//#include "elfgcchack.h"
 #endif /* LIBXML_REGEXP_ENABLED */

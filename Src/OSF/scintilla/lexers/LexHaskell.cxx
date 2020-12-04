@@ -66,12 +66,10 @@ static bool FASTCALL IsHaskellLetter(const int ch)
 
 static bool FASTCALL IsHaskellAlphaNumeric(const int ch)
 {
-	if(IsASCII(ch)) {
-		return IsAlphaNumeric(ch);
-	}
-	else {
+	if(IsASCII(ch))
+		return isasciialnum(ch);
+	else
 		return u_iswalnum(ch) != 0;
-	}
 }
 
 static bool FASTCALL IsHaskellUpperCase(const int ch)

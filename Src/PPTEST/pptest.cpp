@@ -1397,9 +1397,9 @@ int DoConstructionTest()
 	int    ok = -1;
 #ifndef NDEBUG
 	//TestFrameWindow::Run();
+	TestGtinStruc();
 	TestUdsInterface();
 	GumboTest();
-	TestGtinStruc();
 	//TestTsDensityMap();
 	//TestAddressRecognition();
 	//TestSArchive();

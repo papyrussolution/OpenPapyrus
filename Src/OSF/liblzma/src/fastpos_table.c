@@ -2,7 +2,6 @@
 
 #include "common.h"
 #pragma hdrstop
-//#include "fastpos.h"
 
 const uint8_t lzma_fastpos[1 << FASTPOS_BITS] = {
 	  0,  1,  2,  3,  4,  4,  5,  5,  6,  6,  6,  6,  7,  7,  7,  7,

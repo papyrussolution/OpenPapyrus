@@ -22,23 +22,20 @@ using namespace Scintilla;
 
 // This function is generic and should be probably moved to CharSet.h where
 // IsAlphaNumeric the others reside.
-inline bool IsAlpha(int ch)
-{
-	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
-}
+// @v10.9.6 (replaced with isasciialpha) inline bool IsAlpha(int ch) { return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'); }
 
 static bool FASTCALL IsIdentifierChar(int ch)
 {
 	// Identifiers cannot contain non-ASCII letters; a word with non-English
 	// language-specific characters cannot be an identifier.
-	return IsAlphaNumeric(ch) || ch == '_';
+	return isasciialnum(ch) || ch == '_';
 }
 
 static bool FASTCALL IsIdentifierStart(int ch)
 {
 	// Identifiers cannot contain non-ASCII letters; a word with non-English
 	// language-specific characters cannot be an identifier.
-	return IsAlpha(ch) || ch == '_';
+	return isasciialpha(ch) || ch == '_';
 }
 
 static bool FASTCALL IsNumberChar(int ch, int chNext)
@@ -51,8 +48,7 @@ static bool FASTCALL IsNumberChar(int ch, int chNext)
 	// recognized and it will be styled together with the preceding number.
 	// This should not occur; at least not often. The coding style recommends
 	// putting spaces around operators.
-	return IsADigit(ch) || toupper(ch) == 'E' || ch == '.' ||
-	       ((ch == '-' || ch == '+') && toupper(chNext) == 'E');
+	return IsADigit(ch) || toupper(ch) == 'E' || ch == '.' || ((ch == '-' || ch == '+') && toupper(chNext) == 'E');
 }
 
 // This function checks for the start or a natural number without any symbols
@@ -87,7 +83,7 @@ static bool FASTCALL IsOperator(int ch)
 static bool IsDocCommentStart(StyleContext &sc)
 {
 	// Check the line back to its start only if the end looks promising.
-	if(sc.LengthCurrent() == 10 && !IsAlphaNumeric(sc.ch)) {
+	if(sc.LengthCurrent() == 10 && !isasciialnum(sc.ch)) {
 		char s[11];
 		sc.GetCurrentLowered(s, sizeof(s));
 		return strcmp(s, "#ifdef doc") == 0;
@@ -434,8 +430,7 @@ static bool FASTCALL IsPreprocessor(int style)
 	       style == SCE_OSCRIPT_DOC_COMMENT;
 }
 
-static void GetRangeLowered(Sci_PositionU start, Sci_PositionU end,
-    Accessor & styler, char * s, Sci_PositionU len)
+static void GetRangeLowered(Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
 	while(i < end - start + 1 && i < len - 1) {
@@ -448,7 +443,7 @@ static void GetRangeLowered(Sci_PositionU start, Sci_PositionU end,
 static void GetForwardWordLowered(Sci_PositionU start, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
-	while(i < len - 1 && IsAlpha(styler.SafeGetCharAt(start + i))) {
+	while(i < len - 1 && isasciialpha(styler.SafeGetCharAt(start + i))) {
 		s[i] = static_cast<char>(tolower(styler.SafeGetCharAt(start + i)));
 		i++;
 	}

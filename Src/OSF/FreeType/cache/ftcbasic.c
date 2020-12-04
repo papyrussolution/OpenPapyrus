@@ -1,18 +1,14 @@
 /****************************************************************************
- *
  * ftcbasic.c
- *
  *   The FreeType basic cache interface (body).
  *
- * Copyright (C) 2003-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2003-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 #include <freetype/internal/ftobjs.h>
 #include <freetype/internal/ftdebug.h>
@@ -24,7 +20,6 @@
 #include "ftcerror.h"
 
 #define FT_COMPONENT  cache
-
 /*
  * Basic Families
  *
@@ -561,5 +556,3 @@ FTC_SBitCache_LookupScaler(FTC_SBitCache cache,
 Exit:
 	return error;
 }
-
-/* END */

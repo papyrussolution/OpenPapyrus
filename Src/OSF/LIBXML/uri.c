@@ -1922,9 +1922,9 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	}
 	else
 		bas->path = (char *)sstrdup(base);
-	/*
-	 * If the scheme / server on the URI differs from the base, just return the URI
-	 */
+	// 
+	// If the scheme / server on the URI differs from the base, just return the URI
+	// 
 	if(ref->scheme && (!bas->scheme || !sstreq(bas->scheme, ref->scheme) || !sstreq(bas->server, ref->server))) {
 		val = sstrdup(URI);
 		goto done;
@@ -1941,18 +1941,18 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		ref->path = (char *)"/";
 		remove_path = 1;
 	}
-	/*
-	 * At this point (at last!) we can compare the two paths
-	 *
-	 * First we take care of the special case where either of the
-	 * two path components may be missing (bug 316224)
-	 */
+	// 
+	// At this point (at last!) we can compare the two paths
+	// 
+	// First we take care of the special case where either of the
+	// two path components may be missing (bug 316224)
+	// 
 	if(bas->path == NULL) {
 		if(ref->path != NULL) {
 			uptr = (xmlChar *)ref->path;
 			if(*uptr == '/')
 				uptr++;
-			/* exception characters from xmlSaveUri */
+			// exception characters from xmlSaveUri 
 			val = xmlURIEscapeStr(uptr, reinterpret_cast<const xmlChar *>("/;&=+$,"));
 		}
 		goto done;
@@ -1967,9 +1967,9 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		len = 1; /* this is for a string terminator only */
 	}
 	else {
-		/*
-		 * Next we compare the two strings and find where they first differ
-		 */
+		// 
+		// Next we compare the two strings and find where they first differ
+		// 
 		if((ref->path[pos] == '.') && (ref->path[pos+1] == '/'))
 			pos += 2;
 		if((*bptr == '.') && (bptr[1] == '/'))
@@ -1982,10 +1982,10 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			val = sstrdup(reinterpret_cast<const xmlChar *>(""));
 			goto done; /* (I can't imagine why anyone would do this) */
 		}
-		/*
-		 * In URI, "back up" to the last '/' encountered.  This will be the
-		 * beginning of the "unique" suffix of URI
-		 */
+		// 
+		// In URI, "back up" to the last '/' encountered.  This will be the
+		// beginning of the "unique" suffix of URI
+		// 
 		ix = pos;
 		if((ref->path[ix] == '/') && (ix > 0))
 			ix--;
@@ -2002,9 +2002,9 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			ix++;
 			uptr = (xmlChar *)&ref->path[ix];
 		}
-		/*
-		 * In base, count the number of '/' from the differing point
-		 */
+		// 
+		// In base, count the number of '/' from the differing point
+		// 
 		if(bptr[pos] != ref->path[pos]) { /* check for trivial URI == base */
 			for(; bptr[ix] != 0; ix++) {
 				if(bptr[ix] == '/')
@@ -2053,16 +2053,13 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	else {
 		vptr[len-1] = 0;
 	}
-	/* escape the freshly-built path */
-	vptr = val;
-	/* exception characters from xmlSaveUri */
+	vptr = val; // escape the freshly-built path 
+	// exception characters from xmlSaveUri 
 	val = xmlURIEscapeStr(vptr, reinterpret_cast<const xmlChar *>("/;&=+$,"));
 	SAlloc::F(vptr);
 done:
-	/*
-	 * Free the working variables
-	 */
-	if(remove_path != 0)
+	// Free the working variables
+	if(remove_path)
 		ref->path = NULL;
 	xmlFreeURI(ref);
 	xmlFreeURI(bas);
@@ -2242,6 +2239,3 @@ xmlChar * xmlPathToURI(const xmlChar * path)
 	SAlloc::F(cal);
 	return ret;
 }
-
-//#define bottom_uri
-//#include "elfgcchack.h"

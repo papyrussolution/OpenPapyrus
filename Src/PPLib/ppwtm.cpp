@@ -2582,7 +2582,7 @@ int PPWhatmanWindow::FileOpen()
 			LayoutFlexItem * p_lo = 0;
 			if(p_frame_layout) {
 				p_lo = p_frame_layout->InsertItem();
-				p_lo->grow = 1.0f;
+				p_lo->GrowFactor = 1.0f;
 				//p_lo->align_items = FLEX_ALIGN_STRETCH;
 				//p_lo->align_self = FLEX_ALIGN_AUTO;
 			}
@@ -2595,7 +2595,7 @@ int PPWhatmanWindow::FileOpen()
 			LayoutFlexItem * p_lo = 0;
 			if(p_frame_layout) {
 				p_lo = p_frame_layout->InsertItem();
-				p_lo->grow = 3.0f;
+				p_lo->GrowFactor = 3.0f;
 				//p_lo->align_items = FLEX_ALIGN_STRETCH;
 				//p_lo->align_self = FLEX_ALIGN_AUTO;
 			}

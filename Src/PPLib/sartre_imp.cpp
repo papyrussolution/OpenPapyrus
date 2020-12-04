@@ -3673,7 +3673,7 @@ int PrcssrSartre::Run()
 		}
 		// @v10.9.5 {
 		if(P.Flags & P.fImport_UED_Llcc) {
-			UED_Import_Lingua_LinguaLocus_Country_Currency(llccBaseListOnly);
+			UED_Import_Lingua_LinguaLocus_Country_Currency(/*llccBaseListOnly*/0);
 		}
 		// } @v10.9.5 
 		/*if(!TestImport_Words_MySpell())
@@ -5318,6 +5318,22 @@ int PrcssrSartre::TestSyntax()
 //
 //country-intl.csv 
 
+struct LlccUglyEntry {
+	char   Id[20];
+	char   Lang[20];
+	char   Text[256];
+};
+
+static IMPL_CMPFUNC(LlccUglyEntry, p1, p2)
+{
+	const LlccUglyEntry * p_i1 = static_cast<const LlccUglyEntry *>(p1);
+	const LlccUglyEntry * p_i2 = static_cast<const LlccUglyEntry *>(p2);
+	int    si = strcmp(p_i1->Id, p_i2->Id);
+	if(si == 0)
+		si = strcmp(p_i1->Lang, p_i2->Lang);
+	return si;
+}
+
 int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 {
 	int    ok = 1;
@@ -5428,12 +5444,12 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 			f_out.WriteLine(temp_buf.CR());
 	}
 	if(!(llccFlags & llccBaseListOnly)) {
-		for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
-			const SIntToSymbTabEntry & r_entry = entries[i];
-			(path = p_base_path).SetLastDSlash().Cat(r_entry.P_Symb);
-			SFile f_in(path, SFile::mRead);
-			THROW_SL(f_in.IsValid())
-			{
+		{
+			//
+			// На этой фазе присваиваем символам идентификаторы
+			//
+			for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
+				const SIntToSymbTabEntry & r_entry = entries[i];
 				StrAssocArray * p_id_list = 0;
 				StringSet * p_base_list = 0;
 				switch(r_entry.Id) {
@@ -5456,20 +5472,148 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 					default: assert(0); break;
 				}
 				if(p_id_list) {
-					for(uint ln = 0; f_in.ReadLine(line_buf); ln++) {
-						line_buf.Chomp().Strip();
-						if(ln > 0) {
-							// lang;id;value
-							ss.clear();
-							ss.setBuf(line_buf);
-							for(uint fldidx = 1, ssp = 0; ss.get(&ssp, temp_buf); fldidx++) {
-								temp_buf.Strip();
-								switch(fldidx) {
-									case 1: lang_buf = temp_buf; break;
-									case 2: id_buf = temp_buf; break;
-									case 3: value_buf = temp_buf; break;
+					{
+						assert(p_id_list->getCount() == 0);
+						if(r_entry.Id == _idLocus) {
+							assert(lingua_id_list.getCount());
+							//
+							// Локали обрабатываем специальным образом: 
+							// -- сначала ищем полное сопоставления среди языков и, если находим, то ид локали будет равен ид соответствующего языка
+							// -- для оставшихся локалей присваиваем идентификаторы, начинающиеся с максимального значения, полученного на
+							//    предыдущем шаге плюс 100 (невростенический байас).
+							//
+							LongArray reckoned_pos_list;
+							{
+								for(uint ssp = 0, locus_pos = 0; p_base_list->get(&ssp, temp_buf); locus_pos++) {
+									uint   lingua_pos = 0;
+									if(lingua_id_list.SearchByText(temp_buf, 1, &lingua_pos)) {
+										long local_id = lingua_id_list.at_WithoutParent(lingua_pos).Id;
+										p_id_list->Add(local_id, temp_buf);
+										reckoned_pos_list.add(static_cast<long>(locus_pos));
+									}
 								}
-
+							}
+							{
+								long locus_id;
+								p_id_list->GetMaxID(&locus_id);
+								locus_id += 100;
+								for(uint ssp = 0, locus_pos = 0; p_base_list->get(&ssp, temp_buf); locus_pos++) {
+									if(!reckoned_pos_list.lsearch(static_cast<long>(locus_pos))) {
+										p_id_list->Add(locus_id++, temp_buf);
+									}
+								}
+							}
+						}
+						else {
+							long nn = 0;
+							for(uint ssp = 0; p_base_list->get(&ssp, temp_buf);) {
+								p_id_list->Add(++nn, temp_buf);
+							}
+						}
+					}
+				}
+			}
+		}
+		{
+			//
+			// Последняя фаза: выгружаем языковые текстовые ассоциации сущностей
+			//
+			for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
+				const SIntToSymbTabEntry & r_entry = entries[i];
+				(path = p_base_path).SetLastDSlash().Cat(r_entry.P_Symb);
+				SFile f_in(path, SFile::mRead);
+				THROW_SL(f_in.IsValid())
+				{
+					StrAssocArray * p_id_list = 0;
+					StringSet * p_base_list = 0;
+					switch(r_entry.Id) {
+						case _idLingua: 
+							p_id_list = &lingua_id_list; 
+							p_base_list = &lingua_base_list;
+							break;
+						case _idLocus: 
+							p_id_list = &locus_id_list; 
+							p_base_list = &locus_base_list;
+							break;
+						case _idStatu: 
+							p_id_list = &statu_id_list; 
+							p_base_list = &statu_base_list;
+							break;
+						case _idCurrency: 
+							p_id_list = &currency_id_list; 
+							p_base_list = &currency_base_list;
+							break;
+						default: assert(0); break;
+					}
+					assert(p_id_list && p_base_list);
+					if(p_id_list && p_base_list) {
+						{
+							for(uint j = 0; j < p_id_list->getCount(); j++) {
+								StrAssocArray::Item id_item = p_id_list->at_WithoutParent(j);
+								uint64 final_id = (static_cast<uint64>(r_entry.Id) << 32) | static_cast<uint32>(id_item.Id);
+								temp_buf.Z().CatHex(final_id).Space().CatQStr(id_item.Txt);
+								f_out.WriteLine(temp_buf.CR());
+							}
+						}
+						TSVector <LlccUglyEntry> value_list;
+						for(uint ln = 0; f_in.ReadLine(line_buf); ln++) {
+							line_buf.Chomp().Strip();
+							if(ln > 0) {
+								// lang;id;value
+								ss.clear();
+								ss.setBuf(line_buf);
+								lang_buf.Z();
+								id_buf.Z();
+								value_buf.Z();
+								for(uint fldidx = 1, ssp = 0; ss.get(&ssp, temp_buf); fldidx++) {
+									temp_buf.Strip();
+									switch(fldidx) {
+										case 1: lang_buf = temp_buf; break;
+										case 2: id_buf = temp_buf; break;
+										case 3: value_buf = temp_buf; break;
+									}
+								}
+								LlccUglyEntry value;
+								MEMSZERO(value);
+								STRNSCPY(value.Id, id_buf);
+								STRNSCPY(value.Lang, lang_buf);
+								STRNSCPY(value.Text, value_buf);
+								value_list.insert(&value);
+							}
+						}
+						value_list.sort(PTR_CMPFUNC(LlccUglyEntry));
+						for(uint validx = 0; validx < value_list.getCount(); validx++) {
+							const LlccUglyEntry & r_le = value_list.at(validx);
+							uint id_pos = 0;
+							if(p_id_list->SearchByText(r_le.Id, 1, &id_pos)) {
+								StrAssocArray::Item id_item = p_id_list->at_WithoutParent(id_pos);
+								assert(sstreq(id_item.Txt, r_le.Id));
+								int   do_skip_lang_entry = 0; // Если !0 то строчку пропускаем поскольку такое описание уже определено для
+									// языкового идентификатора высшего уровня (например: fr_GP-->fr).
+								{
+									uint revidx = validx;
+									if(revidx) {
+										temp_buf = r_le.Lang;
+										const size_t lang_len = temp_buf.Len();
+										do {
+											const LlccUglyEntry & r_prev_le = value_list.at(--revidx);
+											if(sstreq(r_prev_le.Id, r_le.Id)) {
+												if(temp_buf.HasPrefix(r_prev_le.Lang)) {
+													const size_t prev_lang_len = sstrlen(r_prev_le.Lang);
+													if(prev_lang_len && temp_buf.C(prev_lang_len) == '_' && sstreq(r_prev_le.Text, r_le.Text))
+														do_skip_lang_entry = 1;
+												}
+											}
+											else
+												break;
+										} while(revidx && !do_skip_lang_entry);
+									}
+								}
+								if(!do_skip_lang_entry) {
+									uint64 final_id = (static_cast<uint64>(r_entry.Id) << 32) | static_cast<uint32>(id_item.Id);
+									temp_buf.Z().CatHex(final_id).Space().Cat(r_le.Lang).Space().CatQStr(r_le.Text);
+									f_out.WriteLine(temp_buf.CR());
+								}
 							}
 						}
 					}

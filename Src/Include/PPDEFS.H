@@ -11040,6 +11040,7 @@
 	#define CTL_SUVK_GUA              (7 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_SUVK_GUA           (8 + IMPEXP_CTL_BIAS)
 	#define CTL_SUVK_LOGO             (9 + IMPEXP_CTL_BIAS)
+	#define CTL_SUVK_PAGEIDENT        (10 + IMPEXP_CTL_BIAS)
 
 // Win32 Dialog Identifiers
 //

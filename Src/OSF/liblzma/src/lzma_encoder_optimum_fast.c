@@ -5,7 +5,7 @@
 #include "common.h"
 #pragma hdrstop
 #include "lzma_encoder_private.h"
-#include "memcmplen.h"
+//#include "memcmplen.h"
 
 #define change_pair(small_dist, big_dist) (((big_dist) >> 7) > (small_dist))
 
@@ -23,7 +23,7 @@ extern void lzma_lzma_optimum_fast(lzma_lzma1_encoder * coder, lzma_mf * mf, uin
 		matches_count = coder->matches_count;
 	}
 	const uint8_t * buf = mf_ptr(mf) - 1;
-	const uint32_t buf_avail = my_min(mf_avail(mf) + 1, MATCH_LEN_MAX);
+	const uint32_t buf_avail = MIN(mf_avail(mf) + 1, MATCH_LEN_MAX);
 	if(buf_avail < 2) {
 		// There's not enough input left to encode a match.
 		*back_res = UINT32_MAX;
@@ -115,7 +115,7 @@ extern void lzma_lzma_optimum_fast(lzma_lzma1_encoder * coder, lzma_mf * mf, uin
 	// between mf_find() calls, thus it is safe to just increment
 	// the old buf pointer instead of recalculating it with mf_ptr().
 	++buf;
-	const uint32_t limit = my_max(2, len_main - 1);
+	const uint32_t limit = MAX(2, len_main - 1);
 	for(uint32_t i = 0; i < REPS; ++i) {
 		if(memcmp(buf, buf - coder->reps[i] - 1, limit) == 0) {
 			*back_res = UINT32_MAX;

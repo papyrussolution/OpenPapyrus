@@ -5904,7 +5904,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 							{
 								const VetisPrepareOutgoingConsignmentRequest * p_req = static_cast<const VetisPrepareOutgoingConsignmentRequest *>(rAppBlk.P_AppParam);
 								const VetisVetDocument & r_org_doc = p_req->OrgDoc;
-								const VetisBatch & r_org_bat = r_org_doc.P_CertifiedBatch ? *r_org_doc.P_CertifiedBatch : r_org_doc.CertifiedConsignment.Batch;
+								const VetisBatch & r_org_bat = DEREFPTROR(r_org_doc.P_CertifiedBatch, r_org_doc.CertifiedConsignment.Batch);
 								SXml::WNode n_req(srb, SXml::nst("merc", "prepareOutgoingConsignmentRequest"));
 								n_req.PutInner(SXml::nst("merc", "localTransactionId"), temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
 								{

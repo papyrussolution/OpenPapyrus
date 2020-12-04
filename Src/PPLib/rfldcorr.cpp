@@ -1732,16 +1732,15 @@ int ImpExpParamDialog::getDTS(PPImpExpParam * pData)
 		SETFLAG(Data.BaseFlags, PPImpExpParam::bfDeleteSrcFiles, _f & 0x0002);
 	}
 	getCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
-	Data.InetAccID = 0; // @v9.8.12 @fix(не возможно было очистить это поле)
+	Data.InetAccID = 0; // @v9.8.12 @fix(невозможно было очистить это поле)
 	if(getCtrlView(CTLSEL_IMPEXP_FTPACC)) {
 		PPID   acc_id = 0;
 		getCtrlData(CTLSEL_IMPEXP_FTPACC, &acc_id);
 		if(acc_id) {
 			PPObjInternetAccount ia_obj;
 			PPInternetAccount ia_pack;
-			if(ia_obj.Get(acc_id, &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/) {
+			if(ia_obj.Get(acc_id, &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/)
 				Data.InetAccID = acc_id;
-			}
 		}
 	}
 	getCtrlString(CTL_IMPEXP_NAME, name);
@@ -1766,9 +1765,8 @@ PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr) : P_DbfT
 	P_XlsT(0), State(0), R_RecNo(0), W_RecNo(0), P_ExprContext(0), P_HdrData(0), R_SaveRecNo(0), ExtractSubChild(0)
 {
 	RVALUEPTR(P, pParam);
-	// @v9.3.10 SaveParam.Init();
 	// @v10.3.11 P.FileName.Transf(CTRANSF_INNER_TO_OUTER);
-	PreserveOrgFileName = P.FileName; // @v9.3.10
+	PreserveOrgFileName = P.FileName;
 	if(P.Direction == 0) {
 		const SString preserve_file_name = P.FileName;
 		SString result_file_name;
@@ -1958,9 +1956,12 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 			}
 			getcurdatetime(&sdr_hdr.CurDate, &sdr_hdr.CurTime);
 			PPVersionInfo vi = DS.GetVersionInfo();
-			vi.GetProductName(temp_buf);
+			//vi.GetProductName(temp_buf);
+			vi.GetTextAttrib(vi.taiProductName, temp_buf);
 			temp_buf.CopyTo(sdr_hdr.SrcSystemName, sizeof(sdr_hdr.SrcSystemName));
-			vi.GetVersionText(sdr_hdr.SrcSystemVer, sizeof(sdr_hdr.SrcSystemVer));
+			//vi.GetVersionText(sdr_hdr.SrcSystemVer, sizeof(sdr_hdr.SrcSystemVer));
+			vi.GetTextAttrib(vi.taiVersionText, temp_buf);
+			STRNSCPY(sdr_hdr.SrcSystemVer, temp_buf);
 			P.HdrInrRec.SetDataBuf(&sdr_hdr, sizeof(sdr_hdr));
 			ConvertInnerToOuter(1, &sdr_hdr, sizeof(sdr_hdr));
 			THROW(P_TxtT->AppendHeader(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
@@ -1979,9 +1980,12 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 			// @v10.7.9 @ctr MEMSZERO(sdr_hdr);
 			getcurdatetime(&sdr_hdr.CurDate, &sdr_hdr.CurTime);
 			PPVersionInfo vi = DS.GetVersionInfo();
-			vi.GetProductName(temp_buf);
+			//vi.GetProductName(temp_buf);
+			vi.GetTextAttrib(vi.taiProductName, temp_buf);
 			temp_buf.CopyTo(sdr_hdr.SrcSystemName, sizeof(sdr_hdr.SrcSystemName));
-			vi.GetVersionText(sdr_hdr.SrcSystemVer, sizeof(sdr_hdr.SrcSystemVer));
+			//vi.GetVersionText(sdr_hdr.SrcSystemVer, sizeof(sdr_hdr.SrcSystemVer));
+			vi.GetTextAttrib(vi.taiVersionText, temp_buf);
+			STRNSCPY(sdr_hdr.SrcSystemVer, temp_buf);
 			P.HdrInrRec.SetDataBuf(&sdr_hdr, sizeof(sdr_hdr));
 			ConvertInnerToOuter(1, &sdr_hdr, sizeof(sdr_hdr));
 			THROW(P_XmlT->AppendRecord(P.XdfParam.HdrTag, P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
@@ -1994,7 +1998,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 	else if(P.DataFormat == PPImpExpParam::dfExcel) {
 		PPWaitMsg(PPSTR_TEXT, PPTXT_SCANEXCELFILE, filename);
 		THROW_MEM(P_XlsT = new ExcelDbFile);
-		THROW(P_XlsT->Open(filename, &P.XlsdfParam, readOnly));
+		THROW_SL(P_XlsT->Open(filename, &P.XlsdfParam, readOnly));
 	}
 	else
 		ok = PPSetError(PPERR_IMPEXPFMTUNSUPP, static_cast<const char *>(0));
@@ -2235,7 +2239,8 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 		SStrScan scan(input_buf);
 		while(*scan != 0) {
 			if(scan.GetQuotedString(temp_buf)) {
-				rResult.Cat(temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
+				// @v10.9.6 rResult.Cat(temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
+				rResult.Cat(temp_buf); // @v10.9.6
 			}
 			else {
 				char cc = scan[0];
@@ -2283,7 +2288,8 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 									// } @v10.9.1 
                                     if(sym == iefrmCats && _count)
 										rResult.Space();
-                                    rResult.Cat(temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
+									temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+                                    rResult.Cat(temp_buf);
                                     _count++;
 								}
 							}
@@ -2299,7 +2305,8 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 									if(person_id && PPObjRegisterType::GetByCode(reg_type_symb, &reg_type_id) > 0) {
 										PPObjPerson psn_obj;
 										psn_obj.GetRegNumber(person_id, reg_type_id, temp_buf);
-										rResult.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+										// @v10.9.6 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+										rResult.Cat(temp_buf);
 									}
 								}
 							}
@@ -2316,7 +2323,8 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 									if(person_id && PPObjRegisterType::GetByCode(reg_type_symb, &reg_type_id) > 0) {
 										PPObjPerson psn_obj;
 										psn_obj.GetRegNumber(person_id, reg_type_id, temp_buf);
-										rResult.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+										// @v10.9.6 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+										rResult.Cat(temp_buf);
 									}
 								}
 							}
@@ -2356,7 +2364,8 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 											ObjTagItem tag_item;
 											PPRef->Ot.GetTag(obj_type, obj_id, tag_id, &tag_item);
 											tag_item.GetStr(temp_buf);
-											rResult.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+											// @v10.9.6 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+											rResult.Cat(temp_buf);
 										}
 									}
 								}
@@ -2382,7 +2391,14 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 											else if(t == S_TIME)
 												fmt = MKSFMT(0, TIMF_HMS);
 											sttostr(inner_fld.T.Typ, p_fld_data, fmt, buf);
-											rResult.Cat(buf);
+											// @v10.9.6 {
+											if(t == S_ZSTRING) {
+												(temp_buf = buf).Transf(CTRANSF_OUTER_TO_INNER);
+												rResult.Cat(temp_buf);
+
+											}
+											else // } @v10.9.6 
+												rResult.Cat(buf);
 										}
 									}
 								}

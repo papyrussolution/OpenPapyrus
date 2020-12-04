@@ -116,21 +116,21 @@
 #define ELEMENT_NAME_E6343		"E6343"
 #define ELEMENT_NAME_E7077		"E7077"
 #define ELEMENT_NAME_C273		"C273"
-#define ELEMENT_NAME_E7008		"E7008"
+//#define ELEMENT_NAME_E7008		"E7008"
 #define ELEMENT_NAME_E3039		"E3039"
 #define ELEMENT_NAME_SG26		"SG26"
 #define ELEMENT_NAME_SG17		"SG17"
 #define ELEMENT_NAME_E1229		"E1229"
-#define ELEMENT_NAME_C186		"C186"
-#define ELEMENT_NAME_E6063		"E6063"
-#define ELEMENT_NAME_E6060		"E6060"
-#define ELEMENT_NAME_E6411		"E6411"
+//#define ELEMENT_NAME_C186		"C186"
+//#define ELEMENT_NAME_E6063		"E6063"
+//#define ELEMENT_NAME_E6060		"E6060"
+//#define ELEMENT_NAME_E6411		"E6411"
 #define ELEMENT_NAME_E5153		"E5153"
 #define ELEMENT_NAME_E5278		"E5278"
 #define ELEMENT_NAME_E5283		"E5283"
 #define ELEMENT_NAME_C243		"C243"
-#define ELEMENT_NAME_E5025		"E5025"
-#define ELEMENT_NAME_E5004		"E5004"
+//#define ELEMENT_NAME_E5025		"E5025"
+//#define ELEMENT_NAME_E5004		"E5004"
 //
 // Значения элементов-идентифиаторов
 //
@@ -146,7 +146,7 @@
 //#define ELEMENT_CODE_E6063_170		"170"		// Идентификатор подтвержденного количества (индедификатор может любой из предложенных)
 //#define ELEMENT_CODE_E6063_12		"12"		// Идентификатор отгруженного количества (DESADV)
 #define ELEMENT_CODE_E6411_PCE		"PCE"		// Единицы измерения - Отдельные элементы
-#define ELEMENT_CODE_E6411_KGM		"KGM"		// Единицы измерения - Килограммы
+//#define ELEMENT_CODE_E6411_KGM		"KGM"		// Единицы измерения - Килограммы
 #define ELEMENT_CODE_E5025_XB5		"XB5"		// Идентификатор цены товара с НДС (DESADV)
 #define ELEMENT_CODE_E4451_AAO		"AAO"		// Идентификатор кода описания статуса
 //#define ELEMENT_CODE_E2005_171		"171"		// Идентификатор даты документа (в APERAK)
@@ -1141,7 +1141,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				SXml::WNode n(P_XmlWriter, "E7140", (str = pBRow->ArCode).Transf(CTRANSF_INNER_TO_UTF8)); // Артикул
 			}
 			{
-				SXml::WNode n(P_XmlWriter, "E7143", "SA"); // Идентификатор типа артикула
+				SXml::WNode n(P_XmlWriter, "E7143", "SA"); // Идентификатор типа артикула (SA supplier's code; IN buyer's code)
 			}
 		}
 	}
@@ -1155,7 +1155,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E7077_F); // Текст
 				xmlTextWriterEndElement(P_XmlWriter); //E7077
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_C273); // Описание
-					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E7008); // Описание
+					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E7008"); // Описание
 					{
 						SString str1;
 						str1.Z().Cat(pBRow->GoodsName).ToUtf8(); // Провайдер потребовал эту кодировку
@@ -1169,21 +1169,21 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 	}
 	xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"QTY"); // Количество товара
 		SegNum++;
-		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_C186); // Подробности
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E6063); // Квалификатор типа количества
+		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C186"); // Подробности
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E6063"); // Квалификатор типа количества
 				if(MessageType == PPEDIOP_ORDER)
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"21"); // Заказанное количество товара
 				else if(MessageType == PPEDIOP_RECADV)
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"194"); // Принятое количество товара
 			xmlTextWriterEndElement(P_XmlWriter); //E6063
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E6060); // Количество
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E6060"); // Количество
 				str.Z().Cat(pBRow->Quantity);
 				xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); //E6060
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E6411); // Единицы измерения
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E6411"); // Единицы измерения
 				(str = pBRow->UnitName).ToUpper1251();
 				if(str.CmpNC(UNIT_NAME_KG) == 0)
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E6411_KGM); // Килограммы
+					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"KGM"); // Килограммы
 				else
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E6411_PCE); // Отдельные элементы
 			xmlTextWriterEndElement(P_XmlWriter); //E6411
@@ -1194,10 +1194,10 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"MOA"); // Сумма товарной позиции с НДС
 			SegNum++;
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы товарной позиции
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E5025"); // Квалификатор суммы товарной позиции
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"128"); //	Идентификатор суммы товарной позиции с НДС
 				xmlTextWriterEndElement(P_XmlWriter); //E5025
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5004); // Сумма
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E5004"); // Сумма
 					xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(pBRow->Cost * pBRow->Quantity).ucptr());
 				xmlTextWriterEndElement(P_XmlWriter); //E5004
 			xmlTextWriterEndElement(P_XmlWriter); //C516
@@ -1205,10 +1205,10 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"MOA"); // Сумма товарной позиции без НДС
 			SegNum++;
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы товарной позиции
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E5025"); // Квалификатор суммы товарной позиции
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"203"); //	Идентификатор суммы товарной позиции без НДС
 				xmlTextWriterEndElement(P_XmlWriter); //E5025
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5004); // Сумма
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E5004"); // Сумма
 					//str.Z().Cat((pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity);
 					str.Z().Cat(((pBRow->Cost / (pBRow->VatRate + 100)) * 100) * pBRow->Quantity);
 					BillSumWithoutVat += str.ToReal();
@@ -1290,10 +1290,10 @@ int ExportCls::EndDoc()
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"MOA"); // Сумма заказа с НДС
 				SegNum++;
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
-					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы
+					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E5025"); // Квалификатор суммы
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"9"); // Сумма документа с НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
-					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5004); // Сумма
+					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E5004"); // Сумма
 						str.Z().Cat(Bill.Amount);
 						xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E5004
@@ -1302,10 +1302,10 @@ int ExportCls::EndDoc()
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"MOA"); // Сумма заказа без НДС
 				SegNum++;
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
-					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы
+					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E5025"); // Квалификатор суммы
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"98"); // Сумма документа без НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
-					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5004); // Сумма
+					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E5004"); // Сумма
 						str.Z().Cat(BillSumWithoutVat);
 						xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E5004
@@ -2355,11 +2355,11 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 			}
 			else if(SXml::IsName(p_node, "C516") && p_node->children && p_node->children->type == XML_READER_TYPE_ELEMENT) {
 				p_node = p_node->children; // <E5025>
-				if(p_node && SXml::IsName(p_node, ELEMENT_NAME_E5025) && p_node->children) {
+				if(p_node && SXml::IsName(p_node, "E5025") && p_node->children) {
 					str.Set(p_node->children->content); // Запомним значение текущего элемента
 					if(p_node->next) {
 						p_node = p_node->next; // <E5004>
-						if(p_node && SXml::IsName(p_node, ELEMENT_NAME_E5004) && p_node->children) {
+						if(p_node && SXml::IsName(p_node, "E5004") && p_node->children) {
 							if(str == "9") { // сумма документа с НДС
 								pBill->Amount = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
 								ok = 1;
@@ -2407,13 +2407,12 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 	int    ok = 1, index = 1, sg26_end = 0, exit_while = 0;
 	SString str, goods_segment;
 	xmlDoc * p_doc = 0;
-
 	THROWERR_STR(fileExists(ImpFileName), IEERR_IMPFILENOTFOUND, ImpFileName);
 	THROWERR(pBRow, IEERR_NODATA);
 	memzero(pBRow, sizeof(Sdr_BRow));
 	THROWERR((p_doc = xmlReadFile(ImpFileName, NULL, XML_PARSE_NOENT)), IEERR_NULLREADXMLPTR);
-	xmlNode * p_node = 0;
-	xmlNode * p_root = xmlDocGetRootElement(p_doc);
+	const xmlNode * p_node = 0;
+	const xmlNode * p_root = xmlDocGetRootElement(p_doc);
 	THROWERR(p_root, IEERR_XMLREAD);
 	if(Itr.GetCount() < (uint)GoodsCount) {
 		p_node = p_root->children;
@@ -2427,9 +2426,8 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 			else if(p_node->next)
 				p_node = p_node->next;
 			else {
-				xmlNode * p_node_2 = 0;
 				while(p_node && p_node->P_ParentNode && !exit_while) {
-					p_node_2 = p_node->P_ParentNode->next;
+					const xmlNode * p_node_2 = p_node->P_ParentNode->next;
 					if(p_node_2) {
 						p_node = p_node_2;
 						exit_while = 1;
@@ -2445,14 +2443,13 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 					if(index == (Itr.GetCount() + 1)) {
 						while(p_node && !sg26_end) {
 							exit_while = 0;
-							if(p_node->children && (p_node->children->type == XML_READER_TYPE_ELEMENT))
+							if(p_node->children && p_node->children->type == XML_READER_TYPE_ELEMENT)
 								p_node = p_node->children;
 							else if(p_node->next)
 								p_node = p_node->next;
 							else {
-								xmlNode * p_node_2 = 0;
 								while(p_node && p_node->P_ParentNode && !exit_while) {
-									p_node_2 = p_node->P_ParentNode->next;
+									const xmlNode * p_node_2 = p_node->P_ParentNode->next;
 									if(p_node_2) {
 										p_node = p_node_2;
 										exit_while = 1;
@@ -2511,17 +2508,17 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 										}
 									}
 								}
-								else if(SXml::IsName(p_node, ELEMENT_NAME_E7008) && p_node->children) {
+								else if(SXml::IsName(p_node, "E7008") && p_node->children) {
 									str.Set(p_node->children->content).Utf8ToOem(); // Наименование товара
 									STRNSCPY(pBRow->GoodsName, str);
 								}
-								else if(SXml::IsName(p_node, ELEMENT_NAME_C186) && p_node->children && p_node->children->type == XML_READER_TYPE_ELEMENT) {
+								else if(SXml::IsName(p_node, "C186") && p_node->children && p_node->children->type == XML_READER_TYPE_ELEMENT) {
 									p_node = p_node->children; // <E6063>
-									if(SXml::IsName(p_node, ELEMENT_NAME_E6063) && p_node->children) {
+									if(SXml::IsName(p_node, "E6063") && p_node->children) {
 										str.Set(p_node->children->content); // Запомним значение текущего элемента
 										if(p_node->next) {
 											p_node = p_node->next; // <E6060>
-											if(SXml::IsName(p_node, ELEMENT_NAME_E6060) && p_node->children) {
+											if(SXml::IsName(p_node, "E6060") && p_node->children) {
 												if(str == "21")
 													str.Set(p_node->children->content); // @vmiller Заказанное количество (ORDRSP/DESADV)
 												else if(str == "113" || str == "170")
@@ -2534,19 +2531,19 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 										}
 									}
 								}
-								else if(SXml::IsName(p_node, ELEMENT_NAME_E6411) && p_node->children) { // Единицы измерения товара
-									if(SXml::IsContent(p_node->children, ELEMENT_CODE_E6411_KGM))
+								else if(SXml::IsName(p_node, "E6411") && p_node->children) { // Единицы измерения товара
+									if(SXml::IsContent(p_node->children, "KGM"))
 										STRNSCPY(pBRow->UnitName, UNIT_NAME_KG);
 									else
 										STRNSCPY(pBRow->UnitName, UNIT_NAME_PIECE);
 								}
 								else if(SXml::IsName(p_node, "C516") && p_node->children && p_node->children->type == XML_READER_TYPE_ELEMENT) {
 									p_node = p_node->children; // <E5025>
-									if(SXml::IsName(p_node, ELEMENT_NAME_E5025) && p_node->children) {
+									if(SXml::IsName(p_node, "E5025") && p_node->children) {
 										str.Set(p_node->children->content); // Запомним значение текущего элемента
 										if(p_node->next) {
 											p_node = p_node->next; // <E5004>
-											if(SXml::IsName(p_node, ELEMENT_NAME_E5004) && p_node->children) {
+											if(SXml::IsName(p_node, "E5004") && p_node->children) {
 												if(str == "203")
 													str.Set(p_node->children->content); // @vmiller // Сумма товарной позиции без НДС
 												else if(str == "79")
@@ -2641,11 +2638,11 @@ int ImportCls::ParseAperakResp(const char * pResp)
 						if(SXml::IsName(p_node, "C082") && p_node->children) {
 							if(SXml::IsName(p_node->children, ELEMENT_NAME_E3039)) {
 								if(str.IsEqiAscii("BY"))
-									AperakInfo.BuyerGLN = (const char *)p_node->children->children->content; // GLN покупателя
+									AperakInfo.BuyerGLN = reinterpret_cast<const char *>(p_node->children->children->content); // GLN покупателя
 								else if(str.IsEqiAscii("SU"))
-									AperakInfo.SupplGLN = (const char *)p_node->children->children->content; // GLN поставщика
+									AperakInfo.SupplGLN = reinterpret_cast<const char *>(p_node->children->children->content); // GLN поставщика
 								else if(str.IsEqiAscii("DP"))
-									AperakInfo.AddrGLN = (const char *)p_node->children->children->content; // GLN адреса доставки
+									AperakInfo.AddrGLN = reinterpret_cast<const char *>(p_node->children->children->content); // GLN адреса доставки
 							}
 						}
 					}

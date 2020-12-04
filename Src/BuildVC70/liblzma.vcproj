@@ -263,21 +263,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Osf\liblzma\src\crc32_table.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\Osf\liblzma\src\crc64_fast.c">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -293,7 +278,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Osf\liblzma\src\crc64_table.c">
+				RelativePath="..\Osf\liblzma\src\crc_table.c">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool

@@ -934,4 +934,3 @@ int FASTCALL xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar * name, con
 }
 
 #define bottom_hash
-//#include "elfgcchack.h"

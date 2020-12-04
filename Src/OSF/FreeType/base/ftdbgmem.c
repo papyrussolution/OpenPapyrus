@@ -1,5 +1,4 @@
 /****************************************************************************
- *
  * ftdbgmem.c
  *   Memory debugger (body).
  *
@@ -10,7 +9,6 @@
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 #include <ft2build.h>
 #include FT_CONFIG_CONFIG_H
@@ -839,5 +837,3 @@ extern void FT_DumpMemory(FT_Memory memory)
 #else  /* !FT_DEBUG_MEMORY */
 	typedef int _debug_mem_dummy; /* ANSI C doesn't like empty source files */
 #endif /* !FT_DEBUG_MEMORY */
-
-/* END */

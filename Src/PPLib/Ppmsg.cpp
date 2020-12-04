@@ -163,8 +163,13 @@ int FASTCALL PPLoadStringDescription(const char * pSignature, SString & rBuf)
 	if(isempty(pSignature))
 		ok = -1;
 	else {
-		ok = _PPStrStore ? _PPStrStore->GetDescription(pSignature, rBuf) : 0;
-		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+		if(_PPStrStore) {
+			ok = _PPStrStore->GetDescription(pSignature, rBuf);
+			if(ok > 0) {
+				rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+				_PPStrStore->ExpandString(rBuf, CTRANSF_UTF8_TO_INNER); // @v10.9.6 
+			}
+		}
 		if(!ok)
 			PPSetErrorSLib();
 	}

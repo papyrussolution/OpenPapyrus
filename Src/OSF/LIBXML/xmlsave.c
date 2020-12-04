@@ -2432,4 +2432,3 @@ int xmlSaveFile(const char * filename, xmlDoc * cur) { return xmlSaveFormatFileE
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 #define bottom_xmlsave
-//#include "elfgcchack.h"

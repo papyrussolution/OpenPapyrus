@@ -11,22 +11,6 @@
 #pragma hdrstop
 
 #ifdef HAVE_LZMA_H
-//#ifdef HAVE_SYS_TYPES_H
-	//#include <sys/types.h>
-//#endif
-//#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-//#endif
-//#ifdef HAVE_FCNTL_H
-	//#include <fcntl.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-	//#include <zlib.h>
-//#endif
-//#include <lzma.h>
 #include "xzlib.h"
 
 /* values for xz_state how */
@@ -88,18 +72,20 @@ static void xz_error(xz_statep state, int err, const char * msg)
 	/* for an out of memory error, save as static string */
 	if(err == LZMA_MEM_ERROR) {
 		state->msg = (char *)msg;
-		return;
 	}
-	/* construct error message with path */
-	if((state->msg = SAlloc::M(sstrlen(state->path) + sstrlen(msg) + 3)) == NULL) {
-		state->err = LZMA_MEM_ERROR;
-		state->msg = (char *)"out of memory";
-		return;
+	else {
+		/* construct error message with path */
+		state->msg = static_cast<char *>(SAlloc::M(sstrlen(state->path) + sstrlen(msg) + 3));
+		if(state->msg == NULL) {
+			state->err = LZMA_MEM_ERROR;
+			state->msg = (char *)"out of memory";
+		}
+		else {
+			strcpy(state->msg, state->path);
+			strcat(state->msg, ": ");
+			strcat(state->msg, msg);
+		}
 	}
-	strcpy(state->msg, state->path);
-	strcat(state->msg, ": ");
-	strcat(state->msg, msg);
-	return;
 }
 
 static void xz_reset(xz_statep state)
@@ -120,7 +106,7 @@ static void xz_reset(xz_statep state)
 static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNUSED)
 {
 	/* allocate xzFile structure to return */
-	xz_statep state = SAlloc::M(sizeof(xz_state));
+	xz_statep state = static_cast<xz_statep>(SAlloc::M(sizeof(xz_state)));
 	if(!state)
 		return NULL;
 	state->size = 0;        /* no buffers allocated yet */
@@ -128,7 +114,7 @@ static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNU
 	state->msg = NULL;      /* no error message yet */
 	state->init = 0;        /* initialization of zlib data */
 	/* save the path name for error messages */
-	state->path = SAlloc::M(sstrlen(path) + 1);
+	state->path = static_cast<char *>(SAlloc::M(sstrlen(path) + 1));
 	if(state->path == NULL) {
 		SAlloc::F(state);
 		return NULL;
@@ -148,7 +134,6 @@ static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNU
 		SAlloc::F(state);
 		return NULL;
 	}
-
 	/* save the current position for rewinding (only if reading) */
 	state->start = lseek(state->fd, 0, SEEK_CUR);
 	if(state->start == (uint64_t)-1)
@@ -161,19 +146,17 @@ static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNU
 
 static int xz_compressed(xzFile f) 
 {
-	xz_statep state;
-	if(f == NULL)
-		return -1;
-	state = (xz_statep)f;
-	if(state->init <= 0)
-		return -1;
-
-	switch(state->how) {
-		case COPY:
-		    return 0;
-		case GZIP:
-		case LZMA:
-		    return 1;
+	if(f) {
+		xz_statep state = (xz_statep)f;
+		if(state->init <= 0)
+			return -1;
+		switch(state->how) {
+			case COPY:
+				return 0;
+			case GZIP:
+			case LZMA:
+				return 1;
+		}
 	}
 	return -1;
 }
@@ -192,7 +175,7 @@ xzFile __libxml2_xzdopen(int fd, const char * mode)
 {
 	char * path;            /* identifier for error messages */
 	xzFile xz;
-	if(fd == -1 || (path = SAlloc::M(7 + 3 * sizeof(int))) == NULL)
+	if(fd == -1 || (path = static_cast<char *>(SAlloc::M(7 + 3 * sizeof(int)))) == NULL)
 		return NULL;
 	sprintf(path, "<fd:%d>", fd);   /* for debugging */
 	xz = xz_open(path, fd, mode);
@@ -222,13 +205,11 @@ static int xz_load(xz_statep state, uchar * buf, uint len, uint * have)
 static int xz_avail(xz_statep state)
 {
 	lzma_stream * strm = &(state->strm);
-
 	if(state->err != LZMA_OK)
 		return -1;
 	if(state->eof == 0) {
-		/* avail_in is size_t, which is not necessary sizeof(uint) */
+		// avail_in is size_t, which is not necessary sizeof(uint) 
 		unsigned tmp = strm->avail_in;
-
 		if(xz_load(state, state->in, state->size, &tmp) == -1) {
 			strm->avail_in = tmp;
 			return -1;
@@ -242,13 +223,14 @@ static int xz_avail(xz_statep state)
 #ifdef HAVE_ZLIB_H
 static int xz_avail_zstrm(xz_statep state)
 {
-	int ret;
 	state->strm.avail_in = state->zstrm.avail_in;
 	state->strm.next_in = state->zstrm.next_in;
-	ret = xz_avail(state);
-	state->zstrm.avail_in = (uInt)state->strm.avail_in;
-	state->zstrm.next_in = static_cast<Bytef *>(state->strm.next_in);
-	return ret;
+	{
+		int ret = xz_avail(state);
+		state->zstrm.avail_in = (uInt)state->strm.avail_in;
+		state->zstrm.next_in = const_cast<Bytef *>(state->strm.next_in); // @badcast
+		return ret;
+	}
 }
 #endif
 
@@ -261,24 +243,19 @@ static int is_format_xz(xz_statep state)
 static int is_format_lzma(xz_statep state)
 {
 	lzma_stream * strm = &(state->strm);
-
 	lzma_filter filter;
 	lzma_options_lzma * opt;
 	uint32_t dict_size;
 	uint64_t uncompressed_size;
 	size_t i;
-
 	if(strm->avail_in < 13)
 		return 0;
-
 	filter.id = LZMA_FILTER_LZMA1;
 	if(lzma_properties_decode(&filter, NULL, state->in, 5) != LZMA_OK)
 		return 0;
-
-	opt = filter.options;
+	opt = static_cast<lzma_options_lzma *>(filter.options);
 	dict_size = opt->dict_size;
 	SAlloc::F(opt); /* we can't use free on a string returned by zlib */
-
 	/* A hack to ditch tons of false positives: We allow only dictionary
 	 * sizes that are 2^n or 2^n + 2^(n-1) or UINT32_MAX. LZMA_Alone
 	 * created only files with 2^n, but accepts any dictionary size.
@@ -286,7 +263,6 @@ static int is_format_lzma(xz_statep state)
 	 */
 	if(dict_size != UINT32_MAX) {
 		uint32_t d = dict_size - 1;
-
 		d |= d >> 2;
 		d |= d >> 3;
 		d |= d >> 4;
@@ -296,7 +272,6 @@ static int is_format_lzma(xz_statep state)
 		if(d != dict_size || dict_size == 0)
 			return 0;
 	}
-
 	/* Another hack to ditch false positives: Assume that if the
 	 * uncompressed size is known, it must be less than 256 GiB.
 	 * Again, if someone complains, this will be reconsidered.
@@ -350,12 +325,11 @@ static int xz_head(xz_statep state)
 	lzma_stream init = LZMA_STREAM_INIT;
 	int flags;
 	unsigned len;
-
 	/* allocate read buffers and inflate memory */
 	if(state->size == 0) {
 		/* allocate buffers */
-		state->in = SAlloc::M(state->want);
-		state->out = SAlloc::M(state->want << 1);
+		state->in = static_cast<uchar *>(SAlloc::M(state->want));
+		state->out = static_cast<uchar *>(SAlloc::M(state->want << 1));
 		if(state->in == NULL || state->out == NULL) {
 			SAlloc::F(state->out);
 			SAlloc::F(state->in);
@@ -363,7 +337,6 @@ static int xz_head(xz_statep state)
 			return -1;
 		}
 		state->size = state->want;
-
 		/* allocate decoder memory */
 		state->strm = init;
 		state->strm.avail_in = 0;
@@ -640,87 +613,72 @@ int __libxml2_xzread(xzFile file, void * buf, unsigned len)
 	unsigned got, n;
 	xz_statep state;
 	lzma_stream * strm;
-
 	/* get internal structure */
 	if(file == NULL)
 		return -1;
 	state = (xz_statep)file;
 	strm = &(state->strm);
-
 	/* check that we're reading and that there's no error */
 	if(state->err != LZMA_OK)
 		return -1;
-
 	/* since an int is returned, make sure len fits in one, otherwise return
 	 * with an error (this avoids the flaw in the interface) */
 	if((int)len < 0) {
-		xz_error(state, LZMA_BUF_ERROR,
-		    "requested length does not fit in int");
+		xz_error(state, LZMA_BUF_ERROR, "requested length does not fit in int");
 		return -1;
 	}
-
 	/* if len is zero, avoid unnecessary operations */
 	if(len == 0)
 		return 0;
-
 	/* process a skip request */
 	if(state->seek) {
 		state->seek = 0;
 		if(xz_skip(state, state->skip) == -1)
 			return -1;
 	}
-
-	/* get len bytes to buf, or less than len if at the end */
+	// get len bytes to buf, or less than len if at the end 
 	got = 0;
 	do {
-		/* first just try copying data from the output buffer */
+		// first just try copying data from the output buffer 
 		if(state->have) {
 			n = state->have > len ? len : state->have;
 			memcpy(buf, state->next, n);
 			state->next += n;
 			state->have -= n;
 		}
-
-		/* output buffer empty -- return if we're at the end of the input */
+		// output buffer empty -- return if we're at the end of the input 
 		else if(state->eof && strm->avail_in == 0)
 			break;
-
-		/* need output data -- for small len or new stream load up our output
-		 * buffer */
+		// need output data -- for small len or new stream load up our output buffer 
 		else if(state->how == LOOK || len < (state->size << 1)) {
-			/* get more output, looking for header if required */
+			// get more output, looking for header if required 
 			if(xz_make(state) == -1)
 				return -1;
 			continue; /* no progress yet -- go back to memcpy() above */
 			/* the copy above assures that we will leave with space in the
 			 * output buffer, allowing at least one gzungetc() to succeed */
 		}
-
-		/* large len -- read directly into user buffer */
+		// large len -- read directly into user buffer 
 		else if(state->how == COPY) { /* read directly */
-			if(xz_load(state, buf, len, &n) == -1)
+			if(xz_load(state, static_cast<uchar *>(buf), len, &n) == -1)
 				return -1;
 		}
-
 		/* large len -- decompress directly into user buffer */
 		else {          /* state->how == LZMA */
 			strm->avail_out = len;
-			strm->next_out = buf;
+			strm->next_out = static_cast<uint8_t *>(buf);
 			if(xz_decomp(state) == -1)
 				return -1;
 			n = state->have;
 			state->have = 0;
 		}
-
 		/* update progress */
 		len -= n;
 		buf = (char *)buf + n;
 		got += n;
 		state->pos += n;
 	} while(len);
-
-	/* return number of bytes read into user buffer (will fit in int) */
-	return (int)got;
+	return (int)got; // return number of bytes read into user buffer (will fit in int) 
 }
 
 int __libxml2_xzclose(xzFile file)

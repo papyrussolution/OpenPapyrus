@@ -3359,7 +3359,8 @@ int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 {
 	int    ok = 1, r;
 	PPGoodsExporter g_e;
-	THROW(r = g_e.Init(pExpCfg));
+	StringSet result_file_list;
+	THROW(r = g_e.Init(pExpCfg, &result_file_list));
 	if(r > 0) {
 		PPWait(1);
 		GoodsViewItem item;
@@ -3370,6 +3371,12 @@ int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 			THROW(g_e.ExportPacket(&gpack, item.Barcode));
 			PPWaitPercent(GetCounter());
 		}
+		// @v10.9.6 {
+		if(g_e.P_IEGoods) {
+			g_e.P_IEGoods->CloseFile();
+			g_e.P_IEGoods->GetParam().DistributeFile(/*&logger*/0);
+		}
+		// } @v10.9.6 
 		PPWait(0);
 	}
 	CATCHZOKPPERR

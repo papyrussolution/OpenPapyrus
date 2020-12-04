@@ -796,7 +796,8 @@ int FASTCALL RecognizeSNScriptSymb(const char * pSymb, size_t * pLength)
 			const size_t code_len = sstrlen(p_code);
 			if(temp_buf.HasPrefix(p_code) && code_len > max_found_len) {
 				const char nextc = temp_buf.C(code_len);
-				if(!((nextc >= 'a' && nextc <= 'z') || (nextc >= 'A' && nextc <= 'Z'))) {
+				// @v10.9.6 if(!((nextc >= 'a' && nextc <= 'z') || (nextc >= 'A' && nextc <= 'Z'))) {
+				if(!isasciialpha(nextc)) { // @v10.9.6 
 					max_found_len = code_len;
 					ret_ident = P_SNScriptIdentList[i].Id;
 				}

@@ -7,8 +7,6 @@
 #ifndef LZMA_RANGE_DECODER_H
 #define LZMA_RANGE_DECODER_H
 
-//#include "range_common.h"
-
 struct lzma_range_decoder {
 	uint32_t range;
 	uint32_t code;

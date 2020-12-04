@@ -7,11 +7,7 @@
 #ifndef LZMA_LZMA_ENCODER_PRIVATE_H
 #define LZMA_LZMA_ENCODER_PRIVATE_H
 
-//#include "lz_encoder.h"
-//#include "lz-internal.h"
 #include "range_encoder.h"
-//#include "lzma_common.h"
-//#include "lzma_encoder.h"
 
 // Macro to compare if the first two bytes in two buffers differ. This is
 // needed in lzma_lzma_optimum_*() to test if the match is at least

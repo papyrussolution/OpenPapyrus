@@ -2996,5 +2996,4 @@ int xmlUCSIsCat(int code, const char * cat)
 }
 
 #define bottom_xmlunicode
-//#include "elfgcchack.h"
 #endif /* LIBXML_UNICODE_ENABLED */

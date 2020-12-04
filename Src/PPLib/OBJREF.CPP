@@ -2261,7 +2261,8 @@ private:
 		TDialog::handleEvent(event);
 		SString temp_buf;
 		if(event.isCmd(cmQueryToken)) {
-			VkInterface::GetVKAccessToken();
+			VkInterface ifc;
+			ifc.GetVKAccessToken();
 		}
 		else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_VKGUACFG_LOGIN_URL)) {
 			static int __lock = 0;

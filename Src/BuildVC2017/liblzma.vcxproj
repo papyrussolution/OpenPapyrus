@@ -60,10 +60,9 @@
     <ClCompile Include="..\OSF\liblzma\src\common.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc32_fast.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc32_small.c" />
-    <ClCompile Include="..\OSF\liblzma\src\crc32_table.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc64_fast.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc64_small.c" />
-    <ClCompile Include="..\OSF\liblzma\src\crc64_table.c" />
+    <ClCompile Include="..\OSF\liblzma\src\crc_table.c" />
     <ClCompile Include="..\OSF\liblzma\src\delta_common.c" />
     <ClCompile Include="..\OSF\liblzma\src\easy.c" />
     <ClCompile Include="..\OSF\liblzma\src\fastpos_table.c" />
@@ -114,20 +113,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\liblzma\api\lzma.h" />
-    <ClInclude Include="..\OSF\liblzma\include\alone_decoder.h" />
-    <ClInclude Include="..\OSF\liblzma\include\block_buffer_encoder.h" />
-    <ClInclude Include="..\OSF\liblzma\include\block_decoder.h" />
-    <ClInclude Include="..\OSF\liblzma\include\block_encoder.h" />
     <ClInclude Include="..\OSF\liblzma\include\check-internal.h" />
     <ClInclude Include="..\OSF\liblzma\include\common.h" />
     <ClInclude Include="..\OSF\liblzma\include\crc32_table_be.h" />
     <ClInclude Include="..\OSF\liblzma\include\crc32_table_le.h" />
     <ClInclude Include="..\OSF\liblzma\include\crc64_table_be.h" />
     <ClInclude Include="..\OSF\liblzma\include\crc64_table_le.h" />
-    <ClInclude Include="..\OSF\liblzma\include\delta_common.h" />
-    <ClInclude Include="..\OSF\liblzma\include\easy_preset.h" />
     <ClInclude Include="..\OSF\liblzma\include\fastpos.h" />
-    <ClInclude Include="..\OSF\liblzma\include\filter_common.h" />
     <ClInclude Include="..\OSF\liblzma\include\index-internal.h" />
     <ClInclude Include="..\OSF\liblzma\include\lz-internal.h" />
     <ClInclude Include="..\OSF\liblzma\include\lzma2-internal.h" />
@@ -137,13 +129,9 @@
     <ClInclude Include="..\OSF\liblzma\include\memcmplen.h" />
     <ClInclude Include="..\OSF\liblzma\include\mythread.h" />
     <ClInclude Include="..\OSF\liblzma\include\outqueue.h" />
-    <ClInclude Include="..\OSF\liblzma\include\range_common.h" />
     <ClInclude Include="..\OSF\liblzma\include\range_decoder.h" />
     <ClInclude Include="..\OSF\liblzma\include\range_encoder.h" />
-    <ClInclude Include="..\OSF\liblzma\include\simple_coder.h" />
     <ClInclude Include="..\OSF\liblzma\include\simple_private.h" />
-    <ClInclude Include="..\OSF\liblzma\include\stream_decoder.h" />
-    <ClInclude Include="..\OSF\liblzma\include\stream_flags_common.h" />
     <ClInclude Include="..\OSF\liblzma\include\sysdefs.h" />
     <ClInclude Include="..\OSF\liblzma\include\tuklib_common.h" />
     <ClInclude Include="..\OSF\liblzma\include\tuklib_cpucores.h" />

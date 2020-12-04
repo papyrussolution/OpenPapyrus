@@ -134,4 +134,3 @@ xlinkType xlinkIsLink(xmlDoc * doc, xmlNode * pNode)
 
 #endif /* LIBXML_XPTR_ENABLED */
 #define bottom_xlink
-//#include "elfgcchack.h"

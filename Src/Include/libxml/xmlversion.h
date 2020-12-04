@@ -210,7 +210,7 @@ extern "C" {
 	#define LIBXML_CATALOG_ENABLED // Whether the Catalog support is configured in
 #endif
 #if 1
-	#define LIBXML_DOCB_ENABLED // Whether the SGML Docbook support is configured in
+	// @v10.9.6 #define LIBXML_DOCB_ENABLED // Whether the SGML Docbook support is configured in
 #endif
 #if 1
 	#define LIBXML_XPATH_ENABLED // Whether XPath is configured in

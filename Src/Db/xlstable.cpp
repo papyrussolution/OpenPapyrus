@@ -98,7 +98,7 @@ int ExcelDbFile::Open(const char * pFileName, const Param * pParam, int readOnly
 			(name = P.SheetName_).Transf(CTRANSF_INNER_TO_OUTER);
 			THROW(P_Sheet->SetName(name));
 		}
-		THROW(P_WkBook->_SaveAs(FileName));
+		THROW_S_S(P_WkBook->_SaveAs(FileName), SLERR_EXCL_SAVEFAULT, FileName); // @v10.9.6 errprc
 	}
 	else {
 		long   idx = 1;

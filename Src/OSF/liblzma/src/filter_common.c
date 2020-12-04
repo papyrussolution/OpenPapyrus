@@ -353,7 +353,7 @@ lzma_ret lzma_filter_flags_decode(lzma_filter *filter, const lzma_allocator *all
 	lzma_vli props_size;
 	return_if_error(lzma_vli_decode(&props_size, NULL, in, in_pos, in_size));
 	// Filter Properties
-	if(in_size - *in_pos < props_size)
+	if((in_size - *in_pos) < props_size)
 		return LZMA_DATA_ERROR;
 	const lzma_ret ret = lzma_properties_decode(filter, allocator, in + *in_pos, static_cast<size_t>(props_size));
 	*in_pos += props_size;

@@ -239,7 +239,7 @@ void FASTCALL SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const TimeRa
 void FASTCALL SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp)
 {
 	TimeRange tr;
-	tr.Set((pLow ? *pLow : ZEROTIME), (pUpp ? *pUpp : ZEROTIME));
+	tr.Set(DEREFPTROR(pLow, ZEROTIME), DEREFPTROR(pUpp, ZEROTIME));
 	SetTimeRangeInput(pDlg, ctl, fmt, &tr);
 }
 

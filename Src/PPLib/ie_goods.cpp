@@ -630,7 +630,7 @@ int GoodsImpExpDialog::setDTS(const PPGoodsImpExpParam * pData)
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 4, PPGoodsImpExpParam::fUHTT);
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 5, PPGoodsImpExpParam::fForceSnglBarcode);
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 6, PPGoodsImpExpParam::fImportImages);
-		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 7, PPGoodsImpExpParam::fForceUpdateManuf); // @v8.9.1
+		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 7, PPGoodsImpExpParam::fForceUpdateManuf);
 		SetClusterData(CTL_IMPEXPGOODS_FLAGS, Data.Flags);
 		setCtrlLong(CTL_IMPEXPGOODS_MXACT, Data.MatrixAction);
 		SetupCtrls(Data.Direction);
@@ -642,7 +642,7 @@ int GoodsImpExpDialog::getDTS(PPGoodsImpExpParam * pData)
 {
 	int    ok = 1;
 	uint   sel = 0;
-	//Может здесь??
+	// Может здесь??
 	THROW(ImpExpParamDialog::getDTS(&Data));
 	if(Data.Direction != 0) {
 		getCtrlString(CTL_IMPEXPGOODS_SUBCODE,  Data. SubCode);
@@ -656,7 +656,7 @@ int GoodsImpExpDialog::getDTS(PPGoodsImpExpParam * pData)
 		Data.MatrixAction = getCtrlLong(CTL_IMPEXPGOODS_MXACT);
 	}
 	else {
-		Data.SubCode      = 0;
+		Data.SubCode.Z();
 		Data.AccSheetID   = 0;
 		Data.SupplID      = 0;
 		Data.DefUnitID    = 0;
@@ -844,7 +844,7 @@ PPGoodsExporter::~PPGoodsExporter()
 	delete P_GObj;
 }
 
-int PPGoodsExporter::Init(const PPGoodsImpExpParam * pParam)
+int PPGoodsExporter::Init(const PPGoodsImpExpParam * pParam, StringSet * pResultFileList)
 {
 	int    ok = 1;
 	if(!RVALUEPTR(Param, pParam)) {
@@ -853,7 +853,7 @@ int PPGoodsExporter::Init(const PPGoodsImpExpParam * pParam)
 	}
 	if(ok > 0) {
 		THROW_MEM(P_IEGoods = new PPImpExp(&Param, 0));
-		THROW(P_IEGoods->OpenFileForWriting(0, 1));
+		THROW(P_IEGoods->OpenFileForWriting(0, 1, pResultFileList));
 	}
 	CATCHZOK
 	return ok;
@@ -1876,7 +1876,6 @@ PPGoodsImporter::ImageFileBlock::ImageFileBlock(const char * pSetPath) : SetPath
 int PPGoodsImporter::ImageFileBlock::SetFile(const char * pFileName, PPID goodsID)
 {
 	int    ok = 1;
-
 	struct Stat {
 		LDATETIME CrtTime;
 		LDATETIME AccsTime;
@@ -1953,24 +1952,6 @@ int PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageFileBlo
 						// Если не получилось по полному имени, то извлекаем из имени максимально длинные цифровые последовательности
 						// и пытаемся рассматривать их как коды.
 						//
-						/* @v9.6.2
-						const char * p = ps.Nam;
-						do {
-							code_buf = 0;
-							while(*p && !isdec(p[0])) {
-								p++;
-							}
-							while(*p && isdec(p[0])) {
-								code_buf.CatChar(*p++);
-							}
-							if(code_buf.Len() > 6 && GObj.SearchByBarcode(code_buf, &bc_rec, 0, 1) > 0) {
-								THROW(rBlk.SetFile(temp_buf, bc_rec.GoodsID));
-							}
-						} while(*p);
-						*/
-						//
-						//
-						// @v9.6.2 {
 						size_t _pos = 0;
 						while(ps.Nam[_pos]) {
 							if(isdec(ps.Nam[_pos])) {
@@ -1997,7 +1978,6 @@ int PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageFileBlo
 							else
 								_pos++;
 						}
-						// } @v9.6.2
 					}
 				}
 			}
@@ -2752,14 +2732,12 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										(temp_buf2 = sdr_rec.Clb).Strip();
 										if(temp_buf2.Len()) {
 											temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
-											// @v9.8.11 THROW(p_pack->ClbL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
-											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11
+											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2));
 										}
 										(temp_buf2 = sdr_rec.Serial).Strip();
 										if(temp_buf2.Len()) {
 											temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
-											// @v9.8.11 THROW(p_pack->SnL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
-											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11
+											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2));
 										}
 									}
 								}

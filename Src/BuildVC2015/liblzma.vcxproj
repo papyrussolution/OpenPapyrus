@@ -60,10 +60,9 @@
     <ClCompile Include="..\OSF\liblzma\src\common.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc32_fast.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc32_small.c" />
-    <ClCompile Include="..\OSF\liblzma\src\crc32_table.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc64_fast.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc64_small.c" />
-    <ClCompile Include="..\OSF\liblzma\src\crc64_table.c" />
+    <ClCompile Include="..\OSF\liblzma\src\crc_table.c" />
     <ClCompile Include="..\OSF\liblzma\src\delta_common.c" />
     <ClCompile Include="..\OSF\liblzma\src\easy.c" />
     <ClCompile Include="..\OSF\liblzma\src\fastpos_table.c" />

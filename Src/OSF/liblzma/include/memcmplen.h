@@ -53,7 +53,7 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 #	else // GCC, clang, or Intel C compiler
 			len += (uint32_t)__builtin_ctzll(x) >> 3;
 #	endif
-			return my_min(len, limit);
+			return MIN(len, limit);
 		}
 		len += 8;
 	}
@@ -72,7 +72,7 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 		const uint32_t x = 0xFFFF ^ _mm_movemask_epi8(_mm_cmpeq_epi8(_mm_loadu_si128((const __m128i *)(buf1 + len)), _mm_loadu_si128((const __m128i *)(buf2 + len))));
 		if(x != 0) {
 			len += ctz32(x);
-			return my_min(len, limit);
+			return MIN(len, limit);
 		}
 		len += 16;
 	}
@@ -89,7 +89,7 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 			}
 			if((x & 0xFF) == 0)
 				++len;
-			return my_min(len, limit);
+			return MIN(len, limit);
 		}
 		len += 4;
 	}
@@ -106,7 +106,7 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 			}
 			if((x & 0xFF000000) == 0)
 				++len;
-			return my_min(len, limit);
+			return MIN(len, limit);
 		}
 		len += 4;
 	}

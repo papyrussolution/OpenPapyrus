@@ -5,8 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "block_encoder.h"
-//#include "index-internal.h"
 
 struct lzma_stream_encoder_coder {
 	enum _Seq {

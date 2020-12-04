@@ -6,18 +6,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\liblzma\include\alone_decoder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\block_buffer_encoder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\block_decoder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\block_encoder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\liblzma\include\check-internal.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -36,16 +24,7 @@
     <ClInclude Include="..\OSF\liblzma\include\crc64_table_le.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\delta_common.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\easy_preset.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\liblzma\include\fastpos.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\filter_common.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\liblzma\include\index-internal.h">
@@ -69,25 +48,13 @@
     <ClInclude Include="..\OSF\liblzma\include\outqueue.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\range_common.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\liblzma\include\range_decoder.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\liblzma\include\range_encoder.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\simple_coder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\liblzma\include\simple_private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\stream_decoder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\liblzma\include\stream_flags_common.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\liblzma\include\sysdefs.h">
@@ -138,10 +105,8 @@
     <ClCompile Include="..\OSF\liblzma\src\common.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc32_fast.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc32_small.c" />
-    <ClCompile Include="..\OSF\liblzma\src\crc32_table.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc64_fast.c" />
     <ClCompile Include="..\OSF\liblzma\src\crc64_small.c" />
-    <ClCompile Include="..\OSF\liblzma\src\crc64_table.c" />
     <ClCompile Include="..\OSF\liblzma\src\delta_common.c" />
     <ClCompile Include="..\OSF\liblzma\src\fastpos_table.c" />
     <ClCompile Include="..\OSF\liblzma\src\file_info.c" />
@@ -178,5 +143,6 @@
     <ClCompile Include="..\OSF\liblzma\src\vli.c" />
     <ClCompile Include="..\OSF\liblzma\src\alone.c" />
     <ClCompile Include="..\OSF\liblzma\src\lz.c" />
+    <ClCompile Include="..\OSF\liblzma\src\crc_table.c" />
   </ItemGroup>
 </Project>

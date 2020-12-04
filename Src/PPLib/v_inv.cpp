@@ -1384,7 +1384,7 @@ int PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Re
 		PPObjGoods GObj;
 	};
 	int    ok = -1;
-	double qtty = pQtty ? *pQtty : 1.0;
+	double qtty = DEREFPTROR(pQtty, 1.0);
 	SString code(DS.GetTLA().Lid.Barcode);
 	QuickSearchDialog * dlg = new QuickSearchDialog;
 	if(CheckDialogPtrErr(&dlg)) {

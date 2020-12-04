@@ -1,18 +1,14 @@
 /****************************************************************************
- *
  * ftcsbits.c
- *
  *   FreeType sbits manager (body).
  *
- * Copyright (C) 2000-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2000-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 #include <freetype/ftcache.h>
 #include "ftcsbits.h"
@@ -26,11 +22,7 @@
 #define FT_COMPONENT  cache
 
 /*************************************************************************/
-/*************************************************************************/
-/*****                                                               *****/
 /*****                     SBIT CACHE NODES                          *****/
-/*****                                                               *****/
-/*************************************************************************/
 /*************************************************************************/
 
 static FT_Error ftc_sbit_copy_bitmap(FTC_SBit sbit, FT_Bitmap*  bitmap, FT_Memory memory)
@@ -332,31 +324,20 @@ ftc_snode_compare(FTC_Node ftcsnode,
 				error = ftc_snode_load(snode, cache->manager, gindex, &size);
 			}
 			FTC_CACHE_TRYLOOP_END(list_changed);
-
 			ftcsnode->ref_count--; /* unlock the node */
-
 			if(error)
 				result = 0;
 			else
 				cache->manager->cur_weight += size;
 		}
 	}
-
 	return result;
 }
 
 #ifdef FTC_INLINE
 
-FT_LOCAL_DEF(FT_Bool)
-FTC_SNode_Compare(FTC_SNode snode,
-    FTC_GQuery gquery,
-    FTC_Cache cache,
-    FT_Bool*    list_changed)
+FT_LOCAL_DEF(FT_Bool) FTC_SNode_Compare(FTC_SNode snode, FTC_GQuery gquery, FTC_Cache cache, FT_Bool*    list_changed)
 {
-	return ftc_snode_compare(FTC_NODE(snode), gquery,
-		   cache, list_changed);
+	return ftc_snode_compare(FTC_NODE(snode), gquery, cache, list_changed);
 }
-
 #endif
-
-/* END */

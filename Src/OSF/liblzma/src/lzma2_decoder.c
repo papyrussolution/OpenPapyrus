@@ -7,9 +7,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "lzma2-internal.h"
-//#include "lz-internal.h"
-//#include "lzma_common.h"
 
 struct lzma_lzma2_decoder_coder {
 	enum sequence {

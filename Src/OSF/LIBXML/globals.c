@@ -470,7 +470,6 @@ void xmlInitializeGlobalState(xmlGlobalState * gs)
 #if defined(LIBXML_HTML_ENABLED) && defined(LIBXML_LEGACY_ENABLED) && defined(LIBXML_SAX1_ENABLED)
 	inithtmlDefaultSAXHandler(&gs->htmlDefaultSAXHandler);
 #endif
-
 	gs->oldXMLWDcompatibility = 0;
 	gs->xmlBufferAllocScheme = xmlBufferAllocSchemeThrDef;
 	gs->xmlDefaultBufferSize = xmlDefaultBufferSizeThrDef;
@@ -949,4 +948,3 @@ xmlOutputBufferCreateFilenameFunc * __xmlOutputBufferCreateFilenameValue()
 	{ return IS_MAIN_THREAD ? (&xmlOutputBufferCreateFilenameValue) : (&xmlGetGlobalState()->xmlOutputBufferCreateFilenameValue); }
 
 #define bottom_globals
-//#include "elfgcchack.h"

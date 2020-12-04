@@ -1565,7 +1565,7 @@ namespace Scintilla {
 	bool FASTCALL IsASCII(int ch);
 	bool FASTCALL IsLowerCase(int ch);
 	bool FASTCALL IsUpperCase(int ch);
-	bool FASTCALL IsAlphaNumeric(int ch);
+	// @v10.9.6 (replaced with isasciialnum) bool FASTCALL IsAlphaNumeric(int ch);
 	// 
 	// Check if a character is a space.
 	// This is ASCII specific but is safe with chars >= 0x80.

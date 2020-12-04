@@ -18,7 +18,7 @@ using namespace Scintilla;
 
 namespace {
 bool IsAlphabetic(uint ch) { return IsASCII(ch) && std::isalpha(ch) != 0; }
-bool IsAlphaNumeric(char ch) { return IsASCII(ch) && std::isalnum(ch); }
+// @v10.9.6 (replaced with isasciialnum) bool IsAlphaNumeric(char ch) { return IsASCII(ch) && std::isalnum(ch); }
 //bool EqualCaseInsensitive(const char* a, const char* b) { return CompareCaseInsensitive(a, b) == 0; }
 bool EntryWithoutKey(const char* name) { return sstreqi_ascii(name, "string"); }
 
@@ -101,28 +101,23 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 			else if(sc.state == SCE_BIBTEX_PARAMETER && sc.ch == '=') {
 				sc.SetState(SCE_BIBTEX_DEFAULT);         // Don't colorize the =
 				sc.ForwardSetState(SCE_BIBTEX_VALUE);         // Parameter value colorization
-
 				Sci_Position start = sc.currentPos;
-
 				// We need to handle multiple situations:
 				// 1. name"one two {three}"
 				// 2. name={one {one two {two}} three}
 				// 3. year=2005
 
 				// Skip ", { until we encounter the first alphanumerical character
-				while(sc.More() && !(IsAlphaNumeric(sc.ch) || sc.ch == '"' || sc.ch == '{'))
+				while(sc.More() && !(isasciialnum(sc.ch) || sc.ch == '"' || sc.ch == '{'))
 					sc.Forward();
 
 				if(sc.More()) {
 					// Store " or {
 					char ch = sc.ch;
-
 					// Not interested in alphanumerical characters
-					if(IsAlphaNumeric(ch))
+					if(isasciialnum(ch))
 						ch = 0;
-
 					int skipped = 0;
-
 					if(ch) {
 						// Skip preceding " or { such as in name={{test}}.
 						// Remember how many characters have been skipped

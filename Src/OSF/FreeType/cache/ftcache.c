@@ -1,11 +1,8 @@
 /****************************************************************************
- *
  * ftcache.c
- *
  *   The FreeType Caching sub-system (body only).
  *
- * Copyright (C) 2000-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2000-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
@@ -26,4 +23,3 @@
 #include "ftcmanag.c"
 #include "ftcmru.c"
 #include "ftcsbits.c"
-/* END */

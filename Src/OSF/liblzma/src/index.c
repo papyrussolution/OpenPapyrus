@@ -6,9 +6,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "index-internal.h"
-//#include "check-internal.h"
-//#include "stream_flags_common.h"
 
 struct lzma_index_encoder_coder {
 	enum _Seq {
@@ -988,29 +985,27 @@ struct lzma_index_hash_s {
 	uint32_t crc32; /// CRC32 of the Index
 };
 
-lzma_index_hash * lzma_index_hash_init(lzma_index_hash *index_hash, const lzma_allocator *allocator)
+lzma_index_hash * lzma_index_hash_init(lzma_index_hash * index_hash, const lzma_allocator *allocator)
 {
-	if(index_hash == NULL) {
-		index_hash = (lzma_index_hash *)lzma_alloc(sizeof(lzma_index_hash), allocator);
-		if(index_hash == NULL)
-			return NULL;
+	SETIFZ(index_hash, static_cast<lzma_index_hash *>(lzma_alloc(sizeof(lzma_index_hash), allocator)));
+	if(index_hash) {
+		index_hash->sequence = lzma_index_hash_s::SEQ_BLOCK;
+		index_hash->blocks.blocks_size = 0;
+		index_hash->blocks.uncompressed_size = 0;
+		index_hash->blocks.count = 0;
+		index_hash->blocks.index_list_size = 0;
+		index_hash->records.blocks_size = 0;
+		index_hash->records.uncompressed_size = 0;
+		index_hash->records.count = 0;
+		index_hash->records.index_list_size = 0;
+		index_hash->unpadded_size = 0;
+		index_hash->uncompressed_size = 0;
+		index_hash->pos = 0;
+		index_hash->crc32 = 0;
+		// These cannot fail because LZMA_CHECK_BEST is known to be supported.
+		(void)lzma_check_init(&index_hash->blocks.check, LZMA_CHECK_BEST);
+		(void)lzma_check_init(&index_hash->records.check, LZMA_CHECK_BEST);
 	}
-	index_hash->sequence = lzma_index_hash_s::SEQ_BLOCK;
-	index_hash->blocks.blocks_size = 0;
-	index_hash->blocks.uncompressed_size = 0;
-	index_hash->blocks.count = 0;
-	index_hash->blocks.index_list_size = 0;
-	index_hash->records.blocks_size = 0;
-	index_hash->records.uncompressed_size = 0;
-	index_hash->records.count = 0;
-	index_hash->records.index_list_size = 0;
-	index_hash->unpadded_size = 0;
-	index_hash->uncompressed_size = 0;
-	index_hash->pos = 0;
-	index_hash->crc32 = 0;
-	// These cannot fail because LZMA_CHECK_BEST is known to be supported.
-	(void)lzma_check_init(&index_hash->blocks.check, LZMA_CHECK_BEST);
-	(void)lzma_check_init(&index_hash->records.check, LZMA_CHECK_BEST);
 	return index_hash;
 }
 
@@ -1477,7 +1472,7 @@ static lzma_ret index_decoder_reset(lzma_index_decoder_coder * coder, const lzma
 		return LZMA_MEM_ERROR;
 	// Initialize the rest.
 	coder->sequence = lzma_index_decoder_coder::SEQ_INDICATOR;
-	coder->memlimit = my_max(1, memlimit);
+	coder->memlimit = MAX(1, memlimit);
 	coder->count = 0; // Needs to be initialized due to _memconfig().
 	coder->pos = 0;
 	coder->crc32 = 0;

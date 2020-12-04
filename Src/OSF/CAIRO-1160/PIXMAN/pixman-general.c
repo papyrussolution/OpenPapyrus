@@ -49,21 +49,11 @@ static void general_iter_init(pixman_iter_t * iter, const pixman_iter_info_t * i
 		    else
 			    _pixman_bits_image_dest_iter_init(image, iter);
 		    break;
-		case LINEAR:
-		    _pixman_linear_gradient_iter_init(image, iter);
-		    break;
-		case RADIAL:
-		    _pixman_radial_gradient_iter_init(image, iter);
-		    break;
-		case CONICAL:
-		    _pixman_conical_gradient_iter_init(image, iter);
-		    break;
-		case SOLID:
-		    _pixman_log_error(FUNC, "Solid image not handled by noop");
-		    break;
-		default:
-		    _pixman_log_error(FUNC, "Pixman bug: unknown image type\n");
-		    break;
+		case LINEAR: _pixman_linear_gradient_iter_init(image, iter); break;
+		case RADIAL: _pixman_radial_gradient_iter_init(image, iter); break;
+		case CONICAL: _pixman_conical_gradient_iter_init(image, iter); break;
+		case SOLID: _pixman_log_error(FUNC, "Solid image not handled by noop"); break;
+		default: _pixman_log_error(FUNC, "Pixman bug: unknown image type\n"); break;
 	}
 }
 
@@ -162,15 +152,10 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 		mask_image = NULL;
 	}
 	component_alpha = mask_image && mask_image->common.component_alpha;
-	_pixman_implementation_iter_init(
-		imp->toplevel, &mask_iter,
-		mask_image, mask_x, mask_y, width, height, mask_buffer,
-		(iter_flags_t)(ITER_SRC | width_flag | (component_alpha ? 0 : ITER_IGNORE_RGB)),
-		info->mask_flags);
-
+	_pixman_implementation_iter_init(imp->toplevel, &mask_iter, mask_image, mask_x, mask_y, width, height, mask_buffer,
+		(iter_flags_t)(ITER_SRC | width_flag | (component_alpha ? 0 : ITER_IGNORE_RGB)), info->mask_flags);
 	/* dest iter */
-	_pixman_implementation_iter_init(
-		imp->toplevel, &dest_iter, dest_image, dest_x, dest_y, width, height,
+	_pixman_implementation_iter_init(imp->toplevel, &dest_iter, dest_image, dest_x, dest_y, width, height,
 		dest_buffer, (iter_flags_t)(ITER_DEST | width_flag | op_flags[op].dst), info->dest_flags);
 	compose = _pixman_implementation_lookup_combiner(imp->toplevel, op, component_alpha, width_flag != ITER_WIDE);
 	for(i = 0; i < height; ++i) {

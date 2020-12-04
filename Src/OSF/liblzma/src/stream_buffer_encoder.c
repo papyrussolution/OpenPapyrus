@@ -24,7 +24,7 @@ size_t lzma_stream_buffer_bound(size_t uncompressed_size)
 	// Catch the possible integer overflow and also prevent the size of
 	// the Stream exceeding LZMA_VLI_MAX (theoretically possible on
 	// 64-bit systems).
-	if(my_min(SIZE_MAX, LZMA_VLI_MAX) - block_bound < HEADERS_BOUND)
+	if(MIN(SIZE_MAX, LZMA_VLI_MAX) - block_bound < HEADERS_BOUND)
 		return 0;
 	return block_bound + HEADERS_BOUND;
 }

@@ -644,7 +644,7 @@ class PapyrusPrivateBlock {
 public:
 	PapyrusPrivateBlock();
 	~PapyrusPrivateBlock();
-	void   Clear();
+	PapyrusPrivateBlock & Z();
 	int    ReadFromIni(SIniFile & rIniFile);
 	int    WriteToSrc(const char * pFileName);
 	int    RestoreBuffer(const void * pSrcData, size_t srcDataSize);
@@ -671,6 +671,7 @@ public:
 	SString DefPassword;   // Пароль для шифрования/расшифрования по умолчанию
 	SString MsftTranslAcc; // Аккаунт доступа к службе Microsoft Translate
 	SString UhttAcc;       // Default-аккаунт доступа к службам Universe-HTT
+	SString VkAppIdent;    // @v10.9.6 Идентификатор приложения Papyrus в ВКонтакте
 };
 //
 // Descr: Блок информации о версии системы.
@@ -678,26 +679,39 @@ public:
 //
 class PPVersionInfo {
 public:
+	//
+	// Descr: Идентификаторы текстовых атрибутов
+	//
+	enum {
+		tiaUndef = 0,
+		taiProductName,
+		taiTeam,
+		taiVersionText,
+		taiCopyrightText,
+		taiMsftTranslAcc,
+		taiVkAppIdent,
+	};
 	explicit PPVersionInfo(const char * pOuterFileName = 0);
 	PPVersionInfo(const PPVersionInfo & s);
 	~PPVersionInfo();
 	PPVersionInfo & FASTCALL operator = (const PPVersionInfo &);
-	int    GetProductName(SString & rBuf);
-	int    GetTeam(char *, size_t);
+	// @v10.9.6 int    GetProductName(SString & rBuf);
+	// @v10.9.6 int    GetTeam(char *, size_t);
 	int    GetDevYears(uint * pStart, uint * pLast);
 	int    GetVersion(uint * pMajor, uint * pMinor, uint * pRevision, char * pDemo = 0, int minVersion = 0);
 	SVerT  GetVersion(int minVersion = 0);
 	int    GetAssemblyN();
 	int    GetSecret(char * pBuf, size_t bufSize);
-	int    GetVersionText(char *, size_t);
-	int    GetCopyrightText(SString & rBuf);
+	// @v10.9.6 int    GetVersionText(char *, size_t);
+	// @v10.9.6 int    GetCopyrightText(SString & rBuf);
 	int    GetDefaultEncrKey(SString & rBuf);
-	int    GetMsftTranslAcc(SString & rBuf);
+	// @v10.9.6 int    GetMsftTranslAcc(SString & rBuf);
+	// @v10.9.6 int    GetVkAppIdent(SString & rBuf);
+	int    GetTextAttrib(int ident, SString & rBuf);
 	long   GetFlags();
 private:
 	int    Decrypt();
 	void   Clear();
-
 	void * P_Info_Pre9303;
 	PapyrusPrivateBlock * P_Info_;
 	char * P_OuterFileName;
@@ -16200,7 +16214,6 @@ protected:
 private:
 	ObjTagFilt & InitFilt(void * extraPtr, ObjTagFilt & rFilt) const;
 	int    Helper_CreateEnumObject(PPObjTagPacket & rPack);
-	// @v9.8.9 ObjTagFilt OtFilt; // @#{!PPObject::extra || PPObject::extra == &CurFilt}
 };
 //
 // Descr: Объект данных, представляющий типы системных событий.
@@ -19474,6 +19487,7 @@ public:
 	};
 	GtinStruc();
 	int    SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
+	int    SetSpecialMinLenToken(int token, int minLen);
 	int    AddOnlyToken(int token);
 	GtinStruc & Z();
 	int    Parse(const char * pCode);
@@ -19490,8 +19504,9 @@ private:
 		dpfBOL = 0x0001 // Мы находимся в начале строки (нужен для отсеивания префиксов, которые могут встречаться только в начале строки)
 	};
 	int    DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen, SString & rPrefix) const;
-	int    GetPrefixSpec(int prefixId, uint * pFixedLen) const;
+	int    GetPrefixSpec(int prefixId, uint * pFixedLen, uint * pMinLen) const;
 	::LAssocArray SpecialFixedTokens; // Значение длины 1000 означает 'до конца строки' (UNTIL EOL)
+	::LAssocArray SpecialMinLenTokens; // @v10.9.6 Специфицированные минимальные длины токенов
 	LongArray OnlyTokenList;
 	int    SpecialNaturalToken; // При разборе может появиться специальный случай, отражаемый как NaturalToken (например, SNTOK_CHZN_CIGITEM)
 };
@@ -30724,12 +30739,12 @@ class PPGoodsExporter {
 public:
 	PPGoodsExporter();
 	~PPGoodsExporter();
-	int    Init(const PPGoodsImpExpParam * pParam);
+	int    Init(const PPGoodsImpExpParam * pParam, StringSet * pResultFileList);
 	int    ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID = 0); // realy pPack - const
-private:
-	char   WeightPrefix[12];
 	PPGoodsImpExpParam Param;
 	PPImpExp * P_IEGoods;
+private:
+	char   WeightPrefix[12];
 	PPObjGoods * P_GObj;
 	PPObjPerson * P_PsnObj;
 	PPObjQCert * P_QcObj;
@@ -54487,7 +54502,6 @@ public:
 		long   LinkFileType;
 		PPID   OuterWareIdentTagID;
 	};
-	static void GetVKAccessToken();
 	VkInterface();
 	//
 	// Descr: Опции функции Setup()
@@ -54496,18 +54510,20 @@ public:
 		sfInitStoreAttributes = 0x0001 // Инициализировать атрибуты доступа к интернет-магазину VK
 	};
 	int    Setup(PPID guaID, uint flags);
+	void   GetVKAccessToken();
+	SString & GetAppIdent(SString & rBuf) const;
 	PPID   GetOuterWareIdentTagID() const;
 	//int    AddGoodToMarket(/*const VkStruct &rVkStruct,*/const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const double price, const double oldPrice, const PPID vkMarketItemID, SString & rOutput);
-	int    AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const SString & rImgPath, 
+	int    AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const SString & rImgPath,
 		PPObjGoods::ExportToGlbSvcItem & rItem, PPID vkMarketItemID, SString & rOutput);
 	//int    WallPost(VkStruct & rVkStruct, SString & rOutput);
 	int    WallPost(const SString & rMessage, const SString & rLinkFilePath, SString & rOutput);
-	int    Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, const SString & rGoodsName, 
+	int    Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, const SString & rGoodsName,
 		const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput);
-	int    Market_Edit(/*const VkStruct &rVkStruct,*/PPID goodsID, double goodsPrice, const SString &rGoodsName, 
+	int    Market_Edit(/*const VkStruct &rVkStruct,*/PPID goodsID, double goodsPrice, const SString &rGoodsName,
 		const SString & rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput); //edit goods from market
 	int    Market_Get(/*const VkStruct &rVkStruct,*/SString & rOutput); // get all goods from VK market
-	int    Photos_SaveMarketPhoto(/*const VkStruct &rVkStruct,*/const SString & rImage, const SString & rServer, 
+	int    Photos_SaveMarketPhoto(/*const VkStruct &rVkStruct,*/const SString & rImage, const SString & rServer,
 		const SString & rHash, const SString & rCropData, const SString & rCropHash, SString & rOutput);
 	int    Photos_SaveWallPhoto(/*const VkStruct &rVkStruct,*/const SString & rPhoto, const SString & rServer, const SString & rHash, SString & rOutput);
 	int    Wall_Post(/*const VkStruct &rVkStruct,*/const SString & rMessage, const SString & rVkPhotoName, SString & rOutput);
@@ -54554,7 +54570,10 @@ public:
 	};
 private:
 	int    GetRequest(const SString & rUrl, SString & rOutput, int mflags);
+	SString & AppendParamProtoVer(SString & rBuf) const;
 	InitBlock Ib;
+	SString AppIdent;
+	const SVerT ProtoVer;
 };
 // } @erik
 

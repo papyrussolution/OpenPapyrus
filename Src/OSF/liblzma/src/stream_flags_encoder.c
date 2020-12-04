@@ -5,7 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "stream_flags_common.h"
 
 static bool stream_flags_encode(const lzma_stream_flags * options, uint8_t * out)
 {

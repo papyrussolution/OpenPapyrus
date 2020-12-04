@@ -1,11 +1,8 @@
 /****************************************************************************
- *
  * ftccache.c
- *
  *   The FreeType internal cache interface (body).
  *
- * Copyright (C) 2000-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2000-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
@@ -341,28 +338,21 @@ ftc_cache_done(FTC_Cache cache)
 	}
 }
 
-FT_LOCAL_DEF(void)
-FTC_Cache_Done(FTC_Cache cache)
+FT_LOCAL_DEF(void) FTC_Cache_Done(FTC_Cache cache)
 {
 	ftc_cache_done(cache);
 }
 
-static void ftc_cache_add(FTC_Cache cache,
-    FT_Offset hash,
-    FTC_Node node)
+static void ftc_cache_add(FTC_Cache cache, FT_Offset hash, FTC_Node node)
 {
 	node->hash        = hash;
 	node->cache_index = (FT_UInt16)cache->index;
 	node->ref_count   = 0;
-
 	ftc_node_hash_link(node, cache);
 	ftc_node_mru_link(node, cache->manager);
-
 	{
 		FTC_Manager manager = cache->manager;
-
 		manager->cur_weight += cache->clazz.node_weight(node, cache);
-
 		if(manager->cur_weight >= manager->max_weight) {
 			node->ref_count++;
 			FTC_Manager_Compress(manager);
@@ -480,26 +470,20 @@ NewNode:
 
 #endif /* !FTC_INLINE */
 
-FT_LOCAL_DEF(void)
-FTC_Cache_RemoveFaceID(FTC_Cache cache,
-    FTC_FaceID face_id)
+FT_LOCAL_DEF(void) FTC_Cache_RemoveFaceID(FTC_Cache cache, FTC_FaceID face_id)
 {
-	FT_UFast i, count;
+	FT_UFast i;
 	FTC_Manager manager = cache->manager;
 	FTC_Node frees   = NULL;
-
-	count = cache->p + cache->mask + 1;
+	FT_UFast count = cache->p + cache->mask + 1;
 	for(i = 0; i < count; i++) {
 		FTC_Node*  bucket = cache->buckets + i;
 		FTC_Node*  pnode  = bucket;
-
 		for(;;) {
 			FTC_Node node = *pnode;
 			FT_Bool list_changed = FALSE;
-
 			if(!node)
 				break;
-
 			if(cache->clazz.node_remove_faceid(node, face_id,
 			    cache, &list_changed) ) {
 				*pnode     = node->link;
@@ -510,23 +494,14 @@ FTC_Cache_RemoveFaceID(FTC_Cache cache,
 				pnode = &node->link;
 		}
 	}
-
 	/* remove all nodes in the free list */
 	while(frees) {
-		FTC_Node node;
-
-		node  = frees;
+		FTC_Node node  = frees;
 		frees = node->link;
-
 		manager->cur_weight -= cache->clazz.node_weight(node, cache);
 		ftc_node_mru_unlink(node, manager);
-
 		cache->clazz.node_free(node, cache);
-
 		cache->slack++;
 	}
-
 	ftc_cache_resize(cache);
 }
-
-/* END */

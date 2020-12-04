@@ -858,11 +858,9 @@ void SurfaceGDI::Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back)
 
 void SurfaceGDI::Copy(PRectangle rc, Point from, Surface &surfaceSource)
 {
-	::BitBlt(hdc,
-	    static_cast<int>(rc.left), static_cast<int>(rc.top),
+	::BitBlt(hdc, static_cast<int>(rc.left), static_cast<int>(rc.top),
 	    static_cast<int>(rc.Width()), static_cast<int>(rc.Height()),
-	    static_cast<SurfaceGDI &>(surfaceSource).hdc,
-	    static_cast<int>(from.x), static_cast<int>(from.y), SRCCOPY);
+	    static_cast<SurfaceGDI &>(surfaceSource).hdc, static_cast<int>(from.x), static_cast<int>(from.y), SRCCOPY);
 }
 
 typedef VarBuffer<int, stackBufferLength> TextPositionsI;
@@ -873,7 +871,6 @@ void SurfaceGDI::DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, co
 	const RECT rcw = RectFromPRectangle(rc);
 	const int x = static_cast<int>(rc.left);
 	const int yBaseInt = static_cast<int>(ybase);
-
 	if(unicodeMode) {
 		const TextWide tbuf(s, len, unicodeMode, codePage);
 		::ExtTextOutW(hdc, x, yBaseInt, fuOptions, &rcw, tbuf.buffer, tbuf.tlen, 0);
@@ -883,16 +880,14 @@ void SurfaceGDI::DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, co
 	}
 }
 
-void SurfaceGDI::DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
-    ColourDesired fore, ColourDesired back)
+void SurfaceGDI::DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back)
 {
 	::SetTextColor(hdc, fore.AsLong());
 	::SetBkColor(hdc, back.AsLong());
 	DrawTextCommon(rc, font_, ybase, s, len, ETO_OPAQUE);
 }
 
-void SurfaceGDI::DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
-    ColourDesired fore, ColourDesired back)
+void SurfaceGDI::DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back)
 {
 	::SetTextColor(hdc, fore.AsLong());
 	::SetBkColor(hdc, back.AsLong());
@@ -1571,11 +1566,10 @@ void SurfaceD2D::DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, c
 	}
 }
 
-void SurfaceD2D::DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
-    ColourDesired fore)
+void SurfaceD2D::DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore)
 {
 	// Avoid drawing spaces in transparent mode
-	for(int i = 0; i<len; i++) {
+	for(int i = 0; i < len; i++) {
 		if(s[i] != ' ') {
 			if(pRenderTarget) {
 				D2DPenColour(fore);
@@ -1608,10 +1602,9 @@ XYPOSITION SurfaceD2D::WidthText(Font &font_, const char * s, int len)
 void SurfaceD2D::MeasureWidths(Font &font_, const char * s, int len, XYPOSITION * positions)
 {
 	SetFont(font_);
-	int fit = 0;
 	const TextWide tbuf(s, len, unicodeMode, codePageText);
 	TextPositions poses(tbuf.tlen);
-	fit = tbuf.tlen;
+	int fit = tbuf.tlen;
 	const int clusters = 1000;
 	DWRITE_CLUSTER_METRICS clusterMetrics[clusters];
 	UINT32 count = 0;
@@ -1689,7 +1682,6 @@ void SurfaceD2D::MeasureWidths(Font &font_, const char * s, int len, XYPOSITION 
 				positions[i] = position;
 				i++;
 			}
-
 			ui++;
 		}
 	}
@@ -1784,8 +1776,7 @@ void SurfaceD2D::SetUnicodeMode(bool unicodeMode_)
 
 void SurfaceD2D::SetDBCSMode(int codePage_)
 {
-	// No action on window as automatically handled by system.
-	codePage = codePage_;
+	codePage = codePage_; // No action on window as automatically handled by system.
 }
 
 #endif

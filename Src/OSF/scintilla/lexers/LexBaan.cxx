@@ -88,7 +88,7 @@ static bool FASTCALL IsAWordChar(const int ch)
 
 static bool FASTCALL IsAnOperator(int ch)
 {
-	if(IsAlphaNumeric(ch))
+	if(isasciialnum(ch))
 		return false;
 	if(ch == '#' || ch == '^' || ch == '&' || ch == '*' ||
 		    ch == '(' || ch == ')' || ch == '-' || ch == '+' ||

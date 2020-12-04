@@ -96,8 +96,7 @@ static char * concat2(char const * str1, char const * str2)
 {
 	size_t len = strlen(str1) + strlen(str2);
 	char * res = (char *)xmalloc(len + 1);
-	char * cp;
-	cp = _stpcpy(res, str1);
+	char * cp = _stpcpy(res, str1);
 	cp = _stpcpy(cp, str2);
 	return res;
 }

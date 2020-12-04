@@ -1472,7 +1472,6 @@ void FASTCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T
 		CalButtonWndEx * p_cbwe = new CalButtonWndEx(pDlg, editCtlID, cal_type, static_cast<WNDPROC>(TView::GetWindowProp(hwnd, GWLP_WNDPROC)));
 		TView::SetWindowUserData(hwnd, p_cbwe);
 		TView::SetWindowProp(hwnd, GWLP_WNDPROC, CalButtonWndEx::WndProc);
-		// @v9.1.11 {
 		{
 			RECT r, cr;
 			if(::GetWindowRect(hwnd_input, &r)) {
@@ -1484,7 +1483,6 @@ void FASTCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T
 				::MoveWindow(hwnd, p.x, p.y, cr.right-cr.left, r.bottom-r.top, TRUE);
 			}
 		}
-		// } @v9.1.11
 		if(!hbm_daterange || !hbm_calendar) {
 			ENTER_CRITICAL_SECTION
 			SETIFZ(hbm_daterange, APPL->LoadBitmap_(IDB_DATERANGE));
@@ -1498,7 +1496,7 @@ void FASTCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T
 int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
 {
 	int    ok = -1;
-	LDATE  dt = pDate ? *pDate : getcurdate_();
+	LDATE  dt = DEREFPTROR(pDate, getcurdate_());
 	TDateCalendar * p_pc = new TDateCalendar(0, 0);
 	if(p_pc) {
 		p_pc->setDTS(dt);

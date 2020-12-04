@@ -19,10 +19,10 @@
 #ifdef HAVE_CONFIG_H
 	#include "sysdefs.h"
 #else
-	#include <stddef.h>
-	#include <stdbool.h>
-	#include <inttypes.h>
-	#include <limits.h>
+	//#include <stddef.h>
+	//#include <stdbool.h>
+	//#include <inttypes.h>
+	//#include <limits.h>
 #endif
 //
 // TUKLIB_SYMBOL_PREFIX is prefixed to all symbols exported by

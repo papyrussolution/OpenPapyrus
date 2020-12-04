@@ -1,15 +1,12 @@
 /****************************************************************************
- *
  * ftbzip2.c
- *
  *   FreeType support for .bz2 compressed files.
  *
  * This optional component relies on libbz2.  It should mainly be used to
  * parse compressed PCF fonts, as found with many X11 server
  * distributions.
  *
- * Copyright (C) 2010-2020 by
- * Joel Klinghed.
+ * Copyright (C) 2010-2020 by Joel Klinghed.
  *
  * based on `src/gzip/ftgzip.c'
  *
@@ -18,7 +15,6 @@
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 #define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
@@ -29,7 +25,6 @@
 #include <freetype/internal/ftdebug.h>
 #include <freetype/ftbzip2.h>
 #include FT_CONFIG_STANDARD_LIBRARY_H
-
 #include <freetype/ftmoderr.h>
 
 #undef FTERRORS_H_
@@ -387,5 +382,3 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenBzip2(FT_Stream stream, FT_Stream source)
 }
 
 #endif /* !FT_CONFIG_OPTION_USE_BZIP2 */
-
-/* END */

@@ -5,7 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "easy_preset.h"
 //
 // Descr: Preset handling for easy encoder and decoder
 //

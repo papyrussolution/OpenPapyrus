@@ -1,16 +1,11 @@
 /// \file       range_encoder.h
 /// \brief      Range Encoder
-///
-//  Authors:    Igor Pavlov
-//              Lasse Collin
-//
+//  Authors:    Igor Pavlov, Lasse Collin
 //  This file has been put into the public domain. You can do whatever you want with this file.
 //
 #ifndef LZMA_RANGE_ENCODER_H
 #define LZMA_RANGE_ENCODER_H
 
-//#include "range_common.h"
-//#include "price.h"
 /// \brief      Probability price calculation
 //
 #define RC_MOVE_REDUCING_BITS 4
@@ -22,19 +17,11 @@
 extern const uint8_t lzma_rc_prices[RC_PRICE_TABLE_SIZE];
 
 static inline uint32_t rc_bit_price(const probability prob, const uint32_t bit)
-{
-	return lzma_rc_prices[(prob ^ ((UINT32_C(0) - bit) & (RC_BIT_MODEL_TOTAL - 1))) >> RC_MOVE_REDUCING_BITS];
-}
-
+	{ return lzma_rc_prices[(prob ^ ((UINT32_C(0) - bit) & (RC_BIT_MODEL_TOTAL - 1))) >> RC_MOVE_REDUCING_BITS]; }
 static inline uint32_t rc_bit_0_price(const probability prob)
-{
-	return lzma_rc_prices[prob >> RC_MOVE_REDUCING_BITS];
-}
-
+	{ return lzma_rc_prices[prob >> RC_MOVE_REDUCING_BITS]; }
 static inline uint32_t rc_bit_1_price(const probability prob)
-{
-	return lzma_rc_prices[(prob ^ (RC_BIT_MODEL_TOTAL - 1)) >> RC_MOVE_REDUCING_BITS];
-}
+	{ return lzma_rc_prices[(prob ^ (RC_BIT_MODEL_TOTAL - 1)) >> RC_MOVE_REDUCING_BITS]; }
 
 static inline uint32_t rc_bittree_price(const probability * const probs, const uint32_t bit_levels, uint32_t symbol)
 {
@@ -181,8 +168,7 @@ static inline bool rc_encode(lzma_range_encoder * rc, uint8_t * out, size_t * ou
 			case lzma_range_encoder::RC_BIT_1: 
 			{
 			    probability prob = *rc->probs[rc->pos];
-			    const uint32_t bound = prob * (rc->range
-				>> RC_BIT_MODEL_TOTAL_BITS);
+			    const uint32_t bound = prob * (rc->range >> RC_BIT_MODEL_TOTAL_BITS);
 			    rc->low += bound;
 			    rc->range -= bound;
 			    prob -= prob >> RC_MOVE_BITS;
@@ -223,5 +209,4 @@ static inline uint64_t rc_pending(const lzma_range_encoder * rc)
 {
 	return rc->cache_size + 5 - 1;
 }
-
 #endif

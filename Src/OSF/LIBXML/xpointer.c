@@ -48,7 +48,7 @@ static void FASTCALL xmlXPtrErrMemory(const char * extra)
  *
  * Handle a redefinition of attribute error
  */
-static void FASTCALL xmlXPtrErr(xmlXPathParserContextPtr ctxt, int error, const char * msg, const xmlChar * extra)
+static void FASTCALL xmlXPtrErr(xmlXPathParserContext * ctxt, int error, const char * msg, const xmlChar * extra)
 {
 	if(ctxt)
 		ctxt->error = error;
@@ -71,12 +71,9 @@ static void FASTCALL xmlXPtrErr(xmlXPathParserContextPtr ctxt, int error, const 
 		}
 	}
 }
-
-/************************************************************************
-*									*
-*		A few helper functions for child sequences		*
-*									*
-************************************************************************/
+// 
+// A few helper functions for child sequences
+// 
 /* xmlXPtrAdvanceNode is a private function, but used by xinclude.c */
 xmlNode * xmlXPtrAdvanceNode(xmlNode * cur, int * level);
 /**
@@ -142,13 +139,9 @@ static xmlNode * FASTCALL xmlXPtrGetNthChild(xmlNode * cur, int no)
 	}
 	return cur;
 }
-
-/************************************************************************
-*									*
-*		Handling of XPointer specific types			*
-*									*
-************************************************************************/
-
+// 
+// Handling of XPointer specific types
+// 
 /**
  * xmlXPtrCmpPoints:
  * @node1:  the first node
@@ -190,44 +183,39 @@ static int xmlXPtrCmpPoints(xmlNode * node1, int index1, xmlNode * node2, int in
  *
  * Returns the newly created object.
  */
-static xmlXPathObject * xmlXPtrNewPoint(xmlNode * P_Node, int indx)
+static xmlXPathObject * FASTCALL xmlXPtrNewPoint(xmlNode * pNode, int indx)
 {
-	xmlXPathObject * ret;
-	if(!P_Node)
-		return 0;
-	if(indx < 0)
-		return 0;
-	ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
-	if(!ret) {
-		xmlXPtrErrMemory("allocating point");
-		return 0;
+	xmlXPathObject * ret = 0;
+	if(pNode && indx >= 0) {
+		ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
+		if(!ret)
+			xmlXPtrErrMemory("allocating point");
+		else {
+			memzero(ret, sizeof(xmlXPathObject));
+			ret->type = XPATH_POINT;
+			ret->user = (void *)pNode;
+			ret->index = indx;
+		}
 	}
-	memzero(ret, sizeof(xmlXPathObject));
-	ret->type = XPATH_POINT;
-	ret->user = (void *)P_Node;
-	ret->index = indx;
 	return ret;
 }
-
 /**
  * xmlXPtrRangeCheckOrder:
  * @range:  an object range
  *
  * Make sure the points in the range are in the right order
  */
-static void xmlXPtrRangeCheckOrder(xmlXPathObject * range)
+static void FASTCALL xmlXPtrRangeCheckOrder(xmlXPathObject * range)
 {
-	int tmp;
-	xmlNode * tmp2;
 	if(range == NULL)
 		return;
 	if(range->type != XPATH_RANGE)
 		return;
 	if(range->user2 == NULL)
 		return;
-	tmp = xmlXPtrCmpPoints((xmlNode *)range->user, range->index, (xmlNode *)range->user2, range->index2);
+	int tmp = xmlXPtrCmpPoints((xmlNode *)range->user, range->index, (xmlNode *)range->user2, range->index2);
 	if(tmp == -1) {
-		tmp2 = (xmlNode *)range->user;
+		xmlNode * tmp2 = static_cast<xmlNode *>(range->user);
 		range->user = range->user2;
 		range->user2 = tmp2;
 		tmp = range->index;
@@ -235,7 +223,6 @@ static void xmlXPtrRangeCheckOrder(xmlXPathObject * range)
 		range->index2 = tmp;
 	}
 }
-
 /**
  * xmlXPtrRangesEqual:
  * @range1:  the first range
@@ -509,16 +496,15 @@ xmlXPathObject * xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObject * end
  *
  * Returns the newly created object.
  */
-xmlLocationSet * xmlXPtrLocationSetCreate(xmlXPathObject * val)
+xmlLocationSet * FASTCALL xmlXPtrLocationSetCreate(xmlXPathObject * val)
 {
-	xmlLocationSet * ret = (xmlLocationSet *)SAlloc::M(sizeof(xmlLocationSet));
-	if(!ret) {
+	xmlLocationSet * ret = static_cast<xmlLocationSet *>(SAlloc::M(sizeof(xmlLocationSet)));
+	if(!ret)
 		xmlXPtrErrMemory("allocating locationset");
-	}
 	else {
 		memzero(ret, sizeof(xmlLocationSet));
 		if(val) {
-			ret->locTab = (xmlXPathObject **)SAlloc::M(XML_RANGESET_DEFAULT * sizeof(xmlXPathObject *));
+			ret->locTab = static_cast<xmlXPathObject **>(SAlloc::M(XML_RANGESET_DEFAULT * sizeof(xmlXPathObject *)));
 			if(ret->locTab == NULL) {
 				xmlXPtrErrMemory("allocating locationset");
 				SAlloc::F(ret);
@@ -539,24 +525,23 @@ xmlLocationSet * xmlXPtrLocationSetCreate(xmlXPathObject * val)
  * add a new xmlXPathObjectPtr to an existing LocationSet
  * If the location already exist in the set @val is freed.
  */
-void xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObject * val)
+void FASTCALL xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObject * val)
 {
 	if(cur && val) {
-		/*
-		* check against doublons
-		*/
-		int i;
-		for(i = 0; i < cur->locNr; i++) {
+		// 
+		// check against doublons
+		// 
+		for(int i = 0; i < cur->locNr; i++) {
 			if(xmlXPtrRangesEqual(cur->locTab[i], val)) {
 				xmlXPathFreeObject(val);
 				return;
 			}
 		}
-		/*
-		* grow the locTab if needed
-		*/
+		// 
+		// grow the locTab if needed
+		// 
 		if(cur->locMax == 0) {
-			cur->locTab = (xmlXPathObject **)SAlloc::M(XML_RANGESET_DEFAULT * sizeof(xmlXPathObject *));
+			cur->locTab = static_cast<xmlXPathObject **>(SAlloc::M(XML_RANGESET_DEFAULT * sizeof(xmlXPathObject *)));
 			if(cur->locTab == NULL) {
 				xmlXPtrErrMemory("adding location to set");
 				return;
@@ -565,9 +550,8 @@ void xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObject * val)
 			cur->locMax = XML_RANGESET_DEFAULT;
 		}
 		else if(cur->locNr == cur->locMax) {
-			xmlXPathObject ** temp;
 			cur->locMax *= 2;
-			temp = (xmlXPathObject **)SAlloc::R(cur->locTab, cur->locMax * sizeof(xmlXPathObject *));
+			xmlXPathObject ** temp = static_cast<xmlXPathObject **>(SAlloc::R(cur->locTab, cur->locMax * sizeof(xmlXPathObject *)));
 			if(temp == NULL) {
 				xmlXPtrErrMemory("adding location to set");
 				return;
@@ -577,7 +561,6 @@ void xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObject * val)
 		cur->locTab[cur->locNr++] = val;
 	}
 }
-
 /**
  * xmlXPtrLocationSetMerge:
  * @val1:  the first LocationSet
@@ -735,14 +718,10 @@ xmlXPathObject * xmlXPtrWrapLocationSet(xmlLocationSet * val)
 	}
 	return ret;
 }
-
-/************************************************************************
-*									*
-*			The parser					*
-*									*
-************************************************************************/
-
-static void xmlXPtrEvalChildSeq(xmlXPathParserContextPtr ctxt, xmlChar * name);
+// 
+// The parser
+// 
+static void xmlXPtrEvalChildSeq(xmlXPathParserContext * ctxt, xmlChar * name);
 /*
  * Macros for accessing the content. Those should be used only by the parser, and not exported.
  *
@@ -779,7 +758,7 @@ static void xmlXPtrEvalChildSeq(xmlXPathParserContextPtr ctxt, xmlChar * name);
  * Move the current node of the nodeset on the stack to the
  * given child if found
  */
-static void xmlXPtrGetChildNo(xmlXPathParserContextPtr ctxt, int indx)
+static void xmlXPtrGetChildNo(xmlXPathParserContext * ctxt, int indx)
 {
 	xmlNode * cur = NULL;
 	xmlXPathObject * obj;
@@ -836,7 +815,7 @@ static void xmlXPtrGetChildNo(xmlXPathParserContextPtr ctxt, int indx)
  * @todo there is no new scheme registration mechanism
  */
 
-static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
+static void xmlXPtrEvalXPtrPart(xmlXPathParserContext * ctxt, xmlChar * name)
 {
 	xmlChar * buffer, * cur;
 	int len;
@@ -993,7 +972,7 @@ static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
  * Parse and evaluate a Full XPtr i.e. possibly a cascade of XPath based
  * expressions or other schemes.
  */
-static void xmlXPtrEvalFullXPtr(xmlXPathParserContextPtr ctxt, xmlChar * name)
+static void xmlXPtrEvalFullXPtr(xmlXPathParserContext * ctxt, xmlChar * name)
 {
 	SETIFZ(name, xmlXPathParseName(ctxt));
 	if(!name)
@@ -1054,7 +1033,7 @@ static void xmlXPtrEvalFullXPtr(xmlXPathParserContextPtr ctxt, xmlChar * name)
  * Parse and evaluate a Child Sequence. This routine also handle the
  * case of a Bare Name used to get a document ID.
  */
-static void xmlXPtrEvalChildSeq(xmlXPathParserContextPtr ctxt, xmlChar * name)
+static void xmlXPtrEvalChildSeq(xmlXPathParserContext * ctxt, xmlChar * name)
 {
 	/*
 	 * XPointer don't allow by syntax to address in mutirooted trees
@@ -1090,7 +1069,7 @@ static void xmlXPtrEvalChildSeq(xmlXPathParserContextPtr ctxt, xmlChar * name)
  *
  * Parse and evaluate an XPointer
  */
-static void xmlXPtrEvalXPointer(xmlXPathParserContextPtr ctxt)
+static void xmlXPtrEvalXPointer(xmlXPathParserContext * ctxt)
 {
 	if(ctxt->valueTab == NULL) {
 		/* Allocate the value stack */
@@ -1134,13 +1113,13 @@ static void xmlXPtrEvalXPointer(xmlXPathParserContextPtr ctxt)
 *									*
 ************************************************************************/
 
-static void xmlXPtrStringRangeFunction(xmlXPathParserContextPtr ctxt, int nargs);
-static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs);
-static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs);
-static void xmlXPtrHereFunction(xmlXPathParserContextPtr ctxt, int nargs);
-static void xmlXPtrOriginFunction(xmlXPathParserContextPtr ctxt, int nargs);
-static void xmlXPtrRangeInsideFunction(xmlXPathParserContextPtr ctxt, int nargs);
-static void xmlXPtrRangeFunction(xmlXPathParserContextPtr ctxt, int nargs);
+static void xmlXPtrStringRangeFunction(xmlXPathParserContext * ctxt, int nargs);
+static void xmlXPtrStartPointFunction(xmlXPathParserContext * ctxt, int nargs);
+static void xmlXPtrEndPointFunction(xmlXPathParserContext * ctxt, int nargs);
+static void xmlXPtrHereFunction(xmlXPathParserContext * ctxt, int nargs);
+static void xmlXPtrOriginFunction(xmlXPathParserContext * ctxt, int nargs);
+static void xmlXPtrRangeInsideFunction(xmlXPathParserContext * ctxt, int nargs);
+static void xmlXPtrRangeFunction(xmlXPathParserContext * ctxt, int nargs);
 
 /**
  * xmlXPtrNewContext:
@@ -1184,7 +1163,7 @@ xmlXPathContextPtr xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * ori
  */
 xmlXPathObject * xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx)
 {
-	xmlXPathParserContextPtr ctxt;
+	xmlXPathParserContext * ctxt;
 	xmlXPathObject * res = NULL;
 	xmlXPathObject * tmp;
 	xmlXPathObject * init = NULL;
@@ -1553,7 +1532,7 @@ static int xmlXPtrNbLocChildren(xmlNode * P_Node)
  * Function implementing here() operation
  * as described in 5.4.3
  */
-static void xmlXPtrHereFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void xmlXPtrHereFunction(xmlXPathParserContext * ctxt, int nargs)
 {
 	CHECK_ARITY(0);
 	if(ctxt->context->here == NULL)
@@ -1569,7 +1548,7 @@ static void xmlXPtrHereFunction(xmlXPathParserContextPtr ctxt, int nargs)
  * Function implementing origin() operation
  * as described in 5.4.3
  */
-static void xmlXPtrOriginFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void xmlXPtrOriginFunction(xmlXPathParserContext * ctxt, int nargs)
 {
 	CHECK_ARITY(0);
 	if(ctxt->context->origin == NULL)
@@ -1600,7 +1579,7 @@ static void xmlXPtrOriginFunction(xmlXPathParserContextPtr ctxt, int nargs)
  * ----------------
  *
  */
-static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void xmlXPtrStartPointFunction(xmlXPathParserContext * ctxt, int nargs)
 {
 	xmlXPathObject * tmp;
 	xmlXPathObject * obj;
@@ -1693,7 +1672,7 @@ static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
  * syntax error.
  * ----------------------------
  */
-static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void xmlXPtrEndPointFunction(xmlXPathParserContext * ctxt, int nargs)
 {
 	xmlXPathObject * tmp;
 	xmlXPathObject * obj;
@@ -1774,7 +1753,7 @@ static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
  *
  * Returns a new location or NULL in case of error
  */
-static xmlXPathObject * xmlXPtrCoveringRange(xmlXPathParserContextPtr ctxt, xmlXPathObject * loc)
+static xmlXPathObject * xmlXPtrCoveringRange(xmlXPathParserContext * ctxt, xmlXPathObject * loc)
 {
 	if(loc == NULL)
 		return 0;
@@ -1834,7 +1813,7 @@ static xmlXPathObject * xmlXPtrCoveringRange(xmlXPathParserContextPtr ctxt, xmlX
  *  location-set, a range location representing the covering range of
  *  x is added to the result location-set.
  */
-static void xmlXPtrRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void xmlXPtrRangeFunction(xmlXPathParserContext * ctxt, int nargs)
 {
 	int i;
 	xmlXPathObject * set;
@@ -1881,7 +1860,7 @@ static void xmlXPtrRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
  *
  * Returns a new location or NULL in case of error
  */
-static xmlXPathObject * xmlXPtrInsideRange(xmlXPathParserContextPtr ctxt, xmlXPathObject * loc)
+static xmlXPathObject * xmlXPtrInsideRange(xmlXPathParserContext * ctxt, xmlXPathObject * loc)
 {
 	if(loc == NULL)
 		return 0;
@@ -1958,7 +1937,7 @@ static xmlXPathObject * xmlXPtrInsideRange(xmlXPathParserContextPtr ctxt, xmlXPa
  *  location children of x.
  *
  */
-static void xmlXPtrRangeInsideFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void xmlXPtrRangeInsideFunction(xmlXPathParserContext * ctxt, int nargs)
 {
 	int i;
 	xmlXPathObject * set;
@@ -2003,7 +1982,7 @@ static void xmlXPtrRangeInsideFunction(xmlXPathParserContextPtr ctxt, int nargs)
  *
  * Implement the range-to() XPointer function
  */
-void xmlXPtrRangeToFunction(xmlXPathParserContextPtr ctxt, int nargs)
+void xmlXPtrRangeToFunction(xmlXPathParserContext * ctxt, int nargs)
 {
 	xmlXPathObject * range;
 	const xmlChar * cur;
@@ -2502,7 +2481,7 @@ static int xmlXPtrGetEndPoint(xmlXPathObject * obj, xmlNode ** P_Node, int * ind
  * all be character points.
  * ------------------------------
  */
-static void xmlXPtrStringRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void xmlXPtrStringRangeFunction(xmlXPathParserContext * ctxt, int nargs)
 {
 	int i, startindex, endindex = 0, fendindex;
 	xmlNode * start;
@@ -2627,7 +2606,7 @@ error:
  * Evaluate a predicate as in xmlXPathEvalPredicate() but for
  * a Location Set instead of a node set
  */
-void xmlXPtrEvalRangePredicate(xmlXPathParserContextPtr ctxt)
+void xmlXPtrEvalRangePredicate(xmlXPathParserContext * ctxt)
 {
 	const xmlChar * cur;
 	xmlXPathObject * res;
@@ -2717,5 +2696,4 @@ void xmlXPtrEvalRangePredicate(xmlXPathParserContextPtr ctxt)
 }
 
 #define bottom_xpointer
-//#include "elfgcchack.h"
 #endif

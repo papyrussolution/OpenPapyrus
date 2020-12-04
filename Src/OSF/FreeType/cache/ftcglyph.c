@@ -1,18 +1,14 @@
 /****************************************************************************
- *
  * ftcglyph.c
- *
  *   FreeType Glyph Image (FT_Glyph) cache (body).
  *
- * Copyright (C) 2000-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2000-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 #include <freetype/internal/ftobjs.h>
 #include <freetype/ftcache.h>
@@ -22,34 +18,25 @@
 #include "ftcerror.h"
 
 /* create a new chunk node, setting its cache index and ref count */
-FT_LOCAL_DEF(void)
-FTC_GNode_Init(FTC_GNode gnode,
-    FT_UInt gindex,
-    FTC_Family family)
+FT_LOCAL_DEF(void) FTC_GNode_Init(FTC_GNode gnode, FT_UInt gindex, FTC_Family family)
 {
 	gnode->family = family;
 	gnode->gindex = gindex;
 	family->num_nodes++;
 }
 
-FT_LOCAL_DEF(void)
-FTC_GNode_UnselectFamily(FTC_GNode gnode,
-    FTC_Cache cache)
+FT_LOCAL_DEF(void) FTC_GNode_UnselectFamily(FTC_GNode gnode, FTC_Cache cache)
 {
 	FTC_Family family = gnode->family;
-
 	gnode->family = NULL;
 	if(family && --family->num_nodes == 0)
 		FTC_FAMILY_FREE(family, cache);
 }
 
-FT_LOCAL_DEF(void)
-FTC_GNode_Done(FTC_GNode gnode,
-    FTC_Cache cache)
+FT_LOCAL_DEF(void) FTC_GNode_Done(FTC_GNode gnode, FTC_Cache cache)
 {
 	/* finalize the node */
 	gnode->gindex = 0;
-
 	FTC_GNode_UnselectFamily(gnode, cache);
 }
 
@@ -188,7 +175,4 @@ FTC_GCache_Lookup(FTC_GCache cache,
 	}
 	return error;
 }
-
 #endif /* !FTC_INLINE */
-
-/* END */

@@ -190,7 +190,7 @@ static inline void mf_skip(lzma_mf * mf, uint32_t amount)
 static inline void mf_read(lzma_mf * mf, uint8_t * out, size_t * out_pos, size_t out_size, size_t * left)
 {
 	const size_t out_avail = out_size - *out_pos;
-	const size_t copy_size = my_min(out_avail, *left);
+	const size_t copy_size = MIN(out_avail, *left);
 	assert(mf->read_ahead == 0);
 	assert(mf->read_pos >= *left);
 	memcpy(out + *out_pos, mf->buffer + mf->read_pos - *left, copy_size);
@@ -356,7 +356,7 @@ static inline bool dict_repeat(lzma_dict * dict, uint32_t distance, uint32_t * l
 {
 	// Don't write past the end of the dictionary.
 	const size_t dict_avail = dict->limit - dict->pos;
-	uint32_t left = my_min(dict_avail, *len);
+	uint32_t left = MIN(dict_avail, *len);
 	*len -= left;
 	// Repeat a block of data from the history. Because memcpy() is faster
 	// than copying byte by byte in a loop, the copying process gets split

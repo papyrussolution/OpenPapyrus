@@ -895,7 +895,7 @@ int PPObjTag::MakeReserved(long flags)
 					//
 					PPTransaction tra(1);
 					THROW(tra);
-					THROW(Helper_CreateEnumObject(pack)); // @v9.4.7
+					THROW(Helper_CreateEnumObject(pack));
 					THROW(EditItem(Obj, 0, &pack.Rec, 0));
 					THROW(tra.Commit());
 				}

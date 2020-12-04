@@ -1107,10 +1107,7 @@ void Editor::VerticalCentreCaret()
 
 // Avoid 64 bit compiler warnings.
 // Scintilla does not support text buffers larger than 2**31
-static int FASTCALL istrlen(const char * s)
-{
-	return static_cast<int>(sstrlen(s));
-}
+// @v10.9.6 (replaced with sstrleni) static int FASTCALL istrlen(const char * s) { return static_cast<int>(sstrlen(s)); }
 
 void Editor::MoveSelectedLines(int lineDelta)
 {
@@ -1152,26 +1149,19 @@ void Editor::MoveSelectedLines(int lineDelta)
 	ClearSelection();
 	const char * eol = StringFromEOLMode(pdoc->eolMode);
 	if(currentLine + lineDelta >= pdoc->LinesTotal())
-		pdoc->InsertString(pdoc->Length(), eol, istrlen(eol));
+		pdoc->InsertString(pdoc->Length(), eol, sstrleni(eol));
 	GoToLine(currentLine + lineDelta);
 
 	selectionLength = pdoc->InsertString(CurrentPosition(), selectedText.Data(), selectionLength);
 	if(appendEol) {
-		const int lengthInserted = pdoc->InsertString(CurrentPosition() + selectionLength, eol, istrlen(eol));
+		const int lengthInserted = pdoc->InsertString(CurrentPosition() + selectionLength, eol, sstrleni(eol));
 		selectionLength += lengthInserted;
 	}
 	SetSelection(CurrentPosition(), CurrentPosition() + selectionLength);
 }
 
-void Editor::MoveSelectedLinesUp()
-{
-	MoveSelectedLines(-1);
-}
-
-void Editor::MoveSelectedLinesDown()
-{
-	MoveSelectedLines(1);
-}
+void Editor::MoveSelectedLinesUp() { MoveSelectedLines(-1); }
+void Editor::MoveSelectedLinesDown() { MoveSelectedLines(1); }
 
 void Editor::MoveCaretInsideView(bool ensureVisible)
 {
@@ -1711,14 +1701,9 @@ void Editor::LinesJoin()
 	}
 }
 
-const char * Editor::StringFromEOLMode(int eolMode)
+const char * FASTCALL Editor::StringFromEOLMode(int eolMode)
 {
-	if(eolMode == SC_EOL_CRLF)
-		return "\r\n";
-	else if(eolMode == SC_EOL_CR)
-		return "\r";
-	else
-		return "\n";
+	return (eolMode == SC_EOL_CRLF) ? "\r\n" : ((eolMode == SC_EOL_CR) ? "\r" : "\n");
 }
 
 void Editor::LinesSplit(int pixelWidth)
@@ -1740,7 +1725,7 @@ void Editor::LinesSplit(int pixelWidth)
 				view.LayoutLine(*this, line, surface, vs, ll, pixelWidth);
 				int lengthInsertedTotal = 0;
 				for(int subLine = 1; subLine < ll->lines; subLine++) {
-					const int lengthInserted = pdoc->InsertString(static_cast<int>(posLineStart + lengthInsertedTotal + ll->LineStart(subLine)), eol, istrlen(eol));
+					const int lengthInserted = pdoc->InsertString(static_cast<int>(posLineStart + lengthInsertedTotal + ll->LineStart(subLine)), eol, sstrleni(eol));
 					targetEnd += lengthInserted;
 					lengthInsertedTotal += lengthInserted;
 				}
@@ -1806,12 +1791,10 @@ void Editor::Paint(Surface * surfaceWindow, PRectangle rcArea)
 	PRectangle rcClient = GetClientRectangle();
 	//Platform::DebugPrintf("Client: (%3d,%3d) ... (%3d,%3d)   %d\n",
 	//	rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
-
 	if(NotifyUpdateUI()) {
 		RefreshStyleData();
 		RefreshPixMaps(surfaceWindow);
 	}
-
 	// Wrap the visible lines if needed.
 	if(WrapLines(wsVisible)) {
 		// The wrapping process has changed the height of some lines so
@@ -1842,7 +1825,6 @@ void Editor::Paint(Surface * surfaceWindow, PRectangle rcArea)
 			}
 		}
 	}
-
 	if(paintState == paintAbandoned) {
 		// Either styling or NotifyUpdateUI noticed that painting is needed
 		// outside the current painting rectangle
@@ -1888,12 +1870,7 @@ int Editor::TextWidth(int style, const char * text)
 {
 	RefreshStyleData();
 	AutoSurface surface(this);
-	if(surface) {
-		return static_cast<int>(surface->WidthText(vs.styles[style].font, text, istrlen(text)));
-	}
-	else {
-		return 1;
-	}
+	return surface ? static_cast<int>(surface->WidthText(vs.styles[style].font, text, sstrleni(text))) : 1;
 }
 
 // Empty method is overridden on GTK+ to show / hide scrollbars
@@ -1904,7 +1881,6 @@ void Editor::ReconfigureScrollBars()
 void Editor::SetScrollBars()
 {
 	RefreshStyleData();
-
 	int nMax = MaxScrollPos();
 	int nPage = LinesOnScreen();
 	bool modified = ModifyScrollBars(nMax + nPage - 1, nPage);
@@ -3093,7 +3069,7 @@ void Editor::Duplicate(bool forLine)
 	int eolLen = 0;
 	if(forLine) {
 		eol = StringFromEOLMode(pdoc->eolMode);
-		eolLen = istrlen(eol);
+		eolLen = sstrleni(eol);
 	}
 	for(size_t r = 0; r < Sel.Count(); r++) {
 		SelectionPosition start = Sel.Range(r).Start();
@@ -3146,7 +3122,7 @@ void Editor::NewLine()
 		Sel.Range(r).ClearVirtualSpace();
 		const char * eol = StringFromEOLMode(pdoc->eolMode);
 		const int positionInsert = Sel.Range(r).caret.Position();
-		const int insertLength = pdoc->InsertString(positionInsert, eol, istrlen(eol));
+		const int insertLength = pdoc->InsertString(positionInsert, eol, sstrleni(eol));
 		if(insertLength > 0) {
 			Sel.Range(r) = SelectionRange(positionInsert + insertLength);
 			countInsertions++;
@@ -4019,7 +3995,7 @@ long Editor::FindText(uptr_t wParam,              ///< Search modes : @c SCFIND_
     sptr_t lParam)      ///< @c Sci_TextToFind structure: The text to search for in the given range.
 {
 	Sci_TextToFind * ft = reinterpret_cast<Sci_TextToFind *>(lParam);
-	int lengthFound = istrlen(ft->lpstrText);
+	int lengthFound = sstrleni(ft->lpstrText);
 	if(!pdoc->HasCaseFolder())
 		pdoc->SetCaseFolder(CaseFolderForEncoding());
 	try {
@@ -4063,7 +4039,7 @@ long Editor::SearchText(uint iMessage,              ///< Accepts both @c SCI_SEA
 {
 	const char * txt = reinterpret_cast<char *>(lParam);
 	long pos;
-	int lengthFound = istrlen(txt);
+	int lengthFound = sstrleni(txt);
 	if(!pdoc->HasCaseFolder())
 		pdoc->SetCaseFolder(CaseFolderForEncoding());
 	try {
@@ -5587,7 +5563,7 @@ int Editor::ReplaceTarget(bool replacePatterns, const char * text, int length)
 {
 	UndoGroup ug(pdoc);
 	if(length == -1)
-		length = istrlen(text);
+		length = sstrleni(text);
 	if(replacePatterns) {
 		text = pdoc->SubstituteByPosition(text, &length);
 		if(!text) {
@@ -5801,7 +5777,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				pdoc->DeleteChars(0, pdoc->Length());
 				SetEmptySelection(0);
 				const char * text = CharPtrFromSPtr(lParam);
-				pdoc->InsertString(0, text, istrlen(text));
+				pdoc->InsertString(0, text, sstrleni(text));
 				return 1;
 			}
 		case SCI_GETTEXTLENGTH: return pdoc->Length();
@@ -5913,7 +5889,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				UndoGroup ug(pdoc);
 				ClearSelection();
 				char * replacement = CharPtrFromSPtr(lParam);
-				const int lengthInserted = pdoc->InsertString(Sel.MainCaret(), replacement, istrlen(replacement));
+				const int lengthInserted = pdoc->InsertString(Sel.MainCaret(), replacement, sstrleni(replacement));
 				SetEmptySelection(Sel.MainCaret() + lengthInserted);
 				EnsureCaretVisible();
 			}
@@ -6046,7 +6022,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 					insertPos = CurrentPosition();
 				int newCurrent = CurrentPosition();
 				char * sz = CharPtrFromSPtr(lParam);
-				const int lengthInserted = pdoc->InsertString(insertPos, sz, istrlen(sz));
+				const int lengthInserted = pdoc->InsertString(insertPos, sz, sstrleni(sz));
 				if(newCurrent > insertPos)
 					newCurrent += lengthInserted;
 				SetEmptySelection(newCurrent);

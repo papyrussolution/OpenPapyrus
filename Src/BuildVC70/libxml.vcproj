@@ -451,9 +451,6 @@
 				RelativePath="..\Osf\Libxml\dict.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\DOCBparser.c">
-			</File>
-			<File
 				RelativePath="..\Osf\Libxml\encoding.c">
 			</File>
 			<File

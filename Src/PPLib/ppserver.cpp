@@ -2411,12 +2411,13 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJob
 		case PPSCMD_HELLO:
 			if(HelloReplyText.Empty()) {
 				PPVersionInfo vi = DS.GetVersionInfo();
-				vi.GetProductName(HelloReplyText);
+				//vi.GetProductName(HelloReplyText);
+				vi.GetTextAttrib(vi.taiProductName, HelloReplyText);
 			}
 			rReply.SetString(HelloReplyText);
 			break;
 		case PPSCMD_HSH: rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId())); break;
-		case PPSCMD_LOGLOCKSTACK: DS.LogLocStk(); break; // @v9.8.1
+		case PPSCMD_LOGLOCKSTACK: DS.LogLocStk(); break;
 		case PPSCMD_CREATEVIEW: ok = PPView::ExecuteServer(*pEv, rReply) ? cmdretOK : cmdretError; break;
 		case PPSCMD_DESTROYVIEW: ok = PPView::Destroy(*pEv, rReply) ? cmdretOK : cmdretError; break;
 		case PPSCMD_REFRESHVIEW: ok = PPView::Refresh(*pEv, rReply) ? cmdretOK : cmdretError; break;

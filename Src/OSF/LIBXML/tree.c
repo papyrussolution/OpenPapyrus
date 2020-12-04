@@ -8780,4 +8780,3 @@ int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * pN
 }
 
 #define bottom_tree
-//#include "elfgcchack.h"

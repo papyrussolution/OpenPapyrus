@@ -5,12 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "filter_common.h"
-//#include "easy_preset.h"
-//#include "block_encoder.h"
-//#include "block_buffer_encoder.h"
-//#include "index-internal.h"
-//#include "outqueue.h"
 
 /// Maximum supported block size. This makes it simpler to prevent integer
 /// overflows if we are given unusually large block size.

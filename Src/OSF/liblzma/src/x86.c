@@ -45,42 +45,24 @@ static size_t x86_code(void * simple_ptr, uint32_t now_pos, bool is_encoder, uin
 				prev_mask <<= 1;
 			}
 		}
-
 		b = buffer[buffer_pos + 4];
-
-		if(Test86MSByte(b)
-		    && MASK_TO_ALLOWED_STATUS[(prev_mask >> 1) & 0x7]
-		    && (prev_mask >> 1) < 0x10) {
-			uint32_t src = ((uint32_t)(b) << 24)
-			    | ((uint32_t)(buffer[buffer_pos + 3]) << 16)
-			    | ((uint32_t)(buffer[buffer_pos + 2]) << 8)
-			    | (buffer[buffer_pos + 1]);
-
+		if(Test86MSByte(b) && MASK_TO_ALLOWED_STATUS[(prev_mask >> 1) & 0x7] && (prev_mask >> 1) < 0x10) {
+			uint32_t src = ((uint32_t)(b) << 24) | ((uint32_t)(buffer[buffer_pos + 3]) << 16) | ((uint32_t)(buffer[buffer_pos + 2]) << 8) | (buffer[buffer_pos + 1]);
 			uint32_t dest;
 			while(true) {
 				if(is_encoder)
-					dest = src + (now_pos + (uint32_t)(
-						    buffer_pos) + 5);
+					dest = src + (now_pos + (uint32_t)(buffer_pos) + 5);
 				else
-					dest = src - (now_pos + (uint32_t)(
-						    buffer_pos) + 5);
-
+					dest = src - (now_pos + (uint32_t)(buffer_pos) + 5);
 				if(prev_mask == 0)
 					break;
-
-				const uint32_t i = MASK_TO_BIT_NUMBER[
-					prev_mask >> 1];
-
+				const uint32_t i = MASK_TO_BIT_NUMBER[prev_mask >> 1];
 				b = (uint8_t)(dest >> (24 - i * 8));
-
 				if(!Test86MSByte(b))
 					break;
-
 				src = dest ^ ((1U << (32 - i * 8)) - 1);
 			}
-
-			buffer[buffer_pos + 4]
-				= (uint8_t)(~(((dest >> 24) & 1) - 1));
+			buffer[buffer_pos + 4] = (uint8_t)(~(((dest >> 24) & 1) - 1));
 			buffer[buffer_pos + 3] = (uint8_t)(dest >> 16);
 			buffer[buffer_pos + 2] = (uint8_t)(dest >> 8);
 			buffer[buffer_pos + 1] = (uint8_t)(dest);
@@ -94,10 +76,8 @@ static size_t x86_code(void * simple_ptr, uint32_t now_pos, bool is_encoder, uin
 				prev_mask |= 0x10;
 		}
 	}
-
 	simple->prev_mask = prev_mask;
 	simple->prev_pos = prev_pos;
-
 	return buffer_pos;
 }
 
@@ -120,8 +100,7 @@ extern lzma_ret lzma_simple_x86_encoder_init(lzma_next_coder * next, const lzma_
 }
 
 extern lzma_ret lzma_simple_x86_decoder_init(lzma_next_coder * next,
-    const lzma_allocator * allocator,
-    const lzma_filter_info * filters)
+    const lzma_allocator * allocator, const lzma_filter_info * filters)
 {
 	return x86_coder_init(next, allocator, filters, false);
 }

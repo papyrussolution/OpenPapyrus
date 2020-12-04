@@ -6,10 +6,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "lz-internal.h"
-//#include "lzma_common.h"
-//#include "fastpos.h"
-//#include "lzma2-internal.h"
 
 struct lzma_lzma2_encoder_coder {
 	enum {
@@ -277,7 +273,7 @@ extern uint64_t lzma_lzma2_encoder_memusage(const void * options)
 extern lzma_ret lzma_lzma2_props_encode(const void * options, uint8_t * out)
 {
 	const lzma_options_lzma * const opt = (const lzma_options_lzma *)options;
-	uint32_t d = my_max(opt->dict_size, LZMA_DICT_SIZE_MIN);
+	uint32_t d = MAX(opt->dict_size, LZMA_DICT_SIZE_MIN);
 	// Round up to the next 2^n - 1 or 2^n + 2^(n - 1) - 1 depending
 	// on which one is the next:
 	--d;
@@ -298,5 +294,5 @@ extern uint64_t lzma_lzma2_block_size(const void * options)
 {
 	const lzma_options_lzma * const opt = (const lzma_options_lzma * const)options;
 	// Use at least 1 MiB to keep compression ratio better.
-	return my_max((uint64_t)(opt->dict_size) * 3, UINT64_C(1) << 20);
+	return MAX((uint64_t)(opt->dict_size) * 3, UINT64_C(1) << 20);
 }

@@ -1868,12 +1868,12 @@ public:
 	void InsertLines(int lineDoc, int lineCount);
 	void DeleteLine(int lineDoc);
 	void DeleteLines(int lineDoc, int lineCount);
-	bool GetVisible(int lineDoc) const;
+	bool FASTCALL GetVisible(int lineDoc) const;
 	bool SetVisible(int lineDocStart, int lineDocEnd, bool isVisible);
 	bool HiddenLines() const;
 	const char *GetFoldDisplayText(int lineDoc) const;
 	bool SetFoldDisplayText(int lineDoc, const char *text);
-	bool GetExpanded(int lineDoc) const;
+	bool FASTCALL GetExpanded(int lineDoc) const;
 	bool SetExpanded(int lineDoc, bool isExpanded);
 	bool GetFoldDisplayTextShown(int lineDoc) const;
 	int ContractedNext(int lineDocStart) const;
@@ -2529,7 +2529,7 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	};
 
 	static int     ModifierFlags(bool shift, bool ctrl, bool alt, bool meta = false, bool super = false);
-	static const   char * StringFromEOLMode(int eolMode);
+	static const   char * FASTCALL StringFromEOLMode(int eolMode);
 	static sptr_t  StringResult(sptr_t lParam, const char * val);
 	static sptr_t  BytesResult(sptr_t lParam, const uchar * val, size_t len);
 

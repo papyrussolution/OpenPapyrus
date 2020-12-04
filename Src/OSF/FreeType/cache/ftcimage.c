@@ -1,18 +1,14 @@
 /****************************************************************************
- *
  * ftcimage.c
- *
  *   FreeType Image cache (body).
  *
- * Copyright (C) 2000-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2000-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 #include <freetype/ftcache.h>
 #include "ftcimage.h"
@@ -30,7 +26,6 @@ FT_LOCAL_DEF(void) ftc_inode_free(FTC_Node ftcinode, FTC_Cache cache)
 		FT_Done_Glyph(inode->glyph);
 		inode->glyph = NULL;
 	}
-
 	FTC_GNode_Done(FTC_GNODE(inode), cache);
 	FT_FREE(inode);
 }
@@ -69,34 +64,24 @@ FTC_INode_New(FTC_INode   *pinode,
 			inode = NULL;
 		}
 	}
-
 	*pinode = inode;
 	return error;
 }
 
-FT_LOCAL_DEF(FT_Error)
-ftc_inode_new(FTC_Node   *ftcpinode,
-    FT_Pointer ftcgquery,
-    FTC_Cache cache)
+FT_LOCAL_DEF(FT_Error) ftc_inode_new(FTC_Node   *ftcpinode, FT_Pointer ftcgquery, FTC_Cache cache)
 {
 	FTC_INode  * pinode = (FTC_INode*)ftcpinode;
 	FTC_GQuery gquery = (FTC_GQuery)ftcgquery;
-
 	return FTC_INode_New(pinode, gquery, cache);
 }
 
-FT_LOCAL_DEF(FT_Offset)
-ftc_inode_weight(FTC_Node ftcinode,
-    FTC_Cache ftccache)
+FT_LOCAL_DEF(FT_Offset) ftc_inode_weight(FTC_Node ftcinode, FTC_Cache ftccache)
 {
 	FTC_INode inode = (FTC_INode)ftcinode;
 	FT_Offset size  = 0;
 	FT_Glyph glyph = inode->glyph;
-
 	FT_UNUSED(ftccache);
-
-	switch(glyph->format)
-	{
+	switch(glyph->format) {
 		case FT_GLYPH_FORMAT_BITMAP:
 	    {
 		    FT_BitmapGlyph bitg;
@@ -122,19 +107,13 @@ ftc_inode_weight(FTC_Node ftcinode,
 		default:
 		    ;
 	}
-
 	size += sizeof( *inode );
 	return size;
 }
 
 #if 0
-
-FT_LOCAL_DEF(FT_Offset)
-FTC_INode_Weight(FTC_INode inode)
+FT_LOCAL_DEF(FT_Offset) FTC_INode_Weight(FTC_INode inode)
 {
 	return ftc_inode_weight(FTC_NODE(inode), NULL);
 }
-
 #endif /* 0 */
-
-/* END */

@@ -1,13 +1,10 @@
 // PPVER.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020
 // @Kernel
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
-//
-//
-//
+
 struct __VerInfo {
 	char   ProductName[64];
 	char   ProductTeam[128];
@@ -160,44 +157,6 @@ int PPVersionInfo::Decrypt()
 	return ok;
 }
 
-int PPVersionInfo::GetProductName(SString & rBuf)
-{
-	if(Decrypt()) {
-		if(P_Info_Pre9303) {
-			__VerInfo * p_info = (__VerInfo*)P_Info_Pre9303;
-			rBuf = p_info->ProductName;
-		}
-		else if(P_Info_) {
-			rBuf = P_Info_->ProductName;
-		}
-		Clear();
-		return 1;
-	}
-	else {
-		rBuf.Z();
-		return 0;
-	}
-}
-
-int PPVersionInfo::GetTeam(char * pBuf, size_t bufSize)
-{
-	if(Decrypt()) {
-		if(P_Info_Pre9303) {
-			__VerInfo * p_info = (__VerInfo*)P_Info_Pre9303;
-			strnzcpy(pBuf, p_info->ProductTeam, bufSize);
-		}
-		else if(P_Info_) {
-			strnzcpy(pBuf, P_Info_->Team, bufSize);
-		}
-		Clear();
-		return 1;
-	}
-	else {
-		pBuf[0] = 0;
-		return 0;
-	}
-}
-
 int PPVersionInfo::GetSecret(char * pBuf, size_t bufSize)
 {
 	if(Decrypt()) {
@@ -252,11 +211,8 @@ int PPVersionInfo::GetAssemblyN()
 {
 	int    result = 0;
 	if(Decrypt()) {
-		if(P_Info_Pre9303) {
-		}
-		else if(P_Info_) {
+		if(P_Info_)
 			result = P_Info_->AssemblyN;
-		}
 	}
 	return result;
 }
@@ -265,7 +221,7 @@ int PPVersionInfo::GetVersion(uint * pMajor, uint * pMinor, uint * pRevision, ch
 {
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {
-			const __VerInfo * p_info = (const __VerInfo *)P_Info_Pre9303;
+			const __VerInfo * p_info = static_cast<const __VerInfo *>(P_Info_Pre9303);
 			ASSIGN_PTR(pMajor,    (minVersion) ? p_info->MinMajorVer : p_info->MajorVer);
 			ASSIGN_PTR(pMinor,    (minVersion) ? p_info->MinMinorVer : p_info->MinorVer);
 			ASSIGN_PTR(pRevision, (minVersion) ? p_info->MinRevision : p_info->Revision);
@@ -296,26 +252,13 @@ int PPVersionInfo::GetVersion(uint * pMajor, uint * pMinor, uint * pRevision, ch
 	}
 }
 
-/* @v9.3.3 int PPVersionInfo::GetMaxUserNumber(int * pMaxUsers)
-{
-	if(Decrypt()) {
-		__VerInfo * p_info = (__VerInfo*)P_Info;
-		ASSIGN_PTR(pMaxUsers, p_info->MaxUsers);
-		Clear();
-		return 1;
-	}
-	else {
-		ASSIGN_PTR(pMaxUsers, 0);
-		return 0;
-	}
-}*/
-
+#if 0 // @v10.9.6 {
 int PPVersionInfo::GetVersionText(char * pBuf, size_t bufSize)
 {
 	if(Decrypt()) {
 		SString temp_buf;
 		if(P_Info_Pre9303) {
-			const __VerInfo * p_info = (const __VerInfo*)P_Info_Pre9303;
+			const __VerInfo * p_info = static_cast<const __VerInfo *>(P_Info_Pre9303);
 			temp_buf.CatDotTriplet(p_info->MajorVer, p_info->MinorVer, p_info->Revision).Cat(p_info->Demo);
 			temp_buf.CopyTo(pBuf, bufSize);
 		}
@@ -335,56 +278,13 @@ int PPVersionInfo::GetVersionText(char * pBuf, size_t bufSize)
 	}
 }
 
-int PPVersionInfo::GetDefaultEncrKey(SString & rBuf)
-{
-	rBuf.Z();
-	int    ok = 1;
-	if(Decrypt()) {
-		if(P_Info_)
-			rBuf = P_Info_->DefPassword;
-		else
-			ok = 0;
-		Clear();
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
-int PPVersionInfo::GetMsftTranslAcc(SString & rBuf)
-{
-	rBuf.Z();
-	int    ok = 1;
-	if(Decrypt()) {
-		if(P_Info_)
-			rBuf = P_Info_->MsftTranslAcc;
-		else
-			ok = 0;
-		Clear();
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
-long PPVersionInfo::GetFlags()
-{
-	long   result = 0;
-	if(Decrypt()) {
-		if(P_Info_)
-			result = P_Info_->Flags;
-		Clear();
-	}
-	return result;
-}
-
 int PPVersionInfo::GetCopyrightText(SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {
-			const __VerInfo * p_info = (const __VerInfo *)P_Info_Pre9303;
+			const __VerInfo * p_info = static_cast<const __VerInfo *>(P_Info_Pre9303);
 			rBuf.Cat(p_info->ProductName).Space().Cat("Version").Space().
 				CatDotTriplet((int)p_info->MajorVer, (int)p_info->MinorVer, (int)p_info->Revision).
 				Cat(p_info->Demo).Space().Space().CatParStr("c").Space().
@@ -406,3 +306,159 @@ int PPVersionInfo::GetCopyrightText(SString & rBuf)
 		ok = 0;
 	return ok;
 }
+
+int PPVersionInfo::GetProductName(SString & rBuf)
+{
+	if(Decrypt()) {
+		if(P_Info_Pre9303) {
+			__VerInfo * p_info = static_cast<__VerInfo *>(P_Info_Pre9303);
+			rBuf = p_info->ProductName;
+		}
+		else if(P_Info_) {
+			rBuf = P_Info_->ProductName;
+		}
+		Clear();
+		return 1;
+	}
+	else {
+		rBuf.Z();
+		return 0;
+	}
+}
+
+int PPVersionInfo::GetTeam(char * pBuf, size_t bufSize)
+{
+	if(Decrypt()) {
+		if(P_Info_Pre9303) {
+			const __VerInfo * p_info = static_cast<__VerInfo *>(P_Info_Pre9303);
+			strnzcpy(pBuf, p_info->ProductTeam, bufSize);
+		}
+		else if(P_Info_) {
+			strnzcpy(pBuf, P_Info_->Team, bufSize);
+		}
+		Clear();
+		return 1;
+	}
+	else {
+		pBuf[0] = 0;
+		return 0;
+	}
+}
+
+int PPVersionInfo::GetMsftTranslAcc(SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 1;
+	if(Decrypt()) {
+		if(P_Info_)
+			rBuf = P_Info_->MsftTranslAcc;
+		else
+			ok = 0;
+		Clear();
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int PPVersionInfo::GetVkAppIdent(SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 1;
+	if(Decrypt()) {
+		if(P_Info_)
+			rBuf = P_Info_->VkAppIdent;
+		else
+			ok = 0;
+		Clear();
+	}
+	else
+		ok = 0;
+	return ok;
+}
+#endif // } 0 @v10.9.6
+
+int PPVersionInfo::GetTextAttrib(int ident, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 1;
+	THROW(oneof6(ident, taiProductName, taiTeam, taiVersionText, taiCopyrightText, taiMsftTranslAcc, taiVkAppIdent));
+	THROW(Decrypt());
+	if(P_Info_) {
+		if(ident == taiProductName)
+			rBuf = P_Info_->ProductName;
+		else if(ident == taiTeam)
+			rBuf = P_Info_->Team;
+		else if(ident == taiCopyrightText) {
+			SString temp_buf;
+			P_Info_->Ver.ToStr(temp_buf);
+			rBuf.Cat(P_Info_->ProductName).Space().Cat("Version").Space().Cat(temp_buf);
+			if(P_Info_->Flags & P_Info_->fDemo)
+				rBuf.Space().Cat("demo");
+			rBuf.Space().Space().CatParStr("c").Space().Cat(P_Info_->Team).Space().
+				Cat((int)P_Info_->StartDevYear).CatChar('-').Cat((int)P_Info_->LastDevYear);
+		}
+		else if(ident == taiVersionText) {
+			P_Info_->Ver.ToStr(rBuf);
+			if(P_Info_->Flags & P_Info_->fDemo)
+				rBuf.Space().Cat("demo");
+		}
+		else if(ident == taiMsftTranslAcc)
+			rBuf = P_Info_->MsftTranslAcc;
+		else if(ident == taiVkAppIdent)
+			rBuf = P_Info_->VkAppIdent;
+		else
+			ok = 0;
+	}
+	else if(P_Info_Pre9303) {
+		const __VerInfo * p_info = static_cast<const __VerInfo *>(P_Info_Pre9303);
+		if(ident == taiProductName)
+			rBuf = p_info->ProductName;
+		else if(ident == taiTeam)
+			rBuf = p_info->ProductTeam;
+		else if(ident == taiCopyrightText) {
+			rBuf.Cat(p_info->ProductName).Space().Cat("Version").Space().
+				CatDotTriplet((int)p_info->MajorVer, (int)p_info->MinorVer, (int)p_info->Revision).
+				Cat(p_info->Demo).Space().Space().CatParStr("c").Space().
+				Cat(p_info->ProductTeam).Space().
+				Cat((int)p_info->StartDevYear).CatChar('-').Cat((int)p_info->LastDevYear);
+		}
+		else if(ident == taiVersionText)
+			rBuf.CatDotTriplet(p_info->MajorVer, p_info->MinorVer, p_info->Revision).Cat(p_info->Demo);
+		else
+			ok = 0;
+	}
+	else
+		ok = 0;
+	Clear();
+	CATCHZOK
+	return ok;
+}
+
+int PPVersionInfo::GetDefaultEncrKey(SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 1;
+	if(Decrypt()) {
+		if(P_Info_)
+			rBuf = P_Info_->DefPassword;
+		else
+			ok = 0;
+		Clear();
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+long PPVersionInfo::GetFlags()
+{
+	long   result = 0;
+	if(Decrypt()) {
+		if(P_Info_)
+			result = P_Info_->Flags;
+		Clear();
+	}
+	return result;
+}
+

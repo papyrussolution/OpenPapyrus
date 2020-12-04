@@ -6,8 +6,6 @@
 #ifndef LZMA_SIMPLE_PRIVATE_H
 #define LZMA_SIMPLE_PRIVATE_H
 
-//#include "simple_coder.h"
-
 struct lzma_simple_coder {
 	lzma_next_coder next; /// Next filter in the chain
 	bool end_was_reached; /// True if the next coder in the chain has returned LZMA_STREAM_END.

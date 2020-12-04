@@ -3742,8 +3742,8 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 			if(checkdate(pBill->PaymDate) && pBill->Amount)
 				pPack->SetPayDate(pBill->PaymDate, pBill->Amount);
 			STRNSCPY(pPack->Rec.Memo, (temp_buf = pBill->Memo).Transf(CTRANSF_OUTER_TO_INNER));
-			(temp_buf = pPack->Rec.Code).Transf(CTRANSF_OUTER_TO_INNER);
-			STRNSCPY(pPack->Rec.Code, temp_buf);
+			// @v10.9.6 (temp_buf = pPack->Rec.Code).Transf(CTRANSF_OUTER_TO_INNER);
+			// @v10.9.6 STRNSCPY(pPack->Rec.Code, temp_buf);
 			(temp_buf = pPack->Ext.InvoiceCode).Transf(CTRANSF_OUTER_TO_INNER);
 			STRNSCPY(pPack->Ext.InvoiceCode, temp_buf);
 			{
@@ -5410,7 +5410,8 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 		SString ver_buf;
 		PPVersionInfo vi = DS.GetVersionInfo();
 		SVerT ver = vi.GetVersion();
-		vi.GetProductName(ver_buf);
+		//vi.GetProductName(ver_buf);
+		vi.GetTextAttrib(vi.taiProductName, ver_buf);
 		ver_buf.Space().Cat(ver.ToStr(temp_buf));
 		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERPROG)/*"ВерсПрог"*/, ver_buf);
 	}
@@ -5614,7 +5615,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 			*/
 			GTaxVect vect;
 			long   exclude_tax_flags = GTAXVF_SALESTAX;
-			vect.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
+			vect.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags); // @v10.9.6 TIAMT_PRICE-->tiamt
 			{
 				temp_buf.Z();
 				if(rHi.Flags & FileInfo::fVatFree) {

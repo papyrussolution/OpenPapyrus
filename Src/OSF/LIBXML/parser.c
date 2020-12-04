@@ -741,7 +741,7 @@ int xmlHasFeature(xmlFeature feature)
 		if((pCtxt->sax) && (pCtxt->sax->initialized == XML_SAX2_MAGIC) && (pCtxt->sax->startElementNs || pCtxt->sax->endElementNs))
 			pCtxt->sax2 = 1;
 	#else
-		ctxt->sax2 = 1;
+		pCtxt->sax2 = 1;
 	#endif /* LIBXML_SAX1_ENABLED */
 		pCtxt->str_xml = xmlDictLookup(pCtxt->dict, reinterpret_cast<const xmlChar *>("xml"), 3);
 		pCtxt->str_xmlns = xmlDictLookup(pCtxt->dict, reinterpret_cast<const xmlChar *>("xmlns"), 5);
@@ -12511,7 +12511,6 @@ xmlDoc * xmlSAXParseMemory(xmlSAXHandler * sax, const char * buffer, int size, i
 {
 	return xmlSAXParseMemoryWithData(sax, buffer, size, recovery, 0);
 }
-
 /**
  * xmlParseMemory:
  * @buffer:  an pointer to a char array
@@ -12624,7 +12623,7 @@ xmlDoc * xmlSAXParseDoc(xmlSAXHandler * sax, const xmlChar * cur, int recovery)
 			}
 			xmlDetectSAX2(ctxt);
 			xmlParseDocument(ctxt);
-			if((ctxt->wellFormed) || recovery)
+			if(ctxt->wellFormed || recovery)
 				ret = ctxt->myDoc;
 			else {
 				ret = NULL;
@@ -12894,9 +12893,9 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 		return 1;
 	}
 	xmlCtxtReset(ctxt);
-	if(ctxt->pushTab == NULL) {
+	if(!ctxt->pushTab) {
 		ctxt->pushTab = static_cast<void **>(SAlloc::M(ctxt->nameMax * 3 * sizeof(xmlChar *)));
-		if(ctxt->pushTab == NULL) {
+		if(!ctxt->pushTab) {
 			xmlErrMemory(ctxt, 0);
 			xmlFreeParserInputBuffer(buf);
 			return 1;
@@ -12913,8 +12912,8 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 	xmlBufResetInput(buf->buffer, inputStream);
 	inputPush(ctxt, inputStream);
 	if(size > 0 && chunk && ctxt->input && ctxt->input->buf) {
-		size_t base = xmlBufGetInputBase(ctxt->input->buf->buffer, ctxt->input);
-		size_t cur = ctxt->input->cur - ctxt->input->base;
+		const size_t base = xmlBufGetInputBase(ctxt->input->buf->buffer, ctxt->input);
+		const size_t cur = ctxt->input->cur - ctxt->input->base;
 		xmlParserInputBufferPush(ctxt->input->buf, size, chunk);
 		xmlBufSetInputBaseCur(ctxt->input->buf->buffer, ctxt->input, base, cur);
 #ifdef DEBUG_PUSH
@@ -13147,8 +13146,7 @@ xmlDoc * xmlReadDoc(const xmlChar * cur, const char * URL, const char * encoding
 	if(!cur)
 		return 0;
 	xmlInitParser();
-	xmlParserCtxt * ctxt = xmlCreateDocParserCtxt(cur);
-	return xmlDoRead(ctxt, URL, encoding, options, 0);
+	return xmlDoRead(xmlCreateDocParserCtxt(cur), URL, encoding, options, 0);
 }
 /**
  * xmlReadFile:
@@ -13163,8 +13161,7 @@ xmlDoc * xmlReadDoc(const xmlChar * cur, const char * URL, const char * encoding
 xmlDoc * xmlReadFile(const char * filename, const char * encoding, int options)
 {
 	xmlInitParser();
-	xmlParserCtxt * ctxt = xmlCreateURLParserCtxt(filename, options);
-	return xmlDoRead(ctxt, NULL, encoding, options, 0);
+	return xmlDoRead(xmlCreateURLParserCtxt(filename, options), NULL, encoding, options, 0);
 }
 /**
  * xmlReadMemory:
@@ -13181,8 +13178,7 @@ xmlDoc * xmlReadFile(const char * filename, const char * encoding, int options)
 xmlDoc * xmlReadMemory(const char * buffer, int size, const char * URL, const char * encoding, int options)
 {
 	xmlInitParser();
-	xmlParserCtxt * ctxt = xmlCreateMemoryParserCtxt(buffer, size);
-	return xmlDoRead(ctxt, URL, encoding, options, 0);
+	return xmlDoRead(xmlCreateMemoryParserCtxt(buffer, size), URL, encoding, options, 0);
 }
 /**
  * xmlReadFd:
@@ -13428,4 +13424,3 @@ xmlDoc * xmlCtxtReadIO(xmlParserCtxt * ctxt, xmlInputReadCallback ioread, xmlInp
 }
 
 #define bottom_parser
-//#include "elfgcchack.h"

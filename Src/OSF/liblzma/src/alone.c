@@ -247,7 +247,7 @@ extern lzma_ret lzma_alone_decoder_init(lzma_next_coder * next, const lzma_alloc
 	coder->options.preset_dict = NULL;
 	coder->options.preset_dict_size = 0;
 	coder->uncompressed_size = 0;
-	coder->memlimit = my_max(1, memlimit);
+	coder->memlimit = MAX(1, memlimit);
 	coder->memusage = LZMA_MEMUSAGE_BASE;
 	return LZMA_OK;
 }

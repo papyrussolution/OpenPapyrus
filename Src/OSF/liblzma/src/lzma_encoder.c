@@ -7,11 +7,8 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "lzma2_encoder.h"
-//#include "lzma2-internal.h"
 #include "range_encoder.h"
 #include "lzma_encoder_private.h"
-//#include "fastpos.h"
 //
 // Literal //
 //

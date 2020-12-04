@@ -1,18 +1,14 @@
 /****************************************************************************
- *
  * ftcmanag.c
- *
  *   FreeType Cache Manager (body).
  *
- * Copyright (C) 2000-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2000-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 #include <freetype/ftcache.h>
 #include "ftcmanag.h"
@@ -504,22 +500,15 @@ FTC_Manager_Compress(FTC_Manager manager)
 }
 
 /* documentation is in ftcmanag.h */
-
-FT_LOCAL_DEF(FT_Error)
-FTC_Manager_RegisterCache(FTC_Manager manager,
-    FTC_CacheClass clazz,
-    FTC_Cache       *acache)
+FT_LOCAL_DEF(FT_Error) FTC_Manager_RegisterCache(FTC_Manager manager, FTC_CacheClass clazz, FTC_Cache       *acache)
 {
 	FT_Error error = FT_ERR(Invalid_Argument);
 	FTC_Cache cache = NULL;
-
 	if(manager && clazz && acache) {
 		FT_Memory memory = manager->memory;
-
 		if(manager->num_caches >= FTC_MAX_CACHES) {
 			error = FT_THROW(Too_Many_Caches);
-			FT_ERROR(( "FTC_Manager_RegisterCache:"
-			    " too many registered caches\n" ));
+			FT_ERROR(( "FTC_Manager_RegisterCache: too many registered caches\n" ));
 			goto Exit;
 		}
 
@@ -574,7 +563,6 @@ FT_LOCAL_DEF(FT_UInt) FTC_Manager_FlushN(FTC_Manager manager, FT_UInt count)
 }
 
 /* documentation is in ftcache.h */
-
 FT_EXPORT_DEF(void) FTC_Manager_RemoveFaceID(FTC_Manager manager, FTC_FaceID face_id)
 {
 	FT_UInt nn;
@@ -589,11 +577,8 @@ FT_EXPORT_DEF(void) FTC_Manager_RemoveFaceID(FTC_Manager manager, FTC_FaceID fac
 }
 
 /* documentation is in ftcache.h */
-
 FT_EXPORT_DEF(void) FTC_Node_Unref(FTC_Node node, FTC_Manager manager)
 {
 	if(node && manager && (FT_UInt)node->cache_index < manager->num_caches)
 		node->ref_count--;
 }
-
-/* END */

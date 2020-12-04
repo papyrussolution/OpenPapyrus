@@ -312,13 +312,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			    if(sc.atLineStart || sc.atLineEnd || (!setWord.Contains(sc.ch) && sc.ch != '-')) {
 				    char s[1000];
 				    sc.GetCurrentLowered(s, sizeof(s));
-				    bool isLastWordEnd = (s[0] == 'e' && s[1] =='n' && s[2] == 'd' && !IsAlphaNumeric(s[3]) && s[3] != '-'); //
-				                                                                                                             // helps
-				                                                                                                             // to
-				                                                                                                             // identify
-				                                                                                                             // "end
-				                                                                                                             // trigger"
-				                                                                                                             // phrase
+				    bool isLastWordEnd = (s[0] == 'e' && s[1] =='n' && s[2] == 'd' && !isasciialnum(s[3]) && s[3] != '-'); // helps to identify "end trigger" phrase
 				    if((isSentenceStart &&
 					    keywords2.InListAbbreviated(s,
 						    '(')) || (!isLastWordEnd && keywords3.InListAbbreviated(s, '('))) {
@@ -327,13 +321,11 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				    }
 				    else if(keywords1.InListAbbreviated(s, '(')) {
 					    if(isLastWordEnd ||
-					    (s[0] == 'f' && s[1] =='o' && s[2] == 'r' && s[3] == 'w' && s[4] =='a' && s[5] == 'r' &&
-						    s[6] == 'd'&& !IsAlphaNumeric(s[7]))) {
+					    (s[0] == 'f' && s[1] =='o' && s[2] == 'r' && s[3] == 'w' && s[4] =='a' && s[5] == 'r' && s[6] == 'd'&& !isasciialnum(s[7]))) {
 						    sc.ChangeState(SCE_ABL_END);
 						    isSentenceStart = false;
 					    }
-					    else if((s[0] == 'e' && s[1] =='l' && s[2] == 's' && s[3] == 'e') ||
-					    (s[0] == 't' && s[1] =='h' && s[2] == 'e' && s[3] == 'n')) {
+					    else if((s[0] == 'e' && s[1] =='l' && s[2] == 's' && s[3] == 'e') || (s[0] == 't' && s[1] =='h' && s[2] == 'e' && s[3] == 'n')) {
 						    sc.ChangeState(SCE_ABL_WORD);
 						    isSentenceStart = true;
 					    }
@@ -528,7 +520,7 @@ void SCI_METHOD LexerABL::Fold(Sci_PositionU startPos, Sci_Position length, int 
 			}
 		}
 		if(options.foldSyntaxBased) {
-			if(style == SCE_ABL_BLOCK && !IsAlphaNumeric(chNext)) {
+			if(style == SCE_ABL_BLOCK && !isasciialnum(chNext)) {
 				levelNext++;
 			}
 			else if(style == SCE_ABL_END  && (ch == 'e' || ch == 'f')) {

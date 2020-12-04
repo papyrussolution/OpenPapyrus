@@ -956,5 +956,3 @@ void xmlDumpEntitiesTable(xmlBuffer * buf, xmlEntitiesTablePtr table)
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-#define bottom_entities
-//#include "elfgcchack.h"

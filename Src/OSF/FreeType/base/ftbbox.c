@@ -102,11 +102,9 @@ static int BBox_Move_To(FT_Vector*  to, TBBox_Rec*  user)
  * @Return:
  *   Always 0.  Needed for the interface only.
  */
-static int BBox_Line_To(FT_Vector*  to,
-    TBBox_Rec*  user)
+static int BBox_Line_To(FT_Vector*  to, TBBox_Rec*  user)
 {
 	user->last = *to;
-
 	return 0;
 }
 
@@ -137,29 +135,21 @@ static int BBox_Line_To(FT_Vector*  to,
  *   max ::
  *     The address of the current maximum.
  */
-static void BBox_Conic_Check(FT_Pos y1,
-    FT_Pos y2,
-    FT_Pos y3,
-    FT_Pos*  min,
-    FT_Pos*  max)
+static void BBox_Conic_Check(FT_Pos y1, FT_Pos y2, FT_Pos y3, FT_Pos*  min, FT_Pos*  max)
 {
 	/* This function is only called when a control off-point is outside */
 	/* the bbox that contains all on-points.  It finds a local extremum */
 	/* within the segment, equal to (y1*y3 - y2*y2)/(y1 - 2*y2 + y3).   */
 	/* Or, offsetting from y2, we get                                   */
-
 	y1 -= y2;
 	y3 -= y2;
 	y2 += FT_MulDiv(y1, y3, y1 + y3);
-
 	if(y2 < *min)
 		*min = y2;
 	if(y2 > *max)
 		*max = y2;
 }
-
 /**************************************************************************
- *
  * @Function:
  *   BBox_Conic_To
  *

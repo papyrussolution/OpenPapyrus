@@ -691,8 +691,8 @@ SrNGram & SrNGram::Z()
 
 static IMPL_CMPCFUNC(SrNGram_ByLength, p1, p2)
 {
-	const SrNGram * p_ng1 = (const SrNGram *)p1;
-	const SrNGram * p_ng2 = (const SrNGram *)p2;
+	const SrNGram * p_ng1 = static_cast<const SrNGram *>(p1);
+	const SrNGram * p_ng2 = static_cast<const SrNGram *>(p2);
 	return CMPSIGN(p_ng1->WordIdList.getCount(), p_ng2->WordIdList.getCount());
 }
 
@@ -928,18 +928,18 @@ int FASTCALL SrCPropDeclList::Merge(const SrCPropDeclList & rS)
 //
 //
 //
-struct SrConcept_SurrogatePrefix {
+/*struct SrConcept_SurrogatePrefix {
 	int    Surrsymbpfx;
 	const char * P_Prefix;
-};
+};*/
 
-static const SrConcept_SurrogatePrefix SrConcept_SurrogatePrefix_List[] = {
+static const /*SrConcept_SurrogatePrefix*/SIntToSymbTabEntry SrConcept_SurrogatePrefix_List[] = {
 	{ SrConcept::surrsymbsrcFIAS, "fias" },
 	{ SrConcept::surrsymbsrcGBIF, "gbif" },
 	{ SrConcept::surrsymbsrcTICKER, "tckr" }
 };
 
-static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
+/*static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
 {
 	for(uint i = 0; i < SIZEOFARRAY(SrConcept_SurrogatePrefix_List); i++) {
 		if(SrConcept_SurrogatePrefix_List[i].Surrsymbpfx == surrsymbpfx) {
@@ -947,13 +947,14 @@ static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
 		}
 	}
 	return 0;
-}
+}*/
 
 /*static*/int SrConcept::MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint dataSize, SString & rSymb)
 {
 	int    ok = 0;
 	rSymb.Z();
-	const char * p_prefix = Get_SrConcept_SurrogatePrefix(surrsymbpfx);
+	//const char * p_prefix = Get_SrConcept_SurrogatePrefix(surrsymbpfx);
+	const char * p_prefix = SIntToSymbTab_GetSymbPtr(SrConcept_SurrogatePrefix_List, SIZEOFARRAY(SrConcept_SurrogatePrefix_List), surrsymbpfx);
 	assert(!isempty(p_prefix));
 	if(surrsymbpfx == surrsymbsrcFIAS) {
 		if(pData && dataSize == sizeof(S_GUID)) {
@@ -982,25 +983,24 @@ static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
 	int    surrsymbpfx = surrsymbsrcUndef;
 	if(!isempty(pSymb)) {
 		SString temp_buf;
-		const char * p_prefix = Get_SrConcept_SurrogatePrefix(surrsymbpfx);
+		//const char * p_prefix = Get_SrConcept_SurrogatePrefix(surrsymbpfx);
+		const char * p_prefix = SIntToSymbTab_GetSymbPtr(SrConcept_SurrogatePrefix_List, SIZEOFARRAY(SrConcept_SurrogatePrefix_List), surrsymbpfx);
 		for(uint i = 0; i < SIZEOFARRAY(SrConcept_SurrogatePrefix_List); i++) {
-			const char * p_prefix = SrConcept_SurrogatePrefix_List[i].P_Prefix;
+			const char * p_prefix = SrConcept_SurrogatePrefix_List[i].P_Symb/*P_Prefix*/;
 			const size_t prefix_len = sstrlen(p_prefix);
 			if(strncmp(pSymb, p_prefix, prefix_len) == 0) {
 				temp_buf = pSymb+prefix_len;
-				if(SrConcept_SurrogatePrefix_List[i].Surrsymbpfx == surrsymbsrcFIAS) {
+				if(SrConcept_SurrogatePrefix_List[i].Id/*Surrsymbpfx*/ == surrsymbsrcFIAS) {
 					S_GUID uuid;
 					size_t real_len = 0;
 					temp_buf.DecodeMime64(&uuid, sizeof(uuid), &real_len);
 					if(real_len == sizeof(uuid)) {
-						surrsymbpfx = SrConcept_SurrogatePrefix_List[i].Surrsymbpfx;
+						surrsymbpfx = SrConcept_SurrogatePrefix_List[i].Id/*Surrsymbpfx*/;
 						if(pData && pDataSize) {
-							if(*pDataSize >= sizeof(uuid)) {
+							if(*pDataSize >= sizeof(uuid))
 								memcpy(pData, &uuid, sizeof(uuid));
-							}
-							else {
+							else
 								surrsymbpfx = surrsymbsrcUndef;
-							}
 						}
 						break;
 					}
@@ -1128,10 +1128,8 @@ SrCPropList & SrCPropList::Z()
 	return *this;
 }
 
-uint SrCPropList::GetCount() const
-{
-	return L.getCount();
-}
+uint SrCPropList::GetCount() const { return L.getCount(); }
+size_t FASTCALL SrCPropList::GetDataLen(uint pos) const { return (pos < L.getCount()) ? L.at(pos).S : 0; }
 
 int SrCPropList::Search(CONCEPTID cID, CONCEPTID propID, uint * pPos) const
 {
@@ -1187,11 +1185,6 @@ int SrCPropList::GetByPos(uint pos, SrCProp & rProp) const
 	else
 		ok = 0;
 	return ok;
-}
-
-size_t FASTCALL SrCPropList::GetDataLen(uint pos) const
-{
-	return (pos < L.getCount()) ? L.at(pos).S : 0;
 }
 
 const void * SrCPropList::GetDataPtr(uint pos, size_t * pDataLen) const
@@ -1284,7 +1277,7 @@ SrWordInfo & SrWordInfo::Z()
 	BaseFormID = 0;
 	FormID = 0;
 	WaID = 0;
-	AbbrExpID = 0; // @v9.8.12
+	AbbrExpID = 0;
 	Score = 0.0;
 	return *this;
 }
@@ -1335,12 +1328,5 @@ SrImportParam::SrImportParam() : InputKind(0), LangID(0), CpID(0), Flags(0)
 {
 }
 
-void SrImportParam::SetField(int fld, const char * pVal)
-{
-	StrItems.Add(fld, pVal);
-}
-
-int SrImportParam::GetField(int fld, SString & rVal) const
-{
-	return StrItems.GetText(fld, rVal);
-}
+void SrImportParam::SetField(int fld, const char * pVal) { StrItems.Add(fld, pVal); }
+int SrImportParam::GetField(int fld, SString & rVal) const { return StrItems.GetText(fld, rVal); }

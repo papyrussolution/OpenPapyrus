@@ -9150,5 +9150,4 @@ int xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc)
 }
 
 #define bottom_relaxng
-//#include "elfgcchack.h"
 #endif /* LIBXML_SCHEMAS_ENABLED */

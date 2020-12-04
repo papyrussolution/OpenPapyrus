@@ -40,7 +40,6 @@
 #define TUKLIB_INTEGER_H
 
 #include "tuklib_common.h"
-//#include <string.h>
 #if _MSC_VER >= 1600
 	#include <intrin.h> // @sobolev
 #endif

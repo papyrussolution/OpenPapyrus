@@ -515,7 +515,7 @@ int PPScaleDevice::CheckSync(int syncCode, int validRetCode)
 {
 	int    ok = 0;
 	if(PutChr(syncCode)) {
-		int ret = GetChr();
+		const int ret = GetChr();
 		if(ret)
 			ok = (ret == validRetCode) ? 1 : PPSetError(PPERR_SCALE_NOSYNC);
 	}
@@ -583,10 +583,7 @@ public:
 		}
 	}
 private:
-	int    Is_v16() const
-	{
-		return BIN(oneof2(Data.Rec.ProtocolVer, 16, 17));
-	}
+	int    Is_v16() const { return BIN(oneof2(Data.Rec.ProtocolVer, 16, 17)); }
 	int    CheckSync_16();
 	int    CheckAckForPLU();
 	int    GetInt();
@@ -606,12 +603,13 @@ private:
 int CommLP15::CheckSync_16()
 {
 	int    ok = 1;
-	uint8  ret[2];
-	ret[0] = (uint8)Data.Rec.LogNum, ret[1] = 0;
+	uint8  ret[2] = { static_cast<uint8>(Data.Rec.LogNum), 0 };
+	//ret[0] = static_cast<uint8>(Data.Rec.LogNum);
+	//ret[1] = 0;
 	if(Data.Rec.Flags & SCALF_TCPIP) {
 		if(IsConnected) {
-			THROW_PP(send(SocketHandle, (const char *)ret, 1, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
-			THROW_PP(recv(SocketHandle, (char *)ret, 2, 0) != SOCKET_ERROR, PPERR_SCALE_RCV);
+			THROW_PP(send(SocketHandle, reinterpret_cast<const char *>(ret), 1, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
+			THROW_PP(recv(SocketHandle, reinterpret_cast<char *>(ret), 2, 0) != SOCKET_ERROR, PPERR_SCALE_RCV);
 		}
 	}
 	else {
@@ -4115,7 +4113,7 @@ int ExportToFile::SetConnection()
 		if(!isempty(scale_name))
 			THROW(param.ReadIni(&ini_file, scale_name, 0));
 		param.ReadIni(&ini_file, scale_name, 0);
-		THROW(ok = P_GoodsExp->Init(&param));
+		THROW(ok = P_GoodsExp->Init(&param, 0));
 	}
 	CATCHZOK
 	return ok;
@@ -4946,10 +4944,12 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 				SFile out_file(path, SFile::mWrite);
 				THROW_SL(out_file.IsValid());
 				{
-					char   ver_text[64];
+					//char   ver_text[64];
 					PPVersionInfo vi = DS.GetVersionInfo();
-					vi.GetVersionText(ver_text, sizeof(ver_text));
-					line_buf.Z().Cat(P_ScalePrepareFormatSignature).Space().Cat(ver_text).CR();
+					//vi.GetVersionText(ver_text, sizeof(ver_text));
+					//line_buf.Z().Cat(P_ScalePrepareFormatSignature).Space().Cat(ver_text).CR();
+					vi.GetTextAttrib(vi.taiVersionText, temp_buf);
+					line_buf.Z().Cat(P_ScalePrepareFormatSignature).Space().Cat(temp_buf).CR();
 					out_file.WriteLine(line_buf);
 				}
 				for(grv->InitIteration(PPViewGoodsRest::OrdByGoodsName); grv->NextIteration(&gr_item) > 0;) {

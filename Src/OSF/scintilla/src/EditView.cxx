@@ -1618,13 +1618,11 @@ void EditView::DrawForeground(Surface * surface, const EditModel &model, const V
 				// Normal text display
 				if(vsDraw.styles[styleMain].Flags & Style::fVisible) {
 					if(phasesDraw != phasesOne) {
-						surface->DrawTextTransparent(rcSegment, textFont,
-						    rcSegment.top + vsDraw.maxAscent, ll->chars + ts.start,
+						surface->DrawTextTransparent(rcSegment, textFont, rcSegment.top + vsDraw.maxAscent, ll->chars + ts.start,
 						    i - ts.start + 1, textFore);
 					}
 					else {
-						surface->DrawTextNoClip(rcSegment, textFont,
-						    rcSegment.top + vsDraw.maxAscent, ll->chars + ts.start,
+						surface->DrawTextNoClip(rcSegment, textFont, rcSegment.top + vsDraw.maxAscent, ll->chars + ts.start,
 						    i - ts.start + 1, textFore, textBack);
 					}
 				}

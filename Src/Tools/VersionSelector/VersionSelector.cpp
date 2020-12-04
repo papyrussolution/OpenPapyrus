@@ -1,7 +1,6 @@
 // VersonSelector.cpp : Defines the entry point for the application.
 //
 #include "VersionSelector.h"
-//#include <errno.h>
 #include <pp.h>
 #include <shlwapi.h>
 
@@ -19,7 +18,6 @@ int PPSetErrorNoMem() { return ((PPErrCode = PPERR_NOMEM), 0); }
 int PPSetErrorSLib() { return ((PPErrCode = PPERR_SLIB), 0); }
 
 struct RetVal {
-	//char * P_Path;
 	SString Path;
 	int    OK;
 };
@@ -87,13 +85,15 @@ static int GetVersBuf(const char * pPath, char * pBuf, size_t bufSize)
 {
 	int    ok = -1;
 	if(pPath) {
-		char   ver_number[128];
+		//char   ver_number[128];
+		SString temp_buf;
 		SString line_buf;
 		(line_buf = pBuf).SetLastSlash().Cat("ppw.exe");
-		PPVersionInfo ver_inf(line_buf);
-		memzero(ver_number, sizeof(ver_number));
-		ver_inf.GetVersionText(ver_number, sizeof(ver_number));
-		line_buf.ToLower().CatDiv(':', 2).Cat(ver_number).CopyTo(pBuf, bufSize);
+		PPVersionInfo vi(line_buf);
+		// @v10.9.6 memzero(ver_number, sizeof(ver_number));
+		// @v10.9.6 vi.GetVersionText(ver_number, sizeof(ver_number));
+		vi.GetTextAttrib(vi.taiVersionText, temp_buf); // @v10.9.6 
+		line_buf.ToLower().CatDiv(':', 2).Cat(/*ver_number*/temp_buf).CopyTo(pBuf, bufSize);
 		ok = 1;
 	}
 	return ok;

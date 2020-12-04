@@ -5411,5 +5411,4 @@ xmlSchemaValType xmlSchemaGetValType(xmlSchemaVal * val)
 }
 
 #define bottom_xmlschemastypes
-//#include "elfgcchack.h"
 #endif /* LIBXML_SCHEMAS_ENABLED */

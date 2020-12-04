@@ -47,10 +47,7 @@ void initxmlDefaultSAXHandler(xmlSAXHandlerV1 * hdlr, int warning)
 	hdlr->cdataBlock = xmlSAX2CDataBlock;
 	hdlr->ignorableWhitespace = xmlSAX2Characters;
 	hdlr->processingInstruction = xmlSAX2ProcessingInstruction;
-	if(warning == 0)
-		hdlr->warning = NULL;
-	else
-		hdlr->warning = xmlParserWarning;
+	hdlr->warning = warning ? xmlParserWarning : NULL;
 	hdlr->error = xmlParserError;
 	hdlr->fatalError = xmlParserError;
 	hdlr->initialized = 1;
@@ -139,14 +136,11 @@ void initdocbDefaultSAXHandler(xmlSAXHandlerV1 * hdlr)
 	hdlr->warning = xmlParserWarning;
 	hdlr->error = xmlParserError;
 	hdlr->fatalError = xmlParserError;
-
 	hdlr->initialized = 1;
 }
 
 #endif /* LIBXML_DOCB_ENABLED */
-
 #endif /* LIBXML_SAX1_ENABLED */
 
 #define bottom_SAX
-//#include "elfgcchack.h"
 #endif /* LIBXML_LEGACY_ENABLED */

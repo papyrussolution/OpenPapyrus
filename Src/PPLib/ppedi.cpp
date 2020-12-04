@@ -112,11 +112,13 @@ static const GtinFixedLengthToken GtinFixedLengthTokenList[] = {
 	{ GtinStruc::fldCouponCode3,           2 }, // 2 num
 };
 
-int GtinStruc::GetPrefixSpec(int prefixId, uint * pFixedLen) const
+int GtinStruc::GetPrefixSpec(int prefixId, uint * pFixedLen, uint * pMinLen) const
 {
 	int    ok = 0;
 	ASSIGN_PTR(pFixedLen, 0);
+	ASSIGN_PTR(pMinLen, 0);
 	long   spc_fx_len = 0;
+	long   spc_min_len = 0;
 	if(SpecialFixedTokens.Search(prefixId, &spc_fx_len, 0)) {
 		ASSIGN_PTR(pFixedLen, static_cast<uint>(spc_fx_len));
 		ok = 1;
@@ -129,6 +131,10 @@ int GtinStruc::GetPrefixSpec(int prefixId, uint * pFixedLen) const
 				ok = 1;
 			}
 		}
+	}
+	if(SpecialMinLenTokens.Search(prefixId, &spc_min_len, 0)) {
+		ASSIGN_PTR(pMinLen, static_cast<uint>(spc_min_len));
+		ok = 1;
 	}
 	return ok;
 }
@@ -302,6 +308,15 @@ int GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
 	}
 	else
 		ok = 0;
+	return ok;
+}
+
+int GtinStruc::SetSpecialMinLenToken(int token, int minLen)
+{
+	int    ok = 1;
+	if(minLen > 0) {
+		SpecialMinLenTokens.AddUnique(token, minLen, 0, 0);
+	}
 	return ok;
 }
 
@@ -573,8 +588,9 @@ int GtinStruc::Parse(const char * pCode)
 				int   prefix_id = DetectPrefix(p, dpf, -1, &prefix_len, prefix_);
 				dpf = 0;
 				uint  fixed_len = 0;
+				uint  min_len = 0;
 				if(prefix_id > 0) {
-					GetPrefixSpec(prefix_id, &fixed_len);
+					GetPrefixSpec(prefix_id, &fixed_len, &min_len);
 					if(fixed_len) {
 						const uint ro = SetupFixedLenField(p, prefix_len, fixed_len, prefix_id);
 						THROW(ro);
@@ -586,17 +602,22 @@ int GtinStruc::Parse(const char * pCode)
 						int   next_prefix_id = -1;
 						uint  next_prefix_len = 0;
 						while(*p) {
-							next_prefix_id = DetectPrefix(p, dpf, prefix_id, &next_prefix_len, next_prefix_);
-							if(next_prefix_id > 0) {
-								uint next_fld_len = RecognizeFieldLen(p+next_prefix_len, prefix_id);
-								if(next_fld_len == 0) {
-									temp_buf.CatChar(*p++);
+							if(min_len > 0 && temp_buf.Len() < min_len) {
+								temp_buf.CatChar(*p++);
+							}
+							else {
+								next_prefix_id = DetectPrefix(p, dpf, prefix_id, &next_prefix_len, next_prefix_);
+								if(next_prefix_id > 0) {
+									uint next_fld_len = RecognizeFieldLen(p+next_prefix_len, prefix_id);
+									if(next_fld_len == 0) {
+										temp_buf.CatChar(*p++);
+									}
+									else
+										break;
 								}
 								else
-									break;
+									temp_buf.CatChar(*p++);
 							}
-							else
-								temp_buf.CatChar(*p++);
 						}
 						THROW(!StrAssocArray::Search(prefix_id));
 						StrAssocArray::Add(prefix_id, temp_buf);
@@ -634,6 +655,7 @@ int TestGtinStruc()
 				gts.AddOnlyToken(GtinStruc::fldSerial);
 				gts.SetSpecialFixedToken(GtinStruc::fldSerial, 13);
 				gts.AddOnlyToken(GtinStruc::fldPart);
+				// gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v10.9.6
 				gts.AddOnlyToken(GtinStruc::fldAddendumId);
 				gts.AddOnlyToken(GtinStruc::fldUSPS);
 				gts.AddOnlyToken(GtinStruc::fldInner1);
@@ -3762,7 +3784,7 @@ int EdiProviderImplementation_Kontur::IdentifyOrderRspStatus(const PPBillPacket 
 	int    status = 1;
 	if(pExtBp && pExtBp != &rBp) {
 		int    all_rejected = 1;
-		const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
+		const  PPBillPacket & r_org_pack = DEREFPTROR(pExtBp, rBp);
 		for(uint i = 0; i < r_org_pack.GetTCount(); i++) {
 			uint   current_ti_pos = 0;
 			const PPTransferItem & r_ti = r_org_pack.ConstTI(i);
@@ -3789,7 +3811,7 @@ int EdiProviderImplementation_Kontur::IdentifyOrderRspStatus(const PPBillPacket 
 int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
 {
 	int    ok = 1;
-	const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
+	const  PPBillPacket & r_org_pack = DEREFPTROR(pExtBp, rBp);
 	SString temp_buf;
 	SXml::WDoc _doc(pX, cpUTF8);
 	SXml::WNode n_docs(_doc, "eDIMessage"); // <eDIMessage id="0000015137">
@@ -7347,7 +7369,7 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, 
 int EdiProviderImplementation_Exite::Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
 {
 	int    ok = 1;
-	const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
+	const  PPBillPacket & r_org_pack = DEREFPTROR(pExtBp, rBp);
 	SString temp_buf;
 	SXml::WDoc _doc(pX, cpUTF8);
 	SXml::WNode n_docs(_doc, "ORDRSP");
@@ -7695,7 +7717,7 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 							//double amount_with_vat = p_recadv_ti ? (p_recadv_ti->Cost * fabs(p_recadv_ti->Quantity_)) : (r_ti.Cost * fabs(r_ti.Quantity_));
 							//
 								GTaxVect tvect;
-								tvect.CalcTI(p_recadv_ti ? *p_recadv_ti : r_ti, 0 /*opID*/, TIAMT_COST);
+								tvect.CalcTI(DEREFPTROR(p_recadv_ti, r_ti), 0 /*opID*/, TIAMT_COST);
 								const double amount_with_vat = tvect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
 								const double amount_without_vat = tvect.GetValue(GTAXVF_AFTERTAXES);
 								const double vat_rate = tvect.GetTaxRate(GTAX_VAT, 0);

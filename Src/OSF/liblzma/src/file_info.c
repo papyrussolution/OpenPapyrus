@@ -5,8 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "index_decoder.h"
-//#include "index-internal.h"
 
 struct lzma_file_info_coder {
 	enum {
@@ -50,11 +48,9 @@ struct lzma_file_info_coder {
 /// Copies data from in[*in_pos] into coder->temp until
 /// coder->temp_pos == coder->temp_size. This also keeps coder->file_cur_pos
 /// in sync with *in_pos. Returns true if more input is needed.
-static bool fill_temp(lzma_file_info_coder * coder, const uint8_t * in,
-    size_t * in_pos, size_t in_size)
+static bool fill_temp(lzma_file_info_coder * coder, const uint8_t * in, size_t * in_pos, size_t in_size)
 {
-	coder->file_cur_pos += lzma_bufcpy(in, in_pos, in_size,
-		coder->temp, &coder->temp_pos, coder->temp_size);
+	coder->file_cur_pos += lzma_bufcpy(in, in_pos, in_size, coder->temp, &coder->temp_pos, coder->temp_size);
 	return coder->temp_pos < coder->temp_size;
 }
 
@@ -139,10 +135,8 @@ static lzma_ret reverse_seek(lzma_file_info_coder * coder, size_t in_start, size
 	// LZMA_STREAM_HEADER_SIZE bytes in coder->temp.
 	assert(coder->temp_size >= LZMA_STREAM_HEADER_SIZE);
 
-	if(seek_to_pos(coder, coder->file_target_pos - coder->temp_size,
-	    in_start, in_pos, in_size))
+	if(seek_to_pos(coder, coder->file_target_pos - coder->temp_size, in_start, in_pos, in_size))
 		return LZMA_SEEK_NEEDED;
-
 	return LZMA_OK;
 }
 
@@ -152,7 +146,6 @@ static size_t get_padding_size(const uint8_t * buf, size_t buf_size)
 	size_t padding = 0;
 	while(buf_size > 0 && buf[--buf_size] == 0x00)
 		++padding;
-
 	return padding;
 }
 
@@ -166,7 +159,6 @@ static lzma_ret hide_format_error(lzma_ret ret)
 {
 	if(ret == LZMA_FORMAT_ERROR)
 		ret = LZMA_DATA_ERROR;
-
 	return ret;
 }
 
@@ -174,21 +166,13 @@ static lzma_ret hide_format_error(lzma_ret ret)
 /// This is a separate function because the input can be either directly
 /// from the application or from coder->temp.
 static lzma_ret decode_index(lzma_file_info_coder * coder, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos,
-    size_t in_size, bool update_file_cur_pos)
+    const uint8_t * in, size_t * in_pos, size_t in_size, bool update_file_cur_pos)
 {
 	const size_t in_start = *in_pos;
-
-	const lzma_ret ret = coder->index_decoder.code(
-		coder->index_decoder.coder,
-		allocator, in, in_pos, in_size,
-		NULL, NULL, 0, LZMA_RUN);
-
+	const lzma_ret ret = coder->index_decoder.code(coder->index_decoder.coder, allocator, in, in_pos, in_size, NULL, NULL, 0, LZMA_RUN);
 	coder->index_remaining -= *in_pos - in_start;
-
 	if(update_file_cur_pos)
 		coder->file_cur_pos += *in_pos - in_start;
-
 	return ret;
 }
 
@@ -301,8 +285,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 			    // field into coder->temp without needing a separate seek
 			    // for that (unless the Index field is big).
 			    if(coder->temp_size < LZMA_STREAM_HEADER_SIZE)
-				    return_if_error(reverse_seek(
-						coder, in_start, in_pos, in_size));
+				    return_if_error(reverse_seek(coder, in_start, in_pos, in_size));
 		    }
 
 			// Fall through
@@ -322,10 +305,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 			    coder->temp_size -= LZMA_STREAM_HEADER_SIZE;
 
 			    // Decode Stream Footer.
-			    return_if_error(hide_format_error(lzma_stream_footer_decode(
-					&coder->footer_flags,
-					coder->temp + coder->temp_size)));
-
+			    return_if_error(hide_format_error(lzma_stream_footer_decode(&coder->footer_flags, coder->temp + coder->temp_size)));
 			    // Check that we won't seek past the beginning of the file.
 			    //
 			    // LZMA_STREAM_HEADER_SIZE is added because there must be
@@ -334,10 +314,8 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 			    //
 			    // There's no risk of integer overflow here because
 			    // Backward Size cannot be greater than 2^34.
-			    if(coder->file_target_pos < coder->footer_flags.backward_size
-				+ LZMA_STREAM_HEADER_SIZE)
+			    if(coder->file_target_pos < coder->footer_flags.backward_size + LZMA_STREAM_HEADER_SIZE)
 				    return LZMA_DATA_ERROR;
-
 			    // Set the target position to the beginning of the Index field.
 			    coder->file_target_pos -= coder->footer_flags.backward_size;
 			    coder->sequence = lzma_file_info_coder::SEQ_INDEX_INIT;
@@ -660,37 +638,26 @@ static lzma_ret file_info_decoder_memconfig(void * coder_ptr, uint64_t * memusag
 	*memusage = combined_index_memusage + this_index_memusage;
 	if(*memusage == 0)
 		*memusage = lzma_index_memusage(1, 0);
-
 	*old_memlimit = coder->memlimit;
-
 	// If requested, set a new memory usage limit.
 	if(new_memlimit != 0) {
 		if(new_memlimit < *memusage)
 			return LZMA_MEMLIMIT_ERROR;
-
 		// In the condition (3) we need to tell the Index decoder
 		// its new memory usage limit.
 		if(coder->this_index == NULL && coder->sequence == lzma_file_info_coder::SEQ_INDEX_DECODE) {
 			const uint64_t idec_new_memlimit = new_memlimit - combined_index_memusage;
-
 			assert(this_index_memusage > 0);
 			assert(idec_new_memlimit > 0);
-
 			uint64_t dummy1;
 			uint64_t dummy2;
-
-			if(coder->index_decoder.memconfig(
-				    coder->index_decoder.coder,
-				    &dummy1, &dummy2, idec_new_memlimit)
-			    != LZMA_OK) {
+			if(coder->index_decoder.memconfig(coder->index_decoder.coder, &dummy1, &dummy2, idec_new_memlimit) != LZMA_OK) {
 				assert(0);
 				return LZMA_PROG_ERROR;
 			}
 		}
-
 		coder->memlimit = new_memlimit;
 	}
-
 	return LZMA_OK;
 }
 
@@ -718,7 +685,6 @@ static lzma_ret lzma_file_info_decoder_init(lzma_next_coder * next, const lzma_a
 		next->code = &file_info_decode;
 		next->end = &file_info_decoder_end;
 		next->memconfig = &file_info_decoder_memconfig;
-
 		coder->index_decoder.SetDefault();// = LZMA_NEXT_CODER_INIT;
 		coder->this_index = NULL;
 		coder->combined_index = NULL;
@@ -736,7 +702,7 @@ static lzma_ret lzma_file_info_decoder_init(lzma_next_coder * next, const lzma_a
 	coder->external_seek_pos = seek_pos;
 	// If memlimit is 0, make it 1 to ensure that lzma_memlimit_get()
 	// won't return 0 (which would indicate an error).
-	coder->memlimit = my_max(1, memlimit);
+	coder->memlimit = MAX(1, memlimit);
 	// Prepare these for reading the first Stream Header into coder->temp.
 	coder->temp_pos = 0;
 	coder->temp_size = LZMA_STREAM_HEADER_SIZE;

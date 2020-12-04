@@ -1992,9 +1992,7 @@ public:
 	flex_align AlignContent; // FLEX_ALIGN_STRETCH
 	flex_align AlignItems; // FLEX_ALIGN_STRETCH
 	flex_align AlignSelf; // FLEX_ALIGN_AUTO
-	//flex_position PositionMode; // FLEX_POSITION_RELATIVE
 	flex_direction Direction; // FLEX_DIRECTION_COLUMN
-	//flex_wrap WrapMode; // FLEX_WRAP_NO_WRAP
 	enum {
 		fPositionAbsolute         = 0x0001, // else Relative
 		fWrap                     = 0x0002,
@@ -2003,9 +2001,10 @@ public:
 		fDirectionReverse         = 0x0010, // if horizontal then right-to-left, if vertical then bottom-to-top
 		fStateShouldOrderChildren = 0x0100
 	};
-	float  grow;   // 0.0f
-	float  shrink; // 1.0
+	float  GrowFactor;   // 0.0f
+	float  ShrinkFactor; // 1.0
 	float  basis;  // NAN
+	float  AspectRation; // @v10.9.6 0.0 Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
 	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
 	// An item can provide a self_sizing callback function that will be called
 	// during layout and which can customize the dimensions (width and height) of the item.

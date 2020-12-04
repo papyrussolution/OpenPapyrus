@@ -1522,7 +1522,7 @@ DB * FASTCALL BDbCursor::GetIntTbl(int idx)
 		TSCollection <BDbTable> & r_idx_list = R_Tbl.GetIdxList();
 		if(idx <= r_idx_list.getCountI()) {
 			BDbTable * p_tbl = r_idx_list.at(idx-1);
-			p_db = p_tbl ? *p_tbl : static_cast<DB *>(0);
+			p_db = DEREFPTROR(p_tbl, static_cast<DB *>(0));
 		}
 		else
 			DBS.SetError(BE_INVKEY, 0);

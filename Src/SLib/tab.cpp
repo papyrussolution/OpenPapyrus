@@ -17,6 +17,18 @@ int FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSi
 	return ok;
 }
 
+const char * FASTCALL SIntToSymbTab_GetSymbPtr(const SIntToSymbTabEntry * pTab, size_t tabSize, int id)
+{
+	const char * ptr = 0;
+	for(uint i = 0; i < tabSize; i++) {
+		if(pTab[i].Id == id) {
+			ptr = pTab[i].P_Symb;
+			break;
+		}
+	}
+	return ptr;
+}
+
 bool FASTCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSize, int id)
 {
 	bool   yes = 0;

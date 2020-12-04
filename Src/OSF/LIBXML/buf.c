@@ -1189,6 +1189,3 @@ int FASTCALL xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInput * input, size_t
 	input->end = &buf->content[buf->use];
 	return 0;
 }
-
-#define bottom_buf
-//#include "elfgcchack.h"

@@ -2118,7 +2118,8 @@ private:
 //
 #define ASSIGN_PTR(ptr,val)   if(ptr) *(ptr) = (val);
 #define RVALUEPTR(val,ptr)    ((ptr)?((val = *(ptr)), 1) : 0)
-#define DEREFPTRORZ(ptr)      ((ptr)?(*(ptr)):0)
+#define DEREFPTROR(ptr,alt)   ((ptr)?(*(ptr)):(alt))
+#define DEREFPTRORZ(ptr)      DEREFPTROR(ptr,0)
 #define PTR8(p)               (reinterpret_cast<uint8 *>(p))
 #define PTR16(p)              (reinterpret_cast<uint16*>(p))
 #define PTR32(p)              (reinterpret_cast<uint32*>(p))
@@ -2312,6 +2313,7 @@ private:
 #define SLERR_XMLDB_RECTAGEMPTY        112 //
 #define SLERR_XMLDB_ROOTTAGINVCHR      113 //
 #define SLERR_XMLDB_RECTAGINVCHR       114 //
+#define SLERR_EXCL_SAVEFAULT           115 // @v10.9.6 Ошибка сохранения файла Excel '%s'
 
 #define SLERR_SDREC_DUPFLDID           121 // Поле с заданным идентификатором в записи уже присутствует ('%s')
 #define SLERR_SDREC_DUPFLDNAME         122 // Поле с заданным именем '%s' в записи уже присутствует
@@ -3540,6 +3542,14 @@ public:
 	int    FASTCALL HasPrefixNC(const char * pS) const;
 	int    FASTCALL HasPrefixIAscii(const char * pS) const;
 	//
+	// Descr: Находит общий префикс максимальной длины между строкой this и pS.
+	//   Результат возвращается в виде количества байт общего префикса.
+	// Returns:
+	//   0 - строки this и pS не имеют общего префикса
+	//   >0 - длина наибольшего общего префикса this и pS.
+	//
+	int    FASTCALL GetLongestCommonPrefix(const char * pS) const;
+	//
 	// Descr: Сравнивает строку this c префиксом строки pS длиной this->Len().
 	//   Если this->Len() == 0, то результат в любом случае -1.
 	//
@@ -3836,6 +3846,7 @@ public:
 	SString & FASTCALL CatHex(long val);
 	SString & FASTCALL CatHex(ulong val);
 	SString & FASTCALL CatHex(int64 val);
+	SString & FASTCALL CatHex(uint64 val);
 	SString & FASTCALL CatHex(uint8 val);
 	SString & FASTCALL CatHexUpper(uint8 val);
 	//
@@ -4283,6 +4294,9 @@ public:
 struct SVerT { // @persistent Size=4
 	SVerT(int = 0, int = 0, int = 0);
 	int    Get(int *, int *, int *) const;
+	int    GetMajor() const;
+	int    GetMinor() const;
+	int    GetRevision() const;
 	void   Set(int, int, int);
 	void   Set(uint32);
 	int    IsLt(int, int, int) const;
@@ -6216,12 +6230,20 @@ struct SIntToSymbTabEntry {
 };
 //
 // Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
-//   (Id == id) из в буфере rSymb возвращает значение соответствующего символа (SIntToSymbTabEntry::P_Symb).
+//   (Id == id) и в буфере rSymb возвращает значение соответствующего символа (SIntToSymbTabEntry::P_Symb).
 // Returns:
 //   >0 - искомый элемент найден
 //   0  - искомый элемент не найден (к аргументу rSymb применен метод SString::Z())
 //
 int    FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb);
+//
+// Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
+//   (Id == id) и возвращает указатель на соответствующий символ (SIntToSymbTabEntry::P_Symb).
+// Returns:
+//   !0 - указатель на символ, соответствующий идентификатору id
+//   0  - искомый элемент не найден либо заданному идентификатору соответствует нулевая строка.
+//
+const char * FASTCALL SIntToSymbTab_GetSymbPtr(const SIntToSymbTabEntry * pTab, size_t tabSize, int id);
 //
 // Descr: Возвращает true если таблица pTab содержит элемент с полем Id == id. В противном случае - false.
 //

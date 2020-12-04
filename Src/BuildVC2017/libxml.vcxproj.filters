@@ -7,7 +7,6 @@
     <ClCompile Include="..\Osf\Libxml\chvalid.c" />
     <ClCompile Include="..\Osf\Libxml\debugXML.c" />
     <ClCompile Include="..\Osf\Libxml\dict.c" />
-    <ClCompile Include="..\Osf\Libxml\DOCBparser.c" />
     <ClCompile Include="..\Osf\Libxml\encoding.c" />
     <ClCompile Include="..\Osf\Libxml\entities.c" />
     <ClCompile Include="..\Osf\Libxml\error.c" />
@@ -19,7 +18,6 @@
     <ClCompile Include="..\Osf\Libxml\parserInternals.c" />
     <ClCompile Include="..\Osf\Libxml\pattern.c" />
     <ClCompile Include="..\Osf\Libxml\relaxng.c" />
-    <ClCompile Include="..\Osf\Libxml\SAX.c" />
     <ClCompile Include="..\Osf\Libxml\SAX2.c" />
     <ClCompile Include="..\Osf\Libxml\schematron.c" />
     <ClCompile Include="..\Osf\Libxml\threads.c" />
@@ -43,6 +41,7 @@
     <ClCompile Include="..\Osf\Libxml\xpath.c" />
     <ClCompile Include="..\Osf\Libxml\xpointer.c" />
     <ClCompile Include="..\Osf\Libxml\xzlib.c" />
+    <ClCompile Include="..\OSF\LIBXML\SAX.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\LIBXML\config.h">

@@ -156,15 +156,7 @@ ft_validator_error(FT_Validator valid,
 }
 
 /*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
-/****                                                                 ****/
 /****                           S T R E A M                           ****/
-/****                                                                 ****/
-/****                                                                 ****/
-/*************************************************************************/
-/*************************************************************************/
 /*************************************************************************/
 
 /* create a new input stream from an FT_Open_Args structure */
@@ -4733,42 +4725,25 @@ ft_property_string_set(FT_Library library,
 #endif
 
 /*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/****                                                                 ****/
-/****                                                                 ****/
 /****                         L I B R A R Y                           ****/
-/****                                                                 ****/
-/****                                                                 ****/
-/*************************************************************************/
-/*************************************************************************/
 /*************************************************************************/
 
 /* documentation is in ftmodapi.h */
-
-FT_EXPORT_DEF(FT_Error)
-FT_Reference_Library(FT_Library library)
+FT_EXPORT_DEF(FT_Error) FT_Reference_Library(FT_Library library)
 {
 	if(!library)
 		return FT_THROW(Invalid_Library_Handle);
-
 	library->refcount++;
-
 	return FT_Err_Ok;
 }
 
 /* documentation is in ftmodapi.h */
-
-FT_EXPORT_DEF(FT_Error)
-FT_New_Library(FT_Memory memory,
-    FT_Library  *alibrary)
+FT_EXPORT_DEF(FT_Error) FT_New_Library(FT_Memory memory, FT_Library  *alibrary)
 {
 	FT_Library library = NULL;
 	FT_Error error;
-
 	if(!memory || !alibrary)
 		return FT_THROW(Invalid_Argument);
-
 #ifdef FT_DEBUG_LEVEL_ERROR
 	/* init debugging support */
 	ft_debug_init();
@@ -4913,47 +4888,29 @@ Exit:
 }
 
 /* documentation is in ftmodapi.h */
-
-FT_EXPORT_DEF(void)
-FT_Set_Debug_Hook(FT_Library library,
-    FT_UInt hook_index,
-    FT_DebugHook_Func debug_hook)
+FT_EXPORT_DEF(void) FT_Set_Debug_Hook(FT_Library library, FT_UInt hook_index, FT_DebugHook_Func debug_hook)
 {
-	if(library && debug_hook &&
-	    hook_index <
-	    ( sizeof( library->debug_hooks ) / sizeof( void* ) ) )
+	if(library && debug_hook && hook_index < ( sizeof( library->debug_hooks ) / sizeof( void* )))
 		library->debug_hooks[hook_index] = debug_hook;
 }
 
 /* documentation is in ftmodapi.h */
-
-FT_EXPORT_DEF(FT_TrueTypeEngineType)
-FT_Get_TrueType_Engine_Type(FT_Library library)
+FT_EXPORT_DEF(FT_TrueTypeEngineType) FT_Get_TrueType_Engine_Type(FT_Library library)
 {
 	FT_TrueTypeEngineType result = FT_TRUETYPE_ENGINE_TYPE_NONE;
-
 	if(library) {
 		FT_Module module = FT_Get_Module(library, "truetype");
-
 		if(module) {
-			FT_Service_TrueTypeEngine service;
-
-			service = (FT_Service_TrueTypeEngine)
-			    ft_module_get_service(module,
-				FT_SERVICE_ID_TRUETYPE_ENGINE,
-				0);
+			FT_Service_TrueTypeEngine service = (FT_Service_TrueTypeEngine)ft_module_get_service(module, FT_SERVICE_ID_TRUETYPE_ENGINE, 0);
 			if(service)
 				result = service->engine_type;
 		}
 	}
-
 	return result;
 }
 
 /* documentation is in freetype.h */
-
-FT_EXPORT_DEF(FT_Error)
-FT_Get_SubGlyph_Info(FT_GlyphSlot glyph,
+FT_EXPORT_DEF(FT_Error) FT_Get_SubGlyph_Info(FT_GlyphSlot glyph,
     FT_UInt sub_index,
     FT_Int       *p_index,
     FT_UInt      *p_flags,
@@ -4962,7 +4919,6 @@ FT_Get_SubGlyph_Info(FT_GlyphSlot glyph,
     FT_Matrix    *p_transform)
 {
 	FT_Error error = FT_ERR(Invalid_Argument);
-
 	if(glyph                                      &&
 	    glyph->subglyphs                           &&
 	    glyph->format == FT_GLYPH_FORMAT_COMPOSITE &&
@@ -4974,17 +4930,13 @@ FT_Get_SubGlyph_Info(FT_GlyphSlot glyph,
 		*p_arg1      = subg->arg1;
 		*p_arg2      = subg->arg2;
 		*p_transform = subg->transform;
-
 		error = FT_Err_Ok;
 	}
-
 	return error;
 }
 
 /* documentation is in freetype.h */
-
-FT_EXPORT_DEF(FT_Bool)
-FT_Get_Color_Glyph_Layer(FT_Face face,
+FT_EXPORT_DEF(FT_Bool) FT_Get_Color_Glyph_Layer(FT_Face face,
     FT_UInt base_glyph,
     FT_UInt           *aglyph_index,
     FT_UInt           *acolor_index,
@@ -5015,5 +4967,3 @@ FT_Get_Color_Glyph_Layer(FT_Face face,
 	else
 		return 0;
 }
-
-/* END */

@@ -5,8 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "stream_decoder.h"
-//#include "alone_decoder.h"
 
 struct lzma_auto_coder {
 	/// Stream decoder or LZMA_Alone decoder
@@ -103,15 +101,12 @@ static lzma_ret auto_decoder_memconfig(void * coder_ptr, uint64_t * memusage, ui
 		// the current memory usage.
 		*memusage = LZMA_MEMUSAGE_BASE;
 		*old_memlimit = coder->memlimit;
-
 		ret = LZMA_OK;
 		if(new_memlimit != 0 && new_memlimit < *memusage)
 			ret = LZMA_MEMLIMIT_ERROR;
 	}
-
 	if(ret == LZMA_OK && new_memlimit != 0)
 		coder->memlimit = new_memlimit;
-
 	return ret;
 }
 
@@ -125,7 +120,6 @@ static lzma_ret auto_decoder_init(lzma_next_coder * next, const lzma_allocator *
 		coder = (lzma_auto_coder *)lzma_alloc(sizeof(lzma_auto_coder), allocator);
 		if(coder == NULL)
 			return LZMA_MEM_ERROR;
-
 		next->coder = coder;
 		next->code = &auto_decode;
 		next->end = &auto_decoder_end;
@@ -133,7 +127,7 @@ static lzma_ret auto_decoder_init(lzma_next_coder * next, const lzma_allocator *
 		next->memconfig = &auto_decoder_memconfig;
 		coder->next.SetDefault();// = LZMA_NEXT_CODER_INIT;
 	}
-	coder->memlimit = my_max(1, memlimit);
+	coder->memlimit = MAX(1, memlimit);
 	coder->flags = flags;
 	coder->sequence = lzma_auto_coder::SEQ_INIT;
 	return LZMA_OK;

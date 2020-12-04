@@ -968,5 +968,4 @@ void xmlCleanupMemory()
 }*/
 
 #define bottom_xmlmemory
-//#include "elfgcchack.h"
 #endif // } 0

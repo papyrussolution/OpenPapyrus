@@ -596,10 +596,8 @@ void flexend(int exit_status)
 		}
 		else {
 			FILE* orig_stdout = _fdopen(prev_stdout, "w+");
-
 			if(orig_stdout == NULL)
 				lerr(_("stdout is not initialized"));
-
 			/* For debugging, only run the requested number of filters. */
 			if(preproc_level > 0) {
 				filter_truncate(output_chain, preproc_level);

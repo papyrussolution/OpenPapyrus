@@ -6,7 +6,7 @@
 
 static SString P_VKUrlBase("https://api.vk.com");
 static SString P_VKMethodUrlBase("https://api.vk.com/method");
-static const char * P_VKAppId = "7402217"; // Идентификатор приложения (аргумент client_id в запросах)
+//static const char * P_VKAppId = "7685698"; // "7402217"; // Идентификатор приложения (аргумент client_id в запросах)
 
 VkInterface::InitBlock::InitBlock() : GuaID(0), OuterWareIdentTagID(0), LinkFileType(0)
 {
@@ -110,19 +110,27 @@ void VkInterface::GetVKAccessToken()
 
 				134225924 = 0x8002004
 	*/
-	url_buf.CatChar('?').CatEq("client_id", P_VKAppId).
+	uint req_rights = (vkacsruPhotos | vkacsruWall | vkacsruMarket);
+	url_buf.CatChar('?').CatEq("client_id", /*P_VKAppId*/AppIdent).
 		CatChar('&').CatEq("display", "page").
 		CatChar('&').CatEq("redirect_uri", redirect_uri_buf).
-		CatChar('&').CatEq("scope", "134225924"). // Права доступа 134225924 = 0x8002004
+		CatChar('&').CatEq("scope", req_rights/*"134225924"*/). // Права доступа 134225924 = 0x8002004
 		CatChar('&').CatEq("response_type", "token").
 		CatChar('&').CatEq("v", "5.126"); // @v10.9.5 5.52-->5.126
 	//url_buf.SetLastDSlash();
 	//SString url("https://oauth.vk.com/authorize?client_id=7402217&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=134225924&response_type=token&v=5.52/");
-	ShellExecute(0, _T("open"), SUcSwitch(/*url*/url_buf), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(0, _T("open"), SUcSwitch(url_buf), NULL, NULL, SW_SHOWNORMAL);
 }
 
-VkInterface::VkInterface()
+VkInterface::VkInterface() : ProtoVer(5, 107, 0)
 {
+	PPVersionInfo vi = DS.GetVersionInfo();
+	vi.GetTextAttrib(vi.taiVkAppIdent, AppIdent);
+}
+
+SString & VkInterface::AppendParamProtoVer(SString & rBuf) const
+{
+	return rBuf.Cat("v").CatChar('=').Cat(ProtoVer.GetMajor()).Dot().Cat(ProtoVer.GetMinor());
 }
 
 PPID VkInterface::GetOuterWareIdentTagID() const { return Ib.OuterWareIdentTagID; }
@@ -365,8 +373,8 @@ int  VkInterface::Photos_GetWallUploadServer(/*const VkStruct & rVkStruct,*/SStr
 	SString url;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("photos.getWallUploadServer").CatChar('?')
 		.CatEq("group_id", /*rVkStruct.GroupId*/Ib.GroupId).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&")
-		.CatEq("v", "5.107");
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
+	AppendParamProtoVer(url); //.CatEq("v", "5.107");
 	THROW(GetRequest(url, rOutput, ScURL::mfDontVerifySslPeer));
 	CATCHZOK
 	return ok;
@@ -380,14 +388,14 @@ int  VkInterface::Photos_GetMarketUploadServer(/*const VkStruct &rVkStruct,*/con
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("photos.getMarketUploadServer").CatChar('?')
 		.CatEq("group_id", /*rVkStruct.GroupId*/Ib.GroupId).Cat("&")
 		.CatEq("main_photo", mainPhotoFlag).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&")
-		.CatEq("v", "5.107");
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
+	AppendParamProtoVer(url);//.CatEq("v", "5.107");
 	THROW(GetRequest(url, rOutput, ScURL::mfDontVerifySslPeer));
 	CATCHZOK;
 	return ok;
 }
 
-int VkInterface::ParseUploadServer(SString &rJson, SString &rUploadOut)
+int VkInterface::ParseUploadServer(SString & rJson, SString & rUploadOut)
 {
 	int    ok = 1;
 	SJson * p_json_doc = 0;
@@ -420,8 +428,8 @@ int  VkInterface::Photos_SaveMarketPhoto(/*const VkStruct &rVkStruct,*/const SSt
 	SString url;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("photos.saveMarketPhoto").CatChar('?')
 		.CatEq("group_id", /*rVkStruct.GroupId*/Ib.GroupId).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&")
-		.CatEq("v", "5.107").Cat("&")
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
+	AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.Cat("&")
 		.CatEq("photo", rImage).Cat("&")
 		.CatEq("server", rServer).Cat("&")
 		.CatEq("hash", rHash).Cat("&")
@@ -439,8 +447,8 @@ int VkInterface::Photos_SaveWallPhoto(/*const VkStruct & rVkStruct,*/const SStri
 	SString url;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("photos.saveWallPhoto").CatChar('?')
 		.CatEq("group_id", /*rVkStruct.GroupId*/Ib.GroupId).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&")
-		.CatEq("v", "5.107").Cat("&")
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
+		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.Cat("&")
 		.CatEq("photo", rPhoto).Cat("&")
 		.CatEq("server", rServer).Cat("&")
 		.CatEq("hash", rHash).Cat("&");
@@ -460,8 +468,8 @@ int VkInterface::Wall_Post(/*const VkStruct &rVkStruct,*/const SString & rMessag
 	temp_buf.Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("wall.post?")
 		.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&")
-		.CatEq("v", "5.107").Cat("&")
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
+		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.Cat("&")
 		.CatEq("attachments", rVkPhotoName).Cat("&")
 		.CatEq("message", temp_buf);
 	THROW(GetRequest(url, rOutput, ScURL::mfDontVerifySslPeer));
@@ -480,8 +488,8 @@ int  VkInterface::Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, co
 	descr.Cat(rDescr).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("market.add").CatChar('?')
 		.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&")
-		.CatEq("v", "5.107").Cat("&")
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
+		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.Cat("&")
 		.CatEq("name", name).Cat("&")
 		.CatEq("category_id", catId).Cat("&")
 		.CatEq("price", goodsPrice).Cat("&")
@@ -504,8 +512,8 @@ int VkInterface::Market_Edit(/*const VkStruct & rVkStruct,*/PPID goodsID, double
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("market.edit").CatChar('?')
 		.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).Cat("&")
 		.CatEq("item_id", goodsID).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&")
-		.CatEq("v", "5.107").Cat("&")
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
+		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.Cat("&")
 		.CatEq("name", name).Cat("&")
 		.CatEq("category_id", catId).Cat("&")
 		.CatEq("price", goodsPrice).Cat("&")
@@ -523,8 +531,8 @@ int VkInterface::Market_Get(/*const VkStruct & rVkStruct,*/SString & rOutput)
 	SString url, temp_buf;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("market.get").CatChar('?')
 		.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&")
-		.CatEq("v", "5.107");
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
+		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/;
 	THROW(GetRequest(url, temp_buf.Z(), ScURL::mfDontVerifySslPeer));
 	rOutput.Z().Cat(temp_buf);
 	CATCHZOK;
@@ -549,9 +557,8 @@ int  VkInterface::PhotoToReq(SString & rUrl, const SString & rImgPath, SString &
 		temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 		rOutput = temp_buf;
 	}
-	else {
+	else
 		ok = 0;
-	}
 	return ok;
 }
 
@@ -617,6 +624,7 @@ struct SetupGlobalServiceUDS_Param {
 static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, int force)
 {
 	int    ok = 1;
+	const  PPID service_ident = PPGLS_UDS;
 	SString temp_buf;
 	PPObjGlobalUserAcc gua_obj;
 	PPObjSCardSeries scs_obj;
@@ -624,13 +632,11 @@ static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, i
 	PPSCardSeries2 scs_rec;
 	PPIDArray gua_candidate_list;
 	PPIDArray scs_candidate_list;
-	
 	PPSCardConfig sc_cfg;
 	PPObjSCard::ReadConfig(&sc_cfg);
-
 	if(!rP.GuaID) {
 		for(SEnum en = gua_obj.Enum(0); en.Next(&gua_rec) > 0;) {
-			if(gua_rec.ServiceIdent == PPGLS_UDS)
+			if(gua_rec.ServiceIdent == service_ident)
 				gua_candidate_list.add(gua_rec.ID);
 		}
 		if(gua_candidate_list.getCount() == 1)
@@ -673,14 +679,14 @@ static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, i
 			if(rP.GuaID) {
 				PPID   temp_id = gua_pack.Rec.ID;
 				THROW(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0);
-				THROW_PP_S(gua_pack.Rec.ServiceIdent == PPGLS_UDS, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
+				THROW_PP_S(gua_pack.Rec.ServiceIdent == service_ident, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
 				gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
 				gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
 				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 1));
 			}
 			else {
 				PPID   temp_id = 0;
-				gua_pack.Rec.ServiceIdent = PPGLS_UDS;
+				gua_pack.Rec.ServiceIdent = service_ident;
 				STRNSCPY(gua_pack.Rec.Name, "UDS");
 				STRNSCPY(gua_pack.Rec.Symb, "UDS");
 				gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
@@ -798,6 +804,11 @@ int PPGlobalServiceHighLevelImplementations::Setup_UDS()
 	return ok;
 }
 
+SString & VkInterface::GetAppIdent(SString & rBuf) const
+{
+	return (rBuf = AppIdent);
+}
+
 struct SetupGlobalServiceVK_Param {
 	SetupGlobalServiceVK_Param() : GuaID(0)
 	{
@@ -808,6 +819,96 @@ struct SetupGlobalServiceVK_Param {
 	SString GroupIdent;
 	PPID   GuaID;
 };
+
+static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int force)
+{
+	int    ok = 1;
+	const  PPID service_ident = PPGLS_VK;
+	SString temp_buf;
+	PPObjGlobalUserAcc gua_obj;
+	PPGlobalUserAcc gua_rec;
+	PPObjTag tag_obj;
+	PPID   page_tag_id = 0;
+	PPID   group_tag_id = 0;
+	PPIDArray gua_candidate_list;
+	if(rP.GuaID && gua_obj.Search(rP.GuaID, &gua_rec) > 0 && gua_rec.ServiceIdent == service_ident) {
+		;
+	}
+	else {
+		for(SEnum en = gua_obj.Enum(0); en.Next(&gua_rec) > 0;) {
+			if(gua_rec.ServiceIdent == service_ident)
+				gua_candidate_list.add(gua_rec.ID);
+		}
+		if(gua_candidate_list.getCount() == 1)
+			rP.GuaID = gua_candidate_list.get(0);
+	}
+	{
+		PPGlobalUserAccPacket gua_pack;
+		THROW(rP.GroupIdent.NotEmpty());
+		THROW(rP.ApiKey.NotEmpty());
+		THROW(rP.PageIdent.NotEmpty());
+		if(rP.GuaID) {
+			if(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0) {
+				if(force) {
+				}
+				else {
+					SString db_value;
+					gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, db_value);
+					if(db_value.NotEmptyS() && !rP.Login.NotEmptyS())
+						rP.Login = db_value;
+					gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, db_value.Z());
+					if(db_value.NotEmptyS() && !rP.ApiKey.NotEmptyS()) {
+						rP.ApiKey = db_value;
+					}
+				}
+			}
+		}
+		{
+			//
+			// Если необходимо - создаем зарезервированные теги.
+			// Note: Функция PPObject::MakeReserve вызывается со своей собственной транзакцией
+			//
+			PPObjectTag tag_rec;
+			if(tag_obj.Search(PPTAG_GUA_OUTERWAREIDTAG, &tag_rec) > 0) {
+			}
+			else {
+				//THROW(tag_obj.MakeReserved(0));
+			}
+		}
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			{
+				if(tag_obj.SearchBySymb("SMGRPID", &group_tag_id) > 0) {
+				}
+				if(tag_obj.SearchBySymb("SMPAGEID", &page_tag_id) > 0) {
+				}
+				//Ib.GuaPack.TagL.GetItemStr(vk_page_tag_id, Ib.PageId) > 0) {
+			}
+			if(rP.GuaID) {
+				PPID   temp_id = gua_pack.Rec.ID;
+				THROW(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0);
+				THROW_PP_S(gua_pack.Rec.ServiceIdent == service_ident, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
+				//gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
+				gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
+				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 1));
+			}
+			else {
+				// SMGRPID SMPAGEID
+				PPID   temp_id = 0;
+				gua_pack.Rec.ServiceIdent = service_ident;
+				STRNSCPY(gua_pack.Rec.Name, "VK account");
+				STRNSCPY(gua_pack.Rec.Symb, "VKACC");
+				//gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
+				gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
+				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 0));
+			}
+			THROW(tra.Commit());
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 
 int PPGlobalServiceHighLevelImplementations::Setup_VK()
 {
@@ -826,8 +927,17 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 		DECL_DIALOG_DATA(SetupGlobalServiceVK_Param);
 		//DECL_DIALOG_DATA(VkInterface::InitBlock);
 	public:
-		SetupGlobalServiceVK_Dialog(SetupGlobalServiceVK_Param & rData) : TDialog(/*DLG_VKGUACFG*/DLG_SU_VK)
+		SetupGlobalServiceVK_Dialog(SetupGlobalServiceVK_Param & rData) : TDialog(/*DLG_VKGUACFG*/DLG_SU_VK), Data(rData)
 		{
+			PPID   global_service = PPGLS_VK;//reinterpret_cast<void *>(Data.GlobalService)
+			SetupPPObjCombo(this, CTLSEL_SUVK_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, reinterpret_cast<void *>(global_service));
+			//
+			{
+				SString info_buf;
+				SString temp_buf;
+				info_buf.Cat("App ident").CatDiv(':', 2).Cat(Ifc.GetAppIdent(temp_buf));
+				setCtrlString(CTL_SUVK_INFO, info_buf);
+			}
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -843,6 +953,11 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 			uint   sel = 0;
 			SString temp_buf;
 			//нужно вернуть данные о groupid, ownerid and token
+			getCtrlString(CTL_SUVK_LOGIN, Data.Login);
+			getCtrlString(CTL_SUVK_APIKEY, Data.ApiKey);
+			getCtrlString(CTL_SUVK_GROUPIDENT, Data.GroupIdent);
+			getCtrlString(CTL_SUVK_PAGEIDENT, Data.PageIdent);
+			getCtrlData(CTLSEL_SUVK_GUA, &Data.GuaID);
 			ASSIGN_PTR(pData, Data);
 			//CATCHZOKPPERRBYDLG
 			return ok;
@@ -857,9 +972,13 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 			TDialog::handleEvent(event);
 			SString temp_buf;
 			if(event.isCmd(cmQueryToken)) {
-				VkInterface::GetVKAccessToken();
+				Ifc.GetVKAccessToken();
 			}
-			else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_SUVK_URL/*CTL_VKGUACFG_LOGIN_URL*/)) {
+			else if(event.isCmd(cmConfigure)) {
+				getDTS(0);
+				// ...
+			}
+			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_SUVK_URL/*CTL_VKGUACFG_LOGIN_URL*/)) {
 				static int __lock = 0;
 				if(!__lock) {
 					__lock = 1;
@@ -877,24 +996,37 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 							else if(left.IsEqual("user_id"))
 								Data.PageIdent.Z().Cat(right);
 						}
+						setCtrlString(CTL_SUVK_APIKEY, Data.ApiKey);
+						setCtrlString(CTL_SUVK_PAGEIDENT, Data.PageIdent);
 					}
 					__lock = 0;
 				}
 			}
-			else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_SUVK_GROUPIDENT/*CTL_VKGUACFG_GROUP_ID*/)) {
+			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_SUVK_GROUPIDENT/*CTL_VKGUACFG_GROUP_ID*/)) {
 				static int __lock = 0;
 				if(!__lock) {
 					__lock = 1;
 					getCtrlString(CTL_SUVK_GROUPIDENT/*CTL_VKGUACFG_GROUP_ID*/, temp_buf.Z());
-					Data.GroupIdent.Z().Cat(temp_buf);
+					Data.GroupIdent = temp_buf;
 					__lock = 0;
 				}
+			}
+			else if(TVBROADCAST && TVCMD == cmReceivedFocus) {
+				SString temp_buf;
+				if(event.isCtlEvent(CTL_SUVK_GROUPIDENT)) {
+					PPLoadStringDescription("setupglbsvc_vk_groupident", temp_buf);
+				}
+				/*else if(event.isCtlEvent(CTL_SUUDS_APIKEY)) {
+					PPLoadStringDescription("setupglbsvc_uds_apikey", temp_buf);
+				}*/
+				setStaticText(CTL_SUVK_HINT, temp_buf);
 			}
 			else
 				return;
 			clearEvent(event);
 		}
 		PPObjGlobalUserAcc GuaObj;
+		VkInterface Ifc;
 	};
 	int    ok = -1;
 	SetupGlobalServiceVK_Param param;

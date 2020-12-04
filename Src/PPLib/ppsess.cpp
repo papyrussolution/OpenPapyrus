@@ -2089,9 +2089,10 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 	SLS.Init(0, hInst);
 	{
 		PPVersionInfo vi = GetVersionInfo();
-		vi.GetProductName(temp_buf);
+		//vi.GetProductName(temp_buf);
+		vi.GetTextAttrib(vi.taiProductName, temp_buf);
 		SLS.SetAppName(temp_buf);
-		SetExtFlag(ECF_OPENSOURCE, vi.GetFlags() & PapyrusPrivateBlock::fOpenSource); // @v9.4.9
+		SetExtFlag(ECF_OPENSOURCE, vi.GetFlags() & PapyrusPrivateBlock::fOpenSource);
 	}
 	SLS.InitWSA();
 	{

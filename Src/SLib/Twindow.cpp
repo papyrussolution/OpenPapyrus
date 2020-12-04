@@ -622,25 +622,24 @@ void TWindow::setCtrlOption(ushort ctlID, ushort flags, int s)
 
 int TWindow::getStaticText(ushort ctlID, SString & rBuf)
 {
-	int    ok = 1;
-	TStaticText * p_st = static_cast<TStaticText *>(getCtrlView(ctlID));
-	if(p_st)
-		p_st->getText(rBuf);
-	else {
-		rBuf.Z();
-		ok = 0;
+	rBuf.Z();
+	int    ok = 0;
+	TView * p_v = getCtrlView(ctlID);
+	if(p_v && p_v->GetSubSign() == TV_SUBSIGN_STATIC) {
+		static_cast<TStaticText *>(p_v)->getText(rBuf);
+		ok = 1;
 	}
 	return ok;
 }
 
 int TWindow::setStaticText(ushort ctlID, const char * pText)
 {
-	int    ok = 1;
-	TStaticText * p_st = static_cast<TStaticText *>(getCtrlView(ctlID));
-	if(p_st)
-		p_st->setText(pText);
-	else
-		ok = 0;
+	int    ok = 0;
+	TView * p_v = getCtrlView(ctlID);
+	if(p_v && p_v->GetSubSign() == TV_SUBSIGN_STATIC) {
+		static_cast<TStaticText *>(p_v)->setText(pText);
+		ok = 1;
+	}
 	return ok;
 }
 

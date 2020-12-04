@@ -7,7 +7,6 @@
     <ClCompile Include="..\Osf\Libxml\chvalid.c" />
     <ClCompile Include="..\Osf\Libxml\debugXML.c" />
     <ClCompile Include="..\Osf\Libxml\dict.c" />
-    <ClCompile Include="..\Osf\Libxml\DOCBparser.c" />
     <ClCompile Include="..\Osf\Libxml\encoding.c" />
     <ClCompile Include="..\Osf\Libxml\entities.c" />
     <ClCompile Include="..\Osf\Libxml\error.c" />

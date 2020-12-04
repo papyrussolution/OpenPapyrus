@@ -2859,7 +2859,8 @@ int PPViewVatBook::Export()
 				{
 					PPVersionInfo vi = DS.GetVersionInfo();
 					SVerT ver = vi.GetVersion();
-					vi.GetProductName(left);
+					//vi.GetProductName(left);
+					vi.GetTextAttrib(vi.taiProductName, left);
 					left.Space().Cat(ver.ToStr(temp_buf));
 					n_file.PutAttrib("ВерсПрог", left);
 				}

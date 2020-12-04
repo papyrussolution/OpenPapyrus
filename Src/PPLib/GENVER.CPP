@@ -2,25 +2,24 @@
 // Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018, 2020
 //
 // For private use only. Redistribution prohibited !
-
+//
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
 
 PapyrusPrivateBlock::PapyrusPrivateBlock()
 {
-	Clear();
+	Z();
 }
 
 PapyrusPrivateBlock::~PapyrusPrivateBlock()
 {
-	Clear();
+	Z();
 }
 
-void PapyrusPrivateBlock::Clear()
+PapyrusPrivateBlock & PapyrusPrivateBlock::Z()
 {
 	MEMSZERO(H);
-	StructVer = 2; // @v9.4.8 1-->2
+	StructVer = 3; // @v9.4.8 1-->2 // @v10.9.6 2-->3
 	StartDevYear = 0;
 	LastDevYear = 0;
 	Ver.Set(0, 0, 0);
@@ -33,6 +32,8 @@ void PapyrusPrivateBlock::Clear()
 	DefPassword.Obfuscate();
 	MsftTranslAcc.Obfuscate();
 	UhttAcc.Obfuscate();
+	VkAppIdent.Obfuscate(); // @v10.9.6
+	return *this;
 }
 
 int PapyrusPrivateBlock::RestoreBuffer(const void * pSrcData, size_t srcDataSize)
@@ -76,6 +77,7 @@ int PapyrusPrivateBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 	THROW(pSCtx->Serialize(dir, DefPassword, rBuf));
 	THROW(pSCtx->Serialize(dir, MsftTranslAcc, rBuf));
 	THROW(pSCtx->Serialize(dir, UhttAcc, rBuf));
+	THROW(pSCtx->Serialize(dir, VkAppIdent, rBuf)); // @v10.9.6
 	CATCHZOK
 	return ok;
 }
@@ -94,6 +96,7 @@ int PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 	rIniFile.GetParam("Version", "DefPassword", DefPassword);
 	rIniFile.GetParam("Version", "MsftTranslAcc", MsftTranslAcc);
 	rIniFile.GetParam("Version", "UhttAcc", UhttAcc);
+	rIniFile.GetParam("Version", "VkAppIdent", VkAppIdent); // @v10.9.6
 	{
 		int    mj = 0, mn = 0, r = 0, asmn = 0;
 		rIniFile.GetIntParam("Version", "MajorVer", &mj);
@@ -247,6 +250,7 @@ static int CreateVerRcFile2(const char * pInFileName, const char * pRcFileName, 
 		WritePrivateProfileString(_T("Version"), _T("MinRevision"), SUcSwitch(temp_buf.Z().Cat(min_rev)), SUcSwitch(pInFileNameOpen));
 		temp_buf.Z().Cat(assembly_n);
 		WritePrivateProfileString(_T("Version"), _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(_T("Version"), _T("VkAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.VkAppIdent)), SUcSwitch(pInFileNameOpen)); // @v10.9.6
 	}
 	{
 		SFile f_out(pRcFileName, SFile::mWrite);
@@ -303,7 +307,7 @@ int main(int argc, char * argv[])
 	SLS.Init("PPGENVER");
 	if(argc < 2) {
 		printf("genver - helper utility for Project Papyrus\n");
-		printf("Copyright (c) A.Sobolev, 2001-2017\n");
+		printf("Copyright (c) A.Sobolev, 2001-2020\n");
 		printf("Usage: genver input_file_name[.ini] [output_file_name[.c] [rc_file_name[.rc]]]\n");
 		return -1;
 	}

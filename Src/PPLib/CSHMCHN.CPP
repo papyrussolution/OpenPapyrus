@@ -267,7 +267,7 @@ int PPCashMachine::SyncOpenSession(LDATE * pDate)
 {
 	int    ok = 1, r;
 	LDATETIME dtm;
-	dtm.Set((pDate ? *pDate : ZERODATE), ZEROTIME);
+	dtm.Set(DEREFPTROR(pDate, ZERODATE), ZEROTIME);
 	CSessionCore csess_core;
 	THROW(PPObjCashNode::IsLocked(NodeID) <= 0);
 	THROW(GetSyncIntrf());

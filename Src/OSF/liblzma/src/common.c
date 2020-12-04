@@ -20,7 +20,7 @@ extern void * lzma_attribute((__malloc__)) lzma_attr_alloc_size(1) lzma_alloc(si
 	if(allocator && allocator->alloc)
 		ptr = allocator->alloc(allocator->opaque, 1, size);
 	else
-		ptr = malloc(size);
+		ptr = SAlloc::M(size);
 	return ptr;
 }
 
@@ -30,12 +30,10 @@ extern void * lzma_attribute((__malloc__)) lzma_attr_alloc_size(1) lzma_alloc_ze
 	void * ptr;
 	if(allocator && allocator->alloc) {
 		ptr = allocator->alloc(allocator->opaque, 1, size);
-		if(ptr != NULL)
-			memzero(ptr, size);
+		memzero(ptr, size);
 	}
-	else {
-		ptr = calloc(1, size);
-	}
+	else
+		ptr = SAlloc::C(1, size);
 	return ptr;
 }
 
@@ -44,7 +42,7 @@ extern void lzma_free(void * ptr, const lzma_allocator * allocator)
 	if(allocator && allocator->free)
 		allocator->free(allocator->opaque, ptr);
 	else
-		free(ptr);
+		SAlloc::F(ptr);
 }
 //
 // Misc //
@@ -53,7 +51,7 @@ extern size_t lzma_bufcpy(const uint8_t * in, size_t * in_pos, size_t in_size, u
 {
 	const size_t in_avail = in_size - *in_pos;
 	const size_t out_avail = out_size - *out_pos;
-	const size_t copy_size = my_min(in_avail, out_avail);
+	const size_t copy_size = MIN(in_avail, out_avail);
 	// Call memcpy() only if there is something to copy. If there is
 	// nothing to copy, in or out might be NULL and then the memcpy()
 	// call would trigger undefined behavior.

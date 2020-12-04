@@ -1060,6 +1060,3 @@ size_t xmlDictGetUsage(xmlDict * dict)
 			limit += pool->size;
 	return limit;
 }
-
-#define bottom_dict
-//#include "elfgcchack.h"

@@ -699,8 +699,7 @@ int SyncTable::PurgeAll()
 	return ok;
 }
 
-static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize,
-	uint8 * pInBuf, size_t dataLen, uint8 * pOutBuf, FILE * fOut, FILE * fOut2)
+static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 * pInBuf, size_t dataLen, uint8 * pOutBuf, FILE * fOut, FILE * fOut2)
 {
 	uint   compressed_size = bufSize;
 	ucl_nrv2b_99_compress(pInBuf, dataLen, pOutBuf, &compressed_size, 0, 10, 0, 0);
@@ -1629,24 +1628,6 @@ int SpiiExchange(PalmTcpExchange * pTcpExch, PROGRESSFN pFn, CSyncProperties * p
 			CopyFiles(temp_path, root_path, 0, ctx);
 			pTcpExch->LogTrafficInfo(device);
 		}
-#if 0 // @v6.1.4 {
-		if(pTcpExch) {
-			int    r = 0;
-			long   timeout = 0;
-			LDATETIME dtm = getcurdatetime_(), cur_dtm;
-			cur_dtm = dtm;
-			LDATETIME end_dtm = plusdatetime(dtm, 10, 2);
-			while(r <= 0 && cmp(dtm, end_dtm) < 0) {
-				cur_dtm = getcurdatetime_();
-				if(cmp(cur_dtm, dtm) >= 0) {
-					r = CopyFiles(temp_path, root_path, 0);
-					dtm = plusdatetime(cur_dtm, 1, 2);
-				}
-			}
-		}
-		if(pTcpExch)
-			pTcpExch->LogTrafficInfo(device);
-#endif // }
 		ok = 1;
 	}
 	CATCH

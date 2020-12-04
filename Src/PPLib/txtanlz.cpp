@@ -3039,11 +3039,11 @@ int PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * pGrpTex
 					}
 					else if(special == spcGroup) {
 						assert(pGrpText); // Выше мы уже убедились, что pGrpText != 0
-						temp_buf = pGrpText ? *pGrpText : static_cast<const char *>(0);
+						temp_buf = DEREFPTROR(pGrpText, static_cast<const char *>(0));
 					}
 					else if(special == spcLoc) {
 						assert(pLoc); // Выше мы уже убедились, что pLoc != 0
-						temp_buf = pLoc ? *pLoc : static_cast<const char *>(0);
+						temp_buf = DEREFPTROR(pLoc, static_cast<const char *>(0));
 					}
 					if(temp_buf.NotEmpty()) {
 						rSs.add(temp_buf, &(ss_pos = 0));
@@ -3060,11 +3060,11 @@ int PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * pGrpTex
 						}
 						else if(special == spcGroup) {
 							assert(pGrpText); // Выше мы уже убедились, что pGrpText != 0
-							temp_buf = pGrpText ? *pGrpText : static_cast<const char *>(0);
+							temp_buf = DEREFPTROR(pGrpText, static_cast<const char *>(0));
 						}
 						else if(special == spcLoc) {
 							assert(pLoc); // Выше мы уже убедились, что pLoc != 0
-							temp_buf = pLoc ? *pLoc : static_cast<const char *>(0);
+							temp_buf = DEREFPTROR(pLoc, static_cast<const char *>(0));
 						}
 						if(temp_buf.NotEmpty()) {
 							rSs.add(temp_buf, &(ss_pos = 0));
@@ -3734,7 +3734,8 @@ int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt)
 	int   ok = 1;
 	SString key_buf;
 	PPVersionInfo vi = DS.GetVersionInfo();
-	vi.GetMsftTranslAcc(key_buf);
+	//vi.GetMsftTranslAcc(key_buf);
+	vi.GetTextAttrib(vi.taiMsftTranslAcc, key_buf);
 	THROW_PP(key_buf.NotEmptyS(), PPERR_MSFTTRANSLKEY_INV);
 	{
 		SString ident, secret;

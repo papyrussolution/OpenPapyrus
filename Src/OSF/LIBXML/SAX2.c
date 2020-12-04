@@ -2533,4 +2533,3 @@ void docbDefaultSAXHandlerInit()
 
 #endif /* LIBXML_DOCB_ENABLED */
 #define bottom_SAX2
-//#include "elfgcchack.h"

@@ -2494,4 +2494,3 @@ int SUnicodeBlock::Write(const char * pFileName)
     CATCHZOK
     return ok;
 }
-

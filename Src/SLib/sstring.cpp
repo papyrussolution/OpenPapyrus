@@ -2099,6 +2099,20 @@ int FASTCALL SString::HasPrefixIAscii(const char * pS) const
 		return 0;
 }
 
+int FASTCALL SString::GetLongestCommonPrefix(const char * pS) const
+{
+	int    result = 0;
+	if(pS && pS[0]) {
+		for(uint i = 0; i < Len(); i++) {
+			if(pS[i] != P_Buf[i])
+				break;
+			else
+				result++;
+		}
+	}
+	return result;
+}
+
 int FASTCALL SString::CmpL(const char * pS, int ignoreCase) const
 {
 	const size_t len = Len();
@@ -2549,6 +2563,12 @@ SString & FASTCALL SString::CatHex(int64 val)
 {
 	char   temp_buf[512];
 	return Cat(_i64toa(val, temp_buf, 16));
+}
+
+SString & FASTCALL SString::CatHex(uint64 val)
+{
+	char   temp_buf[512];
+	return Cat(_ui64toa(val, temp_buf, 16));
 }
 
 SString & FASTCALL SString::CatHex(uint8 val)

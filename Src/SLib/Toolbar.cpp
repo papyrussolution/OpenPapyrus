@@ -25,7 +25,7 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 		wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
 		::RegisterClassEx(&wc);
 	}
-	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("TOOLBAR_FOR_PPY"), NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, 0, TProgram::GetInst(), 0); // @unicodeproblem
+	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("TOOLBAR_FOR_PPY"), NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, 0, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H_Wnd, GWLP_USERDATA, this);
 	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, _T(""), WS_CHILD|TBSTYLE_TOOLTIPS|TBSTYLE_FLAT|CCS_NORESIZE|WS_CLIPSIBLINGS, 0, 0, 0, 0, H_Wnd, 0, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H_Toolbar, GWLP_USERDATA, this);
@@ -758,17 +758,17 @@ int TuneToolsDialog::OnUpDownArrow(int up)
 		lvi.iSubItem = 0;
 		lvi1.iSubItem = 0;
 		lvi.mask = lvi1.mask  = LVIF_TEXT | LVIF_PARAM | LVIF_IMAGE | LVIF_STATE;
-		lvi1.pszText = buf1; // @unicodeproblem
+		lvi1.pszText = buf1;
 		lvi1.cchTextMax = SIZEOFARRAY(buf1);
 		lvi.stateMask = lvi1.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
-		lvi.pszText = buf; // @unicodeproblem
+		lvi.pszText = buf;
 		lvi.cchTextMax = SIZEOFARRAY(buf);
 		if(up)
 			lvi1.iItem = lvi.iItem-1;
 		else
 			lvi1.iItem = lvi.iItem+1;
-		ListView_GetItem(H_List, &lvi); // @unicodeproblem
-		ListView_GetItem(H_List, &lvi1); // @unicodeproblem
+		ListView_GetItem(H_List, &lvi);
+		ListView_GetItem(H_List, &lvi1);
 		if(up) {
 			P_Toolbar->Items.moveItem(lvi.iItem, 1);
 			lvi1.iItem++;
@@ -779,8 +779,8 @@ int TuneToolsDialog::OnUpDownArrow(int up)
 			lvi1.iItem--;
 			lvi.iItem++;
 		}
-		ListView_SetItem(H_List, &lvi1); // @unicodeproblem
-		ListView_SetItem(H_List, &lvi); // @unicodeproblem
+		ListView_SetItem(H_List, &lvi1);
+		ListView_SetItem(H_List, &lvi);
 		ok = 1;
 	}
 	return ok;
@@ -830,7 +830,6 @@ int TuneToolsDialog::Accept()
 	return CallWindowProc(p_param->PrevListViewProc, hWnd, message, wParam, lParam);
 }
 
-// @v9.4.5 {
 static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 {
 	SString temp_buf;
@@ -844,7 +843,6 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 	}
 	return TRUE;
 }
-// } @v9.4.5
 
 INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -853,7 +851,7 @@ INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wPar
 		case WM_INITDIALOG:
 			p_param = new TuneToolsDialog(hWnd, reinterpret_cast<TToolbar *>(lParam));
 			TView::SetWindowProp(hWnd, GWLP_USERDATA, p_param);
-			EnumChildWindows(hWnd, SetupCtrlTextProc, 0); // @v9.4.5
+			EnumChildWindows(hWnd, SetupCtrlTextProc, 0);
 			return 1;
 		case WM_COMMAND:
 			p_param = static_cast<TuneToolsDialog *>(TView::GetWindowUserData(hWnd));

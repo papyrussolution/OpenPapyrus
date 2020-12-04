@@ -60,10 +60,7 @@ static int ellipsize = 3;
 
 static inline int add_column_width(int column, char const * buf, size_t bufsize)
 {
-	int width
-		= buf ? mbsnwidth(buf, bufsize, 0)
-	    : INT_MAX <= bufsize ? INT_MAX
-	    : bufsize;
+	int width = buf ? mbsnwidth(buf, bufsize, 0) : (INT_MAX <= bufsize ? INT_MAX : bufsize);
 	return column <= INT_MAX - width ? column + width : INT_MAX;
 }
 
@@ -75,10 +72,8 @@ static void boundary_compute(boundary * cur, char const * token, size_t size)
 	char const * p0 = token;
 	char const * p = token;
 	char const * lim = token + size;
-
 	for(p = token; p < lim; ++p)
-		switch(*p)
-		{
+		switch(*p) {
 			case '\n':
 			    line += line < INT_MAX;
 			    column = 1;
@@ -112,7 +107,6 @@ void location_compute(Location * loc, boundary * cur, char const * token, size_t
 	loc->start = *cur;
 	boundary_compute(cur, token, size);
 	loc->end = *cur;
-
 	if(loc->end.line == INT_MAX && loc->start.line != INT_MAX)
 		complain(loc, Wother, _("line number overflow"));
 	if(loc->end.column == INT_MAX && loc->start.column != INT_MAX)
@@ -124,9 +118,7 @@ void location_compute(Location * loc, boundary * cur, char const * token, size_t
 
 static int boundary_print(boundary const * b, FILE * out)
 {
-	return fprintf(out, "%s:%d.%d@%d",
-		   quotearg_n_style(3, escape_quoting_style, b->file),
-		   b->line, b->column, b->byte);
+	return fprintf(out, "%s:%d.%d@%d", quotearg_n_style(3, escape_quoting_style, b->file), b->line, b->column, b->byte);
 }
 
 int location_print(Location loc, FILE * out)
@@ -141,17 +133,14 @@ int location_print(Location loc, FILE * out)
 		aver(loc.start.file);
 		aver(loc.end.file);
 		int end_col = 0 != loc.end.column ? loc.end.column - 1 : 0;
-		res += fprintf(out, "%s",
-			quotearg_n_style(3, escape_quoting_style, loc.start.file));
+		res += fprintf(out, "%s", quotearg_n_style(3, escape_quoting_style, loc.start.file));
 		if(0 < loc.start.line) {
 			res += fprintf(out, ":%d", loc.start.line);
 			if(0 < loc.start.column)
 				res += fprintf(out, ".%d", loc.start.column);
 		}
 		if(loc.start.file != loc.end.file) {
-			res += fprintf(out, "-%s",
-				quotearg_n_style(3, escape_quoting_style,
-				loc.end.file));
+			res += fprintf(out, "-%s", quotearg_n_style(3, escape_quoting_style, loc.end.file));
 			if(0 < loc.end.line) {
 				res += fprintf(out, ":%d", loc.end.line);
 				if(0 <= end_col)
@@ -168,10 +157,8 @@ int location_print(Location loc, FILE * out)
 				res += fprintf(out, "-%d", end_col);
 		}
 	}
-
 	return res;
 }
-
 /* Persistent data used by location_caret to avoid reopening and rereading the
    same file all over for each error.  */
 static struct {
@@ -191,7 +178,6 @@ static struct {
 	/* Given the initial column to display, the offset (number of
 	   characters to skip at the beginning of the line). */
 	int skip;
-
 	/* Available width to quote the source file.  Eight chars are
 	   consumed by the left-margin (with line number).  */
 	int width;
@@ -211,10 +197,7 @@ void caret_init(void)
 
 void caret_free(void)
 {
-	if(caret_info.file) {
-		fclose(caret_info.file);
-		caret_info.file = NULL;
-	}
+	SFile::ZClose(&caret_info.file);
 }
 
 /* Open FILE for quoting, if needed, and if possible.  Return whether

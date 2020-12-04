@@ -139,6 +139,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gsoap-wsdl2h", "gsoap-wsdl2
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freetype", "freetype.vcproj", "{D7C20AC1-2566-446F-B49A-598FE7A67094}"
 	ProjectSection(ProjectDependencies) = postProject
+		{BD776450-1675-4703-BFD3-2517B5A45DA8} = {BD776450-1675-4703-BFD3-2517B5A45DA8}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExecVDos", "ExecVDos.vcproj", "{7B1652CA-3CE9-4AC6-AE83-EBDC2BFEC5B0}"
@@ -163,6 +164,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib.vcproj", "{C23
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxml", "libxml.vcproj", "{82523A80-856A-4957-BCEA-1A5738139141}"
 	ProjectSection(ProjectDependencies) = postProject
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E} = {C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VersionSelector", "VersionSelector.vcproj", "{5A3D1652-14C5-4A48-993B-3013FE362BF3}"
@@ -175,6 +177,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VersionSelector", "VersionS
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cairo-1.16.0", "cairo-1.16.0.vcproj", "{530693B1-8B95-4993-8BCF-C0D0E225F4DF}"
 	ProjectSection(ProjectDependencies) = postProject
+		{D7C20AC1-2566-446F-B49A-598FE7A67094} = {D7C20AC1-2566-446F-B49A-598FE7A67094}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openssl-111-ssl", "openssl-111.vcproj", "{0796C89C-07E1-4BDA-BDAE-F023AEB5366C}"
@@ -182,6 +185,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openssl-111-ssl", "openssl-
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openssl-111-crypto", "openssl-111-crypto.vcproj", "{26070AD0-2D76-41A2-AB8B-864EA198CC6F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblzma", "liblzma.vcproj", "{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bz2", "bzip2.vcproj", "{BD776450-1675-4703-BFD3-2517B5A45DA8}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -808,6 +819,50 @@ Global
 		{26070AD0-2D76-41A2-AB8B-864EA198CC6F}.ServerRelease.Build.0 = ServerRelease|Win32
 		{26070AD0-2D76-41A2-AB8B-864EA198CC6F}.Universe-HTT.ActiveCfg = ServerRelease|Win32
 		{26070AD0-2D76-41A2-AB8B-864EA198CC6F}.Universe-HTT.Build.0 = ServerRelease|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Debug.ActiveCfg = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Debug.Build.0 = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Debug Multithreaded.ActiveCfg = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Debug Multithreaded.Build.0 = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Debug Singlethreaded.ActiveCfg = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Debug Singlethreaded.Build.0 = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.MtDllDebug.ActiveCfg = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.MtDllDebug.Build.0 = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.MtDllRelease.ActiveCfg = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.MtDllRelease.Build.0 = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Release.ActiveCfg = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Release.Build.0 = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Release Multithreaded.ActiveCfg = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Release Multithreaded.Build.0 = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Release Singlethreaded.ActiveCfg = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Release Singlethreaded.Build.0 = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.ServerDebug.ActiveCfg = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.ServerDebug.Build.0 = Debug|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.ServerRelease.ActiveCfg = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.ServerRelease.Build.0 = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Universe-HTT.ActiveCfg = Release|Win32
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}.Universe-HTT.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug.ActiveCfg = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug.Build.0 = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug Multithreaded.ActiveCfg = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug Multithreaded.Build.0 = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug Singlethreaded.ActiveCfg = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug Singlethreaded.Build.0 = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllDebug.Build.0 = MtDllDebug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllRelease.Build.0 = MtDllRelease|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release Multithreaded.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release Multithreaded.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release Singlethreaded.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release Singlethreaded.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerDebug.ActiveCfg = ServerDebug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerDebug.Build.0 = ServerDebug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerRelease.ActiveCfg = ServerRelease|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerRelease.Build.0 = ServerRelease|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Universe-HTT.ActiveCfg = ServerRelease|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Universe-HTT.Build.0 = ServerRelease|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

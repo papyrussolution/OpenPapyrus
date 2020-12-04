@@ -1065,7 +1065,7 @@ int FastEditSumByDivDlg::SetupDivList()
 int FastEditSumByDivDlg::EditAmount(long * pPos)
 {
 	int    ok = -1;
-	long pos = (pPos) ? *pPos : -1;
+	const long pos = DEREFPTROR(pPos, -1);
 	DivType divt;
 	PPID real_div_id = GetRealDivID(&ObjPsn, CurDivID, &divt);
 	if(oneof3(divt, divtEmployer, divtStaff, divtStaffPost)) {

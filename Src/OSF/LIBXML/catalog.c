@@ -726,9 +726,8 @@ xmlDoc * xmlParseCatalogFile(const char * filename)
 	xmlParserCtxt * ctxt = xmlNewParserCtxt();
 	if(!ctxt) {
 #ifdef LIBXML_SAX1_ENABLED
-		if(xmlDefaultSAXHandler.error != NULL) {
+		if(xmlDefaultSAXHandler.error)
 			xmlDefaultSAXHandler.error(NULL, "out of memory\n");
-		}
 #endif
 		return 0;
 	}
@@ -3174,7 +3173,4 @@ const xmlChar * xmlCatalogGetPublic(const xmlChar * pubID)
 	}
 	return xmlDefaultCatalog ? xmlCatalogGetSGMLPublic(xmlDefaultCatalog->sgml, pubID) : 0;
 }
-
-#define bottom_catalog
-//#include "elfgcchack.h"
 #endif /* LIBXML_CATALOG_ENABLED */

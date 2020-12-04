@@ -5,14 +5,11 @@
 #pragma hdrstop
 //#include <layout-flex.h>
 
-LayoutFlexItem::LayoutFlexItem() : P_Parent(0), /*should_order_children(false),*/ managed_ptr(0), CbSelfSizing(0), CbSetup(0),
-	Size(fgetnanf(), fgetnanf())/*width(fgetnanf()), height(fgetnanf())*/, N(fgetnanf(), fgetnanf(), fgetnanf(), fgetnanf()),
-	//padding_left(0.0f), padding_right(0.0f), padding_top(0.0f), padding_bottom(0.0f),
-	//margin_left(0.0f), margin_right(0.0f), margin_top(0.0f), margin_bottom(0.0f),
+LayoutFlexItem::LayoutFlexItem() : P_Parent(0), managed_ptr(0), CbSelfSizing(0), CbSetup(0),
+	Size(fgetnanf(), fgetnanf()), N(fgetnanf(), fgetnanf(), fgetnanf(), fgetnanf()),
 	JustifyContent(FLEX_ALIGN_START), AlignContent(FLEX_ALIGN_STRETCH), AlignItems(FLEX_ALIGN_STRETCH),
-	AlignSelf(FLEX_ALIGN_AUTO), /*PositionMode(FLEX_POSITION_RELATIVE),*/ Direction(FLEX_DIRECTION_COLUMN),
-	/*WrapMode(FLEX_WRAP_NO_WRAP),*/grow(0.0f), shrink(1.0f), order(0), basis(fgetnanf()),
-	Flags(0)
+	AlignSelf(FLEX_ALIGN_AUTO), Direction(FLEX_DIRECTION_COLUMN),
+	GrowFactor(0.0f), ShrinkFactor(1.0f), order(0), basis(fgetnanf()), AspectRation(0.0f), Flags(0)
 {
 	memzero(frame, sizeof(frame));
 }
@@ -374,14 +371,14 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 			// Grow or shrink the main axis item size if needed.
 			float flex_size = 0.0f;
 			if(p_layout->flex_dim > 0.0f) {
-				if(r_child.grow != 0.0f) {
+				if(r_child.GrowFactor != 0.0f) {
 					CHILD_SIZE_(p_layout, r_child) = 0; // Ignore previous size when growing.
-					flex_size = (p_layout->flex_dim / p_layout->flex_grows) * r_child.grow;
+					flex_size = (p_layout->flex_dim / p_layout->flex_grows) * r_child.GrowFactor;
 				}
 			}
 			else if(p_layout->flex_dim < 0.0f) {
-				if(r_child.shrink != 0.0f) {
-					flex_size = (p_layout->flex_dim / p_layout->flex_shrinks) * r_child.shrink;
+				if(r_child.ShrinkFactor != 0.0f) {
+					flex_size = (p_layout->flex_dim / p_layout->flex_shrinks) * r_child.ShrinkFactor;
 				}
 			}
 			CHILD_SIZE_(p_layout, r_child) += flex_size;
@@ -528,13 +525,13 @@ void LayoutFlexItem::DoLayout(float _width, float _height)
 					layout_s.line_dim = child_size2;
 				}
 			}
-			assert(r_child.grow >= 0.0f);
-			assert(r_child.shrink >= 0.0f);
-			layout_s.flex_grows   += r_child.grow;
-			layout_s.flex_shrinks += r_child.shrink;
+			assert(r_child.GrowFactor >= 0.0f);
+			assert(r_child.ShrinkFactor >= 0.0f);
+			layout_s.flex_grows   += r_child.GrowFactor;
+			layout_s.flex_shrinks += r_child.ShrinkFactor;
 			layout_s.flex_dim     -= (child_size + (CHILD_MARGIN_YX_((&layout_s), r_child, a) + CHILD_MARGIN_YX_((&layout_s), r_child, b)));
 			relative_children_count++;
-			if(child_size > 0 && r_child.grow > 0.0f)
+			if(child_size > 0 && r_child.GrowFactor > 0.0f)
 				layout_s.extra_flex_dim += child_size;
 		}
 		// Layout remaining items in wrap mode, or everything otherwise.

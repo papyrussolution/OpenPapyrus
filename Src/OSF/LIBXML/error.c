@@ -767,6 +767,3 @@ int xmlCopyError(xmlError * from, xmlError * to)
 		return 0;
 	}
 }
-
-#define bottom_error
-//#include "elfgcchack.h"

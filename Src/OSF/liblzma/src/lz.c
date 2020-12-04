@@ -4,7 +4,7 @@
 //
 #include "common.h"
 #pragma hdrstop
-#include "memcmplen.h"
+//#include "memcmplen.h"
 // See lz_encoder_hash.h. This is a bit hackish but avoids making endianness a conditional in makefiles.
 #if defined(WORDS_BIGENDIAN) && !defined(HAVE_SMALL)
 	#include "lz_encoder_hash_table.h"
@@ -373,7 +373,7 @@ static bool lz_encoder_init(lzma_mf * mf, const lzma_allocator * allocator, cons
 	if(lz_options->preset_dict != NULL && lz_options->preset_dict_size > 0) {
 		// If the preset dictionary is bigger than the actual
 		// dictionary, use only the tail.
-		mf->write_pos = my_min(lz_options->preset_dict_size, mf->size);
+		mf->write_pos = MIN(lz_options->preset_dict_size, mf->size);
 		memcpy(mf->buffer, lz_options->preset_dict + lz_options->preset_dict_size - mf->write_pos, mf->write_pos);
 		mf->action = LZMA_SYNC_FLUSH;
 		mf->skip(mf, mf->write_pos);
@@ -837,17 +837,11 @@ static lzma_match * bt_find_func(const uint32_t len_limit, const uint32_t pos, c
 			*ptr1 = EMPTY_HASH_VALUE;
 			return matches;
 		}
-
-		uint32_t * const pair = son + ((cyclic_pos - delta
-		    + (delta > cyclic_pos ? cyclic_size : 0))
-			<< 1);
-
+		uint32_t * const pair = son + ((cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)) << 1);
 		const uint8_t * const pb = cur - delta;
-		uint32_t len = my_min(len0, len1);
-
+		uint32_t len = MIN(len0, len1);
 		if(pb[len] == cur[len]) {
 			len = lzma_memcmplen(pb, cur, len + 1, len_limit);
-
 			if(len_best < len) {
 				len_best = len;
 				matches->len = len;
@@ -893,7 +887,7 @@ static void bt_skip_func(const uint32_t len_limit, const uint32_t pos, const uin
 		}
 		uint32_t * pair = son + ((cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)) << 1);
 		const uint8_t * pb = cur - delta;
-		uint32_t len = my_min(len0, len1);
+		uint32_t len = MIN(len0, len1);
 		if(pb[len] == cur[len]) {
 			len = lzma_memcmplen(pb, cur, len + 1, len_limit);
 			if(len == len_limit) {
@@ -1061,7 +1055,7 @@ static lzma_ret decode_buffer(lzma_decoder_coder * coder, const uint8_t * in, si
 		// It must not decode past the end of the dictionary
 		// buffer, and we don't want it to decode more than is
 		// actually needed to fill the out[] buffer.
-		coder->dict.limit = coder->dict.pos + my_min(out_size - *out_pos, coder->dict.size - coder->dict.pos);
+		coder->dict.limit = coder->dict.pos + MIN(out_size - *out_pos, coder->dict.size - coder->dict.pos);
 		// Call the coder->lz.code() to do the actual decoding.
 		const lzma_ret ret = coder->lz.code(coder->lz.coder, &coder->dict, in, in_pos, in_size);
 		// Copy the decoded data from the dictionary to the out[]
@@ -1200,7 +1194,7 @@ extern lzma_ret lzma_lz_decoder_init(lzma_next_coder * next, const lzma_allocato
 	if(lz_options.preset_dict != NULL && lz_options.preset_dict_size > 0) {
 		// If the preset dictionary is bigger than the actual
 		// dictionary, copy only the tail.
-		const size_t copy_size = my_min(lz_options.preset_dict_size, lz_options.dict_size);
+		const size_t copy_size = MIN(lz_options.preset_dict_size, lz_options.dict_size);
 		const size_t offset = lz_options.preset_dict_size - copy_size;
 		memcpy(coder->dict.buf, lz_options.preset_dict + offset, copy_size);
 		coder->dict.pos = copy_size;

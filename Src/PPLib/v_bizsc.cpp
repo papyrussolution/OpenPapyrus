@@ -821,7 +821,7 @@ int BizScTemplDialog::GetItemDTS(TDialog * pDlg)
 int BizScTemplDialog::UpdateItem(long * pPos, long * pID)
 {
 	int    ok = 1;
-	long pos = (pPos) ? *pPos : -1;
+	long pos = DEREFPTROR(pPos, -1);
 	long id = 0;
 	uint p = (pos >= 0) ? pos : 0;
 	if(GetSelList() == CTL_BIZSCT_LIST) {

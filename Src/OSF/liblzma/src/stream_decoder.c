@@ -5,8 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "stream_decoder.h"
-//#include "block_decoder.h"
 
 struct lzma_stream_decoder_coder {
 	enum {
@@ -53,10 +51,12 @@ static lzma_ret stream_decoder_reset(lzma_stream_decoder_coder * coder, const lz
 	coder->index_hash = lzma_index_hash_init(coder->index_hash, allocator);
 	if(coder->index_hash == NULL)
 		return LZMA_MEM_ERROR;
-	// Reset the rest of the variables.
-	coder->sequence = lzma_stream_decoder_coder::SEQ_STREAM_HEADER;
-	coder->pos = 0;
-	return LZMA_OK;
+	else {
+		// Reset the rest of the variables.
+		coder->sequence = lzma_stream_decoder_coder::SEQ_STREAM_HEADER;
+		coder->pos = 0;
+		return LZMA_OK;
+	}
 }
 
 static lzma_ret stream_decode(void * coder_ptr, const lzma_allocator * allocator,
@@ -152,7 +152,6 @@ static lzma_ret stream_decode(void * coder_ptr, const lzma_allocator * allocator
 			    // Check the memory usage limit.
 			    const uint64_t memusage = lzma_raw_decoder_memusage(filters);
 			    lzma_ret ret;
-
 			    if(memusage == UINT64_MAX) {
 				    // One or more unknown Filter IDs.
 				    ret = LZMA_OPTIONS_ERROR;
@@ -171,20 +170,14 @@ static lzma_ret stream_decode(void * coder_ptr, const lzma_allocator * allocator
 				    else {
 					    // Memory usage is OK.
 					    // Initialize the Block decoder.
-					    ret = lzma_block_decoder_init(
-						    &coder->block_decoder,
-						    allocator,
-						    &coder->block_options);
+					    ret = lzma_block_decoder_init(&coder->block_decoder, allocator, &coder->block_options);
 				    }
 			    }
-
 			    // Free the allocated filter options since they are needed
 			    // only to initialize the Block decoder.
 			    for(size_t i = 0; i < LZMA_FILTERS_MAX; ++i)
 				    lzma_free(filters[i].options, allocator);
-
 			    coder->block_options.filters = NULL;
-
 			    // Check if memory usage calculation and Block enocoder
 			    // initialization succeeded.
 			    if(ret != LZMA_OK)
@@ -328,7 +321,7 @@ extern lzma_ret lzma_stream_decoder_init(lzma_next_coder * next, const lzma_allo
 		coder->block_decoder.SetDefault();// = LZMA_NEXT_CODER_INIT;
 		coder->index_hash = NULL;
 	}
-	coder->memlimit = my_max(1, memlimit);
+	coder->memlimit = MAX(1, memlimit);
 	coder->memusage = LZMA_MEMUSAGE_BASE;
 	coder->tell_no_check = (flags & LZMA_TELL_NO_CHECK) != 0;
 	coder->tell_unsupported_check = (flags & LZMA_TELL_UNSUPPORTED_CHECK) != 0;

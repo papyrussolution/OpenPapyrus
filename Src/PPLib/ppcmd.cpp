@@ -304,7 +304,7 @@ int PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@erik v10
 	int    ok = 1;
 	SString temp_buf;
 	_kf_block _kf(this);
-	if(rwFlag==PPCommandMngr::fRWByXml) {
+	if(rwFlag == PPCommandMngr::fRWByXml) {
 		assert(pHandler);
 		THROW(pHandler);
 		xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
@@ -1677,9 +1677,9 @@ PPCommandMngr::PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesk
 		if(fileExists(pFileName)) { // @v10.9.5
 			long   mode = 0;
 			if(CtrFlags & ctrfReadOnly)
-				mode = (SFile::mRead | SFile::mDenyWrite); // @v9.0.11 SFile::mDenyWrite
+				mode = (SFile::mRead | SFile::mDenyWrite);
 			else
-				mode = (SFile::mReadWrite | SFile::mDenyWrite | mDenyRead); // @v9.0.11 mDenyRead
+				mode = (SFile::mReadWrite | SFile::mDenyWrite | mDenyRead);
 			mode |= (SFile::mBinary | SFile::mNoStd);
 			//
 			// Так как файл может быть заблокирован другим пользователем,

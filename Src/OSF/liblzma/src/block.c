@@ -5,13 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "check-internal.h"
-//#include "index-internal.h"
-//#include "block_buffer_encoder.h"
-//#include "block_encoder.h"
-//#include "block_decoder.h"
-//#include "filter_common.h"
-//#include "lzma2-internal.h"
 //
 //
 //
@@ -387,7 +380,7 @@ static lzma_ret block_encode_uncompressed(lzma_block * block, const uint8_t * in
 		control = 0x02; // No dictionary reset
 
 		// Size of the uncompressed chunk
-		const size_t copy_size = my_min(in_size - in_pos, LZMA2_CHUNK_MAX);
+		const size_t copy_size = MIN(in_size - in_pos, LZMA2_CHUNK_MAX);
 		out[(*out_pos)++] = static_cast<uint8_t>((copy_size - 1) >> 8);
 		out[(*out_pos)++] = (copy_size - 1) & 0xFF;
 		// The actual data

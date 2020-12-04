@@ -24011,5 +24011,4 @@ xmlParserCtxt * xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxt * ctxt)
 }
 
 #define bottom_xmlschemas
-//#include "elfgcchack.h"
 #endif /* LIBXML_SCHEMAS_ENABLED */

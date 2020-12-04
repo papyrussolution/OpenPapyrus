@@ -21,6 +21,45 @@
 #define UED_CONSTANT                        4   // Универсальные константы (pi, e, фундаментальный физические константы, etc)
 #define UED_OPERATOR                        5   // Экземпляры сущности имеют формат: { naked-id: 24bit; number-of-arguments: 8bit }. Примеры: add(2), sub(2), mul(2), inverse(1)
 	// Оператор не определяет типы аргументов. Это - задача правил.
+	/*
+		len
+		eq
+		neq
+		le
+		ge
+		lt
+		gt
+		lshift
+		rshift
+		lrot
+		rrot
+		bwand
+		bwor
+		bwnot
+		bwxor
+		and
+		or
+		not
+		xor
+		add
+		sub
+		mul
+		div
+		idiv
+		rem
+		sin
+		arcsin
+		cos
+		arccos
+		tan
+		arctan
+		cotan
+		arccotan
+		log
+		exp	
+		concat
+		nth
+	*/
 #define UED_FIXEDSIZEDATATYPE               6   // Экземпляры сущности имеют формат: { naked-id: 16bit; size: 16bit }. Примеры: GUID, SHA-1 hash, AES cipher block   
 #define UED_DIMENSION                     102   // Размерности. Примеры: длина, скорость, электрическая емкость, etc
 #define UED_UOM                           103   // Единицы измерения //
@@ -98,6 +137,8 @@
 #define UED_COLORRGB                      144   // 
 #define UED_ICAO                          145   // ICAO-код (4 символа; значение включенное)
 #define UED_IATA                          146   // IATA-код (3 символа; значение включенное)
+#define UED_DAYOFWEEK                     147   // День недели
+#define UED_MENSIS                        148   // Месяц
 
 #define UED_MOLECULO                   0x4001 // Молекула
 #define UED_POPULUS                    0x4002 // Люди. Как-бы сложно не было фиксировать отдельных людей, этот элемент по крайней мере позволит учесть селебрити.
@@ -142,7 +183,10 @@
 #define UED_TIME_TZSEC                   0x86 // seconds since 1601-01-01 (UTC).
 #define UED_TIME_TZMIN                   0x87 // minuts  since 1601-01-01 (UTC).
 #define UED_TIME_TZHR                    0x88 // hours   since 1601-01-01 (UTC).
-#define UED_PLANARANGLE                  0x80 // 2-D angle
-#define UED_PLANARPOINT                  0x80 // 2-D point {28bit; 28bit} fixed binary point 16bit
-#define UED_PLANARSIZE                   0x80 // 2-D size {28bit; 28bit} fixed binary point 16bit
-#define UED_GEOLOC                       0x90 // {28bit; 28bit}
+#define UED_PLANARANGLE                  0x90 // 2-D angle 56bit 
+#define UED_PLANARPOINT                  0x91 // 2-D point {28bit; 28bit} fixed binary point 16bit
+#define UED_PLANARSIZE                   0x92 // 2-D size {28bit; 28bit} fixed binary point 16bit
+#define UED_GEOLOC                       0x93 // {28bit; 28bit}
+#define UED_RANGEZEROTOONE               0x94 // Диапазон [0..1] 56bit
+#define UED_RANGEMINUSONETOONE           0x95 // Диапазон [-1..1] 56bit
+

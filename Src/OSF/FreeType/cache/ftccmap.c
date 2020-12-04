@@ -1,18 +1,14 @@
 /****************************************************************************
- *
  * ftccmap.c
- *
  *   FreeType CharMap cache (body)
  *
- * Copyright (C) 2000-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2000-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 #include <freetype/freetype.h>
 #include <freetype/ftcache.h>
@@ -269,5 +265,3 @@ FTC_CMapCache_Lookup(FTC_CMapCache cmap_cache,
 Exit:
 	return gindex;
 }
-
-/* END */

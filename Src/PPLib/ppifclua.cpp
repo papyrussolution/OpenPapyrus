@@ -1,5 +1,5 @@
 // PPIFCLUA.CPP
-// Copyright (c) A.Sobolev 2018
+// Copyright (c) A.Sobolev 2018, 2020
 // @codepage UTF-8
 // Экспериментальный модуль интерфейса с LUA
 //
@@ -76,11 +76,14 @@ public:
 	int Version(lua_State * pL)
 	{
 		SString result_buf;
-		char   ver_text[128];
+		//char   ver_text[128];
+		SString _ver_buf;
 		PPVersionInfo vi = DS.GetVersionInfo();
-		vi.GetProductName(result_buf);
-		vi.GetVersionText(ver_text, sizeof(ver_text));
-		result_buf.Space().Cat(ver_text);
+		//vi.GetProductName(result_buf);
+		vi.GetTextAttrib(vi.taiProductName, result_buf);
+		//vi.GetVersionText(ver_text, sizeof(ver_text));
+		vi.GetTextAttrib(vi.taiVersionText, _ver_buf);
+		result_buf.Space().Cat(_ver_buf);
 		lua_pushstring(pL, result_buf);
 		return 1;
 	}

@@ -143,7 +143,7 @@ void ContractionState::DeleteLines(int lineDoc, int lineCount)
 	Check();
 }
 
-bool ContractionState::GetVisible(int lineDoc) const
+bool FASTCALL ContractionState::GetVisible(int lineDoc) const
 {
 	return OneToOne() ? true : ((lineDoc >= visible->Length()) ? true : (visible->ValueAt(lineDoc) == 1));
 }
@@ -190,7 +190,7 @@ bool ContractionState::SetFoldDisplayText(int lineDoc, const char * text)
 {
 	EnsureData();
 	const char * foldText = foldDisplayTexts->ValueAt(lineDoc);
-	if(!foldText || 0 != strcmp(text, foldText)) {
+	if(!foldText || strcmp(text, foldText) != 0) {
 		foldDisplayTexts->SetValueAt(lineDoc, text);
 		Check();
 		return true;
@@ -201,11 +201,10 @@ bool ContractionState::SetFoldDisplayText(int lineDoc, const char * text)
 	}
 }
 
-bool ContractionState::GetExpanded(int lineDoc) const
+bool FASTCALL ContractionState::GetExpanded(int lineDoc) const
 {
-	if(OneToOne()) {
+	if(OneToOne())
 		return true;
-	}
 	else {
 		Check();
 		return expanded->ValueAt(lineDoc) == 1;
@@ -214,9 +213,8 @@ bool ContractionState::GetExpanded(int lineDoc) const
 
 bool ContractionState::SetExpanded(int lineDoc, bool isExpanded)
 {
-	if(OneToOne() && isExpanded) {
+	if(OneToOne() && isExpanded)
 		return false;
-	}
 	else {
 		EnsureData();
 		if(isExpanded != (expanded->ValueAt(lineDoc) == 1)) {
@@ -238,20 +236,15 @@ bool ContractionState::GetFoldDisplayTextShown(int lineDoc) const
 
 int ContractionState::ContractedNext(int lineDocStart) const
 {
-	if(OneToOne()) {
+	if(OneToOne())
 		return -1;
-	}
 	else {
 		Check();
-		if(!expanded->ValueAt(lineDocStart)) {
+		if(!expanded->ValueAt(lineDocStart))
 			return lineDocStart;
-		}
 		else {
 			int lineDocNextChange = expanded->EndRun(lineDocStart);
-			if(lineDocNextChange < LinesInDoc())
-				return lineDocNextChange;
-			else
-				return -1;
+			return (lineDocNextChange < LinesInDoc()) ? lineDocNextChange : -1;
 		}
 	}
 }

@@ -48,9 +48,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_xattr.c 201096 2009-12-28 
 
 void archive_entry_xattr_clear(struct archive_entry * entry)
 {
-	struct ae_xattr * xp;
 	while(entry->xattr_head != NULL) {
-		xp = entry->xattr_head->next;
+		struct ae_xattr * xp = entry->xattr_head->next;
 		SAlloc::F(entry->xattr_head->name);
 		SAlloc::F(entry->xattr_head->value);
 		SAlloc::F(entry->xattr_head);
@@ -111,7 +110,3 @@ int archive_entry_xattr_next(struct archive_entry * entry, const char ** name, c
 		return (ARCHIVE_WARN);
 	}
 }
-
-/*
- * end of xattr handling
- */

@@ -4685,10 +4685,13 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 										if(p_prvdr_item->P_ExpDll->InitLibrary(b_e.BillParam.ImpExpParamDll.DllPath, 1)) {
 											int    sess_id = 0;
 											Sdr_ImpExpHeader hdr;
-											PPVersionInfo vers_info;
-											vers_info.GetProductName(temp_buf.Z());
-											temp_buf.CopyTo(hdr.SrcSystemName, sizeof(hdr.SrcSystemName));
-											vers_info.GetVersionText(hdr.SrcSystemVer, sizeof(hdr.SrcSystemVer));
+											PPVersionInfo vi;
+											//vers_info.GetProductName(temp_buf.Z());
+											vi.GetTextAttrib(vi.taiProductName, temp_buf);
+											STRNSCPY(hdr.SrcSystemName, temp_buf);
+											//vers_info.GetVersionText(hdr.SrcSystemVer, sizeof(hdr.SrcSystemVer));
+											vi.GetTextAttrib(vi.taiVersionText, temp_buf);
+											STRNSCPY(hdr.SrcSystemVer, temp_buf);
 											b_e.BillParam.ImpExpParamDll.Login.CopyTo(hdr.EdiLogin, sizeof(hdr.EdiLogin));
 											b_e.BillParam.ImpExpParamDll.Password.CopyTo(hdr.EdiPassword, sizeof(hdr.EdiPassword));
 											if(p_prvdr_item->P_ExpDll->InitExport(&hdr, b_e.BillParam.ImpExpParamDll.FileName, &sess_id))

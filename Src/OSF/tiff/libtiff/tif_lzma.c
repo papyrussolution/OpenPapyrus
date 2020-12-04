@@ -35,7 +35,7 @@
  *
  * The codec is derived from ZLIB codec (tif_zip.c).
  */
-#include "lzma.h"
+#include <..\OSF\liblzma\api\lzma.h>
 /*
  * State block for each open TIFF file using LZMA2 compression/decompression.
  */
@@ -180,13 +180,11 @@ static int LZMADecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 static int LZMASetupEncode(TIFF* tif)
 {
 	LZMAState* sp = EncoderState(tif);
-
 	assert(sp != NULL);
 	if(sp->state & LSTATE_INIT_DECODE) {
 		lzma_end(&sp->stream);
 		sp->state = 0;
 	}
-
 	sp->state |= LSTATE_INIT_ENCODE;
 	return 1;
 }
@@ -343,7 +341,7 @@ int TIFFInitLZMA(TIFF* tif, int scheme)
 	/*
 	 * Merge codec-specific tag information.
 	 */
-	if(!_TIFFMergeFields(tif, lzmaFields, TIFFArrayCount(lzmaFields))) {
+	if(!_TIFFMergeFields(tif, lzmaFields, SIZEOFARRAY(lzmaFields))) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Merging LZMA2 codec-specific tags failed");
 		return 0;
 	}

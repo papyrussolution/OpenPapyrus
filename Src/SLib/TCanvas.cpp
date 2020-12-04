@@ -3574,7 +3574,7 @@ int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
 		Base * p_base = (Base *)H;
 		void * hdl = p_base->GetHandle();
 		if((create && !hdl) || (!create && hdl)) {
-			SDrawSystem dsys = create ? (pCtx ? *pCtx : dsysNone) : p_base->GetSys();
+			SDrawSystem dsys = create ? DEREFPTROR(pCtx, dsysNone) : p_base->GetSys();
 			switch(T) {
 				case tPen:
 					if(dsys == dsysWinGdi) {

@@ -287,6 +287,10 @@ void SVerT::Set(uint32 n)
 	R = static_cast<uint16>(n & 0x0000ffff);
 }
 
+int SVerT::GetMajor() const { return static_cast<int>(V >> 8); }
+int SVerT::GetMinor() const { return static_cast<int>(V & 0x00ff); }
+int SVerT::GetRevision() const { return static_cast<int>(R); }
+
 int SVerT::Get(int * pJ, int * pN, int * pR) const
 {
 	int j = static_cast<int>(V >> 8);

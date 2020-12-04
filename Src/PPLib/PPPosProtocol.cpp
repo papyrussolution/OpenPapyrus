@@ -375,7 +375,8 @@ int PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & r
 	}
 	{
 		PPVersionInfo vi = DS.GetVersionInfo();
-		vi.GetProductName(rInfo.System);
+		//vi.GetProductName(rInfo.System);
+		vi.GetTextAttrib(vi.taiProductName, rInfo.System);
 		vi.GetVersion().ToStr(rInfo.Version);
 	}
 	return ok;
@@ -1739,7 +1740,8 @@ int PPPosProtocol::WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 		SString temp_buf;
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		PPVersionInfo vi = DS.GetVersionInfo();
-		vi.GetProductName(temp_buf);
+		//vi.GetProductName(temp_buf);
+		vi.GetTextAttrib(vi.taiProductName, temp_buf);
 		w_s.PutInnerSkipEmpty("system", EncText(rInfo.System));
 		w_s.PutInnerSkipEmpty("version", EncText(rInfo.Version));
 		if(!rInfo.Uuid.IsZero()) {

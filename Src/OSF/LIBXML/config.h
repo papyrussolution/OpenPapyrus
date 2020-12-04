@@ -5,7 +5,7 @@
 #define HAVE_STDARG_H
 #define HAVE_MALLOC_H
 #define HAVE_ERRNO_H
-#define HAVE_ZLIB_H // @v9.8.3
+#define HAVE_ZLIB_H
 #if defined(_WIN32_WCE)
 	#undef HAVE_ERRNO_H
 	#include <windows.h>
@@ -25,14 +25,13 @@
 #ifdef NEED_SOCKETS
 	#include <wsockcompat.h>
 #endif
-/*
- * Windows platforms may define except 
- */
+// 
+// Windows platforms may define except 
+// 
 #undef except
 
 #define HAVE_ISINF
 #define HAVE_ISNAN
-//#include <math.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 	//
 	// MS C-runtime has functions which can be used in order to determine if
@@ -49,7 +48,7 @@
 	#ifndef isnan
 		#define isnan(d) (_isnan(d))
 	#endif
-#else /* _MSC_VER */
+#else
 	#ifndef isinf
 		static int isinf(double d) 
 		{
@@ -84,7 +83,7 @@
 				return 0;
 		}
 	#endif
-#endif /* _MSC_VER */
+#endif
 #if defined(_MSC_VER)
 	#define mkdir(p,m) _mkdir(p)
 	#define snprintf _snprintf
@@ -103,15 +102,5 @@
 		#define HAVE_WIN32_THREADS
 	#endif
 #endif
-//
-// Some third-party libraries far from our control assume the following
-// is defined, which it is not if we don't include windows.h.
-//
-#if !defined(FALSE)
-	#define FALSE 0
 #endif
-#if !defined(TRUE)
-	#define TRUE (!(FALSE))
-#endif
-#endif /* __LIBXML_WIN32_CONFIG__ */
 

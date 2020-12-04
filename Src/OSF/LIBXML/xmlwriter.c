@@ -3744,5 +3744,4 @@ static int xmlTextWriterHandleStateDependencies(xmlTextWriter * writer, xmlTextW
 }
 
 #define bottom_xmlwriter
-//#include "elfgcchack.h"
 #endif

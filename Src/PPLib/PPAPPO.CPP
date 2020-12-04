@@ -61,8 +61,8 @@ int PPHandlePrintError(int)
 PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : TProgram(hInst, pAppSymb, pAppTitle), LocalState(0)
 {
 	SPrinter::HandlePrintError = PPHandlePrintError;
-	STextBrowser::RegWindowClass(hInst); // @v9.1.3
-	InitUiToolBox(); // @v9.5.6
+	STextBrowser::RegWindowClass(hInst);
+	InitUiToolBox();
 	InitDeskTop();
 	TEvent event;
 	event.setCmd(cmInit, 0);
@@ -75,7 +75,7 @@ int PPApp::InitStatusBar()
 	if(ok) {
 		SString copyright_buf;
 		PPVersionInfo vi = DS.GetVersionInfo();
-		vi.GetCopyrightText(copyright_buf);
+		vi.GetTextAttrib(vi.taiCopyrightText, copyright_buf);
 		P_Stw->RemoveItem(-1);
 		P_Stw->AddItem(copyright_buf);
 		P_Stw->Update();
@@ -311,28 +311,32 @@ static int PPAbout()
 	TDialog * dlg = new TDialog(DLG_ABOUT);
 	if(CheckDialogPtrErr(&dlg)) {
 		const int is_open = DS.CheckExtFlag(ECF_OPENSOURCE);
-		char  c_buf[512];
+		//char  c_buf[512];
+		SString _c_buf;
 		SString fmt, text;
 		SString temp_buf;
 		PPLicData lic;
 		PPVersionInfo vi = DS.GetVersionInfo();
-		vi.GetVersionText(c_buf, sizeof(c_buf));
+		//vi.GetVersionText(c_buf, sizeof(c_buf));
+		vi.GetTextAttrib(vi.taiVersionText, _c_buf);
 		PPGetLicData(&lic);
 		{
 			PPLoadString("entmanagementsys", temp_buf);
 			text = temp_buf;
-			vi.GetProductName(temp_buf);
+			//vi.GetProductName(temp_buf);
+			vi.GetTextAttrib(vi.taiProductName, temp_buf);
 			text.Space().Cat(temp_buf);
 			PPLoadString("version", temp_buf);
-			text.CatDiv('.', 2).Cat(temp_buf).Space().Cat(c_buf);
+			text.CatDiv('.', 2).Cat(temp_buf).Space().Cat(_c_buf);
 			dlg->setStaticText(CTL_ABOUT_VERSION, text);
 		}
 		{
 			uint   start_year = 0;
 			uint   end_year = 0;
-			vi.GetTeam(c_buf, sizeof(c_buf));
+			//vi.GetTeam(c_buf, sizeof(c_buf));
+			vi.GetTextAttrib(vi.taiTeam, _c_buf);
 			vi.GetDevYears(&start_year, &end_year);
-			text.Z().CatParStr("c").Space().Cat(c_buf).Space().Cat(start_year).CatChar('-').Cat(end_year);
+			text.Z().CatParStr("c").Space().Cat(_c_buf).Space().Cat(start_year).CatChar('-').Cat(end_year);
 			dlg->setStaticText(CTL_ABOUT_TEAM, text);
 		}
 		text = is_open ? 0 : lic.RegName;
@@ -1022,15 +1026,14 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 		SString temp_buf;
 		LoginDialog * dlg = new LoginDialog(rezID, sysAccLogin, pDbes);
 		if(CheckDialogPtrErr(&dlg)) {
-			// @v9.4.3 {
 			if(!protect) {
 				PPLoadText(PPTXT_GREETING, title_buf);
 				PPVersionInfo vi = DS.GetVersionInfo();
-				vi.GetProductName(temp_buf);
+				//vi.GetProductName(temp_buf);
+				vi.GetTextAttrib(vi.taiProductName, temp_buf);
 				title_buf.Space().Cat(temp_buf);
 				dlg->setTitle(title_buf);
 			}
-			// } @v9.4.3
 			skip_edit_dlg = BIN(!retryLogin && !usedbsel && sysAccLogin);
 			decodedate(&r, &DefaultMonth, &DefaultYear, &curdate);
 			r = 0;

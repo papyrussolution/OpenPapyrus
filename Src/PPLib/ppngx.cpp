@@ -415,7 +415,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 		SString out_buf;
 		SString temp_buf;
 		SString cmd_buf;
-		char   sb[256];
+		//char   sb[256];
 		int    do_preprocess_content = 0;
 		const PPThreadLocalArea & r_tla = DS.GetConstTLA();
 		if(r_tla.State & r_tla.stAuth) {
@@ -494,14 +494,17 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 		}
 		else {
 			PPVersionInfo vi = DS.GetVersionInfo();
-			vi.GetProductName(temp_buf);
+			//vi.GetProductName(temp_buf);
+			vi.GetTextAttrib(vi.taiProductName, temp_buf);
 			out_buf.Cat(temp_buf);
-			vi.GetVersionText(sb, sizeof(sb));
-			out_buf.Space().Cat(sb);
-			vi.GetTeam(sb, sizeof(sb));
-			out_buf.Space().Cat((temp_buf = sb).Transf(CTRANSF_INNER_TO_UTF8));
+			//vi.GetVersionText(sb, sizeof(sb));
+			vi.GetTextAttrib(vi.taiVersionText, temp_buf);
+			out_buf.Space().Cat(temp_buf);
+			//vi.GetTeam(sb, sizeof(sb));
+			vi.GetTextAttrib(vi.taiTeam, temp_buf);
+			out_buf.Space().Cat(temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			out_buf.CR();
-			out_buf.CatEq("Идентификатор потока", DS.GetConstTLA().GetThreadID());
+			out_buf.CatEq(/*"Идентификатор потока"*/"Thread ident", DS.GetConstTLA().GetThreadID());
 			//
 			pReq->SetContentType(SFileFormat::Html, cpUTF8);
 			{

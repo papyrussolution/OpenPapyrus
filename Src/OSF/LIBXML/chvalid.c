@@ -241,6 +241,3 @@ int xmlIsIdeographic(uint ch) { return xmlIsIdeographicQ(ch); }
 // Returns true if argument valid, false otherwise
 // 
 int xmlIsPubidChar(uint ch) { return xmlIsPubidCharQ(ch); }
-
-#define bottom_chvalid
-//#include "elfgcchack.h"

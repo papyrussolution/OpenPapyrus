@@ -5,7 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "delta_common.h"
 
 static void delta_coder_end(void * coder_ptr, const lzma_allocator * allocator)
 {
@@ -76,8 +75,7 @@ static void encode_in_place(lzma_delta_coder * coder, uint8_t * buffer, size_t s
 }
 
 static lzma_ret delta_encode(void * coder_ptr, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out,
+    const uint8_t * in, size_t * in_pos, size_t in_size, uint8_t * out,
     size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_delta_coder * coder = (lzma_delta_coder *)coder_ptr;
@@ -85,7 +83,7 @@ static lzma_ret delta_encode(void * coder_ptr, const lzma_allocator * allocator,
 	if(coder->next.code == NULL) {
 		const size_t in_avail = in_size - *in_pos;
 		const size_t out_avail = out_size - *out_pos;
-		const size_t size = my_min(in_avail, out_avail);
+		const size_t size = MIN(in_avail, out_avail);
 		copy_and_encode(coder, in + *in_pos, out + *out_pos, size);
 		*in_pos += size;
 		*out_pos += size;
@@ -100,8 +98,7 @@ static lzma_ret delta_encode(void * coder_ptr, const lzma_allocator * allocator,
 }
 
 static lzma_ret delta_encoder_update(void * coder_ptr, const lzma_allocator * allocator,
-    const lzma_filter * filters_null lzma_attribute((__unused__)),
-    const lzma_filter * reversed_filters)
+    const lzma_filter * filters_null lzma_attribute((__unused__)), const lzma_filter * reversed_filters)
 {
 	lzma_delta_coder * coder = (lzma_delta_coder *)coder_ptr;
 	// Delta doesn't and will never support changing the options in

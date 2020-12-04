@@ -1690,7 +1690,8 @@ int PPViewGeoTracking::Export()
 					{
 						PPVersionInfo vi = DS.GetVersionInfo();
 						SVerT ver = vi.GetVersion();
-						vi.GetProductName(temp_buf);
+						//vi.GetProductName(temp_buf);
+						vi.GetTextAttrib(vi.taiProductName, temp_buf);
 						out_buf.Z().Cat(temp_buf);
 						out_buf.Space().Cat(ver.ToStr(temp_buf));
 					}

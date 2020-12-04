@@ -53,6 +53,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "papyrus", "papyrus.vcproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxml", "libxml.vcproj", "{82523A80-856A-4957-BCEA-1A5738139141}"
 	ProjectSection(ProjectDependencies) = postProject
+		{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E} = {C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib.vcproj", "{C23C2B5B-224B-475D-8AE3-82289A87602C}"

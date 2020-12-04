@@ -276,9 +276,9 @@ SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, con
 {
 	char   prefix[128], ext[128];
 	size_t prefix_len = 0;
-	long   start = pStart ? *pStart : 1;
+	long   start = DEREFPTROR(pStart, 1);
 	if(pPrefix)
-		prefix_len = sstrlen(strnzcpy(prefix, pPrefix, 20)); // @v9.9.12 6-->20
+		prefix_len = sstrlen(strnzcpy(prefix, pPrefix, 20));
 	else
 		prefix[0] = 0;
 	const uint nd = (prefix_len <= 6) ? (8-prefix_len) : 4;

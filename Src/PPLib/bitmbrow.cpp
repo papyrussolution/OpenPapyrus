@@ -1903,7 +1903,7 @@ int BillItemBrowser::addItemByOrder(const PPBillPacket * pOrderPack, int line)
 int BillItemBrowser::addModifItem(int * pSign, TIDlgInitData * pInitData)
 {
 	int    ok = -1;
-	int    sign = pSign ? *pSign : TISIGN_UNDEF;
+	int    sign = DEREFPTROR(pSign, TISIGN_UNDEF);
 	TDialog * dlg = 0;
 	if(sign == TISIGN_UNDEF) {
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELMODIF))));

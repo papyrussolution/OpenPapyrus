@@ -21,21 +21,14 @@ using namespace Scintilla;
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static bool FASTCALL IsAlphaCore(int ch)
-{
-	return (isalpha(ch) || ch == '!' || ch == '?');
-}
+static bool FASTCALL IsAlphaCore(int ch) { return (isalpha(ch) || ch == '!' || ch == '?'); }
 /**
  * Is it a character (IsAlphaCore() and underscore)
  *
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static bool FASTCALL IsAlpha(int ch)
-{
-	return (IsAlphaCore(ch) || ch == '_');
-}
-
+static bool FASTCALL IsAlpha(int ch) { return (IsAlphaCore(ch) || ch == '_'); }
 /**
  * Is it a symbolic character (IsAlpha() and colon)
  *
@@ -43,7 +36,6 @@ static bool FASTCALL IsAlpha(int ch)
  * \return True if ch is a character, False otherwise
  */
 static bool FASTCALL IsAlphaSym(int ch) { return (IsAlpha(ch) || ch == ':'); }
-
 /**
  * Is it a numerical character (IsAlpha() and 0 - 9)
  *

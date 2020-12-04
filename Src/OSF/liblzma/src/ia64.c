@@ -30,12 +30,8 @@ static size_t ia64_code(void * simple lzma_attribute((__unused__)), uint32_t now
 			uint64_t instruction = 0;
 			for(size_t j = 0; j < 6; ++j)
 				instruction += (uint64_t)(buffer[i + j + byte_pos]) << (8 * j);
-
 			uint64_t inst_norm = instruction >> bit_res;
-			if(((inst_norm >> 37) & 0xF) == 0x5
-			    && ((inst_norm >> 9) & 0x7) == 0
-			    /* &&  (inst_norm & 0x3F)== 0 */
-			    ) {
+			if(((inst_norm >> 37) & 0xF) == 0x5 && ((inst_norm >> 9) & 0x7) == 0/* &&  (inst_norm & 0x3F)== 0 */) {
 				uint32_t src = (uint32_t)((inst_norm >> 13) & 0xFFFFF);
 				src |= ((inst_norm >> 36) & 1) << 20;
 				src <<= 4;

@@ -6,10 +6,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "lz_decoder.h"
-//#include "lz-internal.h"
-//#include "lzma_common.h"
-//#include "lzma_decoder.h"
 #include "range_decoder.h"
 
 // The macros unroll loops with switch statements.
