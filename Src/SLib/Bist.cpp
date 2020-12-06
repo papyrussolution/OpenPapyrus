@@ -1161,13 +1161,13 @@ int SFloat::fromstr(void * d, long, const char * buf) const
 void SFloat::tobase(const void * d, void * baseData) const { *static_cast<double *>(baseData) = __toldbl(d, S); }
 int  SFloat::baseto(void * d, const void * baseData) const { return (__ldblto(*static_cast<const double *>(baseData), d, S), 1); }
 
-static const float max_flt = (float)MAXFLOAT;
+//static const float max_flt = (float)MAXFLOAT;
 
 void SFloat::minval(void * d) const
 {
 	switch(S) {
 		case  8: *static_cast<double *>(d) = -SMathConst::Max; break;
-		case  4: *static_cast<float *>(d)  = -max_flt; break;
+		case  4: *static_cast<float *>(d)  = -SMathConst::Max_f; break;
 		case 10: *static_cast<LDBL *>(d)   = -SMathConst::Max; break;
 		// default: assert(INVALID_DATA_SIZE);
 	}
@@ -1177,7 +1177,7 @@ void SFloat::maxval(void * d) const
 {
 	switch(S) {
 		case  8: *static_cast<double *>(d) = SMathConst::Max; break;
-		case  4: *static_cast<float *>(d)  = max_flt; break;
+		case  4: *static_cast<float *>(d)  = SMathConst::Max_f; break;
 		case 10: *static_cast<LDBL *>(d)   = SMathConst::Max; break;
 		// default: assert(INVALID_DATA_SIZE);
 	}

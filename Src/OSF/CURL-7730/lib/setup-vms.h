@@ -36,7 +36,7 @@
 /* Hide the stuff we are overriding */
 #define getenv decc_getenv
 #ifdef __DECC
-#   if __INITIAL_POINTER_SIZE != 64
+#if __INITIAL_POINTER_SIZE != 64
 #define getpwuid decc_getpwuid
 #endif
 #endif
@@ -58,7 +58,7 @@ char *decc$getenv(const char *__name);
 #define sys$qiow SYS$QIOW
 
 #ifdef __DECC
-#   if __INITIAL_POINTER_SIZE
+#if __INITIAL_POINTER_SIZE
 #pragma __pointer_size __save
 #endif
 #endif
@@ -66,7 +66,7 @@ char *decc$getenv(const char *__name);
 #if __USE_LONG_GID_T
 #define decc_getpwuid DECC$__LONG_GID_GETPWUID
 #else
-#   if __INITIAL_POINTER_SIZE
+#if __INITIAL_POINTER_SIZE
 #define decc_getpwuid decc$__32_getpwuid
 #else
 #define decc_getpwuid decc$getpwuid
@@ -76,7 +76,7 @@ char *decc$getenv(const char *__name);
     struct passwd *decc_getpwuid(uid_t uid);
 
 #ifdef __DECC
-#   if __INITIAL_POINTER_SIZE == 32
+#if __INITIAL_POINTER_SIZE == 32
 /* Translate the path, but only if the path is a VMS file specification */
 /* The translation is usually only needed for older versions of VMS */
 static char *vms_translate_path(const char *path)
@@ -107,7 +107,7 @@ static char *vms_translate_path(const char *path)
 #endif
 
 #ifdef __DECC
-#   if __INITIAL_POINTER_SIZE
+#if __INITIAL_POINTER_SIZE
 #pragma __pointer_size __restore
 #endif
 #endif
@@ -144,7 +144,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 
 /* Hack needed to support 64 bit builds, decc_getpwnam is 32 bit only */
 #ifdef __DECC
-#   if __INITIAL_POINTER_SIZE
+#if __INITIAL_POINTER_SIZE
   __char_ptr32 unix_path;
 #else
   char *unix_path;
@@ -393,7 +393,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 /* that way a newer port will also work if some one has one */
 #ifdef __VAX
 
-#   if (OPENSSL_VERSION_NUMBER < 0x00907001L)
+#if (OPENSSL_VERSION_NUMBER < 0x00907001L)
 #define des_set_odd_parity DES_SET_ODD_PARITY
 #define des_set_key DES_SET_KEY
 #define des_ecb_encrypt DES_ECB_ENCRYPT
@@ -407,7 +407,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 
     /* Curl defines these to lower case and VAX needs them in upper case */
     /* So we need static routines */
-#   if (OPENSSL_VERSION_NUMBER < 0x00907001L)
+#if (OPENSSL_VERSION_NUMBER < 0x00907001L)
 
 #       undef des_set_odd_parity
 #       undef DES_set_odd_parity

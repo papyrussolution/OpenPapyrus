@@ -1214,7 +1214,7 @@ static int check_suiteb_cipher_list(const SSL_METHOD * meth, CERT * c,
 		    SSL_R_AT_LEAST_TLS_1_2_NEEDED_IN_SUITEB_MODE);
 		return 0;
 	}
-# ifndef OPENSSL_NO_EC
+#ifndef OPENSSL_NO_EC
 	switch(suiteb_flags) {
 		case SSL_CERT_FLAG_SUITEB_128_LOS:
 		    if(suiteb_comb2)
@@ -1231,7 +1231,7 @@ static int check_suiteb_cipher_list(const SSL_METHOD * meth, CERT * c,
 		    break;
 	}
 	return 1;
-# else
+#else
 	SSLerr(SSL_F_CHECK_SUITEB_CIPHER_LIST, SSL_R_ECDH_REQUIRED_FOR_SUITEB_MODE);
 	return 0;
 #endif

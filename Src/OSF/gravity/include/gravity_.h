@@ -581,8 +581,8 @@ public:
 		if(type != json_object)
 			return json_value_none;
 		for(uint i = 0; i < u.object.length; ++i)
-			if(!strcmp(u.object.values [i].name, index))
-				return *u.object.values [i].value;
+			if(sstreq(u.object.values[i].name, index))
+				return *u.object.values[i].value;
 		return json_value_none;
 	}
 	inline operator const char *() const

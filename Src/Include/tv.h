@@ -25,6 +25,24 @@ class  SrDatabase;
 struct TDrawItemData;
 class  TWhatman;
 //
+// @v10.9.6 
+// Макросы для блокировки локальных участков кода для предотвращения повторного 
+// вхождения по причине того, что код на этом участке может неявно генерировать события, инициирующие
+// рекурсию.
+// @snippet
+// if(event.isCmd(cmInputUpdated) && event.isCtlEvent(ctl_id)) {
+//   UI_LOCAL_LOCK_ENTER
+//     // Следующий оператор меняет содержимое строки в ответ на изменение ее самой.
+//     // Внутри функции setCtrlString произойдет генерация события cmInputUpdated и,
+//     // если этот код не ограничить конструкцией UI_LOCAL_LOCK_ENTER/UI_LOCAL_LOCK_LEAVE, то
+//     // возникнет бесконечная рекурсия и неизбежное аварийное завершения сеанса по причине переполнения стека.
+//     setCtrlString(ctl_id, temp_buf.Space().Cat("some_text"));
+//   UI_LOCAL_LOCK_LEAVE
+// } 
+//
+#define UI_LOCAL_LOCK_ENTER static bool __local_lock; if(!__local_lock) { __local_lock = true;
+#define UI_LOCAL_LOCK_LEAVE __local_lock = false; }
+//
 //
 //
 class WordSel_ExtraBlock {

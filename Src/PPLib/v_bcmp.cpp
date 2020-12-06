@@ -451,9 +451,8 @@ int PPViewGoodsBillCmp::AddToBasketAll(int diffSign)
 	return ok;
 }
 
-int PPViewGoodsBillCmp::ViewTotal()
+void PPViewGoodsBillCmp::ViewTotal()
 {
-	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GBILLCMPTTL);
 	long   count = 0, diff_count = 0;
 	GoodsBillCmpViewItem item;
@@ -471,9 +470,6 @@ int PPViewGoodsBillCmp::ViewTotal()
 		dlg->setCtrlLong(CTL_GBILLCMPTTL_DIFCOUNT, diff_count);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int ViewGoodsBillCmp(PPID lhBillID, const PPIDArray & rRhBillList, int _modeless, int whatBillIsHistory, const LDATETIME * pLhEvDtm, const LDATETIME * pRhEvDtm)

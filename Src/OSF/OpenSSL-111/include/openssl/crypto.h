@@ -337,7 +337,7 @@ void OPENSSL_INIT_free(OPENSSL_INIT_SETTINGS *settings);
 
 #if defined(OPENSSL_THREADS) && !defined(CRYPTO_TDEBUG)
 #if defined(_WIN32)
-#   if defined(BASETYPES) || defined(_WINDEF_H)
+#if defined(BASETYPES) || defined(_WINDEF_H)
 /* application has to include <windows.h> in order to use this */
 typedef DWORD CRYPTO_THREAD_LOCAL;
 typedef DWORD CRYPTO_THREAD_ID;

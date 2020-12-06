@@ -8404,7 +8404,7 @@ reportstub TSessBillView    { dl600data=TSessionBillView,     "Технологические с
 
 reportstub TSession			{ dl600data=TSessionData,		"@{tsession}"}
 reportstub TSessIdleView	{ dl600data= TSessionView,		"Простои процессоров"}
-reportstub TSessView		{ dl600data=TSessionView,		"Технологические сессии"}
+reportstub TSessView		{ dl600data=TSessionView,		"@{tsession_pl}"}
 reportstub TSessLineGoods	{ dl600data=TSessLineView,		"Строки технологических сессий"}
 reportstub TSessLine		{ dl600data=TSessLineView,		"Строки технологических сессий"}
 reportstub TSessAnlz_CompPart { dl600data=TSessAnlz,		"Производственный отчет"}

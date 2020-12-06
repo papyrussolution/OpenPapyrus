@@ -1,3 +1,6 @@
+//
+//
+#include <slib.h>
 #include "video.h"
 #include "events.h"
 #include "logging.h"

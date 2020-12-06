@@ -70,7 +70,7 @@
 	((int)(((x) >> 16) & 0xff)), ((int)(((x) >> 24) & 0xff))
 
 #if DEBUG_ME
-# define DEBUG_OUT(x) x
+#define DEBUG_OUT(x) x
 static void ntlm_print_flags(FILE * handle, ulong flags)
 {
 	if(flags & NTLMFLAG_NEGOTIATE_UNICODE)
@@ -151,7 +151,7 @@ static void ntlm_print_hex(FILE * handle, const char * buf, size_t len)
 }
 
 #else
-# define DEBUG_OUT(x) Curl_nop_stmt
+#define DEBUG_OUT(x) Curl_nop_stmt
 #endif
 
 /*

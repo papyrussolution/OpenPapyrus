@@ -1908,6 +1908,16 @@ size_t FASTCALL sstrlen(const char * pStr) { return implement_sstrlen(pStr); }
 size_t FASTCALL sstrlen(const uchar * pStr) { return implement_sstrlen(pStr); }
 size_t FASTCALL sstrlen(const wchar_t * pStr) { return implement_sstrlen(pStr); }
 
+size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen)
+{
+	if(pStr) {
+		const char * p_end = static_cast<const char *>(memchr(pStr, '\0', maxLen));
+		return p_end ? (size_t)(p_end - pStr) : maxLen;
+	}
+	else
+		return 0;
+}
+
 const char * FASTCALL sstrchr(const char * pStr, char c)
 {
 	const  size_t len = implement_sstrlen(pStr);

@@ -1,5 +1,5 @@
 // C_BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Корректировка документов
 //
@@ -432,69 +432,33 @@ int PrcssrAbsentBill::ScanTransfer(SArray * pList)
 }
 
 class AbsBillDialog : public TDialog {
+	DECL_DIALOG_DATA(RecoverAbsBillData);
 public:
 	AbsBillDialog() : TDialog(DLG_ABSBILL)
 	{
 	}
-	int    setDTS(const RecoverAbsBillData *);
-	int    getDTS(RecoverAbsBillData *);
-private:
-	DECL_HANDLE_EVENT;
-	RecoverAbsBillData Data;
-};
-
-IMPL_HANDLE_EVENT(AbsBillDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_ABSBILL_OP)) {
-		if(getCtrlView(CTLSEL_ABSBILL_OBJECT)) {
-			PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
-			getCtrlData(CTLSEL_ABSBILL_OP, &Data.OpID);
-			GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, &acc_sheet2_id);
-			SetupArCombo(this, CTLSEL_ABSBILL_OBJECT, Data.ObjectID, 0, acc_sheet_id, sacfDisableIfZeroSheet|sacfNonGeneric);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString src_text;
+		PPOprKind op_rec;
+		SString loc_name;
+		PPIDArray op_list;
+		PPGetSubStr(PPTXT_ABSBILL_SRC, BIN(Data.Flags & PrcssrAbsentBill::AbsentEntry::fByAccTurn), src_text);
+		setStaticText(CTL_ABSBILL_ST_SRC, src_text);
+		setCtrlData(CTL_ABSBILL_ID, &Data.BillID);
+		setCtrlData(CTL_ABSBILL_DT, &Data.Dt);
+		setCtrlData(CTL_ABSBILL_LINESCOUNT, &Data.LinesCount);
+		setCtrlData(CTL_ABSBILL_COST, &Data.Cost);
+		setCtrlData(CTL_ABSBILL_PRICE, &Data.Price);
+		GetLocationName(Data.LocID, loc_name);
+		setCtrlString(CTL_ABSBILL_LOCNAME, loc_name);
+		if(Data.Flags & PrcssrAbsentBill::AbsentEntry::fByAccTurn) {
+			SetupOprKindCombo(this, CTLSEL_ABSBILL_OP, Data.OpID, 0, 0, 0);
 		}
-	}
-	else if(event.isCmd(cmViewAccturns))
-		BillObj->ViewAccturns(Data.BillID);
-	else
-		return;
-	clearEvent(event);
-}
-
-int AbsBillDialog::setDTS(const RecoverAbsBillData * pData)
-{
-	Data = *pData;
-	SString src_text;
-	PPOprKind op_rec;
-	SString loc_name;
-	PPIDArray op_list;
-	PPGetSubStr(PPTXT_ABSBILL_SRC, (Data.Flags & PrcssrAbsentBill::AbsentEntry::fByAccTurn) ? 1 : 0, src_text);
-	setStaticText(CTL_ABSBILL_ST_SRC, src_text);
-	setCtrlData(CTL_ABSBILL_ID, &Data.BillID);
-	setCtrlData(CTL_ABSBILL_DT, &Data.Dt);
-	setCtrlData(CTL_ABSBILL_LINESCOUNT, &Data.LinesCount);
-	setCtrlData(CTL_ABSBILL_COST, &Data.Cost);
-	setCtrlData(CTL_ABSBILL_PRICE, &Data.Price);
-	GetLocationName(Data.LocID, loc_name);
-	setCtrlString(CTL_ABSBILL_LOCNAME, loc_name);
-	if(Data.Flags & PrcssrAbsentBill::AbsentEntry::fByAccTurn) {
-		SetupOprKindCombo(this, CTLSEL_ABSBILL_OP, Data.OpID, 0, 0, 0);
-	}
-	else {
-		for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
-			if(!Data.OpTypeID) {
-				if(Data.Flags & PrcssrAbsentBill::AbsentEntry::fPlus) {
-					if(IsExpendOp(op_id) == 0)
-						op_list.add(op_id);
-				}
-				else if(Data.Flags & PrcssrAbsentBill::AbsentEntry::fMinus) {
-					if(IsExpendOp(op_id) > 0)
-						op_list.add(op_id);
-				}
-			}
-			else if(op_rec.OpTypeID == Data.OpTypeID ||
-				(op_rec.OpTypeID == PPOPT_GOODSRETURN && Data.Flags & PrcssrAbsentBill::AbsentEntry::fMaybeRet)) {
-				if(op_rec.OpTypeID == PPOPT_GOODSRETURN) {
+		else {
+			for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
+				if(!Data.OpTypeID) {
 					if(Data.Flags & PrcssrAbsentBill::AbsentEntry::fPlus) {
 						if(IsExpendOp(op_id) == 0)
 							op_list.add(op_id);
@@ -504,33 +468,63 @@ int AbsBillDialog::setDTS(const RecoverAbsBillData * pData)
 							op_list.add(op_id);
 					}
 				}
-				else if(Data.Flags & PrcssrAbsentBill::AbsentEntry::fIntrexpnd) {
-					if(IsIntrExpndOp(op_id))
+				else if(op_rec.OpTypeID == Data.OpTypeID ||
+					(op_rec.OpTypeID == PPOPT_GOODSRETURN && Data.Flags & PrcssrAbsentBill::AbsentEntry::fMaybeRet)) {
+					if(op_rec.OpTypeID == PPOPT_GOODSRETURN) {
+						if(Data.Flags & PrcssrAbsentBill::AbsentEntry::fPlus) {
+							if(IsExpendOp(op_id) == 0)
+								op_list.add(op_id);
+						}
+						else if(Data.Flags & PrcssrAbsentBill::AbsentEntry::fMinus) {
+							if(IsExpendOp(op_id) > 0)
+								op_list.add(op_id);
+						}
+					}
+					else if(Data.Flags & PrcssrAbsentBill::AbsentEntry::fIntrexpnd) {
+						if(IsIntrExpndOp(op_id))
+							op_list.add(op_id);
+					}
+					else
 						op_list.add(op_id);
 				}
-				else
-					op_list.add(op_id);
 			}
+			SETIFZ(Data.OpID, op_list.getSingle());
+			SetupOprKindCombo(this, CTLSEL_ABSBILL_OP, Data.OpID, 0, &op_list, OPKLF_OPLIST);
 		}
-		SETIFZ(Data.OpID, op_list.getSingle());
-		SetupOprKindCombo(this, CTLSEL_ABSBILL_OP, Data.OpID, 0, &op_list, OPKLF_OPLIST);
-	}
-	SetupArCombo(this, CTLSEL_ABSBILL_OBJECT, Data.ObjectID, 0, 0, sacfNonGeneric);
-	return 1;
-}
-
-int AbsBillDialog::getDTS(RecoverAbsBillData * pData)
-{
-	getCtrlData(CTLSEL_ABSBILL_OP, &Data.OpID);
-	if(!Data.OpID)
-		return PPErrorByDialog(this, CTLSEL_ABSBILL_OP, PPERR_OPRKINDNEEDED);
-	else {
-		getCtrlData(CTLSEL_ABSBILL_OBJECT, &Data.ObjectID);
-		Data.Stop = BIN(getCtrlUInt16(CTL_ABSBILL_STOP));
-		ASSIGN_PTR(pData, Data);
+		SetupArCombo(this, CTLSEL_ABSBILL_OBJECT, Data.ObjectID, 0, 0, sacfNonGeneric);
 		return 1;
 	}
-}
+	DECL_DIALOG_GETDTS()
+	{
+		getCtrlData(CTLSEL_ABSBILL_OP, &Data.OpID);
+		if(!Data.OpID)
+			return PPErrorByDialog(this, CTLSEL_ABSBILL_OP, PPERR_OPRKINDNEEDED);
+		else {
+			getCtrlData(CTLSEL_ABSBILL_OBJECT, &Data.ObjectID);
+			Data.Stop = BIN(getCtrlUInt16(CTL_ABSBILL_STOP));
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_ABSBILL_OP)) {
+			if(getCtrlView(CTLSEL_ABSBILL_OBJECT)) {
+				PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
+				getCtrlData(CTLSEL_ABSBILL_OP, &Data.OpID);
+				GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, &acc_sheet2_id);
+				SetupArCombo(this, CTLSEL_ABSBILL_OBJECT, Data.ObjectID, 0, acc_sheet_id, sacfDisableIfZeroSheet|sacfNonGeneric);
+			}
+		}
+		else if(event.isCmd(cmViewAccturns))
+			BillObj->ViewAccturns(Data.BillID);
+		else
+			return;
+		clearEvent(event);
+	}
+};
 
 int PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 {

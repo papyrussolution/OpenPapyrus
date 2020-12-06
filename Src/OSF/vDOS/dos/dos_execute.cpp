@@ -1,6 +1,5 @@
-#include <string.h>
-#include <ctype.h>
-#include <process.h>
+//
+//
 #include "vDos.h"
 #include "mem.h"
 #include "dos_inc.h"
@@ -452,7 +451,7 @@ if (DOS_GetMemAllocStrategy()&0xc0)				// If to load in UMB
 				return false;
 				}
 			}
-		memsize = min(maxfree, maxsize);
+		memsize = MIN(maxfree, maxsize);
 		if (!DOS_AllocateMemory(&pspseg, &memsize))
 			E_Exit("DOS: Exec error in memory");
 		loadseg = pspseg+16;
@@ -492,7 +491,7 @@ if (DOS_GetMemAllocStrategy()&0xc0)				// If to load in UMB
 			{
 			fPos = headersize;
 			DOS_SeekFile(fhandle, &fPos, DOS_SEEK_SET);
-			while (readsize = min(0x8000, imagesize))
+			while (readsize = MIN(0x8000, imagesize))
 				{
 				imagesize -= readsize;												// Sometimes imagsize != filesize
 				DOS_ReadFile(fhandle, loadaddress, &readsize);

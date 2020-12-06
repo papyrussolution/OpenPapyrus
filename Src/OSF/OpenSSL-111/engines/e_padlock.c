@@ -235,27 +235,27 @@ static int padlock_available(void)
 
 /* ===== AES encryption/decryption ===== */
 
-#   if defined(NID_aes_128_cfb128) && !defined (NID_aes_128_cfb)
+#if defined(NID_aes_128_cfb128) && !defined (NID_aes_128_cfb)
 #define NID_aes_128_cfb NID_aes_128_cfb128
 #endif
 
-#   if defined(NID_aes_128_ofb128) && !defined (NID_aes_128_ofb)
+#if defined(NID_aes_128_ofb128) && !defined (NID_aes_128_ofb)
 #define NID_aes_128_ofb NID_aes_128_ofb128
 #endif
 
-#   if defined(NID_aes_192_cfb128) && !defined (NID_aes_192_cfb)
+#if defined(NID_aes_192_cfb128) && !defined (NID_aes_192_cfb)
 #define NID_aes_192_cfb NID_aes_192_cfb128
 #endif
 
-#   if defined(NID_aes_192_ofb128) && !defined (NID_aes_192_ofb)
+#if defined(NID_aes_192_ofb128) && !defined (NID_aes_192_ofb)
 #define NID_aes_192_ofb NID_aes_192_ofb128
 #endif
 
-#   if defined(NID_aes_256_cfb128) && !defined (NID_aes_256_cfb)
+#if defined(NID_aes_256_cfb128) && !defined (NID_aes_256_cfb)
 #define NID_aes_256_cfb NID_aes_256_cfb128
 #endif
 
-#   if defined(NID_aes_256_ofb128) && !defined (NID_aes_256_ofb)
+#if defined(NID_aes_256_ofb128) && !defined (NID_aes_256_ofb)
 #define NID_aes_256_ofb NID_aes_256_ofb128
 #endif
 

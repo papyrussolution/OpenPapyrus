@@ -405,9 +405,8 @@ void PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const
 	}
 }
 
-int PPViewPaymPlan::ViewTotal()
+void PPViewPaymPlan::ViewTotal()
 {
-	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_PAYPLANTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_PAYPLANTOTAL_COUNT,  Total.Count);
@@ -416,9 +415,6 @@ int PPViewPaymPlan::ViewTotal()
 		dlg->setCtrlReal(CTL_PAYPLANTOTAL_DEBT,   Total.Debt);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int PPViewPaymPlan::EditBaseFilt(PPBaseFilt * pBaseFilt)

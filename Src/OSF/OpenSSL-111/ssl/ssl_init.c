@@ -33,7 +33,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_ssl_base)
 #endif
 #ifndef OPENSSL_NO_RC4
 	EVP_add_cipher(EVP_rc4());
-# ifndef OPENSSL_NO_MD5
+#ifndef OPENSSL_NO_MD5
 	EVP_add_cipher(EVP_rc4_hmac_md5());
 #endif
 #endif
@@ -83,7 +83,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_ssl_base)
 	EVP_add_digest(EVP_sha384());
 	EVP_add_digest(EVP_sha512());
 #ifndef OPENSSL_NO_COMP
-# ifdef OPENSSL_INIT_DEBUG
+#ifdef OPENSSL_INIT_DEBUG
 	fprintf(stderr, "OPENSSL_INIT: ossl_init_ssl_base: SSL_COMP_get_compression_methods()\n");
 #endif
 	/*
@@ -116,7 +116,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_load_ssl_strings)
 	 * pulling in all the error strings during static linking
 	 */
 #if !defined(OPENSSL_NO_ERR) && !defined(OPENSSL_NO_AUTOERRINIT)
-# ifdef OPENSSL_INIT_DEBUG
+#ifdef OPENSSL_INIT_DEBUG
 	fprintf(stderr, "OPENSSL_INIT: ossl_init_load_ssl_strings: "
 	    "ERR_load_SSL_strings()\n");
 #endif
@@ -142,7 +142,7 @@ static void ssl_library_stop(void)
 
 	if(ssl_base_inited) {
 #ifndef OPENSSL_NO_COMP
-# ifdef OPENSSL_INIT_DEBUG
+#ifdef OPENSSL_INIT_DEBUG
 		fprintf(stderr, "OPENSSL_INIT: ssl_library_stop: ssl_comp_free_compression_methods_int()\n");
 #endif
 		ssl_comp_free_compression_methods_int();

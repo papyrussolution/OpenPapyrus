@@ -59,7 +59,7 @@ extern "C" {
 typedef struct seed_key_st {
 #ifdef SEED_LONG
     ulong data[32];
-# else
+#else
     uint data[32];
 #endif
 } SEED_KEY_SCHEDULE;

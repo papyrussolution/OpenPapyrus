@@ -338,10 +338,10 @@ int GpGadgets::Run(int argc, char ** argv)
 	 * command line arguments are file names or an explicit in-line "-e command".
 	 */
 	for(i = 1; i < argc; i++) {
-# ifdef _Windows
+#ifdef _Windows
 		if(!_stricmp(argv[i], "/noend"))
 			continue;
-# endif
+#endif
 		if((argv[i][0] != '-') || (argv[i][1] == 'e') || (argv[i][1] == 'c') ) {
 			IsInteractive = false;
 			break;
@@ -613,16 +613,16 @@ void GpGadgets::LoadRcFile(GpCommand & rC, int where)
 		return;
 	if(where == 0) {
 #ifdef GNUPLOT_SHARE_DIR
-# if defined(_Windows)
+#if defined(_Windows)
 		/* retrieve path relative to gnuplot executable,
 		 * whose path is in szModuleName (winmain.c) */
 		rcfile = malloc(strlen((char*)szPackageDir) + 1 + strlen(GNUPLOT_SHARE_DIR) + 1 + strlen("gnuplotrc") + 1);
 		strcpy(rcfile, (char*)szPackageDir);
 		PATH_CONCAT(rcfile, GNUPLOT_SHARE_DIR);
-# else
+#else
 		rcfile = (char*)malloc(strlen(GNUPLOT_SHARE_DIR) + 1 + strlen("gnuplotrc") + 1);
 		strcpy(rcfile, GNUPLOT_SHARE_DIR);
-# endif
+#endif
 		PATH_CONCAT(rcfile, "gnuplotrc");
 		plotrc = fopen(rcfile, "r");
 #endif
@@ -719,7 +719,7 @@ void cancel_history()
 	expanded_history_filename = NULL;
 }
 
-# if defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
+#if defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
 
 static void wrapper_for_write_history()
 {
@@ -735,7 +735,7 @@ static void wrapper_for_write_history()
 	}
 }
 
-# else /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */
+#else /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */
 
 // version for gnuplot's own write_history 
 static void wrapper_for_write_history()
@@ -750,7 +750,7 @@ static void wrapper_for_write_history()
 	}
 }
 
-# endif /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */
+#endif /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */
 #endif /* GNUPLOT_HISTORY */
 
 void restrict_popen()

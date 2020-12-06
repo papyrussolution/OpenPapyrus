@@ -1630,20 +1630,16 @@ int PPViewGeoTracking::CalcTotal(GeoTrackingTotal * pTotal)
     return ok;
 }
 
-/*virtual*/int PPViewGeoTracking::ViewTotal()
+/*virtual*/void PPViewGeoTracking::ViewTotal()
 {
-	int    ok = -1;
-	TDialog * dlg = 0;
 	GeoTrackingTotal total;
-	THROW(CalcTotal(&total));
-	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_GEOTRTOTAL))));
-    dlg->setCtrlLong(CTL_GEOTRTOTAL_COUNT, total.Count);
-    dlg->setCtrlLong(CTL_GEOTRTOTAL_OBJCOUNT, total.ObjCount);
-    ExecViewAndDestroy(dlg);
-    dlg = 0;
-	CATCHZOK
-	delete dlg;
-	return ok;
+	CalcTotal(&total);
+	TDialog * dlg = new TDialog(DLG_GEOTRTOTAL);
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setCtrlLong(CTL_GEOTRTOTAL_COUNT, total.Count);
+		dlg->setCtrlLong(CTL_GEOTRTOTAL_OBJCOUNT, total.ObjCount);
+		ExecViewAndDestroy(dlg);
+	}
 }
 
 /*virtual*/int PPViewGeoTracking::Detail(const void *, PPViewBrowser * pBrw)

@@ -92,7 +92,7 @@ const uchar os_toebcdic[256] = {
 	0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff
 };
 
-# elif defined(_OSD_POSIX)
+#elif defined(_OSD_POSIX)
 /*
  * "BS2000 OSD" is a POSIX subsystem on a main frame. It is made by Siemens
  * AG, Germany, for their BS2000 mainframe machines. Within the POSIX

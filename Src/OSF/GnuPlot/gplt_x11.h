@@ -38,10 +38,10 @@
 #endif
 
 #ifndef FD_SET
-# define FD_SET(n, p)    ((p)->fds_bits[0] |= (1 << ((n) % 32)))
-# define FD_CLR(n, p)    ((p)->fds_bits[0] &= ~(1 << ((n) % 32)))
-# define FD_ISSET(n, p)  ((p)->fds_bits[0] & (1 << ((n) % 32)))
-# define FD_ZERO(p)      memset((char *)(p), '\0', sizeof(*(p)))
+#define FD_SET(n, p)    ((p)->fds_bits[0] |= (1 << ((n) % 32)))
+#define FD_CLR(n, p)    ((p)->fds_bits[0] &= ~(1 << ((n) % 32)))
+#define FD_ISSET(n, p)  ((p)->fds_bits[0] & (1 << ((n) % 32)))
+#define FD_ZERO(p)      memset((char *)(p), '\0', sizeof(*(p)))
 #endif /* not FD_SET */
 
 #define X11_COMMAND_BUFFER_LENGTH 1024

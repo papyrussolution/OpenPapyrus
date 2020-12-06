@@ -1922,7 +1922,7 @@ const IterCounter & PPViewGoods::GetCounter() const
 	return P_Iter ? P_Iter->GetIterCounter() : Counter;
 }
 
-int PPViewGoods::ViewTotal()
+void PPViewGoods::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_GOODSTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -1934,10 +1934,7 @@ int PPViewGoods::ViewTotal()
 		PPWait(0);
 		dlg->setCtrlLong(CTL_GOODSTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
-		return -1;
 	}
-	else
-		return 0;
 }
 
 int PPViewGoods::DeleteItem(PPID id)

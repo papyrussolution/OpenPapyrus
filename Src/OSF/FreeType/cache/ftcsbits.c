@@ -10,14 +10,6 @@
  * this file you indicate that you have read the license and
  * understand and accept it fully.
  */
-#include <freetype/ftcache.h>
-#include "ftcsbits.h"
-#include <freetype/internal/ftobjs.h>
-#include <freetype/internal/ftdebug.h>
-#include <freetype/fterrors.h>
-#include "ftccback.h"
-#include "ftcerror.h"
-
 #undef  FT_COMPONENT
 #define FT_COMPONENT  cache
 
@@ -335,7 +327,6 @@ ftc_snode_compare(FTC_Node ftcsnode,
 }
 
 #ifdef FTC_INLINE
-
 FT_LOCAL_DEF(FT_Bool) FTC_SNode_Compare(FTC_SNode snode, FTC_GQuery gquery, FTC_Cache cache, FT_Bool*    list_changed)
 {
 	return ftc_snode_compare(FTC_NODE(snode), gquery, cache, list_changed);

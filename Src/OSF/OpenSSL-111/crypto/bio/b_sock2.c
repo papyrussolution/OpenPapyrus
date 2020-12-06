@@ -14,7 +14,7 @@
 #ifndef OPENSSL_NO_SOCK
 #ifdef SO_MAXCONN
 #define MAX_LISTEN  SO_MAXCONN
-# elif defined(SOMAXCONN)
+#elif defined(SOMAXCONN)
 #define MAX_LISTEN  SOMAXCONN
 #else
 #define MAX_LISTEN  32

@@ -339,7 +339,7 @@ int FASTCALL PPViewTransport::NextIteration(TransportViewItem * pItem)
 	return ok;
 }
 
-int PPViewTransport::ViewTotal()
+void PPViewTransport::ViewTotal()
 {
 	TDialog * p_dlg = new TDialog(DLG_GOODSTOTAL);
 	if(CheckDialogPtrErr(&p_dlg)) {
@@ -354,10 +354,7 @@ int PPViewTransport::ViewTotal()
 		PPLoadText(PPTXT_TRANSPTOTAL, title);
 		p_dlg->setOrgTitle(title);
 		ExecViewAndDestroy(p_dlg);
-		return -1;
 	}
-	else
-		return 0;
 }
 
 int PPViewTransport::DeleteItem(PPID id)

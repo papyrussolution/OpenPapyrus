@@ -3541,7 +3541,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 	return q;
 }
 
-/*virtual*/int PPViewGoodsRest::ViewTotal()
+/*virtual*/void PPViewGoodsRest::ViewTotal()
 {
 	class GoodsRestTotalDialog : public AmtListDialog {
 	public:
@@ -3581,7 +3581,6 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 			ExecViewAndDestroy(dlg);
 	}
 	PPWait(0);
-	return 1;
 }
 
 #if 0 // {

@@ -203,10 +203,7 @@ int TBaseBrowserWindow::Insert()
 		setState(sfModal, true);
 		{
 			TEvent event;
-			event.what = TEvent::evCommand;
-			event.message.command = cmExecute;
-			event.message.infoPtr = 0;
-			this->handleEvent(event);
+			this->handleEvent(event.setCmd(cmExecute, 0));
 			ret = (event.what == TEvent::evNothing) ? event.message.infoLong : 0;
 		}
 		delete this;
@@ -325,10 +322,7 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 			// @v10.3.1 {
 			if(HW) {
 				TEvent event;
-				event.what = TEvent::evCommand;
-				event.message.command = cmModalPostCreate;
-				event.message.infoPtr = this;
-				this->handleEvent(event); // @recursion
+				this->handleEvent(event.setCmd(cmModalPostCreate, this)); // @recursion
 			}
 			// } @v10.3.1 
 		}

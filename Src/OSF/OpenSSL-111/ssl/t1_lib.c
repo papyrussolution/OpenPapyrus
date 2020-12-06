@@ -251,7 +251,7 @@ int tls_curve_allowed(SSL * s, uint16_t curve, int op)
 
 	if(cinfo == NULL)
 		return 0;
-# ifdef OPENSSL_NO_EC2M
+#ifdef OPENSSL_NO_EC2M
 	if(cinfo->flags & TLS_CURVE_CHAR2)
 		return 0;
 #endif

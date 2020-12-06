@@ -354,11 +354,11 @@ void restore_prompt()
 {
 	if(GpGg.IsInteractive) {
 #if defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
-#  if !defined(MISSING_RL_FORCED_UPDATE_DISPLAY)
+#if !defined(MISSING_RL_FORCED_UPDATE_DISPLAY)
 		rl_forced_update_display();
-#  else
+#else
 		rl_redisplay();
-#  endif
+#endif
 #else
 		fputs(PROMPT, stderr);
 		fflush(stderr);
@@ -1726,7 +1726,7 @@ void GpGadgets::PauseCommand(GpCommand & rC)
 	if(sleep_time < 0) {
 #if defined(WIN32)
 		ctrlc_flag = false;
-# if defined(WGP_CONSOLE) && defined(USE_MOUSE)
+#if defined(WGP_CONSOLE) && defined(USE_MOUSE)
 		if(!paused_for_mouse || !MousableWindowOpened()) {
 			int junk = 0;
 			if(buf) {
@@ -1741,7 +1741,7 @@ void GpGadgets::PauseCommand(GpCommand & rC)
 			} while(junk != EOF && junk != '\n' && junk != '\r');
 		}
 		else /* paused_for_mouse */
-# endif /* !WGP_CONSOLE */
+#endif /* !WGP_CONSOLE */
 		{
 			if(!Pause(buf)) /* returns false if Ctrl-C or Cancel was pressed */
 				bail_to_command_line();
@@ -2698,12 +2698,12 @@ void help_command(GpCommand & rC)
 	bool subtopics;     /* 0 if no subtopics for this topic */
 	int start;              /* starting token of help string */
 	char * help_ptr;        /* name of help file */
-# if defined(SHELFIND)
+#if defined(SHELFIND)
 	static char help_fname[256] = ""; /* keep helpfilename across calls */
-# endif
+#endif
 
 	if((help_ptr = getenv("GNUHELP")) == (char*)NULL)
-# ifndef SHELFIND
+#ifndef SHELFIND
 	/* if can't find environment variable then just use HELPFILE */
 
 /* patch by David J. Liu for getting GNUHELP from home directory */
@@ -2714,7 +2714,7 @@ void help_command(GpCommand & rC)
 #endif
 /* end of patch  - DJL */
 
-# else /* !SHELFIND */
+#else /* !SHELFIND */
 		/* try whether we can find the helpfile via shell_find. If not, just
 		   use the default. (tnx Andreas) */
 		if(!strchr(HELPFILE, ':') && !strchr(HELPFILE, '/') && !strchr(HELPFILE, '\\')) {
@@ -2729,7 +2729,7 @@ void help_command(GpCommand & rC)
 		else {
 			help_ptr = HELPFILE;
 		}
-# endif                         /* !SHELFIND */
+#endif                         /* !SHELFIND */
 
 	/* Since MSDOS DGROUP segment is being overflowed we can not allow such  */
 	/* huge static variables (1k each). Instead we dynamically allocate them */
@@ -2880,7 +2880,7 @@ char * GpCommand::RlGets(char * s, size_t n, const char * prompt)
 		leftover = 0;
 		/* If it's not an EOF */
 		if(line && *line) {
-#  if defined(HAVE_LIBREADLINE)
+#if defined(HAVE_LIBREADLINE)
 			int found;
 			/* Initialize readline history functions */
 			using_history();
@@ -3014,13 +3014,13 @@ static char * fgets_ipc(GpTermEntry * pT, char * dest /* string to fill */, int 
 //
 static char * gp_get_string(char * buffer, size_t len, const char * prompt)
 {
-# if defined(READLINE) || defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
+#if defined(READLINE) || defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
 	return GpGg.IsInteractive ? GpGg.Gp__C.RlGets(buffer, len, prompt) : fgets_ipc(term, buffer, len);
-# else
+#else
 	if(GpGg.IsInteractive)
 		PUT_STRING(prompt);
 	return GET_STRING(buffer, len);
-# endif
+#endif
 }
 
 /* Non-VMS version */
@@ -3196,14 +3196,14 @@ int do_system_func(const char * cmd, char ** output)
 	int result_allocated, result_pos;
 	char* result;
 	int ierr = 0;
-# if defined(VMS)
+#if defined(VMS)
 	int chan, one = 1;
 	struct dsc$descriptor_s pgmdsc = {0, DSC$K_DTYPE_T, DSC$K_CLASS_S, 0};
 	static $DESCRIPTOR(lognamedsc, "PLOT$MAILBOX");
-# endif /* VMS */
+#endif /* VMS */
 
 	/* open stream */
-# ifdef VMS
+#ifdef VMS
 	pgmdsc.dsc$a_pointer = cmd;
 	pgmdsc.dsc$w_length = strlen(cmd);
 	if(!((vaxc$errno = sys$crembx(0, &chan, 0, 0, 0, 0, &lognamedsc)) & 1))
@@ -3212,11 +3212,11 @@ int do_system_func(const char * cmd, char ** output)
 		os_error(NO_CARET, "lib$spawn failed");
 	if((f = fopen("PLOT$MAILBOX", "r")) == NULL)
 		os_error(NO_CARET, "mailbox open failed");
-# else  /* everyone else */
+#else  /* everyone else */
 	restrict_popen();
 	if((f = popen(cmd, "r")) == NULL)
 		os_error(NO_CARET, "popen failed");
-# endif /* everyone else */
+#endif /* everyone else */
 
 	/* get output */
 	result_pos = 0;

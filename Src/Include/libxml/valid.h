@@ -1,12 +1,9 @@
-/*
- * Summary: The DTD validation
- * Description: API for the DTD handling and the validity checking
- *
- * Copy: See Copyright for the status of this software.
- *
- * Author: Daniel Veillard
- */
-
+// 
+// Summary: The DTD validation
+// Description: API for the DTD handling and the validity checking
+// Copy: See Copyright for the status of this software.
+// Author: Daniel Veillard
+// 
 #ifndef __XML_VALID_H__
 #define __XML_VALID_H__
 

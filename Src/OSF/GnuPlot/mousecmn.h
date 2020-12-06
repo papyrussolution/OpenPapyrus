@@ -36,7 +36,7 @@
 ]*/
 
 #ifndef MOUSECMN_H
-# define MOUSECMN_H
+#define MOUSECMN_H
 
 /*
  * Definitions that are used by both gnuplot core and standalone terminals.

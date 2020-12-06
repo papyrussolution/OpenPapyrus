@@ -1,11 +1,8 @@
 /****************************************************************************
- *
  * winfnt.c
- *
  *   FreeType font driver for Windows FNT/FON files
  *
- * Copyright (C) 1996-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 1996-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  * Copyright 2003 Huw D M Davies for Codeweavers
  * Copyright 2007 Dmitry Timoshkov for Codeweavers
  *
@@ -19,7 +16,6 @@
 #define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
-
 #include <freetype/ftwinfnt.h>
 #include <freetype/internal/ftdebug.h>
 #include <freetype/internal/ftstream.h>
@@ -843,46 +839,34 @@ static FT_Error FNT_Face_Init(FT_Stream stream,
 			root->style_name = (char*)"Italic";
 	}
 	goto Exit;
-
 Fail:
 	FNT_Face_Done(fntface);
-
 Exit:
 	return error;
 }
 
-static FT_Error FNT_Size_Select(FT_Size size,
-    FT_ULong strike_index)
+static FT_Error FNT_Size_Select(FT_Size size, FT_ULong strike_index)
 {
 	FNT_Face face   = (FNT_Face)size->face;
 	FT_WinFNT_Header header = &face->font->header;
-
 	FT_UNUSED(strike_index);
-
 	FT_Select_Metrics(size->face, 0);
-
 	size->metrics.ascender    = header->ascent * 64;
-	size->metrics.descender   = -( header->pixel_height -
-	    header->ascent ) * 64;
+	size->metrics.descender   = -( header->pixel_height - header->ascent ) * 64;
 	size->metrics.max_advance = header->max_width * 64;
-
 	return FT_Err_Ok;
 }
 
-static FT_Error FNT_Size_Request(FT_Size size,
-    FT_Size_Request req)
+static FT_Error FNT_Size_Request(FT_Size size, FT_Size_Request req)
 {
 	FNT_Face face    = (FNT_Face)size->face;
 	FT_WinFNT_Header header  = &face->font->header;
 	FT_Bitmap_Size*   bsize   = size->face->available_sizes;
 	FT_Error error   = FT_ERR(Invalid_Pixel_Size);
 	FT_Long height;
-
 	height = FT_REQUEST_HEIGHT(req);
 	height = ( height + 32 ) >> 6;
-
-	switch(req->type)
-	{
+	switch(req->type) {
 		case FT_SIZE_REQUEST_TYPE_NOMINAL:
 		    if(height == ( ( bsize->y_ppem + 32 ) >> 6 ) )
 			    error = FT_Err_Ok;
@@ -897,17 +881,13 @@ static FT_Error FNT_Size_Request(FT_Size size,
 		    error = FT_THROW(Unimplemented_Feature);
 		    break;
 	}
-
 	if(error)
 		return error;
 	else
 		return FNT_Size_Select(size, 0);
 }
 
-static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot,
-    FT_Size size,
-    FT_UInt glyph_index,
-    FT_Int32 load_flags)
+static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot, FT_Size size, FT_UInt glyph_index, FT_Int32 load_flags)
 {
 	FNT_Face face   = (FNT_Face)FT_SIZE_FACE(size);
 	FNT_Font font;
@@ -917,49 +897,36 @@ static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot,
 	FT_Bitmap*  bitmap = &slot->bitmap;
 	FT_ULong offset;
 	FT_Bool new_format;
-
 	if(!face) {
 		error = FT_THROW(Invalid_Face_Handle);
 		goto Exit;
 	}
-
 	font = face->font;
-
-	if(!font                                                   ||
-	    glyph_index >= (FT_UInt)( FT_FACE(face)->num_glyphs ) ) {
+	if(!font || glyph_index >= (FT_UInt)( FT_FACE(face)->num_glyphs ) ) {
 		error = FT_THROW(Invalid_Argument);
 		goto Exit;
 	}
-
 	FT_TRACE1(( "FNT_Load_Glyph: glyph index %d\n", glyph_index ));
-
 	if(glyph_index > 0)
 		glyph_index--;                 /* revert to real index */
 	else
 		glyph_index = font->header.default_char; /* the `.notdef' glyph  */
-
 	new_format = FT_BOOL(font->header.version == 0x300);
 	len        = new_format ? 6 : 4;
-
 	/* get glyph width and offset */
 	offset = ( new_format ? 148 : 118 ) + len * glyph_index;
-
 	if(offset >= font->header.file_size - 2 - ( new_format ? 4 : 2 ) ) {
 		FT_TRACE2(( "invalid FNT offset\n" ));
 		error = FT_THROW(Invalid_File_Format);
 		goto Exit;
 	}
-
 	p = font->fnt_frame + offset;
-
 	bitmap->width = FT_NEXT_USHORT_LE(p);
-
 	/* jump to glyph entry */
 	if(new_format)
 		offset = FT_NEXT_ULONG_LE(p);
 	else
 		offset = FT_NEXT_USHORT_LE(p);
-
 	if(offset >= font->header.file_size) {
 		FT_TRACE2(( "invalid FNT offset\n" ));
 		error = FT_THROW(Invalid_File_Format);
@@ -979,23 +946,17 @@ static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot,
 	slot->metrics.horiAdvance  = (FT_Pos)( bitmap->width << 6 );
 	slot->metrics.horiBearingX = 0;
 	slot->metrics.horiBearingY = slot->bitmap_top << 6;
-
-	ft_synthesize_vertical_metrics(&slot->metrics,
-	    (FT_Pos)( bitmap->rows << 6 ) );
-
+	ft_synthesize_vertical_metrics(&slot->metrics, (FT_Pos)( bitmap->rows << 6 ) );
 	if(load_flags & FT_LOAD_BITMAP_METRICS_ONLY)
 		goto Exit;
-
 	/* jump to glyph data */
 	p = font->fnt_frame + /* font->header.bits_offset */ +offset;
-
 	/* allocate and build bitmap */
 	{
 		FT_Memory memory = FT_FACE_MEMORY(slot->face);
 		FT_UInt pitch  = ( bitmap->width + 7 ) >> 3;
 		FT_Byte*   column;
 		FT_Byte*   write;
-
 		bitmap->pitch = (int)pitch;
 		if(!pitch                                                 ||
 		    offset + pitch * bitmap->rows > font->header.file_size) {
@@ -1008,30 +969,22 @@ static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot,
 		/*       can't use ft_glyphslot_set_bitmap                     */
 		if(FT_ALLOC_MULT(bitmap->buffer, bitmap->rows, pitch) )
 			goto Exit;
-
 		column = (FT_Byte*)bitmap->buffer;
-
 		for(; pitch > 0; pitch--, column++) {
 			FT_Byte*  limit = p + bitmap->rows;
-
 			for(write = column; p < limit; p++, write += bitmap->pitch)
 				*write = *p;
 		}
-
 		slot->internal->flags = FT_GLYPH_OWN_BITMAP;
 	}
-
 Exit:
 	return error;
 }
 
-static FT_Error winfnt_get_header(FT_Face face,
-    FT_WinFNT_HeaderRec  * aheader)
+static FT_Error winfnt_get_header(FT_Face face, FT_WinFNT_HeaderRec  * aheader)
 {
 	FNT_Font font = ((FNT_Face)face)->font;
-
 	*aheader = font->header;
-
 	return 0;
 }
 
@@ -1039,30 +992,22 @@ static const FT_Service_WinFntRec winfnt_service_rec =
 {
 	winfnt_get_header   /* get_header */
 };
-
 /*
  * SERVICE LIST
- *
  */
-
-static const FT_ServiceDescRec winfnt_services[] =
-{
+static const FT_ServiceDescRec winfnt_services[] = {
 	{ FT_SERVICE_ID_FONT_FORMAT, FT_FONT_FORMAT_WINFNT },
 	{ FT_SERVICE_ID_WINFNT,      &winfnt_service_rec },
 	{ NULL, NULL }
 };
 
-static FT_Module_Interface winfnt_get_service(FT_Module module,
-    const FT_String*  service_id)
+static FT_Module_Interface winfnt_get_service(FT_Module module, const FT_String*  service_id)
 {
 	FT_UNUSED(module);
-
 	return ft_service_list_lookup(winfnt_services, service_id);
 }
 
-FT_CALLBACK_TABLE_DEF
-const FT_Driver_ClassRec winfnt_driver_class =
-{
+FT_CALLBACK_TABLE_DEF const FT_Driver_ClassRec winfnt_driver_class = {
 	{
 		FT_MODULE_FONT_DRIVER        |
 		FT_MODULE_DRIVER_NO_OUTLINES,
@@ -1099,5 +1044,3 @@ const FT_Driver_ClassRec winfnt_driver_class =
 	FNT_Size_Request,       /* FT_Size_RequestFunc  request_size */
 	FNT_Size_Select         /* FT_Size_SelectFunc   select_size  */
 };
-
-/* END */

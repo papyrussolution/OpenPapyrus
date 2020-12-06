@@ -12,13 +12,13 @@
 #if !defined(__ARM_ARCH__)
 #if defined(__CC_ARM)
 #define __ARM_ARCH__ __TARGET_ARCH_ARM
-#   if defined(__BIG_ENDIAN)
+#if defined(__BIG_ENDIAN)
 #define __ARMEB__
 #else
 #define __ARMEL__
 #endif
 #elif defined(__GNUC__)
-#   if   defined(__aarch64__)
+#if   defined(__aarch64__)
 #define __ARM_ARCH__ 8
 #if __BYTE_ORDER__==__ORDER_BIG_ENDIAN__
 #     define __ARMEB__
@@ -62,7 +62,7 @@
 
 #if __ARM_MAX_ARCH__<__ARM_ARCH__
 #error "__ARM_MAX_ARCH__ can't be less than __ARM_ARCH__"
-# elif __ARM_MAX_ARCH__!=__ARM_ARCH__
+#elif __ARM_MAX_ARCH__!=__ARM_ARCH__
 #if __ARM_ARCH__<7 && __ARM_MAX_ARCH__>=7 && defined(__ARMEB__)
 #   error "can't build universal big-endian binary"
 #endif

@@ -199,7 +199,7 @@ static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
 
 #if !defined(OPENSSL_SMALL_FOOTPRINT)
 
-#   if defined(POLY1305_ASM) && (defined(__x86_64) || defined(__x86_64__) || \
+#if defined(POLY1305_ASM) && (defined(__x86_64) || defined(__x86_64__) || \
 	defined(_M_AMD64) || defined(_M_X64))
 #define XOR128_HELPERS
 void * xor128_encrypt_n_pad(void * out, const void * inp, void * otp, size_t len);

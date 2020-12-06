@@ -1,15 +1,12 @@
 /****************************************************************************
- *
  * ftgzip.c
- *
  *   FreeType support for .gz compressed files.
  *
  * This optional component relies on zlib.  It should mainly be used to
  * parse compressed PCF fonts, as found with many X11 server
  * distributions.
  *
- * Copyright (C) 2002-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2002-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
@@ -300,10 +297,8 @@ static FT_Error ft_gzip_file_fill_input(FT_GZipFile zip)
 	z_stream*  zstream = &zip->zstream;
 	FT_Stream stream  = zip->source;
 	FT_ULong size;
-
 	if(stream->read) {
-		size = stream->read(stream, stream->pos, zip->input,
-			FT_GZIP_BUFFER_SIZE);
+		size = stream->read(stream, stream->pos, zip->input, FT_GZIP_BUFFER_SIZE);
 		if(size == 0) {
 			zip->limit = zip->cursor;
 			return FT_THROW(Invalid_Stream_Operation);
@@ -313,19 +308,15 @@ static FT_Error ft_gzip_file_fill_input(FT_GZipFile zip)
 		size = stream->size - stream->pos;
 		if(size > FT_GZIP_BUFFER_SIZE)
 			size = FT_GZIP_BUFFER_SIZE;
-
 		if(size == 0) {
 			zip->limit = zip->cursor;
 			return FT_THROW(Invalid_Stream_Operation);
 		}
-
 		FT_MEM_COPY(zip->input, stream->base + stream->pos, size);
 	}
 	stream->pos += size;
-
 	zstream->next_in  = zip->input;
 	zstream->avail_in = size;
-
 	return FT_Err_Ok;
 }
 
@@ -414,10 +405,8 @@ static FT_ULong ft_gzip_file_io(FT_GZipFile zip,
 		if(error)
 			goto Exit;
 	}
-
 	if(count == 0)
 		goto Exit;
-
 	/* now read the data */
 	for(;;) {
 		FT_ULong delta;
@@ -444,40 +433,26 @@ static FT_ULong ft_gzip_file_io(FT_GZipFile zip,
 Exit:
 	return result;
 }
-
 /***************************************************************************/
-/***************************************************************************/
-/*****                                                                 *****/
 /*****               G Z   E M B E D D I N G   S T R E A M             *****/
-/*****                                                                 *****/
 /***************************************************************************/
-/***************************************************************************/
-
 static void ft_gzip_stream_close(FT_Stream stream)
 {
 	FT_GZipFile zip    = (FT_GZipFile)stream->descriptor.pointer;
 	FT_Memory memory = stream->memory;
-
 	if(zip) {
 		/* finalize gzip file descriptor */
 		ft_gzip_file_done(zip);
-
 		FT_FREE(zip);
-
 		stream->descriptor.pointer = NULL;
 	}
-
 	if(!stream->read)
 		FT_FREE(stream->base);
 }
 
-static unsigned long ft_gzip_stream_io(FT_Stream stream,
-    unsigned long offset,
-    unsigned char*  buffer,
-    unsigned long count)
+static unsigned long ft_gzip_stream_io(FT_Stream stream, unsigned long offset, unsigned char*  buffer, unsigned long count)
 {
 	FT_GZipFile zip = (FT_GZipFile)stream->descriptor.pointer;
-
 	return ft_gzip_file_io(zip, offset, buffer, count);
 }
 
@@ -635,7 +610,6 @@ FT_EXPORT_DEF(FT_Error) FT_Gzip_Uncompress(FT_Memory memory, FT_Byte* output, FT
 }
 
 #else /* !FT_CONFIG_OPTION_USE_ZLIB */
-
 FT_EXPORT_DEF(FT_Error) FT_Stream_OpenGzip(FT_Stream stream, FT_Stream source)
 {
 	FT_UNUSED(stream);
@@ -652,5 +626,4 @@ FT_EXPORT_DEF(FT_Error) FT_Gzip_Uncompress(FT_Memory memory, FT_Byte*        out
 	FT_UNUSED(input_len);
 	return FT_THROW(Unimplemented_Feature);
 }
-
 #endif /* !FT_CONFIG_OPTION_USE_ZLIB */

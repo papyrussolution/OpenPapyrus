@@ -660,7 +660,7 @@ int PPViewLot::CalcTotal(LotTotal::Status stat, LotTotal * pTotal)
 	return ok;
 }
 
-int PPViewLot::ViewTotal()
+void PPViewLot::ViewTotal()
 {
 	class LotTotalDialog : public TDialog {
 	public:
@@ -715,7 +715,6 @@ int PPViewLot::ViewTotal()
 		dlg->setup();
 		ExecViewAndDestroy(dlg);
 	}
-	return 1;
 }
 //
 // PPViewLot::RecoverLots with helpers
@@ -3505,7 +3504,7 @@ int PPViewLotExtCode::CheckDupCode(const LotExtCodeTbl::Rec & rRec)
 	return ok;
 }
 
-int PPViewLotExtCode::ViewTotal()
+void PPViewLotExtCode::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_LOTEXTCTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -3517,10 +3516,7 @@ int PPViewLotExtCode::ViewTotal()
 		PPWait(0);
 		dlg->setCtrlLong(CTL_LOTEXTCTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
-		return -1;
 	}
-	else
-		return 0;
 }
 
 int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

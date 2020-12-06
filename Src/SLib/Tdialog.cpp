@@ -602,10 +602,7 @@ IMPL_HANDLE_EVENT(TDialog)
 				// @v10.8.1 {
 				if(HW) {
 					TEvent event;
-					event.what = TEvent::evCommand;
-					event.message.command = cmModalPostCreate;
-					event.message.infoPtr = this;
-					this->handleEvent(event); // @recursion
+					this->handleEvent(event.setCmd(cmModalPostCreate, this)); // @recursion
 				}
 				// } @v10.8.1 
 				MSG msg;

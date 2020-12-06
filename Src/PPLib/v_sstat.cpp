@@ -1518,25 +1518,23 @@ int PPViewSStat::CalcTotal(SStatTotal * pTotal)
 	return ok;
 }
 
-/*virtual*/int PPViewSStat::ViewTotal()
+/*virtual*/void PPViewSStat::ViewTotal()
 {
-	int    ok = 1;
 	SStatTotal total;
-	TDialog * dlg = 0;
 	CalcTotal(&total);
-	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_SSTATTOTAL))));
-	dlg->setCtrlLong(CTL_SSTATTOTAL_LNCOUNT,   total.LinesCount);
-	dlg->setCtrlLong(CTL_SSTATTOTAL_COUNT,     total.Count);
-	dlg->setCtrlReal(CTL_SSTATTOTAL_QTTY,      total.Qtty);
-	dlg->setCtrlReal(CTL_SSTATTOTAL_AMOUNT,    total.Amount);
-	dlg->setCtrlLong(CTL_SSTATTOTAL_ORDCOUNT,  total.OrderCount);
-	dlg->setCtrlReal(CTL_SSTATTOTAL_ORDQTTY,   total.OrderQtty);
-	dlg->setCtrlReal(CTL_SSTATTOTAL_ORDCOST,   total.OrderCost);
-	dlg->setCtrlReal(CTL_SSTATTOTAL_ORDAMOUNT, total.OrderAmount);
-	dlg->setCtrlLong(CTL_SSTATTOTAL_UNCRTCNT,  total.UncertCount);
-	ExecViewAndDestroy(dlg);
-	CATCHZOKPPERR
-	return ok;
+	TDialog * dlg = new TDialog(DLG_SSTATTOTAL);
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setCtrlLong(CTL_SSTATTOTAL_LNCOUNT,   total.LinesCount);
+		dlg->setCtrlLong(CTL_SSTATTOTAL_COUNT,     total.Count);
+		dlg->setCtrlReal(CTL_SSTATTOTAL_QTTY,      total.Qtty);
+		dlg->setCtrlReal(CTL_SSTATTOTAL_AMOUNT,    total.Amount);
+		dlg->setCtrlLong(CTL_SSTATTOTAL_ORDCOUNT,  total.OrderCount);
+		dlg->setCtrlReal(CTL_SSTATTOTAL_ORDQTTY,   total.OrderQtty);
+		dlg->setCtrlReal(CTL_SSTATTOTAL_ORDCOST,   total.OrderCost);
+		dlg->setCtrlReal(CTL_SSTATTOTAL_ORDAMOUNT, total.OrderAmount);
+		dlg->setCtrlLong(CTL_SSTATTOTAL_UNCRTCNT,  total.UncertCount);
+		ExecViewAndDestroy(dlg);
+	}
 }
 //
 // Implementation of PPALDD_SStatView

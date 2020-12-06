@@ -1,5 +1,5 @@
 // V_ASSET.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -447,9 +447,8 @@ int PPViewAsset::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ::ViewOpersByLot(lot_id, 0);
 }
 
-int PPViewAsset::ViewTotal()
+void PPViewAsset::ViewTotal()
 {
-	int    ok = -1;
 	TDialog * dlg = 0;
 	if(P_TempTbl) {
 		AssetTotal total;
@@ -475,12 +474,8 @@ int PPViewAsset::ViewTotal()
 			dlg->setCtrlReal(CTL_ASSETTOTAL_PRICE,  total.Price2);
 			dlg->setCtrlReal(CTL_ASSETTOTAL_DEPREC, total.Deprec2);
 			ExecViewAndDestroy(dlg);
-			ok = 1;
 		}
-		else
-			ok = 0;
 	}
-	return ok;
 }
 
 int PPViewAsset::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

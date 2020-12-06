@@ -482,9 +482,8 @@ int FASTCALL PPViewMrpLine::NextIteration(MrpLineViewItem * pItem)
 	return -1;
 }
 
-int PPViewMrpLine::ViewTotal()
+void PPViewMrpLine::ViewTotal()
 {
-	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_MRPLNTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
 		MrpLineTotal total;
@@ -494,9 +493,6 @@ int PPViewMrpLine::ViewTotal()
 		dlg->setCtrlData(CTL_MRPLNTOTAL_DFCTCNT, &total.DfctCount);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int PPViewMrpLine::CalcTotal(MrpLineTotal * pTotal)

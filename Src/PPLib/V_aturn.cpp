@@ -174,7 +174,7 @@ int PPViewAccturn::EditItem(PPID billID)
 		return -1;
 }
 
-/*virtual*/int PPViewAccturn::ViewTotal()
+/*virtual*/void PPViewAccturn::ViewTotal()
 {
 	AccturnTotal total;
 	if(CalcTotal(&total)) {
@@ -184,7 +184,6 @@ int PPViewAccturn::EditItem(PPID billID)
 			ExecViewAndDestroy(dlg);
 		}
 	}
-	return 1;
 }
 
 int PPViewAccturn::CalcTotal(AccturnTotal * pTotal)

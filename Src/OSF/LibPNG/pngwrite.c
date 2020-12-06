@@ -1592,7 +1592,7 @@ static void png_image_set_PLTE(png_image_write_control * display)
 	const uint32 format = image->format;
 	const int channels = PNG_IMAGE_SAMPLE_CHANNELS(format);
 
-#   if defined(PNG_FORMAT_BGR_SUPPORTED) && \
+#if defined(PNG_FORMAT_BGR_SUPPORTED) && \
 	defined(PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED)
 	const int afirst = (format & PNG_FORMAT_FLAG_AFIRST) != 0 &&
 	    (format & PNG_FORMAT_FLAG_ALPHA) != 0;

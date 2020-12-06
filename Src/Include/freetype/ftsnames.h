@@ -164,10 +164,7 @@ FT_Get_Sfnt_Name_Count(FT_Face face);
  *   This function always returns an error if the config macro
  *   `TT_CONFIG_OPTION_SFNT_NAMES` is not defined in `ftoption.h`.
  */
-FT_EXPORT(FT_Error)
-FT_Get_Sfnt_Name(FT_Face face,
-    FT_UInt idx,
-    FT_SfntName  *aname);
+FT_EXPORT(FT_Error) FT_Get_Sfnt_Name(FT_Face face, FT_UInt idx, FT_SfntName  *aname);
 
 /**************************************************************************
  *
@@ -238,13 +235,8 @@ typedef struct  FT_SfntLangTag_ {
  * @since:
  *   2.8
  */
-FT_EXPORT(FT_Error)
-FT_Get_Sfnt_LangTag(FT_Face face,
-    FT_UInt langID,
-    FT_SfntLangTag  *alangTag);
-
+FT_EXPORT(FT_Error) FT_Get_Sfnt_LangTag(FT_Face face, FT_UInt langID, FT_SfntLangTag  *alangTag);
 /* */
 
 FT_END_HEADER
-
 #endif /* FTSNAMES_H_ */

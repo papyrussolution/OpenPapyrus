@@ -131,11 +131,11 @@ char * GpCommand::ReadLine_ipc(const char* prompt)
 
 /* replaces the previous klugde in configure */
 #if defined(HAVE_TERMIOS_H) && defined(HAVE_TCGETATTR)
-# define TERMIOS
+#define TERMIOS
 #else /* not HAVE_TERMIOS_H && HAVE_TCGETATTR */
-# ifdef HAVE_SGTTY_H
-#  define SGTTY
-# endif
+#ifdef HAVE_SGTTY_H
+#define SGTTY
+#endif
 #endif /* not HAVE_TERMIOS_H && HAVE_TCGETATTR */
 
 #if !defined(MSDOS) && !defined(_Windows)
@@ -143,27 +143,27 @@ char * GpCommand::ReadLine_ipc(const char* prompt)
 /*
  * Set up structures using the proper include file
  */
-# if defined(_IBMR2) || defined(alliant)
-#  define SGTTY
-# endif
+#if defined(_IBMR2) || defined(alliant)
+#define SGTTY
+#endif
 
 /*  submitted by Francois.Dagorn@cicb.fr */
-# ifdef SGTTY
-#  include <sgtty.h>
+#ifdef SGTTY
+#include <sgtty.h>
 static struct sgttyb orig_termio, rl_termio;
 
 /* define terminal control characters */
 static struct tchars s_tchars;
 
-#  ifndef VERASE
+#ifndef VERASE
 #define VERASE    0
-#  endif                        /* not VERASE */
-#  ifndef VEOF
+#endif                        /* not VERASE */
+#ifndef VEOF
 #define VEOF      1
-#  endif                        /* not VEOF */
-#  ifndef VKILL
+#endif                        /* not VEOF */
+#ifndef VKILL
 #define VKILL     2
-#  endif                        /* not VKILL */
+#endif                        /* not VKILL */
 #  ifdef TIOCGLTC               /* available only with the 'new' line discipline */
 static struct ltchars s_ltchars;
 
@@ -176,18 +176,18 @@ static struct ltchars s_ltchars;
 #ifndef VSUSP
 #define VSUSP     5
 #endif                       /* not VSUP */
-#  endif                        /* TIOCGLTC */
-#  ifndef NCCS
+#endif                        /* TIOCGLTC */
+#ifndef NCCS
 #define NCCS      6
-#  endif                        /* not NCCS */
+#endif                        /* not NCCS */
 
-# else                          /* not SGTTY */
+#else                          /* not SGTTY */
 
 /* SIGTSTP defines job control
  * if there is job control then we need termios.h instead of termio.h
  * (Are there any systems with job control that use termio.h?  I hope not.)
  */
-#  if defined(SIGTSTP) || defined(TERMIOS)
+#if defined(SIGTSTP) || defined(TERMIOS)
 #ifndef TERMIOS
 #define TERMIOS
 #endif                       /* not TERMIOS */
@@ -201,26 +201,26 @@ static struct ltchars s_ltchars;
 #     define IUCLC 0001000
 #endif                      /* not IUCLC */
 #endif                       /* ISC22 */
-#   if !defined(IUCLC)
+#if !defined(IUCLC)
 /* translate upper to lower case not supported */
 #define IUCLC 0
 #endif                       /* not IUCLC */
 
 static struct termios orig_termio, rl_termio;
 
-#  else                         /* not SIGSTP || TERMIOS */
+#else                         /* not SIGSTP || TERMIOS */
 #   include <termio.h>
 static struct termio orig_termio, rl_termio;
 
 /* termio defines NCC instead of NCCS */
 #define NCCS    NCC
-#  endif                        /* not SIGTSTP || TERMIOS */
-# endif                         /* SGTTY */
+#endif                        /* not SIGTSTP || TERMIOS */
+#endif                         /* SGTTY */
 
 /* ULTRIX defines VRPRNT instead of VREPRINT */
-# if defined(VRPRNT) && !defined(VREPRINT)
-#  define VREPRINT VRPRNT
-# endif                         /* VRPRNT */
+#if defined(VRPRNT) && !defined(VREPRINT)
+#define VREPRINT VRPRNT
+#endif                         /* VRPRNT */
 
 static char term_chars[NCCS]; // define characters to use with our input character handler
 static int  term_set = 0;     // =1 if rl_termio set
@@ -230,7 +230,7 @@ static int ansi_getc();
 
 #else /* MSDOS or _Windows */
 
-# ifdef _Windows
+#ifdef _Windows
 	#include <windows.h>
 	#include "win/wtext.h"
 	#include "win/winmain.h"
@@ -1090,7 +1090,7 @@ static void set_termio()
 		 */
 #  ifdef SGTTY
 		ioctl(0, TIOCGETP, &orig_termio);
-#  else                         /* not SGTTY */
+#else                         /* not SGTTY */
 #ifdef TERMIOS
 #    ifdef TCGETS
 		ioctl(0, TCGETS, &orig_termio);
@@ -1100,7 +1100,7 @@ static void set_termio()
 #else                        /* not TERMIOS */
 		ioctl(0, TCGETA, &orig_termio);
 #endif                       /* TERMIOS */
-#  endif                        /* not SGTTY */
+#endif                        /* not SGTTY */
 
 		/*
 		 * Save terminal modes
@@ -1130,7 +1130,7 @@ static void set_termio()
 		s_ltchars.t_suspc = 0;
 		ioctl(0, TIOCSLTC, &s_ltchars);
 #endif                       /* TIOCGLTC */
-#  else                         /* not SGTTY */
+#else                         /* not SGTTY */
 		rl_termio.c_iflag &= ~(BRKINT | PARMRK | INPCK | IUCLC | IXON | IXOFF);
 		rl_termio.c_iflag |= (IGNBRK | IGNPAR);
 
@@ -1161,14 +1161,14 @@ static void set_termio()
 		/* disable suspending process on ^Z */
 		rl_termio.c_cc[VSUSP] = 0;
 #endif                       /* TERMIOS */
-#  endif                        /* not SGTTY */
+#endif                        /* not SGTTY */
 
 		/*
 		 * Set the new terminal modes.
 		 */
 #  ifdef SGTTY
 		ioctl(0, TIOCSLTC, &s_ltchars);
-#  else                         /* not SGTTY */
+#else                         /* not SGTTY */
 #ifdef TERMIOS
 #    ifdef TCSETSW
 		ioctl(0, TCSETSW, &rl_termio);
@@ -1178,7 +1178,7 @@ static void set_termio()
 #else                        /* not TERMIOS */
 		ioctl(0, TCSETAW, &rl_termio);
 #endif                       /* not TERMIOS */
-#  endif                        /* not SGTTY */
+#endif                        /* not SGTTY */
 		term_set = 1;
 	}
 #endif /* not MSDOS && not _Windows */

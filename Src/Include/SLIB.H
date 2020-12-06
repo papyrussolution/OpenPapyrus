@@ -25,6 +25,54 @@
 	#include <float.h>
 	#include <time.h>
 	#include <errno.h>
+	// @v10.9.6 {
+	#if _MSC_VER < 1900
+		// POSIX Supplement
+		#ifndef _CRT_NO_POSIX_ERROR_CODES
+			#define EADDRINUSE      100
+			#define EADDRNOTAVAIL   101
+			#define EAFNOSUPPORT    102
+			#define EALREADY        103
+			#define EBADMSG         104
+			#define ECANCELED       105
+			#define ECONNABORTED    106
+			#define ECONNREFUSED    107
+			#define ECONNRESET      108
+			#define EDESTADDRREQ    109
+			#define EHOSTUNREACH    110
+			#define EIDRM           111
+			#define EINPROGRESS     112
+			#define EISCONN         113
+			#define ELOOP           114
+			#define EMSGSIZE        115
+			#define ENETDOWN        116
+			#define ENETRESET       117
+			#define ENETUNREACH     118
+			#define ENOBUFS         119
+			#define ENODATA         120
+			#define ENOLINK         121
+			#define ENOMSG          122
+			#define ENOPROTOOPT     123
+			#define ENOSR           124
+			#define ENOSTR          125
+			#define ENOTCONN        126
+			#define ENOTRECOVERABLE 127
+			#define ENOTSOCK        128
+			#define ENOTSUP         129
+			#define EOPNOTSUPP      130
+			#define EOTHER          131
+			#define EOVERFLOW       132
+			#define EOWNERDEAD      133
+			#define EPROTO          134
+			#define EPROTONOSUPPORT 135
+			#define EPROTOTYPE      136
+			#define ETIME           137
+			#define ETIMEDOUT       138
+			#define ETXTBSY         139
+			#define EWOULDBLOCK     140
+		#endif // _CRT_NO_POSIX_ERROR_CODES
+	#endif
+	// } @v10.9.6 
 	#include <fcntl.h>
 	#include <sys\stat.h>
 	#include <tchar.h>
@@ -36,9 +84,6 @@
 	#endif
 	#include <process.h> // @v10.9.3
 #endif
-//
-//#include <port.h>
-//
 #ifdef _WIN32
 	#ifndef __WIN32__
 		#define __WIN32__ 1 // (__WIN32__)-->(__WIN32__ 1)
@@ -47,19 +92,17 @@
 	#define OEMRESOURCE
 	#define _WIN32_WINDOWS 0x0410 // @papyrus @v4.1.12
 	#define SECURITY_WIN32        // @v6.5.12
-	// @papyrus @v5.9.3 {
 	#ifndef _WIN32_IE
 		#define _WIN32_IE 0x0500
 	#endif
-	// } @papyrus @v5.9.3
-#if _M_X64
-	#pragma pack(push)
-	#pragma pack(8)
-#endif
+	#if _M_X64
+		#pragma pack(push)
+		#pragma pack(8)
+	#endif
 	#include <winsock2.h>
-#if _M_X64
-	#pragma pack(pop)
-#endif
+	#if _M_X64
+		#pragma pack(pop)
+	#endif
 	#include <windows.h>
 	#define _Windows
 	// @v10.3.10 #define pow10l(x) pow(10,(x))
@@ -115,8 +158,8 @@
 #if (__BORLANDC__ < 0x500)
 	// @v10.8.2 (replaced with SMathConst::Max) #define MAXDOUBLE   1.797693E+308
 	// @v10.8.2 (replaced with SMathConst::Min) #define MINDOUBLE   2.225074E-308
-	#define MAXFLOAT    3.37E+38f
-	#define MINFLOAT    8.43E-37
+	// @v10.9.6 #define MAXFLOAT    3.37E+38f
+	// @v10.9.6 #define MINFLOAT    8.43E-37
 #endif
 #define DSIGNIF     53
 #define FSIGNIF     24
@@ -4370,6 +4413,7 @@ size_t FASTCALL sstrlen(const wchar_t * pStr);
 FORCEINLINE int FASTCALL sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int FASTCALL sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int FASTCALL sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
+size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen);
 const char * FASTCALL sstrchr(const char * pStr, char c);
 char  * FASTCALL sstrchr(char * pStr, char c);
 const wchar_t * FASTCALL sstrchr(const wchar_t * pStr, wchar_t c);
@@ -10462,6 +10506,8 @@ public:
 	static const double LogMax;  // 7.0978271289338397e+02
 	static const double Min;     // 2.2250738585072014e-308          min double value
 	static const double Max;     // 1.7976931348623158e+308          max double value
+	static const float  Min_f;   // 1.175494351e-38F          min normalized positive float value
+	static const float  Max_f;   // 3.402823466e+38F          max float value
 	static const double Euler;   // 0.57721566490153286060651209008  Euler constant
 	static const double Sqrt2;   // 1.41421356237309504880168872421      sqrt(2)
 	static const double SqrtPi;  // 1.77245385090551602729816748334      sqrt(pi)

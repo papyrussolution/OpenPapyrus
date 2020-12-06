@@ -3537,7 +3537,7 @@ SString & SString::EncodeUrl(const char * pSrc, int mode)
 	const  size_t slen = sstrlen(pSrc);
 	for(size_t spos = 0; spos < slen; spos++) {
 		char c = pSrc[spos];
-		if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || oneof4(c, '-', '_', '.', '~'))
+		if(isasciialnum(c) || oneof4(c, '-', '_', '.', '~'))
 			CatChar(c);
 		else if(mode == 0 && oneof8(c, '#', '&', ',', ':', ';', '=', '?', '/')) // @v10.7.10 '/'
 			CatChar(c);

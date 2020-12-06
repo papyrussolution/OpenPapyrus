@@ -1644,7 +1644,7 @@ SArray * PPView::CreateBrowserArray(uint * pBrwId, SString * pSubTitle) { return
 void PPView::PreprocessBrowser(PPViewBrowser * pBrw) {}
 int PPView::OnExecBrowser(PPViewBrowser *) { return -1; }
 int PPView::Detail(const void *, PPViewBrowser * pBrw) { return -1; }
-int PPView::ViewTotal() { return -1; }
+void PPView::ViewTotal() {}
 
 void PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rCa, LDATE dt, char * pBuf, size_t bufLen)
 {

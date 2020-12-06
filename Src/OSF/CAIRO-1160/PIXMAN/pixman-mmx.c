@@ -61,7 +61,7 @@ extern __inline void __attribute__((__gnu_inline__, __always_inline__, __artific
 #ifdef USE_X86_MMX
 #if (defined(__SUNPRO_C) || defined(_MSC_VER) || defined(_WIN64))
 #include <xmmintrin.h>
-# else
+#else
 /* We have to compile with -msse to use xmmintrin.h, but that causes SSE
  * instructions to be generated that we don't want. Just duplicate the
  * functions we want to use.  */
@@ -149,7 +149,7 @@ extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artifi
  * is defined.   If it is used, then the mm_cvt* intrinsics must be used.
  */
 #define USE_CVT_INTRINSICS
-# else
+#else
 /* For Studio 12.2 or older, or when __attribute__(__vector_size__) is
  * disabled, __m64 is defined as a struct containing "ulong long l_".
  */

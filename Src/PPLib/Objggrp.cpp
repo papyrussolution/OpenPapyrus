@@ -2836,7 +2836,7 @@ int PPViewBrand::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(BrandFiltDialog, p_filt);
 }
 
-/*virtual*/int PPViewBrand::ViewTotal()
+/*virtual*/void PPViewBrand::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_BRANDTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -2848,10 +2848,7 @@ int PPViewBrand::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		PPWait(0);
 		dlg->setCtrlLong(CTL_BRANDTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
-		return -1;
 	}
-	else
-		return 0;
 }
 
 int PPViewBrand::InitIteration()

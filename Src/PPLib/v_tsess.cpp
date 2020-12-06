@@ -810,7 +810,7 @@ int PPViewTSession::CalcTotal(TSessionTotal * pTotal)
 	return 1;
 }
 
-int PPViewTSession::ViewTotal()
+void PPViewTSession::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_TSESSTOTAL);
 	TSessionTotal total;
@@ -829,7 +829,6 @@ int PPViewTSession::ViewTotal()
 		}
 		ExecViewAndDestroy(dlg);
 	}
-	return -1;
 }
 
 int PPViewTSession::Print(const void * pHdr)
@@ -1496,9 +1495,8 @@ struct TSessLineTotal {
 	double Discount;
 };
 
-int PPViewTSessLine::ViewTotal()
+void PPViewTSessLine::ViewTotal()
 {
-	int    ok = -1;
 	TDialog * dlg = 0;
 	TSessLineTotal total;
 	MEMSZERO(total);
@@ -1517,9 +1515,6 @@ int PPViewTSessLine::ViewTotal()
 		dlg->setCtrlReal(CTL_TSESSLNTOTAL_DSCNT,  total.Discount);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 DBQuery * PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

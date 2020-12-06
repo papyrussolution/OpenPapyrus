@@ -836,9 +836,8 @@ int PPViewProject::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return -1;
 }
 
-int PPViewProject::ViewTotal()
+void PPViewProject::ViewTotal()
 {
-	return -1;
 }
 
 int PPViewProject::InitPrjTaskIterations(PPID prjID)

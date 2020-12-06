@@ -64,7 +64,7 @@ extern "C" {
 /* ================================== */
 /* For WIN32 API's */
 /* #define DEFAULT_CHARSET ANSI_CHARSET */
-# define MoveTo(hdc, x, y) MoveToEx(hdc, x, y, (LPPOINT)NULL);
+#define MoveTo(hdc, x, y) MoveToEx(hdc, x, y, (LPPOINT)NULL);
 
 #if defined(__MINGW32__) && (__GNUC__ < 3) && !defined(CYGWIN)
 /* windowsx.h in MinGW32 2.x doesn't define some of the more traditional

@@ -497,7 +497,7 @@
 #define USE_UNIX_SOCKETS
 #if !defined(UNIX_PATH_MAX)
 /* Replicating logic present in afunix.h of newer Windows 10 SDK versions */
-# define UNIX_PATH_MAX 108
+#define UNIX_PATH_MAX 108
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
 
 typedef struct sockaddr_un {

@@ -67,7 +67,7 @@ typedef uchar u8;
                         : "=r"(ret_) : "r"((u32)(x)));  \
                         ret_;                           })
 #endif
-# elif defined(_MSC_VER)
+#elif defined(_MSC_VER)
 #if _MSC_VER>=1300
 	//#include <stdlib.h>
 #pragma intrinsic(_byteswap_uint64,_byteswap_ulong)

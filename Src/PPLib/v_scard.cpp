@@ -2461,9 +2461,8 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 	return ok;
 }
 
-int PPViewSCard::ViewTotal()
+void PPViewSCard::ViewTotal()
 {
-	int    ok = 1;
 	SCardTotal total;
 	MEMSZERO(total);
 	SCardViewItem item;
@@ -2477,11 +2476,8 @@ int PPViewSCard::ViewTotal()
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_SCARDTOTAL_COUNT, total.Count);
 		dlg->setCtrlReal(CTL_SCARDTOTAL_TRNOVR, total.Turnover);
-		ok = ExecViewAndDestroy(dlg);
+		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int PPViewSCard::ViewOps(PPID cardID)

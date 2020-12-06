@@ -536,5 +536,6 @@
 #define cmEventsForCurrentUser         642 // @v10.9.1 События (актуальные для текущего пользователя)
 #define cmUserMenu                     643 // @v10.9.3 Просмотр пользовательских меню и рабочих столов
 #define cmSetupGlbSvcVK                644 // @v10.9.5 Настройка интеграции с VK
+#define cmSCSPrintCheckCopy            645 // @v10.9.6 Печать копии чека в кассовой панели
 
 #endif /* __PPMENU_H */

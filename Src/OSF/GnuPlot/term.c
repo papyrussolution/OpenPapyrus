@@ -257,7 +257,7 @@ static char * stylefont(const char * fontname, bool isbold, bool isitalic);
 #define POINT_TYPES             6
 
 #ifndef DEFAULTTERM
-# define DEFAULTTERM NULL
+#define DEFAULTTERM NULL
 #endif
 
 /* interface to the rest of gnuplot - the rules are getting

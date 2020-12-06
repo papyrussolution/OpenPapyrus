@@ -339,9 +339,8 @@ int PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 	return ok;
 }
 
-int PPViewPredictSales::ViewTotal()
+void PPViewPredictSales::ViewTotal()
 {
-	int    ok = -1;
 	PredictSalesTotal total;
 	CalcTotal(&total);
 	TDialog * dlg = new TDialog(DLG_PSALESTOTAL);
@@ -366,9 +365,6 @@ int PPViewPredictSales::ViewTotal()
 		dlg->setCtrlData(CTL_PSALESTOTAL_AMTVAR, &amt_var);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 #define GRP_GOODS 1

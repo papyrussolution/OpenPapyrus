@@ -1711,7 +1711,7 @@ static bool real_set_superclass(gravity_vm * vm, gravity_class_t * c, GravityVal
 					GravityValue v = f->U.Nf.cpool.at(j);
 					if(v.IsClass()) {
 						gravity_class_t * c2 = static_cast<gravity_class_t *>(v);
-						if(strcmp(c2->identifier, supername) == 0) {
+						if(sstreq(c2->identifier, supername)) {
 							mem_free(supername);
 							if(!gravity_class_setsuper(c, c2)) 
 								goto error_max_ivar;

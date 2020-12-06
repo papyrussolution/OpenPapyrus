@@ -152,11 +152,11 @@ bool MousableWindowOpened(void)
 			result = true;
 #endif
 #ifdef QTTERM
-# if 0 /* FIXME: qt_window_opened() not yet implemented */
+#if 0 /* FIXME: qt_window_opened() not yet implemented */
 		if((strcmp(term->name, "qt") == 0) && !qt_active_window_opened())
 #else
 		if((strcmp(term->name, "qt") == 0))
-# endif
+#endif
 			result = true;
 #endif
 	}

@@ -312,7 +312,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 	 * TODO: (For non GUI and no std error cases)
 	 * Add event logging feature here.
 	 */
-#   if !defined(NDEBUG)
+#if !defined(NDEBUG)
 	/*
 	 * We are in a situation where we tried to report a critical
 	 * error and this failed for some reason. As a last resort,
@@ -328,7 +328,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 		if(hEventLog != NULL) {
 			const TCHAR * pmsg = buf;
 			if(!ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, 0, 0, NULL, 1, 0, &pmsg, NULL)) {
-#   if !defined(NDEBUG)
+#if !defined(NDEBUG)
 				/*
 				 * We are in a situation where we tried to report a critical
 				 * error and this failed for some reason. As a last resort,

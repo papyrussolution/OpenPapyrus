@@ -756,7 +756,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 			pSCN->BnkTermPath     = 0;
 			pSCN->BnkTermFlags	  = 0;
 			pSCN->ClearCDYTimeout = 0;
-			pSCN->EgaisMode       = 0; // @v9.0.9
+			pSCN->EgaisMode       = 0;
 			pSCN->PrinterPort     = 0;
 			pSCN->TableSelWhatman = 0;
 			pSCN->BnkTermPath     = 0;
@@ -770,8 +770,12 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 			if(P_Ref->GetProperty(Obj, id, CNPRP_EXTRA, &pnext, sizeof(pnext)) > 0) {
 				pSCN->Scf.DaysPeriod = pnext.ScfDaysPeriod;
 				pSCN->Scf.DlvrItemsShowTag = pnext.ScfDlvrItemsShowTag;
-				pSCN->Scf.Flags = pnext.ScfFlags; // @v9.7.5
+				pSCN->Scf.Flags = pnext.ScfFlags;
 				pSCN->BonusMaxPart = pnext.BonusMaxPart;
+				// @v10.9.6 {
+				if(pSCN->BonusMaxPart == 1)
+					pSCN->BonusMaxPart = 1000;
+				// } @v10.9.6 
 			}
 			else {
 				pSCN->Scf.DaysPeriod = 0;

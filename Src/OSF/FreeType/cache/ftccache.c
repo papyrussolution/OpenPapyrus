@@ -11,12 +11,6 @@
  * understand and accept it fully.
  *
  */
-#include "ftcmanag.h"
-#include <freetype/internal/ftobjs.h>
-#include <freetype/internal/ftdebug.h>
-#include "ftccback.h"
-#include "ftcerror.h"
-
 #undef  FT_COMPONENT
 #define FT_COMPONENT  cache
 
@@ -28,11 +22,7 @@
 #define FTC_HASH_INITIAL_SIZE  8
 
 /*************************************************************************/
-/*************************************************************************/
-/*****                                                               *****/
 /*****                   CACHE NODE DEFINITIONS                      *****/
-/*****                                                               *****/
-/*************************************************************************/
 /*************************************************************************/
 
 /* add a new node to the head of the manager's circular MRU list */

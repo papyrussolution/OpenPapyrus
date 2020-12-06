@@ -23,7 +23,7 @@
 
 #ifdef OPENSSL_NO_SOCK
 
-# elif defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_MSDOS)
+#elif defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_MSDOS)
 #if defined(__DJGPP__)
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -38,7 +38,7 @@
 #endif
 #ifdef getservbyname
      /* this is used to be wcecompat/include/winsock_extras.h */
-#   undef getservbyname
+#undef getservbyname
 struct servent *PASCAL getservbyname(const char *, const char *);
 #endif
 
@@ -54,7 +54,7 @@ struct servent *PASCAL getservbyname(const char *, const char *);
 #define accept(s,f,l)   ((int)accept(s,f,l))
 #endif
 
-# else
+#else
 
 #ifndef NO_SYS_PARAM_H
 #include <sys/param.h>
@@ -91,12 +91,12 @@ struct servent *PASCAL getservbyname(const char *, const char *);
 #ifndef VMS
 #include <sys/ioctl.h>
 #else
-#   if !defined(TCPIP_TYPE_SOCKETSHR) && defined(__VMS_VER) && (__VMS_VER > 70000000)
+#if !defined(TCPIP_TYPE_SOCKETSHR) && defined(__VMS_VER) && (__VMS_VER > 70000000)
      /* ioctl is only in VMS > 7.0 and when socketshr is not used */
 #include <sys/ioctl.h>
 #endif
 #include <unixio.h>
-#   if defined(TCPIP_TYPE_SOCKETSHR)
+#if defined(TCPIP_TYPE_SOCKETSHR)
 #include <socketshr.h>
 #endif
 #endif
@@ -128,23 +128,23 @@ struct servent *PASCAL getservbyname(const char *, const char *);
 #define clear_socket_error()    WSASetLastError(0)
 #define readsocket(s,b,n)       recv((s),(b),(n),0)
 #define writesocket(s,b,n)      send((s),(b),(n),0)
-# elif defined(__DJGPP__)
+#elif defined(__DJGPP__)
 #define WATT32
 #define WATT32_NO_OLDIES
 #define closesocket(s)          close_s(s)
 #define readsocket(s,b,n)       read_s(s,b,n)
 #define writesocket(s,b,n)      send(s,b,n,0)
-# elif defined(OPENSSL_SYS_VMS)
+#elif defined(OPENSSL_SYS_VMS)
 #define ioctlsocket(a,b,c)      ioctl(a,b,c)
 #define closesocket(s)          close(s)
 #define readsocket(s,b,n)       recv((s),(b),(n),0)
 #define writesocket(s,b,n)      send((s),(b),(n),0)
-# elif defined(OPENSSL_SYS_VXWORKS)
+#elif defined(OPENSSL_SYS_VXWORKS)
 #define ioctlsocket(a,b,c)          ioctl((a),(b),(int)(c))
 #define closesocket(s)              close(s)
 #define readsocket(s,b,n)           read((s),(b),(n))
 #define writesocket(s,b,n)          write((s),(char *)(b),(n))
-# else
+#else
 #define ioctlsocket(a,b,c)      ioctl(a,b,c)
 #define closesocket(s)          close(s)
 #define readsocket(s,b,n)       read((s),(b),(n))

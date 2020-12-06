@@ -1,6 +1,7 @@
 #ifndef VDOS_H
 #define VDOS_H
 
+#include <slib.h>
 #include "config.h"
 #include <io.h>
 #include <windows.h>

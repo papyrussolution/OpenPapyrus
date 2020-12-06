@@ -43,7 +43,7 @@ typedef uint64_t c448_bool_t;
 typedef __uint128_t c448_dword_t;
 /* Signed double-word size for internal computations */
 typedef __int128_t c448_dsword_t;
-# elif C448_WORD_BITS == 32
+#elif C448_WORD_BITS == 32
 /* Word size for internal computations */
 typedef uint32_t c448_word_t;
 /* Signed word size for internal computations */

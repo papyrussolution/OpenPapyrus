@@ -11,12 +11,6 @@
  * understand and accept it fully.
  *
  */
-#include <freetype/ftcache.h>
-#include "ftcmru.h"
-#include <freetype/internal/ftobjs.h>
-#include <freetype/internal/ftdebug.h>
-#include "ftcerror.h"
-
 FT_LOCAL_DEF(void) FTC_MruNode_Prepend(FTC_MruNode  *plist, FTC_MruNode node)
 {
 	FTC_MruNode first = *plist;

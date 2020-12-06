@@ -51,7 +51,7 @@
 #define __LA_INT64_T_DEFINED
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
 typedef __int64 la_int64_t;
-# else
+#else
 #include <unistd.h>
 #if defined(_SCO_DS) || defined(__osf__)
 typedef long long la_int64_t;
@@ -98,13 +98,13 @@ typedef int64_t la_int64_t;
  * libarchive source should ever define __LIBARCHIVE_BUILD.
  */
 #if ((defined __WIN32__) || (defined _WIN32) || defined(__CYGWIN__)) && (!defined LIBARCHIVE_STATIC)
-# ifdef __LIBARCHIVE_BUILD
+#ifdef __LIBARCHIVE_BUILD
 #ifdef __GNUC__
 #define __LA_DECL	__attribute__((dllexport)) extern
 #else
 #define __LA_DECL	__declspec(dllexport)
 #endif
-# else
+#else
 #ifdef __GNUC__
 #define __LA_DECL
 #else

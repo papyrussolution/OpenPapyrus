@@ -2031,9 +2031,8 @@ int PPViewQuot::Recover()
 	return -1;
 }
 
-int PPViewQuot::ViewTotal()
+void PPViewQuot::ViewTotal()
 {
-	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_QUOTTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
@@ -2045,9 +2044,6 @@ int PPViewQuot::ViewTotal()
 		dlg->setCtrlLong(CTL_QUOTTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int PPViewQuot::Print(const void * pHdr)

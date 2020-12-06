@@ -1971,7 +1971,7 @@ int PPViewDebtTrnovr::GetTotal(DebtTrnovrTotal * pTotal)
 	return 1;
 }
 
-int PPViewDebtTrnovr::ViewTotal()
+void PPViewDebtTrnovr::ViewTotal()
 {
 	class ExtDebtTrnovrTotalDialog : public TDialog {
 	public:
@@ -2015,12 +2015,8 @@ int PPViewDebtTrnovr::ViewTotal()
 	};
 	const int  kind = (Filt.ExtKind == DebtTrnovrFilt::ekExpiryPart) ? 1 : 0;
 	ExtDebtTrnovrTotalDialog * dlg = new ExtDebtTrnovrTotalDialog(kind, Total);
-	if(CheckDialogPtrErr(&dlg)) {
+	if(CheckDialogPtrErr(&dlg))
 		ExecViewAndDestroy(dlg);
-		return 1;
-	}
-	else
-		return 0;
 }
 
 int PPViewDebtTrnovr::Detail(const void * pHdr, PPViewBrowser * pBrw)

@@ -1,5 +1,4 @@
 /****************************************************************************
- *
  * ft2build.h
  *   FreeType 2 build and setup macros.
  *
@@ -10,7 +9,6 @@
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 /**************************************************************************
  *
@@ -27,5 +25,6 @@
  */
 #ifndef FT2BUILD_H_
 #define FT2BUILD_H_
+	#include <slib.h> // @sobolev
 	#include <freetype/config/ftheader.h>
 #endif /* FT2BUILD_H_ */

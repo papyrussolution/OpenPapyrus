@@ -1484,7 +1484,7 @@ int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 	return ok;
 }
 
-int PPViewPrjTask::ViewTotal()
+void PPViewPrjTask::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_TODOTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -1496,10 +1496,7 @@ int PPViewPrjTask::ViewTotal()
 		PPWait(0);
 		dlg->setCtrlLong(CTL_TODOTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
-		return -1;
 	}
-	else
-		return 0;
 }
 
 int PPViewPrjTask::Detail(const void * pHdr, PPViewBrowser * pBrw)

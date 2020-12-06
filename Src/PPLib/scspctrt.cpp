@@ -1208,7 +1208,7 @@ int UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer & rC, 
 			arg_count++;
 		}
 		if(rP.Phone.NotEmpty()) {
-			url_buf.CatChar(arg_count ? '&' : '?').CatEq("phone", rP.Phone);
+			url_buf.CatChar(arg_count ? '&' : '?').CatEq("phone", temp_buf.EncodeUrl(rP.Phone, 1));
 			arg_count++;
 		}
 		if(!rP.Uid.IsZero()) {
@@ -1852,9 +1852,8 @@ public:
 	SNaturalTokenArray nta;
 	tr.Run(code_buf.ucptr(), code_buf.Len(), nta.Z(), &nts); 
 	int   maybe_uds = 0; // 1 - code, 2 - phone
-	if(code_buf.Len() == 6 && nta.Has(SNTOK_DIGITCODE)) {
+	if(code_buf.Len() == 6 && nta.Has(SNTOK_DIGITCODE))
 		maybe_uds = 1;
-	}
 	else if(code_buf.Len() >= 10) {
 		PPEAddr::Phone::NormalizeStr(code_buf, PPEAddr::Phone::nsfPlus, phone_buf);
 		if(phone_buf.Len() == 12)
@@ -1981,12 +1980,20 @@ public:
 				THROW(tra.Commit());
 				rB.SpecialTreatment = SCRDSSPCTRT_UDS;
 				rB.ScID = found_sc_id;
-				rB.InCodeType = ictHash;
+				// @v10.9.6 rB.InCodeType = ictHash;
 				rB.Discount = cust.P.DiscountRate;
 				if(rB.Discount > 0.0)
 					rB.Flags |= rB.fDefinedDiscount;
 				rB.Rest = cust.P.PointCount;
 				rB.Flags |= rB.fDefinedRest;
+				// @v10.9.6 {
+				if(fcp.Code.NotEmpty())
+					rB.InCodeType = ictHash;
+				else if(fcp.Phone.NotEmpty()) {
+					rB.InCodeType = SCardSpecialTreatment::ictPhone;
+					rB.Flags |= rB.fBonusDisabled;
+				}
+				// } @v10.9.6 
 				ret = ictHash;
 			}
 		}

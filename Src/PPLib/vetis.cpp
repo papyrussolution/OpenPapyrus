@@ -9933,15 +9933,12 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 		{
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_VETISENT_LOC) || event.isCbSelected(CTLSEL_VETISENT_ORG)) {
-				static int __lock = 0;
-				if(!__lock) {
-					__lock = 1;
+				UI_LOCAL_LOCK_ENTER
 					const PPID   psn_id = getCtrlLong(CTLSEL_VETISENT_ORG);
 					const PPID   loc_id = getCtrlLong(CTLSEL_VETISENT_LOC);
 					R_Ec.SetupEnterpriseEntry(psn_id, loc_id, Data);
 					Setup();
-					__lock = 0;
-				}
+				UI_LOCAL_LOCK_LEAVE
 				clearEvent(event);
 			}
 			else if(event.isCbSelected(CTLSEL_VETISENT_COUNTRY)) {
@@ -11099,9 +11096,10 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_from.push(t->FromEnterpriseID);
 		dbe_from.push(t->FromEntityID);
 		{
-			DBConst cp;
-			cp.init(&EC);
-			dbe_from.push(cp);
+			// @v10.9.6 DBConst cp;
+			// @v10.9.6 cp.init(&EC);
+			// @v10.9.6 dbe_from.push(cp);
+			dbe_from.push(dbconst(&EC)); // @v10.9.6 
 		}
 		dbe_from.push(static_cast<DBFunc>(DynFuncBMembTextFld));
 	}
@@ -11110,9 +11108,10 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_to.push(t->ToEnterpriseID);
 		dbe_to.push(t->ToEntityID);
 		{
-			DBConst cp;
-			cp.init(&EC);
-			dbe_to.push(cp);
+			// @v10.9.6 DBConst cp;
+			// @v10.9.6 cp.init(&EC);
+			// @v10.9.6 dbe_to.push(cp);
+			dbe_to.push(dbconst(&EC)); // @v10.9.6 
 		}
 		dbe_to.push(static_cast<DBFunc>(DynFuncBMembTextFld));
 	}
@@ -11120,9 +11119,10 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_stock.init();
 		dbe_stock.push(t->EntityID);
 		{
-			DBConst cp;
-			cp.init(&EC);
-			dbe_stock.push(cp);
+			// @v10.9.6 DBConst cp;
+			// @v10.9.6 cp.init(&EC);
+			// @v10.9.6 dbe_stock.push(cp);
+			dbe_stock.push(dbconst(&EC)); // @v10.9.6
 		}
 		dbe_stock.push(static_cast<DBFunc>(DynFuncVetStockByDoc));
 	}
@@ -11131,9 +11131,10 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_uuid.init();
 		dbe_uuid.push(t->EntityID);
 		{
-			DBConst cp;
-			cp.init(&EC);
-			dbe_uuid.push(cp);
+			// @v10.9.6 DBConst cp;
+			// @v10.9.6 cp.init(&EC);
+			// @v10.9.6 dbe_uuid.push(cp);
+			dbe_uuid.push(dbconst(&EC)); // @v10.9.6 
 		}
 		dbe_uuid.push(static_cast<DBFunc>(DynFuncVetUUID));
 	}
@@ -12598,9 +12599,8 @@ int PPViewVetisDocument::CalcTotal(VetisDocumentTotal * pTotal)
 	return ok;
 }
 
-int PPViewVetisDocument::ViewTotal()
+void PPViewVetisDocument::ViewTotal()
 {
-	int    ok = -1;
 	TDialog * dlg = 0;
 	VetisDocumentTotal total;
 	CalcTotal(&total);
@@ -12615,7 +12615,4 @@ int PPViewVetisDocument::ViewTotal()
 		dlg->setCtrlLong(CTL_VETDOCTOTAL_STKCT, total.CtStock);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }

@@ -19,7 +19,6 @@
 #define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
-
 #include <freetype/internal/ftmemory.h>
 #include <freetype/internal/ftstream.h>
 #include <freetype/internal/ftdebug.h>

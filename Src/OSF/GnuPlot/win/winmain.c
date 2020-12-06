@@ -160,10 +160,10 @@ void WinExit(void)
 	}
 #ifndef WGP_CONSOLE
 	TextMessage(); /* process messages */
-# ifndef __WATCOMC__
+#ifndef __WATCOMC__
 	/* revert C++ stream redirection */
 	RedirectOutputStreams(false);
-# endif
+#endif
 #else
 #ifdef CONSOLE_SWITCH_CP
 	/* restore console codepages */
@@ -498,10 +498,10 @@ int main(int argc, char ** argv)
 		InvalidateRect(textwin.hWndParent, (LPRECT)&rect, 1);
 		UpdateWindow(textwin.hWndParent);
 	}
-# ifndef __WATCOMC__
+#ifndef __WATCOMC__
 	// Finally, also redirect C++ standard output streams
 	RedirectOutputStreams(true);
-# endif
+#endif
 #else /* WGP_CONSOLE */
 #ifdef CONSOLE_SWITCH_CP
 	/* Change codepage of console to match that of the graph window.

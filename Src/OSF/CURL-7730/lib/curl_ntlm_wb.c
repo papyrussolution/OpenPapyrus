@@ -60,9 +60,9 @@
 #include "memdebug.h"
 
 #if DEBUG_ME
-# define DEBUG_OUT(x) x
+#define DEBUG_OUT(x) x
 #else
-# define DEBUG_OUT(x) Curl_nop_stmt
+#define DEBUG_OUT(x) Curl_nop_stmt
 #endif
 
 /* Portable 'sclose_nolog' used only in child process instead of 'sclose'

@@ -121,14 +121,14 @@
 #ifdef  EXIT_SUCCESS
 #    undef EXIT_SUCCESS
 #endif
-#  endif /* VAXC */
-#  ifndef  EXIT_FAILURE
+#endif /* VAXC */
+#ifndef  EXIT_FAILURE
 #define EXIT_FAILURE  0x10000002
-#  endif
-#  ifndef  EXIT_SUCCESS
+#endif
+#ifndef  EXIT_SUCCESS
 #define EXIT_SUCCESS  1
-#  endif
-# endif /* VMS */
+#endif
+#endif /* VMS */
 #endif /* HAVE_STDLIB_H */
 
 #ifdef HAVE_STDINT_H
@@ -265,13 +265,13 @@
 #endif
 // Normally in <math.h> 
 #ifndef M_PI
-# define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846
 #endif
 #ifndef M_PI_2
-# define M_PI_2 1.57079632679489661923
+#define M_PI_2 1.57079632679489661923
 #endif
 #ifndef M_LN10
-#  define M_LN10    2.3025850929940456840e0
+#define M_LN10    2.3025850929940456840e0
 #endif
 // Use definitions from float.h and math.h if we found them 
 #if defined(DBL_MIN_10_EXP)

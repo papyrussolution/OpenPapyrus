@@ -202,7 +202,7 @@ struct path_table {
  */
 
 #if defined(_Windows) && !defined(FONTPATHSET)
-#  define FONTPATHSET
+#define FONTPATHSET
 static const struct path_table fontpath_tbl[] =
 {
 	{ "$(windir)\\fonts" },
@@ -222,7 +222,7 @@ static const struct path_table fontpath_tbl[] =
 #endif
 
 #if defined(__APPLE__) && !defined(FONTPATHSET)
-#  define FONTPATHSET
+#define FONTPATHSET
 static const struct path_table fontpath_tbl[] =
 {
 	{ "/System/Library/Fonts!" },
@@ -233,7 +233,7 @@ static const struct path_table fontpath_tbl[] =
 #endif
 
 #if defined(VMS) && !defined(FONTPATHSET)
-#  define FONTPATHSET
+#define FONTPATHSET
 static const struct path_table fontpath_tbl[] =
 {
 	{ "SYS$COMMON:[SYSFONT]!" },
@@ -317,17 +317,17 @@ char * fontpath_handler(int action, char * path)
 				    while(curr_fontpath->dir) {
 					    char * currdir = NULL;
 					    char * envbeg = NULL;
-#  if defined(PIPES)
+#if defined(PIPES)
 					    char * cmdbeg = NULL;
-#  endif
+#endif
 					    bool subdirs = false;
 
 					    currdir = gp_strdup(curr_fontpath->dir);
 
 					    while( (envbeg = strstr(currdir, "$("))
-#  if defined(PIPES)
+#if defined(PIPES)
 					    || (cmdbeg = strstr(currdir, "$`"))
-#  endif
+#endif
 					    ) {
 						    /* Read environment variables */
 						    if(envbeg) {
@@ -348,7 +348,7 @@ char * fontpath_handler(int action, char * path)
 							    free(currdir);
 							    currdir = tmpdir;
 						    }
-#  if defined(PIPES)
+#if defined(PIPES)
 						    /* Read environment variables */
 						    else if(cmdbeg) {
 							    char * tmpdir = NULL;
@@ -377,7 +377,7 @@ char * fontpath_handler(int action, char * path)
 							    free(currdir);
 							    currdir = tmpdir;
 						    }
-#  endif
+#endif
 					    }
 
 					    if(currdir[strlen(currdir)-1] == '!') {

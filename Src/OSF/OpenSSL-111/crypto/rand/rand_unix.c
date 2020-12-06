@@ -68,7 +68,7 @@ static uint64_t get_timer_bits(void);
 # undef OSSL_POSIX_TIMER_OKAY
 #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
 #if defined(__GLIBC__)
-#   if defined(__GLIBC_PREREQ)
+#if defined(__GLIBC_PREREQ)
 #if __GLIBC_PREREQ(2, 17)
 #     define OSSL_POSIX_TIMER_OKAY
 #endif
@@ -207,7 +207,7 @@ void rand_pool_keep_random_devices_open(int keep)
 #endif
 
 #if defined(OPENSSL_RAND_SEED_OS)
-#   if !defined(DEVRANDOM)
+#if !defined(DEVRANDOM)
 #error "OS seeding requires DEVRANDOM to be configured"
 #endif
 #define OPENSSL_RAND_SEED_GETRANDOM
@@ -276,7 +276,7 @@ static ssize_t sysctl_random(char * buf, size_t buflen)
 
 #if defined(OPENSSL_RAND_SEED_GETRANDOM)
 
-#   if defined(__linux) && !defined(__NR_getrandom)
+#if defined(__linux) && !defined(__NR_getrandom)
 #if defined(__arm__) && defined(__NR_SYSCALL_BASE)
 #     define __NR_getrandom    (__NR_SYSCALL_BASE+384)
 #    elif defined(__i386__)
@@ -359,7 +359,7 @@ static struct random_device {
 
 static int keep_random_devices_open = 1;
 
-#   if defined(__linux) && defined(DEVRANDOM_WAIT)
+#if defined(__linux) && defined(DEVRANDOM_WAIT)
 static void * shm_addr;
 
 static void cleanup_shm(void)
@@ -576,7 +576,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 #else
 	size_t entropy_available;
 
-#   if defined(OPENSSL_RAND_SEED_GETRANDOM)
+#if defined(OPENSSL_RAND_SEED_GETRANDOM)
 	{
 		size_t bytes_needed;
 		uchar * buffer;
@@ -603,13 +603,13 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 		return entropy_available;
 #endif
 
-#   if defined(OPENSSL_RAND_SEED_LIBRANDOM)
+#if defined(OPENSSL_RAND_SEED_LIBRANDOM)
 	{
 		/* Not yet implemented. */
 	}
 #endif
 
-#   if defined(OPENSSL_RAND_SEED_DEVRANDOM)
+#if defined(OPENSSL_RAND_SEED_DEVRANDOM)
 	if(wait_random_seeded()) {
 		size_t bytes_needed;
 		uchar * buffer;
@@ -650,19 +650,19 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 	}
 #endif
 
-#   if defined(OPENSSL_RAND_SEED_RDTSC)
+#if defined(OPENSSL_RAND_SEED_RDTSC)
 	entropy_available = rand_acquire_entropy_from_tsc(pool);
 	if(entropy_available > 0)
 		return entropy_available;
 #endif
 
-#   if defined(OPENSSL_RAND_SEED_RDCPU)
+#if defined(OPENSSL_RAND_SEED_RDCPU)
 	entropy_available = rand_acquire_entropy_from_cpu(pool);
 	if(entropy_available > 0)
 		return entropy_available;
 #endif
 
-#   if defined(OPENSSL_RAND_SEED_EGD)
+#if defined(OPENSSL_RAND_SEED_EGD)
 	{
 		static const char * paths[] = { DEVRANDOM_EGD, NULL };
 		size_t bytes_needed;
@@ -783,14 +783,14 @@ static uint64_t get_timer_bits(void)
 
 #if defined(__sun) || defined(__hpux)
 	return gethrtime();
-# elif defined(_AIX)
+#elif defined(_AIX)
 	{
 		timebasestruct_t t;
 
 		read_wall_time(&t, TIMEBASE_SZ);
 		return TWO32TO64(t.tb_high, t.tb_low);
 	}
-# elif defined(OSSL_POSIX_TIMER_OKAY)
+#elif defined(OSSL_POSIX_TIMER_OKAY)
 	{
 		struct timespec ts;
 

@@ -649,18 +649,15 @@ void TWindow::showCtrl(ushort ctlID, int s)
 	if(v)
 		v->setState(sfVisible, LOGIC(s));
 	else {
-		HWND   w_ctl = GetDlgItem(HW, ctlID);
+		HWND   w_ctl = ::GetDlgItem(HW, ctlID);
 		if(w_ctl)
-			ShowWindow(w_ctl, s ? SW_SHOW : SW_HIDE);
+			::ShowWindow(w_ctl, s ? SW_SHOW : SW_HIDE);
 	}
 }
 
-void FASTCALL TWindow::setTitle(const char * pBuf)
-	{ return Helper_SetTitle(pBuf, 0); }
-void FASTCALL TWindow::setOrgTitle(const char * pBuf)
-	{ return Helper_SetTitle(pBuf, 1); }
-const SString & TWindow::getTitle() const
-	{ return Title; }
+void FASTCALL TWindow::setTitle(const char * pBuf) { return Helper_SetTitle(pBuf, 0); }
+void FASTCALL TWindow::setOrgTitle(const char * pBuf) { return Helper_SetTitle(pBuf, 1); }
+const SString & TWindow::getTitle() const { return Title; }
 
 void FASTCALL TWindow::Helper_SetTitle(const char * pBuf, int setOrgTitle)
 {

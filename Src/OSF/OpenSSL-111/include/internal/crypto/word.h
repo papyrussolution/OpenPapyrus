@@ -22,7 +22,7 @@ typedef __uint128_t dword_t;
 typedef int32_t hsword_t;
 typedef int64_t sword_t;
 typedef __int128_t dsword_t;
-# elif (ARCH_WORD_BITS == 32)
+#elif (ARCH_WORD_BITS == 32)
 typedef uint32_t word_t, mask_t;
 typedef uint64_t dword_t;
 typedef int16_t hsword_t;
@@ -38,7 +38,7 @@ typedef int64_t dsword_t;
  */
 #if C448_WORD_BITS == 64
 #define SC_LIMB(x) (x)
-# elif C448_WORD_BITS == 32
+#elif C448_WORD_BITS == 32
 #define SC_LIMB(x) ((uint32_t)(x)),((x) >> 32)
 #else
 #error "For now we only support 32- and 64-bit architectures."

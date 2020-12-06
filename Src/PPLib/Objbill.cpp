@@ -9341,9 +9341,7 @@ private:
 	}
 	void SetupOprKindList(long predefOp, PPID bbt, PPID opID)
 	{
-		static int __lock = 0;
-		if(!__lock) {
-			__lock = 1;
+		UI_LOCAL_LOCK_ENTER
 			PPObjOprKind op_obj;
 			PPID   selected_op_id = 0;
 			PPIDArray op_list;
@@ -9463,8 +9461,7 @@ private:
 			if(!op_list.lsearch(selected_op_id))
 				selected_op_id = 0;
 			SetupOprKindCombo(this, CTLSEL_ADDBILLFLT_OP, selected_op_id, 0, &op_list, OPKLF_OPLIST);
-			__lock = 0;
-		}
+		UI_LOCAL_LOCK_LEAVE
 	}
 };
 

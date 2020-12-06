@@ -325,7 +325,7 @@ void Mem_rMovsb(LinPt dest, LinPt src, Bitu bCount)
 		PhysPt physDest = PAGING_Enabled() ? LinToPhys(dest) : dest;
 		Bit16u srcOff = ((Bit16u)physSrc)&(maxMove-1);
 		Bit16u destOff = ((Bit16u)physDest)&(maxMove-1);
-		Bit16u bTodo = maxMove - max(srcOff, destOff);
+		Bit16u bTodo = maxMove - MAX(srcOff, destOff);
 		if (bTodo > bCount)
 			bTodo = bCount;
 		src += bTodo;

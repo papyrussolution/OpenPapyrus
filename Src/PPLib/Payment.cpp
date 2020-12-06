@@ -481,7 +481,7 @@ int PPViewLinkedBill::MakeList()
 	return ok;
 }
 
-int PPViewLinkedBill::ViewTotal()
+void PPViewLinkedBill::ViewTotal()
 {
 	TDialog * dlg = 0;
 	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PAYMTOTAL)))) {
@@ -489,16 +489,14 @@ int PPViewLinkedBill::ViewTotal()
 		double amount = 0.0;
 		for(uint i = 0; i < List.getCount(); i++) {
 			BillTbl::Rec bill_rec;
-			if(P_BObj && P_BObj->Fetch(List.at(i).ID, &bill_rec) > 0) {
+			if(P_BObj && P_BObj->Fetch(List.at(i).ID, &bill_rec) > 0)
 				amount += bill_rec.Amount;
-			}
 			count++;
 		}
 		dlg->setCtrlLong(CTL_PAYMTOTAL_COUNT, count);
 		dlg->setCtrlReal(CTL_PAYMTOTAL_AMOUNT, amount);
 		ExecViewAndDestroy(dlg);
 	}
-	return -1;
 }
 
 int PPViewLinkedBill::Print(const void * pHdr)

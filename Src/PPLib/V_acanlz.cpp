@@ -1986,8 +1986,10 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 
 int PPViewAccAnlz::Browse(int modeless)
 {
-	if(Filt.Flags & AccAnlzFilt::fTotalOnly)
-		return ViewTotal();
+	if(Filt.Flags & AccAnlzFilt::fTotalOnly) {
+		ViewTotal();
+		return 1;
+	}
 	else
 		return PPView::Browse(modeless);
 }
@@ -2132,17 +2134,13 @@ int PPViewAccAnlz::CalcTotalAccTrnovr(AccAnlzTotal * pTotal)
 	return ok;
 }
 
-/*virtual*/int PPViewAccAnlz::ViewTotal()
+/*virtual*/void PPViewAccAnlz::ViewTotal()
 {
-	int    ok = 1;
 	if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet)
 		CalcTotalAccTrnovr(&Total);
 	AccAnlzTotalDialog * dlg = new AccAnlzTotalDialog(&Total, &Filt);
 	if(CheckDialogPtrErr(&dlg))
 		ExecViewAndDestroy(dlg);
-	else
-		ok = 0;
-	return ok;
 }
 //
 //

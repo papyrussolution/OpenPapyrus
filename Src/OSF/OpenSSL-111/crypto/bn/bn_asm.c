@@ -476,7 +476,7 @@ BN_ULONG bn_sub_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
 #define sqr_add_c2(a, i, j, c0, c1, c2) \
 	mul_add_c2((a)[i], (a)[j], c0, c1, c2)
 
-# elif defined(BN_UMULT_LOHI)
+#elif defined(BN_UMULT_LOHI)
 /*
  * Keep in mind that additions to hi can not overflow, because
  * the high word of a multiplication result cannot be all-ones.
@@ -510,7 +510,7 @@ BN_ULONG bn_sub_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
 #define sqr_add_c2(a, i, j, c0, c1, c2)    \
 	mul_add_c2((a)[i], (a)[j], c0, c1, c2)
 
-# elif defined(BN_UMULT_HIGH)
+#elif defined(BN_UMULT_HIGH)
 /*
  * Keep in mind that additions to hi can not overflow, because
  * the high word of a multiplication result cannot be all-ones.
@@ -856,7 +856,7 @@ int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
 	volatile BN_ULONG * vp;
 	int i = 0, j;
 
-#   if 0                        /* template for platform-specific
+#if 0                        /* template for platform-specific
 	                         * implementation */
 	if(ap == bp)
 		return bn_sqr_mont(rp, ap, np, n0p, num);

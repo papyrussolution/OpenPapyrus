@@ -3284,9 +3284,8 @@ int PPViewGoodsOpAnalyze::ViewDetail(PPID locID, PPID goodsID, short abcGroup, i
 	return ok;
 }
 
-int PPViewGoodsOpAnalyze::ViewTotal()
+void PPViewGoodsOpAnalyze::ViewTotal()
 {
-	int    ok = 1;
 	if((State & sTotalInited) || CalcTotal(&Total)) {
 		uint   dlg_id = 0;
 		int    view_cmp_total = 0;
@@ -3336,12 +3335,7 @@ int PPViewGoodsOpAnalyze::ViewTotal()
 			}
 			ExecViewAndDestroy(dlg);
 		}
-		else
-			ok = 0;
 	}
-	else
-		ok = PPErrorZ();
-	return ok;
 }
 
 int PPViewGoodsOpAnalyze::ViewGraph()

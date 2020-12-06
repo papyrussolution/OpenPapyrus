@@ -387,7 +387,7 @@ static void gcm_ghash_4bit(u64 Xi[2], const u128 Htable[16],
 		char little;
 	} is_endian = { 1 };
 
-#   if 1
+#if 1
 	do {
 		cnt = 15;
 		nlo = ((const u8*)Xi)[15];
@@ -671,13 +671,13 @@ void gcm_gmult_4bit_x86(u64 Xi[2], const u128 Htable[16]);
 void gcm_ghash_4bit_x86(u64 Xi[2], const u128 Htable[16], const u8 * inp,
     size_t len);
 #endif
-# elif defined(__arm__) || defined(__arm) || defined(__aarch64__)
+#elif defined(__arm__) || defined(__arm) || defined(__aarch64__)
 #include "arm_arch.h"
 #if __ARM_MAX_ARCH__>=7
 #define GHASH_ASM_ARM
 #define GCM_FUNCREF_4BIT
 #define PMULL_CAPABLE        (OPENSSL_armcap_P & ARMV8_PMULL)
-#   if defined(__arm__) || defined(__arm)
+#if defined(__arm__) || defined(__arm)
 #define NEON_CAPABLE        (OPENSSL_armcap_P & ARMV7_NEON)
 #endif
 void gcm_init_neon(u128 Htable[16], const u64 Xi[2]);
@@ -689,7 +689,7 @@ void gcm_gmult_v8(u64 Xi[2], const u128 Htable[16]);
 void gcm_ghash_v8(u64 Xi[2], const u128 Htable[16], const u8 * inp,
     size_t len);
 #endif
-# elif defined(__sparc__) || defined(__sparc)
+#elif defined(__sparc__) || defined(__sparc)
 #include "sparc_arch.h"
 #define GHASH_ASM_SPARC
 #define GCM_FUNCREF_4BIT
@@ -698,7 +698,7 @@ void gcm_init_vis3(u128 Htable[16], const u64 Xi[2]);
 void gcm_gmult_vis3(u64 Xi[2], const u128 Htable[16]);
 void gcm_ghash_vis3(u64 Xi[2], const u128 Htable[16], const u8 * inp,
     size_t len);
-# elif defined(OPENSSL_CPUID_OBJ) && (defined(__powerpc__) || defined(__ppc__) || defined(_ARCH_PPC))
+#elif defined(OPENSSL_CPUID_OBJ) && (defined(__powerpc__) || defined(__ppc__) || defined(_ARCH_PPC))
 #include "ppc_arch.h"
 #define GHASH_ASM_PPC
 #define GCM_FUNCREF_4BIT
@@ -771,7 +771,7 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT * ctx, void * key, block128_f block)
 #endif
 	gcm_init_4bit(ctx->Htable, ctx->H.u);
 #if   defined(GHASH_ASM_X86)  /* x86 only */
-#   if  defined(OPENSSL_IA32_SSE2)
+#if  defined(OPENSSL_IA32_SSE2)
 	if(OPENSSL_ia32cap_P[0] & (1 << 25)) { /* check SSE bit */
 #else
 	if(OPENSSL_ia32cap_P[0] & (1 << 23)) { /* check MMX bit */
@@ -787,7 +787,7 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT * ctx, void * key, block128_f block)
 	ctx->gmult = gcm_gmult_4bit;
 	CTX__GHASH(gcm_ghash_4bit);
 #endif
-# elif  defined(GHASH_ASM_ARM)
+#elif  defined(GHASH_ASM_ARM)
 #ifdef PMULL_CAPABLE
 	if(PMULL_CAPABLE) {
 		gcm_init_v8(ctx->Htable, ctx->H.u);
@@ -809,7 +809,7 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT * ctx, void * key, block128_f block)
 		ctx->gmult = gcm_gmult_4bit;
 		CTX__GHASH(gcm_ghash_4bit);
 	}
-# elif  defined(GHASH_ASM_SPARC)
+#elif  defined(GHASH_ASM_SPARC)
 	if(OPENSSL_sparcv9cap_P[0] & SPARCV9_VIS3) {
 		gcm_init_vis3(ctx->Htable, ctx->H.u);
 		ctx->gmult = gcm_gmult_vis3;
@@ -820,7 +820,7 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT * ctx, void * key, block128_f block)
 		ctx->gmult = gcm_gmult_4bit;
 		CTX__GHASH(gcm_ghash_4bit);
 	}
-# elif  defined(GHASH_ASM_PPC)
+#elif  defined(GHASH_ASM_PPC)
 	if(OPENSSL_ppccap_P & PPC_CRYPTO207) {
 		gcm_init_p8(ctx->Htable, ctx->H.u);
 		ctx->gmult = gcm_gmult_p8;

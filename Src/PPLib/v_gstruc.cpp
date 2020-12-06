@@ -802,7 +802,8 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				Recover();
 				break;
 			case PPVCMD_TOTAL:
-				ok = ViewTotal();
+				ok = -1;
+				ViewTotal();
 				break;
 			case PPVCMD_NEXTPROBLEM:
 				if(brw_hdr.GStrucID && Problems.getCount()) {
@@ -884,27 +885,25 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	return ok;
 }
 
-int PPViewGoodsStruc::ViewTotal()
+void PPViewGoodsStruc::ViewTotal()
 {
-	int    ok = 1;
 	long   goods_count = 0, lines_count = 0;
 	PPID   prev_goods = 0;
-	GoodsStrucViewItem item;
-	TDialog * p_dlg = 0;
-	THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_TGSTRUC))));
-	for(InitIteration(); NextIteration(&item) > 0;) {
-		if(item.GoodsID != prev_goods) {
-			goods_count++;
-			prev_goods = item.GoodsID;
+	TDialog * p_dlg = new TDialog(DLG_TGSTRUC);
+	if(CheckDialogPtr(&p_dlg)) {
+		GoodsStrucViewItem item;
+		for(InitIteration(); NextIteration(&item) > 0;) {
+			if(item.GoodsID != prev_goods) {
+				goods_count++;
+				prev_goods = item.GoodsID;
+			}
+			lines_count++;
+			PPWaitPercent(Counter);
 		}
-		lines_count++;
-		PPWaitPercent(Counter);
+		p_dlg->setCtrlLong(CTL_TGSTRUC_LINES, lines_count);
+		p_dlg->setCtrlLong(CTL_TGSTRUC_GOODS, goods_count);
+		ExecViewAndDestroy(p_dlg);
 	}
-	p_dlg->setCtrlLong(CTL_TGSTRUC_LINES, lines_count);
-	p_dlg->setCtrlLong(CTL_TGSTRUC_GOODS, goods_count);
-	ExecViewAndDestroy(p_dlg);
-	CATCHZOKPPERR
-	return ok;
 }
 //
 // Implementation of PPALDD_GoodsStrucList

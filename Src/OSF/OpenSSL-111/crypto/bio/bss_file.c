@@ -232,7 +232,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 				    _setmode(fd, _O_TEXT);
 			    else
 				    _setmode(fd, _O_BINARY);
-# elif defined(OPENSSL_SYS_MSDOS)
+#elif defined(OPENSSL_SYS_MSDOS)
 			    int fd = fileno((FILE*)ptr);
 			    /* Set correct text/binary mode */
 			    if(num & BIO_FP_TEXT)
@@ -246,7 +246,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 				    else
 					    _setmode(fd, _O_BINARY);
 			    }
-# elif defined(OPENSSL_SYS_WIN32_CYGWIN)
+#elif defined(OPENSSL_SYS_WIN32_CYGWIN)
 			    int fd = fileno((FILE*)ptr);
 			    if(!(num & BIO_FP_TEXT))
 				    setmode(fd, O_BINARY);
@@ -278,7 +278,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    OPENSSL_strlcat(p, "b", sizeof(p));
 		    else
 			    OPENSSL_strlcat(p, "t", sizeof(p));
-# elif defined(OPENSSL_SYS_WIN32_CYGWIN)
+#elif defined(OPENSSL_SYS_WIN32_CYGWIN)
 		    if(!(num & BIO_FP_TEXT))
 			    OPENSSL_strlcat(p, "b", sizeof(p));
 #endif

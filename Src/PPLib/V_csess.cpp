@@ -117,7 +117,7 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_DFRULESEL_RULEGRP)) {
-			PPID   rule_grp = getCtrlLong(CTLSEL_DFRULESEL_RULEGRP);
+			const PPID rule_grp = getCtrlLong(CTLSEL_DFRULESEL_RULEGRP);
 			SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULE, PPOBJ_DFCREATERULE, 0, 0, reinterpret_cast<void *>(rule_grp));
 			clearEvent(event);
 		}
@@ -2153,13 +2153,12 @@ int PPViewCSess::CalcTotal(CSessTotal * pTotal)
 	return ok;
 }
 
-int PPViewCSess::ViewTotal()
+void PPViewCSess::ViewTotal()
 {
-	int    ok = -1;
-	TDialog * dlg = 0;
 	CSessTotal total;
 	CalcTotal(&total);
-	if(CheckDialogPtrErr(&(dlg = new TDialog((Filt.Flags & CSessFilt::fExtBill) ? DLG_CSESSWRETTOTAL : DLG_CSESSTOTAL)))) {
+	TDialog * dlg = new TDialog((Filt.Flags & CSessFilt::fExtBill) ? DLG_CSESSWRETTOTAL : DLG_CSESSTOTAL);
+	if(CheckDialogPtrErr(&dlg)) {
 		double  ret_amt = total.WORetAmount - total.Amount;
 		SetPeriodInput(dlg, CTL_CSESSTOTAL_PERIOD, &Filt.Period);
 		dlg->setCtrlData(CTL_CSESSTOTAL_COUNT,    &total.SessCount);
@@ -2179,9 +2178,6 @@ int PPViewCSess::ViewTotal()
 		dlg->setCtrlData(CTL_CSESSTOTAL_BANKING,   &total.BnkAmount);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int PPViewCSess::PosPrint(PPID curID)
@@ -2839,17 +2835,16 @@ int PPViewCSessExc::ConvertDeficitToBasket()
 	return ok;
 }
 
-int PPViewCSessExc::ViewTotal()
+void PPViewCSessExc::ViewTotal()
 {
-	int    ok = 1;
 	long   count = 0;
 	double total_rest    = 0.0;
 	double total_sumrest = 0.0;
 	double total_altsum  = 0.0;
 	double total_altdiff = 0.0;
 	CSessExcViewItem item;
-	TDialog * dlg = 0;
-	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CSESSEXCTOTAL)))) {
+	TDialog * dlg = new TDialog(DLG_CSESSEXCTOTAL);
+	if(CheckDialogPtrErr(&dlg)) {
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			count++;
 			if(item.Sign > 0) {
@@ -2879,9 +2874,6 @@ int PPViewCSessExc::ViewTotal()
 		dlg->setCtrlReal(CTL_CSESSEXCTOTAL_ALTDIF, total_altdiff);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int PPViewCSessExc::Print(const void *)

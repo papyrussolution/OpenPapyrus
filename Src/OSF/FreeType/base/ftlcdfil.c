@@ -18,20 +18,14 @@
 
 #ifdef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
 
-/* define USE_LEGACY to implement the legacy filter */
-#define  USE_LEGACY
-
+#define  USE_LEGACY /* define USE_LEGACY to implement the legacy filter */
 #define FT_SHIFTCLAMP(x)  ( x >>= 8, (FT_Byte)( x > 255 ? 255 : x ) )
 
 /* add padding according to filter weights */
-FT_BASE_DEF(void)
-ft_lcd_padding(FT_BBox*        cbox,
-    FT_GlyphSlot slot,
-    FT_Render_Mode mode)
+FT_BASE_DEF(void) ft_lcd_padding(FT_BBox*        cbox, FT_GlyphSlot slot, FT_Render_Mode mode)
 {
 	FT_Byte*                 lcd_weights;
 	FT_Bitmap_LcdFilterFunc lcd_filter_func;
-
 	/* Per-face LCD filtering takes priority if set up. */
 	if(slot->face && slot->face->internal->lcd_filter_func) {
 		lcd_weights     = slot->face->internal->lcd_weights;
@@ -59,9 +53,7 @@ ft_lcd_padding(FT_BBox*        cbox,
 }
 
 /* FIR filter used by the default and light filters */
-FT_BASE_DEF(void)
-ft_lcd_filter_fir(FT_Bitmap*           bitmap,
-    FT_LcdFiveTapFilter weights)
+FT_BASE_DEF(void) ft_lcd_filter_fir(FT_Bitmap*           bitmap, FT_LcdFiveTapFilter weights)
 {
 	FT_UInt width  = (FT_UInt)bitmap->width;
 	FT_UInt height = (FT_UInt)bitmap->rows;
@@ -153,8 +145,7 @@ ft_lcd_filter_fir(FT_Bitmap*           bitmap,
 #ifdef USE_LEGACY
 
 /* intra-pixel filter used by the legacy filter */
-static void _ft_lcd_filter_legacy(FT_Bitmap*      bitmap,
-    FT_Byte*        weights)
+static void _ft_lcd_filter_legacy(FT_Bitmap*      bitmap, FT_Byte*        weights)
 {
 	FT_UInt width  = (FT_UInt)bitmap->width;
 	FT_UInt height = (FT_UInt)bitmap->rows;
@@ -209,10 +200,8 @@ static void _ft_lcd_filter_legacy(FT_Bitmap*      bitmap,
 	}
 	else if(mode == FT_PIXEL_MODE_LCD_V && height >= 3) {
 		FT_Byte*  column = origin;
-
 		for(; width > 0; width--, column++) {
 			FT_Byte*  col = column - 2 * pitch;
-
 			for(; height > 0; height -= 3, col -= 3 * pitch) {
 				FT_UInt r, g, b;
 				FT_UInt p;
@@ -243,93 +232,62 @@ static void _ft_lcd_filter_legacy(FT_Bitmap*      bitmap,
 #endif /* USE_LEGACY */
 
 /* documentation in ftlcdfil.h */
-
-FT_EXPORT_DEF(FT_Error)
-FT_Library_SetLcdFilterWeights(FT_Library library,
-    unsigned char  * weights)
+FT_EXPORT_DEF(FT_Error) FT_Library_SetLcdFilterWeights(FT_Library library, unsigned char  * weights)
 {
 	if(!library)
 		return FT_THROW(Invalid_Library_Handle);
-
 	if(!weights)
 		return FT_THROW(Invalid_Argument);
-
 	ft_memcpy(library->lcd_weights, weights, FT_LCD_FILTER_FIVE_TAPS);
 	library->lcd_filter_func = ft_lcd_filter_fir;
-
 	return FT_Err_Ok;
 }
 
 /* documentation in ftlcdfil.h */
-
-FT_EXPORT_DEF(FT_Error)
-FT_Library_SetLcdFilter(FT_Library library,
-    FT_LcdFilter filter)
+FT_EXPORT_DEF(FT_Error) FT_Library_SetLcdFilter(FT_Library library, FT_LcdFilter filter)
 {
-	static const FT_LcdFiveTapFilter default_weights =
-	{ 0x08, 0x4d, 0x56, 0x4d, 0x08 };
-	static const FT_LcdFiveTapFilter light_weights =
-	{ 0x00, 0x55, 0x56, 0x55, 0x00 };
-
+	static const FT_LcdFiveTapFilter default_weights = { 0x08, 0x4d, 0x56, 0x4d, 0x08 };
+	static const FT_LcdFiveTapFilter light_weights = { 0x00, 0x55, 0x56, 0x55, 0x00 };
 	if(!library)
 		return FT_THROW(Invalid_Library_Handle);
-
-	switch(filter)
-	{
+	switch(filter) {
 		case FT_LCD_FILTER_NONE:
 		    library->lcd_filter_func = NULL;
 		    break;
-
 		case FT_LCD_FILTER_DEFAULT:
-		    ft_memcpy(library->lcd_weights,
-			default_weights,
-			FT_LCD_FILTER_FIVE_TAPS);
+		    ft_memcpy(library->lcd_weights, default_weights, FT_LCD_FILTER_FIVE_TAPS);
 		    library->lcd_filter_func = ft_lcd_filter_fir;
 		    break;
-
 		case FT_LCD_FILTER_LIGHT:
-		    ft_memcpy(library->lcd_weights,
-			light_weights,
-			FT_LCD_FILTER_FIVE_TAPS);
+		    ft_memcpy(library->lcd_weights, light_weights, FT_LCD_FILTER_FIVE_TAPS);
 		    library->lcd_filter_func = ft_lcd_filter_fir;
 		    break;
-
 #ifdef USE_LEGACY
-
 		case FT_LCD_FILTER_LEGACY:
 		case FT_LCD_FILTER_LEGACY1:
 		    library->lcd_filter_func = _ft_lcd_filter_legacy;
 		    break;
 
 #endif
-
 		default:
 		    return FT_THROW(Invalid_Argument);
 	}
-
 	return FT_Err_Ok;
 }
 
-FT_EXPORT_DEF(FT_Error)
-FT_Library_SetLcdGeometry(FT_Library library,
-    FT_Vector*  sub)
+FT_EXPORT_DEF(FT_Error) FT_Library_SetLcdGeometry(FT_Library library, FT_Vector*  sub)
 {
 	FT_UNUSED(library);
 	FT_UNUSED(sub);
-
 	return FT_THROW(Unimplemented_Feature);
 }
 
 #else /* !FT_CONFIG_OPTION_SUBPIXEL_RENDERING */
 
 /* add padding to accommodate outline shifts */
-FT_BASE_DEF(void)
-ft_lcd_padding(FT_BBox*        cbox,
-    FT_GlyphSlot slot,
-    FT_Render_Mode mode)
+FT_BASE_DEF(void) ft_lcd_padding(FT_BBox * cbox, FT_GlyphSlot slot, FT_Render_Mode mode)
 {
 	FT_Vector*  sub = slot->library->lcd_geometry;
-
 	if(mode == FT_RENDER_MODE_LCD) {
 		cbox->xMin -= FT_MAX(FT_MAX(sub[0].x, sub[1].x), sub[2].x);
 		cbox->xMax -= FT_MIN(FT_MIN(sub[0].x, sub[1].x), sub[2].x);
@@ -344,23 +302,17 @@ ft_lcd_padding(FT_BBox*        cbox,
 	}
 }
 
-FT_EXPORT_DEF(FT_Error)
-FT_Library_SetLcdFilterWeights(FT_Library library,
-    unsigned char  * weights)
+FT_EXPORT_DEF(FT_Error) FT_Library_SetLcdFilterWeights(FT_Library library, unsigned char * weights)
 {
 	FT_UNUSED(library);
 	FT_UNUSED(weights);
-
 	return FT_THROW(Unimplemented_Feature);
 }
 
-FT_EXPORT_DEF(FT_Error)
-FT_Library_SetLcdFilter(FT_Library library,
-    FT_LcdFilter filter)
+FT_EXPORT_DEF(FT_Error) FT_Library_SetLcdFilter(FT_Library library, FT_LcdFilter filter)
 {
 	FT_UNUSED(library);
 	FT_UNUSED(filter);
-
 	return FT_THROW(Unimplemented_Feature);
 }
 

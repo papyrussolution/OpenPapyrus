@@ -35,7 +35,7 @@
 ]*/
 
 #ifndef GNUPLOT_TEMPLATE_H
-# define GNUPLOT_TEMPLATE_H
+#define GNUPLOT_TEMPLATE_H
 
 /* #if... / #include / #define collection: */
 

@@ -87,14 +87,14 @@ end:
 
 #if defined(BN_DIV3W)
 BN_ULONG bn_div_3_words(const BN_ULONG * m, BN_ULONG d1, BN_ULONG d0);
-# elif 0
+#elif 0
 /*
  * This is #if-ed away, because it's a reference for assembly implementations,
  * where it can and should be made constant-time. But if you want to test it,
  * just replace 0 with 1.
  */
 #if BN_BITS2 == 64 && defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
-#   undef BN_ULLONG
+#undef BN_ULLONG
 #define BN_ULLONG __uint128_t
 #define BN_LLONG
 #endif
@@ -160,7 +160,7 @@ static int bn_left_align(BIGNUM * num)
 #if !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) \
 	&& !defined(PEDANTIC) && !defined(BN_DIV3W)
 #if defined(__GNUC__) && __GNUC__>=2
-#   if defined(__i386) || defined (__i386__)
+#if defined(__i386) || defined (__i386__)
 /*-
  * There were two reasons for implementing this template:
  * - GNU C generates a call to a function (__udivdi3 to be exact)
@@ -348,7 +348,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 #ifdef BN_LLONG
 			BN_ULLONG t2;
 
-#   if defined(BN_LLONG) && defined(BN_DIV2W) && !defined(bn_div_words)
+#if defined(BN_LLONG) && defined(BN_DIV2W) && !defined(bn_div_words)
 			q = (BN_ULONG)(((((BN_ULLONG)n0) << BN_BITS2) | n1) / d0);
 #else
 			q = bn_div_words(n0, n1, d0);
@@ -380,7 +380,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 			rem = (n1 - q * d0) & BN_MASK2;
 #endif
 
-#   if defined(BN_UMULT_LOHI)
+#if defined(BN_UMULT_LOHI)
 			BN_UMULT_LOHI(t2l, t2h, d1, q);
 #   elif defined(BN_UMULT_HIGH)
 			t2l = d1 * q;

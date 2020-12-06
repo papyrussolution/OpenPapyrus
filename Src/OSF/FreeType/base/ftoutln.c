@@ -176,8 +176,7 @@ Do_Conic:
 					    v_middle.x = ( v_control.x + vec.x ) / 2;
 					    v_middle.y = ( v_control.y + vec.y ) / 2;
 
-					    FT_TRACE5(( "  conic to (%.2f, %.2f)"
-						" with control (%.2f, %.2f)\n",
+					    FT_TRACE5(( "  conic to (%.2f, %.2f) with control (%.2f, %.2f)\n",
 						v_middle.x / 64.0, v_middle.y / 64.0,
 						v_control.x / 64.0, v_control.y / 64.0 ));
 					    error = func_interface->conic_to(&v_control, &v_middle, user);
@@ -188,8 +187,7 @@ Do_Conic:
 					    goto Do_Conic;
 				    }
 
-				    FT_TRACE5(( "  conic to (%.2f, %.2f)"
-					" with control (%.2f, %.2f)\n",
+				    FT_TRACE5(( "  conic to (%.2f, %.2f) with control (%.2f, %.2f)\n",
 					v_start.x / 64.0, v_start.y / 64.0,
 					v_control.x / 64.0, v_control.y / 64.0 ));
 				    error = func_interface->conic_to(&v_control, &v_start, user);

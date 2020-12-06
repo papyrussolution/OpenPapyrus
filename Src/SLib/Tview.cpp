@@ -24,9 +24,7 @@ void FASTCALL ZDeleteWinGdiObject(void * pHandle)
 	void * p_ret = 0;
 	if(pReceiver) {
 		TEvent event;
-		event.what = TEvent::evCommand;
-		event.message.command = command;
-		pReceiver->handleEvent(event);
+		pReceiver->handleEvent(event.setCmd(command, 0));
 		if(event.what == TEvent::evNothing)
 			p_ret = event.message.infoPtr;
 	}
@@ -1359,10 +1357,7 @@ ushort FASTCALL TGroup::execView(TWindow * p)
 			Insert_(p);
 		{
 			TEvent event;
-			event.what = TEvent::evCommand;
-			event.message.command = cmExecute;
-			event.message.infoPtr = 0;
-			p->handleEvent(event);
+			p->handleEvent(event.setCmd(cmExecute, 0));
 			retval = (event.what == TEvent::evNothing) ? static_cast<ushort>(event.message.infoLong) : 0;
 		}
 		if(save_owner == 0)

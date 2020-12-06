@@ -10,12 +10,6 @@
  * this file you indicate that you have read the license and
  * understand and accept it fully.
  */
-#include <freetype/internal/ftobjs.h>
-#include <freetype/ftcache.h>
-#include "ftcglyph.h"
-#include <freetype/fterrors.h>
-#include "ftccback.h"
-#include "ftcerror.h"
 
 /* create a new chunk node, setting its cache index and ref count */
 FT_LOCAL_DEF(void) FTC_GNode_Init(FTC_GNode gnode, FT_UInt gindex, FTC_Family family)
@@ -40,62 +34,38 @@ FT_LOCAL_DEF(void) FTC_GNode_Done(FTC_GNode gnode, FTC_Cache cache)
 	FTC_GNode_UnselectFamily(gnode, cache);
 }
 
-FT_LOCAL_DEF(FT_Bool)
-ftc_gnode_compare(FTC_Node ftcgnode,
-    FT_Pointer ftcgquery,
-    FTC_Cache cache,
-    FT_Bool*    list_changed)
+FT_LOCAL_DEF(FT_Bool) ftc_gnode_compare(FTC_Node ftcgnode, FT_Pointer ftcgquery, FTC_Cache cache, FT_Bool*    list_changed)
 {
 	FTC_GNode gnode  = (FTC_GNode)ftcgnode;
 	FTC_GQuery gquery = (FTC_GQuery)ftcgquery;
 	FT_UNUSED(cache);
-
-	if(list_changed)
-		*list_changed = FALSE;
-	return FT_BOOL(gnode->family == gquery->family &&
-		   gnode->gindex == gquery->gindex);
+	ASSIGN_PTR(list_changed, FALSE);
+	return FT_BOOL(gnode->family == gquery->family && gnode->gindex == gquery->gindex);
 }
 
 #ifdef FTC_INLINE
-
-FT_LOCAL_DEF(FT_Bool)
-FTC_GNode_Compare(FTC_GNode gnode,
-    FTC_GQuery gquery,
-    FTC_Cache cache,
-    FT_Bool*    list_changed)
+FT_LOCAL_DEF(FT_Bool) FTC_GNode_Compare(FTC_GNode gnode, FTC_GQuery gquery, FTC_Cache cache, FT_Bool*    list_changed)
 {
-	return ftc_gnode_compare(FTC_NODE(gnode), gquery,
-		   cache, list_changed);
+	return ftc_gnode_compare(FTC_NODE(gnode), gquery, cache, list_changed);
 }
-
 #endif
 
 /*************************************************************************/
-/*************************************************************************/
-/*****                                                               *****/
 /*****                      CHUNK SETS                               *****/
-/*****                                                               *****/
-/*************************************************************************/
 /*************************************************************************/
 
-FT_LOCAL_DEF(void)
-FTC_Family_Init(FTC_Family family,
-    FTC_Cache cache)
+FT_LOCAL_DEF(void) FTC_Family_Init(FTC_Family family, FTC_Cache cache)
 {
 	FTC_GCacheClass clazz = FTC_CACHE_GCACHE_CLASS(cache);
-
 	family->clazz     = clazz->family_class;
 	family->num_nodes = 0;
 	family->cache     = cache;
 }
 
-FT_LOCAL_DEF(FT_Error)
-ftc_gcache_init(FTC_Cache ftccache)
+FT_LOCAL_DEF(FT_Error) ftc_gcache_init(FTC_Cache ftccache)
 {
 	FTC_GCache cache = (FTC_GCache)ftccache;
-	FT_Error error;
-
-	error = FTC_Cache_Init(FTC_CACHE(cache) );
+	FT_Error error = FTC_Cache_Init(FTC_CACHE(cache) );
 	if(!error) {
 		FTC_GCacheClass clazz = (FTC_GCacheClass)FTC_CACHE(cache)->org_class;
 

@@ -4355,7 +4355,7 @@ int PPViewBill::ViewVATaxList()
 	return ok;
 }
 
-int PPViewBill::ViewTotal()
+void PPViewBill::ViewTotal()
 {
 	class BillTotalDialog : public AmtListDialog {
 	public:
@@ -4383,7 +4383,6 @@ int PPViewBill::ViewTotal()
 		PPViewBill * P_V;
 		BillTotal * P_Total;
 	};
-	int    ok = -1;
 	if(Filt.Flags & BillFilt::fInvOnly) {
 		PPIDArray id_list;
 		BillViewItem item;
@@ -4392,7 +4391,7 @@ int PPViewBill::ViewTotal()
 			id_list.add(item.ID);
 		id_list.sortAndUndup();
 		PPWait(0);
-		ok = P_BObj->ViewInventoryTotal(id_list, 0);
+		P_BObj->ViewInventoryTotal(id_list, 0);
 	}
 	else {
 		BillTotal total;
@@ -4411,7 +4410,6 @@ int PPViewBill::ViewTotal()
 		}
 		PPWait(0);
 	}
-	return ok;
 }
 
 // @vmiller

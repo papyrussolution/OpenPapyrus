@@ -25,7 +25,7 @@
 #define dmultu(rs,rt)
 #define mflo(rd,rs,rt)	dmulu	rd,rs,rt
 #define mfhi(rd,rs,rt)	dmuhu	rd,rs,rt
-# elif defined(_MIPS_ARCH_MIPS32R6)
+#elif defined(_MIPS_ARCH_MIPS32R6)
 #define multu(rs,rt)
 #define mflo(rd,rs,rt)	mulu	rd,rs,rt
 #define mfhi(rd,rs,rt)	muhu	rd,rs,rt

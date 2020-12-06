@@ -237,7 +237,7 @@ int BIO_fd_non_fatal_error(int err)
 	switch(err) {
 #ifdef EWOULDBLOCK
 #ifdef WSAEWOULDBLOCK
-#   if WSAEWOULDBLOCK != EWOULDBLOCK
+#if WSAEWOULDBLOCK != EWOULDBLOCK
 		case EWOULDBLOCK:
 #endif
 #else

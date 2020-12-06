@@ -169,7 +169,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_load_crypto_nodelete)
 #endif
 		return (ret == TRUE) ? 1 : 0;
 	}
-# elif !defined(DSO_NONE)
+#elif !defined(DSO_NONE)
 	/*
 	 * Deliberately leak a reference to ourselves. This will force the library
 	 * to remain loaded until the atexit() handler is run at process exit.
@@ -677,7 +677,7 @@ int OPENSSL_atexit(void (*handler)(void))
 			if(!ret)
 				return 0;
 		}
-# elif !defined(DSO_NONE)
+#elif !defined(DSO_NONE)
 		/*
 		 * Deliberately leak a reference to the handler. This will force the
 		 * library/code containing the handler to remain loaded until we run the

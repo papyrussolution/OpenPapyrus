@@ -91,9 +91,9 @@ typedef uchar u8;
 #pragma intrinsic(_rotl64)
 #define ROTATE(a, n) _rotl64((a), n)
 #endif
-# elif defined(__GNUC__) && __GNUC__>=2
+#elif defined(__GNUC__) && __GNUC__>=2
 #if defined(__x86_64) || defined(__x86_64__)
-#   if defined(L_ENDIAN)
+#if defined(L_ENDIAN)
 #define ROTATE(a, n)       ({ u64 ret; asm ("rolq %1,%0"   \
 				  : "=r" (ret) : "J" (n), "0" (a) : "cc"); ret; })
 #   elif defined(B_ENDIAN)
@@ -108,7 +108,7 @@ typedef uchar u8;
 				  : "=r" (ret) : "J" (n), "0" (a) : "cc"); ret; })
 #endif
 #elif defined(__ia64) || defined(__ia64__)
-#   if defined(L_ENDIAN)
+#if defined(L_ENDIAN)
 #define ROTATE(a, n)       ({ u64 ret; asm ("shrp %0=%1,%1,%2"     \
 				  : "=r" (ret) : "r" (a), "M" (64-(n))); ret; })
 #   elif defined(B_ENDIAN)

@@ -45,7 +45,7 @@ extern int errno, h_errno;
 #ifdef __libnix__
 void __request(const char * msg);
 #else
-# define __request(msg)       Printf(msg "\n\a")
+#define __request(msg)       Printf(msg "\n\a")
 #endif
 
 void Curl_amiga_cleanup()

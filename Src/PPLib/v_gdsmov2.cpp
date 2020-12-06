@@ -318,23 +318,20 @@ DBQuery * PPViewGoodsMov2::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	return p_q;
 }
 
-/*virtual*/int PPViewGoodsMov2::ViewTotal()
+/*virtual*/void PPViewGoodsMov2::ViewTotal()
 {
-	int    ok = 1;
-	TDialog * p_dlg = 0;
-	THROW_MEM(p_dlg = new TDialog(DLG_GDSMOVT));
-	THROW(CheckDialogPtr(&p_dlg));
-	p_dlg->setCtrlData(CTL_GDSMOVT_INRESTQTY,    &Total.InRestQtty);
-	p_dlg->setCtrlData(CTL_GDSMOVT_INRESTPHQTY,  &Total.InRestPhQtty);
-	p_dlg->setCtrlData(CTL_GDSMOVT_INRESTCOST,   &Total.InRestCost);
-	p_dlg->setCtrlData(CTL_GDSMOVT_INRESTPRICE,  &Total.InRestPrice);
-	p_dlg->setCtrlData(CTL_GDSMOVT_OUTRESTQTY,   &Total.OutRestQtty);
-	p_dlg->setCtrlData(CTL_GDSMOVT_OUTRESTPHQTY, &Total.OutRestPhQtty);
-	p_dlg->setCtrlData(CTL_GDSMOVT_OUTRESTCOST,  &Total.OutRestCost);
-	p_dlg->setCtrlData(CTL_GDSMOVT_OUTRESTPRICE, &Total.OutRestPrice);
-	ExecViewAndDestroy(p_dlg);
-	CATCHZOKPPERR
-	return ok;
+	TDialog * p_dlg = new TDialog(DLG_GDSMOVT);
+	if(CheckDialogPtrErr(&p_dlg)) {
+		p_dlg->setCtrlData(CTL_GDSMOVT_INRESTQTY,    &Total.InRestQtty);
+		p_dlg->setCtrlData(CTL_GDSMOVT_INRESTPHQTY,  &Total.InRestPhQtty);
+		p_dlg->setCtrlData(CTL_GDSMOVT_INRESTCOST,   &Total.InRestCost);
+		p_dlg->setCtrlData(CTL_GDSMOVT_INRESTPRICE,  &Total.InRestPrice);
+		p_dlg->setCtrlData(CTL_GDSMOVT_OUTRESTQTY,   &Total.OutRestQtty);
+		p_dlg->setCtrlData(CTL_GDSMOVT_OUTRESTPHQTY, &Total.OutRestPhQtty);
+		p_dlg->setCtrlData(CTL_GDSMOVT_OUTRESTCOST,  &Total.OutRestCost);
+		p_dlg->setCtrlData(CTL_GDSMOVT_OUTRESTPRICE, &Total.OutRestPrice);
+		ExecViewAndDestroy(p_dlg);
+	}
 }
 
 void PPViewGoodsMov2::GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHdr * pHdr, long col)

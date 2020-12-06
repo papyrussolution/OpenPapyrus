@@ -1203,7 +1203,7 @@ static int file_name_check(OSSL_STORE_LOADER_CTX * ctx, const char * name)
 	while(ossl_isdigit(*p))
 		p++;
 
-# ifdef __VMS
+#ifdef __VMS
 	/*
 	 * One extra step here, check for a possible generation number.
 	 */

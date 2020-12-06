@@ -59,7 +59,7 @@
 /* memcpy() */
 
 #ifndef HAVE_MEMCPY
-# ifndef HAVE_BCOPY
+#ifndef HAVE_BCOPY
 /*
  * cheap and slow version of memcpy() in case you don't have one
  */
@@ -72,7 +72,7 @@ char * memcpy(char * dest, char * src, size_t len)
 	return dest;
 }
 
-# endif                         /* !HAVE_BCOPY */
+#endif                         /* !HAVE_BCOPY */
 #endif /* HAVE_MEMCPY */
 
 /* strchr()
@@ -80,7 +80,7 @@ char * memcpy(char * dest, char * src, size_t len)
  * Would this be more efficient as a macro?
  */
 #ifndef HAVE_STRCHR
-# ifndef HAVE_INDEX
+#ifndef HAVE_INDEX
 
 char * strchr(const char * s, int c)
 {
@@ -92,7 +92,7 @@ char * strchr(const char * s, int c)
 	return NULL;
 }
 
-# endif                         /* !HAVE_INDEX */
+#endif                         /* !HAVE_INDEX */
 #endif /* HAVE_STRCHR */
 
 /* memset ()
@@ -181,7 +181,7 @@ uint sleep(uint delay)
     portable implementation of strnicmp (hopefully)
 *****************************************************************/
 #ifndef HAVE_STRCASECMP
-# ifndef HAVE_STRICMP
+#ifndef HAVE_STRICMP
 
 /* return (see MSVC documentation and strcasecmp()):
  *  -1  if str1 < str2
@@ -208,7 +208,7 @@ int gp_stricmp(const char * s1, const char * s2)
 	return -1;
 }
 
-# endif                         /* !HAVE_STRCASECMP */
+#endif                         /* !HAVE_STRCASECMP */
 #endif /* !HAVE_STRNICMP */
 
 /*****************************************************************
@@ -216,7 +216,7 @@ int gp_stricmp(const char * s1, const char * s2)
 *****************************************************************/
 
 #ifndef HAVE_STRNCASECMP
-# ifndef HAVE_STRNICMP
+#ifndef HAVE_STRNICMP
 
 int gp_strnicmp(const char * s1, const char * s2, size_t n)
 {
@@ -241,7 +241,7 @@ int gp_strnicmp(const char * s1, const char * s2, size_t n)
 	return -1;
 }
 
-# endif                         /* !HAVE_STRNCASECMP */
+#endif                         /* !HAVE_STRNCASECMP */
 #endif /* !HAVE_STRNICMP */
 
 #ifndef HAVE_STRNLEN
@@ -363,11 +363,11 @@ char * gp_basename(char * path)
 }
 
 #ifdef HAVE_ATEXIT
-# define GP_ATEXIT(x) atexit((x))
+#define GP_ATEXIT(x) atexit((x))
 #elif defined(HAVE_ON_EXIT)
-# define GP_ATEXIT(x) on_exit((x), 0)
+#define GP_ATEXIT(x) on_exit((x), 0)
 #else
-# define GP_ATEXIT(x) /* you lose */
+#define GP_ATEXIT(x) /* you lose */
 #endif
 
 struct EXIT_HANDLER {

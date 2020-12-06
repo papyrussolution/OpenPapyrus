@@ -794,7 +794,7 @@ int PPViewPerson::DeleteItem(PPID id)
 	return ok;
 }
 
-int PPViewPerson::ViewTotal()
+void PPViewPerson::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_PERSONTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -814,10 +814,7 @@ int PPViewPerson::ViewTotal()
 		*/
 		dlg->setCtrlLong(CTL_PERSONTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
-		return -1;
 	}
-	else
-		return 0;
 }
 
 int PPViewPerson::ViewTasks(PPID id)
@@ -3000,7 +2997,10 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 			case PPVCMD_AMOUNTS:        ok = PsnObj.EditAmountList(hdr.ID); break;
 			case PPVCMD_ADDREL:         ok = AddRelation(hdr.ID); break;
 			case PPVCMD_PRINT:          ok = Print(0); break;
-			case PPVCMD_TOTAL:          ok = ViewTotal(); break;
+			case PPVCMD_TOTAL:          
+				ok = -1;
+				ViewTotal(); 
+				break;
 			case PPVCMD_TASKS:          ok = ViewTasks(hdr.ID); break;
 			case PPVCMD_TRANSMIT:       ok = Transmit(hdr.ID, 0); break;
 			case PPVCMD_TRANSMKIND:     ok = Transmit(hdr.ID, 1); break;

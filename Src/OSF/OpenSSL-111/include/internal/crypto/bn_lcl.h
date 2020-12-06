@@ -91,7 +91,7 @@
 
 #ifdef THIRTY_TWO_BIT
 #ifdef BN_LLONG
-#   if defined(_WIN32) && !defined(__GNUC__)
+#if defined(_WIN32) && !defined(__GNUC__)
 #define BN_ULLONG     unsigned __int64
 #else
 #define BN_ULLONG     ulong long
@@ -309,7 +309,7 @@ struct bn_gencb_st {
 	(b) >  22 ? 3 : 1)
 #define BN_MAX_WINDOW_BITS_FOR_CTIME_EXPONENT_SIZE    (6)
 
-# elif MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH == 32
+#elif MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH == 32
 
 #define BN_window_bits_for_ctime_exponent_size(b) \
 	((b) > 306 ? 5 : \
@@ -341,7 +341,7 @@ struct bn_gencb_st {
 #else                         /* __INITIAL_POINTER_SIZE == 64 */
 #define PTR_SIZE_INT int
 #endif                        /* __INITIAL_POINTER_SIZE == 64 [else] */
-# elif !defined(PTR_SIZE_INT)   /* defined(OPENSSL_SYS_VMS) */
+#elif !defined(PTR_SIZE_INT)   /* defined(OPENSSL_SYS_VMS) */
 #define PTR_SIZE_INT size_t
 #endif                         /* defined(OPENSSL_SYS_VMS) [else] */
 
@@ -369,7 +369,7 @@ struct bn_gencb_st {
 		__uint128_t ret = (__uint128_t)(a)*(b);   \
 		(high) = ret>>64; (low) = ret;      })
 #elif defined(__alpha) && (defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
-#   if defined(__DECC)
+#if defined(__DECC)
 #include <c_asm.h>
 #define BN_UMULT_HIGH(a, b)   (BN_ULONG) asm ("umulh %a0,%a1,%v0", (a), (b))
 #   elif defined(__GNUC__) && __GNUC__>=2
@@ -381,7 +381,7 @@ struct bn_gencb_st {
 		ret;                      })
 #endif                       /* compiler */
 #elif defined(_ARCH_PPC64) && defined(SIXTY_FOUR_BIT_LONG)
-#   if defined(__GNUC__) && __GNUC__>=2
+#if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b)   ({     \
 		BN_ULONG ret;          \
 		asm ("mulhdu    %0,%1,%2"       \
@@ -391,7 +391,7 @@ struct bn_gencb_st {
 #endif                       /* compiler */
 #elif (defined(__x86_64) || defined(__x86_64__)) && \
 	(defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
-#   if defined(__GNUC__) && __GNUC__>=2
+#if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b)   ({     \
 		BN_ULONG ret, discard;  \
 		asm ("mulq      %3"             \
@@ -406,7 +406,7 @@ struct bn_gencb_st {
 	: "cc");
 #endif
 #elif (defined(_M_AMD64) || defined(_M_X64)) && defined(SIXTY_FOUR_BIT)
-#   if defined(_MSC_VER) && _MSC_VER>=1400
+#if defined(_MSC_VER) && _MSC_VER>=1400
 unsigned __int64 __umulh(unsigned __int64 a, unsigned __int64 b);
 unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
     unsigned __int64 * h);
@@ -415,7 +415,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 #define BN_UMULT_LOHI(low, high, a, b)  ((low) = _umul128((a), (b), &(high)))
 #endif
 #elif defined(__mips) && (defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG))
-#   if defined(__GNUC__) && __GNUC__>=2
+#if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b) ({       \
 		BN_ULONG ret;          \
 		asm ("dmultu    %1,%2"          \
@@ -428,7 +428,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 	: "r" (a), "r" (b));
 #endif
 #elif defined(__aarch64__) && defined(SIXTY_FOUR_BIT_LONG)
-#   if defined(__GNUC__) && __GNUC__>=2
+#if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b)   ({     \
 		BN_ULONG ret;          \
 		asm ("umulh     %0,%1,%2"       \
@@ -479,7 +479,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 		(r1) = Hw(t); \
 }
 
-# elif defined(BN_UMULT_LOHI)
+#elif defined(BN_UMULT_LOHI)
 #define mul_add(r, a, w, c) {              \
 		BN_ULONG high, low, ret, tmp = (a);  \
 		ret =  (r);                     \
@@ -506,7 +506,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 		BN_UMULT_LOHI(r0, r1, tmp, tmp);   \
 }
 
-# elif defined(BN_UMULT_HIGH)
+#elif defined(BN_UMULT_HIGH)
 #define mul_add(r, a, w, c) {              \
 		BN_ULONG high, low, ret, tmp = (a);  \
 		ret =  (r);                     \

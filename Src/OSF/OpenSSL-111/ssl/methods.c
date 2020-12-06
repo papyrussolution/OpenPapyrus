@@ -171,7 +171,7 @@ IMPLEMENT_dtls1_meth_func(DTLS_ANY_VERSION, 0, 0,
     ssl_undefined_function,
     ossl_statem_connect, DTLSv1_2_enc_data)
 #if OPENSSL_API_COMPAT < 0x10100000L
-# ifndef OPENSSL_NO_TLS1_2_METHOD
+#ifndef OPENSSL_NO_TLS1_2_METHOD
 const SSL_METHOD *TLSv1_2_method(void)
 {
 	return tlsv1_2_method();
@@ -189,7 +189,7 @@ const SSL_METHOD * TLSv1_2_client_method(void)
 
 #endif
 
-# ifndef OPENSSL_NO_TLS1_1_METHOD
+#ifndef OPENSSL_NO_TLS1_1_METHOD
 const SSL_METHOD * TLSv1_1_method(void)
 {
 	return tlsv1_1_method();
@@ -207,7 +207,7 @@ const SSL_METHOD * TLSv1_1_client_method(void)
 
 #endif
 
-# ifndef OPENSSL_NO_TLS1_METHOD
+#ifndef OPENSSL_NO_TLS1_METHOD
 const SSL_METHOD * TLSv1_method(void)
 {
 	return tlsv1_method();
@@ -225,7 +225,7 @@ const SSL_METHOD * TLSv1_client_method(void)
 
 #endif
 
-# ifndef OPENSSL_NO_SSL3_METHOD
+#ifndef OPENSSL_NO_SSL3_METHOD
 const SSL_METHOD * SSLv3_method(void)
 {
 	return sslv3_method();
@@ -243,7 +243,7 @@ const SSL_METHOD * SSLv3_client_method(void)
 
 #endif
 
-# ifndef OPENSSL_NO_DTLS1_2_METHOD
+#ifndef OPENSSL_NO_DTLS1_2_METHOD
 const SSL_METHOD * DTLSv1_2_method(void)
 {
 	return dtlsv1_2_method();
@@ -261,7 +261,7 @@ const SSL_METHOD * DTLSv1_2_client_method(void)
 
 #endif
 
-# ifndef OPENSSL_NO_DTLS1_METHOD
+#ifndef OPENSSL_NO_DTLS1_METHOD
 const SSL_METHOD * DTLSv1_method(void)
 {
 	return dtlsv1_method();

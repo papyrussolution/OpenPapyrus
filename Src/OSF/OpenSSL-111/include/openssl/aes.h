@@ -26,7 +26,7 @@
 struct aes_key_st {
 #ifdef AES_LONG
     ulong rd_key[4 * (AES_MAXNR + 1)];
-# else
+#else
     uint rd_key[4 * (AES_MAXNR + 1)];
 #endif
     int rounds;

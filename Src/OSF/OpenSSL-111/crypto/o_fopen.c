@@ -74,7 +74,7 @@ FILE * openssl_fopen(const char * filename, const char * mode)
 	else if(GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
 		file = fopen(filename, mode);
 	}
-# elif defined(__DJGPP__)
+#elif defined(__DJGPP__)
 	{
 		char * newname = NULL;
 

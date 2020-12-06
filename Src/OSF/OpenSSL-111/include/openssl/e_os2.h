@@ -43,29 +43,29 @@ extern "C" {
  */
 #if defined(OPENSSL_SYS_UEFI)
 #undef OPENSSL_SYS_UNIX
-# elif defined(OPENSSL_SYS_UWIN)
+#elif defined(OPENSSL_SYS_UWIN)
 #undef OPENSSL_SYS_UNIX
 #define OPENSSL_SYS_WIN32_UWIN
-# else
+#else
 #if defined(__CYGWIN__) || defined(OPENSSL_SYS_CYGWIN)
 #define OPENSSL_SYS_WIN32_CYGWIN
 #else
-#   if defined(_WIN32) || defined(OPENSSL_SYS_WIN32)
+#if defined(_WIN32) || defined(OPENSSL_SYS_WIN32)
 #undef OPENSSL_SYS_UNIX
 #if !defined(OPENSSL_SYS_WIN32)
 #     define OPENSSL_SYS_WIN32
 #endif
 #endif
-#   if defined(_WIN64) || defined(OPENSSL_SYS_WIN64)
+#if defined(_WIN64) || defined(OPENSSL_SYS_WIN64)
 #undef OPENSSL_SYS_UNIX
 #if !defined(OPENSSL_SYS_WIN64)
 #     define OPENSSL_SYS_WIN64
 #endif
 #endif
-#   if defined(OPENSSL_SYS_WINNT)
+#if defined(OPENSSL_SYS_WINNT)
 #undef OPENSSL_SYS_UNIX
 #endif
-#   if defined(OPENSSL_SYS_WINCE)
+#if defined(OPENSSL_SYS_WINCE)
 #undef OPENSSL_SYS_UNIX
 #endif
 #endif
@@ -87,7 +87,7 @@ extern "C" {
  */
 #ifdef OPENSSL_SYS_WINDOWS
 #ifndef OPENSSL_OPT_WINDLL
-#   if defined(_WINDLL)         /* This is used when building OpenSSL to
+#if defined(_WINDLL)         /* This is used when building OpenSSL to
                                  * indicate that DLL linkage should be used */
 #define OPENSSL_OPT_WINDLL
 #endif
@@ -97,7 +97,7 @@ extern "C" {
 /* ------------------------------- OpenVMS -------------------------------- */
 #if defined(__VMS) || defined(VMS) || defined(OPENSSL_SYS_VMS)
 #if !defined(OPENSSL_SYS_VMS)
-#   undef OPENSSL_SYS_UNIX
+#undef OPENSSL_SYS_UNIX
 #endif
 #define OPENSSL_SYS_VMS
 #if defined(__DECC)
@@ -139,7 +139,7 @@ extern "C" {
 #ifdef OPENSSL_SYS_MSDOS
 #define OPENSSL_UNISTD_IO <io.h>
 #define OPENSSL_DECLARE_EXIT extern void exit(int);
-# else
+#else
 #define OPENSSL_UNISTD_IO OPENSSL_UNISTD
 #define OPENSSL_DECLARE_EXIT  /* declared in unistd.h */
 #endif
@@ -166,7 +166,7 @@ extern "C" {
 #if defined(OPENSSL_SYS_WINDOWS) && defined(OPENSSL_OPT_WINDLL)
 #define OPENSSL_EXPORT extern __declspec(dllexport)
 #define OPENSSL_EXTERN extern __declspec(dllimport)
-# else
+#else
 #define OPENSSL_EXPORT extern
 #define OPENSSL_EXTERN extern
 #endif
@@ -188,7 +188,7 @@ extern "C" {
         { static type _hide_##name=value; return &_hide_##name; }
 #define OPENSSL_DECLARE_GLOBAL(type,name) type *_shadow_##name(void)
 #define OPENSSL_GLOBAL_REF(name) (*(_shadow_##name()))
-# else
+#else
 #define OPENSSL_IMPLEMENT_GLOBAL(type,name,value) type _shadow_##name=value;
 #define OPENSSL_DECLARE_GLOBAL(type,name) OPENSSL_EXPORT type _shadow_##name
 #define OPENSSL_GLOBAL_REF(name) _shadow_##name
@@ -222,7 +222,7 @@ extern "C" {
 
 #ifdef DEBUG_UNUSED
 #define __owur __attribute__((__warn_unused_result__))
-# else
+#else
 #define __owur
 #endif
 
@@ -236,7 +236,7 @@ typedef INT32 int32_t;
 typedef UINT32 uint32_t;
 typedef INT64 int64_t;
 typedef UINT64 uint64_t;
-# elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || defined(__osf__) || defined(__sgi) || defined(__hpux) || defined(OPENSSL_SYS_VMS) || defined (__OpenBSD__)
+#elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || defined(__osf__) || defined(__sgi) || defined(__hpux) || defined(OPENSSL_SYS_VMS) || defined (__OpenBSD__)
 	#include <inttypes.h>
 #elif defined(_MSC_VER) && _MSC_VER<=1500
 	/*
@@ -272,22 +272,22 @@ typedef UINT64 uint64_t;
 #else
 #define ossl_inline
 #endif
-# else
+#else
 #define ossl_inline inline
 #endif
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define ossl_noreturn _Noreturn
-# elif defined(__GNUC__) && __GNUC__ >= 2
+#elif defined(__GNUC__) && __GNUC__ >= 2
 #define ossl_noreturn __attribute__((noreturn))
-# else
+#else
 #define ossl_noreturn
 #endif
 
 /* ossl_unused: portable unused attribute for use in public headers */
 #if defined(__GNUC__)
 #define ossl_unused __attribute__((unused))
-# else
+#else
 #define ossl_unused
 #endif
 

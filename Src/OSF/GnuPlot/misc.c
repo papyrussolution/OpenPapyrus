@@ -573,15 +573,15 @@ static char * recursivefullname(const char * path, const char * filename, bool r
 			while((direntry = readdir(dir)) != NULL) {
 				char * fulldir = (char*)malloc(strlen(path) + 1 + strlen(direntry->d_name) + 1);
 				strcpy(fulldir, path);
-#  if defined(VMS)
+#if defined(VMS)
 				if(fulldir[strlen(fulldir) - 1] == ']')
 					fulldir[strlen(fulldir) - 1] = '\0';
 				strcpy(&(fulldir[strlen(fulldir)]), ".");
 				strcpy(&(fulldir[strlen(fulldir)]), direntry->d_name);
 				strcpy(&(fulldir[strlen(fulldir)]), "]");
-#  else
+#else
 				PATH_CONCAT(fulldir, direntry->d_name);
-#  endif
+#endif
 				stat(fulldir, &buf);
 				if((S_ISDIR(buf.st_mode)) && (strcmp(direntry->d_name, ".") != 0) && (strcmp(direntry->d_name, "..") != 0)) {
 					fullname = recursivefullname(fulldir, filename, true);

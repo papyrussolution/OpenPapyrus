@@ -2868,12 +2868,9 @@ MSG_PROCESS_RETURN tls_process_server_done(SSL * s, PACKET * pkt)
 		}
 	}
 #endif
-
 	if(!tls_process_initial_server_flight(s)) {
-		/* SSLfatal() already called */
-		return MSG_PROCESS_ERROR;
+		return MSG_PROCESS_ERROR; /* SSLfatal() already called */
 	}
-
 	return MSG_PROCESS_FINISHED_READING;
 }
 
@@ -2883,8 +2880,7 @@ static int tls_construct_cke_psk_preamble(SSL * s, WPACKET * pkt)
 	int ret = 0;
 	/*
 	 * The callback needs PSK_MAX_IDENTITY_LEN + 1 bytes to return a
-	 * \0-terminated identity. The last byte is for us for simulating
-	 * strnlen.
+	 * \0-terminated identity. The last byte is for us for simulating strnlen.
 	 */
 	char identity[PSK_MAX_IDENTITY_LEN + 1];
 	size_t identitylen = 0;
@@ -2892,10 +2888,8 @@ static int tls_construct_cke_psk_preamble(SSL * s, WPACKET * pkt)
 	uchar * tmppsk = NULL;
 	char * tmpidentity = NULL;
 	size_t psklen = 0;
-
 	if(s->psk_client_callback == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE,
-		    SSL_R_PSK_NO_CLIENT_CB);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE, SSL_R_PSK_NO_CLIENT_CB);
 		goto err;
 	}
 	memzero(identity, sizeof(identity));

@@ -44,7 +44,7 @@
 #if defined(_POSIX_VERSION) && _POSIX_VERSION>=199309L
 
 #define SIGACTION
-#   if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
+#if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
 #define TERMIOS
 #endif
 
@@ -81,16 +81,16 @@
 #if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
 
 #if defined(_LIBC)
-#   undef  TERMIOS
+#undef  TERMIOS
 #define TERMIO
-#   undef  SGTTY
+#undef  SGTTY
 /*
  * We know that VMS, MSDOS, VXWORKS, use entirely other mechanisms.
  */
 #elif !defined(OPENSSL_SYS_VMS) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VXWORKS)
 #define TERMIOS
-#   undef  TERMIO
-#   undef  SGTTY
+#undef  TERMIO
+#undef  SGTTY
 #endif
 
 #endif
@@ -165,7 +165,7 @@ static long tty_orig[3], tty_new[3]; /* XXX Is there any guarantee that this
                                       * structures? */
 static long status;
 static ushort channel = 0;
-# elif defined(_WIN32) && !defined(_WIN32_WCE)
+#elif defined(_WIN32) && !defined(_WIN32_WCE)
 static DWORD tty_orig, tty_new;
 #else
 #if !defined(OPENSSL_SYS_MSDOS) || defined(__DJGPP__)
@@ -294,7 +294,7 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 #if defined(_WIN32)
 	if(is_a_tty) {
 		DWORD numread;
-#   if defined(CP_UTF8)
+#if defined(CP_UTF8)
 		if(GetEnvironmentVariableW(L"OPENSSL_WIN32_UTF8", NULL, 0) != 0) {
 			WCHAR wresult[BUFSIZ];
 

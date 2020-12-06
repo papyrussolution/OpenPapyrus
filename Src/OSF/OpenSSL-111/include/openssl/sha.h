@@ -83,10 +83,10 @@ void SHA256_Transform(SHA256_CTX *c, const uchar *data);
 #if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
 #define SHA_LONG64 unsigned __int64
 #define U64(C)     C##UI64
-# elif defined(__arch64__)
+#elif defined(__arch64__)
 #define SHA_LONG64 ulong
 #define U64(C)     C##UL
-# else
+#else
 #define SHA_LONG64 ulong long
 #define U64(C)     C##ULL
 #endif

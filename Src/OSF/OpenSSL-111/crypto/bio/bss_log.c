@@ -58,7 +58,7 @@ void * _malloc32(__size_t);
 #define LOG_DEBUG       7
 
 #define LOG_DAEMON      (3<<3)
-# elif defined(OPENSSL_SYS_VMS)
+#elif defined(OPENSSL_SYS_VMS)
 /* On VMS, we don't really care about these, but we need them to compile */
 #define LOG_EMERG       0
 #define LOG_ALERT       1
@@ -291,7 +291,7 @@ static void xcloselog(BIO * bp)
 	bp->ptr = NULL;
 }
 
-# elif defined(OPENSSL_SYS_VMS)
+#elif defined(OPENSSL_SYS_VMS)
 
 static int VMS_OPC_target = LOG_DAEMON;
 

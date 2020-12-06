@@ -1412,7 +1412,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 	}
 	else
 		nm = fpathconf(tree_current_dir_fd(t), _PC_NAME_MAX);
-# else
+#else
 	nm = -1;
 #endif
 	if(nm == -1)

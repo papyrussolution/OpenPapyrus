@@ -3484,8 +3484,8 @@ int PPViewTrfrAnlz::CalcTotal(TrfrAnlzTotal * pTotal)
 			pTotal->SaldoQtty += item.SaldoQtty;
 			pTotal->SaldoAmt  += item.SaldoAmt;
 			pTotal->PVat      += item.PVat;
-			pTotal->ExtValue[0] += item.ExtValue[0]; // @v9.7.5
-			pTotal->ExtValue[1] += item.ExtValue[1]; // @v9.7.5
+			pTotal->ExtValue[0] += item.ExtValue[0];
+			pTotal->ExtValue[1] += item.ExtValue[1];
 			PPWaitPercent(GetCounter());
 		}
 		PPWait(0);
@@ -3495,7 +3495,7 @@ int PPViewTrfrAnlz::CalcTotal(TrfrAnlzTotal * pTotal)
 		return -1;
 }
 
-int PPViewTrfrAnlz::ViewTotal()
+void PPViewTrfrAnlz::ViewTotal()
 {
 	TDialog * dlg = 0;
 	if(Total.Count > 0 || CalcTotal(&Total) > 0) {
@@ -3510,11 +3510,10 @@ int PPViewTrfrAnlz::ViewTotal()
 			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_SQTTY,  Total.SaldoQtty);
 			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_SAMT,   Total.SaldoAmt);
 			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_PVAT,   Total.PVat);
-			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_EXTV1,  Total.ExtValue[0]); // @v9.7.5
+			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_EXTV1,  Total.ExtValue[0]);
 			ExecViewAndDestroy(dlg);
 		}
 	}
-	return -1;
 }
 
 void PPViewTrfrAnlz::SetAlcRepParam(const AlcReportParam * pParam)

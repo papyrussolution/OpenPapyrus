@@ -680,9 +680,8 @@ int PPViewPersonEvent::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int PPViewPersonEvent::ViewTotal()
+void PPViewPersonEvent::ViewTotal()
 {
-	int    ok = 1;
 	TDialog * p_dlg = new TDialog(DLG_PSNEVTTOTAL);
 	if(CheckDialogPtrErr(&p_dlg)) {
 		PPWait(1);
@@ -692,7 +691,6 @@ int PPViewPersonEvent::ViewTotal()
 		p_dlg->disableCtrl(CTL_PSNEVTTOTAL_COUNT, 1);
 		ExecViewAndDestroy(p_dlg);
 	}
-	return ok;
 }
 
 int PPViewPersonEvent::Print(const void *)

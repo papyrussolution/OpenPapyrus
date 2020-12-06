@@ -15179,11 +15179,11 @@ protected:
 	//   >0 - были сделаны какие-либо изменения в таблице pBrw
 	//   0  - ошибка. В этом случае функция PPView::Browse прерывает исполнение.
 	//
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw); // @<<PPView::Browse
-	virtual int   ViewTotal();
-	virtual int   Print(const void *);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw); // @<<PPView::Browse
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
 	virtual void * GetEditExtraParam();
-	virtual int   Detail(const void *, PPViewBrowser * pBrw);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int32  GetServerInstId() const { return ServerInstId; }
 	//
 	// Descr: Вспомогательная функция, обеспечивающая верификацию и установку
@@ -16210,6 +16210,7 @@ protected:
 	virtual int  Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
+public: // MakeReserve этого класса необходима для конфигурационных функций
 	virtual int  MakeReserved(long flags);
 private:
 	ObjTagFilt & InitFilt(void * extraPtr, ObjTagFilt & rFilt) const;
@@ -19251,6 +19252,7 @@ public:
 	int    GetPacket(PPID id, PPGlobalUserAccPacket * pPack);
 	int    SerializePacket(int dir, PPGlobalUserAccPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SearchByLocalID(const S_GUID & rDbUuid, PPID localUserID, PPID * pID, PPGlobalUserAcc * pRec);
+	int    GetListByServiceIdent(PPID serviceIdent, PPIDArray * pList);
 	//
 	// Descr: Ищет записи, ассоциированные с персоналией personID и возвращает их идентификаторы в
 	//   массиве rList.
@@ -27041,12 +27043,12 @@ public:
 private:
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   ViewTotal();
-	virtual int   Print(const void *);
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
 	virtual void * GetEditExtraParam();
-	virtual int   Detail(const void *, PPViewBrowser * pBrw);
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	int    Transmit(PPID /*id*/);
 	int    ChangeFlags(long action);
 
@@ -27258,10 +27260,10 @@ public:
 	};
 	PPViewPerson();
 	~PPViewPerson();
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   EditBaseFilt(PPBaseFilt *);
-	virtual int   Init_(const PPBaseFilt * pBaseFilt);
-	virtual int   ViewTotal();
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  EditBaseFilt(PPBaseFilt *);
+	virtual int  Init_(const PPBaseFilt * pBaseFilt);
+	virtual void ViewTotal();
 	int    InitIteration();
 	int    FASTCALL NextIteration(PersonViewItem *);
 	int    AddItem(PPID * pID);
@@ -27808,9 +27810,9 @@ public:
 	int    CalcTotal(GeoTrackingTotal * pTotal);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int Detail(const void *, PPViewBrowser * pBrw);
-	virtual int ViewTotal();
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
 	int    Export();
 
 	GeoTrackingFilt Filt;
@@ -29792,7 +29794,7 @@ private:
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeList();
 
@@ -30428,7 +30430,7 @@ private:
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int  Print(const void *);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	virtual int  Detail(const void *, PPViewBrowser *);
 	int    CreateTempTable(IterOrder ord, TempOrderTbl ** ppTbl);
 	PPViewGoods::IterOrder GetIterOrder() const;
@@ -30548,7 +30550,7 @@ public:
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	int    InitIteration();
 	int    FASTCALL NextIteration(GoodsStrucViewItem *);
 	IterOrder GetCurrentViewOrder() const { return CurrentViewOrder; }
@@ -31234,10 +31236,10 @@ private:
 	static  int DynFuncPeriod;
 	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    OnExecBrowser(PPViewBrowser *);
-	virtual int    Print(const void * pHdr);
-	virtual int    ViewTotal();
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  Print(const void * pHdr);
+	virtual void ViewTotal();
 	int    UpdateTempTable(PPID goodsID, int use_ta);
 	int    Helper_CreateTmpTblEntries(const QuotFilt *, PPQuotItemArray * pQList, int use_ta);
 	int    Helper_RemoveTempRecsByGoodsID(PPID goodsID, int use_ta);
@@ -31692,7 +31694,7 @@ public:
 private:
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ViewTotal();
+	virtual void ViewTotal();
 	int    Transmit();
 	int    SetPassiveTag(int set);
 
@@ -34765,7 +34767,8 @@ public:
 		enum {
 			fDefinedDiscount = 0x0001, // Значение Discount определено сервисом
 			fDefinedRest     = 0x0002, // Значение Rest определено сервисом
-			fDefinedHash     = 0x0004  // Значение Hash определено сервисом
+			fDefinedHash     = 0x0004, // Значение Hash определено сервисом
+			fBonusDisabled   = 0x0008  // @v10.9.6 Применение бонуса по карте при данной идентификации не допускается //
 		};
 		int    SpecialTreatment; // Ид специальной трактовки поведения карт (из серии)
 		long   Flags;      // @flags
@@ -36570,11 +36573,11 @@ public:
 private:
 	virtual void * GetEditExtraParam();
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int    Detail(const void * pHdr, PPViewBrowser * pBrw);
-	virtual int    ViewTotal();
-	virtual int    Print(const void *);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
 	int    IsTempTblNeeded() const;
 	void   MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec);
 	int    WriteOff(PPID sessID);
@@ -36775,10 +36778,10 @@ private:
 		long   OprNo;
 	};
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *);
-	virtual int    Print(const void *);
-	virtual int    ViewTotal();
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *);
+	virtual int  Print(const void *);
+	virtual void ViewTotal();
 	int    IsTempTblNeeded();
 	int    CreateIterQuery();
 	int    TranslateBrwHdr(const void *, BrwHdr *);
@@ -38046,9 +38049,9 @@ public:
 
 	PPViewBill();
 	~PPViewBill();
-	virtual int EditBaseFilt(PPBaseFilt *);
-	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual int ViewTotal();
+	virtual int  EditBaseFilt(PPBaseFilt *);
+	virtual int  Init_(const PPBaseFilt * pBaseFilt);
+	virtual void ViewTotal();
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
 	int    EditFilt(BillFilt *, long) const;
 	int    Browse(int modeless);
@@ -38225,11 +38228,11 @@ private:
 		PPID   RcknBillID; //
 	};
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   ViewTotal();
-	virtual int   Print(const void *);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
 	int    MakeList();
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
@@ -38287,9 +38290,9 @@ public:
 	int    FASTCALL NextIteration(GoodsBillCmpViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int ViewTotal();
-	virtual int Print(const void * pHdr);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	virtual int  Print(const void * pHdr);
 	int    PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - rh */, int isHistory, const LDATETIME & rSjTime);
 	int    GetBillCodes(const GoodsBillCmpFilt *, SString & rLhCode, SString & rRhCode);
 	int    AddToBasketAll(int diffSign);
@@ -38338,9 +38341,9 @@ private:
 		long   Flags;    // @v9.7.9
 	};
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ViewTotal();
-	virtual int   Detail(const void *, PPViewBrowser * pBrw);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    CheckLineForFilt(const InventoryTbl::Rec * pRec) const;
 	int    EditLine(PPID billID, long * pOprNo, PPID goodsID, const char * pSerial, double initQtty, int accelMode);
 	int    AddItem(TIDlgInitData * pInitData);
@@ -38542,13 +38545,13 @@ public:
 	void   FormatCycle(LDATE dt, char * pBuf, size_t bufLen);
 	int    ConvertGenAccturnToExtAccBill();
 private:
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	int Browse(int modeless);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int    ViewTotal();
-	virtual int    Detail(const void *, PPViewBrowser * pBrw);
-	virtual int    Print(const void *);
+	virtual void ViewTotal();
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	virtual int  Print(const void *);
 	int    CreateGrouping();
 	int    AddBillToList(PPID billID);
 	int    RemoveBillFromList(PPID billID);
@@ -38781,10 +38784,10 @@ private:
 	static int   CalcChildLots(const ReceiptTbl::Rec *, void * extraPtr);
 	static int   CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ViewTotal();
-	virtual int   Print(const void *);
-	virtual int   Detail(const void *, PPViewBrowser * pBrw);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    IsTempTblNeeded() const;
 	int    CreateTempTable();
 	int    PutAllToBasket();
@@ -38867,9 +38870,9 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(LotExtCodeViewItem *);
 private:
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   ViewTotal();
+	virtual void ViewTotal();
 	int    GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec);
 	int    CheckDupCode(const LotExtCodeTbl::Rec & rRec);
 
@@ -38948,11 +38951,11 @@ public:
 	int    GetItem(PPID lotID, AssetViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   Detail(const void *, PPViewBrowser * pBrw);
-	virtual int   ViewTotal();
-	virtual int   Print(const void *);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
 	int    MakeItem(PPID lotID, BExtInsert * pBei, int use_ta);
 	int    InitIterQuery(PPID grpID);
 	int    NextOuterIteration();
@@ -39042,11 +39045,11 @@ public:
 	int    FASTCALL NextIteration(FreightViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    Detail(const void * pHdr, PPViewBrowser * pBrw);
-	virtual int    Print(const void *);
-	virtual int    ViewTotal();
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  Print(const void *);
+	virtual void ViewTotal();
 	int    GetBillList(ObjIdListFilt * pList);
 	int    PrintBill(PPID billID/* @v10.0.0, int addCashSummator*/);
 	int    PrintBillList();
@@ -39369,9 +39372,9 @@ private:
 	};
 	static int EnumProc_CrTmpTbl(PredictSalesItem *, long);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   ViewTotal();
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual void ViewTotal();
 	int    InitCycleList(const PPIDArray * pGoodsList);
 	int    ConvertHdr(const void * pHdr, BrwHdr * pOut) const;
 	int    TestPrediction(const BrwHdr *);
@@ -39846,7 +39849,7 @@ private:
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	//int    Implement_ExportVK(const TSVector <BrwHdr> & rUniqIdAndLocIdList, PPLogger & rLogger);
 	//int    Implement_ExportUDS(const TSVector <BrwHdr> & rUniqIdAndLocIdList, PPLogger & rLogger);
@@ -40267,7 +40270,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	virtual int  Print(const void *);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    CalcTotal(GoodsTaxAnalyzeTotal *);
@@ -40717,7 +40720,7 @@ private:
 		double Amount;
 		double Paym;
 		double Debt;
-		double ExpiryDebt; // @v9.1.8
+		double ExpiryDebt;
 		double Cost;
 		PPBillExt Ext;
 		RAssocArray PaymList;
@@ -40726,11 +40729,11 @@ private:
 	};
 
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ViewTotal();
-	virtual int   Print(const void *);
-	virtual int   Detail(const void *, PPViewBrowser * pBrw);
-	virtual int   SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    GetPayableBillList_(const PPIDArray *, PPID arID, PPID curID, PayableBillList * pList);
 	int    CheckBillRec(const BillTbl::Rec * pRec, const PPIDArray * pOpList);
 	int    GetReceivableBillList(PPID arID, PayableBillList * pList);
@@ -41274,10 +41277,10 @@ private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int    Detail(const void * pHdr, PPViewBrowser * pBrw);
-	virtual int    ViewTotal();
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
 
 	BalanceFilt Filt;
 	PPObjCurrency CurObj;
@@ -41480,10 +41483,10 @@ public:
 	uint   IterFlags;  // PPViewAccAnlz::fIterXXX
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int    Print(const void *);
-	virtual int   ViewTotal();
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  Print(const void *);
+	virtual void ViewTotal();
 	int    EditSupplTrnovrFilt(AccAnlzFilt *);
 	int    EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnumProc, void * extraPtr);
 	int    GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int use_ta);
@@ -41587,10 +41590,10 @@ public:
 	PPViewVatBook();
 	~PPViewVatBook();
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
-	virtual int EditBaseFilt(PPBaseFilt *);
-	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual int Print(const void *);
-	virtual int ViewTotal();
+	virtual int  EditBaseFilt(PPBaseFilt *);
+	virtual int  Init_(const PPBaseFilt * pBaseFilt);
+	virtual int  Print(const void *);
+	virtual void ViewTotal();
 	int    InitIteration();
 	int    FASTCALL NextIteration(VatBookViewItem *);
 	int    CalcTotal(VatBookTotal *);
@@ -41876,7 +41879,7 @@ private:
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	virtual int  Print(const void *);
 	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
 	int    InitGroupNamesList();
@@ -41929,7 +41932,7 @@ private:
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	virtual int  Print(const void *);
 	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
 	double GetUnitsPerPack(PPID goodsID);
@@ -42042,7 +42045,7 @@ public:
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  Print(const void *);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    InitIteration(long ord);
 	int    FASTCALL NextIteration(CSessViewItem *);
@@ -42126,9 +42129,9 @@ public:
 	int    FASTCALL NextIteration(CSessExcViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int Print(const void *);
-	virtual int ViewTotal();
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  Print(const void *);
+	virtual void ViewTotal();
 	int    MakeTempTable(PPID sessID);
 	int    _MakeTempTable(int clearBefore);
 	int    AddItemToTempTable(const PPID, CGoodsLineTbl::Rec *, LAssocArray * pRgAssoc);
@@ -42394,12 +42397,12 @@ private:
 	void   Helper_Construct();
 	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    OnExecBrowser(PPViewBrowser *);
-	virtual int    Detail(const void *, PPViewBrowser * pBrw);
-	virtual int    ViewTotal();
-	virtual int    Print(const void *);
-	virtual int    SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
+	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	SString & GetCtColumnTitle(int ct, SString & rBuf);
 	int    IsTempTblNeeded() const;
 	int    DoProcessLines() const;
@@ -42546,8 +42549,8 @@ public:
 	int    RemoveAllSync();
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int ViewTotal();
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
 
 	ObjSyncCmpFilt Filt;
 	TempSyncCmpTbl * P_TmpTbl;
@@ -42852,11 +42855,11 @@ private:
 	static int   DynFuncGetTrnovr;
 
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw); // @<<PPView::Browse
-	virtual int   ViewTotal();
-	virtual int   Print(const void *);
-	virtual int   Detail(const void *, PPViewBrowser * pBrw);
-	virtual int   SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw); // @<<PPView::Browse
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    CreateTempTable();
 	int    CreateOrderTable(IterOrder);
 	int    Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt);
@@ -43237,7 +43240,7 @@ private:
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	virtual int  Print(const void *);
 	int    CreateTempTable(double * pUfpFactors);
 	int    CreateOrderTable(IterOrder, TempOrderTbl **);
@@ -43430,7 +43433,7 @@ private:
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void * GetEditExtraParam();
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	int    CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecBlock * pBlk);
 	int    IsTempTblNeeded() const;
 	int    CreateTempTable();
@@ -43885,7 +43888,7 @@ private:
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Print(const void *);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	void   NextInnerIteration(PaymPlanViewItem * pItem);
 	int    GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBillList, RPairArray * pPaymList, int allowZeroPeriod);
 	void   GetEditIds(const void * pRow, LDATE * pDt, PPID * pObjID, long col);
@@ -44043,7 +44046,7 @@ private:
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	virtual int  Print(const void *);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	int    CalcTotal(SStatTotal * pTotal);
 	void   RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatViewItem * pItem);
 	int    EditDlvrOrderFilt(SStatFilt *);
@@ -44516,7 +44519,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int  ViewTotal();
+	virtual void ViewTotal();
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl);
 	int    ChangeFilt(int refreshOnly, BrowserWindow *);
@@ -44876,11 +44879,11 @@ public:
 	SString & GetItemDescr(PPID id, SString & rBuf); // @>>PPObjProject::GetItemDescr
 	SString & GetItemMemo(PPID id, SString & rBuf); // @>>PPObjProject::GetItemMemo
 private:
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   ViewTotal();
+	virtual void ViewTotal();
 	virtual void * GetEditExtraParam();
-	virtual int   Detail(const void *, PPViewBrowser * pBrw);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    Export();
 	int    Transmit(PPID);
 	int    PrintProjectTasks(PPID prjID);
@@ -45070,14 +45073,14 @@ public:
 	SString & GetItemDescr(PPID id, SString & rBuf); // @>>PPObjPrjTask::GetItemDescr
 	SString & GetItemMemo(PPID id, SString & rBuf); // @>>PPObjPrjTask::GetItemMemo
 private:
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ViewTotal();
-	virtual int   Print(const void *);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	virtual int  Print(const void *);
 	virtual void * GetEditExtraParam();
-	virtual int   Detail(const void *, PPViewBrowser * pBrw);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    ViewCrosstabDetail(PPID tabID, const DBFieldList * pFldList);
 	TempOrderTbl::Rec & MakeTempEntry(const PrjTaskTbl::Rec & rRec, TempOrderTbl::Rec & rTempRec);
 	int    CheckRecForFilt(const PrjTaskTbl::Rec * pRec);
@@ -45477,9 +45480,9 @@ public:
 	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
+	virtual void ViewTotal();
 	int    InitIteration();
 	int    FASTCALL NextIteration(BudgetViewItem *);
-	int    ViewTotal();
 	void   GetTabTitle(long tabID, SString & rBuf);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -45825,12 +45828,12 @@ public:
 	int    FASTCALL NextIteration(TransportViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual void ViewTotal();
 	int    IsTempTblNeeded();
 	int    CheckForFilt(TransportFilt * pFilt, PPID transpID, PPTransport * pRec);
 	void   MakeTempRec(const PPTransport * pTranspRec, TempTransportTbl::Rec * pTempRec);
 	int    UpdateTempTable(PPID transpID, PPViewBrowser * pBrw);
-	int    ViewTotal();
 	int    DeleteItem(PPID id);
 	int    Transmit(PPID);
 
@@ -46124,9 +46127,9 @@ public:
 	};
 	PPViewSuprWare();
 	~PPViewSuprWare();
-	virtual int EditBaseFilt(PPBaseFilt *);
-	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	int    ViewTotal();
+	virtual int  EditBaseFilt(PPBaseFilt *);
+	virtual int  Init_(const PPBaseFilt * pBaseFilt);
+	virtual void ViewTotal();
 	int    InitIteration();
 	int    FASTCALL NextIteration(SuprWareViewItem * pItem);
 private:
@@ -47771,9 +47774,9 @@ private:
 	static int DynFuncCheckExpiry; // @v10.6.3
 
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int    ViewTotal();
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
 	int    LoadDocuments();
 	int    Helper_ProcessIncoming(const S_GUID & rVetDocUuid, const void * pIfcParam, PPVetisInterface & rIfc, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList);
 	int    ProcessIncoming(PPID entityID);
@@ -50382,9 +50385,10 @@ protected:
 class CSPanel : public TDialog {
 public:
 	enum {
-		fcspZReport  = 0x0001,
-		fcspZRepCopy = 0x0002,
-		fcspXReport  = 0x0004
+		fcspZReport   = 0x0001,
+		fcspZRepCopy  = 0x0002,
+		fcspXReport   = 0x0004,
+		fcspCheckCopy = 0x0008  // @v10.9.6
 	};
 	CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport /* fcspXXX, -1 - is locked */);
 private:
@@ -52496,7 +52500,7 @@ private:
 		scfThisNodeOnly   = 0x0002,
 		scfAllowReturns   = 0x0004
 	};
-	int    SelectCheck(PPID * pChkID, SString * pSelFormat, long flags);
+	int    SelectCheck(PPID * pChkID, SString * pSelFormat, const char * pTitle, long flags);
 	int    UpdateGList(int updGoodsList, PPID selGroupID);
 	int    PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock & rBlk);
 	int    SelectSerial(PPID goodsID, SString & rSerial, double * pPriceBySerial);

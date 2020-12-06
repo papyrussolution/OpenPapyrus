@@ -78,7 +78,7 @@ gupvalue_t * gnode_function_add_upvalue(gnode_function_decl_t * f, gnode_var_t *
 	gtype_array_each(f->uplist, {
 		// symbol already found in uplist so return its index
 		gnode_var_t * node = (gnode_var_t *)val->node;
-		if(strcmp(node->identifier, symbol->identifier) == 0) 
+		if(sstreq(node->identifier, symbol->identifier)) 
 			return val;
 	}, gupvalue_t *);
 
@@ -283,7 +283,7 @@ bool gnode_is_equal(const gnode_t * node1, const gnode_t * node2)
 		else if(e1->type == LITERAL_FLOAT) 
 			return (e1->value.d == e2->value.d);
 		else if(e1->type == LITERAL_STRING) 
-			return (strcmp(e1->value.str, e2->value.str)==0);
+			return LOGIC(sstreq(e1->value.str, e2->value.str));
 		// there is no way to check node equality for a LITERAL_STRING_INTERPOLATED at compile time
 	}
 	return false;

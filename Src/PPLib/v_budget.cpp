@@ -1561,10 +1561,8 @@ IMPL_HANDLE_EVENT(BudgetTotalDialog)
 	}
 }
 
-int PPViewBudget::ViewTotal()
+void PPViewBudget::ViewTotal()
 {
-	int    ok = 1;
-	BudgetTotalDialog * p_dlg = 0;
 	if(Filt.Kind == BudgetFilt::kBudgetItems) {
 		RPair data;
 		BudgetViewItem item;
@@ -1574,12 +1572,10 @@ int PPViewBudget::ViewTotal()
 				data.X += item.Item.Amount;
 			else
 				data.Y += item.Item.Amount;
-		THROW(CheckDialogPtr(&(p_dlg = new BudgetTotalDialog(&data))));
-		ExecView(p_dlg);
+		BudgetTotalDialog * p_dlg = new BudgetTotalDialog(&data);
+		if(CheckDialogPtrErr(&p_dlg))
+			ExecViewAndDestroy(p_dlg);
 	}
-	CATCHZOKPPERR
-	delete p_dlg;
-	return ok;
 }
 
 /*virtual*/int PPViewBudget::Detail(const void * pHdr, PPViewBrowser * pBrw)

@@ -64,7 +64,7 @@
 #endif
 
 #ifndef WM_MOUSEHWHEEL /* requires _WIN32_WINNT >= 0x0600 */
-# define WM_MOUSEHWHEEL 0x020E
+#define WM_MOUSEHWHEEL 0x020E
 #endif
 
 #ifdef USE_MOUSE

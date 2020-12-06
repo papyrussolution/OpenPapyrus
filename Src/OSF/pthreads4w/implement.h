@@ -805,7 +805,7 @@ __PTW32_END_C_DECLS
 #if defined (__PTW32_CONFIG_MSVC6) && !defined(_WIN64)
 #define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG(location, value, comparand) \
 	((LONG)InterlockedCompareExchange((PVOID*)(location), (PVOID)(value), (PVOID)(comparand)))
-# else
+#else
 #define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG InterlockedCompareExchange
 #endif
 #define  __PTW32_INTERLOCKED_EXCHANGE_LONG(p, v) InterlockedExchange((p), (v))
@@ -816,7 +816,7 @@ __PTW32_END_C_DECLS
 #define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR InterlockedCompareExchange
 #define  __PTW32_INTERLOCKED_EXCHANGE_PTR(location, value) \
 	((PVOID)InterlockedExchange((LPLONG)(location), (LONG)(value)))
-# else
+#else
 #define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR(p, v, c) InterlockedCompareExchangePointer((p), (v), (c))
 #define  __PTW32_INTERLOCKED_EXCHANGE_PTR(p, v) InterlockedExchangePointer((p), (v))
 #endif

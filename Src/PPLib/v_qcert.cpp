@@ -171,7 +171,7 @@ int FASTCALL PPViewQCert::NextIteration(QCertViewItem * pItem)
 	return -1;
 }
 
-int PPViewQCert::ViewTotal()
+void PPViewQCert::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_QCERTTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -179,10 +179,7 @@ int PPViewQCert::ViewTotal()
 		for(InitIteration(); NextIteration(0) > 0; count++);
 		dlg->setCtrlLong(CTL_QCERTTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
-		return -1;
 	}
-	else
-		return 0;
 }
 
 int PPViewQCert::Transmit()

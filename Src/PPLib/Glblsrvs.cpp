@@ -30,12 +30,12 @@ VkInterface::InitBlock & VkInterface::InitBlock::Z()
 }
 
 enum VkAccessRightGroup {
-	vkacsrgStories   = 0x00000001, // group Доступ к историям.
-	vkacsrgPhotos    = 0x00000004, // group Доступ к фотографиям.
-	vkacsrgAppWidget = 0x00000040, // group Доступ к виджетам приложений сообществ. Это право можно запросить только с помощью метода Client API showGroupSettingsBox.
-	vkacsrgMessages  = 0x00001000, // group Доступ к сообщениям сообщества.
-	vkacsrgDocs      = 0x00020000, // group Доступ к документам.
-	vkacsrgManage    = 0x00040000, // group Доступ к администрированию сообщества. 
+	vkacsrgStories   = 0x00000001, // (+1) (1 << 0) group Доступ к историям.
+	vkacsrgPhotos    = 0x00000004, // (+4) (1 << 2) group Доступ к фотографиям.
+	vkacsrgAppWidget = 0x00000040, // (+64) (1 << 6) group Доступ к виджетам приложений сообществ. Это право можно запросить только с помощью метода Client API showGroupSettingsBox.
+	vkacsrgMessages  = 0x00001000, // (+4096) (1 << 12) group Доступ к сообщениям сообщества.
+	vkacsrgDocs      = 0x00020000, // (+131072) (1 << 17) group Доступ к документам.
+	vkacsrgManage    = 0x00040000, // (+262144) (1 << 18) group Доступ к администрированию сообщества. 
 };
 
 enum VkAccessRightUser {
@@ -64,39 +64,6 @@ enum VkAccessRightUser {
 
 void VkInterface::GetVKAccessToken()
 {
-	/*
-	Права доступа для токена сообщества
-		stories    (+1)      (1 << 0)  Доступ к историям.
-		photos     (+4)      (1 << 2)  Доступ к фотографиям.
-		app_widget (+64)     (1 << 6)  Доступ к виджетам приложений сообществ. Это право можно запросить только с помощью метода Client API showGroupSettingsBox.
-		messages   (+4096)   (1 << 12) Доступ к сообщениям сообщества.
-		docs       (+131072) (1 << 17) Доступ к документам.
-		manage     (+262144) (1 << 18) Доступ к администрированию сообщества. 
-	*/
-	/*
-	Права доступа для токена пользователя
-		notify        (+1)         (1 << 0) Пользователь разрешил отправлять ему уведомления (для flash/iframe-приложений).
-		friends       (+2)         (1 << 1) Доступ к друзьям.
-		photos        (+4)         (1 << 2) Доступ к фотографиям.
-		audio         (+8)         (1 << 3) Доступ к аудиозаписям.
-		video         (+16)        (1 << 4) Доступ к видеозаписям.
-		stories       (+64)        (1 << 6) Доступ к историям.
-		pages         (+128)       (1 << 7) Доступ к wiki-страницам.
-		              (+256)       (1 << 8) Добавление ссылки на приложение в меню слева.
-		status        (+1024)      (1 << 10) Доступ к статусу пользователя.
-		notes         (+2048)      (1 << 11) Доступ к заметкам пользователя.
-		messages      (+4096)      (1 << 12) Доступ к расширенным методам работы с сообщениями (только для Standalone-приложений, прошедших модерацию).
-		wall          (+8192)      (1 << 13) Доступ к обычным и расширенным методам работы со стеной.
-			Данное право доступа по умолчанию недоступно для сайтов (игнорируется при попытке авторизации для приложений с типом «Веб-сайт» или по схеме Authorization Code Flow).
-		ads           (+32768)     (1 << 15) Доступ к расширенным методам работы с рекламным API. Доступно для авторизации по схеме Implicit Flow или Authorization Code Flow.
-		offline       (+65536)     (1 << 16) Доступ к API в любое время (при использовании этой опции параметр expires_in, возвращаемый вместе с access_token, содержит 0 — токен бессрочный). Не применяется в Open API.
-		docs          (+131072)    (1 << 17) Доступ к документам.
-		groups        (+262144)    (1 << 18) Доступ к группам пользователя.
-		notifications (+524288)    (1 << 19) Доступ к оповещениям об ответах пользователю.
-		stats         (+1048576)   (1 << 20) Доступ к статистике групп и приложений пользователя, администратором которых он является.
-		email         (+4194304)   (1 << 22) Доступ к email пользователя.
-		market        (+134217728) (1 << 27) Доступ к товарам. 
-	*/
 	// P_VKAppId
 	SString url_buf(InetUrl::MkHttps("oauth.vk.com", "authorize"));
 	SString redirect_uri_buf(InetUrl::MkHttps("oauth.vk.com", "blank.html"));
@@ -137,28 +104,19 @@ PPID VkInterface::GetOuterWareIdentTagID() const { return Ib.OuterWareIdentTagID
 
 int VkInterface::Setup(PPID guaID, uint flags)
 {
+	const  PPID service_ident = PPGLS_VK;
 	int    ok = 1;
 	Ib.Z();
 	PPObjGlobalUserAcc gua_obj;
 	if(!guaID) {
 		PPGlobalUserAcc gua_rec;
-		if(gua_obj.SearchBySymb("vk_acc", 0, &gua_rec) > 0 && gua_rec.ServiceIdent == PPGLS_VK) {
+		if(gua_obj.SearchBySymb("vk_acc", 0, &gua_rec) > 0 && gua_rec.ServiceIdent == service_ident) {
 			guaID = gua_rec.ID;
 		}
 		else {
-			PPID single_gua_id = 0;
-			for(SEnum en = gua_obj.Enum(0); en.Next(&gua_rec) > 0;) {
-				if(gua_rec.ServiceIdent == PPGLS_VK) {
-					if(!single_gua_id)
-						single_gua_id = gua_rec.ID;
-					else {
-						single_gua_id = 0;
-						break;
-					}
-				}
-			}
-			if(single_gua_id)
-				guaID = single_gua_id;
+			PPIDArray gua_list;
+			if(gua_obj.GetListByServiceIdent(service_ident, &gua_list) > 0 && gua_list.getCount() == 1)
+				guaID = gua_list.get(0);
 		}
 	}
 	THROW(guaID);
@@ -170,15 +128,13 @@ int VkInterface::Setup(PPID guaID, uint flags)
 	{
 		Reference * p_ref = PPRef;
 		PPObjTag obj_tag;
-		PPID   vk_grp_tag_id = 0;
-		PPID   vk_page_tag_id = 0;
 		PPID   tag_outer_goods_id = 0;
-		if(obj_tag.FetchBySymb("SMGRPID", &vk_grp_tag_id) > 0 && Ib.GuaPack.TagL.GetItemStr(vk_grp_tag_id, Ib.GroupId) > 0) {
+		if(Ib.GuaPack.TagL.GetItemStr(PPTAG_GUA_SOCIALGROUPCODE, Ib.GroupId) > 0) {
 		}
 		else {
 			//CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NOGROUPIDINGUA, &msg_buf)));
 		}
-		if(obj_tag.FetchBySymb("SMPAGEID", &vk_page_tag_id) > 0 && Ib.GuaPack.TagL.GetItemStr(vk_page_tag_id, Ib.PageId) > 0) {
+		if(Ib.GuaPack.TagL.GetItemStr(PPTAG_GUA_SOCIALPAGECODE, Ib.PageId) > 0) {
 		}
 		else {
 			//CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NOPAGEIDINGUA, &msg_buf)));
@@ -634,14 +590,8 @@ static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, i
 	PPIDArray scs_candidate_list;
 	PPSCardConfig sc_cfg;
 	PPObjSCard::ReadConfig(&sc_cfg);
-	if(!rP.GuaID) {
-		for(SEnum en = gua_obj.Enum(0); en.Next(&gua_rec) > 0;) {
-			if(gua_rec.ServiceIdent == service_ident)
-				gua_candidate_list.add(gua_rec.ID);
-		}
-		if(gua_candidate_list.getCount() == 1)
-			rP.GuaID = gua_candidate_list.get(0);
-	}
+	if(!rP.GuaID && gua_obj.GetListByServiceIdent(service_ident, &gua_candidate_list) > 0 && gua_candidate_list.getCount() == 1)
+		rP.GuaID = gua_candidate_list.get(0);
 	if(rP.GuaID) {
 		PPGlobalUserAccPacket gua_pack;
 		if(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0) {
@@ -826,84 +776,100 @@ static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int
 	const  PPID service_ident = PPGLS_VK;
 	SString temp_buf;
 	PPObjGlobalUserAcc gua_obj;
-	PPGlobalUserAcc gua_rec;
 	PPObjTag tag_obj;
-	PPID   page_tag_id = 0;
-	PPID   group_tag_id = 0;
-	PPIDArray gua_candidate_list;
-	if(rP.GuaID && gua_obj.Search(rP.GuaID, &gua_rec) > 0 && gua_rec.ServiceIdent == service_ident) {
-		;
-	}
-	else {
-		for(SEnum en = gua_obj.Enum(0); en.Next(&gua_rec) > 0;) {
-			if(gua_rec.ServiceIdent == service_ident)
-				gua_candidate_list.add(gua_rec.ID);
-		}
-		if(gua_candidate_list.getCount() == 1)
-			rP.GuaID = gua_candidate_list.get(0);
-	}
 	{
 		PPGlobalUserAccPacket gua_pack;
-		THROW(rP.GroupIdent.NotEmpty());
-		THROW(rP.ApiKey.NotEmpty());
-		THROW(rP.PageIdent.NotEmpty());
-		if(rP.GuaID) {
-			if(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0) {
-				if(force) {
-				}
-				else {
-					SString db_value;
-					gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, db_value);
-					if(db_value.NotEmptyS() && !rP.Login.NotEmptyS())
-						rP.Login = db_value;
-					gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, db_value.Z());
-					if(db_value.NotEmptyS() && !rP.ApiKey.NotEmptyS()) {
-						rP.ApiKey = db_value;
-					}
-				}
+		if(!force) {
+			if(rP.GuaID && gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0) {
+				SString db_value;
+				gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, db_value.Z());
+				if(db_value.NotEmptyS() && !rP.ApiKey.NotEmptyS())
+					rP.ApiKey = db_value;
+				gua_pack.TagL.GetItemStr(PPTAG_GUA_SOCIALGROUPCODE, db_value.Z());
+				if(db_value.NotEmptyS() && !rP.GroupIdent.NotEmptyS())
+					rP.GroupIdent = db_value;
+				gua_pack.TagL.GetItemStr(PPTAG_GUA_SOCIALPAGECODE, db_value.Z());
+				if(db_value.NotEmptyS() && !rP.PageIdent.NotEmptyS())
+					rP.PageIdent = db_value;
 			}
 		}
-		{
+		else {
+			THROW(rP.GroupIdent.NotEmpty());
+			THROW(rP.ApiKey.NotEmpty());
+			THROW(rP.PageIdent.NotEmpty());
 			//
 			// Если необходимо - создаем зарезервированные теги.
 			// Note: Функция PPObject::MakeReserve вызывается со своей собственной транзакцией
 			//
 			PPObjectTag tag_rec;
-			if(tag_obj.Search(PPTAG_GUA_OUTERWAREIDTAG, &tag_rec) > 0) {
+			int  do_make_reserved = 0;
+			if(tag_obj.Search(PPTAG_GUA_OUTERWAREIDTAG, &tag_rec) <= 0) {
+				do_make_reserved = 1;
 			}
-			else {
-				//THROW(tag_obj.MakeReserved(0));
+			if(tag_obj.Search(PPTAG_GUA_SOCIALGROUPCODE, &tag_rec) <= 0) {
+				do_make_reserved = 1;
 			}
-		}
-		{
-			PPTransaction tra(1);
-			THROW(tra);
+			if(tag_obj.Search(PPTAG_GUA_SOCIALPAGECODE, &tag_rec) <= 0) {
+				do_make_reserved = 1;
+			}
+			if(tag_obj.Search(PPTAG_GUA_ACCESSKEY, &tag_rec) <= 0) {
+				do_make_reserved = 1;
+			}
+			if(do_make_reserved) {
+				THROW(tag_obj.MakeReserved(0));
+			}
 			{
-				if(tag_obj.SearchBySymb("SMGRPID", &group_tag_id) > 0) {
-				}
-				if(tag_obj.SearchBySymb("SMPAGEID", &page_tag_id) > 0) {
-				}
-				//Ib.GuaPack.TagL.GetItemStr(vk_page_tag_id, Ib.PageId) > 0) {
-			}
-			if(rP.GuaID) {
-				PPID   temp_id = gua_pack.Rec.ID;
-				THROW(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0);
-				THROW_PP_S(gua_pack.Rec.ServiceIdent == service_ident, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
-				//gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
-				gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
-				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 1));
-			}
-			else {
-				// SMGRPID SMPAGEID
 				PPID   temp_id = 0;
-				gua_pack.Rec.ServiceIdent = service_ident;
-				STRNSCPY(gua_pack.Rec.Name, "VK account");
-				STRNSCPY(gua_pack.Rec.Symb, "VKACC");
-				//gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
-				gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
+				PPTransaction tra(1);
+				THROW(tra);
+				if(rP.GuaID) {
+					temp_id = gua_pack.Rec.ID;
+					THROW(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0);
+					THROW_PP_S(gua_pack.Rec.ServiceIdent == service_ident, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
+				}
+				else {
+					// SMGRPID SMPAGEID
+					gua_pack.Rec.ServiceIdent = service_ident;
+					STRNSCPY(gua_pack.Rec.Name, "VK account");
+					STRNSCPY(gua_pack.Rec.Symb, "VKACC");
+				}
+				{
+					gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
+					gua_pack.TagL.PutItemStr(PPTAG_GUA_SOCIALGROUPCODE, rP.GroupIdent);
+					gua_pack.TagL.PutItemStr(PPTAG_GUA_SOCIALPAGECODE, rP.PageIdent);
+					{
+						if(!gua_pack.TagL.GetItem(PPTAG_GUA_OUTERWAREIDTAG)) {
+							PPID  outerwareid_tag_id = 0;
+							{
+								PPObjectTag temp_rec;
+								PPObjTagPacket new_tag_pack;
+								PPID   new_tag_id = 0;
+								PPLoadString("goodsident", temp_buf);
+								temp_buf.Space().Cat("VK");
+								STRNSCPY(new_tag_pack.Rec.Name, temp_buf);
+								STRNSCPY(new_tag_pack.Rec.Symb, "OUTERWAREID-VK");
+								new_tag_pack.Rec.ObjTypeID = PPOBJ_GOODS;
+								new_tag_pack.Rec.TagDataType = OTTYP_STRING;
+								if(tag_obj.SearchBySymb(new_tag_pack.Rec.Symb, 0, &temp_rec) > 0) {
+									outerwareid_tag_id = temp_rec.ID;
+								}
+								else {
+									THROW(tag_obj.AddItem(&outerwareid_tag_id, &new_tag_pack.Rec, 0));
+								}
+							}
+							{
+								ObjTagItem tag_item;
+								tag_item.SetInt(PPTAG_GUA_OUTERWAREIDTAG, outerwareid_tag_id);
+								gua_pack.TagL.PutItem(PPTAG_GUA_OUTERWAREIDTAG, &tag_item);
+							}
+						}
+					}
+				}
 				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 0));
+				THROW(tra.Commit());
+				//
+				rP.GuaID = temp_id;
 			}
-			THROW(tra.Commit());
 		}
 	}
 	CATCHZOK
@@ -912,32 +878,21 @@ static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int
 
 int PPGlobalServiceHighLevelImplementations::Setup_VK()
 {
-	/*
-	#define CTL_SUVK_LOGIN            (1 + IMPEXP_CTL_BIAS)
-	#define CTL_SUVK_APIKEY           (2 + IMPEXP_CTL_BIAS)
-	#define CTL_SUVK_URL              (3 + IMPEXP_CTL_BIAS)
-	#define CTL_SUVK_GROUPIDENT       (4 + IMPEXP_CTL_BIAS)
-	#define CTL_SUVK_HINT             (5 + IMPEXP_CTL_BIAS)
-	#define CTL_SUVK_INFO             (6 + IMPEXP_CTL_BIAS)
-	#define CTL_SUVK_GUA              (7 + IMPEXP_CTL_BIAS)
-	#define CTLSEL_SUVK_GUA           (8 + IMPEXP_CTL_BIAS)
-	#define CTL_SUVK_LOGO             (9 + IMPEXP_CTL_BIAS)
-	*/
 	class SetupGlobalServiceVK_Dialog : public TDialog {
 		DECL_DIALOG_DATA(SetupGlobalServiceVK_Param);
 		//DECL_DIALOG_DATA(VkInterface::InitBlock);
+		const long GlobalService;
 	public:
-		SetupGlobalServiceVK_Dialog(SetupGlobalServiceVK_Param & rData) : TDialog(/*DLG_VKGUACFG*/DLG_SU_VK), Data(rData)
+		SetupGlobalServiceVK_Dialog(SetupGlobalServiceVK_Param & rData) : TDialog(/*DLG_VKGUACFG*/DLG_SU_VK), Data(rData), GlobalService(PPGLS_VK)
 		{
-			PPID   global_service = PPGLS_VK;//reinterpret_cast<void *>(Data.GlobalService)
-			SetupPPObjCombo(this, CTLSEL_SUVK_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, reinterpret_cast<void *>(global_service));
-			//
+			SetupPPObjCombo(this, CTLSEL_SUVK_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, reinterpret_cast<void *>(GlobalService));
 			{
 				SString info_buf;
 				SString temp_buf;
 				info_buf.Cat("App ident").CatDiv(':', 2).Cat(Ifc.GetAppIdent(temp_buf));
 				setCtrlString(CTL_SUVK_INFO, info_buf);
 			}
+			SetupGua(true);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -967,6 +922,15 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 			return 0;
 		}
 	private:
+		void Configure()
+		{
+			getDTS(0);
+			if(Setup_GlobalService_VK_InitParam(Data, 1)) {
+				// ..
+			}
+			else
+				PPError();
+		}
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
@@ -975,13 +939,10 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 				Ifc.GetVKAccessToken();
 			}
 			else if(event.isCmd(cmConfigure)) {
-				getDTS(0);
-				// ...
+				Configure();
 			}
 			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_SUVK_URL/*CTL_VKGUACFG_LOGIN_URL*/)) {
-				static int __lock = 0;
-				if(!__lock) {
-					__lock = 1;
+				UI_LOCAL_LOCK_ENTER
 					getCtrlString(CTL_SUVK_URL/*CTL_VKGUACFG_LOGIN_URL*/, temp_buf.Z());
 					{
 						InetUrl url(temp_buf);
@@ -999,17 +960,13 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 						setCtrlString(CTL_SUVK_APIKEY, Data.ApiKey);
 						setCtrlString(CTL_SUVK_PAGEIDENT, Data.PageIdent);
 					}
-					__lock = 0;
-				}
+				UI_LOCAL_LOCK_LEAVE
 			}
 			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_SUVK_GROUPIDENT/*CTL_VKGUACFG_GROUP_ID*/)) {
-				static int __lock = 0;
-				if(!__lock) {
-					__lock = 1;
+				UI_LOCAL_LOCK_ENTER
 					getCtrlString(CTL_SUVK_GROUPIDENT/*CTL_VKGUACFG_GROUP_ID*/, temp_buf.Z());
 					Data.GroupIdent = temp_buf;
-					__lock = 0;
-				}
+				UI_LOCAL_LOCK_LEAVE
 			}
 			else if(TVBROADCAST && TVCMD == cmReceivedFocus) {
 				SString temp_buf;
@@ -1021,9 +978,40 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 				}*/
 				setStaticText(CTL_SUVK_HINT, temp_buf);
 			}
+			else if(event.isCbSelected(CTLSEL_SUVK_GUA)) {
+				SetupGua(false);
+			}
 			else
 				return;
 			clearEvent(event);
+		}
+		void SetupGua(bool force)
+		{
+			UI_LOCAL_LOCK_ENTER
+				PPID   gua_id = getCtrlLong(CTLSEL_SUVK_GUA);
+				if(force || gua_id != Data.GuaID) {
+					if(force && !gua_id) {
+						PPIDArray gua_list;
+						if(GuaObj.GetListByServiceIdent(GlobalService, &gua_list) > 0 && gua_list.getCount() == 1) {
+							gua_id = gua_list.get(0);
+							setCtrlLong(CTLSEL_SUVK_GUA, gua_id);
+						}
+					}
+					Data.GuaID = gua_id;
+					PPGlobalUserAccPacket gua_pack;
+					SString group_code;
+					SString page_code;
+					SString accs_key;
+					if(GuaObj.GetPacket(gua_id, &gua_pack) > 0) {
+						gua_pack.TagL.GetItemStr(PPTAG_GUA_SOCIALGROUPCODE, group_code);
+						gua_pack.TagL.GetItemStr(PPTAG_GUA_SOCIALPAGECODE, page_code);
+						gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, accs_key);
+					}
+					setCtrlString(CTL_SUVK_APIKEY, accs_key);
+					setCtrlString(CTL_SUVK_GROUPIDENT, group_code);
+					setCtrlString(CTL_SUVK_PAGEIDENT, page_code);
+				}
+			UI_LOCAL_LOCK_LEAVE
 		}
 		PPObjGlobalUserAcc GuaObj;
 		VkInterface Ifc;

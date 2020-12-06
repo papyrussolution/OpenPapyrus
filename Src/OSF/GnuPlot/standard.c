@@ -2902,7 +2902,7 @@ under:
 
 static double erf(double x)
 {
-# ifdef UNK
+#ifdef UNK
 	static const double T[] = {
 		9.60497373987051638749E0,
 		9.00260197203842689217E1,
@@ -2918,9 +2918,9 @@ static double erf(double x)
 		2.26290000613890934246E4,
 		4.92673942608635921086E4
 	};
-# endif
+#endif
 
-# ifdef DEC
+#ifdef DEC
 	static const ushort T[] = {
 		0041031, 0126770, 0170672, 0166101,
 		0041664, 0006522, 0072360, 0031770,
@@ -2936,9 +2936,9 @@ static double erf(double x)
 		0043660, 0145000, 0004013, 0160114,
 		0044100, 0071544, 0167107, 0125471
 	};
-# endif
+#endif
 
-# ifdef IBMPC
+#ifdef IBMPC
 	static const ushort T[] = {
 		0x5d88, 0x1e37, 0x35bf, 0x4023,
 		0x067f, 0x4e9e, 0x81aa, 0x4056,
@@ -2954,9 +2954,9 @@ static double erf(double x)
 		0x7c0a, 0x0101, 0x1940, 0x40d6,
 		0xf567, 0x9dc8, 0x0e6c, 0x40e8
 	};
-# endif
+#endif
 
-# ifdef MIEEE
+#ifdef MIEEE
 	static const ushort T[] = {
 		0x4023, 0x35bf, 0x1e37, 0x5d88,
 		0x4056, 0x81aa, 0x4e9e, 0x067f,
@@ -2971,7 +2971,7 @@ static double erf(double x)
 		0x40d6, 0x1940, 0x0101, 0x7c0a,
 		0x40e8, 0x0e6c, 0x9dc8, 0xf567
 	};
-# endif
+#endif
 
 	double y, z;
 

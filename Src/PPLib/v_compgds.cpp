@@ -188,7 +188,7 @@ int FASTCALL PPViewSuprWare::NextIteration(SuprWareViewItem * pItem)
 	return ok;
 }
 
-int PPViewSuprWare::ViewTotal()
+void PPViewSuprWare::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_GOODSTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -201,10 +201,7 @@ int PPViewSuprWare::ViewTotal()
 		PPWait(0);
 		dlg->setCtrlLong(CTL_GOODSTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
-		return -1;
 	}
-	else
-		return 0;
 }
 //
 //

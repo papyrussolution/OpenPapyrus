@@ -1,7 +1,9 @@
+//
+//
+#include "vDos.h"
 #include "devicePRT.h"
 #include "process.h"
 #include <Shellapi.h>
-#include "vDos.h"
 #include "support.h"
 
 void LPT_CheckTimeOuts(Bit32u mSecsCurr)
@@ -158,18 +160,18 @@ void device_PRT::CommitData()
 				Bit16u textChar =  (Bit8u)rawdata[i];
 				switch (textChar)
 					{
-				case 9:																// Tab
-				case 12:															// Formfeed
+				case 9: // Tab
+				case 12: // Formfeed
 					fwrite(&textChar, 1, 2, fh);
 					break;
-				case 10:															// Linefeed (combination)
+				case 10: // Linefeed (combination)
 				case 13:
 					fwrite("\x0d\x00\x0a\x00", 1, 4, fh);
 					if (i < rawdata.size() -1 && textChar == 23-rawdata[i+1])
 						i++;
 					break;
 				default:
-					if (textChar >= 32)												// Forget about further control characters?
+					if (textChar >= 32) // Forget about further control characters?
 						fwrite(cpMap+textChar, 1, 2, fh);
 					break;
 					}
@@ -215,7 +217,7 @@ void device_PRT::CommitData()
 			{
 			if (!rawdata.find("\x1b%-12345X@") || !rawdata.find("\x1b\x45"))		// It's PCL (rawdata isn't empty at this point, so test is ok)
 				{																	// Postscript can be embedded (some WP drivers)
-				tryPCL2PDF(tmpAscii, rawdata.find("\n%!PS") < min(rawdata.length(), 60), true);	// A line should start with the signature in the first 70s characters or so
+				tryPCL2PDF(tmpAscii, rawdata.find("\n%!PS") < MIN(rawdata.length(), 60), true);	// A line should start with the signature in the first 70s characters or so
 				rawdata.clear();
 				return;
 				}
@@ -238,7 +240,7 @@ void device_PRT::CommitData()
 	else if (stricmp(destination.c_str(), "dummy"))									// Windows command or program assumed
 		{
 		if (rawdata.find("\x1b%-12345X@") == 0)										// It's PCL (rawdata isn't empty at this point, so test is ok)
-			tryPCL2PDF(tmpAscii, rawdata.find("\n%!PS") < min(rawdata.length(), 60), false);	// a line should start with the signature in the first 70s characters or so
+			tryPCL2PDF(tmpAscii, rawdata.find("\n%!PS") < MIN(rawdata.length(), 60), false);	// a line should start with the signature in the first 70s characters or so
 		else if (rawdata.find("%!PS") == 0)											// It's Postscript
 			tryPCL2PDF(tmpAscii, true, false);
 		if (destination[0] == '@')													// If the commandline starts with '@' assume program to be started hidden							

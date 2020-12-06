@@ -340,7 +340,7 @@ static int png_inflate_claim(png_structrp png_ptr, uint32 owner)
 			window_bits = 0;
 			png_ptr->zstream_start = 1;
 		}
-# else
+#else
 #define window_bits 0
 #endif
 #endif
@@ -554,11 +554,11 @@ static int png_decompress_chunk(png_structrp png_ptr,
 	 */
 	png_alloc_size_t limit = PNG_SIZE_MAX;
 
-# ifdef PNG_SET_USER_LIMITS_SUPPORTED
+#ifdef PNG_SET_USER_LIMITS_SUPPORTED
 	if(png_ptr->user_chunk_malloc_max > 0 &&
 	    png_ptr->user_chunk_malloc_max < limit)
 		limit = png_ptr->user_chunk_malloc_max;
-# elif PNG_USER_CHUNK_MALLOC_MAX > 0
+#elif PNG_USER_CHUNK_MALLOC_MAX > 0
 	if(PNG_USER_CHUNK_MALLOC_MAX < limit)
 		limit = PNG_USER_CHUNK_MALLOC_MAX;
 #endif

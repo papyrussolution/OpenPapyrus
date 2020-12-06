@@ -2265,9 +2265,7 @@ private:
 			ifc.GetVKAccessToken();
 		}
 		else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_VKGUACFG_LOGIN_URL)) {
-			static int __lock = 0;
-			if(!__lock) {
-				__lock = 1;
+			UI_LOCAL_LOCK_ENTER
 				getCtrlString(CTL_VKGUACFG_LOGIN_URL, temp_buf.Z());
 				{
 					InetUrl url(temp_buf);
@@ -2283,17 +2281,13 @@ private:
 							Data.PageId.Z().Cat(right);
 					}
 				}
-				__lock = 0;
-			}
+			UI_LOCAL_LOCK_LEAVE
 		}
 		else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_VKGUACFG_GROUP_ID)) {
-			static int __lock = 0;
-			if(!__lock) {
-				__lock = 1;
+			UI_LOCAL_LOCK_ENTER
 				getCtrlString(CTL_VKGUACFG_GROUP_ID, temp_buf.Z());
 				Data.GroupId.Z().Cat(temp_buf);
-				__lock = 0;
-			}
+			UI_LOCAL_LOCK_LEAVE
 		}
 		else
 			return;
@@ -2375,16 +2369,10 @@ private:
 		}
 		else if(event.isCmd(cmGlobalServiceSetting)) {
 			PPID service_ident = Data.Rec.ServiceIdent;
-			switch(service_ident){
+			switch(service_ident) {
 			case PPGLS_TWITTER:
-				{
-					
-				}
 				break;
 			case PPGLS_FACEBOOK:
-				{
-					
-				}
 				break;
 			case PPGLS_VK:
 				{			
@@ -2392,22 +2380,19 @@ private:
 					SString temp_buf;
 					PPLogger logger;
 					/*VkStruct*/VkInterface::InitBlock pack;
-					PPID vk_grp_tag_id, vk_page_tag_id;
-					obj_tag.FetchBySymb("SMGRPID", &vk_grp_tag_id);
-					obj_tag.FetchBySymb("SMPAGEID", &vk_page_tag_id);
 					VkGuaCfgDialog * dlg = new VkGuaCfgDialog();
 					dlg->setDTS(&pack);
 					if(ExecView(dlg) == cmOK) {
 						if(dlg->getDTS(&pack)) {
 							if(pack.GroupId.Len() > 0) {
 								ObjTagItem new_obj_tag_item;
-								new_obj_tag_item.SetStr(vk_grp_tag_id, pack.GroupId.Unescape());
+								new_obj_tag_item.SetStr(PPTAG_GUA_SOCIALGROUPCODE, pack.GroupId.Unescape());
 								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0)
 									change_flag++;
 							}
 							if(pack.PageId.Len() > 0) {
 								ObjTagItem new_obj_tag_item;
-								new_obj_tag_item.SetStr(vk_page_tag_id, pack.PageId.Unescape());
+								new_obj_tag_item.SetStr(PPTAG_GUA_SOCIALPAGECODE, pack.PageId.Unescape());
 								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0) // @v10.8.3 @fix (remove ';')
 									change_flag++;
 							}
@@ -2425,14 +2410,8 @@ private:
 				}
 				break;
 			case PPGLS_VETIS:
-				{
-					
-				}
 				break;
 			case PPGLS_CHZN:
-				{
-					
-				}
 				break;
 			default:
 				break;
@@ -2509,6 +2488,21 @@ int PPObjGlobalUserAcc::SearchByLocalID(const S_GUID & rDbUuid, PPID localUserID
 	}
 	ASSIGN_PTR(pID, id);
 	ASSIGN_PTR(pRec, rec);
+	return ok;
+}
+
+int PPObjGlobalUserAcc::GetListByServiceIdent(PPID serviceIdent, PPIDArray * pList)
+{
+	int    ok = -1;
+	PPGlobalUserAcc gua_rec;
+	if(serviceIdent) {
+		for(SEnum en = Enum(0); en.Next(&gua_rec) > 0;) {
+			if(gua_rec.ServiceIdent == serviceIdent) {
+				CALLPTRMEMB(pList, add(gua_rec.ID));
+				ok = 1;
+			}
+		}
+	}
 	return ok;
 }
 
@@ -2603,9 +2597,8 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 			THROW(EditItem(Obj, 0, &glb_acc, 0));
 			ID = reinterpret_cast<const ReferenceTbl::Rec *>(&glb_acc)->ObjID;
 			if(p_scs_obj) {
-				PPSCardSerPacket scs_pack; // @v9.8.9 PPSCardSeries2 scs_rec --> PPSCardSerPacket scs_pack
-				//@v9.8.9 if(p_scs_obj->Fetch(cfg.SCardSerID, &scs_rec) > 0 && scs_rec.GetType() == scstCredit && scs_rec.CodeTempl) {
-				if(p_scs_obj->GetPacket(cfg.SCardSerID, &scs_pack) > 0 && scs_pack.Rec.GetType() == scstCredit && scs_pack.Eb.CodeTempl[0]) { // @v9.8.9
+				PPSCardSerPacket scs_pack;
+				if(p_scs_obj->GetPacket(cfg.SCardSerID, &scs_pack) > 0 && scs_pack.Rec.GetType() == scstCredit && scs_pack.Eb.CodeTempl[0]) {
 					PPID   sc_id = 0;
 					SString sc_code;
 					THROW(p_sc_obj->Create_(&sc_id, scs_pack.Rec.ID, personID, 0, sc_code, PPObjSCard::cdfCreditCard, 0));
@@ -2632,9 +2625,8 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 		else if(_obj == PPOBJ_PERSON) {
 			PPGlobalUserAcc rec;
 			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
-				if(rec.PersonID == _id) {
+				if(rec.PersonID == _id)
 					return RetRefsExistsErr(Obj, 0);
-				}
 			}
 		}
 	}
@@ -2985,14 +2977,15 @@ int PPObjUhttStore::Browse(void * extraPtr)
 }
 
 class UhttStoreDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPUhttStorePacket);
 public:
 	UhttStoreDialog() : PPListDialog(DLG_UHTTSTORE, CTL_UHTTSTORE_SLIST)
 	{
 		updateList(-1);
 	}
-	int    setDTS(const PPUhttStorePacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		SString temp_buf;
 		setCtrlLong(CTL_UHTTSTORE_ID, Data.Rec.ID);
 		disableCtrl(CTL_GLOBUSERACC_ID, 1);
@@ -3012,7 +3005,7 @@ public:
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(PPUhttStorePacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -3127,9 +3120,8 @@ private:
 		PPUhttStoreSelDescr::Entry entry;
 		if(Data.Sd.GetEntry(pos, entry)) {
 			while(ok < 0 && EditSelectorItem(&entry) > 0) {
-				if(Data.Sd.UpdateEntry(pos, &entry)) {
+				if(Data.Sd.UpdateEntry(pos, &entry))
 					ok = 1;
-				}
 				else
 					PPError();
 			}
@@ -3151,13 +3143,14 @@ private:
 	int    EditSelectorItem(PPUhttStoreSelDescr::Entry * pData)
 	{
 		class StSelDialog : public TDialog {
+			DECL_DIALOG_DATA(PPUhttStoreSelDescr::Entry);
 		public:
 			StSelDialog() : TDialog(DLG_UHTTSTSELITEM)
 			{
 			}
-			int    setDTS(const PPUhttStoreSelDescr::Entry * pData)
+			DECL_DIALOG_SETDTS()
 			{
-				Data = *pData;
+				RVALUEPTR(Data, pData);
 				int    ok = 1;
 				AddClusterAssocDef(CTL_UHTTSTSELITEM_ATTR,  0, PPUhttStoreSelDescr::attrName);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  1, PPUhttStoreSelDescr::attrGroup);
@@ -3180,7 +3173,7 @@ private:
 				setCtrlString(CTL_UHTTSTSELITEM_TITLE, Data.Title);
 				return ok;
 			}
-			int    getDTS(PPUhttStoreSelDescr::Entry * pData)
+			DECL_DIALOG_GETDTS()
 			{
 				int    ok = 1;
 				Data.Attr = GetClusterData(CTL_UHTTSTSELITEM_ATTR);
@@ -3206,16 +3199,14 @@ private:
 				if(event.isClusterClk(CTL_UHTTSTSELITEM_ATTR)) {
 					int    preserve_attr = Data.Attr;
 					Data.Attr = GetClusterData(CTL_UHTTSTSELITEM_ATTR);
-					if(Data.Attr != preserve_attr) {
+					if(Data.Attr != preserve_attr)
 						SetupAttr();
-					}
 				}
 				else if(event.isCbSelected(CTLSEL_UHTTSTSELITEM_EXT)) {
 					PPID   preserve_ext_id = Data.TagID;
 					Data.TagID = getCtrlLong(CTLSEL_UHTTSTSELITEM_EXT);
-					if(Data.TagID != preserve_ext_id) {
+					if(Data.TagID != preserve_ext_id)
 						SetupClass();
-					}
 				}
 				else
 					return;
@@ -3270,8 +3261,6 @@ private:
 					disableCtrl(CTLSEL_UHTTSTSELITEM_EXT, 1);
 				SetupClass();
 			}
-
-			PPUhttStoreSelDescr::Entry Data;
 		};
 		DIALOG_PROC_BODY(StSelDialog, pData);
 	}
@@ -3279,7 +3268,6 @@ private:
 	PPObjPerson PsnObj;
 	PPObjTag TagObj;
 	PPObjGoodsClass GcObj;
-	PPUhttStorePacket Data;
 };
 
 int PPObjUhttStore::Edit(PPID * pID, void * extraPtr)

@@ -13,7 +13,7 @@
 #define SOCKET_PROTOCOL IPPROTO_TCP
 #ifdef SO_MAXCONN
 #define MAX_LISTEN  SO_MAXCONN
-# elif defined(SOMAXCONN)
+#elif defined(SOMAXCONN)
 #define MAX_LISTEN  SOMAXCONN
 #else
 #define MAX_LISTEN  32
@@ -162,7 +162,7 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 #ifdef __DJGPP__
 	i = ioctlsocket(fd, type, (char *)arg);
 #else
-#   if defined(OPENSSL_SYS_VMS)
+#if defined(OPENSSL_SYS_VMS)
 	/*-
 	 * 2011-02-18 SMS.
 	 * VMS ioctl() can't tolerate a 64-bit "void *arg", but we
@@ -300,7 +300,7 @@ int BIO_socket_nbio(int s, int mode)
 	l = mode;
 
 	ret = BIO_socket_ioctl(s, FIONBIO, &l);
-# elif defined(F_GETFL) && defined(F_SETFL) && (defined(O_NONBLOCK) || defined(FNDELAY))
+#elif defined(F_GETFL) && defined(F_SETFL) && (defined(O_NONBLOCK) || defined(FNDELAY))
 	/* make sure this call always pushes an error level; BIO_socket_ioctl() does so, so we do too. */
 
 	l = fcntl(s, F_GETFL, 0);

@@ -10,14 +10,6 @@
  * this file you indicate that you have read the license and
  * understand and accept it fully.
  */
-#include <freetype/ftcache.h>
-#include "ftcmanag.h"
-#include <freetype/internal/ftobjs.h>
-#include <freetype/internal/ftdebug.h>
-#include <freetype/ftsizes.h>
-#include "ftccback.h"
-#include "ftcerror.h"
-
 #undef  FT_COMPONENT
 #define FT_COMPONENT  cache
 

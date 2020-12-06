@@ -394,7 +394,7 @@ static const SHA_LONG64 K512[80] = {
 #ifndef PEDANTIC
 #if defined(__GNUC__) && __GNUC__>=2 && \
 	!defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
-#   if defined(__x86_64) || defined(__x86_64__)
+#if defined(__x86_64) || defined(__x86_64__)
 #define ROTR(a, n)    ({ SHA_LONG64 ret;             \
 			     asm ("rorq %1,%0"       \
 			     : "=r" (ret)             \
@@ -443,11 +443,11 @@ static const SHA_LONG64 K512[80] = {
 #endif
 #endif
 #elif defined(_MSC_VER)
-#   if defined(_WIN64)         /* applies to both IA-64 and AMD64 */
+#if defined(_WIN64)         /* applies to both IA-64 and AMD64 */
 #    pragma intrinsic(_rotr64)
 #define ROTR(a, n)    _rotr64((a), n)
 #endif
-#   if defined(_M_IX86) && !defined(OPENSSL_NO_ASM) && \
+#if defined(_M_IX86) && !defined(OPENSSL_NO_ASM) && \
 	!defined(OPENSSL_NO_INLINE_ASM)
 #if defined(I386_ONLY)
 static SHA_LONG64 __fastcall __pull64be(const void * x)
@@ -553,7 +553,7 @@ static void sha512_block_data_order(SHA512_CTX * ctx, const void * in, size_t nu
 	}
 }
 
-# elif defined(OPENSSL_SMALL_FOOTPRINT)
+#elif defined(OPENSSL_SMALL_FOOTPRINT)
 
 static void sha512_block_data_order(SHA512_CTX * ctx, const void * in,
     size_t num)

@@ -289,9 +289,8 @@ int PPViewBalance::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(BalanceFiltDialog, p_filt);
 }
 
-int PPViewBalance::ViewTotal()
+void PPViewBalance::ViewTotal()
 {
-	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_BALTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
 		char   diff_buf[32];
@@ -307,9 +306,6 @@ int PPViewBalance::ViewTotal()
 		dlg->setStaticText(CTL_BALTOTAL_DIFF, diff_buf);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 // static

@@ -3005,7 +3005,7 @@ SSL_CTX * SSL_CTX_new(const SSL_METHOD * meth)
 		goto err;
 #endif
 #ifndef OPENSSL_NO_ENGINE
-# ifdef OPENSSL_SSL_CLIENT_ENGINE_AUTO
+#ifdef OPENSSL_SSL_CLIENT_ENGINE_AUTO
 #define eng_strx(x)     #x
 #define eng_str(x)      eng_strx(x)
 	/* Use specific client engine automatically... ignore errors */
@@ -4659,7 +4659,7 @@ static int ct_extract_tls_extension_scts(SSL * s)
  */
 static int ct_extract_ocsp_response_scts(SSL * s)
 {
-# ifndef OPENSSL_NO_OCSP
+#ifndef OPENSSL_NO_OCSP
 	int scts_extracted = 0;
 	const uchar * p;
 	OCSP_BASICRESP * br = NULL;
@@ -4689,7 +4689,7 @@ err:
 	OCSP_BASICRESP_free(br);
 	OCSP_RESPONSE_free(rsp);
 	return scts_extracted;
-# else
+#else
 	/* Behave as if no OCSP response exists */
 	return 0;
 #endif

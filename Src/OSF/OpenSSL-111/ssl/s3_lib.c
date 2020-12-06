@@ -954,7 +954,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		0,
 		0,
 	},
-# ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+#ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
 		1,
 		TLS1_TXT_ECDHE_ECDSA_WITH_DES_192_CBC3_SHA,
@@ -1020,7 +1020,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		0,
 		0,
 	},
-# ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+#ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
 		1,
 		TLS1_TXT_ECDHE_RSA_WITH_DES_192_CBC3_SHA,
@@ -1086,7 +1086,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		0,
 		0,
 	},
-# ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+#ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
 		1,
 		TLS1_TXT_ECDH_anon_WITH_DES_192_CBC3_SHA,
@@ -1312,7 +1312,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		0,
 		0,
 	},
-# ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+#ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
 		1,
 		TLS1_TXT_PSK_WITH_3DES_EDE_CBC_SHA,
@@ -1362,7 +1362,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		256,
 		256,
 	},
-# ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+#ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
 		1,
 		TLS1_TXT_DHE_PSK_WITH_3DES_EDE_CBC_SHA,
@@ -1412,7 +1412,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		256,
 		256,
 	},
-# ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+#ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
 		1,
 		TLS1_TXT_RSA_PSK_WITH_3DES_EDE_CBC_SHA,
@@ -1881,7 +1881,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		0,
 	},
 
-# ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+#ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
 		1,
 		TLS1_TXT_SRP_SHA_WITH_3DES_EDE_CBC_SHA,
@@ -4249,11 +4249,11 @@ int ssl3_get_req_cert_type(SSL * s, WPACKET * pkt)
 
 	if((s->version == SSL3_VERSION) && (alg_k & SSL_kDHE)) {
 #ifndef OPENSSL_NO_DH
-# ifndef OPENSSL_NO_RSA
+#ifndef OPENSSL_NO_RSA
 		if(!WPACKET_put_bytes_u8(pkt, SSL3_CT_RSA_EPHEMERAL_DH))
 			return 0;
 #endif
-# ifndef OPENSSL_NO_DSA
+#ifndef OPENSSL_NO_DSA
 		if(!WPACKET_put_bytes_u8(pkt, SSL3_CT_DSS_EPHEMERAL_DH))
 			return 0;
 #endif

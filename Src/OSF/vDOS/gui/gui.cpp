@@ -1,11 +1,8 @@
-﻿#include <stdlib.h>
-#include <stdio.h>
-#include "Windows.h"
-#include <Shellapi.h>
-#include <math.h>
+﻿//
+//
+#include "vDos.h"
 #include "video.h"
 #include "events.h"
-#include "vDos.h"
 #include "mouse.h"
 #include "vDosTTF.h"
 #include "ttf.h"
@@ -276,8 +273,8 @@ void EndTextLines(void)
 		ttf_textRect.top = ttf.offY+y*ttf.charHeight;
 		for(int x = 0; x < ttf.cols; x++) {
 			if(newAC[x] != curAC[x]) {
-				xmin = min(x, xmin);
-				ymin = min(y, ymin);
+				xmin = MIN(x, xmin);
+				ymin = MIN(y, ymin);
 				ymax = y;
 				ttf_textRect.left = ttf.offX+x*ttf.charWidth;
 				style = TTF_STYLE_NORMAL;
@@ -347,7 +344,7 @@ void EndTextLines(void)
 						ascii = newAC[x]&255;
 					} while(x < ttf.cols && newAC[x] != curAC[x] && newAC[x]>>8 == color && (ascii < 176 || ascii > 178));
 				}
-				xmax = max(x-1, xmax);
+				xmax = MAX(x-1, xmax);
 				vSurface* textSurface = TTF_RenderASCII(ttf.font, asciiStr, x-x1, ttf_fgColor, ttf_bgColor, style);
 				ttf_textClip.right = (x-x1)*ttf.charWidth;
 				vBlitSurface(textSurface, &ttf_textClip, &ttf_textRect);
@@ -365,10 +362,10 @@ void EndTextLines(void)
 			int x = newPos%ttf.cols;
 			if(ttf.cursor != newPos || vga.draw.cursor.sline != prev_sline) { // If new position or shape changed, forse draw
 				prev_sline = vga.draw.cursor.sline;
-				xmin = min(x, xmin);
-				xmax = max(x, xmax);
-				ymin = min(y, ymin);
-				ymax = max(y, ymax);
+				xmin = MIN(x, xmin);
+				xmax = MAX(x, xmax);
+				ymin = MIN(y, ymin);
+				ymax = MAX(y, ymax);
 			}
 			if(x >= xmin && x <= xmax && y >= ymin && y <= ymax) { // If overdrawn previuosly (or new shape)
 				Bit8u colorBG = newAttrChar[newPos]>>12;
@@ -580,12 +577,12 @@ bool setColors(const char * colorArray)
 }
 
 bool setWinInitial(const char * winDef)
-{        // Format = <max perc>[,x-pos:y-pos]
+{        // Format = <MAX perc>[,x-pos:y-pos]
 	if(!*winDef)  // Nothing set
 		return true;
 	int testVal1, testVal2, testVal3;
 	char testStr[512];
-	if(sscanf(winDef, "%d%s", &testVal1, testStr) == 1)  // Only <max perc>
+	if(sscanf(winDef, "%d%s", &testVal1, testStr) == 1)  // Only <MAX perc>
 		if(testVal1 > 0 && testVal1 <= 100) { // 1/100% are absolute minimum/maximum
 			winPerc = testVal1;
 			return true;
@@ -630,9 +627,9 @@ void GUI_StartUp()
 		ttf.vDos = true; ;
 
 	ttf.lins = ConfGetInt("lins");
-	ttf.lins = max(24, min(txtMaxLins, ttf.lins));
+	ttf.lins = MAX(24, MIN(txtMaxLins, ttf.lins));
 	ttf.cols = ConfGetInt("cols");
-	ttf.cols = max(80, min(txtMaxCols, ttf.cols));
+	ttf.cols = MAX(80, MIN(txtMaxCols, ttf.cols));
 	for(Bitu i = 0; ModeList_VGA[i].mode <= 7; i++) { // Set the cols and lins in video mode 2,3,7
 		ModeList_VGA[i].twidth = ttf.cols;
 		ModeList_VGA[i].theight = ttf.lins;
@@ -691,11 +688,11 @@ void GUI_StartUp()
 		maxHeight -= GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYBORDER)*2;
 	}
 
-	int maxScale = min(maxWidth/640, maxHeight/480); // Based on max resolution supported VGA modes
+	int maxScale = MIN(maxWidth/640, maxHeight/480); // Based on MAX resolution supported VGA modes
 	if(window.scale > maxScale)
 		E_Exit("Config.txt: scale factor too high for screen resolution");
 	if(window.scale < 1) { // 0 = probably not set in config.txt
-		window.scale = min(maxWidth/640, maxHeight/480); // Based on max resolution supported VGA modes
+		window.scale = MIN(maxWidth/640, maxHeight/480); // Based on MAX resolution supported VGA modes
 		if(window.scale < 1)  // Probably overkill
 			window.scale = 1;
 		if(window.scale > 9)
@@ -759,11 +756,11 @@ void HandleUserActions()
 				    {selPosX1* ttf.charWidth, selPosY1*ttf.charHeight, selPosX2*ttf.charWidth+ttf.charWidth, selPosY2*
 				ttf.charHeight+ttf.charHeight};
 				    int newX = uAct.x/ttf.charWidth;
-				    selPosX1 = min(selStartX, newX);
-				    selPosX2 = max(selStartX, newX);
+				    selPosX1 = MIN(selStartX, newX);
+				    selPosX2 = MAX(selStartX, newX);
 				    int newY = uAct.y/ttf.charHeight;
-				    selPosY1 = min(selStartY, newY);
-				    selPosY2 = max(selStartY, newY);
+				    selPosY1 = MIN(selStartY, newY);
+				    selPosY2 = MAX(selStartY, newY);
 				    RECT selBox2 =
 				    {selPosX1* ttf.charWidth, selPosY1*ttf.charHeight, selPosX2*ttf.charWidth+ttf.charWidth, selPosY2*
 				ttf.charHeight+ttf.charHeight};

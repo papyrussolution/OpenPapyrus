@@ -839,21 +839,21 @@ void show_version(GpCommand & rC, FILE *fp)
 #endif
 	    const char *libgd =
 #ifdef HAVE_LIBGD
-# ifdef HAVE_GD_PNG
+#ifdef HAVE_GD_PNG
 		"+GD_PNG  "
-# endif
-# ifdef HAVE_GD_JPEG
+#endif
+#ifdef HAVE_GD_JPEG
 		"+GD_JPEG  "
-# endif
-# ifdef HAVE_GD_TTF
+#endif
+#ifdef HAVE_GD_TTF
 		"+GD_TTF  "
-# endif
-# ifdef HAVE_GD_GIF
+#endif
+#ifdef HAVE_GD_GIF
 		"+GD_GIF  "
-# endif
-# ifdef GIF_ANIMATION
+#endif
+#ifdef GIF_ANIMATION
 		"+ANIMATION  "
-# endif
+#endif
 #else
 		"-LIBGD  "
 #endif
@@ -898,9 +898,9 @@ void show_version(GpCommand & rC, FILE *fp)
 #ifdef HIDDEN3D_QUADTREE
 		"+HIDDEN3D_QUADTREE  "
 #else
-# ifdef HIDDEN3D_GRIDBOX
+#ifdef HIDDEN3D_GRIDBOX
 		"+HIDDEN3D_GRIDBOX  "
-# endif
+#endif
 #endif
 		"";
 	    const char * plotoptions= "+DATASTRINGS  +HISTOGRAMS  "
@@ -938,11 +938,11 @@ void show_version(GpCommand & rC, FILE *fp)
 	p += sizeof(prefix) - 1;
     } else {
 #ifdef BINDIR
-# ifdef X11
+#ifdef X11
 	fprintf(fp, "#!%s/gnuplot -persist\n#\n", BINDIR);
-#  else
+#else
 	fprintf(fp, "#!%s/gnuplot\n#\n", BINDIR);
-# endif				/* not X11 */
+#endif				/* not X11 */
 #endif /* BINDIR */
     }
 

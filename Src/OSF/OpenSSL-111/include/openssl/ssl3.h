@@ -143,10 +143,10 @@ extern "C" {
   * improves performance:-)
   */
 #define SSL3_ALIGN_PAYLOAD                     8
-# else
+#else
 #if (SSL3_ALIGN_PAYLOAD&(SSL3_ALIGN_PAYLOAD-1))!=0
 #   error "insane SSL3_ALIGN_PAYLOAD"
-#   undef SSL3_ALIGN_PAYLOAD
+#undef SSL3_ALIGN_PAYLOAD
 #endif
 #endif
 
@@ -191,7 +191,7 @@ extern "C" {
 
 #ifdef OPENSSL_NO_COMP
 #define SSL3_RT_MAX_COMPRESSED_LENGTH           SSL3_RT_MAX_PLAIN_LENGTH
-# else
+#else
 #define SSL3_RT_MAX_COMPRESSED_LENGTH   \
             (SSL3_RT_MAX_PLAIN_LENGTH+SSL3_RT_MAX_COMPRESSED_OVERHEAD)
 #endif

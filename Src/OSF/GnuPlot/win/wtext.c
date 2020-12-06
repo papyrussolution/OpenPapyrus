@@ -65,7 +65,7 @@
 #ifndef WGP_CONSOLE
 
 #ifndef EOF /* HBB 980809: for MinGW32 */
-# define EOF -1         /* instead of using <stdio.h> */
+#define EOF -1         /* instead of using <stdio.h> */
 #endif
 
 /* limits */

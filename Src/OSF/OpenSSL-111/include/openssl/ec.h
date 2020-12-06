@@ -1332,7 +1332,7 @@ void EC_KEY_METHOD_get_verify(const EC_KEY_METHOD * meth,
 
 #ifndef __cplusplus
 #if defined(__SUNPRO_C)
-#   if __SUNPRO_C >= 0x520
+#if __SUNPRO_C >= 0x520
 #    pragma error_messages (default,E_ARRAY_OF_INCOMPLETE_NONAME,E_ARRAY_OF_INCOMPLETE)
 #endif
 #endif

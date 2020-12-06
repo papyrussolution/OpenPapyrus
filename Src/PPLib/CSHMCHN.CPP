@@ -1378,9 +1378,9 @@ CSPanel::CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport) : TDia
 	enableCommand(cmCSClose, BIN(fZReport > 0 && (fZReport & fcspZReport)));
 	enableCommand(cmSCSZReportCopy, BIN(fZReport > 0 && (fZReport & fcspZRepCopy)));
 	enableCommand(cmSCSXReport, BIN(fZReport & fcspXReport));
+	enableCommand(cmSCSPrintCheckCopy, BIN(fZReport & fcspCheckCopy)); // @v10.9.6
 	setCtrlData(CTL_CSPANEL_NODE, nodeName);
 	setCtrlReadOnly(CTL_CSPANEL_NODE, 1);
-	// @v9.6.6 SetCtrlBitmap(CTL_CSPANEL_BMP, BM_CASH01);
 }
 
 void CSPanel::ResetButtons()
@@ -1404,7 +1404,8 @@ IMPL_HANDLE_EVENT(CSPanel)
 	if(TVCOMMAND) {
 		ushort c = TVCMD;
 		if(oneof12(c, cmCSOpen, cmCSClose, cmACSUpdate, cmCSViewCheckList, cmACSViewExcess, cmACSGetChecks,
-			cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery)) {
+			cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery) ||
+			c == cmSCSPrintCheckCopy) { // @v10.9.6 cmSCSPrintCheckCopy
 			if(IsInState(sfModal)) {
 				endModal(c);
 				return; // После endModal не следует обращаться к this

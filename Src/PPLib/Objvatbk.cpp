@@ -1355,40 +1355,38 @@ int PPViewVatBook::CalcTotal(VatBookTotal * pTotal)
 	return 1;
 }
 
-int PPViewVatBook::ViewTotal()
+void PPViewVatBook::ViewTotal()
 {
-	int    ok = 1;
 	uint   res_id = (Filt.Kind == PPVTB_SIMPLELEDGER) ? DLG_SLEDGTOTAL : DLG_VATBOOKTOTAL;
 	TDialog * dlg = 0;
 	if(Total.Count == 0)
 		CalcTotal(&Total);
-	THROW(CheckDialogPtrErr(&(dlg = new TDialog(res_id))));
-	if(Filt.Kind == PPVTB_SIMPLELEDGER) {
-		dlg->setCtrlData(CTL_SLEDGTOTAL_COUNT, &Total.Count);
-		dlg->setCtrlData(CTL_SLEDGTOTAL_AMT,  &Total.Amount);
-		dlg->setCtrlData(CTL_SLEDGTOTAL_AMTV, &Total.Excise);
-		dlg->setCtrlData(CTL_SLEDGTOTAL_EXP,  &Total.Vat0Amount);
-		dlg->setCtrlData(CTL_SLEDGTOTAL_EXPV, &Total.Export);
+	if(CheckDialogPtrErr(&(dlg = new TDialog(res_id)))) {
+		if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+			dlg->setCtrlData(CTL_SLEDGTOTAL_COUNT, &Total.Count);
+			dlg->setCtrlData(CTL_SLEDGTOTAL_AMT,  &Total.Amount);
+			dlg->setCtrlData(CTL_SLEDGTOTAL_AMTV, &Total.Excise);
+			dlg->setCtrlData(CTL_SLEDGTOTAL_EXP,  &Total.Vat0Amount);
+			dlg->setCtrlData(CTL_SLEDGTOTAL_EXPV, &Total.Export);
+		}
+		else {
+			dlg->setCtrlOption(CTL_VATBOOKTOTAL_FRAME, ofFramed, 1);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_COUNT, &Total.Count);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_AMT,  &Total.Amount);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT0, &Total.Vat0Amount);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT1, &Total.Vat1Amount);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT2, &Total.Vat2Amount);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT3, &Total.Vat3Amount);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT1, &Total.Vat1Sum);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT2, &Total.Vat2Sum);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT3, &Total.Vat3Sum);
+			SString rate_buf;
+			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT1, VatRateStr(PPObjVATBook::GetVatRate(0), rate_buf));
+			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT2, VatRateStr(PPObjVATBook::GetVatRate(1), rate_buf));
+			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT3, VatRateStr(PPObjVATBook::GetVatRate(2), rate_buf));
+		}
+		ExecViewAndDestroy(dlg);
 	}
-	else {
-		dlg->setCtrlOption(CTL_VATBOOKTOTAL_FRAME, ofFramed, 1);
-		dlg->setCtrlData(CTL_VATBOOKTOTAL_COUNT, &Total.Count);
-		dlg->setCtrlData(CTL_VATBOOKTOTAL_AMT,  &Total.Amount);
-		dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT0, &Total.Vat0Amount);
-		dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT1, &Total.Vat1Amount);
-		dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT2, &Total.Vat2Amount);
-		dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT3, &Total.Vat3Amount);
-		dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT1, &Total.Vat1Sum);
-		dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT2, &Total.Vat2Sum);
-		dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT3, &Total.Vat3Sum);
-		SString rate_buf;
-		dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT1, VatRateStr(PPObjVATBook::GetVatRate(0), rate_buf));
-		dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT2, VatRateStr(PPObjVATBook::GetVatRate(1), rate_buf));
-		dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT3, VatRateStr(PPObjVATBook::GetVatRate(2), rate_buf));
-	}
-	ExecViewAndDestroy(dlg);
-	CATCHZOK
-	return ok;
 }
 //
 //

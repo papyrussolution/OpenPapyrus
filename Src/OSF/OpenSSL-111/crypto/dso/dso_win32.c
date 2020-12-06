@@ -499,7 +499,7 @@ static const char * openssl_strnchr(const char * string, int c, size_t len)
 #define DLLNAME "TOOLHELP.DLL"
 #else
 #ifdef MODULEENTRY32
-#   undef MODULEENTRY32         /* unmask the ASCII version! */
+#undef MODULEENTRY32         /* unmask the ASCII version! */
 #endif
 #define DLLNAME "KERNEL32.DLL"
 #endif

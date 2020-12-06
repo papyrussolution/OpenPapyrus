@@ -215,7 +215,7 @@
 /* NOTE: PNGCBAPI always defaults to PNGCAPI. */
 
 #if defined(PNGAPI) && !defined(PNG_USER_PRIVATEBUILD)
-#     error "PNG_USER_PRIVATEBUILD must be defined if PNGAPI is changed"
+#error "PNG_USER_PRIVATEBUILD must be defined if PNGAPI is changed"
 #endif
 
 #if (defined(_MSC_VER) && _MSC_VER < 800) || \

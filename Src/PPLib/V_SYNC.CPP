@@ -603,9 +603,8 @@ int PPViewObjSyncCmp::CalcTotal(ObjSyncCmpTotal * pTotal)
 	return 1;
 }
 
-int PPViewObjSyncCmp::ViewTotal()
+void PPViewObjSyncCmp::ViewTotal()
 {
-	int    ok = -1;
 	ObjSyncCmpTotal total;
 	CalcTotal(&total);
 	TDialog * dlg = new TDialog(DLG_SYNCCMPTOTAL);
@@ -618,9 +617,6 @@ int PPViewObjSyncCmp::ViewTotal()
 		dlg->setCtrlLong(CTL_SYNCCMPTOTAL_COUNT,   total.Count);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int PPViewObjSyncCmp::RemoveAllSync()

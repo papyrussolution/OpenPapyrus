@@ -954,7 +954,7 @@ int PPViewGoodsTaxAnalyze::CalcTotal(GoodsTaxAnalyzeTotal * pTotal)
 	return ok;
 }
 
-int PPViewGoodsTaxAnalyze::ViewTotal()
+void PPViewGoodsTaxAnalyze::ViewTotal()
 {
 	class GTaxAnlzTotalDialog : public TDialog {
 	public:
@@ -1015,27 +1015,26 @@ int PPViewGoodsTaxAnalyze::ViewTotal()
 		GoodsTaxAnalyzeTotal Total;
 		PPViewGoodsTaxAnalyze * P_V;
 	};
-	int    ok = 1;
 	GoodsTaxAnalyzeTotal  total;
 	if(CalcTotal(&total) > 0) {
 		if(Filt.Flags & GoodsTaxAnalyzeFilt::fLedgerByLots) {
-			TDialog * dlg = 0;
-			THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GTANLZTOTAL_PIL))));
-			dlg->setCtrlLong(CTL_GTANLZTOTAL_COUNT, total.Count);
-			dlg->setCtrlReal(CTL_GTANLZTOTAL_RCPT,  total.PilRcptSum);
-			dlg->setCtrlReal(CTL_GTANLZTOTAL_EXP,   total.PilExpSum);
-			dlg->setCtrlReal(CTL_GTANLZTOTAL_REST,  total.PilRestSum);
-			ExecViewAndDestroy(dlg);
+			TDialog * dlg = new TDialog(DLG_GTANLZTOTAL_PIL);
+			if(CheckDialogPtrErr(&dlg)) {
+				dlg->setCtrlLong(CTL_GTANLZTOTAL_COUNT, total.Count);
+				dlg->setCtrlReal(CTL_GTANLZTOTAL_RCPT,  total.PilRcptSum);
+				dlg->setCtrlReal(CTL_GTANLZTOTAL_EXP,   total.PilExpSum);
+				dlg->setCtrlReal(CTL_GTANLZTOTAL_REST,  total.PilRestSum);
+				ExecViewAndDestroy(dlg);
+			}
 		}
 		else {
-			GTaxAnlzTotalDialog * dlg = 0;
-			THROW(CheckDialogPtr(&(dlg = new GTaxAnlzTotalDialog(&total, this))));
-			THROW(dlg->setDTS());
-			ExecViewAndDestroy(dlg);
+			GTaxAnlzTotalDialog * dlg = new GTaxAnlzTotalDialog(&total, this);
+			if(CheckDialogPtrErr(&dlg)) {
+				dlg->setDTS();
+				ExecViewAndDestroy(dlg);
+			}
 		}
 	}
-	CATCHZOKPPERR
-	return ok;
 }
 
 int ViewGoodsTaxAnalyze(const GoodsTaxAnalyzeFilt * pFilt) { return PPView::Execute(PPVIEW_GOODSTAXANALYZE, pFilt, PPView::exefModeless, 0); }

@@ -131,13 +131,13 @@
 #include "version.h"
 
 #ifndef _O_BINARY
-# define _O_BINARY O_BINARY
+#define _O_BINARY O_BINARY
 #endif
 #if(__BORLANDC__ >= 0x450) /* about BCBuilder 1.0 */
-# define _setmode setmode
+#define _setmode setmode
 #endif
 #ifdef __WATCOMC__
-# define _setmode setmode
+#define _setmode setmode
 #endif
 
 /* Customize this path if needed */

@@ -711,7 +711,7 @@ DWORD __ptw32_relmillisecs(const struct timespec * abstime)
 #if defined(WINCE)
 	GetSystemTime(&st);
 	SystemTimeToFileTime(&st, &ft);
-# else
+#else
 	GetSystemTimeAsFileTime(&ft);
 #endif
 	__ptw32_filetime_to_timespec(&ft, &currSysTime);

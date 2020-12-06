@@ -23,10 +23,10 @@
 #include <dbf.h>
 // Palm CDK includes (papyrus\src\include\palmcdk\403) {
 #include <palmcdk\403\syncmgr.h>
-#include <palmcdk\403\condapi.h>
-#include <palmcdk\403\logstrng.h>
-#include <palmcdk\403\hslog.h>
-#include <palmcdk\403\palm_cmn.H>
+// @v10.9.6 #include <palmcdk\403\condapi.h>
+// @v10.9.6 #include <palmcdk\403\logstrng.h>
+// @v10.9.6 #include <palmcdk\403\hslog.h>
+// @v10.9.6 #include <palmcdk\403\palm_cmn.H>
 #include <palmcdk\403\userdata.h>
 // } Palm CDK includes
 #include <stylopalm.h>

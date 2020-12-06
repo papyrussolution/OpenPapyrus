@@ -3539,9 +3539,8 @@ int PPViewCCheck::RemoveAll()
 	return ok;
 }
 
-int PPViewCCheck::ViewTotal()
+void PPViewCCheck::ViewTotal()
 {
-	int    ok = 1;
 	TDialog * dlg = 0;
 	CCheckTotal total;
 	CalcTotal(&total);
@@ -3559,9 +3558,6 @@ int PPViewCCheck::ViewTotal()
 		dlg->setCtrlLong(CTL_CCHECKTOTAL_GUESTC,   total.GuestCount);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int PPViewCCheck::AddItem()

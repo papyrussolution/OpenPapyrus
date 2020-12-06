@@ -495,9 +495,8 @@ int FASTCALL PPViewFreight::NextIteration(FreightViewItem * pItem)
 		return -1;
 }
 
-int PPViewFreight::ViewTotal()
+void PPViewFreight::ViewTotal()
 {
-	int    ok = -1;
 	long   count = 0;
 	double amount = 0.0;
 	double pack_count = 0.0;
@@ -520,9 +519,6 @@ int PPViewFreight::ViewTotal()
 		dlg->setCtrlReal(CTL_FRGHTTOTAL_VOLUME, volume);
 		ExecViewAndDestroy(dlg);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -532,15 +528,15 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_loc;
 	DBE    dbe_ar;
 	DBE    dbe_agent;
-	DBE    dbe_ship; // @v9.8.4 
-	DBE    dbe_memo; // @v9.8.4 
+	DBE    dbe_ship;
+	DBE    dbe_memo;
 	DBQuery * q = 0;
 	THROW(CheckTblPtr(tbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr,  tbl->ObjectID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_agent, PPDbqFuncPool::IdObjNameAr,  tbl->AgentID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
-	PPDbqFuncPool::InitStrPoolRefFunc(dbe_ship, tbl->ShipNameP, &StrPool); // @v9.8.4 
-	PPDbqFuncPool::InitStrPoolRefFunc(dbe_memo, tbl->MemoP, &StrPool); // @v9.8.4 
+	PPDbqFuncPool::InitStrPoolRefFunc(dbe_ship, tbl->ShipNameP, &StrPool);
+	PPDbqFuncPool::InitStrPoolRefFunc(dbe_memo, tbl->MemoP, &StrPool);
 	q = & select(
 		tbl->BillID,    //  #0
 		tbl->BillDate,  //  #1

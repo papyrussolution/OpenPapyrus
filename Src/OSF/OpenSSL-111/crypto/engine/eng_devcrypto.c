@@ -762,16 +762,16 @@ void engine_load_devcrypto_int()
  * /Richard Levitte, 2017-05-11
  */
 #if 0
-# ifndef OPENSSL_NO_RSA
+#ifndef OPENSSL_NO_RSA
 	    || !ENGINE_set_RSA(e, devcrypto_rsa)
 #endif
-# ifndef OPENSSL_NO_DSA
+#ifndef OPENSSL_NO_DSA
 	    || !ENGINE_set_DSA(e, devcrypto_dsa)
 #endif
-# ifndef OPENSSL_NO_DH
+#ifndef OPENSSL_NO_DH
 	    || !ENGINE_set_DH(e, devcrypto_dh)
 #endif
-# ifndef OPENSSL_NO_EC
+#ifndef OPENSSL_NO_EC
 	    || !ENGINE_set_EC(e, devcrypto_ec)
 #endif
 #endif

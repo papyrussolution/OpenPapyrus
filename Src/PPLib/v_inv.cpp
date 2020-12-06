@@ -1708,11 +1708,11 @@ int PPViewInventory::Build()
 	return ok;
 }
 
-int PPViewInventory::ViewTotal()
+void PPViewInventory::ViewTotal()
 {
 	PPIDArray id_list;
 	Filt.BillList.Get(id_list);
-	return BillObj->ViewInventoryTotal(id_list, &Filt);
+	BillObj->ViewInventoryTotal(id_list, &Filt);
 }
 
 int PPViewInventory::Print(const void *)

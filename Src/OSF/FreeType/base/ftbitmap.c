@@ -28,27 +28,22 @@
 #undef  FT_COMPONENT
 #define FT_COMPONENT  bitmap
 
-static
-const FT_Bitmap null_bitmap = { 0, 0, 0, NULL, 0, 0, 0, NULL };
+static const FT_Bitmap null_bitmap = { 0, 0, 0, NULL, 0, 0, 0, NULL };
 
 /* documentation is in ftbitmap.h */
-
 FT_EXPORT_DEF(void) FT_Bitmap_Init(FT_Bitmap  *abitmap)
 {
-	if(abitmap)
-		*abitmap = null_bitmap;
+	ASSIGN_PTR(abitmap, null_bitmap);
 }
 
 /* deprecated function name; retained for ABI compatibility */
 
 FT_EXPORT_DEF(void) FT_Bitmap_New(FT_Bitmap  *abitmap)
 {
-	if(abitmap)
-		*abitmap = null_bitmap;
+	ASSIGN_PTR(abitmap, null_bitmap);
 }
 
 /* documentation is in ftbitmap.h */
-
 FT_EXPORT_DEF(FT_Error) FT_Bitmap_Copy(FT_Library library, const FT_Bitmap  *source, FT_Bitmap        *target)
 {
 	FT_Memory memory;
@@ -68,38 +63,28 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Copy(FT_Library library, const FT_Bitmap  *sou
 		*target = *source;
 		if(source_pitch_sign != target_pitch_sign)
 			target->pitch = -target->pitch;
-
 		return FT_Err_Ok;
 	}
-
 	memory = library->memory;
 	pitch  = source->pitch;
-
 	if(pitch < 0)
 		pitch = -pitch;
 	size = (FT_ULong)pitch * source->rows;
-
 	if(target->buffer) {
 		FT_Int target_pitch = target->pitch;
 		FT_ULong target_size;
-
 		if(target_pitch < 0)
 			target_pitch = -target_pitch;
 		target_size = (FT_ULong)target_pitch * target->rows;
-
 		if(target_size != size)
 			(void)FT_QREALLOC(target->buffer, target_size, size);
 	}
 	else
 		(void)FT_QALLOC(target->buffer, size);
-
 	if(!error) {
-		unsigned char * p;
-
-		p = target->buffer;
+		unsigned char * p = target->buffer;
 		*target = *source;
 		target->buffer = p;
-
 		if(source_pitch_sign == target_pitch_sign)
 			FT_MEM_COPY(target->buffer, source->buffer, size);
 		else{
@@ -107,42 +92,29 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Copy(FT_Library library, const FT_Bitmap  *sou
 			FT_UInt i;
 			FT_Byte*  s = source->buffer;
 			FT_Byte*  t = target->buffer;
-
 			t += (FT_ULong)pitch * ( target->rows - 1 );
-
 			for(i = target->rows; i > 0; i--) {
 				FT_ARRAY_COPY(t, s, pitch);
-
 				s += pitch;
 				t -= pitch;
 			}
 		}
 	}
-
 	return error;
 }
 
 /* Enlarge `bitmap' horizontally and vertically by `xpixels' */
 /* and `ypixels', respectively.                              */
-
-static FT_Error ft_bitmap_assure_buffer(FT_Memory memory,
-    FT_Bitmap*  bitmap,
-    FT_UInt xpixels,
-    FT_UInt ypixels)
+static FT_Error ft_bitmap_assure_buffer(FT_Memory memory, FT_Bitmap*  bitmap, FT_UInt xpixels, FT_UInt ypixels)
 {
 	FT_Error error;
-	unsigned int pitch;
 	unsigned int new_pitch;
 	FT_UInt bpp;
-	FT_UInt width, height;
 	unsigned char*  buffer = NULL;
-
-	width  = bitmap->width;
-	height = bitmap->rows;
-	pitch  = (unsigned int)FT_ABS(bitmap->pitch);
-
-	switch(bitmap->pixel_mode)
-	{
+	FT_UInt width  = bitmap->width;
+	FT_UInt height = bitmap->rows;
+	unsigned int pitch  = (unsigned int)FT_ABS(bitmap->pitch);
+	switch(bitmap->pixel_mode) {
 		case FT_PIXEL_MODE_MONO:
 		    bpp       = 1;
 		    new_pitch = ( width + xpixels + 7 ) >> 3;
@@ -170,7 +142,6 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory,
 		/* zero the padding */
 		FT_UInt bit_width = pitch * 8;
 		FT_UInt bit_last  = ( width + xpixels ) * bpp;
-
 		if(bit_last < bit_width) {
 			FT_Byte*  line  = bitmap->buffer + ( bit_last >> 3 );
 			FT_Byte*  end   = bitmap->buffer + pitch;
@@ -238,7 +209,6 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory,
 }
 
 /* documentation is in ftbitmap.h */
-
 FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitmap, FT_Pos xStrength, FT_Pos yStrength)
 {
 	FT_Error error;
@@ -397,7 +367,6 @@ static FT_Byte ft_gray_for_premultiplied_srgb_bgra(const FT_Byte*  bgra)
 }
 
 /* documentation is in ftbitmap.h */
-
 FT_EXPORT_DEF(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *source, FT_Bitmap        *target, FT_Int alignment)
 {
 	FT_Error error = FT_Err_Ok;
@@ -635,7 +604,6 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *
 }
 
 /* documentation is in ftbitmap.h */
-
 FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  source_, const FT_Vector source_offset_, FT_Bitmap*        target,
     FT_Vector        *atarget_offset, FT_Color color)
 {
@@ -905,7 +873,6 @@ Error:
 }
 
 /* documentation is in ftbitmap.h */
-
 FT_EXPORT_DEF(FT_Error) FT_GlyphSlot_Own_Bitmap(FT_GlyphSlot slot)
 {
 	if(slot && slot->format == FT_GLYPH_FORMAT_BITMAP   && !( slot->internal->flags & FT_GLYPH_OWN_BITMAP ) ) {
@@ -922,7 +889,6 @@ FT_EXPORT_DEF(FT_Error) FT_GlyphSlot_Own_Bitmap(FT_GlyphSlot slot)
 }
 
 /* documentation is in ftbitmap.h */
-
 FT_EXPORT_DEF(FT_Error) FT_Bitmap_Done(FT_Library library, FT_Bitmap  *bitmap)
 {
 	FT_Memory memory;

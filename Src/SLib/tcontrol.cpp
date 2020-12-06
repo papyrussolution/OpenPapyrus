@@ -34,13 +34,12 @@ SString & TStaticText::getText(SString & rBuf) const
 int TStaticText::setText(const char * s)
 {
 	int    ok = -1;
-	Text = s;
-	Text.ShiftLeftChr('\003');
+	(Text = s).ShiftLeftChr('\003');
 	if(Parent) {
 		//
 		// Замещаем конструкцию '~c~' на '$c'
 		//
-		SString temp_buf = Text;
+		SString temp_buf(Text);
 		size_t _p = 0;
 		while(temp_buf.SearchChar('~', &_p) && temp_buf.C(_p+1) && temp_buf.C(_p+2) == '~') {
 			char new_item[4];
@@ -148,15 +147,13 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 const int cmGrabDefault    = 61;
 const int cmReleaseDefault = 62;
 
-TButton::TButton(const TRect& bounds, const char *aTitle, ushort aCommand, ushort aFlags, uint bmpID) : TView(bounds), flags(aFlags), command(aCommand)
+TButton::TButton(const TRect& bounds, const char * pTitle, ushort aCommand, ushort aFlags, uint bmpID) : TView(bounds), 
+	flags(aFlags), command(aCommand), Title(pTitle), BmpID(bmpID), HBmp(0)
 {
 	SubSign = TV_SUBSIGN_BUTTON;
 	ViewOptions |= (ofSelectable|ofPreProcess|ofPostProcess);
-	Title = aTitle;
 	if(!commandEnabled(aCommand))
 		Sf |= sfDisabled;
-	BmpID = bmpID;
-	HBmp  = 0;
 }
 
 TButton::~TButton()

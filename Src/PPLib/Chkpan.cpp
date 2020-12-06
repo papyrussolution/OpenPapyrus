@@ -1315,7 +1315,23 @@ int    CPosProcessor::GetGuestCount() const { return P.GuestCount; }
 PPID   CPosProcessor::GetCnLocID(PPID goodsID) const { return (ExtCashNodeID && ExtCnLocID && BelongToExtCashNode(goodsID)) ? ExtCnLocID : CnLocID; }
 int    CPosProcessor::InitIteration() { return P.InitIteration(); }
 int    FASTCALL CPosProcessor::NextIteration(CCheckItem * pItem) { return P.NextIteration(pItem); }
-double CPosProcessor::GetUsableBonus() const { return (Flags & fSCardBonus) ? CSt.UsableBonus : 0.0; }
+
+double CPosProcessor::GetUsableBonus() const 
+{ 
+	// @v10.9.6 return (Flags & fSCardBonus) ? CSt.UsableBonus : 0.0; 
+	// @v10.9.6 {
+	double result = 0.0;
+	if(Flags & fSCardBonus) {
+		if(CSt.CSTRB.SpecialTreatment && CSt.CSTRB.Flags & CSt.CSTRB.fBonusDisabled) {
+			result = 0.0;
+		}
+		else
+			result = CSt.UsableBonus;
+	}
+	return result;
+	// } @v10.9.6 
+}
+
 double CPosProcessor::GetBonusMaxPart() const { return BonusMaxPart; } // @v10.9.0
 double CPosProcessor::RoundDis(double d) const { return Round(d, R.DisRoundPrec, R.DisRoundDir); }
 
@@ -5496,13 +5512,10 @@ private:
 		}
 		else if(TVCMD == cmInputUpdated) {
 			if(event.isCtlEvent(CTL_CCHKDLVR_PHONE)) {
-				static int __lock = 0;
-				if(!__lock) {
-					__lock = 1;
-					ReplyPhone(0); // @v9.4.5 0-->1 // @v9.4.7 1-->0
+				UI_LOCAL_LOCK_ENTER
+					ReplyPhone(0);
 					CheckAddrModif(1);
-					__lock = 0;
-				}
+				UI_LOCAL_LOCK_LEAVE
 			}
 			else if(event.isCtlEvent(CTL_CCHKDLVR_ADDR) || event.isCtlEvent(CTL_CCHKDLVR_CONTACT))
 				CheckAddrModif(1);
@@ -5529,7 +5542,7 @@ private:
 				}
 				else
 					Data.SCardID_ = 0;
-				SetupDeliveryCtrls(0); // @v9.4.11
+				SetupDeliveryCtrls(0);
 			}
 		}
 		else
@@ -5695,17 +5708,14 @@ private:
 			PPObjSCard ScObj;
 		};
 		{
-			static int __lock = 0;
-			if(!__lock) {
-				__lock = 1;
+			UI_LOCAL_LOCK_ENTER
 				SelAddrByPhoneDialog * dlg = new SelAddrByPhoneDialog(&AddrByPhoneList);
 				if(CheckDialogPtrErr(&dlg)) {
 					if(ExecView(dlg) == cmOK)
 						SetupAddr(dlg->getSelectedItem());
 				}
 				delete dlg;
-				__lock = 0;
-			}
+			UI_LOCAL_LOCK_LEAVE
 		}
 	}
 	int    ReplyPhone(int immSelect)
@@ -7297,7 +7307,7 @@ void CheckPaneDialog::setupHint()
 //
 //
 //
-int CheckPaneDialog::SelectCheck(PPID * pChkID, SString * pSelFormat, long flags/*int selSlipDocForm, int thisNodeOnly*/)
+int CheckPaneDialog::SelectCheck(PPID * pChkID, SString * pSelFormat, const char * pTitle, long flags)
 {
 	int    ok = -1;
 	_SelCheck  sch;
@@ -7311,6 +7321,10 @@ int CheckPaneDialog::SelectCheck(PPID * pChkID, SString * pSelFormat, long flags
 	const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELCHECK_L : DLG_SELCHECK;
 	SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, (pSelFormat ? ((flags & scfSelSlipDocForm) ? 1 : -1) : 0), P_CM, this, &param);
 	if(CheckDialogPtrErr(&dlg)) {
+		// @v10.9.6 {
+		if(!isempty(pTitle))
+			dlg->setTitle(pTitle);
+		// } @v10.9.6 
 		while(ok < 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&sch))
 				ok = 1;
@@ -7581,7 +7595,8 @@ void CheckPaneDialog::setupRetCheck(int ret)
 				CCheckPacket  chk_pack;
 				if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
 					PPID   chk_id = 0;
-					if(SelectCheck(&chk_id, 0, 0 /*scfXXX*/) > 0) {
+					PPLoadString("selectccheck_forrefund", temp_buf); // @v10.9.6
+					if(SelectCheck(&chk_id, 0, temp_buf/*pTitle*/, 0) > 0) {
 						GetCc().LoadPacket(chk_id, 0, &SelPack);
 						chk_pack.CopyLines(SelPack);
 						if(SelPack.Rec.SCardID)
@@ -11334,8 +11349,10 @@ int CheckPaneDialog::PrintCheckCopy()
 	int     ok = -1;
 	PPID    chk_id = 0;
 	SString format_name("CCheckCopy");
+	SString title_buf;
 	THROW_PP(OperRightsFlags & orfCopyCheck, PPERR_NORIGHTS);
-	if(IsState(sEMPTYLIST_EMPTYBUF) && SelectCheck(&chk_id, &format_name, scfThisNodeOnly|scfAllowReturns /*0, 1*/ /* thisNodeOnly */) > 0) {
+	PPLoadString("selectccheck_forcopy", title_buf); // @v10.9.6
+	if(IsState(sEMPTYLIST_EMPTYBUF) && SelectCheck(&chk_id, &format_name, title_buf, scfThisNodeOnly|scfAllowReturns) > 0) {
 		CCheckPacket   pack, ext_pack;
 		THROW(InitCashMachine());
 		if(chk_id) {
@@ -11375,6 +11392,7 @@ int CheckPaneDialog::PrintSlipDocument()
 {
 	int     ok = -1;
 	SString format_name;
+	SString title_buf;
 	if(oneof2(GetState(), sEMPTYLIST_EMPTYBUF, sLIST_EMPTYBUF) && CashNodeID) {
 		PPID    chk_id = 0;
 		if(IsState(sLIST_EMPTYBUF)) {
@@ -11389,7 +11407,8 @@ int CheckPaneDialog::PrintSlipDocument()
 				//
 			}
 		}
-		if(format_name.NotEmpty() || SelectCheck(&chk_id, &format_name, scfSelSlipDocForm|scfThisNodeOnly|scfAllowReturns/*1, 1*/ /* thisNodeOnly */) > 0) {
+		PPLoadString("selectccheck_forslip", title_buf); // @v10.9.6
+		if(format_name.NotEmpty() || SelectCheck(&chk_id, &format_name, title_buf, scfSelSlipDocForm|scfThisNodeOnly|scfAllowReturns) > 0) {
 			int   r = -1;
 			CCheckPacket  pack;
 			THROW(InitCashMachine());
@@ -11705,9 +11724,9 @@ int CheckPaneDialog::PrintCashReports()
 	CSPanel * dlg = 0;
 	if(!(Flags & fNoEdit) && IsState(sEMPTYLIST_EMPTYBUF)) {
 		int    csp_flags = 0;
-		/*
-			Снять X-отчет;Открыть сессию;Копия Z-отчета;Инкассация;Блокировать;Разблокировать;Открыть денежный ящик;Режим ввода чека-метки
-		*/
+		// 
+		// Снять X-отчет;Открыть сессию;Копия Z-отчета;Инкассация;Блокировать;Разблокировать;Открыть денежный ящик;Режим ввода чека-метки
+		// 
 		{
 #if 0 // @construction {
 			SString temp_buf;
@@ -11730,9 +11749,10 @@ int CheckPaneDialog::PrintCashReports()
 #endif // } 0 @construction
 		}
 		LDATE  dt;
-		SETFLAG(csp_flags, CSPanel::fcspZReport,  OperRightsFlags & orfZReport);
-		SETFLAG(csp_flags, CSPanel::fcspZRepCopy, OperRightsFlags & orfCopyZReport);
-		SETFLAG(csp_flags, CSPanel::fcspXReport,  OperRightsFlags & orfXReport);
+		SETFLAG(csp_flags, CSPanel::fcspZReport,   OperRightsFlags & orfZReport);
+		SETFLAG(csp_flags, CSPanel::fcspZRepCopy,  OperRightsFlags & orfCopyZReport);
+		SETFLAG(csp_flags, CSPanel::fcspXReport,   OperRightsFlags & orfXReport);
+		SETFLAG(csp_flags, CSPanel::fcspCheckCopy, (OperRightsFlags & orfCopyCheck) && IsState(sEMPTYLIST_EMPTYBUF)); // @v10.9.6
 		dlg = new CSPanel((DlgFlags & fLarge) ? DLG_CASHREPORTS_L : DLG_CASHREPORTS, CashNodeID, 0, csp_flags); // @newok
 		THROW(CheckDialogPtr(&dlg));
 		THROW(InitCashMachine());
@@ -11798,6 +11818,9 @@ int CheckPaneDialog::PrintCashReports()
 					break;
 				case cmSCSIncasso:
 					r = P_CM->SyncPrintIncasso();
+					break;
+				case cmSCSPrintCheckCopy: // @v10.9.6
+					PrintCheckCopy();
 					break;
 			}
 			if(r == 0 || r_ext == 0)

@@ -71,14 +71,14 @@
 
 #elif defined(__BCPLUSPLUS__)
 
-#  include "ac-config.win32.h"
+#include "ac-config.win32.h"
 // I am assuming this header file is created and include automatically by MSVC.
 // Other compilers (I.e. BC++ ) don't have this, so I simply copied the file
 // from the MSC project to the RadStudio project and included it. RLN 111208
 
 #elif defined(__CODEBLOCKS__)  // This was __linux__ but added the define to the codeblocks config files
 
-#  include "ac-config.linux32.h"
+#include "ac-config.linux32.h"
 // I have been copying these ac-config files
 // for each target compiler under the respective build subdirectory
 // (i.e. xlslib/build/CodeBlocks and modified as needed.
