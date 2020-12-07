@@ -176,7 +176,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 	if(i) {
 		PPIDArray id_list;
 		SString fmt_buf, msg_buf;
-		if(CS_SERVER)
+		if(!DS.IsThreadInteractive())
 			PPLoadText(PPTXT_SELECTINGGOODSBYGROUP, fmt_buf);
 		do {
 			id_list.clear();
@@ -204,8 +204,8 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 					}
 					else {
 						p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, grp_id, &id_list);
-						if(CS_SERVER) {
-							long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
+						if(!DS.IsThreadInteractive()) {
+							const long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
 							(msg_buf = fmt_buf).Space().Cat(_mc);
 							PPWaitMsg(msg_buf);
 						}
@@ -228,8 +228,8 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 							}
 							else {
 								THROW(p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, int_grp_id, &temp_alt_list));
-								if(CS_SERVER) {
-									long _mc = SVectorBase::GetCount(pList) + temp_alt_list.getCount();
+								if(!DS.IsThreadInteractive()) {
+									const long _mc = SVectorBase::GetCount(pList) + temp_alt_list.getCount();
 									(msg_buf = fmt_buf).Space().Cat(_mc);
 									PPWaitMsg(msg_buf);
 								}
@@ -273,7 +273,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 								if(!(Filt.Flags & GoodsFilt::fOutOfMatrix) || !P_MtxList || !P_MtxList->bsearch(id)) {
 									if(GObj.CheckForFilt(&Filt, 0, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG)) {
 										THROW(id_list.add(id));
-										if(CS_SERVER) {
+										if(!DS.IsThreadInteractive()) {
 											const long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
 											if((_mc % 100) == 0) {
 												(msg_buf = fmt_buf).Space().Cat(_mc);

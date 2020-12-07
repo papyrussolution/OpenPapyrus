@@ -2301,6 +2301,19 @@ int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList
 int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo) { return ThreadList.GetInfo(tId, rInfo); }
 int FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem) { return P_LogQueue ? P_LogQueue->Push(rItem) : -1; }
 
+int PPSession::IsThreadInteractive() const
+{
+	if(/*CS_SERVER*/CheckExtFlag(ECF_SYSSERVICE))
+		return 0;
+	else {
+		const PPThreadLocalArea & r_tla = GetConstTLA();
+		if(r_tla.IsConsistent())
+			return (r_tla.State & PPThreadLocalArea::stNonInteractive) ? 0 : 1;
+		else
+			return 0;
+	}
+}
+
 int PPSession::SetThreadNotification(int type, const void * pData)
 {
 	int    ok = -1;
@@ -2818,7 +2831,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 		const long db_path_id = DBS.GetDbPathID();
 		DbProvider * p_dict = CurDict;
 		assert(p_dict);
-		p_dict->GetDatabaseState(&db_state); // @v9.9.0
+		p_dict->GetDatabaseState(&db_state);
 		{
 			//
 			// »м€ SYSTEM €вл€етс€ встроенным аналогом имени MASTER и отличаетс€ //
@@ -4291,7 +4304,7 @@ int PPSession::RestCheckingStatus(int s)
 	return c;
 }
 
-int FASTCALL PPSession::CheckExtFlag(long f)
+int FASTCALL PPSession::CheckExtFlag(long f) const
 {
 	int    result = 0;
 	ExtFlagsLck.Lock();

@@ -5162,7 +5162,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							PPID   tag_id = subcriterion;
 							THROW_PP(tag_id, PPERR_CMDSEL_UNDEFTAGINTAGVALCRIT);
 							THROW_PP(rArg.NotEmpty(), PPERR_CMDSEL_UNDEFVALINTAGVALCRIT);
-							THROW_PP_S(TagObj.NormalizeTextCriterion(tag_id, rArg, norm_buf) != 0, PPERR_CMDSEL_INVTAGVALCRIT, rArg); // @v8.3.12 (>0) --> (!=0)
+							THROW_PP_S(TagObj.NormalizeTextCriterion(tag_id, rArg, norm_buf) != 0, PPERR_CMDSEL_INVTAGVALCRIT, rArg);
 							TagFilt::SetRestriction(norm_buf, temp_buf.Z());
 							SETIFZ(P_GoodsF->P_TagF, new TagFilt);
 							THROW_MEM(P_GoodsF->P_TagF);

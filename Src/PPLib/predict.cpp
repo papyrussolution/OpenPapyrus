@@ -22,7 +22,7 @@ struct LocValEntry { // @flat
 	int16  Reserve;      // @alignment
 };
 
-class LocValList : public SVector { // @v9.8.10 SArray-->SVector
+class LocValList : public SVector {
 public:
 	LocValList();
 	int    Setup(LDATE startDate, const GoodsRestParam *);
@@ -37,11 +37,11 @@ private:
 	LDATE  StartDate;
 };
 
-LocValList::LocValList() : SVector(sizeof(LocValEntry)) // @v9.8.10 SArray-->SVector
+LocValList::LocValList() : SVector(sizeof(LocValEntry))
 {
 }
 
-int LocValList::Setup(LDATE startDate, PPID goodsID, const TSVector <PrcssrPrediction::_GoodsLocRestItem> * pList) // @v9.8.4 TSArray-->TSVect
+int LocValList::Setup(LDATE startDate, PPID goodsID, const TSVector <PrcssrPrediction::_GoodsLocRestItem> * pList)
 {
 	assert(pList);
 	StartDate = startDate;
@@ -425,7 +425,7 @@ PPPredictConfig::PPPredictConfig()
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 0, PPPredictConfig::fZeroPckgUp);
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 1, PPPredictConfig::fUseInsurStock);
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 2, PPPredictConfig::fMinStockAsMinOrder);
-	dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 3, PPPredictConfig::fRoundManualQtty); // @v9.8.0
+	dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 3, PPPredictConfig::fRoundManualQtty);
 	dlg->SetClusterData(CTL_PREDICTCFG_FLAGS, cfg.Flags);
 	dlg->setCtrlData(CTL_PREDICTCFG_DTENDCALC, &cfg.EndCalcDate);
 	if(cfg.Flags & PPPredictConfig::fContinueBuilding) {
@@ -1128,7 +1128,7 @@ int PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE c
 	int    ok = 1;
 	uint   i, j;
 	int    break_process = 0;
-	int    show_wait_msg = CS_SERVER ? 0 : 1;
+	int    show_wait_msg = DS.IsThreadInteractive();
 	PredictSalesStat * p_stat_list = 0;
 	//
 	// Рассчитываем статистику по товарам
@@ -1370,7 +1370,7 @@ int PrcssrPrediction::RecalcStat(LDATE commonLastDate, PredictSalesCore::StatSto
 	const uint max_stat_entries = 128 * 1024;
 	int    ok = 1, ta = 0;
 	int    break_process = 0;
-	int    show_wait_msg = CS_SERVER ? 0 : 1;
+	int    show_wait_msg = DS.IsThreadInteractive();
 	int    stat_entry_idx = -1;
 	PredictSalesStat * p_stat_list = 0;
 	PROFILE_START
@@ -1496,14 +1496,14 @@ int __HolidayArray::Is(int16 locIdx, LDATE dt)
 int PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _MassGoodsRestBlock * pRestBlk, int calcStat, int use_ta)
 {
 	PPUserFuncProfiler ufp((P.Process == P.prcsTest) ? PPUPRF_PSALBLDGOODSTEST : PPUPRF_PSALBLDGOODS);
-	int    ok = 1, /*ta = 0,*/ r;
+	int    ok = 1;
 	int    break_process = 0;
 	uint   j;
 	SArray * p_vect = 0;
 	TSCollection <__CI> lvl_list;
 	DateRange comm_period = P.GetNormPeriod();
 	SString msg_fmt, msg, goods_name, period_buf, temp_buf;
-	int    show_wait_msg = CS_SERVER ? 0 : 1;
+	int    show_wait_msg = DS.IsThreadInteractive();
 	PPLogger * p_logger = 0;
 	//
 	// В дальнейшем мы закладываемся на то, что список товаров отсортирован
@@ -1777,6 +1777,7 @@ int PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _MassGoodsR
 				THROW(T.Finish(1, 0));
 				THROW(tra.Commit());
 				{
+					int    r = 1;
 					if(calcStat) {
 						//
 						// Разрываем транзакцию чтобы сканирование таблицы продаж для подстчета статистики
@@ -1784,8 +1785,6 @@ int PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _MassGoodsR
 						//
 						THROW(r = StoreStatByGoodsList(rGoodsList, P.GetNormPeriod().upp, &Stat.Sse, 1));
 					}
-					else
-						r = 1;
 					if(r > 0) {
 						//
 						// В конфигурации отмечаем факт завершения транзакции по очередному блоку товаров.

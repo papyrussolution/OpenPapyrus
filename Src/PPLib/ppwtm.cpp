@@ -207,7 +207,7 @@ class WhatmanObjectLayout : public WhatmanObjectLayoutBase {
 public:
 	WhatmanObjectLayout() : WhatmanObjectLayoutBase()
 	{
-		Options |= (oMovable | oResizable | oMultSelectable);
+		Options |= (oMovable | oResizable | oMultSelectable | oContainer); // @v10.9.6 oContainer
 	}
 	~WhatmanObjectLayout()
 	{
@@ -217,7 +217,14 @@ protected:
 	{
 		TRect b = GetBounds();
 		const TWhatman * p_wtm = GetOwner();
-		rCanv.Rect(b.grow(-1, -1), p_wtm ? p_wtm->GetTool(TWhatman::toolPenLayoutBorder) : 0, 0);
+		int   tool = 0;
+		if(p_wtm) {
+			if(State & stContainerCandidate)
+				tool = p_wtm->GetTool(TWhatman::toolPenContainerCandidateBorder);
+			else
+				tool = p_wtm->GetTool(TWhatman::toolPenLayoutBorder);
+		}
+		rCanv.Rect(b.grow(-1, -1), tool, 0);
 		return 1;
 	}
 	virtual int HandleCommand(int cmd, void * pExt)
@@ -1544,7 +1551,8 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), w
 
 	Tb.CreatePen(penGrid, SPaintObj::psDash, 1.0f, SColor(0.7f));
 	Tb.CreatePen(penSubGrid, SPaintObj::psDot, 1.0f, SColor(0.7f));
-	Tb.CreatePen(penLayoutBorder, SPaintObj::psDot, 1.0f, SColor(SClrGreen)); // @v10.4.8
+	Tb.CreatePen(penLayoutBorder, SPaintObj::psDot, 2.0f, SColor(SClrDarkgreen)); // @v10.4.8 // @v10.9.6 1.0f-->2.0f, SClrGreen-->SClrDarkgreen
+	Tb.CreatePen(penContainerCandidateBorder, SPaintObj::psSolid, 2.0f, SColor(SClrCoral)); // @v10.9.6
 
 	W.SetTool(TWhatman::toolPenObjBorder, penObjBorder);
 	W.SetTool(TWhatman::toolPenObjBorderSel, penObjBorderSel);
@@ -1557,6 +1565,7 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), w
 	W.SetTool(TWhatman::toolPenGrid, penGrid);
 	W.SetTool(TWhatman::toolPenSubGrid, penSubGrid);
 	W.SetTool(TWhatman::toolPenLayoutBorder, penLayoutBorder); // @v10.4.8
+	W.SetTool(TWhatman::toolPenContainerCandidateBorder, penContainerCandidateBorder); // @v10.4.8
 	if(St.Mode == modeToolbox) {
 		TWhatmanToolArray::Param param;
 		Tools.GetParam(param);
@@ -1633,7 +1642,7 @@ int PPWhatmanWindow::Locate(TPoint p, Loc * pLoc) const
 			ok = pLoc->Kind = Loc::kObject;
 			pLoc->ObjRszDir = (r > 100) ? (r - 100) : 0;
 		}
-		pLoc->P_Obj = W.GetObjectC(obj_idx);
+		pLoc->P_Obj = W.GetObjectByIndexC(obj_idx);
 		pLoc->ObjIdx = obj_idx;
 	}
 	else {
@@ -1673,7 +1682,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 				if(St.Rsz.Setup(St.Mode, loc, &cur_ident)) {
 					if(St.Rsz.ObjIdx >= 0) {
 						if(St.Rsz.Kind == ResizeState::kObjMove) {
-							const TWhatmanObject * p_obj = W.GetObjectC(St.Rsz.ObjIdx);
+							const TWhatmanObject * p_obj = W.GetObjectByIndexC(St.Rsz.ObjIdx);
 							if(p_obj)
 								St.Rsz.P_MovedObjCopy = p_obj->Dup();
 						}
@@ -1683,7 +1692,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 						}
 						else if(St.Rsz.Kind == ResizeState::kObjDrag) {
 							::ReleaseCapture();
-							TWhatmanObject * p_obj = W.GetObject(St.Rsz.ObjIdx);
+							TWhatmanObject * p_obj = W.GetObjectByIndex(St.Rsz.ObjIdx);
 							if(p_obj) {
 								SImageBuffer img_buf(32, 32);
 								p_obj->DrawToImage(Tb, img_buf);
@@ -1801,7 +1810,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 					}
 				}
 				else if(oneof2(St.Rsz.Kind, ResizeState::kObjResize, ResizeState::kObjMove) && getClientRect().contains(p)) {
-					TWhatmanObject * p_obj = W.GetObject(St.Rsz.ObjIdx);
+					TWhatmanObject * p_obj = W.GetObjectByIndex(St.Rsz.ObjIdx);
 					if(p_obj) {
 						InvalidateObjScope(p_obj);
 						W.MoveObject(p_obj, St.Rsz.P_MovedObjCopy->GetBounds());
@@ -1810,7 +1819,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 				}
 			}
 			else if(oneof2(St.Rsz.Kind, ResizeState::kObjResize, ResizeState::kObjMove)) {
-				InvalidateObjScope(W.GetObjectC(St.Rsz.ObjIdx));
+				InvalidateObjScope(W.GetObjectByIndexC(St.Rsz.ObjIdx));
 			}
 			else if(St.Rsz.Kind == ResizeState::kRectSelection) {
 				if(W.SetupMultSelBySelArea() > 0) {
@@ -1829,7 +1838,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 				const uint c = SVectorBase::GetCount(p_list);
 				const TPoint coffs = p - St.Rsz.StartPt;
 				for(uint i = 0; i < c; i++) {
-					TWhatmanObject * p_obj = W.GetObject(p_list->get(i));
+					TWhatmanObject * p_obj = W.GetObjectByIndex(p_list->get(i));
 					if(p_obj) {
 						InvalidateObjScope(p_obj);
 						W.MoveObject(p_obj, p_obj->GetBounds().move(coffs));
@@ -1847,6 +1856,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 				SLS.SetupDragndropObj(0, 0);
 			}
 			St.Rsz.Reset();
+			W.SetupContainerCandidate(-1, false); // @v10.9.6 Сбрасываем признак контейнер-кандидат
 			SetDefaultCursor();
 		}
 	}
@@ -1861,7 +1871,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 				W.InvalidateMultSelContour(&(offs = p - St.Rsz.StartPt));
 			}
 			else {
-				TWhatmanObject * p_obj = W.GetObject(St.Rsz.ObjIdx);
+				TWhatmanObject * p_obj = W.GetObjectByIndex(St.Rsz.ObjIdx);
 				if(St.Rsz.P_MovedObjCopy) {
 					//
 					// Не будем отрисовывать плавающий объект, если мышь ушла за пределы окна
@@ -1872,7 +1882,18 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 					if(St.Rsz.P_MovedObjCopy) {
 						InvalidateObjScope(St.Rsz.P_MovedObjCopy);
 						if(oneof2(St.Rsz.Kind, ResizeState::kObjMove, ResizeState::kObjDrag)) {
+							//TPoint local_pt = 
 							W.MoveObject(St.Rsz.P_MovedObjCopy, (b = p_obj->GetBounds()).move(p.x - St.Rsz.StartPt.x, p.y - St.Rsz.StartPt.y));
+							// @v10.9.6 {
+							int container_candidate_idx = 0;
+							TWhatmanObject * p_container_candidate = 0;
+							if(W.FindContainerCandidateForObjectByPoint(p, p_obj, &container_candidate_idx)) {
+								p_container_candidate = W.GetObjectByIndex(container_candidate_idx);
+								assert(p_container_candidate);
+								W.SetupContainerCandidate(container_candidate_idx, true);
+								InvalidateObjScope(p_container_candidate);
+							}
+							// } @v10.9.6 
 							InvalidateObjScope(St.Rsz.P_MovedObjCopy);
 						}
 					}
@@ -2050,8 +2071,8 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 		}
 		if(new_obj_idx >= 0 && cur_obj_idx >= 0) {
 			W.SetCurrentObject(new_obj_idx, 0);
-			InvalidateObjScope(W.GetObjectC(cur_obj_idx));
-			InvalidateObjScope(W.GetObjectC(new_obj_idx));
+			InvalidateObjScope(W.GetObjectByIndexC(cur_obj_idx));
+			InvalidateObjScope(W.GetObjectByIndexC(new_obj_idx));
 			::UpdateWindow(H());
 		}
 	}
@@ -2135,7 +2156,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					break;
 				case MouseEvent::tLDown:
 					if(W.FindObjectByPoint(p_me->Coord, &obj_idx)) {
-						TWhatmanObject * p_obj = W.GetObject(obj_idx);
+						TWhatmanObject * p_obj = W.GetObjectByIndex(obj_idx);
 						if(!p_obj || !p_obj->HasState(TWhatmanObject::stSelected)) {
 							if(W.RmvMultSelObject(-1) > 0) {
 								invalidateAll(1);
@@ -2150,8 +2171,8 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 						}
 						else {
 							W.SetCurrentObject(obj_idx, &prev_idx);
-							InvalidateObjScope(W.GetObjectC(prev_idx));
-							InvalidateObjScope(W.GetObjectC(obj_idx));
+							InvalidateObjScope(W.GetObjectByIndexC(prev_idx));
+							InvalidateObjScope(W.GetObjectByIndexC(obj_idx));
 							Resize(1, p_me->Coord);
 							::UpdateWindow(H());
 						}
@@ -2163,7 +2184,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 						}
 						if(W.GetCurrentObject(&prev_idx)) {
 							W.SetCurrentObject(-1, &prev_idx);
-							InvalidateObjScope(W.GetObjectC(prev_idx));
+							InvalidateObjScope(W.GetObjectByIndexC(prev_idx));
 							::UpdateWindow(H());
 						}
 						else {
@@ -2189,7 +2210,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 								break;
 							case modeView:
 								{
-									TWhatmanObject * p_obj = W.GetObject(obj_idx);
+									TWhatmanObject * p_obj = W.GetObjectByIndex(obj_idx);
 									if(p_obj && p_obj->HasOption(TWhatmanObject::oSelectable) && St.Flags & stfModalSelector) {
 										St.SelectedObjIdx = obj_idx;
 										if(IsInState(sfModal))
@@ -2236,7 +2257,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				case MouseEvent::tHover:
 					if(!St.Rsz) {
 						if(W.FindObjectByPoint(p_me->Coord, &obj_idx)) {
-							TWhatmanObject * p_obj = W.GetObject(obj_idx);
+							TWhatmanObject * p_obj = W.GetObjectByIndex(obj_idx);
 							CALLPTRMEMB(p_obj, HandleCommand(TWhatmanObject::cmdMouseHover, 0));
 						}
 					}
@@ -2382,7 +2403,7 @@ int PPWhatmanWindow::EditTool(uint objIdx)
 	int    ok = -1, r = 1;
 	TWhatmanObject * p_obj = 0;
 	if(St.Mode == modeToolbox) {
-		const ToolObject * p_tool_obj = static_cast<const ToolObject *>(W.GetObjectC(objIdx));
+		const ToolObject * p_tool_obj = static_cast<const ToolObject *>(W.GetObjectByIndexC(objIdx));
 		if(p_tool_obj) {
 			uint pos = 0;
 			TWhatmanToolArray::Item item;
@@ -2408,7 +2429,7 @@ int PPWhatmanWindow::DeleteTool(uint objIdx)
 {
 	int    ok = -1;
 	if(St.Mode == modeToolbox) {
-		const ToolObject * p_obj = static_cast<const ToolObject *>(W.GetObjectC(objIdx));
+		const ToolObject * p_obj = static_cast<const ToolObject *>(W.GetObjectByIndexC(objIdx));
 		if(p_obj) {
 			uint pos = 0;
 			if(Tools.SearchBySymb(p_obj->ToolSymb, &pos)) {
@@ -2531,7 +2552,7 @@ int PPWhatmanWindow::FileOpen()
 	p_win->St.Flags |= stfModalSelector; // execView
 	int    ret = APPL->P_DeskTop->execView(p_win);
 	if(ret == cmOK) {
-		TWhatmanObject * p_obj = p_win->W.GetObject(p_win->St.SelectedObjIdx);
+		TWhatmanObject * p_obj = p_win->W.GetObjectByIndex(p_win->St.SelectedObjIdx);
 		CALLPTRMEMB(p_obj, HandleCommand(TWhatmanObject::cmdGetSelRetBlock, pSelRetBlk));
 		ok = 1;
 	}

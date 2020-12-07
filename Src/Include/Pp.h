@@ -6529,9 +6529,10 @@ public:
 	// Descr: Флаги состояния State
 	//
 	enum {
-		stExpTariffTa = 0x0001,
-		stMainOrgInit = 0x0002,
-		stAuth        = 0x0004  // Поток авторизован в базе данных Papyrus
+		stExpTariffTa    = 0x0001,
+		stMainOrgInit    = 0x0002,
+		stAuth           = 0x0004, // Поток авторизован в базе данных Papyrus
+		stNonInteractive = 0x0008  // @v10.9.6 Поток не-интерактивный: всякие окна, диалоги и виджеты запрещены
 	};
 	int    State;                // @Muxa Флаги
 	SysJournal * P_SysJ;
@@ -7308,6 +7309,10 @@ public:
 	void   ReleaseThread();
 	PPThreadLocalArea & GetTLA(); // { return *(PPThreadLocalArea *)TlsGetValue(TlsIdx); }
 	const PPThreadLocalArea & GetConstTLA() const; // { return *(PPThreadLocalArea *)TlsGetValue(TlsIdx); }
+	//
+	// Descr: Возвращает !0 если текущий поток является интерактивным.
+	//
+	int    IsThreadInteractive() const;
 
 	enum {
 		stntText = 1,
@@ -7404,7 +7409,7 @@ public:
 	//   Не следует модифицировать или проверять значения 'того поля в обход этих функций.
 	//
 	long   SetExtFlag(long f, int set);
-	int    FASTCALL CheckExtFlag(long);
+	int    FASTCALL CheckExtFlag(long) const;
 	void   SetStateFlag(long, int set);
 	int    CheckStateFlag(long) const;
 	ObjCache * FASTCALL GetDbLocalObjCache(PPID objType);
@@ -7553,7 +7558,7 @@ private:
 	};
 	long   State;
 	long   ExtFlags_;      // ECF_XXX
-	SMtLock ExtFlagsLck;   // Блокировка доступа к ExtFlags
+	mutable SMtLock ExtFlagsLck;   // Блокировка доступа к ExtFlags
 	SMtLock ExtCfgDbLock;  // @v10.7.7 Блокировка доступа к P_ExtCfgDb
 	//
 	DbLocalCacheMng CMng;  // Менеджер локальных по отношению к базе данных объектных кэшей
@@ -52941,6 +52946,7 @@ public:
 		curResizeNWSE,
 		curOdious, // @debug
 		penLayoutBorder, // @v10.4.8
+		penContainerCandidateBorder, // @v10.9.6
 
 		anchorLastTool // Значение для выравнивания идентификаторов инструментов в производных окнах
 	};
@@ -53036,6 +53042,125 @@ private:
 	DdotInfoBlock Dib;
 };
 //
+// Descr: Вспомогательный класс, обеспечивающий однообразную запись в журналы
+//   процесса обмена данными с глобальными сервисами. В качестве параметра
+//   конструктора передается идентификатор строки имени файла журнала.
+//   Например: PPFILNAM_UDSTALK_LOG ("uds-talk.log").
+//
+class PPGlobalServiceLogTalkingHelper {
+public:
+	explicit PPGlobalServiceLogTalkingHelper(uint logFileNameId);
+	void   Log(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
+private:
+	SString LogFileName;
+};
+//
+//
+// @erik {
+/* @v10.9.4 class VkStruct {
+public:
+	SString Token;
+	SString GroupId;
+	SString PageId;
+	SString TxtMsg;
+	SString LinkFilePath;
+	long LinkFileType;
+};*/
+
+class VkInterface {
+public:
+	struct InitBlock {
+		InitBlock();
+		InitBlock & Z();
+		PPID   GuaID;
+		PPGlobalUserAccPacket GuaPack;
+		SString CliIdent;
+		SString CliAccsKey;
+		SString EndPoint; // URL для запросов
+		//
+		// (replaced with CliAccsKey) SString Token;
+		SString GroupId;
+		SString PageId;
+		SString TxtMsg;
+		SString LinkFilePath;
+		long   LinkFileType;
+		PPID   OuterWareIdentTagID;
+	};
+	VkInterface();
+	//
+	// Descr: Опции функции Setup()
+	//
+	enum {
+		sfInitStoreAttributes = 0x0001 // Инициализировать атрибуты доступа к интернет-магазину VK
+	};
+	int    Setup(PPID guaID, uint flags);
+	void   GetVKAccessToken();
+	SString & GetAppIdent(SString & rBuf) const;
+	PPID   GetOuterWareIdentTagID() const;
+	//int    AddGoodToMarket(/*const VkStruct &rVkStruct,*/const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const double price, const double oldPrice, const PPID vkMarketItemID, SString & rOutput);
+	int    AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const SString & rImgPath,
+		PPObjGoods::ExportToGlbSvcItem & rItem, PPID vkMarketItemID, SString & rOutput);
+	//int    WallPost(VkStruct & rVkStruct, SString & rOutput);
+	int    WallPost(const SString & rMessage, const SString & rLinkFilePath, SString & rOutput);
+	int    Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, const SString & rGoodsName,
+		const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput);
+	int    Market_Edit(/*const VkStruct &rVkStruct,*/PPID goodsID, double goodsPrice, const SString &rGoodsName,
+		const SString & rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput); //edit goods from market
+	int    Market_Get(/*const VkStruct &rVkStruct,*/SString & rOutput); // get all goods from VK market
+	int    Photos_SaveMarketPhoto(/*const VkStruct &rVkStruct,*/const SString & rImage, const SString & rServer,
+		const SString & rHash, const SString & rCropData, const SString & rCropHash, SString & rOutput);
+	int    Photos_SaveWallPhoto(/*const VkStruct &rVkStruct,*/const SString & rPhoto, const SString & rServer, const SString & rHash, SString & rOutput);
+	int    Wall_Post(/*const VkStruct &rVkStruct,*/const SString & rMessage, const SString & rVkPhotoName, SString & rOutput);
+	int    PhotoToReq(SString &rUrl, const SString &rImgPath, SString &rOutput, const char * rDataName);
+	int    ParseUploadServer(SString &rJson, SString &rUploadOut);
+	int    Photos_GetMarketUploadServer(/*const VkStruct &rVkStruct,*/const uint mainPhotoFlag, SString & rOutput);
+	int    Photos_GetWallUploadServer(/*const VkStruct &rVkStruct,*/SString & rOutput);
+	int    ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const;
+
+	enum {
+		usrScopeNotify   = 0x00000001,
+		usrScopeFriends  = 0x00000002,
+		usrScopePhotos   = 0x00000004,
+		usrScopeAudio    = 0x00000008,
+		usrScopeVideo    = 0x00000010,
+		usrScopeNONE1    = 0x00000020,
+		usrScopeStories  = 0x00000040,
+		usrScopePages    = 0x00000080,
+		usrScopeAddLink  = 0x00000100,    // ХЗ что это
+		usrScopeNONE2    = 0x00000200,
+		usrScopeStatus   = 0x00000400,
+		usrScopeNotes    = 0x00000800,
+		usrScopeMessages = 0x00001000,
+		usrScopeWall     = 0x00002000,
+		usrScopeNONE3    = 0x00004000,
+		usrScopeAds      = 0x00008000,
+		usrScopeOffline  = 0x00010000,
+		usrScopeDocs     = 0x00020000,
+		usrScopeGroups   = 0x00040000,
+		usrScopeNotification = 0x00080000,
+		usrScopeStats    = 0x00100000,
+		usrScopeNONE4    = 0x00200000,
+		usrScopeEmail    = 0x00400000,
+		usrScopeMarket   = 0x00800000
+	};
+
+	enum {
+		commScopeStories   = 0x00000001,
+		commScopePhotos    = 0x00000004,
+		commScopeAppWidget = 0x00000040,
+		commScopeMessages  = 0x00001000,
+		commScopeDocs      = 0x00020000,
+		commScopeManage    = 0x00040000,
+	};
+private:
+	int    GetRequest(const SString & rUrl, SString & rOutput, int mflags);
+	SString & AppendParamProtoVer(SString & rBuf) const;
+	InitBlock Ib;
+	SString AppIdent;
+	const SVerT ProtoVer;
+	PPGlobalServiceLogTalkingHelper Lth;
+};
+// } @erik
 //
 //
 class UdsGameInterface {
@@ -53244,6 +53369,7 @@ private:
 	int    ReadPriceItem(const SJson * pJs, GoodsItem & rI) const;
 	InitBlock Ib;
 	Error LastErr;
+	PPGlobalServiceLogTalkingHelper Lth;
 };
 //
 //
@@ -54475,111 +54601,6 @@ public:
 int    PPEditTextFile(const EditTextFileParam * pParam);
 int    DoDbDump(PPDbEntrySet2 * pDbes);
 int    VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly);
-
-//@erik {
-/* @v10.9.4 class VkStruct {
-public:
-	SString Token;
-	SString GroupId;
-	SString PageId;
-	SString TxtMsg;
-	SString LinkFilePath;
-	long LinkFileType;
-};*/
-
-class VkInterface {
-public:
-	struct InitBlock {
-		InitBlock();
-		InitBlock & Z();
-		PPID   GuaID;
-		PPGlobalUserAccPacket GuaPack;
-		SString CliIdent;
-		SString CliAccsKey;
-		SString EndPoint; // URL для запросов
-		//
-		// (replaced with CliAccsKey) SString Token;
-		SString GroupId;
-		SString PageId;
-		SString TxtMsg;
-		SString LinkFilePath;
-		long   LinkFileType;
-		PPID   OuterWareIdentTagID;
-	};
-	VkInterface();
-	//
-	// Descr: Опции функции Setup()
-	//
-	enum {
-		sfInitStoreAttributes = 0x0001 // Инициализировать атрибуты доступа к интернет-магазину VK
-	};
-	int    Setup(PPID guaID, uint flags);
-	void   GetVKAccessToken();
-	SString & GetAppIdent(SString & rBuf) const;
-	PPID   GetOuterWareIdentTagID() const;
-	//int    AddGoodToMarket(/*const VkStruct &rVkStruct,*/const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const double price, const double oldPrice, const PPID vkMarketItemID, SString & rOutput);
-	int    AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const SString & rImgPath,
-		PPObjGoods::ExportToGlbSvcItem & rItem, PPID vkMarketItemID, SString & rOutput);
-	//int    WallPost(VkStruct & rVkStruct, SString & rOutput);
-	int    WallPost(const SString & rMessage, const SString & rLinkFilePath, SString & rOutput);
-	int    Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, const SString & rGoodsName,
-		const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput);
-	int    Market_Edit(/*const VkStruct &rVkStruct,*/PPID goodsID, double goodsPrice, const SString &rGoodsName,
-		const SString & rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput); //edit goods from market
-	int    Market_Get(/*const VkStruct &rVkStruct,*/SString & rOutput); // get all goods from VK market
-	int    Photos_SaveMarketPhoto(/*const VkStruct &rVkStruct,*/const SString & rImage, const SString & rServer,
-		const SString & rHash, const SString & rCropData, const SString & rCropHash, SString & rOutput);
-	int    Photos_SaveWallPhoto(/*const VkStruct &rVkStruct,*/const SString & rPhoto, const SString & rServer, const SString & rHash, SString & rOutput);
-	int    Wall_Post(/*const VkStruct &rVkStruct,*/const SString & rMessage, const SString & rVkPhotoName, SString & rOutput);
-	int    PhotoToReq(SString &rUrl, const SString &rImgPath, SString &rOutput, const char * rDataName);
-	int    ParseUploadServer(SString &rJson, SString &rUploadOut);
-	int    Photos_GetMarketUploadServer(/*const VkStruct &rVkStruct,*/const uint mainPhotoFlag, SString & rOutput);
-	int    Photos_GetWallUploadServer(/*const VkStruct &rVkStruct,*/SString & rOutput);
-	int    ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const;
-
-	enum {
-		usrScopeNotify   = 0x00000001,
-		usrScopeFriends  = 0x00000002,
-		usrScopePhotos   = 0x00000004,
-		usrScopeAudio    = 0x00000008,
-		usrScopeVideo    = 0x00000010,
-		usrScopeNONE1    = 0x00000020,
-		usrScopeStories  = 0x00000040,
-		usrScopePages    = 0x00000080,
-		usrScopeAddLink  = 0x00000100,    // ХЗ что это
-		usrScopeNONE2    = 0x00000200,
-		usrScopeStatus   = 0x00000400,
-		usrScopeNotes    = 0x00000800,
-		usrScopeMessages = 0x00001000,
-		usrScopeWall     = 0x00002000,
-		usrScopeNONE3    = 0x00004000,
-		usrScopeAds      = 0x00008000,
-		usrScopeOffline  = 0x00010000,
-		usrScopeDocs     = 0x00020000,
-		usrScopeGroups   = 0x00040000,
-		usrScopeNotification = 0x00080000,
-		usrScopeStats    = 0x00100000,
-		usrScopeNONE4    = 0x00200000,
-		usrScopeEmail    = 0x00400000,
-		usrScopeMarket   = 0x00800000
-	};
-
-	enum {
-		commScopeStories   = 0x00000001,
-		commScopePhotos    = 0x00000004,
-		commScopeAppWidget = 0x00000040,
-		commScopeMessages  = 0x00001000,
-		commScopeDocs      = 0x00020000,
-		commScopeManage    = 0x00040000,
-	};
-private:
-	int    GetRequest(const SString & rUrl, SString & rOutput, int mflags);
-	SString & AppendParamProtoVer(SString & rBuf) const;
-	InitBlock Ib;
-	SString AppIdent;
-	const SVerT ProtoVer;
-};
-// } @erik
 
 struct ResolveGoodsItem {
 	explicit ResolveGoodsItem(PPID goodsID = 0);

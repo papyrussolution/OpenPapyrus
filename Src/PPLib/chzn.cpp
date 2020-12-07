@@ -388,7 +388,7 @@ public:
 		qDocumentSend,
 		qGetTicket
 	};
-	ChZnInterface()
+	ChZnInterface() : Lth(PPFILNAM_CHZNTALK_LOG)
 	{
 	}
 	~ChZnInterface()
@@ -703,9 +703,11 @@ public:
 	int    ParseTicket(const char * pTicket, Packet ** ppP);
 	int    GetDebugPath(const InitBlock & rIb, SString & rPath);
 private:
-	int    LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
+	//int    LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
 	int    GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
 	int    CreatePendingFile(const char * pPath, const char * pIdent);
+
+	PPGlobalServiceLogTalkingHelper Lth;
 };
 
 static const SIntToSymbTabEntry ChZnDocStatusList[] = {
@@ -1299,7 +1301,7 @@ int ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size_t dat
 			//temp_buf.Space().Cat("-detached");
 			temp_buf.Space();
 			temp_buf.Cat("-base64").Space().Cat("-add");
-			LogTalking("crypto-pro-cmdline", 0, temp_buf);
+			Lth.Log("crypto-pro-cmdline", 0, temp_buf);
 			STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
 			STARTUPINFO si;
 			DWORD exit_code = 0;
@@ -1677,12 +1679,12 @@ int ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * pDocIde
 			THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 			{
 				THROW(h_req = hstk.PushHttpRequestGet(h_connection, url));
-				LogTalking("req", url_buf, temp_buf.Z());
+				Lth.Log("req", url_buf, temp_buf.Z());
 				if(HttpSendRequest(h_req, SUcSwitch(hdr_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
 					SString wi_msg;
 					uint  wi_code = GetLastWinInternetResponse(wi_msg);
 					ReadReply(h_req, reply_buf);
-					LogTalking("rep", 0, reply_buf);
+					Lth.Log("rep", 0, reply_buf);
 					if(ReadJsonReplyForSingleItem(reply_buf, "link", link_buf) > 0) {
 						url.Parse(link_buf);
 						Document reply_doc;
@@ -1699,22 +1701,22 @@ int ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * pDocIde
 		else {
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-			LogTalking("req", url_buf, temp_buf.Z());
+			Lth.Log("req", url_buf, temp_buf.Z());
 			THROW_SL(c.HttpGet(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, &wr_stream));
 			{
 				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
 					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-					LogTalking("rep", 0, reply_buf);
+					Lth.Log("rep", 0, reply_buf);
 					if(ReadJsonReplyForSingleItem(reply_buf, "link", link_buf) > 0) {
 						wr_stream.Open(ack_buf.Z(), SFile::mWrite);
 						url.Parse(link_buf);
-						LogTalking("req", link_buf, temp_buf.Z());
+						Lth.Log("req", link_buf, temp_buf.Z());
 						THROW_SL(c.HttpGet(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, &wr_stream));
 						p_ack_buf = static_cast<SBuffer *>(wr_stream);
 						if(p_ack_buf) {
 							rTicket.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-							LogTalking("rep", 0, rTicket);
+							Lth.Log("rep", 0, rTicket);
 							ok = 1;
 						}
 					}
@@ -1974,10 +1976,10 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 					InetUrl url(MakeTargetUrl_(qDocumentSend, 0, rIb, url_buf));
 					{
 						//temp_buf.Z().CatN(static_cast<const char *>(pData), dataLen);
-						LogTalking("req-rawdoc", 0, data_buf);
+						Lth.Log("req-rawdoc", 0, data_buf);
 					}
 					THROW(MakeDocumentRequest(rIb, data_buf.cptr(), data_buf.Len(), req_id, req_buf));
-					LogTalking("req", url_buf, req_buf);
+					Lth.Log("req", url_buf, req_buf);
 					if(rIb.ProtocolId == rIb.protidMdlp) {
 						int    wininet_err = 0;
 						WinInternetHandleStack hstk;
@@ -2015,7 +2017,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 							}
 						}
 					}
-					LogTalking("rep", 0, reply_buf);
+					Lth.Log("rep", 0, reply_buf);
 					if(reply_buf.NotEmpty() && ReadJsonReplyForSingleItem(reply_buf, "document_id", rReply) > 0) {
 						GetDebugPath(rIb, temp_buf);
 						THROW(CreatePendingFile(temp_buf, rReply))
@@ -2180,13 +2182,13 @@ int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, cons
 			MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, hdr_buf);
 			ScURL c;
 			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-			LogTalking("req", 0, req_buf);
+			Lth.Log("req", 0, req_buf);
 			THROW_SL(c.HttpGet(*pUrl, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 			{
 				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
 					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-					LogTalking("rep", 0, reply_buf);
+					Lth.Log("rep", 0, reply_buf);
 					if(json_parse_document(&p_json_doc, reply_buf) == JSON_OK) {
 						if(ParseDocument(p_json_doc, rDoc) > 0)
 							ok = 1;
@@ -2205,12 +2207,12 @@ int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, cons
 			THROW(h_connection = hstk.PushConnection(*pUrl, h_inet_sess));
 			{
 				THROW(h_req = hstk.PushHttpRequestGet(h_connection, *pUrl));
-				LogTalking("req", 0, req_buf);
+				Lth.Log("req", 0, req_buf);
 				if(HttpSendRequest(h_req, SUcSwitch(hdr_buf), -1, const_cast<char *>(req_buf.cptr()), req_buf.Len())) {
 					SString wi_msg;
 					uint  wi_code = GetLastWinInternetResponse(wi_msg);
 					ReadReply(h_req, reply_buf);
-					LogTalking("rep", 0, reply_buf);
+					Lth.Log("rep", 0, reply_buf);
 					rDoc.Content = reply_buf;
 				}
 				else {
@@ -2288,13 +2290,13 @@ int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, 
 			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 			//PPGetFilePath(PPPATH_BIN, "cacerts-mcs.pem", temp_buf);
 			//THROW_SL(c.SetupDefaultSslOptions(temp_buf, SSystem::sslTLS_v10, 0)); //CURLOPT_SSLVERSION значением CURL_SSLVERSION_TLSv1_0
-			LogTalking("req", url_buf, req_buf);
+			Lth.Log("req", url_buf, req_buf);
 			THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 			{
 				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
 					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-					LogTalking("rep", 0, temp_buf);
+					Lth.Log("rep", 0, temp_buf);
 					ParseDocumentList(temp_buf, rList);
 				}
 			}
@@ -2408,6 +2410,7 @@ int ChZnInterface::Connect2(InitBlock & rIb)
 }
 #endif // } 0 @v10.8.0
 
+#if 0 // @v10.9.6 {
 int ChZnInterface::LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg)
 {
 	int    ok = 1;
@@ -2431,6 +2434,7 @@ int ChZnInterface::LogTalking(const char * pPrefix, const char * pTargetUrl, con
 		ok = 0;
 	return ok;
 }
+#endif // } 0 @v10.9.6
 
 int ChZnInterface::Connect(InitBlock & rIb)
 {
@@ -2450,13 +2454,13 @@ int ChZnInterface::Connect(InitBlock & rIb)
 				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
 				{
 					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-					LogTalking("req", url_buf, req_buf);
+					Lth.Log("req", url_buf, req_buf);
 					THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
 					{
 						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 						if(p_ack_buf) {
 							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-							LogTalking("rep", 0, temp_buf);
+							Lth.Log("rep", 0, temp_buf);
 							if(ReadJsonReplyForSingleItem(temp_buf, "code", result_code) > 0)
 								ok = 1;
 						}
@@ -2474,13 +2478,13 @@ int ChZnInterface::Connect(InitBlock & rIb)
 				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
 				{
 					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-					LogTalking("req", url_buf, req_buf);
+					Lth.Log("req", url_buf, req_buf);
 					THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
 					{
 						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 						if(p_ack_buf) {
 							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-							LogTalking("rep", 0, temp_buf);
+							Lth.Log("rep", 0, temp_buf);
 							if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
 								ok = 1;
 						}
@@ -2499,13 +2503,13 @@ int ChZnInterface::Connect(InitBlock & rIb)
 				StrStrAssocArray hdr_flds;
 				{
 					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-					LogTalking("req", url_buf, req_buf);
+					Lth.Log("req", url_buf, req_buf);
 					THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &wr_stream));
 					{
 						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 						if(p_ack_buf) {
 							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-							LogTalking("rep", 0, temp_buf);
+							Lth.Log("rep", 0, temp_buf);
 							{
 								SJson * p_json_doc = 0;
 								if(json_parse_document(&p_json_doc, temp_buf) == JSON_OK) {
@@ -2554,13 +2558,13 @@ int ChZnInterface::Connect(InitBlock & rIb)
 				//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(""));
 				{
 					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-					LogTalking("req", url_buf, req_buf);
+					Lth.Log("req", url_buf, req_buf);
 					THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
 					{
 						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 						if(p_ack_buf) {
 							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-							LogTalking("rep", 0, temp_buf);
+							Lth.Log("rep", 0, temp_buf);
 							if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
 								ok = 1;
 						}

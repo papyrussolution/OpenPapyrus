@@ -110,7 +110,7 @@ int FASTCALL PPLoadString(int group, int code, SString & s)
 	if(group && code) {
 		PROFILE_START
 		ok = _PPStrStore ? _PPStrStore->GetString(group, code, s) : 0;
-		if(s.Len() && !sisascii(s.cptr(), s.Len())) // @v9.7.2
+		if(s.Len() && !sisascii(s.cptr(), s.Len()))
 			s.Transf(CTRANSF_UTF8_TO_INNER);
 		PROFILE_END
 		if(!ok)
@@ -476,7 +476,7 @@ static int FASTCALL Helper_PPError(int errcode, const char * pAddInfo, uint extr
 	PPSaveErrContext();
 	int    ok = PPMessage(mfError|mfOK|extraMfOptions, ((errcode >= 0) ? errcode : PPErrCode), pAddInfo);
 	if(ok > 0) {
-		if(!CS_SERVER) {
+		if(DS.IsThreadInteractive()) {
 			PPRestoreErrContext();
 			r = 1;
 			PPLogMessage(PPFILNAM_ERRMSG_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR|LOGMSGF_DBINFO);
@@ -506,7 +506,7 @@ int FASTCALL PPErrorTooltip(int errcode, const char * pAddInfo)
 	PPSaveErrContext();
 	ok = PPTooltipMessage(mfError|mfOK, ((errcode >= 0) ? errcode : PPErrCode), pAddInfo);
 	if(ok > 0) {
-		if(!CS_SERVER) {
+		if(DS.IsThreadInteractive()) {
 			PPRestoreErrContext();
 			r = 1;
 			PPLogMessage(PPFILNAM_ERRMSG_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR|LOGMSGF_DBINFO);
@@ -529,7 +529,7 @@ int PPDbSearchError()
 
 static int PPCriticalWarning(SString & rMsg, uint /*options*/)
 {
-	if(!CS_SERVER) {
+	if(DS.IsThreadInteractive()) {
 		int    yes = cmCancel;
 		SString answ;
 		rMsg.ReplaceChar('\003', ' ');
@@ -576,7 +576,7 @@ int FASTCALL PPMessage(uint options, int msgcode)
 
 int PPOutputMessage(const char * pMsg, uint options)
 {
-	if(!CS_SERVER) {
+	if(DS.IsThreadInteractive()) {
 		if(SLS.CheckUiFlag(sluifUseLargeDialogs))
 			options |= mfLargeBox;
 		return messageBox(pMsg, options);
@@ -591,7 +591,7 @@ int PPOutputMessage(const char * pMsg, uint options)
 int PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags)
 {
 	int    ok = 0;
-	if(!CS_SERVER) {
+	if(DS.IsThreadInteractive()) {
 		if(pMsg || pImgPath) {
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
@@ -607,7 +607,7 @@ int PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long
 int PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 {
 	int    ok = 0;
-	if(!CS_SERVER) {
+	if(DS.IsThreadInteractive()) {
 		SString buf;
 		if(PPGetMessage(options, msgcode, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
 			SMessageWindow * p_win = new SMessageWindow;
@@ -832,7 +832,7 @@ int FASTCALL PPWait(int begin)
 	int    ok = 1;
 	if(begin != 1)
 		DS.SetThreadNotification(PPSession::stntMessage, 0);
-	if(!CS_SERVER) {
+	if(DS.IsThreadInteractive()) {
 		switch(begin) {
 			case 0: __WD.Stop(); break;
 			case 1: __WD.Start(); break;
@@ -887,7 +887,7 @@ int PPCheckUserBreak()
 		ok = PPSetError(PPERR_PROCESSWASSTOPPED);
 	else if(DS.IsThreadStopped())
 		ok = PPSetError(PPERR_THREADWASSTOPPED);
-	else if(!CS_SERVER) {
+	else if(DS.IsThreadInteractive()) {
 		if(__WD.GetWindowHandle() && CheckEscKey(1)) {
 			CheckEscKey(0);
 			PPWait(0);

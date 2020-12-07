@@ -2913,9 +2913,8 @@ const StrAssocArray * GoodsCache::GetFullList()
 					PPUserFuncProfiler ufp(PPUPRF_BUILDGOODSFL); // @v10.1.4
 					SString fmt_buf;
 					uint   _mc = 0;
-					if(CS_SERVER) {
+					if(!DS.IsThreadInteractive())
 						PPLoadText(PPTXT_GETTINGFULLTEXTLIST, fmt_buf);
-					}
 					PROFILE_START
 					Goods2Tbl * p_tbl = goods_obj.P_Tbl;
 					BExtQuery q(p_tbl, 0, 24);
@@ -2929,11 +2928,9 @@ const StrAssocArray * GoodsCache::GetFullList()
 							PPSetErrorSLib();
 							err = 1;
 						}
-						else {
-							if(CS_SERVER) {
-								if((_mc % 1000) == 0)
-									PPWaitMsg((temp_buf = fmt_buf).Space().Cat(_mc));
-							}
+						else if(!DS.IsThreadInteractive()) {
+							if((_mc % 1000) == 0)
+								PPWaitMsg((temp_buf = fmt_buf).Space().Cat(_mc));
 						}
 					}
 					PROFILE_END

@@ -4,6 +4,30 @@
 #include <pp.h>
 #pragma hdrstop
 
+PPGlobalServiceLogTalkingHelper::PPGlobalServiceLogTalkingHelper(uint logFileNameId) 
+{
+	PPGetFilePath(PPPATH_LOG, logFileNameId, LogFileName);
+}
+
+void PPGlobalServiceLogTalkingHelper::Log(const char * pPrefix, const char * pTargetUrl, const SString & rMsg)
+{
+	if(LogFileName.NotEmpty()) {
+		SFile  f_log(LogFileName, SFile::mAppend);
+		if(f_log.IsValid()) {
+			if(!isempty(pPrefix)) {
+				SString temp_buf;
+				temp_buf.Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).Space().Cat(pPrefix).CatDiv(':', 2);
+				if(!isempty(pTargetUrl))
+					temp_buf.Space().CatEq("url", pTargetUrl);
+				f_log.WriteLine(temp_buf.CR());
+			}
+			if(rMsg.NotEmpty())
+				f_log.WriteLine(rMsg);
+			f_log.WriteBlancLine();
+		}
+	}
+}
+
 static SString P_VKUrlBase("https://api.vk.com");
 static SString P_VKMethodUrlBase("https://api.vk.com/method");
 //static const char * P_VKAppId = "7685698"; // "7402217"; // Идентификатор приложения (аргумент client_id в запросах)
@@ -89,7 +113,7 @@ void VkInterface::GetVKAccessToken()
 	ShellExecute(0, _T("open"), SUcSwitch(url_buf), NULL, NULL, SW_SHOWNORMAL);
 }
 
-VkInterface::VkInterface() : ProtoVer(5, 107, 0)
+VkInterface::VkInterface() : ProtoVer(5, 107, 0), Lth(PPFILNAM_VKTALK_LOG)
 {
 	PPVersionInfo vi = DS.GetVersionInfo();
 	vi.GetTextAttrib(vi.taiVkAppIdent, AppIdent);
@@ -507,28 +531,32 @@ int  VkInterface::PhotoToReq(SString & rUrl, const SString & rImgPath, SString &
 	ScURL::HttpForm hf;
 	SBuffer * p_ack_buf = 0;
 	hf.AddContentFile(rImgPath, "multipart/form-data", rDataName);
+	Lth.Log("req", rUrl, temp_buf = "multipart");
 	c.HttpPost(url, ScURL::mfVerbose|ScURL::mfDontVerifySslPeer, hf, &wr_stream);
 	p_ack_buf = static_cast<SBuffer *>(wr_stream);
 	if(p_ack_buf) {
-		temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-		rOutput = temp_buf;
+		rOutput.CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+		Lth.Log("rep", 0, rOutput);
 	}
 	else
 		ok = 0;
 	return ok;
 }
 
-int VkInterface::GetRequest(const SString &rUrl, SString &rOutput, int mflags)
+int VkInterface::GetRequest(const SString & rUrl, SString & rOutput, int mflags)
 {
 	int    ok = 1;
+	SString temp_buf;
 	SBuffer ack_buf;
 	SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 	ScURL c;
 	SBuffer * p_ack_buf = 0;
+	Lth.Log("req", rUrl, temp_buf.Z());
 	THROW(c.HttpGet(rUrl, mflags, &wr_stream));
 	p_ack_buf = static_cast<SBuffer *>(wr_stream);
 	THROW(p_ack_buf);
 	rOutput.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+	Lth.Log("rep", 0, rOutput);
 	CATCHZOK
 	return ok;
 }
@@ -794,8 +822,8 @@ static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int
 			}
 		}
 		else {
-			THROW(rP.GroupIdent.NotEmpty());
 			THROW(rP.ApiKey.NotEmpty());
+			THROW(rP.GroupIdent.NotEmpty());
 			THROW(rP.PageIdent.NotEmpty());
 			//
 			// Если необходимо - создаем зарезервированные теги.
@@ -803,18 +831,14 @@ static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int
 			//
 			PPObjectTag tag_rec;
 			int  do_make_reserved = 0;
-			if(tag_obj.Search(PPTAG_GUA_OUTERWAREIDTAG, &tag_rec) <= 0) {
+			if(tag_obj.Search(PPTAG_GUA_OUTERWAREIDTAG, &tag_rec) <= 0)
 				do_make_reserved = 1;
-			}
-			if(tag_obj.Search(PPTAG_GUA_SOCIALGROUPCODE, &tag_rec) <= 0) {
+			if(tag_obj.Search(PPTAG_GUA_SOCIALGROUPCODE, &tag_rec) <= 0)
 				do_make_reserved = 1;
-			}
-			if(tag_obj.Search(PPTAG_GUA_SOCIALPAGECODE, &tag_rec) <= 0) {
+			if(tag_obj.Search(PPTAG_GUA_SOCIALPAGECODE, &tag_rec) <= 0)
 				do_make_reserved = 1;
-			}
-			if(tag_obj.Search(PPTAG_GUA_ACCESSKEY, &tag_rec) <= 0) {
+			if(tag_obj.Search(PPTAG_GUA_ACCESSKEY, &tag_rec) <= 0)
 				do_make_reserved = 1;
-			}
 			if(do_make_reserved) {
 				THROW(tag_obj.MakeReserved(0));
 			}
@@ -823,7 +847,7 @@ static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int
 				PPTransaction tra(1);
 				THROW(tra);
 				if(rP.GuaID) {
-					temp_id = gua_pack.Rec.ID;
+					temp_id = rP.GuaID;
 					THROW(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0);
 					THROW_PP_S(gua_pack.Rec.ServiceIdent == service_ident, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
 				}
@@ -1045,38 +1069,12 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 	ObjLinkFiles lf(PPOBJ_GOODS);
 	PPWait(1);
 	PPGetFilePath(PPPATH_DD, PPFILNAM_NOIMAGE, def_img_path); // @v10.9.4
-	/*
-	VkStruct vk_struct;
-	PPObjGlobalUserAcc gua_obj;
-	PPGlobalUserAcc gua_rec;
-	PPGlobalUserAccPacket gua_pack;
-	PPObjTag obj_tag;
-	PPID   vk_grp_tag_id = 0;
-	PPID   vk_page_tag_id = 0;
-	PPID   tag_outer_goods_id = 0;
-	obj_tag.FetchBySymb("SMGRPID", &vk_grp_tag_id);
-	obj_tag.FetchBySymb("SMPAGEID", &vk_page_tag_id);
-	obj_tag.FetchBySymb("VK_GOODS_ID", &tag_outer_goods_id);
-	gua_obj.SearchBySymb("vk_acc", 0, &gua_rec); 
-	if(gua_obj.GetPacket(gua_rec.ID, &gua_pack) <= 0) {
-		CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NOGUA, &msg_buf)));
-	}
-	else if(gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, vk_struct.Token) <= 0) {
-		CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NOTOKENINGUA, &msg_buf)));
-	}
-	else if(gua_pack.TagL.GetItemStr(vk_page_tag_id, vk_struct.PageId) <= 0) {
-		CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NOPAGEIDINGUA, &msg_buf)));
-	}
-	else if(gua_pack.TagL.GetItemStr(vk_grp_tag_id, vk_struct.GroupId) <= 0) {
-		CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NOGROUPIDINGUA, &msg_buf)));
-	}
-	else {
-	*/
 	if(ifc.Setup(rParam.GuaID, ifc.sfInitStoreAttributes)) {
 		Goods2Tbl::Rec goods_rec; 
 		PPGoodsPacket pack;
 		ObjTagItem stored_obj_tag_item;
 		LongArray ex_outer_goods_id_list;
+		const int goods_descr_ext_str_id = oneof5(rParam.DescrExtStrId, GDSEXSTR_A, GDSEXSTR_B, GDSEXSTR_C, GDSEXSTR_D, GDSEXSTR_E) ? rParam.DescrExtStrId : GDSEXSTR_A;
 		PPWait(1);
 		THROW(ifc.Market_Get(/*vk_struct,*/temp_buf));
 		THROW_SL(ifc.ParceGoodsItemList(temp_buf, ex_outer_goods_id_list));
@@ -1087,22 +1085,16 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 			if(goods_obj.Search(native_goods_id, &goods_rec) > 0) {
 				SString link_file_path;
 				int   link_file_type = 0;
-				//GoodsRestViewItem rest_item;
-				//GetItem(native_goods_id, native_loc_id, &rest_item);
 				p_ref->Ot.GetTag(PPOBJ_GOODS, native_goods_id, /*tag_outer_goods_id*/ifc.GetOuterWareIdentTagID(), &stored_obj_tag_item);
 				lf.Load(native_goods_id, 0L);
 				lf.At(0, img_path.Z());
 				if(img_path.NotEmptyS()) {
 					link_file_path = img_path;
 					link_file_type = 1;
-					//vk_struct.LinkFilePath = img_path;
-					//vk_struct.LinkFileType = 1;
 				}
 				else {
 					CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNOIMG, &msg_buf, native_goods_id))); // PPTXT_LOG_UHTT_GOODSNOIMG "Для товара @goods нет изображения"
-					// @v10.9.4 img_path = vk_struct.LinkFilePath = "D:\\Papyrus\\ppy\\DD\\nophoto.png";
 					img_path = def_img_path; // @v10.9.4
-					//vk_struct.LinkFileType = 1;
 					link_file_type = 1;
 					if(!fileExists(img_path)) {
 						CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NODEFIMG, &msg_buf, native_goods_id))); // "Изображение по-умолчанию не найдено!"
@@ -1113,16 +1105,19 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 					pack.Rec.ID = native_goods_id; // @trick
 					pack.Rec.Flags |= GF_EXTPROP; // @trick
 					if(goods_obj.GetValueAddedData(native_goods_id, &pack) > 0) {
-						if(pack.GetExtStrData(GDSEXSTR_A, temp_buf) > 0)
+						if(pack.GetExtStrData(goods_descr_ext_str_id, temp_buf) > 0)
 							msg_buf.Z().Cat(temp_buf);
-						else {
+						else
+							msg_buf = goods_rec.Name; // @v10.9.6
+						/* @v10.9.6 else {
 							CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NODESCRFORGOODS, &msg_buf, native_goods_id))); // "Изображение по-умолчанию не найдено!"
 							continue;
-						}
+						}*/
 					}
 					else {
-						CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_ADDFIELDSFORGOODSPROBLEM, &msg_buf, native_goods_id)));
-						continue;
+						msg_buf = goods_rec.Name; // @v10.9.6
+						// @v10.9.6 CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_ADDFIELDSFORGOODSPROBLEM, &msg_buf, native_goods_id)));
+						// @v10.9.6 continue;
 					}
 				}
 				PPID   outer_goods_id = 0;
@@ -1170,11 +1165,8 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 	int    ok = -1;
 	PPObjGoods goods_obj;
 	UdsGameInterface ifc;
-	//PPID   tag_outer_goods_id = 0;
 	SString temp_buf;
 	Reference * p_ref = PPRef;
-	//PPObjTag obj_tag;
-	//obj_tag.FetchBySymb("UDS_GOODS_ID", &tag_outer_goods_id);
 	if(ifc.Setup(0)) {
 		SString ex_outer_goods_id;
 		SString category_name;

@@ -2603,8 +2603,9 @@ public:
 	void   SetLayoutContainerIdent(const char * pIdent);
 
 	enum {
-		stCurrent  = 0x0001,
-		stSelected = 0x0002
+		stCurrent            = 0x0001,
+		stSelected           = 0x0002,
+		stContainerCandidate = 0x0004  // @v10.9.6 Объект является кандидатом на превращение в контейнера-владельца для какого-либо иного объекта
 	};
 	enum {
 		oMovable        = 0x0001, // Объект может перемещаться пользователем
@@ -2612,10 +2613,14 @@ public:
 		oDraggable      = 0x0004, // Объект используется для Drag'n'Drop обмена
 		oBackground     = 0x0008, // Фоновый объект. Такой объект может быть только один. Его размер равен размеру ватмана.
 			// При добавлении нового объекта с этим признаком, предыдущий уничтожается.
-		oSelectable     = 0x0010, // Объект может быть выбран в окне, режим которого предполагает
-			// выбор некоторого объекта.
+		oSelectable     = 0x0010, // Объект может быть выбран в окне, режим которого предполагает выбор некоторого объекта.
 		oFrame          = 0x0020, // Активной частью объекта является только рамка.
-		oMultSelectable = 0x0040  // Объект может быть включен в список множественного выбора объектов
+		oMultSelectable = 0x0040, // Объект может быть включен в список множественного выбора объектов
+		oContainer      = 0x0080  // @v10.9.6 Объект является контейнером. Это, в том числе, означает, что
+			// иной объект может быть включен в этот контейнер.
+			// Пока понятие принадлежности контейнеру принимаем эксклюзиным, то есть, объект может принадлежать
+			// не более, чем одному контейнеру.
+			// Мотивация: реализация layout
 	};
 protected:
 	explicit TWhatmanObject(const char * pSymb);
@@ -2687,7 +2692,8 @@ public:
 		toolBrushRule,
 		toolPenGrid,
 		toolPenSubGrid,
-		toolPenLayoutBorder     // @v10.4.8
+		toolPenLayoutBorder,    // @v10.4.8
+		toolPenContainerCandidateBorder // @v10.9.6
 	};
 
 	explicit TWhatman(TWindow * pOwnerWin);
@@ -2752,10 +2758,12 @@ public:
 	int    FASTCALL HaveMultSelObjectsOption(int f) const;
 	const  LongArray * GetMultSelIdxList() const;
 	int    FindObjectByPoint(TPoint p, int * pIdx) const;
+	int    FindContainerCandidateForObjectByPoint(TPoint p, const TWhatmanObject * pObj, int * pIdx) const;
+	void   SetupContainerCandidate(int idx, bool set);
 	int    MoveObject(TWhatmanObject * pObj, const TRect & rRect);
 	uint   GetObjectsCount() const;
-	TWhatmanObject * FASTCALL GetObject(int idx);
-	const  TWhatmanObject * FASTCALL GetObjectC(int idx) const;
+	TWhatmanObject * FASTCALL GetObjectByIndex(int idx);
+	const  TWhatmanObject * FASTCALL GetObjectByIndexC(int idx) const;
 	int    FASTCALL InvalidateObjScope(const TWhatmanObject * pObj);
 	int    GetObjTextLayout(const TWhatmanObject * pObj, STextLayout & rTl, int options);
 	int    Draw(TCanvas2 & rCanv);
@@ -2856,6 +2864,7 @@ private:
 	int    TidPenGrid;
 	int    TidPenSubGrid;
 	int    TidPenLayoutBorder; // @v10.4.8
+	int    TidPenContainerCandidateBorder; // @v10.9.6
 };
 //
 //

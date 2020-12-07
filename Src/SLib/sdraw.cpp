@@ -1104,7 +1104,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					}
 					break;
 				case 'A': // 7, SVG_PATH_CMD_ARC_TO
-					{
+					while(scan.Skip().IsDotPrefixedNumber()) { // @v10.9.6 (while in front of '{')
 						float x_axis_rotation = 0.0f;
 						int   large_arc_flag = 0;
 						int   sweep_flag = 0;

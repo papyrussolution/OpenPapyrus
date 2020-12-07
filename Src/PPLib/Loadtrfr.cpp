@@ -356,9 +356,8 @@ int Transfer::GetGoodsIdList(const GoodsByTransferFilt & rFilt, PPIDArray & rLis
 	rList.freeAll();
 	if(!rFilt.IsEmpty()) {
 		SString fmt_buf, msg_buf;
-		if(CS_SERVER) {
+		if(!DS.IsThreadInteractive())
 			PPLoadText(PPTXT_SELECTINGGOODSBYTRFR, fmt_buf);
-		}
 		const int inc_nzero_rest = BIN(rFilt.Flags & GoodsFilt::fNoZeroRestOnLotPeriod);
 		union {
 			ReceiptTbl::Key1 k1;
@@ -387,11 +386,10 @@ int Transfer::GetGoodsIdList(const GoodsByTransferFilt & rFilt, PPIDArray & rLis
 			if(!inc_nzero_rest || Rcpt.data.Dt >= rFilt.LotPeriod.low || !Rcpt.data.Closed) {
 				if(rFilt.LocList.CheckID(Rcpt.data.LocID)) {
 					THROW(rList.add(Rcpt.data.GoodsID));
-					if(CS_SERVER) {
+					if(!DS.IsThreadInteractive()) {
 						const uint _mc = rList.getCount();
-                        if((_mc % 1000) == 0) {
+                        if((_mc % 1000) == 0)
                             PPWaitMsg((msg_buf = fmt_buf).Space().Cat(_mc));
-                        }
 					}
 				}
 			}

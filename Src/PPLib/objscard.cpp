@@ -4530,9 +4530,8 @@ const StrAssocArray * SCardCache::GetFullList()
 					if(!FullCardList.Inited) {
 						SString msg_buf, fmt_buf;
 						uint   _mc = 0;
-						if(CS_SERVER) {
+						if(!DS.IsThreadInteractive())
 							PPLoadText(PPTXT_GETTINGFULLTEXTLIST, fmt_buf);
-						}
 						SCardCore * p_tbl = sc_obj.P_Tbl;
 						BExtQuery q(p_tbl, 0, 24);
 						q.select(p_tbl->ID, p_tbl->SeriesID, p_tbl->Code, 0L);
@@ -4544,11 +4543,9 @@ const StrAssocArray * SCardCache::GetFullList()
 								PPSetErrorSLib();
 								err = 1;
 							}
-							else {
-								if(CS_SERVER) {
-									if((_mc % 1000) == 0)
-										PPWaitMsg((msg_buf = fmt_buf).Space().Cat(_mc));
-								}
+							else if(!DS.IsThreadInteractive()) {
+								if((_mc % 1000) == 0)
+									PPWaitMsg((msg_buf = fmt_buf).Space().Cat(_mc));
 							}
 						}
 					}

@@ -3086,6 +3086,7 @@ PPFILNAM_MENUDESKLOCK          "menudesklock.lck"
 PPFILNAM_ATOLDRV_LOG           "atoldrv.log" // @v10.7.12
 PPFILNAM_UDSTALK_LOG           "uds-talk.log" // @v10.8.11
 PPFILNAM_NOIMAGE               "nophoto.png" // @v10.9.4
+PPFILNAM_VKTALK_LOG            "vk-talk.log" // @v10.9.6
 
 #!} // dont_translate
 

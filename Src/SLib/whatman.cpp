@@ -519,8 +519,8 @@ void TWhatman::Clear()
 TWindow * TWhatman::GetOwnerWindow() const { return P_Wnd; }
 const  TWhatman::Param & TWhatman::GetParam() const { return P; }
 uint   TWhatman::GetObjectsCount() const { return ObjList.getCount(); }
-TWhatmanObject * FASTCALL TWhatman::GetObject(int idx) { return (idx >= 0 && idx < (int)ObjList.getCount()) ? ObjList.at(idx) : 0; }
-const  TWhatmanObject * FASTCALL TWhatman::GetObjectC(int idx) const { return (idx >= 0 && idx < (int)ObjList.getCount()) ? ObjList.at(idx) : 0; }
+TWhatmanObject * FASTCALL TWhatman::GetObjectByIndex(int idx) { return (idx >= 0 && idx < ObjList.getCountI()) ? ObjList.at(idx) : 0; }
+const  TWhatmanObject * FASTCALL TWhatman::GetObjectByIndexC(int idx) const { return (idx >= 0 && idx < ObjList.getCountI()) ? ObjList.at(idx) : 0; }
 const  LongArray * TWhatman::GetMultSelIdxList() const { return P_MultObjPosList; }
 int    FASTCALL TWhatman::IsMultSelObject(int idx) const { return BIN(P_MultObjPosList && P_MultObjPosList->lsearch(idx)); }
 const  TRect & TWhatman::GetArea() const { return Area; }
@@ -912,10 +912,38 @@ int TWhatman::SetCurrentObject(int idx, int * pPrevCurObjIdx)
 	return ok;
 }
 
+void TWhatman::SetupContainerCandidate(int idx, bool set)
+{
+	if(idx >= 0 && idx < ObjList.getCountI()) {
+		TWhatmanObject * p_container = ObjList.at(idx);
+		assert(p_container && p_container->HasOption(TWhatmanObject::oContainer));
+		if(p_container && p_container->HasOption(TWhatmanObject::oContainer)) {
+			SETFLAG(p_container->State, TWhatmanObject::stContainerCandidate, set);
+		}
+	}
+	//
+	// В любом случае, при изменении у единственного объекта статуса TWhatmanObject::stContainerCandidate
+	// мы снимаем аналогичный статус у всех, кто его имеет.
+	// По спецификации, такой статус может быть установлен только у одного объекта.
+	//
+	for(uint i = 0; i < ObjList.getCount(); i++) {
+		if(idx < 0 || i != static_cast<uint>(idx)) {
+			TWhatmanObject * p_obj = ObjList.at(i);
+			assert(p_obj);
+			if(p_obj) {
+				if(p_obj->State & TWhatmanObject::stContainerCandidate) {
+					assert(p_obj->HasOption(TWhatmanObject::oContainer));
+					p_obj->State &= ~TWhatmanObject::stContainerCandidate;
+				}
+			}
+		}
+	}
+}
+
 int TWhatman::AddMultSelObject(int idx)
 {
 	int    ok = 0;
-	TWhatmanObject * p_obj = GetObject(idx);
+	TWhatmanObject * p_obj = GetObjectByIndex(idx);
 	if(p_obj) {
 		if(p_obj->HasOption(TWhatmanObject::oMultSelectable)) {
 			if(SETIFZ(P_MultObjPosList, new LongArray)) {
@@ -937,7 +965,7 @@ int TWhatman::RmvMultSelObject(int idx)
 		uint   pos = 0;
 		if(idx == -1) {
 			for(uint i = 0; i < P_MultObjPosList->getCount(); i++) {
-				TWhatmanObject * p_obj = GetObject(P_MultObjPosList->at(i));
+				TWhatmanObject * p_obj = GetObjectByIndex(P_MultObjPosList->at(i));
 				if(p_obj)
 					p_obj->State &= ~TWhatmanObject::stSelected;
 			}
@@ -945,7 +973,7 @@ int TWhatman::RmvMultSelObject(int idx)
 			ok = 1;
 		}
 		else if(P_MultObjPosList->lsearch(idx, &pos)) {
-			TWhatmanObject * p_obj = GetObject(idx);
+			TWhatmanObject * p_obj = GetObjectByIndex(idx);
 			if(p_obj)
 				p_obj->State &= ~TWhatmanObject::stSelected;
 			P_MultObjPosList->atFree(pos);
@@ -978,7 +1006,7 @@ int FASTCALL TWhatman::HaveMultSelObjectsOption(int f) const
 	int    ok = 1;
 	if(P_MultObjPosList) {
 		for(uint i = 0; i < P_MultObjPosList->getCount(); i++) {
-			const TWhatmanObject * p_obj = GetObjectC(P_MultObjPosList->at(i));
+			const TWhatmanObject * p_obj = GetObjectByIndexC(P_MultObjPosList->at(i));
 			if(!p_obj || !p_obj->HasOption(f))
 				ok = 0;
 		}
@@ -1019,6 +1047,26 @@ int TWhatman::FindObjectByPoint(TPoint p, int * pIdx) const
 	return ok;
 }
 
+int TWhatman::FindContainerCandidateForObjectByPoint(TPoint p, const TWhatmanObject * pObj, int * pIdx) const
+{
+	int    ok = 0;
+	if(pObj) {
+		const SString & r_current_container_symb = pObj->GetLayoutContainerIdent();
+		uint   c = ObjList.getCount();
+		p += ScrollPos;
+		if(c) do {
+			const TWhatmanObject * p_obj = ObjList.at(--c);
+			if(p_obj && p_obj != pObj && p_obj->HasOption(TWhatmanObject::oContainer) && p_obj->Bounds.contains(p)) {
+				if(r_current_container_symb.Empty() || p_obj->Symb != r_current_container_symb) {
+					ASSIGN_PTR(pIdx, static_cast<int>(c));				
+					ok = 1;		
+				}
+			}
+		} while(!ok && c);
+	}
+	return ok;
+}
+
 int TWhatman::SetTool(int toolId, int paintObjIdent)
 {
 	int    ok = 1;
@@ -1034,6 +1082,7 @@ int TWhatman::SetTool(int toolId, int paintObjIdent)
 		case toolPenGrid:    TidPenGrid = paintObjIdent; break;
 		case toolPenSubGrid: TidPenSubGrid = paintObjIdent; break;
 		case toolPenLayoutBorder: TidPenLayoutBorder = paintObjIdent; break; // @v10.4.8
+		case toolPenContainerCandidateBorder: TidPenContainerCandidateBorder = paintObjIdent; break; // @v10.9.6
 		default: ok = 0; break;
 	}
 	return ok;
@@ -1053,6 +1102,7 @@ int TWhatman::GetTool(int toolId) const
 		case toolPenGrid:    return TidPenGrid;
 		case toolPenSubGrid: return TidPenSubGrid;
 		case toolPenLayoutBorder: return TidPenLayoutBorder; // @v10.4.8
+		case toolPenContainerCandidateBorder: return TidPenContainerCandidateBorder; // @v10.9.6
 	}
 	return 0;
 }
@@ -1387,7 +1437,7 @@ int TWhatman::InvalidateMultSelContour(const TPoint * pOffs)
 		if(c) {
 			SRegion rgn;
 			for(uint i = 0; i < c; i++) {
-				const TWhatmanObject * p_obj = GetObjectC(P_MultObjPosList->at(i));
+				const TWhatmanObject * p_obj = GetObjectByIndexC(P_MultObjPosList->at(i));
 				if(p_obj) {
 					TRect r = p_obj->GetBounds();
 					if(pOffs)
@@ -1409,7 +1459,7 @@ int TWhatman::DrawMultSelContour(TCanvas2 & rCanv, const TPoint * pOffs)
 	int    ok = 1;
 	if(P_MultObjPosList) {
 		for(uint i = 0; i < P_MultObjPosList->getCount(); i++) {
-			TWhatmanObject * p_obj = GetObject(P_MultObjPosList->at(i));
+			TWhatmanObject * p_obj = GetObjectByIndex(P_MultObjPosList->at(i));
 			DrawObjectContour(rCanv, p_obj, pOffs);
 		}
 	}

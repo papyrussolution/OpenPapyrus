@@ -2246,7 +2246,7 @@ int BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 		double PctAddition;
 	};
 	int    ok = -1;
-	if(!CS_SERVER) {
+	if(DS.IsThreadInteractive()) {
 		double pct_add = *pPctAddition;
 		TDeficitDialog * dlg = new TDeficitDialog;
 		if(CheckDialogPtrErr(&dlg)) {

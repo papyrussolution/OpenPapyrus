@@ -500,6 +500,7 @@ int MakeDatabase()
 					}
 					virtual void Run()
 					{
+						DS.GetTLA().State |= PPThreadLocalArea::stNonInteractive; // @v10.9.6
 						char    secret[256];
 						SString temp_buf;
 						PPVersionInfo vi = DS.GetVersionInfo();

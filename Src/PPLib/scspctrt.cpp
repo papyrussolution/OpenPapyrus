@@ -694,7 +694,7 @@ UdsGameInterface::GoodsItemFilt::GoodsItemFilt() : ParentId(0), Count(0), Offset
 {
 }
 
-UdsGameInterface::UdsGameInterface()
+UdsGameInterface::UdsGameInterface() : Lth(PPFILNAM_UDSTALK_LOG)
 {
 }
 
@@ -866,7 +866,6 @@ int UdsGameInterface::GetSettings(Settings & rResult)
 	LastErr.Z();
 	int    ok = 1;
 	SString temp_buf;
-	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	SJson * p_js_doc = 0;
@@ -877,16 +876,13 @@ int UdsGameInterface::GetSettings(Settings & rResult)
 	PrepareHtmlFields(hdr_flds);
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("settings"));
-		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf);
-		f_out_log.WriteLine(log_buf.CR());
+		Lth.Log("req", url_buf, temp_buf.Z());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
-				f_out_log.WriteLine(log_buf.CR().CR());
+				Lth.Log("rep", 0, json_buf);
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
@@ -1092,7 +1088,6 @@ int UdsGameInterface::GetCustomerInformation(int64 id, Customer & rC) // GET htt
 	LastErr.Z();
 	int    ok = 1;
 	SString temp_buf;
-	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	SJson * p_js_doc = 0;
@@ -1103,16 +1098,13 @@ int UdsGameInterface::GetCustomerInformation(int64 id, Customer & rC) // GET htt
 	PrepareHtmlFields(hdr_flds);
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("customers").SetLastDSlash().Cat(id));
-		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf);
-		f_out_log.WriteLine(log_buf.CR());
+		Lth.Log("req", url_buf, temp_buf.Z());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
-				f_out_log.WriteLine(log_buf.CR().CR());
+				Lth.Log("rep", 0, json_buf);
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					ReadCustomer(p_js_doc, rC);
 				}
@@ -1129,7 +1121,6 @@ int UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET 
 	LastErr.Z();
 	int    ok = -1;
 	SString temp_buf;
-	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	SJson * p_js_doc = 0;
@@ -1140,16 +1131,13 @@ int UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET 
 	PrepareHtmlFields(hdr_flds);
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("customers"));
-		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf);
-		f_out_log.WriteLine(log_buf.CR());
+		Lth.Log("req", url_buf, temp_buf.Z());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
-				f_out_log.WriteLine(log_buf.CR().CR());
+				Lth.Log("rep", 0, json_buf);
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
@@ -1191,7 +1179,6 @@ int UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer & rC, 
 			 -X GET -s https://api.uds.app/partner/v2/customers/find?code=456123&phone=+71234567898&uid=23684cea-ca50-4c5c-b399-eb473e85b5ad
 	*/
 	SString temp_buf;
-	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	SJson * p_js_doc = 0;
@@ -1217,16 +1204,13 @@ int UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer & rC, 
 			arg_count++;
 		}
 		InetUrl url(url_buf);
-		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf);
-		f_out_log.WriteLine(log_buf.CR());
+		Lth.Log("req", url_buf, temp_buf.Z());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
-				f_out_log.WriteLine(log_buf.CR().CR());
+				Lth.Log("rep", 0, json_buf);
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
@@ -1281,7 +1265,6 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 	LastErr.Z();
 	int    ok = 1;
 	SString temp_buf;
-	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	SJson * p_js_doc = 0;
@@ -1343,16 +1326,13 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 	}
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("operations"));
-		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
-		f_out_log.WriteLine(log_buf.CR());
+		Lth.Log("req", url_buf, json_buf);
 		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
-				f_out_log.WriteLine(log_buf.CR().CR());
+				Lth.Log("rep", 0, json_buf);
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
@@ -1496,7 +1476,6 @@ int UdsGameInterface::CreatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 	LastErr.Z();
 	int    ok = 1;
 	SString temp_buf;
-	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	SJson * p_js_doc = 0;
@@ -1552,16 +1531,13 @@ int UdsGameInterface::CreatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 	}
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("goods"));
-		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
-		f_out_log.WriteLine(log_buf.CR());
+		Lth.Log("req", url_buf, json_buf);
 		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
-				f_out_log.WriteLine(log_buf.CR().CR());
+				Lth.Log("rep", 0, json_buf);
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
@@ -1589,7 +1565,6 @@ int UdsGameInterface::UpdatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 	LastErr.Z();
 	int    ok = 1;
 	SString temp_buf;
-	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	SJson * p_js_doc = 0;
@@ -1645,16 +1620,13 @@ int UdsGameInterface::UpdatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 	}
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("goods").SetLastDSlash().Cat(rItem.OuterId));
-		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
-		f_out_log.WriteLine(log_buf.CR());
+		Lth.Log("req", url_buf, json_buf);
 		THROW_SL(c.HttpPut(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
-				f_out_log.WriteLine(log_buf.CR().CR());
+				Lth.Log("rep", 0, json_buf);
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					const SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
@@ -1690,7 +1662,6 @@ int UdsGameInterface::GetPriceItemList(const GoodsItemFilt & rFilt, TSCollection
 	uint   fetched_count = 0; // Количество элементов, которые были извлечены данным запросом
 	uint   total_count = 0; // Количество элементов, которые доступны для извлечения
 	SString temp_buf;
-	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	SJson * p_js_doc = 0;
@@ -1715,16 +1686,13 @@ int UdsGameInterface::GetPriceItemList(const GoodsItemFilt & rFilt, TSCollection
 			url_buf.CatChar(arg_count ? '&' : '?').CatEq("nodeId", rFilt.ParentId); arg_count++;
 		}
 		InetUrl url(url_buf);
-		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
-		f_out_log.WriteLine(log_buf.CR());
+		Lth.Log("req", url_buf, temp_buf.Z());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
-				f_out_log.WriteLine(log_buf.CR().CR());
+				Lth.Log("rep", 0, json_buf);
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					const SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
@@ -1783,7 +1751,6 @@ int UdsGameInterface::GetPriceItemInformation(int64 outerId, GoodsItem & rItem) 
 	LastErr.Z();
 	int    ok = -1;
 	SString temp_buf;
-	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	SJson * p_js_doc = 0;
@@ -1795,16 +1762,13 @@ int UdsGameInterface::GetPriceItemInformation(int64 outerId, GoodsItem & rItem) 
 	{
 		(url_buf = Ib.EndPoint).SetLastDSlash().Cat("goods").SetLastDSlash().Cat(outerId);
 		InetUrl url(url_buf);
-		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
-		f_out_log.WriteLine(log_buf.CR());
+		Lth.Log("req", url_buf, temp_buf.Z());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
-				f_out_log.WriteLine(log_buf.CR().CR());
+				Lth.Log("rep", 0, json_buf);
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					const SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0)
