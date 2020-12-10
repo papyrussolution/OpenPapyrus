@@ -1329,6 +1329,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										case GTCHZNPT_TOBACCO: marking_type = LIBFPTR_NT_TOBACCO; break;
 										case GTCHZNPT_SHOE: marking_type = LIBFPTR_NT_SHOES; break;
 										case GTCHZNPT_MEDICINE: marking_type = LIBFPTR_NT_MEDICINES; break;
+										case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
 									}
 									if(marking_type >= 0) {
 										P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_NOMENCLATURE_TYPE, marking_type);

@@ -4092,6 +4092,8 @@ SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 
 int SString::IsAscii() const
 {
+	return sisascii(P_Buf, Len()); // @v10.9.7
+	/* @v10.9.7
 	int    ok = 1;
 	const  size_t _len = Len();
 	for(size_t idx = 0; ok && idx < _len; idx++) {
@@ -4100,6 +4102,7 @@ int SString::IsAscii() const
 			ok = 0;
 	}
 	return ok;
+	*/
 }
 
 int SString::IsLegalUtf8() const

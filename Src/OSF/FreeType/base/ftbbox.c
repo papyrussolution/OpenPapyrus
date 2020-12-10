@@ -265,7 +265,7 @@ static FT_Pos cubic_peak(FT_Pos q1,
 		q3 *= 1 << shift;
 		q4 *= 1 << shift;
 	}
-	else{
+	else {
 		q1 >>= -shift;
 		q2 >>= -shift;
 		q3 >>= -shift;
@@ -286,7 +286,7 @@ static FT_Pos cubic_peak(FT_Pos q1,
 			q3 = q3 >> 2;
 			q2 = q2 >> 1;
 		}
-		else{          /* second half */
+		else {          /* second half */
 			q1 = q1 + q2;
 			q2 = q2 + q3;
 			q3 = q3 + q4;

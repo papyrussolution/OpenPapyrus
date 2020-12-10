@@ -1222,14 +1222,12 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 			tg_rec.Price    -= tg_rec.Discount;
 			tg_rec.PVat      = pvat;
 			tg_rec.Brutto    = brutto; // @v10.3.4
-			// @v9.4.10 {
 			if(pExt) {
 				tg_rec.LinkQtty  = pExt->LinkQtty;
 				tg_rec.LinkCost  = pExt->LinkCost;
 				tg_rec.LinkPrice = pExt->LinkPrice;
 			}
-			// } @v9.4.10
-			tg_rec.ExtVal1   = ext_val1; // @v9.3.5
+			tg_rec.ExtVal1   = ext_val1;
 			tg_rec.ArticleID = _ar_id;
 			tg_rec.GoodsID   = _goods_id;
 			tg_rec.PersonID  = _psn_id;
@@ -1344,10 +1342,10 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 					CPY(SaldoAmt);
 					CPY(PVat);
 					CPY(Brutto);
-					CPY(LinkQtty);  // @v9.4.10
-					CPY(LinkCost);  // @v9.4.10
-					CPY(LinkPrice); // @v9.4.10
-					CPY(ExtVal1);   // @v9.3.5
+					CPY(LinkQtty);
+					CPY(LinkCost);
+					CPY(LinkPrice);
+					CPY(ExtVal1);
 	#undef CPY
 					citem.Counter = 0;
 					p_tgt->getPosition(&citem.DbPos);

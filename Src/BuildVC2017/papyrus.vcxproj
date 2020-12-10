@@ -2132,6 +2132,9 @@
     <ProjectReference Include="gravity.vcxproj">
       <Project>{ec12be0a-025e-4168-9d2d-419a18cb2ef5}</Project>
     </ProjectReference>
+    <ProjectReference Include="lcms2.vcxproj">
+      <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
+    </ProjectReference>
     <ProjectReference Include="libcurl-7730.vcxproj">
       <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
     </ProjectReference>

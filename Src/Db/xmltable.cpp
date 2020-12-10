@@ -547,7 +547,7 @@ int XmlDbFile::AppendRecord(const char * pRecTag, const SdRecord & rRec, const v
 	int    ok = -1;
 	THROW(CheckParam(St.GetParam()));
 	THROW_S(!isempty(pRecTag), SLERR_XMLDB_INVRECORROOTTAG);
-	if(P_Writer /* @v8.6.1 && pDataBuf*/) {
+	if(P_Writer) {
 		SdbField fld;
 		SString line, field_name, tag;
 		SFormatParam fp;
@@ -589,21 +589,27 @@ int XmlDbFile::WriteField(const char * pFieldName, const char * pFieldValue, int
 {
 	int    ok = -1;
 	if(P_Writer && pFieldName) {
-		SString fn_buf;
-		fn_buf = pFieldName;
-		if(IsUtf8())
-			fn_buf.ToUtf8();
+		SString & r_fn_buf = SLS.AcquireRvlStr();
+		//SString fn_buf(pFieldName);
+		r_fn_buf = pFieldName;
+		if(!r_fn_buf.IsAscii()) { // @v10.9.7
+			if(IsUtf8() && !r_fn_buf.IsLegalUtf8()) // @v10.9.7 (&& !fn_buf.IsLegalUtf8())
+				r_fn_buf.ToUtf8();
+		}
 		if(isDtd) {
-			xmlTextWriterWriteDTDElement(P_Writer, fn_buf.ucptr(), (const xmlChar *)"(#PCDATA)");
+			xmlTextWriterWriteDTDElement(P_Writer, r_fn_buf.ucptr(), (const xmlChar *)"(#PCDATA)");
 			ok = 1;
 		}
 		else if(pFieldValue) {
-			SString sbuf(pFieldValue);
-			if(IsUtf8())
-				sbuf.ToUtf8();
-			// @v7.9.6 if(St.GetParam().Flags & XmlDbFile::Param::fUseDTD)
-				XMLReplaceSpecSymb(sbuf, EntitySpec.NotEmpty() ? EntitySpec.cptr() : 0);
-			xmlTextWriterWriteElement(P_Writer, fn_buf.ucptr(), sbuf.ucptr());
+			//SString sbuf(pFieldValue);
+			SString & r_sbuf = SLS.AcquireRvlStr();
+			r_sbuf = pFieldValue;
+			if(!r_sbuf.IsAscii()) { // @v10.9.7
+				if(IsUtf8() && !r_sbuf.IsLegalUtf8()) // @v10.9.7 (&& !sbuf.IsLegalUtf8())
+					r_sbuf.ToUtf8();
+			}
+			XMLReplaceSpecSymb(r_sbuf, EntitySpec.NotEmpty() ? EntitySpec.cptr() : 0);
+			xmlTextWriterWriteElement(P_Writer, r_fn_buf.ucptr(), r_sbuf.ucptr());
 			ok = 1;
 		}
 	}

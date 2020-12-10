@@ -1,7 +1,6 @@
 // V_CASHN.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
-//
 // Кассовые узлы
 //
 #include <pp.h>
@@ -256,7 +255,6 @@ int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 					CSessFilt filt;
 					PPViewCSess v;
 					filt.NodeList_.Add(id);
-					// @v9.1.7 if(v.EditBaseFilt(&filt) > 0)
 					ok = PPView::Execute(PPVIEW_CSESS, &filt, PPView::exefModeless, 0);
 				}
 				break;
@@ -308,7 +306,7 @@ int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 			case PPVCMD_PRINTZEROCHECK: // @v10.0.0
 				ok = -1;
 				if(id) {
-					BillObj->PrintCheck(0, id, 0);
+					BillObj->PrintCheck__(0, id, 0);
 					ok = 1;
 				}
 				break;

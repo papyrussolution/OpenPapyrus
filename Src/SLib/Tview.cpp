@@ -385,16 +385,16 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
     if(text_len > 0) {
     	void * p_text_ptr = 0;
     	int    is_allocated = 0;
-    	uint8  static_buf[1024];
+    	uint8  static_buf[4096]; // @v10.9.7 [1024]-->[4096]
 #ifdef UNICODE
 		if(text_len >= sizeof(static_buf)/sizeof(wchar_t)) {
-			p_text_ptr = SAlloc::M(text_len * sizeof(wchar_t) + 1);
+			p_text_ptr = SAlloc::M((text_len+16) * sizeof(wchar_t)); // @v10.9.7 @fix (text_len * sizeof(wchar_t) + 1)-->((text_len+16) * sizeof(wchar_t))
 			is_allocated = 1;
 		}
 		else
 			p_text_ptr = static_buf;
-		long actual_len = ::SendMessage(hWnd, WM_GETTEXT, text_len+1, (LPARAM)p_text_ptr);
-		rBuf.CopyUtf8FromUnicode((wchar_t *)p_text_ptr, actual_len, 0);
+		long actual_len = ::SendMessage(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
+		rBuf.CopyUtf8FromUnicode(static_cast<wchar_t *>(p_text_ptr), actual_len, 0);
 		rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 #else
 		if(text_len >= sizeof(static_buf)/sizeof(char)) {

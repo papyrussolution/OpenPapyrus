@@ -15,7 +15,7 @@
 //
 //
 //
-class BhtTSess : SVector { // @v9.8.11 SArray-->SVector
+class BhtTSess : SVector {
 public:
 	explicit BhtTSess(PPLogger * pLogger) : SVector(sizeof(PSE)), LastUsedEntryPos(UINT_MAX), P_Logger(pLogger), Ta(0), LastLine_SessID(0), LastLine_OprNo(0)
 	{

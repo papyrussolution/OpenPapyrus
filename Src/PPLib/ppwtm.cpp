@@ -178,6 +178,7 @@ public:
 	{
 		int    ok = 1;
 		if(pData) {
+			// @todo wrong block
 			pData->SetLayoutBlock(&Data);
 			pData->SetLayoutContainerIdent(Data.LayoutSymb);
 		}
@@ -1856,6 +1857,16 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 				SLS.SetupDragndropObj(0, 0);
 			}
 			St.Rsz.Reset();
+			// @v10.9.7 {
+			{
+				const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
+				if(current_contaiter_candidate_idx >= 0) {
+					TWhatmanObject * p_cc_obj = W.GetObjectByIndex(current_contaiter_candidate_idx);
+					if(p_cc_obj)
+						InvalidateObjScope(p_cc_obj);
+				}
+			}
+			// } @v10.9.7 
 			W.SetupContainerCandidate(-1, false); // @v10.9.6 —брасываем признак контейнер-кандидат
 			SetDefaultCursor();
 		}
@@ -1882,6 +1893,16 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 					if(St.Rsz.P_MovedObjCopy) {
 						InvalidateObjScope(St.Rsz.P_MovedObjCopy);
 						if(oneof2(St.Rsz.Kind, ResizeState::kObjMove, ResizeState::kObjDrag)) {
+							// @v10.9.7 {
+							const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
+							if(current_contaiter_candidate_idx >= 0) {
+								TWhatmanObject * p_cc_obj = W.GetObjectByIndex(current_contaiter_candidate_idx);
+								if(p_cc_obj) {
+									W.SetupContainerCandidate(current_contaiter_candidate_idx, false);
+									InvalidateObjScope(p_cc_obj);
+								}
+							}
+							// } @v10.9.7 
 							//TPoint local_pt = 
 							W.MoveObject(St.Rsz.P_MovedObjCopy, (b = p_obj->GetBounds()).move(p.x - St.Rsz.StartPt.x, p.y - St.Rsz.StartPt.y));
 							// @v10.9.6 {
@@ -2055,7 +2076,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 			//case kbRight:
 			case kbTab:
 				if(W.GetCurrentObject(&cur_obj_idx)) {
-					new_obj_idx = ((cur_obj_idx+1) < (int)W.GetObjectsCount()) ? (cur_obj_idx+1) :  0;
+					new_obj_idx = ((cur_obj_idx+1) < (int)W.GetObjectsCount()) ? (cur_obj_idx+1) : 0;
 				}
 				break;
 			case kbDel:

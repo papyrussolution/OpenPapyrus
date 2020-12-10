@@ -38,7 +38,9 @@ static const SpcSymbEntry SpcSymbTab[] = {
 
 void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 {
-	SString temp_buf = rBuf;
+	// @v10.9.7 SString temp_buf = rBuf;
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.9.7
+	r_temp_buf = rBuf; // @v10.9.7
 	const char * p_include = 0;
 	const char * p_exclude = 0;
 	if(pProcessSymb) {
@@ -61,10 +63,10 @@ void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 				*c++ = ';';
 				*c = 0;
 			}
-			temp_buf.ReplaceStr(pattern, replacer, 0);
+			r_temp_buf.ReplaceStr(pattern, replacer, 0);
 		}
 	}
-	rBuf = temp_buf;
+	rBuf = r_temp_buf;
 }
 
 int XMLWriteSpecSymbEntities(FILE * pStream)

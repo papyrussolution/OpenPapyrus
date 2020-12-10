@@ -1703,7 +1703,7 @@ static ssize_t schannel_send(struct connectdata * conn, int sockindex,
 	else if(sspi_status == SEC_E_INSUFFICIENT_MEMORY) {
 		*err = CURLE_OUT_OF_MEMORY;
 	}
-	else{
+	else {
 		*err = CURLE_SEND_ERROR;
 	}
 

@@ -450,7 +450,7 @@ int TArrangeParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-TWhatman::TWhatman(TWindow * pOwnerWin) : CurObjPos(-1), SrcFileVer(0), P_Wnd(pOwnerWin), P_MultObjPosList(0)
+TWhatman::TWhatman(TWindow * pOwnerWin) : CurObjPos(-1), ContainerCandidatePos(-1), SrcFileVer(0), P_Wnd(pOwnerWin), P_MultObjPosList(0)
 {
 	ScrollPos = 0;
 }
@@ -536,6 +536,18 @@ int TWhatman::SetParam(const TWhatman::Param & rP)
 int TWhatman::InsertObject(TWhatmanObject * pObj, int beforeIdx)
 {
 	int    ok = 1;
+	// @v10.9.7 {
+	if(pObj->Options & TWhatmanObject::oContainer) {
+		WhatmanObjectLayoutBase * p_lo = static_cast<WhatmanObjectLayoutBase *>(pObj);
+		if(p_lo->GetContainerIdent().Empty()) {
+			SString temp_buf;
+			S_GUID uuid;
+			uuid.Generate();
+			uuid.ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf);
+			p_lo->SetContainerIdent(temp_buf);
+		}
+	}
+	// } @v10.9.7 
 	if(pObj->Options & TWhatmanObject::oBackground) {
 		//
 		// При вставке фонового объекта предварительно удаляем существующие фоновые объекты
@@ -914,11 +926,14 @@ int TWhatman::SetCurrentObject(int idx, int * pPrevCurObjIdx)
 
 void TWhatman::SetupContainerCandidate(int idx, bool set)
 {
+	ContainerCandidatePos = -1;
 	if(idx >= 0 && idx < ObjList.getCountI()) {
 		TWhatmanObject * p_container = ObjList.at(idx);
 		assert(p_container && p_container->HasOption(TWhatmanObject::oContainer));
 		if(p_container && p_container->HasOption(TWhatmanObject::oContainer)) {
 			SETFLAG(p_container->State, TWhatmanObject::stContainerCandidate, set);
+			if(set)
+				ContainerCandidatePos = idx;
 		}
 	}
 	//

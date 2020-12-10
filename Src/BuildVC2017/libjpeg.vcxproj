@@ -803,6 +803,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
@@ -812,6 +813,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

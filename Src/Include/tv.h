@@ -2643,6 +2643,10 @@ private:
 class WhatmanObjectLayoutBase : public TWhatmanObject {
 public:
 	const SString & GetContainerIdent() const { return ContainerIdent; }
+	void   SetContainerIdent(const char * pIdent)
+	{
+		(ContainerIdent = pIdent).Strip();
+	}
 protected:
 	WhatmanObjectLayoutBase();
 	~WhatmanObjectLayoutBase();
@@ -2759,6 +2763,7 @@ public:
 	const  LongArray * GetMultSelIdxList() const;
 	int    FindObjectByPoint(TPoint p, int * pIdx) const;
 	int    FindContainerCandidateForObjectByPoint(TPoint p, const TWhatmanObject * pObj, int * pIdx) const;
+	int    GetContaiterCandidateIdx() const { return ContainerCandidatePos; }
 	void   SetupContainerCandidate(int idx, bool set);
 	int    MoveObject(TWhatmanObject * pObj, const TRect & rRect);
 	uint   GetObjectsCount() const;
@@ -2851,6 +2856,7 @@ private:
 	Param  P;
 	TSCollection <TWhatmanObject> ObjList;
 	int    CurObjPos; // Позиция активного объекта. -1 - активного объекта нет.
+	int    ContainerCandidatePos; // @v10.9.7 Позиция контейнера-кандидата на владение перемещаемым объектом. -1 - нет.
 	LongArray * P_MultObjPosList; // Позиции объектов, к которым применен множественный выбор.
 	TWindow * P_Wnd; // @notowned @transient
 	int    TidPenObjBorder;

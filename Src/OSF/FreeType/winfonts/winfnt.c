@@ -602,7 +602,7 @@ static FT_UInt32 fnt_cmap_char_next(FNT_CMap cmap,
 		result = cmap->first;
 		gindex = 1;
 	}
-	else{
+	else {
 		char_code -= cmap->first;
 		if(char_code < cmap->count) {
 			result = cmap->first + char_code;

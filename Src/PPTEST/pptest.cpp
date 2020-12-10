@@ -1392,10 +1392,16 @@ int  TestUdsInterface();
 	return BIN(path.NotEmpty());
 }*/
 
+// @v10.9.7 (Ёкпериментальное внедрение тестировани€ библиотеки lcms2) int Test_LCMS2(int argc, const char * argv[]);
+
 int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	/*{ // @v10.9.7 Ёкпериментальное внедрение тестировани€ библиотеки lcms2
+		const char * test_lcms_argv[] = { "Test_LCMS2" };
+		Test_LCMS2(1, test_lcms_argv);
+	}*/
 	//TestFrameWindow::Run();
 	TestGtinStruc();
 	TestUdsInterface();

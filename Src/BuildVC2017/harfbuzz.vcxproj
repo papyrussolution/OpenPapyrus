@@ -1,0 +1,329 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BE9C6DDF-E9C7-3ECB-9FF3-1FD8A3EB2410}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>harfbuzz</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectName)</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;..\include;..\Include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4267</DisableSpecificWarnings>
+      <ExceptionHandling>false</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;HAVE_ATEXIT;HAVE_ISATTY;HAVE_STDBOOL_H;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_ATEXIT;HAVE_ISATTY;HAVE_STDBOOL_H;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;D:\Papyrus\Src\Build2015-harfbuzz\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;D:\Papyrus\Src\Build2015-harfbuzz\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;..\include;..\Include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4267</DisableSpecificWarnings>
+      <ExceptionHandling>false</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;HAVE_ATEXIT;HAVE_ISATTY;HAVE_STDBOOL_H;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>false</OmitFramePointers>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_ATEXIT;HAVE_ISATTY;HAVE_STDBOOL_H;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;D:\Papyrus\Src\Build2015-harfbuzz\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;D:\Papyrus\Src\Build2015-harfbuzz\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;..\include;..\Include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4244;4267</DisableSpecificWarnings>
+      <ExceptionHandling>false</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;HAVE_ATEXIT;HAVE_ISATTY;HAVE_STDBOOL_H;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;HAVE_ATEXIT;HAVE_ISATTY;HAVE_STDBOOL_H;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;D:\Papyrus\Src\Build2015-harfbuzz\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;D:\Papyrus\Src\Build2015-harfbuzz\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;..\include;..\Include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4244;4267</DisableSpecificWarnings>
+      <ExceptionHandling>false</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;HAVE_ATEXIT;HAVE_ISATTY;HAVE_STDBOOL_H;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;HAVE_ATEXIT;HAVE_ISATTY;HAVE_STDBOOL_H;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;D:\Papyrus\Src\Build2015-harfbuzz\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\harfbuzz\src;D:\Papyrus\Src\Build2015-harfbuzz\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-aat-layout.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-aat-map.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-blob.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-buffer-serialize.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-buffer.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-common.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-coretext.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-directwrite.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-draw.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-face.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-fallback-shape.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-font.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ft.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-gdi.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-glib.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-gobject-structs.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-graphite2.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-icu.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-map.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-number.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-cff1-table.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-cff2-table.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-color.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-face.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-font.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-layout.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-map.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-math.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-meta.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-metrics.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-name.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-arabic.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-default.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-hangul.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-hebrew.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-indic-table.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-indic.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-khmer.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-myanmar.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-thai.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-use-table.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-use.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-complex-vowel-constraints.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-fallback.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape-normalize.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-shape.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-tag.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ot-var.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-set.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-shape-plan.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-shape.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-shaper.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-static.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-style.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-subset-cff-common.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-subset-cff1.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-subset-cff2.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-subset-input.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-subset-plan.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-subset.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-ucd.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-unicode.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-uniscribe.cc" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-aat-layout.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-aat.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-blob.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-buffer.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-common.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-deprecated.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-draw.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-face.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-font.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-map.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-color.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-deprecated.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-font.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-layout.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-math.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-meta.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-metrics.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-name.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-shape.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot-var.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-ot.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-set.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-shape-plan.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-shape.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-style.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-unicode.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb-version.h" />
+    <ClInclude Include="..\OSF\harfbuzz\src\hb.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

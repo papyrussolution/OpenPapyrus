@@ -65,7 +65,7 @@ FT_CALLBACK_DEF(FT_Error) ft_bitmap_glyph_init(FT_Glyph bitmap_glyph, FT_GlyphSl
 		glyph->bitmap          = slot->bitmap;
 		slot->internal->flags &= ~FT_GLYPH_OWN_BITMAP;
 	}
-	else{
+	else {
 		FT_Bitmap_Init(&glyph->bitmap);
 		error = FT_Bitmap_Copy(library, &slot->bitmap, &glyph->bitmap);
 	}
@@ -275,7 +275,7 @@ FT_New_Glyph(FT_Library library,
 	else if(format == FT_GLYPH_FORMAT_OUTLINE)
 		clazz = &ft_outline_glyph_class;
 
-	else{
+	else {
 		/* try to find a renderer that supports the glyph image format */
 		FT_Renderer render = FT_Lookup_Renderer(library, format, 0);
 
@@ -343,7 +343,7 @@ FT_EXPORT_DEF(FT_Error) FT_Glyph_Transform(FT_Glyph glyph, FT_Matrix*  matrix, F
 	FT_Error error = FT_Err_Ok;
 	if(!glyph || !glyph->clazz)
 		error = FT_THROW(Invalid_Argument);
-	else{
+	else {
 		const FT_Glyph_Class*  clazz = glyph->clazz;
 
 		if(clazz->glyph_transform) {

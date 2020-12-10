@@ -9,7 +9,7 @@
 // BillCore
 //
 #define WHITE_LABEL_SIGN '!'
-#define BILLCODE_SIZ     sizeof(((BillTbl::Rec*)0)->Code)
+#define BILLCODE_SIZ     sizeof(static_cast<BillTbl::Rec *>(0)->Code)
 
 /*static*/char * FASTCALL BillCore::SetCode(char * code, long f)
 {
@@ -29,8 +29,8 @@
 
 /*static*/double BillCore::GetQttyEpsilon()
 {
-	int    eps = CConfig.IltiCvtQttyEpsilon;
-	return checkirange(eps, 1, 10000) ? (1.0E-7 * (double)eps) : 1.0E-7; // @v8.1.11 (eps <= 1000)-->(eps <= 10000) // @v9.3.10 (: 1.0E-6)-->(: 1.0E-7)
+	const int eps = CConfig.IltiCvtQttyEpsilon;
+	return checkirange(eps, 1, 10000) ? (1.0E-7 * static_cast<double>(eps)) : 1.0E-7; // @v8.1.11 (eps <= 1000)-->(eps <= 10000) // @v9.3.10 (: 1.0E-6)-->(: 1.0E-7)
 }
 
 /*static*/int FASTCALL BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)
@@ -108,10 +108,8 @@
 	return ok;
 }
 
-/*static*/char * FASTCALL BillCore::GetCode(char * code)
-	{ return (code[0] == WHITE_LABEL_SIGN) ? strcpy(code, code+1) : code; }
-/*static*/SString & FASTCALL BillCore::GetCode(SString & rCode)
-	{ return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN); }
+/*static*/char * FASTCALL BillCore::GetCode(char * code) { return (code[0] == WHITE_LABEL_SIGN) ? strcpy(code, code+1) : code; }
+/*static*/SString & FASTCALL BillCore::GetCode(SString & rCode) { return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN); }
 
 BillCore::BillCore() : BillTbl()
 {
@@ -528,6 +526,7 @@ int BillCore::PutExtraData(PPID id, const PPBillExt * pExt, int use_ta)
 			STRNSCPY(rec.PaymBillCode, pExt->PaymBillCode);
 			rec.PaymBillDate = pExt->PaymBillDate;
 			rec.ExtPriceQuotKindID = pExt->ExtPriceQuotKindID;
+			rec.CcID = pExt->CcID; // @v10.9.7
 			THROW(p_ref->PutProp(PPOBJ_BILL, id, BILLPRP_EXTRA, &rec, sizeof(rec)));
 			THROW(SetRecFlag(id, BILLF_EXTRA, 1, 0));
 		}

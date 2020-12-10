@@ -40,10 +40,8 @@
  * size of the object being freed, just in case it's needed.
  * On an 80x86 machine using small-data memory model, these manage near heap.
  */
-
-EXTERN(void *) jpeg_get_small(j_common_ptr cinfo, size_t sizeofobject);
+extern void * jpeg_get_small(j_common_ptr cinfo, size_t sizeofobject);
 extern void jpeg_free_small(j_common_ptr cinfo, void * object, size_t sizeofobject);
-
 /*
  * These two functions are used to allocate and release large chunks of
  * memory (up to the total free space designated by jpeg_mem_available).
@@ -52,8 +50,7 @@ extern void jpeg_free_small(j_common_ptr cinfo, void * object, size_t sizeofobje
  * the jpeg_get/free_small routines; but we keep them separate anyway,
  * in case a different allocation strategy is desirable for large chunks.
  */
-
-EXTERN(void FAR *) jpeg_get_large(j_common_ptr cinfo, size_t sizeofobject);
+extern void * jpeg_get_large(j_common_ptr cinfo, size_t sizeofobject);
 extern void jpeg_free_large(j_common_ptr cinfo, void FAR * object, size_t sizeofobject);
 /*
  * The macro MAX_ALLOC_CHUNK designates the maximum number of bytes that may
@@ -66,11 +63,9 @@ extern void jpeg_free_large(j_common_ptr cinfo, void FAR * object, size_t sizeof
  * NB: jmemmgr.c expects that MAX_ALLOC_CHUNK will be representable as type
  * size_t and will be a multiple of sizeof(align_type).
  */
-
 #ifndef MAX_ALLOC_CHUNK         /* may be overridden in jconfig.h */
-#define MAX_ALLOC_CHUNK  1000000000L
+	#define MAX_ALLOC_CHUNK  1000000000L
 #endif
-
 /*
  * This routine computes the total space still available for allocation by
  * jpeg_get_large.  If more space than this is needed, backing store will be
@@ -92,14 +87,13 @@ extern void jpeg_free_large(j_common_ptr cinfo, void FAR * object, size_t sizeof
  * On machines with lots of virtual memory, any large constant may be returned.
  * Conversely, zero may be returned to always use the minimum amount of memory.
  */
-EXTERN(long) jpeg_mem_available(j_common_ptr cinfo, long min_bytes_needed, long max_bytes_needed, long already_allocated);
+extern long jpeg_mem_available(j_common_ptr cinfo, long min_bytes_needed, long max_bytes_needed, long already_allocated);
 /*
  * This structure holds whatever state is needed to access a single
  * backing-store object.  The read/write/close method pointers are called
  * by jmemmgr.c to manipulate the backing-store object; all other fields
  * are private to the system-dependent backing store routines.
  */
-
 #define TEMP_NAME_LENGTH   64   /* max length of a temporary file's name */
 
 #ifdef USE_MSDOS_MEMMGR         /* DOS-specific junk */
@@ -123,9 +117,9 @@ typedef struct backing_store_struct * backing_store_ptr;
 
 typedef struct backing_store_struct {
 	/* Methods for reading/writing/closing this backing-store object */
-	JMETHOD(void, read_backing_store, (j_common_ptr cinfo, backing_store_ptr info, void FAR * buffer_address, long file_offset, long byte_count));
-	JMETHOD(void, write_backing_store, (j_common_ptr cinfo, backing_store_ptr info, void FAR * buffer_address, long file_offset, long byte_count));
-	JMETHOD(void, close_backing_store, (j_common_ptr cinfo, backing_store_ptr info));
+	void (* read_backing_store)(j_common_ptr cinfo, backing_store_ptr info, void * buffer_address, long file_offset, long byte_count);
+	void (* write_backing_store)(j_common_ptr cinfo, backing_store_ptr info, void * buffer_address, long file_offset, long byte_count);
+	void (* close_backing_store)(j_common_ptr cinfo, backing_store_ptr info);
 
 	/* Private fields for system-dependent backing-store management */
 #ifdef USE_MSDOS_MEMMGR
@@ -165,5 +159,5 @@ extern void jpeg_open_backing_store(j_common_ptr cinfo, backing_store_ptr info, 
  * jpeg_mem_term may assume that all requested memory has been freed and that
  * all opened backing-store objects have been closed.
  */
-EXTERN(long) jpeg_mem_init(j_common_ptr cinfo);
+extern long jpeg_mem_init(j_common_ptr cinfo);
 extern void jpeg_mem_term(j_common_ptr cinfo);

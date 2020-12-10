@@ -87,7 +87,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Copy(FT_Library library, const FT_Bitmap  *sou
 		target->buffer = p;
 		if(source_pitch_sign == target_pitch_sign)
 			FT_MEM_COPY(target->buffer, source->buffer, size);
-		else{
+		else {
 			/* take care of bitmap flow */
 			FT_UInt i;
 			FT_Byte*  s = source->buffer;
@@ -183,7 +183,7 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory, FT_Bitmap*  bitmap, FT
 			out += delta;
 		}
 	}
-	else{
+	else {
 		FT_UInt len = ( width * bpp + 7 ) >> 3;
 		unsigned char*  in  = bitmap->buffer;
 		unsigned char*  out = buffer;
@@ -263,7 +263,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitma
 	pitch = bitmap->pitch;
 	if(pitch > 0)
 		p = bitmap->buffer + pitch * ystr;
-	else{
+	else {
 		pitch = -pitch;
 		p = bitmap->buffer + (FT_UInt)pitch * ( bitmap->rows - 1 );
 	}
@@ -290,13 +290,13 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitma
 						break;
 #endif
 				}
-				else{
+				else {
 					if(x - i >= 0) {
 						if(p[x] + p[x - i] > bitmap->num_grays - 1) {
 							p[x] = (unsigned char)( bitmap->num_grays - 1 );
 							break;
 						}
-						else{
+						else {
 							p[x] = (unsigned char)( p[x] + p[x - i] );
 							if(p[x] == bitmap->num_grays - 1)
 								break;
@@ -683,7 +683,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		target_urx = target_llx + ( target->width << 6 );
 		target_ury = target_offset.y;
 	}
-	else{
+	else {
 		target_llx = FT_LONG_MAX;
 		target_lly = FT_LONG_MAX;
 		target_urx = FT_LONG_MIN;
@@ -790,7 +790,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		if(target->pitch < 0) {
 			/* XXX */
 		}
-		else{
+		else {
 			unsigned char*  p = target->buffer;
 			unsigned char*  q = buffer + ( final_rows - y - target->rows ) * new_pitch + x * 4;
 			unsigned char*  limit_p = p + pitch * (int)target->rows;
@@ -834,7 +834,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 	if(target->pitch < 0) {
 		/* XXX */
 	}
-	else{
+	else {
 		unsigned char*  p = source->buffer;
 		unsigned char*  q = target->buffer + ( target->rows - y - source->rows ) * target->pitch + x * 4;
 		unsigned char*  limit_p = p + source->pitch * (int)source->rows;

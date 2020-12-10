@@ -3496,7 +3496,7 @@ int PPViewBill::UniteSellBills()
 			THROW(tra);
 			THROW(P_BObj->P_Tbl->Extract(src_bill_id, &last_bill) > 0);
 			THROW(pack.CreateBlank2(Filt.OpID, last_bill.Rec.Dt, last_bill.Rec.LocID, 0));
-			pack.Rec.Object = last_bill.Rec.Object;
+			pack.Rec.Object  = last_bill.Rec.Object;
 			pack.Rec.Object2 = last_bill.Rec.Object2;
 			pack.Ext = last_bill.Ext;
 			pack.SetFreight(last_bill.P_Freight);
@@ -3507,6 +3507,9 @@ int PPViewBill::UniteSellBills()
 				PPWaitPercent(i, src_ids.getCount());
 				THROW(P_BObj->UniteGoodsBill(&pack, src_ids.at(i), 0));
 				if(pack.CheckLargeBill(0)) {
+					{
+						THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // @v10.9.7 Здесь надо сохранить расширенные коды лотов для pack
+					}
 					THROW(pack.CreateBlank2(Filt.OpID, last_bill.Rec.Dt, last_bill.Rec.LocID, 0));
 					pack.Rec.Object = last_bill.Rec.Object;
 					pack.Rec.Object2 = last_bill.Rec.Object2;
@@ -3516,6 +3519,9 @@ int PPViewBill::UniteSellBills()
 					THROW(P_BObj->TurnPacket(&pack, 0));
 					dest_ids.addUnique(pack.Rec.ID);
 				}
+			}
+			{
+				THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // @v10.9.7 Здесь надо сохранить расширенные коды лотов для pack
 			}
 			for(i = 0; i < dest_ids.getCount(); i++) {
 				const PPID dest_id = dest_ids.get(i);
@@ -4045,7 +4051,7 @@ int PPViewBill::PrintBill(PPID billID /* @v10.0.0, int addCashSummator*/)
 					v = 0;
 				delete dlg;
 				if(v == 1) {
-					THROW(P_BObj->PrintCheck(&pack, 0, /*addCashSummator*/1));
+					THROW(P_BObj->PrintCheck__(&pack, 0, /*addCashSummator*/1));
 				}
 				else if(v == 2) {
 					PrintGoodsBill(&pack);

@@ -3343,7 +3343,6 @@ int PPViewGoods::PrintPLabel(PPID goodsID)
 				flt.LocID = NZOR(Filt.LocList.GetSingle(), LConfig.Location);
 				flt.GoodsGrpID = Filt.GrpID;
 				v_price.Init_(&flt);
-				// @v9.0.4 pf.Ptr = &v_price;
 			}
 		}
 		else

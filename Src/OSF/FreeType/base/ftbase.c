@@ -224,7 +224,7 @@ static FT_Int ft_trig_prenorm(FT_Vector*  vec)
 		vec->x = (FT_Pos)( (FT_ULong)x << shift );
 		vec->y = (FT_Pos)( (FT_ULong)y << shift );
 	}
-	else{
+	else {
 		shift -= FT_TRIG_SAFE_MSB;
 		vec->x = x >> shift;
 		vec->y = y >> shift;
@@ -262,7 +262,7 @@ static void ft_trig_pseudo_rotate(FT_Vector*  vec, FT_Angle theta)
 			x      = xtemp;
 			theta += *arctanptr++;
 		}
-		else{
+		else {
 			xtemp  = x - ( ( y + b ) >> i );
 			y      = y + ( ( x + b ) >> i );
 			x      = xtemp;
@@ -289,20 +289,20 @@ static void ft_trig_pseudo_polarize(FT_Vector*  vec)
 			y     = -x;
 			x     =  xtemp;
 		}
-		else{
+		else {
 			theta =  y > 0 ? FT_ANGLE_PI : -FT_ANGLE_PI;
 			x     = -x;
 			y     = -y;
 		}
 	}
-	else{
+	else {
 		if(y < -x) {
 			theta = -FT_ANGLE_PI2;
 			xtemp = -y;
 			y     =  x;
 			x     =  xtemp;
 		}
-		else{
+		else {
 			theta = 0;
 		}
 	}
@@ -315,7 +315,7 @@ static void ft_trig_pseudo_polarize(FT_Vector*  vec)
 			x      = xtemp;
 			theta += *arctanptr++;
 		}
-		else{
+		else {
 			xtemp  = x - ( ( y + b ) >> i );
 			y      = y + ( ( x + b ) >> i );
 			x      = xtemp;
@@ -400,7 +400,7 @@ FT_EXPORT_DEF(void) FT_Vector_Rotate(FT_Vector*  vec, FT_Angle angle)
 		vec->x = ( v.x + half - ( v.x < 0 ) ) >> shift;
 		vec->y = ( v.y + half - ( v.y < 0 ) ) >> shift;
 	}
-	else{
+	else {
 		shift  = -shift;
 		vec->x = (FT_Pos)( (FT_ULong)v.x << shift );
 		vec->y = (FT_Pos)( (FT_ULong)v.y << shift );
@@ -548,7 +548,7 @@ FT_BASE_DEF(FT_Pointer) ft_mem_qrealloc(FT_Memory memory, FT_Long item_size, FT_
 		if(block == NULL)
 			error = FT_THROW(Out_Of_Memory);
 	}
-	else{
+	else {
 		FT_Pointer block2;
 		FT_Long cur_size = cur_count * item_size;
 		FT_Long new_size = new_count * item_size;

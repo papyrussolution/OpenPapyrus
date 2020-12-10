@@ -498,7 +498,8 @@ int PPAsyncCashSession::GetCashSessID(LDATETIME dtm, long cashNumber, long sessN
 {
 	int    ok = 1, r;
 	PPID   sess_id = 0;
-	int16  assc_period = (CConfig.CSessFwAsscPeriod > 0) ? CConfig.CSessFwAsscPeriod : (24*60);
+	const  int16 cfg_assc_period = CConfig.CSessFwAsscPeriod;
+	const  int16 assc_period = (cfg_assc_period > 0) ? cfg_assc_period : (24*60);
 	if(forwardSess) {
 		// Сессия с форвардными номерами смен. То есть, в чеке номер смены
 		// не прописывается, но в конце каждой смены присутствует чек

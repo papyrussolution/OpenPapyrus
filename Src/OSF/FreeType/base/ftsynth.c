@@ -91,7 +91,7 @@ FT_EXPORT_DEF(void) FT_GlyphSlot_Embolden(FT_GlyphSlot slot)
 	if(slot->format == FT_GLYPH_FORMAT_OUTLINE)
 		FT_Outline_EmboldenXY(&slot->outline, xstr, ystr);
 
-	else{ /* slot->format == FT_GLYPH_FORMAT_BITMAP */
+	else { /* slot->format == FT_GLYPH_FORMAT_BITMAP */
 		/* round to full pixels */
 		xstr &= ~63;
 		if(xstr == 0)

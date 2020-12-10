@@ -4378,6 +4378,9 @@ int PPBillImporter::Run()
 											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
 										}
 									}
+									{
+										// @v10.9.7 @todo Автоматом установить цену реализации (например, по расценке)
+									}
 									LongArray pos_list;
 									pack.InsertRow(&ti, &pos_list);
 									if(pos_list.getCount()) {

@@ -55,7 +55,7 @@ FT_Get_PFR_Metrics(FT_Face face,
 			ametrics_x_scale,
 			ametrics_y_scale);
 	}
-	else{
+	else {
 		FT_Fixed x_scale, y_scale;
 
 		/* this is not a PFR font */

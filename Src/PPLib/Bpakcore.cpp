@@ -2480,11 +2480,9 @@ int PPBillPacket::RemoveRows(LongArray * pPositions, int lowStop)
 	}
 	else {
 		Rec.Flags &= ~BILLF_RECOMPLETE;
-		Lots.clear(); // @v9.8.4 freeAll-->clear
-		// @v9.8.11 ClbL.Release();
-		// @v9.8.11 SnL.Release();
+		Lots.clear();
 		LTagL.Release();
-		XcL.Release(); // @v9.8.11
+		XcL.Release();
 		ZDELETE(P_PckgList);
 	}
 	return 1;
@@ -2527,13 +2525,18 @@ PPBillExt::PPBillExt()
 }
 
 int PPBillExt::IsEmpty() const
-	{ return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || ExtPriceQuotKindID) ? 0 : 1; }
+{ 
+	// @v10.9.7 CcID
+	return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || ExtPriceQuotKindID || CcID) ? 0 : 1; 
+}
 
 int FASTCALL PPBillExt::IsEqual(const PPBillExt & rS) const
 {
 	if(AgentID != rS.AgentID)
 		return 0;
 	else if(PayerID != rS.PayerID)
+		return 0;
+	else if(CcID != rS.CcID) // @v10.9.7
 		return 0;
 	else if(stricmp866(InvoiceCode, rS.InvoiceCode) != 0)
 		return 0;
@@ -2559,6 +2562,7 @@ int PPBillExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW_SL(pCtx->Serialize(dir, PaymBillCode, sizeof(PaymBillCode), rBuf));
 	THROW_SL(pCtx->Serialize(dir, PaymBillDate, rBuf));
 	THROW_SL(pCtx->Serialize(dir, ExtPriceQuotKindID, rBuf));
+	// @v10.9.7 @todo CcID
 	CATCHZOK
 	return ok;
 }
@@ -3132,7 +3136,6 @@ int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)
 	int    ok = 1;
 	PPOprKind opk;
 	double scale, in_tran_crate, out_tran_crate;
-
 	THROW_PP(pTrans->InCurID != pTrans->OutCurID, PPERR_EQCTCUR);
 	THROW_PP(pTrans->InCurID != 0,  PPERR_UNDEFCTINCUR);
 	THROW_PP(pTrans->OutCurID != 0, PPERR_UNDEFCTOUTCUR);

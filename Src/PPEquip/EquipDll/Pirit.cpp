@@ -1855,6 +1855,9 @@ int PiritEquip::RunCheck(int opertype)
 				else if(Check.ChZnProdType == 4) { // GTCHZNPT_MEDICINE
 					product_type_bytes = 0x444D; // @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D 
 				}
+				else if(Check.ChZnProdType == 5) { // @v10.9.7 GTCHZNPT_CARTIRE
+					product_type_bytes = 0x444D; // @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D 
+				}
 				//const char * p_serial = Check.ChZnPartN.NotEmpty() ? Check.ChZnPartN.cptr() : Check.ChZnSerial.cptr(); // @v10.7.8
 				const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr(); // @v10.7.8
 				int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));

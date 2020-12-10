@@ -372,6 +372,7 @@ static const SIntToSymbTabEntry CzDocType_SymbTab[] = {
 	{ 431, "move_place" }, // @v10.8.7 doctypMovePlace
 	{ 602, "receive_order_notification" },
 	{ 701, "accept" },
+	{ 702, "posting" }, // @v10.9.7
 };
 
 class ChZnInterface {
@@ -588,6 +589,7 @@ public:
 		doctypMovePlace                = 431, // @v10.8.7 
 		doctypReceiveOrderNotification = 602,
 		doctypAccept                   = 701,
+		doctypPosting                  = 702  // @v10.9.7
 	};
 	struct Packet {
 		struct ErrorItem {
@@ -624,6 +626,7 @@ public:
 				case doctypReceiveOrder:
 				case doctypMovePlace: // @v10.8.7 
 				case doctypRefusalReceiver: // @v10.9.1
+				case doctypPosting: // @v10.9.7
 					P_Data = new PPBillPacket; 
 					break; 
 			}
@@ -637,6 +640,7 @@ public:
 				case doctypReceiveOrder:
 				case doctypMovePlace: // @v10.8.7 
 				case doctypRefusalReceiver: // @v10.9.1
+				case doctypPosting: // @v10.9.7
 					delete static_cast<PPBillPacket *>(P_Data); 
 					break; 
 			}
@@ -1061,7 +1065,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					}
 				}
 			}
-			else if(pPack->DocType == doctypReceiveOrder) {
+			else if(oneof2(pPack->DocType, doctypReceiveOrder, doctypPosting)) {
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
 					const PPID   dlvr_ar_id = p_bp->Rec.Object;
@@ -1073,7 +1077,17 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
 					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
 					wd.PutInner("subject_id", subj_ident);
-					wd.PutInner("shipper_id", shipper_ident);
+					if(pPack->DocType == doctypReceiveOrder) {
+						wd.PutInner("shipper_id", shipper_ident);
+					}
+					else {
+						PPObjPerson psn_obj;
+						SXml::WNode si(rX, "shipper_info");
+						psn_obj.GetRegNumber(dlvr_psn_id, PPREGT_TPID, temp_buf);
+						si.PutInner("inn", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // @todo
+						psn_obj.GetRegNumber(dlvr_psn_id, PPREGT_KPP, temp_buf);
+						si.PutInner("kpp", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // @todo
+					}
 					temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
 					TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, temp_buf);
 					wd.PutInner("operation_date", temp_buf);
@@ -2811,9 +2825,20 @@ int PPChZnPrcssr::Run(const Param & rP)
 						if(oneof3(chzn_op_id, ChZnInterface::doctypReceiveOrder, ChZnInterface::doctypRefusalReceiver, ChZnInterface::doctypMoveOrder)) {
 							const PPID psn_id = bill_rec.Object ? ObjectToPerson(bill_rec.Object, 0) : 0;
 							if(psn_id && p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_CHZNCODE, temp_buf) > 0) {
-								THROW_SL(p_pack = new ChZnInterface::Packet(chzn_op_id));
-								if(PrepareBillPacketForSending(bill_rec.ID, p_pack) > 0)
+								PPID   local_chzn_op_id = chzn_op_id;
+								// @v10.9.7 {
+								if(chzn_op_id == ChZnInterface::doctypReceiveOrder) {
+									if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_KEYWORDS, temp_buf) > 0) {
+										if(temp_buf.Search("chzn-702", 0, 1, 0) || temp_buf.Search("chzn702", 0, 1, 0)) {
+											local_chzn_op_id = ChZnInterface::doctypPosting;
+										}
+									}
+								}
+								// } @v10.9.7 
+								THROW_SL(p_pack = new ChZnInterface::Packet(local_chzn_op_id));
+								if(PrepareBillPacketForSending(bill_rec.ID, p_pack) > 0) {
 									suited = 1;
+								}
 							}
 						}
 						if(suited) {

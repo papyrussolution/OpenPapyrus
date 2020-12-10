@@ -2232,7 +2232,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 		SString temp_buf, reg_type_symb;
 		SString temp_fld_name;
 		SdbField temp_fld;
-		char   dest_str_buf[1024];
+		char   dest_str_buf[2048]; // @v10.9.7 [1024]-->[2048]
 		PPSymbTranslator st(PPSSYM_IMPEXPFORMULA);
 		// @v10.9.4 (temp_buf = pFormula);// .Transf(CTRANSF_OUTER_TO_INNER); // @v10.3.12
 		SString input_buf(pFormula); // @v10.9.4 
@@ -2381,7 +2381,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 									if(P.InrRec.GetFieldByPos(pos, &inner_fld)) {
 										const void * p_fld_data = P.InrRec.GetDataC(pos);
 										if(p_fld_data) {
-											char   buf[512];
+											//char   buf[512];
 											long   fmt = 0;
 											int    t = GETSTYPE(inner_fld.T.Typ);
 											if(oneof3(t, S_FLOAT, S_DEC, S_MONEY))
@@ -2390,15 +2390,15 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 												fmt = MKSFMT(0, DATF_DMY);
 											else if(t == S_TIME)
 												fmt = MKSFMT(0, TIMF_HMS);
-											sttostr(inner_fld.T.Typ, p_fld_data, fmt, buf);
+											sttostr(inner_fld.T.Typ, p_fld_data, fmt, dest_str_buf);
 											// @v10.9.6 {
 											if(t == S_ZSTRING) {
-												(temp_buf = buf).Transf(CTRANSF_OUTER_TO_INNER);
+												(temp_buf = dest_str_buf).Transf(CTRANSF_OUTER_TO_INNER);
 												rResult.Cat(temp_buf);
 
 											}
 											else // } @v10.9.6 
-												rResult.Cat(buf);
+												rResult.Cat(dest_str_buf);
 										}
 									}
 								}
@@ -2481,7 +2481,7 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 			}
 			if(stbase(outer_fld.T.Typ) == BTS_STRING) {
 				if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
-					char   temp_cbuf[512];
+					char   temp_cbuf[4096]; // @v10.9.7 [512]-->[4096]
 					sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
 					temp_buf = temp_cbuf;
 					if(P.TdfParam.Flags & TextDbFile::fCpOem) {

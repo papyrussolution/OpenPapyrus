@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\jbig2dec\getopt.c" />
+    <ClCompile Include="..\OSF\jbig2dec\getopt1.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_arith.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_arith_iaid.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_arith_int.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_generic.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_halftone.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_huffman.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_hufftab.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_image.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_image_pbm.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_image_png.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_mmr.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_page.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_refinement.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_segment.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_symbol_dict.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2_text.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2dec.c" />
+    <ClCompile Include="..\OSF\jbig2dec\memcmp.c" />
+    <ClCompile Include="..\OSF\jbig2dec\memento.c" />
+    <ClCompile Include="..\OSF\jbig2dec\pbm2png.c" />
+    <ClCompile Include="..\OSF\jbig2dec\sha1.c" />
+    <ClCompile Include="..\OSF\jbig2dec\jbig2dec-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\jbig2dec\config_win32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\getopt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_arith.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_arith_iaid.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_arith_int.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_generic.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_halftone.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_huffman.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_hufftab.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_image.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_image_rw.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_mmr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_page.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_priv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_refinement.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_segment.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_symbol_dict.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2_text.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\memento.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\os_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\sha1.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\jbig2dec\jbig2dec-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

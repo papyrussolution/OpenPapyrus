@@ -795,17 +795,14 @@ METHODDEF(JBLOCKARRAY) access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr p
 /*
  * Release all objects belonging to a specified pool.
  */
-
 METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
 	small_pool_ptr shdr_ptr;
 	large_pool_ptr lhdr_ptr;
 	size_t space_freed;
-
 	if(pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
-
 #ifdef MEM_STATS
 	if(cinfo->err->trace_level > 1)
 		print_mem_stats(cinfo, pool_id);  /* print pool's memory usage statistics */
@@ -852,12 +849,10 @@ METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 		shdr_ptr = next_shdr_ptr;
 	}
 }
-
 /*
  * Close up shop entirely.
  * Note that this cannot be called unless cinfo->mem is non-NULL.
  */
-
 METHODDEF(void) self_destruct(j_common_ptr cinfo)
 {
 	// Close all backing store, release all memory.
@@ -875,7 +870,7 @@ METHODDEF(void) self_destruct(j_common_ptr cinfo)
  * Memory manager initialization.
  * When this is called, only the error manager pointer is valid in cinfo!
  */
-GLOBAL(void) jinit_memory_mgr(j_common_ptr cinfo)
+void jinit_memory_mgr(j_common_ptr cinfo)
 {
 	my_mem_ptr mem;
 	long max_to_use;

@@ -1824,6 +1824,8 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 					w_s.PutInner("chznprodtype", "shoe");
 				else if(gt_rec.ChZnProdType == GTCHZNPT_MEDICINE)
 					w_s.PutInner("chznprodtype", "medicine");
+				else if(gt_rec.ChZnProdType == GTCHZNPT_CARTIRE) // @v10.9.7
+					w_s.PutInner("chznprodtype", "cartire");
 				// } @v10.7.3 
 			}
 		}
@@ -3145,6 +3147,8 @@ int PPPosProtocol::EndElement(const char * pName)
 						chznprodtype = GTCHZNPT_SHOE;
 					else if(RdB.TagValue.IsEqiAscii("medicine"))
 						chznprodtype = GTCHZNPT_MEDICINE;
+					else if(RdB.TagValue.IsEqiAscii("cartire")) // @v10.9.7
+						chznprodtype = GTCHZNPT_CARTIRE;
 					if(chznprodtype)
 						static_cast<GoodsBlock *>(p_item)->ChZnProdType = chznprodtype;
 				}

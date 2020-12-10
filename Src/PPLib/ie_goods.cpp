@@ -1064,10 +1064,10 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 				}
 			}
 			for(uint i = 0; i < count; i++) {
-				BarcodeTbl::Rec bc_rec = pPack->Codes.at(i);
-				if(stricmp866(sdr_goods.Code, bc_rec.Code) != 0 && bc_rec.Qtty > 0.0) {
-					STRNSCPY(sdr_goods.AddedCode, bc_rec.Code);
-					sdr_goods.AddedCodeQtty = bc_rec.Qtty;
+				const BarcodeTbl::Rec & r_bc_rec = pPack->Codes.at(i);
+				if(stricmp866(sdr_goods.Code, r_bc_rec.Code) != 0 && r_bc_rec.Qtty > 0.0) {
+					STRNSCPY(sdr_goods.AddedCode, r_bc_rec.Code);
+					sdr_goods.AddedCodeQtty = r_bc_rec.Qtty;
 					break;
 				}
 			}

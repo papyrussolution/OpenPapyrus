@@ -912,7 +912,7 @@ PPViewDebtTrnovr::ProcessBlock & PPViewDebtTrnovr::ProcessBlock::ResetStep()
 	Amount = 0.0;
 	Paym = 0.0;
 	Debt = 0.0;
-	ExpiryDebt = 0.0; // @v9.1.8
+	ExpiryDebt = 0.0;
 	Cost = 0.0;
 	P_Entry = 0;
 	MEMSZERO(Ext);
@@ -1117,7 +1117,6 @@ int PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlo
 			THROW((!Filt.AgentID || bill_ext.AgentID == Filt.AgentID) && (!Filt.PayerID || bill_ext.PayerID == Filt.PayerID));
 		}
 	}
-	// @v9.1.4 {
 	if(Filt.DebtDimList.GetCount()) {
 		THROW(P_BObj->FetchExt(rRec.ID, &bill_ext) > 0);
 		const PPID agent_id = bill_ext.AgentID;
@@ -1137,8 +1136,6 @@ int PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlo
             THROW(dd_list.getCount());
 		}
 	}
-	// } @v9.1.4
-	// @v9.5.1 {
 	if(Filt.GoodsGrpID) {
 		if(rRec.Amount != 0.0) {
 			PPBillPacket bp;
@@ -1150,7 +1147,6 @@ int PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlo
 		else
 			__part = 0.0;
 	}
-	// } @v9.5.1
 	CATCHZOK
 	ASSIGN_PTR(pArID, ar_id);
 	ASSIGN_PTR(pBillExt, bill_ext);
@@ -1166,7 +1162,7 @@ int PPViewDebtTrnovr::ProcessBill(const BillTbl::Rec & rRec, ProcessBlock & rBlk
 	int    ok = 1;
 	PPID   ar_id = 0;
 	PPBillExt bill_ext;
-	double __part = 1.0; // @v9.5.1
+	double __part = 1.0;
 	if(PreprocessBill(rRec, rBlk, &ar_id, &bill_ext, &__part) > 0) {
 		rBlk.ResetStep();
         rBlk.Ext = bill_ext;

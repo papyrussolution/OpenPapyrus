@@ -10028,14 +10028,14 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	int16  Ft_Declined;        // @transient (0 - ignored, <0 - off, >0 - on)
 	// @v10.7.0 int16  Reserve;            // @alignment @transient
 	int16  Ft_CheckPrintStatus; // @erik v10.7.0 статус печати чека( <0 - не печатанные чеки, >0 - печатанные чеки, 0 - все равно)
-	int16  EdiRecadvStatus;     // @v9.1.6 @transient Статус RECADV по каналу EDI
-	int16  EdiRecadvConfStatus; // @v9.1.6 @transient Статус подтверждения на RECADV по каналу EDI
+	int16  EdiRecadvStatus;     // @transient Статус RECADV по каналу EDI
+	int16  EdiRecadvConfStatus; // @transient Статус подтверждения на RECADV по каналу EDI
 	PPID   CreatorID;          // @transient Критерий фильтрации по пользователю, создавшему документ
 	PPID   ExtPriceQuotKindID; // Вид котировки, используемый для печати дополнительной цены в накладных
-	PPID   SCardID;            // @transient Персональная карта, к которой привязан документ
-		// Проекция поля BillTbl::Rec::SCardID
+	PPID   SCardID;            // @transient Персональная карта, к которой привязан документ. Проекция поля BillTbl::Rec::SCardID
 	DateRange DuePeriod;       // @transient Период даты исполнения документа. Проекция BillFilt::DuePeriod
 	PPID   AgtBillID;          // @v10.1.12 @transient. Проекция BillTbl::Rec::AgtBillID
+	PPID   CcID;               // @v10.9.7 Ид чека, сформированного по этому документу для печати
 };
 //
 // Descr: Массив движения по кредиту. Используется при начислении процентов по договору ренты.
@@ -10477,12 +10477,12 @@ public:
 	// @v9.8.11 ClbNumberList SnL;         // Список серийных номеров лотов
 	PPLotTagContainer LTagL;   // Список тегов лотов
 	ObjTagList BTagL;          // Список тегов документа
-	PPLotExtCodeContainer XcL; // @v9.8.11 Контейнер, содержащий спецкоды (в частности, марки ЕГАИС) ассоциированные со строками.
+	PPLotExtCodeContainer XcL; // Контейнер, содержащий спецкоды (в частности, марки ЕГАИС) ассоциированные со строками.
 		// Особенность такой ассоциации заключается в том, что с одной строкой может быть связано от нуля до множества кодов.
 		// Кроме того, коды привязываются не к лотам, а именно к строкам документа.
 	PPLotExtCodeContainer _VXcL; // @v10.3.0 Валидирующий контейнер спецкодов. Применяется для проверки
 		// кодов, поступивших с документом в XcL
-	SVerT  Ver; // @v9.8.11 Версия системы, которая создала сериализованную копию объекта
+	SVerT  Ver; // Версия системы, которая создала сериализованную копию объекта
 	//
 	// Descr: Блок, содержащий данные о договоре на поставку/продажу. Используется в документах, относящихся к
 	//   типу операции PPOPT_AGREEMENT.
@@ -11733,6 +11733,7 @@ public:
 		char   Reserve[3];         // @reserve
 		PPID   AgentID;            // Агент      -> Article.ID
 		PPID   PayerID;            // Плательщик -> Article.ID
+		PPID   CcID;               // @v10.9.7 Ид чека, сформированного по этому документу для печати
 	};
 private:
 	//
@@ -14706,6 +14707,9 @@ public:
 	// Descr: Кассовые чеки нельзя править. Их можно только добавлять или, в крайнем случае, удалять.
 	//
 	int    TurnCheck(CCheckPacket * pPack, int use_ta);
+	//
+	// Descr: Функция изменения пакета кассового чека (sik! опровергающая утверждение в описании функции TurnCheck)
+	//
 	int    UpdateCheck(CCheckPacket * pPack, int use_ta);
 	//
 	// Descr: Специализированный метод, позволяющий изменить текст расширения чека непосредственно в базе данных, не трогая все остальные
@@ -23031,6 +23035,7 @@ private:
 #define GTCHZNPT_TOBACCO   2
 #define GTCHZNPT_SHOE      3
 #define GTCHZNPT_MEDICINE  4
+#define GTCHZNPT_CARTIRE   5 // @v10.9.7
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -33069,7 +33074,7 @@ public:
 	int    FillTurnList(PPBillPacket *);
 	int    UniteGoodsBill(PPBillPacket *, PPID addBillID, int use_ta);
 	int    UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcArray, int use_ta);
-	int    PrintCheck(PPBillPacket * pPack, PPID posNodeID, int addSummator);
+	int    PrintCheck__(PPBillPacket * pPack, PPID posNodeID, int addSummator);
 	int    PosPrintByBill(PPID billID);
 	SArray * MakePaymentList(PPID, int charge);
 	int    ViewBillInfo(PPID billID);

@@ -130,8 +130,7 @@ TLP_IMPL(PPObjBill, BillCore, P_Tbl);
 TLP_IMPL(PPObjBill, Transfer, trfr);
 TLP_IMPL(PPObjBill, CpTransfCore, P_CpTrfr);
 TLP_IMPL(PPObjBill, AdvBillItemTbl, P_AdvBI);
-// @v9.8.11 TLP_IMPL(PPObjBill, HistBillCore, HistBill);
-TLP_IMPL(PPObjBill, LotExtCodeCore, P_LotXcT); // @v9.8.11 // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+TLP_IMPL(PPObjBill, LotExtCodeCore, P_LotXcT); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
 
 PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Flags), P_CpTrfr(0),
 	P_AdvBI(0), P_InvT(0), P_GsT(0), P_ScObj(0), /*HistBill(0),*/ P_LotXcT(0), P_Cr(0), ExtraPtr(extraPtr),
@@ -142,18 +141,14 @@ PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Fl
 	P_PckgT = (CcFlags & CCFLG_USEGOODSPCKG) ? new PackageCore : 0;
 	TLP_OPEN(P_Tbl);
 	TLP_OPEN(trfr);
-	// @v9.8.11 if(CcFlags & CCFLG_USEDRAFTBILL)
-		TLP_OPEN(P_CpTrfr);
+	TLP_OPEN(P_CpTrfr);
 	if(CcFlags & CCFLG_USEADVBILLITEMS)
 		TLP_OPEN(P_AdvBI);
 	if(CcFlags & CCFLG_USEHISTBILL) {
-		// @v9.8.11 TLP_OPEN(HistBill);
-		State2 |= stDoObjVer; // @v9.8.11
+		State2 |= stDoObjVer;
 	}
-	// @v9.8.11 {
 	if(CConfig.Flags2 & CCFLG2_USELOTXCODE)
 		TLP_OPEN(P_LotXcT);
-	// } @v9.8.11
 	ReadConfig(&Cfg);
 }
 
@@ -172,13 +167,12 @@ PPObjBill::~PPObjBill()
 	TLP_CLOSE(trfr);
 	TLP_CLOSE(P_CpTrfr);
 	TLP_CLOSE(P_AdvBI);
-	// @v9.8.11 TLP_CLOSE(HistBill);
-	TLP_CLOSE(P_LotXcT); // @v9.8.11
+	TLP_CLOSE(P_LotXcT);
 }
 
 int PPObjBill::Search(PPID id, void * b)
 {
-	return P_Tbl->Search(id, (BillTbl::Rec *)b);
+	return P_Tbl->Search(id, static_cast<BillTbl::Rec *>(b));
 }
 
 int PPObjBill::SearchByGuid(const S_GUID & rUuid, BillTbl::Rec * pRec)
@@ -593,12 +587,7 @@ int PPObjBill::Edit(PPID * pID, void * extraPtr)
 	const EditParam * p_extra_param = static_cast<const EditParam *>(extraPtr);
 	if(*pID == 0) {
 		AddBlock ab;
-		/* v9.8.11 if(State & BILLST_NOADD)
-			ok = 1;
-		else if(State & BILLST_ACCBONLY)
-			ok = AddAccturn(pID, &ab);
-		else */
-			ok = AddGoodsBill(pID, &ab); // @todo всегда вызывает ошибку - недопустимый вид операции
+		ok = AddGoodsBill(pID, &ab); // @todo всегда вызывает ошибку - недопустимый вид операции
 	}
 	else {
 		BillTbl::Rec bill_rec;
@@ -850,12 +839,12 @@ int PPBillPacket::ConvertToCheck(CCheckPacket * pCheckPack) const
 		if(Rec.Flags & BILLF_CHECK)
 			pCheckPack->Rec.Flags |= CCHKF_PRINTED;
 		pCheckPack->Rec.UserID = Rec.UserID;
-		PPTransferItem * p_ti;
-		for(uint i = 0; EnumTItems(&i, &p_ti);) {
-			const double _qtty = p_ti->Quantity_;
-			THROW(pCheckPack->InsertItem(p_ti->GoodsID, _qtty, p_ti->NetPrice(), 0));
-			amount   += p_ti->NetPrice() * _qtty;
-			discount += p_ti->Discount   * _qtty;
+		for(uint i = 0; i < GetTCount(); i++) {
+			const PPTransferItem & r_ti = ConstTI(i);
+			const double _qtty = r_ti.Quantity_;
+			THROW(pCheckPack->InsertItem(r_ti.GoodsID, _qtty, r_ti.NetPrice(), 0));
+			amount   += (r_ti.NetPrice() * _qtty);
+			discount += (r_ti.Discount   * _qtty);
 		}
 		LDBLTOMONEY(amount,   pCheckPack->Rec.Amount);
 		LDBLTOMONEY(discount, pCheckPack->Rec.Discount);
@@ -866,7 +855,7 @@ int PPBillPacket::ConvertToCheck(CCheckPacket * pCheckPack) const
 	return ok;
 }
 
-int PPObjBill::PrintCheck(PPBillPacket * pPack, PPID posNodeID, int addSummator)
+int PPObjBill::PrintCheck__(PPBillPacket * pPack, PPID posNodeID, int addSummator)
 {
 	int    ok = 1;
 	CCheckPacket cp;
@@ -980,6 +969,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 {
 	int   ok = -1;
 	PPCashMachine * p_cm = 0;
+	CCheckCore * p_cc = 0;
 	BillTbl::Rec bill_rec;
 	if(billID && Search(billID, &bill_rec) > 0) {
 		int    _mode = 0; // 1 - check, 2 - correction
@@ -991,20 +981,22 @@ int PPObjBill::PosPrintByBill(PPID billID)
 			PPMessage(mfInfo|mfOK, PPINF_NPRNTCASHCHKBYOPRKIND);
 		if(_mode && (!(bill_rec.Flags & BILLF_CHECK) || (PPMaster && PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes))) {
 			const PPID  __node_id = NZOR(LConfig.DefBillCashID, Cfg.CashNodeID);
-			PPOprKindPacket pack;  //@erik v10.5.9
-			P_OpObj->GetPacket(bill_rec.OpID, &pack);  //@erik v10.5.9
+			PPOprKindPacket op_pack;  // @erik v10.5.9
+			P_OpObj->GetPacket(bill_rec.OpID, &op_pack);  // @erik v10.5.9
 			_CcByBillParam param;
 			param.PosNodeID = __node_id;
 			param.LocID = bill_rec.LocID;
 			param.DivisionN = 0;
 			param.PaymType = cpmCash;
 			param.Amount = bill_rec.Amount;  //@erik v10.5.9
-			param.Flags = pack.Rec.ExtFlags;
+			param.Flags = op_pack.Rec.ExtFlags;
 			if(_EditCcByBillParam(param) > 0) {
 				int    sync_prn_err = 0;
 				PPObjCashNode cn_obj;
 				PPBillPacket pack;
 				Goods2Tbl::Rec prepay_goods_rec;
+				CCheckPacket cp;
+				CCheckPacket * p_cp = 0; // Указатель на cp, который будет инициализирован в случае, если чек надо сохранить в кассовой сессии
 				const  PPCommConfig & r_ccfg = CConfig;
 				const  PPID prepay_goods_id = (r_ccfg.PrepayInvoiceGoodsID && GObj.Fetch(r_ccfg.PrepayInvoiceGoodsID, &prepay_goods_rec) > 0) ? prepay_goods_rec.ID : 0;
 				THROW(p_cm = PPCashMachine::CreateInstance(param.PosNodeID));
@@ -1021,9 +1013,8 @@ int PPObjBill::PosPrintByBill(PPID billID)
 						const double _amount = (fc.AmtCash+fc.AmtBank);
 						if(_amount != 0.0) {
 							const  int is_vat_free = BIN(cn_obj.IsVatFree(param.PosNodeID) > 0);
-							if(is_vat_free) {
+							if(is_vat_free)
 								fc.Flags |= fc.fVatFree;
-							}
 							else if(prepay_goods_id) {
 								PPGoodsTaxEntry gtx;
 								if(GObj.GTxObj.Fetch(prepay_goods_rec.TaxGrpID, pack.Rec.Dt, pack.Rec.OpID, &gtx) > 0) {
@@ -1047,8 +1038,20 @@ int PPObjBill::PosPrintByBill(PPID billID)
 				else if(_mode == 1) {
 					double cc_amount = 0.0;
 					double dscnt = 0.0;
-					CCheckPacket cp;
 					// @v10.8.7 @ctr cp.Z();
+					// @v10.9.7 {
+					cp.Rec.SessID = p_cm->GetCurSessID();
+					cp.Rec.CashID = p_cm->GetNodeData().ID;
+					{
+						long  code = 1;
+						CCheckTbl::Rec last_cc_rec;
+						if(!p_cc) {
+							THROW(p_cc = new CCheckCore);
+						}
+						if(p_cc->GetLastCheckByCode(p_cm->GetNodeData().ID, &last_cc_rec) > 0)
+							cp.Rec.Code = last_cc_rec.Code + 1;
+					}
+					// } @v10.9.7 
 					if(pack.Rec.Memo[0])
 						STRNSCPY(cp.Ext.Memo, pack.Rec.Memo);
 					PPWait(1);
@@ -1106,6 +1109,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 							if(param.PaymType == cpmBank)
 								cp.Rec.Flags |= CCHKF_BANKING;
 							ok = p_cm->SyncPrintCheck(&cp, 1);
+							p_cp = &cp; // @v10.9.7
 						}
 					}
 					else if(pack.OpTypeID == PPOPT_PAYMENT) {
@@ -1157,6 +1161,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 									}
 									cp._Cash = /*cc_amount*/result_amount;
 									ok = p_cm->SyncPrintCheck(&cp, 1);
+									p_cp = &cp; // @v10.9.7
 								}
 							}
 						}
@@ -1183,6 +1188,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 							if(is_ret)
 								cp.Rec.Flags |= CCHKF_RETURN;
 							ok = p_cm->SyncPrintCheck(&cp, 1);
+							p_cp = &cp; // @v10.9.7
 						}
 					}
 					PPWait(0);
@@ -1191,8 +1197,26 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					sync_prn_err = p_cm->SyncGetPrintErrCode();
 				if(ok > 0 || sync_prn_err == 1) {
 					pack.Rec.Flags |= BILLF_CHECK;
+					if((p_cp || pack.Ext.CcID) && !p_cc) {
+						THROW(p_cc = new CCheckCore);
+					}
 					PPTransaction tra(1);
 					THROW(tra);
+					// @v10.9.7 {
+					if(pack.Ext.CcID) {
+						if(p_cc) {
+							//if(p_cc->Search(pack.Ext.CcID))
+						}
+					}
+					if(p_cp) {
+						assert(p_cm);
+						if(p_cm) {
+							const  PPCashNode & r_cn = p_cm->GetNodeData();
+							THROW(p_cc->TurnCheck(p_cp, 0));
+							pack.Ext.CcID = p_cp->Rec.ID;
+						}
+					}
+					// } @v10.9.7 
 					THROW(P_Tbl->Edit(&pack.Rec.ID, &pack, 0));
 					DS.LogAction(PPACN_BILLCCHKPRINTED, Obj, pack.Rec.ID, param.PosNodeID, 0);
 					THROW(tra.Commit());
@@ -1204,6 +1228,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 	}
 	CATCHZOKPPERR
 	delete p_cm;
+	delete p_cc;
 	return ok;
 }
 
@@ -1318,7 +1343,7 @@ int PPObjBill::Helper_EditGoodsBill(PPID * pBillID, PPBillPacket * pPack)
 					PPWait(0);
 					if(id == 0) {
 						if(pPack->Rec.Flags & BILLF_CASH) {
-							if(!PrintCheck(pPack, 0, 1))
+							if(!PrintCheck__(pPack, 0, 1))
 								PPError();
 						}
 						else if(pPack->Rec.StatusID) {
@@ -8226,7 +8251,6 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 	PPOprKind link_opk;
 	PPBillPacket shadow;
 	PPTransferItem * p_ti;
-
 	pPack->destroy();
 	THROW(!(fl & BPLD_LOCK) || Lock(id));
 	THROW(P_Tbl->Extract(id, pPack));
@@ -8252,13 +8276,11 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 		THROW_PP_S(r > 0, PPERR_LINKBILLNFOUND, msg_buf);
 		THROW(GetOpData(link_bill_rec.OpID, &link_opk));
 		SETIFZ(pPack->AccSheetID, link_opk.AccSheetID);
-		// @v9.4.3 {
 		if(pPack->OpTypeID == PPOPT_CORRECTION /*&& link_opk.OpTypeID == PPOPT_GOODSEXPEND*/) {
 			THROW_MEM(SETIFZ(pPack->P_LinkPack, new PPBillPacket));
 			pPack->P_LinkPack->destroy();
 			THROW(ExtractPacket(pPack->Rec.LinkBillID, pPack->P_LinkPack) > 0);
 		}
-		// } @v9.4.3
 	}
 	THROW(LoadAdvList(id, pPack->Rec.OpID, &pPack->AdvList));
 	THROW(pPack->LnkFiles.ReadFromProp(id));
@@ -8354,11 +8376,9 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 			*/
 			// } @v9.5.3
 		}
-		// @v9.9.12 {
 		if(pPack->OpTypeID == PPOPT_INVENTORY && fl & BPLD_LOADINVLINES) {
 			THROW(LoadInventoryArray(id, pPack->InvList));
 		}
-		// } @v9.9.12
 	}
 	{
 		PPBillPacket::SetupObjectBlock sob;
@@ -8415,10 +8435,8 @@ int PPObjBill::RecalcTurns(PPID id, long flags, int use_ta)
 		PPBillPacket pack;
 		THROW(ExtractPacket(id, &pack));
 		if(pack.Rec.OpID && !(pack.Rec.Flags & BILLF_NOATURN) && (pack.OpTypeID != PPOPT_ACCTURN || CheckOpFlags(pack.Rec.OpID, OPKF_EXTACCTURN))) {
-			// @v9.8.3 {
 			if(flags & BORTF_IGNOREOPRTLIST)
 				pack.ProcessFlags |= PPBillPacket::pfIgnoreOpRtList;
-			// } @v9.8.3
 			if(flags & BORTF_RECALCTRFRS) {
 				PPTransferItem * p_ti;
 				for(uint i = 0; pack.EnumTItems(&i, &p_ti);)
@@ -8427,8 +8445,7 @@ int PPObjBill::RecalcTurns(PPID id, long flags, int use_ta)
 			}
 			else
 				pack.Rec.Flags |= BILLF_NOLOADTRFR;
-			// @v9.4.3 if(!(flags & BORTF_NORECALCAMOUNTS) && (pack.Rec.Flags & BILLF_GOODS || pack.IsDraft()))
-			if(!(flags & BORTF_NORECALCAMOUNTS) && pack.IsGoodsDetail()) // @v9.4.3
+			if(!(flags & BORTF_NORECALCAMOUNTS) && pack.IsGoodsDetail())
 				THROW(pack.InitAmounts(0));
 			THROW(FillTurnList(&pack));
 			THROW(UpdatePacket(&pack, use_ta));
@@ -8472,13 +8489,14 @@ static int IsBillsCompatible(const BillTbl::Rec * pBillPack1, const BillTbl::Rec
 int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 {
 	int    ok = 1;
-	uint   i, j;
+	//uint   i, j;
 	short  rbybill;
-	int    done;
+	//int    done;
 	// @v10.3.0 int    is_intrexnd = 0; // Признак того, что объединяются документы внутреннего перемещения - сложный случай.
 	DateIter diter;
 	PPBillPacket add_pack;
-	PPTransferItem ti, * pti, * ati;
+	PPTransferItem ti;
+	PPLotExtCodeContainer::MarkSet src_lotxcode_set; // @v10.9.7
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -8491,40 +8509,55 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 			// @todo Сделать объединение документов внутренней передачи
 		}
 		else {
+			const double _eps = 1.0e07; // @v10.9.7
 			TBlock tb_;
 			THROW(BeginTFrame(pPack->Rec.ID, tb_));
 			//
 			// Цикл по строкам исходного документа (который будет удален)
 			//
-			for(i = 0; add_pack.EnumTItems(&i, &ati);) {
-				for(done = 0, j = 0; !done && pPack->SearchLot(ati->LotID, &j); j++) {
-					pti = & pPack->TI(j);
-					if(pti->Cost == ati->Cost && pti->Price == ati->Price && pti->Discount == ati->Discount) {
-						pti->Quantity_ += ati->Quantity_;
-						pti->WtQtty += ati->WtQtty;
-						if(ati->Quantity_ > 0.0) {
-							THROW(trfr->UpdateItem(pti, tb_.Rbb(), 0, 0));
-							THROW(trfr->RemoveItem(ati->BillID, ati->RByBill, 0, 0));
+			for(uint atiidx = 0; atiidx < add_pack.GetTCount(); atiidx++) {
+				PPTransferItem & r_ati = add_pack.TI(atiidx);
+				bool done = false;
+				add_pack.XcL.Get(atiidx+1, 0, src_lotxcode_set); // @v10.9.7
+				for(uint j = 0; !done && pPack->SearchLot(r_ati.LotID, &j); j++) {
+					PPTransferItem * p_ti = &pPack->TI(j);
+					if(feqeps(p_ti->Cost, r_ati.Cost, _eps) && feqeps(p_ti->Price, r_ati.Price, _eps) && feqeps(p_ti->Discount, r_ati.Discount, _eps)) {
+						p_ti->Quantity_ += r_ati.Quantity_;
+						p_ti->WtQtty += r_ati.WtQtty;
+						if(r_ati.Quantity_ > 0.0) {
+							THROW(trfr->UpdateItem(p_ti, tb_.Rbb(), 0, 0));
+							THROW(trfr->RemoveItem(r_ati.BillID, r_ati.RByBill, 0, 0));
 						}
 						else {
-							THROW(trfr->RemoveItem(ati->BillID, ati->RByBill, 0, 0));
-							THROW(trfr->UpdateItem(pti, tb_.Rbb(), 0, 0));
+							THROW(trfr->RemoveItem(r_ati.BillID, r_ati.RByBill, 0, 0));
+							THROW(trfr->UpdateItem(p_ti, tb_.Rbb(), 0, 0));
 						}
-						done = 1;
+						pPack->XcL.Add(j+1, src_lotxcode_set); // @v10.9.7
+						done = true;
 					}
 				}
 				if(!done) {
-					const PPID a_bill_id = ati->BillID;
-					const short a_r_by_bill = ati->RByBill;
+					const PPID a_bill_id = r_ati.BillID;
+					const short a_r_by_bill = r_ati.RByBill;
 					rbybill = tb_.GetNewRbb();
 					THROW(trfr->SearchByBill(a_bill_id, 0, a_r_by_bill, 0) > 0);
-					trfr->data.BillID  = ati->BillID  = pPack->Rec.ID;
-					trfr->data.RByBill = ati->RByBill = rbybill;
+					trfr->data.BillID  = r_ati.BillID  = pPack->Rec.ID;
+					trfr->data.RByBill = r_ati.RByBill = rbybill;
 					trfr->data.Flags &= ~PPTFR_QUOT;
 					trfr->data.QuotPrice = 0.0;
 					THROW_DB(trfr->updateRec());
-					THROW(pPack->InsertRow(ati, 0));
-					ati->QCert = 0;
+					{
+						LongArray new_row_idx_list;
+						THROW(pPack->InsertRow(&r_ati, &new_row_idx_list));
+						// @v10.9.7 {
+						if(src_lotxcode_set.GetCount()) {
+							if(new_row_idx_list.getCount() == 1) {
+								pPack->XcL.Add(new_row_idx_list.get(0)+1, src_lotxcode_set); 
+							}
+						}
+						// } @v10.9.7 
+					}
+					r_ati.QCert = 0;
 				}
 			}
 			add_pack.destroy();
@@ -8909,7 +8942,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							if(pPack->CSessID && pPack->Rec.Flags & BILLF_TSESSWROFF) {
 								SETIFZ(p_tses_obj, new PPObjTSession);
 								THROW_MEM(p_tses_obj);
-								int r = p_tses_obj->Search(pPack->CSessID, &tsess_rec);
+								const int r = p_tses_obj->Search(pPack->CSessID, &tsess_rec);
 								if(r > 0) {
 									if(p[next] == '.') {
 										p_tsess_rec = &tsess_rec;
@@ -8935,7 +8968,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							if(pPack->CSessID && pPack->Rec.Flags & BILLF_CSESSWROFF) {
 								SETIFZ(p_cses_obj, new PPObjCSession);
 								THROW_MEM(p_cses_obj);
-								int r = p_cses_obj->Search(pPack->CSessID, &csess_rec);
+								const int r = p_cses_obj->Search(pPack->CSessID, &csess_rec);
 								if(r > 0) {
 									if(p[next] == '.') {
 										p_csess_rec = &csess_rec;
