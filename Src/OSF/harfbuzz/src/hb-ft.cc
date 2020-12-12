@@ -26,7 +26,7 @@
  * Red Hat Author(s): Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifdef HAVE_FREETYPE
@@ -85,7 +85,7 @@ struct hb_ft_font_t {
 
 static hb_ft_font_t * _hb_ft_font_create(FT_Face ft_face, bool symbol, bool unref)
 {
-	hb_ft_font_t * ft_font = (hb_ft_font_t*)calloc(1, sizeof(hb_ft_font_t));
+	hb_ft_font_t * ft_font = (hb_ft_font_t*)SAlloc::C(1, sizeof(hb_ft_font_t));
 	if(unlikely(!ft_font)) return nullptr;
 
 	ft_font->lock.init();
@@ -117,7 +117,7 @@ static void _hb_ft_font_destroy(void * data)
 
 	ft_font->lock.fini();
 
-	free(ft_font);
+	SAlloc::F(ft_font);
 }
 
 /**
@@ -474,16 +474,12 @@ static hb_bool_t hb_ft_get_glyph_name(hb_font_t * font HB_UNUSED,
 	return ret;
 }
 
-static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font HB_UNUSED,
-    void * font_data,
-    const char * name, int len,                       /* -1 means nul-terminated */
-    hb_codepoint_t * glyph,
-    void * user_data HB_UNUSED)
+static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font HB_UNUSED, void * font_data,
+    const char * name, int len/* -1 means nul-terminated */, hb_codepoint_t * glyph, void * user_data HB_UNUSED)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
 	FT_Face ft_face = ft_font->ft_face;
-
 	if(len < 0)
 		*glyph = FT_Get_Name_Index(ft_face, (FT_String*)name);
 	else {
@@ -494,22 +490,16 @@ static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font HB_UNUSED,
 		buf[len] = '\0';
 		*glyph = FT_Get_Name_Index(ft_face, buf);
 	}
-
 	if(*glyph == 0) {
 		/* Check whether the given name was actually the name of glyph 0. */
 		char buf[128];
-		if(!FT_Get_Glyph_Name(ft_face, 0, buf, sizeof(buf)) &&
-		    len < 0 ? !strcmp(buf, name) : !strncmp(buf, name, len))
+		if(!FT_Get_Glyph_Name(ft_face, 0, buf, sizeof(buf)) && len < 0 ? !strcmp(buf, name) : !strncmp(buf, name, len))
 			return true;
 	}
-
 	return *glyph != 0;
 }
 
-static hb_bool_t hb_ft_get_font_h_extents(hb_font_t * font HB_UNUSED,
-    void * font_data,
-    hb_font_extents_t * metrics,
-    void * user_data HB_UNUSED)
+static hb_bool_t hb_ft_get_font_h_extents(hb_font_t * font HB_UNUSED, void * font_data, hb_font_extents_t * metrics, void * user_data HB_UNUSED)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -526,7 +516,7 @@ static hb_bool_t hb_ft_get_font_h_extents(hb_font_t * font HB_UNUSED,
 }
 
 #if HB_USE_ATEXIT
-static void free_static_ft_funcs();
+	static void free_static_ft_funcs();
 #endif
 
 static struct hb_ft_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ft_font_funcs_lazy_loader_t>{
@@ -579,14 +569,10 @@ static hb_font_funcs_t * _hb_ft_get_font_funcs()
 static void _hb_ft_font_set_funcs(hb_font_t * font, FT_Face ft_face, bool unref)
 {
 	bool symbol = ft_face->charmap && ft_face->charmap->encoding == FT_ENCODING_MS_SYMBOL;
-
 	hb_ft_font_t * ft_font = _hb_ft_font_create(ft_face, symbol, unref);
-	if(unlikely(!ft_font)) return;
-
-	hb_font_set_funcs(font,
-	    _hb_ft_get_font_funcs(),
-	    ft_font,
-	    _hb_ft_font_destroy);
+	if(unlikely(!ft_font)) 
+		return;
+	hb_font_set_funcs(font, _hb_ft_get_font_funcs(), ft_font, _hb_ft_font_destroy);
 }
 
 static hb_blob_t * _hb_ft_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t tag, void * user_data)
@@ -594,27 +580,19 @@ static hb_blob_t * _hb_ft_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t t
 	FT_Face ft_face = (FT_Face)user_data;
 	FT_Byte * buffer;
 	FT_ULong length = 0;
-	FT_Error error;
-
 	/* Note: FreeType like HarfBuzz uses the NONE tag for fetching the entire blob */
-
-	error = FT_Load_Sfnt_Table(ft_face, tag, 0, nullptr, &length);
+	FT_Error error = FT_Load_Sfnt_Table(ft_face, tag, 0, nullptr, &length);
 	if(error)
 		return nullptr;
-
-	buffer = (FT_Byte*)malloc(length);
+	buffer = (FT_Byte*)SAlloc::M(length);
 	if(!buffer)
 		return nullptr;
-
 	error = FT_Load_Sfnt_Table(ft_face, tag, 0, buffer, &length);
 	if(error) {
-		free(buffer);
+		SAlloc::F(buffer);
 		return nullptr;
 	}
-
-	return hb_blob_create((const char*)buffer, length,
-		   HB_MEMORY_MODE_WRITABLE,
-		   buffer, free);
+	return hb_blob_create((const char*)buffer, length, HB_MEMORY_MODE_WRITABLE, buffer, free);
 }
 
 /**
@@ -798,8 +776,8 @@ void hb_ft_font_changed(hb_font_t * font)
 #if defined(HAVE_FT_GET_VAR_BLEND_COORDINATES) && !defined(HB_NO_VAR)
 	FT_MM_Var * mm_var = nullptr;
 	if(!FT_Get_MM_Var(ft_face, &mm_var)) {
-		FT_Fixed * ft_coords = (FT_Fixed*)calloc(mm_var->num_axis, sizeof(FT_Fixed));
-		int * coords = (int*)calloc(mm_var->num_axis, sizeof(int));
+		FT_Fixed * ft_coords = (FT_Fixed*)SAlloc::C(mm_var->num_axis, sizeof(FT_Fixed));
+		int * coords = (int*)SAlloc::C(mm_var->num_axis, sizeof(int));
 		if(coords && ft_coords) {
 			if(!FT_Get_Var_Blend_Coordinates(ft_face, mm_var->num_axis, ft_coords)) {
 				bool nonzero = false;
@@ -815,12 +793,12 @@ void hb_ft_font_changed(hb_font_t * font)
 					hb_font_set_var_coords_normalized(font, nullptr, 0);
 			}
 		}
-		free(coords);
-		free(ft_coords);
+		SAlloc::F(coords);
+		SAlloc::F(ft_coords);
 #ifdef HAVE_FT_DONE_MM_VAR
 		FT_Done_MM_Var(ft_face->glyph->library, mm_var);
 #else
-		free(mm_var);
+		SAlloc::F(mm_var);
 #endif
 	}
 #endif
@@ -965,12 +943,12 @@ void hb_ft_font_set_funcs(hb_font_t * font)
 	unsigned int num_coords;
 	const int * coords = hb_font_get_var_coords_normalized(font, &num_coords);
 	if(num_coords) {
-		FT_Fixed * ft_coords = (FT_Fixed*)calloc(num_coords, sizeof(FT_Fixed));
+		FT_Fixed * ft_coords = (FT_Fixed*)SAlloc::C(num_coords, sizeof(FT_Fixed));
 		if(ft_coords) {
 			for(unsigned int i = 0; i < num_coords; i++)
 				ft_coords[i] = coords[i] * 4;
 			FT_Set_Var_Blend_Coordinates(ft_face, num_coords, ft_coords);
-			free(ft_coords);
+			SAlloc::F(ft_coords);
 		}
 	}
 #endif

@@ -21,7 +21,7 @@
  * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 #include "hb-ot-var-mvar-table.hh"
 #include "hb-ot-gasp-table.hh" // Just so we compile it; unused otherwise.

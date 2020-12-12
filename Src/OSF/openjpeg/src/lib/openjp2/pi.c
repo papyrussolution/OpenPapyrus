@@ -1631,21 +1631,16 @@ opj_pi_iterator_t * opj_pi_initialise_encode(const opj_image_t * p_image,
 	/* initializations*/
 	l_tcp = &p_cp->tcps[p_tile_no];
 	l_bound = l_tcp->numpocs + 1;
-
 	l_data_stride = 4 * OPJ_J2K_MAXRLVLS;
-	l_tmp_data = (OPJ_UINT32*)opj_malloc(
-		l_data_stride * numcomps * sizeof(OPJ_UINT32));
+	l_tmp_data = (OPJ_UINT32*)opj_malloc(l_data_stride * numcomps * sizeof(OPJ_UINT32));
 	if(!l_tmp_data) {
 		return 00;
 	}
-
-	l_tmp_ptr = (OPJ_UINT32**)opj_malloc(
-		numcomps * sizeof(OPJ_UINT32 *));
+	l_tmp_ptr = (OPJ_UINT32**)opj_malloc(numcomps * sizeof(OPJ_UINT32 *));
 	if(!l_tmp_ptr) {
 		opj_free(l_tmp_data);
 		return 00;
 	}
-
 	/* memory allocation for pi*/
 	l_pi = opj_pi_create(p_image, p_cp, p_tile_no, manager);
 	if(!l_pi) {
@@ -1653,7 +1648,6 @@ opj_pi_iterator_t * opj_pi_initialise_encode(const opj_image_t * p_image,
 		opj_free(l_tmp_ptr);
 		return 00;
 	}
-
 	l_encoding_value_ptr = l_tmp_data;
 	/* update pointer array*/
 	for(compno = 0; compno < numcomps; ++compno) {

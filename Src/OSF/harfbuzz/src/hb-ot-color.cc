@@ -24,21 +24,10 @@
  *
  * Google Author(s): Sascha Brawer, Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_COLOR
-
-#include "hb-ot.h"
-#include "hb-ot-color-cbdt-table.hh"
-#include "hb-ot-color-colr-table.hh"
-#include "hb-ot-color-cpal-table.hh"
-#include "hb-ot-color-sbix-table.hh"
-#include "hb-ot-color-svg-table.hh"
-
-#include <stdlib.h>
-#include <string.h>
-
 /**
  * SECTION:hb-ot-color
  * @title: hb-ot-color
@@ -100,12 +89,10 @@ unsigned int hb_ot_color_palette_get_count(hb_face_t * face)
  *
  * Since: 2.1.0
  */
-hb_ot_name_id_t hb_ot_color_palette_get_name_id(hb_face_t * face,
-    unsigned int palette_index)
+hb_ot_name_id_t hb_ot_color_palette_get_name_id(hb_face_t * face, unsigned int palette_index)
 {
 	return face->table.CPAL->get_palette_name_id(palette_index);
 }
-
 /**
  * hb_ot_color_palette_color_get_name_id:
  * @face: #hb_face_t to work upon

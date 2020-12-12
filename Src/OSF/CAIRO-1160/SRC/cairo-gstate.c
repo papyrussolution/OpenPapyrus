@@ -638,13 +638,13 @@ void _cairo_gstate_device_to_user(cairo_gstate_t * gstate, double * x, double * 
 void _cairo_gstate_device_to_user_distance(cairo_gstate_t * gstate, double * dx, double * dy)
 	{ cairo_matrix_transform_distance(&gstate->ctm_inverse, dx, dy); }
 
-void _do_cairo_gstate_user_to_backend(cairo_gstate_t * gstate, double * x, double * y)
+void FASTCALL _do_cairo_gstate_user_to_backend(cairo_gstate_t * gstate, double * x, double * y)
 {
 	cairo_matrix_transform_point(&gstate->ctm, x, y);
 	cairo_matrix_transform_point(&gstate->target->device_transform, x, y);
 }
 
-void _do_cairo_gstate_user_to_backend_distance(cairo_gstate_t * gstate, double * x, double * y)
+void FASTCALL _do_cairo_gstate_user_to_backend_distance(cairo_gstate_t * gstate, double * x, double * y)
 {
 	cairo_matrix_transform_distance(&gstate->ctm, x, y);
 	cairo_matrix_transform_distance(&gstate->target->device_transform, x, y);
@@ -708,7 +708,7 @@ void _cairo_gstate_path_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * pa
 	ASSIGN_PTR(y2, py2);
 }
 
-static void _cairo_gstate_copy_pattern(cairo_pattern_t * pattern, const cairo_pattern_t * original)
+static void FASTCALL _cairo_gstate_copy_pattern(cairo_pattern_t * pattern, const cairo_pattern_t * original)
 {
 	/* First check if the we can replace the original with a much simpler
 	 * pattern. For example, gradients that are uniform or just have a single
@@ -718,7 +718,7 @@ static void _cairo_gstate_copy_pattern(cairo_pattern_t * pattern, const cairo_pa
 		_cairo_pattern_init_solid(reinterpret_cast<cairo_solid_pattern_t *>(pattern), CAIRO_COLOR_TRANSPARENT);
 		return;
 	}
-	if(original->type == CAIRO_PATTERN_TYPE_LINEAR || original->type == CAIRO_PATTERN_TYPE_RADIAL) {
+	if(oneof2(original->type, CAIRO_PATTERN_TYPE_LINEAR, CAIRO_PATTERN_TYPE_RADIAL)) {
 		cairo_color_t color;
 		if(_cairo_gradient_pattern_is_solid((cairo_gradient_pattern_t*)original, NULL, &color)) {
 			_cairo_pattern_init_solid(reinterpret_cast<cairo_solid_pattern_t *>(pattern), &color);
@@ -728,7 +728,7 @@ static void _cairo_gstate_copy_pattern(cairo_pattern_t * pattern, const cairo_pa
 	_cairo_pattern_init_static_copy(pattern, original);
 }
 
-static void _cairo_gstate_copy_transformed_pattern(cairo_gstate_t * gstate, cairo_pattern_t * pattern, const cairo_pattern_t * original, const cairo_matrix_t * ctm_inverse)
+static void FASTCALL _cairo_gstate_copy_transformed_pattern(cairo_gstate_t * gstate, cairo_pattern_t * pattern, const cairo_pattern_t * original, const cairo_matrix_t * ctm_inverse)
 {
 	_cairo_gstate_copy_pattern(pattern, original);
 	/* apply device_transform first so that it is transformed by ctm_inverse */
@@ -745,7 +745,7 @@ static void _cairo_gstate_copy_transformed_pattern(cairo_gstate_t * gstate, cair
 	}
 }
 
-static void _cairo_gstate_copy_transformed_source(cairo_gstate_t * gstate, cairo_pattern_t * pattern)
+static void FASTCALL _cairo_gstate_copy_transformed_source(cairo_gstate_t * gstate, cairo_pattern_t * pattern)
 {
 	_cairo_gstate_copy_transformed_pattern(gstate, pattern, gstate->source, &gstate->source_ctm_inverse);
 }
@@ -783,11 +783,10 @@ static cairo_operator_t FASTCALL _reduce_op(cairo_gstate_t * gstate)
 	return op;
 }
 
-static cairo_status_t _cairo_gstate_get_pattern_status(const cairo_pattern_t * pattern)
+static cairo_status_t FASTCALL _cairo_gstate_get_pattern_status(const cairo_pattern_t * pattern)
 {
-	if(unlikely(pattern->type == CAIRO_PATTERN_TYPE_MESH && ((const cairo_mesh_pattern_t *)pattern)->current_patch)) {
-		/* If current patch != NULL, the pattern is under construction
-		 * and cannot be used as a source */
+	if(unlikely(pattern->type == CAIRO_PATTERN_TYPE_MESH && reinterpret_cast<const cairo_mesh_pattern_t *>(pattern)->current_patch)) {
+		// If current patch != NULL, the pattern is under construction and cannot be used as a source 
 		return CAIRO_STATUS_INVALID_MESH_CONSTRUCTION;
 	}
 	return pattern->status;

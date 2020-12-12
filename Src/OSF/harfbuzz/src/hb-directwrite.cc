@@ -21,12 +21,12 @@
  * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifdef HAVE_DIRECTWRITE
 
-#include "hb-shaper-impl.hh"
+//#include "hb-shaper-impl.hh"
 #include <dwrite_1.h>
 #include "hb-directwrite.h"
 
@@ -43,19 +43,19 @@ typedef HRESULT (*WINAPI t_DWriteCreateFactory)(
  * won't need to do that by their own.
  */
 void* operator new(size_t size)        {
-	return malloc(size);
+	return SAlloc::M(size);
 }
 
 void* operator new [](size_t size)     {
-	return malloc(size);
+	return SAlloc::M(size);
 }
 
 void operator delete(void* pointer)    {
-	free(pointer);
+	SAlloc::F(pointer);
 }
 
 void operator delete [](void* pointer) {
-	free(pointer);
+	SAlloc::F(pointer);
 }
 
 /*

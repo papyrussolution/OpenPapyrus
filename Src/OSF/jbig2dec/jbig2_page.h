@@ -39,7 +39,7 @@ struct _Jbig2Page {
     uint32_t height, width;     /* in pixels */
     uint32_t x_resolution, y_resolution;        /* in pixels per meter */
     uint16_t stripe_size;
-    bool striped;
+    boolint striped;
     uint32_t end_row;
     uint8_t flags;
     Jbig2Image *image;

@@ -25,14 +25,8 @@
  * Red Hat Author(s): Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-face.hh"
-#include "hb-blob.hh"
-#include "hb-open-file.hh"
-#include "hb-ot-face.hh"
-#include "hb-ot-cmap-table.hh"
-
 /**
  * SECTION:hb-face
  * @title: hb-face
@@ -59,14 +53,12 @@ unsigned int hb_face_count(hb_blob_t * blob)
 {
 	if(unlikely(!blob))
 		return 0;
-
 	/* TODO We shouldn't be sanitizing blob.  Port to run sanitizer and return if not sane. */
 	/* Make API signature const after. */
 	hb_blob_t * sanitized = hb_sanitize_context_t().sanitize_blob<OT::OpenTypeFontFile> (hb_blob_reference(blob));
 	const OT::OpenTypeFontFile& ot = *sanitized->as<OT::OpenTypeFontFile> ();
 	unsigned int ret = ot.get_face_count();
 	hb_blob_destroy(sanitized);
-
 	return ret;
 }
 
@@ -77,11 +69,9 @@ unsigned int hb_face_count(hb_blob_t * blob)
 DEFINE_NULL_INSTANCE(hb_face_t) =
 {
 	HB_OBJECT_HEADER_STATIC,
-
 	nullptr, /* reference_table_func */
 	nullptr, /* user_data */
 	nullptr, /* destroy */
-
 	0, /* index */
 	HB_ATOMIC_INT_INIT(1000), /* upem */
 	HB_ATOMIC_INT_INIT(0), /* num_glyphs */
@@ -127,7 +117,7 @@ static hb_face_for_data_closure_t * _hb_face_for_data_closure_create(hb_blob_t *
 {
 	hb_face_for_data_closure_t * closure;
 
-	closure = (hb_face_for_data_closure_t*)calloc(1, sizeof(hb_face_for_data_closure_t));
+	closure = (hb_face_for_data_closure_t*)SAlloc::C(1, sizeof(hb_face_for_data_closure_t));
 	if(unlikely(!closure))
 		return nullptr;
 
@@ -142,7 +132,7 @@ static void _hb_face_for_data_closure_destroy(void * data)
 	hb_face_for_data_closure_t * closure = (hb_face_for_data_closure_t*)data;
 
 	hb_blob_destroy(closure->blob);
-	free(closure);
+	SAlloc::F(closure);
 }
 
 static hb_blob_t * _hb_face_for_data_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t tag, void * user_data)
@@ -244,7 +234,7 @@ void hb_face_destroy(hb_face_t * face)
 	for(hb_face_t::plan_node_t * node = face->shape_plans; node;) {
 		hb_face_t::plan_node_t * next = node->next;
 		hb_shape_plan_destroy(node->shape_plan);
-		free(node);
+		SAlloc::F(node);
 		node = next;
 	}
 
@@ -254,7 +244,7 @@ void hb_face_destroy(hb_face_t * face)
 	if(face->destroy)
 		face->destroy(face->user_data);
 
-	free(face);
+	SAlloc::F(face);
 }
 
 /**
@@ -567,7 +557,7 @@ struct hb_face_builder_data_t {
 
 static hb_face_builder_data_t * _hb_face_builder_data_create()
 {
-	hb_face_builder_data_t * data = (hb_face_builder_data_t*)calloc(1, sizeof(hb_face_builder_data_t));
+	hb_face_builder_data_t * data = (hb_face_builder_data_t*)SAlloc::C(1, sizeof(hb_face_builder_data_t));
 	if(unlikely(!data))
 		return nullptr;
 
@@ -585,7 +575,7 @@ static void _hb_face_builder_data_destroy(void * user_data)
 
 	data->tables.fini();
 
-	free(data);
+	SAlloc::F(data);
 }
 
 static hb_blob_t * _hb_face_builder_data_reference_blob(hb_face_builder_data_t * data)
@@ -596,7 +586,7 @@ static hb_blob_t * _hb_face_builder_data_reference_blob(hb_face_builder_data_t *
 	for(unsigned int i = 0; i < table_count; i++)
 		face_length += hb_ceil_to_4(hb_blob_get_length(data->tables[i].blob));
 
-	char * buf = (char*)malloc(face_length);
+	char * buf = (char*)SAlloc::M(face_length);
 	if(unlikely(!buf))
 		return nullptr;
 
@@ -612,7 +602,7 @@ static hb_blob_t * _hb_face_builder_data_reference_blob(hb_face_builder_data_t *
 	c.end_serialize();
 
 	if(unlikely(!ret)) {
-		free(buf);
+		SAlloc::F(buf);
 		return nullptr;
 	}
 

@@ -28,7 +28,7 @@ typedef struct {
 
 /* Table 24 */
 typedef struct {
-    bool HDMMR;
+    boolint HDMMR;
     uint32_t HDPW;
     uint32_t HDPH;
     uint32_t GRAYMAX;
@@ -44,11 +44,11 @@ typedef struct {
     int32_t HGY;
     uint16_t HRX;
     uint16_t HRY;
-    bool HMMR;
+    boolint HMMR;
     int HTEMPLATE;
-    bool HENABLESKIP;
+    boolint HENABLESKIP;
     Jbig2ComposeOp HCOMBOP;
-    bool HDEFPIXEL;
+    boolint HDEFPIXEL;
 } Jbig2HalftoneRegionParams;
 
 void jbig2_hd_release(Jbig2Ctx *ctx, Jbig2PatternDict *dict);

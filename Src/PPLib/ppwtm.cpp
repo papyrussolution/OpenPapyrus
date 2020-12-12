@@ -256,7 +256,8 @@ protected:
 							int    ok = 1;
 							RVALUEPTR(Data, pData);
 							WhatmanObjectBaseDialog::setRef(&Data); // @v10.4.9
-							setCtrlString(CTL_WOLAYOUT_SYMB, Data.ContainerIdent);
+							setCtrlString(CTL_WOLAYOUT_SYMB, Data.GetSymb());
+							//Data.ContainerIdent
 							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 0, DIREC_UNKN);
 							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 1, DIREC_HORZ);
 							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 2, DIREC_VERT);
@@ -286,7 +287,7 @@ protected:
 							lb.ContainerAdjustment = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_ADJ));
 							lb.ContainerFlags = static_cast<uint16>(GetClusterData(CTL_WOLAYOUT_FLAGS));
 							Data.SetLayoutBlock(&lb);
-							WhatmanObjectBaseDialog::updateRef(&Data); // @v10.4.9
+							// @v10.9.8 WhatmanObjectBaseDialog::updateRef(&Data); // @v10.4.9
 							ASSIGN_PTR(pData, Data);
 							CATCH
 								if(pData)
@@ -1443,8 +1444,8 @@ void PPWhatmanWindow::ResizeState::Reset()
 	ObjIdx = -1;
 	ObjRszDir = 0;
 	Flags = 0;
-	StartPt = 0;
-	EndPt = 0;
+	StartPt.Z();
+	EndPt.Z();
 	ZDELETE(P_MovedObjCopy);
 }
 
@@ -1815,6 +1816,21 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 					if(p_obj) {
 						InvalidateObjScope(p_obj);
 						W.MoveObject(p_obj, St.Rsz.P_MovedObjCopy->GetBounds());
+						// @v10.9.8 {
+						{
+							const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
+							if(current_contaiter_candidate_idx >= 0) {
+								TWhatmanObject * p_cc_obj = W.GetObjectByIndex(current_contaiter_candidate_idx);
+								if(p_cc_obj) {
+									assert(p_cc_obj->HasOption(TWhatmanObject::oContainer));
+									if(p_cc_obj->HasOption(TWhatmanObject::oContainer)) {
+										WhatmanObjectLayoutBase * p_cc_obj_as_layout = static_cast<WhatmanObjectLayoutBase *>(p_cc_obj);
+										p_obj->SetLayoutContainerIdent(p_cc_obj_as_layout->GetContainerIdent());
+									}
+								}
+							}
+						}
+						// } @v10.9.8
 						InvalidateObjScope(p_obj);
 					}
 				}
@@ -2164,7 +2180,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				}
 				else if(p_ev->Action == DragndropEvent::acnAccept) {
 					TPoint zero_point;
-					Resize(0, zero_point = 0);
+					Resize(0, zero_point.Z());
 				}
 			}
 		}

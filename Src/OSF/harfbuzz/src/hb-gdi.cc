@@ -21,7 +21,7 @@
  * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifdef HAVE_GDI
@@ -37,14 +37,14 @@ static hb_blob_t * _hb_gdi_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t 
 	length = GetFontData(hdc, hb_uint32_swap(tag), 0, buffer, length);
 	if(unlikely(length == GDI_ERROR)) 
 		goto fail_with_releasedc;
-	buffer = (char*)malloc(length);
+	buffer = (char*)SAlloc::M(length);
 	if(unlikely(!buffer)) goto fail_with_releasedc;
 	length = GetFontData(hdc, hb_uint32_swap(tag), 0, buffer, length);
 	if(unlikely(length == GDI_ERROR)) goto fail_with_releasedc_and_free;
 	ReleaseDC(nullptr, hdc);
 	return hb_blob_create((const char*)buffer, length, HB_MEMORY_MODE_WRITABLE, buffer, free);
 fail_with_releasedc_and_free:
-	free(buffer);
+	SAlloc::F(buffer);
 fail_with_releasedc:
 	ReleaseDC(nullptr, hdc);
 fail:

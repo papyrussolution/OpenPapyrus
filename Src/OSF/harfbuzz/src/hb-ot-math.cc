@@ -23,7 +23,7 @@
  *
  * Igalia Author(s): Frédéric Wang
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_MATH

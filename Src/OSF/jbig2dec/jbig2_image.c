@@ -36,19 +36,14 @@ Jbig2Image * jbig2_image_new(Jbig2Ctx * ctx, uint32_t width, uint32_t height)
 	stride = ((width - 1) >> 3) + 1; /* generate a byte-aligned stride */
 	/* check for integer multiplication overflow */
 	if(height > (INT32_MAX / stride)) {
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_FATAL,
-		    JBIG2_UNKNOWN_SEGMENT_NUMBER,
-		    "integer multiplication overflow (stride=%u, height=%u)",
-		    stride,
-		    height);
+		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "integer multiplication overflow (stride=%u, height=%u)",
+		    stride, height);
 		jbig2_free(ctx->allocator, image);
 		return NULL;
 	}
 	image->data = jbig2_new(ctx, uint8_t, (size_t)height * stride);
 	if(image->data == NULL) {
-		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-		    "failed to allocate image data buffer (stride=%u, height=%u)", stride, height);
+		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate image data buffer (stride=%u, height=%u)", stride, height);
 		jbig2_free(ctx->allocator, image);
 		return NULL;
 	}
@@ -60,7 +55,7 @@ Jbig2Image * jbig2_image_new(Jbig2Ctx * ctx, uint32_t width, uint32_t height)
 }
 
 /* bump the reference count for an image pointer */
-Jbig2Image * jbig2_image_reference(Jbig2Ctx * ctx, Jbig2Image * image)
+Jbig2Image * FASTCALL jbig2_image_reference(Jbig2Ctx * ctx, Jbig2Image * image)
 {
 	if(image)
 		image->refcount++;
@@ -68,19 +63,19 @@ Jbig2Image * jbig2_image_reference(Jbig2Ctx * ctx, Jbig2Image * image)
 }
 
 /* release an image pointer, freeing it it appropriate */
-void jbig2_image_release(Jbig2Ctx * ctx, Jbig2Image * image)
+void FASTCALL jbig2_image_release(Jbig2Ctx * ctx, Jbig2Image * image)
 {
-	if(image == NULL)
-		return;
-	image->refcount--;
-	if(image->refcount == 0)
-		jbig2_image_free(ctx, image);
+	if(image) {
+		image->refcount--;
+		if(image->refcount == 0)
+			jbig2_image_free(ctx, image);
+	}
 }
 
 /* free a Jbig2Image structure and its associated memory */
 void jbig2_image_free(Jbig2Ctx * ctx, Jbig2Image * image)
 {
-	if(image != NULL) {
+	if(image) {
 		jbig2_free(ctx->allocator, image->data);
 		jbig2_free(ctx->allocator, image);
 	}
@@ -517,7 +512,7 @@ int jbig2_image_get_pixel(Jbig2Image * image, int x, int y)
 }
 
 /* set an individual pixel value in an image */
-void jbig2_image_set_pixel(Jbig2Image * image, int x, int y, bool value)
+void jbig2_image_set_pixel(Jbig2Image * image, int x, int y, boolint value)
 {
 	const int w = image->width;
 	const int h = image->height;

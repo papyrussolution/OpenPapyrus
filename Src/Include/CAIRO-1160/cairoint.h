@@ -609,7 +609,7 @@ cairo_private cairo_status_t FASTCALL _cairo_path_fixed_init_copy(cairo_path_fix
 cairo_private void FASTCALL _cairo_path_fixed_fini(cairo_path_fixed_t * path);
 cairo_private void FASTCALL _cairo_path_fixed_destroy(cairo_path_fixed_t * path);
 cairo_private cairo_status_t FASTCALL _cairo_path_fixed_move_to(cairo_path_fixed_t * path, cairo_fixed_t x, cairo_fixed_t y);
-cairo_private void _cairo_path_fixed_new_sub_path(cairo_path_fixed_t * path);
+cairo_private void FASTCALL _cairo_path_fixed_new_sub_path(cairo_path_fixed_t * path);
 cairo_private cairo_status_t _cairo_path_fixed_rel_move_to(cairo_path_fixed_t * path, cairo_fixed_t dx, cairo_fixed_t dy);
 cairo_private cairo_status_t FASTCALL _cairo_path_fixed_line_to(cairo_path_fixed_t * path, cairo_fixed_t x, cairo_fixed_t y);
 cairo_private cairo_status_t FASTCALL _cairo_path_fixed_rel_line_to(cairo_path_fixed_t * path, cairo_fixed_t dx, cairo_fixed_t dy);

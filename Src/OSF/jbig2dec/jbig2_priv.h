@@ -37,24 +37,22 @@
 
 typedef uint8_t byte;
 
-#define bool int
+#define bool_Removed int // @sobolev bool-->bool_Removed
 
 #ifdef __cplusplus
 #define template template_C
 #define new new_C
 #endif
 
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif
-
+//#ifndef TRUE
+//#define TRUE 1
+//#endif
+//#ifndef FALSE
+//#define FALSE 0
+//#endif
 #ifndef NULL
-#define NULL ((void*)0)
+	#define NULL ((void*)0)
 #endif
-
 #if !defined (INT32_MIN)
 #define INT32_MIN (-0x7fffffff - 1)
 #endif
@@ -107,22 +105,15 @@ struct _Jbig2Ctx {
 };
 
 uint32_t jbig2_get_uint32(const byte *bptr);
-
 int32_t jbig2_get_int32(const byte *buf);
-
 uint16_t jbig2_get_uint16(const byte *bptr);
-
 int16_t jbig2_get_int16(const byte *buf);
-
 /* dynamic memory management */
 void *jbig2_alloc(Jbig2Allocator *allocator, size_t size, size_t num);
-
-void jbig2_free(Jbig2Allocator *allocator, void *p);
-
+void FASTCALL jbig2_free(Jbig2Allocator *allocator, void *p);
 void *jbig2_realloc(Jbig2Allocator *allocator, void *p, size_t size, size_t num);
 
 #define jbig2_new(ctx, t, size) ((t *)jbig2_alloc(ctx->allocator, size, sizeof(t)))
-
 #define jbig2_renew(ctx, p, t, size) ((t *)jbig2_realloc(ctx->allocator, (p), size, sizeof(t)))
 
 int jbig2_error(Jbig2Ctx *ctx, Jbig2Severity severity, uint32_t seg_idx, const char *fmt, ...)

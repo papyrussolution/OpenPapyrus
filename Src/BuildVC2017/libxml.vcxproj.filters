@@ -47,9 +47,6 @@
     <ClInclude Include="..\OSF\LIBXML\config.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\LIBXML\elfgcchack.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\LIBXML\libxml.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -93,9 +90,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\valid.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\xinclude.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\xmlautomata.h">

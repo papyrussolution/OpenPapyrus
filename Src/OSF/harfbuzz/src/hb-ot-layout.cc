@@ -27,28 +27,13 @@
  * Red Hat Author(s): Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_OT_LAYOUT
 #ifdef HB_NO_OT_TAG
 	#error "Cannot compile hb-ot-layout.cc with HB_NO_OT_TAG."
 #endif
-#include "hb-open-type.hh"
-#include "hb-ot-layout.hh"
-#include "hb-ot-face.hh"
-#include "hb-ot-map.hh"
-#include "hb-map.hh"
-#include "hb-ot-kern-table.hh"
-#include "hb-ot-layout-gdef-table.hh"
-#include "hb-ot-layout-gsub-table.hh"
-#include "hb-ot-layout-gpos-table.hh"
-#include "hb-ot-layout-base-table.hh" // Just so we compile it; unused otherwise.
-#include "hb-ot-layout-jstf-table.hh" // Just so we compile it; unused otherwise.
-#include "hb-ot-name-table.hh"
-#include "hb-ot-os2-table.hh"
-#include "hb-aat-layout-morx-table.hh"
-#include "hb-aat-layout-opbd-table.hh" // Just so we compile it; unused otherwise.
 /**
  * SECTION:hb-ot-layout
  * @title: hb-ot-layout
@@ -61,7 +46,6 @@
 /*
  * kern
  */
-
 #ifndef HB_NO_OT_KERN
 /**
  * hb_ot_layout_has_kerning:
@@ -123,10 +107,7 @@ void hb_ot_layout_kern(const hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buf
 /*
  * GDEF
  */
-
-bool
-OT::GDEF::is_blocklisted(hb_blob_t *blob,
-    hb_face_t *face) const
+bool OT::GDEF::is_blocklisted(hb_blob_t *blob, hb_face_t *face) const
 {
 #ifdef HB_NO_OT_LAYOUT_BLACKLIST
 	return false;
@@ -228,11 +209,9 @@ OT::GDEF::is_blocklisted(hb_blob_t *blob,
 	return false;
 }
 
-static void _hb_ot_layout_set_glyph_props(hb_font_t * font,
-    hb_buffer_t * buffer)
+static void _hb_ot_layout_set_glyph_props(hb_font_t * font, hb_buffer_t * buffer)
 {
 	_hb_buffer_assert_gsubgpos_vars(buffer);
-
 	const OT::GDEF &gdef = *font->face->table.GDEF->table;
 	unsigned int count = buffer->len;
 	for(unsigned int i = 0; i < count; i++) {

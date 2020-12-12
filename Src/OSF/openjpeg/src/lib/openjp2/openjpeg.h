@@ -907,27 +907,17 @@ typedef struct opj_tccp_info {
 	OPJ_UINT32 prcw[OPJ_J2K_MAXRLVLS];
 	/** precinct height */
 	OPJ_UINT32 prch[OPJ_J2K_MAXRLVLS];
-}
-
-opj_tccp_info_t;
-
+} opj_tccp_info_t;
 /**
  * Tile coding parameters information
  */
 typedef struct opj_tile_v2_info {
-	/** number (index) of tile */
-	int tileno;
-	/** coding style */
-	OPJ_UINT32 csty;
-	/** progression order */
-	OPJ_PROG_ORDER prg;
-	/** number of layers */
-	OPJ_UINT32 numlayers;
-	/** multi-component transform identifier */
-	OPJ_UINT32 mct;
-
-	/** information concerning tile component parameters*/
-	opj_tccp_info_t * tccp_info;
+	int tileno; /** number (index) of tile */
+	OPJ_UINT32 csty; /** coding style */
+	OPJ_PROG_ORDER prg; /** progression order */
+	OPJ_UINT32 numlayers; /** number of layers */
+	OPJ_UINT32 mct; /** multi-component transform identifier */
+	opj_tccp_info_t * tccp_info; /** information concerning tile component parameters*/
 } opj_tile_info_v2_t;
 
 /**
@@ -947,13 +937,10 @@ typedef struct opj_codestream_info_v2 {
 	OPJ_UINT32 tw;
 	/** number of tiles in Y */
 	OPJ_UINT32 th;
-
 	/** number of components*/
 	OPJ_UINT32 nbcomps;
-
 	/** Default information regarding tiles inside image */
 	opj_tile_info_v2_t m_default_tile_info;
-
 	/** information regarding tiles inside image */
 	opj_tile_info_v2_t * tile_info; /* FIXME not used for the moment */
 } opj_codestream_info_v2_t;
@@ -962,12 +949,9 @@ typedef struct opj_codestream_info_v2 {
  * Index structure about a tile part
  */
 typedef struct opj_tp_index {
-	/** start position */
-	OPJ_OFF_T start_pos;
-	/** end position of the header */
-	OPJ_OFF_T end_header;
-	/** end position */
-	OPJ_OFF_T end_pos;
+	OPJ_OFF_T start_pos; /** start position */
+	OPJ_OFF_T end_header; /** end position of the header */
+	OPJ_OFF_T end_pos; /** end position */
 } opj_tp_index_t;
 
 /**
@@ -1635,7 +1619,6 @@ OPJ_API opj_jp2_metadata_t* OPJ_CALLCONV opj_get_jp2_metadata(opj_codec_t * p_co
  *
  */
 OPJ_API opj_jp2_index_t* OPJ_CALLCONV opj_get_jp2_index(opj_codec_t * p_codec);
-
 /*
    ==========================================================
    MCT functions
@@ -1652,11 +1635,7 @@ OPJ_API opj_jp2_index_t* OPJ_CALLCONV opj_get_jp2_index(opj_codec_t * p_codec);
  *
  * @return  true if the parameters could be set.
  */
-OPJ_API OPJ_BOOL OPJ_CALLCONV opj_set_MCT(opj_cparameters_t * parameters,
-    OPJ_FLOAT32 * pEncodingMatrix,
-    OPJ_INT32 * p_dc_shift,
-    OPJ_UINT32 pNbComp);
-
+OPJ_API OPJ_BOOL OPJ_CALLCONV opj_set_MCT(opj_cparameters_t * parameters, OPJ_FLOAT32 * pEncodingMatrix, OPJ_INT32 * p_dc_shift, OPJ_UINT32 pNbComp);
 /*
    ==========================================================
    Thread functions

@@ -119,17 +119,14 @@ static Jbig2PatternDict * jbig2_decode_pattern_dict(Jbig2Ctx * ctx, Jbig2Segment
     const Jbig2PatternDictParams * params, const byte * data, const size_t size, Jbig2ArithCx * GB_stats)
 {
 	Jbig2PatternDict * hd = NULL;
-	Jbig2Image * image = NULL;
 	Jbig2GenericRegionParams rparams;
 	int code = 0;
-
 	/* allocate the collective image */
-	image = jbig2_image_new(ctx, params->HDPW * (params->GRAYMAX + 1), params->HDPH);
+	Jbig2Image * image = jbig2_image_new(ctx, params->HDPW * (params->GRAYMAX + 1), params->HDPH);
 	if(image == NULL) {
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate collective bitmap for halftone dictionary");
 		return NULL;
 	}
-
 	/* fill out the generic region decoder parameters */
 	rparams.MMR = params->HDMMR;
 	rparams.GBTEMPLATE = params->HDTEMPLATE;
@@ -143,43 +140,32 @@ static Jbig2PatternDict * jbig2_decode_pattern_dict(Jbig2Ctx * ctx, Jbig2Segment
 	rparams.gbat[5] = -2;
 	rparams.gbat[6] = -2;
 	rparams.gbat[7] = -2;
-
 	if(params->HDMMR) {
 		code = jbig2_decode_generic_mmr(ctx, segment, &rparams, data, size, image);
 	}
 	else {
 		Jbig2WordStream * ws = jbig2_word_stream_buf_new(ctx, data, size);
-
 		if(ws != NULL) {
 			Jbig2ArithState * as = jbig2_arith_new(ctx, ws);
-
 			if(as != NULL) {
 				code = jbig2_decode_generic_region(ctx, segment, &rparams, as, image, GB_stats);
 			}
 			else {
-				code = jbig2_error(ctx,
-					JBIG2_SEVERITY_WARNING,
-					segment->number,
-					"failed to allocate arithmetic coding state when handling halftone dictionary");
+				code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate arithmetic coding state when handling halftone dictionary");
 			}
 
 			jbig2_free(ctx->allocator, as);
 			jbig2_word_stream_buf_free(ctx, ws);
 		}
 		else {
-			code = jbig2_error(ctx,
-				JBIG2_SEVERITY_WARNING,
-				segment->number,
-				"failed to allocate word stream when handling halftone dictionary");
+			code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate word stream when handling halftone dictionary");
 		}
 	}
-
 	if(code == 0)
 		hd = jbig2_hd_new(ctx, params, image);
 	else
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode immediate generic region");
 	jbig2_image_release(ctx, image);
-
 	return hd;
 }
 
@@ -190,7 +176,6 @@ int jbig2_pattern_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte 
 	Jbig2ArithCx * GB_stats = NULL;
 	byte flags;
 	int offset = 0;
-
 	/* 7.4.4.1 - Data header */
 	if(segment->data_length < 7) {
 		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment too short");
@@ -202,22 +187,15 @@ int jbig2_pattern_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte 
 	params.HDPH = segment_data[2];
 	params.GRAYMAX = jbig2_get_uint32(segment_data + 3);
 	offset += 7;
-
-	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number,
-	    "pattern dictionary, flags=%02x, %d grays (%dx%d cell)", flags, params.GRAYMAX + 1, params.HDPW, params.HDPH);
-
+	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "pattern dictionary, flags=%02x, %d grays (%dx%d cell)", 
+		flags, params.GRAYMAX + 1, params.HDPW, params.HDPH);
 	if(params.HDMMR && params.HDTEMPLATE) {
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_WARNING,
-		    segment->number,
-		    "HDTEMPLATE is %d when HDMMR is %d, contrary to spec",
-		    params.HDTEMPLATE,
-		    params.HDMMR);
+		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "HDTEMPLATE is %d when HDMMR is %d, contrary to spec",
+		    params.HDTEMPLATE, params.HDMMR);
 	}
 	if(flags & 0xf8) {
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "reserved flag bits non-zero");
 	}
-
 	/* 7.4.4.2 */
 	if(!params.HDMMR) {
 		/* allocate and zero arithmetic coding stats */
@@ -256,10 +234,9 @@ int jbig2_pattern_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte 
  * returns: array of gray-scale values with GSW x GSH width/height
  *          0 on failure
  **/
-static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * segment,
-    const byte * data, const size_t size,
-    bool GSMMR, uint32_t GSW, uint32_t GSH,
-    uint32_t GSBPP, bool GSUSESKIP, Jbig2Image * GSKIP, int GSTEMPLATE, Jbig2ArithCx * GB_stats)
+static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * data, const size_t size,
+    boolint GSMMR, uint32_t GSW, uint32_t GSH,
+    uint32_t GSBPP, boolint GSUSESKIP, Jbig2Image * GSKIP, int GSTEMPLATE, Jbig2ArithCx * GB_stats)
 {
 	uint16_t ** GSVALS = NULL;
 	size_t consumed_bytes = 0;
@@ -304,36 +281,26 @@ static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * 
 	rparams.gbat[5] = -2;
 	rparams.gbat[6] = -2;
 	rparams.gbat[7] = -2;
-
 	if(GSMMR) {
 		code = jbig2_decode_halftone_mmr(ctx, &rparams, data, size, GSPLANES[GSBPP - 1], &consumed_bytes);
 	}
 	else {
 		ws = jbig2_word_stream_buf_new(ctx, data, size);
 		if(ws == NULL) {
-			jbig2_error(ctx,
-			    JBIG2_SEVERITY_WARNING,
-			    segment->number,
-			    "failed to allocate word stream when decoding gray scale image");
+			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate word stream when decoding gray scale image");
 			goto cleanup;
 		}
-
 		as = jbig2_arith_new(ctx, ws);
 		if(as == NULL) {
-			jbig2_error(ctx,
-			    JBIG2_SEVERITY_WARNING,
-			    segment->number,
-			    "failed to allocate arithmetic coding state when decoding gray scale image");
+			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate arithmetic coding state when decoding gray scale image");
 			goto cleanup;
 		}
-
 		code = jbig2_decode_generic_region(ctx, segment, &rparams, as, GSPLANES[GSBPP - 1], GB_stats);
 	}
 	if(code < 0) {
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "error decoding GSPLANES for halftone image");
 		goto cleanup;
 	}
-
 	/* C.5 step 2. Set j = GSBPP-2 */
 	j = GSBPP - 1;
 	/* C.5 step 3. decode loop */
@@ -341,12 +308,7 @@ static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * 
 		j--;
 		/*  C.5 step 3. (a) */
 		if(GSMMR) {
-			code = jbig2_decode_halftone_mmr(ctx,
-				&rparams,
-				data + consumed_bytes,
-				size - consumed_bytes,
-				GSPLANES[j],
-				&consumed_bytes);
+			code = jbig2_decode_halftone_mmr(ctx, &rparams, data + consumed_bytes, size - consumed_bytes, GSPLANES[j], &consumed_bytes);
 		}
 		else {
 			code = jbig2_decode_generic_region(ctx, segment, &rparams, as, GSPLANES[j], GB_stats);
@@ -355,7 +317,6 @@ static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * 
 			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode GSPLANES for halftone image");
 			goto cleanup;
 		}
-
 		/* C.5 step 3. (b):
 		 * for each [x,y]
 		 * GSPLANES[j][x][y] = GSPLANES[j+1][x][y] XOR GSPLANES[j][x][y] */
@@ -394,7 +355,6 @@ static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * 
 				GSVALS[x][y] += jbig2_image_get_pixel(GSPLANES[j], x, y) << j;
 		}
 	}
-
 cleanup:
 	/* free memory */
 	if(!GSMMR) {
@@ -403,9 +363,7 @@ cleanup:
 	}
 	for(i = 0; i < GSBPP; ++i)
 		jbig2_image_release(ctx, GSPLANES[i]);
-
 	jbig2_free(ctx->allocator, GSPLANES);
-
 	return GSVALS;
 }
 
@@ -425,7 +383,6 @@ static Jbig2PatternDict * jbig2_decode_ht_region_get_hpats(Jbig2Ctx * ctx, Jbig2
 	int index = 0;
 	Jbig2PatternDict * pattern_dict = NULL;
 	Jbig2Segment * rsegment = NULL;
-
 	/* loop through all referred segments */
 	while(!pattern_dict && segment->referred_to_segment_count > index) {
 		rsegment = jbig2_find_segment(ctx, segment->referred_to_segments[index]);
@@ -440,7 +397,6 @@ static Jbig2PatternDict * jbig2_decode_ht_region_get_hpats(Jbig2Ctx * ctx, Jbig2
 	}
 	return pattern_dict;
 }
-
 /**
  * jbig2_decode_halftone_region: decode a halftone region
  *
@@ -464,14 +420,12 @@ static int jbig2_decode_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
 	uint32_t HNUMPATS;
 	uint16_t ** GI = NULL;
 	Jbig2Image * HSKIP = NULL;
-	Jbig2PatternDict * HPATS;
 	uint32_t i;
 	uint32_t mg, ng;
 	uint16_t gray_val;
 	int code = 0;
-
 	/* We need the patterns used in this region, get them from the referred pattern dictionary */
-	HPATS = jbig2_decode_ht_region_get_hpats(ctx, segment);
+	Jbig2PatternDict * HPATS = jbig2_decode_ht_region_get_hpats(ctx, segment);
 	if(!HPATS) {
 		code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "no pattern dictionary found, skipping halftone image");
 		goto cleanup;
@@ -487,7 +441,6 @@ static int jbig2_decode_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
 			for(ng = 0; ng < params->HGW; ++ng) {
 				int64_t x = ((int64_t)params->HGX + mg * params->HRY + ng * params->HRX) >> 8;
 				int64_t y = ((int64_t)params->HGY + mg * params->HRX - ng * params->HRY) >> 8;
-
 				if(x + HPATS->HPW <= 0 || x >= image->width || y + HPATS->HPH <= 0 || y >= image->height) {
 					jbig2_image_set_pixel(HSKIP, ng, mg, 1);
 				}
@@ -511,41 +464,28 @@ static int jbig2_decode_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
 	GI = jbig2_decode_gray_scale_image(ctx, segment, data, size,
 		params->HMMR, params->HGW, params->HGH, HBPP, params->HENABLESKIP, HSKIP, params->HTEMPLATE, GB_stats);
 	if(!GI) {
-		code = jbig2_error(ctx,
-			JBIG2_SEVERITY_WARNING,
-			segment->number,
-			"unable to acquire gray-scale image, skipping halftone image");
+		code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "unable to acquire gray-scale image, skipping halftone image");
 		goto cleanup;
 	}
-
 	/* 6.6.5 point 5. place patterns with procedure mentioned in 6.6.5.2 */
 	for(mg = 0; mg < params->HGH; ++mg) {
 		for(ng = 0; ng < params->HGW; ++ng) {
 			int64_t x = ((int64_t)params->HGX + mg * params->HRY + ng * params->HRX) >> 8;
 			int64_t y = ((int64_t)params->HGY + mg * params->HRX - ng * params->HRY) >> 8;
-
 			/* prevent pattern index >= HNUMPATS */
 			gray_val = GI[ng][mg];
 			if(gray_val >= HNUMPATS) {
-				jbig2_error(ctx,
-				    JBIG2_SEVERITY_WARNING,
-				    segment->number,
-				    "gray-scale index %d out of range, using largest index",
-				    gray_val);
+				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "gray-scale index %d out of range, using largest index", gray_val);
 				/* use highest available pattern */
 				gray_val = HNUMPATS - 1;
 			}
 			code = jbig2_image_compose(ctx, image, HPATS->patterns[gray_val], x, y, params->HCOMBOP);
 			if(code < 0) {
-				code = jbig2_error(ctx,
-					JBIG2_SEVERITY_WARNING,
-					segment->number,
-					"failed to compose pattern with gray-scale image");
+				code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to compose pattern with gray-scale image");
 				goto cleanup;
 			}
 		}
 	}
-
 cleanup:
 	if(GI) {
 		for(i = 0; i < params->HGW; ++i) {
@@ -554,7 +494,6 @@ cleanup:
 	}
 	jbig2_free(ctx->allocator, GI);
 	jbig2_image_release(ctx, HSKIP);
-
 	return code;
 }
 
@@ -569,16 +508,13 @@ int jbig2_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * s
 	Jbig2Image * image = NULL;
 	Jbig2ArithCx * GB_stats = NULL;
 	int code = 0;
-
 	/* 7.4.5.1 */
 	if(segment->data_length < 17)
 		goto too_short;
 	jbig2_get_region_segment_info(&region_info, segment_data);
 	offset += 17;
-
 	if(segment->data_length < 18)
 		goto too_short;
-
 	/* 7.4.5.1.1 Figure 42 */
 	params.flags = segment_data[offset];
 	params.HMMR = params.flags & 1;
@@ -587,34 +523,14 @@ int jbig2_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * s
 	params.HCOMBOP = (Jbig2ComposeOp)((params.flags & 0x70) >> 4);
 	params.HDEFPIXEL = (params.flags & 0x80) >> 7;
 	offset += 1;
-
-	jbig2_error(ctx,
-	    JBIG2_SEVERITY_INFO,
-	    segment->number,
-	    "halftone region: %u x %u @ (%u, %u), flags = %02x",
-	    region_info.width,
-	    region_info.height,
-	    region_info.x,
-	    region_info.y,
-	    params.flags);
-
+	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "halftone region: %u x %u @ (%u, %u), flags = %02x",
+	    region_info.width, region_info.height, region_info.x, region_info.y, params.flags);
 	if(params.HMMR && params.HTEMPLATE) {
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_WARNING,
-		    segment->number,
-		    "HTEMPLATE is %d when HMMR is %d, contrary to spec",
-		    params.HTEMPLATE,
-		    params.HMMR);
+		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "HTEMPLATE is %d when HMMR is %d, contrary to spec", params.HTEMPLATE, params.HMMR);
 	}
 	if(params.HMMR && params.HENABLESKIP) {
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_WARNING,
-		    segment->number,
-		    "HENABLESKIP is %d when HMMR is %d, contrary to spec",
-		    params.HENABLESKIP,
-		    params.HMMR);
+		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "HENABLESKIP is %d when HMMR is %d, contrary to spec", params.HENABLESKIP, params.HMMR);
 	}
-
 	/* 7.4.5.1.2 Figure 43 */
 	if(segment->data_length - offset < 16)
 		goto too_short;
@@ -623,22 +539,14 @@ int jbig2_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * s
 	params.HGX = jbig2_get_int32(segment_data + offset + 8);
 	params.HGY = jbig2_get_int32(segment_data + offset + 12);
 	offset += 16;
-
 	/* 7.4.5.1.3 Figure 44 */
 	if(segment->data_length - offset < 4)
 		goto too_short;
 	params.HRX = jbig2_get_uint16(segment_data + offset);
 	params.HRY = jbig2_get_uint16(segment_data + offset + 2);
 	offset += 4;
-
-	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number,
-	    "grid %d x %d @ (%d.%d,%d.%d) vector (%d.%d,%d.%d)",
-	    params.HGW, params.HGH,
-	    params.HGX >> 8, params.HGX & 0xff,
-	    params.HGY >> 8, params.HGY & 0xff,
-	    params.HRX >> 8, params.HRX & 0xff,
-	    params.HRY >> 8, params.HRY & 0xff);
-
+	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "grid %d x %d @ (%d.%d,%d.%d) vector (%d.%d,%d.%d)",
+	    params.HGW, params.HGH, params.HGX >> 8, params.HGX & 0xff, params.HGY >> 8, params.HGY & 0xff, params.HRX >> 8, params.HRX & 0xff, params.HRY >> 8, params.HRY & 0xff);
 	/* 7.4.5.2 */
 	if(!params.HMMR) {
 		/* allocate and zero arithmetic coding stats */
@@ -654,29 +562,23 @@ int jbig2_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * s
 		jbig2_free(ctx->allocator, GB_stats);
 		return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate halftone image");
 	}
-
 	code = jbig2_decode_halftone_region(ctx, segment, &params, segment_data + offset, segment->data_length - offset, image, GB_stats);
 	if(code < 0) {
 		jbig2_image_release(ctx, image);
 		jbig2_free(ctx->allocator, GB_stats);
 		return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode halftone region");
 	}
-
 	/* todo: retain GB_stats? */
 	if(!params.HMMR) {
 		jbig2_free(ctx->allocator, GB_stats);
 	}
-
 	code = jbig2_page_add_result(ctx, &ctx->pages[ctx->current_page], image, region_info.x, region_info.y, region_info.op);
 	if(code < 0) {
 		jbig2_image_release(ctx, image);
 		return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "unable to add halftone region to page");
 	}
-
 	jbig2_image_release(ctx, image);
-
 	return code;
-
 too_short:
 	return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment too short");
 }

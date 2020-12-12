@@ -23,7 +23,7 @@
  *
  * Adobe Author(s): Michiharu Ariza
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 #ifndef HB_NO_SUBSET_CFF
 #include "hb-ot-cff-common.hh"

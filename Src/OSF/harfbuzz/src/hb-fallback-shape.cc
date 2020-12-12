@@ -23,16 +23,13 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-shaper-impl.hh"
 
 #ifndef HB_NO_FALLBACK_SHAPE
-
 /*
  * shaper face data
  */
-
 struct hb_fallback_face_data_t {};
 
 hb_fallback_face_data_t * _hb_fallback_shaper_face_data_create(hb_face_t * face HB_UNUSED)

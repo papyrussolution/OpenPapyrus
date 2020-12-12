@@ -51,33 +51,24 @@ struct _Jbig2HuffmanLine {
 };
 
 struct _Jbig2HuffmanParams {
-    bool HTOOB;
+    boolint HTOOB;
     int n_lines;
     const Jbig2HuffmanLine *lines;
 };
 
 Jbig2HuffmanState *jbig2_huffman_new(Jbig2Ctx *ctx, Jbig2WordStream *ws);
-
 void jbig2_huffman_free(Jbig2Ctx *ctx, Jbig2HuffmanState *hs);
-
 int jbig2_huffman_skip(Jbig2HuffmanState *hs);
-
 int jbig2_huffman_advance(Jbig2HuffmanState *hs, size_t advance);
-
 uint32_t jbig2_huffman_offset(Jbig2HuffmanState *hs);
-
-int32_t jbig2_huffman_get(Jbig2HuffmanState *hs, const Jbig2HuffmanTable *table, bool *oob);
-
+int32_t jbig2_huffman_get(Jbig2HuffmanState *hs, const Jbig2HuffmanTable *table, boolint *oob);
 int32_t jbig2_huffman_get_bits(Jbig2HuffmanState *hs, const int bits, int *err);
-
 #ifdef JBIG2_DEBUG
-void jbig2_dump_huffman_state(Jbig2HuffmanState *hs);
-void jbig2_dump_huffman_binary(Jbig2HuffmanState *hs);
+	void jbig2_dump_huffman_state(Jbig2HuffmanState *hs);
+	void jbig2_dump_huffman_binary(Jbig2HuffmanState *hs);
 #endif
-
 Jbig2HuffmanTable *jbig2_build_huffman_table(Jbig2Ctx *ctx, const Jbig2HuffmanParams *params);
-
-void jbig2_release_huffman_table(Jbig2Ctx *ctx, Jbig2HuffmanTable *table);
+void FASTCALL jbig2_release_huffman_table(Jbig2Ctx *ctx, Jbig2HuffmanTable *table);
 
 /* standard Huffman templates defined by the specification */
 extern const Jbig2HuffmanParams jbig2_huffman_params_A; /* Table B.1  */
@@ -100,10 +91,8 @@ extern const Jbig2HuffmanParams jbig2_huffman_params_O; /* Table B.15 */
 
 /* Parse a code table segment, store Jbig2HuffmanParams in segment->result */
 int jbig2_table(Jbig2Ctx *ctx, Jbig2Segment *segment, const byte *segment_data);
-
 /* free Jbig2HuffmanParams allocated by jbig2_huffman_table() */
 void jbig2_table_free(Jbig2Ctx *ctx, Jbig2HuffmanParams *params);
-
 /* find a user supplied table used by 'segment' and by 'index' */
 const Jbig2HuffmanParams *jbig2_find_table(Jbig2Ctx *ctx, Jbig2Segment *segment, int index);
 

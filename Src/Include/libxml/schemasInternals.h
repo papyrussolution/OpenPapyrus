@@ -199,18 +199,16 @@ struct xmlSchemaAttributeLink {
  * If the wildcard is complete.
  */
 #define XML_SCHEMAS_WILDCARD_COMPLETE 1 << 0
-
 /**
  * xmlSchemaCharValueLink:
  * Used to build a list of namespaces on wildcards.
  */
-typedef struct _xmlSchemaWildcardNs xmlSchemaWildcardNs;
-typedef xmlSchemaWildcardNs *xmlSchemaWildcardNsPtr;
-struct _xmlSchemaWildcardNs {
-    struct _xmlSchemaWildcardNs *next;/* the next constraint link ... */
-    const xmlChar *value;/* the value */
+//typedef struct _xmlSchemaWildcardNs xmlSchemaWildcardNs;
+//typedef xmlSchemaWildcardNs * xmlSchemaWildcardNsPtr;
+struct xmlSchemaWildcardNs {
+    struct xmlSchemaWildcardNs * next; // the next constraint link ... 
+    const xmlChar * value; // the value 
 };
-
 /**
  * xmlSchemaWildcard.
  * A wildcard.
@@ -226,8 +224,8 @@ struct _xmlSchemaWildcard {
     int maxOccurs; /* Deprecated; not used */
     int processContents;
     int any; /* Indicates if the ns constraint is of ##any */
-    xmlSchemaWildcardNsPtr nsSet; /* The list of allowed namespaces */
-    xmlSchemaWildcardNsPtr negNsSet; /* The negated namespace */
+    xmlSchemaWildcardNs * nsSet; /* The list of allowed namespaces */
+    xmlSchemaWildcardNs * negNsSet; /* The negated namespace */
     int flags;
 };
 

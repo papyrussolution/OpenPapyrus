@@ -316,7 +316,7 @@ static cairo_status_t FASTCALL _cairo_path_fixed_move_to_apply(cairo_path_fixed_
 	return _cairo_path_fixed_add(path, CAIRO_PATH_OP_MOVE_TO, &path->current_point, 1);
 }
 
-void _cairo_path_fixed_new_sub_path(cairo_path_fixed_t * path)
+void FASTCALL _cairo_path_fixed_new_sub_path(cairo_path_fixed_t * path)
 {
 	if(!path->needs_move_to) {
 		/* If the current subpath doesn't need_move_to, it contains at least one command */

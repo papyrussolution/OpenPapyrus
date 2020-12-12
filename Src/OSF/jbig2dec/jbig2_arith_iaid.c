@@ -32,8 +32,7 @@ Jbig2ArithIaidCtx * jbig2_arith_iaid_ctx_new(Jbig2Ctx * ctx, uint8_t SBSYMCODELE
 	Jbig2ArithIaidCtx * result;
 	size_t ctx_size;
 	if(sizeof(ctx_size) * 8 <= SBSYMCODELEN) {
-		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-		    "requested IAID arithmetic coding state size too large");
+		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "requested IAID arithmetic coding state size too large");
 		return NULL;
 	}
 	ctx_size = (size_t)1U << SBSYMCODELEN;

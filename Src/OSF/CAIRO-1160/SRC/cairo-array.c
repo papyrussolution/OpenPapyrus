@@ -178,7 +178,7 @@ void * FASTCALL _cairo_array_index(cairo_array_t * array, uint index)
  *	    ... read values[i] here ...
  * </programlisting></informalexample>
  **/
-const void * _cairo_array_index_const(const cairo_array_t * array, uint index)
+const void * FASTCALL _cairo_array_index_const(const cairo_array_t * array, uint index)
 {
 	/* We allow an index of 0 for the no-elements case.
 	 * This makes for cleaner calling code which will often look like:
@@ -194,7 +194,7 @@ const void * _cairo_array_index_const(const cairo_array_t * array, uint index)
 	if(index == 0 && array->num_elements == 0)
 		return NULL;
 	assert(index < array->num_elements);
-	return array->elements + index * array->element_size;
+	return (array->elements + index * array->element_size);
 }
 /**
  * _cairo_array_copy_element:

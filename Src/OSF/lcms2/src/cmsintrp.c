@@ -217,80 +217,58 @@ cmsINLINE cmsFloat32Number fclamp(cmsFloat32Number v)
 }
 
 // Floating-point version of 1D interpolation
-static
-void LinLerp1Dfloat(const cmsFloat32Number Value[],
-    cmsFloat32Number Output[],
-    const cmsInterpParams* p)
+static void LinLerp1Dfloat(const cmsFloat32Number Value[], cmsFloat32Number Output[], const cmsInterpParams* p)
 {
 	cmsFloat32Number y1, y0;
-	cmsFloat32Number val2, rest;
+	cmsFloat32Number rest;
 	int cell0, cell1;
-	const cmsFloat32Number* LutTable = (cmsFloat32Number*)p->Table;
-
-	val2 = fclamp(Value[0]);
-
+	const cmsFloat32Number * LutTable = (cmsFloat32Number*)p->Table;
+	cmsFloat32Number val2 = fclamp(Value[0]);
 	// if last value...
 	if(val2 == 1.0) {
 		Output[0] = LutTable[p->Domain[0]];
 	}
 	else {
 		val2 *= p->Domain[0];
-
 		cell0 = (int)floor(val2);
 		cell1 = (int)ceil(val2);
-
 		// Rest is 16 LSB bits
 		rest = val2 - cell0;
-
 		y0 = LutTable[cell0];
 		y1 = LutTable[cell1];
-
 		Output[0] = y0 + (y1 - y0) * rest;
 	}
 }
 
 // Eval gray LUT having only one input channel
-static CMS_NO_SANITIZE
-void Eval1Input(CMSREGISTER const cmsUInt16Number Input[],
-    CMSREGISTER cmsUInt16Number Output[],
-    CMSREGISTER const cmsInterpParams* p16)
+static CMS_NO_SANITIZE void Eval1Input(CMSREGISTER const cmsUInt16Number Input[], CMSREGISTER cmsUInt16Number Output[], CMSREGISTER const cmsInterpParams* p16)
 {
 	cmsS15Fixed16Number fk;
 	cmsS15Fixed16Number k0, k1, rk, K0, K1;
 	int v;
 	cmsUInt32Number OutChan;
 	const cmsUInt16Number* LutTable = (cmsUInt16Number*)p16->Table;
-
 	v = Input[0] * p16->Domain[0];
 	fk = _cmsToFixedDomain(v);
-
 	k0 = FIXED_TO_INT(fk);
 	rk = (cmsUInt16Number)FIXED_REST_TO_INT(fk);
-
 	k1 = k0 + (Input[0] != 0xFFFFU ? 1 : 0);
-
 	K0 = p16->opta[0] * k0;
 	K1 = p16->opta[0] * k1;
-
 	for(OutChan = 0; OutChan < p16->nOutputs; OutChan++) {
 		Output[OutChan] = LinearInterp(rk, LutTable[K0+OutChan], LutTable[K1+OutChan]);
 	}
 }
 
 // Eval gray LUT having only one input channel
-static
-void Eval1InputFloat(const cmsFloat32Number Value[],
-    cmsFloat32Number Output[],
-    const cmsInterpParams* p)
+static void Eval1InputFloat(const cmsFloat32Number Value[], cmsFloat32Number Output[], const cmsInterpParams* p)
 {
 	cmsFloat32Number y1, y0;
-	cmsFloat32Number val2, rest;
+	cmsFloat32Number rest;
 	int cell0, cell1;
 	cmsUInt32Number OutChan;
 	const cmsFloat32Number* LutTable = (cmsFloat32Number*)p->Table;
-
-	val2 = fclamp(Value[0]);
-
+	cmsFloat32Number val2 = fclamp(Value[0]);
 	// if last value...
 	if(val2 == 1.0) {
 		y0 = LutTable[p->Domain[0]];
@@ -321,15 +299,10 @@ void Eval1InputFloat(const cmsFloat32Number Value[],
 }
 
 // Bilinear interpolation (16 bits) - cmsFloat32Number version
-static
-void BilinearInterpFloat(const cmsFloat32Number Input[],
-    cmsFloat32Number Output[],
-    const cmsInterpParams* p)
-
+static void BilinearInterpFloat(const cmsFloat32Number Input[], cmsFloat32Number Output[], const cmsInterpParams* p)
 {
-#   define LERP(a, l, h)    (cmsFloat32Number)((l)+(((h)-(l))*(a)))
-#   define DENS(i, j)      (LutTable[(i)+(j)+OutChan])
-
+#define LERP(a, l, h)    (cmsFloat32Number)((l)+(((h)-(l))*(a)))
+#define DENS(i, j)      (LutTable[(i)+(j)+OutChan])
 	const cmsFloat32Number* LutTable = (cmsFloat32Number*)p->Table;
 	cmsFloat32Number px, py;
 	int x0, y0,
@@ -339,36 +312,27 @@ void BilinearInterpFloat(const cmsFloat32Number Input[],
 	    d00, d01, d10, d11,
 	    dx0, dx1,
 	    dxy;
-
 	TotalOut   = p->nOutputs;
 	px = fclamp(Input[0]) * p->Domain[0];
 	py = fclamp(Input[1]) * p->Domain[1];
-
 	x0 = (int)_cmsQuickFloor(px); fx = px - (cmsFloat32Number)x0;
 	y0 = (int)_cmsQuickFloor(py); fy = py - (cmsFloat32Number)y0;
-
 	X0 = p->opta[1] * x0;
 	X1 = X0 + (fclamp(Input[0]) >= 1.0 ? 0 : p->opta[1]);
-
 	Y0 = p->opta[0] * y0;
 	Y1 = Y0 + (fclamp(Input[1]) >= 1.0 ? 0 : p->opta[0]);
-
 	for(OutChan = 0; OutChan < TotalOut; OutChan++) {
 		d00 = DENS(X0, Y0);
 		d01 = DENS(X0, Y1);
 		d10 = DENS(X1, Y0);
 		d11 = DENS(X1, Y1);
-
 		dx0 = LERP(fx, d00, d10);
 		dx1 = LERP(fx, d01, d11);
-
 		dxy = LERP(fy, dx0, dx1);
-
 		Output[OutChan] = dxy;
 	}
-
-#   undef LERP
-#   undef DENS
+#undef LERP
+#undef DENS
 }
 
 // Bilinear interpolation (16 bits) - optimized version

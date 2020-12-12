@@ -25,7 +25,7 @@
  * Red Hat Author(s): Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_OT_SHAPE
@@ -39,42 +39,27 @@ void hb_ot_map_t::collect_lookups(unsigned int table_index, hb_set_t * lookups_o
 		lookups_out->add(lookups[table_index][i].index);
 }
 
-hb_ot_map_builder_t::hb_ot_map_builder_t (hb_face_t * face_,
-    const hb_segment_properties_t * props_)
+hb_ot_map_builder_t::hb_ot_map_builder_t(hb_face_t * face_, const hb_segment_properties_t * props_)
 {
-	memset(this, 0, sizeof(*this));
-
+	memzero(this, sizeof(*this));
 	feature_infos.init();
 	for(unsigned int table_index = 0; table_index < 2; table_index++)
 		stages[table_index].init();
-
 	face = face_;
 	props = *props_;
-
 	/* Fetch script/language indices for GSUB/GPOS.  We need these later to skip
 	 * features not available in either table and not waste precious bits for them. */
-
 	unsigned int script_count = HB_OT_MAX_TAGS_PER_SCRIPT;
 	unsigned int language_count = HB_OT_MAX_TAGS_PER_LANGUAGE;
 	hb_tag_t script_tags[HB_OT_MAX_TAGS_PER_SCRIPT];
 	hb_tag_t language_tags[HB_OT_MAX_TAGS_PER_LANGUAGE];
-
 	hb_ot_tags_from_script_and_language(props.script, props.language, &script_count, script_tags, &language_count, language_tags);
-
 	for(unsigned int table_index = 0; table_index < 2; table_index++) {
 		hb_tag_t table_tag = table_tags[table_index];
-		found_script[table_index] = (bool)hb_ot_layout_table_select_script(face,
-			table_tag,
-			script_count,
-			script_tags,
-			&script_index[table_index],
-			&chosen_script[table_index]);
-		hb_ot_layout_script_select_language(face,
-		    table_tag,
-		    script_index[table_index],
-		    language_count,
-		    language_tags,
-		    &language_index[table_index]);
+		found_script[table_index] = (bool)hb_ot_layout_table_select_script(face, table_tag, script_count,
+			script_tags, &script_index[table_index], &chosen_script[table_index]);
+		hb_ot_layout_script_select_language(face, table_tag, script_index[table_index], language_count,
+		    language_tags, &language_index[table_index]);
 	}
 }
 
@@ -85,9 +70,7 @@ hb_ot_map_builder_t::~hb_ot_map_builder_t ()
 		stages[table_index].fini();
 }
 
-void hb_ot_map_builder_t::add_feature(hb_tag_t tag,
-    hb_ot_map_feature_flags_t flags,
-    unsigned int value)
+void hb_ot_map_builder_t::add_feature(hb_tag_t tag, hb_ot_map_feature_flags_t flags, unsigned int value)
 {
 	if(unlikely(!tag)) return;
 	feature_info_t * info = feature_infos.push();
@@ -301,7 +284,6 @@ void hb_ot_map_builder_t::compile(hb_ot_map_t                  &m,
 			/* Sort lookups and merge duplicates */
 			if(last_num_lookups < m.lookups[table_index].length) {
 				m.lookups[table_index].qsort(last_num_lookups, m.lookups[table_index].length);
-
 				unsigned int j = last_num_lookups;
 				for(unsigned int i = j + 1; i < m.lookups[table_index].length; i++)
 					if(m.lookups[table_index][i].index != m.lookups[table_index][j].index)
@@ -313,14 +295,11 @@ void hb_ot_map_builder_t::compile(hb_ot_map_t                  &m,
 					}
 				m.lookups[table_index].shrink(j + 1);
 			}
-
 			last_num_lookups = m.lookups[table_index].length;
-
 			if(stage_index < stages[table_index].length && stages[table_index][stage_index].index == stage) {
 				hb_ot_map_t::stage_map_t * stage_map = m.stages[table_index].push();
 				stage_map->last_lookup = last_num_lookups;
 				stage_map->pause_func = stages[table_index][stage_index].pause_func;
-
 				stage_index++;
 			}
 		}

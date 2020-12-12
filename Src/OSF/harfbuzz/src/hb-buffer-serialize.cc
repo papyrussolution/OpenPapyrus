@@ -23,19 +23,12 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_BUFFER_SERIALIZE
 
-#include "hb-buffer.hh"
-
-static const char * serialize_formats[] = {
-	"text",
-	"json",
-	nullptr
-};
-
+static const char * serialize_formats[] = { "text", "json", nullptr };
 /**
  * hb_buffer_serialize_list_formats:
  *
@@ -50,7 +43,6 @@ const char ** hb_buffer_serialize_list_formats()
 {
 	return serialize_formats;
 }
-
 /**
  * hb_buffer_serialize_format_from_string:
  * @str: (array length=len) (element-type uint8_t): a string to parse
@@ -85,8 +77,7 @@ hb_buffer_serialize_format_t hb_buffer_serialize_format_from_string(const char *
  **/
 const char * hb_buffer_serialize_format_to_string(hb_buffer_serialize_format_t format)
 {
-	switch((unsigned)format)
-	{
+	switch((unsigned)format) {
 		case HB_BUFFER_SERIALIZE_FORMAT_TEXT:       return serialize_formats[0];
 		case HB_BUFFER_SERIALIZE_FORMAT_JSON:       return serialize_formats[1];
 		default:
@@ -94,36 +85,22 @@ const char * hb_buffer_serialize_format_to_string(hb_buffer_serialize_format_t f
 	}
 }
 
-static unsigned int _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer,
-    unsigned int start,
-    unsigned int end,
-    char * buf,
-    unsigned int buf_size,
-    unsigned int * buf_consumed,
-    hb_font_t * font,
-    hb_buffer_serialize_flags_t flags)
+static unsigned int _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer, unsigned int start, unsigned int end,
+    char * buf, unsigned int buf_size, unsigned int * buf_consumed, hb_font_t * font, hb_buffer_serialize_flags_t flags)
 {
 	hb_glyph_info_t * info = hb_buffer_get_glyph_infos(buffer, nullptr);
-	hb_glyph_position_t * pos = (flags & HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS) ?
-	    nullptr : hb_buffer_get_glyph_positions(buffer, nullptr);
-
+	hb_glyph_position_t * pos = (flags & HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS) ? nullptr : hb_buffer_get_glyph_positions(buffer, nullptr);
 	*buf_consumed = 0;
 	hb_position_t x = 0, y = 0;
 	for(unsigned int i = start; i < end; i++) {
 		char b[1024];
 		char * p = b;
-
 		/* In the following code, we know b is large enough that no overflow can happen. */
 
-#define APPEND(s) HB_STMT_START { strcpy(p, s); p += strlen(s); \
-} \
-	HB_STMT_END
-
+#define APPEND(s) HB_STMT_START { strcpy(p, s); p += strlen(s); } HB_STMT_END
 		if(i)
 			*p++ = ',';
-
 		*p++ = '{';
-
 		APPEND("\"g\":");
 		if(!(flags & HB_BUFFER_SERIALIZE_FLAG_NO_GLYPH_NAMES)) {
 			char g[128];
@@ -159,14 +136,10 @@ static unsigned int _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer,
 		if(flags & HB_BUFFER_SERIALIZE_FLAG_GLYPH_EXTENTS) {
 			hb_glyph_extents_t extents;
 			hb_font_get_glyph_extents(font, info[i].codepoint, &extents);
-			p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"xb\":%d,\"yb\":%d",
-				extents.x_bearing, extents.y_bearing));
-			p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"w\":%d,\"h\":%d",
-				extents.width, extents.height));
+			p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"xb\":%d,\"yb\":%d", extents.x_bearing, extents.y_bearing));
+			p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"w\":%d,\"h\":%d", extents.width, extents.height));
 		}
-
 		*p++ = '}';
-
 		unsigned int l = p - b;
 		if(buf_size > l) {
 			memcpy(buf, b, l);
@@ -177,13 +150,11 @@ static unsigned int _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer,
 		}
 		else
 			return i - start;
-
 		if(pos && (flags & HB_BUFFER_SERIALIZE_FLAG_NO_ADVANCES)) {
 			x += pos[i].x_advance;
 			y += pos[i].y_advance;
 		}
 	}
-
 	return end - start;
 }
 
@@ -199,13 +170,11 @@ static unsigned int _hb_buffer_serialize_glyphs_text(hb_buffer_t * buffer,
 	hb_glyph_info_t * info = hb_buffer_get_glyph_infos(buffer, nullptr);
 	hb_glyph_position_t * pos = (flags & HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS) ?
 	    nullptr : hb_buffer_get_glyph_positions(buffer, nullptr);
-
 	*buf_consumed = 0;
 	hb_position_t x = 0, y = 0;
 	for(unsigned int i = start; i < end; i++) {
 		char b[1024];
 		char * p = b;
-
 		/* In the following code, we know b is large enough that no overflow can happen. */
 
 		if(i)
@@ -314,49 +283,26 @@ static unsigned int _hb_buffer_serialize_glyphs_text(hb_buffer_t * buffer,
  *
  * Since: 0.9.7
  **/
-unsigned int hb_buffer_serialize_glyphs(hb_buffer_t * buffer,
-    unsigned int start,
-    unsigned int end,
-    char * buf,
-    unsigned int buf_size,
-    unsigned int * buf_consumed,
-    hb_font_t * font,
-    hb_buffer_serialize_format_t format,
-    hb_buffer_serialize_flags_t flags)
+unsigned int hb_buffer_serialize_glyphs(hb_buffer_t * buffer, unsigned int start, unsigned int end, char * buf,
+    unsigned int buf_size, unsigned int * buf_consumed, hb_font_t * font, hb_buffer_serialize_format_t format, hb_buffer_serialize_flags_t flags)
 {
 	assert(start <= end && end <= buffer->len);
-
 	unsigned int sconsumed;
-	if(!buf_consumed)
-		buf_consumed = &sconsumed;
+	SETIFZ(buf_consumed, &sconsumed);
 	*buf_consumed = 0;
 	if(buf_size)
 		*buf = '\0';
-
-	assert((!buffer->len && (buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID)) ||
-	    (buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS));
-
+	assert((!buffer->len && (buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID)) || (buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS));
 	if(!buffer->have_positions)
 		flags |= HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS;
-
 	if(unlikely(start == end))
 		return 0;
-
-	if(!font)
-		font = hb_font_get_empty();
-
-	switch(format)
-	{
+	SETIFZ(font, hb_font_get_empty());
+	switch(format) {
 		case HB_BUFFER_SERIALIZE_FORMAT_TEXT:
-		    return _hb_buffer_serialize_glyphs_text(buffer, start, end,
-			       buf, buf_size, buf_consumed,
-			       font, flags);
-
+		    return _hb_buffer_serialize_glyphs_text(buffer, start, end, buf, buf_size, buf_consumed, font, flags);
 		case HB_BUFFER_SERIALIZE_FORMAT_JSON:
-		    return _hb_buffer_serialize_glyphs_json(buffer, start, end,
-			       buf, buf_size, buf_consumed,
-			       font, flags);
-
+		    return _hb_buffer_serialize_glyphs_json(buffer, start, end, buf, buf_size, buf_consumed, font, flags);
 		default:
 		case HB_BUFFER_SERIALIZE_FORMAT_INVALID:
 		    return 0;
@@ -369,7 +315,6 @@ static bool parse_int(const char * pp, const char * end, int32_t * pv)
 	const char * p = pp;
 	if(unlikely(!hb_parse_int(&p, end, &v, true /* whole buffer */)))
 		return false;
-
 	*pv = v;
 	return true;
 }
@@ -380,7 +325,6 @@ static bool parse_uint(const char * pp, const char * end, uint32_t * pv)
 	const char * p = pp;
 	if(unlikely(!hb_parse_uint(&p, end, &v, true /* whole buffer */)))
 		return false;
-
 	*pv = v;
 	return true;
 }
@@ -411,42 +355,25 @@ hb_bool_t hb_buffer_deserialize_glyphs(hb_buffer_t * buffer,
     hb_buffer_serialize_format_t format)
 {
 	const char * end;
-	if(!end_ptr)
-		end_ptr = &end;
+	SETIFZ(end_ptr, &end);
 	*end_ptr = buf;
-
-	assert((!buffer->len && (buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID)) ||
-	    (buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS));
-
+	assert((!buffer->len && (buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID)) || (buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS));
 	if(buf_len == -1)
 		buf_len = strlen(buf);
-
 	if(!buf_len) {
 		*end_ptr = buf;
 		return false;
 	}
-
 	hb_buffer_set_content_type(buffer, HB_BUFFER_CONTENT_TYPE_GLYPHS);
-
-	if(!font)
-		font = hb_font_get_empty();
-
-	switch(format)
-	{
+	SETIFZ(font, hb_font_get_empty());
+	switch(format) {
 		case HB_BUFFER_SERIALIZE_FORMAT_TEXT:
-		    return _hb_buffer_deserialize_glyphs_text(buffer,
-			       buf, buf_len, end_ptr,
-			       font);
-
+		    return _hb_buffer_deserialize_glyphs_text(buffer, buf, buf_len, end_ptr, font);
 		case HB_BUFFER_SERIALIZE_FORMAT_JSON:
-		    return _hb_buffer_deserialize_glyphs_json(buffer,
-			       buf, buf_len, end_ptr,
-			       font);
-
+		    return _hb_buffer_deserialize_glyphs_json(buffer, buf, buf_len, end_ptr, font);
 		default:
 		case HB_BUFFER_SERIALIZE_FORMAT_INVALID:
 		    return false;
 	}
 }
-
 #endif

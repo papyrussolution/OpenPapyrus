@@ -23,14 +23,10 @@
  *
  * Adobe Author(s): Michiharu Ariza
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_OT_FONT_CFF
-
-#include "hb-ot-cff2-table.hh"
-#include "hb-cff2-interp-cs.hh"
-#include "hb-draw.hh"
 
 using namespace CFF;
 

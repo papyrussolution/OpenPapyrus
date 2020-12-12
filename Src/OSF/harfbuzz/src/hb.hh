@@ -34,111 +34,103 @@
 #define HAVE_GDI // @sobolev
 #define HAVE_UNISCRIBE // @sobolev
 #ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC
-#ifdef _MSC_VER
-#pragma warning( disable: 4068 ) /* Unknown pragma */
+	#ifdef _MSC_VER
+		#pragma warning( disable: 4068 ) /* Unknown pragma */
+	#endif
+	#if defined(__GNUC__) || defined(__clang__)
+		/* Rules:
+		 *
+		 * - All pragmas are declared GCC even if they are clang ones.  Otherwise GCC
+		 *   nags, even though we instruct it to ignore -Wunknown-pragmas. ¯\_(ツ)_/¯
+		 *
+		 * - Within each category, keep sorted.
+		 *
+		 * - Warnings whose scope can be expanded in future compiler versions shall
+		 *   be declared as "warning".  Otherwise, either ignored or error.
+		 */
+		/* Setup.  Don't sort order within this category. */
+		#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_WARNING
+			#pragma GCC diagnostic warning "-Wall"
+			#pragma GCC diagnostic warning "-Wextra"
+		#endif
+		#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_IGNORED
+			#pragma GCC diagnostic ignored "-Wpragmas"
+			#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+			#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+		#endif
+		#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_WARNING
+			//#pragma GCC diagnostic warning "-Weverything"
+		#endif
+		/* Error.  Should never happen. */
+		#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR
+			#pragma GCC diagnostic error   "-Wc++11-narrowing"
+			#pragma GCC diagnostic error   "-Wcast-align"
+			#pragma GCC diagnostic error   "-Wcast-function-type"
+			#pragma GCC diagnostic error   "-Wdelete-non-virtual-dtor"
+			#pragma GCC diagnostic error   "-Wembedded-directive"
+			#pragma GCC diagnostic error   "-Wextra-semi-stmt"
+			#pragma GCC diagnostic error   "-Wformat-security"
+			#pragma GCC diagnostic error   "-Wimplicit-function-declaration"
+			#pragma GCC diagnostic error   "-Winit-self"
+			#pragma GCC diagnostic error   "-Winjected-class-name"
+			#pragma GCC diagnostic error   "-Wmissing-braces"
+			#pragma GCC diagnostic error   "-Wmissing-declarations"
+			#pragma GCC diagnostic error   "-Wmissing-prototypes"
+			#pragma GCC diagnostic error   "-Wnested-externs"
+			#pragma GCC diagnostic error   "-Wold-style-definition"
+			#pragma GCC diagnostic error   "-Wpointer-arith"
+			#pragma GCC diagnostic error   "-Wredundant-decls"
+			#pragma GCC diagnostic error   "-Wreorder"
+			#pragma GCC diagnostic error   "-Wsign-compare"
+			#pragma GCC diagnostic error   "-Wstrict-prototypes"
+			#pragma GCC diagnostic error   "-Wstring-conversion"
+			#pragma GCC diagnostic error   "-Wswitch-enum"
+			#pragma GCC diagnostic error   "-Wtautological-overlap-compare"
+			#pragma GCC diagnostic error   "-Wunneeded-internal-declaration"
+			#pragma GCC diagnostic error   "-Wunused"
+			#pragma GCC diagnostic error   "-Wunused-local-typedefs"
+			#pragma GCC diagnostic error   "-Wunused-value"
+			#pragma GCC diagnostic error   "-Wunused-variable"
+			#pragma GCC diagnostic error   "-Wvla"
+			#pragma GCC diagnostic error   "-Wwrite-strings"
+		#endif
+		/* Warning.  To be investigated if happens. */
+		#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_WARNING
+			#pragma GCC diagnostic warning "-Wbuiltin-macro-redefined"
+			#pragma GCC diagnostic warning "-Wdeprecated"
+			#pragma GCC diagnostic warning "-Wdeprecated-declarations"
+			#pragma GCC diagnostic warning "-Wdisabled-optimization"
+			#pragma GCC diagnostic warning "-Wdouble-promotion"
+			#pragma GCC diagnostic warning "-Wformat=2"
+			#pragma GCC diagnostic warning "-Wignored-pragma-optimize"
+			#pragma GCC diagnostic warning "-Wlogical-op"
+			#pragma GCC diagnostic warning "-Wmaybe-uninitialized"
+			#pragma GCC diagnostic warning "-Wmissing-format-attribute"
+			#pragma GCC diagnostic warning "-Wundef"
+			#pragma GCC diagnostic warning "-Wunused-but-set-variable"
+		#endif
+		/* Ignored currently, but should be fixed at some point. */
+		#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_IGNORED
+			#pragma GCC diagnostic ignored "-Wconversion"                   // TODO fix
+			#pragma GCC diagnostic ignored "-Wformat-signedness"            // TODO fix
+			#pragma GCC diagnostic ignored "-Wshadow"                       // TODO fix
+			#pragma GCC diagnostic ignored "-Wunsafe-loop-optimizations"    // TODO fix
+			#pragma GCC diagnostic ignored "-Wunused-parameter"             // TODO fix
+		#endif
+		/* Ignored intentionally. */
+		#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_IGNORED
+			#pragma GCC diagnostic ignored "-Wclass-memaccess"
+			#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+			#pragma GCC diagnostic ignored "-Wformat-zero-length"
+			#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+			#pragma GCC diagnostic ignored "-Wpacked" // Erratic impl in clang
+			#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+			#pragma GCC diagnostic ignored "-Wtype-limits"
+			#pragma GCC diagnostic ignored "-Wc++11-compat" // only gcc raises it
+		#endif
+	#endif
 #endif
-#if defined(__GNUC__) || defined(__clang__)
-/* Rules:
- *
- * - All pragmas are declared GCC even if they are clang ones.  Otherwise GCC
- *   nags, even though we instruct it to ignore -Wunknown-pragmas. ¯\_(ツ)_/¯
- *
- * - Within each category, keep sorted.
- *
- * - Warnings whose scope can be expanded in future compiler versions shall
- *   be declared as "warning".  Otherwise, either ignored or error.
- */
-
-/* Setup.  Don't sort order within this category. */
-#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_WARNING
-#pragma GCC diagnostic warning "-Wall"
-#pragma GCC diagnostic warning "-Wextra"
-#endif
-#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_IGNORED
-#pragma GCC diagnostic ignored "-Wpragmas"
-#pragma GCC diagnostic ignored "-Wunknown-pragmas"
-#pragma GCC diagnostic ignored "-Wunknown-warning-option"
-#endif
-#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_WARNING
-//#pragma GCC diagnostic warning "-Weverything"
-#endif
-
-/* Error.  Should never happen. */
-#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR
-#pragma GCC diagnostic error   "-Wc++11-narrowing"
-#pragma GCC diagnostic error   "-Wcast-align"
-#pragma GCC diagnostic error   "-Wcast-function-type"
-#pragma GCC diagnostic error   "-Wdelete-non-virtual-dtor"
-#pragma GCC diagnostic error   "-Wembedded-directive"
-#pragma GCC diagnostic error   "-Wextra-semi-stmt"
-#pragma GCC diagnostic error   "-Wformat-security"
-#pragma GCC diagnostic error   "-Wimplicit-function-declaration"
-#pragma GCC diagnostic error   "-Winit-self"
-#pragma GCC diagnostic error   "-Winjected-class-name"
-#pragma GCC diagnostic error   "-Wmissing-braces"
-#pragma GCC diagnostic error   "-Wmissing-declarations"
-#pragma GCC diagnostic error   "-Wmissing-prototypes"
-#pragma GCC diagnostic error   "-Wnested-externs"
-#pragma GCC diagnostic error   "-Wold-style-definition"
-#pragma GCC diagnostic error   "-Wpointer-arith"
-#pragma GCC diagnostic error   "-Wredundant-decls"
-#pragma GCC diagnostic error   "-Wreorder"
-#pragma GCC diagnostic error   "-Wsign-compare"
-#pragma GCC diagnostic error   "-Wstrict-prototypes"
-#pragma GCC diagnostic error   "-Wstring-conversion"
-#pragma GCC diagnostic error   "-Wswitch-enum"
-#pragma GCC diagnostic error   "-Wtautological-overlap-compare"
-#pragma GCC diagnostic error   "-Wunneeded-internal-declaration"
-#pragma GCC diagnostic error   "-Wunused"
-#pragma GCC diagnostic error   "-Wunused-local-typedefs"
-#pragma GCC diagnostic error   "-Wunused-value"
-#pragma GCC diagnostic error   "-Wunused-variable"
-#pragma GCC diagnostic error   "-Wvla"
-#pragma GCC diagnostic error   "-Wwrite-strings"
-#endif
-
-/* Warning.  To be investigated if happens. */
-#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_WARNING
-#pragma GCC diagnostic warning "-Wbuiltin-macro-redefined"
-#pragma GCC diagnostic warning "-Wdeprecated"
-#pragma GCC diagnostic warning "-Wdeprecated-declarations"
-#pragma GCC diagnostic warning "-Wdisabled-optimization"
-#pragma GCC diagnostic warning "-Wdouble-promotion"
-#pragma GCC diagnostic warning "-Wformat=2"
-#pragma GCC diagnostic warning "-Wignored-pragma-optimize"
-#pragma GCC diagnostic warning "-Wlogical-op"
-#pragma GCC diagnostic warning "-Wmaybe-uninitialized"
-#pragma GCC diagnostic warning "-Wmissing-format-attribute"
-#pragma GCC diagnostic warning "-Wundef"
-#pragma GCC diagnostic warning "-Wunused-but-set-variable"
-#endif
-
-/* Ignored currently, but should be fixed at some point. */
-#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_IGNORED
-#pragma GCC diagnostic ignored "-Wconversion"                   // TODO fix
-#pragma GCC diagnostic ignored "-Wformat-signedness"            // TODO fix
-#pragma GCC diagnostic ignored "-Wshadow"                       // TODO fix
-#pragma GCC diagnostic ignored "-Wunsafe-loop-optimizations"    // TODO fix
-#pragma GCC diagnostic ignored "-Wunused-parameter"             // TODO fix
-#endif
-
-/* Ignored intentionally. */
-#ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_IGNORED
-#pragma GCC diagnostic ignored "-Wclass-memaccess"
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#pragma GCC diagnostic ignored "-Wformat-zero-length"
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#pragma GCC diagnostic ignored "-Wpacked" // Erratic impl in clang
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-#pragma GCC diagnostic ignored "-Wtype-limits"
-#pragma GCC diagnostic ignored "-Wc++11-compat" // only gcc raises it
-#endif
-
-#endif
-#endif
-
 #include "hb-config.hh"
-
 /*
  * Following added based on what AC_USE_SYSTEM_EXTENSIONS adds to
  * config.h.in.  Copied here for the convenience of those embedding
@@ -176,89 +168,76 @@
 #include "hb-aat.h"
 #define HB_AAT_H_IN
 
-#include <limits.h>
-#include <math.h>
-#include <float.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <string.h>
-#include <assert.h>
-#include <stdio.h>
-#include <stdarg.h>
-
+//#include <limits.h>
+//#include <math.h>
+//#include <float.h>
+//#include <stdlib.h>
+//#include <stddef.h>
+//#include <string.h>
+//#include <assert.h>
+//#include <stdio.h>
+//#include <stdarg.h>
 #if (defined(_MSC_VER) && _MSC_VER >= 1500) || defined(__MINGW32__)
-#ifdef __MINGW32_VERSION
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN 1
+	#ifdef __MINGW32_VERSION
+		#ifndef WIN32_LEAN_AND_MEAN
+			#define WIN32_LEAN_AND_MEAN 1
+		#endif
+	#else
+		#include <intrin.h>
+	#endif
 #endif
-#else
-#include <intrin.h>
-#endif
-#endif
-
 #ifdef _WIN32
-#include <windows.h>
-#include <winapifamily.h>
+	//#include <windows.h>
+	#include <winapifamily.h>
 #endif
-
 #define HB_PASTE1(a, b) a ## b
 #define HB_PASTE(a, b) HB_PASTE1(a, b)
 
 /* Compile-time custom allocator support. */
 
-#if !defined(HB_CUSTOM_MALLOC) \
-	&& defined(hb_malloc_impl) \
-	&& defined(hb_calloc_impl) \
-	&& defined(hb_realloc_impl) \
-	&& defined(hb_free_impl)
-#define HB_CUSTOM_MALLOC
+#if !defined(HB_CUSTOM_MALLOC) && defined(hb_malloc_impl) && defined(hb_calloc_impl) && defined(hb_realloc_impl) && defined(hb_free_impl)
+	#define HB_CUSTOM_MALLOC
 #endif
-
 #ifdef HB_CUSTOM_MALLOC
-extern "C" void* hb_malloc_impl(size_t size);
-extern "C" void* hb_calloc_impl(size_t nmemb, size_t size);
-extern "C" void* hb_realloc_impl(void * ptr, size_t size);
-extern "C" void  hb_free_impl(void * ptr);
-#define malloc hb_malloc_impl
-#define calloc hb_calloc_impl
-#define realloc hb_realloc_impl
-#define free hb_free_impl
+	extern "C" void* hb_malloc_impl(size_t size);
+	extern "C" void* hb_calloc_impl(size_t nmemb, size_t size);
+	extern "C" void* hb_realloc_impl(void * ptr, size_t size);
+	extern "C" void  hb_free_impl(void * ptr);
+	#define malloc hb_malloc_impl
+	#define calloc hb_calloc_impl
+	#define realloc hb_realloc_impl
+	#define free hb_free_impl
 #endif
-
 /*
  * Compiler attributes
  */
-
 #if (defined(__GNUC__) || defined(__clang__)) && defined(__OPTIMIZE__)
-#define likely(expr) (__builtin_expect(!!(expr), 1))
-#define unlikely(expr) (__builtin_expect(!!(expr), 0))
+	#define likely(expr) (__builtin_expect(!!(expr), 1))
+	#define unlikely(expr) (__builtin_expect(!!(expr), 0))
 #else
-#define likely(expr) (expr)
-#define unlikely(expr) (expr)
+	#define likely(expr) (expr)
+	#define unlikely(expr) (expr)
 #endif
-
 #if !defined(__GNUC__) && !defined(__clang__)
-#undef __attribute__
-#define __attribute__(x)
+	#undef __attribute__
+	#define __attribute__(x)
 #endif
-
 #if defined(__GNUC__) && (__GNUC__ >= 3)
-#define HB_PURE_FUNC    __attribute__((pure))
-#define HB_CONST_FUNC   __attribute__((const))
-#define HB_PRINTF_FUNC(format_idx, arg_idx) __attribute__((__format__(__printf__, format_idx, arg_idx)))
+	#define HB_PURE_FUNC    __attribute__((pure))
+	#define HB_CONST_FUNC   __attribute__((const))
+	#define HB_PRINTF_FUNC(format_idx, arg_idx) __attribute__((__format__(__printf__, format_idx, arg_idx)))
 #else
-#define HB_PURE_FUNC
-#define HB_CONST_FUNC
-#define HB_PRINTF_FUNC(format_idx, arg_idx)
+	#define HB_PURE_FUNC
+	#define HB_CONST_FUNC
+	#define HB_PRINTF_FUNC(format_idx, arg_idx)
 #endif
 #if defined(__GNUC__) && (__GNUC__ >= 4) || (__clang__)
-#define HB_UNUSED       __attribute__((unused))
+	#define HB_UNUSED       __attribute__((unused))
 #elif defined(_MSC_VER) /* https://github.com/harfbuzz/harfbuzz/issues/635 */
-#define HB_UNUSED __pragma(warning(suppress: 4100 4101))
+	#define HB_UNUSED __pragma(warning(suppress: 4100 4101))
 #else
-#define HB_UNUSED
+	#define HB_UNUSED
 #endif
-
 #ifndef HB_INTERNAL
 # if !defined(HB_NO_VISIBILITY) && !defined(__MINGW32__) && !defined(__CYGWIN__) && !defined(_MSC_VER) && !defined(__SUNPRO_CC)
 #  define HB_INTERNAL __attribute__((__visibility__("hidden")))
@@ -273,27 +252,23 @@ extern "C" void  hb_free_impl(void * ptr);
 #  define HB_NO_VISIBILITY 1
 # endif
 #endif
-
 /* https://github.com/harfbuzz/harfbuzz/issues/1651 */
 #if defined(__clang__) && __clang_major__ < 10
-#define static_const static
+	#define static_const static
 #else
-#define static_const static const
+	#define static_const static const
 #endif
-
 #if defined(__GNUC__) && (__GNUC__ >= 3)
-#define HB_FUNC __PRETTY_FUNCTION__
+	#define HB_FUNC __PRETTY_FUNCTION__
 #elif defined(_MSC_VER)
-#define HB_FUNC __FUNCSIG__
+	#define HB_FUNC __FUNCSIG__
 #else
-#define HB_FUNC __func__
+	#define HB_FUNC __func__
 #endif
-
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5140)
-/* https://github.com/harfbuzz/harfbuzz/issues/630 */
-#define __restrict
+	/* https://github.com/harfbuzz/harfbuzz/issues/630 */
+	#define __restrict
 #endif
-
 /*
  * Borrowed from https://bugzilla.mozilla.org/show_bug.cgi?id=1215411
  * HB_FALLTHROUGH is an annotation to suppress compiler warnings about switch
@@ -391,13 +366,12 @@ extern "C" void  hb_free_impl(void * ptr);
 	#define getenv(Name) nullptr
 #endif
 #ifndef HB_NO_ERRNO
-	#include <errno.h>
+	//#include <errno.h>
 #else
-static int HB_UNUSED _hb_errno = 0;
-#  undef errno
-#  define errno _hb_errno
+	static int HB_UNUSED _hb_errno = 0;
+	#undef errno
+	#define errno _hb_errno
 #endif
-
 #if defined(HAVE_ATEXIT) && !defined(HB_USE_ATEXIT)
 /* atexit() is only safe to be called from shared libraries on certain
  * platforms.  Whitelist.
@@ -524,25 +498,19 @@ static inline uint32_t hb_uint32_swap(const uint32_t v)
 /*
  * Big-endian integers.  Here because fundamental.
  */
-
 template <typename Type, int Bytes> struct BEInt;
 
-template <typename Type>
-struct BEInt<Type, 1>{
+template <typename Type> struct BEInt<Type, 1>{
 public:
 	BEInt<Type, 1>& operator = (Type V)
 	{
 		v = V;
 		return *this;
 	}
-	operator Type() const {
-		return v;
-	}
-
+	operator Type() const { return v; }
 private: uint8_t v;
 };
-template <typename Type>
-struct BEInt<Type, 2>{
+template <typename Type> struct BEInt<Type, 2> {
 public:
 	BEInt<Type, 2>& operator = (Type V)
 	{
@@ -564,14 +532,13 @@ public:
 		return ((packed_uint16_t*)this)->v;
 #endif
 #endif
-		return (v[0] <<  8)
-		       + (v[1]      );
+		return (v[0] <<  8) + (v[1]);
 	}
 
 private: uint8_t v[2];
 };
-template <typename Type>
-struct BEInt<Type, 3>{
+
+template <typename Type> struct BEInt<Type, 3> {
 public:
 	BEInt<Type, 3>& operator = (Type V)
 	{
@@ -582,15 +549,11 @@ public:
 	}
 	operator Type() const
 	{
-		return (v[0] << 16)
-		       + (v[1] <<  8)
-		       + (v[2]      );
+		return (v[0] << 16) + (v[1] <<  8) + (v[2]);
 	}
-
 private: uint8_t v[3];
 };
-template <typename Type>
-struct BEInt<Type, 4>{
+template <typename Type> struct BEInt<Type, 4>{
 public:
 	BEInt<Type, 4>& operator = (Type V)
 	{
@@ -602,15 +565,11 @@ public:
 	}
 	operator Type() const
 	{
-		return (v[0] << 24)
-		       + (v[1] << 16)
-		       + (v[2] <<  8)
-		       + (v[3]      );
+		return (v[0] << 24) + (v[1] << 16) + (v[2] << 8) + (v[3]);
 	}
 
 private: uint8_t v[4];
 };
-
 /*
  * For lack of a better place, put Zawgyi script hack here.
  * https://github.com/harfbuzz/harfbuzz/issues/1162

@@ -28,64 +28,58 @@
 #define HB_CONFIG_HH
 
 #if 0 /* Make test happy. */
-#include "hb.hh"
+	#include "hb.hh"
 #endif
-
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+	#include "config.h"
 #endif
-
-
 #ifdef HB_TINY
-#define HB_LEAN
-#define HB_MINI
-#define HB_NO_MT
-#define HB_NO_UCD_UNASSIGNED
-#ifndef NDEBUG
-#define NDEBUG
+	#define HB_LEAN
+	#define HB_MINI
+	#define HB_NO_MT
+	#define HB_NO_UCD_UNASSIGNED
+	#ifndef NDEBUG
+		#define NDEBUG
+	#endif
+	#ifndef __OPTIMIZE_SIZE__
+		#define __OPTIMIZE_SIZE__
+	#endif
 #endif
-#ifndef __OPTIMIZE_SIZE__
-#define __OPTIMIZE_SIZE__
-#endif
-#endif
-
 #ifdef HB_LEAN
-#define HB_DISABLE_DEPRECATED
-#define HB_NDEBUG
-#define HB_NO_ATEXIT
-#define HB_NO_BUFFER_MESSAGE
-#define HB_NO_BUFFER_SERIALIZE
-#define HB_NO_BITMAP
-#define HB_NO_CFF
-#define HB_NO_COLOR
-#define HB_NO_DRAW
-#define HB_NO_ERRNO
-#define HB_NO_FACE_COLLECT_UNICODES
-#define HB_NO_GETENV
-#define HB_NO_HINTING
-#define HB_NO_LANGUAGE_PRIVATE_SUBTAG
-#define HB_NO_LAYOUT_FEATURE_PARAMS
-#define HB_NO_LAYOUT_COLLECT_GLYPHS
-#define HB_NO_LAYOUT_UNUSED
-#define HB_NO_MATH
-#define HB_NO_META
-#define HB_NO_METRICS
-#define HB_NO_MMAP
-#define HB_NO_NAME
-#define HB_NO_OPEN
-#define HB_NO_SETLOCALE
-#define HB_NO_OT_FONT_GLYPH_NAMES
-#define HB_NO_OT_SHAPE_FRACTIONS
-#define HB_NO_STYLE
-#define HB_NO_SUBSET_LAYOUT
-#define HB_NO_VAR
+	#define HB_DISABLE_DEPRECATED
+	#define HB_NDEBUG
+	#define HB_NO_ATEXIT
+	#define HB_NO_BUFFER_MESSAGE
+	#define HB_NO_BUFFER_SERIALIZE
+	#define HB_NO_BITMAP
+	#define HB_NO_CFF
+	#define HB_NO_COLOR
+	#define HB_NO_DRAW
+	#define HB_NO_ERRNO
+	#define HB_NO_FACE_COLLECT_UNICODES
+	#define HB_NO_GETENV
+	#define HB_NO_HINTING
+	#define HB_NO_LANGUAGE_PRIVATE_SUBTAG
+	#define HB_NO_LAYOUT_FEATURE_PARAMS
+	#define HB_NO_LAYOUT_COLLECT_GLYPHS
+	#define HB_NO_LAYOUT_UNUSED
+	#define HB_NO_MATH
+	#define HB_NO_META
+	#define HB_NO_METRICS
+	#define HB_NO_MMAP
+	#define HB_NO_NAME
+	#define HB_NO_OPEN
+	#define HB_NO_SETLOCALE
+	#define HB_NO_OT_FONT_GLYPH_NAMES
+	#define HB_NO_OT_SHAPE_FRACTIONS
+	#define HB_NO_STYLE
+	#define HB_NO_SUBSET_LAYOUT
+	#define HB_NO_VAR
 #endif
-
 #ifdef HB_MINI
-#define HB_NO_AAT
-#define HB_NO_LEGACY
+	#define HB_NO_AAT
+	#define HB_NO_LEGACY
 #endif
-
 
 /* Closure of options. */
 
@@ -158,6 +152,5 @@
 #ifdef HAVE_CONFIG_OVERRIDE_H
 #include "config-override.h"
 #endif
-
 
 #endif /* HB_CONFIG_HH */

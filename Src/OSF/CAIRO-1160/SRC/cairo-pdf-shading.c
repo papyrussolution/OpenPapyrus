@@ -33,7 +33,6 @@
  * Contributor(s):
  *	Adrian Johnson <ajohnson@redneon.com>
  */
-
 #include "cairoint.h"
 #pragma hdrstop
 #if CAIRO_HAS_PDF_OPERATORS
@@ -41,7 +40,7 @@
 #include "cairo-pdf-shading-private.h"
 //#include <float.h>
 
-static uchar * encode_coordinate(uchar * p, double c)
+static uchar * FASTCALL encode_coordinate(uchar * p, double c)
 {
 	uint32_t f = static_cast<uint32_t>(c);
 	*p++ = f >> 24;
@@ -58,7 +57,7 @@ static uchar * encode_point(uchar * p, const cairo_point_double_t * point)
 	return p;
 }
 
-static uchar * encode_color_component(uchar * p, double color)
+static uchar * FASTCALL encode_color_component(uchar * p, double color)
 {
 	uint16_t c = _cairo_color_double_to_short(color);
 	*p++ = c >> 8;
@@ -82,12 +81,9 @@ static uchar * encode_alpha(uchar * p, const cairo_color_t * color)
 
 static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * mesh, boolint is_alpha)
 {
-	uint num_color_components, i;
+	uint i;
 	boolint is_valid;
-	if(is_alpha)
-		num_color_components = 1;
-	else
-		num_color_components = 3;
+	uint num_color_components = is_alpha ? 1 : 3;
 	shading->decode_array_length = 4 + num_color_components * 2;
 	shading->decode_array = static_cast<double *>(_cairo_malloc_ab(shading->decode_array_length, sizeof(double)));
 	if(unlikely(shading->decode_array == NULL))
@@ -110,18 +106,12 @@ static const int pdf_points_order_j[16] = { 0, 1, 2, 3, 3, 3, 3, 2, 1, 0, 0, 0, 
 
 static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * mesh, boolint is_alpha)
 {
-	const cairo_mesh_patch_t * patch;
 	double x_off, y_off, x_scale, y_scale;
-	uint num_patches;
 	uchar * p;
 	uint i, j;
-	uint num_color_components;
-	if(is_alpha)
-		num_color_components = 1;
-	else
-		num_color_components = 3;
-	num_patches = _cairo_array_num_elements(&mesh->patches);
-	patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, 0);
+	uint num_color_components = is_alpha ? 1 : 3;
+	uint num_patches = _cairo_array_num_elements(&mesh->patches);
+	const cairo_mesh_patch_t * patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, 0);
 	/* Each patch requires:
 	 *
 	 * 1 flag - 1 byte
@@ -138,35 +128,25 @@ static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * sha
 	y_off = shading->decode_array[2];
 	x_scale = UINT32_MAX / (shading->decode_array[1] - x_off);
 	y_scale = UINT32_MAX / (shading->decode_array[3] - y_off);
-
 	p = shading->data;
 	for(i = 0; i < num_patches; i++) {
 		/* edge flag */
 		*p++ = 0;
-
 		/* 16 points */
 		for(j = 0; j < 16; j++) {
-			cairo_point_double_t point;
-			int pi, pj;
-
-			pi = pdf_points_order_i[j];
-			pj = pdf_points_order_j[j];
-			point = patch[i].points[pi][pj];
-
+			int pi = pdf_points_order_i[j];
+			int pj = pdf_points_order_j[j];
+			cairo_point_double_t point = patch[i].points[pi][pj];
 			/* Transform the point as specified in the decode array */
 			point.x -= x_off;
 			point.y -= y_off;
 			point.x *= x_scale;
 			point.y *= y_scale;
-
-			/* Make sure that rounding errors don't cause
-			 * wraparounds */
+			/* Make sure that rounding errors don't cause wraparounds */
 			point.x = _cairo_restrict_value(point.x, 0, UINT32_MAX);
 			point.y = _cairo_restrict_value(point.y, 0, UINT32_MAX);
-
 			p = encode_point(p, &point);
 		}
-
 		/* 4 colors */
 		for(j = 0; j < 4; j++) {
 			if(is_alpha)
@@ -175,23 +155,16 @@ static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * sha
 				p = encode_color(p, &patch[i].colors[j]);
 		}
 	}
-
 	assert(p == shading->data + shading->data_length);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_pdf_shading_init(cairo_pdf_shading_t * shading,
-    const cairo_mesh_pattern_t * mesh,
-    boolint is_alpha)
+static cairo_status_t _cairo_pdf_shading_init(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * mesh, boolint is_alpha)
 {
 	cairo_status_t status;
-
 	assert(mesh->base.status == CAIRO_STATUS_SUCCESS);
 	assert(mesh->current_patch == NULL);
-
 	shading->shading_type = 7;
-
 	/*
 	 * Coordinates from the minimum to the maximum value of the mesh
 	 * map to the [0..UINT32_MAX] range and are represented as
@@ -203,25 +176,20 @@ static cairo_status_t _cairo_pdf_shading_init(cairo_pdf_shading_t * shading,
 	shading->bits_per_coordinate = 32;
 	shading->bits_per_component = 16;
 	shading->bits_per_flag = 8;
-
 	shading->decode_array = NULL;
 	shading->data = NULL;
-
 	status = _cairo_pdf_shading_generate_decode_array(shading, mesh, is_alpha);
 	if(unlikely(status))
 		return status;
-
 	return _cairo_pdf_shading_generate_data(shading, mesh, is_alpha);
 }
 
-cairo_status_t _cairo_pdf_shading_init_color(cairo_pdf_shading_t * shading,
-    const cairo_mesh_pattern_t * pattern)
+cairo_status_t _cairo_pdf_shading_init_color(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * pattern)
 {
 	return _cairo_pdf_shading_init(shading, pattern, FALSE);
 }
 
-cairo_status_t _cairo_pdf_shading_init_alpha(cairo_pdf_shading_t * shading,
-    const cairo_mesh_pattern_t * pattern)
+cairo_status_t _cairo_pdf_shading_init_alpha(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * pattern)
 {
 	return _cairo_pdf_shading_init(shading, pattern, TRUE);
 }

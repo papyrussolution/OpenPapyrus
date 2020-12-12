@@ -918,7 +918,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\LIBXML\config.h" />
-    <ClInclude Include="..\OSF\LIBXML\elfgcchack.h" />
     <ClInclude Include="..\include\libxml\DOCBparser.h" />
     <ClInclude Include="..\include\libxml\encoding.h" />
     <ClInclude Include="..\include\libxml\globals.h" />
@@ -928,7 +927,6 @@
     <ClInclude Include="..\include\libxml\schemasInternals.h" />
     <ClInclude Include="..\include\libxml\tree.h" />
     <ClInclude Include="..\include\libxml\valid.h" />
-    <ClInclude Include="..\include\libxml\xinclude.h" />
     <ClInclude Include="..\include\libxml\xmlautomata.h" />
     <ClInclude Include="..\include\libxml\xmlerror.h" />
     <ClInclude Include="..\include\libxml\xmlIO.h" />

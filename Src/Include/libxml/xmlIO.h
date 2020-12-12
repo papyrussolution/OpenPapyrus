@@ -6,11 +6,8 @@
  *
  * Author: Daniel Veillard
  */
-
 #ifndef __XML_IO_H__
 #define __XML_IO_H__
-
-//#include <libxml/globals.h>
 
 struct xmlBuffer;
 struct xmlBuf;

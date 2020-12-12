@@ -32,8 +32,8 @@
 
 /* Table 13 */
 typedef struct {
-	bool SDHUFF;
-	bool SDREFAGG;
+	boolint SDHUFF;
+	boolint SDREFAGG;
 	uint32_t SDNUMINSYMS;
 	Jbig2SymbolDict * SDINSYMS;
 	uint32_t SDNUMNEWSYMS;
@@ -44,7 +44,7 @@ typedef struct {
 	Jbig2HuffmanTable * SDHUFFAGGINST;
 	int SDTEMPLATE;
 	int8_t sdat[8];
-	bool SDRTEMPLATE;
+	boolint SDRTEMPLATE;
 	int8_t sdrat[4];
 } Jbig2SymbolDictParams;
 
@@ -108,40 +108,31 @@ Jbig2SymbolDict * jbig2_sd_new(Jbig2Ctx * ctx, uint32_t n_symbols)
 /* release the memory associated with a symbol dict */
 void jbig2_sd_release(Jbig2Ctx * ctx, Jbig2SymbolDict * dict)
 {
-	uint32_t i;
-
-	if(dict == NULL)
-		return;
-	if(dict->glyphs != NULL)
-		for(i = 0; i < dict->n_symbols; i++)
-			jbig2_image_release(ctx, dict->glyphs[i]);
-	jbig2_free(ctx->allocator, dict->glyphs);
-	jbig2_free(ctx->allocator, dict);
+	if(dict) {
+		if(dict->glyphs != NULL)
+			for(uint32_t i = 0; i < dict->n_symbols; i++)
+				jbig2_image_release(ctx, dict->glyphs[i]);
+		jbig2_free(ctx->allocator, dict->glyphs);
+		jbig2_free(ctx->allocator, dict);
+	}
 }
 
 /* get a particular glyph by index */
 Jbig2Image * jbig2_sd_glyph(Jbig2SymbolDict * dict, unsigned int id)
 {
-	if(dict == NULL)
-		return NULL;
-	return dict->glyphs[id];
+	return dict ? dict->glyphs[id] : 0;
 }
 
 /* count the number of dictionary segments referred to by the given segment */
 uint32_t jbig2_sd_count_referred(Jbig2Ctx * ctx, Jbig2Segment * segment)
 {
-	int index;
-	Jbig2Segment * rsegment;
 	uint32_t n_dicts = 0;
-
-	for(index = 0; index < segment->referred_to_segment_count; index++) {
-		rsegment = jbig2_find_segment(ctx, segment->referred_to_segments[index]);
-		if(rsegment && ((rsegment->flags & 63) == 0) &&
-		    rsegment->result && (((Jbig2SymbolDict*)rsegment->result)->n_symbols > 0) &&
-		    ((*((Jbig2SymbolDict*)rsegment->result)->glyphs) != NULL))
+	for(int index = 0; index < segment->referred_to_segment_count; index++) {
+		const Jbig2Segment * rsegment = jbig2_find_segment(ctx, segment->referred_to_segments[index]);
+		if(rsegment && ((rsegment->flags & 63) == 0) && rsegment->result && (((Jbig2SymbolDict*)rsegment->result)->n_symbols > 0) && 
+			((*((Jbig2SymbolDict*)rsegment->result)->glyphs) != NULL))
 			n_dicts++;
 	}
-
 	return (n_dicts);
 }
 
@@ -150,16 +141,13 @@ Jbig2SymbolDict ** jbig2_sd_list_referred(Jbig2Ctx * ctx, Jbig2Segment * segment
 {
 	int index;
 	Jbig2Segment * rsegment;
-	Jbig2SymbolDict ** dicts;
 	uint32_t n_dicts = jbig2_sd_count_referred(ctx, segment);
 	uint32_t dindex = 0;
-
-	dicts = jbig2_new(ctx, Jbig2SymbolDict *, n_dicts);
+	Jbig2SymbolDict ** dicts = jbig2_new(ctx, Jbig2SymbolDict *, n_dicts);
 	if(dicts == NULL) {
 		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "failed to allocate referred list of symbol dictionaries");
 		return NULL;
 	}
-
 	for(index = 0; index < segment->referred_to_segment_count; index++) {
 		rsegment = jbig2_find_segment(ctx, segment->referred_to_segments[index]);
 		if(rsegment && ((rsegment->flags & 63) == 0) && rsegment->result &&
@@ -168,19 +156,12 @@ Jbig2SymbolDict ** jbig2_sd_list_referred(Jbig2Ctx * ctx, Jbig2Segment * segment
 			dicts[dindex++] = (Jbig2SymbolDict*)rsegment->result;
 		}
 	}
-
 	if(dindex != n_dicts) {
 		/* should never happen */
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_FATAL,
-		    segment->number,
-		    "counted %d symbol dictionaries but built a list with %d.",
-		    n_dicts,
-		    dindex);
+		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "counted %d symbol dictionaries but built a list with %d.", n_dicts, dindex);
 		jbig2_free(ctx->allocator, dicts);
 		return NULL;
 	}
-
 	return (dicts);
 }
 
@@ -188,14 +169,12 @@ Jbig2SymbolDict ** jbig2_sd_list_referred(Jbig2Ctx * ctx, Jbig2Segment * segment
    existing dictionaries */
 Jbig2SymbolDict * jbig2_sd_cat(Jbig2Ctx * ctx, uint32_t n_dicts, Jbig2SymbolDict ** dicts)
 {
-	uint32_t i, j, k, symbols;
+	uint32_t i, j, k;
 	Jbig2SymbolDict * new_dict = NULL;
-
 	/* count the imported symbols and allocate a new array */
-	symbols = 0;
+	uint32_t symbols = 0;
 	for(i = 0; i < n_dicts; i++)
 		symbols += dicts[i]->n_symbols;
-
 	/* fill a new array with new references to glyph pointers */
 	new_dict = jbig2_sd_new(ctx, symbols);
 	if(new_dict != NULL) {
@@ -207,15 +186,13 @@ Jbig2SymbolDict * jbig2_sd_cat(Jbig2Ctx * ctx, uint32_t n_dicts, Jbig2SymbolDict
 	else {
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate new symbol dictionary");
 	}
-
 	return new_dict;
 }
 
 /* Decoding routines */
 
 /* 6.5 */
-static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2SymbolDictParams * params, const byte * data, size_t size, Jbig2ArithCx * GB_stats, Jbig2ArithCx * GR_stats)
 {
 	Jbig2SymbolDict * SDNEWSYMS = NULL;
@@ -599,7 +576,7 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx,
 					}
 					else {
 						/* 6.5.8.2.2 */
-						/* bool SBHUFF = params->SDHUFF; */
+						/* boolint SBHUFF = params->SDHUFF; */
 						Jbig2RefinementRegionParams rparams;
 						uint32_t ID;
 						int32_t RDX, RDY;
@@ -1036,7 +1013,6 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 	params.SDREFAGG = (flags >> 1) & 1;
 	params.SDTEMPLATE = (flags >> 10) & 3;
 	params.SDRTEMPLATE = (flags >> 12) & 1;
-
 	if(params.SDHUFF) {
 		switch((flags & 0x000c) >> 2) {
 			case 0: /* Table B.4 */
@@ -1048,11 +1024,7 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 			case 3: /* Custom table from referred segment */
 			    huffman_params = jbig2_find_table(ctx, segment, table_index);
 			    if(huffman_params == NULL) {
-				    jbig2_error(ctx,
-					JBIG2_SEVERITY_WARNING,
-					segment->number,
-					"custom DH huffman table not found (%d)",
-					table_index);
+				    jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "custom DH huffman table not found (%d)", table_index);
 				    goto cleanup;
 			    }
 			    params.SDHUFFDH = jbig2_build_huffman_table(ctx, huffman_params);
@@ -1060,16 +1032,12 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 			    break;
 			case 2:
 			default:
-			    return jbig2_error(ctx,
-				       JBIG2_SEVERITY_FATAL,
-				       segment->number,
-				       "symbol dictionary specified invalid huffman table");
+			    return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "symbol dictionary specified invalid huffman table");
 		}
 		if(params.SDHUFFDH == NULL) {
 			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate DH huffman table");
 			goto cleanup;
 		}
-
 		switch((flags & 0x0030) >> 4) {
 			case 0: /* Table B.2 */
 			    params.SDHUFFDW = jbig2_build_huffman_table(ctx, &jbig2_huffman_params_B);
@@ -1080,11 +1048,7 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 			case 3: /* Custom table from referred segment */
 			    huffman_params = jbig2_find_table(ctx, segment, table_index);
 			    if(huffman_params == NULL) {
-				    jbig2_error(ctx,
-					JBIG2_SEVERITY_WARNING,
-					segment->number,
-					"custom DW huffman table not found (%d)",
-					table_index);
+				    jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "custom DW huffman table not found (%d)", table_index);
 				    goto cleanup;
 			    }
 			    params.SDHUFFDW = jbig2_build_huffman_table(ctx, huffman_params);
@@ -1099,16 +1063,11 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate DW huffman table");
 			goto cleanup;
 		}
-
 		if(flags & 0x0040) {
 			/* Custom table from referred segment */
 			huffman_params = jbig2_find_table(ctx, segment, table_index);
 			if(huffman_params == NULL) {
-				jbig2_error(ctx,
-				    JBIG2_SEVERITY_WARNING,
-				    segment->number,
-				    "custom BMSIZE huffman table not found (%d)",
-				    table_index);
+				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "custom BMSIZE huffman table not found (%d)", table_index);
 				goto cleanup;
 			}
 			params.SDHUFFBMSIZE = jbig2_build_huffman_table(ctx, huffman_params);
@@ -1181,15 +1140,12 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 	/* 7.4.2.1.5 */
 	params.SDNUMNEWSYMS = jbig2_get_uint32(segment_data + offset + 4);
 	offset += 8;
-
 	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number,
 	    "symbol dictionary, flags=%04x, %u exported syms, %u new syms", flags, params.SDNUMEXSYMS, params.SDNUMNEWSYMS);
-
 	/* 7.4.2.2 (2) */
 	{
 		uint32_t n_dicts = jbig2_sd_count_referred(ctx, segment);
 		Jbig2SymbolDict ** dicts = NULL;
-
 		if(n_dicts > 0) {
 			dicts = jbig2_sd_list_referred(ctx, segment);
 			if(dicts == NULL) {
@@ -1198,10 +1154,7 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 			}
 			params.SDINSYMS = jbig2_sd_cat(ctx, n_dicts, dicts);
 			if(params.SDINSYMS == NULL) {
-				jbig2_error(ctx,
-				    JBIG2_SEVERITY_WARNING,
-				    segment->number,
-				    "failed to allocate symbol array in symbol dictionary");
+				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate symbol array in symbol dictionary");
 				jbig2_free(ctx->allocator, dicts);
 				goto cleanup;
 			}
@@ -1211,7 +1164,6 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 			params.SDNUMINSYMS = params.SDINSYMS->n_symbols;
 		}
 	}
-
 	/* 7.4.2.2 (3, 4) */
 	if(flags & 0x0100) {
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "segment marks bitmap coding context as used (NYI)");

@@ -389,10 +389,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bz2", "bzip2.vcproj", "{BD7
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libarchive", "libarchive.vcproj", "{5C468879-65B9-4E38-A115-9D29FD0CF7BF}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pthreads4w", "pthreads4w.vcproj", "{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -415,6 +411,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcurl-7730", "libcurl-773
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freetype", "freetype.vcproj", "{D7C20AC1-2566-446F-B49A-598FE7A67094}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libarchive-350", "libarchive-350.vcproj", "{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -992,20 +992,6 @@ Global
 		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerRelease.Build.0 = ServerRelease|Win32
 		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Universe-HTT.ActiveCfg = Release|Win32
 		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Universe-HTT.Build.0 = Release|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Debug.ActiveCfg = Debug|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Debug.Build.0 = Debug|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.MtDllDebug.Build.0 = MtDllDebug|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.MtDllRelease.Build.0 = MtDllRelease|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Release.ActiveCfg = Release|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Release.Build.0 = Release|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.ServerDebug.ActiveCfg = ServerDebug|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.ServerDebug.Build.0 = ServerDebug|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.ServerRelease.ActiveCfg = ServerRelease|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.ServerRelease.Build.0 = ServerRelease|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Universe-HTT.ActiveCfg = Release|Win32
-		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Universe-HTT.Build.0 = Release|Win32
 		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Debug.ActiveCfg = Debug|Win32
 		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.Debug.Build.0 = Debug|Win32
 		{6EE235A2-2941-44D4-BC0E-2D2AE9E7F0B0}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
@@ -1090,6 +1076,20 @@ Global
 		{D7C20AC1-2566-446F-B49A-598FE7A67094}.ServerRelease.Build.0 = ServerRelease|Win32
 		{D7C20AC1-2566-446F-B49A-598FE7A67094}.Universe-HTT.ActiveCfg = MtDllRelease|Win32
 		{D7C20AC1-2566-446F-B49A-598FE7A67094}.Universe-HTT.Build.0 = MtDllRelease|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.Debug.ActiveCfg = Debug|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.Debug.Build.0 = Debug|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.MtDllDebug.Build.0 = MtDllDebug|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.MtDllRelease.Build.0 = MtDllRelease|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.Release.ActiveCfg = Release|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.Release.Build.0 = Release|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.ServerDebug.ActiveCfg = ServerDebug|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.ServerDebug.Build.0 = ServerDebug|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.ServerRelease.ActiveCfg = ServerRelease|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.ServerRelease.Build.0 = ServerRelease|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.Universe-HTT.ActiveCfg = ServerRelease|Win32
+		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.Universe-HTT.Build.0 = ServerRelease|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		optimization.txt = optimization.txt

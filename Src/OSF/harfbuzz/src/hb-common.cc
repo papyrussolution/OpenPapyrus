@@ -25,15 +25,12 @@
  * Red Hat Author(s): Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-machinery.hh"
-#include <locale.h>
 
 #ifdef HB_NO_SETLOCALE
-#define setlocale(Category, Locale) "C"
+	#define setlocale(Category, Locale) "C"
 #endif
-
 /**
  * SECTION:hb-common
  * @title: hb-common
@@ -236,11 +233,11 @@ struct hb_language_item_t {
 
 	hb_language_item_t & operator =(const char * s) {
 		/* If a custom allocated is used calling strdup() pairs
-		   badly with a call to the custom free() in fini() below.
+		   badly with a call to the custom SAlloc::F() in fini() below.
 		   Therefore don't call strdup(), implement its behavior.
 		 */
 		size_t len = strlen(s) + 1;
-		lang = (hb_language_t)malloc(len);
+		lang = (hb_language_t)SAlloc::M(len);
 		if(likely(lang)) {
 			memcpy((unsigned char*)lang, s, len);
 			for(unsigned char * p = (unsigned char*)lang; * p; p++)
@@ -251,7 +248,7 @@ struct hb_language_item_t {
 	}
 
 	void fini() {
-		free((void*)lang);
+		SAlloc::F((void*)lang);
 	}
 };
 
@@ -270,7 +267,7 @@ retry:
 	while(first_lang) {
 		hb_language_item_t * next = first_lang->next;
 		first_lang->fini();
-		free(first_lang);
+		SAlloc::F(first_lang);
 		first_lang = next;
 	}
 }
@@ -287,19 +284,19 @@ retry:
 			return lang;
 
 	/* Not found; allocate one. */
-	hb_language_item_t * lang = (hb_language_item_t*)calloc(1, sizeof(hb_language_item_t));
+	hb_language_item_t * lang = (hb_language_item_t*)SAlloc::C(1, sizeof(hb_language_item_t));
 	if(unlikely(!lang))
 		return nullptr;
 	lang->next = first_lang;
 	*lang = key;
 	if(unlikely(!lang->lang)) {
-		free(lang);
+		SAlloc::F(lang);
 		return nullptr;
 	}
 
 	if(unlikely(!langs.cmpexch(first_lang, lang))) {
 		lang->fini();
-		free(lang);
+		SAlloc::F(lang);
 		goto retry;
 	}
 
@@ -851,25 +848,18 @@ static bool parse_one_feature(const char ** pp, const char * end, hb_feature_t *
  *
  * Since: 0.9.5
  **/
-hb_bool_t hb_feature_from_string(const char * str, int len,
-    hb_feature_t * feature)
+hb_bool_t hb_feature_from_string(const char * str, int len, hb_feature_t * feature)
 {
 	hb_feature_t feat;
-
 	if(len < 0)
 		len = strlen(str);
-
 	if(likely(parse_one_feature(&str, str + len, &feat))) {
-		if(feature)
-			*feature = feat;
+		ASSIGN_PTR(feature, feat);
 		return true;
 	}
-
-	if(feature)
-		memset(feature, 0, sizeof(*feature));
+	memzero(feature, sizeof(*feature));
 	return false;
 }
-
 /**
  * hb_feature_to_string:
  * @feature: an #hb_feature_t to convert
@@ -941,35 +931,26 @@ static bool parse_one_variation(const char ** pp, const char * end, hb_variation
  *
  * Since: 1.4.2
  */
-hb_bool_t hb_variation_from_string(const char * str, int len,
-    hb_variation_t * variation)
+hb_bool_t hb_variation_from_string(const char * str, int len, hb_variation_t * variation)
 {
 	hb_variation_t var;
-
 	if(len < 0)
 		len = strlen(str);
-
 	if(likely(parse_one_variation(&str, str + len, &var))) {
-		if(variation)
-			*variation = var;
+		ASSIGN_PTR(variation, var);
 		return true;
 	}
-
-	if(variation)
-		memset(variation, 0, sizeof(*variation));
+	memzero(variation, sizeof(*variation));
 	return false;
 }
-
 /**
  * hb_variation_to_string:
  *
  * Since: 1.4.2
  */
-void hb_variation_to_string(hb_variation_t * variation,
-    char * buf, unsigned int size)
+void hb_variation_to_string(hb_variation_t * variation, char * buf, unsigned int size)
 {
 	if(unlikely(!size)) return;
-
 	char s[128];
 	unsigned int len = 0;
 	hb_tag_to_string(variation->tag, s + len);

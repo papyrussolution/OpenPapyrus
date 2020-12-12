@@ -23,7 +23,7 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 #include "hb-map.hh"
 /**
@@ -87,7 +87,7 @@ void hb_map_destroy(hb_map_t * map)
 {
 	if(!hb_object_destroy(map)) return;
 	map->fini_shallow();
-	free(map);
+	SAlloc::F(map);
 }
 /**
  * hb_map_set_user_data: (skip)

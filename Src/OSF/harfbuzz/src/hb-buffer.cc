@@ -26,10 +26,8 @@
  * Red Hat Author(s): Owen Taylor, Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-buffer.hh"
-#include "hb-utf.hh"
 /**
  * SECTION: hb-buffer
  * @title: hb-buffer
@@ -70,11 +68,8 @@ hb_bool_t hb_segment_properties_equal(const hb_segment_properties_t * a, const h
  **/
 unsigned int hb_segment_properties_hash(const hb_segment_properties_t * p)
 {
-	return (unsigned int)p->direction ^
-	       (unsigned int)p->script ^
-	       (intptr_t)(p->language);
+	return (unsigned int)p->direction ^ (unsigned int)p->script ^ (intptr_t)(p->language);
 }
-
 /* Here is how the buffer works internally:
  *
  * There are two info pointers: info and out_info.  They always have
@@ -103,49 +98,36 @@ bool hb_buffer_t::enlarge(unsigned int size)
 		successful = false;
 		return false;
 	}
-
 	unsigned int new_allocated = allocated;
 	hb_glyph_position_t * new_pos = nullptr;
 	hb_glyph_info_t * new_info = nullptr;
 	bool separate_out = out_info != info;
-
 	if(unlikely(hb_unsigned_mul_overflows(size, sizeof(info[0]))))
 		goto done;
-
 	while(size >= new_allocated)
 		new_allocated += (new_allocated >> 1) + 32;
-
 	static_assert((sizeof(info[0]) == sizeof(pos[0])), "");
 	if(unlikely(hb_unsigned_mul_overflows(new_allocated, sizeof(info[0]))))
 		goto done;
-
 	new_pos = (hb_glyph_position_t*)realloc(pos, new_allocated * sizeof(pos[0]));
 	new_info = (hb_glyph_info_t*)realloc(info, new_allocated * sizeof(info[0]));
-
 done:
 	if(unlikely(!new_pos || !new_info))
 		successful = false;
-
 	if(likely(new_pos))
 		pos = new_pos;
-
 	if(likely(new_info))
 		info = new_info;
-
 	out_info = separate_out ? (hb_glyph_info_t*)pos : info;
 	if(likely(successful))
 		allocated = new_allocated;
-
 	return likely(successful);
 }
 
-bool hb_buffer_t::make_room_for(unsigned int num_in,
-    unsigned int num_out)
+bool hb_buffer_t::make_room_for(unsigned int num_in, unsigned int num_out)
 {
 	if(unlikely(!ensure(out_len + num_out))) return false;
-
-	if(out_info == info &&
-	    out_len + num_out > idx + num_in) {
+	if(out_info == info && out_len + num_out > idx + num_in) {
 		assert(have_output);
 
 		out_info = (hb_glyph_info_t*)pos;
@@ -158,8 +140,8 @@ bool hb_buffer_t::make_room_for(unsigned int num_in,
 bool hb_buffer_t::shift_forward(unsigned int count)
 {
 	assert(have_output);
-	if(unlikely(!ensure(len + count))) return false;
-
+	if(unlikely(!ensure(len + count))) 
+		return false;
 	memmove(info + idx + count, info + idx, (len - idx) * sizeof(info[0]));
 	if(idx + count > len) {
 		/* Under memory failure we might expose this area.  At least
@@ -168,11 +150,10 @@ bool hb_buffer_t::shift_forward(unsigned int count)
 		 * Ideally, we should at least set Default_Ignorable bits on
 		 * these, as well as consistent cluster values.  But the former
 		 * is layering violation... */
-		memset(info + len, 0, (idx + count - len) * sizeof(info[0]));
+		memzero(info + len, (idx + count - len) * sizeof(info[0]));
 	}
 	len += count;
 	idx += count;
-
 	return true;
 }
 
@@ -180,10 +161,8 @@ hb_buffer_t::scratch_buffer_t * hb_buffer_t::get_scratch_buffer(unsigned int * s
 {
 	have_output = false;
 	have_positions = false;
-
 	out_len = 0;
 	out_info = info;
-
 	assert((uintptr_t)pos % sizeof(scratch_buffer_t) == 0);
 	*size = allocated * sizeof(pos[0]) / sizeof(scratch_buffer_t);
 	return (scratch_buffer_t*)(void*)pos;
@@ -213,39 +192,29 @@ void hb_buffer_t::clear()
 	hb_segment_properties_t default_props = HB_SEGMENT_PROPERTIES_DEFAULT;
 	props = default_props;
 	scratch_flags = HB_BUFFER_SCRATCH_FLAG_DEFAULT;
-
 	content_type = HB_BUFFER_CONTENT_TYPE_INVALID;
 	successful = true;
 	have_output = false;
 	have_positions = false;
-
 	idx = 0;
 	len = 0;
 	out_len = 0;
 	out_info = info;
-
 	serial = 0;
-
-	memset(context, 0, sizeof context);
-	memset(context_len, 0, sizeof context_len);
-
+	memzero(context, sizeof context);
+	memzero(context_len, sizeof context_len);
 	deallocate_var_all();
 }
 
-void hb_buffer_t::add(hb_codepoint_t codepoint,
-    unsigned int cluster)
+void hb_buffer_t::add(hb_codepoint_t codepoint, unsigned int cluster)
 {
 	hb_glyph_info_t * glyph;
-
 	if(unlikely(!ensure(len + 1))) return;
-
 	glyph = &info[len];
-
-	memset(glyph, 0, sizeof(*glyph));
+	memzero(glyph, sizeof(*glyph));
 	glyph->codepoint = codepoint;
 	glyph->mask = 0;
 	glyph->cluster = cluster;
-
 	len++;
 }
 
@@ -277,7 +246,6 @@ void hb_buffer_t::clear_output()
 
 	have_output = true;
 	have_positions = false;
-
 	out_len = 0;
 	out_info = info;
 }
@@ -286,23 +254,18 @@ void hb_buffer_t::clear_positions()
 {
 	if(unlikely(hb_object_is_immutable(this)))
 		return;
-
 	have_output = false;
 	have_positions = true;
-
 	out_len = 0;
 	out_info = info;
-
 	hb_memset(pos, 0, sizeof(pos[0]) * len);
 }
 
 void hb_buffer_t::swap_buffers()
 {
 	if(unlikely(!successful)) return;
-
 	assert(have_output);
 	have_output = false;
-
 	if(out_info != info) {
 		hb_glyph_info_t * tmp_string;
 		tmp_string = info;
@@ -693,14 +656,14 @@ void hb_buffer_destroy(hb_buffer_t * buffer)
 
 	hb_unicode_funcs_destroy(buffer->unicode);
 
-	free(buffer->info);
-	free(buffer->pos);
+	SAlloc::F(buffer->info);
+	SAlloc::F(buffer->pos);
 #ifndef HB_NO_BUFFER_MESSAGE
 	if(buffer->message_destroy)
 		buffer->message_destroy(buffer->message_data);
 #endif
 
-	free(buffer);
+	SAlloc::F(buffer);
 }
 
 /**
@@ -1213,30 +1176,24 @@ void hb_buffer_add(hb_buffer_t    * buffer,
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_buffer_set_length(hb_buffer_t  * buffer,
-    unsigned int length)
+hb_bool_t hb_buffer_set_length(hb_buffer_t  * buffer, unsigned int length)
 {
 	if(unlikely(hb_object_is_immutable(buffer)))
 		return length == 0;
-
 	if(!buffer->ensure(length))
 		return false;
-
 	/* Wipe the new space */
 	if(length > buffer->len) {
-		memset(buffer->info + buffer->len, 0, sizeof(buffer->info[0]) * (length - buffer->len));
+		memzero(buffer->info + buffer->len, sizeof(buffer->info[0]) * (length - buffer->len));
 		if(buffer->have_positions)
-			memset(buffer->pos + buffer->len, 0, sizeof(buffer->pos[0]) * (length - buffer->len));
+			memzero(buffer->pos + buffer->len, sizeof(buffer->pos[0]) * (length - buffer->len));
 	}
-
 	buffer->len = length;
-
 	if(!length) {
 		buffer->content_type = HB_BUFFER_CONTENT_TYPE_INVALID;
 		buffer->clear_context(0);
 	}
 	buffer->clear_context(1);
-
 	return true;
 }
 
@@ -1294,18 +1251,13 @@ hb_glyph_info_t * hb_buffer_get_glyph_infos(hb_buffer_t  * buffer,
  *
  * Since: 0.9.2
  **/
-hb_glyph_position_t * hb_buffer_get_glyph_positions(hb_buffer_t  * buffer,
-    unsigned int * length)
+hb_glyph_position_t * hb_buffer_get_glyph_positions(hb_buffer_t  * buffer, unsigned int * length)
 {
 	if(!buffer->have_positions)
 		buffer->clear_positions();
-
-	if(length)
-		*length = buffer->len;
-
+	ASSIGN_PTR(length, buffer->len);
 	return (hb_glyph_position_t*)buffer->pos;
 }
-
 /**
  * hb_glyph_info_get_glyph_flags:
  * @info: a #hb_glyph_info_t.

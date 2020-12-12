@@ -23,7 +23,7 @@
  *
  * Google Author(s): Garret Rieger, Roderick Sheeter
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 #include "hb-subset-plan.hh"
 #include "hb-map.hh"
@@ -378,5 +378,5 @@ void hb_subset_plan_destroy(hb_subset_plan_t * plan)
 	hb_set_destroy(plan->layout_variation_indices);
 	hb_map_destroy(plan->layout_variation_idx_map);
 
-	free(plan);
+	SAlloc::F(plan);
 }

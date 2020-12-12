@@ -64,6 +64,7 @@
     <ClCompile Include="..\OSF\harfbuzz\src\hb-ucd.cc" />
     <ClCompile Include="..\OSF\harfbuzz\src\hb-unicode.cc" />
     <ClCompile Include="..\OSF\harfbuzz\src\hb-uniscribe.cc" />
+    <ClCompile Include="..\OSF\harfbuzz\src\harfbuzz-pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\harfbuzz\src\hb-aat-layout.h">

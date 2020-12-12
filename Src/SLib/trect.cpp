@@ -699,7 +699,7 @@ TRect::TRect(TPoint p1, TPoint p2) : a(p1), b(p2)
 
 TRect::TRect(TPoint sz)
 {
-	a = 0;
+	a.Z();
 	b = sz;
 }
 
@@ -723,7 +723,7 @@ TRect & FASTCALL TRect::operator = (const RECT & rS)
 
 TRect & FASTCALL TRect::operator = (TPoint p)
 {
-	a = 0;
+	a.Z();
 	b = p;
 	return *this;
 }

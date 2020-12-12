@@ -25,14 +25,8 @@
  * Red Hat Author(s): Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-font.hh"
-#include "hb-machinery.hh"
-#include "hb-ot.h"
-#include "hb-ot-var-avar-table.hh"
-#include "hb-ot-var-fvar-table.hh"
-
 /**
  * SECTION:hb-font
  * @title: hb-font
@@ -44,14 +38,12 @@
  * Fonts are created from font faces, and are used as input to
  * hb_shape() among other things.
  **/
-
 /*
  * hb_font_funcs_t
  */
-
 static hb_bool_t hb_font_get_font_h_extents_nil(hb_font_t * font HB_UNUSED, void * font_data HB_UNUSED, hb_font_extents_t * extents, void * user_data HB_UNUSED)
 {
-	memset(extents, 0, sizeof(*extents));
+	memzero(extents, sizeof(*extents));
 	return false;
 }
 
@@ -66,15 +58,13 @@ static hb_bool_t hb_font_get_font_h_extents_default(hb_font_t * font, void * fon
 	return ret;
 }
 
-static hb_bool_t hb_font_get_font_v_extents_nil(hb_font_t * font HB_UNUSED,
-    void * font_data HB_UNUSED, hb_font_extents_t * extents, void * user_data HB_UNUSED)
+static hb_bool_t hb_font_get_font_v_extents_nil(hb_font_t * font HB_UNUSED, void * font_data HB_UNUSED, hb_font_extents_t * extents, void * user_data HB_UNUSED)
 {
-	memset(extents, 0, sizeof(*extents));
+	memzero(extents, sizeof(*extents));
 	return false;
 }
 
-static hb_bool_t hb_font_get_font_v_extents_default(hb_font_t * font, void * font_data HB_UNUSED,
-    hb_font_extents_t * extents, void * user_data HB_UNUSED)
+static hb_bool_t hb_font_get_font_v_extents_default(hb_font_t * font, void * font_data HB_UNUSED, hb_font_extents_t * extents, void * user_data HB_UNUSED)
 {
 	hb_bool_t ret = font->parent->get_font_v_extents(extents);
 	if(ret) {
@@ -340,21 +330,15 @@ static hb_position_t hb_font_get_glyph_v_kerning_default(hb_font_t * font,
 
 #endif
 
-static hb_bool_t hb_font_get_glyph_extents_nil(hb_font_t * font HB_UNUSED,
-    void * font_data HB_UNUSED,
-    hb_codepoint_t glyph HB_UNUSED,
-    hb_glyph_extents_t * extents,
-    void * user_data HB_UNUSED)
+static hb_bool_t hb_font_get_glyph_extents_nil(hb_font_t * font HB_UNUSED, void * font_data HB_UNUSED,
+    hb_codepoint_t glyph HB_UNUSED, hb_glyph_extents_t * extents, void * user_data HB_UNUSED)
 {
-	memset(extents, 0, sizeof(*extents));
+	memzero(extents, sizeof(*extents));
 	return false;
 }
 
-static hb_bool_t hb_font_get_glyph_extents_default(hb_font_t * font,
-    void * font_data HB_UNUSED,
-    hb_codepoint_t glyph,
-    hb_glyph_extents_t * extents,
-    void * user_data HB_UNUSED)
+static hb_bool_t hb_font_get_glyph_extents_default(hb_font_t * font, void * font_data HB_UNUSED,
+    hb_codepoint_t glyph, hb_glyph_extents_t * extents, void * user_data HB_UNUSED)
 {
 	hb_bool_t ret = font->parent->get_glyph_extents(glyph, extents);
 	if(ret) {
@@ -541,7 +525,7 @@ void hb_font_funcs_destroy(hb_font_funcs_t * ffuncs)
 	HB_FONT_FUNCS_IMPLEMENT_CALLBACKS
 #undef HB_FONT_FUNC_IMPLEMENT
 
-	    free(ffuncs);
+	    SAlloc::F(ffuncs);
 }
 
 /**
@@ -1307,8 +1291,8 @@ static void _hb_font_adopt_var_coords(hb_font_t * font,
     float * design_coords,
     unsigned int coords_length)
 {
-	free(font->coords);
-	free(font->design_coords);
+	SAlloc::F(font->coords);
+	SAlloc::F(font->design_coords);
 
 	font->coords = coords;
 	font->design_coords = design_coords;
@@ -1346,16 +1330,16 @@ hb_font_t * hb_font_create_sub_font(hb_font_t * parent)
 
 	unsigned int num_coords = parent->num_coords;
 	if(num_coords) {
-		int * coords = (int*)calloc(num_coords, sizeof(parent->coords[0]));
-		float * design_coords = (float*)calloc(num_coords, sizeof(parent->design_coords[0]));
+		int * coords = (int*)SAlloc::C(num_coords, sizeof(parent->coords[0]));
+		float * design_coords = (float*)SAlloc::C(num_coords, sizeof(parent->design_coords[0]));
 		if(likely(coords && design_coords)) {
 			memcpy(coords, parent->coords, num_coords * sizeof(parent->coords[0]));
 			memcpy(design_coords, parent->design_coords, num_coords * sizeof(parent->design_coords[0]));
 			_hb_font_adopt_var_coords(font, coords, design_coords, num_coords);
 		}
 		else{
-			free(coords);
-			free(design_coords);
+			SAlloc::F(coords);
+			SAlloc::F(design_coords);
 		}
 	}
 
@@ -1412,10 +1396,10 @@ void hb_font_destroy(hb_font_t * font)
 	hb_face_destroy(font->face);
 	hb_font_funcs_destroy(font->klass);
 
-	free(font->coords);
-	free(font->design_coords);
+	SAlloc::F(font->coords);
+	SAlloc::F(font->design_coords);
 
-	free(font);
+	SAlloc::F(font);
 }
 
 /**
@@ -1774,12 +1758,12 @@ void hb_font_set_variations(hb_font_t * font,
 
 	unsigned int coords_length = hb_ot_var_get_axis_count(font->face);
 
-	int * normalized = coords_length ? (int*)calloc(coords_length, sizeof(int)) : nullptr;
-	float * design_coords = coords_length ? (float*)calloc(coords_length, sizeof(float)) : nullptr;
+	int * normalized = coords_length ? (int*)SAlloc::C(coords_length, sizeof(int)) : nullptr;
+	float * design_coords = coords_length ? (float*)SAlloc::C(coords_length, sizeof(float)) : nullptr;
 
 	if(unlikely(coords_length && !(normalized && design_coords))) {
-		free(normalized);
-		free(design_coords);
+		SAlloc::F(normalized);
+		SAlloc::F(design_coords);
 		return;
 	}
 
@@ -1810,12 +1794,12 @@ void hb_font_set_var_coords_design(hb_font_t * font,
 	if(hb_object_is_immutable(font))
 		return;
 
-	int * normalized = coords_length ? (int*)calloc(coords_length, sizeof(int)) : nullptr;
-	float * design_coords = coords_length ? (float*)calloc(coords_length, sizeof(float)) : nullptr;
+	int * normalized = coords_length ? (int*)SAlloc::C(coords_length, sizeof(int)) : nullptr;
+	float * design_coords = coords_length ? (float*)SAlloc::C(coords_length, sizeof(float)) : nullptr;
 
 	if(unlikely(coords_length && !(normalized && design_coords))) {
-		free(normalized);
-		free(design_coords);
+		SAlloc::F(normalized);
+		SAlloc::F(design_coords);
 		return;
 	}
 
@@ -1843,13 +1827,13 @@ void hb_font_set_var_named_instance(hb_font_t * font,
 
 	unsigned int coords_length = hb_ot_var_named_instance_get_design_coords(font->face, instance_index, nullptr, nullptr);
 
-	float * coords = coords_length ? (float*)calloc(coords_length, sizeof(float)) : nullptr;
+	float * coords = coords_length ? (float*)SAlloc::C(coords_length, sizeof(float)) : nullptr;
 	if(unlikely(coords_length && !coords))
 		return;
 
 	hb_ot_var_named_instance_get_design_coords(font->face, instance_index, &coords_length, coords);
 	hb_font_set_var_coords_design(font, coords, coords_length);
-	free(coords);
+	SAlloc::F(coords);
 }
 
 /**
@@ -1864,14 +1848,14 @@ void hb_font_set_var_coords_normalized(hb_font_t * font,
 	if(hb_object_is_immutable(font))
 		return;
 
-	int * copy = coords_length ? (int*)calloc(coords_length, sizeof(coords[0])) : nullptr;
-	int * unmapped = coords_length ? (int*)calloc(coords_length, sizeof(coords[0])) : nullptr;
-	float * design_coords = coords_length ? (float*)calloc(coords_length, sizeof(design_coords[0])) : nullptr;
+	int * copy = coords_length ? (int*)SAlloc::C(coords_length, sizeof(coords[0])) : nullptr;
+	int * unmapped = coords_length ? (int*)SAlloc::C(coords_length, sizeof(coords[0])) : nullptr;
+	float * design_coords = coords_length ? (float*)SAlloc::C(coords_length, sizeof(design_coords[0])) : nullptr;
 
 	if(unlikely(coords_length && !(copy && unmapped && design_coords))) {
-		free(copy);
-		free(unmapped);
-		free(design_coords);
+		SAlloc::F(copy);
+		SAlloc::F(unmapped);
+		SAlloc::F(design_coords);
 		return;
 	}
 
@@ -1884,7 +1868,7 @@ void hb_font_set_var_coords_normalized(hb_font_t * font,
 	font->face->table.avar->unmap_coords(unmapped, coords_length);
 	for(unsigned int i = 0; i < coords_length; ++i)
 		design_coords[i] = font->face->table.fvar->unnormalize_axis_value(i, unmapped[i]);
-	free(unmapped);
+	SAlloc::F(unmapped);
 
 	_hb_font_adopt_var_coords(font, copy, design_coords, coords_length);
 }
@@ -1951,7 +1935,7 @@ static hb_trampoline_t<FuncType> * trampoline_create(FuncType func,
 {
 	typedef hb_trampoline_t<FuncType> trampoline_t;
 
-	trampoline_t * trampoline = (trampoline_t*)calloc(1, sizeof(trampoline_t));
+	trampoline_t * trampoline = (trampoline_t*)SAlloc::C(1, sizeof(trampoline_t));
 
 	if(unlikely(!trampoline))
 		return nullptr;
@@ -1978,7 +1962,7 @@ static void trampoline_destroy(void * user_data)
 
 	if(closure->destroy)
 		closure->destroy(closure->user_data);
-	free(closure);
+	SAlloc::F(closure);
 }
 
 typedef hb_trampoline_t<hb_font_get_glyph_func_t> hb_font_get_glyph_trampoline_t;

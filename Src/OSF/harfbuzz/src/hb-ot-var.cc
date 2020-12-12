@@ -23,16 +23,10 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_VAR
-
-#include "hb-ot-var.h"
-#include "hb-ot-var-avar-table.hh"
-#include "hb-ot-var-fvar-table.hh"
-#include "hb-ot-var-mvar-table.hh"
-
 /**
  * SECTION:hb-ot-var
  * @title: hb-ot-var
@@ -60,7 +54,6 @@ hb_bool_t hb_ot_var_has_data(hb_face_t * face)
 {
 	return face->table.fvar->has_data();
 }
-
 /**
  * hb_ot_var_get_axis_count:
  *
@@ -70,7 +63,6 @@ unsigned int hb_ot_var_get_axis_count(hb_face_t * face)
 {
 	return face->table.fvar->get_axis_count();
 }
-
 #ifndef HB_DISABLE_DEPRECATED
 /**
  * hb_ot_var_get_axes:
@@ -92,14 +84,10 @@ unsigned int hb_ot_var_get_axes(hb_face_t        * face,
  * Since: 1.4.2
  * Deprecated: 2.2.0
  **/
-hb_bool_t hb_ot_var_find_axis(hb_face_t        * face,
-    hb_tag_t axis_tag,
-    unsigned int     * axis_index,
-    hb_ot_var_axis_t * axis_info)
+hb_bool_t hb_ot_var_find_axis(hb_face_t        * face, hb_tag_t axis_tag, unsigned int     * axis_index, hb_ot_var_axis_t * axis_info)
 {
 	return face->table.fvar->find_axis_deprecated(axis_tag, axis_index, axis_info);
 }
-
 #endif
 
 /**
@@ -107,14 +95,11 @@ hb_bool_t hb_ot_var_find_axis(hb_face_t        * face,
  *
  * Since: 2.2.0
  **/
-HB_EXTERN unsigned int hb_ot_var_get_axis_infos(hb_face_t             * face,
-    unsigned int start_offset,
-    unsigned int          * axes_count /* IN/OUT */,
+HB_EXTERN unsigned int hb_ot_var_get_axis_infos(hb_face_t * face, unsigned int start_offset, unsigned int * axes_count/* IN/OUT */,
     hb_ot_var_axis_info_t * axes_array /* OUT */)
 {
 	return face->table.fvar->get_axis_infos(start_offset, axes_count, axes_array);
 }
-
 /**
  * hb_ot_var_find_axis_info:
  *
@@ -136,26 +121,21 @@ unsigned int hb_ot_var_get_named_instance_count(hb_face_t * face)
 	return face->table.fvar->get_instance_count();
 }
 
-hb_ot_name_id_t hb_ot_var_named_instance_get_subfamily_name_id(hb_face_t   * face,
-    unsigned int instance_index)
+hb_ot_name_id_t hb_ot_var_named_instance_get_subfamily_name_id(hb_face_t   * face, unsigned int instance_index)
 {
 	return face->table.fvar->get_instance_subfamily_name_id(instance_index);
 }
 
-hb_ot_name_id_t hb_ot_var_named_instance_get_postscript_name_id(hb_face_t  * face,
-    unsigned int instance_index)
+hb_ot_name_id_t hb_ot_var_named_instance_get_postscript_name_id(hb_face_t  * face, unsigned int instance_index)
 {
 	return face->table.fvar->get_instance_postscript_name_id(instance_index);
 }
 
-unsigned int hb_ot_var_named_instance_get_design_coords(hb_face_t    * face,
-    unsigned int instance_index,
-    unsigned int * coords_length,                                        /* IN/OUT */
-    float        * coords /* OUT */)
+unsigned int hb_ot_var_named_instance_get_design_coords(hb_face_t * face, unsigned int instance_index,
+    unsigned int * coords_length/* IN/OUT */, float * coords /* OUT */)
 {
 	return face->table.fvar->get_instance_coords(instance_index, coords_length, coords);
 }
-
 /**
  * hb_ot_var_normalize_variations:
  *

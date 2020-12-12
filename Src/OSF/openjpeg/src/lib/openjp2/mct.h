@@ -128,12 +128,7 @@ FIXME DOC
 @param isSigned         tells if the data is signed
 @return OPJ_FALSE if function encounter a problem, OPJ_TRUE otherwise
 */
-OPJ_BOOL opj_mct_decode_custom(
-    OPJ_BYTE * pDecodingData,
-    OPJ_SIZE_T n,
-    OPJ_BYTE ** pData,
-    OPJ_UINT32 pNbComp,
-    OPJ_UINT32 isSigned);
+OPJ_BOOL opj_mct_decode_custom(OPJ_BYTE * pDecodingData, OPJ_SIZE_T n, OPJ_BYTE ** pData, OPJ_UINT32 pNbComp, OPJ_UINT32 isSigned);
 /**
 FIXME DOC
 @param pNorms           MCT data
@@ -141,9 +136,7 @@ FIXME DOC
 @param pMatrix          components
 @return
 */
-void opj_calculate_norms(OPJ_FLOAT64 * pNorms,
-                         OPJ_UINT32 p_nb_comps,
-                         OPJ_FLOAT32 * pMatrix);
+void opj_calculate_norms(OPJ_FLOAT64 * pNorms, OPJ_UINT32 p_nb_comps, OPJ_FLOAT32 * pMatrix);
 /**
 FIXME DOC
 */

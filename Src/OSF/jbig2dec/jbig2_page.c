@@ -12,7 +12,6 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
@@ -369,32 +368,25 @@ Jbig2Image * jbig2_page_out(Jbig2Ctx * ctx)
 			return jbig2_image_reference(ctx, img);
 		}
 	}
-
 	/* no pages available */
 	return NULL;
 }
-
 /**
  * jbig2_release_page: tell the library a page can be freed
  **/
 void jbig2_release_page(Jbig2Ctx * ctx, Jbig2Image * image)
 {
-	uint32_t index;
-
-	if(image == NULL)
-		return;
-
-	/* find the matching page struct and mark it released */
-	for(index = 0; index < ctx->max_page_index; index++) {
-		if(ctx->pages[index].image == image) {
-			jbig2_image_release(ctx, image);
-			ctx->pages[index].state = JBIG2_PAGE_RELEASED;
-			jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, JBIG2_UNKNOWN_SEGMENT_NUMBER, "page %d released by the client",
-			    ctx->pages[index].number);
-			return;
+	if(image) {
+		/* find the matching page struct and mark it released */
+		for(uint32_t index = 0; index < ctx->max_page_index; index++) {
+			if(ctx->pages[index].image == image) {
+				jbig2_image_release(ctx, image);
+				ctx->pages[index].state = JBIG2_PAGE_RELEASED;
+				jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, JBIG2_UNKNOWN_SEGMENT_NUMBER, "page %d released by the client", ctx->pages[index].number);
+				return;
+			}
 		}
+		/* no matching pages */
+		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to release unknown page");
 	}
-
-	/* no matching pages */
-	jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to release unknown page");
 }

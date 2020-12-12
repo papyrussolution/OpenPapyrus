@@ -13,36 +13,27 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-unicode.hh"
-#include "hb-machinery.hh"
+
 #include "hb-ucd-table.hh"
 
-static hb_unicode_combining_class_t hb_ucd_combining_class(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode,
-    void * user_data HB_UNUSED)
+static hb_unicode_combining_class_t hb_ucd_combining_class(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
 {
 	return (hb_unicode_combining_class_t)_hb_ucd_ccc(unicode);
 }
 
-static hb_unicode_general_category_t hb_ucd_general_category(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode,
-    void * user_data HB_UNUSED)
+static hb_unicode_general_category_t hb_ucd_general_category(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
 {
 	return (hb_unicode_general_category_t)_hb_ucd_gc(unicode);
 }
 
-static hb_codepoint_t hb_ucd_mirroring(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode,
-    void * user_data HB_UNUSED)
+static hb_codepoint_t hb_ucd_mirroring(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
 {
 	return unicode + _hb_ucd_bmg(unicode);
 }
 
-static hb_script_t hb_ucd_script(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode,
-    void * user_data HB_UNUSED)
+static hb_script_t hb_ucd_script(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
 {
 	return _hb_ucd_sc_map[_hb_ucd_sc(unicode)];
 }
@@ -60,10 +51,8 @@ static hb_script_t hb_ucd_script(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 static inline bool _hb_ucd_decompose_hangul(hb_codepoint_t ab, hb_codepoint_t * a, hb_codepoint_t * b)
 {
 	unsigned si = ab - SBASE;
-
 	if(si >= SCOUNT)
 		return false;
-
 	if(si % TCOUNT) {
 		/* LV,T */
 		*a = SBASE + (si / TCOUNT) * TCOUNT;

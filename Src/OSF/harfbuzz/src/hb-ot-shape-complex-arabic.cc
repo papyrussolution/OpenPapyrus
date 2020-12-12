@@ -23,7 +23,7 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_OT_SHAPE
@@ -247,7 +247,7 @@ struct arabic_shape_plan_t {
 
 void * data_create_arabic(const hb_ot_shape_plan_t * plan)
 {
-	arabic_shape_plan_t * arabic_plan = (arabic_shape_plan_t*)calloc(1, sizeof(arabic_shape_plan_t));
+	arabic_shape_plan_t * arabic_plan = (arabic_shape_plan_t*)SAlloc::C(1, sizeof(arabic_shape_plan_t));
 	if(unlikely(!arabic_plan))
 		return nullptr;
 
@@ -269,7 +269,7 @@ void data_destroy_arabic(void * data)
 
 	arabic_fallback_plan_destroy(arabic_plan->fallback_plan);
 
-	free(data);
+	SAlloc::F(data);
 }
 
 static void arabic_joining(hb_buffer_t * buffer)

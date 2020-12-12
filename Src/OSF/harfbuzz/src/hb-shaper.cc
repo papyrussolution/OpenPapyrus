@@ -23,10 +23,8 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-shaper.hh"
-#include "hb-machinery.hh"
 
 static const hb_shaper_entry_t all_shapers[] = {
 #define HB_SHAPER_IMPLEMENT(name) {#name, _hb_ ## name ## _shape},
@@ -47,7 +45,7 @@ static struct hb_shapers_lazy_loader_t : hb_lazy_loader_t<const hb_shaper_entry_
 		char * env = getenv("HB_SHAPER_LIST");
 		if(!env || !*env)
 			return nullptr;
-		hb_shaper_entry_t * shapers = (hb_shaper_entry_t*)calloc(1, sizeof(all_shapers));
+		hb_shaper_entry_t * shapers = (hb_shaper_entry_t*)SAlloc::C(1, sizeof(all_shapers));
 		if(unlikely(!shapers))
 			return nullptr;
 		memcpy(shapers, all_shapers, sizeof(all_shapers));
@@ -83,7 +81,7 @@ static struct hb_shapers_lazy_loader_t : hb_lazy_loader_t<const hb_shaper_entry_
 	}
 
 	static void destroy(const hb_shaper_entry_t * p) {
-		free((void*)p);
+		SAlloc::F((void*)p);
 	}
 
 	static const hb_shaper_entry_t * get_null()      {

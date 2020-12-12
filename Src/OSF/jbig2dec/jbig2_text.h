@@ -32,11 +32,11 @@ typedef enum {
 } Jbig2RefCorner;
 
 typedef struct {
-    bool SBHUFF;
-    bool SBREFINE;
-    bool SBDEFPIXEL;
+    boolint SBHUFF;
+    boolint SBREFINE;
+    boolint SBDEFPIXEL;
     Jbig2ComposeOp SBCOMBOP;
-    bool TRANSPOSED;
+    boolint TRANSPOSED;
     Jbig2RefCorner REFCORNER;
     int SBDSOFFSET;
     /* int SBW; */
@@ -66,7 +66,7 @@ typedef struct {
     Jbig2ArithIntCtx *IARDH;
     Jbig2ArithIntCtx *IARDX;
     Jbig2ArithIntCtx *IARDY;
-    bool SBRTEMPLATE;
+    boolint SBRTEMPLATE;
     int8_t sbrat[4];
 } Jbig2TextRegionParams;
 

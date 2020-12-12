@@ -21,7 +21,7 @@
  * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_DRAW
@@ -182,7 +182,7 @@ void hb_draw_funcs_destroy(hb_draw_funcs_t * funcs)
 {
 	if(!hb_object_destroy(funcs)) return;
 
-	free(funcs);
+	SAlloc::F(funcs);
 }
 
 /**

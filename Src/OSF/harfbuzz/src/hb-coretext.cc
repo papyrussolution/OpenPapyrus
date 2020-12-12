@@ -25,16 +25,15 @@
  * Mozilla Author(s): Jonathan Kew
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifdef HAVE_CORETEXT
 
-#include "hb-shaper-impl.hh"
+//#include "hb-shaper-impl.hh"
 #include "hb-coretext.h"
 #include "hb-aat-layout.hh"
 #include <math.h>
-
 /**
  * SECTION:hb-coretext
  * @title: hb-coretext

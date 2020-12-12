@@ -172,18 +172,17 @@ static INLINE void * opj_aligned_realloc_n(void * ptr, size_t alignment, size_t 
 	return r_ptr;
 }
 
-void * opj_malloc(size_t size)
+void * FASTCALL opj_malloc(size_t size)
 {
-	if(size == 0U) { /* prevent implementation defined behavior of realloc */
+	if(size == 0U) { // prevent implementation defined behavior of realloc 
 		return NULL;
 	}
 	return malloc(size);
 }
 
-void * opj_calloc(size_t num, size_t size)
+void * FASTCALL opj_calloc(size_t num, size_t size)
 {
-	if(num == 0 || size == 0) {
-		/* prevent implementation defined behavior of realloc */
+	if(num == 0 || size == 0) { // prevent implementation defined behavior of realloc 
 		return NULL;
 	}
 	return calloc(num, size);
@@ -223,7 +222,7 @@ void opj_aligned_free(void* ptr)
 #endif
 }
 
-void * opj_realloc(void * ptr, size_t new_size)
+void * FASTCALL opj_realloc(void * ptr, size_t new_size)
 {
 	if(new_size == 0U) { /* prevent implementation defined behavior of realloc */
 		return NULL;
@@ -231,7 +230,7 @@ void * opj_realloc(void * ptr, size_t new_size)
 	return realloc(ptr, new_size);
 }
 
-void opj_free(void * ptr)
+void FASTCALL opj_free(void * ptr)
 {
 	free(ptr);
 }

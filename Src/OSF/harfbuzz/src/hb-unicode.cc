@@ -27,10 +27,8 @@
  * Codethink Author(s): Ryan Lortie
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-unicode.hh"
-
 /**
  * SECTION: hb-unicode
  * @title: hb-unicode
@@ -232,7 +230,7 @@ void hb_unicode_funcs_destroy(hb_unicode_funcs_t * ufuncs)
 
 	    hb_unicode_funcs_destroy(ufuncs->parent);
 
-	free(ufuncs);
+	SAlloc::F(ufuncs);
 }
 
 /**

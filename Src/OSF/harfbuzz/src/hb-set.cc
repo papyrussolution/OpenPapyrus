@@ -23,10 +23,8 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-set.hh"
-
 /**
  * SECTION:hb-set
  * @title: hb-set
@@ -48,15 +46,11 @@
 hb_set_t * hb_set_create()
 {
 	hb_set_t * set;
-
 	if(!(set = hb_object_create<hb_set_t> ()))
 		return hb_set_get_empty();
-
 	set->init_shallow();
-
 	return set;
 }
-
 /**
  * hb_set_get_empty:
  *
@@ -90,13 +84,11 @@ hb_set_t * hb_set_reference(hb_set_t * set)
  **/
 void hb_set_destroy(hb_set_t * set)
 {
-	if(!hb_object_destroy(set)) return;
-
+	if(!hb_object_destroy(set)) 
+		return;
 	set->fini_shallow();
-
-	free(set);
+	SAlloc::F(set);
 }
-
 /**
  * hb_set_set_user_data: (skip)
  * @set: a set.

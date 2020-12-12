@@ -340,14 +340,11 @@ static inline int jbig2_image_get_pixel_fast(Jbig2Image * image, int x, int y)
 int jbig2_generic_stats_size(Jbig2Ctx * ctx, int template)
 {
 	int stats_size = template == 0 ? 1 << 16 : template == 1 ? 1 << 13 : 1 << 10;
-
 	return stats_size;
 }
 
-static int jbig2_decode_generic_template0(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
-    const Jbig2GenericRegionParams * params, Jbig2ArithState * as,
-    Jbig2Image * image, Jbig2ArithCx * GB_stats)
+static int jbig2_decode_generic_template0(Jbig2Ctx * ctx, Jbig2Segment * segment,
+    const Jbig2GenericRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GB_stats)
 {
 	const uint32_t GBW = image->width;
 	const uint32_t GBH = image->height;
@@ -356,44 +353,30 @@ static int jbig2_decode_generic_template0(Jbig2Ctx * ctx,
 	byte * line2 = NULL;
 	byte * line1 = NULL;
 	byte * gbreg_line = (byte*)image->data;
-
 #ifdef OUTPUT_PBM
 	printf("P4\n%d %d\n", GBW, GBH);
 #endif
 	if(GBW <= 0)
 		return 0;
 	for(y = 0; y < GBH; y++) {
-		uint32_t CONTEXT;
-		uint32_t line_m1;
-		uint32_t line_m2;
 		uint32_t padded_width = (GBW + 7) & -8;
-
-		line_m1 = line1 ? line1[0] : 0;
-		line_m2 = line2 ? line2[0] << 6 : 0;
-		CONTEXT = (line_m1 & 0x7f0) | (line_m2 & 0xf800);
-
+		uint32_t line_m1 = line1 ? line1[0] : 0;
+		uint32_t line_m2 = line2 ? line2[0] << 6 : 0;
+		uint32_t CONTEXT = (line_m1 & 0x7f0) | (line_m2 & 0xf800);
 		/* 6.2.5.7 3d */
 		for(x = 0; x < padded_width; x += 8) {
 			byte result = 0;
 			int x_minor;
 			int minor_width = GBW - x > 8 ? 8 : GBW - x;
-
 			if(line1)
 				line_m1 = (line_m1 << 8) | (x + 8 < GBW ? line1[(x >> 3) + 1] : 0);
-
 			if(line2)
 				line_m2 = (line_m2 << 8) | (x + 8 < GBW ? line2[(x >> 3) + 1] << 6 : 0);
-
 			/* This is the speed-critical inner loop. */
 			for(x_minor = 0; x_minor < minor_width; x_minor++) {
-				int bit;
-
-				bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
+				int bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 				if(bit < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   segment->number,
-						   "failed to decode arithmetic code when handling generic template0 optimized");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template0 optimized");
 				result |= bit << (7 - x_minor);
 				CONTEXT = ((CONTEXT & 0x7bf7) << 1) | bit | ((line_m1 >> (7 - x_minor)) & 0x10) |
 				    ((line_m2 >> (7 - x_minor)) & 0x800);
@@ -407,7 +390,6 @@ static int jbig2_decode_generic_template0(Jbig2Ctx * ctx,
 		line1 = gbreg_line;
 		gbreg_line += rowstride;
 	}
-
 	return 0;
 }
 
@@ -423,14 +405,11 @@ static int jbig2_decode_generic_template0_unopt(Jbig2Ctx * ctx,
 	uint32_t CONTEXT;
 	uint32_t x, y;
 	int bit;
-
 	if(pixel_outside_field(params->gbat[0], params->gbat[1]) ||
 	    pixel_outside_field(params->gbat[2], params->gbat[3]) ||
 	    pixel_outside_field(params->gbat[4], params->gbat[5]) ||
 	    pixel_outside_field(params->gbat[6], params->gbat[7]))
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number,
-			   "adaptive template pixel is out of field");
-
+		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "adaptive template pixel is out of field");
 	for(y = 0; y < GBH; y++) {
 		uint32_t out_byte = 0;
 		int out_bits_to_go_in_byte = 8;
@@ -463,10 +442,7 @@ static int jbig2_decode_generic_template0_unopt(Jbig2Ctx * ctx,
 				CONTEXT |= jbig2_image_get_pixel(image, x + params->gbat[6], y + params->gbat[7]) << 15;
 				bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 				if(bit < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   segment->number,
-						   "failed to decode arithmetic code when handling generic template0 unoptimized");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template0 unoptimized");
 			}
 			pd = pd<<1;
 			ppd = ppd<<1;
@@ -489,8 +465,7 @@ static int jbig2_decode_generic_template0_unopt(Jbig2Ctx * ctx,
 	return 0;
 }
 
-static int jbig2_decode_generic_template1_unopt(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static int jbig2_decode_generic_template1_unopt(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2GenericRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GB_stats)
 {
 	const uint32_t GBW = image->width;
@@ -498,11 +473,8 @@ static int jbig2_decode_generic_template1_unopt(Jbig2Ctx * ctx,
 	uint32_t CONTEXT;
 	uint32_t x, y;
 	int bit;
-
 	if(pixel_outside_field(params->gbat[0], params->gbat[1]))
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number,
-			   "adaptive template pixel is out of field");
-
+		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "adaptive template pixel is out of field");
 	for(y = 0; y < GBH; y++) {
 		uint32_t out_byte = 0;
 		int out_bits_to_go_in_byte = 8;
@@ -532,10 +504,7 @@ static int jbig2_decode_generic_template1_unopt(Jbig2Ctx * ctx,
 				CONTEXT |= (ppd>>4) & 0x1E00; /* Next 4 pixels */
 				bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 				if(bit < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   segment->number,
-						   "failed to decode arithmetic code when handling generic template1 unoptimized");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template1 unoptimized");
 			}
 			pd = pd<<1;
 			ppd = ppd<<1;
@@ -573,42 +542,27 @@ static int jbig2_decode_generic_template1(Jbig2Ctx * ctx,
 #ifdef OUTPUT_PBM
 	printf("P4\n%d %d\n", GBW, GBH);
 #endif
-
 	if(GBW <= 0)
 		return 0;
-
 	for(y = 0; y < GBH; y++) {
-		uint32_t CONTEXT;
-		uint32_t line_m1;
-		uint32_t line_m2;
 		uint32_t padded_width = (GBW + 7) & -8;
-
-		line_m1 = line1 ? line1[0] : 0;
-		line_m2 = line2 ? line2[0] << 5 : 0;
-		CONTEXT = ((line_m1 >> 1) & 0x1f8) | ((line_m2 >> 1) & 0x1e00);
-
+		uint32_t line_m1 = line1 ? line1[0] : 0;
+		uint32_t line_m2 = line2 ? line2[0] << 5 : 0;
+		uint32_t CONTEXT = ((line_m1 >> 1) & 0x1f8) | ((line_m2 >> 1) & 0x1e00);
 		/* 6.2.5.7 3d */
 		for(x = 0; x < padded_width; x += 8) {
 			byte result = 0;
 			int x_minor;
 			int minor_width = GBW - x > 8 ? 8 : GBW - x;
-
 			if(line1)
 				line_m1 = (line_m1 << 8) | (x + 8 < GBW ? line1[(x >> 3) + 1] : 0);
-
 			if(line2)
 				line_m2 = (line_m2 << 8) | (x + 8 < GBW ? line2[(x >> 3) + 1] << 5 : 0);
-
 			/* This is the speed-critical inner loop. */
 			for(x_minor = 0; x_minor < minor_width; x_minor++) {
-				int bit;
-
-				bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
+				int bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 				if(bit < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   segment->number,
-						   "failed to decode arithmetic code when handling generic template1 optimized");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template1 optimized");
 				result |= bit << (7 - x_minor);
 				CONTEXT = ((CONTEXT & 0xefb) << 1) | bit | ((line_m1 >> (8 - x_minor)) & 0x8) |
 				    ((line_m2 >> (8 - x_minor)) & 0x200);
@@ -622,7 +576,6 @@ static int jbig2_decode_generic_template1(Jbig2Ctx * ctx,
 		line1 = gbreg_line;
 		gbreg_line += rowstride;
 	}
-
 	return 0;
 }
 
@@ -635,11 +588,8 @@ static int jbig2_decode_generic_template2_unopt(Jbig2Ctx * ctx,
 	uint32_t CONTEXT;
 	uint32_t x, y;
 	int bit;
-
 	if(pixel_outside_field(params->gbat[0], params->gbat[1]))
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number,
-			   "adaptive template pixel is out of field");
-
+		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "adaptive template pixel is out of field");
 	for(y = 0; y < GBH; y++) {
 		uint32_t out_byte = 0;
 		int out_bits_to_go_in_byte = 8;
@@ -669,10 +619,7 @@ static int jbig2_decode_generic_template2_unopt(Jbig2Ctx * ctx,
 				CONTEXT |= (ppd>>7) & 0x380; /* Next 3 pixels */
 				bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 				if(bit < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   segment->number,
-						   "failed to decode arithmetic code when handling generic template2 unoptimized");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template2 unoptimized");
 			}
 			pd = pd<<1;
 			ppd = ppd<<1;
@@ -707,46 +654,30 @@ static int jbig2_decode_generic_template2(Jbig2Ctx * ctx,
 	byte * line2 = NULL;
 	byte * line1 = NULL;
 	byte * gbreg_line = (byte*)image->data;
-
 #ifdef OUTPUT_PBM
 	printf("P4\n%d %d\n", GBW, GBH);
 #endif
-
 	if(GBW <= 0)
 		return 0;
-
 	for(y = 0; y < GBH; y++) {
-		uint32_t CONTEXT;
-		uint32_t line_m1;
-		uint32_t line_m2;
 		uint32_t padded_width = (GBW + 7) & -8;
-
-		line_m1 = line1 ? line1[0] : 0;
-		line_m2 = line2 ? line2[0] << 4 : 0;
-		CONTEXT = ((line_m1 >> 3) & 0x7c) | ((line_m2 >> 3) & 0x380);
-
+		uint32_t line_m1 = line1 ? line1[0] : 0;
+		uint32_t line_m2 = line2 ? line2[0] << 4 : 0;
+		uint32_t CONTEXT = ((line_m1 >> 3) & 0x7c) | ((line_m2 >> 3) & 0x380);
 		/* 6.2.5.7 3d */
 		for(x = 0; x < padded_width; x += 8) {
 			byte result = 0;
 			int x_minor;
 			int minor_width = GBW - x > 8 ? 8 : GBW - x;
-
 			if(line1)
 				line_m1 = (line_m1 << 8) | (x + 8 < GBW ? line1[(x >> 3) + 1] : 0);
-
 			if(line2)
 				line_m2 = (line_m2 << 8) | (x + 8 < GBW ? line2[(x >> 3) + 1] << 4 : 0);
-
 			/* This is the speed-critical inner loop. */
 			for(x_minor = 0; x_minor < minor_width; x_minor++) {
-				int bit;
-
-				bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
+				int bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 				if(bit < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   segment->number,
-						   "failed to decode arithmetic code when handling generic template2 optimized");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template2 optimized");
 				result |= bit << (7 - x_minor);
 				CONTEXT = ((CONTEXT & 0x1bd) << 1) | bit | ((line_m1 >> (10 - x_minor)) & 0x4) |
 				    ((line_m2 >> (10 - x_minor)) & 0x80);
@@ -760,12 +691,10 @@ static int jbig2_decode_generic_template2(Jbig2Ctx * ctx,
 		line1 = gbreg_line;
 		gbreg_line += rowstride;
 	}
-
 	return 0;
 }
 
-static int jbig2_decode_generic_template3(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static int jbig2_decode_generic_template3(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2GenericRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GB_stats)
 {
 	const uint32_t GBW = image->width;
@@ -774,41 +703,27 @@ static int jbig2_decode_generic_template3(Jbig2Ctx * ctx,
 	byte * line1 = NULL;
 	byte * gbreg_line = (byte*)image->data;
 	uint32_t x, y;
-
 #ifdef OUTPUT_PBM
 	printf("P4\n%d %d\n", GBW, GBH);
 #endif
-
 	if(GBW <= 0)
 		return 0;
-
 	for(y = 0; y < GBH; y++) {
-		uint32_t CONTEXT;
-		uint32_t line_m1;
 		uint32_t padded_width = (GBW + 7) & -8;
-
-		line_m1 = line1 ? line1[0] : 0;
-		CONTEXT = (line_m1 >> 1) & 0x3f0;
-
+		uint32_t line_m1 = line1 ? line1[0] : 0;
+		uint32_t CONTEXT = (line_m1 >> 1) & 0x3f0;
 		/* 6.2.5.7 3d */
 		for(x = 0; x < padded_width; x += 8) {
 			byte result = 0;
 			int x_minor;
 			int minor_width = GBW - x > 8 ? 8 : GBW - x;
-
 			if(line1)
 				line_m1 = (line_m1 << 8) | (x + 8 < GBW ? line1[(x >> 3) + 1] : 0);
-
 			/* This is the speed-critical inner loop. */
 			for(x_minor = 0; x_minor < minor_width; x_minor++) {
-				int bit;
-
-				bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
+				int bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 				if(bit < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   segment->number,
-						   "failed to decode arithmetic code when handling generic template3 optimized");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template3 optimized");
 				result |= bit << (7 - x_minor);
 				CONTEXT = ((CONTEXT & 0x1f7) << 1) | bit | ((line_m1 >> (8 - x_minor)) & 0x10);
 			}
@@ -820,12 +735,10 @@ static int jbig2_decode_generic_template3(Jbig2Ctx * ctx,
 		line1 = gbreg_line;
 		gbreg_line += rowstride;
 	}
-
 	return 0;
 }
 
-static int jbig2_decode_generic_template3_unopt(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static int jbig2_decode_generic_template3_unopt(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2GenericRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GB_stats)
 {
 	const uint32_t GBW = image->width;
@@ -833,11 +746,8 @@ static int jbig2_decode_generic_template3_unopt(Jbig2Ctx * ctx,
 	uint32_t CONTEXT;
 	uint32_t x, y;
 	int bit;
-
 	if(pixel_outside_field(params->gbat[0], params->gbat[1]))
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number,
-			   "adaptive template pixel is out of field");
-
+		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "adaptive template pixel is out of field");
 	for(y = 0; y < GBH; y++) {
 		uint32_t out_byte = 0;
 		int out_bits_to_go_in_byte = 8;
@@ -859,10 +769,7 @@ static int jbig2_decode_generic_template3_unopt(Jbig2Ctx * ctx,
 				CONTEXT |= (pd>>9) & 0x3E0; /* Next 5 pixels */
 				bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 				if(bit < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   segment->number,
-						   "failed to decode arithmetic code when handling generic template3 unoptimized");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template3 unoptimized");
 			}
 			pd = pd<<1;
 			out_byte = (out_byte<<1) | bit;
@@ -894,8 +801,7 @@ static void copy_prev_row(Jbig2Image * image, int row)
 	}
 }
 
-static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2GenericRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GB_stats)
 {
 	const uint32_t GBW = image->width;
@@ -905,13 +811,11 @@ static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx,
 	int LTP = 0;
 	int gmin, gmax;
 	uint32_t left, right, top;
-
 	if(pixel_outside_field(params->gbat[0], params->gbat[1]) ||
 	    pixel_outside_field(params->gbat[2], params->gbat[3]) ||
 	    pixel_outside_field(params->gbat[4], params->gbat[5]) ||
 	    pixel_outside_field(params->gbat[6], params->gbat[7]))
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number,
-			   "adaptive template pixel is out of field");
+		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "adaptive template pixel is out of field");
 
 	/* JBig2 has 'standard' values for gbat (see 6.2.5.4 of the spec).
 	 * Have an optimised version for those locations. This greatly
@@ -924,10 +828,7 @@ static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx,
 		for(y = 0; y < GBH; y++) {
 			int bit = jbig2_arith_decode(ctx, as, &GB_stats[0x9B25]);
 			if(bit < 0)
-				return jbig2_error(ctx,
-					   JBIG2_SEVERITY_WARNING,
-					   segment->number,
-					   "failed to decode arithmetic code when handling generic template0 TPGDON1");
+				return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template0 TPGDON1");
 			LTP ^= bit;
 			if(!LTP) {
 				uint32_t out_byte = 0;
@@ -957,10 +858,7 @@ static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx,
 						CONTEXT |= (ppd>>2) & 0xF800; /* Final 5 pixels */
 						bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 						if(bit < 0)
-							return jbig2_error(ctx,
-								   JBIG2_SEVERITY_WARNING,
-								   segment->number,
-								   "failed to decode arithmetic code when handling generic template0 TPGDON2");
+							return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template0 TPGDON2");
 					}
 					pd = pd<<1;
 					ppd = ppd<<1;
@@ -985,7 +883,6 @@ static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx,
 		}
 		return 0;
 	}
-
 	/* We divide the width into 3 regions 0..left...right...GBW,
 	 * between left and right, we know that our accesses will never
 	 * step outside the image, enabling us to use faster accessors. */
@@ -1012,7 +909,6 @@ static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx,
 		right = GBW;
 	right = GBW - right;
 	/* So 0 <= x < left or right <= x < GBW needs bounds checking. */
-
 	/* Now we do the same for the height, but here there is no bottom
 	 * region, as we only ever look up for y. */
 	top = 2;
@@ -1026,14 +922,10 @@ static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx,
 	if((int)top < -gmin)
 		top = -gmin;
 	/* So 0 <= y < top needs bounds checking. */
-
 	for(y = 0; y < GBH; y++) {
 		int bit = jbig2_arith_decode(ctx, as, &GB_stats[0x9B25]);
 		if(bit < 0)
-			return jbig2_error(ctx,
-				   JBIG2_SEVERITY_WARNING,
-				   segment->number,
-				   "failed to decode arithmetic code when handling generic template0 TPGDON1");
+			return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template0 TPGDON1");
 		LTP ^= bit;
 		if(!LTP) {
 			uint32_t out_byte = 0;
@@ -1078,10 +970,7 @@ static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx,
 					}
 					bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 					if(bit < 0)
-						return jbig2_error(ctx,
-							   JBIG2_SEVERITY_WARNING,
-							   segment->number,
-							   "failed to decode arithmetic code when handling generic template0 TPGDON2");
+						return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template0 TPGDON2");
 				}
 				pd = pd<<1;
 				ppd = ppd<<1;
@@ -1105,12 +994,10 @@ static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx,
 			copy_prev_row(image, y);
 		}
 	}
-
 	return 0;
 }
 
-static int jbig2_decode_generic_template1_TPGDON(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static int jbig2_decode_generic_template1_TPGDON(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2GenericRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GB_stats)
 {
 	const uint32_t GBW = image->width;
@@ -1118,18 +1005,12 @@ static int jbig2_decode_generic_template1_TPGDON(Jbig2Ctx * ctx,
 	uint32_t CONTEXT;
 	uint32_t x, y;
 	int LTP = 0;
-
 	if(pixel_outside_field(params->gbat[0], params->gbat[1]))
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number,
-			   "adaptive template pixel is out of field");
-
+		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "adaptive template pixel is out of field");
 	for(y = 0; y < GBH; y++) {
 		int bit = jbig2_arith_decode(ctx, as, &GB_stats[0x0795]);
 		if(bit < 0)
-			return jbig2_error(ctx,
-				   JBIG2_SEVERITY_WARNING,
-				   segment->number,
-				   "failed to decode arithmetic code when handling generic template1 TPGDON1");
+			return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template1 TPGDON1");
 		LTP ^= bit;
 		if(!LTP) {
 			uint32_t out_byte = 0;
@@ -1160,10 +1041,7 @@ static int jbig2_decode_generic_template1_TPGDON(Jbig2Ctx * ctx,
 					CONTEXT |= (ppd>>4) & 0x1E00; /* next 4 pixels */
 					bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 					if(bit < 0)
-						return jbig2_error(ctx,
-							   JBIG2_SEVERITY_WARNING,
-							   segment->number,
-							   "failed to decode arithmetic code when handling generic template1 TPGDON2");
+						return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template1 TPGDON2");
 				}
 				pd = pd<<1;
 				ppd = ppd<<1;
@@ -1200,18 +1078,12 @@ static int jbig2_decode_generic_template2_TPGDON(Jbig2Ctx * ctx,
 	uint32_t CONTEXT;
 	uint32_t x, y;
 	int LTP = 0;
-
 	if(pixel_outside_field(params->gbat[0], params->gbat[1]))
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number,
-			   "adaptive template pixel is out of field");
-
+		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "adaptive template pixel is out of field");
 	for(y = 0; y < GBH; y++) {
 		int bit = jbig2_arith_decode(ctx, as, &GB_stats[0xE5]);
 		if(bit < 0)
-			return jbig2_error(ctx,
-				   JBIG2_SEVERITY_WARNING,
-				   segment->number,
-				   "failed to decode arithmetic code when handling generic template2 TPGDON1");
+			return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template2 TPGDON1");
 		LTP ^= bit;
 		if(!LTP) {
 			uint32_t out_byte = 0;
@@ -1242,10 +1114,7 @@ static int jbig2_decode_generic_template2_TPGDON(Jbig2Ctx * ctx,
 					CONTEXT |= (ppd>>7) & 0x380; /* next 3 pixels */
 					bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 					if(bit < 0)
-						return jbig2_error(ctx,
-							   JBIG2_SEVERITY_WARNING,
-							   segment->number,
-							   "failed to decode arithmetic code when handling generic template2 TPGDON2");
+						return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template2 TPGDON2");
 				}
 				pd = pd<<1;
 				ppd = ppd<<1;
@@ -1273,8 +1142,7 @@ static int jbig2_decode_generic_template2_TPGDON(Jbig2Ctx * ctx,
 	return 0;
 }
 
-static int jbig2_decode_generic_template3_TPGDON(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static int jbig2_decode_generic_template3_TPGDON(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2GenericRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GB_stats)
 {
 	const uint32_t GBW = image->width;
@@ -1282,18 +1150,12 @@ static int jbig2_decode_generic_template3_TPGDON(Jbig2Ctx * ctx,
 	uint32_t CONTEXT;
 	uint32_t x, y;
 	int LTP = 0;
-
 	if(pixel_outside_field(params->gbat[0], params->gbat[1]))
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number,
-			   "adaptive template pixel is out of field");
-
+		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "adaptive template pixel is out of field");
 	for(y = 0; y < GBH; y++) {
 		int bit = jbig2_arith_decode(ctx, as, &GB_stats[0x0195]);
 		if(bit < 0)
-			return jbig2_error(ctx,
-				   JBIG2_SEVERITY_WARNING,
-				   segment->number,
-				   "failed to decode arithmetic code when handling generic template3 TPGDON1");
+			return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template3 TPGDON1");
 		LTP ^= bit;
 		if(!LTP) {
 			uint32_t out_byte = 0;
@@ -1316,10 +1178,7 @@ static int jbig2_decode_generic_template3_TPGDON(Jbig2Ctx * ctx,
 					CONTEXT |= (pd>>9) & 0x3E0; /* next 5 pixels */
 					bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
 					if(bit < 0)
-						return jbig2_error(ctx,
-							   JBIG2_SEVERITY_WARNING,
-							   segment->number,
-							   "failed to decode arithmetic code when handling generic template3 TPGDON2");
+						return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode arithmetic code when handling generic template3 TPGDON2");
 				}
 				pd = pd<<1;
 				out_byte = (out_byte<<1) | bit;
@@ -1343,21 +1202,15 @@ static int jbig2_decode_generic_template3_TPGDON(Jbig2Ctx * ctx,
 	return 0;
 }
 
-static int jbig2_decode_generic_region_TPGDON(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static int jbig2_decode_generic_region_TPGDON(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2GenericRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GB_stats)
 {
 	switch(params->GBTEMPLATE) {
-		case 0:
-		    return jbig2_decode_generic_template0_TPGDON(ctx, segment, params, as, image, GB_stats);
-		case 1:
-		    return jbig2_decode_generic_template1_TPGDON(ctx, segment, params, as, image, GB_stats);
-		case 2:
-		    return jbig2_decode_generic_template2_TPGDON(ctx, segment, params, as, image, GB_stats);
-		case 3:
-		    return jbig2_decode_generic_template3_TPGDON(ctx, segment, params, as, image, GB_stats);
+		case 0: return jbig2_decode_generic_template0_TPGDON(ctx, segment, params, as, image, GB_stats);
+		case 1: return jbig2_decode_generic_template1_TPGDON(ctx, segment, params, as, image, GB_stats);
+		case 2: return jbig2_decode_generic_template2_TPGDON(ctx, segment, params, as, image, GB_stats);
+		case 3: return jbig2_decode_generic_template3_TPGDON(ctx, segment, params, as, image, GB_stats);
 	}
-
 	return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "unsupported GBTEMPLATE (%d)", params->GBTEMPLATE);
 }
 
@@ -1413,20 +1266,11 @@ int jbig2_decode_generic_region(Jbig2Ctx * ctx,
 	}
 
 	{
-		int i;
-
-		for(i = 0; i < 8; i++)
+		for(int i = 0; i < 8; i++)
 			jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "gbat[%d] = %d", i, params->gbat[i]);
 	}
-
-	return jbig2_error(ctx,
-		   JBIG2_SEVERITY_FATAL,
-		   segment->number,
-		   "unsupported generic region (MMR=%d, GBTEMPLATE=%d)",
-		   params->MMR,
-		   params->GBTEMPLATE);
+	return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "unsupported generic region (MMR=%d, GBTEMPLATE=%d)", params->MMR, params->GBTEMPLATE);
 }
-
 /**
  * Handler for immediate generic region segments
  */
@@ -1449,18 +1293,9 @@ int jbig2_immediate_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const
 	/* 7.4.6 */
 	if(segment->data_length < 18)
 		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment too short");
-
 	jbig2_get_region_segment_info(&rsi, segment_data);
-	jbig2_error(ctx,
-	    JBIG2_SEVERITY_INFO,
-	    segment->number,
-	    "generic region: %u x %u @ (%u, %u), flags = %02x",
-	    rsi.width,
-	    rsi.height,
-	    rsi.x,
-	    rsi.y,
-	    rsi.flags);
-
+	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "generic region: %u x %u @ (%u, %u), flags = %02x",
+	    rsi.width, rsi.height, rsi.x, rsi.y, rsi.flags);
 	/* 7.4.6.4 */
 	height = rsi.height;
 	if(segment->rows != UINT32_MAX) {
@@ -1468,13 +1303,11 @@ int jbig2_immediate_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const
 			return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment contains more rows than stated in header");
 		height = segment->rows;
 	}
-
 	/* 7.4.6.2 */
 	seg_flags = segment_data[17];
 	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "segment flags = %02x", seg_flags);
 	if((seg_flags & 1) && (seg_flags & 6))
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "MMR is 1, but GBTEMPLATE is not 0");
-
 	/* 7.4.6.3 */
 	if(!(seg_flags & 1)) {
 		gbat_bytes = (seg_flags & 6) ? 2 : 8;
@@ -1483,33 +1316,20 @@ int jbig2_immediate_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const
 		memcpy(gbat, segment_data + 18, gbat_bytes);
 		jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "gbat: %d, %d", gbat[0], gbat[1]);
 	}
-
 	offset = 18 + gbat_bytes;
-
 	/* Check for T.88 amendment 2 */
 	if((seg_flags >> 5) & 1)
 		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment uses 12 adaptive template pixels (NYI)");
-
 	/* Table 34 */
 	params.MMR = seg_flags & 1;
 	params.GBTEMPLATE = (seg_flags & 6) >> 1;
 	params.TPGDON = (seg_flags & 8) >> 3;
 	params.USESKIP = 0;
 	memcpy(params.gbat, gbat, gbat_bytes);
-
 	if(page->height == 0xffffffff && page->striped && page->stripe_size > 0) {
 		if(rsi.y >= page->end_row + page->stripe_size) {
-			jbig2_error(ctx,
-			    JBIG2_SEVERITY_WARNING,
-			    segment->number,
-			    "ignoring %u x %u region at (%u, %u) outside of stripe at row %u covering %u rows, on page of height %u",
-			    rsi.width,
-			    rsi.height,
-			    rsi.x,
-			    rsi.y,
-			    page->end_row,
-			    page->stripe_size,
-			    page->image->height);
+			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "ignoring %u x %u region at (%u, %u) outside of stripe at row %u covering %u rows, on page of height %u",
+			    rsi.width, rsi.height, rsi.x, rsi.y, page->end_row, page->stripe_size, page->image->height);
 			return 0;
 		}
 		if(height > page->end_row + page->stripe_size) {
@@ -1518,15 +1338,8 @@ int jbig2_immediate_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const
 	}
 	else {
 		if(rsi.y >= page->height) {
-			jbig2_error(ctx,
-			    JBIG2_SEVERITY_WARNING,
-			    segment->number,
-			    "ignoring %u x %u region at (%u, %u) outside of page of height %u",
-			    rsi.width,
-			    rsi.height,
-			    rsi.x,
-			    rsi.y,
-			    page->height);
+			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "ignoring %u x %u region at (%u, %u) outside of page of height %u",
+			    rsi.width, rsi.height, rsi.x, rsi.y, page->height);
 			return 0;
 		}
 		if(height > page->height - rsi.y) {
@@ -1537,17 +1350,10 @@ int jbig2_immediate_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "nothing remains of region, ignoring");
 		return 0;
 	}
-
 	image = jbig2_image_new(ctx, rsi.width, height);
 	if(image == NULL)
 		return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate generic image");
-	jbig2_error(ctx,
-	    JBIG2_SEVERITY_DEBUG,
-	    segment->number,
-	    "allocated %d x %d image buffer for region decode results",
-	    rsi.width,
-	    height);
-
+	jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "allocated %d x %d image buffer for region decode results", rsi.width, height);
 	if(params.MMR) {
 		code = jbig2_decode_generic_mmr(ctx, segment, &params, segment_data + offset, segment->data_length - offset, image);
 		if(code < 0) {
@@ -1557,7 +1363,6 @@ int jbig2_immediate_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const
 	}
 	else {
 		int stats_size = jbig2_generic_stats_size(ctx, params.GBTEMPLATE);
-
 		GB_stats = jbig2_new(ctx, Jbig2ArithCx, stats_size);
 		if(GB_stats == NULL) {
 			code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "failed to allocate arithmetic decoder states when handling immediate generic region");
@@ -1580,16 +1385,13 @@ int jbig2_immediate_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const
 			goto cleanup;
 		}
 	}
-
 	code = jbig2_page_add_result(ctx, &ctx->pages[ctx->current_page], image, rsi.x, rsi.y, rsi.op);
 	if(code < 0)
 		code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "unable to add result to page");
-
 cleanup:
 	jbig2_free(ctx->allocator, as);
 	jbig2_word_stream_buf_free(ctx, ws);
 	jbig2_free(ctx->allocator, GB_stats);
 	jbig2_image_release(ctx, image);
-
 	return code;
 }

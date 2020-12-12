@@ -23,29 +23,25 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifdef HAVE_UNISCRIBE
 
 #ifdef HB_NO_OT_TAG
-#error "Cannot compile 'uniscribe' shaper with HB_NO_OT_TAG."
+	#error "Cannot compile 'uniscribe' shaper with HB_NO_OT_TAG."
 #endif
-
-#include "hb-shaper-impl.hh"
-#include <windows.h>
+//#include "hb-shaper-impl.hh"
+//#include <windows.h>
 #include <usp10.h>
 #include <rpc.h>
-
 #ifndef E_NOT_SUFFICIENT_BUFFER
-#define E_NOT_SUFFICIENT_BUFFER HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER)
+	#define E_NOT_SUFFICIENT_BUFFER HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER)
 #endif
-
 #include "hb-uniscribe.h"
 #include "hb-open-file.hh"
 #include "hb-ot-name-table.hh"
 #include "hb-ot-layout.h"
-
 /**
  * SECTION:hb-uniscribe
  * @title: hb-uniscribe
@@ -232,7 +228,7 @@ static struct hb_uniscribe_shaper_funcs_lazy_loader_t : hb_lazy_loader_t<hb_unis
 	    hb_uniscribe_shaper_funcs_lazy_loader_t>{
 	static hb_uniscribe_shaper_funcs_t * create()
 	{
-		hb_uniscribe_shaper_funcs_t * funcs = (hb_uniscribe_shaper_funcs_t*)calloc(1, sizeof(hb_uniscribe_shaper_funcs_t));
+		hb_uniscribe_shaper_funcs_t * funcs = (hb_uniscribe_shaper_funcs_t*)SAlloc::C(1, sizeof(hb_uniscribe_shaper_funcs_t));
 		if(unlikely(!funcs))
 			return nullptr;
 
@@ -247,7 +243,7 @@ static struct hb_uniscribe_shaper_funcs_lazy_loader_t : hb_lazy_loader_t<hb_unis
 
 	static void destroy(hb_uniscribe_shaper_funcs_t * p)
 	{
-		free((void*)p);
+		SAlloc::F((void*)p);
 	}
 
 	static hb_uniscribe_shaper_funcs_t * get_null()
@@ -376,7 +372,7 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 	unsigned int name_table_offset = (length + 3) & ~3;
 
 	new_length = name_table_offset + padded_name_table_length;
-	void * new_sfnt_data = calloc(1, new_length);
+	void * new_sfnt_data = SAlloc::C(1, new_length);
 	if(!new_sfnt_data) {
 		hb_blob_destroy(blob);
 		return nullptr;
@@ -420,7 +416,7 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 			record.length = name_table_length;
 		}
 		else if(face_index == 0) { /* Fail if first face doesn't have 'name' table. */
-			free(new_sfnt_data);
+			SAlloc::F(new_sfnt_data);
 			hb_blob_destroy(blob);
 			return nullptr;
 		}
@@ -429,41 +425,33 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 	/* The checkSumAdjustment field in the 'head' table is now wrong,
 	 * but that doesn't actually seem to cause any problems so we don't
 	 * bother. */
-
 	hb_blob_destroy(blob);
-	return hb_blob_create((const char*)new_sfnt_data, new_length,
-		   HB_MEMORY_MODE_WRITABLE, new_sfnt_data, free);
+	return hb_blob_create((const char*)new_sfnt_data, new_length, HB_MEMORY_MODE_WRITABLE, new_sfnt_data, free);
 }
 
 hb_uniscribe_face_data_t * _hb_uniscribe_shaper_face_data_create(hb_face_t * face)
 {
-	hb_uniscribe_face_data_t * data = (hb_uniscribe_face_data_t*)calloc(1, sizeof(hb_uniscribe_face_data_t));
+	hb_uniscribe_face_data_t * data = (hb_uniscribe_face_data_t*)SAlloc::C(1, sizeof(hb_uniscribe_face_data_t));
 	if(unlikely(!data))
 		return nullptr;
-
 	data->funcs = hb_uniscribe_shaper_get_funcs();
 	if(unlikely(!data->funcs)) {
-		free(data);
+		SAlloc::F(data);
 		return nullptr;
 	}
-
 	hb_blob_t * blob = hb_face_reference_blob(face);
 	if(unlikely(!hb_blob_get_length(blob)))
 		DEBUG_MSG(UNISCRIBE, face, "Face has empty blob");
-
 	blob = _hb_rename_font(blob, data->face_name);
 	if(unlikely(!blob)) {
-		free(data);
+		SAlloc::F(data);
 		return nullptr;
 	}
-
 	DWORD num_fonts_installed;
-	data->fh = AddFontMemResourceEx((void*)hb_blob_get_data(blob, nullptr),
-		hb_blob_get_length(blob),
-		0, &num_fonts_installed);
+	data->fh = AddFontMemResourceEx((void*)hb_blob_get_data(blob, nullptr), hb_blob_get_length(blob), 0, &num_fonts_installed);
 	if(unlikely(!data->fh)) {
 		DEBUG_MSG(UNISCRIBE, face, "Face AddFontMemResourceEx() failed");
-		free(data);
+		SAlloc::F(data);
 		return nullptr;
 	}
 
@@ -473,7 +461,7 @@ hb_uniscribe_face_data_t * _hb_uniscribe_shaper_face_data_create(hb_face_t * fac
 void _hb_uniscribe_shaper_face_data_destroy(hb_uniscribe_face_data_t * data)
 {
 	RemoveFontMemResourceEx(data->fh);
-	free(data);
+	SAlloc::F(data);
 }
 
 /*
@@ -488,25 +476,20 @@ struct hb_uniscribe_font_data_t {
 	double x_mult, y_mult; /* From LOGFONT space to HB space. */
 };
 
-static bool populate_log_font(LOGFONTW  * lf,
-    hb_font_t * font,
-    unsigned int font_size)
+static bool populate_log_font(LOGFONTW  * lf, hb_font_t * font, unsigned int font_size)
 {
-	memset(lf, 0, sizeof(*lf));
+	memzero(lf, sizeof(*lf));
 	lf->lfHeight = -(int)font_size;
 	lf->lfCharSet = DEFAULT_CHARSET;
-
 	memcpy(lf->lfFaceName, font->face->data.uniscribe->face_name, sizeof(lf->lfFaceName));
-
 	return true;
 }
 
 hb_uniscribe_font_data_t * _hb_uniscribe_shaper_font_data_create(hb_font_t * font)
 {
-	hb_uniscribe_font_data_t * data = (hb_uniscribe_font_data_t*)calloc(1, sizeof(hb_uniscribe_font_data_t));
+	hb_uniscribe_font_data_t * data = (hb_uniscribe_font_data_t*)SAlloc::C(1, sizeof(hb_uniscribe_font_data_t));
 	if(unlikely(!data))
 		return nullptr;
-
 	int font_size = font->face->get_upem(); /* Default... */
 	/* No idea if the following is even a good idea. */
 	if(font->y_ppem)
@@ -549,7 +532,7 @@ void _hb_uniscribe_shaper_font_data_destroy(hb_uniscribe_font_data_t * data)
 		DeleteObject(data->hfont);
 	if(data->script_cache)
 		ScriptFreeCache(&data->script_cache);
-	free(data);
+	SAlloc::F(data);
 }
 
 /**
@@ -598,7 +581,6 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t    * shape_plan,
 	const hb_uniscribe_face_data_t * face_data = face->data.uniscribe;
 	const hb_uniscribe_font_data_t * font_data = font->data.uniscribe;
 	hb_uniscribe_shaper_funcs_t * funcs = face_data->funcs;
-
 	/*
 	 * Set up features.
 	 */
@@ -612,14 +594,10 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t    * shape_plan,
 			feature.rec.tagFeature = hb_uint32_swap(features[i].tag);
 			feature.rec.lParameter = features[i].value;
 			feature.order = i;
-
-			feature_event_t * event;
-
-			event = feature_events.push();
+			feature_event_t * event = feature_events.push();
 			event->index = features[i].start;
 			event->start = true;
 			event->feature = feature;
-
 			event = feature_events.push();
 			event->index = features[i].end;
 			event->start = false;

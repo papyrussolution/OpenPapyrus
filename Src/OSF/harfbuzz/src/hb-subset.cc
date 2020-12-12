@@ -23,7 +23,7 @@
  *
  * Google Author(s): Garret Rieger, Rod Sheeter, Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 #include "hb-open-type.hh"
 #include "hb-subset.hh"

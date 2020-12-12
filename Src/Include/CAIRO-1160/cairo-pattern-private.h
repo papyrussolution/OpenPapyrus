@@ -195,7 +195,7 @@ cairo_private void _cairo_pattern_pretransform(cairo_pattern_t * pattern, const 
 cairo_private boolint _cairo_pattern_is_opaque_solid(const cairo_pattern_t * pattern);
 cairo_private boolint FASTCALL _cairo_pattern_is_opaque(const cairo_pattern_t * pattern, const cairo_rectangle_int_t * extents);
 cairo_private boolint FASTCALL _cairo_pattern_is_clear(const cairo_pattern_t * pattern);
-cairo_private boolint _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t * gradient, const cairo_rectangle_int_t * extents, cairo_color_t * color);
+cairo_private boolint FASTCALL _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t * gradient, const cairo_rectangle_int_t * extents, cairo_color_t * color);
 cairo_private boolint _cairo_pattern_is_constant_alpha(const cairo_pattern_t * abstract_pattern, const cairo_rectangle_int_t * extents, double * alpha);
 cairo_private void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradient, double max_value, cairo_matrix_t * out_matrix, cairo_circle_double_t out_circle[2]);
 cairo_private boolint _cairo_radial_pattern_focus_is_inside(const cairo_radial_pattern_t * radial);

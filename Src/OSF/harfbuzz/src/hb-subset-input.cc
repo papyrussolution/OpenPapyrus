@@ -23,11 +23,10 @@
  *
  * Google Author(s): Garret Rieger, Rod Sheeter, Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 #include "hb-subset.hh"
 #include "hb-set.hh"
-
 /**
  * hb_subset_input_create_or_fail:
  *
@@ -79,12 +78,9 @@ hb_subset_input_t * hb_subset_input_create_or_fail()
 		HB_TAG('S', 'i', 'l', 'f'),
 		HB_TAG('S', 'i', 'l', 'l'),
 	};
-
 	input->drop_tables->add_array(default_drop_tables, ARRAY_LENGTH(default_drop_tables));
-
 	return input;
 }
-
 /**
  * hb_subset_input_reference: (skip)
  * @subset_input: a subset_input.
@@ -116,9 +112,8 @@ void hb_subset_input_destroy(hb_subset_input_t * subset_input)
 	hb_set_destroy(subset_input->name_languages);
 	hb_set_destroy(subset_input->drop_tables);
 
-	free(subset_input);
+	SAlloc::F(subset_input);
 }
-
 /**
  * hb_subset_input_unicode_set:
  * @subset_input: a subset_input.
@@ -184,12 +179,10 @@ HB_EXTERN hb_bool_t hb_subset_input_get_desubroutinize(hb_subset_input_t * subse
  * @retain_gids: If true the subsetter will not renumber glyph ids.
  * Since: 2.4.0
  **/
-HB_EXTERN void hb_subset_input_set_retain_gids(hb_subset_input_t * subset_input,
-    hb_bool_t retain_gids)
+HB_EXTERN void hb_subset_input_set_retain_gids(hb_subset_input_t * subset_input, hb_bool_t retain_gids)
 {
 	subset_input->retain_gids = retain_gids;
 }
-
 /**
  * hb_subset_input_get_retain_gids:
  * Returns: value of retain_gids.
@@ -200,8 +193,7 @@ HB_EXTERN hb_bool_t hb_subset_input_get_retain_gids(hb_subset_input_t * subset_i
 	return subset_input->retain_gids;
 }
 
-HB_EXTERN void hb_subset_input_set_name_legacy(hb_subset_input_t * subset_input,
-    hb_bool_t name_legacy)
+HB_EXTERN void hb_subset_input_set_name_legacy(hb_subset_input_t * subset_input, hb_bool_t name_legacy)
 {
 	subset_input->name_legacy = name_legacy;
 }

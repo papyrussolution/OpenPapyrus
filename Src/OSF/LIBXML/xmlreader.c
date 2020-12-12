@@ -23,9 +23,9 @@
 	#include <libxml/relaxng.h>
 	#include <libxml/xmlschemas.h>
 #endif
-#ifdef LIBXML_XINCLUDE_ENABLED
-	#include <libxml/xinclude.h>
-#endif
+//#ifdef LIBXML_XINCLUDE_ENABLED
+	//#include <libxml/xinclude.h>
+//#endif
 #define MAX_ERR_MSG_SIZE 64000
 /*
  * The following VA_COPY was coded following an example in

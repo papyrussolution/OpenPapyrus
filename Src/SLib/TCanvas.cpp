@@ -2251,6 +2251,11 @@ int STextLayout::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW(pCtx->Serialize(dir, Text, rBuf));
 	THROW(pCtx->Serialize(dir, &CStyleList, rBuf));
 	THROW(pCtx->Serialize(dir, &ParaList, rBuf));
+	// @v10.9.8 {
+	if(dir < 0) {
+		State &= ~(stPreprocessed|stArranged);
+	}
+	// } @v10.9.8 
 	CATCHZOK
 	return ok;
 }
@@ -2322,12 +2327,10 @@ int STextLayout::SetText(const char * pText)
 void STextLayout::SetOptions(long flags, int defParaStyleId, int defCStyleId)
 {
 	Flags |= (flags & (fWrap|fUnlimX|fUnlimY|fNoClip|fPrecBkg));
-	// @v9.1.8 {
 	if(flags & fVCenter && !(flags & fVBottom))
 		Flags |= fVCenter;
 	else if(flags & fVBottom && !(flags & fVCenter))
 		Flags |= fVBottom;
-	// } @v9.1.8
 	if(defParaStyleId >= 0) {
 		DefParaStyleIdent = defParaStyleId;
 		State &= ~stPreprocessed;
@@ -2362,9 +2365,8 @@ int STextLayout::SetTextStyle(uint startPos, uint len, int cstyleId)
 		style.Start = startPos;
 		style.Len = len;
 		style.StyleIdent = cstyleId;
-		if(CStyleList.ordInsert(&style, 0, CMPF_LONG, 0)) {
+		if(CStyleList.ordInsert(&style, 0, CMPF_LONG, 0))
 			State &= ~(stPreprocessed | stArranged);
-		}
 		else
 			ok = 0;
 	}
@@ -2377,7 +2379,7 @@ int STextLayout::Preprocess(SDrawContext & rCtx, SPaintToolBox & rTb)
 {
 	int    ok = 1;
 	const uint cc = static_cast<const uint>(Text.Len());
-	assert(!(State & stPreprocessed) || cc == GlyphIdList.getCount());
+	// @v10.9.8 assert(!(State & stPreprocessed) || cc == GlyphIdList.getCount());
 	if(!(State & stPreprocessed)) {
 		const uint cslc = CStyleList.getCount();
 		GlyphIdList.clear();
@@ -2430,12 +2432,12 @@ int STextLayout::Preprocess(SDrawContext & rCtx, SPaintToolBox & rTb)
 class TloRowState {
 public:
 	struct StkItem {
-		float X;    // X-РєРѕРѕСЂРґРёРЅР°С‚Р° СЃРёРјРІРѕР»Р°
-		float EndX; // X-РєРѕРѕСЂРґРёРЅР°С‚Р° РєРѕРЅС†Р° СЃРёРјРІРѕР»Р°
-		float H;    // Р’С‹СЃРѕС‚Р° СЃРёРјРІРѕР»Р° (РґР»СЏ РїРµСЂРІРѕР№ СЃС‚СЂРѕРєРё - РІС‹СЃРѕС‚Р° СЃРёРјРІРѕР»Р°, РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РёС… - РІС‹СЃРѕС‚Р° СЃС‚СЂРѕРєРё)
+		float X;    // X-координата символа
+		float EndX; // X-координата конца символа
+		float H;    // Высота символа (для первой строки - высота символа, для последующих - высота строки)
 	};
-	uint   N; // РќРѕРјРµСЂ СЃС‚СЂРѕРєРё
-	uint   S; // РЎС‚Р°СЂС‚РѕРІР°СЏ РїРѕР·РёС†РёСЏ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё
+	uint   N; // Номер строки
+	uint   S; // Стартовая позиция текущей строки
 	int    Overflow;
 	FRect  Bounds;
 	TSStack <StkItem> Stk;
@@ -2521,7 +2523,7 @@ public:
 	}
 	int Wrap(const SStringU & rText, uint & rCurTxtPos)
 	{
-		// rCurTxtPos - РџРѕР·РёС†РёСЏ СЃРёРјРІРѕР»Р° РЅРµ РїРѕРјРµС‰Р°СЋС‰РµРіРѕСЃСЏ РІ РіСЂР°РЅРёС†С‹ Рё РЅРµ РІРЅРµСЃРµРЅРЅРѕРіРѕ РІ СЃС‚РµРє
+		// rCurTxtPos - Позиция символа не помещающегося в границы и не внесенного в стек
 		int    wrap = 0;
 		uint   txt_pos = rCurTxtPos;
 		if(GetCount()) {
@@ -2568,7 +2570,7 @@ int STextLayout::Arrange(SDrawContext & rCtx, SPaintToolBox & rTb)
 		List.clear();
 		const uint pc = ParaList.getCount();
 		TloRowState row_state(List, Bounds);
-		int    justif = ADJ_LEFT; // Р’С‹СЂР°РІРЅРёРІР°РЅРёРµ РїРѕ РїРѕСЃР»РµРґРЅРµРјСѓ РѕРїСЂРµРґРµР»РёС‚РµР»СЋ РїР°СЂР°РіСЂР°С„Р°
+		int    justif = ADJ_LEFT; // Выравнивание по последнему определителю параграфа
 		FPoint cur = Bounds.a;
 		for(uint i = 0; i < pc; i++) {
 			const LAssoc & r_pitem = ParaList.at(i);
@@ -2577,8 +2579,8 @@ int STextLayout::Arrange(SDrawContext & rCtx, SPaintToolBox & rTb)
 			int para_style_ident = NZOR(r_pitem.Val, DefParaStyleIdent);
 			if(!para_style_ident) {
 				SParaDescr pd;
-				pd.LuIndent = 0;
-				pd.RlIndent = 0;
+				pd.LuIndent.Z();
+				pd.RlIndent.Z();
 				pd.StartIndent = 0;
 				para_style_ident = rTb.CreateParagraph(0, &pd);
 				DefParaStyleIdent = para_style_ident;
@@ -2605,7 +2607,7 @@ int STextLayout::Arrange(SDrawContext & rCtx, SPaintToolBox & rTb)
 						cur.Y += ht;
 					}
 					else if(Text[text_pos] == L'&' && j < (cc-1) && Text[text_pos+1] != L'&') {
-						row_state.PushGlyph(0, cur, 0); // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃРёРјРІРѕР» - СЃР»РµРґСѓСЋС‰РёР№ Р±СѓРґРµС‚ РїРѕРґС‡РµСЂРєРЅСѓС‚
+						row_state.PushGlyph(0, cur, 0); // Специальный символ - следующий будет подчеркнут
 					}
 					else {
 						const SGlyph * p_glyph = rTb.GetGlyph(GlyphIdList.get(text_pos));
@@ -2737,7 +2739,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 			cairo_rectangle(P_Cr, r_fb.a.X, r_fb.a.Y, r_fb.Width(), r_fb.Height());
 			cairo_clip(P_Cr);
 		}
-		LongArray special_positions; // РРЅРґРµРєСЃС‹ РІ РјР°СЃСЃРёРІРµ glyph_list, РґР»СЏ РєРѕС‚РѕСЂС‹С… РЅРµРѕР±С…РѕРґРёРјС‹ РґРѕРї РґРµР№СЃС‚РІРёСЏ (РїРѕРґС‡РµСЂРєРёРІР°РЅРёРµ, РЅР°РїСЂРёРјРµСЂ)
+		LongArray special_positions; // Индексы в массиве glyph_list, для которых необходимы доп действия (подчеркивание, например)
 		for(uint i = 0; pTlo->EnumGroups(&i, &re);) {
 			const uint rcnt = re.Items.getCount();
 			if(re.P_Font && rcnt) {
@@ -2751,10 +2753,10 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 					glyph.index = (ulong)r_item.GlyphIdx;
 					glyph.P.x = r_item.P.X;
 					//
-					// РќРµ РїРѕРЅСЏС‚РЅРѕ РїРѕС‡РµРјСѓ, РЅРѕ cairo РІС‹РІРѕРґРёС‚ СЃРёРјРІРѕР»С‹ РїРѕ Y-РєРѕРѕСЂРґРёРЅР°С‚Рµ
-					// СЃ РїРµСЂРµРІРµСЂРЅСѓС‚С‹Рј Р·РЅР°РєРѕРј РѕС‚СЃС‚СѓРїР° РѕС‚ Y-РєРѕРѕСЂРґРёРЅР°С‚С‹ РїСЂРµРґС‹РґСѓС‰РµРіРѕ СЃРёРјРІРѕР»Р°.
+					// Не понятно почему, но cairo выводит символы по Y-координате
+					// с перевернутым знаком отступа от Y-координаты предыдущего символа.
 					//
-					/* (Р’ РІРµСЂСЃРёРё cairo 1.14.2 РїСЂРѕР±Р»РµРјС‹ СѓР¶Рµ РЅРµС‚) if(r_item.P.Y != prev_y)
+					/* (В версии cairo 1.14.2 проблемы уже нет) if(r_item.P.Y != prev_y)
 						glyph.y = prev_y - (r_item.P.Y - prev_y);
 					else*/
 						glyph.P.y = r_item.P.Y;
@@ -2769,7 +2771,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 				Helper_SelectPen(0, re.PenId);
 				if(Flags & fScopeRecording) {
 					cairo_text_extents_t te;
-					cairo_glyph_extents(P_Cr, (cairo_glyph_t *)glyph_list.at(0), glyph_list.getCount(), &te);
+					cairo_glyph_extents(P_Cr, static_cast<cairo_glyph_t *>(glyph_list.at(0)), glyph_list.getCount(), &te);
 					double x1 = te.x_bearing;
 					double y1 = te.y_bearing;
 					double x2 = te.x_bearing+te.width;
@@ -2784,7 +2786,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 					for(uint spi = 0; spi < special_positions.getCount(); spi++) {
 						cairo_text_extents_t te;
 						const uint gli = (uint)special_positions.get(spi);
-						cairo_glyph_t * p_cgl = (cairo_glyph_t *)glyph_list.at(gli);
+						cairo_glyph_t * p_cgl = static_cast<cairo_glyph_t *>(glyph_list.at(gli));
 						cairo_glyph_extents(P_Cr, p_cgl, 1, &te);
 						MoveTo(FPoint((float)p_cgl->P.x+1.0f, (float)p_cgl->P.y+2.0f));
 						LineH((float)(p_cgl->P.x+te.width-2.0f));
@@ -2912,8 +2914,8 @@ const SPaintObj::Gradient::Stop * SPaintObj::Gradient::GetStop(uint idx) const
 //
 SParaDescr::SParaDescr() : StartIndent(0), Spacing(0), Flags(0)
 {
-	LuIndent = 0;
-	RlIndent = 0;
+	LuIndent.Z();
+	RlIndent.Z();
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -3869,8 +3871,8 @@ int SPaintToolBox::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 		freeAll();
 		for(uint i = 0; i < c; ++i) {
 			//
-			// РћР±СЉРµРєС‚ СЃРѕР·РґР°РµС‚СЃСЏ РїСѓСЃС‚С‹Рј Рё СЃСЂР°Р·Сѓ Р·Р°РЅРѕСЃРёС‚СЃСЏ РІ РјР°СЃСЃРёРІ.
-			// Р’Р°Р¶РЅРѕ С‚Рѕ, С‡С‚Рѕ РґРµСЃС‚СЂСѓРєС‚РѕСЂ ~SPaintObj РЅРµ СЂР°Р·СЂСѓС€РёС‚ РѕР±СЉРµРєС‚, СѓР¶Рµ РЅР°С…РѕРґСЏС‰РёР№СЃСЏ РІ РєРѕРЅС‚РµР№РЅРµСЂРµ.
+			// Объект создается пустым и сразу заносится в массив.
+			// Важно то, что деструктор ~SPaintObj не разрушит объект, уже находящийся в контейнере.
 			//
 			SPaintObj obj;
 			THROW(insert(&obj));

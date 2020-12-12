@@ -2802,6 +2802,7 @@ public:
 	int    GetTool(int toolId) const;
 	int    ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam);
 	int    ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam);
+	int    ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    Store(const char * pFileName);
 	int    Load(const char * pFileName);

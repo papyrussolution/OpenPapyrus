@@ -26,12 +26,12 @@
 
 /* 6.4 Table 2 */
 typedef struct {
-    bool MMR;
+    boolint MMR;
     /* GBW */
     /* GBH */
     int GBTEMPLATE;
-    bool TPGDON;
-    bool USESKIP;
+    boolint TPGDON;
+    boolint USESKIP;
     Jbig2Image *SKIP;
     int8_t gbat[8];
 } Jbig2GenericRegionParams;

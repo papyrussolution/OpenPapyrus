@@ -2114,22 +2114,15 @@ static OPJ_BOOL opj_tcd_mct_decode(opj_tcd_t * p_tcd, opj_event_mgr_t * p_manage
 				opj_free(l_data);
 				return OPJ_FALSE;
 			}
-
 			opj_free(l_data);
 		}
 		else {
 			if(l_tcp->tccps->qmfbid == 1) {
 				if(p_tcd->whole_tile_decoding) {
-					opj_mct_decode(l_tile->comps[0].data,
-					    l_tile->comps[1].data,
-					    l_tile->comps[2].data,
-					    l_samples);
+					opj_mct_decode(l_tile->comps[0].data, l_tile->comps[1].data, l_tile->comps[2].data, l_samples);
 				}
 				else {
-					opj_mct_decode(l_tile->comps[0].data_win,
-					    l_tile->comps[1].data_win,
-					    l_tile->comps[2].data_win,
-					    l_samples);
+					opj_mct_decode(l_tile->comps[0].data_win, l_tile->comps[1].data_win, l_tile->comps[2].data_win, l_samples);
 				}
 			}
 			else {
@@ -2149,11 +2142,8 @@ static OPJ_BOOL opj_tcd_mct_decode(opj_tcd_t * p_tcd, opj_event_mgr_t * p_manage
 		}
 	}
 	else {
-		opj_event_msg(p_manager, EVT_ERROR,
-		    "Number of components (%d) is inconsistent with a MCT. Skip the MCT step.\n",
-		    l_tile->numcomps);
+		opj_event_msg(p_manager, EVT_ERROR, "Number of components (%d) is inconsistent with a MCT. Skip the MCT step.\n", l_tile->numcomps);
 	}
-
 	return OPJ_TRUE;
 }
 
@@ -2169,20 +2159,16 @@ static OPJ_BOOL opj_tcd_dc_level_shift_decode(opj_tcd_t * p_tcd)
 	OPJ_INT32 * l_current_ptr;
 	OPJ_INT32 l_min, l_max;
 	OPJ_UINT32 l_stride;
-
 	l_tile = p_tcd->tcd_image->tiles;
 	l_tile_comp = l_tile->comps;
 	l_tccp = p_tcd->tcp->tccps;
 	l_img_comp = p_tcd->image->comps;
-
 	for(compno = 0; compno < l_tile->numcomps;
 	    compno++, ++l_img_comp, ++l_tccp, ++l_tile_comp) {
 		if(p_tcd->used_component != NULL && !p_tcd->used_component[compno]) {
 			continue;
 		}
-
 		l_res = l_tile_comp->resolutions + l_img_comp->resno_decoded;
-
 		if(!p_tcd->whole_tile_decoding) {
 			l_width = l_res->win_x1 - l_res->win_x0;
 			l_height = l_res->win_y1 - l_res->win_y0;
@@ -2197,11 +2183,8 @@ static OPJ_BOOL opj_tcd_dc_level_shift_decode(opj_tcd_t * p_tcd)
 				l_tile_comp->resolutions[l_tile_comp->minimum_num_resolutions - 1].x0)
 			    - l_width;
 			l_current_ptr = l_tile_comp->data;
-
-			assert(l_height == 0 ||
-			    l_width + l_stride <= l_tile_comp->data_size / l_height); /*MUPDF*/
+			assert(l_height == 0 || l_width + l_stride <= l_tile_comp->data_size / l_height); /*MUPDF*/
 		}
-
 		if(l_img_comp->sgnd) {
 			l_min = -(1 << (l_img_comp->prec - 1));
 			l_max = (1 << (l_img_comp->prec - 1)) - 1;
@@ -2210,13 +2193,11 @@ static OPJ_BOOL opj_tcd_dc_level_shift_decode(opj_tcd_t * p_tcd)
 			l_min = 0;
 			l_max = (OPJ_INT32)((1U << l_img_comp->prec) - 1);
 		}
-
 		if(l_tccp->qmfbid == 1) {
 			for(j = 0; j < l_height; ++j) {
 				for(i = 0; i < l_width; ++i) {
 					/* TODO: do addition on int64 ? */
-					*l_current_ptr = opj_int_clamp(*l_current_ptr + l_tccp->m_dc_level_shift, l_min,
-						l_max);
+					*l_current_ptr = opj_int_clamp(*l_current_ptr + l_tccp->m_dc_level_shift, l_min, l_max);
 					++l_current_ptr;
 				}
 				l_current_ptr += l_stride;
@@ -2235,8 +2216,7 @@ static OPJ_BOOL opj_tcd_dc_level_shift_decode(opj_tcd_t * p_tcd)
 					else {
 						/* Do addition on int64 to avoid overflows */
 						OPJ_INT64 l_value_int = (OPJ_INT64)opj_lrintf(l_value);
-						*l_current_ptr = (OPJ_INT32)opj_int64_clamp(
-							l_value_int + l_tccp->m_dc_level_shift, l_min, l_max);
+						*l_current_ptr = (OPJ_INT32)opj_int64_clamp(l_value_int + l_tccp->m_dc_level_shift, l_min, l_max);
 					}
 					++l_current_ptr;
 				}
@@ -2244,10 +2224,8 @@ static OPJ_BOOL opj_tcd_dc_level_shift_decode(opj_tcd_t * p_tcd)
 			}
 		}
 	}
-
 	return OPJ_TRUE;
 }
-
 /**
  * Deallocates the encoding data of the given precinct.
  */

@@ -141,14 +141,11 @@ void opj_mct_encode(OPJ_INT32* OPJ_RESTRICT c0,
 /* Inverse reversible MCT. */
 /* </summary> */
 #ifdef __SSE2__
-void opj_mct_decode(OPJ_INT32* OPJ_RESTRICT c0,
-    OPJ_INT32* OPJ_RESTRICT c1,
-    OPJ_INT32* OPJ_RESTRICT c2,
-    OPJ_SIZE_T n)
+void opj_mct_decode(OPJ_INT32* OPJ_RESTRICT c0, OPJ_INT32* OPJ_RESTRICT c1,
+    OPJ_INT32* OPJ_RESTRICT c2, OPJ_SIZE_T n)
 {
 	OPJ_SIZE_T i;
 	const OPJ_SIZE_T len = n;
-
 	for(i = 0; i < (len & ~3U); i += 4) {
 		__m128i r, g, b;
 		__m128i y = _mm_load_si128((const __m128i*)&(c0[i]));
@@ -409,9 +406,7 @@ OPJ_BOOL opj_mct_decode_custom(OPJ_BYTE * pDecodingData,
 	OPJ_FLOAT32 * lCurrentData = 00;
 	OPJ_FLOAT32 * lCurrentResult = 00;
 	OPJ_FLOAT32 ** lData = (OPJ_FLOAT32**)pData;
-
 	OPJ_ARG_NOT_USED(isSigned);
-
 	lCurrentData = (OPJ_FLOAT32*)opj_malloc(2 * pNbComp * sizeof(OPJ_FLOAT32));
 	if(!lCurrentData) {
 		return OPJ_FALSE;
@@ -435,19 +430,15 @@ OPJ_BOOL opj_mct_decode_custom(OPJ_BYTE * pDecodingData,
 	return OPJ_TRUE;
 }
 
-void opj_calculate_norms(OPJ_FLOAT64 * pNorms,
-    OPJ_UINT32 pNbComps,
-    OPJ_FLOAT32 * pMatrix)
+void opj_calculate_norms(OPJ_FLOAT64 * pNorms, OPJ_UINT32 pNbComps, OPJ_FLOAT32 * pMatrix)
 {
 	OPJ_UINT32 i, j, lIndex;
 	OPJ_FLOAT32 lCurrentValue;
 	OPJ_FLOAT64 * lNorms = (OPJ_FLOAT64*)pNorms;
 	OPJ_FLOAT32 * lMatrix = (OPJ_FLOAT32*)pMatrix;
-
 	for(i = 0; i < pNbComps; ++i) {
 		lNorms[i] = 0;
 		lIndex = i;
-
 		for(j = 0; j < pNbComps; ++j) {
 			lCurrentValue = lMatrix[lIndex];
 			lIndex += pNbComps;

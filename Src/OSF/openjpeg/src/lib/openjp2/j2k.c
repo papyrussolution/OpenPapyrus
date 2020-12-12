@@ -4862,29 +4862,20 @@ static OPJ_BOOL opj_j2k_update_rates(opj_j2k_t * p_j2k,
 	if(l_tile_size > UINT_MAX) {
 		l_tile_size = UINT_MAX;
 	}
-
 	p_j2k->m_specific_param.m_encoder.m_encoded_tile_size = (OPJ_UINT32)l_tile_size;
-	p_j2k->m_specific_param.m_encoder.m_encoded_tile_data =
-	    (OPJ_BYTE*)opj_malloc(p_j2k->m_specific_param.m_encoder.m_encoded_tile_size);
+	p_j2k->m_specific_param.m_encoder.m_encoded_tile_data = (OPJ_BYTE*)opj_malloc(p_j2k->m_specific_param.m_encoder.m_encoded_tile_size);
 	if(p_j2k->m_specific_param.m_encoder.m_encoded_tile_data == 00) {
-		opj_event_msg(p_manager, EVT_ERROR,
-		    "Not enough memory to allocate m_encoded_tile_data. %u MB required\n",
+		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to allocate m_encoded_tile_data. %u MB required\n",
 		    (OPJ_UINT32)(l_tile_size / 1024 / 1024));
 		return OPJ_FALSE;
 	}
-
 	if(OPJ_IS_CINEMA(l_cp->rsiz) || OPJ_IS_IMF(l_cp->rsiz)) {
-		p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_buffer =
-		    (OPJ_BYTE*)opj_malloc(5 *
-			p_j2k->m_specific_param.m_encoder.m_total_tile_parts);
+		p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_buffer = (OPJ_BYTE*)opj_malloc(5 * p_j2k->m_specific_param.m_encoder.m_total_tile_parts);
 		if(!p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_buffer) {
 			return OPJ_FALSE;
 		}
-
-		p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_current =
-		    p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_buffer;
+		p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_current = p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_buffer;
 	}
-
 	return OPJ_TRUE;
 }
 
@@ -10819,42 +10810,33 @@ opj_codestream_info_v2_t* j2k_get_cstr_info(opj_j2k_t* p_j2k)
 
 opj_codestream_index_t* j2k_get_cstr_index(opj_j2k_t* p_j2k)
 {
-	opj_codestream_index_t* l_cstr_index = (opj_codestream_index_t*)
-	    opj_calloc(1, sizeof(opj_codestream_index_t));
+	opj_codestream_index_t* l_cstr_index = (opj_codestream_index_t*)opj_calloc(1, sizeof(opj_codestream_index_t));
 	if(!l_cstr_index) {
 		return NULL;
 	}
-
 	l_cstr_index->main_head_start = p_j2k->cstr_index->main_head_start;
 	l_cstr_index->main_head_end = p_j2k->cstr_index->main_head_end;
 	l_cstr_index->codestream_size = p_j2k->cstr_index->codestream_size;
-
 	l_cstr_index->marknum = p_j2k->cstr_index->marknum;
-	l_cstr_index->marker = (opj_marker_info_t*)opj_malloc(l_cstr_index->marknum *
-		sizeof(opj_marker_info_t));
+	l_cstr_index->marker = (opj_marker_info_t*)opj_malloc(l_cstr_index->marknum * sizeof(opj_marker_info_t));
 	if(!l_cstr_index->marker) {
 		opj_free(l_cstr_index);
 		return NULL;
 	}
-
 	if(p_j2k->cstr_index->marker) {
-		memcpy(l_cstr_index->marker, p_j2k->cstr_index->marker,
-		    l_cstr_index->marknum * sizeof(opj_marker_info_t));
+		memcpy(l_cstr_index->marker, p_j2k->cstr_index->marker, l_cstr_index->marknum * sizeof(opj_marker_info_t));
 	}
 	else {
 		opj_free(l_cstr_index->marker);
 		l_cstr_index->marker = NULL;
 	}
-
 	l_cstr_index->nb_of_tiles = p_j2k->cstr_index->nb_of_tiles;
-	l_cstr_index->tile_index = (opj_tile_index_t*)opj_calloc(
-		l_cstr_index->nb_of_tiles, sizeof(opj_tile_index_t));
+	l_cstr_index->tile_index = (opj_tile_index_t*)opj_calloc(l_cstr_index->nb_of_tiles, sizeof(opj_tile_index_t));
 	if(!l_cstr_index->tile_index) {
 		opj_free(l_cstr_index->marker);
 		opj_free(l_cstr_index);
 		return NULL;
 	}
-
 	if(!p_j2k->cstr_index->tile_index) {
 		opj_free(l_cstr_index->tile_index);
 		l_cstr_index->tile_index = NULL;
@@ -10863,73 +10845,52 @@ opj_codestream_index_t* j2k_get_cstr_index(opj_j2k_t* p_j2k)
 		OPJ_UINT32 it_tile = 0;
 		for(it_tile = 0; it_tile < l_cstr_index->nb_of_tiles; it_tile++) {
 			/* Tile Marker*/
-			l_cstr_index->tile_index[it_tile].marknum =
-			    p_j2k->cstr_index->tile_index[it_tile].marknum;
-
-			l_cstr_index->tile_index[it_tile].marker =
-			    (opj_marker_info_t*)opj_malloc(l_cstr_index->tile_index[it_tile].marknum *
-				sizeof(opj_marker_info_t));
-
+			l_cstr_index->tile_index[it_tile].marknum = p_j2k->cstr_index->tile_index[it_tile].marknum;
+			l_cstr_index->tile_index[it_tile].marker = (opj_marker_info_t*)opj_malloc(l_cstr_index->tile_index[it_tile].marknum * sizeof(opj_marker_info_t));
 			if(!l_cstr_index->tile_index[it_tile].marker) {
 				OPJ_UINT32 it_tile_free;
-
 				for(it_tile_free = 0; it_tile_free < it_tile; it_tile_free++) {
 					opj_free(l_cstr_index->tile_index[it_tile_free].marker);
 				}
-
 				opj_free(l_cstr_index->tile_index);
 				opj_free(l_cstr_index->marker);
 				opj_free(l_cstr_index);
 				return NULL;
 			}
-
 			if(p_j2k->cstr_index->tile_index[it_tile].marker)
-				memcpy(l_cstr_index->tile_index[it_tile].marker,
-				    p_j2k->cstr_index->tile_index[it_tile].marker,
-				    l_cstr_index->tile_index[it_tile].marknum * sizeof(opj_marker_info_t));
+				memcpy(l_cstr_index->tile_index[it_tile].marker, p_j2k->cstr_index->tile_index[it_tile].marker, 
+					l_cstr_index->tile_index[it_tile].marknum * sizeof(opj_marker_info_t));
 			else {
 				opj_free(l_cstr_index->tile_index[it_tile].marker);
 				l_cstr_index->tile_index[it_tile].marker = NULL;
 			}
-
 			/* Tile part index*/
-			l_cstr_index->tile_index[it_tile].nb_tps =
-			    p_j2k->cstr_index->tile_index[it_tile].nb_tps;
-
-			l_cstr_index->tile_index[it_tile].tp_index =
-			    (opj_tp_index_t*)opj_malloc(l_cstr_index->tile_index[it_tile].nb_tps * sizeof(
-					opj_tp_index_t));
-
+			l_cstr_index->tile_index[it_tile].nb_tps = p_j2k->cstr_index->tile_index[it_tile].nb_tps;
+			l_cstr_index->tile_index[it_tile].tp_index = (opj_tp_index_t*)opj_malloc(l_cstr_index->tile_index[it_tile].nb_tps * sizeof(opj_tp_index_t));
 			if(!l_cstr_index->tile_index[it_tile].tp_index) {
 				OPJ_UINT32 it_tile_free;
-
 				for(it_tile_free = 0; it_tile_free < it_tile; it_tile_free++) {
 					opj_free(l_cstr_index->tile_index[it_tile_free].marker);
 					opj_free(l_cstr_index->tile_index[it_tile_free].tp_index);
 				}
-
 				opj_free(l_cstr_index->tile_index);
 				opj_free(l_cstr_index->marker);
 				opj_free(l_cstr_index);
 				return NULL;
 			}
-
 			if(p_j2k->cstr_index->tile_index[it_tile].tp_index) {
-				memcpy(l_cstr_index->tile_index[it_tile].tp_index,
-				    p_j2k->cstr_index->tile_index[it_tile].tp_index,
+				memcpy(l_cstr_index->tile_index[it_tile].tp_index, p_j2k->cstr_index->tile_index[it_tile].tp_index,
 				    l_cstr_index->tile_index[it_tile].nb_tps * sizeof(opj_tp_index_t));
 			}
 			else {
 				opj_free(l_cstr_index->tile_index[it_tile].tp_index);
 				l_cstr_index->tile_index[it_tile].tp_index = NULL;
 			}
-
 			/* Packet index (NOT USED)*/
 			l_cstr_index->tile_index[it_tile].nb_packet = 0;
 			l_cstr_index->tile_index[it_tile].packet_index = NULL;
 		}
 	}
-
 	return l_cstr_index;
 }
 

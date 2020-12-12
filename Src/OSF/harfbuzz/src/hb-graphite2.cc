@@ -25,12 +25,12 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifdef HAVE_GRAPHITE2
 
-#include "hb-shaper-impl.hh"
+//#include "hb-shaper-impl.hh"
 #include "hb-graphite2.h"
 #include <graphite2/Segment.h>
 #include "hb-ot-layout.h"
@@ -47,11 +47,9 @@
  * with the `graphite2` shaping engine enabled. Currently, the default is to
  * not enable `graphite2` shaping.
  **/
-
 /*
  * shaper face data
  */
-
 typedef struct hb_graphite2_tablelist_t {
 	struct hb_graphite2_tablelist_t * next;
 	hb_blob_t * blob;
@@ -68,34 +66,27 @@ static const void * hb_graphite2_get_table(const void * data, unsigned int tag, 
 {
 	hb_graphite2_face_data_t * face_data = (hb_graphite2_face_data_t*)data;
 	hb_graphite2_tablelist_t * tlist = face_data->tlist;
-
 	hb_blob_t * blob = nullptr;
-
 	for(hb_graphite2_tablelist_t * p = tlist; p; p = p->next)
 		if(p->tag == tag) {
 			blob = p->blob;
 			break;
 		}
-
 	if(unlikely(!blob)) {
 		blob = face_data->face->reference_table(tag);
-
-		hb_graphite2_tablelist_t * p = (hb_graphite2_tablelist_t*)calloc(1, sizeof(hb_graphite2_tablelist_t));
+		hb_graphite2_tablelist_t * p = (hb_graphite2_tablelist_t*)SAlloc::C(1, sizeof(hb_graphite2_tablelist_t));
 		if(unlikely(!p)) {
 			hb_blob_destroy(blob);
 			return nullptr;
 		}
 		p->blob = blob;
 		p->tag = tag;
-
 retry:
 		hb_graphite2_tablelist_t *tlist = face_data->tlist;
 		p->next = tlist;
-
 		if(unlikely(!face_data->tlist.cmpexch(tlist, p)))
 			goto retry;
 	}
-
 	unsigned int tlen;
 	const char * d = hb_blob_get_data(blob, &tlen);
 	*len = tlen;
@@ -112,19 +103,15 @@ hb_graphite2_face_data_t * _hb_graphite2_shaper_face_data_create(hb_face_t * fac
 		return nullptr;
 	}
 	hb_blob_destroy(silf_blob);
-
-	hb_graphite2_face_data_t * data = (hb_graphite2_face_data_t*)calloc(1, sizeof(hb_graphite2_face_data_t));
+	hb_graphite2_face_data_t * data = (hb_graphite2_face_data_t*)SAlloc::C(1, sizeof(hb_graphite2_face_data_t));
 	if(unlikely(!data))
 		return nullptr;
-
 	data->face = face;
 	data->grface = gr_make_face(data, &hb_graphite2_get_table, gr_face_preloadAll);
-
 	if(unlikely(!data->grface)) {
-		free(data);
+		SAlloc::F(data);
 		return nullptr;
 	}
-
 	return data;
 }
 
@@ -136,12 +123,12 @@ void _hb_graphite2_shaper_face_data_destroy(hb_graphite2_face_data_t * data)
 		hb_graphite2_tablelist_t * old = tlist;
 		hb_blob_destroy(tlist->blob);
 		tlist = tlist->next;
-		free(old);
+		SAlloc::F(old);
 	}
 
 	gr_face_destroy(data->grface);
 
-	free(data);
+	SAlloc::F(data);
 }
 
 /**
@@ -290,9 +277,7 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t    * shape_plan HB_UNUSED,
 	ALLOCATE_ARRAY(hb_codepoint_t, gids, glyph_count);
 
 #undef ALLOCATE_ARRAY
-
-	memset(clusters, 0, sizeof(clusters[0]) * buffer->len);
-
+	memzero(clusters, sizeof(clusters[0]) * buffer->len);
 	hb_codepoint_t * pg = gids;
 	clusters[0].cluster = buffer->info[0].cluster;
 	unsigned int upem = hb_face_get_upem(face);

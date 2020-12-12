@@ -3070,7 +3070,7 @@ static void xmlSchemaFreeAttributeUseProhib(xmlSchemaAttributeUseProhibPtr prohi
  *
  * Deallocates a list of wildcard constraint structures.
  */
-static void FASTCALL xmlSchemaFreeWildcardNsSet(xmlSchemaWildcardNsPtr pSet)
+static void FASTCALL xmlSchemaFreeWildcardNsSet(xmlSchemaWildcardNs * pSet)
 {
 	while(pSet) {
 		xmlSchemaWildcardNs * p_next = pSet->next;
@@ -4541,15 +4541,15 @@ static xmlSchemaModelGroupDefPtr xmlSchemaAddModelGroupDefinition(xmlSchemaParse
  *
  * Returns the new struture or NULL in case of error
  */
-static xmlSchemaWildcardNsPtr xmlSchemaNewWildcardNsConstraint(xmlSchemaParserCtxtPtr ctxt)
+static xmlSchemaWildcardNs * xmlSchemaNewWildcardNsConstraint(xmlSchemaParserCtxtPtr ctxt)
 {
-	xmlSchemaWildcardNsPtr ret = static_cast<xmlSchemaWildcardNsPtr>(SAlloc::M(sizeof(xmlSchemaWildcardNs)));
-	if(!ret) {
+	xmlSchemaWildcardNs * ret = static_cast<xmlSchemaWildcardNs *>(SAlloc::M(sizeof(xmlSchemaWildcardNs)));
+	if(!ret)
 		xmlSchemaPErrMemory(ctxt, "creating wildcard namespace constraint", 0);
-		return 0;
+	else {
+		ret->value = NULL;
+		ret->next = NULL;
 	}
-	ret->value = NULL;
-	ret->next = NULL;
 	return ret;
 }
 
@@ -4564,7 +4564,7 @@ static xmlSchemaIDC * xmlSchemaAddIDC(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr 
 		return 0;
 	}
 	memzero(ret, sizeof(xmlSchemaIDC));
-	/* The target namespace of the parent element declaration. */
+	// The target namespace of the parent element declaration. 
 	ret->targetNamespace = nsName;
 	ret->name = name;
 	ret->type = (xmlSchemaTypeType)category;
@@ -5406,7 +5406,8 @@ static int xmlSchemaParseWildcardNs(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr sc
 	const xmlChar * ns, * dictnsItem;
 	int ret = 0;
 	xmlChar * nsItem;
-	xmlSchemaWildcardNsPtr tmp, lastNs = NULL;
+	xmlSchemaWildcardNs * tmp;
+	xmlSchemaWildcardNs * lastNs = NULL;
 	xmlAttr * attr;
 	const xmlChar * pc = xmlSchemaGetProp(ctxt, P_Node, "processContents");
 	if(!pc || sstreq(pc, "strict")) {
@@ -10378,13 +10379,10 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 	}
 	switch(particle->children->type) {
 		case XML_SCHEMA_TYPE_ANY: {
-		    xmlAutomataState * start;
-			xmlAutomataState * end;
-		    xmlSchemaWildcardPtr wild;
-		    xmlSchemaWildcardNsPtr ns;
-		    wild = (xmlSchemaWildcard *)particle->children;
-		    start = pctxt->state;
-		    end = xmlAutomataNewState(pctxt->am);
+		    xmlSchemaWildcardNs * ns;
+		    xmlSchemaWildcard * wild = (xmlSchemaWildcard *)particle->children;
+		    xmlAutomataState * start = pctxt->state;
+		    xmlAutomataState * end = xmlAutomataNewState(pctxt->am);
 		    if(particle->maxOccurs == 1) {
 			    if(wild->any == 1) {
 				    /*
@@ -10414,12 +10412,10 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 			    }
 		    }
 		    else {
-			    int counter;
-			    xmlAutomataState * hop;
 			    int maxOccurs = particle->maxOccurs == UNBOUNDED ? UNBOUNDED : particle->maxOccurs - 1;
 			    int minOccurs = particle->minOccurs < 1 ? 0 : particle->minOccurs - 1;
-			    counter = xmlAutomataNewCounter(pctxt->am, minOccurs, maxOccurs);
-			    hop = xmlAutomataNewState(pctxt->am);
+			    int counter = xmlAutomataNewCounter(pctxt->am, minOccurs, maxOccurs);
+			    xmlAutomataState * hop = xmlAutomataNewState(pctxt->am);
 			    if(wild->any == 1) {
 				    pctxt->state = xmlAutomataNewTransition2(pctxt->am, start, NULL, reinterpret_cast<const xmlChar *>("*"), reinterpret_cast<const xmlChar *>("*"), wild);
 				    xmlAutomataNewEpsilon(pctxt->am, pctxt->state, hop);
@@ -10453,10 +10449,10 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 		case XML_SCHEMA_TYPE_SEQUENCE: {
 		    xmlSchemaTreeItem * sub;
 		    ret = 1;
-		    /*
-		 * If max and min occurances are default (1) then
-		 * simply iterate over the particles of the <sequence>.
-		     */
+		    // 
+		    // If max and min occurances are default (1) then
+		    // simply iterate over the particles of the <sequence>.
+		    // 
 		    if((particle->minOccurs == 1) && (particle->maxOccurs == 1)) {
 			    sub = particle->children->children;
 			    while(sub) {
@@ -10499,11 +10495,10 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 						    sub = sub->next;
 					    }
 					    xmlAutomataNewEpsilon(pctxt->am, pctxt->state, oldstate);
-					    /*
-					 * epsilon needed to block previous trans from
-					 * being allowed to enter back from another
-					 * construct
-					     */
+					    // 
+					    // epsilon needed to block previous trans from
+					    // being allowed to enter back from another construct
+					    // 
 					    pctxt->state = xmlAutomataNewEpsilon(pctxt->am, pctxt->state, 0);
 					    if(particle->minOccurs == 0) {
 						    xmlAutomataNewEpsilon(pctxt->am, oldstate, pctxt->state);
@@ -10540,11 +10535,10 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 							ret = 0;
 					    sub = sub->next;
 				    }
-				    /*
-				 * epsilon needed to block previous trans from
-				 * being allowed to enter back from another
-				 * construct
-				     */
+				    // 
+				    // epsilon needed to block previous trans from
+				    // being allowed to enter back from another construct
+				    // 
 				    pctxt->state = xmlAutomataNewEpsilon(pctxt->am, pctxt->state, 0);
 				    if(particle->minOccurs == 0) {
 					    xmlAutomataNewEpsilon(pctxt->am, oldstate, pctxt->state);
@@ -10561,10 +10555,9 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 		    ret = 0;
 		    start = pctxt->state;
 		    end = xmlAutomataNewState(pctxt->am);
-		    /*
-		 * iterate over the subtypes and remerge the end with an
-		 * epsilon transition
-		     */
+		    // 
+		    // iterate over the subtypes and remerge the end with an epsilon transition
+		    // 
 		    if(particle->maxOccurs == 1) {
 			    sub = particle->children->children;
 			    while(sub) {
@@ -10577,18 +10570,14 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 			    }
 		    }
 		    else {
-			    int counter;
-			    xmlAutomataState * hop;
-				xmlAutomataState * base;
 			    int maxOccurs = particle->maxOccurs == UNBOUNDED ? UNBOUNDED : particle->maxOccurs - 1;
 			    int minOccurs = particle->minOccurs < 1 ? 0 : particle->minOccurs - 1;
-			    /*
-			 * use a counter to keep track of the number of transtions
-			 * which went through the choice.
-			     */
-			    counter = xmlAutomataNewCounter(pctxt->am, minOccurs, maxOccurs);
-			    hop = xmlAutomataNewState(pctxt->am);
-			    base = xmlAutomataNewState(pctxt->am);
+			    // 
+			    // use a counter to keep track of the number of transtions which went through the choice.
+			    // 
+			    int counter = xmlAutomataNewCounter(pctxt->am, minOccurs, maxOccurs);
+			    xmlAutomataState * hop = xmlAutomataNewState(pctxt->am);
+			    xmlAutomataState * base = xmlAutomataNewState(pctxt->am);
 			    sub = particle->children->children;
 			    while(sub) {
 				    pctxt->state = base;
@@ -10981,9 +10970,9 @@ static xmlSchemaType * xmlSchemaGetBuiltInTypeAncestor(xmlSchemaType * type)
  */
 static int xmlSchemaCloneWildcardNsConstraints(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWildcardPtr dest, xmlSchemaWildcardPtr source)
 {
-	xmlSchemaWildcardNsPtr cur;
-	xmlSchemaWildcardNsPtr tmp;
-	xmlSchemaWildcardNsPtr last;
+	xmlSchemaWildcardNs * cur;
+	xmlSchemaWildcardNs * tmp;
+	xmlSchemaWildcardNs * last;
 	if((source == NULL) || (dest == NULL))
 		return -1;
 	dest->any = source->any;
@@ -11025,7 +11014,9 @@ static int xmlSchemaCloneWildcardNsConstraints(xmlSchemaParserCtxtPtr ctxt, xmlS
  */
 static int xmlSchemaUnionWildcards(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWildcardPtr completeWild, xmlSchemaWildcardPtr curWild)
 {
-	xmlSchemaWildcardNsPtr cur, curB, tmp;
+	xmlSchemaWildcardNs * cur;
+	xmlSchemaWildcardNs * curB;
+	xmlSchemaWildcardNs * tmp;
 	/*
 	 * 1 If O1 and O2 are the same value, then that value must be the
 	 * value.
@@ -11078,7 +11069,7 @@ static int xmlSchemaUnionWildcards(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWildcar
 	 */
 	if(completeWild->nsSet && curWild->nsSet) {
 		int found;
-		xmlSchemaWildcardNsPtr start;
+		xmlSchemaWildcardNs * start;
 		cur = curWild->nsSet;
 		start = completeWild->nsSet;
 		while(cur) {
@@ -11234,7 +11225,10 @@ static int xmlSchemaUnionWildcards(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWildcar
  */
 static int xmlSchemaIntersectWildcards(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWildcardPtr completeWild, xmlSchemaWildcardPtr curWild)
 {
-	xmlSchemaWildcardNsPtr cur, curB, prev,  tmp;
+	xmlSchemaWildcardNs * cur;
+	xmlSchemaWildcardNs * curB;
+	xmlSchemaWildcardNs * prev;
+	xmlSchemaWildcardNs * tmp;
 	/*
 	 * 1 If O1 and O2 are the same value, then that value must be the
 	 * value.
@@ -11441,7 +11435,7 @@ static int xmlSchemaCheckCOSNSSubset(xmlSchemaWildcardPtr sub, xmlSchemaWildcard
 			 * 3.2.2 super must be a pair of not and a namespace name or
 			 * `absent` and that value must not be in sub's set.
 			 */
-			xmlSchemaWildcardNsPtr cur = sub->nsSet;
+			xmlSchemaWildcardNs * cur = sub->nsSet;
 			while(cur) {
 				if(cur->value == super->negNsSet->value)
 					return 1;
@@ -11492,7 +11486,7 @@ static int xmlSchemaCheckCVCWildcardNamespace(xmlSchemaWildcardPtr wild, const x
 	if(wild->any)
 		return 0;
 	else if(wild->nsSet) {
-		xmlSchemaWildcardNsPtr cur = wild->nsSet;
+		xmlSchemaWildcardNs * cur = wild->nsSet;
 		while(cur) {
 			if(sstreq(cur->value, ns))
 				return 0;

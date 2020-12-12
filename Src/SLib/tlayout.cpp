@@ -343,7 +343,7 @@ lay_scalar TLayout::CalcWrappedStackedSize(lay_id item, int dim) const
 //
 TLayout::EntryBlock::EntryBlock() : ContainerDirection(DIREC_UNKN), ContainerAdjustment(ADJ_LEFT), ContainerFlags(0), BehaveFlags(0)
 {
-	Sz = 0;
+	Sz.Z();
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -369,7 +369,7 @@ int TLayout::EntryBlock::SizeFromString(const char * pBuf)
 	const uint _c = ss.getCount();
 	if(oneof3(_c, 0, 1, 2)) {
 		if(_c == 0) {
-			Sz = 0;
+			Sz.Z();
 			ok = -1;
 		}
 		else {

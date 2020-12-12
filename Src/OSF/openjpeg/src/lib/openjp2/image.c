@@ -165,44 +165,31 @@ void opj_copy_image_header(const opj_image_t* p_image_src, opj_image_t* p_image_
 		opj_free(p_image_dest->comps);
 		p_image_dest->comps = NULL;
 	}
-
 	p_image_dest->numcomps = p_image_src->numcomps;
-
-	p_image_dest->comps = (opj_image_comp_t*)opj_malloc(p_image_dest->numcomps *
-		sizeof(opj_image_comp_t));
+	p_image_dest->comps = (opj_image_comp_t*)opj_malloc(p_image_dest->numcomps * sizeof(opj_image_comp_t));
 	if(!p_image_dest->comps) {
 		p_image_dest->comps = NULL;
 		p_image_dest->numcomps = 0;
 		return;
 	}
-
 	for(compno = 0; compno < p_image_dest->numcomps; compno++) {
-		memcpy(&(p_image_dest->comps[compno]),
-		    &(p_image_src->comps[compno]),
-		    sizeof(opj_image_comp_t));
+		memcpy(&(p_image_dest->comps[compno]), &(p_image_src->comps[compno]), sizeof(opj_image_comp_t));
 		p_image_dest->comps[compno].data = NULL;
 	}
-
 	p_image_dest->color_space = p_image_src->color_space;
 	p_image_dest->icc_profile_len = p_image_src->icc_profile_len;
-
 	if(p_image_dest->icc_profile_len) {
-		p_image_dest->icc_profile_buf = (OPJ_BYTE*)opj_malloc(
-			p_image_dest->icc_profile_len);
+		p_image_dest->icc_profile_buf = (OPJ_BYTE*)opj_malloc(p_image_dest->icc_profile_len);
 		if(!p_image_dest->icc_profile_buf) {
 			p_image_dest->icc_profile_buf = NULL;
 			p_image_dest->icc_profile_len = 0;
 			return;
 		}
-		memcpy(p_image_dest->icc_profile_buf,
-		    p_image_src->icc_profile_buf,
-		    p_image_src->icc_profile_len);
+		memcpy(p_image_dest->icc_profile_buf, p_image_src->icc_profile_buf, p_image_src->icc_profile_len);
 	}
 	else {
 		p_image_dest->icc_profile_buf = NULL;
 	}
-
-	return;
 }
 
 opj_image_t* OPJ_CALLCONV opj_image_tile_create(OPJ_UINT32 numcmpts,

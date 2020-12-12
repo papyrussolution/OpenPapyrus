@@ -27,7 +27,6 @@
 
 #include "hb-aat-layout-common.hh"
 #include "hb-open-type.hh"
-
 /*
  * opbd -- Optical Bounds
  * https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6opbd.html

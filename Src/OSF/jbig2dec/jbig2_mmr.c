@@ -54,7 +54,6 @@ static void jbig2_decode_mmr_init(Jbig2MmrCtx * mmr, int width, int height, cons
 	mmr->bit_index = 32;
 	mmr->word = 0;
 	mmr->consumed_bits = 0;
-
 	while(mmr->bit_index >= 8 && mmr->data_index < mmr->size) {
 		mmr->bit_index -= 8;
 		mmr->word |= (mmr->data[mmr->data_index] << mmr->bit_index);
@@ -62,7 +61,7 @@ static void jbig2_decode_mmr_init(Jbig2MmrCtx * mmr, int width, int height, cons
 	}
 }
 
-static void jbig2_decode_mmr_consume(Jbig2MmrCtx * mmr, int n_bits)
+static void FASTCALL jbig2_decode_mmr_consume(Jbig2MmrCtx * mmr, int n_bits)
 {
 	mmr->consumed_bits += n_bits;
 	if(mmr->consumed_bits > mmr->size * 8)
@@ -75,7 +74,6 @@ static void jbig2_decode_mmr_consume(Jbig2MmrCtx * mmr, int n_bits)
 		mmr->data_index++;
 	}
 }
-
 /*
    <raph> the first 2^(initialbits) entries map bit patterns to decodes
    <raph> let's say initial_bits is 8 for the sake of example
@@ -89,7 +87,6 @@ static void jbig2_decode_mmr_consume(Jbig2MmrCtx * mmr, int n_bits)
    <raph> so 2^(n_bits - initial_bits) is the size of the mini-table
    <raph> peter came up with this, and it makes sense
  */
-
 typedef struct {
 	short val;
 	short n_bits;
@@ -745,10 +742,8 @@ static uint32_t jbig2_find_changing_element(const byte * line, uint32_t x, uint3
 	uint8_t all8;
 	uint16_t all16;
 	uint32_t all32;
-
 	if(line == NULL)
 		return w;
-
 	if(x == MINUS1) {
 		a = 0;
 		x = 0;
@@ -760,7 +755,6 @@ static uint32_t jbig2_find_changing_element(const byte * line, uint32_t x, uint3
 	else {
 		return x;
 	}
-
 	/* We will be looking for a uint8 or uint16 or uint32 that has at least one
 	   bit different from <a>, so prepare some useful values for comparison. */
 	all8  = (a) ? 0xff : 0;
@@ -807,7 +801,6 @@ static uint32_t jbig2_find_changing_element(const byte * line, uint32_t x, uint3
 		}
 		x += 8; /* This will make x a multiple of 16. */
 	}
-
 	assert(x % 16 == 0);
 	/* Check next uint16 if we are not on 32-bit boundary. */
 	if(x % 32) {
@@ -905,47 +898,39 @@ static const byte rm[8] = { 0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE };
 
 static void jbig2_set_bits(byte * line, uint32_t x0, uint32_t x1)
 {
-	uint32_t a0, a1, b0, b1, a;
-
-	a0 = x0 >> 3;
-	a1 = x1 >> 3;
-
-	b0 = x0 & 7;
-	b1 = x1 & 7;
-
+	const uint32_t a0 = x0 >> 3;
+	const uint32_t a1 = x1 >> 3;
+	const uint32_t b0 = x0 & 7;
+	const uint32_t b1 = x1 & 7;
 	if(a0 == a1) {
 		line[a0] |= lm[b0] & rm[b1];
 	}
 	else {
 		line[a0] |= lm[b0];
-		for(a = a0 + 1; a < a1; a++)
+		for(uint32_t a = a0 + 1; a < a1; a++)
 			line[a] = 0xFF;
 		if(b1)
 			line[a1] |= rm[b1];
 	}
 }
 
-static int jbig2_decode_get_code(Jbig2MmrCtx * mmr, const mmr_table_node * table, int initial_bits)
+static int FASTCALL jbig2_decode_get_code(Jbig2MmrCtx * mmr, const mmr_table_node * table, int initial_bits)
 {
-	uint32_t word = mmr->word;
+	const uint32_t word = mmr->word;
 	int table_ix = word >> (32 - initial_bits);
 	int val = table[table_ix].val;
 	int n_bits = table[table_ix].n_bits;
-
 	if(n_bits > initial_bits) {
 		int mask = (1 << (32 - initial_bits)) - 1;
-
 		table_ix = val + ((word & mask) >> (32 - n_bits));
 		val = table[table_ix].val;
 		n_bits = initial_bits + table[table_ix].n_bits;
 	}
-
 	jbig2_decode_mmr_consume(mmr, n_bits);
-
 	return val;
 }
 
-static int jbig2_decode_get_run(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const mmr_table_node * table, int initial_bits)
+static int FASTCALL jbig2_decode_get_run(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const mmr_table_node * table, int initial_bits)
 {
 	int result = 0;
 	int val;
@@ -992,10 +977,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 				if(a2 > mmr->width)
 					a2 = mmr->width;
 				if(a2 < a1) {
-					jbig2_error(ctx,
-					    JBIG2_SEVERITY_WARNING,
-					    JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					    "ignoring negative black H run");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ignoring negative black H run");
 					a2 = a1;
 				}
 				if(a1 < mmr->width)
@@ -1005,16 +987,10 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 			else {
 				black_run = jbig2_decode_get_run(ctx, mmr, jbig2_mmr_black_decode, 7);
 				if(black_run < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   JBIG2_UNKNOWN_SEGMENT_NUMBER,
-						   "failed to decode black H run");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode black H run");
 				white_run = jbig2_decode_get_run(ctx, mmr, jbig2_mmr_white_decode, 8);
 				if(white_run < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   JBIG2_UNKNOWN_SEGMENT_NUMBER,
-						   "failed to decode white H run");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode white H run");
 				/* printf ("H %d %d\n", black_run, white_run); */
 				a1 = a0 + black_run;
 				a2 = a1 + white_run;
@@ -1023,10 +999,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 				if(a2 > mmr->width)
 					a2 = mmr->width;
 				if(a1 < a0) {
-					jbig2_error(ctx,
-					    JBIG2_SEVERITY_WARNING,
-					    JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					    "ignoring negative white H run");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ignoring negative white H run");
 					a1 = a0;
 				}
 				if(a0 < mmr->width)
@@ -1034,7 +1007,6 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 				a0 = a2;
 			}
 		}
-
 		else if((word >> (32 - 4)) == 1) {
 			/* printf ("P\n"); */
 			jbig2_decode_mmr_consume(mmr, 4);

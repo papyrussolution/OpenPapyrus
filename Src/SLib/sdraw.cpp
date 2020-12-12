@@ -1828,20 +1828,20 @@ SImageBuffer::StoreParam::StoreParam(int fmt) : Fmt(fmt), Flags(0), Quality(0)
 SImageBuffer::SImageBuffer()
 {
 	SBaseBuffer::Init();
-	S = 0;
+	S.Z();
 }
 
 SImageBuffer::SImageBuffer(const SImageBuffer & rS)
 {
 	SBaseBuffer::Init();
-	S = 0;
+	S.Z();
 	Copy(rS);
 }
 
 SImageBuffer::SImageBuffer(uint w, uint h, PixF f)
 {
 	SBaseBuffer::Init();
-	S = 0;
+	S.Z();
 	Init(w, h, f);
 }
 
@@ -1852,7 +1852,7 @@ SImageBuffer::~SImageBuffer()
 
 void SImageBuffer::Destroy()
 {
-	S = 0;
+	S.Z();
 	SBaseBuffer::Destroy();
 }
 
@@ -2402,11 +2402,11 @@ int SImageBuffer::LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx, uint subImgSq
 			if(subImgSqIdx) {
 				if(subImgSqSide && subImgSqSide < width && subImgSqSide < height) {
 					TPoint sz, p;
-					sz = (int)subImgSqSide;
-					p = (int)0;
+					sz = static_cast<int>(subImgSqSide);
+					p.Z();
 					for(uint i = 1; i < subImgSqIdx; i++) {
 						p.x += sz.x;
-						if(p.x >= (int)width) {
+						if(p.x >= static_cast<int>(width)) {
 							p.y += sz.y;
 							p.x = 0;
 						}

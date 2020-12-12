@@ -2495,7 +2495,7 @@ void STimeChunkBrowser::Paint()
 		//
 		{
 			TPoint move_spot; // Пятно в активном отрезке, при нажатии на которое его можно двигать
-			move_spot = 0;    // Отрисовывается после общего цикла рисования основной области, дабы текст не затирал пятно.
+			move_spot.Z();    // Отрисовывается после общего цикла рисования основной области, дабы текст не затирал пятно.
 			canv.SelectObjectAndPush(Ptb.Get(fontChunkText));
 			canv.SelectObjectAndPush(Ptb.Get(penDefChunk));
 			canv.SelectObjectAndPush(Ptb.Get(brushDefChunk)); // {
@@ -2738,7 +2738,7 @@ void STimeChunkBrowser::Paint()
 		canv.SelectObjectAndPush(Ptb.Get(penDefChunk));
 		canv.SelectObjectAndPush(Ptb.Get(brushDefChunk));
 		TPoint move_spot; // Пятно в активном отрезке, при нажатии на которое его можно двигать
-		move_spot = 0;    // Отрисовывается после общего цикла рисования основной области, дабы текст не затирал пятно.
+		move_spot.Z();    // Отрисовывается после общего цикла рисования основной области, дабы текст не затирал пятно.
 		int    is_move_rect = 0;
 		TRect  move_rect; // Область перемещаемого отрезка (рисуется в самом конце процедуры для того, чтобы быть на переднем плане)
 		for(i = St.ScrollY; upp_edge <= (uint)a2.Right.b.y && i < P_Data->getCount(); i++) {

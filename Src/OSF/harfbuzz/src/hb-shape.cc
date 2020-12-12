@@ -25,14 +25,8 @@
  * Red Hat Author(s): Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-shaper.hh"
-#include "hb-shape-plan.hh"
-#include "hb-buffer.hh"
-#include "hb-font.hh"
-#include "hb-machinery.hh"
-
 /**
  * SECTION:hb-shape
  * @title: hb-shape
@@ -46,16 +40,15 @@
  **/
 
 #if HB_USE_ATEXIT
-static void free_static_shaper_list();
+	static void free_static_shaper_list();
 #endif
 
 static const char * nil_shaper_list[] = {nullptr};
 
-static struct hb_shaper_list_lazy_loader_t : hb_lazy_loader_t<const char *,
-	    hb_shaper_list_lazy_loader_t>{
+static struct hb_shaper_list_lazy_loader_t : hb_lazy_loader_t<const char *, hb_shaper_list_lazy_loader_t> {
 	static const char ** create()
 	{
-		const char ** shaper_list = (const char**)calloc(1 + HB_SHAPERS_COUNT, sizeof(const char *));
+		const char ** shaper_list = (const char**)SAlloc::C(1 + HB_SHAPERS_COUNT, sizeof(const char *));
 		if(unlikely(!shaper_list))
 			return nullptr;
 
@@ -74,7 +67,7 @@ static struct hb_shaper_list_lazy_loader_t : hb_lazy_loader_t<const char *,
 
 	static void destroy(const char ** l)
 	{
-		free(l);
+		SAlloc::F(l);
 	}
 
 	static const char ** get_null()

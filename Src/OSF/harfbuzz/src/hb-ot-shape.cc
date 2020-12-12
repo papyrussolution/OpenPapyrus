@@ -25,7 +25,7 @@
  * Red Hat Author(s): Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_OT_SHAPE
@@ -33,7 +33,7 @@
 	#error "Cannot compile 'ot' shaper with HB_NO_OT_LAYOUT."
 #endif
 
-#include "hb-shaper-impl.hh"
+//#include "hb-shaper-impl.hh"
 #include "hb-ot-shape.hh"
 #include "hb-ot-shape-complex.hh"
 #include "hb-ot-shape-fallback.hh"
@@ -187,23 +187,15 @@ void hb_ot_shape_planner_t::compile(hb_ot_shape_plan_t           &plan,
 #endif
 }
 
-bool hb_ot_shape_plan_t::init0(hb_face_t                     * face,
-    const hb_shape_plan_key_t     * key)
+bool hb_ot_shape_plan_t::init0(hb_face_t * face, const hb_shape_plan_key_t * key)
 {
 	map.init();
 #ifndef HB_NO_AAT_SHAPE
 	aat_map.init();
 #endif
-
-	hb_ot_shape_planner_t planner(face,
-	    &key->props);
-
-	hb_ot_shape_collect_features(&planner,
-	    key->user_features,
-	    key->num_user_features);
-
+	hb_ot_shape_planner_t planner(face, &key->props);
+	hb_ot_shape_collect_features(&planner, key->user_features, key->num_user_features);
 	planner.compile(*this, key->ot);
-
 	if(shaper->data_create) {
 		data = shaper->data_create(this);
 		if(unlikely(!data)) {
@@ -214,7 +206,6 @@ bool hb_ot_shape_plan_t::init0(hb_face_t                     * face,
 			return false;
 		}
 	}
-
 	return true;
 }
 
@@ -222,15 +213,13 @@ void hb_ot_shape_plan_t::fini()
 {
 	if(shaper->data_destroy)
 		shaper->data_destroy(const_cast<void *> (data));
-
 	map.fini();
 #ifndef HB_NO_AAT_SHAPE
 	aat_map.fini();
 #endif
 }
 
-void hb_ot_shape_plan_t::substitute(hb_font_t   * font,
-    hb_buffer_t * buffer) const
+void hb_ot_shape_plan_t::substitute(hb_font_t   * font, hb_buffer_t * buffer) const
 {
 #ifndef HB_NO_AAT_SHAPE
 	if(unlikely(apply_morx))
@@ -240,8 +229,7 @@ void hb_ot_shape_plan_t::substitute(hb_font_t   * font,
 	map.substitute(this, font, buffer);
 }
 
-void hb_ot_shape_plan_t::position(hb_font_t   * font,
-    hb_buffer_t * buffer) const
+void hb_ot_shape_plan_t::position(hb_font_t   * font, hb_buffer_t * buffer) const
 {
 	if(this->apply_gpos)
 		map.position(this, font, buffer);
@@ -262,9 +250,7 @@ void hb_ot_shape_plan_t::position(hb_font_t   * font,
 #endif
 }
 
-static const hb_ot_map_feature_t
-    common_features[] =
-{
+static const hb_ot_map_feature_t common_features[] = {
 	{HB_TAG('a', 'b', 'v', 'm'), F_GLOBAL},
 	{HB_TAG('b', 'l', 'w', 'm'), F_GLOBAL},
 	{HB_TAG('c', 'c', 'm', 'p'), F_GLOBAL},
@@ -274,9 +260,7 @@ static const hb_ot_map_feature_t
 	{HB_TAG('r', 'l', 'i', 'g'), F_GLOBAL},
 };
 
-static const hb_ot_map_feature_t
-    horizontal_features[] =
-{
+static const hb_ot_map_feature_t horizontal_features[] = {
 	{HB_TAG('c', 'a', 'l', 't'), F_GLOBAL},
 	{HB_TAG('c', 'l', 'i', 'g'), F_GLOBAL},
 	{HB_TAG('c', 'u', 'r', 's'), F_GLOBAL},
@@ -286,15 +270,11 @@ static const hb_ot_map_feature_t
 	{HB_TAG('r', 'c', 'l', 't'), F_GLOBAL},
 };
 
-static void hb_ot_shape_collect_features(hb_ot_shape_planner_t          * planner,
-    const hb_feature_t             * user_features,
-    unsigned int num_user_features)
+static void hb_ot_shape_collect_features(hb_ot_shape_planner_t * planner, const hb_feature_t * user_features, unsigned int num_user_features)
 {
 	hb_ot_map_builder_t * map = &planner->map;
-
 	map->enable_feature(HB_TAG('r', 'v', 'r', 'n'));
 	map->add_gsub_pause(nullptr);
-
 	switch(planner->props.direction) {
 		case HB_DIRECTION_LTR:
 		    map->enable_feature(HB_TAG('l', 't', 'r', 'a'));
@@ -435,7 +415,6 @@ static void hb_set_unicode_props(hb_buffer_t * buffer)
 	hb_glyph_info_t * info = buffer->info;
 	for(unsigned int i = 0; i < count; i++) {
 		_hb_glyph_info_set_unicode_props(&info[i], buffer);
-
 		/* Marks are already set as continuation by the above line.
 		 * Handle Emoji_Modifier and ZWJ-continuation. */
 		if(unlikely(_hb_glyph_info_get_general_category(&info[i]) == HB_UNICODE_GENERAL_CATEGORY_MODIFIER_SYMBOL &&
@@ -445,8 +424,7 @@ static void hb_set_unicode_props(hb_buffer_t * buffer)
 #ifndef HB_NO_EMOJI_SEQUENCES
 		else if(unlikely(_hb_glyph_info_is_zwj(&info[i]))) {
 			_hb_glyph_info_set_continuation(&info[i]);
-			if(i + 1 < count &&
-			    _hb_unicode_is_emoji_Extended_Pictographic(info[i + 1].codepoint)) {
+			if(i + 1 < count && _hb_unicode_is_emoji_Extended_Pictographic(info[i + 1].codepoint)) {
 				i++;
 				_hb_glyph_info_set_unicode_props(&info[i], buffer);
 				_hb_glyph_info_set_continuation(&info[i]);

@@ -12,11 +12,9 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
-
 /* Annex A */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
@@ -44,16 +42,14 @@ int jbig2_arith_int_decode(Jbig2Ctx * ctx, Jbig2ArithIntCtx * actx, Jbig2ArithSt
 {
 	Jbig2ArithCx * IAx = actx->IAx;
 	int PREV = 1;
-	int S;
 	int32_t V;
 	int bit;
 	int n_tail, offset;
 	int i;
-	S = jbig2_arith_decode(ctx, as, &IAx[PREV]);
+	int S = jbig2_arith_decode(ctx, as, &IAx[PREV]);
 	if(S < 0)
 		return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode IAx S");
 	PREV = (PREV << 1) | S;
-
 	bit = jbig2_arith_decode(ctx, as, &IAx[PREV]);
 	if(bit < 0)
 		return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode IAx decision bit 0");
@@ -61,37 +57,23 @@ int jbig2_arith_int_decode(Jbig2Ctx * ctx, Jbig2ArithIntCtx * actx, Jbig2ArithSt
 	if(bit) {
 		bit = jbig2_arith_decode(ctx, as, &IAx[PREV]);
 		if(bit < 0)
-			return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-				   "failed to decode IAx decision bit 1");
+			return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode IAx decision bit 1");
 		PREV = (PREV << 1) | bit;
-
 		if(bit) {
 			bit = jbig2_arith_decode(ctx, as, &IAx[PREV]);
 			if(bit < 0)
-				return jbig2_error(ctx,
-					   JBIG2_SEVERITY_WARNING,
-					   JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					   "failed to decode IAx decision bit 2");
+				return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode IAx decision bit 2");
 			PREV = (PREV << 1) | bit;
-
 			if(bit) {
 				bit = jbig2_arith_decode(ctx, as, &IAx[PREV]);
 				if(bit < 0)
-					return jbig2_error(ctx,
-						   JBIG2_SEVERITY_WARNING,
-						   JBIG2_UNKNOWN_SEGMENT_NUMBER,
-						   "failed to decode IAx decision bit 3");
+					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode IAx decision bit 3");
 				PREV = (PREV << 1) | bit;
-
 				if(bit) {
 					bit = jbig2_arith_decode(ctx, as, &IAx[PREV]);
 					if(bit < 0)
-						return jbig2_error(ctx,
-							   JBIG2_SEVERITY_WARNING,
-							   JBIG2_UNKNOWN_SEGMENT_NUMBER,
-							   "failed to decode IAx decision bit 4");
+						return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode IAx decision bit 4");
 					PREV = (PREV << 1) | bit;
-
 					if(bit) {
 						n_tail = 32;
 						offset = 4436;
@@ -120,7 +102,6 @@ int jbig2_arith_int_decode(Jbig2Ctx * ctx, Jbig2ArithIntCtx * actx, Jbig2ArithSt
 		n_tail = 2;
 		offset = 0;
 	}
-
 	V = 0;
 	for(i = 0; i < n_tail; i++) {
 		bit = jbig2_arith_decode(ctx, as, &IAx[PREV]);
@@ -129,7 +110,6 @@ int jbig2_arith_int_decode(Jbig2Ctx * ctx, Jbig2ArithIntCtx * actx, Jbig2ArithSt
 		PREV = ((PREV << 1) & 511) | (PREV & 256) | bit;
 		V = (V << 1) | bit;
 	}
-
 	/* offset is always >=0, so underflow can't happen. */
 	/* avoid overflow by clamping 32 bit value. */
 	if(V > INT32_MAX - offset)

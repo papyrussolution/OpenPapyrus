@@ -570,7 +570,7 @@ int UiWtmToolDialog::getDTS(TWhatmanToolArray::Item * pData)
 	getCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
 	GetClusterData(CTL_WTMTOOL_FLAGS, &Data.Flags);
 
-	WhatmanObjectUiCtrl::ToolItemExtData * p_tied = (WhatmanObjectUiCtrl::ToolItemExtData *)Data.ExtData;
+	WhatmanObjectUiCtrl::ToolItemExtData * p_tied = reinterpret_cast<WhatmanObjectUiCtrl::ToolItemExtData *>(Data.ExtData);
 	Data.ExtSize = sizeof(WhatmanObjectUiCtrl::ToolItemExtData);
 	p_tied->UiKindID = ui_kind_id;
 	ASSIGN_PTR(pData, Data);
@@ -583,13 +583,13 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 	switch(cmd) {
 		case cmdSetupByTool:
 			{
-				const TWhatmanToolArray::Item * p_item = (const TWhatmanToolArray::Item *)pExt;
+				const TWhatmanToolArray::Item * p_item = static_cast<const TWhatmanToolArray::Item *>(pExt);
 				if(p_item) {
 					const ToolItemExtData * p_ext = (p_item->ExtSize >= sizeof(ToolItemExtData)) ? (const ToolItemExtData *)p_item->ExtData : 0;
 					if(p_ext && p_ext->UiKindID) {
 						UiKind = p_ext->UiKindID;
 						TPoint p;
-						Rect.L.Set(p = 0);
+						Rect.L.Set(p.Z());
 						p = p_item->FigSize;
 						Rect.R.Set(p);
 						ok = 1;
@@ -599,7 +599,7 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 			break;
 		case cmdSetBounds:
 			{
-				TRect * p_rect = (TRect *)pExt;
+				const TRect * p_rect = static_cast<const TRect *>(pExt);
 				Rect.Set(*p_rect);
 			}
 			ok = 1;

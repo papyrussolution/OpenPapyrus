@@ -62,7 +62,7 @@ int jbig2_decode_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
 	int32_t CURT;
 	int S, T;
 	int x, y;
-	bool first_symbol;
+	boolint first_symbol;
 	uint32_t index, SBNUMSYMS;
 	Jbig2Image * IB = NULL;
 	Jbig2Image * IBO = NULL;

@@ -50,16 +50,6 @@
 	int snprintf(char *, size_t, const char *, ...);
 	int vfprintf(FILE *, const char *, va_list);
 #endif
-#ifndef WITH_TRIO
-	//#include <stdio.h>
-#else
-	// 
-	// TRIO_REPLACE_STDIO:
-	// This macro is defined if teh trio string formatting functions are to be used instead of the default stdio ones.
-	// 
-	#define TRIO_REPLACE_STDIO
-	#include "trio.h"
-#endif
 // 
 // Internal variable indicating if a callback has been registered for
 // node creation/destruction. It avoids spending a lot of time in locking
@@ -2631,6 +2621,61 @@ int xmlNop(void);
 	#endif
 	// } save.h
 	// } @sobolev
+	//#ifdef LIBXML_XINCLUDE_ENABLED
+		//#include <libxml/xinclude.h>
+	//#endif
+	//
+	// Summary: implementation of XInclude
+	// Description: API to handle XInclude processing, implements the
+	// World Wide Web Consortium Last Call Working Draft 10 November 2003 http://www.w3.org/TR/2003/WD-xinclude-20031110
+	// 
+	// Copy: See Copyright for the status of this software.
+	// Author: Daniel Veillard
+	// 
+	#ifndef __XML_XINCLUDE_H__
+		#define __XML_XINCLUDE_H__
+		//#include <libxml/xmlversion.h>
+		//#include <libxml/tree.h>
+		#ifdef LIBXML_XINCLUDE_ENABLED
+			#ifdef __cplusplus
+			extern "C" {
+			#endif
+
+			#define XINCLUDE_NS (const xmlChar *)"http://www.w3.org/2003/XInclude"
+			#define XINCLUDE_OLD_NS (const xmlChar *)"http://www.w3.org/2001/XInclude"
+			#define XINCLUDE_NODE (const xmlChar *)"include"
+			#define XINCLUDE_FALLBACK (const xmlChar *)"fallback"
+			#define XINCLUDE_HREF (const xmlChar *)"href"
+			#define XINCLUDE_PARSE (const xmlChar *)"parse"
+			#define XINCLUDE_PARSE_XML (const xmlChar *)"xml"
+			#define XINCLUDE_PARSE_TEXT (const xmlChar *)"text"
+			#define XINCLUDE_PARSE_ENCODING (const xmlChar *)"encoding"
+			#define XINCLUDE_PARSE_XPOINTER (const xmlChar *)"xpointer"
+
+			typedef struct _xmlXIncludeCtxt xmlXIncludeCtxt;
+			typedef xmlXIncludeCtxt * xmlXIncludeCtxtPtr;
+			// 
+			// standalone processing
+			// 
+			XMLPUBFUN int XMLCALL xmlXIncludeProcess(xmlDoc * doc);
+			XMLPUBFUN int XMLCALL xmlXIncludeProcessFlags(xmlDoc * doc, int flags);
+			XMLPUBFUN int XMLCALL xmlXIncludeProcessFlagsData(xmlDoc * doc, int flags, void * data);
+			XMLPUBFUN int XMLCALL xmlXIncludeProcessTreeFlagsData(xmlNode * tree, int flags, void * data);
+			XMLPUBFUN int XMLCALL xmlXIncludeProcessTree(xmlNode * tree);
+			XMLPUBFUN int XMLCALL xmlXIncludeProcessTreeFlags(xmlNode * tree, int flags);
+			// 
+			// contextual processing
+			// 
+			XMLPUBFUN xmlXIncludeCtxtPtr XMLCALL xmlXIncludeNewContext(xmlDoc * doc);
+			XMLPUBFUN int XMLCALL xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags);
+			XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt);
+			XMLPUBFUN int XMLCALL xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNode * tree);
+			#ifdef __cplusplus
+			}
+			#endif
+		#endif
+	#endif
+	//
 	#ifdef __GNUC__
 		#ifdef PIC
 			#ifdef linux

@@ -243,11 +243,7 @@ const TLayout::EntryBlock & TWhatmanObject::GetLayoutBlock() const { return Le; 
 
 void TWhatmanObject::SetLayoutBlock(const TLayout::EntryBlock * pBlk)
 {
-	if(pBlk) {
-		Le = *pBlk;
-	}
-	else {
-	}
+	RVALUEPTR(Le, pBlk);
 }
 
 const SString & TWhatmanObject::GetLayoutContainerIdent() const { return LayoutContainerIdent; }
@@ -452,7 +448,7 @@ int TArrangeParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 
 TWhatman::TWhatman(TWindow * pOwnerWin) : CurObjPos(-1), ContainerCandidatePos(-1), SrcFileVer(0), P_Wnd(pOwnerWin), P_MultObjPosList(0)
 {
-	ScrollPos = 0;
+	ScrollPos.Z();
 }
 
 TWhatman::~TWhatman()
@@ -839,8 +835,8 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam 
 				STextLayout tlo;
 				TPoint ul_txt_gap; // Зазор верхнего левого угла для текста
 				TPoint lr_txt_gap; // Зазор нижнего правого угла для текста
-				ul_txt_gap = 0;
-				lr_txt_gap = 0;
+				ul_txt_gap.Z();
+				lr_txt_gap.Z();
 				if(p_obj->GetTextLayout(tlo, TWhatmanObject::gtloQueryForArrangeObject) > 0) {
 					TRect text_bounds;
 					text_bounds.set(tlo.GetBounds());
@@ -890,6 +886,77 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam 
 			}
 		}
 	}
+	return ok;
+}
+
+static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pItem, float size[4])
+{
+	if(pItem && pItem->managed_ptr) {
+		TWhatmanObject * p_wo = static_cast<TWhatmanObject *>(pItem->managed_ptr);
+		LayoutFlexItem * p_root = pItem->GetRoot();
+		if(p_root && p_root->managed_ptr) {
+			TWhatmanObject * p_wo_root = static_cast<TWhatmanObject *>(p_root->managed_ptr);
+			FPoint base_lu;
+			base_lu.X = p_wo_root->GetBounds().a.x;
+			base_lu.Y = p_wo_root->GetBounds().a.y;
+			const int org_width = p_wo->GetBounds().width();
+			const int org_height = p_wo->GetBounds().height();
+			TRect b;
+			b.a.x = static_cast<int16>(size[0]+base_lu.X);
+			b.a.y = static_cast<int16>(size[1]+base_lu.Y);
+			b.b.x = static_cast<int16>(size[0]+size[2]+base_lu.X);
+			b.b.y = static_cast<int16>(size[0]+size[3]+base_lu.Y);
+			p_wo->SetBounds(b);
+			//p_item->changeBounds(b);
+			//p_view->setBounds(b);
+		}
+	}	
+}
+
+int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
+{
+	int    ok = -1;
+	LayoutFlexItem * p_root_item = 0;
+	if(pC) {
+		const SString & r_container_ident = pC->GetContainerIdent();
+		if(r_container_ident.NotEmpty()) {
+			const FPoint base_lu(pC->Bounds.a.x, pC->Bounds.a.y);
+			for(uint i = 0; i < ObjList.getCount(); i++) {
+				TWhatmanObject * p_iter_obj = ObjList.at(i);
+				if(p_iter_obj) {
+					if(p_iter_obj->GetLayoutContainerIdent() == r_container_ident) {
+						if(!p_root_item) {
+							p_root_item = new LayoutFlexItem();
+							if(p_root_item) {
+								p_root_item->managed_ptr = pC;
+								p_root_item->Size.X = static_cast<float>(pC->Bounds.width());
+								p_root_item->Size.Y = static_cast<float>(pC->Bounds.height());
+								if(pC->Le.ContainerDirection == DIREC_HORZ)
+									p_root_item->Direction = FLEX_DIRECTION_ROW;
+								else if(pC->Le.ContainerDirection == DIREC_VERT)
+									p_root_item->Direction = FLEX_DIRECTION_COLUMN;
+								else
+									p_root_item->Direction = FLEX_DIRECTION_ROW;
+								if(pC->Le.ContainerFlags & TLayout::EntryBlock::cfWrap)
+									p_root_item->Flags |= LayoutFlexItem::fWrap;
+							}
+						}
+						LayoutFlexItem * p_iter_item = p_root_item->InsertItem();
+						if(p_iter_item) {
+							p_iter_item->managed_ptr = p_iter_obj;
+							p_iter_item->CbSetup = WhatmanItem_SetupLayoutItemFrameProc;
+							p_iter_item->Size.X = static_cast<float>(p_iter_obj->Bounds.width());
+							p_iter_item->Size.Y = static_cast<float>(p_iter_obj->Bounds.height());
+						}
+					}
+				}
+			}
+			if(p_root_item) {
+				p_root_item->Evaluate();
+			}
+		}
+	}
+	delete p_root_item;
 	return ok;
 }
 
@@ -1245,8 +1312,14 @@ int TWhatman::EditObject(int objIdx)
 	int    ok = -1;
 	if(objIdx >= 0 && objIdx < static_cast<int>(ObjList.getCount())) {
 		TWhatmanObject * p_obj = ObjList.at(objIdx);
-		if(p_obj)
+		if(p_obj) {
 			ok = p_obj->Edit();
+			if(ok > 0) {
+				if(p_obj->HasOption(TWhatmanObject::oContainer)) {
+					ArrangeLayoutContainer(static_cast<WhatmanObjectLayoutBase *>(p_obj));
+				}
+			}
+		}
 	}
 	return ok;
 }

@@ -21,7 +21,7 @@
  * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-#include "hb.hh"
+#include "harfbuzz-internal.h"
 #pragma hdrstop
 
 #ifndef HB_NO_STYLE
@@ -34,7 +34,6 @@
 #include "hb-ot-head-table.hh"
 #include "hb-ot-post-table.hh"
 #include "hb-ot-face.hh"
-
 /**
  * hb_style_tag_t:
  * @HB_STYLE_TAG_ITALIC: Used to vary between non-italic and italic.

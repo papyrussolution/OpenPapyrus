@@ -13,7 +13,7 @@
 #pragma hdrstop
 
 #ifdef LIBXML_XINCLUDE_ENABLED
-#include <libxml/xinclude.h>
+//#include <libxml/xinclude.h>
 #define XINCLUDE_MAX_DEPTH 40
 /* #define DEBUG_XINCLUDE */
 // 
