@@ -229,29 +229,24 @@ static unsigned long fake_crc32(unsigned long crc, const void * buff, size_t len
 	return 0;
 }
 
-static int archive_write_zip_options(struct archive_write * a, const char * key,
-    const char * val)
+static int archive_write_zip_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
 	int ret = ARCHIVE_FAILED;
-
 	if(strcmp(key, "compression") == 0) {
 		/*
 		 * Set compression to use on all future entries.
 		 * This only affects regular files.
 		 */
 		if(val == NULL || val[0] == 0) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: compression option needs a compression name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: compression option needs a compression name", a->format_name);
 		}
 		else if(strcmp(val, "deflate") == 0) {
 #ifdef HAVE_ZLIB_H
 			zip->requested_compression = COMPRESSION_DEFLATE;
 			ret = ARCHIVE_OK;
 #else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "deflate compression not supported");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "deflate compression not supported");
 #endif
 		}
 		else if(strcmp(val, "store") == 0) {
@@ -275,8 +270,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			zip->deflate_compression_level = val[0] - '0';
 			return ARCHIVE_OK;
 #else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "deflate compression not supported");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "deflate compression not supported");
 #endif
 		}
 	}
@@ -285,17 +279,13 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			zip->encryption_type = ENCRYPTION_NONE;
 			ret = ARCHIVE_OK;
 		}
-		else if(val[0] == '1' || strcmp(val, "traditional") == 0
-		    || strcmp(val, "zipcrypt") == 0
-		    || strcmp(val, "ZipCrypt") == 0) {
+		else if(val[0] == '1' || strcmp(val, "traditional") == 0 || strcmp(val, "zipcrypt") == 0 || strcmp(val, "ZipCrypt") == 0) {
 			if(is_traditional_pkware_encryption_supported()) {
 				zip->encryption_type = ENCRYPTION_TRADITIONAL;
 				ret = ARCHIVE_OK;
 			}
 			else {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "encryption not supported");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "encryption not supported");
 			}
 		}
 		else if(strcmp(val, "aes128") == 0) {
@@ -305,9 +295,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 				ret = ARCHIVE_OK;
 			}
 			else {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "encryption not supported");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "encryption not supported");
 			}
 		}
 		else if(strcmp(val, "aes256") == 0) {
@@ -317,15 +305,11 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 				ret = ARCHIVE_OK;
 			}
 			else {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "encryption not supported");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "encryption not supported");
 			}
 		}
 		else {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: unknown encryption '%s'",
-			    a->format_name, val);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: unknown encryption '%s'", a->format_name, val);
 		}
 		return (ret);
 	}
@@ -356,9 +340,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		 * Set the character set used in translating filenames.
 		 */
 		if(val == NULL || val[0] == 0) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: hdrcharset option needs a character-set name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		}
 		else {
 			zip->opt_sconv = archive_string_conversion_to_charset(
@@ -398,14 +380,9 @@ int archive_write_zip_set_compression_deflate(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int ret = ARCHIVE_FAILED;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW | ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_write_zip_set_compression_deflate");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW | ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_zip_set_compression_deflate");
 	if(a->archive.archive_format != ARCHIVE_FORMAT_ZIP) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can only use archive_write_zip_set_compression_deflate"
-		    " with zip format");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can only use archive_write_zip_set_compression_deflate with zip format");
 		ret = ARCHIVE_FATAL;
 	}
 	else {
@@ -414,8 +391,7 @@ int archive_write_zip_set_compression_deflate(struct archive * _a)
 		zip->requested_compression = COMPRESSION_DEFLATE;
 		ret = ARCHIVE_OK;
 #else
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "deflate compression not supported");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "deflate compression not supported");
 		ret = ARCHIVE_FAILED;
 #endif
 	}
@@ -427,11 +403,9 @@ int archive_write_zip_set_compression_store(struct archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
 	int ret = ARCHIVE_FAILED;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW | ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_write_zip_set_compression_deflate");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW | ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_zip_set_compression_deflate");
 	if(a->archive.archive_format != ARCHIVE_FORMAT_ZIP) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can only use archive_write_zip_set_compression_store with zip format");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can only use archive_write_zip_set_compression_store with zip format");
 		ret = ARCHIVE_FATAL;
 	}
 	else {
@@ -445,21 +419,15 @@ int archive_write_set_format_zip(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct zip * zip;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_zip");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_zip");
 	/* If another format was already registered, unregister it. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	zip = (struct zip *)calloc(1, sizeof(*zip));
 	if(zip == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate zip data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate zip data");
 		return (ARCHIVE_FATAL);
 	}
-
 	/* "Unspecified" lets us choose the appropriate compression. */
 	zip->requested_compression = COMPRESSION_UNSPECIFIED;
 #ifdef HAVE_ZLIB_H
@@ -1544,20 +1512,16 @@ static int is_traditional_pkware_encryption_supported(void)
 static int init_traditional_pkware_encryption(struct archive_write * a)
 {
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
-	const char * passphrase;
 	uint8_t key[TRAD_HEADER_SIZE];
 	uint8_t key_encrypted[TRAD_HEADER_SIZE];
 	int ret;
-
-	passphrase = __archive_write_get_passphrase(a);
+	const char * passphrase = __archive_write_get_passphrase(a);
 	if(passphrase == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Encryption needs passphrase");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Encryption needs passphrase");
 		return ARCHIVE_FAILED;
 	}
 	if(archive_random(key, sizeof(key)-1) != ARCHIVE_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can't generate random number for encryption");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't generate random number for encryption");
 		return ARCHIVE_FATAL;
 	}
 	trad_enc_init(&zip->tctx, passphrase, strlen(passphrase));
@@ -1578,16 +1542,13 @@ static int init_traditional_pkware_encryption(struct archive_write * a)
 static int init_winzip_aes_encryption(struct archive_write * a)
 {
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
-	const char * passphrase;
 	size_t key_len, salt_len;
 	uint8_t salt[16 + 2];
 	uint8_t derived_key[MAX_DERIVED_KEY_BUF_SIZE];
 	int ret;
-
-	passphrase = __archive_write_get_passphrase(a);
+	const char * passphrase = __archive_write_get_passphrase(a);
 	if(passphrase == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Encryption needs passphrase");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Encryption needs passphrase");
 		return (ARCHIVE_FAILED);
 	}
 	if(zip->entry_encryption == ENCRYPTION_WINZIP_AES128) {
@@ -1600,8 +1561,7 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 		key_len = 32;
 	}
 	if(archive_random(salt, salt_len) != ARCHIVE_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can't generate random number for encryption");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't generate random number for encryption");
 		return (ARCHIVE_FATAL);
 	}
 	archive_pbkdf2_sha1(passphrase, strlen(passphrase),
@@ -1609,23 +1569,19 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 
 	ret = archive_encrypto_aes_ctr_init(&zip->cctx, derived_key, key_len);
 	if(ret != 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Decryption is unsupported due to lack of crypto library");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Decryption is unsupported due to lack of crypto library");
 		return (ARCHIVE_FAILED);
 	}
 	ret = archive_hmac_sha1_init(&zip->hctx, derived_key + key_len,
 		key_len);
 	if(ret != 0) {
 		archive_encrypto_aes_ctr_release(&zip->cctx);
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Failed to initialize HMAC-SHA1");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to initialize HMAC-SHA1");
 		return (ARCHIVE_FAILED);
 	}
-
 	/* Set a password verification value after the 'salt'. */
 	salt[salt_len] = derived_key[key_len * 2];
 	salt[salt_len + 1] = derived_key[key_len * 2 + 1];
-
 	/* Write encrypted keys in the top of the file content. */
 	ret = __archive_write_output(a, salt, salt_len + 2);
 	if(ret != ARCHIVE_OK)

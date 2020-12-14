@@ -209,6 +209,20 @@ FRect::FRect(const TRect & r)
 	b = r.b;
 }
 
+FRect & FRect::Set(float v)
+{
+	a.Set(v);
+	b.Set(v);
+	return *this;
+}
+
+FRect & FRect::Z()
+{
+	a.SetZero();
+	b.SetZero();
+	return *this;
+}
+
 FRect & FASTCALL FRect::operator = (FPoint p)
 {
 	a = 0.0f;
@@ -216,6 +230,7 @@ FRect & FASTCALL FRect::operator = (FPoint p)
 	return *this;
 }
 
+int    FRect::IsEmpty() const { return (a.X == 0.0f && b.X == 0.0f && a.Y == 0.0f && b.Y == 0.0f); }
 float  FRect::Width() const { return (b.X - a.X); }
 float  FRect::Height() const { return (b.Y - a.Y); }
 FPoint FRect::GetSize() const { return FPoint((b.X - a.X), (b.Y - a.Y)); }

@@ -398,23 +398,18 @@ const char * archive_read_disk_gname(struct archive * _a, la_int64_t gid)
 const char * archive_read_disk_uname(struct archive * _a, la_int64_t uid)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_uname"))
+	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_uname"))
 		return (NULL);
 	if(a->lookup_uname == NULL)
 		return (NULL);
 	return ((*a->lookup_uname)(a->lookup_uname_data, uid));
 }
 
-int archive_read_disk_set_gname_lookup(struct archive * _a,
-    void * private_data,
-    const char * (*lookup_gname)(void * private, la_int64_t gid),
-    void (*cleanup_gname)(void * private))
+int archive_read_disk_set_gname_lookup(struct archive * _a, void * private_data,
+    const char * (*lookup_gname)(void * private, la_int64_t gid), void (*cleanup_gname)(void * private))
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_gname_lookup");
-
+	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_gname_lookup");
 	if(a->cleanup_gname != NULL && a->lookup_gname_data != NULL)
 		(a->cleanup_gname)(a->lookup_gname_data);
 
@@ -424,18 +419,13 @@ int archive_read_disk_set_gname_lookup(struct archive * _a,
 	return (ARCHIVE_OK);
 }
 
-int archive_read_disk_set_uname_lookup(struct archive * _a,
-    void * private_data,
-    const char * (*lookup_uname)(void * private, la_int64_t uid),
-    void (*cleanup_uname)(void * private))
+int archive_read_disk_set_uname_lookup(struct archive * _a, void * private_data,
+    const char * (*lookup_uname)(void * pPrivate, la_int64_t uid), void (*cleanup_uname)(void * pPrivate))
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_uname_lookup");
-
+	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_uname_lookup");
 	if(a->cleanup_uname != NULL && a->lookup_uname_data != NULL)
 		(a->cleanup_uname)(a->lookup_uname_data);
-
 	a->lookup_uname = lookup_uname;
 	a->cleanup_uname = cleanup_uname;
 	a->lookup_uname_data = private_data;
@@ -445,9 +435,9 @@ int archive_read_disk_set_uname_lookup(struct archive * _a,
 /*
  * Create a new archive_read_disk object and initialize it with global state.
  */
-struct archive * archive_read_disk_new(void)                 {
+struct archive * archive_read_disk_new(void)                 
+{
 	struct archive_read_disk * a;
-
 	a = (struct archive_read_disk *)calloc(1, sizeof(*a));
 	if(a == NULL)
 		return (NULL);

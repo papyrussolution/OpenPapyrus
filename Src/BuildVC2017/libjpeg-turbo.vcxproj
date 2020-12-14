@@ -281,7 +281,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -294,7 +294,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -323,7 +323,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -336,7 +336,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -365,7 +365,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -379,7 +379,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -408,7 +408,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -421,7 +421,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -450,7 +450,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -464,7 +464,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
@@ -493,7 +493,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -506,7 +506,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -533,7 +533,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -546,7 +546,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -574,7 +574,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -587,7 +587,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
@@ -615,7 +615,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -629,7 +629,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
@@ -657,7 +657,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -670,7 +670,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
@@ -698,7 +698,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -712,7 +712,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
@@ -740,7 +740,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -753,7 +753,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

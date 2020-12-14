@@ -20314,6 +20314,7 @@ public:
 	int    SyncPrintCheck(CCheckPacket *, int addSummator);
 	int    SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName);
 	int    SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName);
+	int    SyncPrintBnkTermReport(const char * pSlipText);
 
 	struct FiscalCorrection {
 		FiscalCorrection();

@@ -184,31 +184,24 @@ static void fnt_font_done(FNT_Face face)
 	FT_Memory memory = FT_FACE(face)->memory;
 	FT_Stream stream = FT_FACE(face)->stream;
 	FNT_Font font   = face->font;
-
 	if(!font)
 		return;
-
 	if(font->fnt_frame)
 		FT_FRAME_RELEASE(font->fnt_frame);
 	FT_FREE(font->family_name);
-
 	FT_FREE(font);
 	face->font = NULL;
 }
 
-static FT_Error fnt_font_load(FNT_Font font,
-    FT_Stream stream)
+static FT_Error fnt_font_load(FNT_Font font, FT_Stream stream)
 {
 	FT_Error error;
 	FT_WinFNT_Header header = &font->header;
 	FT_Bool new_format;
 	FT_UInt size;
-
 	/* first of all, read the FNT header */
-	if(FT_STREAM_SEEK(font->offset)                        ||
-	    FT_STREAM_READ_FIELDS(winfnt_header_fields, header) )
+	if(FT_STREAM_SEEK(font->offset) || FT_STREAM_READ_FIELDS(winfnt_header_fields, header) )
 		goto Exit;
-
 	/* check header */
 	if(header->version != 0x200 &&
 	    header->version != 0x300) {
@@ -216,16 +209,13 @@ static FT_Error fnt_font_load(FNT_Font font,
 		error = FT_THROW(Unknown_File_Format);
 		goto Exit;
 	}
-
 	new_format = FT_BOOL(font->header.version == 0x300);
 	size       = new_format ? 148 : 118;
-
 	if(header->file_size < size) {
 		FT_TRACE2(( "  not a Windows FNT file\n" ));
 		error = FT_THROW(Unknown_File_Format);
 		goto Exit;
 	}
-
 	/* Version 2 doesn't have these fields */
 	if(header->version == 0x200) {
 		header->flags   = 0;
@@ -499,60 +489,42 @@ Found_rsrc_section:
 							    &data_entry)                  )
 								goto Exit;
 
-							FT_TRACE2(( "found font #%lu, offset %04lx, "
-							    "size %04lx, cp %lu\n",
-							    dir_entry2.name,
-							    pe32_section.pointer_to_raw_data +
-							    data_entry.offset_to_data -
-							    pe32_section.virtual_address,
-							    data_entry.size, data_entry.code_page ));
-
+							FT_TRACE2(( "found font #%lu, offset %04lx, size %04lx, cp %lu\n", dir_entry2.name,
+							    pe32_section.pointer_to_raw_data + data_entry.offset_to_data - pe32_section.virtual_address, data_entry.size, data_entry.code_page ));
 							if(face_index == face->root.num_faces) {
 								if(FT_NEW(face->font) )
 									goto Exit;
-
-								face->font->offset   = pe32_section.pointer_to_raw_data +
-								    data_entry.offset_to_data -
-								    pe32_section.virtual_address;
+								face->font->offset   = pe32_section.pointer_to_raw_data + data_entry.offset_to_data - pe32_section.virtual_address;
 								face->font->fnt_size = data_entry.size;
-
 								error = fnt_font_load(face->font, stream);
 								if(error) {
-									FT_TRACE2(( "font #%lu load error 0x%x\n",
-									    dir_entry2.name, error ));
+									FT_TRACE2(( "font #%lu load error 0x%x\n", dir_entry2.name, error ));
 									goto Fail;
 								}
 								else
-									FT_TRACE2(( "font #%lu successfully loaded\n",
-									    dir_entry2.name ));
+									FT_TRACE2(( "font #%lu successfully loaded\n", dir_entry2.name ));
 							}
-
 							face->root.num_faces++;
 						}
 					}
 				}
 			}
 		}
-
 		if(!face->root.num_faces) {
 			FT_TRACE2(( "this file doesn't contain any RT_FONT resources\n" ));
 			error = FT_THROW(Invalid_File_Format);
 			goto Exit;
 		}
-
 		if(face_index >= face->root.num_faces) {
 			error = FT_THROW(Invalid_Argument);
 			goto Exit;
 		}
 	}
-
 Fail:
 	if(error)
 		fnt_font_done(face);
-
 Exit:
 	return error;
-
 Exit1:
 	FT_FRAME_EXIT();
 	goto Exit;
@@ -564,25 +536,19 @@ typedef struct  FNT_CMapRec_ {
 	FT_UInt32 count;
 } FNT_CMapRec, * FNT_CMap;
 
-static FT_Error fnt_cmap_init(FNT_CMap cmap,
-    FT_Pointer pointer)
+static FT_Error fnt_cmap_init(FNT_CMap cmap, FT_Pointer pointer)
 {
 	FNT_Face face = (FNT_Face)FT_CMAP_FACE(cmap);
 	FNT_Font font = face->font;
-
 	FT_UNUSED(pointer);
-
 	cmap->first = (FT_UInt32)font->header.first_char;
 	cmap->count = (FT_UInt32)( font->header.last_char - cmap->first + 1 );
-
 	return 0;
 }
 
-static FT_UInt fnt_cmap_char_index(FNT_CMap cmap,
-    FT_UInt32 char_code)
+static FT_UInt fnt_cmap_char_index(FNT_CMap cmap, FT_UInt32 char_code)
 {
 	FT_UInt gindex = 0;
-
 	char_code -= cmap->first;
 	if(char_code < cmap->count)
 		/* we artificially increase the glyph index; */
@@ -591,13 +557,11 @@ static FT_UInt fnt_cmap_char_index(FNT_CMap cmap,
 	return gindex;
 }
 
-static FT_UInt32 fnt_cmap_char_next(FNT_CMap cmap,
-    FT_UInt32  * pchar_code)
+static FT_UInt32 fnt_cmap_char_next(FNT_CMap cmap, FT_UInt32  * pchar_code)
 {
 	FT_UInt gindex = 0;
 	FT_UInt32 result = 0;
 	FT_UInt32 char_code = *pchar_code + 1;
-
 	if(char_code <= cmap->first) {
 		result = cmap->first;
 		gindex = 1;
@@ -781,27 +745,18 @@ static FT_Error FNT_Face_Init(FT_Stream stream,
 				charmap.platform_id = TT_PLATFORM_MACINTOSH;
 /*        charmap.encoding_id = TT_MAC_ID_ROMAN; */
 			}
-
-			error = FT_CMap_New(fnt_cmap_class,
-				NULL,
-				&charmap,
-				NULL);
+			error = FT_CMap_New(fnt_cmap_class, NULL, &charmap, NULL);
 			if(error)
 				goto Fail;
 		}
-
 		/* set up remaining flags */
-
 		if(font->header.last_char < font->header.first_char) {
 			FT_TRACE2(( "invalid number of glyphs\n" ));
 			error = FT_THROW(Invalid_File_Format);
 			goto Fail;
 		}
-
 		/* reserve one slot for the .notdef glyph at index 0 */
-		root->num_glyphs = font->header.last_char -
-		    font->header.first_char + 1 + 1;
-
+		root->num_glyphs = font->header.last_char - font->header.first_char + 1 + 1;
 		if(font->header.face_name_offset >= font->header.file_size) {
 			FT_TRACE2(( "invalid family name offset\n" ));
 			error = FT_THROW(Invalid_File_Format);
@@ -814,21 +769,12 @@ static FT_Error FNT_Face_Init(FT_Stream stream,
 		/* zero.                                                      */
 		if(FT_ALLOC(font->family_name, family_size + 1) )
 			goto Fail;
-
-		FT_MEM_COPY(font->family_name,
-		    font->fnt_frame + font->header.face_name_offset,
-		    family_size);
-
+		FT_MEM_COPY(font->family_name, font->fnt_frame + font->header.face_name_offset, family_size);
 		font->family_name[family_size] = '\0';
-
-		if(FT_REALLOC(font->family_name,
-		    family_size,
-		    ft_strlen(font->family_name) + 1) )
+		if(FT_REALLOC(font->family_name, family_size, ft_strlen(font->family_name) + 1) )
 			goto Fail;
-
 		root->family_name = font->family_name;
 		root->style_name  = (char*)"Regular";
-
 		if(root->style_flags & FT_STYLE_FLAG_BOLD) {
 			if(root->style_flags & FT_STYLE_FLAG_ITALIC)
 				root->style_name = (char*)"Bold Italic";

@@ -61,7 +61,7 @@ int PPEds::GetCert(HCERTSTORE & rCertSore, PCCERT_CONTEXT & rCert, const char * 
 	// Хотя, как оказалось, CERT_FIND_SUBJECT_STR_A работает и с криллицей
    THROW_PP((rCert = CertFindCertificateInStore(rCertSore, MY_ENCODING_TYPE, 0,
        CERT_FIND_SUBJECT_STR_A, pOwnerName, NULL)), PPERR_EDS_GETCERT);
-	CATCHZOK;
+	CATCHZOK
 	return ok;
 }
 
@@ -89,7 +89,7 @@ int PPEds::GetCert(PCCERT_CONTEXT & rCert)
 	THROW_PP(CryptGetKeyParam(h_key, KP_CERTIFICATE, p_user_cert, &user_cert_length, 0), PPERR_EDS_GETCERT);
     // Формирование контекста сертификата.
     THROW_PP((rCert = CertCreateCertificateContext(MY_ENCODING_TYPE, p_user_cert, user_cert_length)), PPERR_EDS_GETCERT);
-	CATCHZOK;
+	CATCHZOK
 	if(prov) {
         CryptReleaseContext(prov, 0);
         prov = NULL;
@@ -100,9 +100,8 @@ int PPEds::GetCert(PCCERT_CONTEXT & rCert)
 int PPEds::GetCryptoProv(PCCERT_CONTEXT & cert, HCRYPTPROV & rCryptoProv, DWORD & rKeySpec)
 {
 	int    ok = 1;
-	THROW_PP(CryptAcquireCertificatePrivateKey(cert, 0, NULL, &rCryptoProv,
-		&rKeySpec, NULL), PPERR_EDS_GETPROVIDER);
-	CATCHZOK;
+	THROW_PP(CryptAcquireCertificatePrivateKey(cert, 0, NULL, &rCryptoProv, &rKeySpec, NULL), PPERR_EDS_GETPROVIDER);
+	CATCHZOK
 	return ok;
 }
 
@@ -116,18 +115,15 @@ int PPEds::CheckCertChain(PCCERT_CONTEXT & cert)
 	CERT_ENHKEY_USAGE enhkey_usage;
 	CERT_USAGE_MATCH cert_usage;
 	CERT_CHAIN_PARA chain_para;
-
 	enhkey_usage.cUsageIdentifier = 0;
 	enhkey_usage.rgpszUsageIdentifier = NULL;
 	cert_usage.dwType = USAGE_MATCH_TYPE_AND;
 	cert_usage.Usage = enhkey_usage;
 	chain_para.cbSize = sizeof(CERT_CHAIN_PARA);
 	chain_para.RequestedUsage = cert_usage;
-
-	memzero(&chain_config, sizeof(CERT_CHAIN_ENGINE_CONFIG));
+	MEMSZERO(chain_config);
 	chain_config.cbSize = sizeof(CERT_CHAIN_ENGINE_CONFIG);
 	chain_config.dwFlags = CERT_CHAIN_REVOCATION_CHECK_CHAIN;
-
 	// Create the nondefault certificate chain engine.
 	THROW_PP(CertCreateCertificateChainEngine(&chain_config, &h_chain_engine), PPERR_EDS_CHAINCREAT);
 	THROW_PP(CertGetCertificateChain(
@@ -178,7 +174,7 @@ int PPEds::CheckCertChain(PCCERT_CONTEXT & cert)
 				break;
 		}
 	}
-	CATCHZOK;
+	CATCHZOK
 	CertFreeCertificateChainEngine(h_chain_engine);
 	CertFreeCertificateChain(p_chain_context);
 	return ok;
@@ -269,7 +265,7 @@ int PPEds::EncodeData(const char * pOwnerName, const char * pFileName, int sameF
 		file.Rename(encode_file_name, pFileName);
 	}
 
-	CATCHZOK;
+	CATCHZOK
 	ZDELETE(pb_indata);
 	if(p_owner_cert) {
 		CertFreeCertificateContext(p_owner_cert);
@@ -337,13 +333,11 @@ int PPEds::DecodeData(const char * pOwnerName, const char * pFileName)
 		if(pb_indata)
 			ZDELETE(pb_indata);
 	}
-
 	file.Close();
 	decode_file.Close();
 	file.Remove(pFileName);
 	file.Rename(decode_file_name, pFileName);
-
-	CATCHZOK;
+	CATCHZOK
 	ZDELETE(pb_indata);
 	if(prov) {
         CryptReleaseContext(prov, 0);
@@ -384,11 +378,11 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 
     // Начнем-с:)
     // Initialize the signature structure
-	memzero(&sig_params, sizeof(CRYPT_SIGN_MESSAGE_PARA));
+	MEMSZERO(sig_params);
     sig_params.cbSize = sizeof(CRYPT_SIGN_MESSAGE_PARA);
     sig_params.dwMsgEncodingType = MY_ENCODING_TYPE;
     sig_params.pSigningCert = p_signer_cert;
-	memzero(&sig_params.HashAlgorithm, sizeof(CRYPT_ALGORITHM_IDENTIFIER));
+	MEMSZERO(sig_params.HashAlgorithm);
     sig_params.HashAlgorithm.pszObjId = p_signer_cert->pCertInfo->SignatureAlgorithm.pszObjId;
     sig_params.cMsgCert = 1;
     sig_params.rgpMsgCert = &p_signer_cert;
@@ -404,7 +398,7 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 	memzero(message_size_array, blob_count);
 	for(size_t i = 0; i < (size_t)blob_count; i++, file_size -= SIZE_TO_READ) {
 		if(file_size > SIZE_TO_READ)
-			cb_indata = (DWORD)SIZE_TO_READ;
+			cb_indata = static_cast<DWORD>(SIZE_TO_READ);
 		else
 			cb_indata = static_cast<DWORD>(file_size);
 		THROW_MEM(pb_indata = new BYTE[cb_indata]);
@@ -450,8 +444,7 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 		file.Write(pb_signed_message_blob, cb_signed_message_blob);
 		file.Close();
 	}
-
-	CATCHZOK;
+	CATCHZOK
 	ZDELETE(pb_signed_message_blob);
 	ZDELETE(pb_indata);
 	if(p_signer_cert) {
@@ -528,7 +521,7 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 
     // Заполняем структуру с инофрмацией о со-подписчике
     CMSG_SIGNER_ENCODE_INFO cosigner_info;
-    memzero(&cosigner_info, sizeof(CMSG_SIGNER_ENCODE_INFO));
+    MEMSZERO(cosigner_info);
     cosigner_info.cbSize = sizeof(CMSG_SIGNER_ENCODE_INFO);
     cosigner_info.pCertInfo = p_cosigner_cert->pCertInfo;
     cosigner_info.hCryptProv = prov;
@@ -542,10 +535,10 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
     }
 	else {
 		// Добавляем сертификат со-подписчика в сообщение
-		CERT_BLOB cosign_сert_blob;
-		cosign_сert_blob.cbData = p_cosigner_cert->cbCertEncoded;
-		cosign_сert_blob.pbData = p_cosigner_cert->pbCertEncoded;
-		THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_ADD_CERT, &cosign_сert_blob), PPERR_EDS_ADDCERTFAILED);
+		CERT_BLOB cosign_cert_blob;
+		cosign_cert_blob.cbData = p_cosigner_cert->cbCertEncoded;
+		cosign_cert_blob.pbData = p_cosigner_cert->pbCertEncoded;
+		THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_ADD_CERT, &cosign_cert_blob), PPERR_EDS_ADDCERTFAILED);
 		// Получаем размер со-подписанного блока
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_cosigned_data), PPERR_EDS_CREATESIGNATUREFAILED);
 
@@ -560,8 +553,7 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 		file.Write(pb_cosigned_data, cb_cosigned_data);
 		file.Close();
 	}
-
-	CATCHZOK;
+	CATCHZOK
 	if(h_msg)
         CryptMsgClose(h_msg);
 	if(prov) {
@@ -649,31 +641,24 @@ int PPEds::CountersignData(const char * pCountersignerName, int signerNumber, co
 	// Получаем ссылку на новое, с заверяющей подписью, сообщение.
     // Получаем длину полученного сообщения
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_encoded), PPERR_EDS_CREATESIGNATUREFAILED);
-
 	// Выделяем память
 	THROW_MEM(pb_encoded = new BYTE[cb_encoded]);
 	memzero(pb_encoded, cb_encoded);
-
 	// Получаем подписанное заверяющей подписью сообщение
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_encoded, &cb_encoded), PPERR_EDS_CREATESIGNATUREFAILED);
-
 	THROW_SL(file.Open(pSignFileName, SFile::mWrite | SFile::mBinary));
 	file.Write(pb_encoded, cb_encoded);
 	file.Close();
-
-	CATCHZOK;
+	CATCHZOK
 	if(h_msg)
 	    CryptMsgClose(h_msg);
 	if(prov) {
         CryptReleaseContext(prov, 0);
         prov = NULL;
     }
-	if(pb_decoded)
-		ZDELETE(pb_decoded);
-	if(pb_encoded)
-		ZDELETE(pb_encoded);
-	if(pb_indata)
-		ZDELETE(pb_indata);
+	ZDELETE(pb_decoded);
+	ZDELETE(pb_encoded);
+	ZDELETE(pb_indata);
 	if(p_cntr_sig_cert) {
 		CertFreeCertificateContext(p_cntr_sig_cert);
 		p_cntr_sig_cert = 0;
@@ -704,9 +689,7 @@ int PPEds::DeleteSign(const char * pSignFileName, int signNumber)
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
 	file.Close();
-
     DWORD dw_key_spec = 0;
-
 	// Проверим, а есть ли подписи вообще
 	int sign_count = 0;
 	THROW(GetSignsCount(pSignFileName, sign_count));
@@ -752,18 +735,15 @@ int PPEds::DeleteSign(const char * pSignFileName, int signNumber)
 		file.Write(pb_unsigned_message_blob, cb_unsigned_message_blob);
 		file.Close();
 	}
-
-	CATCHZOK;
+	CATCHZOK
 	if(h_msg)
         CryptMsgClose(h_msg);
 	if(prov) {
         CryptReleaseContext(prov, 0);
         prov = NULL;
     }
-	if(pb_unsigned_message_blob)
-		ZDELETE(pb_unsigned_message_blob);
-	if(pb_indata)
-		ZDELETE(pb_indata);
+	ZDELETE(pb_unsigned_message_blob);
+	ZDELETE(pb_indata);
 	if(p_signer_cert) {
 		CertFreeCertificateContext(p_signer_cert);
 		p_signer_cert = 0;
@@ -839,14 +819,11 @@ int PPEds::DeleteCountersign(char * pSignFileName, const int signerNumber)
 	}
 	else
 		ok = -1;
-
-	CATCHZOK;
+	CATCHZOK
 	if(h_msg)
         CryptMsgClose(h_msg);
-	if(pb_unsigned_message_blob)
-		ZDELETE(pb_unsigned_message_blob);
-	if(pb_indata)
-		ZDELETE(pb_indata);
+	ZDELETE(pb_unsigned_message_blob);
+	ZDELETE(pb_indata);
 	if(pb_signer_info)
 		LocalFree(pb_signer_info);
 	return ok;
@@ -872,9 +849,8 @@ int PPEds::GetSignsCount(const char * pSignFileName, int & rCount)
 		rCount = CryptGetMessageSignerCount(MY_ENCODING_TYPE, pb_indata, cb_indata);
 		THROW_PP(rCount != -1, PPERR_EDS_GETSIGNCOUNTFAILED)
 	}
-	CATCHZOK;
-	if(pb_indata)
-		ZDELETE(pb_indata);
+	CATCHZOK
+	ZDELETE(pb_indata);
 	return ok;
 }
 
@@ -882,14 +858,13 @@ int PPEds::SignData(const char * pSignerName, const char * pFileName, SString & 
 {
 	int ok = 1, r = 1;
 	int signs_count = 0;
-
 	if(rSignFileName.NotEmpty())
 		THROW(GetSignsCount(rSignFileName, signs_count) != -1); // ошибка
 	if(!rSignFileName.NotEmpty() || (signs_count == 0))
 		THROW(FirstSignData(pSignerName, pFileName, rSignFileName))
 	else if(signs_count > 0)
 		THROW(CoSignData(pSignerName, pFileName, rSignFileName));
-	CATCHZOK;
+	CATCHZOK
 	return ok;
 }
 
@@ -949,13 +924,9 @@ int PPEds::GetSignerNameByNumber(const char * pSignFileName, int signNumber, SSt
 		THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, signer_name, MAX_NAME_LEN) > 1, PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
 		rSignerName.Cat(SUcSwitch(signer_name));
 //	}
-
-	CATCHZOK;
-
-	if(pb_signer_cert_info)
-        ZFREE(pb_signer_cert_info);
-	if(pb_indata)
-		ZDELETE(pb_indata);
+	CATCHZOK
+	ZFREE(pb_signer_cert_info);
+	ZDELETE(pb_indata);
 	if(h_msg)
         CryptMsgClose(h_msg);
 	if(p_cert) {
@@ -1011,7 +982,7 @@ int PPEds::GetCertIndexBySignerName(const char * pSignFileName, const char * pSi
 			index++;
 	}
 	rCertIndex = index;
-	CATCHZOK;
+	CATCHZOK
 	ZDELETE(pb_indata);
 	ZDELETE(pb_cert);
 	if(h_msg)
@@ -1028,7 +999,6 @@ int PPEds::CashOn(PCCERT_CONTEXT & cert)
 	int    ok = 1;
 	DWORD c_data;
 	CRYPT_KEY_PROV_INFO * p_crypt_key_prov_info  = NULL;
-
     THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, NULL, &c_data));
     THROW_MEM(p_crypt_key_prov_info = (CRYPT_KEY_PROV_INFO *)SAlloc::M(c_data));
     THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, p_crypt_key_prov_info, &c_data));
@@ -1036,10 +1006,8 @@ int PPEds::CashOn(PCCERT_CONTEXT & cert)
     p_crypt_key_prov_info->dwFlags = CERT_SET_KEY_CONTEXT_PROP_ID;
     // Установим свойства в контексте сертификата
     THROW(CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, p_crypt_key_prov_info));
-
-	CATCHZOK;
-	if(p_crypt_key_prov_info)
-		ZFREE(p_crypt_key_prov_info);
+	CATCHZOK
+	ZFREE(p_crypt_key_prov_info);
 	return ok;
 }
 
@@ -1048,7 +1016,6 @@ int PPEds::CashOff(PCCERT_CONTEXT & cert)
 	int    ok = 1;
 	DWORD c_data;
 	CRYPT_KEY_PROV_INFO * p_crypt_key_prov_info  = NULL;
-
 	THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, NULL, &c_data));
     if(p_crypt_key_prov_info)
         SAlloc::F(p_crypt_key_prov_info);
@@ -1058,10 +1025,8 @@ int PPEds::CashOff(PCCERT_CONTEXT & cert)
     p_crypt_key_prov_info->dwFlags = 0;
     /* Установим свойства в контексте сертификата*/
 	THROW(CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, p_crypt_key_prov_info));
-
-	CATCHZOK;
-	if(p_crypt_key_prov_info)
-		ZFREE(p_crypt_key_prov_info);
+	CATCHZOK
+	ZFREE(p_crypt_key_prov_info);
 	return ok;
 }
 
@@ -1082,7 +1047,6 @@ int PPEds::GetCountersignerNameBySignerNumber(const char * pSignFileName, int si
     PCRYPT_ATTRIBUTES pb_attr_info = NULL; // инфа о заверяющей подписи
 	DWORD cb_attr_info = 0;
 	SFile file;
-
 	// Считаем данные из файла с подписью
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
@@ -1147,14 +1111,10 @@ int PPEds::GetCountersignerNameBySignerNumber(const char * pSignFileName, int si
 			rCounterSignerName.Cat(SUcSwitch(countersigner_name));
 		}
 	}
-
-	CATCHZOK;
-	if(pb_sign_data)
-		ZDELETE(pb_sign_data);
-	if(pb_signer_info)
-		ZDELETE(pb_signer_info);
-	if(pb_countersigner_info)
-		ZFREE(pb_countersigner_info);
+	CATCHZOK
+	ZDELETE(pb_sign_data);
+	ZDELETE(pb_signer_info);
+	ZFREE(pb_countersigner_info);
 	if(h_msg)
         CryptMsgClose(h_msg);
 	if(p_cert) {
@@ -1186,7 +1146,7 @@ int PPEds::GetSignerNamesInStore(StrAssocArray & rStrArray)
 		msg.Z().Cat("No certificates was found in store ").Cat(SUcSwitch(CERTIFICATE_STORE_NAME));
 		PPOutputMessage(msg, mfYes | mfLargeBox);
 	}
-	CATCHZOK;
+	CATCHZOK
 	if(p_cert) {
         CertFreeCertificateContext(p_cert);
 		p_cert = 0;
@@ -1251,12 +1211,9 @@ int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int si
 		//ShowError("VerifySign: Hash data is not correct. Maybe, document was modified.");
 		ok = -1;
 	}
-
-	CATCHZOK;
-	if(pb_indata)
-		ZDELETE(pb_indata);
-	if(pb_sign_data)
-		ZDELETE(pb_sign_data);
+	CATCHZOK
+	ZDELETE(pb_indata);
+	ZDELETE(pb_sign_data);
 	if(p_cert) {
 		CertFreeCertificateContext(p_cert);
 		p_cert = 0;
@@ -1351,16 +1308,11 @@ int PPEds::VerifyCountersign(const char * pSignFileName, const int signerNumber)
 			ok = -1;
 		}
 	}
-
-	CATCHZOK;
-	if(pb_sign_data)
-		ZDELETE(pb_sign_data);
-	if(pb_signer_info)
-		ZDELETE(pb_signer_info);
-	if(pb_countersign_info)
-		ZFREE(pb_countersign_info);
-	if(pb_countersigner_info)
-		ZFREE(pb_countersigner_info);
+	CATCHZOK
+	ZDELETE(pb_sign_data);
+	ZDELETE(pb_signer_info);
+	ZFREE(pb_countersign_info);
+	ZFREE(pb_countersigner_info);
 	if(h_msg)
         CryptMsgClose(h_msg);
 	if(p_cert) {
@@ -1382,8 +1334,7 @@ int PPEds::GetHash(void * pData, DWORD dataSize, int signNumber, BYTE * pHashedD
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_COMPUTED_HASH_PARAM, signNumber - 1, NULL, &rSizeHashedData), PPERR_EDS_GETHASHFAILED)
 	else
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_COMPUTED_HASH_PARAM, signNumber - 1, pHashedData, &rSizeHashedData), PPERR_EDS_GETHASHFAILED);
-
-	CATCHZOK;
+	CATCHZOK
 	if(h_msg)
         CryptMsgClose(h_msg);
 	return ok;
@@ -1416,11 +1367,8 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 	int * vals = 0; // Массив числами в первоначальном виде
 	int * encode_vals = 0; // Массив с зкаодированными числами
 	size_t start = 0, pos = 0, count = 0, i = 0, j = 0;
-	SString str, l_str, r_str;
-	SString sstr;
-	sstr = 0;
-
-	str.Z().Cat(strToEncode);
+	SString l_str, r_str;
+	SString str(strToEncode);
 	while(str.Search(".", start, 1, &pos)) {
 		start = pos + 1;
 		count++;
@@ -1464,7 +1412,7 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 			binval = vals[i];
 			// Выясним, сколько байт занимает число
 			char cc[32];
-			memzero(cc, sizeof(cc));
+			PTR32(cc)[0] = 0;
 			itoa(binval, cc, 2);
 			count = sstrlen(cc) / 8;
 			if(count * 8 < sstrlen(cc))
@@ -1511,13 +1459,12 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 			}
 		}
 	}
-	i = 0;
 	rEncodedStr.Z();
-	while(i < enc_arr_size) {
+	for(i = 0; i < enc_arr_size;) {
 		char c = encode_vals[i++];
 		rEncodedStr.CatChar(c);
 	}
-	CATCHZOK;
+	CATCHZOK
 	ZDELETE(vals);
 	ZDELETE(encode_vals);
 	return ok;
@@ -1549,7 +1496,8 @@ struct StTspResponse {
 	SString Nonce; // Это совбственно и исспользуется для проверки, но только в случае, если в запросе было передано это поле
 };
 
-int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmtd) {
+int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmtd) 
+{
 	int    ok = 1;
 	char c = 0;
 	int block_len = 0;
@@ -1739,8 +1687,7 @@ int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmt
 
 		// Будем считать, что это все пока что
 	}
-
-	CATCHZOK;
+	CATCHZOK
 	return ok;
 }
 
@@ -1847,10 +1794,8 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	CMSG_CTRL_ADD_SIGNER_UNAUTH_ATTR_PARA attr_para;
 	CRYPT_DATA_BLOB attr_data;
 	SBuffer buf(1024);
-
 	attr_data.pbData = 0;
 	attr.rgValue = 0;
-
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	THROW(file.IsValid());
 	file.CalcSize(&file_size);
@@ -1858,17 +1803,14 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	memzero(p_indata, (size_t)file_size);
 	file.ReadV(p_indata, (size_t)file_size);
 	file.Close();
-
 	THROW(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, 0, NULL, NULL));
     // Добавим в h_msg инфу о подписях
     THROW(CryptMsgUpdate(h_msg, (BYTE *)p_indata, (DWORD)file_size, TRUE));
-
 	hash_size = 0;
 	THROW(GetHash(p_indata, (DWORD)file_size, signerNumber, NULL, hash_size));
 	hash = new BYTE[hash_size];
 	memzero(hash, hash_size);
 	THROW(GetHash(p_indata, (DWORD)file_size, signerNumber, hash, hash_size));
-
 	// Структура запроса:
 	//
 	//	version                      INTEGER  { v1(1) },
@@ -2058,8 +2000,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	THROW_SL(file.Open("test_stamped.p7s", SFile::mWrite | SFile::mBinary));
 	file.Write(pb_stamped_data, cb_stamped_data);
 	file.Close();
-
-	CATCHZOK;
+	CATCHZOK
 	WSACleanup();
 	ZDELETE(p_indata);
 	ZDELETE(hash);
@@ -2124,7 +2065,7 @@ int PPEds::GetSignFileAndSignNames(int posInList, const char * pFileName, SStrin
 		if((posInList - (int)i) <= count)
 			rSignFileName.CopyFrom(sign_files_list.Get(i-1).Txt);
 	}
-	CATCHZOK;
+	CATCHZOK
 	return ok;
 }
 //

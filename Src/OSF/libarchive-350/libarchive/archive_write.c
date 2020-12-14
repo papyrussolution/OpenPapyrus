@@ -579,10 +579,8 @@ void __archive_write_filters_free(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r = ARCHIVE_OK, r1;
-
 	while(a->filter_first != NULL) {
-		struct archive_write_filter * next
-			= a->filter_first->next_filter;
+		struct archive_write_filter * next = a->filter_first->next_filter;
 		if(a->filter_first->free != NULL) {
 			r1 = (*a->filter_first->free)(a->filter_first);
 			if(r > r1)
@@ -593,7 +591,6 @@ void __archive_write_filters_free(struct archive * _a)
 	}
 	a->filter_last = NULL;
 }
-
 /*
  * Destroy the archive structure.
  *
@@ -605,15 +602,12 @@ static int _archive_write_free(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r = ARCHIVE_OK, r1;
-
 	if(_a == NULL)
 		return (ARCHIVE_OK);
 	/* It is okay to call free() in state FATAL. */
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_free");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_free");
 	if(a->archive.state != ARCHIVE_STATE_FATAL)
 		r = archive_write_close(&a->archive);
-
 	/* Release format resources. */
 	if(a->format_free != NULL) {
 		r1 = (a->format_free)(a);

@@ -24,16 +24,14 @@
  * Red Hat Author(s): Behdad Esfahbod
  */
 #ifndef HB_H_IN
-#error "Include <hb.h> instead."
+	#error "Include <hb.h> instead."
 #endif
-
 #ifndef HB_BLOB_H
 #define HB_BLOB_H
 
 #include "hb-common.h"
 
 HB_BEGIN_DECLS
-
 /*
  * Note re various memory-modes:
  *
@@ -62,7 +60,7 @@ typedef enum {
 
 typedef struct hb_blob_t hb_blob_t;
 
-HB_EXTERN hb_blob_t * hb_blob_create(const char        * data, unsigned int length, hb_memory_mode_t mode, void              * user_data, hb_destroy_func_t destroy);
+HB_EXTERN hb_blob_t * hb_blob_create(const char * data, unsigned int length, hb_memory_mode_t mode, void * user_data, hb_destroy_func_t destroy);
 HB_EXTERN hb_blob_t * hb_blob_create_from_file(const char * file_name);
 
 /* Always creates with MEMORY_MODE_READONLY.
@@ -76,12 +74,7 @@ HB_EXTERN hb_blob_t * hb_blob_copy_writable_or_fail(hb_blob_t * blob);
 HB_EXTERN hb_blob_t * hb_blob_get_empty(void);
 HB_EXTERN hb_blob_t * hb_blob_reference(hb_blob_t * blob);
 HB_EXTERN void hb_blob_destroy(hb_blob_t * blob);
-HB_EXTERN hb_bool_t hb_blob_set_user_data(hb_blob_t          * blob,
-    hb_user_data_key_t * key,
-    void *              data,
-    hb_destroy_func_t destroy,
-    hb_bool_t replace);
-
+HB_EXTERN hb_bool_t hb_blob_set_user_data(hb_blob_t * blob, hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace);
 HB_EXTERN void * hb_blob_get_user_data(hb_blob_t          * blob, hb_user_data_key_t * key);
 HB_EXTERN void hb_blob_make_immutable(hb_blob_t * blob);
 HB_EXTERN hb_bool_t hb_blob_is_immutable(hb_blob_t * blob);

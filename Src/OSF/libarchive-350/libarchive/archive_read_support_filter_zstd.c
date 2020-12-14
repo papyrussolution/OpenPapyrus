@@ -83,22 +83,18 @@ int archive_read_support_filter_zstd(struct archive * _a)
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 	return (ARCHIVE_OK);
 #else
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external zstd program for zstd decompression");
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external zstd program for zstd decompression");
 	return (ARCHIVE_WARN);
 #endif
 }
-
 /*
  * Test whether we can handle this data.
  */
-static int zstd_bidder_bid(struct archive_read_filter_bidder * self,
-    struct archive_read_filter * filter)
+static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
 	const unsigned char * buffer;
 	ssize_t avail;
 	unsigned prefix;
-
 	/* Zstd frame magic values */
 	const unsigned zstd_magic = 0xFD2FB528U;
 	const unsigned zstd_magic_skippable_start = 0x184D2A50U;
@@ -148,35 +144,27 @@ static int zstd_bidder_init(struct archive_read_filter * self)
 	const size_t out_block_size = ZSTD_DStreamOutSize();
 	void * out_block;
 	ZSTD_DStream * dstream;
-
 	self->code = ARCHIVE_FILTER_ZSTD;
 	self->name = "zstd";
-
 	state = (struct private_data *)calloc(sizeof(*state), 1);
 	out_block = (uchar *)malloc(out_block_size);
 	dstream = ZSTD_createDStream();
-
 	if(state == NULL || out_block == NULL || dstream == NULL) {
 		free(out_block);
 		free(state);
 		ZSTD_freeDStream(dstream); /* supports free on NULL */
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate data for zstd decompression");
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for zstd decompression");
 		return (ARCHIVE_FATAL);
 	}
-
 	self->data = state;
-
 	state->out_block_size = out_block_size;
 	state->out_block = out_block;
 	state->dstream = dstream;
 	self->read = zstd_filter_read;
 	self->skip = NULL; /* not supported */
 	self->close = zstd_filter_close;
-
 	state->eof = 0;
 	state->in_frame = 0;
-
 	return (ARCHIVE_OK);
 }
 
@@ -197,10 +185,7 @@ static ssize_t zstd_filter_read(struct archive_read_filter * self, const void **
 		if(!state->in_frame) {
 			const size_t ret = ZSTD_initDStream(state->dstream);
 			if(ZSTD_isError(ret)) {
-				archive_set_error(&self->archive->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Error initializing zstd decompressor: %s",
-				    ZSTD_getErrorName(ret));
+				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Error initializing zstd decompressor: %s", ZSTD_getErrorName(ret));
 				return (ARCHIVE_FATAL);
 			}
 		}
@@ -216,35 +201,24 @@ static ssize_t zstd_filter_read(struct archive_read_filter * self, const void **
 				break;
 			}
 			else {
-				archive_set_error(&self->archive->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Truncated zstd input");
+				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Truncated zstd input");
 				return (ARCHIVE_FATAL);
 			}
 		}
 		in.size = avail_in;
 		in.pos = 0;
-
 		{
-			const size_t ret =
-			    ZSTD_decompressStream(state->dstream, &out, &in);
-
+			const size_t ret = ZSTD_decompressStream(state->dstream, &out, &in);
 			if(ZSTD_isError(ret)) {
-				archive_set_error(&self->archive->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Zstd decompression failed: %s",
-				    ZSTD_getErrorName(ret));
+				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Zstd decompression failed: %s", ZSTD_getErrorName(ret));
 				return (ARCHIVE_FATAL);
 			}
-
 			/* Decompressor made some progress */
 			__archive_read_filter_consume(self->upstream, in.pos);
-
 			/* ret guaranteed to be > 0 if frame isn't done yet */
 			state->in_frame = (ret != 0);
 		}
 	}
-
 	decompressed = out.pos;
 	state->total_out += decompressed;
 	if(decompressed == 0)

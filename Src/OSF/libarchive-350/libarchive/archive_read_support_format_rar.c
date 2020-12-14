@@ -478,9 +478,7 @@ static int rar_br_preparation(struct archive_read * a, struct rar::rar_br * br)
 	if(rar->bytes_remaining > 0) {
 		br->next_in = static_cast<const uchar *>(rar_read_ahead(a, 1, &(br->avail_in)));
 		if(br->next_in == NULL) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Truncated RAR file data");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated RAR file data");
 			return (ARCHIVE_FATAL);
 		}
 		if(br->cache_avail == 0)
@@ -582,8 +580,7 @@ static Byte ppmd_read(void * p)
 	struct rar::rar_br * br = &(rar->br);
 	Byte b;
 	if(!rar_br_read_ahead(a, br, 8)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Truncated RAR file data");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated RAR file data");
 		rar->valid = 0;
 		return 0;
 	}
@@ -597,25 +594,18 @@ int archive_read_support_format_rar(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct rar * rar;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_support_format_rar");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_rar");
 	rar = (struct rar *)calloc(sizeof(*rar), 1);
 	if(rar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate rar data");
 		return (ARCHIVE_FATAL);
 	}
-
 	/*
 	 * Until enough data has been read, we cannot tell about
 	 * any encrypted entries yet.
 	 */
 	rar->has_encrypted_entries = ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW;
-
-	r = __archive_read_register_format(a,
-		rar,
-		"rar",
+	r = __archive_read_register_format(a, rar, "rar",
 		archive_read_format_rar_bid,
 		archive_read_format_rar_options,
 		archive_read_format_rar_read_header,
@@ -730,17 +720,13 @@ fatal:
 
 static int archive_read_format_rar_options(struct archive_read * a, const char * key, const char * val)
 {
-	struct rar * rar;
 	int ret = ARCHIVE_FAILED;
-	rar = (struct rar *)(a->format->data);
+	struct rar * rar = (struct rar *)(a->format->data);
 	if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "rar: hdrcharset option needs a character-set name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "rar: hdrcharset option needs a character-set name");
 		else {
-			rar->opt_sconv =
-			    archive_string_conversion_from_charset(
-				&a->archive, val, 0);
+			rar->opt_sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
 			if(rar->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -806,8 +792,7 @@ static int archive_read_format_rar_read_header(struct archive_read * a,
 		switch(head_type) {
 			case MARK_HEAD:
 			    if(memcmp(p, RAR_SIGNATURE, 7) != 0) {
-				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-					"Invalid marker header");
+				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid marker header");
 				    return (ARCHIVE_FATAL);
 			    }
 			    __archive_read_consume(a, 7);
@@ -817,8 +802,7 @@ static int archive_read_format_rar_read_header(struct archive_read * a,
 			    rar->main_flags = archive_le16dec(p + 3);
 			    skip = archive_le16dec(p + 5);
 			    if(skip < 7 + sizeof(rar->reserved1) + sizeof(rar->reserved2)) {
-				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-					"Invalid header size");
+				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid header size");
 				    return (ARCHIVE_FATAL);
 			    }
 			    if((h = __archive_read_ahead(a, skip, NULL)) == NULL)
@@ -829,8 +813,7 @@ static int archive_read_format_rar_read_header(struct archive_read * a,
 				sizeof(rar->reserved2));
 			    if(rar->main_flags & MHD_ENCRYPTVER) {
 				    if(skip < 7 + sizeof(rar->reserved1) + sizeof(rar->reserved2)+1) {
-					    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-						"Invalid header size");
+					    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid header size");
 					    return (ARCHIVE_FATAL);
 				    }
 				    rar->encryptver = *(p + 7 + sizeof(rar->reserved1) +
@@ -843,15 +826,13 @@ static int archive_read_format_rar_read_header(struct archive_read * a,
 				    archive_entry_set_is_metadata_encrypted(entry, 1);
 				    archive_entry_set_is_data_encrypted(entry, 1);
 				    rar->has_encrypted_entries = 1;
-				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-					"RAR encryption support unavailable.");
+				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "RAR encryption support unavailable.");
 				    return (ARCHIVE_FATAL);
 			    }
 
 			    crc32_val = crc32(0, (const unsigned char*)p + 2, (unsigned)skip - 2);
 			    if((crc32_val & 0xffff) != archive_le16dec(p)) {
-				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-					"Header CRC error");
+				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Header CRC error");
 				    return (ARCHIVE_FATAL);
 			    }
 			    __archive_read_consume(a, skip);
@@ -869,14 +850,12 @@ static int archive_read_format_rar_read_header(struct archive_read * a,
 			    flags = archive_le16dec(p + 3);
 			    skip = archive_le16dec(p + 5);
 			    if(skip < 7) {
-				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-					"Invalid header size too small");
+				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid header size too small");
 				    return (ARCHIVE_FATAL);
 			    }
 			    if(flags & HD_ADD_SIZE_PRESENT) {
 				    if(skip < 7 + 4) {
-					    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-						"Invalid header size too small");
+					    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid header size too small");
 					    return (ARCHIVE_FATAL);
 				    }
 				    if((h = __archive_read_ahead(a, skip, NULL)) == NULL)
@@ -907,8 +886,7 @@ static int archive_read_format_rar_read_header(struct archive_read * a,
 				    skip -= did_read;
 			    }
 			    if((crc32_val & 0xffff) != crc32_expected) {
-				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-					"Header CRC error");
+				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Header CRC error");
 				    return (ARCHIVE_FATAL);
 			    }
 			    if(head_type == ENDARC_HEAD)
@@ -921,8 +899,7 @@ static int archive_read_format_rar_read_header(struct archive_read * a,
 			    break;
 
 			default:
-			    archive_set_error(&a->archive,  ARCHIVE_ERRNO_FILE_FORMAT,
-				"Bad RAR file");
+			    archive_set_error(&a->archive,  ARCHIVE_ERRNO_FILE_FORMAT, "Bad RAR file");
 			    return (ARCHIVE_FATAL);
 		}
 	}
@@ -973,8 +950,7 @@ static int archive_read_format_rar_read_data(struct archive_read * a, const void
 		    break;
 
 		default:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			"Unsupported compression method for RAR file.");
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported compression method for RAR file.");
 		    ret = ARCHIVE_FATAL;
 		    break;
 	}
@@ -1060,12 +1036,10 @@ static int64_t archive_read_format_rar_seek_data(struct archive_read * a, int64_
 		if(rar->main_flags & MHD_VOLUME) {
 			/* Find the appropriate offset among the multivolume archive */
 			while(1) {
-				if(client_offset < rar->dbo[rar->cursor].start_offset &&
-				    rar->file_flags & FHD_SPLIT_BEFORE) {
+				if(client_offset < rar->dbo[rar->cursor].start_offset && rar->file_flags & FHD_SPLIT_BEFORE) {
 					/* Search backwards for the correct data block */
 					if(rar->cursor == 0) {
-						archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-						    "Attempt to seek past beginning of RAR data block");
+						archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Attempt to seek past beginning of RAR data block");
 						return (ARCHIVE_FAILED);
 					}
 					rar->cursor--;
@@ -1079,8 +1053,7 @@ static int64_t archive_read_format_rar_seek_data(struct archive_read * a, int64_
 						return ret;
 					ret = archive_read_format_rar_read_header(a, a->entry);
 					if(ret != (ARCHIVE_OK)) {
-						archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-						    "Error during seek of RAR file");
+						archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Error during seek of RAR file");
 						return (ARCHIVE_FAILED);
 					}
 					rar->cursor--;
@@ -1107,8 +1080,7 @@ static int64_t archive_read_format_rar_seek_data(struct archive_read * a, int64_
 						ret = archive_read_format_rar_read_header(a, a->entry);
 					}
 					if(ret != (ARCHIVE_OK)) {
-						archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-						    "Error during seek of RAR file");
+						archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Error during seek of RAR file");
 						return (ARCHIVE_FAILED);
 					}
 					client_offset += rar->dbo[rar->cursor].start_offset -
@@ -1148,8 +1120,7 @@ static int64_t archive_read_format_rar_seek_data(struct archive_read * a, int64_
 		return rar->offset_seek;
 	}
 	else{
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Seeking of compressed RAR files is unsupported");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Seeking of compressed RAR files is unsupported");
 	}
 	return (ARCHIVE_FAILED);
 }
@@ -1211,8 +1182,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 	rar->file_flags = archive_le16dec(rar_header.flags);
 	header_size = archive_le16dec(rar_header.size);
 	if(header_size < (int64_t)sizeof(file_header) + 7) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Invalid header size");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid header size");
 		return (ARCHIVE_FATAL);
 	}
 	crc32_val = crc32(0, (const unsigned char*)p + 2, 7 - 2);
@@ -1260,14 +1230,12 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 	if(rar->file_flags & FHD_PASSWORD) {
 		archive_entry_set_is_data_encrypted(entry, 1);
 		rar->has_encrypted_entries = 1;
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "RAR encryption support unavailable.");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "RAR encryption support unavailable.");
 		/* Since it is only the data part itself that is encrypted we can at least
 		   extract information about the currently processed entry and don't need
 		   to return ARCHIVE_FATAL here. */
 		/*return (ARCHIVE_FATAL);*/
 	}
-
 	if(rar->file_flags & FHD_LARGE) {
 		memcpy(packed_size, file_header.pack_size, 4);
 		memcpy(packed_size + 4, p, 4); /* High pack size */
@@ -1282,15 +1250,11 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 		rar->packed_size = archive_le32dec(file_header.pack_size);
 		rar->unp_size = archive_le32dec(file_header.unp_size);
 	}
-
 	if(rar->packed_size < 0 || rar->unp_size < 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Invalid sizes specified.");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid sizes specified.");
 		return (ARCHIVE_FATAL);
 	}
-
 	rar->bytes_remaining = rar->packed_size;
-
 	/* TODO: RARv3 subblocks contain comments. For now the complete block is
 	 * consumed at the end.
 	 */
@@ -1379,8 +1343,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 				}
 			}
 			if(filename_size > fn_end) {
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Invalid filename");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid filename");
 				return (ARCHIVE_FATAL);
 			}
 			filename[filename_size++] = '\0';

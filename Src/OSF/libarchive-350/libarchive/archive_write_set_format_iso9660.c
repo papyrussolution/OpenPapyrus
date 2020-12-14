@@ -1251,7 +1251,6 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    }
 		    if(strcmp(key, "boot-load-seg") == 0) {
 			    uint32_t seg;
-
 			    iso9660->opt.boot_load_seg = 0;
 			    if(value == NULL)
 				    goto invalid_value;
@@ -1271,10 +1270,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 				    else
 					    goto invalid_value;
 				    if(seg > 0xffff) {
-					    archive_set_error(&a->archive,
-						ARCHIVE_ERRNO_MISC,
-						"Invalid value(over 0xffff) for "
-						"option ``%s''", key);
+					    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid value(over 0xffff) for option ``%s''", key);
 					    return (ARCHIVE_FATAL);
 				    }
 				    p++;

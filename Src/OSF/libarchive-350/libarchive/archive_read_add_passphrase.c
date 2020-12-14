@@ -74,37 +74,26 @@ int archive_read_add_passphrase(struct archive * _a, const char * passphrase)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_passphrase * p;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_add_passphrase");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_add_passphrase");
 	if(passphrase == NULL || passphrase[0] == '\0') {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Empty passphrase is unacceptable");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Empty passphrase is unacceptable");
 		return (ARCHIVE_FAILED);
 	}
-
 	p = new_read_passphrase(a, passphrase);
 	if(p == NULL)
 		return (ARCHIVE_FATAL);
 	add_passphrase_to_tail(a, p);
-
 	return (ARCHIVE_OK);
 }
 
-int archive_read_set_passphrase_callback(struct archive * _a, void * client_data,
-    archive_passphrase_callback * cb)
+int archive_read_set_passphrase_callback(struct archive * _a, void * client_data, archive_passphrase_callback * cb)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_set_passphrase_callback");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_passphrase_callback");
 	a->passphrases.callback = cb;
 	a->passphrases.client_data = client_data;
 	return (ARCHIVE_OK);
 }
-
 /*
  * Call this in advance when you start to get a passphrase for decryption
  * for a entry.

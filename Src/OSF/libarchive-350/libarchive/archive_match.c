@@ -229,11 +229,9 @@ struct archive * archive_match_new(void)                 {
 int archive_match_free(struct archive * _a)
 {
 	struct archive_match * a;
-
 	if(_a == NULL)
 		return (ARCHIVE_OK);
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_match_free");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_match_free");
 	a = (struct archive_match *)_a;
 	match_list_free(&(a->inclusions));
 	match_list_free(&(a->exclusions));
@@ -257,10 +255,7 @@ int archive_match_excluded(struct archive * _a, struct archive_entry * entry)
 {
 	struct archive_match * a;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_excluded_ae");
-
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_excluded_ae");
 	a = (struct archive_match *)_a;
 	if(entry == NULL) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
@@ -297,11 +292,8 @@ int archive_match_exclude_pattern(struct archive * _a, const char * pattern)
 {
 	struct archive_match * a;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_exclude_pattern");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_exclude_pattern");
 	a = (struct archive_match *)_a;
-
 	if(pattern == NULL || *pattern == '\0') {
 		archive_set_error(&(a->archive), EINVAL, "pattern is empty");
 		return (ARCHIVE_FAILED);
@@ -315,11 +307,8 @@ int archive_match_exclude_pattern_w(struct archive * _a, const wchar_t * pattern
 {
 	struct archive_match * a;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_exclude_pattern_w");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_exclude_pattern_w");
 	a = (struct archive_match *)_a;
-
 	if(pattern == NULL || *pattern == L'\0') {
 		archive_set_error(&(a->archive), EINVAL, "pattern is empty");
 		return (ARCHIVE_FAILED);
@@ -329,41 +318,28 @@ int archive_match_exclude_pattern_w(struct archive * _a, const wchar_t * pattern
 	return (ARCHIVE_OK);
 }
 
-int archive_match_exclude_pattern_from_file(struct archive * _a,
-    const char * pathname, int nullSeparator)
+int archive_match_exclude_pattern_from_file(struct archive * _a, const char * pathname, int nullSeparator)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_exclude_pattern_from_file");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_exclude_pattern_from_file");
 	a = (struct archive_match *)_a;
-
-	return add_pattern_from_file(a, &(a->exclusions), 1, pathname,
-		   nullSeparator);
+	return add_pattern_from_file(a, &(a->exclusions), 1, pathname, nullSeparator);
 }
 
-int archive_match_exclude_pattern_from_file_w(struct archive * _a,
-    const wchar_t * pathname, int nullSeparator)
+int archive_match_exclude_pattern_from_file_w(struct archive * _a, const wchar_t * pathname, int nullSeparator)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_exclude_pattern_from_file_w");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_exclude_pattern_from_file_w");
 	a = (struct archive_match *)_a;
-
-	return add_pattern_from_file(a, &(a->exclusions), 0, pathname,
-		   nullSeparator);
+	return add_pattern_from_file(a, &(a->exclusions), 0, pathname, nullSeparator);
 }
 
 int archive_match_include_pattern(struct archive * _a, const char * pattern)
 {
 	struct archive_match * a;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_pattern");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_pattern");
 	a = (struct archive_match *)_a;
-
 	if(pattern == NULL || *pattern == '\0') {
 		archive_set_error(&(a->archive), EINVAL, "pattern is empty");
 		return (ARCHIVE_FAILED);
@@ -377,11 +353,8 @@ int archive_match_include_pattern_w(struct archive * _a, const wchar_t * pattern
 {
 	struct archive_match * a;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_pattern_w");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_pattern_w");
 	a = (struct archive_match *)_a;
-
 	if(pattern == NULL || *pattern == L'\0') {
 		archive_set_error(&(a->archive), EINVAL, "pattern is empty");
 		return (ARCHIVE_FAILED);
@@ -391,32 +364,21 @@ int archive_match_include_pattern_w(struct archive * _a, const wchar_t * pattern
 	return (ARCHIVE_OK);
 }
 
-int archive_match_include_pattern_from_file(struct archive * _a,
-    const char * pathname, int nullSeparator)
+int archive_match_include_pattern_from_file(struct archive * _a, const char * pathname, int nullSeparator)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_pattern_from_file");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_pattern_from_file");
 	a = (struct archive_match *)_a;
-
-	return add_pattern_from_file(a, &(a->inclusions), 1, pathname,
-		   nullSeparator);
+	return add_pattern_from_file(a, &(a->inclusions), 1, pathname, nullSeparator);
 }
 
-int archive_match_include_pattern_from_file_w(struct archive * _a,
-    const wchar_t * pathname, int nullSeparator)
+int archive_match_include_pattern_from_file_w(struct archive * _a, const wchar_t * pathname, int nullSeparator)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_pattern_from_file_w");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_pattern_from_file_w");
 	a = (struct archive_match *)_a;
-
-	return add_pattern_from_file(a, &(a->inclusions), 0, pathname,
-		   nullSeparator);
+	return add_pattern_from_file(a, &(a->inclusions), 0, pathname, nullSeparator);
 }
-
 /*
  * Test functions for pathname patterns.
  *
@@ -424,20 +386,15 @@ int archive_match_include_pattern_from_file_w(struct archive * _a,
  * Returns 0 if archive entry is not excluded.
  * Returns <0 if something error happened.
  */
-int archive_match_path_excluded(struct archive * _a,
-    struct archive_entry * entry)
+int archive_match_path_excluded(struct archive * _a, struct archive_entry * entry)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_path_excluded");
-
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,ARCHIVE_STATE_NEW, "archive_match_path_excluded");
 	a = (struct archive_match *)_a;
 	if(entry == NULL) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
 		return (ARCHIVE_FAILED);
 	}
-
 	/* If we don't have exclusion/inclusion pattern set at all,
 	 * the entry is always not excluded. */
 	if((a->setflag & PATTERN_IS_SET) == 0)
@@ -448,7 +405,6 @@ int archive_match_path_excluded(struct archive * _a,
 	return (path_excluded(a, 1, archive_entry_pathname(entry)));
 #endif
 }
-
 /*
  * When recursive inclusion of directory content is enabled,
  * an inclusion pattern that matches a directory will also
@@ -462,55 +418,41 @@ int archive_match_path_excluded(struct archive * _a,
 int archive_match_set_inclusion_recursion(struct archive * _a, int enabled)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_set_inclusion_recursion");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_set_inclusion_recursion");
 	a = (struct archive_match *)_a;
 	a->recursive_include = enabled;
 	return (ARCHIVE_OK);
 }
-
 /*
  * Utility functions to get statistic information for inclusion patterns.
  */
 int archive_match_path_unmatched_inclusions(struct archive * _a)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_unmatched_inclusions");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_unmatched_inclusions");
 	a = (struct archive_match *)_a;
-
 	return (a->inclusions.unmatched_count);
 }
 
-int archive_match_path_unmatched_inclusions_next(struct archive * _a,
-    const char ** _p)
+int archive_match_path_unmatched_inclusions_next(struct archive * _a, const char ** _p)
 {
 	struct archive_match * a;
 	const void * v;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_unmatched_inclusions_next");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_unmatched_inclusions_next");
 	a = (struct archive_match *)_a;
-
 	r = match_list_unmatched_inclusions_next(a, &(a->inclusions), 1, &v);
 	*_p = (const char*)v;
 	return (r);
 }
 
-int archive_match_path_unmatched_inclusions_next_w(struct archive * _a,
-    const wchar_t ** _p)
+int archive_match_path_unmatched_inclusions_next_w(struct archive * _a, const wchar_t ** _p)
 {
 	struct archive_match * a;
 	const void * v;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_unmatched_inclusions_next_w");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_unmatched_inclusions_next_w");
 	a = (struct archive_match *)_a;
-
 	r = match_list_unmatched_inclusions_next(a, &(a->inclusions), 0, &v);
 	*_p = (const wchar_t*)v;
 	return (r);
@@ -931,16 +873,12 @@ int archive_match_include_file_time_w(struct archive * _a, int flag,
 		   flag, pathname);
 }
 
-int archive_match_exclude_entry(struct archive * _a, int flag,
-    struct archive_entry * entry)
+int archive_match_exclude_entry(struct archive * _a, int flag, struct archive_entry * entry)
 {
 	struct archive_match * a;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_time_include_entry");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_time_include_entry");
 	a = (struct archive_match *)_a;
-
 	if(entry == NULL) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
 		return (ARCHIVE_FAILED);
@@ -950,7 +888,6 @@ int archive_match_exclude_entry(struct archive * _a, int flag,
 		return (r);
 	return (add_entry(a, flag, entry));
 }
-
 /*
  * Test function for time stamps.
  *
@@ -958,14 +895,10 @@ int archive_match_exclude_entry(struct archive * _a, int flag,
  * Returns 0 if archive entry is not excluded.
  * Returns <0 if something error happened.
  */
-int archive_match_time_excluded(struct archive * _a,
-    struct archive_entry * entry)
+int archive_match_time_excluded(struct archive * _a, struct archive_entry * entry)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_time_excluded_ae");
-
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_time_excluded_ae");
 	a = (struct archive_match *)_a;
 	if(entry == NULL) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
@@ -981,9 +914,7 @@ int archive_match_time_excluded(struct archive * _a,
 
 static int validate_time_flag(struct archive * _a, int flag, const char * _fn)
 {
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, _fn);
-
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, _fn);
 	/* Check a type of time. */
 	if(flag &
 	    ((~(ARCHIVE_MATCH_MTIME | ARCHIVE_MATCH_CTIME)) & 0xff00)) {
@@ -1552,9 +1483,7 @@ static int time_excluded(struct archive_match * a, struct archive_entry * entry)
 int archive_match_include_uid(struct archive * _a, la_int64_t uid)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_uid");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_uid");
 	a = (struct archive_match *)_a;
 	return (add_owner_id(a, &(a->inclusion_uids), uid));
 }
@@ -1562,9 +1491,7 @@ int archive_match_include_uid(struct archive * _a, la_int64_t uid)
 int archive_match_include_gid(struct archive * _a, la_int64_t gid)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_gid");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_gid");
 	a = (struct archive_match *)_a;
 	return (add_owner_id(a, &(a->inclusion_gids), gid));
 }
@@ -1572,9 +1499,7 @@ int archive_match_include_gid(struct archive * _a, la_int64_t gid)
 int archive_match_include_uname(struct archive * _a, const char * uname)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_uname");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_uname");
 	a = (struct archive_match *)_a;
 	return (add_owner_name(a, &(a->inclusion_unames), 1, uname));
 }
@@ -1582,9 +1507,7 @@ int archive_match_include_uname(struct archive * _a, const char * uname)
 int archive_match_include_uname_w(struct archive * _a, const wchar_t * uname)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_uname_w");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_uname_w");
 	a = (struct archive_match *)_a;
 	return (add_owner_name(a, &(a->inclusion_unames), 0, uname));
 }
@@ -1592,9 +1515,7 @@ int archive_match_include_uname_w(struct archive * _a, const wchar_t * uname)
 int archive_match_include_gname(struct archive * _a, const char * gname)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_gname");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_gname");
 	a = (struct archive_match *)_a;
 	return (add_owner_name(a, &(a->inclusion_gnames), 1, gname));
 }
@@ -1602,9 +1523,7 @@ int archive_match_include_gname(struct archive * _a, const char * gname)
 int archive_match_include_gname_w(struct archive * _a, const wchar_t * gname)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_include_gname_w");
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_include_gname_w");
 	a = (struct archive_match *)_a;
 	return (add_owner_name(a, &(a->inclusion_gnames), 0, gname));
 }
@@ -1616,20 +1535,15 @@ int archive_match_include_gname_w(struct archive * _a, const wchar_t * gname)
  * Returns 0 if archive entry is not excluded.
  * Returns <0 if something error happened.
  */
-int archive_match_owner_excluded(struct archive * _a,
-    struct archive_entry * entry)
+int archive_match_owner_excluded(struct archive * _a, struct archive_entry * entry)
 {
 	struct archive_match * a;
-
-	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_match_id_excluded_ae");
-
+	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_id_excluded_ae");
 	a = (struct archive_match *)_a;
 	if(entry == NULL) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
 		return (ARCHIVE_FAILED);
 	}
-
 	/* If we don't have inclusion id set at all, the entry is always
 	 * not excluded. */
 	if((a->setflag & ID_IS_SET) == 0)

@@ -382,7 +382,6 @@ ssize_t __la_read(int fd, void * buf, size_t nbytes)
 	HANDLE handle;
 	DWORD bytes_read, lasterr;
 	int r;
-
 #ifdef _WIN64
 	if(nbytes > UINT32_MAX)
 		nbytes = UINT32_MAX;
@@ -419,7 +418,6 @@ ssize_t __la_read(int fd, void * buf, size_t nbytes)
 __inline static void fileTimeToUTC(const FILETIME * filetime, time_t * t, long * ns)
 {
 	ULARGE_INTEGER utc;
-
 	utc.HighPart = filetime->dwHighDateTime;
 	utc.LowPart  = filetime->dwLowDateTime;
 	if(utc.QuadPart >= EPOC_TIME) {
@@ -453,7 +451,6 @@ static int __hstat(HANDLE handle, struct ustat * st)
 	mode_t mode;
 	time_t t;
 	long ns;
-
 	switch(ftype = GetFileType(handle)) {
 		case FILE_TYPE_UNKNOWN:
 		    errno = EBADF;
@@ -493,13 +490,12 @@ static int __hstat(HANDLE handle, struct ustat * st)
 		    la_dosmaperr(GetLastError());
 		    return (-1);
 	}
-
-	ZeroMemory(&info, sizeof(info));
+	// @sobolev ZeroMemory(&info, sizeof(info));
+	MEMSZERO(info); // @sobolev
 	if(!GetFileInformationByHandle(handle, &info)) {
 		la_dosmaperr(GetLastError());
 		return (-1);
 	}
-
 	mode = S_IRUSR | S_IRGRP | S_IROTH;
 	if((info.dwFileAttributes & FILE_ATTRIBUTE_READONLY) == 0)
 		mode |= S_IWUSR | S_IWGRP | S_IWOTH;
@@ -508,7 +504,6 @@ static int __hstat(HANDLE handle, struct ustat * st)
 	else
 		mode |= S_IFREG;
 	st->st_mode = mode;
-
 	fileTimeToUTC(&info.ftLastAccessTime, &t, &ns);
 	st->st_atime = t;
 	st->st_atime_nsec = ns;
@@ -518,9 +513,7 @@ static int __hstat(HANDLE handle, struct ustat * st)
 	fileTimeToUTC(&info.ftCreationTime, &t, &ns);
 	st->st_ctime = t;
 	st->st_ctime_nsec = ns;
-	st->st_size =
-	    ((int64_t)(info.nFileSizeHigh) * ((int64_t)MAXDWORD + 1))
-	    + (int64_t)(info.nFileSizeLow);
+	st->st_size = ((int64_t)(info.nFileSizeHigh) * ((int64_t)MAXDWORD + 1)) + (int64_t)(info.nFileSizeLow);
 #ifdef SIMULATE_WIN_STAT
 	st->st_ino = 0;
 	st->st_nlink = 1;
@@ -556,7 +549,6 @@ static void copy_stat(struct stat * st, struct ustat * us)
 	st->st_dev = us->st_dev;
 	st->st_rdev = us->st_rdev;
 }
-
 /*
  * TODO: Remove a use of __la_fstat and __la_stat.
  * We should use GetFileInformationByHandle in place
@@ -564,22 +556,22 @@ static void copy_stat(struct stat * st, struct ustat * us)
  */
 int __la_fstat(int fd, struct stat * st)
 {
-	struct ustat u;
-	int ret;
-
 	if(fd < 0) {
 		errno = EBADF;
 		return (-1);
 	}
-	ret = __hstat((HANDLE)_get_osfhandle(fd), &u);
-	if(ret >= 0) {
-		copy_stat(st, &u);
-		if(u.st_mode & (S_IFCHR | S_IFIFO)) {
-			st->st_dev = fd;
-			st->st_rdev = fd;
+	else {
+		struct ustat u;
+		int ret = __hstat((HANDLE)_get_osfhandle(fd), &u);
+		if(ret >= 0) {
+			copy_stat(st, &u);
+			if(u.st_mode & (S_IFCHR | S_IFIFO)) {
+				st->st_dev = fd;
+				st->st_rdev = fd;
+			}
 		}
+		return (ret);
 	}
-	return (ret);
 }
 
 /* This can exceed MAX_PATH limitation. */

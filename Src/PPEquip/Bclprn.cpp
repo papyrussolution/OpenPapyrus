@@ -559,14 +559,14 @@ BarcodeFormatToken BarcodeLabel::NextToken(char ** ppLine, char * pBuf, size_t b
 					if(toupper(*s) == 'X') {
 						s++; // @v10.3.0 @fix *s++ --> s++
 						int    hc = 0;
-						if(isxdigit(*s)) {
+						if(ishex(*s)) { // @v10.9.8 isxdigit-->ishex
 							int    h = toupper(*s);
 							if(isdec(h))
 								hc += (h-'0');
 							else if(h >= 'A' && h <= 'F')
 								hc += 10 + (h-'A');
 							s++;
-							if(isxdigit(*s)) {
+							if(ishex(*s)) { // @v10.9.8 isxdigit-->ishex
 								hc *= 16;
 								h = toupper(*s);
 								if(isdec(h))

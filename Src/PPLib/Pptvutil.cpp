@@ -2454,7 +2454,8 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		int    r = 0;
 		SString path;
 		if(Flags & fUseExtOpenDlg) {
-			if((r = ExtOpenFileDialog(path = Data.Path, &Patterns, &DefWaitFolder)) > 0) {
+			r = ExtOpenFileDialog(path = Data.Path, &Patterns, &DefWaitFolder);
+			if(r > 0) {
 				PPPersonConfig psn_cfg;
 				if(PPObjPerson::ReadConfig(&psn_cfg) > 0) {
 					psn_cfg.AddImageFolder = DefWaitFolder;
@@ -2677,28 +2678,6 @@ int FASTCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint
 	delete p_dlg;
 	return ok;
 }
-
-/* @v9.2.1 int ComboBoxSelDialog(PPID objID, PPID * pID, uint flags, long extra)
-{
-	int    ok = -1;
-	TDialog * p_dlg = new TDialog(DLG_CBXSEL);
-	if(CheckDialogPtrErr(&p_dlg)) {
-		PPID   id = (pID) ? *pID : 0;
-		SString obj_title;
-		p_dlg->setSubTitle(GetObjectTitle(objID, obj_title));
-		p_dlg->setLabelText(CTL_CBXSEL_COMBO, obj_title);
-		SetupPPObjCombo(p_dlg, CTLSEL_CBXSEL_COMBO, objID, id, flags, (void *)extra);
-		if(ExecView(p_dlg) == cmOK) {
-			p_dlg->getCtrlData(CTLSEL_CBXSEL_COMBO, &id);
-			ASSIGN_PTR(pID, id);
-			ok = 1;
-		}
-	}
-	else
-		ok = 0;
-	delete p_dlg;
-	return ok;
-}*/
 
 int ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags)
 {

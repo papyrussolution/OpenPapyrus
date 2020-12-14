@@ -664,16 +664,15 @@ static int LogLuvEncodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 #include "uvcode.h"
 
 #ifndef UVSCALE
-#define U_NEU           0.210526316
-#define V_NEU           0.473684211
-#define UVSCALE         410.
+	#define U_NEU           0.210526316
+	#define V_NEU           0.473684211
+	#define UVSCALE         410.
 #endif
-
 #ifndef M_LN2
-#define M_LN2           0.69314718055994530942
+	#define M_LN2           0.69314718055994530942
 #endif
 #ifndef M_PI
-#define M_PI            3.14159265358979323846
+	#define M_PI            3.14159265358979323846
 #endif
 #undef log2 /* Conflict with C'99 function */
 #define log2(x)         ((1./M_LN2)*log(x))
@@ -681,10 +680,13 @@ static int LogLuvEncodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 #define exp2(x)         exp(M_LN2*(x))
 #define itrunc(x, m)     ((m)==SGILOGENCODE_NODITHER ? static_cast<int>(x) : static_cast<int>((x) + rand()*(1.0/RAND_MAX) - 0.5))
 
-#if !LOGLUV_PUBLIC
-static
+#if LOGLUV_PUBLIC
+	#define LOGLUV_FUNC_QUALIF 
+#else
+	#define LOGLUV_FUNC_QUALIF static
 #endif
-double LogL16toY(int p16)              /* compute luminance from 16-bit LogL */
+
+LOGLUV_FUNC_QUALIF double LogL16toY(int p16)              /* compute luminance from 16-bit LogL */
 {
 	int Le = p16 & 0x7fff;
 	double Y;
@@ -694,10 +696,7 @@ double LogL16toY(int p16)              /* compute luminance from 16-bit LogL */
 	return (!(p16 & 0x8000) ? Y : -Y);
 }
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-int LogL16fromY(double Y, int em)   /* get 16-bit LogL from Y */
+LOGLUV_FUNC_QUALIF int LogL16fromY(double Y, int em)   /* get 16-bit LogL from Y */
 {
 	if(Y >= 1.8371976e19)
 		return (0x7fff);
@@ -736,16 +735,12 @@ static void L16fromY(LogLuvState* sp, uint8* op, tmsize_t n)
 		*l16++ = (int16)(LogL16fromY(*yp++, sp->encode_meth));
 }
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-void XYZtoRGB24(float xyz[3], uint8 rgb[3])
+LOGLUV_FUNC_QUALIF void XYZtoRGB24(float xyz[3], uint8 rgb[3])
 {
-	double r, g, b;
 	/* assume CCIR-709 primaries */
-	r =  2.690*xyz[0] + -1.276*xyz[1] + -0.414*xyz[2];
-	g = -1.022*xyz[0] +  1.978*xyz[1] +  0.044*xyz[2];
-	b =  0.061*xyz[0] + -0.224*xyz[1] +  1.163*xyz[2];
+	double r =  2.690*xyz[0] + -1.276*xyz[1] + -0.414*xyz[2];
+	double g = -1.022*xyz[0] +  1.978*xyz[1] +  0.044*xyz[2];
+	double b =  0.061*xyz[0] + -0.224*xyz[1] +  1.163*xyz[2];
 	/* assume 2.0 gamma for speed */
 	/* could use integer sqrt approx., but this is probably faster */
 	rgb[0] = (uint8)((r<=0.) ? 0 : (r >= 1.) ? 255 : (int)(256.*sqrt(r)));
@@ -753,20 +748,14 @@ void XYZtoRGB24(float xyz[3], uint8 rgb[3])
 	rgb[2] = (uint8)((b<=0.) ? 0 : (b >= 1.) ? 255 : (int)(256.*sqrt(b)));
 }
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-double LogL10toY(int p10)              /* compute luminance from 10-bit LogL */
+LOGLUV_FUNC_QUALIF double LogL10toY(int p10)              /* compute luminance from 10-bit LogL */
 {
 	if(p10 == 0)
 		return (0.);
 	return (exp(M_LN2/64.*(p10+.5) - M_LN2*12.));
 }
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-int LogL10fromY(double Y, int em)   /* get 10-bit LogL from Y */
+LOGLUV_FUNC_QUALIF int LogL10fromY(double Y, int em)   /* get 10-bit LogL from Y */
 {
 	if(Y >= 15.742)
 		return (0x3ff);
@@ -777,15 +766,13 @@ int LogL10fromY(double Y, int em)   /* get 10-bit LogL from Y */
 }
 
 #define NANGLES         100
-#define uv2ang(u, v)    ( (NANGLES*.499999999/M_PI) \
-	    * atan2((v)-V_NEU, (u)-U_NEU) + .5*NANGLES )
+#define uv2ang(u, v)    ((NANGLES*.499999999/M_PI) * atan2((v)-V_NEU, (u)-U_NEU) + .5*NANGLES)
 
 static int oog_encode(double u, double v)          /* encode out-of-gamut chroma */
 {
 	static int oog_table[NANGLES];
 	static int initialized = 0;
-	register int i;
-
+	int i;
 	if(!initialized) {              /* set up perimeter table */
 		double eps[NANGLES], ua, va, ang, epsa;
 		int ui, vi, ustep;
@@ -832,13 +819,9 @@ static int oog_encode(double u, double v)          /* encode out-of-gamut chroma
 #undef uv2ang
 #undef NANGLES
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-int uv_encode(double u, double v, int em)   /* encode (u',v') coordinates */
+LOGLUV_FUNC_QUALIF int uv_encode(double u, double v, int em)   /* encode (u',v') coordinates */
 {
-	register int vi, ui;
-
+	int vi, ui;
 	if(v < UV_VSTART)
 		return oog_encode(u, v);
 	vi = itrunc((v - UV_VSTART)*(1./UV_SQSIZ), em);
@@ -853,14 +836,10 @@ int uv_encode(double u, double v, int em)   /* encode (u',v') coordinates */
 	return (uv_row[vi].ncum + ui);
 }
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-int uv_decode(double * up, double * vp, int c)        /* decode (u',v') index */
+LOGLUV_FUNC_QUALIF int uv_decode(double * up, double * vp, int c)        /* decode (u',v') index */
 {
 	int upper, lower;
-	register int ui, vi;
-
+	int ui, vi;
 	if(c < 0 || c >= UV_NDIVS)
 		return -1;
 	lower = 0;                              /* binary search */
@@ -884,15 +863,12 @@ int uv_decode(double * up, double * vp, int c)        /* decode (u',v') index */
 	return 0;
 }
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-void LogLuv24toXYZ(uint32 p, float XYZ[3])
+LOGLUV_FUNC_QUALIF void LogLuv24toXYZ(uint32 p, float XYZ[3])
 {
 	int Ce;
-	double L, u, v, s, x, y;
+	double u, v, s, x, y;
 	/* decode luminance */
-	L = LogL10toY(p>>14 & 0x3ff);
+	double L = LogL10toY(p>>14 & 0x3ff);
 	if(L <= 0.) {
 		XYZ[0] = XYZ[1] = XYZ[2] = 0.;
 		return;
@@ -911,17 +887,14 @@ void LogLuv24toXYZ(uint32 p, float XYZ[3])
 	XYZ[2] = (float)((1.-x-y)/y * L);
 }
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-uint32 LogLuv24fromXYZ(float XYZ[3], int em)
+LOGLUV_FUNC_QUALIF uint32 LogLuv24fromXYZ(float XYZ[3], int em)
 {
-	int Le, Ce;
-	double u, v, s;
+	int Ce;
+	double u, v;
 	/* encode luminance */
-	Le = LogL10fromY(XYZ[1], em);
+	int Le = LogL10fromY(XYZ[1], em);
 	/* encode color */
-	s = XYZ[0] + 15.*XYZ[1] + 3.*XYZ[2];
+	double s = XYZ[0] + 15.*XYZ[1] + 3.*XYZ[2];
 	if(!Le || s <= 0.) {
 		u = U_NEU;
 		v = V_NEU;
@@ -939,8 +912,8 @@ uint32 LogLuv24fromXYZ(float XYZ[3], int em)
 
 static void Luv24toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
-	float* xyz = reinterpret_cast<float *>(op);
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	float * xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		LogLuv24toXYZ(*luv, xyz);
 		xyz += 3;
@@ -950,8 +923,8 @@ static void Luv24toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
-	int16* luv3 = reinterpret_cast<int16 *>(op);
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	int16 * luv3 = reinterpret_cast<int16 *>(op);
 	while(n-- > 0) {
 		double u, v;
 		*luv3++ = (int16)((*luv >> 12 & 0xffd) + 13314);
@@ -989,8 +962,8 @@ static void Luv24fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24fromLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
-	int16* luv3 = reinterpret_cast<int16 *>(op);
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	int16  * luv3 = reinterpret_cast<int16 *>(op);
 	while(n-- > 0) {
 		int Le, Ce;
 		if(luv3[0] <= 0)
@@ -1009,14 +982,11 @@ static void Luv24fromLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-void LogLuv32toXYZ(uint32 p, float XYZ[3])
+LOGLUV_FUNC_QUALIF void LogLuv32toXYZ(uint32 p, float XYZ[3])
 {
-	double L, u, v, s, x, y;
+	double u, v, s, x, y;
 	/* decode luminance */
-	L = LogL16toY((int)p >> 16);
+	double L = LogL16toY((int)p >> 16);
 	if(L <= 0.) {
 		XYZ[0] = XYZ[1] = XYZ[2] = 0.;
 		return;
@@ -1033,10 +1003,7 @@ void LogLuv32toXYZ(uint32 p, float XYZ[3])
 	XYZ[2] = (float)((1.-x-y)/y * L);
 }
 
-#if !LOGLUV_PUBLIC
-static
-#endif
-uint32 LogLuv32fromXYZ(float XYZ[3], int em)
+LOGLUV_FUNC_QUALIF uint32 LogLuv32fromXYZ(float XYZ[3], int em)
 {
 	unsigned int Le, ue, ve;
 	double u, v, s;
@@ -1318,9 +1285,8 @@ static int LogLuvSetupDecode(TIFF* tif)
 static int LogLuvSetupEncode(TIFF* tif)
 {
 	static const char module[] = __FUNCTION__;
-	LogLuvState* sp = EncoderState(tif);
-	TIFFDirectory* td = &tif->tif_dir;
-
+	LogLuvState * sp = EncoderState(tif);
+	TIFFDirectory * td = &tif->tif_dir;
 	switch(td->td_photometric) {
 		case PHOTOMETRIC_LOGLUV:
 		    if(!LogLuvInitState(tif))
@@ -1383,8 +1349,7 @@ static void LogLuvClose(TIFF* tif)
 	if(sp->encoder_state) {
 		/* See PixarLogClose. Might avoid issues with tags whose size depends
 		 * on those below, but not completely sure this is enough. */
-		td->td_samplesperpixel =
-		    (td->td_photometric == PHOTOMETRIC_LOGL) ? 1 : 3;
+		td->td_samplesperpixel = (td->td_photometric == PHOTOMETRIC_LOGL) ? 1 : 3;
 		td->td_bitspersample = 16;
 		td->td_sampleformat = SAMPLEFORMAT_INT;
 	}

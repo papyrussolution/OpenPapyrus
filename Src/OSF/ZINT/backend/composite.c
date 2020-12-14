@@ -1467,7 +1467,6 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 					}
 					if((general_field[i] >= '0') && (general_field[i] <= '9')) {
 						value = general_field[i] - 43;
-
 						mask = 0x10;
 						for(j = 0; j < 5; j++) {
 							if((value & mask) == 0x00) {
@@ -1479,7 +1478,6 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 							mask = mask >> 1;
 						}
 					}
-
 					if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
 						value = general_field[i] - 33;
 						mask = 0x20;

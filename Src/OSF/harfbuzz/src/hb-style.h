@@ -21,23 +21,17 @@
  * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-
 #ifndef HB_H_IN
-#error "Include <hb.h> instead."
+	#error "Include <hb.h> instead."
 #endif
-
 #ifndef HB_STYLE_H
 #define HB_STYLE_H
 
 #include "hb.h"
 
 HB_BEGIN_DECLS
-
-#ifdef HB_EXPERIMENTAL_API
-HB_EXTERN float
-hb_style_get_value (hb_font_t *font, hb_tag_t style_tag);
-#endif
-
+	#ifdef HB_EXPERIMENTAL_API
+		HB_EXTERN float hb_style_get_value (hb_font_t *font, hb_tag_t style_tag);
+	#endif
 HB_END_DECLS
-
 #endif /* HB_STYLE_H */

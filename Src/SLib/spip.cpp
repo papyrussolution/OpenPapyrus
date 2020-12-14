@@ -189,7 +189,8 @@ int FASTCALL S_GUID_Base::FromStr(const char * pBuf)
 					start_ch = c;
 				}
 				int    is_valid_ch = 0;
-				if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+				// @v10.9.8 if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+				if(ishex(c)) { // @v10.9.8 
 					temp_buf[t++] = c;
 					is_valid_ch = 1;
 				}

@@ -101,10 +101,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\pvio;D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\include;D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth;D:\Papyrus\Src\OSF\mariadb-connector-c\include;D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb;D:\Papyrus\Src\OSF\mariadb-connector-c\win-iconv;D:\Papyrus\Src\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\mariadb-connector-c\plugins\pvio;..\OSF\mariadb-connector-c\__build__\include;..\OSF\mariadb-connector-c\plugins\auth;..\OSF\mariadb-connector-c\include;..\OSF\mariadb-connector-c\libmariadb;..\OSF\mariadb-connector-c\win-iconv;..\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\pvio;D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\include;D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth;D:\Papyrus\Src\OSF\mariadb-connector-c\include;D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb;D:\Papyrus\Src\OSF\mariadb-connector-c\win-iconv;D:\Papyrus\Src\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\mariadb-connector-c\plugins\pvio;..\OSF\mariadb-connector-c\__build__\include;..\OSF\mariadb-connector-c\plugins\auth;..\OSF\mariadb-connector-c\include;..\OSF\mariadb-connector-c\libmariadb;..\OSF\mariadb-connector-c\win-iconv;..\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -139,10 +139,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\pvio;D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\include;D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth;D:\Papyrus\Src\OSF\mariadb-connector-c\include;D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb;D:\Papyrus\Src\OSF\mariadb-connector-c\win-iconv;D:\Papyrus\Src\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\mariadb-connector-c\plugins\pvio;..\OSF\mariadb-connector-c\__build__\include;..\OSF\mariadb-connector-c\plugins\auth;..\OSF\mariadb-connector-c\include;..\OSF\mariadb-connector-c\libmariadb;..\OSF\mariadb-connector-c\win-iconv;..\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\pvio;D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\include;D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth;D:\Papyrus\Src\OSF\mariadb-connector-c\include;D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb;D:\Papyrus\Src\OSF\mariadb-connector-c\win-iconv;D:\Papyrus\Src\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\mariadb-connector-c\plugins\pvio;..\OSF\mariadb-connector-c\__build__\include;..\OSF\mariadb-connector-c\plugins\auth;..\OSF\mariadb-connector-c\include;..\OSF\mariadb-connector-c\libmariadb;..\OSF\mariadb-connector-c\win-iconv;..\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -177,10 +177,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DBUG_OFF;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\pvio;D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\include;D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth;D:\Papyrus\Src\OSF\mariadb-connector-c\include;D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb;D:\Papyrus\Src\OSF\mariadb-connector-c\win-iconv;D:\Papyrus\Src\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\mariadb-connector-c\plugins\pvio;..\OSF\mariadb-connector-c\__build__\include;..\OSF\mariadb-connector-c\plugins\auth;..\OSF\mariadb-connector-c\include;..\OSF\mariadb-connector-c\libmariadb;..\OSF\mariadb-connector-c\win-iconv;..\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\pvio;D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\include;D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth;D:\Papyrus\Src\OSF\mariadb-connector-c\include;D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb;D:\Papyrus\Src\OSF\mariadb-connector-c\win-iconv;D:\Papyrus\Src\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\mariadb-connector-c\plugins\pvio;..\OSF\mariadb-connector-c\__build__\include;..\OSF\mariadb-connector-c\plugins\auth;..\OSF\mariadb-connector-c\include;..\OSF\mariadb-connector-c\libmariadb;..\OSF\mariadb-connector-c\win-iconv;..\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -215,10 +215,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DBUG_OFF;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\pvio;D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\include;D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth;D:\Papyrus\Src\OSF\mariadb-connector-c\include;D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb;D:\Papyrus\Src\OSF\mariadb-connector-c\win-iconv;D:\Papyrus\Src\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\mariadb-connector-c\plugins\pvio;..\OSF\mariadb-connector-c\__build__\include;..\OSF\mariadb-connector-c\plugins\auth;..\OSF\mariadb-connector-c\include;..\OSF\mariadb-connector-c\libmariadb;..\OSF\mariadb-connector-c\win-iconv;..\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\pvio;D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\include;D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth;D:\Papyrus\Src\OSF\mariadb-connector-c\include;D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb;D:\Papyrus\Src\OSF\mariadb-connector-c\win-iconv;D:\Papyrus\Src\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\mariadb-connector-c\plugins\pvio;..\OSF\mariadb-connector-c\__build__\include;..\OSF\mariadb-connector-c\plugins\auth;..\OSF\mariadb-connector-c\include;..\OSF\mariadb-connector-c\libmariadb;..\OSF\mariadb-connector-c\win-iconv;..\OSF\mariadb-connector-c\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>

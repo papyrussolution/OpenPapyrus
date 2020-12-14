@@ -133,54 +133,40 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
  * If a pointer to an integer is provided and its value is below zero
  * open a file descriptor on this pathname.
  */
-const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
-	const char * path;
-
-	path = archive_entry_sourcepath(entry);
-
+	const char * path = archive_entry_sourcepath(entry);
 	if(path == NULL || (a->tree != NULL &&
 	    a->tree_enter_working_dir(a->tree) != 0))
 		path = archive_entry_pathname(entry);
 	if(path == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Couldn't determine path");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Couldn't determine path");
 	}
 	else if(fd != NULL && *fd < 0 && a->tree != NULL &&
 	    (a->follow_symlinks || archive_entry_filetype(entry) != AE_IFLNK)) {
-		*fd = a->open_on_current_dir(a->tree, path,
-			O_RDONLY | O_NONBLOCK);
+		*fd = a->open_on_current_dir(a->tree, path, O_RDONLY | O_NONBLOCK);
 	}
 	return (path);
 }
 
-int archive_read_disk_entry_from_file(struct archive * _a,
-    struct archive_entry * entry,
-    int fd,
-    const struct stat * st)
+int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry * entry, int fd, const struct stat * st)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	const char * path, * name;
 	struct stat s;
 	int initial_fd = fd;
 	int r, r1;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY,
-	    "archive_read_disk_entry_from_file");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_entry_from_file");
 	archive_clear_error(_a);
 	path = archive_entry_sourcepath(entry);
 	if(path == NULL)
 		path = archive_entry_pathname(entry);
-
 	if(a->tree == NULL) {
 		if(st == NULL) {
 #if HAVE_FSTAT
 			if(fd >= 0) {
 				if(fstat(fd, &s) != 0) {
-					archive_set_error(&a->archive, errno,
-					    "Can't fstat");
+					archive_set_error(&a->archive, errno, "Can't fstat");
 					return (ARCHIVE_FAILED);
 				}
 			}
@@ -189,16 +175,14 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 #if HAVE_LSTAT
 			if(!a->follow_symlinks) {
 				if(lstat(path, &s) != 0) {
-					archive_set_error(&a->archive, errno,
-					    "Can't lstat %s", path);
+					archive_set_error(&a->archive, errno, "Can't lstat %s", path);
 					return (ARCHIVE_FAILED);
 				}
 			}
 			else
 #endif
 			if(la_stat(path, &s) != 0) {
-				archive_set_error(&a->archive, errno,
-				    "Can't stat %s", path);
+				archive_set_error(&a->archive, errno, "Can't stat %s", path);
 				return (ARCHIVE_FAILED);
 			}
 			st = &s;
@@ -260,8 +244,7 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 
 		linkbuffer = malloc(linkbuffer_len + 1);
 		if(linkbuffer == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Couldn't read link data");
+			archive_set_error(&a->archive, ENOMEM, "Couldn't read link data");
 			return (ARCHIVE_FAILED);
 		}
 		if(a->tree != NULL) {
@@ -270,8 +253,7 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 				path, linkbuffer, linkbuffer_len);
 #else
 			if(a->tree_enter_working_dir(a->tree) != 0) {
-				archive_set_error(&a->archive, errno,
-				    "Couldn't read link data");
+				archive_set_error(&a->archive, errno, "Couldn't read link data");
 				free(linkbuffer);
 				return (ARCHIVE_FAILED);
 			}
@@ -281,8 +263,7 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 		else
 			lnklen = readlink(path, linkbuffer, linkbuffer_len);
 		if(lnklen < 0) {
-			archive_set_error(&a->archive, errno,
-			    "Couldn't read link data");
+			archive_set_error(&a->archive, errno, "Couldn't read link data");
 			free(linkbuffer);
 			return (ARCHIVE_FAILED);
 		}
@@ -350,8 +331,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	/* Short-circuit if there's nothing to do. */
 	have_attrs = copyfile(name, NULL, 0, copyfile_flags | COPYFILE_CHECK);
 	if(have_attrs == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Could not check extended attributes");
+		archive_set_error(&a->archive, errno, "Could not check extended attributes");
 		return (ARCHIVE_WARN);
 	}
 	if(have_attrs == 0)
@@ -367,8 +347,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	archive_strcat(&tempfile, "tar.md.XXXXXX");
 	tempfd = mkstemp(tempfile.s);
 	if(tempfd < 0) {
-		archive_set_error(&a->archive, errno,
-		    "Could not open extended attribute file");
+		archive_set_error(&a->archive, errno, "Could not open extended attribute file");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
@@ -379,27 +358,23 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	 * matter, it would be nice if fcopyfile() actually worked,
 	 * that would reduce the many open/close races here. */
 	if(copyfile(name, tempfile.s, 0, copyfile_flags | COPYFILE_PACK)) {
-		archive_set_error(&a->archive, errno,
-		    "Could not pack extended attributes");
+		archive_set_error(&a->archive, errno, "Could not pack extended attributes");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
 	if(fstat(tempfd, &copyfile_stat)) {
-		archive_set_error(&a->archive, errno,
-		    "Could not check size of extended attributes");
+		archive_set_error(&a->archive, errno, "Could not check size of extended attributes");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
 	buff = malloc(copyfile_stat.st_size);
 	if(buff == NULL) {
-		archive_set_error(&a->archive, errno,
-		    "Could not allocate memory for extended attributes");
+		archive_set_error(&a->archive, errno, "Could not allocate memory for extended attributes");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
 	if(copyfile_stat.st_size != read(tempfd, buff, copyfile_stat.st_size)) {
-		archive_set_error(&a->archive, errno,
-		    "Could not read extended attributes into memory");
+		archive_set_error(&a->archive, errno, "Could not read extended attributes into memory");
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
@@ -477,18 +452,14 @@ static int setup_xattr(struct archive_read_disk * a,
 		size = getea(accpath, name, NULL, 0);
 #endif
 	}
-
 	if(size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Couldn't query extended attribute");
+		archive_set_error(&a->archive, errno, "Couldn't query extended attribute");
 		return (ARCHIVE_WARN);
 	}
-
 	if(size > 0 && (value = malloc(size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return (ARCHIVE_FATAL);
 	}
-
 	if(fd >= 0) {
 #if ARCHIVE_XATTR_LINUX
 		size = fgetxattr(fd, name, value, size);
@@ -516,28 +487,20 @@ static int setup_xattr(struct archive_read_disk * a,
 		size = getea(accpath, name, value, size);
 #endif
 	}
-
 	if(size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Couldn't read extended attribute");
+		archive_set_error(&a->archive, errno, "Couldn't read extended attribute");
 		return (ARCHIVE_WARN);
 	}
-
 	archive_entry_xattr_add_entry(entry, name, value, size);
-
 	free(value);
 	return (ARCHIVE_OK);
 }
 
-static int setup_xattrs(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	char * list, * p;
-	const char * path;
 	ssize_t list_size;
-
-	path = NULL;
-
+	const char * path = NULL;
 	if(*fd < 0) {
 		path = archive_read_disk_entry_setup_path(a, entry, fd);
 		if(path == NULL)
@@ -578,15 +541,12 @@ static int setup_xattrs(struct archive_read_disk * a,
 		archive_set_error(&a->archive, errno, "Couldn't list extended attributes");
 		return (ARCHIVE_WARN);
 	}
-
 	if(list_size == 0)
 		return (ARCHIVE_OK);
-
 	if((list = malloc(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return (ARCHIVE_FATAL);
 	}
-
 	if(*fd >= 0) {
 #if ARCHIVE_XATTR_LINUX
 		list_size = flistxattr(*fd, list, list_size);
@@ -614,14 +574,11 @@ static int setup_xattrs(struct archive_read_disk * a,
 		list_size = listea(path, list, list_size);
 #endif
 	}
-
 	if(list_size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Couldn't retrieve extended attributes");
+		archive_set_error(&a->archive, errno, "Couldn't retrieve extended attributes");
 		free(list);
 		return (ARCHIVE_WARN);
 	}
-
 	for(p = list; (p - list) < list_size; p += strlen(p) + 1) {
 #if ARCHIVE_XATTR_LINUX
 		/* Linux: skip POSIX.1e ACL extended attributes */
@@ -661,60 +618,46 @@ static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entr
     const char * path);
 
 static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entry,
-    int namespace, const char * name, const char * fullname, int fd,
-    const char * accpath)
+    int namespace, const char * name, const char * fullname, int fd, const char * accpath)
 {
 	ssize_t size;
 	void * value = NULL;
-
 	if(fd >= 0)
 		size = extattr_get_fd(fd, namespace, name, NULL, 0);
 	else if(!a->follow_symlinks)
 		size = extattr_get_link(accpath, namespace, name, NULL, 0);
 	else
 		size = extattr_get_file(accpath, namespace, name, NULL, 0);
-
 	if(size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Couldn't query extended attribute");
+		archive_set_error(&a->archive, errno, "Couldn't query extended attribute");
 		return (ARCHIVE_WARN);
 	}
-
 	if(size > 0 && (value = malloc(size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return (ARCHIVE_FATAL);
 	}
-
 	if(fd >= 0)
 		size = extattr_get_fd(fd, namespace, name, value, size);
 	else if(!a->follow_symlinks)
 		size = extattr_get_link(accpath, namespace, name, value, size);
 	else
 		size = extattr_get_file(accpath, namespace, name, value, size);
-
 	if(size == -1) {
 		free(value);
-		archive_set_error(&a->archive, errno,
-		    "Couldn't read extended attribute");
+		archive_set_error(&a->archive, errno, "Couldn't read extended attribute");
 		return (ARCHIVE_WARN);
 	}
-
 	archive_entry_xattr_add_entry(entry, fullname, value, size);
-
 	free(value);
 	return (ARCHIVE_OK);
 }
 
-static int setup_xattrs_namespace(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd, int namespace)
+static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_entry * entry, int * fd, int namespace)
 {
 	char buff[512];
 	char * list, * p;
 	ssize_t list_size;
-	const char * path;
-
-	path = NULL;
-
+	const char * path = NULL;
 	if(*fd < 0) {
 		path = archive_read_disk_entry_setup_path(a, entry, fd);
 		if(path == NULL)
@@ -733,14 +676,11 @@ static int setup_xattrs_namespace(struct archive_read_disk * a,
 	if(list_size == -1 && errno == EPERM)
 		return (ARCHIVE_OK);
 	if(list_size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Couldn't list extended attributes");
+		archive_set_error(&a->archive, errno, "Couldn't list extended attributes");
 		return (ARCHIVE_WARN);
 	}
-
 	if(list_size == 0)
 		return (ARCHIVE_OK);
-
 	if((list = malloc(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return (ARCHIVE_FATAL);
@@ -752,14 +692,11 @@ static int setup_xattrs_namespace(struct archive_read_disk * a,
 		list_size = extattr_list_link(path, namespace, list, list_size);
 	else
 		list_size = extattr_list_file(path, namespace, list, list_size);
-
 	if(list_size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Couldn't retrieve extended attributes");
+		archive_set_error(&a->archive, errno, "Couldn't retrieve extended attributes");
 		free(list);
 		return (ARCHIVE_WARN);
 	}
-
 	p = list;
 	while((p - list) < list_size) {
 		size_t len = 255 & (int)*p;
@@ -991,8 +928,7 @@ static int setup_sparse(struct archive_read_disk * a,
 #endif
 		*fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		if(*fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't open `%s'", path);
+			archive_set_error(&a->archive, errno, "Can't open `%s'", path);
 			return (ARCHIVE_FAILED);
 		}
 		__archive_ensure_cloexec_flag(*fd);
@@ -1025,8 +961,7 @@ static int setup_sparse(struct archive_read_disk * a,
 				}
 				break;
 			}
-			archive_set_error(&a->archive, errno,
-			    "lseek(SEEK_HOLE) failed");
+			archive_set_error(&a->archive, errno, "lseek(SEEK_HOLE) failed");
 			exit_sts = ARCHIVE_FAILED;
 			goto exit_setup_sparse;
 		}
@@ -1037,8 +972,7 @@ static int setup_sparse(struct archive_read_disk * a,
 				if(off_e != (off_t)-1)
 					break; /* no more data */
 			}
-			archive_set_error(&a->archive, errno,
-			    "lseek(SEEK_DATA) failed");
+			archive_set_error(&a->archive, errno, "lseek(SEEK_DATA) failed");
 			exit_sts = ARCHIVE_FAILED;
 			goto exit_setup_sparse;
 		}
@@ -1066,8 +1000,7 @@ exit_setup_sparse:
 /*
  * Generic (stub) sparse support.
  */
-static int setup_sparse(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+static int setup_sparse(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	(void)a;     /* UNUSED */
 	(void)entry; /* UNUSED */

@@ -1957,6 +1957,88 @@ enum flex_direction {
 	FLEX_WRAP_WRAP_REVERSE
 };*/
 
+struct AbstractLayoutBlock {
+	enum {
+		fContainerRow             = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
+		fContainerCol             = 0x0002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
+			// if fContainerRow && fContainerCol, then no direction
+		fContainerReverseDir      = 0x0004, // if horizontal then right-to-left, if vertical then bottom-to-top
+		fContainerWrap            = 0x0008,
+		fContainerWrapReverse     = 0x0010, // ignored if !(Flags & fWrap)
+		fEntryPositionAbsolute    = 0x0020, // else Relative
+	};
+	enum {
+		alignAuto = 0,
+		alignStretch,
+		alignCenter,
+		alignStart,
+		alignEnd,
+		alignSpaceBetween,
+		alignSpaceAround,
+		alignSpaceEvenly
+	};
+	//
+	// Descr: Опции расчета размера
+	//
+	enum {
+		szInvalid     = -1, // Специальное значение, в некоторых случаях возвращаемое для индикации ошибки
+		szUndef       =  0, // Размер никак не определен. Должен быть определен во время пересчета (если возможно)
+		szFixed       =  1, // assert(Size.x > 0.0f)
+		szByContent   =  2, // Размер определяется содержимым
+		szByContainer =  3  // Размер определяется по размеру контейнера
+	};
+	AbstractLayoutBlock();
+	AbstractLayoutBlock & SetDefault();
+	int    Validate() const;
+	//
+	// Descr: Возвращает заданный размер по оси X.
+	//   Если SzX == szFixed, то по указателю pS присваивается фиксированный размер, иначе - 0.0f
+	// Returns:
+	//   if oneof4(SzX, szUndef, szFixed, szByContent, szByContainer) then SzX, else szInvalid.
+	//
+	int    GetSizeX(float * pS) const;
+	//
+	// Descr: Возвращает заданный размер по оси Y.
+	//   Если SzY == szFixed, то по указателю pS присваивается фиксированный размер, иначе - 0.0f
+	// Returns:
+	//   if oneof4(SzY, szUndef, szFixed, szByContent, szByContainer) then SzY, else szInvalid.
+	//
+	int    GetSizeY(float * pS) const;
+	void   SetFixedSizeX(float s);
+	void   SetVariableSizeX(uint var/* szXXX */);
+	void   SetFixedSizeY(float s);
+	void   SetVariableSizeY(uint var/* szXXX */);
+	int    GetContainerDirection() const; // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
+	void   SetContainerDirection(int direc /*DIREC_XXX*/);
+	static SString & MarginsToString(const FRect & rR, SString & rBuf);
+	static int    MarginsFromString(const char * pBuf, FRect & rR);
+	SString & SizeToString(SString & rBuf) const;
+	int    SizeFromString(const char * pBuf);
+
+	uint32 Signature;      // Сигнатура для сериализации
+	uint32 Version;        // Версия сериализации
+	uint32 Flags;          // @flags fXXX
+	uint16 SzX;            // 
+	uint16 SzY;            //
+	uint16 JustifyContent; // {alignStart}   AbstractLayoutBlock::alignXXX
+	uint16 AlignContent;   // {alignStretch} AbstractLayoutBlock::alignXXX
+	uint16 AlignItems;     // {alignStretch} AbstractLayoutBlock::alignXXX
+	uint16 AlignSelf;      // {alignAuto}    AbstractLayoutBlock::alignXXX
+	uint16 GravityX;       // Gravity of this entry by X-axis
+	uint16 GravityY;       // Gravity of this entry by Y-axis 
+	uint32 Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
+	FPoint Size;           //
+	FRect  Padding;        // { 0.0f, 0.0f, 0.0f, 0.0f } Внешние поля элемента
+	FRect  Margin;         // { 0.0f, 0.0f, 0.0f, 0.0f } Внутренние поля контейнера
+	float  GrowFactor;     //
+	float  ShrinkFactor;   //
+	float  Basis;          //
+	float  AspectRatio;    // {0.0} Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
+	uint8  Reserve[40];    // @reserve
+private:
+	int    ParseSizeStr(const SString & rStr, float & rS) const;
+};
+
 class LayoutFlexItem : public TSCollection <LayoutFlexItem> {
 public:
 	// size[0] == width, size[1] == height
@@ -2007,10 +2089,10 @@ public:
 	FRect  Padding; // { 0.0f, 0.0f, 0.0f, 0.0f }
 	FRect  Margin;  // { 0.0f, 0.0f, 0.0f, 0.0f }
 	flex_align JustifyContent; // FLEX_ALIGN_START
-	flex_align AlignContent; // FLEX_ALIGN_STRETCH
-	flex_align AlignItems; // FLEX_ALIGN_STRETCH
-	flex_align AlignSelf; // FLEX_ALIGN_AUTO
-	flex_direction Direction; // FLEX_DIRECTION_COLUMN
+	flex_align AlignContent;   // FLEX_ALIGN_STRETCH
+	flex_align AlignItems;     // FLEX_ALIGN_STRETCH
+	flex_align AlignSelf;      // FLEX_ALIGN_AUTO
+	flex_direction Direction;  // FLEX_DIRECTION_COLUMN
 	enum {
 		fPositionAbsolute         = 0x0001, // else Relative
 		fWrap                     = 0x0002,
@@ -2021,8 +2103,8 @@ public:
 	};
 	float  GrowFactor;   // 0.0f
 	float  ShrinkFactor; // 1.0
-	float  basis;  // NAN
-	float  AspectRation; // @v10.9.6 0.0 Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
+	float  Basis;  // NAN
+	float  AspectRatio; // @v10.9.6 0.0 Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
 	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
 	// An item can provide a self_sizing callback function that will be called
 	// during layout and which can customize the dimensions (width and height) of the item.
@@ -2038,7 +2120,7 @@ protected:
 	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout);
 	flex_align FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
 
-	int    order;  // 0
+	int    Order;  // 0
 };
 
 // Free memory associated with a flex item and its children.
@@ -2597,8 +2679,10 @@ public:
 	TWhatman * GetOwner() const;
 	TWindow * GetOwnerWindow() const;
 	const  SString & GetSymb() const;
-	const  TLayout::EntryBlock & GetLayoutBlock() const;
-	void   SetLayoutBlock(const TLayout::EntryBlock * pBlk);
+	//const  TLayout::EntryBlock & GetLayoutBlock() const;
+	//void   SetLayoutBlock(const TLayout::EntryBlock * pBlk);
+	const  AbstractLayoutBlock & GetLayoutBlock() const;
+	void   SetLayoutBlock(const AbstractLayoutBlock * pBlk);
 	const  SString & GetLayoutContainerIdent() const;
 	void   SetLayoutContainerIdent(const char * pIdent);
 
@@ -2632,7 +2716,8 @@ protected:
 private:
 	TRect  Bounds;
 	SString LayoutContainerIdent; // @v10.4.8 Символ родительского объекта типа Layout
-	TLayout::EntryBlock Le; // @v10.4.7 Параметры объекта как элемента layout
+	// @v10.9.8 TLayout::EntryBlock Le; // @v10.4.7 Параметры объекта как элемента layout
+	AbstractLayoutBlock Le2; // @v10.9.8
 	TWhatman * P_Owner; // @transient
 };
 //

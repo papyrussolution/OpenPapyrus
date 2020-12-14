@@ -420,13 +420,8 @@ cleanup:
    The only difference here is is usage of custom store
    and chain engine.
  */
-static SECURITY_STATUS VerifyServerCertificate(PCCERT_CONTEXT pServerCert,
-    HCERTSTORE hStore,
-    LPWSTR pwszServerName,
-    DWORD dwRevocationCheckFlags,
-    DWORD dwVerifyFlags,
-    LPSTR errmsg,
-    size_t errmsg_len)
+static SECURITY_STATUS VerifyServerCertificate(PCCERT_CONTEXT pServerCert, HCERTSTORE hStore, LPWSTR pwszServerName,
+    DWORD dwRevocationCheckFlags, DWORD dwVerifyFlags, LPSTR errmsg, size_t errmsg_len)
 {
 	SSL_EXTRA_CERT_CHAIN_POLICY_PARA polExtra;
 	CERT_CHAIN_POLICY_PARA PolicyPara;
@@ -434,23 +429,19 @@ static SECURITY_STATUS VerifyServerCertificate(PCCERT_CONTEXT pServerCert,
 	CERT_CHAIN_PARA ChainPara;
 	HCERTCHAINENGINE hChainEngine = NULL;
 	PCCERT_CHAIN_CONTEXT pChainContext = NULL;
-	LPSTR rgszUsages[] = { szOID_PKIX_KP_SERVER_AUTH,
-			       szOID_SERVER_GATED_CRYPTO,
-			       szOID_SGC_NETSCAPE };
+	LPSTR rgszUsages[] = { szOID_PKIX_KP_SERVER_AUTH, szOID_SERVER_GATED_CRYPTO, szOID_SGC_NETSCAPE };
 	DWORD cUsages = sizeof(rgszUsages) / sizeof(LPSTR);
 	SECURITY_STATUS status = SEC_E_OK;
-
 	if(pServerCert == NULL) {
 		SetLastError(SEC_E_WRONG_PRINCIPAL);
 		FAIL("Invalid parameter pServerCert passed to VerifyServerCertificate");
 	}
-
-	ZeroMemory(&ChainPara, sizeof(ChainPara));
+	// @sobolev ZeroMemory(&ChainPara, sizeof(ChainPara));
+	MEMSZERO(ChainPara); // @sobolev
 	ChainPara.cbSize = sizeof(ChainPara);
 	ChainPara.RequestedUsage.dwType = USAGE_MATCH_TYPE_OR;
 	ChainPara.RequestedUsage.Usage.cUsageIdentifier = cUsages;
 	ChainPara.RequestedUsage.Usage.rgpszUsageIdentifier = rgszUsages;
-
 	if(hStore) {
 		CERT_CHAIN_ENGINE_CONFIG EngineConfig = { 0 };
 		EngineConfig.cbSize = sizeof(EngineConfig);
@@ -459,22 +450,14 @@ static SECURITY_STATUS VerifyServerCertificate(PCCERT_CONTEXT pServerCert,
 			FAIL("CertCreateCertificateChainEngine failed");
 		}
 	}
-
-	if(!CertGetCertificateChain(
-		    hChainEngine,
-		    pServerCert,
-		    NULL,
-		    pServerCert->hCertStore,
-		    &ChainPara,
-		    dwRevocationCheckFlags,
-		    NULL,
-		    &pChainContext)) {
+	if(!CertGetCertificateChain(hChainEngine, pServerCert, NULL, pServerCert->hCertStore, &ChainPara,
+		    dwRevocationCheckFlags, NULL, &pChainContext)) {
 		FAIL("CertGetCertificateChain failed");
 		goto cleanup;
 	}
-
 	// Validate certificate chain.
-	ZeroMemory(&polExtra, sizeof(SSL_EXTRA_CERT_CHAIN_POLICY_PARA));
+	// @sobolev ZeroMemory(&polExtra, sizeof(SSL_EXTRA_CERT_CHAIN_POLICY_PARA));
+	MEMSZERO(polExtra); // @sobolev
 	polExtra.cbStruct = sizeof(SSL_EXTRA_CERT_CHAIN_POLICY_PARA);
 	polExtra.dwAuthType = AUTHTYPE_SERVER;
 	polExtra.fdwChecks = dwVerifyFlags;

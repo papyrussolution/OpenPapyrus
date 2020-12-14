@@ -4405,17 +4405,19 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 	int    yes = 0;
 	const  size_t len = sstrlen(pMark);
 	CALLPTRMEMB(pProcessedMark, Z());
-	if(len == 68 || len == 150) { // @v10.0.12 (|| len == 150)
+	if(oneof2(len, 68, 150)) { // @v10.0.12 (|| len == 150)
 		yes = 1;
 		SString temp_buf;
 		for(size_t i = 0; yes && i < len; i++) {
 			const char c = pMark[i];
-			if(!isdec(c) && !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z')) {
+			// @v10.9.8 if(!isdec(c) && !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z')) {
+			if(!isasciialnum(c)) { // @v10.9.8
 				if(pProcessedMark) {
 					temp_buf.Z().CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
 					KeyDownCommand kd;
 					uint   tc = kd.SetChar((uchar)temp_buf.C(0)) ? kd.GetChar() : 0; // Попытка транслировать латинский символ из локальной раскладки клавиатуры
-					if((tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z'))
+					// @v10.9.8 if((tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z'))
+					if(isasciialnum(tc)) // @v10.9.8 // @fix Вероятно, ошибка была. Заменил (tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z') на isasciialnum
                         pProcessedMark->CatChar((char)tc);
 					else
 						yes = 0;

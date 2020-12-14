@@ -150,9 +150,7 @@ int archive_write_add_filter_xz(struct archive * _a)
 {
 	struct archive_write_filter * f;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_add_filter_xz");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_xz");
 	f = __archive_write_allocate_filter(_a);
 	r = common_setup(f);
 	if(r == ARCHIVE_OK) {
@@ -169,9 +167,7 @@ int archive_write_add_filter_lzma(struct archive * _a)
 {
 	struct archive_write_filter * f;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_add_filter_lzma");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_lzma");
 	f = __archive_write_allocate_filter(_a);
 	r = common_setup(f);
 	if(r == ARCHIVE_OK) {
@@ -185,9 +181,7 @@ int archive_write_add_filter_lzip(struct archive * _a)
 {
 	struct archive_write_filter * f;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_add_filter_lzip");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_lzip");
 	f = __archive_write_allocate_filter(_a);
 	r = common_setup(f);
 	if(r == ARCHIVE_OK) {
@@ -197,15 +191,13 @@ int archive_write_add_filter_lzip(struct archive * _a)
 	return (r);
 }
 
-static int archive_compressor_xz_init_stream(struct archive_write_filter * f,
-    struct private_data * data)
+static int archive_compressor_xz_init_stream(struct archive_write_filter * f, struct private_data * data)
 {
 	static const lzma_stream lzma_stream_init_data = LZMA_STREAM_INIT;
 	int ret;
 #ifdef HAVE_LZMA_STREAM_ENCODER_MT
 	lzma_mt mt_options;
 #endif
-
 	data->stream = lzma_stream_init_data;
 	data->stream.next_out = data->compressed;
 	data->stream.avail_out = data->compressed_buffer_size;
@@ -217,13 +209,11 @@ static int archive_compressor_xz_init_stream(struct archive_write_filter * f,
 			mt_options.timeout = 300;
 			mt_options.filters = data->lzmafilters;
 			mt_options.check = LZMA_CHECK_CRC64;
-			ret = lzma_stream_encoder_mt(&(data->stream),
-				&mt_options);
+			ret = lzma_stream_encoder_mt(&(data->stream), &mt_options);
 		}
 		else
 #endif
-		ret = lzma_stream_encoder(&(data->stream),
-			data->lzmafilters, LZMA_CHECK_CRC64);
+		ret = lzma_stream_encoder(&(data->stream), data->lzmafilters, LZMA_CHECK_CRC64);
 	}
 	else if(f->code == ARCHIVE_FILTER_LZMA) {
 		ret = lzma_alone_encoder(&(data->stream), &data->lzma_opt);
@@ -234,9 +224,7 @@ static int archive_compressor_xz_init_stream(struct archive_write_filter * f,
 
 		/* Calculate a coded dictionary size */
 		if(dict_size < (1 << 12) || dict_size > (1 << 27)) {
-			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			    "Unacceptable dictionary size for lzip: %d",
-			    dict_size);
+			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Unacceptable dictionary size for lzip: %d", dict_size);
 			return (ARCHIVE_FATAL);
 		}
 		for(log2dic = 27; log2dic >= 12; log2dic--) {
@@ -245,13 +233,11 @@ static int archive_compressor_xz_init_stream(struct archive_write_filter * f,
 		}
 		if(dict_size > (1 << log2dic)) {
 			log2dic++;
-			wedges =
-			    ((1 << log2dic) - dict_size) / (1 << (log2dic - 4));
+			wedges = ((1 << log2dic) - dict_size) / (1 << (log2dic - 4));
 		}
 		else
 			wedges = 0;
 		ds = ((wedges << 5) & 0xe0) | (log2dic & 0x1f);
-
 		data->crc32 = 0;
 		/* Make a header */
 		data->compressed[0] = 0x4C;

@@ -1263,20 +1263,19 @@ int SrConceptParser::_SkipSpaces(int * pToken, SString & rExtBuf)
 
 int FASTCALL SrConceptParser::_IsIdent(const char * pText) const
 {
-#define _ISALPHA(c) (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z'))
-
+// @v10.9.8 #define _ISALPHA(c) (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z'))
 	char c = *pText++;
-	if(_ISALPHA(c) || c == '_') {
+	if(isasciialpha(c) || c == '_') {
 		do {
 			c = *pText++;
-			if(c && !(_ISALPHA(c) || c == '_' || (c >= '0' && c <= '9')))
+			if(c && !(isasciialnum(c) || c == '_'))
 				return 0;
 		} while(c);
 		return 1;
 	}
 	else
 		return 0;
-#undef _ISALPHA
+// @v10.9.8 #undef _ISALPHA
 }
 
 struct SrCTypeSymb {

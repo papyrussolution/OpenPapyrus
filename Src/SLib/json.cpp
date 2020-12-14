@@ -331,23 +331,23 @@ int FASTCALL SJson::InsertNull(const char * pTextLabel)
 
 int FASTCALL SJson::InsertDouble(const char * pTextLabel, double val, long fmt)
 {
-	SString temp_buf;
-	temp_buf.Cat(val, fmt);
-	return Insert(pTextLabel, json_new_number(temp_buf));
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	r_temp_buf.Cat(val, fmt);
+	return Insert(pTextLabel, json_new_number(r_temp_buf));
 }
 
 int FASTCALL SJson::InsertInt(const char * pTextLabel, int val)
 {
-	SString temp_buf;
-	temp_buf.Cat(val);
-	return Insert(pTextLabel, json_new_number(temp_buf));
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	r_temp_buf.Cat(val);
+	return Insert(pTextLabel, json_new_number(r_temp_buf));
 }
 
 int FASTCALL SJson::InsertInt64(const char * pTextLabel, int64 val)
 {
-	SString temp_buf;
-	temp_buf.Cat(val);
-	return Insert(pTextLabel, json_new_number(temp_buf));
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	r_temp_buf.Cat(val);
+	return Insert(pTextLabel, json_new_number(r_temp_buf));
 }
 
 int FASTCALL SJson::InsertBool(const char * pTextLabel, bool val)
@@ -481,9 +481,8 @@ state1: // open value
 				}
 			}
 			else { // does not have a parent
-				if(cursor->P_Child) { // is root label in label:value pair
+				if(cursor->P_Child) // is root label in label:value pair
 					rBuf.CatChar(':');
-				}
 				else // malformed document tree: label without value in label:value pair
 					return JSON_BAD_TREE_STRUCTURE;
 			}
@@ -761,7 +760,13 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 				++*p;
 				break;
 			case 3: // inside a JSON string: escape unicode
-				if((**p >= 'a') && (**p <= 'f')) {
+				// @v10.9.8 {
+				if(ishex(**p)) {
+					rText.CatChar(**p);
+					*state = 4; // inside a JSON string: escape unicode
+				}
+				// } @v10.9.8 
+				/* @v10.9.8 if((**p >= 'a') && (**p <= 'f')) {
 					rText.CatChar(**p);
 					*state = 4; // inside a JSON string: escape unicode
 				}
@@ -772,13 +777,19 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 				else if((**p >= '0') && (**p <= '9')) {
 					rText.CatChar(**p);
 					*state = 4;	// inside a JSON string: escape unicode
-				}
+				}*/
 				else
 					return LEX_INVALID_CHARACTER;
 				++*p;
 				break;
 			case 4:	// inside a JSON string: escape unicode
-				if((**p >= 'a') && (**p <= 'f')) {
+				// @v10.9.8 {
+				if(ishex(**p)) {
+					rText.CatChar(**p);
+					*state = 5; // inside a JSON string: escape unicode
+				}
+				// } @v10.9.8 
+				/* @v10.9.8 if((**p >= 'a') && (**p <= 'f')) {
 					rText.CatChar(**p);
 					*state = 5;	// inside a JSON string: escape unicode
 				}
@@ -789,13 +800,19 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 				else if((**p >= '0') && (**p <= '9')) {
 					rText.CatChar(**p);
 					*state = 5;	// inside a JSON string: escape unicode
-				}
+				}*/
 				else
 					return LEX_INVALID_CHARACTER;
 				++*p;
 				break;
 			case 5:	// inside a JSON string: escape unicode
-				if((**p >= 'a') && (**p <= 'f')) {
+				// @v10.9.8 {
+				if(ishex(**p)) {
+					rText.CatChar(**p);
+					*state = 6; // inside a JSON string: escape unicode
+				}
+				// } @v10.9.8 
+				/* @v10.9.8 if((**p >= 'a') && (**p <= 'f')) {
 					rText.CatChar(**p);
 					*state = 6;	// inside a JSON string: escape unicode
 				}
@@ -806,24 +823,30 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 				else if((**p >= '0') && (**p <= '9')) {
 					rText.CatChar(**p);
 					*state = 6;	// inside a JSON string: escape unicode
-				}
+				}*/
 				else
 					return LEX_INVALID_CHARACTER;
 				++*p;
 				break;
 			case 6:	// inside a JSON string: escape unicode
-				if((**p >= 'a') && (**p <= 'f')) {
+				// @v10.9.8 {
+				if(ishex(**p)) {
 					rText.CatChar(**p);
-					*state = 1;	/* inside a JSON string: escape unicode */
+					*state = 1; // inside a JSON string: escape unicode
+				}
+				// } @v10.9.8 
+				/* @v10.9.8 if((**p >= 'a') && (**p <= 'f')) {
+					rText.CatChar(**p);
+					*state = 1;	// inside a JSON string: escape unicode 
 				}
 				else if((**p >= 'A') && (**p <= 'F')) {
 					rText.CatChar(**p);
-					*state = 1;	/* inside a JSON string: escape unicode */
+					*state = 1;	// inside a JSON string: escape unicode 
 				}
 				else if((**p >= '0') && (**p <= '9')) {
 					rText.CatChar(**p);
-					*state = 1;	/* inside a JSON string: escape unicode */
-				}
+					*state = 1;	// inside a JSON string: escape unicode
+				}*/
 				else
 					return LEX_INVALID_CHARACTER;
 				++*p;

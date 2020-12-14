@@ -103,13 +103,10 @@ struct archive * archive_read_new(void)                 {
 /*
  * Record the do-not-extract-to file. This belongs in archive_read_extract.c.
  */
-void archive_read_extract_set_skip_file(struct archive * _a, la_int64_t d,
-    la_int64_t i)
+void archive_read_extract_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-
-	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_extract_set_skip_file"))
+	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, "archive_read_extract_set_skip_file"))
 		return;
 	a->skip_file_set = 1;
 	a->skip_file_dev = d;
@@ -256,83 +253,67 @@ static int client_switch_proxy(struct archive_read_filter * self, unsigned int i
 	/* Don't do anything if already in the specified data node */
 	if(self->archive->client.cursor == iindex)
 		return (ARCHIVE_OK);
-
 	self->archive->client.cursor = iindex;
 	data2 = self->archive->client.dataset[self->archive->client.cursor].data;
 	if(self->archive->client.switcher != NULL) {
-		r1 = r2 = (self->archive->client.switcher)
-				((struct archive *)self->archive, self->data, data2);
+		r1 = r2 = (self->archive->client.switcher)((struct archive *)self->archive, self->data, data2);
 		self->data = data2;
 	}
 	else{
 		/* Attempt to call close and open instead */
 		if(self->archive->client.closer != NULL)
-			r1 = (self->archive->client.closer)
-				    ((struct archive *)self->archive, self->data);
+			r1 = (self->archive->client.closer)((struct archive *)self->archive, self->data);
 		self->data = data2;
 		if(self->archive->client.opener != NULL)
-			r2 = (self->archive->client.opener)
-				    ((struct archive *)self->archive, self->data);
+			r2 = (self->archive->client.opener)((struct archive *)self->archive, self->data);
 	}
 	return (r1 < r2) ? r1 : r2;
 }
 
-int archive_read_set_open_callback(struct archive * _a,
-    archive_open_callback * client_opener)
+int archive_read_set_open_callback(struct archive * _a, archive_open_callback * client_opener)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_set_open_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_open_callback");
 	a->client.opener = client_opener;
 	return ARCHIVE_OK;
 }
 
-int archive_read_set_read_callback(struct archive * _a,
-    archive_read_callback * client_reader)
+int archive_read_set_read_callback(struct archive * _a, archive_read_callback * client_reader)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_set_read_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_read_callback");
 	a->client.reader = client_reader;
 	return ARCHIVE_OK;
 }
 
-int archive_read_set_skip_callback(struct archive * _a,
-    archive_skip_callback * client_skipper)
+int archive_read_set_skip_callback(struct archive * _a, archive_skip_callback * client_skipper)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_set_skip_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_skip_callback");
 	a->client.skipper = client_skipper;
 	return ARCHIVE_OK;
 }
 
-int archive_read_set_seek_callback(struct archive * _a,
-    archive_seek_callback * client_seeker)
+int archive_read_set_seek_callback(struct archive * _a, archive_seek_callback * client_seeker)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_set_seek_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_seek_callback");
 	a->client.seeker = client_seeker;
 	return ARCHIVE_OK;
 }
 
-int archive_read_set_close_callback(struct archive * _a,
-    archive_close_callback * client_closer)
+int archive_read_set_close_callback(struct archive * _a, archive_close_callback * client_closer)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_set_close_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_close_callback");
 	a->client.closer = client_closer;
 	return ARCHIVE_OK;
 }
 
-int archive_read_set_switch_callback(struct archive * _a,
-    archive_switch_callback * client_switcher)
+int archive_read_set_switch_callback(struct archive * _a, archive_switch_callback * client_switcher)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_set_switch_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_switch_callback");
 	a->client.switcher = client_switcher;
 	return ARCHIVE_OK;
 }
@@ -342,27 +323,20 @@ int archive_read_set_callback_data(struct archive * _a, void * client_data)
 	return archive_read_set_callback_data2(_a, client_data, 0);
 }
 
-int archive_read_set_callback_data2(struct archive * _a, void * client_data,
-    unsigned int iindex)
+int archive_read_set_callback_data2(struct archive * _a, void * client_data, unsigned int iindex)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_set_callback_data2");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_callback_data2");
 	if(a->client.nodes == 0) {
-		a->client.dataset = (struct archive_read_data_node *)
-		    calloc(1, sizeof(*a->client.dataset));
+		a->client.dataset = (struct archive_read_data_node *)calloc(1, sizeof(*a->client.dataset));
 		if(a->client.dataset == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "No memory.");
+			archive_set_error(&a->archive, ENOMEM, "No memory.");
 			return ARCHIVE_FATAL;
 		}
 		a->client.nodes = 1;
 	}
-
 	if(iindex > a->client.nodes - 1) {
-		archive_set_error(&a->archive, EINVAL,
-		    "Invalid index specified.");
+		archive_set_error(&a->archive, EINVAL, "Invalid index specified.");
 		return ARCHIVE_FATAL;
 	}
 	a->client.dataset[iindex].data = client_data;
@@ -377,16 +351,12 @@ int archive_read_add_callback_data(struct archive * _a, void * client_data,
 	struct archive_read * a = (struct archive_read *)_a;
 	void * p;
 	unsigned int i;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_add_callback_data");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_add_callback_data");
 	if(iindex > a->client.nodes) {
-		archive_set_error(&a->archive, EINVAL,
-		    "Invalid index specified.");
+		archive_set_error(&a->archive, EINVAL, "Invalid index specified.");
 		return ARCHIVE_FATAL;
 	}
-	p = realloc(a->client.dataset, sizeof(*a->client.dataset)
-		* (++(a->client.nodes)));
+	p = realloc(a->client.dataset, sizeof(*a->client.dataset) * (++(a->client.nodes)));
 	if(p == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "No memory.");
@@ -574,14 +544,9 @@ static int _archive_read_next_header2(struct archive * _a, struct archive_entry 
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	int r1 = ARCHIVE_OK, r2;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_read_next_header");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_read_next_header");
 	archive_entry_clear(entry);
 	archive_clear_error(&a->archive);
-
 	/*
 	 * If client didn't consume entire data, skip any remainder
 	 * (This is especially important for GNU incremental directories.)
@@ -589,8 +554,7 @@ static int _archive_read_next_header2(struct archive * _a, struct archive_entry 
 	if(a->archive.state == ARCHIVE_STATE_DATA) {
 		r1 = archive_read_data_skip(&a->archive);
 		if(r1 == ARCHIVE_EOF)
-			archive_set_error(&a->archive, EIO,
-			    "Premature end-of-file.");
+			archive_set_error(&a->archive, EIO, "Premature end-of-file.");
 		if(r1 == ARCHIVE_EOF || r1 == ARCHIVE_FATAL) {
 			a->archive.state = ARCHIVE_STATE_FATAL;
 			return (ARCHIVE_FATAL);
@@ -704,8 +668,7 @@ static int choose_format(struct archive_read * a)
 la_int64_t archive_read_header_position(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_header_position");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, "archive_read_header_position");
 	return (a->header_position);
 }
 
@@ -870,10 +833,7 @@ int archive_read_data_skip(struct archive * _a)
 	const void * buff;
 	size_t size;
 	int64_t offset;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA,
-	    "archive_read_data_skip");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_read_data_skip");
 	if(a->format->read_data_skip != NULL)
 		r = (a->format->read_data_skip)(a);
 	else {
@@ -893,16 +853,11 @@ int archive_read_data_skip(struct archive * _a)
 la_int64_t archive_seek_data(struct archive * _a, int64_t offset, int whence)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA,
-	    "archive_seek_data_block");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_seek_data_block");
 	if(a->format->seek_data == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-		    "Internal error: "
-		    "No format_seek_data_block function registered");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format_seek_data_block function registered");
 		return (ARCHIVE_FATAL);
 	}
-
 	return (a->format->seek_data)(a, offset, whence);
 }
 
@@ -914,20 +869,14 @@ la_int64_t archive_seek_data(struct archive * _a, int64_t offset, int whence)
  * Returns ARCHIVE_OK if the operation is successful, ARCHIVE_EOF if
  * the end of entry is encountered.
  */
-static int _archive_read_data_block(struct archive * _a,
-    const void ** buff, size_t * size, int64_t * offset)
+static int _archive_read_data_block(struct archive * _a, const void ** buff, size_t * size, int64_t * offset)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA,
-	    "archive_read_data_block");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_read_data_block");
 	if(a->format->read_data == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-		    "Internal error: "
-		    "No format->read_data function registered");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format->read_data function registered");
 		return (ARCHIVE_FATAL);
 	}
-
 	return (a->format->read_data)(a, buff, size, offset);
 }
 
@@ -985,21 +934,16 @@ static int _archive_read_close(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	int r = ARCHIVE_OK, r1 = ARCHIVE_OK;
-
-	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_close");
+	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_close");
 	if(a->archive.state == ARCHIVE_STATE_CLOSED)
 		return (ARCHIVE_OK);
 	archive_clear_error(&a->archive);
 	a->archive.state = ARCHIVE_STATE_CLOSED;
-
 	/* TODO: Clean up the formatters. */
-
 	/* Release the filter objects. */
 	r1 = close_filters(a);
 	if(r1 < r)
 		r = r1;
-
 	return (r);
 }
 
@@ -1013,19 +957,14 @@ static int _archive_read_free(struct archive * _a)
 	int i, n;
 	int slots;
 	int r = ARCHIVE_OK;
-
 	if(_a == NULL)
 		return (ARCHIVE_OK);
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_free");
-	if(a->archive.state != ARCHIVE_STATE_CLOSED
-	    && a->archive.state != ARCHIVE_STATE_FATAL)
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_free");
+	if(a->archive.state != ARCHIVE_STATE_CLOSED && a->archive.state != ARCHIVE_STATE_FATAL)
 		r = archive_read_close(&a->archive);
-
 	/* Call cleanup functions registered by optional components. */
 	if(a->cleanup_archive_extract != NULL)
 		r = (a->cleanup_archive_extract)(a);
-
 	/* Cleanup format-specific data. */
 	slots = sizeof(a->formats) / sizeof(a->formats[0]);
 	for(i = 0; i < slots; i++) {
@@ -1033,7 +972,6 @@ static int _archive_read_free(struct archive * _a)
 		if(a->formats[i].cleanup)
 			(a->formats[i].cleanup)(a);
 	}
-
 	/* Free the filters */
 	__archive_read_free_filters(a);
 
@@ -1125,13 +1063,8 @@ int __archive_read_register_format(struct archive_read * a,
     int (* has_encrypted_entries)(struct archive_read *))
 {
 	int i, number_slots;
-
-	archive_check_magic(&a->archive,
-	    ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "__archive_read_register_format");
-
+	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "__archive_read_register_format");
 	number_slots = sizeof(a->formats) / sizeof(a->formats[0]);
-
 	for(i = 0; i < number_slots; i++) {
 		if(a->formats[i].bid == bid)
 			return (ARCHIVE_WARN); /* We've already installed */

@@ -272,7 +272,6 @@ static void _bdf_list_init(_bdf_list_t*  list,
 static void _bdf_list_done(_bdf_list_t*  list)
 {
 	FT_Memory memory = list->memory;
-
 	if(memory) {
 		FT_FREE(list->field);
 		FT_ZERO(list);
@@ -283,7 +282,6 @@ static FT_Error _bdf_list_ensure(_bdf_list_t*   list,
     unsigned long num_items)                   /* same as _bdf_list_t.used */
 {
 	FT_Error error = FT_Err_Ok;
-
 	if(num_items > list->size) {
 		unsigned long oldsize = list->size; /* same as _bdf_list_t.size */
 		unsigned long newsize = oldsize + ( oldsize >> 1 ) + 5;
@@ -2010,20 +2008,15 @@ FT_LOCAL_DEF(FT_Error) bdf_load_font(FT_Stream stream, FT_Memory extmemory, bdf_
 				    p->font->bbx.ascent, p->maxas ));
 				p->font->bbx.ascent = p->maxas;
 			}
-
 			if(p->font->bbx.descent != p->maxds) {
-				FT_TRACE2(( "bdf_load_font: " ACMSG6,
-				    p->font->bbx.descent, p->maxds ));
+				FT_TRACE2(( "bdf_load_font: " ACMSG6, p->font->bbx.descent, p->maxds ));
 				p->font->bbx.descent  = p->maxds;
 				p->font->bbx.y_offset = (short)( -p->maxds );
 			}
-
 			if(p->maxas + p->maxds != p->font->bbx.height) {
-				FT_TRACE2(( "bdf_load_font: " ACMSG7,
-				    p->font->bbx.height, p->maxas + p->maxds ));
+				FT_TRACE2(( "bdf_load_font: " ACMSG7, p->font->bbx.height, p->maxas + p->maxds ));
 				p->font->bbx.height = (unsigned short)( p->maxas + p->maxds );
 			}
-
 			if(p->flags & BDF_SWIDTH_ADJ_)
 				FT_TRACE2(( "bdf_load_font: " ACMSG8 ));
 		}

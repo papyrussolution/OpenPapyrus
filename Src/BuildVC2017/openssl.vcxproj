@@ -267,7 +267,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -280,7 +280,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -319,7 +319,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -333,7 +333,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -372,7 +372,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -386,7 +386,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -425,7 +425,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -438,7 +438,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -478,7 +478,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -491,7 +491,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
@@ -531,7 +531,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -544,7 +544,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -586,7 +586,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -599,7 +599,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
@@ -642,7 +642,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -656,7 +656,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
@@ -699,7 +699,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -713,7 +713,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -755,7 +755,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -768,7 +768,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
@@ -811,7 +811,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -824,7 +824,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
@@ -867,7 +867,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -880,7 +880,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;..\OSF\OpenSSL\.;..\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

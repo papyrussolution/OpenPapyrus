@@ -3930,7 +3930,8 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 						item_buf.Z();
 						if(c == 0)
 							item_buf.CatHex(c);
-                        else if(isdec(c) || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || sstrchr(p_psymb, (int)c)) {
+                        // @v10.9.8 else if(isdec(c) || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || sstrchr(p_psymb, (int)c)) {
+						else if(isasciialnum(c) || sstrchr(p_psymb, (int)c)) {
 							item_buf.Space().CatChar(c);
                         }
                         else if(c == '\t')

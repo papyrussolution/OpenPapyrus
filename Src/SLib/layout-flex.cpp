@@ -3,13 +3,316 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-//#include <layout-flex.h>
+
+AbstractLayoutBlock::AbstractLayoutBlock()
+{
+	memzero(Reserve, sizeof(Reserve));
+	SetDefault();
+}
+
+AbstractLayoutBlock & AbstractLayoutBlock::SetDefault()
+{
+	Signature = 0;
+	Version = 0;
+	Flags = 0;
+	SzX = szUndef;
+	SzY = szUndef;
+	JustifyContent = alignStart;
+	AlignContent = alignStretch;
+	AlignItems = alignStretch;
+	AlignSelf = alignAuto;
+	GravityX = 0;
+	GravityY = 0;
+	Order = 0;
+	Size.Set(0.0f, 0.0f);
+	Padding.a.Set(0.0f, 0.0f);
+	Padding.b.Set(0.0f, 0.0f);
+	Margin.a.Set(0.0f, 0.0f);
+	Margin.b.Set(0.0f, 0.0f);
+	GrowFactor = 0.0f;
+	ShrinkFactor = 1.0f;
+	Basis = 0.0f;
+	AspectRatio = 0.0f;
+	return *this;
+}
+
+int AbstractLayoutBlock::Validate() const
+{
+	return 1;
+}
+
+int AbstractLayoutBlock::GetSizeX(float * pS) const
+{
+	int   result = szInvalid;
+	float s = 0.0f;
+	if(SzX == szFixed) {
+		s = Size.X;
+		result = szFixed;
+	}
+	else if(oneof3(SzX, szByContainer, szByContent, szUndef))
+		result = SzX;
+	ASSIGN_PTR(pS, s);
+	return result;
+}
+
+int AbstractLayoutBlock::GetSizeY(float * pS) const
+{
+	int   result = szInvalid;
+	float s = 0.0f;
+	if(SzY == szFixed) {
+		s = Size.Y;
+		result = szFixed;
+	}
+	else if(oneof3(SzY, szByContainer, szByContent, szUndef))
+		result = SzY;
+	ASSIGN_PTR(pS, s);
+	return result;
+}
+
+void AbstractLayoutBlock::SetFixedSizeX(float s)
+{
+	assert(!fisnanf(s) && s >= 0.0f);
+	Size.X = s;
+	SzX = szFixed;
+}
+
+void AbstractLayoutBlock::SetVariableSizeX(uint var/* szXXX */)
+{
+	assert(oneof3(var, szUndef, szByContent, szByContainer));
+	Size.X = 0.0f;
+	SzX = var;
+}
+
+void AbstractLayoutBlock::SetFixedSizeY(float s)
+{
+	assert(!fisnanf(s) && s >= 0.0f);
+	Size.Y = s;
+	SzY = szFixed;
+}
+
+void AbstractLayoutBlock::SetVariableSizeY(uint var/* szXXX */)
+{
+	assert(oneof3(var, szUndef, szByContent, szByContainer));
+	Size.Y = 0.0f;
+	SzY = var;
+}
+
+int AbstractLayoutBlock::GetContainerDirection() const // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
+{
+	if((Flags & (fContainerRow|fContainerCol)) == fContainerRow)
+		return DIREC_HORZ;
+	else if((Flags & (fContainerRow|fContainerCol)) == fContainerCol)
+		return DIREC_VERT;
+	else
+		return DIREC_UNKN;
+}
+
+void AbstractLayoutBlock::SetContainerDirection(int direc /*DIREC_XXX*/)
+{
+	if(direc == DIREC_HORZ) {
+		Flags &= ~fContainerCol;
+		Flags |= fContainerRow;
+	}
+	else if(direc == DIREC_VERT) {
+		Flags |= fContainerCol;
+		Flags &= ~fContainerRow;
+	}
+	else {
+		Flags &= ~(fContainerCol|fContainerRow);
+	}
+}
+
+/*static*/SString & AbstractLayoutBlock::MarginsToString(const FRect & rR, SString & rBuf)
+{
+	rBuf.Z();
+	if(!rR.IsEmpty()) {
+		if(rR.a.X == rR.b.X && rR.a.Y == rR.b.Y) {
+			if(rR.a.X == rR.a.Y)
+				rBuf.Cat(rR.a.X);
+			else
+				rBuf.Cat(rR.a.X).Comma().Cat(rR.a.Y);
+		}
+		else
+			rBuf.Cat(rR.a.X).Comma().Cat(rR.a.Y).Comma().Cat(rR.b.X).Comma().Cat(rR.b.Y);
+	}
+	return rBuf;
+}
+
+/*static*/int AbstractLayoutBlock::MarginsFromString(const char * pBuf, FRect & rR)
+{
+	int    ok = 1;
+	SString temp_buf(pBuf);
+	temp_buf.Strip();
+	StringSet ss;
+	temp_buf.Tokenize(",;", ss);
+	const uint _c = ss.getCount();
+	if(oneof4(_c, 0, 1, 2, 4)) {
+		if(_c == 0) {
+			rR.Z();
+			ok = -1;
+		}
+		else {
+			STokenRecognizer tr;
+			SNaturalTokenArray nta;
+			uint tokn = 0;
+			for(uint ssp = 0; ok && ss.get(&ssp, temp_buf);) {
+				temp_buf.Strip();
+				tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
+				if(nta.Has(SNTOK_NUMERIC_DOT)) {
+					tokn++;
+					float v = temp_buf.ToFloat();
+					//const int iv = static_cast<int>(v);
+					assert(oneof4(tokn, 1, 2, 3, 4));
+					if(tokn == 1) {
+						if(_c == 1) {
+							 rR.Set(v);
+						}
+						else if(_c == 2) { 
+							rR.a.X = v;
+							rR.b.X = v;
+						}
+						else // _c == 4
+							rR.a.X = v;
+					}
+					else if(tokn == 2) {
+						if(_c == 2) {
+							rR.a.Y = v;
+							rR.b.Y = v;
+						}
+						else // _c == 4
+							rR.a.Y = v;
+					}
+					else if(tokn == 3)
+						rR.b.X = v;
+					else if(tokn == 4)
+						rR.b.Y = v;
+				}
+				else
+					ok = 0;
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+SString & AbstractLayoutBlock::SizeToString(SString & rBuf) const
+{
+	rBuf.Z();
+	FPoint s;
+	int  szx = GetSizeX(&s.X);
+	int  szy = GetSizeY(&s.Y);
+	if(szx != szUndef || szy != szUndef) {
+		switch(szx) {
+			case szFixed: rBuf.Cat(s.X, MKSFMTD(0, 3, NMBF_NOTRAILZ)); break;
+			case szUndef: rBuf.Cat("undef"); break;
+			case szByContent: rBuf.Cat("content"); break;
+			case szByContainer: rBuf.Cat("parent"); break;
+			default:
+				assert(szx == szInvalid);
+				rBuf.Cat("invalid");
+				break;
+		}
+		rBuf.CatDiv(',', 2);
+		//
+		switch(szy) {
+			case szFixed: rBuf.Cat(s.Y, MKSFMTD(0, 3, NMBF_NOTRAILZ)); break;
+			case szUndef: rBuf.Cat("undef"); break;
+			case szByContent: rBuf.Cat("content"); break;
+			case szByContainer: rBuf.Cat("parent"); break;
+			default:
+				assert(szy == szInvalid);
+				rBuf.Cat("invalid");
+				break;
+		}
+	}
+	return rBuf;
+}
+
+int AbstractLayoutBlock::ParseSizeStr(const SString & rStr, float & rS) const
+{
+	rS = 0.0f;
+	int    result = szUndef;
+	SString temp_buf(rStr);
+	if(temp_buf.NotEmptyS()) {
+		if(rStr.IsEqiAscii("undef")) {
+			result = szUndef;
+		}
+		else if(rStr.IsEqiAscii("invalid")) {
+			result = szInvalid;
+		}
+		else if(rStr.IsEqiAscii("content")) {
+			result = szByContent;
+		}
+		else if(rStr.IsEqiAscii("parent") || rStr.IsEqiAscii("container")) {
+			result = szByContainer;
+		}
+		else {
+			char first_c = temp_buf.C(0);
+			if(isdec(first_c) || oneof4(first_c, '.', '-', 'e', 'E')) {
+				rS = temp_buf.ToFloat();
+				if(fisnan(rS) || rS < 0.0f) {
+					rS = 0.0f;
+					result = szInvalid;
+				}
+				else
+					result = szFixed;
+			}
+			else
+				result = szInvalid;
+		}
+	}
+	return result;
+}
+
+int AbstractLayoutBlock::SizeFromString(const char * pBuf)
+{
+	int    ok = 0;
+	SString input(pBuf);
+	input.Strip();
+	SString x_buf, y_buf;
+	if(input.Divide(',', x_buf, y_buf) > 0 || input.Divide(';', x_buf, y_buf) > 0 || input.Divide(' ', x_buf, y_buf) > 0) {
+		FPoint s;
+		int szx = ParseSizeStr(x_buf, s.X);
+		int szy = ParseSizeStr(y_buf, s.Y);
+		if(szx == szFixed)
+			SetFixedSizeX(s.X);
+		else if(szx != szInvalid)
+			SetVariableSizeX(szx);
+		else
+			SetVariableSizeX(szUndef);
+		if(szy == szFixed)
+			SetFixedSizeY(s.Y);
+		else if(szy != szInvalid)
+			SetVariableSizeY(szy);
+		else
+			SetVariableSizeY(szUndef);
+	}
+	else {
+		float v;
+		int szxy = ParseSizeStr(x_buf, v);
+		if(szxy == szFixed) {
+			SetFixedSizeX(v);
+			SetFixedSizeY(v);
+		}
+		else if(szxy != szInvalid) {
+			SetVariableSizeX(szxy);
+			SetVariableSizeY(szxy);
+		}
+		else {
+			SetVariableSizeX(szUndef);
+			SetVariableSizeY(szUndef);			
+		}
+	}
+	return ok;
+}
 
 LayoutFlexItem::LayoutFlexItem() : P_Parent(0), managed_ptr(0), CbSelfSizing(0), CbSetup(0),
 	Size(fgetnanf(), fgetnanf()), N(fgetnanf(), fgetnanf(), fgetnanf(), fgetnanf()),
 	JustifyContent(FLEX_ALIGN_START), AlignContent(FLEX_ALIGN_STRETCH), AlignItems(FLEX_ALIGN_STRETCH),
 	AlignSelf(FLEX_ALIGN_AUTO), Direction(FLEX_DIRECTION_COLUMN),
-	GrowFactor(0.0f), ShrinkFactor(1.0f), order(0), basis(fgetnanf()), AspectRation(0.0f), Flags(0)
+	GrowFactor(0.0f), ShrinkFactor(1.0f), Order(0), Basis(fgetnanf()), AspectRatio(0.0f), Flags(0)
 {
 	memzero(frame, sizeof(frame));
 }
@@ -20,18 +323,18 @@ LayoutFlexItem::~LayoutFlexItem()
 
 int LayoutFlexItem::GetOrder() const
 {
-	return order;
+	return Order;
 }
 
 void LayoutFlexItem::SetOrder(int o)
 {
-	order = o;
+	Order = o;
 	UpdateShouldOrderChildren();
 }
 
 void LayoutFlexItem::UpdateShouldOrderChildren()
 {
-	if(order != 0 && P_Parent) {
+	if(Order != 0 && P_Parent) {
 		//P_Parent->should_order_children = true;
 		P_Parent->Flags |= fStateShouldOrderChildren;
 	}
@@ -224,7 +527,7 @@ struct LayoutFlex {
 		else {
 			pos2 = vertical ? pItem->Padding.a.X : pItem->Padding.a.Y;
 		}
-		need_lines = wrap && pItem->AlignContent != FLEX_ALIGN_START;
+		need_lines = (wrap && pItem->AlignContent != FLEX_ALIGN_START);
 		P_Lines = NULL;
 		lines_count = 0;
 		lines_sizes = 0;
@@ -350,7 +653,8 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 		float pos = 0.0f;
 		float spacing = 0.0f;
 		if(p_layout->flex_grows == 0 && p_layout->flex_dim > 0) {
-			assert(layout_align(JustifyContent, p_layout->flex_dim, childrenCount, &pos, &spacing, false) && "incorrect justify_content");
+			const bool lar = layout_align(JustifyContent, p_layout->flex_dim, childrenCount, &pos, &spacing, false);
+			assert(lar && "incorrect justify_content");
 			if(p_layout->reverse)
 				pos = p_layout->size_dim - pos;
 		}
@@ -505,9 +809,9 @@ void LayoutFlexItem::DoLayout(float _width, float _height)
 				}
 			}
 			// Honor the `basis' property which overrides the main-axis size.
-			if(!fisnanf(r_child.basis)) {
-				assert(r_child.basis >= 0.0f);
-				CHILD_SIZE_((&layout_s), r_child) = r_child.basis;
+			if(!fisnanf(r_child.Basis)) {
+				assert(r_child.Basis >= 0.0f);
+				CHILD_SIZE_((&layout_s), r_child) = r_child.Basis;
 			}
 			float child_size = CHILD_SIZE_((&layout_s), r_child);
 			if(layout_s.wrap) {

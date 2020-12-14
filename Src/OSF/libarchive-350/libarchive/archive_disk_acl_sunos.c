@@ -478,7 +478,6 @@ static int set_acl(struct archive * a, int fd, const char * name,
 		case ARCHIVE_ENTRY_ACL_TYPE_NFS4:
 		    cmd = ACE_SETACL;
 		    aclp = malloc(entries * sizeof(ace_t));
-
 		    break;
 #endif
 		default:
@@ -486,17 +485,12 @@ static int set_acl(struct archive * a, int fd, const char * name,
 		    archive_set_error(a, errno, "Unsupported ACL type");
 		    return (ARCHIVE_FAILED);
 	}
-
 	if(aclp == NULL) {
-		archive_set_error(a, errno,
-		    "Can't allocate memory for acl buffer");
+		archive_set_error(a, errno, "Can't allocate memory for acl buffer");
 		return (ARCHIVE_FAILED);
 	}
-
 	e = 0;
-
-	while(archive_acl_next(a, abstract_acl, ae_requested_type, &ae_type,
-	    &ae_permset, &ae_tag, &ae_id, &ae_name) == ARCHIVE_OK) {
+	while(archive_acl_next(a, abstract_acl, ae_requested_type, &ae_type, &ae_permset, &ae_tag, &ae_id, &ae_name) == ARCHIVE_OK) {
 		aclent = NULL;
 #if ARCHIVE_ACL_SUNOS_NFS4
 		ace = NULL;
@@ -576,8 +570,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 			    break;
 #endif
 			default:
-			    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-				"Unsupported ACL tag");
+			    archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unsupported ACL tag");
 			    ret = ARCHIVE_FAILED;
 			    goto exit_free;
 		}
@@ -621,16 +614,14 @@ static int set_acl(struct archive * a, int fd, const char * name,
 				    r = -1;
 			    break;
 			default:
-			    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-				"Unsupported ACL entry type");
+			    archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unsupported ACL entry type");
 			    ret = ARCHIVE_FAILED;
 			    goto exit_free;
 		}
 
 		if(r != 0) {
 			errno = EINVAL;
-			archive_set_error(a, errno,
-			    "Failed to set ACL entry type");
+			archive_set_error(a, errno, "Failed to set ACL entry type");
 			ret = ARCHIVE_FAILED;
 			goto exit_free;
 		}
@@ -683,8 +674,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 				ret = ARCHIVE_OK;
 			}
 			else {
-				archive_set_error(a, errno,
-				    "Failed to set acl on fd: %s", tname);
+				archive_set_error(a, errno, "Failed to set acl on fd: %s", tname);
 				ret = ARCHIVE_WARN;
 			}
 		}
@@ -695,8 +685,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 			ret = ARCHIVE_OK;
 		}
 		else {
-			archive_set_error(a, errno, "Failed to set acl: %s",
-			    tname);
+			archive_set_error(a, errno, "Failed to set acl: %s", tname);
 			ret = ARCHIVE_WARN;
 		}
 	}
@@ -751,8 +740,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 		aclp = NULL;
 
 		if(r != ARCHIVE_OK) {
-			archive_set_error(&a->archive, errno,
-			    "Couldn't translate NFSv4 ACLs");
+			archive_set_error(&a->archive, errno, "Couldn't translate NFSv4 ACLs");
 		}
 		return (r);
 	}
@@ -784,8 +772,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 		aclp = NULL;
 
 		if(r != ARCHIVE_OK) {
-			archive_set_error(&a->archive, errno,
-			    "Couldn't translate access ACLs");
+			archive_set_error(&a->archive, errno, "Couldn't translate access ACLs");
 			return (r);
 		}
 	}

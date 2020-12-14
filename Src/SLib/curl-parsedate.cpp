@@ -237,13 +237,13 @@ static int FASTCALL checktz(const char * check)
 	return found ? what->offset*60 : -1;
 }
 
-static int FASTCALL local_isalnum(char c) { return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')); }
-static int FASTCALL local_isalpha(char c) { return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')); }
+// @v10.9.8 (replaced with isasciialnum) static int FASTCALL local_isalnum(char c) { return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')); }
+// @v10.9.8 (replaced with isasciialpha) static int FASTCALL local_isalpha(char c) { return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')); }
 
 static void FASTCALL skip(const char ** date)
 {
 	// skip everything that aren't letters or digits 
-	while(**date && !local_isalnum(**date))
+	while(**date && !isasciialnum(**date))
 		(*date)++;
 }
 
@@ -317,7 +317,7 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 	while(*date && (part < 6)) {
 		bool found = FALSE;
 		skip(&date);
-		if(local_isalpha(*date)) { // a name coming up 
+		if(isasciialpha(*date)) { // a name coming up 
 			char buf[32] = "";
 			size_t len;
 			if(sscanf(date, "%31[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz]", buf))

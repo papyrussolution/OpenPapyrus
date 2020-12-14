@@ -1485,31 +1485,22 @@ static int make_toc(struct archive_write * a)
 	writer = NULL;
 	bp = xmlBufferCreate();
 	if(bp == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "xmlBufferCreate() "
-		    "couldn't create xml buffer");
+		archive_set_error(&a->archive, ENOMEM, "xmlBufferCreate() couldn't create xml buffer");
 		goto exit_toc;
 	}
 	writer = xmlNewTextWriterMemory(bp, 0);
 	if(writer == NULL) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlNewTextWriterMemory() "
-		    "couldn't create xml writer");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlNewTextWriterMemory() couldn't create xml writer");
 		goto exit_toc;
 	}
 	r = xmlTextWriterStartDocument(writer, "1.0", "UTF-8", NULL);
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterStartDocument() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartDocument() failed: %d", r);
 		goto exit_toc;
 	}
 	r = xmlTextWriterSetIndent(writer, 4);
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterSetIndent() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterSetIndent() failed: %d", r);
 		goto exit_toc;
 	}
 
@@ -1518,16 +1509,12 @@ static int make_toc(struct archive_write * a)
 	 */
 	r = xmlTextWriterStartElement(writer, BAD_CAST("xar"));
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterStartElement() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 		goto exit_toc;
 	}
 	r = xmlTextWriterStartElement(writer, BAD_CAST("toc"));
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterStartDocument() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartDocument() failed: %d", r);
 		goto exit_toc;
 	}
 
@@ -1548,17 +1535,13 @@ static int make_toc(struct archive_write * a)
 		 */
 		r = xmlTextWriterStartElement(writer, BAD_CAST("checksum"));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterStartElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			goto exit_toc;
 		}
 		r = xmlTextWriterWriteAttribute(writer, BAD_CAST("style"),
 			BAD_CAST_CONST(getalgname(xar->opt_toc_sumalg)));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteAttribute() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 			goto exit_toc;
 		}
 
@@ -1578,13 +1561,10 @@ static int make_toc(struct archive_write * a)
 
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterEndElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			goto exit_toc;
 		}
 	}
-
 	np = xar->root;
 	do {
 		if(np != np->parent) {
@@ -1599,19 +1579,13 @@ static int make_toc(struct archive_write * a)
 			r = xmlTextWriterStartElement(writer,
 				BAD_CAST("file"));
 			if(r < 0) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "xmlTextWriterStartElement() "
-				    "failed: %d", r);
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 				goto exit_toc;
 			}
 			r = xmlTextWriterWriteFormatAttribute(
 				writer, BAD_CAST("id"), "%d", np->id);
 			if(r < 0) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "xmlTextWriterWriteAttribute() "
-				    "failed: %d", r);
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 				goto exit_toc;
 			}
 			continue;
@@ -1619,10 +1593,7 @@ static int make_toc(struct archive_write * a)
 		while(np != np->parent) {
 			r = xmlTextWriterEndElement(writer);
 			if(r < 0) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "xmlTextWriterEndElement() "
-				    "failed: %d", r);
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 				goto exit_toc;
 			}
 			if(np->chnext == NULL) {
@@ -1634,19 +1605,13 @@ static int make_toc(struct archive_write * a)
 				r = xmlTextWriterStartElement(writer,
 					BAD_CAST("file"));
 				if(r < 0) {
-					archive_set_error(&a->archive,
-					    ARCHIVE_ERRNO_MISC,
-					    "xmlTextWriterStartElement() "
-					    "failed: %d", r);
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 					goto exit_toc;
 				}
 				r = xmlTextWriterWriteFormatAttribute(
 					writer, BAD_CAST("id"), "%d", np->id);
 				if(r < 0) {
-					archive_set_error(&a->archive,
-					    ARCHIVE_ERRNO_MISC,
-					    "xmlTextWriterWriteAttribute() "
-					    "failed: %d", r);
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 					goto exit_toc;
 				}
 				break;
@@ -1656,9 +1621,7 @@ static int make_toc(struct archive_write * a)
 
 	r = xmlTextWriterEndDocument(writer);
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterEndDocument() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndDocument() failed: %d", r);
 		goto exit_toc;
 	}
 #if DEBUG_PRINT_TOC
@@ -1733,10 +1696,8 @@ static int flush_wbuff(struct archive_write * a)
 
 static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 {
-	struct xar * xar;
 	int r;
-
-	xar = (struct xar *)a->format_data;
+	struct xar * xar = (struct xar *)a->format_data;
 	if(lseek(xar->temp_fd, offset, SEEK_SET) < 0) {
 		archive_set_error(&(a->archive), errno, "lseek failed");
 		return (ARCHIVE_FATAL);
@@ -1745,7 +1706,6 @@ static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 		size_t rsize;
 		ssize_t rs;
 		unsigned char * wb;
-
 		if(length > xar->wbuff_remaining)
 			rsize = xar->wbuff_remaining;
 		else
@@ -1753,14 +1713,11 @@ static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 		wb = xar->wbuff + (sizeof(xar->wbuff) - xar->wbuff_remaining);
 		rs = read(xar->temp_fd, wb, rsize);
 		if(rs < 0) {
-			archive_set_error(&(a->archive), errno,
-			    "Can't read temporary file(%jd)",
-			    (intmax_t)rs);
+			archive_set_error(&(a->archive), errno, "Can't read temporary file(%jd)", (intmax_t)rs);
 			return (ARCHIVE_FATAL);
 		}
 		if(rs == 0) {
-			archive_set_error(&(a->archive), 0,
-			    "Truncated xar archive");
+			archive_set_error(&(a->archive), 0, "Truncated xar archive");
 			return (ARCHIVE_FATAL);
 		}
 		xar->wbuff_remaining -= rs;
@@ -2001,14 +1958,10 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 	if(archive_entry_pathname_l(file->entry, &pp, &len, xar->sconv)
 	    != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Pathname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return (ARCHIVE_FATAL);
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate pathname '%s' to UTF-8",
-		    archive_entry_pathname(file->entry));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate pathname '%s' to UTF-8", archive_entry_pathname(file->entry));
 		r = ARCHIVE_WARN;
 	}
 	archive_strncpy(&(file->parentdir), pp, len);
@@ -2112,14 +2065,10 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 		if(archive_entry_symlink_l(file->entry, &pp, &len2,
 		    xar->sconv) != 0) {
 			if(errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory for Linkname");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 				return (ARCHIVE_FATAL);
 			}
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Can't translate symlink '%s' to UTF-8",
-			    archive_entry_symlink(file->entry));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate symlink '%s' to UTF-8", archive_entry_symlink(file->entry));
 			r = ARCHIVE_WARN;
 		}
 		archive_strncpy(&(file->symlink), pp, len2);

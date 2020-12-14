@@ -11493,10 +11493,18 @@ struct FRect {
 	FRect(float left, float top, float right, float bottom);
 	FRect(float width, float height);
 	FRect(const TRect & r);
+	FRect & Z();
+	//
+	// Descr: Присваивает всем 4-м координатам одно и тоже значение v.
+	// Returns:
+	//   *this
+	//
+	FRect & Set(float v);
 	FRect & FASTCALL operator = (FPoint p);
 	FRect & Around(FPoint p, FPoint size);
 	FRect & Grow(float aDX, float aDY);
 	FRect & FASTCALL MoveCenterTo(FPoint center);
+	int    IsEmpty() const;
 	int    Contains(FPoint p) const;
 	float  Width() const;
 	float  Height() const;

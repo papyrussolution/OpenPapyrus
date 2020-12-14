@@ -264,7 +264,7 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 	pClientBuf = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, cbMaxToken);
 	pServerBuf = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, cbMaxToken);
 	// Initialize auth identity structure
-	ZeroMemory(&ai, sizeof(ai));
+	MEMSZERO(ai);
 #if defined(UNICODE) || defined(_UNICODE)
 	ai.Domain = reinterpret_cast<ushort *>(szDomain);
 	ai.DomainLength = lstrlen(szDomain);

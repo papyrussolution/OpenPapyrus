@@ -678,7 +678,7 @@ void FASTCALL TWindow::setSubTitle(const char * pBuf)
 {
 	char   temp_buf[32];
 	if(pBuf == 0) {
-		temp_buf[0] = 0;
+		PTR32(temp_buf)[0] = 0;
 		pBuf = temp_buf;
 	}
 	if(Title.NotEmpty() || OrgTitle.NotEmpty()) {

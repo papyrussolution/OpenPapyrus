@@ -270,15 +270,15 @@ static void tokenizer_add_parse_error(GumboParser * parser, GumboErrorType type)
 	}
 }
 
-static bool FASTCALL is_alpha(int c) 
+/* @v10.9.8 (replaced with isasciialpha) static bool FASTCALL is_alpha(int c) 
 {
 	// We don't use ISO C isupper/islower functions here because they
 	// depend upon the program's locale, while the behavior of the HTML5 spec is
 	// independent of which locale the program is run in.
 	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-}
+}*/
 
-static int FASTCALL ensure_lowercase(int c) { return (c >= 'A' && c <= 'Z') ? c + 0x20 : c; }
+static int FASTCALL ensure_lowercase(int c) { return (c >= 'A' && c <= 'Z') ? (c + 0x20) : c; }
 
 static GumboTokenType get_char_token_type(bool is_in_cdata, int c) 
 {
@@ -652,9 +652,9 @@ static void start_new_tag(GumboParser * parser, bool is_start_tag)
 	GumboTokenizerState* tokenizer = parser->_tokenizer_state;
 	GumboTagState* tag_state = &tokenizer->_tag_state;
 	int c = utf8iterator_current(&tokenizer->_input);
-	assert(is_alpha(c));
+	assert(isasciialpha(c));
 	c = ensure_lowercase(c);
-	assert(is_alpha(c));
+	assert(isasciialpha(c));
 	initialize_tag_buffer(parser);
 	gumbo_string_buffer_append_codepoint(c, &tag_state->_buffer);
 	assert(tag_state->_attributes.data == NULL);
@@ -965,7 +965,7 @@ static StateResult handle_tag_open_state(GumboParser * parser, GumboTokenizerSta
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_TAG_STARTS_WITH_QUESTION);
 		    return NEXT_CHAR;
 		default:
-		    if(is_alpha(c)) {
+		    if(isasciialpha(c)) {
 			    gumbo_tokenizer_set_state(parser, GUMBO_LEX_TAG_NAME);
 			    start_new_tag(parser, true);
 			    return NEXT_CHAR;
@@ -993,7 +993,7 @@ static StateResult handle_end_tag_open_state(GumboParser * parser, GumboTokenize
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_DATA);
 		    return static_cast<StateResult>(emit_temporary_buffer(parser, output));
 		default:
-		    if(is_alpha(c)) {
+		    if(isasciialpha(c)) {
 			    gumbo_tokenizer_set_state(parser, GUMBO_LEX_TAG_NAME);
 			    start_new_tag(parser, false);
 		    }
@@ -1058,10 +1058,10 @@ static StateResult handle_rcdata_lt_state(GumboParser * parser,
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete.html#rcdata-end-tag-open-state
-static StateResult handle_rcdata_end_tag_open_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+static StateResult handle_rcdata_end_tag_open_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	assert(temporary_buffer_equals(parser, "</"));
-	if(is_alpha(c)) {
+	if(isasciialpha(c)) {
 		gumbo_tokenizer_set_state(parser, GUMBO_LEX_RCDATA_END_TAG_NAME);
 		start_new_tag(parser, false);
 		append_char_to_temporary_buffer(parser, c);
@@ -1075,10 +1075,10 @@ static StateResult handle_rcdata_end_tag_open_state(GumboParser * parser,
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete.html#rcdata-end-tag-name-state
-static StateResult handle_rcdata_end_tag_name_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+static StateResult handle_rcdata_end_tag_name_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	assert(tokenizer->_temporary_buffer.length >= 2);
-	if(is_alpha(c)) {
+	if(isasciialpha(c)) {
 		append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
 		append_char_to_temporary_buffer(parser, c);
 		return NEXT_CHAR;
@@ -1127,7 +1127,7 @@ static StateResult handle_rawtext_lt_state(GumboParser * parser,
 static StateResult handle_rawtext_end_tag_open_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
 {
 	assert(temporary_buffer_equals(parser, "</"));
-	if(is_alpha(c)) {
+	if(isasciialpha(c)) {
 		gumbo_tokenizer_set_state(parser, GUMBO_LEX_RAWTEXT_END_TAG_NAME);
 		start_new_tag(parser, false);
 		append_char_to_temporary_buffer(parser, c);
@@ -1145,7 +1145,7 @@ static StateResult handle_rawtext_end_tag_name_state(GumboParser * parser,
 {
 	assert(tokenizer->_temporary_buffer.length >= 2);
 	gumbo_debug("Last end tag: %*s\n", (int)tokenizer->_tag_state._buffer.length, tokenizer->_tag_state._buffer.data);
-	if(is_alpha(c)) {
+	if(isasciialpha(c)) {
 		append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
 		append_char_to_temporary_buffer(parser, c);
 		return NEXT_CHAR;
@@ -1200,7 +1200,7 @@ static StateResult handle_script_lt_state(GumboParser * parser,
 static StateResult handle_script_end_tag_open_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
 {
 	assert(temporary_buffer_equals(parser, "</"));
-	if(is_alpha(c)) {
+	if(isasciialpha(c)) {
 		gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_END_TAG_NAME);
 		start_new_tag(parser, false);
 		append_char_to_temporary_buffer(parser, c);
@@ -1214,9 +1214,10 @@ static StateResult handle_script_end_tag_open_state(GumboParser * parser, GumboT
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-end-tag-name-state
 static StateResult handle_script_end_tag_name_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+    GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	assert(tokenizer->_temporary_buffer.length >= 2);
-	if(is_alpha(c)) {
+	if(isasciialpha(c)) {
 		append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
 		append_char_to_temporary_buffer(parser, c);
 		return NEXT_CHAR;
@@ -1357,7 +1358,7 @@ static StateResult handle_script_escaped_lt_state(GumboParser * parser, GumboTok
 		append_char_to_temporary_buffer(parser, c);
 		return NEXT_CHAR;
 	}
-	else if(is_alpha(c)) {
+	else if(isasciialpha(c)) {
 		gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_START);
 		append_char_to_temporary_buffer(parser, c);
 		gumbo_string_buffer_append_codepoint(ensure_lowercase(c), &tokenizer->_script_data_buffer);
@@ -1373,7 +1374,7 @@ static StateResult handle_script_escaped_lt_state(GumboParser * parser, GumboTok
 static StateResult handle_script_escaped_end_tag_open_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
 {
 	assert(temporary_buffer_equals(parser, "</"));
-	if(is_alpha(c)) {
+	if(isasciialpha(c)) {
 		gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_END_TAG_NAME);
 		start_new_tag(parser, false);
 		append_char_to_temporary_buffer(parser, c);
@@ -1386,10 +1387,10 @@ static StateResult handle_script_escaped_end_tag_open_state(GumboParser * parser
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-escaped-end-tag-name-state
-static StateResult handle_script_escaped_end_tag_name_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+static StateResult handle_script_escaped_end_tag_name_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	assert(tokenizer->_temporary_buffer.length >= 2);
-	if(is_alpha(c)) {
+	if(isasciialpha(c)) {
 		append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
 		append_char_to_temporary_buffer(parser, c);
 		return NEXT_CHAR;
@@ -1420,7 +1421,8 @@ static StateResult handle_script_escaped_end_tag_name_state(GumboParser * parser
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-double-escape-start-state
 static StateResult handle_script_double_escaped_start_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+    GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	switch(c) {
 		case '\t':
 		case '\n':
@@ -1432,7 +1434,7 @@ static StateResult handle_script_double_escaped_start_state(GumboParser * parser
 			    (GumboStringPiece*)&tokenizer->_script_data_buffer) ? GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED : GUMBO_LEX_SCRIPT_ESCAPED);
 		    return emit_current_char(parser, output);
 		default:
-		    if(is_alpha(c)) {
+		    if(isasciialpha(c)) {
 			    gumbo_string_buffer_append_codepoint(ensure_lowercase(c), &tokenizer->_script_data_buffer);
 			    return emit_current_char(parser, output);
 		    }
@@ -1544,7 +1546,7 @@ static StateResult handle_script_double_escaped_end_state(GumboParser * parser,
 			    (GumboStringPiece*)&tokenizer->_script_data_buffer) ? GUMBO_LEX_SCRIPT_ESCAPED : GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED);
 		    return emit_current_char(parser, output);
 		default:
-		    if(is_alpha(c)) {
+		    if(isasciialpha(c)) {
 			    gumbo_string_buffer_append_codepoint(ensure_lowercase(c), &tokenizer->_script_data_buffer);
 			    return emit_current_char(parser, output);
 		    }

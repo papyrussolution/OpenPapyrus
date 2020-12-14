@@ -76,17 +76,65 @@ int BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 	return ok;
 }
 
-struct LayoutEntryDialogBlock : public TLayout::EntryBlock {
-	LayoutEntryDialogBlock(const TLayout::EntryBlock * pS)
+struct LayoutEntryDialogBlock : public /*TLayout::EntryBlock*/AbstractLayoutBlock {
+	LayoutEntryDialogBlock(const /*TLayout::EntryBlock*/AbstractLayoutBlock * pS)
 	{
 		Setup(pS);
 	}
-	void Setup(const TLayout::EntryBlock * pS)
+	void Setup(const /*TLayout::EntryBlock*/AbstractLayoutBlock * pS)
 	{
 		if(pS)
-			*static_cast<TLayout::EntryBlock *>(this) = *pS;
+			*static_cast</*TLayout::EntryBlock*/AbstractLayoutBlock *>(this) = *pS;
 	}
-	SString LayoutSymb;
+	SString ParentLayoutSymb;
+	SString OwnLayoutSymb;
+};
+
+class LayoutContainerDialog : public TDialog {
+	DECL_DIALOG_DATA(LayoutEntryDialogBlock);
+public:
+	LayoutContainerDialog(const TWhatman * pWtm) : TDialog(DLG_WOLAYC), P_Wtm(pWtm), Data(0)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_WOLAYC_IDENT, Data.OwnLayoutSymb);
+		AddClusterAssocDef(CTL_WOLAYC_LAY, 0, DIREC_UNKN);
+		AddClusterAssoc(CTL_WOLAYC_LAY, 1, DIREC_HORZ);
+		AddClusterAssoc(CTL_WOLAYC_LAY, 2, DIREC_VERT);
+		SetClusterData(CTL_WOLAYC_LAY, Data.GetContainerDirection());
+		/*
+		AddClusterAssocDef(CTL_WOLAYC_ADJ, 0, ADJ_LEFT);
+		AddClusterAssoc(CTL_WOLAYC_ADJ, 1, ADJ_RIGHT);
+		AddClusterAssoc(CTL_WOLAYC_ADJ, 2, ADJ_CENTER);
+		AddClusterAssoc(CTL_WOLAYC_ADJ, 3, ADJ_ALIGN);
+		SetClusterData(CTL_WOLAYC_ADJ, Data.ContainerAdjustment);
+		*/
+		AddClusterAssoc(CTL_WOLAYC_FLAGS, 0, /*TLayout::EntryBlock::cfWrap*/AbstractLayoutBlock::fContainerWrap);
+		SetClusterData(CTL_WOLAYC_FLAGS, /*Data.ContainerFlags*/Data.Flags);
+		//
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlString(CTL_WOLAYC_IDENT, Data.OwnLayoutSymb);
+		Data.SetContainerDirection(GetClusterData(CTL_WOLAYC_LAY));
+		// GetClusterData(CTL_WOLAYC_ADJ, &Data.ContainerAdjustment);
+		{
+			long   flags = 0;
+			GetClusterData(CTL_WOLAYC_FLAGS, &flags);
+			//SETFLAG(Data.ContainerFlags, TLayout::EntryBlock::cfWrap, flags & TLayout::EntryBlock::cfWrap);
+			SETFLAG(Data.Flags, AbstractLayoutBlock::fContainerWrap, AbstractLayoutBlock::fContainerWrap);
+		}
+		//
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+private:
+	const TWhatman * P_Wtm;
 };
 
 class LayoutEntryDialog : public TDialog {
@@ -104,9 +152,9 @@ public:
 			long    init_parent_id = 0;
 			StrAssocArray layout_symb_list;
 			P_Wtm->GetLayoutSymbList(layout_symb_list);
-			if(Data.LayoutSymb.NotEmpty()) {
+			if(Data.ParentLayoutSymb.NotEmpty()) {
 				uint pos = 0;
-				if(layout_symb_list.SearchByText(Data.LayoutSymb, 0, &pos)) {
+				if(layout_symb_list.SearchByText(Data.ParentLayoutSymb, 0, &pos)) {
 					init_parent_id = layout_symb_list.Get(pos).Id;
 				}
 			}
@@ -114,8 +162,9 @@ public:
 		}
 		Data.SizeToString(temp_buf);
 		setCtrlString(CTL_LAYOENTRY_SIZE, temp_buf);
-		Data.MarginsToString(temp_buf);
+		AbstractLayoutBlock::MarginsToString(Data.Padding, temp_buf);
 		setCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
+		/*
 		AddClusterAssocDef(CTL_LAYOENTRY_GRAVITY, 0, Data.bfLeft);
 		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 1, Data.bfRight);
 		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 2, Data.bfTop);
@@ -125,6 +174,7 @@ public:
 		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 6, Data.bfFill);
 		long bf = (Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
 		SetClusterData(CTL_LAYOENTRY_GRAVITY, bf);
+		*/
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -136,10 +186,10 @@ public:
 		getCtrlString(sel = CTL_LAYOENTRY_SIZE, temp_buf);
 		THROW_PP(Data.SizeFromString(temp_buf), PPERR_USERINPUT);
 		getCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
-		THROW_PP(Data.MarginsFromString(temp_buf), PPERR_USERINPUT);
+		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Padding), PPERR_USERINPUT);
 		GetClusterData(CTL_LAYOENTRY_GRAVITY, &bf);
-		Data.BehaveFlags &= ~(Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
-		Data.BehaveFlags |= bf;
+		//Data.BehaveFlags &= ~(Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
+		//Data.BehaveFlags |= bf;
 		{
 			long   parent_id = getCtrlLong(CTLSEL_LAYOENTRY_PARENT);
 			if(parent_id) {
@@ -147,7 +197,7 @@ public:
 				P_Wtm->GetLayoutSymbList(layout_symb_list);
 				uint pos = 0;
 				if(layout_symb_list.Search(parent_id, &pos)) {
-					Data.LayoutSymb = layout_symb_list.Get(pos).Txt;
+					Data.ParentLayoutSymb = layout_symb_list.Get(pos).Txt;
 				}
 			}
 		}
@@ -169,7 +219,7 @@ public:
 	{
 		if(pData) {
 			Data.Setup(&pData->GetLayoutBlock());
-			Data.LayoutSymb = pData->GetLayoutContainerIdent();
+			Data.ParentLayoutSymb = pData->GetLayoutContainerIdent();
 			P_Wtm = pData->GetOwner();
 		}
 		return 1;
@@ -180,7 +230,7 @@ public:
 		if(pData) {
 			// @todo wrong block
 			pData->SetLayoutBlock(&Data);
-			pData->SetLayoutContainerIdent(Data.LayoutSymb);
+			pData->SetLayoutContainerIdent(Data.ParentLayoutSymb);
 		}
 		return ok;
 	}
@@ -191,11 +241,21 @@ protected:
 		if(event.isCmd(cmLayoutEntry)) {
 			EditLayoutEntry(&Data);
 		}
+		else if(event.isCmd(cmLayoutContainer)) { // @v10.9.8
+			EditLayoutContainer();
+		}
+		else
+			return;
+		clearEvent(event);
 	}
 	int  EditLayoutEntry(LayoutEntryDialogBlock * pData)
 	{
 		//PPDialogProcBody <LayoutEntryDialog, TLayout::EntryBlock> (&Le);
 		DIALOG_PROC_BODY_P1(LayoutEntryDialog, P_Wtm, pData);
+	}
+	int  EditLayoutContainer() 
+	{
+		return -1;
 	}
 	//TLayout::EntryBlock Le;
 	LayoutEntryDialogBlock Data;
@@ -259,16 +319,18 @@ protected:
 							setCtrlString(CTL_WOLAYOUT_SYMB, Data.GetSymb());
 							//Data.ContainerIdent
 							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 0, DIREC_UNKN);
-							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 1, DIREC_HORZ);
-							AddClusterAssocDef(CTL_WOLAYOUT_LAY, 2, DIREC_VERT);
-							SetClusterData(CTL_WOLAYOUT_LAY, Data.GetLayoutBlock().ContainerDirection);
+							AddClusterAssoc(CTL_WOLAYOUT_LAY, 1, DIREC_HORZ);
+							AddClusterAssoc(CTL_WOLAYOUT_LAY, 2, DIREC_VERT);
+							SetClusterData(CTL_WOLAYOUT_LAY, Data.GetLayoutBlock().GetContainerDirection());
+							/*
 							AddClusterAssocDef(CTL_WOLAYOUT_ADJ, 0, ADJ_LEFT);
-							AddClusterAssocDef(CTL_WOLAYOUT_ADJ, 1, ADJ_RIGHT);
-							AddClusterAssocDef(CTL_WOLAYOUT_ADJ, 2, ADJ_CENTER);
-							AddClusterAssocDef(CTL_WOLAYOUT_ADJ, 3, ADJ_ALIGN);
+							AddClusterAssoc(CTL_WOLAYOUT_ADJ, 1, ADJ_RIGHT);
+							AddClusterAssoc(CTL_WOLAYOUT_ADJ, 2, ADJ_CENTER);
+							AddClusterAssoc(CTL_WOLAYOUT_ADJ, 3, ADJ_ALIGN);
 							SetClusterData(CTL_WOLAYOUT_ADJ, Data.GetLayoutBlock().ContainerAdjustment);
+							*/
 							AddClusterAssoc(CTL_WOLAYOUT_FLAGS, 0, TLayout::EntryBlock::cfWrap);
-							SetClusterData(CTL_WOLAYOUT_FLAGS, Data.GetLayoutBlock().ContainerFlags);
+							//SetClusterData(CTL_WOLAYOUT_FLAGS, Data.GetLayoutBlock().ContainerFlags);
 							return ok;
 						}
 						DECL_DIALOG_GETDTS()
@@ -276,16 +338,16 @@ protected:
 							int    ok = 1;
 							uint   sel = 0;
 							const SString preserve_symb(pData ? pData->ContainerIdent.cptr() : 0);
-							TLayout::EntryBlock lb = Data.GetLayoutBlock();
+							AbstractLayoutBlock lb = Data.GetLayoutBlock();
 							getCtrlString(sel = CTL_WOLAYOUT_SYMB, Data.ContainerIdent);
 							if(pData) {
 								pData->ContainerIdent = Data.ContainerIdent;
 							}
 							const TWhatman * p_wtm = Data.GetOwner();
 							THROW_SL(!p_wtm || p_wtm->CheckUniqLayoutSymb(pData));
-							lb.ContainerDirection = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_LAY));
-							lb.ContainerAdjustment = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_ADJ));
-							lb.ContainerFlags = static_cast<uint16>(GetClusterData(CTL_WOLAYOUT_FLAGS));
+							lb.SetContainerDirection(static_cast<int16>(GetClusterData(CTL_WOLAYOUT_LAY)));
+							//lb.ContainerAdjustment = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_ADJ));
+							//lb.ContainerFlags = static_cast<uint16>(GetClusterData(CTL_WOLAYOUT_FLAGS));
 							Data.SetLayoutBlock(&lb);
 							// @v10.9.8 WhatmanObjectBaseDialog::updateRef(&Data); // @v10.4.9
 							ASSIGN_PTR(pData, Data);

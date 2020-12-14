@@ -256,7 +256,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -269,7 +269,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -313,7 +313,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -326,7 +326,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -370,7 +370,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -383,7 +383,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -428,7 +428,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -441,7 +441,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -480,7 +480,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -493,7 +493,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -534,7 +534,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -547,7 +547,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -587,7 +587,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -600,7 +600,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -642,7 +642,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -655,7 +655,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -694,7 +694,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -707,7 +707,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -748,7 +748,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -761,7 +761,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -801,7 +801,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
@@ -814,7 +814,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -856,7 +856,7 @@
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -869,7 +869,7 @@
     </Midl>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\.;..\OSF\OpenSSL-111\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>

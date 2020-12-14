@@ -35,8 +35,6 @@
 #include "hb-unicode.h"
 #include "hb-font.h"
 #include "hb-set.h"
-
-
 /**
  * SECTION:hb-deprecated
  * @title: hb-deprecated
@@ -47,38 +45,34 @@
  * were deemed unnecessary.
  **/
 
-
 HB_BEGIN_DECLS
 
 #ifndef HB_DISABLE_DEPRECATED
 
+#define HB_SCRIPT_CANADIAN_ABORIGINAL           HB_SCRIPT_CANADIAN_SYLLABICS
+#define HB_BUFFER_FLAGS_DEFAULT                 HB_BUFFER_FLAG_DEFAULT
+#define HB_BUFFER_SERIALIZE_FLAGS_DEFAULT       HB_BUFFER_SERIALIZE_FLAG_DEFAULT
 
-#define HB_SCRIPT_CANADIAN_ABORIGINAL		HB_SCRIPT_CANADIAN_SYLLABICS
-
-#define HB_BUFFER_FLAGS_DEFAULT			HB_BUFFER_FLAG_DEFAULT
-#define HB_BUFFER_SERIALIZE_FLAGS_DEFAULT	HB_BUFFER_SERIALIZE_FLAG_DEFAULT
-
-typedef hb_bool_t (*hb_font_get_glyph_func_t) (hb_font_t *font, void *font_data,
-					       hb_codepoint_t unicode, hb_codepoint_t variation_selector,
-					       hb_codepoint_t *glyph,
-					       void *user_data);
+typedef hb_bool_t (* hb_font_get_glyph_func_t) (hb_font_t * font, void * font_data,
+    hb_codepoint_t unicode, hb_codepoint_t variation_selector,
+    hb_codepoint_t * glyph,
+    void * user_data);
 
 HB_EXTERN HB_DEPRECATED_FOR(hb_font_funcs_set_nominal_glyph_func and hb_font_funcs_set_variation_glyph_func) void
-hb_font_funcs_set_glyph_func (hb_font_funcs_t *ffuncs,
-			      hb_font_get_glyph_func_t func,
-			      void *user_data, hb_destroy_func_t destroy);
+hb_font_funcs_set_glyph_func(hb_font_funcs_t * ffuncs,
+    hb_font_get_glyph_func_t func,
+    void * user_data, hb_destroy_func_t destroy);
 
-HB_EXTERN HB_DEPRECATED void
-hb_set_invert (hb_set_t *set);
+HB_EXTERN HB_DEPRECATED void hb_set_invert(hb_set_t * set);
 
 /**
  * hb_unicode_eastasian_width_func_t:
  *
  * Deprecated: 2.0.0
  */
-typedef unsigned int			(*hb_unicode_eastasian_width_func_t)	(hb_unicode_funcs_t *ufuncs,
-										 hb_codepoint_t      unicode,
-										 void               *user_data);
+typedef unsigned int (* hb_unicode_eastasian_width_func_t)    (hb_unicode_funcs_t * ufuncs,
+    hb_codepoint_t unicode,
+    void               * user_data);
 
 /**
  * hb_unicode_funcs_set_eastasian_width_func:
@@ -87,15 +81,14 @@ typedef unsigned int			(*hb_unicode_eastasian_width_func_t)	(hb_unicode_funcs_t 
  * @user_data:
  * @destroy:
  *
- * 
+ *
  *
  * Since: 0.9.2
  * Deprecated: 2.0.0
  **/
-HB_EXTERN HB_DEPRECATED void
-hb_unicode_funcs_set_eastasian_width_func (hb_unicode_funcs_t *ufuncs,
-					   hb_unicode_eastasian_width_func_t func,
-					   void *user_data, hb_destroy_func_t destroy);
+HB_EXTERN HB_DEPRECATED void hb_unicode_funcs_set_eastasian_width_func(hb_unicode_funcs_t * ufuncs,
+    hb_unicode_eastasian_width_func_t func,
+    void * user_data, hb_destroy_func_t destroy);
 
 /**
  * hb_unicode_eastasian_width:
@@ -103,10 +96,8 @@ hb_unicode_funcs_set_eastasian_width_func (hb_unicode_funcs_t *ufuncs,
  * Since: 0.9.2
  * Deprecated: 2.0.0
  **/
-HB_EXTERN HB_DEPRECATED unsigned int
-hb_unicode_eastasian_width (hb_unicode_funcs_t *ufuncs,
-			    hb_codepoint_t unicode);
-
+HB_EXTERN HB_DEPRECATED unsigned int hb_unicode_eastasian_width(hb_unicode_funcs_t * ufuncs,
+    hb_codepoint_t unicode);
 
 /**
  * hb_unicode_decompose_compatibility_func_t:
@@ -115,23 +106,26 @@ hb_unicode_eastasian_width (hb_unicode_funcs_t *ufuncs,
  * @decomposed: address of codepoint array (of length %HB_UNICODE_MAX_DECOMPOSITION_LEN) to write decomposition into
  * @user_data: user data pointer as passed to hb_unicode_funcs_set_decompose_compatibility_func()
  *
- * Fully decompose @u to its Unicode compatibility decomposition. The codepoints of the decomposition will be written to @decomposed.
+ * Fully decompose @u to its Unicode compatibility decomposition. The codepoints of the decomposition will be written to
+ *@decomposed.
  * The complete length of the decomposition will be returned.
  *
  * If @u has no compatibility decomposition, zero should be returned.
  *
- * The Unicode standard guarantees that a buffer of length %HB_UNICODE_MAX_DECOMPOSITION_LEN codepoints will always be sufficient for any
- * compatibility decomposition plus an terminating value of 0.  Consequently, @decompose must be allocated by the caller to be at least this length.  Implementations
+ * The Unicode standard guarantees that a buffer of length %HB_UNICODE_MAX_DECOMPOSITION_LEN codepoints will always be
+ *sufficient for any
+ * compatibility decomposition plus an terminating value of 0.  Consequently, @decompose must be allocated by the caller
+ *to be at least this length.  Implementations
  * of this function type must ensure that they do not write past the provided array.
  *
  * Return value: number of codepoints in the full compatibility decomposition of @u, or 0 if no decomposition available.
  *
  * Deprecated: 2.0.0
  */
-typedef unsigned int			(*hb_unicode_decompose_compatibility_func_t)	(hb_unicode_funcs_t *ufuncs,
-											 hb_codepoint_t      u,
-											 hb_codepoint_t     *decomposed,
-											 void               *user_data);
+typedef unsigned int (* hb_unicode_decompose_compatibility_func_t)    (hb_unicode_funcs_t * ufuncs,
+    hb_codepoint_t u,
+    hb_codepoint_t     * decomposed,
+    void               * user_data);
 
 /**
  * HB_UNICODE_MAX_DECOMPOSITION_LEN:
@@ -149,21 +143,18 @@ typedef unsigned int			(*hb_unicode_decompose_compatibility_func_t)	(hb_unicode_
  * @user_data:
  * @destroy:
  *
- * 
+ *
  *
  * Since: 0.9.2
  * Deprecated: 2.0.0
  **/
-HB_EXTERN HB_DEPRECATED void
-hb_unicode_funcs_set_decompose_compatibility_func (hb_unicode_funcs_t *ufuncs,
-						   hb_unicode_decompose_compatibility_func_t func,
-						   void *user_data, hb_destroy_func_t destroy);
+HB_EXTERN HB_DEPRECATED void hb_unicode_funcs_set_decompose_compatibility_func(hb_unicode_funcs_t * ufuncs,
+    hb_unicode_decompose_compatibility_func_t func,
+    void * user_data, hb_destroy_func_t destroy);
 
-HB_EXTERN HB_DEPRECATED unsigned int
-hb_unicode_decompose_compatibility (hb_unicode_funcs_t *ufuncs,
-				    hb_codepoint_t      u,
-				    hb_codepoint_t     *decomposed);
-
+HB_EXTERN HB_DEPRECATED unsigned int hb_unicode_decompose_compatibility(hb_unicode_funcs_t * ufuncs,
+    hb_codepoint_t u,
+    hb_codepoint_t     * decomposed);
 
 typedef hb_font_get_glyph_kerning_func_t hb_font_get_glyph_v_kerning_func_t;
 
@@ -174,19 +165,17 @@ typedef hb_font_get_glyph_kerning_func_t hb_font_get_glyph_v_kerning_func_t;
  * @user_data:
  * @destroy:
  *
- * 
+ *
  *
  * Since: 0.9.2
  * Deprecated: 2.0.0
  **/
-HB_EXTERN void
-hb_font_funcs_set_glyph_v_kerning_func (hb_font_funcs_t *ffuncs,
-					hb_font_get_glyph_v_kerning_func_t func,
-					void *user_data, hb_destroy_func_t destroy);
+HB_EXTERN void hb_font_funcs_set_glyph_v_kerning_func(hb_font_funcs_t * ffuncs,
+    hb_font_get_glyph_v_kerning_func_t func,
+    void * user_data, hb_destroy_func_t destroy);
 
-HB_EXTERN hb_position_t
-hb_font_get_glyph_v_kerning (hb_font_t *font,
-			     hb_codepoint_t top_glyph, hb_codepoint_t bottom_glyph);
+HB_EXTERN hb_position_t hb_font_get_glyph_v_kerning(hb_font_t * font,
+    hb_codepoint_t top_glyph, hb_codepoint_t bottom_glyph);
 
 #endif
 

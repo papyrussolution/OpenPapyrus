@@ -29,7 +29,6 @@
 #define HB_OT_H_IN
 
 #include "hb.h"
-
 #include "hb-ot-color.h"
 #include "hb-ot-deprecated.h"
 #include "hb-ot-font.h"

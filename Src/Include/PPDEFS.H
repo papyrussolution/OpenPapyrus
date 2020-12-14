@@ -1844,6 +1844,7 @@
 #define cmCopyToClipboardSpc     1179 // @v10.9.0 Специальное копирование в буфер обмена
 #define cmConfigure              1180 // @v10.9.0
 #define cmQueryToken             1181 // @v10.9.5 (replace cmGetTokenVk)
+#define cmLayoutContainer        1182 // @v10.9.8
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -10810,6 +10811,9 @@
 	#define CTL_LAYOENTRY_GRAVITY     (3 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_PARENT      (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LAYOENTRY_PARENT   (5 + WINDOWS_ID_BIAS)
+	#define CTL_LAYOENTRY_GROWF       (6 + WINDOWS_ID_BIAS)
+	#define CTL_LAYOENTRY_SHRNKF      (7 + WINDOWS_ID_BIAS)
+	#define CTL_LAYOENTRY_ASPR        (8 + WINDOWS_ID_BIAS)
 #define DLG_VETISENT              1364
 	#define cmCreateVetisEnterprise   101
 	#define CTL_VETISENT_LOC          (1 + WINDOWS_ID_BIAS)
@@ -11043,6 +11047,12 @@
 	#define CTLSEL_SUVK_GUA           (8 + IMPEXP_CTL_BIAS)
 	#define CTL_SUVK_LOGO             (9 + IMPEXP_CTL_BIAS)
 	#define CTL_SUVK_PAGEIDENT        (10 + IMPEXP_CTL_BIAS)
+#define DLG_WOLAYC                1397 // WhatmanObjectContaier
+	#define CTL_WOLAYC_IDENT          (1 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYC_FLAGS          (2 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYC_LAY            (3 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYC_ADJ            (4 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYC_MARG           (5 + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

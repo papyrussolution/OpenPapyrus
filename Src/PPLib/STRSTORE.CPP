@@ -669,7 +669,8 @@ int StringStore2::TranslationWanted(const uchar * pOrgText) const
 			else if(c == '\\' && oneof3(p[1], 'n', 't', 'r'))
 				p++;
 			else if(!sstrchr((const char *)p_notrasl_chars, c)) {
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+				// @v10.9.8 if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+				if(isasciialpha(c)) { // @v10.9.8
 					yes = 1;
 				}
 				else {

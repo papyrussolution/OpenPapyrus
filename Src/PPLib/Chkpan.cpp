@@ -2344,13 +2344,21 @@ int CPosProcessor::AutosaveCheck()
 			// Перед окончательным проведением чека необходимо распределить подарочную скидку (если она есть) по строкам чека.
 			//
 			if(mode == accmRegular) {
-				CCheckItem * p_item;
+				/* @v10.9.8 CCheckItem * p_item;
 				for(uint i = 0; P.enumItems(&i, (void **)&p_item);) {
 					if(p_item->Flags & cifGiftDiscount) {
 						SetupDiscount(1);
 						break;
 					}
+				}*/
+				// @v10.9.8 {
+				for(uint i = 0; i < P.getCount(); i++) {
+					if(P.at(i).Flags & cifGiftDiscount) {
+						SetupDiscount(1);
+						break;
+					}
 				}
+				// } @v10.9.8 
 			}
 			THROW(Helper_InitCcPacket(&epb.Pack, (((mode == accmRegular || reprint_regular) && !altPosNodeID) ? &epb.ExtPack : 0), pPl, 0));
 			if(mode == accmRegular && P_CM_EXT) {
@@ -3936,7 +3944,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				ClearInput(0);
 			}
 			else if(Input.HasPrefixIAscii("TSN")) {
-				PPID   sess_id = Input.ShiftLeft(3).ToLong();
+				const PPID sess_id = Input.ShiftLeft(3).ToLong();
 				LoadTSession(sess_id);
 				ClearInput(0);
 			}
@@ -4128,9 +4136,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									if(r) {
 										// @v10.9.0 (чек должен проводиться после платежа see below) AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
 										if(temp_buf.NotEmpty() && InitCashMachine() && P_CM) {
-											PPSyncCashSession * p_ifc = P_CM->SyncInterface();
-											CALLPTRMEMB(p_ifc, PrintBnkTermReport(temp_buf));
-											ZDELETE(p_ifc); // @v10.8.8 @fix
+											// @v10.9.8 PPSyncCashSession * p_ifc = P_CM->SyncInterface();
+											// @v10.9.8 CALLPTRMEMB(p_ifc, PrintBnkTermReport(temp_buf));
+											// @v10.9.8 ZDELETE(p_ifc); // @v10.8.8 @fix
+											P_CM->SyncPrintBnkTermReport(temp_buf); // @v10.9.8 
 										}
 									}
 									else {
@@ -4169,9 +4178,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 													if(!bnk_paym_result)
 														PPError();
 													else if(temp_buf.NotEmpty() && InitCashMachine() && P_CM) {
-														PPSyncCashSession * p_ifc = P_CM->SyncInterface();
-														CALLPTRMEMB(p_ifc, PrintBnkTermReport(temp_buf));
-														ZDELETE(p_ifc); // @v10.8.8 @fix
+														// @v10.9.8 PPSyncCashSession * p_ifc = P_CM->SyncInterface();
+														// @v10.9.8 CALLPTRMEMB(p_ifc, PrintBnkTermReport(temp_buf));
+														// @v10.9.8 ZDELETE(p_ifc); // @v10.8.8 @fix
+														P_CM->SyncPrintBnkTermReport(temp_buf); // @v10.9.8 
 													}
 													break;
 												}
@@ -6142,9 +6152,10 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				if(InitCashMachine() && P_CM) {
 					SString fmt_buf;
 					SString msg_buf;
-					PPSyncCashSession * p_ifc = P_CM->SyncInterface();
 					LDATETIME device_dtm = ZERODATETIME;
-					const int gdtr = p_ifc->GetDeviceTime(&device_dtm);
+					// @v10.9.8 PPSyncCashSession * p_ifc = P_CM->SyncInterface();
+					// @v10.9.8 const int gdtr = p_ifc->GetDeviceTime(&device_dtm);
+					const int gdtr = P_CM->SyncGetDeviceTime(&device_dtm); // @v10.9.8
 					// @v10.8.9 @debug {
 					(msg_buf = "GetDeviceTime").CatDiv(':', 2).Cat(gdtr).Space().Cat(device_dtm, DATF_ISO8601|DATF_CENTURY, 0);
 					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
@@ -6158,7 +6169,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
 						}
 					}
-					ZDELETE(p_ifc); // @v10.8.8 @fix
+					// @v10.9.8 ZDELETE(p_ifc); // @v10.8.8 @fix
 				}
 			}
 		}

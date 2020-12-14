@@ -399,7 +399,8 @@ SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio,
 				}
 				dwOffset += (DWORD)nbytes;
 			}
-			ZeroMemory(Buffers, sizeof(SecBuffer) * 4);
+			// @sobolev ZeroMemory(Buffers, sizeof(SecBuffer) * 4);
+			memzero(Buffers, sizeof(Buffers)); // @sobolev
 			Buffers[0].pvBuffer = sctx->IoBuffer;
 			Buffers[0].cbBuffer = dwOffset;
 

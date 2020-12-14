@@ -379,9 +379,9 @@ int FASTCALL StringSet::add(const char * pStr, uint * pPos)
 int StringSet::search(const char * pPattern, uint * pPos, int ignoreCase) const
 {
 	uint   pos = DEREFPTRORZ(pPos);
-	SString temp_buf;
-	for(uint prev_pos = pos; get(&pos, temp_buf) > 0; prev_pos = pos) {
-		if(temp_buf.Cmp(pPattern, ignoreCase) == 0) {
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.9.8 SLS.AcquireRvlStr()
+	for(uint prev_pos = pos; get(&pos, r_temp_buf) > 0; prev_pos = pos) {
+		if(r_temp_buf.Cmp(pPattern, ignoreCase) == 0) {
 			ASSIGN_PTR(pPos, prev_pos);
 			return 1;
 		}

@@ -1126,6 +1126,20 @@ int PPCashMachine::SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFor
 	return ok;
 }
 
+int PPCashMachine::SyncPrintBnkTermReport(const char * pSlipText)
+{
+	int    ok = 0;
+	THROW(GetSyncIntrf());
+	THROW(GetNode() > 0);
+	{
+		CmLocking cml(NodeRec);
+		THROW(cml);
+		ok = SyncSetPrintErrCode(P_SyncIntrf->PrintBnkTermReport(pSlipText), 0);
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPCashMachine::SyncPrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc)
 {
 	int    ok = 0;

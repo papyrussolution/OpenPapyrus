@@ -2413,12 +2413,230 @@ void BillItemBrowser::selectPckg(PPID goodsID)
 		}
 	}
 }
+//
+//
+//
+class StyloScannerEntryPool : public SStrGroup {
+public:
+	struct Entry {
+		Entry() : Qtty(0.0)
+		{
+		}
+		SString DocName;
+		SString DocDescr;
+		SString GoodsIdent;
+		SString GoodsName;
+		SString Code;
+		double Qtty;
+	};
+	StyloScannerEntryPool()
+	{
+	}
+	uint   GetCount() const
+	{
+		return L.getCount();
+	}
+	int    GetBillCodeList(StringSet & rSs) const
+	{
+		int    ok = -1;
+		uint   _cnt = 0;
+		SString temp_buf;
+		rSs.Z();
+		for(uint i = 0; i < L.getCount(); i++) {
+			const InnerEntry & r_entry = L.at(i);
+			GetS(r_entry.DocNameP, temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				if(!rSs.search(temp_buf, 0, 0)) {
+					rSs.add(temp_buf);
+					_cnt++;
+				}
+			}
+		}
+		if(_cnt)
+			ok = 1;
+		return ok;
+	}
+	int    AddEntry(const Entry & rE)
+	{
+		InnerEntry new_entry;
+		MEMSZERO(new_entry);
+		AddS(rE.DocName, &new_entry.DocNameP);
+		AddS(rE.DocDescr, &new_entry.DocDescrP);
+		AddS(rE.GoodsIdent, &new_entry.GoodsIdentP);
+		AddS(rE.Code, &new_entry.CodeP);
+		new_entry.Qtty = rE.Qtty;
+		return L.insert(&new_entry) ? 1 : PPSetErrorSLib();
+	}
+	int    GetEntry(uint idx, Entry & rE) const
+	{
+		int    ok = 1;
+		if(idx < L.getCount()) {
+			const InnerEntry & r_entry = L.at(idx);
+			GetS(r_entry.DocNameP, rE.DocName);
+			GetS(r_entry.DocDescrP, rE.DocDescr);
+			GetS(r_entry.GoodsIdentP, rE.GoodsIdent);
+			GetS(r_entry.CodeP, rE.Code);
+			rE.Qtty = r_entry.Qtty;
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+private:
+	struct InnerEntry { // @flat
+		uint   DocNameP;
+		uint   DocDescrP;
+		uint   GoodsIdentP;
+		uint   CodeP;
+		double Qtty;
+	};
+	TSVector <InnerEntry> L;
+};
 
+int ImportStyloScannerEntries(const char * pFileName, StyloScannerEntryPool & rResult)
+{
+	//doc_name;doc_descr;Goods_id;Goods_name;qtty;code
+	int    ok = -1;
+	SString temp_buf;
+	LAssocArray fld_assoc_list; // ассоциации номеров полей [1..] с их идентификаторами (see enum above)
+	if(!isempty(pFileName) && fileExists(pFileName)) {
+		SFile f_in(pFileName, SFile::mRead);
+		if(f_in.IsValid()) {
+			SString fld_name;
+			SString line_buf;
+			uint   line_no = 0;
+			StringSet ss(";"); // Разделители полей пока строго ';'
+			StringSet fnss(";");
+			while(f_in.ReadLine(line_buf)) {
+				enum {
+					fldidUnkn = 0,
+					fldidDocN,
+					fldidDocDescr,
+					fldidGoodsIdent,
+					fldidGoodsName,
+					fldidCode,
+					fldidQtty,
+					fldid__Last // @anchor
+				};
+				line_no++;
+				line_buf.Chomp().Strip();
+				ss.setBuf(line_buf);
+				if(line_no == 1) { // header line
+					static const char * p_fld_names[] = {
+						"",
+						"doc_name;docname;docno;docn",
+						"doc_descr;docdescr;descr",
+						"goods_id;goodsid;wareid",
+						"goods_name;goodsname;warename",
+						"code;ean;upc;goodscode",
+						"qtty;qty;quantity"
+					};
+					assert(SIZEOFARRAY(p_fld_names) == (fldid__Last));
+					for(uint ssp = 0, fldn = 0; ss.get(&ssp, temp_buf); fldn++) {
+						bool fld_id_found = false;
+						for(uint fdi = 1; !fld_id_found && fdi < fldid__Last; fdi++) {
+							assert(p_fld_names[fdi] != 0);
+							if(!fld_assoc_list.SearchByVal(fdi, 0, 0)) {
+								fnss.setBuf(p_fld_names[fdi], strlen(p_fld_names[fdi])+1);
+								for(uint fnssp = 0; !fld_id_found && fnss.get(&fnssp, fld_name);) {
+									if(temp_buf.IsEqiAscii(fld_name)) {
+										fld_assoc_list.Add(fldn+1, fdi, 0);
+										fld_id_found = true;
+									}
+								}
+							}
+						}
+					}
+				}
+				else {
+					StyloScannerEntryPool::Entry entry;
+					for(uint ssp = 0, fldn = 0; ss.get(&ssp, temp_buf); fldn++) {
+						temp_buf.Strip();
+						long fdi = 0;
+						if(fld_assoc_list.Search(fldn+1, &fdi, 0)) {
+							switch(fdi) {
+								case fldidDocN: entry.DocName = temp_buf; break;
+								case fldidDocDescr: entry.DocDescr = temp_buf; break;
+								case fldidGoodsIdent: entry.GoodsIdent = temp_buf; break;
+								case fldidGoodsName: entry.GoodsName = temp_buf; break;
+								case fldidCode: entry.Code = temp_buf; break;
+								case fldidQtty: entry.Qtty = temp_buf.ToReal(); break;
+								default: assert(0); break; // impossible fldid
+							}
+						}
+					}
+					if(entry.Code.NotEmpty()) {
+						rResult.AddEntry(entry);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
+int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp)
+{
+	int    ok = -1;
+	StyloScannerEntryPool pool;
+	SString in_path;
+	PPGetPath(PPPATH_IN, in_path);
+	if(PPOpenFile(PPTXT_FILPAT_STYLOSCANNER, in_path, 0, 0) > 0) {
+		ImportStyloScannerEntries(in_path, pool);
+	}
+	if(pool.GetCount()) {
+		SString temp_buf;
+		StringSet ss_bill_code;
+		pool.GetBillCodeList(ss_bill_code);
+		const uint ssbc_count = ss_bill_code.getCount();
+		SString selected_bill_code;
+		int   do_process = 0;
+		if(ssbc_count) {
+			// Надо выбирать какой-то один документ
+			StrAssocArray ssbc_list;
+			long   sel_id = 0;
+			{
+				long   item_id = 0;
+				for(uint ssp = 0; ss_bill_code.get(&ssp, temp_buf);) {
+					item_id++;
+					ssbc_list.Add(item_id, temp_buf, 0);
+				}
+			}
+			if(ComboBoxSelDialog2(&ssbc_list, /*PPTXT_SELECTOUTERBILLCODE*/0, PPTXT_SELECTOUTERBILLCODE, &sel_id, 0) > 0) {
+				uint pos = 0;
+				if(ssbc_list.Search(sel_id, &pos)) {
+					selected_bill_code = ssbc_list.Get(pos).Txt;
+					if(selected_bill_code.NotEmptyS())
+						do_process = 1;
+				}
+			}
+		}
+		else
+			do_process = 1;
+		if(do_process) {
+			StyloScannerEntryPool::Entry entry;
+			for(uint i = 0; i < pool.GetCount(); i++) {
+				if(pool.GetEntry(i, entry)) {
+					if(selected_bill_code.Empty() || selected_bill_code == entry.DocName) {
+						
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
 class LotXCodeListDialog_Base : public PPListDialog {
 protected:
 	DECL_DIALOG_DATA(PPLotExtCodeContainer);
 public:
-	LotXCodeListDialog_Base(uint dlgId, uint listCtlId, const PPBillPacket * pPack, int rowIdx, long flags) : PPListDialog(dlgId, listCtlId, flags),
+	LotXCodeListDialog_Base(uint dlgId, uint listCtlId, /*const*/PPBillPacket * pPack, int rowIdx, long flags) : PPListDialog(dlgId, listCtlId, flags),
 		P_Pack(pPack), P_LotXcT(BillObj->P_LotXcT), RowIdx(rowIdx)
 	{
 		SetCtrlFont(CTL_LOTXCLIST_LIST, "Courier New", 14);
@@ -2454,13 +2672,13 @@ public:
 		SStringU buf_from_copy;
 		SClipboard::Past_Text(buf_from_copy);
 		buf_from_copy.CopyToUtf8(temp_buf, 0);
-		if (temp_buf.Tokenize("\xD\xA", ss)) {
+		if(temp_buf.Tokenize("\xD\xA", ss)) {
 			temp_buf.Z();
-			for (uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
-				if (!temp_buf.NotEmptyS()) {
+			for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
+				if(!temp_buf.NotEmptyS()) {
 					continue;
 				}
-				else if (temp_buf.Len() >= sizeof(rec.Code)) {
+				else if(temp_buf.Len() >= sizeof(rec.Code)) {
 					continue;
 				}
 				else {
@@ -2468,11 +2686,11 @@ public:
 					GtinStruc gts;
 					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
 					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-					if (pczcr)
+					if(pczcr)
 						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-					if (!iemr && !pczcr) {
-						if (P_LotXcT) {
-							if (lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) // @v10.8.2 
+					if(!iemr && !pczcr) {
+						if(P_LotXcT) {
+							if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) // @v10.8.2 
 								ok = 1;
 							else
 								continue;
@@ -2483,8 +2701,8 @@ public:
 						}
 					}
 					else {
-						if (do_check && P_LotXcT) {
-							if (P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) {
+						if(do_check && P_LotXcT) {
+							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) {
 								STRNSCPY(rec.Code, mark_buf);
 								ok = 1;
 							}
@@ -2494,7 +2712,7 @@ public:
 						else {
 							/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
 								rSet.AddBox(0, mark_buf, 1);*/
-							if (oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
+							if(oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
 								long last_box_id = set.SearchLastBox(-1);
 								set.AddNum(last_box_id, mark_buf, 1);
 							}
@@ -2505,13 +2723,13 @@ public:
 						}
 					}
 				}
-				if (validation > 0) {
-					if (Data.AddValidation(set)) {
+				if(validation > 0) {
+					if(Data.AddValidation(set)) {
 						ok++;
 					}
 				}
-				else{
-					if (Data.Add(RowIdx, set)) {
+				else {
+					if(Data.Add(RowIdx, set)) {
 						ok++;
 					}
 				}
@@ -2520,12 +2738,16 @@ public:
 		updateList(0);
 		return ok;
 	}
-
 protected:
 	DECL_HANDLE_EVENT
 	{
 		PPListDialog::handleEvent(event);
-		if(event.isCmd(cmCopyToClipboard)) {
+		if(event.isCmd(cmImport)) { // @v10.9.8
+			if(P_Pack) {
+				ImportStyloScannerEntriesForBillPacket(*P_Pack);
+			}
+		}
+		else if(event.isCmd(cmCopyToClipboard)) {
 			long  cur_pos = 0;
 			long  cur_id = 0;
 			SString text_buf;
@@ -2620,13 +2842,13 @@ protected:
 		return ok;
 	}
 	const  int RowIdx;
-	const  PPBillPacket * P_Pack;
+	/*const*/PPBillPacket * P_Pack;
 	LotExtCodeCore * P_LotXcT;
 };
 
 class ValidateLotXCodeListDialog : public LotXCodeListDialog_Base {
 public:
-	ValidateLotXCodeListDialog(const PPBillPacket * pPack) : LotXCodeListDialog_Base(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, pPack, -1, fOmitSearchByFirstChar|fOwnerDraw),
+	ValidateLotXCodeListDialog(/*const*/PPBillPacket * pPack) : LotXCodeListDialog_Base(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, pPack, -1, fOmitSearchByFirstChar|fOwnerDraw),
 		FontId(0), CStyleId(0), ViewFlags(0)
 	{
 		// @v10.8.1 {
@@ -2643,7 +2865,8 @@ private:
 	{
 		if(TVKEYDOWN) {
 			uchar  c = TVCHR;
-			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || isdec(c)) {
+			// @v10.9.8 if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || isdec(c)) {
+			if(isasciialnum(c)) { // @v10.9.8 
 				LotExtCodeTbl::Rec rec;
 				PPLotExtCodeContainer::MarkSet set;
 				if(EditItemDialog(rec, c, set) > 0) {
@@ -2696,9 +2919,8 @@ private:
 										brush_id = TProgram::tbiInvalInp3Brush;
 								}
 							}
-							else {
+							else
 								brush_id = TProgram::tbiInvalInp3Brush;
-							}
 						}
 						if(brush_id)
 							canv.Rect(rect_elem, TProgram::tbiListBkgPen, brush_id);
@@ -2751,7 +2973,7 @@ private:
 			}
 		}
 		// @erik v10.8.2 {
-		else if (event.isCmd(cmPasteFromClipboardAll)) {
+		else if(event.isCmd(cmPasteFromClipboardAll)) {
 			int validation = 1;
 			pasteFromClipboardAll(validation);
 		}
@@ -2938,7 +3160,7 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 {
 	class LotXCodeListDialog : public LotXCodeListDialog_Base {
 	public:
-		LotXCodeListDialog(const PPBillPacket * pPack, int rowIdx) : LotXCodeListDialog_Base(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, pPack, rowIdx, fOmitSearchByFirstChar)
+		LotXCodeListDialog(/*const*/PPBillPacket * pPack, int rowIdx) : LotXCodeListDialog_Base(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, pPack, rowIdx, fOmitSearchByFirstChar)
 		{
 			ContextMenuID = CTRLMENU_LOTXCODELIST; // @v10.9.0
 		}
@@ -2947,7 +3169,8 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 		{
 			if(TVKEYDOWN) {
 				uchar  c = TVCHR;
-				if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || isdec(c)) {
+				// @v10.9.8 if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || isdec(c)) {
+				if(isasciialnum(c)) { // @v10.9.8
 					LotExtCodeTbl::Rec rec;
 					PPLotExtCodeContainer::MarkSet set;
 					if(EditItemDialog(rec, c, set) > 0) {
@@ -2961,7 +3184,7 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 			}
 			LotXCodeListDialog_Base::handleEvent(event);
 			// @erik v10.8.2 {
-			if (event.isCmd(cmPasteFromClipboardAll)) {
+			if(event.isCmd(cmPasteFromClipboardAll)) {
 				int validation = 0;
 				pasteFromClipboardAll(validation);
 			}

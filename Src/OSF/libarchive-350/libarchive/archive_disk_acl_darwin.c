@@ -221,19 +221,15 @@ static int translate_acl(struct archive_read_disk * a,
 
 	s = acl_get_entry(acl, ACL_FIRST_ENTRY, &acl_entry);
 	if(s == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to get first ACL entry");
+		archive_set_error(&a->archive, errno, "Failed to get first ACL entry");
 		return (ARCHIVE_WARN);
 	}
-
 	while(s == 0) {
 		ae_id = -1;
 		ae_name = NULL;
 		ae_perm = 0;
-
 		if(acl_get_tag_type(acl_entry, &acl_tag) != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Failed to get ACL tag type");
+			archive_set_error(&a->archive, errno, "Failed to get ACL tag type");
 			return (ARCHIVE_WARN);
 		}
 		switch(acl_tag) {
@@ -266,17 +262,14 @@ static int translate_acl(struct archive_read_disk * a,
 		 * acl_get_flagset_np() fails with non-NFSv4 ACLs
 		 */
 		if(acl_get_flagset_np(acl_entry, &acl_flagset) != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Failed to get flagset from a NFSv4 ACL entry");
+			archive_set_error(&a->archive, errno, "Failed to get flagset from a NFSv4 ACL entry");
 			return (ARCHIVE_WARN);
 		}
 		for(i = 0; i < acl_nfs4_flag_map_size; ++i) {
 			r = acl_get_flag_np(acl_flagset,
 				acl_nfs4_flag_map[i].p_perm);
 			if(r == -1) {
-				archive_set_error(&a->archive, errno,
-				    "Failed to check flag in a NFSv4 "
-				    "ACL flagset");
+				archive_set_error(&a->archive, errno, "Failed to check flag in a NFSv4 ACL flagset");
 				return (ARCHIVE_WARN);
 			}
 			else if(r)
@@ -284,8 +277,7 @@ static int translate_acl(struct archive_read_disk * a,
 		}
 
 		if(acl_get_permset(acl_entry, &acl_permset) != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Failed to get ACL permission set");
+			archive_set_error(&a->archive, errno, "Failed to get ACL permission set");
 			return (ARCHIVE_WARN);
 		}
 
@@ -297,9 +289,7 @@ static int translate_acl(struct archive_read_disk * a,
 			r = acl_get_perm_np(acl_permset,
 				acl_nfs4_perm_map[i].p_perm);
 			if(r == -1) {
-				archive_set_error(&a->archive, errno,
-				    "Failed to check permission in an ACL "
-				    "permission set");
+				archive_set_error(&a->archive, errno, "Failed to check permission in an ACL permission set");
 				return (ARCHIVE_WARN);
 			}
 			else if(r)
@@ -347,11 +337,9 @@ static int set_acl(struct archive * a, int fd, const char * name,
 		archive_set_error(a, errno, "Unsupported ACL type");
 		return (ARCHIVE_FAILED);
 	}
-
 	acl = acl_init(entries);
 	if(acl == (acl_t)NULL) {
-		archive_set_error(a, errno,
-		    "Failed to initialize ACL working storage");
+		archive_set_error(a, errno, "Failed to initialize ACL working storage");
 		return (ARCHIVE_FAILED);
 	}
 
@@ -368,8 +356,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 			continue;
 
 		if(acl_create_entry(&acl, &acl_entry) != 0) {
-			archive_set_error(a, errno,
-			    "Failed to create a new ACL entry");
+			archive_set_error(a, errno, "Failed to create a new ACL entry");
 			ret = ARCHIVE_FAILED;
 			goto exit_free;
 		}
@@ -402,21 +389,18 @@ static int set_acl(struct archive * a, int fd, const char * name,
 				    continue;
 			    break;
 			default:
-			    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-				"Unsupported ACL tag");
+			    archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unsupported ACL tag");
 			    ret = ARCHIVE_FAILED;
 			    goto exit_free;
 		}
 
 		if(acl_get_permset(acl_entry, &acl_permset) != 0) {
-			archive_set_error(a, errno,
-			    "Failed to get ACL permission set");
+			archive_set_error(a, errno, "Failed to get ACL permission set");
 			ret = ARCHIVE_FAILED;
 			goto exit_free;
 		}
 		if(acl_clear_perms(acl_permset) != 0) {
-			archive_set_error(a, errno,
-			    "Failed to clear ACL permissions");
+			archive_set_error(a, errno, "Failed to clear ACL permissions");
 			ret = ARCHIVE_FAILED;
 			goto exit_free;
 		}
@@ -425,8 +409,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 			if(ae_permset & acl_nfs4_perm_map[i].a_perm) {
 				if(acl_add_perm(acl_permset,
 				    acl_nfs4_perm_map[i].p_perm) != 0) {
-					archive_set_error(a, errno,
-					    "Failed to add ACL permission");
+					archive_set_error(a, errno, "Failed to add ACL permission");
 					ret = ARCHIVE_FAILED;
 					goto exit_free;
 				}
@@ -437,14 +420,12 @@ static int set_acl(struct archive * a, int fd, const char * name,
 		 * acl_get_flagset_np() fails with non-NFSv4 ACLs
 		 */
 		if(acl_get_flagset_np(acl_entry, &acl_flagset) != 0) {
-			archive_set_error(a, errno,
-			    "Failed to get flagset from an NFSv4 ACL entry");
+			archive_set_error(a, errno, "Failed to get flagset from an NFSv4 ACL entry");
 			ret = ARCHIVE_FAILED;
 			goto exit_free;
 		}
 		if(acl_clear_flags_np(acl_flagset) != 0) {
-			archive_set_error(a, errno,
-			    "Failed to clear flags from an NFSv4 ACL flagset");
+			archive_set_error(a, errno, "Failed to clear flags from an NFSv4 ACL flagset");
 			ret = ARCHIVE_FAILED;
 			goto exit_free;
 		}
@@ -453,9 +434,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 			if(ae_permset & acl_nfs4_flag_map[i].a_perm) {
 				if(acl_add_flag_np(acl_flagset,
 				    acl_nfs4_flag_map[i].p_perm) != 0) {
-					archive_set_error(a, errno,
-					    "Failed to add flag to "
-					    "NFSv4 ACL flagset");
+					archive_set_error(a, errno, "Failed to add flag to NFSv4 ACL flagset");
 					ret = ARCHIVE_FAILED;
 					goto exit_free;
 				}
@@ -472,8 +451,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 				ret = ARCHIVE_OK;
 			}
 			else {
-				archive_set_error(a, errno,
-				    "Failed to set acl on fd: %s", tname);
+				archive_set_error(a, errno, "Failed to set acl on fd: %s", tname);
 				ret = ARCHIVE_WARN;
 			}
 		}
@@ -484,8 +462,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 			ret = ARCHIVE_OK;
 		}
 		else {
-			archive_set_error(a, errno, "Failed to set acl: %s",
-			    tname);
+			archive_set_error(a, errno, "Failed to set acl: %s", tname);
 			ret = ARCHIVE_WARN;
 		}
 	}
@@ -508,28 +485,21 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 		if(accpath == NULL)
 			return (ARCHIVE_WARN);
 	}
-
 	archive_entry_acl_clear(entry);
-
 	acl = NULL;
-
 	if(*fd >= 0)
 		acl = acl_get_fd_np(*fd, ACL_TYPE_EXTENDED);
 	else if(!a->follow_symlinks)
 		acl = acl_get_link_np(accpath, ACL_TYPE_EXTENDED);
 	else
 		acl = acl_get_file(accpath, ACL_TYPE_EXTENDED);
-
 	if(acl != NULL) {
 		r = translate_acl(a, entry, acl);
 		acl_free(acl);
 		acl = NULL;
-
 		if(r != ARCHIVE_OK) {
-			archive_set_error(&a->archive, errno,
-			    "Couldn't translate NFSv4 ACLs");
+			archive_set_error(&a->archive, errno, "Couldn't translate NFSv4 ACLs");
 		}
-
 		/*
 		 * Because Mac OS doesn't support owner@, group@ and everyone@
 		 * ACLs we need to add NFSv4 ACLs mirroring the file mode to

@@ -239,12 +239,11 @@ TWhatman * TWhatmanObject::GetOwner() const { return P_Owner; }
 TWindow  * TWhatmanObject::GetOwnerWindow() const { return P_Owner ? P_Owner->GetOwnerWindow() : 0; }
 const SString & TWhatmanObject::GetSymb() const { return Symb; }
 
-const TLayout::EntryBlock & TWhatmanObject::GetLayoutBlock() const { return Le; }
+//const TLayout::EntryBlock & TWhatmanObject::GetLayoutBlock() const { return Le; }
+//void TWhatmanObject::SetLayoutBlock(const TLayout::EntryBlock * pBlk) { RVALUEPTR(Le, pBlk); }
 
-void TWhatmanObject::SetLayoutBlock(const TLayout::EntryBlock * pBlk)
-{
-	RVALUEPTR(Le, pBlk);
-}
+const AbstractLayoutBlock & TWhatmanObject::GetLayoutBlock() const { return Le2; }
+void  TWhatmanObject::SetLayoutBlock(const AbstractLayoutBlock * pBlk) { RVALUEPTR(Le2, pBlk); }
 
 const SString & TWhatmanObject::GetLayoutContainerIdent() const { return LayoutContainerIdent; }
 void  TWhatmanObject::SetLayoutContainerIdent(const char * pIdent) { (LayoutContainerIdent = pIdent).Strip(); }
@@ -931,14 +930,23 @@ int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
 								p_root_item->managed_ptr = pC;
 								p_root_item->Size.X = static_cast<float>(pC->Bounds.width());
 								p_root_item->Size.Y = static_cast<float>(pC->Bounds.height());
-								if(pC->Le.ContainerDirection == DIREC_HORZ)
+
+								if(pC->Le2.Flags & AbstractLayoutBlock::fContainerRow)
+									p_root_item->Direction = FLEX_DIRECTION_ROW;
+								else if(pC->Le2.Flags & AbstractLayoutBlock::fContainerCol)
+									p_root_item->Direction = FLEX_DIRECTION_COLUMN;
+								else
+									p_root_item->Direction = FLEX_DIRECTION_ROW; // @?
+								if(pC->Le2.Flags & AbstractLayoutBlock::fContainerWrap)
+									p_root_item->Flags |= LayoutFlexItem::fWrap;
+								/*if(pC->Le.ContainerDirection == DIREC_HORZ)
 									p_root_item->Direction = FLEX_DIRECTION_ROW;
 								else if(pC->Le.ContainerDirection == DIREC_VERT)
 									p_root_item->Direction = FLEX_DIRECTION_COLUMN;
 								else
 									p_root_item->Direction = FLEX_DIRECTION_ROW;
 								if(pC->Le.ContainerFlags & TLayout::EntryBlock::cfWrap)
-									p_root_item->Flags |= LayoutFlexItem::fWrap;
+									p_root_item->Flags |= LayoutFlexItem::fWrap;*/
 							}
 						}
 						LayoutFlexItem * p_iter_item = p_root_item->InsertItem();
@@ -1959,6 +1967,7 @@ static IMPL_CMPFUNC(LocalLoEntry_LoSymb, p1, p2)
 	return strcmp(p_entry1->LoSymb, p_entry2->LoSymb);
 }
 
+#if 0 // @v10.9.8 (superseded) {
 int TWhatman::ProcessLayouts()
 {
 	int    ok = -1;
@@ -2056,7 +2065,8 @@ int TWhatman::ProcessLayouts()
 					p_root_entry = p_entry;
 				}
 				{
-					const TLayout::EntryBlock & r_lo_blk = p_entry->P_Obj->GetLayoutBlock();
+					//const TLayout::EntryBlock & r_lo_blk = p_entry->P_Obj->GetLayoutBlock();
+					const AbstractLayoutBlock & r_lo_blk = p_entry->P_Obj->GetLayoutBlock();
 					layout.SetItemSizeXy(p_entry->LayId, r_lo_blk.Sz.x, r_lo_blk.Sz.y);
 				}
 				if(p_entry->Flags & LocalLoEntry::fIsLayout) {
@@ -2114,6 +2124,7 @@ int TWhatman::ProcessLayouts()
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v10.9.8 (superseded)
 //
 //
 //
