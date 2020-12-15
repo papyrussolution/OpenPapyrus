@@ -2071,7 +2071,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						PPOprKind op_rec;
 						PPOprKind link_op_rec;
 						THROW(GetOpData(p_bp->Rec.OpID, &op_rec) > 0);
-						PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text.Z());
+						PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 						if(op_rec.LinkOpID) {
 							THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
 						}
@@ -2478,12 +2478,12 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						SString bill_code;
 						BillCore::GetCode(bill_code = p_bp->Rec.Code);
 						bill_code.Strip();
-						PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text.Z());
+						PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 						p_bp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, edi_ident);
 						THROW_PP_S(edi_ident.NotEmptyS(), PPERR_EGAIS_BILLHASNEDIIDENTTAG, bill_text);
 						if(P_BObj->CheckStatusFlag(p_bp->Rec.StatusID, BILSTF_READYFOREDIACK))
 							is_status_suited = 1;
-						if(oneof3(p_bp->Rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) { // @v9.5.6
+						if(oneof3(p_bp->Rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
 							int    cmp_result = 0; // 0 - accepted, -1 - rejected,
 								// & 0x01 - есть отличия в меньшую сторону по количеству
 								// & 0x02 - есть отличия в большую сторону по количеству

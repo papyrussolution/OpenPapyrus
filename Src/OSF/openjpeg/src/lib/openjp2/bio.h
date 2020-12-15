@@ -105,14 +105,14 @@ Write bits
 @param v Value of bits
 @param n Number of bits to write
 */
-void opj_bio_write(opj_bio_t *bio, OPJ_UINT32 v, OPJ_UINT32 n);
+void FASTCALL opj_bio_write(opj_bio_t *bio, OPJ_UINT32 v, OPJ_UINT32 n);
 /**
 Read bits
 @param bio BIO handle
 @param n Number of bits to read
 @return Returns the corresponding read number
 */
-OPJ_UINT32 opj_bio_read(opj_bio_t *bio, OPJ_UINT32 n);
+OPJ_UINT32 FASTCALL opj_bio_read(opj_bio_t *bio, OPJ_UINT32 n);
 /**
 Flush bits
 @param bio BIO handle

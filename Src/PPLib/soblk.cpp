@@ -2192,7 +2192,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							if(p_bobj->Search(IdList.get(i), &bill_rec) > 0) {
 								int _t = IncAndTestCounterForPage(&_c);
 								if(_t > 0) {
-									PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf.Z());
+									PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
 									ResultList.Add(bill_rec.ID, temp_buf);
 								}
 								else if(!_t)
@@ -2208,7 +2208,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						for(bview.InitIteration(PPViewBill::OrdByDate); bview.NextIteration(&bitem) > 0;) {
 							int _t = IncAndTestCounterForPage(&_c);
 							if(_t > 0) {
-								PPObjBill::MakeCodeString(&bitem, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf.Z());
+								PPObjBill::MakeCodeString(&bitem, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
 								ResultList.Add(bitem.ID, temp_buf);
 							}
 							else if(!_t)
@@ -2229,20 +2229,20 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						THROW(GetOpData(P_SetBlk->U.B.OpID, &op_rec) > 0);
 						THROW(PsnObj.LocObj.Fetch(P_SetBlk->U.B.LocID, &loc_rec) > 0);
 						if(op_rec.OpTypeID == PPOPT_DRAFTTRANSIT) {
-							THROW_PP_S(loc_rec.Type == LOCTYP_ADDRESS, PPERR_INCLOCTYPE, PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf.Z()));
+							THROW_PP_S(loc_rec.Type == LOCTYP_ADDRESS, PPERR_INCLOCTYPE, PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf));
 							/*
 							if(P_SetBlk->B.OwnerID) {
 							}
 							*/
 						}
 						else {
-							THROW_PP_S(loc_rec.Type == LOCTYP_WAREHOUSE, PPERR_INCLOCTYPE, PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf.Z()));
+							THROW_PP_S(loc_rec.Type == LOCTYP_WAREHOUSE, PPERR_INCLOCTYPE, PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf));
 						}
 						THROW(pack.CreateBlank2(P_SetBlk->U.B.OpID, P_SetBlk->U.B.Dt, P_SetBlk->U.B.LocID, 1));
 						THROW(pack.SetupObject(P_SetBlk->U.B.ArID, sob));
 						if(P_SetBlk->U.B.DlvrLocID) {
 							THROW(PsnObj.LocObj.Fetch(P_SetBlk->U.B.DlvrLocID, &loc_rec) > 0);
-							THROW_PP_S(loc_rec.Type == LOCTYP_ADDRESS, PPERR_INCLOCTYPE, PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf.Z()));
+							THROW_PP_S(loc_rec.Type == LOCTYP_ADDRESS, PPERR_INCLOCTYPE, PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf));
 							if(pack.Rec.Object == 0 && loc_rec.OwnerID && op_rec.AccSheetID) {
 								PPID   ar_id = 0;
 								ArObj.P_Tbl->PersonToArticle(loc_rec.OwnerID, op_rec.AccSheetID, &ar_id);
@@ -2250,7 +2250,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 									THROW(pack.SetupObject(ar_id, sob));
 							}
 							THROW_PP_S((loc_rec.Flags & LOCF_STANDALONE) || (loc_rec.OwnerID == ObjectToPerson(pack.Rec.Object, 0)), PPERR_DLVRADDNOTOWNEDBYBILLAR,
-								PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf.Z()));
+								PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf));
 							pack.SetFreight_DlvrAddrOnly(P_SetBlk->U.B.DlvrLocID);
 						}
 						temp_buf = P_SetBlk->U.B.Code;

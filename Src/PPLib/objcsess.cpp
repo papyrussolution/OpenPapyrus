@@ -361,7 +361,7 @@ int PPObjCSession::Recover(const PPIDArray & rSessList)
 						ok = -1;
 					THROW(Search(sess_id, &sub_rec) > 0);
 					if(sub_rec.WrOffAmount > 0.0 || P_Tbl->HasChild(sess_id) > 0) {
-						MakeCodeString(&sub_rec, temp_buf.Z());
+						MakeCodeString(&sub_rec, temp_buf);
 						MakeCodeString(&sess_rec, added_msg_buf).CatChar('-').CatChar('>').Cat(temp_buf);
 						logger.LogMsgCode(mfError, PPERR_CSES_INNERSUPER, added_msg_buf);
 						ok = -1;

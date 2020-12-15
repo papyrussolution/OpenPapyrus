@@ -10411,6 +10411,15 @@ public:
 	int    Set_2(int rowIdx, const MarkSet * pS);
 	int    Get(int rowIdx, LongArray * pIdxList, MarkSet & rS) const;
 	int    GetByIdx(uint idx, Item2 & rItem) const;
+	//
+	// Descr: Ищет код pCode среди всех кодов контейнера.
+	//   В случае успешного поиска по указателю pRowIdx (если pRowIdx != 0) присваивает индекс строки документа,
+	//   которой принадлежит марка (для validation-кодов это - -1). По указателю pInndrIdx, если не нулевой,
+	//   присваивается внутренний индекс элемента (в векторе SVector::this).
+	// Returns:
+	//   >0 - код найден
+	//    0 - код не найден
+	//
     int    Search(const char * pCode, int * pRowIdx, uint * pInnerIdx) const;
 	int    ValidateCode(const char * pCode, const char * pBox, int * pErr, int * pRowId, SString * pBoxCode) const;
     void   RemovePosition(int rowIdx);
@@ -23036,7 +23045,7 @@ private:
 #define GTCHZNPT_TOBACCO   2
 #define GTCHZNPT_SHOE      3
 #define GTCHZNPT_MEDICINE  4
-#define GTCHZNPT_CARTIRE   5 // @v10.9.7
+#define GTCHZNPT_CARTIRE   5 // @v10.9.7 Автомобильные шины
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -28378,7 +28387,6 @@ public:
 	int    IsExtRecEmpty() const;
 	GoodsPacketKind GetPacketKind() const;
 	int    GetArCode(PPID arID, SString & rCode) const;
-
 	static int ValidateAddedMsgSign(const char * pSign, size_t signBufSize);
 	//
 	// Descr: Флаги функции PPGoodsPacket::PrepareAddedMsgStrings()
@@ -28412,8 +28420,7 @@ public:
 	long   ClsDimZeroFlags;   // @transient Флаги обнуляние числовых классификаторов товаров. Используется в
 		// специальном случае массового изменения атрибутов товаров (функция PPViewGoods::RemoveAll())
 	SString ExtString;        // Дополнительные текстовые поля товара
-	SString ExTitles;         // Список наименований дополнительных
-		// текстовых полей товара. Используется только для обыкновенных групп.
+	SString ExTitles;         // Список наименований дополнительных текстовых полей товара. Используется только для обыкновенных групп.
 	PPQuotArray * P_Quots;    // Список котировок товара. Особенность этого поля в том, что функция //
 		// PPObjGoods::GetPacket заполняет его, но функция PPObjGoods::PutPacket не сохраняет список в БД.
 	GoodsLotExtData * P_Gled; // Только для переноса параметров лотов из одного раздела в другой

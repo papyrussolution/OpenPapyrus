@@ -2959,7 +2959,7 @@ int PPViewSCardOp::Recover()
 					{
 						// PPTXT_INVSCOPCHECKLINK      "Чек '@zstr', на который ссылается операция по карте '@scard' не содержит ссылку на эту карту"
 						PPLoadText(PPTXT_INVSCOPCHECKLINK, fmt_buf);
-						CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf.Z());
+						CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
 						PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), sc_id);
 						logger.Log(msg_buf);
 					}

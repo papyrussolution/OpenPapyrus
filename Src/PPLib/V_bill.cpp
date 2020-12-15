@@ -4430,11 +4430,17 @@ struct PrvdrDllLink {
 	ImpExpParamDllStruct ParamDll;
 };
 
-int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileName); // @prototype
-int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString & rFileName); // @prototype
-int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFileName); // @prototype
-int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName); // @prototype
-int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName); // @prototype
+int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+
+
+static bool IsByEmailAddrByContext(const SString & rBuf)
+{
+	return (rBuf.IsEqiAscii("@bycontext") || rBuf == "@@");
+}
 
 int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam)
 {
@@ -4482,12 +4488,13 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			const PPID inet_acc_id = b_e.Tp.InetAccID;
 			const StrAssocArray inet_addr_list = b_e.Tp.AddrList;
 			int   use_mail_addr_by_context = 0;
+			SString email_buf;
 			SString mail_subj = b_e.Tp.Subject;
 			mail_subj.SetIfEmpty("No Subject").Transf(CTRANSF_INNER_TO_UTF8);
 			if(inet_acc_id && inet_addr_list.getCount()) {
 				for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
 					temp_buf = inet_addr_list.Get(ai).Txt;
-					if(temp_buf.IsEqiAscii("@bycontext") || temp_buf == "@@")
+					if(IsByEmailAddrByContext(temp_buf))
 						use_mail_addr_by_context = 1;
 				}
 			}
@@ -4503,6 +4510,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			if(b_e.BillParam.PredefFormat) {
 				if(oneof5(b_e.BillParam.PredefFormat, PPBillImpExpParam::pfNalogR_Invoice, 
 					PPBillImpExpParam::pfNalogR_REZRUISP, PPBillImpExpParam::pfNalogR_SCHFDOPPR, PPBillImpExpParam::pfExport_Marks, PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK)) {
+					SString result_file_name_;
 					PPWait(1);
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 						const  PPID bill_id = bill_id_list.get(_idx);
@@ -4511,33 +4519,46 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 							int    r = 0;
 							THROW(b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
 							{
-								const SString result_file_name = b_e.BillParam.FileName;
+								const SString nominal_file_name = b_e.BillParam.FileName;
 								switch(b_e.BillParam.PredefFormat) {
-									case PPBillImpExpParam::pfNalogR_Invoice:  r = WriteBill_NalogRu2_Invoice(pack, result_file_name); break;
-									case PPBillImpExpParam::pfNalogR_REZRUISP: r = WriteBill_NalogRu2_DP_REZRUISP(pack, result_file_name); break;
-									case PPBillImpExpParam::pfNalogR_SCHFDOPPR: r = WriteBill_NalogRu2_UPD(pack, result_file_name); break;
-									case PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_InvoiceWithMarks(pack, result_file_name); break;
-									case PPBillImpExpParam::pfExport_Marks: r = WriteBill_ExportMarks(pack, result_file_name); break; // @erik 
+									case PPBillImpExpParam::pfNalogR_Invoice:  r = WriteBill_NalogRu2_Invoice(pack, nominal_file_name, result_file_name_); break;
+									case PPBillImpExpParam::pfNalogR_REZRUISP: r = WriteBill_NalogRu2_DP_REZRUISP(pack, nominal_file_name, result_file_name_); break;
+									case PPBillImpExpParam::pfNalogR_SCHFDOPPR: r = WriteBill_NalogRu2_UPD(pack, nominal_file_name, result_file_name_); break;
+									case PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_InvoiceWithMarks(pack, nominal_file_name, result_file_name_); break;
+									case PPBillImpExpParam::pfExport_Marks: r = WriteBill_ExportMarks(pack, nominal_file_name, result_file_name_); break; // @erik 
 								}
 								if(r > 0)
-									result_file_list.add(result_file_name);
+									result_file_list.add(result_file_name_);
 							}
 						}
 						PPWaitPercent(_idx+1, bill_id_list.getCount());
 					}
+					// @v10.9.8 {
+					if(inet_acc_id && inet_addr_list.getCount() && result_file_list.getCount()) {
+						for(uint ai = 0; ai < inet_addr_list.getCount(); ai++) {
+							(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
+							if(IsByEmailAddrByContext(temp_buf)) {
+								;
+							}
+							else
+								email_buf.CatDivIfNotEmpty(',', 0).Cat(temp_buf);
+						}
+						if(email_buf.NotEmptyS() && !PutFilesToEmail2(&result_file_list, inet_acc_id, email_buf, mail_subj, 0))
+							logger.LogLastError();
+					}
+					// } @v10.9.8 
 					PPWait(0);
 				}
 			}
 			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
 				StringSet local_result_file_list;
-				SString email_buf;
 				PPObjSecur sec_obj(PPOBJ_USR, 0);
+				email_buf.Z();
 				THROW(Helper_ExportBnkOrder(b_e.CfgNameBill, &local_result_file_list, logger));
 				if(inet_acc_id && inet_addr_list.getCount() && local_result_file_list.getCount()) {
-					temp_buf.Z();
 					for(uint ai = 0; ai < inet_addr_list.getCount(); ai++) {
 						(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
-						if(temp_buf.IsEqiAscii("@bycontext") || temp_buf == "@@") {
+						if(IsByEmailAddrByContext(temp_buf)) {
 							const PPID user_id = LConfig.UserID;
 							PPSecur sec_rec;
 							if(user_id && sec_obj.Fetch(user_id, &sec_rec) > 0 && sec_rec.PersonID) {
@@ -4742,13 +4763,13 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						if(p_item && p_item->P_ExpDll && p_item->P_ExpDll->IsInited()) {
 							b_e.BillParam.ImpExpParamDll = p_item->ParamDll;
 							if(!b_e.CheckBillsWasExported(p_item->P_ExpDll)) {
-								errmsg_[0] = 0;
+								PTR32(errmsg_)[0] = 0;
 								p_item->P_ExpDll->GetErrorMessage(errmsg_, sizeof(errmsg_));
 								PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 								logger.LogLastError();
 							}
 							else if(!p_item->P_ExpDll->FinishImpExp()) {
-								errmsg_[0] = 0;
+								PTR32(errmsg_)[0] = 0;
 								p_item->P_ExpDll->GetErrorMessage(errmsg_, sizeof(errmsg_));
 								PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 								logger.LogLastError();
@@ -4829,7 +4850,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						temp_buf.Z();
 						for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
 							temp_buf = inet_addr_list.Get(ai).Txt;
-							if(temp_buf.IsEqiAscii("@bycontext") || temp_buf == "@@")
+							if(IsByEmailAddrByContext(temp_buf))
 								temp_buf.Z();
 							else
 								break;
@@ -4845,7 +4866,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 		if(dll_pos < static_cast<int>(exp_dll_coll.getCount())) {
 			ImpExpDll * p_ied = exp_dll_coll.at(dll_pos)->P_ExpDll;
 			if(p_ied && p_ied->IsInited()) {
-				errmsg_[0] = 0;
+				PTR32(errmsg_)[0] = 0;
 				p_ied->GetErrorMessage(errmsg_, sizeof(errmsg_));
 				PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 			}
@@ -6819,9 +6840,11 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	I.DispQtty     = tiie.LctRec.Qtty;
 	I.DispRestByGoods = tiie.LctRec.RestByGoods;
 	I.DispRestByLot   = tiie.LctRec.RestByLot;
-	QttyToStr(fabs(p_ti->Qtty()),     upp, ((r_cfg.Flags & CFGFLG_USEPACKAGE) ? MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
-	QttyToStr(fabs(tiie.LctRec.Qtty), upp, ((r_cfg.Flags & CFGFLG_USEPACKAGE) ? MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CDispQtty);
-	//
+	{
+		const long qtsf = ((r_cfg.Flags & CFGFLG_USEPACKAGE) ? MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION);
+		QttyToStr(fabs(p_ti->Qtty()),     upp, qtsf, I.CQtty);
+		QttyToStr(fabs(tiie.LctRec.Qtty), upp, qtsf, I.CDispQtty);
+	}
 	return DlRtm::NextIteration(iterId);
 }
 //

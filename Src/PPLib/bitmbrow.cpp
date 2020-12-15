@@ -2578,55 +2578,190 @@ int ImportStyloScannerEntries(const char * pFileName, StyloScannerEntryPool & rR
 //
 //
 //
-int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp)
+enum {
+	issebpmodeTransferItems    = 1,
+	issebpmodeLotExtCodes      = 2,
+	issebpmodeValidLotExtCodes = 3,
+};
+
+int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeContainer * pLxc, int mode)
 {
 	int    ok = -1;
-	StyloScannerEntryPool pool;
-	SString in_path;
-	PPGetPath(PPPATH_IN, in_path);
-	if(PPOpenFile(PPTXT_FILPAT_STYLOSCANNER, in_path, 0, 0) > 0) {
-		ImportStyloScannerEntries(in_path, pool);
-	}
-	if(pool.GetCount()) {
-		SString temp_buf;
-		StringSet ss_bill_code;
-		pool.GetBillCodeList(ss_bill_code);
-		const uint ssbc_count = ss_bill_code.getCount();
-		SString selected_bill_code;
-		int   do_process = 0;
-		if(ssbc_count) {
-			// Надо выбирать какой-то один документ
-			StrAssocArray ssbc_list;
-			long   sel_id = 0;
-			{
-				long   item_id = 0;
-				for(uint ssp = 0; ss_bill_code.get(&ssp, temp_buf);) {
-					item_id++;
-					ssbc_list.Add(item_id, temp_buf, 0);
-				}
-			}
-			if(ComboBoxSelDialog2(&ssbc_list, /*PPTXT_SELECTOUTERBILLCODE*/0, PPTXT_SELECTOUTERBILLCODE, &sel_id, 0) > 0) {
-				uint pos = 0;
-				if(ssbc_list.Search(sel_id, &pos)) {
-					selected_bill_code = ssbc_list.Get(pos).Txt;
-					if(selected_bill_code.NotEmptyS())
-						do_process = 1;
-				}
-			}
+	PPObjBill * p_bobj = BillObj;
+	PPObjGoods goods_obj;
+	SString temp_buf;
+	SString msg_buf;
+	SString fmt_buf;
+	SString bill_text;
+	StringSet msg_list;
+	LotExtCodeCore * p_lotxct = p_bobj ? p_bobj->P_LotXcT : 0;
+	const int  dont_veryfy_mark = BIN(p_bobj && p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
+	if(!oneof2(mode, issebpmodeLotExtCodes, issebpmodeValidLotExtCodes) || pLxc) {
+		StyloScannerEntryPool pool;
+		SString in_path;
+		PPGetPath(PPPATH_IN, in_path);
+		if(PPOpenFile(PPTXT_FILPAT_STYLOSCANNER, in_path, 0, 0) > 0) {
+			ImportStyloScannerEntries(in_path, pool);
 		}
-		else
-			do_process = 1;
-		if(do_process) {
-			StyloScannerEntryPool::Entry entry;
-			for(uint i = 0; i < pool.GetCount(); i++) {
-				if(pool.GetEntry(i, entry)) {
-					if(selected_bill_code.Empty() || selected_bill_code == entry.DocName) {
-						
+		if(pool.GetCount()) {
+			StringSet ss_bill_code;
+			pool.GetBillCodeList(ss_bill_code);
+			const uint ssbc_count = ss_bill_code.getCount();
+			SString selected_bill_code;
+			int   do_process = 0;
+			if(ssbc_count) {
+				// Надо выбирать какой-то один документ
+				StrAssocArray ssbc_list;
+				long   sel_id = 0;
+				{
+					for(uint ssp = 0, item_id = 0; ss_bill_code.get(&ssp, temp_buf);)
+						ssbc_list.Add(++item_id, temp_buf, 0);
+				}
+				if(ComboBoxSelDialog2(&ssbc_list, /*PPTXT_SELECTOUTERBILLCODE*/0, PPTXT_SELECTOUTERBILLCODE, &sel_id, 0) > 0) {
+					uint pos = 0;
+					if(ssbc_list.Search(sel_id, &pos)) {
+						selected_bill_code = ssbc_list.Get(pos).Txt;
+						if(selected_bill_code.NotEmptyS())
+							do_process = 1;
 					}
 				}
 			}
+			else
+				do_process = 1;
+			if(do_process) {
+				PPObjBill::MakeCodeString(&rBp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+				PPLotExtCodeContainer::MarkSet set;
+				StyloScannerEntryPool::Entry entry;
+				SString mark_buf;
+				SString ean_buf;
+				for(uint i = 0; i < pool.GetCount(); i++) {
+					if(pool.GetEntry(i, entry)) {
+						if(selected_bill_code.Empty() || selected_bill_code == entry.DocName) {
+							if(mode == issebpmodeTransferItems) {
+							}
+							else if(oneof2(mode, issebpmodeLotExtCodes, issebpmodeValidLotExtCodes)) {
+								if(entry.Code.NotEmpty() && entry.Code.Len() < sizeof(static_cast<LotExtCodeTbl::Rec *>(0)->Code)) {
+									PPTransferItem * p_ti = 0; // @stub
+									const int  do_check = (dont_veryfy_mark || (rBp.IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
+									PPID  goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
+									PPID  lot_id   = (do_check && p_ti) ? p_ti->LotID : 0;
+									GtinStruc gts;
+									mark_buf.Z();
+									ean_buf.Z();
+									const int iemr = PrcssrAlcReport::IsEgaisMark(entry.Code, &mark_buf);
+									const int pczcr = PPChZnPrcssr::ParseChZnCode(entry.Code, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
+									if(iemr || pczcr) {
+										if(pczcr)
+											gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
+										if(mode == issebpmodeLotExtCodes) {
+											if(pczcr) {
+												int   found_row_idx = 0;
+												if(pLxc->Search(mark_buf, &found_row_idx, 0)) {
+													//PPTXT_STYLOSCRIMP_MARKYETINDOC      "Импорт StyloScanner: марка %s уже есть в документе %s"
+													PPLoadText(PPTXT_STYLOSCRIMP_MARKYETINDOC, fmt_buf);
+													msg_buf.Printf(fmt_buf, mark_buf.cptr(), bill_text.cptr());
+													PPLogMessage(PPFILNAM_IMPEXP_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+													msg_list.add(msg_buf);
+												}
+												else if(gts.GetToken(GtinStruc::fldGTIN14, &ean_buf) && ean_buf.NotEmptyS()) {
+													assert(ean_buf.Len() == 14);
+													if(oneof2(ean_buf.C(0), '0', '1')) // @v10.9.3 '1'
+														ean_buf.ShiftLeft(1);
+													else {
+														ean_buf.ShiftLeft(1);
+														ean_buf.TrimRight();
+														assert(ean_buf.Len() == 12);
+														int    cd = CalcBarcodeCheckDigit(ean_buf);
+														ean_buf.CatChar('0'+cd);
+													}
+													Goods2Tbl::Rec goods_rec;
+													BarcodeTbl::Rec bcr;
+													if(goods_obj.SearchByBarcode(ean_buf, &bcr, &goods_rec, 0) > 0) {													
+														bool   done = false;
+														PPID   local_goods_id = goods_rec.ID;
+														uint   gp = 0; 
+														if(rBp.SearchGoods(local_goods_id, &gp)) {
+															do {
+																PPTransferItem & r_ti = rBp.TI(gp);
+																const double local_qtty = fabs(r_ti.Quantity_);
+																PPLotExtCodeContainer::MarkSet local_set;
+																pLxc->Get(gp+1, 0, local_set);
+																uint local_set_count = local_set.GetCount();
+																if(local_set_count < static_cast<uint>(local_qtty)) {
+																	local_set.AddNum(0, mark_buf, 1);
+																	pLxc->Set_2(gp+1, &local_set);
+																	//PPTXT_STYLOSCRIMP_MARKIMPORTED "Импорт StyloScanner: Марка '%s' импортирована в строку с товаром '%s'"
+																	PPLoadText(PPTXT_STYLOSCRIMP_MARKIMPORTED, fmt_buf);
+																	msg_buf.Printf(fmt_buf, mark_buf.cptr(), ean_buf.cptr());
+																	PPLogMessage(PPFILNAM_IMPEXP_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+																	msg_list.add(msg_buf);
+																	done = true;
+																	ok = 1;
+																}
+																else {
+																	//PPTXT_STYLOSCRIMP_NOPLACEFORMARK "Импорт StyloScanner: строка с товаром '%s' не может вместить новую марку '%s'"
+																	PPLoadText(PPTXT_STYLOSCRIMP_NOPLACEFORMARK, fmt_buf);
+																	msg_buf.Printf(fmt_buf, ean_buf.cptr(), mark_buf.cptr());
+																	PPLogMessage(PPFILNAM_IMPEXP_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+																	msg_list.add(msg_buf);
+																}
+															} while(!done && rBp.SearchGoods(local_goods_id, &(++gp)));
+														}
+														else {
+															//PPTXT_STYLOSCRIMP_NOITEMFORMARK     "Импорт StyloScanner: в документе %s не найден товар с кодом %s"
+															PPLoadText(PPTXT_STYLOSCRIMP_NOITEMFORMARK, fmt_buf);
+															msg_buf.Printf(fmt_buf, bill_text.cptr(), ean_buf.cptr());
+															PPLogMessage(PPFILNAM_IMPEXP_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+															msg_list.add(msg_buf);
+														}
+													}
+												}
+											}
+										}
+										else {
+											set.AddNum(0, mark_buf, 1);
+											//PPTXT_STYLOSCRIMP_MARKVALIMPORTED   "Импорт StyloScanner: валидирующая марка '%s' импортирована в документ '%s'"
+											PPLoadText(PPTXT_STYLOSCRIMP_MARKVALIMPORTED, fmt_buf);
+											msg_buf.Printf(fmt_buf, mark_buf.cptr(), bill_text.cptr());
+											PPLogMessage(PPFILNAM_IMPEXP_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+											msg_list.add(msg_buf);
+											ok = 1;
+										}
+									}
+									else {
+										//PPTXT_STYLOSCRIMP_MARKISNTEGAISCHZN "Импорт StyloScanner: код %s не является маркой ЕГАИС или 'честный знак'"
+										PPLoadText(PPTXT_STYLOSCRIMP_MARKISNTEGAISCHZN, fmt_buf);
+										msg_buf.Printf(fmt_buf, mark_buf.cptr());
+										PPLogMessage(PPFILNAM_IMPEXP_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+										msg_list.add(msg_buf);
+									}
+								}
+							}
+						}
+					}
+				}
+				if(mode == issebpmodeValidLotExtCodes) {
+					assert(pLxc);
+					if(set.GetCount()) {
+						pLxc->AddValidation(set);
+						ok = 1;
+					}
+				}
+				else if(mode == issebpmodeLotExtCodes) {
+					assert(pLxc);
+				}
+			}
 		}
 	}
+	/* if(msg_list.getCount()) {
+		msg_buf.Z();
+		for(uint ssp = 0; msg_list.get(&ssp, temp_buf);) {
+			msg_buf.Cat(temp_buf).CR();
+		}
+		PPTooltipMessage(msg_buf, 0, 0, 20000, GetColorRef(SClrLightgreen),
+			SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fChildWindow|
+			SMessageWindow::fTextAlignLeft);
+	}*/
 	return ok;
 }
 //
@@ -2652,20 +2787,15 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
-	//virtual int pasteFromClipboardAll() { return -1; } // @erik v10.5.2
-	int pasteFromClipboardAll(int validation) // @erik v10.8.0
+	int PasteFromClipboardAll(int validation) // @erik v10.8.0
 	{
-		PPObjBill * p_bobj = BillObj;
 		int    ok = -1;
 		uint   sel = 0;
 		SString temp_buf;
 		StringSet ss;
 		PPLotExtCodeContainer::MarkSet set;
-		LotExtCodeTbl::Rec rec;
-		rec.BillID = P_Pack->Rec.ID;
-		rec.RByBill = RowIdx;
-		const int dont_veryfy_mark = BIN(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
-		const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= static_cast<int>(P_Pack->GetTCount())) ? &P_Pack->ConstTI(RowIdx - 1) : 0;
+		const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= static_cast<int>(P_Pack->GetTCount())) ? &P_Pack->ConstTI(RowIdx-1) : 0;
+		const int  dont_veryfy_mark = BIN(BillObj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
 		const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
 		const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
 		const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
@@ -2675,13 +2805,7 @@ public:
 		if(temp_buf.Tokenize("\xD\xA", ss)) {
 			temp_buf.Z();
 			for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
-				if(!temp_buf.NotEmptyS()) {
-					continue;
-				}
-				else if(temp_buf.Len() >= sizeof(rec.Code)) {
-					continue;
-				}
-				else {
+				if(temp_buf.NotEmptyS() && temp_buf.Len() < sizeof(static_cast<LotExtCodeTbl::Rec *>(0)->Code)) {
 					SString mark_buf;
 					GtinStruc gts;
 					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
@@ -2702,10 +2826,8 @@ public:
 					}
 					else {
 						if(do_check && P_LotXcT) {
-							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) {
-								STRNSCPY(rec.Code, mark_buf);
+							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0)
 								ok = 1;
-							}
 							else
 								continue;
 						}
@@ -2718,20 +2840,17 @@ public:
 							}
 							else
 								set.AddNum(0, mark_buf, 1);
-							STRNSCPY(rec.Code, mark_buf);
 							ok = 1;
 						}
 					}
 				}
 				if(validation > 0) {
-					if(Data.AddValidation(set)) {
+					if(Data.AddValidation(set))
 						ok++;
-					}
 				}
 				else {
-					if(Data.Add(RowIdx, set)) {
+					if(Data.Add(RowIdx, set))
 						ok++;
-					}
 				}
 			}
 		}
@@ -2742,12 +2861,7 @@ protected:
 	DECL_HANDLE_EVENT
 	{
 		PPListDialog::handleEvent(event);
-		if(event.isCmd(cmImport)) { // @v10.9.8
-			if(P_Pack) {
-				ImportStyloScannerEntriesForBillPacket(*P_Pack);
-			}
-		}
-		else if(event.isCmd(cmCopyToClipboard)) {
+		if(event.isCmd(cmCopyToClipboard)) {
 			long  cur_pos = 0;
 			long  cur_id = 0;
 			SString text_buf;
@@ -2805,7 +2919,7 @@ protected:
 		}
 		//@erik v10.8.2 {
 		//else if(event.isCmd(cmPasteFromClipboardAll)){
-		//	pasteFromClipboardAll();
+		//	PasteFromClipboardAll();
 		//}
 		//// } @erik
 		else
@@ -2848,7 +2962,7 @@ protected:
 
 class ValidateLotXCodeListDialog : public LotXCodeListDialog_Base {
 public:
-	ValidateLotXCodeListDialog(/*const*/PPBillPacket * pPack) : LotXCodeListDialog_Base(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, pPack, -1, fOmitSearchByFirstChar|fOwnerDraw),
+	ValidateLotXCodeListDialog(PPBillPacket * pPack) : LotXCodeListDialog_Base(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, pPack, -1, fOmitSearchByFirstChar|fOwnerDraw),
 		FontId(0), CStyleId(0), ViewFlags(0)
 	{
 		// @v10.8.1 {
@@ -2884,6 +2998,13 @@ private:
 			GetClusterData(CTL_LOTXCCKLIST_FLAGS, &ViewFlags);
 			if(ViewFlags != preserve_view_flags) {
 				updateList(-1);
+			}
+		}
+		else if(event.isCmd(cmImport)) { // @v10.9.8
+			if(P_Pack) {
+				if(ImportStyloScannerEntriesForBillPacket(*P_Pack, &Data, issebpmodeValidLotExtCodes) > 0) {
+					updateList(-1);
+				}
 			}
 		}
 		else if(event.isCmd(cmDrawItem)) {
@@ -2972,12 +3093,9 @@ private:
 					p_draw_item->ItemAction = 0; // Список не активен - строку не рисуем
 			}
 		}
-		// @erik v10.8.2 {
-		else if(event.isCmd(cmPasteFromClipboardAll)) {
-			int validation = 1;
-			pasteFromClipboardAll(validation);
+		else if(event.isCmd(cmPasteFromClipboardAll)) { // @erik v10.8.2 
+			PasteFromClipboardAll(/*validation*/1);
 		}
-		// } @erik
 		else
 			return;
 		clearEvent(event);
@@ -3183,15 +3301,19 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 				}
 			}
 			LotXCodeListDialog_Base::handleEvent(event);
-			// @erik v10.8.2 {
-			if(event.isCmd(cmPasteFromClipboardAll)) {
-				int validation = 0;
-				pasteFromClipboardAll(validation);
+			if(event.isCmd(cmImport)) { // @v10.9.8
+				if(P_Pack) {
+					if(ImportStyloScannerEntriesForBillPacket(*P_Pack, &Data, issebpmodeLotExtCodes) > 0) {
+						updateList(-1);
+					}
+				}
+			}
+			else if(event.isCmd(cmPasteFromClipboardAll)) { // @erik v10.8.2 
+				PasteFromClipboardAll(/*validation*/0);
 			}
 			else
 				return;
 			clearEvent(event);
-			// } @erik
 		}
 		virtual int setupList()
 		{

@@ -42,43 +42,19 @@
 
 /** @name Local static functions */
 /*@{*/
-
-/**
-   Write a bit
-   @param bio BIO handle
-   @param b Bit to write (0 or 1)
- */
-static void opj_bio_putbit(opj_bio_t * bio, OPJ_UINT32 b);
-/**
-   Read a bit
-   @param bio BIO handle
-   @return Returns the read bit
- */
-static OPJ_UINT32 opj_bio_getbit(opj_bio_t * bio);
-/**
-   Write a byte
-   @param bio BIO handle
-   @return Returns OPJ_TRUE if successful, returns OPJ_FALSE otherwise
- */
-static OPJ_BOOL opj_bio_byteout(opj_bio_t * bio);
-/**
-   Read a byte
-   @param bio BIO handle
-   @return Returns OPJ_TRUE if successful, returns OPJ_FALSE otherwise
- */
-static OPJ_BOOL opj_bio_bytein(opj_bio_t * bio);
-
 /*@}*/
-
 /*@}*/
-
 /*
    ==========================================================
    local functions
    ==========================================================
  */
-
-static OPJ_BOOL opj_bio_byteout(opj_bio_t * bio)
+/**
+   Write a byte
+   @param bio BIO handle
+   @return Returns OPJ_TRUE if successful, returns OPJ_FALSE otherwise
+ */
+static OPJ_BOOL FASTCALL opj_bio_byteout(opj_bio_t * bio)
 {
 	bio->buf = (bio->buf << 8) & 0xffff;
 	bio->ct = bio->buf == 0xff00 ? 7 : 8;
@@ -88,8 +64,12 @@ static OPJ_BOOL opj_bio_byteout(opj_bio_t * bio)
 	*bio->bp++ = (OPJ_BYTE)(bio->buf >> 8);
 	return OPJ_TRUE;
 }
-
-static OPJ_BOOL opj_bio_bytein(opj_bio_t * bio)
+/**
+   Read a byte
+   @param bio BIO handle
+   @return Returns OPJ_TRUE if successful, returns OPJ_FALSE otherwise
+ */
+static OPJ_BOOL FASTCALL opj_bio_bytein(opj_bio_t * bio)
 {
 	bio->buf = (bio->buf << 8) & 0xffff;
 	bio->ct = bio->buf == 0xff00 ? 7 : 8;
@@ -99,27 +79,32 @@ static OPJ_BOOL opj_bio_bytein(opj_bio_t * bio)
 	bio->buf |= *bio->bp++;
 	return OPJ_TRUE;
 }
-
-static void opj_bio_putbit(opj_bio_t * bio, OPJ_UINT32 b)
+/**
+   Write a bit
+   @param bio BIO handle
+   @param b Bit to write (0 or 1)
+ */
+static void FASTCALL opj_bio_putbit(opj_bio_t * bio, OPJ_UINT32 b)
 {
 	if(bio->ct == 0) {
-		opj_bio_byteout(
-			bio); /* MSD: why not check the return value of this function ? */
+		opj_bio_byteout(bio); /* MSD: why not check the return value of this function ? */
 	}
 	bio->ct--;
 	bio->buf |= b << bio->ct;
 }
-
-static OPJ_UINT32 opj_bio_getbit(opj_bio_t * bio)
+/**
+   Read a bit
+   @param bio BIO handle
+   @return Returns the read bit
+ */
+static OPJ_UINT32 FASTCALL opj_bio_getbit(opj_bio_t * bio)
 {
 	if(bio->ct == 0) {
-		opj_bio_bytein(
-			bio); /* MSD: why not check the return value of this function ? */
+		opj_bio_bytein(bio); /* MSD: why not check the return value of this function ? */
 	}
 	bio->ct--;
 	return (bio->buf >> bio->ct) & 1;
 }
-
 /*
    ==========================================================
    Bit Input/Output interface
@@ -162,21 +147,19 @@ void opj_bio_init_dec(opj_bio_t * bio, OPJ_BYTE * bp, OPJ_UINT32 len)
 	bio->ct = 0;
 }
 
-void opj_bio_write(opj_bio_t * bio, OPJ_UINT32 v, OPJ_UINT32 n)
+void FASTCALL opj_bio_write(opj_bio_t * bio, OPJ_UINT32 v, OPJ_UINT32 n)
 {
 	OPJ_INT32 i;
-
 	assert((n > 0U) && (n <= 32U));
 	for(i = (OPJ_INT32)n - 1; i >= 0; i--) {
 		opj_bio_putbit(bio, (v >> i) & 1);
 	}
 }
 
-OPJ_UINT32 opj_bio_read(opj_bio_t * bio, OPJ_UINT32 n)
+OPJ_UINT32 FASTCALL opj_bio_read(opj_bio_t * bio, OPJ_UINT32 n)
 {
 	OPJ_INT32 i;
 	OPJ_UINT32 v;
-
 	assert((n > 0U) /* && (n <= 32U)*/);
 #ifdef OPJ_UBSAN_BUILD
 	/* This assert fails for some corrupted images which are gracefully rejected */
@@ -186,8 +169,7 @@ OPJ_UINT32 opj_bio_read(opj_bio_t * bio, OPJ_UINT32 n)
 #endif
 	v = 0U;
 	for(i = (OPJ_INT32)n - 1; i >= 0; i--) {
-		v |= opj_bio_getbit(bio) <<
-			i; /* can't overflow, opj_bio_getbit returns 0 or 1 */
+		v |= opj_bio_getbit(bio) << i; /* can't overflow, opj_bio_getbit returns 0 or 1 */
 	}
 	return v;
 }

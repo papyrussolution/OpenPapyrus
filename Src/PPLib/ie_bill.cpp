@@ -4659,7 +4659,7 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 				edi_op = PPEDIOP_RECADV;
 			else if(edi_op_symb.IsEqiAscii("ORDER"))
 				edi_op = PPEDIOP_ORDER;
-			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, temp_buf.Z());
+			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, temp_buf);
             pPack->Rec.EdiOp = edi_op;
 			THROW(BillRecToBill(pPack, &bill));
 			THROW_PP_S(edi_op != PPEDIOP_RECADV || bill.DesadvBillNo[0], PPERR_EDI_SPRRECADVWOTTN, temp_buf);
@@ -5972,9 +5972,10 @@ int DocNalogRu_Generator::GetAgreementParams(PPID arID, SString & rAgtCode, LDAT
 }
 
 //DP_REZRUISP_1_990_01_05_01_01.xsd
-int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFileName)
+int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
 {
 	int    ok = 1;
+	rResultFileName.Z(); // @v10.9.8
 	DocNalogRu_Generator g;
 	{
 		PPObjAccSheet acs_obj;
@@ -6163,14 +6164,16 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 			g.Underwriter(0);
 		}
 		g.EndDoc();
+		rResultFileName = _hi.FileName; // @v10.9.8
 	}
 	CATCHZOK
 	return ok;
 }
 
-int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString & rFileName)
+int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
 {
 	int    ok = 1;
+	rResultFileName.Z(); // @v10.9.8
 	DocNalogRu_Generator g;
 	{
 		PPObjAccSheet acs_obj;
@@ -6309,14 +6312,16 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 			g.Underwriter(0);
 		}
 		g.EndDoc();
+		rResultFileName = _hi.FileName; // @v10.9.8
 	}
 	CATCHZOK
 	return ok;
 }
 
-int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileName)
+int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
 {
 	int    ok = 1;
+	rResultFileName.Z();
 	DocNalogRu_Generator g;
 	{
 		PPObjAccSheet acs_obj;
@@ -6406,6 +6411,7 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 			g.Underwriter(0);
 		}
 		g.EndDoc();
+		rResultFileName = _hi.FileName; // @v10.9.8
 	}
 	CATCHZOK
 	return ok;
@@ -6414,9 +6420,10 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 //           Универсальный передаточный документ КНД=1115125 scheme=ON_SCHFDOPPR_1_995_01_05_01_02.xsd
 // @v10.6.10 Универсальный передаточный документ КНД=1115131 scheme=ON_NSCHFDOPR_1_995_01_05_01_02.xsd
 //
-int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
+int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
 {
 	int    ok = 1;
+	rResultFileName.Z();
 	DocNalogRu_Generator g;
 	{
 		PPObjAccSheet acs_obj;
@@ -6604,14 +6611,16 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 			g.Underwriter(0);
 		}
 		g.EndDoc();
+		rResultFileName = _hi.FileName; // @v10.9.8
 	}
 	CATCHZOK
 	return ok;
 }
 
-int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName)
+int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
 {
 	int    ok = 1;
+	rResultFileName.Z(); // @v10.9.8
 	SString file_name;
 	SString temp_buf;
 	SString output;
@@ -6665,5 +6674,6 @@ int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName)
 		if(f_out.IsValid())
 			f_out.WriteLine(output);
 	}
+	rResultFileName = rFileName; // @v10.9.8
 	return ok;
 }

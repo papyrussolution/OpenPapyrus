@@ -369,30 +369,28 @@ int TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * pCodeLi
 	int    ok = -1;
 	size_t len = sstrlen(pCodeLine);
 	BarcodeTbl::Rec bc_rec;
-	// @v10.6.4 MEMSZERO(bc_rec);
+	SString code_buf;
 	if(len) {
-		SString mark_buf;
-		if(PrcssrAlcReport::IsEgaisMark(pCodeLine, &mark_buf)) {
+		if(PrcssrAlcReport::IsEgaisMark(pCodeLine, &code_buf)) {
 			PrcssrAlcReport::EgaisMarkBlock emb;
-			if(PrcssrAlcReport::ParseEgaisMark(mark_buf, emb)) {
+			if(PrcssrAlcReport::ParseEgaisMark(code_buf, emb)) {
 				if(pGoodsTbl->SearchByBarcode(emb.EgaisCode, &bc_rec, 0) > 0)
 					ok = 1;
 			}
 		}
 		else {
-			SString  code;
 			for(uint i = 0; ok < 0 && i < getCount(); i++) {
 				const TwoDimBarcodeFormatEntry & tbf_entry = at(i);
-				size_t descr_len = sstrlen(tbf_entry.FmtDescr);
+				const size_t descr_len = sstrlen(tbf_entry.FmtDescr);
 				if(len >= (size_t)tbf_entry.MinBarcodeLen && strnicmp(pCodeLine + tbf_entry.FmtDescrOffset, tbf_entry.FmtDescr, descr_len) == 0) {
-					(code = (pCodeLine + tbf_entry.BarcodeOffset)).Trim(tbf_entry.BarcodeLen);
+					(code_buf = (pCodeLine + tbf_entry.BarcodeOffset)).Trim(tbf_entry.BarcodeLen);
 					//
 					// @note: В версии 6.1.0 вызов PPObjGoods::SearchByBarcode с признаком adoptSearching
 					// заменен на вызов GoodsCore::SearchByBarcode (то есть адаптивный поиск теперь отключен).
 					// По логике здесь адаптивный поиск и не требуется. Тем не менее, следует иметь
 					// в виду указанное изменение при разборе вероятных проблем с поиском по двухмерному коду.
 					//
-					if(pGoodsTbl->SearchByBarcode(code, &bc_rec, 0) > 0)
+					if(pGoodsTbl->SearchByBarcode(code_buf, &bc_rec, 0) > 0)
 						ok = 1;
 				}
 			}

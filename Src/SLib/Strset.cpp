@@ -10,9 +10,8 @@ size_t FASTCALL SnapUpSize(size_t i); // @prototype
 int FASTCALL StringSet::Alloc(size_t sz)
 {
 	int    ok = 1;
-	if(sz == 0) {
+	if(sz == 0)
 		clear();
-	}
 	else if(sz > Size) {
 		size_t new_size = SnapUpSize(sz);
 		char * p = 0;
@@ -104,7 +103,7 @@ int FASTCALL StringSet::copy(const StringSet & rS)
 
 int FASTCALL StringSet::Write(SBuffer & rBuf) const
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5 SLS.AcquireRvlStr()
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	r_temp_buf = Delim;
 	const  uint32 data_len = DataLen; // sizeof(data_len) == 4
 	rBuf.Write(r_temp_buf);
@@ -116,7 +115,7 @@ int FASTCALL StringSet::Write(SBuffer & rBuf) const
 int FASTCALL StringSet::Read(SBuffer & rBuf)
 {
 	int    ok = 1;
-	SString & r_delim = SLS.AcquireRvlStr(); // @v9.9.5 SLS.AcquireRvlStr()
+	SString & r_delim = SLS.AcquireRvlStr();
 	uint32 data_len = 0;
 	rBuf.Read(r_delim);
 	rBuf.Read(&data_len, sizeof(data_len));
@@ -324,7 +323,7 @@ uint StringSet::getDelimLen() const
 int FASTCALL StringSet::add(const StringSet & rS)
 {
 	int    ok = 1;
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	for(uint ssp = 0; rS.get(&ssp, r_temp_buf);) {
 		THROW(add(r_temp_buf));
 	}
@@ -656,7 +655,7 @@ int SStrGroup::Pack_Replace(void * pHandle, uint & rPos) const
 	uint   new_pos = 0; // @v10.5.7 =rPos --> =0
 	StringSet * p_handle = static_cast<StringSet *>(pHandle);
 	if(p_handle) {
-		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		Pool.getnz(rPos, r_temp_buf);
 		if(r_temp_buf.NotEmpty())
 			p_handle->add(r_temp_buf, &new_pos);

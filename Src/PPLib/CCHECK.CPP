@@ -1780,7 +1780,7 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 	SString fmt_buf, chk_text, msg_buf;
 	if(LoadPacket(id, 0, &cc_pack) > 0) {
 		double amt = 0.0, dscnt = 0.0;
-		CCheckCore::MakeCodeString(&cc_pack.Rec, chk_text.Z());
+		CCheckCore::MakeCodeString(&cc_pack.Rec, chk_text);
 		cc_pack.CalcAmount(&amt, &dscnt);
 		const double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
 		const double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);

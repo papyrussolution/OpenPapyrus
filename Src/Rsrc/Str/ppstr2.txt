@@ -4712,6 +4712,12 @@ PPTXT_LOG_VK_NOTOKENINGUA           "Неопределен access_token в гл
 PPTXT_LOG_VK_NOGUA                  "Неопределена глобальная учетная запись для сервиса VK"
 PPTXT_LOG_TRYTOCONVERTJOBPOOL       "xml-файл пула задач '%s' не найден - попытка найти и сконвертировать пул в старом формате '%s'"
 PPTXT_SELECTOUTERBILLCODE           "Выберите один документ из импортируемого файла по номеру"
+PPTXT_STYLOSCRIMP_MARKYETINDOC      "Импорт StyloScanner: марка '%s' уже есть в документе '%s'"
+PPTXT_STYLOSCRIMP_NOPLACEFORMARK    "Импорт StyloScanner: строка с товаром '%s' не может вместить новую марку '%s'"
+PPTXT_STYLOSCRIMP_NOITEMFORMARK     "Импорт StyloScanner: в документе '%s' не найден товар с кодом '%s'"
+PPTXT_STYLOSCRIMP_MARKISNTEGAISCHZN "Импорт StyloScanner: код '%s' не является маркой ЕГАИС или 'честный знак'"
+PPTXT_STYLOSCRIMP_MARKIMPORTED      "Импорт StyloScanner: марка '%s' импортирована в строку с товаром '%s'"
+PPTXT_STYLOSCRIMP_MARKVALIMPORTED   "Импорт StyloScanner: валидирующая марка '%s' импортирована в документ '%s'"
 //
 // LastText
 

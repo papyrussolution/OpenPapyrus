@@ -2611,6 +2611,12 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										pack.Stock.GseFlags |= GoodsStockExt::fMultMinShipm;
 									do_update = 1;
 								}
+								// @v10.9.8 {
+								if(pack2.ExtString != pack.ExtString) { 
+									pack.ExtString = pack2.ExtString;
+									do_update = 1;
+								}
+								// } @v10.9.8 
 								if(tag_list.GetCount()) {
 									pack.TagL.Merge(tag_list, ObjTagList::mumUpdate|ObjTagList::mumAdd);
 									do_update = 1;

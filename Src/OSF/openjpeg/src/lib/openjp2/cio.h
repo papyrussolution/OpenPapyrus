@@ -285,7 +285,7 @@ OPJ_OFF_T opj_stream_skip(opj_stream_private_t * p_stream, OPJ_OFF_T p_size, str
  *
  * @return      the current position o fthe stream.
  */
-OPJ_OFF_T opj_stream_tell(const opj_stream_private_t * p_stream);
+OPJ_OFF_T FASTCALL opj_stream_tell(const opj_stream_private_t * p_stream);
 /**
  * Get the number of bytes left before the end of the stream (similar to cio_numbytesleft).
  *
@@ -293,7 +293,7 @@ OPJ_OFF_T opj_stream_tell(const opj_stream_private_t * p_stream);
  *
  * @return      Number of bytes left before the end of the stream.
  */
-OPJ_OFF_T opj_stream_get_number_byte_left(const opj_stream_private_t * p_stream);
+OPJ_OFF_T FASTCALL opj_stream_get_number_byte_left(const opj_stream_private_t * p_stream);
 /**
  * Skips a number of bytes from the stream.
  * @param       p_stream    the stream to skip data from.

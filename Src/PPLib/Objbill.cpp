@@ -8977,7 +8977,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 										sym = st.Translate(p, &next);
 									}
 									else {
-										PPObjCSession::MakeCodeString(&csess_rec, subst_buf.Z());
+										PPObjCSession::MakeCodeString(&csess_rec, subst_buf);
 										rResult.Cat(subst_buf);
 										sym = 0;
 									}

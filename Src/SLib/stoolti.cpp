@@ -193,8 +193,14 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 {
 	int    ok = 0;
 	int    font_init = 0;
-	HWND   hwnd_parent = NZOR(parent, APPL->H_MainWnd);
 	HWND   h_focus = ::GetFocus();
+	HWND   hwnd_parent = NZOR(parent, APPL->H_MainWnd);
+	/* @construction if(parent)
+		hwnd_parent = parent;
+	else if(APPL->H_TopOfStack)
+		hwnd_parent = APPL->H_TopOfStack;
+	else
+		hwnd_parent = APPL->H_MainWnd; */
 	Destroy();
 	Color   = color;
 	Flags   = flags;
@@ -297,7 +303,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 		Move();
 		::ShowWindow(HWnd, SW_SHOWNORMAL);
 		::UpdateWindow(HWnd);
-		::SetTimer(HWnd, MSGWND_CLOSETIMER,  ((timer > 0) ? timer : 60000), static_cast<TIMERPROC>(0));
+		::SetTimer(HWnd, MSGWND_CLOSETIMER, ((timer > 0) ? timer : 60000), static_cast<TIMERPROC>(0));
 		// SetCapture(HWnd);
 		ok = 1;
 	}
