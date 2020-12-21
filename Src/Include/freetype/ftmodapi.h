@@ -225,7 +225,7 @@ typedef struct  FT_Module_Class_ {
 	FT_Fixed module_version;
 	FT_Fixed module_requires;
 
-	const void*            module_interface;
+	const void * module_interface;
 
 	FT_Module_Constructor module_init;
 	FT_Module_Destructor module_done;
@@ -434,7 +434,7 @@ FT_EXPORT(FT_Error)
 FT_Property_Get(FT_Library library,
     const FT_String*  module_name,
     const FT_String*  property_name,
-    void*             value);
+    void *  value);
 
 /**************************************************************************
  *

@@ -413,7 +413,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 			if(sc_obj.Search(pData->SCardID, &scard_rec) > 0)
 				STRNSCPY(scard_no, scard_rec.Code);
 			else
-				scard_no[0] = 0;
+				PTR32(scard_no)[0] = 0;
 			dlg->setCtrlData(CTL_BILLEXT_SCARDN, scard_no);
 			dlg->disableCtrl(CTL_BILLEXT_SCARDN, !sc_obj.CheckRights(SCRDRT_BINDING));
 		}
@@ -597,6 +597,7 @@ private:
 	int    editPaymOrder(int forceUpdateRcvr);
 	int    EditFreight();
 	int    calcAmounts(double * _amt);
+	void   SetupInfoText(); // @v10.9.9 CTL_BILL_ST_SCARD
 	void   setupDebtText();
 	void   setupByCntragnt();
 	void   ReplyCntragntSelection(int force);
@@ -2145,6 +2146,31 @@ void BillDialog::setupDebtText()
 			if(limit > 0.0)
 				text.CatDiv(';', 2).CatEq("Limit", limit, SFMT_MONEY);
 		}
+		// @v10.9.9 {
+		{
+			const PPID ar_id = P_Pack->Rec.Object;
+			if(ar_id) {
+				PPID psn_id = ObjectToPerson(ar_id, 0);
+				if(psn_id) {
+					PPELinkArray elink_ary;
+					PPObjPerson psn_obj;
+					if(psn_obj.P_Tbl->GetELinks(psn_id, &elink_ary)) {
+						const int buf_len = 128;
+						SString phone_list, fax_list;
+						elink_ary.GetPhones(2, phone_list, ELNKRT_PHONE);
+						elink_ary.GetPhones(1, fax_list, ELNKRT_FAX);
+						if(fax_list.Len() && (phone_list.Len() + fax_list.Len() + 6) < buf_len)
+							phone_list.CatDiv(';', 2).Cat("fax").Space().Cat(fax_list);
+						if(phone_list.NotEmpty()) {
+							if(text.NotEmpty())
+								text.CatDiv(';', 2);
+							text.Cat(phone_list);
+						}
+					}				
+				}
+			}
+		}
+		// } @v10.9.9 
 		setStaticText(CTL_BILL_ST_DEBT, text);
 	}
 }
@@ -2338,8 +2364,10 @@ void BillDialog::ReplyCntragntSelection(int force)
 			P_Pack->Rec.Object = 0;
 		PPError();
 	}
-	if(P_Pack->Rec.Object != client_id)
+	if(P_Pack->Rec.Object != client_id) {
 		setCtrlLong(CTLSEL_BILL_OBJECT, P_Pack->Rec.Object);
+		SetupInfoText(); // @v10.9.9
+	}
 	setupParentOfContragent();
 	setupDebtText();
 	SetupAgreementButton();
@@ -2431,6 +2459,29 @@ void BillDialog::SetupPaymDateCtrls()
 			enableCommand(cmBillPayPlan, 0);
 		}
 	}
+}
+
+void BillDialog::SetupInfoText()
+{
+	SString info_buf;
+	if(P_Pack->Rec.SCardID) {
+		PPObjSCard sc_obj;
+		SCardTbl::Rec sc_rec;
+		if(sc_obj.Fetch(P_Pack->Rec.SCardID, &sc_rec) > 0) { // @v10.9.9 Search-->Fetch
+			SString temp_buf;
+			if(sc_obj.IsCreditCard(sc_rec.ID) > 0) {
+				double rest = 0.0;
+				sc_obj.P_Tbl->GetRest(sc_rec.ID, P_Pack->Rec.Dt, &rest);
+				info_buf.Cat(PPLoadStringS("crdcard", temp_buf)).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
+				info_buf.Cat(PPLoadStringS("rest", temp_buf)).CatDiv('=', 1).Cat(rest);
+			}
+			else {
+				info_buf.Cat(PPLoadStringS("discard", temp_buf)).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
+				info_buf.Cat(PPLoadStringS("discount", temp_buf)).CatDiv('=', 1).Cat(fdiv100i(sc_rec.PDis)).CatChar('%');
+			}
+		}
+	}
+	setStaticText(CTL_BILL_ST_SCARD, info_buf);
 }
 
 int BillDialog::setDTS(PPBillPacket * pPack)
@@ -2529,24 +2580,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	showCtrl(CTL_BILL_OBJ2NAME, !dsbl_object2);
 	showCtrl(CTL_BILL_DUEDATE,  !oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
 	ShowCalCtrl(CTLCAL_BILL_DUEDATE, this, !oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
-	if(P_Pack->Rec.SCardID) {
-		PPObjSCard sc_obj;
-		SCardTbl::Rec sc_rec;
-		if(sc_obj.Search(P_Pack->Rec.SCardID, &sc_rec) > 0) {
-			SString info_buf;
-			if(sc_obj.IsCreditCard(sc_rec.ID) > 0) {
-				double rest = 0.0;
-				sc_obj.P_Tbl->GetRest(sc_rec.ID, P_Pack->Rec.Dt, &rest);
-				info_buf.Cat(PPLoadStringS("crdcard", temp_buf)).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
-				info_buf.Cat(PPLoadStringS("rest", temp_buf)).CatDiv('=', 1).Cat(rest);
-			}
-			else {
-				info_buf.Cat(PPLoadStringS("discard", temp_buf)).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
-				info_buf.Cat(PPLoadStringS("discount", temp_buf)).CatDiv('=', 1).Cat(fdiv100i(sc_rec.PDis)).CatChar('%');
-			}
-			setStaticText(CTL_BILL_ST_SCARD, info_buf);
-		}
-	}
+	SetupInfoText();
 	{
 		int r = setupDebt();
 		THROW(r);

@@ -526,20 +526,20 @@ int ENGINE_get_flags(const ENGINE *e);
  * already in use). This will fail if the engine is not currently operational
  * and cannot initialise.
  */
-int ENGINE_init(ENGINE *e);
+int FASTCALL ENGINE_init(ENGINE *e);
 /*
  * Free a functional reference to a engine type. This does not require a
  * corresponding call to ENGINE_free as it also releases a structural
  * reference.
  */
-int ENGINE_finish(ENGINE *e);
+int FASTCALL ENGINE_finish(ENGINE *e);
 /*
  * The following functions handle keys that are stored in some secondary
  * location, handled by the engine.  The storage may be on a card or
  * whatever.
  */
-EVP_PKEY *ENGINE_load_private_key(ENGINE *e, const char *key_id, UI_METHOD *ui_method, void *callback_data);
-EVP_PKEY *ENGINE_load_public_key(ENGINE *e, const char *key_id, UI_METHOD *ui_method, void *callback_data);
+EVP_PKEY * ENGINE_load_private_key(ENGINE *e, const char *key_id, UI_METHOD *ui_method, void *callback_data);
+EVP_PKEY * ENGINE_load_public_key(ENGINE *e, const char *key_id, UI_METHOD *ui_method, void *callback_data);
 int ENGINE_load_ssl_client_cert(ENGINE *e, SSL *s, STACK_OF(X509_NAME) *ca_dn, X509 **pcert, EVP_PKEY **ppkey, STACK_OF(X509) **pother, UI_METHOD *ui_method, void *callback_data);
 /*
  * This returns a pointer for the current ENGINE structure that is (by
@@ -547,20 +547,20 @@ int ENGINE_load_ssl_client_cert(ENGINE *e, SSL *s, STACK_OF(X509_NAME) *ca_dn, X
  * incremented reference, so it should be free'd (ENGINE_finish) before it is
  * discarded.
  */
-ENGINE *ENGINE_get_default_RSA(void);
+ENGINE * ENGINE_get_default_RSA(void);
 /* Same for the other "methods" */
-ENGINE *ENGINE_get_default_DSA(void);
-ENGINE *ENGINE_get_default_EC(void);
-ENGINE *ENGINE_get_default_DH(void);
-ENGINE *ENGINE_get_default_RAND(void);
+ENGINE * ENGINE_get_default_DSA(void);
+ENGINE * ENGINE_get_default_EC(void);
+ENGINE * ENGINE_get_default_DH(void);
+ENGINE * ENGINE_get_default_RAND(void);
 /*
  * These functions can be used to get a functional reference to perform
  * ciphering or digesting corresponding to "nid".
  */
-ENGINE *ENGINE_get_cipher_engine(int nid);
-ENGINE *ENGINE_get_digest_engine(int nid);
-ENGINE *ENGINE_get_pkey_meth_engine(int nid);
-ENGINE *ENGINE_get_pkey_asn1_meth_engine(int nid);
+ENGINE * ENGINE_get_cipher_engine(int nid);
+ENGINE * ENGINE_get_digest_engine(int nid);
+ENGINE * ENGINE_get_pkey_meth_engine(int nid);
+ENGINE * ENGINE_get_pkey_asn1_meth_engine(int nid);
 
 /*
  * This sets a new default ENGINE structure for performing RSA operations. If

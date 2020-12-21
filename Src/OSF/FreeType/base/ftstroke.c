@@ -276,39 +276,29 @@ typedef struct  FT_StrokeBorderRec_ {
 	FT_Bool valid;
 } FT_StrokeBorderRec, * FT_StrokeBorder;
 
-static FT_Error ft_stroke_border_grow(FT_StrokeBorder border,
-    FT_UInt new_points)
+static FT_Error FASTCALL ft_stroke_border_grow(FT_StrokeBorder border, FT_UInt new_points)
 {
 	FT_UInt old_max = border->max_points;
 	FT_UInt new_max = border->num_points + new_points;
 	FT_Error error   = FT_Err_Ok;
-
 	if(new_max > old_max) {
 		FT_UInt cur_max = old_max;
 		FT_Memory memory  = border->memory;
-
 		while(cur_max < new_max)
 			cur_max += ( cur_max >> 1 ) + 16;
-
-		if(FT_RENEW_ARRAY(border->points, old_max, cur_max) ||
-		    FT_RENEW_ARRAY(border->tags,   old_max, cur_max) )
+		if(FT_RENEW_ARRAY(border->points, old_max, cur_max) || FT_RENEW_ARRAY(border->tags,   old_max, cur_max) )
 			goto Exit;
-
 		border->max_points = cur_max;
 	}
-
 Exit:
 	return error;
 }
 
-static void ft_stroke_border_close(FT_StrokeBorder border,
-    FT_Bool reverse)
+static void ft_stroke_border_close(FT_StrokeBorder border, FT_Bool reverse)
 {
 	FT_UInt start = (FT_UInt)border->start;
 	FT_UInt count = border->num_points;
-
 	FT_ASSERT(border->start >= 0);
-
 	/* don't record empty paths! */
 	if(count <= start + 1U)
 		border->num_points = start;
@@ -318,53 +308,39 @@ static void ft_stroke_border_close(FT_StrokeBorder border,
 		border->num_points    = --count;
 		border->points[start] = border->points[count];
 		border->tags[start]   = border->tags[count];
-
 		if(reverse) {
 			/* reverse the points */
 			{
 				FT_Vector*  vec1 = border->points + start + 1;
 				FT_Vector*  vec2 = border->points + count - 1;
-
 				for(; vec1 < vec2; vec1++, vec2--) {
-					FT_Vector tmp;
-
-					tmp   = *vec1;
+					FT_Vector tmp   = *vec1;
 					*vec1 = *vec2;
 					*vec2 = tmp;
 				}
 			}
-
 			/* then the tags */
 			{
 				FT_Byte*  tag1 = border->tags + start + 1;
 				FT_Byte*  tag2 = border->tags + count - 1;
-
 				for(; tag1 < tag2; tag1++, tag2--) {
-					FT_Byte tmp;
-
-					tmp   = *tag1;
+					FT_Byte tmp   = *tag1;
 					*tag1 = *tag2;
 					*tag2 = tmp;
 				}
 			}
 		}
-
 		border->tags[start    ] |= FT_STROKE_TAG_BEGIN;
 		border->tags[count - 1] |= FT_STROKE_TAG_END;
 	}
-
 	border->start   = -1;
 	border->movable = FALSE;
 }
 
-static FT_Error ft_stroke_border_lineto(FT_StrokeBorder border,
-    FT_Vector*       to,
-    FT_Bool movable)
+static FT_Error ft_stroke_border_lineto(FT_StrokeBorder border, FT_Vector*       to, FT_Bool movable)
 {
 	FT_Error error = FT_Err_Ok;
-
 	FT_ASSERT(border->start >= 0);
-
 	if(border->movable) {
 		/* move last point */
 		border->points[border->num_points - 1] = *to;
@@ -375,16 +351,13 @@ static FT_Error ft_stroke_border_lineto(FT_StrokeBorder border,
 		    FT_IS_SMALL(border->points[border->num_points - 1].x - to->x) &&
 		    FT_IS_SMALL(border->points[border->num_points - 1].y - to->y) )
 			return error;
-
 		/* add one point */
 		error = ft_stroke_border_grow(border, 1);
 		if(!error) {
 			FT_Vector*  vec = border->points + border->num_points;
 			FT_Byte*    tag = border->tags   + border->num_points;
-
 			vec[0] = *to;
 			tag[0] = FT_STROKE_TAG_ON;
-
 			border->num_points += 1;
 		}
 	}
@@ -425,9 +398,7 @@ static FT_Error ft_stroke_border_cubicto(FT_StrokeBorder border,
     FT_Vector*       to)
 {
 	FT_Error error;
-
 	FT_ASSERT(border->start >= 0);
-
 	error = ft_stroke_border_grow(border, 3);
 	if(!error) {
 		FT_Vector*  vec = border->points + border->num_points;
@@ -675,67 +646,45 @@ typedef struct  FT_StrokerRec_ {
 } FT_StrokerRec;
 
 /* documentation is in ftstroke.h */
-
-FT_EXPORT_DEF(FT_Error)
-FT_Stroker_New(FT_Library library,
-    FT_Stroker  *astroker)
+FT_EXPORT_DEF(FT_Error) FT_Stroker_New(FT_Library library, FT_Stroker  *astroker)
 {
 	FT_Error error;          /* assigned in FT_NEW */
 	FT_Memory memory;
 	FT_Stroker stroker = NULL;
-
 	if(!library)
 		return FT_THROW(Invalid_Library_Handle);
-
 	if(!astroker)
 		return FT_THROW(Invalid_Argument);
-
 	memory = library->memory;
-
 	if(!FT_NEW(stroker) ) {
 		stroker->library = library;
-
 		ft_stroke_border_init(&stroker->borders[0], memory);
 		ft_stroke_border_init(&stroker->borders[1], memory);
 	}
-
 	*astroker = stroker;
-
 	return error;
 }
 
 /* documentation is in ftstroke.h */
-
-FT_EXPORT_DEF(void)
-FT_Stroker_Set(FT_Stroker stroker,
-    FT_Fixed radius,
-    FT_Stroker_LineCap line_cap,
-    FT_Stroker_LineJoin line_join,
-    FT_Fixed miter_limit)
+FT_EXPORT_DEF(void) FT_Stroker_Set(FT_Stroker stroker, FT_Fixed radius, FT_Stroker_LineCap line_cap, FT_Stroker_LineJoin line_join, FT_Fixed miter_limit)
 {
-	if(!stroker)
-		return;
-
-	stroker->radius      = radius;
-	stroker->line_cap    = line_cap;
-	stroker->line_join   = line_join;
-	stroker->miter_limit = miter_limit;
-
-	/* ensure miter limit has sensible value */
-	if(stroker->miter_limit < 0x10000L)
-		stroker->miter_limit = 0x10000L;
-
-	/* save line join style:                                           */
-	/* line join style can be temporarily changed when stroking curves */
-	stroker->line_join_saved = line_join;
-
-	FT_Stroker_Rewind(stroker);
+	if(stroker) {
+		stroker->radius      = radius;
+		stroker->line_cap    = line_cap;
+		stroker->line_join   = line_join;
+		stroker->miter_limit = miter_limit;
+		/* ensure miter limit has sensible value */
+		if(stroker->miter_limit < 0x10000L)
+			stroker->miter_limit = 0x10000L;
+		/* save line join style:                                           */
+		/* line join style can be temporarily changed when stroking curves */
+		stroker->line_join_saved = line_join;
+		FT_Stroker_Rewind(stroker);
+	}
 }
 
 /* documentation is in ftstroke.h */
-
-FT_EXPORT_DEF(void)
-FT_Stroker_Rewind(FT_Stroker stroker)
+FT_EXPORT_DEF(void) FT_Stroker_Rewind(FT_Stroker stroker)
 {
 	if(stroker) {
 		ft_stroke_border_reset(&stroker->borders[0]);
@@ -744,57 +693,40 @@ FT_Stroker_Rewind(FT_Stroker stroker)
 }
 
 /* documentation is in ftstroke.h */
-
-FT_EXPORT_DEF(void)
-FT_Stroker_Done(FT_Stroker stroker)
+FT_EXPORT_DEF(void) FT_Stroker_Done(FT_Stroker stroker)
 {
 	if(stroker) {
 		FT_Memory memory = stroker->library->memory;
-
 		ft_stroke_border_done(&stroker->borders[0]);
 		ft_stroke_border_done(&stroker->borders[1]);
-
 		stroker->library = NULL;
 		FT_FREE(stroker);
 	}
 }
 
 /* create a circular arc at a corner or cap */
-static FT_Error ft_stroker_arcto(FT_Stroker stroker,
-    FT_Int side)
+static FT_Error ft_stroker_arcto(FT_Stroker stroker, FT_Int side)
 {
-	FT_Angle total, rotate;
 	FT_Fixed radius = stroker->radius;
 	FT_Error error  = FT_Err_Ok;
 	FT_StrokeBorder border = stroker->borders + side;
-
-	rotate = FT_SIDE_TO_ROTATE(side);
-
-	total = FT_Angle_Diff(stroker->angle_in, stroker->angle_out);
+	FT_Angle rotate = FT_SIDE_TO_ROTATE(side);
+	FT_Angle total = FT_Angle_Diff(stroker->angle_in, stroker->angle_out);
 	if(total == FT_ANGLE_PI)
 		total = -rotate * 2;
-
-	error = ft_stroke_border_arcto(border,
-		&stroker->center,
-		radius,
-		stroker->angle_in + rotate,
-		total);
+	error = ft_stroke_border_arcto(border, &stroker->center, radius, stroker->angle_in + rotate, total);
 	border->movable = FALSE;
 	return error;
 }
 
 /* add a cap at the end of an opened path */
-static FT_Error ft_stroker_cap(FT_Stroker stroker,
-    FT_Angle angle,
-    FT_Int side)
+static FT_Error ft_stroker_cap(FT_Stroker stroker, FT_Angle angle, FT_Int side)
 {
 	FT_Error error = FT_Err_Ok;
-
 	if(stroker->line_cap == FT_STROKER_LINECAP_ROUND) {
 		/* add a round cap */
 		stroker->angle_in  = angle;
 		stroker->angle_out = angle + FT_ANGLE_PI;
-
 		error = ft_stroker_arcto(stroker, side);
 	}
 	else {
@@ -1683,98 +1615,67 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_EndSubPath(FT_Stroker stroker)
 			if(error)
 				goto Exit;
 		}
-
 		/* process the corner */
 		stroker->angle_out = stroker->subpath_angle;
-		turn               = FT_Angle_Diff(stroker->angle_in,
-			stroker->angle_out);
-
+		turn               = FT_Angle_Diff(stroker->angle_in, stroker->angle_out);
 		/* no specific corner processing is required if the turn is 0 */
 		if(turn != 0) {
 			/* when we turn to the right, the inside side is 0 */
 			/* otherwise, the inside side is 1 */
 			inside_side = ( turn < 0 );
-
-			error = ft_stroker_inside(stroker,
-				inside_side,
-				stroker->subpath_line_length);
+			error = ft_stroker_inside(stroker, inside_side, stroker->subpath_line_length);
 			if(error)
 				goto Exit;
-
 			/* process the outside side */
-			error = ft_stroker_outside(stroker,
-				!inside_side,
-				stroker->subpath_line_length);
+			error = ft_stroker_outside(stroker, !inside_side, stroker->subpath_line_length);
 			if(error)
 				goto Exit;
 		}
-
 		/* then end our two subpaths */
 		ft_stroke_border_close(stroker->borders + 0, FALSE);
 		ft_stroke_border_close(stroker->borders + 1, TRUE);
 	}
-
 Exit:
 	return error;
 }
 
 /* documentation is in ftstroke.h */
-
 FT_EXPORT_DEF(FT_Error) FT_Stroker_GetBorderCounts(FT_Stroker stroker, FT_StrokerBorder border, FT_UInt          *anum_points, FT_UInt          *anum_contours)
 {
 	FT_UInt num_points = 0, num_contours = 0;
 	FT_Error error;
-
 	if(!stroker || border > 1) {
 		error = FT_THROW(Invalid_Argument);
 		goto Exit;
 	}
-
-	error = ft_stroke_border_get_counts(stroker->borders + border,
-		&num_points, &num_contours);
+	error = ft_stroke_border_get_counts(stroker->borders + border, &num_points, &num_contours);
 Exit:
-	if(anum_points)
-		*anum_points = num_points;
-
-	if(anum_contours)
-		*anum_contours = num_contours;
-
+	ASSIGN_PTR(anum_points, num_points);
+	ASSIGN_PTR(anum_contours, num_contours);
 	return error;
 }
 
 /* documentation is in ftstroke.h */
-
 FT_EXPORT_DEF(FT_Error) FT_Stroker_GetCounts(FT_Stroker stroker, FT_UInt    *anum_points, FT_UInt    *anum_contours)
 {
 	FT_UInt count1, count2, num_points   = 0;
 	FT_UInt count3, count4, num_contours = 0;
 	FT_Error error;
-
 	if(!stroker) {
 		error = FT_THROW(Invalid_Argument);
 		goto Exit;
 	}
-
-	error = ft_stroke_border_get_counts(stroker->borders + 0,
-		&count1, &count2);
+	error = ft_stroke_border_get_counts(stroker->borders + 0, &count1, &count2);
 	if(error)
 		goto Exit;
-
-	error = ft_stroke_border_get_counts(stroker->borders + 1,
-		&count3, &count4);
+	error = ft_stroke_border_get_counts(stroker->borders + 1, &count3, &count4);
 	if(error)
 		goto Exit;
-
 	num_points   = count1 + count3;
 	num_contours = count2 + count4;
-
 Exit:
-	if(anum_points)
-		*anum_points   = num_points;
-
-	if(anum_contours)
-		*anum_contours = num_contours;
-
+	ASSIGN_PTR(anum_points, num_points);
+	ASSIGN_PTR(anum_contours, num_contours);
 	return error;
 }
 
@@ -1784,11 +1685,8 @@ FT_EXPORT_DEF(void) FT_Stroker_ExportBorder(FT_Stroker stroker, FT_StrokerBorder
 {
 	if(!stroker || !outline)
 		return;
-
-	if(border == FT_STROKER_BORDER_LEFT  ||
-	    border == FT_STROKER_BORDER_RIGHT) {
+	if(oneof2(border, FT_STROKER_BORDER_LEFT, FT_STROKER_BORDER_RIGHT)) {
 		FT_StrokeBorder sborder = &stroker->borders[border];
-
 		if(sborder->valid)
 			ft_stroke_border_export(sborder, outline);
 	}
@@ -1834,12 +1732,9 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_ParseOutline(FT_Stroker stroker, FT_Outline* 
 			first = last + 1;
 			continue;
 		}
-
 		v_start = outline->points[first];
 		v_last  = outline->points[last];
-
 		v_control = v_start;
-
 		point = outline->points + first;
 		tags  = outline->tags   + first;
 		tag   = FT_CURVE_TAG(tags[0]);
@@ -1873,14 +1768,11 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_ParseOutline(FT_Stroker stroker, FT_Outline* 
 		while(point < limit) {
 			point++;
 			tags++;
-
 			tag = FT_CURVE_TAG(tags[0]);
-			switch(tag)
-			{
+			switch(tag) {
 				case FT_CURVE_TAG_ON: /* emit a single line_to */
 			    {
 				    FT_Vector vec;
-
 				    vec.x = point->x;
 				    vec.y = point->y;
 
@@ -1893,31 +1785,24 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_ParseOutline(FT_Stroker stroker, FT_Outline* 
 				case FT_CURVE_TAG_CONIC: /* consume conic arcs */
 				    v_control.x = point->x;
 				    v_control.y = point->y;
-
 Do_Conic:
 				    if(point < limit) {
 					    FT_Vector vec;
 					    FT_Vector v_middle;
-
 					    point++;
 					    tags++;
 					    tag = FT_CURVE_TAG(tags[0]);
-
 					    vec = point[0];
-
 					    if(tag == FT_CURVE_TAG_ON) {
 						    error = FT_Stroker_ConicTo(stroker, &v_control, &vec);
 						    if(error)
 							    goto Exit;
 						    continue;
 					    }
-
 					    if(tag != FT_CURVE_TAG_CONIC)
 						    goto Invalid_Outline;
-
 					    v_middle.x = ( v_control.x + vec.x ) / 2;
 					    v_middle.y = ( v_control.y + vec.y ) / 2;
-
 					    error = FT_Stroker_ConicTo(stroker, &v_control, &v_middle);
 					    if(error)
 						    goto Exit;
@@ -1932,34 +1817,24 @@ Do_Conic:
 				default: /* FT_CURVE_TAG_CUBIC */
 			    {
 				    FT_Vector vec1, vec2;
-
-				    if(point + 1 > limit                             ||
-					FT_CURVE_TAG(tags[1]) != FT_CURVE_TAG_CUBIC)
-					    goto Invalid_Outline;
-
+				    if(point + 1 > limit || FT_CURVE_TAG(tags[1]) != FT_CURVE_TAG_CUBIC) 
+						goto Invalid_Outline;
 				    point += 2;
 				    tags  += 2;
-
 				    vec1 = point[-2];
 				    vec2 = point[-1];
-
 				    if(point <= limit) {
-					    FT_Vector vec;
-
-					    vec = point[0];
-
+					    FT_Vector vec = point[0];
 					    error = FT_Stroker_CubicTo(stroker, &vec1, &vec2, &vec);
 					    if(error)
 						    goto Exit;
 					    continue;
 				    }
-
 				    error = FT_Stroker_CubicTo(stroker, &vec1, &vec2, &v_start);
 				    goto Close;
 			    }
 			}
 		}
-
 Close:
 		if(error)
 			goto Exit;
@@ -1984,32 +1859,23 @@ Invalid_Outline:
 }
 
 /* documentation is in ftstroke.h */
-
-FT_EXPORT_DEF(FT_Error)
-FT_Glyph_Stroke(FT_Glyph    *pglyph,
-    FT_Stroker stroker,
-    FT_Bool destroy)
+FT_EXPORT_DEF(FT_Error) FT_Glyph_Stroke(FT_Glyph    *pglyph, FT_Stroker stroker, FT_Bool destroy)
 {
 	FT_Error error = FT_ERR(Invalid_Argument);
 	FT_Glyph glyph = NULL;
-
 	if(!pglyph)
 		goto Exit;
-
 	glyph = *pglyph;
 	if(!glyph || glyph->clazz != &ft_outline_glyph_class)
 		goto Exit;
 
 	{
 		FT_Glyph copy;
-
 		error = FT_Glyph_Copy(glyph, &copy);
 		if(error)
 			goto Exit;
-
 		glyph = copy;
 	}
-
 	{
 		FT_OutlineGlyph oglyph  = (FT_OutlineGlyph)glyph;
 		FT_Outline*      outline = &oglyph->outline;
@@ -2071,7 +1937,6 @@ FT_EXPORT_DEF(FT_Error) FT_Glyph_StrokeBorder(FT_Glyph    *pglyph, FT_Stroker st
 			else
 				border = FT_STROKER_BORDER_LEFT;
 		}
-
 		error = FT_Stroker_ParseOutline(stroker, outline, FALSE);
 		if(error)
 			goto Fail;
@@ -2099,5 +1964,3 @@ Fail:
 Exit:
 	return error;
 }
-
-/* END */

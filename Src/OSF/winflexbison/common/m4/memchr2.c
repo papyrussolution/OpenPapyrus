@@ -23,10 +23,10 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-
-/* Return the first address of either C1 or C2 (treated as unsigned
-   char) that occurs within N bytes of the memory region S.  If
-   neither byte appears, return NULL.  */
+// 
+// Return the first address of either C1 or C2 (treated as unsigned char) that occurs within N bytes of the memory region S.  If
+// neither byte appears, return NULL. 
+// 
 void * memchr2(void const * s, int c1_in, int c2_in, size_t n)
 {
 	/* On 32-bit hardware, choosing longword to be a 32-bit unsigned
@@ -83,8 +83,7 @@ void * memchr2(void const * s, int c1_in, int c2_in, size_t n)
 	   the task to testing whether *any of the four* bytes in longword1 or
 	   longword2 is zero.
 
-	   Let's consider longword1.  We compute tmp1 =
-	     ((longword1 - repeated_one) & ~longword1) & (repeated_one << 7).
+	   Let's consider longword1.  We compute tmp1 = ((longword1 - repeated_one) & ~longword1) & (repeated_one << 7).
 	   That is, we perform the following operations:
 	     1. Subtract repeated_one.
 	     2. & ~longword1.
@@ -120,20 +119,16 @@ void * memchr2(void const * s, int c1_in, int c2_in, size_t n)
 		longword_ptr++;
 		n -= sizeof(longword);
 	}
-
 	char_ptr = (const uchar*)longword_ptr;
-
 	/* At this point, we know that either n < sizeof(longword), or one of the
 	   sizeof(longword) bytes starting at char_ptr is == c1 or == c2.  On
 	   little-endian machines, we could determine the first such byte without
 	   any further memory accesses, just by looking at the (tmp1 | tmp2) result
 	   from the last loop iteration.  But this does not work on big-endian
 	   machines.  Choose code that works in both cases.  */
-
 	for(; n > 0; --n, ++char_ptr) {
 		if(*char_ptr == c1 || *char_ptr == c2)
 			return (void *)char_ptr;
 	}
-
 	return NULL;
 }

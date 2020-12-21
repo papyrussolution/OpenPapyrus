@@ -529,6 +529,7 @@ int ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 
 int ACS_SHTRIHMFRK::ImportFiles()
 {
+	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	long   delay_quant = 5 * 60 * 1000; // 5 мин
 	const  char * p_ftp_flag = "ftp:";
 	int    ok = 1, ftp_connected = 0, notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
@@ -545,8 +546,8 @@ int ACS_SHTRIHMFRK::ImportFiles()
 	SETIFZ(last_date, plusdate(LConfig.OperDate, 2));
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
-	if(EqCfg.FtpAcctID)
-		THROW(obj_acct.Get(EqCfg.FtpAcctID, &acct));
+	if(r_eq_cfg.FtpAcctID)
+		THROW(obj_acct.Get(r_eq_cfg.FtpAcctID, &acct));
 	for(uint i = 0; ImpPaths.get(&i, imp_path);) {
 		if(imp_path.CmpPrefix(p_ftp_flag, 1) == 0) {
 			SString ftp_path, ftp_path_flag, ftp_dir, file_name;

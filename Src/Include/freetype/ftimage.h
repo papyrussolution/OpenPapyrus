@@ -480,7 +480,7 @@ typedef struct  FT_Outline_ {
  */
 typedef int
 (* FT_Outline_MoveToFunc)(const FT_Vector*  to,
-    void*             user);
+    void *  user);
 
 #define FT_Outline_MoveTo_Func  FT_Outline_MoveToFunc
 
@@ -508,7 +508,7 @@ typedef int
  */
 typedef int
 (* FT_Outline_LineToFunc)(const FT_Vector*  to,
-    void*             user);
+    void *  user);
 
 #define FT_Outline_LineTo_Func  FT_Outline_LineToFunc
 
@@ -542,7 +542,7 @@ typedef int
 typedef int
 (* FT_Outline_ConicToFunc)(const FT_Vector*  control,
     const FT_Vector*  to,
-    void*             user);
+    void *  user);
 
 #define FT_Outline_ConicTo_Func  FT_Outline_ConicToFunc
 
@@ -578,7 +578,7 @@ typedef int
 (* FT_Outline_CubicToFunc)(const FT_Vector*  control1,
     const FT_Vector*  control2,
     const FT_Vector*  to,
-    void*             user);
+    void *  user);
 
 #define FT_Outline_CubicTo_Func  FT_Outline_CubicToFunc
 
@@ -978,13 +978,13 @@ typedef void
  */
 typedef struct  FT_Raster_Params_ {
 	const FT_Bitmap*        target;
-	const void*             source;
+	const void *  source;
 	int flags;
 	FT_SpanFunc gray_spans;
 	FT_SpanFunc black_spans;          /* unused */
 	FT_Raster_BitTest_Func bit_test;  /* unused */
 	FT_Raster_BitSet_Func bit_set;    /* unused */
-	void*                   user;
+	void *        user;
 	FT_BBox clip_box;
 } FT_Raster_Params;
 

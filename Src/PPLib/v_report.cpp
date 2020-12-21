@@ -1130,7 +1130,4 @@ int PPALDD_RptInfo::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_RptInfo::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Report);
-}
+void PPALDD_RptInfo::Destroy() { DESTROY_PPVIEW_ALDD(Report); }

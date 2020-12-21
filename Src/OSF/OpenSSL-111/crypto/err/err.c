@@ -366,7 +366,6 @@ int ERR_unload_strings(int lib, ERR_STRING_DATA * str)
 	for(; str->error; str++)
 		(void)lh_ERR_STRING_DATA_delete(int_error_hash, str);
 	CRYPTO_THREAD_unlock(err_string_lock);
-
 	return 1;
 }
 
@@ -378,7 +377,7 @@ void err_free_strings_int(void)
 
 /********************************************************/
 
-void ERR_put_error(int lib, int func, int reason, const char * file, int line)
+void FASTCALL ERR_put_error(int lib, int func, int reason, const char * file, int line)
 {
 	ERR_STATE * es;
 #ifdef _OSD_POSIX
@@ -400,16 +399,16 @@ void ERR_put_error(int lib, int func, int reason, const char * file, int line)
 	}
 #endif
 	es = ERR_get_state();
-	if(es == NULL)
-		return;
-	es->top = (es->top + 1) % ERR_NUM_ERRORS;
-	if(es->top == es->bottom)
-		es->bottom = (es->bottom + 1) % ERR_NUM_ERRORS;
-	es->err_flags[es->top] = 0;
-	es->err_buffer[es->top] = ERR_PACK(lib, func, reason);
-	es->err_file[es->top] = file;
-	es->err_line[es->top] = line;
-	err_clear_data(es, es->top);
+	if(es) {
+		es->top = (es->top + 1) % ERR_NUM_ERRORS;
+		if(es->top == es->bottom)
+			es->bottom = (es->bottom + 1) % ERR_NUM_ERRORS;
+		es->err_flags[es->top] = 0;
+		es->err_buffer[es->top] = ERR_PACK(lib, func, reason);
+		es->err_file[es->top] = file;
+		es->err_line[es->top] = line;
+		err_clear_data(es, es->top);
+	}
 }
 
 void ERR_clear_error(void)
@@ -442,18 +441,12 @@ static ulong get_error_values(int inc, int top, const char ** file, int * line, 
 	if(es == NULL)
 		return 0;
 	if(inc && top) {
-		if(file)
-			*file = "";
-		if(line)
-			*line = 0;
-		if(data)
-			*data = "";
-		if(flags)
-			*flags = 0;
-
+		ASSIGN_PTR(file, "");
+		ASSIGN_PTR(line, 0);
+		ASSIGN_PTR(data, "");
+		ASSIGN_PTR(flags, 0);
 		return ERR_R_INTERNAL_ERROR;
 	}
-
 	while(es->bottom != es->top) {
 		if(es->err_flags[es->top] & ERR_FLAG_CLEAR) {
 			err_clear(es, es->top);
@@ -497,13 +490,11 @@ static ulong get_error_values(int inc, int top, const char ** file, int * line, 
 	else {
 		if(es->err_data[i] == NULL) {
 			*data = "";
-			if(flags != NULL)
-				*flags = 0;
+			ASSIGN_PTR(flags, 0);
 		}
 		else {
 			*data = es->err_data[i];
-			if(flags != NULL)
-				*flags = es->err_data_flags[i];
+			ASSIGN_PTR(flags, es->err_data_flags[i]);
 		}
 	}
 	return ret;
@@ -512,32 +503,32 @@ static ulong get_error_values(int inc, int top, const char ** file, int * line, 
 void ERR_error_string_n(ulong e, char * buf, size_t len)
 {
 	char lsbuf[64], fsbuf[64], rsbuf[64];
-	const char * ls, * fs, * rs;
-	ulong l, f, r;
-	if(len == 0)
-		return;
-	l = ERR_GET_LIB(e);
-	ls = ERR_lib_error_string(e);
-	if(ls == NULL) {
-		BIO_snprintf(lsbuf, sizeof(lsbuf), "lib(%lu)", l);
-		ls = lsbuf;
-	}
-	fs = ERR_func_error_string(e);
-	f = ERR_GET_FUNC(e);
-	if(fs == NULL) {
-		BIO_snprintf(fsbuf, sizeof(fsbuf), "func(%lu)", f);
-		fs = fsbuf;
-	}
-	rs = ERR_reason_error_string(e);
-	r = ERR_GET_REASON(e);
-	if(rs == NULL) {
-		BIO_snprintf(rsbuf, sizeof(rsbuf), "reason(%lu)", r);
-		rs = rsbuf;
-	}
-	BIO_snprintf(buf, len, "error:%08lX:%s:%s:%s", e, ls, fs, rs);
-	if(strlen(buf) == len - 1) {
-		/* Didn't fit; use a minimal format. */
-		BIO_snprintf(buf, len, "err:%lx:%lx:%lx:%lx", e, l, f, r);
+	const char * fs, * rs;
+	ulong f, r;
+	if(len) {
+		ulong l = ERR_GET_LIB(e);
+		const char * ls = ERR_lib_error_string(e);
+		if(ls == NULL) {
+			BIO_snprintf(lsbuf, sizeof(lsbuf), "lib(%lu)", l);
+			ls = lsbuf;
+		}
+		fs = ERR_func_error_string(e);
+		f = ERR_GET_FUNC(e);
+		if(fs == NULL) {
+			BIO_snprintf(fsbuf, sizeof(fsbuf), "func(%lu)", f);
+			fs = fsbuf;
+		}
+		rs = ERR_reason_error_string(e);
+		r = ERR_GET_REASON(e);
+		if(rs == NULL) {
+			BIO_snprintf(rsbuf, sizeof(rsbuf), "reason(%lu)", r);
+			rs = rsbuf;
+		}
+		BIO_snprintf(buf, len, "error:%08lX:%s:%s:%s", e, ls, fs, rs);
+		if(strlen(buf) == len - 1) {
+			/* Didn't fit; use a minimal format. */
+			BIO_snprintf(buf, len, "err:%lx:%lx:%lx:%lx", e, l, f, r);
+		}
 	}
 }
 /*
@@ -600,10 +591,10 @@ const char * ERR_reason_error_string(ulong e)
 void err_delete_thread_state(void)
 {
 	ERR_STATE * state = static_cast<ERR_STATE *>(CRYPTO_THREAD_get_local(&err_thread_local));
-	if(state == NULL)
-		return;
-	CRYPTO_THREAD_set_local(&err_thread_local, NULL);
-	ERR_STATE_free(state);
+	if(state) {
+		CRYPTO_THREAD_set_local(&err_thread_local, NULL);
+		ERR_STATE_free(state);
+	}
 }
 
 #if OPENSSL_API_COMPAT < 0x10100000L

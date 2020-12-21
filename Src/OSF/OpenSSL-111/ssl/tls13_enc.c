@@ -52,8 +52,7 @@ int tls13_hkdf_expand(SSL * s, const EVP_MD * md, const uchar * secret,
 
 	if(labellen > TLS13_MAX_LABEL_LEN) {
 		if(fatal) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_HKDF_EXPAND,
-			    ERR_R_INTERNAL_ERROR);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_HKDF_EXPAND, ERR_R_INTERNAL_ERROR);
 		}
 		else {
 			/*
@@ -80,13 +79,11 @@ int tls13_hkdf_expand(SSL * s, const EVP_MD * md, const uchar * secret,
 		EVP_PKEY_CTX_free(pctx);
 		WPACKET_cleanup(&pkt);
 		if(fatal)
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_HKDF_EXPAND,
-			    ERR_R_INTERNAL_ERROR);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_HKDF_EXPAND, ERR_R_INTERNAL_ERROR);
 		else
 			SSLerr(SSL_F_TLS13_HKDF_EXPAND, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	ret = EVP_PKEY_derive_init(pctx) <= 0
 	    || EVP_PKEY_CTX_hkdf_mode(pctx, EVP_PKEY_HKDEF_MODE_EXPAND_ONLY)
 	    <= 0
@@ -94,35 +91,27 @@ int tls13_hkdf_expand(SSL * s, const EVP_MD * md, const uchar * secret,
 	    || EVP_PKEY_CTX_set1_hkdf_key(pctx, secret, hashlen) <= 0
 	    || EVP_PKEY_CTX_add1_hkdf_info(pctx, hkdflabel, hkdflabellen) <= 0
 	    || EVP_PKEY_derive(pctx, out, &outlen) <= 0;
-
 	EVP_PKEY_CTX_free(pctx);
-
 	if(ret != 0) {
 		if(fatal)
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_HKDF_EXPAND,
-			    ERR_R_INTERNAL_ERROR);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_HKDF_EXPAND, ERR_R_INTERNAL_ERROR);
 		else
 			SSLerr(SSL_F_TLS13_HKDF_EXPAND, ERR_R_INTERNAL_ERROR);
 	}
-
 	return ret == 0;
 }
-
 /*
  * Given a |secret| generate a |key| of length |keylen| bytes. Returns 1 on
  * success  0 on failure.
  */
-int tls13_derive_key(SSL * s, const EVP_MD * md, const uchar * secret,
-    uchar * key, size_t keylen)
+int tls13_derive_key(SSL * s, const EVP_MD * md, const uchar * secret, uchar * key, size_t keylen)
 {
 #ifdef CHARSET_EBCDIC
 	static const uchar keylabel[] = { 0x6B, 0x65, 0x79, 0x00 };
 #else
 	static const uchar keylabel[] = "key";
 #endif
-
-	return tls13_hkdf_expand(s, md, secret, keylabel, sizeof(keylabel) - 1,
-		   NULL, 0, key, keylen, 1);
+	return tls13_hkdf_expand(s, md, secret, keylabel, sizeof(keylabel) - 1, NULL, 0, key, keylen, 1);
 }
 
 /*
@@ -177,22 +166,17 @@ int tls13_generate_secret(SSL * s, const EVP_MD * md,
 	static const char derived_secret_label[] = "derived";
 #endif
 	uchar preextractsec[EVP_MAX_MD_SIZE];
-
 	if(pctx == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	mdleni = EVP_MD_size(md);
 	/* Ensure cast to size_t is safe */
 	if(!ossl_assert(mdleni >= 0)) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
 	mdlen = (size_t)mdleni;
-
 	if(insecret == NULL) {
 		insecret = default_zeros;
 		insecretlen = mdlen;
@@ -204,13 +188,9 @@ int tls13_generate_secret(SSL * s, const EVP_MD * md,
 	else {
 		EVP_MD_CTX * mctx = EVP_MD_CTX_new();
 		uchar hash[EVP_MAX_MD_SIZE];
-
 		/* The pre-extract derive step uses a hash of no messages */
-		if(mctx == NULL
-		    || EVP_DigestInit_ex(mctx, md, NULL) <= 0
-		    || EVP_DigestFinal_ex(mctx, hash, NULL) <= 0) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET,
-			    ERR_R_INTERNAL_ERROR);
+		if(mctx == NULL || EVP_DigestInit_ex(mctx, md, NULL) <= 0 || EVP_DigestFinal_ex(mctx, hash, NULL) <= 0) {
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET, ERR_R_INTERNAL_ERROR);
 			EVP_MD_CTX_free(mctx);
 			EVP_PKEY_CTX_free(pctx);
 			return 0;
@@ -242,27 +222,21 @@ int tls13_generate_secret(SSL * s, const EVP_MD * md,
 	    <= 0;
 
 	if(ret != 0)
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET,
-		    ERR_R_INTERNAL_ERROR);
-
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET, ERR_R_INTERNAL_ERROR);
 	EVP_PKEY_CTX_free(pctx);
 	if(prevsecret == preextractsec)
 		OPENSSL_cleanse(preextractsec, mdlen);
 	return ret == 0;
 }
-
 /*
  * Given an input secret |insecret| of length |insecretlen| generate the
  * handshake secret. This requires the early secret to already have been
  * generated. Returns 1 on success  0 on failure.
  */
-int tls13_generate_handshake_secret(SSL * s, const uchar * insecret,
-    size_t insecretlen)
+int tls13_generate_handshake_secret(SSL * s, const uchar * insecret, size_t insecretlen)
 {
 	/* Calls SSLfatal() if required */
-	return tls13_generate_secret(s, ssl_handshake_md(s), s->early_secret,
-		   insecret, insecretlen,
-		   (uchar*)&s->handshake_secret);
+	return tls13_generate_secret(s, ssl_handshake_md(s), s->early_secret, insecret, insecretlen, (uchar*)&s->handshake_secret);
 }
 
 /*
@@ -270,12 +244,9 @@ int tls13_generate_handshake_secret(SSL * s, const uchar * insecret,
  * secret and store its length in |*secret_size|. Returns 1 on success  0 on
  * failure.
  */
-int tls13_generate_master_secret(SSL * s, uchar * out,
-    uchar * prev, size_t prevlen,
-    size_t * secret_size)
+int tls13_generate_master_secret(SSL * s, uchar * out, uchar * prev, size_t prevlen, size_t * secret_size)
 {
 	const EVP_MD * md = ssl_handshake_md(s);
-
 	*secret_size = EVP_MD_size(md);
 	/* Calls SSLfatal() if required */
 	return tls13_generate_secret(s, md, prev, NULL, 0, out);
@@ -285,58 +256,41 @@ int tls13_generate_master_secret(SSL * s, uchar * out,
  * Generates the mac for the Finished message. Returns the length of the MAC or
  * 0 on error.
  */
-size_t tls13_final_finish_mac(SSL * s, const char * str, size_t slen,
-    uchar * out)
+size_t tls13_final_finish_mac(SSL * s, const char * str, size_t slen, uchar * out)
 {
 	const EVP_MD * md = ssl_handshake_md(s);
 	uchar hash[EVP_MAX_MD_SIZE];
 	size_t hashlen, ret = 0;
 	EVP_PKEY * key = NULL;
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
-
 	if(!ssl_handshake_hash(s, hash, sizeof(hash), &hashlen)) {
 		/* SSLfatal() already called */
 		goto err;
 	}
-
 	if(str == s->method->ssl3_enc->server_finished_label) {
-		key = EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, NULL,
-			s->server_finished_secret, hashlen);
+		key = EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, NULL, s->server_finished_secret, hashlen);
 	}
 	else if(SSL_IS_FIRST_HANDSHAKE(s)) {
-		key = EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, NULL,
-			s->client_finished_secret, hashlen);
+		key = EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, NULL, s->client_finished_secret, hashlen);
 	}
 	else {
 		uchar finsecret[EVP_MAX_MD_SIZE];
-
-		if(!tls13_derive_finishedkey(s, ssl_handshake_md(s),
-		    s->client_app_traffic_secret,
-		    finsecret, hashlen))
+		if(!tls13_derive_finishedkey(s, ssl_handshake_md(s), s->client_app_traffic_secret, finsecret, hashlen))
 			goto err;
-
-		key = EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, NULL, finsecret,
-			hashlen);
+		key = EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, NULL, finsecret, hashlen);
 		OPENSSL_cleanse(finsecret, sizeof(finsecret));
 	}
-
-	if(key == NULL
-	    || ctx == NULL
-	    || EVP_DigestSignInit(ctx, NULL, md, NULL, key) <= 0
-	    || EVP_DigestSignUpdate(ctx, hash, hashlen) <= 0
-	    || EVP_DigestSignFinal(ctx, out, &hashlen) <= 0) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_FINAL_FINISH_MAC,
-		    ERR_R_INTERNAL_ERROR);
+	if(key == NULL || ctx == NULL || EVP_DigestSignInit(ctx, NULL, md, NULL, key) <= 0
+	    || EVP_DigestSignUpdate(ctx, hash, hashlen) <= 0 || EVP_DigestSignFinal(ctx, out, &hashlen) <= 0) {
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_FINAL_FINISH_MAC, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-
 	ret = hashlen;
 err:
 	EVP_PKEY_free(key);
 	EVP_MD_CTX_free(ctx);
 	return ret;
 }
-
 /*
  * There isn't really a key block in TLSv1.3, but we still need this function
  * for initialising the cipher and hash. Returns 1 on success or 0 on failure.
@@ -833,10 +787,7 @@ err:
 	return ret;
 }
 
-int tls13_export_keying_material_early(SSL * s, uchar * out, size_t olen,
-    const char * label, size_t llen,
-    const uchar * context,
-    size_t contextlen)
+int tls13_export_keying_material_early(SSL * s, uchar * out, size_t olen, const char * label, size_t llen, const uchar * context, size_t contextlen)
 {
 #ifdef CHARSET_EBCDIC
 	static const uchar exporterlabel[] = {0x65, 0x78, 0x70, 0x6F, 0x72, 0x74, 0x65, 0x72, 0x00};
@@ -850,18 +801,13 @@ int tls13_export_keying_material_early(SSL * s, uchar * out, size_t olen,
 	uint hashsize, datalen;
 	int ret = 0;
 	const SSL_CIPHER * sslcipher;
-
 	if(ctx == NULL || !ossl_statem_export_early_allowed(s))
 		goto err;
-
-	if(!s->server && s->max_early_data > 0
-	    && s->session->ext.max_early_data == 0)
+	if(!s->server && s->max_early_data > 0 && s->session->ext.max_early_data == 0)
 		sslcipher = SSL_SESSION_get0_cipher(s->psksession);
 	else
 		sslcipher = SSL_SESSION_get0_cipher(s->session);
-
 	md = ssl_md(sslcipher->algorithm2);
-
 	/*
 	 * Calculate the hash value and store it in |data|. The reason why
 	 * the empty string is used is that the definition of TLS-Exporter

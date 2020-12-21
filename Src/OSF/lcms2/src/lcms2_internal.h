@@ -451,8 +451,8 @@ typedef struct {
 
 _cmsSubAllocator* _cmsCreateSubAlloc(cmsContext ContextID, cmsUInt32Number Initial);
 void              _cmsSubAllocDestroy(_cmsSubAllocator* s);
-void*             _cmsSubAlloc(_cmsSubAllocator* s, cmsUInt32Number size);
-void*             _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, cmsUInt32Number size);
+void *  _cmsSubAlloc(_cmsSubAllocator* s, cmsUInt32Number size);
+void *  _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, cmsUInt32Number size);
 
 // ----------------------------------------------------------------------------------
 
@@ -838,7 +838,7 @@ struct _cmsStage_struct {
 	_cmsStageFreeElemFn FreePtr;    // Points to a fn that sets the *data* of the stage free
 
 	// A generic pointer to whatever memory needed by the stage
-	void*               Data;
+	void *    Data;
 
 	// Maintains linked list (used internally)
 	struct _cmsStage_struct* Next;

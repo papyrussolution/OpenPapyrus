@@ -939,7 +939,7 @@ void GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	p_data_pack->Rec.EditDlgID  = p_cache_rec->EditDlgID;
 	p_data_pack->Rec.FiltDlgID  = p_cache_rec->FiltDlgID;
 	p_data_pack->Rec.Flags      = p_cache_rec->Flags;
-	p_data_pack->Rec.DynGenMask = (long)p_cache_rec->DynGenMask;
+	p_data_pack->Rec.DynGenMask = static_cast<long>(p_cache_rec->DynGenMask);
 	p_data_pack->Rec.LotDimCount  = p_cache_rec->LotDimCount;
 	p_data_pack->Rec.LotDimUnitID = p_cache_rec->LotDimUnitID;
 	p_data_pack->PropKind.ItemsListID  = p_cache_rec->KindID;

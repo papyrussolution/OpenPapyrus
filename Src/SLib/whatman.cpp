@@ -22,7 +22,7 @@ void TWhatmanObject::TextParam::SetDefault()
 	ParaIdent = 0;
 }
 
-class WhatmanObjectRegTable : private SVector { // @v9.8.5 SArray-->SVector
+class WhatmanObjectRegTable : private SVector {
 public:
 	struct Item {
 		long   Id;
@@ -340,10 +340,20 @@ TRect TWhatmanObject::GetTextBounds() const
 int TWhatmanObject::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
+	assert(dir != 0);
 	THROW(pCtx->Serialize(dir, Symb, rBuf));
 	THROW(pCtx->Serialize(dir, Bounds.a, rBuf));
 	THROW(pCtx->Serialize(dir, Bounds.b, rBuf));
 	THROW(pCtx->Serialize(dir, Options, rBuf));
+	// @v10.9.9 {
+	{
+		uint32 local_sign_tag = 0;
+		if(dir > 0 || (pCtx->GetLocalSignatureTag(TWhatman::GetSerializeSignature(), &local_sign_tag) && local_sign_tag >= 2)) {
+			THROW(pCtx->Serialize(dir, LayoutContainerIdent, rBuf));
+			THROW(Le2.Serialize(dir, rBuf, pCtx));
+		}
+	}
+	// } @v10.9.9 
 	CATCHZOK
 	return ok;
 }
@@ -726,12 +736,13 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 	uint   item_in_row = 0;
 	int    row_bound = 0; // Минимальный отступ от предыдущего ряда.
 	LayoutFlexItem lo_root;
-	lo_root.Direction = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? FLEX_DIRECTION_COLUMN : FLEX_DIRECTION_ROW;
-	lo_root.AlignContent = FLEX_ALIGN_START;
+	//lo_root.Direction = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? FLEX_DIRECTION_COLUMN : FLEX_DIRECTION_ROW;
+	lo_root.ALB.SetContainerDirection(((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? DIREC_VERT : DIREC_HORZ);
+	lo_root.ALB.AlignContent = AbstractLayoutBlock::alignStart;//FLEX_ALIGN_START;
 	//lo_root.WrapMode = FLEX_WRAP_WRAP;
-	lo_root.Flags |= LayoutFlexItem::fWrap;
-	lo_root.Padding.a.X = 32.0f;
-	lo_root.Padding.b.X = 32.0f;
+	lo_root.ALB.Flags |= AbstractLayoutBlock::fContainerWrap/*LayoutFlexItem::fWrap*/;
+	lo_root.ALB.Padding.a.X = 32.0f;
+	lo_root.ALB.Padding.b.X = 32.0f;
 	for(uint i = 0; i < ObjList.getCount(); i++) {
 		if(!pObjPosList || pObjPosList->lsearch(static_cast<long>(i))) {
 			TWhatmanObject * p_obj = ObjList.at(i);
@@ -742,18 +753,20 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 				LayoutFlexItem * p_lo_item = lo_root.InsertItem();
 				if(p_lo_item) {
 					LayoutFlexItem * p_lo_text = 0;
-					p_lo_item->Direction = FLEX_DIRECTION_COLUMN;
+					p_lo_item->ALB.SetContainerDirection(DIREC_VERT/*FLEX_DIRECTION_COLUMN*/);
 
 					TRect bounds;
 					STextLayout tlo;
-					p_lo_item->Margin.a.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
-					p_lo_item->Margin.a.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
-					p_lo_item->Margin.b.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
-					p_lo_item->Margin.b.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
+					p_lo_item->ALB.Margin.a.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
+					p_lo_item->ALB.Margin.a.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
+					p_lo_item->ALB.Margin.b.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
+					p_lo_item->ALB.Margin.b.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
 
 					LayoutFlexItem * p_lo_fig = p_lo_item->InsertItem();
-					p_lo_fig->Size.X = _item_width;
-					p_lo_fig->Size.Y = _item_height;
+					p_lo_fig->ALB.SetFixedSizeX(_item_width);
+					p_lo_fig->ALB.SetFixedSizeY(_item_height);
+					//p_lo_fig->ALB.Size.X = _item_width;
+					//p_lo_fig->ALB.Size.Y = _item_height;
 					p_lo_fig->managed_ptr = p_obj;
 					p_lo_fig->CbSetup = FlexSetupProc_WhatmanFig;
 
@@ -762,9 +775,8 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 						text_bounds.set(tlo.GetBounds());
 						p_lo_text = p_lo_item->InsertItem();
 						if(p_lo_text) {
-							p_lo_text->Size.X = static_cast<float>(text_bounds.width());
-							p_lo_text->Size.Y = static_cast<float>(text_bounds.height());
-							p_lo_text->Margin.a.Y = 2.0f;
+							p_lo_text->ALB.SetFixedSize(text_bounds);
+							p_lo_text->ALB.Margin.a.Y = 2.0f;
 						}
 						/*p_lo_item->padding_bottom -= static_cast<float>(text_bounds.height());
 						if(text_bounds.width() > _item_width) {
@@ -778,14 +790,14 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 							float fs = 0.0f;
 							float ts = 0.0f;
 							if((!p_lo_fig || p_lo_fig->GetFullHeight(&fs)) && (!p_lo_text || p_lo_text->GetFullHeight(&ts))) {
-								p_lo_item->Size.Y = (fs + ts);
+								p_lo_item->ALB.SetFixedSizeY(fs + ts);
 							}
 						}
 						{
 							float text_width = 0.0f;
 							float fig_width = 0.0f;
 							if((!p_lo_text || p_lo_text->GetFullWidth(&text_width)) && (!p_lo_fig || p_lo_fig->GetFullWidth(&fig_width))) {
-								p_lo_item->Size.X = MAX(fig_width, text_width);
+								p_lo_item->ALB.SetFixedSizeX(MAX(fig_width, text_width));
 							}
 						}
 					}
@@ -798,9 +810,11 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 		}
 	}
 	{
-		lo_root.Size.X = static_cast<float>(Area.width() - rParam.UlGap.x - rParam.LrGap.x);
-		lo_root.Size.Y = static_cast<float>(Area.height() - rParam.UlGap.y - rParam.LrGap.y);
-		lo_root.Evaluate();
+		if(Area.width() > 0 && Area.height() > 0) {
+			lo_root.ALB.SetFixedSizeX(static_cast<float>(Area.width() - rParam.UlGap.x - rParam.LrGap.x));
+			lo_root.ALB.SetFixedSizeY(static_cast<float>(Area.height() - rParam.UlGap.y - rParam.LrGap.y));
+			lo_root.Evaluate();
+		}
 		/*for(uint i = 0; i < p_lo_root->getCount(); i++) {
 			const LayoutFlexItem * p_lo_item = p_lo_root->at(i);
 			if(p_lo_item && p_lo_item->managed_ptr) {
@@ -904,7 +918,7 @@ static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pIte
 			b.a.x = static_cast<int16>(size[0]+base_lu.X);
 			b.a.y = static_cast<int16>(size[1]+base_lu.Y);
 			b.b.x = static_cast<int16>(size[0]+size[2]+base_lu.X);
-			b.b.y = static_cast<int16>(size[0]+size[3]+base_lu.Y);
+			b.b.y = static_cast<int16>(size[1]+size[3]+base_lu.Y);
 			p_wo->SetBounds(b);
 			//p_item->changeBounds(b);
 			//p_view->setBounds(b);
@@ -920,46 +934,41 @@ int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
 		const SString & r_container_ident = pC->GetContainerIdent();
 		if(r_container_ident.NotEmpty()) {
 			const FPoint base_lu(pC->Bounds.a.x, pC->Bounds.a.y);
-			for(uint i = 0; i < ObjList.getCount(); i++) {
-				TWhatmanObject * p_iter_obj = ObjList.at(i);
-				if(p_iter_obj) {
-					if(p_iter_obj->GetLayoutContainerIdent() == r_container_ident) {
-						if(!p_root_item) {
-							p_root_item = new LayoutFlexItem();
-							if(p_root_item) {
-								p_root_item->managed_ptr = pC;
-								p_root_item->Size.X = static_cast<float>(pC->Bounds.width());
-								p_root_item->Size.Y = static_cast<float>(pC->Bounds.height());
-
-								if(pC->Le2.Flags & AbstractLayoutBlock::fContainerRow)
-									p_root_item->Direction = FLEX_DIRECTION_ROW;
-								else if(pC->Le2.Flags & AbstractLayoutBlock::fContainerCol)
-									p_root_item->Direction = FLEX_DIRECTION_COLUMN;
-								else
-									p_root_item->Direction = FLEX_DIRECTION_ROW; // @?
-								if(pC->Le2.Flags & AbstractLayoutBlock::fContainerWrap)
-									p_root_item->Flags |= LayoutFlexItem::fWrap;
-								/*if(pC->Le.ContainerDirection == DIREC_HORZ)
-									p_root_item->Direction = FLEX_DIRECTION_ROW;
-								else if(pC->Le.ContainerDirection == DIREC_VERT)
-									p_root_item->Direction = FLEX_DIRECTION_COLUMN;
-								else
-									p_root_item->Direction = FLEX_DIRECTION_ROW;
-								if(pC->Le.ContainerFlags & TLayout::EntryBlock::cfWrap)
-									p_root_item->Flags |= LayoutFlexItem::fWrap;*/
-							}
-						}
+			{
+				p_root_item = new LayoutFlexItem();
+				p_root_item->managed_ptr = pC;
+				p_root_item->ALB = pC->GetLayoutBlock();
+				p_root_item->ALB.SetFixedSize(pC->Bounds);
+				//if(pC->Le2.Flags & AbstractLayoutBlock::fContainerRow)
+					//p_root_item->ALB.SetContainerDirection(DIREC_HORZ);
+				//else if(pC->Le2.Flags & AbstractLayoutBlock::fContainerCol)
+					//p_root_item->ALB.SetContainerDirection(DIREC_VERT);
+				//else
+					//p_root_item->ALB.SetContainerDirection(DIREC_HORZ); // @?
+				//if(pC->Le2.Flags & AbstractLayoutBlock::fContainerWrap)
+					//p_root_item->ALB.Flags |= AbstractLayoutBlock::fContainerWrap/*LayoutFlexItem::fWrap*/;
+				/*if(pC->Le.ContainerDirection == DIREC_HORZ)
+					p_root_item->Direction = FLEX_DIRECTION_ROW;
+				else if(pC->Le.ContainerDirection == DIREC_VERT)
+					p_root_item->Direction = FLEX_DIRECTION_COLUMN;
+				else
+					p_root_item->Direction = FLEX_DIRECTION_ROW;
+				if(pC->Le.ContainerFlags & TLayout::EntryBlock::cfWrap)
+					p_root_item->Flags |= LayoutFlexItem::fWrap;*/
+			}
+			if(p_root_item) {
+				for(uint i = 0; i < ObjList.getCount(); i++) {
+					TWhatmanObject * p_iter_obj = ObjList.at(i);
+					if(p_iter_obj && p_iter_obj->GetLayoutContainerIdent() == r_container_ident) {
+						//if(p_iter_obj->Lay)
 						LayoutFlexItem * p_iter_item = p_root_item->InsertItem();
 						if(p_iter_item) {
 							p_iter_item->managed_ptr = p_iter_obj;
 							p_iter_item->CbSetup = WhatmanItem_SetupLayoutItemFrameProc;
-							p_iter_item->Size.X = static_cast<float>(p_iter_obj->Bounds.width());
-							p_iter_item->Size.Y = static_cast<float>(p_iter_obj->Bounds.height());
-						}
+							p_iter_item->ALB = p_iter_obj->GetLayoutBlock();
+						}						
 					}
 				}
-			}
-			if(p_root_item) {
 				p_root_item->Evaluate();
 			}
 		}
@@ -2140,17 +2149,17 @@ TWhatmanToolArray::Item::Item(const TWhatmanToolArray * pOwner) : Id(0), Flags(0
 	memzero(ExtData, sizeof(ExtData));
 }
 
-TWhatmanToolArray::TWhatmanToolArray() : SVector(sizeof(TWhatmanToolArray::Entry)), SrcFileVer(0) // @v9.8.5 SArray-->SVector
-	// @v9.1.9 В метод Init инициализацию SrcFileVer вставлять нельзя - он вызывается после чтения файла
+TWhatmanToolArray::TWhatmanToolArray() : SVector(sizeof(TWhatmanToolArray::Entry)), SrcFileVer(0)
+	// @v9.1.9 В метод Z() инициализацию SrcFileVer вставлять нельзя - он вызывается после чтения файла
 {
-	Init();
+	Z();
 }
 
 TWhatmanToolArray::~TWhatmanToolArray()
 {
 }
 
-TWhatmanToolArray & TWhatmanToolArray::Init()
+TWhatmanToolArray & TWhatmanToolArray::Z()
 {
 	Pool.clear();
 	Pool.add("$");
@@ -2161,6 +2170,7 @@ TWhatmanToolArray & TWhatmanToolArray::Init()
 	PicSize = 32;
 	Ap.Init(DIREC_HORZ);
 	Dg.Clear();
+	ALB.SetDefault(); // @v10.9.9
 	return *this;
 }
 
@@ -2499,7 +2509,8 @@ const SDrawFigure * TWhatmanToolArray::GetFigById(int figOrPic, uint id, TWhatma
 int TWhatmanToolArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	THROW(pCtx->Serialize(dir, (SVector *)this, rBuf)); // @v9.8.5 SArray-->SVector
+	assert(dir != 0);
+	THROW(pCtx->Serialize(dir, static_cast<SVector *>(this), rBuf));
 	THROW(pCtx->Serialize(dir, SymbP, rBuf));
 	THROW(pCtx->Serialize(dir, TextP, rBuf));
 	THROW(pCtx->Serialize(dir, Flags, rBuf));
@@ -2507,6 +2518,14 @@ int TWhatmanToolArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 	THROW(Ap.Serialize(dir, rBuf, pCtx));
 	THROW(Pool.Serialize(dir, rBuf, pCtx));
 	THROW(Dg.Serialize(dir, rBuf, pCtx));
+	// @v10.9.9 {
+	{
+		uint32 sign_tag = 0;
+		if(dir > 0 || (pCtx->GetLocalSignatureTag(TWhatmanToolArray::GetSerializeSignature(), &sign_tag) && sign_tag >= 1)) {
+			THROW(ALB.Serialize(dir, rBuf, pCtx));
+		}
+	}
+	// } @v10.9.9 
 	CATCHZOK
 	return ok;
 }
@@ -2521,10 +2540,8 @@ struct WtHeader {
 	uint8  Reserve[16];
 };
 
-#define WTA_SIGN 0x00415457
-#define WTM_SIGN 0x004D5457
-#define WTA_VER  0
-#define WTM_VER  1 // @v10.4.7 0-->1
+#define WTM_VER  2 // @v10.4.7 0-->1 // @v10.9.9 1-->2
+#define WTA_VER  1 // @v10.9.9 0-->1
 
 static int StoreWtBuffer(const char * pFileName, const SBuffer & rBuf, uint32 sign, uint32 ver)
 {
@@ -2550,24 +2567,27 @@ static int LoadWtBuffer(const char * pFileName, SBuffer & rBuf, uint32 sign, uin
 	uint32 crc = 0;
 	WtHeader hdr;
 	SFile f(pFileName, SFile::mRead|SFile::mBinary);
-	SLS.SetAddedMsgString(pFileName); // @v7.4.3
+	SLS.SetAddedMsgString(pFileName);
 	THROW(f.IsValid());
 	THROW(f.Read(&hdr, sizeof(hdr)));
 	THROW_S_S(hdr.Signature == sign, SLERR_WTMTA_INVSIGNATURE, pFileName);
 	THROW(f.CalcCRC(offsetof(WtHeader, Ver), &crc));
 	THROW_S_S(crc == hdr.Crc, SLERR_WTMTA_BADCRC, pFileName);
 	THROW(f.Read(rBuf));
+	ASSIGN_PTR(pVer, hdr.Ver); // @v10.9.9 @fix
 	CATCHZOK
 	return ok;
 }
 
+/*static*/uint32 TWhatmanToolArray::GetSerializeSignature() { return 0x00415457/*WTA_SIGN*/; }
+
 int TWhatmanToolArray::Store(const char * pFileName)
 {
 	int    ok = 1;
-	SSerializeContext ctx;
+	SSerializeContext sctx;
 	SBuffer buf;
-	THROW(Serialize(+1, buf, &ctx));
-	THROW(StoreWtBuffer(pFileName, buf, WTA_SIGN, WTA_VER));
+	THROW(Serialize(+1, buf, &sctx));
+	THROW(StoreWtBuffer(pFileName, buf, /*WTA_SIGN*/GetSerializeSignature(), WTA_VER));
 	CATCHZOK
 	return ok;
 }
@@ -2575,10 +2595,12 @@ int TWhatmanToolArray::Store(const char * pFileName)
 int TWhatmanToolArray::Load(const char * pFileName)
 {
 	int    ok = 1;
-	SSerializeContext ctx;
+	SSerializeContext sctx;
 	SBuffer buf;
-	THROW(LoadWtBuffer(pFileName, buf, WTA_SIGN, &SrcFileVer));
-	THROW(Init().Serialize(-1, buf, &ctx));
+	THROW(LoadWtBuffer(pFileName, buf, /*WTA_SIGN*/GetSerializeSignature(), &SrcFileVer));
+	sctx.SetLocalSignatureTag(GetSerializeSignature(), SrcFileVer);
+	THROW(Z().Serialize(-1, buf, &sctx));
+	sctx.ResetLocalSignatureTag(GetSerializeSignature());
 	{
 		SString file;
 		Pool.getnz(FileP, file);
@@ -2594,13 +2616,17 @@ int TWhatmanToolArray::Load(const char * pFileName)
 	return ok;
 }
 
+//#define WTM_SIGN 0x004D5457
+
+/*static*/uint32 TWhatman::GetSerializeSignature() { return 0x004D5457U; }
+
 int TWhatman::Store(const char * pFileName)
 {
 	int    ok = 1;
-	SSerializeContext ctx;
+	SSerializeContext sctx;
 	SBuffer buf;
-	THROW(Serialize(+1, buf, &ctx));
-	THROW(StoreWtBuffer(pFileName, buf, WTM_SIGN, WTM_VER));
+	THROW(Serialize(+1, buf, &sctx));
+	THROW(StoreWtBuffer(pFileName, buf, TWhatman::GetSerializeSignature()/*WTM_SIGN*/, WTM_VER));
 	CATCHZOK
 	return ok;
 }
@@ -2608,15 +2634,15 @@ int TWhatman::Store(const char * pFileName)
 int TWhatman::Load(const char * pFileName)
 {
 	int    ok = 1;
-	SSerializeContext ctx;
+	SSerializeContext sctx;
 	SBuffer buf;
-	THROW(LoadWtBuffer(pFileName, buf, WTM_SIGN, &SrcFileVer));
-	THROW(Serialize(-1, buf, &ctx));
+	THROW(LoadWtBuffer(pFileName, buf, TWhatman::GetSerializeSignature()/*WTM_SIGN*/, &SrcFileVer));
+	sctx.SetLocalSignatureTag(TWhatman::GetSerializeSignature(), SrcFileVer);
+	THROW(Serialize(-1, buf, &sctx));
+	sctx.ResetLocalSignatureTag(TWhatman::GetSerializeSignature());
 	CATCHZOK
 	return ok;
 }
-
-
 /*
 int TWhatmanToolArray::LockStorage(const char * pFileName)
 {

@@ -2244,7 +2244,6 @@ data BarcodeLabelList {
 data GoodsBillBase {
 	link   Global  Glb;
 	link   OprKind OprKindID;
-
 	long   ExpendFlag;          // 1 - Расход товара (или заказ), 2 - Приход товара
 	link   Bill      BillID;
 	link   Bill      LinkBillID;
@@ -2266,10 +2265,8 @@ data GoodsBillBase {
 	link   Person    RcvrID;       // Покупатель
 	link   PersonReq RcvrReq;      // Покупатель (как PersonReq)
 	link   Warehouse RcvrLocID;    // Склад покупателя //
-
 	link   PersonReq ConsignorReq; // Грузоотравитель
 	link   PersonReq ConsigneeReq; // Грузополучатель
-
 	date   Dt;                // Дата документа
 	date   PayDt;             // Срок оплаты по документу (последняя дата из плана платежей)
 	long   Flags;             //

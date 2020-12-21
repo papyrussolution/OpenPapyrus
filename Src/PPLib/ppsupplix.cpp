@@ -798,7 +798,7 @@ int PPSupplExchange_Baltika::ExportRestParties()
 	filt.DiffLotTagID = PPTAG_LOT_MANUFTIME; // @v10.1.7
 	//
 	if(P.LocList.IsEmpty()) {
-		THROW(LocObj.GetWarehouseList(&loc_list));
+		THROW(LocObj.GetWarehouseList(&loc_list, 0));
 	}
 	else
 		loc_list = P.LocList.Get();
@@ -834,8 +834,7 @@ int PPSupplExchange_Baltika::ExportRestParties()
 			Sdr_Baltika_RestPart head_rec;
 			soap_e.SetClientCode(client_code);
 			THROW(soap_e.Init(file_name, PPREC_BALTIKA_RESTPART, PPREC_BALTIKA_RESTPARTLINE, "CRMWhBalanceParam", "CRMWhBalanceParts", /*&se_filt,*/ "CRMWhBalanceExParts"));
-			// @v9.2.5 head_rec.SkipDelete = skip_delete; // (Filt.Flags & SupplExpFilt::expDelRecentBills) ? 0 : 1;
-			head_rec.SkipDelete = (P.Flags & P.fDeleteRecentBills) ? 0 : 1; // @v9.2.5
+			head_rec.SkipDelete = (P.Flags & P.fDeleteRecentBills) ? 0 : 1;
 			THROW(soap_e.AppendRecP(&head_rec, sizeof(head_rec), 0, 0, 0/*headRecForNewFile*/));
 		}
 		if(loc_list.at(i) != wotarebeer_locid) {
@@ -962,7 +961,7 @@ int PPSupplExchange_Baltika::ExportRest()
 	filt.GoodsGrpID = /*se_filt.*/Ep.GoodsGrpID;
 	filt.Date       = NZOR(/*se_filt.Period.*/P.ExpPeriod.upp, LConfig.OperDate);
 	if(P.LocList.IsEmpty()) {
-		THROW(LocObj.GetWarehouseList(&loc_list));
+		THROW(LocObj.GetWarehouseList(&loc_list, 0));
 	}
 	else
 		loc_list = P.LocList.Get();

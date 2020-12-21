@@ -69,7 +69,6 @@ FT_CALLBACK_DEF(FT_Error) ft_bitmap_glyph_init(FT_Glyph bitmap_glyph, FT_GlyphSl
 		FT_Bitmap_Init(&glyph->bitmap);
 		error = FT_Bitmap_Copy(library, &slot->bitmap, &glyph->bitmap);
 	}
-
 Exit:
 	return error;
 }

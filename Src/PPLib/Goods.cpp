@@ -212,7 +212,7 @@ int BarcodeArray::SearchCode(const char * pCode, uint * pPos) const
 	int    ok = 0;
 	if(!isempty(pCode)) {
 		for(uint i = 0; !ok && i < getCount(); i++) {
-			if(strcmp(at(i).Code, pCode) == 0) {
+			if(sstreq(at(i).Code, pCode)) {
 				ASSIGN_PTR(pPos, i);
 				ok = 1;
 			}
@@ -302,7 +302,7 @@ int BarcodeArray::Replace(const char * pSearchCode, const char * pReplaceCode)
 	if(c)
 		do {
 			BarcodeTbl::Rec & r_rec = at(--c);
-			if(strcmp(r_rec.Code, pSearchCode) == 0) {
+			if(sstreq(r_rec.Code, pSearchCode)) {
 				if(pReplaceCode)
 					STRNSCPY(r_rec.Code, pReplaceCode);
 				else
@@ -2446,7 +2446,7 @@ int GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, PPIDArr
 			PPIDArray term_list;
 			GetGroupTerminalList(grp, &term_list, 0);
 			for(uint i = 0; r == 0 && i < term_list.getCount(); i++) {
-				PPID   term_id = term_list.get(i);
+				const PPID term_id = term_list.get(i);
 				if(id == term_id || Helper_BelongToGroup(id, term_id, 0, pDynGrpList)) { // @recursion
 			   		sub_grp_id = term_id;
 			   		r = 1;
@@ -3166,7 +3166,7 @@ int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 			}
 			if(p_cache_rec->UnitID && goods_obj.FetchUnit(p_cache_rec->UnitID, &unit_rec) > 0 && unit_rec.Flags & PPUnit::IntVal)
 				p_cache_rec->Flags |= GF_INTVAL;
-			if(strcmp(rec.Name, rec.Abbr) == 0)
+			if(sstreq(rec.Name, rec.Abbr))
 				p_cache_rec->Flags |= GF_ABBREQNAME;
 		}
 		if(p_cache_rec->TypeID && oneof2(rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP)) {

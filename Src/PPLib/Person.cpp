@@ -776,15 +776,36 @@ int PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const
 int PPPersonPacket::GetCurrBnkAcct(PPBankAccount * pRec) const
 {
 	int    ok = -1;
-	for(uint i = 0; ok < 0 && i < Regs.getCount(); i++) {
+	uint   first_acc_idx = 0; // [1..]
+	uint   first_pref_acc_idx = 0; // [1..]
+	for(uint i = 0; i < Regs.getCount(); i++) {
 		const RegisterTbl::Rec & r_reg = Regs.at(i);
 		if(r_reg.RegTypeID == PPREGT_BANKACCOUNT) {
             PPBankAccount item(r_reg);
             if(item.AccType == PPBAC_CURRENT) {
-				ASSIGN_PTR(pRec, item);
-				ok = 1;
+				if(!first_acc_idx)
+					first_acc_idx = i+1;
+				if(item.Flags & PREGF_BACC_PREFERRED && !first_pref_acc_idx)
+					first_pref_acc_idx = i+1;
             }
 		}
+	}
+	if(first_pref_acc_idx) {
+		const RegisterTbl::Rec & r_reg = Regs.at(first_pref_acc_idx-1);
+		PPBankAccount item(r_reg);
+		assert(r_reg.RegTypeID == PPREGT_BANKACCOUNT);
+		assert(item.AccType == PPBAC_CURRENT);
+		assert(item.Flags & PREGF_BACC_PREFERRED);
+		ASSIGN_PTR(pRec, item);
+		ok = 1;
+	}
+	else if(first_acc_idx) {
+		const RegisterTbl::Rec & r_reg = Regs.at(first_acc_idx-1);
+		PPBankAccount item(r_reg);
+		assert(r_reg.RegTypeID == PPREGT_BANKACCOUNT);
+		assert(item.AccType == PPBAC_CURRENT);
+		ASSIGN_PTR(pRec, item);
+		ok = 1;
 	}
 	return ok;
 }
@@ -819,7 +840,7 @@ int PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkU
 			RegisterTbl::Rec test_rec;
 			uint   pos = 0;
 			while(Regs.GetRegister(reg_rec.RegTypeID, &pos, &test_rec) > 0) {
-				if(strcmp(test_rec.Num, reg_rec.Num) == 0)
+				if(sstreq(test_rec.Num, reg_rec.Num))
 					reg_exists = 1;
 				else
 					Regs.atFree(--pos);

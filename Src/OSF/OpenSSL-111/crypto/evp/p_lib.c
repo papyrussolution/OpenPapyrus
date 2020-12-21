@@ -596,18 +596,18 @@ int EVP_PKEY_base_id(const EVP_PKEY * pkey)
 
 void FASTCALL EVP_PKEY_free(EVP_PKEY * x)
 {
-	int i;
-	if(!x)
-		return;
-	CRYPTO_DOWN_REF(&x->references, &i, x->lock);
-	REF_PRINT_COUNT("EVP_PKEY", x);
-	if(i > 0)
-		return;
-	REF_ASSERT_ISNT(i < 0);
-	EVP_PKEY_free_it(x);
-	CRYPTO_THREAD_lock_free(x->lock);
-	sk_X509_ATTRIBUTE_pop_free(x->attributes, X509_ATTRIBUTE_free);
-	OPENSSL_free(x);
+	if(x) {
+		int i;
+		CRYPTO_DOWN_REF(&x->references, &i, x->lock);
+		REF_PRINT_COUNT("EVP_PKEY", x);
+		if(i > 0)
+			return;
+		REF_ASSERT_ISNT(i < 0);
+		EVP_PKEY_free_it(x);
+		CRYPTO_THREAD_lock_free(x->lock);
+		sk_X509_ATTRIBUTE_pop_free(x->attributes, X509_ATTRIBUTE_free);
+		OPENSSL_free(x);
+	}
 }
 
 static void EVP_PKEY_free_it(EVP_PKEY * x)
@@ -625,35 +625,28 @@ static void EVP_PKEY_free_it(EVP_PKEY * x)
 #endif
 }
 
-static int unsup_alg(BIO * out, const EVP_PKEY * pkey, int indent,
-    const char * kstr)
+static int unsup_alg(BIO * out, const EVP_PKEY * pkey, int indent, const char * kstr)
 {
 	BIO_indent(out, indent, 128);
-	BIO_printf(out, "%s algorithm \"%s\" unsupported\n",
-	    kstr, OBJ_nid2ln(pkey->type));
+	BIO_printf(out, "%s algorithm \"%s\" unsupported\n", kstr, OBJ_nid2ln(pkey->type));
 	return 1;
 }
 
-int EVP_PKEY_print_public(BIO * out, const EVP_PKEY * pkey,
-    int indent, ASN1_PCTX * pctx)
+int EVP_PKEY_print_public(BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx)
 {
 	if(pkey->ameth && pkey->ameth->pub_print)
 		return pkey->ameth->pub_print(out, pkey, indent, pctx);
-
 	return unsup_alg(out, pkey, indent, "Public Key");
 }
 
-int EVP_PKEY_print_private(BIO * out, const EVP_PKEY * pkey,
-    int indent, ASN1_PCTX * pctx)
+int EVP_PKEY_print_private(BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx)
 {
 	if(pkey->ameth && pkey->ameth->priv_print)
 		return pkey->ameth->priv_print(out, pkey, indent, pctx);
-
 	return unsup_alg(out, pkey, indent, "Private Key");
 }
 
-int EVP_PKEY_print_params(BIO * out, const EVP_PKEY * pkey,
-    int indent, ASN1_PCTX * pctx)
+int EVP_PKEY_print_params(BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx)
 {
 	if(pkey->ameth && pkey->ameth->param_print)
 		return pkey->ameth->param_print(out, pkey, indent, pctx);
@@ -672,21 +665,18 @@ int EVP_PKEY_get_default_digest_nid(EVP_PKEY * pkey, int * pnid)
 	return evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_DEFAULT_MD_NID, 0, pnid);
 }
 
-int EVP_PKEY_set1_tls_encodedpoint(EVP_PKEY * pkey,
-    const uchar * pt, size_t ptlen)
+int EVP_PKEY_set1_tls_encodedpoint(EVP_PKEY * pkey, const uchar * pt, size_t ptlen)
 {
 	if(ptlen > INT_MAX)
 		return 0;
-	if(evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_SET1_TLS_ENCPT, ptlen,
-	    (void *)pt) <= 0)
+	if(evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_SET1_TLS_ENCPT, ptlen, (void *)pt) <= 0)
 		return 0;
 	return 1;
 }
 
 size_t EVP_PKEY_get1_tls_encodedpoint(EVP_PKEY * pkey, uchar ** ppt)
 {
-	int rv;
-	rv = evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_GET1_TLS_ENCPT, 0, ppt);
+	int rv = evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_GET1_TLS_ENCPT, 0, ppt);
 	if(rv <= 0)
 		return 0;
 	return rv;

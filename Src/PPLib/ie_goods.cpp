@@ -1042,7 +1042,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 		// Экспорт информации о штрихкодах
 		//
 		{
-			uint count = pPack->Codes.getCount();
+			const uint count = pPack->Codes.getCount();
 			if(!isempty(pBarcode))
 				STRNSCPY(sdr_goods.Code, pBarcode);
 			else {
@@ -1065,11 +1065,15 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 			}
 			for(uint i = 0; i < count; i++) {
 				const BarcodeTbl::Rec & r_bc_rec = pPack->Codes.at(i);
-				if(stricmp866(sdr_goods.Code, r_bc_rec.Code) != 0 && r_bc_rec.Qtty > 0.0) {
+				if(sdr_goods.AddedCode[0] == 0 && stricmp866(sdr_goods.Code, r_bc_rec.Code) != 0 && r_bc_rec.Qtty > 0.0) {
 					STRNSCPY(sdr_goods.AddedCode, r_bc_rec.Code);
 					sdr_goods.AddedCodeQtty = r_bc_rec.Qtty;
-					break;
 				}
+				// @v10.9.9 {
+				if(sdr_goods.PreferredCode[0] == 0 && IsInnerBarcodeType(r_bc_rec.BarcodeType, BARCODE_TYPE_PREFERRED)) {
+					STRNSCPY(sdr_goods.PreferredCode, r_bc_rec.Code);
+				}
+				// } @v10.9.9 
 			}
 		}
 		{
@@ -2055,6 +2059,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 	SString file_name;
 	SString wait_msg;
 	SString temp_buf2;
+	SString ext_fld_buf;
 	SString err_msg_buf;
 	SString fmt_buf;
 	SString msg_buf;
@@ -2078,7 +2083,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		if(pCfgName) {
-			//uint p = 0;
 			StrAssocArray list;
 			PPGoodsImpExpParam param;
 			Param.Name = pCfgName;
@@ -2612,9 +2616,17 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									do_update = 1;
 								}
 								// @v10.9.8 {
-								if(pack2.ExtString != pack.ExtString) { 
-									pack.ExtString = pack2.ExtString;
-									do_update = 1;
+								{
+									static const uint8 ext_id_list[] = { GDSEXSTR_A, GDSEXSTR_B, GDSEXSTR_C, GDSEXSTR_D, GDSEXSTR_E };
+									for(uint eilidx = 0; eilidx < SIZEOFARRAY(ext_id_list); eilidx++) {
+										if(PPGetExtStrData(ext_id_list[eilidx], pack2.ExtString, temp_buf2) > 0 && temp_buf2.NotEmptyS()) {
+											PPGetExtStrData(ext_id_list[eilidx], pack.ExtString, ext_fld_buf);
+											if(ext_fld_buf != temp_buf2) {
+												PPPutExtStrData(ext_id_list[eilidx], pack.ExtString, temp_buf2);
+												do_update = 1;
+											}
+										}
+									}
 								}
 								// } @v10.9.8 
 								if(tag_list.GetCount()) {

@@ -171,32 +171,27 @@
 #else
 #undef	USE_READDIR_R
 #endif
-
 /* Set up defaults for internal error codes. */
 #ifndef ARCHIVE_ERRNO_FILE_FORMAT
-#if HAVE_EFTYPE
-#define	ARCHIVE_ERRNO_FILE_FORMAT EFTYPE
-#else
-#if HAVE_EILSEQ
-#define	ARCHIVE_ERRNO_FILE_FORMAT EILSEQ
-#else
-#define	ARCHIVE_ERRNO_FILE_FORMAT EINVAL
+	#if HAVE_EFTYPE
+		#define	ARCHIVE_ERRNO_FILE_FORMAT EFTYPE
+	#else
+		#if HAVE_EILSEQ
+			#define	ARCHIVE_ERRNO_FILE_FORMAT EILSEQ
+		#else
+			#define	ARCHIVE_ERRNO_FILE_FORMAT EINVAL
+		#endif
+	#endif
 #endif
-#endif
-#endif
-
 #ifndef ARCHIVE_ERRNO_PROGRAMMER
-#define	ARCHIVE_ERRNO_PROGRAMMER EINVAL
+	#define	ARCHIVE_ERRNO_PROGRAMMER EINVAL
 #endif
-
 #ifndef ARCHIVE_ERRNO_MISC
-#define	ARCHIVE_ERRNO_MISC (-1)
+	#define	ARCHIVE_ERRNO_MISC (-1)
 #endif
-
 #if defined(__GNUC__) && (__GNUC__ >= 7)
-#define	__LA_FALLTHROUGH	__attribute__((fallthrough))
+	#define	__LA_FALLTHROUGH	__attribute__((fallthrough))
 #else
-#define	__LA_FALLTHROUGH
+	#define	__LA_FALLTHROUGH
 #endif
-
 #endif /* !ARCHIVE_PLATFORM_H_INCLUDED */

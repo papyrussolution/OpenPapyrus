@@ -32,6 +32,17 @@ static SString P_VKUrlBase("https://api.vk.com");
 static SString P_VKMethodUrlBase("https://api.vk.com/method");
 //static const char * P_VKAppId = "7685698"; // "7402217"; // Идентификатор приложения (аргумент client_id в запросах)
 
+VkInterface::ErrorResponse::ErrorResponse() : Code(0)
+{
+}
+
+VkInterface::ErrorResponse & VkInterface::ErrorResponse::Z()
+{
+	Code = 0;
+	Message.Z();
+	return *this;
+}
+
 VkInterface::InitBlock::InitBlock() : GuaID(0), OuterWareIdentTagID(0), LinkFileType(0)
 {
 }
@@ -125,6 +136,7 @@ SString & VkInterface::AppendParamProtoVer(SString & rBuf) const
 }
 
 PPID VkInterface::GetOuterWareIdentTagID() const { return Ib.OuterWareIdentTagID; }
+const VkInterface::ErrorResponse & VkInterface::GetLastResponseError() const { return LastErrResp; }
 
 int VkInterface::Setup(PPID guaID, uint flags)
 {
@@ -263,13 +275,9 @@ int VkInterface::WallPost(const SString & rMessage, const SString & rLinkFilePat
 	return ok;
 }
 
-//int  VkInterface::AddGoodToMarket(const VkStruct &rVkStruct, const SString &rName, const SString &rDescr, const uint &rCategory, double &rPrice, SString &rOutput)
-//int  VkInterface::AddGoodToMarket(/*const VkStruct & rVkStruct,*/const Goods2Tbl::Rec & rGoodsRes, 
-	//const SString & rDescr, const double price, const double oldPrice, const PPID vkMarketItemID, SString & rOutput)
-int VkInterface::AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const SString & rImgPath, 
-	PPObjGoods::ExportToGlbSvcItem & rItem, PPID vkMarketItemID, SString & rOutput)
+int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & rResultItem)
 {
-	rOutput.Z();
+	//rOutput.Z();
 	int    ok = 1;
 	SString temp_buf;
 	SString upload_url;
@@ -283,7 +291,7 @@ int VkInterface::AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString
 	{
 		THROW(Photos_GetMarketUploadServer(/*rVkStruct,*/1, temp_buf));
 		THROW(ParseUploadServer(temp_buf, upload_url));
-		THROW(PhotoToReq(upload_url, /*rVkStruct.LinkFilePath*/rImgPath, temp_buf, "file"));
+		THROW(PhotoToReq(upload_url, rItem.ImgPath, temp_buf, "file"));
 		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
 		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type == SJson::tOBJECT) {
@@ -314,7 +322,7 @@ int VkInterface::AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString
 		ZDELETE(p_json_doc);
 	}
 	{
-		THROW(Photos_SaveMarketPhoto(/*rVkStruct,*/photo, server, hash, crop_data, crop_hash, temp_buf));
+		THROW(Photos_SaveMarketPhoto(photo, server, hash, crop_data, crop_hash, temp_buf));
 		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
 		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type == SJson::tOBJECT) {
@@ -334,13 +342,63 @@ int VkInterface::AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString
 		}
 		ZDELETE(p_json_doc);
 	}
-	if(vkMarketItemID > 0) {
-		Market_Edit(/*rVkStruct,*/vkMarketItemID, rItem.Price, SString(rGoodsRes.Name), photo_id, 1100, rDescr, temp_buf);
+	{
+		SString name, descr;
+		name.Cat(rItem.Name).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
+		descr.Cat(rItem.Description).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
+		SString url(P_VKMethodUrlBase);
+		if(rItem.OuterId > 0) {
+			//Market_Edit(rItem.OuterId, rItem.Price, rItem.Name, photo_id, 1100, rItem.Description, temp_buf);
+			//int VkInterface::Market_Edit(/*const VkStruct & rVkStruct,*/PPID goodsID, double goodsPrice, 
+				//const SString & rGoodsName, const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput)  //edit goods from market
+			url.SetLastDSlash().Cat("market.edit").CatChar('?').CatEq("item_id", rItem.OuterId).Cat("&");
+		}
+		else {
+			//THROW(Market_Add(rItem.Price, rItem.Name, photo_id, 1100, rItem.Description, temp_buf));
+			//int  VkInterface::Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, const SString & rGoodsName, 
+				//const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput)
+			url.SetLastDSlash().Cat("market.add").CatChar('?');
+		}
+		url.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).Cat("&")
+			.CatEq("access_token", Ib.CliAccsKey).Cat("&");
+			AppendParamProtoVer(url).Cat("&")
+			.CatEq("name", name).Cat("&")
+			.CatEq("category_id", /*catId*/1100LL).Cat("&")
+			.CatEq("price", rItem.Price, MKSFMTD(0, 2, 0)).Cat("&")
+			.CatEq("main_photo_id", photo_id).Cat("&")
+			.CatEq("description", descr);
+		THROW(GetRequest(url, temp_buf, ScURL::mfDontVerifySslPeer));
+		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+		if(ReadError(p_json_doc, LastErrResp) > 0) {
+			ok = 0;
+		}
+		else {
+			for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Type == SJson::tOBJECT) {
+					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						if(p_obj->Text.IsEqiAscii("response")) {
+							const SJson * p_response_node = p_obj->P_Child;
+							if(p_response_node->P_Child) {
+								for(const SJson * p_response_item = p_response_node->P_Child; p_response_item; p_response_item = p_response_item->P_Next) {
+									if(p_response_item->Text.IsEqiAscii("market_item_id")) {
+										rResultItem.OuterId = p_response_item->P_Child->Text.ToInt64();
+										/*
+										temp_buf = p_response_item->P_Child->Text.Unescape();
+										ObjTagItem new_obj_tag_item;
+										new_obj_tag_item.SetStr(ifc.GetOuterWareIdentTagID(), temp_buf);
+										if(new_obj_tag_item != stored_obj_tag_item)
+											p_ref->Ot.PutTag(PPOBJ_GOODS, goods_rec.ID, &new_obj_tag_item, 0);
+										*/
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
-	else {
-		THROW(Market_Add(/*rVkStruct,*/rItem.Price, SString(rGoodsRes.Name), photo_id, 1100, rDescr, temp_buf));
-	}
-	rOutput.Z().Cat(temp_buf);
+	//rOutput.Z().Cat(temp_buf);
 	CATCHZOK
 	ZDELETE(p_json_doc);
 	return ok;
@@ -457,6 +515,7 @@ int VkInterface::Wall_Post(/*const VkStruct &rVkStruct,*/const SString & rMessag
 	return ok;
 }
 
+#if 0 // {
 int  VkInterface::Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, const SString & rGoodsName, 
 	const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput)
 {
@@ -479,9 +538,10 @@ int  VkInterface::Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, co
 	CATCHZOK;
 	return ok;
 }
-
+#endif // } 0
+#if 0 // {
 int VkInterface::Market_Edit(/*const VkStruct & rVkStruct,*/PPID goodsID, double goodsPrice, 
-	const SString & rGoodsName, const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput) 
+	const SString & rGoodsName, const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput)  //edit goods from market
 {
 	rOutput.Z();
 	int    ok = 1;
@@ -502,22 +562,101 @@ int VkInterface::Market_Edit(/*const VkStruct & rVkStruct,*/PPID goodsID, double
 	THROW(GetRequest(url, rOutput, ScURL::mfDontVerifySslPeer));
 	CATCHZOK;
 	return ok;
-} //edit goods from market
+} 
+#endif // } 0
 
-int VkInterface::Market_Get(/*const VkStruct & rVkStruct,*/SString & rOutput)
+int VkInterface::ReadError(const SJson * pJs, ErrorResponse & rErr) const
 {
-	rOutput.Z();
+	int    ok = -1;
+	const  SJson * p_cur = pJs;
+	if(SJson::IsObject(p_cur)) {
+		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("error")) {
+				ok = 1;
+				for(const SJson * p_response = p_cur->P_Child->P_Child; p_response; p_response = p_response->P_Next) {
+					if(p_response->Text.IsEqiAscii("error_code")) {
+						if(p_response->P_Child)
+							rErr.Code = p_response->P_Child->Text.Unescape().ToLong();
+					}
+					else if(p_response->Text.IsEqiAscii("error_msg")) {
+						if(p_response->P_Child)
+							rErr.Message = p_response->P_Child->Text.Unescape();
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int VkInterface::Market_Get(LongArray & rList) // get all goods from VK market
+{
+	rList.clear();
+	LastErrResp.Z();
+
 	int    ok = 1;
+	SJson * p_json_doc = 0;
+	SString json_buf;
 	SString url, temp_buf;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("market.get").CatChar('?')
-		.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
+		.CatEq("owner_id", temp_buf.Z().CatChar('-').Cat(Ib.GroupId)).Cat("&")
+		.CatEq("access_token", Ib.CliAccsKey).Cat("&");
 		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/;
 	THROW(GetRequest(url, temp_buf.Z(), ScURL::mfDontVerifySslPeer));
-	rOutput.Z().Cat(temp_buf);
-	CATCHZOK;
+	{
+		long item_id = 0; 
+		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+		if(ReadError(p_json_doc, LastErrResp) > 0) {
+			ok = 0;
+		}
+		else { 
+			for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
+				if(SJson::IsObject(p_cur)) {
+					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						if(p_obj->Text.IsEqiAscii("response")) {
+							for(const SJson * p_response = p_obj->P_Child->P_Child; p_response; p_response = p_response->P_Next) {
+								if(p_response->Text.IsEqiAscii("items")) {
+									//owner_id = p_response->P_Child->Text.Unescape();
+									for(const SJson * p_item = p_response->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
+										for(const SJson * p_item_child = p_item->P_Child; p_item_child; p_item_child = p_item_child->P_Next) {
+											if(p_item_child->Text.IsEqiAscii("id")) {
+												item_id = p_item_child->P_Child->Text.Unescape().ToLong();
+												rList.add(item_id);
+											}
+											else if(p_item_child->Text.IsEqiAscii("availability")) {
+											}
+											else if(p_item_child->Text.IsEqiAscii("category")) {
+												// obj
+											}
+											else if(p_item_child->Text.IsEqiAscii("description")) {
+											}
+											else if(p_item_child->Text.IsEqiAscii("owner_id")) {
+											}
+											else if(p_item_child->Text.IsEqiAscii("price")) {
+												// obj
+											}
+											else if(p_item_child->Text.IsEqiAscii("thumb_photo")) {
+											}
+											else if(p_item_child->Text.IsEqiAscii("title")) {
+											}
+											else if(p_item_child->Text.IsEqiAscii("date")) {
+											}
+											else if(p_item_child->Text.IsEqiAscii("cart_quantity")) {
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	ZDELETE(p_json_doc);
 	return ok;
-} // get all goods from VK market
+} 
 
 int  VkInterface::PhotoToReq(SString & rUrl, const SString & rImgPath, SString & rOutput, const char * rDataName)
 {
@@ -561,6 +700,7 @@ int VkInterface::GetRequest(const SString & rUrl, SString & rOutput, int mflags)
 	return ok;
 }
 
+#if 0 // {
 int VkInterface::ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const
 {
 	int    ok = 1;
@@ -592,6 +732,7 @@ int VkInterface::ParceGoodsItemList(const SString & rJsonStr, LongArray & rList)
 	CATCHZOK;
 	return ok;
 }
+#endif // } 0
 //
 //
 //
@@ -1064,7 +1205,7 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 	VkInterface ifc;
 	SString temp_buf;
 	SString msg_buf;
-	SString img_path;
+	//SString img_path;
 	SString def_img_path;
 	ObjLinkFiles lf(PPOBJ_GOODS);
 	PPWait(1);
@@ -1076,84 +1217,85 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 		LongArray ex_outer_goods_id_list;
 		const int goods_descr_ext_str_id = oneof5(rParam.DescrExtStrId, GDSEXSTR_A, GDSEXSTR_B, GDSEXSTR_C, GDSEXSTR_D, GDSEXSTR_E) ? rParam.DescrExtStrId : GDSEXSTR_A;
 		PPWait(1);
-		THROW(ifc.Market_Get(/*vk_struct,*/temp_buf));
-		THROW_SL(ifc.ParceGoodsItemList(temp_buf, ex_outer_goods_id_list));
-		for(uint i = 0; i < rSrcList.getCount(); i++) {
-			PPObjGoods::ExportToGlbSvcItem & r_src_item = rSrcList.at(i);
-			const PPID native_goods_id = r_src_item.GoodsID;
-			const PPID native_loc_id = r_src_item.LocID;
-			if(goods_obj.Search(native_goods_id, &goods_rec) > 0) {
-				SString link_file_path;
-				int   link_file_type = 0;
-				p_ref->Ot.GetTag(PPOBJ_GOODS, native_goods_id, /*tag_outer_goods_id*/ifc.GetOuterWareIdentTagID(), &stored_obj_tag_item);
-				lf.Load(native_goods_id, 0L);
-				lf.At(0, img_path.Z());
-				if(img_path.NotEmptyS()) {
-					link_file_path = img_path;
-					link_file_type = 1;
-				}
-				else {
-					CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNOIMG, &msg_buf, native_goods_id))); // PPTXT_LOG_UHTT_GOODSNOIMG "Для товара @goods нет изображения"
-					img_path = def_img_path; // @v10.9.4
-					link_file_type = 1;
-					if(!fileExists(img_path)) {
-						CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NODEFIMG, &msg_buf, native_goods_id))); // "Изображение по-умолчанию не найдено!"
-						continue;
-					}
-				}
-				{
-					pack.Rec.ID = native_goods_id; // @trick
-					pack.Rec.Flags |= GF_EXTPROP; // @trick
-					if(goods_obj.GetValueAddedData(native_goods_id, &pack) > 0) {
-						if(pack.GetExtStrData(goods_descr_ext_str_id, temp_buf) > 0)
-							msg_buf.Z().Cat(temp_buf);
-						else
-							msg_buf = goods_rec.Name; // @v10.9.6
-						/* @v10.9.6 else {
-							CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NODESCRFORGOODS, &msg_buf, native_goods_id))); // "Изображение по-умолчанию не найдено!"
-							continue;
-						}*/
+		if(!ifc.Market_Get(ex_outer_goods_id_list)) {
+			const VkInterface::ErrorResponse & r_err = ifc.GetLastResponseError();
+			if(r_err.Code) {
+				CALLPTRMEMB(pLogger, LogMsgCode(mfError, PPERR_VK_RESPONSE, (temp_buf = r_err.Message).Transf(CTRANSF_UTF8_TO_INNER)));
+			}
+		}
+		else {
+			for(uint i = 0; i < rSrcList.getCount(); i++) {
+				PPObjGoods::ExportToGlbSvcItem & r_src_item = rSrcList.at(i);
+				const PPID native_goods_id = r_src_item.GoodsID;
+				const PPID native_loc_id = r_src_item.LocID;
+				if(goods_obj.Search(native_goods_id, &goods_rec) > 0) {
+					SString link_file_path;
+					int   link_file_type = 0;
+					VkInterface::MarketWareItem market_item(r_src_item);
+					VkInterface::MarketWareItem result_market_item;
+					market_item.Name = goods_rec.Name;
+					p_ref->Ot.GetTag(PPOBJ_GOODS, native_goods_id, /*tag_outer_goods_id*/ifc.GetOuterWareIdentTagID(), &stored_obj_tag_item);
+					lf.Load(native_goods_id, 0L);
+					lf.At(0, market_item.ImgPath);
+					if(market_item.ImgPath.NotEmptyS()) {
+						link_file_path = market_item.ImgPath;
+						link_file_type = 1;
 					}
 					else {
-						msg_buf = goods_rec.Name; // @v10.9.6
-						// @v10.9.6 CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_ADDFIELDSFORGOODSPROBLEM, &msg_buf, native_goods_id)));
-						// @v10.9.6 continue;
-					}
-				}
-				PPID   outer_goods_id = 0;
-				stored_obj_tag_item.GetInt(&outer_goods_id);
-				if(!ex_outer_goods_id_list.lsearch(outer_goods_id))
-					outer_goods_id = 0;
-				if(ifc.AddGoodToMarket(/*vk_struct,*/goods_rec, msg_buf, img_path, r_src_item, outer_goods_id, temp_buf) > 0) {
-					SJson * p_json_doc = 0;
-					THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
-					for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
-						if(p_cur->Type == SJson::tOBJECT) {
-							for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-								if(p_obj->Text.IsEqiAscii("response")) {
-									const SJson * p_response_node = p_obj->P_Child;
-									if(p_response_node->P_Child) {
-										for(const SJson * p_response_item = p_response_node->P_Child; p_response_item; p_response_item = p_response_item->P_Next) {
-											if(p_response_item->Text.IsEqiAscii("market_item_id")) {
-												temp_buf = p_response_item->P_Child->Text.Unescape();
-												ObjTagItem new_obj_tag_item;
-												new_obj_tag_item.SetStr(/*tag_outer_goods_id*/ifc.GetOuterWareIdentTagID(), temp_buf);
-												if(new_obj_tag_item != stored_obj_tag_item)
-													p_ref->Ot.PutTag(PPOBJ_GOODS, goods_rec.ID, &new_obj_tag_item, 0);
-											}
-										}
-									}
-								}
-							}
+						CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNOIMG, &msg_buf, native_goods_id))); // PPTXT_LOG_UHTT_GOODSNOIMG "Для товара @goods нет изображения"
+						market_item.ImgPath = def_img_path; // @v10.9.4
+						link_file_type = 1;
+						if(!fileExists(market_item.ImgPath)) {
+							CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NODEFIMG, &msg_buf, native_goods_id))); // "Изображение по-умолчанию не найдено!"
+							continue;
 						}
 					}
-					ZDELETE(p_json_doc);
+					{
+						pack.Rec.ID = native_goods_id; // @trick
+						pack.Rec.Flags |= GF_EXTPROP; // @trick
+						if(goods_obj.GetValueAddedData(native_goods_id, &pack) > 0) {
+							if(pack.GetExtStrData(goods_descr_ext_str_id, temp_buf) > 0)
+								market_item.Description = temp_buf;
+							else
+								market_item.Description = goods_rec.Name; // @v10.9.6
+							/* @v10.9.6 else {
+								CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NODESCRFORGOODS, &msg_buf, native_goods_id))); // "Изображение по-умолчанию не найдено!"
+								continue;
+							}*/
+						}
+						else {
+							market_item.Description = goods_rec.Name; // @v10.9.6
+							// @v10.9.6 CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_ADDFIELDSFORGOODSPROBLEM, &msg_buf, native_goods_id)));
+							// @v10.9.6 continue;
+						}
+					}
+					{
+						PPID   outer_goods_id = 0;
+						stored_obj_tag_item.GetInt(&outer_goods_id);
+						if(!ex_outer_goods_id_list.lsearch(outer_goods_id))
+							outer_goods_id = 0;
+						market_item.OuterId = outer_goods_id;
+					}
+					if(!ifc.PutWareToMarket(market_item, result_market_item)) {
+						const VkInterface::ErrorResponse & r_err = ifc.GetLastResponseError();
+						if(r_err.Code) {
+							CALLPTRMEMB(pLogger, LogMsgCode(mfError, PPERR_VK_RESPONSE, (temp_buf = r_err.Message).Transf(CTRANSF_UTF8_TO_INNER)));
+						}						
+					}
+					else {
+						ObjTagItem new_obj_tag_item;
+						temp_buf.Z().Cat(result_market_item.OuterId);
+						new_obj_tag_item.SetStr(/*tag_outer_goods_id*/ifc.GetOuterWareIdentTagID(), temp_buf);
+						if(new_obj_tag_item != stored_obj_tag_item) {
+							p_ref->Ot.PutTag(PPOBJ_GOODS, goods_rec.ID, &new_obj_tag_item, 0);
+						}
+					}
+					PPWaitPercent(i, rSrcList.getCount());
 				}
-				PPWaitPercent(i, rSrcList.getCount());
 			}
 		}
 	}
-	CATCHZOK
+	//CATCHZOK
 	PPWait(0);
 	return ok;
 }

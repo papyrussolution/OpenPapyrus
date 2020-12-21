@@ -32,10 +32,8 @@ FT_EXPORT_DEF(FT_Error) FT_Get_BDF_Charset_ID(FT_Face face, const char** acharse
 		error = service->get_charset_id(face, &encoding, &registry);
 	else
 		error = FT_THROW(Invalid_Argument);
-	if(acharset_encoding)
-		*acharset_encoding = encoding;
-	if(acharset_registry)
-		*acharset_registry = registry;
+	ASSIGN_PTR(acharset_encoding, encoding);
+	ASSIGN_PTR(acharset_registry, registry);
 	return error;
 }
 

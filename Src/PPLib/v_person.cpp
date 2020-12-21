@@ -1107,15 +1107,11 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 			StrPool.AddS(phone_list, &item.PhoneP);
 		}
 		if(pPsnRec->MainLoc) {
-			// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(pPsnRec->MainLoc, 0, temp_buf);
-			PsnObj.LocObj.GetAddress(pPsnRec->MainLoc, 0, temp_buf); // @v9.5.5
-			//temp_buf.CopyTo(item.Address, sizeof(item.Address));
+			PsnObj.LocObj.GetAddress(pPsnRec->MainLoc, 0, temp_buf);
 			StrPool.AddS(temp_buf, &item.AddressP);
 		}
 		if(pPsnRec->RLoc) {
-			// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(pPsnRec->RLoc, 0, temp_buf);
-			PsnObj.LocObj.GetAddress(pPsnRec->RLoc, 0, temp_buf); // @v9.5.5
-			//temp_buf.CopyTo(item.RAddress, sizeof(item.RAddress));
+			PsnObj.LocObj.GetAddress(pPsnRec->RLoc, 0, temp_buf);
 			StrPool.AddS(temp_buf, &item.RAddressP);
 		}
 		//if(item.Phone[0] == 0 && item.Address[0] == 0 && item.RAddress[0] == 0) {

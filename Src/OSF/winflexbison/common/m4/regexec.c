@@ -40,65 +40,25 @@ static regoff_t re_search_stub(struct re_pattern_buffer * bufp,
     regoff_t range, Idx stop,
     struct re_registers * regs,
     bool ret_len) internal_function;
-static unsigned int re_copy_regs(struct re_registers * regs, regmatch_t * pmatch,
-    Idx nregs, int regs_allocated)
-internal_function;
-static reg_errcode_t prune_impossible_nodes(re_match_context_t * mctx)
-internal_function;
-static Idx check_matching(re_match_context_t * mctx, bool fl_longest_match,
-    Idx * p_match_first) internal_function;
-static Idx check_halt_state_context(const re_match_context_t * mctx,
-    const re_dfastate_t * state, Idx idx)
-internal_function;
-static void update_regs(const re_dfa_t * dfa, regmatch_t * pmatch,
-    regmatch_t * prev_idx_match, Idx cur_node,
-    Idx cur_idx, Idx nmatch) internal_function;
-static reg_errcode_t push_fail_stack(struct re_fail_stack_t * fs,
-    Idx str_idx, Idx dest_node, Idx nregs,
-    regmatch_t * regs,
-    re_node_set * eps_via_nodes)
-internal_function;
-static reg_errcode_t set_regs(const regex_t * preg,
-    const re_match_context_t * mctx,
-    size_t nmatch, regmatch_t * pmatch,
-    bool fl_backtrack) internal_function;
-static reg_errcode_t free_fail_stack_return(struct re_fail_stack_t * fs)
-internal_function;
-
+static unsigned int re_copy_regs(struct re_registers * regs, regmatch_t * pmatch, Idx nregs, int regs_allocated) internal_function;
+static reg_errcode_t prune_impossible_nodes(re_match_context_t * mctx) internal_function;
+static Idx check_matching(re_match_context_t * mctx, bool fl_longest_match, Idx * p_match_first) internal_function;
+static Idx check_halt_state_context(const re_match_context_t * mctx, const re_dfastate_t * state, Idx idx) internal_function;
+static void update_regs(const re_dfa_t * dfa, regmatch_t * pmatch, regmatch_t * prev_idx_match, Idx cur_node, Idx cur_idx, Idx nmatch) internal_function;
+static reg_errcode_t push_fail_stack(struct re_fail_stack_t * fs, Idx str_idx, Idx dest_node, Idx nregs, regmatch_t * regs,
+    re_node_set * eps_via_nodes) internal_function;
+static reg_errcode_t set_regs(const regex_t * preg, const re_match_context_t * mctx, size_t nmatch, regmatch_t * pmatch, bool fl_backtrack) internal_function;
+static reg_errcode_t free_fail_stack_return(struct re_fail_stack_t * fs) internal_function;
 #ifdef RE_ENABLE_I18N
-static int sift_states_iter_mb(const re_match_context_t * mctx,
-    re_sift_context_t * sctx,
-    Idx node_idx, Idx str_idx, Idx max_str_idx)
-internal_function;
+	static int sift_states_iter_mb(const re_match_context_t * mctx, re_sift_context_t * sctx, Idx node_idx, Idx str_idx, Idx max_str_idx) internal_function;
 #endif /* RE_ENABLE_I18N */
-static reg_errcode_t sift_states_backward(const re_match_context_t * mctx,
-    re_sift_context_t * sctx)
-internal_function;
-static reg_errcode_t build_sifted_states(const re_match_context_t * mctx,
-    re_sift_context_t * sctx, Idx str_idx,
-    re_node_set * cur_dest)
-internal_function;
-static reg_errcode_t update_cur_sifted_state(const re_match_context_t * mctx,
-    re_sift_context_t * sctx,
-    Idx str_idx,
-    re_node_set * dest_nodes)
-internal_function;
-static reg_errcode_t add_epsilon_src_nodes(const re_dfa_t * dfa,
-    re_node_set * dest_nodes,
-    const re_node_set * candidates)
-internal_function;
-static bool check_dst_limits(const re_match_context_t * mctx,
-    const re_node_set * limits,
-    Idx dst_node, Idx dst_idx, Idx src_node,
-    Idx src_idx) internal_function;
-static int check_dst_limits_calc_pos_1(const re_match_context_t * mctx,
-    int boundaries, Idx subexp_idx,
-    Idx from_node, Idx bkref_idx)
-internal_function;
-static int check_dst_limits_calc_pos(const re_match_context_t * mctx,
-    Idx limit, Idx subexp_idx,
-    Idx node, Idx str_idx,
-    Idx bkref_idx) internal_function;
+static reg_errcode_t sift_states_backward(const re_match_context_t * mctx, re_sift_context_t * sctx) internal_function;
+static reg_errcode_t build_sifted_states(const re_match_context_t * mctx, re_sift_context_t * sctx, Idx str_idx, re_node_set * cur_dest) internal_function;
+static reg_errcode_t update_cur_sifted_state(const re_match_context_t * mctx, re_sift_context_t * sctx, Idx str_idx, re_node_set * dest_nodes) internal_function;
+static reg_errcode_t add_epsilon_src_nodes(const re_dfa_t * dfa, re_node_set * dest_nodes, const re_node_set * candidates) internal_function;
+static bool check_dst_limits(const re_match_context_t * mctx, const re_node_set * limits, Idx dst_node, Idx dst_idx, Idx src_node, Idx src_idx) internal_function;
+static int check_dst_limits_calc_pos_1(const re_match_context_t * mctx, int boundaries, Idx subexp_idx, Idx from_node, Idx bkref_idx) internal_function;
+static int check_dst_limits_calc_pos(const re_match_context_t * mctx, Idx limit, Idx subexp_idx, Idx node, Idx str_idx, Idx bkref_idx) internal_function;
 static reg_errcode_t check_subexp_limits(const re_dfa_t * dfa,
     re_node_set * dest_nodes,
     const re_node_set * candidates,
@@ -106,91 +66,45 @@ static reg_errcode_t check_subexp_limits(const re_dfa_t * dfa,
     struct re_backref_cache_entry * bkref_ents,
     Idx str_idx) internal_function;
 static reg_errcode_t sift_states_bkref(const re_match_context_t * mctx,
-    re_sift_context_t * sctx,
-    Idx str_idx, const re_node_set * candidates)
-internal_function;
+    re_sift_context_t * sctx, Idx str_idx, const re_node_set * candidates) internal_function;
 static reg_errcode_t merge_state_array(const re_dfa_t * dfa,
     re_dfastate_t ** dst,
     re_dfastate_t ** src, Idx num)
 internal_function;
-static re_dfastate_t * find_recover_state(reg_errcode_t * err,
-    re_match_context_t * mctx) internal_function;
-static re_dfastate_t * transit_state(reg_errcode_t * err,
-    re_match_context_t * mctx,
-    re_dfastate_t * state) internal_function;
-static re_dfastate_t * merge_state_with_log(reg_errcode_t * err,
-    re_match_context_t * mctx,
-    re_dfastate_t * next_state)
-internal_function;
-static reg_errcode_t check_subexp_matching_top(re_match_context_t * mctx,
-    re_node_set * cur_nodes,
-    Idx str_idx) internal_function;
+static re_dfastate_t * find_recover_state(reg_errcode_t * err, re_match_context_t * mctx) internal_function;
+static re_dfastate_t * transit_state(reg_errcode_t * err, re_match_context_t * mctx, re_dfastate_t * state) internal_function;
+static re_dfastate_t * merge_state_with_log(reg_errcode_t * err, re_match_context_t * mctx, re_dfastate_t * next_state) internal_function;
+static reg_errcode_t check_subexp_matching_top(re_match_context_t * mctx, re_node_set * cur_nodes, Idx str_idx) internal_function;
 #if 0
-static re_dfastate_t * transit_state_sb(reg_errcode_t * err,
-    re_match_context_t * mctx,
-    re_dfastate_t * pstate)
-internal_function;
+	static re_dfastate_t * transit_state_sb(reg_errcode_t * err, re_match_context_t * mctx, re_dfastate_t * pstate) internal_function;
 #endif
 #ifdef RE_ENABLE_I18N
-static reg_errcode_t transit_state_mb(re_match_context_t * mctx,
-    re_dfastate_t * pstate)
-internal_function;
+static reg_errcode_t transit_state_mb(re_match_context_t * mctx, re_dfastate_t * pstate) internal_function;
 #endif /* RE_ENABLE_I18N */
-static reg_errcode_t transit_state_bkref(re_match_context_t * mctx,
-    const re_node_set * nodes)
-internal_function;
-static reg_errcode_t get_subexp(re_match_context_t * mctx,
-    Idx bkref_node, Idx bkref_str_idx)
-internal_function;
-static reg_errcode_t get_subexp_sub(re_match_context_t * mctx,
-    const re_sub_match_top_t * sub_top,
-    re_sub_match_last_t * sub_last,
-    Idx bkref_node, Idx bkref_str)
-internal_function;
-static Idx find_subexp_node(const re_dfa_t * dfa, const re_node_set * nodes,
-    Idx subexp_idx, int type) internal_function;
-static reg_errcode_t check_arrival(re_match_context_t * mctx,
-    state_array_t * path, Idx top_node,
-    Idx top_str, Idx last_node, Idx last_str,
-    int type) internal_function;
-static reg_errcode_t check_arrival_add_next_nodes(re_match_context_t * mctx,
-    Idx str_idx,
-    re_node_set * cur_nodes,
-    re_node_set * next_nodes)
-internal_function;
-static reg_errcode_t check_arrival_expand_ecl(const re_dfa_t * dfa,
-    re_node_set * cur_nodes,
-    Idx ex_subexp, int type)
-internal_function;
-static reg_errcode_t check_arrival_expand_ecl_sub(const re_dfa_t * dfa,
-    re_node_set * dst_nodes,
-    Idx target, Idx ex_subexp,
-    int type) internal_function;
-static reg_errcode_t expand_bkref_cache(re_match_context_t * mctx,
-    re_node_set * cur_nodes, Idx cur_str,
-    Idx subexp_num, int type)
-internal_function;
-static bool build_trtable(const re_dfa_t * dfa,
-    re_dfastate_t * state) internal_function;
+static reg_errcode_t transit_state_bkref(re_match_context_t * mctx, const re_node_set * nodes) internal_function;
+static reg_errcode_t get_subexp(re_match_context_t * mctx, Idx bkref_node, Idx bkref_str_idx) internal_function;
+static reg_errcode_t get_subexp_sub(re_match_context_t * mctx, const re_sub_match_top_t * sub_top, re_sub_match_last_t * sub_last,
+    Idx bkref_node, Idx bkref_str) internal_function;
+static Idx find_subexp_node(const re_dfa_t * dfa, const re_node_set * nodes, Idx subexp_idx, int type) internal_function;
+static reg_errcode_t check_arrival(re_match_context_t * mctx, state_array_t * path, Idx top_node,
+    Idx top_str, Idx last_node, Idx last_str, int type) internal_function;
+static reg_errcode_t check_arrival_add_next_nodes(re_match_context_t * mctx, Idx str_idx,
+    re_node_set * cur_nodes, re_node_set * next_nodes) internal_function;
+static reg_errcode_t check_arrival_expand_ecl(const re_dfa_t * dfa, re_node_set * cur_nodes, Idx ex_subexp, int type) internal_function;
+static reg_errcode_t check_arrival_expand_ecl_sub(const re_dfa_t * dfa, re_node_set * dst_nodes,
+    Idx target, Idx ex_subexp, int type) internal_function;
+static reg_errcode_t expand_bkref_cache(re_match_context_t * mctx, re_node_set * cur_nodes, Idx cur_str,
+    Idx subexp_num, int type) internal_function;
+static bool build_trtable(const re_dfa_t * dfa, re_dfastate_t * state) internal_function;
 #ifdef RE_ENABLE_I18N
-static int check_node_accept_bytes(const re_dfa_t * dfa, Idx node_idx,
-    const re_string_t * input, Idx idx)
-internal_function;
+static int check_node_accept_bytes(const re_dfa_t * dfa, Idx node_idx, const re_string_t * input, Idx idx) internal_function;
 # ifdef _LIBC
-static unsigned int find_collation_sequence_value(const unsigned char * mbs,
-    size_t name_len)
-internal_function;
+static unsigned int find_collation_sequence_value(const unsigned char * mbs, size_t name_len) internal_function;
 # endif /* _LIBC */
 #endif /* RE_ENABLE_I18N */
-static Idx group_nodes_into_DFAstates(const re_dfa_t * dfa,
-    const re_dfastate_t * state,
-    re_node_set * states_node,
-    bitset_t * states_ch) internal_function;
-static bool check_node_accept(const re_match_context_t * mctx,
-    const re_token_t * node, Idx idx)
-internal_function;
-static reg_errcode_t extend_buffers(re_match_context_t * mctx)
-internal_function;
+static Idx group_nodes_into_DFAstates(const re_dfa_t * dfa, const re_dfastate_t * state, re_node_set * states_node, bitset_t * states_ch) internal_function;
+static bool check_node_accept(const re_match_context_t * mctx, const re_token_t * node, Idx idx) internal_function;
+static reg_errcode_t extend_buffers(re_match_context_t * mctx) internal_function;
 
 /* Entry point for POSIX code.  */
 
@@ -215,10 +129,8 @@ int regexec(const regex_t *_Restrict_ preg, const char * _Restrict_ string, size
 #ifdef _LIBC
 	re_dfa_t * dfa = (re_dfa_t*)preg->buffer;
 #endif
-
 	if(eflags & ~(REG_NOTBOL | REG_NOTEOL | REG_STARTEND))
 		return REG_BADPAT;
-
 	if(eflags & REG_STARTEND) {
 		start = pmatch[0].rm_so;
 		length = pmatch[0].rm_eo;
@@ -227,14 +139,11 @@ int regexec(const regex_t *_Restrict_ preg, const char * _Restrict_ string, size
 		start = 0;
 		length = strlen(string);
 	}
-
 	__libc_lock_lock(dfa->lock);
 	if(preg->no_sub)
-		err = re_search_internal(preg, string, length, start, length,
-			length, 0, NULL, eflags);
+		err = re_search_internal(preg, string, length, start, length, length, 0, NULL, eflags);
 	else
-		err = re_search_internal(preg, string, length, start, length,
-			length, nmatch, pmatch, eflags);
+		err = re_search_internal(preg, string, length, start, length, length, nmatch, pmatch, eflags);
 	__libc_lock_unlock(dfa->lock);
 	return err != REG_NOERROR;
 }
@@ -246,13 +155,10 @@ versioned_symbol(libc, __regexec, regexec, GLIBC_2_3_4);
 # if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_4)
 __typeof__(__regexec)__compat_regexec;
 
-int
-attribute_compat_text_section __compat_regexec(const regex_t * _Restrict_ preg,
-    const char * _Restrict_ string, size_t nmatch,
-    regmatch_t pmatch[], int eflags)
+int attribute_compat_text_section __compat_regexec(const regex_t * _Restrict_ preg,
+    const char * _Restrict_ string, size_t nmatch, regmatch_t pmatch[], int eflags)
 {
-	return regexec(preg, string, nmatch, pmatch,
-		   eflags & (REG_NOTBOL | REG_NOTEOL));
+	return regexec(preg, string, nmatch, pmatch, eflags & (REG_NOTBOL | REG_NOTEOL));
 }
 
 compat_symbol(libc, __compat_regexec, regexec, GLIBC_2_0);
@@ -2936,9 +2842,7 @@ internal_function __attribute_warn_unused_result__ check_arrival_expand_ecl_sub(
 			break;
 		if(dfa->edests[cur_node].nelem == 2) {
 			reg_errcode_t err;
-			err = check_arrival_expand_ecl_sub(dfa, dst_nodes,
-				dfa->edests[cur_node].elems[1],
-				ex_subexp, type);
+			err = check_arrival_expand_ecl_sub(dfa, dst_nodes, dfa->edests[cur_node].elems[1], ex_subexp, type);
 			if(BE(err != REG_NOERROR, 0))
 				return err;
 		}
@@ -2951,27 +2855,21 @@ internal_function __attribute_warn_unused_result__ check_arrival_expand_ecl_sub(
    destination of the back references by the appropriate entry
    in MCTX->BKREF_ENTS.  */
 
-static reg_errcode_t
-internal_function __attribute_warn_unused_result__ expand_bkref_cache(re_match_context_t * mctx, re_node_set * cur_nodes,
-    Idx cur_str, Idx subexp_num, int type)
+static reg_errcode_t internal_function __attribute_warn_unused_result__ expand_bkref_cache(re_match_context_t * mctx, re_node_set * cur_nodes, Idx cur_str, Idx subexp_num, int type)
 {
 	const re_dfa_t * const dfa = mctx->dfa;
 	reg_errcode_t err;
 	Idx cache_idx_start = search_cur_bkref_entry(mctx, cur_str);
 	struct re_backref_cache_entry * ent;
-
 	if(cache_idx_start == REG_MISSING)
 		return REG_NOERROR;
-
 restart:
 	ent = mctx->bkref_ents + cache_idx_start;
 	do {
 		Idx to_idx, next_node;
-
 		/* Is this entry ENT is appropriate?  */
 		if(!re_node_set_contains(cur_nodes, ent->node))
 			continue; /* No.  */
-
 		to_idx = cur_str + ent->subexp_to - ent->subexp_from;
 		/* Calculate the destination of the back reference, and append it
 		   to MCTX->STATE_LOG.  */
@@ -2987,10 +2885,8 @@ restart:
 			err2 = check_arrival_expand_ecl(dfa, &new_dests, subexp_num, type);
 			err3 = re_node_set_merge(cur_nodes, &new_dests);
 			re_node_set_free(&new_dests);
-			if(BE(err != REG_NOERROR || err2 != REG_NOERROR
-			    || err3 != REG_NOERROR, 0)) {
-				err = (err != REG_NOERROR ? err
-				    : (err2 != REG_NOERROR ? err2 : err3));
+			if(BE(err != REG_NOERROR || err2 != REG_NOERROR || err3 != REG_NOERROR, 0)) {
+				err = (err != REG_NOERROR ? err : (err2 != REG_NOERROR ? err2 : err3));
 				return err;
 			}
 			/* TODO: It is still inefficient...  */
@@ -3001,11 +2897,9 @@ restart:
 			next_node = dfa->nexts[ent->node];
 			if(mctx->state_log[to_idx]) {
 				bool ok;
-				if(re_node_set_contains(&mctx->state_log[to_idx]->nodes,
-				    next_node))
+				if(re_node_set_contains(&mctx->state_log[to_idx]->nodes, next_node))
 					continue;
-				err = re_node_set_init_copy(&union_set,
-					&mctx->state_log[to_idx]->nodes);
+				err = re_node_set_init_copy(&union_set, &mctx->state_log[to_idx]->nodes);
 				ok = re_node_set_insert(&union_set, next_node);
 				if(BE(err != REG_NOERROR || !ok, 0)) {
 					re_node_set_free(&union_set);
@@ -3024,16 +2918,13 @@ restart:
 			    && err != REG_NOERROR, 0))
 				return err;
 		}
-	}
-	while(ent++->more);
+	} while(ent++->more);
 	return REG_NOERROR;
 }
 
 /* Build transition table for the state.
    Return true if successful.  */
-
-static bool
-internal_function build_trtable(const re_dfa_t * dfa, re_dfastate_t * state)
+static bool internal_function build_trtable(const re_dfa_t * dfa, re_dfastate_t * state)
 {
 	reg_errcode_t err;
 	Idx i, j;
@@ -3048,12 +2939,10 @@ internal_function build_trtable(const re_dfa_t * dfa, re_dfastate_t * state)
 	re_node_set follows, * dests_node;
 	bitset_t * dests_ch;
 	bitset_t acceptable;
-
 	struct dests_alloc {
 		re_node_set dests_node[SBC_MAX];
 		bitset_t dests_ch[SBC_MAX];
 	} * dests_alloc;
-
 	/* We build DFA states which corresponds to the destination nodes
 	   from `state'.  `dests_node[i]' represents the nodes which i-th
 	   destination state contains, and `dests_ch[i]' represents the
@@ -3232,17 +3121,13 @@ out_free:
 				break;
 			}
 	}
-
 	if(dest_states_malloced)
 		free(dest_states);
-
 	re_node_set_free(&follows);
 	for(i = 0; i < ndests; ++i)
 		re_node_set_free(dests_node + i);
-
 	if(dests_node_malloced)
 		free(dests_alloc);
-
 	return true;
 }
 
@@ -3250,9 +3135,7 @@ out_free:
    Then for all destinations, set the nodes belonging to the destination
    to DESTS_NODE[i] and set the characters accepted by the destination
    to DEST_CH[i].  This function return the number of destinations.  */
-
-static Idx
-internal_function group_nodes_into_DFAstates(const re_dfa_t * dfa, const re_dfastate_t * state,
+static Idx internal_function group_nodes_into_DFAstates(const re_dfa_t * dfa, const re_dfastate_t * state,
     re_node_set * dests_node, bitset_t * dests_ch)
 {
 	reg_errcode_t err;
@@ -3263,7 +3146,6 @@ internal_function group_nodes_into_DFAstates(const re_dfa_t * dfa, const re_dfas
 	const re_node_set * cur_nodes = &state->nodes;
 	bitset_empty(accepts);
 	ndests = 0;
-
 	/* For all the nodes belonging to `state',  */
 	for(i = 0; i < cur_nodes->nelem; ++i) {
 		re_token_t * node = &dfa->nodes[cur_nodes->elems[i]];
@@ -3428,22 +3310,17 @@ error_return:
    one collating element like '.', '[a-z]', opposite to the other nodes
    can only accept one byte.  */
 
-static int
-internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx node_idx,
-    const re_string_t * input, Idx str_idx)
+static int internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx node_idx, const re_string_t * input, Idx str_idx)
 {
 	const re_token_t * node = dfa->nodes + node_idx;
 	int char_len, elem_len;
 	Idx i;
-
 	if(BE(node->type == OP_UTF8_PERIOD, 0)) {
 		unsigned char c = re_string_byte_at(input, str_idx), d;
 		if(BE(c < 0xc2, 1))
 			return 0;
-
 		if(str_idx + 2 > input->len)
 			return 0;
-
 		d = re_string_byte_at(input, str_idx + 1);
 		if(c < 0xe0)
 			return (d < 0x80 || d > 0xbf) ? 0 : 2;
@@ -3480,7 +3357,6 @@ internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx node_idx,
 		}
 		return char_len;
 	}
-
 	char_len = re_string_char_size_at(input, str_idx);
 	if(node->type == OP_PERIOD) {
 		if(char_len <= 1)
@@ -3509,9 +3385,7 @@ internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx node_idx,
 		uint32_t nrules;
 # endif /* _LIBC */
 		int match_len = 0;
-		wchar_t wc = ((cset->nranges || cset->nchar_classes || cset->nmbchars)
-		    ? re_string_wchar_at(input, str_idx) : 0);
-
+		wchar_t wc = ((cset->nranges || cset->nchar_classes || cset->nmbchars) ? re_string_wchar_at(input, str_idx) : 0);
 		/* match with multibyte character?  */
 		for(i = 0; i < cset->nmbchars; ++i)
 			if(wc == cset->mbchars[i]) {
@@ -3540,8 +3414,7 @@ internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx node_idx,
 
 			/* match with collating_symbol?  */
 			if(cset->ncoll_syms)
-				extra = (const unsigned char*)
-				    _NL_CURRENT(LC_COLLATE, _NL_COLLATE_SYMB_EXTRAMB);
+				extra = (const unsigned char*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_SYMB_EXTRAMB);
 			for(i = 0; i < cset->ncoll_syms; ++i) {
 				const unsigned char * coll_sym = extra + cset->coll_syms[i];
 				/* Compare the length of input collating element and
@@ -3569,38 +3442,27 @@ internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx node_idx,
 			}
 			/* match with range expression?  */
 			for(i = 0; i < cset->nranges; ++i)
-				if(cset->range_starts[i] <= in_collseq
-				    && in_collseq <= cset->range_ends[i]) {
+				if(cset->range_starts[i] <= in_collseq && in_collseq <= cset->range_ends[i]) {
 					match_len = elem_len;
 					goto check_node_accept_bytes_match;
 				}
-
 			/* match with equivalence_class?  */
 			if(cset->nequiv_classes) {
 				const unsigned char * cp = pin;
-				table = (const int32_t*)
-				    _NL_CURRENT(LC_COLLATE, _NL_COLLATE_TABLEMB);
-				weights = (const unsigned char*)
-				    _NL_CURRENT(LC_COLLATE, _NL_COLLATE_WEIGHTMB);
-				extra = (const unsigned char*)
-				    _NL_CURRENT(LC_COLLATE, _NL_COLLATE_EXTRAMB);
-				indirect = (const int32_t*)
-				    _NL_CURRENT(LC_COLLATE, _NL_COLLATE_INDIRECTMB);
+				table = (const int32_t*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_TABLEMB);
+				weights = (const unsigned char*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_WEIGHTMB);
+				extra = (const unsigned char*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_EXTRAMB);
+				indirect = (const int32_t*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_INDIRECTMB);
 				int32_t idx = findidx(&cp);
 				if(idx > 0)
 					for(i = 0; i < cset->nequiv_classes; ++i) {
 						int32_t equiv_class_idx = cset->equiv_classes[i];
 						size_t weight_len = weights[idx & 0xffffff];
-						if(weight_len == weights[equiv_class_idx & 0xffffff]
-						    && (idx >> 24) == (equiv_class_idx >> 24)) {
+						if(weight_len == weights[equiv_class_idx & 0xffffff] && (idx >> 24) == (equiv_class_idx >> 24)) {
 							Idx cnt = 0;
-
 							idx &= 0xffffff;
 							equiv_class_idx &= 0xffffff;
-
-							while(cnt <= weight_len
-							    && (weights[equiv_class_idx + 1 + cnt]
-							    == weights[idx + 1 + cnt]))
+							while(cnt <= weight_len && (weights[equiv_class_idx + 1 + cnt] == weights[idx + 1 + cnt]))
 								++cnt;
 							if(cnt > weight_len) {
 								match_len = elem_len;
@@ -3644,8 +3506,7 @@ check_node_accept_bytes_match:
 }
 
 # ifdef _LIBC
-static unsigned int
-internal_function find_collation_sequence_value(const unsigned char * mbs, size_t mbs_len)
+static unsigned int internal_function find_collation_sequence_value(const unsigned char * mbs, size_t mbs_len)
 {
 	uint32_t nrules = _NL_CURRENT_WORD(LC_COLLATE, _NL_COLLATE_NRULES);
 	if(nrules == 0) {
@@ -3702,25 +3563,18 @@ internal_function find_collation_sequence_value(const unsigned char * mbs, size_
 
 /* Check whether the node accepts the byte which is IDX-th
    byte of the INPUT.  */
-
-static bool
-internal_function check_node_accept(const re_match_context_t * mctx, const re_token_t * node,
-    Idx idx)
+static bool internal_function check_node_accept(const re_match_context_t * mctx, const re_token_t * node, Idx idx)
 {
-	unsigned char ch;
-	ch = re_string_byte_at(&mctx->input, idx);
-	switch(node->type)
-	{
+	unsigned char ch = re_string_byte_at(&mctx->input, idx);
+	switch(node->type) {
 		case CHARACTER:
 		    if(node->opr.c != ch)
 			    return false;
 		    break;
-
 		case SIMPLE_BRACKET:
 		    if(!bitset_contain(node->opr.sbcset, ch))
 			    return false;
 		    break;
-
 #ifdef RE_ENABLE_I18N
 		case OP_UTF8_PERIOD:
 		    if(ch >= ASCII_CHARS)
@@ -3728,39 +3582,30 @@ internal_function check_node_accept(const re_match_context_t * mctx, const re_to
 		    /* FALLTHROUGH */
 #endif
 		case OP_PERIOD:
-		    if((ch == '\n' && !(mctx->dfa->syntax & RE_DOT_NEWLINE))
-			|| (ch == '\0' && (mctx->dfa->syntax & RE_DOT_NOT_NULL)))
+		    if((ch == '\n' && !(mctx->dfa->syntax & RE_DOT_NEWLINE)) || (ch == '\0' && (mctx->dfa->syntax & RE_DOT_NOT_NULL)))
 			    return false;
 		    break;
-
 		default:
 		    return false;
 	}
-
 	if(node->constraint) {
 		/* The node has constraints.  Check whether the current context
 		   satisfies the constraints.  */
-		unsigned int context = re_string_context_at(&mctx->input, idx,
-			mctx->eflags);
+		unsigned int context = re_string_context_at(&mctx->input, idx, mctx->eflags);
 		if(NOT_SATISFY_NEXT_CONSTRAINT(node->constraint, context))
 			return false;
 	}
-
 	return true;
 }
 
 /* Extend the buffers, if the buffers have run out.  */
-
-static reg_errcode_t
-internal_function __attribute_warn_unused_result__ extend_buffers(re_match_context_t * mctx)
+static reg_errcode_t internal_function __attribute_warn_unused_result__ extend_buffers(re_match_context_t * mctx)
 {
 	reg_errcode_t ret;
 	re_string_t * pstr = &mctx->input;
-
 	/* Avoid overflow.  */
 	if(BE(SIZE_MAX / 2 / sizeof(re_dfastate_t *) <= pstr->bufs_len, 0))
 		return REG_ESPACE;
-
 	/* Double the lengthes of the buffers.  */
 	ret = re_string_realloc_buffers(pstr, pstr->bufs_len * 2);
 	if(BE(ret != REG_NOERROR, 0))
@@ -3807,20 +3652,15 @@ internal_function __attribute_warn_unused_result__ extend_buffers(re_match_conte
 /* Functions for matching context.  */
 
 /* Initialize MCTX.  */
-
-static reg_errcode_t
-internal_function __attribute_warn_unused_result__ match_ctx_init(re_match_context_t * mctx, int eflags, Idx n)
+static reg_errcode_t internal_function __attribute_warn_unused_result__ match_ctx_init(re_match_context_t * mctx, int eflags, Idx n)
 {
 	mctx->eflags = eflags;
 	mctx->match_last = REG_MISSING;
 	if(n > 0) {
 		/* Avoid overflow.  */
-		size_t max_object_size =
-		    MAX(sizeof(struct re_backref_cache_entry),
-			sizeof(re_sub_match_top_t *));
+		size_t max_object_size = MAX(sizeof(struct re_backref_cache_entry), sizeof(re_sub_match_top_t *));
 		if(BE(SIZE_MAX / max_object_size < (size_t)n, 0))
 			return REG_ESPACE;
-
 		mctx->bkref_ents = re_malloc(struct re_backref_cache_entry, n);
 		mctx->sub_tops = re_malloc(re_sub_match_top_t *, n);
 		if(BE(mctx->bkref_ents == NULL || mctx->sub_tops == NULL, 0))
@@ -3841,8 +3681,7 @@ internal_function __attribute_warn_unused_result__ match_ctx_init(re_match_conte
    This function must be invoked when the matcher changes the start index
    of the input, or changes the input string.  */
 
-static void
-internal_function match_ctx_clean(re_match_context_t * mctx)
+static void internal_function match_ctx_clean(re_match_context_t * mctx)
 {
 	Idx st_idx;
 	for(st_idx = 0; st_idx < mctx->nsub_tops; ++st_idx) {
@@ -3860,15 +3699,13 @@ internal_function match_ctx_clean(re_match_context_t * mctx)
 		}
 		free(top);
 	}
-
 	mctx->nsub_tops = 0;
 	mctx->nbkref_ents = 0;
 }
 
 /* Free all the memory associated with MCTX.  */
 
-static void
-internal_function match_ctx_free(re_match_context_t * mctx)
+static void internal_function match_ctx_free(re_match_context_t * mctx)
 {
 	/* First, free all the memory associated with MCTX->SUB_TOPS.  */
 	match_ctx_clean(mctx);
@@ -3880,33 +3717,24 @@ internal_function match_ctx_free(re_match_context_t * mctx)
    Note that we assume that caller never call this function with duplicate
    entry, and call with STR_IDX which isn't smaller than any existing entry.
  */
-
-static reg_errcode_t
-internal_function __attribute_warn_unused_result__ match_ctx_add_entry(re_match_context_t * mctx, Idx node, Idx str_idx, Idx from,
-    Idx to)
+static reg_errcode_t internal_function __attribute_warn_unused_result__ match_ctx_add_entry(re_match_context_t * mctx, Idx node, Idx str_idx, Idx from, Idx to)
 {
 	if(mctx->nbkref_ents >= mctx->abkref_ents) {
-		struct re_backref_cache_entry* new_entry;
-		new_entry = re_realloc(mctx->bkref_ents, struct re_backref_cache_entry,
-			mctx->abkref_ents * 2);
+		struct re_backref_cache_entry * new_entry = re_realloc(mctx->bkref_ents, struct re_backref_cache_entry, mctx->abkref_ents * 2);
 		if(BE(new_entry == NULL, 0)) {
 			re_free(mctx->bkref_ents);
 			return REG_ESPACE;
 		}
 		mctx->bkref_ents = new_entry;
-		memset(mctx->bkref_ents + mctx->nbkref_ents, '\0',
-		    sizeof(struct re_backref_cache_entry) * mctx->abkref_ents);
+		memset(mctx->bkref_ents + mctx->nbkref_ents, '\0', sizeof(struct re_backref_cache_entry) * mctx->abkref_ents);
 		mctx->abkref_ents *= 2;
 	}
-	if(mctx->nbkref_ents > 0
-	    && mctx->bkref_ents[mctx->nbkref_ents - 1].str_idx == str_idx)
+	if(mctx->nbkref_ents > 0 && mctx->bkref_ents[mctx->nbkref_ents - 1].str_idx == str_idx)
 		mctx->bkref_ents[mctx->nbkref_ents - 1].more = 1;
-
 	mctx->bkref_ents[mctx->nbkref_ents].node = node;
 	mctx->bkref_ents[mctx->nbkref_ents].str_idx = str_idx;
 	mctx->bkref_ents[mctx->nbkref_ents].subexp_from = from;
 	mctx->bkref_ents[mctx->nbkref_ents].subexp_to = to;
-
 	/* This is a cache that saves negative results of check_dst_limits_calc_pos.
 	   If bit N is clear, means that this entry won't epsilon-transition to
 	   an OP_OPEN_SUBEXP or OP_CLOSE_SUBEXP for the N+1-th subexpression.  If
@@ -3915,9 +3743,7 @@ internal_function __attribute_warn_unused_result__ match_ctx_add_entry(re_match_
 
 	   A backreference does not epsilon-transition unless it is empty, so set
 	   to all zeros if FROM != TO.  */
-	mctx->bkref_ents[mctx->nbkref_ents].eps_reachable_subexps_map
-		= (from == to ? -1 : 0);
-
+	mctx->bkref_ents[mctx->nbkref_ents].eps_reachable_subexps_map = (from == to ? -1 : 0);
 	mctx->bkref_ents[mctx->nbkref_ents++].more = 0;
 	if(mctx->max_mb_elem_len < to - from)
 		mctx->max_mb_elem_len = to - from;

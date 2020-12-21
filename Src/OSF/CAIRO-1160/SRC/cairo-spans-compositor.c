@@ -76,18 +76,14 @@ static cairo_surface_t * get_clip_surface(const cairo_spans_compositor_t * compo
 	cairo_antialias_t antialias;
 	cairo_fill_rule_t fill_rule;
 	cairo_int_status_t status;
-
 	assert(clip->path);
-
 	surface = _cairo_surface_create_scratch(dst,
 		CAIRO_CONTENT_ALPHA,
 		extents->width,
 		extents->height,
 		CAIRO_COLOR_TRANSPARENT);
-
 	_cairo_box_from_rectangle(&box, extents);
 	_cairo_polygon_init(&polygon, &box, 1);
-
 	clip_path = clip->path;
 	status = _cairo_path_fixed_fill_to_polygon(&clip_path->path,
 		clip_path->tolerance,
@@ -103,7 +99,6 @@ static cairo_surface_t * get_clip_surface(const cairo_spans_compositor_t * compo
 	if(clip->boxes) {
 		cairo_polygon_t intersect;
 		cairo_boxes_t tmp;
-
 		_cairo_boxes_init_for_array(&tmp, clip->boxes, clip->num_boxes);
 		status = _cairo_polygon_init_boxes(&intersect, &tmp);
 		if(unlikely(status))

@@ -1886,9 +1886,7 @@ static cairo_status_t _cairo_pdf_surface_finish(void * abstract_surface)
 	status2 = _cairo_output_stream_destroy(surface->output);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	_cairo_pdf_group_resources_fini(&surface->resources);
-
 	_cairo_array_fini(&surface->objects);
 	_cairo_array_fini(&surface->pages);
 	_cairo_array_fini(&surface->rgb_linear_functions);
@@ -1896,20 +1894,16 @@ static cairo_status_t _cairo_pdf_surface_finish(void * abstract_surface)
 	_cairo_array_fini(&surface->page_patterns);
 	_cairo_array_fini(&surface->page_surfaces);
 	_cairo_array_fini(&surface->doc_surfaces);
-	_cairo_hash_table_foreach(surface->all_surfaces,
-	    _cairo_pdf_source_surface_entry_pluck,
-	    surface->all_surfaces);
+	_cairo_hash_table_foreach(surface->all_surfaces, _cairo_pdf_source_surface_entry_pluck, surface->all_surfaces);
 	_cairo_hash_table_destroy(surface->all_surfaces);
 	_cairo_array_fini(&surface->smask_groups);
 	_cairo_array_fini(&surface->fonts);
 	_cairo_array_fini(&surface->knockout_group);
 	_cairo_array_fini(&surface->page_annots);
-
 	if(surface->font_subsets) {
 		_cairo_scaled_font_subsets_destroy(surface->font_subsets);
 		surface->font_subsets = NULL;
 	}
-
 	size = _cairo_array_num_elements(&surface->jbig2_global);
 	for(i = 0; i < size; i++) {
 		global = (cairo_pdf_jbig2_global_t*)_cairo_array_index(&surface->jbig2_global, i);
@@ -1919,16 +1913,13 @@ static cairo_status_t _cairo_pdf_surface_finish(void * abstract_surface)
 	}
 	_cairo_array_fini(&surface->jbig2_global);
 	_cairo_array_fini(&surface->page_heights);
-
 	size = _cairo_array_num_elements(&surface->page_labels);
 	for(i = 0; i < size; i++) {
 		_cairo_array_copy_element(&surface->page_labels, i, &label);
 		SAlloc::F(label);
 	}
 	_cairo_array_fini(&surface->page_labels);
-
 	_cairo_surface_clipper_reset(&surface->clipper);
-
 	return _cairo_pdf_interchange_fini(surface);
 }
 
@@ -1937,11 +1928,9 @@ static cairo_int_status_t _cairo_pdf_surface_start_page(void * abstract_surface)
 	cairo_pdf_surface_t * surface = static_cast<cairo_pdf_surface_t *>(abstract_surface);
 	cairo_pdf_resource_t page;
 	cairo_int_status_t status;
-
 	/* Document header */
 	if(!surface->header_emitted) {
 		const char * version;
-
 		switch(surface->pdf_version) {
 			case CAIRO_PDF_VERSION_1_4:
 			    version = "1.4";

@@ -34,7 +34,7 @@
 #define CAIRO_LINE_PRIVATE_H
 
 CAIRO_BEGIN_DECLS
-	cairo_private int cairo_lines_compare_at_y(const cairo_line_t *a, const cairo_line_t *b, int y);
+	cairo_private int FASTCALL cairo_lines_compare_at_y(const cairo_line_t *a, const cairo_line_t *b, int y);
 CAIRO_END_DECLS
 
 #endif /* CAIRO_LINE_PRIVATE_H */

@@ -1403,14 +1403,14 @@ int DoConstructionTest()
 		Test_LCMS2(1, test_lcms_argv);
 	}*/
 	//TestFrameWindow::Run();
+	//PPChZnPrcssr::Test();
 	TestGtinStruc();
-	TestUdsInterface();
-	GumboTest();
+	//TestUdsInterface();
+	//GumboTest();
 	//TestTsDensityMap();
 	//TestAddressRecognition();
 	//TestSArchive();
 	//TestGravity();
-	//PPChZnPrcssr::Test();
 	//TestConfigDatabase_StringHistory();
 	//TestConfigDatabase_StringHistory_Interactive();
 	//TestWorkspacePath();

@@ -44,14 +44,14 @@
 #include <slib.h> // @sobolev
 #include "libssh2_config.h"
 #ifdef HAVE_WINDOWS_H
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN
-	#endif
-	#include <windows.h>
-	#undef WIN32_LEAN_AND_MEAN
+	//#ifndef WIN32_LEAN_AND_MEAN
+		//#define WIN32_LEAN_AND_MEAN
+	//#endif
+	//#include <windows.h>
+	//#undef WIN32_LEAN_AND_MEAN
 #endif
 #ifdef HAVE_WS2TCPIP_H
-	#include <ws2tcpip.h>
+	//#include <ws2tcpip.h>
 #endif
 
 /* The following CPP block should really only be in session.c and
@@ -457,8 +457,8 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION * session, uchar ** method, 
 void _libssh2_init_aes_ctr(void);
 //
 #ifdef HAVE_WINSOCK2_H
-//#include <winsock2.h>
-	#include <ws2tcpip.h>
+	//#include <winsock2.h>
+	//#include <ws2tcpip.h>
 #endif
 
 /* RFC4253 section 6.1 Maximum Packet Length says:

@@ -116,7 +116,7 @@ FT_BEGIN_HEADER
     FT_EXPORT(FT_Error)
 FT_Outline_Decompose(FT_Outline*              outline,
     const FT_Outline_Funcs*  func_interface,
-    void*                    user);
+    void *         user);
 
 /**************************************************************************
  *

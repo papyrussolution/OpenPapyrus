@@ -70,21 +70,16 @@ static void do_unaligned_row(void (*blt)(void * closure,
 	int x2 = _cairo_fixed_integer_part(b->p2.x) - tx;
 	if(x2 > x1) {
 		if(!_cairo_fixed_is_integer(b->p1.x)) {
-			blt(closure, x1, y, 1, h,
-			    coverage * (256 - _cairo_fixed_fractional_part(b->p1.x)));
+			blt(closure, x1, y, 1, h, coverage * (256 - _cairo_fixed_fractional_part(b->p1.x)));
 			x1++;
 		}
-
 		if(x2 > x1)
 			blt(closure, x1, y, x2-x1, h, (coverage << 8) - (coverage >> 8));
-
 		if(!_cairo_fixed_is_integer(b->p2.x))
-			blt(closure, x2, y, 1, h,
-			    coverage * _cairo_fixed_fractional_part(b->p2.x));
+			blt(closure, x2, y, 1, h, coverage * _cairo_fixed_fractional_part(b->p2.x));
 	}
 	else
-		blt(closure, x1, y, 1, h,
-		    coverage * (b->p2.x - b->p1.x));
+		blt(closure, x1, y, 1, h, coverage * (b->p2.x - b->p1.x));
 }
 
 static void do_unaligned_box(void (*blt)(void * closure,
@@ -98,21 +93,16 @@ static void do_unaligned_box(void (*blt)(void * closure,
 	int y2 = _cairo_fixed_integer_part(b->p2.y) - ty;
 	if(y2 > y1) {
 		if(!_cairo_fixed_is_integer(b->p1.y)) {
-			do_unaligned_row(blt, closure, b, tx, y1, 1,
-			    256 - _cairo_fixed_fractional_part(b->p1.y));
+			do_unaligned_row(blt, closure, b, tx, y1, 1, 256 - _cairo_fixed_fractional_part(b->p1.y));
 			y1++;
 		}
-
 		if(y2 > y1)
 			do_unaligned_row(blt, closure, b, tx, y1, y2-y1, 256);
-
 		if(!_cairo_fixed_is_integer(b->p2.y))
-			do_unaligned_row(blt, closure, b, tx, y2, 1,
-			    _cairo_fixed_fractional_part(b->p2.y));
+			do_unaligned_row(blt, closure, b, tx, y2, 1, _cairo_fixed_fractional_part(b->p2.y));
 	}
 	else
-		do_unaligned_row(blt, closure, b, tx, y1, 1,
-		    b->p2.y - b->p1.y);
+		do_unaligned_row(blt, closure, b, tx, y1, 1, b->p2.y - b->p1.y);
 }
 
 struct blt_in {

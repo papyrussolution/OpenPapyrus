@@ -1245,10 +1245,16 @@ public:
 
 	const ExportParam * P_Ep;
 protected:
-	struct ExtData {
+	/* @v10.9.9 struct ExtData {
 		long   isFirst;
 		void * Ptr;
+	};*/
+	// @v10.9.9 (изменен порядок полей - так будет быстрее работать) {
+	struct ExtData2 {
+		void * Ptr;
+		long   IsFirst;
 	};
+	// } @v10.9.9 
 	int    InitFixData(const char * pScopeName, void * pData, size_t dataSize);
 	int    InitFixData(int reservedScopeCode, void * pData, size_t dataSize);
 	int    FASTCALL FinishRecord(const DlScope * pScope); // @recursion
@@ -1263,7 +1269,7 @@ protected:
 	// Descr: Стандартный пролог функций InitIteration и NextIteration.
 	// Returns:
 	//   >0 - функция успешно выполнена.
-	//   <0 - функция успешно выполнена. При этом Extra[rID-].isFirst изменено с 1 на 0.
+	//   <0 - функция успешно выполнена. При этом Extra[rID-].IsFirst изменено с 1 на 0.
 	//   0  - ошибка
 	//
 	int    FASTCALL IterProlog(/*PPIterID*/long & rID, int doInit);
@@ -1275,7 +1281,7 @@ protected:
 	int    SortIdx; // PPALDD compatibility
 	SV_Uint32 IterList; // Массив идентификаторов (DLSYMBID) областей видимости, соответствующих
 		// итераторам. Функция GetIterID возвращает индекс+1 [1..] в этом массиве.
-	ExtData * Extra;
+	ExtData2 * Extra; // @v10.9.9 ExtData-->ExtData2
 private:
 	int    InitScope(const DlScope * pScope, int topLevel); // @recursion @<<DlRtm::DlRtm
 };
@@ -1364,6 +1370,13 @@ extern "C" typedef SCoClass * (*FN_DL6CLS_FACTORY)(const DlContext *, const DlSc
 		Extra[0].Ptr = p_v = new PPView##ViewTypNam;    \
 		p_v->Init_(static_cast<ViewTypNam##Filt *>(rFilt.Ptr)); }    \
 	const ViewTypNam##Filt * p_filt = static_cast<const ViewTypNam##Filt *>(p_v->GetBaseFilt());
+
+#define DESTROY_ALDD(Typ)      \
+	if(Extra[0].Ptr) {                       \
+		delete static_cast<Typ *>(Extra[0].Ptr);  \
+		Extra[0].Ptr = 0;                    \
+	}                                        \
+	Extra[1].Ptr = 0;
 
 #define DESTROY_PPVIEW_ALDD(ViewTypNam)      \
 	if(Extra[0].Ptr) {                       \

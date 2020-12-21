@@ -351,7 +351,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 		   Skip it like a null option,
 		   then exchange with previous non-options as if it were an option,
 		   then skip everything else like a non-option.  */
-		if(d->optind != argc && !strcmp(argv[d->optind], "--")) {
+		if(d->optind != argc && sstreq(argv[d->optind], "--")) {
 			d->optind++;
 			if(d->__first_nonopt != d->__last_nonopt && d->__last_nonopt != d->optind)
 				exchange((char**)argv, d);

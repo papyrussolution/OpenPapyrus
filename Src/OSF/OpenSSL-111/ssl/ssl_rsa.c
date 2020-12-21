@@ -1100,8 +1100,7 @@ static int ssl_set_cert_and_key(SSL * ssl, SSL_CTX * ctx, X509 * x509, EVP_PKEY 
 
 		/* Copied from ssl_set_cert/pkey */
 #ifndef OPENSSL_NO_RSA
-		if((EVP_PKEY_id(privatekey) == EVP_PKEY_RSA) &&
-		    ((RSA_flags(EVP_PKEY_get0_RSA(privatekey)) & RSA_METHOD_FLAG_NO_CHECK)))
+		if((EVP_PKEY_id(privatekey) == EVP_PKEY_RSA) && ((RSA_flags(EVP_PKEY_get0_RSA(privatekey)) & RSA_METHOD_FLAG_NO_CHECK)))
 			/* no-op */;
 		else
 #endif

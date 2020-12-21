@@ -1928,44 +1928,19 @@ private:
 //
 //
 //
-enum flex_align {
-	FLEX_ALIGN_AUTO = 0,
-	FLEX_ALIGN_STRETCH,
-	FLEX_ALIGN_CENTER,
-	FLEX_ALIGN_START,
-	FLEX_ALIGN_END,
-	FLEX_ALIGN_SPACE_BETWEEN,
-	FLEX_ALIGN_SPACE_AROUND,
-	FLEX_ALIGN_SPACE_EVENLY
-};
-
-/*enum flex_position {
-	FLEX_POSITION_RELATIVE = 0,
-	FLEX_POSITION_ABSOLUTE
-};*/
-
-enum flex_direction {
-	FLEX_DIRECTION_ROW = 0,
-	FLEX_DIRECTION_ROW_REVERSE,
-	FLEX_DIRECTION_COLUMN,
-	FLEX_DIRECTION_COLUMN_REVERSE
-};
-
-/*enum flex_wrap {
-	FLEX_WRAP_NO_WRAP = 0,
-	FLEX_WRAP_WRAP,
-	FLEX_WRAP_WRAP_REVERSE
-};*/
-
-struct AbstractLayoutBlock {
+struct AbstractLayoutBlock { // @persistent
 	enum {
 		fContainerRow             = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
 		fContainerCol             = 0x0002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
 			// if fContainerRow && fContainerCol, then no direction
 		fContainerReverseDir      = 0x0004, // if horizontal then right-to-left, if vertical then bottom-to-top
-		fContainerWrap            = 0x0008,
+		fContainerWrap            = 0x0008, // Если все элементы не вмещаются в один ряд, то контейнер переносит последующие элементы на следующий ряд.
 		fContainerWrapReverse     = 0x0010, // ignored if !(Flags & fWrap)
 		fEntryPositionAbsolute    = 0x0020, // else Relative
+		fNominalDefL              = 0x0040, // Определена номинальная граница LEFT элемента   (Nominal.a.X)
+		fNominalDefT              = 0x0080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
+		fNominalDefR              = 0x0100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
+		fNominalDefB              = 0x0200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
 	};
 	enum {
 		alignAuto = 0,
@@ -1987,9 +1962,20 @@ struct AbstractLayoutBlock {
 		szByContent   =  2, // Размер определяется содержимым
 		szByContainer =  3  // Размер определяется по размеру контейнера
 	};
+	//
+	// Descr: Возвращает специальную 4-байтную сигнатуру, идентифицирующую объект в потоках сериализации.
+	//
+	static uint32 GetSerializeSignature();
 	AbstractLayoutBlock();
 	AbstractLayoutBlock & SetDefault();
+	//
+	// Descr: Проверяет параметры (возможно, не все) блока на непротиворечивость.
+	// Returns:
+	//   !0 - блок находится в консистентном состоянии
+	//    0 - некоторые параметры блока противоречивы
+	//
 	int    Validate() const;
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
 	// Descr: Возвращает заданный размер по оси X.
 	//   Если SzX == szFixed, то по указателю pS присваивается фиксированный размер, иначе - 0.0f
@@ -2005,36 +1991,73 @@ struct AbstractLayoutBlock {
 	//
 	int    GetSizeY(float * pS) const;
 	void   SetFixedSizeX(float s);
-	void   SetVariableSizeX(uint var/* szXXX */);
 	void   SetFixedSizeY(float s);
+	void   SetVariableSizeX(uint var/* szXXX */);
 	void   SetVariableSizeY(uint var/* szXXX */);
+	void   SetFixedSize(const TRect & rR);
 	int    GetContainerDirection() const; // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
 	void   SetContainerDirection(int direc /*DIREC_XXX*/);
 	static SString & MarginsToString(const FRect & rR, SString & rBuf);
 	static int    MarginsFromString(const char * pBuf, FRect & rR);
 	SString & SizeToString(SString & rBuf) const;
 	int    SizeFromString(const char * pBuf);
+	//
+	// Descr: Определяет являются ли координаты по оси X фиксированными.
+	//
+	bool   IsNominalFullDefinedX() const;
+	//
+	// Descr: Определяет являются ли координаты по оси Y фиксированными.
+	//
+	bool   IsNominalFullDefinedY() const;
+	//
+	// Descr: Вспомогательная функция, возвращающая кросс-направление относительно заданного
+	//   направления direction.
+	//   Если direction == DIREC_HORZ, то возвращает DIREC_VERT; если direction == DIREC_VERT, то возвращает DIREC_HORZ.
+	//   Если !oneof2(direction, DIREC_HORZ, DIREC_VERT) то возвращает DIREC_UNKN.
+	//
+	static int GetCrossDirection(int direction);
+	//
+	// Descr: Определяет является ли позиция элемента абсолютной вдоль направления direction.
+	// ARG(direction IN): DIREC_HORZ || DIREC_VERT
+	//
+	bool   IsPositionAbsolute(int direction) const;
+	//
+	// Descr: Определяет является ли позиция элемента по оси Y абсолютной.
+	//   Понятие "абсолютная позиция по оси" подразумевает, что либо заданы фиксированные 
+	//   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
+	//   хотя бы одна из координат по оси.
+	//
+	bool   IsPositionAbsoluteX() const;
+	float  GetAbsoluteLowX() const;
+	float  GetAbsoluteLowY() const;
+	float  GetAbsoluteSizeX() const;
+	float  GetAbsoluteSizeY() const;
+	//
+	// Descr: Определяет является ли позиция элемента по оси Y абсолютной.
+	//   Понятие "абсолютная позиция по оси" подразумевает, что либо заданы фиксированные 
+	//   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
+	//   хотя бы одна из координат по оси.
+	//
+	bool   IsPositionAbsoluteY() const;
 
-	uint32 Signature;      // Сигнатура для сериализации
-	uint32 Version;        // Версия сериализации
 	uint32 Flags;          // @flags fXXX
-	uint16 SzX;            // 
-	uint16 SzY;            //
+	uint16 SzX;            // AbstractLayoutBlock::szXXX Опции расчета размера по оси X
+	uint16 SzY;            // AbstractLayoutBlock::szXXX Опции расчета размера по оси Y
 	uint16 JustifyContent; // {alignStart}   AbstractLayoutBlock::alignXXX
 	uint16 AlignContent;   // {alignStretch} AbstractLayoutBlock::alignXXX
 	uint16 AlignItems;     // {alignStretch} AbstractLayoutBlock::alignXXX
 	uint16 AlignSelf;      // {alignAuto}    AbstractLayoutBlock::alignXXX
-	uint16 GravityX;       // Gravity of this entry by X-axis
-	uint16 GravityY;       // Gravity of this entry by Y-axis 
+	uint16 GravityX;       // @reserve Gravity of this entry by X-axis
+	uint16 GravityY;       // @reserve Gravity of this entry by Y-axis 
 	uint32 Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
-	FPoint Size;           //
+	FRect  Nominal;        // Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
+	FPoint Size;           // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
 	FRect  Padding;        // { 0.0f, 0.0f, 0.0f, 0.0f } Внешние поля элемента
 	FRect  Margin;         // { 0.0f, 0.0f, 0.0f, 0.0f } Внутренние поля контейнера
-	float  GrowFactor;     //
+	float  GrowFactor;     // Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
 	float  ShrinkFactor;   //
 	float  Basis;          //
 	float  AspectRatio;    // {0.0} Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
-	uint8  Reserve[40];    // @reserve
 private:
 	int    ParseSizeStr(const SString & rStr, float & rS) const;
 };
@@ -2083,69 +2106,24 @@ public:
 	//
 	LayoutFlexItem * GetRoot();
 	//
-	// attributes {
-	FPoint Size;    // { NAN, NAN }
-	FRect  N;       // Номинальные границы элемента {NAN, NAN, NAN, NAN}
-	FRect  Padding; // { 0.0f, 0.0f, 0.0f, 0.0f }
-	FRect  Margin;  // { 0.0f, 0.0f, 0.0f, 0.0f }
-	flex_align JustifyContent; // FLEX_ALIGN_START
-	flex_align AlignContent;   // FLEX_ALIGN_STRETCH
-	flex_align AlignItems;     // FLEX_ALIGN_STRETCH
-	flex_align AlignSelf;      // FLEX_ALIGN_AUTO
-	flex_direction Direction;  // FLEX_DIRECTION_COLUMN
 	enum {
-		fPositionAbsolute         = 0x0001, // else Relative
-		fWrap                     = 0x0002,
-		fWrapReverse              = 0x0004, // ignored if !(Flags & fWrap)
-		fDirectionVertical        = 0x0008, // else horizontal
-		fDirectionReverse         = 0x0010, // if horizontal then right-to-left, if vertical then bottom-to-top
-		fStateShouldOrderChildren = 0x0100
+		stShouldOrderChildren = 0x0001
 	};
-	float  GrowFactor;   // 0.0f
-	float  ShrinkFactor; // 1.0
-	float  Basis;  // NAN
-	float  AspectRatio; // @v10.9.6 0.0 Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
+	AbstractLayoutBlock ALB;
 	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
 	// An item can provide a self_sizing callback function that will be called
 	// during layout and which can customize the dimensions (width and height) of the item.
 	FlexSelfSizingProc CbSelfSizing; // NULL
 	FlexSetupProc CbSetup; // NULL
-	// } attributes
 	float  frame[4];
 	LayoutFlexItem * P_Parent;
-	uint   Flags;  // fXXX
+	uint   State;
 protected:
 	void   UpdateShouldOrderChildren();
 	void   DoLayout(float width, float height);
 	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout);
-	flex_align FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
-
-	int    Order;  // 0
+	/*flex_align*/int FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
 };
-
-// Free memory associated with a flex item and its children.
-// This function can only be called on a root item.
-//void flex_item_free(LayoutFlexItem * item);
-// Manage items.
-//void flex_item_add(LayoutFlexItem * item, LayoutFlexItem * child);
-//uint flex_item_count(LayoutFlexItem * item);
-//LayoutFlexItem * flex_item_child(LayoutFlexItem * item, uint index);
-//LayoutFlexItem * flex_item_parent(LayoutFlexItem * item);
-//LayoutFlexItem * flex_item_root(LayoutFlexItem * item);
-//
-// Descr: Layout the items associated with this item, as well as their children.
-//   This function can only be called on a root item whose `width' and `height'
-//   properties have been set.
-//
-//int DoLayoutFlex(LayoutFlexItem * pItem);
-
-// Retrieve the layout frame associated with an item. These functions should
-// be called *after* the layout is done.
-//float flex_item_get_frame_x(LayoutFlexItem * item);
-//float flex_item_get_frame_y(LayoutFlexItem * item);
-//float flex_item_get_frame_width(LayoutFlexItem * item);
-//float flex_item_get_frame_height(LayoutFlexItem * item);
-
 /*
 length-unit: % | mm | m | cm
 length-unit-optional: length-unit | ;
@@ -2431,10 +2409,9 @@ struct TArrangeParam { // @persistent
 //
 // Descr: Объект, управляющий коллекцией инструментов, доступных для вставки в TWhatman.
 //   Каждый инструмент может быть представлен иконкой и фигурой. Если иконка не определена
-//   при создании инструмента, тогда она генерируется автоматически из фигуры (ее масштабированием
-//   до размера иконки).
+//   при создании инструмента, тогда она генерируется автоматически из фигуры (ее масштабированием до размера иконки).
 //   Иконка отображает инструмент в панели инструментов. Фигура предназначена для отображения //
-//   инструмена уже на полотне ватмана.
+//   инструмента уже на полотне ватмана.
 //   Инструменты идентифицируются символом. Если при создании инструмента символ его не
 //   определен, то класс автоматически присваивает ему уникальный 8-значный символ.
 //
@@ -2453,15 +2430,13 @@ public:
 		uint32  Id;           // Целочисленный идентификатор элемента
 		SString Symb;         // Уникальный символ элемента.
 		SString Text;         // Текстовое описание инструмента.
-		SString WtmObjSymb;   // Символ класса семейства TWhatmanObject, который создается посредством
-			// данного инструмента.
+		SString WtmObjSymb;   // Символ класса семейства TWhatmanObject, который создается посредством данного инструмента.
 		SString FigPath;      // Имя файла, содержащего изображение фигуры инструмента
 		SString PicPath;      // Имя файла, содержащего изображение иконки инструмента
 		TPoint FigSize;       // Начальный размер фигуры инструмента.
 		TPoint PicSize;       // Если !isZero() то переопределяет TWhatmanToolArray::Param::PicSize
 		long   Flags;         // @flags
-		SColor ReplacedColor; // Цвет, который должен замещаться на какой-либо внешний цвет. Если все компоненты
-			// поля равны 0, то замещаемый цвет не определен.
+		SColor ReplacedColor; // Цвет, который должен замещаться на какой-либо внешний цвет. Если ReplacedColor.IsEmpty(), то замещаемый цвет не определен.
 		const  TWhatmanToolArray * P_Owner; // @notowned
 		uint32 ExtSize;       // Размер данных, используемый элементом в буфере ExtData
 		uint8  ExtData[256];
@@ -2479,9 +2454,10 @@ public:
 		TPoint PicSize;       // Размер иконки по умолчанию.
 		TArrangeParam Ap;     // Параметры упорядочивания иконок
 	};
+	static uint32 GetSerializeSignature();
 	TWhatmanToolArray();
 	~TWhatmanToolArray();
-	TWhatmanToolArray & Init();
+	TWhatmanToolArray & Z();
 	int    SetParam(const Param &);
 	void   GetParam(Param &) const;
 	uint   GetCount() const;
@@ -2496,7 +2472,6 @@ public:
 	const  SDrawFigure * GetFig(int figOrPic, uint pos, TWhatmanToolArray::Item * pItem) const;
 	const  SDrawFigure * GetFig(int figOrPic, const char * pSymb, TWhatmanToolArray::Item * pItem) const;
 	const  SDrawFigure * GetFigById(int figOrPic, uint id, TWhatmanToolArray::Item * pItem) const;
-
 	int    Store(const char * pFileName);
 	int    Load(const char * pFileName);
 	//int    LockStorage(const char * pFileName);
@@ -2532,6 +2507,7 @@ private:
 	// Принадлежность иконок и фигур элементу контейнера определяется по символу Item.Symb.
 	// Иконка хранится с символом "{SYMB}-PIC", а фигура с символом "{SYMB}-FIG"
 	//
+	AbstractLayoutBlock ALB; // @v10.9.9 Параметры размещения объекта, создаваемого в соответствии с данным инструментом
 };
 //
 // Descr: Фабрика создания экземпляра объекта ватмана.
@@ -2553,6 +2529,7 @@ typedef TWhatmanObject * (*FN_WTMOBJ_FACTORY)();
 //
 class TWhatmanObject { // @persistent
 public:
+	friend class TWhatman;
 	//
 	// Descr: Параметры текста, сопоставленного объекту.
 	//
@@ -2582,8 +2559,6 @@ public:
 		int32  Val2;
 		SString ExtString;
 	};
-
-	friend class TWhatman;
 	//
 	// Descr: Регистрирует класс, порожденный от TWhatmanObject.
 	//
@@ -2601,7 +2576,6 @@ public:
 	static int GetRegSymbById(long id, SString & rSymb);
 	static long GetRegIdBySymb(const char * pSymb);
 	static StrAssocArray * MakeStrAssocList();
-
 	virtual ~TWhatmanObject();
 	enum {
 		cmdNone = 0,
@@ -2623,8 +2597,7 @@ public:
 	//
 	enum {
 		gtloBoundsOnly            = 0x0001, // Если объект требует отрисовки текста, то
-			// функция обязана возвратить STextLayout в котором только определены
-			// границы текста.
+			// функция обязана возвратить STextLayout в котором только определены границы текста.
 		gtloQueryForArrangeObject = 0x0002  // Если флаг установлен, то функция должна
 			// вернуть >0 если текст следует учесть при автоматической ранжировки
 			// объектов функцией TWhatman::ArrangeObjects.
@@ -2679,8 +2652,6 @@ public:
 	TWhatman * GetOwner() const;
 	TWindow * GetOwnerWindow() const;
 	const  SString & GetSymb() const;
-	//const  TLayout::EntryBlock & GetLayoutBlock() const;
-	//void   SetLayoutBlock(const TLayout::EntryBlock * pBlk);
 	const  AbstractLayoutBlock & GetLayoutBlock() const;
 	void   SetLayoutBlock(const AbstractLayoutBlock * pBlk);
 	const  SString & GetLayoutContainerIdent() const;
@@ -2715,9 +2686,9 @@ protected:
 	long   State;       // @transient
 private:
 	TRect  Bounds;
-	SString LayoutContainerIdent; // @v10.4.8 Символ родительского объекта типа Layout
+	SString LayoutContainerIdent; // @v10.4.8 @persistent Символ родительского объекта типа Layout
 	// @v10.9.8 TLayout::EntryBlock Le; // @v10.4.7 Параметры объекта как элемента layout
-	AbstractLayoutBlock Le2; // @v10.9.8
+	AbstractLayoutBlock Le2; // @v10.9.8 @persistent 
 	TWhatman * P_Owner; // @transient
 };
 //
@@ -2784,7 +2755,7 @@ public:
 		toolPenLayoutBorder,    // @v10.4.8
 		toolPenContainerCandidateBorder // @v10.9.6
 	};
-
+	static uint32 GetSerializeSignature();
 	explicit TWhatman(TWindow * pOwnerWin);
 	~TWhatman();
 	TPoint FASTCALL TransformPointToScreen(TPoint p) const;

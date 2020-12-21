@@ -67,15 +67,11 @@ static FT_Error ft_lzw_check_header(FT_Stream stream)
 {
 	FT_Error error;
 	FT_Byte head[2];
-	if(FT_STREAM_SEEK(0)       ||
-	    FT_STREAM_READ(head, 2) )
+	if(FT_STREAM_SEEK(0) || FT_STREAM_READ(head, 2) )
 		goto Exit;
-
 	/* head[0] && head[1] are the magic numbers */
-	if(head[0] != 0x1F ||
-	    head[1] != 0x9D)
+	if(head[0] != 0x1F || head[1] != 0x9D)
 		error = FT_THROW(Invalid_File_Format);
-
 Exit:
 	return error;
 }
@@ -90,15 +86,12 @@ static FT_Error ft_lzw_file_init(FT_LZWFile zip, FT_Stream stream, FT_Stream sou
 	zip->limit  = zip->buffer + FT_LZW_BUFFER_SIZE;
 	zip->cursor = zip->limit;
 	zip->pos    = 0;
-
 	/* check and skip .Z header */
 	error = ft_lzw_check_header(source);
 	if(error)
 		goto Exit;
-
 	/* initialize internal lzw variable */
 	ft_lzwstate_init(lzw, source);
-
 Exit:
 	return error;
 }
@@ -107,7 +100,6 @@ static void ft_lzw_file_done(FT_LZWFile zip)
 {
 	/* clear the rest */
 	ft_lzwstate_done(&zip->lzw);
-
 	zip->memory = NULL;
 	zip->source = NULL;
 	zip->stream = NULL;
@@ -117,15 +109,12 @@ static FT_Error ft_lzw_file_reset(FT_LZWFile zip)
 {
 	FT_Stream stream = zip->source;
 	FT_Error error;
-
 	if(!FT_STREAM_SEEK(0) ) {
 		ft_lzwstate_reset(&zip->lzw);
-
 		zip->limit  = zip->buffer + FT_LZW_BUFFER_SIZE;
 		zip->cursor = zip->limit;
 		zip->pos    = 0;
 	}
-
 	return error;
 }
 
@@ -134,68 +123,49 @@ static FT_Error ft_lzw_file_fill_output(FT_LZWFile zip)
 	FT_LzwState lzw = &zip->lzw;
 	FT_ULong count;
 	FT_Error error = FT_Err_Ok;
-
 	zip->cursor = zip->buffer;
-
 	count = ft_lzwstate_io(lzw, zip->buffer, FT_LZW_BUFFER_SIZE);
-
 	zip->limit = zip->cursor + count;
-
 	if(count == 0)
 		error = FT_THROW(Invalid_Stream_Operation);
-
 	return error;
 }
 
 /* fill output buffer; `count' must be <= FT_LZW_BUFFER_SIZE */
-static FT_Error ft_lzw_file_skip_output(FT_LZWFile zip,
-    FT_ULong count)
+static FT_Error ft_lzw_file_skip_output(FT_LZWFile zip, FT_ULong count)
 {
 	FT_Error error = FT_Err_Ok;
-
 	/* first, we skip what we can from the output buffer */
 	{
 		FT_ULong delta = (FT_ULong)( zip->limit - zip->cursor );
-
 		if(delta >= count)
 			delta = count;
-
 		zip->cursor += delta;
 		zip->pos    += delta;
-
 		count -= delta;
 	}
-
 	/* next, we skip as many bytes remaining as possible */
 	while(count > 0) {
 		FT_ULong delta = FT_LZW_BUFFER_SIZE;
 		FT_ULong numread;
-
 		if(delta > count)
 			delta = count;
-
 		numread = ft_lzwstate_io(&zip->lzw, NULL, delta);
 		if(numread < delta) {
 			/* not enough bytes */
 			error = FT_THROW(Invalid_Stream_Operation);
 			break;
 		}
-
 		zip->pos += delta;
 		count    -= delta;
 	}
-
 	return error;
 }
 
-static FT_ULong ft_lzw_file_io(FT_LZWFile zip,
-    FT_ULong pos,
-    FT_Byte*    buffer,
-    FT_ULong count)
+static FT_ULong ft_lzw_file_io(FT_LZWFile zip, FT_ULong pos, FT_Byte*    buffer, FT_ULong count)
 {
 	FT_ULong result = 0;
 	FT_Error error;
-
 	/* seeking backwards. */
 	if(pos < zip->pos) {
 		/* If the new position is within the output buffer, simply       */
@@ -210,49 +180,36 @@ static FT_ULong ft_lzw_file_io(FT_LZWFile zip,
 				goto Exit;
 		}
 	}
-
 	/* skip unwanted bytes */
 	if(pos > zip->pos) {
 		error = ft_lzw_file_skip_output(zip, (FT_ULong)( pos - zip->pos ) );
 		if(error)
 			goto Exit;
 	}
-
 	if(count == 0)
 		goto Exit;
-
 	/* now read the data */
 	for(;;) {
-		FT_ULong delta;
-
-		delta = (FT_ULong)( zip->limit - zip->cursor );
+		FT_ULong delta = (FT_ULong)( zip->limit - zip->cursor );
 		if(delta >= count)
 			delta = count;
-
 		FT_MEM_COPY(buffer + result, zip->cursor, delta);
 		result      += delta;
 		zip->cursor += delta;
 		zip->pos    += delta;
-
 		count -= delta;
 		if(count == 0)
 			break;
-
 		error = ft_lzw_file_fill_output(zip);
 		if(error)
 			break;
 	}
-
 Exit:
 	return result;
 }
 
 /***************************************************************************/
-/***************************************************************************/
-/*****                                                                 *****/
 /*****            L Z W   E M B E D D I N G   S T R E A M              *****/
-/*****                                                                 *****/
-/***************************************************************************/
 /***************************************************************************/
 
 static void ft_lzw_stream_close(FT_Stream stream)
@@ -262,9 +219,7 @@ static void ft_lzw_stream_close(FT_Stream stream)
 	if(zip) {
 		/* finalize lzw file descriptor */
 		ft_lzw_file_done(zip);
-
 		FT_FREE(zip);
-
 		stream->descriptor.pointer = NULL;
 	}
 }
@@ -295,10 +250,8 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenLZW(FT_Stream stream, FT_Stream source)
 	error = ft_lzw_check_header(source);
 	if(error)
 		goto Exit;
-
 	FT_ZERO(stream);
 	stream->memory = memory;
-
 	if(!FT_NEW(zip) ) {
 		error = ft_lzw_file_init(zip, stream, source);
 		if(error) {

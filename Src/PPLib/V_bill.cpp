@@ -812,13 +812,13 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 		if(!draft_transit_only) {
 			if(Filt.LocList.IsExists() && Filt.LocList.GetCount()) {
 				PPIDArray full_loc_list;
-				LocObj.GetWarehouseList(&full_loc_list);
+				LocObj.GetWarehouseList(&full_loc_list, 0);
 				THROW(LocObj.ResolveWarehouseList(&Filt.LocList.Get(), LocList_));
 				LocList_.intersect(&full_loc_list);
 			}
 			else if(ObjRts.IsLocRights()) {
 				PPIDArray full_loc_list;
-				LocObj.GetWarehouseList(&full_loc_list);
+				LocObj.GetWarehouseList(&full_loc_list, 0);
 				THROW(LocObj.ResolveWarehouseList(&full_loc_list, LocList_));
 			}
 		}

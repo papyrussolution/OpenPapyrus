@@ -281,7 +281,7 @@ void SCI_METHOD LexerAsm::Lex(Sci_PositionU startPos, Sci_Position length, int i
 		}
 		else if(sc.state == SCE_ASM_STRING) {
 			if(sc.ch == '\\') {
-				if(sc.chNext == '\"' || sc.chNext == '\'' || sc.chNext == '\\') {
+				if(oneof3(sc.chNext, '\"', '\'', '\\')) {
 					sc.Forward();
 				}
 			}
@@ -295,7 +295,7 @@ void SCI_METHOD LexerAsm::Lex(Sci_PositionU startPos, Sci_Position length, int i
 		}
 		else if(sc.state == SCE_ASM_CHARACTER) {
 			if(sc.ch == '\\') {
-				if(sc.chNext == '\"' || sc.chNext == '\'' || sc.chNext == '\\') {
+				if(oneof3(sc.chNext, '\"', '\'', '\\')) {
 					sc.Forward();
 				}
 			}
@@ -307,7 +307,6 @@ void SCI_METHOD LexerAsm::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				sc.ForwardSetState(SCE_ASM_DEFAULT);
 			}
 		}
-
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_ASM_DEFAULT) {
 			if(sc.ch == commentChar) {

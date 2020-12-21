@@ -5,8 +5,8 @@
 #pragma hdrstop
 #include <report.h>
 
-#define max MAX // @v9.8.11
-#define min MIN // @v9.8.11
+#define max MAX // Файл gdisplus.h оперирует исключительно макросами min и max. Так как мы их элиминировали по всем проектам, то специальной для gdiplus включаем
+#define min MIN
 #include <gdiplus.h>
 using namespace Gdiplus;
 

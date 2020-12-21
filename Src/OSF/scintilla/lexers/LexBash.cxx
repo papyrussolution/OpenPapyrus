@@ -430,7 +430,7 @@ public:
 				    HereDoc.Quoted = false;
 				    HereDoc.DelimiterLength = 0;
 				    HereDoc.Delimiter[HereDoc.DelimiterLength] = '\0';
-				    if(sc.chNext == '\'' || sc.chNext == '\"') {        // a quoted here-doc delimiter (' or ")
+				    if(oneof2(sc.chNext, '\'', '\"')) { // a quoted here-doc delimiter (' or ")
 					    sc.Forward();
 					    HereDoc.Quoted = true;
 					    HereDoc.State = 1;
@@ -480,7 +480,7 @@ public:
 				    else if(!HereDoc.Quoted) {
 					    sc.SetState(SCE_SH_DEFAULT);
 				    }
-				    if(HereDoc.DelimiterLength >= HERE_DELIM_MAX - 1) {         // force blowup
+				    if(HereDoc.DelimiterLength >= HERE_DELIM_MAX - 1) { // force blowup
 					    sc.SetState(SCE_SH_ERROR);
 					    HereDoc.State = 0;
 				    }
@@ -491,7 +491,7 @@ public:
 			    if(sc.atLineStart) {
 				    sc.SetState(SCE_SH_HERE_Q);
 				    int prefixws = 0;
-				    while(sc.ch == '\t' && !sc.atLineEnd) {             // tabulation prefix
+				    while(sc.ch == '\t' && !sc.atLineEnd) { // tabulation prefix
 					    sc.Forward();
 					    prefixws++;
 				    }
@@ -502,7 +502,7 @@ public:
 				    }
 				    char s[HERE_DELIM_MAX];
 				    sc.GetCurrent(s, sizeof(s));
-				    if(sc.LengthCurrent() == 0) {       // '' or "" delimiters
+				    if(sc.LengthCurrent() == 0) { // '' or "" delimiters
 					    if((prefixws == 0 || HereDoc.Indent) && HereDoc.Quoted && HereDoc.DelimiterLength == 0)
 						    sc.SetState(SCE_SH_DEFAULT);
 					    break;

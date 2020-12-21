@@ -26,7 +26,7 @@
 #if (__GNUC__ == 4 && 6 <= __GNUC_MINOR__) || 4 < __GNUC__
 	#pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
 #endif
-#include "c-strcaseeq.h"
+// @sobolev (replaced with sstreqi_ascii) #include "c-strcaseeq.h"
 #undef _ // @sobolev
 #define _(msgid) gettext(msgid)
 #define N_(msgid) msgid
@@ -177,9 +177,11 @@ static char const * gettext_quote(char const * msgid, enum quoting_style s)
 
 	   None of these is still in wide use; using iconv is overkill.  */
 	locale_code = locale_charset();
-	if(STRCASEEQ(locale_code, "UTF-8", 'U', 'T', 'F', '-', '8', 0, 0, 0, 0))
+	//if(STRCASEEQ(locale_code, "UTF-8", 'U', 'T', 'F', '-', '8', 0, 0, 0, 0))
+	if(sstreqi_ascii(locale_code, "UTF-8"))
 		return msgid[0] == '`' ? "\xe2\x80\x98" : "\xe2\x80\x99";
-	if(STRCASEEQ(locale_code, "GB18030", 'G', 'B', '1', '8', '0', '3', '0', 0, 0))
+	//if(STRCASEEQ(locale_code, "GB18030", 'G', 'B', '1', '8', '0', '3', '0', 0, 0))
+	if(sstreqi_ascii(locale_code, "GB18030"))
 		return msgid[0] == '`' ? "\xa1\ae" : "\xa1\xaf";
 	return (s == clocale_quoting_style ? "\"" : "'");
 }

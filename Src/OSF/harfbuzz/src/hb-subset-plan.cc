@@ -25,24 +25,9 @@
  */
 #include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-subset-plan.hh"
-#include "hb-map.hh"
-#include "hb-set.hh"
-
-#include "hb-ot-cmap-table.hh"
-#include "hb-ot-glyf-table.hh"
-#include "hb-ot-layout-gdef-table.hh"
-#include "hb-ot-layout-gpos-table.hh"
-#include "hb-ot-layout-gsub-table.hh"
-#include "hb-ot-cff1-table.hh"
-#include "hb-ot-color-colr-table.hh"
-#include "hb-ot-var-fvar-table.hh"
-#include "hb-ot-stat-table.hh"
 
 #ifndef HB_NO_SUBSET_CFF
-static inline void _add_cff_seac_components(const OT::cff1::accelerator_t &cff,
-    hb_codepoint_t gid,
-    hb_set_t * gids_to_retain)
+static inline void _add_cff_seac_components(const OT::cff1::accelerator_t &cff, hb_codepoint_t gid, hb_set_t * gids_to_retain)
 {
 	hb_codepoint_t base_gid, accent_gid;
 	if(cff.get_seac_components(gid, &base_gid, &accent_gid)) {
@@ -54,36 +39,21 @@ static inline void _add_cff_seac_components(const OT::cff1::accelerator_t &cff,
 #endif
 
 #ifndef HB_NO_SUBSET_LAYOUT
-static void _remap_indexes(const hb_set_t * indexes,
-    hb_map_t       * mapping /* OUT */)
+static void _remap_indexes(const hb_set_t * indexes, hb_map_t * mapping /* OUT */)
 {
 	unsigned count = indexes->get_population();
-
 	for(auto _ : +hb_zip(indexes->iter(), hb_range(count)))
 		mapping->set(_.first, _.second);
 }
 
-static inline void _gsub_closure_glyphs_lookups_features(hb_face_t * face,
-    hb_set_t * gids_to_retain,
-    hb_map_t * gsub_lookups,
-    hb_map_t * gsub_features)
+static inline void _gsub_closure_glyphs_lookups_features(hb_face_t * face, hb_set_t * gids_to_retain, hb_map_t * gsub_lookups, hb_map_t * gsub_features)
 {
 	hb_set_t lookup_indices;
-	hb_ot_layout_collect_lookups(face,
-	    HB_OT_TAG_GSUB,
-	    nullptr,
-	    nullptr,
-	    nullptr,
-	    &lookup_indices);
-	hb_ot_layout_lookups_substitute_closure(face,
-	    &lookup_indices,
-	    gids_to_retain);
+	hb_ot_layout_collect_lookups(face, HB_OT_TAG_GSUB, nullptr, nullptr, nullptr, &lookup_indices);
+	hb_ot_layout_lookups_substitute_closure(face, &lookup_indices, gids_to_retain);
 	hb_blob_ptr_t<OT::GSUB> gsub = hb_sanitize_context_t().reference_table<OT::GSUB> (face);
-	gsub->closure_lookups(face,
-	    gids_to_retain,
-	    &lookup_indices);
+	gsub->closure_lookups(face, gids_to_retain, &lookup_indices);
 	_remap_indexes(&lookup_indices, gsub_lookups);
-
 	//closure features
 	hb_set_t feature_indices;
 	gsub->closure_features(gsub_lookups, &feature_indices);
@@ -91,24 +61,13 @@ static inline void _gsub_closure_glyphs_lookups_features(hb_face_t * face,
 	gsub.destroy();
 }
 
-static inline void _gpos_closure_lookups_features(hb_face_t      * face,
-    const hb_set_t * gids_to_retain,
-    hb_map_t       * gpos_lookups,
-    hb_map_t       * gpos_features)
+static inline void _gpos_closure_lookups_features(hb_face_t * face, const hb_set_t * gids_to_retain, hb_map_t * gpos_lookups, hb_map_t * gpos_features)
 {
 	hb_set_t lookup_indices;
-	hb_ot_layout_collect_lookups(face,
-	    HB_OT_TAG_GPOS,
-	    nullptr,
-	    nullptr,
-	    nullptr,
-	    &lookup_indices);
+	hb_ot_layout_collect_lookups(face, HB_OT_TAG_GPOS, nullptr, nullptr, nullptr, &lookup_indices);
 	hb_blob_ptr_t<OT::GPOS> gpos = hb_sanitize_context_t().reference_table<OT::GPOS> (face);
-	gpos->closure_lookups(face,
-	    gids_to_retain,
-	    &lookup_indices);
+	gpos->closure_lookups(face, gids_to_retain, &lookup_indices);
 	_remap_indexes(&lookup_indices, gpos_lookups);
-
 	//closure features
 	hb_set_t feature_indices;
 	gpos->closure_features(gpos_lookups, &feature_indices);

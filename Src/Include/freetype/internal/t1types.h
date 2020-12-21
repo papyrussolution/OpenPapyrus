@@ -178,17 +178,17 @@ typedef struct  T1_FaceRec_ {
 
 typedef struct  CID_FaceRec_ {
 	FT_FaceRec root;
-	void*            psnames;
-	void*            psaux;
+	void * psnames;
+	void * psaux;
 	CID_FaceInfoRec cid;
 	PS_FontExtraRec font_extra;
 #if 0
-	void*            afm_data;
+	void * afm_data;
 #endif
 	CID_Subrs subrs;
 
 	/* since version 2.1 - interface to PostScript hinter */
-	void*            pshinter;
+	void * pshinter;
 
 	/* since version 2.1.8, but was originally positioned after `afm_data' */
 	FT_Byte*         binary_data;/* used if hex data has been converted */

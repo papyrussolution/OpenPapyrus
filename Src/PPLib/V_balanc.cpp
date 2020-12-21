@@ -472,7 +472,4 @@ int PPALDD_Balance::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_Balance::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Balance);
-}
+void PPALDD_Balance::Destroy() { DESTROY_PPVIEW_ALDD(Balance); }

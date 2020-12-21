@@ -723,23 +723,17 @@ done:
  * \return 1 for success, 0 for failure. Note that in the case of failure some
  * certs may have been added to \c stack.
  */
-
-int SSL_add_dir_cert_subjects_to_stack(STACK_OF(X509_NAME) * stack,
-    const char * dir)
+int SSL_add_dir_cert_subjects_to_stack(STACK_OF(X509_NAME) * stack, const char * dir)
 {
 	OPENSSL_DIR_CTX * d = NULL;
 	const char * filename;
 	int ret = 0;
-
 	/* Note that a side effect is that the CAs will be sorted by name */
-
 	while((filename = OPENSSL_DIR_read(&d, dir))) {
 		char buf[1024];
 		int r;
-
-		if(strlen(dir) + strlen(filename) + 2 > sizeof(buf)) {
-			SSLerr(SSL_F_SSL_ADD_DIR_CERT_SUBJECTS_TO_STACK,
-			    SSL_R_PATH_TOO_LONG);
+		if((strlen(dir) + strlen(filename) + 2) > sizeof(buf)) {
+			SSLerr(SSL_F_SSL_ADD_DIR_CERT_SUBJECTS_TO_STACK, SSL_R_PATH_TOO_LONG);
 			goto err;
 		}
 #ifdef OPENSSL_SYS_VMS
@@ -759,13 +753,10 @@ int SSL_add_dir_cert_subjects_to_stack(STACK_OF(X509_NAME) * stack,
 		SSLerr(SSL_F_SSL_ADD_DIR_CERT_SUBJECTS_TO_STACK, ERR_R_SYS_LIB);
 		goto err;
 	}
-
 	ret = 1;
-
 err:
 	if(d)
 		OPENSSL_DIR_end(&d);
-
 	return ret;
 }
 
@@ -805,11 +796,9 @@ int ssl_build_cert_chain(SSL * s, SSL_CTX * ctx, int flags)
 			chain_store = s->ctx->cert_store;
 		else
 			chain_store = ctx->cert_store;
-
 		if(flags & SSL_BUILD_CHAIN_FLAG_UNTRUSTED)
 			untrusted = cpk->chain;
 	}
-
 	xs_ctx = X509_STORE_CTX_new();
 	if(xs_ctx == NULL) {
 		SSLerr(SSL_F_SSL_BUILD_CERT_CHAIN, ERR_R_MALLOC_FAILURE);
@@ -871,17 +860,12 @@ err:
 	if(flags & SSL_BUILD_CHAIN_FLAG_CHECK)
 		X509_STORE_free(chain_store);
 	X509_STORE_CTX_free(xs_ctx);
-
 	return rv;
 }
 
 int ssl_cert_set_cert_store(CERT * c, X509_STORE * store, int chain, int ref)
 {
-	X509_STORE ** pstore;
-	if(chain)
-		pstore = &c->chain_store;
-	else
-		pstore = &c->verify_store;
+	X509_STORE ** pstore = chain ? &c->chain_store : &c->verify_store;
 	X509_STORE_free(*pstore);
 	*pstore = store;
 	if(ref && store)
@@ -889,9 +873,7 @@ int ssl_cert_set_cert_store(CERT * c, X509_STORE * store, int chain, int ref)
 	return 1;
 }
 
-static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx,
-    int op, int bits, int nid, void * other,
-    void * ex)
+static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx, int op, int bits, int nid, void * other, void * ex)
 {
 	int level, minbits;
 	static const int minbits_table[5] = { 80, 112, 128, 192, 256 };
@@ -899,7 +881,6 @@ static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx,
 		level = SSL_CTX_get_security_level(ctx);
 	else
 		level = SSL_get_security_level(s);
-
 	if(level <= 0) {
 		/*
 		 * No EDH keys weaker than 1024-bits even at level 0, otherwise,
@@ -980,21 +961,17 @@ int ssl_security(const SSL * s, int op, int bits, int nid, void * other)
 
 int ssl_ctx_security(const SSL_CTX * ctx, int op, int bits, int nid, void * other)
 {
-	return ctx->cert->sec_cb(NULL, ctx, op, bits, nid, other,
-		   ctx->cert->sec_ex);
+	return ctx->cert->sec_cb(NULL, ctx, op, bits, nid, other, ctx->cert->sec_ex);
 }
 
 int ssl_cert_lookup_by_nid(int nid, size_t * pidx)
 {
-	size_t i;
-
-	for(i = 0; i < OSSL_NELEM(ssl_cert_info); i++) {
+	for(size_t i = 0; i < OSSL_NELEM(ssl_cert_info); i++) {
 		if(ssl_cert_info[i].nid == nid) {
 			*pidx = i;
 			return 1;
 		}
 	}
-
 	return 0;
 }
 
@@ -1002,16 +979,12 @@ const SSL_CERT_LOOKUP * ssl_cert_lookup_by_pkey(const EVP_PKEY * pk, size_t * pi
 {
 	int nid = EVP_PKEY_id(pk);
 	size_t tmpidx;
-
 	if(nid == NID_undef)
 		return NULL;
-
 	if(!ssl_cert_lookup_by_nid(nid, &tmpidx))
 		return NULL;
-
 	if(pidx != NULL)
 		*pidx = tmpidx;
-
 	return &ssl_cert_info[tmpidx];
 }
 

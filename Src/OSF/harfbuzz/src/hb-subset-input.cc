@@ -25,8 +25,6 @@
  */
 #include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-subset.hh"
-#include "hb-set.hh"
 /**
  * hb_subset_input_create_or_fail:
  *

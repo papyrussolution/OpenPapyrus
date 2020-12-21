@@ -439,7 +439,7 @@ int StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * 
 				if(fcmp(c, pPattern, 0) == 0)
 					ok = 1;
 			}
-			else if(strcmp(c, pPattern) == 0)
+			else if(sstreq(c, pPattern))
 				ok = 1;
 			if(ok)
 				next_pos = (p + len + delim_len);

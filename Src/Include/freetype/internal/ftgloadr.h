@@ -57,7 +57,7 @@ typedef struct  FT_GlyphLoaderRec_ {
 	FT_GlyphLoadRec base;
 	FT_GlyphLoadRec current;
 
-	void*            other;        /* for possible future extension? */
+	void * other;        /* for possible future extension? */
 } FT_GlyphLoaderRec, * FT_GlyphLoader;
 
 /* create new empty glyph loader */

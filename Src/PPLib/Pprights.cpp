@@ -1,7 +1,6 @@
 // PPRIGHTS.CPP
 // Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
-//
 // Права доступа
 //
 #include <pp.h>
@@ -415,7 +414,7 @@ private:
 			{
 				SString loc_name;
 				PPIDArray _list;
-				LocObj.GetWarehouseList(&_list);
+				LocObj.GetWarehouseList(&_list, 0);
 				for(uint i = 0; i < _list.getCount(); i++) {
 					PPID loc_id = _list.at(i);
 					if(!Data.SearchItemByID(loc_id, 0) || loc_id == pItem->ObjID) {

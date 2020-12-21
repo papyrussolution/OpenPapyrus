@@ -38,7 +38,7 @@ int FASTCALL PPAccTurn::IsEqual(const PPAccTurn & rS) const
 		eq = 0;
 	else if(Flags != rS.Flags)
 		eq = 0;
-	else if(strcmp(BillCode, rS.BillCode) != 0)
+	else if(!sstreq(BillCode, rS.BillCode))
 		eq = 0;
 	return eq;
 }

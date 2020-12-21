@@ -529,8 +529,4 @@ int PPALDD_GoodsBillCmp::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_GoodsBillCmp::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(GoodsBillCmp);
-}
-
+void PPALDD_GoodsBillCmp::Destroy() { DESTROY_PPVIEW_ALDD(GoodsBillCmp); }

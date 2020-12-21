@@ -2489,6 +2489,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Html,   mtText,  "html",  "html;htm", "T<!DOCTYPE HTML"); // HTML
 	Register(Ini,    mtText,  "plain", "ini", static_cast<const char *>(0));  // INI
 	Register(Csv,    mtText,  "csv",   "csv", 0); // @v10.8.0
+	Register(Tsv,    mtText,  "tsv",   "tsv", 0); // @v10.9.9 tab-separated-values
 	Register(Latex,            mtApplication, "x-latex", "tex", static_cast<const char *>(0));  // LATEX
 	Register(Latex,            "latex", static_cast<const char *>(0));         // LATEX
 	Register(TxtBomUTF8,       "txt;csv", "EFBBBF");
@@ -2557,41 +2558,43 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Flv,        "flv", "464C5601");
 	Register(Mov,        "mov", "4:6D6F6F76");
 	Register(F4f,        "f4f", "4:61667261");
-	Register(Class,      "class", "CAFEBABE"); // @v9.0.9 binary:class 0:CAFEBABE
-	Register(Exe,   mtApplication, "octet-stream", "exe",   "4D5A"); // @v9.0.9 binary:exe   0:4D5A
-	Register(Dll,   mtApplication, "x-msdownload", "dll",   "4D5A"); // @v9.0.9 binary:dll   0:4D5A
-	Register(Pcap,       "pcap",  "D4C3B2A1"); // @v9.0.9 binary:pcap  0:D4C3B2A1
-	Register(Pyo,        "pyo",   "03F30D0A"); // @v9.0.9 binary:pyo   0:03F30D0A
-	Register(So,         "so",    "7F454C46"); // @v9.0.9 binary:so    0:7F454C46
-	Register(Mo,         "mo",    "DE120495"); // @v9.0.9 binary:mo    0:DE120495
-	Register(Mui,        "mui",   "50413330"); // @v9.0.9 binary:mui   0:50413330
-	Register(Cat,        "cat",   "0:30 6:2A864886"); // @v9.0.9 binary:cat   0:30 6:2A864886
-	Register(Xsb,        "xsb",   "DA7ABABE"); // @v9.0.9 binary:xsb   0:DA7ABABE
-	Register(Key,        "key",   "4B4C737727"); // @v9.0.9 binary:key   0:4B4C737727
-	Register(Sq3,        "sq3",   "53514C697465"); // @v9.0.9 binary:sq3   0:53514C697465
-	Register(Qst,        "qst",   "0401C4030000"); // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
-	Register(Qst,        "qst",   "040180040000"); // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
-	Register(Crx,        "crx",   "43723234"); // @v9.0.9 binary:crx   0:43723234
-	Register(Utx,        "utx",   "4C0069006E006500610067006500"); // @v9.0.9 binary:utx   0:4C0069006E006500610067006500
-	Register(Rx3,        "rx3",   "52583362"); // @v9.0.9 binary:rx3   0:52583362
-	Register(Kdc,        "kdc",   "44494646"); // @v9.0.9 binary:kdc   0:44494646
-	Register(Xnb,        "xnb",   "584E42"); // @v9.0.9 binary:xnb   0:584E42
-	Register(Blp,        "blp",   "424C5031"); // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
-	Register(Blp,        "blp",   "424C5032"); // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
-	Register(Big,        "big",   "42494746"); // @v9.0.9 binary:big   0:42494746
-	Register(Mdl,        "mdl",   "49445354"); // @v9.0.9 binary:mdl   0:49445354
-	Register(Spr,        "spr",   "CDCC8C3F"); // @v9.0.9 binary:spr   0:CDCC8C3F
-	Register(Sfo,        "sfo",   "00505346"); // @v9.0.9 binary:sfo   0:00505346
-	Register(Mpq,        "mpq",   "4D50511A"); // @v9.0.9 binary:mpq   0:4D50511A
-	Register(Nes,        "nes",   "4E45531A"); // @v9.0.9 binary:nes   0:4E45531A
-	Register(Dmp,        "dmp",   "4D444D5093A7"); // @v9.0.9 binary:dmp   0:4D444D5093A7
-	Register(Dex,        "dex",   "6465780a30333500"); // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
-	Register(Dex,        "dex",   "6465780a30333600"); // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
-	Register(Gim,        "gim",   "4D49472E30302E31505350"); // @v9.0.9 binary:gim   0:4D49472E30302E31505350
-	Register(Amxx,       "amxx",  "58584D41"); // @v9.0.9 binary:amxx  0:58584D41
-	Register(Sln,        "sln",  "TMicrosoft Visual Studio Solution File"); // @v9.1.2
-	Register(VCProj,     mtApplication, "xml", "vcproj", "T<?xml"); // @v9.1.2
+	Register(Class,      "class", "CAFEBABE");        // binary:class 0:CAFEBABE
+	Register(Exe,   mtApplication, "octet-stream", "exe",   "4D5A"); // binary:exe   0:4D5A
+	Register(Dll,   mtApplication, "x-msdownload", "dll",   "4D5A"); // binary:dll   0:4D5A
+	Register(Pcap,       "pcap",  "D4C3B2A1");        // binary:pcap  0:D4C3B2A1
+	Register(Pyo,        "pyo",   "03F30D0A");        // binary:pyo   0:03F30D0A
+	Register(So,         "so",    "7F454C46");        // binary:so    0:7F454C46
+	Register(Mo,         "mo",    "DE120495");        // binary:mo    0:DE120495
+	Register(Mui,        "mui",   "50413330");        // binary:mui   0:50413330
+	Register(Cat,        "cat",   "0:30 6:2A864886"); // binary:cat   0:30 6:2A864886
+	Register(Xsb,        "xsb",   "DA7ABABE");        // binary:xsb   0:DA7ABABE
+	Register(Key,        "key",   "4B4C737727");      // binary:key   0:4B4C737727
+	Register(Sq3,        "sq3",   "53514C697465");    // binary:sq3   0:53514C697465
+	Register(Qst,        "qst",   "0401C4030000");    // binary:qst   0:0401C4030000 binary:qst   0:040180040000
+	Register(Qst,        "qst",   "040180040000");    // binary:qst   0:0401C4030000 binary:qst   0:040180040000
+	Register(Crx,        "crx",   "43723234");        // binary:crx   0:43723234
+	Register(Utx,        "utx",   "4C0069006E006500610067006500"); // binary:utx   0:4C0069006E006500610067006500
+	Register(Rx3,        "rx3",   "52583362");         // binary:rx3   0:52583362
+	Register(Kdc,        "kdc",   "44494646");         // binary:kdc   0:44494646
+	Register(Xnb,        "xnb",   "584E42");           // binary:xnb   0:584E42
+	Register(Blp,        "blp",   "424C5031");         // binary:blp   0:424C5031 binary:blp   0:424C5032
+	Register(Blp,        "blp",   "424C5032");         // binary:blp   0:424C5031 binary:blp   0:424C5032
+	Register(Big,        "big",   "42494746");         // binary:big   0:42494746
+	Register(Mdl,        "mdl",   "49445354");         // binary:mdl   0:49445354
+	Register(Spr,        "spr",   "CDCC8C3F");         // binary:spr   0:CDCC8C3F
+	Register(Sfo,        "sfo",   "00505346");         // binary:sfo   0:00505346
+	Register(Mpq,        "mpq",   "4D50511A");         // binary:mpq   0:4D50511A
+	Register(Nes,        "nes",   "4E45531A");         // binary:nes   0:4E45531A
+	Register(Dmp,        "dmp",   "4D444D5093A7");     // binary:dmp   0:4D444D5093A7
+	Register(Dex,        "dex",   "6465780a30333500"); // binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
+	Register(Dex,        "dex",   "6465780a30333600"); // binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
+	Register(Gim,        "gim",   "4D49472E30302E31505350"); // binary:gim   0:4D49472E30302E31505350
+	Register(Amxx,       "amxx",  "58584D41");               // binary:amxx  0:58584D41
+	Register(Sln,        "sln",  "TMicrosoft Visual Studio Solution File"); //
+	Register(VCProj,     mtApplication, "xml", "vcproj", "T<?xml");         // 
 	Register(VCProj,     "vcxproj", "T<?xml");
+	Register(VCProjFilers, mtApplication, "xml", "vcxproj.filters", "T<?xml"); // @v10.9.9 Visual Studio Project Filters
+	Register(VCProjUser,   mtApplication, "xml", "vcxproj.user",    "T<?xml"); // @v10.9.9 Visual Studio Project User
 	Register(Asm,        "asm", 0);
 	Register(C,          "c",   0);
 	Register(C,          "c",   "T/*");
@@ -2620,6 +2623,8 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Pbxproj,    "pbxproj", 0);
 	Register(Gravity,    "gravity", 0); // @v10.8.2
 	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53");
+	Register(CodeBlocks_Cbp,  mtApplication, "xml",   "cbp", "T<?xml"); // @v10.9.9 Code::Blocks Project File
+	Register(M4,              mtText,        "plain", "m4", 0); // @v10.9.9 m4 macroporcessor
 	return ok;
 }
 //

@@ -57,7 +57,6 @@ hb_bool_t hb_ot_color_has_palettes(hb_face_t * face)
 {
 	return face->table.CPAL->has_data();
 }
-
 /**
  * hb_ot_color_palette_get_count:
  * @face: #hb_face_t to work upon
@@ -72,7 +71,6 @@ unsigned int hb_ot_color_palette_get_count(hb_face_t * face)
 {
 	return face->table.CPAL->get_palette_count();
 }
-
 /**
  * hb_ot_color_palette_get_name_id:
  * @face: #hb_face_t to work upon
@@ -108,12 +106,10 @@ hb_ot_name_id_t hb_ot_color_palette_get_name_id(hb_face_t * face, unsigned int p
  *
  * Since: 2.1.0
  */
-hb_ot_name_id_t hb_ot_color_palette_color_get_name_id(hb_face_t * face,
-    unsigned int color_index)
+hb_ot_name_id_t hb_ot_color_palette_color_get_name_id(hb_face_t * face, unsigned int color_index)
 {
 	return face->table.CPAL->get_color_name_id(color_index);
 }
-
 /**
  * hb_ot_color_palette_get_flags:
  * @face: #hb_face_t to work upon
@@ -152,15 +148,11 @@ hb_ot_color_palette_flags_t hb_ot_color_palette_get_flags(hb_face_t * face,
  *
  * Since: 2.1.0
  */
-unsigned int hb_ot_color_palette_get_colors(hb_face_t     * face,
-    unsigned int palette_index,
-    unsigned int start_offset,
-    unsigned int  * colors_count /* IN/OUT.  May be NULL. */,
-    hb_color_t    * colors /* OUT.     May be NULL. */)
+unsigned int hb_ot_color_palette_get_colors(hb_face_t * face, unsigned int palette_index, unsigned int start_offset,
+    unsigned int  * colors_count /* IN/OUT.  May be NULL. */, hb_color_t    * colors /* OUT.     May be NULL. */)
 {
 	return face->table.CPAL->get_palette_colors(palette_index, start_offset, colors_count, colors);
 }
-
 /*
  * COLR
  */
@@ -196,15 +188,11 @@ hb_bool_t hb_ot_color_has_layers(hb_face_t * face)
  *
  * Since: 2.1.0
  */
-unsigned int hb_ot_color_glyph_get_layers(hb_face_t           * face,
-    hb_codepoint_t glyph,
-    unsigned int start_offset,
-    unsigned int        * layer_count,                          /* IN/OUT.  May be NULL. */
+unsigned int hb_ot_color_glyph_get_layers(hb_face_t * face, hb_codepoint_t glyph, unsigned int start_offset, unsigned int * layer_count/* IN/OUT.  May be NULL. */,
     hb_ot_color_layer_t * layers /* OUT.     May be NULL. */)
 {
 	return face->table.COLR->get_glyph_layers(glyph, start_offset, layer_count, layers);
 }
-
 /*
  * SVG
  */
@@ -223,7 +211,6 @@ hb_bool_t hb_ot_color_has_svg(hb_face_t * face)
 {
 	return face->table.SVG->has_data();
 }
-
 /**
  * hb_ot_color_glyph_reference_svg:
  * @face: #hb_face_t to work upon
@@ -239,7 +226,6 @@ hb_blob_t * hb_ot_color_glyph_reference_svg(hb_face_t * face, hb_codepoint_t gly
 {
 	return face->table.SVG->reference_blob_for_glyph(glyph);
 }
-
 /*
  * PNG: CBDT or sbix
  */
@@ -258,7 +244,6 @@ hb_bool_t hb_ot_color_has_png(hb_face_t * face)
 {
 	return face->table.CBDT->has_data() || face->table.sbix->has_data();
 }
-
 /**
  * hb_ot_color_glyph_reference_png:
  * @font: #hb_font_t to work upon
@@ -275,13 +260,10 @@ hb_bool_t hb_ot_color_has_png(hb_face_t * face)
 hb_blob_t * hb_ot_color_glyph_reference_png(hb_font_t * font, hb_codepoint_t glyph)
 {
 	hb_blob_t * blob = hb_blob_get_empty();
-
 	if(font->face->table.sbix->has_data())
 		blob = font->face->table.sbix->reference_png(font, glyph, nullptr, nullptr, nullptr);
-
 	if(!blob->length && font->face->table.CBDT->has_data())
 		blob = font->face->table.CBDT->reference_png(font, glyph);
-
 	return blob;
 }
 

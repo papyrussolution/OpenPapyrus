@@ -453,10 +453,9 @@ void skeleton_arg(char const * arg, int prio, Location loc)
 void language_argmatch(char const * arg, int prio, Location loc)
 {
 	char const * msg = NULL;
-
 	if(prio < language_prio) {
 		for(int i = 0; valid_languages[i].language[0]; ++i)
-			if(c_strcasecmp(arg, valid_languages[i].language) == 0) {
+			if(sstreqi_ascii(arg, valid_languages[i].language)) {
 				language_prio = prio;
 				language = &valid_languages[i];
 				return;
@@ -465,7 +464,6 @@ void language_argmatch(char const * arg, int prio, Location loc)
 	}
 	else if(language_prio == prio)
 		msg = _("multiple language declarations are invalid");
-
 	if(msg)
 		complain(&loc, complaint, msg, quotearg_colon(arg));
 }

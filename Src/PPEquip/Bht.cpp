@@ -2887,8 +2887,7 @@ int PPObjBHT::PrepareLocData(const char * pPath, PPID bhtTypeID)
 	DbfTable * p_dbf_tbl = 0;
 	PPObjLocation loc_obj;
 	PPIDArray wh_list;
-
-	loc_obj.GetWarehouseList(&wh_list);
+	loc_obj.GetWarehouseList(&wh_list, 0);
 	PPSetAddedMsgString(pPath);
 	PPWait(1);
 	if(bhtTypeID == PPObjBHT::btPalm) {
@@ -2900,13 +2899,14 @@ int PPObjBHT::PrepareLocData(const char * pPath, PPID bhtTypeID)
 		THROW(p_dbf_tbl->create(num_flds, fld_list));
 		THROW(p_dbf_tbl->open());
 	}
-	for(uint i = 0; i < wh_list.getCount(); i++)
+	for(uint i = 0; i < wh_list.getCount(); i++) {
 		if(loc_obj.Search(wh_list.at(i), &l_rec) > 0 && bhtTypeID == PPObjBHT::btPalm) {
 			DbfRecord dbf_rec(p_dbf_tbl);
 			dbf_rec.put(1, l_rec.ID);
 			dbf_rec.put(2, strlwr866(l_rec.Name));
 			THROW(p_dbf_tbl->appendRec(&dbf_rec));
 		}
+	}
 	CATCHZOK
 	delete p_dbf_tbl;
 	return ok;
@@ -4261,7 +4261,7 @@ int PPObjBHT::AcceptTechSessPalm(const char * pLName, PPLogger * pLog)
 				strip(tses_rec.ArCode);
 				strip(tses_rec.Barcode);
 				int    sig;
-				if(strcmp(tses_rec.PrcCode, "PRCCLRL") == 0)
+				if(sstreq(tses_rec.PrcCode, "PRCCLRL"))
 					sig = 3;
 				else if(is_first_rec)
 					sig = 1;

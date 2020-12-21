@@ -758,6 +758,11 @@ public:
 			P_Data = &pPsnPack->Regs;
 			setStaticText(CTL_BACCLST_NAME, P_PsnPack->Rec.Name);
 		}
+		// @v10.9.9 {
+		// see the comment to the function int moveItem(long, long, int) below
+		enableCommand(cmUp, 0);
+		enableCommand(cmDown, 0);
+		// } @v10.9.9 
 		updateList(-1);
 	}
 private:
@@ -787,8 +792,8 @@ private:
 		if(RObj.CheckRights(PPR_INS)) {
 			PPBankAccount ba_rec;
 			PersonTbl::Rec psn_rec;
-			MEMSZERO(ba_rec);
-			MEMSZERO(psn_rec);
+			// @v10.9.9 @ctr MEMSZERO(ba_rec);
+			// @v10.9.9 @ctr MEMSZERO(psn_rec);
 			ba_rec.AccType = PPBAC_CURRENT;
 			while(ok < 0 && RObj.EditBankAccount(&ba_rec, 0) > 0) {
 				if(P_Data->CheckDuplicateBankAccount(&ba_rec, -1)) {
@@ -846,7 +851,50 @@ private:
 		CATCHZOKPPERR
 		return ok;
 	}
-
+	// @v10.9.9 {
+	// Попытка реализовать ручное изменение порядка следования счетов оказалась неудачной:
+	// в базе данных регистры, хранящие данные о счетах игнорируют это изменение порядка при одновлении 
+	// списка записей. В конструкторе мы запретили кнопки Up и Donw, сам же код пока оставим - может пригодится.
+	//
+	virtual int moveItem(long pos, long id, int up)
+	{
+		int    ok = -1;
+		if(P_Data) {
+			const long _c = P_Data->getCountI();
+			if(id > 0 && id <= _c) {
+				RegisterTbl::Rec & r_reg_rec = P_Data->at(id-1);
+				if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
+					const long this_idx = id-1;
+					if(up) {
+						long idx = this_idx;
+						if(idx > 0) do {
+							const RegisterTbl::Rec & r_reg_rec = P_Data->at(--idx);
+							if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
+								if(P_Data->swap(this_idx, idx)) {
+									ok = 1;
+								}
+								break;
+							}
+						} while(idx > 0);
+					}
+					else {
+						long idx = this_idx;
+						if(idx >= 0 && idx < (_c-1)) do {
+							const RegisterTbl::Rec & r_reg_rec = P_Data->at(++idx);
+							if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
+								if(P_Data->swap(this_idx, idx)) {
+									ok = 1;
+								}
+								break;
+							}
+						} while(idx < (_c-1));
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	// } @v10.9.9 
 	PPObjPerson  PsnObj;
 	PPObjRegister RObj;
 	RegisterArray StubData;

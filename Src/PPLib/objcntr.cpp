@@ -48,7 +48,7 @@ int PPOpCounterPacket::Init(const LAssocArray * pItems)
 		if(P_Items->getCount() == 0) {
 			PPObjLocation loc_obj;
 			PPIDArray wh_list;
-			loc_obj.GetWarehouseList(&wh_list);
+			loc_obj.GetWarehouseList(&wh_list, 0);
 			for(uint i = 0; i < wh_list.getCount(); i++)
 				THROW_SL(P_Items->AddUnique(wh_list.at(i), 0, 0));
 		}

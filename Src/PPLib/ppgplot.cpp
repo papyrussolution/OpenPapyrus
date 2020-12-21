@@ -752,8 +752,8 @@ int Generator_GnuPlot::Plot(const PlotParam * pParam)
 int Generator_GnuPlot::Run()
 {
 	int    ok = 1;
-	SString file_name, q_file_name, cmd_line;
-	file_name = GetName();
+	SString q_file_name, cmd_line;
+	SString file_name(GetName());
 	(q_file_name = file_name).Quot('\"', '\"');
 	LineBuf.Z().Cat("pause").Space().Cat(100000).CR();
 	PutLine();

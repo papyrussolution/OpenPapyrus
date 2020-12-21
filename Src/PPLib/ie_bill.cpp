@@ -506,8 +506,8 @@ public:
 	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
 	int    MakeOutFileIdent(FileInfo & rHi);
 	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
-	int    StartDoc(const char * pFileName);
-	void   EndDoc();
+	int    StartDocument(const char * pFileName);
+	void   EndDocument();
 	int    WriteInvoiceItems(const FileInfo & rHi, const PPBillPacket & rBp);
 	int    WriteAddress(const PPLocationPacket & rP, int regionCode);
 	int    WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
@@ -526,6 +526,10 @@ public:
 	SXml::WDoc * P_Doc;
 	xmlTextWriter * P_X;
 private:
+	enum {
+		fExpChZnMarksGTINSER = 0x0001
+	};
+	uint   Flags;
 	SString EncBuf;
 };
 //
@@ -1174,9 +1178,9 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				disableCtrls(1, CTLSEL_IEBILLSEL_OP, CTLSEL_IEBILLSEL_LOC, CTL_IEBILLSEL_PERIOD, 0L);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 0, PPBillImpExpBaseProcessBlock::fSignExport);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 1, PPBillImpExpBaseProcessBlock::fTestMode);
-				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 2, PPBillImpExpBaseProcessBlock::fEgaisVer3); // @v9.9.9
+				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 2, PPBillImpExpBaseProcessBlock::fEgaisVer3);
 				SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
-				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)); // @v9.9.9
+				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp));
 				SetupPPObjCombo(this, CTLSEL_IEBILLSEL_MAILACC, PPOBJ_INTERNETACCOUNT, P_Data->Tp.InetAccID, 0,
 					reinterpret_cast<void *>(PPObjInternetAccount::filtfMail)/*INETACCT_ONLYMAIL*/);
 				{
@@ -1250,7 +1254,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 						P_Data->BillParam.ProcessName(1, sect);
 						THROW(P_Data->BillParam.ReadIni(P_IniFile, sect, 0));
 						__id = getCtrlLong(CTLSEL_IEBILLSEL_BROW);
-						if(!(P_Data->BillParam.BaseFlags & PPImpExpParam::bfDLL) && !P_Data->BillParam.PredefFormat) { // @v9.7.8 (!P_Data->BillParam.PredefFormat)
+						if(!(P_Data->BillParam.BaseFlags & PPImpExpParam::bfDLL) && !P_Data->BillParam.PredefFormat) {
 							if(__id || GetOpType(P_Data->OpID) != PPOPT_ACCTURN) {
 								THROW_PP(__id, PPERR_INVBILLIMPEXPCFG);
 								LineList.GetText(__id, sect);
@@ -1319,7 +1323,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					if(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEdiImpExp|PPBillImpExpBaseProcessBlock::fPaymOrdersExp))
 						disableCtrl(CTLSEL_IEBILLSEL_BROW, 1);
 					disableCtrls((P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp), CTLSEL_IEBILLSEL_OP, 0L);
-					DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)); // @v9.9.9
+					DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp));
 					if(SetupControlsForEdi() > 0) {
 					}
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) {
@@ -5501,16 +5505,25 @@ DocNalogRu_Generator::Invoice::Invoice(DocNalogRu_Generator & rG, const PPBillPa
 	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_CODEOKV), "643");
 }
 
-DocNalogRu_Generator::DocNalogRu_Generator() : P_X(0), P_Doc(0)
+DocNalogRu_Generator::DocNalogRu_Generator() : P_X(0), P_Doc(0), Flags(0)
 {
+	// @v10.9.9 {
+	PPIniFile ini_file;
+	int    iv = 0;
+	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPCHZNGTINSER, &iv) > 0) {
+		if(iv == 1) {
+			Flags |= fExpChZnMarksGTINSER;
+		}
+	}
+	// } @v10.9.9 
 }
 
 DocNalogRu_Generator::~DocNalogRu_Generator()
 {
-	EndDoc();
+	EndDocument();
 }
 
-int DocNalogRu_Generator::StartDoc(const char * pFileName)
+int DocNalogRu_Generator::StartDocument(const char * pFileName)
 {
 	int    ok = 1;
 	ZDELETE(P_Doc);
@@ -5524,7 +5537,7 @@ int DocNalogRu_Generator::StartDoc(const char * pFileName)
 	return ok;
 }
 
-void DocNalogRu_Generator::EndDoc()
+void DocNalogRu_Generator::EndDocument()
 {
 	xmlTextWriterFlush(P_X);
 	ZDELETE(P_Doc);
@@ -5631,7 +5644,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_TAXRATE), temp_buf);
 			}
 			//
-			double amt_wo_tax = vect.GetValue(GTAXVF_AFTERTAXES);
+			const double amt_wo_tax = vect.GetValue(GTAXVF_AFTERTAXES);
 			temp_buf.Z().Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD(0, 2, 0)); // @v10.6.10 MKSFMTD(0, 11, NMBF_NOTRAILZ)-->MKSFMTD(0, 2, 0)
 			n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE), temp_buf);
 			//
@@ -5639,7 +5652,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 			temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0));
 			n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT), temp_buf);
 			//
-			double amt = vect.GetValue(GTAXVF_BEFORETAXES);
+			const double amt = vect.GetValue(GTAXVF_BEFORETAXES);
 			total_amt += amt;
 			temp_buf.Z().Cat(amt, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0));
 			n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT), temp_buf);
@@ -5675,10 +5688,28 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 			{
 				if(rBp.XcL.Get(item_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
 					SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
+					SString chzn_gtin14_buf;
+					SString chzn_serial_buf;
 					StringSet ss;
 					ext_codes_set.GetByBoxID(0, ss);
 					for(uint ecsp = 0; ss.get(&ecsp, temp_buf);) {
-						n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+						bool  is_mark_accepted = false;
+						if(Flags & fExpChZnMarksGTINSER) {
+							GtinStruc gts;
+							const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+							if(pczcr) {
+								gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
+								gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
+								if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty()) {
+									temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
+									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+									is_mark_accepted = true;
+								}
+							}	
+						}
+						if(!is_mark_accepted) {
+							n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+						}
 					}
 				}
 			}
@@ -5994,7 +6025,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
 		}
-		THROW(g.StartDoc(_hi.FileName));
+		THROW(g.StartDocument(_hi.FileName));
         {
 			DocNalogRu_Generator::File f(g, _hi);
 			// Наименование экономического субъекта – составителя информации исполнителя
@@ -6163,7 +6194,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 			}
 			g.Underwriter(0);
 		}
-		g.EndDoc();
+		g.EndDocument();
 		rResultFileName = _hi.FileName; // @v10.9.8
 	}
 	CATCHZOK
@@ -6196,7 +6227,7 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
 		}
-		THROW(g.StartDoc(_hi.FileName));
+		THROW(g.StartDocument(_hi.FileName));
         {
 			DocNalogRu_Generator::File f(g, _hi);
 			GetMainOrgName(temp_buf);
@@ -6311,7 +6342,7 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 			}
 			g.Underwriter(0);
 		}
-		g.EndDoc();
+		g.EndDocument();
 		rResultFileName = _hi.FileName; // @v10.9.8
 	}
 	CATCHZOK
@@ -6338,7 +6369,7 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
 		}
-		THROW(g.StartDoc(_hi.FileName));
+		THROW(g.StartDocument(_hi.FileName));
         {
 			DocNalogRu_Generator::File f(g, _hi);
 			GetMainOrgName(temp_buf);
@@ -6410,7 +6441,7 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 			g.WriteInvoiceItems(_hi, rBp);
 			g.Underwriter(0);
 		}
-		g.EndDoc();
+		g.EndDocument();
 		rResultFileName = _hi.FileName; // @v10.9.8
 	}
 	CATCHZOK
@@ -6445,7 +6476,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
 		}
-		THROW(g.StartDoc(_hi.FileName));
+		THROW(g.StartDocument(_hi.FileName));
         {
 			DocNalogRu_Generator::File f(g, _hi);
 			GetMainOrgName(temp_buf);
@@ -6610,7 +6641,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 			}
 			g.Underwriter(0);
 		}
-		g.EndDoc();
+		g.EndDocument();
 		rResultFileName = _hi.FileName; // @v10.9.8
 	}
 	CATCHZOK
@@ -6626,7 +6657,6 @@ int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName, S
 	SString output;
 	SString line_name;
 	SString name_buf;
-	//SString lot_text;
 	LongArray idx_list;
 	PPObjBill::MakeCodeString(&rBp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName,temp_buf);
 	output.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CR();

@@ -157,19 +157,15 @@ static boolint picture_set_matrix(cairo_xlib_display_t * display,
 	XTransform xtransform;
 	pixman_transform_t * pixman_transform;
 	cairo_int_status_t status;
-
 	/* Casting between pixman_transform_t and XTransform is safe because
 	 * they happen to be the exact same type.
 	 */
 	pixman_transform = (pixman_transform_t*)&xtransform;
-	status = _cairo_matrix_to_pixman_matrix_offset(matrix, filter, xc, yc,
-		pixman_transform,
-		x_offset, y_offset);
+	status = _cairo_matrix_to_pixman_matrix_offset(matrix, filter, xc, yc, pixman_transform, x_offset, y_offset);
 	if(status == CAIRO_INT_STATUS_NOTHING_TO_DO)
 		return TRUE;
 	if(unlikely(status != CAIRO_INT_STATUS_SUCCESS))
 		return FALSE;
-
 	if(memcmp(&xtransform, &identity, sizeof(XTransform)) == 0)
 		return TRUE;
 
@@ -639,18 +635,12 @@ static cairo_surface_t * embedded_source(cairo_xlib_surface_t * dst,
     cairo_xlib_source_t * source)
 {
 	Display * dpy = dst->display->display;
-	cairo_int_status_t status;
 	XTransform xtransform;
 	XRenderPictureAttributes pa;
 	unsigned mask = 0;
-
-	status = _cairo_matrix_to_pixman_matrix_offset(&pattern->base.matrix,
-		pattern->base.filter,
-		extents->x + extents->width / 2,
-		extents->y + extents->height / 2,
-		(pixman_transform_t*)&xtransform,
-		src_x, src_y);
-
+	cairo_int_status_t status = _cairo_matrix_to_pixman_matrix_offset(&pattern->base.matrix,
+		pattern->base.filter, extents->x + extents->width / 2, extents->y + extents->height / 2,
+		(pixman_transform_t*)&xtransform, src_x, src_y);
 	if(status == CAIRO_INT_STATUS_NOTHING_TO_DO) {
 		if(source->has_matrix) {
 			source->has_matrix = 0;
@@ -693,7 +683,6 @@ static cairo_surface_t * subsurface_source(cairo_xlib_surface_t * dst,
     const cairo_rectangle_int_t * sample,
     int * src_x, int * src_y)
 {
-	cairo_surface_subsurface_t * sub;
 	cairo_xlib_surface_t * src;
 	cairo_xlib_source_t * source;
 	Display * dpy = dst->display->display;
@@ -702,9 +691,7 @@ static cairo_surface_t * subsurface_source(cairo_xlib_surface_t * dst,
 	XTransform xtransform;
 	XRenderPictureAttributes pa;
 	unsigned mask = 0;
-
-	sub = (cairo_surface_subsurface_t *)pattern->surface;
-
+	cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t *)pattern->surface;
 	if(sample->x >= 0 && sample->y >= 0 &&
 	    sample->x + sample->width  <= sub->extents.width &&
 	    sample->y + sample->height <= sub->extents.height) {
@@ -815,17 +802,12 @@ static cairo_surface_t * native_source(cairo_xlib_surface_t * dst,
 {
 	cairo_xlib_surface_t * src;
 	cairo_int_status_t status;
-
 	if(_cairo_surface_is_subsurface(pattern->surface))
-		return subsurface_source(dst, pattern, is_mask,
-			   extents, sample,
-			   src_x, src_y);
-
+		return subsurface_source(dst, pattern, is_mask, extents, sample, src_x, src_y);
 	src = unwrap_source(pattern);
 	status = _cairo_surface_flush(&src->base, 0);
 	if(unlikely(status))
 		return _cairo_surface_create_in_error(status);
-
 	if(pattern->base.filter == CAIRO_FILTER_NEAREST &&
 	    sample->x >= 0 && sample->y >= 0 &&
 	    sample->x + sample->width  <= src->width &&

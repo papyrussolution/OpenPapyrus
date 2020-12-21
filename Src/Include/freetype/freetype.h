@@ -1010,7 +1010,7 @@ typedef struct  FT_FaceRec_ {
 	FT_Stream stream;
 	FT_ListRec sizes_list;
 	FT_Generic autohint;      /* face-specific auto-hinter data */
-	void*             extensions;/* unused                         */
+	void *  extensions;/* unused                         */
 	FT_Face_Internal internal;
 	/*@private end */
 } FT_FaceRec;
@@ -1796,13 +1796,13 @@ typedef struct  FT_GlyphSlotRec_ {
 	FT_UInt num_subglyphs;
 	FT_SubGlyph subglyphs;
 
-	void*             control_data;
+	void *  control_data;
 	long control_len;
 
 	FT_Pos lsb_delta;
 	FT_Pos rsb_delta;
 
-	void*             other;
+	void *  other;
 
 	FT_Slot_Internal internal;
 } FT_GlyphSlotRec;

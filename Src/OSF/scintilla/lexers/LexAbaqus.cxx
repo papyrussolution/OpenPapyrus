@@ -155,7 +155,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 			    }
 			    else if(sc.state == SCE_ABAQUS_STRING) {
 				    // accept everything until a closing quote
-				    if(sc.ch == '\'' || sc.ch == '\"') {
+				    if(oneof2(sc.ch, '\'', '\"')) {
 					    sc.SetState(SCE_ABAQUS_DEFAULT);
 					    state = KW_LINE_VAL;
 				    }
@@ -224,7 +224,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = DAT_LINE_VAL;
 			    }
-			    else if( (sc.ch == '\'') || (sc.ch == '\"') ) {
+			    else if(oneof2(sc.ch, '\'', '\"')) {
 				    sc.SetState(SCE_ABAQUS_STRING);
 				    state = DAT_LINE_VAL;
 			    }
@@ -274,7 +274,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 					    sc.SetState(SCE_ABAQUS_DEFAULT);
 					    state = DAT_LINE_VAL;
 				    }
-				    else if( (sc.ch == '\'') || (sc.ch == '\"') ) {
+				    else if(oneof2(sc.ch, '\'', '\"')) {
 					    sc.SetState(SCE_ABAQUS_STRING);
 					    state = DAT_LINE_VAL;
 				    }

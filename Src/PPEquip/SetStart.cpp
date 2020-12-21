@@ -6,7 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <frontol.h>
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
 static void RcvMailCallback(const IterCounter & bytesCounter, const IterCounter & msgCounter)
 {
@@ -738,6 +737,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 
 int ACS_SETSTART::ImportFiles()
 {
+	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	const  long   delay_quant = 5 * 60 * 1000; // 5 мин
 	const  int    notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
 	const  double timeouts_c = fdivi(notify_timeout, delay_quant);
@@ -763,11 +763,11 @@ int ACS_SETSTART::ImportFiles()
 	SETIFZ(last_date, plusdate(LConfig.OperDate, 2));
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
-	if(EqCfg.FtpAcctID)
-		THROW(obj_acct.Get(EqCfg.FtpAcctID, &acct));
+	if(r_eq_cfg.FtpAcctID)
+		THROW(obj_acct.Get(r_eq_cfg.FtpAcctID, &acct));
 	{
 		PPAlbatrossConfig alb_cfg;
-		MEMSZERO(mac_rec);
+		// @v10.9.9 @ctr MEMSZERO(mac_rec);
 		if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID) {
 			THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
 		}

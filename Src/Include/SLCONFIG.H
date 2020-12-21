@@ -24,6 +24,21 @@
 // Visual Studio 2017 версии 15.8 	1915
 // Visual Studio 2017 версии 15.9 	1916
 //
+// _WIN32_WINNT:
+// _WIN32_WINNT_NT4                    0x0400 // Windows NT 4.0
+// _WIN32_WINNT_WIN2K                  0x0500 // Windows 2000
+// _WIN32_WINNT_WINXP                  0x0501 // Windows XP
+// _WIN32_WINNT_WS03                   0x0502 // Windows Server 2003
+// _WIN32_WINNT_WIN6                   0x0600 // Windows Vista
+// _WIN32_WINNT_VISTA                  0x0600 // Windows Vista
+// _WIN32_WINNT_WS08                   0x0600 // Windows Server 2008
+// _WIN32_WINNT_LONGHORN               0x0600 // Windows Vista
+// _WIN32_WINNT_WIN7                   0x0601 // Windows 7
+// _WIN32_WINNT_WIN8                   0x0602 // Windows 8
+// _WIN32_WINNT_WINBLUE                0x0603 // Windows 8.1
+// _WIN32_WINNT_WINTHRESHOLD           0x0A00 // Windows 10
+// _WIN32_WINNT_WIN10                  0x0A00 // Windows 10
+//
 #if (_MSC_VER < 1900)
 	#ifndef _WIN32_WINNT
 		#define _WIN32_WINNT 0x0501
@@ -38,6 +53,7 @@
 		#else
 			// @v10.7.11 #define _WIN32_WINNT 0x0501 // @v9.1.12 0x0600-->0x0501
 			#define _WIN32_WINNT 0x0600 // @v10.7.11
+			//#define _WIN32_WINNT 0x0603 // @v10.9.9
 		#endif
 	#endif
 	#ifndef NTDDI_VERSION

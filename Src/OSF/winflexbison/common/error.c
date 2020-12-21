@@ -271,7 +271,7 @@ void error_at_line(int status, int errnum, const char * file_name, uint line_num
 	if(error_one_per_line) {
 		static const char * old_file_name;
 		static uint old_line_number;
-		if(old_line_number == line_number && (file_name == old_file_name || strcmp(old_file_name, file_name) == 0))
+		if(old_line_number == line_number && (file_name == old_file_name || sstreq(old_file_name, file_name)))
 			return; /* Simply return and print nothing.  */
 		old_file_name = file_name;
 		old_line_number = line_number;

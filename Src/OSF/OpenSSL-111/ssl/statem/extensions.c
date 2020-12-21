@@ -1101,7 +1101,6 @@ static int init_ems(SSL * s, uint context)
 {
 	if(!s->server)
 		s->s3->flags &= ~TLS1_FLAGS_RECEIVED_EXTMS;
-
 	return 1;
 }
 
@@ -1112,14 +1111,11 @@ static int final_ems(SSL * s, uint context, int sent)
 		 * Check extended master secret extension is consistent with
 		 * original session.
 		 */
-		if(!(s->s3->flags & TLS1_FLAGS_RECEIVED_EXTMS) !=
-		    !(s->session->flags & SSL_SESS_FLAG_EXTMS)) {
-			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_FINAL_EMS,
-			    SSL_R_INCONSISTENT_EXTMS);
+		if(!(s->s3->flags & TLS1_FLAGS_RECEIVED_EXTMS) != !(s->session->flags & SSL_SESS_FLAG_EXTMS)) {
+			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_FINAL_EMS, SSL_R_INCONSISTENT_EXTMS);
 			return 0;
 		}
 	}
-
 	return 1;
 }
 

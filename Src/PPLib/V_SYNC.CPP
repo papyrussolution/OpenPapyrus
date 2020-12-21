@@ -811,10 +811,7 @@ int PPALDD_ObjSyncCmp::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_ObjSyncCmp::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(ObjSyncCmp);
-}
+void PPALDD_ObjSyncCmp::Destroy() { DESTROY_PPVIEW_ALDD(ObjSyncCmp); }
 //
 // @ModuleDecl(PPViewObjSyncQueue)
 //

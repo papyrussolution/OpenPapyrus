@@ -57,7 +57,7 @@
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 	//#include <winsock2.h>
-	#include <ws2tcpip.h>
+	//#include <ws2tcpip.h>
 #else
 	#include <sys/types.h> // On older BSD types.h must come before net includes 
 	#include <arpa/inet.h>

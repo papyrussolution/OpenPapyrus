@@ -971,7 +971,7 @@ int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, const char *
 		THROW(tra);
 		THROW(r = Search(actualDate, scID, 0, &rec));
 		if(r > 0) {
-			if(strcmp(pStr, rec.Str) != 0) {
+			if(!sstreq(pStr, rec.Str)) {
 				getcurdatetime(&rec.Dt, &rec.Tm);
 				rec.UserID = userID;
 				STRNSCPY(rec.Str, pStr);
@@ -1004,7 +1004,7 @@ int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, PPObjID obj,
 		THROW(tra);
 		THROW(r = Search(actualDate, scID, obj.Id, &rec));
 		if(r > 0) {
-			if(obj.Id != rec.ObjID || strcmp(pStr, rec.Str) != 0) {
+			if(obj.Id != rec.ObjID || !sstreq(pStr, rec.Str)) {
 				getcurdatetime(&rec.Dt, &rec.Tm);
 				rec.UserID = userID;
 				rec.ObjType = obj.Obj;
@@ -2277,11 +2277,7 @@ int PPALDD_BizScoreValView::NextIteration(long iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_BizScoreValView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(BizScoreVal);
-}
-
+void PPALDD_BizScoreValView::Destroy() { DESTROY_PPVIEW_ALDD(BizScoreVal); }
 //
 // Implementation of PPALDD_GlobalUserAcc
 //

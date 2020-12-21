@@ -233,7 +233,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 {
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
 	int ret = ARCHIVE_FAILED;
-	if(strcmp(key, "compression") == 0) {
+	if(sstreq(key, "compression")) {
 		/*
 		 * Set compression to use on all future entries.
 		 * This only affects regular files.
@@ -241,7 +241,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		if(val == NULL || val[0] == 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: compression option needs a compression name", a->format_name);
 		}
-		else if(strcmp(val, "deflate") == 0) {
+		else if(sstreq(val, "deflate")) {
 #ifdef HAVE_ZLIB_H
 			zip->requested_compression = COMPRESSION_DEFLATE;
 			ret = ARCHIVE_OK;
@@ -249,13 +249,13 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "deflate compression not supported");
 #endif
 		}
-		else if(strcmp(val, "store") == 0) {
+		else if(sstreq(val, "store")) {
 			zip->requested_compression = COMPRESSION_STORE;
 			ret = ARCHIVE_OK;
 		}
 		return (ret);
 	}
-	else if(strcmp(key, "compression-level") == 0) {
+	else if(sstreq(key, "compression-level")) {
 		if(val == NULL || !(val[0] >= '0' && val[0] <= '9') || val[1] != '\0') {
 			return ARCHIVE_WARN;
 		}
@@ -274,12 +274,12 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 #endif
 		}
 	}
-	else if(strcmp(key, "encryption") == 0) {
+	else if(sstreq(key, "encryption")) {
 		if(val == NULL) {
 			zip->encryption_type = ENCRYPTION_NONE;
 			ret = ARCHIVE_OK;
 		}
-		else if(val[0] == '1' || strcmp(val, "traditional") == 0 || strcmp(val, "zipcrypt") == 0 || strcmp(val, "ZipCrypt") == 0) {
+		else if(val[0] == '1' || sstreq(val, "traditional") || sstreq(val, "zipcrypt") || sstreq(val, "ZipCrypt")) {
 			if(is_traditional_pkware_encryption_supported()) {
 				zip->encryption_type = ENCRYPTION_TRADITIONAL;
 				ret = ARCHIVE_OK;
@@ -288,7 +288,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "encryption not supported");
 			}
 		}
-		else if(strcmp(val, "aes128") == 0) {
+		else if(sstreq(val, "aes128")) {
 			if(is_winzip_aes_encryption_supported(
 				    ENCRYPTION_WINZIP_AES128)) {
 				zip->encryption_type = ENCRYPTION_WINZIP_AES128;
@@ -298,7 +298,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "encryption not supported");
 			}
 		}
-		else if(strcmp(val, "aes256") == 0) {
+		else if(sstreq(val, "aes256")) {
 			if(is_winzip_aes_encryption_supported(
 				    ENCRYPTION_WINZIP_AES256)) {
 				zip->encryption_type = ENCRYPTION_WINZIP_AES256;
@@ -313,7 +313,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		}
 		return (ret);
 	}
-	else if(strcmp(key, "experimental") == 0) {
+	else if(sstreq(key, "experimental")) {
 		if(val == NULL || val[0] == 0) {
 			zip->flags &= ~ZIP_FLAG_EXPERIMENT_xl;
 		}
@@ -322,7 +322,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		}
 		return (ARCHIVE_OK);
 	}
-	else if(strcmp(key, "fakecrc32") == 0) {
+	else if(sstreq(key, "fakecrc32")) {
 		/*
 		 * FOR TESTING ONLY:  disable CRC calculation to speed up
 		 * certain complex tests.
@@ -335,7 +335,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		}
 		return (ARCHIVE_OK);
 	}
-	else if(strcmp(key, "hdrcharset")  == 0) {
+	else if(sstreq(key, "hdrcharset")) {
 		/*
 		 * Set the character set used in translating filenames.
 		 */
@@ -352,7 +352,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		}
 		return (ret);
 	}
-	else if(strcmp(key, "zip64") == 0) {
+	else if(sstreq(key, "zip64")) {
 		/*
 		 * Bias decisions about Zip64: force them to be
 		 * generated in certain cases where they are not
@@ -606,12 +606,11 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	/* If filename isn't ASCII and we can use UTF-8, set the UTF-8 flag. */
 	if(!is_all_ascii(archive_entry_pathname(zip->entry))) {
 		if(zip->opt_sconv != NULL) {
-			if(strcmp(archive_string_conversion_charset_name(
-				    zip->opt_sconv), "UTF-8") == 0)
+			if(sstreq(archive_string_conversion_charset_name(zip->opt_sconv), "UTF-8"))
 				zip->entry_flags |= ZIP_ENTRY_FLAG_UTF8_NAME;
 #if HAVE_NL_LANGINFO
 		}
-		else if(strcmp(nl_langinfo(CODESET), "UTF-8") == 0) {
+		else if(sstreq(nl_langinfo(CODESET), "UTF-8")) {
 			zip->entry_flags |= ZIP_ENTRY_FLAG_UTF8_NAME;
 #endif
 		}

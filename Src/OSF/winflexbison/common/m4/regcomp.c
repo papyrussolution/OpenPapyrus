@@ -846,11 +846,9 @@ static reg_errcode_t init_dfa(re_dfa_t * dfa, size_t pat_len)
 			dfa->sb_char = (re_bitset_ptr_t)utf8_sb_map;
 		else{
 			int i, j, ch;
-
 			dfa->sb_char = (re_bitset_ptr_t)calloc(sizeof(bitset_t), 1);
 			if(BE(dfa->sb_char == NULL, 0))
 				return REG_ESPACE;
-
 			/* Set the bits corresponding to single byte chars.  */
 			for(i = 0, ch = 0; i < BITSET_WORDS; ++i)
 				for(j = 0; j < BITSET_WORD_BITS; ++j, ++ch) {
@@ -927,7 +925,6 @@ static reg_errcode_t create_initial_state(re_dfa_t * dfa)
 		for(i = 0; i < init_nodes.nelem; ++i) {
 			Idx node_idx = init_nodes.elems[i];
 			re_token_type_t type = dfa->nodes[node_idx].type;
-
 			Idx clexp_idx;
 			if(type != OP_BACK_REF)
 				continue;
@@ -1460,8 +1457,7 @@ internal_function duplicate_node_closure(re_dfa_t * dfa, Idx top_org_node, Idx t
 /* Search for a node which is duplicated from the node ORG_NODE, and
    satisfies the constraint CONSTRAINT.  */
 
-static Idx search_duplicated_node(const re_dfa_t * dfa, Idx org_node,
-    unsigned int constraint)
+static Idx search_duplicated_node(const re_dfa_t * dfa, Idx org_node, unsigned int constraint)
 {
 	Idx idx;
 	for(idx = dfa->nodes_len - 1; dfa->nodes[idx].duplicated && idx > 0; --idx) {
@@ -1483,7 +1479,6 @@ static Idx duplicate_node(re_dfa_t * dfa, Idx org_idx, unsigned int constraint)
 		dfa->nodes[dup_idx].constraint = constraint;
 		dfa->nodes[dup_idx].constraint |= dfa->nodes[org_idx].constraint;
 		dfa->nodes[dup_idx].duplicated = 1;
-
 		/* Store the index of the original node.  */
 		dfa->org_indices[dup_idx] = org_idx;
 	}
@@ -1497,7 +1492,6 @@ static reg_errcode_t calc_inveclosure(re_dfa_t * dfa)
 	bool ok;
 	for(idx = 0; idx < dfa->nodes_len; ++idx)
 		re_node_set_init_empty(dfa->inveclosures + idx);
-
 	for(src = 0; src < dfa->nodes_len; ++src) {
 		Idx * elems = dfa->eclosures[src].elems;
 		for(idx2 = 0; idx2 < dfa->eclosures[src].nelem; ++idx2) {
@@ -1570,15 +1564,11 @@ static reg_errcode_t calc_eclosure_iter(re_node_set * new_set, re_dfa_t * dfa, I
 
 	/* If the current node has constraints, duplicate all nodes
 	   since they must inherit the constraints.  */
-	if(dfa->nodes[node].constraint
-	    && dfa->edests[node].nelem
-	    && !dfa->nodes[dfa->edests[node].elems[0]].duplicated) {
-		err = duplicate_node_closure(dfa, node, node, node,
-			dfa->nodes[node].constraint);
+	if(dfa->nodes[node].constraint && dfa->edests[node].nelem && !dfa->nodes[dfa->edests[node].elems[0]].duplicated) {
+		err = duplicate_node_closure(dfa, node, node, node, dfa->nodes[node].constraint);
 		if(BE(err != REG_NOERROR, 0))
 			return err;
 	}
-
 	/* Expand each epsilon destination nodes.  */
 	if(IS_EPSILON_NODE(dfa->nodes[node].type))
 		for(i = 0; i < dfa->edests[node].nelem; ++i) {
@@ -1628,8 +1618,7 @@ static reg_errcode_t calc_eclosure_iter(re_node_set * new_set, re_dfa_t * dfa, I
 /* Fetch a token from INPUT.
    We must not use this function inside bracket expressions.  */
 
-static void
-internal_function fetch_token(re_token_t * result, re_string_t * input, reg_syntax_t syntax)
+static void internal_function fetch_token(re_token_t * result, re_string_t * input, reg_syntax_t syntax)
 {
 	re_string_skip_bytes(input, peek_token(result, input, syntax));
 }
@@ -1637,11 +1626,9 @@ internal_function fetch_token(re_token_t * result, re_string_t * input, reg_synt
 /* Peek a token from INPUT, and return the length of the token.
    We must not use this function inside bracket expressions.  */
 
-static int
-internal_function peek_token(re_token_t * token, re_string_t * input, reg_syntax_t syntax)
+static int internal_function peek_token(re_token_t * token, re_string_t * input, reg_syntax_t syntax)
 {
 	unsigned char c;
-
 	if(re_string_eoi(input)) {
 		token->type = END_OF_RE;
 		return 0;
@@ -2419,8 +2406,7 @@ parse_dup_op_espace:
    mbcset->range_ends, is a pointer argument sinse we may
    update it.  */
 
-static reg_errcode_t
-internal_function
+static reg_errcode_t internal_function
 # ifdef RE_ENABLE_I18N
 build_range_exp(const reg_syntax_t syntax,
     bitset_t sbcset,
@@ -2456,7 +2442,6 @@ build_range_exp(const reg_syntax_t syntax,
 		wint_t start_wc;
 		wint_t end_wc;
 		wchar_t cmp_buf[6] = {L'\0', L'\0', L'\0', L'\0', L'\0', L'\0'};
-
 		start_ch = ((start_elem->type == SB_CHAR) ? start_elem->opr.ch
 		    : ((start_elem->type == COLL_SYM) ? start_elem->opr.name[0]
 		    : 0));
@@ -2520,12 +2505,8 @@ build_range_exp(const reg_syntax_t syntax,
 # else /* not RE_ENABLE_I18N */
 	{
 		unsigned int ch;
-		start_ch = ((start_elem->type == SB_CHAR ) ? start_elem->opr.ch
-		    : ((start_elem->type == COLL_SYM) ? start_elem->opr.name[0]
-		    : 0));
-		end_ch = ((end_elem->type == SB_CHAR ) ? end_elem->opr.ch
-		    : ((end_elem->type == COLL_SYM) ? end_elem->opr.name[0]
-		    : 0));
+		start_ch = ((start_elem->type == SB_CHAR ) ? start_elem->opr.ch : ((start_elem->type == COLL_SYM) ? start_elem->opr.name[0] : 0));
+		end_ch = ((end_elem->type == SB_CHAR ) ? end_elem->opr.ch : ((end_elem->type == COLL_SYM) ? end_elem->opr.name[0] : 0));
 		if(start_ch > end_ch)
 			return REG_ERANGE;
 		/* Build the table for single byte characters.  */
@@ -2566,8 +2547,7 @@ internal_function build_collating_symbol(bitset_t sbcset,
 /* This function parse bracket expression like "[abc]", "[a-c]",
    "[[.a-a.]]" etc.  */
 
-static bin_tree_t * parse_bracket_exp(re_string_t * regexp, re_dfa_t * dfa, re_token_t * token,
-    reg_syntax_t syntax, reg_errcode_t * err)
+static bin_tree_t * parse_bracket_exp(re_string_t * regexp, re_dfa_t * dfa, re_token_t * token, reg_syntax_t syntax, reg_errcode_t * err)
 {
 #ifdef _LIBC
 	const unsigned char * collseqmb;
@@ -2576,11 +2556,9 @@ static bin_tree_t * parse_bracket_exp(re_string_t * regexp, re_dfa_t * dfa, re_t
 	int32_t table_size;
 	const int32_t * symb_table;
 	const unsigned char * extra;
-
 	/* Local function for parse_bracket_exp used in _LIBC environement.
 	   Seek the collating symbol entry correspondings to NAME.
 	   Return the index of the symbol in the SYMB_TABLE.  */
-
 	auto inline int32_t __attribute((always_inline))
 	seek_collating_symbol_entry(name, name_len)
 	const unsigned char * name;
@@ -2870,11 +2848,9 @@ static bin_tree_t * parse_bracket_exp(re_string_t * regexp, re_dfa_t * dfa, re_t
 			goto parse_bracket_exp_free_return;
 		}
 	}
-
 	/* We treat the first ']' as a normal character.  */
 	if(token->type == OP_CLOSE_BRACKET)
 		token->type = CHARACTER;
-
 	while(1) {
 		bracket_elem_t start_elem, end_elem;
 		unsigned char start_name_buf[BRACKET_NAME_BUF_SIZE];
@@ -2883,7 +2859,6 @@ static bin_tree_t * parse_bracket_exp(re_string_t * regexp, re_dfa_t * dfa, re_t
 		int token_len2 = 0;
 		bool is_range_exp = false;
 		re_token_t token2;
-
 		start_elem.opr.name = start_name_buf;
 		ret = parse_bracket_element(&start_elem, regexp, token, token_len, dfa,
 			syntax, first_round);
@@ -3258,23 +3233,17 @@ build_equiv_class(bitset_t sbcset, const unsigned char * name)
 
 static reg_errcode_t
 #ifdef RE_ENABLE_I18N
-build_charclass(RE_TRANSLATE_TYPE trans, bitset_t sbcset,
-    re_charset_t * mbcset, Idx * char_class_alloc,
-    const unsigned char * class_name, reg_syntax_t syntax)
+build_charclass(RE_TRANSLATE_TYPE trans, bitset_t sbcset, re_charset_t * mbcset, Idx * char_class_alloc, const unsigned char * class_name, reg_syntax_t syntax)
 #else /* not RE_ENABLE_I18N */
-build_charclass(RE_TRANSLATE_TYPE trans, bitset_t sbcset,
-    const unsigned char * class_name, reg_syntax_t syntax)
+build_charclass(RE_TRANSLATE_TYPE trans, bitset_t sbcset, const unsigned char * class_name, reg_syntax_t syntax)
 #endif /* not RE_ENABLE_I18N */
 {
 	int i;
 	const char * name = (const char*)class_name;
-
 	/* In case of REG_ICASE "upper" and "lower" match the both of
 	   upper and lower cases.  */
-	if((syntax & RE_ICASE)
-	    && (strcmp(name, "upper") == 0 || strcmp(name, "lower") == 0))
+	if((syntax & RE_ICASE) && (strcmp(name, "upper") == 0 || strcmp(name, "lower") == 0))
 		name = "alpha";
-
 #ifdef RE_ENABLE_I18N
 	/* Check the space of the arrays.  */
 	if(BE(*char_class_alloc == mbcset->nchar_classes, 0)) {
@@ -3294,14 +3263,12 @@ build_charclass(RE_TRANSLATE_TYPE trans, bitset_t sbcset,
 
 #define BUILD_CHARCLASS_LOOP(ctype_func)        \
 	do {                                          \
-		if(BE(trans != NULL, 0))                  \
-		{                                         \
+		if(BE(trans != NULL, 0)) { \
 			for(i = 0; i < SBC_MAX; ++i)           \
 				if(ctype_func(i))                   \
 					bitset_set(sbcset, trans[i]);      \
 		}                                         \
-		else                                        \
-		{                                         \
+		else {                                     \
 			for(i = 0; i < SBC_MAX; ++i)           \
 				if(ctype_func(i))                   \
 					bitset_set(sbcset, i);             \
@@ -3334,14 +3301,11 @@ build_charclass(RE_TRANSLATE_TYPE trans, bitset_t sbcset,
 		BUILD_CHARCLASS_LOOP(isxdigit);
 	else
 		return REG_ECTYPE;
-
 	return REG_NOERROR;
 }
 
-static bin_tree_t * build_charclass_op(re_dfa_t * dfa, RE_TRANSLATE_TYPE trans,
-    const unsigned char * class_name,
-    const unsigned char * extra, bool non_match,
-    reg_errcode_t * err)
+static bin_tree_t * build_charclass_op(re_dfa_t * dfa, RE_TRANSLATE_TYPE trans, const unsigned char * class_name,
+    const unsigned char * extra, bool non_match, reg_errcode_t * err)
 {
 	re_bitset_ptr_t sbcset;
 #ifdef RE_ENABLE_I18N
@@ -3485,22 +3449,18 @@ static void free_charset(re_charset_t * cset)
 /* Functions for binary tree operation.  */
 
 /* Create a tree node.  */
-
-static bin_tree_t * create_tree(re_dfa_t * dfa, bin_tree_t * left, bin_tree_t * right,
-    re_token_type_t type)
+static bin_tree_t * create_tree(re_dfa_t * dfa, bin_tree_t * left, bin_tree_t * right, re_token_type_t type)
 {
 	re_token_t t;
 	t.type = type;
 	return create_token_tree(dfa, left, right, &t);
 }
 
-static bin_tree_t * create_token_tree(re_dfa_t * dfa, bin_tree_t * left, bin_tree_t * right,
-    const re_token_t * token)
+static bin_tree_t * create_token_tree(re_dfa_t * dfa, bin_tree_t * left, bin_tree_t * right, const re_token_t * token)
 {
 	bin_tree_t * tree;
 	if(BE(dfa->str_tree_storage_idx == BIN_TREE_STORAGE_SIZE, 0)) {
 		bin_tree_storage_t * storage = re_malloc(bin_tree_storage_t, 1);
-
 		if(storage == NULL)
 			return NULL;
 		storage->next = dfa->str_tree_storage;
@@ -3508,7 +3468,6 @@ static bin_tree_t * create_token_tree(re_dfa_t * dfa, bin_tree_t * left, bin_tre
 		dfa->str_tree_storage_idx = 0;
 	}
 	tree = &dfa->str_tree_storage->data[dfa->str_tree_storage_idx++];
-
 	tree->parent = NULL;
 	tree->left = left;
 	tree->right = right;
@@ -3518,7 +3477,6 @@ static bin_tree_t * create_token_tree(re_dfa_t * dfa, bin_tree_t * left, bin_tre
 	tree->first = NULL;
 	tree->next = NULL;
 	tree->node_idx = REG_MISSING;
-
 	if(left != NULL)
 		left->parent = tree;
 	if(right != NULL)
@@ -3534,7 +3492,6 @@ static reg_errcode_t mark_opt_subexp(void * extra, bin_tree_t * node)
 	Idx idx = (Idx)(long)extra;
 	if(node->token.type == SUBEXP && node->token.opr.idx == idx)
 		node->token.opt_subexp = 1;
-
 	return REG_NOERROR;
 }
 
@@ -3570,7 +3527,6 @@ static bin_tree_t * duplicate_tree(const bin_tree_t * root, re_dfa_t * dfa)
 	const bin_tree_t * node;
 	bin_tree_t * dup_root;
 	bin_tree_t ** p_new = &dup_root, * dup_node = root->parent;
-
 	for(node = root;;) {
 		/* Create a new tree and link it back to the current parent.  */
 		*p_new = create_token_tree(dfa, NULL, NULL, &node->token);
@@ -3579,7 +3535,6 @@ static bin_tree_t * duplicate_tree(const bin_tree_t * root, re_dfa_t * dfa)
 		(*p_new)->parent = dup_node;
 		(*p_new)->token.duplicated = 1;
 		dup_node = *p_new;
-
 		/* Go to the left node, or up and to the right.  */
 		if(node->left) {
 			node = node->left;

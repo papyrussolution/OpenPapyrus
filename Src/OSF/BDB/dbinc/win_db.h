@@ -30,12 +30,11 @@
 #ifdef DB_TCL_SUPPORT
 #include <tcl.h>
 #endif
-
 #define	WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winsock2.h>
+//#include <windows.h>
+//#include <winsock2.h>
 #ifndef DB_WINCE
-#include <WinIoCtl.h>
+	#include <WinIoCtl.h>
 #endif
 
 #ifdef HAVE_GETADDRINFO
@@ -43,7 +42,7 @@
  * Need explicit includes for IPv6 support on Windows.  Both are necessary to
  * ensure that pre WinXP versions have an implementation of the getaddrinfo API.
  */
-#include <ws2tcpip.h>
+//#include <ws2tcpip.h>
 #include <wspiapi.h>
 #endif
 /*

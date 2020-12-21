@@ -403,10 +403,6 @@ int FASTCALL SBuffer::Write(const /*SArray*/SVectorBase * pAry, long options)
 		uint16 c16 = (uint16)c;
 		THROW(Write(&c16, sizeof(c16)));
 	}
-	/* @v9.4.1
-	for(uint32 i = 0; i < c; i++)
-		THROW(Write(pAry->at(i), item_size));
-	*/
 	if(c) {
 		THROW(Write(pAry->dataPtr(), item_size * c)); // @v9.4.1
 	}
@@ -424,7 +420,6 @@ int FASTCALL SBuffer::Helper_Read(SVectorBase * pAry, long options /* = 0*/)
 	uint32 c = 0;
 	const size_t item_size = pAry->getItemSize();
 	const size_t beg_pos = RdOffs;
-	//pAry->freeAll();
 	if(options & ffAryCount32) {
 		THROW(ReadV(&c, sizeof(c)));
 	}
@@ -433,17 +428,6 @@ int FASTCALL SBuffer::Helper_Read(SVectorBase * pAry, long options /* = 0*/)
 		THROW(ReadV(&c16, sizeof(c16)));
 		c = (uint32)c16;
 	}
-	/* @v9.4.1
-	{
-		STempBuffer buf(item_size);
-		THROW(buf.IsValid());
-		for(uint32 i = 0; i < c; i++) {
-			THROW(ReadV(buf, item_size));
-			THROW(pAry->insert(buf));
-		}
-	}
-	*/
-	// @v9.4.1 {
 	{
 		const size_t total_size = c * item_size;
 		if(GetAvailableSize() >= total_size) {
@@ -456,7 +440,6 @@ int FASTCALL SBuffer::Helper_Read(SVectorBase * pAry, long options /* = 0*/)
 			CALLEXCEPT();
 		}
 	}
-	// } @v9.4.1
 	CATCH
 		RdOffs = beg_pos;
 		ok = 0;
@@ -514,7 +497,7 @@ int SBuffer::WriteToFile(FILE * f, uint sign, uint32 * pActualBytes)
 	uint32 actual_size = 0;
 	THROW(f);
 	if(sign > 0 && sign <= 0xffffU) {
-		uint16 s = (uint16)sign;
+		uint16 s = static_cast<uint16>(sign);
 		THROW_S(fwrite(&s, sizeof(s), 1, f) == 1, SLERR_WRITEFAULT);
 		actual_size += sizeof(s);
 	}
@@ -536,7 +519,7 @@ int SBuffer::ReadFromFile(FILE * f, uint sign)
 	int    ok = 1;
 	THROW(f);
 	if(sign > 0 && sign <= 0xffffU) {
-		uint16 s = (uint16)sign;
+		uint16 s = static_cast<uint16>(sign);
 		THROW_S(fread(&s, sizeof(s), 1, f) == 1, SLERR_READFAULT);
 		THROW_S(sign == s, SLERR_READFAULT);
 	}
@@ -951,6 +934,11 @@ int SSerializeContext::Serialize(int dir, double & rV, SBuffer & rBuf) { return 
 int SSerializeContext::Serialize(int dir, S_GUID & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UUID_, sizeof(rV)), &rV, 0, rBuf); } // @v8.1.1
 int SSerializeContext::Serialize(int dir, TPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_IPOINT2, 4), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, FPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, FRect & rV, SBuffer & rBuf) 
+{ 
+	return (Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV.a, 0, rBuf) &&
+		Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV.b, 0, rBuf));
+}
 int SSerializeContext::Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_ZSTRING, valBufLen), pV, 0, rBuf); }
 
 int SSerializeContext::Serialize(int dir, DateRange & rV, SBuffer & rBuf)
@@ -1220,6 +1208,27 @@ int SSerializeContext::SerializeBlock(int dir, uint32 size, void * pData, SBuffe
 	}
 	CATCHZOK
 	return ok;
+}
+
+void SSerializeContext::SetLocalSignatureTag(uint32 signature, uint32 tag)
+{
+	LocalSignatureTagList.Update(static_cast<long>(signature), static_cast<long>(tag), 0);
+}
+
+void SSerializeContext::ResetLocalSignatureTag(uint32 signature)
+{
+	LocalSignatureTagList.Remove(static_cast<long>(signature), 0);
+}
+
+int SSerializeContext::GetLocalSignatureTag(uint32 signature, uint32 * pTag) const
+{
+	long   val = 0;
+	if(LocalSignatureTagList.Search(signature, &val, 0)) {
+		ASSIGN_PTR(pTag, static_cast<uint32>(val));
+		return 1;
+	}
+	else
+		return 0;
 }
 //
 //

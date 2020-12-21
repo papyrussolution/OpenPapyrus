@@ -579,7 +579,7 @@ int GCTIterator::InitQuery(int cpMode)
 			}
 			dbq = ppcheckfiltidlist(dbq, rt->LocID, &Filt.LocList.Get());
 			dbq = ppcheckfiltidlist(dbq, rt->BillID, &Filt.BillList.Get());
-			THROW_MEM(rcpt_q = new BExtQuery(rt, idx, 64));
+			THROW_MEM(rcpt_q = new BExtQuery(rt, idx, 1024)); // @v10.9.9 64-->1024
 			rcpt_q->select(rt->ID, rt->GoodsID, 0L).where(*dbq);
 			k.dt    = ZERODATE;
 			k.oprno = 0;
@@ -1013,7 +1013,7 @@ int GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec,
 		dbq = &(*dbq && p_tfr->GoodsID >= GoodsArray.get(0) && p_tfr->GoodsID <= GoodsArray.getLast());
 	}
 	dbq = ppcheckfiltidlist(dbq, p_tfr->LocID, &Filt.LocList.Get());
-	BExtQuery * q = new BExtQuery(p_tfr, idx, 256);
+	BExtQuery * q = new BExtQuery(p_tfr, idx, 384); // @v10.9.9 256--384
 	if(q == 0)
 		return PPSetErrorNoMem();
 	if(opt_for_psales) {

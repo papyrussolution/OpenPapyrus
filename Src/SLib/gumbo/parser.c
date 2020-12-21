@@ -441,7 +441,7 @@ static bool attribute_matches(const GumboVector* attributes, const char* name, c
 static bool FASTCALL attribute_matches_case_sensitive(const GumboVector * attributes, const char * name, const char * value) 
 {
 	const GumboAttribute * attr = gumbo_get_attribute(attributes, name);
-	return attr ? strcmp(value, attr->value) == 0 : false;
+	return attr ? sstreq(value, attr->value) : false;
 }
 
 // Checks if the specified attribute vectors are identical.
@@ -1743,16 +1743,16 @@ static void adjust_mathml_attributes(GumboParser * parser, GumboToken* token)
 static bool doctype_matches(const GumboTokenDocType* doctype,
     const GumboStringPiece* public_id, const GumboStringPiece* system_id, bool allow_missing_system_id) 
 {
-	return !strcmp(doctype->public_identifier, public_id->data) && (allow_missing_system_id || doctype->has_system_identifier) &&
-	       !strcmp(doctype->system_identifier, system_id->data);
+	return sstreq(doctype->public_identifier, public_id->data) && (allow_missing_system_id || doctype->has_system_identifier) &&
+	       sstreq(doctype->system_identifier, system_id->data);
 }
 
 static bool maybe_add_doctype_error(GumboParser * parser, const GumboToken* token) 
 {
 	const GumboTokenDocType* doctype = &token->v.doc_type;
-	bool html_doctype = !strcmp(doctype->name, kDoctypeHtml.data);
+	bool html_doctype = sstreq(doctype->name, kDoctypeHtml.data);
 	if((!html_doctype || doctype->has_public_identifier || (doctype->has_system_identifier &&
-	    !strcmp(doctype->system_identifier, kSystemIdLegacyCompat.data))) &&
+	    sstreq(doctype->system_identifier, kSystemIdLegacyCompat.data))) &&
 	    !(html_doctype && (doctype_matches(doctype, &kPublicIdHtml4_0, &kSystemIdRecHtml4_0, true) ||
 	    doctype_matches(doctype, &kPublicIdHtml4_01, &kSystemIdHtml4, true) ||
 	    doctype_matches(doctype, &kPublicIdXhtml1_0, &kSystemIdXhtmlStrict1_1, false) ||

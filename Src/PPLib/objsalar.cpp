@@ -1229,6 +1229,7 @@ int StaffCalDialog::setupList()
 }
 
 class StaffCalDayDialog : public TDialog {
+	DECL_DIALOG_DATA(StaffCalendarTbl::Rec);
 public:
 	StaffCalDayDialog(const PPStaffCalPacket * pPack) : TDialog(DLG_STAFFCALD), P_Pack(pPack), LockUpdByInput(0)
 	{
@@ -1236,8 +1237,83 @@ public:
 		SetupTimePicker(this, CTL_STAFFCALD_TMSTART, CTLTM_STAFFCALD_TMSTART);
 		SetupTimePicker(this, CTL_STAFFCALD_TMEND, CTLTM_STAFFCALD_TMEND);
 	}
-	int    setDTS(const StaffCalendarTbl::Rec * pData);
-	int    getDTS(StaffCalendarTbl::Rec * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		if(P_Pack) {
+			const PPID cal_id = P_Pack->Rec.ID;
+			const PPID main_cal_id = NZOR(P_Pack->Rec.LinkCalID, cal_id);
+			SString temp_buf;
+			PPObjStaffCal sc_obj;
+			PPStaffCal sc_rec;
+			if(sc_obj.Fetch(main_cal_id, &sc_rec) > 0) {
+				setStaticText(CTL_STAFFCALD_ST_CAL, sc_rec.Name);
+			}
+			const PPID link_obj_type = P_Pack->Rec.LinkObjType;
+			if(link_obj_type) {
+				GetObjectTitle(link_obj_type, temp_buf);
+				if(P_Pack->Rec.LinkObjID) {
+					temp_buf.CatDiv(':', 2);
+					GetObjectName(link_obj_type, P_Pack->Rec.LinkObjID, temp_buf, 1);
+				}
+				setStaticText(CTL_STAFFCALD_ST_OBJ, temp_buf);
+			}
+		}
+		PPStaffCalPacket::SetupEntry(&Data);
+		CALDATE cdt;
+		cdt.v = Data.DtVal;
+		PrevKind = cdt.GetKind();
+		AddClusterAssocDef(CTL_STAFFCALD_KIND,  0, CALDATE::kDate);
+		AddClusterAssoc(CTL_STAFFCALD_KIND,  1, CALDATE::kCalDate);
+		AddClusterAssoc(CTL_STAFFCALD_KIND,  2, CALDATE::kDayOfWeek);
+		SetClusterData(CTL_STAFFCALD_KIND,   cdt.GetKind());
+		AddClusterAssoc(CTL_STAFFCALD_FLAGS, 0, STCALEF_SKIP);
+		AddClusterAssoc(CTL_STAFFCALD_FLAGS, 1, STCALEF_CONTINUOUS);
+		SetClusterData(CTL_STAFFCALD_FLAGS, Data.Flags);
+
+		setCtrlData(CTL_STAFFCALD_TMSTART, &Data.TmStart);
+		setCtrlData(CTL_STAFFCALD_TMEND,   &Data.TmEnd);
+		setupWorkTime();
+		SetupStringCombo(this, CTLSEL_STAFFCALD_DAYOFW, PPTXT_WEEKDAYS, 0);
+		setupDate();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		long   kind = 0;
+		uint   sel = 0;
+		CALDATE cdt;
+		LTIME  tm;
+		getCtrlData(CTL_STAFFCALD_TMSTART, &Data.TmStart);
+		getCtrlData(CTL_STAFFCALD_TMEND,   &Data.TmEnd);
+		if(Data.TmStart.totalsec() < 0 || Data.TmStart.totalsec() > (24*36000))
+			Data.TmStart = ZEROTIME;
+		if(!Data.TmEnd || Data.TmEnd.totalsec() < 0 || Data.TmEnd.totalsec() > (24*36000))
+			Data.TmEnd = encodetime(24, 0, 0, 0);
+		getCtrlData(sel = CTL_STAFFCALD_WORKTIME, &tm);
+		Data.TmVal = tm.totalsec();
+		GetClusterData(CTL_STAFFCALD_KIND, &kind);
+		if(kind == CALDATE::kDate) {
+			getCtrlData(sel = CTL_STAFFCALD_DATE, &cdt);
+			THROW_SL(checkdate(cdt, 0));
+		}
+		else if(kind == CALDATE::kCalDate) {
+			LDATE  dt;
+			getCtrlData(sel = CTL_STAFFCALD_DATE, &dt);
+			THROW_SL(cdt.SetCalDate(dt.day(), dt.month()));
+		}
+		else if(kind == CALDATE::kDayOfWeek)
+			THROW_PP(cdt.SetDayOfWeek(getCtrlLong(sel = CTL_HOLIDAY_DAYOFWEEK)), PPERR_INVDAYOFWEEK);
+		Data.DtVal = cdt;
+		Data.Kind  = 0; // @! На этапе отладки это поле - 0. В дальнейшем может понадобиться убрать этот оператор
+		GetClusterData(CTL_STAFFCALD_FLAGS, &Data.Flags);
+		THROW(PPStaffCalPacket::SetupEntry(&Data));
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -1306,7 +1382,6 @@ private:
 	int    PrevKind;
 	int    LockUpdByInput; // Блокировка пересчета времени для избежания зацикливания //
 	const PPStaffCalPacket * P_Pack;
-	StaffCalendarTbl::Rec Data;
 };
 
 int StaffCalDayDialog::setupDate()
@@ -1343,85 +1418,6 @@ int StaffCalDayDialog::setupDate()
 	disableCtrls(kind == CALDATE::kDayOfWeek, CTL_STAFFCALD_DATE, CTLCAL_STAFFCALD_DATE, 0);
 	PrevKind = kind;
 	return 1;
-}
-
-int StaffCalDayDialog::setDTS(const StaffCalendarTbl::Rec * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	if(P_Pack) {
-		const PPID cal_id = P_Pack->Rec.ID;
-		const PPID main_cal_id = NZOR(P_Pack->Rec.LinkCalID, cal_id);
-		SString temp_buf;
-		PPObjStaffCal sc_obj;
-		PPStaffCal sc_rec;
-		if(sc_obj.Fetch(main_cal_id, &sc_rec) > 0) {
-			setStaticText(CTL_STAFFCALD_ST_CAL, sc_rec.Name);
-		}
-		const PPID link_obj_type = P_Pack->Rec.LinkObjType;
-		if(link_obj_type) {
-			GetObjectTitle(link_obj_type, temp_buf);
-			if(P_Pack->Rec.LinkObjID) {
-				temp_buf.CatDiv(':', 2);
-				GetObjectName(link_obj_type, P_Pack->Rec.LinkObjID, temp_buf, 1);
-			}
-			setStaticText(CTL_STAFFCALD_ST_OBJ, temp_buf);
-		}
-	}
-	PPStaffCalPacket::SetupEntry(&Data);
-	CALDATE cdt;
-	cdt.v = Data.DtVal;
-	PrevKind = cdt.GetKind();
-	AddClusterAssocDef(CTL_STAFFCALD_KIND,  0, CALDATE::kDate);
-	AddClusterAssoc(CTL_STAFFCALD_KIND,  1, CALDATE::kCalDate);
-	AddClusterAssoc(CTL_STAFFCALD_KIND,  2, CALDATE::kDayOfWeek);
-	SetClusterData(CTL_STAFFCALD_KIND,   cdt.GetKind());
-	AddClusterAssoc(CTL_STAFFCALD_FLAGS, 0, STCALEF_SKIP);
-	AddClusterAssoc(CTL_STAFFCALD_FLAGS, 1, STCALEF_CONTINUOUS);
-	SetClusterData(CTL_STAFFCALD_FLAGS, Data.Flags);
-
-	setCtrlData(CTL_STAFFCALD_TMSTART, &Data.TmStart);
-	setCtrlData(CTL_STAFFCALD_TMEND,   &Data.TmEnd);
-	setupWorkTime();
-	SetupStringCombo(this, CTLSEL_STAFFCALD_DAYOFW, PPTXT_WEEKDAYS, 0);
-	setupDate();
-	return 1;
-}
-
-int StaffCalDayDialog::getDTS(StaffCalendarTbl::Rec * pData)
-{
-	int    ok = 1;
-	long   kind = 0;
-	uint   sel = 0;
-	CALDATE cdt;
-	LTIME  tm;
-	getCtrlData(CTL_STAFFCALD_TMSTART, &Data.TmStart);
-	getCtrlData(CTL_STAFFCALD_TMEND,   &Data.TmEnd);
-	if(Data.TmStart.totalsec() < 0 || Data.TmStart.totalsec() > (24*36000))
-		Data.TmStart = ZEROTIME;
-	if(!Data.TmEnd || Data.TmEnd.totalsec() < 0 || Data.TmEnd.totalsec() > (24*36000))
-		Data.TmEnd = encodetime(24, 0, 0, 0);
-	getCtrlData(sel = CTL_STAFFCALD_WORKTIME, &tm);
-	Data.TmVal = tm.totalsec();
-	GetClusterData(CTL_STAFFCALD_KIND, &kind);
-	if(kind == CALDATE::kDate) {
-		getCtrlData(sel = CTL_STAFFCALD_DATE, &cdt);
-		THROW_SL(checkdate(cdt, 0));
-	}
-	else if(kind == CALDATE::kCalDate) {
-		LDATE  dt;
-		getCtrlData(sel = CTL_STAFFCALD_DATE, &dt);
-		THROW_SL(cdt.SetCalDate(dt.day(), dt.month()));
-	}
-	else if(kind == CALDATE::kDayOfWeek)
-		THROW_PP(cdt.SetDayOfWeek(getCtrlLong(sel = CTL_HOLIDAY_DAYOFWEEK)), PPERR_INVDAYOFWEEK);
-	Data.DtVal = cdt;
-	Data.Kind  = 0; // @! На этапе отладки это поле - 0. В дальнейшем может понадобиться убрать этот оператор
-	GetClusterData(CTL_STAFFCALD_FLAGS, &Data.Flags);
-	THROW(PPStaffCalPacket::SetupEntry(&Data));
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int PPObjStaffCal::EditEntry(const PPStaffCalPacket * pPack, StaffCalendarTbl::Rec * pRec) { DIALOG_PROC_BODY_P1(StaffCalDayDialog, pPack, pRec); }

@@ -142,11 +142,8 @@ static int shouldfail(void)
 /* suppressed on Windows as POSIX-like file descriptors are non-inheritable */
 	int len;
 	char buff[80];
-
 	if(md_tracefd > 0) {
-		BIO_snprintf(buff, sizeof(buff),
-		    "%c C%ld %%%d R%d\n",
-		    shoulditfail ? '-' : '+', md_count, md_fail_percent, roll);
+		BIO_snprintf(buff, sizeof(buff), "%c C%ld %%%d R%d\n", shoulditfail ? '-' : '+', md_count, md_fail_percent, roll);
 		len = strlen(buff);
 		if(write(md_tracefd, buff, len) != len)
 			perror("shouldfail write failed");
@@ -185,10 +182,8 @@ void * CRYPTO_malloc(size_t num, const char * file, int line)
 	INCREMENT(malloc_count);
 	if(malloc_impl != NULL && malloc_impl != CRYPTO_malloc)
 		return malloc_impl(num, file, line);
-
 	if(num == 0)
 		return NULL;
-
 	FAILTEST();
 	if(allow_customize) {
 		/*

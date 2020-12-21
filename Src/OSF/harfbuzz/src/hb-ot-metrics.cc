@@ -23,13 +23,6 @@
  */
 #include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-ot-var-mvar-table.hh"
-#include "hb-ot-gasp-table.hh" // Just so we compile it; unused otherwise.
-#include "hb-ot-os2-table.hh"
-#include "hb-ot-post-table.hh"
-#include "hb-ot-hhea-table.hh"
-#include "hb-ot-metrics.hh"
-#include "hb-ot-face.hh"
 
 static float _fix_ascender_descender(float value, hb_ot_metrics_tag_t metrics_tag)
 {

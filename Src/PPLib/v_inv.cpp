@@ -2229,7 +2229,4 @@ int PPALDD_Invent::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_Invent::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Inventory);
-}
+void PPALDD_Invent::Destroy() { DESTROY_PPVIEW_ALDD(Inventory); }

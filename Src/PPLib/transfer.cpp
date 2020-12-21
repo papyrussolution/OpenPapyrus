@@ -845,7 +845,7 @@ static int FASTCALL CR_MakeLocList(const GoodsRestParam & rP, PPIDArray * pList)
 		pList->add(rP.LocID);
 	else {
 		PPObjLocation loc_obj;
-		loc_obj.GetWarehouseList(pList);
+		loc_obj.GetWarehouseList(pList, 0);
 	}
 	return ok;
 }

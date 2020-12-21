@@ -1656,7 +1656,7 @@ int PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)
 			if(!pack.Rec.LocID) {
 				PPObjLocation loc_obj;
 				PPIDArray wh_list;
-				loc_obj.GetWarehouseList(&wh_list);
+				loc_obj.GetWarehouseList(&wh_list, 0);
 				if(wh_list.getCount() == 1)
 					pack.Rec.LocID = wh_list.get(0);
 			}
@@ -2234,10 +2234,7 @@ int PPALDD_ProcessorView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_ProcessorView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Processor);
-}
+void PPALDD_ProcessorView::Destroy() { DESTROY_PPVIEW_ALDD(Processor); }
 //
 // Implementation of PPALDD_UhttProcessor
 //
@@ -2247,9 +2244,9 @@ struct UhttProcessorBlock {
 		stSet               = 0x0001,
 		stTSessConfigInited = 0x0002
 	};
-	UhttProcessorBlock()
+	UhttProcessorBlock() : PlacePos(0), State(0)
 	{
-		Clear();
+		// @v10.9.9 Clear();
 	}
 	void Clear()
 	{

@@ -82,7 +82,7 @@ static void ColouriseAsyDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				    sc.ChangeState(SCE_ASY_STRINGEOL);
 			    }
 			    else if(sc.ch == '\\') {
-				    if(sc.chNext == '\"' || sc.chNext == '\'' || sc.chNext == '\\') {
+				    if(oneof3(sc.chNext, '\"', '\'', '\\')) {
 					    sc.Forward();
 				    }
 			    }
@@ -95,7 +95,7 @@ static void ColouriseAsyDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				    sc.ChangeState(SCE_ASY_STRINGEOL);
 			    }
 			    else if(sc.ch == '\\') {
-				    if(sc.chNext == '\"' || sc.chNext == '\'' || sc.chNext == '\\') {
+				    if(oneof3(sc.chNext, '\"', '\'', '\\')) {
 					    sc.Forward();
 				    }
 			    }
@@ -104,7 +104,6 @@ static void ColouriseAsyDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			    }
 			    break;
 		}
-
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_ASY_DEFAULT) {
 			if(setWordStart.Contains(sc.ch) || (sc.ch == '@')) {

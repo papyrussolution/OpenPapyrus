@@ -1600,7 +1600,4 @@ int PPALDD_SStatView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_SStatView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(PredictSales);
-}
+void PPALDD_SStatView::Destroy() { DESTROY_PPVIEW_ALDD(PredictSales); }

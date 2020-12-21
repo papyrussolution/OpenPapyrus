@@ -143,7 +143,7 @@ static inline int streq0(const char * s1, const char * s2, char s20, char s21, c
 
 	#define STREQ(s1, s2, s20, s21, s22, s23, s24, s25, s26, s27, s28) streq0(s1, s2, s20, s21, s22, s23, s24, s25, s26, s27, s28)
 #else
-	#define STREQ(s1, s2, s20, s21, s22, s23, s24, s25, s26, s27, s28) (strcmp(s1, s2) == 0)
+	#define STREQ(s1, s2, s20, s21, s22, s23, s24, s25, s26, s27, s28) (sstreq(s1, s2))
 #endif
 
 #endif /* _GL_STREQ_H */

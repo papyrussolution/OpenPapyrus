@@ -90,7 +90,7 @@ void _cairo_traps_fini(cairo_traps_t * traps)
 }
 
 /* make room for at least one more trap */
-static boolint _cairo_traps_grow(cairo_traps_t * traps)
+static boolint FASTCALL _cairo_traps_grow(cairo_traps_t * traps)
 {
 	cairo_trapezoid_t * new_traps;
 	int new_size = 4 * traps->traps_size;
@@ -402,119 +402,92 @@ void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps, const ca
  * Initializes a #cairo_traps_t to contain an array of rectangular
  * trapezoids.
  **/
-cairo_status_t _cairo_traps_init_boxes(cairo_traps_t * traps,
-    const cairo_boxes_t * boxes)
+cairo_status_t _cairo_traps_init_boxes(cairo_traps_t * traps, const cairo_boxes_t * boxes)
 {
 	cairo_trapezoid_t * trap;
 	const struct _cairo_boxes_t::_cairo_boxes_chunk * chunk;
-
 	_cairo_traps_init(traps);
-
 	while(traps->traps_size < boxes->num_boxes) {
 		if(unlikely(!_cairo_traps_grow(traps))) {
 			_cairo_traps_fini(traps);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 	}
-
 	traps->num_traps = boxes->num_boxes;
 	traps->is_rectilinear = TRUE;
 	traps->is_rectangular = TRUE;
 	traps->maybe_region = boxes->is_pixel_aligned;
-
 	trap = &traps->traps[0];
 	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
-		const cairo_box_t * box;
 		int i;
-
-		box = chunk->base;
+		const cairo_box_t * box = chunk->base;
 		for(i = 0; i < chunk->count; i++) {
 			trap->top    = box->p1.y;
 			trap->bottom = box->p2.y;
-
 			trap->left.p1   = box->p1;
 			trap->left.p2.x = box->p1.x;
 			trap->left.p2.y = box->p2.y;
-
 			trap->right.p1.x = box->p2.x;
 			trap->right.p1.y = box->p1.y;
 			trap->right.p2   = box->p2;
-
 			box++, trap++;
 		}
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
-    const cairo_point_t * top_left,
-    const cairo_point_t * bottom_right)
+cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps, const cairo_point_t * top_left, const cairo_point_t * bottom_right)
 {
 	cairo_line_t left;
 	cairo_line_t right;
 	cairo_fixed_t top, bottom;
-
 	if(top_left->y == bottom_right->y)
 		return CAIRO_STATUS_SUCCESS;
 
 	if(top_left->x == bottom_right->x)
 		return CAIRO_STATUS_SUCCESS;
-
 	left.p1.x =  left.p2.x = top_left->x;
 	left.p1.y = right.p1.y = top_left->y;
 	right.p1.x = right.p2.x = bottom_right->x;
 	left.p2.y = right.p2.y = bottom_right->y;
-
 	top = top_left->y;
 	bottom = bottom_right->y;
-
 	if(traps->num_limits) {
 		boolint reversed;
 		int n;
-
 		if(top >= traps->bounds.p2.y || bottom <= traps->bounds.p1.y)
 			return CAIRO_STATUS_SUCCESS;
-
 		/* support counter-clockwise winding for rectangular tessellation */
 		reversed = top_left->x > bottom_right->x;
 		if(reversed) {
 			right.p1.x = right.p2.x = top_left->x;
 			left.p1.x = left.p2.x = bottom_right->x;
 		}
-
 		if(left.p1.x >= traps->bounds.p2.x || right.p1.x <= traps->bounds.p1.x)
 			return CAIRO_STATUS_SUCCESS;
-
 		for(n = 0; n < traps->num_limits; n++) {
 			const cairo_box_t * limits = &traps->limits[n];
 			cairo_line_t _left, _right;
 			cairo_fixed_t _top, _bottom;
-
 			if(top >= limits->p2.y)
 				continue;
 			if(bottom <= limits->p1.y)
 				continue;
-
 			/* Trivially reject if trapezoid is entirely to the right or
 			 * to the left of the limits. */
 			if(left.p1.x >= limits->p2.x)
 				continue;
 			if(right.p1.x <= limits->p1.x)
 				continue;
-
 			/* Otherwise, clip the trapezoid to the limits. */
 			_top = top;
 			if(_top < limits->p1.y)
 				_top = limits->p1.y;
-
 			_bottom = bottom;
 			if(_bottom > limits->p2.y)
 				_bottom = limits->p2.y;
-
 			if(_bottom <= _top)
 				continue;
-
 			_left = left;
 			if(_left.p1.x < limits->p1.x) {
 				_left.p1.x = limits->p1.x;
@@ -522,7 +495,6 @@ cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
 				_left.p2.x = limits->p1.x;
 				_left.p2.y = limits->p2.y;
 			}
-
 			_right = right;
 			if(_right.p1.x > limits->p2.x) {
 				_right.p1.x = limits->p2.x;
@@ -530,10 +502,8 @@ cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
 				_right.p2.x = limits->p2.x;
 				_right.p2.y = limits->p2.y;
 			}
-
 			if(left.p1.x >= right.p1.x)
 				continue;
-
 			if(reversed)
 				_cairo_traps_add_trap(traps, _top, _bottom, &_right, &_left);
 			else
@@ -543,7 +513,6 @@ cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
 	else {
 		_cairo_traps_add_trap(traps, top, bottom, &left, &right);
 	}
-
 	return traps->status;
 }
 
@@ -729,15 +698,12 @@ static boolint _mono_edge_is_vertical(const cairo_line_t * line)
 	return _cairo_fixed_integer_round_down(line->p1.x) == _cairo_fixed_integer_round_down(line->p2.x);
 }
 
-static boolint _traps_are_pixel_aligned(cairo_traps_t * traps,
-    cairo_antialias_t antialias)
+static boolint _traps_are_pixel_aligned(cairo_traps_t * traps, cairo_antialias_t antialias)
 {
 	int i;
-
 	if(antialias == CAIRO_ANTIALIAS_NONE) {
 		for(i = 0; i < traps->num_traps; i++) {
-			if(!_mono_edge_is_vertical(&traps->traps[i].left)   ||
-			    !_mono_edge_is_vertical(&traps->traps[i].right)) {
+			if(!_mono_edge_is_vertical(&traps->traps[i].left) || !_mono_edge_is_vertical(&traps->traps[i].right)) {
 				traps->maybe_region = FALSE;
 				return FALSE;
 			}
@@ -756,7 +722,6 @@ static boolint _traps_are_pixel_aligned(cairo_traps_t * traps,
 			}
 		}
 	}
-
 	return TRUE;
 }
 
@@ -819,7 +784,6 @@ cairo_int_status_t _cairo_traps_extract_region(cairo_traps_t * traps, cairo_anti
 	status = (*region)->status;
 	if(rects != stack_rects)
 		SAlloc::F(rects);
-
 	return status;
 }
 

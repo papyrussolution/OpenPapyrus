@@ -268,13 +268,12 @@ static void charstring_encrypt(cairo_array_t * data)
 
 static cairo_int_status_t cairo_type1_font_create_charstring(cairo_type1_font_t * font, int subset_index, int glyph_index, cairo_charstring_type_t type, cairo_array_t * data)
 {
-	cairo_int_status_t status;
 	cairo_scaled_glyph_t * scaled_glyph;
 	t1_path_info_t path_info;
 	cairo_text_extents_t * metrics;
 	boolint emit_path = TRUE;
 	/* This call may return CAIRO_INT_STATUS_UNSUPPORTED for bitmap fonts. */
-	status = _cairo_scaled_glyph_lookup(font->type1_scaled_font, glyph_index,
+	cairo_int_status_t status = _cairo_scaled_glyph_lookup(font->type1_scaled_font, glyph_index,
 		CAIRO_SCALED_GLYPH_INFO_METRICS|CAIRO_SCALED_GLYPH_INFO_PATH, &scaled_glyph);
 	/* It is ok for the .notdef glyph to not have a path available. We
 	 * just need the metrics to emit an empty glyph.  */

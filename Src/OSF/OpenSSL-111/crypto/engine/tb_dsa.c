@@ -26,9 +26,7 @@ static void engine_unregister_all_DSA(void)
 int ENGINE_register_DSA(ENGINE * e)
 {
 	if(e->dsa_meth)
-		return engine_table_register(&dsa_table,
-			   engine_unregister_all_DSA, e, &dummy_nid,
-			   1, 0);
+		return engine_table_register(&dsa_table, engine_unregister_all_DSA, e, &dummy_nid, 1, 0);
 	return 1;
 }
 
@@ -43,9 +41,7 @@ void ENGINE_register_all_DSA(void)
 int ENGINE_set_default_DSA(ENGINE * e)
 {
 	if(e->dsa_meth)
-		return engine_table_register(&dsa_table,
-			   engine_unregister_all_DSA, e, &dummy_nid,
-			   1, 1);
+		return engine_table_register(&dsa_table, engine_unregister_all_DSA, e, &dummy_nid, 1, 1);
 	return 1;
 }
 

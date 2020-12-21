@@ -134,7 +134,8 @@ static bool string_equals(const void * x1, const void * x2)
 {
 	const char * s1 = (const char*)x1;
 	const char * s2 = (const char*)x2;
-	return strcmp(s1, s2) == 0;
+	// @sobolev return strcmp(s1, s2) == 0;
+	return sstreq(s1, s2); // @sobolev
 }
 
 #define SIZE_BITS (sizeof(size_t) * CHAR_BIT)
@@ -146,10 +147,8 @@ static size_t string_hash(const void * x)
 {
 	const char * s = (const char*)x;
 	size_t h = 0;
-
 	for(; *s; s++)
 		h = *s + ((h << 9) | (h >> (SIZE_BITS - 9)));
-
 	return h;
 }
 
@@ -273,18 +272,13 @@ struct temp_dir * create_temp_dir(const char * prefix, const char * parentdir,
 	tmpdir = XMALLOC(struct tempdir);
 	tmpdir->dirname = NULL;
 	tmpdir->cleanup_verbose = cleanup_verbose;
-	tmpdir->subdirs = gl_list_create_empty(GL_LINKEDHASH_LIST,
-		string_equals, string_hash, NULL,
-		false);
-	tmpdir->files = gl_list_create_empty(GL_LINKEDHASH_LIST,
-		string_equals, string_hash, NULL,
-		false);
+	tmpdir->subdirs = gl_list_create_empty(GL_LINKEDHASH_LIST, string_equals, string_hash, NULL, false);
+	tmpdir->files = gl_list_create_empty(GL_LINKEDHASH_LIST, string_equals, string_hash, NULL, false);
 
 	/* Create the temporary directory.  */
 	xtemplate = (char *)xmalloca(PATH_MAX);
 	if(path_search(xtemplate, PATH_MAX, parentdir, prefix, parentdir == NULL)) {
-		error(0, errno,
-		    _("cannot find a temporary directory, try setting $TMPDIR"));
+		error(0, errno, _("cannot find a temporary directory, try setting $TMPDIR"));
 		goto quit;
 	}
 	//block_fatal_signals ();
@@ -295,9 +289,7 @@ struct temp_dir * create_temp_dir(const char * prefix, const char * parentdir,
 	}
 	//unblock_fatal_signals ();
 	if(tmpdirname == NULL) {
-		error(0, errno,
-		    _("cannot create a temporary directory using template \"%s\""),
-		    xtemplate);
+		error(0, errno, _("cannot create a temporary directory using template \"%s\""), xtemplate);
 		goto quit;
 	}
 	/* Replace tmpdir->dirname with a copy that has indefinite extent.

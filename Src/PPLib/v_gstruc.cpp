@@ -934,7 +934,7 @@ int PPALDD_GoodsStrucList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsStrucList::InitIteration(PPIterID iterId, int sortId, long rsrv)
+int PPALDD_GoodsStrucList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(GoodsStruc);
 }
@@ -968,7 +968,4 @@ int PPALDD_GoodsStrucList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_GoodsStrucList::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(GoodsStruc);
-}
+void PPALDD_GoodsStrucList::Destroy() { DESTROY_PPVIEW_ALDD(GoodsStruc); }

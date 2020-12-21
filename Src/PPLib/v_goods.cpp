@@ -5601,7 +5601,7 @@ int PPALDD_GoodsClassView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsClassView::InitIteration(PPIterID iterId, int sortId, long rsrv)
+int PPALDD_GoodsClassView::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	StrAssocArray * p_list = static_cast<StrAssocArray *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));

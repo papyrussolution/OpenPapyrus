@@ -2899,19 +2899,14 @@ static int tls_construct_cke_psk_preamble(SSL * s, WPACKET * pkt)
 		goto err;
 	}
 	else if(psklen == 0) {
-		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
-		    SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE,
-		    SSL_R_PSK_IDENTITY_NOT_FOUND);
+		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE, SSL_R_PSK_IDENTITY_NOT_FOUND);
 		goto err;
 	}
-
 	identitylen = strlen(identity);
 	if(identitylen > PSK_MAX_IDENTITY_LEN) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-
 	tmppsk = static_cast<uchar *>(OPENSSL_memdup(psk, psklen));
 	tmpidentity = OPENSSL_strdup(identity);
 	if(tmppsk == NULL || tmpidentity == NULL) {

@@ -2680,7 +2680,7 @@ PPEquipConfig::PPEquipConfig()
 	THISZERO();
 }
 
-PPID PPEquipConfig::GetCashierTabNumberRegTypeID()
+PPID PPEquipConfig::GetCashierTabNumberRegTypeID() const
 {
 	PPID   result = 0;
 	PPIniFile ini_file;
@@ -2721,17 +2721,78 @@ int ReadEquipConfig(PPEquipConfig * pCfg)
 }
 
 class EquipConfigDialog : public TDialog {
+	DECL_DIALOG_DATA(PPEquipConfig);
 public:
 	EquipConfigDialog() : TDialog(DLG_EQUIPCFG)
 	{
 	}
-	int    setDTS(const PPEquipConfig *);
-	int    getDTS(PPEquipConfig *);
+	DECL_DIALOG_SETDTS()
+	{
+		PPIDArray op_type_list;
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		SetupPPObjCombo(this, CTLSEL_EQCFG_PSNKNDCSHRS, PPOBJ_PRSNKIND, Data.CshrsPsnKindID, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_EQCFG_DEFCASHNODE, PPOBJ_CASHNODE, Data.DefCashNodeID, 0, 0);
+		//
+		op_type_list.addzlist(PPOPT_ACCTURN, 0L);
+		SetupOprKindCombo(this, CTLSEL_EQCFG_WROFFACCOP, Data.WrOffAccOpID, 0, &op_type_list, 0);
+		op_type_list.clear();
+		//
+		op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
+		SetupOprKindCombo(this, CTLSEL_EQCFG_OPDTHISLOC, Data.OpOnDfctThisLoc, 0, &op_type_list, 0);
+		SetupOprKindCombo(this, CTLSEL_EQCFG_OPDOTHRLOC, Data.OpOnDfctOthrLoc, 0, &op_type_list, 0);
+		SetupOprKindCombo(this, CTLSEL_EQCFG_TEMPSESSOP, Data.OpOnTempSess,    0, &op_type_list, 0);
+		SetupPPObjCombo(this, CTLSEL_EQCFG_QUOT, PPOBJ_QUOTKIND, Data.QuotKindID,  0);
+		SetupPPObjCombo(this, CTLSEL_EQCFG_PHNSVC, PPOBJ_PHONESERVICE, Data.PhnSvcID, 0);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  0, PPEquipConfig::fCheckScaleInput);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  1, PPEquipConfig::fComplDeficit);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  2, PPEquipConfig::fCloseSessTo10Level);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  3, PPEquipConfig::fIgnAcsReadyTags);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  4, PPEquipConfig::fIgnGenGoodsOnDeficit);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  5, PPEquipConfig::fIntrPriceByRetailRules);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  6, PPEquipConfig::fValidateChecksOnSessClose);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  7, PPEquipConfig::fWriteToChkOpJrnl);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  8, PPEquipConfig::fRecognizeCode);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  9, PPEquipConfig::fUnifiedPayment);
+		AddClusterAssoc(CTL_EQCFG_FLAGS, 10, PPEquipConfig::fUnifiedPaymentCfmBank);
+		AddClusterAssoc(CTL_EQCFG_FLAGS, 11, PPEquipConfig::fIgnoreNoDisGoodsTag);
+		AddClusterAssoc(CTL_EQCFG_FLAGS, 12, PPEquipConfig::fRestrictQttyByUnitRnd);
+		AddClusterAssoc(CTL_EQCFG_FLAGS, 13, PPEquipConfig::fDisableManualSCardInput);
+		AddClusterAssoc(CTL_EQCFG_FLAGS, 14, PPEquipConfig::fDisableAdjWrOffAmount);
+		SetClusterData(CTL_EQCFG_FLAGS, Data.Flags);
+
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 0, PPEquipConfig::fUseQuotAsPrice);
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 1, PPEquipConfig::fUncondAsyncBasePrice);
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 2, PPEquipConfig::fAutosaveSyncChecks);
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 3, PPEquipConfig::fWrOffPartStrucs);
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 4, PPEquipConfig::fSkipPrintingZeroPrice); // @v10.0.12
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 5, PPEquipConfig::fAttachBillChecksToCSess); // @v10.9.9
+		SetClusterData(CTL_EQCFG_FLAGS2, Data.Flags);
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(CTLSEL_EQCFG_WROFFACCOP,  &Data.WrOffAccOpID);
+		getCtrlData(CTLSEL_EQCFG_PSNKNDCSHRS, &Data.CshrsPsnKindID);
+		getCtrlData(CTLSEL_EQCFG_DEFCASHNODE, &Data.DefCashNodeID);
+		getCtrlData(CTLSEL_EQCFG_OPDTHISLOC,  &Data.OpOnDfctThisLoc);
+		getCtrlData(CTLSEL_EQCFG_OPDOTHRLOC,  &Data.OpOnDfctOthrLoc);
+		getCtrlData(CTLSEL_EQCFG_TEMPSESSOP,  &Data.OpOnTempSess);
+		getCtrlData(CTLSEL_EQCFG_QUOT,        &Data.QuotKindID);
+		getCtrlData(CTLSEL_EQCFG_PHNSVC,      &Data.PhnSvcID);
+		GetClusterData(CTL_EQCFG_FLAGS,  &Data.Flags);
+		GetClusterData(CTL_EQCFG_FLAGS2, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		//CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
 	int    EditExtParams();
-	PPEquipConfig Data;
 };
 
 int EquipConfigDialog::EditExtParams()
@@ -2816,134 +2877,6 @@ int EquipConfigDialog::EditExtParams()
 		}
 	};
 	DIALOG_PROC_BODY(ExtEquipConfigDialog, &Data);
-}
-
-int EquipConfigDialog::setDTS(const PPEquipConfig * pData)
-{
-	PPIDArray op_type_list;
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	SetupPPObjCombo(this, CTLSEL_EQCFG_PSNKNDCSHRS, PPOBJ_PRSNKIND, Data.CshrsPsnKindID, 0, 0);
-	SetupPPObjCombo(this, CTLSEL_EQCFG_DEFCASHNODE, PPOBJ_CASHNODE, Data.DefCashNodeID, 0, 0);
-	//
-	op_type_list.addzlist(PPOPT_ACCTURN, 0L);
-	SetupOprKindCombo(this, CTLSEL_EQCFG_WROFFACCOP, Data.WrOffAccOpID, 0, &op_type_list, 0);
-	op_type_list.clear();
-	//
-	op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
-	SetupOprKindCombo(this, CTLSEL_EQCFG_OPDTHISLOC, Data.OpOnDfctThisLoc, 0, &op_type_list, 0);
-	SetupOprKindCombo(this, CTLSEL_EQCFG_OPDOTHRLOC, Data.OpOnDfctOthrLoc, 0, &op_type_list, 0);
-	SetupOprKindCombo(this, CTLSEL_EQCFG_TEMPSESSOP, Data.OpOnTempSess,    0, &op_type_list, 0);
-	SetupPPObjCombo(this, CTLSEL_EQCFG_QUOT, PPOBJ_QUOTKIND, Data.QuotKindID,  0);
-	SetupPPObjCombo(this, CTLSEL_EQCFG_PHNSVC, PPOBJ_PHONESERVICE, Data.PhnSvcID, 0); // @v9.8.11
-	//SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/);
-	//SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, (void *)GGRTYP_SEL_ALT);
-	//setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
-	//setCtrlData(CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
-	//setCtrlData(CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  0, PPEquipConfig::fCheckScaleInput);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  1, PPEquipConfig::fComplDeficit);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  2, PPEquipConfig::fCloseSessTo10Level);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  3, PPEquipConfig::fIgnAcsReadyTags);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  4, PPEquipConfig::fIgnGenGoodsOnDeficit);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  5, PPEquipConfig::fIntrPriceByRetailRules);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  6, PPEquipConfig::fValidateChecksOnSessClose);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  7, PPEquipConfig::fWriteToChkOpJrnl);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  8, PPEquipConfig::fRecognizeCode);
-	AddClusterAssoc(CTL_EQCFG_FLAGS,  9, PPEquipConfig::fUnifiedPayment);
-	AddClusterAssoc(CTL_EQCFG_FLAGS, 10, PPEquipConfig::fUnifiedPaymentCfmBank);
-	AddClusterAssoc(CTL_EQCFG_FLAGS, 11, PPEquipConfig::fIgnoreNoDisGoodsTag);
-	AddClusterAssoc(CTL_EQCFG_FLAGS, 12, PPEquipConfig::fRestrictQttyByUnitRnd);
-	AddClusterAssoc(CTL_EQCFG_FLAGS, 13, PPEquipConfig::fDisableManualSCardInput);
-	AddClusterAssoc(CTL_EQCFG_FLAGS, 14, PPEquipConfig::fDisableAdjWrOffAmount);
-	SetClusterData(CTL_EQCFG_FLAGS, Data.Flags);
-
-	AddClusterAssoc(CTL_EQCFG_FLAGS2, 0, PPEquipConfig::fUseQuotAsPrice);
-	AddClusterAssoc(CTL_EQCFG_FLAGS2, 1, PPEquipConfig::fUncondAsyncBasePrice);
-	AddClusterAssoc(CTL_EQCFG_FLAGS2, 2, PPEquipConfig::fAutosaveSyncChecks);
-	AddClusterAssoc(CTL_EQCFG_FLAGS2, 3, PPEquipConfig::fWrOffPartStrucs); // @v9.8.12
-	AddClusterAssoc(CTL_EQCFG_FLAGS2, 4, PPEquipConfig::fSkipPrintingZeroPrice); // @v10.0.12
-	SetClusterData(CTL_EQCFG_FLAGS2, Data.Flags);
-	/*
-	{
-		RealRange subst_range;
-		SetRealRangeInput(this, CTL_EQCFG_DFCTCOSTRNG, &(subst_range = Data.DeficitSubstPriceDevRange).Scale(0.1), 1);
-	}
-	{
-		double rng_lim = ((double)Data.BHTRngLimWgtGoods) / 100;
-		setCtrlData(CTL_EQCFG_RNGLIMGOODSBHT, &rng_lim);
-
-		rng_lim = ((double)Data.BHTRngLimPrice) / 100;
-		setCtrlData(CTL_EQCFG_RNGLIMPRICEBHT, &rng_lim);
-	}
-	setCtrlLong(CTL_EQCFG_LOOKBKPRCPRD, Data.LookBackPricePeriod); // @v9.8.4
-	*/
-	SetupCtrls();
-	return 1;
-}
-
-int EquipConfigDialog::getDTS(PPEquipConfig * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	getCtrlData(CTLSEL_EQCFG_WROFFACCOP,  &Data.WrOffAccOpID);
-	getCtrlData(CTLSEL_EQCFG_PSNKNDCSHRS, &Data.CshrsPsnKindID);
-	getCtrlData(CTLSEL_EQCFG_DEFCASHNODE, &Data.DefCashNodeID);
-	getCtrlData(CTLSEL_EQCFG_OPDTHISLOC,  &Data.OpOnDfctThisLoc);
-	getCtrlData(CTLSEL_EQCFG_OPDOTHRLOC,  &Data.OpOnDfctOthrLoc);
-	getCtrlData(CTLSEL_EQCFG_TEMPSESSOP,  &Data.OpOnTempSess);
-	getCtrlData(CTLSEL_EQCFG_QUOT,        &Data.QuotKindID);
-	getCtrlData(CTLSEL_EQCFG_PHNSVC,      &Data.PhnSvcID);
-	//getCtrlData(CTLSEL_EQCFG_FTPACCT,     &Data.FtpAcctID);
-	//getCtrlData(CTLSEL_EQCFG_SALESGRP,    &Data.SalesGoodsGrp);
-	//getCtrlData(sel = CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
-	//getCtrlData(sel = CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
-	//getCtrlData(sel = CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix);
-	/*
-	if(Data.SalesGoodsGrp) {
-		Goods2Tbl::Rec ggrec;
-		PPObjGoodsGroup ggobj;
-		MEMSZERO(ggrec);
-		ggobj.Search(Data.SalesGoodsGrp, &ggrec);
-		sel = CTL_EQCFG_SALESGRP;
-		THROW_PP(ggrec.Flags & GF_EXCLALTFOLD, PPERR_INVSALESGRP);
-	}
-	{
-		RealRange subst_range;
-		GetRealRangeInput(this, CTL_EQCFG_DFCTCOSTRNG, &subst_range);
-		if(!subst_range.IsZero()) {
-			if(subst_range.low == subst_range.upp) {
-				subst_range.low = -fabs(subst_range.low);
-				subst_range.upp = +fabs(subst_range.upp);
-			}
-			subst_range.Scale(10.0);
-			Data.DeficitSubstPriceDevRange.Set((int)subst_range.low, (int)subst_range.upp);
-		}
-		else
-			Data.DeficitSubstPriceDevRange = 0;
-	}
-	{
-		double rng_lim = 0;
-		getCtrlData(sel = CTL_EQCFG_RNGLIMGOODSBHT, &rng_lim);
-		THROW_PP(rng_lim >= 0 && rng_lim <= 100, PPERR_PERCENTINPUT);
-		Data.BHTRngLimWgtGoods = (long)(rng_lim * 100);
-
-		getCtrlData(sel = CTL_EQCFG_RNGLIMPRICEBHT, &(rng_lim = 0));
-		THROW_PP(rng_lim >= 0 && rng_lim <= 100, PPERR_PERCENTINPUT);
-		Data.BHTRngLimPrice = (long)(rng_lim * 100);
-	}
-	{
-		Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD); // @v9.8.4
-		THROW_PP(Data.LookBackPricePeriod >= 0 && Data.LookBackPricePeriod <= 365, PPERR_USERINPUT); // @v9.8.4
-	}
-	const int prefix_len = sstrlen(Data.AgentPrefix);
-	THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
-	*/
-	GetClusterData(CTL_EQCFG_FLAGS,  &Data.Flags);
-	GetClusterData(CTL_EQCFG_FLAGS2, &Data.Flags);
-	ASSIGN_PTR(pData, Data);
-	//CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 void EquipConfigDialog::SetupCtrls()

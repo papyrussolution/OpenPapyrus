@@ -1383,8 +1383,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				// @v10.9.3 Layout_Obsolete.SetContainerBounds(cr);
 				// @v10.9.3 {
 				if(P_Lfc && !P_Lfc->P_Parent) {
-					P_Lfc->Size.X = static_cast<float>(cr.width());
-					P_Lfc->Size.Y = static_cast<float>(cr.height());
+					P_Lfc->ALB.SetFixedSize(cr);
 					P_Lfc->Evaluate();
 				}
 				// } @v10.9.3 
@@ -1400,8 +1399,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				// @v10.9.3 Layout_Obsolete.SetContainerBounds(cr);
 				// @v10.9.3 {
 				if(P_Lfc && !P_Lfc->P_Parent) {
-					P_Lfc->Size.X = static_cast<float>(cr.width());
-					P_Lfc->Size.Y = static_cast<float>(cr.height());
+					P_Lfc->ALB.SetFixedSize(cr);
 					P_Lfc->Evaluate();
 				}
 				// } @v10.9.3 

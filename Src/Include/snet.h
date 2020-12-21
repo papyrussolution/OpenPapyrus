@@ -1,5 +1,5 @@
 // SNET.H
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #ifndef __SNET_H
@@ -9,7 +9,7 @@
 #ifdef _WIN32_WINNT
 	#undef _WIN32_WINNT
 #endif
-#include <ws2tcpip.h>
+// @v10.9.9 #include <ws2tcpip.h>
 //
 //
 //

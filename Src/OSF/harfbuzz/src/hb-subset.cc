@@ -25,29 +25,6 @@
  */
 #include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-open-type.hh"
-#include "hb-subset.hh"
-#include "hb-open-file.hh"
-#include "hb-ot-cmap-table.hh"
-#include "hb-ot-glyf-table.hh"
-#include "hb-ot-hdmx-table.hh"
-#include "hb-ot-head-table.hh"
-#include "hb-ot-hhea-table.hh"
-#include "hb-ot-hmtx-table.hh"
-#include "hb-ot-maxp-table.hh"
-#include "hb-ot-color-sbix-table.hh"
-#include "hb-ot-color-colr-table.hh"
-#include "hb-ot-os2-table.hh"
-#include "hb-ot-post-table.hh"
-#include "hb-ot-cff1-table.hh"
-#include "hb-ot-cff2-table.hh"
-#include "hb-ot-vorg-table.hh"
-#include "hb-ot-name-table.hh"
-#include "hb-ot-color-cbdt-table.hh"
-#include "hb-ot-layout-gsub-table.hh"
-#include "hb-ot-layout-gpos-table.hh"
-#include "hb-ot-var-gvar-table.hh"
-#include "hb-ot-var-hvar-table.hh"
 
 static unsigned _plan_estimate_subset_table_size(hb_subset_plan_t * plan, unsigned table_len)
 {

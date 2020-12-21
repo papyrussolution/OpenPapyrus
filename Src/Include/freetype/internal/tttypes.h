@@ -1355,24 +1355,24 @@ typedef struct  TT_FaceRec_ {
 
 	/* a typeless pointer to the SFNT_Interface table used to load */
 	/* the basic TrueType tables in the face object                */
-	void*                 sfnt;
+	void *      sfnt;
 
 	/* a typeless pointer to the FT_Service_PsCMapsRec table used to */
 	/* handle glyph names <-> unicode & Mac values                   */
-	void*                 psnames;
+	void *      psnames;
 
 #ifdef TT_CONFIG_OPTION_GX_VAR_SUPPORT
 	/* a typeless pointer to the FT_Service_MultiMasters table used to */
 	/* handle variation fonts                                          */
-	void*                 mm;
+	void *      mm;
 
 	/* a typeless pointer to the FT_Service_MetricsVariationsRec table */
 	/* used to handle the HVAR, VVAR, and MVAR OpenType tables         */
-	void*                 var;
+	void *      var;
 #endif
 
 	/* a typeless pointer to the PostScript Aux service */
-	void*                 psaux;
+	void *      psaux;
 
 	/************************************************************************
 	 *
@@ -1497,8 +1497,8 @@ typedef struct  TT_FaceRec_ {
 #endif
 
 	/* since 2.10 */
-	void*                 cpal;
-	void*                 colr;
+	void *      cpal;
+	void *      colr;
 } TT_FaceRec;
 
 /**************************************************************************
@@ -1602,7 +1602,7 @@ typedef struct  TT_LoaderRec_ {
 	FT_ULong ins_pos;
 
 	/* for possible extensibility in other formats */
-	void*            other;
+	void * other;
 
 	/* since version 2.1.8 */
 	FT_Int top_bearing;

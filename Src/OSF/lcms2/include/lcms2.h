@@ -1000,7 +1000,7 @@ typedef struct _cmsContext_struct* cmsContext;
 CMSAPI cmsContext CMSEXPORT cmsCreateContext(void* Plugin, void* UserData);
 CMSAPI void CMSEXPORT cmsDeleteContext(cmsContext ContextID);
 CMSAPI cmsContext CMSEXPORT cmsDupContext(cmsContext ContextID, void* NewUserData);
-CMSAPI void*            CMSEXPORT cmsGetContextUserData(cmsContext ContextID);
+CMSAPI void * CMSEXPORT cmsGetContextUserData(cmsContext ContextID);
 
 // Plug-In registering
 //  --------------------------------------------------------------------------------------------------
@@ -1249,7 +1249,7 @@ CMSAPI cmsStage*         CMSEXPORT cmsStageNext(const cmsStage* mpe);
 CMSAPI cmsUInt32Number CMSEXPORT cmsStageInputChannels(const cmsStage* mpe);
 CMSAPI cmsUInt32Number CMSEXPORT cmsStageOutputChannels(const cmsStage* mpe);
 CMSAPI cmsStageSignature CMSEXPORT cmsStageType(const cmsStage* mpe);
-CMSAPI void*             CMSEXPORT cmsStageData(const cmsStage* mpe);
+CMSAPI void *  CMSEXPORT cmsStageData(const cmsStage* mpe);
 
 // Sampling
 typedef cmsInt32Number (* cmsSAMPLER16)   (CMSREGISTER const cmsUInt16Number In[],
@@ -1436,7 +1436,7 @@ CMSAPI cmsTagSignature CMSEXPORT cmsGetTagSignature(cmsHPROFILE hProfile, cmsUIn
 CMSAPI cmsBool CMSEXPORT cmsIsTag(cmsHPROFILE hProfile, cmsTagSignature sig);
 
 // Read and write pre-formatted data
-CMSAPI void*             CMSEXPORT cmsReadTag(cmsHPROFILE hProfile, cmsTagSignature sig);
+CMSAPI void *  CMSEXPORT cmsReadTag(cmsHPROFILE hProfile, cmsTagSignature sig);
 CMSAPI cmsBool CMSEXPORT cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void* data);
 CMSAPI cmsBool CMSEXPORT cmsLinkTag(cmsHPROFILE hProfile, cmsTagSignature sig, cmsTagSignature dest);
 CMSAPI cmsTagSignature CMSEXPORT cmsTagLinkedTo(cmsHPROFILE hProfile, cmsTagSignature sig);

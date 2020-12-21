@@ -24,15 +24,15 @@
  * we need to include <windows.h> explicitly before <winsock2.h> because
  * the warning 4201 is enabled in <windows.h>
  */
-#include <windows.h>
+//#include <windows.h>
 #ifdef _MSC_VER
 	#pragma warning(disable:4201)
 #endif
-#include <winsock2.h>
-#include <ws2tcpip.h>  /* ipv6 */
+//#include <winsock2.h>
+//#include <ws2tcpip.h>  /* ipv6 */
 #include <mswsock.h>
 #include <shellapi.h>
-#include <stddef.h>    /* offsetof() */
+//#include <stddef.h>    /* offsetof() */
 #ifdef __MINGW64_VERSION_MAJOR
 	/* GCC MinGW-w64 supports _FILE_OFFSET_BITS */
 	#define _FILE_OFFSET_BITS 64
@@ -41,13 +41,13 @@
 	#define _OFF_T_
 	#define __have_typedef_off_t
 #endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <stdarg.h>
 #ifdef __GNUC__
 	#include <stdint.h>
 #endif
-#include <ctype.h>
+//#include <ctype.h>
 #include <locale.h>
 #ifdef __WATCOMC__
 	#define _TIME_T_DEFINED

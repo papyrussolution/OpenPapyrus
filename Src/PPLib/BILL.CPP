@@ -1356,7 +1356,7 @@ int BillCore::ScanHolidays(PPID locID, PPID opID, const DateRange * pPeriod, PPH
 	if(locID == 0) {
 		PPObjLocation loc_obj;
 		PPIDArray wh_list;
-		loc_obj.GetWarehouseList(&wh_list);
+		loc_obj.GetWarehouseList(&wh_list, 0);
 		for(uint i = 0; i < wh_list.getCount(); i++) {
 			const PPID loc_id = wh_list.at(i);
 			if(loc_id)

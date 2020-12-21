@@ -61,13 +61,10 @@ long unicode_to_mb(uint code,
 #if HAVE_ICONV
 	static iconv_t utf8_to_local;
 #endif
-
 	char inbuf[6];
 	int count;
-
 	if(!initialized) {
 		const char * charset = locale_charset();
-
 		is_utf8 = !strcmp(charset, UTF8_NAME);
 #if HAVE_ICONV
 		if(!is_utf8) {

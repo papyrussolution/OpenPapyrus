@@ -849,7 +849,7 @@ int PPALDD_PersonEvent::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PersonEvent::InitIteration(PPIterID iterId, int sortId, long rsrv)
+int PPALDD_PersonEvent::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(PersonEvent);
 }

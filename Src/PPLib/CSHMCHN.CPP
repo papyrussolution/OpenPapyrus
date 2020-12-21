@@ -1549,12 +1549,15 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 		{
 			PPIDArray rt_loc_list;
 			PPObjLocation loc_obj;
-			SString  loc_name;
-			THROW(loc_obj.GetWarehouseList(&rt_loc_list));
-			for(uint i = 0; i < loc_list.getCount(); i++) {
-				const PPID loc_id = loc_list.get(i);
-				GetLocationName(loc_id, loc_name);
-				THROW_PP_S(rt_loc_list.lsearch(loc_id), PPERR_NORTTOLOC, loc_name);
+			bool   is_loc_restictions = false;
+			THROW(loc_obj.GetWarehouseList(&rt_loc_list, &is_loc_restictions));
+			if(is_loc_restictions) {
+				SString  loc_name;
+				for(uint i = 0; i < loc_list.getCount(); i++) {
+					const PPID loc_id = loc_list.get(i);
+					GetLocationName(loc_id, loc_name);
+					THROW_PP_S(rt_loc_list.lsearch(loc_id), PPERR_NORTTOLOC, loc_name);
+				}
 			}
 		}
 		is_locked = PPObjCashNode::IsLocked(cn_id);

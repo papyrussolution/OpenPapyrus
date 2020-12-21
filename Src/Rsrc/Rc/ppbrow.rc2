@@ -387,7 +387,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,      "Зачет долгового документа\tCtrl-E"
 	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
-	//CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,        "Создать MRP-таблицу\tCtrl-N"
+	//CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,        "@{docreatemrptab}\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,         "@{unite_docs}\tCtrl-U"
 	//WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,        "@{writeoffdrafts}\tCtrl-W"
 	//TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,      "@{view_trfranlz}\tCtrl-T"
@@ -448,7 +448,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	//RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,    "Зачет долгового документа\tCtrl-E"
 	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
-	CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
+	CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "@{docreatemrptab}\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,         "@{unite_docs}\tCtrl-U"
 	WROFFDRAFT       :  kbCtrlW,    TBBM_WROFFDRAFT,      "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
@@ -510,7 +510,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,      "Зачет долгового документа\tCtrl-E"
 	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
-	CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
+	CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "@{docreatemrptab}\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,         "@{unite_docs}\tCtrl-U"
 	//WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,        "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
@@ -609,7 +609,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,        "Зачет долгового документа\tCtrl-E"
 	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,         "@{docomparedocuments}\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,            "@{oprkind}\tCtrl-Q"
-	//CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
+	//CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "@{docreatemrptab}\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,           "@{unite_docs}\tCtrl-U"
 	//WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,          "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,          "@{view_trfranlz}\tCtrl-T"
@@ -896,7 +896,7 @@ toolbar export SALARY TB_FIRST_TOOLBAR {
 toolbar export ARTICLE TB_FIRST_TOOLBAR {
 	EDITITEM      : kbEnter,  PPDV_EDITFILE02,      "@{edit}\tEnter"
 	ADDITEM       : kbIns,    PPDV_ADDFILE02,       "@{add}\tInsert"
-	ADDGROUP      : kbCtrlA,  TBBM_NEWFOLDER,       "Создать группирующую папку\tCtrl-A"
+	ADDGROUP      : kbCtrlA,  TBBM_NEWFOLDER,       "@{docreategroupingfolder}\tCtrl-A"
 	DELETEITEM    : kbDel,    PPDV_DELETEFILE02,    "@{delete}\tDelete"
 	DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,     "@{doupdateall}\tCtrl-F8"
 	separator
@@ -7777,6 +7777,7 @@ record Goods2 {
 	CodeCD         zstring(32)         "Штрихкод с форсированной контрольной цифрой";
 	AddedCode      zstring(32)         "Дополнительный штрихкод";
 	AddedCodeQtty  double format(10.4) "Количество для доп штрихкода";
+	PreferredCode  zstring(32)         "Предпочтительный штрихкод"; // @v10.9.9
 	GrpID          long                "Идентификатор группы"; // @v7.9.1
 	GrpCode        zstring(32)         "Код группы";
 	GrpName        zstring(128)        "@{groupname}";

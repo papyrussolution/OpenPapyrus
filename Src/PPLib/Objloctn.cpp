@@ -1128,7 +1128,7 @@ int PPObjLocation::ResolveWhCellList(const PPIDArray * pList, long options, PPID
 	int    ok = 1;
 	PPIDArray temp_list, wh_list;
 	if(!pList) {
-		GetWarehouseList(&wh_list);
+		GetWarehouseList(&wh_list, 0);
 		pList = &wh_list;
 	}
 	assert(pList); // @paranoic
@@ -1340,7 +1340,7 @@ int LocationView::transmit(PPID)
 		PPObjLocation loc_obj;
 		PPIDArray wh_list;
 		const PPIDArray & rary = param.DestDBDivList.Get();
-		loc_obj.GetWarehouseList(&wh_list);
+		loc_obj.GetWarehouseList(&wh_list, 0);
 		PPObjIDArray objid_ary;
 		PPWait(1);
 		THROW(objid_ary.Add(PPOBJ_LOCATION, wh_list));
@@ -2887,7 +2887,7 @@ public:
 		MEMSZERO(Cfg);
 	}
 	PPID   GetSingleWarehouse();
-	uint   GetWarehouseList(PPIDArray * pList);
+	uint   GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions);
 	int    CheckWarehouseFlags(PPID locID, long f);
 	PPID   FASTCALL ObjToWarehouse(PPID arID, int ignoreRights);
 	PPID   FASTCALL WarehouseToObj(PPID locID, int ignoreRights);
@@ -3210,9 +3210,10 @@ PPID LocationCache::GetSingleWarehouse()
 	return id;
 }
 
-uint LocationCache::GetWarehouseList(PPIDArray * pList)
+uint LocationCache::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 {
 	uint   c = 0;
+	bool   has_resrictions = false;
 	LoadWarehouseTab();
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
@@ -3222,9 +3223,12 @@ uint LocationCache::GetWarehouseList(PPIDArray * pList)
 				CALLPTRMEMB(pList, add(p_entry->LocID));
 				c++;
 			}
+			else
+				has_resrictions = true;
 		}
 	}
 	CALLPTRMEMB(pList, sortAndUndup());
+	ASSIGN_PTR(pHasRestrictions, has_resrictions);
 	return c;
 }
 
@@ -3513,10 +3517,10 @@ PPID PPObjLocation::GetSingleWarehouse()
 	return p_cache ? p_cache->GetSingleWarehouse() : 0;
 }
 
-uint PPObjLocation::GetWarehouseList(PPIDArray * pList)
+uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (Obj);
-	return p_cache ? p_cache->GetWarehouseList(pList) : 0;
+	return p_cache ? p_cache->GetWarehouseList(pList, pHasRestrictions) : 0;
 }
 
 /*static*/int FASTCALL PPObjLocation::CheckWarehouseFlags(PPID locID, long f)

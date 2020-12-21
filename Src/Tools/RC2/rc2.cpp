@@ -1,5 +1,5 @@
 // RC2.CPP
-// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019
+// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #include "rc2.h"
@@ -364,11 +364,11 @@ int Rc2Data::AddRecord(const char * pName, SString & rErrMsg)
 
 long Rc2Data::ResolveRFileOption(const char * pSymbol, SString & rErrMsg)
 {
-	if(_stricmp(pSymbol, "TEXT") == 0)
+	if(sstreqi_ascii(pSymbol, "TEXT"))
 		return PPRFILEF_TEXT;
-	else if(_stricmp(pSymbol, "DISTRIB") == 0)
+	else if(sstreqi_ascii(pSymbol, "DISTRIB"))
 		return PPRFILEF_DISTRIB;
-	else if(_stricmp(pSymbol, "UPD") == 0)
+	else if(sstreqi_ascii(pSymbol, "UPD"))
 		return PPRFILEF_UPD;
 	else {
 		rErrMsg.Printf("Undefined file option '%s'", pSymbol);
@@ -379,47 +379,47 @@ long Rc2Data::ResolveRFileOption(const char * pSymbol, SString & rErrMsg)
 long Rc2Data::ResolveRPathSymb(const char * pSymbol, SString & rCppMnem, SString & rErrMsg)
 {
 	rCppMnem = "PPPATH_";
-	if(_stricmp(pSymbol, "BIN") == 0) {
+	if(sstreqi_ascii(pSymbol, "BIN")) {
 		rCppMnem.Cat("BIN");
 		return PPPATH_BIN;
 	}
-	else if(_stricmp(pSymbol, "DD") == 0) {
+	else if(sstreqi_ascii(pSymbol, "DD")) {
 		rCppMnem.Cat("DD");
 		return PPPATH_DD;
 	}
-	else if(_stricmp(pSymbol, "LOG") == 0) {
+	else if(sstreqi_ascii(pSymbol, "LOG")) {
 		rCppMnem.Cat("LOG");
 		return PPPATH_LOG;
 	}
-	else if(_stricmp(pSymbol, "LOCAL") == 0) {
+	else if(sstreqi_ascii(pSymbol, "LOCAL")) {
 		rCppMnem.Cat("LOCAL");
 		return PPPATH_LOCAL;
 	}
-	else if(_stricmp(pSymbol, "WTM") == 0) {
+	else if(sstreqi_ascii(pSymbol, "WTM")) {
 		rCppMnem.Cat("WTM");
 		return PPPATH_WTM;
 	}
-	else if(_stricmp(pSymbol, "PACK") == 0) {
+	else if(sstreqi_ascii(pSymbol, "PACK")) {
 		rCppMnem.Cat("PACK");
 		return PPPATH_PACK;
 	}
-	else if(_stricmp(pSymbol, "IN") == 0) {
+	else if(sstreqi_ascii(pSymbol, "IN")) {
 		rCppMnem.Cat("IN");
 		return PPPATH_IN;
 	}
-	else if(_stricmp(pSymbol, "OUT") == 0) {
+	else if(sstreqi_ascii(pSymbol, "OUT")) {
 		rCppMnem.Cat("OUT");
 		return PPPATH_OUT;
 	}
-	else if(_stricmp(pSymbol, "TEMP") == 0) {
+	else if(sstreqi_ascii(pSymbol, "TEMP")) {
 		rCppMnem.Cat("TEMP");
 		return PPPATH_TEMP;
 	}
-	else if(_stricmp(pSymbol, "SYSROOT") == 0) {
+	else if(sstreqi_ascii(pSymbol, "SYSROOT")) {
 		rCppMnem.Cat("SYSROOT");
 		return PPPATH_SYSROOT;
 	}
-	else if(_stricmp(pSymbol, "DOC") == 0) {
+	else if(sstreqi_ascii(pSymbol, "DOC")) {
 		rCppMnem.Cat("DOC");
 		return PPPATH_DOC;
 	}
@@ -738,17 +738,17 @@ int Rc2Data::GenerateCmdDefinitions()
 		STRNSCPY(name, p_cmd->Name);
 		fprintf(pRc, "\n%s%s PP_RCDECLCMD {\n", P_CmPrefix, _strupr(name));
 		strip(p_cmd->IconIdent);
-		if(_stricmp(p_cmd->IconIdent, "none") == 0) {
+		if(sstreqi_ascii(p_cmd->IconIdent, "none")) {
 			p_cmd->IconIdent[0] = '0';
 			p_cmd->IconIdent[1] = 0;
 		}
 		strip(p_cmd->ToolbarIdent);
-		if(_stricmp(p_cmd->ToolbarIdent, "none") == 0) {
+		if(sstreqi_ascii(p_cmd->ToolbarIdent, "none")) {
 			p_cmd->ToolbarIdent[0] = '0';
 			p_cmd->ToolbarIdent[1] = 0;
 		}
 		strip(p_cmd->MenuCmdIdent);
-		if(_stricmp(p_cmd->MenuCmdIdent, "none") == 0) {
+		if(sstreqi_ascii(p_cmd->MenuCmdIdent, "none")) {
 			p_cmd->MenuCmdIdent[0] = '0';
 			p_cmd->MenuCmdIdent[1] = 0;
 		}
@@ -911,9 +911,7 @@ int Rc2Data::GenerateCtrlMenuDefinitions()
 int Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 {
 #define DO_CREATE_VECT_STORAGE 1
-
 	const char * p_whtm_obj_symb = "DrawFigure";
-
 	int    ok = -1;
 	if(DrawVectorList.getCount()) {
 #if DO_CREATE_VECT_STORAGE
@@ -935,7 +933,7 @@ int Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 						tool_item.FigPath = r_item.FileName;
 						tool_item.PicSize = 32;
 						tool_item.FigSize = 64;
-						tool_item.ReplacedColor = r_item.ReplacedColor; // @v9.2.7
+						tool_item.ReplacedColor = r_item.ReplacedColor;
 						THROW(tool_array.Set(tool_item, 0));
 						ok = 1;
 					}
@@ -945,7 +943,7 @@ int Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 		}
 		if(ok > 0) {
 			if(!isempty(pStorageFileName)) {
-#if DO_CREATE_VECT_STORAGE // @construction
+#if DO_CREATE_VECT_STORAGE
 				THROW(tool_array.Store(pStorageFileName));
 #endif
 			}

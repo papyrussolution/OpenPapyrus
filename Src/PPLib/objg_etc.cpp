@@ -625,7 +625,7 @@ int PPObjGoodsValRestr::PutPacket(PPID * pID, const PPGoodsValRestrPacket * pPac
 int PPObjGoodsValRestr::IsPacketEq(const PPGoodsValRestrPacket & rS1, const PPGoodsValRestrPacket & rS2, long flags)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
-#define CMP_MEMBS(m) if(strcmp(rS1.Rec.m, rS2.Rec.m) != 0) return 0;
+#define CMP_MEMBS(m) if(!sstreq(rS1.Rec.m, rS2.Rec.m)) return 0;
 	CMP_MEMB(ID);
 	CMP_MEMBS(Name);
 	CMP_MEMBS(Symb);

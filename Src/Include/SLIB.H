@@ -90,16 +90,21 @@
 	#endif
 	#define STRICT
 	#define OEMRESOURCE
-	#define _WIN32_WINDOWS 0x0410 // @papyrus @v4.1.12
-	#define SECURITY_WIN32        // @v6.5.12
+	#define _WIN32_WINDOWS 0x0410
+	#define SECURITY_WIN32
 	#ifndef _WIN32_IE
-		#define _WIN32_IE 0x0500
+		#if _MSC_VER < 1900 // @v10.9.9 
+			#define _WIN32_IE 0x0500
+		#else
+			#define _WIN32_IE 0x0700 // =_WIN32_IE_IE70 @v10.9.9
+		#endif
 	#endif
 	#if _M_X64
 		#pragma pack(push)
 		#pragma pack(8)
 	#endif
 	#include <winsock2.h>
+	#include <ws2tcpip.h> // @v10.9.9
 	#if _M_X64
 		#pragma pack(pop)
 	#endif
@@ -3283,7 +3288,7 @@ private:
 //
 //
 //
-class FPoint {
+class FPoint { // @persistent
 public:
 	//
 	// Descr: Конструктор по умолчанию. Ради скорости ничего не инициализирует.
@@ -4398,7 +4403,6 @@ char * FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 wchar_t * FASTCALL strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
-// @v9.9.5 (unused) char * wstrcpy(char * pDest, const char * pSrc, size_t maxlen);
 char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);
 uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc);
@@ -9163,16 +9167,16 @@ public:
 		mtExample
 	};
 	enum {
-		Unkn             =  0,
-		Txt              =  1,
-		Jpeg             =  2,
-		Png              =  3,
-		Tiff             =  4,
-		Gif              =  5,
-		Bmp              =  6,
-		Ico              =  7,
-		Cur              =  8,
-		Svg              =  9,
+		Unkn             =  0,  //
+		Txt              =  1,  //
+		Jpeg             =  2,  //
+		Png              =  3,  //
+		Tiff             =  4,  //
+		Gif              =  5,  //
+		Bmp              =  6,  //
+		Ico              =  7,  //
+		Cur              =  8,  //
+		Svg              =  9,  //
 		Html             = 10,  //
 		Xml              = 11,  //
 		Ini              = 12,  //
@@ -9188,79 +9192,79 @@ public:
 		TxtBomBOCU1      = 22,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomGB18030    = 23,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		Latex            = 24,  // LATEX
-		Pdf              = 25,
-		Rtf              = 26,
-		Mdb              = 27,
+		Pdf              = 25,  //
+		Rtf              = 26,  // 
+		Mdb              = 27,  //
 		AccDb            = 28,  // Access
 		WbXml            = 29,  // Binary XML
-		Wmf              = 30,
-		Eps              = 31,
-		Hlp              = 32,
+		Wmf              = 30,  //
+		Eps              = 31,  //
+		Hlp              = 32,  //
 		Ppd              = 33,  // PostScript
 		PList            = 34,  // Property List
 		Mat              = 35,  // Matlab
-		Pdb              = 36,
+		Pdb              = 36,  //
 		WcbffOld         = 37,  // Windows Compound Binary File Format
-		Zip              = 38,  // @v9.0.0 Archive
-		Rar              = 39,  // @v9.0.0 Archive
-		Gz               = 40,  // @v9.0.0 Archive
-		Tar              = 41,  // @v9.0.0 Archive
-		Bz2              = 42,  // @v9.0.0 Archive
-		SevenZ           = 43,  // @v9.0.0 Archive
-		Xz               = 44,  // @v9.0.0 Archive
-		Z                = 45,  // @v9.0.0 Archive
-		Cab              = 46,  // @v9.0.0 Archive
-		Arj              = 47,  // @v9.0.0 Archive
-		Lzh              = 48,  // @v9.0.0 Archive
-		Xar              = 49,  // @v9.0.0 Archive
-		Pmd              = 50,  // @v9.0.0 Archive
-		Deb              = 51,  // @v9.0.0 Archive
-		Rpm              = 52,  // @v9.0.0 Archive
-		Chm              = 53,  // @v9.0.0 Archive
-		Iso              = 54,  // @v9.0.0 Archive
-		Vhd              = 55,  // @v9.0.0 Archive
-		Wim              = 56,  // @v9.0.0 Archive
-		Mdf              = 57,  // @v9.0.0 Archive
-		Nri              = 58,  // @v9.0.0 Archive
-		Swf              = 59,  // @v9.0.0 Archive
-		Mar              = 60,  // @v9.0.0 Archive
-		Mkv              = 61,  // @v9.0.9 Video
-		Avi              = 62,  // @v9.0.9 Video
-		Mp4              = 63,  // @v9.0.9 Video
-		Wmv              = 64,  // @v9.0.9 Video
-		Mpg              = 65,  // @v9.0.9 Video
-		Flv              = 66,  // @v9.0.9 Video
-		Mov              = 67,  // @v9.0.9 Video
-		F4f              = 68,  // @v9.0.9 Video
-		Class            = 69,  // @v9.0.9 binary:class 0:CAFEBABE
-		Exe              = 70,  // @v9.0.9 binary:exe   0:4D5A
-		Dll              = 71,  // @v9.0.9 binary:dll   0:4D5A
-		Pcap             = 72,  // @v9.0.9 binary:pcap  0:D4C3B2A1
-		Pyo              = 73,  // @v9.0.9 binary:pyo   0:03F30D0A
-		So               = 74,  // @v9.0.9 binary:so    0:7F454C46
-		Mo               = 75,  // @v9.0.9 binary:mo    0:DE120495
-		Mui              = 76,  // @v9.0.9 binary:mui   0:50413330
-		Cat              = 77,  // @v9.0.9 binary:cat   0:30 6:2A864886
-		Xsb              = 78,  // @v9.0.9 binary:xsb   0:DA7ABABE
-		Key              = 79,  // @v9.0.9 binary:key   0:4B4C737727
-		Sq3              = 80,  // @v9.0.9 binary:sq3   0:53514C697465
-		Qst              = 81,  // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
-		Crx              = 82,  // @v9.0.9 binary:crx   0:43723234
-		Utx              = 83,  // @v9.0.9 binary:utx   0:4C0069006E006500610067006500
-		Rx3              = 84,  // @v9.0.9 binary:rx3   0:52583362
-		Kdc              = 85,  // @v9.0.9 binary:kdc   0:44494646
-		Xnb              = 86,  // @v9.0.9 binary:xnb   0:584E42
-		Blp              = 87,  // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
-		Big              = 88,  // @v9.0.9 binary:big   0:42494746
-		Mdl              = 89,  // @v9.0.9 binary:mdl   0:49445354
-		Spr              = 90,  // @v9.0.9 binary:spr   0:CDCC8C3F
-		Sfo              = 91,  // @v9.0.9 binary:sfo   0:00505346
-		Mpq              = 92,  // @v9.0.9 binary:mpq   0:4D50511A
-		Nes              = 93,  // @v9.0.9 binary:nes   0:4E45531A
-		Dmp              = 94,  // @v9.0.9 binary:dmp   0:4D444D5093A7
-		Dex              = 95,  // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
-		Gim              = 96,  // @v9.0.9 binary:gim   0:4D49472E30302E31505350
-		Amxx             = 97,  // @v9.0.9 binary:amxx  0:58584D41
+		Zip              = 38,  // Archive
+		Rar              = 39,  // Archive
+		Gz               = 40,  // Archive
+		Tar              = 41,  // Archive
+		Bz2              = 42,  // Archive
+		SevenZ           = 43,  // Archive
+		Xz               = 44,  // Archive
+		Z                = 45,  // Archive
+		Cab              = 46,  // Archive
+		Arj              = 47,  // Archive
+		Lzh              = 48,  // Archive
+		Xar              = 49,  // Archive
+		Pmd              = 50,  // Archive
+		Deb              = 51,  // Archive
+		Rpm              = 52,  // Archive
+		Chm              = 53,  // Archive
+		Iso              = 54,  // Archive
+		Vhd              = 55,  // Archive
+		Wim              = 56,  // Archive
+		Mdf              = 57,  // Archive
+		Nri              = 58,  // Archive
+		Swf              = 59,  // Archive
+		Mar              = 60,  // Archive
+		Mkv              = 61,  // Video
+		Avi              = 62,  // Video
+		Mp4              = 63,  // Video
+		Wmv              = 64,  // Video
+		Mpg              = 65,  // Video
+		Flv              = 66,  // Video
+		Mov              = 67,  // Video
+		F4f              = 68,  // Video
+		Class            = 69,  // binary:class 0:CAFEBABE
+		Exe              = 70,  // binary:exe   0:4D5A
+		Dll              = 71,  // binary:dll   0:4D5A
+		Pcap             = 72,  // binary:pcap  0:D4C3B2A1
+		Pyo              = 73,  // binary:pyo   0:03F30D0A
+		So               = 74,  // binary:so    0:7F454C46
+		Mo               = 75,  // binary:mo    0:DE120495
+		Mui              = 76,  // binary:mui   0:50413330
+		Cat              = 77,  // binary:cat   0:30 6:2A864886
+		Xsb              = 78,  // binary:xsb   0:DA7ABABE
+		Key              = 79,  // binary:key   0:4B4C737727
+		Sq3              = 80,  // binary:sq3   0:53514C697465
+		Qst              = 81,  // binary:qst   0:0401C4030000 binary:qst   0:040180040000
+		Crx              = 82,  // binary:crx   0:43723234
+		Utx              = 83,  // binary:utx   0:4C0069006E006500610067006500
+		Rx3              = 84,  // binary:rx3   0:52583362
+		Kdc              = 85,  // binary:kdc   0:44494646
+		Xnb              = 86,  // binary:xnb   0:584E42
+		Blp              = 87,  // binary:blp   0:424C5031 binary:blp   0:424C5032
+		Big              = 88,  // binary:big   0:42494746
+		Mdl              = 89,  // binary:mdl   0:49445354
+		Spr              = 90,  // binary:spr   0:CDCC8C3F
+		Sfo              = 91,  // binary:sfo   0:00505346
+		Mpq              = 92,  // binary:mpq   0:4D50511A
+		Nes              = 93,  // binary:nes   0:4E45531A
+		Dmp              = 94,  // binary:dmp   0:4D444D5093A7
+		Dex              = 95,  // binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
+		Gim              = 96,  // binary:gim   0:4D49472E30302E31505350
+		Amxx             = 97,  // binary:amxx  0:58584D41
 		Sln              = 98,  // Visual Studio Solution
 		VCProj           = 99,  // Visual Studio Project
 		Asm              = 100, // Assempbler source file
@@ -9273,18 +9277,23 @@ public:
 		Py               = 107, // Python source code
 		UnixShell        = 108, // Unix Shell script
 		Msi              = 109, // Microsoft Installer package
-		TxtUtf8          = 110, // @v9.3.6 Текст в формате utf8
-		TxtAscii         = 111, // @v9.3.6 Текст в котором только ASCII-символы
-		Log              = 112, // @v9.7.1 Файл журнала (by ext only)
-		Properties       = 113, // @v9.7.1 Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
-		Css              = 114, // @v9.7.1 CSS
-		JavaScript       = 115, // @v9.7.1 JS
-		Json             = 116, // @v9.7.2
-		Pbxproj          = 117, // @v9.8.1 Файл проекта xcode
-		PapyruDbDivXchg  = 118, // @v9.8.11 Приватный формат проекта Papyrus: файл обмена данными между разделами
+		TxtUtf8          = 110, // Текст в формате utf8
+		TxtAscii         = 111, // Текст в котором только ASCII-символы
+		Log              = 112, // Файл журнала (by ext only)
+		Properties       = 113, // Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
+		Css              = 114, // CSS
+		JavaScript       = 115, // JS
+		Json             = 116, // 
+		Pbxproj          = 117, // Файл проекта xcode
+		PapyruDbDivXchg  = 118, // Приватный формат проекта Papyrus: файл обмена данными между разделами
 		Csv              = 119, // @v10.8.0 comma-separated-values
 		Xsd              = 120, // @v10.8.0 xml-schema-documentation
 		Gravity          = 121, // @v10.8.2 gravity-source (язык gravity)
+		VCProjFilers     = 122, // @v10.9.9 Visual Studio Project Filters
+		VCProjUser       = 123, // @v10.9.9 Visual Studio Project User
+		CodeBlocks_Cbp   = 124, // @v10.9.9 Code::Blocks Project File
+		M4               = 125, // @v10.9.9 m4 Macroprocessor
+		Tsv              = 126, // @v10.9.9 tab-separated-values
 
 		FirstUser        = 10000
 	};
@@ -10160,7 +10169,6 @@ private:
 	int    Swaps;
 	int    Subs;
 	SString Pattern;
-	// @v9.9.4 SString Temp__;
 	BitArray Track1;
 	BitArray Track2;
 	ApproxStrSrchParam P;
@@ -11488,7 +11496,7 @@ void FASTCALL SInflateRect(RECT & rRect, int cx, int cy);
 #define SHAPE_POLYLINE    10
 #define SHAPE_ROUNDEDRECT 11
 
-struct FRect {
+struct FRect { // @persistent
 	FRect();
 	FRect(float left, float top, float right, float bottom);
 	FRect(float width, float height);
@@ -12054,13 +12062,12 @@ public:
 		// в которой записывались.
 		//
 		fSeparateDataStruct    = 0x0001,
-		fDontProcessAttachment = 0x0002, // @v9.8.11 Запрет на сериализацию связанных blob'ов (которые могут быть пропущены)
+		fDontProcessAttachment = 0x0002, // Запрет на сериализацию связанных blob'ов (которые могут быть пропущены)
 		fUseCompression        = 0x0004  // @v10.2.3 Ряд функций сериализации может использовать сжатие данных
 	};
 
 	static size_t FASTCALL GetCompressPrefix(uint8 * pBuf); // size of pBuf >= 8
 	static int    FASTCALL IsCompressPrefix(const void * pBuf);
-
 	SSerializeContext();
 	~SSerializeContext();
 	void   Init(long flags, LDATE suppDate);
@@ -12109,6 +12116,7 @@ public:
 	int    SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf);
 	int    Serialize(int dir, TPoint & rV, SBuffer & rBuf);
 	int    Serialize(int dir, FPoint & rV, SBuffer & rBuf);
+	int    Serialize(int dir, FRect & rV, SBuffer & rBuf);
 	int    Serialize(int dir, SArray * pArray, SBuffer & rBuf);
 	int    Serialize(int dir, SVector * pArray, SBuffer & rBuf);
 	int    Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf);
@@ -12120,8 +12128,75 @@ public:
 	//   В поток заносится разница в днях между сохраняемой датой и опорной датой.
 	//
 	LDATE  GetSupportingDate() const;
-	int    AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID); // @v9.8.11 private-->public
-	int    GetDbtDescr(uint id, BNFieldList * pList) const; // @v9.8.11 private-->public
+	int    AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID);
+	int    GetDbtDescr(uint id, BNFieldList * pList) const;
+	//
+	// Локальные сигнатурные теги могут использоваться для информирования функций сеймейства Serialize
+	//   об особенностях чтения/записи в поток.
+	//   Идея использования следующая: функция верхнего уровня, вызывающая Serailize для какого-либо
+	//   объекта, который "знает" о локальных сигнатурных тегах, устанавливает значение тега перед
+	//   вызовом, сигнализируя соответствующей функции, а та в свою очередь учтет этот сигнал
+	//   при чтении/записи.
+	//   Фактически, это - способ дополнительной параметризации функций семейства Serialize
+	//
+	//   Например:
+	//   
+	// class Abc {
+	// public:
+	// 	int Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+	// 	{
+	// 		int    ok = 1;
+	// 		uint32 signature_tag = 0;
+	// 		Serialize(dir, Member01, pSCtx);
+	// 		Serialize(dir, Member02, pSCtx);
+	// 		// При записи в буфер работаем как обычно, при чтении - считываем Member03 только если
+	// 		// сигнатурный тег соответствующий ABC_SIGNATIRE больше 10.
+	// 		if(dir > 0 || (pSCtx->GetLocaSignatureTag(ABC_SIGNATURE, &signature_tag) && signature_tag > 10)) {
+	// 			Serialize(dir, Member03, pSCtx);
+	// 		}
+	// 		return ok;
+	// 	}
+	// private:
+	// 	long   Member01;
+	// 	double Member02;
+	// 	uint   Member03;
+	// };
+	//
+	// void Foo(SBuffer & rBuf, int storageVer)
+	// {
+	// 	Abc abc;
+	// 	SSerializeContext sctx;
+	// 	//
+	// 	// Функция Foo сигнализирует функции Abc::Serialize() о том, что версия записи в буфер
+	// 	// равна storageVer. При этом, если Abc::Serialize() будет вызывать какие-либо иные
+	// 	// методы, использующие контекст sctx, то они проигнорируют тег с сигнатурой ABC_SIGNATURE,
+	// 	// ибо ничего о нем не знают.
+	// 	//
+	// 	sctx.SetLocalSignatureTag(ABC_SIGNATURE, (uint32)storageVer);
+	// 	abc.Serialize(-1, rBuf, &sctx);
+	// 	// после использования сбрасываем теги с сигнатурой ABC_SIGNATURE дабы избежать побочных эффектов
+	// 	// при дальнейшем использовании экземпляра sctx (если таковое предполагается).
+	// 	sctx.ResetLocalSignatureTag(ABC_SIGNATURE); 
+	// }
+	//
+
+	//   
+	// Descr: Устанавливает локальный сигнатурный тег signature в значение tag.
+	//
+	void   SetLocalSignatureTag(uint32 signature, uint32 tag);
+	//   
+	// Descr: Удаляет локальный сигнатурный тег signature
+	//
+	void   ResetLocalSignatureTag(uint32 signature);
+	//
+	// Descr: Если локальный сигнатурный тег signature задан, то возвращает его 
+	//   значение по указателю pTag. В противном случае значение *pTag остается неизменным.
+	//   Если pTag == 0, то функция работает так же, но ничего не присваивает по этому указателю.
+	// Returns:
+	//   >0 - локальный сигнатурный тег signature найден и его значение присвоено по указателю pTag
+	//    0 - локальный сигнатурный тег signature не найден.
+	//
+	int    GetLocalSignatureTag(uint32 signature, uint32 * pTag) const;
 private:
 	long   State;
 	long   Flags;
@@ -12129,6 +12204,7 @@ private:
 	LDATE  SuppDate;   // Опорная дата.
 	SymbHashTable SymbTbl;
 	SCollection * P_DbtDescrList;
+	LAssocArray LocalSignatureTagList; // @v10.9.9
 	SString TempStrBuf;   // @allocreuse
 	SBuffer TempSBuf;     // @allocreuse
 	STempBuffer TempDataBuf;

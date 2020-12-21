@@ -30,113 +30,104 @@
 #include "hb-open-type.hh"
 
 namespace OT {
-
-
 /*
  * maxp -- Maximum Profile
  * https://docs.microsoft.com/en-us/typography/opentype/spec/maxp
  */
 
-#define HB_OT_TAG_maxp HB_TAG('m','a','x','p')
+#define HB_OT_TAG_maxp HB_TAG('m', 'a', 'x', 'p')
 
-struct maxpV1Tail
-{
-  bool sanitize (hb_sanitize_context_t *c) const
-  {
-    TRACE_SANITIZE (this);
-    return_trace (c->check_struct (this));
-  }
+	struct maxpV1Tail {
+		bool sanitize(hb_sanitize_context_t * c) const
+		{
+			TRACE_SANITIZE(this);
+			return_trace(c->check_struct(this));
+		}
+		HBUINT16 maxPoints; /* Maximum points in a non-composite glyph. */
+		HBUINT16 maxContours; /* Maximum contours in a non-composite glyph. */
+		HBUINT16 maxCompositePoints; /* Maximum points in a composite glyph. */
+		HBUINT16 maxCompositeContours; /* Maximum contours in a composite glyph. */
+		HBUINT16 maxZones; /* 1 if instructions do not use the twilight zone (Z0),
+		                    * or 2 if instructions do use Z0; should be set to 2 in
+		                    * most cases. */
+		HBUINT16 maxTwilightPoints; /* Maximum points used in Z0. */
+		HBUINT16 maxStorage; /* Number of Storage Area locations. */
+		HBUINT16 maxFunctionDefs; /* Number of FDEFs, equal to the highest function number + 1. */
+		HBUINT16 maxInstructionDefs; /* Number of IDEFs. */
+		HBUINT16 maxStackElements; /* Maximum stack depth. (This includes Font and CVT
+		                            * Programs, as well as the instructions for each glyph.) */
+		HBUINT16 maxSizeOfInstructions; /* Maximum byte count for glyph instructions. */
+		HBUINT16 maxComponentElements; /* Maximum number of components referenced at
+		                                * "top level" for any composite glyph. */
+		HBUINT16 maxComponentDepth; /* Maximum levels of recursion; 1 for simple components. */
+public:
+		DEFINE_SIZE_STATIC(26);
+	};
 
-  HBUINT16 maxPoints;		  /* Maximum points in a non-composite glyph. */
-  HBUINT16 maxContours;		  /* Maximum contours in a non-composite glyph. */
-  HBUINT16 maxCompositePoints;	  /* Maximum points in a composite glyph. */
-  HBUINT16 maxCompositeContours;  /* Maximum contours in a composite glyph. */
-  HBUINT16 maxZones;		  /* 1 if instructions do not use the twilight zone (Z0),
-				   * or 2 if instructions do use Z0; should be set to 2 in
-				   * most cases. */
-  HBUINT16 maxTwilightPoints;	  /* Maximum points used in Z0. */
-  HBUINT16 maxStorage;		  /* Number of Storage Area locations. */
-  HBUINT16 maxFunctionDefs;	  /* Number of FDEFs, equal to the highest function number + 1. */
-  HBUINT16 maxInstructionDefs;	  /* Number of IDEFs. */
-  HBUINT16 maxStackElements;	  /* Maximum stack depth. (This includes Font and CVT
-				   * Programs, as well as the instructions for each glyph.) */
-  HBUINT16 maxSizeOfInstructions; /* Maximum byte count for glyph instructions. */
-  HBUINT16 maxComponentElements;  /* Maximum number of components referenced at
-				   * "top level" for any composite glyph. */
-  HBUINT16 maxComponentDepth;	  /* Maximum levels of recursion; 1 for simple components. */
- public:
-  DEFINE_SIZE_STATIC (26);
-};
+	struct maxp {
+		static constexpr hb_tag_t tableTag = HB_OT_TAG_maxp;
 
+		unsigned int get_num_glyphs() const {
+			return numGlyphs;
+		}
 
-struct maxp
-{
-  static constexpr hb_tag_t tableTag = HB_OT_TAG_maxp;
+		void set_num_glyphs(unsigned int count)
+		{
+			numGlyphs = count;
+		}
 
-  unsigned int get_num_glyphs () const { return numGlyphs; }
+		bool sanitize(hb_sanitize_context_t * c) const
+		{
+			TRACE_SANITIZE(this);
+			if(unlikely(!c->check_struct(this)))
+				return_trace(false);
 
-  void set_num_glyphs (unsigned int count)
-  {
-    numGlyphs = count;
-  }
+			if(version.major == 1) {
+				const maxpV1Tail &v1 = StructAfter<maxpV1Tail> (*this);
+				return_trace(v1.sanitize(c));
+			}
+			return_trace(likely(version.major == 0 && version.minor == 0x5000u));
+		}
 
-  bool sanitize (hb_sanitize_context_t *c) const
-  {
-    TRACE_SANITIZE (this);
-    if (unlikely (!c->check_struct (this)))
-      return_trace (false);
+		bool subset(hb_subset_context_t * c) const
+		{
+			TRACE_SUBSET(this);
+			maxp * maxp_prime = c->serializer->embed(this);
+			if(unlikely(!maxp_prime)) return_trace(false);
 
-    if (version.major == 1)
-    {
-      const maxpV1Tail &v1 = StructAfter<maxpV1Tail> (*this);
-      return_trace (v1.sanitize (c));
-    }
-    return_trace (likely (version.major == 0 && version.minor == 0x5000u));
-  }
+			maxp_prime->numGlyphs = c->plan->num_output_glyphs();
+			if(maxp_prime->version.major == 1) {
+				const maxpV1Tail * src_v1 = &StructAfter<maxpV1Tail> (*this);
+				maxpV1Tail * dest_v1 = c->serializer->embed<maxpV1Tail> (src_v1);
+				if(unlikely(!dest_v1)) return_trace(false);
 
-  bool subset (hb_subset_context_t *c) const
-  {
-    TRACE_SUBSET (this);
-    maxp *maxp_prime = c->serializer->embed (this);
-    if (unlikely (!maxp_prime)) return_trace (false);
+				if(c->plan->drop_hints)
+					drop_hint_fields(dest_v1);
+			}
 
-    maxp_prime->numGlyphs = c->plan->num_output_glyphs ();
-    if (maxp_prime->version.major == 1)
-    {
-      const maxpV1Tail *src_v1 = &StructAfter<maxpV1Tail> (*this);
-      maxpV1Tail *dest_v1 = c->serializer->embed<maxpV1Tail> (src_v1);
-      if (unlikely (!dest_v1)) return_trace (false);
+			return_trace(true);
+		}
 
-      if (c->plan->drop_hints)
-	drop_hint_fields (dest_v1);
-    }
+		static void drop_hint_fields(maxpV1Tail* dest_v1)
+		{
+			dest_v1->maxZones = 1;
+			dest_v1->maxTwilightPoints = 0;
+			dest_v1->maxStorage = 0;
+			dest_v1->maxFunctionDefs = 0;
+			dest_v1->maxInstructionDefs = 0;
+			dest_v1->maxStackElements = 0;
+			dest_v1->maxSizeOfInstructions = 0;
+		}
 
-    return_trace (true);
-  }
-
-  static void drop_hint_fields (maxpV1Tail* dest_v1)
-  {
-    dest_v1->maxZones = 1;
-    dest_v1->maxTwilightPoints = 0;
-    dest_v1->maxStorage = 0;
-    dest_v1->maxFunctionDefs = 0;
-    dest_v1->maxInstructionDefs = 0;
-    dest_v1->maxStackElements = 0;
-    dest_v1->maxSizeOfInstructions = 0;
-  }
-
-  protected:
-  FixedVersion<>version;/* Version of the maxp table (0.5 or 1.0),
-			 * 0x00005000u or 0x00010000u. */
-  HBUINT16	numGlyphs;
-			/* The number of glyphs in the font. */
+protected:
+		FixedVersion<>version;/* Version of the maxp table (0.5 or 1.0),
+		                       * 0x00005000u or 0x00010000u. */
+		HBUINT16 numGlyphs;
+		/* The number of glyphs in the font. */
 /*maxpV1Tail	v1Tail[HB_VAR_ARRAY]; */
-  public:
-  DEFINE_SIZE_STATIC (6);
-};
-
-
+public:
+		DEFINE_SIZE_STATIC(6);
+	};
 } /* namespace OT */
-
 
 #endif /* HB_OT_MAXP_TABLE_HH */

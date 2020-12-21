@@ -204,8 +204,8 @@ typedef struct ERR_string_data_st {
 
 DEFINE_LHASH_OF(ERR_STRING_DATA);
 
-void ERR_put_error(int lib, int func, int reason, const char *file, int line);
-void ERR_set_error_data(char *data, int flags);
+void  FASTCALL ERR_put_error(int lib, int func, int reason, const char *file, int line);
+void  ERR_set_error_data(char *data, int flags);
 ulong ERR_get_error(void);
 ulong ERR_get_error_line(const char **file, int *line);
 ulong ERR_get_error_line_data(const char **file, int *line, const char **data, int *flags);

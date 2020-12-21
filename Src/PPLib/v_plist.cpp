@@ -2929,7 +2929,7 @@ int PPALDD_PriceListData::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PriceListData::InitIteration(PPIterID iterId, int sortId, long)
+int PPALDD_PriceListData::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER_ORD(PriceList, static_cast<PPViewPriceList::IterOrder>(sortId));
 }

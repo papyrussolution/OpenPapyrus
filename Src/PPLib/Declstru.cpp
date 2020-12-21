@@ -372,7 +372,6 @@ int ReceiveCharryObjects(const RcvCharryParam * pParam)
 			PPWait(1);
 			THROW(PPGetPath(PPPATH_IN, path));
 			if(rcp.Action == RcvCharryParam::aRcvFromMail) {
-				// @v9.8.11 GetFilesFromMailServer-->GetFilesFromMailServer2
 				THROW(GetFilesFromMailServer2(rcp.MailAccID, path, SMailMessage::fPpyCharry, 0 /*don't clean*/, 1 /*dele msg*/));
 			}
 			//THROW(fary.Scan(path.SetLastSlash(), "*" CHARRYEXT));

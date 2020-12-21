@@ -458,7 +458,6 @@ X509 *X509_REQ_to_X509(X509_REQ *r, int days, EVP_PKEY *pkey);
 DECLARE_ASN1_FUNCTIONS(X509_ALGOR)
 DECLARE_ASN1_ENCODE_FUNCTIONS(X509_ALGORS, X509_ALGORS, X509_ALGORS)
 DECLARE_ASN1_FUNCTIONS(X509_VAL)
-
 DECLARE_ASN1_FUNCTIONS(X509_PUBKEY)
 
 int X509_PUBKEY_set(X509_PUBKEY **x, EVP_PKEY *pkey);
@@ -469,39 +468,30 @@ long X509_get_pathlen(X509 *x);
 int i2d_PUBKEY(EVP_PKEY *a, uchar **pp);
 EVP_PKEY *d2i_PUBKEY(EVP_PKEY **a, const uchar **pp, long length);
 #ifndef OPENSSL_NO_RSA
-int i2d_RSA_PUBKEY(RSA *a, uchar **pp);
-RSA *d2i_RSA_PUBKEY(RSA **a, const uchar **pp, long length);
+	int i2d_RSA_PUBKEY(RSA *a, uchar **pp);
+	RSA *d2i_RSA_PUBKEY(RSA **a, const uchar **pp, long length);
 #endif
 #ifndef OPENSSL_NO_DSA
-int i2d_DSA_PUBKEY(DSA *a, uchar **pp);
-DSA *d2i_DSA_PUBKEY(DSA **a, const uchar **pp, long length);
+	int i2d_DSA_PUBKEY(DSA *a, uchar **pp);
+	DSA *d2i_DSA_PUBKEY(DSA **a, const uchar **pp, long length);
 #endif
 #ifndef OPENSSL_NO_EC
-int i2d_EC_PUBKEY(EC_KEY *a, uchar **pp);
-EC_KEY *d2i_EC_PUBKEY(EC_KEY **a, const uchar **pp, long length);
+	int i2d_EC_PUBKEY(EC_KEY *a, uchar **pp);
+	EC_KEY *d2i_EC_PUBKEY(EC_KEY **a, const uchar **pp, long length);
 #endif
-
 DECLARE_ASN1_FUNCTIONS(X509_SIG)
 void X509_SIG_get0(const X509_SIG *sig, const X509_ALGOR **palg, const ASN1_OCTET_STRING **pdigest);
 void X509_SIG_getm(X509_SIG *sig, X509_ALGOR **palg, ASN1_OCTET_STRING **pdigest);
-
 DECLARE_ASN1_FUNCTIONS(X509_REQ_INFO)
 DECLARE_ASN1_FUNCTIONS(X509_REQ)
-
 DECLARE_ASN1_FUNCTIONS(X509_ATTRIBUTE)
 X509_ATTRIBUTE *X509_ATTRIBUTE_create(int nid, int atrtype, void *value);
-
 DECLARE_ASN1_FUNCTIONS(X509_EXTENSION)
 DECLARE_ASN1_ENCODE_FUNCTIONS(X509_EXTENSIONS, X509_EXTENSIONS, X509_EXTENSIONS)
-
 DECLARE_ASN1_FUNCTIONS(X509_NAME_ENTRY)
-
 DECLARE_ASN1_FUNCTIONS(X509_NAME)
-
 int X509_NAME_set(X509_NAME **xn, X509_NAME *name);
-
 DECLARE_ASN1_FUNCTIONS(X509_CINF)
-
 DECLARE_ASN1_FUNCTIONS(X509)
 DECLARE_ASN1_FUNCTIONS(X509_CERT_AUX)
 

@@ -554,7 +554,4 @@ int PPALDD_GoodsTurnovr::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_GoodsTurnovr::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(GoodsTrnovr);
-}
+void PPALDD_GoodsTurnovr::Destroy() { DESTROY_PPVIEW_ALDD(GoodsTrnovr); }

@@ -26,9 +26,6 @@
 #include "harfbuzz-internal.h"
 #pragma hdrstop
 #ifndef HB_NO_SUBSET_CFF
-#include "hb-ot-cff-common.hh"
-#include "hb-ot-cff2-table.hh"
-#include "hb-subset-cff-common.hh"
 
 /* Disable FDSelect format 0 for compatibility with fonttools which doesn't seem choose it.
  * Rarely any/much smaller than format 3 anyway. */
@@ -175,9 +172,7 @@ bool hb_serialize_cff_fdselect(hb_serialize_context_t * c,
 	if(unlikely(!p)) return_trace(false);
 	p->format = fdselect_format;
 	size -= FDSelect::min_size;
-
-	switch(fdselect_format)
-	{
+	switch(fdselect_format) {
 #if CFF_SERIALIZE_FDSELECT_0
 		case 0:
 	    {
@@ -195,15 +190,10 @@ bool hb_serialize_cff_fdselect(hb_serialize_context_t * c,
 		    return_trace(true);
 	    }
 #endif /* CFF_SERIALIZE_FDSELECT_0 */
-
 		case 3:
-		    return serialize_fdselect_3_4<FDSelect3> (c, num_glyphs, src,
-			       size, fdselect_ranges);
-
+		    return serialize_fdselect_3_4<FDSelect3> (c, num_glyphs, src, size, fdselect_ranges);
 		case 4:
-		    return serialize_fdselect_3_4<FDSelect4> (c, num_glyphs, src,
-			       size, fdselect_ranges);
-
+		    return serialize_fdselect_3_4<FDSelect4> (c, num_glyphs, src, size, fdselect_ranges);
 		default:
 		    return_trace(false);
 	}

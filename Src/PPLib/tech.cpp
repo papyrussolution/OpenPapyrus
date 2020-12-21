@@ -1826,14 +1826,10 @@ int PPALDD_TechView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_TechView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Tech);
-}
+void PPALDD_TechView::Destroy() { DESTROY_PPVIEW_ALDD(Tech); }
 //
 //
 //
-
 //#define _CMP(a,b,x) (((a)==(b)) ? (0 : ((a)<(b)) ? -1 : 1))
 
 class ToolingSelector {

@@ -59,16 +59,17 @@ PPViewShipmAnalyze::~PPViewShipmAnalyze()
 int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	class ShipmAnalyzeFiltDialog : public WLDialog {
+		DECL_DIALOG_DATA(ShipmAnalyzeFilt);
 	public:
 		ShipmAnalyzeFiltDialog() : WLDialog(DLG_SHANLZFLT, CTL_SHANLZFLT_LABEL)
 		{
 			SetupCalPeriod(CTLCAL_SHANLZFLT_PERIOD, CTL_SHANLZFLT_PERIOD);
 		}
-		int    setDTS(const ShipmAnalyzeFilt * pFilt)
+		DECL_DIALOG_SETDTS()
 		{
+			RVALUEPTR(Data, pData);
 			PPIDArray types;
 			PPOprKind opk;
-			Data = *pFilt;
 			const PPConfig & r_cfg = LConfig;
 			SETIFZ(Data.Period.low, r_cfg.InitDate);
 			SETIFZ(Data.Period.upp, r_cfg.OperDate);
@@ -84,7 +85,7 @@ int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 			setWL(BIN(Data.Flags & ShipmAnalyzeFilt::fLabelOnly));
 			return 1;
 		}
-		int    getDTS(ShipmAnalyzeFilt * pFilt)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			if(!GetPeriodInput(this, CTL_SHANLZFLT_PERIOD, &Data.Period) || !AdjustPeriodToRights(Data.Period, 1))
@@ -101,7 +102,7 @@ int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 					getCtrlData(CTLSEL_SHANLZFLT_LOC, &Data.LocID);
 					GetClusterData(CTL_SHANLZFLT_FLAGS, &Data.Flags);
 					SETFLAG(Data.Flags, ShipmAnalyzeFilt::fLabelOnly, getWL());
-					*pFilt = Data;
+					ASSIGN_PTR(pData, Data);
 				}
 			}
 			return ok;
@@ -131,7 +132,6 @@ int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 					selectNext();
 			}
 		}
-		ShipmAnalyzeFilt Data;
 	};
 	DIALOG_PROC_BODY(ShipmAnalyzeFiltDialog, static_cast<ShipmAnalyzeFilt *>(pFilt));
 }

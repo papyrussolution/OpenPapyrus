@@ -8586,7 +8586,7 @@ struct PPBankAccount { // @#=sizeof(RegisterTbl::Rec) @flat
 	long   AccType;      //
 };
 
-class RegisterArray : public SVector { // @v9.8.4 SArray-->SVector
+class RegisterArray : public SVector {
 public:
 	RegisterArray();
 	RegisterArray(const RegisterArray & s);
@@ -9669,6 +9669,7 @@ public:
 	};
 
 	PPTransferItem();
+	PPTransferItem(const PPTransferItem & rS);
 	PPTransferItem(const BillTbl::Rec * pBillRec, int forceSign /*= TISIGN_UNDEF*/);
 	PPTransferItem & FASTCALL operator = (const PPTransferItem &);
 	//
@@ -13883,7 +13884,7 @@ private:
 //
 struct PPEquipConfig { // @persistent @store(PropertyTbl)
 	PPEquipConfig();
-	PPID   GetCashierTabNumberRegTypeID();
+	PPID   GetCashierTabNumberRegTypeID() const;
 
 	enum {
 		fCheckScaleInput           = 0x00000001, // Сканировать весы при вводе документов
@@ -13916,6 +13917,7 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		fAutosaveSyncChecks        = 0x00020000, // Автоматически сохранять синхронные чеки при каждом изменении
 		fWrOffPartStrucs           = 0x00040000, // При списании кассовых сессий досписывать частичные структуры
 		fSkipPrintingZeroPrice     = 0x00080000, // @v10.0.12 В кассовых чеках не печатать строки с нулевой суммой
+		fAttachBillChecksToCSess   = 0x00100000  // @v10.9.9 При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии 
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
@@ -14616,6 +14618,12 @@ public:
 
 	CCheckCore();
 	~CCheckCore();
+	//
+	// Descr: возвращает константную ссылку на конфигурацию оборудования, считанную
+	//   при создании экземпляра объекта. 
+	// Note: В течении жизни объекта этот экземпляр конфигурации не меняется.
+	//
+	const  PPEquipConfig & GetEqCfg() const; // @v10.9.9
 	int    Search(PPID, CCheckTbl::Rec * pRec = 0);
 	int    Search(PPID cashID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
 	int    SearchByTimeAndCard(PPID cardID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
@@ -14867,6 +14875,7 @@ private:
 
 	CCheckExtTbl * P_Ext;
 	CheckOpJrnl * P_ChkOpJrnl;
+	PPEquipConfig EqCfg; // @v10.9.9 Коль скоро конструктор все равно читает конфигурацию, оставим ее здесь.
 };
 //
 // Descr: Вспомогательная структура, используемая для быстрого извлечения и
@@ -14965,7 +14974,7 @@ protected:
 	CSessionCore CS;
 	CCheckCore   CC;
 	CGoodsLine   GL;
-	PPEquipConfig EqCfg;
+	// @v10.9.9 (теперь будем использовать экземпляр конфигурации из CCheckCore) PPEquipConfig EqCfg;
 private:
 	int    TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet, OptimalAmountDamper * pOad);
 	int    ConvertSign(const int sign, const PPID sessID, const PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad);
@@ -17509,9 +17518,6 @@ public:
 			gbsfLong               = 0x0001,
 			gbsfShort              = 0x0002,
 			gbsfStakeMode1         = 0x0004,
-			// @v10.8.0 gbsfStakeMode2         = 0x0008,
-			// @v10.8.0 gbsfStakeMode3         = 0x0010,
-			// @v10.4.5 gbsfStakeMode4         = 0x0020,
 			gbsfCritProfitMultProb = 0x0040, // В качестве критерия сортировки применять произведение доходности на отношение win/stake.
 				// Если флаг не установлен, то - доходность.
 			gbsfCritProb           = 0x0080, // @v10.4.2 В качестве критерия сортировки применять отношение win/stake.
@@ -17520,14 +17526,11 @@ public:
 			gbsfTrendFollowing     = 0x0200, // @v10.4.3 Отбирать только стратегии, идущие вдоль тренда
 			gbsfCritTotalResult    = 0x0400, // @v10.7.3 В качестве критерия сортировки применять абсолютный доход по стратегии.
 			gbsfOptDeltaRangeCQA   = 0x0800, // @V10.7.4 Специальный критерий сортировки по среднему катету угла регрессии в квантах (с дифференциацией по сегментам магистрального тренда)
-			// @v10.8.6 gbsfEliminateCQADups   = 0x1000, // @v10.7.4 При нахождении похожих по критерию CQA стратегий оставлять только ту, которая имеет наилучший критерий
 			gbsfShuffle            = 0x2000, // @v10.7.7 Перед селекцией хаотизировать список стратегий
 			gbsfEliminate100prob   = 0x4000, // @v10.7.9 Не включать в пул стратегии с вероятность выигрыша 100% (подозреваю, что они мешают)
 			gbsfCritStakeCount     = 0x8000  // @v10.7.9 В качестве критерия сортировки применять количество ставок стратегии.
 		};
 		int    MakeOrderIndex(long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
-		/* @v10.7.10 (replaced with GetBestSubset2()) int    GetBestSubset(long flags, uint maxCount, double minWinRate, uint cqaMatchPromille, StrategyContainer & rScDest,
-			StrategyContainer * pScSkipDueDup, LongArray * pToRemovePosList, LongArray * pHaveAnalogPosList) const;*/
 		int    GetBestSubset2(const PPTssModelPacket & rTssPacket, StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup, LongArray * pToRemovePosList, LongArray * pHaveAnalogPosList) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		struct IndexEntry1 {
@@ -17595,8 +17598,6 @@ public:
 			double MainTrendErrAvg;   // Среднее значение ошибки регрессии для магистрального тренда
 			double AvgLocalDeviation; // @v10.7.1 Среднее локальное отклонение по всей выборке
 			LDATE  UseDataForStrategiesTill; // @v10.7.3
-			// @v10.8.9 uint16 MinSimilItems;     // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
-			// @v10.8.9 double StakeDistrFactor;  // @v10.8.6 Фактор равномерности распределения ставок при последнем тестовом прогоне
 			uint8  Reserve2[10];       // @v10.8.9
 			double ExperimentalFactor; // @20200819 Экспериментальный фактор, рассчитываемый по ситуации (с целью нахождения устойчивых контейнеров)
 			CriterionRange Cr[2];      // @v10.8.9
@@ -19506,9 +19507,10 @@ public:
 		fldControlRuTobacco       // Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
 	};
 	GtinStruc();
-	int    SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
-	int    SetSpecialMinLenToken(int token, int minLen);
-	int    AddOnlyToken(int token);
+	void   SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
+	void   SetSpecialMinLenToken(int token, int minLen);
+	void   AddSpecialStopChar(uchar stopChar);
+	void   AddOnlyToken(int token);
 	GtinStruc & Z();
 	int    Parse(const char * pCode);
 	int    GetToken(int tokenId, SString * pToken) const;
@@ -19517,6 +19519,7 @@ public:
 private:
 	uint   SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId);
 	uint   RecognizeFieldLen(const char * pSrc, int currentPrefixID) const;
+	int    IsSpecialStopChar(const char * pSrc) const;
 	//
 	// Descr: Флаги функции DetectPrefix
 	//
@@ -19528,7 +19531,8 @@ private:
 	::LAssocArray SpecialFixedTokens; // Значение длины 1000 означает 'до конца строки' (UNTIL EOL)
 	::LAssocArray SpecialMinLenTokens; // @v10.9.6 Специфицированные минимальные длины токенов
 	LongArray OnlyTokenList;
-	int    SpecialNaturalToken; // При разборе может появиться специальный случай, отражаемый как NaturalToken (например, SNTOK_CHZN_CIGITEM)
+	int    SpecialNaturalToken;  // При разборе может появиться специальный случай, отражаемый как NaturalToken (например, SNTOK_CHZN_CIGITEM)
+	uint8  SpecialStopChars[12]; // @v10.9.9 Специальные символы-разделители токенов. Все символы в этом буфере, предшествующие 0 считаются разделителями.
 };
 //
 //
@@ -24906,12 +24910,15 @@ public:
 	//   что исключает дублирование.
 	// ARG(pList OUT): @#{vptr0} указатель на массив, в который функция вставит
 	//   идентификаторы складов
+	// ARG(pHasRestrictions OUT): @#{vptr0} по указателю присваивается значение true если
+	//   существуют склады, к которым текущий пользователь не имеет доступа.
+	//   В противном случае по указателю присваивается false.
 	// Returns:
 	//   Количество складов, обработанных функцией. Если pList == 0, то возвращаемое значение
 	//   будет все равно правильным.
 	// Remark: использует кэш
 	//
-	uint   GetWarehouseList(PPIDArray * pList);
+	uint   GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions);
 	//
 	// Descr: "Распрямляет" список складов pList, возможно, содержащий склады верхнего уровня.
 	//   Результирующий список формируется по ссылке rDestList.
@@ -38765,7 +38772,7 @@ struct LotViewItem : public ReceiptTbl::Rec {
 	double EndRest;    // Остаток на конец операционного периода
 	double QttyPlus;   // Приход за операционный период (количество)
 	double QttyMinus;  // Расход за операционный период (количество)
-	PPID   OrgLotID;   // @v8.3.7 Ид оригинального лота. Инициализируется только если
+	PPID   OrgLotID;   // Ид оригинального лота. Инициализируется только если
 	LDATE  OrgLotDt;   // Дата поступления оригинального лота
 	char   Serial[32]; // Серийный номер по лоту
 };
@@ -39084,7 +39091,7 @@ private:
 	PPObjTransport TrObj;
 	PPObjWorld WObj;
 	PPObjLocation LocObj;
-	SStrGroup StrPool; // @v9.8.4 Пул строковых полей, на который ссылаются поля в TempFreightTbl
+	SStrGroup StrPool;    // Пул строковых полей, на который ссылаются поля в TempFreightTbl
 };
 //
 // Predict
@@ -39111,7 +39118,7 @@ struct PPPredictConfig {   // @persistent @store(PropertyTbl)
 			// При следующем запуске следует продолжить.
 		fMinStockAsMinOrder = 0x0100, // Минимальный остаток по товару трактовать как минимальный заказ.
 			// В этом случае формула расчета заказа выглядит так: Order = (Predict > MinStock) ? (Predict-MinStock) : (MinStock-Predict)
-		fRoundManualQtty    = 0x0200  // @v9.8.0 При переносе в документ заказа количество, выставленное руками,
+		fRoundManualQtty    = 0x0200  // При переносе в документ заказа количество, выставленное руками,
 			// округлять по тому же правилу, что и автоматически рассчитанное.
 	};
 	enum {
@@ -39287,7 +39294,7 @@ public:
 private:
 	struct _MassGoodsRestBlock {
 		DateRange Period;
-		TSVector <PrcssrPrediction::_GoodsLocRestItem> List; // @v9.8.4 TSArray-->TSVect
+		TSVector <PrcssrPrediction::_GoodsLocRestItem> List;
 	};
 	static int FASTCALL Lock(int unlock);
 	int    ProcessGoodsList(PPIDArray & rGoodsList, const PrcssrPrediction::_MassGoodsRestBlock * pRestBlk, int calcStat, int use_ta);
@@ -39452,7 +39459,7 @@ struct SupplExpFilt {
 	ObjIdListFilt LocList;
 };
 
-class SupplInterchangeFilt : public PPBaseFilt, public PPExtStrContainer { // @v9.4.2 PPExtStrContainer
+class SupplInterchangeFilt : public PPBaseFilt, public PPExtStrContainer {
 public:
     SupplInterchangeFilt();
 	SupplInterchangeFilt & FASTCALL operator = (const SupplInterchangeFilt & rS);
@@ -39481,10 +39488,10 @@ public:
 		opExportSales      = 0x0400      // EXPSALES
 	};
 	enum {
-		fDeleteRecentBills = 0x0001, // BALTIKA only
-		fFlatStruc         = 0x0002,
-		fRepeatProcessing  = 0x0004, // @v9.5.7 Флаг повторного процессинга уже обработанных данных (применение зависит от операции и провайдера)
-		fTestMode          = 0x0008  // @v9.6.0 Тестовый режим
+		fDeleteRecentBills = 0x0001,     // BALTIKA only
+		fFlatStruc         = 0x0002,     //
+		fRepeatProcessing  = 0x0004,     // Флаг повторного процессинга уже обработанных данных (применение зависит от операции и провайдера)
+		fTestMode          = 0x0008      // Тестовый режим
 	};
     uint8  ReserveStart[24]; // @anchor
     float  SpcDisPct1; // Специальная скидка 1, %
@@ -39661,7 +39668,7 @@ public:
 	long   Flags;            //
 	int    AmtType;          // 0 - в обеих ценах, 1 - поступления, 2 - реализации
 	// @v9.5.8 (заменено на Flags2 с соблюдением бинарной совместимости) int    CalcPrognosis;    // если 1, то вычисляем прогноз иначе - нет
-	long   Flags2;           // @v9.5.8 GoodsRestFilt::f2XXX
+	long   Flags2;           // GoodsRestFilt::f2XXX
 	DateRange PrgnPeriod;    // период прогноза
 	LDATE  Date;             //
 	PPID   SupplID;          //
@@ -39731,7 +39738,7 @@ struct GoodsRestViewItem { // @transient
 	double DraftRcpt;      //
 	long   SubstAsscCount; //
 	LDATE  LastSellDate;   //
-	LDATE  Expiry;         // @v9.7.11
+	LDATE  Expiry;         // 
 };
 //
 // Структура, передаваемая объекту PPALDD_GoodsRestTotal для печати
@@ -39880,8 +39887,7 @@ private:
 	int    ProcessLots2(const PPIDArray * pGrpGoodsList);
 	int    ProcessGroup(const PPIDArray * pGroupGoodsList);
 	int    AddGoodsThruCache(PPID goodsID, PPID locID, int isGenGoods, double order, double phUPerU, const GoodsRestVal *, BExtInsert *);
-		// @<<PPViewGoodsRest::CreateTempTable
-		// @<<PPViewGoodsRest::ProcessGoods
+		// @<<PPViewGoodsRest::CreateTempTable @<<PPViewGoodsRest::ProcessGoods
 	int    AddTotal(const PPViewGoodsRest::CacheItem & rItem);
 	int    ProcessGoods(PPID goodsID, BExtInsert *, const PPIDArray * pAgentBillList);
 	int    CalcTotal(GoodsRestTotal *);
@@ -39965,7 +39971,7 @@ private:
 		long   NotChangedUpdateCount;
 	} CacheStat;
 	RAssocArray DeficitList;          //
-	SStrGroup StrPool;                // @v9.8.3 Пул строковых полей, на который ссылаются поля в TempGoodsRestTbl
+	SStrGroup StrPool;                // Пул строковых полей, на который ссылаются поля в TempGoodsRestTbl
 	PPIDArray ExclDeficitList;        //
 	DraftRcptArray DraftRcptList;     //
 	LAssocArray    ExclDraftRcptList; //
@@ -40292,8 +40298,7 @@ private:
 	virtual int  Print(const void *);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    CalcTotal(GoodsTaxAnalyzeTotal *);
-	void   MakeTaxStr(GoodsGrpngEntry *, char * pBuf, size_t bufLen);
-		// @<<PPViewGoodsTaxAnalyze::AddEntry
+	void   MakeTaxStr(GoodsGrpngEntry *, char * pBuf, size_t bufLen); // @<<PPViewGoodsTaxAnalyze::AddEntry
 	int    InitIterQuery(PPID grpID);
 	int    NextOuterIteration();
 
@@ -40304,8 +40309,7 @@ private:
 	PPIDArray    OpList;
 	int    IterIdx;
 	BVATAccmArray * P_InOutVATList;
-	// @v9.6.6 char   IterGrpName[256];
-	SString  IterGrpName; // @v9.6.6
+	SString  IterGrpName;
 	PPObjGoods GObj;
 	GoodsSubstList Gsl;
 };
@@ -40515,7 +40519,7 @@ public:
 			// периода оплаты (независимо от периода отгрузки и периода срока оплаты)
 			// Этот флаг несколько увеличивает время обработки
 		fSkipPassive    = 0x0800, // Пропускать пассивные аналитические статьи
-		fShowExpiryDebt = 0x1000  // @v9.2.3 Показывать сумму просроченного долга
+		fShowExpiryDebt = 0x1000  // Показывать сумму просроченного долга
 	};
 	//
 	// Виды цикличности отчета
@@ -40540,7 +40544,7 @@ public:
 	};
 
 	char   ReserveStart[20]; // @anchor
-	PPID   GoodsGrpID;       // @v9.5.1 Товарная группа, ограничивающая расчет
+	PPID   GoodsGrpID;       // Товарная группа, ограничивающая расчет
 	SubstGrpBill Sgb;        // Подстановка документа.
 	DateRange Period;        // Период отгрузки
 	DateRange PaymPeriod;    // Период оплаты
@@ -40600,7 +40604,7 @@ struct DebtTrnovrViewItem { // @transient
 	double Reckon;         // Зачтенные платежи
 	double RDebt;          // Долг по зачету
 	double TDebt;          // Общий долг (Debt-RDebt)
-	double ExpiryDebt;     // @v9.1.8 Просроченный долг
+	double ExpiryDebt;     // Просроченный долг
 	long   DebitCount;     //
 	long   CreditCount;    //
 	double _AvgPaym;       // Средняя оплата по табуляторам без учета нулевых значений
@@ -40622,7 +40626,7 @@ struct DebtTrnovrTotal {
 	AmtList Reckon;        // Зачтенные платежи
 	AmtList RDebt;         // Долг по зачету
 	AmtList TDebt;         // Общий долг
-	AmtList ExpiryDebt;    // @v9.1.8 Просроченный долг
+	AmtList ExpiryDebt;    // Просроченный долг
 };
 
 class PPViewDebtTrnovr : public PPView {
@@ -53110,17 +53114,25 @@ public:
 	void   GetVKAccessToken();
 	SString & GetAppIdent(SString & rBuf) const;
 	PPID   GetOuterWareIdentTagID() const;
-	//int    AddGoodToMarket(/*const VkStruct &rVkStruct,*/const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const double price, const double oldPrice, const PPID vkMarketItemID, SString & rOutput);
-	int    AddGoodToMarket(const Goods2Tbl::Rec & rGoodsRes, const SString & rDescr, const SString & rImgPath,
-		PPObjGoods::ExportToGlbSvcItem & rItem, PPID vkMarketItemID, SString & rOutput);
+	struct MarketWareItem : public PPObjGoods::ExportToGlbSvcItem {
+		MarketWareItem() : PPObjGoods::ExportToGlbSvcItem(), OuterId(0)
+		{
+		}
+		MarketWareItem(const PPObjGoods::ExportToGlbSvcItem & rS) : PPObjGoods::ExportToGlbSvcItem(rS), OuterId(0)
+		{
+		}
+		int64  OuterId;  // Идентификатор в VK
+		SString Name;
+		SString Description;
+		SString ImgPath;
+	};
+	int    PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & rResultItem);
 	//int    WallPost(VkStruct & rVkStruct, SString & rOutput);
 	int    WallPost(const SString & rMessage, const SString & rLinkFilePath, SString & rOutput);
-	int    Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, const SString & rGoodsName,
-		const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput);
-	int    Market_Edit(/*const VkStruct &rVkStruct,*/PPID goodsID, double goodsPrice, const SString &rGoodsName,
-		const SString & rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput); //edit goods from market
-	int    Market_Get(/*const VkStruct &rVkStruct,*/SString & rOutput); // get all goods from VK market
-	int    Photos_SaveMarketPhoto(/*const VkStruct &rVkStruct,*/const SString & rImage, const SString & rServer,
+	//int    Market_Add(double goodsPrice, const SString & rGoodsName, const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput);
+	//int    Market_Edit(PPID goodsID, double goodsPrice, const SString &rGoodsName, const SString & rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput); //edit goods from market
+	int    Market_Get(LongArray & rList); // get all goods from VK market
+	int    Photos_SaveMarketPhoto(const SString & rImage, const SString & rServer,
 		const SString & rHash, const SString & rCropData, const SString & rCropHash, SString & rOutput);
 	int    Photos_SaveWallPhoto(/*const VkStruct &rVkStruct,*/const SString & rPhoto, const SString & rServer, const SString & rHash, SString & rOutput);
 	int    Wall_Post(/*const VkStruct &rVkStruct,*/const SString & rMessage, const SString & rVkPhotoName, SString & rOutput);
@@ -53128,7 +53140,7 @@ public:
 	int    ParseUploadServer(SString &rJson, SString &rUploadOut);
 	int    Photos_GetMarketUploadServer(/*const VkStruct &rVkStruct,*/const uint mainPhotoFlag, SString & rOutput);
 	int    Photos_GetWallUploadServer(/*const VkStruct &rVkStruct,*/SString & rOutput);
-	int    ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const;
+	//int    ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const;
 
 	enum {
 		usrScopeNotify   = 0x00000001,
@@ -53165,13 +53177,23 @@ public:
 		commScopeDocs      = 0x00020000,
 		commScopeManage    = 0x00040000,
 	};
+	struct ErrorResponse {
+		ErrorResponse();
+		ErrorResponse & Z();
+		int    Code;
+		SString Message;
+	};
+
+	const ErrorResponse & GetLastResponseError() const;
 private:
 	int    GetRequest(const SString & rUrl, SString & rOutput, int mflags);
+	int    ReadError(const SJson * pJs, ErrorResponse & rErr) const;
 	SString & AppendParamProtoVer(SString & rBuf) const;
 	InitBlock Ib;
 	SString AppIdent;
 	const SVerT ProtoVer;
 	PPGlobalServiceLogTalkingHelper Lth;
+	ErrorResponse LastErrResp;
 };
 // } @erik
 //
@@ -53586,7 +53608,6 @@ SString & FASTCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, l
 //
 int    PPRemoveFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount);
 int    PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, uint * pErrCount);
-// @v9.9.0 (replaced with GetFilesFromMailServer2) int    GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg);
 int    GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg);
 //
 // Передает выборку файлов по адресу pDestAddr, используя учетную запись mailAccID
@@ -53706,8 +53727,6 @@ int    PPLicRegister();
 int    PPGetLicData(PPLicData * pData);
 int    PPUpdateLic(const char * pSrcFile, const char * pRegName, const char * pRegNum);
 int    PPUpdateLic(const char * pSrcFile);
-// @v9.8.12 (unused) int    CreateSerial(PPRegistrInfo *);
-// @v9.8.12 (unused) int    SetRegistrInfo(const PPRegistrInfo *, const char *);
 //
 // Descr: посылает сообщение msg всем объектам за исключением объекта srcObjType
 //   от объекта {srcObjType, srcObjID} с дополнительным параметром msgExtra.

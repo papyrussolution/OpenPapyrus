@@ -311,7 +311,6 @@ int PPObjBill::ViewPckgDetail(PPID pckgID)
 	uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
 	if(trfr->Rcpt.Search(pckgID) > 0) {
 		PPBillPacket pack;
-		// @v9.5.3 (excess) pack.destroy();
 		pack.Rec.Dt    = MAXDATE;
 		pack.Rec.LocID = trfr->Rcpt.data.LocID;
 		if(AddPckgToBillPacket(pckgID, &pack)) {
@@ -386,13 +385,13 @@ int BillItemBrowser::ConvertSupplRetLink(PPID locID)
 	PPID * p_lot_id;
 	PPTrfrArray temp;
 	PPIDArray childs;
-	PPTransferItem * p_ti, t;
+	PPTransferItem * p_ti;
 	for(i = 0; P_LinkPack->EnumTItems(&i, &p_ti);) {
 		if(p_ti->LocID == locID)
 			THROW_SL(temp.insert(p_ti));
 		THROW(P_T->Rcpt.GatherChilds(p_ti->LotID, &childs, test_lot, reinterpret_cast<void *>(locID)));
 		for(j = 0; childs.enumItems(&j, reinterpret_cast<void **>(&p_lot_id));) {
-			t       = *p_ti;
+			PPTransferItem t(*p_ti);
 			t.LocID = locID;
 			t.LotID = *p_lot_id;
 			THROW_SL(temp.insert(&t));
@@ -2500,74 +2499,79 @@ int ImportStyloScannerEntries(const char * pFileName, StyloScannerEntryPool & rR
 	SString temp_buf;
 	LAssocArray fld_assoc_list; // ассоциации номеров полей [1..] с их идентификаторами (see enum above)
 	if(!isempty(pFileName) && fileExists(pFileName)) {
-		SFile f_in(pFileName, SFile::mRead);
-		if(f_in.IsValid()) {
-			SString fld_name;
-			SString line_buf;
-			uint   line_no = 0;
-			StringSet ss(";"); // Разделители полей пока строго ';'
-			StringSet fnss(";");
-			while(f_in.ReadLine(line_buf)) {
-				enum {
-					fldidUnkn = 0,
-					fldidDocN,
-					fldidDocDescr,
-					fldidGoodsIdent,
-					fldidGoodsName,
-					fldidCode,
-					fldidQtty,
-					fldid__Last // @anchor
-				};
-				line_no++;
-				line_buf.Chomp().Strip();
-				ss.setBuf(line_buf);
-				if(line_no == 1) { // header line
-					static const char * p_fld_names[] = {
-						"",
-						"doc_name;docname;docno;docn",
-						"doc_descr;docdescr;descr",
-						"goods_id;goodsid;wareid",
-						"goods_name;goodsname;warename",
-						"code;ean;upc;goodscode",
-						"qtty;qty;quantity"
+		SFileFormat ff;
+		const int fir = ff.Identify(pFileName, 0);
+		if(oneof2(fir, 1, 3) && oneof3(ff, SFileFormat::Csv, SFileFormat::Tsv, SFileFormat::Txt)) { // Принимаем идентификацию по расширению или (расширение/сигнатура)
+			SFile f_in(pFileName, SFile::mRead);
+			if(f_in.IsValid()) {
+				SString fld_name;
+				SString line_buf;
+				uint   line_no = 0;
+				const  char * p_divider = (ff == SFileFormat::Tsv) ? "\t" : ";"; // Разделители полей
+				StringSet ss(p_divider); 
+				StringSet fnss(";"); // сет для разбора потенциальных наименований полей
+				while(f_in.ReadLine(line_buf)) {
+					enum {
+						fldidUnkn = 0,
+						fldidDocN,
+						fldidDocDescr,
+						fldidGoodsIdent,
+						fldidGoodsName,
+						fldidCode,
+						fldidQtty,
+						fldid__Last // @anchor
 					};
-					assert(SIZEOFARRAY(p_fld_names) == (fldid__Last));
-					for(uint ssp = 0, fldn = 0; ss.get(&ssp, temp_buf); fldn++) {
-						bool fld_id_found = false;
-						for(uint fdi = 1; !fld_id_found && fdi < fldid__Last; fdi++) {
-							assert(p_fld_names[fdi] != 0);
-							if(!fld_assoc_list.SearchByVal(fdi, 0, 0)) {
-								fnss.setBuf(p_fld_names[fdi], strlen(p_fld_names[fdi])+1);
-								for(uint fnssp = 0; !fld_id_found && fnss.get(&fnssp, fld_name);) {
-									if(temp_buf.IsEqiAscii(fld_name)) {
-										fld_assoc_list.Add(fldn+1, fdi, 0);
-										fld_id_found = true;
+					line_no++;
+					line_buf.Chomp().Strip();
+					ss.setBuf(line_buf);
+					if(line_no == 1) { // header line
+						static const char * p_fld_names[] = {
+							"",
+							"doc_name;docname;docno;docn",
+							"doc_descr;docdescr;descr",
+							"goods_id;goodsid;wareid",
+							"goods_name;goodsname;warename",
+							"code;ean;upc;goodscode",
+							"qtty;qty;quantity"
+						};
+						assert(SIZEOFARRAY(p_fld_names) == (fldid__Last));
+						for(uint ssp = 0, fldn = 0; ss.get(&ssp, temp_buf); fldn++) {
+							bool fld_id_found = false;
+							for(uint fdi = 1; !fld_id_found && fdi < fldid__Last; fdi++) {
+								assert(p_fld_names[fdi] != 0);
+								if(!fld_assoc_list.SearchByVal(fdi, 0, 0)) {
+									fnss.setBuf(p_fld_names[fdi], strlen(p_fld_names[fdi])+1);
+									for(uint fnssp = 0; !fld_id_found && fnss.get(&fnssp, fld_name);) {
+										if(temp_buf.IsEqiAscii(fld_name)) {
+											fld_assoc_list.Add(fldn+1, fdi, 0);
+											fld_id_found = true;
+										}
 									}
 								}
 							}
 						}
 					}
-				}
-				else {
-					StyloScannerEntryPool::Entry entry;
-					for(uint ssp = 0, fldn = 0; ss.get(&ssp, temp_buf); fldn++) {
-						temp_buf.Strip();
-						long fdi = 0;
-						if(fld_assoc_list.Search(fldn+1, &fdi, 0)) {
-							switch(fdi) {
-								case fldidDocN: entry.DocName = temp_buf; break;
-								case fldidDocDescr: entry.DocDescr = temp_buf; break;
-								case fldidGoodsIdent: entry.GoodsIdent = temp_buf; break;
-								case fldidGoodsName: entry.GoodsName = temp_buf; break;
-								case fldidCode: entry.Code = temp_buf; break;
-								case fldidQtty: entry.Qtty = temp_buf.ToReal(); break;
-								default: assert(0); break; // impossible fldid
+					else {
+						StyloScannerEntryPool::Entry entry;
+						for(uint ssp = 0, fldn = 0; ss.get(&ssp, temp_buf); fldn++) {
+							temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER);
+							long fdi = 0;
+							if(fld_assoc_list.Search(fldn+1, &fdi, 0)) {
+								switch(fdi) {
+									case fldidDocN: entry.DocName = temp_buf; break;
+									case fldidDocDescr: entry.DocDescr = temp_buf; break;
+									case fldidGoodsIdent: entry.GoodsIdent = temp_buf; break;
+									case fldidGoodsName: entry.GoodsName = temp_buf; break;
+									case fldidCode: entry.Code = temp_buf; break;
+									case fldidQtty: entry.Qtty = temp_buf.ToReal(); break;
+									default: assert(0); break; // impossible fldid
+								}
 							}
 						}
-					}
-					if(entry.Code.NotEmpty()) {
-						rResult.AddEntry(entry);
-						ok = 1;
+						if(entry.Code.NotEmpty()) {
+							rResult.AddEntry(entry);
+							ok = 1;
+						}
 					}
 				}
 			}
@@ -4599,11 +4603,4 @@ int PPALDD_Complete::NextIteration(PPIterID iterId)
 	return ok;
 }
 
-void PPALDD_Complete::Destroy()
-{
-	if(Extra[0].Ptr) {
-		delete static_cast<CompleteBrowser *>(Extra[0].Ptr);
-		Extra[0].Ptr = 0;
-	}
-	Extra[1].Ptr = 0;
-}
+void PPALDD_Complete::Destroy() { DESTROY_ALDD(CompleteBrowser); }

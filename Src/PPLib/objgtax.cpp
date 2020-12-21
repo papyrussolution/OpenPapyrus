@@ -497,7 +497,7 @@ PPObjGoodsTax::PPObjGoodsTax(void * extraPtr) : PPObjReference(PPOBJ_GOODSTAX, e
 int PPObjGoodsTax::IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPacket & rS2, long flags)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
-#define CMP_MEMBS(m) if(strcmp(rS1.Rec.m, rS2.Rec.m) != 0) return 0;
+#define CMP_MEMBS(m) if(!sstreq(rS1.Rec.m, rS2.Rec.m)) return 0;
 	CMP_MEMB(ID);
 	CMP_MEMB(VAT);
 	CMP_MEMB(Excise);

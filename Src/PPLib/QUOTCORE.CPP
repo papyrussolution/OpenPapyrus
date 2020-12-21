@@ -1507,15 +1507,12 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 				PPIDArray rel_list;
 				LAssocArray loc_mtx_list, prev_loc_mtx_list;
 				PPQuotArray ql;
-
 				PPIDArray wh_list;
-				loc_obj.GetWarehouseList(&wh_list);
-
+				loc_obj.GetWarehouseList(&wh_list, 0);
 				if(QuotProviderGeneration == 2) {
 					QuotFilt qfilt;
 					qfilt.QuotKindID = MtxQkID;
-					// @v8.1.6 qfilt.Flags |= QuotFilt::fAllLocations;
-					((Quotation2Core *)P_QuotProvider)->GetRelListByFilt(&qfilt, rel_list);
+					static_cast<Quotation2Core *>(P_QuotProvider)->GetRelListByFilt(&qfilt, rel_list);
 					rel_list.sort();
 				}
 				const uint mc = Matrix.getCount();
@@ -1544,18 +1541,18 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 						PPID   id = hier_list.at_WithoutParent(k).Id;
 						ql.clear();
 						if(QuotProviderGeneration == 2) {
-							((Quotation2Core *)P_QuotProvider)->GetCurrListByRelList(id, rel_list, ql);
+							static_cast<Quotation2Core *>(P_QuotProvider)->GetCurrListByRelList(id, rel_list, ql);
 						}
 						else
-							((QuotationCore *)P_QuotProvider)->GetCurrList(id, MtxQkID, 0, ql);
+							static_cast<QuotationCore *>(P_QuotProvider)->GetCurrList(id, MtxQkID, 0, ql);
 						for(n = 0; n < ql.getCount(); n++) {
 							const PPQuot & r_q = ql.at(n);
 							long  par_val = 0;
 							uint  pos = 0;
 							prev_loc_mtx_list.Search(r_q.LocID, &par_val, &pos);
 							long  val = (r_q.Quot > 0.0) ? 1 : ((r_q.Quot < 0.0) ? -1 : par_val);
-							if(val) // @v7.3.0
-								loc_mtx_list.Update(r_q.LocID, val, 0); // @v7.2.9 Add-->Update
+							if(val)
+								loc_mtx_list.Update(r_q.LocID, val, 0);
 							// ufp_factor += 1.0;
 						}
 						//

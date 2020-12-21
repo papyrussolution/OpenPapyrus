@@ -1,9 +1,8 @@
 // PPREGKEY.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
 
 //#define REGKEY_DRIVER
 //#define REGKEY_GENMATRIX
@@ -20,7 +19,8 @@ static const uint16 MaskMatrix[MASK_MATRIX_SIZE] = {
 int Helper_CalcRegisterKey(size_t mi, const char * pName, char * pBuf)
 {
 	char   buf[64];
-	size_t i = 0, l = sstrlen(pName);
+	size_t i = 0;
+	size_t l = sstrlen(pName);
 	if(l < MASK_MATRIX_SIZE) {
 		i = MASK_MATRIX_SIZE-l;
 		for(size_t j = 0; j < i; j++)
@@ -64,7 +64,7 @@ int PPCheckRegisterKey(const char * pName, const char * pRegKey)
 	for(size_t i = 0; i < MASK_MATRIX_SIZE; i++) {
 		char   buf[32];
 		Helper_CalcRegisterKey(i, pName, buf);
-		if(strcmp(pRegKey, buf) == 0)
+		if(sstreq(pRegKey, buf))
 			return 1;
 		else
 			memzero(buf, sizeof(buf));
@@ -198,8 +198,7 @@ int PPUpdateLic(const char * pSrcFile, const char * pRegName, const char * pRegN
 	if(pSrcFile) {
 		PPSetAddedMsgString(pSrcFile);
 		THROW(PPReadLicData(pSrcFile, &data));
-		THROW_PP(data.Transport && strcmp(pRegName, data.RegName) == 0 &&
-			strcmp(pRegNum, data.RegNumber) == 0, PPERR_INVLICFILE);
+		THROW_PP(data.Transport && sstreq(pRegName, data.RegName) && sstreq(pRegNum, data.RegNumber), PPERR_INVLICFILE);
 	}
 	else {
 		STRNSCPY(data.RegName, pRegName);

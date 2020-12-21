@@ -812,6 +812,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 
 int ACS_FRONTOL::ImportFiles()
 {
+	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	long   delay_quant = 5 * 60 * 1000; // 5 мин
 	const  char * p_ftp_flag = "ftp:";
 	const  char * p_email_flag = "email";
@@ -834,8 +835,8 @@ int ACS_FRONTOL::ImportFiles()
 	SETIFZ(last_date, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
-	if(EqCfg.FtpAcctID)
-		THROW(obj_acct.Get(EqCfg.FtpAcctID, &acct));
+	if(r_eq_cfg.FtpAcctID)
+		THROW(obj_acct.Get(r_eq_cfg.FtpAcctID, &acct));
 	{
 		PPAlbatrossConfig alb_cfg;
 		//@v10.7.12 @ctr MEMSZERO(mac_rec);

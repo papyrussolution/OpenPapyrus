@@ -33,9 +33,9 @@ int FASTCALL PPAmountTypePacket::IsEqual(const PPAmountTypePacket & rS) const
 	CMPF(TaxRate);
 	CMPF(RefAmtTypeID);
 #undef CMPF
-	if(strcmp(Rec.Name, rS.Rec.Name) != 0)
+	if(!sstreq(Rec.Name, rS.Rec.Name))
 		return 0;
-	else if(strcmp(Rec.Symb, rS.Rec.Symb) != 0)
+	else if(!sstreq(Rec.Symb, rS.Rec.Symb))
 		return 0;
 	else if(Formula != rS.Formula)
 		return 0;

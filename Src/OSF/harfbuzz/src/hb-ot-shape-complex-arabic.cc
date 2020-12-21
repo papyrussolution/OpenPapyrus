@@ -27,12 +27,9 @@
 #pragma hdrstop
 
 #ifndef HB_NO_OT_SHAPE
-#include "hb-ot-shape-complex-arabic.hh"
-#include "hb-ot-shape.hh"
 
 /* buffer var allocations */
 #define arabic_shaping_action() complex_var_u8_0() /* arabic shaping action */
-
 #define HB_BUFFER_SCRATCH_FLAG_ARABIC_HAS_STCH HB_BUFFER_SCRATCH_FLAG_COMPLEX0
 
 /* See:

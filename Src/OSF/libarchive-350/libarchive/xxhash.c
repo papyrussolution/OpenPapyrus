@@ -92,7 +92,7 @@
 #define XXH_memcpy memcpy
 
 static unsigned int       XXH32(const void*, unsigned int, unsigned int);
-static void*              XXH32_init(unsigned int);
+static void *   XXH32_init(unsigned int);
 static XXH_errorcode      XXH32_update(void*, const void*, unsigned int);
 static unsigned int       XXH32_digest(void*);
 /*static int		  XXH32_sizeofState(void);*/

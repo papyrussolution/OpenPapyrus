@@ -68,7 +68,7 @@ void ccl2ecl()
  *
  * Returned is the number of classes.
  */
-int     cre8ecs(int fwd[], int bck[], int num)
+int cre8ecs(int fwd[], int bck[], int num)
 {
 	int numcl = 0;
 	/* Create equivalence class numbers.  From now on, ABS( bck(x) )
@@ -101,13 +101,13 @@ int     cre8ecs(int fwd[], int bck[], int num)
 
 void    mkeccl(uchar ccls[], int lenccl, int fwd[], int bck[], int llsiz, int NUL_mapping)
 {
-	int cclp, oldec, newec;
+	int oldec, newec;
 	int cclm, i, j;
 	static uchar cclflags[CSIZE];   /* initialized to all '\0' */
 	/* Note that it doesn't matter whether or not the character class is
 	 * negated.  The same results will be obtained in either case.
 	 */
-	cclp = 0;
+	int cclp = 0;
 	while(cclp < lenccl) {
 		cclm = ccls[cclp];
 		if(NUL_mapping && cclm == 0)

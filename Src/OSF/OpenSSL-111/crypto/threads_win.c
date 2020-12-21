@@ -29,7 +29,6 @@ CRYPTO_RWLOCK * CRYPTO_THREAD_lock_new(void)
 #else
 	InitializeCriticalSection(lock);
 #endif
-
 	return lock;
 }
 
@@ -53,11 +52,10 @@ int CRYPTO_THREAD_unlock(CRYPTO_RWLOCK * lock)
 
 void CRYPTO_THREAD_lock_free(CRYPTO_RWLOCK * lock)
 {
-	if(lock == NULL)
-		return;
-	DeleteCriticalSection(static_cast<LPCRITICAL_SECTION>(lock));
-	OPENSSL_free(lock);
-	return;
+	if(lock) {
+		DeleteCriticalSection(static_cast<LPCRITICAL_SECTION>(lock));
+		OPENSSL_free(lock);
+	}
 }
 
 #define ONCE_UNINITED     0
@@ -72,10 +70,8 @@ int CRYPTO_THREAD_run_once(CRYPTO_ONCE * once, void (*init)(void))
 {
 	LONG volatile * lock = (LONG*)once;
 	LONG result;
-
 	if(*lock == ONCE_DONE)
 		return 1;
-
 	do {
 		result = InterlockedCompareExchange(lock, ONCE_ININIT, ONCE_UNINITED);
 		if(result == ONCE_UNINITED) {
@@ -84,7 +80,6 @@ int CRYPTO_THREAD_run_once(CRYPTO_ONCE * once, void (*init)(void))
 			return 1;
 		}
 	} while(result == ONCE_ININIT);
-
 	return (*lock == ONCE_DONE);
 }
 
@@ -93,7 +88,6 @@ int CRYPTO_THREAD_init_local(CRYPTO_THREAD_LOCAL * key, void (*cleanup)(void *))
 	*key = TlsAlloc();
 	if(*key == TLS_OUT_OF_INDEXES)
 		return 0;
-
 	return 1;
 }
 
@@ -125,7 +119,6 @@ int CRYPTO_THREAD_set_local(CRYPTO_THREAD_LOCAL * key, void * val)
 {
 	if(TlsSetValue(*key, val) == 0)
 		return 0;
-
 	return 1;
 }
 
@@ -133,7 +126,6 @@ int CRYPTO_THREAD_cleanup_local(CRYPTO_THREAD_LOCAL * key)
 {
 	if(TlsFree(*key) == 0)
 		return 0;
-
 	return 1;
 }
 

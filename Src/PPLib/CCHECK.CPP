@@ -722,7 +722,7 @@ int CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
 	CMP_FLD(EndOrdDtm);
 	CMP_FLD(CreationDtm);
 	#undef CMP_FLD
-	if(strcmp(Ext.Memo, rS.Ext.Memo) != 0)
+	if(!sstreq(Ext.Memo, rS.Ext.Memo))
 		return 0;
 	return 1;
 }
@@ -1500,9 +1500,8 @@ CCheckCore::CCheckCore() : CCheckTbl(), P_ChkOpJrnl(0)
 	P_Ext = (r_ccfg.Flags & CCFLG_USECCHECKEXT) ? new CCheckExtTbl : 0;
 	P_LnExt = (r_ccfg.Flags & CCFLG_USECCHECKLINEEXT) ? new CCheckLineExtTbl : 0;
 	{
-		PPEquipConfig eq_cfg;
-		ReadEquipConfig(&eq_cfg);
-		if(eq_cfg.Flags & PPEquipConfig::fWriteToChkOpJrnl)
+		ReadEquipConfig(&EqCfg);
+		if(EqCfg.Flags & PPEquipConfig::fWriteToChkOpJrnl)
 			P_ChkOpJrnl = new CheckOpJrnl(this);
 	}
 }
@@ -1513,6 +1512,8 @@ CCheckCore::~CCheckCore()
 	delete P_LnExt;
 	ZDELETE(P_ChkOpJrnl);
 }
+
+const PPEquipConfig & CCheckCore::GetEqCfg() const { return EqCfg; } // @v10.9.9
 
 int CCheckCore::HasExt()
 {
@@ -1658,7 +1659,7 @@ int CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use_ta)
 		// @v10.6.8 (ccext_rec.CreationUserID != pExt->CreationUserID)
 		if(ccext_rec.TableNo != pExt->TableNo || ccext_rec.CreationUserID != pExt->CreationUserID || ccext_rec.StartOrdDtm != pExt->StartOrdDtm ||
 			ccext_rec.EndOrdDtm != pExt->EndOrdDtm || ccext_rec.CreationDtm != pExt->CreationDtm || ccext_rec.GuestCount != pExt->GuestCount ||
-			ccext_rec.AddrID != pExt->AddrID || strcmp(ccext_rec.Memo, pExt->Memo) != 0) {
+			ccext_rec.AddrID != pExt->AddrID || !sstreq(ccext_rec.Memo, pExt->Memo)) {
 			CCheckExtTbl::Key0 k0;
 			DBRowId _dbpos;
 			THROW_DB(P_Ext->getPosition(&_dbpos));
@@ -1703,7 +1704,7 @@ int CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use_ta)
 		eq = 0;
 	else if(r1.CreationUserID != r2.CreationUserID) // @v10.6.8
 		eq = 0;
-	else if(strcmp(r1.Memo, r2.Memo) != 0)
+	else if(!sstreq(r1.Memo, r2.Memo))
 		eq = 0;
 	return eq;
 }
@@ -3142,7 +3143,7 @@ int CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, DraftRc
 	if(pLocList && !pLocList->IsEmpty())
 		pLocList->CopyTo(&loc_list);
 	else
-		THROW(obj_loc.GetWarehouseList(&loc_list));
+		THROW(obj_loc.GetWarehouseList(&loc_list, 0));
 	for(uint i = 0; i < loc_list.getCount(); i++) {
 		PPID loc_id = loc_list.at(i);
 		if(cs_obj.P_Tbl->GetActiveSessList(loc_id, &sess_list) > 0) {
@@ -4166,11 +4167,12 @@ int CGoodsLine::SetDfctSubstList(PPID sessID, const LAssocArray * pList, int use
 //
 //
 //
-CSessGrouping::CSessGrouping() : RetOpID(GetCashRetOp()), SellOpID(GetCashOp())
+CSessGrouping::CSessGrouping() : CS(), CC(), GL(), RetOpID(GetCashRetOp()), SellOpID(GetCashOp())
 {
-	ReadEquipConfig(&EqCfg);
-	ComplDfct   = BIN(EqCfg.Flags & PPEquipConfig::fComplDeficit);
-	IgnGenGoods = BIN(EqCfg.Flags & PPEquipConfig::fIgnGenGoodsOnDeficit);
+	// @v10.9.9 ReadEquipConfig(&EqCfg);
+	const long eqcfgf = CC.GetEqCfg().Flags; 
+	ComplDfct   = BIN(eqcfgf & PPEquipConfig::fComplDeficit);
+	IgnGenGoods = BIN(eqcfgf & PPEquipConfig::fIgnGenGoodsOnDeficit);
 }
 
 int CSessGrouping::GetSess(PPID sessID, CSessionTbl::Rec * pRec)
@@ -4348,10 +4350,8 @@ int CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet
 	if(pPack && pPack->GetTCount()) {
 		PPObjBill * p_bobj = BillObj;
 		pPack->SetQuantitySign(-1);
-		// @v9.8.12 {
-		if(EqCfg.Flags & EqCfg.fWrOffPartStrucs)
+		if(CC.GetEqCfg().Flags & PPEquipConfig::fWrOffPartStrucs)
 			pPack->InsertPartitialStruc();
-		// } @v9.8.12
 		p_bobj->SubstMemo(pPack);
 		if(p_bobj->__TurnPacket(pPack, 0, 1, 0)) {
 			if(pOad) {
@@ -4539,13 +4539,14 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 	int    ok = -1, r = 1;
 	PPObjBill * p_bobj = BillObj;
 	const PPConfig & r_cfg = LConfig;
-	if(EqCfg.OpOnDfctThisLoc || EqCfg.OpOnDfctOthrLoc) {
+	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
+	if(r_eq_cfg.OpOnDfctThisLoc || r_eq_cfg.OpOnDfctOthrLoc) {
 		PPObjGoods goods_obj;
 		CSessionTbl::Rec sess_rec;
 		PPCashNode cn_rec;
 		TSCollection <PPBillPacket> pack_list;
-		THROW_PP(!EqCfg.OpOnDfctThisLoc || IsDraftOp(EqCfg.OpOnDfctThisLoc), PPERR_INVCSESSDFCTOP);
-		THROW_PP(!EqCfg.OpOnDfctOthrLoc || IsDraftOp(EqCfg.OpOnDfctOthrLoc), PPERR_INVCSESSDFCTOP);
+		THROW_PP(!r_eq_cfg.OpOnDfctThisLoc || IsDraftOp(r_eq_cfg.OpOnDfctThisLoc), PPERR_INVCSESSDFCTOP);
+		THROW_PP(!r_eq_cfg.OpOnDfctOthrLoc || IsDraftOp(r_eq_cfg.OpOnDfctOthrLoc), PPERR_INVCSESSDFCTOP);
 		THROW(CS.Search(sessID, &sess_rec) > 0);
 		THROW(SearchObject(PPOBJ_CASHNODE, sess_rec.CashNodeID, &cn_rec) > 0);
 		{
@@ -4612,11 +4613,11 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 						if(r < 0 || loc_id == 0)
 							loc_id = locID;
 						if(loc_id != locID) {
-							op_id = EqCfg.OpOnDfctOthrLoc;
+							op_id = CC.GetEqCfg().OpOnDfctOthrLoc;
 							is_other_loc = 1;
 						}
 						else
-							op_id = EqCfg.OpOnDfctThisLoc;
+							op_id = CC.GetEqCfg().OpOnDfctThisLoc;
 						if(op_id) {
 							ReceiptTbl::Rec lot_rec;
 							PPTransferItem ti;
@@ -4650,10 +4651,10 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 							}
 							if(ti.Price <= 0.0)
 								ti.Price = TR5(item.Sum / item.Qtty);
-							if(is_other_loc && (EqCfg.Flags & PPEquipConfig::fIntrPriceByRetailRules || EqCfg.QuotKindID)) {
+							if(is_other_loc && (r_eq_cfg.Flags & PPEquipConfig::fIntrPriceByRetailRules || r_eq_cfg.QuotKindID)) {
 								int    r = 0;
 								double price = 0.0;
-								PPID   quotk_id = NZOR(EqCfg.QuotKindID, PPQUOTK_BASE);
+								PPID   quotk_id = NZOR(r_eq_cfg.QuotKindID, PPQUOTK_BASE);
 								assert(quotk_id); // @paranoic
 								double quot = 0.0;
 								//
@@ -4701,12 +4702,13 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 	const PPConfig & r_cfg = LConfig;
 	const PPID   save_loc  = r_cfg.Location;
 	const LDATE  save_date = r_cfg.OperDate; // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg(); // @v10.9.9
 	DS.SetLocation(locID);
 	OptimalAmountDamper oad;
 	double local_wr_off_amount = 0.0;
-	if(!(EqCfg.Flags & PPEquipConfig::fDisableAdjWrOffAmount)) {
+	if(!(r_eq_cfg.Flags & PPEquipConfig::fDisableAdjWrOffAmount)) {
 		const  PPID ret_op_id = GetCashRetOp();
-		const  PPID wroff_acc_op_id = EqCfg.WrOffAccOpID;
+		const  PPID wroff_acc_op_id = r_eq_cfg.WrOffAccOpID;
 		PPID   bill_id = 0;
 		CSessTotal sub_total;
 		BillTbl::Rec bill_rec;
@@ -4739,7 +4741,7 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 		}
 		THROW(ConvertDeficit(sessID, locID, pTotal));
 		GL.CalcSessTotal(sessID, pTotal);
-		if(!(EqCfg.Flags & PPEquipConfig::fDisableAdjWrOffAmount)) {
+		if(!(r_eq_cfg.Flags & PPEquipConfig::fDisableAdjWrOffAmount)) {
 			double to_adj_amt = (pTotal->Amount-pTotal->AggrAmount) - (local_wr_off_amount + pTotal->WrOffAmount);
 			long   oad_pos, oad_ext_pos;
 			if(fabs(to_adj_amt) > 0.01 && fabs(to_adj_amt) < 10.0 && oad.GetOptimal(oad_pos, &oad_ext_pos, 0, 0)) {
@@ -4781,7 +4783,8 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, uint sessNo, uint sessCount, int use_ta)
 {
 	int    ok = 1;
-	if(!(EqCfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
+	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg(); // @v10.9.9
+	if(!(r_eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
 		WMsg = pMsg;
 		PPObjBill * p_bobj = BillObj;
 		if(sessCount > 1 && sessNo <= sessCount)
@@ -4790,7 +4793,7 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 		TaxAmountIDs tais;
 		BVATAccmArray bva_list;
 		amt_obj.GetTaxAmountIDs(&tais, 1);
-		const int do_calc_vat = BIN(EqCfg.WrOffAccOpID && (tais.VatAmtID[0] || tais.VatAmtID[1] || tais.VatAmtID[2]));
+		const int do_calc_vat = BIN(r_eq_cfg.WrOffAccOpID && (tais.VatAmtID[0] || tais.VatAmtID[1] || tais.VatAmtID[2]));
 		CgBillCvtList list;
 		CSessTotal total;
 		CSessTotal preserve_total;
@@ -4829,20 +4832,20 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 				list.sort(PTR_CMPFUNC(CgBillCvtItem_GoodsName));
 			}
 			THROW(Convert(sessID, locID, &list, &total, 0));
-			if(EqCfg.WrOffAccOpID) {
+			if(r_eq_cfg.WrOffAccOpID) {
 				int   is_new_bill = 1;
 				PPBillPacket pack;
 				{
 					for(PPID bill_id = 0; p_bobj->P_Tbl->EnumMembersOfPool(PPASS_CSESSBILLPOOL, sessID, &bill_id) > 0;) {
 						BillTbl::Rec bill_rec;
-						if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == EqCfg.WrOffAccOpID) {
+						if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == r_eq_cfg.WrOffAccOpID) {
 							THROW(p_bobj->ExtractPacket(bill_id, &pack) > 0);
 							is_new_bill = 0;
 						}
 					}
 				}
 				if(is_new_bill) {
-					THROW(pack.CreateBlank2(EqCfg.WrOffAccOpID, sess_rec.Dt, locID, 0));
+					THROW(pack.CreateBlank2(r_eq_cfg.WrOffAccOpID, sess_rec.Dt, locID, 0));
 				}
 				else
 					pack.Rec.Dt = sess_rec.Dt;
@@ -4910,16 +4913,17 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 int CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locID, PPID * pBillID, int use_ta)
 {
 	int    ok = -1;
-	PPID   bill_id = DEREFPTRORZ(pBillID);
-	if(EqCfg.OpOnTempSess) {
+	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg(); // @v10.9.9
+	PPID  bill_id = DEREFPTRORZ(pBillID);
+	if(r_eq_cfg.OpOnTempSess) {
 		PPObjBill * p_bobj = BillObj;
 		BillTbl::Rec bill_rec;
-		THROW_PP(IsDraftOp(EqCfg.OpOnTempSess), PPERR_INVCSESSTEMPOP);
+		THROW_PP(IsDraftOp(r_eq_cfg.OpOnTempSess), PPERR_INVCSESSTEMPOP);
 		{
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			if(bill_id) {
-				if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == EqCfg.OpOnTempSess)
+				if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == r_eq_cfg.OpOnTempSess)
 					THROW(p_bobj->RemovePacket(bill_id, 0));
 				bill_id = 0;
 			}
@@ -4943,7 +4947,7 @@ int CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locI
 					SStringU temp_buf_u;
 					SString serial_buf;
 					const LDATE  dt = cg_list.GetMaxDate();
-					THROW(pack.CreateBlank2(EqCfg.OpOnTempSess, dt, locID, 0));
+					THROW(pack.CreateBlank2(r_eq_cfg.OpOnTempSess, dt, locID, 0));
 					PPGetWord(PPWORD_AT_AUTO, 0, pack.Rec.Memo, sizeof(pack.Rec.Memo));
 					for(i = 0; i < cg_list.getCount(); i++) {
 						const CCheckGoodsEntry & r_entry = cg_list.at(i);
@@ -5264,8 +5268,9 @@ int CSessGrouping::CompleteSession(PPID sessID)
 	CSessionTbl::Rec sess_rec;
 	THROW(CS.Search(sessID, &sess_rec) > 0);
 	if(sess_rec.SuperSessID == 0) {
+		const PPEquipConfig & r_eq_cfg = CC.GetEqCfg(); // @v10.9.9
 		PPIDArray sess_list;
-		THROW_PP(!(EqCfg.Flags & PPEquipConfig::fCloseSessTo10Level), PPERR_CSESSCOMPLLOCKED);
+		THROW_PP(!(r_eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level), PPERR_CSESSCOMPLLOCKED);
 		{
 			PPObjCashNode cn_obj;
 			PPCashNode cn_rec;

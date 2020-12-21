@@ -33,14 +33,14 @@ IMPL_CMPFUNC(CashierEnKey, i1, i2)
 	return cmp;
 }
 
-class CashiersArray : public SVector { // @v9.8.11 SArray-->SVector
+class CashiersArray : public SVector {
 public:
-	CashiersArray() : SVector(sizeof(CashierEntry)) // @v9.8.11 SArray-->SVector
+	CashiersArray() : SVector(sizeof(CashierEntry))
 	{
 	}
 	CashierEntry & FASTCALL at(uint p) const
 	{
-		return *static_cast<CashierEntry *>(SVector::at(p)); // @v9.8.11 SArray-->SVector
+		return *static_cast<CashierEntry *>(SVector::at(p));
 	}
 	int    FASTCALL Add(const CashierEntry * pEntry)
 	{
@@ -582,6 +582,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 	BarcodeArray barcodes;
 	RetailPriceExtractor rpe;
 	PrcssrAlcReport::GoodsItem agi;
+	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	PPID   alc_cls_id = 0;
 	PPID   tobacco_cls_id = 0;
 	PPID   giftcard_cls_id = 0;
@@ -704,7 +705,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 								// p_writer->PutElement("end-date", end_dtm);
 								// p_writer->EndElement();
 								p_writer->PutElement("count", bc.Qtty);
-								p_writer->PutElement("default-code", LOGIC(strcmp(bc.Code, prev_gds_info.PrefBarCode) == 0));
+								p_writer->PutElement("default-code", LOGIC(sstreq(bc.Code, prev_gds_info.PrefBarCode)));
 								p_writer->EndElement(); // </bar-code>
 							}
 						}
@@ -804,10 +805,10 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 					//
 					// Загрузка принадлежности группам продаж
 					//
-					if(EqCfg.SalesGoodsGrp != 0) {
+					if(r_eq_cfg.SalesGoodsGrp != 0) {
 						uint   sg_pos = 0;
 						PPID   sub_grp_id = 0;
-						if(ggobj.BelongToGroup(prev_gds_info.ID, EqCfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && rSalesGrpList.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
+						if(ggobj.BelongToGroup(prev_gds_info.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && rSalesGrpList.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
 							const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(rSalesGrpList.at(sg_pos));
 							p_writer->StartElement("sale-group");
 							p_writer->AddAttrib("id", sub_grp_id);
@@ -909,7 +910,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 			if(rGoodsInfo.Flags_ & rGoodsInfo.fGMarkedCode)
 				SetInnerBarcodeType(&bc.BarcodeType, BARCODE_TYPE_MARKED);
 			IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED);
-			if(rGoodsInfo.PrefBarCode[0] && strcmp(bc.Code, rGoodsInfo.PrefBarCode) == 0) {
+			if(rGoodsInfo.PrefBarCode[0] && sstreq(bc.Code, rGoodsInfo.PrefBarCode)) {
 				//bc.BarcodeType = BARCODE_TYPE_PREFERRED;
 				SetInnerBarcodeType(&bc.BarcodeType, BARCODE_TYPE_PREFERRED);
 			}
@@ -1018,6 +1019,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	LAssocArray scard_quot_ary, dscnt_code_ary;
 	PPQuotArray grp_dscnt_ary;
 	PPIniFile ini_file;
+	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	PPWait(1);
 	THROW(GetNodeData(&cn_data) > 0);
 	{
@@ -1054,10 +1056,10 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	//
 	// Подготовка списка групп продаж
 	//
-	if(EqCfg.SalesGoodsGrp != 0) {
+	if(r_eq_cfg.SalesGoodsGrp != 0) {
 		SString code;
 		PPIDArray _grp_list;
-		ggobj.P_Tbl->GetGroupTerminalList(EqCfg.SalesGoodsGrp, &_grp_list, 0);
+		ggobj.P_Tbl->GetGroupTerminalList(r_eq_cfg.SalesGoodsGrp, &_grp_list, 0);
 		if(_grp_list.getCount()) {
 			for(i = 0; i < _grp_list.getCount(); i++) {
 				PPGoodsPacket gds_pack;
@@ -1489,6 +1491,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	const char * p_alco_special_grp_name = "Alcohol-EGAIS";
 
 	int    ok = 1;
+	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	CrsFilePool fp;
 	AsyncCashGoodsIterator * p_gds_iter = 0;
 	AsyncCashGoodsGroupIterator * p_grp_iter = 0;
@@ -1551,10 +1554,10 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	//
 	// Подготовка списка групп продаж
 	//
-	if(EqCfg.SalesGoodsGrp) {
+	if(r_eq_cfg.SalesGoodsGrp) {
 		SString code;
 		PPIDArray _grp_list;
-		ggobj.P_Tbl->GetGroupTerminalList(EqCfg.SalesGoodsGrp, &_grp_list, 0);
+		ggobj.P_Tbl->GetGroupTerminalList(r_eq_cfg.SalesGoodsGrp, &_grp_list, 0);
 		if(_grp_list.getCount()) {
 			for(uint i = 0; i < _grp_list.getCount(); i++) {
 				PPGoodsPacket gds_pack;
@@ -1667,7 +1670,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 				for(uint c = 0; c < grp_info.P_QuotByQttyList->getCount(); c++)
 					THROW_SL(grp_dscnt_ary.insert(&(grp_info.P_QuotByQttyList->at(c))));
 		}
-		// @v9.1.8 {
 		{
 			//
 			// Вставляем специальную группу для маркированного алкоголя
@@ -1680,7 +1682,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			STRNSCPY(grpe.GrpName, p_alco_special_grp_name);
 			THROW_SL(grp_list.insert(&grpe));
 		}
-		// } @v9.1.8
 		for(i = 0; i < grp_list.getCount(); i++) {
 			uint  pos;
 			_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
@@ -1798,14 +1799,14 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			//
 			// Загрузка принадлежности группам продаж
 			//
-			if(EqCfg.SalesGoodsGrp != 0) {
+			if(r_eq_cfg.SalesGoodsGrp != 0) {
 				DbfTable * p_tbl = 0;
 				THROW(p_tbl = fp.GetTable(fp.tSalesGroupItems));
 				{
 					DbfRecord dbfrSGI(p_tbl);
 					uint   sg_pos = 0;
 					PPID   sub_grp_id = 0;
-					if(ggobj.BelongToGroup(gi.ID, EqCfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
+					if(ggobj.BelongToGroup(gi.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
 						const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(sales_grp_list.at(sg_pos));
 						dbfrSGI.empty();
 						dbfrSGI.put(1, ltoa(gi.ID, tempbuf, 10));
@@ -1954,7 +1955,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	PROFILE_END
 	ZDELETE(p_grp_iter);
 	ZDELETE(p_gds_iter);
-	if(EqCfg.CshrsPsnKindID) {
+	if(r_eq_cfg.CshrsPsnKindID) {
 		DbfTable * p_tbl = fp.GetTable(fp.tCashier);
 		THROW(p_tbl);
 		{
@@ -1986,7 +1987,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	//
 	// Выгрузка групп продаж
 	//
-	if(EqCfg.SalesGoodsGrp != 0 && sales_grp_list.getCount()) {
+	if(r_eq_cfg.SalesGoodsGrp != 0 && sales_grp_list.getCount()) {
 		DbfTable * p_tbl = fp.GetTable(fp.tSalesGroup);
 		THROW(p_tbl);
 		{
@@ -2000,20 +2001,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			}
 		}
 	}
-#if 0 // @v9.2.5 {
-	{
-		DbfTable * p_tbl = 0;
-		THROW(fp.InitDeffered(fp.tSignalAll));
-		THROW(p_tbl = fp.GetTable(fp.tSignalAll));
-		{
-			DbfRecord dbfr_signal(p_tbl);
-			dbfr_signal.empty();
-			dbfr_signal.put(1, getcurdate_());
-			dbfr_signal.put(2, "*");
-			THROW_PP(p_tbl->appendRec(&dbfr_signal), PPERR_DBFWRFAULT);
-		}
-	}
-#endif // } 0
 	PPWait(0);
 	PPWait(1);
 	fp.CloseFiles();
@@ -2032,7 +2019,8 @@ int ACS_CRCSHSRV::ExportData(int updOnly)
 
 int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 {
-	int    ok = 1;;
+	int    ok = 1;
+	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	DbfTable * p_out_tbl_goods = 0;
 	DbfTable * p_out_tbl_group = 0;
 	DbfTable * p_out_tbl_dscnt = 0;
@@ -2124,10 +2112,10 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		//
 		// Подготовка списка групп продаж
 		//
-		if(EqCfg.SalesGoodsGrp != 0) {
+		if(r_eq_cfg.SalesGoodsGrp != 0) {
 			SString code;
 			PPIDArray _grp_list;
-			ggobj.P_Tbl->GetGroupTerminalList(EqCfg.SalesGoodsGrp, &_grp_list, 0);
+			ggobj.P_Tbl->GetGroupTerminalList(r_eq_cfg.SalesGoodsGrp, &_grp_list, 0);
 			if(_grp_list.getCount()) {
 				PPGoodsPacket gds_pack;
 				for(uint i = 0; i < _grp_list.getCount(); i++) {
@@ -2321,11 +2309,11 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				//
 				// Загрузка принадлежности группам продаж
 				//
-				if(EqCfg.SalesGoodsGrp != 0) {
+				if(r_eq_cfg.SalesGoodsGrp != 0) {
 					uint   sg_pos = 0;
 					PPID   sub_grp_id = 0;
 					DbfRecord dbfrSGI(p_out_tbl_sggrpi);
-					if(ggobj.BelongToGroup(gi.ID, EqCfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
+					if(ggobj.BelongToGroup(gi.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
 						const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(sales_grp_list.at(sg_pos));
 						dbfrSGI.empty();
 						dbfrSGI.put(1, ltoa(gi.ID, tempbuf, 10));
@@ -2433,7 +2421,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		PROFILE_END
 		ZDELETE(p_grp_iter);
 		ZDELETE(p_gds_iter);
-		if(EqCfg.CshrsPsnKindID) {
+		if(r_eq_cfg.CshrsPsnKindID) {
 			AsyncCashierInfo      cshr_info;
 			AsyncCashiersIterator cshr_iter;
 			char  rights[32], cr_rights[CRCSHSRV_CSHRRIGHTS_STRLEN * 2];
@@ -2460,7 +2448,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		//
 		// Выгрузка групп продаж
 		//
-		if(EqCfg.SalesGoodsGrp != 0) {
+		if(r_eq_cfg.SalesGoodsGrp) {
 			if(sales_grp_list.getCount()) {
 				_SalesGrpEntry * p_sgitem = 0;
 				DbfRecord dbfrSGG(p_out_tbl_sggrp);
@@ -2594,7 +2582,8 @@ static void ConvertCrystalRightsSetToCashierRights(long crystCshrRights, long * 
 int ACS_CRCSHSRV::GetCashiersList()
 {
 	int    ok = -1;
-	if(EqCfg.CshrsPsnKindID) {
+	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
+	if(r_eq_cfg.CshrsPsnKindID) {
 		uint   pos, p;
 		SString buf;
 		SString cshr_name_;
@@ -2604,7 +2593,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 		PPObjPerson   psn_obj;
 		PPObjRegister reg_obj;
 		RegisterTbl::Rec  reg_rec;
-		const PPID tabnum_reg_id = EqCfg.GetCashierTabNumberRegTypeID();
+		const PPID tabnum_reg_id = r_eq_cfg.GetCashierTabNumberRegTypeID();
 		if(tabnum_reg_id && ::fileExists(PathCshrs)) {
 			PPIDArray by_name_ary;
 			PPIDArray by_num_ary;
@@ -2614,7 +2603,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 			LDATE  last_dt = plusdate(getcurdate_(), -1);
 			reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
 			reg_flt.RegTypeID = tabnum_reg_id;
-			psn_obj.GetListByKind(EqCfg.CshrsPsnKindID, &psn_ary, 0);
+			psn_obj.GetListByKind(r_eq_cfg.CshrsPsnKindID, &psn_ary, 0);
 			SFile  cf(PathCshrs, SFile::mRead);
 			THROW_SL(cf.IsValid());
 			while(cf.ReadLine(buf)) {
@@ -2668,9 +2657,9 @@ int ACS_CRCSHSRV::GetCashiersList()
 				if(psn_id) {
 					THROW(psn_obj.GetPacket(psn_id, &psn_pack, 0) > 0);
 					if(!is_kind)
-						THROW_SL(psn_pack.Kinds.add(EqCfg.CshrsPsnKindID));
+						THROW_SL(psn_pack.Kinds.add(r_eq_cfg.CshrsPsnKindID));
 					for(p = 0; psn_pack.Regs.GetRegister(tabnum_reg_id, &p, &reg_rec) > 0;)
-						if(strcmp(reg_rec.Num, cshr_tabnum_)) {
+						if(!sstreq(reg_rec.Num, cshr_tabnum_)) {
 							if(reg_rec.Expiry == ZERODATE || diffdate(reg_rec.Expiry, last_dt) > 0)
 								psn_pack.Regs.at(p-1).Expiry = last_dt;
 						}
@@ -2680,7 +2669,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 				else {
 					psn_pack.Rec.Status = PPPRS_PRIVATE;
 					STRNSCPY(psn_pack.Rec.Name, cshr_name_);
-					THROW_SL(psn_pack.Kinds.add(EqCfg.CshrsPsnKindID));
+					THROW_SL(psn_pack.Kinds.add(r_eq_cfg.CshrsPsnKindID));
 				}
 				if(!is_reg) {
 					// @v10.9.5 (PPObjRegister::InitPacket willdoit) MEMSZERO(reg_rec);
@@ -2695,7 +2684,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 			SFile::Remove(PathCshrs);
 			psn_ary.clear();
 		}
-		psn_obj.GetListByKind(EqCfg.CshrsPsnKindID, &psn_ary, 0);
+		psn_obj.GetListByKind(r_eq_cfg.CshrsPsnKindID, &psn_ary, 0);
 		for(pos = 0; pos < psn_ary.getCount(); pos++) {
 			PPPersonPacket psn_pack;
 			if(psn_obj.GetPacket(psn_ary.at(pos), &psn_pack, 0) > 0 && (psn_pack.CshrInfo.Flags & CIF_CASHIER)) {

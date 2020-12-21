@@ -1663,7 +1663,7 @@ IMPL_HANDLE_EVENT(ImpExpParamDialog)
 		else if(TVCMD == cmClusterClk) {
 			if(event.isCtlEvent(CTL_IMPEXP_FORMAT)) {
 				GetClusterData(CTL_IMPEXP_FORMAT, &Data.DataFormat);
-				enableCommand(cmImpExpTxtDbParam, oneof3(Data.DataFormat, PPImpExpParam::dfText, PPImpExpParam::dfXml, PPImpExpParam::dfExcel)); // @v5.3.6 AHTOXA
+				enableCommand(cmImpExpTxtDbParam, oneof3(Data.DataFormat, PPImpExpParam::dfText, PPImpExpParam::dfXml, PPImpExpParam::dfExcel));
 			}
 			else if(event.isCtlEvent(CTL_IMPEXP_DIR)) {
 				GetClusterData(CTL_IMPEXP_DIR, &Data.Direction);
@@ -2335,9 +2335,9 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 							if(GetArgList(scan, arg_list)) {
 								uint arg_p = 0;
 								if(arg_list.get(&arg_p, reg_type_symb) && arg_list.get(&arg_p, temp_buf)) {
-									PPID ar_id = temp_buf.ToLong();
-									PPID person_id = ObjectToPerson(ar_id, 0);
-									PPID reg_type_id = 0;
+									const  PPID ar_id = temp_buf.ToLong();
+									const  PPID person_id = ObjectToPerson(ar_id, 0);
+									PPID   reg_type_id = 0;
 									if(person_id && PPObjRegisterType::GetByCode(reg_type_symb, &reg_type_id) > 0) {
 										PPObjPerson psn_obj;
 										RegisterTbl::Rec reg_rec;
@@ -2354,9 +2354,9 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 								uint arg_p = 0;
 								SString tag_symb, obj_type_symb;
 								if(arg_list.get(&arg_p, tag_symb) && arg_list.get(&arg_p, obj_type_symb) && arg_list.get(&arg_p, temp_buf)) {
-									PPID obj_id = temp_buf.ToLong();
-									long obj_type_ext = 0;
-									PPID obj_type = GetObjectTypeBySymb(obj_type_symb, &obj_type_ext);
+									const  PPID obj_id = temp_buf.ToLong();
+									long   obj_type_ext = 0;
+									const  PPID obj_type = GetObjectTypeBySymb(obj_type_symb, &obj_type_ext);
 									if(obj_type && oneof4(obj_type, PPOBJ_GOODS, PPOBJ_PERSON, PPOBJ_LOT, PPOBJ_GLOBALUSERACC)) {
 										PPObjTag tag_obj;
 										PPID   tag_id = 0;

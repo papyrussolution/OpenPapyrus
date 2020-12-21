@@ -27,10 +27,6 @@
 #pragma hdrstop
 
 #ifndef HB_NO_NAME
-
-#include "hb-ot-name-table.hh"
-#include "hb-utf.hh"
-
 /**
  * SECTION:hb-ot-name
  * @title: hb-ot-name
@@ -52,18 +48,15 @@
  * Returns: (out) (transfer none) (array length=num_entries): Array of available name entries.
  * Since: 2.1.0
  **/
-const hb_ot_name_entry_t * hb_ot_name_list_names(hb_face_t    * face,
-    unsigned int * num_entries /* OUT */)
+const hb_ot_name_entry_t * hb_ot_name_list_names(hb_face_t * face, unsigned int * num_entries /* OUT */)
 {
 	const OT::name_accelerator_t &name = *face->table.name;
 	if(num_entries) *num_entries = name.names.length;
 	return (const hb_ot_name_entry_t*)name.names;
 }
 
-template <typename in_utf_t, typename out_utf_t>
-static inline unsigned int hb_ot_name_convert_utf(hb_bytes_t bytes,
-    unsigned int                    * text_size /* IN/OUT */,
-    typename out_utf_t::codepoint_t * text /* OUT */)
+template <typename in_utf_t, typename out_utf_t> static inline unsigned int hb_ot_name_convert_utf(hb_bytes_t bytes,
+    unsigned int * text_size /* IN/OUT */, typename out_utf_t::codepoint_t * text /* OUT */)
 {
 	unsigned int src_len = bytes.length / sizeof(typename in_utf_t::codepoint_t);
 	const typename in_utf_t::codepoint_t * src = (const typename in_utf_t::codepoint_t *)bytes.arrayZ;

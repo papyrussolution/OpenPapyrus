@@ -275,6 +275,11 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 #endif // } 0
 			// } @debug 
 			DS.Register();
+			// @v10.9.9 {
+			::SystemParametersInfo(SPI_SETFONTSMOOTHING, TRUE, 0, 0); 
+			::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGCLEARTYPE, 0); 
+			::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)1600, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+			// } @v10.9.9
 			DS.SetMenu(MENU_DEFAULT);
 			PPApp app(hInst, SLS.GetAppName(), SLS.GetAppName());
 			app.run();

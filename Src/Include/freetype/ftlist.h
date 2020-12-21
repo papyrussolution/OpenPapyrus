@@ -222,7 +222,7 @@ FT_BEGIN_HEADER
   FT_EXPORT( FT_Error )
   FT_List_Iterate( FT_List           list,
                    FT_List_Iterator  iterator,
-                   void*             user );
+                   void *  user );
 
 
   /**************************************************************************
@@ -283,7 +283,7 @@ FT_BEGIN_HEADER
   FT_List_Finalize( FT_List             list,
                     FT_List_Destructor  destroy,
                     FT_Memory           memory,
-                    void*               user );
+                    void *    user );
 
   /* */
 

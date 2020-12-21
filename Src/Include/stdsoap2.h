@@ -575,8 +575,8 @@
    #include <stdio.h>
    #include <string.h>
   #endif
-  #include <ctype.h>
-  #include <limits.h>
+  //#include <ctype.h>
+  //#include <limits.h>
 #endif
 #ifdef WITH_NTLM
 	#include <ntlm.h>
@@ -677,7 +677,7 @@
 // #include <windows.h>
 // #include "stdsoap2.h"
   // @v10.2.3 #include <winsock2.h> /* Visual Studio 2005 users: install Platform SDK (R2) */
-  #include <ws2tcpip.h>
+  //#include <ws2tcpip.h>
 // #define _WSPIAPI_COUNTOF /* DEV NOTE: enble to fix problems with VC6 */
 // #include <wspiapi.h>
   #include <ws2spi.h> /* DEV NOTE: replaces older wspiapi.h above */

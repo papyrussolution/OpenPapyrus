@@ -28,9 +28,6 @@
 
 #ifndef HB_NO_OT_SHAPE
 
-#include "hb-ot-shape-fallback.hh"
-#include "hb-kern.hh"
-
 static unsigned int recategorize_combining_class(hb_codepoint_t u, unsigned int klass)
 {
 	if(klass >= 200)
@@ -38,8 +35,7 @@ static unsigned int recategorize_combining_class(hb_codepoint_t u, unsigned int 
 	/* Thai / Lao need some per-character work. */
 	if((u & ~0xFF) == 0x0E00u) {
 		if(unlikely(klass == 0)) {
-			switch(u)
-			{
+			switch(u) {
 				case 0x0E31u:
 				case 0x0E34u:
 				case 0x0E35u:

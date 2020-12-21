@@ -26,18 +26,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-#include <stdio.h>
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-
 #include "archive.h"
 #include "archive_entry.h"
 #include "archive_entry_locale.h"
@@ -48,7 +36,6 @@ __FBSDID("$FreeBSD$");
 struct v7tar {
 	uint64_t entry_bytes_remaining;
 	uint64_t entry_padding;
-
 	struct archive_string_conv * opt_sconv;
 	struct archive_string_conv * sconv_default;
 	int init_default_conversion;
@@ -179,20 +166,15 @@ int archive_write_set_format_v7tar(struct archive * _a)
 	return (ARCHIVE_OK);
 }
 
-static int archive_write_v7tar_options(struct archive_write * a, const char * key,
-    const char * val)
+static int archive_write_v7tar_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct v7tar * v7tar = (struct v7tar *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-
-	if(strcmp(key, "hdrcharset")  == 0) {
+	if(sstreq(key, "hdrcharset")) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: hdrcharset option needs a character-set name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
-			v7tar->opt_sconv = archive_string_conversion_to_charset(
-				&a->archive, val, 0);
+			v7tar->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
 			if(v7tar->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -200,7 +182,6 @@ static int archive_write_v7tar_options(struct archive_write * a, const char * ke
 		}
 		return (ret);
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */

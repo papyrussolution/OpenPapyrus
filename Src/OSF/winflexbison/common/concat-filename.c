@@ -39,7 +39,7 @@ char * concatenated_filename(const char * directory, const char * filename, cons
 {
 	char * result;
 	char * p;
-	if(strcmp(directory, ".") == 0) {
+	if(sstreq(directory, ".")) {
 		/* No need to prepend the directory.  */
 		result = (char *)SAlloc::M(strlen(filename) + (suffix != NULL ? strlen(suffix) : 0) + 1);
 		if(result == NULL)

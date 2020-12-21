@@ -1530,7 +1530,4 @@ int PPALDD_StaffListView::NextIteration(long iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_StaffListView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(StaffList);
-}
+void PPALDD_StaffListView::Destroy() { DESTROY_PPVIEW_ALDD(StaffList); }

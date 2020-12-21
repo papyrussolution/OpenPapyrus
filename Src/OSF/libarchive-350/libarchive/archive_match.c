@@ -122,24 +122,16 @@ struct archive_match {
 	struct match_list inclusion_gnames;
 };
 
-static int      add_pattern_from_file(struct archive_match *,
-    struct match_list *, int, const void *, int);
-static int      add_entry(struct archive_match *, int,
-    struct archive_entry *);
-static int      add_owner_id(struct archive_match *, struct id_array *,
-    int64_t);
-static int      add_owner_name(struct archive_match *, struct match_list *,
-    int, const void *);
-static int      add_pattern_mbs(struct archive_match *, struct match_list *,
-    const char *);
-static int      add_pattern_wcs(struct archive_match *, struct match_list *,
-    const wchar_t *);
+static int      add_pattern_from_file(struct archive_match *, struct match_list *, int, const void *, int);
+static int      add_entry(struct archive_match *, int, struct archive_entry *);
+static int      add_owner_id(struct archive_match *, struct id_array *, int64_t);
+static int      add_owner_name(struct archive_match *, struct match_list *, int, const void *);
+static int      add_pattern_mbs(struct archive_match *, struct match_list *, const char *);
+static int      add_pattern_wcs(struct archive_match *, struct match_list *, const wchar_t *);
 static int      cmp_key_mbs(const struct archive_rb_node *, const void *);
 static int      cmp_key_wcs(const struct archive_rb_node *, const void *);
-static int      cmp_node_mbs(const struct archive_rb_node *,
-    const struct archive_rb_node *);
-static int      cmp_node_wcs(const struct archive_rb_node *,
-    const struct archive_rb_node *);
+static int      cmp_node_mbs(const struct archive_rb_node *, const struct archive_rb_node *);
+static int      cmp_node_wcs(const struct archive_rb_node *, const struct archive_rb_node *);
 static void     entry_list_add(struct entry_list *, struct match_file *);
 static void     entry_list_free(struct entry_list *);
 static void     entry_list_init(struct entry_list *);
@@ -147,53 +139,35 @@ static int      error_nomem(struct archive_match *);
 static void     match_list_add(struct match_list *, struct match *);
 static void     match_list_free(struct match_list *);
 static void     match_list_init(struct match_list *);
-static int      match_list_unmatched_inclusions_next(struct archive_match *,
-    struct match_list *, int, const void **);
+static int      match_list_unmatched_inclusions_next(struct archive_match *, struct match_list *, int, const void **);
 static int      match_owner_id(struct id_array *, int64_t);
 #if !defined(_WIN32) || defined(__CYGWIN__)
-static int      match_owner_name_mbs(struct archive_match *,
-    struct match_list *, const char *);
+static int      match_owner_name_mbs(struct archive_match *, struct match_list *, const char *);
 #else
-static int      match_owner_name_wcs(struct archive_match *,
-    struct match_list *, const wchar_t *);
+static int      match_owner_name_wcs(struct archive_match *, struct match_list *, const wchar_t *);
 #endif
-static int      match_path_exclusion(struct archive_match *,
-    struct match *, int, const void *);
-static int      match_path_inclusion(struct archive_match *,
-    struct match *, int, const void *);
-static int      owner_excluded(struct archive_match *,
-    struct archive_entry *);
+static int      match_path_exclusion(struct archive_match *, struct match *, int, const void *);
+static int      match_path_inclusion(struct archive_match *, struct match *, int, const void *);
+static int      owner_excluded(struct archive_match *, struct archive_entry *);
 static int      path_excluded(struct archive_match *, int, const void *);
-static int      set_timefilter(struct archive_match *, int, time_t, long,
-    time_t, long);
-static int      set_timefilter_pathname_mbs(struct archive_match *,
-    int, const char *);
-static int      set_timefilter_pathname_wcs(struct archive_match *,
-    int, const wchar_t *);
+static int      set_timefilter(struct archive_match *, int, time_t, long, time_t, long);
+static int      set_timefilter_pathname_mbs(struct archive_match *, int, const char *);
+static int      set_timefilter_pathname_wcs(struct archive_match *, int, const wchar_t *);
 static int      set_timefilter_date(struct archive_match *, int, const char *);
-static int      set_timefilter_date_w(struct archive_match *, int,
-    const wchar_t *);
-static int      time_excluded(struct archive_match *,
-    struct archive_entry *);
+static int      set_timefilter_date_w(struct archive_match *, int, const wchar_t *);
+static int      time_excluded(struct archive_match *, struct archive_entry *);
 static int      validate_time_flag(struct archive *, int, const char *);
 
 #define get_date __archive_get_date
 
-static const struct archive_rb_tree_ops rb_ops_mbs = {
-	cmp_node_mbs, cmp_key_mbs
-};
-
-static const struct archive_rb_tree_ops rb_ops_wcs = {
-	cmp_node_wcs, cmp_key_wcs
-};
-
+static const struct archive_rb_tree_ops rb_ops_mbs = { cmp_node_mbs, cmp_key_mbs };
+static const struct archive_rb_tree_ops rb_ops_wcs = { cmp_node_wcs, cmp_key_wcs };
 /*
  * The matching logic here needs to be re-thought.  I started out to
  * try to mimic gtar's matching logic, but it's not entirely
  * consistent.  In particular 'tar -t' and 'tar -x' interpret patterns
  * on the command line as anchored, but --exclude doesn't.
  */
-
 static int error_nomem(struct archive_match * a)
 {
 	archive_set_error(&(a->archive), ENOMEM, "No memory");
@@ -204,10 +178,9 @@ static int error_nomem(struct archive_match * a)
 /*
  * Create an ARCHIVE_MATCH object.
  */
-struct archive * archive_match_new(void)                 {
-	struct archive_match * a;
-
-	a = (struct archive_match *)calloc(1, sizeof(*a));
+struct archive * archive_match_new(void)                 
+{
+	struct archive_match * a = (struct archive_match *)calloc(1, sizeof(*a));
 	if(a == NULL)
 		return (NULL);
 	a->archive.magic = ARCHIVE_MATCH_MAGIC;
@@ -222,7 +195,6 @@ struct archive * archive_match_new(void)                 {
 	time(&a->now);
 	return (&(a->archive));
 }
-
 /*
  * Free an ARCHIVE_MATCH object.
  */

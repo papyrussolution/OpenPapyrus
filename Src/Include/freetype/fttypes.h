@@ -428,7 +428,7 @@ typedef void (* FT_Generic_Finalizer)(void*  object);
  *     code will be called.
  */
 typedef struct  FT_Generic_ {
-	void*                 data;
+	void *      data;
 	FT_Generic_Finalizer finalizer;
 } FT_Generic;
 

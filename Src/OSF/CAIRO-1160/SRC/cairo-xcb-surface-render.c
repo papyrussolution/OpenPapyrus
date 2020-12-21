@@ -2746,15 +2746,12 @@ static boolint _mono_edge_is_vertical(const cairo_line_t * line)
 	return _cairo_fixed_integer_round_down(line->p1.x) == _cairo_fixed_integer_round_down(line->p2.x);
 }
 
-static boolint _traps_are_pixel_aligned(cairo_traps_t * traps,
-    cairo_antialias_t antialias)
+static boolint _traps_are_pixel_aligned(cairo_traps_t * traps, cairo_antialias_t antialias)
 {
 	int i;
-
 	if(antialias == CAIRO_ANTIALIAS_NONE) {
 		for(i = 0; i < traps->num_traps; i++) {
-			if(!_mono_edge_is_vertical(&traps->traps[i].left)   ||
-			    !_mono_edge_is_vertical(&traps->traps[i].right)) {
+			if(!_mono_edge_is_vertical(&traps->traps[i].left) || !_mono_edge_is_vertical(&traps->traps[i].right)) {
 				traps->maybe_region = FALSE;
 				return FALSE;
 			}

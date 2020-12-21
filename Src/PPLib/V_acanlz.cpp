@@ -2459,10 +2459,7 @@ int PPALDD_AccAnlz::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_AccAnlz::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(AccAnlz);
-}
+void PPALDD_AccAnlz::Destroy() { DESTROY_PPVIEW_ALDD(AccAnlz); }
 //
 // Implementation of PPALDD_AccturnList
 //
@@ -2523,10 +2520,7 @@ int PPALDD_AccturnList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_AccturnList::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Accturn);
-}
+void PPALDD_AccturnList::Destroy() { DESTROY_PPVIEW_ALDD(Accturn); }
 //
 // Implementation of PPALDD_AccountView
 //
@@ -2561,10 +2555,7 @@ int PPALDD_AccountView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_AccountView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Account);
-}
+void PPALDD_AccountView::Destroy() { DESTROY_PPVIEW_ALDD(Account); }
 //
 // Implementation of PPALDD_Currency
 //
@@ -2718,13 +2709,9 @@ int PPALDD_CurRateView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_CurRateView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(CurRate);
-}
-
-// @Muxa {
+void PPALDD_CurRateView::Destroy() { DESTROY_PPVIEW_ALDD(CurRate); }
 //
+// @Muxa {
 // Implementation of PPALDD_UhttCurRateIdent
 //
 struct UhttCurRateIdentBlock {

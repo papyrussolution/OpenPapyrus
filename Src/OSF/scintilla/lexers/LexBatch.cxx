@@ -30,23 +30,13 @@ static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i)
 }
 
 // Tests for BATCH Operators
-static bool IsBOperator(char ch) 
-{
-	return (ch == '=') || (ch == '+') || (ch == '>') || (ch == '<') || (ch == '|') || (ch == '?') || (ch == '*');
-}
-
+static bool IsBOperator(char ch) { return oneof7(ch, '=', '+', '>', '<', '|', '?', '*'); }
 // Tests for BATCH Separators
-static bool IsBSeparator(char ch) 
-{
-	return (ch == '\\') || (ch == '.') || (ch == ';') || (ch == '\"') || (ch == '\'') || (ch == '/');
-}
+static bool IsBSeparator(char ch) { return oneof6(ch, '\\', '.', ';', '\"', '\'', '/'); }
 
-static void ColouriseBatchLine(char * lineBuffer,
-    Sci_PositionU lengthLine,
-    Sci_PositionU startLine,
-    Sci_PositionU endPos,
-    WordList * keywordlists[],
-    Accessor & styler) {
+static void ColouriseBatchLine(char * lineBuffer, Sci_PositionU lengthLine, Sci_PositionU startLine, Sci_PositionU endPos,
+    WordList * keywordlists[], Accessor & styler) 
+{
 	Sci_PositionU offset = 0;       // Line Buffer Offset
 	Sci_PositionU cmdLoc;           // External Command / Program Location
 	char wordBuffer[81];            // Word Buffer - large to catch long paths
@@ -54,7 +44,6 @@ static void ColouriseBatchLine(char * lineBuffer,
 	Sci_PositionU wbo;              // Word Buffer Offset - also Special Keyword Buffer Length
 	WordList &keywords = *keywordlists[0];      // Internal Commands
 	WordList &keywords2 = *keywordlists[1];     // External Commands (optional)
-
 	// CHOICE, ECHO, GOTO, PROMPT and SET have Default Text that may contain Regular Keywords
 	//   Toggling Regular Keyword Checking off improves readability
 	// Other Regular Keywords and External Commands / Programs might also benefit from toggling
@@ -65,7 +54,6 @@ static void ColouriseBatchLine(char * lineBuffer,
 	// Special Keyword Buffer used to determine if the first n characters is a Keyword
 	char sKeywordBuffer[10];        // Special Keyword Buffer
 	bool sKeywordFound;             // Exit Special Keyword for-loop if found
-
 	// Skip initial spaces
 	while((offset < lengthLine) && (isspacechar(lineBuffer[offset]))) {
 		offset++;
@@ -74,7 +62,6 @@ static void ColouriseBatchLine(char * lineBuffer,
 	styler.ColourTo(startLine + offset - 1, SCE_BAT_DEFAULT);
 	// Set External Command / Program Location
 	cmdLoc = offset;
-
 	// Check for Fake Label (Comment) or Real Label - return if found
 	if(lineBuffer[offset] == ':') {
 		if(lineBuffer[offset + 1] == ':') {
@@ -89,10 +76,8 @@ static void ColouriseBatchLine(char * lineBuffer,
 		return;
 		// Check for Drive Change (Drive Change is internal command) - return if found
 	}
-	else if((IsAlphabetic(lineBuffer[offset])) &&
-	    (lineBuffer[offset + 1] == ':') &&
-	    ((isspacechar(lineBuffer[offset + 2])) ||
-		    (((lineBuffer[offset + 2] == '\\')) &&
+	else if((IsAlphabetic(lineBuffer[offset])) && (lineBuffer[offset + 1] == ':') &&
+	    ((isspacechar(lineBuffer[offset + 2])) || (((lineBuffer[offset + 2] == '\\')) &&
 			    (isspacechar(lineBuffer[offset + 3]))))) {
 		// Colorize Regular Keyword
 		styler.ColourTo(endPos, SCE_BAT_WORD);

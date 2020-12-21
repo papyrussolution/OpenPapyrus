@@ -20,28 +20,23 @@ static int update(EVP_MD_CTX * ctx, const void * data, size_t datalen)
 	return 0;
 }
 
-static int do_sigver_init(EVP_MD_CTX * ctx, EVP_PKEY_CTX ** pctx,
-    const EVP_MD * type, ENGINE * e, EVP_PKEY * pkey,
-    int ver)
+static int do_sigver_init(EVP_MD_CTX * ctx, EVP_PKEY_CTX ** pctx, const EVP_MD * type, ENGINE * e, EVP_PKEY * pkey, int ver)
 {
 	if(ctx->pctx == NULL)
 		ctx->pctx = EVP_PKEY_CTX_new(pkey, e);
 	if(ctx->pctx == NULL)
 		return 0;
-
 	if(!(ctx->pctx->pmeth->flags & EVP_PKEY_FLAG_SIGCTX_CUSTOM)) {
 		if(type == NULL) {
 			int def_nid;
 			if(EVP_PKEY_get_default_digest_nid(pkey, &def_nid) > 0)
 				type = EVP_get_digestbynid(def_nid);
 		}
-
 		if(type == NULL) {
 			EVPerr(EVP_F_DO_SIGVER_INIT, EVP_R_NO_DEFAULT_DIGEST);
 			return 0;
 		}
 	}
-
 	if(ver) {
 		if(ctx->pctx->pmeth->verifyctx_init) {
 			if(ctx->pctx->pmeth->verifyctx_init(ctx->pctx, ctx) <= 0)
@@ -84,24 +79,20 @@ static int do_sigver_init(EVP_MD_CTX * ctx, EVP_PKEY_CTX ** pctx,
 	 */
 	if(ctx->pctx->pmeth->digest_custom != NULL)
 		return ctx->pctx->pmeth->digest_custom(ctx->pctx, ctx);
-
 	return 1;
 }
 
-int EVP_DigestSignInit(EVP_MD_CTX * ctx, EVP_PKEY_CTX ** pctx,
-    const EVP_MD * type, ENGINE * e, EVP_PKEY * pkey)
+int EVP_DigestSignInit(EVP_MD_CTX * ctx, EVP_PKEY_CTX ** pctx, const EVP_MD * type, ENGINE * e, EVP_PKEY * pkey)
 {
 	return do_sigver_init(ctx, pctx, type, e, pkey, 0);
 }
 
-int EVP_DigestVerifyInit(EVP_MD_CTX * ctx, EVP_PKEY_CTX ** pctx,
-    const EVP_MD * type, ENGINE * e, EVP_PKEY * pkey)
+int EVP_DigestVerifyInit(EVP_MD_CTX * ctx, EVP_PKEY_CTX ** pctx, const EVP_MD * type, ENGINE * e, EVP_PKEY * pkey)
 {
 	return do_sigver_init(ctx, pctx, type, e, pkey, 1);
 }
 
-int EVP_DigestSignFinal(EVP_MD_CTX * ctx, uchar * sigret,
-    size_t * siglen)
+int EVP_DigestSignFinal(EVP_MD_CTX * ctx, uchar * sigret, size_t * siglen)
 {
 	int sctx = 0, r = 0;
 	EVP_PKEY_CTX * pctx = ctx->pctx;

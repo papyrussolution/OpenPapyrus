@@ -2347,10 +2347,7 @@ int PPALDD_Salary::NextIteration(long iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_Salary::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Salary);
-}
+void PPALDD_Salary::Destroy() { DESTROY_PPVIEW_ALDD(Salary); }
 //
 // Implementation of PPALDD_SalaryByPost
 //
@@ -2448,7 +2445,4 @@ void PPALDD_SalaryByPost::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 	}
 }
 
-void PPALDD_SalaryByPost::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Salary);
-}
+void PPALDD_SalaryByPost::Destroy() { DESTROY_PPVIEW_ALDD(Salary); }

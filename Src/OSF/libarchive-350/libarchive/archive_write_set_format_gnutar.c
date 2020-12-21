@@ -182,20 +182,15 @@ int archive_write_set_format_gnutar(struct archive * _a)
 	return (ARCHIVE_OK);
 }
 
-static int archive_write_gnutar_options(struct archive_write * a, const char * key,
-    const char * val)
+static int archive_write_gnutar_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct gnutar * gnutar = (struct gnutar *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-
-	if(strcmp(key, "hdrcharset")  == 0) {
+	if(sstreq(key, "hdrcharset")) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: hdrcharset option needs a character-set name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
-			gnutar->opt_sconv = archive_string_conversion_to_charset(
-				&a->archive, val, 0);
+			gnutar->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
 			if(gnutar->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -203,7 +198,6 @@ static int archive_write_gnutar_options(struct archive_write * a, const char * k
 		}
 		return (ret);
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -709,30 +703,24 @@ static int format_256(int64_t v, char * p, int s)
 	*p |= 0x80; /* Set the base-256 marker bit. */
 	return (0);
 }
-
 /*
  * Format a number into the specified field using octal.
  */
 static int format_octal(int64_t v, char * p, int s)
 {
 	int len = s;
-
 	/* Octal values can't be negative, so use 0. */
 	if(v < 0)
 		v = 0;
-
 	p += s;         /* Start at the end and work backwards. */
 	while(s-- > 0) {
 		*--p = (char)('0' + (v & 7));
 		v >>= 3;
 	}
-
 	if(v == 0)
 		return (0);
-
 	/* If it overflowed, fill field with max value. */
 	while(len-- > 0)
 		*p++ = '7';
-
 	return (-1);
 }

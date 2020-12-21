@@ -50,8 +50,7 @@
 //#include <time.h>
 #if defined(CURL_WIN32) && !defined(_WIN32_WCE) && !defined(__CYGWIN__)
 	#if !(defined(_WINSOCKAPI_) || defined(_WINSOCK_H) || defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H))
-/* The check above prevents the winsock2 inclusion if winsock.h already was included, since they can't co-exist without
-   problems */
+/* The check above prevents the winsock2 inclusion if winsock.h already was included, since they can't co-exist without problems */
 		#include <winsock2.h>
 		#include <ws2tcpip.h>
 	#endif

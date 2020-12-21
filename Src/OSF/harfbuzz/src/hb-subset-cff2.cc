@@ -27,13 +27,6 @@
 #pragma hdrstop
 
 #ifndef HB_NO_SUBSET_CFF
-#include "hb-open-type.hh"
-#include "hb-ot-cff2-table.hh"
-#include "hb-set.h"
-#include "hb-subset-cff2.hh"
-#include "hb-subset-plan.hh"
-#include "hb-subset-cff-common.hh"
-#include "hb-cff2-interp-cs.hh"
 
 using namespace CFF;
 

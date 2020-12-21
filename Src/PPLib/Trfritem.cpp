@@ -60,10 +60,21 @@ PPTransferItem::PPTransferItem()
 	Init(0, 1, TISIGN_UNDEF);
 }
 
+PPTransferItem::PPTransferItem(const PPTransferItem & rS)
+{
+	memcpy(this, &rS, sizeof(*this));
+}
+
 PPTransferItem::PPTransferItem(const BillTbl::Rec * pBillRec, int forceSign)
 {
 	THISZERO();
 	Init(pBillRec, 1, forceSign);
+}
+
+PPTransferItem & FASTCALL PPTransferItem::operator = (const PPTransferItem & src)
+{
+	memcpy(this, &src, sizeof(*this));
+	return *this;
 }
 
 int PPTransferItem::IsUnlimWoLot() const { return Impl_IsUnlimWoLot(Flags); }
@@ -203,12 +214,10 @@ int PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
 	if(oneof2(pPack->OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT) ||
 		(pPack->OpTypeID == PPOPT_GOODSEXPEND && pPack->Rec.Flags & BILLF_FIXEDAMOUNTS && pPack->GetTCount() == 0)) {
 		PPObjGoods gobj;
-		// @v9.7.0 BarcodeTbl::Rec bc_rec;
-		// @v9.7.0 if(gobj.SearchByBarcode(CConfig.PrepayInvoiceGoodsCode, &bc_rec, 0, 0) > 0) {
-		Goods2Tbl::Rec goods_rec; // @v9.7.0
-		if(gobj.Fetch(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0) { // @v9.7.0
+		Goods2Tbl::Rec goods_rec;
+		if(gobj.Fetch(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0) {
 			Init(&pPack->Rec, 0);
-			SetupGoods(/*bc_rec.GoodsID*/goods_rec.ID); // @v9.7.0 bc_rec.GoodsID-->goods_rec.ID
+			SetupGoods(goods_rec.ID);
 			SETFLAG(Flags, PPTFR_RMVEXCISE, pPack->Rec.Flags & BILLF_RMVEXCISE);
 			Quantity_ = 1.0;
 			if(CurID)
@@ -316,10 +325,9 @@ double FASTCALL PPTransferItem::SQtty(PPID op) const
 		result = Rest_;
 	else {
 		const int _s = GetSign(op);
-		// @v9.3.1 {
 		if(_s == TISIGN_ASIS)
 			result = Quantity_;
-		else // } @v9.3.1
+		else
 			result = (_s >= 0) ? fabs(Quantity_) : -fabs(Quantity_);
 	}
 	return result;
@@ -451,12 +459,6 @@ int PPTransferItem::SetupLot(PPID lotID, const ReceiptTbl::Rec * pLotRec, uint f
 	}
 	CATCHZOK
 	return ok;
-}
-
-PPTransferItem & FASTCALL PPTransferItem::operator = (const PPTransferItem & src)
-{
-	memcpy(this, &src, sizeof(*this));
-	return *this;
 }
 
 int FASTCALL PPTransferItem::IsEqual(const PPTransferItem & rS) const

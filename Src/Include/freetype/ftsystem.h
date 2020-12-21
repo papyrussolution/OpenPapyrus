@@ -151,7 +151,7 @@ typedef void*
  *
  */
 struct  FT_MemoryRec_ {
-	void*            user;
+	void * user;
 	FT_Alloc_Func alloc;
 	FT_Free_Func free;
 	FT_Realloc_Func realloc;

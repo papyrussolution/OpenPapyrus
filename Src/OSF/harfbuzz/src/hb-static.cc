@@ -25,14 +25,6 @@
  */
 #include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-open-type.hh"
-#include "hb-face.hh"
-#include "hb-aat-layout-common.hh"
-#include "hb-aat-layout-feat-table.hh"
-#include "hb-ot-layout-common.hh"
-#include "hb-ot-cmap-table.hh"
-#include "hb-ot-head-table.hh"
-#include "hb-ot-maxp-table.hh"
 
 #ifndef HB_NO_VISIBILITY
 #include "hb-ot-name-language-static.hh"
@@ -56,7 +48,6 @@ unsigned int hb_face_t::load_num_glyphs() const
 	c.set_num_glyphs(0); /* So we don't recurse ad infinitum. */
 	hb_blob_t * maxp_blob = c.reference_table<OT::maxp> (this);
 	const OT::maxp * maxp_table = maxp_blob->as<OT::maxp> ();
-
 	unsigned int ret = maxp_table->get_num_glyphs();
 	num_glyphs.set_relaxed(ret);
 	hb_blob_destroy(maxp_blob);
@@ -79,7 +70,6 @@ bool hb_user_data_array_t::set(hb_user_data_key_t * key,
 {
 	if(!key)
 		return false;
-
 	if(replace) {
 		if(!data && !destroy) {
 			items.remove(key, lock);
@@ -88,14 +78,12 @@ bool hb_user_data_array_t::set(hb_user_data_key_t * key,
 	}
 	hb_user_data_item_t item = {key, data, destroy};
 	bool ret = !!items.replace_or_insert(item, lock, (bool)replace);
-
 	return ret;
 }
 
 void * hb_user_data_array_t::get(hb_user_data_key_t * key)
 {
 	hb_user_data_item_t item = {nullptr, nullptr, nullptr};
-
 	return items.find(key, &item, lock) ? item.data : nullptr;
 }
 

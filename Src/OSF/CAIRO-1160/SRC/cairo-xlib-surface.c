@@ -688,22 +688,18 @@ pixman_format_code_t _pixman_format_for_xlib_surface(cairo_xlib_surface_t * surf
 }
 
 static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
-    const cairo_rectangle_int_t * extents,
-    int try_shm)
+    const cairo_rectangle_int_t * extents, int try_shm)
 {
 	cairo_int_status_t status;
 	cairo_image_surface_t * image = NULL;
 	XImage * ximage;
 	pixman_format_code_t pixman_format;
 	cairo_xlib_display_t * display;
-
 	assert(extents->x >= 0);
 	assert(extents->y >= 0);
 	assert(extents->x + extents->width <= surface->width);
 	assert(extents->y + extents->height <= surface->height);
-
-	if(surface->base.is_clear ||
-	    (surface->base.serial == 0 && surface->owns_pixmap)) {
+	if(surface->base.is_clear || (surface->base.serial == 0 && surface->owns_pixmap)) {
 		pixman_format = _pixman_format_for_xlib_surface(surface);
 		if(pixman_format) {
 			return _cairo_image_surface_create_with_pixman_format(NULL,
@@ -1414,13 +1410,10 @@ static cairo_int_status_t _cairo_xlib_surface_unmap_image(void * abstract_surfac
 {
 	cairo_xlib_surface_t * surface = abstract_surface;
 	cairo_int_status_t status;
-
 	if(surface->shm) {
 		cairo_rectangle_int_t r;
-
 		assert(surface->fallback);
 		assert(surface->base.damage);
-
 		r.x = image->base.device_transform_inverse.x0;
 		r.y = image->base.device_transform_inverse.y0;
 		r.width  = image->width;
@@ -1446,19 +1439,15 @@ static cairo_int_status_t _cairo_xlib_surface_unmap_image(void * abstract_surfac
 	return status;
 }
 
-static cairo_status_t _cairo_xlib_surface_flush(void * abstract_surface,
-    unsigned flags)
+static cairo_status_t _cairo_xlib_surface_flush(void * abstract_surface, unsigned flags)
 {
 	cairo_xlib_surface_t * surface = abstract_surface;
 	cairo_int_status_t status;
-
 	if(flags)
 		return CAIRO_STATUS_SUCCESS;
-
 	status = _cairo_xlib_surface_put_shm(surface);
 	if(unlikely(status))
 		return status;
-
 	surface->fallback >>= 1;
 	if(surface->shm && _cairo_xlib_shm_surface_is_idle(surface->shm))
 		_cairo_xlib_surface_discard_shm(surface);
@@ -1515,22 +1504,15 @@ static inline cairo_int_status_t get_compositor(cairo_xlib_surface_t ** surface,
 	return status;
 }
 
-static cairo_int_status_t _cairo_xlib_surface_paint(void * _surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_xlib_surface_paint(void * _surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
-	cairo_int_status_t status;
-
-	status = get_compositor(&surface, &compositor);
+	cairo_int_status_t status = get_compositor(&surface, &compositor);
 	if(unlikely(status))
 		return status;
-
-	return _cairo_compositor_paint(compositor, &surface->base,
-		   op, source,
-		   clip);
+	return _cairo_compositor_paint(compositor, &surface->base, op, source, clip);
 }
 
 static cairo_int_status_t _cairo_xlib_surface_mask(void * _surface,
@@ -1541,15 +1523,10 @@ static cairo_int_status_t _cairo_xlib_surface_mask(void * _surface,
 {
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
-	cairo_int_status_t status;
-
-	status = get_compositor(&surface, &compositor);
+	cairo_int_status_t status = get_compositor(&surface, &compositor);
 	if(unlikely(status))
 		return status;
-
-	return _cairo_compositor_mask(compositor, &surface->base,
-		   op, source, mask,
-		   clip);
+	return _cairo_compositor_mask(compositor, &surface->base, op, source, mask, clip);
 }
 
 static cairo_int_status_t _cairo_xlib_surface_stroke(void * _surface,
@@ -1565,17 +1542,11 @@ static cairo_int_status_t _cairo_xlib_surface_stroke(void * _surface,
 {
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
-	cairo_int_status_t status;
-
-	status = get_compositor(&surface, &compositor);
+	cairo_int_status_t status = get_compositor(&surface, &compositor);
 	if(unlikely(status))
 		return status;
-
-	return _cairo_compositor_stroke(compositor, &surface->base,
-		   op, source,
-		   path, style, ctm, ctm_inverse,
-		   tolerance, antialias,
-		   clip);
+	return _cairo_compositor_stroke(compositor, &surface->base, op, source, path, style, ctm, ctm_inverse,
+		   tolerance, antialias, clip);
 }
 
 static cairo_int_status_t _cairo_xlib_surface_fill(void * _surface,
@@ -1589,38 +1560,21 @@ static cairo_int_status_t _cairo_xlib_surface_fill(void * _surface,
 {
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
-	cairo_int_status_t status;
-
-	status = get_compositor(&surface, &compositor);
+	cairo_int_status_t status = get_compositor(&surface, &compositor);
 	if(unlikely(status))
 		return status;
-
-	return _cairo_compositor_fill(compositor, &surface->base,
-		   op, source,
-		   path, fill_rule, tolerance, antialias,
-		   clip);
+	return _cairo_compositor_fill(compositor, &surface->base, op, source, path, fill_rule, tolerance, antialias, clip);
 }
 
-static cairo_int_status_t _cairo_xlib_surface_glyphs(void * _surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    cairo_glyph_t * glyphs,
-    int num_glyphs,
-    cairo_scaled_font_t * scaled_font,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_xlib_surface_glyphs(void * _surface, cairo_operator_t op, const cairo_pattern_t * source,
+    cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip)
 {
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
-	cairo_int_status_t status;
-
-	status = get_compositor(&surface, &compositor);
+	cairo_int_status_t status = get_compositor(&surface, &compositor);
 	if(unlikely(status))
 		return status;
-
-	return _cairo_compositor_glyphs(compositor, &surface->base,
-		   op, source,
-		   glyphs, num_glyphs, scaled_font,
-		   clip);
+	return _cairo_compositor_glyphs(compositor, &surface->base, op, source, glyphs, num_glyphs, scaled_font, clip);
 }
 
 static const cairo_surface_backend_t cairo_xlib_surface_backend = {

@@ -34,7 +34,7 @@ cmsStage* CMSEXPORT _cmsStageAllocPlaceholder(cmsContext ContextID,
     _cmsStageEvalFn EvalPtr,
     _cmsStageDupElemFn DupElemPtr,
     _cmsStageFreeElemFn FreePtr,
-    void*             Data)
+    void *  Data)
 {
 	cmsStage* ph = (cmsStage*)_cmsMallocZero(ContextID, sizeof(cmsStage));
 

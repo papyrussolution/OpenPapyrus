@@ -426,7 +426,7 @@ int Transfer::CorrectCurRest(PPID goodsID, const PPIDArray * pLocList, PPLogger 
 	PPIDArray temp_loc_list;
 	if(pLocList == 0) {
 		PPObjLocation loc_obj;
-		loc_obj.GetWarehouseList(&temp_loc_list);
+		loc_obj.GetWarehouseList(&temp_loc_list, 0);
 		pLocList = &temp_loc_list;
 	}
 	for(uint j = 0; j < pLocList->getCount(); j++) {
@@ -508,7 +508,7 @@ int Transfer::CorrectCurRest(const char * pLogName, int correct)
 	Goods2Tbl::Rec goods_rec;
 	PPObjLocation loc_obj;
 	PPIDArray wh_list; // Список идентификаторов складов
-	loc_obj.GetWarehouseList(&wh_list);
+	loc_obj.GetWarehouseList(&wh_list, 0);
 	PPLogger logger;
 	PPWait(1);
 	for(GoodsIterator goods_iter((PPID)0, 0); goods_iter.Next(&goods_rec) > 0;) {

@@ -942,7 +942,7 @@ int PPAsyncCashSession::OpenSession(int updOnly, PPID sinceDlsID)
 	PPLogMessage(PPFILNAM_INFO_LOG, msg_buf.Printf(PPLoadTextS(PPTXT_LOG_ACNEXP_START, fmt), acn_rec.Name), lmf);
 	int    ready = IsReadyForExport();
 	if(!ready) {
-		if(EqCfg.Flags & PPEquipConfig::fIgnAcsReadyTags) {
+		if(CC.GetEqCfg().Flags & PPEquipConfig::fIgnAcsReadyTags) {
 			PPLogMessage(PPFILNAM_INFO_LOG, msg_buf.Printf(PPLoadTextS(PPTXT_LOG_ACNEXP_NREADYTAGIGNORED, fmt), acn_rec.Name), lmf);
 			ready = 1;
 		}
@@ -981,6 +981,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 	SString msg_debug_fmt, msg_buf;
 	PPIDArray sess_list, super_sess_list;
 	PPAsyncCashNode acn;
+	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	PPLoadText(PPTXT_DIAG_ASYNCCLOSESESS, msg_debug_fmt);
 #define LOG_DEBUG(func) LogDebug(msg_buf.Printf(msg_debug_fmt, #func))
 	THROW(GetNodeData(&acn));
@@ -992,7 +993,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 	//
 	// Находим и закрываем незавершенные сессии
 	//
-	if(!(EqCfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
+	if(!(r_eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
 		PPWaitMsg(PPSTR_TEXT, PPTXT_ACSCLS_CLOSEINCMPL, 0);
 		if(CS.GetIncompleteSessList(CSESSINCMPL_CHECKS, NodeID, &sess_list) > 0) {
 			THROW(GroupingSessList(NodeID, &sess_list, &super_sess_list, 0, 1));
@@ -1048,10 +1049,10 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 			LOG_DEBUG(GroupingSessList);
 			for(i = 0; i < super_sess_list.getCountI(); i++)
 				DS.LogAction(PPACN_CSESSCLOSED, PPOBJ_CSESSION, super_sess_list.at(i), 0, 0);
-			if(!(EqCfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
+			if(!(r_eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
 				THROW(ConvertSessListToBills(&super_sess_list, loc_id, 0));
 				LOG_DEBUG(ConvertSessListToBills);
-				if(EqCfg.OpOnTempSess) {
+				if(r_eq_cfg.OpOnTempSess) {
 					THROW(cnobj.Get(NodeID, &gcn, 0) > 0);
 					THROW(r = ConvertTempSessToBills(&temp_sess_list, loc_id, &gcn.CurRestBillID, 0));
 					LOG_DEBUG(ConvertSessListToBills_TempSessList);
@@ -1069,7 +1070,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 			}
 			THROW(tra.Commit());
 		}
-		if(EqCfg.Flags & PPEquipConfig::fValidateChecksOnSessClose && sess_list.getCount()) {
+		if(r_eq_cfg.Flags & PPEquipConfig::fValidateChecksOnSessClose && sess_list.getCount()) {
 			ObjIdListFilt _ses_list;
 			ObjIdListFilt _chk_list;
 			CCheckCore::ValidateCheckParam vcp(0.02);
@@ -1172,6 +1173,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 	StringSet ss(';', 0);
 	int    ok = GetExpPathSet(&ss);
 	if(ok > 0) {
+		const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 		int    ftp_connected = 0;
 		SString dest_file_name(pFileName);
 		SString dest_nam; // @v10.8.4 Если !Empty то имя конечного файла заменяется на это
@@ -1188,8 +1190,8 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 			dest_ext = efn_ps.Ext;
 		}
 		// } @v10.8.4
-		if(EqCfg.FtpAcctID) {
-			THROW(obj_acct.Get(EqCfg.FtpAcctID, &acct));
+		if(r_eq_cfg.FtpAcctID) {
+			THROW(obj_acct.Get(r_eq_cfg.FtpAcctID, &acct));
 		}
 		{
 			PPAlbatrossConfig alb_cfg;

@@ -56,38 +56,26 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
 #pragma comment(lib, "Bcrypt.lib")
 #endif
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
-    size_t salt_len, unsigned rounds, uint8_t * derived_key,
-    size_t derived_key_len)
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt, size_t salt_len, unsigned rounds, uint8_t * derived_key, size_t derived_key_len)
 {
 	NTSTATUS status;
 	BCRYPT_ALG_HANDLE hAlg;
-
-	status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA1_ALGORITHM,
-		MS_PRIMITIVE_PROVIDER, BCRYPT_ALG_HANDLE_HMAC_FLAG);
+	status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA1_ALGORITHM, MS_PRIMITIVE_PROVIDER, BCRYPT_ALG_HANDLE_HMAC_FLAG);
 	if(!BCRYPT_SUCCESS(status))
 		return -1;
-
-	status = BCryptDeriveKeyPBKDF2(hAlg,
-		(PUCHAR)(uintptr_t)pw, (ULONG)pw_len,
-		(PUCHAR)(uintptr_t)salt, (ULONG)salt_len, rounds,
-		(PUCHAR)derived_key, (ULONG)derived_key_len, 0);
-
+	status = BCryptDeriveKeyPBKDF2(hAlg, (PUCHAR)(uintptr_t)pw, (ULONG)pw_len, (PUCHAR)(uintptr_t)salt, (ULONG)salt_len, rounds, (PUCHAR)derived_key, (ULONG)derived_key_len, 0);
 	BCryptCloseAlgorithmProvider(hAlg, 0);
-
 	return (BCRYPT_SUCCESS(status)) ? 0 : -1;
 }
 
 #elif defined(HAVE_LIBMBEDCRYPTO) && defined(HAVE_MBEDTLS_PKCS5_H)
 
 static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
-    size_t salt_len, unsigned rounds, uint8_t * derived_key,
-    size_t derived_key_len)
+    size_t salt_len, unsigned rounds, uint8_t * derived_key, size_t derived_key_len)
 {
 	mbedtls_md_context_t ctx;
 	const mbedtls_md_info_t * info;
 	int ret;
-
 	mbedtls_md_init(&ctx);
 	info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
 	if(info == NULL) {
@@ -99,9 +87,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
 		mbedtls_md_free(&ctx);
 		return (-1);
 	}
-	ret = mbedtls_pkcs5_pbkdf2_hmac(&ctx, (const unsigned char*)pw,
-		pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
-
+	ret = mbedtls_pkcs5_pbkdf2_hmac(&ctx, (const unsigned char*)pw, pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
 	mbedtls_md_free(&ctx);
 	return (ret);
 }
@@ -109,20 +95,18 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
 #elif defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_PBKDF2_H)
 
 static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
-    size_t salt_len, unsigned rounds, uint8_t * derived_key,
-    size_t derived_key_len) {
-	pbkdf2_hmac_sha1((unsigned)pw_len, (const uint8_t*)pw, rounds,
-	    salt_len, salt, derived_key_len, derived_key);
+    size_t salt_len, unsigned rounds, uint8_t * derived_key, size_t derived_key_len) 
+{
+	pbkdf2_hmac_sha1((unsigned)pw_len, (const uint8_t*)pw, rounds, salt_len, salt, derived_key_len, derived_key);
 	return 0;
 }
 
 #elif defined(HAVE_LIBCRYPTO) && defined(HAVE_PKCS5_PBKDF2_HMAC_SHA1)
 
 static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
-    size_t salt_len, unsigned rounds, uint8_t * derived_key,
-    size_t derived_key_len) {
-	PKCS5_PBKDF2_HMAC_SHA1(pw, pw_len, salt, salt_len, rounds,
-	    derived_key_len, derived_key);
+    size_t salt_len, unsigned rounds, uint8_t * derived_key, size_t derived_key_len) 
+{
+	PKCS5_PBKDF2_HMAC_SHA1(pw, pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
 	return 0;
 }
 
@@ -435,8 +419,7 @@ static int aes_ctr_release(archive_crypto_ctx * ctx)
 #endif
 
 #ifdef ARCHIVE_CRYPTOR_STUB
-static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8_t * const in,
-    size_t in_len, uint8_t * const out, size_t * out_len)
+static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8_t * const in, size_t in_len, uint8_t * const out, size_t * out_len)
 {
 	(void)ctx; /* UNUSED */
 	(void)in; /* UNUSED */
@@ -452,7 +435,6 @@ static void aes_ctr_increase_counter(archive_crypto_ctx * ctx)
 {
 	uint8_t * const nonce = ctx->nonce;
 	int j;
-
 	for(j = 0; j < 8; j++) {
 		if(++nonce[j])
 			break;
@@ -466,7 +448,6 @@ static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8_t * const in,
 	unsigned pos = ctx->encr_pos;
 	unsigned max = (unsigned)((in_len < *out_len) ? in_len : *out_len);
 	unsigned i;
-
 	for(i = 0; i < max;) {
 		if(pos == AES_BLOCK_SIZE) {
 			aes_ctr_increase_counter(ctx);
@@ -489,7 +470,6 @@ static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8_t * const in,
 	}
 	ctx->encr_pos = pos;
 	*out_len = i;
-
 	return 0;
 }
 

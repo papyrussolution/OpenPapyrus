@@ -78,8 +78,7 @@ int debug_decode(const char * opts)
 static void debug_set_file(FILE * fp)
 {
 	struct stat stdout_stat, debug_stat;
-	if(_debug != NULL && _debug != stderr && _debug != stdout
-	    && close_stream(_debug) != 0) {
+	if(_debug != NULL && _debug != stderr && _debug != stdout && close_stream(_debug) != 0) {
 		M4ERROR((warning_status, errno, "error writing to debug stream"));
 		retcode = EXIT_FAILURE;
 	}
@@ -297,13 +296,10 @@ void trace_pre(const char * name, int id, int argc, token_data ** argv)
 {
 	int i;
 	const builtin * bp;
-
 	trace_header(id);
 	trace_format("%s", name);
-
 	if(argc > 1 && (debug_level & DEBUG_TRACE_ARGS)) {
 		trace_format("(");
-
 		for(i = 1; i < argc; i++) {
 			if(i != 1)
 				trace_format(", ");
@@ -345,7 +341,6 @@ void trace_post(const char * name, int id, int argc, const char * expanded)
 		trace_header(id);
 		trace_format("%s%s", name, (argc > 1) ? "(...)" : "");
 	}
-
 	if(expanded && (debug_level & DEBUG_TRACE_EXPANSION))
 		trace_format(" -> %l%S%r", expanded);
 	trace_flush();

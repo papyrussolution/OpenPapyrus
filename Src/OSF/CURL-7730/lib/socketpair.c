@@ -30,8 +30,8 @@
 	 * This is a socketpair() implementation for Windows.
 	 */
 	//#include <string.h>
-	#include <winsock2.h>
-	#include <ws2tcpip.h>
+	//#include <winsock2.h>
+	//#include <ws2tcpip.h>
 	//#include <windows.h>
 	//#include <io.h>
 #else

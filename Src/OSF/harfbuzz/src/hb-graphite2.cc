@@ -30,7 +30,6 @@
 
 #ifdef HAVE_GRAPHITE2
 
-//#include "hb-shaper-impl.hh"
 #include "hb-graphite2.h"
 #include <graphite2/Segment.h>
 #include "hb-ot-layout.h"

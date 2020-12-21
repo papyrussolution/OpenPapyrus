@@ -278,7 +278,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			    }
 			    else if(sc.ch == '\\') {
 				    // Gobble up the quoted character
-				    if(sc.chNext == '\\' || sc.chNext == '/') {
+				    if(oneof2(sc.chNext, '\\', '/')) {
 					    sc.Forward();
 				    }
 			    }
@@ -290,21 +290,18 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			    break;
 			case SCE_ECL_VERBATIM:
 			    if(sc.ch == '\"') {
-				    if(sc.chNext == '\"') {
+				    if(sc.chNext == '\"')
 					    sc.Forward();
-				    }
-				    else {
+				    else
 					    sc.ForwardSetState(SCE_ECL_DEFAULT);
-				    }
 			    }
 			    break;
 			case SCE_ECL_UUID:
-			    if(sc.ch == '\r' || sc.ch == '\n' || sc.ch == ')') {
+			    if(oneof3(sc.ch, '\r', '\n', ')')) {
 				    sc.SetState(SCE_ECL_DEFAULT);
 			    }
 			    break;
 		}
-
 		// Determine if a new state should be entered.
 		Sci_Position lineCurrent = styler.GetLine(sc.currentPos);
 		int lineState = styler.GetLineState(lineCurrent);
@@ -377,7 +374,6 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				sc.SetState(SCE_ECL_OPERATOR);
 			}
 		}
-
 		if(!IsASpace(sc.ch) && !IsSpaceEquiv(sc.state)) {
 			chPrevNonWhite = sc.ch;
 			visibleChars++;
@@ -409,8 +405,8 @@ static bool MatchNoCase(Accessor & styler, Sci_PositionU & pos, const char * s)
 // Store both the current line's fold level and the next lines in the
 // level store to make it easy to pick up with each increment
 // and to make it possible to fiddle the current level for "} else {".
-static void FoldEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor & styler) {
+static void FoldEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler) 
+{
 	bool foldComment = true;
 	bool foldPreprocessor = true;
 	bool foldCompact = true;
@@ -481,13 +477,10 @@ static void FoldEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyl
 			}
 		}
 		if(style == SCE_ECL_WORD2) {
-			if(MatchNoCase(styler, i,
-				    "record") ||
+			if(MatchNoCase(styler, i, "record") ||
 			    MatchNoCase(styler, i, "transform") || MatchNoCase(styler, i, "type") || MatchNoCase(styler, i, "function") ||
-			    MatchNoCase(styler, i,
-				    "module") ||
-			    MatchNoCase(styler, i,
-				    "service") || MatchNoCase(styler, i, "interface") || MatchNoCase(styler, i, "ifblock") ||
+			    MatchNoCase(styler, i, "module") ||
+			    MatchNoCase(styler, i, "service") || MatchNoCase(styler, i, "interface") || MatchNoCase(styler, i, "ifblock") ||
 			    MatchNoCase(styler, i, "macro") || MatchNoCase(styler, i, "beginc++")) {
 				levelNext++;
 			}
@@ -527,9 +520,4 @@ static const char * const EclWordListDesc[] = {
 	0
 };
 
-LexerModule lmECL(
-    SCLEX_ECL,
-    ColouriseEclDoc,
-    "ecl",
-    FoldEclDoc,
-    EclWordListDesc);
+LexerModule lmECL(SCLEX_ECL, ColouriseEclDoc, "ecl", FoldEclDoc, EclWordListDesc);

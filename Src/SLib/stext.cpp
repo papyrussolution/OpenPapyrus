@@ -1530,7 +1530,6 @@ int FASTCALL ToUpper866(int alpha)
 	return ch;
 }
 
-//char * FASTCALL rus_stristr(const char * s1, const char * s2)
 char * FASTCALL stristr866(const char * s1, const char * s2)
 {
 	for(size_t p = 0, i = sstrlen(s1), len = sstrlen(s2); (i-p) >= len; p++)
@@ -1539,7 +1538,6 @@ char * FASTCALL stristr866(const char * s1, const char * s2)
 	return 0;
 }
 
-//int FASTCALL rus_stricmp(const char * s1, const char * s2)
 int FASTCALL stricmp866(const char * s1, const char * s2)
 {
 	int    c1, c2;
@@ -1568,7 +1566,6 @@ int FASTCALL stricmp1251(const char * s1, const char * s2)
 	return 0;
 }
 
-//int FASTCALL rus_strnicmp(const char * s1, const char * s2, size_t maxlen)
 int FASTCALL strnicmp866(const char * s1, const char * s2, size_t maxlen)
 {
 	uchar  c1, c2;
@@ -1603,7 +1600,6 @@ char * FASTCALL strupr1251(char * str)
 	return str;
 }
 
-//char * FASTCALL rus_strlwr(char * str)
 char * FASTCALL strlwr866(char * str)
 {
 	if(str) {
@@ -1613,7 +1609,6 @@ char * FASTCALL strlwr866(char * str)
 	return str;
 }
 
-//char * FASTCALL rus_strupr(char * str)
 char * FASTCALL strupr866(char * str)
 {
 	if(str) {
@@ -1622,154 +1617,6 @@ char * FASTCALL strupr866(char * str)
 	}
 	return str;
 }
-
-#if 0 // @v9.5.1 {
-	// @v5.0.4 AHTOXA changed {
-	char * FASTCALL _s_866_to_1251(char * src)
-	{
-	#ifndef _WIN32_WCE
-	__asm	push ds
-	__asm	push es
-	__asm	cld
-	__asm	les  di, src
-	__asm	mov  si, di
-	__asm	mov  ax, es
-	__asm	mov  ds, ax
-	__loop:
-	__asm	lodsb
-	__asm	or   al, al
-	__asm	jz   __end
-		__866_to_1251();
-	__asm	stosb
-	__asm	jmp __loop
-	__end:
-	__asm	stosb
-	__asm	pop  es
-	__asm	pop  ds
-	#endif
-		return src;
-	}
-	// @v5.0.4 AHTOXA changed
-
-	char * FASTCALL _s_1251_to_866(char * src)
-	{
-	#ifndef _WIN32_WCE
-	__asm	push ds
-	__asm	push es
-	__asm	cld
-	__asm	les  di, src
-	__asm	mov  si, di
-	__asm	mov  ax, es
-	__asm	mov  ds, ax
-	__loop:
-	__asm	lodsb
-	__asm	or   al, al
-	__asm	jz   __end
-		__1251_to_866();
-	__asm	stosb
-	__asm	jmp __loop
-	__end:
-	__asm	stosb
-	__asm	pop  es
-	__asm	pop  ds
-	#endif
-	return src;
-	}
-
-	int rus_tbl_cvt(int chr, int srcTbl, int destTbl)
-	{
-	#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
-		if(srcTbl == cp866 && destTbl == cp1251) {
-		#ifdef __WIN32__
-	__asm		mov eax, chr
-		#else
-	__asm		mov ax, chr
-		#endif
-			return __866_to_1251();
-		}
-		if(srcTbl == cp1251 && destTbl == cp866) {
-		#ifdef __WIN32__
-	__asm		mov eax, chr
-		#else
-	__asm		mov ax, chr
-		#endif
-			return __1251_to_866();
-		}
-	#endif
-		return chr;
-	}
-
-	char * rus_tbl_strcvt(char * str, int srcTbl, int destTbl)
-	{
-		if(srcTbl == cp866 && destTbl == cp1251)
-			return _s_866_to_1251(str);
-		if(srcTbl == cp1251 && destTbl == cp866)
-			return _s_1251_to_866(str);
-		return str;
-	}
-
-	#pragma option -k- -N-
-	/*
-		al - source character
-	*/
-	uchar __866_to_1251()
-	{
-	#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
-	__asm	cmp al, 80h
-	__asm	jb  __end
-	__asm	cmp al, 0afh
-	__asm	jg  __bias10
-	__asm	add al, 40h
-	__asm	jmp __end
-	__bias10:
-	__asm	cmp al, 0e0h
-	__asm	jb  __end
-	__asm	cmp al, 0efh
-	__asm	jg  __end
-	__asm	add al, 10h
-	__end:
-	#	ifdef __WIN32__
-	__asm push ax
-	__asm xor eax,eax
-	__asm pop ax
-	#else
-	return _AL;
-	#endif
-	#else
-	return 0;
-	#endif
-	}
-	/*
-		al - source character
-	*/
-	uchar __1251_to_866()
-	{
-	#ifndef _WIN32_WCE // @v5.0.4
-	__asm	cmp al, 0c0h
-	__asm	jb  __end
-	__asm	cmp al, 0efh
-	__asm	jg  __bias10
-	__asm	add al, -40h
-	__asm	jmp __end
-	__bias10:
-	__asm	cmp al, 0f0h
-	__asm	jb  __end
-	__asm	cmp al, 0ffh
-	__asm	jg  __end
-	__asm	add al, -10h
-	__end:
-	#	ifdef __WIN32__
-	__asm push ax
-	__asm xor eax,eax
-	__asm pop ax
-	#else
-	return _AL;
-	#endif
-	#else
-	return 0;
-	#endif
-	}
-#endif // } 0 @v9.5.1
 //
 // KOI
 //
@@ -1833,23 +1680,6 @@ int FASTCALL _koi8_to_866(int c)
 //
 // OEM <-> CHAR
 //
-#if 0 // @v9.5.1 {
-	#if !defined(__WIN32__) || defined(_WIN32_WCE)
-		int OemToChar(const char * in, char* out)
-		{
-			strcpy(out, in);
-			_s_866_to_1251(out);
-			return 1;
-		}
-		int CharToOem(const char * in, char * out)
-		{
-			strcpy(out, in);
-			_s_1251_to_866(out);
-			return 1;
-		}
-	#endif
-#endif // } 0 @v9.5.1
-
 char * FASTCALL SOemToChar(char * pStr)
 {
 	if(pStr)
@@ -1866,24 +1696,6 @@ char * FASTCALL SCharToOem(char * pStr)
 //
 //
 //
-/* @v10.3.0 (unused) int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr)
-{
-	int    ok = 0;
-	*pBuf = 0;
-	*pStr = strip(*pStr);
-	char * p = pBuf;
-	while(**pStr && **pStr != dStr && p - pBuf < maxBytes - 1) {
-		if(**pStr == '\\')
-			(*pStr)++; // @v10.3.0 @fix *pStr++ --> (*pStr)++
-		*p++ = *(*pStr)++;
-	}
-	*p = 0;
-	if(**pStr == dStr) {
-		(*pStr)++;
-		ok = 1;
-	}
-	return ok;
-}*/
 static FORCEINLINE size_t FASTCALL implement_sstrlen(const char * pStr) { return (pStr && pStr[0]) ? strlen(pStr) : 0; }
 static FORCEINLINE size_t FASTCALL implement_sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
 static FORCEINLINE size_t FASTCALL implement_sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
@@ -2196,14 +2008,6 @@ char * FASTCALL newStr(const char * s)
 	else
 		return 0;
 }
-
-/* @v9.9.5 (unused) char * wstrcpy(char * pDest, char * pSrc, size_t maxlen)
-{
-	char * c = (char *)memchr(pSrc, ' ', maxlen);
-	ASSIGN_PTR(c, 0);
-	strncpy(pDest, pSrc, maxlen)[maxlen] = 0;
-	return pDest;
-}*/
 
 char * FASTCALL sstrcpy(char * pDest, const char * pSrc) { return strcpy(pDest, pSrc); }
 uchar * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc) { return reinterpret_cast<uchar *>(strcpy(reinterpret_cast<char *>(pDest), reinterpret_cast<const char *>(pSrc))); }

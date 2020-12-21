@@ -2656,7 +2656,4 @@ int PPALDD_ProjectView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_ProjectView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Project);
-}
+void PPALDD_ProjectView::Destroy() { DESTROY_PPVIEW_ALDD(Project); }

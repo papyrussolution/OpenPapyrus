@@ -491,7 +491,7 @@
 #endif
 /* On MinGW the ADDRESS_FAMILY typedef was committed alongside LUP_SECURE,
    so we use it to check for the presence of the typedef. */
-#include <ws2tcpip.h>
+//#include <ws2tcpip.h>
 #if !defined(__MINGW32__) || defined(LUP_SECURE)
 /* Define to use Unix sockets. */
 #define USE_UNIX_SOCKETS

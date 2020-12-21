@@ -488,7 +488,7 @@ FT_Stream_ReadULongLE(FT_Stream stream,
 FT_BASE(FT_Error)
 FT_Stream_ReadFields(FT_Stream stream,
     const FT_Frame_Field*  fields,
-    void*                  structure);
+    void *       structure);
 
 #define FT_STREAM_POS()           \
 	FT_Stream_Pos(stream)

@@ -3104,8 +3104,8 @@ int PPObjStyloPalm::CreateWhList(ExportBlock & rBlk)
 		SString temp_buf;
 		PPIDArray loc_list;
 		PPObjLocation loc_obj;
-		THROW_MEM(rBlk.P_WhList = new TSVector <ExportBlock::WhEntry>); // @v9.8.7 TSArray-->TSVector
-		loc_obj.GetWarehouseList(&loc_list);
+		THROW_MEM(rBlk.P_WhList = new TSVector <ExportBlock::WhEntry>);
+		loc_obj.GetWarehouseList(&loc_list, 0);
 		for(uint i = 0; i < loc_list.getCount(); i++) {
 			ExportBlock::WhEntry entry;
 			MEMSZERO(entry);

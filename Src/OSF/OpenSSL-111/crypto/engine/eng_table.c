@@ -192,8 +192,7 @@ void engine_table_cleanup(ENGINE_TABLE ** table)
 #ifndef ENGINE_TABLE_DEBUG
 ENGINE * engine_table_select(ENGINE_TABLE ** table, int nid)
 #else
-ENGINE *engine_table_select_tmp(ENGINE_TABLE **table, int nid, const char * f,
-    int l)
+ENGINE *engine_table_select_tmp(ENGINE_TABLE **table, int nid, const char * f, int l)
 #endif
 {
 	ENGINE * ret = NULL;

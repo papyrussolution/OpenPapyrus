@@ -1876,7 +1876,7 @@ int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 		if(*pID) {
 			THROW(Search(*pID, &raw_rec) > 0 && raw_rec.Kind == PPGDSK_BRAND);
 			if(pPack) {
-				if(pPack->Rec.OwnerID != raw_rec.ManufID || strcmp(pPack->Rec.Name, raw_rec.Name) != 0 || pPack->Rec.Flags != raw_rec.Flags ||
+				if(pPack->Rec.OwnerID != raw_rec.ManufID || !sstreq(pPack->Rec.Name, raw_rec.Name) || pPack->Rec.Flags != raw_rec.Flags ||
 					pPack->Rec.Flags & BRNDF_HASIMAGES
 				) {
 					THROW(CheckRights(PPR_MOD));

@@ -179,14 +179,17 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		{
 			PPObjLocation loc_obj;
 			BExtInsert bei(P_TempTbl);
+			bool is_loclist_restricted = false;
 			PPTransaction tra(ppDbDependTransaction, use_ta);
 			THROW(tra);
 			goods_flt.GrpID   = Filt.GoodsGrpID;
 			goods_flt.SupplID = Filt.SupplID;
-			if(Filt.LocList.GetCount())
+			if(Filt.LocList.GetCount()) {
+				is_loclist_restricted = true;
 		 		loc_list.copy(Filt.LocList.Get());
+			}
 			else {
-				THROW(loc_obj.GetWarehouseList(&loc_list));
+				THROW(loc_obj.GetWarehouseList(&loc_list, &is_loclist_restricted));
 			}
 			for(GoodsIterator giter(&goods_flt, 0); giter.Next(&goods_rec) > 0;) {
 				int    skip = 0;
@@ -194,7 +197,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 				if(!(goods_rec.Flags & GF_GENERIC) && (Filt.GoodsGrpID || !GObj.IsAsset(goods_rec.ID))) {
 					uint   pos = 0;
 					ReceiptTbl::Rec lot_rec;
-					MEMSZERO(lot_rec);
+					// @v10.9.9 @ctr MEMSZERO(lot_rec);
 					cost_ary.clear();
 					suppl_list.clear();
 					ReceiptTbl & r_t = BillObj->trfr->Rcpt;
@@ -202,7 +205,8 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					BExtQuery q(&r_t, 2);
 					DBQ * dbq = &(r_t.GoodsID == goods_rec.ID && daterange(r_t.Dt, &Filt.Period) && r_t.PrevLotID == 0L);
 					dbq = ppcheckfiltid(dbq, r_t.SupplID, Filt.SupplID);
-					dbq = ppcheckfiltidlist(dbq, r_t.LocID, &loc_list);
+					if(is_loclist_restricted) // @v10.9.9
+						dbq = ppcheckfiltidlist(dbq, r_t.LocID, &loc_list);
 					q.select(r_t.ID, r_t.PrevLotID, r_t.SupplID, r_t.LocID, r_t.Dt, r_t.Cost, 0L).where(*dbq);
 					MEMSZERO(k2);
 					k2.GoodsID = goods_rec.ID;
@@ -609,7 +613,7 @@ int PPALDD_PriceAnlz::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PriceAnlz::InitIteration(PPIterID iterId, int sortId, long rsrv)
+int PPALDD_PriceAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(PriceAnlz);
 }

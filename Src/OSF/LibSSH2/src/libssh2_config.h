@@ -12,7 +12,7 @@
 #endif /* _CRT_SECURE_NO_DEPRECATE */
 // @sobolev #include <winsock2.h>
 #include <mswsock.h>
-#include <ws2tcpip.h>
+//#include <ws2tcpip.h>
 #ifdef __MINGW32__
 	#define HAVE_UNISTD_H
 	#define HAVE_INTTYPES_H

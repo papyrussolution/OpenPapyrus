@@ -106,12 +106,12 @@ CMSAPI void               CMSEXPORT  cmsSignalError(cmsContext ContextID, cmsUIn
 
 // Memory management ----------------------------------------------------------------------------------
 
-CMSAPI void*              CMSEXPORT _cmsMalloc(cmsContext ContextID, cmsUInt32Number size);
-CMSAPI void*              CMSEXPORT _cmsMallocZero(cmsContext ContextID, cmsUInt32Number size);
-CMSAPI void*              CMSEXPORT _cmsCalloc(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size);
-CMSAPI void*              CMSEXPORT _cmsRealloc(cmsContext ContextID, void* Ptr, cmsUInt32Number NewSize);
+CMSAPI void *   CMSEXPORT _cmsMalloc(cmsContext ContextID, cmsUInt32Number size);
+CMSAPI void *   CMSEXPORT _cmsMallocZero(cmsContext ContextID, cmsUInt32Number size);
+CMSAPI void *   CMSEXPORT _cmsCalloc(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size);
+CMSAPI void *   CMSEXPORT _cmsRealloc(cmsContext ContextID, void* Ptr, cmsUInt32Number NewSize);
 CMSAPI void               CMSEXPORT _cmsFree(cmsContext ContextID, void* Ptr);
-CMSAPI void*              CMSEXPORT _cmsDupMem(cmsContext ContextID, const void* Org, cmsUInt32Number size);
+CMSAPI void *   CMSEXPORT _cmsDupMem(cmsContext ContextID, const void* Org, cmsUInt32Number size);
 
 // I/O handler ----------------------------------------------------------------------------------
 
@@ -396,7 +396,7 @@ typedef struct _cms_typehandler_struct {
         // Writes n Items
         cmsBool  (* WritePtr)(struct _cms_typehandler_struct* self,
                               cmsIOHANDLER*     io,
-                              void*             Ptr,
+                              void *  Ptr,
                               cmsUInt32Number   nItems);
 
         // Duplicate an item or array of items
@@ -501,7 +501,7 @@ CMSAPI cmsStage* CMSEXPORT _cmsStageAllocPlaceholder(cmsContext ContextID,
                                 _cmsStageEvalFn       EvalPtr,            // Points to fn that evaluates the element (always in floating point)
                                 _cmsStageDupElemFn    DupElemPtr,         // Points to a fn that duplicates the stage
                                 _cmsStageFreeElemFn   FreePtr,            // Points to a fn that sets the element free
-                                void*                 Data);              // A generic pointer to whatever memory needed by the element
+                                void *      Data);              // A generic pointer to whatever memory needed by the element
 typedef struct {
       cmsPluginBase     base;
       cmsTagTypeHandler Handler;

@@ -30,7 +30,6 @@
 
 #ifdef HAVE_CORETEXT
 
-//#include "hb-shaper-impl.hh"
 #include "hb-coretext.h"
 #include "hb-aat-layout.hh"
 #include <math.h>

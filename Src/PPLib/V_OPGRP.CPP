@@ -1337,8 +1337,5 @@ int PPALDD_OpGrouping::NextIteration(PPIterID iterId)
 	return -1;
 }
 
-void PPALDD_OpGrouping::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(OpGrouping);
-}
+void PPALDD_OpGrouping::Destroy() { DESTROY_PPVIEW_ALDD(OpGrouping); }
 

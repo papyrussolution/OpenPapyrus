@@ -2540,11 +2540,8 @@ static cairo_int_status_t _cairo_cff_font_create(cairo_scaled_font_subset_t * sc
 	font->global_subs_used = NULL;
 	font->local_subs_used = NULL;
 	font->fd_local_subs_used = NULL;
-
 	*font_return = font;
-
 	return CAIRO_STATUS_SUCCESS;
-
 fail5:
 	_cairo_hash_table_destroy(font->top_dict);
 fail4:
@@ -2558,14 +2555,12 @@ fail1:
 	SAlloc::F(font->data);
 	SAlloc::F(font->font_name);
 	SAlloc::F(font);
-
 	return status;
 }
 
 static void cairo_cff_font_destroy(cairo_cff_font_t * font)
 {
 	uint i;
-
 	SAlloc::F(font->widths);
 	SAlloc::F(font->font_name);
 	SAlloc::F(font->ps_name);
@@ -2579,7 +2574,6 @@ static void cairo_cff_font_destroy(cairo_cff_font_t * font)
 	cff_index_fini(&font->local_sub_index);
 	cff_index_fini(&font->charstrings_subset_index);
 	cff_index_fini(&font->strings_subset_index);
-
 	/* If we bailed out early as a result of an error some of the
 	 * following cairo_cff_font_t members may still be NULL */
 	if(font->fd_dict) {
@@ -2593,7 +2587,6 @@ static void cairo_cff_font_destroy(cairo_cff_font_t * font)
 	SAlloc::F(font->local_subs_used);
 	SAlloc::F(font->fd_subset_map);
 	SAlloc::F(font->private_dict_offset);
-
 	if(font->is_cid) {
 		SAlloc::F(font->fdselect);
 		SAlloc::F(font->fdselect_subset);
@@ -2619,36 +2612,28 @@ static void cairo_cff_font_destroy(cairo_cff_font_t * font)
 		SAlloc::F(font->fd_default_width);
 		SAlloc::F(font->fd_nominal_width);
 	}
-
 	SAlloc::F(font->data);
-
 	SAlloc::F(font);
 }
 
-cairo_status_t _cairo_cff_subset_init(cairo_cff_subset_t * cff_subset,
-    const char * subset_name,
+cairo_status_t _cairo_cff_subset_init(cairo_cff_subset_t * cff_subset, const char * subset_name,
     cairo_scaled_font_subset_t * font_subset)
 {
 	cairo_cff_font_t * font = NULL; /* squelch bogus compiler warning */
-	cairo_status_t status;
 	const char * data = NULL; /* squelch bogus compiler warning */
 	ulong length = 0; /* squelch bogus compiler warning */
 	uint i;
-
-	status = _cairo_cff_font_create(font_subset, &font, subset_name);
+	cairo_status_t status = _cairo_cff_font_create(font_subset, &font, subset_name);
 	if(unlikely(status))
 		return status;
-
 	status = cairo_cff_font_generate(font, &data, &length);
 	if(unlikely(status))
 		goto fail1;
-
 	cff_subset->ps_name = strdup(font->ps_name);
 	if(unlikely(cff_subset->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
 	}
-
 	if(font->font_name) {
 		cff_subset->family_name_utf8 = strdup(font->font_name);
 		if(cff_subset->family_name_utf8 == NULL) {

@@ -17,7 +17,6 @@
 int engine_unlocked_init(ENGINE * e)
 {
 	int to_return = 1;
-
 	if((e->funct_ref == 0) && e->init)
 		/*
 		 * This is the first functional reference and the engine requires
@@ -44,7 +43,6 @@ int engine_unlocked_init(ENGINE * e)
 int engine_unlocked_finish(ENGINE * e, int unlock_for_handlers)
 {
 	int to_return = 1;
-
 	/*
 	 * Reduce the functional reference count here so if it's the terminating
 	 * case, we can release the lock safely and call the finish() handler
@@ -74,7 +72,7 @@ int engine_unlocked_finish(ENGINE * e, int unlock_for_handlers)
 }
 
 /* The API (locked) version of "init" */
-int ENGINE_init(ENGINE * e)
+int FASTCALL ENGINE_init(ENGINE * e)
 {
 	int ret;
 	if(e == NULL) {
@@ -92,18 +90,16 @@ int ENGINE_init(ENGINE * e)
 }
 
 /* The API (locked) version of "finish" */
-int ENGINE_finish(ENGINE * e)
+int FASTCALL ENGINE_finish(ENGINE * e)
 {
 	int to_return = 1;
-
-	if(e == NULL)
-		return 1;
-	CRYPTO_THREAD_write_lock(global_engine_lock);
-	to_return = engine_unlocked_finish(e, 1);
-	CRYPTO_THREAD_unlock(global_engine_lock);
-	if(!to_return) {
-		ENGINEerr(ENGINE_F_ENGINE_FINISH, ENGINE_R_FINISH_FAILED);
-		return 0;
+	if(e) {
+		CRYPTO_THREAD_write_lock(global_engine_lock);
+		to_return = engine_unlocked_finish(e, 1);
+		CRYPTO_THREAD_unlock(global_engine_lock);
+		if(!to_return) {
+			ENGINEerr(ENGINE_F_ENGINE_FINISH, ENGINE_R_FINISH_FAILED);
+		}
 	}
 	return to_return;
 }

@@ -516,7 +516,7 @@ int PPALDD_PsnRelList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PsnRelList::InitIteration(PPIterID iterId, int sortId, long rsrv)
+int PPALDD_PsnRelList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(PersonRel);
 }
@@ -524,7 +524,7 @@ int PPALDD_PsnRelList::InitIteration(PPIterID iterId, int sortId, long rsrv)
 int PPALDD_PsnRelList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PersonRel);
-	const PersonRelFilt * p_filt = (const PersonRelFilt *)p_v->GetBaseFilt();
+	const PersonRelFilt * p_filt = static_cast<const PersonRelFilt *>(p_v->GetBaseFilt());
 	PPWaitPercent(p_v->GetCounter());
 	I.PersonID  = item.PrmrPersonID;
 	I.SecondID  = item.ScndPersonID;
@@ -532,7 +532,4 @@ int PPALDD_PsnRelList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_PsnRelList::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(PersonRel);
-}
+void PPALDD_PsnRelList::Destroy() { DESTROY_PPVIEW_ALDD(PersonRel); }

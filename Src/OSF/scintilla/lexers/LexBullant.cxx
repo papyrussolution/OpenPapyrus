@@ -96,14 +96,12 @@ static void ColouriseBullantDoc(Sci_PositionU startPos, Sci_Position length, int
  */             }
 		if(!(IsASCII(ch) && isspace(ch)))
 			visibleChars++;
-
 		if(styler.IsLeadByte(ch)) {
 			chNext = styler.SafeGetCharAt(i + 2);
 			chPrev = ' ';
 			i += 1;
 			continue;
 		}
-
 		if(state == SCE_C_DEFAULT) {
 			if(iswordstart(ch)) {
 				styler.ColourTo(i-1, state);
@@ -165,7 +163,7 @@ static void ColouriseBullantDoc(Sci_PositionU startPos, Sci_Position length, int
 			}
 		}
 		else if(state == SCE_C_COMMENTLINE) {
-			if(ch == '\r' || ch == '\n') {
+			if(oneof2(ch, '\r', '\n')) {
 				endFoundThisLine = 0;
 				styler.ColourTo(i-1, state);
 				state = SCE_C_DEFAULT;
@@ -173,7 +171,7 @@ static void ColouriseBullantDoc(Sci_PositionU startPos, Sci_Position length, int
 		}
 		else if(state == SCE_C_STRING) {
 			if(ch == '\\') {
-				if(chNext == '\"' || chNext == '\'' || chNext == '\\') {
+				if(oneof3(chNext, '\"', '\'', '\\')) {
 					i++;
 					ch = chNext;
 					chNext = styler.SafeGetCharAt(i + 1);
@@ -183,20 +181,20 @@ static void ColouriseBullantDoc(Sci_PositionU startPos, Sci_Position length, int
 				styler.ColourTo(i, state);
 				state = SCE_C_DEFAULT;
 			}
-			else if(chNext == '\r' || chNext == '\n') {
+			else if(oneof2(chNext, '\r', '\n')) {
 				endFoundThisLine = 0;
 				styler.ColourTo(i-1, SCE_C_STRINGEOL);
 				state = SCE_C_STRINGEOL;
 			}
 		}
 		else if(state == SCE_C_CHARACTER) {
-			if((ch == '\r' || ch == '\n') && (chPrev != '\\')) {
+			if(oneof2(ch, '\r', '\n') && (chPrev != '\\')) {
 				endFoundThisLine = 0;
 				styler.ColourTo(i-1, SCE_C_STRINGEOL);
 				state = SCE_C_STRINGEOL;
 			}
 			else if(ch == '\\') {
-				if(chNext == '\"' || chNext == '\'' || chNext == '\\') {
+				if(oneof3(chNext, '\"', '\'', '\\')) {
 					i++;
 					ch = chNext;
 					chNext = styler.SafeGetCharAt(i + 1);
@@ -210,7 +208,6 @@ static void ColouriseBullantDoc(Sci_PositionU startPos, Sci_Position length, int
 		chPrev = ch;
 	}
 	styler.ColourTo(lengthDoc - 1, state);
-
 	// Fill in the real level of the next line, keeping the current flags as they will be filled in later
 	if(fold) {
 		int flagsNext = styler.LevelAt(lineCurrent) & ~SC_FOLDLEVELNUMBERMASK;

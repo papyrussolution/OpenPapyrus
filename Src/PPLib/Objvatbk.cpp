@@ -2661,10 +2661,7 @@ int PPALDD_VatBook::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_VatBook::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(VatBook);
-}
+void PPALDD_VatBook::Destroy() { DESTROY_PPVIEW_ALDD(VatBook); }
 //
 //
 //

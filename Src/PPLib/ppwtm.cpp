@@ -3,7 +3,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <layout-flex.h>
 
 class BaseWtmToolDialog : public TDialog {
 	DECL_DIALOG_DATA(TWhatmanToolArray::Item);
@@ -29,7 +28,7 @@ public:
 		setCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
 		AddClusterAssoc(CTL_WTMTOOL_FLAGS, 0, TWhatmanToolArray::Item::fDontEnlarge);
 		AddClusterAssoc(CTL_WTMTOOL_FLAGS, 1, TWhatmanToolArray::Item::fDontKeepRatio);
-		AddClusterAssoc(CTL_WTMTOOL_FLAGS, 2, TWhatmanToolArray::Item::fGrayscale); // @v9.5.4
+		AddClusterAssoc(CTL_WTMTOOL_FLAGS, 2, TWhatmanToolArray::Item::fGrayscale);
 		SetClusterData(CTL_WTMTOOL_FLAGS, Data.Flags);
 		{
 			ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_WTMOBJ));
@@ -76,15 +75,15 @@ int BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 	return ok;
 }
 
-struct LayoutEntryDialogBlock : public /*TLayout::EntryBlock*/AbstractLayoutBlock {
-	LayoutEntryDialogBlock(const /*TLayout::EntryBlock*/AbstractLayoutBlock * pS)
+struct LayoutEntryDialogBlock : public AbstractLayoutBlock {
+	LayoutEntryDialogBlock(const AbstractLayoutBlock * pS)
 	{
 		Setup(pS);
 	}
-	void Setup(const /*TLayout::EntryBlock*/AbstractLayoutBlock * pS)
+	void Setup(const AbstractLayoutBlock * pS)
 	{
 		if(pS)
-			*static_cast</*TLayout::EntryBlock*/AbstractLayoutBlock *>(this) = *pS;
+			*static_cast<AbstractLayoutBlock *>(this) = *pS;
 	}
 	SString ParentLayoutSymb;
 	SString OwnLayoutSymb;
@@ -99,38 +98,39 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
+		SString temp_buf;
 		RVALUEPTR(Data, pData);
 		setCtrlString(CTL_WOLAYC_IDENT, Data.OwnLayoutSymb);
 		AddClusterAssocDef(CTL_WOLAYC_LAY, 0, DIREC_UNKN);
 		AddClusterAssoc(CTL_WOLAYC_LAY, 1, DIREC_HORZ);
 		AddClusterAssoc(CTL_WOLAYC_LAY, 2, DIREC_VERT);
 		SetClusterData(CTL_WOLAYC_LAY, Data.GetContainerDirection());
-		/*
-		AddClusterAssocDef(CTL_WOLAYC_ADJ, 0, ADJ_LEFT);
-		AddClusterAssoc(CTL_WOLAYC_ADJ, 1, ADJ_RIGHT);
-		AddClusterAssoc(CTL_WOLAYC_ADJ, 2, ADJ_CENTER);
-		AddClusterAssoc(CTL_WOLAYC_ADJ, 3, ADJ_ALIGN);
-		SetClusterData(CTL_WOLAYC_ADJ, Data.ContainerAdjustment);
-		*/
 		AddClusterAssoc(CTL_WOLAYC_FLAGS, 0, /*TLayout::EntryBlock::cfWrap*/AbstractLayoutBlock::fContainerWrap);
 		SetClusterData(CTL_WOLAYC_FLAGS, /*Data.ContainerFlags*/Data.Flags);
 		//
+		AbstractLayoutBlock::MarginsToString(Data.Padding, temp_buf);
+		setCtrlString(CTL_WOLAYC_MARG, temp_buf);
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
+		uint   sel = 0;
+		SString temp_buf;
 		getCtrlString(CTL_WOLAYC_IDENT, Data.OwnLayoutSymb);
 		Data.SetContainerDirection(GetClusterData(CTL_WOLAYC_LAY));
 		// GetClusterData(CTL_WOLAYC_ADJ, &Data.ContainerAdjustment);
 		{
 			long   flags = 0;
 			GetClusterData(CTL_WOLAYC_FLAGS, &flags);
-			//SETFLAG(Data.ContainerFlags, TLayout::EntryBlock::cfWrap, flags & TLayout::EntryBlock::cfWrap);
 			SETFLAG(Data.Flags, AbstractLayoutBlock::fContainerWrap, AbstractLayoutBlock::fContainerWrap);
 		}
 		//
+		getCtrlString(sel = CTL_WOLAYC_MARG, temp_buf);
+		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Padding), PPERR_USERINPUT);
+		//
 		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
@@ -162,8 +162,11 @@ public:
 		}
 		Data.SizeToString(temp_buf);
 		setCtrlString(CTL_LAYOENTRY_SIZE, temp_buf);
-		AbstractLayoutBlock::MarginsToString(Data.Padding, temp_buf);
+		AbstractLayoutBlock::MarginsToString(Data.Margin, temp_buf);
 		setCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
+		setCtrlData(CTL_LAYOENTRY_GROWF, &Data.GrowFactor);
+		setCtrlData(CTL_LAYOENTRY_SHRNKF, &Data.ShrinkFactor);
+		setCtrlData(CTL_LAYOENTRY_ASPR, &Data.AspectRatio);
 		/*
 		AddClusterAssocDef(CTL_LAYOENTRY_GRAVITY, 0, Data.bfLeft);
 		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 1, Data.bfRight);
@@ -186,8 +189,11 @@ public:
 		getCtrlString(sel = CTL_LAYOENTRY_SIZE, temp_buf);
 		THROW_PP(Data.SizeFromString(temp_buf), PPERR_USERINPUT);
 		getCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
-		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Padding), PPERR_USERINPUT);
-		GetClusterData(CTL_LAYOENTRY_GRAVITY, &bf);
+		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Margin), PPERR_USERINPUT);
+		getCtrlData(CTL_LAYOENTRY_GROWF, &Data.GrowFactor);
+		getCtrlData(CTL_LAYOENTRY_SHRNKF, &Data.ShrinkFactor);
+		getCtrlData(CTL_LAYOENTRY_ASPR, &Data.AspectRatio);
+		//GetClusterData(CTL_LAYOENTRY_GRAVITY, &bf);
 		//Data.BehaveFlags &= ~(Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
 		//Data.BehaveFlags |= bf;
 		{
@@ -220,6 +226,9 @@ public:
 		if(pData) {
 			Data.Setup(&pData->GetLayoutBlock());
 			Data.ParentLayoutSymb = pData->GetLayoutContainerIdent();
+			if(pData->HasOption(TWhatmanObject::oContainer)) {
+				Data.OwnLayoutSymb = static_cast<const WhatmanObjectLayoutBase *>(pData)->GetContainerIdent();
+			}
 			P_Wtm = pData->GetOwner();
 		}
 		return 1;
@@ -228,9 +237,11 @@ public:
 	{
 		int    ok = 1;
 		if(pData) {
-			// @todo wrong block
 			pData->SetLayoutBlock(&Data);
 			pData->SetLayoutContainerIdent(Data.ParentLayoutSymb);
+			if(pData->HasOption(TWhatmanObject::oContainer)) {
+				static_cast<WhatmanObjectLayoutBase *>(pData)->SetContainerIdent(Data.OwnLayoutSymb);
+			}
 		}
 		return ok;
 	}
@@ -242,7 +253,7 @@ protected:
 			EditLayoutEntry(&Data);
 		}
 		else if(event.isCmd(cmLayoutContainer)) { // @v10.9.8
-			EditLayoutContainer();
+			EditLayoutContainer(&Data);
 		}
 		else
 			return;
@@ -253,9 +264,9 @@ protected:
 		//PPDialogProcBody <LayoutEntryDialog, TLayout::EntryBlock> (&Le);
 		DIALOG_PROC_BODY_P1(LayoutEntryDialog, P_Wtm, pData);
 	}
-	int  EditLayoutContainer() 
+	int  EditLayoutContainer(LayoutEntryDialogBlock * pData)
 	{
-		return -1;
+		DIALOG_PROC_BODY_P1(LayoutContainerDialog, P_Wtm, pData);
 	}
 	//TLayout::EntryBlock Le;
 	LayoutEntryDialogBlock Data;
@@ -337,23 +348,24 @@ protected:
 						{
 							int    ok = 1;
 							uint   sel = 0;
-							const SString preserve_symb(pData ? pData->ContainerIdent.cptr() : 0);
+							//const SString preserve_symb(pData ? pData->ContainerIdent.cptr() : 0);
 							AbstractLayoutBlock lb = Data.GetLayoutBlock();
-							getCtrlString(sel = CTL_WOLAYOUT_SYMB, Data.ContainerIdent);
-							if(pData) {
+							getCtrlString(sel = CTL_WOLAYOUT_SYMB, Data.Symb);
+							/*if(pData) {
 								pData->ContainerIdent = Data.ContainerIdent;
-							}
+							}*/
 							const TWhatman * p_wtm = Data.GetOwner();
 							THROW_SL(!p_wtm || p_wtm->CheckUniqLayoutSymb(pData));
-							lb.SetContainerDirection(static_cast<int16>(GetClusterData(CTL_WOLAYOUT_LAY)));
+							//lb.SetContainerDirection(static_cast<int16>(GetClusterData(CTL_WOLAYOUT_LAY)));
 							//lb.ContainerAdjustment = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_ADJ));
 							//lb.ContainerFlags = static_cast<uint16>(GetClusterData(CTL_WOLAYOUT_FLAGS));
-							Data.SetLayoutBlock(&lb);
-							// @v10.9.8 WhatmanObjectBaseDialog::updateRef(&Data); // @v10.4.9
+							//Data.SetLayoutBlock(&lb);
+							WhatmanObjectBaseDialog::updateRef(&Data);
 							ASSIGN_PTR(pData, Data);
 							CATCH
-								if(pData)
+								/*if(pData)
 									pData->ContainerIdent = preserve_symb;
+								*/
 								ok = PPErrorByDialog(this, sel);
 							ENDCATCH
 							return ok;
@@ -1787,7 +1799,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 	}
 	else if(mode == 3) {
 		//
-		// Запуск режима перетаскивания чужего объекта для Drag'N'Drop
+		// Запуск режима перетаскивания чужого объекта для Drag'N'Drop
 		//
 		if(!St.Rsz) {
 			DdotInfoBlock * p_dot_blk = 0;
@@ -2680,11 +2692,9 @@ int PPWhatmanWindow::FileOpen()
 		FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 		{
 			SRectLayout::Item li;
-			// @v10.9.3 Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
-			// @v10.9.3 Layout_Obsolete.Add(zoneCenter, li.SetCenter());
-			P_Lfc = new LayoutFlexItem(); // @v10.9.3
-			P_Lfc->Direction = FLEX_DIRECTION_ROW;
-			P_Lfc->AlignContent = FLEX_ALIGN_STRETCH;
+			P_Lfc = new LayoutFlexItem();
+			P_Lfc->ALB.SetContainerDirection(DIREC_HORZ);
+			P_Lfc->ALB.AlignContent = AbstractLayoutBlock::alignStretch/*FLEX_ALIGN_STRETCH*/;
 			P_Lfc->managed_ptr = this;
 			P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
 		}
@@ -2702,7 +2712,7 @@ int PPWhatmanWindow::FileOpen()
 			LayoutFlexItem * p_lo = 0;
 			if(p_frame_layout) {
 				p_lo = p_frame_layout->InsertItem();
-				p_lo->GrowFactor = 1.0f;
+				p_lo->ALB.GrowFactor = 1.0f;
 				//p_lo->align_items = FLEX_ALIGN_STRETCH;
 				//p_lo->align_self = FLEX_ALIGN_AUTO;
 			}
@@ -2715,7 +2725,7 @@ int PPWhatmanWindow::FileOpen()
 			LayoutFlexItem * p_lo = 0;
 			if(p_frame_layout) {
 				p_lo = p_frame_layout->InsertItem();
-				p_lo->GrowFactor = 3.0f;
+				p_lo->ALB.GrowFactor = 3.0f;
 				//p_lo->align_items = FLEX_ALIGN_STRETCH;
 				//p_lo->align_self = FLEX_ALIGN_AUTO;
 			}
@@ -2746,4 +2756,3 @@ int PPWhatmanWindow::FileOpen()
 	ENDCATCH
 	return ok;
 }
-

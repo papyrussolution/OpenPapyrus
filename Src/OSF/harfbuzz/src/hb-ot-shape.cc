@@ -33,15 +33,6 @@
 	#error "Cannot compile 'ot' shaper with HB_NO_OT_LAYOUT."
 #endif
 
-//#include "hb-shaper-impl.hh"
-#include "hb-ot-shape.hh"
-#include "hb-ot-shape-complex.hh"
-#include "hb-ot-shape-fallback.hh"
-#include "hb-ot-shape-normalize.hh"
-#include "hb-ot-face.hh"
-#include "hb-set.hh"
-#include "hb-aat-layout.hh"
-
 #ifndef HB_NO_AAT_SHAPE
 static inline bool _hb_apply_morx(hb_face_t * face, const hb_segment_properties_t * props)
 {

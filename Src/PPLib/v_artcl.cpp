@@ -1117,7 +1117,4 @@ int PPALDD_ArticleView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_ArticleView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Article);
-}
+void PPALDD_ArticleView::Destroy() { DESTROY_PPVIEW_ALDD(Article); }

@@ -191,20 +191,15 @@ int archive_write_set_format_ustar(struct archive * _a)
 	return (ARCHIVE_OK);
 }
 
-static int archive_write_ustar_options(struct archive_write * a, const char * key,
-    const char * val)
+static int archive_write_ustar_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct ustar * ustar = (struct ustar *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-
-	if(strcmp(key, "hdrcharset")  == 0) {
+	if(sstreq(key, "hdrcharset")) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: hdrcharset option needs a character-set name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
-			ustar->opt_sconv = archive_string_conversion_to_charset(
-				&a->archive, val, 0);
+			ustar->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
 			if(ustar->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -212,7 +207,6 @@ static int archive_write_ustar_options(struct archive_write * a, const char * ke
 		}
 		return (ret);
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */

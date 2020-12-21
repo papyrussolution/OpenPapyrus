@@ -582,8 +582,14 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 		//
 		LocList.freeAll();
 		if(Filt.LocList.GetCount() == 0) {
+			bool is_loclist_restricted = false;
 			PPObjLocation loc_obj;
-			loc_obj.GetWarehouseList(&LocList);
+			loc_obj.GetWarehouseList(&LocList, &is_loclist_restricted);
+			// @v10.9.9 {
+			if(!is_loclist_restricted) { 
+				LocList.freeAll();
+			}
+			// } @v10.9.9 
 		}
 		else {
 			const PPIDArray & r_loc_list = Filt.LocList.Get();
@@ -653,13 +659,11 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			SETFLAG(gct_filt.Flags, OPG_FORCEBILLCACHE, 1);
 			SETFLAG(gct_filt.Flags, OPG_BYZERODLVRADDR, Filt.Flags & TrfrAnlzFilt::fByZeroDlvrAddr);
 			SETFLAG(gct_filt.Flags, OPG_SKIPNOUPDLOTREST, 1);
-			SETFLAG(gct_filt.Flags, OPG_STOREDAILYRESTS, Filt.Flags & TrfrAnlzFilt::fCalcRest); // @v9.1.3
+			SETFLAG(gct_filt.Flags, OPG_STOREDAILYRESTS, Filt.Flags & TrfrAnlzFilt::fCalcRest);
 			SETFLAG(gct_filt.Flags, OPG_OPENEDDRAFTONLY, Filt.Flags & TrfrAnlzFilt::fUnclosedDraftsOnly); // @v10.1.10
-			// @v9.4.10 {
 			if(GCTIterator::AnalyzeOp(Filt.OpID, 0) & (GCTIterator::aorfThereAreDrafts|GCTIterator::aorfThereAreOrders)) {
 				SETFLAG(gct_filt.Flags, OPG_COMPAREWROFF, Filt.Flags & TrfrAnlzFilt::fCmpWrOff);
 			}
-			// } @v9.4.10
 			if(Filt.Flags & TrfrAnlzFilt::fShowAllArticles)
 				gct_filt.SoftRestrict = srArticle;
 			else if(Filt.Flags & TrfrAnlzFilt::fShowAllAgents)
@@ -3715,10 +3719,7 @@ int PPALDD_TrfrAnlzBase::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_TrfrAnlzBase::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(TrfrAnlz);
-}
+void PPALDD_TrfrAnlzBase::Destroy() { DESTROY_PPVIEW_ALDD(TrfrAnlz); }
 
 void PPALDD_TrfrAnlzBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {

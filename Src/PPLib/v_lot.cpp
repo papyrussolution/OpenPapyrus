@@ -1184,7 +1184,7 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 		Filt.LocList.Add(Filt.LocID__);
 	if(Filt.LocList.IsEmpty()) {
 		PPObjLocation loc_obj;
-		loc_obj.GetWarehouseList(&LocList);
+		loc_obj.GetWarehouseList(&LocList, 0);
 	}
 	else {
 		for(uint locidx = 0; locidx < Filt.LocList.GetCount(); locidx++) {

@@ -1657,9 +1657,8 @@ IMPL_CMPFUNC(GoodsSubstItem_Srch, p1, p2)
 	if(i1->U.L.Par3 > i2->U.L.Par3)   return 1;
 	{
 		if(i1->P_Text != 0 && i2->P_Text != 0) {
-			GoodsSubstList * p_gsl = (GoodsSubstList *)pExtraData;
-			// @v9.8.10 const char * p_text1 = p_gsl->StrPool.getBuf() + i1->StrP;
-			const char * p_text1 = p_gsl->GetTextPtr(i1->StrP); // @v9.8.10
+			const GoodsSubstList * p_gsl = static_cast<const GoodsSubstList *>(pExtraData);
+			const char * p_text1 = p_gsl->GetTextPtr(i1->StrP);
 			return strcmp(p_text1, i2->P_Text);
 		}
 		else if(i1->P_Text == 0 && i2->P_Text)
@@ -3177,7 +3176,7 @@ int PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 				}
 				bc_rec = pPack->Codes.at(i);
 				for(uint j = 0; ok && j < pPack->Codes.getCount(); j++) {
-					if(j != i && strcmp(bc_rec.Code, pPack->Codes.at(j).Code) == 0) {
+					if(j != i && sstreq(bc_rec.Code, pPack->Codes.at(j).Code)) {
 						CALLEXCEPT_PP_S(PPERR_DUPBARCODE, bc_rec.Code);
 					}
 				}

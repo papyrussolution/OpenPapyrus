@@ -26,7 +26,6 @@
 
 #ifdef HAVE_DIRECTWRITE
 
-//#include "hb-shaper-impl.hh"
 #include <dwrite_1.h>
 #include "hb-directwrite.h"
 

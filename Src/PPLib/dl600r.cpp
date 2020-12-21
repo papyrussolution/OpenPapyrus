@@ -522,7 +522,7 @@ int DlRtm::InitScope(const DlScope * pScope, int topLevel)
 
 DlRtm::DlRtm(DlContext * pCtx, DlScope * pScope) : P_Ep(0), P_Ctx(pCtx), DataId(0), P_Data(0), P_HdrScope(0), Valid(1)
 {
-	THROW_MEM(Extra = (ExtData *)SAlloc::C((size_t)32, sizeof(ExtData)));
+	THROW_MEM(Extra = static_cast<ExtData2 *>(SAlloc::C(32U, sizeof(ExtData2))));
 	IterList.Init();
 	if(P_Ctx && pScope) {
 		P_Data = pScope;
@@ -664,8 +664,8 @@ int FASTCALL DlRtm::IterProlog(PPIterID & rID, int doInit)
 {
 	if(rID == DEFAULT_ITER)
 		rID = GetIterID();
-	int    prev_is_first = Extra[(int)rID-1].isFirst;
-	Extra[(int)rID-1].isFirst = BIN(doInit);
+	const int prev_is_first = Extra[static_cast<int>(rID)-1].IsFirst;
+	Extra[static_cast<int>(rID)-1].IsFirst = BIN(doInit);
 	return (!doInit && prev_is_first) ? -1 : 1;
 }
 

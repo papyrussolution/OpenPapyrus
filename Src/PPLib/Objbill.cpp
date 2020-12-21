@@ -1208,7 +1208,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 							//if(p_cc->Search(pack.Ext.CcID))
 						}
 					}
-					if(p_cp) {
+					if(p_cp /* @v10.9.9 {*/ && p_cc && p_cc->GetEqCfg().Flags & PPEquipConfig::fAttachBillChecksToCSess /* } @v10.9.9 */) {
 						assert(p_cm);
 						if(p_cm) {
 							const  PPCashNode & r_cn = p_cm->GetNodeData();

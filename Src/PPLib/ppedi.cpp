@@ -9,6 +9,7 @@
 //
 GtinStruc::GtinStruc() : StrAssocArray(), SpecialNaturalToken(0)
 {
+	memzero(SpecialStopChars, sizeof(SpecialStopChars)); // @v10.9.9
 }
 
 struct GtinFixedLengthToken {
@@ -289,35 +290,39 @@ int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint *
 	return prefix_id;
 }
 
-int GtinStruc::AddOnlyToken(int token)
+void GtinStruc::AddOnlyToken(int token)
 {
-	int    ok = 1;
 	if(SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token))
 		OnlyTokenList.addUnique(token);
-	else
-		ok = 0;
-	return ok;
 }
 
-int GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
+void GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
 {
-	int    ok = 1;
 	if(fixedLen == 1000 || checkirange(fixedLen, 1, 50) && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) { // @v10.9.0 30-->50
 		SpecialFixedTokens.Remove(token, 0); // @v10.7.12
 		SpecialFixedTokens.AddUnique(token, fixedLen, 0, 0);
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
-int GtinStruc::SetSpecialMinLenToken(int token, int minLen)
+void GtinStruc::SetSpecialMinLenToken(int token, int minLen)
 {
-	int    ok = 1;
-	if(minLen > 0) {
+	if(minLen > 0)
 		SpecialMinLenTokens.AddUnique(token, minLen, 0, 0);
+}
+
+void GtinStruc::AddSpecialStopChar(uchar stopChar)
+{
+	if(stopChar) {
+		const uint slot_size = SIZEOFARRAY(SpecialStopChars);
+		for(uint i = 0; i < slot_size; i++) {
+			if(SpecialStopChars[i] == stopChar)
+				break;
+			else if(SpecialStopChars[i] == 0) {
+				SpecialStopChars[i] = stopChar;
+				break;
+			}
+		}
 	}
-	return ok;
 }
 
 uint GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId)
@@ -417,6 +422,22 @@ uint GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) const
 		}
 	}
 	return len;
+}
+
+int GtinStruc::IsSpecialStopChar(const char * pSrc) const
+{
+	if(SpecialStopChars[0] && pSrc) {
+		const uchar c = static_cast<uchar>(*pSrc);
+		if(c) {
+			for(uint i = 0; i < SIZEOFARRAY(SpecialStopChars); i++) {
+				if(SpecialStopChars[i] == c)
+					return 1;
+				else if(SpecialStopChars[i] == 0)
+					break;
+			}
+		}
+	}
+	return 0;
 }
 
 // dosn't work :(
@@ -585,6 +606,9 @@ int GtinStruc::Parse(const char * pCode)
 			uint    dpf = dpfBOL;
 			while(*p) {
 				uint  prefix_len = 0;
+				if(IsSpecialStopChar(p)) { // @v10.9.9
+					p++;
+				}
 				int   prefix_id = DetectPrefix(p, dpf, -1, &prefix_len, prefix_);
 				dpf = 0;
 				uint  fixed_len = 0;
@@ -602,7 +626,11 @@ int GtinStruc::Parse(const char * pCode)
 						int   next_prefix_id = -1;
 						uint  next_prefix_len = 0;
 						while(*p) {
-							if(min_len > 0 && temp_buf.Len() < min_len) {
+							if(IsSpecialStopChar(p)) { // @v10.9.9
+								p++; // Специальный стоп-символ пропускаем и завершаем акцепт токена
+								break;
+							}
+							else if(min_len > 0 && temp_buf.Len() < min_len) {
 								temp_buf.CatChar(*p++);
 							}
 							else {
@@ -668,6 +696,8 @@ int TestGtinStruc()
 				gts.AddOnlyToken(GtinStruc::fldMutualCode);
 				//gts.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
 				//gts.AddOnlyToken(GtinStruc::fldPrice);
+				gts.AddSpecialStopChar(0x1D); // @v10.9.9
+				gts.AddSpecialStopChar(0xE8); // @v10.9.9
 				int pr = gts.Parse(temp_buf);
 				if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
 					gts.SetSpecialFixedToken(GtinStruc::fldSerial, 12);

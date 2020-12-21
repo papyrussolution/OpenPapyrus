@@ -1160,14 +1160,7 @@ int PPALDD_GoodsTaxAnlz::NextIteration(PPIterID iterId)
 	return DlRtm::NextIteration(iterId);
 }
 
-void PPALDD_GoodsTaxAnlz::Destroy()
-{
-	if(Extra[0].Ptr) {
-		delete static_cast<PPViewGoodsTaxAnalyze*>(Extra[0].Ptr);
-		Extra[0].Ptr = 0;
-	}
-	Extra[1].Ptr = 0;
-}
+void PPALDD_GoodsTaxAnlz::Destroy() { DESTROY_PPVIEW_ALDD(GoodsTaxAnalyze); }
 //
 // Implementation of PPALDD_GTaxAnlzTotal
 //
@@ -1216,7 +1209,7 @@ int PPALDD_GTaxAnlzTotal::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GTaxAnlzTotal::InitIteration(PPIterID iterId, int sortId, long rsrv)
+int PPALDD_GTaxAnlzTotal::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	IterProlog(iterId, 1);
 	if(sortId >= 0)

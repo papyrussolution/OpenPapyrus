@@ -82,9 +82,9 @@ int FASTCALL PPAdvBillItemList::Item::IsEqual(const PPAdvBillItemList::Item & rS
 	CMPF(Amount);
 	CMPF(ExtAmt);
 #undef CMPF
-	if(strcmp(AdvCode, rS.AdvCode) != 0)
+	if(!sstreq(AdvCode, rS.AdvCode))
 		return 0;
-	else if(strcmp(Memo, rS.Memo) != 0)
+	else if(!sstreq(Memo, rS.Memo))
 		return 0;
 	return 1;
 }

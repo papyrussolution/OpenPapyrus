@@ -136,6 +136,8 @@ int ChZnCodeStruc::Parse(const char * pRawCode)
 {
 	int    ok = 0;
 	rS.Z();
+	rS.AddSpecialStopChar(0x1D); // @v10.9.9
+	rS.AddSpecialStopChar(0xE8); // @v10.9.9
 	rS.AddOnlyToken(GtinStruc::fldGTIN14);
 	rS.AddOnlyToken(GtinStruc::fldSerial);
 	rS.SetSpecialFixedToken(GtinStruc::fldSerial, 13);
@@ -157,6 +159,7 @@ int ChZnCodeStruc::Parse(const char * pRawCode)
 		SString temp_buf;
 		{
 			temp_buf = pCode;
+			temp_buf.ShiftLeftChr('\xE8'); // @v10.9.9 Специальный символ. Может присутствовать в начале кода 
 			if(!temp_buf.IsAscii()) {
 				// Попытка транслировать латинский символ из локальной раскладки клавиатуры
 				SStringU temp_buf_u;
@@ -487,30 +490,6 @@ public:
 		codetypeSscc  = 2
 	};*/
 
-	enum {
-		doctypUnkn = 0,
-		doctOstDescription,
-		doctAggregation,
-		doctDisaggregation,
-		doctReaggregation,
-		doctLpIntroduceGoods,
-		doctLkIndiCommissioning,
-		doctLpGoodsImport,
-		doctCrossborder,
-		doctLpIntroduceGoodsCrossborderCSD,
-		doctIntroduceOST,
-		doctLkContractCommissioning,
-		doctLpReturn,
-		doctLpShipGoods,
-		doctLpShipReceipt,
-		doctLpCancelShipment,
-		doctLpAcceptGoods,
-		doctLkReceipt,
-		doctLkRemark,
-		doctKmCancellation,
-		doctAppliedKmCancellation
-	};
-
 	struct Packet;
 	//
 	// Descr: Статус документа
@@ -576,21 +555,50 @@ public:
 		SString Body;
 		SString Content;
 	};
+
+
+	enum {
+	};
+
 	//
 	// Для идентификации типов кодов используются константы, определенные в slib.h
 	//   SNTOK_CHZN_GS1_GTIN SNTOK_CHZN_SIGN_SGTIN SNTOK_CHZN_SSCC
 	//
 	enum {
-		doctypResult                   = 200,
-		doctypQueryKizInfo             = 210,
-		doctypKizInfo                  = 211,
-		doctypRefusalReceiver          = 252, // @v10.9.1
-		doctypMoveOrder                = 415, // @v10.9.2
-		doctypReceiveOrder             = 416,
-		doctypMovePlace                = 431, // @v10.8.7 
-		doctypReceiveOrderNotification = 602,
-		doctypAccept                   = 701,
-		doctypPosting                  = 702  // @v10.9.7
+		doctypUnkn                               = 0,
+		doctypMdlpResult                   		 = 200,
+		doctypMdlpQueryKizInfo             		 = 210,
+		doctypMdlpKizInfo                  		 = 211,
+		doctypMdlpRefusalReceiver          		 = 252, // @v10.9.1
+		doctypMdlpMoveOrder                		 = 415, // @v10.9.2
+		doctypMdlpReceiveOrder             		 = 416,
+		doctypMdlpMovePlace                		 = 431, // @v10.8.7 
+		doctypMdlpReceiveOrderNotification 		 = 602,
+		doctypMdlpAccept                         = 701,
+		doctypMdlpPosting                        = 702, // @v10.9.7
+		//
+		// Следующие типы определены для интерфейса ГИС МТ. Для них нет заданных внешним сервисом числовых значений
+		//
+		doctGisMt_OstDescription                 = 1001,
+		doctGisMt_Aggregation                    = 1002,
+		doctGisMt_Disaggregation                 = 1003,
+		doctGisMt_Reaggregation                  = 1004,
+		doctGisMt_LpIntroduceGoods               = 1005,
+		doctGisMt_LkIndiCommissioning            = 1006,
+		doctGisMt_LpGoodsImport                  = 1007,
+		doctGisMt_Crossborder                    = 1008,
+		doctGisMt_LpIntroduceGoodsCrossborderCSD = 1009,
+		doctGisMt_IntroduceOST                   = 1010,
+		doctGisMt_LkContractCommissioning        = 1011,
+		doctGisMt_LpReturn                       = 1012,
+		doctGisMt_LpShipGoods                    = 1013,
+		doctGisMt_LpShipReceipt                  = 1014,
+		doctGisMt_LpCancelShipment               = 1015,
+		doctGisMt_LpAcceptGoods                  = 1016,
+		doctGisMt_LkReceipt                      = 1017,
+		doctGisMt_LkRemark                       = 1018,
+		doctGisMt_KmCancellation                 = 1019,
+		doctGisMt_AppliedKmCancellation          = 1020
 	};
 	struct Packet {
 		struct ErrorItem {
@@ -621,13 +629,13 @@ public:
 		explicit Packet(int docType) : DocType(docType), Flags(0), P_Data(0)
 		{
 			switch(DocType) {
-				case doctypResult: P_Data = new OperationResult(); break;
-				case doctypQueryKizInfo: P_Data = new QueryKizInfo(); break;
-				case doctypMoveOrder: // @v10.9.2
-				case doctypReceiveOrder:
-				case doctypMovePlace: // @v10.8.7 
-				case doctypRefusalReceiver: // @v10.9.1
-				case doctypPosting: // @v10.9.7
+				case doctypMdlpResult: P_Data = new OperationResult(); break;
+				case doctypMdlpQueryKizInfo: P_Data = new QueryKizInfo(); break;
+				case doctypMdlpMoveOrder: // @v10.9.2
+				case doctypMdlpReceiveOrder:
+				case doctypMdlpMovePlace: // @v10.8.7 
+				case doctypMdlpRefusalReceiver: // @v10.9.1
+				case doctypMdlpPosting: // @v10.9.7
 					P_Data = new PPBillPacket; 
 					break; 
 			}
@@ -635,13 +643,13 @@ public:
 		~Packet()
 		{
 			switch(DocType) {
-				case doctypResult: delete static_cast<OperationResult *>(P_Data); break;
-				case doctypQueryKizInfo: delete static_cast<QueryKizInfo *>(P_Data); break;
-				case doctypMoveOrder: // @v10.9.2
-				case doctypReceiveOrder:
-				case doctypMovePlace: // @v10.8.7 
-				case doctypRefusalReceiver: // @v10.9.1
-				case doctypPosting: // @v10.9.7
+				case doctypMdlpResult: delete static_cast<OperationResult *>(P_Data); break;
+				case doctypMdlpQueryKizInfo: delete static_cast<QueryKizInfo *>(P_Data); break;
+				case doctypMdlpMoveOrder: // @v10.9.2
+				case doctypMdlpReceiveOrder:
+				case doctypMdlpMovePlace: // @v10.8.7 
+				case doctypMdlpRefusalReceiver: // @v10.9.1
+				case doctypMdlpPosting: // @v10.9.7
 					delete static_cast<PPBillPacket *>(P_Data); 
 					break; 
 			}
@@ -728,61 +736,61 @@ static const SIntToSymbTabEntry ChZnDocStatusList[] = {
 };
 
 static const SIntToSymbTabEntry ChZnDocTypeList[] = {
-	{ ChZnInterface::doctOstDescription, "OST_DESCRIPTION" }, // OST_DESCRIPTION; Описание остатков товара;json;Описание остатков товара - JSON
+	{ ChZnInterface::doctGisMt_OstDescription, "OST_DESCRIPTION" }, // OST_DESCRIPTION; Описание остатков товара;json;Описание остатков товара - JSON
 		//OST_DESCRIPTION_CSV;csv;Описание остатков товара - CSV
 		//OST_DESCRIPTION_XML;xml;Описание остатков товара - XML
-	{ ChZnInterface::doctAggregation, "AGGREGATION_DOCUMENT" },//AGGREGATION_DOCUMENT;Агрегация;json;Агрегация - JSON
+	{ ChZnInterface::doctGisMt_Aggregation, "AGGREGATION_DOCUMENT" },//AGGREGATION_DOCUMENT;Агрегация;json;Агрегация - JSON
 		//AGGREGATION_DOCUMENT_CSV;csv;Агрегация - CSV
 		//AGGREGATION_DOCUMENT_XML;xml;Агрегация - XML
-	{ ChZnInterface::doctDisaggregation, "DISAGGREGATION_DOCUMENT" }, //DISAGGREGATION_DOCUMENT;Расформирование агрегата;json;Расформирование агрегата - JSON
+	{ ChZnInterface::doctGisMt_Disaggregation, "DISAGGREGATION_DOCUMENT" }, //DISAGGREGATION_DOCUMENT;Расформирование агрегата;json;Расформирование агрегата - JSON
 		//DISAGGREGATION_DOCUMENT_CSV;csv;Расформирование агрегата - CSV
 		//DISAGGREGATION_DOCUMENT_XML;xml;Расформирование агрегата - XML
-	{ ChZnInterface::doctReaggregation, "REAGGREGATION_DOCUMENT" }, //REAGGREGATION_DOCUMENT;Трансформация агрегата;json;Трансформация агрегата - JSON
+	{ ChZnInterface::doctGisMt_Reaggregation, "REAGGREGATION_DOCUMENT" }, //REAGGREGATION_DOCUMENT;Трансформация агрегата;json;Трансформация агрегата - JSON
 		//REAGGREGATION_DOCUMENT_XML;xml;Трансформация агрегата - XML
 		//REAGGREGATION_DOCUMENT_CSV;csv;Трансформация агрегата - CSV
-	{ ChZnInterface::doctLpIntroduceGoods, "LP_INTRODUCE_GOODS" }, //LP_INTRODUCE_GOODS;Ввод в оборот. Производство РФ;json;Ввод в оборот. Производство РФ - JSON
+	{ ChZnInterface::doctGisMt_LpIntroduceGoods, "LP_INTRODUCE_GOODS" }, //LP_INTRODUCE_GOODS;Ввод в оборот. Производство РФ;json;Ввод в оборот. Производство РФ - JSON
 		//LP_INTRODUCE_GOODS_CSV;csv;Ввод в оборот. Производство РФ - CSV
 		//LP_INTRODUCE_GOODS_XML;xml;Ввод в оборот. Производство РФ - XML
-	{ ChZnInterface::doctLkIndiCommissioning, "LK_INDI_COMMISSIONING" }, //LK_INDI_COMMISSIONING;Ввод в оборот. Полученных от физических лиц;json;Ввод в оборот. Полученных от физических лиц - JSON
+	{ ChZnInterface::doctGisMt_LkIndiCommissioning, "LK_INDI_COMMISSIONING" }, //LK_INDI_COMMISSIONING;Ввод в оборот. Полученных от физических лиц;json;Ввод в оборот. Полученных от физических лиц - JSON
 		//LK_INDI_COMMISSIONING_CSV;csv;Ввод в оборот. Полученных от физических лиц - CSV
 		//LK_INDI_COMMISSIONING_XML;xml;Ввод в оборот. Полученных от физических лиц - XML
-	{ ChZnInterface::doctLpGoodsImport, "LP_GOODS_IMPORT" }, //LP_GOODS_IMPORT;json;Ввод в оборот. Производство вне ЕАЭС - JSON
+	{ ChZnInterface::doctGisMt_LpGoodsImport, "LP_GOODS_IMPORT" }, //LP_GOODS_IMPORT;json;Ввод в оборот. Производство вне ЕАЭС - JSON
 		//LP_GOODS_IMPORT_CSV;Ввод в оборот. Производство вне ЕАЭС;csv;Ввод в оборот. Производство вне ЕАЭС - CSV
 		//LP_GOODS_IMPORT_XML;xml;Ввод в оборот. Производство вне ЕАЭС - XML
-	{ ChZnInterface::doctCrossborder, "CROSSBORDER" }, //CROSSBORDER;Ввод в оборот. Трансграничная торговля.;json;Ввод в оборот. Трансграничная торговля. JSON (MANUAL)
+	{ ChZnInterface::doctGisMt_Crossborder, "CROSSBORDER" }, //CROSSBORDER;Ввод в оборот. Трансграничная торговля.;json;Ввод в оборот. Трансграничная торговля. JSON (MANUAL)
 		//CROSSBORDER_CSV;csv;Ввод в оборот. Трансграничная торговля. CSV
 		//CROSSBORDER_XML;xml;Ввод в оборот. Трансграничная торговля. XML
-	{ ChZnInterface::doctLpIntroduceGoodsCrossborderCSD, "LP_INTRODUCE_GOODS_CROSSBORDER_CSD" }, //LP_INTRODUCE_GOODS_CROSSBORDER_CSD_JSON;Ввод в оборот. На территории стран ЕАЭС (контрактное производство);json;Ввод в оборот. На территории стран ЕАЭС (контрактное производство). JSON (MANUAL)
+	{ ChZnInterface::doctGisMt_LpIntroduceGoodsCrossborderCSD, "LP_INTRODUCE_GOODS_CROSSBORDER_CSD" }, //LP_INTRODUCE_GOODS_CROSSBORDER_CSD_JSON;Ввод в оборот. На территории стран ЕАЭС (контрактное производство);json;Ввод в оборот. На территории стран ЕАЭС (контрактное производство). JSON (MANUAL)
 		//LP_INTRODUCE_GOODS_CROSSBORDER_CSD_XML;xml;Ввод в оборот. На территории стран ЕАЭС (контрактное производство). CSV
 		//LP_INTRODUCE_GOODS_CROSSBORDER_CSD_CSV;csv;Ввод в оборот. На территории стран ЕАЭС (контрактное производство). XML
-	{ ChZnInterface::doctIntroduceOST, "LP_INTRODUCE_OST" }, //LP_INTRODUCE_OST;Ввод в оборот. Маркировка остатков;json;Ввод в оборот. Маркировка остатков - JSON
+	{ ChZnInterface::doctGisMt_IntroduceOST, "LP_INTRODUCE_OST" }, //LP_INTRODUCE_OST;Ввод в оборот. Маркировка остатков;json;Ввод в оборот. Маркировка остатков - JSON
 		//LP_INTRODUCE_OST_CSV;csv;Ввод в оборот. Маркировка остатков - CSV
 		//LP_INTRODUCE_OST_XML;xml;Ввод в оборот. Маркировка остатков - XML
-	{ ChZnInterface::doctLkContractCommissioning, "LK_CONTRACT_COMMISSIONING" }, //LK_CONTRACT_COMMISSIONING;Ввод в оборот. Контрактное производство РФ;json;Ввод в оборот. Контрактное производство РФ - JSON
+	{ ChZnInterface::doctGisMt_LkContractCommissioning, "LK_CONTRACT_COMMISSIONING" }, //LK_CONTRACT_COMMISSIONING;Ввод в оборот. Контрактное производство РФ;json;Ввод в оборот. Контрактное производство РФ - JSON
 		//LK_CONTRACT_COMMISSIONING_CSV;csv;Ввод в оборот. Контрактное производство РФ - CSV
 		//LK_CONTRACT_COMMISSIONING_XML;xml;Ввод в оборот. Контрактное производство РФ - XML
-	{ ChZnInterface::doctLpReturn, "LP_RETURN" }, //LP_RETURN;Возврат в оборот;json;Возврат в оборот. JSON (MANUAL)
+	{ ChZnInterface::doctGisMt_LpReturn, "LP_RETURN" }, //LP_RETURN;Возврат в оборот;json;Возврат в оборот. JSON (MANUAL)
 		//LP_RETURN_CSV;xml;Возврат в оборот. CSV
 		//LP_RETURN_XML;csv;Возврат в оборот. XML
-	{ ChZnInterface::doctLpShipGoods, "LP_SHIP_GOODS" }, //LP_SHIP_GOODS;Отгрузка;json;Отгрузка - JSON
+	{ ChZnInterface::doctGisMt_LpShipGoods, "LP_SHIP_GOODS" }, //LP_SHIP_GOODS;Отгрузка;json;Отгрузка - JSON
 		//LP_SHIP_GOODS_CSV;csv;Отгрузка - CSV
 		//LP_SHIP_GOODS_XML;xml;Отгрузка - XML
-	{ ChZnInterface::doctLpShipReceipt, "LP_SHIP_RECEIPT" }, //LP_SHIP_RECEIPT;Отгрузка с выводом из оборота.;json;Отгрузка с выводом из оборота. JSON (MANUAL)
+	{ ChZnInterface::doctGisMt_LpShipReceipt, "LP_SHIP_RECEIPT" }, //LP_SHIP_RECEIPT;Отгрузка с выводом из оборота.;json;Отгрузка с выводом из оборота. JSON (MANUAL)
 		//LP_SHIP_RECEIPT_CSV;csv;Отгрузка с выводом из оборота. CSV
 		//LP_SHIP_RECEIPT_XML;xml;Отгрузка с выводом из оборота. XML
-	{ ChZnInterface::doctLpCancelShipment, "LP_CANCEL_SHIPMENT" }, //LP_CANCEL_SHIPMENT;Отмена отгрузки;json;Отмена отгрузки. JSON (MANUAL)
-	{ ChZnInterface::doctLpAcceptGoods, "LP_ACCEPT_GOODS" }, //LP_ACCEPT_GOODS;Приемка;json;Приемка - JSON
+	{ ChZnInterface::doctGisMt_LpCancelShipment, "LP_CANCEL_SHIPMENT" }, //LP_CANCEL_SHIPMENT;Отмена отгрузки;json;Отмена отгрузки. JSON (MANUAL)
+	{ ChZnInterface::doctGisMt_LpAcceptGoods, "LP_ACCEPT_GOODS" }, //LP_ACCEPT_GOODS;Приемка;json;Приемка - JSON
 		//LP_ACCEPT_GOODS_XML;xml;Приемка - XML
-	{ ChZnInterface::doctLkReceipt, "LK_RECEIPT" }, //LK_RECEIPT;Вывод товара из оборота;json;Вывод товара из оборота - JSON
+	{ ChZnInterface::doctGisMt_LkReceipt, "LK_RECEIPT" }, //LK_RECEIPT;Вывод товара из оборота;json;Вывод товара из оборота - JSON
 		//LK_RECEIPT_CSV;csv;Вывод товара из оборота - CSV
 		//LK_RECEIPT_XML;xml;Вывод товара из оборота - XML
-	{ ChZnInterface::doctLkRemark, "LK_REMARK" }, //LK_REMARK;Перемаркировка;json;Перемаркировка - JSON
+	{ ChZnInterface::doctGisMt_LkRemark, "LK_REMARK" }, //LK_REMARK;Перемаркировка;json;Перемаркировка - JSON
 		//LK_REMARK_CSV;csv;Перемаркировка - CSV
 		//LK_REMARK_XML;xml;Перемаркировка - XML
-	{ ChZnInterface::doctKmCancellation, "LK_KM_CANCELLATION" }, //LK_KM_CANCELLATION;Списание ненанесенных КМ;json;Списание ненанесенных КМ - JSON
+	{ ChZnInterface::doctGisMt_KmCancellation, "LK_KM_CANCELLATION" }, //LK_KM_CANCELLATION;Списание ненанесенных КМ;json;Списание ненанесенных КМ - JSON
 		//LK_KM_CANCELLATION_XML;xml;Списание ненанесенных КМ - XML
 		//LK_KM_CANCELLATION_XSD;xsd;Списание ненанесенных КМ - XSD
-	{ ChZnInterface::doctAppliedKmCancellation, "LK_APPLIED_KM_CANCELLATION" },//LK_APPLIED_KM_CANCELLATION;Списание нанесенных КМ;json;Списание нанесенных КМ - JSON
+	{ ChZnInterface::doctGisMt_AppliedKmCancellation, "LK_APPLIED_KM_CANCELLATION" },//LK_APPLIED_KM_CANCELLATION;Списание нанесенных КМ;json;Списание нанесенных КМ - JSON
 		//LK_APPLIED_KM_CANCELLATION_XML;xml;Списание нанесенных КМ - XML
 		//LK_APPLIED_KM_CANCELLATION_XSD;xsd;Списание нанесенных КМ - XSD
 };
@@ -956,14 +964,14 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 	{
 		SXml::WNode wdocs(rX, "documents");
 		wdocs.PutAttrib("session_ui", rIb.Token);
-		wdocs.PutAttrib("version", "1.34");
+		wdocs.PutAttrib("version", "1.35"); // @v10.9.9 "1.34"-->"1.35"
 		wdocs.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 		{
 			SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), pPack->DocType, temp_buf);
 			SXml::WNode wd(rX, temp_buf);
 			wd.PutAttrib("action_id", temp_buf.Z().Cat(pPack->DocType));
 			//
-			if(pPack->DocType == doctypMovePlace) {
+			if(pPack->DocType == doctypMdlpMovePlace) {
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
 					const PPID   rcvr_ar_id = p_bp->Rec.Object;
@@ -1006,7 +1014,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					}
 				}
 			}
-			else if(pPack->DocType == doctypMoveOrder) { // @v10.9.2
+			else if(pPack->DocType == doctypMdlpMoveOrder) { // @v10.9.2
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
 					const PPID   rcvr_ar_id = p_bp->Rec.Object;
@@ -1066,7 +1074,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					}
 				}
 			}
-			else if(oneof2(pPack->DocType, doctypReceiveOrder, doctypPosting)) {
+			else if(oneof2(pPack->DocType, doctypMdlpReceiveOrder, doctypMdlpPosting)) {
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
 					const PPID   dlvr_ar_id = p_bp->Rec.Object;
@@ -1078,7 +1086,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
 					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
 					wd.PutInner("subject_id", subj_ident);
-					if(pPack->DocType == doctypReceiveOrder) {
+					if(pPack->DocType == doctypMdlpReceiveOrder) {
 						wd.PutInner("shipper_id", shipper_ident);
 					}
 					else {
@@ -1097,9 +1105,15 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 					wd.PutInner("doc_num", temp_buf);
 					wd.PutInner("doc_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
-					wd.PutInner("receive_type", temp_buf.Z().Cat(1L));
-					wd.PutInner("source", temp_buf.Z().Cat(1L));
-					wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
+					if(pPack->DocType == doctypMdlpReceiveOrder) {
+						wd.PutInner("receive_type", temp_buf.Z().Cat(1L));
+						wd.PutInner("source", temp_buf.Z().Cat(1L));
+						wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
+					}
+					else {
+						wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
+						wd.PutInner("source", temp_buf.Z().Cat(1L));
+					}
 					{
 						SXml::WNode dtl(rX, "order_details");
 						for(uint i = 0; i < p_bp->GetTCount(); i++) {
@@ -1135,7 +1149,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					}
 				}
 			}
-			else if(pPack->DocType == doctypRefusalReceiver) { // @v10.9.1
+			else if(pPack->DocType == doctypMdlpRefusalReceiver) { // @v10.9.1
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
 					const PPID   dlvr_ar_id = p_bp->Rec.Object;
@@ -1182,7 +1196,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					}
 				}
 			}
-			else if(pPack->DocType == doctypQueryKizInfo) {
+			else if(pPack->DocType == doctypMdlpQueryKizInfo) {
 				const Packet::QueryKizInfo * p_bp = static_cast<const Packet::QueryKizInfo *>(pPack->P_Data);
 				if(p_bp) {
 					subj_ident = p_bp->SubjectIdent;
@@ -1413,7 +1427,11 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 		case qDocOutcome: 
 			if(rIb.ProtocolId == InitBlock::protidMdlp)
 				rResult.Cat("documents/outcome"); 
+			else if(rIb.ProtocolId == InitBlock::protidGisMt) { // @v10.9.9
+				rResult.Cat("api/v3/lk/documents/create/");
+			}
 			else {
+				
 			}
 			break;
 		case qCurrentUserInfo: 
@@ -1829,7 +1847,7 @@ int ChZnInterface::ParseTicket(const char * pTicket, Packet ** ppP)
 		if(SXml::IsName(p_root, "documents")) {
 			for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 				if(SXml::IsName(p_c, "result")) {
-					THROW(p_pack = new Packet(doctypResult));
+					THROW(p_pack = new Packet(doctypMdlpResult));
 					ok = 1;
 					Packet::OperationResult * p_opr = static_cast<Packet::OperationResult *>(p_pack->P_Data);
 					for(const xmlNode * p_c2 = p_c->children; p_c2; p_c2 = p_c2->next) {
@@ -2017,6 +2035,39 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 								PPSetErrorSLib();
 							}
 						}
+					}
+					else if(rIb.ProtocolId == rIb.protidGisMt) { // @v10.9.9
+						ScURL c;
+						MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, temp_buf);
+						/*
+								document_format:
+									MANUAL - json
+									XML - xml
+									CSV - csv
+								product_document:
+									MIME64 document-body
+								product_group:
+									clothes – Предметы одежды, белье постельное, столовое, туалетное и кухонное
+									shoes – Обувные товары
+									tobacco – Табачная продукция
+									perfumery – Духи и туалетная вода
+									tires – Шины и покрышки пневматические резиновые новые
+									electronics – Фотокамеры (кроме кинокамер), фотовспышки и лампы-вспышки
+									pharma – Лекарственные препараты для медицинского применения
+									milk – Молочная продукция
+									bicycle – Велосипеды и велосипедные рамы
+									wheelchairs – Кресла-коляски
+								type: ChZnDocTypeList
+									
+								{
+									"document_format": "string",
+									"product_document": "string",
+									"product_group": "string",
+									"signature": "string",
+									"type": "string"
+								}
+						*/
+						
 					}
 					else {
 						ScURL c;
@@ -2692,7 +2743,7 @@ int PPChZnPrcssr::InteractiveQuery()
 				ifc.GetDocumentTicket(*p_ib, _param.ParamString, temp_buf);
 			}
 			else if(_param.DocType == QueryParam::_afQueryKizInfo) {
-				ChZnInterface::Packet pack(ChZnInterface::doctypQueryKizInfo);
+				ChZnInterface::Packet pack(ChZnInterface::doctypMdlpQueryKizInfo);
 				ChZnInterface::Packet::QueryKizInfo * p_cq = static_cast<ChZnInterface::Packet::QueryKizInfo *>(pack.P_Data);
 				p_cq->Code = _param.ParamString;
 				p_cq->ArID = _param.ArID;
@@ -2754,7 +2805,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		for(uint i = 0; i < op_list.getCount(); i++) {
 			const PPID op_id = op_list.get(i);
 			if(!op_assoc_list.Search(op_id, 0, 0))
-				op_assoc_list.Add(op_id, ChZnInterface::doctypReceiveOrder);
+				op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpReceiveOrder);
 		}
 	}
 	if(alcr_cfg.IntrExpndOpID) {
@@ -2766,7 +2817,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		for(uint i = 0; i < op_list.getCount(); i++) {
 			const PPID op_id = op_list.get(i);
 			if(IsIntrExpndOp(op_id) && !op_assoc_list.Search(op_id, 0, 0))
-				op_assoc_list.Add(op_id, ChZnInterface::doctypMovePlace);
+				op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpMovePlace);
 		}
 	}
 	if(alcr_cfg.SupplRetOpID) {
@@ -2778,7 +2829,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		for(uint i = 0; i < op_list.getCount(); i++) {
 			const PPID op_id = op_list.get(i);
 			if(!op_assoc_list.Search(op_id, 0, 0))
-				op_assoc_list.Add(op_id, ChZnInterface::doctypMoveOrder);
+				op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpMoveOrder);
 		}
 	}
 	// @v10.9.1 {
@@ -2792,7 +2843,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 			}
 		}
 		if(chzn_252_op_id) {
-			op_assoc_list.Add(chzn_252_op_id, ChZnInterface::doctypRefusalReceiver);
+			op_assoc_list.Add(chzn_252_op_id, ChZnInterface::doctypMdlpRefusalReceiver);
 		}
 	}
 	// } @v10.9.1
@@ -2813,7 +2864,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 				if((!rP.LocID || bill_rec.LocID == rP.LocID) && p_bobj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIIDENT, edi_ident) <= 0) { // если тег установлен, то док уже был передан
 						int    suited = 0;
-						if(chzn_op_id == ChZnInterface::doctypMovePlace) {
+						if(chzn_op_id == ChZnInterface::doctypMdlpMovePlace) {
 							assert(bill_rec.OpID == op_id);
 							assert(IsIntrExpndOp(bill_rec.OpID));
 							const PPID dest_loc_id = bill_rec.Object ? PPObjLocation::ObjToWarehouse(bill_rec.Object) : 0;
@@ -2823,15 +2874,15 @@ int PPChZnPrcssr::Run(const Param & rP)
 									suited = 1;
 							}
 						}
-						if(oneof3(chzn_op_id, ChZnInterface::doctypReceiveOrder, ChZnInterface::doctypRefusalReceiver, ChZnInterface::doctypMoveOrder)) {
+						if(oneof3(chzn_op_id, ChZnInterface::doctypMdlpReceiveOrder, ChZnInterface::doctypMdlpRefusalReceiver, ChZnInterface::doctypMdlpMoveOrder)) {
 							const PPID psn_id = bill_rec.Object ? ObjectToPerson(bill_rec.Object, 0) : 0;
 							if(psn_id && p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_CHZNCODE, temp_buf) > 0) {
 								PPID   local_chzn_op_id = chzn_op_id;
 								// @v10.9.7 {
-								if(chzn_op_id == ChZnInterface::doctypReceiveOrder) {
+								if(chzn_op_id == ChZnInterface::doctypMdlpReceiveOrder) {
 									if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_KEYWORDS, temp_buf) > 0) {
 										if(temp_buf.Search("chzn-702", 0, 1, 0) || temp_buf.Search("chzn702", 0, 1, 0)) {
-											local_chzn_op_id = ChZnInterface::doctypPosting;
+											local_chzn_op_id = ChZnInterface::doctypMdlpPosting;
 										}
 									}
 								}

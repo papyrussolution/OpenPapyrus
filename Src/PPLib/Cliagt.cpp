@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
 PPClientAgreement::PPClientAgreement()
 {
@@ -46,7 +45,7 @@ int FASTCALL PPClientAgreement::IsEqual(const PPClientAgreement & rS) const
 	CMP_FLD(PaymDateBase);
 	CMP_FLD(EdiPrvID); // @v10.0.0
 #undef CMP_FLD
-	if(strcmp(Code2, rS.Code2) != 0) // @v10.2.9 Code-->Code2
+	if(!sstreq(Code2, rS.Code2)) // @v10.2.9 Code-->Code2
 		return 0;
 	else {
 		const uint _c1 = DebtLimList.getCount();

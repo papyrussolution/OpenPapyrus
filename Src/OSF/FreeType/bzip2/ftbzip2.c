@@ -339,9 +339,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenBzip2(FT_Stream stream, FT_Stream source)
 		error = FT_THROW(Invalid_Stream_Handle);
 		goto Exit;
 	}
-
 	memory = source->memory;
-
 	/*
 	 * check the header right now; this prevents allocating unnecessary
 	 * objects when we don't need them

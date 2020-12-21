@@ -19,16 +19,13 @@ int FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
 		if(ar_obj.Fetch(id, &ar_rec) > 0 && ar_rec.Closed) {
-			filt.Ft_Closed = 0; // @v9.2.1 // @v9.2.3 @fix 1-->0
-			// @v9.2.1 _accSheetID = -_accSheetID;
+			filt.Ft_Closed = 0;
 		}
 	}
 	if(sacf & sacfNonEmptyExchageParam)
 		filt.Flags |= ArticleFilt::fWithIxParamOnly;
-	// @v9.5.9 {
 	if(sacf & sacfNonGeneric)
 		filt.Flags |= ArticleFilt::fNonGenericOnly;
-	// } @v9.5.9
 	if(/*disableIfZeroSheet*/sacf & sacfDisableIfZeroSheet)
 		dlg->disableCtrl(ctlID, _accSheetID == 0);
 	if(_accSheetID) {
@@ -171,33 +168,6 @@ int PPObjArticle::IsPacketEq(const PPArticlePacket & rS1, const PPArticlePacket 
 	}
 	return 1;
 }
-
-#if 0 // @v8.1.3 {
-int PPArticlePacket::operator == (const PPArticlePacket & s) const
-{
-#define CMP_MEMB(m)  if(Rec.m != s.Rec.m) return 0;
-#define CMP_MEMBS(m) if(strcmp(Rec.m, s.Rec.m) != 0) return 0;
-	CMP_MEMB(ID);
-	CMP_MEMB(AccSheetID);
-	CMP_MEMB(Article);
-	CMP_MEMB(ObjID);
-	CMP_MEMBS(Name);
-	CMP_MEMB(AccessLevel);
-	CMP_MEMB(Closed);
-	CMP_MEMB(Flags);
-#undef CMP_MEMBS
-#undef CMP_MEMB
-	if(Assoc != s.Assoc)
-		return 0;
-	if(!BOOLXOR(P_CliAgt, s.P_CliAgt)) return 0;
-	if(P_CliAgt && s.P_CliAgt && memcmp(P_CliAgt, s.P_CliAgt, sizeof(*P_CliAgt)) != 0) return 0;
-	if(!BOOLXOR(P_SupplAgt, s.P_SupplAgt)) return 0;
-	if(P_SupplAgt && s.P_SupplAgt && memcmp(P_SupplAgt, s.P_SupplAgt, sizeof(*P_SupplAgt)) != 0) return 0;
-	if(!BOOLXOR(P_AliasSubst, s.P_AliasSubst)) return 0;
-	if(P_AliasSubst && s.P_AliasSubst && !(*P_AliasSubst == *s.P_AliasSubst)) return 0;
-	return 1;
-}
-#endif // } 0
 
 void PPArticlePacket::Init()
 {
@@ -1668,7 +1638,7 @@ int PPObjArticle::_UpdateName(const char * pNewName)
 	else {
 		ArticleTbl::Rec rec;
 		P_Tbl->copyBufTo(&rec);
-		if(strcmp(rec.Name, p_newname) != 0) {
+		if(!sstreq(rec.Name, p_newname)) {
 			memzero(rec.Name, sizeof(rec.Name));
 			STRNSCPY(rec.Name, p_newname);
 			if(P_Tbl->Update(rec.ID, &rec, 0) == 0)

@@ -1,34 +1,30 @@
-/* dfa - DFA construction routines */
-
-/*  Copyright (c) 1990 The Regents of the University of California. */
-/*  All rights reserved. */
-
-/*  This code is derived from software contributed to Berkeley by */
-/*  Vern Paxson. */
-
-/*  The United States Government has rights in this work pursuant */
-/*  to contract no. DE-AC03-76SF00098 between the United States */
-/*  Department of Energy and the University of California. */
-
-/*  Redistribution and use in source and binary forms, with or without */
-/*  modification, are permitted provided that the following conditions */
-/*  are met: */
-
-/*  1. Redistributions of source code must retain the above copyright */
-/*     notice, this list of conditions and the following disclaimer. */
-/*  2. Redistributions in binary form must reproduce the above copyright */
-/*     notice, this list of conditions and the following disclaimer in the */
-/*     documentation and/or other materials provided with the distribution. */
-
-/*  Neither the name of the University nor the names of its contributors */
-/*  may be used to endorse or promote products derived from this software */
-/*  without specific prior written permission. */
-
-/*  THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR */
-/*  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED */
-/*  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR */
-/*  PURPOSE. */
-
+// dfa - DFA construction routines 
+// 
+// Copyright (c) 1990 The Regents of the University of California. All rights reserved. 
+// 
+// This code is derived from software contributed to Berkeley by Vern Paxson. 
+// 
+// The United States Government has rights in this work pursuant
+// to contract no. DE-AC03-76SF00098 between the United States
+// Department of Energy and the University of California. 
+// 
+// Redistribution and use in source and binary forms, with or without 
+// modification, are permitted provided that the following conditions are met: 
+// 
+// 1. Redistributions of source code must retain the above copyright 
+//   notice, this list of conditions and the following disclaimer. 
+// 2. Redistributions in binary form must reproduce the above copyright 
+//   notice, this list of conditions and the following disclaimer in the 
+//   documentation and/or other materials provided with the distribution. 
+// 
+// Neither the name of the University nor the names of its contributors 
+// may be used to endorse or promote products derived from this software 
+// without specific prior written permission. 
+// 
+// THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR 
+// IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED 
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR  PURPOSE. 
+// 
 #include "flexdef.h"
 #pragma hdrstop
 #include "tables.h"
@@ -112,14 +108,12 @@ void check_trailing_context(int * nfa_states, int num_states, int * accset, int 
 		}
 	}
 }
-
 /* dump_associated_rules - list the rules associated with a DFA state
  *
  * Goes through the set of NFA states associated with the DFA and
  * extracts the first MAX_ASSOC_RULES unique rules, sorts them,
  * and writes a report to the given file.
  */
-
 void dump_associated_rules(FILE * file, int ds)
 {
 	int i, j;
@@ -193,8 +187,7 @@ void dump_transitions(FILE * file, int state[])
  *
  *  hashval is the hash value for the dfa corresponding to the state set.
  */
-
-int    * epsclosure(int * t, int * ns_addr, int accset[], int * nacc_addr, int * hv_addr)
+int * epsclosure(int * t, int * ns_addr, int accset[], int * nacc_addr, int * hv_addr)
 {
 	int stkpos, ns, tsp;
 	int numstates = *ns_addr, nacc, hashval, transsym, nfaccnum;
@@ -270,9 +263,7 @@ int    * epsclosure(int * t, int * ns_addr, int accset[], int * nacc_addr, int *
 			}
 		}
 	}
-
-	/* Clear out "visit" markers. */
-
+	// Clear out "visit" markers. 
 	for(stkpos = 1; stkpos <= stkend; ++stkpos) {
 		if(IS_MARKED(stk[stkpos]))
 			UNMARK_STATE(stk[stkpos]);
@@ -284,9 +275,9 @@ int    * epsclosure(int * t, int * ns_addr, int accset[], int * nacc_addr, int *
 	*nacc_addr = nacc;
 	return t;
 }
-
-/* increase_max_dfas - increase the maximum number of DFAs */
-
+// 
+// increase_max_dfas - increase the maximum number of DFAs */
+// 
 void increase_max_dfas()
 {
 	current_max_dfas += MAX_DFAS_INCREMENT;
@@ -342,22 +333,17 @@ void ntod()
 	 * need only know the bounds of the dfas to be processed.
 	 */
 	todo_head = todo_next = 0;
-
 	for(i = 0; i <= csize; ++i) {
 		duplist[i] = NIL;
 		symlist[i] = false;
 	}
-
 	for(i = 0; i <= num_rules; ++i)
 		accset[i] = NIL;
-
 	if(trace) {
 		dumpnfa(scset[1]);
 		fputs(_("\n\nDFA Dump:\n\n"), stderr);
 	}
-
 	inittbl();
-
 	/* Check to see whether we should build a separate table for
 	 * transitions on NUL characters.  We don't do this for full-speed
 	 * (-F) scanners, since for them we don't have a simple state
@@ -395,7 +381,6 @@ void ntod()
 		 * last one.
 		 */
 		int use_NUL_table = (numecs == csize);
-
 		if(fulltbl && !use_NUL_table) {
 			/* We still may want to use the table if numecs
 			 * is a power of 2.
@@ -455,25 +440,19 @@ void ntod()
 		}
 		if(gentables)
 			outn("    {");
-
 		/* Generate 0 entries for state #0. */
 		for(i = 0; i < num_full_table_rows; ++i) {
 			mk2data(0);
 			yynxt_data[yynxt_curr++] = 0;
 		}
-
 		dataflush();
 		if(gentables)
 			outn("    },\n");
 	}
-
 	/* Create the first states. */
-
 	num_start_states = lastsc * 2;
-
 	for(i = 1; i <= num_start_states; ++i) {
 		numstates = 1;
-
 		/* For each start condition, make one state for the case when
 		 * we're at the beginning of the line (the '^' operator) and
 		 * one for the case when we're not.
@@ -481,20 +460,14 @@ void ntod()
 		if(i % 2 == 1)
 			nset[numstates] = scset[(i / 2) + 1];
 		else
-			nset[numstates] =
-			    mkbranch(scbol[i / 2], scset[i / 2]);
-
-		nset = epsclosure(nset, &numstates, accset, &nacc,
-			&hashval);
-
+			nset[numstates] = mkbranch(scbol[i / 2], scset[i / 2]);
+		nset = epsclosure(nset, &numstates, accset, &nacc, &hashval);
 		if(snstods(nset, numstates, accset, nacc, hashval, &ds)) {
 			numas += nacc;
 			totnst += numstates;
 			++todo_next;
-
 			if(variable_trailing_context_rules && nacc > 0)
-				check_trailing_context(nset, numstates,
-				    accset, nacc);
+				check_trailing_context(nset, numstates, accset, nacc);
 		}
 	}
 
@@ -634,17 +607,13 @@ void ntod()
 	SAlloc::F(accset);
 	SAlloc::F(nset);
 }
-
-/* snstods - converts a set of ndfa states into a dfa state
- *
- * synopsis
- *    is_new_state = snstods( int sns[numstates], int numstates,
- *				int accset[num_rules+1], int nacc,
- *				int hashval, int *newds_addr );
- *
- * On return, the dfa state number is in newds.
- */
-
+// 
+// snstods - converts a set of ndfa states into a dfa state
+// synopsis
+//   is_new_state = snstods(int sns[numstates], int numstates, int accset[num_rules+1], int nacc, int hashval, int *newds_addr);
+// 
+// On return, the dfa state number is in newds.
+// 
 int snstods(int sns[], int numstates, int accset[], int nacc, int hashval, int * newds_addr)
 {
 	int didsort = 0;
@@ -722,12 +691,10 @@ int snstods(int sns[], int numstates, int accset[], int nacc, int hashval, int *
 	*newds_addr = newds;
 	return 1;
 }
-/* symfollowset - follow the symbol transitions one step
- *
- * synopsis
- *    numstates = symfollowset( int ds[current_max_dfa_size], int dsize,
- *				int transsym, int nset[current_max_dfa_size] );
- */
+// 
+// symfollowset - follow the symbol transitions one step
+// synopsis: numstates = symfollowset(int ds[current_max_dfa_size], int dsize, int transsym, int nset[current_max_dfa_size]);
+// 
 int symfollowset(int ds[], int dsize, int transsym, int nset[])
 {
 	int ns, tsp, sym, i, j, lenccl, ch, ccllist;
@@ -773,17 +740,13 @@ int symfollowset(int ds[], int dsize, int transsym, int nset[])
 			nset[++numstates] = tsp;
 bottom:         ;
 	}
-
 	return numstates;
 }
-
-/* sympartition - partition characters with same out-transitions
- *
- * synopsis
- *    sympartition( int ds[current_max_dfa_size], int numstates,
- *			int symlist[numecs], int duplist[numecs] );
- */
-
+// 
+// sympartition - partition characters with same out-transitions
+// synopsis
+//   sympartition(int ds[current_max_dfa_size], int numstates, int symlist[numecs], int duplist[numecs]);
+// 
 void sympartition(int ds[], int numstates, int symlist[], int duplist[])
 {
 	int tch, i, j, k, ns, dupfwd[CSIZE + 1], lenccl, cclp, ich;
@@ -809,7 +772,6 @@ void sympartition(int ds[], int numstates, int symlist[], int duplist[])
 				mkechar(ec, dupfwd, duplist);
 				symlist[ec] = 1;
 			}
-
 			else {  /* character class */
 				tch = -tch;
 				lenccl = ccllen[tch];
