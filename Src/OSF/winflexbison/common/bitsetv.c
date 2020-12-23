@@ -20,9 +20,9 @@
 #pragma hdrstop
 #include "bitset.h" // @sobolev 
 #include "bitsetv.h"
-
-/* Create a vector of N_VECS bitsets, each of N_BITS, and of
-   type TYPE.  */
+// 
+// Create a vector of N_VECS bitsets, each of N_BITS, and of type TYPE.
+// 
 bitset * bitsetv_alloc(bitset_bindex n_vecs, bitset_bindex n_bits, enum bitset_type type)
 {
 	/* Determine number of bytes for each set.  */
@@ -43,16 +43,18 @@ bitset * bitsetv_alloc(bitset_bindex n_vecs, bitset_bindex n_bits, enum bitset_t
 	bsetv[i] = 0;
 	return bsetv;
 }
-
-/* Create a vector of N_VECS bitsets, each of N_BITS, and with
-   attribute hints specified by ATTR.  */
+// 
+// Create a vector of N_VECS bitsets, each of N_BITS, and with
+// attribute hints specified by ATTR.
+// 
 bitset * bitsetv_create(bitset_bindex n_vecs, bitset_bindex n_bits, unsigned attr)
 {
 	enum bitset_type type = bitset_type_choose(n_bits, attr);
 	return bitsetv_alloc(n_vecs, n_bits, type);
 }
-
-/* Free bitset vector BSETV.  */
+// 
+// Free bitset vector BSETV.
+// 
 void bitsetv_free(bitsetv bsetv)
 {
 	if(bsetv) {
@@ -61,23 +63,26 @@ void bitsetv_free(bitsetv bsetv)
 		SAlloc::F(bsetv);
 	}
 }
-
-/* Zero a vector of bitsets.  */
+// 
+// Zero a vector of bitsets. 
+// 
 void bitsetv_zero(bitsetv bsetv)
 {
 	for(bitset_bindex i = 0; bsetv[i]; i++)
 		bitset_zero(bsetv[i]);
 }
-
-/* Set a vector of bitsets to ones.  */
+// 
+// Set a vector of bitsets to ones.
+// 
 void bitsetv_ones(bitsetv bsetv)
 {
 	for(bitset_bindex i = 0; bsetv[i]; i++)
 		bitset_ones(bsetv[i]);
 }
-
-/* Given a vector BSETV of N bitsets of size N, modify its contents to
-   be the transitive closure of what was given.  */
+// 
+// Given a vector BSETV of N bitsets of size N, modify its contents to
+// be the transitive closure of what was given.
+// 
 void bitsetv_transitive_closure(bitsetv bsetv)
 {
 	for(bitset_bindex i = 0; bsetv[i]; i++)
@@ -85,19 +90,20 @@ void bitsetv_transitive_closure(bitsetv bsetv)
 			if(bitset_test(bsetv[j], i))
 				bitset_or(bsetv[j], bsetv[j], bsetv[i]);
 }
-
-/* Given a vector BSETV of N bitsets of size N, modify its contents to
-   be the reflexive transitive closure of what was given.  This is
-   the same as transitive closure but with all bits on the diagonal
-   of the bit matrix set.  */
+// 
+// Given a vector BSETV of N bitsets of size N, modify its contents to
+// be the reflexive transitive closure of what was given.  This is
+// the same as transitive closure but with all bits on the diagonal of the bit matrix set.
+// 
 void bitsetv_reflexive_transitive_closure(bitsetv bsetv)
 {
 	bitsetv_transitive_closure(bsetv);
 	for(bitset_bindex i = 0; bsetv[i]; i++)
 		bitset_set(bsetv[i], i);
 }
-
-/* Dump the contents of a bitset vector BSETV with N_VECS elements to FILE.  */
+// 
+// Dump the contents of a bitset vector BSETV with N_VECS elements to FILE.
+// 
 void bitsetv_dump(FILE * file, char const * title, char const * subtitle, bitsetv bsetv)
 {
 	fprintf(file, "%s\n", title);
@@ -116,18 +122,13 @@ void debug_bitsetv(bitsetv bsetv)
 	}
 	fprintf(stderr, "\n");
 }
-
-/*--------------------------------------------------------.
-| Display the MATRIX array of SIZE bitsets of size SIZE.  |
-   `--------------------------------------------------------*/
-
+// 
+// Descr: Display the MATRIX array of SIZE bitsets of size SIZE
+// 
 void bitsetv_matrix_dump(FILE * out, const char * title, bitsetv bset)
 {
 	bitset_bindex hsize = bitset_size(bset[0]);
-
-	/* Title. */
-	fprintf(out, "%s BEGIN\n", title);
-
+	fprintf(out, "%s BEGIN\n", title); /* Title. */
 	/* Column numbers. */
 	fputs("   ", out);
 	for(bitset_bindex i = 0; i < hsize; ++i)
@@ -154,7 +155,5 @@ void bitsetv_matrix_dump(FILE * out, const char * title, bitsetv bset)
 	for(bitset_bindex i = 0; i < hsize; ++i)
 		putc('-', out);
 	fputs("'\n", out);
-
-	/* End title. */
-	fprintf(out, "%s END\n\n", title);
+	fprintf(out, "%s END\n\n", title); /* End title. */
 }

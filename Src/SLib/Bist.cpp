@@ -255,44 +255,61 @@ class SGuid : public DataType {
 public:
 	SGuid();
 	// @baseused int    comp(const void *, const void *) const;
-	char * tostr(const void *, long, char *) const;
-	int    fromstr(void *, long, const char *) const;
-	int    base() const;
-	void   tobase(const void * s, void * b) const;
-	int    baseto(void * s, const void * b) const;
-	void   minval(void *) const;
-	void   maxval(void *) const;
-	// @baseused int    Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual char * tostr(const void *, long, char *) const;
+	virtual SString & ToStr(const void * pData, long format, SString & rBuf) const;
+	virtual int    fromstr(void *, long, const char *) const;
+	virtual int    base() const;
+	virtual void   tobase(const void * s, void * b) const;
+	virtual int    baseto(void * s, const void * b) const;
+	virtual void   minval(void *) const;
+	virtual void   maxval(void *) const;
+	// @baseused virtual int Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+};
+
+class SDataType_Color : public DataType {
+public:
+	SDataType_Color();
+	// @baseused int    comp(const void *, const void *) const;
+	virtual char * tostr(const void *, long, char *) const;
+	virtual SString & ToStr(const void * pData, long format, SString & rBuf) const;
+	virtual int    fromstr(void *, long, const char *) const;
+	virtual int    base() const;
+	virtual void   tobase(const void * s, void * b) const;
+	virtual int    baseto(void * s, const void * b) const;
+	virtual void   minval(void *) const;
+	virtual void   maxval(void *) const;
+	virtual int    Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 //
 // Функция регистрации встроенных типов
 //
 void RegisterBIST()
 {
-	RegisterSType(S_VOID,     &SVoid());
-	RegisterSType(S_CHAR,     &SChar());
-	RegisterSType(S_INT,      &SInt(4)); // @v10.6.3 default(2)-->4
-	RegisterSType(S_BOOL,     &SBool());
-	RegisterSType(S_UINT,     &SUInt());
-	RegisterSType(S_LOGICAL,  &SBool());
-	RegisterSType(S_FLOAT,    &SFloat());
-	RegisterSType(S_DEC,      &SDecimal());
-	RegisterSType(S_MONEY,    &SMoney());
-	RegisterSType(S_DATE,     &SDate());
-	RegisterSType(S_DATETIME, &SDateTime());
-	RegisterSType(S_TIME,     &STime());
-	RegisterSType(S_ZSTRING,  &SZString());
-	RegisterSType(S_AUTOINC,  &SAutoinc(4)); // @v10.6.3 default(2)-->4
-	RegisterSType(S_NOTE,     &SNote());
-	RegisterSType(S_LSTRING,  &SLString());
-	RegisterSType(S_VARIANT,  &SVariant());
-	RegisterSType(S_WCHAR,    &SWcString());
-	RegisterSType(S_WZSTRING, &SWcString());
-	RegisterSType(S_RAW,      &SRaw());
-	RegisterSType(S_IPOINT2,  &SIPoint2());
-	RegisterSType(S_FPOINT2,  &SFPoint2());
-	RegisterSType(S_UUID_,    &SGuid());
-	RegisterSType(S_INT64,    &SInt64()); // @v10.6.3
+	RegisterSType(S_VOID,        &SVoid());
+	RegisterSType(S_CHAR,     	 &SChar());
+	RegisterSType(S_INT,      	 &SInt(4)); // @v10.6.3 default(2)-->4
+	RegisterSType(S_BOOL,     	 &SBool());
+	RegisterSType(S_UINT,     	 &SUInt());
+	RegisterSType(S_LOGICAL,  	 &SBool());
+	RegisterSType(S_FLOAT,    	 &SFloat());
+	RegisterSType(S_DEC,      	 &SDecimal());
+	RegisterSType(S_MONEY,    	 &SMoney());
+	RegisterSType(S_DATE,     	 &SDate());
+	RegisterSType(S_DATETIME, 	 &SDateTime());
+	RegisterSType(S_TIME,     	 &STime());
+	RegisterSType(S_ZSTRING,  	 &SZString());
+	RegisterSType(S_AUTOINC,  	 &SAutoinc(4)); // @v10.6.3 default(2)-->4
+	RegisterSType(S_NOTE,     	 &SNote());
+	RegisterSType(S_LSTRING,  	 &SLString());
+	RegisterSType(S_VARIANT,  	 &SVariant());
+	RegisterSType(S_WCHAR,    	 &SWcString());
+	RegisterSType(S_WZSTRING, 	 &SWcString());
+	RegisterSType(S_RAW,      	 &SRaw());
+	RegisterSType(S_IPOINT2,  	 &SIPoint2());
+	RegisterSType(S_FPOINT2,  	 &SFPoint2());
+	RegisterSType(S_UUID_,    	 &SGuid());
+	RegisterSType(S_INT64,       &SInt64()); // @v10.6.3
+	RegisterSType(S_COLOR_RGBA,  &SDataType_Color()); // @v10.9.10
 }
 //
 // SChar
@@ -1007,22 +1024,22 @@ int SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSeria
 	if(dir > 0) {
 		int    spec = 0; // 1 - zero, 2 - full
 		if(S == 8) {
-			uint64 v64 = *(uint64 *)pData;
+			uint64 v64 = *static_cast<const uint64 *>(pData);
 			if(v64 == 0)
 				spec = 1;
 			else if(v64 <= 0xffUL) {
 				*pInd = 2;
-				uint8 _v = (uint8)v64;
+				uint8 _v = static_cast<uint8>(v64);
 				rBuf.Write(&_v, sizeof(_v));
 			}
 			else if(v64 <= 0xffffUL) {
 				*pInd = 3;
-				uint16 _v = (uint16)v64;
+				uint16 _v = static_cast<uint16>(v64);
 				rBuf.Write(_v);
 			}
 			else if(v64 <= 0xffffffffUL) {
 				*pInd = 4;
-				uint32 _v = (uint32)v64;
+				uint32 _v = static_cast<uint32>(v64);
 				rBuf.Write(_v);
 			}
 			else
@@ -1063,17 +1080,17 @@ int SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSeria
 			if(*pInd == 2) {
 				uint8 _v;
 				rBuf.Read(&_v, sizeof(_v));
-				*(uint64 *)pData = _v;
+				*static_cast<uint64 *>(pData) = _v;
 			}
 			else if(*pInd == 3) {
 				uint16 _v;
 				rBuf.Read(_v);
-				*(uint64 *)pData = _v;
+				*static_cast<uint64 *>(pData) = _v;
 			}
 			else if(*pInd == 4) {
 				uint32 _v;
 				rBuf.Read(_v);
-				*(uint64 *)pData = _v;
+				*static_cast<uint64 *>(pData) = _v;
 			}
 			else {
 				THROW_S(0, SLERR_SRLZ_INVDATAIND);
@@ -1795,7 +1812,7 @@ void SFPoint2::maxval(void * pData) const
 int SFPoint2::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	FPoint & r_p = *(FPoint *)pData;
+	FPoint & r_p = *static_cast<FPoint *>(pData);
 	if(dir > 0) {
 		if(r_p.X == r_p.Y) {
 			if(r_p.X == 0.0f) {
@@ -1841,9 +1858,117 @@ char * SGuid::tostr(const void * pData, long f, char * pBuf) const
 	return pBuf;
 }
 
+SString & SGuid::ToStr(const void * pData, long format, SString & rBuf) const
+{
+	rBuf.Z();
+	static_cast<const S_GUID *>(pData)->ToStr(S_GUID::fmtIDL, rBuf);
+	return rBuf;
+}
+
 int  SGuid::fromstr(void * pData, long f, const char * pStr) const { return static_cast<S_GUID *>(pData)->FromStr(pStr); }
 int  SGuid::base() const { return BTS_STRING; }
 void SGuid::tobase(const void * pData, void * pBase) const { tostr(pData, 0L, static_cast<char *>(pBase)); }
 int  SGuid::baseto(void * pData, const void * pBase) const { fromstr(pData, 0L, static_cast<const char *>(pBase)); return 1; }
 void SGuid::minval(void * pData) const { memzero(pData, sizeof(S_GUID)); }
 void SGuid::maxval(void * pData) const { memset(pData, 0xff, sizeof(S_GUID)); }
+//
+//
+//
+SDataType_Color::SDataType_Color() : DataType(sizeof(SColorBase))
+{
+}
+// @baseused int    comp(const void *, const void *) const;
+char * SDataType_Color::tostr(const void * pData, long format, char * pBuf) const
+{
+	SString temp_buf;
+	static_cast<const SColorBase *>(pData)->ToStr(temp_buf, /*format*/0);
+	temp_buf.CopyTo(pBuf, 0);
+	return pBuf;
+}
+
+SString & SDataType_Color::ToStr(const void * pData, long format, SString & rBuf) const
+{
+	rBuf.Z();
+	static_cast<const SColorBase *>(pData)->ToStr(rBuf, /*format*/0);
+	return rBuf;
+}
+
+int SDataType_Color::fromstr(void * pData, long fmt, const char * pStr) const { return static_cast<SColorBase *>(pData)->FromStr(pStr); }
+int SDataType_Color::base() const { return BTS_STRING; }
+void SDataType_Color::tobase(const void * pData, void * pBase) const { tostr(pData, 0L, static_cast<char *>(pBase)); }
+int SDataType_Color::baseto(void * pData, const void * pBase) const { fromstr(pData, 0L, static_cast<const char *>(pBase)); return 1; }
+void SDataType_Color::minval(void * pData) const { memzero(pData, sizeof(SColorBase)); }
+void SDataType_Color::maxval(void * pData) const { memset(pData, 0xff, sizeof(SColorBase)); }
+
+int SDataType_Color::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
+{
+	int    ok = 1;
+	SColorBase & r_c = *static_cast<SColorBase *>(pData);
+	if(dir > 0) {
+		if(r_c.IsEmpty()) {
+			*pInd = 1;
+		}
+		else if(r_c.B == r_c.G && r_c.G == r_c.R) { // Все компоненты равны
+			THROW(rBuf.Write(r_c.B));
+			if(r_c.Alpha == 255) {
+				*pInd = 2;
+			}
+			else if(r_c.Alpha == 0) {
+				*pInd = 3;
+			}
+			else {
+				THROW(rBuf.Write(r_c.Alpha));
+				*pInd = 4;
+			}
+		}
+		else {
+			THROW(rBuf.Write(r_c.B));
+			THROW(rBuf.Write(r_c.G));
+			THROW(rBuf.Write(r_c.R));
+			if(r_c.Alpha == 255) {
+				*pInd = 5;
+			}
+			else if(r_c.Alpha == 0) {
+				*pInd = 6;
+			}
+			else {
+				THROW(rBuf.Write(r_c.Alpha));
+			}
+		}
+	}
+	else if(dir < 0) {
+		if(*pInd == 1) {
+			r_c.Z();
+		}
+		else if(oneof3(*pInd, 2, 3, 4)) {
+			uint8 byte = 0;
+			THROW(rBuf.Read(byte));
+			r_c.R = byte;
+			r_c.G = byte;
+			r_c.B = byte;
+			if(*pInd == 2) {
+				r_c.Alpha = 255;
+			}
+			else if(*pInd == 3) {
+				r_c.Alpha = 0;
+			}
+			else if(*pInd == 4) {
+				THROW(rBuf.Read(r_c.Alpha));
+			}
+		}
+		else {
+			THROW(rBuf.Read(r_c.B));
+			THROW(rBuf.Read(r_c.G));
+			THROW(rBuf.Read(r_c.R));
+			if(*pInd == 5)
+				r_c.Alpha = 255;
+			else if(*pInd == 6)
+				r_c.Alpha = 0;
+			else {
+				THROW(rBuf.Read(r_c.Alpha));
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}

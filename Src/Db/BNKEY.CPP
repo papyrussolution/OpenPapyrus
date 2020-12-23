@@ -229,7 +229,7 @@ int FASTCALL BNKeyList::findKeyByNumber(int keyNumber) const
 {
 	int    count = 0;
 	if(P_Data) {
-#define cells ((BNKeyCell *)P_Data)
+#define cells (static_cast<const BNKeyCell *>(P_Data))
 		const int num_keys = cells[count++].ih.numKeys;
 		for(int i = 0; i < num_keys; i++)
 			if(keyNumber == cells[count].h.keyNumber)
@@ -245,7 +245,7 @@ int FASTCALL BNKeyList::findKey(int key) const
 {
 	int    count = 0;
 	if(P_Data) {
-#define cells ((BNKeyCell *)P_Data)
+#define cells (static_cast<const BNKeyCell *>(P_Data))
 		const int num_keys = cells[count++].ih.numKeys;
 		for(int i = 0; i < num_keys; i++)
 			if(key == i)

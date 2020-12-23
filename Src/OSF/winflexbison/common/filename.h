@@ -27,7 +27,7 @@ extern "C" {
    IS_PATH_WITH_DIR(P)  tests whether P contains a directory specification.
  */
 #if defined _WIN32 || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__
-	/* Native Windows, Cygwin, OS/2, DOS */
+	// Native Windows, Cygwin, OS/2, DOS 
 	#define ISSLASH(C) ((C) == '/' || (C) == '\\')
 	#define HAS_DEVICE(P) ((((P)[0] >= 'A' && (P)[0] <= 'Z') || ((P)[0] >= 'a' && (P)[0] <= 'z')) && (P)[1] == ':')
 	#define IS_ABSOLUTE_PATH(P) (ISSLASH ((P)[0]) || HAS_DEVICE (P))

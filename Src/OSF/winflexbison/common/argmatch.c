@@ -119,8 +119,7 @@ void argmatch_valid(const char * const * arglist, const void * vallist, size_t v
 	   synonyms follow each other */
 	fputs(_("Valid arguments are:"), stderr);
 	for(i = 0; arglist[i]; i++)
-		if((i == 0)
-		    || memcmp(last_val, (char const*)vallist + valsize * i, valsize)) {
+		if((i == 0) || memcmp(last_val, (char const*)vallist + valsize * i, valsize)) {
 			fprintf(stderr, "\n  - %s", quote(arglist[i]));
 			last_val = (char const*)vallist + valsize * i;
 		}
@@ -141,8 +140,7 @@ ptrdiff_t __xargmatch_internal(const char * context, const char * arg, const cha
 {
 	ptrdiff_t res = argmatch(arg, arglist, vallist, valsize);
 	if(res >= 0)
-		/* Success. */
-		return res;
+		return res; /* Success. */
 	/* We failed.  Explain why. */
 	argmatch_invalid(context, arg, res);
 	argmatch_valid(arglist, vallist, valsize);
@@ -152,12 +150,9 @@ ptrdiff_t __xargmatch_internal(const char * context, const char * arg, const cha
 
 /* Look for VALUE in VALLIST, an array of objects of size VALSIZE and
    return the first corresponding argument in ARGLIST */
-const char * argmatch_to_argument(const void * value,
-    const char * const * arglist,
-    const void * vallist, size_t valsize)
+const char * argmatch_to_argument(const void * value, const char * const * arglist, const void * vallist, size_t valsize)
 {
 	size_t i;
-
 	for(i = 0; arglist[i]; i++)
 		if(!memcmp(value, (char const*)vallist + valsize * i, valsize))
 			return arglist[i];

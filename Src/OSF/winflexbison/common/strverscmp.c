@@ -51,7 +51,6 @@
    returning less than, equal to or greater than zero if S1 is less than,
    equal to or greater than S2 (for more info, see the texinfo doc).
  */
-
 int __strverscmp(const char * s1, const char * s2)
 {
 	const uchar * p1 = (const uchar*)s1;
@@ -61,17 +60,14 @@ int __strverscmp(const char * s1, const char * s2)
 	int diff;
 	/* Symbol(s)    0       [1-9]   others  (padding)
 	   Transition   (10) 0  (01) d  (00) x  (11) -   */
-	static const uint next_state[] =
-	{
+	static const uint next_state[] = {
 		/* state    x    d    0    - */
 		/* S_N */ S_N, S_I, S_Z, S_N,
 		/* S_I */ S_N, S_I, S_I, S_I,
 		/* S_F */ S_N, S_F, S_F, S_F,
 		/* S_Z */ S_N, S_F, S_Z, S_Z
 	};
-
-	static const int result_type[] =
-	{
+	static const int result_type[] = {
 		/* state   x/x  x/d  x/0  x/-  d/x  d/d  d/0  d/-
 		           0/x  0/d  0/0  0/-  -/x  -/d  -/0  -/- */
 
@@ -84,24 +80,19 @@ int __strverscmp(const char * s1, const char * s2)
 		/* S_Z */ CMP,  1,   1,  CMP, -1,  CMP, CMP, CMP,
 		-1,  CMP, CMP, CMP
 	};
-
 	if(p1 == p2)
 		return 0;
-
 	c1 = *p1++;
 	c2 = *p2++;
 	/* Hint: '0' is a digit too.  */
 	state = S_N | ((c1 == '0') + (ISDIGIT(c1) != 0));
-
 	while((diff = c1 - c2) == 0 && c1 != '\0') {
 		state = next_state[state];
 		c1 = *p1++;
 		c2 = *p2++;
 		state |= (c1 == '0') + (ISDIGIT(c1) != 0);
 	}
-
 	state = result_type[state << 2 | ((c2 == '0') + (ISDIGIT(c2) != 0))];
-
 	switch(state) {
 		case CMP:
 		    return diff;

@@ -52,7 +52,6 @@ int obstack_vprintf(struct obstack * obs, const char * format, va_list args)
 	char * base = obstack_next_free(obs);
 	size_t len = obstack_room(obs);
 	char * str;
-
 	if(len < CUTOFF) {
 		base = buf;
 		len = CUTOFF;

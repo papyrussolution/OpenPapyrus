@@ -184,22 +184,12 @@ void * x2nrealloc(void * p, size_t * pn, size_t s)
 //
 // Return a pointer to a new buffer of N bytes.  This is like xmalloc, except it returns char *.
 //
-char * xcharalloc(size_t n)
-{
-	return XNMALLOC(n, char);
-}
+char * xcharalloc(size_t n) { return XNMALLOC(n, char); }
 //
 // Clone an object P of size S, with error checking.  There's no need
 // for xnmemdup (P, N, S), since xmemdup (P, N * S) works without any
 // need for an arithmetic overflow check. 
 //
-void * xmemdup(void const * p, size_t s)
-{
-	return memcpy(xmalloc(s), p, s);
-}
-
+void * xmemdup(void const * p, size_t s) { return memcpy(xmalloc(s), p, s); }
 // Clone STRING. 
-char * xstrdup(char const * string)
-{
-	return (char *)xmemdup(string, strlen(string) + 1);
-}
+char * xstrdup(char const * string) { return (char *)xmemdup(string, strlen(string) + 1); }

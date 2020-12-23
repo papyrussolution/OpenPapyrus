@@ -257,7 +257,10 @@ static void InitTest()
 		// @v10.9.3 {
 		assert(BIN(17) == 1);
 		assert(BIN(0) == 0);
-		assert(BIN(0.0) == 0);
+		#if (_MSC_VER > 1400) // @v10.9.10 Выясняется, что BIN нельзя применять к floating point. Например, Visual Studio 7.1 ошибается в такой конструкции.
+			assert(BIN(0.0) == 0);
+			assert(BIN(0.0f) == 0); // @v10.9.10
+		#endif
 		assert(!0 == 1);
 		assert(!17 == 0);
 		assert(LOGIC(!0.000001) == false);

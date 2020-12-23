@@ -21,10 +21,10 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #define NO_C_CTYPE_MACROS
-#include "c-ctype.h" /* Specification.  */
-
-/* The function isascii is not locale dependent. Its use in EBCDIC is
-   questionable. */
+#include "c-ctype.h"
+//
+// The function isascii is not locale dependent. Its use in EBCDIC is questionable
+//
 bool c_isascii(int c)
 {
 	return (c >= 0x00 && c <= 0x7f);

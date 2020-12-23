@@ -4629,7 +4629,7 @@ struct StrategyContainerChunk {
 };
 
 int PPObjTimeSeries::StrategyContainer::GetBestSubset2(const PPTssModelPacket & rTssPacket, 
-	StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup, LongArray * pToRemovePosList, LongArray * pHaveAnalogPosList) const
+	StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup, LongArray * pToRemovePosList) const
 {
 	rScDest.Z();
 	int    ok = 1;
@@ -4648,71 +4648,30 @@ int PPObjTimeSeries::StrategyContainer::GetBestSubset2(const PPTssModelPacket & 
 			case PPTssModel::sppsShuffle:    _ssflags |= gbsfShuffle; break;
 			case PPTssModel::sppsStakeCount: _ssflags |= gbsfCritStakeCount; break; // @v10.7.9
 		}
-		// @20200703 _ssflags |= gbsfEliminate100prob; // @v10.7.9
-		_ssflags |= gbsfEliminate100prob; // @20200706
-		_ssflags &= ~(gbsfEliminate100prob); // @20200801 @see @#100
 	}
 	TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> range_list_;
 	TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> range_list_cqa;
 	const uint _c = getCount();
 	LongArray pos_to_remove;
-	LongArray have_analog_pos_list;
-	// @v10.7.9 {
-	/* @20200924 if(_ssflags & gbsfEliminate100prob) {
-		TSCollection <StrategyContainerChunk> strategy_chunk_list;
-		for(uint i = 0; i < _c; i++) {
-			const Strategy & r_item = at(i);
-			int    found = 0;
-			for(uint j = 0; !found && j < strategy_chunk_list.getCount(); j++) {
-				StrategyContainerChunk * p_chunk = strategy_chunk_list.at(j);
-				if(p_chunk->IsFactorsEq(r_item)) {
-					p_chunk->ScIdxList.add(static_cast<long>(i));
-					found = 1;
-				}
-			}
-			if(!found) {
-				StrategyContainerChunk * p_new_chunk = strategy_chunk_list.CreateNewItem();
-				p_new_chunk->StakeSide = (r_item.BaseFlags & Strategy::bfShort) ? 1 : 0;
-				p_new_chunk->MainFrameSize = r_item.MainFrameSize;
-				p_new_chunk->MainFrameRange = r_item.OptDelta2Range;
-				p_new_chunk->ScIdxList.add(static_cast<long>(i));
-			}
-		}
-		{
-			for(uint chunkidx = 0; chunkidx < strategy_chunk_list.getCount(); chunkidx++) {
-				const StrategyContainerChunk * p_chunk = strategy_chunk_list.at(chunkidx);
-				MakeConfidenceEliminationIndex(rTssPacket, 0, &p_chunk->ScIdxList, pos_to_remove);
-			}
-		}
-	}*/
-	// } @v10.7.9 
 	{
 		for(uint i = 0; i < _c; i++) {
 			const Strategy & r_item = at(i);
 			if(!pos_to_remove.lsearch(static_cast<long>(i)) && r_item.V.Result > 0.0 && r_item.GetWinCountRate() >= _min_win_rate) {
-				// @v10.7.5 Специальное (экспериментальное) соображение из-за которого введен have_analog_pos_list:
-				// если мы имеем более одной стратегии с идентичным углом наклона но разными дистанциями регрессии, то
-				// это дает основание полагать, что такой угол обеспечивает более надежную стратегию. Следовательно, стратегии с углами,
-				// не имеющими аналогов, будет разумным убрать из набора стратегий.
-				// Это соображение базируется на предположении, что реальную вероятность выигрыша обеспечивает не сам угол 
-				// наклона регрессионной прямой, а кривая (парабола, вероятно) касательной к которой является найденная регрессия.
-				/*if(have_analog_pos_list.lsearch(static_cast<long>(i)))*/{
-					int    skip = 0;
-					if(_ssflags & gbsfTrendFollowing && r_item.StakeMode == 1) {
-						if(r_item.BaseFlags & r_item.bfShort) {
-							if(!r_item.OptDeltaRange.LessThan(0.0))
-								skip = 1;
-						}
-						else {
-							if(!r_item.OptDeltaRange.GreaterThan(0.0))
-								skip = 1;
-						}
+				int    skip = 0;
+				if(_ssflags & gbsfTrendFollowing && r_item.StakeMode == 1) {
+					if(r_item.BaseFlags & r_item.bfShort) {
+						if(!r_item.OptDeltaRange.LessThan(0.0))
+							skip = 1;
 					}
-					if(!skip) {
-						if(((r_item.BaseFlags & r_item.bfShort) && (_ssflags & gbsfShort)) || (!(r_item.BaseFlags & r_item.bfShort) && (_ssflags & gbsfLong))) {
-							if(r_item.StakeMode == 1 && _ssflags & gbsfStakeMode1) {
-								THROW(AddStrategyToOrderIndex(i, _ssflags, range_list_));
-							}
+					else {
+						if(!r_item.OptDeltaRange.GreaterThan(0.0))
+							skip = 1;
+					}
+				}
+				if(!skip) {
+					if(((r_item.BaseFlags & r_item.bfShort) && (_ssflags & gbsfShort)) || (!(r_item.BaseFlags & r_item.bfShort) && (_ssflags & gbsfLong))) {
+						if(r_item.StakeMode == 1 && _ssflags & gbsfStakeMode1) {
+							THROW(AddStrategyToOrderIndex(i, _ssflags, range_list_));
 						}
 					}
 				}
@@ -4755,7 +4714,6 @@ int PPObjTimeSeries::StrategyContainer::GetBestSubset2(const PPTssModelPacket & 
 	rScDest.Fb.AvgLocalDeviation = Fb.AvgLocalDeviation;
 	rScDest.Fb.UseDataForStrategiesTill = Fb.UseDataForStrategiesTill;
 	ASSIGN_PTR(pToRemovePosList, pos_to_remove);
-	ASSIGN_PTR(pHaveAnalogPosList, have_analog_pos_list);
 	CATCHZOK
 	return ok;
 }
@@ -6665,31 +6623,6 @@ static SString & CatStrategyPrefix(int optFactorSide, SString & rBuf)
 	return rBuf.Cat("M1").CatChar((optFactorSide == 0) ? '+' : ((optFactorSide == 1) ? '-' : '*'));
 }
 
-static double EvaluateStakeDistributionFactor(uint ptCount, const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rDetailList)
-{
-	double result = 0.0;
-	const  uint dlc = rDetailList.getCount();
-	const double even_distance = fdivui(1U, dlc+1);
-	double sqsum = 0.0;
-	LongArray pt_list;
-	{
-		for(uint i = 0; i < dlc; i++) {
-			pt_list.add(static_cast<long>(rDetailList.at(i).StartPoint));
-		}
-		pt_list.sort();
-	}
-	assert(pt_list.getCount() == dlc);
-	{
-		for(uint i = 0; i < dlc; i++) {
-			double start_pt = fdivui(static_cast<uint>(pt_list.get(i)), ptCount);
-			double deviation = (start_pt - (even_distance * (i+1)));
-			sqsum += SQ(deviation);
-		}
-	}
-	result = sqrt(sqsum / static_cast<double>(rDetailList.getCount()));
-	return result;
-}
-
 static double EvaluateExperimentalFactor(const PPObjTimeSeries::StrategyContainer & rSc, const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rDetailList)
 {
 	// @v20200819 Экспериментальная величина - среднее значение клиранса при выигрыше
@@ -6814,7 +6747,6 @@ int PrcssrTsStrategyAnalyze::SimulateStrategyResultEntries(void * pBlk, const TS
 		sre_test.BaseFlags |= PPObjTimeSeries::Strategy::bfBrokenRow;
 	}
 	// } @v10.8.9 
-	// @v10.8.9 sre_test.StakeDistrFactor = pDetailList ? static_cast<float>(EvaluateStakeDistributionFactor(p_blk->R_TsTmList.getCount(), *pDetailList)) : 0.0f; // @v10.8.7
 	rResult = sre_test;
 	return ok;
 }
@@ -7536,351 +7468,6 @@ uint PrcssrTsStrategyAnalyze::CalcStakeDistanceMedian(const TSVector <PPObjTimeS
 	return result;
 }
 
-int PrcssrTsStrategyAnalyze::StrategyContainerDressing(const PPObjTimeSeries::Config & rConfig, 
-	const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket & rTssModel, const PPObjTimeSeries::CommonTsParamBlock & rCtspb,
-	const PPObjTimeSeries::StrategyContainer & rSrcSc, PPObjTimeSeries::StrategyContainer & rScSelection, SFile * pFOut)
-{
-	return Helper_StrategyContainerDressing(rConfig, rTsPack, rTssModel, /*rTsTmList, rTsValList, rTrendListSet*/rCtspb, rSrcSc, rScSelection, 0, pFOut);
-}
-
-int PrcssrTsStrategyAnalyze::Helper_StrategyContainerDressing(const PPObjTimeSeries::Config & rConfig, 
-	const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket & rTssModel, const PPObjTimeSeries::CommonTsParamBlock & rCtspb,
-	const PPObjTimeSeries::StrategyContainer & rSrcSc, PPObjTimeSeries::StrategyContainer & rScSelection, PPObjTimeSeries::StrategyResultEntry * pSre, SFile * pFOut)
-{
-	int    ok = -1;
-	SString msg_buf;
-	PPObjTimeSeries::StrategyContainer sc_process = rSrcSc;
-	const uint8 best_subset_opt_chunk = rTssModel.Rec.BestSubsetOptChunk;
-	const LDATE date_till = checkdate(P.UseDataForStrategiesTill) ? P.UseDataForStrategiesTill : ZERODATE;
-	RealRange strategy_result_range;
-	{
-		strategy_result_range.Set(SMathConst::Max, SMathConst::Min);
-		SForEachVectorItem(sc_process, scidx) { strategy_result_range.SetupMinMax(sc_process.at(scidx).V.Result); }
-	}
-	//
-	// Если (tss_model.Rec.MinSimilItems > 1) то селекцию стратегий делать нельзя - она вычистит парные стратегии
-	//
-	if(/* @v10.8.9 rTssModel.Rec.MinSimilItems > 1 ||*/!oneof4(best_subset_opt_chunk, 1, 3, 7, 15)) {
-		rScSelection = sc_process;
-		rScSelection.SetupByTsPacket(rTsPack, &rTssModel);
-		rScSelection.SetUseDataForStrategiesTill(date_till);
-	}
-	else {
-		// @v10.7.7 const uint test_count_on_selection = 1; // @20200413 10-->20
-		//
-		// Многопоточный подбор оптимальной комбинации стратегий
-		//
-		assert(oneof4(best_subset_opt_chunk, 1, 3, 7, 15)); // @v10.6.9 (15) // @v10.7.8 (1)
-		class StrategySetSimulationTask : public SlThread_WithStartupSignal { // @v10.7.3 (SlThread-->SlThread_WithStartupSignal)
-		public:
-			struct InitBlock {
-				InitBlock(const PPObjTimeSeries::CommonTsParamBlock & rCtspb,
-					const PPObjTimeSeries::StrategyContainer & rSc, const PPObjTimeSeries::Config & rCfg,
-					PPObjTimeSeries::StrategyResultEntry * pResult, TSVector <PPObjTimeSeries::StrategyResultValueEx> * pResultEx) :
-					R_Ctspb(rCtspb), R_Sc(rSc), R_Cfg(rCfg), P_Result(pResult), P_ResultEx(pResultEx)
-				{
-				}
-				const PPObjTimeSeries::CommonTsParamBlock & R_Ctspb;
-				const PPObjTimeSeries::StrategyContainer & R_Sc;
-				const PPObjTimeSeries::Config & R_Cfg;
-				PPObjTimeSeries::StrategyResultEntry * P_Result;
-				TSVector <PPObjTimeSeries::StrategyResultValueEx> * P_ResultEx;
-			};
-			StrategySetSimulationTask(InitBlock * pBlk) : SlThread_WithStartupSignal(0), B(*pBlk)
-			{
-			}
-			virtual void Run()
-			{
-				assert(SLS.GetConstTLA().Id == GetThreadID());
-				B.R_Sc.Simulate(B.R_Ctspb, B.R_Cfg, 0, 0, *B.P_Result, B.P_ResultEx);
-			}
-		private:
-			InitBlock B;
-		};
-		const double overall_win_rate_limit = (rTssModel.Rec.OverallWinRateLimit > 0.0) ? rTssModel.Rec.OverallWinRateLimit : 0.0; // @v10.7.0
-		const  uint scp_inc = (best_subset_opt_chunk == 1) ? 1 : ((best_subset_opt_chunk == 3) ? 2 : ((best_subset_opt_chunk == 7) ? 3 : ((best_subset_opt_chunk == 15) ? 4 : 0)));
-		double best_result = 0.0;
-		double best_result_spcmult = 0.0; // @v10.7.8 Лучший результат взвешенный по специальному множителю
-		double best_winrate = 0.0; // @20200517 Лучшая вероятность выигрыша
-		double best_stake_density = 0.0; // @v10.8.6
-		uint   best_loss_count = 0; // @v10.7.1
-		uint   phony_iter_no = 0;
-		rScSelection.clear(); // @20200421
-		rScSelection.SetupByTsPacket(rTsPack, &rTssModel); // @v10.7.1
-		rScSelection.SetUseDataForStrategiesTill(date_till); // @v10.7.3
-		for(uint scpidx = 0; scpidx < sc_process.getCount() && phony_iter_no < rTssModel.Rec.BestSubsetMaxPhonyIters; scpidx += scp_inc) {
-			PPObjTimeSeries::StrategyResultEntry sre[15];
-			PPObjTimeSeries::StrategyContainer sc[15]; // 15 - max of model_param.BestSubsetOptChunk
-			TSVector <PPObjTimeSeries::StrategyResultValueEx> sre_ex[15]; // @v10.7.6
-			HANDLE objs_to_wait[32];
-			size_t objs_to_wait_count = 0;
-			MEMSZERO(objs_to_wait);
-			uint thr_idx;
-			if(best_subset_opt_chunk == 1) {
-				thr_idx = 0;
-				sc[thr_idx] = rScSelection;
-				sc[thr_idx].insert(&sc_process.at(scpidx)); // 0001
-				sc[thr_idx].Simulate(rCtspb, rConfig, 0, 0, sre[thr_idx], &sre_ex[thr_idx]);
-			}
-			else {
-				if(best_subset_opt_chunk == 15) {
-					for(thr_idx = 0; thr_idx < best_subset_opt_chunk; thr_idx++) {
-						sc[thr_idx] = rScSelection;
-						// 0001, 0010, 0011, 0100, 0101, 0110, 0111, 1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111
-						if(thr_idx == 0) {
-							sc[thr_idx].insert(&sc_process.at(scpidx)); // 0001
-						}
-						else if(scpidx < (sc_process.getCount()-1)) {
-							if(thr_idx == 1) { // 0010
-								sc[thr_idx].insert(&sc_process.at(scpidx+1));
-							}
-							else if(thr_idx == 2) { // 0011
-								sc[thr_idx].insert(&sc_process.at(scpidx));
-								sc[thr_idx].insert(&sc_process.at(scpidx+1));
-							}
-							else if(scpidx < (sc_process.getCount()-2)) {
-								if(thr_idx == 3) { // 0100
-									sc[thr_idx].insert(&sc_process.at(scpidx+2));
-								}
-								else if(thr_idx == 4) { // 0101
-									sc[thr_idx].insert(&sc_process.at(scpidx));
-									sc[thr_idx].insert(&sc_process.at(scpidx+2));
-								}
-								else if(thr_idx == 5) { // 0110
-									sc[thr_idx].insert(&sc_process.at(scpidx+1));
-									sc[thr_idx].insert(&sc_process.at(scpidx+2));
-								}
-								else if(thr_idx == 6) { // 0111
-									sc[thr_idx].insert(&sc_process.at(scpidx));
-									sc[thr_idx].insert(&sc_process.at(scpidx+1));
-									sc[thr_idx].insert(&sc_process.at(scpidx+2));
-								}
-								else if(scpidx < (sc_process.getCount()-3)) {
-									if(thr_idx == 7) { // 1000
-										sc[thr_idx].insert(&sc_process.at(scpidx+3));
-									}
-									else if(thr_idx == 8) { // 1001
-										sc[thr_idx].insert(&sc_process.at(scpidx));
-										sc[thr_idx].insert(&sc_process.at(scpidx+3));
-									}
-									else if(thr_idx == 9) { // 1010
-										sc[thr_idx].insert(&sc_process.at(scpidx+1));
-										sc[thr_idx].insert(&sc_process.at(scpidx+3));
-									}
-									else if(thr_idx == 10) { // 1011
-										sc[thr_idx].insert(&sc_process.at(scpidx));
-										sc[thr_idx].insert(&sc_process.at(scpidx+1));
-										sc[thr_idx].insert(&sc_process.at(scpidx+3));
-									}
-									else if(thr_idx == 11) { // 1100
-										sc[thr_idx].insert(&sc_process.at(scpidx+2));
-										sc[thr_idx].insert(&sc_process.at(scpidx+3));
-									}
-									else if(thr_idx == 12) { // 1101
-										sc[thr_idx].insert(&sc_process.at(scpidx));
-										sc[thr_idx].insert(&sc_process.at(scpidx+2));
-										sc[thr_idx].insert(&sc_process.at(scpidx+3));
-									}
-									else if(thr_idx == 13) { // 1110
-										sc[thr_idx].insert(&sc_process.at(scpidx+1));
-										sc[thr_idx].insert(&sc_process.at(scpidx+2));
-										sc[thr_idx].insert(&sc_process.at(scpidx+3));
-									}
-									else if(thr_idx == 14) { // 1111
-										sc[thr_idx].insert(&sc_process.at(scpidx));
-										sc[thr_idx].insert(&sc_process.at(scpidx+1));
-										sc[thr_idx].insert(&sc_process.at(scpidx+2));
-										sc[thr_idx].insert(&sc_process.at(scpidx+3));
-									}
-								}
-							}
-						}
-						StrategySetSimulationTask::InitBlock tb(/*rTsTmList, rTsValList, rTrendListSet*/rCtspb, sc[thr_idx], rConfig, &sre[thr_idx], &sre_ex[thr_idx]);
-						StrategySetSimulationTask * p_thread = new StrategySetSimulationTask(&tb);
-						THROW_S(p_thread, SLERR_NOMEM);
-						p_thread->Start(1/*0*/);
-						objs_to_wait[objs_to_wait_count++] = *p_thread;
-					}
-				}
-				else if(best_subset_opt_chunk == 7) {
-					for(thr_idx = 0; thr_idx < best_subset_opt_chunk; thr_idx++) {
-						sc[thr_idx] = rScSelection;
-						// 001, 010, 011, 100, 101, 110, 111
-						if(thr_idx == 0) {
-							sc[thr_idx].insert(&sc_process.at(scpidx));
-						}
-						else if(scpidx < (sc_process.getCount()-1)) {
-							if(thr_idx == 1) {
-								sc[thr_idx].insert(&sc_process.at(scpidx+1));
-							}
-							else if(thr_idx == 2) {
-								sc[thr_idx].insert(&sc_process.at(scpidx));
-								sc[thr_idx].insert(&sc_process.at(scpidx+1));
-							}
-							else if(scpidx < (sc_process.getCount()-2)) {
-								if(thr_idx == 3) {
-									sc[thr_idx].insert(&sc_process.at(scpidx+2));
-								}
-								else if(thr_idx == 4) {
-									sc[thr_idx].insert(&sc_process.at(scpidx));
-									sc[thr_idx].insert(&sc_process.at(scpidx+2));
-								}
-								else if(thr_idx == 5) {
-									sc[thr_idx].insert(&sc_process.at(scpidx+1));
-									sc[thr_idx].insert(&sc_process.at(scpidx+2));
-								}
-								else if(thr_idx == 6) {
-									sc[thr_idx].insert(&sc_process.at(scpidx));
-									sc[thr_idx].insert(&sc_process.at(scpidx+1));
-									sc[thr_idx].insert(&sc_process.at(scpidx+2));
-								}
-							}
-						}
-						StrategySetSimulationTask::InitBlock tb(/*rTsTmList, rTsValList, rTrendListSet*/rCtspb, sc[thr_idx], rConfig, &sre[thr_idx], &sre_ex[thr_idx]);
-						StrategySetSimulationTask * p_thread = new StrategySetSimulationTask(&tb);
-						THROW_S(p_thread, SLERR_NOMEM);
-						p_thread->Start(1);
-						objs_to_wait[objs_to_wait_count++] = *p_thread;
-					}
-				}
-				else if(best_subset_opt_chunk == 3) {
-					for(thr_idx = 0; thr_idx < best_subset_opt_chunk; thr_idx++) {
-						sc[thr_idx] = rScSelection;
-						// 01, 10, 11
-						if(thr_idx == 0) {
-							sc[thr_idx].insert(&sc_process.at(scpidx));
-						}
-						else if(scpidx < (sc_process.getCount()-1)) {
-							if(thr_idx == 1) {
-								sc[thr_idx].insert(&sc_process.at(scpidx+1));
-							}
-							else if(thr_idx == 2) {
-								sc[thr_idx].insert(&sc_process.at(scpidx));
-								sc[thr_idx].insert(&sc_process.at(scpidx+1));
-							}
-						}
-						StrategySetSimulationTask::InitBlock tb(/*rTsTmList, rTsValList, rTrendListSet*/rCtspb, sc[thr_idx], rConfig, &sre[thr_idx], &sre_ex[thr_idx]);
-						StrategySetSimulationTask * p_thread = new StrategySetSimulationTask(&tb);
-						THROW_S(p_thread, SLERR_NOMEM);
-						p_thread->Start(1);
-						objs_to_wait[objs_to_wait_count++] = *p_thread;
-					}
-				}
-				::WaitForMultipleObjects(objs_to_wait_count, objs_to_wait, TRUE, INFINITE);
-			}
-			int    best_thr_idx = -1;
-			enum {
-				setcritNone = 0, // @v10.8.6 Без критериев - применются только ограничения
-				setcritResult = 1,
-				setcritResultSpcMult,
-				setcritWinRate,
-				setcritWinRateMulStakeDensity, // @v10.8.6
-			};
-			//
-			// @20200529
-			// Применил ограничение, предписывающее выбирать только такие комбинации стратегий, которые не снижают 
-			// количество фактических ставок для предыдущих комбинаций. 
-			//
-			const  int  setcrit = setcritResultSpcMult; 
-			const  uint min_actual_stake_count = 0; // @v10.7.8
-			const  double stake_density_low_limit = 0; // @v10.8.6 Очень похоже, что StakeDensity - правильный критерий, но я пока не понял как им восопльзоваться.
-			double local_best_result = best_result;
-			double local_best_result_spcmult = best_result_spcmult; // @v10.7.8
-			double local_best_winrate = best_winrate; // @20200517
-			double local_best_stake_density = best_stake_density; // @v10.8.6
-			for(thr_idx = 0; thr_idx < best_subset_opt_chunk; thr_idx++) {
-				sc[thr_idx].AccumulateFactors(sre[thr_idx]); // @v10.8.6
-				const double win_rate = sre[thr_idx].GetWinCountRate();
-				if(win_rate >= overall_win_rate_limit) {
-					// @v10.7.8 const double local_thr_result = sre[thr_idx].V.Result * win_rate; // @20200413 (* win_rate)
-					const double local_thr_result = sre[thr_idx].V.Result; /* / sqrt(static_cast<double>(sc[thr_idx].getCount()))*/; // @v10.7.8
-					double local_thr_result_spcmult = 0.0;
-					const double local_thr_winrate = win_rate;
-					const double local_thr_stake_density = sre[thr_idx].GetStakeDensity(); // @v10.8.6
-					double test_sre_ex_result = 0.0; // Итоговый результат просуммированный по всем стратегиям для проверки
-					int   skip_chunk = 1;
-					if(local_thr_stake_density < stake_density_low_limit) // @v10.8.6
-						skip_chunk = 1;
-					else {
-						for(uint ssi = 0; ssi < sc[thr_idx].getCount(); ssi++) {
-							uint stake_count_at_final_simulation = CalcStakeCountAtFinalSimulation(sre_ex[thr_idx], ssi);
-							PPObjTimeSeries::Strategy & r_s = sc[thr_idx].at(ssi);
-							r_s.StakeCountAtFinalSimulation = stake_count_at_final_simulation;
-							const double sre_ex_result = CalcStakeResult(sre_ex[thr_idx], ssi);
-							test_sre_ex_result += sre_ex_result;
-							//local_thr_result_spcmult += (sre_ex_result * pow(static_cast<double>(r_s.StakeCountAtFinalSimulation), 1.0/3.0));
-							//double local_factor = ((r_s.V.Result) * sqrt(static_cast<double>(r_s.StakeCountAtFinalSimulation) / static_cast<double>(r_s.StakeCount))); // @20200518
-							// @20200519 double local_factor = ((r_s.V.Result) * static_cast<double>(r_s.StakeCountAtFinalSimulation)); // @20200518
-							// @20200519 local_thr_result_spcmult += sre_ex_result * (local_factor);
-							// SQ better than exp
-							double mult3 = SQ(sre_ex_result / strategy_result_range.low); // @20200519
-							//double mult3 = fpow2(win_rate * (log(r_s.StakeDistMedian * (r_s.WinCount-1)))); // 20200524
-							local_thr_result_spcmult += mult3 * static_cast<double>(r_s.StakeCountAtFinalSimulation); // @20200519
-						}
-						assert(feqeps(test_sre_ex_result, local_thr_result, 1.0E-7)); // test_sre_ex_result must be equal to local_thr_result
-						switch(setcrit) {
-							case setcritNone: skip_chunk = 0; break;
-							case setcritResultSpcMult: skip_chunk = BIN(local_best_result_spcmult >= local_thr_result_spcmult); break;
-							case setcritWinRate: skip_chunk = BIN(local_best_winrate >= local_thr_winrate); break;
-							case setcritResult: skip_chunk = BIN(local_best_result >= local_thr_result); break;
-							case setcritWinRateMulStakeDensity: 
-								skip_chunk = BIN((local_best_winrate * local_best_stake_density) >= (local_thr_winrate * local_thr_stake_density)); break;
-							default: skip_chunk = 1; break;
-						}
-					}
-					if(!skip_chunk) {
-						if(min_actual_stake_count > 0) {
-							for(uint ssi = 0; ssi < sc[thr_idx].getCount(); ssi++) {
-								uint stake_count_at_final_simulation = CalcStakeCountAtFinalSimulation(sre_ex[thr_idx], ssi);
-								if(stake_count_at_final_simulation < min_actual_stake_count)
-									skip_chunk = 1;
-							}
-						}
-						/* @v10.8.6 if(!skip_chunk) {
-							for(uint ssi = 0; !skip_chunk && ssi < rScSelection.getCount(); ssi++) {
-								const uint new_stake_count_at_final_simulation = CalcStakeCountAtFinalSimulation(sre_ex[thr_idx], ssi);
-								const uint prev_stake_count_at_final_simulation = rScSelection.at(ssi).StakeCountAtFinalSimulation;
-								if(new_stake_count_at_final_simulation < prev_stake_count_at_final_simulation)
-									skip_chunk = 1;
-							}
-						}*/
-						if(!skip_chunk) {
-							local_best_result = local_thr_result;
-							local_best_result_spcmult = local_thr_result_spcmult;
-							local_best_winrate = local_thr_winrate;
-							local_best_stake_density = local_thr_stake_density;
-							best_thr_idx = static_cast<int>(thr_idx);
-						}
-					}
-				}
-			}
-			if(best_thr_idx >= 0) {
-				phony_iter_no = 0;
-				rScSelection = sc[best_thr_idx];
-				SForEachVectorItem(rScSelection, si) { rScSelection.at(si).StakeCountAtFinalSimulation = CalcStakeCountAtFinalSimulation(sre_ex[best_thr_idx], si); } // @v10.7.7
-				best_loss_count = sre[best_thr_idx].StakeCount - sre[best_thr_idx].WinCount; // @v10.7.1
-				best_result = local_best_result;
-				best_result_spcmult = local_best_result_spcmult;
-				best_winrate = local_best_winrate;
-				ASSIGN_PTR(pSre, sre[best_thr_idx]);
-				if(pFOut) {
-					msg_buf.Z().Cat("Local Good Subset").CatDiv(':', 2).Cat("BC-LS").CatChar('-').Cat(scpidx+1);
-					pFOut->WriteLine(msg_buf.CR());
-					SForEachVectorItem(rScSelection, si) { pFOut->WriteLine(PPObjTimeSeries::StrategyToString(rScSelection, si, 0, 0, msg_buf.Z()).CR()); }
-					OutputStategyResultEntry(sre[best_thr_idx], msg_buf);
-					pFOut->WriteLine(msg_buf.CR());
-					pFOut->Flush();
-				}
-				ok = 1;
-			}
-			else
-				phony_iter_no++;
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
 int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, long flags, SFile & rFOutTotal, PPObjTimeSeries::StrategyResultEntry * pResult)
 {
 	TsFindStrategiesLoopBlock * p_blk = static_cast<TsFindStrategiesLoopBlock *>(pBlk);
@@ -7891,17 +7478,16 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 	uint   best_sc_idx = 0;
 	double prev_result = 0.0;
 	LongArray to_remove_pos_list;
-	LongArray have_analog_pos_list;
 	PPObjTimeSeries::StrategyContainer sc_selection;
 	PPObjTimeSeries::StrategyContainer sc_process;
-	PPObjTimeSeries::StrategyContainer sc_skip_due_dup; // @v10.6.9 стратегии, вынесенные из рассмотрения, поскольку для них есть более удачливые дубликаты
+	PPObjTimeSeries::StrategyContainer sc_skip_due_dup; // стратегии, вынесенные из рассмотрения, поскольку для них есть более удачливые дубликаты
 	//assert(ts_tm_list.getCount() == tsc);
 	const uint tsc = p_blk->R_Ctspb.TmList.getCount();
 	const LDATETIME last_val_dtm = p_blk->R_Ctspb.TmList.get(tsc-1);
 	const LDATE date_till = checkdate(dateTill) ? dateTill : ZERODATE;
 	p_blk->R_SContainer.Setup(p_blk->R_TsPack, &p_blk->R_TssModel, last_val_dtm, date_till);
 	THROW(FindStrategiesLoop(p_blk));
-	if(p_blk->R_SContainer.GetBestSubset2(p_blk->R_TssModel, sc_process, &sc_skip_due_dup, &to_remove_pos_list, &have_analog_pos_list) > 0) { // @v10.7.10
+	if(p_blk->R_SContainer.GetBestSubset2(p_blk->R_TssModel, sc_process, &sc_skip_due_dup, &to_remove_pos_list) > 0) { // @v10.7.10
 		{
 			PPObjTimeSeries::StrategyContainer scollection_full(p_blk->R_SContainer);
 			if(scollection_full.getCount()) {
@@ -7918,8 +7504,6 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 						msg_buf.Z().Cat(PPObjTimeSeries::StrategyOutput(p_blk->R_TsPack.GetSymb(), &r_s, temp_buf)).Space();
 						if(to_remove_pos_list.lsearch(___spos))
 							msg_buf.Cat("R");
-						if(have_analog_pos_list.lsearch(___spos))
-							msg_buf.Cat("A");
 						p_blk->P_FOut->WriteLine(msg_buf.CR());
 					}
 				}
@@ -7940,7 +7524,6 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 			SForEachVectorItem(sc_skip_due_dup, si) { p_blk->P_FOut->WriteLine(PPObjTimeSeries::StrategyToString(sc_skip_due_dup, si, 0, 0, msg_buf).CR()); }
 		}
 		sc_skip_due_dup.freeAll();
-		// @v10.8.12 THROW(StrategyContainerDressing(p_blk->R_Cfg, p_blk->R_TsPack, p_blk->R_TssModel, p_blk->R_Ctspb, sc_process, sc_selection, p_blk->P_FOut));
 		sc_selection = sc_process; // @v10.8.12
 	}
 	if(sc_selection.getCount()) {
@@ -7957,12 +7540,6 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 		sc_selection.AccumulateFactors(sre); // @v10.8.6
 		ASSIGN_PTR(pResult, sre);
 		{
-			// @v10.8.6 {
-			{
-				// @v10.8.9 double sdf = EvaluateStakeDistributionFactor(tsc, sr_detail_list);
-				// @v10.8.9 sc_selection.Fb.StakeDistrFactor = sdf;
-			}
-			// } @v10.8.6 
 			sc_selection.Fb.ExperimentalFactor = EvaluateExperimentalFactor(sc_selection, sr_detail_list); // @20200819
 			for(uint ssi = 0; ssi < sc_selection.getCount(); ssi++) {
 				uint stake_count_at_final_simulation = CalcStakeCountAtFinalSimulation(sr_detail_list, ssi);

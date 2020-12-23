@@ -515,24 +515,16 @@
     <ClCompile Include="..\osf\winflexbison\common\m4\xvasprintf.c">
       <Filter>m4</Filter>
     </ClCompile>
-    <ClCompile Include="..\osf\winflexbison\common\app_path.c" />
     <ClCompile Include="..\osf\winflexbison\common\argmatch.c" />
-    <ClCompile Include="..\osf\winflexbison\common\basename-lgpl.c" />
     <ClCompile Include="..\osf\winflexbison\common\bitset.c" />
     <ClCompile Include="..\osf\winflexbison\common\bitsetv.c" />
     <ClCompile Include="..\osf\winflexbison\common\c-ctype.c" />
-    <ClCompile Include="..\osf\winflexbison\common\concat-filename.c" />
     <ClCompile Include="..\osf\winflexbison\common\c-strcasecmp.c" />
     <ClCompile Include="..\osf\winflexbison\common\c-strncasecmp.c" />
-    <ClCompile Include="..\osf\winflexbison\common\dirname.c" />
-    <ClCompile Include="..\osf\winflexbison\common\dirname-lgpl.c" />
     <ClCompile Include="..\osf\winflexbison\common\error.c" />
-    <ClCompile Include="..\osf\winflexbison\common\exitfail.c" />
     <ClCompile Include="..\osf\winflexbison\common\fstrcmp.c" />
     <ClCompile Include="..\osf\winflexbison\common\getdelim.c" />
-    <ClCompile Include="..\osf\winflexbison\common\get-errno.c" />
     <ClCompile Include="..\osf\winflexbison\common\gethrxtime.c" />
-    <ClCompile Include="..\osf\winflexbison\common\getline.c" />
     <ClCompile Include="..\osf\winflexbison\common\getopt.c" />
     <ClCompile Include="..\osf\winflexbison\common\getopt1.c" />
     <ClCompile Include="..\osf\winflexbison\common\hash.c" />
@@ -542,7 +534,6 @@
     <ClCompile Include="..\osf\winflexbison\common\mbswidth.c" />
     <ClCompile Include="..\osf\winflexbison\common\obstack.c" />
     <ClCompile Include="..\osf\winflexbison\common\obstack_printf.c" />
-    <ClCompile Include="..\osf\winflexbison\common\path-join.c" />
     <ClCompile Include="..\osf\winflexbison\common\progname.c" />
     <ClCompile Include="..\osf\winflexbison\common\quotearg.c" />
     <ClCompile Include="..\osf\winflexbison\common\relocatable.c" />
@@ -551,7 +542,6 @@
     <ClCompile Include="..\osf\winflexbison\common\timevar.c" />
     <ClCompile Include="..\osf\winflexbison\common\wcwidth.c" />
     <ClCompile Include="..\osf\winflexbison\common\width.c" />
-    <ClCompile Include="..\osf\winflexbison\common\xalloc-die.c" />
     <ClCompile Include="..\osf\winflexbison\common\xconcat-filename.c" />
     <ClCompile Include="..\osf\winflexbison\common\xhash.c" />
     <ClCompile Include="..\osf\winflexbison\common\xmalloc.c" />
@@ -559,5 +549,6 @@
     <ClCompile Include="..\osf\winflexbison\common\xstrndup.c" />
     <ClCompile Include="..\osf\winflexbison\common\xtime.c" />
     <ClCompile Include="..\OSF\winflexbison\common\flexbison_common-pch.cpp" />
+    <ClCompile Include="..\OSF\winflexbison\common\flexbison_common.cpp" />
   </ItemGroup>
 </Project>

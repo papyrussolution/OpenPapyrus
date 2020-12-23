@@ -237,16 +237,11 @@ int    TWhatmanObject::Draw(TCanvas2 & rCanv) { return -1; }
 const  TWhatmanObject::TextParam & TWhatmanObject::GetTextOptions() const { return TextOptions; }
 TWhatman * TWhatmanObject::GetOwner() const { return P_Owner; }
 TWindow  * TWhatmanObject::GetOwnerWindow() const { return P_Owner ? P_Owner->GetOwnerWindow() : 0; }
-const SString & TWhatmanObject::GetSymb() const { return Symb; }
-
-//const TLayout::EntryBlock & TWhatmanObject::GetLayoutBlock() const { return Le; }
-//void TWhatmanObject::SetLayoutBlock(const TLayout::EntryBlock * pBlk) { RVALUEPTR(Le, pBlk); }
-
-const AbstractLayoutBlock & TWhatmanObject::GetLayoutBlock() const { return Le2; }
-void  TWhatmanObject::SetLayoutBlock(const AbstractLayoutBlock * pBlk) { RVALUEPTR(Le2, pBlk); }
-
-const SString & TWhatmanObject::GetLayoutContainerIdent() const { return LayoutContainerIdent; }
-void  TWhatmanObject::SetLayoutContainerIdent(const char * pIdent) { (LayoutContainerIdent = pIdent).Strip(); }
+const  SString & TWhatmanObject::GetSymb() const { return Symb; }
+const  AbstractLayoutBlock & TWhatmanObject::GetLayoutBlock() const { return Le2; }
+void   TWhatmanObject::SetLayoutBlock(const AbstractLayoutBlock * pBlk) { RVALUEPTR(Le2, pBlk); }
+const  SString & TWhatmanObject::GetLayoutContainerIdent() const { return LayoutContainerIdent; }
+void   TWhatmanObject::SetLayoutContainerIdent(const char * pIdent) { (LayoutContainerIdent = pIdent).Strip(); }
 
 int TWhatmanObject::Setup(const TWhatmanToolArray::Item * pWtaItem)
 {
@@ -257,6 +252,7 @@ int TWhatmanObject::Setup(const TWhatmanToolArray::Item * pWtaItem)
 			Bounds = P_Owner->GetOwnerWindow()->getRect();
 		else
 			Bounds = pWtaItem->FigSize;
+		SetLayoutBlock(&pWtaItem->Alb); // @v10.9.10
 		HandleCommand(cmdSetupByTool, (void *)pWtaItem); // @badcast
 	}
 	CATCHZOK
@@ -2170,7 +2166,7 @@ TWhatmanToolArray & TWhatmanToolArray::Z()
 	PicSize = 32;
 	Ap.Init(DIREC_HORZ);
 	Dg.Clear();
-	ALB.SetDefault(); // @v10.9.9
+	ALB__.SetDefault(); // @v10.9.9
 	return *this;
 }
 
@@ -2321,7 +2317,6 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 	int    is_exists = 0;
 	uint   pos = 0;
 	uint   pos_by_id = 0;
-	Entry  entry;
 	SString temp_buf;
 	if(!rItem.Symb.NotEmptyS()) {
 		if(rItem.Id && SearchById(rItem.Id, &pos_by_id)) {
@@ -2396,20 +2391,24 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 				upd = 1;
 			}
 		}
-		if(r_entry.FigSize != rItem.FigSize) {
+		if(ex_item.FigSize != rItem.FigSize) {
 			r_entry.FigSize = rItem.FigSize;
 			upd = 1;
 		}
-		if(r_entry.PicSize != rItem.PicSize) {
+		if(ex_item.PicSize != rItem.PicSize) {
 			r_entry.PicSize = rItem.PicSize;
 			upd = 1;
 		}
-		// @v9.2.7 {
-		if(r_entry.ReplacedColor != rItem.ReplacedColor) {
+		if(ex_item.ReplacedColor != rItem.ReplacedColor) {
 			r_entry.ReplacedColor = rItem.ReplacedColor;
 			upd = 1;
 		}
-		// } @v9.2.7
+		// @v10.9.10 {
+		if(ex_item.Alb != rItem.Alb) {
+			r_entry.Alb = rItem.Alb;
+			upd = 1;
+		}
+		// } @v10.9.10 
 		if(!upd)
 			ok = -1;
 		else {
@@ -2417,7 +2416,7 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 		}
 	}
 	else {
-		MEMSZERO(entry);
+		Entry  entry;
 		if(rItem.Symb.NotEmpty())
 			Pool.add(rItem.Symb, &entry.SymbP);
 		if(rItem.Text.NotEmpty())
@@ -2437,7 +2436,8 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 		entry.PicSize = rItem.PicSize;
 		entry.Flags = rItem.Flags;
 		entry.Id = rItem.Id;
-		entry.ReplacedColor = rItem.ReplacedColor; // @v9.2.7
+		entry.ReplacedColor = rItem.ReplacedColor;
+		entry.Alb = rItem.Alb; // @v10.9.10
 		pos = getCount();
 		THROW(insert(&entry));
 	}
@@ -2449,7 +2449,7 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 int TWhatmanToolArray::Get(uint pos, Item * pItem) const
 {
 	int    ok = 1;
-	Item item(this);
+	Item   item(this);
 	SString temp_buf;
 	THROW_S(pos < getCount(), SLERR_BOUNDS);
 	const Entry & r_entry = *static_cast<const Entry *>(at(pos));
@@ -2469,7 +2469,8 @@ int TWhatmanToolArray::Get(uint pos, Item * pItem) const
 	item.PicSize = r_entry.PicSize;
 	item.Flags = r_entry.Flags;
 	item.Id = r_entry.Id;
-	item.ReplacedColor = r_entry.ReplacedColor; // @v9.2.7
+	item.ReplacedColor = r_entry.ReplacedColor;
+	item.Alb = r_entry.Alb; // @v10.9.10
 	CATCHZOK
 	ASSIGN_PTR(pItem, item);
 	return ok;
@@ -2506,11 +2507,97 @@ const SDrawFigure * TWhatmanToolArray::GetFigById(int figOrPic, uint id, TWhatma
 	return SearchById(id, &pos) ? GetFig(figOrPic, pos, pItem) : 0;
 }
 
+TWhatmanToolArray::Entry::Entry() : TextP(0), SymbP(0), WtmObjSymbP(0), FigPathP(0), PicPathP(0), Flags(0), ExtDataP(0), Id(0)
+{
+	FigSize.Z();
+	PicSize.Z();
+}
+
 int TWhatmanToolArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
+	struct Entry_Before_100910 { // @persistent @flat
+		uint32 TextP;            // Позиция текста в буфере Pool
+		uint32 SymbP;          	 // Позиция символа в буфере Pool
+		uint32 WtmObjSymbP;    	 // Позиция символа класса объекта в буфере Pool
+		uint32 FigPathP;       	 // Позиция пути до файла фигуры в буфере Pool
+		uint32 PicPathP;       	 // Позиция пути до файла пиктограммы в буфере Pool
+		TPoint FigSize;        	 // Исходный размер фигуры при размещении на ватмане
+		TPoint PicSize;        	 // Размер иконки
+		int32  Flags;          	 // @flags
+		uint32 ExtDataP;       	 // Позиция дополнительных данных в буфере Pool (в кодировке MIME64)
+		uint32 Id;             	 // Целочисленный идентификатор элемента
+		SColor ReplacedColor;  	 //
+		uint8  Reserve[24];      // @reserve
+	};
 	int    ok = 1;
+	uint32 sign_tag = 0;
+	pCtx->GetLocalSignatureTag(TWhatmanToolArray::GetSerializeSignature(), &sign_tag);
 	assert(dir != 0);
-	THROW(pCtx->Serialize(dir, static_cast<SVector *>(this), rBuf));
+	{
+		if(dir > 0) {
+			uint32 lc = getCount();
+			THROW(pCtx->Serialize(dir, lc, rBuf));
+			for(uint i = 0; i < lc; i++) {
+				Entry * p_entry = static_cast<Entry *>(SVector::at(i));
+				THROW(pCtx->Serialize(dir, p_entry->TextP, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->SymbP, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->WtmObjSymbP, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->FigPathP, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->PicPathP, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->FigSize, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->PicSize, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->Flags, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->ExtDataP, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->Id, rBuf));
+				THROW(pCtx->Serialize(dir, p_entry->ReplacedColor, rBuf));
+				THROW(p_entry->Alb.Serialize(dir, rBuf, pCtx));
+			}
+		}
+		else if(dir < 0) {
+			if(sign_tag >= 2) {
+				SVector::clear();
+				uint32 lc = 0;
+				THROW(pCtx->Serialize(dir, lc, rBuf));
+				for(uint i = 0; i < lc; i++) {
+					Entry entry;
+					THROW(pCtx->Serialize(dir, entry.TextP, rBuf));
+					THROW(pCtx->Serialize(dir, entry.SymbP, rBuf));
+					THROW(pCtx->Serialize(dir, entry.WtmObjSymbP, rBuf));
+					THROW(pCtx->Serialize(dir, entry.FigPathP, rBuf));
+					THROW(pCtx->Serialize(dir, entry.PicPathP, rBuf));
+					THROW(pCtx->Serialize(dir, entry.FigSize, rBuf));
+					THROW(pCtx->Serialize(dir, entry.PicSize, rBuf));
+					THROW(pCtx->Serialize(dir, entry.Flags, rBuf));
+					THROW(pCtx->Serialize(dir, entry.ExtDataP, rBuf));
+					THROW(pCtx->Serialize(dir, entry.Id, rBuf));
+					THROW(pCtx->Serialize(dir, entry.ReplacedColor, rBuf));
+					THROW(entry.Alb.Serialize(dir, rBuf, pCtx));
+					THROW(SVector::insert(&entry));
+				}	
+				assert(lc == SVector::getCount());
+			}
+			else {
+				SVector temp_vec(sizeof(Entry_Before_100910), aryDataOwner);
+				THROW(pCtx->Serialize(dir, &temp_vec, rBuf));
+				for(uint i = 0; i < temp_vec.getCount(); i++) {
+					const Entry_Before_100910 & r_src_entry = *static_cast<const Entry_Before_100910 *>(temp_vec.at(i));
+					Entry entry;
+					entry.TextP = r_src_entry.TextP;
+					entry.SymbP = r_src_entry.SymbP;
+					entry.WtmObjSymbP = r_src_entry.WtmObjSymbP;
+					entry.FigPathP = r_src_entry.FigPathP;
+					entry.PicPathP = r_src_entry.PicPathP;
+					entry.FigSize = r_src_entry.FigSize;
+					entry.PicSize = r_src_entry.PicSize;
+					entry.Flags = r_src_entry.Flags;
+					entry.ExtDataP = r_src_entry.ExtDataP;
+					entry.Id = r_src_entry.Id;
+					entry.ReplacedColor = r_src_entry.ReplacedColor;
+					THROW(SVector::insert(&entry));
+				}
+			}
+		}
+	}
 	THROW(pCtx->Serialize(dir, SymbP, rBuf));
 	THROW(pCtx->Serialize(dir, TextP, rBuf));
 	THROW(pCtx->Serialize(dir, Flags, rBuf));
@@ -2520,9 +2607,10 @@ int TWhatmanToolArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 	THROW(Dg.Serialize(dir, rBuf, pCtx));
 	// @v10.9.9 {
 	{
-		uint32 sign_tag = 0;
-		if(dir > 0 || (pCtx->GetLocalSignatureTag(TWhatmanToolArray::GetSerializeSignature(), &sign_tag) && sign_tag >= 1)) {
-			THROW(ALB.Serialize(dir, rBuf, pCtx));
+		// @v10.9.10 Это была ошибка: коменсируем ее
+		if(dir < 0 && sign_tag == 1) {
+			AbstractLayoutBlock temp_alb;
+			THROW(temp_alb.Serialize(dir, rBuf, pCtx));
 		}
 	}
 	// } @v10.9.9 
@@ -2539,9 +2627,6 @@ struct WtHeader {
 	uint32 Ver;
 	uint8  Reserve[16];
 };
-
-#define WTM_VER  2 // @v10.4.7 0-->1 // @v10.9.9 1-->2
-#define WTA_VER  1 // @v10.9.9 0-->1
 
 static int StoreWtBuffer(const char * pFileName, const SBuffer & rBuf, uint32 sign, uint32 ver)
 {
@@ -2583,11 +2668,12 @@ static int LoadWtBuffer(const char * pFileName, SBuffer & rBuf, uint32 sign, uin
 
 int TWhatmanToolArray::Store(const char * pFileName)
 {
+	const  uint32 wta_ver = 2; // @v10.9.9 0-->1 // @v10.9.10 1-->2
 	int    ok = 1;
 	SSerializeContext sctx;
 	SBuffer buf;
 	THROW(Serialize(+1, buf, &sctx));
-	THROW(StoreWtBuffer(pFileName, buf, /*WTA_SIGN*/GetSerializeSignature(), WTA_VER));
+	THROW(StoreWtBuffer(pFileName, buf, /*WTA_SIGN*/GetSerializeSignature(), wta_ver));
 	CATCHZOK
 	return ok;
 }
@@ -2622,11 +2708,12 @@ int TWhatmanToolArray::Load(const char * pFileName)
 
 int TWhatman::Store(const char * pFileName)
 {
+	const  uint32 wtm_ver = 2; // @v10.4.7 0-->1 // @v10.9.9 1-->2
 	int    ok = 1;
 	SSerializeContext sctx;
 	SBuffer buf;
 	THROW(Serialize(+1, buf, &sctx));
-	THROW(StoreWtBuffer(pFileName, buf, TWhatman::GetSerializeSignature()/*WTM_SIGN*/, WTM_VER));
+	THROW(StoreWtBuffer(pFileName, buf, TWhatman::GetSerializeSignature()/*WTM_SIGN*/, wtm_ver));
 	CATCHZOK
 	return ok;
 }

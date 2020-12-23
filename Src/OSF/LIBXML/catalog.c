@@ -2618,13 +2618,10 @@ void xmlInitializeCatalog()
 					hmodule = GetModuleHandle(NULL);
 				if(hmodule != NULL) {
 					char buf[256];
-					// @v10.3.11 {
 					SString module_file_name;
 					int    mfn_len = SSystem::SGetModuleFileName(static_cast<HMODULE>(hmodule), module_file_name);
 					STRNSCPY(buf, module_file_name);
 					ulong len = sstrlen(buf);
-					// } @v10.3.11 
-					// @v10.3.11 ulong len = GetModuleFileName((HMODULE)hmodule, buf, 255); // @unicodeproblem
 					if(len != 0) {
 						char * p = &(buf[len]);
 						while(*p != '\\' && p > buf)

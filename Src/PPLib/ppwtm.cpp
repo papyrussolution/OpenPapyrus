@@ -4,6 +4,157 @@
 #include <pp.h>
 #pragma hdrstop
 
+struct LayoutEntryDialogBlock : public AbstractLayoutBlock {
+	LayoutEntryDialogBlock(const AbstractLayoutBlock * pS)
+	{
+		Setup(pS);
+	}
+	void Setup(const AbstractLayoutBlock * pS)
+	{
+		if(pS)
+			*static_cast<AbstractLayoutBlock *>(this) = *pS;
+	}
+	SString ParentLayoutSymb;
+	SString OwnLayoutSymb;
+};
+
+class LayoutContainerDialog : public TDialog {
+	DECL_DIALOG_DATA(LayoutEntryDialogBlock);
+public:
+	LayoutContainerDialog() : TDialog(DLG_WOLAYC), Data(0)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		SString temp_buf;
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_WOLAYC_IDENT, Data.OwnLayoutSymb);
+		AddClusterAssocDef(CTL_WOLAYC_LAY, 0, DIREC_UNKN);
+		AddClusterAssoc(CTL_WOLAYC_LAY, 1, DIREC_HORZ);
+		AddClusterAssoc(CTL_WOLAYC_LAY, 2, DIREC_VERT);
+		SetClusterData(CTL_WOLAYC_LAY, Data.GetContainerDirection());
+		AddClusterAssoc(CTL_WOLAYC_FLAGS, 0, /*TLayout::EntryBlock::cfWrap*/AbstractLayoutBlock::fContainerWrap);
+		SetClusterData(CTL_WOLAYC_FLAGS, /*Data.ContainerFlags*/Data.Flags);
+		//
+		AbstractLayoutBlock::MarginsToString(Data.Padding, temp_buf);
+		setCtrlString(CTL_WOLAYC_MARG, temp_buf);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		SString temp_buf;
+		getCtrlString(CTL_WOLAYC_IDENT, Data.OwnLayoutSymb);
+		Data.SetContainerDirection(GetClusterData(CTL_WOLAYC_LAY));
+		// GetClusterData(CTL_WOLAYC_ADJ, &Data.ContainerAdjustment);
+		{
+			long   flags = 0;
+			GetClusterData(CTL_WOLAYC_FLAGS, &flags);
+			SETFLAG(Data.Flags, AbstractLayoutBlock::fContainerWrap, AbstractLayoutBlock::fContainerWrap);
+		}
+		//
+		getCtrlString(sel = CTL_WOLAYC_MARG, temp_buf);
+		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Padding), PPERR_USERINPUT);
+		//
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+};
+
+class LayoutEntryDialog : public TDialog {
+	DECL_DIALOG_DATA(LayoutEntryDialogBlock);
+public:
+	LayoutEntryDialog(const TWhatman * pWtm) : TDialog(DLG_LAYOENTRY), P_Wtm(pWtm), Data(0)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		SString temp_buf;
+		RVALUEPTR(Data, pData);
+		if(P_Wtm) {
+			long    init_parent_id = 0;
+			StrAssocArray layout_symb_list;
+			P_Wtm->GetLayoutSymbList(layout_symb_list);
+			if(Data.ParentLayoutSymb.NotEmpty()) {
+				uint pos = 0;
+				if(layout_symb_list.SearchByText(Data.ParentLayoutSymb, 0, &pos)) {
+					init_parent_id = layout_symb_list.Get(pos).Id;
+				}
+			}
+			SetupStrAssocCombo(this, CTLSEL_LAYOENTRY_PARENT, &layout_symb_list, init_parent_id, 0, 0, 0);
+		}
+		else {
+			disableCtrl(CTLSEL_LAYOENTRY_PARENT, 1);
+		}
+		Data.SizeToString(temp_buf);
+		setCtrlString(CTL_LAYOENTRY_SIZE, temp_buf);
+		AbstractLayoutBlock::MarginsToString(Data.Margin, temp_buf);
+		setCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
+		setCtrlData(CTL_LAYOENTRY_GROWF, &Data.GrowFactor);
+		setCtrlData(CTL_LAYOENTRY_SHRNKF, &Data.ShrinkFactor);
+		setCtrlData(CTL_LAYOENTRY_ASPR, &Data.AspectRatio);
+		/*
+		AddClusterAssocDef(CTL_LAYOENTRY_GRAVITY, 0, Data.bfLeft);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 1, Data.bfRight);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 2, Data.bfTop);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 3, Data.bfBottom);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 4, Data.bfHFill);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 5, Data.bfVFill);
+		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 6, Data.bfFill);
+		long bf = (Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
+		SetClusterData(CTL_LAYOENTRY_GRAVITY, bf);
+		*/
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		long   bf = 0;
+		SString temp_buf;
+		getCtrlString(sel = CTL_LAYOENTRY_SIZE, temp_buf);
+		THROW_PP(Data.SizeFromString(temp_buf), PPERR_USERINPUT);
+		getCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
+		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Margin), PPERR_USERINPUT);
+		getCtrlData(CTL_LAYOENTRY_GROWF, &Data.GrowFactor);
+		getCtrlData(CTL_LAYOENTRY_SHRNKF, &Data.ShrinkFactor);
+		getCtrlData(CTL_LAYOENTRY_ASPR, &Data.AspectRatio);
+		//GetClusterData(CTL_LAYOENTRY_GRAVITY, &bf);
+		//Data.BehaveFlags &= ~(Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
+		//Data.BehaveFlags |= bf;
+		if(P_Wtm) {
+			long   parent_id = getCtrlLong(CTLSEL_LAYOENTRY_PARENT);
+			if(parent_id) {
+				StrAssocArray layout_symb_list;
+				P_Wtm->GetLayoutSymbList(layout_symb_list);
+				uint pos = 0;
+				if(layout_symb_list.Search(parent_id, &pos))
+					Data.ParentLayoutSymb = layout_symb_list.Get(pos).Txt;
+			}
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			PPErrorByDialog(this, sel);
+		ENDCATCH
+		return ok;
+	}
+	const TWhatman * P_Wtm;
+};
+
+static int EditLayoutEntry(LayoutEntryDialogBlock * pData, const TWhatman * pWtm)
+{
+	DIALOG_PROC_BODY_P1(LayoutEntryDialog, pWtm, pData);
+}
+
+static int EditLayoutContainer(LayoutEntryDialogBlock * pData)
+{
+	DIALOG_PROC_BODY(LayoutContainerDialog, pData);
+}
+
 class BaseWtmToolDialog : public TDialog {
 	DECL_DIALOG_DATA(TWhatmanToolArray::Item);
 public:
@@ -56,6 +207,23 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmLayoutEntry)) {
+			LayoutEntryDialogBlock lodb(&Data.Alb);
+			if(EditLayoutEntry(&lodb, 0) > 0) {
+				Data.Alb = lodb;
+			}
+		}
+		else if(event.isCmd(cmLayoutContainer)) {
+			LayoutEntryDialogBlock lodb(&Data.Alb);
+			if(EditLayoutContainer(&lodb) > 0) {
+				Data.Alb = lodb;
+			}
+		}
+	}
 };
 
 int BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
@@ -74,147 +242,6 @@ int BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 	delete dlg;
 	return ok;
 }
-
-struct LayoutEntryDialogBlock : public AbstractLayoutBlock {
-	LayoutEntryDialogBlock(const AbstractLayoutBlock * pS)
-	{
-		Setup(pS);
-	}
-	void Setup(const AbstractLayoutBlock * pS)
-	{
-		if(pS)
-			*static_cast<AbstractLayoutBlock *>(this) = *pS;
-	}
-	SString ParentLayoutSymb;
-	SString OwnLayoutSymb;
-};
-
-class LayoutContainerDialog : public TDialog {
-	DECL_DIALOG_DATA(LayoutEntryDialogBlock);
-public:
-	LayoutContainerDialog(const TWhatman * pWtm) : TDialog(DLG_WOLAYC), P_Wtm(pWtm), Data(0)
-	{
-	}
-	DECL_DIALOG_SETDTS()
-	{
-		int    ok = 1;
-		SString temp_buf;
-		RVALUEPTR(Data, pData);
-		setCtrlString(CTL_WOLAYC_IDENT, Data.OwnLayoutSymb);
-		AddClusterAssocDef(CTL_WOLAYC_LAY, 0, DIREC_UNKN);
-		AddClusterAssoc(CTL_WOLAYC_LAY, 1, DIREC_HORZ);
-		AddClusterAssoc(CTL_WOLAYC_LAY, 2, DIREC_VERT);
-		SetClusterData(CTL_WOLAYC_LAY, Data.GetContainerDirection());
-		AddClusterAssoc(CTL_WOLAYC_FLAGS, 0, /*TLayout::EntryBlock::cfWrap*/AbstractLayoutBlock::fContainerWrap);
-		SetClusterData(CTL_WOLAYC_FLAGS, /*Data.ContainerFlags*/Data.Flags);
-		//
-		AbstractLayoutBlock::MarginsToString(Data.Padding, temp_buf);
-		setCtrlString(CTL_WOLAYC_MARG, temp_buf);
-		return ok;
-	}
-	DECL_DIALOG_GETDTS()
-	{
-		int    ok = 1;
-		uint   sel = 0;
-		SString temp_buf;
-		getCtrlString(CTL_WOLAYC_IDENT, Data.OwnLayoutSymb);
-		Data.SetContainerDirection(GetClusterData(CTL_WOLAYC_LAY));
-		// GetClusterData(CTL_WOLAYC_ADJ, &Data.ContainerAdjustment);
-		{
-			long   flags = 0;
-			GetClusterData(CTL_WOLAYC_FLAGS, &flags);
-			SETFLAG(Data.Flags, AbstractLayoutBlock::fContainerWrap, AbstractLayoutBlock::fContainerWrap);
-		}
-		//
-		getCtrlString(sel = CTL_WOLAYC_MARG, temp_buf);
-		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Padding), PPERR_USERINPUT);
-		//
-		ASSIGN_PTR(pData, Data);
-		CATCHZOKPPERRBYDLG
-		return ok;
-	}
-private:
-	const TWhatman * P_Wtm;
-};
-
-class LayoutEntryDialog : public TDialog {
-	DECL_DIALOG_DATA(LayoutEntryDialogBlock);
-public:
-	LayoutEntryDialog(const TWhatman * pWtm) : TDialog(DLG_LAYOENTRY), P_Wtm(pWtm), Data(0)
-	{
-	}
-	DECL_DIALOG_SETDTS()
-	{
-		int    ok = 1;
-		SString temp_buf;
-		RVALUEPTR(Data, pData);
-		if(P_Wtm) {
-			long    init_parent_id = 0;
-			StrAssocArray layout_symb_list;
-			P_Wtm->GetLayoutSymbList(layout_symb_list);
-			if(Data.ParentLayoutSymb.NotEmpty()) {
-				uint pos = 0;
-				if(layout_symb_list.SearchByText(Data.ParentLayoutSymb, 0, &pos)) {
-					init_parent_id = layout_symb_list.Get(pos).Id;
-				}
-			}
-			SetupStrAssocCombo(this, CTLSEL_LAYOENTRY_PARENT, &layout_symb_list, init_parent_id, 0, 0, 0);
-		}
-		Data.SizeToString(temp_buf);
-		setCtrlString(CTL_LAYOENTRY_SIZE, temp_buf);
-		AbstractLayoutBlock::MarginsToString(Data.Margin, temp_buf);
-		setCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
-		setCtrlData(CTL_LAYOENTRY_GROWF, &Data.GrowFactor);
-		setCtrlData(CTL_LAYOENTRY_SHRNKF, &Data.ShrinkFactor);
-		setCtrlData(CTL_LAYOENTRY_ASPR, &Data.AspectRatio);
-		/*
-		AddClusterAssocDef(CTL_LAYOENTRY_GRAVITY, 0, Data.bfLeft);
-		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 1, Data.bfRight);
-		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 2, Data.bfTop);
-		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 3, Data.bfBottom);
-		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 4, Data.bfHFill);
-		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 5, Data.bfVFill);
-		AddClusterAssoc(CTL_LAYOENTRY_GRAVITY, 6, Data.bfFill);
-		long bf = (Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
-		SetClusterData(CTL_LAYOENTRY_GRAVITY, bf);
-		*/
-		return ok;
-	}
-	DECL_DIALOG_GETDTS()
-	{
-		int    ok = 1;
-		uint   sel = 0;
-		long   bf = 0;
-		SString temp_buf;
-		getCtrlString(sel = CTL_LAYOENTRY_SIZE, temp_buf);
-		THROW_PP(Data.SizeFromString(temp_buf), PPERR_USERINPUT);
-		getCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
-		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Margin), PPERR_USERINPUT);
-		getCtrlData(CTL_LAYOENTRY_GROWF, &Data.GrowFactor);
-		getCtrlData(CTL_LAYOENTRY_SHRNKF, &Data.ShrinkFactor);
-		getCtrlData(CTL_LAYOENTRY_ASPR, &Data.AspectRatio);
-		//GetClusterData(CTL_LAYOENTRY_GRAVITY, &bf);
-		//Data.BehaveFlags &= ~(Data.BehaveFlags & (Data.bfLeft|Data.bfRight|Data.bfTop|Data.bfBottom|Data.bfHFill|Data.bfVFill|Data.bfFill));
-		//Data.BehaveFlags |= bf;
-		{
-			long   parent_id = getCtrlLong(CTLSEL_LAYOENTRY_PARENT);
-			if(parent_id) {
-				StrAssocArray layout_symb_list;
-				P_Wtm->GetLayoutSymbList(layout_symb_list);
-				uint pos = 0;
-				if(layout_symb_list.Search(parent_id, &pos)) {
-					Data.ParentLayoutSymb = layout_symb_list.Get(pos).Txt;
-				}
-			}
-		}
-		ASSIGN_PTR(pData, Data);
-		CATCH
-			PPErrorByDialog(this, sel);
-		ENDCATCH
-		return ok;
-	}
-	const TWhatman * P_Wtm;
-};
 
 class WhatmanObjectBaseDialog : public TDialog {
 public:
@@ -250,7 +277,7 @@ protected:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmLayoutEntry)) {
-			EditLayoutEntry(&Data);
+			EditLayoutEntry(&Data, P_Wtm);
 		}
 		else if(event.isCmd(cmLayoutContainer)) { // @v10.9.8
 			EditLayoutContainer(&Data);
@@ -258,15 +285,6 @@ protected:
 		else
 			return;
 		clearEvent(event);
-	}
-	int  EditLayoutEntry(LayoutEntryDialogBlock * pData)
-	{
-		//PPDialogProcBody <LayoutEntryDialog, TLayout::EntryBlock> (&Le);
-		DIALOG_PROC_BODY_P1(LayoutEntryDialog, P_Wtm, pData);
-	}
-	int  EditLayoutContainer(LayoutEntryDialogBlock * pData)
-	{
-		DIALOG_PROC_BODY_P1(LayoutContainerDialog, P_Wtm, pData);
 	}
 	//TLayout::EntryBlock Le;
 	LayoutEntryDialogBlock Data;

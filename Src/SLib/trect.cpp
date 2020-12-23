@@ -179,15 +179,8 @@ TPoint operator + (TPoint one, TPoint two)
 	return result;
 }
 
-int operator == (TPoint one, TPoint two)
-{
-	return (one.x == two.x && one.y == two.y);
-}
-
-int operator != (TPoint one, TPoint two)
-{
-	return (one.x != two.x || one.y != two.y);
-}
+int operator == (TPoint one, TPoint two) { return (one.x == two.x && one.y == two.y); }
+int operator != (TPoint one, TPoint two) { return (one.x != two.x || one.y != two.y); }
 //
 // FRect
 //
@@ -208,6 +201,10 @@ FRect::FRect(const TRect & r)
 	a = r.a;
 	b = r.b;
 }
+
+int FASTCALL FRect::operator == (const FRect & rS) const { return IsEqual(rS); }
+int FASTCALL FRect::operator != (const FRect & rS) const { return !IsEqual(rS); }
+int FASTCALL FRect::IsEqual(const FRect & rS) const { return (a == rS.a && b == rS.b); }
 
 FRect & FRect::Set(float v)
 {
@@ -936,25 +933,10 @@ int FASTCALL TRect::contains(TPoint p) const
 	//return (p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y);
 }
 
-int FASTCALL TRect::operator == (const TRect& r) const
-{
-	return (a == r.a && b == r.b);
-}
-
-int FASTCALL TRect::operator != (const TRect& r) const
-{
-	return (!(*this == r));
-}
-
-int TRect::IsEmpty() const
-{
-	return (a.x == 0 && b.x == 0 && a.y == 0 && b.y == 0);
-}
-
-int TRect::IsDegenerated() const
-{
-	return (a.x == b.x) ? ((a.y == b.y) ? SIDE_CENTER : SIDE_RIGHT) : ((a.y == b.y) ? SIDE_TOP : 0);
-}
+int FASTCALL TRect::operator == (const TRect& r) const { return (a == r.a && b == r.b); }
+int FASTCALL TRect::operator != (const TRect& r) const { return (!(*this == r)); }
+int TRect::IsEmpty() const { return (a.x == 0 && b.x == 0 && a.y == 0 && b.y == 0); }
+int TRect::IsDegenerated() const { return (a.x == b.x) ? ((a.y == b.y) ? SIDE_CENTER : SIDE_RIGHT) : ((a.y == b.y) ? SIDE_TOP : 0); }
 
 TRect & TRect::Normalize()
 {
@@ -1007,7 +989,7 @@ FPoint FPoint::Set(float x, float y)
 
 FPoint FPoint::SetZero()
 {
-	X = Y = 0;
+	X = Y = 0.0f;
 	return *this;
 }
 
@@ -1018,6 +1000,9 @@ FPoint FPoint::Scale(float factor)
 	return *this;
 }
 
+int    FASTCALL FPoint::operator == (const FPoint & rS) const { return IsEqual(rS); } // @v10.9.10
+int    FASTCALL FPoint::operator != (const FPoint & rS) const { return !IsEqual(rS); } // @v10.9.10
+int    FASTCALL FPoint::IsEqual(const FPoint & rS) const { return (X == rS.X && Y == rS.Y); } // @v10.9.10
 int    FPoint::IsZero() const { return (X != 0.0f && Y != 0.0f); }
 int    FPoint::IsPositive() const { return (X > 0.0f && Y > 0.0f); }
 int    FASTCALL FPoint::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
@@ -1043,7 +1028,7 @@ FPoint FASTCALL operator * (FPoint p1, FPoint p2)      { return FPoint(p1.X * p2
 FPoint FASTCALL operator / (FPoint p,  float divider)  { return FPoint(p.X / divider, p.Y / divider); }
 FPoint FASTCALL operator / (FPoint p1, FPoint p2)      { return FPoint(p1.X / p2.X, p1.Y / p2.Y); }
 
-int FASTCALL operator == (FPoint p1, FPoint p2) { return (p1.X == p2.X && p1.Y == p2.Y); }
+// @v10.9.10 (replaced with FPoint::operator ==) int FASTCALL operator == (FPoint p1, FPoint p2) { return (p1.X == p2.X && p1.Y == p2.Y); }
 int FASTCALL operator < (FPoint p1, FPoint p2)  { return (p1.X < p2.X && p1.Y < p2.Y) ? 1 : 0; }
 int FASTCALL operator > (FPoint p1, FPoint p2)  { return (p1.X > p2.X && p1.Y > p2.Y) ? 1 : 0; }
 FPoint FASTCALL fmin(FPoint p1, FPoint p2)      { return FPoint(MIN(p1.X, p2.X), MIN(p1.Y, p2.Y)); }

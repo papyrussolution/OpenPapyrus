@@ -81,19 +81,12 @@ int WinService::Create(const char * pDisplayName, const char * pModuleName, cons
 		const TCHAR * p_login = (pLogin && *pLogin) ? SUcSwitch(pLogin) : 0;
 		const TCHAR * p_pw = (p_login && pPw) ? SUcSwitch(pPw) : 0;
 		const TCHAR * p_disp_name = pDisplayName ? SUcSwitch(pDisplayName) : SUcSwitch(Name.cptr());
-		/* @v10.3.9 
-		char   path[MAXPATH];
-		if(pModuleName)
-			STRNSCPY(path, pModuleName);
-		else
-			::GetModuleFileName(NULL, path, sizeof(path)); // @unicodeproblem
-		*/
-		SString path; // @v10.3.9
+		SString path;
 		if(pModuleName) {
 			path = pModuleName;
 		}
 		else
-			SSystem::SGetModuleFileName(0, path); // @v10.3.9
+			SSystem::SGetModuleFileName(0, path);
 		if(!H) {
 			H = ::CreateService(*P_ScMngr, SUcSwitch(Name), p_disp_name,
     	    	SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,

@@ -4,7 +4,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-// @v10.9.3 #include <WinUser.h>
 //
 #define CAIRO_WIN32_STATIC_BUILD 1
 #include <cairo-1160\cairo.h>
@@ -3053,7 +3052,7 @@ int SPaintObj::Copy(const SPaintObj & rS, long flags)
 		case tPen:
 			if(F & fInner) {
 				Pen * p_pen = new Pen;
-				THROW_S(p_pen, SLERR_NOMEM);
+				THROW(p_pen);
 				*p_pen = *static_cast<const Pen *>(rS.H);
 				H = p_pen;
 			}
@@ -3064,7 +3063,7 @@ int SPaintObj::Copy(const SPaintObj & rS, long flags)
 		case tBrush:
 			if(F & fInner) {
 				Brush * p_brush = new Brush;
-				THROW_S(p_brush, SLERR_NOMEM);
+				THROW(p_brush);
 				*p_brush = *static_cast<const Brush *>(rS.H);
 				H = p_brush;
 			}
@@ -3075,7 +3074,7 @@ int SPaintObj::Copy(const SPaintObj & rS, long flags)
 		case tFont:
 			if(F & fInner) {
 				Font * p_font = new Font;
-				THROW_S(p_font, SLERR_NOMEM);
+				THROW(p_font);
 				*p_font = *static_cast<const Font *>(rS.H);
 				H = p_font;
 			}
@@ -3086,7 +3085,7 @@ int SPaintObj::Copy(const SPaintObj & rS, long flags)
 		case tGradient:
 			if(F & fInner) {
 				Gradient * p_grad = new Gradient(Gradient::kLinear);
-				THROW_S(p_grad, SLERR_NOMEM);
+				THROW(p_grad);
 				*p_grad = *static_cast<const Gradient *>(rS.H);
 				H = p_grad;
 			}
@@ -3188,19 +3187,19 @@ int SPaintObj::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 			if(ind == 0) {
 				switch(T) {
 					case tPen:
-						THROW_S(H = new SPaintObj::Pen, SLERR_NOMEM);
+						THROW(H = new SPaintObj::Pen);
 						THROW(static_cast<SPaintObj::Pen *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 					case tBrush:
-						THROW_S(H = new SPaintObj::Brush, SLERR_NOMEM);
+						THROW(H = new SPaintObj::Brush);
 						THROW(static_cast<SPaintObj::Brush *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 					case tFont:
-						THROW_S(H = new SPaintObj::Font, SLERR_NOMEM);
+						THROW(H = new SPaintObj::Font);
 						THROW(static_cast<SPaintObj::Font *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 					case tGradient:
-						THROW_S(H = new SPaintObj::Gradient, SLERR_NOMEM);
+						THROW(H = new SPaintObj::Gradient);
 						THROW(static_cast<SPaintObj::Gradient *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 					case tCStyle:

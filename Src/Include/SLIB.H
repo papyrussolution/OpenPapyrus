@@ -2641,9 +2641,10 @@ typedef int32 TYPEID;
 #define S_IPOINT2           31      // Целочисленная двумерная точка (x, y)
 #define S_FPOINT2           32      // Вещественная двумерная точка (x, y)
 #define S_WZSTRING          33      // Unicode-zstring
-#define S_UUID_             34      // @v8.0.9 (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
+#define S_UUID_             34      // (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
 #define S_INT64             35      // @v10.6.3
 #define S_UINT64            36      // @v10.6.3
+#define S_COLOR_RGBA        37      // @v10.9.10 4-компонентное представление цвета ARGB class SColorBase
 //
 #define S_FIRSTUSERTYPE     50
 //
@@ -2686,6 +2687,7 @@ typedef int32 TYPEID;
 #define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)
 #define T_BOOL             MKSTYPE(S_BOOL, 4)
 #define T_GUID             MKSTYPE(S_UUID_, 16)
+#define T_COLOR_RGBA       MKSTYPE(S_COLOR_RGBA, 4) // @v10.9.10
 
 #if !defined(RC_INVOKED) /* { */
 
@@ -3301,6 +3303,9 @@ public:
 	FPoint(float x, float y);
 	FPoint & FASTCALL operator = (const TPoint & p);
 	FPoint & FASTCALL operator = (float f);
+	int    FASTCALL operator == (const FPoint & rS) const;
+	int    FASTCALL operator != (const FPoint & rS) const;
+	int    FASTCALL IsEqual(const FPoint & rS) const;
 	int    IsZero() const;
 	int    IsPositive() const;
 	FPoint Set(float xy);
@@ -3334,7 +3339,7 @@ public:
 
 extern const FPoint ZEROFPOINT; // @global
 
-int    FASTCALL operator == (FPoint p1, FPoint p2);
+// @v10.9.10 (replaced with FPoint::operator ==) int    FASTCALL operator == (FPoint p1, FPoint p2);
 int    FASTCALL operator <  (FPoint p1, FPoint p2);
 int    FASTCALL operator >  (FPoint p1, FPoint p2);
 FPoint FASTCALL operator +  (FPoint p, float);
@@ -3355,19 +3360,6 @@ float  FASTCALL atan2(FPoint p1, FPoint p2);
 // Descr: X = p.X + radius.X * sinf(angle), Y = p.Y - radius.Y * cosf(angle)
 //
 FPoint FASTCALL trans01(FPoint p, FPoint radius, float angle);
-/* @v9.8.6 (unused)
-//
-// Complex compare struct and parse functions
-//
-struct CompareTerm {
-	int    type;
-	int    cmp;
-	char   data[10];
-	int    link;
-};*/
-
-// @v9.8.6 (unused) typedef int (* is_data_func)(char *);
-// @v9.8.6 (unused) typedef int (* get_data_func)(char * buf, int * idx, char * data);
 //
 // Compare sign sets
 //
@@ -3380,22 +3372,8 @@ struct CompareTerm {
 #define BOOLSS_SQL     0
 #define BOOLSS_C       1
 //
-// Function prototypes
-//
-// @v9.8.6 (unused) int is_number(char *);
-// @v9.8.6 (unused) int is_date(char *);
-// @v9.8.6 (unused) int get_number(char *, int *, char *);
-// @v9.8.6 (unused) int get_date(char *, int *, char *);
-// @v9.8.6 (unused) int set_data_func(is_data_func, get_data_func);
-// @v9.8.6 (unused) int check_cmp_expression(char * pStr, IntRange * pErrLoc);
-// @v9.8.6 (unused) int parse_cmp_expression(char *, int *, CompareTerm *);
-// @v9.8.6 (unused) int get_cmp_parse_error();
-// @v9.8.6 (unused) const char * getcmpsign(int cmp, int set);
-// @v9.8.6 (unused) const char * getboolsign(int link, int set);
-//
 // String functions
 //
-
 //
 // Descr: Заменяет специальные символы в строке rBuf xml-сущностями.
 // ARG(rBuf      INOUT): Строка, в которой должны быть заменены символы
@@ -11501,6 +11479,8 @@ struct FRect { // @persistent
 	FRect(float left, float top, float right, float bottom);
 	FRect(float width, float height);
 	FRect(const TRect & r);
+	int    FASTCALL operator == (const FRect & rS) const;
+	int    FASTCALL operator != (const FRect & rS) const;
 	FRect & Z();
 	//
 	// Descr: Присваивает всем 4-м координатам одно и тоже значение v.
@@ -11512,6 +11492,7 @@ struct FRect { // @persistent
 	FRect & Around(FPoint p, FPoint size);
 	FRect & Grow(float aDX, float aDY);
 	FRect & FASTCALL MoveCenterTo(FPoint center);
+	int    FASTCALL IsEqual(const FRect & rS) const;
 	int    IsEmpty() const;
 	int    Contains(FPoint p) const;
 	float  Width() const;
@@ -11530,7 +11511,6 @@ struct FRect { // @persistent
 
 class FShape { // @persistent @store(SSerializeContext)
 public:
-
 	typedef FRect Rect;
 
 	struct Line {
@@ -11593,7 +11573,6 @@ public:
 	//   для определения фигуры.
 	//
 	int    GetCount() const;
-
 	int    FASTCALL Get(Rect &) const;
 	int    FASTCALL Get(RoundedRect &) const;
 	int    FASTCALL Get(Line &) const;
@@ -12001,6 +11980,7 @@ struct SColorBase { // @persistent
 	};
 	int    FASTCALL FromStr(const char *);
 	SString & ToStr(SString & rBuf, int format = fmtHEX) const;
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * SCtx);
 	//
 	// Порядок полей существенен. Эквивалентен RGBQUAD (+alpha).
 	//
@@ -12112,6 +12092,7 @@ public:
 	int    Serialize(int dir, float & rV, SBuffer & rBuf);
 	int    Serialize(int dir, double & rV, SBuffer & rBuf);
 	int    Serialize(int dir, S_GUID & rV, SBuffer & rBuf);
+	int    Serialize(int dir, SColor & rV, SBuffer & rBuf);
 	int    Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf);
 	int    SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf);
 	int    Serialize(int dir, TPoint & rV, SBuffer & rBuf);

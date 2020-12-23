@@ -1967,7 +1967,10 @@ struct AbstractLayoutBlock { // @persistent
 	//
 	static uint32 GetSerializeSignature();
 	AbstractLayoutBlock();
+	int    FASTCALL operator == (const AbstractLayoutBlock & rS) const;
+	int    FASTCALL operator != (const AbstractLayoutBlock & rS) const;
 	AbstractLayoutBlock & SetDefault();
+	int    FASTCALL IsEqual(const AbstractLayoutBlock & rS) const;
 	//
 	// Descr: Проверяет параметры (возможно, не все) блока на непротиворечивость.
 	// Returns:
@@ -2427,19 +2430,21 @@ public:
 			fDontKeepRatio = 0x0002, // Не сохранять пропорции фигуры при изменении размера объекта
 			fGrayscale     = 0x0004  // (testing option) Преобразовывать фигуру в черно-белый цвет
 		};
-		uint32  Id;           // Целочисленный идентификатор элемента
-		SString Symb;         // Уникальный символ элемента.
-		SString Text;         // Текстовое описание инструмента.
-		SString WtmObjSymb;   // Символ класса семейства TWhatmanObject, который создается посредством данного инструмента.
-		SString FigPath;      // Имя файла, содержащего изображение фигуры инструмента
-		SString PicPath;      // Имя файла, содержащего изображение иконки инструмента
-		TPoint FigSize;       // Начальный размер фигуры инструмента.
-		TPoint PicSize;       // Если !isZero() то переопределяет TWhatmanToolArray::Param::PicSize
-		long   Flags;         // @flags
-		SColor ReplacedColor; // Цвет, который должен замещаться на какой-либо внешний цвет. Если ReplacedColor.IsEmpty(), то замещаемый цвет не определен.
+		uint32  Id;              // Целочисленный идентификатор элемента
+		SString Symb;         	 // Уникальный символ элемента.
+		SString Text;         	 // Текстовое описание инструмента.
+		SString WtmObjSymb;   	 // Символ класса семейства TWhatmanObject, который создается посредством данного инструмента.
+		SString FigPath;      	 // Имя файла, содержащего изображение фигуры инструмента
+		SString PicPath;      	 // Имя файла, содержащего изображение иконки инструмента
+		TPoint FigSize;       	 // Начальный размер фигуры инструмента.
+		TPoint PicSize;       	 // Если !isZero() то переопределяет TWhatmanToolArray::Param::PicSize
+		long   Flags;         	 // @flags
+		SColor ReplacedColor; 	 // Цвет, который должен замещаться на какой-либо внешний цвет. Если ReplacedColor.IsEmpty(), то замещаемый цвет не определен.
+		AbstractLayoutBlock Alb; // @v10.9.10
 		const  TWhatmanToolArray * P_Owner; // @notowned
-		uint32 ExtSize;       // Размер данных, используемый элементом в буфере ExtData
+		uint32 ExtSize;         // Размер данных, используемый элементом в буфере ExtData
 		uint8  ExtData[256];
+		
 	};
 	//
 	// Descr: Пользовательское представление параметров коллекции.
@@ -2481,18 +2486,19 @@ private:
 	int    UpdateFigures(Item & rItem);
 
 	struct Entry { // @persistent @flat
-		uint32 TextP;          // Позиция текста в буфере Pool
-		uint32 SymbP;          // Позиция символа в буфере Pool
-		uint32 WtmObjSymbP;    // Позиция символа класса объекта в буфере Pool
-		uint32 FigPathP;       // Позиция пути до файла фигуры в буфере Pool
-		uint32 PicPathP;       // Позиция пути до файла пиктограммы в буфере Pool
-		TPoint FigSize;        // Исходный размер фигуры при размещении на ватмане
-		TPoint PicSize;        // Размер иконки
-		int32  Flags;          // @flags
-		uint32 ExtDataP;       // Позиция дополнительных данных в буфере Pool (в кодировке MIME64)
-		uint32 Id;             // Целочисленный идентификатор элемента
-		SColor ReplacedColor;  //
-		uint8  Reserve[24];    // @reserve
+		Entry();
+		uint32 TextP;            // Позиция текста в буфере Pool
+		uint32 SymbP;          	 // Позиция символа в буфере Pool
+		uint32 WtmObjSymbP;    	 // Позиция символа класса объекта в буфере Pool
+		uint32 FigPathP;       	 // Позиция пути до файла фигуры в буфере Pool
+		uint32 PicPathP;       	 // Позиция пути до файла пиктограммы в буфере Pool
+		TPoint FigSize;        	 // Исходный размер фигуры при размещении на ватмане
+		TPoint PicSize;        	 // Размер иконки
+		int32  Flags;          	 // @flags
+		uint32 ExtDataP;       	 // Позиция дополнительных данных в буфере Pool (в кодировке MIME64)
+		uint32 Id;             	 // Целочисленный идентификатор элемента
+		SColor ReplacedColor;  	 //
+		AbstractLayoutBlock Alb; // @v10.9.10
 	};
 	uint32 SrcFileVer;  // @transient Версия формата хранения файла, из которого был загружен данный экземпляр объекта
 	uint32 SymbP;
@@ -2507,7 +2513,7 @@ private:
 	// Принадлежность иконок и фигур элементу контейнера определяется по символу Item.Symb.
 	// Иконка хранится с символом "{SYMB}-PIC", а фигура с символом "{SYMB}-FIG"
 	//
-	AbstractLayoutBlock ALB; // @v10.9.9 Параметры размещения объекта, создаваемого в соответствии с данным инструментом
+	AbstractLayoutBlock ALB__; // @v10.9.9 Параметры размещения объекта, создаваемого в соответствии с данным инструментом
 };
 //
 // Descr: Фабрика создания экземпляра объекта ватмана.

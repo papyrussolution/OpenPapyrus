@@ -47,10 +47,8 @@ uint error_message_count; /* This variable is incremented each time `error' is c
 
 /* In GNU libc we want do not want to use the common name `error' directly.
    Instead make it a weak alias.  */
-extern void __error(int status, int errnum, const char * message, ...)
-__attribute__ ((__format__(__printf__, 3, 4)));
-extern void __error_at_line(int status, int errnum, const char * file_name, uint line_number, const char * message, ...)
-__attribute__ ((__format__(__printf__, 5, 6)));;
+extern void __error(int status, int errnum, const char * message, ...) __attribute__ ((__format__(__printf__, 3, 4)));
+extern void __error_at_line(int status, int errnum, const char * file_name, uint line_number, const char * message, ...) __attribute__ ((__format__(__printf__, 5, 6)));
 #define error __error
 #define error_at_line __error_at_line
 
@@ -70,26 +68,26 @@ __attribute__ ((__format__(__printf__, 5, 6)));;
 #endif
 /* The gnulib override of fcntl is not needed in this file.  */
 #undef fcntl
-
 #if !HAVE_DECL_STRERROR_R && STRERROR_R_CHAR_P
-#  ifndef HAVE_DECL_STRERROR_R
-"this configure-time declaration test was not run"
-#  endif
-char * strerror_r();
+	#ifndef HAVE_DECL_STRERROR_R
+		"this configure-time declaration test was not run"
+	#endif
+	char * strerror_r();
 #endif
 
-/* The calling program should define program_name and set it to the
-   name of the executing program.  */
+// The calling program should define program_name and set it to the name of the executing program. 
 //extern const char *program_name;
 const char * get_program_name();
 
 #if HAVE_STRERROR_R || defined strerror_r
-#  define __strerror_r strerror_r
+	#define __strerror_r strerror_r
 #endif /* HAVE_STRERROR_R || defined strerror_r */
 #endif  /* not _LIBC */
 #if !_LIBC
 #include <io.h>
-/* Return non-zero if FD is open.  */
+// 
+// Return non-zero if FD is open
+// 
 static int is_open(int fd)
 {
 #if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
@@ -98,24 +96,20 @@ static int is_open(int fd)
 	   fcntl, and the gnulib replacement fcntl does not support F_GETFL.  */
 	return (HANDLE)_get_osfhandle(fd) != INVALID_HANDLE_VALUE;
 #else
-#  ifndef F_GETFL
-#   error Please port fcntl to your platform
-#  endif
+	#ifndef F_GETFL
+		#error Please port fcntl to your platform
+	#endif
 	return 0 <= fcntl(fd, F_GETFL);
 #endif
 }
-
 #endif
 
 static void flush_stdout(void)
 {
 #if !_LIBC
 	int stdout_fd;
-
 #if GNULIB_FREOPEN_SAFER
-	/* Use of gnulib's freopen-safer module normally ensures that
-	     fileno (stdout) == 1
-	   whenever stdout is open.  */
+	/* Use of gnulib's freopen-safer module normally ensures that fileno (stdout) == 1 whenever stdout is open.  */
 	stdout_fd = STDOUT_FILENO;
 #else
 	/* POSIX states that fileno (stdout) after fclose is unspecified.  But in
@@ -147,7 +141,6 @@ static void print_errno_message(int errnum)
 #else
 	s = strerror(errnum);
 #endif
-
 #if !_LIBC
 	SETIFZ(s, _("Unknown system error"));
 #endif
@@ -205,7 +198,6 @@ static void error_tail(int status, int errnum, const char * message, va_list arg
 			wmessage = (wchar_t*)L"???";
 		}
 		__vfwprintf(stderr, wmessage, args);
-
 		if(use_malloc)
 			SAlloc::F(wmessage);
 	}
@@ -225,17 +217,17 @@ static void error_tail(int status, int errnum, const char * message, va_list arg
 	if(status)
 		exit(status);
 }
-
-/* Print the program name and error message MESSAGE, which is a printf-style
-   format string with optional args.
-   If ERRNUM is nonzero, print its corresponding system error message.
-   Exit with status STATUS if it is nonzero.  */
+// 
+// Print the program name and error message MESSAGE, which is a printf-style
+// format string with optional args.
+// If ERRNUM is nonzero, print its corresponding system error message.
+// Exit with status STATUS if it is nonzero.
+// 
 void error(int status, int errnum, const char * message, ...)
 {
 	va_list args;
 #if defined _LIBC && defined __libc_ptf_call
-	/* We do not want this call to be cut short by a thread
-	   cancellation.  Therefore disable cancellation for now.  */
+	// We do not want this call to be cut short by a thread cancellation.  Therefore disable cancellation for now.
 	int state = PTHREAD_CANCEL_ENABLE;
 	__libc_ptf_call(pthread_setcancelstate, (PTHREAD_CANCEL_DISABLE, &state), 0);
 #endif
@@ -256,7 +248,7 @@ void error(int status, int errnum, const char * message, ...)
 	error_tail(status, errnum, message, args);
 #ifdef _LIBC
 	_IO_funlockfile(stderr);
-# ifdef __libc_ptf_call
+#ifdef __libc_ptf_call
 	__libc_ptf_call(pthread_setcancelstate, (state, NULL), 0);
 #endif
 #endif
@@ -272,13 +264,12 @@ void error_at_line(int status, int errnum, const char * file_name, uint line_num
 		static const char * old_file_name;
 		static uint old_line_number;
 		if(old_line_number == line_number && (file_name == old_file_name || sstreq(old_file_name, file_name)))
-			return; /* Simply return and print nothing.  */
+			return; // Simply return and print nothing.  
 		old_file_name = file_name;
 		old_line_number = line_number;
 	}
 #if defined _LIBC && defined __libc_ptf_call
-	/* We do not want this call to be cut short by a thread
-	   cancellation.  Therefore disable cancellation for now.  */
+	// We do not want this call to be cut short by a thread cancellation.  Therefore disable cancellation for now.
 	int state = PTHREAD_CANCEL_ENABLE;
 	__libc_ptf_call(pthread_setcancelstate, (PTHREAD_CANCEL_DISABLE, &state), 0);
 #endif
@@ -312,9 +303,9 @@ void error_at_line(int status, int errnum, const char * file_name, uint line_num
 }
 
 #ifdef _LIBC
-/* Make the weak alias.  */
-#undef error
-#undef error_at_line
-weak_alias(__error, error)
-weak_alias(__error_at_line, error_at_line)
+	// Make the weak alias
+	#undef error
+	#undef error_at_line
+	weak_alias(__error, error)
+	weak_alias(__error_at_line, error_at_line)
 #endif

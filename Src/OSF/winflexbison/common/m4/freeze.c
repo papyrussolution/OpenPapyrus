@@ -28,10 +28,9 @@
 
 static SymbolTableEntry * reverse_symbol_list(SymbolTableEntry * sym)
 {
-	SymbolTableEntry * next;
 	SymbolTableEntry * result = NULL;
 	while(sym) {
-		next = SYMBOL_NEXT(sym);
+		SymbolTableEntry * next = SYMBOL_NEXT(sym);
 		SYMBOL_NEXT(sym) = result;
 		result = sym;
 		sym = next;
@@ -72,14 +71,11 @@ void produce_frozen_state(const char * name)
 		fputs(ecomm.string, file);
 		fputc('\n', file);
 	}
-
 	/* Dump all symbols.  */
-
 	for(h = 0; h < hash_table_size; h++) {
 		/* Process all entries in one bucket, from the last to the first.
 		   This order ensures that, at reload time, pushdef's will be
 		   executed with the oldest definitions first.  */
-
 		symtab[h] = reverse_symbol_list(symtab[h]);
 		for(sym = symtab[h]; sym; sym = SYMBOL_NEXT(sym)) {
 			switch(SYMBOL_TYPE(sym)) {
@@ -105,11 +101,9 @@ void produce_frozen_state(const char * name)
 				    fputs(bp->name, file);
 				    fputc('\n', file);
 				    break;
-
 				case TOKEN_VOID:
 				    /* Ignore placeholder tokens that exist due to traceon.  */
 				    break;
-
 				default:
 				    M4ERROR((warning_status, 0, "INTERNAL ERROR: bad token data type in freeze_one_symbol ()"));
 				    abort();
@@ -189,42 +183,33 @@ void reload_frozen_state(const char * name)
 	   character to the next directive or to EOF.  */
 
 #define GET_DIRECTIVE                                           \
-	do                                                            \
-	{                                                           \
+	do {                                                         \
 		GET_CHARACTER;                                            \
-		if(character == '#')                                     \
-		{                                                       \
+		if(character == '#') {                                  \
 			while(character != EOF && character != '\n')         \
 				GET_CHARACTER;                                      \
 			VALIDATE('\n');                                      \
 		}                                                       \
-	}                                                           \
-	while(character == '\n')
+	} while(character == '\n')
 
 #define GET_STRING(i)                                                   \
-	do                                                                    \
-	{                                                                   \
+	do {                                                                  \
 		void * tmp;                                                        \
 		char * p;                                                          \
-		if(number[(i)] + 1 > allocated[(i)])                             \
-		{                                                               \
+		if(number[(i)] + 1 > allocated[(i)]) {                               \
 			SAlloc::F(string[(i)]);                                           \
 			allocated[(i)] = number[(i)] + 1;                             \
 			string[(i)] = xcharalloc((size_t)allocated[(i)]);           \
 		}                                                               \
-		if(number[(i)] > 0                                               \
-		    && !fread(string[(i)], (size_t)number[(i)], 1, file))       \
-			m4_error(EXIT_FAILURE, 0,                                      \
-			    _("premature end of frozen file"));                   \
+		if(number[(i)] > 0 && !fread(string[(i)], (size_t)number[(i)], 1, file)) \
+			m4_error(EXIT_FAILURE, 0, _("premature end of frozen file")); \
 		string[(i)][number[(i)]] = '\0';                                  \
 		p = string[(i)];                                                  \
-		while((tmp = memchr(p, '\n', number[(i)] - (p - string[(i)]))))  \
-		{                                                               \
+		while((tmp = memchr(p, '\n', number[(i)] - (p - string[(i)])))) { \
 			current_line++;                                               \
 			p = (char *)tmp + 1;                                         \
 		}                                                               \
-	}                                                                   \
-	while(0)
+	} while(0)
 
 	file = m4_path_search(name, NULL);
 	if(file == NULL)
@@ -280,9 +265,7 @@ void reload_frozen_state(const char * name)
 			    GET_STRING(1);
 			    GET_CHARACTER;
 			    VALIDATE('\n');
-
 			    /* Act according to operation letter.  */
-
 			    switch(operation) {
 				    case 'C':
 					/* Change comment strings.  */

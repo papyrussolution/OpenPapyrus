@@ -128,10 +128,8 @@ int mbsnwidth(const char * string, size_t nbytes, int flags)
 			}
 		return width;
 	}
-
 	while(p < plimit) {
 		uchar c = (uchar)*p++;
-
 		if(isprint(c)) {
 			if(width == INT_MAX)
 				goto overflow;
@@ -148,7 +146,6 @@ int mbsnwidth(const char * string, size_t nbytes, int flags)
 			return -1;
 	}
 	return width;
-
 overflow:
 	return INT_MAX;
 }

@@ -931,13 +931,13 @@ int SSerializeContext::Serialize(int dir, LTIME  & rV, SBuffer & rBuf) { return 
 int SSerializeContext::Serialize(int dir, LDATETIME & rV, SBuffer & rBuf) { return Serialize(dir, T_DATETIME, &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, float  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FLOAT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, double & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FLOAT, sizeof(rV)), &rV, 0, rBuf); }
-int SSerializeContext::Serialize(int dir, S_GUID & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UUID_, sizeof(rV)), &rV, 0, rBuf); } // @v8.1.1
+int SSerializeContext::Serialize(int dir, S_GUID & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UUID_, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, SColor & rV, SBuffer & rBuf) { return Serialize(dir, T_COLOR_RGBA, &rV, 0, rBuf); } // @v10.9.10
 int SSerializeContext::Serialize(int dir, TPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_IPOINT2, 4), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, FPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, FRect & rV, SBuffer & rBuf) 
 { 
-	return (Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV.a, 0, rBuf) &&
-		Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV.b, 0, rBuf));
+	return (Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV.a, 0, rBuf) && Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV.b, 0, rBuf));
 }
 int SSerializeContext::Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_ZSTRING, valBufLen), pV, 0, rBuf); }
 

@@ -292,22 +292,16 @@ static char * shared_library_fullname;
 BOOL WINAPI DllMain(HINSTANCE module_handle, DWORD event, LPVOID reserved)
 {
 	(void)reserved;
-
 	if(event == DLL_PROCESS_ATTACH) {
 		/* The DLL is being loaded into an application's address range.  */
 		static char location[MAX_PATH];
-
 		if(!GetModuleFileName(module_handle, location, sizeof(location)))
 			/* Shouldn't happen.  */
 			return FALSE;
-
 		if(!IS_PATH_WITH_DIR(location))
-			/* Shouldn't happen.  */
-			return FALSE;
-
+			return FALSE; /* Shouldn't happen.  */
 		shared_library_fullname = strdup(location);
 	}
-
 	return TRUE;
 }
 
@@ -321,31 +315,23 @@ extern void __ctordtorTerm(void);
 unsigned long _System _DLL_InitTerm(unsigned long hModule, unsigned long ulFlag)
 {
 	static char location[CCHMAXPATH];
-
-	switch(ulFlag)
-	{
+	switch(ulFlag) {
 		case 0:
 		    if(_CRT_init() == -1)
 			    return 0;
-
 		    __ctordtorInit();
-
 		    /* See http://cyberkinetica.homeunix.net/os2tk45/cp1/1247_L2H_DosQueryModuleNameSy.html
 		       for specification of DosQueryModuleName(). */
 		    if(DosQueryModuleName(hModule, sizeof(location), location))
 			    return 0;
-
 		    _fnslashify(location);
 		    shared_library_fullname = strdup(location);
 		    break;
-
 		case 1:
 		    __ctordtorTerm();
-
 		    _CRT_term();
 		    break;
 	}
-
 	return 1;
 }
 
@@ -359,16 +345,12 @@ static void find_shared_library_fullname()
 	   Cygwin >= 1.5 has /proc/self/maps and the getline() function too.
 	   But it is costly: ca. 0.3 ms on Linux, 3 ms on Cygwin 1.5, and 5 ms on
 	   Cygwin 1.7.  */
-	FILE * fp;
-
-	/* Open the current process' maps file.  It describes one VMA per line.  */
-	fp = fopen("/proc/self/maps", "r");
+	FILE * fp = fopen("/proc/self/maps", "r"); /* Open the current process' maps file.  It describes one VMA per line.  */
 	if(fp) {
 		unsigned long address = (ulong)&find_shared_library_fullname;
 		for(;;) {
 			unsigned long start, end;
 			int c;
-
 			if(fscanf(fp, "%lx-%lx", &start, &end) != 2)
 				break;
 			if(address >= start && address <= end - 1) {
@@ -378,7 +360,6 @@ static void find_shared_library_fullname()
 				if(c == '/') {
 					size_t size;
 					int len;
-
 					ungetc(c, fp);
 					shared_library_fullname = NULL; size = 0;
 					len = getline(&shared_library_fullname, &size, fp);
@@ -425,7 +406,6 @@ const char * relocate(const char * pathname)
 {
 #if defined PIC && defined INSTALLDIR && ENABLE_COSTLY_RELOCATABLE
 	static int initialized;
-
 	/* Initialization code for a shared library.  */
 	if(!initialized) {
 		/* At this point, orig_prefix and curr_prefix likely have already been
@@ -438,34 +418,20 @@ const char * relocate(const char * pathname)
 		   orig_prefix.  */
 		const char * orig_installprefix = INSTALLPREFIX;
 		const char * orig_installdir = INSTALLDIR;
-		char * curr_prefix_better;
-
-		curr_prefix_better =
-		    compute_curr_prefix(orig_installprefix, orig_installdir,
-			get_shared_library_fullname());
-
-		set_relocation_prefix(orig_installprefix,
-		    curr_prefix_better != NULL
-		    ? curr_prefix_better
-		    : curr_prefix);
-
-		if(curr_prefix_better != NULL)
-			SAlloc::F(curr_prefix_better);
-
+		char * curr_prefix_better = compute_curr_prefix(orig_installprefix, orig_installdir, get_shared_library_fullname());
+		set_relocation_prefix(orig_installprefix, curr_prefix_better != NULL ? curr_prefix_better : curr_prefix);
+		SAlloc::F(curr_prefix_better);
 		initialized = 1;
 	}
 #endif
-
 	/* Note: It is not necessary to perform case insensitive comparison here,
 	   even for DOS-like file systems, because the pathname argument was
 	   typically created from the same Makefile variable as orig_prefix came
 	   from.  */
-	if(orig_prefix != NULL && curr_prefix != NULL
-	    && strncmp(pathname, orig_prefix, orig_prefix_len) == 0) {
+	if(orig_prefix != NULL && curr_prefix != NULL && strncmp(pathname, orig_prefix, orig_prefix_len) == 0) {
 		if(pathname[orig_prefix_len] == '\0') {
 			/* pathname equals orig_prefix.  */
 			char * result = (char *)xmalloc(strlen(curr_prefix) + 1);
-
 #ifdef NO_XMALLOC
 			if(result != NULL)
 #endif
@@ -477,9 +443,7 @@ const char * relocate(const char * pathname)
 		else if(ISSLASH(pathname[orig_prefix_len])) {
 			/* pathname starts with orig_prefix.  */
 			const char * pathname_tail = &pathname[orig_prefix_len];
-			char * result =
-			    (char *)xmalloc(curr_prefix_len + strlen(pathname_tail) + 1);
-
+			char * result = (char *)xmalloc(curr_prefix_len + strlen(pathname_tail) + 1);
 #ifdef NO_XMALLOC
 			if(result != NULL)
 #endif
@@ -490,13 +454,10 @@ const char * relocate(const char * pathname)
 			}
 		}
 	}
-
 #ifdef __EMX__
 # ifdef __KLIBC__
 #  undef strncmp
-
-	if(strncmp(pathname, "/@unixroot", 10) == 0
-	    && (pathname[10] == '\0' || ISSLASH(pathname[10]))) {
+	if(strncmp(pathname, "/@unixroot", 10) == 0 && (pathname[10] == '\0' || ISSLASH(pathname[10]))) {
 		/* kLIBC itself processes /@unixroot prefix */
 		return pathname;
 	}
@@ -504,7 +465,6 @@ const char * relocate(const char * pathname)
 #endif
 	if(ISSLASH(pathname[0])) {
 		const char * unixroot = getenv("UNIXROOT");
-
 		if(unixroot && HAS_DEVICE(unixroot) && unixroot[2] == '\0') {
 			char * result = (char *)xmalloc(2 + strlen(pathname) + 1);
 #ifdef NO_XMALLOC
@@ -518,7 +478,6 @@ const char * relocate(const char * pathname)
 		}
 	}
 #endif
-
 	/* Nothing to relocate.  */
 	return pathname;
 }

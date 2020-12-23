@@ -17527,11 +17527,10 @@ public:
 			gbsfCritTotalResult    = 0x0400, // @v10.7.3 В качестве критерия сортировки применять абсолютный доход по стратегии.
 			gbsfOptDeltaRangeCQA   = 0x0800, // @V10.7.4 Специальный критерий сортировки по среднему катету угла регрессии в квантах (с дифференциацией по сегментам магистрального тренда)
 			gbsfShuffle            = 0x2000, // @v10.7.7 Перед селекцией хаотизировать список стратегий
-			gbsfEliminate100prob   = 0x4000, // @v10.7.9 Не включать в пул стратегии с вероятность выигрыша 100% (подозреваю, что они мешают)
 			gbsfCritStakeCount     = 0x8000  // @v10.7.9 В качестве критерия сортировки применять количество ставок стратегии.
 		};
 		int    MakeOrderIndex(long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
-		int    GetBestSubset2(const PPTssModelPacket & rTssPacket, StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup, LongArray * pToRemovePosList, LongArray * pHaveAnalogPosList) const;
+		int    GetBestSubset2(const PPTssModelPacket & rTssPacket, StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup, LongArray * pToRemovePosList) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		struct IndexEntry1 {
 			struct Range : public RealRange {
@@ -17940,16 +17939,6 @@ private:
 	int    MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, double partitialTrendErrLimit, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
 	int    MakeArVectors2(const STimeSeries & rTs, const LongArray & rFrameSizeList, const PPTssModelPacket * pTssModel, uint flags, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
 	int    MakeTrendEntry(const RealArray & rValueList, uint flags, PPObjTimeSeries::TrendEntry * pEntry, RealArray * pTempCov00List);
-	int    Helper_StrategyContainerDressing(const PPObjTimeSeries::Config & rConfig, const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket & rTssModel,
-		//const DateTimeArray & rTsTmList, const RealArray & rTsValList, const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
-		const PPObjTimeSeries::CommonTsParamBlock & rCtspb,
-		const PPObjTimeSeries::StrategyContainer & rSrcSc,
-		PPObjTimeSeries::StrategyContainer & rScSelection, PPObjTimeSeries::StrategyResultEntry * pSre, SFile * pFOut);
-	int    StrategyContainerDressing(const PPObjTimeSeries::Config & rConfig, const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket & rTssModel,
-		//const DateTimeArray & rTsTmList, const RealArray & rTsValList, const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
-		const PPObjTimeSeries::CommonTsParamBlock & rCtspb,
-		const PPObjTimeSeries::StrategyContainer & rSrcSc,
-		PPObjTimeSeries::StrategyContainer & rScSelection, SFile * pFOut);
 	enum {
 		esfDontFinish = 0x0001 // Не сохранять стратегии
 	};
@@ -47642,6 +47631,7 @@ public:
 	int    DeleteEntity(PPID id, int use_ta);
 	int    GetEntity(PPID id, Entity & rE);
 	int    GetEntityByGuid(const S_GUID & rGuid, Entity & rE);
+	int    GetEntityListByGuid(const S_GUID & rGuid, TSCollection <Entity> & rList);
 	int    GetEntityByUuid(const S_GUID & rUuid, Entity & rE);
 	//
 	// Descr: Флаги функции Put(PPID *, const VetisVetDocument &, long flags, TSVector <UnresolvedEntity> *, int use_ta)
@@ -47813,6 +47803,7 @@ private:
 		otmLot
 	};
 	int    MatchObject(const VetisDocumentTbl::Rec & rRec, int objToMatch);
+	int    ForceResolveObject(const VetisDocumentTbl::Rec & rRec, int objToMatch);
 
 	VetisDocumentFilt Filt;
 	PPID   FromEntityID;

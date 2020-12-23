@@ -25,18 +25,46 @@ AbstractLayoutBlock & AbstractLayoutBlock::SetDefault()
 	GravityX = 0;
 	GravityY = 0;
 	Order = 0;
-	Nominal.a.Set(0.0f, 0.0f);
-	Nominal.b.Set(0.0f, 0.0f);
-	Size.Set(0.0f, 0.0f);
-	Padding.a.Set(0.0f, 0.0f);
-	Padding.b.Set(0.0f, 0.0f);
-	Margin.a.Set(0.0f, 0.0f);
-	Margin.b.Set(0.0f, 0.0f);
+	Nominal.a.SetZero();
+	Nominal.b.SetZero();
+	Size.SetZero();
+	Padding.a.SetZero();
+	Padding.b.SetZero();
+	Margin.a.SetZero();
+	Margin.b.SetZero();
 	GrowFactor = 0.0f;
 	ShrinkFactor = 1.0f;
 	Basis = 0.0f;
 	AspectRatio = 0.0f;
 	return *this;
+}
+
+int FASTCALL AbstractLayoutBlock::operator == (const AbstractLayoutBlock & rS) const { return IsEqual(rS); }
+int FASTCALL AbstractLayoutBlock::operator != (const AbstractLayoutBlock & rS) const { return !IsEqual(rS); }
+
+int FASTCALL AbstractLayoutBlock::IsEqual(const AbstractLayoutBlock & rS) const
+{
+	#define I(f) if(f != rS.f) return 0;
+	I(Flags);
+	I(SzX);            
+	I(SzY);            
+	I(JustifyContent); 
+	I(AlignContent);   
+	I(AlignItems);     
+	I(AlignSelf);      
+	I(GravityX);       
+	I(GravityY);       
+	I(Order);          
+	I(Nominal);        
+	I(Size);           
+	I(Padding);        
+	I(Margin);   
+	I(GrowFactor);     
+	I(ShrinkFactor);   
+	I(Basis);          
+	I(AspectRatio);    
+	#undef I
+	return 1;
 }
 
 int AbstractLayoutBlock::Validate() const
