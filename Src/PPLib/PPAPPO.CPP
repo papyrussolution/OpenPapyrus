@@ -11,6 +11,7 @@
 int ExportDialogs(const char * pFileName);
 int TestAddressRecognition();
 int SelfBuild();
+int SelfbuildStaffForManual(); // @v10.9.10
 int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
 int RemoveZeroLinkCCLines();
 int ReceiptPacking();
@@ -1889,6 +1890,9 @@ void PPApp::login(int processCmdLine)
 					if(PPSession::GetStartUpOption(PPSession::cmdlSelfBuild, arg_buf)) {
 						if(arg_buf.IsEqiAscii("parsewinrcfornativetext")) {
 							ParseWinRcForNativeText();
+						}
+						else if(arg_buf.IsEqiAscii("buildmanualstaff")) { // @v10.9.10
+							SelfbuildStaffForManual();
 						}
 						else
 							SelfBuild();

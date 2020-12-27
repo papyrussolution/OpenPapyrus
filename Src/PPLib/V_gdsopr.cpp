@@ -3444,7 +3444,8 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->InsColumn(-1, "@booking", 13, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
 			}
 			if(Filt.Flags & GoodsOpAnalyzeFilt::fShowSStatSales) {
-				pBrw->InsColumnWord(-1, PPWORD_AVGDAYLYSALES, 10, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
+				// @v10.9.10 pBrw->InsColumnWord(-1, PPWORD_AVGDAYLYSALES, 10, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
+				pBrw->InsColumn(-1, "@avgdaylysales", 10, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v10.9.10 
 			}
 		}
 		else if(brw_id == BROWSER_ABCANLZ) {

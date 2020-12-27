@@ -603,90 +603,90 @@ int    FASTCALL GetSisCode(int ident, SString & rCode);
 //
 enum { // @persistent
 	slangMeta = 1,
-	slangLA, // LATIN
-	slangEN, // ENGLISH
-	slangRU, // RUSSIAN
-	slangDE, // GERMAN
-	slangAA, // AFAR
-	slangAB, // ABKHAZIAN
+	slangLA,  // LATIN
+	slangEN,  // ENGLISH
+	slangRU,  // RUSSIAN
+	slangDE,  // GERMAN
+	slangAA,  // AFAR
+	slangAB,  // ABKHAZIAN
 	slangACE, // ACHINESE
 	slangACH, // ACOLI
 	slangADA, // ADANGME
 	slangADY, // ADYGHE
-	slangAE, // AVESTAN
-	slangAF, // AFRIKAANS
+	slangAE,  // AVESTAN
+	slangAF,  // AFRIKAANS
 	slangAFA, // AFRO-ASIATIC LANGUAGE
 	slangAFH, // AFRIHILI
 	slangAGQ, // AGHEM
 	slangAIN, // AINU
-	slangAK, // AKAN
+	slangAK,  // AKAN
 	slangAKK, // AKKADIAN
 	slangALE, // ALEUT
 	slangALG, // ALGONQUIAN LANGUAGE
 	slangALT, // SOUTHERN ALTAI
-	slangAM, // AMHARIC
-	slangAN, // ARAGONESE
+	slangAM,  // AMHARIC
+	slangAN,  // ARAGONESE
 	slangANG, // OLD ENGLISH
 	slangANP, // ANGIKA
 	slangAPA, // APACHE LANGUAGE
-	slangAR, // ARABIC
+	slangAR,  // ARABIC
 	slangARC, // ARAMAIC
 	slangARN, // ARAUCANIAN
 	slangARP, // ARAPAHO
 	slangART, // ARTIFICIAL LANGUAGE
 	slangARW, // ARAWAK
-	slangAS, // ASSAMESE
+	slangAS,  // ASSAMESE
 	slangASA, // ASU
 	slangAST, // ASTURIAN
 	slangATH, // ATHAPASCAN LANGUAGE
 	slangAUS, // AUSTRALIAN LANGUAGE
-	slangAV, // AVARIC
+	slangAV,  // AVARIC
 	slangAWA, // AWADHI
-	slangAY, // AYMARA
-	slangAZ, // AZERBAIJANI
-	slangBA, // BASHKIR
+	slangAY,  // AYMARA
+	slangAZ,  // AZERBAIJANI
+	slangBA,  // BASHKIR
 	slangBAD, // BANDA
 	slangBAI, // BAMILEKE LANGUAGE
 	slangBAL, // BALUCHI
 	slangBAN, // BALINESE
 	slangBAS, // BASAA
 	slangBAT, // BALTIC LANGUAGE
-	slangBE, // BELARUSIAN
+	slangBE,  // BELARUSIAN
 	slangBEJ, // BEJA
 	slangBEM, // BEMBA
 	slangBER, // BERBER
 	slangBEZ, // BENA
-	slangBG, // BULGARIAN
-	slangBH, // BIHARI
+	slangBG,  // BULGARIAN
+	slangBH,  // BIHARI
 	slangBHO, // BHOJPURI
-	slangBI, // BISLAMA
+	slangBI,  // BISLAMA
 	slangBIK, // BIKOL
 	slangBIN, // BINI
 	slangBLA, // SIKSIKA
-	slangBM, // BAMBARA
-	slangBN, // BENGALI
+	slangBM,  // BAMBARA
+	slangBN,  // BENGALI
 	slangBNT, // BANTU
-	slangBO, // TIBETAN
-	slangBR, // BRETON
+	slangBO,  // TIBETAN
+	slangBR,  // BRETON
 	slangBRA, // BRAJ
 	slangBRX, // BODO
-	slangBS, // BOSNIAN
+	slangBS,  // BOSNIAN
 	slangBTK, // BATAK
 	slangBUA, // BURIAT
 	slangBUG, // BUGINESE
 	slangBYN, // BLIN
-	slangCA, // CATALAN
+	slangCA,  // CATALAN
 	slangCAD, // CADDO
 	slangCAI, // CENTRAL AMERICAN INDIAN LANGUAGE
 	slangCAR, // CARIB
 	slangCAU, // CAUCASIAN LANGUAGE
 	slangCAY, // CAYUGA
 	slangCCH, // ATSAM
-	slangCE, // CHECHEN
+	slangCE,  // CHECHEN
 	slangCEB, // CEBUANO
 	slangCEL, // CELTIC LANGUAGE
 	slangCGG, // CHIGA
-	slangCH, // CHAMORRO
+	slangCH,  // CHAMORRO
 	slangCHB, // CHIBCHA
 	slangCHG, // CHAGATAI
 	slangCHK, // CHUUKESE
@@ -697,21 +697,21 @@ enum { // @persistent
 	slangCHR, // CHEROKEE
 	slangCHY, // CHEYENNE
 	slangCMC, // CHAMIC LANGUAGE
-	slangCO, // CORSICAN
+	slangCO,  // CORSICAN
 	slangCOP, // COPTIC
 	slangCPE, // ENGLISH-BASED CREOLE OR PIDGIN
 	slangCPF, // FRENCH-BASED CREOLE OR PIDGIN
 	slangCPP, // PORTUGUESE-BASED CREOLE OR PIDGIN
-	slangCR, // CREE
+	slangCR,  // CREE
 	slangCRH, // CRIMEAN TURKISH
 	slangCRP, // CREOLE OR PIDGIN
-	slangCS, // CZECH
+	slangCS,  // CZECH
 	slangCSB, // KASHUBIAN
-	slangCU, // CHURCH SLAVIC
+	slangCU,  // CHURCH SLAVIC
 	slangCUS, // CUSHITIC LANGUAGE
-	slangCV, // CHUVASH
-	slangCY, // WELSH
-	slangDA, // DANISH
+	slangCV,  // CHUVASH
+	slangCY,  // WELSH
+	slangDA,  // DANISH
 	slangDAK, // DAKOTA
 	slangDAR, // DARGWA
 	slangDAV, // TAITA
@@ -728,40 +728,40 @@ enum { // @persistent
 	slangDSB, // LOWER SORBIAN
 	slangDUA, // DUALA
 	slangDUM, // MIDDLE DUTCH
-	slangDV, // DIVEHI
+	slangDV,  // DIVEHI
 	slangDYO, // JOLA-FONYI
 	slangDYU, // DYULA
-	slangDZ, // DZONGKHA
+	slangDZ,  // DZONGKHA
 	slangEBU, // EMBU
-	slangEE, // EWE
+	slangEE,  // EWE
 	slangEFI, // EFIK
 	slangEGY, // ANCIENT EGYPTIAN
 	slangEKA, // EKAJUK
-	slangEL, // GREEK
+	slangEL,  // GREEK
 	slangELX, // ELAMITE
 	slangEN_AU, // AUSTRALIAN ENGLISH
 	slangEN_CA, // CANADIAN ENGLISH
 	slangEN_GB, // BRITISH ENGLISH
 	slangEN_US, // U.S. ENGLISH
 	slangENM, // MIDDLE ENGLISH
-	slangEO, // ESPERANTO
-	slangES, // SPANISH
+	slangEO,  // ESPERANTO
+	slangES,  // SPANISH
 	slangES_419, // LATIN AMERICAN SPANISH
 	slangES_ES, // IBERIAN SPANISH
-	slangET, // ESTONIAN
-	slangEU, // BASQUE
+	slangET,  // ESTONIAN
+	slangEU,  // BASQUE
 	slangEWO, // EWONDO
-	slangFA, // PERSIAN
+	slangFA,  // PERSIAN
 	slangFAN, // FANG
 	slangFAT, // FANTI
-	slangFF, // FULAH
-	slangFI, // FINNISH
+	slangFF,  // FULAH
+	slangFI,  // FINNISH
 	slangFIL, // FILIPINO
 	slangFIU, // FINNO-UGRIAN LANGUAGE
-	slangFJ, // FIJIAN
-	slangFO, // FAROESE
+	slangFJ,  // FIJIAN
+	slangFO,  // FAROESE
 	slangFON, // FON
-	slangFR, // FRENCH
+	slangFR,  // FRENCH
 	slangFR_CA, // CANADIAN FRENCH
 	slangFR_CH, // SWISS FRENCH
 	slangFRM, // MIDDLE FRENCH
@@ -769,18 +769,18 @@ enum { // @persistent
 	slangFRR, // NORTHERN FRISIAN
 	slangFRS, // EASTERN FRISIAN
 	slangFUR, // FRIULIAN
-	slangFY, // WESTERN FRISIAN
-	slangGA, // IRISH
+	slangFY,  // WESTERN FRISIAN
+	slangGA,  // IRISH
 	slangGAA, // GA
 	slangGAY, // GAYO
 	slangGBA, // GBAYA
-	slangGD, // SCOTTISH GAELIC
+	slangGD,  // SCOTTISH GAELIC
 	slangGEM, // GERMANIC LANGUAGE
 	slangGEZ, // GEEZ
 	slangGIL, // GILBERTESE
-	slangGL, // GALICIAN
+	slangGL,  // GALICIAN
 	slangGMH, // MIDDLE HIGH GERMAN
-	slangGN, // GUARANI
+	slangGN,  // GUARANI
 	slangGOH, // OLD HIGH GERMAN
 	slangGON, // GONDI
 	slangGOR, // GORONTALO
@@ -788,52 +788,52 @@ enum { // @persistent
 	slangGRB, // GREBO
 	slangGRC, // ANCIENT GREEK
 	slangGSW, // SWISS GERMAN
-	slangGU, // GUJARATI
+	slangGU,  // GUJARATI
 	slangGUZ, // GUSII
-	slangGV, // MANX
+	slangGV,  // MANX
 	slangGWI, // GWICH?IN
-	slangHA, // HAUSA
+	slangHA,  // HAUSA
 	slangHAI, // HAIDA
 	slangHAW, // HAWAIIAN
-	slangHE, // HEBREW
-	slangHI, // HINDI
+	slangHE,  // HEBREW
+	slangHI,  // HINDI
 	slangHIL, // HILIGAYNON
 	slangHIM, // HIMACHALI
 	slangHIT, // HITTITE
 	slangHMN, // HMONG
-	slangHO, // HIRI MOTU
-	slangHR, // CROATIAN
+	slangHO,  // HIRI MOTU
+	slangHR,  // CROATIAN
 	slangHSB, // UPPER SORBIAN
-	slangHT, // HAITIAN
-	slangHU, // HUNGARIAN
+	slangHT,  // HAITIAN
+	slangHU,  // HUNGARIAN
 	slangHUP, // HUPA
-	slangHY, // ARMENIAN
-	slangHZ, // HERERO
-	slangIA, // INTERLINGUA
+	slangHY,  // ARMENIAN
+	slangHZ,  // HERERO
+	slangIA,  // INTERLINGUA
 	slangIBA, // IBAN
-	slangID, // INDONESIAN
-	slangIE, // INTERLINGUE
-	slangIG, // IGBO
-	slangII, // SICHUAN YI
+	slangID,  // INDONESIAN
+	slangIE,  // INTERLINGUE
+	slangIG,  // IGBO
+	slangII,  // SICHUAN YI
 	slangIJO, // IJO
-	slangIK, // INUPIAQ
+	slangIK,  // INUPIAQ
 	slangILO, // ILOKO
 	slangINC, // INDIC LANGUAGE
 	slangINE, // INDO-EUROPEAN LANGUAGE
 	slangINH, // INGUSH
-	slangIO, // IDO
+	slangIO,  // IDO
 	slangIRA, // IRANIAN LANGUAGE
 	slangIRO, // IROQUOIAN LANGUAGE
-	slangIS, // ICELANDIC
-	slangIT, // ITALIAN
-	slangIU, // INUKTITUT
-	slangJA, // JAPANESE
+	slangIS,  // ICELANDIC
+	slangIT,  // ITALIAN
+	slangIU,  // INUKTITUT
+	slangJA,  // JAPANESE
 	slangJBO, // LOJBAN
 	slangJMC, // MACHAME
 	slangJPR, // JUDEO-PERSIAN
 	slangJRB, // JUDEO-ARABIC
-	slangJV, // JAVANESE
-	slangKA, // GEORGIAN
+	slangJV,  // JAVANESE
+	slangKA,  // GEORGIAN
 	slangKAA, // KARA-KALPAK
 	slangKAB, // KABYLE
 	slangKAC, // KACHIN
@@ -846,59 +846,59 @@ enum { // @persistent
 	slangKDE, // MAKONDE
 	slangKEA, // KABUVERDIANU
 	slangKFO, // KORO
-	slangKG, // KONGO
+	slangKG,  // KONGO
 	slangKHA, // KHASI
 	slangKHI, // KHOISAN LANGUAGE
 	slangKHO, // KHOTANESE
 	slangKHQ, // KOYRA CHIINI
-	slangKI, // KIKUYU
-	slangKJ, // KUANYAMA
-	slangKK, // KAZAKH
-	slangKL, // KALAALLISUT
+	slangKI,  // KIKUYU
+	slangKJ,  // KUANYAMA
+	slangKK,  // KAZAKH
+	slangKL,  // KALAALLISUT
 	slangKLN, // KALENJIN
-	slangKM, // KHMER
+	slangKM,  // KHMER
 	slangKMB, // KIMBUNDU
-	slangKN, // KANNADA
-	slangKO, // KOREAN
+	slangKN,  // KANNADA
+	slangKO,  // KOREAN
 	slangKOK, // KONKANI
 	slangKOS, // KOSRAEAN
 	slangKPE, // KPELLE
-	slangKR, // KANURI
+	slangKR,  // KANURI
 	slangKRC, // KARACHAY-BALKAR
 	slangKRL, // KARELIAN
 	slangKRO, // KRU
 	slangKRU, // KURUKH
-	slangKS, // KASHMIRI
+	slangKS,  // KASHMIRI
 	slangKSB, // SHAMBALA
 	slangKSF, // BAFIA
 	slangKSH, // COLOGNIAN
-	slangKU, // KURDISH
+	slangKU,  // KURDISH
 	slangKUM, // KUMYK
 	slangKUT, // KUTENAI
-	slangKV, // KOMI
-	slangKW, // CORNISH
-	slangKY, // KIRGHIZ
+	slangKV,  // KOMI
+	slangKW,  // CORNISH
+	slangKY,  // KIRGHIZ
 	slangLAD, // LADINO
 	slangLAG, // LANGI
 	slangLAH, // LAHNDA
 	slangLAM, // LAMBA
-	slangLB, // LUXEMBOURGISH
+	slangLB,  // LUXEMBOURGISH
 	slangLEZ, // LEZGHIAN
-	slangLG, // GANDA
-	slangLI, // LIMBURGISH
-	slangLN, // LINGALA
-	slangLO, // LAO
+	slangLG,  // GANDA
+	slangLI,  // LIMBURGISH
+	slangLN,  // LINGALA
+	slangLO,  // LAO
 	slangLOL, // MONGO
 	slangLOZ, // LOZI
-	slangLT, // LITHUANIAN
-	slangLU, // LUBA-KATANGA
+	slangLT,  // LITHUANIAN
+	slangLU,  // LUBA-KATANGA
 	slangLUA, // LUBA-LULUA
 	slangLUI, // LUISENO
 	slangLUN, // LUNDA
 	slangLUO, // LUO
 	slangLUS, // LUSHAI
 	slangLUY, // LUYIA
-	slangLV, // LATVIAN
+	slangLV,  // LATVIAN
 	slangMAD, // MADURESE
 	slangMAG, // MAGAHI
 	slangMAI, // MAITHILI
@@ -911,78 +911,78 @@ enum { // @persistent
 	slangMEN, // MENDE
 	slangMER, // MERU
 	slangMFE, // MORISYEN
-	slangMG, // MALAGASY
+	slangMG,  // MALAGASY
 	slangMGA, // MIDDLE IRISH
 	slangMGH, // MAKHUWA-MEETTO
-	slangMH, // MARSHALLESE
-	slangMI, // MAORI
+	slangMH,  // MARSHALLESE
+	slangMI,  // MAORI
 	slangMIC, // MICMAC
 	slangMIN, // MINANGKABAU
 	slangMIS, // MISCELLANEOUS LANGUAGE
-	slangMK, // MACEDONIAN
+	slangMK,  // MACEDONIAN
 	slangMKH, // MON-KHMER LANGUAGE
-	slangML, // MALAYALAM
-	slangMN, // MONGOLIAN
+	slangML,  // MALAYALAM
+	slangMN,  // MONGOLIAN
 	slangMNC, // MANCHU
 	slangMNI, // MANIPURI
 	slangMNO, // MANOBO LANGUAGE
-	slangMO, // MOLDAVIAN
+	slangMO,  // MOLDAVIAN
 	slangMOH, // MOHAWK
 	slangMOS, // MOSSI
-	slangMR, // MARATHI
-	slangMS, // MALAY
-	slangMT, // MALTESE
+	slangMR,  // MARATHI
+	slangMS,  // MALAY
+	slangMT,  // MALTESE
 	slangMUA, // MUNDANG
 	slangMUL, // MULTIPLE LANGUAGES
 	slangMUN, // MUNDA LANGUAGE
 	slangMUS, // CREEK
 	slangMWL, // MIRANDESE
 	slangMWR, // MARWARI
-	slangMY, // BURMESE
+	slangMY,  // BURMESE
 	slangMYN, // MAYAN LANGUAGE
 	slangMYV, // ERZYA
-	slangNA, // NAURU
+	slangNA,  // NAURU
 	slangNAH, // NAHUATL
 	slangNAI, // NORTH AMERICAN INDIAN LANGUAGE
 	slangNAP, // NEAPOLITAN
 	slangNAQ, // NAMA
-	slangNB, // NORWEGIAN BOKMAL
-	slangND, // NORTH NDEBELE
+	slangNB,  // NORWEGIAN BOKMAL
+	slangND,  // NORTH NDEBELE
 	slangNDS, // LOW GERMAN
-	slangNE, // NEPALI
+	slangNE,  // NEPALI
 	slangNEW, // NEWARI
-	slangNG, // NDONGA
+	slangNG,  // NDONGA
 	slangNIA, // NIAS
 	slangNIC, // NIGER-KORDOFANIAN LANGUAGE
 	slangNIU, // NIUEAN
-	slangNL, // DUTCH
+	slangNL,  // DUTCH
 	slangNL_BE, // FLEMISH
 	slangNMG, // KWASIO
-	slangNN, // NORWEGIAN NYNORSK
-	slangNO, // NORWEGIAN
+	slangNN,  // NORWEGIAN NYNORSK
+	slangNO,  // NORWEGIAN
 	slangNOG, // NOGAI
 	slangNON, // OLD NORSE
 	slangNQO, // N’KO
-	slangNR, // SOUTH NDEBELE
+	slangNR,  // SOUTH NDEBELE
 	slangNSO, // NORTHERN SOTHO
 	slangNUB, // NUBIAN LANGUAGE
 	slangNUS, // NUER
-	slangNV, // NAVAJO
+	slangNV,  // NAVAJO
 	slangNWC, // CLASSICAL NEWARI
-	slangNY, // NYANJA
+	slangNY,  // NYANJA
 	slangNYM, // NYAMWEZI
 	slangNYN, // NYANKOLE
 	slangNYO, // NYORO
 	slangNZI, // NZIMA
-	slangOC, // OCCITAN
-	slangOJ, // OJIBWA
-	slangOM, // OROMO
-	slangOR, // ORIYA
-	slangOS, // OSSETIC
+	slangOC,  // OCCITAN
+	slangOJ,  // OJIBWA
+	slangOM,  // OROMO
+	slangOR,  // ORIYA
+	slangOS,  // OSSETIC
 	slangOSA, // OSAGE
 	slangOTA, // OTTOMAN TURKISH
 	slangOTO, // OTOMIAN LANGUAGE
-	slangPA, // PUNJABI
+	slangPA,  // PUNJABI
 	slangPAA, // PAPUAN LANGUAGE
 	slangPAG, // PANGASINAN
 	slangPAL, // PAHLAVI
@@ -992,30 +992,30 @@ enum { // @persistent
 	slangPEO, // OLD PERSIAN
 	slangPHI, // PHILIPPINE LANGUAGE
 	slangPHN, // PHOENICIAN
-	slangPI, // PALI
-	slangPL, // POLISH
+	slangPI,  // PALI
+	slangPL,  // POLISH
 	slangPON, // POHNPEIAN
 	slangPRA, // PRAKRIT LANGUAGE
 	slangPRO, // OLD PROVENCAL
-	slangPS, // PASHTO
-	slangPT, // PORTUGUESE
+	slangPS,  // PASHTO
+	slangPT,  // PORTUGUESE
 	slangPT_BR, // BRAZILIAN PORTUGUESE
 	slangPT_PT, // IBERIAN PORTUGUESE
-	slangQU, // QUECHUA
+	slangQU,  // QUECHUA
 	slangRAJ, // RAJASTHANI
 	slangRAP, // RAPANUI
 	slangRAR, // RAROTONGAN
-	slangRM, // ROMANSH
-	slangRN, // RUNDI
-	slangRO, // ROMANIAN
+	slangRM,  // ROMANSH
+	slangRN,  // RUNDI
+	slangRO,  // ROMANIAN
 	slangROA, // ROMANCE LANGUAGE
 	slangROF, // ROMBO
 	slangROM, // ROMANY
 	slangROOT, // ROOT
 	slangRUP, // AROMANIAN
-	slangRW, // KINYARWANDA
+	slangRW,  // KINYARWANDA
 	slangRWK, // RWA
-	slangSA, // SANSKRIT
+	slangSA,  // SANSKRIT
 	slangSAD, // SANDAWE
 	slangSAH, // SAKHA
 	slangSAI, // SOUTH AMERICAN INDIAN LANGUAGE
@@ -1025,138 +1025,138 @@ enum { // @persistent
 	slangSAS, // SASAK
 	slangSAT, // SANTALI
 	slangSBP, // SANGU
-	slangSC, // SARDINIAN
+	slangSC,  // SARDINIAN
 	slangSCN, // SICILIAN
 	slangSCO, // SCOTS
-	slangSD, // SINDHI
-	slangSE, // NORTHERN SAMI
+	slangSD,  // SINDHI
+	slangSE,  // NORTHERN SAMI
 	slangSEE, // SENECA
 	slangSEH, // SENA
 	slangSEL, // SELKUP
 	slangSEM, // SEMITIC LANGUAGE
 	slangSES, // KOYRABORO SENNI
-	slangSG, // SANGO
+	slangSG,  // SANGO
 	slangSGA, // OLD IRISH
 	slangSGN, // SIGN LANGUAGE
-	slangSH, // SERBO-CROATIAN
+	slangSH,  // SERBO-CROATIAN
 	slangSHI, // TACHELHIT
 	slangSHN, // SHAN
-	slangSI, // SINHALA
+	slangSI,  // SINHALA
 	slangSID, // SIDAMO
 	slangSIO, // SIOUAN LANGUAGE
 	slangSIT, // SINO-TIBETAN LANGUAGE
-	slangSK, // SLOVAK
-	slangSL, // SLOVENIAN
+	slangSK,  // SLOVAK
+	slangSL,  // SLOVENIAN
 	slangSLA, // SLAVIC LANGUAGE
-	slangSM, // SAMOAN
+	slangSM,  // SAMOAN
 	slangSMA, // SOUTHERN SAMI
 	slangSMI, // SAMI LANGUAGE
 	slangSMJ, // LULE SAMI
 	slangSMN, // INARI SAMI
 	slangSMS, // SKOLT SAMI
-	slangSN, // SHONA
+	slangSN,  // SHONA
 	slangSNK, // SONINKE
-	slangSO, // SOMALI
+	slangSO,  // SOMALI
 	slangSOG, // SOGDIEN
 	slangSON, // SONGHAI
-	slangSQ, // ALBANIAN
-	slangSR, // SERBIAN
+	slangSQ,  // ALBANIAN
+	slangSR,  // SERBIAN
 	slangSRN, // SRANAN TONGO
 	slangSRR, // SERER
-	slangSS, // SWATI
+	slangSS,  // SWATI
 	slangSSA, // NILO-SAHARAN LANGUAGE
 	slangSSY, // SAHO
-	slangST, // SOUTHERN SOTHO
-	slangSU, // SUNDANESE
+	slangST,  // SOUTHERN SOTHO
+	slangSU,  // SUNDANESE
 	slangSUK, // SUKUMA
 	slangSUS, // SUSU
 	slangSUX, // SUMERIAN
-	slangSV, // SWEDISH
-	slangSW, // SWAHILI
+	slangSV,  // SWEDISH
+	slangSW,  // SWAHILI
 	slangSWB, // COMORIAN
 	slangSWC, // CONGO SWAHILI
 	slangSYC, // CLASSICAL SYRIAC
 	slangSYR, // SYRIAC
-	slangTA, // TAMIL
+	slangTA,  // TAMIL
 	slangTAI, // TAI LANGUAGE
-	slangTE, // TELUGU
+	slangTE,  // TELUGU
 	slangTEM, // TIMNE
 	slangTEO, // TESO
 	slangTER, // TERENO
 	slangTET, // TETUM
-	slangTG, // TAJIK
-	slangTH, // THAI
-	slangTI, // TIGRINYA
+	slangTG,  // TAJIK
+	slangTH,  // THAI
+	slangTI,  // TIGRINYA
 	slangTIG, // TIGRE
 	slangTIV, // TIV
-	slangTK, // TURKMEN
+	slangTK,  // TURKMEN
 	slangTKL, // TOKELAU
-	slangTL, // TAGALOG
+	slangTL,  // TAGALOG
 	slangTLH, // KLINGON
 	slangTLI, // TLINGIT
 	slangTMH, // TAMASHEK
-	slangTN, // TSWANA
-	slangTO, // TONGAN
+	slangTN,  // TSWANA
+	slangTO,  // TONGAN
 	slangTOG, // NYASA TONGA
 	slangTPI, // TOK PISIN
-	slangTR, // TURKISH
+	slangTR,  // TURKISH
 	slangTRV, // TAROKO
-	slangTS, // TSONGA
+	slangTS,  // TSONGA
 	slangTSI, // TSIMSHIAN
-	slangTT, // TATAR
+	slangTT,  // TATAR
 	slangTUM, // TUMBUKA
 	slangTUP, // TUPI LANGUAGE
 	slangTUT, // ALTAIC LANGUAGE
 	slangTVL, // TUVALU
-	slangTW, // TWI
+	slangTW,  // TWI
 	slangTWQ, // TASAWAQ
-	slangTY, // TAHITIAN
+	slangTY,  // TAHITIAN
 	slangTYV, // TUVINIAN
 	slangTZM, // CENTRAL MOROCCO TAMAZIGHT
 	slangUDM, // UDMURT
-	slangUG, // UIGHUR
+	slangUG,  // UIGHUR
 	slangUGA, // UGARITIC
-	slangUK, // UKRAINIAN
+	slangUK,  // UKRAINIAN
 	slangUMB, // UMBUNDU
 	slangUND, // UNKNOWN LANGUAGE
-	slangUR, // URDU
-	slangUZ, // UZBEK
+	slangUR,  // URDU
+	slangUZ,  // UZBEK
 	slangVAI, // VAI
-	slangVE, // VENDA
-	slangVI, // VIETNAMESE
-	slangVO, // VOLAPUK
+	slangVE,  // VENDA
+	slangVI,  // VIETNAMESE
+	slangVO,  // VOLAPUK
 	slangVOT, // VOTIC
 	slangVUN, // VUNJO
-	slangWA, // WALLOON
+	slangWA,  // WALLOON
 	slangWAE, // WALSER
 	slangWAK, // WAKASHAN LANGUAGE
 	slangWAL, // WALAMO
 	slangWAR, // WARAY
 	slangWAS, // WASHO
 	slangWEN, // SORBIAN LANGUAGE
-	slangWO, // WOLOF
+	slangWO,  // WOLOF
 	slangXAL, // KALMYK
-	slangXH, // XHOSA
+	slangXH,  // XHOSA
 	slangXOG, // SOGA
 	slangYAO, // YAO
 	slangYAP, // YAPESE
 	slangYAV, // YANGBEN
-	slangYI, // YIDDISH
-	slangYO, // YORUBA
+	slangYI,  // YIDDISH
+	slangYO,  // YORUBA
 	slangYPK, // YUPIK LANGUAGE
 	slangYUE, // CANTONESE
-	slangZA, // ZHUANG
+	slangZA,  // ZHUANG
 	slangZAP, // ZAPOTEC
 	slangZBL, // BLISSYMBOLS
 	slangZEN, // ZENAGA
-	slangZH, // CHINESE
+	slangZH,  // CHINESE
 	slangZH_HANS, // SIMPLIFIED CHINESE
 	slangZH_HANT, // TRADITIONAL CHINESE
 	slangZND, // ZANDE
-	slangZU, // ZULU
+	slangZU,  // ZULU
 	slangZUN, // ZUNI
 	slangZXX, // NO LINGUISTIC CONTENT
-	slangZZA // ZAZA
+	slangZZA  // ZAZA
 };
 //
 // Descr: Идентификаторы натуральных скриптов
@@ -1190,43 +1190,43 @@ enum {
 	snscriptTibetan,
 	snscriptMyanmar,
 	snscriptGeorgian,
-    snscriptHangul,   // Хангыль Корейский алфавит
-    snscriptEthiopic,
-    snscriptCherokee,
-    snscriptMongolian,
-    snscriptKhmer,
-    snscriptLimbu,
-    snscriptBuginese,
-    snscriptBalinese,
-    snscriptSundanese,
-    snscriptBatak,
-    snscriptLepcha,
-    snscriptHiragana,
-    snscriptKatakana,
-    snscriptBopomofo,
-    snscriptKharoshthi,
-    snscriptManichaean,
-    snscriptAvestan,
-    snscriptBrahmi,
-    snscriptKaithi,
-    snscriptChakma,
-    snscriptMahajani,
-    snscriptSharada,
-    snscriptKhojki,
-    snscriptGlagolitic,
-    snscriptCanadianSyllabics,
-    snscriptTaiLe,
-    snscriptNewTaiLue,
-    snscriptTaiTham,
-    snscriptTaiViet,
-    snscriptGothic,
-    snscriptUgaritic,
-    snscriptMathematical,
-    snscriptArabicMathematical,
-    snscriptYi,
-    snscriptCJK,
-    snscriptSquaredCJK,
-    snscriptBoxDrawings
+	snscriptHangul,   // Хангыль Корейский алфавит
+	snscriptEthiopic,
+	snscriptCherokee,
+	snscriptMongolian,
+	snscriptKhmer,
+	snscriptLimbu,
+	snscriptBuginese,
+	snscriptBalinese,
+	snscriptSundanese,
+	snscriptBatak,
+	snscriptLepcha,
+	snscriptHiragana,
+	snscriptKatakana,
+	snscriptBopomofo,
+	snscriptKharoshthi,
+	snscriptManichaean,
+	snscriptAvestan,
+	snscriptBrahmi,
+	snscriptKaithi,
+	snscriptChakma,
+	snscriptMahajani,
+	snscriptSharada,
+	snscriptKhojki,
+	snscriptGlagolitic,
+	snscriptCanadianSyllabics,
+	snscriptTaiLe,
+	snscriptNewTaiLue,
+	snscriptTaiTham,
+	snscriptTaiViet,
+	snscriptGothic,
+	snscriptUgaritic,
+	snscriptMathematical,
+	snscriptArabicMathematical,
+	snscriptYi,
+	snscriptCJK,
+	snscriptSquaredCJK,
+	snscriptBoxDrawings
 };
 //
 // Descr: Возвращает идентификатор языка по международному коду pSymb.
@@ -2151,7 +2151,7 @@ public:
 		cmprSureFalse     = 0,  // Значения точно не равны
 		cmprUncertainTrue = 2   // Значения равны с учетом того, что их точности различны ("5 июня 2018" vs "июнь 2018" например)
 	};
-	int    FASTCALL IsEq(const SUniTime & rS) const; // @construction
+	int    FASTCALL IsEqual(const SUniTime & rS) const; // @construction
 private:
 	int    Implement_Set(uint8 signature, const void *);
 	uint8  Implement_Get(void *) const;
@@ -2598,7 +2598,7 @@ typedef int32 TYPEID;
 #define BTS_TIME             5    // 4 byte LTIME
 #define BTS_DATETIME         6    // 8 byte LDATETIME
 #define BTS_POINT2           7    // 16 byte RPoint
-#define BTS_BOOL             8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но испольузется в локальных ситуациях.
+#define BTS_BOOL             8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но используется в локальных ситуациях.
 #define BTS_PTR              9    // Указатель. Важно, что размер его зависим от архитектуры (4 или 8 байт)
 #define BTS_INT64_          10    // 8 byte integer. Не является базовым типом. Определен для использования в DBConst
 //
@@ -4327,7 +4327,7 @@ struct SVerT { // @persistent Size=4
 	void   Set(uint32);
 	int    IsLt(int, int, int) const;
 	int    IsGt(int, int, int) const;
-	int    IsEq(int, int, int) const;
+	int    IsEqual(int, int, int) const;
 	int    FASTCALL Cmp(const SVerT *) const;
 	SString FASTCALL ToStr(SString & rBuf) const;
 	//
@@ -4795,23 +4795,22 @@ public:
 	static int FASTCALL Print(char ** outbuf, int * outbuf_size, double value, int format_char, uint  format_flags, int format_width, int format_precision);
 	//
 	// Descr: Convert string to IEEE 754 floating-point double precision value
-	// @param  input          Input buffer, C-style string. Filled by caller.
-	// @param  input_end      Address of pointer to end of scanned value in input buffer.
-	//   Filled by function if address is not NULL.
-	// @param  output         Conversion result (IEEE 754 floating-point double precision).
+	//   In general, interface of this function is similar to strtod(3), except for returning overflow
+	//   condition instead of setting errno. If you want just to convert C-style string to double with
+	//   error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
+	//   condition as an indication of successful conversion.
+	// ARG(pInput     IN): Input buffer, C-style string
+	// ARG(ppInputEnd OUT): @#{vptr0} Address of pointer to end of scanned value in input buffer
+	// ARG(pOutput    OUT): Conversion result (IEEE 754 floating-point double precision).
 	//   Set to 0.0 if string in input buffer has syntax errors.
-	// @param  output_erange  Address of overflow/underflow flag variable, filled by function.
+	// ARG(pOutputERange OUT): Address of overflow/underflow flag variable, filled by function.
 	//   0  if there is no overflow/underflow condition
 	//   1  if there is overflow/underflow condition: strtod(3) would set errno = ERANGE
-	// @returns  1  if there were no internal errors
+	// Returns:
+	//   1  if there were no internal errors
 	//   0  if there was internal error during conversion.
 	//
-	// In general, interface of this function is similar to strtod(3), except for returning overflow
-	// condition instead of setting errno. If you want just to convert C-style string to double with
-	// error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
-	// condition as an indication of successful conversion.
-	//
-	static int FASTCALL Scan(const char * input, const char ** input_end, double * output, int * output_erange);
+	static int FASTCALL Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange);
 };
 
 char * FASTCALL realfmt(double val, long fmt, char * pBuf);
@@ -7141,6 +7140,14 @@ public:
 	long   FASTCALL Count(long key) const;
 	int    GetListByKey(long key, LongArray & rList) const;
 	int    GetListByVal(long val, LongArray & rList) const;
+	//
+	// Descr: Возвращает упорядоченный уникальный список ключей (Key)
+	//
+	int    GetKeyList(LongArray & rList) const;
+	//
+	// Descr: Возвращает упорядоченный уникальный список значений (Val)
+	//
+	int    GetValList(LongArray & rList) const;
 	int    Add(long key, long val);
 	int    Add(long key, long val, uint * pPos, int inOrder = 0);
 	int    AddUnique(long key, long val, uint * pPos, int inOrder = 0);
@@ -7189,8 +7196,22 @@ public:
 	int    SearchByVal(long val, long * pKey, uint * pPos) const;
 	int    SearchPair(long key, long val, uint * pPos) const;
 	int    CheckFlag(long key, long mask, int binary = 0) const;
+	//
+	// Descr: Сортирует массив по ключу (Key) в возрастающем порядке.
+	//
 	void   Sort();
+	//
+	// Descr: Сортирует массив по значению (Val) в возрастающем порядке.
+	//
 	void   SortByVal();
+	//
+	// Descr: Сортирует массив по паре {Key; Val} в возрастающем порядке.
+	//
+	void   SortByKeyVal();
+	//
+	// Descr: Сортирует массив по паре {Val; Key} в возрастающем порядке.
+	//
+	void   SortByValKey();
 };
 //
 //
@@ -8557,7 +8578,6 @@ private:
 	TSVector <Token> L;
 	TSVector <CToken> CL;
 	TSCollection <ResourceIndexItem> * P_ResourceIndex;
-	//
 	SString  AddTokenBuf;      // @allocreuse Для ускорения AddToken()
 	TSVector <uint16> TokenBuf; // @allocreuse Для ускорения Run()
 	SStringU DelimU; // Для входящего потока в UTF-формате список разделителей должен быть в Unicode-формате
@@ -8721,11 +8741,11 @@ struct SFileSortProgressData {
 	SFileSortProgressData();
 	const  char * P_SrcFileName;
 	int64  TotalFileSize;
-	int    Phase; // 1 - splitting, 2 - merging
-	int64  SplitBytesRead; // Количество байт считанных на фазе сплиттинга
+	int    Phase;            // 1 - splitting, 2 - merging
+	int64  SplitBytesRead;   // Количество байт считанных на фазе сплиттинга
 	int    SplitThreadCount; // Количество потоков, осуществляющих сплиттинг
-	uint   MergeChunkCount; // Начальное количество блоков для слияния
-	uint   MergeChunkLeft;  // Оставшееся число не слитых блоков
+	uint   MergeChunkCount;  // Начальное количество блоков для слияния
+	uint   MergeChunkLeft;   // Оставшееся число не слитых блоков
 	const void * ExtraPtr;
 };
 
@@ -8988,7 +9008,7 @@ public:
 		tZLib = 1,
 		tLz4  = 2
 	};
-	SCompressor(int type);
+	explicit SCompressor(int type);
 	~SCompressor();
 	int    SetMaxTempBufSize(size_t sz);
 	size_t GetMaxTempBufSize() const { return MaxTempBufSize; }
@@ -11504,6 +11524,7 @@ struct FRect { // @persistent
 	//   Если ширина равна нулю, то возвращает SMathConst::Max.
 	//
 	double Ratio() const;
+	FRect & FASTCALL Union(const FRect & rR);
 
 	FPoint a;
 	FPoint b;
@@ -14548,16 +14569,16 @@ private:
 class SZIndex2 {
 public:
 	struct P16 {
-        uint16 X;
-        uint16 Y;
+		uint16 X;
+		uint16 Y;
 	};
 	struct R16 {
 		P16    LU;
 		P16    RL;
 	};
-    static uint32 FASTCALL Combine(uint16 x, uint16 y);
-    static uint32 FASTCALL Combine(const P16 & rP) { return Combine(rP.X, rP.Y); }
-    static uint64 FASTCALL Combine(uint32 x, uint32 y);
+	static uint32 FASTCALL Combine(uint16 x, uint16 y);
+	static uint32 FASTCALL Combine(const P16 & rP) { return Combine(rP.X, rP.Y); }
+	static uint64 FASTCALL Combine(uint32 x, uint32 y);
 };
 //
 //
@@ -14594,19 +14615,19 @@ public:
 	void   SetSrcCountLat(uint64 c);
 	void   SetSrcCountLon(uint64 c);
 	uint   GetDim() const;
-    uint   GetDensityLat() const;
-    uint   GetDensityLon() const;
-    int    FASTCALL AddThresholdLat(long coord);
-    int    FASTCALL AddThresholdLon(long coord);
-    uint   GetCountLat() const;
-    uint   GetCountLon() const;
+	uint   GetDensityLat() const;
+	uint   GetDensityLon() const;
+	int    FASTCALL AddThresholdLat(long coord);
+	int    FASTCALL AddThresholdLon(long coord);
+	uint   GetCountLat() const;
+	uint   GetCountLon() const;
 	//
 	int    Save(const char * pFileName);
 	int    Load(const char * pFileName);
 private:
-    uint   Dim; // Размерность решетки (бит)
-    uint64 SrcCountLat;
-    uint64 SrcCountLon;
+	uint   Dim; // Размерность решетки (бит)
+	uint64 SrcCountLat;
+	uint64 SrcCountLon;
 	LongArray LatIdx;
 	LongArray LonIdx;
 };

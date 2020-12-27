@@ -60,6 +60,11 @@
 		#define NTDDI_VERSION NTDDI_WIN7
 	#endif
 	#define _CRT_SECURE_NO_WARNINGS
+	// @v10.9.10 {
+	#if (_MSC_VER >= 1928)
+		#define WINDOWS_IGNORE_PACKING_MISMATCH
+	#endif
+	// } @v10.9.10 
 #endif
 #define __STDC_LIMIT_MACROS // @v10.5.4
 

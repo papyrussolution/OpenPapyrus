@@ -544,7 +544,7 @@ int TimSerSpikes::Init(int sign)
 	Sign = sign;
 	Count = 0;
 	MEMSZERO(Prev);
-	P_Spikes = new SVector(sizeof(Spike)); // @v9.8.12 SArray-->SVector
+	P_Spikes = new SVector(sizeof(Spike));
 	return P_Spikes ? 1 : (SLibError = SLERR_NOMEM, 0);
 }
 
@@ -883,7 +883,7 @@ int STimeSeries::SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) c
 	int    ok = 0;
 	for(uint i = startPos; !ok && i < T.getCount(); i++) {
 		const SUniTime & r_ut = T.at(i);
-		int cr = r_ut.IsEq(rUt);
+		int cr = r_ut.IsEqual(rUt);
 		if(oneof2(cr, SUniTime::cmprSureTrue, SUniTime::cmprUncertainTrue)) {
 			ASSIGN_PTR(pIdx, i);
 			ok = cr;
@@ -898,7 +898,7 @@ int STimeSeries::SearchFirstEntrySince(const SUniTime & rSince, uint * pIdx) con
 	for(uint i = 0; !ok && i < T.getCount(); i++) {
 		const SUniTime & r_ut = T.at(i);
 		int    sq;
-		int    si = r_ut.Compare(rSince, &sq);
+		const  int si = r_ut.Compare(rSince, &sq);
 		if(si >= 0 && oneof2(sq, SUniTime::cqSure, SUniTime::cqUncertain)) {
 			ASSIGN_PTR(pIdx, i);
 			ok = 1;
@@ -913,7 +913,7 @@ int STimeSeries::SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * 
 	uint   i = startPos;
 	if(i) do {
 		const SUniTime & r_ut = T.at(--i);
-		int cr = r_ut.IsEq(rUt);
+		const int cr = r_ut.IsEqual(rUt);
 		if(oneof2(cr, SUniTime::cmprSureTrue, SUniTime::cmprUncertainTrue)) {
 			ASSIGN_PTR(pIdx, i);
 			ok = cr;

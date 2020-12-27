@@ -3122,7 +3122,7 @@ int FASTCALL SUniTime::Compare(const SUniTime & rS, int * pQualification) const
 	return result;
 }
 
-int FASTCALL SUniTime::IsEq(const SUniTime & rS) const
+int FASTCALL SUniTime::IsEqual(const SUniTime & rS) const
 {
 	int   cq = 0;
 	int   result = Compare(rS, &cq);

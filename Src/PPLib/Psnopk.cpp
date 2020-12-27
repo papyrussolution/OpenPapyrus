@@ -26,15 +26,6 @@ typedef TSArray <PoClause_Pre780> PoClauseArray_Pre780;
 PoClause_Pre780::PoClause_Pre780() : Num(0), VerbID(0), Subj(0), DirObj(0), Flags(0)
 {
 }
-
-struct VerbObjAssoc {
-	enum {
-		fAllowCmdText = 0x0001
-	};
-	int16  Verb;
-	int16  ObjType;
-	uint16 Flags;
-};
 //
 //
 //
@@ -180,6 +171,16 @@ int PoClauseArray_::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 //
 //
 //
+struct VerbObjAssoc {
+	enum {
+		fAllowCmdText = 0x0001
+	};
+	int16  Verb;
+	int16  ObjType;
+	uint16 Flags;
+	uint16 Reserve; // @alignment
+};
+
 static const VerbObjAssoc __VerbObjAssocList[] = {
 	{ POVERB_ASSIGNKIND,       PPOBJ_PRSNKIND, 0},
 	{ POVERB_REVOKEKIND,       PPOBJ_PRSNKIND, 0},
@@ -237,7 +238,7 @@ PPID PoClause_::GetDirObjType() const
 	PPID   obj_type = 0;
 	if(VerbID)
 		for(uint i = 0; !obj_type && i < SIZEOFARRAY(__VerbObjAssocList); i++) {
-			if(__VerbObjAssocList[i].Verb == (int16)VerbID)
+			if(__VerbObjAssocList[i].Verb == static_cast<int16>(VerbID))
 				obj_type = __VerbObjAssocList[i].ObjType;
 		}
 	return obj_type;
@@ -248,7 +249,7 @@ long PoClause_::GetDirFlags() const
 	long   flags = 0;
 	if(VerbID)
 		for(uint i = 0; i < SIZEOFARRAY(__VerbObjAssocList); i++) {
-			if(__VerbObjAssocList[i].Verb == (int16)VerbID) {
+			if(__VerbObjAssocList[i].Verb == static_cast<int16>(VerbID)) {
 				flags = static_cast<long>(__VerbObjAssocList[i].Flags);
 				break;
 			}
@@ -1164,7 +1165,7 @@ int PsnOpExVDialog::addItem(long * pPos, long * pID)
 		ok = 1;
 	}
 	ASSIGN_PTR(pID, tag_id);
-	ASSIGN_PTR(pPos, (long)Data.AllowedTags.GetCount() - 1);
+	ASSIGN_PTR(pPos, static_cast<long>(Data.AllowedTags.GetCount()) - 1);
 	return ok;
 }
 
@@ -1195,22 +1196,23 @@ void PsnOpExVDialog::disableTagsList(int disable)
 //
 //
 class PsnOpDialog : public TDialog {
+	DECL_DIALOG_DATA(PPPsnOpKindPacket);
 public:
 	PsnOpDialog() : TDialog(DLG_PSNOPK)
 	{
 	}
-	int    setDTS(const PPPsnOpKindPacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		ushort v = 0;
 		PsnOpKindFilt psnopk_filt(PsnOpKindFilt::tShowGroups);
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_PSNOPK_NAME, Data.Rec.Name);
 		SetupPPObjCombo(this, CTLSEL_PSNOPK_PAIR, PPOBJ_PERSONOPKIND, Data.Rec.PairOp, 0);
 		SetupPPObjCombo(this, CTLSEL_PSNOPK_REGTYP, PPOBJ_REGISTERTYPE, Data.Rec.RegTypeID, OLW_CANINSERT);
 		SetupPPObjCombo(this, CTLSEL_PSNOPK_PARENT,  PPOBJ_PERSONOPKIND, Data.Rec.ParentID, OLW_CANSELUPLEVEL, &psnopk_filt);
-		SetupPPObjCombo(this, CTLSEL_PSNOPK_RSC, PPOBJ_STAFFCAL, Data.Rec.RestrStaffCalID, 0); // @v8.0.10
-		setCtrlData(CTL_PSNOPK_RSCMAXTIMES, &Data.Rec.RscMaxTimes); // @v8.0.10
+		SetupPPObjCombo(this, CTLSEL_PSNOPK_RSC, PPOBJ_STAFFCAL, Data.Rec.RestrStaffCalID, 0);
+		setCtrlData(CTL_PSNOPK_RSCMAXTIMES, &Data.Rec.RscMaxTimes);
 		AddClusterAssoc(CTL_PSNOPK_FLAGS, 0, POKF_UNIQUE);
 		AddClusterAssoc(CTL_PSNOPK_FLAGS, 1, POKF_BINDING);
 		SetClusterData(CTL_PSNOPK_FLAGS, Data.Rec.Flags);
@@ -1226,14 +1228,14 @@ public:
 			enableCommand(cmPsnOpkExtraObj, 0);
 			enableCommand(cmPsnOpkActl,     0);
 		}
-		setCtrlLong(CTL_PSNOPK_REDOTIMEOUT, Data.Rec.RedoTimeout); // @v7.9.0
+		setCtrlLong(CTL_PSNOPK_REDOTIMEOUT, Data.Rec.RedoTimeout);
 		{
 			SString temp_buf;
 			setStaticText(CTL_PSNOPK_ID, temp_buf.Cat(Data.Rec.ID));
 		}
 		return ok;
 	}
-	int    getDTS(PPPsnOpKindPacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		ushort v = 0;
@@ -1260,26 +1262,25 @@ private:
 	DECL_HANDLE_EVENT;
 	int    editPsnConstr(int scnd /* !scnd == prmr */);
 	int    editExtraVal();
-
-	PPPsnOpKindPacket Data;
 };
 
 int PsnOpDialog::editPsnConstr(int scnd)
 {
 	class PsnConstrDialog : public TDialog {
+		DECL_DIALOG_DATA(PPPsnOpKindPacket::PsnConstr);
 	public:
 		explicit PsnConstrDialog(int scnd) : TDialog(scnd ? DLG_PSNOPKSC : DLG_PSNOPKPC), Scnd(scnd)
 		{
 		}
-		int    setDTS(const PPPsnOpKindPacket::PsnConstr * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			data = *pData;
-			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_KIND, PPOBJ_PRSNKIND, data.PersonKindID, OLW_CANINSERT);
-			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_RTAG, PPOBJ_TAG, data.RestrictTagID, 0);
-			ushort v = data.StatusType;
+			RVALUEPTR(Data, pData);
+			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_KIND, PPOBJ_PRSNKIND, Data.PersonKindID, OLW_CANINSERT);
+			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_RTAG, PPOBJ_TAG, Data.RestrictTagID, 0);
+			ushort v = Data.StatusType;
 			setCtrlData(CTL_PSNOPKPC_STATUSTYP, &v);
 			if(Scnd)
-	   			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_DEFAULT, PPOBJ_PERSON, data.DefaultID, 0, reinterpret_cast<void *>(data.PersonKindID));
+	   			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_DEFAULT, PPOBJ_PERSON, Data.DefaultID, 0, reinterpret_cast<void *>(Data.PersonKindID));
 			{
 				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_PSNOPKPC_SCSLIST));
 				if(p_box) {
@@ -1289,18 +1290,18 @@ int PsnOpDialog::editPsnConstr(int scnd)
 			}
 			return 1;
 		}
-		int    getDTS(PPPsnOpKindPacket::PsnConstr * pc)
+		DECL_DIALOG_GETDTS()
 		{
 			ushort v = 0;
-			getCtrlData(CTLSEL_PSNOPKPC_KIND,   &data.PersonKindID);
-			getCtrlData(CTLSEL_PSNOPKPC_RTAG,   &data.RestrictTagID);
+			getCtrlData(CTLSEL_PSNOPKPC_KIND,   &Data.PersonKindID);
+			getCtrlData(CTLSEL_PSNOPKPC_RTAG,   &Data.RestrictTagID);
 			getCtrlData(CTL_PSNOPKPC_STATUSTYP, &v);
-			data.StatusType = v;
+			Data.StatusType = v;
 			if(Scnd)
-				getCtrlData(CTLSEL_PSNOPKPC_DEFAULT, &data.DefaultID);
+				getCtrlData(CTLSEL_PSNOPKPC_DEFAULT, &Data.DefaultID);
 			else
-				data.DefaultID = 0;
-			*pc = data;
+				Data.DefaultID = 0;
+			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
 	private:
@@ -1315,9 +1316,9 @@ int PsnOpDialog::editPsnConstr(int scnd)
 				if(p_box) {
 					PPIDArray scs_list;
 					ListToListData l2l(PPOBJ_SCARDSERIES, 0, &scs_list);
-					l2l.Flags |= ListToListData::fIsTreeList; // @v9.8.12 @fix
+					l2l.Flags |= ListToListData::fIsTreeList;
 					if(ListToListDialog(&l2l) > 0) {
-						data.RestrictScSerList.addUnique(&scs_list);
+						Data.RestrictScSerList.addUnique(&scs_list);
 						p_box->setDef(CreateScsListDef());
 						p_box->Draw_();
 					}
@@ -1327,7 +1328,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 				PPID   scs_id;
 				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_PSNOPKPC_SCSLIST));
 				if(p_box && p_box->getCurID(&scs_id) && scs_id) {
-					data.RestrictScSerList.freeByKey(scs_id, 0);
+					Data.RestrictScSerList.freeByKey(scs_id, 0);
 					p_box->setDef(CreateScsListDef());
 					p_box->Draw_();
 				}
@@ -1343,8 +1344,8 @@ int PsnOpDialog::editPsnConstr(int scnd)
 			if(p_list) {
 				PPObjSCardSeries scs_obj;
 				PPSCardSeries scs_rec;
-				for(uint i = 0; i < data.RestrictScSerList.getCount(); i++) {
-					if(scs_obj.Fetch(data.RestrictScSerList.get(i), &scs_rec) > 0)
+				for(uint i = 0; i < Data.RestrictScSerList.getCount(); i++) {
+					if(scs_obj.Fetch(Data.RestrictScSerList.get(i), &scs_rec) > 0)
 						p_list->Add(scs_rec.ID, scs_rec.Name);
 				}
 				p_def = new StrAssocListBoxDef(p_list, lbtDisposeData);
@@ -1352,14 +1353,12 @@ int PsnOpDialog::editPsnConstr(int scnd)
 			return p_def;
 		}
 		int    Scnd;
-		PPPsnOpKindPacket::PsnConstr data;
 	};
 	PPPsnOpKindPacket::PsnConstr * pc = scnd ? & Data.PCScnd : &Data.PCPrmr;
 	DIALOG_PROC_BODY_P1(PsnConstrDialog, scnd, pc);
 }
 
 int PsnOpDialog::editExtraVal() { DIALOG_PROC_BODYERR(PsnOpExVDialog, &Data); }
-
 //
 //
 //
@@ -1405,8 +1404,7 @@ long PoVerbListDialog::getIncNum()
 	PoClause_ clause;
 	for(uint i = 0; i < Data.GetCount(); i++) {
 		Data.Get(i, clause);
-		if(clause.Num > max_num)
-			max_num = clause.Num;
+		SETMAX(max_num, clause.Num);
 	}
 	return (max_num+1);
 }
@@ -1657,7 +1655,7 @@ IMPL_HANDLE_EVENT(PsnOpDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_PSNOPK_PAIR) && !(Data.Rec.Flags & POKF_GROUP)) {
-		PPID   pair = getCtrlLong(CTLSEL_PSNOPK_PAIR);
+		const PPID pair = getCtrlLong(CTLSEL_PSNOPK_PAIR);
 		disableCtrl(CTL_PSNOPK_PAIRTYPE, pair == 0);
 		if(pair == 0)
 			setCtrlUInt16(CTL_PSNOPK_PAIRTYPE, 0);
@@ -1683,7 +1681,9 @@ IMPL_HANDLE_EVENT(PsnOpDialog)
 //
 int PPObjPsnOpKind::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0, apply = 1;
+	int    ok = cmCancel;
+	int    valid_data = 0;
+	int    apply = 1;
 	uint   what = 0;
 	PsnOpDialog * dlg = 0;
 	PPPsnOpKindPacket pack;

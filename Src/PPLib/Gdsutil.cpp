@@ -3315,7 +3315,8 @@ static const TestBcStdSymb TestBcStdSymbList[] = {
 	{ "msi", BARCSTD_MSI },
 	{ "plessey", BARCSTD_PLESSEY },
 	{ "postnet", BARCSTD_POSTNET },
-	{ "logmars", BARCSTD_LOGMARS }
+	{ "logmars", BARCSTD_LOGMARS },
+	{ "datamatrix", BARCSTD_DATAMATRIX } // @v10.9.10
 };
 
 SLTEST_R(BarcodeOutputAndRecognition)

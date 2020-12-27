@@ -686,6 +686,7 @@ int TestGtinStruc()
 				// gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v10.9.6
 				gts.AddOnlyToken(GtinStruc::fldAddendumId);
 				gts.AddOnlyToken(GtinStruc::fldUSPS);
+				gts.SetSpecialFixedToken(GtinStruc::fldUSPS, 4); // @v10.9.10
 				gts.AddOnlyToken(GtinStruc::fldInner1);
 				gts.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/); // @v10.9.0
 				gts.AddOnlyToken(GtinStruc::fldInner2);

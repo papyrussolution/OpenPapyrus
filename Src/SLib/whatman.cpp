@@ -700,6 +700,11 @@ int TWhatman::MoveObject(TWhatmanObject * pObj, const TRect & rRect)
 		else {
 			ok = pObj->SetBounds(rRect);
 		}
+		// @v10.9.10 {
+		if(ok > 0 && pObj->HasOption(TWhatmanObject::oContainer)) {
+			ArrangeLayoutContainer(static_cast<WhatmanObjectLayoutBase *>(pObj));
+		}
+		// } @v10.9.10 
 	}
 	return ok;
 }
@@ -734,7 +739,7 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 	LayoutFlexItem lo_root;
 	//lo_root.Direction = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? FLEX_DIRECTION_COLUMN : FLEX_DIRECTION_ROW;
 	lo_root.ALB.SetContainerDirection(((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? DIREC_VERT : DIREC_HORZ);
-	lo_root.ALB.AlignContent = AbstractLayoutBlock::alignStart;//FLEX_ALIGN_START;
+	lo_root.ALB.AlignContent = AbstractLayoutBlock::alignStart;
 	//lo_root.WrapMode = FLEX_WRAP_WRAP;
 	lo_root.ALB.Flags |= AbstractLayoutBlock::fContainerWrap/*LayoutFlexItem::fWrap*/;
 	lo_root.ALB.Padding.a.X = 32.0f;
@@ -902,9 +907,9 @@ static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pIte
 {
 	if(pItem && pItem->managed_ptr) {
 		TWhatmanObject * p_wo = static_cast<TWhatmanObject *>(pItem->managed_ptr);
-		LayoutFlexItem * p_root = pItem->GetRoot();
-		if(p_root && p_root->managed_ptr) {
-			TWhatmanObject * p_wo_root = static_cast<TWhatmanObject *>(p_root->managed_ptr);
+		LayoutFlexItem * p_parent = pItem->P_Parent;
+		if(p_parent && p_parent->managed_ptr) {
+			TWhatmanObject * p_wo_root = static_cast<TWhatmanObject *>(p_parent->managed_ptr);
 			FPoint base_lu;
 			base_lu.X = p_wo_root->GetBounds().a.x;
 			base_lu.Y = p_wo_root->GetBounds().a.y;
@@ -922,16 +927,16 @@ static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pIte
 	}	
 }
 
-int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
+int TWhatman::Helper_ArrangeLayoutContainer(LayoutFlexItem * pParentLayout, WhatmanObjectLayoutBase * pC)
 {
 	int    ok = -1;
-	LayoutFlexItem * p_root_item = 0;
+	LayoutFlexItem * p_root_item = pParentLayout;
 	if(pC) {
 		const SString & r_container_ident = pC->GetContainerIdent();
 		if(r_container_ident.NotEmpty()) {
 			const FPoint base_lu(pC->Bounds.a.x, pC->Bounds.a.y);
-			{
-				p_root_item = new LayoutFlexItem();
+			if(!p_root_item) {
+				THROW(p_root_item = new LayoutFlexItem());
 				p_root_item->managed_ptr = pC;
 				p_root_item->ALB = pC->GetLayoutBlock();
 				p_root_item->ALB.SetFixedSize(pC->Bounds);
@@ -955,22 +960,37 @@ int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
 			if(p_root_item) {
 				for(uint i = 0; i < ObjList.getCount(); i++) {
 					TWhatmanObject * p_iter_obj = ObjList.at(i);
-					if(p_iter_obj && p_iter_obj->GetLayoutContainerIdent() == r_container_ident) {
-						//if(p_iter_obj->Lay)
-						LayoutFlexItem * p_iter_item = p_root_item->InsertItem();
-						if(p_iter_item) {
+					assert(p_iter_obj);
+					if(p_iter_obj) {
+						if(p_iter_obj->GetLayoutContainerIdent() == r_container_ident) {
+							LayoutFlexItem * p_iter_item = p_root_item->InsertItem();
+							THROW(p_iter_item);
 							p_iter_item->managed_ptr = p_iter_obj;
 							p_iter_item->CbSetup = WhatmanItem_SetupLayoutItemFrameProc;
 							p_iter_item->ALB = p_iter_obj->GetLayoutBlock();
-						}						
+							if(p_iter_obj->HasOption(TWhatmanObject::oContainer)) {
+								THROW(Helper_ArrangeLayoutContainer(/*p_root_item*/p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj)));
+							}
+							ok = 1;
+						}
 					}
 				}
-				p_root_item->Evaluate();
 			}
 		}
 	}
-	delete p_root_item;
+	CATCHZOK
+	if(!pParentLayout) {
+		if(p_root_item) {
+			p_root_item->Evaluate();
+			delete p_root_item;
+		}
+	}
 	return ok;
+}
+
+int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
+{
+	return Helper_ArrangeLayoutContainer(0, pC);
 }
 
 int FASTCALL TWhatman::GetCurrentObject(int * pIdx) const
@@ -1436,6 +1456,9 @@ int TWhatman::ResizeObject(TWhatmanObject * pObj, int dir, TPoint toPoint, TRect
 		}
 		if(b != pObj->Bounds) {
 			pObj->SetBounds(b);
+			if(pObj->HasOption(TWhatmanObject::oContainer)) {
+				ArrangeLayoutContainer(static_cast<WhatmanObjectLayoutBase *>(pObj));
+			}
 			ok = 1;
 		}
 	}

@@ -10313,7 +10313,7 @@ int PPViewVetisDocument::Init_(const PPBaseFilt * pBaseFilt)
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	Filt.Period.Actualize(ZERODATE);
 	Filt.WayBillPeriod.Actualize(ZERODATE);
-	FromEntityID = 0;
+	FromEntityIdList.clear();
 	FromEnterpriseID = 0;
 	ToEntityID = 0;
 	ToEnterpriseID = 0;
@@ -10321,14 +10321,20 @@ int PPViewVetisDocument::Init_(const PPBaseFilt * pBaseFilt)
 		S_GUID guid;
 		VetisEntityCore::Entity ent;
 		if(Filt.FromPersonID) {
+			// @v10.9.10 {
 			TSCollection <VetisEntityCore::Entity> ent_list;
 			if(p_ref->Ot.GetTagGuid(PPOBJ_PERSON, Filt.FromPersonID, PPTAG_PERSON_VETISUUID, guid) > 0 && EC.GetEntityListByGuid(guid, ent_list) > 0) {
-				;
+				for(uint i = 0; i < ent_list.getCount(); i++) {
+					const VetisEntityCore::Entity * p_ent = ent_list.at(i);
+					if(p_ent)
+						FromEntityIdList.add(p_ent->ID);
+				}
 			}
-			if(p_ref->Ot.GetTagGuid(PPOBJ_PERSON, Filt.FromPersonID, PPTAG_PERSON_VETISUUID, guid) > 0 && EC.GetEntityByGuid(guid, ent) > 0)
+			// } @v10.9.10 
+			/* @v10.9.10 if(p_ref->Ot.GetTagGuid(PPOBJ_PERSON, Filt.FromPersonID, PPTAG_PERSON_VETISUUID, guid) > 0 && EC.GetEntityByGuid(guid, ent) > 0)
 				FromEntityID = ent.ID;
 			else
-				FromEntityID = -1;
+				FromEntityID = -1; */
 		}
 		if(Filt.ToPersonID) {
 			if(p_ref->Ot.GetTagGuid(PPOBJ_PERSON, Filt.ToPersonID, PPTAG_PERSON_VETISUUID, guid) > 0 && EC.GetEntityByGuid(guid, ent) > 0)
@@ -10680,7 +10686,8 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	dbq = & (*dbq && daterange(t->WayBillDate, &Filt.WayBillPeriod));
 	if(Filt.GetStatusList(status_list) > 0)
 		dbq = & (*dbq && ppidlist(t->VetisDocStatus, &status_list));
-	dbq = ppcheckfiltid(dbq, t->FromEntityID, FromEntityID);
+	// @v10.9.10 dbq = ppcheckfiltid(dbq, t->FromEntityID, FromEntityID);
+	dbq = ppcheckfiltidlist(dbq, t->FromEntityID, &FromEntityIdList); // @v10.9.10
 	// @v10.4.8 dbq = ppcheckfiltid(dbq, t->ToEntityID, ToEntityID);
 	dbq = ppcheckfiltid(dbq, t->ToEnterpriseID, ToEnterpriseID); // @v10.4.8
 	// @v10.6.3 {
@@ -10739,8 +10746,12 @@ int FASTCALL PPViewVetisDocument::CheckForFilt(const VetisDocumentViewItem * pIt
 		ok = 0;
 	else if(!Filt.WayBillPeriod.CheckDate(pItem->WayBillDate))
 		ok = 0;
-	else if(FromEntityID && pItem->FromEntityID != FromEntityID)
+	/* @v10.9.10 else if(FromEntityID && pItem->FromEntityID != FromEntityID)
+		ok = 0;*/
+	// @v10.9.10 {
+	else if(FromEntityIdList.getCount() && !FromEntityIdList.lsearch(pItem->FromEntityID))
 		ok = 0;
+	// } @v10.9.10 
 	else if(ToEntityID && pItem->ToEntityID != ToEntityID)
 		ok = 0;
 	else {
@@ -10781,19 +10792,40 @@ int PPViewVetisDocument::InitIteration()
 	int    ok = 1;
 	DBQ  * dbq = 0;
 	VetisDocumentTbl * p_t = &EC.DT;
-	VetisDocumentTbl::Key0 k0, k0_;
-	MEMSZERO(k0);
+	int    idx = 0;
+	union {
+		VetisDocumentTbl::Key0 k0;
+		VetisDocumentTbl::Key1 k1;
+		VetisDocumentTbl::Key2 k2;
+		VetisDocumentTbl::Key3 k3;
+	} k, k_;
+	//VetisDocumentTbl::Key0 k0, k0_;
+	//MEMSZERO(k0);
+	MEMSZERO(k);
 	BExtQuery::ZDelete(&P_IterQuery);
-	THROW_MEM(P_IterQuery = new BExtQuery(p_t, 0));
+	if(checkdate(Filt.Period.low)) {
+		idx = 2;
+		k.k2.IssueDate = Filt.Period.low;
+	}
+	else if(checkdate(Filt.WayBillPeriod.low)) {
+		idx = 3;
+		k.k3.WayBillDate = Filt.WayBillPeriod.low;
+	}
+	else {
+		idx = 0;
+	}
+	THROW_MEM(P_IterQuery = new BExtQuery(p_t, idx));
 	P_IterQuery->selectAll();
 	dbq = & (*dbq && daterange(p_t->IssueDate, &Filt.Period));
 	dbq = & (*dbq && daterange(p_t->WayBillDate, &Filt.WayBillPeriod));
-	dbq = ppcheckfiltid(dbq, p_t->FromEntityID, FromEntityID); // @v10.4.1
+	// @v10.9.10 dbq = ppcheckfiltid(dbq, p_t->FromEntityID, FromEntityID); // @v10.4.1
+	dbq = ppcheckfiltidlist(dbq, p_t->FromEntityID, &FromEntityIdList); // @v10.9.10
 	dbq = ppcheckfiltid(dbq, p_t->ToEntityID, ToEntityID); // @v10.4.1
 	P_IterQuery->where(*dbq);
-	k0_ = k0;
-	Counter.Init(P_IterQuery->countIterations(0, &k0_, spGe));
-	P_IterQuery->initIteration(0, &k0, spGe);
+	//k0_ = k0;
+	k_ = k;
+	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
+	P_IterQuery->initIteration(0, &k, spGe);
 	CATCHZOK
 	return ok;
 }

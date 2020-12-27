@@ -1671,7 +1671,7 @@ int ImportCls::ReceiveDoc()
 				// Дабы этого не было, сделаем проверку на ноль и поставим этому сообщению статус Read
 				if(resp.ReceiveResult) {
 					if(atoi(resp.ReceiveResult->Res) == 0) {
-						if((MessageType == PPEDIOP_ORDERRSP) || (MessageType == PPEDIOP_DESADV)) {
+						if(oneof2(MessageType, PPEDIOP_ORDERRSP, PPEDIOP_DESADV)) {
 							// Для простоты обработки полученного документа удалим все переносы строк
 							(str = resp.ReceiveResult->Cnt).ReplaceCR();
 							file.Open(ImpFileName, SFile::mWrite);

@@ -1877,8 +1877,8 @@ static void InitTest()
 	assert(sizeof(PPEAddr) == 16);
 	assert(sizeof(PPEAddr) == sizeof(static_cast<const EAddrTbl::Rec *>(0)->Addr));
 	assert(sizeof(PPDynanicObjItem) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPStaffEntry) == sizeof(Reference2Tbl::Rec)); // @v9.0.3
-	assert(sizeof(PPAccount) == sizeof(Reference2Tbl::Rec)); // @v9.0.3
+	assert(sizeof(PPStaffEntry) == sizeof(Reference2Tbl::Rec));
+	assert(sizeof(PPAccount) == sizeof(Reference2Tbl::Rec));
 	{
         PPAccount::_A_ a1;
         PPAccount::_A_ a2;
@@ -1888,7 +1888,7 @@ static void InitTest()
         a2.Sb = 0;
         assert(*reinterpret_cast<const long *>(&a1) > *reinterpret_cast<const long *>(&a2));
 	}
-	assert(sizeof(PPBankAccount) == sizeof(RegisterTbl::Rec)); // @v9.0.4
+	assert(sizeof(PPBankAccount) == sizeof(RegisterTbl::Rec));
 	REF_TEST_RECSIZE(PPObjectTag);
 	REF_TEST_RECSIZE(PPSecur);
 	REF_TEST_RECSIZE(PPSecur);

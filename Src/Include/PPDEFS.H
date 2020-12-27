@@ -47,12 +47,6 @@
 	#define DBFS_RETAILGOODS          1006
 	#define DBFS_TRFRANLZLIC          1007   // DBF экспорт анализа товарных операций
 	#define DBFS_PETROVICHEXPORT      1008   // DBF экспорт в драйвер PETROVICH
-	// @v9.4.5 (obsolete) #define DBFS_LENTORG_fds          1009   // DBF экспорт в Kozyrev
-	// @v9.4.5 (obsolete) #define DBFS_LENTORG_fdo          1010   // DBF экспорт в Kozyrev
-	// @v9.4.5 (obsolete) #define DBFS_LENTORG_dv           1011   // DBF экспорт в Kozyrev
-	// @v9.4.5 (obsolete) #define DBFS_LENTORG_na           1012   // DBF экспорт в Kozyrev
-	// @v9.4.5 (obsolete) #define DBFS_LENTORG_spr          1013   // DBF экспорт в Kozyrev
-	// @v9.4.5 (obsolete) #define DBFS_LENTORG_spp          1014   // DBF экспорт в Kozyrev
 	#define DBFS_Exp_Price_List       1016
 	#define DBFS_PALM_GOODS           1017   // DBF экспорт в StyloPalm - товары
 	#define DBFS_PALM_GOODSGRP        1018   // DBF экспорт в StyloPalm - группы товаров
@@ -4188,6 +4182,8 @@
 	#define CTLCAL_QUOTKIND_PERIOD       (12 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTKIND_TIMEPERIOD      (13 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTKIND_ST_RESTR        (14 + WINDOWS_ID_BIAS)
+	#define CTL_QUOTKIND_RNDGDIR         (15 + WINDOWS_ID_BIAS)
+	#define CTL_QUOTKIND_RNDGPREC        (16 + WINDOWS_ID_BIAS)
 #define DLG_GQUOT                 318 // GQUOT   Котировки товара
 #define DLG_GQUOTSC               682 // GQUOTSC Контрактные цены и отклонения по поставщикам
 #define DLG_GQUOTPC              1112 // GQUOTPC Поправочные коэффициенты прогноза продаж
@@ -11584,17 +11580,6 @@
 //
 // Decl Struc Parsing
 //
-// @v9.4.8 #define PPERR_DS_UNEXPEOF         601 // Unexpected EOF
-// @v9.4.8 #define PPERR_DS_EXPEQ            602 // Expected '='
-// @v9.4.8 #define PPERR_DS_EXPLEFTBRACE     603 // Expected '{'
-// @v9.4.8 #define PPERR_DS_EXPRIGHTBRACKET  604 // Expected ']'
-// @v9.4.8 #define PPERR_DS_STRUCITEMNFOUND  605 // Не найден элемент структуры %s
-// @v9.4.8 #define PPERR_DS_TYPENAMENFOUND   606 // Не найдена структура с именем %s
-// @v9.4.8 #define PPERR_DS_TYPENAMEEXISTS   607 // Структура с именем %s уже существует
-// @v9.4.8 #define PPERR_DS_STRUCTYPENFOUND  608 // Структура с типом %s не найдена
-// @v9.4.8 #define PPERR_DS_STRUCITEMEXISTS  609 // Элемент структуры %s уже существует
-// @v9.4.8 #define PPERR_DS_EXPRBRACEORNAME  610 // Ожидается '}' или имя пол
-// @v9.4.8 #define PPERR_DS_SYNTAX           611 // Синтаксическая ошибка
 // @v10.5.11 #define PPERR_CANTFOUNDUNLOCKEDGB 701 // Все корзины заблокированы другими пользователями
 // @v10.5.11 #define PPERR_DUPLBNKACCT         702 // Дублируемое значение счета банка
 // @v10.5.11 #define PPERR_ABSLOTS             703 // 'Отсутствующий лот {@goods - @loc - @int @bill}' (RecoverAbsenceLots)
@@ -12050,8 +12035,6 @@
 //
 // PPSTR_TEXT   Просто текст
 //
-// @v9.1.3 #define PPTXT_SELECTLOCATION        1
-// @v9.1.3 #define PPTXT_SELECTOPRKIND         2
 // @v10.5.11 #define PPTXT_INTRRECEIPT           3
 // @v10.5.11 #define PPTXT_INREST                4
 // @v10.5.11 #define PPTXT_OUTREST               5
@@ -12083,7 +12066,6 @@
 // @v10.5.11 #define PPTXT_SUPPLTXT             26 // "Поставщик"
 // @v10.5.11 #define PPTXT_CNTRAGNTXT           27 // "Контрагент"
 // @v10.5.11 #define PPTXT_LP15REC              28 // Формат строки для экспорта в весы LP15
-// @v9.1.3 #define PPTXT_SELECTDBDIV          29 // Выберите раздел БД
 // @v10.5.11 #define PPTXT_GDSOPRTOTAL          31 // Итог отчета по товарной операции
 // @v10.5.11 #define PPTXT_CSALESEXTOTAL        32 // Итог излишков по кассовым сессиям
 // @v10.5.11 #define PPTXT_BILLFLTCAPTIONS      33 // Шапки фильтров по документам
@@ -12105,12 +12087,9 @@
 // @v10.5.11 #define PPTXT_SCALE_TRANSMIT       53 // Загрузка в весы %s товара %s
 // @v10.5.11 #define PPTXT_SELLDEBTTOTAL        54 // Итог по ведомости должников
 // @v10.5.11 #define PPTXT_BILLBRWCAPTIONS      55 // Шапки броузеров документов
-// @v9.1.3 #define PPTXT_SELECTOPRTYPE        56 // Выберите тип операции
-// @v9.1.3 #define PPTXT_SELECTPSNOP          58 // Выберите вид персональной операции
 // @v10.5.11 #define PPTXT_DEBTRKIND            59 // Вид плательщика (дебитор/кредитор)
 // @v10.5.11 #define PPTXT_ATLISTTOTAL          60 // Итоги по описи проводок
 // @v10.5.11 #define PPTXT_ARTYPE               61 // Типы статей (поставщик,покупатель...)
-// @v9.1.3 #define PPTXT_SELECTOBJTAG         62 // Выберите тег
 // @v10.5.11 #define PPTXT_INCLEXCISE           63 // Сумма включает налог с продаж
 // @v10.5.11 #define PPTXT_OTTYP                64 // Наименования типов тегов
 // Строки, используемые для вывода в файл PROBLEMS.LOG
@@ -12544,42 +12523,6 @@
 // @v10.6.1 #define PPTXT_GOODSOPRADDVALNAMES         606 // Названия дополнительных полей для товарного отчета по операции.
 // @v10.6.1 #define PPTXT_CCHECKSELFORPERIOD          608 // Выборка чеков за период
 // @v10.6.1 #define PPTXT_BILLNOTBANKING              618 // Документ (№=%s, Дата=%s) не экспортирован, та как он не является платежным поручением.
-// @v9.5.2 #define PPTXT_CLIENTBANKFIELDS            207 // Поля экспорта в систему клиент-банк
-// @v9.5.2 	#define PPCLBNKFLD_EMPTY             0
-// @v9.5.2 	#define PPCLBNKFLD_BILLID            1
-// @v9.5.2 	#define PPCLBNKFLD_DATE              2
-// @v9.5.2 	#define PPCLBNKFLD_CODE              3
-// @v9.5.2 	#define PPCLBNKFLD_SEQUENCE          4
-// @v9.5.2 	#define PPCLBNKFLD_PURPOSE           5
-// @v9.5.2 	#define PPCLBNKFLD_AMOUNT            6
-// @v9.5.2 	#define PPCLBNKFLD_PAYERID           7
-// @v9.5.2 	#define PPCLBNKFLD_PAYERNAME         8
-// @v9.5.2 	#define PPCLBNKFLD_PAYERINN          9
-// @v9.5.2 	#define PPCLBNKFLD_PAYERBANKACCOUNT 10
-// @v9.5.2 	#define PPCLBNKFLD_PAYERBANKNAME    11
-// @v9.5.2 	#define PPCLBNKFLD_PAYERBANKCODE    12
-// @v9.5.2 	#define PPCLBNKFLD_RECEIVERID       13
-// @v9.5.2 	#define PPCLBNKFLD_RECEIVERNAME     14
-// @v9.5.2 	#define PPCLBNKFLD_RECEIVERINN      15
-// @v9.5.2 	#define PPCLBNKFLD_RECEIVERBANKACC  16
-// @v9.5.2 	#define PPCLBNKFLD_RECEIVERBANKNAME 17
-// @v9.5.2 	#define PPCLBNKFLD_RECEIVERBANKCODE 18
-// @v9.5.2 	#define PPCLBNKFLD_TAXPAYERKPP      19
-// @v9.5.2 	#define PPCLBNKFLD_TAXRECEIVERKPP   20
-// @v9.5.2 	#define PPCLBNKFLD_TAXPAYERSTATUS   21
-// @v9.5.2 	#define PPCLBNKFLD_TAXCLASS         22
-// @v9.5.2 	#define PPCLBNKFLD_OKATO            23
-// @v9.5.2 	#define PPCLBNKFLD_TAXREASON        24
-// @v9.5.2 	#define PPCLBNKFLD_TAXPERIOD        25
-// @v9.5.2 	#define PPCLBNKFLD_TAXDOCNUMBER     26
-// @v9.5.2 	#define PPCLBNKFLD_TAXDOCNAME       27
-// @v9.5.2 	#define PPCLBNKFLD_TAXPAYMTYPE      28
-// @v9.5.2 	#define PPCLBNKFLD_VATSUM           29
-// @v9.5.2 	#define PPCLBNKFLD_CORRNAME         30
-// @v9.5.2 	#define PPCLBNKFLD_CORRBIC          31
-// @v9.5.2 	#define PPCLBNKFLD_CORRINN          32
-// @v9.5.2 	#define PPCLBNKFLD_PERSONID         33
-// @v9.5.2 	#define PPCLBNKFLD_PAYMMETHOD       34 // @v4.9.3 AHTOXA
 // @v10.6.1 #define PPTXT_GOODSOPRTOTAL                222 // Итого по товарным операциям:
 // @v10.6.1 #define PPTXT_EDITRIGHTSPARAMS             223 //
 // @v10.6.1 #define PPTXT_WEEKDAYS                     224 // Дни недели
@@ -12675,7 +12618,6 @@
 // @v10.5.12 #define PPTXT_SCALEREADY                  322 // Весы готовы к приему данных
 // @v10.5.12 #define PPTXT_RIGHTSBYOBJ                 324 // %ld,Права по объектам (%s)
 // @v10.5.12 #define PPTXT_ERRACCEPTPSNRELTYPE         325 // Ошибка акцепта типа отношений персоналий
-// @v9.2.5 (автомат) #define PPTXT_GOODSGRPNGLIST              326 // Список группировок товара
 // @v10.5.12 #define PPTXT_SMTPAUTHTYPES               327 // Список типов аутентификация для SMTP
 // @v10.5.12 #define PPTXT_SERVICEDESCR                329 // Строка описания Windows-сервиса
 // @v10.0.09 #define PPTXT_CYCLESSTRUCT                332 // Компонент структуры %s, ссылается на структуру %s, чьим компонентом он являетс
@@ -12706,7 +12648,6 @@
 // @v10.5.11 #define PPTXT_PRCPAN_HINT13               356 // Срок годности товара = ДДММГГ
 // @v10.5.11 #define PPTXT_PRCPAN_HINT14               357 // Выход из состояния ввода срока годности = Escape
 // @v10.5.11 #define PPTXT_PRCPAN_IDLECONT             369 // Продолжительность простоя //
-// @v9.2.5 (автомат) #define PPTXT_CFGNAMES                    371 // Названия конфигураций
 // @v10.6.1 #define PPTXT_IMPEXPPARAM                 409
 // @v10.6.1 	#define IMPEXPPAR_FILENAME                  0  // Имя файла импорта/экспорта
 // @v10.6.1 	#define IMPEXPPAR_IMPEXP                    1  // (import,imp;export,exp)
@@ -12742,19 +12683,6 @@
 // @v10.6.1 #define PPTXT_PICFILESDIR                 437 // Подпапка для хранения картинок
 // @v10.6.1 #define PPTXT_SCARDINFO                   438 // Карта: %s, Владелец: %s, Скидка: %lf
 // @v10.6.1 #define PPTXT_INPSCARDNUMBER              439 // Введите номер дисконтной карты
-/* @obsolete @v9.1.3
-#define PPTXT_CSESS_IMPEXP_OBJECTS        440 // Объекты, данные по которым передаются при импорте/экспорте кассовых сессий
-	#define CSESSIEOBJ_GGRPS             0     // Товарные группы
-	#define CSESSIEOBJ_GOODS             1     // Товары
-	#define CSESSIEOBJ_BARCODES          2     // Штриходы
-	#define CSESSIEOBJ_QUOTKINDS         3     // Виды котировок
-	#define CSESSIEOBJ_QUOTS             4     // Котировки
-	#define CSESSIEOBJ_SCARDS            5     // Пластиковые карты
-	#define CSESSIEOBJ_CSESS             6     // Кассовые сессии
-	#define CSESSIEOBJ_CCHECKS           7     // Кассовые чеки
-	#define CSESSIEOBJ_CCLINES           8     // Строки чеков
-	#define CSESSIEOBJ_DSCNT             9     // Оплаты по картам
-*/
 // @v10.6.1 #define PPTXT_INFKIOSK_TOOLTIPS           441 // Строки для ToolTips в инфокиоске
 //                                        442 occupied for  BACKUPLOG_ERR_DECOMPRESSCRC
 // @v10.6.1 #define PPTXT_LOG_BHTTSESS_LASTLNRMVD     444 // Последняя строка удалена
@@ -12765,8 +12693,6 @@
 // @v10.6.1 #define PPTXT_IMPORTEDRECS                450 // Импортировано %ld из %ld записей
 // @v10.6.1 #define PPTXT_EXPORTEDRECS                451 // Экспортировано %ld записей
 // @v10.6.1 #define PPTXT_SELMAILACCTS                452 // Выбор почтовых акаунтов
-// @v9.0.2 #define PPTXT_MENU_DESKTOP                453 // Элементы меню редактирования рабочего стола
-// @v9.0.2 #define PPTXT_MENU_LISTBOX                454 // Элементы меню списка выбора
 // @v10.6.0 #define PPTXT_LOG_DBLOCKED                456 // База данных заблокирована
 // @v10.6.0 #define PPTXT_LOG_DBUNLOCKED              457 // База данных не заблокирована
 // @v10.6.0 #define PPTXT_CCHKLOG                     458 // Chk Printed;Chk Writed;Chk Recalled;Chk Removed;Chk Cleared;Chk Suspended;Chk RowCleared;Chk RowDiscount
@@ -12792,11 +12718,6 @@
 // @v10.6.0 #define PPTXT_DEFBASKETISLOCKED           479 // Корзина по умолчанию '%s' заблокирована (%s). Выберите другую.
 // @v10.6.0 #define PPTXT_ACCEPTANALOG_PSN_NAME       480 // Найден аналог по имени для персоналии '%s'
 // @v10.6.0 #define PPTXT_ACCEPTANALOG_PSN_CODE       481 // Найден аналог по регистру для персоналии '%s'
-/* @v9.1.12 #define PPTXT_WINDOWSVIEWKINDS            482 // имена и идентификаторы внешнего вида окон
-	#define PPWNDVIEWKINDS_DEFAULT      0
-	#define PPWNDVIEWKINDS_KIND1        1
-	#define PPWNDVIEWKINDS_KIND2        2
-	#define PPWNDVIEWKINDS_VECTOR       3 @v9.1.12 */
 // @v10.5.12 #define PPTXT_LOG_PRCSALCHARGEBYPOST      484 // Обработка начислений по штатному назначению: '@person - @zstr' - '@period'
 // @v10.5.12 #define PPTXT_LOG_PRCSALAMTUNDEFINED      485 // Сумма '@zstr' не определена для штатного назначения '@person - @str'
 // @v10.5.12 #define PPTXT_LOG_PRCSALCALUNDEFINED      486 // Календарь '@zstr' не определен для штатного назначения '@person - @str'
@@ -12837,23 +12758,11 @@
 // @v10.6.0 #define PPTXT_LOG_LOADACCTURNFAULT        554 // Ошибка загрузки бух проводки по документу '@bill': @zstr
 // @v10.6.0 #define PPTXT_LOG_LOADACCTURNFAULT_C      555 // Ошибка загрузки бух проводки по документу '@bill': @zstr: попытка удаления строки
 // @v10.6.0 #define PPTXT_SALFRM_PERIOD               556 // Периоды в формулах начисления зарплаты
-// @v9.4.3 #define PPTXT_FILPAT_MAILACC              557 // "Почтовые учетные записи (*.acc):*.acc"
-// @v9.4.1 #define PPTXT_LOG_ERRINSSYNCQUEUE         558 // Ошибка вставки записи в очередь синхронизации (%s): %s
-// @v9.4.1 #define PPTXT_LOG_ERRMODSYNCQUEUE         559 // Ошибка изменения записи очереди синхронизации (%s): %s
-// @v9.4.1 #define PPTXT_LOG_ERRINSFILESYNCQUEUE     560 // Ошибка вставки записи о файле в очередь синхронизации (%s): %s
-// @v9.4.3 #define PPTXT_FILPAT_CHARRY               561 // "Файлы charry (*.chr):*.chr"
-// @v9.4.3 #define PPTXT_FILPAT_MENU                 562 // "Файлы меню (*.bin):*.bin"
-// @v9.4.3 #define PPTXT_FILPAT_GOODS_XML            563 // "Товары (*.xml):*.xml"
-// @v9.4.3 (removed) #define PPTXT_OBJTYPE           564 // "Тип объекта"
-// @v9.0.2 #define PPTXT_SYNCCASHNODECOMMANDS        585 // Команды диалогова синхронного кассового узла
-// @v9.0.2 #define PPTXT_ASYNCCASHNODECOMMANDS       586 // Команды диалогова асинхронного кассового узла
-// @v9.0.2 #define PPTXT_BILLTYPES                   587 // Названия типов документов
 //#define PPTXT_LOG_UNCOMPSCARDSER          601 // Нельзя переместить карту '%s' в несовместимую группу '%s'
 //#define PPTXT_LOG_INVSCARDSER             602 // Группа '%s', в которую должна быть перемещена карта '%s' не найдена: %s
 //#define PPTXT_LOG_SCARDRULEAPPLY          603 // "К карте '%s' (оборот=%.2lf) применено правило:"
 //#define PPTXT_LOG_ADD_SCARDMOVED          604 // "перемещена в группу '%s'"
 //#define PPTXT_LOG_ADD_SCARDDISUPD         605 // "изменен процент скидки %.1lf%% --> %.1lf%%"
-// @v9.2.5 (автомат) #define PPTXT_TRFRANLZCTVALNAMES          607 // Названия показателей кросстабуляции для анализа товарных операций
 //#define PPTXT_LOG_IMPINV_GOODSIDBYID      609 // Товар '%s' идентифицирован по идентификатору '%s'
 //#define PPTXT_LOG_IMPINV_GOODSIDBYBARCODE 610 // Товар '%s' идентифицирован по штрихкоду '%s'
 //#define PPTXT_LOG_IMPINV_GOODSIDBYBARCODEW 611 // Товар (весовой) '%s' идентифицирован по штрихкоду '%s'
@@ -12865,7 +12774,6 @@
 //#define PPTXT_LOG_IMPINV_LINETURNED       617 // Строка '%s' проведена
 //#define PPTXT_GOODSMATRIXRESTR            621 // Заголовок диалгового окна Ограничение товарной матрицы
 //#define PPTXT_WORLDKINDNAMES              622 // "Континент;;Страна;Регион;Город;Улица"
-// @v9.4.3 #define PPTXT_FILPAT_PICT                 625 // "Изображения:*.bmp;*.jpg;*.gif;*.png;*.tiff"
 // #define PPTXT_NEWCLNT_TRANSTYPE             655
 // 	#define TRANSTYPE_PRSNOP            0
 // 	#define TRANSTYPE_DOCOP             1

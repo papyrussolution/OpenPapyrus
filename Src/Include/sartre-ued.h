@@ -139,6 +139,8 @@
 #define UED_IATA                          146   // IATA-код (3 символа; значение включенное)
 #define UED_DAYOFWEEK                     147   // День недели
 #define UED_MENSIS                        148   // Месяц
+#define UED_REALVALUEROUNDING             149   // ??? Параметры округления вещественного числа. Младшие 4 бита - направление (0000 - default, 0001 - down, 0010 - up, 
+                                                // 0011 - accounting nearest, 0100 - nearest even, 0101 - nearest odd)
 
 #define UED_MOLECULO                   0x4001 // Молекула
 #define UED_POPULUS                    0x4002 // Люди. Как-бы сложно не было фиксировать отдельных людей, этот элемент по крайней мере позволит учесть селебрити.

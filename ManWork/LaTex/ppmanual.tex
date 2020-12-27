@@ -26,7 +26,7 @@
 \renewcommand{\CoverPageFooterInfo}{
 	\parbox[b]{.5\textwidth}{
 		\tiny Документ создан: \today \\
-		Версия системы: 10.9.5
+		Версия системы: 10.9.10
     }
 }
 
@@ -2486,417 +2486,542 @@ BIN/StdRpt.ini и BIN/Report.ini. Оба файла имеют текстовый формат, аналогичный i
 Эти теги создаются автоматически командой \ppymenu{Создание зарезервированных объектов}.
 
 \begin{description}
+	\item[Грузовая таможенная декларация (ГТД)]
+	
+	ИД=1
+	\\Символ = \ppyrsrv{LOTCLB}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[Серийный номер лота]
+	
+	ИД=2
+	\\Символ = \ppyrsrv{LOTSERIAL}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Права агента на доступ к кассовым операциям]
-
-		ИД=4
-		\\Символ = \ppyrsrv{POSRIGHTS}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=4
+	\\Символ = \ppyrsrv{POSRIGHTS}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Дата рождения]
-
-		ИД=5
-		\\Символ = \ppyrsrv{DOB}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{DATE}
+	
+	ИД=5
+	\\Символ = \ppyrsrv{DOB}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{DATE}
 	\item[Права на доступ и изменение товаров]
-
-		ИД=10
-		\\Символ = \ppyrsrv{GOODSRIGHTS}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=10
+	\\Символ = \ppyrsrv{GOODSRIGHTS}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Права на доступ и изменение персоналий]
-
-		ИД=11
-		\\Символ = \ppyrsrv{PERSONRIGHTS}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=11
+	\\Символ = \ppyrsrv{PERSONRIGHTS}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Права на доступ и изменение персональных карт]
-
-		ИД=12
-		\\Символ = \ppyrsrv{SCARDRIGHTS}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=12
+	\\Символ = \ppyrsrv{SCARDRIGHTS}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Префикс номеров персональных карт]
-
-		ИД=13
-		\\Символ = \ppyrsrv{SCARDPREFIX}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=13
+	\\Символ = \ppyrsrv{SCARDPREFIX}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Дата производства]
-
-		ИД=14
-		\\Символ = \ppyrsrv{MANUFTIME}
-		\\Тип объекта = \ppyrsrv{LOT}
-		\\Тип тега = \ppyrsrv{TIMESTAMP}
+	
+	ИД=14
+	\\Символ = \ppyrsrv{MANUFTIME}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{TIMESTAMP}
 	\item[Права на доступ к файлам]
-
-		ИД=15
-		\\Символ = \ppyrsrv{FILESRIGHTS}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=15
+	\\Символ = \ppyrsrv{FILESRIGHTS}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[UUID документа]
-
-		ИД=16
-		\\Символ = \ppyrsrv{BILLUUID}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=16
+	\\Символ = \ppyrsrv{BILLUUID}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[Ключевые слова товара]
-
-		ИД=17
-		\\Символ = \ppyrsrv{GOODSKEYWORDS}
-		\\Тип объекта = \ppyrsrv{GOODS}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=17
+	\\Символ = \ppyrsrv{GOODSKEYWORDS}
+	\\Тип объекта = \ppyrsrv{GOODS}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Ключевые слова документа]
-
-		ИД=18
-		\\Символ = \ppyrsrv{BILLKEYWORDS}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=18
+	\\Символ = \ppyrsrv{BILLKEYWORDS}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Символ тега приватной товарной группы]
-
-		ИД=19
-		\\Символ = \ppyrsrv{PGGTAGSYMB}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=19
+	\\Символ = \ppyrsrv{PGGTAGSYMB}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Ключевые слова рабочих книг]
-
-		ИД=20
-		\\Символ = \ppyrsrv{WORKBOOKKEYWORDS}
-		\\Тип объекта = \ppyrsrv{WORKBOOK}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=20
+	\\Символ = \ppyrsrv{WORKBOOKKEYWORDS}
+	\\Тип объекта = \ppyrsrv{WORKBOOK}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Синонимы ключевых слов рабочих книг]
-
-		ИД=21
-		\\Символ = \ppyrsrv{WORKBOOKKWSYN}
-		\\Тип объекта = \ppyrsrv{WORKBOOK}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=21
+	\\Символ = \ppyrsrv{WORKBOOKKWSYN}
+	\\Тип объекта = \ppyrsrv{WORKBOOK}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Локации ключевых слов рабочих книг]
-
-		ИД=22
-		\\Символ = \ppyrsrv{WORKBOOKKWLOC}
-		\\Тип объекта = \ppyrsrv{WORKBOOK}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=22
+	\\Символ = \ppyrsrv{WORKBOOKKWLOC}
+	\\Тип объекта = \ppyrsrv{WORKBOOK}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[UUID сессии, создавшей JUNK-чек]
-
-		ИД=23
-		\\Символ = \ppyrsrv{CCHECKJSUUID}
-		\\Тип объекта = \ppyrsrv{CCHECK}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=23
+	\\Символ = \ppyrsrv{CCHECKJSUUID}
+	\\Тип объекта = \ppyrsrv{CCHECK}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[Права на доступ и изменение автономных адресов]
-
-		ИД=24
-		\\Символ = \ppyrsrv{SALOCRIGHTS}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=24
+	\\Символ = \ppyrsrv{SALOCRIGHTS}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Права на доступ и изменение рабочих книг]
-
-		ИД=25
-		\\Символ = \ppyrsrv{WORKBOOKRIGHTS}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=25
+	\\Символ = \ppyrsrv{WORKBOOKRIGHTS}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Длинный код рабочей книги]
-
-		ИД=26
-		\\Символ = \ppyrsrv{WORKBOOKLONGCODE}
-		\\Тип объекта = \ppyrsrv{WORKBOOK}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=26
+	\\Символ = \ppyrsrv{WORKBOOKLONGCODE}
+	\\Тип объекта = \ppyrsrv{WORKBOOK}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Метка автоматически созданного документа]
-
-		ИД=27
-		\\Символ = \ppyrsrv{BILLAUTOCREATION}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=27
+	\\Символ = \ppyrsrv{BILLAUTOCREATION}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Номер документа у контрагента]
-
-		ИД=28
-		\\Символ = \ppyrsrv{BILLOUTERCODE}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=28
+	\\Символ = \ppyrsrv{BILLOUTERCODE}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Дата документа у контрагента]
-
-		ИД=29
-		\\Символ = \ppyrsrv{BILLOUTERDATE}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{DATE}
-	\item[Идент получателя эл налоговых документов]
-
-		ИД=30
-		\\Символ = \ppyrsrv{ENALOGDEST}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=29
+	\\Символ = \ppyrsrv{BILLOUTERDATE}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{DATE}
+	\item[Ид получателя эл налоговых документов nalog.ru]
+	
+	ИД=30
+	\\Символ = \ppyrsrv{ENALOGDEST}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[ФИАС-GUID адреса]
-
-		ИД=31
-		\\Символ = \ppyrsrv{FIASGUIDADR}
-		\\Тип объекта = \ppyrsrv{LOCATION}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=31
+	\\Символ = \ppyrsrv{FIASGUIDADR}
+	\\Тип объекта = \ppyrsrv{LOCATION}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[ФИАС-GUID здания]
-
-		ИД=32
-		\\Символ = \ppyrsrv{FIASGUIDHSE}
-		\\Тип объекта = \ppyrsrv{LOCATION}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=32
+	\\Символ = \ppyrsrv{FIASGUIDHSE}
+	\\Тип объекта = \ppyrsrv{LOCATION}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[Права на доступ и изменение устройств Stylo]
-
-		ИД=33
-		\\Символ = \ppyrsrv{STYLORIGHTS}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=33
+	\\Символ = \ppyrsrv{STYLORIGHTS}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Права на доступ и изменение процессоров]
-
-		ИД=34
-		\\Символ = \ppyrsrv{PRCRIGHTS}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
-	\item[Права на доступ и изменение технологических сес]
-
-		ИД=35
-		\\Символ = \ppyrsrv{TSESSRIGHTS}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=34
+	\\Символ = \ppyrsrv{PRCRIGHTS}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[Права на доступ и изменение техн сессий]
+	
+	ИД=35
+	\\Символ = \ppyrsrv{TSESSRIGHTS}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[UUID технологической сессии]
-
-		ИД=36
-		\\Символ = \ppyrsrv{TSESSUUID}
-		\\Тип объекта = \ppyrsrv{TSESSION}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=36
+	\\Символ = \ppyrsrv{TSESSUUID}
+	\\Тип объекта = \ppyrsrv{TSESSION}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[Описание технологической сессии]
-
-		ИД=37
-		\\Символ = \ppyrsrv{TSESSDESCR}
-		\\Тип объекта = \ppyrsrv{TSESSION}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=37
+	\\Символ = \ppyrsrv{TSESSDESCR}
+	\\Тип объекта = \ppyrsrv{TSESSION}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[ФСРАР идентификатор склада]
-
-		ИД=38
-		\\Символ = \ppyrsrv{FSRARIDLOC}
-		\\Тип объекта = \ppyrsrv{LOCATION}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=38
+	\\Символ = \ppyrsrv{FSRARIDLOC}
+	\\Тип объекта = \ppyrsrv{LOCATION}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[ФСРАР идентификатор предприятия]
-
-		ИД=39
-		\\Символ = \ppyrsrv{FSRARIDORG}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=39
+	\\Символ = \ppyrsrv{FSRARIDORG}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[ФСРАР код справки А]
-
-		ИД=41
-		\\Символ = \ppyrsrv{FSRARINFALOTCODE}
-		\\Тип объекта = \ppyrsrv{LOT}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=41
+	\\Символ = \ppyrsrv{FSRARINFALOTCODE}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[ФСРАР код справки Б]
-
-		ИД=42
-		\\Символ = \ppyrsrv{FSRARINFBLOTCODE}
-		\\Тип объекта = \ppyrsrv{LOT}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=42
+	\\Символ = \ppyrsrv{FSRARINFBLOTCODE}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[ФСРАР код товара в лоте]
-
-		ИД=43
-		\\Символ = \ppyrsrv{FSRARLOTGOODSCODE}
-		\\Тип объекта = \ppyrsrv{LOT}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=43
+	\\Символ = \ppyrsrv{FSRARLOTGOODSCODE}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI подтверждение доставки документа]
-
-		ИД=44
-		\\Символ = \ppyrsrv{EDIACKBILL}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=44
+	\\Символ = \ppyrsrv{EDIACKBILL}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI идентификатор документа]
-
-		ИД=45
-		\\Символ = \ppyrsrv{EDIIDENTBILL}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=45
+	\\Символ = \ppyrsrv{EDIIDENTBILL}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[URL сервера ЕГАИС (склад)]
-
-		ИД=46
-		\\Символ = \ppyrsrv{EGAISSRVURL}
-		\\Тип объекта = \ppyrsrv{LOCATION}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=46
+	\\Символ = \ppyrsrv{EGAISSRVURL}
+	\\Тип объекта = \ppyrsrv{LOCATION}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[ФСРАР данные справки А]
-
-		ИД=47
-		\\Символ = \ppyrsrv{EGIASINFAREG}
-		\\Тип объекта = \ppyrsrv{LOT}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=47
+	\\Символ = \ppyrsrv{EGIASINFAREG}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[URL сервера ЕГАИС (главная организация)]
-
-		ИД=48
-		\\Символ = \ppyrsrv{EGAISSRVURLMP}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=48
+	\\Символ = \ppyrsrv{EGAISSRVURLMP}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI RECADV CONFIRM]
-
-		ИД=49
-		\\Символ = \ppyrsrv{EDIRECADVCONFIRM}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=49
+	\\Символ = \ppyrsrv{EDIRECADVCONFIRM}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[Размерности лота]
-
-		ИД=50
-		\\Символ = \ppyrsrv{DIMENTIONS}
-		\\Тип объекта = \ppyrsrv{LOT}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=50
+	\\Символ = \ppyrsrv{DIMENTIONS}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI подтверждение отмены документа]
-
-		ИД=51
-		\\Символ = \ppyrsrv{EDIREJECTACKBILL}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=51
+	\\Символ = \ppyrsrv{EDIREJECTACKBILL}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI канал доставки документа]
-
-		ИД=53
-		\\Символ = \ppyrsrv{EDICHANNEL}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=53
+	\\Символ = \ppyrsrv{EDICHANNEL}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI ответ на запрос об отмене документа]
-
-		ИД=54
-		\\Символ = \ppyrsrv{EDIREPEALACK}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=54
+	\\Символ = \ppyrsrv{EDIREPEALACK}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI проблемные товарные строки]
-
-		ИД=55
-		\\Символ = \ppyrsrv{EDIPROBLEMTRFR}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=55
+	\\Символ = \ppyrsrv{EDIPROBLEMTRFR}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Серийный номер исходного лота]
-
-		ИД=56
-		\\Символ = \ppyrsrv{SOURCESERIAL}
-		\\Тип объекта = \ppyrsrv{LOT}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=56
+	\\Символ = \ppyrsrv{SOURCESERIAL}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[UUID персоналии]
-
-		ИД=57
-		\\Символ = \ppyrsrv{PERSONUUID}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=57
+	\\Символ = \ppyrsrv{PERSONUUID}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[UUID локации]
-
-		ИД=58
-		\\Символ = \ppyrsrv{LOCUUID}
-		\\Тип объекта = \ppyrsrv{LOCATION}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=58
+	\\Символ = \ppyrsrv{LOCUUID}
+	\\Тип объекта = \ppyrsrv{LOCATION}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[Формальное основание документа]
-
-		ИД=59
-		\\Символ = \ppyrsrv{FORMALREASON}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{ENUM}
-
+	
+	ИД=59
+	\\Символ = \ppyrsrv{FORMALREASON}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{ENUM}
 	\item[EDI запрос на отмену проведения документа]
-
-		ИД=60
-		\\Символ = \ppyrsrv{EDIREPEALREQ}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=60
+	\\Символ = \ppyrsrv{EDIREPEALREQ}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[UUID кассового узла]
-
-		ИД=61
-		\\Символ = \ppyrsrv{POSNODEUUID}
-		\\Тип объекта = \ppyrsrv{POSNODE}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=61
+	\\Символ = \ppyrsrv{POSNODEUUID}
+	\\Тип объекта = \ppyrsrv{POSNODE}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[UUID управляющего кассового узла]
-
-		ИД=62
-		\\Символ = \ppyrsrv{POSNODEHOSTUUID}
-		\\Тип объекта = \ppyrsrv{POSNODE}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=62
+	\\Символ = \ppyrsrv{POSNODEHOSTUUID}
+	\\Тип объекта = \ppyrsrv{POSNODE}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[Ид государственного контракта]
-
-		ИД=63
-		\\Символ = \ppyrsrv{STATECONTRACTID}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=63
+	\\Символ = \ppyrsrv{STATECONTRACTID}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Ид участника эл документооборота nalog.ru]
-
-		ИД=64
-		\\Символ = \ppyrsrv{ENALOGID}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=64
+	\\Символ = \ppyrsrv{ENALOGID}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[Формальная ссылка на комплементарный документ]
-
-		ИД=65
-		\\Символ = \ppyrsrv{BILLCOMPLEMENTARY}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=65
+	\\Символ = \ppyrsrv{BILLCOMPLEMENTARY}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[ВЕТИС идентификатор предприятия]
-
-		ИД=66
-		\\Символ = \ppyrsrv{PERSONVETISUUID}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=66
+	\\Символ = \ppyrsrv{PERSONVETISUUID}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[Имя для авторизации]
-
-		ИД=67
-		\\Символ = \ppyrsrv{GUALOGIN}
-		\\Тип объекта = \ppyrsrv{GLOBALUSER}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=67
+	\\Символ = \ppyrsrv{GUALOGIN}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[UUID товара]
-
-		ИД=68
-		\\Символ = \ppyrsrv{GOODSUUID}
-		\\Тип объекта = \ppyrsrv{GOODS}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=68
+	\\Символ = \ppyrsrv{GOODSUUID}
+	\\Тип объекта = \ppyrsrv{GOODS}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[EDI RECADV RCV]
-
-		ИД=69
-		\\Символ = \ppyrsrv{EDIRECADVRCV}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=69
+	\\Символ = \ppyrsrv{EDIRECADVRCV}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI DESADV SENT]
-
-		ИД=70
-		\\Символ = \ppyrsrv{EDIDESADVSENT}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=70
+	\\Символ = \ppyrsrv{EDIDESADVSENT}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI ORDRSP SENT]
-
-		ИД=71
-		\\Символ = \ppyrsrv{EDIORDRSPSENT}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=71
+	\\Символ = \ppyrsrv{EDIORDRSPSENT}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI ALCODESADV SENT]
-
-		ИД=72
-		\\Символ = \ppyrsrv{EDIALCDESADVSENT}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=72
+	\\Символ = \ppyrsrv{EDIALCDESADVSENT}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[EDI INVOIC SENT]
-
-		ИД=73
-		\\Символ = \ppyrsrv{EDIINVOICSENT}
-		\\Тип объекта = \ppyrsrv{BILL}
-		\\Тип тега = \ppyrsrv{STRING}
-	\item[ВЕТИС issuer UUID]
-
-		ИД=74
-		\\Символ = \ppyrsrv{PERSONVETISISSUUID}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=73
+	\\Символ = \ppyrsrv{EDIINVOICSENT}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[ВЕТИС issuer UUID (unused)]
+	
+	ИД=74
+	\\Символ = \ppyrsrv{PERSONVETISISSUUID}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[ВЕТИС пользователь-инициатор операций]
-
-		ИД=75
-		\\Символ = \ppyrsrv{PERSONVETISUSER}
-		\\Тип объекта = \ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{STRING}
+	
+	ИД=75
+	\\Символ = \ppyrsrv{PERSONVETISUSER}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{STRING}
 	\item[ВЕТИС UUID лота]
-
-		ИД=76
-		\\Символ = \ppyrsrv{LOTVETISUUID}
-		\\Тип объекта = \ppyrsrv{LOT}
-		\\Тип тега = \ppyrsrv{UUID}
+	
+	ИД=76
+	\\Символ = \ppyrsrv{LOTVETISUUID}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{UUID}
 	\item[ВЕТИС GUID локации]
-
-		ИД=77
-		\\Символ = \ppyrsrv{LOCVETISGUID}
-		\\Тип объекта = \ppyrsrv{LOCATION}
-		\\Тип тега = \ppyrsrv{UUID}
-
+	
+	ИД=77
+	\\Символ = \ppyrsrv{LOCVETISGUID}
+	\\Тип объекта = \ppyrsrv{LOCATION}
+	\\Тип тега = \ppyrsrv{UUID}
+	\item[Секрет для авторизации]
+	
+	ИД=78
+	\\Символ = \ppyrsrv{GUASECRET}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[ВЕТИС цель отгрузки товара]
+	
+	ИД=79
+	\\Символ = \ppyrsrv{GOODSVETISPURPOSE}
+	\\Тип объекта = \ppyrsrv{GOODS}
+	\\Тип тега = \ppyrsrv{UUID}
+	\item[ВЕТИС Тип транспортного фургона]
+	
+	ИД=82
+	\\Символ = \ppyrsrv{GOODSTRANSPVANTYPE}
+	\\Тип объекта = \ppyrsrv{GOODS}
+	\\Тип тега = \ppyrsrv{ENUM}
+	\item[EDI ORDER SENT]
+	
+	ИД=83
+	\\Символ = \ppyrsrv{EDIORDERSENT}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[EDI ORDRSP RCV]
+	
+	ИД=84
+	\\Символ = \ppyrsrv{EDIORDRSPRCV}
+	\\Тип объекта = \ppyrsrv{BILL}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[Оригинальный идентификатор строки документа]
+	
+	ИД=85
+	\\Символ = \ppyrsrv{ORGLINEIDENT}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[Транспортная упаковка]
+	
+	ИД=86
+	\\Символ = \ppyrsrv{FREIGHTPACKAGE}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[ВЕТИС GUID товара]
+	
+	ИД=87
+	\\Символ = \ppyrsrv{GOODSVETISGUID}
+	\\Тип объекта = \ppyrsrv{GOODS}
+	\\Тип тега = \ppyrsrv{UUID}
+	\item[GUID глобальной учетной записи]
+	
+	ИД=88
+	\\Символ = \ppyrsrv{GUAGUID}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{UUID}
+	\item[Ключ доступа к глобальному сервису]
+	
+	ИД=89
+	\\Символ = \ppyrsrv{GUAACCESSKEY}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[Связанная строка документа (lot)]
+	
+	ИД=90
+	\\Символ = \ppyrsrv{LOTLINKBILLROW}
+	\\Тип объекта = \ppyrsrv{LOT}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[CN субъекта сертификата электронной подписи]
+	
+	ИД=91
+	\\Символ = \ppyrsrv{GUACERTSUBJCN}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[ЧЕСТНЫЙ ЗНАК код персоналии]
+	
+	ИД=92
+	\\Символ = \ppyrsrv{PERSONCHZNCODE}
+	\\Тип объекта = \ppyrsrv{PERSON}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[ЧЕСТНЫЙ ЗНАК код локации]
+	
+	ИД=93
+	\\Символ = \ppyrsrv{LOCCHZNCODE}
+	\\Тип объекта = \ppyrsrv{LOCATION}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[ЧЕСТНЫЙ ЗНАК код глобальной учетной записи]
+	
+	ИД=94
+	\\Символ = \ppyrsrv{GUACHZNCODE}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[Протокол обмена глобальной учетной записи]
+	
+	ИД=95
+	\\Символ = \ppyrsrv{GUAPROTOCOL}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[Тег внешней идентификации товаров]
+	
+	ИД=96
+	\\Символ = \ppyrsrv{GUAOUTERWAREIDTAG}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{LINK:TAG:GOODS}
+	\item[Код группы социального сервиса]
+	
+	ИД=97
+	\\Символ = \ppyrsrv{GUASOCIALGROUPCODE}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
+	\item[Код страницы социального сервиса]
+	
+	ИД=98
+	\\Символ = \ppyrsrv{GUASOCIALPAGECODE}
+	\\Тип объекта = \ppyrsrv{GLOBALUSER}
+	\\Тип тега = \ppyrsrv{STRING}
 \end{description}
+
 
 \subsubsection{Специальные теги}
 Эти теги не зарезервированы, однако некоторые компоненты инфраструктуры Papyrus ссылаются на них по приведенному символу.
@@ -46294,6 +46419,213 @@ setobjecttag tag{vip} person.code(51207) person.code(14018) value(1)
 
 Конечно, это не заменит сбойную запись, но, по крайней мере, дает
 возможность идентифицировать проблему.
+
+\section{Профиль пользовательских функций}
+
+Во время работы пользовательских сеансов система фиксирует работу множества функций и вносит
+информацию об этом в специальных журнал, именуемый профиль пользовательских функций.
+Этот журнал может быть использован для анализа времени работы фиксируемых функций а также
+для изучения поведения пользователей.
+
+Система фиксирует начало и завершение выполнения функций, и заносит в журнал следующие данные,
+связанные с этим:
+\begin{description}
+	\item[Идентификатор сеанса] Уникальный UUID рабочего сеанса. При каждой авторизации пользователя
+	в базе данных формируется такой идентификатор, по которому можно отличить один сеанс от другого.
+	\item[Идентификатор базы данных] Уникальный UUID базы данных, в которой работал сеанс.
+	\item[Версия системы] Версия системы \ppybrand{}.
+	\item[Пользователь] Идентификатор и имя пользователя.
+	\item[Функция] Все функции, отслеживаемые системой, имеют внутренний уникальный идентификатор.
+	Профиль пользовательских функций хранит эти идентификаторы для того, чтобы можно было сказать
+	исполнение какой именно функции профилируется.
+	\item[Начало выполнения] Время начала выполнения функции.
+	\item[Завершение] Время завершения выполнения функции. Опираясь на это время и зная время начала
+	выполнения функции, система может вычислить общее время работы функции.
+	\item[Дополнительные факторы] Специальные значения, зависящие от функции и требуемые, главным образом, для того, чтобы
+	можно было сопоставить различные варианты профилей одной и той же функции в разное время и работавшей при разных исходных данных.
+\end{description}
+
+\subsection{Список профилируемых функций}
+
+Далее мы приводим полный список функций, регистрируемых подсистемой профилирования пользовательских
+функций.
+
+\begin{description}
+	\item[Вход]
+	
+	ИД=1
+	\item[Сессия]
+	
+	ИД=2
+	\item[Создание документа приход]
+	
+	ИД=3
+	\item[Создание документа расход]
+	
+	ИД=4
+	\item[Создание документа передача]
+	
+	ИД=5
+	\item[Создание документа модификация]
+	
+	ИД=6
+	\item[Создание документа RVL]
+	
+	ИД=7
+	\item[Создание документа заказ]
+	
+	ИД=8
+	\item[Создание документа драфт]
+	
+	ИД=9
+	\item[Создание документа возврат]
+	
+	ИД=10
+	\item[Создание документа другое]
+	
+	ИД=11
+	\item[Изменение документа приход]
+	
+	ИД=12
+	\item[Изменение документа расход]
+	
+	ИД=13
+	\item[Изменение документа передача]
+	
+	ИД=14
+	\item[Изменение документа модификация]
+	
+	ИД=15
+	\item[Изменение документа RVL]
+	
+	ИД=16
+	\item[Изменение документа заказ]
+	
+	ИД=17
+	\item[Изменение документа драфт]
+	
+	ИД=18
+	\item[Изменение документа возврат]
+	
+	ИД=19
+	\item[Изменение документа другое]
+	
+	ИД=20
+	\item[Удаление документа приход]
+	
+	ИД=21
+	\item[Удаление документа расход]
+	
+	ИД=22
+	\item[Удаление документа передача]
+	
+	ИД=23
+	\item[Удаление документа модификация]
+	
+	ИД=24
+	\item[Удаление документа RVL]
+	
+	ИД=25
+	\item[Удаление документа заказ]
+	
+	ИД=26
+	\item[Удаление документа драфт]
+	
+	ИД=27
+	\item[Удаление документа возврат]
+	
+	ИД=28
+	\item[Удаление документа другое]
+	
+	ИД=29
+	\item[Остатки товаров (текущие)]
+	
+	ИД=51
+	\item[Остатки товаров (на дату)]
+	
+	ИД=52
+	\item[Получение списка персоналий освобожденных от НДС]
+	
+	ИД=53
+	\item[Основной цикл построения таблицы продаж]
+	
+	ИД=54
+	\item[Основной цикл теста таблицы продаж]
+	
+	ИД=55
+	\item[Запись товара]
+	
+	ИД=56
+	accumulative
+	\item[Создание кассового чека]
+	
+	ИД=57
+	accumulative
+	\item[Получение товарной матрицы по складу]
+	
+	ИД=58
+	\item[Восстановление кассовой сессии из пакета передачи]
+	
+	ИД=59
+	\item[Упаковка текстовых строк кэша]
+	
+	ИД=60
+	\item[Актуализация кэша товарной матрицы]
+	
+	ИД=61
+	accumulative
+	\item[Пересчет персональных карт по правилам]
+	
+	ИД=62
+	\item[Получение учетных данных по строке инвентаризации]
+	
+	ИД=63
+	accumulative
+	\item[Товарный отчет по операции]
+	
+	ИД=64
+	\item[Анализ товарных операций]
+	
+	ИД=65
+	\item[Автозаполнение документа инвентаризации]
+	
+	ИД=66
+	\item[Расчет задолженности по статье]
+	
+	ИД=67
+	accumulative
+	\item[Долговая ведомость]
+	
+	ИД=68
+	\item[Получение списка открытых лотов по товару]
+	
+	ИД=69
+	accumulative
+	\item[Подготовка данных для BHT (документы)]
+	
+	ИД=70
+	\item[Подготовка данных для BHT (товары)]
+	
+	ИД=71
+	\item[Разбор xml файла OpenStreetMap]
+	
+	ИД=72
+	accumulative
+	\item[Построение полного списка наименований товаров]
+	
+	ИД=73
+	\item[Поиск в полном списке наименований товаров]
+	
+	ИД=74
+	\item[Сохранение временной серии]
+	
+	ИД=75
+	accumulative
+	\item[Обработка StakeEnvironment]
+	
+	ИД=76
+	accumulative
+\end{description}
 
 \chapter{Защита и восстановление данных\label{ch-dataprotection}}
 

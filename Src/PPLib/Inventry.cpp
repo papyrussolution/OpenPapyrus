@@ -957,7 +957,7 @@ int PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
 		const int ta_per_line = 1; // Если !0, то каждая строка формируется отдельной транзакцией, иначе - все в общей транзакции.
 		// Каждая строка в отдельной траназкции значительно снижает общую нагрузку на остальных пользователей.
 		double prf_measure = 0.0;
-		PPUserFuncProfiler ufp(PPUPRF_INVENTAUTOBUILD); // @v8.5.5
+		PPUserFuncProfiler ufp(PPUPRF_INVENTAUTOBUILD);
 		PPTransaction tra(BIN(!ta_per_line));
 		THROW(tra);
 		for(uint i = 0; i < gc; i++) {

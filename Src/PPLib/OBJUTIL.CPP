@@ -444,7 +444,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		THROW(psn_obj.LocObj.IndexPhones(&logger, 0));
 		THROW(sc_obj.IndexPhones(&logger, 0));
 		THROW(tra.Commit());
-		psn_obj.LocObj.P_Tbl->DumpEaList(0); // @v9.9.12
+		psn_obj.LocObj.P_Tbl->DumpEaList(0);
 		PPWait(0);
 	}
 	CATCHZOKPPERR

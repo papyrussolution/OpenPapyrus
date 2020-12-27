@@ -5,6 +5,23 @@
 #include <pp.h>
 #pragma hdrstop
 
+int SelfbuildStaffForManual_ReservedObjTagList();
+int SelfbuildStaffForManual_UserProfileFuncList();
+
+int SelfbuildStaffForManual()
+{
+	int    ok = 1;
+	SString temp_buf;
+	PPIniFile ini_file;
+	int    do_make_doc = 0;
+	if(ini_file.GetInt(PPINISECT_SELFBUILD, PPINIPARAM_RESERVEDOBJECTS, &do_make_doc) && do_make_doc > 0) {
+		THROW(SelfbuildStaffForManual_ReservedObjTagList());
+		THROW(SelfbuildStaffForManual_UserProfileFuncList());		
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 class PrcssrBuild {
 public:
 	struct BuildVer {

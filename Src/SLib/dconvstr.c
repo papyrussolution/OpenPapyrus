@@ -2451,8 +2451,15 @@ int FASTCALL SRealConversion::Scan(const char * pInput, const char ** ppInputEnd
 		}
 		if(!flag_syntax_error && oneof5(state, S0, S1, S3, S5, S6))
 			flag_syntax_error = 1;
-		if(ppInputEnd)
-			*ppInputEnd = flag_syntax_error ? pInput : s;
+		if(ppInputEnd) {
+			//
+			// @v10.9.10 По-моему, это - была ошибка. Установка flag_syntax_error означает, что
+			// больше нет символов для адекватного представления числа, но само число просканировано
+			// и необходимо вернуть указатель на первый недопустимый символ.
+			//
+			// @v10.9.10 *ppInputEnd = flag_syntax_error ? pInput : s;
+			*ppInputEnd = s; // @v10.9.10 
+		}
 		// 3. Zero out the tail of mantissa.
 		//    Move decimal point to the right side of mantissa (adjust exponent offset).
 		//    Get rid of last mantissa digit, set first one to zero, and compress BCD representation of mantissa.

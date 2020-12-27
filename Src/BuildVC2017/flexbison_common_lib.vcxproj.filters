@@ -529,8 +529,6 @@
     <ClCompile Include="..\osf\winflexbison\common\getopt1.c" />
     <ClCompile Include="..\osf\winflexbison\common\hash.c" />
     <ClCompile Include="..\osf\winflexbison\common\localcharset.c" />
-    <ClCompile Include="..\osf\winflexbison\common\mbchar.c" />
-    <ClCompile Include="..\osf\winflexbison\common\mbfile.c" />
     <ClCompile Include="..\osf\winflexbison\common\mbswidth.c" />
     <ClCompile Include="..\osf\winflexbison\common\obstack.c" />
     <ClCompile Include="..\osf\winflexbison\common\obstack_printf.c" />
@@ -538,7 +536,6 @@
     <ClCompile Include="..\osf\winflexbison\common\quotearg.c" />
     <ClCompile Include="..\osf\winflexbison\common\relocatable.c" />
     <ClCompile Include="..\osf\winflexbison\common\strverscmp.c" />
-    <ClCompile Include="..\osf\winflexbison\common\timespec.c" />
     <ClCompile Include="..\osf\winflexbison\common\timevar.c" />
     <ClCompile Include="..\osf\winflexbison\common\wcwidth.c" />
     <ClCompile Include="..\osf\winflexbison\common\width.c" />
@@ -547,7 +544,6 @@
     <ClCompile Include="..\osf\winflexbison\common\xmalloc.c" />
     <ClCompile Include="..\osf\winflexbison\common\xmemdup0.c" />
     <ClCompile Include="..\osf\winflexbison\common\xstrndup.c" />
-    <ClCompile Include="..\osf\winflexbison\common\xtime.c" />
     <ClCompile Include="..\OSF\winflexbison\common\flexbison_common-pch.cpp" />
     <ClCompile Include="..\OSF\winflexbison\common\flexbison_common.cpp" />
   </ItemGroup>

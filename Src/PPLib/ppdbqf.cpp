@@ -520,6 +520,20 @@ static IMPL_DBE_PROC(dbqf_checkwmsloc_ii)
 	result->init(r);
 }
 
+static IMPL_DBE_PROC(dbqf_istxtuuideq_ss)
+{
+	long   is_eq = 0;
+	const char * p_s1 = params[0].sptr;
+	const char * p_s2 = params[1].sptr;
+	if(!isempty(p_s1) && !isempty(p_s2)) {
+		S_GUID u1;
+		S_GUID u2;
+		if(u1.FromStr(p_s1) && u2.FromStr(p_s2) && u1 == u2)
+			is_eq = 1;
+	}
+	result->init(is_eq);
+}
+
 // @vmiller
 static IMPL_DBE_PROC(dbqf_strexistsub_ss)
 {
@@ -1130,112 +1144,113 @@ static IMPL_DBE_PROC(dbqf_addr_ex_field_ii)
 }
 
 //static
-int PPDbqFuncPool::IdEmpty             = 0;
-int PPDbqFuncPool::IdBillDebt          = 0;
-int PPDbqFuncPool::IdCQtty             = 0;
-int PPDbqFuncPool::IdTrfrPrice         = 0;
-int PPDbqFuncPool::IdObjNameBillStatus = 0;
-int PPDbqFuncPool::IdObjNameOprKind    = 0;
-int PPDbqFuncPool::IdObjNameLoc        = 0;
-int PPDbqFuncPool::IdObjNameAr         = 0;
-int PPDbqFuncPool::IdObjNameArByAcc    = 0; //
-int PPDbqFuncPool::IdObjNameUser       = 0;
-int PPDbqFuncPool::IdObjNameGlobalUser = 0; // @v7.3.8
-int PPDbqFuncPool::IdObjNameUnit       = 0;
-int PPDbqFuncPool::IdObjNameTech       = 0;
-int PPDbqFuncPool::IdObjNameGoodsByTech = 0; //
-int PPDbqFuncPool::IdObjNamePrc        = 0;
-int PPDbqFuncPool::IdObjNameGoods      = 0;
-int PPDbqFuncPool::IdObjNamePerson     = 0; //
-int PPDbqFuncPool::IdObjNameSalCharge  = 0; //
-int PPDbqFuncPool::IdObjNameStaff      = 0; //
-int PPDbqFuncPool::IdObjNameStaffCal   = 0; //
-int PPDbqFuncPool::IdObjNamePersonPost = 0; //
-int PPDbqFuncPool::IdObjStaffOrg       = 0; // @v9.0.3
-int PPDbqFuncPool::IdObjStaffDiv       = 0; // @v9.0.3
-int PPDbqFuncPool::IdObjNameAccSheet   = 0; //
-int PPDbqFuncPool::IdObjNameQuotKind   = 0; //
-int PPDbqFuncPool::IdObjNameCashNode   = 0; //
-int PPDbqFuncPool::IdObjNameScale      = 0; //
-int PPDbqFuncPool::IdObjNamePsnOpKind  = 0; //
-int PPDbqFuncPool::IdObjNameBizScore   = 0; //
-int PPDbqFuncPool::IdObjNameAcctRel    = 0; //
-int PPDbqFuncPool::IdObjNameBrand      = 0; //
-int PPDbqFuncPool::IdObjNameWorld      = 0; //
+int PPDbqFuncPool::IdEmpty               = 0;
+int PPDbqFuncPool::IdBillDebt          	 = 0;
+int PPDbqFuncPool::IdCQtty             	 = 0;
+int PPDbqFuncPool::IdTrfrPrice         	 = 0;
+int PPDbqFuncPool::IdObjNameBillStatus 	 = 0;
+int PPDbqFuncPool::IdObjNameOprKind    	 = 0;
+int PPDbqFuncPool::IdObjNameLoc        	 = 0;
+int PPDbqFuncPool::IdObjNameAr         	 = 0;
+int PPDbqFuncPool::IdObjNameArByAcc    	 = 0; //
+int PPDbqFuncPool::IdObjNameUser       	 = 0;
+int PPDbqFuncPool::IdObjNameGlobalUser 	 = 0; // 
+int PPDbqFuncPool::IdObjNameUnit       	 = 0;
+int PPDbqFuncPool::IdObjNameTech         = 0;
+int PPDbqFuncPool::IdObjNameGoodsByTech  = 0; //
+int PPDbqFuncPool::IdObjNamePrc          = 0;
+int PPDbqFuncPool::IdObjNameGoods      	 = 0;
+int PPDbqFuncPool::IdObjNamePerson     	 = 0; //
+int PPDbqFuncPool::IdObjNameSalCharge  	 = 0; //
+int PPDbqFuncPool::IdObjNameStaff      	 = 0; //
+int PPDbqFuncPool::IdObjNameStaffCal   	 = 0; //
+int PPDbqFuncPool::IdObjNamePersonPost 	 = 0; //
+int PPDbqFuncPool::IdObjStaffOrg       	 = 0; // 
+int PPDbqFuncPool::IdObjStaffDiv       	 = 0; // 
+int PPDbqFuncPool::IdObjNameAccSheet   	 = 0; //
+int PPDbqFuncPool::IdObjNameQuotKind   	 = 0; //
+int PPDbqFuncPool::IdObjNameCashNode   	 = 0; //
+int PPDbqFuncPool::IdObjNameScale      	 = 0; //
+int PPDbqFuncPool::IdObjNamePsnOpKind  	 = 0; //
+int PPDbqFuncPool::IdObjNameBizScore   	 = 0; //
+int PPDbqFuncPool::IdObjNameAcctRel    	 = 0; //
+int PPDbqFuncPool::IdObjNameBrand      	 = 0; //
+int PPDbqFuncPool::IdObjNameWorld      	 = 0; //
 int PPDbqFuncPool::IdObjNamePersonStatus = 0; //
-int PPDbqFuncPool::IdObjNamePersonCat  = 0; //
-int PPDbqFuncPool::IdObjNameAmountType = 0; //
-int PPDbqFuncPool::IdObjNamePsnKind    = 0; //
-int PPDbqFuncPool::IdObjSymbCurrency   = 0; //
-int PPDbqFuncPool::IdObjCodeBillCmplx  = 0; // (fldBillID)
-int PPDbqFuncPool::IdObjCodeBill       = 0; // (fldBillID)
-int PPDbqFuncPool::IdObjMemoBill       = 0; // (fldBillID)
-int PPDbqFuncPool::IdObjNameSCardSer   = 0; //
-int PPDbqFuncPool::IdObjNameDebtDim    = 0; //
-int PPDbqFuncPool::IdDateTime          = 0; // (fldDate, fldTime)
-int PPDbqFuncPool::IdInventDiffQtty    = 0; //
-int PPDbqFuncPool::IdInventLnStatus    = 0; // @v10.5.8 (fldFlags, fldBillID)
-int PPDbqFuncPool::IdTSesLnPhQtty      = 0; //
-int PPDbqFuncPool::IdTSesLnFlags       = 0; //
-int PPDbqFuncPool::IdPercent           = 0; // (100 * fld1 / fld2)
-int PPDbqFuncPool::IdPercentIncDiv     = 0; // (100 * fld1 / (fld2+fld1))
-int PPDbqFuncPool::IdPercentAddendum   = 0; // @v9.8.2 (100 * (fld1-fld2) / fld2)
-int PPDbqFuncPool::IdWorldIsMemb       = 0; //
-int PPDbqFuncPool::IdTaCost            = 0; //
-int PPDbqFuncPool::IdTaPrice           = 0; //
-int PPDbqFuncPool::IdCommSyncId        = 0; //
-int PPDbqFuncPool::IdDurationToTime    = 0; //
-int PPDbqFuncPool::IdObjTitle          = 0; //
-int PPDbqFuncPool::IdGoodsStockDim     = 0; //
-int PPDbqFuncPool::IdGoodsStockBrutto  = 0; //
-int PPDbqFuncPool::IdGoodsStockMin     = 0; //
-int PPDbqFuncPool::IdGoodsStockPackage = 0; //
-int PPDbqFuncPool::IdGoodsSingleBarcode = 0; //
-int PPDbqFuncPool::IdReportTypeName    = 0; //
-int PPDbqFuncPool::IdLogFileName       = 0; //
-int PPDbqFuncPool::IdSysJActionName    = 0; //
-int PPDbqFuncPool::IdGtaJActionName    = 0; // @v7.3.8
-int PPDbqFuncPool::IdCounter           = 0; //
-int PPDbqFuncPool::IdPropSubStr        = 0; // (ObjType, ObjID, PropID, Sub)
-int PPDbqFuncPool::IdCheckUserID       = 0; // (userID, filtUserID)
-int PPDbqFuncPool::IdCheckWmsLocID     = 0; //
-int PPDbqFuncPool::IdTransportTypeName = 0; //
-int PPDbqFuncPool::IdLotCloseDate      = 0; //
-int PPDbqFuncPool::IdFormatCycle       = 0; //
-int PPDbqFuncPool::IdYesWordByFlag     = 0; //
-int PPDbqFuncPool::IdBudgetPlanOrFact  = 0; //
-int PPDbqFuncPool::IdChkOpJActionName  = 0; //
-int PPDbqFuncPool::IdAddrCityName      = 0; // (locID)
-int PPDbqFuncPool::IdAddrExField       = 0; // (locID, locExFld)
-int PPDbqFuncPool::IdObjCodeSCard      = 0; // (fldSCardID)
-int PPDbqFuncPool::IdSCardOwnerName    = 0; // (fldSCardID)
-int PPDbqFuncPool::IdUsrPersonName     = 0; // (fldUsrID)
-int PPDbqFuncPool::IdLocOwnerName      = 0; // (fldLocID) Формирует строку с именем персоналии-владельца локации
-int PPDbqFuncPool::IdUfpFuncName       = 0; // (fldFuncId)
-int PPDbqFuncPool::IdVersionText       = 0; // (fldVersion)
-int PPDbqFuncPool::IdUfpFuncId         = 0; // (fldFuncId)
-int PPDbqFuncPool::IdCheckCsPosNode    = 0; // (csessID, posNodeID)
-int PPDbqFuncPool::IdCheckCsPosNodeList = 0; // (csessID, (const LongArray *))
-int PPDbqFuncPool::IdStrExistSubStr    = 0; // @vmiller
-int PPDbqFuncPool::IdAddedCreditLimit  = 0; // 
-int PPDbqFuncPool::IdBillFrghtIssueDt  = 0; // (billID)
-int PPDbqFuncPool::IdBillFrghtArrvlDt  = 0; // (billID)
-int PPDbqFuncPool::IdBillFrghtDlvrAddr = 0; // (billID)
-int PPDbqFuncPool::IdGetAgrmntSymbol   = 0; // @vmiller
-int PPDbqFuncPool::IdBillAgentName     = 0; // (billID) Наименование агента по документу (извлекается из записи расширения документа)
-int PPDbqFuncPool::IdRegisterText      = 0; // (registerID) Текст описания регистрационного документа
-int PPDbqFuncPool::IdObjRegisterText   = 0; // (registerTypeID, objtype, objid)
-int PPDbqFuncPool::IdObjTagText        = 0; // (tagid, objid) Текстовое представление тега объекта
-int PPDbqFuncPool::IdObjTagText_NoCache = 0; // @v10.3.8
-int PPDbqFuncPool::IdDateRange         = 0; // @v8.6.4
-//int PPDbqFuncPool::IdObjNameOpTypeK    = 0; // @v8.6.
-int PPDbqFuncPool::IdOidText           = 0; // @v8.6.11 (objType, objID) Текстовое представление полного OID
-int PPDbqFuncPool::IdDateBase          = 0; // @v8.6.11 (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
-int PPDbqFuncPool::IdBillFrghtStrgLoc  = 0; // @v8.8.6
-int PPDbqFuncPool::IdSCardExtString    = 0; // @v9.6.1 (scardID, fldId)
-int PPDbqFuncPool::IdStrByStrGroupPos  = 0; // @v9.8.3 (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
-int PPDbqFuncPool::IdBillDate          = 0; // @v10.0.03
-int PPDbqFuncPool::IdUnxText           = 0; // @v10.7.2  
+int PPDbqFuncPool::IdObjNamePersonCat    = 0; //
+int PPDbqFuncPool::IdObjNameAmountType 	 = 0; //
+int PPDbqFuncPool::IdObjNamePsnKind    	 = 0; //
+int PPDbqFuncPool::IdObjSymbCurrency   	 = 0; //
+int PPDbqFuncPool::IdObjCodeBillCmplx  	 = 0; // (fldBillID)
+int PPDbqFuncPool::IdObjCodeBill       	 = 0; // (fldBillID)
+int PPDbqFuncPool::IdObjMemoBill       	 = 0; // (fldBillID)
+int PPDbqFuncPool::IdObjNameSCardSer   	 = 0; //
+int PPDbqFuncPool::IdObjNameDebtDim    	 = 0; //
+int PPDbqFuncPool::IdDateTime          	 = 0; // (fldDate, fldTime)
+int PPDbqFuncPool::IdInventDiffQtty    	 = 0; //
+int PPDbqFuncPool::IdInventLnStatus    	 = 0; // @v10.5.8 (fldFlags, fldBillID)
+int PPDbqFuncPool::IdTSesLnPhQtty      	 = 0; //
+int PPDbqFuncPool::IdTSesLnFlags       	 = 0; //
+int PPDbqFuncPool::IdPercent           	 = 0; // (100 * fld1 / fld2)
+int PPDbqFuncPool::IdPercentIncDiv     	 = 0; // (100 * fld1 / (fld2+fld1))
+int PPDbqFuncPool::IdPercentAddendum   	 = 0; // (100 * (fld1-fld2) / fld2)
+int PPDbqFuncPool::IdWorldIsMemb       	 = 0; //
+int PPDbqFuncPool::IdTaCost            	 = 0; //
+int PPDbqFuncPool::IdTaPrice           	 = 0; //
+int PPDbqFuncPool::IdCommSyncId        	 = 0; //
+int PPDbqFuncPool::IdDurationToTime    	 = 0; //
+int PPDbqFuncPool::IdObjTitle          	 = 0; //
+int PPDbqFuncPool::IdGoodsStockDim     	 = 0; //
+int PPDbqFuncPool::IdGoodsStockBrutto  	 = 0; //
+int PPDbqFuncPool::IdGoodsStockMin     	 = 0; //
+int PPDbqFuncPool::IdGoodsStockPackage 	 = 0; //
+int PPDbqFuncPool::IdGoodsSingleBarcode  = 0; //
+int PPDbqFuncPool::IdReportTypeName      = 0; //
+int PPDbqFuncPool::IdLogFileName       	 = 0; //
+int PPDbqFuncPool::IdSysJActionName    	 = 0; //
+int PPDbqFuncPool::IdGtaJActionName    	 = 0; // 
+int PPDbqFuncPool::IdCounter           	 = 0; //
+int PPDbqFuncPool::IdPropSubStr        	 = 0; // (ObjType, ObjID, PropID, Sub)
+int PPDbqFuncPool::IdCheckUserID       	 = 0; // (userID, filtUserID)
+int PPDbqFuncPool::IdCheckWmsLocID     	 = 0; //
+int PPDbqFuncPool::IdTransportTypeName 	 = 0; //
+int PPDbqFuncPool::IdLotCloseDate      	 = 0; //
+int PPDbqFuncPool::IdFormatCycle       	 = 0; //
+int PPDbqFuncPool::IdYesWordByFlag     	 = 0; //
+int PPDbqFuncPool::IdBudgetPlanOrFact  	 = 0; //
+int PPDbqFuncPool::IdChkOpJActionName  	 = 0; //
+int PPDbqFuncPool::IdAddrCityName      	 = 0; // (locID)
+int PPDbqFuncPool::IdAddrExField       	 = 0; // (locID, locExFld)
+int PPDbqFuncPool::IdObjCodeSCard      	 = 0; // (fldSCardID)
+int PPDbqFuncPool::IdSCardOwnerName    	 = 0; // (fldSCardID)
+int PPDbqFuncPool::IdUsrPersonName     	 = 0; // (fldUsrID)
+int PPDbqFuncPool::IdLocOwnerName      	 = 0; // (fldLocID) Формирует строку с именем персоналии-владельца локации
+int PPDbqFuncPool::IdUfpFuncName       	 = 0; // (fldFuncId)
+int PPDbqFuncPool::IdVersionText       	 = 0; // (fldVersion)
+int PPDbqFuncPool::IdUfpFuncId         	 = 0; // (fldFuncId)
+int PPDbqFuncPool::IdCheckCsPosNode    	 = 0; // (csessID, posNodeID)
+int PPDbqFuncPool::IdCheckCsPosNodeList  = 0; // (csessID, (const LongArray *))
+int PPDbqFuncPool::IdStrExistSubStr      = 0; // @vmiller
+int PPDbqFuncPool::IdAddedCreditLimit    = 0; // 
+int PPDbqFuncPool::IdBillFrghtIssueDt    = 0; // (billID)
+int PPDbqFuncPool::IdBillFrghtArrvlDt    = 0; // (billID)
+int PPDbqFuncPool::IdBillFrghtDlvrAddr   = 0; // (billID)
+int PPDbqFuncPool::IdGetAgrmntSymbol     = 0; // @vmiller
+int PPDbqFuncPool::IdBillAgentName       = 0; // (billID) Наименование агента по документу (извлекается из записи расширения документа)
+int PPDbqFuncPool::IdRegisterText        = 0; // (registerID) Текст описания регистрационного документа
+int PPDbqFuncPool::IdObjRegisterText     = 0; // (registerTypeID, objtype, objid)
+int PPDbqFuncPool::IdObjTagText          = 0; // (tagid, objid) Текстовое представление тега объекта
+int PPDbqFuncPool::IdObjTagText_NoCache  = 0; // @v10.3.8
+int PPDbqFuncPool::IdDateRange           = 0; // 
+//int PPDbqFuncPool::IdObjNameOpTypeK    = 0; // 
+int PPDbqFuncPool::IdOidText             = 0; // (objType, objID) Текстовое представление полного OID
+int PPDbqFuncPool::IdDateBase            = 0; // (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
+int PPDbqFuncPool::IdBillFrghtStrgLoc    = 0; // 
+int PPDbqFuncPool::IdSCardExtString      = 0; // (scardID, fldId)
+int PPDbqFuncPool::IdStrByStrGroupPos    = 0; // (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
+int PPDbqFuncPool::IdBillDate            = 0; // @v10.0.03
+int PPDbqFuncPool::IdUnxText             = 0; // @v10.7.2  
+int PPDbqFuncPool::IdIsTxtUuidEq         = 0; // @v10.9.10
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1442,8 +1457,8 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameStaff,        BTS_STRING, dbqf_objname_staff_i,        1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameStaffCal,     BTS_STRING, dbqf_objname_staffcal_i,     1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePersonPost,   BTS_STRING, dbqf_objname_personpost_i,   1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjStaffOrg,         BTS_STRING, dbqf_stafforgname_i,         1, BTS_INT)); // @v9.0.3
-	THROW(DbqFuncTab::RegisterDyn(&IdObjStaffDiv,         BTS_STRING, dbqf_staffdivname_i,         1, BTS_INT)); // @v9.0.3
+	THROW(DbqFuncTab::RegisterDyn(&IdObjStaffOrg,         BTS_STRING, dbqf_stafforgname_i,         1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjStaffDiv,         BTS_STRING, dbqf_staffdivname_i,         1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAccSheet,     BTS_STRING, dbqf_objname_accsheet_i,     1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameQuotKind,     BTS_STRING, dbqf_objname_quotkind_i,     1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameCashNode,     BTS_STRING, dbqf_objname_cashnode_i,     1, BTS_INT));
@@ -1478,7 +1493,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnFlags,         BTS_STRING, dbqf_tseslnflags_i,          1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdPercent,             BTS_REAL,   dbqf_percent_rr,             2, BTS_REAL, BTS_REAL));
 	THROW(DbqFuncTab::RegisterDyn(&IdPercentIncDiv,       BTS_REAL,   dbqf_percentincdiv_rr,       2, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdPercentAddendum,     BTS_REAL,   dbqf_percentaddendum_rr,     2, BTS_REAL, BTS_REAL)); // @v9.8.2
+	THROW(DbqFuncTab::RegisterDyn(&IdPercentAddendum,     BTS_REAL,   dbqf_percentaddendum_rr,     2, BTS_REAL, BTS_REAL));
 	THROW(DbqFuncTab::RegisterDyn(&IdWorldIsMemb,         BTS_INT,    dbqf_world_ismemb_ii,        2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdTaCost,              BTS_REAL,   dbqf_tacost_rr,              2, BTS_REAL, BTS_REAL));
 	THROW(DbqFuncTab::RegisterDyn(&IdTaPrice,             BTS_REAL,   dbqf_taprice_rrr,            3, BTS_REAL, BTS_REAL, BTS_REAL));
@@ -1508,19 +1523,20 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdAddrExField,         BTS_STRING, dbqf_addr_ex_field_ii,       2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNode,      BTS_INT,    dbqf_checkcsposnode_ii,      2, BTS_INT, BTS_INT)); // (csessID, posNodeID)
 	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNodeList,  BTS_INT,    dbqf_checkcsposnodelist_ii,  2, BTS_INT, BTS_PTR)); // (csessID, (const LongArray *))
-	THROW(DbqFuncTab::RegisterDyn(&IdStrByStrGroupPos,    BTS_STRING, dbqf_strbystrgrouppos_ip,    2, BTS_INT, BTS_PTR)); // @v9.8.3 (position, (const SStrGroup *))
+	THROW(DbqFuncTab::RegisterDyn(&IdStrByStrGroupPos,    BTS_STRING, dbqf_strbystrgrouppos_ip,    2, BTS_INT, BTS_PTR)); // (position, (const SStrGroup *))
 	THROW(DbqFuncTab::RegisterDyn(&IdStrExistSubStr,      BTS_INT,    dbqf_strexistsub_ss,         2, BTS_STRING, BTS_STRING));
-	THROW(DbqFuncTab::RegisterDyn(&IdAddedCreditLimit,    BTS_REAL,   dbqf_addedcreditlimit_rii,   3, BTS_REAL, BTS_INT, BTS_INT)); // @v8.2.4
+	THROW(DbqFuncTab::RegisterDyn(&IdAddedCreditLimit,    BTS_REAL,   dbqf_addedcreditlimit_rii,   3, BTS_REAL, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdGetAgrmntSymbol,     BTS_STRING, dbqf_getagrmntsymbol_i,      1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdRegisterText,        BTS_STRING, dbqf_registertext_i,         1, BTS_INT)); // @v8.4.4
+	THROW(DbqFuncTab::RegisterDyn(&IdRegisterText,        BTS_STRING, dbqf_registertext_i,         1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjRegisterText,     BTS_STRING, dbqf_objregistertext_iii,    3, BTS_INT)); // @v10.8.12
-	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText,          BTS_STRING, dbqf_objtagtext_ii,          2, BTS_INT, BTS_INT)); // @v8.4.11
+	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText,          BTS_STRING, dbqf_objtagtext_ii,          2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText_NoCache,  BTS_STRING, dbqf_objtagtextnocache_ii,   2, BTS_INT, BTS_INT)); // @v10.3.8
-	THROW(DbqFuncTab::RegisterDyn(&IdDateRange,           BTS_STRING, dbqf_daterange_dd,           2, BTS_DATE, BTS_DATE)); // @v8.6.4
-	THROW(DbqFuncTab::RegisterDyn(&IdOidText,             BTS_STRING, dbqf_oidtext_ii,             2, BTS_INT, BTS_INT)); // @v8.6.11
-	THROW(DbqFuncTab::RegisterDyn(&IdDateBase,            BTS_DATE,   dbqf_datebase_id,            2, BTS_INT, BTS_DATE)); // @v8.6.11
-	THROW(DbqFuncTab::RegisterDyn(&IdSCardExtString,      BTS_STRING, dbqf_scardextstring_ii,      2, BTS_INT, BTS_INT)); // @v9.6.1
+	THROW(DbqFuncTab::RegisterDyn(&IdDateRange,           BTS_STRING, dbqf_daterange_dd,           2, BTS_DATE, BTS_DATE));
+	THROW(DbqFuncTab::RegisterDyn(&IdOidText,             BTS_STRING, dbqf_oidtext_ii,             2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdDateBase,            BTS_DATE,   dbqf_datebase_id,            2, BTS_INT, BTS_DATE));
+	THROW(DbqFuncTab::RegisterDyn(&IdSCardExtString,      BTS_STRING, dbqf_scardextstring_ii,      2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdUnxText,             BTS_STRING, dbqf_unxtext_iii,            3, BTS_INT, BTS_INT, BTS_INT)); // @v10.7.2
+	THROW(DbqFuncTab::RegisterDyn(&IdIsTxtUuidEq,         BTS_INT,    dbqf_istxtuuideq_ss,         2, BTS_STRING, BTS_STRING)); // @v10.9.10
 	CATCHZOK
 	return ok;
 }

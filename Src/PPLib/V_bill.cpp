@@ -3708,19 +3708,18 @@ int PPViewBill::SetupPoolInsertionFilt(BillFilt * pFilt)
 int PPViewBill::AddBillToPool()
 {
 	class BillPoolAddDialog : public TDialog {
+		DECL_DIALOG_DATA(PPViewBill::PoolInsertionParam);
 	public:
 		BillPoolAddDialog() : TDialog(DLG_BPOOLADD)
 		{
 		}
-		int    setDTS(const PPViewBill::PoolInsertionParam * pParam)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pParam;
-
+			RVALUEPTR(Data, pData);
 			AddClusterAssocDef(CTL_BPOOLADD_VERB,  0, 1);
 			AddClusterAssoc(CTL_BPOOLADD_VERB,  1, 2);
 			SetClusterData(CTL_BPOOLADD_VERB, Data.Verb);
 			enableCommand(cmBillFilt, Data.Verb == 2);
-
 			AddClusterAssocDef(CTL_BPOOLADD_BILLKIND, 0, bbtUndef);
 			AddClusterAssoc(CTL_BPOOLADD_BILLKIND, 1, bbtAccturnBills);
 			AddClusterAssoc(CTL_BPOOLADD_BILLKIND, 2, bbtGoodsBills);
@@ -3729,13 +3728,13 @@ int PPViewBill::AddBillToPool()
 			SetClusterData(CTL_BPOOLADD_BILLKIND, Data.AddedBillKind);
 			return 1;
 		}
-		int    getDTS(PPViewBill::PoolInsertionParam * pParam)
+		DECL_DIALOG_GETDTS()
 		{
 			long   temp_long = 0;
 			GetClusterData(CTL_BPOOLADD_VERB, &Data.Verb);
 			if(GetClusterData(CTL_BPOOLADD_BILLKIND, &temp_long))
 				Data.AddedBillKind = static_cast<BrowseBillsType>(temp_long);
-			ASSIGN_PTR(pParam, Data);
+			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
 	private:
@@ -3762,7 +3761,6 @@ int PPViewBill::AddBillToPool()
 				return;
 			clearEvent(event);
 		}
-		PPViewBill::PoolInsertionParam Data;
 	};
 	int    ok = 1, r;
 	const PPConfig & r_cfg = LConfig;

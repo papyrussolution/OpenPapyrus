@@ -73,19 +73,13 @@ ptrdiff_t argmatch(const char * arg, const char * const * arglist, const void * 
 	for(i = 0; arglist[i]; i++) {
 		if(!strncmp(arglist[i], arg, arglen)) {
 			if(strlen(arglist[i]) == arglen)
-				/* Exact match found.  */
-				return i;
+				return i; // Exact match found.
 			else if(matchind == -1)
-				/* First nonexact match found.  */
-				matchind = i;
+				matchind = i; // First nonexact match found. 
 			else {
 				/* Second nonexact match found.  */
-				if(vallist == NULL
-				    || memcmp((char const*)vallist + valsize * matchind,
-				    (char const*)vallist + valsize * i, valsize)) {
-					/* There is a real ambiguity, or we could not
-					   disambiguate. */
-					ambiguous = true;
+				if(vallist == NULL || memcmp((char const*)vallist + valsize * matchind, (char const*)vallist + valsize * i, valsize)) {
+					ambiguous = true; // There is a real ambiguity, or we could not disambiguate
 				}
 			}
 		}

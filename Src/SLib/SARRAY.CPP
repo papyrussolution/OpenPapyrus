@@ -1344,6 +1344,24 @@ long FASTCALL LAssocArray::Count(long key) const
 	return c;
 }
 
+int LAssocArray::GetKeyList(LongArray & rList) const
+{
+	rList.clear();
+	const  uint _c = getCount();
+	for(uint i = 0; i < _c; i++) { rList.add(at(i).Key); }
+	rList.sortAndUndup();
+	return rList.getCount() ? 1 : -1;
+}
+
+int LAssocArray::GetValList(LongArray & rList) const
+{
+	rList.clear();
+	const  uint _c = getCount();
+	for(uint i = 0; i < _c; i++) { rList.add(at(i).Val); }
+	rList.sortAndUndup();
+	return rList.getCount() ? 1 : -1;
+}
+
 int LAssocArray::GetListByKey(long key, LongArray & rList) const
 {
 	int    ok = -1;
@@ -1480,8 +1498,24 @@ IMPL_CMPFUNC(LAssoc_Val, i1, i2)
 	return (p1->Val < p2->Val) ? -1 : ((p1->Val > p2->Val) ? +1 : 0);
 }
 
+IMPL_CMPFUNC(LAssoc_KeyVal, i1, i2)
+{
+	const LAssoc * p1 = static_cast<const LAssoc *>(i1);
+	const LAssoc * p2 = static_cast<const LAssoc *>(i2);
+	RET_CMPCASCADE2(p1, p2, Key, Val);
+}
+
+IMPL_CMPFUNC(LAssoc_ValKey, i1, i2)
+{
+	const LAssoc * p1 = static_cast<const LAssoc *>(i1);
+	const LAssoc * p2 = static_cast<const LAssoc *>(i2);
+	RET_CMPCASCADE2(p1, p2, Val, Key);
+}
+
 void LAssocArray::Sort() { SVector::sort(CMPF_LONG); }
 void LAssocArray::SortByVal() { SVector::sort(PTR_CMPFUNC(LAssoc_Val)); }
+void LAssocArray::SortByKeyVal() { SVector::sort(PTR_CMPFUNC(LAssoc_KeyVal)); }
+void LAssocArray::SortByValKey() { SVector::sort(PTR_CMPFUNC(LAssoc_ValKey)); }
 
 int LAssocArray::CheckFlag(long key, long mask, int binary) const
 {

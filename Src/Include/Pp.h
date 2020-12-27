@@ -1272,8 +1272,8 @@ public:
 	static int IdObjNameStaff;      // (fldStaffID)
 	static int IdObjNameStaffCal;   // (fldStaffCalID)
 	static int IdObjNamePersonPost; // (fldPersonPostID)
-	static int IdObjStaffOrg;       // (fldStaffListID) // @v9.0.3
-	static int IdObjStaffDiv;       // (fldStaffListID) // @v9.0.3
+	static int IdObjStaffOrg;       // (fldStaffListID)
+	static int IdObjStaffDiv;       // (fldStaffListID)
 	static int IdObjSymbCurrency;   // (fldCurrencyID)
 	static int IdObjNameAccSheet;   // (fldAcsID)
 	static int IdObjNameQuotKind;   // (fldQkID)
@@ -1296,7 +1296,7 @@ public:
 	static int IdObjCodeSCard;      // (fldSCardID)
 	static int IdSCardOwnerName;    // (fldSCardID)
 	static int IdUsrPersonName;     // (fldUsrID)
-	static int IdLocOwnerName;      // @v9.1.5  (fldLocID) Формирует строку с именем персоналии-владельца локации
+	static int IdLocOwnerName;      // (fldLocID) Формирует строку с именем персоналии-владельца локации
 	static int IdUfpFuncName;       // (fldFuncId)
 	static int IdVersionText;       // (fldLong)
 	static int IdUfpFuncId;         // (fldLong)
@@ -1308,7 +1308,7 @@ public:
 	static int IdTSesLnFlags;       // (fldFlags)
 	static int IdPercent;           // (fldDividend, fldDivisor) =(100 * div / divisor)
 	static int IdPercentIncDiv;     // (fldDividend, fldDivisor) =(100 * div / (divisor+div))
-	static int IdPercentAddendum;   // // @v9.8.2 (fldDividend, fldDivisor) =(100 * (fldDividend-fldDivisor) / fldDivisor))
+	static int IdPercentAddendum;   // (fldDividend, fldDivisor) =(100 * (fldDividend-fldDivisor) / fldDivisor))
 	static int IdWorldIsMemb;       // (fldCity, WorldItemFilt)
 	static int IdTaCost;            // Цена поступления в анализе товарных операций
 	static int IdTaPrice;           // Цена реализации в анализе товарных операций
@@ -1356,10 +1356,11 @@ public:
 	static int IdOidText;           // (objType, objID) Текстовое представление полного OID
 	static int IdDateBase;          // (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
 	static int IdBillFrghtStrgLoc;  // (billID)
-	static int IdSCardExtString;    // @v9.6.1 (scardID, fldId)
-	static int IdStrByStrGroupPos;  // @v9.8.3 (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
+	static int IdSCardExtString;    // (scardID, fldId)
+	static int IdStrByStrGroupPos;  // (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
 	static int IdBillDate;          // @v10.0.03 (billID) Дата документа по его идентификатору
 	static int IdUnxText;           // @v10.7.2 (fldObjType, fldObjID, fldTxtProp)
+	static int IdIsTxtUuidEq;       // @v10.9.10 (fldUUID_s, GUID) Определяет эксвивалентность строкового представления GUID значению второго аргумента
 
 	static int Register();
 	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -4204,11 +4205,10 @@ struct PPQuot { // @persistent(DBX see Note above)
 	long   MinQtty;
 	DateRange Period;  // Период действия котировки
 	double Quot;
-
 	PPID   SellerArID; // @transient (special for UHTT) ИД статьи-поставщика
-	PPID   RelID;  // @transient
-	PPID   QTaID;  // @transient
-	LDATETIME Dtm; //
+	PPID   RelID;      // @transient
+	PPID   QTaID;      // @transient
+	LDATETIME Dtm;     //
 };
 
 class PPQuotArray : public TSVector <PPQuot> {
@@ -4565,6 +4565,7 @@ private:
 #define BARCSTD_UPCA            19 // UPCA                           [Fixed]
 #define BARCSTD_POSTNET         20 // PostNet                        [Fixed]
 #define BARCSTD_QR              21 // QR-code
+#define BARCSTD_DATAMATRIX      22 // @v10.9.10 DataMatrix
 //
 // Конфигурация справочника товаров
 // sizeof(PPGoodsConfig) == PROPRECFIXSIZE
@@ -7277,6 +7278,9 @@ public:
 		cmdlPPOS,      // PPOS
 		cmdlExportDialogs, // EXPORTDIALOGS
 		cmdlSelfBuild,     // SELFBUILD
+			// subcommand (selfbuild:subcmd)
+			//   parsewinrcfornativetext - разбор файла ресурсов с целью извлечения русских текстов подлежащих формализации
+			//   buildmanualstaff        - генерация материалов для вставки в документацию (зарезервированные объекты, в основном). Файлы формируются в каталоге OUT
 		cmdlSartrTest,     // SARTRTEST
 		cmdlAutoTranslate, // AUTOTRANSLATE
 		cmdlConvertCipher, // CONVERTCIPHER
@@ -13917,7 +13921,7 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		fAutosaveSyncChecks        = 0x00020000, // Автоматически сохранять синхронные чеки при каждом изменении
 		fWrOffPartStrucs           = 0x00040000, // При списании кассовых сессий досписывать частичные структуры
 		fSkipPrintingZeroPrice     = 0x00080000, // @v10.0.12 В кассовых чеках не печатать строки с нулевой суммой
-		fAttachBillChecksToCSess   = 0x00100000  // @v10.9.9 При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии 
+		fAttachBillChecksToCSess   = 0x00100000  // @v10.9.9 При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
@@ -14620,7 +14624,7 @@ public:
 	~CCheckCore();
 	//
 	// Descr: возвращает константную ссылку на конфигурацию оборудования, считанную
-	//   при создании экземпляра объекта. 
+	//   при создании экземпляра объекта.
 	// Note: В течении жизни объекта этот экземпляр конфигурации не меняется.
 	//
 	const  PPEquipConfig & GetEqCfg() const; // @v10.9.9
@@ -23876,6 +23880,7 @@ struct QuotKindFilt {
 	// в днях между актуальным значением и самым первым значением. Если флаг не установлен, то
 	// ограничение (если есть) - максимальное количество хранимых значений.
 #define QUOTKF_NODIS          0x0100L // Если применяется этот вид котировки, то скидки по картам не действуют.
+#define QUOTKF_USEROUNDING    0x0200L // @v10.9.10 Применять округление значений котировок в соответствии с полями PPQuotKind2::RoundingPrec,  PPQuotKind2::RoundingDir
 
 struct PPQuotKind2 {       // @persistent @store(Reference2Tbl+)
 	PPQuotKind2();
@@ -23891,7 +23896,9 @@ struct PPQuotKind2 {       // @persistent @store(Reference2Tbl+)
 	PPID   ID;             // @id
 	char   Name[48];       // @name
 	char   Symb[20];       //
-	char   Reserve[24];    // @reserve
+	char   Reserve[14];    // @reserve // @v10.9.10 [24]-->[14]
+	double RoundingPrec;   // @v10.9.10 (Flags & QUOTKF_USEROUNDING) Точность округления
+	int16  RoundingDir;    // @v10.9.10 (Flags & QUOTKF_USEROUNDING) Направление округления (-1 down, +1 up, 0 nearest)
 	int16  SerialTerm;     // Ограничение на количество хранимых значений
 	int16  Reserve2;       // @alignment
 	IntRange AmtRestr;     // Диапазон суммы покупки, при которой действует этот вид котировки
@@ -29690,12 +29697,10 @@ public:
 	static int FASTCALL ReadConfig(PPTransportConfig *);
 	static int FASTCALL WriteConfig(const PPTransportConfig *, int use_ta);
 	static int EditConfig();
-
 	PPObjTransport(void * extraPtr = 0);
 	int    Get(PPID id, PPTransport * pPack);
 	int    Put(PPID * pID, const PPTransport * pPack, int use_ta);
 	int    GetNameByTemplate(PPTransport * pPack, const char * pTemplate, SString & rBuf) const;
-
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	// realy private
 	static int MakeStorage(PPID id, const PPTransport * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList);
@@ -39727,7 +39732,7 @@ struct GoodsRestViewItem { // @transient
 	double DraftRcpt;      //
 	long   SubstAsscCount; //
 	LDATE  LastSellDate;   //
-	LDATE  Expiry;         // 
+	LDATE  Expiry;         //
 };
 //
 // Структура, передаваемая объекту PPALDD_GoodsRestTotal для печати
@@ -47806,7 +47811,8 @@ private:
 	int    ForceResolveObject(const VetisDocumentTbl::Rec & rRec, int objToMatch);
 
 	VetisDocumentFilt Filt;
-	PPID   FromEntityID;
+	// @v10.9.10 PPID   FromEntityID;
+	PPIDArray FromEntityIdList; // @v10.9.10
 	PPID   FromEnterpriseID;
 	PPID   ToEntityID;
 	PPID   ToEnterpriseID;
@@ -53048,6 +53054,16 @@ private:
 	State_ St;
 	TWhatmanToolArray Tools;
 	DdotInfoBlock Dib;
+};
+
+struct LayoutEntryDialogBlock : public AbstractLayoutBlock {
+	explicit LayoutEntryDialogBlock(const AbstractLayoutBlock * pS);
+	void   Setup(const AbstractLayoutBlock * pS);
+	int    EditEntry(const TWhatman * pWtm);
+	int    EditContainer();
+
+	SString ParentLayoutSymb;
+	SString OwnLayoutSymb;
 };
 //
 // Descr: Вспомогательный класс, обеспечивающий однообразную запись в журналы

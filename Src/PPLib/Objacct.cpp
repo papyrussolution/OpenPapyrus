@@ -947,7 +947,7 @@ int AccountDialog::setupList()
 	for(uint i = 0; i < AccPack.CurList.getCount(); i++) {
 		char   str[48];
 		PPCurrency cur_rec;
-		PPID   cur_id = AccPack.CurList.at(i);
+		const  PPID  cur_id = AccPack.CurList.at(i);
 		if(SearchObject(PPOBJ_CURRENCY, cur_id, &cur_rec) > 0)
 			if(*strip(cur_rec.Symb))
 				STRNSCPY(str, cur_rec.Symb);
@@ -965,9 +965,8 @@ int AccountDialog::addItem(long *, long * pID)
 {
 	int    r;
 	PPID   cur_id = 0;
-	PPIDArray exclude_list;
 	PPObjCurrency cur_obj;
-	exclude_list.copy(AccPack.CurList);
+	const PPIDArray exclude_list(AccPack.CurList);
 	if((r = cur_obj.Select(1, 0, &exclude_list, &cur_id)) > 0) {
 		*pID = cur_id;
 		AccPack.CurList.insert(&cur_id);
@@ -1010,7 +1009,9 @@ int AccountDialog::delItem(long, long id)
 int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 {
 	const  int extra_acc_type = reinterpret_cast<int>(extraPtr);
-	int    ok = -1, valid_data = 0, is_new = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    is_new = 0;
 	int    acc_type = ACY_BAL;
 	AccountDialog    * p_bal_dlg = 0;
 	GenAccountDialog * p_gen_dlg = 0;
@@ -1047,14 +1048,12 @@ int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 	if(oneof5(acc_type, ACY_BAL, ACY_OBAL, ACY_REGISTER, ACY_ALIAS, ACY_BUDGET)) {
 		SString dlg_title;
 		uint   dlg_id = 0;
-		if(acc_type == ACY_BAL)
-			dlg_id = DLG_ACCOUNT;
-		else if(acc_type == ACY_ALIAS)
-			dlg_id = DLG_ACCALIAS;
-		else if(acc_type == ACY_BUDGET)
-			dlg_id = DLG_ACCBUDGET;
-		else
-			dlg_id = DLG_ACCREGISTER;
+		switch(acc_type) {
+			case ACY_BAL: dlg_id = DLG_ACCOUNT; break;
+			case ACY_ALIAS: dlg_id = DLG_ACCALIAS; break;
+			case ACY_BUDGET: dlg_id = DLG_ACCBUDGET; break;
+			default: dlg_id = DLG_ACCREGISTER; break;
+		}
 		THROW(CheckDialogPtr(&(p_bal_dlg = new AccountDialog(dlg_id))));
 		THROW(EditPrereq(pID, p_bal_dlg, 0));
 		PPGetSubStr(PPTXT_ACCTITLES, acc_type, dlg_title);
@@ -1077,7 +1076,7 @@ int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 					PPObjAccTurn atobj;
 					THROW(atobj.P_Tbl->UpdateAccNum(*pID, ac, sb, 1));
 				}
-				Dirty(*pID); // @v9.0.4
+				Dirty(*pID);
 				ok = 1;
 			}
 		}
@@ -1089,7 +1088,7 @@ int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 		while(!valid_data && ExecView(p_gen_dlg) == cmOK)
 			if((valid_data = p_gen_dlg->getDTS(&acc_pack)) != 0) {
 				THROW(PutPacket(pID, &acc_pack, 1));
-				Dirty(*pID); // @v9.0.4
+				Dirty(*pID);
 				ok = 1;
 			}
 	}

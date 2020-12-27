@@ -736,7 +736,10 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					}
 					{
 						SDrawShape * p_shape = new SDrawShape;
-						p_shape->S = rounded ? rrect : rect;
+						if(rounded)
+							p_shape->S = rrect;
+						else
+							p_shape->S = rect;
 						THROW(_GetCommonFigAttrAndInsert(attr_list, cfa, p_shape, &rGroup));
 					}
 				}

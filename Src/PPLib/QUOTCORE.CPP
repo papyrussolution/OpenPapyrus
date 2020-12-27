@@ -264,17 +264,12 @@ int PPQuot::IsEqual(const PPQuot & rS, long flags) const
 	else {
 		const long  f = (Flags & fDbMask);
 		const long  sf = (rS.Flags & fDbMask);
-		if(/* @v7.8.8 f != sf || */ArID != rS.ArID || GoodsID != rS.GoodsID || LocID != rS.LocID ||
+		if(ArID != rS.ArID || GoodsID != rS.GoodsID || LocID != rS.LocID ||
 			Kind != rS.Kind || CurID != rS.CurID || MinQtty != rS.MinQtty || Period != rS.Period)
 			return 0;
 		else
 			return (flags & cmpNoVal) ? 1 : BIN(Quot == rS.Quot && f == sf);
 	}
-	/*
-	return BIN(ArticleID == rS.ArticleID && GoodsID == rS.GoodsID &&
-		Location == rS.Location && Kind == rS.Kind && CurID == rS.CurID &&
-		Flags == rS.Flags && MinQtty == rS.MinQtty && Quot == rS.Quot);
-	*/
 }
 
 int PPQuot::IsRelative() const { return BIN(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)); }

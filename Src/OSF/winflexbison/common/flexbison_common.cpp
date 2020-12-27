@@ -225,5 +225,41 @@ void xalloc_die(void)
 }
 #undef _ // @sobolev
 //
+// XTIME.C
+//
+#define XTIME_INLINE _GL_EXTERN_INLINE
+#include "xtime.h"
+#undef XTIME_INLINE
+//
+// TIMESPEC.C
+//
+#define _GL_TIMESPEC_INLINE _GL_EXTERN_INLINE
+#include "timespec.h"
+#undef _GL_TIMESPEC_INLINE
+//
+// MBFILE.C
+//
+#define MBFILE_INLINE _GL_EXTERN_INLINE
+#include "mbfile.h"
+#undef MBFILE_INLINE
+//
+// MBCHAR.C
+//
+#define MBCHAR_INLINE _GL_EXTERN_INLINE
+#include "mbchar.h"
+
+#if IS_BASIC_ASCII
+	// Bit table of characters in the ISO C "basic character set"
+	const uint is_basic_table[UCHAR_MAX / 32 + 1] =
+	{
+		0x00001a00,     /* '\t' '\v' '\f' */
+		0xffffffef,     /* ' '...'#' '%'...'?' */
+		0xfffffffe,     /* 'A'...'Z' '[' '\\' ']' '^' '_' */
+		0x7ffffffe      /* 'a'...'z' '{' '|' '}' '~' */
+		// The remaining bits are 0
+	};
+#endif
+#undef MBCHAR_INLINE
+//
 //
 //

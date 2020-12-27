@@ -4,19 +4,16 @@
 #include <pp.h>
 #pragma hdrstop
 
-struct LayoutEntryDialogBlock : public AbstractLayoutBlock {
-	LayoutEntryDialogBlock(const AbstractLayoutBlock * pS)
-	{
-		Setup(pS);
-	}
-	void Setup(const AbstractLayoutBlock * pS)
-	{
-		if(pS)
-			*static_cast<AbstractLayoutBlock *>(this) = *pS;
-	}
-	SString ParentLayoutSymb;
-	SString OwnLayoutSymb;
-};
+LayoutEntryDialogBlock::LayoutEntryDialogBlock(const AbstractLayoutBlock * pS)
+{
+	Setup(pS);
+}
+	
+void LayoutEntryDialogBlock::Setup(const AbstractLayoutBlock * pS)
+{
+	if(pS)
+		*static_cast<AbstractLayoutBlock *>(this) = *pS;
+}
 
 class LayoutContainerDialog : public TDialog {
 	DECL_DIALOG_DATA(LayoutEntryDialogBlock);
@@ -145,14 +142,14 @@ public:
 	const TWhatman * P_Wtm;
 };
 
-static int EditLayoutEntry(LayoutEntryDialogBlock * pData, const TWhatman * pWtm)
+int LayoutEntryDialogBlock::EditEntry(const TWhatman * pWtm)
 {
-	DIALOG_PROC_BODY_P1(LayoutEntryDialog, pWtm, pData);
+	DIALOG_PROC_BODY_P1(LayoutEntryDialog, pWtm, this);
 }
 
-static int EditLayoutContainer(LayoutEntryDialogBlock * pData)
+int LayoutEntryDialogBlock::EditContainer()
 {
-	DIALOG_PROC_BODY(LayoutContainerDialog, pData);
+	DIALOG_PROC_BODY(LayoutContainerDialog, this);
 }
 
 class BaseWtmToolDialog : public TDialog {
@@ -213,13 +210,13 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmLayoutEntry)) {
 			LayoutEntryDialogBlock lodb(&Data.Alb);
-			if(EditLayoutEntry(&lodb, 0) > 0) {
+			if(lodb.EditEntry(0) > 0) {
 				Data.Alb = lodb;
 			}
 		}
 		else if(event.isCmd(cmLayoutContainer)) {
 			LayoutEntryDialogBlock lodb(&Data.Alb);
-			if(EditLayoutContainer(&lodb) > 0) {
+			if(lodb.EditContainer() > 0) {
 				Data.Alb = lodb;
 			}
 		}
@@ -277,10 +274,10 @@ protected:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmLayoutEntry)) {
-			EditLayoutEntry(&Data, P_Wtm);
+			Data.EditEntry(P_Wtm);
 		}
 		else if(event.isCmd(cmLayoutContainer)) { // @v10.9.8
-			EditLayoutContainer(&Data);
+			Data.EditContainer();
 		}
 		else
 			return;
@@ -1890,6 +1887,21 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 							}
 							AddObject(p_obj, &b);
 							W.MoveObject(p_obj, b);
+							// @v10.9.10 {
+							{
+								const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
+								if(current_contaiter_candidate_idx >= 0) {
+									TWhatmanObject * p_cc_obj = W.GetObjectByIndex(current_contaiter_candidate_idx);
+									if(p_cc_obj) {
+										assert(p_cc_obj->HasOption(TWhatmanObject::oContainer));
+										if(p_cc_obj->HasOption(TWhatmanObject::oContainer)) {
+											WhatmanObjectLayoutBase * p_cc_obj_as_layout = static_cast<WhatmanObjectLayoutBase *>(p_cc_obj);
+											p_obj->SetLayoutContainerIdent(p_cc_obj_as_layout->GetContainerIdent());
+										}
+									}
+								}
+							}
+							// } @v10.9.10
 							InvalidateObjScope(p_obj);
 							SLS.SetupDragndropObj(0, 0);
 						}
@@ -2011,7 +2023,6 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 								}
 							}
 							// } @v10.9.7 
-							//TPoint local_pt = 
 							W.MoveObject(St.Rsz.P_MovedObjCopy, (b = p_obj->GetBounds()).move(p.x - St.Rsz.StartPt.x, p.y - St.Rsz.StartPt.y));
 							// @v10.9.6 {
 							int container_candidate_idx = 0;
@@ -2039,11 +2050,31 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 					do_update_win = 1;
 				}
 				else if(St.Rsz.Kind == ResizeState::kObjDragTarget && St.Rsz.P_MovedObjCopy) {
+					// @v10.9.10 {
+					const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
+					if(current_contaiter_candidate_idx >= 0) {
+						TWhatmanObject * p_cc_obj = W.GetObjectByIndex(current_contaiter_candidate_idx);
+						if(p_cc_obj) {
+							W.SetupContainerCandidate(current_contaiter_candidate_idx, false);
+							InvalidateObjScope(p_cc_obj);
+						}
+					}
+					// } @v10.9.10 
 					InvalidateObjScope(St.Rsz.P_MovedObjCopy);
 					(b = St.Rsz.P_MovedObjCopy->GetBounds()).movecenterto(p);
 					b.a = W.TransformScreenToPoint(b.a);
 					b.b = W.TransformScreenToPoint(b.b);
 					W.MoveObject(St.Rsz.P_MovedObjCopy, b);
+					// @v10.9.10 {
+					int container_candidate_idx = 0;
+					TWhatmanObject * p_container_candidate = 0;
+					if(W.FindContainerCandidateForObjectByPoint(p, St.Rsz.P_MovedObjCopy, &container_candidate_idx)) {
+						p_container_candidate = W.GetObjectByIndex(container_candidate_idx);
+						assert(p_container_candidate);
+						W.SetupContainerCandidate(container_candidate_idx, true);
+						InvalidateObjScope(p_container_candidate);
+					}
+					// } @v10.9.10 
 					InvalidateObjScope(St.Rsz.P_MovedObjCopy);
 					do_update_win = 1;
 				}
@@ -2090,6 +2121,7 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 			menu.AddSeparator();
 			menu.Add("@edit",   cmaEdit);
 			menu.Add("@delete", cmaDelete);
+			menu.Add("@tlayout", cmLayoutEntry);
 		}
 		uint cmd = 0;
 		if(menu.Execute(H(), TMenuPopup::efRet, &cmd, 0)) {
@@ -2106,6 +2138,27 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 					break;
 				case cmaEdit: ok = EditTool(objIdx); break;
 				case cmaDelete: ok = DeleteTool(objIdx); break;
+				case cmLayoutEntry:
+					{
+						ToolObject * p_tool_obj = static_cast<ToolObject *>(W.GetObjectByIndex(objIdx));
+						if(p_tool_obj) {
+							uint pos = 0;
+							TWhatmanToolArray::Item item;
+							if(Tools.SearchBySymb(p_tool_obj->ToolSymb, &pos) && Tools.Get(pos, &item)) {
+								LayoutEntryDialogBlock lodb(&item.Alb);
+								if(lodb.EditEntry(0) > 0) {
+									item.Alb = lodb;
+									if(Tools.Set(item, 0)) {
+										Rearrange();
+										ok = 1;
+									}
+									else
+										PPError(PPERR_SLIB);
+								}
+							}
+						}
+					}
+					break;
 				case cmFileOpen: ok = FileOpen(); break;
 				case cmFileSave: ok = FileSave(); break;
 			}
@@ -2712,7 +2765,7 @@ int PPWhatmanWindow::FileOpen()
 			SRectLayout::Item li;
 			P_Lfc = new LayoutFlexItem();
 			P_Lfc->ALB.SetContainerDirection(DIREC_HORZ);
-			P_Lfc->ALB.AlignContent = AbstractLayoutBlock::alignStretch/*FLEX_ALIGN_STRETCH*/;
+			P_Lfc->ALB.AlignContent = AbstractLayoutBlock::alignStretch;
 			P_Lfc->managed_ptr = this;
 			P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
 		}

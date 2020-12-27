@@ -329,7 +329,7 @@ int SVerT::IsGt(int j, int n, int r) const
 	return 0;
 }
 
-int SVerT::IsEq(int j, int n, int r) const
+int SVerT::IsEqual(int j, int n, int r) const
 {
 	SVerT v2(j, n, r);
 	return (V == v2.V && R == v2.R) ? 1 : 0;

@@ -53,9 +53,7 @@ typedef struct lbitset_elt_struct {
 	struct lbitset_elt_struct * prev; /* Previous element.  */
 	bitset_windex index; /* bitno / BITSET_WORD_BITS.  */
 	bitset_word words[LBITSET_ELT_WORDS]; /* Bits that are set.  */
-}
-
-lbitset_elt;
+} lbitset_elt;
 
 enum lbitset_find_mode { 
 	LBITSET_FIND, 
@@ -88,31 +86,23 @@ static inline lbitset_elt * lbitset_elt_alloc(void)
 	else {
 		if(!lbitset_obstack_init) {
 			lbitset_obstack_init = true;
-
 			/* Let particular systems override the size of a chunk.  */
-
 #ifndef OBSTACK_CHUNK_SIZE
-#define OBSTACK_CHUNK_SIZE 0
+	#define OBSTACK_CHUNK_SIZE 0
 #endif
-
 			/* Let them override the alloc and free routines too.  */
-
 #ifndef OBSTACK_CHUNK_ALLOC
-#define OBSTACK_CHUNK_ALLOC xmalloc
+	#define OBSTACK_CHUNK_ALLOC xmalloc
 #endif
-
 #ifndef OBSTACK_CHUNK_FREE
-#define OBSTACK_CHUNK_FREE free
+	#define OBSTACK_CHUNK_FREE free
 #endif
-
 #if !defined __GNUC__ || __GNUC__ < 2
-#define __alignof__(type) 0
+	#define __alignof__(type) 0
 #endif
-
 			obstack_specify_allocation(&lbitset_obstack, OBSTACK_CHUNK_SIZE, __alignof__(lbitset_elt), OBSTACK_CHUNK_ALLOC, OBSTACK_CHUNK_FREE);
 		}
-		/* Perhaps we should add a number of new elements to the free
-		   list.  */
+		// Perhaps we should add a number of new elements to the free list
 		elt = (lbitset_elt*)obstack_alloc(&lbitset_obstack, sizeof(lbitset_elt));
 	}
 	return elt;
@@ -165,9 +155,9 @@ static inline void lbitset_elt_unlink(bitset bset, lbitset_elt * elt)
 	}
 	lbitset_elt_free(elt);
 }
-
-/* Cut the chain of bitset BSET before element ELT and free the
-   elements.  */
+//
+// Cut the chain of bitset BSET before element ELT and free the elements
+//
 static inline void lbitset_prune(bitset bset, lbitset_elt * elt)
 {
 	if(elt) {
@@ -204,62 +194,49 @@ static inline bool lbitset_elt_zero_p(lbitset_elt * elt)
 static inline void lbitset_elt_link(bitset bset, lbitset_elt * elt)
 {
 	bitset_windex windex = elt->index;
-
 	lbitset_elt * current = bset->b.csize ? LBITSET_CURRENT(bset) : LBITSET_HEAD(bset);
-
 	/* If this is the first and only element, add it in.  */
 	if(LBITSET_HEAD(bset) == 0) {
 		elt->next = elt->prev = 0;
 		LBITSET_HEAD(bset) = elt;
 		LBITSET_TAIL(bset) = elt;
 	}
-
 	/* If this index is less than that of the current element, it goes
 	   somewhere before the current element.  */
 	else if(windex < bset->b.cindex) {
 		lbitset_elt * ptr;
-		for(ptr = current;
-		    ptr->prev && ptr->prev->index > windex; ptr = ptr->prev)
+		for(ptr = current; ptr->prev && ptr->prev->index > windex; ptr = ptr->prev)
 			continue;
-
 		if(ptr->prev)
 			ptr->prev->next = elt;
 		else
 			LBITSET_HEAD(bset) = elt;
-
 		elt->prev = ptr->prev;
 		elt->next = ptr;
 		ptr->prev = elt;
 	}
-
 	/* Otherwise, it must go somewhere after the current element.  */
 	else {
 		lbitset_elt * ptr;
-		for(ptr = current;
-		    ptr->next && ptr->next->index < windex; ptr = ptr->next)
+		for(ptr = current; ptr->next && ptr->next->index < windex; ptr = ptr->next)
 			continue;
-
 		if(ptr->next)
 			ptr->next->prev = elt;
 		else
 			LBITSET_TAIL(bset) = elt;
-
 		elt->next = ptr->next;
 		elt->prev = ptr;
 		ptr->next = elt;
 	}
-
 	/* Set up so this is the first element searched.  */
 	bset->b.cindex = windex;
 	bset->b.csize = LBITSET_ELT_WORDS;
 	bset->b.cdata = elt->words;
 }
 
-static lbitset_elt * lbitset_elt_find(bitset bset, bitset_windex windex,
-    enum lbitset_find_mode mode)
+static lbitset_elt * lbitset_elt_find(bitset bset, bitset_windex windex, enum lbitset_find_mode mode)
 {
 	lbitset_elt * current;
-
 	if(bset->b.csize) {
 		current = LBITSET_CURRENT(bset);
 		/* Check if element is the cached element.  */
@@ -269,21 +246,16 @@ static lbitset_elt * lbitset_elt_find(bitset bset, bitset_windex windex,
 	else {
 		current = LBITSET_HEAD(bset);
 	}
-
 	if(current) {
 		lbitset_elt * elt;
 		if(windex < bset->b.cindex) {
-			for(elt = current;
-			    elt->prev && elt->index > windex; elt = elt->prev)
+			for(elt = current; elt->prev && elt->index > windex; elt = elt->prev)
 				continue;
 		}
 		else {
-			for(elt = current;
-			    elt->next && (elt->index + LBITSET_ELT_WORDS - 1) < windex;
-			    elt = elt->next)
+			for(elt = current; elt->next && (elt->index + LBITSET_ELT_WORDS - 1) < windex; elt = elt->next)
 				continue;
 		}
-
 		/* ELT is the nearest to the one we want.  If it's not the one
 		   we want, the one we want does not exist.  */
 		if(windex - elt->index < LBITSET_ELT_WORDS) {
@@ -326,11 +298,9 @@ static inline void lbitset_weed(bitset bset)
 static void lbitset_zero(bitset bset)
 {
 	lbitset_elt * head = LBITSET_HEAD(bset);
-	if(!head)
-		return;
-
-	/* Clear a bitset by freeing the linked list at the head element.  */
-	lbitset_prune(bset, head);
+	if(head) {
+		lbitset_prune(bset, head); // Clear a bitset by freeing the linked list at the head element
+	}
 }
 
 /* Is DST == SRC?  */
@@ -338,7 +308,6 @@ static inline bool lbitset_equal_p(bitset dst, bitset src)
 {
 	if(src == dst)
 		return true;
-
 	lbitset_weed(src);
 	lbitset_weed(dst);
 	lbitset_elt * selt;
@@ -360,13 +329,10 @@ static inline void lbitset_copy(bitset dst, bitset src)
 {
 	if(src == dst)
 		return;
-
 	lbitset_zero(dst);
-
 	lbitset_elt * head = LBITSET_HEAD(src);
 	if(!head)
 		return;
-
 	lbitset_elt * prev = 0;
 	lbitset_elt * tmp;
 	for(lbitset_elt * elt = head; elt; elt = elt->next) {
@@ -379,31 +345,26 @@ static inline void lbitset_copy(bitset dst, bitset src)
 		else
 			LBITSET_HEAD(dst) = tmp;
 		prev = tmp;
-
 		memcpy(tmp->words, elt->words, sizeof(elt->words));
 	}
 	LBITSET_TAIL(dst) = tmp;
-
 	dst->b.csize = LBITSET_ELT_WORDS;
 	dst->b.cdata = LBITSET_HEAD(dst)->words;
 	dst->b.cindex = LBITSET_HEAD(dst)->index;
 }
-
-/* Copy bits from bitset SRC to bitset DST.  Return true if
-   bitsets different.  */
+// 
+// Copy bits from bitset SRC to bitset DST.  Return true if bitsets different
+// 
 static inline bool lbitset_copy_cmp(bitset dst, bitset src)
 {
 	if(src == dst)
 		return false;
-
 	if(!LBITSET_HEAD(dst)) {
 		lbitset_copy(dst, src);
 		return LBITSET_HEAD(src) != 0;
 	}
-
 	if(lbitset_equal_p(dst, src))
 		return false;
-
 	lbitset_copy(dst, src);
 	return true;
 }
@@ -411,33 +372,25 @@ static inline bool lbitset_copy_cmp(bitset dst, bitset src)
 static bitset_bindex lbitset_resize(bitset src, bitset_bindex size)
 {
 	BITSET_NBITS_(src) = size;
-
-	/* Need to prune any excess bits.  FIXME.  */
-	return size;
+	// Need to prune any excess bits.  FIXME
+	return size; 
 }
 
 /* Set bit BITNO in bitset DST.  */
 static void lbitset_set(bitset dst, bitset_bindex bitno)
 {
 	bitset_windex windex = bitno / BITSET_WORD_BITS;
-
 	lbitset_elt_find(dst, windex, LBITSET_CREATE);
-
-	dst->b.cdata[windex - dst->b.cindex] |=
-	    (bitset_word)1 << (bitno % BITSET_WORD_BITS);
+	dst->b.cdata[windex - dst->b.cindex] |= (bitset_word)1 << (bitno % BITSET_WORD_BITS);
 }
 
 /* Reset bit BITNO in bitset DST.  */
 static void lbitset_reset(bitset dst, bitset_bindex bitno)
 {
 	bitset_windex windex = bitno / BITSET_WORD_BITS;
-
 	if(!lbitset_elt_find(dst, windex, LBITSET_FIND))
 		return;
-
-	dst->b.cdata[windex - dst->b.cindex] &=
-	    ~((bitset_word)1 << (bitno % BITSET_WORD_BITS));
-
+	dst->b.cdata[windex - dst->b.cindex] &= ~((bitset_word)1 << (bitno % BITSET_WORD_BITS));
 	/* If all the data is zero, perhaps we should unlink it now...  */
 }
 
@@ -445,45 +398,34 @@ static void lbitset_reset(bitset dst, bitset_bindex bitno)
 static bool lbitset_test(bitset src, bitset_bindex bitno)
 {
 	bitset_windex windex = bitno / BITSET_WORD_BITS;
-
-	return (lbitset_elt_find(src, windex, LBITSET_FIND)
-	       && ((src->b.cdata[windex - src->b.cindex]
-	       >> (bitno % BITSET_WORD_BITS))
-	       & 1));
+	return (lbitset_elt_find(src, windex, LBITSET_FIND) && ((src->b.cdata[windex - src->b.cindex] >> (bitno % BITSET_WORD_BITS)) & 1));
 }
 
 static void lbitset_free(bitset bset)
 {
 	lbitset_zero(bset);
 }
-
-/* Find list of up to NUM bits set in BSET starting from and including
- * NEXT and store in array LIST.  Return with actual number of bits
-   found and with *NEXT indicating where search stopped.  */
-static bitset_bindex lbitset_list_reverse(bitset bset, bitset_bindex * list,
-    bitset_bindex num, bitset_bindex * next)
+// 
+// Find list of up to NUM bits set in BSET starting from and including
+// NEXT and store in array LIST.  Return with actual number of bits
+// found and with *NEXT indicating where search stopped. 
+// 
+static bitset_bindex lbitset_list_reverse(bitset bset, bitset_bindex * list, bitset_bindex num, bitset_bindex * next)
 {
 	lbitset_elt * elt = LBITSET_TAIL(bset);
 	if(!elt)
 		return 0;
-
 	bitset_bindex n_bits = (elt->index + LBITSET_ELT_WORDS) * BITSET_WORD_BITS;
 	bitset_bindex rbitno = *next;
-
 	if(rbitno >= n_bits)
 		return 0;
-
 	bitset_bindex bitno = n_bits - (rbitno + 1);
-
 	bitset_windex windex = bitno / BITSET_WORD_BITS;
-
 	/* Skip back to starting element.  */
 	for(; elt && elt->index > windex; elt = elt->prev)
 		continue;
-
 	if(!elt)
 		return 0;
-
 	unsigned bcount;
 	if(windex >= elt->index + LBITSET_ELT_WORDS) {
 		/* We are trying to start in no-mans land so start
@@ -494,22 +436,14 @@ static bitset_bindex lbitset_list_reverse(bitset bset, bitset_bindex * list,
 	else {
 		bcount = bitno % BITSET_WORD_BITS;
 	}
-
 	bitset_bindex count = 0;
 	bitset_bindex boffset = windex * BITSET_WORD_BITS;
-
 	/* If num is 1, we could speed things up with a binary search
 	   of the word of interest.  */
-
 	while(elt) {
 		bitset_word * srcp = elt->words;
-
-		for(; (windex - elt->index) < LBITSET_ELT_WORDS;
-		    windex--, boffset -= BITSET_WORD_BITS,
-		    bcount = BITSET_WORD_BITS - 1) {
-			bitset_word word =
-			    srcp[windex - elt->index] << (BITSET_WORD_BITS - 1 - bcount);
-
+		for(; (windex - elt->index) < LBITSET_ELT_WORDS; windex--, boffset -= BITSET_WORD_BITS, bcount = BITSET_WORD_BITS - 1) {
+			bitset_word word = srcp[windex - elt->index] << (BITSET_WORD_BITS - 1 - bcount);
 			for(; word; bcount--) {
 				if(word & BITSET_MSB) {
 					list[count++] = boffset + bcount;
@@ -521,14 +455,12 @@ static bitset_bindex lbitset_list_reverse(bitset bset, bitset_bindex * list,
 				word <<= 1;
 			}
 		}
-
 		elt = elt->prev;
 		if(elt) {
 			windex = elt->index + LBITSET_ELT_WORDS - 1;
 			boffset = windex * BITSET_WORD_BITS;
 		}
 	}
-
 	*next = n_bits - (boffset + 1);
 	return count;
 }
@@ -536,22 +468,17 @@ static bitset_bindex lbitset_list_reverse(bitset bset, bitset_bindex * list,
 /* Find list of up to NUM bits set in BSET starting from and including
  * NEXT and store in array LIST.  Return with actual number of bits
    found and with *NEXT indicating where search stopped.  */
-static bitset_bindex lbitset_list(bitset bset, bitset_bindex * list,
-    bitset_bindex num, bitset_bindex * next)
+static bitset_bindex lbitset_list(bitset bset, bitset_bindex * list, bitset_bindex num, bitset_bindex * next)
 {
 	lbitset_elt * head = LBITSET_HEAD(bset);
 	if(!head)
 		return 0;
-
 	bitset_windex windex;
 	lbitset_elt * elt;
-
 	bitset_bindex bitno = *next;
 	bitset_bindex count = 0;
-
 	if(!bitno) {
 		/* This is the most common case.  */
-
 		/* Start with the first element.  */
 		elt = head;
 		windex = elt->index;
@@ -559,28 +486,20 @@ static bitset_bindex lbitset_list(bitset bset, bitset_bindex * list,
 	}
 	else {
 		windex = bitno / BITSET_WORD_BITS;
-
 		/* Skip to starting element.  */
-		for(elt = head;
-		    elt && (elt->index + LBITSET_ELT_WORDS - 1) < windex;
-		    elt = elt->next)
+		for(elt = head; elt && (elt->index + LBITSET_ELT_WORDS - 1) < windex; elt = elt->next)
 			continue;
-
 		if(!elt)
 			return 0;
-
 		if(windex < elt->index) {
 			windex = elt->index;
 			bitno = windex * BITSET_WORD_BITS;
 		}
 		else {
 			bitset_word * srcp = elt->words;
-
 			/* We are starting within an element.  */
-
 			for(; (windex - elt->index) < LBITSET_ELT_WORDS; windex++) {
 				bitset_word word = srcp[windex - elt->index] >> (bitno % BITSET_WORD_BITS);
-
 				for(; word; bitno++) {
 					if(word & 1) {
 						list[count++] = bitno;
@@ -593,7 +512,6 @@ static bitset_bindex lbitset_list(bitset bset, bitset_bindex * list,
 				}
 				bitno = (windex + 1) * BITSET_WORD_BITS;
 			}
-
 			elt = elt->next;
 			if(elt) {
 				windex = elt->index;
@@ -601,16 +519,11 @@ static bitset_bindex lbitset_list(bitset bset, bitset_bindex * list,
 			}
 		}
 	}
-
-	/* If num is 1, we could speed things up with a binary search
-	   of the word of interest.  */
-
+	// If num is 1, we could speed things up with a binary search of the word of interest.
 	while(elt) {
 		bitset_word * srcp = elt->words;
-
 		if((count + LBITSET_ELT_BITS) < num) {
 			/* The coast is clear, plant boot!  */
-
 #if LBITSET_ELT_WORDS == 2
 			bitset_word word = srcp[0];
 			if(word) {
@@ -630,7 +543,6 @@ static bitset_bindex lbitset_list(bitset bset, bitset_bindex * list,
 			}
 			windex++;
 			bitno = windex * BITSET_WORD_BITS;
-
 			word = srcp[1];
 			if(word) {
 				if(!(word & 0xffff)) {
@@ -669,9 +581,7 @@ static bitset_bindex lbitset_list(bitset bset, bitset_bindex * list,
 #endif
 		}
 		else {
-			/* Tread more carefully since we need to check
-			   if array overflows.  */
-
+			// Tread more carefully since we need to check if array overflows.
 			for(int i = 0; i < LBITSET_ELT_WORDS; i++) {
 				for(bitset_word word = srcp[i]; word; bitno++) {
 					if(word & 1) {
@@ -687,14 +597,12 @@ static bitset_bindex lbitset_list(bitset bset, bitset_bindex * list,
 				bitno = windex * BITSET_WORD_BITS;
 			}
 		}
-
 		elt = elt->next;
 		if(elt) {
 			windex = elt->index;
 			bitno = windex * BITSET_WORD_BITS;
 		}
 	}
-
 	*next = bitno;
 	return count;
 }
@@ -703,7 +611,6 @@ static bool lbitset_empty_p(bitset dst)
 {
 	lbitset_elt * elt;
 	lbitset_elt * next;
-
 	for(elt = LBITSET_HEAD(dst); elt; elt = next) {
 		next = elt->next;
 		if(!lbitset_elt_zero_p(elt))
@@ -711,7 +618,6 @@ static bool lbitset_empty_p(bitset dst)
 		/* Weed as we go.  */
 		lbitset_elt_unlink(dst, elt);
 	}
-
 	return true;
 }
 
@@ -720,16 +626,12 @@ static inline void lbitset_unused_clear(bitset dst)
 {
 	bitset_bindex n_bits = BITSET_SIZE_(dst);
 	unsigned last_bit = n_bits % LBITSET_ELT_BITS;
-
 	if(last_bit) {
 		lbitset_elt * elt = LBITSET_TAIL(dst);
 		bitset_word * srcp = elt->words;
 		bitset_windex windex = n_bits / BITSET_WORD_BITS;
-
-		srcp[windex - elt->index]
-			&= ((bitset_word)1 << (last_bit % BITSET_WORD_BITS)) - 1;
+		srcp[windex - elt->index] &= ((bitset_word)1 << (last_bit % BITSET_WORD_BITS)) - 1;
 		windex++;
-
 		for(; (windex - elt->index) < LBITSET_ELT_WORDS; windex++)
 			srcp[windex - elt->index] = 0;
 	}
@@ -756,7 +658,7 @@ static void lbitset_not(bitset dst, bitset src)
 	for(bitset_windex i = 0; i < windex; i += LBITSET_ELT_WORDS) {
 		/* Create new elements for dst if they cannot be found
 		   or substitute zero elements if src elements not found.  */
-		lbitset_elt * selt = lbitset_elt_find(src, i, LBITSET_SUBST);
+		const lbitset_elt * selt = lbitset_elt_find(src, i, LBITSET_SUBST);
 		lbitset_elt * delt = lbitset_elt_find(dst, i, LBITSET_CREATE);
 		for(uint j = 0; j < LBITSET_ELT_WORDS; j++)
 			delt->words[j] = ~selt->words[j];
@@ -768,8 +670,7 @@ static void lbitset_not(bitset dst, bitset src)
 /* Is DST == DST | SRC?  */
 static bool lbitset_subset_p(bitset dst, bitset src)
 {
-	for(lbitset_elt * selt = LBITSET_HEAD(src), * delt = LBITSET_HEAD(dst);
-	    selt || delt; selt = selt->next, delt = delt->next) {
+	for(lbitset_elt * selt = LBITSET_HEAD(src), * delt = LBITSET_HEAD(dst); selt || delt; selt = selt->next, delt = delt->next) {
 		if(!selt)
 			selt = &lbitset_zero_elts[0];
 		else if(!delt)
@@ -784,7 +685,6 @@ static bool lbitset_subset_p(bitset dst, bitset src)
 				selt = &lbitset_zero_elts[1];
 			}
 		}
-
 		for(uint j = 0; j < LBITSET_ELT_WORDS; j++)
 			if(delt->words[j] != (selt->words[j] | delt->words[j]))
 				return false;
@@ -795,8 +695,7 @@ static bool lbitset_subset_p(bitset dst, bitset src)
 /* Is DST & SRC == 0?  */
 static bool lbitset_disjoint_p(bitset dst, bitset src)
 {
-	for(lbitset_elt * selt = LBITSET_HEAD(src), * delt = LBITSET_HEAD(dst);
-	    selt && delt; selt = selt->next, delt = delt->next) {
+	for(lbitset_elt * selt = LBITSET_HEAD(src), * delt = LBITSET_HEAD(dst); selt && delt; selt = selt->next, delt = delt->next) {
 		if(selt->index != delt->index) {
 			if(selt->index < delt->index) {
 				lbitset_zero_elts[2].next = delt;
@@ -810,7 +709,6 @@ static bool lbitset_disjoint_p(bitset dst, bitset src)
 			   intersection of these elements.  */
 			continue;
 		}
-
 		for(uint j = 0; j < LBITSET_ELT_WORDS; j++)
 			if(selt->words[j] & delt->words[j])
 				return false;
@@ -820,24 +718,19 @@ static bool lbitset_disjoint_p(bitset dst, bitset src)
 
 static bool lbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_ops op)
 {
-	lbitset_elt * selt1 = LBITSET_HEAD(src1);
-	lbitset_elt * selt2 = LBITSET_HEAD(src2);
-	lbitset_elt * delt = LBITSET_HEAD(dst);
+	const lbitset_elt * selt1 = LBITSET_HEAD(src1);
+	const lbitset_elt * selt2 = LBITSET_HEAD(src2);
+	lbitset_elt * delt  = LBITSET_HEAD(dst);
 	bool changed = false;
-
 	LBITSET_HEAD(dst) = 0;
 	dst->b.csize = 0;
-
 	bitset_windex windex1 = (selt1) ? selt1->index : BITSET_WINDEX_MAX;
 	bitset_windex windex2 = (selt2) ? selt2->index : BITSET_WINDEX_MAX;
-
 	while(selt1 || selt2) {
 		bitset_windex windex;
-		lbitset_elt * stmp1;
-		lbitset_elt * stmp2;
-
-		/* Figure out whether we need to substitute zero elements for
-		   missing links.  */
+		const lbitset_elt * stmp1;
+		const lbitset_elt * stmp2;
+		// Figure out whether we need to substitute zero elements for missing links.
 		if(windex1 == windex2) {
 			windex = windex1;
 			stmp1 = selt1;
@@ -861,9 +754,7 @@ static bool lbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			selt2 = selt2->next;
 			windex2 = (selt2) ? selt2->index : BITSET_WINDEX_MAX;
 		}
-
-		/* Find the appropriate element from DST.  Begin by discarding
-		   elements that we've skipped.  */
+		// Find the appropriate element from DST.  Begin by discarding elements that we've skipped. 
 		lbitset_elt * dtmp;
 		while(delt && delt->index < windex) {
 			changed = true;
@@ -877,54 +768,44 @@ static bool lbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 		}
 		else
 			dtmp = lbitset_elt_calloc();
-
 		/* Do the operation, and if any bits are set, link it into the
 		   linked list.  */
-		bitset_word * srcp1 = stmp1->words;
-		bitset_word * srcp2 = stmp2->words;
+		const bitset_word * srcp1 = stmp1->words;
+		const bitset_word * srcp2 = stmp2->words;
 		bitset_word * dstp = dtmp->words;
-		switch(op)
-		{
+		switch(op) {
 			default:
 			    abort();
-
 			case BITSET_OP_OR:
 			    for(uint i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ | *srcp2++;
-
 				    if(*dstp != tmp) {
 					    changed = true;
 					    *dstp = tmp;
 				    }
 			    }
 			    break;
-
 			case BITSET_OP_AND:
 			    for(uint i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ & *srcp2++;
-
 				    if(*dstp != tmp) {
 					    changed = true;
 					    *dstp = tmp;
 				    }
 			    }
 			    break;
-
 			case BITSET_OP_XOR:
 			    for(uint i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ ^ *srcp2++;
-
 				    if(*dstp != tmp) {
 					    changed = true;
 					    *dstp = tmp;
 				    }
 			    }
 			    break;
-
 			case BITSET_OP_ANDN:
 			    for(uint i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ & ~(*srcp2++);
-
 				    if(*dstp != tmp) {
 					    changed = true;
 					    *dstp = tmp;
@@ -932,7 +813,6 @@ static bool lbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			    }
 			    break;
 		}
-
 		if(!lbitset_elt_zero_p(dtmp)) {
 			dtmp->index = windex;
 			/* Perhaps this could be optimised...  */
@@ -942,21 +822,18 @@ static bool lbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			lbitset_elt_free(dtmp);
 		}
 	}
-
 	/* If we have elements of DST left over, free them all.  */
 	if(delt) {
 		changed = true;
 		lbitset_prune(dst, delt);
 	}
-
 	return changed;
 }
 
 static bool lbitset_and_cmp(bitset dst, bitset src1, bitset src2)
 {
-	lbitset_elt * selt1 = LBITSET_HEAD(src1);
-	lbitset_elt * selt2 = LBITSET_HEAD(src2);
-
+	const lbitset_elt * selt1 = LBITSET_HEAD(src1);
+	const lbitset_elt * selt2 = LBITSET_HEAD(src2);
 	if(!selt2) {
 		lbitset_weed(dst);
 		bool changed = !LBITSET_HEAD(dst);
@@ -980,9 +857,8 @@ static void lbitset_and(bitset dst, bitset src1, bitset src2)
 
 static bool lbitset_andn_cmp(bitset dst, bitset src1, bitset src2)
 {
-	lbitset_elt * selt1 = LBITSET_HEAD(src1);
-	lbitset_elt * selt2 = LBITSET_HEAD(src2);
-
+	const lbitset_elt * selt1 = LBITSET_HEAD(src1);
+	const lbitset_elt * selt2 = LBITSET_HEAD(src2);
 	if(!selt2) {
 		return lbitset_copy_cmp(dst, src1);
 	}
@@ -1003,9 +879,8 @@ static void lbitset_andn(bitset dst, bitset src1, bitset src2)
 
 static bool lbitset_or_cmp(bitset dst, bitset src1, bitset src2)
 {
-	lbitset_elt * selt1 = LBITSET_HEAD(src1);
-	lbitset_elt * selt2 = LBITSET_HEAD(src2);
-
+	const lbitset_elt * selt1 = LBITSET_HEAD(src1);
+	const lbitset_elt * selt2 = LBITSET_HEAD(src2);
 	if(!selt2)
 		return lbitset_copy_cmp(dst, src1);
 	else if(!selt1)
@@ -1021,8 +896,8 @@ static void lbitset_or(bitset dst, bitset src1, bitset src2)
 
 static bool lbitset_xor_cmp(bitset dst, bitset src1, bitset src2)
 {
-	lbitset_elt * selt1 = LBITSET_HEAD(src1);
-	lbitset_elt * selt2 = LBITSET_HEAD(src2);
+	const lbitset_elt * selt1 = LBITSET_HEAD(src1);
+	const lbitset_elt * selt2 = LBITSET_HEAD(src2);
 	if(!selt2)
 		return lbitset_copy_cmp(dst, src1);
 	else if(!selt1)
@@ -1099,19 +974,17 @@ void lbitset_release_memory(void)
 /* Function to be called from debugger to debug lbitset.  */
 void debug_lbitset(bitset bset)
 {
-	if(!bset)
-		return;
-
-	for(lbitset_elt * elt = LBITSET_HEAD(bset); elt; elt = elt->next) {
-		fprintf(stderr, "Elt %lu\n", (ulong)elt->index);
-		for(uint i = 0; i < LBITSET_ELT_WORDS; i++) {
-			bitset_word word = elt->words[i];
-
-			fprintf(stderr, "  Word %u:", i);
-			for(uint j = 0; j < LBITSET_WORD_BITS; j++)
-				if((word & ((bitset_word)1 << j)))
-					fprintf(stderr, " %u", j);
-			fprintf(stderr, "\n");
+	if(bset) {
+		for(lbitset_elt * elt = LBITSET_HEAD(bset); elt; elt = elt->next) {
+			fprintf(stderr, "Elt %lu\n", (ulong)elt->index);
+			for(uint i = 0; i < LBITSET_ELT_WORDS; i++) {
+				bitset_word word = elt->words[i];
+				fprintf(stderr, "  Word %u:", i);
+				for(uint j = 0; j < LBITSET_WORD_BITS; j++)
+					if((word & ((bitset_word)1 << j)))
+						fprintf(stderr, " %u", j);
+				fprintf(stderr, "\n");
+			}
 		}
 	}
 }

@@ -3711,7 +3711,7 @@ browser CCHECK north(100), 1, 1, "@{poscheck_pl}", OWNER|GRID, 0
 	"@discount",      8, notype, NMBF_NOZERO, 12.2
 	"@card",          7, notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter,  PPDV_LINS01,            "Просмотр чека\tEnter"
+		EDITITEM    : kbEnter,  PPDV_LINS01,            "@{doviewccheck}\tEnter"
 		TOGGLE      : kbCtrlT,  TBBM_TOGGLESHIPMTAG,    "Пометить как доставленный\tCtrl-T"
 		ADDITEM     : kbIns,    PPDV_ADDFILE02,         "@{add}\tInsert"
 		ADDBYSAMPLE : kbF2,     PPDV_CREATEBYEXAMPLE01, "Создать драфт-документ по чеку\tF2"
@@ -4582,7 +4582,7 @@ browser ASSET north(100), 2, 1, "@view_asset", OWNER|GRID, 0
 {
 	"@appellation",               2, notype, 0, 40
 	"Инв номер",                  3, notype, 0, 16
-	"Дата поступления",           4, notype, DATF_DMY, 8
+	"@receiptdate",               4, notype, DATF_DMY, 8
 	"Дата ввода в эксплуатацию",  5, notype, DATF_DMY, 8
 	"Срок списания, мес",         6, notype, ALIGN_RIGHT|NMBF_NOZERO, 8
 	"Первоначальная стоимость",   7, notype, ALIGN_RIGHT|NMBF_NOZERO, 12.2
@@ -4605,7 +4605,7 @@ browser ASSETOPER north(100), 4, 1, "@{view_asset} {%s}", OWNER|GRID, 0
 {
 	"@appellation",               2, notype, 0, 40
 	"Инв номер",                  3, notype, 0, 16
-	"Дата поступления",           4, notype, DATF_DMY, 8
+	"@receiptdate",               4, notype, DATF_DMY, 8
 	"Дата ввода в эксплуатацию",  5, notype, DATF_DMY, 8
 	"Срок списания,мес",          6, notype, NMBF_NOZERO, 8
 	group "На начало периода" {
@@ -4726,16 +4726,16 @@ browser SSTAT_SORD north(100), 2, 1, "@{ordertosuppliercalculation} {%s}", OWNER
 		PUTTOBASKET       : kbCtrlF4, PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
 		PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET, "Добавить в корзину товары, подлежащие заказу\tCtrl-F8"
 		MAKEPURCHASEBILL  : kbCtrlP,  PPDV_NOICON,         "Создание закупки\tCtrl-P"
-		VIEWBILLS         : kbAltP,   PPDV_DOCUMENT_PL02,  "Просмотр созданных документов закупки\tAlt-P"
+		VIEWBILLS         : kbAltP,   PPDV_DOCUMENT_PL02,  "@{doviewcreatedbuyersorder}\tAlt-P"
 		separator
-		VIEWQUOT          : kbCtrlQ,  TBBM_QUOTATION,   "@{quotes}\tCtrl-Q"
-		VIEWSUPPLQUOT     : kbCtrlW,  TBBM_SUPPLQUOTS,  "@{qkcls_suppldeal}\tCtrl-W"
-		VIEWGOODSMATRIX   : kbCtrlM,  PPDV_MATRIX01,    "@{goodsmatrix}\tCtrl-M"
-		VIEWPREDICTCOEFF  : kbCtrlE,  PPDV_NOICON,      "@{qkcls_predictcoeff}\tCtrl-E"
+		VIEWQUOT          : kbCtrlQ,  TBBM_QUOTATION,      "@{quotes}\tCtrl-Q"
+		VIEWSUPPLQUOT     : kbCtrlW,  TBBM_SUPPLQUOTS,     "@{qkcls_suppldeal}\tCtrl-W"
+		VIEWGOODSMATRIX   : kbCtrlM,  PPDV_MATRIX01,       "@{goodsmatrix}\tCtrl-M"
+		VIEWPREDICTCOEFF  : kbCtrlE,  PPDV_NOICON,         "@{qkcls_predictcoeff}\tCtrl-E"
 		separator
-		TOTAL             : kbF9,      PPDV_SIGMA02,    "@{totals}\tF9"
-		PRINT             : kbF7,      PPDV_PRINTER01,  "@{printstatistics}\tF7"
-		CHANGEFILT        : kbCtrlV,   PPDV_FILTER01,   "@{filter}\tCtrl-V"
+		TOTAL             : kbF9,      PPDV_SIGMA02,       "@{totals}\tF9"
+		PRINT             : kbF7,      PPDV_PRINTER01,     "@{printstatistics}\tF7"
+		CHANGEFILT        : kbCtrlV,   PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
 }
 
@@ -4755,7 +4755,7 @@ browser SSTAT_SORD_CT north(100), 3, 1, "@{ordertosuppliercalculation} {%s}", OW
 		PUTTOBASKET       : kbCtrlF4, PPDV_SHOPPINGCART01,  "@{doputtobasket}\tCtrl-F4"
 		PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET,  "Добавить в корзину товары, подлежащие заказу\tCtrl-F8"
 		MAKEPURCHASEBILL  : kbCtrlP,  PPDV_NOICON,          "Создание закупки\tCtrl-P"
-		VIEWBILLS         : kbAltP,   PPDV_DOCUMENT_PL02,   "Просмотр созданных документов закупки\tAlt-P"
+		VIEWBILLS         : kbAltP,   PPDV_DOCUMENT_PL02,   "@{doviewcreatedbuyersorder}\tAlt-P"
 		separator
 		VIEWQUOT          : kbCtrlQ,  TBBM_QUOTATION,    "@{quotes}\tCtrl-Q"
 		VIEWSUPPLQUOT     : kbCtrlW,  TBBM_SUPPLQUOTS,   "@{qkcls_suppldeal}\tCtrl-W"
@@ -6104,7 +6104,7 @@ browser CHKOPJ north(100), 1, 1, "@{view_checkopjrnl}", OWNER|GRID, 0
 	"@posnodeno",  10,  notype, 0, 12
 	toolbar TB_FIRST_TOOLBAR {
 		VIEWGOODS   : kbF2,    TBBM_GOODS,     "@{ware}\tF2"
-		VIEWCHECK   : kbF3,    PPDV_NOICON,    "Просмотр чека\tF3"
+		VIEWCHECK   : kbF3,    PPDV_NOICON,    "@{doviewccheck}\tF3"
 		PRINT       : kbF7,    PPDV_PRINTER01, "@{print}\tF7"
 		separator
 		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,  "@{filter}\tCtrl-V"
@@ -6117,7 +6117,7 @@ browser STOCKOPT_ITEMS north(100), 2, 1, "@view_stockopt", OWNER|GRID, 0
 	"@ware",                 1, zstring(128), 0, 25, BCO_USERPROC
 	"@termcost",             2, double, NMBF_NOZERO, 6.2, BCO_USERPROC
 	"@termprice",            3, double, NMBF_NOZERO, 6.2, BCO_USERPROC
-	"Среднедневные продажи", 4, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
+	"@avgdaylysales",        4, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@unitperpack",          5, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@minstock",             6, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@expirationdate",       7, long,   NMBF_NOZERO,     6, BCO_USERPROC
@@ -6358,11 +6358,11 @@ browser USERPROFILE north(100), 1, 0, "@{view_userprofile}", OWNER|GRID, 0
 	"@sessionid",         7, notype, 0,           30
 	"@systhreadid",       3, notype, 0,            8
 	"@function",         10, notype, 0,           30
-	"Версия Papyrus",    11, notype, 0,           10
+	"@papyrusversion",   11, notype, 0,           10
 	"@user",              9, notype, 0,           30
 	"@date",              4, notype, DATF_GERMAN,  8
 	"@time",              5, notype, TIMF_HMS,     8
-	"@duration",          6, notype, 0,           12
+	"@duration",          6, notype, ALIGN_RIGHT, 12
 	"@{factor} 1",       12, notype, 0,            8
 	"@{factor} 2",       13, notype, 0,            8
 	"@{factor} 3",       14, notype, 0,            8
@@ -6800,7 +6800,7 @@ cmd SCardOp               { "@{cmd_scardop}"                               none 
 cmd ImportSCard2          { "@{cmd_importscard2}"                          none                  none cmImportSCard2 }
 cmd GlobalAccCfg          { "@{cmd_globalacccfg}"                          none                  none cmGlobalAccCfg }
 cmd TestPredictSalesTbl   { "@{cmd_testpredictsalestbl}"                   PPDV_TEST01           none cmTestPredictSalesTbl }
-cmd ExportGoodsRestUhtt   { "Экспорт цен и остатков в Universe-HTT"        none                  none cmExportGoodsRestUhtt }
+cmd ExportGoodsRestUhtt   { "@{cmd_exportgoodsrestuhtt}"                   none                  none cmExportGoodsRestUhtt }
 cmd GenericDevice         { "@{cmd_genericdevice}"                         none                  none cmGenericDevice }
 cmd IndexTextObjects      { "Индексация текстовых объектов (construction)" none                  none cmIndexTextObjects }
 cmd OpenTextFile          { "@{cmd_opentextfile}"                          ICON_OPENTEXTFILE     none cmOpenTextFile }
@@ -6810,13 +6810,13 @@ cmd TestReconnect         { "Тест реконнекта серверной сессии"             PPDV_
 cmd TSessAutoSms          { "Рассылка смс на основе технологических сессий" none                  none cmTSessAutoSms }
 cmd Workbook              { "@{cmd_workbook}"                              ICON_WORKBOOK          none cmWorkbook }
 cmd WorkbookConfig        { "@{cmd_workbookcfg}"                           none                   none cmWorkbookCfg }
-cmd ConvertLatexToHtml    { "Конвертация LATEX-документации (только для внутреннего использования)" none none cmConvertLatexToHtml }
+cmd ConvertLatexToHtml    { "@{cmd_convertlatextohtml}"                    none                   none cmConvertLatexToHtml }
 cmd GenerateKeywordSeq    { "Генерация последовательностей слов (тест)"    none                   none cmGenerateKeywordSeq }
 cmd TestUhttGetLocByPhone { "Тест SOAP-функции получения адресов по номеру телефона" PPDV_TEST01  none cmTestUhttGetLocByPhone }
 cmd GoodsMovOld           { "Движение товаров (старая версия)"             ICON_GOODSMOV          none cmGoodsMov view=GoodsMov }
 cmd TestUhttGetQuotByLoc  { "Тест SOAP-функции получения котировок по коду локации"  PPDV_TEST01  none cmTestUhttGetQuotByLoc }
 cmd LocationTag           { "@{cmd_locationtag}"                           PPDV_TAGS01            none cmLocationTag }
-cmd ConvertVersionToHtml  { "Конвертация version.txt (только для внутреннего использования)" none none cmConvertVersionToHtml }
+cmd ConvertVersionToHtml  { "@{cmd_convertversiontohtml}"                  none                   none cmConvertVersionToHtml }
 cmd ObjTagAllObjects      { "@{cmd_objtagallobj}"                          PPDV_TAGS01            none cmObjTagAllObj }
 cmd ImportFias            { "@{cmd_importfias}"                            none                   none cmImportFias }
 cmd ExportDbTblTransfer   { "@{cmd_exportdbtbltransfer}"                   none                   none cmExportDbTblTransfer }
@@ -6837,10 +6837,10 @@ cmd TestLogWindow         { "@{cmd_testlogwindow}"                         PPDV_
 cmd ProcessSartre         { "@{cmd_importsartre}"                          none                   none cmProcessSartre } // @v9.7.8
 cmd BillAutoCreate        { "@{cmd_billautocreate}"                        none                   none cmBillAutoCreate } // @v9.7.10
 cmd TestTDDO2             { "@{cmd_testtddo2}"                             PPDV_TEST01            none cmTestTddo2 } // @v9.8.3
-cmd TestVetis             { "@{cmd_testvetis}"                             PPDV_TEST01            none cmTestVetis } // @v9.8.9
+cmd TestVetis             { "@{cmd_testvetis}"                             PPDV_LOGOVETIS         none cmTestVetis } // @v9.8.9
 cmd PhnSvcMonitor         { "@{cmd_phnsvcmonitor}"                         none                   none cmViewPhnSvcMonitor } // @v9.9.10
-cmd VetisDocument         { "@{cmd_vetisdocument}"                         none                   none cmVetisDocument view = VetisDocument } // @v10.0.12
-cmd VetisInterchange      { "@{cmd_vetisinerchange}"                       none                   none cmVetisInterchange } // @v10.1.2
+cmd VetisDocument         { "@{cmd_vetisdocument}"                         PPDV_LOGOVETIS         none cmVetisDocument view = VetisDocument } // @v10.0.12
+cmd VetisInterchange      { "@{cmd_vetisinerchange}"                       PPDV_LOGOVETIS         none cmVetisInterchange } // @v10.1.2
 cmd TimeSeriesSA          { "@{cmd_tsstrategyanalyze}"                     none                   none cmTimeSeriesSA } // @v10.1.4
 cmd TimeSeriesConfig      { "@{cmd_timeseriesconfig}"                      none                   none cmTimeSeriesConfig } // @v10.3.1
 cmd SendBillsWithFilt     { "@{cmd_sendbillsbyfilt}"                       none                   none cmSendBillsByFilt } // @v10.4.1
@@ -6849,7 +6849,7 @@ cmd ExportView            { "@{cmd_exportview}"                            none 
 cmd TestMqc               { "@{cmd_testmqc}"                               PPDV_TEST01            none cmTestMqc } // @v10.5.7
 cmd QuoteReqAnalyze       { "@{cmd_quotereqanalyze}"                       none                   none cmQuoteReqAnalyze } // @v10.5.7
 cmd UniFindObj            { "@{cmd_unifindobj}"                            none                   none cmUniFindObj } // @v10.6.1
-cmd QueryCHZN             { "@{cmd_querychzn}"                             none                   none cmQueryCHZN }
+cmd QueryCHZN             { "@{cmd_querychzn}"                             PPDV_LOGOCHZN          none cmQueryCHZN }
 cmd TssModel              { "@{cmd_tssmodel}"                              none                   none cmTssModel  } // @v10.7.4
 cmd Events                { "@{cmd_events}"                                none                   none cmEvents } // @v10.8.9
 cmd EventSubscription     { "@{cmd_eventsubscription}"                     none                   none cmEventSubscription } // @v10.8.9
@@ -7902,10 +7902,10 @@ record Person {
 }
 
 record SPIIBrand {
-	ID             long                "Ид бренда";
-	OwnID          long                "Ид владельца бренда";
+	ID             long                "@{brandid}";
+	OwnID          long                "@{brandownerid}";
 	Name           zstring(64)         "@{brandname}";
-	OwnName        zstring(64)         "Наименование владельца бренда";
+	OwnName        zstring(64)         "@{brandownername}";
 }
 
 record SBIILocCell {
@@ -8009,10 +8009,10 @@ record PalmQuotKind {
 }
 
 record PalmBrand {
-	BrandID        long          format(10) "Ид бренда";
+	BrandID        long          format(10) "@{brandid}";
 	BrandName      zstring(64)   "@{brandname}";
-	BrandOwnerID   long          format(10) "Ид владельца бренда";
-	BrandOwnerName zstring(64)   "Наименование владельца бренда";
+	BrandOwnerID   long          format(10) "@{brandownerid}";
+	BrandOwnerName zstring(64)   "@{brandownername}";
 }
 
 record PalmWarehouse {
@@ -8964,4 +8964,6 @@ drawvector "..\rsrc\svg" {
 	PPDV_LOGOPAPYRUS
 	PPDV_LOGOUDS
 	PPDV_LOGOVK
+	PPDV_LOGOVETIS
+	PPDV_LOGOCHZN
 }

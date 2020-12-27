@@ -1640,6 +1640,7 @@
     <ClInclude Include="..\Include\ppsoapclient.h" />
     <ClInclude Include="..\Include\Report.h" />
     <ClInclude Include="..\Include\sartre.h" />
+    <ClInclude Include="..\Include\Slib.h" />
     <ClInclude Include="..\PPMain\resrc1.h" />
     <ClInclude Include="..\Rsrc\Str\ppstr2.h" />
   </ItemGroup>

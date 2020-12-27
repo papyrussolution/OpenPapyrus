@@ -1848,6 +1848,7 @@ int BarcodeLabelPrinter::PrintLabelUsb(PPID devType)
 //
 // DatamaxLabelPrinter
 //
+/* @v10.9.10
 struct BarCStdToDatamaxEntry {
 	int8   Std;
 	int8   Chr;
@@ -1875,6 +1876,32 @@ static BarCStdToDatamaxEntry _BarCStdTab[] = {
 	{BARCSTD_UPCA,        'B'},
 	{BARCSTD_POSTNET,     'p'}
 };
+*/
+// @v10.9.10 {
+static SIntToSymbTabEntry _BarCStdTab2[] = {
+	{BARCSTD_CODE11,       0  },
+	{BARCSTD_INTRLVD2OF5, "D" },
+	{BARCSTD_CODE39,      "A" },
+	{BARCSTD_CODE49,       "" },
+	{BARCSTD_PDF417,      "z" },
+	{BARCSTD_EAN8,        "G" },
+	{BARCSTD_UPCE,        "C" },
+	{BARCSTD_CODE93,      "O" },
+	{BARCSTD_CODE128,     "E" },
+	{BARCSTD_EAN13,       "F" },
+	{BARCSTD_IND2OF5,     "L" },
+	{BARCSTD_STD2OF5,     "J" },
+	{BARCSTD_ANSI,         0  },
+	{BARCSTD_LOGMARS,      0  },
+	{BARCSTD_MSI,          0  },
+	{BARCSTD_PLESSEY,     "K" },
+	{BARCSTD_UPCEAN2EXT,  "M" },
+	{BARCSTD_UPCEAN5EXT,  "N" },
+	{BARCSTD_UPCA,        "B" },
+	{BARCSTD_POSTNET,     "p"   },
+	{BARCSTD_DATAMATRIX,  "W1c" } // @v10.9.10
+};
+// } @v10.9.10 
 
 int DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 {
@@ -1897,15 +1924,32 @@ int DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 	if(pEntry->Type == BarcodeLabelEntry::etText)
 		buf[i++] = (font_id >= 1 && font_id <= 8) ? ('0' + font_id) : '9';
 	else {
+		// @v10.9.10 {
+		{
+			//_BarCStdTab2[]
+			for(j = 0; j < SIZEOFARRAY(_BarCStdTab2); j++) {
+				if(_BarCStdTab2[j].Id == pEntry->BarcodeStd) {
+					const size_t bcst_len = sstrlen(_BarCStdTab2[j].P_Symb);
+					if(bcst_len) {
+						memcpy(buf+i, _BarCStdTab2[j].P_Symb, bcst_len);
+						i += bcst_len;
+					}
+				}
+			}
+		}
+		// } @v10.9.10 
+		/* @v10.9.10 
 		c = 0;
-		for(j = 0; j < SIZEOFARRAY(_BarCStdTab); j++)
+		for(j = 0; j < SIZEOFARRAY(_BarCStdTab); j++) {
 			if(_BarCStdTab[j].Std == pEntry->BarcodeStd) {
 				c = (char)_BarCStdTab[j].Chr;
 				break;
 			}
+		}
 		if(c == 0)
 			return PPSetError(PPERR_BARCSTDNSUPPORT);
 		buf[i++] = c;
+		*/
 	}
 	if(pEntry->XMult >= 0 && pEntry->XMult < 10)
 		buf[i++] = '0' + pEntry->XMult; // Width multiplier

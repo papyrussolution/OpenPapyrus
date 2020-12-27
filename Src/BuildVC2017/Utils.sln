@@ -78,6 +78,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freetype", "freetype.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblzma", "liblzma.vcxproj", "{C241E0AD-81FF-4A43-9B39-F3712E9C0D4E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FlexBison", "FlexBison", "{8B312866-2A72-49D5-8ED6-36A5664B9BAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Multithreaded|x64 = Debug Multithreaded|x64
@@ -1873,6 +1875,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{11561197-1120-428C-A43D-7BCDFBCF79B8} = {8B312866-2A72-49D5-8ED6-36A5664B9BAF}
+		{47C40EF9-255C-475F-B5A6-B9CB85D40AD0} = {8B312866-2A72-49D5-8ED6-36A5664B9BAF}
+		{F49DC041-3A12-4D54-A15E-F38504D1D8B2} = {8B312866-2A72-49D5-8ED6-36A5664B9BAF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0E7CC324-761B-4C78-8906-342D5C1AC1AD}

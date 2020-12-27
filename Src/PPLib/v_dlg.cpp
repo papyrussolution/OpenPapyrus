@@ -488,10 +488,70 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 }
 
 class UiWtmToolDialog : public TDialog {
+	DECL_DIALOG_DATA(TWhatmanToolArray::Item);
 public:
-	UiWtmToolDialog();
-	int    setDTS(const TWhatmanToolArray::Item * pData);
-	int    getDTS(TWhatmanToolArray::Item * pData);
+	UiWtmToolDialog() : TDialog(DLG_WTMTOOLUI)
+	{
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_WTMTOOL_PICPATH, CTL_WTMTOOL_PICPATH, 2, 0, PPTXT_FILPAT_SPIC,
+			FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		StrAssocArray * p_wtmo_list = 0;
+		Data = *pData;
+		WhatmanObjectUiCtrl::ToolItemExtData tied;
+		if(Data.ExtSize >= sizeof(WhatmanObjectUiCtrl::ToolItemExtData))
+			tied = *reinterpret_cast<const WhatmanObjectUiCtrl::ToolItemExtData *>(Data.ExtData);
+		else
+			MEMSZERO(tied);
+		setCtrlString(CTL_WTMTOOL_NAME, Data.Text);
+		setCtrlString(CTL_WTMTOOL_SYMB, Data.Symb);
+		disableCtrl(CTL_WTMTOOL_SYMB, Data.Symb.NotEmpty());
+		setCtrlString(CTL_WTMTOOL_PICPATH, Data.PicPath);
+		setCtrlData(CTL_WTMTOOL_FIGSIZE, &Data.FigSize);
+		setCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
+		AddClusterAssoc(CTL_WTMTOOL_FLAGS, 0, TWhatmanToolArray::Item::fDontEnlarge);
+		AddClusterAssoc(CTL_WTMTOOL_FLAGS, 1, TWhatmanToolArray::Item::fDontKeepRatio);
+		SetClusterData(CTL_WTMTOOL_FLAGS, Data.Flags);
+		{
+			ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_WTMOBJ));
+			if(p_combo) {
+				p_combo->setListWindow(CreateListWindow(TWhatmanObject::MakeStrAssocList(), lbtDisposeData|lbtDblClkNotify),
+					TWhatmanObject::GetRegIdBySymb(Data.WtmObjSymb));
+				disableCtrl(CTLSEL_WTMTOOL_WTMOBJ, 1);
+			}
+		}
+		{
+			ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_KIND));
+			if(p_combo) {
+				StrAssocArray * p_ui_kind_list = new StrAssocArray;
+				UiItemKind::GetTextList(*p_ui_kind_list);
+				p_combo->setListWindow(CreateListWindow(p_ui_kind_list, lbtDisposeData|lbtDblClkNotify), tied.UiKindID);
+			}
+		}
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		long   wtmo_id = getCtrlLong(CTLSEL_WTMTOOL_WTMOBJ);
+		if(wtmo_id)
+			TWhatmanObject::GetRegSymbById(wtmo_id, Data.WtmObjSymb);
+		long   ui_kind_id = getCtrlLong(CTLSEL_WTMTOOL_KIND);
+		getCtrlString(CTL_WTMTOOL_NAME, Data.Text);
+		getCtrlString(CTL_WTMTOOL_SYMB, Data.Symb);
+		getCtrlString(CTL_WTMTOOL_PICPATH, Data.PicPath);
+		getCtrlData(CTL_WTMTOOL_FIGSIZE, &Data.FigSize);
+		getCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
+		GetClusterData(CTL_WTMTOOL_FLAGS, &Data.Flags);
+
+		WhatmanObjectUiCtrl::ToolItemExtData * p_tied = reinterpret_cast<WhatmanObjectUiCtrl::ToolItemExtData *>(Data.ExtData);
+		Data.ExtSize = sizeof(WhatmanObjectUiCtrl::ToolItemExtData);
+		p_tied->UiKindID = ui_kind_id;
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -505,77 +565,18 @@ private:
 				if(uik.Text.NotEmptyS())
 					setCtrlString(CTL_WTMTOOL_NAME, uik.Text);
 			}
-			clearEvent(event);
 		}
+		else if(event.isCmd(cmLayoutEntry)) { // @v10.9.10
+			LayoutEntryDialogBlock lodb(&Data.Alb);
+			if(lodb.EditEntry(0) > 0) {
+				Data.Alb = lodb;
+			}
+		}
+		else
+			return;
+		clearEvent(event);
 	}
-
-	TWhatmanToolArray::Item Data;
 };
-
-UiWtmToolDialog::UiWtmToolDialog() : TDialog(DLG_WTMTOOLUI)
-{
-	FileBrowseCtrlGroup::Setup(this, CTLBRW_WTMTOOL_PICPATH, CTL_WTMTOOL_PICPATH, 2, 0, PPTXT_FILPAT_SPIC,
-		FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
-}
-
-int UiWtmToolDialog::setDTS(const TWhatmanToolArray::Item * pData)
-{
-	int    ok = 1;
-	StrAssocArray * p_wtmo_list = 0;
-	Data = *pData;
-	WhatmanObjectUiCtrl::ToolItemExtData tied;
-	if(Data.ExtSize >= sizeof(WhatmanObjectUiCtrl::ToolItemExtData))
-		tied = *reinterpret_cast<const WhatmanObjectUiCtrl::ToolItemExtData *>(Data.ExtData);
-	else
-		MEMSZERO(tied);
-	setCtrlString(CTL_WTMTOOL_NAME, Data.Text);
-	setCtrlString(CTL_WTMTOOL_SYMB, Data.Symb);
-	disableCtrl(CTL_WTMTOOL_SYMB, Data.Symb.NotEmpty());
-	setCtrlString(CTL_WTMTOOL_PICPATH, Data.PicPath);
-	setCtrlData(CTL_WTMTOOL_FIGSIZE, &Data.FigSize);
-	setCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
-	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 0, TWhatmanToolArray::Item::fDontEnlarge);
-	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 1, TWhatmanToolArray::Item::fDontKeepRatio);
-	SetClusterData(CTL_WTMTOOL_FLAGS, Data.Flags);
-	{
-		ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_WTMOBJ));
-		if(p_combo) {
-			p_combo->setListWindow(CreateListWindow(TWhatmanObject::MakeStrAssocList(), lbtDisposeData|lbtDblClkNotify),
-				TWhatmanObject::GetRegIdBySymb(Data.WtmObjSymb));
-			disableCtrl(CTLSEL_WTMTOOL_WTMOBJ, 1);
-		}
-	}
-	{
-		ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_KIND));
-		if(p_combo) {
-			StrAssocArray * p_ui_kind_list = new StrAssocArray;
-			UiItemKind::GetTextList(*p_ui_kind_list);
-			p_combo->setListWindow(CreateListWindow(p_ui_kind_list, lbtDisposeData|lbtDblClkNotify), tied.UiKindID);
-		}
-	}
-	return ok;
-}
-
-int UiWtmToolDialog::getDTS(TWhatmanToolArray::Item * pData)
-{
-	int    ok = 1;
-	long   wtmo_id = getCtrlLong(CTLSEL_WTMTOOL_WTMOBJ);
-	if(wtmo_id)
-		TWhatmanObject::GetRegSymbById(wtmo_id, Data.WtmObjSymb);
-	long   ui_kind_id = getCtrlLong(CTLSEL_WTMTOOL_KIND);
-	getCtrlString(CTL_WTMTOOL_NAME, Data.Text);
-	getCtrlString(CTL_WTMTOOL_SYMB, Data.Symb);
-	getCtrlString(CTL_WTMTOOL_PICPATH, Data.PicPath);
-	getCtrlData(CTL_WTMTOOL_FIGSIZE, &Data.FigSize);
-	getCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
-	GetClusterData(CTL_WTMTOOL_FLAGS, &Data.Flags);
-
-	WhatmanObjectUiCtrl::ToolItemExtData * p_tied = reinterpret_cast<WhatmanObjectUiCtrl::ToolItemExtData *>(Data.ExtData);
-	Data.ExtSize = sizeof(WhatmanObjectUiCtrl::ToolItemExtData);
-	p_tied->UiKindID = ui_kind_id;
-	ASSIGN_PTR(pData, Data);
-	return ok;
-}
 
 int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 {
@@ -605,7 +606,7 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 			ok = 1;
 			break;
 		case cmdEditTool:
-			ok = PPDialogProcBody <UiWtmToolDialog, TWhatmanToolArray::Item> ((TWhatmanToolArray::Item *)pExt);
+			ok = PPDialogProcBody <UiWtmToolDialog, TWhatmanToolArray::Item>(static_cast<TWhatmanToolArray::Item *>(pExt));
 			break;
 		case cmdObjInserted:
 			if(P_DlCtx && P_Scope) {

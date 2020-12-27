@@ -488,6 +488,8 @@ int PPObjQuotKind::IsPacketEq(const PPQuotKindPacket & rS1, const PPQuotKindPack
 	CMP_MEMB(Flags);
 	CMP_MEMB(OpID);
 	CMP_MEMB(AccSheetID);
+	CMP_MEMB(RoundingPrec);   // @v10.9.10
+	CMP_MEMB(RoundingDir);    // @v10.9.10
 #undef CMP_MEMBS
 #undef CMP_MEMB
 	return 1;
@@ -531,7 +533,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 		}
 		else {
 			THROW(CheckRights(PPR_INS));
-			THROW(CheckDupName(*pID, pPack->Rec.Name)); // @v8.3.6
+			THROW(CheckDupName(*pID, pPack->Rec.Name));
 			*pID = pPack->Rec.ID;
 			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
@@ -844,6 +846,25 @@ public:
 			Data.Rec.GetRestrText(restr_text);
 			setStaticText(CTL_QUOTKIND_ST_RESTR, restr_text);
 		}
+		// @v10.9.10 @construction {
+		{
+			long   rp = 0;
+			if(Data.Rec.Flags & QUOTKF_USEROUNDING) {
+				if(Data.Rec.RoundingDir == 0)
+					rp = 1;
+				else if(Data.Rec.RoundingDir < 0)
+					rp = 2;
+				else // if(Data.Rec.RoundingDir > 0)
+					rp = 3;
+			}
+			AddClusterAssocDef(CTL_QUOTKIND_RNDGDIR, 0, 0);
+			AddClusterAssoc(CTL_QUOTKIND_RNDGDIR, 1, 1);
+			AddClusterAssoc(CTL_QUOTKIND_RNDGDIR, 2, 2);
+			AddClusterAssoc(CTL_QUOTKIND_RNDGDIR, 3, 3);
+			SetClusterData(CTL_QUOTKIND_RNDGDIR, rp);
+			setCtrlReal(CTL_QUOTKIND_RNDGPREC, Data.Rec.RoundingPrec);
+		}
+		// } @v10.9.10 @construction
 		UpdateView();
 		return 1;
 	}
@@ -862,6 +883,31 @@ public:
 		GetClusterData(CTL_QUOTKIND_FLAGS, &Data.Rec.Flags);
 		GetDiscount(this, CTL_QUOTKIND_DISCOUNT, &Data.Rec);
 		getCtrlData(CTL_QUOTKIND_RANK,  &Data.Rec.Rank);
+		// @v10.9.10 @construction {
+		{
+			long   rp = GetClusterData(CTL_QUOTKIND_RNDGDIR);
+			if(rp == 0) {
+				Data.Rec.Flags &= ~QUOTKF_USEROUNDING;
+				Data.Rec.RoundingDir = 0;
+				Data.Rec.RoundingPrec = 0.01;
+			}
+			else {
+				Data.Rec.Flags |= QUOTKF_USEROUNDING;
+				if(rp == 1)
+					Data.Rec.RoundingDir = 0;
+				else if(rp == 2)
+					Data.Rec.RoundingDir = -1;
+				else if(rp == 3)
+					Data.Rec.RoundingDir = +1;
+				else {
+					// Получено неожиданное значение - на всякий случай блокируем округление
+					Data.Rec.Flags &= ~QUOTKF_USEROUNDING;
+					Data.Rec.RoundingDir = 0;
+				}
+				getCtrlData(CTL_QUOTKIND_RNDGPREC, &Data.Rec.RoundingPrec);
+			}
+		}
+		// } @v10.9.10 @construction
 		ASSIGN_PTR(pData, Data);
 		CATCH
 			ok = 0;
@@ -870,8 +916,42 @@ public:
 		return ok;
 	}
 private:
-	DECL_HANDLE_EVENT;
-	void   UpdateView();
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_QUOTKIND_FLAGS) || event.isCbSelected(CTLSEL_QUOTKIND_ACCSHEET) || event.isClusterClk(CTL_QUOTKIND_RNDGDIR))
+			UpdateView();
+		else if(event.isCmd(cmQuotKindRestr))
+			EditRestr();
+		else
+			return;
+		clearEvent(event);
+	}
+	void   UpdateView()
+	{
+		int   not_retailed = 0;
+		getDTS(0);
+		const PPID  acs_id = Data.Rec.AccSheetID;
+		const int   not_sell_accsheet = BIN(acs_id && acs_id != GetSellAccSheet() && acs_id != GetAgentAccSheet());
+		if(not_sell_accsheet) {
+			Data.Rec.Flags &= ~QUOTKF_RETAILED;
+			SetClusterData(CTL_QUOTKIND_FLAGS, Data.Rec.Flags);
+		}
+		DisableClusterItem(CTL_QUOTKIND_FLAGS, 2, not_sell_accsheet);
+		not_retailed = (Data.Rec.Flags & QUOTKF_RETAILED) ? 0 : 1;
+		if(not_retailed) {
+			// @v7.4.0 Data.Rec.BeginTm = Data.Rec.EndTm = 0;
+		}
+		disableCtrl(CTL_QUOTKIND_PERIOD, Data.Rec.ID == PPQUOTK_BASE);
+		ShowCalCtrl(CTLCAL_QUOTKIND_PERIOD, this, !(Data.Rec.ID == PPQUOTK_BASE));
+		disableCtrl(CTL_QUOTKIND_TIMEPERIOD, Data.Rec.ID == PPQUOTK_BASE || not_retailed);
+		// @v10.9.10 {
+		{
+			const long rp = GetClusterData(CTL_QUOTKIND_RNDGDIR);
+			disableCtrl(CTL_QUOTKIND_RNDGPREC, rp == 0);
+		}
+		// } @v10.9.10 
+	}
 	void   SetTimePeriod(TDialog * pDlg);
 	int    GetTimePeriod(TDialog * pDlg);
 	int    EditRestr();
@@ -895,8 +975,7 @@ void QuotKindDialog::SetTimePeriod(TDialog * pDlg)
 int QuotKindDialog::GetTimePeriod(TDialog * pDlg)
 {
 	int    ok = 1;
-	char   buf[32];
-	//getCtrlData(CTL_QUOTKIND_TIMEPERIOD, buf);
+	char   buf[64];
 	pDlg->getCtrlData(CTL_QKRESTR_TIMERANGE, buf);
 	if(buf[0]) {
 		char * p = 0;
@@ -911,13 +990,12 @@ int QuotKindDialog::GetTimePeriod(TDialog * pDlg)
 			end_tm.minut() >= 0 && end_tm.minut() <= 60);
 		if(end_tm == ZEROTIME)
 			end_tm = encodetime(24, 0, 0, 0);
-		// @v7.0.6 THROW(beg_tm.hour() < end_tm.hour() || (beg_tm.hour() == end_tm.hour() && beg_tm.minut() < end_tm.minut()));
 		if(beg_tm == ZEROTIME && end_tm.hour() == 24)
 			end_tm = ZEROTIME;
-		p = (char *)&Data.Rec.BeginTm;
+		p = PTRCHR_(&Data.Rec.BeginTm);
 		*p = beg_tm.hour();
 		*(p + 1) = beg_tm.minut();
-		p = (char *)&Data.Rec.EndTm;
+		p = PTRCHR_(&Data.Rec.EndTm);
 		*p = end_tm.hour();
 		*(p + 1) = end_tm.minut();
 	}
@@ -972,41 +1050,12 @@ int QuotKindDialog::EditRestr()
 	return ok;
 }
 
-void QuotKindDialog::UpdateView()
-{
-	int   not_retailed = 0;
-	getDTS(0);
-	const PPID  acs_id = Data.Rec.AccSheetID;
-	const int   not_sell_accsheet = BIN(acs_id && acs_id != GetSellAccSheet() && acs_id != GetAgentAccSheet());
-	if(not_sell_accsheet) {
-		Data.Rec.Flags &= ~QUOTKF_RETAILED;
-		SetClusterData(CTL_QUOTKIND_FLAGS, Data.Rec.Flags);
-	}
-	DisableClusterItem(CTL_QUOTKIND_FLAGS, 2, not_sell_accsheet);
-	not_retailed = (Data.Rec.Flags & QUOTKF_RETAILED) ? 0 : 1;
-	if(not_retailed) {
-		// @v7.4.0 Data.Rec.BeginTm = Data.Rec.EndTm = 0;
-	}
-	disableCtrl(CTL_QUOTKIND_PERIOD, Data.Rec.ID == PPQUOTK_BASE);
-	ShowCalCtrl(CTLCAL_QUOTKIND_PERIOD, this, !(Data.Rec.ID == PPQUOTK_BASE));
-	disableCtrl(CTL_QUOTKIND_TIMEPERIOD, Data.Rec.ID == PPQUOTK_BASE || not_retailed);
-}
-
-IMPL_HANDLE_EVENT(QuotKindDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isClusterClk(CTL_QUOTKIND_FLAGS) || event.isCbSelected(CTLSEL_QUOTKIND_ACCSHEET))
-		UpdateView();
-	else if(event.isCmd(cmQuotKindRestr))
-		EditRestr();
-	else
-		return;
-	clearEvent(event);
-}
-
 int PPObjQuotKind::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, ok = 1, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	PPQuotKindPacket pack;
 	QuotKindDialog * p_dlg = 0;
 	THROW(CheckDialogPtr(&(p_dlg = new QuotKindDialog(this))));

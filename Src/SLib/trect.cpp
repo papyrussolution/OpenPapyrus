@@ -272,6 +272,15 @@ FRect & FASTCALL FRect::MoveCenterTo(FPoint center)
 	assert(Height() == h);
 	return *this;
 }
+
+FRect & FASTCALL FRect::Union(const FRect & rR)
+{
+	a.X = MIN(a.X, rR.a.X);
+	a.Y = MIN(a.Y, rR.a.Y);
+	b.X = MAX(b.X, rR.b.X);
+	b.Y = MAX(b.Y, rR.b.Y);
+	return *this;
+}
 //
 //
 //

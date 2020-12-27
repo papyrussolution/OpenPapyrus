@@ -379,6 +379,9 @@
     <ClInclude Include="..\Include\PPDS.H">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Slib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\PPMain\ppbrow-embed.rc" />

@@ -1993,10 +1993,32 @@ struct AbstractLayoutBlock { // @persistent
 	//   if oneof4(SzY, szUndef, szFixed, szByContent, szByContainer) then SzY, else szInvalid.
 	//
 	int    GetSizeY(float * pS) const;
+	//
+	// Descr: Если SzX == szByContainer то по указателю pS присваивает эффективное значение
+	//   размера, вычисленное с учетом размера контейнера containerSize.
+	//   Если SzX != szByContainer или что-то не так с containerSize либо с Size.X, то
+	//   по указателю pS ничего присвоено не будет.
+	// Returns:
+	//   !0 - корректно вычислен эффективный размер, зависящий от размера контейнера
+	//    0 - размер элемента не зависит от размера контейнера либо что-то не так с размерами.
+	//
+	int    GetSizeByContainerX(float containerSize, float * pS) const;
+	//
+	// Descr: Если SzY == szByContainer то по указателю pS присваивает эффективное значение
+	//   размера, вычисленное с учетом размера контейнера containerSize.
+	//   Если SzY != szByContainer или что-то не так с containerSize либо с Size.Y, то
+	//   по указателю pS ничего присвоено не будет.
+	// Returns:
+	//   !0 - корректно вычислен эффективный размер, зависящий от размера контейнера
+	//    0 - размер элемента не зависит от размера контейнера либо что-то не так с размерами.
+	//
+	int    GetSizeByContainerY(float containerSize, float * pS) const;
+	float  CalcEffectiveSizeX(float containerSize) const;
+	float  CalcEffectiveSizeY(float containerSize) const;
 	void   SetFixedSizeX(float s);
 	void   SetFixedSizeY(float s);
-	void   SetVariableSizeX(uint var/* szXXX */);
-	void   SetVariableSizeY(uint var/* szXXX */);
+	void   SetVariableSizeX(uint var/* szXXX */, float s);
+	void   SetVariableSizeY(uint var/* szXXX */, float s);
 	void   SetFixedSize(const TRect & rR);
 	int    GetContainerDirection() const; // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
 	void   SetContainerDirection(int direc /*DIREC_XXX*/);
@@ -2046,13 +2068,13 @@ struct AbstractLayoutBlock { // @persistent
 	uint32 Flags;          // @flags fXXX
 	uint16 SzX;            // AbstractLayoutBlock::szXXX Опции расчета размера по оси X
 	uint16 SzY;            // AbstractLayoutBlock::szXXX Опции расчета размера по оси Y
-	uint16 JustifyContent; // {alignStart}   AbstractLayoutBlock::alignXXX
-	uint16 AlignContent;   // {alignStretch} AbstractLayoutBlock::alignXXX
+	uint16 JustifyContent; // {alignStart}   AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов вдоль основной оси
+	uint16 AlignContent;   // {alignStretch} AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
 	uint16 AlignItems;     // {alignStretch} AbstractLayoutBlock::alignXXX
 	uint16 AlignSelf;      // {alignAuto}    AbstractLayoutBlock::alignXXX
-	uint16 GravityX;       // @reserve Gravity of this entry by X-axis
-	uint16 GravityY;       // @reserve Gravity of this entry by Y-axis 
-	uint32 Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
+	uint16 GravityX;       // @reserve Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
+	uint16 GravityY;       // @reserve Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
+	int32  Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
 	FRect  Nominal;        // Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
 	FPoint Size;           // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
 	FRect  Padding;        // { 0.0f, 0.0f, 0.0f, 0.0f } Внешние поля элемента
@@ -2105,6 +2127,16 @@ public:
 	//
 	FRect  GetFrame() const;
 	//
+	// Descr: Рассчитывает минимальный прямоугольник, охватывающий все дочерние элементы
+	//   контейнера. Размеры самого контейнера в расчет не принимаются.
+	// Returns:
+	//   1 - все дочерние элементы имеют определенный размер
+	//  -1 - контейнер не имеет элементов 
+	//  -2 - только часть дочерних элементов имеет определенный размер
+	//   0 - ошибка (черт его знает, что там еще может произойти)
+	//
+	int    GetInnerCombinedFrame(FRect * pResult) const;
+	//
 	// Descr: Возвращает корневой элемент дерева, компонентом которого является this.
 	//
 	LayoutFlexItem * GetRoot();
@@ -2124,6 +2156,7 @@ public:
 protected:
 	void   UpdateShouldOrderChildren();
 	void   DoLayout(float width, float height);
+	void   DoFloatLayout(float _width, float _height);
 	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout);
 	/*flex_align*/int FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
 };
@@ -2908,6 +2941,7 @@ private:
 	int    SnapX(float p, float * pDest) const;
 	int    SnapY(float p, float * pDest) const;
 	int    CalcScrollRange();
+	int    Helper_ArrangeLayoutContainer(LayoutFlexItem * pParentLayout, WhatmanObjectLayoutBase * pC);
 
 	uint32 SrcFileVer;  // @transient Версия формата хранения файла, из которого был загружен данный экземпляр объекта
 	TRect  Area;        // @transient Видимая область

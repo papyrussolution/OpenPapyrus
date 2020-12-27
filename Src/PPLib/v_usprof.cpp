@@ -31,20 +31,24 @@ public:
 	{
 		long   db_pos = 0;
 		uint   i;
-		SString func_name;
+		SString temp_buf;
 		StrAssocArray db_list, func_list;
 		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
 		for(i = 0; i < R_UfpDbList.getCount(); i++) {
 			const PPUserProfileCore::UfpDbEntry & r_entry = R_UfpDbList.at(i);
-			db_list.Add(i + 1, 0, r_entry.DbSymb);
-			if(r_entry.DbID == Data.DbID)
-				db_pos = i + 1;
+			if(!!r_entry.DbID) {
+				temp_buf.Z().Cat(r_entry.DbSymb).CatDiv('-', 1).Cat(r_entry.DbID, S_GUID::fmtIDL|S_GUID::fmtLower);
+				db_list.Add(i+1, 0, temp_buf);
+				if(r_entry.DbID == Data.DbID)
+					db_pos = i+1;
+			}
 		}
+		db_list.SortByText(); // @v10.9.10
 		for(i = PPUPRF_LOGIN; i < PPUPRF_LAST; i++) {
-			PPLoadString(PPSTR_USRPROFILEFUNCNAM, i, func_name);
-			if(func_name.NotEmptyS())
-				func_list.Add(i, 0, func_name);
+			PPLoadString(PPSTR_USRPROFILEFUNCNAM, i, temp_buf);
+			if(temp_buf.NotEmptyS())
+				func_list.Add(i, 0, temp_buf);
 		}
 		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_DB, &db_list, db_pos, 0);
 		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_FUNC, &func_list, Data.FuncID, 0);
@@ -152,24 +156,36 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 /*virtual*/DBQuery * PPViewUserProfile::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
+	SString temp_buf;
 	TempUserProfileTbl * t = 0;
 	UserFuncPrfSessTbl * t1 = 0;
 	UserFuncPrfTbl * t2 = 0;
 	DBQuery * q = 0;
 	DBE    dbe_func, dbe_ver;
+	DBE    dbe_dbuuidcmp;
 	DBQ  * dbq = 0;
 	{
 		brw_id = BROWSER_USERPROFILE;
 		THROW(CheckTblPtr(t1 = new UserFuncPrfSessTbl));
 		THROW(CheckTblPtr(t2 = new UserFuncPrfTbl));
 		PPDbqFuncPool::InitObjNameFunc(dbe_func, PPDbqFuncPool::IdUfpFuncName, t2->FuncID);
-		PPDbqFuncPool::InitObjNameFunc(dbe_ver, PPDbqFuncPool::IdVersionText, t1->Ver);
+		PPDbqFuncPool::InitObjNameFunc(dbe_ver,  PPDbqFuncPool::IdVersionText, t1->Ver);
 		dbq = &(t1->ID == t2->SessID);
 		if(Filt.FuncID) {
 			long   _f_b = Filt.FuncID * 1000;
 			long   _f_e = Filt.FuncID * 1000 + 999;
 			dbq = &(*dbq && t2->FuncID >= _f_b && t2->FuncID <= _f_e);
 		}
+		// @v10.9.10 {
+		if(!!Filt.DbID) {
+			temp_buf.Z().Cat(Filt.DbID, S_GUID::fmtIDL);
+			dbe_dbuuidcmp.init();
+			dbe_dbuuidcmp.push(t1->DbUUID_s);
+			dbe_dbuuidcmp.push(dbconst(temp_buf));
+			dbe_dbuuidcmp.push(static_cast<DBFunc>(PPDbqFuncPool::IdIsTxtUuidEq));
+			dbq = &(*dbq && dbe_dbuuidcmp > 0L);
+		}
+		// } @v10.9.10 
 		dbq = &(*dbq && daterange(t2->Dt, &Filt.Period));
 		dbq = &(*dbq && timerange(t2->Tm, &Filt.TmPeriod));
 		q = &select(

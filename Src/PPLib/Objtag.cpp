@@ -776,50 +776,88 @@ PPObjTag::~PPObjTag()
 {
 }
 
+int SelfbuildStaffForManual_ReservedObjTagList()
+{
+	int    ok = 1;
+	uint   num_recs = 0;
+	SString temp_buf;
+	SString obj_type_symb;
+	SString data_type_symb;
+	SString tag_name;
+	SString tag_symb;
+	SString line_buf;
+	TVRez * p_rez = P_SlRez;
+	PPGetFilePath(PPPATH_OUT, "reservedobjects-tag", temp_buf);
+	SFile  doc_file(temp_buf, SFile::mWrite);
+	THROW_SL(doc_file.IsValid());
+	THROW_PP(p_rez, PPERR_RESFAULT);
+	THROW_PP(p_rez->findResource(ROD_TAG, PP_RCDATA), PPERR_RESFAULT);
+	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
+	{
+			/*
+		\begin{description}
+			\item[Права агента на доступ к кассовым операциям]
+
+				Ид=4
+				\\Символ = \ppyrsrv{POSRIGHTS}
+				\\Тип объекта=\ppyrsrv{PERSON}
+				\\Тип тега = \ppyrsrv{STRING}
+			\item[Дата рождения]
+
+				Ид=5
+				\\Символ = \ppyrsrv{DOB}
+				\\Тип объекта=\ppyrsrv{PERSON}
+				\\Тип тега = \ppyrsrv{DATE}
+		\end{description}
+			*/
+		line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+		doc_file.WriteLine(line_buf);
+		for(uint i = 0; i < num_recs; i++) {
+			const PPID id = p_rez->getUINT();
+			p_rez->getString(tag_name.Z(), 2); // Name
+			PPExpandString(tag_name, CTRANSF_UTF8_TO_OUTER);
+			p_rez->getString(tag_symb.Z(), 2); // Symb
+			p_rez->getString(obj_type_symb.Z(), 2);  // ObjType
+			p_rez->getString(data_type_symb.Z(), 2); // DataType
+			{
+				line_buf.Z();
+				line_buf.Tab().CatChar('\\').Cat("item").CatBrackStr(tag_name).CR();
+				line_buf.CR();
+				PPLoadString("id", temp_buf);
+				line_buf.Tab(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), id).CR();
+				PPLoadString("symbol", temp_buf);
+				line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
+					CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(tag_symb).CatChar('}').CR();
+				PPLoadString("objtype", temp_buf);
+				line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
+					CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(obj_type_symb).CatChar('}').CR();
+				PPLoadString("tagtype", temp_buf);
+				line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
+					CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(data_type_symb).CatChar('}').CR();
+				doc_file.WriteLine(line_buf);
+			}
+		}
+		line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
+		doc_file.WriteLine(line_buf);
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPObjTag::MakeReserved(long flags)
 {
-	/*
-\begin{description}
-	\item[Права агента на доступ к кассовым операциям]
-
-		Ид=4
-		\\Символ = \ppyrsrv{POSRIGHTS}
-		\\Тип объекта=\ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{STRING}
-	\item[Дата рождения]
-
-		Ид=5
-		\\Символ = \ppyrsrv{DOB}
-		\\Тип объекта=\ppyrsrv{PERSON}
-		\\Тип тега = \ppyrsrv{DATE}
-\end{description}
-	*/
 	// {ID, Name, Symb, ObjType, DataType}
 	int    ok = 1;
-	uint   num_recs, i;
+	uint   num_recs = 0;
 	SString temp_buf, obj_type_symb, data_type_symb;
-	SString line_buf;
-	PPIniFile ini_file;
-	int    do_make_doc = 0;
-	SFile  doc_file;
-	if(ini_file.GetInt(PPINISECT_SELFBUILD, PPINIPARAM_RESERVEDOBJECTS, &do_make_doc) && do_make_doc > 0) {
-		PPGetFilePath(PPPATH_OUT, "reservedobjects-tag", temp_buf);
-		doc_file.Open(temp_buf, SFile::mWrite);
-		if(!doc_file.IsValid())
-			do_make_doc = 0;
-	}
 	TVRez * p_rez = P_SlRez;
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	THROW_PP(p_rez->findResource(ROD_TAG, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
-	if(do_make_doc) {
-		line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
-		doc_file.WriteLine(line_buf);
-	}
-	for(i = 0; i < num_recs; i++) {
+	for(uint i = 0; i < num_recs; i++) {
 		PPObjectTag temp_rec;
 		PPObjTagPacket pack;
-		PPID   id = p_rez->getUINT();
+		const PPID id = p_rez->getUINT();
 		p_rez->getString(temp_buf.Z(), 2); // Name
 		PPExpandString(temp_buf, CTRANSF_UTF8_TO_INNER);
 		temp_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
@@ -828,24 +866,6 @@ int PPObjTag::MakeReserved(long flags)
 		pack.Rec.ID = id;
 		p_rez->getString(obj_type_symb.Z(), 2);  // ObjType
 		p_rez->getString(data_type_symb.Z(), 2); // DataType
-		if(do_make_doc) {
-			line_buf.Z();
-			(temp_buf = pack.Rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-			line_buf.Tab().CatChar('\\').Cat("item").CatBrackStr(temp_buf).CR();
-			line_buf.CR();
-			PPLoadString("id", temp_buf);
-			line_buf.Tab(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), id).CR();
-			PPLoadString("symbol", temp_buf);
-			line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
-				CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(pack.Rec.Symb).CatChar('}').CR();
-			PPLoadString("objtype", temp_buf);
-			line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
-				CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(obj_type_symb).CatChar('}').CR();
-			PPLoadString("tagtype", temp_buf);
-			line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
-				CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(data_type_symb).CatChar('}').CR();
-			doc_file.WriteLine(line_buf);
-		}
 		if(id && Search(id, &temp_rec) <= 0 && SearchBySymb(pack.Rec.Symb, 0, &temp_rec) <= 0) {
 			long   extra = 0;
 			pack.Rec.ObjTypeID = GetObjectTypeBySymb(obj_type_symb, &extra);
@@ -901,10 +921,6 @@ int PPObjTag::MakeReserved(long flags)
 				}
 			}
 		}
-	}
-	if(do_make_doc) {
-		line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
-		doc_file.WriteLine(line_buf);
 	}
 	CATCHZOK
 	return ok;
@@ -3200,8 +3216,7 @@ int TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 			case PPTAG_LOT_SN: p_tag_name = "LOT_SERIAL"; break;
 			default: p_tag_name = "UNKNOWN"; break;
 		}
-		// @v9.9.5 PPStringSetSCD ss;
-		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+		StringSet & r_ss = DS.AcquireRvlSsSCD();
 		r_ss.add(p_tag_name);
 		r_ss.add(p_tag_name);
 		ok = PutName(r_ss.getBuf(), p_rec);
@@ -3214,8 +3229,7 @@ int TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_rec->ObjTypeID   = PPOBJ_SERIAL;
 		p_rec->TagGroupID  = 0;
 		const char * p_tag_name = "FREE_SERIAL";
-		// @v9.9.5 PPStringSetSCD ss;
-		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+		StringSet & r_ss = DS.AcquireRvlSsSCD();
 		r_ss.add(p_tag_name);
 		r_ss.add(p_tag_name);
 		ok = PutName(r_ss.getBuf(), p_rec);
@@ -3235,8 +3249,7 @@ int TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 			case PPTAG_BILL_GPSCOORDEND: p_tag_name = "BILL_GPSCOORDEND"; break;
 			default: p_tag_name = "UNKNOWN"; break;
 		}
-		// @v9.9.5 PPStringSetSCD ss;
-		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+		StringSet & r_ss = DS.AcquireRvlSsSCD();
 		r_ss.add(p_tag_name);
 		r_ss.add(p_tag_name);
 		ok = PutName(r_ss.getBuf(), p_rec);
@@ -3248,8 +3261,7 @@ int TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_rec->TagDataType = tag.TagDataType;
 		p_rec->ObjTypeID   = tag.ObjTypeID;
 		p_rec->TagGroupID  = tag.TagGroupID;
-		// @v9.9.5 PPStringSetSCD ss;
-		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+		StringSet & r_ss = DS.AcquireRvlSsSCD();
 		r_ss.add(tag.Name);
 		r_ss.add(tag.Symb);
 		ok = PutName(r_ss.getBuf(), p_rec);

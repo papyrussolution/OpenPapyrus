@@ -82,6 +82,39 @@ static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int func
 	return 0;
 }
 
+int SelfbuildStaffForManual_UserProfileFuncList()
+{
+	int    ok = 1;
+	SString temp_buf;
+	PPGetFilePath(PPPATH_OUT, "reservedobjects-userprofilefunction", temp_buf);
+	SFile  doc_file(temp_buf, SFile::mWrite);
+	THROW_SL(doc_file.IsValid());
+	{
+		SString line_buf;
+		line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+		doc_file.WriteLine(line_buf);
+		for(uint i = 0; i < SIZEOFARRAY(PPUserProfileFuncTab); i++) {
+			const PPUserProfileFuncEntry & r_entry = PPUserProfileFuncTab[i];
+			line_buf.Z();
+			PPLoadString(PPSTR_USRPROFILEFUNCNAM, r_entry.FuncId, temp_buf);
+			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			line_buf.Tab().CatChar('\\').Cat("item").CatBrackStr(temp_buf).CR();
+			line_buf.CR();
+
+			PPLoadString("id", temp_buf);
+			line_buf.Tab(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), r_entry.FuncId).CR();
+			if(r_entry.Flags & r_entry.fAccumulate) {
+				line_buf.Tab(2).Cat("accumulative").CR();
+			}
+			doc_file.WriteLine(line_buf);
+		}
+		line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
+		doc_file.WriteLine(line_buf);
+	}
+	CATCHZOK
+	return ok;
+}
+
 /*static*/uint16 FASTCALL PPUserProfileFuncEntry::FromLoggedFuncId(long logFuncId, uint16 * pFuncVer)
 {
 	ASSIGN_PTR(pFuncVer, static_cast<uint16>(logFuncId%1000));
@@ -106,8 +139,8 @@ struct ProfileEntry {
 	int64  StartEntryClock; // Время в промежутках по 100 нс начиная с полуночи 01/01/1601 GMT
 	int64  StartEntryMks;   // Отметка начала выполнения кода в мкс
 	int64  Mks;             // Полное время выполнения кода в мкс
-	int64  Hits;            // @v7.9.3 long-->int64
-	uint64 Iter;            // @v7.9.3 ulong-->uint64
+	int64  Hits;            // 
+	uint64 Iter;            // 
 };
 
 static uint32 FASTCALL PeHashString(const char * pSymb)
@@ -892,16 +925,17 @@ int PPUserProfileCore::ClearState(const S_GUID * pDbId, int use_ta)
 int PPUserProfileCore::GetDbEntyList(TSArray <PPUserProfileCore::UfpDbEntry> & rList)
 {
 	rList.clear();
-
 	int    ok = -1;
 	StateItem stb_item;
 	THROW(ReadState());
 	for(uint i = 0; i < StB.GetCount(); i++) {
 		if(StB.GetItem(i, stb_item)) {
 			UfpDbEntry new_entry;
-			new_entry.DbID = stb_item.DbID;
-			STRNSCPY(new_entry.DbSymb, stb_item.DbSymb);
-			THROW_SL(rList.insert(&new_entry));
+			if(!rList.lsearch(&stb_item.DbID, 0, PTR_CMPFUNC(S_GUID))) { // @v10.9.10
+				new_entry.DbID = stb_item.DbID;
+				STRNSCPY(new_entry.DbSymb, stb_item.DbSymb);
+				THROW_SL(rList.insert(&new_entry));
+			}
 			ok = 1;
 		}
 	}

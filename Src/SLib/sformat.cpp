@@ -775,7 +775,7 @@ double FASTCALL satof(const char * pBuf)
 
 int FASTCALL strtodoub(const char * pBuf, double * pVal)
 {
-	char   temp[128]; // @v9.2.1 [64]-->[128]
+	char   temp[128];
 	char * p = sstrchr(clearDelimiters(STRNSCPY(temp, pBuf)), '.');
 	if(p == 0)
 		if((p = sstrchr(temp, ',')) != 0)
