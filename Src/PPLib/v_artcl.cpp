@@ -1059,7 +1059,7 @@ void PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 				grp.Count = col_in_grp;
 				grp.Height = 1;
 				grp.P_Text = newStr(entry.Txt);
-				pBrw->view->getDef()->addGroup(&grp);
+				pBrw->getDef()->addGroup(&grp);
 				pBrw->InsColumn(-1, "@creditlimit",  pos++, 0L, MKSFMTD(12, 2, ALIGN_RIGHT|NMBF_NOZERO), 0);
 				if(LimitTerm && AddedLimitTerm)
 					pBrw->InsColumn(-1, "@addcreditlimit",  pos, 0L, MKSFMTD(12, 2, ALIGN_RIGHT|NMBF_NOZERO), 0);

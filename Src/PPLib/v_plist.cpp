@@ -2953,8 +2953,10 @@ int PPALDD_PriceListData::NextIteration(PPIterID iterId)
 	I.Rest        = item.Rest;
 	I.Expiry      = item.Expiry;
 	I.GoodsCode   = item.GoodsCode;
-	if(H.FltAddPct != 0)
-		I.Price = CalcSelling(I.Price, H.FltAddPct);
+	if(H.FltAddPct != 0) {
+		// @v10.9.11 I.Price = CalcSelling(I.Price, H.FltAddPct);
+		I.Price = PPObjQuotKind::RoundUpPrice(0, I.Price + I.Price * fdiv100r(H.FltAddPct)); // @v10.9.11 
+	}
 	STRNSCPY(I.GoodsName, item.GoodsName_);
 	STRNSCPY(I.ExtGroupName, item.GoodsGrpName_);
 	STRNSCPY(I.Memo,      item.Memo_);

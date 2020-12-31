@@ -146,7 +146,6 @@
     <ClCompile Include="..\SLib\dconvstr.c" />
     <ClCompile Include="..\SLib\sfann2.cpp" />
     <ClCompile Include="..\SLib\sclipboard.cpp" />
-    <ClCompile Include="..\SLib\tlayout.cpp" />
     <ClCompile Include="..\SLib\sxmlad.cpp" />
     <ClCompile Include="..\SLib\samqp.cpp" />
     <ClCompile Include="..\SLib\xxhash.c" />
@@ -192,9 +191,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\SLCONFIG.H">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\layout-2d.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Uri.h">

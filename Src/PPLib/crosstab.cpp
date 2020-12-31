@@ -666,7 +666,7 @@ int Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctValPos, c
 {
 	int    ok = 1;
 	const  uint aggr_count = AggrFldList.GetCount();
-	uint   first_col_in_group = pBrw->view->getDef()->getCount();
+	uint   first_col_in_group = pBrw->getDef()->getCount();
 	for(uint j = 0; j < aggr_count; j++) {
 		const BroCrosstab * p_bct = pBrw->getDef()->GetCrosstab(j);
 		const char * p_title = 0;

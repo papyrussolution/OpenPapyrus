@@ -275,17 +275,51 @@ int PPQuot::IsEqual(const PPQuot & rS, long flags) const
 int PPQuot::IsRelative() const { return BIN(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)); }
 int PPQuot::IsEmpty() const { return BIN(Quot == 0.0 && !(Flags & (fPctDisabled|fZero)) && !IsRelative()); }
 
+static double __CalcSelling(PPID quotKindID, double cost, double pc) 
+{ 
+	return PPObjQuotKind::RoundUpPrice(quotKindID, cost + cost * fdiv100r(pc)); 
+}
+
 double PPQuot::CalcPrice(double cost, double price) const
 {
 	double val = 0.0;
-	if(Flags & fPctOnPrice)
-		val = CalcSelling(price, Quot);
-	else if(Flags & fPctOnCost)
-		val = CalcSelling(cost, Quot);
+	// @v10.9.11 {
+	if(Flags & (fPctOnCost|fPctOnPrice))
+		val = __CalcSelling(Kind, (Flags & fPctOnPrice) ? price : cost, Quot); // @v10.9.11 QuotKindRounding
 	else if(Flags & fPctOnAddition)
-		val = RoundUpPrice(price + ((price - cost) * fdiv100r(Quot)));
+		val = PPObjQuotKind::RoundUpPrice(Kind, price + ((price - cost) * fdiv100r(Quot))); // @v10.9.11 QuotKindRounding
+	else {
+		// @v10.9.11 {
+		int    dir = 0;
+		double prec = 0.01;
+		int    use_default_rounding = 1;
+		if(Kind) {
+			PPObjQuotKind qk_obj;
+			PPQuotKind qk_rec;
+			if(qk_obj.Fetch(Kind, &qk_rec) > 0 && qk_rec.Flags & QUOTKF_USEROUNDING) {
+				dir = qk_rec.RoundingDir;
+				prec = qk_rec.RoundingPrec;
+				use_default_rounding = 0;
+			}
+		}
+		if(use_default_rounding)
+			val = R5(Quot);
+		else
+			val = PPRound(Quot, prec, dir);
+		// } @v10.9.11 
+		// @v10.9.11 val = R5(Quot); // @todo(QuotKindRounding)
+	}
+	// } @v10.9.11 
+	/* @v10.9.11
+	if(Flags & fPctOnPrice)
+		val = CalcSelling(price, Quot); // @todo(QuotKindRounding)
+	else if(Flags & fPctOnCost)
+		val = CalcSelling(cost, Quot); // @todo(QuotKindRounding)
+	else if(Flags & fPctOnAddition)
+		val = RoundUpPrice(price + ((price - cost) * fdiv100r(Quot))); // @todo(QuotKindRounding)
 	else
-		val = R5(Quot);
+		val = R5(Quot); // @todo(QuotKindRounding)
+	*/
 	return val;
 }
 
@@ -650,7 +684,7 @@ int PPQuotArray::GetQuot(const QuotIdent & rIdent, PPQuot * pQuot) const
 
 int PPQuotArray::SearchNearest(const QuotIdent & rQi, uint * pPos) const
 {
-	QuotIdent temp = rQi;
+	QuotIdent temp(rQi);
 	SETIFZ(temp.Dt, getcurdate_());
 	int    r = SearchQi(temp, pPos);
 	if(!r && (rQi.LocID || rQi.ArID)) {
@@ -690,15 +724,17 @@ int PPQuotArray::GetResult(const QuotIdent & rIdent, double cost, double price, 
 		if(r_quot.Flags & PPQuot::fPctOnBase) {
 			if(r_quot.Kind != PPQUOTK_BASE) {
 				if(rIdent.GetPrevBase() > 0.0) {
-					q = CalcSelling(rIdent.GetPrevBase(), r_quot.Quot);
+					q = __CalcSelling(r_quot.Kind, rIdent.GetPrevBase(), r_quot.Quot); // @todo(QuotKindRounding)
 					ok = 1;
 				}
 				else {
-					QuotIdent qi = rIdent;
+					QuotIdent qi(rIdent);
 					qi.QuotKindID = PPQUOTK_BASE;
 					uint   p_ = 0;
 					if(SearchNearest(qi, &p_) > 0) {
-						q = CalcSelling(at(p_).CalcPrice(cost, price), r_quot.Quot);
+						const PPQuot & r_entry = at(p_);
+						const double v = r_entry.CalcPrice(cost, price);
+						q = __CalcSelling(r_entry.Kind, v, r_quot.Quot); // @todo(QuotKindRounding)
 						ok = 1;
 					}
 				}
@@ -716,10 +752,7 @@ int PPQuotArray::GetResult(const QuotIdent & rIdent, double cost, double price, 
 	return ok;
 }
 
-void PPQuotArray::Sort()
-{
-	SVector::sort(PTR_CMPFUNC(PPQuot)); // @v9.8.4 SArray-->SVector
-}
+void PPQuotArray::Sort() { SVector::sort(PTR_CMPFUNC(PPQuot)); }
 
 int PPQuotArray::IsDisabled(const QuotIdent & rIdent, const PPIDArray * pQKList, PPQuotArray * pParentQuots)
 {
@@ -727,7 +760,7 @@ int PPQuotArray::IsDisabled(const QuotIdent & rIdent, const PPIDArray * pQKList,
 	uint   pos = 0;
 	if(SearchNearest(rIdent, &pos) > 0) {
 		PPQuot * p_quot = &at(pos);
-		r = (p_quot->Flags & PPQuot::fPctDisabled) ? 1 : 0;
+		r = BIN(p_quot->Flags & PPQuot::fPctDisabled);
 		for(uint i = 0; !r && enumItems(&i, (void **)&p_quot);) {
 			pos = 0;
 			if((p_quot->Flags & PPQuot::fPctDisabled) && rIdent.CurID == p_quot->CurID &&
@@ -810,8 +843,7 @@ static int LogDeclineMsg(const PPQuot * pQuot, int quotCat)
 		default: msg_id = PPTXT_QUOTUPD_RTDECLINED; break;
 	}
 	PPObjQuotKind qk_obj;
-	qk_obj.MakeCodeString(pQuot, quot_buf);
-	msg_buf.Printf(PPLoadTextS(msg_id, fmt_buf), quot_buf.cptr());
+	msg_buf.Printf(PPLoadTextS(msg_id, fmt_buf), qk_obj.MakeCodeString(pQuot, quot_buf).cptr());
 	PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 	return -2;
 }
@@ -2293,7 +2325,7 @@ int Quotation2Core::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuo
 		// в скорости выполнения.
 		//
 		if(search(3, &k3, spGe) && data.Actual == 1 && data.GoodsID == goodsID) {
-			BExtQuery q(this, 3, 256); // @v7.7.4 default(32)-->256
+			BExtQuery q(this, 3, 256);
 			q.selectAll().where(this->Actual == 1L && this->GoodsID == goodsID);
 			for(q.initIteration(0, &k3_, spGe); q.nextIteration() > 0;) {
 				RecToQuot(&data, quot);
@@ -2612,7 +2644,7 @@ int Quotation2Core::GetRel(const PPQuot * pVal, PPID * pID, int createIfNExists,
 	k1.LocID = pVal->LocID;
 	k1.ArID  = pVal->ArID;
 	k1.CurID = pVal->CurID;
-	Quotation2Core::PeriodToPeriodIdx(&pVal->Period, &k1.PeriodIdx); // @v7.3.5
+	Quotation2Core::PeriodToPeriodIdx(&pVal->Period, &k1.PeriodIdx);
 	k1.MinQtty = pVal->MinQtty;
 	int r = SearchByKey(&RelT, 1, &k1, &rec);
 	THROW(r);
@@ -2626,7 +2658,7 @@ int Quotation2Core::GetRel(const PPQuot * pVal, PPID * pID, int createIfNExists,
 		rec.LocID = pVal->LocID;
 		rec.ArID  = pVal->ArID;
 		rec.CurID = pVal->CurID;
-		Quotation2Core::PeriodToPeriodIdx(&pVal->Period, &rec.PeriodIdx); // @v7.3.5
+		Quotation2Core::PeriodToPeriodIdx(&pVal->Period, &rec.PeriodIdx);
 		rec.MinQtty = pVal->MinQtty;
 		THROW(AddByID(&RelT, pID, &rec, use_ta));
 		ok = 2;
@@ -3061,7 +3093,6 @@ int Quotation2Core::GetAddressLocList(PPIDArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
-
 	PPObjLocation loc_obj;
 	LocationTbl::Rec loc_rec;
 	Quot2RelTbl::Key2 k2;
@@ -3403,7 +3434,7 @@ public:
 		long   ArID;
 		long   CurID;
 		long   MinQtty;
-		int32  PeriodIdx; // @v7.3.5
+		int32  PeriodIdx;
 	};
 	Quot2RelCache() : ObjCacheHash(PPOBJ_QUOT2REL, sizeof(Data), 512*1024, 4)
 	{
@@ -3461,9 +3492,6 @@ int Quotation2Core::FetchRel(PPID relID, PPQuot * pVal)
 	Quot2RelCache * p_cache = GetDbLocalCachePtr <Quot2RelCache> (PPOBJ_QUOT2REL);
 	return p_cache ? p_cache->Fetch(this, relID, pVal) : -1;
 }
-//
-//
-//
 //
 // Quot2Cache
 //
@@ -3688,13 +3716,11 @@ int FASTCALL Quot2Cache::Dirty_(PPID goodsID)
 	int    ok = -1;
 	uint   pos = 0;
 	{
-		//Lock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		if(Search(goodsID, &pos)) {
 			P_Ary->atFree(pos);
 			ok = 1;
 		}
-		//Unlock();
 	}
 	return ok;
 }
@@ -3735,7 +3761,7 @@ int Quot2Cache::GetQuotParamID(const PPQuot * pQuot, uint * pID)
 int Quot2Cache::GetQuotParam(uint id, PPQuot * pQuot) const
 {
 	if(id > 0 && id <= QpList.getCount()) {
-		const QuotParamEntry * p_entry = (QuotParamEntry *)QpList.at(id-1);
+		const QuotParamEntry * p_entry = static_cast<const QuotParamEntry *>(QpList.at(id-1));
 		pQuot->Kind  = p_entry->QkID;
 		pQuot->LocID = p_entry->LocID;
 		pQuot->ArID  = p_entry->ArID;
@@ -3843,6 +3869,3 @@ int Quotation2Core::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLo
 	}
 	return ok;
 }
-
-
-

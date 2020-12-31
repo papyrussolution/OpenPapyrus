@@ -1470,7 +1470,7 @@ int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 			if(p_ary->getCount()) {
 				SelLotBrowser::Entry * p_sel = 0;
 				SelLotBrowser * p_brw = new SelLotBrowser(P_BObj, p_ary, 0, 0);
-				if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0)
+				if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->getCurItem()) != 0)
 					lot_id = p_sel->LotID;
 				delete p_brw;
 			}

@@ -784,15 +784,16 @@ static int SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PP
 				for(i = 0; pList->enumItems(&i, (void **)&p_quot);) {
 					for(uint j = 0; j < ar_list.getCount(); j++) {
 						const PPID ar_id = ar_list.get(j);
-						if((!rFilt.QuotKindID || p_quot->Kind == rFilt.QuotKindID) && p_quot->LocID == locID &&
+						const PPID qk_id = p_quot->Kind;
+						if((!rFilt.QuotKindID || qk_id == rFilt.QuotKindID) && p_quot->LocID == locID &&
 							p_quot->ArID == ar_id && !p_quot->IsRelative() && rFilt.IsQuotSuitesToAdvOpt(*p_quot)) {
 							if(!(rFilt.Flags & QuotUpdFilt::fSkipDatedQuot) || p_quot->Period.IsZero()) {
 								if(p_dest_list == pList) {
-									p_quot->Quot = RoundUpPrice(p_quot->Quot * (1L + rFilt.QuotVal / 100L));
+									p_quot->Quot = PPObjQuotKind::RoundUpPrice(qk_id, p_quot->Quot * (1.0 + rFilt.QuotVal / 100.0)); // @v10.9.11 QuotKindRounding
 								}
 								else {
 									PPQuot upd_q = *p_quot;
-									upd_q.Quot = RoundUpPrice(upd_q.Quot * (1L + rFilt.QuotVal / 100L));
+									upd_q.Quot = PPObjQuotKind::RoundUpPrice(qk_id, upd_q.Quot * (1.0 + rFilt.QuotVal / 100.0)); // @v10.9.11 QuotKindRounding
 									THROW_SL(p_dest_list->insert(&upd_q));
 								}
 								ok = 1;

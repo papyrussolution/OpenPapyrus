@@ -59,11 +59,11 @@ int TStatusWin::GetRect(RECT * pRcStatus)
 int TStatusWin::Update()
 {
 	int    ok = 1;
-	ENTER_CRITICAL_SECTION // @v9.8.7
+	ENTER_CRITICAL_SECTION
 	int    i;
-	int    l_parts[64]; // @v9.8.7 [255]-->[64]
+	int    l_parts[64];
 	const  int n_parts = MIN(Items.getCount(), SIZEOFARRAY(l_parts));
-	int    n_width = 4; // @v9.2.1 10-->4
+	int    n_width = 4;
 	SString temp_buf;
 	HWND   hw = H();
 	::SendMessage(hw, WM_SIZE, 0, 0);
@@ -74,10 +74,9 @@ int TStatusWin::Update()
 		const StItem & r_item = Items.at(i);
 		temp_buf = r_item.str;
 		if(r_item.Icon)
-			n_width += 24; // icon size + borders // @v9.2.1 18-->24
+			n_width += 24; // icon size + borders
         else if(temp_buf.NotEmpty() && GetTextExtentPoint32(hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &local_size))
 			n_width += local_size.cx;
-		// @v9.2.1 n_width += 5;
 		l_parts[i] = n_width;
 	}
 	::SendMessage(hw, SB_SETPARTS, static_cast<WPARAM>(n_parts), reinterpret_cast<LPARAM>(l_parts));
@@ -177,7 +176,7 @@ uint TStatusWin::GetCmdByCoord(POINT coord, TStatusWin::StItem * pItem /*=0*/)
 	uint   n_parts = Items.getCount();
 	for(uint i = 0; !cmd && i < n_parts; i++)  {
 		RECT rect;
-		SendMessage(H(), SB_GETRECT, i, reinterpret_cast<LPARAM>(&rect));
+		::SendMessage(H(), SB_GETRECT, i, reinterpret_cast<LPARAM>(&rect));
 		if(coord.x >= rect.left && coord.x <= rect.right)
 			cmd = Items.at(i).Cmd;
 	}
@@ -1351,7 +1350,7 @@ int TProgram::InitUiToolBox()
 	if(!(State & stUiToolBoxInited)) {
 		ENTER_CRITICAL_SECTION
 //#ifdef USE_CANVAS2_DRAWING
-		LoadVectorTools(&DvToolList); // @v9.1.9
+		LoadVectorTools(&DvToolList);
 //#endif
 		if(!(State & stUiToolBoxInited)) {
 			UiToolBox.CreateColor(tbiButtonTextColor, SColor(SClrBlack));
@@ -1424,8 +1423,8 @@ int TProgram::InitUiToolBox()
 	ptSize.x = bm.bmWidth;            // Получаем ширину битмапа
 	ptSize.y = bm.bmHeight;           // Получаем высоту битмапа
 	DPtoLP(hdcTemp, &ptSize, 1);      // Конвертируем из координат устройства в логические точки
-	y_pos = ((fmt & DT_VCENTER) ? ((rDestRect.bottom - rDestRect.top - ptSize.y) / 2) : rDestRect.top)  + yOffs;
-	x_pos = ((fmt & DT_CENTER)  ? ((rDestRect.right - rDestRect.left - ptSize.x) / 2) : rDestRect.left) + xOffs;
+	y_pos = ((fmt & DT_VCENTER) ? ((rDestRect.bottom - rDestRect.top  - ptSize.y) / 2) : rDestRect.top)  + yOffs;
+	x_pos = ((fmt & DT_CENTER)  ? ((rDestRect.right  - rDestRect.left - ptSize.x) / 2) : rDestRect.left) + xOffs;
 	//
 	// Создаём несколько DC для хранения временных данных.
 	hdcBack   = CreateCompatibleDC(hdc);

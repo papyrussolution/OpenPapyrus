@@ -263,7 +263,9 @@ float AbstractLayoutBlock::CalcEffectiveSizeY(float containerSize) const
 
 void AbstractLayoutBlock::SetFixedSizeX(float s)
 {
-	assert(!fisnanf(s) && s >= 0.0f);
+	//assert(!fisnanf(s) && s >= 0.0f);
+	if(fisnan(s) || s < 0.0f)
+		s = 0.0f;
 	Size.X = s;
 	SzX = szFixed;
 }
@@ -282,7 +284,9 @@ void AbstractLayoutBlock::SetVariableSizeX(uint var/* szXXX */, float s)
 
 void AbstractLayoutBlock::SetFixedSizeY(float s)
 {
-	assert(!fisnanf(s) && s >= 0.0f);
+	//assert(!fisnanf(s) && s >= 0.0f);
+	if(fisnanf(s) || s < 0.0f)
+		s = 0.0f;
 	Size.Y = s;
 	SzY = szFixed;
 }
@@ -645,13 +649,34 @@ bool AbstractLayoutBlock::IsPositionAbsoluteY() const
 //
 //
 //
-LayoutFlexItem::LayoutFlexItem() : P_Parent(0), managed_ptr(0), CbSelfSizing(0), CbSetup(0), State(0), ALB()
+LayoutFlexItem::Result::Result() : Flags(0)
 {
-	memzero(frame, sizeof(frame));
+	memzero(Frame, sizeof(Frame));
+}
+
+LayoutFlexItem::Result::operator FRect() const
+{
+	return FRect(Frame[0], Frame[1], Frame[0] + Frame[2], Frame[1] + Frame[3]);
+}
+
+LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlexItem::Result & rS, float offsX, float offsY)
+{
+	Frame[0] = rS.Frame[0] + offsX;
+	Frame[1] = rS.Frame[1] + offsY;
+	Frame[2] = rS.Frame[2];
+	Frame[3] = rS.Frame[3];
+	Flags = rS.Flags;
+	return *this;
+}
+
+LayoutFlexItem::LayoutFlexItem() : P_Parent(0), P_Link(0), managed_ptr(0), CbSelfSizing(0), CbSetup(0), State(0), ALB()
+{
+	//memzero(frame, sizeof(frame));
 }
 
 LayoutFlexItem::~LayoutFlexItem()
 {
+	P_Link = 0;
 }
 
 int LayoutFlexItem::GetOrder() const
@@ -723,12 +748,7 @@ int LayoutFlexItem::GetFullHeight(float * pS) const
 //
 FRect LayoutFlexItem::GetFrame() const
 {
-	FRect r;
-	r.a.X = frame[0];
-	r.a.Y = frame[1];
-	r.b.X = frame[0] + frame[2];
-	r.b.Y = frame[1] + frame[3];
-	return r;
+	return R;
 }
 
 int LayoutFlexItem::GetInnerCombinedFrame(FRect * pResult) const
@@ -830,7 +850,8 @@ public:
 					reverse = true;
 				break;
 			default:
-				assert(false && "incorrect direction");
+				//assert(false && "incorrect direction");
+				break;
 		}
 		// @ctr ordered_indices = NULL;
 		if((pItem->State & LayoutFlexItem::stShouldOrderChildren) && pItem->getCount()) {
@@ -922,7 +943,7 @@ public:
 	float lines_sizes;
 };
 
-#define _LAYOUT_FRAME_(ptrLayout, child, name) child.frame[ptrLayout->frame_ ## name ## _i]
+#define _LAYOUT_FRAME_(ptrLayout, child, name) child.R.Frame[ptrLayout->frame_ ## name ## _i]
 #define CHILD_POS_(ptrLayout, child)   _LAYOUT_FRAME_(ptrLayout, child, pos)
 #define CHILD_POS2_(ptrLayout, child)  _LAYOUT_FRAME_(ptrLayout, child, pos2)
 #define CHILD_SIZE_(ptrLayout, child)  _LAYOUT_FRAME_(ptrLayout, child, size)
@@ -1026,23 +1047,28 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 				// Set the cross axis position (and stretch the cross axis size if needed).
 				float align_size = CHILD_SIZE2_(p_layout, r_child);
 				float align_pos = p_layout->pos2 + 0.0f;
-				switch(GetChildAlign(r_child)) {
-					case AbstractLayoutBlock::alignEnd:
-						align_pos += (p_layout->line_dim - align_size - CHILD_MARGIN_XY_(p_layout, r_child, b));
-						break;
-					case AbstractLayoutBlock::alignCenter:
-						align_pos += (p_layout->line_dim / 2.0f) - (align_size / 2.0f) + (CHILD_MARGIN_XY_(p_layout, r_child, a) - CHILD_MARGIN_XY_(p_layout, r_child, b));
-						break;
-					case AbstractLayoutBlock::alignStretch:
-						if(align_size == 0) {
-							CHILD_SIZE2_(p_layout, r_child) = p_layout->line_dim - (CHILD_MARGIN_XY_(p_layout, r_child, a) + CHILD_MARGIN_XY_(p_layout, r_child, b));
-						}
-					// fall through
-					case AbstractLayoutBlock::alignStart:
-						align_pos += CHILD_MARGIN_XY_(p_layout, r_child, a);
-						break;
-					default:
-						assert(false && "incorrect align_self");
+				{
+					const int ca = GetChildAlign(r_child);
+					switch(ca) {
+						case AbstractLayoutBlock::alignEnd:
+							align_pos += (p_layout->line_dim - align_size - CHILD_MARGIN_XY_(p_layout, r_child, b));
+							break;
+						case AbstractLayoutBlock::alignCenter:
+							align_pos += (p_layout->line_dim / 2.0f) - (align_size / 2.0f) + (CHILD_MARGIN_XY_(p_layout, r_child, a) - CHILD_MARGIN_XY_(p_layout, r_child, b));
+							break;
+						case AbstractLayoutBlock::alignStretch:
+							if(align_size == 0) {
+								CHILD_SIZE2_(p_layout, r_child) = p_layout->line_dim - (CHILD_MARGIN_XY_(p_layout, r_child, a) + CHILD_MARGIN_XY_(p_layout, r_child, b));
+							}
+						// fall through
+						case AbstractLayoutBlock::alignStart:
+							align_pos += CHILD_MARGIN_XY_(p_layout, r_child, a);
+							break;
+						default:
+							//assert(false && "incorrect align_self");
+							align_pos += CHILD_MARGIN_XY_(p_layout, r_child, a); // По умолчанию пусть будет AbstractLayoutBlock::alignStart
+							break;
+					}
 				}
 				CHILD_POS2_(p_layout, r_child) = align_pos;
 				// Set the main axis position.
@@ -1060,18 +1086,18 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 					pos += spacing;
 					pos += CHILD_MARGIN_YX_(p_layout, r_child, b);
 				}
-				if(r_child.frame[2] == 0.0f && r_child.ALB.SzX == AbstractLayoutBlock::szUndef) {
-					if(r_child.ALB.AspectRatio > 0.0 && r_child.frame[3] > 0.0f) {
-						r_child.frame[2] = r_child.frame[3] / r_child.ALB.AspectRatio;
+				if(r_child.R.Frame[2] == 0.0f && r_child.ALB.SzX == AbstractLayoutBlock::szUndef) {
+					if(r_child.ALB.AspectRatio > 0.0 && r_child.R.Frame[3] > 0.0f) {
+						r_child.R.Frame[2] = r_child.R.Frame[3] / r_child.ALB.AspectRatio;
 					}
 				}
-				if(r_child.frame[3] == 0.0f && r_child.ALB.SzY == AbstractLayoutBlock::szUndef) {
-					if(r_child.ALB.AspectRatio > 0.0 && r_child.frame[2] > 0.0f) {
-						r_child.frame[3] = r_child.frame[2] * r_child.ALB.AspectRatio;
+				if(r_child.R.Frame[3] == 0.0f && r_child.ALB.SzY == AbstractLayoutBlock::szUndef) {
+					if(r_child.ALB.AspectRatio > 0.0 && r_child.R.Frame[2] > 0.0f) {
+						r_child.R.Frame[3] = r_child.R.Frame[2] * r_child.ALB.AspectRatio;
 					}
 				}
 				// Now that the item has a frame, we can layout its children.
-				r_child.DoLayout(r_child.frame[2], r_child.frame[3]);
+				r_child.DoLayoutSelf();
 			}
 		}
 		if(p_layout->wrap && !p_layout->reverse2) {
@@ -1088,6 +1114,11 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 			p_layout->lines_sizes += p_new_line->size;
 		}
 	}
+}
+
+void LayoutFlexItem::DoLayoutSelf()
+{
+	DoLayout(R.Frame[2], R.Frame[3]);
 }
 
 void LayoutFlexItem::DoLayout(float _width, float _height)
@@ -1107,19 +1138,19 @@ void LayoutFlexItem::DoLayout(float _width, float _height)
 				float child_height = r_child.ALB.GetAbsoluteSizeY();
 				float child_x = r_child.ALB.GetAbsoluteLowX();
 				float child_y = r_child.ALB.GetAbsoluteLowY();
-				r_child.frame[0] = child_x;
-				r_child.frame[1] = child_y;
-				r_child.frame[2] = child_width;
-				r_child.frame[3] = child_height;
+				r_child.R.Frame[0] = child_x;
+				r_child.R.Frame[1] = child_y;
+				r_child.R.Frame[2] = child_width;
+				r_child.R.Frame[3] = child_height;
 				// Now that the item has a frame, we can layout its children.
-				r_child.DoLayout(r_child.frame[2], r_child.frame[3]); // @recursion
+				r_child.DoLayoutSelf(); // @recursion
 			}
 			else {
 				// Initialize frame.
-				r_child.frame[0] = 0.0f;
-				r_child.frame[1] = 0.0f;
-				r_child.frame[2] = r_child.ALB.CalcEffectiveSizeX(_width);
-				r_child.frame[3] = r_child.ALB.CalcEffectiveSizeY(_height);
+				r_child.R.Frame[0] = 0.0f;
+				r_child.R.Frame[1] = 0.0f;
+				r_child.R.Frame[2] = r_child.ALB.CalcEffectiveSizeX(_width);
+				r_child.R.Frame[3] = r_child.ALB.CalcEffectiveSizeY(_height);
 				//
 				// Main axis size defaults to 0.
 				// if(fisnanf(CHILD_SIZE_((&layout_s), r_child))) { CHILD_SIZE_((&layout_s), r_child) = 0; }
@@ -1137,14 +1168,14 @@ void LayoutFlexItem::DoLayout(float _width, float _height)
 				// are taken into account. If the item's cross-axis align property
 				// is set to stretch, ignore the value returned by the callback.
 				if(r_child.CbSelfSizing) {
-					float size[2] = { r_child.frame[2], r_child.frame[3] };
+					float size[2] = { r_child.R.Frame[2], r_child.R.Frame[3] };
 					r_child.CbSelfSizing(&r_child, size);
 					for(uint j = 0; j < 2; j++) {
 						const uint size_off = j + 2;
 						if(size_off != layout_s.frame_size2_i || GetChildAlign(r_child) != AbstractLayoutBlock::alignStretch) {
 							float val = size[j];
 							if(!fisnanf(val))
-								r_child.frame[size_off] = val;
+								r_child.R.Frame[size_off] = val;
 						}
 					}
 				}
@@ -1229,63 +1260,104 @@ void LayoutFlexItem::DoLayout(float _width, float _height)
 		}
 	}
 }
-//
-// Descr: Зоны, по которым распределяются элементы.
-//   Порядок следования зон в этом enum'е соответствует порядку, в котором
-//   будут размещаться элементы. То есть, сначала углы, потом стороны, и, что осталось, отдается центральным элементам.
-// @todo Сделать управляемый порядок размещения //
-//
-enum {
-	areaCornerLU,
-	areaCornerRU,
-	areaCornerRB,
-	areaCornerLB,
-	areaSideU,
-	areaSideR,
-	areaSideB,
-	areaSideL,
-	areaCenter
-};
 
-static int GetVArea(const LayoutFlexItem & rItem)
+int AbstractLayoutBlock::SetVArea(int area)
+{
+	int    ok = 1;
+	uint16 gx = 0;
+	uint16 gy = 0;
+	switch(area) {
+		case areaCornerLU:
+			gx = SIDE_LEFT;
+			gy = SIDE_TOP;
+			break;
+		case areaCornerRU:
+			gx = SIDE_RIGHT;
+			gy = SIDE_TOP;
+			break;
+		case areaCornerRB:
+			gx = SIDE_RIGHT;
+			gy = SIDE_BOTTOM;
+			break;
+		case areaCornerLB:
+			gx = SIDE_LEFT;
+			gy = SIDE_BOTTOM;
+			break;
+		case areaSideU:
+			gx = SIDE_CENTER;
+			gy = SIDE_TOP;
+			break;
+		case areaSideR:
+			gx = SIDE_RIGHT;
+			gy = SIDE_CENTER;
+			break;
+		case areaSideB:
+			gx = SIDE_CENTER;
+			gy = SIDE_BOTTOM;
+			break;
+		case areaSideL:
+			gx = SIDE_LEFT;
+			gy = SIDE_CENTER;
+			break;
+		case areaCenter:
+			gx = SIDE_CENTER;
+			gy = SIDE_CENTER;
+			break;
+		default:
+			ok = 0;
+			break;
+	}
+	if(ok) {
+		if(GravityX != gx || GravityY != gy) {
+			GravityX = gx;
+			GravityY = gy;
+			ok = 1;
+		}
+		else
+			ok = -1;
+	}
+	return ok;
+}
+
+int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 {
 	int   a = -1;
-	const int gx = rItem.ALB.GravityX;
-	const int gy = rItem.ALB.GravityY;
+	const int gx = /*rItem.ALB.*/GravityX;
+	const int gy = /*rItem.ALB.*/GravityY;
 	switch(gx) {
 		case 0:
 			switch(gy) {
-				case 0: a = areaCenter; break;
-				case SIDE_TOP: a = areaSideU; break;
-				case SIDE_BOTTOM: a = areaSideB; break;
-				case SIDE_CENTER: a = areaCenter; break;
+				case 0: a = AbstractLayoutBlock::areaCenter; break;
+				case SIDE_TOP: a = AbstractLayoutBlock::areaSideU; break;
+				case SIDE_BOTTOM: a = AbstractLayoutBlock::areaSideB; break;
+				case SIDE_CENTER: a = AbstractLayoutBlock::areaCenter; break;
 				default: assert(0);
 			}
 			break;
 		case SIDE_LEFT:
 			switch(gy) {
-				case 0: a = areaSideL; break;
-				case SIDE_TOP: a = areaCornerLU; break;
-				case SIDE_BOTTOM: a = areaCornerLB; break;
-				case SIDE_CENTER: a = areaSideL; break;
+				case 0: a = AbstractLayoutBlock::areaSideL; break;
+				case SIDE_TOP: a = AbstractLayoutBlock::areaCornerLU; break;
+				case SIDE_BOTTOM: a = AbstractLayoutBlock::areaCornerLB; break;
+				case SIDE_CENTER: a = AbstractLayoutBlock::areaSideL; break;
 				default: assert(0);
 			}
 			break;
 		case SIDE_RIGHT:
 			switch(gy) {
-				case 0: a = areaSideR; break;
-				case SIDE_TOP: a = areaCornerRU; break;
-				case SIDE_BOTTOM: a = areaCornerRB; break;
-				case SIDE_CENTER: a = areaSideR; break;
+				case 0: a = AbstractLayoutBlock::areaSideR; break;
+				case SIDE_TOP: a = AbstractLayoutBlock::areaCornerRU; break;
+				case SIDE_BOTTOM: a = AbstractLayoutBlock::areaCornerRB; break;
+				case SIDE_CENTER: a = AbstractLayoutBlock::areaSideR; break;
 				default: assert(0);
 			}
 			break;
 		case SIDE_CENTER:
 			switch(gy) {
-				case 0: a = areaCenter; break;
-				case SIDE_TOP: a = areaSideU; break;
-				case SIDE_BOTTOM: a = areaSideB; break;
-				case SIDE_CENTER: a = areaCenter; break;
+				case 0: a = AbstractLayoutBlock::areaCenter; break;
+				case SIDE_TOP: a = AbstractLayoutBlock::areaSideU; break;
+				case SIDE_BOTTOM: a = AbstractLayoutBlock::areaSideB; break;
+				case SIDE_CENTER: a = AbstractLayoutBlock::areaCenter; break;
 				default: assert(0);
 			}
 			break;
@@ -1295,36 +1367,218 @@ static int GetVArea(const LayoutFlexItem & rItem)
 	return a;
 }
 
+/*static*/int AbstractLayoutBlock::RestrictVArea(int restrictingArea, const FRect & rRestrictingRect, int restrictedArea, FRect & rRestrictedRect)
+{
+	int    ok = 1;
+	assert(restrictedArea != restrictingArea);
+	THROW(restrictedArea != restrictingArea);
+	assert(oneof9(restrictedArea, areaCornerLU, areaCornerRU, areaCornerRB, areaCornerLB, areaSideU, areaSideR, areaSideB, areaSideL, areaCenter));
+	THROW(oneof9(restrictedArea, areaCornerLU, areaCornerRU, areaCornerRB, areaCornerLB, areaSideU, areaSideR, areaSideB, areaSideL, areaCenter));
+	assert(oneof9(restrictingArea, areaCornerLU, areaCornerRU, areaCornerRB, areaCornerLB, areaSideU, areaSideR, areaSideB, areaSideL, areaCenter));
+	THROW(oneof9(restrictingArea, areaCornerLU, areaCornerRU, areaCornerRB, areaCornerLB, areaSideU, areaSideR, areaSideB, areaSideL, areaCenter));
+	switch(restrictingArea) {
+		case areaCornerLU:
+			switch(restrictedArea) {
+				case areaCornerRU: 
+				case areaSideU:
+				case areaSideR:
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					break;
+				case areaCornerLB:
+				case areaSideB:
+				case areaSideL:
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+				case areaCornerRB:
+				case areaCenter: 
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+			}
+			break;
+		case areaCornerRU:
+			switch(restrictedArea) {
+				case areaCornerLU:
+				case areaSideU:
+				case areaSideL:
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					break;
+				case areaCornerRB:
+				case areaSideB:
+				case areaSideR:
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+				case areaCornerLB:
+				case areaCenter: 
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+			}
+			break;
+		case areaCornerRB: 
+			switch(restrictedArea) {
+				case areaCornerLB:
+				case areaSideL:
+				case areaSideB:
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					break;
+				case areaSideU:
+				case areaCornerRU:
+				case areaSideR:
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+				case areaCornerLU:
+				case areaCenter: 
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+			}
+			break;
+		case areaCornerLB: 
+			switch(restrictedArea) {
+				case areaSideU:
+				case areaSideL:
+				case areaCornerLU:
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+				case areaSideB:
+				case areaSideR:
+				case areaCornerRB:
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					break;
+				case areaCornerRU:				
+				case areaCenter: 
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+			}
+			break;
+		case areaSideU: 
+			switch(restrictedArea) {
+				case areaSideL:
+				case areaSideR:
+				case areaSideB:
+				case areaCornerLB:
+				case areaCornerRB:
+				case areaCenter: 
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+				case areaCornerLU:
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					break;
+				case areaCornerRU:				
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					break;
+			}
+			break;
+		case areaSideB: 
+			switch(restrictedArea) {
+				case areaSideL:
+				case areaSideR:
+				case areaSideU:
+				case areaCornerLU:
+				case areaCornerRU:				
+				case areaCenter: 
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+				case areaCornerLB:
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					break;
+				case areaCornerRB:
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					break;
+			}
+			break;
+		case areaSideR: 
+			switch(restrictedArea) {
+				case areaCornerLB:
+				case areaSideL:
+				case areaCornerLU:
+				case areaSideB:
+				case areaSideU:
+				case areaCenter: 
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					break;
+				case areaCornerRU:
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+				case areaCornerRB:
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+			}
+			break;
+		case areaSideL: 
+			switch(restrictedArea) {
+				case areaSideB:
+				case areaSideR:
+				case areaSideU:
+				case areaCornerRB:
+				case areaCornerRU:				
+				case areaCenter: 
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					break;
+				case areaCornerLU:
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+				case areaCornerLB:
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+			}
+			break;
+		case areaCenter:
+			switch(restrictedArea) {
+				case areaCornerLB:
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+				case areaSideB:
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+				case areaCornerLU:
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+				case areaSideR:
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					break;
+				case areaSideU:
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+				case areaCornerRB:
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					break;
+				case areaCornerRU:
+					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					break;
+				case areaSideL: 
+					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					break;
+			}
+			break;
+	}	
+	CATCHZOK
+	return ok;
+}
+
 void LayoutFlexItem::DoFloatLayout(float _width, float _height) // @construction
 {
 	if(getCount()) {
 		//
 		// Разбиваем всю область на 9 виртуальных зон (углы, стороны, центр)
 		//
-		/*enum {
-			areaCornerLU,
-			areaCornerRU,
-			areaCornerRB,
-			areaCornerLB,
-			areaSideU,
-			areaSideR,
-			areaSideB,
-			areaSideL,
-			areaCenter
-		};*/
 		FRect area_rect[9];
 		int   bypass_direction[9]; // Последовательность обхода зон для заполнения // 
 		{
-			//
 			// Все виртуальные зоны инициализируем величиной полной области.
-			//
 			for(uint i = 0; i < SIZEOFARRAY(area_rect); i++) {
 				area_rect[i].a.SetZero();
 				area_rect[i].b.Set(_width, _height);
 			}
 		}
 		{
-			// Порядо обхода инициализируем неопределенными значениями
+			// Порядок обхода инициализируем неопределенными значениями
 			for(uint i = 0; i < SIZEOFARRAY(bypass_direction); i++)
 				bypass_direction[i] = -1;
 		}
@@ -1333,8 +1587,8 @@ void LayoutFlexItem::DoFloatLayout(float _width, float _height) // @construction
 			LayoutFlex layout_s(this, _width, _height);
 			{
 				for(uint cidx = 0; cidx < getCount(); cidx++) {
-					LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, cidx);
-					int va = GetVArea(r_child);
+					const LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, cidx);
+					int va = r_child.ALB.GetVArea();
 					if(va >= 0 && va <= 9) {
 						item_map.Add(cidx, va);
 					}
@@ -1366,24 +1620,31 @@ void LayoutFlexItem::DoFloatLayout(float _width, float _height) // @construction
 						if(p_current_layout) {
 							assert(prev_area >= 0 && prev_area < SIZEOFARRAY(area_rect));
 							p_current_layout->Evaluate();
-							//
-							// @todo Здесь необходимо вычислить полный прямоугольник занятый областью prev_area и
-							// скорректировать остальные области в соответствии с этим.
 							{
+								// Вычисляем полный прямоугольник занятый областью prev_area и
+								// корректируем остальные области в соответствии с этим.
 								FRect cf;
 								if(p_current_layout->GetInnerCombinedFrame(&cf) > 0) {
-									area_rect[prev_area] = cf;
+									cf.Move__(area_rect[prev_area].a.X, area_rect[prev_area].a.Y);
 									for(uint ai = 0; ai < actual_area_list.getCount(); ai++) {
 										const int local_area = actual_area_list.get(ai);
 										if(local_area != prev_area && !seen_area_list.lsearch(local_area)) {
-											//if(cf.a.X)
+											const int rvar = AbstractLayoutBlock::RestrictVArea(prev_area, cf, local_area, area_rect[local_area]);
+											assert(rvar);
 										}
 									}
 								}
-								//
 								seen_area_list.add(prev_area);
 							}
-							// 
+							const float offs_x = area_rect[prev_area].a.X;
+							const float offs_y = area_rect[prev_area].a.Y;
+							for(uint ci = 0; ci < p_current_layout->getCount(); ci++) {
+								LayoutFlexItem * p_layout_item = p_current_layout->at(ci);
+								if(p_layout_item && p_layout_item->P_Link) {
+									p_layout_item->P_Link->R.CopyWithOffset(p_layout_item->R, offs_x, offs_y);
+									p_layout_item->P_Link->DoLayoutSelf();
+								}
+							}
 							ZDELETE(p_current_layout);
 						}
 						{
@@ -1393,51 +1654,51 @@ void LayoutFlexItem::DoFloatLayout(float _width, float _height) // @construction
 							uint16 justify_content = 0; // AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов вдоль основной оси
 							uint16 align_content = 0;   // AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
 							switch(area) {
-								case areaCornerLU:
+								case AbstractLayoutBlock::areaCornerLU:
 									container_direc = DIREC_HORZ;
 									justify_content = AbstractLayoutBlock::alignStart;
 									align_content = AbstractLayoutBlock::alignStart;
 									break;
-								case areaCornerRU:
+								case AbstractLayoutBlock::areaCornerRU:
 									container_direc = DIREC_HORZ;
-									justify_content = AbstractLayoutBlock::alignEnd;
-									align_content = AbstractLayoutBlock::alignStart;
 									container_flags |= AbstractLayoutBlock::fContainerReverseDir;
+									justify_content = AbstractLayoutBlock::alignStart;
+									align_content = AbstractLayoutBlock::alignStart;
 									break;
-								case areaCornerRB:
+								case AbstractLayoutBlock::areaCornerRB:
 									container_direc = DIREC_HORZ;
-									justify_content = AbstractLayoutBlock::alignEnd;
-									align_content = AbstractLayoutBlock::alignEnd;
 									container_flags |= AbstractLayoutBlock::fContainerReverseDir;
 									container_flags |= AbstractLayoutBlock::fContainerWrapReverse;
+									justify_content = AbstractLayoutBlock::alignStart;
+									align_content = AbstractLayoutBlock::alignStart;
 									break;
-								case areaCornerLB:
+								case AbstractLayoutBlock::areaCornerLB:
 									container_direc = DIREC_HORZ;
 									justify_content = AbstractLayoutBlock::alignStart;
 									align_content = AbstractLayoutBlock::alignEnd;
-									container_flags |= AbstractLayoutBlock::fContainerWrapReverse;
+									//container_flags |= AbstractLayoutBlock::fContainerWrapReverse;
 									break;
-								case areaSideU:
+								case AbstractLayoutBlock::areaSideU:
 									container_direc = DIREC_HORZ;
 									justify_content = AbstractLayoutBlock::alignStart;
 									align_content = AbstractLayoutBlock::alignStart;
 									break;
-								case areaSideR:
+								case AbstractLayoutBlock::areaSideR:
 									container_direc = DIREC_VERT;
 									justify_content = AbstractLayoutBlock::alignStart;
 									align_content = AbstractLayoutBlock::alignEnd;
 									break;
-								case areaSideB:
+								case AbstractLayoutBlock::areaSideB:
 									container_direc = DIREC_HORZ;
 									justify_content = AbstractLayoutBlock::alignStart;
 									align_content = AbstractLayoutBlock::alignEnd;
 									break;
-								case areaSideL:
+								case AbstractLayoutBlock::areaSideL:
 									container_direc = DIREC_VERT;
 									justify_content = AbstractLayoutBlock::alignStart;
 									align_content = AbstractLayoutBlock::alignStart;
 									break;
-								case areaCenter:
+								case AbstractLayoutBlock::areaCenter:
 									container_direc = DIREC_HORZ; // @?
 									justify_content = AbstractLayoutBlock::alignStart; // @?
 									align_content = AbstractLayoutBlock::alignStart; // @?
@@ -1455,20 +1716,37 @@ void LayoutFlexItem::DoFloatLayout(float _width, float _height) // @construction
 						assert(p_current_layout);
 						LayoutFlexItem * p_layout_item = p_current_layout->CreateNewItem();
 						p_layout_item->ALB = r_child.ALB;
+						p_layout_item->CbSelfSizing = r_child.CbSelfSizing;
+						p_layout_item->CbSetup = r_child.CbSetup;
+						p_layout_item->managed_ptr = r_child.managed_ptr;
+						p_layout_item->P_Link = &r_child;
 					}
+					prev_area = area;
 				}
 				if(p_current_layout) {
+					assert(prev_area >= 0 && prev_area < SIZEOFARRAY(area_rect));
+					p_current_layout->Evaluate();
+					const float offs_x = area_rect[prev_area].a.X;
+					const float offs_y = area_rect[prev_area].a.Y;
+					for(uint ci = 0; ci < p_current_layout->getCount(); ci++) {
+						LayoutFlexItem * p_layout_item = p_current_layout->at(ci);
+						if(p_layout_item && p_layout_item->P_Link) {
+							p_layout_item->P_Link->R.CopyWithOffset(p_layout_item->R, offs_x, offs_y);
+							p_layout_item->P_Link->DoLayoutSelf();
+						}
+					}
+					// @todo Здесь с помощью assert'ов необходимо проверить что мы обошли все зоны
+					ZDELETE(p_current_layout);
 				}
 			}
 		}
 	}
 }
 
-
 static void FASTCALL SetupItem(LayoutFlexItem & rItem)
 {
 	if(rItem.CbSetup) {
-		rItem.CbSetup(&rItem, rItem.frame);
+		rItem.CbSetup(&rItem, rItem.R.Frame);
 	}
 	for(uint i = 0; i < rItem.getCount(); i++) {
 		SetupItem(*rItem.at(i)); // @recursion
@@ -1483,7 +1761,8 @@ int LayoutFlexItem::Evaluate()
 		float sy = 0.0f;
 		const int stag_x = ALB.GetSizeX(&sx);
 		const int stag_y = ALB.GetSizeY(&sy);
-		if(oneof2(ALB.GetContainerDirection(), DIREC_HORZ, DIREC_VERT)) {
+		const int cdir = ALB.GetContainerDirection();
+		if(oneof2(cdir, DIREC_HORZ, DIREC_VERT)) {
 			//if(!fisnan(Size.X) && !fisnan(Size.Y) && !CbSelfSizing) {
 			if(stag_x == AbstractLayoutBlock::szFixed && stag_y == AbstractLayoutBlock::szFixed && !CbSelfSizing) {
 				assert(P_Parent == NULL);
@@ -1498,8 +1777,16 @@ int LayoutFlexItem::Evaluate()
 				ok = 1;
 			}
 		}
-		else {
-					
+		else { // @construction					
+			if(stag_x == AbstractLayoutBlock::szFixed && stag_y == AbstractLayoutBlock::szFixed && !CbSelfSizing) {
+				DoFloatLayout(sx, sy);
+				{
+					for(uint i = 0; i < getCount(); i++) {
+						SetupItem(*at(i));
+					}
+				}
+				ok = 1;
+			}
 		}
 	}
 	return ok;

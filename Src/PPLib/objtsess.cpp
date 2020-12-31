@@ -1601,8 +1601,8 @@ int PPObjTSession::RoundTiming(PPID techID, long * pTiming)
 	if(GetTech(techID, &tec_rec, 1) > 0 && timing && tec_rec.GoodsID && tec_rec.Rounding) {
 		double unit_ratio = 1.0;
 		if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
-			double c = Round((double)timing / unit_ratio, tec_rec.Rounding, +1);
-			timing = (long)(c * unit_ratio);
+			double c = PPRound((double)timing / unit_ratio, tec_rec.Rounding, +1);
+			timing = static_cast<long>(c * unit_ratio);
 		}
 	}
 	ASSIGN_PTR(pTiming, timing);
@@ -1642,9 +1642,9 @@ int PPObjTSession::CalcPlannedQtty(const TSessionTbl::Rec * pPack, long forceTim
 			chunk.Start.Set(pPack->StDt, pPack->StTm);
 			chunk.Finish.Set(pPack->FinDt, pPack->FinTm);
 			if(AdjustTiming(*pPack, chunk, result_chunk, &timing) > 0)
-				qtty = Round((double)timing / unit_ratio, tec_rec.Rounding, +1);
+				qtty = PPRound((double)timing / unit_ratio, tec_rec.Rounding, +1);
 			else
-				qtty = Round((double)GetContinuation(pPack) / unit_ratio, tec_rec.Rounding, +1);
+				qtty = PPRound((double)GetContinuation(pPack) / unit_ratio, tec_rec.Rounding, +1);
 			ok = 1;
 		}
 		else if(tec_rec.Capacity > 0.0) {
@@ -2199,12 +2199,12 @@ int PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 				chunk.Start.Set(pPack->StDt, pPack->StTm);
 				chunk.Finish.Set(pPack->FinDt, pPack->FinTm);
 				if(AdjustTiming(*pPack, chunk, result_chunk, &timing) > 0)
-					qtty = Round(static_cast<double>(timing) / unit_ratio, tec_rec.Rounding, +1);
+					qtty = PPRound(static_cast<double>(timing) / unit_ratio, tec_rec.Rounding, +1);
 				else
-					qtty = Round(static_cast<double>(GetContinuation(pPack)) / unit_ratio, tec_rec.Rounding, +1);
+					qtty = PPRound(static_cast<double>(GetContinuation(pPack)) / unit_ratio, tec_rec.Rounding, +1);
 			}
 			else if(tec_rec.Flags & TECF_AUTOMAIN) {
-				qtty = Round(pPack->PlannedQtty, tec_rec.Rounding, 0);
+				qtty = PPRound(pPack->PlannedQtty, tec_rec.Rounding, 0);
 				main_item_sign = tec_rec.Sign;
 			}
 			if(qtty != 0.0) {

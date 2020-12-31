@@ -260,7 +260,7 @@ int PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 			data_list.insert(&entry);
 		}
 		yticinc = amt_or_qtty ? (amt_range.GetDistance() / 30) : (qtty_range.GetDistance() / 30);
-		yticinc = Round(yticinc, 10.0, +1);
+		yticinc = PPRound(yticinc, 10.0, +1);
 	}
 	if(data_list.getCount()) {
 		LDATE low_date = static_cast<const PlotDataEntry *>(data_list.at(0))->Dt;

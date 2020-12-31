@@ -218,7 +218,7 @@ void TreeWindow::ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 					t_i.cbSize      = sizeof(TOOLINFO);
 					t_i.uFlags      = TTF_SUBCLASS;
 					t_i.hwnd        = hwnd_tab;
-					t_i.uId         = static_cast<UINT>(tci.lParam);
+					t_i.uId         = static_cast<UINT_PTR>(tci.lParam);
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = 0;
@@ -249,7 +249,7 @@ void TreeWindow::ShortcutsWindow::DelItem(void * ptr)
 				t_i.cbSize      = sizeof(TOOLINFO);
 				t_i.uFlags      = TTF_SUBCLASS;
 				t_i.hwnd        = hwnd_tab;
-				t_i.uId         = (UINT_PTR)ptr;
+				t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
 				t_i.rect        = rc_item;
 				t_i.hinst       = TProgram::GetInst();
 				t_i.lpszText    = 0;
@@ -295,7 +295,7 @@ void TreeWindow::ShortcutsWindow::Destroy()
 
 int TreeWindow::ShortcutsWindow::IsVisible() const
 {
-	return (Hwnd) ? IsWindowVisible(Hwnd) : 0;
+	return Hwnd ? IsWindowVisible(Hwnd) : 0;
 }
 
 void TreeWindow::ShortcutsWindow::GetRect(RECT & rRect)
@@ -304,10 +304,9 @@ void TreeWindow::ShortcutsWindow::GetRect(RECT & rRect)
 		::GetWindowRect(Hwnd, &rRect);
 }
 
-int TreeWindow::ShortcutsWindow::MoveWindow(const RECT & rRect)
+void TreeWindow::ShortcutsWindow::MoveWindow(const RECT & rRect)
 {
 	::MoveWindow(Hwnd, rRect.left, rRect.top, rRect.right, rRect.bottom, 1);
-	return 1;
 }
 //
 //
@@ -445,9 +444,9 @@ void TreeWindow::SetupCmdList(HMENU hMenu, void * hP) // @v10.9.4 HTREEITEM-->(v
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
-		mii.dwTypeData = menu_name_buf; // @unicodeproblem
+		mii.dwTypeData = menu_name_buf;
 		mii.cch = SIZEOFARRAY(menu_name_buf);
-		GetMenuItemInfo(hMenu, i, TRUE, &mii); // @unicodeproblem
+		GetMenuItemInfo(hMenu, i, TRUE, &mii);
 		if(menu_name_buf[0] != 0) {
 			TVINSERTSTRUCT is;
 			is.hParent = static_cast<HTREEITEM>(hP);
@@ -467,12 +466,10 @@ void TreeWindow::SetupCmdList(HMENU hMenu, void * hP) // @v10.9.4 HTREEITEM-->(v
 				if(chr)
 					memmove(chr, chr+1, sstrlen(chr)*sizeof(TCHAR));
 			}
-			//temp_buf = SUcSwitch(menu_name_buf);
-			//temp_buf.ReplaceStr("&", 0, 1);
-			is.item.pszText = menu_name_buf; // @unicodeproblem
+			is.item.pszText = menu_name_buf;
 			is.item.cchTextMax = mii.cch;
 	  		if(mii.fType != MFT_SEPARATOR) {
-				hti = TreeView_InsertItem(h_tv, &is); // @unicodeproblem
+				hti = TreeView_InsertItem(h_tv, &is);
 				if(is.item.cChildren)
 					SetupCmdList(mii.hSubMenu, hti); // @recursion
 			}
@@ -562,7 +559,7 @@ void TreeWindow::ShowList(ListWindow * pLw)
 		GetClientRect(Hwnd, &rc);
 		ShortcWnd.SelItem(cur_hwnd);
 		ZDELETE(P_Toolbar);
-		uint tb_id = (pLw) ? pLw->GetToolbar() : 0;
+		uint tb_id = pLw ? pLw->GetToolbar() : 0;
 		if(tb_id) {
 			P_Toolbar = new TToolbar(Hwnd, TBS_NOMOVE);
 			if(P_Toolbar->Init(tb_id, TV_EXPTOOLBAR) <= 0)

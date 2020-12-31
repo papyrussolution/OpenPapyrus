@@ -4,11 +4,9 @@
 #ifndef __TV_H
 #define __TV_H
 
-//#include <slib.h>
 #include <tvdefs.h>
 #include <commctrl.h>
 #include <db.h>
-//#include <layout-flex.h> // @v10.9.3 @construction
 
 class  TView;
 class  TGroup;
@@ -860,7 +858,7 @@ public:
 
 	SPaintToolBox();
 	~SPaintToolBox();
-	SPaintToolBox & Init();
+	SPaintToolBox & Z();
 	int    FASTCALL Copy(const SPaintToolBox & rS);
 	//
 	// Descr: Копирует объект с идентификатором toolIdent из контейнера rS в this.
@@ -1953,6 +1951,28 @@ struct AbstractLayoutBlock { // @persistent
 		alignSpaceEvenly
 	};
 	//
+	// Descr: Зоны притяжения лейаутов. Применяются для вычисления размещения элементов
+	//   в неориентированных контейнерах.
+	//   В комментариях к каждому варианту приведена пара значений для горизонтального (X) и 
+	//   вертикального (Y) притяжения (Gravity), которой этот вариант соответствует.
+	//
+	//   Порядок следования зон в этом enum'е соответствует порядку, в котором
+	//   будут размещаться элементы. То есть, сначала углы, потом стороны, и, что осталось, отдается центральным элементам.
+	// @todo Сделать управляемый порядок размещения //	
+	//
+	enum { // @persistent
+		areaUndef = -1,
+		areaCornerLU = 0, // {SIDE_LEFT, SIDE_TOP} 
+		areaCornerRU,     // {SIDE_RIGHT, SIDE_TOP}
+		areaCornerRB,     // {SIDE_RIGHT, SIDE_BOTTOM}
+		areaCornerLB,     // {SIDE_LEFT, SIDE_BOTTOM}
+		areaSideU,        // {0, SIDE_TOP} {SIDE_CENTER, SIDE_TOP}
+		areaSideR,        // {SIDE_RIGHT, 0} {SIDE_RIGHT, SIDE_CENTER}
+		areaSideB,        // {0, SIDE_BOTTOM} {SIDE_CENTER, SIDE_BOTTOM}
+		areaSideL,        // {SIDE_LEFT, 0} {SIDE_LEFT, SIDE_CENTER}
+		areaCenter        // {0, SIDE_CENTER} {0, 0} {SIDE_CENTER, 0} {SIDE_CENTER, SIDE_CENTER}
+	};
+	//
 	// Descr: Опции расчета размера
 	//
 	enum {
@@ -2064,6 +2084,21 @@ struct AbstractLayoutBlock { // @persistent
 	//   хотя бы одна из координат по оси.
 	//
 	bool   IsPositionAbsoluteY() const;
+	//
+	// Descr: Возвращает зону притяжения элемента (AbstractLayoutBlock::areaXXX) в зависимости от значений
+	//   полей {GravityX, GravityY}
+	//
+	int    GetVArea() const;
+	//
+	// Descr: Устанавливает атрибуты GravityX и GravityY в зависимости от параметра
+	//   area.
+	// Returns:
+	//   >0 - значения GravityX и GravityY успешно установлены. При этом они изменились.
+	//   <0 - значения GravityX и GravityY успешно установлены, но ничего при этом не изменилось (они такими же и были).
+	//    0 - ошибка (аргумент area не валиден либо что-то не так с внутренним состоянием объекта).
+	//
+	int    SetVArea(int area);
+	static int RestrictVArea(int restrictingArea, const FRect & rRestrictingRect, int restrictedArea, FRect & rRestrictedRect);
 
 	uint32 Flags;          // @flags fXXX
 	uint16 SzX;            // AbstractLayoutBlock::szXXX Опции расчета размера по оси X
@@ -2150,7 +2185,18 @@ public:
 	// during layout and which can customize the dimensions (width and height) of the item.
 	FlexSelfSizingProc CbSelfSizing; // NULL
 	FlexSetupProc CbSetup; // NULL
-	float  frame[4];
+	struct Result {
+		enum {
+			fNotFit = 0x0001
+		};
+		Result();
+		operator FRect() const;
+		Result & CopyWithOffset(const Result & rS, float offsX, float offsY);
+		float  Frame[4];
+		uint   Flags;
+	};
+	//float  frame[4];
+	Result R;
 	LayoutFlexItem * P_Parent;
 	uint   State;
 protected:
@@ -2159,6 +2205,14 @@ protected:
 	void   DoFloatLayout(float _width, float _height);
 	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout);
 	/*flex_align*/int FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
+private:
+	//
+	// Descr: Вызывает DoLayout(framt[2], frame[3])
+	//
+	void   DoLayoutSelf();
+	LayoutFlexItem * P_Link; // @transient При сложных схемах построения формируются искусственные лейауты, получающие
+		// в этом поле ссылку на порождающий реальный элемент. Указатель константным не делать: по нему будет присвоен 
+		// результат вычислений.
 };
 /*
 length-unit: % | mm | m | cm
@@ -2252,11 +2306,11 @@ protected:
 	void   SetupLayoutItem(void * pLayout);
 protected:
 	static void __stdcall SetupLayoutItemFrame(LayoutFlexItem * pItem, float size[4]); // @v10.9.3
+	static void Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView); // @v10.9.11
 	TWindowBase(LPCTSTR pWndClsName, int capability);
 	DECL_HANDLE_EVENT;
 	void   SetDefaultCursor();
 
-	//SRectLayout Layout_Obsolete;
 	LayoutFlexItem * P_Lfc; // @v10.9.3 @construction
 	SPaintToolBox Tb;
 	TScrollBlock Sb;
@@ -4265,7 +4319,7 @@ private:
 		void   DelItem(void * ptr);
 		int    IsVisible() const;
 		void   GetRect(RECT & rRect);
-		int    MoveWindow(const RECT & rRect);
+		void   MoveWindow(const RECT & rRect);
 
 		HWND   Hwnd;
 	private:
@@ -4414,6 +4468,7 @@ public:
 		tbiListFocPen       = 86, // Перо отрисовки focuses строки списка
 		tbiListSelBrush     = 87, // Кисть отрисовки selected строки списка
 		tbiListSelPen       = 88, // Перо отрисовки selected строки списка
+		//
 	};
 
     int    InitUiToolBox();
@@ -4672,6 +4727,7 @@ public:
 	// @v10.6.3 (unused) int    setText(long, int, const char *);
 	long   _topItem() const { return topItem; }
 	long   _curItem() const { return curItem; }
+	long   _curFrameItem() const { return (curItem - topItem); }
 	int    FASTCALL isColInGroup(uint col, uint * idx) const;
 	int    GetCapHeight() const;
 	void   VerifyCapHeight();
@@ -4757,7 +4813,7 @@ protected:
 //
 // Messages
 //
-#define BRO_GETCURREC     WM_USER+1
+// @v10.9.11 #define BRO_GETCURREC     WM_USER+1
 #define BRO_GETCURCOL     WM_USER+2
 #define BRO_DATACHG       WM_USER+3
 // @v10.9.0 #define BRO_SETDATA       WM_USER+4 // LPARAM = far ptr to new data, WPARAM = parameter for BrowseDef::setData virtual member function
@@ -4769,8 +4825,8 @@ protected:
 #define BRO_LDBLCLKNOTIFY WM_USER+7 // WPARAM = HWND, LPARAM = MAKELPARAM(xPos, yPos)
 #define BRO_RDBLCLKNOTIFY WM_USER+8 // WPARAM = HWND, LPARAM = MAKELPARAM(xPos, yPos)
 
-#define MAXCAP            64 // Максимальная длина заголовка колонки или группы
-#define MAXDEPS           32 // Максимальное количество столбцов определяющих столбец типа bcoCalc
+// @v10.9.11 #define MAXCAP            64 // Максимальная длина заголовка колонки или группы
+// @v10.9.11 #define MAXDEPS           32 // Максимальное количество столбцов определяющих столбец типа bcoCalc
 #define BRWCLASS_CEXTRA    0 // Дополнительные данные класса "BROWSE"
 #define BRWCLASS_WEXTRA    8 // Дополнительные данные окна класса "BROWSE"
 #define BRWL_USERDATA      4 // Смещение в BrowseWindow для данных пользователя //
@@ -4810,10 +4866,10 @@ struct RowHeightInfo {
 };
 
 HWND FASTCALL GetNextBrowser(HWND hw, int reverse);
-// HWND GetPrevBrowser(HWND hw);
 
-class TBaseBrowserWindow : public TWindow {
+class TBaseBrowserWindow : public /*TWindow*/TWindowBase {
 public:
+	~TBaseBrowserWindow();
 	struct IdentBlock {
 		int    IdBias;
 		SString ClsName;
@@ -4836,7 +4892,7 @@ public:
 	int    Insert();
 	uint   GetResID() const;
 	void   SetResID(uint res);
-	void   SetToolbarID(uint toolbarID);
+	// @v10.9.11 void   SetToolbarID(uint toolbarID);
 
 	enum {
 		IdBiasBrowser          = 0x00100000,
@@ -4846,6 +4902,7 @@ public:
 protected:
 	TBaseBrowserWindow(LPCTSTR pWndClsName);
 	DECL_HANDLE_EVENT;
+	static TBaseBrowserWindow * Helper_InitCreation(LPARAM lParam, void ** ppInitData);
 
 	enum {
 		bbsIsMDI        = 0x00000001,
@@ -4854,11 +4911,13 @@ protected:
 		bbsCancel       = 0x00000008, // @v10.3.4 Какой-то из виртуальных методов порожденного класса потребовал прекратить выполнение
 		// Начиная с 0x00010000 флаги зарезервированы за наследующими классами
 	};
-	uint    ToolbarID;   // ID Toolbar'a для сохранения в реестре = LastCmd (команда по которой был запущен данный броузер) + TOOLBAR_OFFS (смещение)
-	const  SString ClsName;     // Window class name
+	const  SString ClsName; // Window class name
+	uint   ToolbarID;       // ID Toolbar'a для сохранения в реестре = LastCmd (команда по которой был запущен данный броузер) + TOOLBAR_OFFS (смещение)
 	uint   ResourceID;
 	TPoint PrevMouseCoord;
 	long   BbState;
+	int    ToolBarWidth;
+	TToolbar * P_Toolbar;
 };
 
 class BrowserWindow : public TBaseBrowserWindow {
@@ -4952,7 +5011,7 @@ public:
 	//   Номер текущей колонки [0..P_Def->getCount()-1]
 	//
 	int    GetCurColumn() const;
-	int    SetCurColumn(int col);
+	void   SetCurColumn(int col);
 	void   setInitPos(long p);
 	void   SetColorsSchema(uint32 schemaNum);
 	int    CopyToClipboard();
@@ -4980,7 +5039,7 @@ public:
 	//
 	const  LongArray & GetSettledOrderList() const { return SettledOrder; }
 
-	BrowserWindow * view;
+	// @v10.9.11 BrowserWindow * P_View__;
 	enum {
 		paintFocused = 0,
 		paintNormal  = 1,
@@ -4995,7 +5054,7 @@ protected:
 	int    LoadResource(uint, void *, int, uint uOptions = 0);
 
 	uint   RezID;
-	TToolbar * P_Toolbar;
+	// @v10.9.11 (moved to TBaseBrowserWindow) TToolbar * P_Toolbar;
 private:
 	virtual void Insert_(TView *p);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
@@ -5022,7 +5081,7 @@ private:
 
 	long   InitPos;
 	TView * P_Header;
-	int    ToolBarWidth;
+	// @v10.9.11 (moved to TBaseBrowserWindow) int    ToolBarWidth;
 	BrowserDef * P_Def;
 	LOGFONT FontRec;
 	HGDIOBJ Font;
@@ -5559,9 +5618,9 @@ private:
 	long   SysState;
 	int    SpcMode;
 	HWND   HwndSci;
-	TToolbar * P_Toolbar;
-	long   ToolBarWidth;
-	uint   ToolbarId;
+	// @v10.9.11 (moved to TBaseBrowserWindow) TToolbar * P_Toolbar;
+	// @v10.9.11 (moved to TBaseBrowserWindow) long   ToolBarWidth;
+	//uint   ToolbarId;
 	SString LexerSymb;
 	WNDPROC OrgScintillaWndProc;
 };

@@ -543,7 +543,7 @@ int PPObjBill::UpdateOpCounter(PPBillPacket * pPack)
 	PPOprKind op_rec;
 	PPObjOpCounter opc_obj;
 	THROW_INVARG(pPack);
-	THROW(opc_obj.CheckRights(PPR_MOD)); // @v9.9.9
+	THROW(opc_obj.CheckRights(PPR_MOD));
 	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_UPDCNTR))));
 	if(GetOpData(pPack->Rec.OpID, &op_rec) > 0) {
 		PPID   cntr_id = op_rec.OpCounterID;

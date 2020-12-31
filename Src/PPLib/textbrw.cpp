@@ -908,9 +908,8 @@ STextBrowser::~STextBrowser()
 		}
 		DestroyWindow(HwndSci);
 	}
-	P_Toolbar->DestroyHWND();
-	ZDELETE(P_Toolbar);
-	// @v9.7.11 ZDELETE(P_SrDb); // @v9.2.0
+	// @v10.9.11 (moved to ~TBaseBrowserWindow) P_Toolbar->DestroyHWND();
+	// @v10.9.11 (moved to ~TBaseBrowserWindow) ZDELETE(P_Toolbar);
 }
 
 int STextBrowser::SetSpecialMode(int spcm)
@@ -919,18 +918,10 @@ int STextBrowser::SetSpecialMode(int spcm)
 	if(spcm == spcmSartrTest) {
 		SrDatabase * p_srdb = DS.GetTLA().GetSrDatabase();
 		if(p_srdb) {
-			/*if(!P_SrDb) {
-				//SString db_path;
-				//getExecPath(db_path);
-				//db_path.SetLastSlash().Cat("SARTRDB");
-				THROW_S(P_SrDb = new SrDatabase(), SLERR_NOMEM);
-				THROW(P_SrDb->Open(0, 0)); // @todo Режим открытия
-			}*/
 			SpcMode = spcm;
 		}
 	}
 	else {
-		// @v9.7.11 ZDELETE(P_SrDb);
 		SpcMode = spcmNo;
 	}
 	return ok;
@@ -955,9 +946,9 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 	P_Toolbar    = 0;
 	ToolBarWidth = 0;
 	if(toolbarId < 0)
-		ToolbarId = TOOLBAR_TEXTBROWSER;
+		ToolbarID = TOOLBAR_TEXTBROWSER;
 	else if(toolbarId > 0)
-		ToolbarId = toolbarId;
+		ToolbarID = toolbarId;
 	{
 		KeyDownCommand k;
 		k.SetTvKeyCode(kbF3);
@@ -994,7 +985,8 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 	STextBrowser * p_view = 0;
 	switch(message) {
 		case WM_CREATE:
-			p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
+			p_view = static_cast<STextBrowser *>(Helper_InitCreation(lParam, (void **)&p_init_data)); // @v10.9.11
+			/* @v10.9.11 p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
 			if(TWindow::IsMDIClientWindow(p_init_data->hwndParent)) {
 				p_view = reinterpret_cast<STextBrowser *>(static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams)->lParam);
 				p_view->BbState |= bbsIsMDI;
@@ -1002,7 +994,7 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 			else {
 				p_view = static_cast<STextBrowser *>(p_init_data->lpCreateParams);
 				p_view->BbState &= ~bbsIsMDI;
-			}
+			}*/
 			if(p_view) {
 				p_view->HW = hWnd;
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
@@ -1045,14 +1037,7 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 			p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				p_view->SaveChanges();
-				SETIFZ(p_view->EndModalCmd, cmCancel);
-				APPL->DelItemFromMenu(p_view);
-				p_view->ResetOwnerCurrent();
-				if(!p_view->IsInState(sfModal)) {
-					APPL->P_DeskTop->remove(p_view);
-					delete p_view;
-					TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0);
-				}
+				TWindowBase::Helper_Finalize(hWnd, p_view);
 			}
 			return 0;
 		case WM_SETFOCUS:
@@ -1260,7 +1245,7 @@ int STextBrowser::UpdateIndicators()
 int STextBrowser::Run()
 {
 	int    ok = -1;
-
+	//
 	return ok;
 }
 
@@ -1324,37 +1309,6 @@ int SKeyAccelerator::Set(const KeyDownCommand & rK, int cmd)
 	return ok;
 }
 
-// @v9.7.5 moved(tv.h) int ImpLoadToolbar(TVRez & rez, ToolbarList * pList); // @prototype(wbrowse.cpp)
-
-#if 0 // {
-static int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
-{
-	pList->setBitmap(rez.getUINT());
-	SString temp_buf;
-	while(rez.getUINT() != TV_END) {
-		fseek(rez.getStream(), -((long)sizeof(uint16)), SEEK_CUR);
-		ToolbarItem item;
-		// @v10.7.8 @ctr MEMSZERO(item);
-		item.Cmd = rez.getUINT();
-		if(item.Cmd != TV_MENUSEPARATOR) {
-			item.KeyCode = rez.getUINT();
-			item.Flags = rez.getUINT();
-			item.BitmapIndex = rez.getUINT();
-			// @v9.0.11 rez.getString(item.ToolTipText);
-			// @v9.0.11 {
-			rez.getString(temp_buf, 0);
-            PPExpandString(temp_buf);
-            STRNSCPY(item.ToolTipText, temp_buf);
-            // } @v9.0.11
-		}
-		else
-			item.KeyCode = (ushort)item.Cmd;
-		pList->addItem(&item);
-	}
-	return 1;
-}
-#endif // } 0
-
 int STextBrowser::LoadToolbar(uint tbId)
 {
 	int    r = 0;
@@ -1416,7 +1370,7 @@ int STextBrowser::WMHCreate()
 	RECT rc;
 	GetWindowRect(H(), &rc);
 	P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
-	if(P_Toolbar && LoadToolbar(ToolbarId) > 0) {
+	if(P_Toolbar && LoadToolbar(ToolbarID) > 0) {
 		P_Toolbar->Init(ToolbarID, &Toolbar);
 		if(P_Toolbar->IsValid()) {
 			RECT tbr;
@@ -1443,7 +1397,7 @@ int STextBrowser::WMHCreate()
 		{
 			for(uint i = 0; i < OuterKeyAccel.getCount(); i++) {
 				const LAssoc & r_accel_item = OuterKeyAccel.at(i);
-				KeyDownCommand & r_k = *(KeyDownCommand *)&r_accel_item.Key;
+				const KeyDownCommand & r_k = *reinterpret_cast<const KeyDownCommand *>(&r_accel_item.Key);
 				KeyAccel.Set(r_k, r_accel_item.Val);
 			}
 		}
@@ -1460,7 +1414,7 @@ int STextBrowser::WMHCreate()
 		}
 		KeyAccel.Sort();
 	}
-	FileLoad(Doc.FileName, /*cpANSI*/cpUTF8, 0); // @v9.9.9 cpANSI-->cpUTF8
+	FileLoad(Doc.FileName, cpUTF8, 0);
 	return BIN(P_SciFn && P_SciPtr);
 }
 

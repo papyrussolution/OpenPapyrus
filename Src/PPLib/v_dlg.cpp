@@ -240,10 +240,6 @@ int WhatmanObjectUiCtrl::Set(DlContext * pCtx, DlScope * pScope, DlScope * pInne
 		}
 		{
 			TRect bounds(Rect.L.X.Val, Rect.L.Y.Val, Rect.R.X.Val, Rect.R.Y.Val); // UiRelRect
-			//bounds.a.x = Rect.L.X.Val;
-			//bounds.a.y = Rect.L.Y.Val;
-			//bounds.b.x = Rect.R.X.Val;
-			//bounds.b.y = Rect.R.Y.Val;
 			SetBounds(bounds);
 		}
 	}
@@ -586,7 +582,7 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 			{
 				const TWhatmanToolArray::Item * p_item = static_cast<const TWhatmanToolArray::Item *>(pExt);
 				if(p_item) {
-					const ToolItemExtData * p_ext = (p_item->ExtSize >= sizeof(ToolItemExtData)) ? (const ToolItemExtData *)p_item->ExtData : 0;
+					const ToolItemExtData * p_ext = (p_item->ExtSize >= sizeof(ToolItemExtData)) ? reinterpret_cast<const ToolItemExtData *>(p_item->ExtData) : 0;
 					if(p_ext && p_ext->UiKindID) {
 						UiKind = p_ext->UiKindID;
 						TPoint p;
@@ -610,12 +606,12 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 			break;
 		case cmdObjInserted:
 			if(P_DlCtx && P_Scope) {
-				PPWhatmanWindow * p_win = (PPWhatmanWindow *)GetOwnerWindow();
+				PPWhatmanWindow * p_win = static_cast<PPWhatmanWindow *>(GetOwnerWindow());
 				if(p_win) {
 					char   c_buf[1024]; // Буфер для извлечения констант
 					if(oneof2(UiKind, DlScope::ckCheckCluster, DlScope::ckRadioCluster)) {
 						if(P_DlCtx->GetConstData(P_Scope->GetFldConst(F.ID, DlScope::cuifCtrlScope), c_buf, sizeof(c_buf))) {
-							DLSYMBID inner_scope_id = *(uint32 *)c_buf;
+							DLSYMBID inner_scope_id = *reinterpret_cast<const uint32 *>(c_buf);
 							DlScope * p_inner_scope = P_DlCtx->GetScope(inner_scope_id);
 							if(p_inner_scope && p_inner_scope->GetCount()) {
 								SdbField ctrl_item;
@@ -642,7 +638,7 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 							UiRelRect urr;
 							urr.Reset();
 							if(P_DlCtx->GetConstData(P_Scope->GetFldConst(F.ID, DlScope::cuifLabelRect), c_buf, sizeof(c_buf)))
-								urr = *(UiRelRect *)c_buf;
+								urr = *reinterpret_cast<const UiRelRect *>(c_buf);
 							if(urr.IsEmpty()) {
 								TRect b = GetBounds();
 								int16  top = b.a.y;

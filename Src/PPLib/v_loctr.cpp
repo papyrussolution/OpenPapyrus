@@ -34,8 +34,7 @@ int PalletCtrlGroup::RecalcQtty(TDialog * pDlg, int cargoUnit)
 		src_val = static_cast<double>(pDlg->getCtrlUInt16(CtlPalletCount));
 	else if(cargoUnit == CARGOUNIT_ITEM)
 		src_val = pDlg->getCtrlReal(CtlQtty);
-	if(src_val < 0.0)
-		src_val = 0.0;
+	SETMAX(src_val, 0.0);
 	PPID   pallet_type_id = pDlg->getCtrlLong(CtlselPalletType);
 	double dest_val = 0.0;
 	if(cargoUnit != CARGOUNIT_ITEM)
@@ -132,7 +131,6 @@ int PalletCtrlGroup::getData(TDialog * pDlg, void * pData)
 	ASSIGN_PTR(static_cast<Rec *>(pData), Data);
 	return 1;
 }
-
 
 class LocTransfDialog : public TDialog {
 public:
@@ -272,8 +270,7 @@ int LocTransfDialog::setDTS(const LocTransfTbl::Rec * pData)
 	setCtrlString(CTL_LOCTRANSF_TM, temp_buf);
 	{
 		ObjIdListFilt loc_list;
-		if(Data.LocID)
-			loc_list.Add(Data.LocID);
+		loc_list.Add(Data.LocID);
 		LocationCtrlGroup::Rec loccg_rec(&loc_list, WarehouseID);
 		setGroupData(grpLoc, &loccg_rec);
 	}

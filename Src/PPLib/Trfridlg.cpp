@@ -3042,7 +3042,7 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 
 IMPL_HANDLE_EVENT(SelLotBrowser)
 {
-	const SelLotBrowser::Entry * p_entry = static_cast<const SelLotBrowser::Entry *>(view->getCurItem());
+	const SelLotBrowser::Entry * p_entry = static_cast<const SelLotBrowser::Entry *>(getCurItem());
 	BrowserWindow::handleEvent(event);
 	if(event.isCmd(cmaEdit)) {
 		if(IsInState(sfModal))
@@ -3121,7 +3121,7 @@ void TrfrItemDialog::selectLot()
 		}
 		THROW_MEM(p_brw = new SelLotBrowser(P_BObj, p_ary, s, SelLotBrowser::fShowManufTime));
 		if(ExecView(p_brw) == cmOK) {
-			const SelLotBrowser::Entry * p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->view->getCurItem());
+			const SelLotBrowser::Entry * p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->getCurItem());
 			if(p_sel && p_sel->LotID != Item.LotID && !(Item.Flags & (PPTFR_RECEIPT|PPTFR_CORRECTION))) {
 				Item.LotID = p_sel->LotID;
 				Item.Cost  = 0.0;
@@ -3238,7 +3238,7 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 		if(rParam.Title.NotEmpty())
 			p_brw->setTitle(rParam.Title);
 		if(ExecView(p_brw) == cmOK) {
-			p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->view->getCurItem());
+			p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->getCurItem());
 			if(p_sel) {
 				lotid = p_sel->LotID;
 				GetSerialNumberByLot(lotid, serial = 0, 1);

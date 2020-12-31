@@ -8636,7 +8636,7 @@ ctrlmenu BillPayDate { ("Расчет даты оплаты\tF2"          kbF2) } // ("Печать до
 ctrlmenu BillMemo    { ("Подстановка примечания\tF2"      kbF2) } // ("Печать документа\tF7" kbF7) }
 ctrlmenu RestDate    { ("@{currentdate}\tF3" kbF3) ("@{daterange_begin}\tF4" kbF4) ("@{daterange_end}\tF5" kbF5) }
 
-ctrlmenu GoodsGroupList { // @v10.8.11 @experimental
+ctrlmenu GoodsGroupList { // @v10.8.11
 	("@{edit}\tEnter" kbEnter cmaEdit)
 	("@{add}\tInsert" kbIns cmaInsert)
 	("@{delete}\tDelete" kbDel cmaDelete)
@@ -8650,6 +8650,12 @@ ctrlmenu GoodsGroupList { // @v10.8.11 @experimental
 	("@{print}\tCtrl-F7" kbF7 cmPrint)
 	("@{totals}\tF9" kbF9 cmTotal)
 	("@{close}\tEscape" kbEsc cmClose)
+}
+
+ctrlmenu QuotList { // @v10.9.11
+	("@{edit}\tEnter"    kbEnter cmaEdit)
+	("@{delete}\tDelete" kbDel cmaDelete)
+	("@{quotkind}\tF3"   kbF3 cmQuotKind)
 }
 
 ctrlmenu LotxcodeList { // @v10.9.0

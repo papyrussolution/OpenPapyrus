@@ -440,17 +440,14 @@ int ObjTransmContext::GetPrimaryObjID(PPID objType, PPID foreignID, PPID * pPrim
 				ok = 1;
 			}
 			else {
-				// @v9.0.0 {
 				ObjSyncQueueTbl::Rec idx_rec;
 				if(p_ot->SearchQueueItem(objType, foreignID, src_db_div_id, &idx_rec) > 0) {
-					PPCommSyncID comm_id;
-					comm_id = idx_rec;
+					PPCommSyncID comm_id(idx_rec);
 					if(p_ot->SyncTbl.SearchCommon(objType, comm_id, 0 /* own dbdivid */, &rec) > 0) {
 						prim_id = rec.ObjID;
 						ok = 1;
 					}
 				}
-				// } @v9.0.0
 			}
 		}
 	}
@@ -1563,7 +1560,7 @@ int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem,
 	PPObject * ppobj = 0;
 	PPID   primary_id = 0;
 	PPObjID oi_f = rItem.Oi;
-	PPCommSyncID comm_id = rItem.CommID;
+	PPCommSyncID comm_id(rItem.CommID);
 	PPObjID dont_process_pair;
 	SString added_buf, msg_buf;
 	SString temp_buf;
@@ -1776,7 +1773,6 @@ int PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int forceDestro
 			// @todo if(!(hdr.Flags & PPOTF_IGNACK))
 			for(i = 0; i < blk.ProcessedList.getCount(); i++) {
 				Ack ack;
-				PPCommSyncID comm_id;
 				THROW(P_Queue->Search(blk.ProcessedList.get(i), &queue_rec) > 0);
 				OtFilePoolItem * p_fpi = blk.SearchFile(queue_rec.FileId);
 				THROW(p_fpi);
@@ -1804,16 +1800,18 @@ int PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int forceDestro
 						THROW_SL(p_fpi->A.Write(&ack, sizeof(ack)));
 					}
 				}
-				comm_id = queue_rec;
-				if(queue_rec.ObjType && queue_rec.PrimObjID && !comm_id.IsZero()) {
-					MEMSZERO(ack);
-					ack.Obj = queue_rec.ObjType;
-					ack.Id  = queue_rec.PrimObjID;
-					ack.CommId = comm_id;
-					// @todo Здесь должен быть момент изменения объекта в собственном разделе
-					ack.DT.Set(queue_rec.ModDt, queue_rec.ModTm);
-					THROW_SL(p_fpi->A.Write(&ack, sizeof(ack)));
-					p_fpi->AckCount++;
+				{
+					PPCommSyncID comm_id(queue_rec);
+					if(queue_rec.ObjType && queue_rec.PrimObjID && !comm_id.IsZero()) {
+						MEMSZERO(ack);
+						ack.Obj = queue_rec.ObjType;
+						ack.Id  = queue_rec.PrimObjID;
+						ack.CommId = comm_id;
+						// @todo Здесь должен быть момент изменения объекта в собственном разделе
+						ack.DT.Set(queue_rec.ModDt, queue_rec.ModTm);
+						THROW_SL(p_fpi->A.Write(&ack, sizeof(ack)));
+						p_fpi->AckCount++;
+					}
 				}
 			}
 			PPObjBill::TotalTransmitProblems(&Ctx, &next_pass);
@@ -1928,8 +1926,7 @@ int PPObjectTransmit::AcceptDependedNonObject(PPObjID foreignObjId, PPID primary
 		THROW(tra);
 		const int r = P_Queue->SearchObject_(obj_type, foreignObjId.Id, src_div_id, &idx_rec);
 		if(r > 0) {
-			PPCommSyncID comm_id;
-			comm_id = idx_rec;
+			PPCommSyncID comm_id(idx_rec);
 			THROW(SyncTbl._RcvObj(obj_type, primaryID, comm_id, LConfig.DBDiv, pModDtm, 0));
 			THROW(SyncTbl._RcvObj(obj_type, foreignObjId.Id, comm_id, src_div_id, pModDtm, 0));
 			ok = 1;

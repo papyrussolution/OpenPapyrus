@@ -4695,19 +4695,20 @@ struct Sdr_FiasRawAddrObj {
 #define CTRLMENU_BILLMEMO                                 3
 #define CTRLMENU_RESTDATE                                 4
 #define CTRLMENU_GOODSGROUPLIST                           5
-#define CTRLMENU_LOTXCODELIST                             6
-#define CTRLMENU_GOODSOPANLZADDPERIOD                     7
-#define CTRLMENU_TSESSLINEQTTY                            8
-#define CTRLMENU_TSESSLINEPHQTTY                          9
-#define CTRLMENU_TI_GOODS                                10
-#define CTRLMENU_TI_PACKS                                11
-#define CTRLMENU_TI_QUANTITY                             12
-#define CTRLMENU_TI_COST                                 13
-#define CTRLMENU_TI_PRICE                                14
-#define CTRLMENU_TI_CURPRICE                             15
-#define CTRLMENU_TI_SERIAL                               16
-#define CTRLMENU_SELPRINTER                              17
-#define CTRLMENU_BIZSCOREFORMULA                         18
+#define CTRLMENU_QUOTLIST                                 6
+#define CTRLMENU_LOTXCODELIST                             7
+#define CTRLMENU_GOODSOPANLZADDPERIOD                     8
+#define CTRLMENU_TSESSLINEQTTY                            9
+#define CTRLMENU_TSESSLINEPHQTTY                         10
+#define CTRLMENU_TI_GOODS                                11
+#define CTRLMENU_TI_PACKS                                12
+#define CTRLMENU_TI_QUANTITY                             13
+#define CTRLMENU_TI_COST                                 14
+#define CTRLMENU_TI_PRICE                                15
+#define CTRLMENU_TI_CURPRICE                             16
+#define CTRLMENU_TI_SERIAL                               17
+#define CTRLMENU_SELPRINTER                              18
+#define CTRLMENU_BIZSCOREFORMULA                         19
 //
 // FILE definitions
 //

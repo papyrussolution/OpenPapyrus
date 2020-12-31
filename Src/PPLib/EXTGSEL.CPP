@@ -99,23 +99,23 @@ IMPL_HANDLE_EVENT(PickLotBrowser)
 	}
 	else if(event.isKeyDown(kbF3)) {
 		if(P_BObj->CheckRights(BILLRT_ACCSCOST)) {
-			p_entry = static_cast<const PickLotBrowser::Entry *>(view->getCurItem());
+			p_entry = static_cast<const PickLotBrowser::Entry *>(getCurItem());
 			if(p_entry && p_entry->LotID)
 				ViewOpersByLot(p_entry->LotID, 0);
 		}
 	}
 	else if(event.isKeyDown(kbF4)) {
-		p_entry = static_cast<const PickLotBrowser::Entry *>(view->getCurItem());
+		p_entry = static_cast<const PickLotBrowser::Entry *>(getCurItem());
 		if(p_entry && p_entry->LotID)
 			P_BObj->EditLotExtData(p_entry->LotID);
 	}
 	else if(event.isKeyDown(kbCtrlF6)) {
-		p_entry = static_cast<const PickLotBrowser::Entry *>(view->getCurItem());
+		p_entry = static_cast<const PickLotBrowser::Entry *>(getCurItem());
 		if(p_entry && p_entry->LotID)
 			EditObjTagValList(PPOBJ_LOT, p_entry->LotID, 0);
 	}
 	else if(event.isKeyDown(kbCtrlF3)) {
-		p_entry = static_cast<const PickLotBrowser::Entry *>(view->getCurItem());
+		p_entry = static_cast<const PickLotBrowser::Entry *>(getCurItem());
 		if(p_entry)
 			P_BObj->EditLotSystemInfo(p_entry->LotID);
 	}
@@ -201,7 +201,7 @@ int PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
 			if(rParam.SubTitle.NotEmpty())
                 p_brw->setSubTitle(rParam.SubTitle);
 			if(ExecView(p_brw) == cmOK) {
-				const PickLotBrowser::Entry * p_sel = static_cast<const PickLotBrowser::Entry *>(p_brw->view->getCurItem());
+				const PickLotBrowser::Entry * p_sel = static_cast<const PickLotBrowser::Entry *>(p_brw->getCurItem());
 				if(p_sel) {
 					if(pResult) {
 						pResult->LotID = p_sel->LotID;

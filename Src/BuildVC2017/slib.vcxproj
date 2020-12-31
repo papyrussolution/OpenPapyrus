@@ -1740,7 +1740,6 @@
     <ClCompile Include="..\SLib\Tdialog.cpp" />
     <ClCompile Include="..\SLib\test-cairo.cpp" />
     <ClCompile Include="..\SLib\test-openssl.cpp" />
-    <ClCompile Include="..\SLib\tlayout.cpp" />
     <ClCompile Include="..\SLib\Toolbar.cpp" />
     <ClCompile Include="..\SLib\Tprogram.cpp" />
     <ClCompile Include="..\SLib\tprogram_exp.cpp" />
@@ -3671,7 +3670,6 @@
     <ClInclude Include="..\Include\Dbquery.h" />
     <ClInclude Include="..\Include\fann2.h" />
     <ClInclude Include="..\Include\json.h" />
-    <ClInclude Include="..\Include\layout-2d.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\slib-internal.h" />
     <ClInclude Include="..\Include\Slib.h" />

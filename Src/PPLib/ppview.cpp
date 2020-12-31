@@ -2093,7 +2093,7 @@ void PPViewBrowser::Unadvise()
 }
 
 void PPViewBrowser::Update() { updateView(); }
-void PPViewBrowser::updateView() { CALLPTRMEMB(view, Refresh()); }
+void PPViewBrowser::updateView() { Refresh(); }
 
 int PPViewBrowser::SetRefreshPeriod(long period)
 {
@@ -2125,13 +2125,11 @@ void PPViewBrowser::Helper_SetAllColumnsSortable()
 
 int PPViewBrowser::getCurHdr(void * pHdr)
 {
-	if(view) {
-		const void * p_row = view->getCurItem();
-		if(p_row) {
-			if(pHdr)
-				*static_cast<long *>(pHdr) = *static_cast<const long *>(p_row);
-			return 1;
-		}
+	const void * p_row = getCurItem();
+	if(p_row) {
+		if(pHdr)
+			*static_cast<long *>(pHdr) = *static_cast<const long *>(p_row);
+		return 1;
 	}
 	return 0;
 }
@@ -2485,21 +2483,19 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 			else if(TVCMD == cmReceivedFocus)
 				P_View->ProcessCommand(PPVCMD_RECEIVEDFOCUS, TVINFOVIEW, this);
 			else if(TVCMD == cmMouseHover) {
-				if(view) {
-					long   h = 0, v = 0;
-					TPoint point = *static_cast<const TPoint *>(event.message.infoPtr);
-					if(view->ItemByPoint(point, &h, &v)) {
-						const void * p_row = view->getItemByPos(v);
-						if(P_View->ProcessCommand(PPVCMD_MOUSEHOVER, p_row, this) > 0)
-							updateView();
-					}
+				long   h = 0, v = 0;
+				TPoint point = *static_cast<const TPoint *>(event.message.infoPtr);
+				if(ItemByPoint(point, &h, &v)) {
+					const void * p_row = getItemByPos(v);
+					if(P_View->ProcessCommand(PPVCMD_MOUSEHOVER, p_row, this) > 0)
+						updateView();
 				}
 			}
 			else
 				return;
 		}
 		else if(TVCOMMAND) {
-			const void * p_row = view ? view->getCurItem() : 0;
+			const void * p_row = getCurItem();
 			switch(TVCMD) {
 				case cmModalPostCreate: // @v10.3.1
 					if(P_View->OnExecBrowser(this) == cmCancel)
@@ -2545,7 +2541,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		else if(TVKEYDOWN) {
 			uint   cmd = 0;
 			if(translateKeyCode(TVKEY, &cmd) > 0) {
-				const void * p_row = view ? view->getCurItem() : 0;
+				const void * p_row = getCurItem();
 				if(P_View->ProcessCommand(cmd, p_row, this) > 0)
 					updateView();
 			}

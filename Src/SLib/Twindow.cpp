@@ -1172,7 +1172,7 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 		wc.hInstance     = h_inst;
 		wc.lpfnWndProc   = TWindowBase::WndProc;
 		wc.style         = /*CS_HREDRAW | CS_VREDRAW |*/ /*CS_OWNDC |*/ CS_SAVEBITS | CS_DBLCLKS;
-		wc.hIcon         = iconId ? LoadIcon(h_inst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ /*102*/iconId)) : 0;
+		wc.hIcon         = iconId ? ::LoadIcon(h_inst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ /*102*/iconId)) : 0;
 		wc.cbClsExtra    = BRWCLASS_CEXTRA;
 		wc.cbWndExtra    = BRWCLASS_WEXTRA;
 		return ::RegisterClassEx(&wc);
@@ -1195,6 +1195,21 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 	}
 }
 
+/*static*/void TWindowBase::Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView)
+{
+	if(pView) {
+		SETIFZ(pView->EndModalCmd, cmCancel);
+		APPL->DelItemFromMenu(pView);
+		pView->ResetOwnerCurrent();
+		if(!pView->IsInState(sfModal)) {
+			APPL->P_DeskTop->remove(pView);
+			// @v10.9.11 Поменял порядок следующих двух операторов
+			TView::SetWindowUserData(hWnd, 0);
+			delete pView;
+		}
+	}
+}
+
 TWindowBase::TWindowBase(LPCTSTR pWndClsName, int capability) : ClsName(SUcSwitch(pWndClsName)), 
 	TWindow(TRect(), 0, 0), WbState(0), WbCapability(capability), H_DrawBuf(0), P_Lfc(0)
 {
@@ -1209,10 +1224,11 @@ TWindowBase::~TWindowBase()
 			Sf |= sfOnDestroy;
 			::DestroyWindow(HW);
 			HW = 0;
+			Sf &= ~sfOnDestroy;
 		}
 	}
 	// @v10.9.3 {
-	if(P_Lfc) {
+	if(P_Lfc && !(Sf & sfOnDestroy)) {
 		uint i = SVector::GetCount(P_Lfc->P_Parent);
 		if(i) do {
 			LayoutFlexItem * p_item = P_Lfc->P_Parent->at(--i);
@@ -1314,9 +1330,7 @@ void TWindowBase::SetupLayoutItem(void * pLayout)
 	if(pLayout) {
 		P_Lfc = static_cast<LayoutFlexItem *>(pLayout);
 		P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
-		//flex_item_add(P_Lfc, pChildWindow->P_Lfc);
 		P_Lfc->managed_ptr = this;
-		//DoLayoutFlex(P_Lfc->GetRoot());
 	}
 }
 
@@ -1327,15 +1341,10 @@ int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptio
 	if(pChildWindow) {
 		pChildWindow->Create(HW, createOptions);
 		TWindow::Insert_(pChildWindow);
-		//Layout_Obsolete.Arrange();
 		if(pLayout) {
 			assert(P_Lfc);
 			if(P_Lfc) {
 				pChildWindow->SetupLayoutItem(pLayout);
-				//pChildWindow->P_Lfc = static_cast<LayoutFlexItem *>(pLayout);
-				//pChildWindow->P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
-				//flex_item_add(P_Lfc, pChildWindow->P_Lfc);
-				//pChildWindow->P_Lfc->managed_ptr = pChildWindow;
 				P_Lfc->GetRoot()->Evaluate();
 			}
 		}

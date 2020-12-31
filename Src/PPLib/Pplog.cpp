@@ -135,7 +135,7 @@ LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 2
 	SendMessage(APPL->H_LogWnd, WM_SYSCOMMAND, SC_CLOSE, 0);
 	APPL->H_LogWnd = HW = ::CreateWindowEx(WS_EX_TOOLWINDOW, LogListWindowSCI::WndClsName, SUcSwitch(temp_buf),
 		WS_CHILD|WS_CLIPSIBLINGS|/*WS_VSCROLL|*/WS_CAPTION|WS_SYSMENU|WS_SIZEBOX|LBS_DISABLENOSCROLL|LBS_NOINTEGRALHEIGHT,
-		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), this); // @unicodeproblem
+		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), this);
 	TView::SetWindowProp(H(), GWLP_USERDATA, this);
 	//PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, LogListProc);
 	//hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
@@ -211,10 +211,9 @@ int LogListWindowSCI::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw
 
 int LogListWindowSCI::LoadToolbar(uint tbId)
 {
-	int    r = 0;
 	TVRez & rez = *P_SlRez;
 	ToolbarList tb_list;
-	r = rez.findResource(tbId, TV_EXPTOOLBAR, 0, 0) ? ImpLoadToolbar(rez, &tb_list) : 0;
+	const int r = rez.findResource(tbId, TV_EXPTOOLBAR, 0, 0) ? ImpLoadToolbar(rez, &tb_list) : 0;
 	if(r > 0)
 		setupToolbar(&tb_list);
 	return r;
@@ -365,16 +364,17 @@ int LogListWindowSCI::Resize()
 		case WM_DESTROY:
 			p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
-				p_view->CallFunc(SCI_SETREADONLY); // @v9.7.5
-				p_view->CallFunc(SCI_CLEARALL); // @v9.7.5
-				p_view->CallFunc(SCI_RELEASEDOCUMENT, 0, (int)p_view->Doc.SciDoc); // @v9.7.5
+				p_view->CallFunc(SCI_SETREADONLY);
+				p_view->CallFunc(SCI_CLEARALL);
+				p_view->CallFunc(SCI_RELEASEDOCUMENT, 0, (int)p_view->Doc.SciDoc);
 				SETIFZ(p_view->EndModalCmd, cmCancel);
 				APPL->DelItemFromMenu(p_view);
 				p_view->ResetOwnerCurrent();
 				if(!p_view->IsInState(sfModal)) {
 					APPL->P_DeskTop->remove(p_view);
-					delete p_view;
+					// @v10.9.11 Поменял порядок следующих двух операторов
 					TView::SetWindowProp(hWnd, GWLP_USERDATA, reinterpret_cast<void *>(0));
+					delete p_view;
 				}
 				if(!IsIconic(APPL->H_MainWnd))
 					APPL->SizeMainWnd(hWnd);

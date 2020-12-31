@@ -1109,6 +1109,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			nh.PutInner("move_document_number", temp_buf);
 			nh.PutInner("move_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
 			nh.PutInner("turnover_type", "SELLING");
+			nh.PutInner("to_not_participant", "true"); // @v10.9.11 optional признак того, что отгружаем не участнику оборота чезн
 			nh.PutInner("withdrawal_type", "NO_RETAIL_USE"); // optional
 			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY)); // optional
 			// nh.PutInner("st_contract_id", ""); // optional

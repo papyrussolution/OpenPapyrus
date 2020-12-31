@@ -27,13 +27,13 @@ void PPObjBrowser::SetPPObjPtr(PPObject * pObj)
 
 PPID PPObjBrowser::currID()
 {
-	const void * p_row = view ? view->getCurItem() : 0;
+	const void * p_row = getCurItem();
 	return p_row ? *static_cast<const PPID *>(p_row) : 0L;
 }
 
 void PPObjBrowser::updateView()
 {
-	CALLPTRMEMB(view, Refresh());
+	Refresh();
 }
 
 IMPL_HANDLE_EVENT(PPObjBrowser)

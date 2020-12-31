@@ -2545,7 +2545,7 @@ void PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 		if(pBrw && P_Ct) {
 			BroCrosstab ct_col;
-			BrowserDef * p_def = pBrw->view->getDef();
+			BrowserDef * p_def = pBrw->getDef();
 			if(p_def) {
 				uint   col_width = 20;
 	#define ADDCTCOLUMN(type, caption, format, options, width) \

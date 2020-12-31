@@ -271,9 +271,8 @@ int PPViewObjSync::EditRecord(ObjSyncTbl::Rec * pRec)
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_OBJSYNC);
 	if(CheckDialogPtrErr(&dlg)) {
-		PPCommSyncID comm_id;
 		SString comm_id_buf;
-		comm_id = *pRec;
+		PPCommSyncID comm_id(*pRec);
 		SetupObjListCombo(dlg, CTLSEL_OBJSYNC_OBJ, pRec->ObjType);
 		SetupPPObjCombo(dlg, CTLSEL_OBJSYNC_DIV, PPOBJ_DBDIV, pRec->DBID, 0, 0);
 		dlg->setCtrlData(CTL_OBJSYNC_ID,     &pRec->ObjID);
@@ -630,8 +629,7 @@ int PPViewObjSyncCmp::RemoveAllSync()
 		THROW(tra);
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			int    r;
-			PPCommSyncID comm_id;
-			comm_id = item;
+			PPCommSyncID comm_id(item);
 			THROW(r = P_Ot->SyncTbl.RemoveByCommID(item.ObjType, comm_id, 0, 0));
 			if(r > 0) {
 				THROW(P_Ot->UpdateSyncCmpItem(P_TmpTbl, item.ObjType, comm_id));
@@ -801,8 +799,7 @@ int PPALDD_ObjSyncCmp::NextIteration(PPIterID iterId)
 		timefmt(I.SrcModTm,  TIMF_HMS, I.SrcTmTxt);
 		timefmt(I.DestModTm, TIMF_HMS, I.DestTmTxt);
 
-		PPCommSyncID comm_id;
-		comm_id = item;
+		PPCommSyncID comm_id(item);
 		SString temp_buf;
 		comm_id.ToStr(0, temp_buf).CopyTo(I.CommIdTxt, sizeof(I.CommIdTxt));
 	}
@@ -905,6 +902,10 @@ int PPViewObjSyncQueue::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 //
 //
 struct _ObjSyncEntry {
+	_ObjSyncEntry(const ObjSyncTbl::Rec & rRec) : CommID(rRec), Flags(rRec.Flags), DBDivID(rRec.DBID), PrivID(rRec.ObjID)
+	{
+		ModDtm.Set(rRec.Dt, rRec.Tm);
+	}
 	PPCommSyncID CommID;
 	int16  Flags;
 	PPID   DBDivID;
@@ -964,13 +965,13 @@ int ViewObjSyncTab(PPObjID oid)
 		while(p_tbl->search(0, &k0, spGt) && p_tbl->data.ObjType == oid.Obj &&
 			p_tbl->data.CommIdPfx == hdr_rec.CommIdPfx && p_tbl->data.CommID == hdr_rec.CommID) {
 			p_tbl->copyBufTo(&rec);
-			_ObjSyncEntry entry;
-			MEMSZERO(entry);
-			entry.CommID = rec;
-			entry.Flags = rec.Flags;
-			entry.DBDivID = rec.DBID;
-			entry.PrivID = rec.ObjID;
-			entry.ModDtm.Set(rec.Dt, rec.Tm);
+			_ObjSyncEntry entry(rec);
+			// @v10.9.11 @ctr MEMSZERO(entry);
+			// @v10.9.11 @ctr entry.CommID = rec;
+			// @v10.9.11 @ctr entry.Flags = rec.Flags;
+			// @v10.9.11 @ctr entry.DBDivID = rec.DBID;
+			// @v10.9.11 @ctr entry.PrivID = rec.ObjID;
+			// @v10.9.11 @ctr entry.ModDtm.Set(rec.Dt, rec.Tm);
 			list.insert(&entry);
 		}
 		GetObjectName(oid.Obj, oid.Id, temp_buf);

@@ -260,6 +260,15 @@ FRect & FRect::Grow(float aDX, float aDY)
 	return *this;
 }
 
+FRect & FRect::Move__(float aDX, float aDY)
+{
+	a.X += aDX;
+	a.Y += aDY;
+	b.X += aDX;
+	b.Y += aDY;
+	return *this;	
+}
+
 FRect & FASTCALL FRect::MoveCenterTo(FPoint center)
 {
 	const float  w = Width();

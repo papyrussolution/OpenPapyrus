@@ -136,17 +136,17 @@ int PPQuotKindPacket::GetCalculatedQuot(double cost, double basePrice, double * 
 {
 	int    ok = -1;
 	double quot = 0.0;
-	double discount = Rec.Discount;
-	long   flags    = Rec.Flags;
+	const  double discount = Rec.Discount;
+	const  long   flags    = Rec.Flags;
 	if(basePrice > 0.0 || (cost && flags & QUOTKF_PCTDISONCOST)) {
-		if(discount || (flags & (QUOTKF_ABSDIS | QUOTKF_PCTDISONCOST))) {
+		if(discount != 0.0 || (flags & (QUOTKF_ABSDIS | QUOTKF_PCTDISONCOST))) {
 			if(flags & QUOTKF_ABSDIS)
 				quot = basePrice - discount;
 			else if(flags & QUOTKF_PCTDISONCOST)
 				quot = cost - fdiv100r(cost * discount);
 			else
 				quot = basePrice - fdiv100r(basePrice * discount);
-			quot = RoundUpPrice(quot);
+			quot = PPObjQuotKind::RoundUpPrice(Rec.ID, quot); // @v10.9.11 QuotKindRounding
 			ok = 1;
 		}
 	}
@@ -197,7 +197,35 @@ int FASTCALL PPObjQuotKind::Special::GetCategory(PPID qkID) const
 	return (cls == PPQuot::clsSupplDeal) ? GetSupplAccSheet() : ((cls == PPQuot::clsGeneral) ? GetSellAccSheet() : 0);
 }
 
-PPObjQuotKind::PPObjQuotKind(void * extraPtr) : PPObjReference(PPOBJ_QUOTKIND, extraPtr)
+/*static*/double PPObjQuotKind::RoundUpPrice(PPID quotKindID, double p)
+{
+	int    dir = 0;
+	double prec = 0.01;
+	int    use_default_rounding = 1;
+	if(quotKindID) {
+		PPObjQuotKind qk_obj;
+		PPQuotKind qk_rec;
+		if(qk_obj.Fetch(quotKindID, &qk_rec) > 0 && qk_rec.Flags & QUOTKF_USEROUNDING) {
+			dir = qk_rec.RoundingDir;
+			prec = qk_rec.RoundingPrec;
+			use_default_rounding = 0;
+		}
+	}
+	if(use_default_rounding) {
+		const  PPConfig & r_cfg = LConfig;
+		long   rd = (r_cfg.Flags & (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN));
+		prec = r_cfg.RoundPrec;
+		if(rd == 0 || rd == (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN))
+			dir = 0;
+		else if(rd & CFGFLG_ROUNDUP)
+			dir = 1;
+		else if(rd & CFGFLG_ROUNDDOWN)
+			dir = -1;
+	}
+	return PPRound(p, prec, dir);	
+}
+
+PPObjQuotKind::PPObjQuotKind(/*void * extraPtr*/) : PPObjReference(PPOBJ_QUOTKIND, /*extraPtr*/0)
 {
 	ImplementFlags |= implStrAssocMakeList;
 }
@@ -549,8 +577,8 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 {
 	int    r = -1;
 	THROW(CheckRights(PPR_DEL));
-	// @v9.2.9 Блокировка возможности удаления специальных видов котировок {
 	if(id) {
+		// Блокировка возможности удаления специальных видов котировок
 		const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitialize);
 		const char * p_spcqk_symb = 0;
 		if(id == spc.MtxID)
@@ -571,7 +599,6 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 			THROW_PP_S(!p_spcqk_symb, PPERR_UNABLERMVSPCQUOTKIND, spc_qk_text);
 		}
 	}
-	// } @v9.2.9
 	if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELQUOTKIND) == cmYes) {
 		int    use_ta = (options & PPObject::use_transaction) ? 1 : 0;
 		PPObjGoods goods_obj;
@@ -638,10 +665,8 @@ SArray * PPObjQuotKind::MakeListByIDList(const PPIDArray * pList)
 		if((r = Fetch(qk_id, &qk_rec)) > 0 || qk_id == PPQUOTK_BASE) {
 			MEMSZERO(entry);
 			entry.ID = qk_id;
-			if(r < 0) {
-				// @v9.6.5 PPGetWord(PPWORD_BASEQUOT, 0, entry.Name, sizeof(entry.Name));
-				PPLoadString("basequote", temp_buf); // @v9.6.5
-			}
+			if(r < 0)
+				PPLoadString("basequote", temp_buf);
 			else
 				temp_buf = qk_rec.Name;
 			STRNSCPY(entry.Name, temp_buf);
@@ -670,24 +695,12 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 	SVector rec_list(sizeof(PPQuotKind)); // @v10.6.8 SArray-->SVector
 	const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 	if(pFilt->Flags & QuotKindFilt::fSupplDeal) {
-		/* @v9.8.3
-		if(Search(spc.SupplDealID, &qk_rec) > 0) {
-			THROW_SL(rec_list.insert(&qk_rec));
-		}
-		if(Search(spc.SupplDevUpID, &qk_rec) > 0) {
-			THROW_SL(rec_list.insert(&qk_rec));
-		}
-		if(Search(spc.SupplDevDnID, &qk_rec) > 0) {
-			THROW_SL(rec_list.insert(&qk_rec));
-		} */
-		// @v9.8.3 {
 		const PPID spc_qk_list[] = { spc.SupplDealID, spc.SupplDevUpID, spc.SupplDevDnID };
 		for(i = 0; i < SIZEOFARRAY(spc_qk_list); i++) {
 			if(Search(spc_qk_list[i], &qk_rec) > 0) {
 				THROW_SL(rec_list.insert(&qk_rec));
 			}
 		}
-		// } @v9.8.3
 	}
 	else if(pFilt->Flags & (QuotKindFilt::fGoodsMatrix|QuotKindFilt::fGoodsMatrixRestrict)) {
 		const int is_matrix = BIN(pFilt->Flags & QuotKindFilt::fGoodsMatrix);
@@ -735,7 +748,6 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 			while(rec_list.getCount() > (uint)pFilt->MaxItems)
 				rec_list.freeLast();
 	}
-	// @v8.9.4 {
 	if(pFilt && !(pFilt->Flags & QuotKindFilt::fIgnoreRights)) {
 		uint   c = rec_list.getCount();
         if(c) do {
@@ -744,7 +756,6 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 				rec_list.atFree(c);
         } while(c);
 	}
-	// } @v8.9.4
 	if(pList) {
 		PPQuotKind * p_rec;
 		for(uint j = 0; rec_list.enumItems(&j, (void **)&p_rec);)
@@ -774,7 +785,10 @@ static void SetDiscount(TDialog * pDlg, uint ctl, const PPQuotKind * pRec)
 
 static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 {
-	int    ok = 1, pctdis = 0, absdis = 0, pctdisoncost = 0;
+	int    ok = 1;
+	int    pctdis = 0;
+	int    absdis = 0;
+	int    pctdisoncost = 0;
 	double v = 0.0;
 	char   buf[32];
 	if(pDlg->getCtrlData(ctl, buf)) {
@@ -1186,15 +1200,14 @@ int PPObjQuotKind::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 	return EditSpcRightFlags(DLG_RTQUOTK, 0, 0, bufSize, rt, pDlg);
 }
 
-int PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
+SString & PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
 {
 	rBuf.Z();
 	if(pQuot) {
 		PPQuotKind qk_rec;
 		SString temp_buf;
-		if(Fetch(pQuot->Kind, &qk_rec) > 0) {
+		if(Fetch(pQuot->Kind, &qk_rec) > 0)
 			rBuf.Cat(qk_rec.Name);
-		}
 		else
 			ideqvalstr(pQuot->Kind, rBuf);
 		rBuf.CatDiv('-', 1).Cat(GetGoodsName(pQuot->GoodsID, temp_buf));
@@ -1217,7 +1230,7 @@ int PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
 	}
 	else
 		rBuf = "null";
-	return 1;
+	return rBuf;
 }
 //
 //
@@ -1241,23 +1254,24 @@ private:
 
 	int    RtlListInited;
 	PPIDArray RtlQkList;   // Список видов котировок с признаком QUOTKF_RETAILED
-	PPIDArray RtlTmQkList; // Список видов котировок с признаком QUOTKF_RETAILED, имеющих
-		// ограничение к применению по дате/времени
+	PPIDArray RtlTmQkList; // Список видов котировок с признаком QUOTKF_RETAILED, имеющих ограничение к применению по дате/времени
 	ReadWriteLock RtlLock;
 	ReadWriteLock SkLock;
 public:
 	struct Data : public ObjCacheEntry {
 		double Discount;
-		DateRange  Period;
-		int16  BeginTm;
-		int16  EndTm;
-		int16  Rank;
-		uint8  DaysOfWeek;
-		uint8  Pad; // @alignment
+		double RoundingPrec;   // @v10.9.10 (Flags & QUOTKF_USEROUNDING) Точность округления
+		DateRange Period;
+		IntRange AmtRestr;
 		PPID   OpID;
 		long   Flags;
 		PPID   AccSheetID;
-		IntRange AmtRestr;
+		int16  BeginTm;
+		int16  EndTm;
+		int16  Rank;
+		int16  RoundingDir;    // @v10.9.10 (Flags & QUOTKF_USEROUNDING) Направление округления (-1 down, +1 up, 0 nearest)
+		uint8  DaysOfWeek;
+		uint8  Pad[3];         // @alignment
 	};
 
 	RefSymbArray SymbList;
@@ -1269,7 +1283,6 @@ int FASTCALL QuotKindCache::Dirty(PPID id)
 	int    ok = 1;
 	ObjCache::Dirty(id);
 	SymbList.Dirty(id);
-	// @v9.0.9 {
 	{
 		SRWLOCKER(RtlLock, SReadWriteLocker::Read);
 		if(RtlListInited) {
@@ -1279,7 +1292,6 @@ int FASTCALL QuotKindCache::Dirty(PPID id)
 			RtlListInited = 0;
 		}
 	}
-	// } @v9.0.9
 	return ok;
 }
 
@@ -1309,15 +1321,17 @@ int QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	if(qk_obj.Search(id, &rec) > 0) {
 #define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
 		CPY_FLD(Discount);
+		CPY_FLD(RoundingPrec); // @v10.9.11
 		CPY_FLD(Period);
-		CPY_FLD(BeginTm);
-		CPY_FLD(EndTm);
-		CPY_FLD(Rank);
-		CPY_FLD(DaysOfWeek);
+		CPY_FLD(AmtRestr);
 		CPY_FLD(OpID);
 		CPY_FLD(Flags);
 		CPY_FLD(AccSheetID);
-		CPY_FLD(AmtRestr);
+		CPY_FLD(BeginTm);
+		CPY_FLD(EndTm);
+		CPY_FLD(Rank);
+		CPY_FLD(RoundingDir); // @v10.9.11
+		CPY_FLD(DaysOfWeek);
 #undef CPY_FLD
 		ok = PutName(rec.Name, p_cache_rec);
 	}
@@ -1344,6 +1358,8 @@ void QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	CPY_FLD(Flags);
 	CPY_FLD(AccSheetID);
 	CPY_FLD(AmtRestr);
+	CPY_FLD(RoundingPrec); // @v10.9.11
+	CPY_FLD(RoundingDir);  // @v10.9.11
 #undef CPY_FLD
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 }
@@ -1351,14 +1367,11 @@ void QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 int QuotKindCache::FetchSpecialKinds(PPObjQuotKind::Special * pSk)
 {
 	{
-		//SkLock.ReadLock();
 		SRWLOCKER(SkLock, SReadWriteLocker::Read);
 		if(Sk.Flags & PPObjQuotKind::Special::fInited) {
 			ASSIGN_PTR(pSk, Sk);
 		}
 		else {
-			//SkLock.Unlock();
-			//SkLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(Sk.Flags & PPObjQuotKind::Special::fInited) {
 				ASSIGN_PTR(pSk, Sk);
@@ -1369,7 +1382,6 @@ int QuotKindCache::FetchSpecialKinds(PPObjQuotKind::Special * pSk)
 				ASSIGN_PTR(pSk, Sk);
 			}
 		}
-		//SkLock.Unlock();
 	}
 	return 1;
 }
@@ -1390,12 +1402,7 @@ int PPObjQuotKind::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 int PPObjQuotKind::FetchBySymb(const char * pSymb, PPID * pID)
 {
 	QuotKindCache * p_cache = GetDbLocalCachePtr <QuotKindCache> (PPOBJ_QUOTKIND);
-	if(p_cache) {
-		return p_cache->FetchBySymb(pSymb, pID);
-	}
-	else {
-		return SearchBySymb(pSymb, pID, 0);
-	}
+	return p_cache ? p_cache->FetchBySymb(pSymb, pID) : SearchBySymb(pSymb, pID, 0);
 }
 
 /*static*/int FASTCALL PPObjQuotKind::GetSpecialKinds(Special * pRec, int useCache)
@@ -1425,4 +1432,3 @@ int PPObjQuotKind::FetchBySymb(const char * pSymb, PPID * pID)
 	}
 	return 1;
 }
-

@@ -434,7 +434,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 	int    ok = -1;
 	if(oneof5(RezID, BROWSER_ID(GOODSITEM_W), BROWSER_ID(GOODSITEMPH_W), BROWSER_ID(GOODSITEMPH_CUR_W),
 		BROWSER_ID(GOODSITEM_CUR_W), BROWSER_ID(ORDERITEM_W))) {
-		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 		if(p_def) {
 			for(uint i = 0; i < p_def->getCount(); i++) {
 				const BroColumn & r_col = p_def->at(i);
@@ -902,7 +902,7 @@ inline BillItemBrowser::~BillItemBrowser()
 
 int BillItemBrowser::getCurItemPos()
 {
-	const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(view->getDefC());
+	const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(getDefC());
 	if(p_def) {
 		int    c_ = getDefC()->_curItem(); // @v10.6.3 int16-->int
 		const BillGoodsBrwItemArray * p_list = static_cast<const BillGoodsBrwItemArray *>(p_def->getArray());
@@ -1620,7 +1620,7 @@ double FASTCALL BillItemBrowser::GetOrderedQtty(const PPTransferItem & rTi) cons
 
 void BillItemBrowser::update(int pos)
 {
-	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 	if(p_def) {
 		long   org_current_pos = p_def->_curItem();
 		long   org_current_pos_in_bill = -1;
@@ -1648,7 +1648,7 @@ void BillItemBrowser::update(int pos)
 			p_def->SetUserProc(BillItemBrowser::GetDataForBrowser, this);
 			// {
             p_def->setArray(p_list, 0, 1);
-			view->setRange(p_list->getCount());
+			setRange(p_list->getCount());
 			{
 				int    setup_quot_info_col = -1;
 				int    ext_cost_col = -1;
@@ -1679,7 +1679,7 @@ void BillItemBrowser::update(int pos)
 				}
 				if(Total.ExtCost != 0.0) {
 					if(ext_cost_col < 0 && cost_col >= 0) {
-						view->insertColumn(cost_col+1, "ExtCost", 25, T_DOUBLE, MKSFMTD(0, 2, NMBF_NOZERO), BCO_USERPROC);
+						insertColumn(cost_col+1, "ExtCost", 25, T_DOUBLE, MKSFMTD(0, 2, NMBF_NOZERO), BCO_USERPROC);
 					}
 				}
 				else {
@@ -1691,15 +1691,15 @@ void BillItemBrowser::update(int pos)
 				}
 				if(qtty_col >= 0) {
 					if(p_list->HasUpp && upp_col < 0)
-						view->insertColumn(++qtty_col, "Package", 29, MKSTYPE(S_ZSTRING, 32), ALIGN_RIGHT, BCO_USERPROC|BCO_CAPRIGHT);
+						insertColumn(++qtty_col, "Package", 29, MKSTYPE(S_ZSTRING, 32), ALIGN_RIGHT, BCO_USERPROC|BCO_CAPRIGHT);
 					if(phqtty_col < 0 && Total.Flags & Total.fHasIndepPhQtty)
-						view->insertColumn(++qtty_col, "@phqtty", 7, T_DOUBLE, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), BCO_USERPROC|BCO_CAPRIGHT);
+						insertColumn(++qtty_col, "@phqtty", 7, T_DOUBLE, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), BCO_USERPROC|BCO_CAPRIGHT);
 				}
 				if(Total.OrderQtty != 0.0) {
 					if(ordqtty_col < 0) {
 						int   prev_col = (upp_col >= 0) ? upp_col : ((qtty_col >= 0) ? qtty_col : -1);
 						if(prev_col)
-							view->insertColumn(prev_col+1, "@ordered", 31, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOZERO|NMBF_NOTRAILZ), BCO_USERPROC|BCO_CAPRIGHT);
+							insertColumn(prev_col+1, "@ordered", 31, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOZERO|NMBF_NOTRAILZ), BCO_USERPROC|BCO_CAPRIGHT);
 					}
 				}
 				else {
@@ -1717,13 +1717,13 @@ void BillItemBrowser::update(int pos)
 							mark_count_col = upp_col+1;
 						else if(qtty_col >= 0)
 							mark_count_col = qtty_col+1;
-						view->insertColumn(mark_count_col, "Marks", 35, T_LONG, MKSFMT(0, NMBF_NOZERO), BCO_USERPROC|BCO_CAPRIGHT);
+						insertColumn(mark_count_col, "Marks", 35, T_LONG, MKSFMT(0, NMBF_NOZERO), BCO_USERPROC|BCO_CAPRIGHT);
 					}
 				}
 				// } @v10.9.2 
 				if(P_Pack->P_QuotSetupInfoList) {
 					if(setup_quot_info_col < 0) {
-						view->insertColumn(-1, "SetupQuotInfo", 30, MKSTYPE(S_ZSTRING, 16), ALIGN_CENTER, BCO_USERPROC|BCO_CAPLEFT);
+						insertColumn(-1, "SetupQuotInfo", 30, MKSTYPE(S_ZSTRING, 16), ALIGN_CENTER, BCO_USERPROC|BCO_CAPLEFT);
 					}
 				}
 				else {
@@ -1734,28 +1734,28 @@ void BillItemBrowser::update(int pos)
 				}
 				// @v10.1.8 {
 				if(Total.Flags & Total.fHasVetisGuid && vetis_uuid_col < 0)
-					view->insertColumn(-1, "VetisCert", 32, MKSTYPE(S_ZSTRING, 48), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
+					insertColumn(-1, "VetisCert", 32, MKSTYPE(S_ZSTRING, 48), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
 				// } @v10.1.8
 				// @v10.8.4 {
 				if(Total.Flags & Total.fHasEgaisRefB && egais_refb_col < 0)
-					view->insertColumn(-1, "RefB", 33, MKSTYPE(S_ZSTRING, 20), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
+					insertColumn(-1, "RefB", 33, MKSTYPE(S_ZSTRING, 20), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
 				if(Total.Flags & Total.fHasEgaisCode && egais_code_col < 0)
-					view->insertColumn(-1, "EGAIS-Code", 34, MKSTYPE(S_ZSTRING, 24), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
+					insertColumn(-1, "EGAIS-Code", 34, MKSTYPE(S_ZSTRING, 24), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
 				// } @v10.8.4 
 			}
 			// @v10.6.3 {
 			{
-				for(uint cidx = 0; cidx < view->getDef()->getCount(); cidx++) {
-					view->getDef()->at(cidx).Options |= BCO_SORTABLE;
+				for(uint cidx = 0; cidx < getDef()->getCount(); cidx++) {
+					getDef()->at(cidx).Options |= BCO_SORTABLE;
 				}
 			}
 			// } @v10.6.3 
 			if(pos == pos_cur && org_current_pos >= 0)
-				view->go(org_current_pos);
+				go(org_current_pos);
 			else if(pos == pos_bottom)
-				view->go(p_list->getCountI() - 2);
+				go(p_list->getCountI() - 2);
 			else if(pos >= 0 && pos < p_list->getCountI())
-				view->go(pos);
+				go(pos);
 			// }
 		}
 	}
@@ -2180,7 +2180,7 @@ int BillItemBrowser::ConvertBasketToBill()
 void BillItemBrowser::viewPckgItems(int activateNewRow)
 {
 	int    c = getCurItemPos(); // @v10.6.3 int16-->int
-	const  int sav_brw_pos = view->getDef()->_curItem(); // @v10.6.3 int16-->int
+	const  int sav_brw_pos = getDef()->_curItem(); // @v10.6.3 int16-->int
 	if(c >= 0) {
 		const PPTransferItem & r_ti = P_Pack->ConstTI(c);
 		if(r_ti.Flags & PPTFR_PCKG && P_Pack->P_PckgList && P_Pack->P_PckgList->GetByIdx(c)) {
@@ -2307,7 +2307,7 @@ void BillItemBrowser::delItem()
 	double tmp;
 	if(!AsSelector) {
 		int    c = getCurItemPos(); // @v10.6.3 int16-->int
-		int    cur_view_pos = view->getDef()->_curItem(); // @v10.6.3 int16-->int
+		int    cur_view_pos = getDef()->_curItem(); // @v10.6.3 int16-->int
 		if(c >= 0 && (!(LConfig.Flags & CFGFLG_CONFGBROWRMV) || CONFIRM(PPCFM_DELETE))) {
 			//
 			// Проверяем, можно ли будет провести документ с заявленным удалением
@@ -3512,7 +3512,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 		if(GObj.SelectGoodsByBarcode(init_chr, P_Pack->Rec.Object, &grec, &qtty, &code) > 0) {
 			uint   pos = 0;
 			if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) && P_Pack->SearchGoods(grec.ID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK))
-				view->go(pos);
+				go(pos);
 			else {
 				const  PPID op_type = GetOpType(P_Pack->Rec.OpID);
 				const  int  skip_dlg = BIN((P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE) && oneof2(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
@@ -4129,7 +4129,7 @@ void BillItemBrowser::addItemExt(int mode)
 					if(dlg->getDTS(&tidi) > 0) {
 						uint   pos = 0;
 						if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) && P_Pack->SearchGoods(tidi.GoodsID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK))
-							view->go(pos);
+							go(pos);
 						else if(isAllGoodsInPckg(tidi.GoodsID))
 							selectPckg(tidi.GoodsID);
 						else
@@ -4306,13 +4306,13 @@ public:
 	CompleteBrowser(PPObjBill * pBObj, const CompleteArray * s, int asSelector) :
 		AsSelector(asSelector), BrowserWindow(BROWSER_COMPLETE, (SArray *)0), Data(*s), P_BObj(pBObj), CmplAryPos(0), SelectedPos(-1)
 	{
-		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 		if(p_def) {
 			p_def->setArray(0, 0, 1);
 			SArray * p_list = MakeList();
 			if(p_list) {
 				p_def->setArray(p_list, 0, 1);
-				view->setRange(p_list->getCount());
+				setRange(p_list->getCount());
 			}
 		}
 		SetCellStyleFunc(CompleteBrowser::CellStyleFunc, this);
@@ -4384,7 +4384,7 @@ private:
 
 void CompleteBrowser::update(int pos)
 {
-	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 	if(p_def) {
 		const int c = p_def->_curItem(); // @v10.6.3 int16-->int
 		p_def->setArray(0, 0, 1);
@@ -4394,13 +4394,13 @@ void CompleteBrowser::update(int pos)
 		SArray * a = MakeList();
 		if(a) {
             p_def->setArray(a, 0, 1);
-			view->setRange(a->getCount());
+			setRange(a->getCount());
 			if(pos == pos_cur && c >= 0)
-				view->go(c);
+				go(c);
 			else if(pos == pos_bottom)
-				view->go(a->getCount() - 2);
+				go(a->getCount() - 2);
 			else if(pos >= 0 && pos < static_cast<int>(a->getCount()))
-				view->go(pos);
+				go(pos);
 		}
 	}
 }
@@ -4411,13 +4411,13 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 	if(event.isCmd(cmaEdit)) {
 		if(AsSelector) {
 			if(IsInState(sfModal)) {
-				SelectedPos = view->getDefC()->_curItem();
+				SelectedPos = getDefC()->_curItem();
 				endModal(cmOK);
 				return; // После endModal не следует обращаться к this
 			}
 		}
 		else {
-			long   pos = view->getDefC()->_curItem();
+			long   pos = getDefC()->_curItem();
 			PPID   bill_id = Data.at(pos).BillID;
 			BillTbl::Rec bill_rec;
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {

@@ -4011,7 +4011,7 @@ struct PPBarcodeStruc2 {   // @persistent @store(Reference2Tbl+)
 	// Descr: Типы специализации шаблонов
 	//
 	enum {
-		spcNone = 0,
+		spcNone     = 0,
 		spcUhttSync = 1 // Шаблон кодов для синхронизации с Universe-HTT
 	};
 	long   Tag;            // Const=PPOBJ_BCODESTRUC
@@ -4020,7 +4020,7 @@ struct PPBarcodeStruc2 {   // @persistent @store(Reference2Tbl+)
 	char   Templ[20];      // Шаблон
 	char   Reserve[56];    // @reserve // @v10.7.6 [60]-->[56]
 	long   Speciality;     // @v10.7.6 Специальное назначение шаблона
-	long   Flags;          // Флаги
+	long   Flags;          // @flags
 	long   Reserve1;       // @reserve
 	long   Reserve2;       // @reserve
 };
@@ -4098,20 +4098,18 @@ public:
 	void   FASTCALL SetIdentPeriod(const DateRange * pPeriod);
 	void   FASTCALL SetIdentQtty(const long * pQtty);
 	enum {
-		fUsePeriod  = 0x0001,
-		fUseQtty    = 0x0002
+		fUsePeriod    = 0x0001,
+		fUseQtty      = 0x0002,
+		fOmitRounding = 0x0004  // @v10.9.11 @internal Не применять округление при извлечении значения.
 	};
 	long   Flags;          // @flags
 	PPID   LocID;
 	PPID   QuotKindID;
 	PPID   CurID;
 	PPID   ArID;
-	LDATE  Dt;             // Дата, для которой проверяется период действия котировки.
-		// Если !Dt, то предполагается, что Dt == getcurdate_().
-	DateRange Period;      // Если (Flags & fUsePeriod), то функции извлечения котировки
-		// ищут котировку, у которой период точно соответствует this->Period
-	double Qtty_;          // Используется для нахождения значения котировки, ограниченного количеством.
-		// Если Qtty == 0.0 то значения с ограничением по количеству не считаются.
+	LDATE  Dt;        // Дата, для которой проверяется период действия котировки. Если !Dt, то предполагается, что Dt == getcurdate_().
+	DateRange Period; // Если (Flags & fUsePeriod), то функции извлечения котировки ищут котировку, у которой период точно соответствует this->Period
+	double Qtty_;     // Используется для нахождения значения котировки, ограниченного количеством. Если Qtty == 0.0 то значения с ограничением по количеству не считаются.
 private:
 	double PrevBase;
 };
@@ -7874,13 +7872,22 @@ PPID   FASTCALL ObjectToPerson(PPID articleID, PPID * pAccSheetID = 0);
 //   в какую сторону необходимо округлять результат. Если force_dir < 0, то округляетс
 //   до нижнего значения, если force_dir > 0, то до верхнего. 0 - до ближайшего.
 //
-double CalcSelling(double cost, double pc, double prec, int force_dir);
-double CalcSelling(double cost, double pc);
-double Round(double v, double prec, int dir);
+// @v10.9.11 double CalcSelling(double cost, double pc, double prec, int force_dir);
+// @v10.9.11 double CalcSelling(double cost, double pc);
+//
+// Descr: Округляет значение v с точностью prec в направлении dir.
+// ARG(v    IN): Значение, которое необходимо округлить
+// ARG(prec IN): Точность округления. Например: 1.0 - до целых, 0.01 - два знака после точки, 50.0 - с точностью до 50
+//   Если prec == 0.0, то принимается значение по умолчанию (0.01)
+// ARG(dir  IN): Направление округления: <0 - до ближайшего меньшего, >0 - до ближайшего большего, 0 - просто до ближайшего по бухгалтерскому правилу.
+// Returns:
+//   Округленное значение.
+//
+double PPRound(double v, double prec, int dir);
 //
 // Descr: округляет значение цены p в соответствии с параметрами, заданными в конфигурации
 //
-double RoundUpPrice(double p);
+// @v10.9.11 (replced with PPObjQuotKind::RoundUpPrice) double RoundUpPrice(double p);
 //
 // Descr: return (!flt || flt == id)
 // Note: Провел небольшое исследование насчет inline-варианта этой функции.
@@ -10613,7 +10620,7 @@ class BillVatArray : public TSVector <BillVatEntry> {
 public:
 	BillVatArray();
 	int    Add(double rate, double sum, double base, double amtByVat);
-	BillVatEntry * GetByRate(double rate) const;
+	const  BillVatEntry * GetByRate(double rate) const;
 };
 //
 // Флаги функции PPBillPacket::CalcTotal
@@ -10636,7 +10643,7 @@ struct BillTotalData {
 		fInitialized   = 0x0004  // Структура инициализирована рассчетом PPBillPacket::CalcTotal
 	};
 	BillTotalData();
-	void   Clear();
+	BillTotalData & Z();
 
 	long   LinesCount;
 	long   GoodsCount;
@@ -13096,20 +13103,14 @@ private:
 	SString TempBuf; // @allocreuse
 };
 //
-//
-//
-/* @v9.6.4 (useless) class DGQCore : public DGQTbl {
-public:
-	DGQCore();
-	int    SearchQuery(const S_GUID & rUuid, DGQTbl::Rec * pRec);
-    int    PutQuery(const S_GUID & rUuid, int queryType, int use_ta);
-    int    CommitQuery(const S_GUID & rUuid, int use_ta);
-}; */
-//
 // Класс ObjSync управляет синхронизацией объектов в распределенной БД
 //
 struct PPCommSyncID { // @persistent @size=6
 	PPCommSyncID();
+	PPCommSyncID(const PPCommSyncID & rS);
+	explicit PPCommSyncID(const ObjSyncTbl::Rec & rRec);
+	explicit PPCommSyncID(const ObjSyncQueueTbl::Rec & rRec);
+	explicit PPCommSyncID(const TempSyncCmpTbl::Rec & rRec);
 	int    FASTCALL operator == (const PPCommSyncID s) const;
 	int    FASTCALL operator != (const PPCommSyncID s) const;
 	int    IsZero() const;
@@ -13230,14 +13231,12 @@ class SpecSeriesCore : public SpecSeries2Tbl {
 public:
 	static int GetExField(const SpecSeries2Tbl::Rec * pRec, int fldId, SString & rBuf);
 	static int SetExField(SpecSeries2Tbl::Rec * pRec, int fldId, const char * pBuf);
-
 	SpecSeriesCore();
 	int    Search(PPID id, SpecSeries2Tbl::Rec *);
 	int    Put(PPID * pID, SpecSeries2Tbl::Rec *, int use_ta);
 	int    ClearAll();
 	int    SearchBySerial(PPID infoKind, const char * pBuf, SpecSeries2Tbl::Rec * = 0);
 	int    GetListBySerial(PPID kind, const char * pSerial, StrAssocArray * pList);
-private:
 };
 //
 // Descr: Вектор занятости процессора
@@ -23193,7 +23192,7 @@ struct PPPallet {
 
 class PPObjPallet : public PPObjReference {
 public:
-	PPObjPallet(void * extraPtr = 0);
+	explicit PPObjPallet(void * extraPtr = 0);
 	virtual int Edit(PPID * pID, void * extraPtr);
 };
 //
@@ -23992,7 +23991,11 @@ public:
 
 	static int  FASTCALL GetSpecialKinds(Special *, int useCache);
 	static PPID GetDefaultAccSheetID(int cls);
-	explicit PPObjQuotKind(void * extraPtr = 0);
+	//
+	// Descr: округляет значение цены p в соответствии с параметрами, заданными в конфигурации
+	//
+	static double RoundUpPrice(PPID quotKindID, double p);
+	/*explicit*/PPObjQuotKind(/*void * extraPtr = 0*/);
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	virtual int  Browse(void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
@@ -24047,7 +24050,7 @@ public:
 	SArray * MakeListByIDList(const PPIDArray *);
 	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	int    SearchSymb(PPID * pID, const char * pSymb);
-	int    MakeCodeString(const PPQuot * pQuot, SString & rBuf);
+	SString & MakeCodeString(const PPQuot * pQuot, SString & rBuf);
 private:
 	virtual int  Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -24061,7 +24064,7 @@ private:
 };
 //
 // @ModuleDecl(PPObjPsnOpKind)
-// Виды персональных операций @v2.3.4
+// Виды персональных операций
 //
 // Флаги персональных операций
 //
@@ -34237,22 +34240,23 @@ public:
 	// Флаги элементов списка
 	//
 	enum {
-		fExclude       = 0x0001, // Исключить операцию при формировании книги
-		fNegative      = 0x0002, // Операция заносится в книгу с инвертированным знаком
-		fByExtObj      = 0x0004, // Контрагентом в записи книги является дополнительный объект
-		fVATFromReckon = 0x0008, // Налоги из зачетного документа
-		fVATFree       = 0x0010, // Операция освобождена от налогов
-		fAsPayment     = 0x0020, // Только для типов операции PPOPT_PAYMENT.
+		fExclude        = 0x0001, // Исключить операцию при формировании книги
+		fNegative       = 0x0002, // Операция заносится в книгу с инвертированным знаком
+		fByExtObj       = 0x0004, // Контрагентом в записи книги является дополнительный объект
+		fVATFromReckon  = 0x0008, // Налоги из зачетного документа
+		fVATFree        = 0x0010, // Операция освобождена от налогов
+		fAsPayment      = 0x0020, // Только для типов операции PPOPT_PAYMENT.
 			// Запись по операции формируется так: в книгу заносится запись датой документа
 			// с суммой равной номинальной сумме этого документа и суммами НДС, рассчитываемыми
 			// по связанному документу. Для связанного документа его датой формируется сторнирующая запись.
-		fExpendByFact  = 0x0040, // Учитывать расходы по операции по факту. То есть,
+		fExpendByFact   = 0x0040, // Учитывать расходы по операции по факту. То есть,
 			// если документ является приходом товаров, то перечисляются все лоты, сформированные
 			// документом и суммируются все отгрузки (возможно по оплатам) по этим лотам за
 			// заданный период.
-		fFactByShipment = 0x0080  // Переопределяет учет по данной операции таким образом,
+		fFactByShipment  = 0x0080, // Переопределяет учет по данной операции таким образом,
 			// что документы этой операции будут учитываться по отгрузке (если общее правило книги - по оплате).
 			// Если общее правило книги "по отгрузке", то данный флаг игнорируется.
+		fExcludeNegative = 0x0100  // @v10.9.11 Исключать запись с отрицательной суммой
 	};
 	//
 	// Флаги конфигурации
@@ -36471,7 +36475,7 @@ public:
 		enum {
             fCancelCip = 0x0001
 		};
-		SVerT Ver; // Версия системы, создавшей запись
+		SVerT  Ver; // Версия системы, создавшей запись
 		uint8  Reserve[32]; // @reserve
 		DateRange Period;   // Период обзора сессий (по StDt)
 		long   Flags;
@@ -38002,7 +38006,7 @@ typedef int (*BillViewEnumProc)(const BillViewItem * pItem, void * pExtraPtr);
 
 struct BillTotal {
 	BillTotal();
-	BillTotal & Reset();
+	BillTotal & Z();
 
 	long   Count;
 	double Sum;
@@ -53050,6 +53054,7 @@ private:
 	int    Rearrange();
 	int    LocalMenu(int objIdx);
 	int    InvalidateObjScope(const TWhatmanObject * pObj);
+	static int Helper_MakeFrameWindow(TWindowBase * pFrame, const char * pWtmFileName, const char * pWtaFileName);
 
 	State_ St;
 	TWhatmanToolArray Tools;

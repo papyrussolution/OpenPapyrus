@@ -2971,7 +2971,7 @@ int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <
 							p_item->Limit = (sigm * p_item->PaymDensity) * p_item->LimitTerm;
 						p_item->Limit *= limit_factor;
 						if(ds_cfg.LimitRoundPrec > 0.0)
-							p_item->Limit = Round(p_item->Limit, fdiv100i(ds_cfg.LimitRoundPrec), ds_cfg.LimitRoundDir);
+							p_item->Limit = PPRound(p_item->Limit, fdiv100i(ds_cfg.LimitRoundPrec), ds_cfg.LimitRoundDir);
 						paym_val = sigm * p_item->PaymDensity; // log
 						if(IsValidIEEE(paym_val) && paym_val > 0.0) {
 							THROW(idx_paym = sh_paym.Put(PreprocessRatingVal(paym_val)));
@@ -2999,7 +2999,7 @@ int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <
 										r_dd_item.Limit = p_item->LimitTerm * (dens * sigm);
 								r_dd_item.Limit *= limit_factor;
 								if(ds_cfg.LimitRoundPrec > 0.0)
-									r_dd_item.Limit = Round(r_dd_item.Limit, fdiv100i(ds_cfg.LimitRoundPrec), ds_cfg.LimitRoundDir);
+									r_dd_item.Limit = PPRound(r_dd_item.Limit, fdiv100i(ds_cfg.LimitRoundPrec), ds_cfg.LimitRoundDir);
 							}
 						}
 					}

@@ -179,7 +179,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_REGISTERTYPE: p = new PPObjRegisterType(/*extraPtr*/); break;
 		case PPOBJ_REGISTER    : p = new PPObjRegister(extraPtr); break;
 		case PPOBJ_ELINKKIND   : p = new PPObjELinkKind(extraPtr); break;
-		case PPOBJ_QUOTKIND    : p = new PPObjQuotKind(extraPtr); break;
+		case PPOBJ_QUOTKIND    : p = new PPObjQuotKind(/*extraPtr*/); break;
 		case PPOBJ_PERSONOPKIND: p = new PPObjPsnOpKind(extraPtr); break;
 		case PPOBJ_PERSONEVENT : p = new PPObjPersonEvent(extraPtr); break;
 		case PPOBJ_TAG         : p = new PPObjTag(extraPtr); break;
@@ -340,13 +340,12 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	THROW_PP(dest != src, PPERR_REPLSAMEOBJ);
 	if(obj_sync.SearchPrivate(objType, dest, 0, 0) > 0)
 		dest_comm_id = obj_sync.data;
-	THROW(o = GetPPObject(objType, 0)); // @v8.0.0 перенесено из #1 для того, чтобы не создавать объект внутри транзакции
+	THROW(o = GetPPObject(objType, 0));
 	{
-		PPTransaction tra(BIN(options & use_transaction)); // @v9.8.6 1-->BIN(options & use_transaction)
+		PPTransaction tra(BIN(options & use_transaction));
 		THROW(tra);
 		THROW(SendObjMessage(DBMSG_OBJREPLACE, objType, objType, dest, reinterpret_cast<void *>(src), 0) == DBRPL_OK);
 		PPWait(0);
-		// @v8.0.0 THROW(o = GetPPObject(objType, 0)); // #1
 		if(!(options & not_repl_remove))
 			THROW(o->RemoveObjV(dest, 0, (options & ~use_transaction), 0));
 		DS.LogAction(PPACN_OBJUNIFY, objType, src,  -dest, 0);

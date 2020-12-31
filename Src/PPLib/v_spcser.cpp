@@ -218,35 +218,84 @@ int PPViewSpecSeries::DynFuncSpcSnTextFld = 0;
 }
 
 class SpecSerDlg : public TDialog {
+	DECL_DIALOG_DATA(SpecSeries2Tbl::Rec);
 public:
 	enum {
 		ctlgroupGoods = 1
 	};
-	SpecSerDlg();
-	int    setDTS(const SpecSeries2Tbl::Rec *);
-	int    getDTS(SpecSeries2Tbl::Rec *);
-private:
-	DECL_HANDLE_EVENT;
-	void   SetupCtrls();
-
-	SpecSeries2Tbl::Rec Data;
-};
-
-SpecSerDlg::SpecSerDlg() : TDialog(DLG_SPCSER)
-{
-	SetupCalDate(CTLCAL_SPCSER_DT, CTL_SPCSER_DT);
-	SetupCalDate(CTLCAL_SPCSER_ALLOWDT, CTL_SPCSER_ALLOWDT);
-	addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_SPCSER_GGRP, CTLSEL_SPCSER_GOODS));
-}
-
-IMPL_HANDLE_EVENT(SpecSerDlg)
-{
-	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_SPCSER_GOODS) || event.isCbSelected(CTLSEL_SPCSER_MANUF)) {
-		SetupCtrls();
-		clearEvent(event);
+	SpecSerDlg() : TDialog(DLG_SPCSER)
+	{
+		SetupCalDate(CTLCAL_SPCSER_DT, CTL_SPCSER_DT);
+		SetupCalDate(CTLCAL_SPCSER_ALLOWDT, CTL_SPCSER_ALLOWDT);
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_SPCSER_GGRP, CTLSEL_SPCSER_GOODS));
 	}
-}
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		GoodsCtrlGroup::Rec ggrp_rec(0, Data.GoodsID);
+		SString temp_buf;
+		setCtrlData(CTL_SPCSER_DT,       &Data.InfoDate);
+		setCtrlData(CTL_SPCSER_INFOIDENT, Data.InfoIdent);
+		setCtrlData(CTL_SPCSER_ALLOWDT,  &Data.AllowDate);
+		setCtrlData(CTL_SPCSER_BARCODE,   Data.Barcode);
+		setCtrlData(CTL_SPCSER_SERIAL,    Data.Serial);
+
+		SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_GOODSNAME, temp_buf);
+		setCtrlString(CTL_SPCSER_GOODSNAME, temp_buf);
+		SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_MANUFNAME, temp_buf.Z());
+		setCtrlString(CTL_SPCSER_MANUFNAME, temp_buf);
+		SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_DESCRIPTION, temp_buf.Z());
+		setCtrlString(CTL_SPCSER_INFO, temp_buf);
+
+		AddClusterAssoc(CTL_SPCSER_FLAGS, 0, SPCSELIF_FALSIFICATION);
+		AddClusterAssoc(CTL_SPCSER_FLAGS, 1, SPCSELIF_ALLOW);
+		SetClusterData(CTL_SPCSER_FLAGS, Data.Flags);
+		setGroupData(ctlgroupGoods, &ggrp_rec);
+		SetupPersonCombo(this, CTLSEL_SPCSER_MANUF, Data.ManufID, 0, PPPRK_MANUF, 0);
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		ushort sel = 0;
+		SString temp_buf;
+		getCtrlData(sel = CTL_SPCSER_DT, &Data.InfoDate);
+		THROW_SL(checkdate(&Data.InfoDate));
+		getCtrlData(CTL_SPCSER_INFOIDENT, Data.InfoIdent);
+		getCtrlData(sel = CTL_SPCSER_ALLOWDT, &Data.AllowDate);
+		THROW_SL(checkdate(Data.AllowDate, 1));
+		getCtrlData(sel = CTL_SPCSER_BARCODE, Data.Barcode);
+		getCtrlData(sel = CTL_SPCSER_SERIAL, Data.Serial);
+		THROW_PP(sstrlen(Data.Serial) > 0, PPERR_SERIALNEEDED);
+		getCtrlString(sel = CTL_SPCSER_GOODSNAME, temp_buf.Z());
+		THROW_PP(temp_buf.NotEmptyS(), PPERR_GOODSNEEDED);
+		SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_GOODSNAME, temp_buf);
+		getCtrlData(CTLSEL_SPCSER_GOODS, &Data.GoodsID);
+		getCtrlString(sel = CTL_SPCSER_MANUFNAME, temp_buf.Z());
+		THROW_PP(temp_buf.NotEmptyS(), PPERR_MANUFACTURERNEEDED);
+		SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_MANUFNAME, temp_buf);
+		getCtrlString(CTL_SPCSER_INFO, temp_buf.Z());
+		SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_DESCRIPTION, temp_buf);
+		getCtrlData(CTLSEL_SPCSER_MANUF, &Data.ManufID);
+		GetClusterData(CTL_SPCSER_FLAGS, &Data.Flags);
+		Data.InfoKind = SPCSERIK_SPOILAGE;
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_SPCSER_GOODS) || event.isCbSelected(CTLSEL_SPCSER_MANUF)) {
+			SetupCtrls();
+			clearEvent(event);
+		}
+	}
+	void   SetupCtrls();
+};
 
 void SpecSerDlg::SetupCtrls()
 {
@@ -265,64 +314,6 @@ void SpecSerDlg::SetupCtrls()
 		setCtrlString(CTL_SPCSER_MANUFNAME, name);
 	}
 	disableCtrl(CTL_SPCSER_MANUFNAME, (id != 0));
-}
-
-int SpecSerDlg::setDTS(const SpecSeries2Tbl::Rec * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	GoodsCtrlGroup::Rec ggrp_rec(0, Data.GoodsID);
-	SString temp_buf;
-	setCtrlData(CTL_SPCSER_DT,       &Data.InfoDate);
-	setCtrlData(CTL_SPCSER_INFOIDENT, Data.InfoIdent);
-	setCtrlData(CTL_SPCSER_ALLOWDT,  &Data.AllowDate);
-	setCtrlData(CTL_SPCSER_BARCODE,   Data.Barcode);
-	setCtrlData(CTL_SPCSER_SERIAL,    Data.Serial);
-
-	SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_GOODSNAME, temp_buf);
-	setCtrlString(CTL_SPCSER_GOODSNAME, temp_buf);
-	SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_MANUFNAME, temp_buf.Z());
-	setCtrlString(CTL_SPCSER_MANUFNAME, temp_buf);
-	SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_DESCRIPTION, temp_buf.Z());
-	setCtrlString(CTL_SPCSER_INFO, temp_buf);
-
-	AddClusterAssoc(CTL_SPCSER_FLAGS, 0, SPCSELIF_FALSIFICATION);
-	AddClusterAssoc(CTL_SPCSER_FLAGS, 1, SPCSELIF_ALLOW);
-	SetClusterData(CTL_SPCSER_FLAGS, Data.Flags);
-	setGroupData(ctlgroupGoods, &ggrp_rec);
-	SetupPersonCombo(this, CTLSEL_SPCSER_MANUF, Data.ManufID, 0, PPPRK_MANUF, 0);
-	SetupCtrls();
-	return 1;
-}
-
-int SpecSerDlg::getDTS(SpecSeries2Tbl::Rec * pData)
-{
-	int    ok = 1;
-	ushort sel = 0;
-	SString temp_buf;
-	getCtrlData(sel = CTL_SPCSER_DT, &Data.InfoDate);
-	THROW_SL(checkdate(&Data.InfoDate));
-	getCtrlData(CTL_SPCSER_INFOIDENT, Data.InfoIdent);
-	getCtrlData(sel = CTL_SPCSER_ALLOWDT, &Data.AllowDate);
-	THROW_SL(checkdate(Data.AllowDate, 1));
-	getCtrlData(sel = CTL_SPCSER_BARCODE, Data.Barcode);
-	getCtrlData(sel = CTL_SPCSER_SERIAL, Data.Serial);
-	THROW_PP(sstrlen(Data.Serial) > 0, PPERR_SERIALNEEDED);
-	getCtrlString(sel = CTL_SPCSER_GOODSNAME, temp_buf.Z());
-	THROW_PP(temp_buf.NotEmptyS(), PPERR_GOODSNEEDED);
-	SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_GOODSNAME, temp_buf);
-	getCtrlData(CTLSEL_SPCSER_GOODS, &Data.GoodsID);
-	getCtrlString(sel = CTL_SPCSER_MANUFNAME, temp_buf.Z());
-	THROW_PP(temp_buf.NotEmptyS(), PPERR_MANUFACTURERNEEDED);
-	SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_MANUFNAME, temp_buf);
-	getCtrlString(CTL_SPCSER_INFO, temp_buf.Z());
-	SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_DESCRIPTION, temp_buf);
-	getCtrlData(CTLSEL_SPCSER_MANUF, &Data.ManufID);
-	GetClusterData(CTL_SPCSER_FLAGS, &Data.Flags);
-	Data.InfoKind = SPCSERIK_SPOILAGE;
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int PPViewSpecSeries::AddItem()
@@ -506,8 +497,7 @@ int PPViewSpecSeries::ExportUhtt()
 {
 	int    ok = -1;
 	PPID   id = 0;
-	UhttSpecSeriesPacket pack;
-	SpecSeriesViewItem   item;
+	SpecSeriesViewItem item;
 	PPUhttClient uc;
 	PPLogger logger;
 	SString  temp_buf, msg_buf, fmt_buf;
@@ -515,7 +505,7 @@ int PPViewSpecSeries::ExportUhtt()
 	THROW(uc.Auth());
 	THROW(InitIteration());
 	while(NextIteration(&item) > 0) {
-		MEMSZERO(pack);
+		UhttSpecSeriesPacket pack;
 		pack.ID = 0;
 		pack.GoodsID = item.GoodsID;
 		pack.ManufID = item.ManufID;

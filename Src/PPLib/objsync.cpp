@@ -1,7 +1,7 @@
 // OBJSYNC.CPP
-// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
-//
-// Поддержка синхронизации объектов в распределенной базе данных
+// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
+// РџРѕРґРґРµСЂР¶РєР° СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РѕР±СЉРµРєС‚РѕРІ РІ СЂР°СЃРїСЂРµРґРµР»РµРЅРЅРѕР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
 //
 #include <pp.h>
 #pragma hdrstop
@@ -9,6 +9,22 @@
 //
 //
 PPCommSyncID::PPCommSyncID() : P(0), I(0)
+{
+}
+
+PPCommSyncID::PPCommSyncID(const PPCommSyncID & rS) : P(rS.P), I(rS.I)
+{
+}
+
+PPCommSyncID::PPCommSyncID(const ObjSyncTbl::Rec & rRec) : P(rRec.CommIdPfx), I(rRec.CommID)
+{
+}
+
+PPCommSyncID::PPCommSyncID(const ObjSyncQueueTbl::Rec & rRec) : P(rRec.CommIdPfx), I(rRec.CommID)
+{
+}
+
+PPCommSyncID::PPCommSyncID(const TempSyncCmpTbl::Rec & rRec) : P(rRec.CommIdPfx), I(rRec.CommID)
 {
 }
 
@@ -103,19 +119,19 @@ ObjSyncCore::ObjSyncCore() : ObjSyncTbl()
 int ObjSyncCore::SearchPrivate(PPID obj, PPID id, PPID dbid, ObjSyncTbl::Rec * pRec)
 {
 	ObjSyncTbl::Key1 k1;
-	k1.ObjType = (short)obj;
+	k1.ObjType = static_cast<short>(obj);
 	k1.ObjID   = id;
-	k1.DBID    = (short)NZOR(dbid, LConfig.DBDiv);
+	k1.DBID    = static_cast<short>(NZOR(dbid, LConfig.DBDiv));
 	return SearchByKey(this, 1, &k1, pRec);
 }
 
 int ObjSyncCore::SearchCommon(PPID obj, PPCommSyncID id, PPID dbid, ObjSyncTbl::Rec * pRec)
 {
 	ObjSyncTbl::Key0 k0;
-	k0.ObjType   = (short)obj;
+	k0.ObjType   = static_cast<short>(obj);
 	k0.CommIdPfx = id.P;
 	k0.CommID    = id.I;
-	k0.DBID      = (short)NZOR(dbid, LConfig.DBDiv);
+	k0.DBID      = static_cast<short>(NZOR(dbid, LConfig.DBDiv));
 	return SearchByKey(this, 0, &k0, pRec);
 }
 
@@ -123,10 +139,9 @@ int ObjSyncCore::SearchSync(PPID obj, PPID privateID, PPID dbID, int foreign, Ob
 {
 	int    ok = -1, r;
 	ObjSyncTbl::Rec rec;
-	PPCommSyncID comm_id;
 	THROW(r = SearchPrivate(obj, privateID, (foreign ? dbID : 0), &rec));
 	if(r > 0) {
-		comm_id = rec;
+		PPCommSyncID comm_id(rec);
 		THROW(r = SearchCommon(obj, comm_id, (foreign ? 0L : dbID), &rec));
 		if(r > 0) {
 			ASSIGN_PTR(pRec, rec);
@@ -149,12 +164,12 @@ int ObjSyncCore::GetSyncStatus(PPID objType, PPID privID, PPCommSyncID * pCommId
 	if(r > 0) {
 		if(pDbDivList) {
 			ObjSyncTbl::Key0 k0;
-			k0.ObjType   = (short)objType;
+			k0.ObjType   = static_cast<short>(objType);
 			k0.CommIdPfx = rec.CommIdPfx;
 			k0.CommID    = rec.CommID;
 			k0.DBID      = 0;
 			while(search(0, &k0, spGt)) {
-				if(data.ObjType == (short)objType && data.CommIdPfx == rec.CommIdPfx && data.CommID == rec.CommID) {
+				if(data.ObjType == static_cast<short>(objType) && data.CommIdPfx == rec.CommIdPfx && data.CommID == rec.CommID) {
 					db_div_list.addUnique(data.DBID);
 				}
 				else
@@ -162,7 +177,7 @@ int ObjSyncCore::GetSyncStatus(PPID objType, PPID privID, PPCommSyncID * pCommId
 			}
 		}
 		comm_id = rec;
-		if(comm_id.P == (int16)LConfig.DBDiv)
+		if(comm_id.P == static_cast<int16>(LConfig.DBDiv))
 			ok = 2;
 		else
 			ok = 1;
@@ -181,18 +196,17 @@ int ObjSyncCore::GetPrivateObjectsByForeignID(PPID objType, PPID foreignID, PPID
 	PPIDArray list;
 	TSArray <PPCommSyncID> comm_id_list;
 	ObjSyncTbl::Key1 k1;
-	k1.ObjType = (short)objType;
+	k1.ObjType = static_cast<short>(objType);
 	k1.ObjID   = foreignID;
 	k1.DBID    = 0;
 	if(search(1, &k1, spGe) && data.ObjType == objType && data.ObjID == foreignID) do {
         if(data.DBID != local_dbdiv_id && !(data.Flags & 0x0001)) {
-			PPCommSyncID comm_id;
-			comm_id = data;
+			PPCommSyncID comm_id(data);
             THROW_SL(comm_id_list.insert(&comm_id));
         }
 	} while(search(1, &k1, spNext) && data.ObjType == objType && data.ObjID == foreignID);
 	for(uint i = 0; i < comm_id_list.getCount(); i++) {
-		PPCommSyncID comm_id = comm_id_list.at(i);
+		PPCommSyncID comm_id(comm_id_list.at(i));
 		ObjSyncTbl::Rec rec;
 		if(SearchCommon(objType, comm_id, local_dbdiv_id, &rec) > 0) {
 			THROW_SL(list.add(rec.ObjID));
@@ -307,24 +321,24 @@ int ObjSyncCore::_RcvObj(PPID obj, PPID id, PPCommSyncID commID, PPID dbid, cons
 			if(data.ObjID != id) {
 				THROW(r = SearchPrivate(obj, id, dbid));
 				//
-				// В том случае, если наш новый ид объекта уже занят под синхронизацию некоторого другого объекта,
-				// удаляем ту синхронизацию. Причиной такой коллизии может быть либо то, что прежний объект был
-				// удален, либо вся синхронизаци "слегка" попорчена. В обоих случаях удаление записи о
-				// синронизации наиболее мягкий выход из ситуации.
+				// Р’ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РЅР°С€ РЅРѕРІС‹Р№ РёРґ РѕР±СЉРµРєС‚Р° СѓР¶Рµ Р·Р°РЅСЏС‚ РїРѕРґ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЋ РЅРµРєРѕС‚РѕСЂРѕРіРѕ РґСЂСѓРіРѕРіРѕ РѕР±СЉРµРєС‚Р°,
+				// СѓРґР°Р»СЏРµРј С‚Сѓ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЋ. РџСЂРёС‡РёРЅРѕР№ С‚Р°РєРѕР№ РєРѕР»Р»РёР·РёРё РјРѕР¶РµС‚ Р±С‹С‚СЊ Р»РёР±Рѕ С‚Рѕ, С‡С‚Рѕ РїСЂРµР¶РЅРёР№ РѕР±СЉРµРєС‚ Р±С‹Р»
+				// СѓРґР°Р»РµРЅ, Р»РёР±Рѕ РІСЃСЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†Рё "СЃР»РµРіРєР°" РїРѕРїРѕСЂС‡РµРЅР°. Р’ РѕР±РѕРёС… СЃР»СѓС‡Р°СЏС… СѓРґР°Р»РµРЅРёРµ Р·Р°РїРёСЃРё Рѕ
+				// СЃРёРЅСЂРѕРЅРёР·Р°С†РёРё РЅР°РёР±РѕР»РµРµ РјСЏРіРєРёР№ РІС‹С…РѕРґ РёР· СЃРёС‚СѓР°С†РёРё.
 				//
 				if(r > 0) {
 			   		THROW_DB(deleteRec());
-					// Конфликт общих идентификаторов синхронизации (старая запись удалена) [%s]
+					// РљРѕРЅС„Р»РёРєС‚ РѕР±С‰РёС… РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё (СЃС‚Р°СЂР°СЏ Р·Р°РїРёСЃСЊ СѓРґР°Р»РµРЅР°) [%s]
 					LogRcvObjDiag(PPTXT_LOG_OBJSYNC_MISM_COMM, obj, id, commID);
 				}
 				THROW(SearchCommon(obj, commID, dbid) > 0);
 				if(r < 0) {
 					if(data.Flags & OBJSYNCF_DELETED) {
-						// Замещение синхронизации _DELETED_ объекта по общему идентификатору [%s]
+						// Р—Р°РјРµС‰РµРЅРёРµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё _DELETED_ РѕР±СЉРµРєС‚Р° РїРѕ РѕР±С‰РµРјСѓ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ [%s]
 						LogRcvObjDiag(PPTXT_LOG_OBJSYNC_RPLC_COMM_DELD, obj, id, commID);
 					}
 					else {
-						// Замещение синхронизации _NOT_DELETED_ объекта по общему идентификатору [%s]
+						// Р—Р°РјРµС‰РµРЅРёРµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё _NOT_DELETED_ РѕР±СЉРµРєС‚Р° РїРѕ РѕР±С‰РµРјСѓ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ [%s]
 						LogRcvObjDiag(PPTXT_LOG_OBJSYNC_RPLC_COMM_NDELD, obj, id, commID);
 					}
 				}
@@ -335,7 +349,7 @@ int ObjSyncCore::_RcvObj(PPID obj, PPID id, PPCommSyncID commID, PPID dbid, cons
 				THROW_DB(updateRec());
 			}
 			else if(data.Flags & OBJSYNCF_DELETED) {
-				// Отмена статуса _DELETED_ записи синхронизации [%s]
+				// РћС‚РјРµРЅР° СЃС‚Р°С‚СѓСЃР° _DELETED_ Р·Р°РїРёСЃРё СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё [%s]
 				LogRcvObjDiag(PPTXT_LOG_OBJSYNC_UNDEL, obj, id, commID);
 				data.Flags &= ~OBJSYNCF_DELETED;
 				data.Dt = pMoment ? pMoment->d : ZERODATE;
@@ -347,7 +361,7 @@ int ObjSyncCore::_RcvObj(PPID obj, PPID id, PPCommSyncID commID, PPID dbid, cons
 			THROW(r = SearchPrivate(obj, id, dbid));
 			if(r > 0) {
 				THROW_DB(deleteRec());
-				// Конфликт частных идентификаторов синхронизации (старая запись удалена) [%s]
+				// РљРѕРЅС„Р»РёРєС‚ С‡Р°СЃС‚РЅС‹С… РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё (СЃС‚Р°СЂР°СЏ Р·Р°РїРёСЃСЊ СѓРґР°Р»РµРЅР°) [%s]
 				LogRcvObjDiag(PPTXT_LOG_OBJSYNC_MISM_PRIV, obj, id, commID);
 			}
 			clearDataBuf();
@@ -497,7 +511,7 @@ int ObjSyncQueueCore::AddFileRecord(PPID * pID, const ObjSyncQueueCore::FileInfo
 	ObjSyncQueueTbl::Rec rec;
 	SString name_buf, temp_buf;
 	SPathStruc ps(rInfo.InnerFileName);
-	name_buf = ps.Nam; // Файл не имеет расширения //
+	name_buf = ps.Nam; // Р¤Р°Р№Р» РЅРµ РёРјРµРµС‚ СЂР°СЃС€РёСЂРµРЅРёСЏ //
 	ps.Split(rInfo.OrgFileName);
 	ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 	name_buf.Semicol().Cat(temp_buf);
@@ -598,8 +612,7 @@ int ObjSyncQueueCore::PrintDebugObjList(PPID objType)
     MEMSZERO(k0);
     if(search(0, &k0, spFirst)) do {
     	if(!objType || data.ObjType == objType) {
-			PPCommSyncID commid;
-			commid = data;
+			PPCommSyncID commid(data);
 			commid.ToStr(0, temp_buf.Z());
 			if(buf.Empty())
 				buf.Cat("ObjSyncQueue Debug List").Space().CatEq("ObjType", objType).CR();
@@ -640,7 +653,7 @@ int ObjSyncQueueCore::Clear()
 	SString file_path;
 	PPObjectTransmit::GetQueueFilePath(file_path);
 	THROW_DB(deleteFrom(this, 1, *reinterpret_cast<DBQ *>(0)));
-	PPRemoveFilesByExt(file_path, 0, 0, 0); // Все файлы - без расширений
+	PPRemoveFilesByExt(file_path, 0, 0, 0); // Р’СЃРµ С„Р°Р№Р»С‹ - Р±РµР· СЂР°СЃС€РёСЂРµРЅРёР№
 	CATCHZOK
 	return ok;
 }

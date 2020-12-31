@@ -1852,8 +1852,8 @@ static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64
 // 
 static inline void bcd_decompress_small(uint32 compressed_bcd, uint8 * decompressed_bcd)
 {
-	uint32 high_pair = compressed_bcd / 100;
-	uint32 low_pair  = compressed_bcd % 100;
+	const uint32 high_pair = compressed_bcd / 100;
+	const uint32 low_pair  = compressed_bcd % 100;
 	decompressed_bcd[0] = ((uint8)(high_pair / 10));
 	decompressed_bcd[1] = ((uint8)(high_pair % 10));
 	decompressed_bcd[2] = ((uint8)(low_pair  / 10));
@@ -1897,8 +1897,8 @@ static void  FASTCALL bcd_decompress(uint64 compressed_bcd, uint8 * decompressed
 // 
 static inline uint32 bcd_compress_small(const uint8 * pDecompressedBcd)
 {
-	uint32 high_pair = 10 * pDecompressedBcd[0] + pDecompressedBcd[1];
-	uint32 low_pair  = 10 * pDecompressedBcd[2] + pDecompressedBcd[3];
+	const uint32 high_pair = 10 * pDecompressedBcd[0] + pDecompressedBcd[1];
+	const uint32 low_pair  = 10 * pDecompressedBcd[2] + pDecompressedBcd[3];
 	return (100 * high_pair + low_pair);
 }
 // 
@@ -1906,9 +1906,9 @@ static inline uint32 bcd_compress_small(const uint8 * pDecompressedBcd)
 // 
 static uint64 FASTCALL bcd_compress(const uint8 * pDecompressedBcd)
 {
-	uint64 d2 = bcd_compress_small(pDecompressedBcd);
-	uint64 d1 = 10000 * bcd_compress_small(pDecompressedBcd + 4) + bcd_compress_small(pDecompressedBcd + 8);
-	uint64 d0 = 10000 * bcd_compress_small(pDecompressedBcd + 12) + bcd_compress_small(pDecompressedBcd + 16);
+	const uint64 d2 = bcd_compress_small(pDecompressedBcd);
+	const uint64 d1 = 10000 * bcd_compress_small(pDecompressedBcd + 4) + bcd_compress_small(pDecompressedBcd + 8);
+	const uint64 d0 = 10000 * bcd_compress_small(pDecompressedBcd + 12) + bcd_compress_small(pDecompressedBcd + 16);
 	return ((d2 * (10000ULL * 10000ULL) + d1) * (10000ULL * 10000ULL)) + d0;
 }
 // 
@@ -1933,7 +1933,7 @@ static int FASTCALL bcd_round(int _newNDigits, uint8 * pDecimalMantissa, int32 *
 				break;
 			else {
 				for(int i = newndigits; i >= 0; --i) {
-					uint8 new_value = pDecimalMantissa[i] + 1;
+					const uint8 new_value = pDecimalMantissa[i] + 1;
 					if(new_value < 10) {
 						pDecimalMantissa[i] = new_value;
 						break;

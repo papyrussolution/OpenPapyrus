@@ -2177,9 +2177,16 @@ private:
 };
 
 class AsyncCashNodeDialog : public TDialog {
+	enum {
+		dummyFirst = 1,
+		brushValidPath,
+		brushInvalidPath
+	};
 public:
 	explicit AsyncCashNodeDialog(PPAsyncCashNode * pData) : TDialog(DLG_CASHNA), P_Data(pData)
 	{
+		Ptb.SetBrush(brushValidPath,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0); // @v10.9.11
+		Ptb.SetBrush(brushInvalidPath, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0); // @v10.9.11
 		PPIniFile  ini_file;
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACSCLOSE_USEALTIMPORT, &UseAltImport);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_IMPFILES, CTL_CASHN_IMPFILES, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
@@ -2191,6 +2198,7 @@ private:
 	int    EditApnCorrList();
 	PPAsyncCashNode * P_Data; // class AsyncCahsNodeDialog not owns P_Data
 	int    UseAltImport;      //
+	SPaintToolBox Ptb;
 };
 
 int AsyncCashNodeDialog::EditDivGrpAssoc(SArray * pList) { DIALOG_PROC_BODY(DivGrpAsscListDialog, pList); }
@@ -2216,10 +2224,38 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 		const PPID cash_type = getCtrlLong(CTLSEL_CASHN_DEVICE);
 		showCtrl(CTL_CASHN_IMPPARAM, BIN(cash_type == PPCMT_CRCSHSRV && UseAltImport));
 	}
+	else if(event.isCmd(cmCtlColor)) { // @v10.9.11
+		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+		if(p_dc) {
+			static const uint16 ctl_list[] = { CTL_CASHN_IMPFILES, CTL_CASHN_EXPPATHS };
+			SString input_buf;
+			SString temp_buf;
+			for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++) {
+				const uint16 ctl_id = ctl_list[i];
+				if(p_dc->H_Ctl == getCtrlHandle(ctl_id)) {
+					getCtrlString(ctl_id, input_buf);
+					int    local_result = -1; // -1 - empty, 0 - path unavailable, 1 - path available
+					if(input_buf.NotEmpty()) {
+						StringSet ss(';', input_buf);
+						for(uint ssp = 0; local_result != 0 && ss.get(&ssp, temp_buf);) {
+							temp_buf.Strip().RmvLastSlash();
+							local_result = (IsDirectory(temp_buf) || fileExists(temp_buf)) ? 1 : 0;
+						}
+					}
+					const int tool_id = (local_result > 0) ? brushValidPath : ((local_result == 0) ? brushInvalidPath : 0);
+					if(tool_id) {
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(tool_id));
+					}
+				}
+			}
+			clearEvent(event);
+		}		
+	}
 	else if(event.isCmd(cmImpParam)) {
 		// @v9.1.3 EditCSessImpExpParams(1);
 	}
-	else if(event.isCmd(cmTags)) { // @v9.6.5
+	else if(event.isCmd(cmTags)) {
 		P_Data->TagL.ObjType = PPOBJ_CASHNODE;
 		EditObjTagValList(&P_Data->TagL, 0);
 	}
@@ -2241,7 +2277,7 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 				PPViewBill bill_view;
 				if(bill_view.Init_(&bill_filt)) {
 					if(bill_view.Browse(0) > 0) {
-						PPID   bill_id = ((BillFilt*)bill_view.GetBaseFilt())->Sel;
+						PPID   bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 						BillTbl::Rec bill_rec;
 						if(bill_id && BillObj->Search(bill_id, &bill_rec) > 0) {
 							P_Data->CurRestBillID = bill_id;

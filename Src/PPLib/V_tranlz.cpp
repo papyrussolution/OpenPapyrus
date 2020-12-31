@@ -2509,7 +2509,6 @@ void PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 						}
 					}
 				}
-				// @v9.4.10 {
 				if(Filt.Flags & Filt.fCmpWrOff) {
 					uint pos = 0;
 					if(p_q) {
@@ -2526,7 +2525,6 @@ void PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 							pBrw->InsColumn(-1, "LinkPrice", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
 					}
 				}
-				// } @v9.4.10
 				if(Filt.ExtValueParam[0]) {
 					uint pos = 0;
 					if(p_q && p_q->getFieldPosByName("ExtVal1", &pos))
@@ -2543,7 +2541,7 @@ void PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 		}
 		else {
 			BroCrosstab ct_col;
-			BrowserDef * p_def = pBrw->view->getDef();
+			BrowserDef * p_def = pBrw->getDef();
 			if(p_def) {
 				uint col_width = 20;
 				SString title, buf;

@@ -549,7 +549,7 @@
 	#else
 		#define CXX_ARCH_X86_64     (0)
 	#endif
-	#if (defined(_M_IX86 ) || defined(__X86__ ) || defined(__i386) || defined(__IA32__) || defined(__I86__) || defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__i686__))
+	#if (defined(_M_IX86 ) || defined(__X86__ ) || defined(__i386) || defined(__IA32__) || defined(__I86__) || defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__i686__) || defined(__THW_INTEL__))
 		#define CXX_ARCH_X86        (!CXX_ARCH_X86_64)
 	#else
 		#define CXX_ARCH_X86        (0)
@@ -559,7 +559,7 @@
 	#else
 		#define CXX_ARCH_ARM64      (0)
 	#endif
-	#if (defined(_M_ARM  ) || defined(__arm    ) || defined(__thumb__ ) || defined(_M_ARMT ) || defined(__arm__  ) || defined(__thumb2__))
+	#if (defined(_M_ARM) || defined(__arm) || defined(__thumb__) || defined(_M_ARMT) || defined(__arm__) || defined(__thumb2__))
 		#define CXX_ARCH_ARM32      (!CXX_ARCH_ARM64)
 	#else
 		#define CXX_ARCH_ARM32      (0)

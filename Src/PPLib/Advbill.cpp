@@ -517,7 +517,7 @@ AdvBillItemBrowser::~AdvBillItemBrowser()
 
 int AdvBillItemBrowser::getCurItemPos()
 {
-	return static_cast<int16>(view->getDef()->_curItem());
+	return static_cast<int16>(getDef()->_curItem());
 }
 //
 //
@@ -577,12 +577,12 @@ int AdvBillItemBrowser::update(int pos)
 	int    ok = -1;
 	uint   i;
 	SArray * p_list = 0;
-	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 	if(p_def) {
 		uint   count = P_Pack->AdvList.GetCount();
 		AdvBillItemEntry total;
 		MEMSZERO(total);
-		int16  c = static_cast<int16>(view->getDef()->_curItem());
+		int16  c = static_cast<int16>(getDef()->_curItem());
 		p_def->setArray(0, 0, 1);
 		THROW_MEM(p_list = new SArray(sizeof(AdvBillItemEntry)));
 		for(i = 0; i < count; i++) {
@@ -595,13 +595,13 @@ int AdvBillItemBrowser::update(int pos)
 		TotalLinesStr(IsWarrant ? total.Memo : total.Account, count);
 		THROW_SL(p_list->insert(&total));
 		p_def->setArray(p_list, 0, 0);
-		view->setRange(p_list->getCount());
+		setRange(p_list->getCount());
 		if(pos == pos_cur && c >= 0 && c < p_list->getCountI())
-			view->go(c);
+			go(c);
 		else if(pos == pos_bottom && p_list->getCount() >= 2)
-			view->go(p_list->getCount() - 2);
+			go(p_list->getCount() - 2);
 		else if(pos >= 0 && pos < p_list->getCountI())
-			view->go(pos);
+			go(pos);
 		else
 			p_def->top();
 	}

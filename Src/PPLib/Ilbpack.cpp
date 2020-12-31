@@ -483,7 +483,7 @@ public:
 		UlongArray step_mult_list;
 		RunningPriceAmount = 0.0;
 		RunningPriceVat = 0.0;
-		TotalRunning.Clear();
+		TotalRunning.Z();
 		if(pPrL)
 			RowPrecList.clear();
 		ZDELETE(P_Btb);
@@ -2063,10 +2063,9 @@ int BillTransmDeficit::AddItem(ILTI * pIlti, const char * pClbNumber, BillTbl::R
 		THROW(p_lc);
 		if(p_lc->P.low == 0 || p_lc->P.low > pBillRec->Dt)
 			p_lc->P.low = pBillRec->Dt;
-		if(p_lc->P.upp < pBillRec->Dt)
-			p_lc->P.upp = pBillRec->Dt;
+		SETMAX(p_lc->P.upp, pBillRec->Dt);
 		// Searching total record for goods
-		double qtty = R6(fabs(skipped ? pIlti->Quantity : pIlti->Rest));
+		const double qtty = R6(fabs(skipped ? pIlti->Quantity : pIlti->Rest));
 		if(qtty > 0.0) {
 			if(Search(pBillRec->LocID, pIlti->GoodsID, 0, &tdt_rec) > 0) {
 				THROW(UpdateRec(&tdt_rec, pIlti, pClbNumber, pBillRec, qtty));

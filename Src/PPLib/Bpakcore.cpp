@@ -5428,12 +5428,11 @@ BillViewItem::BillViewItem() : Debit(0.0), Credit(0.0), Saldo(0.0), LastPaymDate
 {
 }
 
-BillTotal::BillTotal()
+BillTotal::BillTotal() : Count(0), Sum(0.0), Debt(0.0), InSaldo(0.0), Debit(0.0), Credit(0.0), OutSaldo(0.0)
 {
-	Reset();
 }
 
-BillTotal & BillTotal::Reset()
+BillTotal & BillTotal::Z()
 {
 	Count = 0;
 	Sum = 0.0;
@@ -5449,27 +5448,28 @@ BillTotal & BillTotal::Reset()
 //
 BillTotalData::BillTotalData()
 {
-	Clear();
+	Z();
 }
 
-void BillTotalData::Clear()
+BillTotalData & BillTotalData::Z()
 {
 	memzero(&LinesCount, offsetof(BillTotalData, Amounts));
 	Amounts.clear();
 	VatList.clear();
 	CostVatList.clear();
 	PriceVatList.clear();
+	return *this;
 }
 
 BillVatArray::BillVatArray() : TSVector <BillVatEntry>()
 {
 }
 
-BillVatEntry * BillVatArray::GetByRate(double rate) const
+const BillVatEntry * BillVatArray::GetByRate(double rate) const
 {
 	for(uint i = 0; i < count; i++) {
-		BillVatEntry & r_entry = at(i);
-		if(r_entry.Rate == rate)
+		const BillVatEntry & r_entry = at(i);
+		if(feqeps(r_entry.Rate, rate, 1E-5))
 			return &r_entry;
 	}
 	return 0;
@@ -5479,7 +5479,7 @@ int BillVatArray::Add(double rate, double sum, double base, double amtByVat)
 {
 	for(uint i = 0; i < count; i++) {
 		BillVatEntry & r_entry = at(i);
-		if(r_entry.Rate == rate) {
+		if(feqeps(r_entry.Rate, rate, 1E-5)) {
 			r_entry.VatSum += sum;
 			r_entry.BaseAmount += base;
 			r_entry.AmountByVat += amtByVat;

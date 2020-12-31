@@ -389,7 +389,6 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 	if(rTi.IsCorrectionRcpt()) {
 		if(!(exclFlags & GTAXVF_NOMINAL) && rTi.LotTaxGrpID)
 			tax_grp_id = rTi.LotTaxGrpID;
-		// @v10.2.5 (ctr) MEMSZERO(gtx);
 		gobj.GTxObj.Fetch(tax_grp_id, date_of_relevance, 0, &gtx);
 		const double q_pre = fabs(rTi.QuotPrice);
 		qtty = fabs(rTi.Quantity_);
@@ -397,39 +396,39 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 		const double cq = R2(rTi.Cost * qtty - rTi.RevalCost * q_pre);
 		const double pq = R2(rTi.Price * qtty - rTi.Discount * q_pre);
 		if(q_diff != 0.0) {
-			qtty = q_diff; // @v10.3.9 
-			// amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / q_diff; // Для корректировки НДС всегда в ценах поступления
+			qtty = q_diff;
 		}
 		else {
-			// @v10.3.9 amount = 0.0;
+			;
 		}
-		amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / qtty; // @v10.3.9 
-		// @v10.3.9 qtty = q_diff;
+		amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / qtty;
 	}
-	// @v10.3.3 {
 	else if(rTi.IsCorrectionExp()) {
-		// @v10.3.4 {
 		BillTbl::Rec bill_rec;
 		BillTbl::Rec link_bill_rec;
 		LDATE   tax_date = rTi.Date;
 		if(p_bobj->Fetch(rTi.BillID, &bill_rec) > 0 && bill_rec.LinkBillID && p_bobj->Fetch(bill_rec.LinkBillID, &link_bill_rec) > 0)
 			tax_date = link_bill_rec.Dt;
-		// } @v10.3.4 
 		gobj.GTxObj.Fetch(tax_grp_id, tax_date, 0, &gtx);
-		// @v10.3.10 {
 		const double q_pre = fabs(rTi.QuotPrice);
 		qtty = fabs(rTi.Quantity_);
 		const double q_diff = (qtty - q_pre);
-		//const double cq = R2(rTi.Cost * qtty - rTi.RevalCost * q_pre);
-		const double pq = R2(rTi.NetPrice() * qtty - rTi.RevalCost * q_pre); // @v10.3.12 rTi.Price-->rTi.NetPrice
-		if(q_diff != 0.0)
-			qtty = q_diff;
-		amount = pq / qtty;
-		// } @v10.3.10 
-		// @v10.3.10 qtty = -rTi.GetEffCorrectionExpQtty();
-		// @v10.3.10 amount = (tiamt == TIAMT_PRICE) ? (rTi.Price - rTi.Discount) : rTi.Cost;
+		// @v10.9.11 {
+		if(tiamt == TIAMT_COST) {
+			const double pq = R2(rTi.Cost * (qtty - q_pre));
+			if(q_diff != 0.0)
+				qtty = q_diff;
+			amount = pq / qtty;
+		}
+		else 
+		// } @v10.9.11
+		{
+			const double pq = R2(rTi.NetPrice() * qtty - rTi.RevalCost * q_pre);
+			if(q_diff != 0.0)
+				qtty = q_diff;
+			amount = pq / qtty;
+		}
 	}
-	// } @v10.3.3 
 	else {
 		//
 		// При переоценке основных фондов в ценах реализации используем схему расчета

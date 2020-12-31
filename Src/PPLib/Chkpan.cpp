@@ -1333,7 +1333,7 @@ double CPosProcessor::GetUsableBonus() const
 }
 
 double CPosProcessor::GetBonusMaxPart() const { return BonusMaxPart; } // @v10.9.0
-double CPosProcessor::RoundDis(double d) const { return Round(d, R.DisRoundPrec, R.DisRoundDir); }
+double CPosProcessor::RoundDis(double d) const { return PPRound(d, R.DisRoundPrec, R.DisRoundDir); }
 
 int CPosProcessor::SetupCTable(int tableNo, int guestCount)
 {
@@ -1882,7 +1882,7 @@ void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 {
 	Helper_SetupDiscount(0.0, distributeGiftDiscount);
 	const CcTotal cct = CalcTotal();
-	double new_amt = (R.AmtRoundPrec != 0.0) ? Round(cct.Amount, R.AmtRoundPrec, R.AmtRoundDir) : R2(cct.Amount);
+	double new_amt = (R.AmtRoundPrec != 0.0) ? PPRound(cct.Amount, R.AmtRoundPrec, R.AmtRoundDir) : R2(cct.Amount);
 	double diff = R2(cct.Amount - new_amt);
 	if(!feqeps(diff, 0.0, 1E-6)) {
 		Helper_SetupDiscount(diff, 0);
@@ -8322,7 +8322,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	THROW(r);
 	if(p_ary->getCount()) {
 		THROW_MEM(p_brw = new SelLotBrowser(p_bobj, p_ary, s, 0)); // @newok
-		if(ExecView(p_brw) == cmOK && (p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->view->getCurItem())) != 0) {
+		if(ExecView(p_brw) == cmOK && (p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->getCurItem())) != 0) {
 			if((serial = p_sel->Serial).NotEmptyS()) {
 				ASSIGN_PTR(pPrice, p_sel->Price);
 				rSerial = serial;

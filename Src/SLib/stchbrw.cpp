@@ -268,15 +268,18 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 	STimeChunkBrowser * p_view = 0;
 	switch(message) {
 		case WM_CREATE:
-			p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
+			p_view = static_cast<STimeChunkBrowser *>(Helper_InitCreation(lParam, (void **)&p_init_data)); // @v10.9.11
+			/* @v10.9.11 p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
 			if(TWindow::IsMDIClientWindow(p_init_data->hwndParent)) {
 				p_view = reinterpret_cast<STimeChunkBrowser *>(static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams)->lParam);
-				p_view->BbState |= bbsIsMDI;
+				if(p_view)
+					p_view->BbState |= bbsIsMDI;
 			}
 			else {
 				p_view = static_cast<STimeChunkBrowser *>(p_init_data->lpCreateParams);
-				p_view->BbState &= ~bbsIsMDI;
-			}
+				if(p_view)
+					p_view->BbState &= ~bbsIsMDI;
+			}*/
 			if(p_view) {
 				p_view->HW = hWnd;
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
@@ -284,7 +287,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0);
 				p_view->SetupScroll();
 				p_view->invalidateAll(1);
-				PostMessage(hWnd, WM_PAINT, 0, 0);
+				::PostMessage(hWnd, WM_PAINT, 0, 0);
 				{
 					SString temp_buf;
 					TView::SGetWindowText(hWnd, temp_buf);
@@ -299,14 +302,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				p_view->SaveParameters();
-				SETIFZ(p_view->EndModalCmd, cmCancel);
-				APPL->DelItemFromMenu(p_view);
-				p_view->ResetOwnerCurrent();
-				if(!p_view->IsInState(sfModal)) {
-					APPL->P_DeskTop->remove(p_view);
-					delete p_view;
-					TView::SetWindowProp(hWnd, GWLP_USERDATA, static_cast<void *>(0));
-				}
+				TWindowBase::Helper_Finalize(hWnd, p_view);
 			}
 			return 0;
 		case WM_SETFOCUS:
@@ -348,30 +344,28 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 				KeyDownCommand kdc;
 				kdc.SetWinMsgCode(wParam);
 				const uint16 tvk = kdc.GetTvKeyCode();
-				if(/*wParam == VK_ESCAPE*/tvk == kbEsc) {
+				if(tvk == kbEsc) {
 					p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 					if(p_view) {
 						p_view->endModal(cmCancel);
 						return 0;
 					}
 				}
-				else if(/*wParam == VK_TAB*/tvk == kbCtrlTab) {
+				else if(tvk == kbCtrlTab) {
 					p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
-					if(/*GetKeyState(VK_CONTROL) & 0x8000 &&*/ p_view && !p_view->IsInState(sfModal)) {
+					if(p_view && !p_view->IsInState(sfModal)) {
 						SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
 						return 0;
 					}
 				}
-				else if(/*LOWORD(wParam) == VK_INSERT && 0x8000 & GetKeyState(VK_CONTROL)*/tvk == kbCtrlIns) {
+				else if(tvk == kbCtrlIns) {
 					p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 					CALLPTRMEMB(p_view, CopyToClipboard());
 				}
-				// @v9.8.7 {
-				else if(/*LOWORD(wParam) == VK_F10 && 0x8000 & GetKeyState(VK_CONTROL)*/tvk == kbCtrlF11) {
+				else if(tvk == kbCtrlF11) {
 					p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 					CALLPTRMEMB(p_view, ExportToExcel());
 				}
-				// } @v9.8.7 
 			}
 			return 0;
 		case WM_LBUTTONDBLCLK:
@@ -397,7 +391,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 			if(p_view) {
 				if(p_view->InvalidateChunk(p_view->St.SelChunkId) > 0) {
 					p_view->St.SelChunkId = -1;
-					UpdateWindow(hWnd);
+					::UpdateWindow(hWnd);
 				}
 				else
 					p_view->St.SelChunkId = -1;

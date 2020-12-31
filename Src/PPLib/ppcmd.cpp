@@ -329,7 +329,7 @@ int PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@erik v10
 
 int PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6.1
 {
-	int ok = 1;
+	int    ok = 1;
 	SString temp_buf;
 	assert(pHandler);
 	THROW(pHandler);
@@ -337,21 +337,16 @@ int PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6.1
 		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandItem")){
 			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
-				if(SXml::GetContentByName(p_node, "Kind", temp_buf) != 0) {
+				if(SXml::GetContentByName(p_node, "Kind", temp_buf))
 					Kind = static_cast<int16>(temp_buf.ToLong());
-				}					
-				else if(SXml::GetContentByName(p_node, "Flags", temp_buf)!=0) {
+				else if(SXml::GetContentByName(p_node, "Flags", temp_buf))
 					Flags = static_cast<int16>(temp_buf.ToLong());
-				}
-				else if(SXml::GetContentByName(p_node, "ID", temp_buf)!=0) {
+				else if(SXml::GetContentByName(p_node, "ID", temp_buf))
 					ID = temp_buf.ToLong();
-				}					
-				else if(SXml::GetContentByName(p_node, "Name", temp_buf)!=0) {
+				else if(SXml::GetContentByName(p_node, "Name", temp_buf))
 					Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				}					
-				else if(SXml::GetContentByName(p_node, "Icon", temp_buf)!=0) {
+				else if(SXml::GetContentByName(p_node, "Icon", temp_buf))
 					Icon = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				}
 			}
 		}
 	}
@@ -425,7 +420,7 @@ int PPCommand::Write(SBuffer & rBuf, long extraParam) const
 	// THROW(rBuf.Write(&Y, sizeof(Y)));
 	// }
 	// на THROW(rBuf.Write(&P, sizeof(P)));
-	// не послечет каких-либо проблем
+	// не повлечет каких-либо проблем
 	//
 	THROW_SL(rBuf.Write(&P, sizeof(P)));
 	//

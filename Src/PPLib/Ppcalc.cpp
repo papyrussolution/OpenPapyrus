@@ -209,7 +209,7 @@ int PPCalcFuncList::CalcFunc(uint16 funcID, const StringSet * pParams, char * pR
 	return ok;
 }
 
-double Round(double v, double prec, int dir)
+double PPRound(double v, double prec, int dir)
 {
 	static const double __tolerance = 1.0e-10;
 	// @todo return round(v, prec, dir);
@@ -231,27 +231,24 @@ double Round(double v, double prec, int dir)
 	else {
 		const double down = prec * _fl;
 		const double up   = prec * _cl;
-		return ((2.0 * v - down - up) < (-__tolerance)) ? down : up; // @v7.0.9 0.0-->(-__tolerance)
+		return ((2.0 * v - down - up) < (-__tolerance)) ? down : up;
 	}
 }
 
+/* @v10.9.11 (replced with PPObjQuotKind::RoundUpPrice)
 double RoundUpPrice(double v)
 {
 	int    dir = 0;
-	long   rd = (LConfig.Flags & (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN));
+	const  PPConfig & r_cfg = LConfig;
+	long   rd = (r_cfg.Flags & (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN));
 	if(rd == 0 || rd == (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN))
 		dir = 0;
 	else if(rd & CFGFLG_ROUNDUP)
 		dir = 1;
 	else if(rd & CFGFLG_ROUNDDOWN)
 		dir = -1;
-	return Round(v, LConfig.RoundPrec, dir);
-}
-
-double CalcSelling(double cost, double pc)
-{
-	return RoundUpPrice(cost + cost * fdiv100r(pc));
-}
+	return Round(v, r_cfg.RoundPrec, dir);
+}*/
 //
 //
 //
@@ -380,7 +377,7 @@ double CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pVatSum,
 				price = R2(fdiv100i((n+1) * div));
 	}
 	else
-		price = Round(price, RoundPrec, RoundDir);
+		price = PPRound(price, RoundPrec, RoundDir);
 	//
 	// После окончательного расчета цены необходимо заново рассчитать налоги
 	//

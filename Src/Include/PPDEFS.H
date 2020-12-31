@@ -7035,11 +7035,13 @@
 	#define CTL_ARTICLEFLT_FTCLOSED      (4 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLEFLT_FTSTOP        (5 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLEFLT_FLAGS         (6 + WINDOWS_ID_BIAS)
+/* @v10.9.11 @unused 
 #define DLG_PSAGGRVAL             715
 	#define CTL_PSAGGRVAL_AVG            (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSAGGRVAL_DSP            (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSAGGRVAL_NUMVALS        (3 + WINDOWS_ID_BIAS)
-	#define CTL_PSAGGRVAL_TQTTY          (4 + WINDOWS_ID_BIAS)
+	#define CTL_PSAGGRVAL_TQTTY          (4 + WINDOWS_ID_BIAS) 
+*/
 #define DLG_EXPIRYREG             716
 	#define CTL_EXPIRYREG_LIST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_EXPIRYREG_PSNTEXT        (2 + WINDOWS_ID_BIAS)
@@ -10804,12 +10806,15 @@
 #define DLG_LAYOENTRY             1363 // Параметры члена 2-d раскладки
 	#define CTL_LAYOENTRY_SIZE        (1 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_MARG        (2 + WINDOWS_ID_BIAS)
-	#define CTL_LAYOENTRY_GRAVITY     (3 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_PARENT      (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LAYOENTRY_PARENT   (5 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_GROWF       (6 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_SHRNKF      (7 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_ASPR        (8 + WINDOWS_ID_BIAS)
+	#define CTL_LAYOENTRY_GRAVITY     (9 + WINDOWS_ID_BIAS)
+	#define CTLSEL_LAYOENTRY_GRAVITY  (10 + WINDOWS_ID_BIAS)
+	#define CTL_LAYOENTRY_ALGNSLF     (11 + WINDOWS_ID_BIAS)
+	#define CTLSEL_LAYOENTRY_ALGNSLF  (12 + WINDOWS_ID_BIAS)
 #define DLG_VETISENT              1364
 	#define cmCreateVetisEnterprise   101
 	#define CTL_VETISENT_LOC          (1 + WINDOWS_ID_BIAS)
@@ -11047,8 +11052,14 @@
 	#define CTL_WOLAYC_IDENT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_WOLAYC_FLAGS          (2 + WINDOWS_ID_BIAS)
 	#define CTL_WOLAYC_LAY            (3 + WINDOWS_ID_BIAS)
-	#define CTL_WOLAYC_ADJ            (4 + WINDOWS_ID_BIAS)
+	//#define CTL_WOLAYC_ADJ            (4 + WINDOWS_ID_BIAS)
 	#define CTL_WOLAYC_MARG           (5 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYC_JUSTC          (6 + WINDOWS_ID_BIAS)
+	#define CTLSEL_WOLAYC_JUSTC       (7 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYC_ALGNC          (8 + WINDOWS_ID_BIAS)
+	#define CTLSEL_WOLAYC_ALGNC       (9 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYC_ALGNI          (10 + WINDOWS_ID_BIAS)
+	#define CTLSEL_WOLAYC_ALGNI       (11 + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

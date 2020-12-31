@@ -41,7 +41,7 @@ LDATE GoodsTrnovrBrowser::GetDate()
 	struct _H {
 		char str_dt[12];
 	};
-	const _H * h_dt = static_cast<const _H *>(view->getCurItem());
+	const _H * h_dt = static_cast<const _H *>(getCurItem());
 	LDATE dt = ZERODATE;
 	if(h_dt)
 		strtodate(h_dt->str_dt, DATF_DMY, &dt);

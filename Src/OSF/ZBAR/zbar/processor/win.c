@@ -69,11 +69,8 @@ int _zbar_thread_start(zbar_thread_t * thr, zbar_thread_proc_t proc, void * arg,
 	thr->started = 1;
 	_zbar_event_init(&thr->notify);
 	_zbar_event_init(&thr->activity);
-
 	HANDLE hthr = CreateThread(NULL, 0, proc, arg, 0, 0);
-	int rc = (!hthr ||
-	    _zbar_event_wait(&thr->activity, NULL, NULL) < 0 ||
-	    !thr->running);
+	int rc = (!hthr || _zbar_event_wait(&thr->activity, NULL, NULL) < 0 || !thr->running);
 	CloseHandle(hthr);
 	if(rc) {
 		thr->started = 0;

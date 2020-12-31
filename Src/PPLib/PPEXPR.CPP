@@ -35,7 +35,7 @@ int ExprEvalContext::SetInnerContext(ExprEvalContext * pInner)
 				p_last = p_last->P_Next__;
 				if(p_last == pInner) {
 					assert(!p_last->P_Next__ || !p_last->P_Next__->P_Next__);
-					p_last->P_Next__ = 0; // @v9.8.12
+					p_last->P_Next__ = 0;
 					done = 1;
 				}
 			}
@@ -265,7 +265,7 @@ int BillContext::ResolveFunc(int funcId, FC & rFc)
 	int    ok = 1;
 	double result = 0.0;
 	double arg = rFc.ArgList.getCount() ? rFc.ArgList.at(0) : 0.0;
-	BillVatEntry * p_vat_entry = 0;
+	const  BillVatEntry * p_vat_entry = 0;
 	switch(funcId) {
 		case funcAmountByVat:
 			CalcTotalBlock();
@@ -305,7 +305,7 @@ int BillContext::ResolveFunc(int funcId, FC & rFc)
 			{
 				BillTotalData local_bt;
 				const_cast<PPBillPacket *>(P_Pack)->CalcTotal(&local_bt, BTC_CALCSALESTAXES|BTC_CALCNOMINALGVAT); // @attention cast const-->nonconst
-				BillVatEntry * p_vat_entry = local_bt.VatList.GetByRate(arg);
+				const BillVatEntry * p_vat_entry = local_bt.VatList.GetByRate(arg);
 				if(p_vat_entry)
 					result = p_vat_entry->AmountByVat;
 			}
@@ -318,7 +318,7 @@ int BillContext::ResolveFunc(int funcId, FC & rFc)
 				THROW_PP(objid.Obj == PPOBJ_GOODSTYPE, PPERR_OBJEXPECTED_GOODSTYPE);
 				BillTotalData local_bt;
 				const_cast<PPBillPacket *>(P_Pack)->CalcTotal(&local_bt, objid.Id, BTC_CALCSALESTAXES); // @attention cast const-->nonconst
-				BillVatEntry * p_vat_entry = local_bt.VatList.GetByRate(arg2);
+				const BillVatEntry * p_vat_entry = local_bt.VatList.GetByRate(arg2);
 				if(p_vat_entry)
 					result = p_vat_entry->AmountByVat;
 			}
@@ -1679,4 +1679,3 @@ SLTEST_R(PPExprParser)
 }
 
 #endif // } SLTEST_RUNNING
-

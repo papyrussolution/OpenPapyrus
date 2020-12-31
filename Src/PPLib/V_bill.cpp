@@ -1292,7 +1292,6 @@ int PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, void * pExtraPtr)
 	k.Object = Filt.ObjectID;
 	BExtQuery q(t, 3);
 	DBQ * dbq = 0;
-
 	if(ArObj.Fetch(Filt.ObjectID, &ar_rec) > 0)
 		op_obj.GetPayableOpList(ar_rec.AccSheetID, &payable_op_list);
 	if((Filt.PayerID || Filt.AgentID) && !(CConfig.Flags & CCFLG_INDIVIDBILLEXTFILT)) {
@@ -1402,7 +1401,8 @@ int PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int chec
 
 int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 {
-	int    ok = 1, r = 1;
+	int    ok = 1;
+	int    r = 1;
 	const PPConfig & r_cfg = LConfig;
 	PPIDArray temp_list;
 	const PPIDArray * p_list = 0;
@@ -1528,7 +1528,7 @@ struct IterProcParam_Total {
 static int IterProc_Total(const BillViewItem * pItem, void * pExtraPtr)
 {
 	IterProcParam_Total * p_param = static_cast<IterProcParam_Total *>(pExtraPtr);
-	PPID   id = pItem->ID;
+	const PPID id = pItem->ID;
 	if(p_param) {
 		double amt  = BR2(pItem->Amount);
 		double paym = 0.0;
@@ -1562,14 +1562,16 @@ static int IterProc_Total(const BillViewItem * pItem, void * pExtraPtr)
 
 int PPViewBill::CalcTotal(BillTotal * pTotal)
 {
-	pTotal->Reset();
-	IterProcParam_Total param(P_BObj, &Filt, BIN(Filt.Flags & BillFilt::fCashOnly), pTotal);
-	int    ok = Enumerator(IterProc_Total, &param);
-	if(ok)
-		if(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) {
+	int    ok = -1;
+	if(pTotal) {
+		pTotal->Z();
+		IterProcParam_Total param(P_BObj, &Filt, BIN(Filt.Flags & BillFilt::fCashOnly), pTotal);
+		ok = Enumerator(IterProc_Total, &param);
+		if(ok && Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) {
 			CalcDebtCardInSaldo(&pTotal->InSaldo);
 			pTotal->OutSaldo = pTotal->InSaldo + pTotal->Debit - pTotal->Credit;
 		}
+	}
 	return ok;
 }
 
@@ -3977,7 +3979,8 @@ int PPViewBill::ShowPoolDetail(const PPBillPacket & rBillPack)
 
 int PPViewBill::ShowDetails(PPID billID)
 {
-	int    ok = -1, is_lock = 0;
+	int    ok = -1;
+	int    is_lock = 0;
 	PPViewInventory * p_v = 0;
 	PPBillPacket pack;
 	if(billID) {

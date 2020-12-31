@@ -350,7 +350,7 @@ double PrcssrUnifyPriceFilt::CalcPrice(double cost, double price) const
 			base_price = cost;
 		if(base_price != 0.0 && PctVal != 0.0) {
 			double p = (Flags & fAbsVal) ? (base_price + PctVal) : (base_price * (1.0 + fdiv100r(PctVal)));
-			base_price = Round(p, RoundPrec, RoundDir);
+			base_price = PPRound(p, RoundPrec, RoundDir);
 		}
 	}
 	return base_price;
@@ -366,7 +366,7 @@ int PrcssrUnifyPrice::CalcNewPrice(const ReceiptTbl::Rec & rLotRec, double * pPr
 		double quot = 0.0;
 		QuotIdent qi(P.LocID, P.QuotKindID, 0 /* CurID */, 0 /* ArID */);
 		if(GObj.GetQuotExt(rLotRec.GoodsID, qi, cost, price, &quot, 1) > 0) {
-			new_price = (P.RoundPrec != 0.0) ? Round(quot, P.RoundPrec, P.RoundDir) : quot;
+			new_price = (P.RoundPrec != 0.0) ? PPRound(quot, P.RoundPrec, P.RoundDir) : quot;
 		}
 		else
 			ok = 0;
@@ -375,7 +375,7 @@ int PrcssrUnifyPrice::CalcNewPrice(const ReceiptTbl::Rec & rLotRec, double * pPr
 		new_price = P.IsCostBase() ? cost : price;
 		if(new_price != 0.0 && P.PctVal != 0.0) {
 			double p = (P.Flags & PrcssrUnifyPriceFilt::fAbsVal) ? (new_price + P.PctVal) : (new_price * (1.0 + fdiv100r(P.PctVal)));
-			new_price = Round(p, P.RoundPrec, P.RoundDir);
+			new_price = PPRound(p, P.RoundPrec, P.RoundDir);
 		}
 	}
 	ASSIGN_PTR(pPrice, new_price);

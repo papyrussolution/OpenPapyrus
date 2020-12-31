@@ -716,10 +716,13 @@ static void __stdcall FlexSetupProc_WhatmanFig(LayoutFlexItem * pItem, float siz
 		TRect r;
 		FRect fr = pItem->GetFrame();
 		if(pItem->P_Parent) {
-			fr.a.X += pItem->P_Parent->frame[0];
-			fr.b.X += pItem->P_Parent->frame[0];
-			fr.a.Y += pItem->P_Parent->frame[1];
-			fr.b.Y += pItem->P_Parent->frame[1];
+			const float offs_x = pItem->P_Parent->R.Frame[0];
+			const float offs_y = pItem->P_Parent->R.Frame[1];
+			//fr.Move(offs_x, offs_y);
+			fr.a.X += offs_x;
+			fr.b.X += offs_x;
+			fr.a.Y += offs_y;
+			fr.b.Y += offs_y;
 		}
 		p_obj->SetBounds(r.set(fr));
 	}

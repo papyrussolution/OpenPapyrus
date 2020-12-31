@@ -647,11 +647,11 @@ void PPViewDvcLoadingStat::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw && !Filt.DvcID) {
 		SString  dvc_name;
 		GetDvcName(Filt.DvcType, &dvc_name);
-		pBrw->view->insertColumn(0, dvc_name, 7, 0L, MKSFMTD(20, 0, 0), 0);
+		pBrw->insertColumn(0, dvc_name, 7, 0L, MKSFMTD(20, 0, 0), 0);
 	}
 	if(Filt.GoodsGrpID || Filt.GoodsID) {
-		pBrw->view->insertColumn(2, "@ware", 8, 0L, MKSFMTD(20, 0, 0), 0);
-		pBrw->view->insertColumn(3, "@price", 9, 0L, SFMT_MONEY, 0);
+		pBrw->insertColumn(2, "@ware", 8, 0L, MKSFMTD(20, 0, 0), 0);
+		pBrw->insertColumn(3, "@price", 9, 0L, SFMT_MONEY, 0);
 	}
 }
 

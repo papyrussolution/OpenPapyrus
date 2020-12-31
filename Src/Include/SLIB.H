@@ -440,7 +440,6 @@ class  ObjStore;
 struct SMathResult;
 class  SUsbDevice;
 class  SDrawImage;
-class  SPaintToolBox;
 class  TCanvas2;
 class  TVRez;
 class  WinServiceMngr;
@@ -8629,8 +8628,161 @@ public:
 		cpucsAVX       = 11, // or above = AVX supported by processor and operating system
 		cpucsPCLMUL    = 12, // or above = PCLMUL and AES supported
 		cpucsAVX2      = 13, // or above = AVX2 supported
-		cpucsFMA3_F16C_BMI1_BMI2_LZCNT = 14, // @v9.9.6 or above = FMA3, F16C, BMI1, BMI2, LZCNT
-		cpucsAVVX512F  = 15, // @v9.9.6 or above = AVVX512F
+		cpucsFMA3_F16C_BMI1_BMI2_LZCNT = 14, // or above = FMA3, F16C, BMI1, BMI2, LZCNT
+		cpucsAVVX512F  = 15, // or above = AVVX512F
+	};
+	enum CpuArch {
+		cpuarchX86     = 0x01000000,
+		cpuarchARM     = 0x04000000,
+	};
+	enum CpuFeature {
+		cpuftr_NONE                = 0,
+		cpuftr_CPU_MASK            = 0x1f000000,
+		cpuftr_X86                 = 0x01000000,
+		cpuftr_ARM                 = 0x04000000,
+		// 
+		// x86 CPU features are constructed as:
+		//   (cpuftr_X86 | (eax << 16) | (ret_reg << 8) | (bit_position)
+		// For example, SSE3 is determined by the fist bit in the ECX
+		// register for a CPUID call with EAX=1, so we get:
+		//   cpuftr_X86 | (1 << 16) | (2 << 8) | (0) = 0x01010200
+		// 
+		// We should have information for inputs of EAX=0-7 w/ ECX=0.
+		// 
+		cpuftr_X86_FPU             = 0x01010300,
+		cpuftr_X86_VME             = 0x01010301,
+		cpuftr_X86_DE              = 0x01010302,
+		cpuftr_X86_PSE             = 0x01010303,
+		cpuftr_X86_TSC             = 0x01010304,
+		cpuftr_X86_MSR             = 0x01010305,
+		cpuftr_X86_PAE             = 0x01010306,
+		cpuftr_X86_MCE             = 0x01010307,
+		cpuftr_X86_CX8             = 0x01010308,
+		cpuftr_X86_APIC            = 0x01010309,
+		cpuftr_X86_SEP             = 0x0101030b,
+		cpuftr_X86_MTRR            = 0x0101030c,
+		cpuftr_X86_PGE             = 0x0101030d,
+		cpuftr_X86_MCA             = 0x0101030e,
+		cpuftr_X86_CMOV            = 0x0101030f,
+		cpuftr_X86_PAT             = 0x01010310,
+		cpuftr_X86_PSE_36          = 0x01010311,
+		cpuftr_X86_PSN             = 0x01010312,
+		cpuftr_X86_CLFSH           = 0x01010313,
+		cpuftr_X86_DS              = 0x01010314,
+		cpuftr_X86_ACPI            = 0x01010316,
+		cpuftr_X86_MMX             = 0x01010317,
+		cpuftr_X86_FXSR            = 0x01010318,
+		cpuftr_X86_SSE             = 0x01010319,
+		cpuftr_X86_SSE2            = 0x0101031a,
+		cpuftr_X86_SS              = 0x0101031b,
+		cpuftr_X86_HTT             = 0x0101031c,
+		cpuftr_X86_TM              = 0x0101031d,
+		cpuftr_X86_IA64            = 0x0101031e,
+		cpuftr_X86_PBE             = 0x0101031f,
+
+		cpuftr_X86_SSE3            = 0x01010200,
+		cpuftr_X86_PCLMULQDQ       = 0x01010201,
+		cpuftr_X86_DTES64          = 0x01010202,
+		cpuftr_X86_MONITOR         = 0x01010203,
+		cpuftr_X86_DS_CPL          = 0x01010204,
+		cpuftr_X86_VMX             = 0x01010205,
+		cpuftr_X86_SMX             = 0x01010206,
+		cpuftr_X86_EST             = 0x01010207,
+		cpuftr_X86_TM2             = 0x01010208,
+		cpuftr_X86_SSSE3           = 0x01010209,
+		cpuftr_X86_CNXT_ID         = 0x0101020a,
+		cpuftr_X86_SDBG            = 0x0101020b,
+		cpuftr_X86_FMA             = 0x0101020c,
+		cpuftr_X86_CX16            = 0x0101020d,
+		cpuftr_X86_XTPR            = 0x0101020e,
+		cpuftr_X86_PDCM            = 0x0101020f,
+		cpuftr_X86_PCID            = 0x01010211,
+		cpuftr_X86_DCA             = 0x01010212,
+		cpuftr_X86_SSE4_1          = 0x01010213,
+		cpuftr_X86_SSE4_2          = 0x01010214,
+		cpuftr_X86_X2APIC          = 0x01010215,
+		cpuftr_X86_MOVBE           = 0x01010216,
+		cpuftr_X86_POPCNT          = 0x01010217,
+		cpuftr_X86_TSC_DEADLINE    = 0x01010218,
+		cpuftr_X86_AES             = 0x01010219,
+		cpuftr_X86_XSAVE           = 0x0101021a,
+		cpuftr_X86_OSXSAVE         = 0x0101021b,
+		cpuftr_X86_AVX             = 0x0101021c,
+		cpuftr_X86_F16C            = 0x0101021d,
+		cpuftr_X86_RDRND           = 0x0101021e,
+		cpuftr_X86_HYPERVISOR      = 0x0101021f,
+
+		cpuftr_X86_FSGSBASE        = 0x01070100,
+		cpuftr_X86_TSC_ADJ         = 0x01070101,
+		cpuftr_X86_SGX             = 0x01070102,
+		cpuftr_X86_BMI1            = 0x01070103,
+		cpuftr_X86_HLE             = 0x01070104,
+		cpuftr_X86_AVX2            = 0x01070105,
+		cpuftr_X86_SMEP            = 0x01070107,
+		cpuftr_X86_BMI2            = 0x01070108,
+		cpuftr_X86_ERMS            = 0x01070109,
+		cpuftr_X86_INVPCID         = 0x0107010a,
+		cpuftr_X86_RTM             = 0x0107010b,
+		cpuftr_X86_PQM             = 0x0107010c,
+		cpuftr_X86_MPX             = 0x0107010e,
+		cpuftr_X86_PQE             = 0x0107010f,
+		cpuftr_X86_AVX512F         = 0x01070110,
+		cpuftr_X86_AVX512DQ        = 0x01070111,
+		cpuftr_X86_RDSEED          = 0x01070112,
+		cpuftr_X86_ADX             = 0x01070113,
+		cpuftr_X86_SMAP            = 0x01070114,
+		cpuftr_X86_AVX512IFMA      = 0x01070115,
+		cpuftr_X86_PCOMMIT         = 0x01070116,
+		cpuftr_X86_CLFLUSHOPT      = 0x01070117,
+		cpuftr_X86_CLWB            = 0x01070118,
+		cpuftr_X86_INTEL_PT        = 0x01070119,
+		cpuftr_X86_AVX512PF        = 0x0107011a,
+		cpuftr_X86_AVX512ER        = 0x0107011b,
+		cpuftr_X86_AVX512CD        = 0x0107011c,
+		cpuftr_X86_SHA             = 0x0107011d,
+		cpuftr_X86_AVX512BW        = 0x0107011e,
+		cpuftr_X86_AVX512VL        = 0x0107011f,
+
+		cpuftr_X86_PREFETCHWT1     = 0x01070200,
+		cpuftr_X86_AVX512VBMI      = 0x01070201,
+		cpuftr_X86_UMIP            = 0x01070202,
+		cpuftr_X86_PKU             = 0x01070203,
+		cpuftr_X86_OSPKE           = 0x01070204,
+		cpuftr_X86_AVX512VPOPCNTDQ = 0x0107020e,
+		cpuftr_X86_RDPID           = 0x01070215,
+		cpuftr_X86_SGX_LC          = 0x0107021e,
+
+		cpuftr_X86_AVX512_4VNNIW   = 0x01070302,
+		cpuftr_X86_AVX512_4FMAPS   = 0x01070303,
+
+		cpuftr_ARM_SWP             = cpuftr_ARM | 1,
+		cpuftr_ARM_HALF            = cpuftr_ARM | 2,
+		cpuftr_ARM_THUMB           = cpuftr_ARM | 3,
+		cpuftr_ARM_26BIT           = cpuftr_ARM | 4,
+		cpuftr_ARM_FAST_MULT       = cpuftr_ARM | 5,
+		cpuftr_ARM_FPA             = cpuftr_ARM | 6,
+		cpuftr_ARM_VFP             = cpuftr_ARM | 7,
+		cpuftr_ARM_EDSP            = cpuftr_ARM | 8,
+		cpuftr_ARM_JAVA            = cpuftr_ARM | 9,
+		cpuftr_ARM_IWMMXT          = cpuftr_ARM | 10,
+		cpuftr_ARM_CRUNCH          = cpuftr_ARM | 11,
+		cpuftr_ARM_THUMBEE         = cpuftr_ARM | 12,
+		cpuftr_ARM_NEON            = cpuftr_ARM | 13,
+		cpuftr_ARM_VFPV3           = cpuftr_ARM | 14,
+		cpuftr_ARM_VFPV3D16        = cpuftr_ARM | 15,
+		cpuftr_ARM_TLS             = cpuftr_ARM | 16,
+		cpuftr_ARM_VFPV4           = cpuftr_ARM | 17,
+		cpuftr_ARM_IDIVA           = cpuftr_ARM | 18,
+		cpuftr_ARM_IDIVT           = cpuftr_ARM | 19,
+		cpuftr_ARM_VFPD32          = cpuftr_ARM | 20,
+		cpuftr_ARM_LPAE            = cpuftr_ARM | 21,
+		cpuftr_ARM_EVTSTRM         = cpuftr_ARM | 22,
+
+		cpuftr_ARM_AES             = cpuftr_ARM | 0x0100 | 1,
+		cpuftr_ARM_PMULL           = cpuftr_ARM | 0x0100 | 2,
+		cpuftr_ARM_SHA1            = cpuftr_ARM | 0x0100 | 3,
+		cpuftr_ARM_SHA2            = cpuftr_ARM | 0x0100 | 4,
+		cpuftr_ARM_CRC32           = cpuftr_ARM | 0x0100 | 5
 	};
 	enum {
 		fBigEndian    = 0x0001, // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
@@ -11511,6 +11663,7 @@ struct FRect { // @persistent
 	FRect & FASTCALL operator = (FPoint p);
 	FRect & Around(FPoint p, FPoint size);
 	FRect & Grow(float aDX, float aDY);
+	FRect & Move__(float aDX, float aDY);
 	FRect & FASTCALL MoveCenterTo(FPoint center);
 	int    FASTCALL IsEqual(const FRect & rS) const;
 	int    IsEmpty() const;

@@ -164,6 +164,148 @@ int FASTCALL SSystem::GetCpuInfo()
 	CpuCacheSizeL2 = DataCacheSize(2);
 	return 1;
 }
+
+#if 0 // @v10.9.11 @construction {
+#if !defined(PSNIP_ONCE__H)
+	//#include "../once/once.h"
+#endif
+#if defined(_WIN32)
+	#define PSNIP_CPU__IMPL_WIN32
+#elif defined(unix) || defined(__unix__) || defined(__unix)
+	#include <unistd.h>
+	#if defined(_SC_NPROCESSORS_ONLN) || defined(_SC_NPROC_ONLN)
+		#define PSNIP_CPU__IMPL_SYSCONF
+	#else
+		#include <sys/sysctl.h>
+	#endif
+#endif
+#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+	#if defined(_MSC_VER)
+		static void psnip_cpu_getid(int func, int* data) 
+		{
+			__cpuid(data, func);
+		}
+	#else
+		static void psnip_cpu_getid(int func, int* data) 
+		{
+			__asm__ ("cpuid" : "=a" (data[0]), "=b" (data[1]), "=c" (data[2]), "=d" (data[3]) : "0" (func), "2" (0));
+		}
+	#endif
+#elif (CXX_ARCH_ARM32) || (CXX_ARCH_ARM64)
+	#if (defined(__GNUC__) && ((__GNUC__ > 2) || (__GNUC__ == 2 && __GNUC_MINOR__ >= 16)))
+		#define PSNIP_CPU__IMPL_GETAUXVAL
+		#include <sys/auxv.h>
+	#endif
+#endif
+
+static psnip_once psnip_cpu_once = PSNIP_ONCE_INIT;
+
+#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+	static unsigned int psnip_cpuinfo[8 * 4] = { 0, };
+#elif (CXX_ARCH_ARM32) || (CXX_ARCH_ARM64)
+	static unsigned long psnip_cpuinfo[2] = { 0, };
+#endif
+
+static void psnip_cpu_init(void) 
+{
+	#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+		for(int i = 0 ; i < 8 ; i++) {
+			psnip_cpu_getid(i, (int*) &(psnip_cpuinfo[i * 4]));
+		}
+	#elif (CXX_ARCH_ARM32) || (CXX_ARCH_ARM64)
+		psnip_cpuinfo[0] = getauxval (AT_HWCAP);
+		psnip_cpuinfo[1] = getauxval (AT_HWCAP2);
+	#endif
+}
+
+int psnip_cpu_feature_check(uint feature) 
+{
+#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+	uint i;
+	uint r;
+	uint b;
+#elif defined(CXX_ARCH_ARM32) || defined(CXX_ARCH_ARM64)
+	ulong b, i;
+#endif
+#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+	if((feature & SSystem::cpuftr_CPU_MASK) != SSystem::cpuftr_X86)
+		return 0;
+#elif (CXX_ARCH_ARM32) || (CXX_ARCH_ARM64)
+	if((feature & SSystem::cpuftr_CPU_MASK) != SSystem::cpuftr_ARM)
+		return 0;
+#else
+	return 0;
+#endif
+	feature &= ~SSystem::cpuftr_CPU_MASK;
+#if defined(_MSC_VER)
+	#pragma warning(push)
+	#pragma warning(disable:4152)
+#endif
+	psnip_once_call(&psnip_cpu_once, psnip_cpu_init);
+#if defined(_MSC_VER)
+	#pragma warning(pop)
+#endif
+#if defined(CXX_ARCH_X86) || defined(CXX_ARCH_X86_64)
+	i = (feature >> 16) & 0xff;
+	r = (feature >>  8) & 0xff;
+	b = (feature      ) & 0xff;
+	if(i > 7 || r > 3 || b > 31)
+		return 0;
+	return (psnip_cpuinfo[(i * 4) + r] >> b) & 1;
+#elif (CXX_ARCH_ARM32) || (CXX_ARCH_ARM64)
+	b = 1 << ((feature & 0xff) - 1);
+	i = psnip_cpuinfo[(feature >> 0x08) & 0xff];
+	return (psnip_cpuinfo[(feature >> 0x08) & 0xff] & b) == b;
+#endif
+}
+
+int psnip_cpu_feature_check_many(enum PSnipCPUFeature* feature) 
+{
+	for(int n = 0 ; feature[n] != SSystem::cpuftr_NONE ; n++)
+		if(!psnip_cpu_feature_check(feature[n]))
+			return 0;
+	return 1;
+}
+
+int psnip_cpu_count(void) 
+{
+	static int count = 0;
+	int c = 0;
+#if defined(_WIN32)
+	DWORD_PTR lpProcessAffinityMask;
+	DWORD_PTR lpSystemAffinityMask;
+	int i;
+#elif defined(PSNIP_CPU__IMPL_SYSCONF) && defined(HW_NCPU)
+	int mib[2];
+	size_t len;
+#endif
+	if(count != 0)
+		return count;
+#if defined(_WIN32)
+	if(!GetProcessAffinityMask(GetCurrentProcess(), &lpProcessAffinityMask, &lpSystemAffinityMask))
+		c = -1;
+	else {
+		for(i = 0 ; lpProcessAffinityMask != 0 ; lpProcessAffinityMask >>= 1)
+			c += lpProcessAffinityMask & 1;
+	}
+#elif defined(_SC_NPROCESSORS_ONLN)
+	c = sysconf(_SC_NPROCESSORS_ONLN);
+#elif defined(_SC_NPROC_ONLN)
+	c = sysconf(_SC_NPROC_ONLN);
+#elif defined(_hpux)
+	c = mpctl(MPC_GETNUMSPUS, NULL, NULL);
+#elif defined(HW_NCPU)
+	c = 0;
+	mib[0] = CTL_HW;
+	mib[1] = HW_NCPU;
+	len = sizeof(c);
+	sysctl(mib, 2, &c, &len, NULL, 0);
+#endif
+	count = (c > 0) ? c : -1;
+	return count;
+}
+
+#endif // } 0
 //
 // Собственная реализация функции _locking
 // Причина: в rtl MSVS2015 есть ошибка, приводящая к неоправданной задержке

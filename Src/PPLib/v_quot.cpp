@@ -1557,7 +1557,7 @@ void PPViewQuot::PreprocessBrowser(PPViewBrowser * pBrw)
 			pBrw->SetCellStyleFunc(PPViewQuot::CellStyleFunc, this);
 		}
 		else if(P_Ct == 0) {
-			FirstQuotBrwColumn = pBrw->view->getDef()->getCount();
+			FirstQuotBrwColumn = pBrw->getDef()->getCount();
 			if(HasPeriodVal) {
 				SString temp_buf;
 				PPLoadString("daterange", temp_buf);
@@ -1679,14 +1679,14 @@ int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 					int    r = 0;
 					Goods2Tbl::Rec goods_rec;
 					double qtty = 0.0;
-					if(pBrw && pBrw->view) {
+					if(pBrw) {
 						if((r = GObj.SelectGoodsByBarcode(init_char, Filt.ArID, &goods_rec, &qtty, 0)) > 0) {
-							if(pBrw->view->search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0) <= 0)
+							if(pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0) <= 0)
 								if(AddItem(&goods_rec.ID) > 0)
 									ok = 1;
 						}
 						else if(r != -1)
-							pBrw->view->bottom();
+							pBrw->bottom();
 					}
 				}
 				break;
@@ -1766,10 +1766,10 @@ int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 				break;
 			case PPVCMD_EDITQUOTKIND:
 				ok = -1;
-				if(pBrw && pBrw->view) {
+				if(pBrw) {
 					PPID   qk_id = 0;
 					if(!P_Ct) {
-						int    pos = pBrw->view->GetCurColumn();
+						int    pos = pBrw->GetCurColumn();
 						if(pos >= FirstQuotBrwColumn) {
 							pos -= FirstQuotBrwColumn;
 							qk_id = QuotKindList.Get(pos).Id;

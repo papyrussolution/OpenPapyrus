@@ -29,8 +29,8 @@ ushort FASTCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toC
 ushort FASTCALL ExecView(TBaseBrowserWindow * v)
 {
 	if(v) {
-		const uint last_cmd = static_cast<PPApp *>(APPL)->LastCmd;
-		v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
+		// @v10.9.11 const uint last_cmd = static_cast<PPApp *>(APPL)->LastCmd;
+		// @v10.9.11 v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
 		return APPL->P_DeskTop->execView(v);
 	}
 	else
@@ -41,8 +41,8 @@ ushort FASTCALL ExecView(TBaseBrowserWindow * v)
 int FASTCALL InsertView(TBaseBrowserWindow * v)
 {
 	if(v) {
-		const uint last_cmd = static_cast<PPApp *>(APPL)->LastCmd;
-		v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
+		// @v10.9.11 const uint last_cmd = static_cast<PPApp *>(APPL)->LastCmd;
+		// @v10.9.11 v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
 		APPL->P_DeskTop->Insert_(v);
 		return v->Insert();
 	}
@@ -503,13 +503,23 @@ void ViewAsyncEventQueueStat()
 
 int ViewStatus()
 {
+	struct CtrlToPathMapEntry {
+		uint16  CtlId;
+		uint16  PathID;
+	};
+	static const CtrlToPathMapEntry ctrl_to_path_map[] = {
+		{ CTL_STATUS_BINPATH,  PPPATH_BIN },
+		{ CTL_STATUS_INPATH,   PPPATH_IN },
+		{ CTL_STATUS_OUTPATH,  PPPATH_OUT },
+		{ CTL_STATUS_TEMPPATH, PPPATH_TEMP }
+	};
 	class StatusDialog : public TDialog {
-	public:
 		enum {
 			dummyFirst = 1,
 			brushValidPath,
 			brushInvalidPath
 		};
+	public:
 		StatusDialog() : TDialog(DLG_STATUS)
 		{
 			Ptb.SetBrush(brushValidPath,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
@@ -529,19 +539,16 @@ int ViewStatus()
 			else if(event.isCmd(cmCtlColor)) {
 				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 				if(p_dc) {
-					static const uint16 ctl_list[] = {CTL_STATUS_BINPATH, CTL_STATUS_INPATH, CTL_STATUS_OUTPATH, CTL_STATUS_TEMPPATH};
+					//static const uint16 ctl_list[] = {CTL_STATUS_BINPATH, CTL_STATUS_INPATH, CTL_STATUS_OUTPATH, CTL_STATUS_TEMPPATH};
 					SString path;
-					for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++) {
-						uint16 ctl_id = ctl_list[i];
+					for(uint i = 0; i < SIZEOFARRAY(/*ctl_list*/ctrl_to_path_map); i++) {
+						const uint16 ctl_id = /*ctl_list*/ctrl_to_path_map[i].CtlId;
 						if(p_dc->H_Ctl == getCtrlHandle(ctl_id)) {
 							getCtrlString(ctl_id, path);
-							if(IsDirectory(path.RmvLastSlash())) {
+							int tool_id = IsDirectory(path.RmvLastSlash()) ? brushValidPath : brushInvalidPath;
+							if(tool_id) {
 								::SetBkMode(p_dc->H_DC, TRANSPARENT);
-								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidPath));
-							}
-							else {
-								::SetBkMode(p_dc->H_DC, TRANSPARENT);
-								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalidPath));
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(tool_id));
 							}
 							clearEvent(event);
 							break;
@@ -550,14 +557,13 @@ int ViewStatus()
 				}
 			}
 		}
-		SPaintToolBox  Ptb;
+		SPaintToolBox Ptb;
 	};
 	int    ok = 1;
 	DbProvider * p_dict = CurDict;
 	PPID   main_org_id = 0;
-	SString sbuf, datapath;
-	//SString accbuf;
-	//SString accbufno;
+	SString sbuf;
+	SString datapath;
 	LDATE  oper_dt = LConfig.OperDate;
 	StatusDialog * dlg = new StatusDialog();
 	THROW(CheckDialogPtr(&dlg));
@@ -582,7 +588,12 @@ int ViewStatus()
 
 	//PPLoadText(PPTXT_PATHACCESS, accbuf);
 	//PPLoadText(PPTXT_PATHACCESSNO, accbufno);
-
+	for(uint i = 0; i < SIZEOFARRAY(ctrl_to_path_map); i++) {
+		const CtrlToPathMapEntry & r_map_entry = ctrl_to_path_map[i];
+		PPGetPath(r_map_entry.PathID, datapath);
+		dlg->setCtrlString(r_map_entry.CtlId, datapath.Transf(CTRANSF_OUTER_TO_INNER));
+	}
+	/*
 	PPGetPath(PPPATH_BIN, datapath);
 	dlg->setCtrlString(CTL_STATUS_BINPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
 	//dlg->setCtrlString(CTL_STATUS_ACCESSBIN, fileExists(datapath) ? accbuf : accbufno);
@@ -598,6 +609,7 @@ int ViewStatus()
 	PPGetPath(PPPATH_TEMP, datapath);
 	dlg->setCtrlString(CTL_STATUS_TEMPPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
 	//dlg->setCtrlString(CTL_STATUS_ACCESSTEMP, fileExists(datapath) ? accbuf : accbufno);
+	*/
 	if(LConfig.Flags & CFGFLG_USEGOODSMATRIX) {
 		PPLoadText(PPTXT_GOODSMATRIX_IS_USED, sbuf);
 		dlg->setStaticText(CTL_STATUS_USEGDSMATRIX, sbuf);

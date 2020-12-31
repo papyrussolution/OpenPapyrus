@@ -3770,8 +3770,7 @@ int SPaintObj::SetFont(HFONT handle)
 int SPaintObj::CreateCursor(uint cursorId)
 {
 	int    ok = 1;
-	HCURSOR handle = (HCURSOR)LoadImage(TProgram::GetInst(), MAKEINTRESOURCE(cursorId), IMAGE_CURSOR,
-		0, 0, LR_DEFAULTSIZE);
+	HCURSOR handle = static_cast<HCURSOR>(::LoadImage(TProgram::GetInst(), MAKEINTRESOURCE(cursorId), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE));
 	if(handle) {
 		Destroy();
 		T = tCursor;
@@ -3786,9 +3785,10 @@ int SPaintObj::CreateCursor(uint cursorId)
 //
 #define INIT_DYN_IDENT 100000
 
-SPaintToolBox::SPaintToolBox() : TSArray <SPaintObj> (aryDataOwner|aryEachItem), Hash(128, 1), GlyphList(sizeof(GlyphEntry))
+SPaintToolBox::SPaintToolBox() : TSArray <SPaintObj> (aryDataOwner|aryEachItem), Hash(128, 1), GlyphList(sizeof(GlyphEntry)),
+	DynIdentCount(INIT_DYN_IDENT), State(0), DefaultPenId(0)
 {
-	Init();
+	//Z();
 }
 
 SPaintToolBox::~SPaintToolBox()
@@ -3796,7 +3796,7 @@ SPaintToolBox::~SPaintToolBox()
 	freeAll();
 }
 
-SPaintToolBox & SPaintToolBox::Init()
+SPaintToolBox & SPaintToolBox::Z()
 {
 	freeAll();
 	DynIdentCount = INIT_DYN_IDENT;
@@ -3838,8 +3838,8 @@ int SPaintToolBox::CopyToolFrom(const SPaintToolBox & rS, int toolIdent)
 	}
 	{
 		//
-		// РљРёСЃС‚СЊ (SPaintObj::Brush) РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ СЃСЃС‹Р»РєСѓ РЅР° pattern. Р­С‚РѕС‚
-		// РѕР±СЉРµРєС‚ С‚Р°РєР¶Рµ РЅРµРѕР±С…РѕРґРёРјРѕ РїРµСЂРµРЅРµСЃС‚Рё.
+		// Кисть (SPaintObj::Brush) может содержать ссылку на pattern. Этот
+		// объект также необходимо перенести.
 		//
 		const SPaintObj::Brush * p_brush = p_src_obj->GetBrush();
 		if(p_brush && p_brush->IdPattern) {
@@ -4018,6 +4018,8 @@ int SPaintToolBox::SetDefaultPen(int style, int width, SColor c)
 
 int32 SPaintToolBox::GetDefaultPen()
 {
+	return (DefaultPenId || SetDefaultPen(SPaintObj::psSolid, 1, SClrBlack)) ? DefaultPenId : 0; // @v10.9.11
+	/* @v10.9.11
 	int32  pen_id = 0;
 	if(DefaultPenId == 0) {
 		THROW(SetDefaultPen(SPaintObj::psSolid, 1, SClrBlack));
@@ -4027,6 +4029,7 @@ int32 SPaintToolBox::GetDefaultPen()
 		pen_id = 0;
 	ENDCATCH
 	return pen_id;
+	*/
 }
 
 int SPaintToolBox::SetBrush(int ident, int style, COLORREF c, int32 hatch)
@@ -4081,7 +4084,7 @@ int SPaintToolBox::CreateBrush(int ident, int style, SColor c, int32 hatch, int 
 	brush.C = c;
 	brush.S = patternId ? SPaintObj::bsPattern : style;
 	brush.Hatch = static_cast<int8>(hatch);
-	brush.IdPattern = patternId; // @v9.1.11
+	brush.IdPattern = patternId;
 	if(!ident) {
 		const uint co = getCount();
 		for(uint i = 0; !ident && i < co; i++) {

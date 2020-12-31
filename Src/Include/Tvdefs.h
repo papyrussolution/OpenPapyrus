@@ -153,13 +153,13 @@
 #define kbAltMinus       0x8200
 #define kbAltEqual       0x8300
 #define kbCtrlPgUp       0x8400
-#define kbShiftF11       0x8500 // @v9.8.7
-#define kbShiftF12       0x8600 // @v9.8.7
-#define kbCtrlF11        0x8700 // @v9.8.7
-#define kbCtrlF12        0x8800 // @v9.8.7
-#define kbAltF11         0x8900 // @v9.8.7
-#define kbAltF12         0x8a00 // @v9.8.7
-#define kbCtrlTab        0x8b00 // @v9.8.7
+#define kbShiftF11       0x8500
+#define kbShiftF12       0x8600
+#define kbCtrlF11        0x8700
+#define kbCtrlF12        0x8800
+#define kbAltF11         0x8900
+#define kbAltF12         0x8a00
+#define kbCtrlTab        0x8b00
 #define kbAlt            0xf000
 #define kbAltIns         0xf100
 #define kbNoKey          0x0000
@@ -298,7 +298,7 @@
 #define cmGroupInserted     303 // evCommand Сообщение посылается диалогом группе CtrlGroup после вставки ее в этот диалог
 //
 #define cmPrint             141 // evCommand
-#define cmDraw              142 // @v9.6.2 replacement for virtual TView::draw()
+#define cmDraw              142 // replacement for virtual TView::draw()
 #define cmSort              143 // @v10.6.3 Посылается объекту BrowserWindow базовым классом для реализации сортировки
 //
 //  TListViewer messages
@@ -330,7 +330,7 @@
 	// TEvent::message::infoWord содержит команду, по которой осуществляется завершение режима.
 #define cmExecute            91 // evCommand Команда, замещающая вызов виртуальной функции PPView::execute
 	// TEvent::message::infoLong возвращает код команды, которой завершился модульный цикл
-#define cmImageDblClk        92 // @v9.6.6 На StaticText пользователь дважды щелкнул левой кнопкой мыши
+#define cmImageDblClk        92 // На StaticText пользователь дважды щелкнул левой кнопкой мыши
 #define cmModalPostCreate    93 // @v10.3.1 Посылается экземпляру TView после "физического" создания окна
 	// (рекурсивно из функции обработки событий базового экземпляра, создающей "физического" окно)
 #define cmSetItemSelected    94 // @v10.3.4 Сообщение посылается для того, чтобы класс отреагировал на факт выбора пользователем визуального элемента

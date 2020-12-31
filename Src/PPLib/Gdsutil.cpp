@@ -1352,6 +1352,7 @@ public:
 	QuotListDialog(QuotListDlgParam & rParam) : PPListDialog(DLG_QUOTLIST, CTL_QUOTLIST_LIST), QuotKindsAry(*rParam.P_QuotKinds),
 		P_Data(rParam.P_QuotAry), QIdent(*rParam.P_Ident), RightsForUpdate(rParam.RightsForUpdate), LastCost(rParam.LastCost), LastPrice(rParam.LastPrice)
 	{
+		ContextMenuID = CTRLMENU_QUOTLIST; // @v10.9.11
 		enableCommand(cmaEdit,   rParam.RightsForUpdate);
 		enableCommand(cmaDelete, rParam.RightsForUpdate);
 		updateList(-1);
@@ -1362,6 +1363,30 @@ public:
 	}
 	void   UpdateList(const QuotIdent & rIdent, double lastCost, double lastPrice);
 private:
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		if(event.isCmd(cmQuotKind)) {
+			long   cpos = 0;
+			long   cid = 0;
+			if(getCurItem(&cpos, &cid)) {
+				PPID   qk_id = (cid > 1000000) ? (cid - 1000000) : 0;
+				PPObjQuotKind qk_obj;
+				if(qk_id) {
+					qk_obj.Edit(&qk_id, 0);
+				}
+				else if(cid > 0 && cid <= P_Data->getCountI()) {
+					PPQuot quot = P_Data->at(cid-1);
+					PPID   qk_id = quot.Kind;
+					if(qk_id)
+						qk_obj.Edit(&qk_id, 0);
+				}
+			}
+		}
+		else
+			return;
+		clearEvent(event);
+	}
 	virtual int  setupList();
 	virtual int  editItem(long pos, long id);
 	virtual int  delItem(long pos, long id);
@@ -1460,14 +1485,14 @@ int QuotListDialog::setupList()
 
 void QuotListDialog::ReplyOnPressButton(HWND buttonWnd)
 {
-	SetFocus(GetDlgItem(H(), CTL_QUOTLIST_LIST));
-	SendMessage(buttonWnd, BM_SETSTYLE, (WPARAM)(BS_TEXT|BS_PUSHBUTTON), MAKELPARAM(TRUE, 0));
+	::SetFocus(GetDlgItem(H(), CTL_QUOTLIST_LIST));
+	::SendMessage(buttonWnd, BM_SETSTYLE, (WPARAM)(BS_TEXT|BS_PUSHBUTTON), MAKELPARAM(TRUE, 0));
 }
 
 int QuotListDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	HWND   b_wnd = GetFocus();
+	HWND   b_wnd = ::GetFocus();
 	PPID   qk_id = (id > 1000000) ? (id - 1000000) : 0;
 	if(qk_id) {
 		PPQuot quot;
@@ -1476,8 +1501,7 @@ int QuotListDialog::editItem(long pos, long id)
 		quot.LocID = QIdent.LocID;
 		quot.CurID = QIdent.CurID;
 		if(EditQuotVal(&quot, PPQuot::clsGeneral) > 0) {
-			QuotIdent qi;
-			qi = QIdent;
+			QuotIdent qi(QIdent);
 			qi.QuotKindID = quot.Kind;
 			P_Data->SetQuot(qi, quot.Quot, quot.Flags, quot.MinQtty, &quot.Period);
 			ok = 1;
@@ -1486,8 +1510,7 @@ int QuotListDialog::editItem(long pos, long id)
 	else if(id > 0 && id <= P_Data->getCountI()) {
 		PPQuot quot = P_Data->at(id-1);
 		if(EditQuotVal(&quot, PPQuot::clsGeneral) > 0) {
-			QuotIdent qi;
-			qi = QIdent;
+			QuotIdent qi(QIdent);
 			qi.QuotKindID = quot.Kind;
 			P_Data->SetQuot(qi, quot.Quot, quot.Flags, quot.MinQtty, &quot.Period);
 			ok = 1;
@@ -1500,7 +1523,7 @@ int QuotListDialog::editItem(long pos, long id)
 int QuotListDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	HWND   b_wnd = GetFocus();
+	HWND   b_wnd = ::GetFocus();
 	if(id > 0 && id <= P_Data->getCountI()) {
 		P_Data->atFree(id-1);
 		ok = 1;
@@ -1580,7 +1603,7 @@ private:
 			}
 		}
 		else { // PPQuot::clsGeneral
-			Cls = PPQuot::clsGeneral; // @v9.3.10
+			Cls = PPQuot::clsGeneral;
 			SArray qlist(sizeof(RankNNameEntry));
 			PPQuotKind qkr;
 			for(PPID qk = 0; QkObj.EnumItems(&qk, &qkr) > 0;) {
@@ -1622,7 +1645,7 @@ private:
 				disableCtrl(CTL_GQUOT_VIEW, 1);
 			}
 			else if(onInit) {
-				WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1); // @v9.2.0 readonly 0-->1
+				WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, /*readonly*/1);
 				uint32 val = 0;
 				if(reg_key.GetDWord(_PPConst.WrParam_ViewQuotsAsListBox, &val) && val)
 					ViewQuotsAsListBox = 1;
@@ -1652,10 +1675,6 @@ public:
 		RightsForUpdate = 1;
 		AccSheetID = accSheetID;
 		{
-			//uint   i;
-			//PPID   qk;
-			//PPQuotKind    qkr;
-			//PPObjQuotKind qk_obj;
 			Goods2Tbl::Rec goods_rec;
 			SString temp_buf;
 			if(Cls == PPQuot::clsSupplDeal) {
@@ -2043,10 +2062,8 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 			AccSheetID = acc_sheet_id;
 			SelArticleID = 0;
 			SetupArCombo(this, CTLSEL_GQUOT_ARTICLE, SelArticleID, OLW_CANINSERT|OLW_LOADDEFONOPEN, AccSheetID, sacfDisableIfZeroSheet);
-			// @v9.3.10 {
 			SetupKinds(0);
 			updatePage();
-			// } @v9.3.10
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_GQUOT_ARTICLE))
@@ -2251,9 +2268,9 @@ void QuotationDialog::updatePage()
 	else {
 		QuotIdent qident(SelLocID, PPQUOTK_BASE, SelCurID, SelArticleID);
 		if((P_ChildDlg && ViewQuotsAsListBox) || (!P_ChildDlg && !ViewQuotsAsListBox)) {
-			QuotListDialog * p_inner_dlg = (QuotListDialog *)P_ChildDlg;
+			QuotListDialog * p_inner_dlg = static_cast<QuotListDialog *>(P_ChildDlg);
 			if(p_inner_dlg) {
-				p_inner_dlg->SetQuotKinds(QuotKindsOrder); // @v9.3.10
+				p_inner_dlg->SetQuotKinds(QuotKindsOrder);
 				p_inner_dlg->UpdateList(qident, LastCost, LastPrice);
 			}
 		}
@@ -2512,8 +2529,8 @@ int PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double co
 				ok = r;
 		}
 		else {
-			QuotIdent tmpi = rQi;
-			QuotIdent qi = rQi;
+			QuotIdent tmpi(rQi);
+			QuotIdent qi(rQi);
 			qi.QuotKindID = PPQUOTK_BASE;
 			double base = 0.0;
 			if(P_Tbl->GetQuot(goodsID, qi, cost, price, &base, useCache) > 0)
@@ -2525,7 +2542,7 @@ int PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double co
 	else if(rQi.QuotKindID) {
 		PPObjQuotKind qk_obj;
 		if(rQi.CurID) {
-			QuotIdent qi = rQi;
+			QuotIdent qi(rQi);
 			qi.QuotKindID = PPQUOTK_BASE;
 			if((r = P_Tbl->GetQuot(goodsID, qi, cost, price, &price, useCache)) > 0) {
 				if(r == 2)

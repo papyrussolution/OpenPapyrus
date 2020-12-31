@@ -3197,7 +3197,7 @@ int PPViewGoodsOpAnalyze::ChangeOrder(BrowserWindow * pW)
 				CurrentViewOrder = static_cast<PPViewGoodsOpAnalyze::IterOrder>(ord);
 				DBQuery * p_q = CreateBrowserQuery(&brw_id, &sub_title);
 				if(p_q) {
-					DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pW->view->getDef());
+					DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pW->getDef());
 					p_def->setQuery(*p_q);
 					pW->setSubTitle(sub_title);
 					pW->Refresh();
@@ -3456,7 +3456,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 				grp.Height = 1;
 				PPGetWord(PPWORD_REST_IN, 0, temp_buf);
 				grp.P_Text = newStr(temp_buf);
-				pBrw->view->getDef()->addGroup(&grp);
+				pBrw->getDef()->addGroup(&grp);
 				pBrw->InsColumnWord(-1, PPWORD_COST, 16, 0, MKSFMTD(11, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
 				pBrw->InsColumnWord(-1, PPWORD_PRICE_P, 17, 0, MKSFMTD(10, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
 			}
