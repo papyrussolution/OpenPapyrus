@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493571
+LastSignatureCode=2147493578
 LastAutoCodeList=1,12001;102,10177;103,10072;110,10000;111,12009;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -3411,6 +3411,7 @@ cashnode_cashfx_igncondquots=2147486306
 cashnode_cashfx_checkegaismuniq=2147486307
 cashnode_cashfx_ignpennyfrombcard=2147491615
 cashnode_cashfx_notifyeqptimemism=2147492399
+cashnode_cashfx_bnkslipafterrcpt=2147493572
 cashnode_cashtype=2147486308
 cashnode_curdate=2147486309
 cashnode_cursess=2147486310
@@ -9620,6 +9621,12 @@ csessexctotal_qtty=2147492877
 csessexctotal_sumrest=2147492878
 csessexctotal_sumsubst=2147492879
 csessexctotal_substloss=2147492880
+csessexcaltgoodsparam=2147493573
+csessexcaltgoodsparam_goods=2147493574
+csessexcaltgoodsparam_altgoods=2147493575
+csessexcaltgoodsparam_loc=2147493576
+csessexcaltgoodsparam_selexistsgoodsonly=2147493577
+csessexcaltgoodsparam_price=2147493578
 selectobjbyphoneparam=2147492802
 rentcondition=2147492807
 rentcondition_period=2147492808

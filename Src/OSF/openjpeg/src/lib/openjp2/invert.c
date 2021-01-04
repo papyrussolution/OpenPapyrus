@@ -85,11 +85,11 @@ OPJ_BOOL opj_matrix_inversion_f(OPJ_FLOAT32 * pSrcMatrix,
 	l_double_data = (OPJ_FLOAT32*)(l_data + l_permutation_size);
 	memzero(lPermutations, l_permutation_size);
 	if(!opj_lupDecompose(pSrcMatrix, lPermutations, l_double_data, nb_compo)) {
-		opj_free(l_data);
+		SAlloc::F(l_data);
 		return OPJ_FALSE;
 	}
 	opj_lupInvert(pSrcMatrix, pDestMatrix, nb_compo, lPermutations, l_double_data, l_double_data + nb_compo, l_double_data + 2 * nb_compo);
-	opj_free(l_data);
+	SAlloc::F(l_data);
 	return OPJ_TRUE;
 }
 

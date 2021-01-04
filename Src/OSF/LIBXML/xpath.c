@@ -398,7 +398,11 @@ static int wrap_cmp(xmlNode * x, xmlNode * y);
 #ifndef TRIO_REPLACE_STDIO
 	#define TRIO_PUBLIC static
 #endif
-#include "trionan.c"
+//#include "trionan.c"
+// trio_nzero()
+// trio_signbit
+//
+//
 /*
  * The lack of portability of this section of the libc is annoying !
  */
@@ -421,11 +425,11 @@ void xmlXPathInit()
 		xmlXPathPINF = fgetposinf();
 		xmlXPathNINF = fgetneginf();
 		xmlXPathNAN = fgetnan();
-		xmlXPathNZERO = trio_nzero();
+		// @v10.9.11 xmlXPathNZERO = trio_nzero();
+		xmlXPathNZERO = -0.0; // @v10.9.11
 		xmlXPathInitialized = 1;
 	}
 }
-
 /**
  * xmlXPathIsNaN:
  * @val:  a double value
@@ -436,10 +440,7 @@ void xmlXPathInit()
  *
  * Returns 1 if the value is a NaN, 0 otherwise
  */
-int xmlXPathIsNaN(double val)
-{
-	return fisnan(val); // @v10.8.1 trio_isnan-->fisnan
-}
+// @v10.9.11 int xmlXPathIsNaN_Removed(double val) { return fisnan(val); } // @v10.8.1 trio_isnan-->fisnan
 /**
  * xmlXPathIsInf:
  * @val:  a double value
@@ -469,7 +470,8 @@ int FASTCALL xmlXPathIsInf(double val)
  */
 static int FASTCALL xmlXPathGetSign(double val)
 {
-	return trio_signbit(val);
+	// @v10.9.11 return trio_signbit(val);
+	return BIN(val < 0.0); // @v10.9.11
 }
 /*
  * @todo when compatibility allows remove all "fake node libxslt" strings
@@ -1188,15 +1190,12 @@ void xmlXPathDebugDumpObject(FILE * output, xmlXPathObject * cur, int depth)
 							fprintf(output, "Object is a number : -Infinity\n");
 							break;
 						default:
-							if(xmlXPathIsNaN(cur->floatval)) {
+							if(fisnan(cur->floatval))
 								fprintf(output, "Object is a number : NaN\n");
-							}
-							else if(cur->floatval == 0 && xmlXPathGetSign(cur->floatval) != 0) {
+							else if(cur->floatval == 0 && xmlXPathGetSign(cur->floatval) != 0)
 								fprintf(output, "Object is a number : 0\n");
-							}
-							else {
+							else
 								fprintf(output, "Object is a number : %0g\n", cur->floatval);
-							}
 					}
 					break;
 				case XPATH_STRING:
@@ -2568,7 +2567,7 @@ static void xmlXPathFormatNumber(double number, char buffer[], int buffersize)
 			    snprintf(buffer, buffersize, "-Infinity");
 		    break;
 		default:
-		    if(xmlXPathIsNaN(number)) {
+		    if(fisnan(number)) {
 			    if(buffersize > (int)sizeof("NaN"))
 				    snprintf(buffer, buffersize, "NaN");
 		    }
@@ -4878,7 +4877,7 @@ xmlChar * xmlXPathCastNumberToString(double val) {
 		    ret = sstrdup((const xmlChar *)"-Infinity");
 		    break;
 		default:
-		    if(xmlXPathIsNaN(val)) {
+		    if(fisnan(val)) {
 			    ret = sstrdup((const xmlChar *)"NaN");
 		    }
 		    else if(val == 0 && xmlXPathGetSign(val) != 0) {
@@ -5129,7 +5128,6 @@ xmlXPathObject * xmlXPathConvertNumber(xmlXPathObject * val)
 	xmlXPathFreeObject(val);
 	return ret;
 }
-
 /**
  * xmlXPathCastNumberToBoolean:
  * @val:  a number
@@ -5140,9 +5138,8 @@ xmlXPathObject * xmlXPathConvertNumber(xmlXPathObject * val)
  */
 int xmlXPathCastNumberToBoolean(double val)
 {
-	return (xmlXPathIsNaN(val) || (val == 0.0)) ? 0 : 1;
+	return (fisnan(val) || (val == 0.0)) ? 0 : 1;
 }
-
 /**
  * xmlXPathCastStringToBoolean:
  * @val:  a string
@@ -5687,12 +5684,12 @@ static int xmlXPathCompareNodeSets(int inf, int strict, xmlXPathObject * arg1, x
 	}
 	for(i = 0; i < ns1->nodeNr; i++) {
 		val1 = xmlXPathCastNodeToNumber(ns1->PP_NodeTab[i]);
-		if(!xmlXPathIsNaN(val1)) {
+		if(!fisnan(val1)) {
 			for(j = 0; j < ns2->nodeNr; j++) {
 				if(init == 0) {
 					values2[j] = xmlXPathCastNodeToNumber(ns2->PP_NodeTab[j]);
 				}
-				if(xmlXPathIsNaN(values2[j]))
+				if(fisnan(values2[j]))
 					continue;
 				if(inf && strict)
 					ret = (val1 < values2[j]);
@@ -5855,7 +5852,7 @@ static int xmlXPathEqualNodeSetFloat(xmlXPathParserContext * ctxt, xmlXPathObjec
 				val = valuePop(ctxt);
 				v = val->floatval;
 				xmlXPathReleaseObject(ctxt->context, val);
-				if(!xmlXPathIsNaN(v)) {
+				if(!fisnan(v)) {
 					if((!neq) && (v==f)) {
 						ret = 1;
 						break;
@@ -6044,7 +6041,7 @@ static int xmlXPathEqualValuesCommon(xmlXPathParserContext * ctxt, xmlXPathObjec
 			    /* no break on purpose */
 			    case XPATH_NUMBER:
 				/* Hand check NaN and Infinity equalities */
-				if(xmlXPathIsNaN(arg1->floatval) || xmlXPathIsNaN(arg2->floatval)) {
+				if(fisnan(arg1->floatval) || fisnan(arg2->floatval)) {
 					ret = 0;
 				}
 				else if(xmlXPathIsInf(arg1->floatval) == 1) {
@@ -6108,8 +6105,7 @@ static int xmlXPathEqualValuesCommon(xmlXPathParserContext * ctxt, xmlXPathObjec
 				xmlXPathNumberFunction(ctxt, 1);
 				arg1 = valuePop(ctxt);
 				/* Hand check NaN and Infinity equalities */
-				if(xmlXPathIsNaN(arg1->floatval) ||
-			    xmlXPathIsNaN(arg2->floatval)) {
+				if(fisnan(arg1->floatval) || fisnan(arg2->floatval)) {
 					ret = 0;
 				}
 				else if(xmlXPathIsInf(arg1->floatval) == 1) {
@@ -6410,7 +6406,7 @@ int xmlXPathCompareValues(xmlXPathParserContext * ctxt, int inf, int strict)
 	 * => feedback on 3.4 for Inf and NaN
 	 */
 	/* Hand check NaN and Infinity comparisons */
-	if(xmlXPathIsNaN(arg1->floatval) || xmlXPathIsNaN(arg2->floatval)) {
+	if(fisnan(arg1->floatval) || fisnan(arg2->floatval)) {
 		ret = 0;
 	}
 	else {
@@ -6481,7 +6477,7 @@ void xmlXPathValueFlipSign(xmlXPathParserContext * ctxt)
 	if(!ctxt || !ctxt->context) return;
 	CAST_TO_NUMBER;
 	CHECK_TYPE(XPATH_NUMBER);
-	if(xmlXPathIsNaN(ctxt->value->floatval))
+	if(fisnan(ctxt->value->floatval))
 		ctxt->value->floatval = xmlXPathNAN;
 	else if(xmlXPathIsInf(ctxt->value->floatval) == 1)
 		ctxt->value->floatval = xmlXPathNINF;
@@ -6577,7 +6573,7 @@ void xmlXPathDivValues(xmlXPathParserContext * ctxt)
 	xmlXPathReleaseObject(ctxt->context, arg);
 	CAST_TO_NUMBER;
 	CHECK_TYPE(XPATH_NUMBER);
-	if(xmlXPathIsNaN(val) || xmlXPathIsNaN(ctxt->value->floatval))
+	if(fisnan(val) || fisnan(ctxt->value->floatval))
 		ctxt->value->floatval = xmlXPathNAN;
 	else if(val == 0 && xmlXPathGetSign(val) != 0) {
 		if(ctxt->value->floatval == 0)
@@ -8089,7 +8085,6 @@ void xmlXPathSubstringFunction(xmlXPathParserContext * ctxt, int nargs)
 		le = len->floatval;
 		xmlXPathReleaseObject(ctxt->context, len);
 	}
-
 	CAST_TO_NUMBER;
 	CHECK_TYPE(XPATH_NUMBER);
 	start = valuePop(ctxt);
@@ -8099,7 +8094,6 @@ void xmlXPathSubstringFunction(xmlXPathParserContext * ctxt, int nargs)
 	CHECK_TYPE(XPATH_STRING);
 	str = valuePop(ctxt);
 	m = xmlUTF8Strlen((const uchar *)str->stringval);
-
 	/*
 	 * If last pos not present, calculate last position
 	 */
@@ -8108,12 +8102,11 @@ void xmlXPathSubstringFunction(xmlXPathParserContext * ctxt, int nargs)
 		if(in < 1.0)
 			in = 1.0;
 	}
-
 	/* Need to check for the special cases where either
 	 * the index is NaN, the length is NaN, or both
 	 * arguments are infinity (relying on Inf + -Inf = NaN)
 	 */
-	if(!xmlXPathIsInf(in) && !xmlXPathIsNaN(in + le)) {
+	if(!xmlXPathIsInf(in) && !fisnan(in + le)) {
 		/*
 		 * To meet the requirements of the spec, the arguments
 		 * must be converted to integer format before
@@ -8123,8 +8116,8 @@ void xmlXPathSubstringFunction(xmlXPathParserContext * ctxt, int nargs)
 		 * and checking for special cases
 		 */
 		i = (int)in;
-		if(((double)i)+0.5 <= in) i++;
-
+		if(((double)i)+0.5 <= in) 
+			i++;
 		if(xmlXPathIsInf(le) == 1) {
 			l = m;
 			if(i < 1)
@@ -8637,7 +8630,7 @@ void xmlXPathRoundFunction(xmlXPathParserContext * ctxt, int nargs)
 	CHECK_ARITY(1);
 	CAST_TO_NUMBER;
 	CHECK_TYPE(XPATH_NUMBER);
-	if((xmlXPathIsNaN(ctxt->value->floatval)) || (xmlXPathIsInf(ctxt->value->floatval) == 1) || (xmlXPathIsInf(ctxt->value->floatval) == -1) || (ctxt->value->floatval == 0.0))
+	if((fisnan(ctxt->value->floatval)) || (xmlXPathIsInf(ctxt->value->floatval) == 1) || (xmlXPathIsInf(ctxt->value->floatval) == -1) || (ctxt->value->floatval == 0.0))
 		return;
 	XTRUNC(f, ctxt->value->floatval);
 	if(ctxt->value->floatval < 0) {
@@ -13081,8 +13074,7 @@ int xmlXPathEvaluatePredicateResult(xmlXPathParserContext * ctxt, xmlXPathObject
 			return (res->boolval);
 		case XPATH_NUMBER:
 #if defined(__BORLANDC__) || (defined(_MSC_VER) && (_MSC_VER == 1200))
-			return ((res->floatval == ctxt->context->proximityPosition) &&
-			(!xmlXPathIsNaN(res->floatval))); /* MSC pbm Mark Vakoc !*/
+			return ((res->floatval == ctxt->context->proximityPosition) && (!fisnan(res->floatval))); /* MSC pbm Mark Vakoc !*/
 #else
 			return (res->floatval == ctxt->context->proximityPosition);
 #endif

@@ -1,5 +1,5 @@
 // SLIB.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #ifndef __SLIB_H
@@ -8,6 +8,7 @@
 #ifndef __SLCONFIG_H
 	#include <slconfig.h>
 #endif
+#define WINDOWS_IGNORE_PACKING_MISMATCH // @v10.9.11
 #ifndef RC_INVOKED
 	#include <slport.h>
 	#ifndef __STDIO_H
@@ -8826,6 +8827,8 @@ public:
 	uint32 CpuC;
 	uint32 CpuD;
 	uint32 Flags;
+	uint32 CpuCount; // @v10.9.11
+	uint32 PageSize; // @v10.9.11
 };
 //
 // Descr: Класс реализующий абстрактные методы для доступа к средствам ввода/вывода операционной системы
@@ -10692,7 +10695,7 @@ typedef TSVector <unsigned long> UlongArray;
 #endif
 // } @v10.9.1
 int    IsValidIEEE(double);
-int    fisnan(double);
+int    FASTCALL fisnan(double);
 int    fisnanf(float);
 int    fisinf(double);
 double fgetnan();    // NAN

@@ -4,231 +4,9 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v10.9.3 #include <process.h>
 #include <crpe.h>
 
-// Prototype (PPREPORT.CPP)
-int SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName);
-
-#if 0 // @v9.8.11 (useless) {
-//
-// PPInetAccountManager
-//
-class PPInetAccountManager {
-public:
-	enum MailClientType {
-		mctDefault = 1,
-		mctOutlook,
-		mctOutlookExpress,
-		mctBat,
-		mctAll
-	};
-	int GetMailAccounts(MailClientType mct, PPID * pActiveID, PPInetAccntArray * pAccounts);
-private:
-	int GetDefaultMailClient(MailClientType *);
-	int GetOutlookAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts);
-	int GetOutlookExpressAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts);
-	int GetBatAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts);
-
-	int Cat(const PPInetAccntArray * pSrc, PPInetAccntArray * pDest);
-};
-
-int PPInetAccountManager::GetMailAccounts(MailClientType mct, PPID * pActiveID, PPInetAccntArray * pAccounts)
-{
-	int    ok = 1, all = (mct == mctAll) ? 1 : 0;
-	PPInetAccntArray accounts;
-	THROW_INVARG(pAccounts);
-	pAccounts->freeAll();
-	if(mct == mctDefault) {
-		THROW(GetDefaultMailClient(&mct));
-	}
-	if(all || mct == mctOutlook) {
-		THROW(GetOutlookAccounts(pActiveID, &accounts));
-		Cat(&accounts, pAccounts);
-	}
-	else if(all || mct == mctOutlookExpress) {
-		THROW(GetOutlookExpressAccounts(pActiveID, &accounts));
-		Cat(&accounts, pAccounts);
-	}
-	else if(all || mct == mctBat) {
-		THROW(GetBatAccounts(pActiveID, &accounts));
-		Cat(&accounts, pAccounts);
-	}
-	CATCHZOK
-	return ok;
-}
-
-int PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts)
-{
-	int    ok = 1;
-	const char * p_param_name        = "Account Name";
-	const char * p_param_addr        = "Email";
-	const char * p_param_smtp        = "SMTP Server";
-	const char * p_param_port        = "SMTP Port";
-	const char * p_param_defmailacct = "{ED475418-B0D6-11D2-8C3B-00104B2A6676}";
-	const char * p_root_key          = "Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676";
-	char  buf[256];
-	WCHAR w_buf[512];
-	SString   active_id, accnt_id;
-	WinRegKey reg_accts;
-
-	THROW_INVARG(pAccounts);
-	pAccounts->freeAll();
-	THROW_PP(reg_accts.Open(HKEY_CURRENT_USER, p_root_key, 1, 1), PPERR_SLIB);
-	THROW_PP(reg_accts.GetBinary(p_param_defmailacct, w_buf, sizeof(w_buf)), PPERR_SLIB)
-	WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), 0, 0);
-	active_id.CopyFrom(buf);
-	THROW_PP(reg_accts.Open(HKEY_CURRENT_USER, p_root_key, 1, 1), PPERR_SLIB);
-	for(uint idx = 0; reg_accts.EnumKeys(&idx, accnt_id) > 0;) {
-		SString accnt_par;
-		WinRegKey reg;
-		accnt_par.CopyFrom(p_root_key).SetLastSlash().Cat(accnt_id);
-		if(reg.Open(HKEY_CURRENT_USER, (const char *)accnt_par, 1, 1) > 0) {
-			SString name, fromaddr, sendserv, port;
-			PPInternetAccount * p_account = 0;
-			if(reg.GetBinary(p_param_name, w_buf, sizeof(w_buf)) > 0) {
-				WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), 0, 0);
-				name.CopyFrom(buf);
-			}
-			else
-				continue;
-			if(reg.GetBinary(p_param_addr, w_buf, sizeof(w_buf)) > 0) {
-				WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), 0, 0);
-            	fromaddr.CopyFrom(buf);
-			}
-			else
-				continue;
-			if(reg.GetBinary(p_param_smtp, w_buf, sizeof(w_buf)) > 0) {
-				THROW_MEM(WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), NULL, NULL));
-				sendserv.CopyFrom(buf);
-			}
-			else
-				continue;
-			memzero(buf, sizeof(buf));
-			reg.GetBinary(p_param_port, buf, sizeof(buf));
-			port.Cat((int)buf[0] != 0 ? (int)buf[0] : 0);
-			THROW_MEM(p_account = new PPInternetAccount);
-			p_account->ID = pAccounts->getCount() + 1;
-			name.CopyTo(p_account->Name, sizeof(p_account->Name));
-			p_account->SetExtField(MAEXSTR_SENDPORT,    port);
-			p_account->SetExtField(MAEXSTR_FROMADDRESS, fromaddr);
-			p_account->SetExtField(MAEXSTR_SENDSERVER,  sendserv);
-			pAccounts->insert(p_account);
-			if(active_id.CmpNC(accnt_id) == 0)
-				ASSIGN_PTR(pActiveID, p_account->ID);
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts)
-{
-	int    ok = 1;
-	const char * p_root_key          = "SOFTWARE\\Microsoft\\Internet Account Manager\\Accounts";
-	const char * p_acctmngr_key      = "SOFTWARE\\Microsoft\\Internet Account Manager";
-	const char * p_param_name        = "Account Name";
-	const char * p_param_addr        = "SMTP Email Address";
-	const char * p_param_smtp        = "SMTP Server";
-	const char * p_param_port        = "SMTP Port";
-	const char * p_param_defmailacct = "Default Mail Account";
-	char buf[256];
-	SString accnt_id, active_id;
-	WinRegKey reg_accts;
-
-	THROW_INVARG(pAccounts);
-	pAccounts->freeAll();
-	THROW_PP(reg_accts.Open(HKEY_CURRENT_USER, p_acctmngr_key, 1, 1), PPERR_SLIB);
-	THROW_PP(reg_accts.GetString(p_param_defmailacct, buf, sizeof(buf)), PPERR_SLIB);
-	active_id.CopyFrom(buf);
-
-	THROW_PP(reg_accts.Open(HKEY_CURRENT_USER, p_root_key, 1, 1), PPERR_SLIB);
-	for(uint idx = 0; reg_accts.EnumKeys(&idx, accnt_id = 0) > 0;) {
-		SString accnt_par;
-		WinRegKey reg;
-		accnt_par.CopyFrom(p_root_key).SetLastSlash().Cat(accnt_id);
-		if(reg.Open(HKEY_CURRENT_USER, (const char *)accnt_par, 1, 1) > 0) {
-			SString str_port;
-			DWORD port = 0;
-			SString name, fromaddr, sendserv;
-			PPInternetAccount * p_account = 0;
-			if(reg.GetString(p_param_name, buf, sizeof(buf)) > 0)
-				name.CopyFrom(buf);
-			else
-				continue;
-			if(reg.GetString(p_param_addr, buf, sizeof(buf)) > 0)
-				fromaddr.CopyFrom(buf);
-			else
-				continue;
-			if(reg.GetString(p_param_smtp, buf, sizeof(buf)) > 0)
-				sendserv.CopyFrom(buf);
-			else
-				continue;
-			reg.GetDWord(p_param_port, &port);
-			str_port.Cat(port != 0 ? port : 25);
-
-			THROW_MEM(p_account = new PPInternetAccount);
-			p_account->ID = pAccounts->getCount() + 1;
-			name.CopyTo(p_account->Name, sizeof(p_account->Name));
-			p_account->SetExtField(MAEXSTR_SENDPORT,    str_port);
-			p_account->SetExtField(MAEXSTR_FROMADDRESS, fromaddr);
-			p_account->SetExtField(MAEXSTR_SENDSERVER,  sendserv);
-			THROW_PP(pAccounts->insert(p_account), PPERR_SLIB);
-			if(active_id.CmpNC(accnt_id) == 0)
-				ASSIGN_PTR(pActiveID, p_account->ID);
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int PPInetAccountManager::GetBatAccounts(PPID * pActiveAcctID, PPInetAccntArray * pAccounts)
-{
-	int    ok = 1;
-	THROW_INVARG(pAccounts);
-	pAccounts->freeAll();
-	CATCHZOK
-	return ok;
-}
-
-int PPInetAccountManager::Cat(const PPInetAccntArray * pSrc, PPInetAccntArray * pDest)
-{
-	if(pSrc && pDest) {
-		for(uint i = 0; i < pSrc->getCount(); i++) {
-			PPInternetAccount * p_account = new PPInternetAccount;
-			*p_account = *pSrc->at(i);
-			pDest->insert(p_account);
-		}
-	}
-	return 1;
-}
-
-int PPInetAccountManager::GetDefaultMailClient(MailClientType * pMCT)
-{
-	int    ok = 1;
-	const char * p_outlook       = "Microsoft Outlook";
-	const char * p_outlooke      = "Outlook Express";
-	const char * p_bat           = "The Bat";
-	const char * p_defmailcl_key = "SOFTWARE\\Clients\\Mail";
-	char def_mailcl[256];
-	WinRegKey reg;
-
-	memzero(def_mailcl, sizeof(def_mailcl));
-	THROW_PP(reg.Open(HKEY_LOCAL_MACHINE, p_defmailcl_key, 1, 1), PPERR_SLIB);
-	THROW_PP(reg.GetString(0, def_mailcl, sizeof(def_mailcl)), PPERR_SLIB);
-	if(stricmp(def_mailcl, p_outlook) == 0) {
-		ASSIGN_PTR(pMCT, mctOutlook);
-	}
-	else if(stricmp(def_mailcl, p_outlooke) == 0) {
-		ASSIGN_PTR(pMCT, mctOutlookExpress);
-	}
-	else if(stricmp(def_mailcl, p_bat)) {
-		ASSIGN_PTR(pMCT, mctBat);
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0 @v9.8.11 (useless)
+int SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName); // Prototype (PPREPORT.CPP)
 //
 // PPViewReport
 //
@@ -506,13 +284,13 @@ int PPViewReport::SendMail(long id)
 		{
 			if(!RVALUEPTR(Data, pData)) {
 				Data.AccountID = 0;
-				Data.SupportMail = 0;
-				Data.MainOrg = 0;
-				Data.Licence = 0;
-				Data.User = 0;
-				Data.DB = 0;
-				Data.RptPath = 0;
-				Data.Struc = 0;
+				Data.SupportMail.Z();
+				Data.MainOrg.Z();
+				Data.Licence.Z();
+				Data.User.Z();
+				Data.DB.Z();
+				Data.RptPath.Z();
+				Data.Struc.Z();
 				Data.Dtm.Z();
 			}
 			SString buf;
@@ -566,7 +344,7 @@ int PPViewReport::SendMail(long id)
 			if(p_dict)
 				p_dict->GetDataPath(data.DB);
 			else
-				data.DB = 0;
+				data.DB.Z();
 			data.Struc.CopyFrom(r_rec.StrucName);
 			data.Struc.ReplaceStr("(!)", "\0", 0);
 			data.Dtm = getcurdatetime_();
@@ -1006,7 +784,8 @@ private:
 
 int PPViewReport::EditItem(long * pID)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	long   id = DEREFPTRORZ(pID);
 	ReportViewItem item;
 	ReportViewItem prev_item;

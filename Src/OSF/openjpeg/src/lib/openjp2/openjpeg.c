@@ -189,7 +189,7 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 		    l_codec->m_codec = opj_j2k_create_decompress();
 
 		    if(!l_codec->m_codec) {
-			    opj_free(l_codec);
+			    SAlloc::F(l_codec);
 			    return NULL;
 		    }
 
@@ -277,7 +277,7 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 		    l_codec->m_codec = opj_jp2_create(OPJ_TRUE);
 
 		    if(!l_codec->m_codec) {
-			    opj_free(l_codec);
+			    SAlloc::F(l_codec);
 			    return 00;
 		    }
 
@@ -285,7 +285,7 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 		case OPJ_CODEC_UNKNOWN:
 		case OPJ_CODEC_JPT:
 		default:
-		    opj_free(l_codec);
+		    SAlloc::F(l_codec);
 		    return 00;
 	}
 
@@ -579,7 +579,7 @@ opj_codec_t* OPJ_CALLCONV opj_create_compress(OPJ_CODEC_FORMAT p_format)
 
 		    l_codec->m_codec = opj_j2k_create_compress();
 		    if(!l_codec->m_codec) {
-			    opj_free(l_codec);
+			    SAlloc::F(l_codec);
 			    return 00;
 		    }
 
@@ -607,7 +607,7 @@ opj_codec_t* OPJ_CALLCONV opj_create_compress(OPJ_CODEC_FORMAT p_format)
 		    l_codec->opj_set_threads = (OPJ_BOOL (*)(void * p_codec, OPJ_UINT32 num_threads))opj_jp2_set_threads;
 		    l_codec->m_codec = opj_jp2_create(OPJ_FALSE);
 		    if(!l_codec->m_codec) {
-			    opj_free(l_codec);
+			    SAlloc::F(l_codec);
 			    return 00;
 		    }
 
@@ -616,7 +616,7 @@ opj_codec_t* OPJ_CALLCONV opj_create_compress(OPJ_CODEC_FORMAT p_format)
 		case OPJ_CODEC_UNKNOWN:
 		case OPJ_CODEC_JPT:
 		default:
-		    opj_free(l_codec);
+		    SAlloc::F(l_codec);
 		    return 00;
 	}
 	opj_set_default_event_handler(&(l_codec->m_event_mgr));
@@ -833,7 +833,7 @@ void OPJ_CALLCONV opj_destroy_codec(opj_codec_t * p_codec)
 		}
 
 		l_codec->m_codec = 00;
-		opj_free(l_codec);
+		SAlloc::F(l_codec);
 	}
 }
 
@@ -864,12 +864,12 @@ void OPJ_CALLCONV opj_destroy_cstr_info(opj_codestream_info_v2_t ** cstr_info)
 {
 	if(cstr_info) {
 		if((*cstr_info)->m_default_tile_info.tccp_info) {
-			opj_free((*cstr_info)->m_default_tile_info.tccp_info);
+			SAlloc::F((*cstr_info)->m_default_tile_info.tccp_info);
 		}
 		if((*cstr_info)->tile_info) {
 			/* FIXME not used for the moment*/
 		}
-		opj_free((*cstr_info));
+		SAlloc::F((*cstr_info));
 		(*cstr_info) = NULL;
 	}
 }

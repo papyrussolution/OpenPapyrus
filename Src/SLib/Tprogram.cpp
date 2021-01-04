@@ -10,7 +10,6 @@
 #define CLOSEBTN_BITMAPID  132 // defined in ppdefs.h as IDB_CLOSE
 #define MENUTREE_LIST     1014
 #define ROUNDRECT_RADIUS     2
-#define USE_CANVAS2_DRAWING
 //
 //
 //
@@ -656,8 +655,6 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	return p_pgm->PrevCloseWndProc(hWnd, message, wParam, lParam);
 }
 
-void AlignWaitDlg(HWND hw = 0);
-
 BOOL CALLBACK SendMainWndSizeMessage(HWND hwnd, LPARAM lParam)
 {
 	if(GetParent(hwnd) == reinterpret_cast<HWND>(lParam))
@@ -703,24 +700,6 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				HWND   hb = GetTopWindow(hWnd);
 				if(hb == h_close_wnd)
 					hb = GetNextWindow(hb, GW_HWNDNEXT);
-				/* @v9.1.5
-				char   buf[1024];
-				// @v9.1.5 ::GetWindowText(APPL->H_MainWnd, buf, sizeof(buf)-2);
-				char * ch = strstr(buf, " : ");
-				ASSIGN_PTR(ch, 0);
-				if(hb) {
-					strcat(buf, " : ");
-					// @v9.1.5 ::GetWindowText(hb, buf+strlen(buf), sizeof(buf)-strlen(buf)-1);
-					ShowWindow(hWnd, SW_SHOWNA);
-					UpdateWindow(hWnd);
-				}
-				else {
-					ShowWindow(hWnd, SW_HIDE);
-					SetFocus(APPL->H_MainWnd);
-				}
-				// @v9.1.5 SetWindowText(APPL->H_MainWnd, buf);
-				*/
-				// @v9.1.5 {
 				SString main_text_buf;
 				TView::SGetWindowText(APPL->H_MainWnd, main_text_buf);
 				size_t div_pos = 0;
@@ -738,7 +717,6 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 					::SetFocus(APPL->H_MainWnd);
 				}
 				TView::SSetWindowText(APPL->H_MainWnd, main_text_buf);
-				// } @v9.1.5
 			}
 			break;
 		case WM_USER_CLOSEBROWSER:
@@ -803,7 +781,6 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 				p_pgm->H_MainWnd = hWnd;
 				BrowserWindow::RegWindowClass(TProgram::GetInst());
 				STimeChunkBrowser::RegWindowClass(TProgram::GetInst());
-				// @v9.1.3 (перенесено в PPApp::PPApp()) STextBrowser::RegWindowClass(TProgram::GetInst());
 				SetTimer(hWnd, 1, 500, 0);
 				p_pgm->P_TreeWnd = new TreeWindow(hWnd);
 				p_pgm->H_FrameWnd = APPL->CreateDlg(4101, hWnd, FrameWndProc, 0);
@@ -904,7 +881,7 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 					mii.wID = LOWORD(wParam);
 					GetMenuItemInfo(hmW, wParam, FALSE, &mii);
 					if(LOWORD(mii.wID) == LOWORD(mii.dwItemData)) {
-						HWND   hwnd = ((TWindow *)mii.dwItemData)->H();
+						HWND   hwnd = reinterpret_cast<const TWindow *>(mii.dwItemData)->H();
 						SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE);
 						SetFocus(hwnd);
 						break;
@@ -916,7 +893,6 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 			break;
 		case WM_SIZE:
 			if(wParam != SIZE_MINIMIZED) {
-				// @v9.1.3 AlignWaitDlg();
 				p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 				p_pgm->SizeMainWnd(hWnd);
 				EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
@@ -1001,17 +977,11 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 			break;
 		case WM_MOVE:
 			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
-			// @v9.1.3 AlignWaitDlg();
 			if(p_pgm->H_FrameWnd)
 				PostMessage(p_pgm->H_FrameWnd, WM_MOVE, 0, 0);
 			EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
 			return (DefWindowProc(hWnd, message, wParam, lParam));
-		/*
-		case WM_INPUTLANGCHANGE: // @v6.4.4 AHTOXA
-			{
-			}
-			break;
-		*/
+		//case WM_INPUTLANGCHANGE: {} break; // @v6.4.4 AHTOXA
 		case WM_SYSCOMMAND:
 			if(wParam == SC_CLOSE) {
 				TView::messageCommand(static_cast<TProgram *>(TView::GetWindowUserData(hWnd)), cmQuit, &lParam);
@@ -1349,9 +1319,7 @@ int TProgram::InitUiToolBox()
 	int    ok = 1;
 	if(!(State & stUiToolBoxInited)) {
 		ENTER_CRITICAL_SECTION
-//#ifdef USE_CANVAS2_DRAWING
 		LoadVectorTools(&DvToolList);
-//#endif
 		if(!(State & stUiToolBoxInited)) {
 			UiToolBox.CreateColor(tbiButtonTextColor, SColor(SClrBlack));
 			UiToolBox.CreateColor(tbiButtonTextColor+tbisDisable, SColor(SClrWhite));
@@ -1370,7 +1338,6 @@ int TProgram::InitUiToolBox()
 			UiToolBox.CreatePen(tbiListFocPen,       SPaintObj::psSolid, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
 			UiToolBox.CreateBrush(tbiListSelBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
 			UiToolBox.CreatePen(tbiListSelPen,       SPaintObj::psDot, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
-//#ifdef USE_CANVAS2_DRAWING
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
 				/*
@@ -1391,13 +1358,11 @@ int TProgram::InitUiToolBox()
 			UiToolBox.CreatePen(tbiButtonPen+tbisFocus,   SPaintObj::psSolid, 1, /*SColor(0x15, 0x20, 0xEA)*/SClrOrange); // SColor(0xE5, 0xC3, 0x65)
 			UiToolBox.CreatePen(tbiButtonPen+tbisSelect,  SPaintObj::psSolid, 1, /*SColor(0x15, 0x20, 0xEA)*/SClrOrange);
 			UiToolBox.CreatePen(tbiButtonPen+tbisDisable, SPaintObj::psSolid, 1, SColor(SClrWhite));
-//#else
 			UiToolBox.SetBrush(tbiButtonBrush_F, SPaintObj::bsSolid, SColor(0xDC, 0xD9, 0xD1), 0);
 			UiToolBox.SetBrush(tbiButtonBrush_F+tbisSelect, SPaintObj::bsSolid, SColor(0xBA, 0xBA, 0xC9), 0);
 			UiToolBox.SetPen(tbiButtonPen_F, SPaintObj::psSolid, 1, SColor(0x47, 0x47, 0x3D));
 			UiToolBox.SetPen(tbiButtonPen_F+tbisFocus,  SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			UiToolBox.SetPen(tbiButtonPen_F+tbisSelect, SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
-//#endif
 			State |= stUiToolBoxInited;
 		}
         LEAVE_CRITICAL_SECTION
@@ -2203,7 +2168,6 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				if(::GetObject(hf, sizeof(f), &f)) {
 					SFontDescr fd(0, 0, 0);
 					fd.SetLogFont(&f);
-					//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
 					temp_font_id = UiToolBox.CreateFont_(0, fd.Face, fd.Size, fd.Flags);
 				}
 			}
@@ -2212,13 +2176,12 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				SDrawContext dctx = canv;
 				text_buf.Transf(CTRANSF_OUTER_TO_INNER);
 				if(GetDialogTextLayout(text_buf, temp_font_id, text_pen_id, tlo, draw_bitmap ? ADJ_LEFT : ADJ_CENTER) > 0) {
-					FRect fr(/*rect_text*/out_r);
+					FRect fr(out_r);
 					tlo.SetBounds(fr);
 					tlo.SetOptions(tlo.fVCenter, -1, -1);
 					tlo.Arrange(dctx, UiToolBox);
 					canv.DrawTextLayout(&tlo);
 				}
-				// @v9.2.4 UiToolBox.DeleteObj(temp_font_id);
 			}
 		}
 	}
@@ -2477,11 +2440,6 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						else if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKVector) {
 							ok = DrawButton3(hwnd, p_di);
 						}
-/*#ifdef USE_CANVAS2_DRAWING
-						ok = DrawButton3(hwnd, p_di);
-#else
-						ok = DrawButton2(hwnd, p_di);
-#endif*/
 					}
 					else if(oneof2(p_di->CtlType, ODT_CHECKBOX, ODT_RADIOBTN))
 						ok = -1;
@@ -2492,11 +2450,6 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						else if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKVector) {
 							ok = DrawInputLine3(hwnd, p_di);
 						}
-/*#ifdef USE_CANVAS2_DRAWING
-						ok = DrawInputLine3(hwnd, p_di);
-#else
-						ok = DrawInputLine(hwnd, p_di);
-#endif*/
 					}
 				}
 				if(msg == WM_DRAWITEM && p_di->CtlID == 0) // Status window
@@ -2545,7 +2498,6 @@ void TProgram::GotoSite()
 	SString url("http://www.petroglif.ru/");
 	ShellExecute(0, _T("open"), SUcSwitch(url), NULL, NULL, SW_SHOWNORMAL);
 }
-
 //
 //
 //
@@ -2562,7 +2514,7 @@ void UserInterfaceSettings::Init()
 {
 	SetVersion();
 	Flags = fShowShortcuts;
-	WindowViewStyle = wndVKVector; // @v9.2.7 wndVKFancy-->wndVKVector
+	WindowViewStyle = wndVKVector;
 	TableViewStyle = 1;
 	ListElemCount = 0;
 	TableFont.Init();
@@ -2579,7 +2531,6 @@ uint32 UserInterfaceSettings::GetBrwColorSchema() const
 void UserInterfaceSettings::SetVersion()
 {
 	Ver = (UISETTINGS_VERSION_MINOR|(UISETTINGS_VERSION_MAJOR << 16));
-	// @v7.9.9 Size = sizeof(UserInterfaceSettings);
 }
 
 int UserInterfaceSettings::Restore()

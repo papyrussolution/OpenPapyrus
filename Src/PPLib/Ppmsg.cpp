@@ -627,8 +627,7 @@ int PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 }
 //
 //
-// Prototype
-void AlignWaitDlg(HWND hw = 0);
+static void AlignWaitDlg(HWND hw); // Prototype
 
 PPThreadLocalArea::WaitBlock::WaitBlock() : State(stValid), PrevView(0), WaitDlg(0), OrgCur(0), hwndPB(0), hwndST(0), PrevPercent(-1),
 	WaitCur(::LoadCursor(TProgram::GetInst(), MAKEINTRESOURCE(IDC_PPYWAIT))), IdleTimer(500)
@@ -812,7 +811,7 @@ void FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const c
 
 #define __WD DS.GetTLA().WD
 
-void AlignWaitDlg(HWND hw)
+static void AlignWaitDlg(HWND hw)
 {
 	SETIFZ(hw, __WD.GetWindowHandle());
 	if(hw) {

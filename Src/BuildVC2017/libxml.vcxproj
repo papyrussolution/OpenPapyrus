@@ -926,7 +926,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\LIBXML\config.h" />
-    <ClInclude Include="..\include\libxml\DOCBparser.h" />
     <ClInclude Include="..\include\libxml\encoding.h" />
     <ClInclude Include="..\include\libxml\globals.h" />
     <ClInclude Include="..\include\libxml\list.h" />
@@ -943,15 +942,10 @@
     <ClInclude Include="..\include\libxml\xmlreader.h" />
     <ClInclude Include="..\include\libxml\xmlschemas.h" />
     <ClInclude Include="..\include\libxml\xmlschemastypes.h" />
-    <ClInclude Include="..\include\libxml\xmlstring.h" />
     <ClInclude Include="..\include\libxml\xmlversion.h" />
     <ClInclude Include="..\include\libxml\xmlwriter.h" />
     <ClInclude Include="..\OSF\LIBXML\libxml.h" />
-    <ClInclude Include="..\OSF\LIBXML\save.h" />
     <ClInclude Include="..\OSF\LIBXML\timsort.h" />
-    <ClInclude Include="..\OSF\LIBXML\triodef.h" />
-    <ClInclude Include="..\OSF\LIBXML\trionan.h" />
-    <ClInclude Include="..\OSF\LIBXML\xzlib.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="liblzma.vcxproj">

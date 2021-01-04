@@ -2123,14 +2123,36 @@ private:
 };
 
 class LayoutFlexItem : public TSCollection <LayoutFlexItem> {
+	friend class LayoutFlex;
 public:
+	struct Result {
+		enum {
+			fNotFit         = 0x0001, // Элемент не уместился в контейнер
+			fDegradedWidth  = 0x0002, // Ширина элемента деградировала (меньше или равна 0)
+			fDegradedHeight = 0x0004  // Высота элемента деградировала (меньше или равна 0)
+		};
+		Result();
+		operator FRect() const;
+		Result & CopyWithOffset(const Result & rS, float offsX, float offsY);
+		float  Frame[4];
+		uint   Flags;
+	};
 	// size[0] == width, size[1] == height
 	typedef void (__stdcall * FlexSelfSizingProc)(LayoutFlexItem * pItem, float size[2]);
 	typedef void (__stdcall * FlexSetupProc)(LayoutFlexItem * pItem, float size[4]);
 
 	LayoutFlexItem();
 	~LayoutFlexItem();
-	int    Evaluate();
+
+	struct Param {
+		Param() : Flags(0), ForceWidth(0.0f), ForceHeight(0.0f)
+		{
+		}
+		uint   Flags;
+		float  ForceWidth;
+		float  ForceHeight;
+	};
+	int    Evaluate(const Param * pP);
 	LayoutFlexItem * InsertItem();
 	void   DeleteItem(uint idx);
 	int    GetOrder() const;
@@ -2185,24 +2207,39 @@ public:
 	// during layout and which can customize the dimensions (width and height) of the item.
 	FlexSelfSizingProc CbSelfSizing; // NULL
 	FlexSetupProc CbSetup; // NULL
-	struct Result {
-		enum {
-			fNotFit = 0x0001
-		};
-		Result();
-		operator FRect() const;
-		Result & CopyWithOffset(const Result & rS, float offsX, float offsY);
-		float  Frame[4];
-		uint   Flags;
-	};
-	//float  frame[4];
 	Result R;
 	LayoutFlexItem * P_Parent;
 	uint   State;
+	//
+	// Descr: Гомогенный элемент. Вектор таких элементов (HomogeneousList) заменяет множество 
+	//   однообразных элементов. За счет использования гомогенных списков я рассчитываю получить
+	//   значительное ускорение и упрощенние работы в ряде частных случаев.
+	//   За исключением опционального параметра Vf все остальные атрибуты элемента определяются
+	//   элементом-владецем.
+	//
+	struct HomogeneousEntry {
+		long   ID; // Уникальный (среди элементов HomogeneousArray) идентификатор
+		float  Vf; // Значение изменяемого фактора, определяемого параметром HomogeneousArray::VariableFactor
+	};
+	struct HomogeneousArray : public TSVector <HomogeneousEntry> {
+		enum {
+			vfNone = 0,
+			vfFixedSizeX,
+			vfFixedSizeY,
+			vfGrowFactor
+		};
+		HomogeneousArray() : VariableFactor(vfNone)
+		{
+		}
+		uint   VariableFactor;
+	};
+
+	int    InitHomogeneousArray(uint variableFactor /* HomogeneousArray::vfXXX */);
+	int    AddHomogeneousEntry(long id, float vf);
 protected:
 	void   UpdateShouldOrderChildren();
-	void   DoLayout(float width, float height);
-	void   DoFloatLayout(float _width, float _height);
+	void   DoLayout(const Param & rP);
+	void   DoFloatLayout(const Param & rP);
 	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout);
 	/*flex_align*/int FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
 private:
@@ -2210,9 +2247,11 @@ private:
 	// Descr: Вызывает DoLayout(framt[2], frame[3])
 	//
 	void   DoLayoutSelf();
+	bool   LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed);
 	LayoutFlexItem * P_Link; // @transient При сложных схемах построения формируются искусственные лейауты, получающие
 		// в этом поле ссылку на порождающий реальный элемент. Указатель константным не делать: по нему будет присвоен 
 		// результат вычислений.
+	HomogeneousArray * P_HgL;
 };
 /*
 length-unit: % | mm | m | cm
@@ -2329,157 +2368,6 @@ private:
 	long   WbCapability;
 	uint32 H_DrawBuf;
 };
-//
-//
-//
-typedef uint32_t lay_id;
-#if LAY_FLOAT == 1
-	typedef float lay_scalar;
-#else
-	typedef int16_t lay_scalar;
-#endif
-
-#define LAY_INVALID_ID UINT_MAX // UINT32_MAX
-//
-// GCC and Clang allow us to create vectors based on a type with the
-// vector_size extension. This will allow us to access individual components of
-// the vector via indexing operations.
-//
-#if defined(__GNUC__) || defined(__clang__)
-	// Using floats for coordinates takes up more space than using int16. 128 bits
-	// for a four-component vector.
-	#ifdef LAY_FLOAT
-		typedef float lay_vec4 __attribute__ ((__vector_size__(16), aligned(4)));
-		typedef float lay_vec2 __attribute__ ((__vector_size__(8), aligned(4)));
-		// Integer version uses 64 bits for a four-component vector.
-	#else
-		typedef int16_t lay_vec4 __attribute__ ((__vector_size__(8), aligned(2)));
-		typedef int16_t lay_vec2 __attribute__ ((__vector_size__(4), aligned(2)));
-	#endif // LAY_FLOAT
-	//
-	// Note that we're not actually going to make any explicit use of any
-	// platform's SIMD instructions -- we're just using the vector extension for
-	// more convenient syntax. Therefore, we can specify more relaxed alignment
-	// requirements. See the end of this file for some notes about this.
-
-	// MSVC doesn't have the vetor_size attribute, but we want convenient indexing
-	// operators for our layout logic code. Therefore, we force C++ compilation in
-	// MSVC, and use C++ operator overloading.
-#elif defined(_MSC_VER)
-	struct lay_vec4 {
-		lay_scalar xyzw[4];
-		const lay_scalar & operator[](int index) const { return xyzw[index]; }
-		lay_scalar & operator[](int index) { return xyzw[index]; }
-	};
-
-	struct lay_vec2 {
-		lay_scalar xy[2];
-		const lay_scalar & operator[](int index) const { return xy[index]; }
-		lay_scalar & operator[](int index) { return xy[index]; }
-	};
-#endif // __GNUC__/__clang__ or _MSC_VER
-
-class TLayout {
-public:
-	enum {
-		fPlaceHolder = 0x0000
-	};
-	struct EntryBlock { // @persistent
-		EntryBlock();
-		SString & SizeToString(SString & rBuf) const;
-		int    SizeFromString(const char * pBuf);
-		SString & MarginsToString(SString & rBuf) const;
-		int    MarginsFromString(const char * pBuf);
-		enum {
-			cfWrap = 0x0001
-		};
-		enum {
-			bfLeft   = 0x0001,
-			bfTop    = 0x0002,
-			bfRight  = 0x0004,
-			bfBottom = 0x0008,
-			bfHFill  = (bfLeft|bfRight),
-			bfVFill  = (bfTop|bfBottom),
-			bfFill   = (bfLeft|bfRight|bfTop|bfBottom)
-		};
-		// @construction USize  SzX;
-		// @construction USize  SzY;
-		TPoint Sz;
-		TRect  Margins;
-		int16  ContainerDirection;  // DIREC_UNKN(free) || DIREC_HORZ || DIREC_VERT
-		int16  ContainerAdjustment; // ADJ_LEFT || ADJ_RIGHT || ADJ_CENTER || ADJ_ALIGN
-		uint16 ContainerFlags;      // cfXXX
-		uint16 BehaveFlags;         //
-		uint8  Reserve[16];
-	};
-	struct Item {
-		Item() : Flags(0), FirstChild(0), NextSibling(0), Handle(0)
-		{
-			MEMSZERO(Margins);
-			MEMSZERO(Size);
-		}
-		uint32 Flags;
-		uint32 FirstChild;
-		uint32 NextSibling;
-		lay_vec4 Margins;
-		lay_vec2 Size;
-		void * Handle;
-	};
-	struct Context { // lay_context
-		Context();
-		//
-		// Descr: Get the pointer to an item in the buffer by its id. Don't keep this around --
-		//   it will become invalid as soon as any reallocation occurs. Just store the id
-		//   instead (it's smaller, anyway, and the lookup cost will be nothing.)
-		//
-		const Item * FASTCALL GetItemC(lay_id idx) const;
-		Item * FASTCALL GetItem(lay_id idx);
-
-		Item * P_Items;
-		lay_vec4 * P_Rects;
-		uint   capacity;
-		uint   count;
-	};
-
-	TLayout();
-	~TLayout();
-	lay_id CreateItem();
-	//
-	// Descr: Вставляет newItemId последним элементом родительского объекта parentId.
-	//
-	int    Insert(lay_id parentId, lay_id newItemId);
-	//
-	// Descr: Вставляет newItemId первым элементом родительского объекта parentId.
-	//
-	int    Push(lay_id parentIdx, lay_id newItemIdx);
-	int    Append(lay_id earlierIdx, lay_id laterIdx);
-	void   SetContainOptions(lay_id itemIdx, uint flags);
-	void   SetBehaveOptions(lay_id itemIdx, uint flags);
-	void   SetItemSize(lay_id itemIdx, lay_vec2 size);
-	void   SetItemSizeXy(lay_id item, lay_scalar width, lay_scalar height);
-	int    SetItemMargins(lay_id itemIdx, const TRect & rM);
-	void   Run();
-	lay_id GetLastChild(lay_id parentIdx) const;
-	lay_vec2 GetItemSize(lay_id itemIdx) const;
-	int    GetItemSize(lay_id itemIdx, lay_scalar * pX, lay_scalar * pY) const;
-	int    GetItemMargins(lay_id itemIdx, TRect * pM) const;
-private:
-	void   RunItem(lay_id itemId);
-	void   CalcSize(lay_id itemId, int dim);
-	void   Arrange(lay_id itemId, int dim);
-	void   ArrangeStacked(lay_id itemId, int dim, bool wrap);
-	lay_scalar CalcOverlayedSize(lay_id item, int dim) const;
-	lay_scalar CalcStackedSize(lay_id item, int dim) const;
-	lay_scalar CalcWrappedStackedSize(lay_id item, int dim) const;
-	lay_scalar CalcWrappedOverlayedSize(lay_id item, int dim) const;
-	void   ArrangeOverlay(lay_id item, int dim) const;
-	lay_scalar ArrangeWrappedOverlaySqueezed(lay_id item, int dim);
-	void   ArrangeOverlaySqueezedRange(int dim, lay_id start_item, lay_id end_item, lay_scalar offset, lay_scalar space);
-	int    AppendByPtr(Item * pEarlier, lay_id laterId, Item * pLater);
-
-	Context Ctx;
-};
-
 //
 //
 //
@@ -2780,7 +2668,6 @@ protected:
 private:
 	TRect  Bounds;
 	SString LayoutContainerIdent; // @v10.4.8 @persistent Символ родительского объекта типа Layout
-	// @v10.9.8 TLayout::EntryBlock Le; // @v10.4.7 Параметры объекта как элемента layout
 	AbstractLayoutBlock Le2; // @v10.9.8 @persistent 
 	TWhatman * P_Owner; // @transient
 };
@@ -2956,7 +2843,6 @@ public:
 	int    Store(const char * pFileName);
 	int    Load(const char * pFileName);
 	static float GetRuleWidth();
-	int    ProcessLayouts();
 private:
 	struct ObjZone {
 		int    I;

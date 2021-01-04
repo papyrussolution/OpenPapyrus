@@ -283,11 +283,9 @@ FT_BEGIN_HEADER
 typedef struct  FT_Glyph_Metrics_ {
 	FT_Pos width;
 	FT_Pos height;
-
 	FT_Pos horiBearingX;
 	FT_Pos horiBearingY;
 	FT_Pos horiAdvance;
-
 	FT_Pos vertBearingX;
 	FT_Pos vertBearingY;
 	FT_Pos vertAdvance;
@@ -335,9 +333,7 @@ typedef struct  FT_Glyph_Metrics_ {
 typedef struct  FT_Bitmap_Size_ {
 	FT_Short height;
 	FT_Short width;
-
 	FT_Pos size;
-
 	FT_Pos x_ppem;
 	FT_Pos y_ppem;
 } FT_Bitmap_Size;
@@ -982,12 +978,12 @@ typedef struct  FT_FaceRec_ {
 	FT_Long face_flags;
 	FT_Long style_flags;
 	FT_Long num_glyphs;
-	FT_String*        family_name;
-	FT_String*        style_name;
+	FT_String * family_name;
+	FT_String * style_name;
 	FT_Int num_fixed_sizes;
-	FT_Bitmap_Size*   available_sizes;
+	FT_Bitmap_Size * available_sizes;
 	FT_Int num_charmaps;
-	FT_CharMap*       charmaps;
+	FT_CharMap * charmaps;
 	FT_Generic generic;
 	/*# The following member variables (down to `underline_thickness`) */
 	/*# are only relevant to scalable outlines; cf. @FT_Bitmap_Size    */
@@ -1155,8 +1151,7 @@ typedef struct  FT_FaceRec_ {
  *   @FT_HAS_VERTICAL can be used to check for vertical metrics.
  *
  */
-#define FT_HAS_HORIZONTAL(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_HORIZONTAL ) )
+#define FT_HAS_HORIZONTAL(face) (!!( (face)->face_flags & FT_FACE_FLAG_HORIZONTAL))
 
 /**************************************************************************
  *
@@ -1168,8 +1163,7 @@ typedef struct  FT_FaceRec_ {
  *   vertical metrics (and not only synthesized ones).
  *
  */
-#define FT_HAS_VERTICAL(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_VERTICAL ) )
+#define FT_HAS_VERTICAL(face) (!!((face)->face_flags & FT_FACE_FLAG_VERTICAL))
 
 /**************************************************************************
  *
@@ -1181,8 +1175,7 @@ typedef struct  FT_FaceRec_ {
  *   that can be accessed with @FT_Get_Kerning.
  *
  */
-#define FT_HAS_KERNING(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_KERNING ) )
+#define FT_HAS_KERNING(face) (!!((face)->face_flags & FT_FACE_FLAG_KERNING))
 
 /**************************************************************************
  *
@@ -1195,8 +1188,7 @@ typedef struct  FT_FaceRec_ {
  *   PFR font formats).
  *
  */
-#define FT_IS_SCALABLE(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_SCALABLE ) )
+#define FT_IS_SCALABLE(face) (!!((face)->face_flags & FT_FACE_FLAG_SCALABLE))
 
 /**************************************************************************
  *
@@ -1779,31 +1771,22 @@ typedef struct  FT_GlyphSlotRec_ {
 	FT_GlyphSlot next;
 	FT_UInt glyph_index;       /* new in 2.10; was reserved previously */
 	FT_Generic generic;
-
 	FT_Glyph_Metrics metrics;
 	FT_Fixed linearHoriAdvance;
 	FT_Fixed linearVertAdvance;
 	FT_Vector advance;
-
 	FT_Glyph_Format format;
-
 	FT_Bitmap bitmap;
 	FT_Int bitmap_left;
 	FT_Int bitmap_top;
-
 	FT_Outline outline;
-
 	FT_UInt num_subglyphs;
 	FT_SubGlyph subglyphs;
-
 	void *  control_data;
 	long control_len;
-
 	FT_Pos lsb_delta;
 	FT_Pos rsb_delta;
-
 	void *  other;
-
 	FT_Slot_Internal internal;
 } FT_GlyphSlotRec;
 
@@ -1844,8 +1827,7 @@ typedef struct  FT_GlyphSlotRec_ {
  *   variable to control driver properties.  See section @properties for
  *   more.
  */
-FT_EXPORT(FT_Error)
-FT_Init_FreeType(FT_Library  *alibrary);
+FT_EXPORT(FT_Error) FT_Init_FreeType(FT_Library  *alibrary);
 
 /**************************************************************************
  *
@@ -1863,8 +1845,7 @@ FT_Init_FreeType(FT_Library  *alibrary);
  * @return:
  *   FreeType error code.  0~means success.
  */
-FT_EXPORT(FT_Error)
-FT_Done_FreeType(FT_Library library);
+FT_EXPORT(FT_Error) FT_Done_FreeType(FT_Library library);
 
 /**************************************************************************
  *
@@ -2040,11 +2021,7 @@ typedef struct  FT_Open_Args_ {
  *   Use @FT_Done_Face to destroy the created @FT_Face object (along with
  *   its slot and sizes).
  */
-FT_EXPORT(FT_Error)
-FT_New_Face(FT_Library library,
-    const char*  filepathname,
-    FT_Long face_index,
-    FT_Face     *aface);
+FT_EXPORT(FT_Error) FT_New_Face(FT_Library library, const char*  filepathname, FT_Long face_index, FT_Face     *aface);
 
 /**************************************************************************
  *
@@ -2079,12 +2056,7 @@ FT_New_Face(FT_Library library,
  * @note:
  *   You must not deallocate the memory before calling @FT_Done_Face.
  */
-FT_EXPORT(FT_Error)
-FT_New_Memory_Face(FT_Library library,
-    const FT_Byte*  file_base,
-    FT_Long file_size,
-    FT_Long face_index,
-    FT_Face        *aface);
+FT_EXPORT(FT_Error) FT_New_Memory_Face(FT_Library library, const FT_Byte*  file_base, FT_Long file_size, FT_Long face_index, FT_Face        *aface);
 
 /**************************************************************************
  *
@@ -2223,11 +2195,7 @@ FT_New_Memory_Face(FT_Library library,
  *     } while ( face_idx < num_faces )
  *   ```
  */
-FT_EXPORT(FT_Error)
-FT_Open_Face(FT_Library library,
-    const FT_Open_Args*  args,
-    FT_Long face_index,
-    FT_Face             *aface);
+FT_EXPORT(FT_Error) FT_Open_Face(FT_Library library, const FT_Open_Args*  args, FT_Long face_index, FT_Face             *aface);
 
 /**************************************************************************
  *
@@ -2248,9 +2216,7 @@ FT_Open_Face(FT_Library library,
  * @return:
  *   FreeType error code.  0~means success.
  */
-FT_EXPORT(FT_Error)
-FT_Attach_File(FT_Face face,
-    const char*  filepathname);
+FT_EXPORT(FT_Error) FT_Attach_File(FT_Face face, const char*  filepathname);
 
 /**************************************************************************
  *
@@ -2283,9 +2249,7 @@ FT_Attach_File(FT_Face face,
  *   invoking this function.  Most drivers simply do not implement file or
  *   stream attachments.
  */
-FT_EXPORT(FT_Error)
-FT_Attach_Stream(FT_Face face,
-    FT_Open_Args*  parameters);
+FT_EXPORT(FT_Error) FT_Attach_Stream(FT_Face face, FT_Open_Args*  parameters);
 
 /**************************************************************************
  *
@@ -2311,8 +2275,7 @@ FT_Attach_Stream(FT_Face face,
  * @since:
  *   2.4.2
  */
-FT_EXPORT(FT_Error)
-FT_Reference_Face(FT_Face face);
+FT_EXPORT(FT_Error) FT_Reference_Face(FT_Face face);
 
 /**************************************************************************
  *
@@ -2334,8 +2297,7 @@ FT_Reference_Face(FT_Face face);
  *   See the discussion of reference counters in the description of
  *   @FT_Reference_Face.
  */
-FT_EXPORT(FT_Error)
-FT_Done_Face(FT_Face face);
+FT_EXPORT(FT_Error) FT_Done_Face(FT_Face face);
 
 /**************************************************************************
  *
@@ -2373,9 +2335,7 @@ FT_Done_Face(FT_Face face);
  *
  *   Don't use this function if you are using the FreeType cache API.
  */
-FT_EXPORT(FT_Error)
-FT_Select_Size(FT_Face face,
-    FT_Int strike_index);
+FT_EXPORT(FT_Error) FT_Select_Size(FT_Face face, FT_Int strike_index);
 
 /**************************************************************************
  *
@@ -2529,9 +2489,7 @@ typedef struct FT_Size_RequestRec_  * FT_Size_Request;
  *
  *   Don't use this function if you are using the FreeType cache API.
  */
-FT_EXPORT(FT_Error)
-FT_Request_Size(FT_Face face,
-    FT_Size_Request req);
+FT_EXPORT(FT_Error) FT_Request_Size(FT_Face face, FT_Size_Request req);
 
 /**************************************************************************
  *
@@ -2577,12 +2535,7 @@ FT_Request_Size(FT_Face face,
  *
  *   Don't use this function if you are using the FreeType cache API.
  */
-FT_EXPORT(FT_Error)
-FT_Set_Char_Size(FT_Face face,
-    FT_F26Dot6 char_width,
-    FT_F26Dot6 char_height,
-    FT_UInt horz_resolution,
-    FT_UInt vert_resolution);
+FT_EXPORT(FT_Error) FT_Set_Char_Size(FT_Face face, FT_F26Dot6 char_width, FT_F26Dot6 char_height, FT_UInt horz_resolution, FT_UInt vert_resolution);
 
 /**************************************************************************
  *
@@ -2613,10 +2566,7 @@ FT_Set_Char_Size(FT_Face face,
  *
  *   Don't use this function if you are using the FreeType cache API.
  */
-FT_EXPORT(FT_Error)
-FT_Set_Pixel_Sizes(FT_Face face,
-    FT_UInt pixel_width,
-    FT_UInt pixel_height);
+FT_EXPORT(FT_Error) FT_Set_Pixel_Sizes(FT_Face face, FT_UInt pixel_width, FT_UInt pixel_height);
 
 /**************************************************************************
  *
@@ -2658,10 +2608,7 @@ FT_Set_Pixel_Sizes(FT_Face face,
  *   at EM size, then scale it manually and fill it as a graphics
  *   operation.
  */
-FT_EXPORT(FT_Error)
-FT_Load_Glyph(FT_Face face,
-    FT_UInt glyph_index,
-    FT_Int32 load_flags);
+FT_EXPORT(FT_Error) FT_Load_Glyph(FT_Face face, FT_UInt glyph_index, FT_Int32 load_flags);
 
 /**************************************************************************
  *
@@ -2700,10 +2647,7 @@ FT_Load_Glyph(FT_Face face,
  *   to @FT_Get_Char_Index is omitted, and the function behaves identically
  *   to @FT_Load_Glyph.
  */
-FT_EXPORT(FT_Error)
-FT_Load_Char(FT_Face face,
-    FT_ULong char_code,
-    FT_Int32 load_flags);
+FT_EXPORT(FT_Error) FT_Load_Char(FT_Face face, FT_ULong char_code, FT_Int32 load_flags);
 
 /**************************************************************************
  *
@@ -3053,10 +2997,7 @@ FT_Load_Char(FT_Face face,
  *   Note that this also transforms the `face.glyph.advance` field, but
  *   **not** the values in `face.glyph.metrics`.
  */
-FT_EXPORT(void)
-FT_Set_Transform(FT_Face face,
-    FT_Matrix*  matrix,
-    FT_Vector*  delta);
+FT_EXPORT(void) FT_Set_Transform(FT_Face face, FT_Matrix*  matrix, FT_Vector*  delta);
 
 /**************************************************************************
  *
@@ -3117,8 +3058,7 @@ typedef enum  FT_Render_Mode_ {
 	FT_RENDER_MODE_MAX
 } FT_Render_Mode;
 
-/* these constants are deprecated; use the corresponding */
-/* `FT_Render_Mode` values instead                       */
+/* these constants are deprecated; use the corresponding `FT_Render_Mode` values instead                       */
 #define ft_render_mode_normal  FT_RENDER_MODE_NORMAL
 #define ft_render_mode_mono    FT_RENDER_MODE_MONO
 
@@ -3227,9 +3167,7 @@ typedef enum  FT_Render_Mode_ {
  *   3~times per pixel: red foreground subpixel to red background subpixel
  *   and so on for green and blue.
  */
-FT_EXPORT(FT_Error)
-FT_Render_Glyph(FT_GlyphSlot slot,
-    FT_Render_Mode render_mode);
+FT_EXPORT(FT_Error) FT_Render_Glyph(FT_GlyphSlot slot, FT_Render_Mode render_mode);
 
 /**************************************************************************
  *
@@ -3265,8 +3203,7 @@ typedef enum  FT_Kerning_Mode_ {
 	FT_KERNING_UNSCALED
 } FT_Kerning_Mode;
 
-/* these constants are deprecated; use the corresponding */
-/* `FT_Kerning_Mode` values instead                      */
+/* these constants are deprecated; use the corresponding `FT_Kerning_Mode` values instead                      */
 #define ft_kerning_default   FT_KERNING_DEFAULT
 #define ft_kerning_unfitted  FT_KERNING_UNFITTED
 #define ft_kerning_unscaled  FT_KERNING_UNSCALED
@@ -3312,12 +3249,7 @@ typedef enum  FT_Kerning_Mode_ {
  *   supported; use @FT_HAS_KERNING to find out whether a font has data
  *   that can be extracted with `FT_Get_Kerning`.
  */
-FT_EXPORT(FT_Error)
-FT_Get_Kerning(FT_Face face,
-    FT_UInt left_glyph,
-    FT_UInt right_glyph,
-    FT_UInt kern_mode,
-    FT_Vector  *akerning);
+FT_EXPORT(FT_Error) FT_Get_Kerning(FT_Face face, FT_UInt left_glyph, FT_UInt right_glyph, FT_UInt kern_mode, FT_Vector  *akerning);
 
 /**************************************************************************
  *
@@ -3355,11 +3287,7 @@ FT_Get_Kerning(FT_Face face,
  *   Only very few AFM files come with track kerning data; please refer to
  *   Adobe's AFM specification for more details.
  */
-FT_EXPORT(FT_Error)
-FT_Get_Track_Kerning(FT_Face face,
-    FT_Fixed point_size,
-    FT_Int degree,
-    FT_Fixed*  akerning);
+FT_EXPORT(FT_Error) FT_Get_Track_Kerning(FT_Face face, FT_Fixed point_size, FT_Int degree, FT_Fixed*  akerning);
 
 /**************************************************************************
  *
@@ -3401,11 +3329,7 @@ FT_Get_Track_Kerning(FT_Face face,
  *   This function always returns an error if the config macro
  *   `FT_CONFIG_OPTION_NO_GLYPH_NAMES` is not defined in `ftoption.h`.
  */
-FT_EXPORT(FT_Error)
-FT_Get_Glyph_Name(FT_Face face,
-    FT_UInt glyph_index,
-    FT_Pointer buffer,
-    FT_UInt buffer_max);
+FT_EXPORT(FT_Error) FT_Get_Glyph_Name(FT_Face face, FT_UInt glyph_index, FT_Pointer buffer, FT_UInt buffer_max);
 
 /**************************************************************************
  *
@@ -3439,8 +3363,7 @@ FT_Get_Glyph_Name(FT_Face face,
  *   @FT_IS_VARIATION returns true, the algorithmically derived PostScript
  *   name is provided, not looking up special entries for named instances.
  */
-FT_EXPORT(const char*)
-FT_Get_Postscript_Name(FT_Face face);
+FT_EXPORT(const char*) FT_Get_Postscript_Name(FT_Face face);
 
 /**************************************************************************
  *
@@ -3472,9 +3395,7 @@ FT_Get_Postscript_Name(FT_Face face);
  *   preferred to a UCS-2 cmap).  It is thus preferable to @FT_Set_Charmap
  *   in this case.
  */
-FT_EXPORT(FT_Error)
-FT_Select_Charmap(FT_Face face,
-    FT_Encoding encoding);
+FT_EXPORT(FT_Error) FT_Select_Charmap(FT_Face face, FT_Encoding encoding);
 
 /**************************************************************************
  *
@@ -3502,9 +3423,7 @@ FT_Select_Charmap(FT_Face face,
  *   It also fails if an OpenType type~14 charmap is selected (which
  *   doesn't map character codes to glyph indices at all).
  */
-FT_EXPORT(FT_Error)
-FT_Set_Charmap(FT_Face face,
-    FT_CharMap charmap);
+FT_EXPORT(FT_Error) FT_Set_Charmap(FT_Face face, FT_CharMap charmap);
 
 /**************************************************************************
  *
@@ -3523,8 +3442,7 @@ FT_Set_Charmap(FT_Face face,
  *   `charmap` belongs.  If an error occurs, -1 is returned.
  *
  */
-FT_EXPORT(FT_Int)
-FT_Get_Charmap_Index(FT_CharMap charmap);
+FT_EXPORT(FT_Int) FT_Get_Charmap_Index(FT_CharMap charmap);
 
 /**************************************************************************
  *
@@ -3557,9 +3475,7 @@ FT_Get_Charmap_Index(FT_CharMap charmap);
  *   created at index~0 and whatever was there will be moved to the last
  *   index -- Type~42 fonts are considered invalid under this condition.
  */
-FT_EXPORT(FT_UInt)
-FT_Get_Char_Index(FT_Face face,
-    FT_ULong charcode);
+FT_EXPORT(FT_UInt) FT_Get_Char_Index(FT_Face face, FT_ULong charcode);
 
 /**************************************************************************
  *
@@ -3611,9 +3527,7 @@ FT_Get_Char_Index(FT_Face face,
  *   itself can be~0 in two cases: if the charmap is empty or if the
  *   value~0 is the first valid character code.
  */
-FT_EXPORT(FT_ULong)
-FT_Get_First_Char(FT_Face face,
-    FT_UInt  *agindex);
+FT_EXPORT(FT_ULong) FT_Get_First_Char(FT_Face face, FT_UInt  *agindex);
 
 /**************************************************************************
  *
@@ -3647,10 +3561,7 @@ FT_Get_First_Char(FT_Face face,
  *   Note that `*agindex` is set to~0 when there are no more codes in the
  *   charmap.
  */
-FT_EXPORT(FT_ULong)
-FT_Get_Next_Char(FT_Face face,
-    FT_ULong char_code,
-    FT_UInt   *agindex);
+FT_EXPORT(FT_ULong) FT_Get_Next_Char(FT_Face face, FT_ULong char_code, FT_UInt   *agindex);
 
 /**************************************************************************
  *
@@ -3703,17 +3614,11 @@ FT_Get_Next_Char(FT_Face face,
  *   ```
  *     FT_Parameter         property1;
  *     FT_Bool              darken_stems = 1;
- *
  *     FT_Parameter         property2;
- *     FT_LcdFiveTapFilter  custom_weight =
- *                            { 0x11, 0x44, 0x56, 0x44, 0x11 };
- *
+ *     FT_LcdFiveTapFilter  custom_weight = { 0x11, 0x44, 0x56, 0x44, 0x11 };
  *     FT_Parameter         property3;
  *     FT_Int32             random_seed = 314159265;
- *
- *     FT_Parameter         properties[3] = { property1,
- *                                            property2,
- *                                            property3 };
+ *     FT_Parameter         properties[3] = { property1, property2, property3 };
  *
  *
  *     property1.tag  = FT_PARAM_TAG_STEM_DARKENING;
@@ -3744,10 +3649,7 @@ FT_Get_Next_Char(FT_Face face,
  *   2.8
  *
  */
-FT_EXPORT(FT_Error)
-FT_Face_Properties(FT_Face face,
-    FT_UInt num_properties,
-    FT_Parameter*  properties);
+FT_EXPORT(FT_Error) FT_Face_Properties(FT_Face face, FT_UInt num_properties, FT_Parameter*  properties);
 
 /**************************************************************************
  *
@@ -3767,9 +3669,7 @@ FT_Face_Properties(FT_Face face,
  * @return:
  *   The glyph index.  0~means 'undefined character code'.
  */
-FT_EXPORT(FT_UInt)
-FT_Get_Name_Index(FT_Face face,
-    const FT_String*  glyph_name);
+FT_EXPORT(FT_UInt) FT_Get_Name_Index(FT_Face face, const FT_String*  glyph_name);
 
 /**************************************************************************
  *
@@ -3846,14 +3746,7 @@ FT_Get_Name_Index(FT_Face face,
  *     https://docs.microsoft.com/en-us/typography/opentype/spec/glyf#composite-glyph-description
  *
  */
-FT_EXPORT(FT_Error)
-FT_Get_SubGlyph_Info(FT_GlyphSlot glyph,
-    FT_UInt sub_index,
-    FT_Int       *p_index,
-    FT_UInt      *p_flags,
-    FT_Int       *p_arg1,
-    FT_Int       *p_arg2,
-    FT_Matrix    *p_transform);
+FT_EXPORT(FT_Error) FT_Get_SubGlyph_Info(FT_GlyphSlot glyph, FT_UInt sub_index, FT_Int *p_index, FT_UInt *p_flags, FT_Int *p_arg1, FT_Int *p_arg2, FT_Matrix    *p_transform);
 
 /**************************************************************************
  *
@@ -3964,12 +3857,9 @@ typedef struct  FT_LayerIterator_ {
  *   ```
  *     FT_Color*         palette;
  *     FT_LayerIterator  iterator;
- *
  *     FT_Bool  have_layers;
  *     FT_UInt  layer_glyph_index;
  *     FT_UInt  layer_color_index;
- *
- *
  *     error = FT_Palette_Select( face, palette_index, &palette );
  *     if ( error )
  *       palette = NULL;
@@ -3981,13 +3871,9 @@ typedef struct  FT_LayerIterator_ {
  *                                             &layer_color_index,
  *                                             &iterator );
  *
- *     if ( palette && have_layers )
- *     {
- *       do
- *       {
+ *     if ( palette && have_layers ) {
+ *       do {
  *         FT_Color  layer_color;
- *
- *
  *         if ( layer_color_index == 0xFFFF )
  *           layer_color = text_foreground_color;
  *         else
@@ -3996,29 +3882,17 @@ typedef struct  FT_LayerIterator_ {
  *         // Load and render glyph `layer_glyph_index', then
  *         // blend resulting pixmap (using color `layer_color')
  *         // with previously created pixmaps.
- *
- *       } while ( FT_Get_Color_Glyph_Layer( face,
- *                                           glyph_index,
- *                                           &layer_glyph_index,
- *                                           &layer_color_index,
- *                                           &iterator ) );
+ *       } while ( FT_Get_Color_Glyph_Layer(face, glyph_index, &layer_glyph_index, &layer_color_index, &iterator));
  *     }
  *   ```
  */
-FT_EXPORT(FT_Bool)
-FT_Get_Color_Glyph_Layer(FT_Face face,
-    FT_UInt base_glyph,
-    FT_UInt           *aglyph_index,
-    FT_UInt           *acolor_index,
-    FT_LayerIterator*  iterator);
+FT_EXPORT(FT_Bool) FT_Get_Color_Glyph_Layer(FT_Face face, FT_UInt base_glyph, FT_UInt *aglyph_index, FT_UInt *acolor_index, FT_LayerIterator*  iterator);
 
 /**************************************************************************
  *
  * @section:
  *   base_interface
- *
  */
-
 /**************************************************************************
  *
  * @enum:
@@ -4102,8 +3976,7 @@ FT_Get_Color_Glyph_Layer(FT_Face face,
  * @since:
  *   2.3.8
  */
-FT_EXPORT(FT_UShort)
-FT_Get_FSType_Flags(FT_Face face);
+FT_EXPORT(FT_UShort) FT_Get_FSType_Flags(FT_Face face);
 
 /**************************************************************************
  *
@@ -4193,10 +4066,7 @@ FT_Get_FSType_Flags(FT_Face face);
  * @since:
  *   2.3.6
  */
-FT_EXPORT(FT_UInt)
-FT_Face_GetCharVariantIndex(FT_Face face,
-    FT_ULong charcode,
-    FT_ULong variantSelector);
+FT_EXPORT(FT_UInt) FT_Face_GetCharVariantIndex(FT_Face face, FT_ULong charcode, FT_ULong variantSelector);
 
 /**************************************************************************
  *
@@ -4228,10 +4098,7 @@ FT_Face_GetCharVariantIndex(FT_Face face,
  * @since:
  *   2.3.6
  */
-FT_EXPORT(FT_Int)
-FT_Face_GetCharVariantIsDefault(FT_Face face,
-    FT_ULong charcode,
-    FT_ULong variantSelector);
+FT_EXPORT(FT_Int) FT_Face_GetCharVariantIsDefault(FT_Face face, FT_ULong charcode, FT_ULong variantSelector);
 
 /**************************************************************************
  *
@@ -4258,8 +4125,7 @@ FT_Face_GetCharVariantIsDefault(FT_Face face,
  * @since:
  *   2.3.6
  */
-FT_EXPORT(FT_UInt32*)
-FT_Face_GetVariantSelectors(FT_Face face);
+FT_EXPORT(FT_UInt32*) FT_Face_GetVariantSelectors(FT_Face face);
 
 /**************************************************************************
  *
@@ -4290,9 +4156,7 @@ FT_Face_GetVariantSelectors(FT_Face face);
  * @since:
  *   2.3.6
  */
-FT_EXPORT(FT_UInt32*)
-FT_Face_GetVariantsOfChar(FT_Face face,
-    FT_ULong charcode);
+FT_EXPORT(FT_UInt32*) FT_Face_GetVariantsOfChar(FT_Face face, FT_ULong charcode);
 
 /**************************************************************************
  *
@@ -4323,9 +4187,7 @@ FT_Face_GetVariantsOfChar(FT_Face face,
  * @since:
  *   2.3.6
  */
-FT_EXPORT(FT_UInt32*)
-FT_Face_GetCharsOfVariant(FT_Face face,
-    FT_ULong variantSelector);
+FT_EXPORT(FT_UInt32*) FT_Face_GetCharsOfVariant(FT_Face face, FT_ULong variantSelector);
 
 /**************************************************************************
  *
@@ -4387,10 +4249,7 @@ FT_Face_GetCharsOfVariant(FT_Face face,
  *   divide by zero; it simply returns 'MaxInt' or 'MinInt' depending on
  *   the signs of `a` and `b`.
  */
-FT_EXPORT(FT_Long)
-FT_MulDiv(FT_Long a,
-    FT_Long b,
-    FT_Long c);
+FT_EXPORT(FT_Long) FT_MulDiv(FT_Long a, FT_Long b, FT_Long c);
 
 /**************************************************************************
  *
@@ -4422,9 +4281,7 @@ FT_MulDiv(FT_Long a,
  *   As a conclusion, always try to place a 16.16 factor as the _second_
  *   argument of this function; this can make a great difference.
  */
-FT_EXPORT(FT_Long)
-FT_MulFix(FT_Long a,
-    FT_Long b);
+FT_EXPORT(FT_Long) FT_MulFix(FT_Long a, FT_Long b);
 
 /**************************************************************************
  *
@@ -4445,9 +4302,7 @@ FT_MulFix(FT_Long a,
  * @return:
  *   The result of `(a*0x10000)/b`.
  */
-FT_EXPORT(FT_Long)
-FT_DivFix(FT_Long a,
-    FT_Long b);
+FT_EXPORT(FT_Long) FT_DivFix(FT_Long a, FT_Long b);
 
 /**************************************************************************
  *
@@ -4468,8 +4323,7 @@ FT_DivFix(FT_Long a,
  * @note:
  *   The function uses wrap-around arithmetic.
  */
-FT_EXPORT(FT_Fixed)
-FT_RoundFix(FT_Fixed a);
+FT_EXPORT(FT_Fixed) FT_RoundFix(FT_Fixed a);
 
 /**************************************************************************
  *
@@ -4489,8 +4343,7 @@ FT_RoundFix(FT_Fixed a);
  * @note:
  *   The function uses wrap-around arithmetic.
  */
-FT_EXPORT(FT_Fixed)
-FT_CeilFix(FT_Fixed a);
+FT_EXPORT(FT_Fixed) FT_CeilFix(FT_Fixed a);
 
 /**************************************************************************
  *
@@ -4507,8 +4360,7 @@ FT_CeilFix(FT_Fixed a);
  * @return:
  *   `a` rounded towards minus infinity.
  */
-FT_EXPORT(FT_Fixed)
-FT_FloorFix(FT_Fixed a);
+FT_EXPORT(FT_Fixed) FT_FloorFix(FT_Fixed a);
 
 /**************************************************************************
  *
@@ -4529,9 +4381,7 @@ FT_FloorFix(FT_Fixed a);
  * @note:
  *   The result is undefined if either `vector` or `matrix` is invalid.
  */
-FT_EXPORT(void)
-FT_Vector_Transform(FT_Vector*        vector,
-    const FT_Matrix*  matrix);
+FT_EXPORT(void) FT_Vector_Transform(FT_Vector*        vector, const FT_Matrix*  matrix);
 
 /**************************************************************************
  *
@@ -4560,7 +4410,6 @@ FT_Vector_Transform(FT_Vector*        vector,
  *   FT_Face_SetUnpatentedHinting
  *
  */
-
 /**************************************************************************
  *
  * @enum:
@@ -4619,11 +4468,7 @@ FT_Vector_Transform(FT_Vector*        vector,
  *   In such cases, the library version might not be available before the
  *   library object has been created.
  */
-FT_EXPORT(void)
-FT_Library_Version(FT_Library library,
-    FT_Int      *amajor,
-    FT_Int      *aminor,
-    FT_Int      *apatch);
+FT_EXPORT(void) FT_Library_Version(FT_Library library, FT_Int      *amajor, FT_Int      *aminor, FT_Int      *apatch);
 
 /**************************************************************************
  *
@@ -4646,8 +4491,7 @@ FT_Library_Version(FT_Library library,
  * @since:
  *   2.3.5
  */
-FT_EXPORT(FT_Bool)
-FT_Face_CheckTrueTypePatents(FT_Face face);
+FT_EXPORT(FT_Bool) FT_Face_CheckTrueTypePatents(FT_Face face);
 
 /**************************************************************************
  *
@@ -4673,14 +4517,9 @@ FT_Face_CheckTrueTypePatents(FT_Face face);
  * @since:
  *   2.3.5
  */
-FT_EXPORT(FT_Bool)
-FT_Face_SetUnpatentedHinting(FT_Face face,
-    FT_Bool value);
-
+FT_EXPORT(FT_Bool) FT_Face_SetUnpatentedHinting(FT_Face face, FT_Bool value);
 /* */
 
 FT_END_HEADER
 
 #endif /* FREETYPE_H_ */
-
-/* END */

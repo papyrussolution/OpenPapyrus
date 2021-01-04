@@ -1,5 +1,5 @@
 // PPSTR2.TXT
-// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // Codepage=UTF-8
 //
 // Синтаксис:
@@ -4703,7 +4703,7 @@ PPTXT_TOCREATEWARECFGOPTNEEDED      "Для автоматического со�
 PPTXT_GLOBALSERVICELIST             "1,@{globalservice_twitter};2,@{globalservice_facebook};3,@{globalservice_vk};4,@{globalservice_vetis};5,@{brand_chzn};\
 6,@{globalservice_instagram};7,@{globalservice_uds};8,@{globalservice_uhtt};9,@{globalservice_shopify}"
 PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{aggrfunc_average};4,@{aggrfunc_min};5,@{aggrfunc_max};6,@{aggrfunc_stddev}"
-PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины"
+PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;8,Молочная продукция"
 PPTXT_DEVICETIMEDIFFROMSYS          "@{attention} Время на регистраторе @datetime отличается от времени на компьютере"
 PPTXT_LOG_VK_NODEFIMG               "Изображение по-умолчанию не найдено!"
 PPTXT_LOG_VK_NODESCRFORGOODS        "Описание для товара '@goods_id' не найдено!"
@@ -9044,6 +9044,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_cashfx_checkegaismuniq          "Проверять уникальность сканированных марок"
 @cashnode_cashfx_ignpennyfrombcard        "Игнорировать копейки на бонусной карте"
 @cashnode_cashfx_notifyeqptimemism        "Информировать об ошибке времени на регистраторе"
+@cashnode_cashfx_bnkslipafterrcpt         "Банковский слип печатать после чека"
 @cashnode_cashtype                        "Тип ККМ"
 @cashnode_curdate                         "@{currentdate}"
 @cashnode_cursess                         "ИД текущей сессии"
@@ -15699,6 +15700,13 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @csessexctotal_sumrest                        "@{sumrest}"
 @csessexctotal_sumsubst                       "Сумма подстановки"
 @csessexctotal_substloss                      "Потери от подстановки"
+
+@csessexcaltgoodsparam                        "Альтернативный товар для списания"
+@csessexcaltgoodsparam_goods                  "Укажите товар, который может быть списан вместо"
+@csessexcaltgoodsparam_altgoods               "@{ware}"
+@csessexcaltgoodsparam_loc                    ""
+@csessexcaltgoodsparam_selexistsgoodsonly     "Показывать только те товары, которые сейчас есть на остатке"
+@csessexcaltgoodsparam_price                  ""
 
 @selectobjbyphoneparam                        "Привязка телефона"
 //@selectobjbyphoneparam_phone                  ""

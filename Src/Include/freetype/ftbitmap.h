@@ -64,12 +64,8 @@ FT_BEGIN_HEADER
  * @note:
  *   A deprecated name for the same function is `FT_Bitmap_New`.
  */
-FT_EXPORT(void)
-FT_Bitmap_Init(FT_Bitmap  *abitmap);
-
-/* deprecated */
-FT_EXPORT(void)
-FT_Bitmap_New(FT_Bitmap  *abitmap);
+FT_EXPORT(void) FT_Bitmap_Init(FT_Bitmap  *abitmap);
+FT_EXPORT(void) FT_Bitmap_New(FT_Bitmap  *abitmap); /* deprecated */
 
 /**************************************************************************
  *
@@ -97,10 +93,7 @@ FT_Bitmap_New(FT_Bitmap  *abitmap);
  *   `source->buffer` and `target->buffer` must neither be equal nor
  *   overlap.
  */
-FT_EXPORT(FT_Error)
-FT_Bitmap_Copy(FT_Library library,
-    const FT_Bitmap  *source,
-    FT_Bitmap        *target);
+FT_EXPORT(FT_Error) FT_Bitmap_Copy(FT_Library library, const FT_Bitmap  *source, FT_Bitmap *target);
 
 /**************************************************************************
  *
@@ -141,11 +134,7 @@ FT_Bitmap_Copy(FT_Library library,
  *   Bitmaps in @FT_PIXEL_MODE_GRAY2 and @FT_PIXEL_MODE_GRAY@ format are
  *   converted to @FT_PIXEL_MODE_GRAY format (i.e., 8bpp).
  */
-FT_EXPORT(FT_Error)
-FT_Bitmap_Embolden(FT_Library library,
-    FT_Bitmap*  bitmap,
-    FT_Pos xStrength,
-    FT_Pos yStrength);
+FT_EXPORT(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitmap, FT_Pos xStrength, FT_Pos yStrength);
 
 /**************************************************************************
  *
@@ -187,11 +176,7 @@ FT_Bitmap_Embolden(FT_Library library,
  *   `source->buffer` and `target->buffer` must neither be equal nor
  *   overlap.
  */
-FT_EXPORT(FT_Error)
-FT_Bitmap_Convert(FT_Library library,
-    const FT_Bitmap  *source,
-    FT_Bitmap        *target,
-    FT_Int alignment);
+FT_EXPORT(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *source, FT_Bitmap        *target, FT_Int alignment);
 
 /**************************************************************************
  *
@@ -246,13 +231,7 @@ FT_Bitmap_Convert(FT_Library library,
  * @since:
  *   2.10
  */
-FT_EXPORT(FT_Error)
-FT_Bitmap_Blend(FT_Library library,
-    const FT_Bitmap*   source,
-    const FT_Vector source_offset,
-    FT_Bitmap*         target,
-    FT_Vector         *atarget_offset,
-    FT_Color color);
+FT_EXPORT(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*   source, const FT_Vector source_offset, FT_Bitmap* target, FT_Vector *atarget_offset, FT_Color color);
 
 /**************************************************************************
  *
@@ -272,8 +251,7 @@ FT_Bitmap_Blend(FT_Library library,
  * @note:
  *   This function is to be used in combination with @FT_Bitmap_Embolden.
  */
-FT_EXPORT(FT_Error)
-FT_GlyphSlot_Own_Bitmap(FT_GlyphSlot slot);
+FT_EXPORT(FT_Error) FT_GlyphSlot_Own_Bitmap(FT_GlyphSlot slot);
 
 /**************************************************************************
  *
@@ -297,10 +275,7 @@ FT_GlyphSlot_Own_Bitmap(FT_GlyphSlot slot);
  *   The `library` argument is taken to have access to FreeType's memory
  *   handling functions.
  */
-FT_EXPORT(FT_Error)
-FT_Bitmap_Done(FT_Library library,
-    FT_Bitmap  *bitmap);
-
+FT_EXPORT(FT_Error) FT_Bitmap_Done(FT_Library library, FT_Bitmap  *bitmap);
 /* */
 
 FT_END_HEADER

@@ -1422,14 +1422,14 @@ opj_pi_iterator_t * opj_pi_create_decode(opj_image_t * p_image,
 	}
 	l_tmp_ptr = (OPJ_UINT32**)opj_malloc(numcomps * sizeof(OPJ_UINT32 *));
 	if(!l_tmp_ptr) {
-		opj_free(l_tmp_data);
+		SAlloc::F(l_tmp_data);
 		return 00;
 	}
 	/* memory allocation for pi */
 	l_pi = opj_pi_create(p_image, p_cp, p_tile_no, manager);
 	if(!l_pi) {
-		opj_free(l_tmp_data);
-		opj_free(l_tmp_ptr);
+		SAlloc::F(l_tmp_data);
+		SAlloc::F(l_tmp_ptr);
 		return 00;
 	}
 
@@ -1464,8 +1464,8 @@ opj_pi_iterator_t * opj_pi_create_decode(opj_image_t * p_image,
 	}
 
 	if(!l_current_pi->include) {
-		opj_free(l_tmp_data);
-		opj_free(l_tmp_ptr);
+		SAlloc::F(l_tmp_data);
+		SAlloc::F(l_tmp_ptr);
 		opj_pi_destroy(l_pi, l_bound);
 		return 00;
 	}
@@ -1553,9 +1553,9 @@ opj_pi_iterator_t * opj_pi_create_decode(opj_image_t * p_image,
 		l_current_pi->include_size = (l_current_pi - 1)->include_size;
 		++l_current_pi;
 	}
-	opj_free(l_tmp_data);
+	SAlloc::F(l_tmp_data);
 	l_tmp_data = 00;
-	opj_free(l_tmp_ptr);
+	SAlloc::F(l_tmp_ptr);
 	l_tmp_ptr = 00;
 	if
 	(l_tcp->POC) {
@@ -1638,14 +1638,14 @@ opj_pi_iterator_t * opj_pi_initialise_encode(const opj_image_t * p_image,
 	}
 	l_tmp_ptr = (OPJ_UINT32**)opj_malloc(numcomps * sizeof(OPJ_UINT32 *));
 	if(!l_tmp_ptr) {
-		opj_free(l_tmp_data);
+		SAlloc::F(l_tmp_data);
 		return 00;
 	}
 	/* memory allocation for pi*/
 	l_pi = opj_pi_create(p_image, p_cp, p_tile_no, manager);
 	if(!l_pi) {
-		opj_free(l_tmp_data);
-		opj_free(l_tmp_ptr);
+		SAlloc::F(l_tmp_data);
+		SAlloc::F(l_tmp_ptr);
 		return 00;
 	}
 	l_encoding_value_ptr = l_tmp_data;
@@ -1674,8 +1674,8 @@ opj_pi_iterator_t * opj_pi_initialise_encode(const opj_image_t * p_image,
 	l_current_pi->include = (OPJ_INT16*)opj_calloc(l_current_pi->include_size,
 		sizeof(OPJ_INT16));
 	if(!l_current_pi->include) {
-		opj_free(l_tmp_data);
-		opj_free(l_tmp_ptr);
+		SAlloc::F(l_tmp_data);
+		SAlloc::F(l_tmp_ptr);
 		opj_pi_destroy(l_pi, l_bound);
 		return 00;
 	}
@@ -1760,9 +1760,9 @@ opj_pi_iterator_t * opj_pi_initialise_encode(const opj_image_t * p_image,
 		++l_current_pi;
 	}
 
-	opj_free(l_tmp_data);
+	SAlloc::F(l_tmp_data);
 	l_tmp_data = 00;
-	opj_free(l_tmp_ptr);
+	SAlloc::F(l_tmp_ptr);
 	l_tmp_ptr = 00;
 
 	if(l_tcp->POC && (OPJ_IS_CINEMA(p_cp->rsiz) || p_t2_mode == FINAL_PASS)) {
@@ -2059,7 +2059,7 @@ void opj_pi_destroy(opj_pi_iterator_t * p_pi, OPJ_UINT32 p_nb_elements)
 	opj_pi_iterator_t * l_current_pi = p_pi;
 	if(p_pi) {
 		if(p_pi->include) {
-			opj_free(p_pi->include);
+			SAlloc::F(p_pi->include);
 			p_pi->include = 00;
 		}
 		for(pino = 0; pino < p_nb_elements; ++pino) {
@@ -2067,18 +2067,18 @@ void opj_pi_destroy(opj_pi_iterator_t * p_pi, OPJ_UINT32 p_nb_elements)
 				opj_pi_comp_t * l_current_component = l_current_pi->comps;
 				for(compno = 0; compno < l_current_pi->numcomps; compno++) {
 					if(l_current_component->resolutions) {
-						opj_free(l_current_component->resolutions);
+						SAlloc::F(l_current_component->resolutions);
 						l_current_component->resolutions = 00;
 					}
 
 					++l_current_component;
 				}
-				opj_free(l_current_pi->comps);
+				SAlloc::F(l_current_pi->comps);
 				l_current_pi->comps = 0;
 			}
 			++l_current_pi;
 		}
-		opj_free(p_pi);
+		SAlloc::F(p_pi);
 	}
 }
 

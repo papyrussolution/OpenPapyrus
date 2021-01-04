@@ -53,30 +53,36 @@ typedef enum BUTTONSTATE {
 	BUTTONSTATE_PRESSED
 } BUTTONSTATE;
 
-typedef struct BUTTON {
-	RECT        Rectangle;      // left, top, right, bottom
-	wchar_t*    Caption;
-	HBITMAP     EnabledIcon;
-	HBITMAP     DisabledIcon;
-	int         EnabledIconId;
-	int         DisabledIconId;
+struct BUTTON {
+	void   Set(UINT8 clr, int enabledIconId, int cursorId)
+	{
+		Color = clr;
+		EnabledIconId = enabledIconId;
+		CursorId = cursorId;
+	}
+	RECT   Rectangle;      // left, top, right, bottom
+	wchar_t * Caption;
+	HBITMAP EnabledIcon;
+	HBITMAP DisabledIcon;
+	int    EnabledIconId;
+	int    DisabledIconId;
 	BUTTONSTATE State;          // Is the button pressed or not
-	UINT16      Hotkey;
-	HWND        Handle;
-	BOOL        Enabled;
-	LONGLONG    Id;
-	BOOL        SelectedTool;   // If the button is selected as a tool it should stay pressed
-	int         CursorId;
-	HCURSOR     Cursor;
-	UINT8		Color;
-} BUTTON;
+	UINT16 Hotkey;
+	HWND   Handle;
+	BOOL   Enabled;
+	LONGLONG Id;
+	BOOL   SelectedTool;   // If the button is selected as a tool it should stay pressed
+	int    CursorId;
+	HCURSOR Cursor;
+	UINT8  Color;
+};
 
-typedef enum APPSTATE {
+enum APPSTATE {
 	APPSTATE_BEFORECAPTURE,
 	APPSTATE_DURINGCAPTURE,
 	APPSTATE_DELAYCOOKING,
 	APPSTATE_AFTERCAPTURE
-} APPSTATE;
+};
 
 #pragma region DECLARATIONS
 
@@ -85,7 +91,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button);
 LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WPARAM WParam, _In_ LPARAM LParam);
 BOOL CALLBACK TextEditCallback(_In_ HWND Dialog, _In_ UINT Message, _In_ WPARAM WParam, _In_ LPARAM LParam);
-void CaptureWindow_OnLeftButtonUp(void);
+//void CaptureWindow_OnLeftButtonUp(void);
 // Returns TRUE if we were successful in creating the capture window. FALSE if it fails.
 BOOL NewButton_Click(void);
 // Returns TRUE if the snip was saved. Returns FALSE if there was an error or if user cancelled.
@@ -97,7 +103,7 @@ BOOL CopyButton_Click(void);
 BOOL SaveBitmapToFile(_In_ wchar_t* FilePath);
 // Save png image to a file. Returns FALSE if it fails.
 BOOL SavePngToFile(_In_ wchar_t* FilePath);
-HRESULT AddAllMenuItems(_In_ HINSTANCE Instance);
+//HRESULT AddAllMenuItems(_In_ HINSTANCE Instance);
 BOOL IsAppRunningElevated(void);
 // OutputDebugStringW enhanced with varargs. Only works in debug builds.
 void MyOutputDebugStringW(_In_ wchar_t* Message, _In_ ...);

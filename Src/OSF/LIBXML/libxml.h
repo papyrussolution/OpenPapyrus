@@ -1420,7 +1420,7 @@ int xmlNop(void);
 	#endif /* LIBXML_XPATH_ENABLED */
 	#if defined(LIBXML_XPATH_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
 		XMLPUBFUN void XMLCALL xmlXPathInit();
-		XMLPUBFUN int XMLCALL xmlXPathIsNaN(double val);
+		// @v10.9.11 XMLPUBFUN int XMLCALL xmlXPathIsNaN_Removed(double val);
 		XMLPUBFUN int /*XMLCALL*/FASTCALL xmlXPathIsInf(double val);
 		#ifdef __cplusplus
 		}
@@ -2216,7 +2216,7 @@ int xmlNop(void);
 	XMLPUBFUN int XMLCALL xmlIsBlank(uint ch);
 	XMLPUBFUN int XMLCALL xmlIsChar(uint ch);
 	XMLPUBFUN int XMLCALL xmlIsCombining(uint ch);
-	XMLPUBFUN int XMLCALL xmlIsDigit(uint ch);
+	// @v10.9.11 XMLPUBFUN int XMLCALL xmlIsDigit(uint ch);
 	XMLPUBFUN int XMLCALL xmlIsExtender(uint ch);
 	XMLPUBFUN int XMLCALL xmlIsIdeographic(uint ch);
 	XMLPUBFUN int XMLCALL xmlIsPubidChar(uint ch);
@@ -2697,4 +2697,19 @@ int xmlNop(void);
 	#define LIBXML_STATIC
 #endif
 */
+#ifdef HAVE_LZMA_H
+	//#include "xzlib.h"
+	// 
+	// xzlib.h: header for the front end for the transparent suport of lzma compression at the I/O layer
+	// See Copyright for the status of this software.
+	// Anders F Bjorklund <afb@users.sourceforge.net>
+	// 
+	typedef void * xzFile; // opaque lzma file descriptor 
+
+	xzFile __libxml2_xzopen(const char *path, const char *mode);
+	xzFile __libxml2_xzdopen(int fd, const char *mode);
+	int __libxml2_xzread(xzFile file, void *buf, unsigned len);
+	int __libxml2_xzclose(xzFile file);
+	int __libxml2_xzcompressed(xzFile f);
+#endif
 #endif /* ! __XML_LIBXML_H__ */

@@ -75,13 +75,13 @@ static int case_memcmp(const char* s1, const char* s2, uint n)
 }
 
 #include "tag_gperf.h"
-#define TAG_MAP_SIZE (sizeof(kGumboTagMap) / sizeof(kGumboTagMap[0]))
+//#define TAG_MAP_SIZE (sizeof(kGumboTagMap) / sizeof(kGumboTagMap[0]))
 
 GumboTag gumbo_tagn_enum(const char* tagname, uint length) 
 {
 	if(length) {
 		uint key = tag_hash(tagname, length);
-		if(key < TAG_MAP_SIZE) {
+		if(key < SIZEOFARRAY(kGumboTagMap)) {
 			GumboTag tag = static_cast<GumboTag>(kGumboTagMap[key]);
 			if(length == kGumboTagSizes[(int)tag] && !case_memcmp(tagname, kGumboTagNames[(int)tag], length))
 				return tag;

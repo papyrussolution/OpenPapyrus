@@ -347,7 +347,6 @@ bool hb_blob_t::try_make_writable_inplace_unix()
 #if defined(HAVE_SYS_MMAN_H) && defined(HAVE_MPROTECT)
 	uintptr_t pagesize = -1, mask, length;
 	const char * addr;
-
 #if defined(HAVE_SYSCONF) && defined(_SC_PAGE_SIZE)
 	pagesize = (uintptr_t)sysconf(_SC_PAGE_SIZE);
 #elif defined(HAVE_SYSCONF) && defined(_SC_PAGESIZE)
@@ -355,13 +354,11 @@ bool hb_blob_t::try_make_writable_inplace_unix()
 #elif defined(HAVE_GETPAGESIZE)
 	pagesize = (uintptr_t)getpagesize();
 #endif
-
 	if((uintptr_t)-1L == pagesize) {
 		DEBUG_MSG_FUNC(BLOB, this, "failed to get pagesize: %s", strerror(errno));
 		return false;
 	}
 	DEBUG_MSG_FUNC(BLOB, this, "pagesize is %lu", (unsigned long)pagesize);
-
 	mask = ~(pagesize-1);
 	addr = (const char*)(((uintptr_t)this->data) & mask);
 	length = (const char*)(((uintptr_t)this->data + this->length + pagesize-1) & mask)  - addr;
@@ -381,12 +378,9 @@ bool hb_blob_t::try_make_writable_inplace_unix()
 bool hb_blob_t::try_make_writable_inplace()
 {
 	DEBUG_MSG_FUNC(BLOB, this, "making writable inplace\n");
-
 	if(this->try_make_writable_inplace_unix())
 		return true;
-
 	DEBUG_MSG_FUNC(BLOB, this, "making writable -> FAILED\n");
-
 	/* Failed to make writable inplace, mark that */
 	this->mode = HB_MEMORY_MODE_READONLY;
 	return false;

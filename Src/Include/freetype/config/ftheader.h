@@ -645,9 +645,7 @@
  *   FreeType~2 API which provides functions specific to font formats.
  */
 #define FT_FONT_FORMATS_H  <freetype/ftfntfmt.h>
-
-/* deprecated */
-#define FT_XFREE86_H  FT_FONT_FORMATS_H
+#define FT_XFREE86_H  FT_FONT_FORMATS_H /* deprecated */
 
 /**************************************************************************
  *

@@ -65,7 +65,7 @@ struct opj_mutex_t {
 
 opj_mutex_t* opj_mutex_create(void)
 {
-	opj_mutex_t* mutex = (opj_mutex_t*)opj_malloc(sizeof(opj_mutex_t));
+	opj_mutex_t * mutex = (opj_mutex_t*)opj_malloc(sizeof(opj_mutex_t));
 	if(!mutex) {
 		return NULL;
 	}
@@ -89,7 +89,7 @@ void opj_mutex_destroy(opj_mutex_t* mutex)
 		return;
 	}
 	DeleteCriticalSection(&(mutex->cs));
-	opj_free(mutex);
+	SAlloc::F(mutex);
 }
 
 struct opj_cond_waiter_list_t {
@@ -135,12 +135,12 @@ opj_cond_t* opj_cond_create(void)
 	}
 
 	if(TLSKey == TLS_OUT_OF_INDEXES) {
-		opj_free(cond);
+		SAlloc::F(cond);
 		return NULL;
 	}
 	cond->internal_mutex = opj_mutex_create();
 	if(cond->internal_mutex == NULL) {
-		opj_free(cond);
+		SAlloc::F(cond);
 		return NULL;
 	}
 	cond->waiter_list = NULL;
@@ -194,7 +194,7 @@ void opj_cond_signal(opj_cond_t* cond)
 	if(psIter != NULL) {
 		SetEvent(psIter->hEvent);
 		cond->waiter_list = psIter->next;
-		opj_free(psIter);
+		SAlloc::F(psIter);
 	}
 	opj_mutex_unlock(cond->internal_mutex);
 }
@@ -204,7 +204,7 @@ void opj_cond_destroy(opj_cond_t* cond)
 	if(cond) {
 		opj_mutex_destroy(cond->internal_mutex);
 		assert(cond->waiter_list == NULL);
-		opj_free(cond);
+		SAlloc::F(cond);
 	}
 }
 
@@ -261,7 +261,7 @@ opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
 		opj_thread_callback_adapter, thread, 0, NULL);
 
 	if(thread->hThread == NULL) {
-		opj_free(thread);
+		SAlloc::F(thread);
 		return NULL;
 	}
 	return thread;
@@ -272,7 +272,7 @@ void opj_thread_join(opj_thread_t* thread)
 	WaitForSingleObject(thread->hThread, INFINITE);
 	CloseHandle(thread->hThread);
 
-	opj_free(thread);
+	SAlloc::F(thread);
 }
 
 #elif MUTEX_pthread
@@ -308,7 +308,7 @@ opj_mutex_t* opj_mutex_create(void)
 	opj_mutex_t* mutex = (opj_mutex_t*)opj_calloc(1U, sizeof(opj_mutex_t));
 	if(mutex != NULL) {
 		if(pthread_mutex_init(&mutex->mutex, NULL) != 0) {
-			opj_free(mutex);
+			SAlloc::F(mutex);
 			mutex = NULL;
 		}
 	}
@@ -331,7 +331,7 @@ void opj_mutex_destroy(opj_mutex_t* mutex)
 		return;
 	}
 	pthread_mutex_destroy(&(mutex->mutex));
-	opj_free(mutex);
+	SAlloc::F(mutex);
 }
 
 struct opj_cond_t {
@@ -345,7 +345,7 @@ opj_cond_t* opj_cond_create(void)
 		return NULL;
 	}
 	if(pthread_cond_init(&(cond->cond), NULL) != 0) {
-		opj_free(cond);
+		SAlloc::F(cond);
 		return NULL;
 	}
 	return cond;
@@ -369,7 +369,7 @@ void opj_cond_destroy(opj_cond_t* cond)
 		return;
 	}
 	pthread_cond_destroy(&(cond->cond));
-	opj_free(cond);
+	SAlloc::F(cond);
 }
 
 struct opj_thread_t {
@@ -403,7 +403,7 @@ opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	if(pthread_create(&(thread->thread), &attr,
 	    opj_thread_callback_adapter, (void*)thread) != 0) {
-		opj_free(thread);
+		SAlloc::F(thread);
 		return NULL;
 	}
 	return thread;
@@ -413,7 +413,7 @@ void opj_thread_join(opj_thread_t* thread)
 {
 	void* status;
 	pthread_join(thread->thread, &status);
-	opj_free(thread);
+	SAlloc::F(thread);
 }
 
 #else
@@ -513,8 +513,8 @@ static void opj_tls_destroy(opj_tls_t* tls)
 			tls->key_val[i].opj_free_func(tls->key_val[i].value);
 		}
 	}
-	opj_free(tls->key_val);
-	opj_free(tls);
+	SAlloc::F(tls->key_val);
+	SAlloc::F(tls);
 }
 
 void* opj_tls_get(opj_tls_t* tls, int key)
@@ -624,7 +624,7 @@ opj_thread_pool_t* opj_thread_pool_create(int num_threads)
 	if(num_threads <= 0) {
 		tp->tls = opj_tls_new();
 		if(!tp->tls) {
-			opj_free(tp);
+			SAlloc::F(tp);
 			tp = NULL;
 		}
 		return tp;
@@ -632,7 +632,7 @@ opj_thread_pool_t* opj_thread_pool_create(int num_threads)
 
 	tp->mutex = opj_mutex_create();
 	if(!tp->mutex) {
-		opj_free(tp);
+		SAlloc::F(tp);
 		return NULL;
 	}
 	if(!opj_thread_pool_setup(tp, num_threads)) {
@@ -663,7 +663,7 @@ static void opj_worker_thread_function(void* user_data)
 		if(job->job_fn) {
 			job->job_fn(job->user_data, tls);
 		}
-		opj_free(job);
+		SAlloc::F(job);
 		job_finished = OPJ_TRUE;
 	}
 
@@ -772,7 +772,7 @@ static opj_worker_thread_job_t* opj_thread_pool_get_next_job(opj_thread_pool_t* 
 
 			job = top_job_iter->job;
 			opj_mutex_unlock(tp->mutex);
-			opj_free(top_job_iter);
+			SAlloc::F(top_job_iter);
 			return job;
 		}
 
@@ -833,7 +833,7 @@ OPJ_BOOL opj_thread_pool_submit_job(opj_thread_pool_t* tp,
 
 	item = (opj_job_list_t*)opj_malloc(sizeof(opj_job_list_t));
 	if(item == NULL) {
-		opj_free(job);
+		SAlloc::F(job);
 		return OPJ_FALSE;
 	}
 	item->job = job;
@@ -871,7 +871,7 @@ OPJ_BOOL opj_thread_pool_submit_job(opj_thread_pool_t* tp,
 		opj_cond_signal(worker_thread->cond);
 		opj_mutex_unlock(worker_thread->mutex);
 
-		opj_free(to_opj_free);
+		SAlloc::F(to_opj_free);
 	}
 	else {
 		opj_mutex_unlock(tp->mutex);
@@ -925,15 +925,15 @@ void opj_thread_pool_destroy(opj_thread_pool_t* tp)
 			opj_cond_destroy(tp->worker_threads[i].cond);
 			opj_mutex_destroy(tp->worker_threads[i].mutex);
 		}
-		opj_free(tp->worker_threads);
+		SAlloc::F(tp->worker_threads);
 		while(tp->waiting_worker_thread_list != NULL) {
 			opj_worker_thread_list_t* next = tp->waiting_worker_thread_list->next;
-			opj_free(tp->waiting_worker_thread_list);
+			SAlloc::F(tp->waiting_worker_thread_list);
 			tp->waiting_worker_thread_list = next;
 		}
 		opj_cond_destroy(tp->cond);
 	}
 	opj_mutex_destroy(tp->mutex);
 	opj_tls_destroy(tp->tls);
-	opj_free(tp);
+	SAlloc::F(tp);
 }

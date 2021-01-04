@@ -170,6 +170,7 @@
       <Filter>gumbo</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\tulipindicators.cpp" />
+    <ClCompile Include="..\SLib\dirent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -251,6 +252,9 @@
       <Filter>gumbo\Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\slib-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\dirent.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

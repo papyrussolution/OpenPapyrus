@@ -1461,7 +1461,7 @@ static bool has_an_element_in_select_scope(GumboParser * parser, GumboTag tag)
 // http://www.whatwg.org/specs/web-apps/current-work/complete/tokenization.html#generate-implied-end-tags
 // "exception" is the "element to exclude from the process" listed in the spec.
 // Pass GUMBO_TAG_LAST to not exclude any of them.
-static void generate_implied_end_tags(GumboParser * parser, GumboTag exception) 
+static void FASTCALL generate_implied_end_tags(GumboParser * parser, GumboTag exception) 
 {
 	GumboTagSet _ts;
 	_ts.Append(_TAG(DD)).Append(_TAG(DT)).Append(_TAG(LI)).Append(_TAG(OPTION)).Append(_TAG(OPTGROUP)).

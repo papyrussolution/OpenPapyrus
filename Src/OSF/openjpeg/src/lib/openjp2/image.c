@@ -95,12 +95,12 @@ void OPJ_CALLCONV opj_image_destroy(opj_image_t * image)
 					opj_image_data_free(image_comp->data);
 				}
 			}
-			opj_free(image->comps);
+			SAlloc::F(image->comps);
 		}
 		if(image->icc_profile_buf) {
-			opj_free(image->icc_profile_buf);
+			SAlloc::F(image->icc_profile_buf);
 		}
-		opj_free(image);
+		SAlloc::F(image);
 	}
 }
 /**
@@ -162,7 +162,7 @@ void opj_copy_image_header(const opj_image_t* p_image_src, opj_image_t* p_image_
 				opj_image_data_free(image_comp->data);
 			}
 		}
-		opj_free(p_image_dest->comps);
+		SAlloc::F(p_image_dest->comps);
 		p_image_dest->comps = NULL;
 	}
 	p_image_dest->numcomps = p_image_src->numcomps;

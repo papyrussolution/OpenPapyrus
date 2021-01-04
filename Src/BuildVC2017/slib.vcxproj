@@ -1451,6 +1451,7 @@
     <ClCompile Include="..\SLib\curl-parsedate.cpp" />
     <ClCompile Include="..\SLib\dconvstr.c" />
     <ClCompile Include="..\SLib\dec.cpp" />
+    <ClCompile Include="..\SLib\dirent.cpp" />
     <ClCompile Include="..\SLib\Dlgprocs.cpp" />
     <ClCompile Include="..\Slib\findfile.cpp">
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
@@ -3668,6 +3669,7 @@
     <ClInclude Include="..\Include\Dbf.h" />
     <ClInclude Include="..\Include\Dbqbrdef.h" />
     <ClInclude Include="..\Include\Dbquery.h" />
+    <ClInclude Include="..\Include\dirent.h" />
     <ClInclude Include="..\Include\fann2.h" />
     <ClInclude Include="..\Include\json.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />

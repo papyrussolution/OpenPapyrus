@@ -990,18 +990,18 @@ exit:
 // 
 static xmlNode * xmlSchematronGetNode(xmlSchematronValidCtxt * ctxt, xmlNode * cur, const xmlChar * xpath)
 {
-	xmlNode * P_Node = NULL;
+	xmlNode * p_node = NULL;
 	if(ctxt && cur && xpath) {
 		ctxt->xctxt->doc = cur->doc;
 		ctxt->xctxt->P_Node = cur;
 		xmlXPathObject * ret = xmlXPathEval(xpath, ctxt->xctxt);
 		if(ret) {
 			if((ret->type == XPATH_NODESET) && ret->nodesetval && (ret->nodesetval->nodeNr > 0))
-				P_Node = ret->nodesetval->PP_NodeTab[0];
+				p_node = ret->nodesetval->PP_NodeTab[0];
 			xmlXPathFreeObject(ret);
 		}
 	}
-	return P_Node;
+	return p_node;
 }
 /**
  * xmlSchematronReportOutput:
@@ -1030,58 +1030,52 @@ static void xmlSchematronReportOutput(xmlSchematronValidCtxt * ctxt ATTRIBUTE_UN
 static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxt * ctxt, xmlNode * test, xmlNode * cur)
 {
 	xmlChar * ret = NULL;
-	xmlNode * child;
-	xmlNode * P_Node;
-	if((test == NULL) || (cur == NULL))
-		return ret;
-	child = test->children;
-	while(child != NULL) {
-		if((child->type == XML_TEXT_NODE) || (child->type == XML_CDATA_SECTION_NODE))
-			ret = xmlStrcat(ret, child->content);
-		else if(IS_SCHEMATRON(child, "name")) {
-			xmlChar * path = xmlGetNoNsProp(child, reinterpret_cast<const xmlChar *>("path"));
-			P_Node = cur;
-			if(path) {
-				P_Node = xmlSchematronGetNode(ctxt, cur, path);
-				SETIFZ(P_Node, cur);
-				SAlloc::F(path);
-			}
-			if((P_Node->ns == NULL) || (P_Node->ns->prefix == NULL))
-				ret = xmlStrcat(ret, P_Node->name);
-			else {
-				ret = xmlStrcat(ret, P_Node->ns->prefix);
-				ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>(":"));
-				ret = xmlStrcat(ret, P_Node->name);
-			}
-		}
-		else {
-			child = child->next;
-			continue;
-		}
-
-		/*
-		 * remove superfluous \n
-		 */
-		if(ret) {
-			int len = sstrlen(ret);
-			xmlChar c;
-			if(len > 0) {
-				c = ret[len-1];
-				if((c == ' ') || (c == '\n') || (c == '\r') || (c == '\t')) {
-					while((c == ' ') || (c == '\n') ||
-					    (c == '\r') || (c == '\t')) {
-						len--;
-						if(len == 0)
-							break;
-						c = ret[len-1];
-					}
-					ret[len] = ' ';
-					ret[len + 1] = 0;
+	if(test && cur) {
+		xmlNode * child = test->children;
+		while(child) {
+			if(oneof2(child->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE))
+				ret = xmlStrcat(ret, child->content);
+			else if(IS_SCHEMATRON(child, "name")) {
+				xmlChar * path = xmlGetNoNsProp(child, reinterpret_cast<const xmlChar *>("path"));
+				xmlNode * p_node = cur;
+				if(path) {
+					p_node = xmlSchematronGetNode(ctxt, cur, path);
+					SETIFZ(p_node, cur);
+					SAlloc::F(path);
+				}
+				if(!p_node->ns || !p_node->ns->prefix)
+					ret = xmlStrcat(ret, p_node->name);
+				else {
+					ret = xmlStrcat(ret, p_node->ns->prefix);
+					ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>(":"));
+					ret = xmlStrcat(ret, p_node->name);
 				}
 			}
+			else {
+				child = child->next;
+				continue;
+			}
+			// 
+			// remove superfluous \n
+			// 
+			if(ret) {
+				int len = sstrlen(ret);
+				if(len > 0) {
+					xmlChar c = ret[len-1];
+					if(oneof4(c, ' ', '\n', '\r', '\t')) {
+						while(oneof4(c, ' ', '\n', '\r', '\t')) {
+							len--;
+							if(len == 0)
+								break;
+							c = ret[len-1];
+						}
+						ret[len] = ' ';
+						ret[len + 1] = 0;
+					}
+				}
+			}
+			child = child->next;
 		}
-
-		child = child->next;
 	}
 	return ret;
 }
@@ -1099,7 +1093,7 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxt * ctxt, xmlSchemat
 {
 	if(!ctxt || !cur || !test)
 		return;
-	/* if quiet and not SVRL report only failures */
+	// if quiet and not SVRL report only failures 
 	if((ctxt->flags & XML_SCHEMATRON_OUT_QUIET) && ((ctxt->flags & XML_SCHEMATRON_OUT_XML) == 0) && (test->type == XML_SCHEMATRON_REPORT))
 		return;
 	if(ctxt->flags & XML_SCHEMATRON_OUT_XML) {
@@ -1122,12 +1116,10 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxt * ctxt, xmlSchemat
 		if(test->P_Node)
 			report = xmlSchematronFormatReport(ctxt, test->P_Node, cur);
 		if(report == NULL) {
-			if(test->type == XML_SCHEMATRON_ASSERT) {
+			if(test->type == XML_SCHEMATRON_ASSERT)
 				report = sstrdup((const xmlChar *)"node failed assert");
-			}
-			else {
+			else
 				report = sstrdup((const xmlChar *)"node failed report");
-			}
 		}
 		snprintf(msg, 999, "%s line %ld: %s\n", (const char *)path, line, (const char *)report);
 		if(ctxt->flags & XML_SCHEMATRON_OUT_ERROR) {
@@ -1143,14 +1135,13 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxt * ctxt, xmlSchemat
 			}
 			__xmlRaiseError(schannel, channel, data, NULL, cur, XML_FROM_SCHEMATRONV,
 			    (test->type == XML_SCHEMATRON_ASSERT) ? XML_SCHEMATRONV_ASSERT : XML_SCHEMATRONV_REPORT,
-			    XML_ERR_ERROR, NULL, line, (pattern == NULL) ? NULL : ((const char *)pattern->name),
-			    (const char *)path, (const char *)report, 0, 0, "%s", msg);
+			    XML_ERR_ERROR, NULL, line, pattern ? ((const char *)pattern->name) : 0, PTRCHRC_(path), PTRCHRC_(report), 0, 0, "%s", msg);
 		}
 		else {
 			xmlSchematronReportOutput(ctxt, cur, &msg[0]);
 		}
 		SAlloc::F((char *)report);
-		if((path != NULL) && (path != (xmlChar *)cur->name))
+		if(path && path != (xmlChar *)cur->name)
 			SAlloc::F(path);
 	}
 }
@@ -1289,8 +1280,7 @@ static xmlNode * xmlSchematronNextNode(xmlNode * cur)
  *
  * Returns 1 in case of success, 0 if error and -1 in case of internal error
  */
-static int xmlSchematronRunTest(xmlSchematronValidCtxt * ctxt,
-    xmlSchematronTest * test, xmlDoc * instance, xmlNode * cur, xmlSchematronPattern * pattern)
+static int xmlSchematronRunTest(xmlSchematronValidCtxt * ctxt, xmlSchematronTest * test, xmlDoc * instance, xmlNode * cur, xmlSchematronPattern * pattern)
 {
 	xmlXPathObject * ret;
 	int failed = 0;
@@ -1304,14 +1294,14 @@ static int xmlSchematronRunTest(xmlSchematronValidCtxt * ctxt,
 		switch(ret->type) {
 			case XPATH_XSLT_TREE:
 			case XPATH_NODESET:
-			    if((ret->nodesetval == NULL) || (ret->nodesetval->nodeNr == 0))
+			    if(!ret->nodesetval || !ret->nodesetval->nodeNr)
 				    failed = 1;
 			    break;
 			case XPATH_BOOLEAN:
 			    failed = !ret->boolval;
 			    break;
 			case XPATH_NUMBER:
-			    if((xmlXPathIsNaN(ret->floatval)) || (ret->floatval == 0.0))
+			    if(fisnan(ret->floatval) || ret->floatval == 0.0)
 				    failed = 1;
 			    break;
 			case XPATH_STRING:

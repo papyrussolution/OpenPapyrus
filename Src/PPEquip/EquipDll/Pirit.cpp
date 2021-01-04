@@ -15,7 +15,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
-#define EXPORT	extern "C" __declspec (dllexport)
+#define EXPORT	extern "C" __declspec(dllexport)
 #define THROWERR(expr,val)     {if(!(expr)){SetError(val);goto __scatch;}}
 
 //typedef unsigned char  uint8;

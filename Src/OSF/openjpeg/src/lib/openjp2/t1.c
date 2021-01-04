@@ -1519,9 +1519,9 @@ void opj_t1_destroy(opj_t1_t * p_t1)
 		p_t1->flags = 00;
 	}
 
-	opj_free(p_t1->cblkdatabuffer);
+	SAlloc::F(p_t1->cblkdatabuffer);
 
-	opj_free(p_t1);
+	SAlloc::F(p_t1);
 }
 
 typedef struct {
@@ -1578,7 +1578,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 				opj_mutex_unlock(job->p_manager_mutex);
 			}
 			*(job->pret) = OPJ_FALSE;
-			opj_free(job);
+			SAlloc::F(job);
 			return;
 		}
 		/* Zero-init required */
@@ -1600,7 +1600,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 	    tilec->resolutions[tilec->minimum_num_resolutions - 1].x0);
 
 	if(!*(job->pret)) {
-		opj_free(job);
+		SAlloc::F(job);
 		return;
 	}
 
@@ -1611,7 +1611,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 			opj_event_msg(job->p_manager, EVT_ERROR,
 			    "Cannot allocate Tier 1 handle\n");
 			*(job->pret) = OPJ_FALSE;
-			opj_free(job);
+			SAlloc::F(job);
 			return;
 		}
 		if(!opj_tls_set(tls, OPJ_TLS_KEY_T1, t1, opj_t1_destroy_wrapper)) {
@@ -1619,7 +1619,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 			    "Unable to set t1 handle as TLS\n");
 			opj_t1_destroy(t1);
 			*(job->pret) = OPJ_FALSE;
-			opj_free(job);
+			SAlloc::F(job);
 			return;
 		}
 	}
@@ -1635,7 +1635,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 		    job->p_manager_mutex,
 		    job->check_pterm)) {
 		*(job->pret) = OPJ_FALSE;
-		opj_free(job);
+		SAlloc::F(job);
 		return;
 	}
 
@@ -1756,7 +1756,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 		}
 	}
 
-	opj_free(job);
+	SAlloc::F(job);
 }
 
 void opj_t1_decode_cblks(opj_tcd_t* tcd, volatile OPJ_BOOL* pret, opj_tcd_tilecomp_t* tilec,
@@ -2094,7 +2094,7 @@ static void opj_t1_cblk_encode_processor(void* user_data, opj_tls_t* tls)
 	OPJ_INT32 y = cblk->y0 - band->y0;
 
 	if(!*(job->pret)) {
-		opj_free(job);
+		SAlloc::F(job);
 		return;
 	}
 
@@ -2118,7 +2118,7 @@ static void opj_t1_cblk_encode_processor(void* user_data, opj_tls_t* tls)
 		    (OPJ_UINT32)(cblk->x1 - cblk->x0),
 		    (OPJ_UINT32)(cblk->y1 - cblk->y0))) {
 		*(job->pret) = OPJ_FALSE;
-		opj_free(job);
+		SAlloc::F(job);
 		return;
 	}
 
@@ -2210,7 +2210,7 @@ static void opj_t1_cblk_encode_processor(void* user_data, opj_tls_t* tls)
 		}
 	}
 
-	opj_free(job);
+	SAlloc::F(job);
 }
 
 OPJ_BOOL opj_t1_encode_cblks(opj_tcd_t* tcd,

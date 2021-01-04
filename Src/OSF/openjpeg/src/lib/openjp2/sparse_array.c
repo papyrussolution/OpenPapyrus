@@ -58,12 +58,12 @@ opj_sparse_array_int32_t* opj_sparse_array_int32_create(OPJ_UINT32 width, OPJ_UI
 	sa->block_count_hor = opj_uint_ceildiv(width, block_width);
 	sa->block_count_ver = opj_uint_ceildiv(height, block_height);
 	if(sa->block_count_hor > ((OPJ_UINT32) ~0U) / sa->block_count_ver) {
-		opj_free(sa);
+		SAlloc::F(sa);
 		return NULL;
 	}
 	sa->data_blocks = (OPJ_INT32**)opj_calloc(sizeof(OPJ_INT32*), sa->block_count_hor * sa->block_count_ver);
 	if(sa->data_blocks == NULL) {
-		opj_free(sa);
+		SAlloc::F(sa);
 		return NULL;
 	}
 	return sa;
@@ -75,11 +75,11 @@ void opj_sparse_array_int32_free(opj_sparse_array_int32_t* sa)
 		OPJ_UINT32 i;
 		for(i = 0; i < sa->block_count_hor * sa->block_count_ver; i++) {
 			if(sa->data_blocks[i]) {
-				opj_free(sa->data_blocks[i]);
+				SAlloc::F(sa->data_blocks[i]);
 			}
 		}
-		opj_free(sa->data_blocks);
-		opj_free(sa);
+		SAlloc::F(sa->data_blocks);
+		SAlloc::F(sa);
 	}
 }
 

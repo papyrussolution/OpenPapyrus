@@ -58,7 +58,7 @@ const int kUtf8ReplacementChar = 0xFFFD;
 #define UTF8_ACCEPT 0
 #define UTF8_REJECT 12
 
-static const uint8_t utf8d[] = {
+static const uint8 utf8d[] = {
 	// The first part of the table maps bytes to character classes that
 	// to reduce the size of the transition table and create bitmasks.
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -83,9 +83,9 @@ static const uint8_t utf8d[] = {
 	12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
 };
 
-uint32_t static inline decode(uint32_t* state, uint32_t* codep, uint32_t byte) 
+uint32 static inline decode(uint32 * state, uint32 * codep, uint32 byte) 
 {
-	uint32_t type = utf8d[byte];
+	uint32 type = utf8d[byte];
 	*codep = (*state != UTF8_ACCEPT) ? (byte & 0x3fu) | (*codep << 6) : (0xff >> type) & (byte);
 	*state = utf8d[256 + *state + type];
 	return *state;
@@ -127,10 +127,10 @@ static void FASTCALL read_char(Utf8Iterator * iter)
 		iter->_width = 0;
 		return;
 	}
-	uint32_t code_point = 0;
-	uint32_t state = UTF8_ACCEPT;
+	uint32 code_point = 0;
+	uint32 state = UTF8_ACCEPT;
 	for(const char * c = iter->_start; c < iter->_end; ++c) {
-		decode(&state, &code_point, (uint32_t)(uchar)(*c));
+		decode(&state, &code_point, (uint32)(uchar)(*c));
 		if(state == UTF8_ACCEPT) {
 			iter->_width = c - iter->_start + 1;
 			// This is the special handling for carriage returns that is mandated by
@@ -221,10 +221,10 @@ void FASTCALL utf8iterator_next(Utf8Iterator * iter)
 	read_char(iter);
 }
 
-int FASTCALL utf8iterator_current(const Utf8Iterator* iter) { return iter->_current; }
-void utf8iterator_get_position(const Utf8Iterator* iter, GumboSourcePosition* output) { *output = iter->_pos; }
-const char* utf8iterator_get_char_pointer(const Utf8Iterator* iter) { return iter->_start; }
-const char* utf8iterator_get_end_pointer(const Utf8Iterator* iter) { return iter->_end; }
+int    FASTCALL utf8iterator_current(const Utf8Iterator* iter) { return iter->_current; }
+void   FASTCALL utf8iterator_get_position(const Utf8Iterator* iter, GumboSourcePosition* output) { *output = iter->_pos; }
+const  char * FASTCALL utf8iterator_get_char_pointer(const Utf8Iterator* iter) { return iter->_start; }
+const  char * FASTCALL utf8iterator_get_end_pointer(const Utf8Iterator* iter) { return iter->_end; }
 
 bool utf8iterator_maybe_consume_match(Utf8Iterator* iter, const char* prefix, size_t length, bool case_sensitive) 
 {

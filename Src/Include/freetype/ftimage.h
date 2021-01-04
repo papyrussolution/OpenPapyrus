@@ -178,8 +178,7 @@ typedef enum  FT_Pixel_Mode_ {
 	FT_PIXEL_MODE_MAX  /* do not remove */
 } FT_Pixel_Mode;
 
-/* these constants are deprecated; use the corresponding `FT_Pixel_Mode` */
-/* values instead.                                                       */
+/* these constants are deprecated; use the corresponding `FT_Pixel_Mode` values instead.                                                       */
 #define ft_pixel_mode_none   FT_PIXEL_MODE_NONE
 #define ft_pixel_mode_mono   FT_PIXEL_MODE_MONO
 #define ft_pixel_mode_grays  FT_PIXEL_MODE_GRAY
@@ -420,8 +419,7 @@ typedef struct  FT_Outline_ {
 #define FT_OUTLINE_HIGH_PRECISION   0x100
 #define FT_OUTLINE_SINGLE_PASS      0x200
 
-/* these constants are deprecated; use the corresponding */
-/* `FT_OUTLINE_XXX` values instead                       */
+/* these constants are deprecated; use the corresponding `FT_OUTLINE_XXX` values instead                       */
 #define ft_outline_none             FT_OUTLINE_NONE
 #define ft_outline_owner            FT_OUTLINE_OWNER
 #define ft_outline_even_odd_fill    FT_OUTLINE_EVEN_ODD_FILL
@@ -444,12 +442,10 @@ typedef struct  FT_Outline_ {
 #define FT_CURVE_TAG_TOUCH_X       0x08  /* reserved for TrueType hinter */
 #define FT_CURVE_TAG_TOUCH_Y       0x10  /* reserved for TrueType hinter */
 
-#define FT_CURVE_TAG_TOUCH_BOTH    ( FT_CURVE_TAG_TOUCH_X | \
-	FT_CURVE_TAG_TOUCH_Y )
+#define FT_CURVE_TAG_TOUCH_BOTH    ( FT_CURVE_TAG_TOUCH_X | FT_CURVE_TAG_TOUCH_Y )
 /* values 0x20, 0x40, and 0x80 are reserved */
 
-/* these constants are deprecated; use the corresponding */
-/* `FT_CURVE_TAG_XXX` values instead                     */
+/* these constants are deprecated; use the corresponding `FT_CURVE_TAG_XXX` values instead                     */
 #define FT_Curve_Tag_On       FT_CURVE_TAG_ON
 #define FT_Curve_Tag_Conic    FT_CURVE_TAG_CONIC
 #define FT_Curve_Tag_Cubic    FT_CURVE_TAG_CUBIC
@@ -714,8 +710,7 @@ typedef enum  FT_Glyph_Format_ {
 	FT_IMAGE_TAG(FT_GLYPH_FORMAT_PLOTTER,   'p', 'l', 'o', 't')
 } FT_Glyph_Format;
 
-/* these constants are deprecated; use the corresponding */
-/* `FT_Glyph_Format` values instead.                     */
+/* these constants are deprecated; use the corresponding `FT_Glyph_Format` values instead.                     */
 #define ft_glyph_format_none       FT_GLYPH_FORMAT_NONE
 #define ft_glyph_format_composite  FT_GLYPH_FORMAT_COMPOSITE
 #define ft_glyph_format_bitmap     FT_GLYPH_FORMAT_BITMAP
@@ -913,8 +908,7 @@ typedef void
 #define FT_RASTER_FLAG_DIRECT   0x2
 #define FT_RASTER_FLAG_CLIP     0x4
 
-/* these constants are deprecated; use the corresponding */
-/* `FT_RASTER_FLAG_XXX` values instead                   */
+/* these constants are deprecated; use the corresponding `FT_RASTER_FLAG_XXX` values instead                   */
 #define ft_raster_flag_default  FT_RASTER_FLAG_DEFAULT
 #define ft_raster_flag_aa       FT_RASTER_FLAG_AA
 #define ft_raster_flag_direct   FT_RASTER_FLAG_DIRECT

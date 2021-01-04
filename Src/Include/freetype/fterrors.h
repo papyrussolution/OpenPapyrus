@@ -4,8 +4,7 @@
  *
  *   FreeType error code handling (specification).
  *
- * Copyright (C) 1996-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 1996-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
@@ -14,7 +13,6 @@
  * understand and accept it fully.
  *
  */
-
 /**************************************************************************
  *
  * @section:
@@ -264,15 +262,10 @@ FT_BEGIN_HEADER
  *             FT_Error_String( BDF_Err_Unknown_File_Format ) ) == 0;
  *   ```
  */
-FT_EXPORT(const char*)
-FT_Error_String(FT_Error error_code);
+FT_EXPORT(const char*) FT_Error_String(FT_Error error_code);
 
 FT_END_HEADER
 
 #endif /* FT_ERR_PROTOS_DEFINED */
-
 #endif /* FT_INCLUDE_ERR_PROTOS */
-
 #endif /* !(FTERRORS_H_ && __FTERRORS_H__) */
-
-/* END */

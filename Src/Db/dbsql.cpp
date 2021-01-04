@@ -235,6 +235,20 @@ int SSqlStmt::SetupBindingSubstBuffer(int dir, uint count)
 	return ok;
 }
 
+int SSqlStmt::AllocIndSubst(uint32 itemCount, Bind * pBind)
+{
+	size_t pos = Helper_AllocBindSubst(itemCount, sizeof(uint16), BIN(pBind->Flags & SSqlStmt::Bind::fCalcOnly));
+	pBind->IndPos = pos;
+	return BIN(pos);
+}
+
+int SSqlStmt::AllocFslSubst(uint32 itemCount, Bind * pBind)
+{
+	size_t pos = Helper_AllocBindSubst(itemCount, sizeof(uint16), BIN(pBind->Flags & SSqlStmt::Bind::fCalcOnly));
+	pBind->FslPos = pos;
+	return BIN(pos);
+}
+
 size_t SSqlStmt::Helper_AllocBindSubst(uint32 itemCount, uint32 itemSize, int calcOnly)
 {
 	size_t pos = 0;
@@ -252,20 +266,6 @@ size_t SSqlStmt::Helper_AllocBindSubst(uint32 itemCount, uint32 itemSize, int ca
 		}
 	}
 	return pos;
-}
-
-int SSqlStmt::AllocIndSubst(uint32 itemCount, Bind * pBind)
-{
-	size_t pos = Helper_AllocBindSubst(itemCount, sizeof(uint16), BIN(pBind->Flags & SSqlStmt::Bind::fCalcOnly));
-	pBind->IndPos = pos;
-	return BIN(pos);
-}
-
-int SSqlStmt::AllocFslSubst(uint32 itemCount, Bind * pBind)
-{
-	size_t pos = Helper_AllocBindSubst(itemCount, sizeof(uint16), BIN(pBind->Flags & SSqlStmt::Bind::fCalcOnly));
-	pBind->FslPos = pos;
-	return BIN(pos);
 }
 
 int SSqlStmt::AllocBindSubst(uint32 itemCount, uint32 itemSize, Bind * pBind)
@@ -514,7 +514,7 @@ int SOraDbProvider::DestroyStmt(SSqlStmt * pS)
 			ok = 0;
 	}
 	OH h;
-	h.H = (void *)pS->H;
+	h.H = pS->H;
 	h.T = OCI_HTYPE_STMT;
 	OhFree(h);
 	pS->H = 0;
@@ -563,8 +563,7 @@ int SOraDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStmt *
 int SOraDbProvider::ProcessBinding_AllocDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType, int descrType)
 {
 	int    ok = 1;
-	pBind->NtvTyp = ntvType;
-	pBind->NtvSize = sizeof(void *);
+	pBind->SetNtvTypeAndSize(ntvType, sizeof(void *));
 	if(pStmt->AllocBindSubst(count, sizeof(OD), pBind) > 0) {
 		OD d;
 		for(uint i = 0; i < count; i++) {
@@ -592,22 +591,21 @@ void SOraDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSql
 int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
 {
 	int    ok = 1;
-	size_t sz = stsize(pBind->Typ);
+	const  size_t sz = stsize(pBind->Typ);
 	uint16 out_typ = 0;
-	pBind->NtvSize = static_cast<uint16>(sz);
+	pBind->NtvSize = static_cast<uint16>(sz); // default value
 	if(action == 0)
 		pBind->Dim = count;
 	const int t = GETSTYPE(pBind->Typ);
 	switch(t) {
-		case S_CHAR: ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_CHR); break;
+		case S_CHAR:    ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_CHR); break;
 		case S_INT:
 		case S_AUTOINC: ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_INT); break;
-		case S_UINT: ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_UIN); break;
-		case S_FLOAT: ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_FLT); break;
+		case S_UINT:    ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_UIN); break;
+		case S_FLOAT:   ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_FLT); break;
 		case S_DATE:
 			if(action == 0) {
-				pBind->NtvTyp = SQLT_ODT;
-				pBind->NtvSize = sizeof(OCIDate);
+				pBind->SetNtvTypeAndSize(SQLT_ODT, sizeof(OCIDate));
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else if(action < 0) {
@@ -679,8 +677,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 		case S_DEC:
 		case S_MONEY:
 			if(action == 0) {
-				pBind->NtvTyp = SQLT_FLT;
-				pBind->NtvSize = sizeof(double);
+				pBind->SetNtvTypeAndSize(SQLT_FLT, sizeof(double));
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else {
@@ -695,8 +692,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 		case S_NOTE:
 		case S_ZSTRING:
 			if(action == 0) {
-				pBind->NtvTyp = SQLT_AVC;
-				pBind->NtvSize = static_cast<uint16>(sz);
+				pBind->SetNtvTypeAndSize(SQLT_AVC, static_cast<uint16>(sz));
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else if(action < 0) {
@@ -756,8 +752,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 			break;
 		case S_RAW:
 			if(action == 0) {
-				pBind->NtvTyp = SQLT_BIN;
-				pBind->NtvSize = static_cast<uint16>(sz);
+				pBind->SetNtvTypeAndSize(SQLT_BIN, static_cast<uint16>(sz));
 				pStmt->AllocBindSubst(count, (sz * 2), pBind);
 			}
 			else if(action < 0) {

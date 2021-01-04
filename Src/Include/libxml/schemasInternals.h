@@ -372,124 +372,25 @@ struct _xmlSchemaType {
  * xmlSchemaType, xmlSchemaFacet and xmlSchemaElement start of
  * structures must be kept similar
  */
-/**
- * XML_SCHEMAS_ELEM_NILLABLE:
- *
- * the element is nillable
- */
-#define XML_SCHEMAS_ELEM_NILLABLE        1 << 0
-/**
- * XML_SCHEMAS_ELEM_GLOBAL:
- *
- * the element is global
- */
-#define XML_SCHEMAS_ELEM_GLOBAL                1 << 1
-/**
- * XML_SCHEMAS_ELEM_DEFAULT:
- *
- * the element has a default value
- */
-#define XML_SCHEMAS_ELEM_DEFAULT        1 << 2
-/**
- * XML_SCHEMAS_ELEM_FIXED:
- *
- * the element has a fixed value
- */
-#define XML_SCHEMAS_ELEM_FIXED                1 << 3
-/**
- * XML_SCHEMAS_ELEM_ABSTRACT:
- *
- * the element is abstract
- */
-#define XML_SCHEMAS_ELEM_ABSTRACT        1 << 4
-/**
- * XML_SCHEMAS_ELEM_TOPLEVEL:
- *
- * the element is top level
- * obsolete: use XML_SCHEMAS_ELEM_GLOBAL instead
- */
-#define XML_SCHEMAS_ELEM_TOPLEVEL        1 << 5
-/**
- * XML_SCHEMAS_ELEM_REF:
- *
- * the element is a reference to a type
- */
-#define XML_SCHEMAS_ELEM_REF                1 << 6
-/**
- * XML_SCHEMAS_ELEM_NSDEFAULT:
- *
- * allow elements in no namespace
- * Obsolete, not used anymore.
- */
-#define XML_SCHEMAS_ELEM_NSDEFAULT        1 << 7
-/**
- * XML_SCHEMAS_ELEM_INTERNAL_RESOLVED:
- *
- * this is set when "type", "ref", "substitutionGroup"
- * references have been resolved.
- */
-#define XML_SCHEMAS_ELEM_INTERNAL_RESOLVED        1 << 8
- /**
- * XML_SCHEMAS_ELEM_CIRCULAR:
- *
- * a helper flag for the search of circular references.
- */
-#define XML_SCHEMAS_ELEM_CIRCULAR        1 << 9
-/**
- * XML_SCHEMAS_ELEM_BLOCK_ABSENT:
- *
- * the "block" attribute is absent
- */
-#define XML_SCHEMAS_ELEM_BLOCK_ABSENT        1 << 10
-/**
- * XML_SCHEMAS_ELEM_BLOCK_EXTENSION:
- *
- * disallowed substitutions are absent
- */
-#define XML_SCHEMAS_ELEM_BLOCK_EXTENSION        1 << 11
-/**
- * XML_SCHEMAS_ELEM_BLOCK_RESTRICTION:
- *
- * disallowed substitutions: "restriction"
- */
-#define XML_SCHEMAS_ELEM_BLOCK_RESTRICTION        1 << 12
-/**
- * XML_SCHEMAS_ELEM_BLOCK_SUBSTITUTION:
- *
- * disallowed substitutions: "substituion"
- */
-#define XML_SCHEMAS_ELEM_BLOCK_SUBSTITUTION        1 << 13
-/**
- * XML_SCHEMAS_ELEM_FINAL_ABSENT:
- *
- * substitution group exclusions are absent
- */
-#define XML_SCHEMAS_ELEM_FINAL_ABSENT        1 << 14
-/**
- * XML_SCHEMAS_ELEM_FINAL_EXTENSION:
- *
- * substitution group exclusions: "extension"
- */
-#define XML_SCHEMAS_ELEM_FINAL_EXTENSION        1 << 15
-/**
- * XML_SCHEMAS_ELEM_FINAL_RESTRICTION:
- *
- * substitution group exclusions: "restriction"
- */
-#define XML_SCHEMAS_ELEM_FINAL_RESTRICTION        1 << 16
-/**
- * XML_SCHEMAS_ELEM_SUBST_GROUP_HEAD:
- *
- * the declaration is a substitution group head
- */
-#define XML_SCHEMAS_ELEM_SUBST_GROUP_HEAD        1 << 17
-/**
- * XML_SCHEMAS_ELEM_INTERNAL_CHECKED:
- *
- * this is set when the elem decl has been checked against
- * all constraints
- */
-#define XML_SCHEMAS_ELEM_INTERNAL_CHECKED        1 << 18
+#define XML_SCHEMAS_ELEM_NILLABLE           1 << 0 // the element is nillable
+#define XML_SCHEMAS_ELEM_GLOBAL             1 << 1 // the element is global
+#define XML_SCHEMAS_ELEM_DEFAULT            1 << 2 // the element has a default value
+#define XML_SCHEMAS_ELEM_FIXED              1 << 3 // the element has a fixed value
+#define XML_SCHEMAS_ELEM_ABSTRACT           1 << 4 // the element is abstract
+#define XML_SCHEMAS_ELEM_TOPLEVEL           1 << 5 // the element is top level. obsolete: use XML_SCHEMAS_ELEM_GLOBAL instead
+#define XML_SCHEMAS_ELEM_REF                1 << 6 // the element is a reference to a type
+#define XML_SCHEMAS_ELEM_NSDEFAULT          1 << 7 // allow elements in no namespace. Obsolete, not used anymore.
+#define XML_SCHEMAS_ELEM_INTERNAL_RESOLVED  1 << 8 // this is set when "type", "ref", "substitutionGroup" references have been resolved.
+#define XML_SCHEMAS_ELEM_CIRCULAR           1 << 9 // a helper flag for the search of circular references.
+#define XML_SCHEMAS_ELEM_BLOCK_ABSENT       1 << 10 // the "block" attribute is absent
+#define XML_SCHEMAS_ELEM_BLOCK_EXTENSION    1 << 11 // disallowed substitutions are absent
+#define XML_SCHEMAS_ELEM_BLOCK_RESTRICTION  1 << 12 // disallowed substitutions: "restriction"
+#define XML_SCHEMAS_ELEM_BLOCK_SUBSTITUTION 1 << 13 // disallowed substitutions: "substituion"
+#define XML_SCHEMAS_ELEM_FINAL_ABSENT       1 << 14 // substitution group exclusions are absent
+#define XML_SCHEMAS_ELEM_FINAL_EXTENSION    1 << 15 // substitution group exclusions: "extension"
+#define XML_SCHEMAS_ELEM_FINAL_RESTRICTION  1 << 16 // substitution group exclusions: "restriction"
+#define XML_SCHEMAS_ELEM_SUBST_GROUP_HEAD   1 << 17 // the declaration is a substitution group head
+#define XML_SCHEMAS_ELEM_INTERNAL_CHECKED   1 << 18 // this is set when the elem decl has been checked against all constraints
 
 typedef struct _xmlSchemaElement xmlSchemaElement;
 typedef xmlSchemaElement *xmlSchemaElementPtr;
@@ -522,30 +423,11 @@ struct _xmlSchemaElement {
     xmlSchemaVal * defVal; /* The compiled value contraint. */
     void *idcs; /* The identity-constraint defs */
 };
-/*
- * XML_SCHEMAS_FACET_UNKNOWN:
- *
- * unknown facet handling
- */
-#define XML_SCHEMAS_FACET_UNKNOWN        0
-/*
- * XML_SCHEMAS_FACET_PRESERVE:
- *
- * preserve the type of the facet
- */
-#define XML_SCHEMAS_FACET_PRESERVE        1
-/*
- * XML_SCHEMAS_FACET_REPLACE:
- *
- * replace the type of the facet
- */
-#define XML_SCHEMAS_FACET_REPLACE        2
-/*
- * XML_SCHEMAS_FACET_COLLAPSE:
- *
- * collapse the types of the facet
- */
-#define XML_SCHEMAS_FACET_COLLAPSE        3
+
+#define XML_SCHEMAS_FACET_UNKNOWN        0 // unknown facet handling
+#define XML_SCHEMAS_FACET_PRESERVE        1 // preserve the type of the facet
+#define XML_SCHEMAS_FACET_REPLACE        2 // replace the type of the facet
+#define XML_SCHEMAS_FACET_COLLAPSE        3 // collapse the types of the facet
 /**
  * A facet definition.
  */
@@ -573,76 +455,22 @@ struct _xmlSchemaNotation {
     const xmlChar *identifier;
     const xmlChar *targetNamespace;
 };
-
 /*
 * @todo Actually all those flags used for the schema should sit
 * on the schema parser context, since they are used only
 * during parsing an XML schema document, and not available
 * on the component level as per spec.
 */
-/**
- * XML_SCHEMAS_QUALIF_ELEM:
- *
- * Reflects elementFormDefault == qualified in
- * an XML schema document.
- */
-#define XML_SCHEMAS_QUALIF_ELEM                1 << 0
-/**
- * XML_SCHEMAS_QUALIF_ATTR:
- *
- * Reflects attributeFormDefault == qualified in
- * an XML schema document.
- */
-#define XML_SCHEMAS_QUALIF_ATTR            1 << 1
-/**
- * XML_SCHEMAS_FINAL_DEFAULT_EXTENSION:
- *
- * the schema has "extension" in the set of finalDefault.
- */
-#define XML_SCHEMAS_FINAL_DEFAULT_EXTENSION        1 << 2
-/**
- * XML_SCHEMAS_FINAL_DEFAULT_RESTRICTION:
- *
- * the schema has "restriction" in the set of finalDefault.
- */
-#define XML_SCHEMAS_FINAL_DEFAULT_RESTRICTION            1 << 3
-/**
- * XML_SCHEMAS_FINAL_DEFAULT_LIST:
- *
- * the cshema has "list" in the set of finalDefault.
- */
-#define XML_SCHEMAS_FINAL_DEFAULT_LIST            1 << 4
-/**
- * XML_SCHEMAS_FINAL_DEFAULT_UNION:
- *
- * the schema has "union" in the set of finalDefault.
- */
-#define XML_SCHEMAS_FINAL_DEFAULT_UNION            1 << 5
-/**
- * XML_SCHEMAS_BLOCK_DEFAULT_EXTENSION:
- *
- * the schema has "extension" in the set of blockDefault.
- */
-#define XML_SCHEMAS_BLOCK_DEFAULT_EXTENSION            1 << 6
-/**
- * XML_SCHEMAS_BLOCK_DEFAULT_RESTRICTION:
- *
- * the schema has "restriction" in the set of blockDefault.
- */
-#define XML_SCHEMAS_BLOCK_DEFAULT_RESTRICTION            1 << 7
-/**
- * XML_SCHEMAS_BLOCK_DEFAULT_SUBSTITUTION:
- *
- * the schema has "substitution" in the set of blockDefault.
- */
-#define XML_SCHEMAS_BLOCK_DEFAULT_SUBSTITUTION            1 << 8
-/**
- * XML_SCHEMAS_INCLUDING_CONVERT_NS:
- *
- * the schema is currently including an other schema with
- * no target namespace.
- */
-#define XML_SCHEMAS_INCLUDING_CONVERT_NS            1 << 9
+#define XML_SCHEMAS_QUALIF_ELEM                1 << 0 // Reflects elementFormDefault == qualified in an XML schema document.
+#define XML_SCHEMAS_QUALIF_ATTR                1 << 1 // Reflects attributeFormDefault == qualified in an XML schema document.
+#define XML_SCHEMAS_FINAL_DEFAULT_EXTENSION    1 << 2 // the schema has "extension" in the set of finalDefault.
+#define XML_SCHEMAS_FINAL_DEFAULT_RESTRICTION  1 << 3 // the schema has "restriction" in the set of finalDefault.
+#define XML_SCHEMAS_FINAL_DEFAULT_LIST         1 << 4 // the cshema has "list" in the set of finalDefault.
+#define XML_SCHEMAS_FINAL_DEFAULT_UNION        1 << 5 // the schema has "union" in the set of finalDefault.
+#define XML_SCHEMAS_BLOCK_DEFAULT_EXTENSION    1 << 6 // the schema has "extension" in the set of blockDefault.
+#define XML_SCHEMAS_BLOCK_DEFAULT_RESTRICTION  1 << 7 // the schema has "restriction" in the set of blockDefault.
+#define XML_SCHEMAS_BLOCK_DEFAULT_SUBSTITUTION 1 << 8 // the schema has "substitution" in the set of blockDefault.
+#define XML_SCHEMAS_INCLUDING_CONVERT_NS       1 << 9 // the schema is currently including an other schema with no target namespace.
 /**
  * _xmlSchema:
  *

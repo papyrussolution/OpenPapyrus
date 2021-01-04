@@ -178,18 +178,6 @@ SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd
 	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 
-/*
-int FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, char * buf, const DateRange * rng)
-{
-	char   b[64];
-	char * c = buf ? buf : &(b[0] = 0);
-	if(*strip(c) == 0)
-		periodfmt(rng, c);
-	dlg->setCtrlData(fldID, c);
-	return 1;
-}
-*/
-
 void FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
 {
 	if(dlg) {
@@ -2192,11 +2180,6 @@ void FileBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent &event)
 {
 	if(TVCOMMAND)
 		if(TVCMD == cmGroupInserted) {
-			/* @v9.2.5
-			static HBITMAP hbmp = 0;
-			SETIFZ(hbmp, APPL->LoadBitmap(IDB_FILEBROWSE));
-			SendDlgItemMessage(pDlg->H(), ButtonCtlId, BM_SETIMAGE, IMAGE_BITMAP, (long)hbmp);
-			*/
 			pDlg->clearEvent(event);
 		}
 		else if(TVCMD == 0 && event.isCtlEvent(ButtonCtlId) || TVCMD == ButtonCtlId) {
@@ -2243,16 +2226,16 @@ int PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND ow
 	sofn.hwndOwner   = NZOR(owner, GetForegroundWindow());
 	// @v10.4.0 sofn.lpstrFilter = SUcSwitch(rPatterns.getBuf()); // @unicodeproblem
 	sofn.lpstrFilter = MakeOpenFileInitPattern(rPatterns, filter_buf); // @v10.4.0
-	sofn.lpstrFile   = file_name; // @unicodeproblem
+	sofn.lpstrFile   = file_name;
 	sofn.nMaxFile    = SIZEOFARRAY(file_name);
 	PPLoadString("fileopen", title_buf);
-	title_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v9.0.12
-	sofn.lpstrTitle  = SUcSwitch(title_buf); // @unicodeproblem
+	title_buf.Transf(CTRANSF_INNER_TO_OUTER);
+	sofn.lpstrTitle  = SUcSwitch(title_buf);
 	sofn.Flags = (OFN_EXPLORER|OFN_HIDEREADONLY|OFN_LONGNAMES|OFN_NOCHANGEDIR);
 	if(!(flags & ofilfNExist))
 		sofn.Flags |= OFN_FILEMUSTEXIST;
-	sofn.lpstrInitialDir = SUcSwitch(dir); // @unicodeproblem
-	ok = GetOpenFileName(&sofn); // @unicodeproblem
+	sofn.lpstrInitialDir = SUcSwitch(dir);
+	ok = GetOpenFileName(&sofn);
 	if(!ok)
 		PTR32(file_name)[0] = 0;
 	rPath = SUcSwitch(file_name);
@@ -4321,7 +4304,7 @@ void SCardCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		if(ser_id)
 			list.addUnique(ser_id);
 		ListToListData data(PPOBJ_SCARDSERIES, 0, &list);
-		data.Flags |= ListToListData::fIsTreeList; // @v9.8.12 @fix
+		data.Flags |= ListToListData::fIsTreeList;
 		data.TitleStrID = PPTXT_SELSCARDSERLIST;
 		if(ListToListDialog(&data) > 0) {
 			Data.SCardSerList = list;
@@ -4524,26 +4507,22 @@ QuotKindCtrlGroup::QuotKindCtrlGroup(uint ctlsel, uint cmEditList) : Ctlsel(ctls
 void QuotKindCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(event.isCmd(CmEditList)) {
-		//EditQuotKindList(pDlg, Ctlsel, &Data.List);
-		//static int EditQuotKindList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
-		{
-			PPIDArray ary;
-			if(Data.List.IsExists())
-				ary = Data.List.Get();
-			if(!ary.getCount())
-				ary.setSingleNZ(pDlg->getCtrlLong(Ctlsel));
-			ListToListData lst(PPOBJ_QUOTKIND, 0, &ary);
-			lst.TitleStrID = 0; // PPTXT_XXX;
-			if(ListToListDialog(&lst) > 0) {
-				Data.List.Set(&ary);
-				if(Data.List.GetCount() > 1) {
-					SetComboBoxListText(pDlg, Ctlsel);
-					pDlg->disableCtrl(Ctlsel, 1);
-				}
-				else {
-					pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
-					pDlg->disableCtrl(Ctlsel, 0);
-				}
+		PPIDArray ary;
+		if(Data.List.IsExists())
+			ary = Data.List.Get();
+		if(!ary.getCount())
+			ary.setSingleNZ(pDlg->getCtrlLong(Ctlsel));
+		ListToListData lst(PPOBJ_QUOTKIND, 0, &ary);
+		lst.TitleStrID = 0; // PPTXT_XXX;
+		if(ListToListDialog(&lst) > 0) {
+			Data.List.Set(&ary);
+			if(Data.List.GetCount() > 1) {
+				SetComboBoxListText(pDlg, Ctlsel);
+				pDlg->disableCtrl(Ctlsel, 1);
+			}
+			else {
+				pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
+				pDlg->disableCtrl(Ctlsel, 0);
 			}
 		}
 		pDlg->clearEvent(event);
@@ -4587,59 +4566,25 @@ StaffCalCtrlGroup::StaffCalCtrlGroup(uint ctlsel, uint cmEditList) : Ctlsel(ctls
 {
 }
 
-/* @v9.5.5 (inlined)
-static int EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
-{
-	int    ok = -1;
-	if(pList && pDlg) {
-		PPIDArray ary;
-		if(pList->IsExists())
-			ary = pList->Get();
-		if(!ary.getCount())
-			ary.setSingleNZ(pDlg->getCtrlLong(ctlID));
-		ListToListData lst(PPOBJ_STAFFCAL, 0, &ary);
-		lst.TitleStrID = 0; // PPTXT_XXX;
-		if(ListToListDialog(&lst) > 0) {
-			pList->Set(&ary);
-			if(pList->GetCount() > 1) {
-				SetComboBoxListText(pDlg, ctlID);
-				pDlg->disableCtrl(ctlID, 1);
-			}
-			else {
-				pDlg->setCtrlLong(ctlID, pList->GetSingle());
-				pDlg->disableCtrl(ctlID, 0);
-			}
-			ok = 1;
-		}
-	}
-	else
-		ok = 0;
-	return ok;
-}*/
-
 void StaffCalCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(event.isCmd(CmEditList)) {
-		//EditStaffCalList(pDlg, Ctlsel, &Data.List);
-		//static int EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
-		{
-			PPIDArray ary;
-			if(Data.List.IsExists())
-				ary = Data.List.Get();
-			if(!ary.getCount())
-				ary.setSingleNZ(pDlg->getCtrlLong(Ctlsel));
-			ListToListData lst(PPOBJ_STAFFCAL, 0, &ary);
-			lst.TitleStrID = 0; // PPTXT_XXX;
-			if(ListToListDialog(&lst) > 0) {
-				Data.List.Set(&ary);
-				if(Data.List.GetCount() > 1) {
-					SetComboBoxListText(pDlg, Ctlsel);
-					pDlg->disableCtrl(Ctlsel, 1);
-				}
-				else {
-					pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
-					pDlg->disableCtrl(Ctlsel, 0);
-				}
+		PPIDArray ary;
+		if(Data.List.IsExists())
+			ary = Data.List.Get();
+		if(!ary.getCount())
+			ary.setSingleNZ(pDlg->getCtrlLong(Ctlsel));
+		ListToListData lst(PPOBJ_STAFFCAL, 0, &ary);
+		lst.TitleStrID = 0; // PPTXT_XXX;
+		if(ListToListDialog(&lst) > 0) {
+			Data.List.Set(&ary);
+			if(Data.List.GetCount() > 1) {
+				SetComboBoxListText(pDlg, Ctlsel);
+				pDlg->disableCtrl(Ctlsel, 1);
+			}
+			else {
+				pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
+				pDlg->disableCtrl(Ctlsel, 0);
 			}
 		}
 		pDlg->clearEvent(event);
@@ -5438,13 +5383,6 @@ int SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & r
 		pDlg->disableCtrl(ctlCombo, 0);
 	return 1;
 }
-
-/* @v9.1.1 Заменено на SLS.CheckUiFlag(sluifUseLargeDialogs)
-int IsLargeDlg()
-{
-	return BIN(DS.GetTLA().Lc.Flags & CCFLG_USELARGEDIALOG);
-}
-*/
 
 class EditMemosDialog : public PPListDialog {
 public:

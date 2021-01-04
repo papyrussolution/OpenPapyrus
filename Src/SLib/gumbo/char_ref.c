@@ -13913,8 +13913,8 @@ static const int char_ref_en_valid_named_ref = 7623;
 #line 2469 "char_ref.rl"
 // clang-format on
 
-static bool consume_named_ref(GumboParser * parser,
-    Utf8Iterator* input, bool is_in_attribute, OneOrTwoCodepoints* output) {
+static bool consume_named_ref(GumboParser * parser, Utf8Iterator* input, bool is_in_attribute, OneOrTwoCodepoints* output) 
+{
 	assert(output->first == kGumboNoChar);
 	const char* p = utf8iterator_get_char_pointer(input);
 	const char* pe = utf8iterator_get_end_pointer(input);
@@ -13922,9 +13922,7 @@ static bool consume_named_ref(GumboParser * parser,
 	const char* te = 0;
 	const char * ts, * start;
 	int cs, act;
-
 // clang-format off
-
 #line 13985 "char_ref.c"
 	{
 		cs = char_ref_start;

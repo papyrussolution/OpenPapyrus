@@ -72,10 +72,7 @@ const OPJ_FLOAT64 * opj_mct_get_mct_norms_real()
 /* Forward reversible MCT. */
 /* </summary> */
 #ifdef __SSE2__
-void opj_mct_encode(OPJ_INT32* OPJ_RESTRICT c0,
-    OPJ_INT32* OPJ_RESTRICT c1,
-    OPJ_INT32* OPJ_RESTRICT c2,
-    OPJ_SIZE_T n)
+void opj_mct_encode(OPJ_INT32* OPJ_RESTRICT c0, OPJ_INT32* OPJ_RESTRICT c1, OPJ_INT32* OPJ_RESTRICT c2, OPJ_SIZE_T n)
 {
 	OPJ_SIZE_T i;
 	const OPJ_SIZE_T len = n;
@@ -205,10 +202,7 @@ OPJ_FLOAT64 opj_mct_getnorm(OPJ_UINT32 compno)
 /* <summary> */
 /* Forward irreversible MCT. */
 /* </summary> */
-void opj_mct_encode_real(OPJ_FLOAT32* OPJ_RESTRICT c0,
-    OPJ_FLOAT32* OPJ_RESTRICT c1,
-    OPJ_FLOAT32* OPJ_RESTRICT c2,
-    OPJ_SIZE_T n)
+void opj_mct_encode_real(OPJ_FLOAT32* OPJ_RESTRICT c0, OPJ_FLOAT32* OPJ_RESTRICT c1, OPJ_FLOAT32* OPJ_RESTRICT c2, OPJ_SIZE_T n)
 {
 	OPJ_SIZE_T i;
 #ifdef __SSE__
@@ -274,10 +268,7 @@ void opj_mct_encode_real(OPJ_FLOAT32* OPJ_RESTRICT c0,
 /* <summary> */
 /* Inverse irreversible MCT. */
 /* </summary> */
-void opj_mct_decode_real(OPJ_FLOAT32* OPJ_RESTRICT c0,
-    OPJ_FLOAT32* OPJ_RESTRICT c1,
-    OPJ_FLOAT32* OPJ_RESTRICT c2,
-    OPJ_SIZE_T n)
+void opj_mct_decode_real(OPJ_FLOAT32* OPJ_RESTRICT c0, OPJ_FLOAT32* OPJ_RESTRICT c1, OPJ_FLOAT32* OPJ_RESTRICT c2, OPJ_SIZE_T n)
 {
 	OPJ_SIZE_T i;
 #ifdef __SSE__
@@ -339,11 +330,7 @@ OPJ_FLOAT64 opj_mct_getnorm_real(OPJ_UINT32 compno)
 	return opj_mct_norms_real[compno];
 }
 
-OPJ_BOOL opj_mct_encode_custom(OPJ_BYTE * pCodingdata,
-    OPJ_SIZE_T n,
-    OPJ_BYTE ** pData,
-    OPJ_UINT32 pNbComp,
-    OPJ_UINT32 isSigned)
+OPJ_BOOL opj_mct_encode_custom(OPJ_BYTE * pCodingdata, OPJ_SIZE_T n, OPJ_BYTE ** pData, OPJ_UINT32 pNbComp, OPJ_UINT32 isSigned)
 {
 	OPJ_FLOAT32 * lMct = (OPJ_FLOAT32*)pCodingdata;
 	OPJ_SIZE_T i;
@@ -355,54 +342,39 @@ OPJ_BOOL opj_mct_encode_custom(OPJ_BYTE * pCodingdata,
 	OPJ_INT32 ** lData = (OPJ_INT32**)pData;
 	OPJ_UINT32 lMultiplicator = 1 << 13;
 	OPJ_INT32 * lMctPtr;
-
 	OPJ_ARG_NOT_USED(isSigned);
-
-	lCurrentData = (OPJ_INT32*)opj_malloc((pNbComp + lNbMatCoeff) * sizeof(
-			OPJ_INT32));
+	lCurrentData = (OPJ_INT32*)opj_malloc((pNbComp + lNbMatCoeff) * sizeof(OPJ_INT32));
 	if(!lCurrentData) {
 		return OPJ_FALSE;
 	}
-
 	lCurrentMatrix = lCurrentData + pNbComp;
-
 	for(i = 0; i < lNbMatCoeff; ++i) {
 		lCurrentMatrix[i] = (OPJ_INT32)(*(lMct++) * (OPJ_FLOAT32)lMultiplicator);
 	}
-
 	for(i = 0; i < n; ++i) {
 		lMctPtr = lCurrentMatrix;
 		for(j = 0; j < pNbComp; ++j) {
 			lCurrentData[j] = (*(lData[j]));
 		}
-
 		for(j = 0; j < pNbComp; ++j) {
 			*(lData[j]) = 0;
 			for(k = 0; k < pNbComp; ++k) {
 				*(lData[j]) += opj_int_fix_mul(*lMctPtr, lCurrentData[k]);
 				++lMctPtr;
 			}
-
 			++lData[j];
 		}
 	}
-
-	opj_free(lCurrentData);
-
+	SAlloc::F(lCurrentData);
 	return OPJ_TRUE;
 }
 
-OPJ_BOOL opj_mct_decode_custom(OPJ_BYTE * pDecodingData,
-    OPJ_SIZE_T n,
-    OPJ_BYTE ** pData,
-    OPJ_UINT32 pNbComp,
-    OPJ_UINT32 isSigned)
+OPJ_BOOL opj_mct_decode_custom(OPJ_BYTE * pDecodingData, OPJ_SIZE_T n, OPJ_BYTE ** pData, OPJ_UINT32 pNbComp, OPJ_UINT32 isSigned)
 {
 	OPJ_FLOAT32 * lMct;
 	OPJ_SIZE_T i;
 	OPJ_UINT32 j;
 	OPJ_UINT32 k;
-
 	OPJ_FLOAT32 * lCurrentData = 00;
 	OPJ_FLOAT32 * lCurrentResult = 00;
 	OPJ_FLOAT32 ** lData = (OPJ_FLOAT32**)pData;
@@ -412,7 +384,6 @@ OPJ_BOOL opj_mct_decode_custom(OPJ_BYTE * pDecodingData,
 		return OPJ_FALSE;
 	}
 	lCurrentResult = lCurrentData + pNbComp;
-
 	for(i = 0; i < n; ++i) {
 		lMct = (OPJ_FLOAT32*)pDecodingData;
 		for(j = 0; j < pNbComp; ++j) {
@@ -426,7 +397,7 @@ OPJ_BOOL opj_mct_decode_custom(OPJ_BYTE * pDecodingData,
 			*(lData[j]++) = (OPJ_FLOAT32)(lCurrentResult[j]);
 		}
 	}
-	opj_free(lCurrentData);
+	SAlloc::F(lCurrentData);
 	return OPJ_TRUE;
 }
 

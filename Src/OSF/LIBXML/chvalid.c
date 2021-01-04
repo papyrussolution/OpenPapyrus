@@ -219,7 +219,7 @@ int xmlIsCombining(uint ch) { return xmlIsCombiningQ(ch); }
 // This function is DEPRECATED. Use xmlIsDigit_ch or xmlIsDigitQ instead
 // Returns true if argument valid, false otherwise
 // 
-int xmlIsDigit(uint ch) { return xmlIsDigitQ(ch); }
+// @v10.9.11 int xmlIsDigit(uint ch) { return xmlIsDigitQ(ch); }
 // 
 // @ch:  character to validate
 // 

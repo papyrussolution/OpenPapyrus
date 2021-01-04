@@ -222,7 +222,4 @@ XMLPUBFUN int XMLCALL xmlFileClose(void * context);
 }
 #endif
 
-//#include <libxml/tree.h>
-//#include <libxml/parser.h>
-
 #endif /* __XML_IO_H__ */

@@ -7880,17 +7880,16 @@ static const xmlChar * xmlParseAttribute2(xmlParserCtxt * ctxt, const xmlChar * 
 		SKIP_BLANKS;
 		val = xmlParseAttValueInternal(ctxt, len, alloc, normalize);
 		if(normalize) {
-			/*
-			 * Sometimes a second normalisation pass for spaces is needed
-			 * but that only happens if charrefs or entities refernces
-			 * have been used in the attribute value, i.e. the attribute
-			 * value have been extracted in an allocated string already.
-			 */
+			// 
+			// Sometimes a second normalisation pass for spaces is needed
+			// but that only happens if charrefs or entities refernces
+			// have been used in the attribute value, i.e. the attribute
+			// value have been extracted in an allocated string already.
+			// 
 			if(*alloc) {
 				const xmlChar * val2 = xmlAttrNormalizeSpace2(ctxt, val, len);
 				if(val2 && val2 != val) {
-					SAlloc::F(val);
-					val = (xmlChar *)val2;
+					FREEANDASSIGN(val, const_cast<xmlChar *>(val2)); // @badcast
 				}
 			}
 		}
@@ -7901,20 +7900,20 @@ static const xmlChar * xmlParseAttribute2(xmlParserCtxt * ctxt, const xmlChar * 
 		return 0;
 	}
 	if(*prefix == ctxt->str_xml) {
-		/*
-		 * Check that xml:lang conforms to the specification
-		 * No more registered as an error, just generate a warning now
-		 * since this was deprecated in XML second edition
-		 */
+		// 
+		// Check that xml:lang conforms to the specification
+		// No more registered as an error, just generate a warning now
+		// since this was deprecated in XML second edition
+		// 
 		if(ctxt->pedantic && sstreq(name, "lang")) {
 			internal_val = xmlStrndup(val, *len);
 			if(!xmlCheckLanguageID(internal_val)) {
 				xmlWarningMsg(ctxt, XML_WAR_LANG_VALUE, "Malformed value for xml:lang : %s\n", internal_val, 0);
 			}
 		}
-		/*
-		 * Check that xml:space conforms to the specification
-		 */
+		// 
+		// Check that xml:space conforms to the specification
+		// 
 		if(sstreq(name, "space")) {
 			internal_val = xmlStrndup(val, *len);
 			if(sstreq(internal_val, "default"))

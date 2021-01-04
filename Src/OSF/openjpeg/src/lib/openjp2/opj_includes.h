@@ -171,10 +171,10 @@ static INLINE long opj_lrintf(float f)
 #if defined(_M_X64)
 /* Intel 64bit support SSE and SSE2 */
 #   ifndef __SSE__
-#       define __SSE__ 1
+#define __SSE__ 1
 #   endif
 #   ifndef __SSE2__
-#       define __SSE2__ 1
+#define __SSE2__ 1
 #   endif
 #endif
 

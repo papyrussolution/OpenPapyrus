@@ -1,17 +1,12 @@
-/***
-* errno.h - system wide error numbers (set by system calls)
-*
-*       Copyright (c) 1985-1997, Microsoft Corporation. All rights reserved.
-*
-* Purpose:
-*       This file defines the system-wide error numbers (set by
-*       system calls).  Conforms to the XENIX standard.  Extended
-*       for compatibility with Uniforum standard.
-*       [System V]
-*
-*       [Public]
-*
-****/
+// errno.h - system wide error numbers (set by system calls)
+// Copyright (c) 1985-1997, Microsoft Corporation. All rights reserved.
+// Purpose:
+//   This file defines the system-wide error numbers (set by
+//   system calls).  Conforms to the XENIX standard.  Extended
+//   for compatibility with Uniforum standard.
+//   [System V]
+// [Public]
+// 
 #if     _MSC_VER > 1000
 	#pragma once
 #endif
@@ -52,9 +47,9 @@ extern "C" {
 #if defined (__PTW32_STATIC_LIB) || defined (__PTW32_STATIC_TLSLIB)
 	#define  __PTW32_DLLPORT
 #elif defined (__PTW32_BUILD)
-	#define  __PTW32_DLLPORT __declspec (dllexport)
+	#define  __PTW32_DLLPORT __declspec(dllexport)
 #else
-	#define  __PTW32_DLLPORT __declspec (dllimport)
+	#define  __PTW32_DLLPORT __declspec(dllimport)
 #endif
 // declare reference to errno 
 #if (defined(_MT) || defined(_MD) || defined(_DLL)) && !defined(_MAC)

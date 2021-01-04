@@ -1486,12 +1486,17 @@ public:
 
 	struct Bind {
 		Bind();
+		void   SetNtvTypeAndSize(uint16 ntvTyp, uint16 ntvSize)
+		{
+			NtvTyp = ntvTyp;
+			NtvSize = ntvSize;
+		}
 		DECL_INVARIANT_C();
 		enum {
 			fSubst    = 0x0001, // Используется подстановка
 			fCalcOnly = 0x0002  // Если этот флаг установлен, то функция ProcessBinding
 				// при параметре action==0 только рассчитывает необходимый размер
-				// в буфере подстановки и привсаивает результат полю Bind::NtvSize.
+				// в буфере подстановки и присваивает результат полю Bind::NtvSize.
 		};
 		int16  Pos;        // Позиция привязки. <0 - входящая привязка, >0 - исходящая привязка
 		uint16 NtvTyp;     // Тип данных, специфичный для SQL-сервера
@@ -1505,7 +1510,7 @@ public:
 		uint32 Dim;        // Размерность связываемого массива. Обычно Dim == BindArray::Dim
 		uint32 ItemSize;   // Размер одного элемента массива (размерности Dim)
 		uint32 IndPos;     // Позиция индикатора поля //
-		uint32 FslPos;     //
+		uint32 FslPos;     // Позиция индикатора длины результата
 		TYPEID Typ;        // Внутренний тип данных
 	};
 private:
@@ -2178,7 +2183,7 @@ public:
 	//   0 - инициализация структуры SSqlStmt::Bind
 	//   1 - извлечение данных из внешнего источника во внутренние буферы
 	//   <0 - перенос данных из внутренних буферов во внешний источник
-	//       Так как техника привзяки может отличаться для разных режимов, то предусмотрены
+	//       Так как техника привязки может отличаться для разных режимов, то предусмотрены
 	//       следующие варианты:
 	//       -1 - перенос для запроса извлечения данных
 	//       -2 - перенос для запроса изменения данных
@@ -2786,8 +2791,6 @@ private:
 		}
 		int    operator !() const { return (T == 0); }
 		operator MYSQL_TIME * () const { return static_cast<MYSQL_TIME *>(H); }
-		operator OCIRowid * () const { return static_cast<OCIRowid*>(H); }
-		operator OCILobLocator * () const { return static_cast<OCILobLocator*>(H); }
 		void * H;
 		uint32 T;
 	};

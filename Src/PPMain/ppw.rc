@@ -8555,11 +8555,11 @@ END
 
 DLG_CSEXCAG DIALOGEX 46, 16, 292, 221
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Альтернативный товар для списания"
+CAPTION "@csessexcaltgoodsparam"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",IDC_STATIC,5,0,280,80
-    LTEXT           "Укажите товар, который может быть списан вместо",4001,15,10,243,8
+    LTEXT           "@csessexcaltgoodsparam_goods",4001,15,10,243,8
     LTEXT           "",CTL_CSEXCAG_ST_MAINGOODS,15,20,265,10,SS_SUNKEN
     LTEXT           "@incomingdate",4002,15,35,50,8
     EDITTEXT        CTL_CSEXCAG_DFCTDT,15,45,52,13,ES_AUTOHSCROLL
@@ -8570,12 +8570,12 @@ BEGIN
     LTEXT           "@factprice",4005,45,60,100,8
     EDITTEXT        CTL_CSEXCAG_SELLPRICE,150,60,60,13,ES_AUTOHSCROLL
     GROUPBOX        "",IDC_STATIC,5,80,280,115
-    CONTROL         "Показывать только те товары, которые сейчас есть на остатке",5302,
+    CONTROL         "@csessexcaltgoodsparam_selexistsgoodsonly",5302,
                     "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,90,231,13,WS_EX_RIGHT
     LTEXT           "@goodsgroup",4006,15,105,165,8
     EDITTEXT        CTL_CSEXCAG_GGRP,15,115,250,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CSEXCAG_GGRP,265,115,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@ware",4007,15,130,140,8
+    LTEXT           "@csessexcaltgoodsparam_altgoods",4007,15,130,140,8
     EDITTEXT        CTL_CSEXCAG_GOODS,15,140,250,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CSEXCAG_GOODS,265,140,13,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@incomingdate",4008,15,160,52,8
@@ -10215,7 +10215,7 @@ BEGIN
     CTEXT           "",CTL_EXPIRYREG_PSNTEXT,5,10,305,10,0,WS_EX_STATICEDGE
 END
 
-DLG_EXTDEV DIALOGEX 88, 16, 445, 287
+DLG_EXTDEV DIALOGEX 88, 16, 445, 297
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@cashnode_sync_devices"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -10232,7 +10232,7 @@ BEGIN
     EDITTEXT        CTL_EXTDEV_ALTREG,250,45,165,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@cashnode_sync_altregister",4004,250,35,165,8
     PUSHBUTTON      "",CTLSEL_EXTDEV_ALTREG,415,45,12,13,BS_BITMAP | NOT WS_TABSTOP
-    CONTROL         "@cashnode_cashfx_fextnodeasalt",5319,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | BS_NOTIFY | WS_TABSTOP,250,60,150,25
+    CONTROL         "@cashnode_cashfx_fextnodeasalt",5319,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | BS_NOTIFY | WS_TABSTOP,250,60,180,25
     LTEXT           "@cashnode_sync_scale",4005,15,95,160,8
     EDITTEXT        CTL_EXTDEV_SCALE,15,105,185,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_EXTDEV_SCALE,200,105,13,13,BS_BITMAP | NOT WS_TABSTOP
@@ -10255,24 +10255,26 @@ BEGIN
     EDITTEXT        CTL_EXTDEV_KBELLCMD,340,159,90,13,ES_AUTOHSCROLL
     LTEXT           "@cashnode_scn_manufserial",4013,10,204,140,8
     EDITTEXT        CTL_EXTDEV_MANUFSERIAL,10,215,105,13,ES_AUTOHSCROLL
-    LTEXT           "@cashnode_drvver",4014,170,205,85,8
-    EDITTEXT        CTL_EXTDEV_DRVVER,170,215,50,13,ES_AUTOHSCROLL
+    LTEXT           "@cashnode_drvver",4014,155,205,80,8
+    EDITTEXT        CTL_EXTDEV_DRVVER,155,215,50,13,ES_AUTOHSCROLL
     LTEXT           "@cashnode_sync_exchangeurl",4015,10,230,210,8
     EDITTEXT        CTL_EXTDEV_HOSTICURL,10,240,210,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_EXTDEV_HOSTICURL,220,240,15,13,NOT WS_TABSTOP
-    GROUPBOX        "@cashnode_egaismode",CTL_EXTDEV_EGAISMODE,275,180,160,60,WS_GROUP
-    CONTROL         "@cashnode_egaismode_use",5317,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,190,145,10
-    CONTROL         "@cashnode_egaismode_dontuse",9413,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,200,145,10
-    CONTROL         "@cashnode_egaismode_testmode",13509,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,210,145,10
-    CONTROL         "@cashnode_egaismode_scanmarkonly",17605,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,220,145,10
-    CONTROL         "@cashnode_cashfx_checkegaismuniq",5325,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,245,240,190,13,WS_EX_RIGHT
+    GROUPBOX        "@cashnode_egaismode",CTL_EXTDEV_EGAISMODE,240,180,195,60,WS_GROUP
+    CONTROL         "@cashnode_egaismode_use",5317,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,190,185,10
+    CONTROL         "@cashnode_egaismode_dontuse",9413,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,200,185,10
+    CONTROL         "@cashnode_egaismode_testmode",13509,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,210,185,10
+    CONTROL         "@cashnode_egaismode_scanmarkonly",17605,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,245,220,185,10
+    GROUPBOX        "",CTL_EXTDEV_CHKEGMUNIQ,240,240,195,33,WS_GROUP
+    CONTROL         "@cashnode_cashfx_checkegaismuniq",5325,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,245,245,180,13
+    CONTROL         "@cashnode_cashfx_bnkslipafterrcpt",9421,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,245,260,180,10
     PUSHBUTTON      "@{cashnode_sync_custdisp}...",4017,10,260,90,13
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,320,260,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,385,260,50,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,310,280,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,385,280,50,13
     LTEXT           "@cashnode_sync_localtouchscr_prompt",IDC_STATIC,15,66,185,19
     GROUPBOX        "",IDC_STATIC,5,0,210,90
     PUSHBUTTON      "@{cashnode_sync_bnkterm}...",4018,130,260,90,13
-    GROUPBOX        "@cashnode_scn_cashdrawer",IDC_STATIC,240,95,195,45
+    GROUPBOX        "@cashnode_scn_cashdrawer",IDC_STATIC,240,95,195,40
     GROUPBOX        "@cashnode_scn_kitchenbell",IDC_STATIC,240,140,195,40
     GROUPBOX        "",IDC_STATIC,240,0,195,90
 END
@@ -17182,8 +17184,7 @@ BEGIN
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,70,75,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,135,75,50,13
     LTEXT           "@tsessmaintenance_flags",4002,10,40,120,8
-    CONTROL         "@tsessmaintenance_fcancelcip",5349,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,50,185,13
+    CONTROL         "@tsessmaintenance_fcancelcip",5349,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,50,185,13
     PUSHBUTTON      "",CTLCAL_TSESMNT_PERIOD,135,20,13,13,BS_BITMAP | NOT WS_TABSTOP
 END
 
@@ -31565,7 +31566,7 @@ BEGIN
     DLG_EXTDEV, DIALOG
     BEGIN
         RIGHTMARGIN, 440
-        BOTTOMMARGIN, 282
+        BOTTOMMARGIN, 292
     END
 
     DLG_EXTFLDCFG, DIALOG

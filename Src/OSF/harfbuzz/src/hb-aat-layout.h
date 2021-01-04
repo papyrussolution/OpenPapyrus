@@ -311,12 +311,8 @@ typedef enum {
 	HB_AAT_LAYOUT_FEATURE_SELECTOR_TRANSCODING_COMPOSITION_OFF    = 5,
 
 	/* Selectors for #HB_AAT_LAYOUT_FEATURE_TYPE_RUBY_KANA */
-	HB_AAT_LAYOUT_FEATURE_SELECTOR_NO_RUBY_KANA                   = 0,/* deprecated - use
-	                                                                HB_AAT_LAYOUT_FEATURE_SELECTOR_RUBY_KANA_OFF
-	                                                                instead */
-	HB_AAT_LAYOUT_FEATURE_SELECTOR_RUBY_KANA                      = 1,/* deprecated - use
-	                                                                HB_AAT_LAYOUT_FEATURE_SELECTOR_RUBY_KANA_ON
-	                                                                instead */
+	HB_AAT_LAYOUT_FEATURE_SELECTOR_NO_RUBY_KANA                   = 0,/* deprecated - use HB_AAT_LAYOUT_FEATURE_SELECTOR_RUBY_KANA_OFF instead */
+	HB_AAT_LAYOUT_FEATURE_SELECTOR_RUBY_KANA                      = 1,/* deprecated - use HB_AAT_LAYOUT_FEATURE_SELECTOR_RUBY_KANA_ON instead */
 	HB_AAT_LAYOUT_FEATURE_SELECTOR_RUBY_KANA_ON                   = 2,
 	HB_AAT_LAYOUT_FEATURE_SELECTOR_RUBY_KANA_OFF                  = 3,
 
@@ -341,12 +337,8 @@ typedef enum {
 	HB_AAT_LAYOUT_FEATURE_SELECTOR_CJK_VERTICAL_ROMAN_HBASELINE   = 1,
 
 	/* Selectors for #HB_AAT_LAYOUT_FEATURE_TYPE_ITALIC_CJK_ROMAN */
-	HB_AAT_LAYOUT_FEATURE_SELECTOR_NO_CJK_ITALIC_ROMAN            = 0,/* deprecated - use
-	                                                                   HB_AAT_LAYOUT_FEATURE_SELECTOR_CJK_ITALIC_ROMAN_OFF
-	                                                                   instead */
-	HB_AAT_LAYOUT_FEATURE_SELECTOR_CJK_ITALIC_ROMAN               = 1,/* deprecated - use
-	                                                                   HB_AAT_LAYOUT_FEATURE_SELECTOR_CJK_ITALIC_ROMAN_ON
-	                                                                   instead */
+	HB_AAT_LAYOUT_FEATURE_SELECTOR_NO_CJK_ITALIC_ROMAN            = 0,/* deprecated - use HB_AAT_LAYOUT_FEATURE_SELECTOR_CJK_ITALIC_ROMAN_OFF instead */
+	HB_AAT_LAYOUT_FEATURE_SELECTOR_CJK_ITALIC_ROMAN               = 1,/* deprecated - use HB_AAT_LAYOUT_FEATURE_SELECTOR_CJK_ITALIC_ROMAN_ON instead */
 	HB_AAT_LAYOUT_FEATURE_SELECTOR_CJK_ITALIC_ROMAN_ON            = 2,
 	HB_AAT_LAYOUT_FEATURE_SELECTOR_CJK_ITALIC_ROMAN_OFF           = 3,
 

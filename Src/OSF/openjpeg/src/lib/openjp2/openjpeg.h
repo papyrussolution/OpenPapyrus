@@ -82,10 +82,10 @@
 #       else
 #           define OPJ_API    __attribute__ ((visibility("default")))
 #       endif
-#       define OPJ_LOCAL  __attribute__ ((visibility("hidden")))
+#define OPJ_LOCAL  __attribute__ ((visibility("hidden")))
 #   else
-#       define OPJ_API
-#       define OPJ_LOCAL
+#define OPJ_API
+#define OPJ_LOCAL
 #   endif
 #   define OPJ_CALLCONV
 #else
@@ -99,9 +99,9 @@
    defined with this macro as being exported.
  */
 #   if defined(OPJ_EXPORTS) || defined(DLL_EXPORT)
-#       define OPJ_API // @sobolev __declspec(dllexport)
+#define OPJ_API // @sobolev __declspec(dllexport)
 #   else
-#       define OPJ_API // @sobolev  __declspec(dllimport)
+#define OPJ_API // @sobolev  __declspec(dllimport)
 #   endif /* OPJ_EXPORTS */
 #endif /* !OPJ_STATIC || !_WIN32 */
 

@@ -76,13 +76,13 @@ opj_tgt_tree_t * opj_tgt_create(OPJ_UINT32 numleafsh, OPJ_UINT32 numleafsv,
 	} while(n > 1);
 	/* ADD */
 	if(tree->numnodes == 0) {
-		opj_free(tree);
+		SAlloc::F(tree);
 		return 00;
 	}
 	tree->nodes = (opj_tgt_node_t*)opj_calloc(tree->numnodes, sizeof(opj_tgt_node_t));
 	if(!tree->nodes) {
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to create Tag-tree nodes\n");
-		opj_free(tree);
+		SAlloc::F(tree);
 		return 00;
 	}
 	tree->nodes_size = tree->numnodes * (OPJ_UINT32)sizeof(opj_tgt_node_t);
@@ -213,10 +213,10 @@ void opj_tgt_destroy(opj_tgt_tree_t * p_tree)
 		return;
 	}
 	if(p_tree->nodes) {
-		opj_free(p_tree->nodes);
+		SAlloc::F(p_tree->nodes);
 		p_tree->nodes = 00;
 	}
-	opj_free(p_tree);
+	SAlloc::F(p_tree);
 }
 
 void opj_tgt_reset(opj_tgt_tree_t * p_tree)

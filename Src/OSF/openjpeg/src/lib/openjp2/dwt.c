@@ -1206,7 +1206,7 @@ static void opj_dwt_encode_h_func(void* user_data, opj_tls_t* tls)
 	}
 
 	opj_aligned_free(job->h.mem);
-	opj_free(job);
+	SAlloc::F(job);
 }
 
 typedef struct {
@@ -1244,7 +1244,7 @@ static void opj_dwt_encode_v_func(void* user_data, opj_tls_t* tls)
 	}
 
 	opj_aligned_free(job->v.mem);
-	opj_free(job);
+	SAlloc::F(job);
 }
 
 /** Fetch up to cols <= NB_ELTS_V8 for each line, and put them in tmpOut */
@@ -1828,7 +1828,7 @@ static INLINE OPJ_BOOL opj_dwt_encode_procedure(opj_thread_pool_t* tp,
 				job->v.mem = (OPJ_INT32*)opj_aligned_32_malloc(l_data_size);
 				if(!job->v.mem) {
 					opj_thread_pool_wait_completion(tp, 0);
-					opj_free(job);
+					SAlloc::F(job);
 					opj_aligned_free(bj);
 					return OPJ_FALSE;
 				}
@@ -1878,7 +1878,7 @@ static INLINE OPJ_BOOL opj_dwt_encode_procedure(opj_thread_pool_t* tp,
 				job->h.mem = (OPJ_INT32*)opj_aligned_32_malloc(l_data_size);
 				if(!job->h.mem) {
 					opj_thread_pool_wait_completion(tp, 0);
-					opj_free(job);
+					SAlloc::F(job);
 					opj_aligned_free(bj);
 					return OPJ_FALSE;
 				}
@@ -2043,7 +2043,7 @@ static void opj_dwt_decode_h_func(void* user_data, opj_tls_t* tls)
 	}
 
 	opj_aligned_free(job->h.mem);
-	opj_free(job);
+	SAlloc::F(job);
 }
 
 typedef struct {
@@ -2072,7 +2072,7 @@ static void opj_dwt_decode_v_func(void* user_data, opj_tls_t* tls)
 		    (OPJ_INT32)(job->max_j - j));
 
 	opj_aligned_free(job->v.mem);
-	opj_free(job);
+	SAlloc::F(job);
 }
 
 /* <summary>                            */
@@ -2173,7 +2173,7 @@ static OPJ_BOOL opj_dwt_decode_tile(opj_thread_pool_t* tp,
 				if(!job->h.mem) {
 					/* FIXME event manager error callback */
 					opj_thread_pool_wait_completion(tp, 0);
-					opj_free(job);
+					SAlloc::F(job);
 					opj_aligned_free(h.mem);
 					return OPJ_FALSE;
 				}
@@ -2229,7 +2229,7 @@ static OPJ_BOOL opj_dwt_decode_tile(opj_thread_pool_t* tp,
 				if(!job->v.mem) {
 					/* FIXME event manager error callback */
 					opj_thread_pool_wait_completion(tp, 0);
-					opj_free(job);
+					SAlloc::F(job);
 					opj_aligned_free(v.mem);
 					return OPJ_FALSE;
 				}
@@ -3262,7 +3262,7 @@ static void opj_dwt97_decode_h_func(void* user_data, opj_tls_t* tls)
 	}
 
 	opj_aligned_free(job->h.wavelet);
-	opj_free(job);
+	SAlloc::F(job);
 }
 
 typedef struct {
@@ -3299,7 +3299,7 @@ static void opj_dwt97_decode_v_func(void* user_data, opj_tls_t* tls)
 	}
 
 	opj_aligned_free(job->v.wavelet);
-	opj_free(job);
+	SAlloc::F(job);
 }
 
 /* <summary>                             */
@@ -3409,7 +3409,7 @@ OPJ_BOOL opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 				job->h.wavelet = (opj_v8_t*)opj_aligned_malloc(l_data_size * sizeof(opj_v8_t));
 				if(!job->h.wavelet) {
 					opj_thread_pool_wait_completion(tp, 0);
-					opj_free(job);
+					SAlloc::F(job);
 					opj_aligned_free(h.wavelet);
 					return OPJ_FALSE;
 				}
@@ -3489,7 +3489,7 @@ OPJ_BOOL opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 				job->v.wavelet = (opj_v8_t*)opj_aligned_malloc(l_data_size * sizeof(opj_v8_t));
 				if(!job->v.wavelet) {
 					opj_thread_pool_wait_completion(tp, 0);
-					opj_free(job);
+					SAlloc::F(job);
 					opj_aligned_free(h.wavelet);
 					return OPJ_FALSE;
 				}

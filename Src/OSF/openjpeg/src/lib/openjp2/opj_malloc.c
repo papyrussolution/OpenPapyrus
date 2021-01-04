@@ -89,8 +89,7 @@ static INLINE void * opj_aligned_alloc_n(size_t alignment, size_t size)
 		}
 		/* offset = ((alignment + 1U) - ((size_t)(mem + sizeof(void*)) & alignment)) & alignment; */
 		/* Use the fact that alignment + 1U is a power of 2 */
-		offset = ((alignment ^ ((size_t)(mem + sizeof(void*)) & alignment)) + 1U) &
-		    alignment;
+		offset = ((alignment ^ ((size_t)(mem + sizeof(void*)) & alignment)) + 1U) & alignment;
 		ptr = (void*)(mem + sizeof(void*) + offset);
 		((void**)ptr)[-1] = mem;
 	}
@@ -188,25 +187,10 @@ void * FASTCALL opj_calloc(size_t num, size_t size)
 	return calloc(num, size);
 }
 
-void * opj_aligned_malloc(size_t size)
-{
-	return opj_aligned_alloc_n(16U, size);
-}
-
-void * opj_aligned_realloc(void * ptr, size_t size)
-{
-	return opj_aligned_realloc_n(ptr, 16U, size);
-}
-
-void * opj_aligned_32_malloc(size_t size)
-{
-	return opj_aligned_alloc_n(32U, size);
-}
-
-void * opj_aligned_32_realloc(void * ptr, size_t size)
-{
-	return opj_aligned_realloc_n(ptr, 32U, size);
-}
+void * opj_aligned_malloc(size_t size) { return opj_aligned_alloc_n(16U, size); }
+void * opj_aligned_realloc(void * ptr, size_t size) { return opj_aligned_realloc_n(ptr, 16U, size); }
+void * opj_aligned_32_malloc(size_t size) { return opj_aligned_alloc_n(32U, size); }
+void * opj_aligned_32_realloc(void * ptr, size_t size) { return opj_aligned_realloc_n(ptr, 32U, size); }
 
 void opj_aligned_free(void* ptr)
 {
@@ -230,7 +214,4 @@ void * FASTCALL opj_realloc(void * ptr, size_t new_size)
 	return realloc(ptr, new_size);
 }
 
-void FASTCALL opj_free(void * ptr)
-{
-	free(ptr);
-}
+// @sobolev void FASTCALL opj_free_Removed(void * ptr) { free(ptr); }

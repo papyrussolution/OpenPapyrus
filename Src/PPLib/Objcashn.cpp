@@ -1341,13 +1341,10 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_TCHSCREEN, PPOBJ_TOUCHSCREEN, Data.TouchScreenID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_LOCTCHSCR, PPOBJ_TOUCHSCREEN, Data.LocalTouchScrID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_CASHNODE,  PPOBJ_CASHNODE, Data.ExtCashNodeID, 0, 0);
-			SetupPPObjCombo(this, CTLSEL_EXTDEV_ALTREG,    PPOBJ_CASHNODE, Data.AlternateRegID, 0, 0); // @v9.7.10
-			// @v9.6.9 {
+			SetupPPObjCombo(this, CTLSEL_EXTDEV_ALTREG,    PPOBJ_CASHNODE, Data.AlternateRegID, 0, 0);
 			AddClusterAssoc(CTL_EXTDEV_EXTNODEASALT, 0, CASHFX_EXTNODEASALT);
 			SetClusterData(CTL_EXTDEV_EXTNODEASALT, Data.ExtFlags);
 			DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, (!Data.ExtCashNodeID || Data.AlternateRegID));
-			// } @v9.6.9
-			// @v9.6.9 SetupPPObjCombo(this, CTLSEL_EXTDEV_PAPYRUS,   PPOBJ_CASHNODE, Data.PapyrusNodeID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_SCALE,     PPOBJ_SCALE, Data.ScaleID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_PHNSVC,    PPOBJ_PHONESERVICE, Data.PhnSvcID, 0, 0);
 			setCtrlString(CTL_EXTDEV_PRINTER, Data.PrinterPort);
@@ -1370,6 +1367,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  3, 3);
 			SetClusterData(CTL_EXTDEV_EGAISMODE, Data.EgaisMode);
 			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 0, CASHFX_CHECKEGAISMUNIQ); // @v10.1.1
+			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 1, CASHFX_BNKSLIPAFTERRCPT); // @v10.9.11
 			SetClusterData(CTL_EXTDEV_CHKEGMUNIQ, Data.ExtFlags); // @v10.1.1
 			Data.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
 			setCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
@@ -1387,7 +1385,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			getCtrlData(CTLSEL_EXTDEV_TCHSCREEN, &Data.TouchScreenID);
 			getCtrlData(CTLSEL_EXTDEV_LOCTCHSCR, &Data.LocalTouchScrID);
 			getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &Data.ExtCashNodeID);
-			getCtrlData(CTLSEL_EXTDEV_ALTREG,    &Data.AlternateRegID); // @v9.7.10
+			getCtrlData(CTLSEL_EXTDEV_ALTREG,    &Data.AlternateRegID);
 			if(Data.ExtCashNodeID && !Data.AlternateRegID)
 				GetClusterData(CTL_EXTDEV_EXTNODEASALT, &Data.ExtFlags);
 			else
@@ -1433,15 +1431,13 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			else if(event.isCmd(cmBnkTerminal)) {
 				EditBnkTerm();
 			}
-			// @v9.6.9 {
 			else if(event.isCbSelected(CTLSEL_EXTDEV_CASHNODE) || event.isCbSelected(CTLSEL_EXTDEV_ALTREG)) {
 				PPID   ext_node_id = 0;
 				PPID   alt_reg_id = 0;
 				getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &ext_node_id);
-				getCtrlData(CTLSEL_EXTDEV_ALTREG,    &alt_reg_id); // @v9.7.10
+				getCtrlData(CTLSEL_EXTDEV_ALTREG,    &alt_reg_id);
 				DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, (!ext_node_id || alt_reg_id));
 			}
-			// } @v9.6.9
 			else if(TVKEYDOWN) {
 				if(TVKEY == kbF2) {
 					SString prn_port;

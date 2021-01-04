@@ -98,12 +98,21 @@ char FASTCALL SSystem::TranslateWmCharToAnsi(uintptr_t wparam)
 	return SFormatMessage(::GetLastError(), rMsg);
 }
 
-SSystem::SSystem(int imm) : Flags(0), CpuV(cpuvUnkn), CpuCs(cpucsUnkn), CpuCacheSizeL0(0), CpuCacheSizeL1(0), CpuCacheSizeL2(0), CpuA(0), CpuB(0), CpuC(0), CpuD(0), PerfFreq(0LL)
+SSystem::SSystem(int imm) : Flags(0), CpuV(cpuvUnkn), CpuCs(cpucsUnkn), CpuCacheSizeL0(0), CpuCacheSizeL1(0), CpuCacheSizeL2(0), CpuA(0), CpuB(0), CpuC(0), CpuD(0), PerfFreq(0LL),
+	CpuCount(0), PageSize(0)
 {
 	if(imm) {
 		GetCpuInfo();
 		if(SSystem::BigEndian())
 			Flags |= fBigEndian;
+		// @v10.9.11 {
+		{
+			SYSTEM_INFO si;
+			::GetSystemInfo(&si);
+			CpuCount = si.dwNumberOfProcessors;
+			PageSize = si.dwPageSize;
+		}
+		// } @v10.9.11
         // @v10.5.7 {
         {
 			LARGE_INTEGER perf_frequency;

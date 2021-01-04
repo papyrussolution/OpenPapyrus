@@ -694,9 +694,23 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 								if(!is_weight && !is_spirit && !is_tobacco && !is_gift_card)
 									is_weight = gds_cfg.IsWghtPrefix(bc.Code);
 								AddCheckDigToBarcode(bc.Code);
+								// @v10.9.11 {
+								if(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
+									const char * p_mark_type = 0;
+									switch(prev_gds_info.ChZnProdType) {
+										case GTCHZNPT_SHOE: p_mark_type = "FOOTWEAR"; break;
+										case GTCHZNPT_TEXTILE: p_mark_type = "LIGHT_INDUSTRY"; break;
+										case GTCHZNPT_CARTIRE: p_mark_type = "TYRES"; break;
+										case GTCHZNPT_PERFUMERY: p_mark_type = "PERFUMES"; break;
+										case GTCHZNPT_MILK: p_mark_type = "MILK"; break;
+									}
+									if(p_mark_type)
+										p_writer->PutElement("mark-type", p_mark_type);
+								}
+								// } @v10.9.11 
 								p_writer->StartElement("bar-code", "code", bc.Code);
 								// @v10.4.11 {
-								if(prev_gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
+								if((prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
 									p_writer->AddAttrib("marked", "true");
 								}
 								// } @v10.4.11

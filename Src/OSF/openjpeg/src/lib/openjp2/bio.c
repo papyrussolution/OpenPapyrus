@@ -120,7 +120,7 @@ opj_bio_t* opj_bio_create(void)
 void opj_bio_destroy(opj_bio_t * bio)
 {
 	if(bio) {
-		opj_free(bio);
+		SAlloc::F(bio);
 	}
 }
 

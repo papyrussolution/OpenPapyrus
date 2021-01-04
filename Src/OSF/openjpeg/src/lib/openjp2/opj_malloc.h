@@ -89,7 +89,7 @@ void * FASTCALL opj_realloc(void * m, size_t s);
 Deallocates or frees a memory block.
 @param m Previously allocated memory block to be freed
 */
-void FASTCALL opj_free(void * m);
+// @sobolev void FASTCALL opj_free_Removed(void * m);
 
 #if defined(__GNUC__) && !defined(OPJ_SKIP_POISON)
 #pragma GCC poison malloc calloc realloc free

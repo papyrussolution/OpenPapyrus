@@ -504,8 +504,7 @@ AMQP_BEGIN_DECLS
 	/**
 	 * Enable or disable peer verification.
 	 *
-	 * \deprecated use \amqp_ssl_socket_set_verify_peer and
-	 * \amqp_ssl_socket_set_verify_hostname instead.
+	 * \deprecated use \amqp_ssl_socket_set_verify_peer and \amqp_ssl_socket_set_verify_hostname instead.
 	 *
 	 * If peer verification is enabled then the common name in the server
 	 * certificate must match the server name. Peer verification is enabled by

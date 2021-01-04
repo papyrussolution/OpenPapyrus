@@ -1345,7 +1345,7 @@ int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptio
 			assert(P_Lfc);
 			if(P_Lfc) {
 				pChildWindow->SetupLayoutItem(pLayout);
-				P_Lfc->GetRoot()->Evaluate();
+				P_Lfc->GetRoot()->Evaluate(0);
 			}
 		}
 		::ShowWindow(pChildWindow->H(), SW_SHOWNORMAL);
@@ -1393,7 +1393,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				// @v10.9.3 {
 				if(P_Lfc && !P_Lfc->P_Parent) {
 					P_Lfc->ALB.SetFixedSize(cr);
-					P_Lfc->Evaluate();
+					P_Lfc->Evaluate(0);
 				}
 				// } @v10.9.3 
 			}
@@ -1409,7 +1409,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				// @v10.9.3 {
 				if(P_Lfc && !P_Lfc->P_Parent) {
 					P_Lfc->ALB.SetFixedSize(cr);
-					P_Lfc->Evaluate();
+					P_Lfc->Evaluate(0);
 				}
 				// } @v10.9.3 
 				invalidateAll(1);

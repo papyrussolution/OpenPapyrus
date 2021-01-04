@@ -38,8 +38,7 @@
 opj_procedure_list_t *  opj_procedure_list_create()
 {
 	/* memory allocation */
-	opj_procedure_list_t * l_validation = (opj_procedure_list_t*)opj_calloc(1,
-		sizeof(opj_procedure_list_t));
+	opj_procedure_list_t * l_validation = (opj_procedure_list_t*)opj_calloc(1, sizeof(opj_procedure_list_t));
 	if(!l_validation) {
 		return 00;
 	}
@@ -48,7 +47,7 @@ opj_procedure_list_t *  opj_procedure_list_create()
 	l_validation->m_procedures = (opj_procedure*)opj_calloc(OPJ_VALIDATION_SIZE,
 		sizeof(opj_procedure));
 	if(!l_validation->m_procedures) {
-		opj_free(l_validation);
+		SAlloc::F(l_validation);
 		return 00;
 	}
 	return l_validation;
@@ -61,9 +60,9 @@ void  opj_procedure_list_destroy(opj_procedure_list_t * p_list)
 	}
 	/* initialization */
 	if(p_list->m_procedures) {
-		opj_free(p_list->m_procedures);
+		SAlloc::F(p_list->m_procedures);
 	}
-	opj_free(p_list);
+	SAlloc::F(p_list);
 }
 
 OPJ_BOOL FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_validation_list, opj_procedure p_procedure, opj_event_mgr_t* p_manager)
@@ -74,7 +73,7 @@ OPJ_BOOL FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_vali
 		p_validation_list->m_nb_max_procedures += OPJ_VALIDATION_SIZE;
 		new_procedures = (opj_procedure*)opj_realloc(p_validation_list->m_procedures, p_validation_list->m_nb_max_procedures * sizeof(opj_procedure));
 		if(!new_procedures) {
-			opj_free(p_validation_list->m_procedures);
+			SAlloc::F(p_validation_list->m_procedures);
 			p_validation_list->m_nb_max_procedures = 0;
 			p_validation_list->m_nb_procedures = 0;
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to add a new validation procedure\n");
@@ -94,8 +93,7 @@ OPJ_UINT32 opj_procedure_list_get_nb_procedures(opj_procedure_list_t * p_validat
 	return p_validation_list->m_nb_procedures;
 }
 
-opj_procedure* opj_procedure_list_get_first_procedure(opj_procedure_list_t *
-    p_validation_list)
+opj_procedure* opj_procedure_list_get_first_procedure(opj_procedure_list_t * p_validation_list)
 {
 	return p_validation_list->m_procedures;
 }

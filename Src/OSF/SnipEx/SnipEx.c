@@ -30,86 +30,326 @@
 #include "ButtonDefs.h"             // Buttons!
 #include "GdiPlusInterop.h"         // Stuff to make GDI+ work in pure C
 
-APPSTATE gAppState = APPSTATE_BEFORECAPTURE; // To track the overall state of the application
-BOOL   gMainWindowIsRunning;                 // Set this to FALSE to exit the app immediately.
-HWND   gMainWindowHandle;                    // Handle to the main window, i.e. the window with all the buttons on it.
-HWND   gCaptureWindowHandle;                 // Handle to the capture window, i.e. the grey selection window that overlays the entire desktop.
-const  INT8 gStartingDelayCountdown = 6;     // Default seconds to wait after clicking the 'Delay' button.
-INT8   gCurrentDelayCountdown = 6;           // The value of the countdown timer at this moment.
-UINT16 gDisplayWidth;                        // Display width, accounting for multiple monitors.
-UINT16 gDisplayHeight;                       // Display height, accounting for multiple monitors.
-INT16  gDisplayLeft;                         // Depending on how the monitors are arranged, the left-most coordinate might not be zero.
-INT16  gDisplayTop; // Depending on how the monitors are arranged, the top-most coordinate might not be zero.
-UINT16 gStartingMainWindowWidth  = 668; // The beginning width of the tool window - just enough to fit all the buttons.
-UINT16 gStartingMainWindowHeight = 92;  // The beginning height of the tool window - just enough to fit the buttons.
-HBITMAP gCleanScreenShot;        // A clean copy of the screenshot from before we started drawing on it.
-HBITMAP gScratchBitmap;          // For use during drawing.
-RECT   gCaptureSelectionRectangle; // The rectangle the user draws with the mouse to select a subsection of the screen.
-int    gCaptureWidth;           // Width in pixels of the user's captured snip.
-int    gCaptureHeight;          // Height in pixels of the user's captured snip.
-BOOL   gLeftMouseButtonIsDown; // When the user is drawing with the mouse, the left mouse button is down.
-UINT8  gCurrentSnipState;    // An array of bitmap states that we can revert back to, so we can undo changes. ctrl-z.
-HBITMAP gSnipStates[32];    // Snip state 0 will always be the unaltered clip right as the user first took it.
-HBITMAP gUACIcon; // The UAC icon that sits next to the "Replace Windows Snipping Tool with SnipEx" menu item.
-DWORD  gShouldAddDropShadow; // Does the user want to add a drop-shadow effect to the snip?
-DWORD  gRememberLastTool;    // Does the user want to remember the previously-used tool?
-DWORD  gAutoCopy;            // Does the user want to automatically copy each snip to the clipboard?
-DWORD  gLastTool;            // What was the last tool that the user used? (NOT save, copy, new, or delay.)
-HFONT  gFont;                // The font the user selects for the Text tool.
-COLORREF gFontColor;        // The color of the font that the user selects for the Text tool.
-POINT  gTextBoxLocation;     // The coordinates where we will spawn text
-wchar_t gTextBuffer[1024];  // Buffer for Text tool.
-
 static void Implement_RegCloseKey(HKEY key)
 {
 	if(key)
 		::RegCloseKey(key);
 }
 
-static void AdjustWindowSizeForThickTitleBars() // @20201025
-{
-	// If a custom DPI/scaling level is set, the title bar and borders will get thicker
-	// as scaling level increases and that will eat into the client area of the window.
-	// Result is that buttons will get cropped as the client area of the window gets smaller
-	// as the title bar and borders get thicker. We have to compensate for that.	
-	RECT WindowRect = { 0 };
-	RECT ClientRect = { 0 };
-	GetWindowRect(gMainWindowHandle, &WindowRect);
-	GetClientRect(gMainWindowHandle, &ClientRect);
-	const int AdjustedHeight = (WindowRect.bottom - WindowRect.top) - (ClientRect.bottom - ClientRect.top);
-	const int AdjustedWidth = (WindowRect.right - WindowRect.left) - (ClientRect.right - ClientRect.left);
-	SetWindowPos(gMainWindowHandle, HWND_TOP, 0, 0, gButtons[_countof(gButtons) - 1]->Rectangle.right + AdjustedWidth + 2,
-		gButtons[_countof(gButtons) - 1]->Rectangle.bottom + AdjustedHeight + 2, SWP_NOMOVE | SWP_NOOWNERZORDER);
-}
+struct SnipExGlobals {
+	SnipExGlobals() : gAppState(APPSTATE_BEFORECAPTURE), gStartingDelayCountdown(6), gCurrentDelayCountdown(6),
+		gStartingMainWindowWidth(668), gStartingMainWindowHeight(92)
+	{
+	}
+	void    SetCurrentSnipState(HBITMAP bm) { gSnipStates[gCurrentSnipState] = bm; }
+	HBITMAP GetCurrentSnipState() const { return gSnipStates[gCurrentSnipState]; }
+	void    PopupMessageErr(LPCWSTR pMsg)
+	{
+		MessageBoxW(gMainWindowHandle, pMsg, L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+	}
+	HRESULT AddAllMenuItems(_In_ HINSTANCE Instance)
+	{
+		HRESULT Result = S_OK;
+		HMENU SystemMenu = GetSystemMenu(gMainWindowHandle, FALSE);
+		HKEY SnipExKey = NULL;
+		DWORD SnipExKeyDisposition = 0;
+		DWORD ValueSize = sizeof(DWORD);
+		BOOL AlreadyReplaced = FALSE;
+		HKEY IFEOKey = NULL;
+		wchar_t DebuggerValue[256] = { 0 };
+		UINT16 ReplaceCommand = 0;
+		wchar_t ReplacementText[64] = { 0 };
+		if(SystemMenu == NULL) {
+			Result = E_FAIL;
+			MyOutputDebugStringW(L"[%s] Line %d: ERROR: GetSystemMenu failed!\n", __FUNCTIONW__, __LINE__);
+			goto Exit;
+		}
+		AppendMenuW(SystemMenu, MF_SEPARATOR, 0, NULL);
+		if((Result = GetSnipExRegValue(REG_DROPSHADOWNAME, &gShouldAddDropShadow)) != ERROR_SUCCESS) {
+			goto Exit;
+		}
+		if((Result = GetSnipExRegValue(REG_REMEMBERTOOLNAME, &gRememberLastTool)) != ERROR_SUCCESS) {
+			goto Exit;
+		}
+		if((Result = GetSnipExRegValue(REG_LASTTOOLNAME, &gLastTool)) != ERROR_SUCCESS) {
+			goto Exit;
+		}
+		if((Result = GetSnipExRegValue(REG_AUTOCOPYNAME, &gAutoCopy)) != ERROR_SUCCESS) {
+			goto Exit;
+		}
+		if(gShouldAddDropShadow > 0)
+			AppendMenuW(SystemMenu, MF_STRING | MF_CHECKED, SYSCMD_SHADOW, L"Drop Shadow Effect");
+		else
+			AppendMenuW(SystemMenu, MF_STRING | MF_UNCHECKED, SYSCMD_SHADOW, L"Drop Shadow Effect");
+		if(gAutoCopy > 0)
+			AppendMenuW(SystemMenu, MF_STRING | MF_CHECKED, SYSCMD_AUTOCOPY, L"Automatically copy snip to clipboard");
+		else
+			AppendMenuW(SystemMenu, MF_STRING | MF_UNCHECKED, SYSCMD_AUTOCOPY, L"Automatically copy snip to clipboard");
+		if(gRememberLastTool > 0)
+			AppendMenuW(SystemMenu, MF_STRING | MF_CHECKED, SYSCMD_REMEMBER, L"Remember Last Tool Used");
+		else {
+			AppendMenuW(SystemMenu, MF_STRING | MF_UNCHECKED, SYSCMD_REMEMBER, L"Remember Last Tool Used");
+			if((Result = DeleteSnipExRegValue(REG_LASTTOOLNAME)) != ERROR_SUCCESS)
+				goto Exit;
+		}
+		AppendMenuW(SystemMenu, MF_STRING, SYSCMD_UNDO, L"Undo (Ctrl+Z)");
+		SnipExKeyDisposition = 0;
+		ValueSize = sizeof(DebuggerValue);
+		// This key should always exist. Something is very wrong if we can't open it.
+		if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options", 0,
+			KEY_QUERY_VALUE, &IFEOKey) != ERROR_SUCCESS) {
+			Result = GetLastError();
+			MyOutputDebugStringW(L"[%s] Line %d: ERROR: RegOpenKeyEx failed! 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
+			goto Exit;
+		}
+		// If this subkey is not present, then that is OK, it just means it has never been added before
+		if(RegCreateKeyExW(IFEOKey, L"SnippingTool.exe", 0, NULL, 0, KEY_QUERY_VALUE, NULL, &SnipExKey, &SnipExKeyDisposition) == ERROR_SUCCESS) {
+			RegQueryValueExW(SnipExKey, L"Debugger", NULL, NULL, (LPBYTE)&DebuggerValue, &ValueSize);
+			if(wcslen(DebuggerValue) > 0) {
+				// Does the file specified by the "Debugger" value actually exist?
+				const DWORD FileAttributes = GetFileAttributesW(DebuggerValue);
+				if(FileAttributes != INVALID_FILE_ATTRIBUTES && !(FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					AlreadyReplaced = TRUE;
+			}
+		}
+		if(AlreadyReplaced) {
+			ReplaceCommand = SYSCMD_RESTORE;
+			wcscpy_s(ReplacementText, _countof(ReplacementText), L"Restore Windows Snipping Tool");
+		}
+		else {
+			ReplaceCommand = SYSCMD_REPLACE;
+			wcscpy_s(ReplacementText, _countof(ReplacementText), L"Replace Windows Snipping Tool with SnipEx");
+		}
+		AppendMenuW(SystemMenu, MF_STRING, ReplaceCommand, ReplacementText);
+		// Only works with 8bpp bitmaps
+		gUACIcon = (HBITMAP)LoadImageW(Instance, MAKEINTRESOURCEW(IDB_UAC), IMAGE_BITMAP, 0, 0, LR_LOADTRANSPARENT | LR_LOADMAP3DCOLORS | LR_SHARED);
+		if(gUACIcon != NULL) {
+			MENUITEMINFOW MenuItemInfo = { sizeof(MENUITEMINFOW) };
+			MenuItemInfo.fMask = MIIM_BITMAP;
+			MenuItemInfo.hbmpItem = gUACIcon;
+			SetMenuItemInfoW(SystemMenu, ReplaceCommand, FALSE, &MenuItemInfo);
+		}
+		else {
+			Result = GetLastError();
+			MyOutputDebugStringW(L"[%s] Line %d: ERROR: Attempting to load the UAC icon failed! 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
+		}
+	Exit:
+		Implement_RegCloseKey(IFEOKey);
+		return Result;
+	}
+	void AdjustWindowSizeForThickTitleBars() // @20201025
+	{
+		// If a custom DPI/scaling level is set, the title bar and borders will get thicker
+		// as scaling level increases and that will eat into the client area of the window.
+		// Result is that buttons will get cropped as the client area of the window gets smaller
+		// as the title bar and borders get thicker. We have to compensate for that.	
+		RECT WindowRect = { 0 };
+		RECT ClientRect = { 0 };
+		GetWindowRect(gMainWindowHandle, &WindowRect);
+		GetClientRect(gMainWindowHandle, &ClientRect);
+		const int AdjustedHeight = (WindowRect.bottom - WindowRect.top) - (ClientRect.bottom - ClientRect.top);
+		const int AdjustedWidth = (WindowRect.right - WindowRect.left) - (ClientRect.right - ClientRect.left);
+		SetWindowPos(gMainWindowHandle, HWND_TOP, 0, 0, gButtons[_countof(gButtons) - 1]->Rectangle.right + AdjustedWidth + 2,
+			gButtons[_countof(gButtons) - 1]->Rectangle.bottom + AdjustedHeight + 2, SWP_NOMOVE | SWP_NOOWNERZORDER);
+	}
+	void CaptureWindow_OnLeftButtonUp()
+	{
+		MyOutputDebugStringW(L"[%s] Line %d: Left mouse button up over capture window. Selection complete.\n", __FUNCTIONW__, __LINE__);
+		if((gCaptureSelectionRectangle.left != gCaptureSelectionRectangle.right) &&
+			(gCaptureSelectionRectangle.bottom != gCaptureSelectionRectangle.top)) {
+			MyOutputDebugStringW(L"[%s] Line %d: Left mouse button was released with a valid capture region selected.\n", __FUNCTIONW__, __LINE__);
+			gAppState = APPSTATE_AFTERCAPTURE;
+			ShowWindow(gCaptureWindowHandle, SW_HIDE);
+			ShowWindow(gMainWindowHandle, SW_RESTORE);
+			RECT CurrentWindowPos = { 0 };
+			// Includes both client and non-client area. In other words it returns the same values that I passed in
+			// to CreateWindowEx
+			GetWindowRect(gMainWindowHandle, &CurrentWindowPos);
+			// The reason behind all this is because depending on how the user dragged the selection rectangle, it
+			// might be inverted,
+			// i.e. the right could actually be the left and the top could be the bottom.
+			const int PreviousWindowWidth  = CurrentWindowPos.right - CurrentWindowPos.left;
+			const int PreviousWindowHeight = CurrentWindowPos.bottom - CurrentWindowPos.top;
+			gCaptureWidth  = (gCaptureSelectionRectangle.right - gCaptureSelectionRectangle.left) >
+				0 ? (gCaptureSelectionRectangle.right - gCaptureSelectionRectangle.left) +
+				((int)gShouldAddDropShadow * 8) : (gCaptureSelectionRectangle.left - gCaptureSelectionRectangle.right) +
+				((int)gShouldAddDropShadow * 8);
 
+			gCaptureHeight = (gCaptureSelectionRectangle.bottom - gCaptureSelectionRectangle.top) >
+				0 ? (gCaptureSelectionRectangle.bottom - gCaptureSelectionRectangle.top) +
+				((int)gShouldAddDropShadow * 8) : (gCaptureSelectionRectangle.top - gCaptureSelectionRectangle.bottom) +
+				((int)gShouldAddDropShadow * 8);
+			const int NewWindowWidth = (gCaptureWidth > (PreviousWindowWidth - 20)) ? (gCaptureWidth + 20) : PreviousWindowWidth;
+			const int NewWindowHeight = gCaptureHeight + PreviousWindowHeight + 7;
+			SetWindowPos(gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, NewWindowWidth, NewWindowHeight, 0);
+			gSnipStates[0] = CreateBitmap(gCaptureWidth, gCaptureHeight, 1, 32, NULL);
+			HDC SnipDC = CreateCompatibleDC(NULL);
+			SelectObject(SnipDC, gSnipStates[0]);
+			HDC BigDC = CreateCompatibleDC(NULL);
+			SelectObject(BigDC, gCleanScreenShot);
+			BitBlt(SnipDC, 0, 0, gCaptureWidth, gCaptureHeight, BigDC, MIN(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right),
+				MIN(gCaptureSelectionRectangle.top, gCaptureSelectionRectangle.bottom), SRCCOPY);
+			if(gShouldAddDropShadow) {
+				MyOutputDebugStringW(L"[%s] Line %d: Adding shadow effect.\n", __FUNCTIONW__, __LINE__);
+				HPEN Pen0 = CreatePen(PS_SOLID, 1, RGB(128, 128, 128));
+				HPEN Pen1 = CreatePen(PS_SOLID, 1, RGB(159, 159, 159));
+				HPEN Pen2 = CreatePen(PS_SOLID, 1, RGB(172, 172, 172));
+				HPEN Pen3 = CreatePen(PS_SOLID, 1, RGB(192, 192, 192));
+				HPEN Pen4 = CreatePen(PS_SOLID, 1, RGB(215, 215, 215));
+				HPEN Pen5 = CreatePen(PS_SOLID, 1, RGB(234, 234, 234));
+				HPEN Pen6 = CreatePen(PS_SOLID, 1, RGB(245, 245, 245));
+				HPEN Pen7 = CreatePen(PS_SOLID, 1, RGB(250, 250, 250));
+				//
+				SelectObject(SnipDC, Pen0);
+				MoveToEx(SnipDC, 0, gCaptureHeight - 8, NULL);
+				LineTo(SnipDC, gCaptureWidth - 8, gCaptureHeight - 8);
+				LineTo(SnipDC, gCaptureWidth - 8, -1);
+				//
+				SelectObject(SnipDC, Pen1);
+				MoveToEx(SnipDC, 0, gCaptureHeight - 7, NULL);
+				LineTo(SnipDC, gCaptureWidth - 7, gCaptureHeight - 7);
+				LineTo(SnipDC, gCaptureWidth - 7, -1);
+				//
+				SelectObject(SnipDC, Pen2);
+				MoveToEx(SnipDC, 0, gCaptureHeight - 6, NULL);
+				LineTo(SnipDC, gCaptureWidth - 6, gCaptureHeight - 6);
+				LineTo(SnipDC, gCaptureWidth - 6, -1);
+				//
+				SelectObject(SnipDC, Pen3);
+				MoveToEx(SnipDC, 0, gCaptureHeight - 5, NULL);
+				LineTo(SnipDC, gCaptureWidth - 5, gCaptureHeight - 5);
+				LineTo(SnipDC, gCaptureWidth - 5, -1);
+				//
+				SelectObject(SnipDC, Pen4);
+				MoveToEx(SnipDC, 0, gCaptureHeight - 4, NULL);
+				LineTo(SnipDC, gCaptureWidth - 4, gCaptureHeight - 4);
+				LineTo(SnipDC, gCaptureWidth - 4, -1);
+				//
+				SelectObject(SnipDC, Pen5);
+				MoveToEx(SnipDC, 0, gCaptureHeight - 3, NULL);
+				LineTo(SnipDC, gCaptureWidth - 3, gCaptureHeight - 3);
+				LineTo(SnipDC, gCaptureWidth - 3, -1);
+				//
+				SelectObject(SnipDC, Pen6);
+				MoveToEx(SnipDC, 0, gCaptureHeight - 2, NULL);
+				LineTo(SnipDC, gCaptureWidth - 2, gCaptureHeight - 2);
+				LineTo(SnipDC, gCaptureWidth - 2, -1);
+				//
+				SelectObject(SnipDC, Pen7);
+				MoveToEx(SnipDC, 0, gCaptureHeight - 1, NULL);
+				LineTo(SnipDC, gCaptureWidth - 1, gCaptureHeight - 1);
+				LineTo(SnipDC, gCaptureWidth - 1, -1);
+				// MSDN says that DeleteObject will fail and return 0 if the object is still selected into a DC.
+				// Yet Pen7 is still selected, yet DeleteObject does not fail when we try to delete Pen7, and I don't know why.
+				DeleteObject(Pen0);
+				DeleteObject(Pen1);
+				DeleteObject(Pen2);
+				DeleteObject(Pen3);
+				DeleteObject(Pen4);
+				DeleteObject(Pen5);
+				DeleteObject(Pen6);
+				DeleteObject(Pen7);
+				//
+				//////////////////////////////////////
+				// Set the alpha to 0 on the shadowed bits
+				//GetDIBits()
+			}
+			DeleteDC(BigDC);
+			DeleteDC(SnipDC);
+			for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+				gButtons[Counter]->Enabled = TRUE;
+			}
+			if(gRememberLastTool) {
+				if(GetSnipExRegValue(REG_LASTTOOLNAME, &gLastTool) != ERROR_SUCCESS) {
+					CRASH(0);
+				}
+				if(gLastTool >= BUTTON_HILIGHT) {
+					MyOutputDebugStringW(L"[%s] Line %d: Selecting previously used tool: %d\n", __FUNCTIONW__, __LINE__, gLastTool);
+					SendMessageW(gMainWindowHandle, WM_COMMAND, gLastTool, 0);
+				}
+				else {
+					MyOutputDebugStringW(L"[%s] Line %d: No previously used tool detected.\n", __FUNCTIONW__, __LINE__);
+				}
+			}
+			wchar_t TitleBuffer[128] = { 0 };
+			(void)_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx - Current Snip: %dx%d", gCaptureWidth, gCaptureHeight);
+			SetWindowTextW(gMainWindowHandle, TitleBuffer);
+			SetCursor(LoadCursorW(NULL, IDC_ARROW));
+			gNewButton.SelectedTool = FALSE;
+			gNewButton.State = BUTTONSTATE_NORMAL;
+			gDelayButton.SelectedTool = FALSE;
+			gDelayButton.State = BUTTONSTATE_NORMAL;
+			if(gAutoCopy) {
+				MyOutputDebugStringW(L"[%s] Line %d: Auto copy enabled. Copying snip to clipboard.\n", __FUNCTIONW__, __LINE__);
+				if(CopyButton_Click() == FALSE) {
+					MyOutputDebugStringW(L"[%s] Line %d: Auto copy failed!\n", __FUNCTIONW__, __LINE__);
+					CRASH(0);
+				}
+			}
+		}
+	}
+	APPSTATE gAppState; //= APPSTATE_BEFORECAPTURE; // To track the overall state of the application
+	BOOL   gMainWindowIsRunning;                 // Set this to FALSE to exit the app immediately.
+	HWND   gMainWindowHandle;                    // Handle to the main window, i.e. the window with all the buttons on it.
+	HWND   gCaptureWindowHandle;                 // Handle to the capture window, i.e. the grey selection window that overlays the entire desktop.
+	const  INT8 gStartingDelayCountdown;// = 6;     // Default seconds to wait after clicking the 'Delay' button.
+	INT8   gCurrentDelayCountdown;// = 6;           // The value of the countdown timer at this moment.
+	UINT16 gDisplayWidth;                        // Display width, accounting for multiple monitors.
+	UINT16 gDisplayHeight;                       // Display height, accounting for multiple monitors.
+	INT16  gDisplayLeft;                         // Depending on how the monitors are arranged, the left-most coordinate might not be zero.
+	INT16  gDisplayTop; // Depending on how the monitors are arranged, the top-most coordinate might not be zero.
+	UINT16 gStartingMainWindowWidth;//  = 668; // The beginning width of the tool window - just enough to fit all the buttons.
+	UINT16 gStartingMainWindowHeight;// = 92;  // The beginning height of the tool window - just enough to fit the buttons.
+	HBITMAP gCleanScreenShot;        // A clean copy of the screenshot from before we started drawing on it.
+	HBITMAP gScratchBitmap;          // For use during drawing.
+	RECT   gCaptureSelectionRectangle; // The rectangle the user draws with the mouse to select a subsection of the screen.
+	int    gCaptureWidth;           // Width in pixels of the user's captured snip.
+	int    gCaptureHeight;          // Height in pixels of the user's captured snip.
+	BOOL   gLeftMouseButtonIsDown; // When the user is drawing with the mouse, the left mouse button is down.
+	UINT8  gCurrentSnipState;    // An array of bitmap states that we can revert back to, so we can undo changes. ctrl-z.
+	HBITMAP gSnipStates[32];    // Snip state 0 will always be the unaltered clip right as the user first took it.
+	HBITMAP gUACIcon; // The UAC icon that sits next to the "Replace Windows Snipping Tool with SnipEx" menu item.
+	DWORD  gShouldAddDropShadow; // Does the user want to add a drop-shadow effect to the snip?
+	DWORD  gRememberLastTool;    // Does the user want to remember the previously-used tool?
+	DWORD  gAutoCopy;            // Does the user want to automatically copy each snip to the clipboard?
+	DWORD  gLastTool;            // What was the last tool that the user used? (NOT save, copy, new, or delay.)
+	HFONT  gFont;                // The font the user selects for the Text tool.
+	COLORREF gFontColor;        // The color of the font that the user selects for the Text tool.
+	POINT  gTextBoxLocation;     // The coordinates where we will spawn text
+	wchar_t gTextBuffer[1024];  // Buffer for Text tool.
+};
+
+SnipExGlobals SnExG;
+//
 // Application entry-point.
 // MSDN says that if WinMain fails before reaching the message loop, we should return zero.
+//
 int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstance, _In_ LPSTR CommandLine, _In_ int WindowShowCode)
 {
 	MyOutputDebugStringW(L"[%s] Line %d: Entered.\n", __FUNCTIONW__, __LINE__);
 	UNREFERENCED_PARAMETER(PreviousInstance);
 	UNREFERENCED_PARAMETER(CommandLine);
 	UNREFERENCED_PARAMETER(WindowShowCode);
-	if((gFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT)) == NULL) {
+	if((SnExG.gFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT)) == NULL) {
 		MessageBoxW(NULL, L"Failed to retrieve default GUI font!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
-	gFontColor = RGB(255, 0, 255);
+	SnExG.gFontColor = RGB(255, 0, 255);
 	// NOTE: This width and height are the bounding box that includes all of the user's monitors.
 	// I have only tested with two monitors of equal dimensions, and with a primary monitor that is larger
 	// than the secondary monitor. No other configurations were tested, so this may not work correctly
 	// if the user has several irregularly-arranged monitors. Also, if the monitors are arranged
 	// in reverse order, the left-most X coordinate may be e.g. negative 1920! In other words, 0,0 may not
 	// necessarily be the top-left corner of the user's viewing area.
-	gDisplayWidth  = (UINT16)GetSystemMetrics(SM_CXVIRTUALSCREEN);
-	gDisplayHeight = (UINT16)GetSystemMetrics(SM_CYVIRTUALSCREEN);
-	gDisplayLeft   = (INT16)GetSystemMetrics(SM_XVIRTUALSCREEN);
-	gDisplayTop    = (INT16)GetSystemMetrics(SM_YVIRTUALSCREEN);
-	if(!gDisplayWidth || !gDisplayHeight) {
+	SnExG.gDisplayWidth  = (UINT16)GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	SnExG.gDisplayHeight = (UINT16)GetSystemMetrics(SM_CYVIRTUALSCREEN);
+	SnExG.gDisplayLeft   = (INT16)GetSystemMetrics(SM_XVIRTUALSCREEN);
+	SnExG.gDisplayTop    = (INT16)GetSystemMetrics(SM_YVIRTUALSCREEN);
+	if(!SnExG.gDisplayWidth || !SnExG.gDisplayHeight) {
 		MessageBoxW(NULL, L"Failed to retrieve display area via GetSystemMetrics!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
-	MyOutputDebugStringW(L"[%s] Line %d: Detected a screen area of %dx%d.\n", __FUNCTIONW__, __LINE__, gDisplayWidth, gDisplayHeight);
+	MyOutputDebugStringW(L"[%s] Line %d: Detected a screen area of %dx%d.\n", __FUNCTIONW__, __LINE__, SnExG.gDisplayWidth, SnExG.gDisplayHeight);
 	// If the user had a custom scaling/DPI level set, this app was originally not high-DPI aware, and so what would happen
 	// is that the buttons would get cropped as the non-client area of the window got bigger, and the screen would "zoom in"
 	// whenever the user clicked "New"!
@@ -131,21 +371,21 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	// screenshot of the desktop over the real desktop. Then the user will be able to select a subsection of that
 	// using
 	// the mouse. This could also be used to play a prank on somebody and make them think their desktop was hung.
-	gCaptureWindowHandle = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,       // No taskbar icon
+	SnExG.gCaptureWindowHandle = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,       // No taskbar icon
 		CaptureWindowClass.lpszClassName,
 		L"", // No title
 		0, // Not visible
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		0, // Will size it later
 		0, NULL, NULL, Instance, NULL);
-	if(gCaptureWindowHandle == NULL) {
+	if(SnExG.gCaptureWindowHandle == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: CreateWindowEx (capture window) failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
 		MessageBoxW(NULL, L"Failed to create Capture Window!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
 	// Remove all window style, including title bar. We're trying to make the "capture window" indistinguishable
 	// from the real desktop that lay underneath it.
-	if(SetWindowLongPtrW(gCaptureWindowHandle, GWL_STYLE, 0) == 0) {
+	if(SetWindowLongPtrW(SnExG.gCaptureWindowHandle, GWL_STYLE, 0) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: SetWindowLongPtwW failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
 		MessageBoxW(NULL, L"SetWindowLongPtrW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
@@ -165,10 +405,10 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		MessageBoxW(NULL, L"RegisterClassExW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
-	gMainWindowHandle = CreateWindowExW(0, MainWindowClass.lpszClassName, L"SnipEx",
+	SnExG.gMainWindowHandle = CreateWindowExW(0, MainWindowClass.lpszClassName, L"SnipEx",
 		WS_VISIBLE | (WS_OVERLAPPEDWINDOW ^ (WS_MAXIMIZEBOX | WS_THICKFRAME)),
-		CW_USEDEFAULT, CW_USEDEFAULT, gStartingMainWindowWidth, gStartingMainWindowHeight, NULL, NULL, Instance, NULL);
-	if(gMainWindowHandle == NULL) {
+		CW_USEDEFAULT, CW_USEDEFAULT, SnExG.gStartingMainWindowWidth, SnExG.gStartingMainWindowHeight, NULL, NULL, Instance, NULL);
+	if(SnExG.gMainWindowHandle == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: CreateWindowEx (main window) failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
 		MessageBoxW(NULL, L"CreateWindowEx (main window) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
@@ -186,7 +426,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		BUTTON * p_button = gButtons[_idx];
 		HWND ButtonHandle = CreateWindowExW(0, L"BUTTON", p_button->Caption, BS_OWNERDRAW | WS_VISIBLE | WS_CHILD, 
 			p_button->Rectangle.left, p_button->Rectangle.top, p_button->Rectangle.right - p_button->Rectangle.left,
-			p_button->Rectangle.bottom, gMainWindowHandle, (HMENU)p_button->Id, (HINSTANCE)GetWindowLongPtr(gMainWindowHandle, GWLP_HINSTANCE), NULL);
+			p_button->Rectangle.bottom, SnExG.gMainWindowHandle, (HMENU)p_button->Id, (HINSTANCE)GetWindowLongPtr(SnExG.gMainWindowHandle, GWLP_HINSTANCE), NULL);
 		if(ButtonHandle == NULL) {
 			MyOutputDebugStringW(L"[%s] Line %d: Failed to create %s button with error 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->Caption, GetLastError());
 			MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
@@ -221,32 +461,32 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		MyOutputDebugStringW(L"[%s] Line %d: %s button created.\n", __FUNCTIONW__, __LINE__, p_button->Caption);
 	}
 	// Add custom menu items to the form's system menu in the top left
-	if((AddAllMenuItems(Instance)) != S_OK) {
+	if(SnExG.AddAllMenuItems(Instance) != S_OK) {
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR: Adding drop-down menu items failed!\n", __FUNCTIONW__, __LINE__);
 		MessageBoxW(NULL, L"Failed to create drop-down menu items!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
-	AdjustWindowSizeForThickTitleBars(); // @20201025
-	gMainWindowIsRunning = TRUE;
+	SnExG.AdjustWindowSizeForThickTitleBars(); // @20201025
+	SnExG.gMainWindowIsRunning = TRUE;
 	MSG MainWindowMessage      = { 0 };
 	MSG CaptureWindowMessage   = { 0 };
 	MyOutputDebugStringW(L"[%s] Line %d: Setup is finished. Entering message loop.\n", __FUNCTIONW__, __LINE__);
 	//
 	// MAIN MESSAGE LOOP //
 	//
-	while(gMainWindowIsRunning) {
+	while(SnExG.gMainWindowIsRunning) {
 		// Drain message queue for main window.
-		while(PeekMessageW(&MainWindowMessage, gMainWindowHandle, 0, 0, PM_REMOVE)) {
+		while(PeekMessageW(&MainWindowMessage, SnExG.gMainWindowHandle, 0, 0, PM_REMOVE)) {
 			DispatchMessageW(&MainWindowMessage);
 		}
 		// Drain message queue for capture window.
-		while(PeekMessageW(&CaptureWindowMessage, gCaptureWindowHandle, 0, 0, PM_REMOVE)) {
+		while(PeekMessageW(&CaptureWindowMessage, SnExG.gCaptureWindowHandle, 0, 0, PM_REMOVE)) {
 			DispatchMessageW(&CaptureWindowMessage);
 		}
-		if((gAppState == APPSTATE_AFTERCAPTURE) && gLeftMouseButtonIsDown) {
+		if((SnExG.gAppState == APPSTATE_AFTERCAPTURE) && SnExG.gLeftMouseButtonIsDown) {
 			if(GetAsyncKeyState(VK_LBUTTON) == 0) {
-				gLeftMouseButtonIsDown = FALSE;
-				SendMessageW(gMainWindowHandle, WM_LBUTTONUP, 0, 0);
+				SnExG.gLeftMouseButtonIsDown = FALSE;
+				SendMessageW(SnExG.gMainWindowHandle, WM_LBUTTONUP, 0, 0);
 			}
 		}
 		Sleep(1); // Could be anywhere from 0.5ms to 15.6ms
@@ -266,23 +506,23 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 	switch(Message) {
 		case WM_CLOSE:
 		    PostQuitMessage(0);
-		    gMainWindowIsRunning = FALSE;
+		    SnExG.gMainWindowIsRunning = FALSE;
 		    break;
 		case WM_KEYDOWN:
 	    {
 		    // Ctrl+Z, Undo
-		    if((WParam == 0x5A) && GetKeyState(VK_CONTROL) && (gAppState == APPSTATE_AFTERCAPTURE) && !CurrentlyDrawing) {
-			    if(gCurrentSnipState > 0) {
-				    gCurrentSnipState--;
-				    MyOutputDebugStringW(L"[%s] Line %d: Deleting gSnipStates[%d]\n", __FUNCTIONW__, __LINE__, gCurrentSnipState + 1);
+		    if((WParam == 0x5A) && GetKeyState(VK_CONTROL) && (SnExG.gAppState == APPSTATE_AFTERCAPTURE) && !CurrentlyDrawing) {
+			    if(SnExG.gCurrentSnipState > 0) {
+				    SnExG.gCurrentSnipState--;
+				    MyOutputDebugStringW(L"[%s] Line %d: Deleting gSnipStates[%d]\n", __FUNCTIONW__, __LINE__, SnExG.gCurrentSnipState + 1);
 				    memzero(HilighterPixelsAlreadyDrawn, sizeof(HilighterPixelsAlreadyDrawn));
 				    HilighterPixelsAlreadyDrawnCounter = 0;
-				    if(DeleteObject(gSnipStates[gCurrentSnipState + 1]) == 0) {
+				    if(DeleteObject(SnExG.gSnipStates[SnExG.gCurrentSnipState + 1]) == 0) {
 					    MyOutputDebugStringW(L"[%s] Line %d: DeleteObject failed!\n", __FUNCTIONW__, __LINE__);
 					    CRASH(0);
 				    }
-				    gSnipStates[gCurrentSnipState + 1] = NULL;
-				    if(gAutoCopy) {
+				    SnExG.gSnipStates[SnExG.gCurrentSnipState + 1] = NULL;
+				    if(SnExG.gAutoCopy) {
 					    MyOutputDebugStringW(L"[%s] Line %d: Auto copy enabled. Copying snip to clipboard.\n", __FUNCTIONW__, __LINE__);
 					    if(CopyButton_Click() == FALSE) {
 						    MyOutputDebugStringW(L"[%s] Line %d: Auto copy failed!\n", __FUNCTIONW__, __LINE__);
@@ -292,17 +532,17 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    }
 		    }
 		    // Allow Escape to terminate the app
-		    if((WParam == VK_ESCAPE) && ((gAppState == APPSTATE_AFTERCAPTURE) || (gAppState == APPSTATE_BEFORECAPTURE))) {
+		    if((WParam == VK_ESCAPE) && oneof2(SnExG.gAppState, APPSTATE_AFTERCAPTURE, APPSTATE_BEFORECAPTURE)) {
 			    MyOutputDebugStringW(L"[%s] Line %d: Escape key was pressed. Exiting application.\n", __FUNCTIONW__, __LINE__);
 			    PostQuitMessage(0);
-			    gMainWindowIsRunning = FALSE;
+			    SnExG.gMainWindowIsRunning = FALSE;
 		    }
-		    if((WParam == VK_ESCAPE) && (gAppState == APPSTATE_DELAYCOOKING)) {
+		    if((WParam == VK_ESCAPE) && (SnExG.gAppState == APPSTATE_DELAYCOOKING)) {
 			    // Cancel a current delay countdown.
 			    MyOutputDebugStringW(L"[%s] Line %d: Escape key was pressed during delay countdown. Cancelling countdown.\n", __FUNCTIONW__, __LINE__);
-			    gAppState = APPSTATE_BEFORECAPTURE;
-			    KillTimer(gMainWindowHandle, DELAY_TIMER);
-			    gCurrentDelayCountdown = gStartingDelayCountdown;
+			    SnExG.gAppState = APPSTATE_BEFORECAPTURE;
+			    KillTimer(SnExG.gMainWindowHandle, DELAY_TIMER);
+			    SnExG.gCurrentDelayCountdown = SnExG.gStartingDelayCountdown;
 		    }
 		    InvalidateRect(Window, NULL, FALSE);
 		    break;
@@ -312,7 +552,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
 			    if(WParam == gButtons[Counter]->Hotkey && gButtons[Counter]->Enabled == TRUE) {
 				    MyOutputDebugStringW(L"[%s] Line %d: Hotkey released, executing button '%s'\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->Caption);
-				    SendMessageW(gMainWindowHandle, WM_COMMAND, static_cast<WPARAM>(gButtons[Counter]->Id), 0);
+				    SendMessageW(SnExG.gMainWindowHandle, WM_COMMAND, static_cast<WPARAM>(gButtons[Counter]->Id), 0);
 			    }
 		    }
 		    break;
@@ -321,8 +561,8 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		case WM_LBUTTONDOWN:
 	    {
 		    MyOutputDebugStringW(L"[%s] Line %d: Left mouse button down.\n", __FUNCTIONW__, __LINE__);
-		    gLeftMouseButtonIsDown = TRUE;
-		    if(CurrentlyDrawing == FALSE && gAppState == APPSTATE_AFTERCAPTURE) {
+		    SnExG.gLeftMouseButtonIsDown = TRUE;
+		    if(CurrentlyDrawing == FALSE && SnExG.gAppState == APPSTATE_AFTERCAPTURE) {
 			    BOOL DrawingToolSelected = FALSE;
 			    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
 				    if(gButtons[Counter]->SelectedTool == TRUE) {
@@ -335,10 +575,10 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    }
 			    POINT Mouse = { 0 };
 			    GetCursorPos(&Mouse);
-			    ScreenToClient(gMainWindowHandle, &Mouse);
+			    ScreenToClient(SnExG.gMainWindowHandle, &Mouse);
 			    MousePosWhenDrawingStarted = Mouse;
-			    if(gCurrentSnipState >= _countof(gSnipStates) - 1) {
-				    MessageBoxW(gMainWindowHandle, L"Maximum number of changes exceeded. Ctrl+Z to undo a change first.", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+			    if(SnExG.gCurrentSnipState >= _countof(SnExG.gSnipStates) - 1) {
+				    SnExG.PopupMessageErr(L"Maximum number of changes exceeded. Ctrl+Z to undo a change first.");
 				    break;
 			    }
 			    if(Mouse.x < 2 || Mouse.y < 52) {
@@ -352,12 +592,12 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    else {
 				    MyOutputDebugStringW(L"[%s] Line %d: Drawing started.\n", __FUNCTIONW__, __LINE__);
 			    }
-			    if(gScratchBitmap != NULL) {
+			    if(SnExG.gScratchBitmap != NULL) {
 				    MyOutputDebugStringW(L"[%s] Line %d: gScratchBitmap was not null, but it was expected to be!\n", __FUNCTIONW__, __LINE__);
 			    }
-			    gScratchBitmap = (HBITMAP)CopyImage(gSnipStates[gCurrentSnipState], IMAGE_BITMAP, 0, 0, 0);
-			    gCurrentSnipState++;
-			    MyOutputDebugStringW(L"[%s] Line %d: Snips: %i\n", __FUNCTIONW__, __LINE__, gCurrentSnipState);
+			    SnExG.gScratchBitmap = (HBITMAP)CopyImage(SnExG.GetCurrentSnipState(), IMAGE_BITMAP, 0, 0, 0);
+			    SnExG.gCurrentSnipState++;
+			    MyOutputDebugStringW(L"[%s] Line %d: Snips: %i\n", __FUNCTIONW__, __LINE__, SnExG.gCurrentSnipState);
 		    }
 		    break;
 	    }
@@ -366,7 +606,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    if(gTextButton.SelectedTool == FALSE) {
 			    MyOutputDebugStringW(L"[%s] Line %d: Left mouse button up. Drawing stopped.\n", __FUNCTIONW__, __LINE__);
 		    }
-		    gLeftMouseButtonIsDown = FALSE;
+		    SnExG.gLeftMouseButtonIsDown = FALSE;
 		    if(gTextButton.SelectedTool == TRUE) {
 			    if(MousePosWhenDrawingStarted.x < 2 || MousePosWhenDrawingStarted.y < 52) {
 				    MyOutputDebugStringW(L"[%s] Line %d: Mouse was not over the screen capture area. Will not place text.\n", __FUNCTIONW__, __LINE__);
@@ -375,43 +615,43 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    MyOutputDebugStringW(L"[%s] Line %d: Placing text at %dx%d.\n", __FUNCTIONW__, __LINE__, MousePosWhenDrawingStarted.x, MousePosWhenDrawingStarted.y);
 			    HDC ScratchDC = CreateCompatibleDC(NULL);
 			    SetBkMode(ScratchDC, TRANSPARENT);
-			    SelectObject(ScratchDC, (HBITMAP)gScratchBitmap);
-			    SelectObject(ScratchDC, (HFONT)gFont);
-			    SetTextColor(ScratchDC, gFontColor);
-			    gTextBoxLocation.x = MousePosWhenDrawingStarted.x;
-			    gTextBoxLocation.y = MousePosWhenDrawingStarted.y;
-			    DialogBoxW(NULL, MAKEINTRESOURCEW(IDD_DIALOG1), gMainWindowHandle, (DLGPROC)TextEditCallback);
+			    SelectObject(ScratchDC, SnExG.gScratchBitmap);
+			    SelectObject(ScratchDC, SnExG.gFont);
+			    SetTextColor(ScratchDC, SnExG.gFontColor);
+			    SnExG.gTextBoxLocation.x = MousePosWhenDrawingStarted.x;
+			    SnExG.gTextBoxLocation.y = MousePosWhenDrawingStarted.y;
+			    DialogBoxW(NULL, MAKEINTRESOURCEW(IDD_DIALOG1), SnExG.gMainWindowHandle, (DLGPROC)TextEditCallback);
 			    // Get the size of the font that the user has selected, since the font size will determine
 			    // the exact coordinates of where the text box and text will go.
 			    HDC DC = CreateCompatibleDC(NULL);
-			    SelectObject(DC, (HFONT)gFont);
+			    SelectObject(DC, (HFONT)SnExG.gFont);
 			    TEXTMETRICW TextMetrics = { 0 };
 			    GetTextMetricsW(DC, &TextMetrics);
 			    DeleteDC(DC);
 			    TextOutW(ScratchDC, MousePosWhenDrawingStarted.x - 6,
-				MousePosWhenDrawingStarted.y - 58 - (TextMetrics.tmHeight / 2), gTextBuffer, (int)wcslen(gTextBuffer));
+				MousePosWhenDrawingStarted.y - 58 - (TextMetrics.tmHeight / 2), SnExG.gTextBuffer, (int)wcslen(SnExG.gTextBuffer));
 			    DeleteDC(ScratchDC);
 			    RECT SnipRect = { 0 };
 			    GetClientRect(Window, &SnipRect);
 			    SnipRect.top = 54;
 			    InvalidateRect(Window, &SnipRect, FALSE);
-			    UpdateWindow(gMainWindowHandle);
+			    UpdateWindow(SnExG.gMainWindowHandle);
 		    }
 		    MousePosWhenDrawingStarted.x = 0;
 		    MousePosWhenDrawingStarted.y = 0;
 		    PreviousMousePos.x = 0;
 		    PreviousMousePos.y = 0;
 		    CurrentlyDrawing = FALSE;
-		    if(gScratchBitmap != NULL) {
-			    gSnipStates[gCurrentSnipState] = (HBITMAP)CopyImage(gScratchBitmap, IMAGE_BITMAP, 0, 0, 0);
-			    if(DeleteObject(gScratchBitmap) == 0) {
+		    if(SnExG.gScratchBitmap) {
+			    SnExG.SetCurrentSnipState((HBITMAP)CopyImage(SnExG.gScratchBitmap, IMAGE_BITMAP, 0, 0, 0));
+			    if(DeleteObject(SnExG.gScratchBitmap) == 0) {
 				    MyOutputDebugStringW(L"[%s] Line %d: DeleteObject failed! Was the bitmap still selected into a DC?\n", __FUNCTIONW__, __LINE__);
 				    CRASH(0);
 			    }
 			    else
 				    MyOutputDebugStringW(L"[%s] Line %d: gScratchBitmap deleted.\n", __FUNCTIONW__, __LINE__);
-			    gScratchBitmap = NULL;
-			    if(gAutoCopy) {
+			    SnExG.gScratchBitmap = NULL;
+			    if(SnExG.gAutoCopy) {
 				    MyOutputDebugStringW(L"[%s] Line %d: Auto copy enabled. Copying snip to clipboard.\n", __FUNCTIONW__, __LINE__);
 				    if(CopyButton_Click() == FALSE) {
 					    MyOutputDebugStringW(L"[%s] Line %d: Auto copy failed!\n", __FUNCTIONW__, __LINE__);
@@ -426,20 +666,20 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 	    {
 		    // Handle drawing first
 		    if(CurrentlyDrawing) {
-			    if(gScratchBitmap == NULL) {
+			    if(SnExG.gScratchBitmap == NULL) {
 				    MyOutputDebugStringW(L"[%s] Line %d: gScratchBitmap is NULL\n", __FUNCTIONW__, __LINE__);
 				    break;
 			    }
 			    if(gHilighterButton.SelectedTool == TRUE) {
 				    POINT Mouse = { 0 };
 				    GetCursorPos(&Mouse);
-				    ScreenToClient(gMainWindowHandle, &Mouse);
+				    ScreenToClient(SnExG.gMainWindowHandle, &Mouse);
 				    // Adjust for snip area, maintain Y axis
 				    Mouse.x -= 7;
 				    Mouse.y = MousePosWhenDrawingStarted.y - 66;
 				    HDC ScratchDC = CreateCompatibleDC(NULL);
 				    HDC HilightDC = CreateCompatibleDC(NULL);
-				    SelectObject(ScratchDC, (HBITMAP)gScratchBitmap);
+				    SelectObject(ScratchDC, SnExG.gScratchBitmap);
 				    BYTE HilightBits[] = { 0, 0, 0, 0 };
 				    switch(gHilighterButton.Color) {
 					    case COLOR_YELLOW:
@@ -505,10 +745,10 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    SnipRect.top = MousePosWhenDrawingStarted.y - 10;
 				    SnipRect.bottom = MousePosWhenDrawingStarted.y + 10;
 				    InvalidateRect(Window, &SnipRect, FALSE);
-				    UpdateWindow(gMainWindowHandle);
+				    UpdateWindow(SnExG.gMainWindowHandle);
 			    }
 			    else if(gRectangleButton.SelectedTool == TRUE) {
-				    HBITMAP CleanCopy = (HBITMAP)CopyImage(gSnipStates[gCurrentSnipState - 1], IMAGE_BITMAP, 0, 0, 0);
+				    HBITMAP CleanCopy = (HBITMAP)CopyImage(SnExG.gSnipStates[SnExG.gCurrentSnipState - 1], IMAGE_BITMAP, 0, 0, 0);
 				    HDC CopyDC = CreateCompatibleDC(NULL);
 				    SelectObject(CopyDC, CleanCopy);
 				    HPEN Pen = NULL;     //CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
@@ -525,15 +765,15 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    SelectObject(CopyDC, (HBRUSH)GetStockObject(NULL_BRUSH));
 				    POINT CurrentMousePos = { 0 };
 				    GetCursorPos(&CurrentMousePos);
-				    ScreenToClient(gMainWindowHandle, &CurrentMousePos);
+				    ScreenToClient(SnExG.gMainWindowHandle, &CurrentMousePos);
 				    Rectangle(CopyDC,
 					MousePosWhenDrawingStarted.x,
 					MousePosWhenDrawingStarted.y - 56,
 					CurrentMousePos.x,
 					CurrentMousePos.y - 56);
 				    HDC ScratchDC = CreateCompatibleDC(NULL);
-				    SelectObject(ScratchDC, (HBITMAP)gScratchBitmap);
-				    BitBlt(ScratchDC, 0, 0, gCaptureWidth, gCaptureHeight, CopyDC, 0, 0, SRCCOPY);
+				    SelectObject(ScratchDC, SnExG.gScratchBitmap);
+				    BitBlt(ScratchDC, 0, 0, SnExG.gCaptureWidth, SnExG.gCaptureHeight, CopyDC, 0, 0, SRCCOPY);
 				    // DeleteObject will fail if the object is still selected into a DC.
 				    if(DeleteDC(CopyDC) == 0)
 					    MyOutputDebugStringW(L"[%s] Line %d: DeleteDC(CopyDC) failed!\n", __FUNCTIONW__, __LINE__);
@@ -547,10 +787,10 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    GetClientRect(Window, &SnipRect);
 				    SnipRect.top = 54;
 				    InvalidateRect(Window, &SnipRect, FALSE);
-				    UpdateWindow(gMainWindowHandle);
+				    UpdateWindow(SnExG.gMainWindowHandle);
 			    }
 			    else if(gArrowButton.SelectedTool == TRUE) {
-				    HBITMAP CleanCopy = (HBITMAP)CopyImage(gSnipStates[gCurrentSnipState - 1], IMAGE_BITMAP, 0, 0, 0);
+				    HBITMAP CleanCopy = (HBITMAP)CopyImage(SnExG.gSnipStates[SnExG.gCurrentSnipState - 1], IMAGE_BITMAP, 0, 0, 0);
 				    HDC CopyDC = CreateCompatibleDC(NULL);
 				    SelectObject(CopyDC, CleanCopy);
 				    HPEN Pen = NULL;
@@ -571,7 +811,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    SelectObject(CopyDC, Brush);
 				    POINT CurrentMousePos = { 0 };
 				    GetCursorPos(&CurrentMousePos);
-				    ScreenToClient(gMainWindowHandle, &CurrentMousePos);
+				    ScreenToClient(SnExG.gMainWindowHandle, &CurrentMousePos);
 				    POINT p0 = { 0 };
 				    POINT p1 = { 0 };
 				    p0.x = MousePosWhenDrawingStarted.x;
@@ -605,8 +845,8 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    Arrow[2] = ArrowCorner2;
 				    Polygon(CopyDC, Arrow, 3);
 				    HDC ScratchDC = CreateCompatibleDC(NULL);
-				    SelectObject(ScratchDC, (HBITMAP)gScratchBitmap);
-				    BitBlt(ScratchDC, 0, 0, gCaptureWidth, gCaptureHeight, CopyDC, 0, 0, SRCCOPY);
+				    SelectObject(ScratchDC, SnExG.gScratchBitmap);
+				    BitBlt(ScratchDC, 0, 0, SnExG.gCaptureWidth, SnExG.gCaptureHeight, CopyDC, 0, 0, SRCCOPY);
 				    // DeleteObject will fail if the object is still selected into a DC.
 				    if(DeleteDC(CopyDC) == 0)
 					    MyOutputDebugStringW(L"[%s] Line %d: DeleteDC(CopyDC) failed!\n", __FUNCTIONW__, __LINE__);
@@ -622,17 +862,17 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    GetClientRect(Window, &SnipRect);
 				    SnipRect.top = 54;
 				    InvalidateRect(Window, &SnipRect, FALSE);
-				    UpdateWindow(gMainWindowHandle);
+				    UpdateWindow(SnExG.gMainWindowHandle);
 			    }
 			    else if(gRedactButton.SelectedTool == TRUE) {
 				    POINT Mouse = { 0 };
 				    GetCursorPos(&Mouse);
-				    ScreenToClient(gMainWindowHandle, &Mouse);
+				    ScreenToClient(SnExG.gMainWindowHandle, &Mouse);
 				    // Adjust for snip area, maintain Y axis
 				    Mouse.x -= 7;
 				    Mouse.y = MousePosWhenDrawingStarted.y - 66;
 				    HDC ScratchDC = CreateCompatibleDC(NULL);
-				    SelectObject(ScratchDC, (HBITMAP)gScratchBitmap);
+				    SelectObject(ScratchDC, SnExG.gScratchBitmap);
 				    for(UINT8 XPixel = 0; XPixel < 10; XPixel++) {
 					    for(UINT8 YPixel = 0; YPixel < 20; YPixel++) {
 						    PatBlt(ScratchDC, Mouse.x + XPixel, Mouse.y + YPixel, 1, 1, BLACKNESS);
@@ -647,7 +887,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    SnipRect.top = MousePosWhenDrawingStarted.y - 10;
 				    SnipRect.bottom = MousePosWhenDrawingStarted.y + 10;
 				    InvalidateRect(Window, &SnipRect, FALSE);
-				    UpdateWindow(gMainWindowHandle);
+				    UpdateWindow(SnExG.gMainWindowHandle);
 			    }
 		    }
 		    // We only receive this message when the mouse is not over a button. So if we get this message, no
@@ -658,10 +898,10 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    gButtons[Counter]->State = BUTTONSTATE_NORMAL;
 				    InvalidateRect(Window, NULL, FALSE);
 			    }
-			    if(gButtons[Counter]->SelectedTool == TRUE && gAppState == APPSTATE_AFTERCAPTURE && gSnipStates[0] != NULL && gButtons[Counter]->Cursor != NULL) {
+			    if(gButtons[Counter]->SelectedTool == TRUE && SnExG.gAppState == APPSTATE_AFTERCAPTURE && SnExG.gSnipStates[0] && gButtons[Counter]->Cursor) {
 				    POINT Mouse = { 0 };
 				    GetCursorPos(&Mouse);
-				    ScreenToClient(gMainWindowHandle, &Mouse);
+				    ScreenToClient(SnExG.gMainWindowHandle, &Mouse);
 				    if(Mouse.x >= 2 && Mouse.y >= 54) {
 					    if(GetCursor() != gButtons[Counter]->Cursor) {
 						    SetCursor(gButtons[Counter]->Cursor);
@@ -702,28 +942,11 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 							else {
 								if(p_button->Id == BUTTON_HILIGHT) {
 									switch(p_button->Color) {
-										case COLOR_YELLOW:
-										    p_button->Color = COLOR_PINK;
-										    p_button->EnabledIconId = IDB_PINKHILIGHT32x32;
-										    p_button->CursorId = IDC_PINKHILIGHTCURSOR;
-										    break;
-										case COLOR_PINK:
-										    p_button->Color = COLOR_ORANGE;
-										    p_button->EnabledIconId = IDB_ORANGEHILIGHT32x32;
-										    p_button->CursorId = IDC_ORANGEHILIGHTCURSOR;
-										    break;
-										case COLOR_ORANGE:
-										    p_button->Color = COLOR_GREEN;
-										    p_button->EnabledIconId = IDB_GREENHILIGHT32x32;
-										    p_button->CursorId = IDC_GREENHILIGHTCURSOR;
-										    break;
-										case COLOR_GREEN:
-										    p_button->Color = COLOR_YELLOW;
-										    p_button->EnabledIconId = IDB_YELLOWHILIGHT32x32;
-										    p_button->CursorId = IDC_YELLOWHILIGHTCURSOR;
-										    break;
-										default:
-										    MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change hilighter color!\n", __FUNCTIONW__, __LINE__);
+										case COLOR_YELLOW: p_button->Set(COLOR_PINK, IDB_PINKHILIGHT32x32, IDC_PINKHILIGHTCURSOR); break;
+										case COLOR_PINK: p_button->Set(COLOR_ORANGE, IDB_ORANGEHILIGHT32x32, IDC_ORANGEHILIGHTCURSOR); break;
+										case COLOR_ORANGE: p_button->Set(COLOR_GREEN, IDB_GREENHILIGHT32x32, IDC_GREENHILIGHTCURSOR); break;
+										case COLOR_GREEN: p_button->Set(COLOR_YELLOW, IDB_YELLOWHILIGHT32x32, IDC_YELLOWHILIGHTCURSOR); break;
+										default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change hilighter color!\n", __FUNCTIONW__, __LINE__);
 									}
 									DeleteObject(p_button->EnabledIcon);
 									DeleteObject(p_button->Cursor);
@@ -733,38 +956,13 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 								}
 								else if(p_button->Id == BUTTON_BOX) {
 									switch(p_button->Color) {
-										case COLOR_RED:
-										    p_button->Color = COLOR_GREEN;
-										    p_button->EnabledIconId = IDB_BOX32x32GREEN;
-										    p_button->CursorId = IDC_GREENCROSSHAIR;
-										    break;
-										case COLOR_GREEN:
-										    p_button->Color = COLOR_BLUE;
-										    p_button->EnabledIconId = IDB_BOX32x32BLUE;
-										    p_button->CursorId = IDC_BLUECROSSHAIR;
-										    break;
-										case COLOR_BLUE:
-										    p_button->Color = COLOR_BLACK;
-										    p_button->EnabledIconId = IDB_BOX32x32BLACK;
-										    p_button->CursorId = IDC_BLACKCROSSHAIR;
-										    break;
-										case COLOR_BLACK:
-										    p_button->Color = COLOR_WHITE;
-										    p_button->EnabledIconId = IDB_BOX32x32WHITE;
-										    p_button->CursorId = IDC_WHITECROSSHAIR;
-										    break;
-										case COLOR_WHITE:
-										    p_button->Color = COLOR_YELLOW;
-										    p_button->EnabledIconId = IDB_BOX32x32YELLOW;
-										    p_button->CursorId = IDC_YELLOWCROSSHAIR;
-										    break;
-										case COLOR_YELLOW:
-										    p_button->Color = COLOR_RED;
-										    p_button->EnabledIconId = IDB_BOX32x32RED;
-										    p_button->CursorId = IDC_REDCROSSHAIR;
-										    break;
-										default:
-										    MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change box color!\n", __FUNCTIONW__, __LINE__);
+										case COLOR_RED: p_button->Set(COLOR_GREEN, IDB_BOX32x32GREEN, IDC_GREENCROSSHAIR); break;
+										case COLOR_GREEN: p_button->Set(COLOR_BLUE, IDB_BOX32x32BLUE, IDC_BLUECROSSHAIR); break;
+										case COLOR_BLUE: p_button->Set(COLOR_BLACK, IDB_BOX32x32BLACK, IDC_BLACKCROSSHAIR); break;
+										case COLOR_BLACK: p_button->Set(COLOR_WHITE, IDB_BOX32x32WHITE, IDC_WHITECROSSHAIR); break;
+										case COLOR_WHITE: p_button->Set(COLOR_YELLOW, IDB_BOX32x32YELLOW, IDC_YELLOWCROSSHAIR); break;
+										case COLOR_YELLOW: p_button->Set(COLOR_RED, IDB_BOX32x32RED, IDC_REDCROSSHAIR); break;
+										default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change box color!\n", __FUNCTIONW__, __LINE__);
 									}
 									DeleteObject(p_button->EnabledIcon);
 									DeleteObject(p_button->Cursor);
@@ -774,38 +972,13 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 								}
 								else if(p_button->Id == BUTTON_ARROW) {
 									switch(p_button->Color) {
-										case COLOR_RED:
-										    p_button->Color = COLOR_GREEN;
-										    p_button->EnabledIconId = IDB_ARROW32x32GREEN;
-										    p_button->CursorId = IDC_GREENCROSSHAIR;
-										    break;
-										case COLOR_GREEN:
-										    p_button->Color = COLOR_BLUE;
-										    p_button->EnabledIconId = IDB_ARROW32x32BLUE;
-										    p_button->CursorId = IDC_BLUECROSSHAIR;
-										    break;
-										case COLOR_BLUE:
-										    p_button->Color = COLOR_BLACK;
-										    p_button->EnabledIconId = IDB_ARROW32x32BLACK;
-										    p_button->CursorId = IDC_BLACKCROSSHAIR;
-										    break;
-										case COLOR_BLACK:
-										    p_button->Color = COLOR_WHITE;
-										    p_button->EnabledIconId = IDB_ARROW32x32WHITE;
-										    p_button->CursorId = IDC_WHITECROSSHAIR;
-										    break;
-										case COLOR_WHITE:
-										    p_button->Color = COLOR_YELLOW;
-										    p_button->EnabledIconId = IDB_ARROW32x32YELLOW;
-										    p_button->CursorId = IDC_YELLOWCROSSHAIR;
-										    break;
-										case COLOR_YELLOW:
-										    p_button->Color = COLOR_RED;
-										    p_button->EnabledIconId = IDB_ARROW32x32RED;
-										    p_button->CursorId = IDC_REDCROSSHAIR;
-										    break;
-										default:
-										    MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change arrow color!\n", __FUNCTIONW__, __LINE__);
+										case COLOR_RED: p_button->Set(COLOR_GREEN, IDB_ARROW32x32GREEN, IDC_GREENCROSSHAIR); break;
+										case COLOR_GREEN: p_button->Set(COLOR_BLUE, IDB_ARROW32x32BLUE, IDC_BLUECROSSHAIR); break;
+										case COLOR_BLUE: p_button->Set(COLOR_BLACK, IDB_ARROW32x32BLACK, IDC_BLACKCROSSHAIR); break;
+										case COLOR_BLACK: p_button->Set(COLOR_WHITE, IDB_ARROW32x32WHITE, IDC_WHITECROSSHAIR); break;
+										case COLOR_WHITE: p_button->Set(COLOR_YELLOW, IDB_ARROW32x32YELLOW, IDC_YELLOWCROSSHAIR); break;
+										case COLOR_YELLOW: p_button->Set(COLOR_RED, IDB_ARROW32x32RED, IDC_REDCROSSHAIR); break;
+										default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change arrow color!\n", __FUNCTIONW__, __LINE__);
 									}
 									DeleteObject(p_button->EnabledIcon);
 									DeleteObject(p_button->Cursor);
@@ -816,18 +989,18 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 								else if(p_button->Id == BUTTON_TEXT) {
 									CHOOSEFONTW FontChoice = { sizeof(CHOOSEFONTW) };
 									LOGFONTW LogFont = { 0 };
-									GetObject(gFont, sizeof(LOGFONTW), &LogFont);
+									GetObject(SnExG.gFont, sizeof(LOGFONTW), &LogFont);
 									FontChoice.Flags = CF_EFFECTS | CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS;
-									FontChoice.hwndOwner = gMainWindowHandle;
+									FontChoice.hwndOwner = SnExG.gMainWindowHandle;
 									FontChoice.lpLogFont = &LogFont;
 									FontChoice.rgbColors = RGB(0, 0, 0);
 									if(ChooseFont(&FontChoice)) {
 										MyOutputDebugStringW(L"[%s] Line %d: ChooseFont successful.\n", __FUNCTIONW__, __LINE__);
 										HFONT TmpFont = CreateFontIndirectW(&LogFont);
 										if(TmpFont) {
-											DeleteObject(gFont);
-											gFont = TmpFont;
-											gFontColor = FontChoice.rgbColors;
+											DeleteObject(SnExG.gFont);
+											SnExG.gFont = TmpFont;
+											SnExG.gFontColor = FontChoice.rgbColors;
 										}
 									}
 								}
@@ -843,9 +1016,9 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				}
 				// Redraw the toolbar.
 				RECT ToolbarRect = { 0 };
-				GetClientRect(gMainWindowHandle, &ToolbarRect);
+				GetClientRect(SnExG.gMainWindowHandle, &ToolbarRect);
 				ToolbarRect.bottom = gButtons[0]->Rectangle.bottom;
-				InvalidateRect(gMainWindowHandle, &ToolbarRect, FALSE);
+				InvalidateRect(SnExG.gMainWindowHandle, &ToolbarRect, FALSE);
 				break;
 			}
 		    }
@@ -873,12 +1046,12 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    }
 		    // Redraw the toolbar.
 		    RECT ToolbarRect = { 0 };
-		    GetClientRect(gMainWindowHandle, &ToolbarRect);
+		    GetClientRect(SnExG.gMainWindowHandle, &ToolbarRect);
 		    ToolbarRect.bottom = gButtons[0]->Rectangle.bottom;
-		    InvalidateRect(gMainWindowHandle, &ToolbarRect, FALSE);
+		    InvalidateRect(SnExG.gMainWindowHandle, &ToolbarRect, FALSE);
 		    // We just left-clicked a button, but we need to set focus back on the main window or else
 		    // the main window will stop receiving window messages such as WM_KEYDOWN.
-		    SetFocus(gMainWindowHandle);
+		    SetFocus(SnExG.gMainWindowHandle);
 		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
 				BUTTON * p_button = gButtons[Counter];
 			    if(p_button->Id == LOWORD(WParam)) {
@@ -899,7 +1072,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 					memzero(HilighterPixelsAlreadyDrawn, sizeof(HilighterPixelsAlreadyDrawn));
 					HilighterPixelsAlreadyDrawnCounter = 0;
 					if(NewButton_Click() == FALSE) {
-						gMainWindowIsRunning = FALSE;
+						SnExG.gMainWindowIsRunning = FALSE;
 						CRASH(0);
 					}
 					break;
@@ -907,16 +1080,16 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 					{
 						wchar_t TitleBuffer[64] = { 0 };
 						_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx");
-						SetWindowTextW(gMainWindowHandle, TitleBuffer);
-						gAppState = APPSTATE_DELAYCOOKING;
-						AdjustWindowSizeForThickTitleBars(); // @20201025
+						SetWindowTextW(SnExG.gMainWindowHandle, TitleBuffer);
+						SnExG.gAppState = APPSTATE_DELAYCOOKING;
+						SnExG.AdjustWindowSizeForThickTitleBars(); // @20201025
 						/* @20201025
 						RECT CurrentWindowPos = { 0 };
 						GetWindowRect(gMainWindowHandle, &CurrentWindowPos);
 						SetWindowPos(gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, gStartingMainWindowWidth, gStartingMainWindowHeight, 0);
 						*/
-						KillTimer(gMainWindowHandle, DELAY_TIMER);
-						SetTimer(gMainWindowHandle, DELAY_TIMER, 1000, NULL);
+						KillTimer(SnExG.gMainWindowHandle, DELAY_TIMER);
+						SetTimer(SnExG.gMainWindowHandle, DELAY_TIMER, 1000, NULL);
 					}
 					break;
 			    case BUTTON_SAVE:
@@ -939,9 +1112,9 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    case BUTTON_REDACT:
 			    case BUTTON_TEXT:
 					if(gButtons[LOWORD(WParam) - 10001]->Enabled == TRUE) {
-						gLastTool = (DWORD)gButtons[LOWORD(WParam) - 10001]->Id;
-						if(gRememberLastTool) {
-							if(SetSnipExRegValue(REG_LASTTOOLNAME, &gLastTool) != ERROR_SUCCESS) {
+						SnExG.gLastTool = (DWORD)gButtons[LOWORD(WParam) - 10001]->Id;
+						if(SnExG.gRememberLastTool) {
+							if(SetSnipExRegValue(REG_LASTTOOLNAME, &SnExG.gLastTool) != ERROR_SUCCESS) {
 								CRASH(0);
 							}
 						}
@@ -968,7 +1141,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    HKEY SnippingToolKey = NULL;
 				    if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options", 0,
 						KEY_ALL_ACCESS, &IFEOKey) != ERROR_SUCCESS) {
-					    MessageBoxW(gMainWindowHandle, L"Error while attempting to open the Image File Execution Options subkey!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+					    SnExG.PopupMessageErr(L"Error while attempting to open the Image File Execution Options subkey!");
 				    }
 				    else {
 					    DWORD SnippingToolKeyDisposition = 0;
@@ -978,29 +1151,29 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 						    GetModuleFileNameW(NULL, ModulePath, _countof(ModulePath));
 						    Error = RegSetValueExW(SnippingToolKey, L"Debugger", 0, REG_SZ, (const BYTE*)ModulePath, (DWORD)wcslen(ModulePath) * 2);
 						    if(Error == ERROR_SUCCESS) {
-							    HMENU SystemMenu = GetSystemMenu(gMainWindowHandle, FALSE);
+							    HMENU SystemMenu = GetSystemMenu(SnExG.gMainWindowHandle, FALSE);
 							    RemoveMenu(SystemMenu, SYSCMD_REPLACE, MF_BYCOMMAND);
 							    AppendMenuW(SystemMenu, MF_STRING, SYSCMD_RESTORE, L"Restore Windows Snipping Tool\n");
-							    if(gUACIcon != NULL) {
+							    if(SnExG.gUACIcon) {
 								    MENUITEMINFOW MenuItemInfo = { sizeof(MENUITEMINFOW) };
 								    MenuItemInfo.fMask = MIIM_BITMAP;
-								    MenuItemInfo.hbmpItem = gUACIcon;
+								    MenuItemInfo.hbmpItem = SnExG.gUACIcon;
 								    SetMenuItemInfoW(SystemMenu, SYSCMD_RESTORE, FALSE, &MenuItemInfo);
 							    }
-							    MessageBoxW(gMainWindowHandle, L"The built-in SnippingTool.exe has been replaced.", L"Success", MB_OK | MB_ICONINFORMATION | MB_SYSTEMMODAL);
+							    MessageBoxW(SnExG.gMainWindowHandle, L"The built-in SnippingTool.exe has been replaced.", L"Success", MB_OK | MB_ICONINFORMATION | MB_SYSTEMMODAL);
 						    }
 						    else
-							    MessageBoxW(gMainWindowHandle, L"Error while creating Debugger registry value!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+							    SnExG.PopupMessageErr(L"Error while creating Debugger registry value!");
 					    }
 					    else
-						    MessageBoxW(gMainWindowHandle, L"Error while creating SnippingTool.exe registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+						    SnExG.PopupMessageErr(L"Error while creating SnippingTool.exe registry key!");
 				    }
 				    Implement_RegCloseKey(SnippingToolKey);
 				    Implement_RegCloseKey(IFEOKey);
 			    }
 			    else {
 				    MyOutputDebugStringW(L"[%s] Line %d: Need to UAC elevate first.\n", __FUNCTIONW__, __LINE__);
-				    MessageBoxW(gMainWindowHandle, L"This action requires UAC elevation. After clicking OK, you will be prompted to elevate. Then retry the operation.",
+				    MessageBoxW(SnExG.gMainWindowHandle, L"This action requires UAC elevation. After clicking OK, you will be prompted to elevate. Then retry the operation.",
 						L"UAC Elevation Required", MB_OK | MB_ICONINFORMATION);
 				    wchar_t ModulePath[MAX_PATH] = { 0 };
 				    GetModuleFileNameW(NULL, ModulePath, _countof(ModulePath));
@@ -1012,14 +1185,14 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    if(!ShellExecuteExW(&ShellExecuteInfo)) {
 					    const DWORD Error = GetLastError();
 					    if(Error != ERROR_CANCELLED) {
-						    MessageBoxW(gMainWindowHandle, L"Error when attempting to re-launch the application with UAC elevation.", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+						    SnExG.PopupMessageErr(L"Error when attempting to re-launch the application with UAC elevation.");
 					    }
 				    }
 				    else {
 					    // We just re-launched the app with UAC elevation - need to exit this
 					    // instance.
 					    PostQuitMessage(0);
-					    gMainWindowIsRunning = FALSE;
+					    SnExG.gMainWindowIsRunning = FALSE;
 				    }
 			    }
 		    }
@@ -1031,33 +1204,33 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    MyOutputDebugStringW(L"[%s] Line %d: Already UAC elevated.\n", __FUNCTIONW__, __LINE__);
 				    HKEY IFEOKey = NULL;
 				    if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options", 0, KEY_QUERY_VALUE, &IFEOKey) != ERROR_SUCCESS) {
-					    MessageBoxW(gMainWindowHandle, L"Error while attempting to open the Image File Execution Options subkey!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+					    SnExG.PopupMessageErr(L"Error while attempting to open the Image File Execution Options subkey!");
 				    }
 				    else {
 					    // This will fail if the subkey has subkeys
 					    DWORD Error = ERROR_SUCCESS;
 					    Error = RegDeleteKeyW(IFEOKey, L"SnippingTool.exe");
 					    if(Error != ERROR_SUCCESS) {
-						    MessageBoxW(gMainWindowHandle, L"Error while attempting to delete the SnippingTool.exe subkey!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+						    SnExG.PopupMessageErr(L"Error while attempting to delete the SnippingTool.exe subkey!");
 					    }
 					    else {
-						    HMENU SystemMenu = GetSystemMenu(gMainWindowHandle, FALSE);
+						    HMENU SystemMenu = GetSystemMenu(SnExG.gMainWindowHandle, FALSE);
 						    RemoveMenu(SystemMenu, SYSCMD_RESTORE, MF_BYCOMMAND);
 						    AppendMenuW(SystemMenu, MF_STRING, SYSCMD_REPLACE, L"Replace Windows Snipping Tool with SnipEx\n");
-						    if(gUACIcon) {
+						    if(SnExG.gUACIcon) {
 							    MENUITEMINFOW MenuItemInfo = { sizeof(MENUITEMINFOW) };
 							    MenuItemInfo.fMask = MIIM_BITMAP;
-							    MenuItemInfo.hbmpItem = gUACIcon;
+							    MenuItemInfo.hbmpItem = SnExG.gUACIcon;
 							    SetMenuItemInfoW(SystemMenu, SYSCMD_REPLACE, FALSE, &MenuItemInfo);
 						    }
-						    MessageBoxW(gMainWindowHandle, L"The built-in SnippingTool.exe has been restored.", L"Success", MB_OK | MB_ICONINFORMATION | MB_SYSTEMMODAL);
+						    MessageBoxW(SnExG.gMainWindowHandle, L"The built-in SnippingTool.exe has been restored.", L"Success", MB_OK | MB_ICONINFORMATION | MB_SYSTEMMODAL);
 					    }
 				    }
 					Implement_RegCloseKey(IFEOKey);
 			    }
 			    else {
 				    MyOutputDebugStringW(L"[%s] Line %d: Need to UAC elevate first.\n", __FUNCTIONW__, __LINE__);
-				    MessageBoxW(gMainWindowHandle, L"This action requires UAC elevation. After clicking OK, you will be prompted to elevate. Then, retry the operation.",
+				    MessageBoxW(SnExG.gMainWindowHandle, L"This action requires UAC elevation. After clicking OK, you will be prompted to elevate. Then, retry the operation.",
 						L"UAC Elevation Required", MB_OK | MB_ICONINFORMATION);
 				    wchar_t ModulePath[MAX_PATH] = { 0 };
 				    GetModuleFileNameW(NULL, ModulePath, _countof(ModulePath));
@@ -1069,77 +1242,77 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    if(!ShellExecuteExW(&ShellExecuteInfo)) {
 					    const DWORD Error = GetLastError();
 					    if(Error != ERROR_CANCELLED) {
-						    MessageBoxW(gMainWindowHandle, L"Error when attempting to re-launch the application with UAC elevation.", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+						    SnExG.PopupMessageErr(L"Error when attempting to re-launch the application with UAC elevation.");
 					    }
 				    }
 				    else {
 					    // We just re-launched the app with UAC elevation - need to exit this instance.
 					    PostQuitMessage(0);
-					    gMainWindowIsRunning = FALSE;
+					    SnExG.gMainWindowIsRunning = FALSE;
 				    }
 			    }
 		    }
 		    else if(WParam == SYSCMD_SHADOW) {
 			    MyOutputDebugStringW(L"[%s] Line %d: User clicked on 'Drop Shadow' menu item.\n", __FUNCTIONW__, __LINE__);
-			    if(gShouldAddDropShadow) {
-				    CheckMenuItem(GetSystemMenu(gMainWindowHandle, FALSE), SYSCMD_SHADOW, MF_BYCOMMAND | MF_UNCHECKED);
-				    gShouldAddDropShadow = FALSE;
+			    if(SnExG.gShouldAddDropShadow) {
+				    CheckMenuItem(GetSystemMenu(SnExG.gMainWindowHandle, FALSE), SYSCMD_SHADOW, MF_BYCOMMAND | MF_UNCHECKED);
+				    SnExG.gShouldAddDropShadow = FALSE;
 			    }
 			    else {
-				    CheckMenuItem(GetSystemMenu(gMainWindowHandle, FALSE), SYSCMD_SHADOW, MF_BYCOMMAND | MF_CHECKED);
-				    gShouldAddDropShadow = TRUE;
+				    CheckMenuItem(GetSystemMenu(SnExG.gMainWindowHandle, FALSE), SYSCMD_SHADOW, MF_BYCOMMAND | MF_CHECKED);
+				    SnExG.gShouldAddDropShadow = TRUE;
 			    }
-			    if(SetSnipExRegValue(REG_DROPSHADOWNAME, &gShouldAddDropShadow) != ERROR_SUCCESS) {
+			    if(SetSnipExRegValue(REG_DROPSHADOWNAME, &SnExG.gShouldAddDropShadow) != ERROR_SUCCESS) {
 				    CRASH(0);
 			    }
 		    }
 		    else if(WParam == SYSCMD_REMEMBER) {
 			    MyOutputDebugStringW(L"[%s] Line %d: User clicked on 'Remember Last Tool' menu item.\n", __FUNCTIONW__, __LINE__);
-			    if(gRememberLastTool) {
-				    CheckMenuItem(GetSystemMenu(gMainWindowHandle, FALSE), SYSCMD_REMEMBER, MF_BYCOMMAND | MF_UNCHECKED);
-				    gRememberLastTool = FALSE;
+			    if(SnExG.gRememberLastTool) {
+				    CheckMenuItem(GetSystemMenu(SnExG.gMainWindowHandle, FALSE), SYSCMD_REMEMBER, MF_BYCOMMAND | MF_UNCHECKED);
+				    SnExG.gRememberLastTool = FALSE;
 			    }
 			    else {
-				    CheckMenuItem(GetSystemMenu(gMainWindowHandle, FALSE), SYSCMD_REMEMBER, MF_BYCOMMAND | MF_CHECKED);
-				    gRememberLastTool = TRUE;
-				    if(gLastTool != 0) {
-					    if(SetSnipExRegValue(REG_LASTTOOLNAME, &gLastTool) != ERROR_SUCCESS) {
+				    CheckMenuItem(GetSystemMenu(SnExG.gMainWindowHandle, FALSE), SYSCMD_REMEMBER, MF_BYCOMMAND | MF_CHECKED);
+				    SnExG.gRememberLastTool = TRUE;
+				    if(SnExG.gLastTool) {
+					    if(SetSnipExRegValue(REG_LASTTOOLNAME, &SnExG.gLastTool) != ERROR_SUCCESS) {
 						    CRASH(0);
 					    }
 				    }
 			    }
-			    if(SetSnipExRegValue(REG_REMEMBERTOOLNAME, &gRememberLastTool) != ERROR_SUCCESS) {
+			    if(SetSnipExRegValue(REG_REMEMBERTOOLNAME, &SnExG.gRememberLastTool) != ERROR_SUCCESS) {
 				    CRASH(0);
 			    }
 		    }
 		    else if(WParam == SYSCMD_AUTOCOPY) {
 			    MyOutputDebugStringW(L"[%s] Line %d: User clicked on 'Automatically copy snip to clipboard' menu item.\n", __FUNCTIONW__, __LINE__);
-			    if(gAutoCopy) {
-				    CheckMenuItem(GetSystemMenu(gMainWindowHandle, FALSE), SYSCMD_AUTOCOPY, MF_BYCOMMAND | MF_UNCHECKED);
-				    gAutoCopy = FALSE;
+			    if(SnExG.gAutoCopy) {
+				    CheckMenuItem(GetSystemMenu(SnExG.gMainWindowHandle, FALSE), SYSCMD_AUTOCOPY, MF_BYCOMMAND | MF_UNCHECKED);
+				    SnExG.gAutoCopy = FALSE;
 			    }
 			    else {
-				    CheckMenuItem(GetSystemMenu(gMainWindowHandle, FALSE), SYSCMD_AUTOCOPY, MF_BYCOMMAND | MF_CHECKED);
-				    gAutoCopy = TRUE;
+				    CheckMenuItem(GetSystemMenu(SnExG.gMainWindowHandle, FALSE), SYSCMD_AUTOCOPY, MF_BYCOMMAND | MF_CHECKED);
+				    SnExG.gAutoCopy = TRUE;
 			    }
-			    if(SetSnipExRegValue(REG_AUTOCOPYNAME, &gAutoCopy) != ERROR_SUCCESS) {
+			    if(SetSnipExRegValue(REG_AUTOCOPYNAME, &SnExG.gAutoCopy) != ERROR_SUCCESS) {
 				    CRASH(0);
 			    }
 		    }
 		    else if(WParam == SYSCMD_UNDO) {
 			    MyOutputDebugStringW(L"[%s] Line %d: User clicked on 'Undo' menu item.\n", __FUNCTIONW__, __LINE__);
-			    if(gCurrentSnipState > 0 && (gAppState == APPSTATE_AFTERCAPTURE)) {
-				    gCurrentSnipState--;
+			    if(SnExG.gCurrentSnipState > 0 && (SnExG.gAppState == APPSTATE_AFTERCAPTURE)) {
+				    SnExG.gCurrentSnipState--;
 				    MyOutputDebugStringW(L"[%s] Line %d: Deleting gSnipStates[gCurrentSnipState + 1]\n", __FUNCTIONW__, __LINE__);
 				    memzero(HilighterPixelsAlreadyDrawn, sizeof(HilighterPixelsAlreadyDrawn));
 				    HilighterPixelsAlreadyDrawnCounter = 0;
-				    if(DeleteObject(gSnipStates[gCurrentSnipState + 1]) == 0) {
+				    if(DeleteObject(SnExG.gSnipStates[SnExG.gCurrentSnipState + 1]) == 0) {
 					    MyOutputDebugStringW(L"[%s] Line %d: DeleteObject failed!\n", __FUNCTIONW__, __LINE__);
 					    CRASH(0);
 				    }
-				    gSnipStates[gCurrentSnipState + 1] = NULL;
+				    SnExG.gSnipStates[SnExG.gCurrentSnipState + 1] = NULL;
 				    InvalidateRect(Window, NULL, FALSE);
-				    if(gAutoCopy) {
+				    if(SnExG.gAutoCopy) {
 					    MyOutputDebugStringW(L"[%s] Line %d: Auto copy enabled. Copying snip to clipboard.\n", __FUNCTIONW__, __LINE__);
 					    if(CopyButton_Click() == FALSE) {
 						    MyOutputDebugStringW(L"[%s] Line %d: Auto copy failed!\n", __FUNCTIONW__, __LINE__);
@@ -1154,14 +1327,14 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		case WM_TIMER:
 	    {
 		    if(WParam == DELAY_TIMER) {
-			    gCurrentDelayCountdown--;
-			    MyOutputDebugStringW(L"[%s] Line %d: WM_TIMER DELAY_TIMER received. %d seconds.\n", __FUNCTIONW__, __LINE__, gCurrentDelayCountdown);
-			    InvalidateRect(gMainWindowHandle, NULL, FALSE);
-			    if(gCurrentDelayCountdown <= 0) {
-				    SendMessageW(gMainWindowHandle, WM_COMMAND, BUTTON_NEW, 0);
+			    SnExG.gCurrentDelayCountdown--;
+			    MyOutputDebugStringW(L"[%s] Line %d: WM_TIMER DELAY_TIMER received. %d seconds.\n", __FUNCTIONW__, __LINE__, SnExG.gCurrentDelayCountdown);
+			    InvalidateRect(SnExG.gMainWindowHandle, NULL, FALSE);
+			    if(SnExG.gCurrentDelayCountdown <= 0) {
+				    SendMessageW(SnExG.gMainWindowHandle, WM_COMMAND, BUTTON_NEW, 0);
 			    }
 			    else {
-				    SetTimer(gMainWindowHandle, DELAY_TIMER, 1000, NULL);
+				    SetTimer(SnExG.gMainWindowHandle, DELAY_TIMER, 1000, NULL);
 			    }
 		    }
 		    break;
@@ -1170,19 +1343,19 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 	    {
 		    PAINTSTRUCT PaintStruct = { 0 };
 		    BeginPaint(Window, &PaintStruct);
-		    if(gAppState == APPSTATE_AFTERCAPTURE) {
+		    if(SnExG.gAppState == APPSTATE_AFTERCAPTURE) {
 			    HDC MemDC = CreateCompatibleDC(PaintStruct.hdc);
 			    if(CurrentlyDrawing == TRUE) {
-				    if(gScratchBitmap != NULL) {
-					    SelectObject(MemDC, gScratchBitmap);
+				    if(SnExG.gScratchBitmap) {
+					    SelectObject(MemDC, SnExG.gScratchBitmap);
 				    }
 			    }
 			    else {
-				    if(gSnipStates[gCurrentSnipState]) {
-					    SelectObject(MemDC, gSnipStates[gCurrentSnipState]);
+				    if(SnExG.GetCurrentSnipState()) {
+					    SelectObject(MemDC, SnExG.GetCurrentSnipState());
 				    }
 			    }
-			    BitBlt(PaintStruct.hdc, 2, 56, gCaptureWidth, gCaptureHeight, MemDC, 0, 0, SRCCOPY);
+			    BitBlt(PaintStruct.hdc, 2, 56, SnExG.gCaptureWidth, SnExG.gCaptureHeight, MemDC, 0, 0, SRCCOPY);
 			    DeleteDC(MemDC);
 		    }
 		    EndPaint(Window, &PaintStruct);
@@ -1219,12 +1392,7 @@ void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
 	MoveToEx(DrawItemStruct->hDC, 0, Button.Rectangle.bottom - 1, NULL);
 	LineTo(DrawItemStruct->hDC, ButtonWidth - 1, Button.Rectangle.bottom - 1);
 	LineTo(DrawItemStruct->hDC, ButtonWidth - 1, 0);
-	if(Button.State == BUTTONSTATE_PRESSED) {
-		SelectObject(DrawItemStruct->hDC, DarkPen);
-	}
-	else {
-		SelectObject(DrawItemStruct->hDC, LighterPen);
-	}
+	SelectObject(DrawItemStruct->hDC, (Button.State == BUTTONSTATE_PRESSED) ? DarkPen : LighterPen);
 	MoveToEx(DrawItemStruct->hDC, ButtonWidth - 2, Button.Rectangle.top, NULL);
 	LineTo(DrawItemStruct->hDC, 0, Button.Rectangle.top);
 	LineTo(DrawItemStruct->hDC, 0, Button.Rectangle.bottom);
@@ -1248,9 +1416,9 @@ void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
 	if(DeleteObject(DarkPen) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: DeleteObject(DarkPen) failed!\n", __FUNCTIONW__, __LINE__);
 	}
-	if(gAppState == APPSTATE_DELAYCOOKING && Button.Id == BUTTON_DELAY) {
+	if(SnExG.gAppState == APPSTATE_DELAYCOOKING && Button.Id == BUTTON_DELAY) {
 		wchar_t CountdownBuffer[4] = { 0 };
-		_itow_s(gCurrentDelayCountdown, CountdownBuffer, _countof(CountdownBuffer), 10);
+		_itow_s(SnExG.gCurrentDelayCountdown, CountdownBuffer, _countof(CountdownBuffer), 10);
 		TextOutW(DrawItemStruct->hDC, TextX + StringSizeInPixels.cx + 4, TextY, CountdownBuffer, (int)wcslen(CountdownBuffer));
 	}
 	if(Button.Enabled == TRUE) {
@@ -1280,20 +1448,20 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 		case WM_KEYDOWN:
 		    if(WParam == VK_ESCAPE) {
 			    MyOutputDebugStringW(L"[%s] Line %d: Escape pressed during capture. Reverting to pre-capture state.\n", __FUNCTIONW__, __LINE__);
-			    gAppState = APPSTATE_BEFORECAPTURE;
+			    SnExG.gAppState = APPSTATE_BEFORECAPTURE;
 			    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
 				    if(gButtons[Counter]->Id == BUTTON_NEW || gButtons[Counter]->Id == BUTTON_DELAY) {
 					    continue;
 				    }
 				    gButtons[Counter]->Enabled = FALSE;
 			    }
-			    ShowWindow(gCaptureWindowHandle, SW_HIDE);
-			    ShowWindow(gMainWindowHandle, SW_RESTORE);
-			    gCaptureSelectionRectangle.left   = 0;
-			    gCaptureSelectionRectangle.right  = 0;
-			    gCaptureSelectionRectangle.top    = 0;
-			    gCaptureSelectionRectangle.bottom = 0;
-				AdjustWindowSizeForThickTitleBars(); // @20201025
+			    ShowWindow(SnExG.gCaptureWindowHandle, SW_HIDE);
+			    ShowWindow(SnExG.gMainWindowHandle, SW_RESTORE);
+			    SnExG.gCaptureSelectionRectangle.left   = 0;
+			    SnExG.gCaptureSelectionRectangle.right  = 0;
+			    SnExG.gCaptureSelectionRectangle.top    = 0;
+			    SnExG.gCaptureSelectionRectangle.bottom = 0;
+				SnExG.AdjustWindowSizeForThickTitleBars(); // @20201025
 				/* @20201025
 			    RECT CurrentWindowPos = { 0 };
 			    GetWindowRect(gMainWindowHandle, &CurrentWindowPos);
@@ -1304,15 +1472,16 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 		    }
 		    break;
 		case WM_PAINT:
-		    if(gCleanScreenShot) {
+		    if(SnExG.gCleanScreenShot) {
 			    PAINTSTRUCT PaintStruct = { 0 };
 			    BeginPaint(Window, &PaintStruct);
 			    HDC BackBufferDC = CreateCompatibleDC(PaintStruct.hdc);
-			    HBITMAP ScreenShotCopy = (HBITMAP)CopyImage(gCleanScreenShot, IMAGE_BITMAP, 0, 0, 0);
+			    HBITMAP ScreenShotCopy = (HBITMAP)CopyImage(SnExG.gCleanScreenShot, IMAGE_BITMAP, 0, 0, 0);
 			    SelectObject(BackBufferDC, ScreenShotCopy);
 			    if(MouseHasMovedWhileLeftMouseButtonWasDown) {
 				    SelectObject(BackBufferDC, (HBRUSH)GetStockObject(NULL_BRUSH));
-				    Rectangle(BackBufferDC, gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.top, gCaptureSelectionRectangle.right, gCaptureSelectionRectangle.bottom);
+				    Rectangle(BackBufferDC, SnExG.gCaptureSelectionRectangle.left, SnExG.gCaptureSelectionRectangle.top, 
+						SnExG.gCaptureSelectionRectangle.right, SnExG.gCaptureSelectionRectangle.bottom);
 			    }
 			    BLENDFUNCTION BlendFunction = { AC_SRC_OVER, 0, 128, AC_SRC_ALPHA };
 			    HDC AlphaDC = CreateCompatibleDC(PaintStruct.hdc);
@@ -1323,37 +1492,35 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 			    SelectObject(AlphaDC, AlphaBitmap);
 			    // This will darken the entire display area if nothing is selected.
 			    // Otherwise, it will darken everything to the right side of the selection rectangle.
-			    GdiAlphaBlend(BackBufferDC, MAX(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right), 0,
-				    gDisplayWidth - MAX(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right),
-				    MAX(gDisplayHeight, gCaptureSelectionRectangle.top),
+			    GdiAlphaBlend(BackBufferDC, MAX(SnExG.gCaptureSelectionRectangle.left, SnExG.gCaptureSelectionRectangle.right), 0,
+				    SnExG.gDisplayWidth - MAX(SnExG.gCaptureSelectionRectangle.left, SnExG.gCaptureSelectionRectangle.right),
+				    MAX(SnExG.gDisplayHeight, SnExG.gCaptureSelectionRectangle.top),
 				    AlphaDC, 0, 0, 1, 1, BlendFunction);
 
 			    // This darkens everything to the left side of the selection rectangle
 			    // Not needed if the user is not holding down the left mouse button
 			    if(LMouseButtonDown) {
-				    GdiAlphaBlend(BackBufferDC, 0, 0,
-					    MIN(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right),
-					    MAX(gDisplayHeight, gCaptureSelectionRectangle.top),
-					    AlphaDC, 0, 0, 1, 1, BlendFunction);
+				    GdiAlphaBlend(BackBufferDC, 0, 0, MIN(SnExG.gCaptureSelectionRectangle.left, SnExG.gCaptureSelectionRectangle.right),
+					    MAX(SnExG.gDisplayHeight, SnExG.gCaptureSelectionRectangle.top), AlphaDC, 0, 0, 1, 1, BlendFunction);
 			    }
 			    // This darkens everything directly above the selection rectangle
 			    if(LMouseButtonDown) {
-				    GdiAlphaBlend(BackBufferDC, MIN(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right),
-					    0, MAX(gCaptureSelectionRectangle.left,
-					    gCaptureSelectionRectangle.right) - MIN(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right),
-					    MIN(gCaptureSelectionRectangle.top, gCaptureSelectionRectangle.bottom),
+				    GdiAlphaBlend(BackBufferDC, MIN(SnExG.gCaptureSelectionRectangle.left, SnExG.gCaptureSelectionRectangle.right),
+					    0, MAX(SnExG.gCaptureSelectionRectangle.left,
+					    SnExG.gCaptureSelectionRectangle.right) - MIN(SnExG.gCaptureSelectionRectangle.left, SnExG.gCaptureSelectionRectangle.right),
+					    MIN(SnExG.gCaptureSelectionRectangle.top, SnExG.gCaptureSelectionRectangle.bottom),
 					    AlphaDC, 0, 0, 1, 1, BlendFunction);
 			    }
 			    //// This darkens everything directly below the selection rectangle
 			    if(LMouseButtonDown) {
-				    GdiAlphaBlend(BackBufferDC, MIN(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right),
-					    MAX(gCaptureSelectionRectangle.top, gCaptureSelectionRectangle.bottom),
-					    MAX(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right) - MIN(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right),
-					    MAX(gCaptureSelectionRectangle.bottom, gDisplayHeight),
+				    GdiAlphaBlend(BackBufferDC, MIN(SnExG.gCaptureSelectionRectangle.left, SnExG.gCaptureSelectionRectangle.right),
+					    MAX(SnExG.gCaptureSelectionRectangle.top, SnExG.gCaptureSelectionRectangle.bottom),
+					    MAX(SnExG.gCaptureSelectionRectangle.left, SnExG.gCaptureSelectionRectangle.right) - MIN(SnExG.gCaptureSelectionRectangle.left, SnExG.gCaptureSelectionRectangle.right),
+					    MAX(SnExG.gCaptureSelectionRectangle.bottom, SnExG.gDisplayHeight),
 					    AlphaDC, 0, 0, 1, 1, BlendFunction);
 			    }
 			    // Finally, blit the fully-drawn backbuffer to the screen.
-			    BitBlt(PaintStruct.hdc, 0, 0, gDisplayWidth, gDisplayHeight, BackBufferDC, 0, 0, SRCCOPY);
+			    BitBlt(PaintStruct.hdc, 0, 0, SnExG.gDisplayWidth, SnExG.gDisplayHeight, BackBufferDC, 0, 0, SRCCOPY);
 			    if(ScreenShotCopy)
 				    DeleteObject(ScreenShotCopy);
 			    DeleteDC(BackBufferDC);
@@ -1367,25 +1534,25 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 			{
 				MyOutputDebugStringW(L"[%s] Line %d: Left mouse buttown down over capture window, capture selection beginning.\n", __FUNCTIONW__, __LINE__);
 				MouseHasMovedWhileLeftMouseButtonWasDown = FALSE;
-				gCaptureSelectionRectangle.left   = 0;
-				gCaptureSelectionRectangle.right  = 0;
-				gCaptureSelectionRectangle.bottom = 0;
-				gCaptureSelectionRectangle.top    = 0;
+				SnExG.gCaptureSelectionRectangle.left   = 0;
+				SnExG.gCaptureSelectionRectangle.right  = 0;
+				SnExG.gCaptureSelectionRectangle.bottom = 0;
+				SnExG.gCaptureSelectionRectangle.top    = 0;
 				LMouseButtonDown = TRUE;
 				InvalidateRect(Window, NULL, FALSE);
-				UpdateWindow(gCaptureWindowHandle);
+				UpdateWindow(SnExG.gCaptureWindowHandle);
 				POINT Mouse = { 0 };
 				Mouse.x = GET_X_LPARAM(LParam);
 				Mouse.y = GET_Y_LPARAM(LParam);
-				gCaptureSelectionRectangle.left = Mouse.x;
-				gCaptureSelectionRectangle.right = Mouse.x;
-				gCaptureSelectionRectangle.top = Mouse.y;
-				gCaptureSelectionRectangle.bottom = Mouse.y;
+				SnExG.gCaptureSelectionRectangle.left = Mouse.x;
+				SnExG.gCaptureSelectionRectangle.right = Mouse.x;
+				SnExG.gCaptureSelectionRectangle.top = Mouse.y;
+				SnExG.gCaptureSelectionRectangle.bottom = Mouse.y;
 				break;
 			}
 		case WM_LBUTTONUP:
 		    LMouseButtonDown = FALSE;
-		    CaptureWindow_OnLeftButtonUp();
+		    SnExG.CaptureWindow_OnLeftButtonUp();
 		    break;
 		case WM_MOUSEMOVE:
 		    if(LMouseButtonDown) {
@@ -1393,160 +1560,16 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 			    POINT Mouse = { 0 };
 			    Mouse.x = GET_X_LPARAM(LParam);
 			    Mouse.y = GET_Y_LPARAM(LParam);
-			    gCaptureSelectionRectangle.right = Mouse.x;
-			    gCaptureSelectionRectangle.bottom = Mouse.y;
+			    SnExG.gCaptureSelectionRectangle.right = Mouse.x;
+			    SnExG.gCaptureSelectionRectangle.bottom = Mouse.y;
 			    InvalidateRect(Window, NULL, FALSE);
-			    UpdateWindow(gCaptureWindowHandle);
+			    UpdateWindow(SnExG.gCaptureWindowHandle);
 		    }
 		    break;
 		default:
 		    Result = DefWindowProcW(Window, Message, WParam, LParam);
 	}
 	return(Result);
-}
-
-void CaptureWindow_OnLeftButtonUp()
-{
-	MyOutputDebugStringW(L"[%s] Line %d: Left mouse button up over capture window. Selection complete.\n", __FUNCTIONW__, __LINE__);
-	if((gCaptureSelectionRectangle.left != gCaptureSelectionRectangle.right) &&
-	    (gCaptureSelectionRectangle.bottom != gCaptureSelectionRectangle.top)) {
-		MyOutputDebugStringW(L"[%s] Line %d: Left mouse button was released with a valid capture region selected.\n", __FUNCTIONW__, __LINE__);
-		gAppState = APPSTATE_AFTERCAPTURE;
-		ShowWindow(gCaptureWindowHandle, SW_HIDE);
-		ShowWindow(gMainWindowHandle, SW_RESTORE);
-		RECT CurrentWindowPos = { 0 };
-		// Includes both client and non-client area. In other words it returns the same values that I passed in
-		// to CreateWindowEx
-		GetWindowRect(gMainWindowHandle, &CurrentWindowPos);
-		// The reason behind all this is because depending on how the user dragged the selection rectangle, it
-		// might be inverted,
-		// i.e. the right could actually be the left and the top could be the bottom.
-		const int PreviousWindowWidth  = CurrentWindowPos.right - CurrentWindowPos.left;
-		const int PreviousWindowHeight = CurrentWindowPos.bottom - CurrentWindowPos.top;
-		gCaptureWidth  = (gCaptureSelectionRectangle.right - gCaptureSelectionRectangle.left) >
-		    0 ? (gCaptureSelectionRectangle.right - gCaptureSelectionRectangle.left) +
-		    ((int)gShouldAddDropShadow * 8) : (gCaptureSelectionRectangle.left - gCaptureSelectionRectangle.right) +
-		    ((int)gShouldAddDropShadow * 8);
-
-		gCaptureHeight = (gCaptureSelectionRectangle.bottom - gCaptureSelectionRectangle.top) >
-		    0 ? (gCaptureSelectionRectangle.bottom - gCaptureSelectionRectangle.top) +
-		    ((int)gShouldAddDropShadow * 8) : (gCaptureSelectionRectangle.top - gCaptureSelectionRectangle.bottom) +
-		    ((int)gShouldAddDropShadow * 8);
-		int NewWindowWidth  = 0;
-		int NewWindowHeight = 0;
-		if(gCaptureWidth > PreviousWindowWidth - 20) {
-			NewWindowWidth = gCaptureWidth + 20;
-		}
-		else {
-			NewWindowWidth = PreviousWindowWidth;
-		}
-		NewWindowHeight = gCaptureHeight + PreviousWindowHeight + 7;
-		SetWindowPos(gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, NewWindowWidth, NewWindowHeight, 0);
-		gSnipStates[0] = CreateBitmap(gCaptureWidth, gCaptureHeight, 1, 32, NULL);
-		HDC SnipDC = CreateCompatibleDC(NULL);
-		SelectObject(SnipDC, gSnipStates[0]);
-		HDC BigDC = CreateCompatibleDC(NULL);
-		SelectObject(BigDC, gCleanScreenShot);
-		BitBlt(SnipDC, 0, 0, gCaptureWidth, gCaptureHeight, BigDC, MIN(gCaptureSelectionRectangle.left, gCaptureSelectionRectangle.right),
-		    MIN(gCaptureSelectionRectangle.top, gCaptureSelectionRectangle.bottom), SRCCOPY);
-		if(gShouldAddDropShadow) {
-			MyOutputDebugStringW(L"[%s] Line %d: Adding shadow effect.\n", __FUNCTIONW__, __LINE__);
-			HPEN Pen0 = CreatePen(PS_SOLID, 1, RGB(128, 128, 128));
-			HPEN Pen1 = CreatePen(PS_SOLID, 1, RGB(159, 159, 159));
-			HPEN Pen2 = CreatePen(PS_SOLID, 1, RGB(172, 172, 172));
-			HPEN Pen3 = CreatePen(PS_SOLID, 1, RGB(192, 192, 192));
-			HPEN Pen4 = CreatePen(PS_SOLID, 1, RGB(215, 215, 215));
-			HPEN Pen5 = CreatePen(PS_SOLID, 1, RGB(234, 234, 234));
-			HPEN Pen6 = CreatePen(PS_SOLID, 1, RGB(245, 245, 245));
-			HPEN Pen7 = CreatePen(PS_SOLID, 1, RGB(250, 250, 250));
-			//
-			SelectObject(SnipDC, Pen0);
-			MoveToEx(SnipDC, 0, gCaptureHeight - 8, NULL);
-			LineTo(SnipDC, gCaptureWidth - 8, gCaptureHeight - 8);
-			LineTo(SnipDC, gCaptureWidth - 8, -1);
-			//
-			SelectObject(SnipDC, Pen1);
-			MoveToEx(SnipDC, 0, gCaptureHeight - 7, NULL);
-			LineTo(SnipDC, gCaptureWidth - 7, gCaptureHeight - 7);
-			LineTo(SnipDC, gCaptureWidth - 7, -1);
-			//
-			SelectObject(SnipDC, Pen2);
-			MoveToEx(SnipDC, 0, gCaptureHeight - 6, NULL);
-			LineTo(SnipDC, gCaptureWidth - 6, gCaptureHeight - 6);
-			LineTo(SnipDC, gCaptureWidth - 6, -1);
-			//
-			SelectObject(SnipDC, Pen3);
-			MoveToEx(SnipDC, 0, gCaptureHeight - 5, NULL);
-			LineTo(SnipDC, gCaptureWidth - 5, gCaptureHeight - 5);
-			LineTo(SnipDC, gCaptureWidth - 5, -1);
-			//
-			SelectObject(SnipDC, Pen4);
-			MoveToEx(SnipDC, 0, gCaptureHeight - 4, NULL);
-			LineTo(SnipDC, gCaptureWidth - 4, gCaptureHeight - 4);
-			LineTo(SnipDC, gCaptureWidth - 4, -1);
-			//
-			SelectObject(SnipDC, Pen5);
-			MoveToEx(SnipDC, 0, gCaptureHeight - 3, NULL);
-			LineTo(SnipDC, gCaptureWidth - 3, gCaptureHeight - 3);
-			LineTo(SnipDC, gCaptureWidth - 3, -1);
-			//
-			SelectObject(SnipDC, Pen6);
-			MoveToEx(SnipDC, 0, gCaptureHeight - 2, NULL);
-			LineTo(SnipDC, gCaptureWidth - 2, gCaptureHeight - 2);
-			LineTo(SnipDC, gCaptureWidth - 2, -1);
-			//
-			SelectObject(SnipDC, Pen7);
-			MoveToEx(SnipDC, 0, gCaptureHeight - 1, NULL);
-			LineTo(SnipDC, gCaptureWidth - 1, gCaptureHeight - 1);
-			LineTo(SnipDC, gCaptureWidth - 1, -1);
-			// MSDN says that DeleteObject will fail and return 0 if the object is still selected into a DC.
-			// Yet Pen7 is still selected, yet DeleteObject does not fail when we try to delete Pen7, and I don't know why.
-			DeleteObject(Pen0);
-			DeleteObject(Pen1);
-			DeleteObject(Pen2);
-			DeleteObject(Pen3);
-			DeleteObject(Pen4);
-			DeleteObject(Pen5);
-			DeleteObject(Pen6);
-			DeleteObject(Pen7);
-			//
-			//////////////////////////////////////
-			// Set the alpha to 0 on the shadowed bits
-			//GetDIBits()
-		}
-		DeleteDC(BigDC);
-		DeleteDC(SnipDC);
-		for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
-			gButtons[Counter]->Enabled = TRUE;
-		}
-		if(gRememberLastTool) {
-			if(GetSnipExRegValue(REG_LASTTOOLNAME, &gLastTool) != ERROR_SUCCESS) {
-				CRASH(0);
-			}
-			if(gLastTool >= BUTTON_HILIGHT) {
-				MyOutputDebugStringW(L"[%s] Line %d: Selecting previously used tool: %d\n", __FUNCTIONW__, __LINE__, gLastTool);
-				SendMessageW(gMainWindowHandle, WM_COMMAND, gLastTool, 0);
-			}
-			else {
-				MyOutputDebugStringW(L"[%s] Line %d: No previously used tool detected.\n", __FUNCTIONW__, __LINE__);
-			}
-		}
-		wchar_t TitleBuffer[128] = { 0 };
-		(void)_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx - Current Snip: %dx%d", gCaptureWidth, gCaptureHeight);
-		SetWindowTextW(gMainWindowHandle, TitleBuffer);
-		SetCursor(LoadCursorW(NULL, IDC_ARROW));
-		gNewButton.SelectedTool = FALSE;
-		gNewButton.State = BUTTONSTATE_NORMAL;
-		gDelayButton.SelectedTool = FALSE;
-		gDelayButton.State = BUTTONSTATE_NORMAL;
-		if(gAutoCopy) {
-			MyOutputDebugStringW(L"[%s] Line %d: Auto copy enabled. Copying snip to clipboard.\n", __FUNCTIONW__, __LINE__);
-			if(CopyButton_Click() == FALSE) {
-				MyOutputDebugStringW(L"[%s] Line %d: Auto copy failed!\n", __FUNCTIONW__, __LINE__);
-				CRASH(0);
-			}
-		}
-	}
 }
 
 BOOL NewButton_Click(void)
@@ -1559,39 +1582,39 @@ BOOL NewButton_Click(void)
 	// Now the "capture window" comes to life. It is a duplicate of the entire display surface,
 	// including multiple monitors. Take a screenshot of it, then overlay it on top of the real
 	// desktop, and then allow the user to select a subsection of the screenshot with the mouse.
-	KillTimer(gMainWindowHandle, DELAY_TIMER);
-	gCurrentDelayCountdown = gStartingDelayCountdown;
+	KillTimer(SnExG.gMainWindowHandle, DELAY_TIMER);
+	SnExG.gCurrentDelayCountdown = SnExG.gStartingDelayCountdown;
 	(void)_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx");
-	SetWindowTextW(gMainWindowHandle, TitleBuffer);
-	GetWindowRect(gMainWindowHandle, &CurrentWindowPos);
-	SetWindowPos(gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, gStartingMainWindowWidth, gStartingMainWindowHeight, 0);
-	ShowWindow(gMainWindowHandle, SW_MINIMIZE);
-	gAppState = APPSTATE_DURINGCAPTURE;
-	RtlZeroMemory(&gCaptureSelectionRectangle, sizeof(RECT));
-	if(gCleanScreenShot != NULL) {
-		if(DeleteObject(gCleanScreenShot) == 0) {
+	SetWindowTextW(SnExG.gMainWindowHandle, TitleBuffer);
+	GetWindowRect(SnExG.gMainWindowHandle, &CurrentWindowPos);
+	SetWindowPos(SnExG.gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, SnExG.gStartingMainWindowWidth, SnExG.gStartingMainWindowHeight, 0);
+	ShowWindow(SnExG.gMainWindowHandle, SW_MINIMIZE);
+	SnExG.gAppState = APPSTATE_DURINGCAPTURE;
+	RtlZeroMemory(&SnExG.gCaptureSelectionRectangle, sizeof(RECT));
+	if(SnExG.gCleanScreenShot != NULL) {
+		if(DeleteObject(SnExG.gCleanScreenShot) == 0) {
 			MyOutputDebugStringW(L"[%s] Line %d: Failed to DeleteObject(gCleanScreenShot!)!\n", __FUNCTIONW__, __LINE__);
 			CRASH(0);
 		}
-		gCleanScreenShot = NULL;
+		SnExG.gCleanScreenShot = NULL;
 	}
-	if(gScratchBitmap != NULL) {
-		if(DeleteObject(gScratchBitmap) == 0) {
+	if(SnExG.gScratchBitmap != NULL) {
+		if(DeleteObject(SnExG.gScratchBitmap) == 0) {
 			MyOutputDebugStringW(L"[%s] Line %d: Failed to DeleteObject(gScratchBitmap!)!\n", __FUNCTIONW__, __LINE__);
 			CRASH(0);
 		}
-		gScratchBitmap = NULL;
+		SnExG.gScratchBitmap = NULL;
 	}
-	for(INT8 SnipState = 0; SnipState < _countof(gSnipStates) - 1; SnipState++) {
-		if(gSnipStates[SnipState] != NULL) {
-			if(DeleteObject(gSnipStates[SnipState]) == 0) {
+	for(INT8 SnipState = 0; SnipState < _countof(SnExG.gSnipStates) - 1; SnipState++) {
+		if(SnExG.gSnipStates[SnipState] != NULL) {
+			if(DeleteObject(SnExG.gSnipStates[SnipState]) == 0) {
 				MyOutputDebugStringW(L"[%s] Line %d: Failed to DeleteObject(gSnipStates[%d]!)!\n", __FUNCTIONW__, __LINE__, SnipState);
 				CRASH(0);
 			}
-			gSnipStates[SnipState] = NULL;
+			SnExG.gSnipStates[SnipState] = NULL;
 		}
 	}
-	gCurrentSnipState = 0;
+	SnExG.gCurrentSnipState = 0;
 	// We just minimized the main window. Allow a brief moment for the minimize animation to finish before capturing
 	// the screen.
 	Sleep(250);
@@ -1605,16 +1628,16 @@ BOOL NewButton_Click(void)
 		MessageBoxW(NULL, L"CreateCompatibleDC(ScreenDC) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
-	gCleanScreenShot = CreateCompatibleBitmap(ScreenDC, gDisplayWidth, gDisplayHeight);
-	if(gCleanScreenShot == NULL) {
+	SnExG.gCleanScreenShot = CreateCompatibleBitmap(ScreenDC, SnExG.gDisplayWidth, SnExG.gDisplayHeight);
+	if(SnExG.gCleanScreenShot == NULL) {
 		MessageBoxW(NULL, L"CreateCompatibleBitmap failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
-	SelectObject(MemoryDC, gCleanScreenShot);
-	BitBlt(MemoryDC, 0, 0, gDisplayWidth, gDisplayHeight, ScreenDC, gDisplayLeft, gDisplayTop, SRCCOPY);
-	ShowWindow(gCaptureWindowHandle, SW_SHOW);
-	SetWindowPos(gCaptureWindowHandle, HWND_TOP, gDisplayLeft, gDisplayTop, gDisplayWidth, gDisplayHeight, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
-	SetForegroundWindow(gCaptureWindowHandle);
+	SelectObject(MemoryDC, SnExG.gCleanScreenShot);
+	BitBlt(MemoryDC, 0, 0, SnExG.gDisplayWidth, SnExG.gDisplayHeight, ScreenDC, SnExG.gDisplayLeft, SnExG.gDisplayTop, SRCCOPY);
+	ShowWindow(SnExG.gCaptureWindowHandle, SW_SHOW);
+	SetWindowPos(SnExG.gCaptureWindowHandle, HWND_TOP, SnExG.gDisplayLeft, SnExG.gDisplayTop, SnExG.gDisplayWidth, SnExG.gDisplayHeight, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+	SetForegroundWindow(SnExG.gCaptureWindowHandle);
 	Result = TRUE;
 Cleanup:
 	if(MemoryDC) {
@@ -1652,7 +1675,7 @@ BOOL SaveButton_Click(void)
 	}
 	DialogInterface->/*lpVtbl->*/SetFileTypes(_countof(FileTypeFilters), FileTypeFilters);
 	DialogInterface->/*lpVtbl->*/SetFileTypeIndex(1); // 1-based array, does not start at 0
-	DialogInterface->/*lpVtbl->*/Show(gMainWindowHandle);
+	DialogInterface->/*lpVtbl->*/Show(SnExG.gMainWindowHandle);
 	DialogInterface->/*lpVtbl->*/GetResult(&ResultItem);
 	if(ResultItem == NULL) {
 		// User probably hit cancel.
@@ -1724,18 +1747,18 @@ BOOL CopyButton_Click(void)
 	HBITMAP ClipboardCopy = NULL;
 	HDC SourceDC          = NULL;
 	HDC DestinationDC     = NULL;
-	if(gSnipStates[gCurrentSnipState] == NULL) {
+	if(SnExG.GetCurrentSnipState() == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: gSnipStates[gCurrentSnipState] is NULL. This is a bug.\n", __FUNCTIONW__, __LINE__);
 		goto Cleanup;
 	}
-	GetObjectW(gSnipStates[gCurrentSnipState], sizeof(BITMAP), &Bitmap);
+	GetObjectW(SnExG.GetCurrentSnipState(), sizeof(BITMAP), &Bitmap);
 	ClipboardCopy = CreateBitmap(Bitmap.bmWidth, Bitmap.bmHeight, 1, 32, NULL);
 	SourceDC = CreateCompatibleDC(NULL);
 	DestinationDC = CreateCompatibleDC(NULL);
-	SelectObject(SourceDC, gSnipStates[gCurrentSnipState]);
+	SelectObject(SourceDC, SnExG.GetCurrentSnipState());
 	SelectObject(DestinationDC, ClipboardCopy);
 	BitBlt(DestinationDC, 0, 0, Bitmap.bmWidth, Bitmap.bmHeight, SourceDC, 0, 0, SRCCOPY);
-	if(OpenClipboard(gMainWindowHandle) == 0) {
+	if(OpenClipboard(SnExG.gMainWindowHandle) == 0) {
 		MessageBoxW(NULL, L"OpenClipboard failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
@@ -1764,7 +1787,6 @@ Cleanup:
 BOOL SaveBitmapToFile(_In_ wchar_t* FilePath)
 {
 	BOOL Success = FALSE;
-	HANDLE FileHandle = NULL;
 	BITMAPFILEHEADER BitmapFileHeader = { 0 };
 	PBITMAPINFOHEADER BitmapInfoHeaderPointer = { 0 };
 	BITMAP Bitmap = { 0 };
@@ -1775,13 +1797,13 @@ BOOL SaveBitmapToFile(_In_ wchar_t* FilePath)
 	DWORD BytesWritten = 0;
 	DWORD TotalBytes = 0;
 	DWORD IncrementalBytes = 0;
-	BYTE* BytePointer = 0;
-	FileHandle = CreateFileW(FilePath, GENERIC_READ | GENERIC_WRITE, (DWORD)0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	BYTE * BytePointer = 0;
+	HANDLE FileHandle = CreateFileW(FilePath, GENERIC_READ | GENERIC_WRITE, (DWORD)0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(FileHandle == INVALID_HANDLE_VALUE) {
 		MessageBoxW(NULL, L"Failed to create bitmap file!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
-	if(GetObject(gSnipStates[gCurrentSnipState], sizeof(BITMAP), &Bitmap) == 0) {
+	if(GetObject(SnExG.GetCurrentSnipState(), sizeof(BITMAP), &Bitmap) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: GetObject failed!\n", __FUNCTIONW__, __LINE__);
 		goto Cleanup;
 	}
@@ -1840,9 +1862,9 @@ BOOL SaveBitmapToFile(_In_ wchar_t* FilePath)
 		goto Cleanup;
 	}
 	DC = CreateCompatibleDC(NULL);
-	SelectObject(DC, gSnipStates[gCurrentSnipState]);
+	SelectObject(DC, SnExG.GetCurrentSnipState());
 	// Retrieve the color table (RGBQUAD array) and the bits (array of palette indices) from the DIB.
-	GetDIBits(DC, gSnipStates[gCurrentSnipState], 0, (WORD)BitmapInfoHeaderPointer->biHeight, Bits, BitmapInfoPointer, DIB_RGB_COLORS);
+	GetDIBits(DC, SnExG.GetCurrentSnipState(), 0, (WORD)BitmapInfoHeaderPointer->biHeight, Bits, BitmapInfoPointer, DIB_RGB_COLORS);
 	BitmapFileHeader.bfType = 0x4d42;       // "BM"
 	BitmapFileHeader.bfReserved1 = 0;
 	BitmapFileHeader.bfReserved2 = 0;
@@ -1888,62 +1910,66 @@ BOOL SavePngToFile(_In_ wchar_t* FilePath)
 	ULONG_PTR GdiplusToken = 0;
 	ULONG*    GdipBitmap   = 0;
 	if(GDIPlus == NULL) {
-		MessageBoxW(gMainWindowHandle, L"LoadLibrary(\"GDIPlus.dll\") failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr(L"LoadLibrary(\"GDIPlus.dll\") failed!");
 		goto Cleanup;
 	}
 	Error = CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &PngCLSID);
 	if(Error != NOERROR) {
-		MessageBoxW(gMainWindowHandle, L"CLSIDFromString failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr(L"CLSIDFromString failed!");
 		goto Cleanup;
 	}
 	GdiplusStartup = (int (WINAPI*)(ULONG_PTR*, struct GdiplusStartupInput*, void*))GetProcAddress(GDIPlus, "GdiplusStartup");
 	if(GdiplusStartup == NULL) {
-		MessageBoxW(gMainWindowHandle, L"Failed to load GdiplusStartup from gdiplus.dll!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr(L"Failed to load GdiplusStartup from gdiplus.dll!");
 		goto Cleanup;
 	}
 	GdiplusShutdown = (int (WINAPI*)(ULONG_PTR))GetProcAddress(GDIPlus, "GdiplusShutdown");
 	if(GdiplusShutdown == NULL) {
-		MessageBoxW(gMainWindowHandle, L"Failed to load GdiplusShutdown from gdiplus.dll!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr(L"Failed to load GdiplusShutdown from gdiplus.dll!");
 		goto Cleanup;
 	}
 	GdipCreateBitmapFromHBITMAP = (int (WINAPI*)(HBITMAP, HPALETTE hPalette, ULONG**Bitmap))GetProcAddress(GDIPlus, "GdipCreateBitmapFromHBITMAP");
 	if(GdipCreateBitmapFromHBITMAP == NULL) {
-		MessageBoxW(gMainWindowHandle, L"Failed to load GdipCreateBitmapFromHBITMAP from gdiplus.dll!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr(L"Failed to load GdipCreateBitmapFromHBITMAP from gdiplus.dll!");
 		goto Cleanup;
 	}
 	GdipSaveImageToFile = (int (WINAPI*)(ULONG*, const WCHAR*, const CLSID*, const EncoderParameters*))GetProcAddress(GDIPlus, "GdipSaveImageToFile");
 	if(GdipSaveImageToFile == NULL) {
-		MessageBoxW(gMainWindowHandle, L"Failed to load GdipSaveImageToFile from gdiplus.dll!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr(L"Failed to load GdipSaveImageToFile from gdiplus.dll!");
 		goto Cleanup;
 	}
 	GdipDisposeImage = (int (WINAPI*)(ULONG*))GetProcAddress(GDIPlus, "GdipDisposeImage");
 	if(GdipDisposeImage == NULL) {
-		MessageBoxW(gMainWindowHandle, L"Failed to load GdipDisposeImage from gdiplus.dll!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr(L"Failed to load GdipDisposeImage from gdiplus.dll!");
 		goto Cleanup;
 	}
-	GdiplusStartupInput GdiplusStartupInput = { 0 };
-	GdiplusStartupInput.GdiplusVersion           = 1;
-	GdiplusStartupInput.DebugEventCallback       = NULL;
-	GdiplusStartupInput.SuppressBackgroundThread = FALSE;
-	GdiplusStartupInput.SuppressExternalCodecs   = FALSE;
-	if((Error = GdiplusStartup(&GdiplusToken, &GdiplusStartupInput, NULL)) != S_OK) {
-		MessageBoxW(gMainWindowHandle, L"GdiplusStartup failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+	{
+		GdiplusStartupInput GdiplusStartupInput = { 0 };
+		GdiplusStartupInput.GdiplusVersion           = 1;
+		GdiplusStartupInput.DebugEventCallback       = NULL;
+		GdiplusStartupInput.SuppressBackgroundThread = FALSE;
+		GdiplusStartupInput.SuppressExternalCodecs   = FALSE;
+		if((Error = GdiplusStartup(&GdiplusToken, &GdiplusStartupInput, NULL)) != S_OK) {
+			SnExG.PopupMessageErr(L"GdiplusStartup failed!");
+			goto Cleanup;
+		}
+	}
+	if((Error = GdipCreateBitmapFromHBITMAP(SnExG.GetCurrentSnipState(), NULL, &GdipBitmap)) != 0) {
+		SnExG.PopupMessageErr(L"GdipCreateBitmapFromHBITMAP failed!");
 		goto Cleanup;
 	}
-	if((Error = GdipCreateBitmapFromHBITMAP(gSnipStates[gCurrentSnipState], NULL, &GdipBitmap)) != 0) {
-		MessageBoxW(gMainWindowHandle, L"GdipCreateBitmapFromHBITMAP failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		goto Cleanup;
-	}
-	EncoderParameters EncoderParams = { 0 };
-	LONG Compression = 5;
-	EncoderParams.Count = 1;
-	EncoderParams.Parameter[0].NumberOfValues = 1;
-	EncoderParams.Parameter[0].Guid = gEncoderCompressionGuid;
-	EncoderParams.Parameter[0].Type = EncoderParameterValueTypeLong;
-	EncoderParams.Parameter[0].Value = &Compression;
-	if((Error = GdipSaveImageToFile(GdipBitmap, FilePath, &PngCLSID, &EncoderParams)) != 0) {
-		MessageBoxW(gMainWindowHandle, L"GdipSaveImageToFile failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		goto Cleanup;
+	{
+		EncoderParameters EncoderParams = { 0 };
+		LONG Compression = 5;
+		EncoderParams.Count = 1;
+		EncoderParams.Parameter[0].NumberOfValues = 1;
+		EncoderParams.Parameter[0].Guid = gEncoderCompressionGuid;
+		EncoderParams.Parameter[0].Type = EncoderParameterValueTypeLong;
+		EncoderParams.Parameter[0].Value = &Compression;
+		if((Error = GdipSaveImageToFile(GdipBitmap, FilePath, &PngCLSID, &EncoderParams)) != 0) {
+			SnExG.PopupMessageErr(L"GdipSaveImageToFile failed!");
+			goto Cleanup;
+		}
 	}
 	Result = TRUE;
 Cleanup:
@@ -1954,98 +1980,6 @@ Cleanup:
 	if(GDIPlus != NULL)
 		FreeLibrary(GDIPlus);
 	return(Result);
-}
-
-HRESULT AddAllMenuItems(_In_ HINSTANCE Instance)
-{
-	HRESULT Result = S_OK;
-	HMENU SystemMenu = GetSystemMenu(gMainWindowHandle, FALSE);
-	HKEY SnipExKey = NULL;
-	DWORD SnipExKeyDisposition = 0;
-	DWORD ValueSize = sizeof(DWORD);
-	BOOL AlreadyReplaced = FALSE;
-	HKEY IFEOKey = NULL;
-	wchar_t DebuggerValue[256] = { 0 };
-	UINT16 ReplaceCommand = 0;
-	wchar_t ReplacementText[64] = { 0 };
-	if(SystemMenu == NULL) {
-		Result = E_FAIL;
-		MyOutputDebugStringW(L"[%s] Line %d: ERROR: GetSystemMenu failed!\n", __FUNCTIONW__, __LINE__);
-		goto Exit;
-	}
-	AppendMenuW(SystemMenu, MF_SEPARATOR, 0, NULL);
-	if((Result = GetSnipExRegValue(REG_DROPSHADOWNAME, &gShouldAddDropShadow)) != ERROR_SUCCESS) {
-		goto Exit;
-	}
-	if((Result = GetSnipExRegValue(REG_REMEMBERTOOLNAME, &gRememberLastTool)) != ERROR_SUCCESS) {
-		goto Exit;
-	}
-	if((Result = GetSnipExRegValue(REG_LASTTOOLNAME, &gLastTool)) != ERROR_SUCCESS) {
-		goto Exit;
-	}
-	if((Result = GetSnipExRegValue(REG_AUTOCOPYNAME, &gAutoCopy)) != ERROR_SUCCESS) {
-		goto Exit;
-	}
-	if(gShouldAddDropShadow > 0)
-		AppendMenuW(SystemMenu, MF_STRING | MF_CHECKED, SYSCMD_SHADOW, L"Drop Shadow Effect");
-	else
-		AppendMenuW(SystemMenu, MF_STRING | MF_UNCHECKED, SYSCMD_SHADOW, L"Drop Shadow Effect");
-	if(gAutoCopy > 0)
-		AppendMenuW(SystemMenu, MF_STRING | MF_CHECKED, SYSCMD_AUTOCOPY, L"Automatically copy snip to clipboard");
-	else
-		AppendMenuW(SystemMenu, MF_STRING | MF_UNCHECKED, SYSCMD_AUTOCOPY, L"Automatically copy snip to clipboard");
-	if(gRememberLastTool > 0)
-		AppendMenuW(SystemMenu, MF_STRING | MF_CHECKED, SYSCMD_REMEMBER, L"Remember Last Tool Used");
-	else {
-		AppendMenuW(SystemMenu, MF_STRING | MF_UNCHECKED, SYSCMD_REMEMBER, L"Remember Last Tool Used");
-		if((Result = DeleteSnipExRegValue(REG_LASTTOOLNAME)) != ERROR_SUCCESS)
-			goto Exit;
-	}
-	AppendMenuW(SystemMenu, MF_STRING, SYSCMD_UNDO, L"Undo (Ctrl+Z)");
-	SnipExKeyDisposition = 0;
-	ValueSize = sizeof(DebuggerValue);
-	// This key should always exist. Something is very wrong if we can't open it.
-	if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options", 0,
-	    KEY_QUERY_VALUE, &IFEOKey) != ERROR_SUCCESS) {
-		Result = GetLastError();
-		MyOutputDebugStringW(L"[%s] Line %d: ERROR: RegOpenKeyEx failed! 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
-		goto Exit;
-	}
-	// If this subkey is not present, then that is OK, it just means it has never been added before
-	if(RegCreateKeyExW(IFEOKey, L"SnippingTool.exe", 0, NULL, 0, KEY_QUERY_VALUE, NULL, &SnipExKey,
-	    &SnipExKeyDisposition) == ERROR_SUCCESS) {
-		RegQueryValueExW(SnipExKey, L"Debugger", NULL, NULL, (LPBYTE)&DebuggerValue, &ValueSize);
-		if(wcslen(DebuggerValue) > 0) {
-			// Does the file specified by the "Debugger" value actually exist?
-			const DWORD FileAttributes = GetFileAttributesW(DebuggerValue);
-			if(FileAttributes != INVALID_FILE_ATTRIBUTES && !(FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				AlreadyReplaced = TRUE;
-		}
-	}
-	if(AlreadyReplaced) {
-		ReplaceCommand = SYSCMD_RESTORE;
-		wcscpy_s(ReplacementText, _countof(ReplacementText), L"Restore Windows Snipping Tool");
-	}
-	else {
-		ReplaceCommand = SYSCMD_REPLACE;
-		wcscpy_s(ReplacementText, _countof(ReplacementText), L"Replace Windows Snipping Tool with SnipEx");
-	}
-	AppendMenuW(SystemMenu, MF_STRING, ReplaceCommand, ReplacementText);
-	// Only works with 8bpp bitmaps
-	gUACIcon = (HBITMAP)LoadImageW(Instance, MAKEINTRESOURCEW(IDB_UAC), IMAGE_BITMAP, 0, 0, LR_LOADTRANSPARENT | LR_LOADMAP3DCOLORS | LR_SHARED);
-	if(gUACIcon != NULL) {
-		MENUITEMINFOW MenuItemInfo = { sizeof(MENUITEMINFOW) };
-		MenuItemInfo.fMask = MIIM_BITMAP;
-		MenuItemInfo.hbmpItem = gUACIcon;
-		SetMenuItemInfoW(SystemMenu, ReplaceCommand, FALSE, &MenuItemInfo);
-	}
-	else {
-		Result = GetLastError();
-		MyOutputDebugStringW(L"[%s] Line %d: ERROR: Attempting to load the UAC icon failed! 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
-	}
-Exit:
-	Implement_RegCloseKey(IFEOKey);
-	return Result;
 }
 
 BOOL IsAppRunningElevated(void)
@@ -2074,7 +2008,7 @@ Cleanup:
 	}
 	// Throw the error if something failed in the function.
 	if(ERROR_SUCCESS != Error) {
-		MessageBoxW(gMainWindowHandle, L"Error checking for UAC Elevation!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr(L"Error checking for UAC Elevation!");
 	}
 	MyOutputDebugStringW(L"[%s] Line %d: Process is elevated: %d.\n", __FUNCTIONW__, __LINE__, IsElevated);
 	return(IsElevated);
@@ -2145,80 +2079,80 @@ BOOL AdjustForCustomScaling(void)
 		return(TRUE);
 	}
 	if(DPIx > 96 && DPIx <= 106) {
-		gStartingMainWindowHeight += 2;
-		gStartingMainWindowWidth  += 2;
+		SnExG.gStartingMainWindowHeight += 2;
+		SnExG.gStartingMainWindowWidth  += 2;
 	}
 	else if(DPIx > 106 && DPIx <= 110) {
-		gStartingMainWindowHeight += 5;
-		gStartingMainWindowWidth  += 3;
+		SnExG.gStartingMainWindowHeight += 5;
+		SnExG.gStartingMainWindowWidth  += 3;
 	}
 	else if(DPIx > 110 && DPIx <= 115) {
-		gStartingMainWindowHeight += 6;
-		gStartingMainWindowWidth  += 3;
+		SnExG.gStartingMainWindowHeight += 6;
+		SnExG.gStartingMainWindowWidth  += 3;
 	}
 	else if(DPIx > 115 && DPIx <= 120) {
-		gStartingMainWindowHeight += 8;
-		gStartingMainWindowWidth  += 3;
+		SnExG.gStartingMainWindowHeight += 8;
+		SnExG.gStartingMainWindowWidth  += 3;
 	}
 	else if(DPIx > 120 && DPIx <= 125) {
-		gStartingMainWindowHeight += 10;
-		gStartingMainWindowWidth  += 3;
+		SnExG.gStartingMainWindowHeight += 10;
+		SnExG.gStartingMainWindowWidth  += 3;
 	}
 	else if(DPIx > 125 && DPIx <= 130) {
-		gStartingMainWindowHeight += 10;
-		gStartingMainWindowWidth  += 3;
+		SnExG.gStartingMainWindowHeight += 10;
+		SnExG.gStartingMainWindowWidth  += 3;
 	}
 	else if(DPIx > 130 && DPIx <= 134) {
-		gStartingMainWindowHeight += 15;
-		gStartingMainWindowWidth  += 5;
+		SnExG.gStartingMainWindowHeight += 15;
+		SnExG.gStartingMainWindowWidth  += 5;
 	}
 	else if(DPIx > 134 && DPIx <= 139) {
-		gStartingMainWindowHeight += 15;
-		gStartingMainWindowWidth  += 5;
+		SnExG.gStartingMainWindowHeight += 15;
+		SnExG.gStartingMainWindowWidth  += 5;
 	}
 	else if(DPIx > 139 && DPIx <= 144) {
-		gStartingMainWindowHeight += 17;
-		gStartingMainWindowWidth  += 7;
+		SnExG.gStartingMainWindowHeight += 17;
+		SnExG.gStartingMainWindowWidth  += 7;
 	}
 	else if(DPIx > 144 && DPIx <= 149) {
-		gStartingMainWindowHeight += 18;
-		gStartingMainWindowWidth  += 7;
+		SnExG.gStartingMainWindowHeight += 18;
+		SnExG.gStartingMainWindowWidth  += 7;
 	}
 	else if(DPIx > 149 && DPIx <= 154) {
-		gStartingMainWindowHeight += 19;
-		gStartingMainWindowWidth  += 7;
+		SnExG.gStartingMainWindowHeight += 19;
+		SnExG.gStartingMainWindowWidth  += 7;
 	}
 	else if(DPIx > 154 && DPIx <= 158) {
-		gStartingMainWindowHeight += 22;
-		gStartingMainWindowWidth  += 9;
+		SnExG.gStartingMainWindowHeight += 22;
+		SnExG.gStartingMainWindowWidth  += 9;
 	}
 	else if(DPIx > 158 && DPIx <= 163) {
-		gStartingMainWindowHeight += 23;
-		gStartingMainWindowWidth  += 9;
+		SnExG.gStartingMainWindowHeight += 23;
+		SnExG.gStartingMainWindowWidth  += 9;
 	}
 	else if(DPIx > 163 && DPIx <= 168) {
-		gStartingMainWindowHeight += 25;
-		gStartingMainWindowWidth  += 9;
+		SnExG.gStartingMainWindowHeight += 25;
+		SnExG.gStartingMainWindowWidth  += 9;
 	}
 	else if(DPIx > 168 && DPIx <= 173) {
-		gStartingMainWindowHeight += 26;
-		gStartingMainWindowWidth  += 9;
+		SnExG.gStartingMainWindowHeight += 26;
+		SnExG.gStartingMainWindowWidth  += 9;
 	}
 	else if(DPIx > 173 && DPIx <= 178) {
-		gStartingMainWindowHeight += 27;
-		gStartingMainWindowWidth  += 9;
+		SnExG.gStartingMainWindowHeight += 27;
+		SnExG.gStartingMainWindowWidth  += 9;
 	}
 	else if(DPIx > 178 && DPIx <= 182) {
-		gStartingMainWindowHeight += 30;
-		gStartingMainWindowWidth  += 10;
+		SnExG.gStartingMainWindowHeight += 30;
+		SnExG.gStartingMainWindowWidth  += 10;
 	}
 	else if(DPIx > 182 && DPIx <= 187) {
-		gStartingMainWindowHeight += 31;
-		gStartingMainWindowWidth  += 10;
+		SnExG.gStartingMainWindowHeight += 31;
+		SnExG.gStartingMainWindowWidth  += 10;
 	}
 	else if(DPIx > 187 && DPIx <= 192) {
-		gStartingMainWindowHeight += 32;
-		gStartingMainWindowWidth  += 10;
+		SnExG.gStartingMainWindowHeight += 32;
+		SnExG.gStartingMainWindowWidth  += 10;
 	}
 	else {
 		MessageBoxW(NULL, L"Unable to deal with your custom scaling level. I can only handle up to 200% scaling. Contact me at ryanries09@gmail.com if you want me to add support for your scaling level.",
@@ -2260,7 +2194,7 @@ LSTATUS DeleteSnipExRegValue(_In_ wchar_t* ValueName)
 				MyOutputDebugStringW(L"[%s] Line %d: Registry value %s deleted.\n", __FUNCTIONW__, __LINE__, ValueName);
 		}
 		else {
-			MessageBoxW(gMainWindowHandle, L"Could not open the SnipEx registry key for writing!", L"Error", MB_OK | MB_SYSTEMMODAL | MB_ICONERROR);
+			SnExG.PopupMessageErr(L"Could not open the SnipEx registry key for writing!");
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read the SnipEx registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	}
@@ -2290,7 +2224,7 @@ LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 				MyOutputDebugStringW(L"[%s] Line %d: Opened SnipEx registry key.\n", __FUNCTIONW__, __LINE__);
 			}
 			if((Result = RegSetValueExW(SnipExKey, ValueName, 0, REG_DWORD, (const BYTE*)ValueData, sizeof(DWORD))) != ERROR_SUCCESS) {
-				MessageBoxW(gMainWindowHandle, L"Could not set registry value!", L"Error", MB_OK | MB_SYSTEMMODAL | MB_ICONERROR);
+				SnExG.PopupMessageErr(L"Could not set registry value!");
 				MyOutputDebugStringW(L"[%s] Line %d: Could not set the '%s' registry value! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, ValueName, Result);
 			}
 			else {
@@ -2298,7 +2232,7 @@ LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 			}
 		}
 		else {
-			MessageBoxW(gMainWindowHandle, L"Could not open the SnipEx registry key for writing!", L"Error", MB_OK | MB_SYSTEMMODAL | MB_ICONERROR); 
+			SnExG.PopupMessageErr(L"Could not open the SnipEx registry key for writing!"); 
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read the SnipEx registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	}
@@ -2331,7 +2265,7 @@ LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 					Result = ERROR_SUCCESS;
 				}
 				else {
-					MessageBoxW(gMainWindowHandle, L"Could not get registry value!", L"Error", MB_OK | MB_SYSTEMMODAL | MB_ICONERROR);
+					SnExG.PopupMessageErr(L"Could not get registry value!");
 					MyOutputDebugStringW(L"[%s] Line %d: Could not get the '%s' registry value! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, ValueName, Result);
 				}
 			}
@@ -2339,7 +2273,7 @@ LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 				MyOutputDebugStringW(L"[%s] Line %d: Read the '%s' registry value as %d.\n", __FUNCTIONW__, __LINE__, ValueName, *ValueData);
 		}
 		else {
-			MessageBoxW(gMainWindowHandle, L"Could not open the SnipEx registry key for reading!", L"Error", MB_OK | MB_SYSTEMMODAL | MB_ICONERROR);
+			SnExG.PopupMessageErr(L"Could not open the SnipEx registry key for reading!");
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read from the SnipEx registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	}
@@ -2358,15 +2292,15 @@ BOOL CALLBACK TextEditCallback(_In_ HWND Dialog, _In_ UINT Message, _In_ WPARAM 
 		    // Get the size of the font that the user has selected, since the font size will determine the exact
 		    // coordinates of where the text box and text will go.
 		    HDC DC = CreateCompatibleDC(NULL);
-		    SelectObject(DC, (HFONT)gFont);
+		    SelectObject(DC, SnExG.gFont);
 		    TEXTMETRICW TextMetrics = { 0 };
 		    GetTextMetricsW(DC, &TextMetrics);
 		    DeleteDC(DC);
 		    SetFocus(TextBox);          // Set focus on the text box.
-		    SendMessageW(TextBox, WM_SETFONT, (WPARAM)gFont, 0);        // Change the font of the text box.
-		    ClientToScreen(gMainWindowHandle, &gTextBoxLocation);
+		    SendMessageW(TextBox, WM_SETFONT, (WPARAM)SnExG.gFont, 0);        // Change the font of the text box.
+		    ClientToScreen(SnExG.gMainWindowHandle, &SnExG.gTextBoxLocation);
 			// Move the entire dialog box to the approximate location of the user's mouse cursor.
-		    SetWindowPos(Dialog, HWND_TOP, gTextBoxLocation.x, gTextBoxLocation.y - (TextMetrics.tmHeight / 2), 0, 0, SWP_NOSIZE | SWP_NOZORDER); 
+		    SetWindowPos(Dialog, HWND_TOP, SnExG.gTextBoxLocation.x, SnExG.gTextBoxLocation.y - (TextMetrics.tmHeight / 2), 0, 0, SWP_NOSIZE | SWP_NOZORDER); 
 			// Move the text box to the very top-left corner of the parent dialog box, and adjust its height based on the font that the user chose.
 		    SetWindowPos(TextBox, HWND_TOP, 0, 0, 200, TextMetrics.tmHeight, SWP_NOZORDER);
 		    SetWindowPos(Dialog, HWND_TOP, 0, 0, 200, TextMetrics.tmHeight, SWP_NOZORDER | SWP_NOMOVE); // Shrink the dialog box to exactly match the text box control.
@@ -2374,7 +2308,7 @@ BOOL CALLBACK TextEditCallback(_In_ HWND Dialog, _In_ UINT Message, _In_ WPARAM 
 		case WM_COMMAND:
 		    switch(LOWORD(WParam)) {
 			    case IDOK: 
-					GetDlgItemTextW(Dialog, IDC_EDIT1, gTextBuffer, _countof(gTextBuffer));
+					GetDlgItemTextW(Dialog, IDC_EDIT1, SnExG.gTextBuffer, _countof(SnExG.gTextBuffer));
 					EndDialog(Dialog, WParam);
 					break;
 		    }

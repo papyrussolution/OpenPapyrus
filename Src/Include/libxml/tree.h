@@ -59,8 +59,7 @@ typedef enum {
 /**
  * xmlBuffer:
  *
- * A buffer structure, this old construct is limited to 2GB and
- * is being deprecated, use API with xmlBuf instead
+ * A buffer structure, this old construct is limited to 2GB and is being deprecated, use API with xmlBuf instead
  */
 //typedef struct _xmlBuffer xmlBuffer;
 //struct xmlBuffer;
@@ -115,8 +114,7 @@ XMLPUBFUN size_t /*XMLCALL*/FASTCALL xmlBufShrink(xmlBuf * buf, size_t len);
  * NOTE: This is synchronized with DOM Level1 values
  *  See http://www.w3.org/TR/REC-DOM-Level-1/
  *
- * Actually this had diverged a bit, and now XML_DOCUMENT_TYPE_NODE should
- * be deprecated to use an XML_DTD_NODE.
+ * Actually this had diverged a bit, and now XML_DOCUMENT_TYPE_NODE should be deprecated to use an XML_DTD_NODE.
  */
 typedef enum {
 	XML_ELEMENT_NODE =           1,

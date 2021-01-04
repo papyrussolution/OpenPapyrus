@@ -10553,7 +10553,7 @@ SOAP_FMAC1 short * SOAP_FMAC2 soap_inshort(struct soap * soap, const char * tag,
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_float2s(struct soap * soap, float n)
 {
 	char * s;
-	if(soap_isnan((double)n))
+	if(fisnanf(n))
 		return "NaN";
 	if(soap_ispinff(n))
 		return "INF";
@@ -10679,7 +10679,7 @@ SOAP_FMAC1 float * SOAP_FMAC2 soap_infloat(struct soap * soap, const char * tag,
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_double2s(struct soap * soap, double n)
 {
 	char * s;
-	if(soap_isnan(n))
+	if(fisnan(n))
 		return "NaN";
 	if(soap_ispinfd(n))
 		return "INF";

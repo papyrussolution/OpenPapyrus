@@ -1779,8 +1779,7 @@ AMQP_PUBLIC_FUNCTION int amqp_handle_input(amqp_connection_state_t state, amqp_b
 /**
  * Check to see if connection memory can be released
  *
- * \deprecated This function is deprecated in favor of
- *  amqp_maybe_release_buffers() or amqp_maybe_release_buffers_on_channel()
+ * \deprecated This function is deprecated in favor of amqp_maybe_release_buffers() or amqp_maybe_release_buffers_on_channel()
  *
  * Checks the state of an amqp_connection_state_t object to see if
  * amqp_release_buffers() can be called successfully.
@@ -1797,8 +1796,7 @@ AMQP_PUBLIC_FUNCTION boolint amqp_release_buffers_ok(const amqp_connection_state
 /**
  * Release amqp_connection_state_t owned memory
  *
- * \deprecated This function is deprecated in favor of
- *  amqp_maybe_release_buffers() or amqp_maybe_release_buffers_on_channel()
+ * \deprecated This function is deprecated in favor of amqp_maybe_release_buffers() or amqp_maybe_release_buffers_on_channel()
  *
  * \warning caller should ensure amqp_release_buffers_ok() returns true before
  *  calling this function. Failure to do so may result in abort() being called.
@@ -2493,8 +2491,7 @@ AMQP_PUBLIC_FUNCTION boolint amqp_data_in_buffer(const amqp_connection_state_t s
 /**
  * Get the error string for the given error code.
  *
- * \deprecated This function has been deprecated in favor of
- *  \ref amqp_error_string2() which returns statically allocated
+ * \deprecated This function has been deprecated in favor of \ref amqp_error_string2() which returns statically allocated
  *  string which do not need to be freed by the caller.
  *
  * The returned string resides on the heap; the caller is responsible

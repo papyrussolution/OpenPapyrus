@@ -72,7 +72,7 @@ extern PPDrvSession DRVS;
 #define K2ERR_MEMERR			404 // Ошибка выделения памяти
 #define K2ERR_GETADDRFAILED		405 // Ошибка получения адреса контроллера
 
-#define EXPORT	extern "C" __declspec (dllexport)
+#define EXPORT	extern "C" __declspec(dllexport)
 #define THROWERR(expr,val)     { if(!(expr)) { DRVS.SetErrCode(val); goto __scatch; } }
 //
 // Рассчитываем CRC16 по 0xA001

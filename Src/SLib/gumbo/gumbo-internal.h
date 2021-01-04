@@ -260,16 +260,16 @@ void FASTCALL utf8iterator_next(Utf8Iterator* iter);
 int FASTCALL utf8iterator_current(const Utf8Iterator* iter);
 
 // Retrieves and fills the output parameter with the current source position.
-void utf8iterator_get_position(const Utf8Iterator* iter, GumboSourcePosition* output);
+void FASTCALL utf8iterator_get_position(const Utf8Iterator* iter, GumboSourcePosition* output);
 
 // Retrieves a character pointer to the start of the current character.
-const char* utf8iterator_get_char_pointer(const Utf8Iterator* iter);
+const char * FASTCALL utf8iterator_get_char_pointer(const Utf8Iterator* iter);
 
 // Retrieves a character pointer to 1 past the end of the buffer.  This is
 // necessary for certain state machines and string comparisons that would like
 // to look directly for ASCII text in the buffer without going through the
 // decoder.
-const char* utf8iterator_get_end_pointer(const Utf8Iterator* iter);
+const char * FASTCALL utf8iterator_get_end_pointer(const Utf8Iterator* iter);
 
 // If the upcoming text in the buffer matches the specified prefix (which has
 // length 'length'), consume it and return true.  Otherwise, return false with

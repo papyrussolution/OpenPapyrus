@@ -225,15 +225,10 @@ void * xmlMallocAtomicLoc(size_t size, const char * file, int line)
 /**
  * xmlMemMalloc:
  * @size:  an int specifying the size in byte to allocate.
- *
  * a malloc() equivalent, with logging of the allocation info.
- *
  * Returns a pointer to the allocated area or NULL in case of lack of memory.
  */
-void * xmlMemMalloc(size_t size)
-{
-	return xmlMallocLoc(size, "none", 0);
-}
+void * xmlMemMalloc(size_t size) { return xmlMallocLoc(size, "none", 0); }
 /**
  * xmlReallocLoc:
  * @ptr:  the initial memory block pointer
@@ -311,15 +306,10 @@ error:
  * xmlMemRealloc:
  * @ptr:  the initial memory block pointer
  * @size:  an int specifying the size in byte to allocate.
- *
  * a realloc() equivalent, with logging of the allocation info.
- *
  * Returns a pointer to the allocated area or NULL in case of lack of memory.
  */
-void * xmlMemRealloc(void * ptr, size_t size)
-{
-	return xmlReallocLoc(ptr, size, "none", 0);
-}
+void * xmlMemRealloc(void * ptr, size_t size) { return xmlReallocLoc(ptr, size, "none", 0); }
 /**
  * xmlMemFree:
  * @ptr:  the memory block pointer
@@ -424,41 +414,25 @@ char * xmlMemStrdupLoc(const char * str, const char * file, int line)
 error:
 	return 0;
 }
-
 /**
  * xmlMemoryStrdup:
  * @str:  the initial string pointer
- *
  * a strdup() equivalent, with logging of the allocation info.
- *
  * Returns a pointer to the new string or NULL if allocation error occurred.
  */
-char * xmlMemoryStrdup(const char * str) 
-{
-	return xmlMemStrdupLoc(str, "none", 0);
-}
+char * xmlMemoryStrdup(const char * str) { return xmlMemStrdupLoc(str, "none", 0); }
 /**
  * xmlMemUsed:
- *
  * Provides the amount of memory currently allocated
- *
  * Returns an int representing the amount of memory allocated.
  */
-int xmlMemUsed() 
-{
-	return (debugMemSize);
-}
+int xmlMemUsed() { return (debugMemSize); }
 /**
  * xmlMemBlocks:
- *
  * Provides the number of memory areas currently allocated
- *
  * Returns an int representing the number of blocks
  */
-int xmlMemBlocks() 
-{
-	return debugMemBlocks;
-}
+int xmlMemBlocks() { return debugMemBlocks; }
 #ifdef MEM_LIST
 /**
  * xmlMemContentShow:
@@ -467,12 +441,10 @@ int xmlMemBlocks()
  *
  * tries to show some content from the memory block
  */
-
 static void xmlMemContentShow(FILE * fp, MEMHDR * p)
 {
 	int i, j, k, len;
 	const char * buf;
-
 	if(!p) {
 		fprintf(fp, " NULL");
 		return;

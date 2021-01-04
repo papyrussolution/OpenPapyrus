@@ -588,6 +588,9 @@
 				RelativePath="..\SLib\dec.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\dirent.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\Dlgprocs.cpp">
 			</File>
 			<File

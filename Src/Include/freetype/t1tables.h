@@ -1,19 +1,14 @@
 /****************************************************************************
- *
  * t1tables.h
+ *   Basic Type 1/Type 2 tables definitions and interface (specification only).
  *
- *   Basic Type 1/Type 2 tables definitions and interface (specification
- *   only).
- *
- * Copyright (C) 1996-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 1996-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
 #ifndef T1TABLES_H_
 #define T1TABLES_H_
@@ -21,9 +16,9 @@
 #include <freetype/freetype.h>
 
 #ifdef FREETYPE_H
-#error "freetype.h of FreeType 1 has been loaded!"
-#error "Please fix the directory search order for header files"
-#error "so that freetype.h of FreeType 2 is found first."
+	#error "freetype.h of FreeType 1 has been loaded!"
+	#error "Please fix the directory search order for header files"
+	#error "so that freetype.h of FreeType 2 is found first."
 #endif
 
 FT_BEGIN_HEADER
@@ -248,14 +243,9 @@ typedef enum  T1_Blend_Flags_ {
 
 /* */
 
-/* maximum number of Multiple Masters designs, as defined in the spec */
-#define T1_MAX_MM_DESIGNS     16
-
-/* maximum number of Multiple Masters axes, as defined in the spec */
-#define T1_MAX_MM_AXIS        4
-
-/* maximum number of elements in a design map */
-#define T1_MAX_MM_MAP_POINTS  20
+#define T1_MAX_MM_DESIGNS     16 /* maximum number of Multiple Masters designs, as defined in the spec */
+#define T1_MAX_MM_AXIS        4 /* maximum number of Multiple Masters axes, as defined in the spec */
+#define T1_MAX_MM_MAP_POINTS  20 /* maximum number of elements in a design map */
 
 /* this structure is used to store the BlendDesignMap entry for an axis */
 typedef struct  PS_DesignMap_ {
@@ -432,8 +422,7 @@ typedef CID_FaceInfoRec CID_Info;
  *    Boolean.  True if glyph names are reliable.
  *
  */
-FT_EXPORT(FT_Int)
-FT_Has_PS_Glyph_Names(FT_Face face);
+FT_EXPORT(FT_Int) FT_Has_PS_Glyph_Names(FT_Face face);
 
 /**************************************************************************
  *
@@ -464,9 +453,7 @@ FT_Has_PS_Glyph_Names(FT_Face face);
  *    return the `FT_Err_Invalid_Argument` error code.
  *
  */
-FT_EXPORT(FT_Error)
-FT_Get_PS_Font_Info(FT_Face face,
-    PS_FontInfo afont_info);
+FT_EXPORT(FT_Error) FT_Get_PS_Font_Info(FT_Face face, PS_FontInfo afont_info);
 
 /**************************************************************************
  *
@@ -496,9 +483,7 @@ FT_Get_PS_Font_Info(FT_Face face,
  *    the `FT_Err_Invalid_Argument` error code.
  *
  */
-FT_EXPORT(FT_Error)
-FT_Get_PS_Font_Private(FT_Face face,
-    PS_Private afont_private);
+FT_EXPORT(FT_Error) FT_Get_PS_Font_Private(FT_Face face, PS_Private afont_private);
 
 /**************************************************************************
  *
@@ -708,17 +693,7 @@ typedef enum  PS_Dict_Keys_ {
  *    2.4.8
  *
  */
-FT_EXPORT(FT_Long)
-FT_Get_PS_Font_Value(FT_Face face,
-    PS_Dict_Keys key,
-    FT_UInt idx,
-    void         * value,
-    FT_Long value_len);
-
+FT_EXPORT(FT_Long) FT_Get_PS_Font_Value(FT_Face face, PS_Dict_Keys key, FT_UInt idx, void * value, FT_Long value_len);
 /* */
-
 FT_END_HEADER
-
 #endif /* T1TABLES_H_ */
-
-/* END */

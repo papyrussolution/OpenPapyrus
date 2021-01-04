@@ -102,15 +102,8 @@ int IsValidIEEE(double v)
 	return oneof6(c, _FPCLASS_NN, _FPCLASS_ND, _FPCLASS_NZ, _FPCLASS_PZ, _FPCLASS_PD, _FPCLASS_PN);
 }
 
-int fisnan(double v)
-{
-	return _isnan(v);
-}
-
-int fisnanf(float v)
-{
-	return _isnan(v);
-}
+int FASTCALL fisnan(double v) { return _isnan(v); }
+int fisnanf(float v) { return _isnan(v); }
 
 int fisinf(double v)
 {

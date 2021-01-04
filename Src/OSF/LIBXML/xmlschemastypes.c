@@ -3719,7 +3719,6 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
 
 	return 0;
 }
-
 /**
  * xmlSchemaComparePreserveReplaceStrings:
  * @x:  a first string value
@@ -3736,57 +3735,37 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
  */
 static int xmlSchemaComparePreserveReplaceStrings(const xmlChar * x, const xmlChar * y, int invert)
 {
-	int tmp;
 	while((*x != 0) && (*y != 0)) {
 		if(IS_WSP_REPLACE_CH(*y)) {
 			if(!IS_WSP_SPACE_CH(*x)) {
 				if((*x - 0x20) < 0) {
-					if(invert)
-						return 1;
-					else
-						return -1;
+					return invert ? 1 : -1;
 				}
 				else {
-					if(invert)
-						return -1;
-					else
-						return 1;
+					return invert ? -1 : 1;
 				}
 			}
 		}
 		else {
-			tmp = *x - *y;
+			const int tmp = *x - *y;
 			if(tmp < 0) {
-				if(invert)
-					return 1;
-				else
-					return -1;
+				return invert ? 1 : -1;
 			}
 			if(tmp > 0) {
-				if(invert)
-					return -1;
-				else
-					return 1;
+				return invert ? -1 : 1;
 			}
 		}
 		x++;
 		y++;
 	}
 	if(*x != 0) {
-		if(invert)
-			return -1;
-		else
-			return 1;
+		return invert ? -1 : 1;
 	}
 	if(*y != 0) {
-		if(invert)
-			return 1;
-		else
-			return -1;
+		return invert ? 1 : -1;
 	}
 	return 0;
 }
-
 /**
  * xmlSchemaComparePreserveCollapseStrings:
  * @x:  a first string value
@@ -3802,13 +3781,11 @@ static int xmlSchemaComparePreserveReplaceStrings(const xmlChar * x, const xmlCh
  */
 static int xmlSchemaComparePreserveCollapseStrings(const xmlChar * x, const xmlChar * y, int invert)
 {
-	int tmp;
 	/*
 	 * Skip leading blank chars of the collapsed string.
 	 */
-	while IS_WSP_BLANK_CH(*y)
-	y++;
-
+	while(IS_WSP_BLANK_CH(*y))
+		y++;
 	while((*x != 0) && (*y != 0)) {
 		if IS_WSP_BLANK_CH(*y) {
 			if(!IS_WSP_SPACE_CH(*x)) {
@@ -3816,16 +3793,10 @@ static int xmlSchemaComparePreserveCollapseStrings(const xmlChar * x, const xmlC
 				 * The yv character would have been replaced to 0x20.
 				 */
 				if((*x - 0x20) < 0) {
-					if(invert)
-						return 1;
-					else
-						return -1;
+					return invert ? 1 : -1;
 				}
 				else {
-					if(invert)
-						return -1;
-					else
-						return 1;
+					return invert ? -1 : 1;
 				}
 			}
 			x++;
@@ -3833,47 +3804,34 @@ static int xmlSchemaComparePreserveCollapseStrings(const xmlChar * x, const xmlC
 			/*
 			 * Skip contiguous blank chars of the collapsed string.
 			 */
-			while IS_WSP_BLANK_CH(*y)
-			y++;
+			while(IS_WSP_BLANK_CH(*y))
+				y++;
 		}
 		else {
-			tmp = *x++ - *y++;
+			const int tmp = *x++ - *y++;
 			if(tmp < 0) {
-				if(invert)
-					return 1;
-				else
-					return -1;
+				return invert ? 1 : -1;
 			}
 			if(tmp > 0) {
-				if(invert)
-					return -1;
-				else
-					return 1;
+				return invert ? -1 : 1;
 			}
 		}
 	}
 	if(*x != 0) {
-		if(invert)
-			return -1;
-		else
-			return 1;
+		return invert ? -1 : 1;
 	}
 	if(*y != 0) {
 		/*
 		 * Skip trailing blank chars of the collapsed string.
 		 */
-		while IS_WSP_BLANK_CH(*y)
-		y++;
+		while(IS_WSP_BLANK_CH(*y))
+			y++;
 		if(*y != 0) {
-			if(invert)
-				return 1;
-			else
-				return -1;
+			return invert ? 1 : -1;
 		}
 	}
 	return 0;
 }
-
 /**
  * xmlSchemaComparePreserveCollapseStrings:
  * @x:  a first string value
@@ -3889,13 +3847,11 @@ static int xmlSchemaComparePreserveCollapseStrings(const xmlChar * x, const xmlC
  */
 static int xmlSchemaCompareReplaceCollapseStrings(const xmlChar * x, const xmlChar * y, int invert)
 {
-	int tmp;
 	/*
 	 * Skip leading blank chars of the collapsed string.
 	 */
-	while IS_WSP_BLANK_CH(*y)
-	y++;
-
+	while(IS_WSP_BLANK_CH(*y))
+		y++;
 	while((*x != 0) && (*y != 0)) {
 		if IS_WSP_BLANK_CH(*y) {
 			if(!IS_WSP_BLANK_CH(*x)) {
@@ -3903,16 +3859,10 @@ static int xmlSchemaCompareReplaceCollapseStrings(const xmlChar * x, const xmlCh
 				 * The yv character would have been replaced to 0x20.
 				 */
 				if((*x - 0x20) < 0) {
-					if(invert)
-						return 1;
-					else
-						return -1;
+					return invert ? 1 : -1;
 				}
 				else {
-					if(invert)
-						return -1;
-					else
-						return 1;
+					return invert ? -1 : 1;
 				}
 			}
 			x++;
@@ -3920,28 +3870,22 @@ static int xmlSchemaCompareReplaceCollapseStrings(const xmlChar * x, const xmlCh
 			/*
 			 * Skip contiguous blank chars of the collapsed string.
 			 */
-			while IS_WSP_BLANK_CH(*y)
-			y++;
+			while(IS_WSP_BLANK_CH(*y))
+				y++;
 		}
 		else {
-			if IS_WSP_BLANK_CH(*x) {
+			if(IS_WSP_BLANK_CH(*x)) {
 				/*
 				 * The xv character would have been replaced to 0x20.
 				 */
 				if((0x20 - *y) < 0) {
-					if(invert)
-						return 1;
-					else
-						return -1;
+					return invert ? 1 : -1;
 				}
 				else {
-					if(invert)
-						return -1;
-					else
-						return 1;
+					return invert ? -1 : 1;
 				}
 			}
-			tmp = *x++ - *y++;
+			int tmp = *x++ - *y++;
 			if(tmp < 0)
 				return -1;
 			if(tmp > 0)
@@ -3949,27 +3893,20 @@ static int xmlSchemaCompareReplaceCollapseStrings(const xmlChar * x, const xmlCh
 		}
 	}
 	if(*x != 0) {
-		if(invert)
-			return -1;
-		else
-			return 1;
+		return invert ? -1 : 1;
 	}
 	if(*y != 0) {
 		/*
 		 * Skip trailing blank chars of the collapsed string.
 		 */
-		while IS_WSP_BLANK_CH(*y)
-		y++;
+		while(IS_WSP_BLANK_CH(*y))
+			y++;
 		if(*y != 0) {
-			if(invert)
-				return 1;
-			else
-				return -1;
+			return invert ? 1 : -1;
 		}
 	}
 	return 0;
 }
-
 /**
  * xmlSchemaCompareReplacedStrings:
  * @x:  a first string value
@@ -4059,7 +3996,6 @@ static int xmlSchemaCompareNormStrings(const xmlChar * x, const xmlChar * y)
 	}
 	return 0;
 }
-
 /**
  * xmlSchemaCompareFloats:
  * @x:  a first float or double value
@@ -4093,28 +4029,23 @@ static int xmlSchemaCompareFloats(xmlSchemaVal * x, xmlSchemaVal * y)
 	/*
 	 * Check for special cases.
 	 */
-	if(xmlXPathIsNaN(d1)) {
-		if(xmlXPathIsNaN(d2))
+	if(fisnan(d1)) {
+		if(fisnan(d2))
 			return 0;
 		return 1;
 	}
-	if(xmlXPathIsNaN(d2))
+	if(fisnan(d2))
 		return -1;
 	if(d1 == xmlXPathPINF) {
-		if(d2 == xmlXPathPINF)
-			return 0;
-		return 1;
+		return (d2 == xmlXPathPINF) ? 0 : 1;
 	}
 	if(d2 == xmlXPathPINF)
 		return -1;
 	if(d1 == xmlXPathNINF) {
-		if(d2 == xmlXPathNINF)
-			return 0;
-		return -1;
+		return (d2 == xmlXPathNINF) ? 0 : -1;
 	}
 	if(d2 == xmlXPathNINF)
 		return 1;
-
 	/*
 	 * basic tests, the last one we should have equality, but
 	 * portability is more important than speed and handling
@@ -4128,7 +4059,6 @@ static int xmlSchemaCompareFloats(xmlSchemaVal * x, xmlSchemaVal * y)
 		return 0;
 	return (2);
 }
-
 /**
  * xmlSchemaCompareValues:
  * @x:  a first value
@@ -4168,20 +4098,9 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype, xmlSchemaVal *
 			    return -2;
 		    if(ytype == xtype)
 			    return (xmlSchemaCompareDecimals(x, y));
-		    if((ytype == XML_SCHEMAS_DECIMAL) ||
-		    (ytype == XML_SCHEMAS_INTEGER) ||
-		    (ytype == XML_SCHEMAS_NPINTEGER) ||
-		    (ytype == XML_SCHEMAS_NINTEGER) ||
-		    (ytype == XML_SCHEMAS_NNINTEGER) ||
-		    (ytype == XML_SCHEMAS_PINTEGER) ||
-		    (ytype == XML_SCHEMAS_INT) ||
-		    (ytype == XML_SCHEMAS_UINT) ||
-		    (ytype == XML_SCHEMAS_LONG) ||
-		    (ytype == XML_SCHEMAS_ULONG) ||
-		    (ytype == XML_SCHEMAS_SHORT) ||
-		    (ytype == XML_SCHEMAS_USHORT) ||
-		    (ytype == XML_SCHEMAS_BYTE) ||
-		    (ytype == XML_SCHEMAS_UBYTE))
+		    if(oneof14(ytype, XML_SCHEMAS_DECIMAL, XML_SCHEMAS_INTEGER, XML_SCHEMAS_NPINTEGER, XML_SCHEMAS_NINTEGER, XML_SCHEMAS_NNINTEGER,
+				XML_SCHEMAS_PINTEGER, XML_SCHEMAS_INT, XML_SCHEMAS_UINT, XML_SCHEMAS_LONG, XML_SCHEMAS_ULONG, XML_SCHEMAS_SHORT, XML_SCHEMAS_USHORT,
+				XML_SCHEMAS_BYTE, XML_SCHEMAS_UBYTE))
 			    return (xmlSchemaCompareDecimals(x, y));
 		    return -2;
 		case XML_SCHEMAS_DURATION:
@@ -4223,27 +4142,17 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype, xmlSchemaVal *
 	    {
 		    const xmlChar * xv = x ? x->value.str : xvalue;
 		    const xmlChar * yv = y ? y->value.str : yvalue;
-		    /*
-		 * @todo Compare those against QName.
-		     */
+			// 
+			// @todo Compare those against QName.
+			// 
 		    if(ytype == XML_SCHEMAS_QNAME) {
 			    TODO
 			    if(y == NULL)
 				    return -2;
 			    return (-2);
 		    }
-		    if((ytype == XML_SCHEMAS_ANYSIMPLETYPE) ||
-			    (ytype == XML_SCHEMAS_STRING) ||
-			    (ytype == XML_SCHEMAS_NORMSTRING) ||
-			    (ytype == XML_SCHEMAS_TOKEN) ||
-			    (ytype == XML_SCHEMAS_LANGUAGE) ||
-			    (ytype == XML_SCHEMAS_NMTOKEN) ||
-			    (ytype == XML_SCHEMAS_NAME) ||
-			    (ytype == XML_SCHEMAS_NCNAME) ||
-			    (ytype == XML_SCHEMAS_ID) ||
-			    (ytype == XML_SCHEMAS_IDREF) ||
-			    (ytype == XML_SCHEMAS_ENTITY) ||
-			    (ytype == XML_SCHEMAS_ANYURI)) {
+		    if(oneof12(ytype, XML_SCHEMAS_ANYSIMPLETYPE, XML_SCHEMAS_STRING, XML_SCHEMAS_NORMSTRING, XML_SCHEMAS_TOKEN, XML_SCHEMAS_LANGUAGE,
+			    XML_SCHEMAS_NMTOKEN, XML_SCHEMAS_NAME, XML_SCHEMAS_NCNAME, XML_SCHEMAS_ID, XML_SCHEMAS_IDREF, XML_SCHEMAS_ENTITY, XML_SCHEMAS_ANYURI)) {
 			    if(xws == XML_SCHEMA_WHITESPACE_PRESERVE) {
 				    if(yws == XML_SCHEMA_WHITESPACE_PRESERVE) {
 					    /* @todo What about x < y or x > y. */
@@ -4282,7 +4191,7 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype, xmlSchemaVal *
 		case XML_SCHEMAS_NOTATION:
 		    if(!x || !y)
 			    return -2;
-		    if((ytype == XML_SCHEMAS_QNAME) || (ytype == XML_SCHEMAS_NOTATION)) {
+		    if(oneof2(ytype, XML_SCHEMAS_QNAME, XML_SCHEMAS_NOTATION)) {
 			    if((sstreq(x->value.qname.name, y->value.qname.name)) && (sstreq(x->value.qname.uri, y->value.qname.uri)))
 				    return 0;
 			    return (2);
@@ -4363,21 +4272,10 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype, xmlSchemaVal *
  */
 int FASTCALL xmlSchemaCompareValues(xmlSchemaVal * x, xmlSchemaVal * y) 
 {
-	xmlSchemaWhitespaceValueType xws, yws;
 	if(!x || !y)
 		return -2;
-	if(x->type == XML_SCHEMAS_STRING)
-		xws = XML_SCHEMA_WHITESPACE_PRESERVE;
-	else if(x->type == XML_SCHEMAS_NORMSTRING)
-		xws = XML_SCHEMA_WHITESPACE_REPLACE;
-	else
-		xws = XML_SCHEMA_WHITESPACE_COLLAPSE;
-	if(y->type == XML_SCHEMAS_STRING)
-		yws = XML_SCHEMA_WHITESPACE_PRESERVE;
-	else if(y->type == XML_SCHEMAS_NORMSTRING)
-		yws = XML_SCHEMA_WHITESPACE_REPLACE;
-	else
-		yws = XML_SCHEMA_WHITESPACE_COLLAPSE;
+	xmlSchemaWhitespaceValueType xws = (x->type == XML_SCHEMAS_STRING) ? XML_SCHEMA_WHITESPACE_PRESERVE : ((x->type == XML_SCHEMAS_NORMSTRING) ? XML_SCHEMA_WHITESPACE_REPLACE : XML_SCHEMA_WHITESPACE_COLLAPSE);
+	xmlSchemaWhitespaceValueType yws = (y->type == XML_SCHEMAS_STRING) ? XML_SCHEMA_WHITESPACE_PRESERVE : ((y->type == XML_SCHEMAS_NORMSTRING) ? XML_SCHEMA_WHITESPACE_REPLACE : XML_SCHEMA_WHITESPACE_COLLAPSE);
 	return xmlSchemaCompareValuesInternal(x->type, x, NULL, xws, y->type, y, NULL, yws);
 }
 /**
@@ -4389,14 +4287,11 @@ int FASTCALL xmlSchemaCompareValues(xmlSchemaVal * x, xmlSchemaVal * y)
  *
  * Compare 2 values
  *
- * Returns -1 if x < y, 0 if x == y, 1 if x > y, 2 if x <> y, and -2 in
- * case of error
+ * Returns -1 if x < y, 0 if x == y, 1 if x > y, 2 if x <> y, and -2 in case of error
  */
 int xmlSchemaCompareValuesWhtsp(xmlSchemaVal * x, xmlSchemaWhitespaceValueType xws, xmlSchemaVal * y, xmlSchemaWhitespaceValueType yws)
 {
-	if(!x || !y)
-		return -2;
-	return xmlSchemaCompareValuesInternal(x->type, x, NULL, xws, y->type, y, NULL, yws);
+	return (x && y) ? xmlSchemaCompareValuesInternal(x->type, x, NULL, xws, y->type, y, NULL, yws) : -2;
 }
 /**
  * xmlSchemaCompareValuesWhtspExt:
@@ -4474,9 +4369,7 @@ static int FASTCALL xmlSchemaNormLen(const xmlChar * value)
  */
 ulong xmlSchemaGetFacetValueAsULong(xmlSchemaFacet * facet)
 {
-	/*
-	 * @todo Check if this is a decimal.
-	 */
+	// @todo Check if this is a decimal.
 	return facet ? ((ulong)facet->val->value.decimal.lo) : 0;
 }
 
@@ -4547,16 +4440,16 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacet * facet,
     xmlSchemaValType valType, const xmlChar * value, xmlSchemaVal * val, ulong * length, xmlSchemaWhitespaceValueType ws)
 {
 	uint len = 0;
-	if((length == NULL) || (facet == NULL))
+	if(!length || !facet)
 		return -1;
 	*length = 0;
 	if(!oneof3(facet->type, XML_SCHEMA_FACET_LENGTH, XML_SCHEMA_FACET_MAXLENGTH, XML_SCHEMA_FACET_MINLENGTH))
 		return -1;
-	/*
-	 * @todo length, maxLength and minLength must be of type
-	 * nonNegativeInteger only. Check if decimal is used somehow.
-	 */
-	if((facet->val == NULL) || ((facet->val->type != XML_SCHEMAS_DECIMAL) && (facet->val->type != XML_SCHEMAS_NNINTEGER)) || (facet->val->value.decimal.frac != 0)) {
+	// 
+	// @todo length, maxLength and minLength must be of type
+	// nonNegativeInteger only. Check if decimal is used somehow.
+	// 
+	if(!facet->val || !oneof2(facet->val->type, XML_SCHEMAS_DECIMAL, XML_SCHEMAS_NNINTEGER) || (facet->val->value.decimal.frac != 0)) {
 		return -1;
 	}
 	if(val && (val->type == XML_SCHEMAS_HEXBINARY))
@@ -4568,12 +4461,12 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacet * facet,
 			case XML_SCHEMAS_STRING:
 			case XML_SCHEMAS_NORMSTRING:
 			    if(ws == XML_SCHEMA_WHITESPACE_UNKNOWN) {
-				    /*
-				 * This is to ensure API compatibility with the old
-				 * xmlSchemaValidateLengthFacet(). Anyway, this was and
-				 * is not the correct handling.
-				 * @todo Get rid of this case somehow.
-				     */
+				    // 
+				    // This is to ensure API compatibility with the old
+				    // xmlSchemaValidateLengthFacet(). Anyway, this was and
+				    // is not the correct handling.
+				    // @todo Get rid of this case somehow.
+				    // 
 				    if(valType == XML_SCHEMAS_STRING)
 					    len = xmlUTF8Strlen(value);
 				    else
@@ -4583,10 +4476,7 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacet * facet,
 				    if(ws == XML_SCHEMA_WHITESPACE_COLLAPSE)
 					    len = xmlSchemaNormLen(value);
 				    else
-					    /*
-					 * Should be OK for "preserve" as well.
-					     */
-					    len = xmlUTF8Strlen(value);
+					    len = xmlUTF8Strlen(value); // Should be OK for "preserve" as well.
 			    }
 			    break;
 			case XML_SCHEMAS_IDREF:
@@ -4596,19 +4486,16 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacet * facet,
 			case XML_SCHEMAS_NAME:
 			case XML_SCHEMAS_NCNAME:
 			case XML_SCHEMAS_ID:
-			/*
-			 * FIXME: What exactly to do with anyURI?
-			 */
+			// FIXME: What exactly to do with anyURI?
 			case XML_SCHEMAS_ANYURI:
 			    if(value)
 				    len = xmlSchemaNormLen(value);
 			    break;
 			case XML_SCHEMAS_QNAME:
 			case XML_SCHEMAS_NOTATION:
-			    /*
-			 * For QName and NOTATION, those facets are
-			 * deprecated and should be ignored.
-			     */
+			    // 
+			    // For QName and NOTATION, those facets are deprecated and should be ignored.
+			    // 
 			    return 0;
 			default:
 			    TODO
@@ -4947,7 +4834,7 @@ static void xmlSchemaFormatFloat(double number, char buffer[], int buffersize)
 			    snprintf(buffer, buffersize, "-INF");
 		    break;
 		default:
-		    if(xmlXPathIsNaN(number)) {
+		    if(fisnan(number)) {
 			    if(buffersize > (int)sizeof("NaN"))
 				    snprintf(buffer, buffersize, "NaN");
 		    }
@@ -5396,7 +5283,6 @@ int xmlSchemaGetCanonValueWhtsp(xmlSchemaVal * val, xmlChar ** retValue, xmlSche
 	}
 	return 0;
 }
-
 /**
  * xmlSchemaGetValType:
  * @val: a schemas value

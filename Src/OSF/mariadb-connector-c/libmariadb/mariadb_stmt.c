@@ -186,11 +186,9 @@ int mthd_stmt_read_all_rows(MYSQL_STMT * stmt)
 				uchar * null_ptr, bit_offset = 4;
 				uchar * cp = p;
 				unsigned int i;
-
 				cp++; /* skip first byte */
 				null_ptr = cp;
 				cp += (stmt->field_count + 9) / 8;
-
 				for(i = 0; i < stmt->field_count; i++) {
 					if(!(*null_ptr & bit_offset)) {
 						if(mysql_ps_fetch_functions[stmt->fields[i].type].pack_len < 0) {
@@ -335,10 +333,8 @@ int mthd_stmt_fetch_to_bind(MYSQL_STMT * stmt, unsigned char * row)
 		}
 		else {
 			stmt->bind[i].u.row_ptr = row;
-			if(!stmt->bind_result_done ||
-			    stmt->bind[i].flags & MADB_BIND_DUMMY) {
+			if(!stmt->bind_result_done || stmt->bind[i].flags & MADB_BIND_DUMMY) {
 				unsigned long length;
-
 				if(stmt->result_callback)
 					stmt->result_callback(stmt->user_data, i, &row);
 				else {
@@ -395,13 +391,11 @@ unsigned char * mysql_net_store_length(unsigned char * packet, size_t length)
 		*packet = (unsigned char)length;
 		return packet + 1;
 	}
-
 	if(length < (uint64)L64(65536)) {
 		*packet++ = 252;
 		int2store(packet, (uint)length);
 		return packet + 2;
 	}
-
 	if(length < (uint64)L64(16777216)) {
 		*packet++ = 253;
 		int3store(packet, (ulong)length);
@@ -437,12 +431,10 @@ static signed char ma_get_indicator(MYSQL_STMT * stmt, unsigned int param_nr, un
 	return stmt->params[param_nr].u.indicator[row_nr];
 }
 
-static void * ma_get_buffer_offset(MYSQL_STMT * stmt, enum enum_field_types type,
-    void * buffer, unsigned long row_nr)
+static void * ma_get_buffer_offset(MYSQL_STMT * stmt, enum enum_field_types type, void * buffer, unsigned long row_nr)
 {
 	if(stmt->param_callback)
 		return buffer;
-
 	if(stmt->array_size) {
 		int len;
 		if(stmt->row_size)
@@ -457,10 +449,8 @@ static void * ma_get_buffer_offset(MYSQL_STMT * stmt, enum enum_field_types type
 
 int store_param(MYSQL_STMT * stmt, int column, unsigned char ** p, unsigned long row_nr)
 {
-	void * buf = ma_get_buffer_offset(stmt, stmt->params[column].buffer_type,
-		stmt->params[column].buffer, row_nr);
+	void * buf = ma_get_buffer_offset(stmt, stmt->params[column].buffer_type, stmt->params[column].buffer, row_nr);
 	signed char indicator = ma_get_indicator(stmt, column, row_nr);
-
 	switch(stmt->params[column].buffer_type) {
 		case MYSQL_TYPE_TINY:
 		    int1store(*p, (*(uchar *)buf));
@@ -576,23 +566,18 @@ int store_param(MYSQL_STMT * stmt, int column, unsigned char ** p, unsigned long
 		    ulong len;
 		    /* to is after p. The latter hasn't been moved */
 		    uchar * to;
-
 		    if(indicator == STMT_INDICATOR_NTS)
 			    len = -1;
 		    else
 			    len = ma_get_length(stmt, column, row_nr);
-
 		    if(len == (ulong)-1)
 			    len = (ulong)strlen((char *)buf);
-
 		    to = mysql_net_store_length(*p, len);
-
 		    if(len)
 			    memcpy(to, buf, len);
 		    (*p) = to + len;
 		    break;
 	    }
-
 		default:
 		    /* unsupported parameter type */
 		    SET_CLIENT_STMT_ERROR(stmt, CR_UNSUPPORTED_PARAM_TYPE, SQLSTATE_UNKNOWN, 0);

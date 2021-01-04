@@ -1,9 +1,9 @@
 // PPDRVAPI.H
-// Copyright (c) A.Sobolev 2013, 2019, 2020
+// Copyright (c) A.Sobolev 2013, 2019, 2020, 2021
 //
 #include <slib.h>
 
-#define EXPORTPROC extern "C" __declspec (dllexport)
+#define EXPORTPROC extern "C" __declspec(dllexport)
 
 class PPBaseDriver;
 
@@ -136,6 +136,6 @@ private:
 	static PPBaseDriver * CreateInstance_##name() { return new cls; } \
 	PPDrvSession DRVS(#name, CreateInstance_##name, major_ver, minor_ver, SIZEOFARRAY(errtab), errtab); \
 	BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) { return DRVS.ImplementDllMain(hModule, dwReason); } \
-	extern "C" __declspec (dllexport) int RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize) \
+	extern "C" __declspec(dllexport) int RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize) \
 		{ return DRVS.Helper_ProcessCommand(pCmd, pInputData, pOutputData, outSize); }
 

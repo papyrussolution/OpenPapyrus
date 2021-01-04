@@ -19,10 +19,10 @@
 
 #ifdef LIBXML_READER_ENABLED
 #include <libxml/xmlreader.h>
-#ifdef LIBXML_SCHEMAS_ENABLED
-	#include <libxml/relaxng.h>
-	#include <libxml/xmlschemas.h>
-#endif
+//#ifdef LIBXML_SCHEMAS_ENABLED
+	//#include <libxml/relaxng.h>
+	//#include <libxml/xmlschemas.h>
+//#endif
 //#ifdef LIBXML_XINCLUDE_ENABLED
 	//#include <libxml/xinclude.h>
 //#endif

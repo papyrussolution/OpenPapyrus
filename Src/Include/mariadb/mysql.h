@@ -429,14 +429,14 @@ typedef struct st_mysql_time {
 #define MYSQL_WAIT_TIMEOUT   8
 
 typedef struct character_set {
-	unsigned int number;    /* character set number              */
-	unsigned int state;     /* character set state               */
-	const char * csname;/* character set name                */
-	const char * name;/* collation name                    */
-	const char * comment;/* comment                           */
-	const char * dir;/* character set directory           */
-	unsigned int mbminlen;  /* min. length for multibyte strings */
-	unsigned int mbmaxlen;  /* max. length for multibyte strings */
+	unsigned int number;   /* character set number              */
+	unsigned int state;    /* character set state               */
+	const char * csname;   /* character set name                */
+	const char * name;     /* collation name                    */
+	const char * comment;  /* comment                           */
+	const char * dir;      /* character set directory           */
+	unsigned int mbminlen; /* min. length for multibyte strings */
+	unsigned int mbmaxlen; /* max. length for multibyte strings */
 } MY_CHARSET_INFO;
 
 /* Local infile support functions */

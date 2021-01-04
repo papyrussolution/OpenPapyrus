@@ -764,7 +764,6 @@ static xmlChar * xmlPatScanName(xmlPatParserContextPtr ctxt)
  *
  * Returns the Name parsed or NULL
  */
-
 static xmlChar * xmlPatScanNCName(xmlPatParserContextPtr ctxt)
 {
 	const xmlChar * q, * cur;
@@ -775,7 +774,7 @@ static xmlChar * xmlPatScanNCName(xmlPatParserContextPtr ctxt)
 	val = xmlStringCurrentChar(NULL, cur, &len);
 	if(!IS_LETTER(val) && (val != '_'))
 		return 0;
-	while((IS_LETTER(val)) || (IS_DIGIT(val)) || (val == '.') || (val == '-') || (val == '_') || (IS_COMBINING(val)) || (IS_EXTENDER(val))) {
+	while((IS_LETTER(val)) || (IS_DIGIT(val)) || oneof3(val, '.', '-', '_') || (IS_COMBINING(val)) || (IS_EXTENDER(val))) {
 		cur += len;
 		val = xmlStringCurrentChar(NULL, cur, &len);
 	}
@@ -1759,28 +1758,26 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 		m = stream->nbState;
 		while(i < m) {
 			if((comp->flags & XML_STREAM_DESC) == 0) {
-				/*
-					* If there is no "//", then only the last
-					* added state is of interest.
-					*/
+				// 
+				// If there is no "//", then only the last added state is of interest.
+				// 
 				stepNr = stream->states[2 * (stream->nbState -1)];
-				/*
-					* @todo Security check, should not happen, remove it.
-					*/
+				// 
+				// @todo Security check, should not happen, remove it.
+				// 
 				if(stream->states[(2 * (stream->nbState -1)) + 1] <
 					stream->level) {
 					return -1;
 				}
 				desc = 0;
-				/* loop-stopper */
+				// loop-stopper 
 				i = m;
 			}
 			else {
-				/*
-					* If there are "//", then we need to process every "//"
-					* occuring in the states, plus any other state for this
-					* level.
-					*/
+				// 
+				// If there are "//", then we need to process every "//"
+				// occuring in the states, plus any other state for this level.
+				// 
 				stepNr = stream->states[2 * i];
 				/* @todo should not happen anymore: dead states */
 				if(stepNr < 0)
@@ -1800,9 +1797,9 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 			step = comp->steps[stepNr];
 			if(step.nodeType != nodeType) {
 				if(step.nodeType == XML_ATTRIBUTE_NODE) {
-					/*
-						* Block this expression for deeper evaluation.
-						*/
+					// 
+					// Block this expression for deeper evaluation.
+					// 
 					if((comp->flags & XML_STREAM_DESC) == 0)
 						stream->blockLevel = stream->level +1;
 					goto next_state;
@@ -1819,8 +1816,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 			}
 			else if(step.name == NULL) {
 				if(step.ns == NULL) {
-					// This lets through all elements/attributes.
-					match = 1;
+					match = 1; // This lets through all elements/attributes.
 				}
 				else if(ns)
 					match = sstreq(step.ns, ns);
@@ -1886,32 +1882,26 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 next_state:
 			i++;
 		}
-
 		stream->level++;
-
-		/*
-			* Re/enter the expression.
-			* Don't reenter if it's an absolute expression like "/foo",
-			*   except "//foo".
-			*/
+		// 
+		// Re/enter the expression.
+		// Don't reenter if it's an absolute expression like "/foo", except "//foo".
+		// 
 		step = comp->steps[0];
 		if(step.flags & XML_STREAM_STEP_ROOT)
 			goto stream_next;
-
 		desc = step.flags & XML_STREAM_STEP_DESC;
 		if(stream->flags & XML_PATTERN_NOTPATTERN) {
-			/*
-				* Re/enter the expression if it is a "descendant" one,
-				* or if we are at the 1st level of evaluation.
-				*/
-
+			// 
+			// Re/enter the expression if it is a "descendant" one,
+			// or if we are at the 1st level of evaluation.
+			// 
 			if(stream->level == 1) {
 				if(XML_STREAM_XS_IDC(stream)) {
-					/*
-						* XS-IDC: The missing "self::node()" will
-						*always
-						* match the first given node.
-						*/
+					// 
+					// XS-IDC: The missing "self::node()" will always
+					// match the first given node.
+					// 
 					goto stream_next;
 				}
 				else
@@ -1933,7 +1923,6 @@ next_state:
 
 			goto stream_next;
 		}
-
 compare:
 		// Check expected node-type.
 		if(step.nodeType != nodeType) {
@@ -1998,11 +1987,10 @@ stream_next:
  * Returns: -1 in case of error, 1 if the current state in the stream is a
  *  match and 0 otherwise.
  */
-				int xmlStreamPush(xmlStreamCtxtPtr stream, const xmlChar * name, const xmlChar * ns)
-				{
-					return xmlStreamPushInternal(stream, name, ns, (int)XML_ELEMENT_NODE);
-				}
-
+int xmlStreamPush(xmlStreamCtxtPtr stream, const xmlChar * name, const xmlChar * ns)
+{
+	return xmlStreamPushInternal(stream, name, ns, (int)XML_ELEMENT_NODE);
+}
 /**
  * xmlStreamPushNode:
  * @stream: the stream context
@@ -2087,7 +2075,6 @@ int xmlStreamPop(xmlStreamCtxtPtr stream)
 	}
 	return 0;
 }
-
 /**
  * xmlStreamWantsAnyNode:
  * @streamCtxt: the stream context
@@ -2113,9 +2100,7 @@ int xmlStreamWantsAnyNode(xmlStreamCtxtPtr streamCtxt)
 }
 
 /************************************************************************
-*									*
 *			The public interfaces				*
-*									*
 ************************************************************************/
 
 /**
@@ -2149,9 +2134,8 @@ xmlPattern * xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int flag
 			ctxt = xmlNewPatParserContext(start, dict, namespaces);
 		else {
 			tmp = xmlStrndup(start, or - start);
-			if(tmp) {
+			if(tmp)
 				ctxt = xmlNewPatParserContext(tmp, dict, namespaces);
-			}
 			or++;
 		}
 		if(!ctxt)
@@ -2159,9 +2143,9 @@ xmlPattern * xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int flag
 		cur = xmlNewPattern();
 		if(!cur)
 			goto error;
-		/*
-			* Assign string dict.
-			*/
+		// 
+		// Assign string dict.
+		// 
 		if(dict) {
 			cur->dict = dict;
 			xmlDictReference(dict);

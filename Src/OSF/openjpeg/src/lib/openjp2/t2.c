@@ -305,50 +305,37 @@ OPJ_BOOL opj_t2_encode_packets(opj_t2_t* p_t2,
 		}
 	}
 	else { /* t2_mode == FINAL_PASS  */
-		opj_pi_create_encode(l_pi, l_cp, p_tile_no, p_pino, p_tp_num, p_tp_pos,
-		    p_t2_mode);
-
+		opj_pi_create_encode(l_pi, l_cp, p_tile_no, p_pino, p_tp_num, p_tp_pos, p_t2_mode);
 		l_current_pi = &l_pi[p_pino];
 		if(l_current_pi->poc.prg == OPJ_PROG_UNKNOWN) {
 			/* TODO ADE : add an error */
 			opj_pi_destroy(l_pi, l_nb_pocs);
 			return OPJ_FALSE;
 		}
-
 		if(p_marker_info && p_marker_info->need_PLT) {
 			/* One time use intended */
 			assert(p_marker_info->packet_count == 0);
 			assert(p_marker_info->p_packet_size == NULL);
-
-			p_marker_info->p_packet_size = (OPJ_UINT32*)opj_malloc(
-				opj_get_encoding_packet_count(l_image, l_cp, p_tile_no) * sizeof(OPJ_UINT32));
+			p_marker_info->p_packet_size = (OPJ_UINT32*)opj_malloc(opj_get_encoding_packet_count(l_image, l_cp, p_tile_no) * sizeof(OPJ_UINT32));
 			if(p_marker_info->p_packet_size == NULL) {
 				opj_pi_destroy(l_pi, l_nb_pocs);
 				return OPJ_FALSE;
 			}
 		}
-
 		while(opj_pi_next(l_current_pi)) {
 			if(l_current_pi->layno < p_maxlayers) {
 				l_nb_bytes = 0;
-
-				if(!opj_t2_encode_packet(p_tile_no, p_tile, l_tcp, l_current_pi,
-				    l_current_data, &l_nb_bytes, p_max_len,
-				    cstr_info, p_t2_mode, p_manager)) {
+				if(!opj_t2_encode_packet(p_tile_no, p_tile, l_tcp, l_current_pi, l_current_data, &l_nb_bytes, p_max_len, cstr_info, p_t2_mode, p_manager)) {
 					opj_pi_destroy(l_pi, l_nb_pocs);
 					return OPJ_FALSE;
 				}
-
 				l_current_data += l_nb_bytes;
 				p_max_len -= l_nb_bytes;
-
 				*p_data_written += l_nb_bytes;
-
 				if(p_marker_info && p_marker_info->need_PLT) {
 					p_marker_info->p_packet_size[p_marker_info->packet_count] = l_nb_bytes;
 					p_marker_info->packet_count++;
 				}
-
 				/* INDEX >> */
 				if(cstr_info) {
 					if(cstr_info->index_write) {
@@ -363,22 +350,8 @@ OPJ_BOOL opj_t2_encode_packets(opj_t2_t* p_t2,
 							    1].end_pos + 1;
 						}
 						info_PK->end_pos = info_PK->start_pos + l_nb_bytes - 1;
-						info_PK->end_ph_pos += info_PK->start_pos -
-						    1; /* End of packet header which now only represents the distance
-						                                                                                                                                                                                                       to
-						                                                                                                                                                                                                          start
-						                                                                                                                                                                                                          of
-						                                                                                                                                                                                                          packet
-						                                                                                                                                                                                                          is
-						                                                                                                                                                                                                          incremented
-						                                                                                                                                                                                                          by
-						                                                                                                                                                                                                          value
-						                                                                                                                                                                                                          of
-						                                                                                                                                                                                                          start
-						                                                                                                                                                                                                          of
-						                                                                                                                                                                                                          packet*/
+						info_PK->end_ph_pos += info_PK->start_pos - 1; // End of packet header which now only represents the distance to start of packet is incremented by value of start of packet
 					}
-
 					cstr_info->packno++;
 				}
 				/* << INDEX */
@@ -386,9 +359,7 @@ OPJ_BOOL opj_t2_encode_packets(opj_t2_t* p_t2,
 			}
 		}
 	}
-
 	opj_pi_destroy(l_pi, l_nb_pocs);
-
 	return OPJ_TRUE;
 }
 
@@ -525,7 +496,7 @@ OPJ_BOOL opj_t2_decode_packets(opj_tcd_t* tcd,
 				if(!opj_t2_decode_packet(p_t2, p_tile, l_tcp, l_current_pi, l_current_data,
 				    &l_nb_bytes_read, p_max_len, l_pack_info, p_manager)) {
 					opj_pi_destroy(l_pi, l_nb_pocs);
-					opj_free(first_pass_failed);
+					SAlloc::F(first_pass_failed);
 					return OPJ_FALSE;
 				}
 
@@ -538,7 +509,7 @@ OPJ_BOOL opj_t2_decode_packets(opj_tcd_t* tcd,
 				if(!opj_t2_skip_packet(p_t2, p_tile, l_tcp, l_current_pi, l_current_data,
 				    &l_nb_bytes_read, p_max_len, l_pack_info, p_manager)) {
 					opj_pi_destroy(l_pi, l_nb_pocs);
-					opj_free(first_pass_failed);
+					SAlloc::F(first_pass_failed);
 					return OPJ_FALSE;
 				}
 			}
@@ -587,7 +558,7 @@ OPJ_BOOL opj_t2_decode_packets(opj_tcd_t* tcd,
 		}
 		++l_current_pi;
 
-		opj_free(first_pass_failed);
+		SAlloc::F(first_pass_failed);
 	}
 	/* INDEX >> */
 #ifdef TODO_MSD
@@ -631,7 +602,7 @@ opj_t2_t* opj_t2_create(opj_image_t * p_image, opj_cp_t * p_cp)
 void opj_t2_destroy(opj_t2_t * t2)
 {
 	if(t2) {
-		opj_free(t2);
+		SAlloc::F(t2);
 	}
 }
 

@@ -190,11 +190,7 @@ typedef FT_Pointer FTC_FaceID;
  *   face object, like creating a new @FT_Size for it, or setting a
  *   transformation through @FT_Set_Transform!
  */
-typedef FT_Error
-(* FTC_Face_Requester)(FTC_FaceID face_id,
-    FT_Library library,
-    FT_Pointer req_data,
-    FT_Face*    aface);
+typedef FT_Error (* FTC_Face_Requester)(FTC_FaceID face_id, FT_Library library, FT_Pointer req_data, FT_Face*    aface);
 
 /* */
 
@@ -284,14 +280,8 @@ typedef struct FTC_NodeRec_*  FTC_Node;
  * @return:
  *   FreeType error code.  0~means success.
  */
-FT_EXPORT(FT_Error)
-FTC_Manager_New(FT_Library library,
-    FT_UInt max_faces,
-    FT_UInt max_sizes,
-    FT_ULong max_bytes,
-    FTC_Face_Requester requester,
-    FT_Pointer req_data,
-    FTC_Manager        *amanager);
+FT_EXPORT(FT_Error) FTC_Manager_New(FT_Library library, FT_UInt max_faces, FT_UInt max_sizes, FT_ULong max_bytes,
+    FTC_Face_Requester requester, FT_Pointer req_data, FTC_Manager        *amanager);
 
 /**************************************************************************
  *
@@ -306,8 +296,7 @@ FTC_Manager_New(FT_Library library,
  *   manager ::
  *     A handle to the manager.
  */
-FT_EXPORT(void)
-FTC_Manager_Reset(FTC_Manager manager);
+FT_EXPORT(void) FTC_Manager_Reset(FTC_Manager manager);
 
 /**************************************************************************
  *
@@ -321,8 +310,7 @@ FTC_Manager_Reset(FTC_Manager manager);
  *   manager ::
  *     A handle to the target cache manager object.
  */
-FT_EXPORT(void)
-FTC_Manager_Done(FTC_Manager manager);
+FT_EXPORT(void) FTC_Manager_Done(FTC_Manager manager);
 
 /**************************************************************************
  *
@@ -367,10 +355,7 @@ FTC_Manager_Done(FTC_Manager manager);
  *   been completely flushed, and still no memory was available for the
  *   operation.
  */
-FT_EXPORT(FT_Error)
-FTC_Manager_LookupFace(FTC_Manager manager,
-    FTC_FaceID face_id,
-    FT_Face     *aface);
+FT_EXPORT(FT_Error) FTC_Manager_LookupFace(FTC_Manager manager, FTC_FaceID face_id, FT_Face     *aface);
 
 /**************************************************************************
  *
@@ -466,10 +451,7 @@ typedef struct FTC_ScalerRec_*  FTC_Scaler;
  *   been completely flushed, and still no memory is available for the
  *   operation.
  */
-FT_EXPORT(FT_Error)
-FTC_Manager_LookupSize(FTC_Manager manager,
-    FTC_Scaler scaler,
-    FT_Size     *asize);
+FT_EXPORT(FT_Error) FTC_Manager_LookupSize(FTC_Manager manager, FTC_Scaler scaler, FT_Size     *asize);
 
 /**************************************************************************
  *
@@ -488,9 +470,7 @@ FTC_Manager_LookupSize(FTC_Manager manager,
  *   manager ::
  *     The cache manager handle.
  */
-FT_EXPORT(void)
-FTC_Node_Unref(FTC_Node node,
-    FTC_Manager manager);
+FT_EXPORT(void) FTC_Node_Unref(FTC_Node node, FTC_Manager manager);
 
 /**************************************************************************
  *
@@ -519,9 +499,7 @@ FTC_Node_Unref(FTC_Node node,
  *   destroyed when released by all their users.
  *
  */
-FT_EXPORT(void)
-FTC_Manager_RemoveFaceID(FTC_Manager manager,
-    FTC_FaceID face_id);
+FT_EXPORT(void) FTC_Manager_RemoveFaceID(FTC_Manager manager, FTC_FaceID face_id);
 
 /**************************************************************************
  *
@@ -559,9 +537,7 @@ typedef struct FTC_CMapCacheRec_*  FTC_CMapCache;
  *   manager.
  *
  */
-FT_EXPORT(FT_Error)
-FTC_CMapCache_New(FTC_Manager manager,
-    FTC_CMapCache  *acache);
+FT_EXPORT(FT_Error) FTC_CMapCache_New(FTC_Manager manager, FTC_CMapCache  *acache);
 
 /**************************************************************************
  *
@@ -590,11 +566,7 @@ FTC_CMapCache_New(FTC_Manager manager,
  *    Glyph index.  0~means 'no glyph'.
  *
  */
-FT_EXPORT(FT_UInt)
-FTC_CMapCache_Lookup(FTC_CMapCache cache,
-    FTC_FaceID face_id,
-    FT_Int cmap_index,
-    FT_UInt32 char_code);
+FT_EXPORT(FT_UInt) FTC_CMapCache_Lookup(FTC_CMapCache cache, FTC_FaceID face_id, FT_Int cmap_index, FT_UInt32 char_code);
 
 /*************************************************************************/
 /*****                       IMAGE CACHE OBJECT                      *****/
@@ -678,9 +650,7 @@ typedef struct FTC_ImageCacheRec_*  FTC_ImageCache;
  * @return:
  *   FreeType error code.  0~means success.
  */
-FT_EXPORT(FT_Error)
-FTC_ImageCache_New(FTC_Manager manager,
-    FTC_ImageCache  *acache);
+FT_EXPORT(FT_Error) FTC_ImageCache_New(FTC_Manager manager, FTC_ImageCache  *acache);
 
 /**************************************************************************
  *
@@ -726,12 +696,7 @@ FTC_ImageCache_New(FTC_Manager manager,
  *   to one of the caching sub-system APIs.  Don't assume that it is
  *   persistent!
  */
-FT_EXPORT(FT_Error)
-FTC_ImageCache_Lookup(FTC_ImageCache cache,
-    FTC_ImageType type,
-    FT_UInt gindex,
-    FT_Glyph       *aglyph,
-    FTC_Node       *anode);
+FT_EXPORT(FT_Error) FTC_ImageCache_Lookup(FTC_ImageCache cache, FTC_ImageType type, FT_UInt gindex, FT_Glyph *aglyph, FTC_Node *anode);
 
 /**************************************************************************
  *
@@ -784,13 +749,8 @@ FTC_ImageCache_Lookup(FTC_ImageCache cache,
  *   Calls to @FT_Set_Char_Size and friends have no effect on cached
  *   glyphs; you should always use the FreeType cache API instead.
  */
-FT_EXPORT(FT_Error)
-FTC_ImageCache_LookupScaler(FTC_ImageCache cache,
-    FTC_Scaler scaler,
-    FT_ULong load_flags,
-    FT_UInt gindex,
-    FT_Glyph       *aglyph,
-    FTC_Node       *anode);
+FT_EXPORT(FT_Error) FTC_ImageCache_LookupScaler(FTC_ImageCache cache, FTC_Scaler scaler, FT_ULong load_flags,
+    FT_UInt gindex, FT_Glyph       *aglyph, FTC_Node       *anode);
 
 /**************************************************************************
  *
@@ -892,9 +852,7 @@ typedef struct FTC_SBitCacheRec_*  FTC_SBitCache;
  * @return:
  *   FreeType error code.  0~means success.
  */
-FT_EXPORT(FT_Error)
-FTC_SBitCache_New(FTC_Manager manager,
-    FTC_SBitCache  *acache);
+FT_EXPORT(FT_Error) FTC_SBitCache_New(FTC_Manager manager, FTC_SBitCache  *acache);
 
 /**************************************************************************
  *
@@ -945,12 +903,7 @@ FTC_SBitCache_New(FTC_Manager manager,
  *   one of the caching sub-system APIs.  Don't assume that it is
  *   persistent!
  */
-FT_EXPORT(FT_Error)
-FTC_SBitCache_Lookup(FTC_SBitCache cache,
-    FTC_ImageType type,
-    FT_UInt gindex,
-    FTC_SBit        *sbit,
-    FTC_Node        *anode);
+FT_EXPORT(FT_Error) FTC_SBitCache_Lookup(FTC_SBitCache cache, FTC_ImageType type, FT_UInt gindex, FTC_SBit *sbit, FTC_Node        *anode);
 
 /**************************************************************************
  *
@@ -1004,13 +957,7 @@ FTC_SBitCache_Lookup(FTC_SBitCache cache,
  *   one of the caching sub-system APIs.  Don't assume that it is
  *   persistent!
  */
-FT_EXPORT(FT_Error)
-FTC_SBitCache_LookupScaler(FTC_SBitCache cache,
-    FTC_Scaler scaler,
-    FT_ULong load_flags,
-    FT_UInt gindex,
-    FTC_SBit      *sbit,
-    FTC_Node      *anode);
+FT_EXPORT(FT_Error) FTC_SBitCache_LookupScaler(FTC_SBitCache cache, FTC_Scaler scaler, FT_ULong load_flags, FT_UInt gindex, FTC_SBit *sbit, FTC_Node *anode);
 
 /* */
 

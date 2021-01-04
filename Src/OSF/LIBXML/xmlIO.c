@@ -1156,7 +1156,6 @@ static int xmlGzfileWrite(void * context, const char * buffer, int len)
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
 /**
  * xmlGzfileClose:
  * @context:  the I/O context
@@ -1174,12 +1173,10 @@ static int xmlGzfileClose(void * context)
 #endif /* HAVE_ZLIB_H */
 
 #ifdef HAVE_LZMA_H
-/************************************************************************
-*									*
-*		I/O for compressed file accesses			*
-*									*
-************************************************************************/
-#include "xzlib.h"
+// 
+// I/O for compressed file accesses
+// 
+//#include "xzlib.h"
 /**
  * xmlXzfileMatch:
  * @filename:  the URI for matching
@@ -1192,7 +1189,6 @@ static int xmlXzfileMatch(const char * filename ATTRIBUTE_UNUSED)
 {
 	return 1;
 }
-
 /**
  * xmlXzFileOpen_real:
  * @filename:  the URI for matching

@@ -1,5 +1,5 @@
 // PP.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 // Спасибо за проделанную работу (Thanks for the work you've done):
@@ -19808,7 +19808,7 @@ protected:
 	IdentBlock Ib;
 	long	State;
 	SString DvcName;
-	STempBuffer RetBuf; // @v9.7.6 Буфер для приема возвращаемой драйвером строки
+	STempBuffer RetBuf; // Буфер для приема возвращаемой драйвером строки
 };
 
 extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
@@ -19889,13 +19889,14 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_DISABLEZEROSCARD   0x00040000L // (sync) Запрет операция без выбора персональной карты
 #define CASHFX_UHTTORDIMPORT      0x00080000L // (sync) Импортировать заказа с сервера Universe-HTT
 #define CASHFX_IGNLOOKBACKPRICES  0x00100000L // (async) Игноририровать обратный анализ доступных цены на специальные товары
-#define CASHFX_ABSTRGOODSALLOWED  0x00200000L // @v9.5.10 (sync) Допускается продажа абстрактного товара по цене (в конфигурации товаров должен быть указан DefGoodsID).
-#define CASHFX_EXTNODEASALT       0x00400000L // @v9.6.9 (sync) Дополнительный кассовый узел используется как альтернативный принтер
+#define CASHFX_ABSTRGOODSALLOWED  0x00200000L // (sync) Допускается продажа абстрактного товара по цене (в конфигурации товаров должен быть указан DefGoodsID).
+#define CASHFX_EXTNODEASALT       0x00400000L // (sync) Дополнительный кассовый узел используется как альтернативный принтер
 #define CASHFX_IGNCONDQUOTS       0x00800000L // @v10.0.03 (async) Не использовать при расчете цен для загрузки условные котировки.
 	// Транслируется в установку флага RTLPF_IGNCONDQUOTS при вызове RetailPriceExtractor::Init()
 #define CASHFX_CHECKEGAISMUNIQ    0x01000000L // @v10.1.1 (sync) Проверять уникальность сканируемых акцизных марок (медленная операция)
 #define CASHFX_IGNPENNYFROMBCARD  0x02000000L // @erik @v10.6.12 игнорировать копейки при списывании бонусов с бонусной карты
 #define CASHFX_NOTIFYEQPTIMEMISM  0x04000000L // @v10.8.1 (sync) Информировать в кассовой панели о расхождении времени на регистраторе со временем на компьютере
+#define CASHFX_BNKSLIPAFTERRCPT   0x08000000L // @v10.9.11 (sync) Печатать банковский слип после кассового чека (иначе сначала слип, потом чек)
 //
 // Идентификаторы строковых свойств кассовых узлов.
 // Attention: Ни в коем случае не менять значения идентификаторов - @persistent
@@ -19914,7 +19915,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define SCN_KITCHENBELL_PORT        12 // @persistent
 #define SCN_KITCHENBELL_CMD         13 // @persistent
 #define SCN_RPTPRNPORT              14 // @persistent Порт принтера для печати отчетов (предчеков)
-#define SCN_MANUFSERIAL             15 // @persistent @v9.0.10 Заводской номер кассового аппарата
+#define SCN_MANUFSERIAL             15 // @persistent Заводской номер кассового аппарата
 //
 // Кассовый узел
 //
@@ -23041,7 +23042,10 @@ private:
 #define GTCHZNPT_TOBACCO   2
 #define GTCHZNPT_SHOE      3
 #define GTCHZNPT_MEDICINE  4
-#define GTCHZNPT_CARTIRE   5 // @v10.9.7 Автомобильные шины
+#define GTCHZNPT_CARTIRE   5 // @v10.9.7  Автомобильные шины
+#define GTCHZNPT_TEXTILE   6 // @v10.9.11 Текстиль
+#define GTCHZNPT_PERFUMERY 7 // @v10.9.11 Парфюмерия
+#define GTCHZNPT_MILK      8 // @v10.9.11 Молоко
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -52186,7 +52190,7 @@ protected:
 	int    InitCashMachine();
 	int    InitCcView();
 	int    FASTCALL F(long f) const;
-	int    SetupExt(const CCheckPacket * pPack);
+	void   SetupExt(const CCheckPacket * pPack);
 	int    FASTCALL BelongToExtCashNode(PPID goodsID) const;
 	PPID   FASTCALL GetChargeGoodsID(PPID scardID);
 	double CalcSCardOpAmount(const CCheckLineTbl::Rec & rItem, PPID chargeGoodsID, PPID crdGoodsGrpID, double * pNonCrdAmt);
@@ -52517,6 +52521,7 @@ private:
 	void   ProcessEnter(int selectInput);
 	int    PrintCheckCopy();
 	int    PrintSlipDocument();
+	void   PrintBankingSlip(int afterReceipt, const SString & rSlipBuf);
 
 	enum {
 		scfSelSlipDocForm = 0x0001,
@@ -53149,7 +53154,7 @@ public:
 	int    Photos_SaveWallPhoto(/*const VkStruct &rVkStruct,*/const SString & rPhoto, const SString & rServer, const SString & rHash, SString & rOutput);
 	int    Wall_Post(/*const VkStruct &rVkStruct,*/const SString & rMessage, const SString & rVkPhotoName, SString & rOutput);
 	int    PhotoToReq(SString &rUrl, const SString &rImgPath, SString &rOutput, const char * rDataName);
-	int    ParseUploadServer(SString &rJson, SString &rUploadOut);
+	int    ParseUploadServer(const SString & rJson, SString & rUploadOut);
 	int    Photos_GetMarketUploadServer(/*const VkStruct &rVkStruct,*/const uint mainPhotoFlag, SString & rOutput);
 	int    Photos_GetWallUploadServer(/*const VkStruct &rVkStruct,*/SString & rOutput);
 	//int    ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const;
@@ -53206,6 +53211,7 @@ private:
 	const SVerT ProtoVer;
 	PPGlobalServiceLogTalkingHelper Lth;
 	ErrorResponse LastErrResp;
+	uint64 LastRequestClk; // Момент последнего запроса к серверу VK
 };
 // } @erik
 //

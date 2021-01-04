@@ -263,13 +263,13 @@ struct gravity_vm;
 //
 //#include <gravity_utils.h>
 #if defined(_WIN32)
-// @sobolev #include <windows.h>
-typedef unsigned __int64 nanotime_t;
-	#define DIRREF              HANDLE
+	// @sobolev #include <windows.h>
+	typedef unsigned __int64 nanotime_t;
+	#define DIRREF HANDLE
 #else
 	#include <dirent.h>
-typedef uint64_t nanotime_t;
-	#define DIRREF              DIR*
+	typedef uint64_t nanotime_t;
+	#define DIRREF DIR*
 #endif
 
 // TIMER

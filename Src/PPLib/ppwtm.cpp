@@ -31,8 +31,8 @@ public:
 		AddClusterAssoc(CTL_WOLAYC_LAY, 1, DIREC_HORZ);
 		AddClusterAssoc(CTL_WOLAYC_LAY, 2, DIREC_VERT);
 		SetClusterData(CTL_WOLAYC_LAY, Data.GetContainerDirection());
-		AddClusterAssoc(CTL_WOLAYC_FLAGS, 0, /*TLayout::EntryBlock::cfWrap*/AbstractLayoutBlock::fContainerWrap);
-		SetClusterData(CTL_WOLAYC_FLAGS, /*Data.ContainerFlags*/Data.Flags);
+		AddClusterAssoc(CTL_WOLAYC_FLAGS, 0, AbstractLayoutBlock::fContainerWrap);
+		SetClusterData(CTL_WOLAYC_FLAGS, Data.Flags);
 		{
 			SetupStringCombo(this, CTLSEL_WOLAYC_JUSTC, PPTXT_LAYOUTALIGNMENT, Data.JustifyContent);
 			SetupStringCombo(this, CTLSEL_WOLAYC_ALGNC, PPTXT_LAYOUTALIGNMENT, Data.AlignContent);
@@ -54,7 +54,7 @@ public:
 		{
 			long   flags = 0;
 			GetClusterData(CTL_WOLAYC_FLAGS, &flags);
-			SETFLAG(Data.Flags, AbstractLayoutBlock::fContainerWrap, AbstractLayoutBlock::fContainerWrap);
+			SETFLAGBYSAMPLE(Data.Flags, AbstractLayoutBlock::fContainerWrap, flags);
 		}
 		{
 			long   temp_alignment = 0;
@@ -319,7 +319,6 @@ protected:
 			return;
 		clearEvent(event);
 	}
-	//TLayout::EntryBlock Le;
 	LayoutEntryDialogBlock Data;
 	const TWhatman * P_Wtm;
 };
@@ -379,44 +378,19 @@ protected:
 							RVALUEPTR(Data, pData);
 							WhatmanObjectBaseDialog::setRef(&Data); // @v10.4.9
 							setCtrlString(CTL_WOLAYOUT_SYMB, Data.GetSymb());
-							//Data.ContainerIdent
-							//AddClusterAssocDef(CTL_WOLAYOUT_LAY, 0, DIREC_UNKN);
-							//AddClusterAssoc(CTL_WOLAYOUT_LAY, 1, DIREC_HORZ);
-							//AddClusterAssoc(CTL_WOLAYOUT_LAY, 2, DIREC_VERT);
-							//SetClusterData(CTL_WOLAYOUT_LAY, Data.GetLayoutBlock().GetContainerDirection());
-							/*
-							AddClusterAssocDef(CTL_WOLAYOUT_ADJ, 0, ADJ_LEFT);
-							AddClusterAssoc(CTL_WOLAYOUT_ADJ, 1, ADJ_RIGHT);
-							AddClusterAssoc(CTL_WOLAYOUT_ADJ, 2, ADJ_CENTER);
-							AddClusterAssoc(CTL_WOLAYOUT_ADJ, 3, ADJ_ALIGN);
-							SetClusterData(CTL_WOLAYOUT_ADJ, Data.GetLayoutBlock().ContainerAdjustment);
-							*/
-							//AddClusterAssoc(CTL_WOLAYOUT_FLAGS, 0, AbstractLayoutBlock::fContainerWrap/*TLayout::EntryBlock::cfWrap*/);
-							//SetClusterData(CTL_WOLAYOUT_FLAGS, Data.GetLayoutBlock().Flags/*Data.GetLayoutBlock().ContainerFlags*/);
 							return ok;
 						}
 						DECL_DIALOG_GETDTS()
 						{
 							int    ok = 1;
 							uint   sel = 0;
-							//const SString preserve_symb(pData ? pData->ContainerIdent.cptr() : 0);
 							AbstractLayoutBlock lb = Data.GetLayoutBlock();
 							getCtrlString(sel = CTL_WOLAYOUT_SYMB, Data.Symb);
-							/*if(pData) {
-								pData->ContainerIdent = Data.ContainerIdent;
-							}*/
 							const TWhatman * p_wtm = Data.GetOwner();
 							THROW_SL(!p_wtm || p_wtm->CheckUniqLayoutSymb(pData));
-							//lb.SetContainerDirection(static_cast<int16>(GetClusterData(CTL_WOLAYOUT_LAY)));
-							//lb.ContainerAdjustment = static_cast<int16>(GetClusterData(CTL_WOLAYOUT_ADJ));
-							//lb.ContainerFlags = static_cast<uint16>(GetClusterData(CTL_WOLAYOUT_FLAGS));
-							//Data.SetLayoutBlock(&lb);
 							WhatmanObjectBaseDialog::updateRef(&Data);
 							ASSIGN_PTR(pData, Data);
 							CATCH
-								/*if(pData)
-									pData->ContainerIdent = preserve_symb;
-								*/
 								ok = PPErrorByDialog(this, sel);
 							ENDCATCH
 							return ok;

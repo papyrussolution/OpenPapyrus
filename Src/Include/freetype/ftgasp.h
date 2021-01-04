@@ -1,29 +1,23 @@
 /****************************************************************************
- *
  * ftgasp.h
- *
  *   Access of TrueType's 'gasp' table (specification).
- *
- * Copyright (C) 2007-2020 by
- * David Turner, Robert Wilhelm, and Werner Lemberg.
+ * Copyright (C) 2007-2020 by David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
  * license, LICENSE.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
- *
  */
-
 #ifndef FTGASP_H_
 #define FTGASP_H_
 
 #include <freetype/freetype.h>
 
 #ifdef FREETYPE_H
-#error "freetype.h of FreeType 1 has been loaded!"
-#error "Please fix the directory search order for header files"
-#error "so that freetype.h of FreeType 2 is found first."
+	#error "freetype.h of FreeType 1 has been loaded!"
+	#error "Please fix the directory search order for header files"
+	#error "so that freetype.h of FreeType 2 is found first."
 #endif
 
 FT_BEGIN_HEADER
@@ -124,14 +118,6 @@ FT_BEGIN_HEADER
  * @since:
  *   2.3.0
  */
-FT_EXPORT(FT_Int)
-FT_Get_Gasp(FT_Face face,
-    FT_UInt ppem);
-
-/* */
-
+FT_EXPORT(FT_Int) FT_Get_Gasp(FT_Face face, FT_UInt ppem);
 FT_END_HEADER
-
 #endif /* FTGASP_H_ */
-
-/* END */

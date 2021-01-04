@@ -1,5 +1,5 @@
 // PPDEVICE.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -905,7 +905,7 @@ int PPDevice_Leader::GetSessionPrice(PPObjGoods * pGObj, double * pPrice)
 // @vmiller
 #if SLTEST_RUNNING // {
 
-#define EXPORT	extern "C" __declspec (dllexport)
+#define EXPORT	extern "C" __declspec(dllexport)
 
 class DvcDriver {
 public:

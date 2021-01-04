@@ -988,9 +988,9 @@ extern "C" {
    #ifndef HAVE_ISNAN
     #define HAVE_ISNAN
    #endif
-   #ifndef soap_isnan
-    #define soap_isnan(num) isNan(num)
-   #endif
+   // @v10.9.11 #ifndef soap_isnan
+    // @v10.9.11 #define soap_isnan(num) isNan(num)
+   // @v10.9.11 #endif
   #endif
   #ifdef WM_SECURE_KEY_STORAGE
    #include <ipcom_key_db.h>
@@ -1001,7 +1001,7 @@ extern "C" {
   #ifndef HAVE_ISNAN
    #define HAVE_ISNAN
   #endif
-  #define soap_isnan(n) _isnan(n)
+  // @v10.9.11 #define soap_isnan(n) _isnan(n)
   #ifndef HAVE_ISINF
    #define HAVE_ISINF
   #endif
@@ -1079,18 +1079,18 @@ extern const char soap_base64i[];
  #ifndef DBL_NINFTY
   #define DBL_NINFTY (-DBL_PINFTY)
  #endif
- #ifndef soap_isnan
-  #ifdef HAVE_ISNAN
-   #define soap_isnan(n) isnan(n)
-  #else
-   #define soap_isnan(n) ((n) != (n))
-  #endif
- #endif
+ // @v10.9.11 #ifndef soap_isnan
+  // @v10.9.11 #ifdef HAVE_ISNAN
+   // @v10.9.11 #define soap_isnan(n) isnan(n)
+  // @v10.9.11 #else
+   // @v10.9.11 #define soap_isnan(n) ((n) != (n))
+  // @v10.9.11 #endif
+ // @v10.9.11 #endif
  #ifndef soap_isinf
   #ifdef HAVE_ISINF
    #define soap_isinf(n) isinf(n)
   #else
-   #define soap_isinf(n) (!soap_isnan(n) && soap_isnan((n)-(n)))
+   #define soap_isinf(n) (!fisnan(n) && fisnan((n)-(n)))
   #endif
  #endif
 

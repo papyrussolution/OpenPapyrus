@@ -888,17 +888,13 @@ static void convert_from_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field,
 		default:
 	    {
 		    char buff[MAX_DOUBLE_STRING_REP_LENGTH];
-		    size_t length;
-
-		    length = MIN(MAX_DOUBLE_STRING_REP_LENGTH - 1, r_param->buffer_length);
-
+		    size_t length = MIN(MAX_DOUBLE_STRING_REP_LENGTH - 1, r_param->buffer_length);
 		    if(field->decimals >= NOT_FIXED_DEC) {
 			    length = ma_gcvt(val, MY_GCVT_ARG_DOUBLE, (int)length, buff, NULL);
 		    }
 		    else {
 			    length = ma_fcvt(val, field->decimals, buff, NULL);
 		    }
-
 		    /* check if ZEROFILL flag is active */
 		    if(field->flags & ZEROFILL_FLAG) {
 			    /* enough space available ? */
@@ -916,8 +912,7 @@ static void convert_from_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field,
 }
 
 /* {{{ ps_fetch_double */
-static
-void ps_fetch_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned char ** row)
+static void ps_fetch_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned char ** row)
 {
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_DOUBLE:
@@ -941,8 +936,7 @@ void ps_fetch_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned c
 /* }}} */
 
 /* {{{ ps_fetch_float */
-static
-void ps_fetch_float(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned char ** row)
+static void ps_fetch_float(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned char ** row)
 {
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_FLOAT:
@@ -1017,14 +1011,10 @@ static void ps_fetch_datetime(MYSQL_BIND * r_param, const MYSQL_FIELD * field, u
 	unsigned int len = net_field_length(row);
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_DATETIME:
-		case MYSQL_TYPE_TIMESTAMP:
-		    convert_to_datetime(t, row, len, field->type);
-		    break;
-		case MYSQL_TYPE_DATE:
-		    convert_to_datetime(t, row, len, field->type);
-		    break;
-		case MYSQL_TYPE_TIME:
-		    convert_to_datetime(t, row, len, field->type);
+		case MYSQL_TYPE_TIMESTAMP: convert_to_datetime(t, row, len, field->type); break;
+		case MYSQL_TYPE_DATE: convert_to_datetime(t, row, len, field->type); break;
+		case MYSQL_TYPE_TIME: 
+			convert_to_datetime(t, row, len, field->type);
 		    t->year = t->day = t->month = 0;
 		    break;
 		case MYSQL_TYPE_YEAR:

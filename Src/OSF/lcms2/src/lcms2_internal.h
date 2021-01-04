@@ -89,10 +89,10 @@
 // Other replacement functions
 #ifdef _MSC_VER
 # ifndef snprintf
-#       define snprintf  _snprintf
+#define snprintf  _snprintf
 # endif
 # ifndef vsnprintf
-#       define vsnprintf  _vsnprintf
+#define vsnprintf  _vsnprintf
 # endif
 
 /// Properly define some macros to accommodate

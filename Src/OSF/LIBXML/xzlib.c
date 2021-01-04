@@ -11,7 +11,7 @@
 #pragma hdrstop
 
 #ifdef HAVE_LZMA_H
-#include "xzlib.h"
+//#include "xzlib.h"
 
 /* values for xz_state how */
 #define LOOK 0                  /* look for a gzip/lzma header */
