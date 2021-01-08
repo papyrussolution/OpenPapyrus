@@ -1,5 +1,5 @@
 // PPTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -10,8 +10,6 @@
 //#define TEST_EDITIMPEXPPARAM
 //#define TEST_REGEXP
 //#define TEST_DL600
-
-// @v9.8.11 int Debug_GetFilesFromMessage(const char * pMsgFile); // filtrnsm.cpp
 
 #if 0 // {
 
@@ -136,7 +134,6 @@ int TestLogin()
 #else //
 
 #include <locale.h>
-
 /*
 #define ABCD virtual void abc(int & r)
 
@@ -408,12 +405,14 @@ int TestSPathStruc(const char * pInputFileName)
 int Test_Alg_SS_Z(const char * pInputFileName);
 int TestTextDbFile(const char * pInDbfFile);
 int Test_InterfaceCall();
+int DummyProc_dirent(); // @prototype @forcelink
 
 int TestNoLogin()
 {
 	int    ok = -1;
 	STestSuite s;
-	SRng::CreateInstance((SRng::Algorithm)0, 0); // linking RandomNumberGeneragtor
+	SRng::CreateInstance((SRng::Algorithm)0, 0); // @forcelink RandomNumberGeneragtor
+	DummyProc_dirent(); // @v10.9.12 @forcelink
 	s.Run("\\papyrus\\src\\pptest\\testdef.ini");
 	//Test_Alg_SS_Z("c:\\papyrus\\src\\pptest\\words.");
 	//Test_InterfaceCall();
@@ -505,8 +504,8 @@ VAR   const RngType * Rng_Mt_19937;
 VAR   uint RngDefaultSeed;
 VAR   const RngType * RngDefault;
 
-const RngType ** RngTypesSetup();
-Rng * RngAlloc(const RngType * pT);
+const  RngType ** RngTypesSetup();
+Rng *  RngAlloc(const RngType * pT);
 void   RngFree(Rng * pR);
 void   RngSet(const Rng * pR, uint seed);
 uint   RngMax(const Rng * pR);
@@ -702,9 +701,9 @@ size_t RngSize (const Rng * pR) {return pR->P_Type->Size;}
 void * RngState (const Rng * pR) {return pR->P_State;}
 void RngFree (Rng * pR)
 {
-	if (pR) {
-		free (pR->P_State);
-		free (pR);
+	if(pR) {
+		free(pR->P_State);
+		free(pR);
 	}
 }
 //

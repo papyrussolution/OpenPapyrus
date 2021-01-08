@@ -234,9 +234,6 @@
     <ClInclude Include="..\osf\winflexbison\common\gethrxtime.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\common\getopt.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\winflexbison\common\getopt_int.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -525,8 +522,6 @@
     <ClCompile Include="..\osf\winflexbison\common\fstrcmp.c" />
     <ClCompile Include="..\osf\winflexbison\common\getdelim.c" />
     <ClCompile Include="..\osf\winflexbison\common\gethrxtime.c" />
-    <ClCompile Include="..\osf\winflexbison\common\getopt.c" />
-    <ClCompile Include="..\osf\winflexbison\common\getopt1.c" />
     <ClCompile Include="..\osf\winflexbison\common\hash.c" />
     <ClCompile Include="..\osf\winflexbison\common\localcharset.c" />
     <ClCompile Include="..\osf\winflexbison\common\mbswidth.c" />

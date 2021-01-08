@@ -1,5 +1,5 @@
 // BITMBROW.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 // Модуль, отвечающий за броузер строк товарных документов.
@@ -1627,7 +1627,7 @@ void BillItemBrowser::update(int pos)
 		const  int is_sorting_needed = BIN(GetSettledOrderList().getCount());
 		if(is_sorting_needed && org_current_pos >= 0) {
 			const BillGoodsBrwItemArray * p_org_list = static_cast<const BillGoodsBrwItemArray *>(p_def->getArray());
-			if(SVectorBase::GetCount(p_org_list) && org_current_pos < p_org_list->getCountI()) {
+			if(org_current_pos < SVectorBase::GetCount(p_org_list)) {
 				const BillGoodsBrwItem * p_org_cur_item = static_cast<const BillGoodsBrwItem *>(p_org_list->at(org_current_pos));
 				org_current_pos_in_bill = p_org_cur_item->Pos;
 			}

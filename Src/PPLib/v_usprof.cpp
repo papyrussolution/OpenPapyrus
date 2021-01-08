@@ -1,5 +1,5 @@
 // V_USPROF.CPP
-// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -52,7 +52,7 @@ public:
 		}
 		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_DB, &db_list, db_pos, 0);
 		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_FUNC, &func_list, Data.FuncID, 0);
-		SetPeriodInput(this, CTLCAL_FLTUSRPROF_PRD, &Data.Period);
+		SetPeriodInput(this, CTL_FLTUSRPROF_PRD, &Data.Period); // @v10.9.12 @fix CTLCAL_FLTUSRPROF_PRD-->CTL_FLTUSRPROF_PRD
 		SetTimeRangeInput(this, CTL_FLTUSRPROF_TIMEPRD, TIMF_HMS, &Data.TmPeriod);
 		return 1;
 	}

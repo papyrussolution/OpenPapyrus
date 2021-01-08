@@ -1612,6 +1612,7 @@
     <ClCompile Include="..\SLib\sgiflib.cpp" />
     <ClCompile Include="..\SLib\simage.cpp" />
     <ClCompile Include="..\SLib\sinifile.cpp" />
+    <ClCompile Include="..\SLib\slib-getopt.cpp" />
     <ClCompile Include="..\SLib\slib-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -3671,6 +3672,7 @@
     <ClInclude Include="..\Include\Dbquery.h" />
     <ClInclude Include="..\Include\dirent.h" />
     <ClInclude Include="..\Include\fann2.h" />
+    <ClInclude Include="..\Include\getopt.h" />
     <ClInclude Include="..\Include\json.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\slib-internal.h" />

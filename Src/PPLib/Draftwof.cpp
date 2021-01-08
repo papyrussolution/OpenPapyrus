@@ -1008,7 +1008,7 @@ int WriteOffDrafts(const PPIDArray * pCSessList)
 	PrcssrWrOffDraftFilt p;
 	PrcssrWrOffDraft proc;
 	proc.InitParam(&p);
-	if(SVector::GetCount(pCSessList)) {
+	if(SVectorBase::GetCount(pCSessList)) {
 		p.CSessList = *pCSessList;
 		PPObjCSession cs_obj;
 		PPObjCashNode cn_obj;

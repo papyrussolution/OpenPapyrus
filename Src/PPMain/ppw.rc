@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -8570,8 +8570,7 @@ BEGIN
     LTEXT           "@factprice",4005,45,60,100,8
     EDITTEXT        CTL_CSEXCAG_SELLPRICE,150,60,60,13,ES_AUTOHSCROLL
     GROUPBOX        "",IDC_STATIC,5,80,280,115
-    CONTROL         "@csessexcaltgoodsparam_selexistsgoodsonly",5302,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,90,231,13,WS_EX_RIGHT
+    CONTROL         "@csessexcaltgoodsparam_selexistsgoodsonly",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,90,231,13,WS_EX_RIGHT
     LTEXT           "@goodsgroup",4006,15,105,165,8
     EDITTEXT        CTL_CSEXCAG_GGRP,15,115,250,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CSEXCAG_GGRP,265,115,13,13,BS_BITMAP | NOT WS_TABSTOP
@@ -34743,6 +34742,10 @@ BEGIN
         BOTTOMMARGIN, 170
     END
 
+    4096, DIALOG
+    BEGIN
+    END
+
     DLG_VK_POST, DIALOG
     BEGIN
         RIGHTMARGIN, 272
@@ -38359,6 +38362,12 @@ END
 DLG_FLTREGT AFX_DIALOG_LAYOUT
 BEGIN
     0
+END
+
+4096 AFX_DIALOG_LAYOUT
+BEGIN
+    0,
+    0, 0, 100, 0
 END
 
 #endif    // Russian (Russia) resources

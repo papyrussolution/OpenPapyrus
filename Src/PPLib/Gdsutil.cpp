@@ -1,5 +1,5 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Утилиты для работы с товарами
 //
@@ -3015,6 +3015,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 		case BARCSTD_UPCA:        rBuf = "upca"; break;
 		case BARCSTD_POSTNET:     rBuf = "postnet"; break;
 		case BARCSTD_QR:          rBuf = "qr"; break;
+		case BARCSTD_DATAMATRIX:  rBuf = "datamatrix"; break; // @v10.9.12
 		default:
 			ok = 0;
     }
@@ -3055,6 +3056,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 					case PPHS_BCS_PLESSEY:         bcstd = BARCSTD_PLESSEY; break;
 					case PPHS_BCS_POSTNET:         bcstd = BARCSTD_POSTNET; break;
 					case PPHS_BCS_LOGMARS:         bcstd = BARCSTD_LOGMARS; break;
+					case PPHS_BCS_DATAMATRIX:      bcstd = BARCSTD_DATAMATRIX; break; // @v10.9.12
 					default:
 						{
 							//
@@ -3284,56 +3286,51 @@ static int FASTCALL ZBarStdToPp(zbar_symbol_type_t zbarstd)
 
 #if SLTEST_RUNNING // {
 
-struct TestBcStdSymb {
-	const char * P_Symb;
-	int   Std;
-};
-
-static const TestBcStdSymb TestBcStdSymbList[] = {
-	{ "code11", BARCSTD_CODE11 },
-	{ "code-11" , BARCSTD_CODE11 },
-	{ "code 11", BARCSTD_CODE11 },
-	{ "code39",  BARCSTD_CODE39 },
-	{ "code-39", BARCSTD_CODE39 },
-	{ "code 39", BARCSTD_CODE39 },
-	{ "code49",  BARCSTD_CODE49 },
-	{ "code-49", BARCSTD_CODE49 },
-	{ "code 49", BARCSTD_CODE49 },
-	{ "code93",  BARCSTD_CODE93 },
-	{ "code-93", BARCSTD_CODE93 },
-	{ "code 93", BARCSTD_CODE93 },
-	{ "code128",  BARCSTD_CODE128 },
-	{ "code-128", BARCSTD_CODE128 },
-	{ "code 128", BARCSTD_CODE128 },
-	{ "pdf417",   BARCSTD_PDF417 },
-	{ "pdf-417",  BARCSTD_PDF417 },
-	{ "pdf 417",  BARCSTD_PDF417 },
-	{ "pdf",      BARCSTD_PDF417 },
-	{ "ean13", BARCSTD_EAN13 },
-	{ "ean-13", BARCSTD_EAN13 },
-	{ "ean 13", BARCSTD_EAN13 },
-	{ "ean8", BARCSTD_EAN8 },
-	{ "ean-8", BARCSTD_EAN8 },
-	{ "ean 8", BARCSTD_EAN8 },
-	{ "upca", BARCSTD_UPCA },
-	{ "upc-a", BARCSTD_UPCA },
-	{ "upc a", BARCSTD_UPCA },
-	{ "upce", BARCSTD_UPCE },
-	{ "upc-e", BARCSTD_UPCE },
-	{ "upc e", BARCSTD_UPCE },
-	{ "qr", BARCSTD_QR },
-	{ "qr-code", BARCSTD_QR },
-	{ "qr code", BARCSTD_QR },
-	{ "qrcode", BARCSTD_QR },
-	{ "interleaved2of5", BARCSTD_INTRLVD2OF5 },
-	{ "industial2of5", BARCSTD_IND2OF5 },
-	{ "standard2of5", BARCSTD_STD2OF5 },
-	{ "codabar", BARCSTD_ANSI },
-	{ "msi", BARCSTD_MSI },
-	{ "plessey", BARCSTD_PLESSEY },
-	{ "postnet", BARCSTD_POSTNET },
-	{ "logmars", BARCSTD_LOGMARS },
-	{ "datamatrix", BARCSTD_DATAMATRIX } // @v10.9.10
+static const SIntToSymbTabEntry TestBcStdSymbList[] = {
+	{  BARCSTD_CODE11,      "code11"  },
+	{  BARCSTD_CODE11,      "code-11" },
+	{  BARCSTD_CODE11,      "code 11" },
+	{  BARCSTD_CODE39,      "code39"  },
+	{  BARCSTD_CODE39,      "code-39" },
+	{  BARCSTD_CODE39,      "code 39" },
+	{  BARCSTD_CODE49,      "code49"  },
+	{  BARCSTD_CODE49,      "code-49" },
+	{  BARCSTD_CODE49,      "code 49" },
+	{  BARCSTD_CODE93,      "code93"  },
+	{  BARCSTD_CODE93,      "code-93" },
+	{  BARCSTD_CODE93,      "code 93" },
+	{  BARCSTD_CODE128,     "code128" },
+	{  BARCSTD_CODE128,     "code-128" },
+	{  BARCSTD_CODE128,     "code 128" },
+	{  BARCSTD_PDF417,      "pdf417"   },
+	{  BARCSTD_PDF417,      "pdf-417"  },
+	{  BARCSTD_PDF417,      "pdf 417"  },
+	{  BARCSTD_PDF417,      "pdf"      },
+	{  BARCSTD_EAN13,       "ean13"    },
+	{  BARCSTD_EAN13,       "ean-13"   },
+	{  BARCSTD_EAN13,       "ean 13"   },
+	{  BARCSTD_EAN8,        "ean8"     },
+	{  BARCSTD_EAN8,        "ean-8" },
+	{  BARCSTD_EAN8,        "ean 8" },
+	{  BARCSTD_UPCA,        "upca"  },
+	{  BARCSTD_UPCA,        "upc-a" },
+	{  BARCSTD_UPCA,        "upc a" },
+	{  BARCSTD_UPCE,        "upce"  },
+	{  BARCSTD_UPCE,        "upc-e" },
+	{  BARCSTD_UPCE,        "upc e" },
+	{  BARCSTD_QR,          "qr"    },
+	{  BARCSTD_QR,          "qr-code"  },
+	{  BARCSTD_QR,          "qr code"  },
+	{  BARCSTD_QR,          "qrcode"   },
+	{  BARCSTD_INTRLVD2OF5, "interleaved2of5" },
+	{  BARCSTD_IND2OF5,     "industial2of5"   },
+	{  BARCSTD_STD2OF5,     "standard2of5"    },
+	{  BARCSTD_ANSI,        "codabar"         },
+	{  BARCSTD_MSI,         "msi"             },
+	{  BARCSTD_PLESSEY,     "plessey"    },
+	{  BARCSTD_POSTNET,     "postnet"    },
+	{  BARCSTD_LOGMARS,     "logmars"    },
+	{  BARCSTD_DATAMATRIX,  "datamatrix" } // @v10.9.10
 };
 
 SLTEST_R(BarcodeOutputAndRecognition)
@@ -3341,15 +3338,15 @@ SLTEST_R(BarcodeOutputAndRecognition)
 	SString temp_buf;
 	{
 		for(uint i = 0; i < SIZEOFARRAY(TestBcStdSymbList); i++) {
-			const TestBcStdSymb & r_entry = TestBcStdSymbList[i];
+			const SIntToSymbTabEntry & r_entry = TestBcStdSymbList[i];
 			(temp_buf = r_entry.P_Symb).ToUpper();
 			int std = PPBarcode::RecognizeStdName(temp_buf);
-			SLTEST_CHECK_EQ((long)std, (long)r_entry.Std);
+			SLTEST_CHECK_EQ((long)std, (long)r_entry.Id);
 			SLTEST_CHECK_NZ(PPBarcode::GetStdName(std, temp_buf));
 			int _found = 0;
 			for(uint j = 0; !_found && j < SIZEOFARRAY(TestBcStdSymbList); j++) {
-				const TestBcStdSymb & r_entry2 = TestBcStdSymbList[j];
-				if(r_entry2.Std == std && temp_buf.CmpNC(r_entry2.P_Symb) == 0)
+				const SIntToSymbTabEntry & r_entry2 = TestBcStdSymbList[j];
+				if(r_entry2.Id == std && temp_buf.CmpNC(r_entry2.P_Symb) == 0)
 					_found = 1;
 			}
 			SLTEST_CHECK_NZ(_found);

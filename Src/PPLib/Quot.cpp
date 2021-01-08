@@ -1,5 +1,5 @@
 // QUOT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1372,6 +1372,7 @@ PrcssrQuotTester::~PrcssrQuotTester()
 int PrcssrQuotTester::Init()
 {
 	int    ok = 1;
+	bool   is_warehouse_restrictions = false;
 	GoodsList.freeAll();
 	LocList.freeAll();
 	GoodsGrpList.freeAll();
@@ -1399,7 +1400,7 @@ int PrcssrQuotTester::Init()
 			GoodsGrpList.add(gg_id);
 		}
 	}
-	loc_obj.GetWarehouseList(&LocList);
+	loc_obj.GetWarehouseList(&LocList, &is_warehouse_restrictions);
 	{
 		LTIME ct = getcurtime_();
 		THROW(P_RngGoods = SRng::CreateInstance(SRng::algMT, 0));

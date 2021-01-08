@@ -1,11 +1,9 @@
-/*
- * Summary: interface for the I/O interfaces used by the parser
- * Description: interface for the I/O interfaces used by the parser
- *
- * Copy: See Copyright for the status of this software.
- *
- * Author: Daniel Veillard
- */
+// XMLIO.H
+// Summary: interface for the I/O interfaces used by the parser
+// Description: interface for the I/O interfaces used by the parser
+// Copy: See Copyright for the status of this software.
+// Author: Daniel Veillard
+// 
 #ifndef __XML_IO_H__
 #define __XML_IO_H__
 
@@ -179,26 +177,26 @@ xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char *URI, xml
 	#endif
 #endif
 XMLPUBFUN xmlParserInput * XMLCALL xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInput * ret);
-/*
- * A predefined entity loader disabling network accesses
- */
+// 
+// A predefined entity loader disabling network accesses
+// 
 XMLPUBFUN xmlParserInput * XMLCALL xmlNoNetExternalEntityLoader(const char *URL, const char *ID, xmlParserCtxt * ctxt);
-/*
- * xmlNormalizeWindowsPath is obsolete, don't use it.
- * Check xmlCanonicPath in uri.h for a better alternative.
- */
+// 
+// xmlNormalizeWindowsPath is obsolete, don't use it.
+// Check xmlCanonicPath in uri.h for a better alternative.
+// 
 XMLPUBFUN xmlChar * XMLCALL xmlNormalizeWindowsPath(const xmlChar *path);
 XMLPUBFUN int XMLCALL xmlCheckFilename(const char *path);
-/**
- * Default 'file://' protocol callbacks
- */
+// 
+// Default 'file://' protocol callbacks
+// 
 XMLPUBFUN int XMLCALL xmlFileMatch(const char *filename);
 XMLPUBFUN void * XMLCALL xmlFileOpen(const char *filename);
 XMLPUBFUN int XMLCALL xmlFileRead(void * context, char * buffer, int len);
 XMLPUBFUN int XMLCALL xmlFileClose(void * context);
-/**
- * Default 'http://' protocol callbacks
- */
+// 
+// Default 'http://' protocol callbacks
+// 
 #ifdef LIBXML_HTTP_ENABLED
 	XMLPUBFUN int XMLCALL xmlIOHTTPMatch(const char *filename);
 	XMLPUBFUN void * XMLCALL xmlIOHTTPOpen(const char *filename);
@@ -208,9 +206,9 @@ XMLPUBFUN int XMLCALL xmlFileClose(void * context);
 	XMLPUBFUN int XMLCALL xmlIOHTTPRead(void * context, char * buffer, int len);
 	XMLPUBFUN int XMLCALL xmlIOHTTPClose(void * context);
 #endif
-/**
- * Default 'ftp://' protocol callbacks
- */
+// 
+// Default 'ftp://' protocol callbacks
+// 
 #ifdef LIBXML_FTP_ENABLED
 	XMLPUBFUN int XMLCALL xmlIOFTPMatch(const char *filename);
 	XMLPUBFUN void * XMLCALL xmlIOFTPOpen(const char *filename);

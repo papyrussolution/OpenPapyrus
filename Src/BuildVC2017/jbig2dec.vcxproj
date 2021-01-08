@@ -213,8 +213,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\jbig2dec\getopt.c" />
-    <ClCompile Include="..\OSF\jbig2dec\getopt1.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2dec-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -246,7 +244,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\jbig2dec\config_win32.h" />
-    <ClInclude Include="..\OSF\jbig2dec\getopt.h" />
     <ClInclude Include="..\OSF\jbig2dec\jbig2.h" />
     <ClInclude Include="..\OSF\jbig2dec\jbig2dec-internal.h" />
     <ClInclude Include="..\OSF\jbig2dec\jbig2_arith.h" />

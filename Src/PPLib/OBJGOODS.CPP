@@ -4655,7 +4655,7 @@ int UhttIndexChangedGoods(const SString & rOutPath)
 	if(p_writer) {
 		THROW_MEM(filt.P_SjF = new SysJournalFilt);
 		filt.P_SjF->ObjType = PPOBJ_GOODS;
-		filt.P_SjF->BegTm = 0;
+		filt.P_SjF->BegTm.Z();
 		filt.P_SjF->Period.low = getcurdate_();
 		filt.P_SjF->ActionIDList.add(PPACN_OBJUPD);
 		THROW(view.Init_(&filt));

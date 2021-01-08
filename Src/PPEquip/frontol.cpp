@@ -1,5 +1,5 @@
 // FRONTOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -937,11 +937,9 @@ int ACS_FRONTOL::ImportFiles()
 				{
 					uint   files_count = 0;
 					LDATETIME dtm;
-					dtm.SetFar();
 					SString firstf_path;
 					SDirEntry sde;
-					dtm.d = MAXLONG;
-					dtm.t = MAXLONG;
+					dtm.SetFar();
 					(temp_path = temp_dir.SetLastSlash()).Cat(p_prefix).Cat("?????.txt");
 					for(SDirec sd(temp_path); sd.Next(&sde) > 0;) {
 						if(dtm.IsFar() || cmp(sde.WriteTime, dtm) < 0) {

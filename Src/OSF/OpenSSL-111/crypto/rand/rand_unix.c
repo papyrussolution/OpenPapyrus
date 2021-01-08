@@ -750,23 +750,19 @@ static uint64_t get_time_stamp(void)
 #if defined(OSSL_POSIX_TIMER_OKAY)
 	{
 		struct timespec ts;
-
 		if(clock_gettime(CLOCK_REALTIME, &ts) == 0)
 			return TWO32TO64(ts.tv_sec, ts.tv_nsec);
 	}
 #endif
-#if defined(__unix__) \
-	|| (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
+#if defined(__unix__) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
 	{
 		struct timeval tv;
-
 		if(gettimeofday(&tv, NULL) == 0)
 			return TWO32TO64(tv.tv_sec, tv.tv_usec);
 	}
 #endif
 	return time(NULL);
 }
-
 /*
  * Get an arbitrary timer value of the highest possible resolution
  *
@@ -777,23 +773,19 @@ static uint64_t get_time_stamp(void)
 static uint64_t get_timer_bits(void)
 {
 	uint64_t res = OPENSSL_rdtsc();
-
 	if(res != 0)
 		return res;
-
 #if defined(__sun) || defined(__hpux)
 	return gethrtime();
 #elif defined(_AIX)
 	{
 		timebasestruct_t t;
-
 		read_wall_time(&t, TIMEBASE_SZ);
 		return TWO32TO64(t.tb_high, t.tb_low);
 	}
 #elif defined(OSSL_POSIX_TIMER_OKAY)
 	{
 		struct timespec ts;
-
 #ifdef CLOCK_BOOTTIME
 #define CLOCK_TYPE CLOCK_BOOTTIME
 #elif defined(_POSIX_MONOTONIC_CLOCK)

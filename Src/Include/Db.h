@@ -1,5 +1,5 @@
 // DB.H
-// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #ifndef __DB_H
@@ -3091,12 +3091,12 @@ extern DbSession DBS;
 //
 // DBQuery
 //
-#define MAX_DBQ_PARAMS 4
+#define MAX_DBQ_PARAMS 8 // @v10.9.12 4-->8
 
-#define AGGR_BEGIN  1 // Перед первой записью
-#define AGGR_NEXT   2 // Для каждой записи
-#define AGGR_END    3 // Больше записей не будет
-#define CALC_SIZE  10 // Вычислить длину результата
+#define AGGR_BEGIN     1 // Перед первой записью
+#define AGGR_NEXT      2 // Для каждой записи
+#define AGGR_END       3 // Больше записей не будет
+#define CALC_SIZE     10 // Вычислить длину результата
 //
 // params - массив параметров. Разрушается вызывающей функцией.
 // Параметр option используется агрегатными функциями и принимает
@@ -3279,7 +3279,7 @@ public:
 	void   FASTCALL init(LTIME t);
 	void   FASTCALL init(LDATETIME t);
 	void   FASTCALL init(const void * ptr);
-	void   FASTCALL InitForeignStr(const char *); // @v9.9.3
+	void   FASTCALL InitForeignStr(const char *);
 	int    FASTCALL copy(const DBConst &);
 	void   FASTCALL destroy();
 	int    FASTCALL convert(TYPEID, void *) const;

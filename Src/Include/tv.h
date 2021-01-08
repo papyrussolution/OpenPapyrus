@@ -1,4 +1,5 @@
 // TV.H
+// Copyright (c) A.Sobolev 1996-2021
 // @codepage UTF-8
 //
 #ifndef __TV_H
@@ -1841,6 +1842,7 @@ private:
 //
 // @construction {
 //
+#if 0 // @v10.9.12 (depricated) {
 class SRectLayout {
 public:
 	//
@@ -1923,6 +1925,7 @@ private:
 	TSVector <WItem> WinList;
 	TRect ContainerBounds;
 };
+#endif // } 0 @v10.9.12 (depricated) {
 //
 //
 //
@@ -2107,8 +2110,8 @@ struct AbstractLayoutBlock { // @persistent
 	uint16 AlignContent;   // {alignStretch} AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
 	uint16 AlignItems;     // {alignStretch} AbstractLayoutBlock::alignXXX
 	uint16 AlignSelf;      // {alignAuto}    AbstractLayoutBlock::alignXXX
-	uint16 GravityX;       // @reserve Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
-	uint16 GravityY;       // @reserve Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
+	uint16 GravityX;       // Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
+	uint16 GravityY;       // Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
 	int32  Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
 	FRect  Nominal;        // Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
 	FPoint Size;           // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
@@ -2122,7 +2125,7 @@ private:
 	int    ParseSizeStr(const SString & rStr, float & rS) const;
 };
 
-class LayoutFlexItem : public TSCollection <LayoutFlexItem> {
+class LayoutFlexItem {
 	friend class LayoutFlex;
 public:
 	struct Result {
@@ -2137,12 +2140,38 @@ public:
 		float  Frame[4];
 		uint   Flags;
 	};
+	struct IndexEntry {
+		IndexEntry();
+		uint32 ItemIdx; // Индекс элемента в TSCollection::this
+		uint32 HglIdx;  // Индекс[1..] элемента в P_HgL. Если SVectorBase::GetCount(P_HgL) == 0, то 0
+		Result R;       // Результат размещения
+	};
 	// size[0] == width, size[1] == height
-	typedef void (__stdcall * FlexSelfSizingProc)(LayoutFlexItem * pItem, float size[2]);
+	typedef void (__stdcall * FlexSelfSizingProc)(const LayoutFlexItem * pItem, float size[2]);
 	typedef void (__stdcall * FlexSetupProc)(LayoutFlexItem * pItem, float size[4]);
+
+	static void * GetManagedPtr(LayoutFlexItem * pItem);
+	static void * GetParentsManagedPtr(LayoutFlexItem * pItem);
 
 	LayoutFlexItem();
 	~LayoutFlexItem();
+	//
+	// Descr: Если экземпляр this имеет родителя, то обращается к родительскому
+	//   объекту для того, что бы тот удалил его.
+	// Returns:
+	//   >0 - this имеет родителя и тот успешно убил его. В этом случае указатель this более
+	//     не действителен.
+	//   0  - this не имеет родителя (либо родитель не имеет в своем списке ссылки на this, что есть сбойная ситуация) и должен совершить суицид самостоятельно.
+	//
+	int    FatherKillMe();
+	uint   GetChildrenCount() const;
+	LayoutFlexItem * GetChild(uint idx);
+	const  LayoutFlexItem * GetChildC(uint idx) const;
+	void   SetCallbacks(FlexSelfSizingProc selfSizingCb, FlexSetupProc setupCb, void * managedPtr);
+	int    SetLayoutBlock(const AbstractLayoutBlock & rAlb);
+	AbstractLayoutBlock & GetLayoutBlock() { return ALB; }
+	const AbstractLayoutBlock & GetLayoutBlockC() const { return ALB; }
+	LayoutFlexItem * GetParent() { return P_Parent; }
 
 	struct Param {
 		Param() : Flags(0), ForceWidth(0.0f), ForceHeight(0.0f)
@@ -2198,19 +2227,6 @@ public:
 	//
 	LayoutFlexItem * GetRoot();
 	//
-	enum {
-		stShouldOrderChildren = 0x0001
-	};
-	AbstractLayoutBlock ALB;
-	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
-	// An item can provide a self_sizing callback function that will be called
-	// during layout and which can customize the dimensions (width and height) of the item.
-	FlexSelfSizingProc CbSelfSizing; // NULL
-	FlexSetupProc CbSetup; // NULL
-	Result R;
-	LayoutFlexItem * P_Parent;
-	uint   State;
-	//
 	// Descr: Гомогенный элемент. Вектор таких элементов (HomogeneousList) заменяет множество 
 	//   однообразных элементов. За счет использования гомогенных списков я рассчитываю получить
 	//   значительное ускорение и упрощенние работы в ряде частных случаев.
@@ -2238,20 +2254,73 @@ public:
 	int    AddHomogeneousEntry(long id, float vf);
 protected:
 	void   UpdateShouldOrderChildren();
-	void   DoLayout(const Param & rP);
+	void   DoLayout(const Param & rP) const;
 	void   DoFloatLayout(const Param & rP);
-	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout);
+	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout) const;
+	//
+	// Descr: Завершает обработку искусственного элемента pCurrentLayout, устанавливает координаты его дочерних элементов
+	//   с поправкой на rOffs и разрушает pCurrentLayout.
+	//
+	void   Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayout, const FPoint & rOffs) const;
 	/*flex_align*/int FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
 private:
+	class IterIndex : public TSVector <IndexEntry> {
+	public:
+		IterIndex();
+		LayoutFlexItem * GetHomogeneousItem(const LayoutFlexItem * pBaseItem, uint hgeIdx) const;
+		void   ReleaseHomogeneousItem(LayoutFlexItem *) const;
+	private:
+		mutable TSCollection <LayoutFlexItem> HomogeneousEntryPool;
+	};
 	//
-	// Descr: Вызывает DoLayout(framt[2], frame[3])
+	// Методы для внутренней индексации элементов контейнера.
+	// Идея такая: 
+	//   -- вызываем MakeIndex - получаем индекс всех элементов контейнера включая неявные гомогенные элементы 
+	//   -- при построении раскладки обращаемся к элементам строго посредством GetChildByIndex
+	//   -- закончив раскладку возвращаем контейнеру элементы вызовами CommitChildResult
+	// Замечания:
+	//   -- индексация учитывает атрибут ALB.Order
+	//   -- представления гомогенных элементов физически в контейнере не существуют, потому SetChildByIndex
+	//     будет реализовать не просто.
+	//   -- пока имеет место путаница насчет того какие поля LayoutFlexItem меняются функциями расчета, а 
+	//     какие нет. Потому я в некотором замешательстве.
 	//
-	void   DoLayoutSelf();
-	bool   LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed);
-	LayoutFlexItem * P_Link; // @transient При сложных схемах построения формируются искусственные лейауты, получающие
-		// в этом поле ссылку на порождающий реальный элемент. Указатель константным не делать: по нему будет присвоен 
-		// результат вычислений.
+	void   MakeIndex(IterIndex & rIndex) const;
+	//
+	// Descr: Получает указатель на элемент по позиции idxPos в индексе rIndex.
+	//   Если элемент является гомоморфной коллекцией, то возвращается указатель на суррогатный экземпляр.
+	// Returns:
+	//   0 - error. Скорее всего, инвалидный индекс.
+	//
+	const  LayoutFlexItem * GetChildByIndex(const IterIndex & rIndex, uint idxPos) const;
+	int    CommitChildResult(const IterIndex & rIndex, uint idxPos, const LayoutFlexItem * pItem);
+	//
+	// Descr: Вызывает DoLayout(R.Frame[2], R.Frame[3])
+	//
+	void   DoLayoutSelf() const;
+	bool   LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const;
+	//
+	// Descr: Вызывает функцию CbSetup для самого себя и рекурсивно для дочерних элементов
+	//
+	void   Setup();
+	//
+	enum {
+		stShouldOrderChildren = 0x0001,
+		stHomogeneousItem     = 0x0002  // Элемент является виртуальным экземпляром, сформированным по шаблону из HomogeneousArray основного элемента
+	};
+	AbstractLayoutBlock ALB;
+	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
+	// An item can provide a self_sizing callback function that will be called
+	// during layout and which can customize the dimensions (width and height) of the item.
+	FlexSelfSizingProc CbSelfSizing; // NULL
+	FlexSetupProc CbSetup; // NULL
+	LayoutFlexItem * P_Parent;
+	uint   State;
+	const  LayoutFlexItem * P_Link; // @transient При сложных схемах построения формируются искусственные лейауты, получающие
+		// в этом поле ссылку на порождающий реальный элемент. 
+	TSCollection <LayoutFlexItem> * P_Children;
 	HomogeneousArray * P_HgL;
+	mutable Result R;
 };
 /*
 length-unit: % | mm | m | cm
@@ -3672,7 +3741,7 @@ public:
 		stLButtonDown                = 0x0008,  // Левая кнопка мыши нажата на списке
 		stInited                     = 0x0010,  // Выставляется функцией SmartListBox::onInit.
 		stLBIsLinkedUISrchTextBlock  = 0x0020,  // Окно поиска будет прилинковано непосредственно к списку. При уничтожении фокус будет попадать на список.
-		stOmitSearchByFirstChar      = 0x0040   // Не обрабатывать ввод символа как сигнал к поиску
+		stOmitSearchByFirstChar      = 0x0040,  // Не обрабатывать ввод символа как сигнал к поиску
 	};
 
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, int isTree = 0);

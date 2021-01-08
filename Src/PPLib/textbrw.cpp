@@ -1,5 +1,5 @@
 // TEXTBRW.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // STextBrowser
 //
 #include <pp.h>
@@ -962,8 +962,7 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 /*static*/int STextBrowser::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
-	MEMSZERO(wc);
-	wc.cbSize        = sizeof(wc);
+	INITWINAPISTRUCT(wc);
 	wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
 	wc.lpfnWndProc   = STextBrowser::WndProc;
 	wc.cbClsExtra    = BRWCLASS_CEXTRA;

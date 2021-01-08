@@ -644,6 +644,17 @@ include guard с помощью макросов \#ifndef-\#define-\#endif.
 Это - очень популярные макросы в мире c/c++. Для проектов Papyrus они определены в slib.h и более нигде.
 Используйте только эти макросы, но не min, max или что-либо еще.
 
+Специальное исключение для библиотеки GDI+:
+перед включением gdiplus.h следует переопределить макросы min и max следующим образом:
+\begin{lstlisting}	 
+	#define max MAX
+	#define min MIN
+	#include <gdiplus.h>
+\end{lstlisting}
+
+Иначе возникнут ошибки компиляции. В ближайшей перспективе мы намерены избавиться от зависимости
+от GDI+.
+
 \subsubsection{SIZEOFARRAY определение размера статического массива}
 Часто возникает необходимость получить размер статического массива. Каноническим подходом является следующий:
 \begin{lstlisting}	
@@ -807,6 +818,32 @@ if(oneof2(a, 1, 3))
       if(!RVALUEPTR(a, p)) 
           a = 0;
 \end{lstlisting}		
+
+\subsubsection{MEMSZERO обнуляет память, занятую переменной}
+Подробно описан ниже. См. стр.~\pageref{sec-memops}.
+	
+\subsubsection{THISZERO обнуляет память, занятую переменной по указателю this}
+Подробно описан ниже. См. стр.~\pageref{sec-memops}.
+
+\subsubsection{INITWINAPISTRUCT специальная инициализация структур Win API}
+Макрос обнуляет память, выделенную под структуру Win API имеющую член cbSize и 
+присваивает этому члену размер структуры.
+
+Например, конструкция:
+\begin{lstlisting}
+	SCROLLINFO si;
+	INITWINAPISTRUCT(si);
+\end{lstlisting}		
+
+То же самое, что и:
+
+\begin{lstlisting}
+	SCROLLINFO si;
+	MEMSZERO(si);
+	si.cbSize = sizeof(si);
+\end{lstlisting}
+
+Задача этого макроса - максимально унифицировать код и сократить его размер.
 
 \subsubsection{Простые преобразования типов указателей}
 
@@ -990,7 +1027,7 @@ if(oneof2(a, 1, 3))
 на null перед вызовом функции (оператора) освобождения памяти поможет сэкономить "пару тактов"
 процессора. Пометьте такую проверку комментарием // $@$speedcritical чтобы как-то оправдаться.
 
-\section{Манипуляции с участками памяти}
+\section{Манипуляции с участками памяти\label{sec-memops}}
 
 Функции memcpy, memmove, memset, memcmp опеределены в slib.h как макросы, для использования реализации из библиотеки 
 Agner Fog (www.agner.org).

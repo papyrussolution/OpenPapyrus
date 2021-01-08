@@ -1629,6 +1629,7 @@ struct LDATE { // @noctr
 	// @v10.3.4 (replaced with GetOleDate()) operator OleDate() const;
 	OleDate GetOleDate() const;
 	time_t GetTimeT() const;
+	LDATE  Z() { v = 0; return *this; }
 	LDATE  operator = (OleDate);
 	LDATE  operator = (double); // OleDate
 	int    day()   const { return static_cast<int>(v & 0x00ff); }
@@ -1667,6 +1668,7 @@ struct LDATE { // @noctr
 	ulong  v;
 private:
 	LDATE  Helper_GetActual(LDATE rel, LDATE cmp) const;
+	LDATE  operator = (int); // @v10.9.12 an empty inaccessable method (prevention of the mismatched assignment)
 };
 //
 // Descr: Календарный день. Применяется для хранения регулярных дат.
@@ -1699,6 +1701,7 @@ struct LTIME {
 	DECL_INVARIANT_C();
 	operator unsigned long() const { return v; }
 	operator OleDate() const;
+	LTIME  Z() { v = 0; return *this; }
 	LTIME  operator = (OleDate);
 	LTIME  operator = (double); // OleDate
 	LTIME  encode(int h, int m, int s, int ms);
@@ -1718,6 +1721,8 @@ struct LTIME {
 	//
 	LTIME & FASTCALL addhs(long n);
 	ulong  v;
+private:
+	LTIME  operator = (int); // @v10.9.12 an empty inaccessable method (prevention of the mismatched assignment)
 };
 //
 // @construction {
@@ -1752,6 +1757,15 @@ private:
 	ulong  v;
 };
 // } @construction
+//
+// Descr: Porting of the posix gettimeofday() and struct timezone
+//
+struct timezone {
+	int    tz_minuteswest; // minutes W of Greenwich 
+	int    tz_dsttime;     // type of dst correction 
+};
+
+int gettimeofday(struct timeval * pTv, struct timezone * pTz);
 //
 // Descr: Представление рабочего дня //
 //   Календарные даты представлены индексами количества календарных дней после WorkDate::InitDate.
@@ -1798,7 +1812,8 @@ struct LDATETIME {
 	LDATETIME FASTCALL operator = (OleDate);
 	LDATETIME & Set(LDATE _d, LTIME _t);
 	LDATETIME & Z();
-	LDATETIME & SetFar();
+	LDATETIME & SetMax(); // max-moment: (LDATE)d = MAXLONG, (LTIME)t = MAXLONG
+	LDATETIME & SetFar(); // far-moment: (LDATE)d = MAXLONG, (LTIME)t = 0
 	LDATETIME & FASTCALL SetTimeT(time_t t);
 	time_t GetTimeT() const;
 	int    IsFar() const;
@@ -4011,6 +4026,7 @@ private:
 };
 
 int cdecl slprintf(SString & rBuf, const char * pFormat, ...);
+int slvprintf(SString & rBuf, const char * pFormat, va_list va);
 //
 //
 //
@@ -4556,6 +4572,7 @@ char * FASTCALL SCharToOem(char * pStr);
 // Descr: Серия специальных функций и макросов для унификации компиляции UNICODE и multibyte версий.
 //
 const wchar_t * FASTCALL SUcSwitchW(const char * pStr);
+const wchar_t * FASTCALL SUcSwitchW(const SString & rStr); // @v10.9.12
 const char * FASTCALL SUcSwitchW(const wchar_t * pStr);
 inline const char * FASTCALL SUcSwitchA(const char * pStr) { return pStr; }
 inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; }
@@ -5319,6 +5336,10 @@ int    FASTCALL ismemzero(const void * p, size_t s);
 
 #define MEMSZERO(p)  memzero(&(p), sizeof(p))
 #define THISZERO()   memzero(this, sizeof(*this))
+//
+// Descr: Shortcut for the initializing Windows API structures
+//
+#define INITWINAPISTRUCT(p) { MEMSZERO(p); p.cbSize = sizeof(p); } // @v10.9.12
 //
 // Descr: Меняет порядок байтов двухбайтового слова
 //

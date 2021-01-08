@@ -1,5 +1,5 @@
 // PATH.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -12,7 +12,6 @@ struct PathItem { // Variable length struct
 	PathItem(PPID pathID, short flags, const char * str);
 	void * operator new(size_t sz, const char * str = 0);
 	void   operator delete(void *, const char *);
-	// @v9.4.8 int    GetPath(char * buf, size_t bufSize) const;
 	SString & FASTCALL GetPath(SString & rBuf) const { return (rBuf = Path()); }
 	const  char * Path() const { return (Size > sizeof(PathItem)) ? reinterpret_cast<const char *>(this + 1) : 0; }
 	PPID   ID;
@@ -520,59 +519,3 @@ int PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, 
 	fep.Scan(pSrc, wildcard, 0);
 	return PPRemoveFiles(&fep, pSuccCount, pErrCount);
 }
-//
-//
-//
-#if 0 // @v9.8.11 (replaced with SFileEntryPool) {
-class PPFileNameArray : public TSArray <SDirEntry> {
-public:
-	PPFileNameArray();
-	int    Scan(const char * pPath, const char * pWildcard);
-	int    Enum(uint * pIdx, SDirEntry * pEntry, SString * pFullPath) const;
-	const  SString & GetPath() const;
-//private:
-	SString Path; //
-};
-
-PPFileNameArray::PPFileNameArray() : TSArray <SDirEntry>()
-{
-}
-
-int PPFileNameArray::Scan(const char * pPath, const char * pWildcard)
-{
-	int    ok = 1;
-	freeAll();
-	Path = pPath;
-	if(!pPath)
-		ok = PPSetErrorInvParam();
-	else {
-		SDirec sdirec;
-		SDirEntry fb;
-		SString srch_path = pPath;
-		if(pWildcard)
-			srch_path.SetLastSlash().Cat(pWildcard);
-		for(sdirec.Init(srch_path); ok && sdirec.Next(&fb) > 0;)
-			if(!ordInsert(&fb, 0, PTR_CMPFUNC(SDirEntry_Time)))
-				ok = PPSetErrorSLib();
-	}
-	return ok;
-}
-
-const SString & PPFileNameArray::GetPath() const
-{
-	return Path;
-}
-
-int PPFileNameArray::Enum(uint * pIdx, SDirEntry * pEntry, SString * pFullPath) const
-{
-	SDirEntry * p_item;
-	if(enumItems(pIdx, (void **)&p_item)) {
-		if(pFullPath)
-			(*pFullPath = Path).SetLastSlash().Cat(p_item->FileName);
-		ASSIGN_PTR(pEntry, *p_item);
-		return 1;
-	}
-	else
-		return 0;
-}
-#endif // } 0 @v9.8.11

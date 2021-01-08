@@ -217,21 +217,15 @@ wchar_t * __la_win_permissive_name_w(const wchar_t * wname)
 	free(wn);
 	return (ws);
 }
-
 /*
  * Create a file handle.
  * This can exceed MAX_PATH limitation.
  */
 static HANDLE la_CreateFile(const char * path, DWORD dwDesiredAccess, DWORD dwShareMode,
-    LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition,
-    DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
 	wchar_t * wpath;
-	HANDLE handle;
-
-	handle = CreateFileA(path, dwDesiredAccess, dwShareMode,
-		lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes,
-		hTemplateFile);
+	HANDLE handle = CreateFileA(path, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 	if(handle != INVALID_HANDLE_VALUE)
 		return (handle);
 	if(GetLastError() != ERROR_PATH_NOT_FOUND)
@@ -239,9 +233,7 @@ static HANDLE la_CreateFile(const char * path, DWORD dwDesiredAccess, DWORD dwSh
 	wpath = __la_win_permissive_name(path);
 	if(wpath == NULL)
 		return (handle);
-	handle = CreateFileW(wpath, dwDesiredAccess, dwShareMode,
-		lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes,
-		hTemplateFile);
+	handle = CreateFileW(wpath, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 	free(wpath);
 	return (handle);
 }
@@ -252,7 +244,6 @@ __int64 __la_lseek(int fd, __int64 offset, int whence)
 	LARGE_INTEGER distance;
 	LARGE_INTEGER newpointer;
 	HANDLE handle;
-
 	if(fd < 0) {
 		errno = EBADF;
 		return (-1);
@@ -264,9 +255,7 @@ __int64 __la_lseek(int fd, __int64 offset, int whence)
 	}
 	distance.QuadPart = offset;
 	if(!SetFilePointerEx_perso(handle, distance, &newpointer, whence)) {
-		DWORD lasterr;
-
-		lasterr = GetLastError();
+		DWORD lasterr = GetLastError();
 		if(lasterr == ERROR_BROKEN_PIPE)
 			return (0);
 		if(lasterr == ERROR_ACCESS_DENIED)
@@ -287,7 +276,6 @@ int __la_open(const char * path, int flags, ...)
 	wchar_t * ws;
 	int r, pmode;
 	DWORD attr;
-
 	va_start(ap, flags);
 	pmode = va_arg(ap, int);
 	va_end(ap);
@@ -313,19 +301,10 @@ int __la_open(const char * path, int flags, ...)
 		}
 		if(attr & FILE_ATTRIBUTE_DIRECTORY) {
 			HANDLE handle;
-
 			if(ws != NULL)
-				handle = CreateFileW(ws, 0, 0, NULL,
-					OPEN_EXISTING,
-					FILE_FLAG_BACKUP_SEMANTICS |
-					FILE_ATTRIBUTE_READONLY,
-					NULL);
+				handle = CreateFileW(ws, 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS|FILE_ATTRIBUTE_READONLY, NULL);
 			else
-				handle = CreateFileA(path, 0, 0, NULL,
-					OPEN_EXISTING,
-					FILE_FLAG_BACKUP_SEMANTICS |
-					FILE_ATTRIBUTE_READONLY,
-					NULL);
+				handle = CreateFileA(path, 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS|FILE_ATTRIBUTE_READONLY, NULL);
 			free(ws);
 			if(handle == INVALID_HANDLE_VALUE) {
 				la_dosmaperr(GetLastError());
@@ -577,13 +556,9 @@ int __la_fstat(int fd, struct stat * st)
 /* This can exceed MAX_PATH limitation. */
 int __la_stat(const char * path, struct stat * st)
 {
-	HANDLE handle;
 	struct ustat u;
 	int ret;
-
-	handle = la_CreateFile(path, 0, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-		FILE_FLAG_BACKUP_SEMANTICS,
-		NULL);
+	HANDLE handle = la_CreateFile(path, 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 	if(handle == INVALID_HANDLE_VALUE) {
 		la_dosmaperr(GetLastError());
 		return (-1);

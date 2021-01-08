@@ -1,5 +1,5 @@
 // EMU_SCS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019, 2020, 2021
 // @codepage windows-1251
 // Интерфейс эмулятора синхронного кассового аппарата
 //
@@ -7,8 +7,8 @@
 #pragma hdrstop
 // @v10.9.3 #include <process.h>
 
-#define max MAX // @v9.8.11
-#define min MIN // @v9.8.11
+#define max MAX
+#define min MIN
 #include <gdiplus.h>
 using namespace Gdiplus;
 //
@@ -160,12 +160,8 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				// Set printer font
 				//
 				SetBkMode(PrinterDC, TRANSPARENT);
-				MEMSZERO(di);
-				di.cbSize = sizeof(DOCINFO);
+				INITWINAPISTRUCT(di);
 				di.lpszDocName = _T("Check");
-				di.lpszOutput = 0;
-				di.lpszDatatype = 0;
-				di.fwType = 0;
 				THROW(StartDoc(PrinterDC, &di) != SP_ERROR);
 				{
 					const  int w = GetDeviceCaps(PrinterDC, HORZRES);
@@ -173,7 +169,6 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 					HFONT  font = 0;
 					HFONT  old_font = 0;
 					RECT   rc;
-					MEMSZERO(rc);
 					rc.top    = 2;
 					rc.left   = 2;
 					rc.right  = w - 4;

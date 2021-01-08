@@ -1,5 +1,5 @@
 // OBJTSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -248,7 +248,7 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 			pCfg->Flags = 0;
 			pCfg->IdleAccSheetID = 0;
 			pCfg->MinIdleCont = 0;
-			pCfg->InitTime = 0;
+			pCfg->InitTime.Z();
 			pCfg->RoundPeriod = 0;
 			pCfg->ViewRefreshPeriod = 0;
 			pCfg->TimeChunkBrowserQuant = 0;

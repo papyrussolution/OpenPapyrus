@@ -120,8 +120,7 @@ static cairo_status_t _wgl_dummy_ctx(cairo_wgl_context_t * ctx)
 	PIXELFORMATDESCRIPTOR pfd;
 	int format;
 	HDC dc;
-	ZeroMemory(&wincl, sizeof(WNDCLASSEXA));
-	wincl.cbSize = sizeof(WNDCLASSEXA);
+	INITWINAPISTRUCT(wincl);
 	wincl.hInstance = GetModuleHandle(0);
 	wincl.lpszClassName = "cairo_wgl_context_dummy";
 	wincl.lpfnWndProc = DefWindowProcA;

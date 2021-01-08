@@ -143,8 +143,7 @@ typedef struct {
 	/* or outputting data */
 	int32 mode;
 	int32 state;
-	/* remembers avail_in when flush/finish requested */
-	uint32 avail_in_expect;
+	uint32 avail_in_expect; /* remembers avail_in when flush/finish requested */
 	/* for doing the block sorting */
 	uint32*  arr1;
 	uint32*  arr2;
@@ -155,39 +154,30 @@ typedef struct {
 	uchar*   block;
 	uint16*  mtfv;
 	uchar*   zbits;
-
-	/* for deciding when to use the fallback sorting algorithm */
-	int32 workFactor;
-
+	int32 workFactor; /* for deciding when to use the fallback sorting algorithm */
 	/* run-length-encoding of the input */
 	uint32 state_in_ch;
 	int32 state_in_len;
 	BZ_RAND_DECLS;
-
 	/* input and output limits and current posns */
 	int32 nblock;
 	int32 nblockMAX;
 	int32 numZ;
 	int32 state_out_pos;
-
 	/* map of bytes used in block */
 	int32 nInUse;
 	/*bool*/uint8 inUse[256];
 	uchar unseqToSeq[256];
-
 	/* the buffer for bit stream creation */
 	uint32 bsBuff;
 	int32 bsLive;
-
 	/* block and combined CRCs */
 	uint32 blockCRC;
 	uint32 combinedCRC;
-
 	/* misc administratium */
 	int32 verbosity;
 	int32 blockNo;
 	int32 blockSize100k;
-
 	/* stuff for coding the MTF values */
 	int32 nMTF;
 	int32 mtfFreq    [BZ_MAX_ALPHA_SIZE];
@@ -197,8 +187,7 @@ typedef struct {
 	uchar len     [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
 	int32 code    [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
 	int32 rfreq   [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
-	/* second dimension: only 3 needed; 4 makes index calculations faster */
-	uint32 len_pack[BZ_MAX_ALPHA_SIZE][4];
+	uint32 len_pack[BZ_MAX_ALPHA_SIZE][4]; /* second dimension: only 3 needed; 4 makes index calculations faster */
 } EState;
 
 /*-- externs for compression. --*/

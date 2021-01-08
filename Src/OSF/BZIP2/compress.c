@@ -159,15 +159,15 @@ static void generateMTFValues(EState* s)
 				zPend = 0;
 			}
 			{
-				register uchar   rtmp;
-				register uchar * ryy_j;
-				register uchar   rll_i;
+				uchar   rtmp;
+				uchar * ryy_j;
+				uchar   rll_i;
 				rtmp  = yy[1];
 				yy[1] = yy[0];
 				ryy_j = &(yy[1]);
 				rll_i = ll_i;
 				while(rll_i != rtmp) {
-					register uchar rtmp2;
+					uchar rtmp2;
 					ryy_j++;
 					rtmp2  = rtmp;
 					rtmp   = *ryy_j;
@@ -317,8 +317,8 @@ static void sendMTFValues(EState* s)
 				cost[t] = 0;
 			if(nGroups == 6 && 50 == ge-gs+1) {
 				/*--- fast track the common case ---*/
-				register uint32 cost01, cost23, cost45;
-				register uint16 icv;
+				uint32 cost01, cost23, cost45;
+				uint16 icv;
 				cost01 = cost23 = cost45 = 0;
 
 #define BZ_ITER(nn)		      \

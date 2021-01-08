@@ -1,6 +1,6 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -247,7 +247,6 @@ int TProgram::DelItemFromMenu(void * ptr)
 				int     i;
 				char    tooltip[80];
 				RECT    rc_item;
-				TOOLINFO t_i;
 				TCITEM tci;
 				HWND   hwnd_tab = GetDlgItem(H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS);
 				HWND   hwnd_tt  = TabCtrl_GetToolTips(hwnd_tab);
@@ -259,13 +258,13 @@ int TProgram::DelItemFromMenu(void * ptr)
 						TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
 						TabCtrl_DeleteItem(hwnd_tab, i);
 						memzero(tooltip, sizeof(tooltip));
-						t_i.cbSize      = sizeof(TOOLINFO);
+						TOOLINFO t_i;
+						INITWINAPISTRUCT(t_i);
 						t_i.uFlags      = TTF_SUBCLASS;
 						t_i.hwnd        = hwnd_tab;
 						t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
 						t_i.rect        = rc_item;
 						t_i.hinst       = TProgram::GetInst();
-						t_i.lpszText    = 0;
 						::SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 						count--;
 						break;
@@ -280,13 +279,12 @@ int TProgram::DelItemFromMenu(void * ptr)
 							TOOLINFO t_i;
 							memzero(tooltip, sizeof(tooltip));
 							TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
-							t_i.cbSize      = sizeof(TOOLINFO);
-							t_i.uFlags      = TTF_SUBCLASS;
-							t_i.hwnd        = hwnd_tab;
-							t_i.uId         = static_cast<UINT>(tci.lParam);
-							t_i.rect        = rc_item;
-							t_i.hinst       = TProgram::GetInst();
-							t_i.lpszText    = 0;
+							INITWINAPISTRUCT(t_i);
+							t_i.uFlags = TTF_SUBCLASS;
+							t_i.hwnd   = hwnd_tab;
+							t_i.uId    = static_cast<UINT>(tci.lParam);
+							t_i.rect   = rc_item;
+							t_i.hinst  = TProgram::GetInst();
 							::SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
 					}
@@ -336,13 +334,13 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 						TabCtrl_SetItem(hwnd_tab, i, &tci);
 						if(hwnd_tt && TabCtrl_GetItemRect(hwnd_tab, i, &rc_item))	{
 							TOOLINFO t_i;
-							t_i.cbSize      = sizeof(TOOLINFO);
-							t_i.uFlags      = TTF_SUBCLASS;
-							t_i.hwnd        = hwnd_tab;
-							t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
-							t_i.rect        = rc_item;
-							t_i.hinst       = TProgram::GetInst();
-							t_i.lpszText    = temp_org_title_buf/*title_buf*/;
+							INITWINAPISTRUCT(t_i);
+							t_i.uFlags   = TTF_SUBCLASS;
+							t_i.hwnd     = hwnd_tab;
+							t_i.uId      = reinterpret_cast<UINT_PTR>(ptr);
+							t_i.rect     = rc_item;
+							t_i.hinst    = TProgram::GetInst();
+							t_i.lpszText = temp_org_title_buf/*title_buf*/;
 							::SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 							::SendMessage(hwnd_tt, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
@@ -356,13 +354,12 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 						if(TabCtrl_GetItem(hwnd_tab, i, &tci)) {
 							TOOLINFO t_i;
 							TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
-							t_i.cbSize      = sizeof(TOOLINFO);
-							t_i.uFlags      = TTF_SUBCLASS;
-							t_i.hwnd        = hwnd_tab;
-							t_i.uId         = static_cast<UINT>(tci.lParam);
-							t_i.rect        = rc_item;
-							t_i.hinst       = TProgram::GetInst();
-							t_i.lpszText    = 0;
+							INITWINAPISTRUCT(t_i);
+							t_i.uFlags = TTF_SUBCLASS;
+							t_i.hwnd   = hwnd_tab;
+							t_i.uId    = static_cast<UINT>(tci.lParam);
+							t_i.rect   = rc_item;
+							t_i.hinst  = TProgram::GetInst();
 							::SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
 					}
@@ -387,8 +384,7 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 		DelItemFromMenu(ptr);
 		if(h_menu) {
 			MENUITEMINFO mii;
-			MEMSZERO(mii);
-			mii.cbSize = sizeof(MENUITEMINFO);
+			INITWINAPISTRUCT(mii);
 			mii.fMask = MIIM_TYPE|MIIM_DATA|MIIM_ID;
 			mii.wID   = reinterpret_cast<UINT>(ptr);
 			mii.dwItemData = reinterpret_cast<ULONG_PTR>(ptr);
@@ -423,13 +419,13 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 				TabCtrl_HighlightItem(hwnd_tab, idx, 1);
 				if(hwnd_tt && TabCtrl_GetItemRect(hwnd_tab, idx, &rc_item))	{
 					TOOLINFOA t_i;
-					t_i.cbSize      = sizeof(t_i);
-					t_i.uFlags      = TTF_SUBCLASS;
-					t_i.hwnd        = hwnd_tab;
-					t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
-					t_i.rect        = rc_item;
-					t_i.hinst       = TProgram::GetInst();
-					t_i.lpszText    = mb_title_buf/*temp_org_title_buf*/;
+					INITWINAPISTRUCT(t_i);
+					t_i.uFlags   = TTF_SUBCLASS;
+					t_i.hwnd     = hwnd_tab;
+					t_i.uId      = reinterpret_cast<UINT_PTR>(ptr);
+					t_i.rect     = rc_item;
+					t_i.hinst    = TProgram::GetInst();
+					t_i.lpszText = mb_title_buf/*temp_org_title_buf*/;
 					SendMessage(hwnd_tt, TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 					SendMessage(hwnd_tt, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
@@ -679,27 +675,27 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				HWND hWt = hW;
 				while(hW) {
 					if(hW != h_close_wnd)
-						MoveWindow(hW, 0, 0, LOWORD(lParam)-16, HIWORD(lParam), 0);
+						::MoveWindow(hW, 0, 0, LOWORD(lParam)-16, HIWORD(lParam), 0);
 					else {
-						ShowWindow(hW, SW_HIDE);
-						MoveWindow(hW, LOWORD(lParam)-14, 2, 12, 12, 0);
-						ShowWindow(hW, SW_SHOW);
+						::ShowWindow(hW, SW_HIDE);
+						::MoveWindow(hW, LOWORD(lParam)-14, 2, 12, 12, 0);
+						::ShowWindow(hW, SW_SHOW);
 					}
-					hW = GetNextWindow(hW, GW_HWNDNEXT);
+					hW = ::GetNextWindow(hW, GW_HWNDNEXT);
 				}
 				if(hWt == h_close_wnd)
-					hWt = GetNextWindow(hWt, GW_HWNDNEXT);
+					hWt = ::GetNextWindow(hWt, GW_HWNDNEXT);
 				if(hWt) {
-					SetWindowPos(hWt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-					SendMessage(hWnd, WM_USER, 0, 0);
+					::SetWindowPos(hWt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+					::SendMessage(hWnd, WM_USER, 0, 0);
 				}
 			}
 			return 1;
 		case WM_USER_NOTIFYBRWFRAME:
 			{
-				HWND   hb = GetTopWindow(hWnd);
+				HWND   hb = ::GetTopWindow(hWnd);
 				if(hb == h_close_wnd)
-					hb = GetNextWindow(hb, GW_HWNDNEXT);
+					hb = ::GetNextWindow(hb, GW_HWNDNEXT);
 				SString main_text_buf;
 				TView::SGetWindowText(APPL->H_MainWnd, main_text_buf);
 				size_t div_pos = 0;
@@ -825,8 +821,7 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 			{
 				p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 				MENUITEMINFO mii;
-				MEMSZERO(mii);
-				mii.cbSize = sizeof(MENUITEMINFO);
+				INITWINAPISTRUCT(mii);
 				int   cnt = GetMenuItemCount(GetMenu(hWnd));
 				HMENU hmW = GetSubMenu(GetMenu(hWnd), cnt-1);
 				if(LOWORD(wParam) == cmShowToolbar) {
@@ -1027,8 +1022,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 	H_Icon = LoadIcon(hInstance, MAKEINTRESOURCE(ICON_MAIN_P2));
 	{
 		WNDCLASSEX wc;
-		MEMSZERO(wc);
-		wc.cbSize        = sizeof(wc);
+		INITWINAPISTRUCT(wc);
 		wc.lpszClassName = SUcSwitch(AppSymbol);
 		wc.hInstance     = hInstance;
 		wc.lpfnWndProc   = static_cast<WNDPROC>(MainWndProc);

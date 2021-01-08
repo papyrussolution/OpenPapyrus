@@ -1,5 +1,5 @@
 // TREEWND.CPP
-// Modified by A.Starodub 2013, 2016, 2018, 2019, 2020
+// Modified by A.Starodub 2013, 2016, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Древовидный список в левой части основного окна
 //
@@ -153,13 +153,13 @@ void TreeWindow::ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 			// multibyte-методы.
 			//
 			TOOLINFOA t_i;
-			t_i.cbSize      = sizeof(t_i);
-			t_i.uFlags      = TTF_SUBCLASS;
-			t_i.hwnd        = hwnd_tab;
-			t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
-			t_i.rect        = rc_item;
-			t_i.hinst       = TProgram::GetInst();
-			t_i.lpszText    = const_cast<char *>(pTitle); 
+			INITWINAPISTRUCT(t_i);
+			t_i.uFlags   = TTF_SUBCLASS;
+			t_i.hwnd     = hwnd_tab;
+			t_i.uId      = reinterpret_cast<UINT_PTR>(ptr);
+			t_i.rect     = rc_item;
+			t_i.hinst    = TProgram::GetInst();
+			t_i.lpszText = const_cast<char *>(pTitle); 
 			::SendMessage(HwndTT, (UINT)TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 			::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 		}
@@ -195,13 +195,13 @@ void TreeWindow::ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 				TabCtrl_SetItem(hwnd_tab, i, &tci); // @unicodeproblem
 				if(HwndTT && TabCtrl_GetItemRect(hwnd_tab, i, &rc_item))	{
 					TOOLINFO t_i;
-					t_i.cbSize      = sizeof(TOOLINFO);
-					t_i.uFlags      = TTF_SUBCLASS;
-					t_i.hwnd        = hwnd_tab;
-					t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
-					t_i.rect        = rc_item;
-					t_i.hinst       = TProgram::GetInst();
-					t_i.lpszText    = temp_title_buf;
+					INITWINAPISTRUCT(t_i);
+					t_i.uFlags   = TTF_SUBCLASS;
+					t_i.hwnd     = hwnd_tab;
+					t_i.uId      = reinterpret_cast<UINT_PTR>(ptr);
+					t_i.rect     = rc_item;
+					t_i.hinst    = TProgram::GetInst();
+					t_i.lpszText = temp_title_buf;
 					::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 					::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
@@ -215,13 +215,12 @@ void TreeWindow::ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 				if(TabCtrl_GetItem(hwnd_tab, i, &tci)) {
 					TOOLINFO t_i;
 					TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
-					t_i.cbSize      = sizeof(TOOLINFO);
-					t_i.uFlags      = TTF_SUBCLASS;
-					t_i.hwnd        = hwnd_tab;
-					t_i.uId         = static_cast<UINT_PTR>(tci.lParam);
-					t_i.rect        = rc_item;
-					t_i.hinst       = TProgram::GetInst();
-					t_i.lpszText    = 0;
+					INITWINAPISTRUCT(t_i);
+					t_i.uFlags   = TTF_SUBCLASS;
+					t_i.hwnd     = hwnd_tab;
+					t_i.uId      = static_cast<UINT_PTR>(tci.lParam);
+					t_i.rect     = rc_item;
+					t_i.hinst    = TProgram::GetInst();
 					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
 			}
@@ -235,7 +234,6 @@ void TreeWindow::ShortcutsWindow::DelItem(void * ptr)
 		int     i;
 		char    tooltip[80];
 		RECT    rc_item;
-		TOOLINFO t_i;
 		TCITEM tci;
 		HWND   hwnd_tab = GetDlgItem(Hwnd, CTL_SHORTCUTS_ITEMS);
 		int    count = TabCtrl_GetItemCount(hwnd_tab);
@@ -246,13 +244,13 @@ void TreeWindow::ShortcutsWindow::DelItem(void * ptr)
 				TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
 				TabCtrl_DeleteItem(hwnd_tab, i);
 				memzero(tooltip, sizeof(tooltip));
-				t_i.cbSize      = sizeof(TOOLINFO);
-				t_i.uFlags      = TTF_SUBCLASS;
-				t_i.hwnd        = hwnd_tab;
-				t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
-				t_i.rect        = rc_item;
-				t_i.hinst       = TProgram::GetInst();
-				t_i.lpszText    = 0;
+				TOOLINFO t_i;
+				INITWINAPISTRUCT(t_i);
+				t_i.uFlags = TTF_SUBCLASS;
+				t_i.hwnd   = hwnd_tab;
+				t_i.uId    = reinterpret_cast<UINT_PTR>(ptr);
+				t_i.rect   = rc_item;
+				t_i.hinst  = TProgram::GetInst();
 				::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 				count--;
 				break;
@@ -264,16 +262,15 @@ void TreeWindow::ShortcutsWindow::DelItem(void * ptr)
 			for(i = 0; i < count; i++) {
 				tci.mask = TCIF_PARAM;
 				if(TabCtrl_GetItem(hwnd_tab, i, &tci)) {
-					TOOLINFO t_i;
 					memzero(tooltip, sizeof(tooltip));
 					TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
-					t_i.cbSize      = sizeof(TOOLINFO);
-					t_i.uFlags      = TTF_SUBCLASS;
-					t_i.hwnd        = hwnd_tab;
-					t_i.uId         = static_cast<UINT>(tci.lParam);
-					t_i.rect        = rc_item;
-					t_i.hinst       = TProgram::GetInst();
-					t_i.lpszText    = 0;
+					TOOLINFO t_i;
+					INITWINAPISTRUCT(t_i);
+					t_i.uFlags = TTF_SUBCLASS;
+					t_i.hwnd   = hwnd_tab;
+					t_i.uId    = static_cast<UINT>(tci.lParam);
+					t_i.rect   = rc_item;
+					t_i.hinst  = TProgram::GetInst();
 					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
 			}
@@ -404,8 +401,7 @@ TreeWindow::~TreeWindow()
 			else {
 				::ShowWindow(hWnd, SW_HIDE);
 				MENUITEMINFO mii;
-				MEMSZERO(mii);
-				mii.cbSize = sizeof(MENUITEMINFO);
+				INITWINAPISTRUCT(mii);
 				HMENU  h_menu = GetMenu(APPL->H_MainWnd);
 				HMENU  h_sub = GetSubMenu(h_menu, GetMenuItemCount(h_menu)-1);
 				mii.fMask = MIIM_STATE;
@@ -442,7 +438,7 @@ void TreeWindow::SetupCmdList(HMENU hMenu, void * hP) // @v10.9.4 HTREEITEM-->(v
 	for(int i = 0; i < cnt; i++) {
 		TCHAR  menu_name_buf[256];
 		MENUITEMINFO mii;
-		mii.cbSize = sizeof(MENUITEMINFO);
+		INITWINAPISTRUCT(mii);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
 		mii.dwTypeData = menu_name_buf;
 		mii.cch = SIZEOFARRAY(menu_name_buf);
@@ -608,7 +604,7 @@ void TreeWindow::MoveChilds(const RECT & rRect)
 		rect.bottom -= sh_h;
 		sh_rect.top    = rect.top + rect.bottom;
 		sh_rect.left   = 0;
-		sh_rect.right  = rect.right - rect.left;
+		sh_rect.right  = (rect.right - rect.left);
 		sh_rect.bottom = sh_h;
 		ShortcWnd.MoveWindow(sh_rect);
 	}
@@ -628,7 +624,7 @@ void TreeWindow::MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList)
 	for(int i = 0; i < cnt; i++) {
 		TCHAR  menu_name_buf[256];
 		MENUITEMINFO mii;
-		mii.cbSize = sizeof(MENUITEMINFO);
+		INITWINAPISTRUCT(mii);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
 		mii.dwTypeData = menu_name_buf;
 		mii.cch = SIZEOFARRAY(menu_name_buf);

@@ -957,6 +957,9 @@
 				RelativePath="..\SLib\sinifile.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\slib-getopt.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\slib-pch.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -3570,6 +3573,9 @@
 			</File>
 			<File
 				RelativePath="..\Include\fann2.h">
+			</File>
+			<File
+				RelativePath="..\Include\getopt.h">
 			</File>
 			<File
 				RelativePath="..\Include\Slconfig.h">

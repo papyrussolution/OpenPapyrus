@@ -265,7 +265,7 @@ void ListWindow::MoveWindow(HWND linkHwnd, long right)
 		::MoveWindow(H(), x, tt-h, w, h, 1);
 	::GetClientRect(H(), &list_rect);
 	if(!isTreeList())
-		list_rect.right -= (h_scroll) ? GetSystemMetrics(SM_CXVSCROLL) : 0;
+		list_rect.right -= (h_scroll ? GetSystemMetrics(SM_CXVSCROLL) : 0);
 	::MoveWindow(h_list, 0, 0, list_rect.right, list_rect.bottom, 1);
 	if(!isTreeList() && h_scroll)
 		::MoveWindow(h_scroll, list_rect.right, 0, GetSystemMetrics(SM_CXVSCROLL), list_rect.bottom, 1);

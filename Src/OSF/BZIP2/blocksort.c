@@ -840,8 +840,7 @@ zero:
 					ptr[ copyEnd[c1]-- ] = k;
 			}
 		}
-		AssertH( (copyStart[ss]-1 == copyEnd[ss])
-		    ||
+		AssertH((copyStart[ss]-1 == copyEnd[ss]) ||
 		    /* Extremely rare case missing in bzip2-1.0.0 and 1.0.1.
 		       Necessity for this case is demonstrated by compressing
 		       a sequence of approximately 48.5 million of character

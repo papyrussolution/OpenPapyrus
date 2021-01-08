@@ -2392,11 +2392,11 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	if(!P_TempTbl && IsTempTblNeeded())
 		THROW(CreateTempTable());
 	THROW(CheckTblPtr(rcp = new ReceiptTbl));
-	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1) || (Filt.Flags & LotFilt::fOrders)) // @v9.5.3 || (Filt.Flags & LotFilt::fOrders)
+	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1) || (Filt.Flags & LotFilt::fOrders))
 		PPDbqFuncPool::InitObjNameFunc(dbe_ar, PPDbqFuncPool::IdObjNameAr, rcp->SupplID);
 	else {
 		dbe_ar.init();
-		dbe_ar.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty)); // @v9.5.3
+		dbe_ar.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 	}
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, rcp->LocID);
 	{

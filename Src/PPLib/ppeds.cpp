@@ -119,10 +119,9 @@ int PPEds::CheckCertChain(PCCERT_CONTEXT & cert)
 	enhkey_usage.rgpszUsageIdentifier = NULL;
 	cert_usage.dwType = USAGE_MATCH_TYPE_AND;
 	cert_usage.Usage = enhkey_usage;
-	chain_para.cbSize = sizeof(CERT_CHAIN_PARA);
+	INITWINAPISTRUCT(chain_para);
 	chain_para.RequestedUsage = cert_usage;
-	MEMSZERO(chain_config);
-	chain_config.cbSize = sizeof(CERT_CHAIN_ENGINE_CONFIG);
+	INITWINAPISTRUCT(chain_config);
 	chain_config.dwFlags = CERT_CHAIN_REVOCATION_CHECK_CHAIN;
 	// Create the nondefault certificate chain engine.
 	THROW_PP(CertCreateCertificateChainEngine(&chain_config, &h_chain_engine), PPERR_EDS_CHAINCREAT);
@@ -356,8 +355,8 @@ int PPEds::DecodeData(const char * pOwnerName, const char * pFileName)
 
 int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SString & rSignFileName)
 {
-	int ok = 1, blob_count = 0;
-	int64 file_size = 0;
+	int    ok = 1, blob_count = 0;
+	int64  file_size = 0;
     BYTE * pb_indata = NULL;
     DWORD cb_indata = 0;
 	HCERTSTORE cert_sore = 0;
@@ -378,8 +377,7 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 
     // Начнем-с:)
     // Initialize the signature structure
-	MEMSZERO(sig_params);
-    sig_params.cbSize = sizeof(CRYPT_SIGN_MESSAGE_PARA);
+	INITWINAPISTRUCT(sig_params);
     sig_params.dwMsgEncodingType = MY_ENCODING_TYPE;
     sig_params.pSigningCert = p_signer_cert;
 	MEMSZERO(sig_params.HashAlgorithm);
@@ -521,8 +519,7 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 
     // Заполняем структуру с инофрмацией о со-подписчике
     CMSG_SIGNER_ENCODE_INFO cosigner_info;
-    MEMSZERO(cosigner_info);
-    cosigner_info.cbSize = sizeof(CMSG_SIGNER_ENCODE_INFO);
+	INITWINAPISTRUCT(cosigner_info);
     cosigner_info.pCertInfo = p_cosigner_cert->pCertInfo;
     cosigner_info.hCryptProv = prov;
     cosigner_info.dwKeySpec = dw_key_spec;
@@ -626,8 +623,7 @@ int PPEds::CountersignData(const char * pCountersignerName, int signerNumber, co
 	THROW(GetCryptoProv(p_cntr_sig_cert, prov, dw_key_spec));
 
 	// Инициализируем структуру для заверяющей подписи
-    memzero(&countersigner_info, sizeof(CMSG_SIGNER_ENCODE_INFO));
-    countersigner_info.cbSize = sizeof(CMSG_SIGNER_ENCODE_INFO);
+	INITWINAPISTRUCT(countersigner_info);
     countersigner_info.pCertInfo = p_cntr_sig_cert->pCertInfo;
     countersigner_info.hCryptProv = prov;
     countersigner_info.dwKeySpec = dw_key_spec;
@@ -791,8 +787,7 @@ int PPEds::DeleteCountersign(char * pSignFileName, const int signerNumber)
 	THROW_MEM(pb_signer_info = (PCMSG_SIGNER_INFO)LocalAlloc(LPTR, cb_signer_info));
 	// Получим инфу о подписи
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_INFO_PARAM, signerNumber - 1, pb_signer_info, &cb_signer_info), PPERR_EDS_GETSIGNINFOFAILED);
-	memzero(&unauth_para, sizeof(CMSG_CTRL_DEL_SIGNER_UNAUTH_ATTR_PARA));
-	unauth_para.cbSize = sizeof(CMSG_CTRL_DEL_SIGNER_UNAUTH_ATTR_PARA);
+	INITWINAPISTRUCT(unauth_para);
 	if(pb_signer_info->UnauthAttrs.cAttr) {
 		for(uint j = 0; j < pb_signer_info->UnauthAttrs.cAttr; j++) {
 			unauth_para.dwSignerIndex = signerNumber - 1;
@@ -1194,8 +1189,7 @@ int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int si
 	THROW(GetCert(store, p_cert, signer_name));
 	DWORD key_spec = 0;
 	THROW(GetCryptoProv(p_cert, prov, key_spec));*/
-
-    verify_params.cbSize = sizeof(CRYPT_VERIFY_MESSAGE_PARA);
+	INITWINAPISTRUCT(verify_params);
     verify_params.dwMsgAndCertEncodingType = MY_ENCODING_TYPE;
     verify_params.hCryptProv = NULL/*prov*/;
     verify_params.pfnGetSignerCertificate = NULL; // Будет искать в сообщении
@@ -1984,8 +1978,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	memzero(attr_data.pbData, cb_stamp_encoded);
 	memcpy(attr_data.pbData, pb_stamp_encoded, cb_stamp_encoded);
 	attr_data.cbData = cb_stamp_encoded;
-
-	attr_para.cbSize = sizeof(CMSG_CTRL_ADD_SIGNER_UNAUTH_ATTR_PARA);
+	INITWINAPISTRUCT(attr_para);
 	attr_para.dwSignerIndex = signerNumber - 1;
 	attr_para.blob = attr_data;
 	THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_ADD_SIGNER_UNAUTH_ATTR, &attr_para), PPERR_EDS_TSPFAILED);

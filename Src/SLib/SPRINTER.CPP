@@ -1,5 +1,5 @@
 // SPRINTER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -78,12 +78,8 @@ int SPrinting::StartDocument()
 		// Set printer font
 		//
 		SetBkMode(PrinterDc, TRANSPARENT);
-		MEMSZERO(di);
-		di.cbSize = sizeof(DOCINFO);
+		INITWINAPISTRUCT(di);
 		di.lpszDocName  = _T("Document");
-		di.lpszOutput   = NULL;
-		di.lpszDatatype = NULL;
-		di.fwType = 0;
 		THROW(StartDoc(PrinterDc, &di) != SP_ERROR); // @unicodeproblem
 		DocStarted = 1;
 	}

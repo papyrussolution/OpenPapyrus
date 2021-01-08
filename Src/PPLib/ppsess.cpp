@@ -1,5 +1,5 @@
 // PPSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -387,7 +387,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 PPRevolver_StringSetSCD::PPRevolver_StringSetSCD(uint c) : TSRevolver <PPStringSetSCD>(c) {}
 StringSet & PPRevolver_StringSetSCD::Get() { return Implement_Get().Z(); }
 
-#define SIGN_PPTLA 0x7D08E311L
+// @v10.9.12 (replaced with _PPConst.Signature_PPThreadLocalArea) #define SIGN_PPTLA 0x7D08E311L
 
 PPThreadLocalArea::IdleCommand::IdleCommand(long repeatEachSeconds) : SCycleTimer(repeatEachSeconds * 1000)
 {
@@ -405,7 +405,7 @@ int FASTCALL PPThreadLocalArea::IdleCommand::Run(const LDATETIME & rPrevRunTime)
 PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0), RvlSsSCD(256)
 {
 	memzero(this, offsetof(PPThreadLocalArea, Rights));
-	Sign = SIGN_PPTLA;
+	Sign = _PPConst.Signature_PPThreadLocalArea;
 	PrnDirId = labs(SLS.GetTLA().Rg.Get());
 	RegisterAdviseObjects();
 }
@@ -1073,7 +1073,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 }
 
 int    PPThreadLocalArea::IsAuth() const { return (State & stAuth) ? 1 : PPSetError(PPERR_SESSNAUTH); }
-int    PPThreadLocalArea::IsConsistent() const { return BIN(Sign == SIGN_PPTLA); }
+int    PPThreadLocalArea::IsConsistent() const { return BIN(Sign == _PPConst.Signature_PPThreadLocalArea); }
 PPView * PPThreadLocalArea::GetPPViewPtr(int32 id) const { return (id > 0 && id <= SrvViewList.getCountI()) ? SrvViewList.at(id-1) : 0; }
 
 int32 PPThreadLocalArea::CreatePPViewPtr(PPView * pView)
@@ -3054,8 +3054,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				THROW_PP(pw_is_wrong == 0, PPERR_INVUSERORPASSW);
 				if(!CheckExtFlag(ECF_SYSSERVICE)) {
 					//
-					// @v7.0.12 Ѕлок перенесен в это место по причине того, что уникальность входа не должна
-					// провер€тьс€ дл€ сеансов JobServer'а {
+					// ”никальность входа не должна провер€тьс€ дл€ сеансов JobServer'а
 					//
 					if(r_lc.Flags & CFGFLG_SEC_DSBLMULTLOGIN) {
 						PPSyncArray sync_array;
@@ -3066,7 +3065,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 							THROW_PP(r_item.ObjID == 1 || stricmp866(r_item.Name, user_name) != 0 || r_item.MchnID.Cmp(machine_id) == 0, PPERR_DUPLOGINGDISABLED);
 						}
 					}
-					// }
 					{
 						PPObjSecur sec_obj(PPOBJ_USR, 0);
 						sec_obj.GetPrivateDesktop(r_lc.UserID, /*&r_lc.DesktopID*/r_lc.DesktopUuid);
@@ -3317,6 +3315,46 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						r_cc.StringHistoryUsage = 0;
 				}
 				// } @v10.7.9
+				// @v10.9.12 {
+				{
+					//#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 ‘лаг, предписывающий скрывать значени€ учетных остатков
+						// инициируютс€ по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
+					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION, sv) > 0) {
+						// ѕри дублировании символов приоритет у токена, который находитс€ дальше по списку
+						// Ќапример: 
+						//   "user1,user2,!user1" - user1 имеет право видеть остатки, ибо второй раз указан с отрицанием
+						//   "!user2,user1,user2" - user2 не имеет права видеть остатки, ибо второй раз указан без отрицани€
+						//  вантор $ALL$ запрещает доступ к просмотру всех пользователей кроме master и тех, что указаны после с отрицанием
+						StringSet ss;
+						bool _for_all = false;
+						bool _this_user_found = false;
+						bool _this_user_found_with_neg = false;
+						//DS.GetConstTLA().Cu
+						sv.Tokenize(";,", ss);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							if(temp_buf.NotEmptyS()) {
+								if(temp_buf.IsEqiAscii("$ALL$")) {
+									_for_all = true;
+								}
+								else if(temp_buf.IsEqNC(usr_rec.Symb)) {
+									_this_user_found = true;
+									_this_user_found_with_neg = false;
+								}
+								else if(temp_buf.C(0) == '!' && temp_buf.ShiftLeft().IsEqNC(usr_rec.Symb)) {
+									_this_user_found = false;
+									_this_user_found_with_neg = true;
+								}
+							}
+						}
+						if(_for_all) {
+							if(!(r_lc.State & CFGST_MASTER) && !_this_user_found_with_neg)
+								r_cc.Flags2 |= CCFLG2_HIDEINVENTORYSTOCK;
+						}
+						else if(_this_user_found)
+							r_cc.Flags2 |= CCFLG2_HIDEINVENTORYSTOCK;
+					}
+				}
+				// } @v10.9.12
 				r_tla.Bac.Load();
 			}
 			if(CheckExtFlag(ECF_USESJLOGINEVENT))
@@ -5583,23 +5621,15 @@ int SysMaintenanceEventResponder::IsConsistent() const
 					result_cfgmngr_get = PPAlbatrosCfgMngr::Get(&current_alb_cfg);
 					if(result_cfgmngr_get != 0) {
 						int    do_update = 0;
-						temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
-						current_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, org_val_buf);
-						if(temp_buf != org_val_buf) {
-							current_alb_cfg.PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
-							do_update = 1;
-						}
-						temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
-						current_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, org_val_buf);
-						if(temp_buf != org_val_buf) {
-							current_alb_cfg.PutExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
-							do_update = 1;
-						}
-						temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
-						current_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, org_val_buf);
-						if(temp_buf != org_val_buf) {
-							current_alb_cfg.PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
-							do_update = 1;
+						const  int8 txt_fld_list[] = { ALBATROSEXSTR_MQC_HOST, ALBATROSEXSTR_MQC_VIRTHOST, ALBATROSEXSTR_MQC_USER };
+						for(uint fli = 0; fli < SIZEOFARRAY(txt_fld_list); fli++) {
+							const int txt_fld_id = txt_fld_list[fli];
+							temp_alb_cfg.GetExtStrData(txt_fld_id, temp_buf);
+							current_alb_cfg.GetExtStrData(txt_fld_id, org_val_buf);
+							if(temp_buf != org_val_buf) {
+								current_alb_cfg.PutExtStrData(txt_fld_id, temp_buf);
+								do_update = 1;
+							}
 						}
 						temp_alb_cfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
 						current_alb_cfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, org_val_buf);
@@ -5750,4 +5780,3 @@ SLTEST_R(ObjTypeSymb)
 #pragma warning(disable:4073)
 #pragma init_seg(user)
 PPSession  DS; // @global
-

@@ -1,5 +1,5 @@
 // V_SPCSER.CPP
-// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -418,8 +418,7 @@ int PPViewSpecSeries::ImportUhtt()
 	UhttSpecSeriesPacket * p_pack;
 	TSCollection <UhttSpecSeriesPacket> uhtt_series_list;
 	DateRange  date_rng;
-	date_rng.upp = 0;
-	date_rng.low = 0;
+	date_rng.Z();
 	if(DateRangeDialog(0, 0, &date_rng) > 0) {
 		PPWait(1);
 		SString    period;

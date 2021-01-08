@@ -1486,10 +1486,8 @@ static int close_and_restore_time(HANDLE h, struct tree * t, struct restore_time
 {
 	HANDLE handle;
 	int r = 0;
-
 	if(h == INVALID_HANDLE_VALUE && AE_IFLNK == rt->filetype)
 		return (0);
-
 	/* Close a file descriptor.
 	 * It will not be used for SetFileTime() because it has been opened
 	 * by a read only mode.
@@ -1498,16 +1496,12 @@ static int close_and_restore_time(HANDLE h, struct tree * t, struct restore_time
 		CloseHandle(h);
 	if((t->flags & needsRestoreTimes) == 0)
 		return (r);
-
-	handle = CreateFileW(rt->full_path, FILE_WRITE_ATTRIBUTES,
-		0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+	handle = CreateFileW(rt->full_path, FILE_WRITE_ATTRIBUTES, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 	if(handle == INVALID_HANDLE_VALUE) {
 		errno = EINVAL;
 		return (-1);
 	}
-
-	if(SetFileTime(handle, NULL, &rt->lastAccessTime,
-	    &rt->lastWriteTime) == 0) {
+	if(SetFileTime(handle, NULL, &rt->lastAccessTime, &rt->lastWriteTime) == 0) {
 		errno = EINVAL;
 		r = -1;
 	}
@@ -1516,7 +1510,6 @@ static int close_and_restore_time(HANDLE h, struct tree * t, struct restore_time
 	CloseHandle(handle);
 	return (r);
 }
-
 /*
  * Add a directory path to the current stack.
  */
@@ -1546,26 +1539,22 @@ static void tree_push(struct tree * t, const wchar_t * path, const wchar_t * ful
 		te->restore_time.filetype = rt->filetype;
 	}
 }
-
 /*
  * Append a name to the current dir path.
  */
 static void tree_append(struct tree * t, const wchar_t * name, size_t name_length)
 {
 	size_t size_needed;
-
 	t->path.s[t->dirname_length] = L'\0';
 	t->path.length = t->dirname_length;
 	/* Strip trailing '/' from name, unless entire name is "/". */
 	while(name_length > 1 && name[name_length - 1] == L'/')
 		name_length--;
-
 	/* Resize pathname buffer as needed. */
 	size_needed = name_length + t->dirname_length + 2;
 	archive_wstring_ensure(&t->path, size_needed);
 	/* Add a separating '/' if it's needed. */
-	if(t->dirname_length > 0 &&
-	    t->path.s[archive_strlen(&t->path)-1] != L'/')
+	if(t->dirname_length > 0 && t->path.s[archive_strlen(&t->path)-1] != L'/')
 		archive_wstrappend_wchar(&t->path, L'/');
 	t->basename = t->path.s + archive_strlen(&t->path);
 	archive_wstrncat(&t->path, name, name_length);
@@ -1582,7 +1571,6 @@ static void tree_append(struct tree * t, const wchar_t * name, size_t name_lengt
 		t->restore_time.full_path = t->full_path.s;
 	}
 }
-
 /*
  * Open a directory tree for traversal.
  */

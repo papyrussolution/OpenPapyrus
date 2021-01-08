@@ -2036,8 +2036,7 @@ BOOL AdjustForCustomScaling(void)
 	UINT DPIy = 0;
 	HMONITOR h_mon = MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTOPRIMARY);
 	MONITORINFOEXA moninfo;
-	memzero(&moninfo, sizeof(moninfo));
-	moninfo.cbSize = sizeof(moninfo);
+	INITWINAPISTRUCT(moninfo);
 	if(GetMonitorInfoA(h_mon, &moninfo)) {
 		HDC h_dc = CreateDCA("DISPLAY", moninfo.szDevice, 0, 0);
 		DPIx = GetDeviceCaps(h_dc, LOGPIXELSX);

@@ -260,21 +260,19 @@ int FASTCALL SUsbDvcIfcData::Get(void * pHandle, SP_DEVICE_INTERFACE_DATA * pDvc
 	TCHAR  __buffer[256];
 	size_t allocated_size = 0;
 	uint32 ret_size = 0;
-	SP_DEVICE_INTERFACE_DETAIL_DATA * p_dev_ifc_detail = (SP_DEVICE_INTERFACE_DETAIL_DATA *)__buffer;
+	SP_DEVICE_INTERFACE_DETAIL_DATA * p_dev_ifc_detail = reinterpret_cast<SP_DEVICE_INTERFACE_DETAIL_DATA *>(__buffer);
 	SP_DEVINFO_DATA devinfo_data;
 	ret_size = sizeof(__buffer);
 	memzero(p_dev_ifc_detail, ret_size);
 	p_dev_ifc_detail->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
-	MEMSZERO(devinfo_data);
-	devinfo_data.cbSize = sizeof(SP_DEVINFO_DATA);
+	INITWINAPISTRUCT(devinfo_data);
 	int    ret = SetupDiGetDeviceInterfaceDetail(pHandle, pDvcIfcData, p_dev_ifc_detail, ret_size, &ret_size, &devinfo_data);
 	if(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 		THROW(p_dev_ifc_detail = (SP_DEVICE_INTERFACE_DETAIL_DATA *)SAlloc::M(ret_size));
 		allocated_size = ret_size;
 		memzero(p_dev_ifc_detail, ret_size);
 		p_dev_ifc_detail->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
-		MEMSZERO(devinfo_data);
-		devinfo_data.cbSize = sizeof(SP_DEVINFO_DATA);
+		INITWINAPISTRUCT(devinfo_data);
 		ret = SetupDiGetDeviceInterfaceDetail(pHandle, pDvcIfcData, p_dev_ifc_detail, ret_size, &ret_size, &devinfo_data);
 	}
 	THROW_S(ret, SLERR_WINDOWS);
@@ -347,8 +345,7 @@ int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 	THROW_S_S((pnp_handle = SetupDiGetClassDevs(reinterpret_cast<const GUID *>(usb_guid.Data), NULL, 0,  DIGCF_PRESENT | DIGCF_DEVICEINTERFACE)) != INVALID_HANDLE_VALUE, SLERR_USB, GetErrorStr());
 	// Цикл по всем устройствам в классе
 	while(!end_while) {
-		memzero(&dev_ifc_data, sizeof(SP_DEVICE_INTERFACE_DATA));
-		dev_ifc_data.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
+		INITWINAPISTRUCT(dev_ifc_data);
 		if(SetupDiEnumDeviceInterfaces(pnp_handle, NULL, reinterpret_cast<const GUID *>(usb_guid.Data), cur_dev_index, &dev_ifc_data)) {
 			dev_descr.Z();
 			THROW(did.Get(pnp_handle, &dev_ifc_data));

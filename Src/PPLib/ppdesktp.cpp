@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -721,7 +721,7 @@ void PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 	memzero(tooltip, sizeof(tooltip));
 	STRNSCPY(tooltip, SUcSwitch(pText));
 	TOOLINFOA t_i;
-	t_i.cbSize = sizeof(t_i);
+	INITWINAPISTRUCT(t_i);
 	t_i.uFlags = TTF_SUBCLASS;
 	t_i.hwnd   = H();
 	t_i.uId    = id;
@@ -2246,8 +2246,7 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 /*static*/int PPDesktop::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
-	MEMSZERO(wc);
-	wc.cbSize = sizeof(wc);
+	INITWINAPISTRUCT(wc);
 	wc.lpszClassName = SUcSwitch(PPDesktop::WndClsName);
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = PPDesktop::DesktopWndProc;

@@ -1,5 +1,5 @@
 // PPVIEW.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1753,7 +1753,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 				// ≈сли до этого у нас был кросстаб, то измен€ем ресурс броузера с признаком force,
 				// то есть, броузер будет загружен заново даже если его ID совпадает с предыдущим.
 				//
-				r = pW->ChangeResource(brw_id, p_q, /*was_ct*/1); // @v6.2.3 was_ct-->1
+				r = pW->ChangeResource(brw_id, p_q, 1/*was_ct*/);
 				if(r > 0) {
 					if(r == 2) {
 						if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
@@ -1776,7 +1776,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 			}
 			else {
 				THROW_PP(p_q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
-				if(pW->ChangeResource(brw_id, p_q, 1) == 2) { // @v6.2.3 force=1
+				if(pW->ChangeResource(brw_id, p_q, 1/*force*/) == 2) {
 					if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
 						PreprocessBrowser(pW);
 						if(ExtToolbarId)

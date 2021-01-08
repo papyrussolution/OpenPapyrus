@@ -2771,12 +2771,13 @@ public:
 private:
 	void   InitLayout()
 	{
-		SRectLayout::Item li;
+		//SRectLayout::Item li;
+		AbstractLayoutBlock alb;
 		P_Lfc = new LayoutFlexItem();
-		P_Lfc->ALB.SetContainerDirection(DIREC_HORZ);
-		P_Lfc->ALB.AlignContent = AbstractLayoutBlock::alignStretch;
-		P_Lfc->managed_ptr = this;
-		P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
+		alb.SetContainerDirection(DIREC_HORZ);
+		alb.AlignContent = AbstractLayoutBlock::alignStretch;
+		P_Lfc->SetLayoutBlock(alb);
+		P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
 	}
 };
 
@@ -2794,8 +2795,10 @@ private:
 			{
 				LayoutFlexItem * p_lo = 0;
 				if(p_frame_layout) {
+					AbstractLayoutBlock alb;
 					p_lo = p_frame_layout->InsertItem();
-					p_lo->ALB.GrowFactor = 1.0f;
+					alb.GrowFactor = 1.0f;
+					p_lo->SetLayoutBlock(alb);
 					//p_lo->align_items = FLEX_ALIGN_STRETCH;
 					//p_lo->align_self = FLEX_ALIGN_AUTO;
 				}
@@ -2807,8 +2810,10 @@ private:
 			{
 				LayoutFlexItem * p_lo = 0;
 				if(p_frame_layout) {
+					AbstractLayoutBlock alb;
 					p_lo = p_frame_layout->InsertItem();
-					p_lo->ALB.GrowFactor = 3.0f;
+					alb.GrowFactor = 3.0f;
+					p_lo->SetLayoutBlock(alb);
 					//p_lo->align_items = FLEX_ALIGN_STRETCH;
 					//p_lo->align_self = FLEX_ALIGN_AUTO;
 				}
@@ -2851,12 +2856,13 @@ private:
 		public:
 			FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 			{
-				SRectLayout::Item li;
+				//SRectLayout::Item li;
+				AbstractLayoutBlock alb;
 				P_Lfc = new LayoutFlexItem();
-				P_Lfc->ALB.SetContainerDirection(DIREC_HORZ);
-				P_Lfc->ALB.AlignContent = AbstractLayoutBlock::alignStretch;
-				P_Lfc->managed_ptr = this;
-				P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
+				alb.SetContainerDirection(DIREC_HORZ);
+				alb.AlignContent = AbstractLayoutBlock::alignStretch;
+				P_Lfc->SetLayoutBlock(alb);
+				P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
 			}
 		};
 		FrameWindow * p_frame_win = new FrameWindow;

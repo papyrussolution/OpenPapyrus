@@ -1,5 +1,5 @@
 // V_INV.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // PPViewInventory: отображение строк инвентаризации
 //
@@ -265,12 +265,12 @@ int PPViewInventory::CheckLineForFilt(const InventoryTbl::Rec * pRec) const
 		double minv = Filt.MinVal;
 		double maxv = Filt.MaxVal;
 		if(maxv >= minv && maxv > 0) {
-			if(minv < 0)
-				minv = 0;
+			if(minv < 0.0)
+				minv = 0.0;
 			if(Filt.Flags & InventoryFilt::fPctVal) {
 				if(minv == maxv) {
-					minv = MAX(0, minv - 1L);
-					maxv = maxv + 1L;
+					minv = MAX(0.0, minv - 1.0);
+					maxv = maxv + 1.0;
 				}
 				if(pRec->DiffPctQtty < minv || pRec->DiffPctQtty > maxv)
 					return 0;
@@ -400,7 +400,7 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 	CommonDate = ZERODATE;
 	CommonIoeFlags = 0;
 	int    is_subst = 0;
-	const uint bill_count = Filt.BillList.GetCount();
+	const  uint bill_count = Filt.BillList.GetCount();
 	ExtraList.clear();
 	TextPool.Z();
 	Bsp.Init(Filt.Sgb);
@@ -1024,6 +1024,12 @@ public:
 				PPLoadString("inventory_price", temp_buf);
 			setLabelText(CTL_INVITEM_PRICE, temp_buf);
 		}
+		// @v10.9.12 {
+		if(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
+			showCtrl(CTL_INVITEM_STOCKREST, 0);
+			showCtrl(CTL_INVITEM_DIFFREST, 0);
+		}
+		// } @v10.9.12 
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1966,15 +1972,17 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 					}
 				}
 				else if(r_col.OrgOffs == 10) { // Difference
-					if(p_hdr->Flags & INVENTF_LACK) {
-						pStyle->Color = GetColorRef(SClrRed);
-						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-						ok = 1;
-					}
-					else if(p_hdr->Flags & INVENTF_SURPLUS) {
-						pStyle->Color = GetColorRef(SClrGreen);
-						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-						ok = 1;
+					if(!(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK)) { // @v10.9.12
+						if(p_hdr->Flags & INVENTF_LACK) {
+							pStyle->Color = GetColorRef(SClrRed);
+							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+						else if(p_hdr->Flags & INVENTF_SURPLUS) {
+							pStyle->Color = GetColorRef(SClrGreen);
+							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
 					}
 				}
 				// @v10.5.8 {
@@ -2033,23 +2041,43 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	DBE    dbe_strgloc;
 	DBE    dbe_status;
 	DBE    dbe_wroff;
+	DBE    dbe_empty;
 	uint   brw_id = 0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
 	const  int is_subst = Filt.HasSubst();
+	{
+		dbe_empty.init();
+		dbe_empty.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+	}
 	if(is_subst) {
 		assert(P_TempSubstTbl);
 		brw_id = BROWSER_INVNTRYLINESSUBST;
 		THROW(CheckTblPtr(st = new TempInventorySubstTbl(P_TempSubstTbl->GetName())));
-		q = & (select(
-			st->GoodsID,       // #00
-			st->Name,          // #01
-			st->Quantity,      // #02
-			st->SumPrice,      // #03
-			st->StockRest,     // #04
-			st->SumStockPrice, // #05
-			st->DiffQtty,      // #06
-			st->DiffPrice,     // #07
-			0L).from(st, 0L));
+		if(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
+			q = & select(
+				st->GoodsID,       // #00
+				st->Name,          // #01
+				st->Quantity,      // #02
+				st->SumPrice,      // #03
+				dbe_empty,         // #04
+				dbe_empty,         // #05
+				dbe_empty,         // #06
+				dbe_empty,         // #07
+				0L);
+		}
+		else {
+			q = & select(
+				st->GoodsID,       // #00
+				st->Name,          // #01
+				st->Quantity,      // #02
+				st->SumPrice,      // #03
+				st->StockRest,     // #04
+				st->SumStockPrice, // #05
+				st->DiffQtty,      // #06
+				st->DiffPrice,     // #07
+				0L);
+		}
+		q->from(st, 0L);
 	}
 	else {
 		brw_id = BROWSER_INVNTRYLINES;
@@ -2086,17 +2114,18 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			it->BillID,     // #00
 			it->OprNo,      // #01
 			it->GoodsID,    // #02
-			it->Flags,      // #03 // @v9.7.9
-			dbe_goods,      // #04 // @v9.7.9 #+1
-			it->Quantity,   // #05 // @v9.7.9 #+1
-			it->Price,      // #06 // @v9.7.9 #+1
-			it->WrOffPrice, // #07 // @v9.7.9 #+1
-			*dbe_tmp1,      // #08 // @v9.7.9 #+1
-			*dbe_tmp2,      // #09 // @v9.7.9 #+1
-			dbe_diffqtty,   // #10 // @v9.7.9 #+1
-			it->Serial,     // #11 // @v9.7.9 #+1
-			dbe_barcode,    // #12 // @v9.7.9 #+1
-			dbe_strgloc,    // #13 // @v9.7.9 #+1
+			it->Flags,      // #03 
+			dbe_goods,      // #04 
+			it->Quantity,   // #05 
+			it->Price,      // #06 
+			it->WrOffPrice, // #07 
+			*dbe_tmp1,      // #08 
+			*dbe_tmp2,      // #09 
+			(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK) ? dbe_empty : dbe_diffqtty, // #10
+			//dbe_diffqtty,   // #10 
+			it->Serial,     // #11 
+			dbe_barcode,    // #12 
+			dbe_strgloc,    // #13 
 			dbe_status,     // #14 // @v10.5.8
 			0L).from(tbl_l[0], tbl_l[1], 0L));
 		ZDELETE(dbe_tmp1);

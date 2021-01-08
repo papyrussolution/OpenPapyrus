@@ -1,5 +1,5 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8 // @v10.4.5
 //
 #include <slib-internal.h>
@@ -1169,6 +1169,13 @@ int  LDATETIME::IsFar() const
 LDATETIME & LDATETIME::SetFar()
 {
 	*this = FarMoment;
+	return *this;
+}
+
+LDATETIME & LDATETIME::SetMax() // max-moment: (LDATE)d = MAXLONG, (LTIME)t = MAXLONG
+{
+	d = MAXDATE;
+	t = MAXTIME;
 	return *this;
 }
 
@@ -2804,7 +2811,48 @@ static int FASTCALL __TimeFieldsToEpochTime(const SUniTime_Inner * pTimeFields, 
 }
 
 #endif // } 0
+//
+//
+//
+#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
+#else
+  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
+#endif
 
+int gettimeofday(struct timeval * pTv, struct timezone * pTz)
+{
+	FILETIME ft;
+	uint64 tmpres = 0;
+	if(pTv) {
+		GetSystemTimeAsFileTime(&ft);
+		tmpres |= ft.dwHighDateTime;
+		tmpres <<= 32;
+		tmpres |= ft.dwLowDateTime;
+		tmpres /= 10; // convert into microseconds
+		// converting file time to unix epoch
+		tmpres -= DELTA_EPOCH_IN_MICROSECS; 
+		pTv->tv_sec  = (long)(tmpres / 1000000UL);
+		pTv->tv_usec = (long)(tmpres % 1000000UL);
+	}
+	if(pTz) {
+		static int tzflag = 0;
+		if(!tzflag) {
+			ENTER_CRITICAL_SECTION
+			if(!tzflag) {
+				_tzset();
+				tzflag++;
+			}
+			LEAVE_CRITICAL_SECTION
+		}
+		pTz->tz_minuteswest = _timezone / 60;
+		pTz->tz_dsttime = _daylight;
+	}
+	return 0;
+}
+//
+//
+//
 #define UNITIME_VALUE_MASK 0x00ffffffffffffffLL
 
 static inline uint8 SUniTime_Decode(const uint8 * pD, uint64 * pValue)

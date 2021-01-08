@@ -171,6 +171,7 @@
     </ClCompile>
     <ClCompile Include="..\SLib\tulipindicators.cpp" />
     <ClCompile Include="..\SLib\dirent.cpp" />
+    <ClCompile Include="..\SLib\slib-getopt.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -255,6 +256,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\dirent.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\getopt.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

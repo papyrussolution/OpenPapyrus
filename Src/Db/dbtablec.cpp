@@ -1,5 +1,5 @@
 // DBTABLEC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Классы и функции DBTable, не зависящие от провайдера DBMS
 //
@@ -365,8 +365,8 @@ DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, vo
 	if(open(pTblName, pFileName, om)) {
 		if(pFlds)
 			for(int16 i = fields.getCount() - 1; i >= 0; i--) {
-				((_DBField *)pFlds)[i].hTbl = handle;
-				((_DBField *)pFlds)[i].hFld = i;
+				static_cast<_DBField *>(pFlds)[i].hTbl = handle;
+				static_cast<_DBField *>(pFlds)[i].hFld = i;
 				s += (RECORDSIZE)stsize(fields[i].T);
 			}
 		if(pData)

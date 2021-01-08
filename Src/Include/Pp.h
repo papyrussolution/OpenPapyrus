@@ -414,6 +414,7 @@ struct TimeSeries_OptEntryList_Graph_Param;
 class  UhttTagItem;
 struct GravityValue;
 struct GravityErrorDescription;
+struct UfpFileSet;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -436,6 +437,7 @@ public:
 		Signature_LaunchAppParam(0x4c484150L), // 'LHAP'
 		Signature_Quotation2_DumpHeader(0x7654321098fedcbaULL),
 		Signature_PPView(0x099A099BUL),
+		Signature_PPThreadLocalArea(0x7D08E311UL), // @v10.9.12
 		EgaisInRowIdentDivider(27277), // @v10.8.3
 		ReserveU16(0), // @v10.8.3
 		CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
@@ -473,7 +475,8 @@ public:
 	const uint32 Signature_SysMaintenanceEventResponder; // Сигнатура респондера событий обслуживания системы
 	const long   Signature_LaunchAppParam;               //
 	const uint64 Signature_Quotation2_DumpHeader;        // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
-	const uint32 Signature_PPView;                       // Сигнатура класса PPView 0x099A099BUL (SIGN_PPVIEW)
+	const uint32 Signature_PPView;                       // Сигнатура класса PPView 0x099A099BUL (former SIGN_PPVIEW)
+	const uint32 Signature_PPThreadLocalArea;            // @v10.9.12 Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
 	const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
 	const uint16 ReserveU16;                 // @alignment @v10.8.3
@@ -1753,8 +1756,7 @@ struct MsgLogItem {
 class PPMsgLog {
 public:
 	//
-	// Descr: Удаляет все файлы, сформированные логгером и не удаленные из-за
-	//   аварийного прерывания сеанса.
+	// Descr: Удаляет все файлы, сформированные логгером и не удаленные из-за аварийного прерывания сеанса.
 	//
 	static int RemoveTempFiles();
 
@@ -1860,8 +1862,8 @@ private:
 #define LOGMSGF_UNLIMITSIZE 0x0020L // Размер файла не лимитирован
 #define LOGMSGF_THREADINFO  0x0040L // Сообщение заносится в информационный буфер потока (для отображения в мониторах)
 #define LOGMSGF_THREADID    0x0080L // Выводить идент потока
-#define LOGMSGF_DIRECTOUTP  0x0100L // @v9.2.0 Сообщение выводится без посредничества специального потока, управляющего выводом в журналы
-#define LOGMSGF_NODUPFORJOB 0x0200L // @v9.2.11 Сообщение не следует дублировать в спец журнале для рассылки результатов выполнения задач
+#define LOGMSGF_DIRECTOUTP  0x0100L // Сообщение выводится без посредничества специального потока, управляющего выводом в журналы
+#define LOGMSGF_NODUPFORJOB 0x0200L // Сообщение не следует дублировать в спец журнале для рассылки результатов выполнения задач
 #define LOGMSGF_SLSSESSGUID 0x0400L // Выводить GUID сессии
 
 int FASTCALL PPLogMessage(const char * pFileName, const char * pStr, long options);
@@ -1992,7 +1994,7 @@ public:
 	PPID   ObjType;
 	uint16 Size;
 	uint16 Flags;
-	long   OprFlags; // @v8.5.5 ushort->long
+	long   OprFlags;
 	// ... [Size - sizeof(ObjRights)];
 };
 
@@ -2016,7 +2018,7 @@ public:
 		//
 		cfOwnBillRestr            = 0x0008,
 		cfOwnBillRestr2           = 0x0010,
-		cfApplyBillPeriodsToCSess = 0x0020, // @v9.2.11 Применять периоды доступа к документам и к кассовым сессиям
+		cfApplyBillPeriodsToCSess = 0x0020, // Применять периоды доступа к документам и к кассовым сессиям
 		cfAllowDbxReceive         = 0x0040  // @v10.5.7 Допускает прием данных из других разделов. На начальном этапе флаг имеет ограниченное
 			// действие только для автоматической синхронизации, транспортируемой посредство брокера сообщений.
 	};
@@ -2676,7 +2678,7 @@ enum SubstGrpGoods { // @persistent
 		// Доступно только в случае, если правильно определена конфигруация алкогольной декларации
 	sggDimW,               // Размерность W
 	sggLocAssoc,           // Ассоциированное с товаром место хранения //
-	sggType,               // @v9.6.0 Тип товара
+	sggType,               // Тип товара
 	sggGroupSecondLvl = 100,   // PPObjGoodsGroup Группа уровня 2 и далее идут группы уровня 2 и т.д.
 	sggTagBias        = 100000 // Смещение для группировки по тегам товаров.
 };
@@ -2746,7 +2748,7 @@ struct SubstGrpBill { // @size=8
 		sgbPayer,
 		sgbDebtDim,    //
 		sgbStorageLoc, // Место хранения, ассоциированное с фрахтом документа
-		sgbDlvrLoc     // @v9.1.5 Адрес доставки
+		sgbDlvrLoc     // Адрес доставки
 	} S;
 	union {
 		SubstGrpDate   Sgd;
@@ -2889,7 +2891,7 @@ protected:
 	void   SetFlatChunk(size_t offs, size_t len);
 	int    FASTCALL SetBranchSString(size_t offs);
 	int    FASTCALL SetBranchSArray(size_t offs);
-	int    FASTCALL SetBranchSVector(size_t offs); // @v9.8.4
+	int    FASTCALL SetBranchSVector(size_t offs);
 	int    FASTCALL SetBranchObjIdListFilt(size_t offs);
 	int    FASTCALL SetBranchStrAssocArray(size_t offs);
 	int    SetBranchBaseFiltPtr(int filtID, size_t offs);
@@ -2937,7 +2939,7 @@ private:
 		uint16 Offs;
 		int32  ExtraId; // For tBaseFiltPtr - FiltID
 	};
-	SVector BranchList; // @transient Список ветвлений структуры фильтра // @v9.8.4 SArray-->SVector
+	SVector BranchList; // @transient Список ветвлений структуры фильтра
 };
 //
 //
@@ -3075,8 +3077,8 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	long   SessionID;      // 76  Идентификатор сессии исполнения //
 	PPID   DBDiv;          // 80  ИД раздела базы данных (PPOBJ_CONFIG only)
 	long   BaseRateTypeID; // 84  Базовый тип валютного курса (PPOBJ_CONFIG only)
-	long   DesktopID_Obsolete;      // 88  Идентификатор рабочего стола, испольуемого пользователем (группой)
-	long   MenuID_Obsolete;         // 92  Идентификатор меню, используемого пользователем (группой)
+	long   DesktopID_Obsolete; // 88  Идентификатор рабочего стола, испольуемого пользователем (группой)
+	long   MenuID_Obsolete;    // 92  Идентификатор меню, используемого пользователем (группой)
 	S_GUID DesktopUuid;    // @v10.9.3
 	S_GUID MenuUuid;       // @v10.9.3
 };
@@ -5329,8 +5331,7 @@ private:
 		long   Flags;
 	};
 	struct ExtLinesBlock {
-		int    AccWrOff;        // Блок сформирован как перечисление по статьям таблицы AccSheetID
-			// для списания по счетам
+		int    AccWrOff;        // Блок сформирован как перечисление по статьям таблицы AccSheetID для списания по счетам
 		uint   Idx;
 		PPID   AccSheetID;
 		int    SubstAr;
@@ -5365,7 +5366,7 @@ struct AccTurnParam {
 #define INCM_DEFAULT              0  // По флажкам операций
 #define INCM_BYSHIPMENT           1  // По отгрузке
 #define INCM_BYPAYMENT            2  // По оплате
-#define INCM_BYPAYMENTINPERIOD    3  // @v9.6.5 Специальный вариант, учитывающий оплаты только по документам, попадающим в тот же период
+#define INCM_BYPAYMENTINPERIOD    3  // Специальный вариант, учитывающий оплаты только по документам, попадающим в тот же период
 //
 // Флаги общей конфигурации
 //
@@ -5375,8 +5376,8 @@ struct AccTurnParam {
 #define CCFLG_COSTWOVATBYDEF       0x00000008L // Цены поступления по умолчанию без НДС (в диалоге строки документа прихода устанавливается соответствующий флаг) //
 #define CCFLG_COSTWOVATBYSUM       0x00000010L // Если цена поступления задана без НДС, то расчитывать НДС исходя из суммы, иначе - из цены.
 	// По умолчанию в этом случае НДС расчитывается исходя из цены (и это правильно).
-#define CCFLG_NOADJPRWROFFDRAFT    0x00000020L // @v9.3.4 Блокировка функции прецизионного выравнивания цен при списании драфт-документов
-#define CCFLG_DONTUNDOOPCNTRONESC  0x00000040L // @v9.5.2 Не пытаться откатывать счетчик операций при отмене провоедения нового документа
+#define CCFLG_NOADJPRWROFFDRAFT    0x00000020L // Блокировка функции прецизионного выравнивания цен при списании драфт-документов
+#define CCFLG_DONTUNDOOPCNTRONESC  0x00000040L // Не пытаться откатывать счетчик операций при отмене провоедения нового документа
 #define CCFLG_USEGDSCLS            0x00000080L // Использовать классы товаров
 #define CCFLG_USEGOODSPCKG         0x00000100L // Использовать товарные пакеты
 #define CCFLG_USEDRAFTBILL         0x00000200L // Использовать драфт-документы // @v9.8.11 @obsolete
@@ -5395,7 +5396,6 @@ struct AccTurnParam {
 #define CCFLG_GENLOTONUNLIMORDER   0x00200000L // Генерировать лоты на нелимитируемые заказы
 #define CCFLG_DEBUGTRFRERROR       0x00400000L // Проверять лоты и текущие товарные остатки после каждого проведения или изменения товарного документа
 #define CCFLG_USEARGOODSCODE       0x00800000L // Использовать товарные коды, привязанные к статьям
-// @v9.1.1 (заменено на sluifUseLargeDialogs в SLIB) #define CCFLG_USELARGEDIALOG       0x01000000L // Использовать большой диалог
 #define CCFLG_USECCHECKLINEEXT     0x02000000L // Использовать расширения строк чеков
 #define CCFLG_INDIVIDBILLEXTFILT   0x04000000L // Индивидуальная фильтрация по расширению документов
 	// Если флаг включен, то при фильтрации документов с помощью функции BillCore::GetBillListByExt
@@ -5425,8 +5425,8 @@ struct AccTurnParam {
 #define CCFLG2_USECCHECKEXTPAYM    0x00000020L // Использовать расширение оплат по чекам
 #define CCFLG2_DONTUSE3TIERGMTX    0x00000040L // Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
 #define CCFLG2_USEOMTPAYMAMT       0x00000080L // Использовать включенную сумму оплаты по документам
-#define CCFLG2_USESARTREDB         0x00000100L // @v9.7.11 Использовать базу данных Sartre (экпериментальная опция)
-#define CCFLG2_USELOTXCODE         0x00000200L // @v9.8.11 Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
+#define CCFLG2_USESARTREDB         0x00000100L // Использовать базу данных Sartre (экпериментальная опция)
+#define CCFLG2_USELOTXCODE         0x00000200L // Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
 #define CCFLG2_USELCR2             0x00000400L // @v10.1.5 Использовать 2-ю версию индексации остатков по лотам
 #define CCFLG2_USEVETIS            0x00000800L // @v10.1.9 @transient Использовать функционал ВЕТИС (Меркурий). Определяется динамически
 	// по установленным в конфигурации глобального обмена параметрам доступа к ВЕТИС.
@@ -5434,6 +5434,8 @@ struct AccTurnParam {
 #define CCFLG2_USEHISTSCARD        0x00002000L // @v10.5.3 Вести историю изменения персональных карт
 #define CCFLG2_DEVELOPMENT         0x00004000L // @v10.5.9 Режим разработки - включаются дополнительные опции отображения и управления
 #define CCFLG2_VERIFYARTOLOCMETHS  0x00008000L // @v10.7.3 Отладочный флаг для верификации функций преобразования статей в склады и наоборот
+#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 Флаг, предписывающий скрывать значения учетных остатков
+	// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
 //
 // Общие параметры конфигурации
 //
@@ -5491,7 +5493,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	int16  StringHistoryUsage;          // @v10.7.9 Использование StringHistory: 0 - disabled, 1 - enabled, -1 - в зависимости от установки в конфигурации пользовательского интерфейса
 	LDATE  _InvcMergeTaxCalcAlg2Since;  // Дата, начиная с которой применяется алгорим 2 для расчета налогов по
 		// объединенным строкам счет-фактуры (для печати).
-	PPID   PrepayInvoiceGoodsID;        // @v9.7.0 Товара для печати счета-фактуры на предоплату по бухгалтерскому документу
+	PPID   PrepayInvoiceGoodsID;        // Ид товара для печати счета-фактуры на предоплату по бухгалтерскому документу
 		// Так же применяется для печати чеков без подробного содержания.
 	LDATE  LcrUsageSince;               // @v10.1.5 Текущие остатки по лотам учитывать начиная с этой даты
 };
@@ -5649,7 +5651,7 @@ private:
 #define PPSCMD_QUERYNATURALTOKEN     10108 //
 #define PPSCMD_GETARTICLEBYPERSON    10109 //
 #define PPSCMD_GETPERSONBYARTICLE    10110 //
-#define PPSCMD_LOGLOCKSTACK          10111 // @v9.8.1 Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
+#define PPSCMD_LOGLOCKSTACK          10111 // Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
 #define PPSCMD_SETTIMESERIES         10112 // @v10.2.3
 #define PPSCMD_GETREQQUOTES          10113 // @v10.2.4
 #define PPSCMD_SETTIMESERIESPROP     10114 // @v10.2.5
@@ -5751,7 +5753,6 @@ public:
 			ttObjImage,       // Изображение объекта
 			ttWorkbookContent // Содержание записи рабочей книги
 		};
-
 		int32  Cookie;         // @anchor Идентификатор, необходимый для продолжения скачивания файла.
 		LDATETIME CrtTime;     // Время создания файла
 		LDATETIME AccsTime;    // Время последнего доступа к файлу
@@ -6467,7 +6468,7 @@ private:
 	private:
 		PPBasketCombine * P;
 	};
-	int    Sign;           // Если Sign == SIGN_PPTLA, то данный объект является валидным (в частности, не разрушен деструктором)
+	uint32 Sign;           // Если Sign == _PPConst.Signature_PPThreadLocalArea, то данный объект является валидным (в частности, не разрушен деструктором)
 	long   Id;             // @id
 	ThreadID TId;          // Идентификатор потока
 	uint   PtrVectDim;
@@ -6548,7 +6549,7 @@ public:
 	PPObjID  LastErrObj;         // Object's ID, by last generated error
 	PPLastInputData Lid;
 	int    PrnDirId;
-	SCodepageIdent DL600XmlCp;   // @v9.4.6 Кодовая страница для стандартного экспорта DL600 в XML
+	SCodepageIdent DL600XmlCp;   // Кодовая страница для стандартного экспорта DL600 в XML
 	DlContext * P_ExpCtx;        // Контекст экспортных структур данных
 	DlContext * P_IfcCtx;        // Контекст COM-интерфейсов
 	//
@@ -6575,7 +6576,7 @@ public:
 	// Используются для быстрого обновления строки статуса.
 	//
 	SStringTag MainOrgName;
-	SString MainOrgCountryCode; // @v9.7.8 Код страны главной организации. Используется для идентификации собственной страны в адресах
+	SString MainOrgCountryCode;  // Код страны главной организации. Используется для идентификации собственной страны в адресах
 	SStringTag CurDbDivName;
 	BarcodeArrangeConfig Bac;
 	SurKeyArray    SurIdList;    // Массив динамически идентифицируемых записей, используемых
@@ -6583,8 +6584,8 @@ public:
 	PPSync Sync;                 // Синхронизатор сетевых пользователей
 	PPJobSrvClient SrvSess;      // Сессия связи с JobServer
 	WaitBlock WD;
-	Profile Prf;                 // @v8.0.3 Локальный по отношению к потоку профайлер
-	PPUserFuncProfiler UfpSess;  // @v8.0.6 Точка профилирования длительности жизни потока (от Login до Logout)
+	Profile Prf;                 // Локальный по отношению к потоку профайлер
+	PPUserFuncProfiler UfpSess;  // Точка профилирования длительности жизни потока (от Login до Logout)
 private:
 	PrivateCart Cart;            // Персональная корзина пользователя //
 
@@ -6596,9 +6597,8 @@ private:
 	};
 	TSCollection <IdleCommand> IdleCmdList;
 	TSCollection <PPView> SrvViewList;
-	StrStrAssocArray IfcConfig; // Параметры конфигурации интерфейсов.
-		// Устанавливаются вызовом PPUtil::SetConfigParam
-	PPRevolver_StringSetSCD RvlSsSCD; // @v9.9.5 Револьверная коллекция shortlived-stringset'ов для использования в кэшах
+	StrStrAssocArray IfcConfig; // Параметры конфигурации интерфейсов. Устанавливаются вызовом PPUtil::SetConfigParam
+	PPRevolver_StringSetSCD RvlSsSCD; // Револьверная коллекция shortlived-stringset'ов для использования в кэшах
 };
 
 class __PPThrLocPtr {
@@ -6661,8 +6661,7 @@ struct PPAdviseBlock {
 	PPAdviseBlock();
 
 	enum {
-		evDirtyCacheBySysJ = 1, // Оповещать о событии в системном журнале в функции сбора событий
-			                    // для установки "грязных" элементов кэша.
+		evDirtyCacheBySysJ = 1, // Оповещать о событии в системном журнале в функции сбора событий для установки "грязных" элементов кэша.
 		evPPObjMsg,             // Оповещать о сообщении, инициированном для объектов PPObject
 		evTodoChanged,          // Оповещать об изменении задач
 		evBillChanged,          // Оповещать об изменении документов
@@ -6745,8 +6744,8 @@ struct ObjCacheStat {
 	long   DirtyEntries;  // Количество "грязных" элементов
 	long   MaxCounter;    // Максимальный счетчик
 	long   MinCounter;    // Минимальный счетчик
-	uint32 SsSize;        // @v9.9.5 Количество байт в this->Ss (this->Ss.Size)
-	uint32 SsDataLen;     // @v9.9.5 Полезное количество байт в this->Ss (this->Ss.DataLen)
+	uint32 SsSize;        // Количество байт в this->Ss (this->Ss.Size)
+	uint32 SsDataLen;     // Полезное количество байт в this->Ss (this->Ss.DataLen)
 	SString DbPath;
 	SString ObjTypeName;
 };
@@ -6935,7 +6934,7 @@ protected:
 private:
 	int    FASTCALL Helper_Get(PPID id, void * pDataRec);
 
-	int64  LastPackNamesClock; // @v8.1.4 Момент последнего вызова PackNames()
+	int64  LastPackNamesClock; // Момент последнего вызова PackNames()
 	UintHashTable UndefList;   // Используется если (Flags & fUseUndefList)
 };
 //
@@ -7001,7 +7000,7 @@ private:
 	};
 	struct CDbEntry {
 		long   DbPathId;
-		long   State;              // @v8.0.3
+		long   State;              // 
 		LDATETIME LastCacheUpdate; // Время последнего обновления кэшей по системному журналу
 	};
 	SArray DbEntryList;
@@ -7091,12 +7090,12 @@ public:
 		kNetSession,     // Серверная сессия, свяазанная с удаленной клиентской сессией
 		kDbDispatcher,   // Диспетчерский поток (один на каждую базу данных)
 		kEventCollector, // Сборщик событий
-		kLogger,         // @v8.9.12 Поток для вывода сообщений в журналы
-		kDllSession,     // @v9.2.6 Поток созданный в DLL-модуле
-		kPpppProcessor,  // @v9.6.7 Поток, обеспечивающий обработку входящих данных на стороне автономного кассового узла
-		kNginxServer,    // @v9.8.0 Поток сервера NGINX
-		kWorkerSession,  // @v9.8.0 Рабочий поток для исполнения команд (также является базовым для kNetSession)
-		kNginxWorker     // @v9.8.1 Рабочий поток сервера NGINX (запускается потоком kNginxServer)
+		kLogger,         // Поток для вывода сообщений в журналы
+		kDllSession,     // Поток созданный в DLL-модуле
+		kPpppProcessor,  // Поток, обеспечивающий обработку входящих данных на стороне автономного кассового узла
+		kNginxServer,    // Поток сервера NGINX
+		kWorkerSession,  // Рабочий поток для исполнения команд (также является базовым для kNetSession)
+		kNginxWorker     // Рабочий поток сервера NGINX (запускается потоком kNginxServer)
 	};
 	static int FASTCALL GetKindText(int kind, SString & rBuf);
 	PPThread(int kind, const char * pText, void * pInitData);
@@ -31808,8 +31807,6 @@ public:
 #define BILLOPRT_UNITEBILLS        0x0002 // Объединение документов
 #define BILLOPRT_MODOBJ            0x0004 // Модификация контрагента
 #define BILLOPRT_MODSTATUS         0x0008 // Модификация статуса
-// @v6.3.0 #define BILLOPRT_NOTONLYOWNVIEW 0x0010 // Просмотр документов, не зависимо от того, каким пользователем созданы эти документы.
-	// Негативный смысл опции связан с тем, что по умолчанию, это значение флагов прав доступа включено.
 #define BILLOPRT_CANCELQUOT        0x0010 // Право на отмену установленной котировки в строке документа
 #define BILLOPRT_TOTALDSCNT        0x0020 // Право на установку скидки на весь документ
 #define BILLOPRT_MODFREIGHT        0x0040 // Право на модификацию фрахта. Опция действует независимо от права на модификацию
@@ -38364,8 +38361,8 @@ private:
 	struct BrwHdr {
 		PPID   BillID;
 		long   OprNo;
-		long   GoodsID;  // @v9.7.9
-		long   Flags;    // @v9.7.9
+		long   GoodsID;
+		long   Flags;
 	};
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -46191,7 +46188,6 @@ class PPUserProfileCore : public UserFuncPrfTbl {
 public:
 	PPUserProfileCore();
 	~PPUserProfileCore();
-
 	int    Load(const char * pPath);
 	int    ClearState(const S_GUID * pDbId, int use_ta);
 
@@ -46229,6 +46225,7 @@ private:
 	int    SetupSessItem(long * pSessID, const UfpLine & rLine, long funcId = 0);
 	int    OpenInputFile(const char * pFileName, int64 offset, SFile & rF);
 	int    AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl::Rec & rRec, const UfpLine & rLine);
+	int    Helper_StoreFinishList(const UfpFileSet * pSet, const void * pFinishList, const UfpLine & rUfpLine);
 
 	struct StateItem_Internal { // @persistent
 		S_GUID DbID;

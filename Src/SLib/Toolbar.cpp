@@ -1,6 +1,6 @@
 // Toolbar.cpp
 // There's a mine born by Osolotkin, 2000, 2001
-// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020
+// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -15,8 +15,7 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 	memzero(&MousePoint, sizeof(POINTS));
 	{
 		WNDCLASSEX wc;
-		MEMSZERO(wc);
-		wc.cbSize = sizeof(wc);
+		INITWINAPISTRUCT(wc);
 		wc.lpszClassName = _T("TOOLBAR_FOR_PPY");
 		wc.hInstance = TProgram::GetInst();
 		wc.lpfnWndProc = static_cast<WNDPROC>(WndProc);
@@ -377,7 +376,7 @@ int isFindMenuID(long id, HMENU hm)
 	int     i = 0;
 	for(i = 0; i < cnt; i++) {
 		MENUITEMINFO mii;
-		mii.cbSize = sizeof(MENUITEMINFO);
+		INITWINAPISTRUCT(mii);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_STATE|MIIM_ID;
 		GetMenuItemInfo(hm, i, TRUE, &mii);
 		if(mii.hSubMenu && isFindMenuID(id, mii.hSubMenu)) // @recursion

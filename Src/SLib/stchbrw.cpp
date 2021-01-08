@@ -1,5 +1,5 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // TimeChunkBrowser
 //
@@ -224,8 +224,7 @@ int STimeChunkGrid::MoveChunk(int mode, long id, long rowId, const STimeChunk & 
 /*static*/int STimeChunkBrowser::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
-	MEMSZERO(wc);
-	wc.cbSize        = sizeof(wc);
+	INITWINAPISTRUCT(wc);
 	wc.lpszClassName = SUcSwitch(STimeChunkBrowser::WndClsName);
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = STimeChunkBrowser::WndProc;
@@ -711,10 +710,8 @@ void STimeChunkBrowser::SetupScroll()
 	SETMIN(St.ScrollY, St.ScrollLimitY);
 
 	SCROLLINFO si;
-	MEMSZERO(si);
-	si.cbSize = sizeof(si);
+	INITWINAPISTRUCT(si);
 	si.fMask = SIF_POS | SIF_RANGE;
-	si.nMin = 0;
 	si.nMax = St.ScrollLimitY;
 	si.nPos = MIN(si.nMax, (int)St.ScrollY);
 	SetScrollInfo(H(), SB_VERT, &si, TRUE);
@@ -937,8 +934,7 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 				break;
 		}
 		{
-			MEMSZERO(si);
-			si.cbSize = sizeof(si);
+			INITWINAPISTRUCT(si);
 			si.fMask = SIF_POS;
 			si.nPos = St.ScrollY;
 			SetScrollInfo(H(), SB_VERT, &si, TRUE);
@@ -1032,8 +1028,7 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 				break;
 		}
 		{
-			MEMSZERO(si);
-			si.cbSize = sizeof(si);
+			INITWINAPISTRUCT(si);
 			si.fMask = SIF_POS;
 			si.nPos = (St.QBounds > 32000) ? ((32000 * St.ScrollX) / St.QBounds) : St.ScrollX;
 			SetScrollInfo(H(), SB_HORZ, &si, TRUE);

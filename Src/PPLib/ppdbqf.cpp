@@ -1,5 +1,5 @@
 // PPDBQF.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1422,14 +1422,19 @@ static IMPL_DBE_PROC(dbqf_daterange_dd)
 
 static IMPL_DBE_PROC(dbqf_datebase_id)
 {
-	int    sd = params[0].lval;
-	LDATE  base = params[1].dval;
-	LDATE  _d = (sd <= 0 || !checkdate(base, 1)) ? ZERODATE : plusdate(base, sd);
+	const int sd = params[0].lval;
+	const LDATE base = params[1].dval;
+	const LDATE _d = (sd <= 0 || !checkdate(base, 1)) ? ZERODATE : plusdate(base, sd);
 	result->init(_d);
 }
 
 /*static*/int PPDbqFuncPool::Register()
 {
+	//
+	// @v10.9.12 Провел эксперимент: определил все параметры вызовов через таблицу и в цикле вызвал 
+	// DbqFuncTab::RegisterDyn со значениями из таблицы. Результат: +3Kb к размеру obj-файла. 
+	// Другими словами, так как сейчас - хорошо и табличный вариант рассматривать не надо.
+	//
 	int    ok = 1;
 	THROW(DbqFuncTab::RegisterDyn(&IdEmpty,               BTS_STRING, dbqf_empty,                  0));
 	THROW(DbqFuncTab::RegisterDyn(&IdBillDebt,            BTS_REAL,   dbqf_debt_rrii,              4, BTS_REAL, BTS_REAL, BTS_INT, BTS_INT));

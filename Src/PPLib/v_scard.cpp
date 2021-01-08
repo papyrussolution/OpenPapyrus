@@ -1,5 +1,5 @@
 // V_SCARD.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -338,12 +338,9 @@ int PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	Filt.IssuePeriod.Actualize(ZERODATE);
 	Filt.ExpiryPeriod.Actualize(ZERODATE);
 	Filt.TrnovrPeriod.Actualize(ZERODATE);
-	// @v9.6.6 Filt.MinTurnover = R2(Filt.MinTurnover);
-	// @v9.6.6 Filt.MaxTurnover = R2(Filt.MaxTurnover);
-	Filt.TurnoverR.Round(2); // @v9.6.6
+	Filt.TurnoverR.Round(2);
 	if(Filt.EmployerID)
 		SETIFZ(P_StffObj, new PPObjStaffList);
-	// @v9.8.9 {
 	StrPool.ClearS();
 	{
 		uint   i;
@@ -366,7 +363,6 @@ int PPViewSCard::Init_(const PPBaseFilt * pFilt)
 		else
 			SeriesList.Set(0);
 	}
-	// } @v9.8.9
 	if(Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()) {
 		PPIDArray owner_list;
         PPViewSCard temp_view;
@@ -391,9 +387,6 @@ int PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	CATCHZOK
 	return ok;
 }
-
-//PP_CREATE_TEMP_FILE_PROC(CreateTempFile, SCard);
-// @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempSCard);
 
 int PPViewSCard::GetPDisUpdateDate(PPID cardID, LDATE before, LDATE * pDate)
 {
@@ -427,10 +420,9 @@ int PPViewSCard::CreateTempTable()
 	if(!(Filt.Flags & SCardFilt::fNoTempTable)) {
 		THROW(P_TmpTbl = CreateTempFile <TempSCardTbl> ());
 	}
-	// @v9.8.9 dbq = ppcheckfiltid(dbq, p_c->SeriesID, Filt.SeriesID);
-	dbq = ppcheckfiltid(dbq, p_c->SeriesID, SeriesList.GetSingle()); // @v9.8.9
+	dbq = ppcheckfiltid(dbq, p_c->SeriesID, SeriesList.GetSingle());
 	dbq = ppcheckfiltid(dbq, p_c->PersonID, Filt.PersonID);
-	dbq = ppcheckfiltid(dbq, p_c->LocID, Filt.LocID); // @v9.4.5
+	dbq = ppcheckfiltid(dbq, p_c->LocID, Filt.LocID);
 	dbq = &daterange(p_c->Dt, &Filt.IssuePeriod);
 	dbq = &daterange(p_c->Expiry, &Filt.ExpiryPeriod);
 	if(!Filt.PersonID && Filt.EmployerID)
@@ -541,19 +533,11 @@ int PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecBlock *
 	double in_turnover = 0.0;
 	double turnover = 0.0;
 	const int wo_owner = BIN(Filt.Flags & SCardFilt::fWoOwner);
-	/* @v9.8.9 if(Filt.ScsList.IsExists()) {
-		THROW(Filt.ScsList.CheckID(pRec->SeriesID));
-	}
-	else {
-		THROW(!Filt.SeriesID || pRec->SeriesID == Filt.SeriesID);
-	} */
-	// @v9.8.9 {
 	if(SeriesList.IsExists()) {
 		THROW(SeriesList.CheckID(pRec->SeriesID));
 	}
-	// } @v9.8.9
 	THROW(!Filt.PersonID || pRec->PersonID == Filt.PersonID);
-	THROW(!Filt.LocID || pRec->LocID == Filt.LocID); // @v9.4.5
+	THROW(!Filt.LocID || pRec->LocID == Filt.LocID);
 	THROW(Filt.Ft_Closed <= 0 || (pRec->Flags & SCRDF_CLOSED));
 	THROW(Filt.Ft_Closed >= 0 || !(pRec->Flags & SCRDF_CLOSED));
 	THROW(Filt.Ft_Inherited <= 0 || (pRec->Flags & SCRDF_INHERITED));
@@ -563,8 +547,8 @@ int PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecBlock *
 		THROW(pRec->PDis >= Filt.PDisR.low);
 		THROW(Filt.PDisR.upp <= 0.0 || pRec->PDis <= Filt.PDisR.upp)
 	}
-	THROW(/*!pRec->Dt ||*/ Filt.IssuePeriod.CheckDate(pRec->Dt)); // @v9.6.2 @fix /**/
-	THROW(/*!pRec->Expiry ||*/ Filt.ExpiryPeriod.CheckDate(pRec->Expiry)); // @v9.6.2 @fix /**/
+	THROW(Filt.IssuePeriod.CheckDate(pRec->Dt));
+	THROW(Filt.ExpiryPeriod.CheckDate(pRec->Expiry));
 	THROW(!ExcludeOwnerList.IsExists() || !ExcludeOwnerList.CheckID(pRec->PersonID));
 	{
 		size_t ss_len = Filt.Number.Len();
@@ -622,7 +606,7 @@ int PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::
 	CPYFLD(ID);
 	CPYFLD(SeriesID);
 	CPYFLD(PersonID);
-	CPYFLD(LocID); // @v9.4.0
+	CPYFLD(LocID);
 	CPYFLD(Flags);
 	CPYFLD(Dt);
 	CPYFLD(Expiry);
@@ -635,7 +619,6 @@ int PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::
 	CPYFLD(UsageTmStart);
 	CPYFLD(UsageTmEnd);
 	STRNSCPY(pDestRec->Code, pSrcRec->Code);
-	// @v9.4.0 STRNSCPY(pDestRec->Password, pSrcRec->Password);
 #undef CPYFLD
 	pDestRec->InTrnovr = pblk.InTurnover;
 	pDestRec->Turnover = pblk.Turnover;
@@ -648,8 +631,7 @@ int PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::
 				PPELinkArray ela;
 				PsnObj.P_Tbl->GetELinks(psn_rec.ID, &ela);
 				ela.GetPhones(3, result_buf.Z());
-				//result_buf.CopyTo(pDestRec->Phone, sizeof(pDestRec->Phone));
-				StrPool.AddS(result_buf, &pDestRec->PhoneP); // @v9.8.9
+				StrPool.AddS(result_buf, &pDestRec->PhoneP);
 			}
 			addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
 			LocationTbl::Rec loc_rec;
@@ -1270,8 +1252,7 @@ int PPViewSCard::RenameDup(PPIDArray * pIdList)
 					temp_buf = SCObj.P_Tbl->data.Code;
 					code_postfx = ((n = temp_buf.ShiftLeft(p + 1).ToLong() + 1) >= code_postfx) ? n : code_postfx;
 				}
-				// @v9.4.9 sprintf(rec.Code, "%s%ld", code.cptr(), code_postfx);
-				(temp_buf = code).Cat(code_postfx).CopyTo(rec.Code, sizeof(rec.Code)); // @v9.4.9
+				(temp_buf = code).Cat(code_postfx).CopyTo(rec.Code, sizeof(rec.Code));
 				THROW(SCObj.P_Tbl->Update(dupl_scard, &rec, 0));
 				if(replace_trnovr)
 					THROW(r_cc.ReplaceSCard(dest_scard, dupl_scard, 0));
@@ -1380,7 +1361,7 @@ int PPViewSCard::ChargeCredit()
 		if(EditChargeCreditParam(uhtt_sync, &param) > 0) {
 			PPLogger logger;
 			long   inc = 0;
-			TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
+			TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
 			SCardViewItem item;
 			PPWait(1);
 			if(uhtt_sync) {
@@ -1673,15 +1654,15 @@ void PPViewSCard::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & SCardFilt::fShowOwnerAddrDetail && P_TmpTbl) {
-			pBrw->InsColumn(-1, "@phone",     14, 0L, 0, 0); // @v9.6.1 #12-->#14
-			pBrw->InsColumn(-1, "@address",   15, 0L, 0, 0); // @v9.6.1 #13-->#15
-			pBrw->InsColumn(-1, "@postzip",   16, 0L, 0, 0); // @v9.6.1 #14-->#16
-			pBrw->InsColumn(-1, "@region",    17, 0L, 0, 0); // @v9.6.1 #15-->#17
-			pBrw->InsColumn(-1, "@city",      18, 0L, 0, 0); // @v9.6.1 #16-->#18
-			pBrw->InsColumn(-1, "@street",    19, 0L, 0, 0); // @v9.6.1 #17-->#19
-			pBrw->InsColumn(-1, "@house",     20, 0L, 0, 0); // @v9.6.1 #18-->#20
-			pBrw->InsColumn(-1, "@apartment", 21, 0L, 0, 0); // @v9.6.1 #19-->#21
-			pBrw->InsColumn(-1, "@addendum",  22, 0L, 0, 0); // @v9.6.1 #20-->#22
+			pBrw->InsColumn(-1, "@phone",     14, 0L, 0, 0);
+			pBrw->InsColumn(-1, "@address",   15, 0L, 0, 0);
+			pBrw->InsColumn(-1, "@postzip",   16, 0L, 0, 0);
+			pBrw->InsColumn(-1, "@region",    17, 0L, 0, 0);
+			pBrw->InsColumn(-1, "@city",      18, 0L, 0, 0);
+			pBrw->InsColumn(-1, "@street",    19, 0L, 0, 0);
+			pBrw->InsColumn(-1, "@house",     20, 0L, 0, 0);
+			pBrw->InsColumn(-1, "@apartment", 21, 0L, 0, 0);
+			pBrw->InsColumn(-1, "@addendum",  22, 0L, 0, 0);
 		}
 		pBrw->SetCellStyleFunc(CellStyleFunc, this);
 	}
@@ -1698,8 +1679,8 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_psn;
 	DBE    dbe_ser;
 	DBE    dbe_autogoods;
-	DBE    dbe_phone; // @v9.6.1
-	DBE    dbe_memo;  // @v9.6.1
+	DBE    dbe_phone;
+	DBE    dbe_memo;
 	SCardTbl * p_c = 0;
 	TempSCardTbl * p_t = 0;
 	TempOrderTbl * p_ot = 0;
@@ -1726,10 +1707,8 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson,   p_t->PersonID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_ser, PPDbqFuncPool::IdObjNameSCardSer, p_t->SeriesID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_autogoods, PPDbqFuncPool::IdObjNameGoods, p_t->AutoGoodsID);
-		// @v9.6.1 {
 		PPDbqFuncPool::InitFunc2Arg(dbe_phone, PPDbqFuncPool::IdSCardExtString, p_t->ID, dbconst((long)PPSCardPacket::extssPhone));
 		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_t->ID, dbconst((long)PPSCardPacket::extssMemo));
-		// } @v9.6.1
 		dbe_dis = & (p_t->PDis / 100);
 		q = & select(
 			p_t->ID,        // #0
@@ -1744,21 +1723,10 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			p_t->Dt,        // #9
 			dbe_ser,        // #10
 			dbe_autogoods,  // #11
-			dbe_phone,      // #12 @v9.6.1
-			dbe_memo,       // #13 @v9.6.1
+			dbe_phone,      // #12 
+			dbe_memo,       // #13
 			0L);
 		if(Filt.Flags & SCardFilt::fShowOwnerAddrDetail) {
-			/*
-			q->addField(p_t->Phone);      // #14 @v9.6.1 #12-->#14
-			q->addField(p_t->Address);    // #15 @v9.6.1 #13-->#15
-			q->addField(p_t->ZIP);        // #16 @v9.6.1 #14-->#16
-			q->addField(p_t->LocalArea);  // #17 @v9.6.1 #15-->#17
-			q->addField(p_t->City);       // #18 @v9.6.1 #16-->#18
-			q->addField(p_t->Street);     // #19 @v9.6.1 #17-->#19
-			q->addField(p_t->House);      // #20 @v9.6.1 #18-->#20
-			q->addField(p_t->Apart);      // #21 @v9.6.1 #19-->#21
-			q->addField(p_t->AddrAddend); // #22 @v9.6.1 #20-->#22
-			*/
 			DBE    dbe_phone__;
 			DBE    dbe_address;
 			DBE    dbe_zip;
@@ -1797,7 +1765,7 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbq = & (*dbq && p_ot->ID == p_t->ID);
 		q->where(*dbq);
 		if(!p_ot) {
-			if(/*Filt.SeriesID*/SeriesList.GetSingle())
+			if(SeriesList.GetSingle())
 				q->orderBy(p_t->SeriesID, p_t->Code, 0L);
 			else if(!Filt.PersonID)
 				q->orderBy(p_t->Code, p_t->SeriesID, 0L);
@@ -1810,10 +1778,8 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, p_c->PersonID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_ser, PPDbqFuncPool::IdObjNameSCardSer, p_c->SeriesID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_autogoods, PPDbqFuncPool::IdObjNameGoods, p_c->AutoGoodsID);
-		// @v9.6.1 {
 		PPDbqFuncPool::InitFunc2Arg(dbe_phone, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssPhone));
 		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssMemo));
-		// } @v9.6.1
 		dbe_dis = & (p_c->PDis / 100);
 		q = & select(
 			p_c->ID,        // #0
@@ -1828,20 +1794,20 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			p_c->Dt,        // #9
 			dbe_ser,        // #10
 			dbe_autogoods,  // #11
-			dbe_phone,      // #12 @v9.6.1
-			dbe_memo,       // #13 @v9.6.1
+			dbe_phone,      // #12
+			dbe_memo,       // #13
 			0L);
 		if(p_ot)
 			q->from(p_ot, p_c, 0L);
 		else
 			q->from(p_c, 0L);
 
-		dbq = ppcheckfiltid(dbq, p_c->SeriesID, /*Filt.SeriesID*/SeriesList.GetSingle());
+		dbq = ppcheckfiltid(dbq, p_c->SeriesID, SeriesList.GetSingle());
 		if(Filt.Flags & SCardFilt::fWoOwner)
 			dbq = & (*dbq && p_c->PersonID == 0L);
 		else
 			dbq = ppcheckfiltid(dbq, p_c->PersonID, Filt.PersonID);
-		dbq = ppcheckfiltid(dbq, p_c->LocID, Filt.LocID); // @v9.4.5
+		dbq = ppcheckfiltid(dbq, p_c->LocID, Filt.LocID);
 		dbq = ppcheckflag(dbq, p_c->Flags, SCRDF_CLOSED, Filt.Ft_Closed);
 		dbq = & (*dbq && daterange(p_c->Dt, &Filt.IssuePeriod));
 		dbq = & (*dbq && daterange(p_c->Expiry, &Filt.ExpiryPeriod));
@@ -1994,8 +1960,8 @@ int SCardSelPrcssrDialog::setDTS(const SCardSelPrcssrParam * pData)
 	SetClusterData(CTL_FLTSCARDCHNG_FR, Data.FlagsReset);
 
 	setCtrlData(CTL_FLTSCARDCHNG_DTEND, &Data.DtEnd);
-	AddClusterAssoc(CTL_FLTSCARDCHNG_ZEXPIRY, 0, SCardSelPrcssrParam::fZeroExpiry); // @v9.6.2
-	SetClusterData(CTL_FLTSCARDCHNG_ZEXPIRY, Data.Flags); // @v9.6.2
+	AddClusterAssoc(CTL_FLTSCARDCHNG_ZEXPIRY, 0, SCardSelPrcssrParam::fZeroExpiry);
+	SetClusterData(CTL_FLTSCARDCHNG_ZEXPIRY, Data.Flags);
 	SetupPPObjCombo(this, CTLSEL_FLTSCARDCHNG_SER, PPOBJ_SCARDSERIES, Data.NewSerID, 0, 0);
 	SetupPPObjCombo(this, CTLSEL_FLTSCARDCHNG_AG,  PPOBJ_GOODS, Data.AutoGoodsID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0);
 
@@ -2021,7 +1987,7 @@ int SCardSelPrcssrDialog::getDTS(SCardSelPrcssrParam * pData)
 	GetClusterData(CTL_FLTSCARDCHNG_FR, &Data.FlagsReset);
  	getCtrlData(sel = CTL_FLTSCARDCHNG_DTEND, &Data.DtEnd);
  	THROW_SL(checkdate(Data.DtEnd, 1));
-	GetClusterData(CTL_FLTSCARDCHNG_ZEXPIRY, &Data.Flags); // @v9.6.2
+	GetClusterData(CTL_FLTSCARDCHNG_ZEXPIRY, &Data.Flags);
  	sel = CTL_FLTSCARDCHNG_FLAGS;
  	getCtrlData(CTLSEL_FLTSCARDCHNG_SER, &Data.NewSerID);
 	getCtrlData(CTLSEL_FLTSCARDCHNG_AG, &Data.AutoGoodsID);
@@ -2063,7 +2029,8 @@ IMPL_HANDLE_EVENT(SCardSelPrcssrDialog)
 
 int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger * pLog)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	SCardSelPrcssrDialog * dlg = 0;
 	SCardSelPrcssrParam param;
 	PPObjSCardSeries scs_obj;
@@ -2089,7 +2056,6 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 	THROW(param.Validate(0));
 	if(valid_data) {
 		PPIDArray sc_id_list;
-		// @v9.6.3 param.DtEnd = param.DtEnd.getactual(ZERODATE);
 		PPWait(1);
 		if(param.Flags & param.fUhttSync) {
 			THROW_MEM(p_uhtt_cli = new PPUhttClient);
@@ -2111,7 +2077,6 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 			}
 			sc_id_list.sortAndUndup();
 		}
-		//SCardTbl::Rec rec;
 		PPSCardPacket sc_pack;
 		const long fset = param.FlagsSet;
 		const long freset = param.FlagsReset;
@@ -2123,9 +2088,7 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 			THROW(tra);
 			for(uint i = 0; i < sc_id_list.getCount(); i++) {
 				const  PPID sc_id = sc_id_list.get(i);
-				//PPSCardSeries org_scs_rec;
 				PPSCardSerPacket org_scs_pack;
-				//if(SCObj.Search(sc_id, &rec) > 0) {
 				if(SCObj.GetPacket(sc_id, &sc_pack) > 0) {
 					int    upd = 0;
 					int    upd_discount = 0;
@@ -2215,7 +2178,6 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 						}
 					}
 					if(param.NewSerID && param.NewSerID != sc_pack.Rec.SeriesID) {
-						//PPSCardSeries new_ser_rec;
 						PPSCardSerPacket new_ser_pack;
 						(scard_name = org_scs_pack.Rec.Name).CatChar('-').Cat(sc_pack.Rec.Code);
 						if(scs_obj.GetPacket(param.NewSerID, &new_ser_pack) > 0) {
@@ -2358,10 +2320,8 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 		//
 		PPID   id = 0;
 		PPObjSCard::AddParam param(/*Filt.SeriesID*/SeriesList.GetSingle(), Filt.PersonID);
-		// @v9.4.5 {
 		if(!Filt.PersonID && Filt.LocID)
 			param.LocID = Filt.LocID;
-		// } @v9.4.5
 		ok = (SCObj.Edit(&id, param) == cmOK) ? 1 : -1;
 		if(ok > 0 && ImplementFlags & implOnAddSetupPos && pBrw) {
 			pBrw->Update();
@@ -2440,7 +2400,7 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 					{
 						PPID   ser_id = 0;
 						if(pBrw && pBrw->GetToolbarComboData(&ser_id) && /*Filt.SeriesID*/SeriesList.GetSingle() != ser_id) {
-							Filt.ScsList.Set(0); // @v9.8.9
+							Filt.ScsList.Set(0);
 							Filt.SeriesID = ser_id;
 							ok = ChangeFilt(1, pBrw);
 						}
@@ -2748,11 +2708,11 @@ static int EditSCardOp(SCardCore::OpBlock & rBlk)
 				}
 				else if(event.isCtlEvent(CTL_SCARDOP_AMOUNT)) {
 					Data.Amount = getCtrlReal(CTL_SCARDOP_AMOUNT);
-					temp_buf.Z().Cat(SrcRest + Data.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (-D.Amount)-->(+D.Amount)
+					temp_buf.Z().Cat(SrcRest + Data.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
 					setStaticText(CTL_SCARDOP_ST_REST, temp_buf);
 					temp_buf.Z();
 					if(Data.DestSCardID)
-						temp_buf.Z().Cat(DestRest - Data.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (+D.Amount)-->(-D.Amount)
+						temp_buf.Z().Cat(DestRest - Data.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
 					setStaticText(CTL_SCARDOP_ST_DESTREST, temp_buf);
 				}
 				else if(event.isCtlEvent(CTL_SCARDOP_FRZPERIOD)) {
@@ -3135,7 +3095,6 @@ int PPALDD_SCardSerView::NextIteration(PPIterID iterId)
 	PPSCardSeries rec;
 	if(p_v && p_v->NextIteration(&rec) > 0) {
 		STRNSCPY(I.Name, rec.Name);
-		// @v9.8.9 STRNSCPY(I.CodeTempl, rec.CodeTempl);
 		I.QuotKindID = rec.QuotKindID_s;
 		I.PsnKindID  = rec.PersonKindID;
 		I.IssueDate  = rec.Issue;

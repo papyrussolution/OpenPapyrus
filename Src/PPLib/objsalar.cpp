@@ -1,5 +1,5 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1692,7 +1692,7 @@ int FASTCALL PPObjStaffCal::CheckContinuousEntry(const StaffCalendarTbl::Rec * p
 				StaffCalendarTbl::Key0 k0;
 				k0.CalID = pRec->CalID;
 				k0.DtVal = pRec->DtVal;
-				k0.TmStart = pRec->TmStart+1;
+				k0.TmStart.v = pRec->TmStart.v+1;
 				while(P_ScT->search(0, &k0, spGt) && k0.CalID == pRec->CalID) {
 					CALDATE cd;
 					cd.v = P_ScT->data.DtVal;

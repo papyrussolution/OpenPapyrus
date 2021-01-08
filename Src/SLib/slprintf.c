@@ -1,6 +1,6 @@
-///////////////////////////////////////////////////////////////////////////////
-// \author (c) Marco Paland (info@paland.com) 2014-2019, PALANDesign Hannover, Germany
-// \license The MIT License (MIT)
+// SLPRINTF.C
+// (c) Marco Paland (info@paland.com) 2014-2019, PALANDesign Hannover, Germany
+// license The MIT License (MIT)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +9,7 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,12 +18,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// \brief Tiny printf, sprintf and (v)snprintf implementation, optimized for speed on
-//        embedded systems with a very limited resources. These routines are thread
-//        safe and reentrant!
-//        Use this instead of the bloated standard/newlib printf cause these use
-//        malloc for printf (and may not be thread safe).
-//
+// Tiny printf, sprintf and (v)snprintf implementation, optimized for speed on
+// embedded systems with a very limited resources. These routines are thread safe and reentrant!
+// Use this instead of the bloated standard/newlib printf cause these use malloc for printf (and may not be thread safe).
 // ---------------------------------
 // Adopted to slib by A.Sobolev 2020
 //
@@ -486,6 +482,11 @@ int slprintf(SString & rBuf, const char * pFormat, ...)
 	const int ret = sl_printf_implementation(rBuf, pFormat, va);
 	va_end(va);
 	return ret;
+}
+
+int slvprintf(SString & rBuf, const char * pFormat, va_list va)
+{
+	return sl_printf_implementation(rBuf, pFormat, va);
 }
 
 #if SLTEST_RUNNING // {

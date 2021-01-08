@@ -371,7 +371,27 @@ public:
 		cuifHidden,       // int8
 		cuifFont,         // string
 		cuifStaticEdge,   // int8
-		cuifLayoutType    // int8 @construction
+		cuifLayoutType,   // int8 @construction
+		//
+		cuifLayoutFlags,          // @v10.9.12 uint32
+		cuifLayoutSzkX,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси X
+		cuifLayoutSzkY,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси Y
+		cuifLayoutUOM,            // @v10.9.12 int32 
+		cuifLayoutSize,           // @v10.9.12 FPoint
+		cuifLayoutJustifyContent, // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов вдоль основной оси
+		cuifLayoutAlignContent,   // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
+		cuifLayoutAlignItems,     // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX
+		cuifLayoutAlignSelf,      // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX
+		cuifLayoutGravityX,       // @v10.9.12 uint16 Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
+		cuifLayoutGravityY,       // @v10.9.12 uint16 Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
+		cuifLayoutOrder,          // @v10.9.12 int32  Порядковый номер элемента в линейном ряду потомков одного родителя //
+		cuifLayoutNominalBB,      // @v10.9.12 FRect  Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
+		cuifLayoutPadding,        // @v10.9.12 FRect Внешние поля элемента
+		cuifLayoutMargin,         // @v10.9.12 FRect Внутренние поля контейнера
+		cuifLayoutGrowFactor,     // @v10.9.12 float Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
+		cuifLayoutShrinkFactor,   // @v10.9.12 float
+		cuifLayoutBasis,          // @v10.9.12 float
+		cuifLayoutAspectRatio     // @v10.9.12 float Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEqual(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }

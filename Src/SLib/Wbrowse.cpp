@@ -1,5 +1,5 @@
 // WBROWSE.CPP
-// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // WIN32
 //
@@ -2847,8 +2847,7 @@ HWND GetNextBrowser(HWND hw)
 /*static*/int BrowserWindow::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
-	MEMSZERO(wc);
-	wc.cbSize        = sizeof(wc);
+	INITWINAPISTRUCT(wc);
 	wc.lpszClassName = BrowserWindow::WndClsName;
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = BrowserWindow::BrowserWndProc;

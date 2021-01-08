@@ -199,25 +199,6 @@
     <ClCompile Include="..\Osf\Bdb\zerofill.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Osf\Bdb\crypto\rijndael\rijndael-alg-fst.h" />
-    <ClInclude Include="..\Osf\Bdb\crypto\rijndael\rijndael-api-fst.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc\rep.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc\repmgr.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc\shqueue.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc\tcl_db.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc\txn.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc\win_db.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc\xa.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_auto.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_automsg.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_ext.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\rep_automsg.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\rep_ext.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\sequence_ext.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\tcl_ext.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\txn_auto.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\txn_ext.h" />
-    <ClInclude Include="..\Osf\Bdb\dbinc_auto\xa_ext.h" />
     <ClInclude Include="..\Osf\Bdb\dbinc\atomic.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -395,6 +376,63 @@
     <ClInclude Include="..\Osf\Bdb\dbinc\region.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\rep.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\rep_automsg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\rep_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\repmgr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_automsg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\crypto\rijndael\rijndael-alg-fst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\crypto\rijndael\rijndael-api-fst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\sequence_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\shqueue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\tcl_db.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\tcl_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\txn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\txn_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\txn_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\win_db.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\xa.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\xa_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">
@@ -405,6 +443,5 @@
     <None Include="..\Osf\Bdb\lock_alloc.incl">
       <Filter>Header</Filter>
     </None>
-    <None Include="cairo-1.16.0.vcxproj" />
   </ItemGroup>
 </Project>

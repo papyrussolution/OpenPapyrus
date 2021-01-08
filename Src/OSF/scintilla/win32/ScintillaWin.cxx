@@ -1655,7 +1655,7 @@ void ScintillaWin::SetTrackMouseLeaveEvent(bool on)
 {
 	if(on && TrackMouseEventFn && !trackedMouseLeave) {
 		TRACKMOUSEEVENT tme;
-		tme.cbSize = sizeof(tme);
+		INITWINAPISTRUCT(tme);
 		tme.dwFlags = TME_LEAVE;
 		tme.hwndTrack = MainHWND();
 		tme.dwHoverTime = HOVER_DEFAULT;        // Unused but triggers Dr. Memory if not initialized
@@ -2624,8 +2624,8 @@ void ScintillaWin::ScrollMessage(WPARAM wParam)
 {
 	//DWORD dwStart = timeGetTime();
 	//Platform::DebugPrintf("Scroll %x %d\n", wParam, lParam);
-	SCROLLINFO sci = {};
-	sci.cbSize = sizeof(sci);
+	SCROLLINFO sci;
+	INITWINAPISTRUCT(sci);
 	sci.fMask = SIF_ALL;
 	GetScrollInfo(SB_VERT, &sci);
 	//Platform::DebugPrintf("ScrollInfo %d mask=%x min=%d max=%d page=%d pos=%d track=%d\n", b,sci.fMask,
@@ -2676,7 +2676,7 @@ void ScintillaWin::HorizontalScrollMessage(WPARAM wParam)
 		    // Do NOT use wParam, its 16 bit and not enough for very long lines. Its still possible to overflow the 32 bit but you
 		    // have to try harder =]
 		    SCROLLINFO si;
-		    si.cbSize = sizeof(si);
+			INITWINAPISTRUCT(si);
 		    si.fMask = SIF_TRACKPOS;
 		    if(GetScrollInfo(SB_HORZ, &si)) {
 			    xPos = si.nTrackPos;
@@ -2951,36 +2951,25 @@ bool ScintillaWin::Register(HINSTANCE hInstance_)
 	// Register Scintilla as a wide character window
 	{
 		WNDCLASSEXW wndclass;
-		wndclass.cbSize = sizeof(wndclass);
+		INITWINAPISTRUCT(wndclass);
 		wndclass.style = CS_GLOBALCLASS | CS_HREDRAW | CS_VREDRAW;
 		wndclass.lpfnWndProc = ScintillaWin::SWndProc;
-		wndclass.cbClsExtra = 0;
 		wndclass.cbWndExtra = sizeof(ScintillaWin *);
 		wndclass.hInstance = hInstance;
-		wndclass.hIcon = NULL;
-		wndclass.hCursor = NULL;
-		wndclass.hbrBackground = NULL;
-		wndclass.lpszMenuName = NULL;
 		wndclass.lpszClassName = L"Scintilla";
-		wndclass.hIconSm = 0;
 		scintillaClassAtom = ::RegisterClassExW(&wndclass);
 	}
 	result = (0 != scintillaClassAtom);
 	if(result) {
 		// Register the CallTip class
 		WNDCLASSEX wndclassc;
-		wndclassc.cbSize = sizeof(wndclassc);
+		INITWINAPISTRUCT(wndclassc);
 		wndclassc.style = CS_GLOBALCLASS | CS_HREDRAW | CS_VREDRAW;
-		wndclassc.cbClsExtra = 0;
 		wndclassc.cbWndExtra = sizeof(ScintillaWin *);
 		wndclassc.hInstance = hInstance;
-		wndclassc.hIcon = NULL;
-		wndclassc.hbrBackground = NULL;
-		wndclassc.lpszMenuName = NULL;
 		wndclassc.lpfnWndProc = ScintillaWin::CTWndProc;
 		wndclassc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 		wndclassc.lpszClassName = callClassName;
-		wndclassc.hIconSm = 0;
 		callClassAtom = ::RegisterClassEx(&wndclassc);
 		result = (0 != callClassAtom);
 	}

@@ -191,7 +191,6 @@
     <ClInclude Include="..\osf\winflexbison\common\fstrcmp.h" />
     <ClInclude Include="..\osf\winflexbison\common\get-errno.h" />
     <ClInclude Include="..\osf\winflexbison\common\gethrxtime.h" />
-    <ClInclude Include="..\osf\winflexbison\common\getopt.h" />
     <ClInclude Include="..\osf\winflexbison\common\getopt_int.h" />
     <ClInclude Include="..\osf\winflexbison\common\gettext.h" />
     <ClInclude Include="..\osf\winflexbison\common\glthread\lock.h" />
@@ -289,8 +288,6 @@
     <ClCompile Include="..\osf\winflexbison\common\fstrcmp.c" />
     <ClCompile Include="..\osf\winflexbison\common\getdelim.c" />
     <ClCompile Include="..\osf\winflexbison\common\gethrxtime.c" />
-    <ClCompile Include="..\osf\winflexbison\common\getopt.c" />
-    <ClCompile Include="..\osf\winflexbison\common\getopt1.c" />
     <ClCompile Include="..\osf\winflexbison\common\glthread\lock.c" />
     <ClCompile Include="..\osf\winflexbison\common\glthread\threadlib.c" />
     <ClCompile Include="..\osf\winflexbison\common\glthread\tls.c" />

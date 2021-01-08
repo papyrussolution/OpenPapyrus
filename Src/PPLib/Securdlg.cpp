@@ -1,5 +1,5 @@
 // SECURDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Диалоги редактирования пользователей, групп, прав доступа.
 //
@@ -208,12 +208,17 @@ static int ValidateSecurData(TDialog * dlg, PPID objType, const void * pData)
 	PPID   temp_id = 0;
 	PPID   rec_id = reinterpret_cast<const PPSecur *>(pData)->ID;
 	SString name_buf(reinterpret_cast<const PPSecur *>(pData)->Name);
+	SString symb_buf(reinterpret_cast<const PPSecur *>(pData)->Symb); // @v10.9.12
 	if(!name_buf.NotEmptyS())
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_SECURNAMENEEDED);
 	else if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur *>(pData)->ParentID == 0)
 		ok = PPErrorByDialog(dlg, CTL_USR_GRP, PPERR_USRMUSTBELONGTOGRP);
 	else if(PPRef->SearchName(objType, &temp_id, name_buf) > 0 && rec_id != temp_id)
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_DUPOBJNAME);
+	else if(symb_buf.NotEmptyS() && PPRef->SearchSymb(objType, &temp_id, symb_buf, offsetof(PPSecur, Symb)) > 0 && rec_id != temp_id) { // @v10.9.12
+		PPSetObjError(PPERR_DUPSYMB, PPOBJ_USR, temp_id);
+		ok = PPErrorByDialog(dlg, CTL_USR_SYMB, -1);
+	}
 	else {
 		if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur *>(pData)->ExpiryDate) {
 			if(!checkdate(reinterpret_cast<const PPSecur *>(pData)->ExpiryDate)) {

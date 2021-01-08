@@ -229,9 +229,7 @@ void main(int argc, char ** argv)
 		RAPIINIT ri;
 		HRESULT h;
 		DWORD timeout = 0;
-
-		MEMSZERO(ri);
-		ri.cbSize = sizeof(ri);
+		INITWINAPISTRUCT(ri);
 		h = CeRapiInitEx(&ri);
 		if(FAILED(h)) {
 			printf((buf = "Не удалось инициализировать систему связи с КПК").ToOem());

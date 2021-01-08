@@ -437,21 +437,19 @@ static SECURITY_STATUS VerifyServerCertificate(PCCERT_CONTEXT pServerCert, HCERT
 		FAIL("Invalid parameter pServerCert passed to VerifyServerCertificate");
 	}
 	// @sobolev ZeroMemory(&ChainPara, sizeof(ChainPara));
-	MEMSZERO(ChainPara); // @sobolev
-	ChainPara.cbSize = sizeof(ChainPara);
+	INITWINAPISTRUCT(ChainPara);
 	ChainPara.RequestedUsage.dwType = USAGE_MATCH_TYPE_OR;
 	ChainPara.RequestedUsage.Usage.cUsageIdentifier = cUsages;
 	ChainPara.RequestedUsage.Usage.rgpszUsageIdentifier = rgszUsages;
 	if(hStore) {
-		CERT_CHAIN_ENGINE_CONFIG EngineConfig = { 0 };
-		EngineConfig.cbSize = sizeof(EngineConfig);
+		CERT_CHAIN_ENGINE_CONFIG EngineConfig;
+		INITWINAPISTRUCT(EngineConfig);
 		EngineConfig.hExclusiveRoot = hStore;
 		if(!CertCreateCertificateChainEngine(&EngineConfig, &hChainEngine)) {
 			FAIL("CertCreateCertificateChainEngine failed");
 		}
 	}
-	if(!CertGetCertificateChain(hChainEngine, pServerCert, NULL, pServerCert->hCertStore, &ChainPara,
-		    dwRevocationCheckFlags, NULL, &pChainContext)) {
+	if(!CertGetCertificateChain(hChainEngine, pServerCert, NULL, pServerCert->hCertStore, &ChainPara, dwRevocationCheckFlags, NULL, &pChainContext)) {
 		FAIL("CertGetCertificateChain failed");
 		goto cleanup;
 	}
@@ -462,11 +460,9 @@ static SECURITY_STATUS VerifyServerCertificate(PCCERT_CONTEXT pServerCert, HCERT
 	polExtra.dwAuthType = AUTHTYPE_SERVER;
 	polExtra.fdwChecks = dwVerifyFlags;
 	polExtra.pwszServerName = pwszServerName;
-	memzero(&PolicyPara, sizeof(PolicyPara));
-	PolicyPara.cbSize = sizeof(PolicyPara);
+	INITWINAPISTRUCT(PolicyPara);
 	PolicyPara.pvExtraPolicyPara = &polExtra;
-	memzero(&PolicyStatus, sizeof(PolicyStatus));
-	PolicyStatus.cbSize = sizeof(PolicyStatus);
+	INITWINAPISTRUCT(PolicyStatus);
 	if(!CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_SSL, pChainContext, &PolicyPara, &PolicyStatus)) {
 		FAIL("CertVerifyCertificateChainPolicy failed");
 	}
@@ -542,7 +538,6 @@ static SECURITY_STATUS load_private_key(CERT_CONTEXT* cert, char* private_key_st
 	BYTE* keyblob = NULL;
 	HCRYPTPROV hProv = 0;
 	HCRYPTKEY hKey = 0;
-	CERT_KEY_CONTEXT cert_key_context = { 0 };
 	PCRYPT_PRIVATE_KEY_INFO pki = NULL;
 	DWORD pki_len = 0;
 	SECURITY_STATUS status = SEC_E_OK;
@@ -577,31 +572,26 @@ static SECURITY_STATUS load_private_key(CERT_CONTEXT* cert, char* private_key_st
 			FAIL("Failed to parse private key");
 		}
 	}
-	else if(!CryptDecodeObjectEx(
-		    X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-		    PKCS_RSA_PRIVATE_KEY,
-		    derbuf, derlen,
-		    CRYPT_DECODE_ALLOC_FLAG, NULL,
-		    &keyblob, &keyblob_len)) {
+	else if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, PKCS_RSA_PRIVATE_KEY,
+		    derbuf, derlen, CRYPT_DECODE_ALLOC_FLAG, NULL, &keyblob, &keyblob_len)) {
 		FAIL("Failed to parse private key");
 	}
-
 	if(!CryptAcquireContext(&hProv, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
 		FAIL("CryptAcquireContext failed");
 	}
-
 	if(!CryptImportKey(hProv, keyblob, keyblob_len, 0, 0, (HCRYPTKEY*)&hKey)) {
 		FAIL("CryptImportKey failed");
 	}
-	cert_key_context.hCryptProv = hProv;
-	cert_key_context.dwKeySpec = AT_KEYEXCHANGE;
-	cert_key_context.cbSize = sizeof(cert_key_context);
-
-	/* assign private key to certificate context */
-	if(!CertSetCertificateContextProperty(cert, CERT_KEY_CONTEXT_PROP_ID, 0, &cert_key_context)) {
-		FAIL("CertSetCertificateContextProperty failed");
+	{
+		CERT_KEY_CONTEXT cert_key_context;
+		INITWINAPISTRUCT(cert_key_context);
+		cert_key_context.hCryptProv = hProv;
+		cert_key_context.dwKeySpec = AT_KEYEXCHANGE;
+		/* assign private key to certificate context */
+		if(!CertSetCertificateContextProperty(cert, CERT_KEY_CONTEXT_PROP_ID, 0, &cert_key_context)) {
+			FAIL("CertSetCertificateContextProperty failed");
+		}
 	}
-
 cleanup:
 	LocalFree(derbuf);
 	LocalFree(keyblob);
@@ -614,15 +604,11 @@ cleanup:
 	}
 	return status;
 }
-
 /*
    Given PEM strings for certificate and private key,
    create a client certificate*
  */
-static CERT_CONTEXT* create_client_certificate_mem(char* cert_file_content,
-    char* key_file_content,
-    char* errmsg,
-    size_t errmsg_len)
+static CERT_CONTEXT* create_client_certificate_mem(char* cert_file_content, char* key_file_content, char* errmsg, size_t errmsg_len)
 {
 	CERT_CONTEXT* ctx = NULL;
 	char* begin;
@@ -694,27 +680,22 @@ CERT_CONTEXT* schannel_create_cert_context(char* cert_file, char* key_file, char
 		if(!key_file_content)
 			goto cleanup;
 	}
-
 	ctx = create_client_certificate_mem(cert_file_content, key_file_content, errmsg, errmsg_len);
-
 cleanup:
 	LocalFree(cert_file_content);
 	if(cert_file != key_file)
 		LocalFree(key_file_content);
-
 	return ctx;
 }
-
 /*
    Free certificate, and all resources, created by schannel_create_cert_context()
  */
 void schannel_free_cert_context(const CERT_CONTEXT* cert)
 {
 	/* release provider handle which was acquires in load_private_key() */
-	CERT_KEY_CONTEXT cert_key_context = { 0 };
-	cert_key_context.cbSize = sizeof(cert_key_context);
+	CERT_KEY_CONTEXT cert_key_context;
+	INITWINAPISTRUCT(cert_key_context);
 	DWORD cbData = sizeof(CERT_KEY_CONTEXT);
-
 	if(CertGetCertificateContextProperty(cert, CERT_KEY_CONTEXT_PROP_ID, &cert_key_context, &cbData)) {
 		CryptReleaseContext(cert_key_context.hCryptProv, 0);
 	}

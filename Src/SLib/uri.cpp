@@ -1,8 +1,6 @@
+// URI.CPP
 // uriparser - RFC 3986 URI parsing library
-// 
-// Copyright(C) 2007, Weijia Song <songweijia@gmail.com>
-// Copyright(C) 2007, Sebastian Pipping <webmaster@hartwork.org>
-// All rights reserved.
+// Copyright(C) 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org> All rights reserved.
 // 
 #include <slib-internal.h>
 #pragma hdrstop
@@ -557,8 +555,6 @@ static char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLas
 		}
 	}
 }
-
-//char * UriEscape(const char * in, char * out, int spaceToPlus, int normalizeBreaks) { return UriEscapeEx(in, NULL, out, spaceToPlus, normalizeBreaks); }
 
 static int UriComposeQueryEngine(char * dest, const UriQueryList*queryList, int maxChars,
 	int * charsWritten, int * charsRequired, int spaceToPlus, int normalizeBreaks);

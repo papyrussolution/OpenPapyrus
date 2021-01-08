@@ -1,5 +1,5 @@
 // SCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -1126,8 +1126,8 @@ int SCardCore::RemoveOpAll(PPID cardID, int use_ta)
 			//
 			SCardOpTbl::Key0 k0;
 			k0.SCardID = cardID;
-			k0.Dt = MAXLONG;
-			k0.Tm = MAXLONG;
+			k0.Dt = MAXDATE;
+			k0.Tm = MAXTIME;
 			if(ScOp.search(0, &k0, spLast) && ScOp.data.SCardID == cardID) do {
 				LDATETIME dtm;
 				list.add(dtm.Set(ScOp.data.Dt, ScOp.data.Tm));

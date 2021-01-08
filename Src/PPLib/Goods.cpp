@@ -2072,7 +2072,7 @@ int GoodsCore::GetBarcodeByTemplate(PPID grpID, const PPGoodsConfig & rCfg, cons
 	BarcodeTemplateBlock btblk;
 	if(ParseBarcodeTemplate(grpID, rCfg, pTempl, &btblk)) {
 		SString temp_buf;
-		if(SVector::GetCount(pCurrentList) && Helper_SearchTemplatedBarcode(*pCurrentList, &btblk, temp_buf) > 0) {
+		if(SVectorBase::GetCount(pCurrentList) && Helper_SearchTemplatedBarcode(*pCurrentList, &btblk, temp_buf) > 0) {
 			rBuf = temp_buf;
 			ok = -1;
 		}

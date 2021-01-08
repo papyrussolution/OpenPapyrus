@@ -1,5 +1,5 @@
 // FUTIL.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -160,9 +160,9 @@ int FASTCALL IsDirectory(const char * pStr)
 			FindClose(h);
 		}
 		else {
-			SString temp_buf;
-			(temp_buf = pStr).Strip().SetLastSlash().CatChar('*');
-			h = FindFirstFile(SUcSwitch(temp_buf), &fd);
+			//SString temp_buf;
+			//(temp_buf = pStr).Strip().SetLastSlash().CatChar('*');
+			h = FindFirstFile(SUcSwitch(/*temp_buf*/SString(pStr).Strip().SetLastSlash().CatChar('*')), &fd);
 			if(h != INVALID_HANDLE_VALUE) {
 				yes = 1;
 				FindClose(h);

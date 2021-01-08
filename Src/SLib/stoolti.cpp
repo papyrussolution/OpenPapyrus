@@ -1,5 +1,5 @@
 // STOOLTI.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -35,28 +35,29 @@ void STooltip::Destroy()
 
 int STooltip::Add(const char * pText, const RECT * pRect, long id)
 {
-	TCHAR  tooltip[256];
-	memzero(tooltip, sizeof(tooltip));
-	strnzcpy(tooltip, SUcSwitch(pText), SIZEOFARRAY(tooltip));
-	TOOLINFO ti;
-	ti.cbSize      = sizeof(TOOLINFO);
-	ti.uFlags      = TTF_SUBCLASS;
-	ti.hwnd        = Parent;
-	ti.uId         = id;
-	ti.rect.top    = pRect->top;
-	ti.rect.left   = pRect->left;
-	ti.rect.bottom = pRect->bottom;
-	ti.rect.right  = pRect->right;
-	ti.hinst       = TProgram::GetInst();
-	ti.lpszText    = tooltip;
-	return BIN(::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)));
+	assert(pRect);
+	if(pRect) {
+		TCHAR  tooltip[256];
+		memzero(tooltip, sizeof(tooltip));
+		strnzcpy(tooltip, SUcSwitch(pText), SIZEOFARRAY(tooltip));
+		TOOLINFO ti;
+		INITWINAPISTRUCT(ti);
+		ti.uFlags   = TTF_SUBCLASS;
+		ti.hwnd     = Parent;
+		ti.uId      = id;
+		ti.rect     = *pRect;
+		ti.hinst    = TProgram::GetInst();
+		ti.lpszText = tooltip;
+		return BIN(::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)));
+	}
+	else
+		return 0;
 }
 
 int STooltip::Remove(long id)
 {
 	TOOLINFO ti;
-	MEMSZERO(ti);
-	ti.cbSize = sizeof(TOOLINFO);
+	INITWINAPISTRUCT(ti);
 	ti.uFlags = TTF_SUBCLASS;
 	ti.hwnd   = Parent;
 	ti.uId    = id;
@@ -517,11 +518,9 @@ int SMessageWindow::DoCommand(TPoint p)
 					p_win->PrevMouseCoord = pnt;
 					//
 					TRACKMOUSEEVENT tme;
-					MEMSZERO(tme);
-					tme.cbSize      = sizeof(tme);
+					INITWINAPISTRUCT(tme);
 					tme.dwFlags     = TME_LEAVE;
 					tme.hwndTrack   = hWnd;
-					tme.dwHoverTime = 0;
 					::_TrackMouseEvent(&tme);
 				}
 			}

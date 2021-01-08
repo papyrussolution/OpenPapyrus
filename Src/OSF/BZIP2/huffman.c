@@ -69,20 +69,16 @@ void BZ2_hbMakeCodeLengths(uchar * len, int32 * freq, int32 alphaSize, int32 max
 	while(true) {
 		nNodes = alphaSize;
 		nHeap = 0;
-
 		heap[0] = 0;
 		weight[0] = 0;
 		parent[0] = -2;
-
 		for(i = 1; i <= alphaSize; i++) {
 			parent[i] = -1;
 			nHeap++;
 			heap[nHeap] = i;
 			UPHEAP(nHeap);
 		}
-
 		AssertH(nHeap < (BZ_MAX_ALPHA_SIZE+2), 2001);
-
 		while(nHeap > 1) {
 			n1 = heap[1]; heap[1] = heap[nHeap]; nHeap--; DOWNHEAP(1);
 			n2 = heap[1]; heap[1] = heap[nHeap]; nHeap--; DOWNHEAP(1);
@@ -175,4 +171,3 @@ void BZ2_hbCreateDecodeTables(int32 * limit, int32 * base, int32 * perm, uchar *
 	for(i = minLen + 1; i <= maxLen; i++)
 		base[i] = ((limit[i-1] + 1) << 1) - base[i];
 }
-

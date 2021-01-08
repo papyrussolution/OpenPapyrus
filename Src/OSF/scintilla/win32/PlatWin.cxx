@@ -1834,11 +1834,10 @@ void Window::SetPosition(PRectangle rc)
 static RECT RectFromMonitor(HMONITOR hMonitor)
 {
 	if(GetMonitorInfoFn) {
-		MONITORINFO mi = {0};
-		mi.cbSize = sizeof(mi);
-		if(GetMonitorInfoFn(hMonitor, &mi)) {
+		MONITORINFO mi;
+		INITWINAPISTRUCT(mi);
+		if(GetMonitorInfoFn(hMonitor, &mi))
 			return mi.rcWork;
-		}
 	}
 	RECT rc = {0, 0, 0, 0};
 	if(::SystemParametersInfoA(SPI_GETWORKAREA, 0, &rc, 0) == 0) {
@@ -2916,21 +2915,16 @@ LRESULT PASCAL ListBoxX::StaticWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, 
 static bool ListBoxX_Register()
 {
 	WNDCLASSEX wndclassc;
-	wndclassc.cbSize = sizeof(wndclassc);
+	INITWINAPISTRUCT(wndclassc);
 	// We need CS_HREDRAW and CS_VREDRAW because of the ellipsis that might be drawn for
 	// truncated items in the list and the appearance/disappearance of the vertical scroll bar.
 	// The list repaint is double-buffered to avoid the flicker this would otherwise cause.
 	wndclassc.style = CS_GLOBALCLASS | CS_HREDRAW | CS_VREDRAW;
-	wndclassc.cbClsExtra = 0;
 	wndclassc.cbWndExtra = sizeof(ListBoxX *);
 	wndclassc.hInstance = hinstPlatformRes;
-	wndclassc.hIcon = NULL;
-	wndclassc.hbrBackground = NULL;
-	wndclassc.lpszMenuName = NULL;
 	wndclassc.lpfnWndProc = ListBoxX::StaticWndProc;
 	wndclassc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 	wndclassc.lpszClassName = ListBoxX_ClassName;
-	wndclassc.hIconSm = 0;
 	return ::RegisterClassEx(&wndclassc) != 0;
 }
 

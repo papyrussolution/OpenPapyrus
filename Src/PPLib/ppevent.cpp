@@ -756,7 +756,7 @@ int PPViewEvent::InitIteration()
 
 int FASTCALL PPViewEvent::NextIteration(EventViewItem * pItem)
 {
-	if(static_cast<ulong>(Counter) < SVector::GetCount(P_DsList)) {
+	if(static_cast<ulong>(Counter) < SVectorBase::GetCount(P_DsList)) {
 		if(pItem) {
 			const BrwItem * p_inner_item = static_cast<const BrwItem *>(P_DsList->at(static_cast<ulong>(Counter)));
 			*pItem = *p_inner_item;

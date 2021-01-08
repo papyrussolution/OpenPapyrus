@@ -26,11 +26,13 @@
 #ifndef _LIBPORT_
 #define _LIBPORT_
 
+/* @v10.9.12 include\getopt.h
 int getopt(int argc, char * const argv[], const char * optstring);
 extern char * optarg;
 extern int opterr;
 extern int optind;
 extern int optopt;
+*/
 
 int strcasecmp(const char * s1, const char * s2);
 

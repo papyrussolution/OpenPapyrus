@@ -950,7 +950,6 @@
     <ClCompile Include="..\OSF\tiff\libtiff\tif_write.c" />
     <ClCompile Include="..\OSF\tiff\libtiff\tif_zip.c" />
     <ClCompile Include="..\OSF\tiff\port\dummy.c" />
-    <ClCompile Include="..\OSF\tiff\port\getopt.c" />
     <ClCompile Include="..\OSF\tiff\port\snprintf.c" />
     <ClCompile Include="..\OSF\tiff\port\strtoull.c" />
   </ItemGroup>

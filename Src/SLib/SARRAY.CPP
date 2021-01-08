@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -55,7 +55,7 @@ int FASTCALL SVectorBase::CopyS(const SVectorBase & rS)
 static size_t FASTCALL CalcArrayDelta(uint itemSize)
 {
 	const uint min_delta = 8;
-	const uint align_bits = 8; // @v9.2.7 6-->8
+	const uint align_bits = 8;
     uint quant = Lcm(itemSize * min_delta, 1 << align_bits);
     assert((quant % itemSize) == 0);
     return quant / itemSize;
@@ -138,15 +138,6 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 
 int SVectorBase::Shrink()
 {
-	// @v9.1.1 const  uint _delta = delta;
-	/* @v9.8.4
-	const  uint _delta = CalcArrayDelta(isize); // @v9.1.1
-	uint   newlimit = ((count + (uint)(_delta - 1)) / (uint)_delta) * (uint)_delta;
-	if(newlimit < Limit) {
-		Limit = newlimit;
-		data  = (uint8 *)SAlloc::R(data, Limit * isize);
-	}
-	*/
 	// @v10.7.3 {
 	int    ok = -1;
 	if(count == 0) {

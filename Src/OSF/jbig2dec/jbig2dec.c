@@ -12,7 +12,6 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
@@ -82,33 +81,23 @@ static void * jbig2dec_alloc(Jbig2Allocator * allocator_, size_t size)
 {
 	jbig2dec_allocator_t * allocator = (jbig2dec_allocator_t*)allocator_;
 	void * ptr;
-
 	if(size == 0)
 		return NULL;
 	if(size > allocator->memory_limit - ALIGNMENT - allocator->memory_used)
 		return NULL;
-
 	ptr = malloc(size + ALIGNMENT);
 	if(ptr == NULL)
 		return NULL;
 	memcpy(ptr, &size, sizeof(size));
 	allocator->memory_used += size + ALIGNMENT;
-
 	if(allocator->memory_used > allocator->memory_peak) {
 		allocator->memory_peak = allocator->memory_used;
-
 		if(allocator->ctx) {
 			size_t limit_mb = allocator->memory_limit / MBYTE;
 			size_t peak_mb = allocator->memory_peak / MBYTE;
-			jbig2_error(allocator->ctx,
-			    JBIG2_SEVERITY_DEBUG,
-			    JBIG2_UNKNOWN_SEGMENT_NUMBER,
-			    "memory: limit: %lu Mbyte peak usage: %lu Mbyte",
-			    limit_mb,
-			    peak_mb);
+			jbig2_error(allocator->ctx, JBIG2_SEVERITY_DEBUG, JBIG2_UNKNOWN_SEGMENT_NUMBER, "memory: limit: %lu Mbyte peak usage: %lu Mbyte", limit_mb, peak_mb);
 		}
 	}
-
 	return (unsigned char*)ptr + ALIGNMENT;
 }
 
@@ -116,57 +105,45 @@ static void jbig2dec_free(Jbig2Allocator * allocator_, void * p)
 {
 	jbig2dec_allocator_t * allocator = (jbig2dec_allocator_t*)allocator_;
 	size_t size;
-
-	if(p == NULL)
-		return;
-
-	memcpy(&size, (unsigned char*)p - ALIGNMENT, sizeof(size));
-	allocator->memory_used -= size + ALIGNMENT;
-	free((unsigned char*)p - ALIGNMENT);
+	if(p) {
+		memcpy(&size, (unsigned char*)p - ALIGNMENT, sizeof(size));
+		allocator->memory_used -= size + ALIGNMENT;
+		free((unsigned char*)p - ALIGNMENT);
+	}
 }
 
 static void * jbig2dec_realloc(Jbig2Allocator * allocator_, void * p, size_t size)
 {
 	jbig2dec_allocator_t * allocator = (jbig2dec_allocator_t*)allocator_;
 	unsigned char * oldp = p ? (unsigned char*)p - ALIGNMENT : NULL;
-
 	if(size > SIZE_MAX - ALIGNMENT)
 		return NULL;
-
 	if(oldp == NULL) {
 		if(size == 0)
 			return NULL;
 		if(size > allocator->memory_limit - ALIGNMENT - allocator->memory_used)
 			return NULL;
-
 		p = malloc(size + ALIGNMENT);
 	}
 	else {
 		size_t oldsize;
 		memcpy(&oldsize, oldp, sizeof(oldsize));
-
 		if(size == 0) {
 			allocator->memory_used -= oldsize + ALIGNMENT;
 			free(oldp);
 			return NULL;
 		}
-
 		if(size > allocator->memory_limit - allocator->memory_used + oldsize)
 			return NULL;
-
 		p = realloc(oldp, size + ALIGNMENT);
 		if(p == NULL)
 			return NULL;
-
 		allocator->memory_used -= oldsize + ALIGNMENT;
 	}
-
 	memcpy(p, &size, sizeof(size));
 	allocator->memory_used += size + ALIGNMENT;
-
 	if(allocator->memory_used > allocator->memory_peak) {
 		allocator->memory_peak = allocator->memory_used;
-
 		if(allocator->ctx) {
 			size_t limit_mb = allocator->memory_limit / MBYTE;
 			size_t peak_mb = allocator->memory_peak / MBYTE;
@@ -199,7 +176,6 @@ static void hash_init(jbig2dec_params_t * params)
 static void hash_image(jbig2dec_params_t * params, Jbig2Image * image)
 {
 	unsigned int N = image->stride * image->height;
-
 	SHA1_Update(params->hash_ctx, image->data, N);
 }
 
@@ -208,7 +184,6 @@ static void hash_print(jbig2dec_params_t * params, FILE * out)
 	unsigned char md[SHA1_DIGEST_SIZE];
 	char digest[2 * SHA1_DIGEST_SIZE + 1];
 	int i;
-
 	SHA1_Final(params->hash_ctx, md);
 	for(i = 0; i < SHA1_DIGEST_SIZE; i++) {
 		snprintf(&(digest[2 * i]), 3, "%02x", md[i]);
@@ -548,18 +523,14 @@ int main(int argc, char ** argv)
 	params.output_format = jbig2dec_format_none;
 	params.embedded = 0;
 	params.memory_limit = 0;
-
 	filearg = parse_options(argc, argv, &params);
-
 	error_callback_state.verbose = params.verbose;
 	error_callback_state.severity = JBIG2_SEVERITY_DEBUG;
 	error_callback_state.type = NULL;
 	error_callback_state.last_message = NULL;
 	error_callback_state.repeats = 0;
-
 	if(params.hash)
 		hash_init(&params);
-
 	switch(params.mode) {
 		case usage:
 		    print_usage();

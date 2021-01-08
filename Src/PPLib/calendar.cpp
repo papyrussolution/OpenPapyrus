@@ -1,5 +1,5 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -338,8 +338,7 @@ int TDateCalendar::OnTodaySelection()
 				LPCTSTR p_classname = _T("PpyDateCalendar");
 				{
 					WNDCLASSEX wc;
-					MEMSZERO(wc);
-					wc.cbSize = sizeof(wc);
+					INITWINAPISTRUCT(wc);
 					wc.lpszClassName = p_classname;
 					wc.hInstance = TProgram::GetInst();
 					wc.lpfnWndProc = static_cast<WNDPROC>(CalendarWndProc);
@@ -651,8 +650,6 @@ void TDateCalendar::OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	if(PeriodSelect && wParam == MK_LBUTTON) {
 		TPoint pt;
 		pt.setwparam(lParam);
-		//const int x = LOWORD(lParam);
-		//const int y = HIWORD(lParam);
 		if((seltype == SEL_DAYS && IsDayBar(pt.x, pt.y)) ||
 			(oneof2(seltype, SEL_MONTHS, SEL_QUARTALS) && IsMonthBar(pt)) ||
 			(seltype == SEL_YEARS && IsYearBar(pt)))
@@ -664,8 +661,6 @@ void TDateCalendar::OnLButtonUp(HWND hWnd, LPARAM lParam)
 {
 	TPoint pt;
 	pt.setwparam(lParam);
-	//const int x = LOWORD(lParam);
-	//const int y = HIWORD(lParam);
 	if(IsMonthBar(pt) || IsYearBar(pt))
 		InvalidateRect(hWnd, NULL, false);
 }
@@ -1744,8 +1739,7 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 	LPCTSTR p_classname = _T("PpyPeriodCalendar");
 	{
 		WNDCLASSEX wc;
-		MEMSZERO(wc);
-		wc.cbSize = sizeof(wc);
+		INITWINAPISTRUCT(wc);
 		wc.lpszClassName = p_classname;
 		wc.hInstance = TProgram::GetInst();
 		wc.lpfnWndProc = static_cast<WNDPROC>(CalendarWndProc);

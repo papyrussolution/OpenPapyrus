@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1920,8 +1920,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 		//
 		const uint _cur_count = GetToolsCount();
 		TOOLINFOA ti;
-		MEMSZERO(ti);
-		ti.cbSize = sizeof(ti);
+		INITWINAPISTRUCT(ti);
 		ti.uFlags = TTF_SUBCLASS;
 		ti.hwnd = rItem.H;
 		ti.hinst = SLS.GetHInst();
@@ -1960,10 +1959,9 @@ int TToolTip::GetTool(uint idx, ToolItem & rItem)
 	if(H) {
 		STempBuffer text_buf(2048);
 		TOOLINFO ti;
-		MEMSZERO(ti);
-		ti.lpszText = static_cast<TCHAR *>(text_buf.vptr()); // @unicodeproblem
-		ti.cbSize = sizeof(TOOLINFO);
-		if(::SendMessage(H, TTM_ENUMTOOLS, idx, reinterpret_cast<LPARAM>(&ti))) { // @unicodeproblem
+		INITWINAPISTRUCT(ti);
+		ti.lpszText = static_cast<TCHAR *>(text_buf.vptr());
+		if(::SendMessage(H, TTM_ENUMTOOLS, idx, reinterpret_cast<LPARAM>(&ti))) {
 			rItem.Id = ti.uId;
 			rItem.H = ti.hwnd;
 			rItem.Param = ti.lParam;
@@ -1982,8 +1980,7 @@ int TToolTip::RemoveTool(uint idx)
 		ToolItem item;
 		/*if(GetTool(idx, item))*/ { // @v9.8.0 С WIN-функцией TTM_ENUMTOOLS что-то не так
 			TOOLINFO ti;
-			MEMSZERO(ti);
-			ti.cbSize = sizeof(TOOLINFO);
+			INITWINAPISTRUCT(ti);
 			ti.hwnd = item.H;
 			ti.uId = idx+1; //item.Id;
 			::SendMessage(H, TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&ti));

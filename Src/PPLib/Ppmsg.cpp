@@ -1,5 +1,5 @@
 // PPMSG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -77,12 +77,6 @@ int PPInitStrings(const char * pFileName)
 				_PPStrStore->GetDescription(PPSTR_TEXT, PPTXT_TESTSTRING, temp_buf);
 				assert(temp_buf == "description for teststring");
 			}
-			/* @v9.1.2 Перенесено в PPSession::Init
-			if(_done) {
-				SLS.SetLoadStringFunc(PPLoadStringFunc);
-				SLS.SetExpandStringFunc(PPExpandStringFunc); // @v9.0.11
-			}
-			*/
 		}
 	}
 	return BIN(_PPStrStore);
@@ -262,7 +256,7 @@ int FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID)
 		tla.LastErrObj.Id  = objID;
 		tla.LastErr = errCode;
 	}
-	return 0; // @v8.7.0 1-->0
+	return 0;
 }
 
 int FASTCALL PPCheckGetObjPacketID(PPID objType, PPID id)
@@ -315,7 +309,7 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 								; // @fallthrough : управление передается ветке {case PPERR_SLIB}
 							}
 							else {
-								group   = addcode = PPSTR_DBENGINE; // @v9.6.5 msgcode-->PPSTR_DBENGINE
+								group   = addcode = PPSTR_DBENGINE;
 								msgcode = _btr_err_code;
 								if(msgcode == BE_ORA_TEXT)
 									pAddInfo = DBS.GetAddedMsgString();
@@ -335,7 +329,7 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 								is_win_msg = 1;
 							else if(_sl_err_code == SLERR_SOCK_WINSOCK) {
 								is_win_msg = 2;
-								group = addcode = PPSTR_SLIBERR; // @v9.6.5 msgcode-->PPSTR_SLIBERR
+								group = addcode = PPSTR_SLIBERR;
 								msgcode = _sl_err_code;
 							}
 							else if(_sl_err_code == SLERR_CURL) {
@@ -344,7 +338,7 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 								msgcode = ce;
 							}
 							else {
-								group   = addcode = PPSTR_SLIBERR; // @v9.6.5 msgcode-->PPSTR_SLIBERR
+								group   = addcode = PPSTR_SLIBERR;
 								msgcode = _sl_err_code;
 							}
 						}
@@ -356,11 +350,11 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 						if(_db_err_code) {
 							group = addcode = msgcode;
 							if(_db_err_code == SDBERR_SLIB) {
-								group = PPSTR_SLIBERR; // @v9.6.5 PPERR_SLIB-->PPSTR_SLIBERR
+								group = PPSTR_SLIBERR;
 								msgcode = SLibError;
 							}
 							else if(_db_err_code == SDBERR_BTRIEVE) {
-								group = PPSTR_DBENGINE; // @v9.6.5 PPERR_DBENGINE-->PPSTR_DBENGINE
+								group = PPSTR_DBENGINE;
 								msgcode = BtrError;
 							}
 							else {
@@ -770,7 +764,7 @@ void FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 	PROFILE_END
 	if(hwndST) {
 		if(pMsg) {
-			if(Text.Cmp(pMsg, 0) != 0) {
+			if(Text != pMsg) {
 				(Text = pMsg).Transf(CTRANSF_INNER_TO_OUTER);
 				TView::SSetWindowText(hwndST, Text);
 			}

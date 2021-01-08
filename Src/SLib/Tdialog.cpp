@@ -1,6 +1,6 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -968,17 +968,14 @@ int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
 		RECT  ctrl_rect;
 		GetWindowRect(ctrl_wnd, &ctrl_rect);
 		TOOLINFO ti;
-		ti.cbSize = sizeof(TOOLINFO);
+		INITWINAPISTRUCT(ti);
 		ti.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
 		ti.hwnd   = ctrl_wnd;
 		ti.hinst  = TProgram::GetInst();
 		ti.uId    = reinterpret_cast<UINT_PTR>(ctrl_wnd);
-		ti.lpszText    = const_cast<TCHAR *>(SUcSwitch(pToolTipText)); // @unicodeproblem
-		ti.rect.left   = ctrl_rect.left;
-		ti.rect.top    = ctrl_rect.top;
-		ti.rect.right  = ctrl_rect.right;
-		ti.rect.bottom = ctrl_rect.bottom;
-		SendMessage(ToolTipsWnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)); // @unicodeproblem
+		ti.lpszText = const_cast<TCHAR *>(SUcSwitch(pToolTipText));
+		ti.rect     = ctrl_rect;
+		SendMessage(ToolTipsWnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti));
 		ok = 1;
 	}
 	return ok;

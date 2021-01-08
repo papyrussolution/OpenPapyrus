@@ -2771,7 +2771,7 @@ void ObjTranDialog::getSince()
 {
 	char   buf[64];
 	long   dt_val = 0;
-	buf[0] = 0;
+	PTR32(buf)[0] = 0;
 	getCtrlData(CTL_OBJTRANSM_DT, buf);
 	ParseBound(buf, &dt_val);
 	Data.Since_.d.v = (ulong)dt_val;

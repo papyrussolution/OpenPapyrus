@@ -18,29 +18,25 @@ nanotime_t nanotime()
 		static LARGE_INTEGER win_frequency;
 		QueryPerformanceFrequency(&win_frequency);
 		LARGE_INTEGER t;
-
-		if(!QueryPerformanceCounter(&t)) return 0;
+		if(!QueryPerformanceCounter(&t)) 
+			return 0;
 		value = (t.QuadPart / win_frequency.QuadPart) * 1000000000;
 		value += (t.QuadPart % win_frequency.QuadPart) * 1000000000 / win_frequency.QuadPart;
     #elif defined(__MACH__)
 		mach_timebase_info_data_t info;
-		kern_return_t r;
-		nanotime_t t;
-		t = mach_absolute_time();
-		r = mach_timebase_info(&info);
+		nanotime_t t = mach_absolute_time();
+		kern_return_t r = mach_timebase_info(&info);
 		if(r != 0) return 0;
 		value = (t / info.denom) * info.numer;
 		value += (t % info.denom) * info.numer / info.denom;
     #elif defined(__linux)
 		struct timespec ts;
-		int r;
-		r = clock_gettime(CLOCK_MONOTONIC, &ts);
+		int r = clock_gettime(CLOCK_MONOTONIC, &ts);
 		if(r != 0) return 0;
 		value = ts.tv_sec * (nanotime_t)1000000000 + ts.tv_nsec;
     #else
 		struct timeval tv;
-		int r;
-		r = gettimeofday(&tv, 0);
+		int r = gettimeofday(&tv, 0);
 		if(r != 0) return 0;
 		value = tv.tv_sec * (nanotime_t)1000000000 + tv.tv_usec * 1000;
     #endif
@@ -598,7 +594,6 @@ int64_t number_from_bin(const char * s, uint32 len)
 	}
 	return value;
 }
-
 /*
         if(!(condition)) { \
             fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n", __FILE__, __LINE__, __func__, message); \

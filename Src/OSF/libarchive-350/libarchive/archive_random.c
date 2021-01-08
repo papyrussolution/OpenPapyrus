@@ -155,7 +155,6 @@ static void arc4_stir(void);
 static inline void arc4_init(void)
 {
 	int n;
-
 	for(n = 0; n < 256; n++)
 		rs.s[n] = n;
 	rs.i = 0;

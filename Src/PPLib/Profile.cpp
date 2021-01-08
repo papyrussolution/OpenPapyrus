@@ -1,5 +1,5 @@
 // PROFILE.CPP
-// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -7,12 +7,7 @@
 //
 // Profile
 //
-/*
-	uint16 FuncId;
-	uint16 FuncVer;
-	uint16 FactorCount;
-	uint16 Flags;
-*/
+// uint16 FuncId; uint16 FuncVer; uint16 FactorCount; uint16 Flags;
 static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_LOGIN,             0, 0, 0, 0 },
 	{ PPUPRF_SESSION,           0, 0, 0, 0 },
@@ -62,9 +57,9 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_CALCARTDEBT,       0, 2, PPUserProfileFuncEntry::fAccumulate, 100 },
 	{ PPUPRF_VIEW_DEBT,         0, 1, 0, 0 },
 	{ PPUPRF_GETOPENEDLOTS,     0, 2, PPUserProfileFuncEntry::fAccumulate, 10000 },
-	{ PPUPRF_BHTPREPBILL,       0, 1, 0, 0 }, // @v9.4.11
-	{ PPUPRF_BHTPREPGOODS,      0, 1, 0, 0 }, // @v9.4.11
-	{ PPUPRF_OSMXMLPARSETAG,    0, 1, PPUserProfileFuncEntry::fAccumulate, 1000000 },  // @v9.5.8
+	{ PPUPRF_BHTPREPBILL,       0, 1, 0, 0 },
+	{ PPUPRF_BHTPREPGOODS,      0, 1, 0, 0 },
+	{ PPUPRF_OSMXMLPARSETAG,    0, 1, PPUserProfileFuncEntry::fAccumulate, 1000000 },
 	{ PPUPRF_BUILDGOODSFL,      0, 1, 0, 0 },  // @v10.1.4
 	{ PPUPRF_SRCHINGOODSFL,     0, 2, 0, 0 },  // @v10.1.4
 	{ PPUPRF_TIMSERWRITE,       0, 1, PPUserProfileFuncEntry::fAccumulate, 100 }, // @v10.3.3
@@ -75,9 +70,8 @@ static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int func
 {
 	for(uint i = 0; i < SIZEOFARRAY(PPUserProfileFuncTab); i++) {
 		const PPUserProfileFuncEntry & r_entry = PPUserProfileFuncTab[i];
-		if(static_cast<int>(r_entry.FuncId) == funcId) {
+		if(static_cast<int>(r_entry.FuncId) == funcId)
 			return &r_entry;
-		}
 	}
 	return 0;
 }
@@ -1214,15 +1208,76 @@ int PPUserProfileCore::AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl::Rec 
 	return ok;
 }
 
+int PPUserProfileCore::Helper_StoreFinishList(const UfpFileSet * pSet, const void * pFinishList, const UfpLine & rUfpLine)
+{
+	int    ok = 1;
+	const  TSVector <UserProfileLoadCacheFinishEntry> * p_finish_list = static_cast<const TSVector <UserProfileLoadCacheFinishEntry> *>(pFinishList);
+	if(SVectorBase::GetCount(p_finish_list)) {
+		SString msg_buf;
+		SString temp_buf;
+		BExtInsert bei(this);
+		{
+			PPLoadText(PPTXT_WAIT_UFPSTOREFINISH, msg_buf);
+			msg_buf.Space().Cat(pSet->DbSymb).Space().Cat(pSet->DbUuid.ToStr(S_GUID::fmtIDL, temp_buf));
+			const uint flc = p_finish_list->getCount();
+			for(uint j = 0; j < flc; j++) {
+				UserProfileLoadCacheFinishEntry & r_entry = p_finish_list->at(j);
+				UserFuncPrfTbl::Key0 k0;
+				k0.SessID = r_entry.SessID;
+				k0.SeqID = r_entry.SeqID;
+				if(search(0, &k0, spEq)) {
+					if(!(data.Flags & USRPROFF_FINISHED)) {
+						data.Flags |= USRPROFF_FINISHED;
+						data.Clock = r_entry.Clock;
+						data.Factor1 = r_entry.Factor1;
+						data.Factor2 = r_entry.Factor2;
+						data.Factor3 = r_entry.Factor3;
+						THROW_DB(updateRec());
+					}
+				}
+				else {
+					UserFuncPrfTbl::Rec rec;
+					rec.SessID = r_entry.SessID;
+					rec.SeqID = r_entry.SeqID;
+					rec.FuncID = r_entry.FuncID;
+					rec.Dt = r_entry.Dtm.d;
+					rec.Tm = r_entry.Dtm.t;
+					rec.Clock = r_entry.Clock;
+					rec.Flags = r_entry.Flags;
+					rec.Factor1 = r_entry.Factor1;
+					rec.Factor2 = r_entry.Factor2;
+					rec.Factor3 = r_entry.Factor3;
+					THROW_DB(bei.insert(&rec));
+				}
+				//
+				// Добавим средние значения //
+				//
+				THROW(AddAggrRecs(&bei, data, rUfpLine));
+				PPWaitPercent(j+1, flc, msg_buf);
+			}
+		}
+		THROW_DB(bei.flash());
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPUserProfileCore::Load(const char * pPath)
 {
+	const  char * p_dup_filename_div = "::";
 	int    ok = -1;
 	UfpLine ufp_line;
-	SString path, dbsymb, temp_buf, file_name, line_buf, msg_buf;
+	SString path;
+	SString dbsymb;
+	SString temp_buf;
+	SString file_name;
+	SString line_buf;
+	SString msg_buf;
 	TSCollection <UfpFileSet> file_set_list;
-	TSVector <UserProfileLoadCacheStartEntry> start_list; // @v9.8.6 TSArray-->TSVector
-	TSVector <UserProfileLoadCacheFinishEntry> finish_list; // @v9.8.6 TSArray-->TSVector
-	TSVector <UserProfileLoadCacheFinishEntry> average_list; // @v9.8.6 TSArray-->TSVector
+	TSVector <UserProfileLoadCacheStartEntry> start_list;
+	TSVector <UserProfileLoadCacheFinishEntry> finish_list;
+	TSVector <UserProfileLoadCacheFinishEntry> average_list;
+	StringSet unite_fileset_ss(p_dup_filename_div); 
 	if(!isempty(pPath)) {
 		path = pPath;
 	}
@@ -1241,13 +1296,25 @@ int PPUserProfileCore::Load(const char * pPath)
 				for(uint i = 0; i < file_set_list.getCount(); i++) {
 					UfpFileSet * p_set = file_set_list.at(i);
 					if(p_set && p_set->DbUuid == db_uuid) {
-						assert(fp == 0);
-						const int dup_fault = p_set->Set.Search(kind);
-						if(!dup_fault) {
-							p_set->Set.AddFast(kind, sde.FileName);
+						//if(p_set->DbSymb.IsEqNC(dbsymb)) { // @v10.9.12
+							assert(fp == 0);
+							uint   dup_pos = 0;
+							const int is_dup = p_set->Set.Search(kind, &dup_pos);
+							if(is_dup) {
+								temp_buf = p_set->Set.Get(dup_pos).Txt;
+								unite_fileset_ss.setBuf(temp_buf);
+								unite_fileset_ss.add(sde.FileName);
+								const int rr = p_set->Set.Remove(kind);
+								assert(rr > 0); // не может такого быть, чтоб элемента не было - мы только что его там видели!
+								p_set->Set.AddFast(kind, unite_fileset_ss.getBuf());
+								unite_fileset_ss.Z();
+							}
+							else {
+								p_set->Set.AddFast(kind, sde.FileName);
+							}
 							ok = 1;
-						}
-						fp = i+1;
+							fp = i+1;
+						//}
 					}
 				}
 				if(!fp) {
@@ -1261,12 +1328,8 @@ int PPUserProfileCore::Load(const char * pPath)
 			}
 		}
 	}
-	//
-	//
-	//
 	{
-		PPTransaction tra(1);
-		THROW(tra);
+		LongArray seen_set; // @v10.9.12
 		THROW(ReadState());
 		for(uint i = 0; i < file_set_list.getCount(); i++) {
 			long   line_count_sess = 0;
@@ -1275,10 +1338,9 @@ int PPUserProfileCore::Load(const char * pPath)
 			long   line_no = 0;
 			LDATETIME crtm;
 			StateItem sti;
-			//int64  foffs_sess = 0;
-			//int64  foffs_start = 0;
-			//int64  foffs_finish = 0;
 			const  UfpFileSet * p_set = file_set_list.at(i);
+			PPTransaction tra(1);
+			THROW(tra);
 			if(!StB.GetItem(p_set->DbUuid, sti)) {
 				sti.Z();
 				sti.DbID = p_set->DbUuid;
@@ -1289,178 +1351,161 @@ int PPUserProfileCore::Load(const char * pPath)
 			PPLoadText(PPTXT_WAIT_UFPLOADPREPROC, msg_buf);
 			PPWaitMsg(msg_buf.Space().Cat(p_set->DbSymb).Space().Cat(p_set->DbUuid.ToStr(S_GUID::fmtIDL, temp_buf)));
 			if(p_set->Set.GetText(Profile::fkSession, file_name)) {
-				(temp_buf = path).Cat(file_name);
-				SFile _f;
-				THROW_SL(SFile::GetTime(temp_buf, &crtm, 0, 0));
-				if(sti.SessCrDtm != crtm) {
-					sti.SessCrDtm = crtm;
-					sti.SessOffs = 0;
+				unite_fileset_ss.setBuf(file_name);
+				for(uint ssp = 0; unite_fileset_ss.get(&ssp, file_name);) {
+					(temp_buf = path).Cat(file_name);
+					SFile _f;
+					THROW_SL(SFile::GetTime(temp_buf, &crtm, 0, 0));
+					if(sti.SessCrDtm != crtm) {
+						sti.SessCrDtm = crtm;
+						sti.SessOffs = 0;
+					}
+					THROW(OpenInputFile(temp_buf, sti.SessOffs, _f));
+					while(_f.ReadLine(line_buf))
+						line_count_sess++;
 				}
-				THROW(OpenInputFile(temp_buf, sti.SessOffs, _f));
-				while(_f.ReadLine(line_buf))
-					line_count_sess++;
 			}
 			if(p_set->Set.GetText(Profile::fkFinish, file_name)) {
-				(temp_buf = path).Cat(file_name);
-				SFile _f;
-				THROW_SL(SFile::GetTime(temp_buf, &crtm, 0, 0));
-				if(sti.FinishCrDtm != crtm) {
-					sti.FinishCrDtm = crtm;
-					sti.FinishOffs = 0;
+				unite_fileset_ss.setBuf(file_name);
+				for(uint ssp = 0; unite_fileset_ss.get(&ssp, file_name);) {
+					(temp_buf = path).Cat(file_name);
+					SFile _f;
+					THROW_SL(SFile::GetTime(temp_buf, &crtm, 0, 0));
+					if(sti.FinishCrDtm != crtm) {
+						sti.FinishCrDtm = crtm;
+						sti.FinishOffs = 0;
+					}
+					THROW(OpenInputFile(temp_buf, sti.FinishOffs, _f));
+					while(_f.ReadLine(line_buf))
+						line_count_finish++;
 				}
-				THROW(OpenInputFile(temp_buf, sti.FinishOffs, _f));
-				while(_f.ReadLine(line_buf))
-					line_count_finish++;
 			}
 			if(p_set->Set.GetText(Profile::fkStart, file_name)) {
-				(temp_buf = path).Cat(file_name);
-				SFile _f;
-				THROW_SL(SFile::GetTime(temp_buf, &crtm, 0, 0));
-				if(sti.StartCrDtm != crtm) {
-					sti.StartCrDtm = crtm;
-					sti.StartOffs = 0;
+				unite_fileset_ss.setBuf(file_name);
+				for(uint ssp = 0; unite_fileset_ss.get(&ssp, file_name);) {
+					(temp_buf = path).Cat(file_name);
+					SFile _f;
+					THROW_SL(SFile::GetTime(temp_buf, &crtm, 0, 0));
+					if(sti.StartCrDtm != crtm) {
+						sti.StartCrDtm = crtm;
+						sti.StartOffs = 0;
+					}
+					THROW(OpenInputFile(temp_buf, sti.StartOffs, _f));
+					while(_f.ReadLine(line_buf))
+						line_count_start++;
 				}
-				THROW(OpenInputFile(temp_buf, sti.StartOffs, _f));
-				while(_f.ReadLine(line_buf))
-					line_count_start++;
 			}
 			{
 				IterCounter cntr;
 				cntr.Init(line_count_sess + line_count_start + line_count_finish);
 				PPLoadText(PPTXT_WAIT_UFPLOADINPUT, msg_buf);
 				msg_buf.Space().Cat(p_set->DbSymb).Space().Cat(p_set->DbUuid.ToStr(S_GUID::fmtIDL, temp_buf));
-
 				StringSet ss(";");
 				if(p_set->Set.GetText(Profile::fkSession, file_name)) {
-					SFile _f;
-					THROW(OpenInputFile((temp_buf = path).Cat(file_name), sti.SessOffs, _f));
-					for(line_no = 0; line_no < line_count_sess && _f.ReadLine(line_buf); line_no++) {
-						ss.setBuf(line_buf, line_buf.Len()+1);
-						if(ParseUfpLine(ss, temp_buf, Profile::fkSession, ufp_line)) {
-							long   sess_id = 0;
-							THROW(SetupSessItem(&sess_id, ufp_line));
+					unite_fileset_ss.setBuf(file_name);
+					for(uint ssp = 0; unite_fileset_ss.get(&ssp, file_name);) {
+						SFile _f;
+						THROW(OpenInputFile((temp_buf = path).Cat(file_name), sti.SessOffs, _f));
+						for(line_no = 0; line_no < line_count_sess && _f.ReadLine(line_buf); line_no++) {
+							ss.setBuf(line_buf, line_buf.Len()+1);
+							if(ParseUfpLine(ss, temp_buf, Profile::fkSession, ufp_line)) {
+								long   sess_id = 0;
+								THROW(SetupSessItem(&sess_id, ufp_line));
+							}
+							PPWaitPercent(cntr.Increment(), msg_buf);
 						}
-						PPWaitPercent(cntr.Increment(), msg_buf);
+						sti.SessOffs = _f.Tell64();
 					}
-					sti.SessOffs = _f.Tell64();
 				}
 				{
 					start_list.clear();
 					finish_list.clear();
 					if(p_set->Set.GetText(Profile::fkStart, file_name)) {
-						S_GUID db_uuid;
-						int    kind = ParseUfpFileName(file_name, db_uuid, dbsymb);
-						assert(kind == Profile::fkStart);
-
-						SFile _f;
-						THROW(OpenInputFile((temp_buf = path).Cat(file_name), sti.StartOffs, _f));
-						for(line_no = 0; line_no < line_count_start && _f.ReadLine(line_buf); line_no++) {
-							ss.setBuf(line_buf, line_buf.Len()+1);
-							if(ParseUfpLine(ss, temp_buf, Profile::fkStart, ufp_line)) {
-								ufp_line.DbUuid = db_uuid;
-								ufp_line.DbSymb = dbsymb;
-								UserProfileLoadCacheStartEntry entry;
-								MEMSZERO(entry);
-								THROW(SetupSessItem(&entry.SessID, ufp_line));
-								entry.SeqID = ufp_line.Seq;
-								entry.FuncID = ufp_line.FuncId;
-								entry.Dtm = ufp_line.Start;
-								THROW_SL(start_list.insert(&entry));
+						unite_fileset_ss.setBuf(file_name);
+						for(uint ssp = 0; unite_fileset_ss.get(&ssp, file_name);) {
+							S_GUID db_uuid;
+							int    kind = ParseUfpFileName(file_name, db_uuid, dbsymb);
+							assert(kind == Profile::fkStart);
+							SFile _f;
+							THROW(OpenInputFile((temp_buf = path).Cat(file_name), sti.StartOffs, _f));
+							for(line_no = 0; line_no < line_count_start && _f.ReadLine(line_buf); line_no++) {
+								ss.setBuf(line_buf, line_buf.Len()+1);
+								if(ParseUfpLine(ss, temp_buf, Profile::fkStart, ufp_line)) {
+									ufp_line.DbUuid = db_uuid;
+									ufp_line.DbSymb = dbsymb;
+									UserProfileLoadCacheStartEntry entry;
+									MEMSZERO(entry);
+									THROW(SetupSessItem(&entry.SessID, ufp_line));
+									entry.SeqID = ufp_line.Seq;
+									entry.FuncID = ufp_line.FuncId;
+									entry.Dtm = ufp_line.Start;
+									THROW_SL(start_list.insert(&entry));
+								}
+								PPWaitPercent(cntr.Increment(), msg_buf);
 							}
-							PPWaitPercent(cntr.Increment(), msg_buf);
+							sti.StartOffs = _f.Tell64();
 						}
-						sti.StartOffs = _f.Tell64();
 						start_list.sort(PTR_CMPFUNC(UserProfileLoadCacheEntry));
 					}
 					if(p_set->Set.GetText(Profile::fkFinish, file_name)) {
-						S_GUID db_uuid;
-						int    kind = ParseUfpFileName(file_name, db_uuid, dbsymb);
-						assert(kind == Profile::fkFinish);
+						unite_fileset_ss.setBuf(file_name);
+						for(uint ssp = 0; unite_fileset_ss.get(&ssp, file_name);) {
+							S_GUID db_uuid;
+							int    kind = ParseUfpFileName(file_name, db_uuid, dbsymb);
+							assert(kind == Profile::fkFinish);
 
-						SFile _f;
-						THROW(OpenInputFile((temp_buf = path).Cat(file_name), sti.FinishOffs, _f));
-						for(line_no = 0; line_no < line_count_finish && _f.ReadLine(line_buf); line_no++) {
-							ss.setBuf(line_buf, line_buf.Len()+1);
-							if(ParseUfpLine(ss, temp_buf, Profile::fkFinish, ufp_line)) {
-								ufp_line.DbUuid = db_uuid;
-								ufp_line.DbSymb = dbsymb;
-								uint   spos = 0;
-								UserProfileLoadCacheFinishEntry entry;
-								MEMSZERO(entry);
-								THROW(SetupSessItem(&entry.SessID, ufp_line));
-								entry.SeqID = ufp_line.Seq;
-								entry.FuncID = ufp_line.FuncId;
-								entry.Dtm = ufp_line.Start;
-								entry.Clock = ufp_line.Clock;
-								entry.Factor1 = ufp_line.Factors[0];
-								entry.Factor2 = ufp_line.Factors[1];
-								entry.Factor3 = ufp_line.Factors[2];
-								if(start_list.bsearch(&entry, &spos, PTR_CMPFUNC(UserProfileLoadCacheEntry))) {
-									UserProfileLoadCacheStartEntry & r_start_entry = start_list.at(spos);
-									if(r_start_entry.FuncID == entry.FuncID) {
-										entry.Dtm = r_start_entry.Dtm;
-										r_start_entry.Flags |= USRPROFF_FINISHED;
+							SFile _f;
+							THROW(OpenInputFile((temp_buf = path).Cat(file_name), sti.FinishOffs, _f));
+							for(line_no = 0; line_no < line_count_finish && _f.ReadLine(line_buf); line_no++) {
+								ss.setBuf(line_buf, line_buf.Len()+1);
+								if(ParseUfpLine(ss, temp_buf, Profile::fkFinish, ufp_line)) {
+									ufp_line.DbUuid = db_uuid;
+									ufp_line.DbSymb = dbsymb;
+									uint   spos = 0;
+									UserProfileLoadCacheFinishEntry entry;
+									MEMSZERO(entry);
+									THROW(SetupSessItem(&entry.SessID, ufp_line));
+									entry.SeqID = ufp_line.Seq;
+									entry.FuncID = ufp_line.FuncId;
+									entry.Dtm = ufp_line.Start;
+									entry.Clock = ufp_line.Clock;
+									entry.Factor1 = ufp_line.Factors[0];
+									entry.Factor2 = ufp_line.Factors[1];
+									entry.Factor3 = ufp_line.Factors[2];
+									if(start_list.bsearch(&entry, &spos, PTR_CMPFUNC(UserProfileLoadCacheEntry))) {
+										UserProfileLoadCacheStartEntry & r_start_entry = start_list.at(spos);
+										if(r_start_entry.FuncID == entry.FuncID) {
+											entry.Dtm = r_start_entry.Dtm;
+											r_start_entry.Flags |= USRPROFF_FINISHED;
+											entry.Flags = USRPROFF_FINISHED;
+											THROW_SL(finish_list.insert(&entry));
+										}
+									}
+									else {
+										//
+										// Соответствующая START-запись могла быть занесена ранее
+										// (в одном из предыдущих сеансов обновления данных)
+										//
 										entry.Flags = USRPROFF_FINISHED;
 										THROW_SL(finish_list.insert(&entry));
 									}
 								}
-								else {
-									//
-									// Соответствующая START-запись могла быть занесена ранее
-									// (в одном из предыдущих сеансов обновления данных)
-									//
-									entry.Flags = USRPROFF_FINISHED;
-									THROW_SL(finish_list.insert(&entry));
+								PPWaitPercent(cntr.Increment(), msg_buf);
+								// @v10.9.12 {
+								if(finish_list.getCount() >= 1000000) {
+									THROW(Helper_StoreFinishList(p_set, &finish_list, ufp_line));
+									finish_list.clear();
 								}
+								// } @v10.9.12 
 							}
-							PPWaitPercent(cntr.Increment(), msg_buf);
+							sti.FinishOffs = _f.Tell64();
 						}
-						sti.FinishOffs = _f.Tell64();
 					}
 					{
-						BExtInsert bei(this);
+						THROW(Helper_StoreFinishList(p_set, &finish_list, ufp_line));
+						finish_list.clear();
 						{
-							PPLoadText(PPTXT_WAIT_UFPSTOREFINISH, msg_buf);
-							msg_buf.Space().Cat(p_set->DbSymb).Space().Cat(p_set->DbUuid.ToStr(S_GUID::fmtIDL, temp_buf));
-							const uint flc = finish_list.getCount();
-							for(uint j = 0; j < flc; j++) {
-								UserProfileLoadCacheFinishEntry & r_entry = finish_list.at(j);
-								UserFuncPrfTbl::Key0 k0;
-								k0.SessID = r_entry.SessID;
-								k0.SeqID = r_entry.SeqID;
-								if(search(0, &k0, spEq)) {
-									if(!(data.Flags & USRPROFF_FINISHED)) {
-										data.Flags |= USRPROFF_FINISHED;
-										data.Clock = r_entry.Clock;
-										data.Factor1 = r_entry.Factor1;
-										data.Factor2 = r_entry.Factor2;
-										data.Factor3 = r_entry.Factor3;
-										THROW_DB(updateRec());
-									}
-								}
-								else {
-									UserFuncPrfTbl::Rec rec;
-									// @v10.6.10 @ctr MEMSZERO(rec);
-									rec.SessID = r_entry.SessID;
-									rec.SeqID = r_entry.SeqID;
-									rec.FuncID = r_entry.FuncID;
-									rec.Dt = r_entry.Dtm.d;
-									rec.Tm = r_entry.Dtm.t;
-									rec.Clock = r_entry.Clock;
-									rec.Flags = r_entry.Flags;
-									rec.Factor1 = r_entry.Factor1;
-									rec.Factor2 = r_entry.Factor2;
-									rec.Factor3 = r_entry.Factor3;
-									THROW_DB(bei.insert(&rec));
-								}
-								//
-								// Добавим средние значения //
-								//
-								THROW(AddAggrRecs(&bei, data, ufp_line));
-								PPWaitPercent(j+1, flc, msg_buf);
-							}
-						}
-						{
+							BExtInsert bei(this);
 							PPLoadText(PPTXT_WAIT_UFPSTOREUFSTART, msg_buf);
 							msg_buf.Space().Cat(p_set->DbSymb).Space().Cat(p_set->DbUuid.ToStr(S_GUID::fmtIDL, temp_buf));
 							const uint slc = start_list.getCount();
@@ -1486,15 +1531,15 @@ int PPUserProfileCore::Load(const char * pPath)
 								}
 								PPWaitPercent(j+1, slc, msg_buf);
 							}
+							THROW_DB(bei.flash());
 						}
-						THROW_DB(bei.flash());
 					}
 				}
 			}
 			THROW(StB.SetItem(sti));
+			THROW(tra.Commit());
 		}
-		THROW(WriteState(0));
-		THROW(tra.Commit());
+		THROW(WriteState(1/*use_ta*/));
 	}
 	CATCHZOK
 	return ok;

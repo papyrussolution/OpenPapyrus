@@ -1,5 +1,5 @@
 // OBJBILL.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -5065,14 +5065,14 @@ private:
 						FLDZERO(TrType);
 						FLDZERO(PortOfLoading);
 						FLDZERO(PortOfDischarge);
-						FLDZERO(IssueDate);
-						FLDZERO(ArrivalDate);
 						FLDZERO(CaptainID);
 						FLDZERO(Cost);
 						FLDZERO(AgentID);
 						FLDZERO(ShipID);
 						FLDZERO(StorageLocID);
 						#undef FLDZERO
+						p_cache_rec->IssueDate.Z();
+						p_cache_rec->ArrivalDate.Z();
 						ok = -100;
 					}
 				}
@@ -7410,7 +7410,7 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		THROW(FinishTFrame(pPack->Rec.ID, tb_));
 		{
 			TSVector <PPCheckInPersonItem> * p_cip_list = pPack->CipB.P_CipList;
-			const uint _c = SVector::GetCount(p_cip_list);
+			const uint _c = SVectorBase::GetCount(p_cip_list);
 			if(_c && pPack->CipB.P_TSesObj) {
 				PPIDArray tses_list;
 				const PPID cip_person_id = ObjectToPerson(pPack->Rec.Object);

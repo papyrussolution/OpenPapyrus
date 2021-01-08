@@ -52,9 +52,9 @@ typedef void (* free_func)(void*, void*);
 // @sobolev static void * ft_bzip2_alloc(FT_Memory memory, int items, int size)
 static void * ft_bzip2_alloc(FT_Memory memory, size_t items, size_t size) // @sobolev 
 {
-	FT_ULong sz = (FT_ULong)size * (FT_ULong)items;
+	const FT_ULong sz = (FT_ULong)size * (FT_ULong)items;
 	FT_Error error;
-	FT_Pointer p  = NULL;
+	FT_Pointer p = NULL;
 	(void)FT_ALLOC(p, sz);
 	return p;
 }

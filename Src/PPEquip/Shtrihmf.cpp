@@ -1,5 +1,5 @@
 // SHTRIHMF.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Штрих-М-ФР-К"
 //
@@ -644,8 +644,7 @@ int ACS_SHTRIHMFRK::ImportFiles()
 					dtm.SetFar();
 					SString firstf_path;
 					SDirEntry sde;
-					dtm.d = MAXLONG;
-					dtm.t = MAXLONG;
+					dtm.SetMax();
 					(temp_path = temp_dir.SetLastSlash()).Cat(p_prefix).Cat("?????.txt");
 					for(SDirec sd(temp_path); sd.Next(&sde) > 0;) {
 						if(dtm.IsFar() || cmp(sde.WriteTime, dtm) < 0) {

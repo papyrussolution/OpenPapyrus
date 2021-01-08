@@ -7,8 +7,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\jbig2dec\getopt.c" />
-    <ClCompile Include="..\OSF\jbig2dec\getopt1.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2_arith.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2_arith_iaid.c" />
@@ -35,9 +33,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\jbig2dec\config_win32.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\jbig2dec\getopt.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\jbig2dec\jbig2.h">

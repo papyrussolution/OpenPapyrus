@@ -1,7 +1,6 @@
 // URI.H
-// Copyright (C) 2007, Weijia Song <songweijia@gmail.com>
-// Copyright (C) 2007, Sebastian Pipping <webmaster@hartwork.org>
-// All rights reserved.
+// Copyright (C) 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org> All rights reserved.
+// Adopted to SLIB by A.Sobolev 2011-2021
 //
 #include <slib.h>
 //
@@ -11,31 +10,23 @@
 //
 // Version 
 //
-#define URI_VER_MAJOR           0
-#define URI_VER_MINOR           7
-#define URI_VER_RELEASE         6
-#define URI_VER_SUFFIX_ANSI     ""
-#define URI_VER_SUFFIX_UNICODE  URI_ANSI_TO_UNICODE(URI_VER_SUFFIX_ANSI)
+// @v10.9.12 #define URI_VER_MAJOR           0
+// @v10.9.12 #define URI_VER_MINOR           7
+// @v10.9.12 #define URI_VER_RELEASE         6
+// @v10.9.12 #define URI_VER_SUFFIX_ANSI     ""
+// @v10.9.12 #define URI_VER_SUFFIX_UNICODE  URI_ANSI_TO_UNICODE(URI_VER_SUFFIX_ANSI)
 //
 // More version helper macros 
 //
-#define URI_INT_TO_ANSI_HELPER(x) # x
-#define URI_INT_TO_ANSI(x) URI_INT_TO_ANSI_HELPER(x)
-
-#define URI_INT_TO_UNICODE_HELPER(x) URI_ANSI_TO_UNICODE(# x)
-#define URI_INT_TO_UNICODE(x) URI_INT_TO_UNICODE_HELPER(x)
-#define URI_VER_ANSI_HELPER(ma, mi, r, s)    URI_INT_TO_ANSI(ma) "." URI_INT_TO_ANSI(mi) "." URI_INT_TO_ANSI(r) s
-#define URI_VER_UNICODE_HELPER(ma, mi, r, s) URI_INT_TO_UNICODE(ma) L"." URI_INT_TO_UNICODE(mi) L"." URI_INT_TO_UNICODE(r) s
+// @v10.9.12 #define URI_INT_TO_ANSI_HELPER(x) # x
+// @v10.9.12 #define URI_INT_TO_ANSI(x) URI_INT_TO_ANSI_HELPER(x)
+// @v10.9.12 #define URI_INT_TO_UNICODE_HELPER(x) URI_ANSI_TO_UNICODE(# x)
+// @v10.9.12 #define URI_INT_TO_UNICODE(x) URI_INT_TO_UNICODE_HELPER(x)
+// @v10.9.12 #define URI_VER_ANSI_HELPER(ma, mi, r, s)    URI_INT_TO_ANSI(ma) "." URI_INT_TO_ANSI(mi) "." URI_INT_TO_ANSI(r) s
+// @v10.9.12 #define URI_VER_UNICODE_HELPER(ma, mi, r, s) URI_INT_TO_UNICODE(ma) L"." URI_INT_TO_UNICODE(mi) L"." URI_INT_TO_UNICODE(r) s
 // Full version strings 
-#define URI_VER_ANSI     URI_VER_ANSI_HELPER(URI_VER_MAJOR, URI_VER_MINOR, URI_VER_RELEASE, URI_VER_SUFFIX_ANSI)
-#define URI_VER_UNICODE  URI_VER_UNICODE_HELPER(URI_VER_MAJOR, URI_VER_MINOR, URI_VER_RELEASE, URI_VER_SUFFIX_UNICODE)
-
-// Unused parameter macro 
-#ifdef __GNUC__
-	#define URI_UNUSED(x) unused_ ## x __attribute__((unused))
-#else
-	#define URI_UNUSED(x) x
-#endif
+// @v10.9.12 #define URI_VER_ANSI     URI_VER_ANSI_HELPER(URI_VER_MAJOR, URI_VER_MINOR, URI_VER_RELEASE, URI_VER_SUFFIX_ANSI)
+// @v10.9.12 #define URI_VER_UNICODE  URI_VER_UNICODE_HELPER(URI_VER_MAJOR, URI_VER_MINOR, URI_VER_RELEASE, URI_VER_SUFFIX_UNICODE)
 #if 0 // {
 // Shared errors 
 #define URI_SUCCESS                        0
@@ -177,11 +168,7 @@ struct UriQueryList {
 	UriQueryList * next; /**< Pointer to the next key/value pair in the list, can be NULL if last already */
 };
 
-//int UriParseUriEx(UriParserState * state, const char * pFirst, const char * afterLast);
 int    UriParseUri(UriParserState * state, const char * text);
-//void UriFreeUriMembers(UriUri*uri);
-//char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks);
-//char * UriEscape(const char * in, char * out, int spaceToPlus, int normalizeBreaks);
 //const  char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion);
 //const  char * UriUnescapeInPlace(char * inout);
 //int    UriAddBaseUri(UriUri * absoluteDest, const UriUri * relativeSource, const UriUri*absoluteBase);

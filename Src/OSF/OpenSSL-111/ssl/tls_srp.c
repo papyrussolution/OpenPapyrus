@@ -65,17 +65,12 @@ int SSL_SRP_CTX_init(struct ssl_st * s)
 	memzero(&s->srp_ctx, sizeof(s->srp_ctx));
 	s->srp_ctx.SRP_cb_arg = ctx->srp_ctx.SRP_cb_arg;
 	/* set client Hello login callback */
-	s->srp_ctx.TLS_ext_srp_username_callback =
-	    ctx->srp_ctx.TLS_ext_srp_username_callback;
+	s->srp_ctx.TLS_ext_srp_username_callback = ctx->srp_ctx.TLS_ext_srp_username_callback;
 	/* set SRP N/g param callback for verification */
-	s->srp_ctx.SRP_verify_param_callback =
-	    ctx->srp_ctx.SRP_verify_param_callback;
+	s->srp_ctx.SRP_verify_param_callback = ctx->srp_ctx.SRP_verify_param_callback;
 	/* set SRP client passwd callback */
-	s->srp_ctx.SRP_give_srp_client_pwd_callback =
-	    ctx->srp_ctx.SRP_give_srp_client_pwd_callback;
-
+	s->srp_ctx.SRP_give_srp_client_pwd_callback = ctx->srp_ctx.SRP_give_srp_client_pwd_callback;
 	s->srp_ctx.strength = ctx->srp_ctx.strength;
-
 	if(((ctx->srp_ctx.N != NULL) &&
 	    ((s->srp_ctx.N = BN_dup(ctx->srp_ctx.N)) == NULL)) ||
 	    ((ctx->srp_ctx.g != NULL) &&
@@ -95,13 +90,11 @@ int SSL_SRP_CTX_init(struct ssl_st * s)
 		SSLerr(SSL_F_SSL_SRP_CTX_INIT, ERR_R_BN_LIB);
 		goto err;
 	}
-	if((ctx->srp_ctx.login != NULL) &&
-	    ((s->srp_ctx.login = OPENSSL_strdup(ctx->srp_ctx.login)) == NULL)) {
+	if((ctx->srp_ctx.login != NULL) && ((s->srp_ctx.login = OPENSSL_strdup(ctx->srp_ctx.login)) == NULL)) {
 		SSLerr(SSL_F_SSL_SRP_CTX_INIT, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-	if((ctx->srp_ctx.info != NULL) &&
-	    ((s->srp_ctx.info = BUF_strdup(ctx->srp_ctx.info)) == NULL)) {
+	if((ctx->srp_ctx.info != NULL) && ((s->srp_ctx.info = BUF_strdup(ctx->srp_ctx.info)) == NULL)) {
 		SSLerr(SSL_F_SSL_SRP_CTX_INIT, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
@@ -137,40 +130,24 @@ int SSL_srp_server_param_with_username(SSL * s, int * ad)
 {
 	uchar b[SSL_MAX_MASTER_KEY_LENGTH];
 	int al;
-
 	*ad = SSL_AD_UNKNOWN_PSK_IDENTITY;
 	if((s->srp_ctx.TLS_ext_srp_username_callback != NULL) &&
-	    ((al =
-	    s->srp_ctx.TLS_ext_srp_username_callback(s, ad,
-	    s->srp_ctx.SRP_cb_arg)) !=
-	    SSL_ERROR_NONE))
+	    ((al = s->srp_ctx.TLS_ext_srp_username_callback(s, ad, s->srp_ctx.SRP_cb_arg)) != SSL_ERROR_NONE))
 		return al;
-
 	*ad = SSL_AD_INTERNAL_ERROR;
-	if((s->srp_ctx.N == NULL) ||
-	    (s->srp_ctx.g == NULL) ||
-	    (s->srp_ctx.s == NULL) || (s->srp_ctx.v == NULL))
+	if((s->srp_ctx.N == NULL) || (s->srp_ctx.g == NULL) || (s->srp_ctx.s == NULL) || (s->srp_ctx.v == NULL))
 		return SSL3_AL_FATAL;
-
 	if(RAND_priv_bytes(b, sizeof(b)) <= 0)
 		return SSL3_AL_FATAL;
 	s->srp_ctx.b = BN_bin2bn(b, sizeof(b), NULL);
 	OPENSSL_cleanse(b, sizeof(b));
-
 	/* Calculate:  B = (kv + g^b) % N  */
-
-	return ((s->srp_ctx.B =
-	       SRP_Calc_B(s->srp_ctx.b, s->srp_ctx.N, s->srp_ctx.g,
-	       s->srp_ctx.v)) !=
-	       NULL) ? SSL_ERROR_NONE : SSL3_AL_FATAL;
+	return ((s->srp_ctx.B = SRP_Calc_B(s->srp_ctx.b, s->srp_ctx.N, s->srp_ctx.g, s->srp_ctx.v)) != NULL) ? SSL_ERROR_NONE : SSL3_AL_FATAL;
 }
-
 /*
- * If the server just has the raw password, make up a verifier entry on the
- * fly
+ * If the server just has the raw password, make up a verifier entry on the fly
  */
-int SSL_set_srp_server_param_pw(SSL * s, const char * user, const char * pass,
-    const char * grp)
+int SSL_set_srp_server_param_pw(SSL * s, const char * user, const char * pass, const char * grp)
 {
 	SRP_gN * GN = SRP_get_default_gN(grp);
 	if(GN == NULL)
@@ -181,15 +158,12 @@ int SSL_set_srp_server_param_pw(SSL * s, const char * user, const char * pass,
 	s->srp_ctx.v = NULL;
 	BN_clear_free(s->srp_ctx.s);
 	s->srp_ctx.s = NULL;
-	if(!SRP_create_verifier_BN
-		    (user, pass, &s->srp_ctx.s, &s->srp_ctx.v, GN->N, GN->g))
+	if(!SRP_create_verifier_BN(user, pass, &s->srp_ctx.s, &s->srp_ctx.v, GN->N, GN->g))
 		return -1;
-
 	return 1;
 }
 
-int SSL_set_srp_server_param(SSL * s, const BIGNUM * N, const BIGNUM * g,
-    BIGNUM * sa, BIGNUM * v, char * info)
+int SSL_set_srp_server_param(SSL * s, const BIGNUM * N, const BIGNUM * g, BIGNUM * sa, BIGNUM * v, char * info)
 {
 	if(N != NULL) {
 		if(s->srp_ctx.N != NULL) {
@@ -241,7 +215,6 @@ int SSL_set_srp_server_param(SSL * s, const BIGNUM * N, const BIGNUM * g,
 	if(!(s->srp_ctx.N) ||
 	    !(s->srp_ctx.g) || !(s->srp_ctx.s) || !(s->srp_ctx.v))
 		return -1;
-
 	return 1;
 }
 
@@ -250,7 +223,6 @@ int srp_generate_server_master_secret(SSL * s)
 	BIGNUM * K = NULL, * u = NULL;
 	int ret = -1, tmp_len = 0;
 	uchar * tmp = NULL;
-
 	if(!SRP_Verify_A_mod_N(s->srp_ctx.A, s->srp_ctx.N))
 		goto err;
 	if((u = SRP_Calc_u(s->srp_ctx.A, s->srp_ctx.B, s->srp_ctx.N)) == NULL)
@@ -261,8 +233,7 @@ int srp_generate_server_master_secret(SSL * s)
 
 	tmp_len = BN_num_bytes(K);
 	if((tmp = static_cast<uchar *>(OPENSSL_malloc(tmp_len))) == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-		    SSL_F_SRP_GENERATE_SERVER_MASTER_SECRET, ERR_R_MALLOC_FAILURE);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SRP_GENERATE_SERVER_MASTER_SECRET, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	BN_bn2bin(K, tmp);
@@ -281,39 +252,29 @@ int srp_generate_client_master_secret(SSL * s)
 	int ret = -1, tmp_len = 0;
 	char * passwd = NULL;
 	uchar * tmp = NULL;
-
 	/*
 	 * Checks if b % n == 0
 	 */
-	if(SRP_Verify_B_mod_N(s->srp_ctx.B, s->srp_ctx.N) == 0
-	    || (u = SRP_Calc_u(s->srp_ctx.A, s->srp_ctx.B, s->srp_ctx.N))
-	    == NULL
-	    || s->srp_ctx.SRP_give_srp_client_pwd_callback == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-		    SSL_F_SRP_GENERATE_CLIENT_MASTER_SECRET, ERR_R_INTERNAL_ERROR);
+	if(SRP_Verify_B_mod_N(s->srp_ctx.B, s->srp_ctx.N) == 0 || 
+		(u = SRP_Calc_u(s->srp_ctx.A, s->srp_ctx.B, s->srp_ctx.N)) == NULL || s->srp_ctx.SRP_give_srp_client_pwd_callback == NULL) {
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SRP_GENERATE_CLIENT_MASTER_SECRET, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-	if((passwd = s->srp_ctx.SRP_give_srp_client_pwd_callback(s,
-	    s->srp_ctx.SRP_cb_arg))
-	    == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-		    SSL_F_SRP_GENERATE_CLIENT_MASTER_SECRET,
-		    SSL_R_CALLBACK_FAILED);
+	if((passwd = s->srp_ctx.SRP_give_srp_client_pwd_callback(s, s->srp_ctx.SRP_cb_arg)) == NULL) {
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SRP_GENERATE_CLIENT_MASTER_SECRET, SSL_R_CALLBACK_FAILED);
 		goto err;
 	}
 	if((x = SRP_Calc_x(s->srp_ctx.s, s->srp_ctx.login, passwd)) == NULL
 	    || (K = SRP_Calc_client_key(s->srp_ctx.N, s->srp_ctx.B,
 	    s->srp_ctx.g, x,
 	    s->srp_ctx.a, u)) == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-		    SSL_F_SRP_GENERATE_CLIENT_MASTER_SECRET, ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SRP_GENERATE_CLIENT_MASTER_SECRET, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
 
 	tmp_len = BN_num_bytes(K);
 	if((tmp = static_cast<uchar *>(OPENSSL_malloc(tmp_len))) == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-		    SSL_F_SRP_GENERATE_CLIENT_MASTER_SECRET, ERR_R_MALLOC_FAILURE);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SRP_GENERATE_CLIENT_MASTER_SECRET, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	BN_bn2bin(K, tmp);
@@ -335,48 +296,36 @@ int srp_verify_server_param(SSL * s)
 	 * Sanity check parameters: we can quickly check B % N == 0 by checking B
 	 * != 0 since B < N
 	 */
-	if(BN_ucmp(srp->g, srp->N) >= 0 || BN_ucmp(srp->B, srp->N) >= 0
-	    || BN_is_zero(srp->B)) {
-		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_SRP_VERIFY_SERVER_PARAM,
-		    SSL_R_BAD_DATA);
+	if(BN_ucmp(srp->g, srp->N) >= 0 || BN_ucmp(srp->B, srp->N) >= 0 || BN_is_zero(srp->B)) {
+		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_SRP_VERIFY_SERVER_PARAM, SSL_R_BAD_DATA);
 		return 0;
 	}
-
 	if(BN_num_bits(srp->N) < srp->strength) {
-		SSLfatal(s, SSL_AD_INSUFFICIENT_SECURITY, SSL_F_SRP_VERIFY_SERVER_PARAM,
-		    SSL_R_INSUFFICIENT_SECURITY);
+		SSLfatal(s, SSL_AD_INSUFFICIENT_SECURITY, SSL_F_SRP_VERIFY_SERVER_PARAM, SSL_R_INSUFFICIENT_SECURITY);
 		return 0;
 	}
-
 	if(srp->SRP_verify_param_callback) {
 		if(srp->SRP_verify_param_callback(s, srp->SRP_cb_arg) <= 0) {
-			SSLfatal(s, SSL_AD_INSUFFICIENT_SECURITY,
-			    SSL_F_SRP_VERIFY_SERVER_PARAM,
-			    SSL_R_CALLBACK_FAILED);
+			SSLfatal(s, SSL_AD_INSUFFICIENT_SECURITY, SSL_F_SRP_VERIFY_SERVER_PARAM, SSL_R_CALLBACK_FAILED);
 			return 0;
 		}
 	}
 	else if(!SRP_check_known_gN_param(srp->g, srp->N)) {
-		SSLfatal(s, SSL_AD_INSUFFICIENT_SECURITY, SSL_F_SRP_VERIFY_SERVER_PARAM,
-		    SSL_R_INSUFFICIENT_SECURITY);
+		SSLfatal(s, SSL_AD_INSUFFICIENT_SECURITY, SSL_F_SRP_VERIFY_SERVER_PARAM, SSL_R_INSUFFICIENT_SECURITY);
 		return 0;
 	}
-
 	return 1;
 }
 
 int SRP_Calc_A_param(SSL * s)
 {
 	uchar rnd[SSL_MAX_MASTER_KEY_LENGTH];
-
 	if(RAND_priv_bytes(rnd, sizeof(rnd)) <= 0)
 		return 0;
 	s->srp_ctx.a = BN_bin2bn(rnd, sizeof(rnd), s->srp_ctx.a);
 	OPENSSL_cleanse(rnd, sizeof(rnd));
-
 	if(!(s->srp_ctx.A = SRP_Calc_A(s->srp_ctx.a, s->srp_ctx.N, s->srp_ctx.g)))
 		return 0;
-
 	return 1;
 }
 
@@ -423,15 +372,12 @@ int SSL_CTX_set_srp_password(SSL_CTX * ctx, char * password)
 
 int SSL_CTX_set_srp_strength(SSL_CTX * ctx, int strength)
 {
-	return tls1_ctx_ctrl(ctx, SSL_CTRL_SET_TLS_EXT_SRP_STRENGTH, strength,
-		   NULL);
+	return tls1_ctx_ctrl(ctx, SSL_CTRL_SET_TLS_EXT_SRP_STRENGTH, strength, NULL);
 }
 
-int SSL_CTX_set_srp_verify_param_callback(SSL_CTX * ctx,
-    int (* cb)(SSL *, void *))
+int SSL_CTX_set_srp_verify_param_callback(SSL_CTX * ctx, int (* cb)(SSL *, void *))
 {
-	return tls1_ctx_callback_ctrl(ctx, SSL_CTRL_SET_SRP_VERIFY_PARAM_CB,
-		   (void (*)(void))cb);
+	return tls1_ctx_callback_ctrl(ctx, SSL_CTRL_SET_SRP_VERIFY_PARAM_CB, (void (*)(void))cb);
 }
 
 int SSL_CTX_set_srp_cb_arg(SSL_CTX * ctx, void * arg)
@@ -439,18 +385,14 @@ int SSL_CTX_set_srp_cb_arg(SSL_CTX * ctx, void * arg)
 	return tls1_ctx_ctrl(ctx, SSL_CTRL_SET_SRP_ARG, 0, arg);
 }
 
-int SSL_CTX_set_srp_username_callback(SSL_CTX * ctx,
-    int (* cb)(SSL *, int *, void *))
+int SSL_CTX_set_srp_username_callback(SSL_CTX * ctx, int (* cb)(SSL *, int *, void *))
 {
-	return tls1_ctx_callback_ctrl(ctx, SSL_CTRL_SET_TLS_EXT_SRP_USERNAME_CB,
-		   (void (*)(void))cb);
+	return tls1_ctx_callback_ctrl(ctx, SSL_CTRL_SET_TLS_EXT_SRP_USERNAME_CB, (void (*)(void))cb);
 }
 
-int SSL_CTX_set_srp_client_pwd_callback(SSL_CTX * ctx,
-    char *(*cb)(SSL *, void *))
+int SSL_CTX_set_srp_client_pwd_callback(SSL_CTX * ctx, char *(*cb)(SSL *, void *))
 {
-	return tls1_ctx_callback_ctrl(ctx, SSL_CTRL_SET_SRP_GIVE_CLIENT_PWD_CB,
-		   (void (*)(void))cb);
+	return tls1_ctx_callback_ctrl(ctx, SSL_CTRL_SET_SRP_GIVE_CLIENT_PWD_CB, (void (*)(void))cb);
 }
 
 #endif

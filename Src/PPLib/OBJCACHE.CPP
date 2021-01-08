@@ -175,7 +175,7 @@ int ObjCache::PackNames()
 
 uint ObjCache::GetCount() const
 {
-	return SVector::GetCount(P_Ary);
+	return SVectorBase::GetCount(P_Ary);
 }
 
 int FASTCALL ObjCache::Search(PPID id, uint * pPos) const
@@ -191,7 +191,7 @@ int FASTCALL ObjCache::Search(PPID id, uint * pPos) const
 ObjCacheEntry * FASTCALL ObjCache::SearchByPos(uint pos, int incr) const
 {
 	ObjCacheEntry * p_entry = 0;
-	if(pos < SVector::GetCount(P_Ary)) {
+	if(pos < SVectorBase::GetCount(P_Ary)) {
 		p_entry = static_cast<ObjCacheEntry *>(P_Ary->at(pos));
 		if(incr)
 			p_entry->Counter.Incr();
