@@ -485,7 +485,7 @@ int BnkIngVTB::GetLastErrorText(char * pBuf, size_t bufSize)
 		SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), LastError, msg);
 		msg.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
 	}
-	if(msg.Empty())
+	if(msg.IsEmpty())
 		msg.Cat("Error").Space().Cat(LastError);
 	if(AddError) {
 		if(AddError == INGVTB_TRANSERR)
@@ -517,7 +517,7 @@ int GetLastErrorText(char * pBuf, size_t bufSize)
 	int  ok = 0;
 	SString msg;
 	SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), LastError, msg);
-	if(msg.Empty())
+	if(msg.IsEmpty())
 		msg.Cat("Error").Space().Cat(LastError);
 	if(AddError) {
 		SString temp_buf;

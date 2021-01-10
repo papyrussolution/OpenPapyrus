@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2305,7 +2305,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 								temp_buf = P_SetBlk->U.B.Serial;
 								if(P_SetBlk->U.B.TSessID) {
 									THROW(pack.AddTSessCip(P_SetBlk->U.B.TSessID, P_SetBlk->U.B.PlaceCode, 0));
-									if(temp_buf.Empty()) {
+									if(temp_buf.IsEmpty()) {
 										temp_buf.Cat("TSES#").Cat(P_SetBlk->U.B.TSessID);
 										if(P_SetBlk->U.B.PlaceCode[0])
 											temp_buf.CatChar(':').Cat("PLACE#").Cat(P_SetBlk->U.B.PlaceCode);
@@ -3135,7 +3135,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 								ProcessorPlaceCodeTemplate::NormalizeCode(place_code = r_ci_item.PlaceCode);
 								if(P_SetBlk->U.TS.CipID) {
 									if(r_ci_item.ID == P_SetBlk->U.TS.CipID) {
-										THROW_PP(crit_place_code.Empty() || place_code == crit_place_code, PPERR_TSESSCIPOP_INVPLACECODE);
+										THROW_PP(crit_place_code.IsEmpty() || place_code == crit_place_code, PPERR_TSESSCIPOP_INVPLACECODE);
 										cip_pos = i+1;
 									}
 								}
@@ -3431,7 +3431,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				THROW(view.Init_(P_SpecSerF));
 				THROW(view.InitIteration());
 				while(view.NextIteration(&item) > 0) {
-					if(P_SpecSerF->Serial.Empty() || P_SpecSerF->Serial == item.Serial)
+					if(P_SpecSerF->Serial.IsEmpty() || P_SpecSerF->Serial == item.Serial)
 						THROW_SL(ResultList.Add(item.ID, 0, item.Serial));
 				}
 			}
@@ -3462,7 +3462,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 									if(DS.GetTLA().GlobAccID > 0) {
 										if(p_ref->Ot.GetTag(PPOBJ_GLOBALUSERACC, DS.GetTLA().GlobAccID, PPTAG_GUA_SCARDPREFIX, &tag) > 0) {
 											prefix = tag.Val.PStr;
-											if(!prefix.Empty()) {
+											if(prefix.NotEmpty()) {
 												number.Z().Cat(prefix).Cat(txt_buf);
 												if(P_ScObj->SearchCode(0, number, &sc_rec) > 0)
 													THROW_SL(ResultList.Add(sc_rec.ID, 0, sc_rec.Code));
@@ -5815,7 +5815,7 @@ STYLOPALM
 										if(DS.GetTLA().GlobAccID > 0) {
 											if(p_ref->Ot.GetTag(PPOBJ_GLOBALUSERACC, DS.GetTLA().GlobAccID, PPTAG_GUA_SCARDPREFIX, &tag) > 0) {
 												prefix = tag.Val.PStr;
-												if(!prefix.Empty()) {
+												if(prefix.NotEmpty()) {
 													temp_buf.Z().Cat(prefix).Cat(number);
 													if(P_ScObj->SearchCode(0, temp_buf, &sc_rec) > 0) {
 														P_SetBlk->U.SC.ID = sc_rec.ID;
@@ -5837,7 +5837,7 @@ STYLOPALM
 										for(SEnum en = gua_obj.P_Ref->Enum(PPOBJ_GLOBALUSERACC, 0); en.Next(&gua_rec) > 0;) {
 											if(p_ref->Ot.GetTag(PPOBJ_GLOBALUSERACC, gua_rec.ID, PPTAG_GUA_SCARDPREFIX, &tag) > 0) {
 												prefix = tag.Val.PStr;
-												if(!prefix.Empty()) {
+												if(prefix.NotEmpty()) {
 													temp_buf.Z().Cat(prefix).Cat(number);
 													if(P_ScObj->SearchCode(0, temp_buf, &sc_rec) > 0) {
 														PPObjSCard::CalcSCardHash(temp_buf, temp_hash);
@@ -5872,7 +5872,7 @@ STYLOPALM
 							break;
 						case cCode:
 							{
-								THROW_PP(!rArg.Empty(), PPERR_INVSCARDNUM);
+								THROW_PP(rArg.NotEmpty(), PPERR_INVSCARDNUM);
 								THROW_PP_S(P_SetBlk->U.SC.ID == 0, PPERR_CMDSEL_ONLYONECRITOBJENABLED, rArg);
 								if(P_ScObj->SearchCode(0, rArg, &sc_rec) > 0) {
 									P_SetBlk->U.SC.ID = sc_rec.ID;
@@ -5883,7 +5883,7 @@ STYLOPALM
 										ObjTagItem  tag;
 										if(p_ref->Ot.GetTag(PPOBJ_GLOBALUSERACC, DS.GetTLA().GlobAccID, PPTAG_GUA_SCARDPREFIX, &tag) > 0) {
 											prefix = tag.Val.PStr;
-											if(!prefix.Empty()) {
+											if(prefix.NotEmpty()) {
 												temp_buf.Z().Cat(prefix).Cat(rArg);
 												if(P_ScObj->SearchCode(0, temp_buf, &sc_rec) > 0) {
 													P_SetBlk->U.SC.ID = sc_rec.ID;

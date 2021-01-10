@@ -73,7 +73,7 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 					}
 				}
 			}
-			if(db_name.Empty()) {
+			if(db_name.IsEmpty()) {
 				pBlk->GetAttr(DbLoginBlock::attrDbSymb, db_name);
 			}
 			pBlk->GetAttr(DbLoginBlock::attrUserName, user);

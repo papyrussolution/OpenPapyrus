@@ -179,7 +179,7 @@ static int bn_left_align(BIGNUM * num)
 	    q;                                  \
 	})
 #define REMAINDER_IS_ALREADY_CALCULATED
-#   elif defined(__x86_64) && defined(SIXTY_FOUR_BIT_LONG)
+#elif defined(__x86_64) && defined(SIXTY_FOUR_BIT_LONG)
 /*
  * Same story here, but it's 128-bit by 64-bit division. Wow!
  */
@@ -382,7 +382,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 
 #if defined(BN_UMULT_LOHI)
 			BN_UMULT_LOHI(t2l, t2h, d1, q);
-#   elif defined(BN_UMULT_HIGH)
+#elif defined(BN_UMULT_HIGH)
 			t2l = d1 * q;
 			t2h = BN_UMULT_HIGH(d1, q);
 #else

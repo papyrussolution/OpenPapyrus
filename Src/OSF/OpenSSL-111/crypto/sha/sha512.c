@@ -406,7 +406,7 @@ static const SHA_LONG64 K512[80] = {
 			  : "=r" (ret)                     \
 			  : "0" (ret)); ret;               })
 #endif
-#   elif (defined(__i386) || defined(__i386__)) && !defined(B_ENDIAN)
+#elif (defined(__i386) || defined(__i386__)) && !defined(B_ENDIAN)
 #if defined(I386_ONLY)
 #     define PULL64(x) ({ const uint * p = (const uint *)(&(x)); \
 			  uint hi = p[0], lo = p[1];          \
@@ -424,12 +424,12 @@ static const SHA_LONG64 K512[80] = {
 			  : "0" (lo), "1" (hi));             \
 			  ((SHA_LONG64)hi)<<32|lo;        })
 #endif
-#   elif (defined(_ARCH_PPC) && defined(__64BIT__)) || defined(_ARCH_PPC64)
+#elif (defined(_ARCH_PPC) && defined(__64BIT__)) || defined(_ARCH_PPC64)
 #define ROTR(a, n)    ({ SHA_LONG64 ret;             \
 			     asm ("rotrdi %0,%1,%2"  \
 			     : "=r" (ret)             \
 			     : "r" (a), "K" (n)); ret;  })
-#   elif defined(__aarch64__)
+#elif defined(__aarch64__)
 #define ROTR(a, n)    ({ SHA_LONG64 ret;             \
 			     asm ("ror %0,%1,%2"     \
 			     : "=r" (ret)             \

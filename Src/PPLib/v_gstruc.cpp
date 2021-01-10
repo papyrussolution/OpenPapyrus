@@ -1,5 +1,5 @@
 // V_GSTRUC.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Таблица просмотра товарных структур
 //
@@ -336,7 +336,7 @@ int PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, int checkExistance)
 								}
 								else
 									struc_name = struc.Rec.Name;
-								if(struc_name.Empty())
+								if(struc_name.IsEmpty())
 									ideqvalstr(struc.Rec.ID, struc_name).Quot('[', ']');
 								StrPool.AddS(struc_name, &new_entry.NameP);
 							}

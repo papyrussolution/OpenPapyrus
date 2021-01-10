@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -591,7 +591,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 		SString temp_buf;
 		SPathStruc ps(_file_name);
 		SPathStruc ps_temp;
-		if(ps.Drv.Empty() && ps.Dir.Empty()) {
+		if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 			PPGetPath(PPPATH_OUT, temp_buf);
 			ps_temp.Split(temp_buf);
 			ps.Drv = ps_temp.Drv;
@@ -2188,7 +2188,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 				continue;
 		}
 		(bill_ident = brow_.BillID).Strip();
-		if(mode != 2 && bill_ident.Empty()) { // нет сопоставления для строки документа
+		if(mode != 2 && bill_ident.IsEmpty()) { // нет сопоставления для строки документа
 			SString msg, file_name, goods_info, word;
 			pImpExp->GetFileName(file_name);
 			SPathStruc sp(file_name);
@@ -2659,11 +2659,11 @@ int PPBillImporter::ReadData()
 						const int new_bill = BIN(r_row.BillDate != last_date || last_code != org_bill_code || last_ident != org_bill_ident);
 						if(new_bill)
 							cc_++;
-						if(bill_ident.Empty())
+						if(bill_ident.IsEmpty())
 							bill_ident.Z().CatLongZ(cc_, 6);
 						bill_ident.CopyTo(r_row.BillID, sizeof(r_row.BillID));
 						//
-						if(bill_code.Empty()) {
+						if(bill_code.IsEmpty()) {
 							bill_code.Z().Cat(fn_for_hash).Cat(bill.Date, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 							const uint32 _h = SlHash::BobJenc(bill_code, bill_code.Len());
 							bill_code.Z().Cat("H-").Cat(_h).CatChar('-').CatLongZ(cc_, 6);
@@ -4305,7 +4305,7 @@ int PPBillImporter::Run()
 											if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec, 1) > 0) {
 												goods_id = goods_rec.ID;
 											}
-											if(barcode.Empty()) {
+											if(barcode.IsEmpty()) {
 												if(temp_buf.Len() == 14)
 													temp_buf.ShiftLeftChr('0');
 												barcode = temp_buf;
@@ -4830,10 +4830,10 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 									temp_buf.CopyTo(world_rec.ZIP, sizeof(world_rec.ZIP));
 							STRNSCPY(brow.ManufIndex, world_rec.ZIP);
 							brow.ManufRegionCode = BillParam.ImpExpParamDll.ManufRegionCode; // Вытаскиваем из ini-файла
-							if(region_name.Empty())
+							if(region_name.IsEmpty())
 								if(loc_addr_st.GetText(PPLocAddrStruc::tLocalArea, temp_buf))
 									temp_buf.CopyTo(brow.ManufDistrict, sizeof(brow.ManufDistrict));
-							if(city_name.Empty()) {
+							if(city_name.IsEmpty()) {
 								if(loc_addr_st.GetText(PPLocAddrStruc::tCity, temp_buf))
 									temp_buf.CopyTo(brow.ManufCityName, sizeof(brow.ManufCityName));
 							}
@@ -5608,7 +5608,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 					unit_code = "0000";
 				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREOKEI), unit_code);
 				GObj.GetSingleBarcode(goods_id, goods_code);
-				if(goods_code.Empty())
+				if(goods_code.IsEmpty())
 					goods_code.CatLongZ(goods_id, 11);
 				else
 					goods_code.Transf(CTRANSF_INNER_TO_OUTER);
@@ -5869,7 +5869,7 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 		SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_RF));
 		{
 			las.GetText(PPLocAddrStruc::tZip, temp_buf);
-			if(temp_buf.Empty())
+			if(temp_buf.IsEmpty())
 				LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
 			n_i.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_INDEX), EncText(temp_buf));
 		}

@@ -1,5 +1,5 @@
 // SARTRE_DB.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1461,7 +1461,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 	Close();
 	{
 		SString db_path(pDbPath);
-		if(db_path.Empty()) {
+		if(db_path.IsEmpty()) {
 			PPGetPath(PPPATH_SARTREDB, db_path);
 		}
 		THROW_PP(db_path.NotEmpty() && pathValid(db_path, 1), PPERR_SARTREDBUNDEF);

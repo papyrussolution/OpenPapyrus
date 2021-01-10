@@ -1,5 +1,5 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -2608,7 +2608,7 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 						PPGetLastErrorMessage(1, warn);
 						disable_op = 1;
 					}
-					if(warn.Empty()) {
+					if(warn.IsEmpty()) {
 						//
 						// Если все предыдущие проверки прошли успешно, то проверяем
 						// все регистры персоналии на предмет истечения срока действия.
@@ -4526,7 +4526,7 @@ public:
 		THROW(PPView::ExecuteNF(param.NfSymb, param.Dl600_Name, result_fname));
 		if(param.FileName.NotEmpty()) {
 			SPathStruc dest_ps(param.FileName);
-			if(dest_ps.Nam.Empty()) {
+			if(dest_ps.Nam.IsEmpty()) {
 				SPathStruc src_ps(result_fname);
 				dest_ps.Nam = src_ps.Nam;
 				dest_ps.Ext = src_ps.Ext;

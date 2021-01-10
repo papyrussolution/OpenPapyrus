@@ -60,7 +60,7 @@ cairo_tee_surface_index (cairo_surface_t *surface,
 CAIRO_END_DECLS
 
 #else  /*CAIRO_HAS_TEE_SURFACE*/
-# error Cairo was not compiled with support for the TEE backend
+#error Cairo was not compiled with support for the TEE backend
 #endif /*CAIRO_HAS_TEE_SURFACE*/
 
 #endif /*CAIRO_TEE_H*/

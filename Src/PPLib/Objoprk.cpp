@@ -1901,7 +1901,7 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 					(temp_formula = amt_formula).ShiftLeft(sstrlen("ignfix")).Strip();
 				else
 					temp_formula = amt_formula;
-				if(amt_formula.Strip().Empty() || PPCalcExpression(temp_formula, 0, &bill_pack, 0, 0) > 0) {
+				if(amt_formula.Strip().IsEmpty() || PPCalcExpression(temp_formula, 0, &bill_pack, 0, 0) > 0) {
 					P_Data->PutExtStrData(OPKEXSTR_AMTFORMULA, amt_formula);
 					valid_data = 1;
 					dlg->getCtrlData(CTL_OPKMORE_AMOUNT, &v);

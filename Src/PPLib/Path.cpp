@@ -237,7 +237,7 @@ int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
    	GetPath(pathID, 0, rBuf);
 	rBuf.Strip();
 	if(pathID == PPPATH_DRIVE) {
-		if(rBuf.Empty()) {
+		if(rBuf.IsEmpty()) {
 			// @v5.5.9 rBuf.CatChar('A'+getdisk()).CatChar(':');
 			; // @v5.5.9 Видимо, не следует подставлять текущий диск, ибо возможно указание относительных каталогов
 		}

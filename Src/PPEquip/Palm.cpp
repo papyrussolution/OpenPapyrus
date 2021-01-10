@@ -1,5 +1,5 @@
 // PALM.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2941,7 +2941,7 @@ public:
 		int    ok = -1;
 		if(pWriter) {
 			SString tbl_name;
-			for(uint i = 0; tbl_name.Empty() && i < SIZEOFARRAY(TblNames); i++) {
+			for(uint i = 0; tbl_name.IsEmpty() && i < SIZEOFARRAY(TblNames); i++) {
 				if(fileId == TblNames[i].FileId)
 					tbl_name = TblNames[i].P_TblName;
 			}

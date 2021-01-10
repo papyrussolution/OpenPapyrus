@@ -1,5 +1,5 @@
 // V_TRANLZ.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4538,7 +4538,7 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 			PPGdsClsPacket gc_pack;
 			double v = 0.0;
 			rItem.StatusFlags |= GoodsItem::stClass;
-			if(rItem.CategoryCode.Empty()) {
+			if(rItem.CategoryCode.IsEmpty()) {
 				if(Cfg.CategoryClsDim && (goods_ext_rec.GoodsID || GObj.P_Tbl->GetExt(goodsID, &goods_ext_rec) > 0)) {
 					if(gc_pack.Rec.ID || GcObj.Fetch(goods_rec.GdsClsID, &gc_pack) > 0) {
 						if(gc_pack.GetExtDim(&goods_ext_rec, Cfg.CategoryClsDim, &v) > 0 && v > 0.0) {
@@ -4690,7 +4690,7 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 							rItem.RefcProductID = pr_item.ID;
 							assert(strcmp(pr_item.AlcoCode, p_egais_code) == 0);
 							if(pr_item.ManufRarIdent[0]) {
-								if(rItem.RefcManufCode.Empty())
+								if(rItem.RefcManufCode.IsEmpty())
 									rItem.RefcManufCode = pr_item.ManufRarIdent;
 								else if(rItem.RefcManufCode != pr_item.ManufRarIdent) {
 									rItem.StatusFlags |= rItem.stRefcInfAPrManufConfl;
@@ -4699,7 +4699,7 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 								}
 							}
 							if(pr_item.ImporterRarIdent[0]) {
-								if(rItem.RefcImporterCode.Empty())
+								if(rItem.RefcImporterCode.IsEmpty())
 									rItem.RefcImporterCode = pr_item.ImporterRarIdent;
 								else if(rItem.RefcImporterCode != pr_item.ImporterRarIdent) {
 									rItem.StatusFlags |= rItem.stRefcInfAPrImprtConfl;

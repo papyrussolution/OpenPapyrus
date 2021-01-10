@@ -60,7 +60,7 @@ typedef uchar u8;
  * unaligned loads, specifically those not crossing cache lines, IA-64 and
  * PowerPC...
  */
-# undef STRICT_ALIGNMENT
+#undef STRICT_ALIGNMENT
 #endif
 
 #undef SMALL_REGISTER_BANK
@@ -96,7 +96,7 @@ typedef uchar u8;
 #if defined(L_ENDIAN)
 #define ROTATE(a, n)       ({ u64 ret; asm ("rolq %1,%0"   \
 				  : "=r" (ret) : "J" (n), "0" (a) : "cc"); ret; })
-#   elif defined(B_ENDIAN)
+#elif defined(B_ENDIAN)
 /*
  * Most will argue that x86_64 is always little-endian. Well, yes, but
  * then we have stratus.com who has modified gcc to "emulate"
@@ -111,7 +111,7 @@ typedef uchar u8;
 #if defined(L_ENDIAN)
 #define ROTATE(a, n)       ({ u64 ret; asm ("shrp %0=%1,%1,%2"     \
 				  : "=r" (ret) : "r" (a), "M" (64-(n))); ret; })
-#   elif defined(B_ENDIAN)
+#elif defined(B_ENDIAN)
 #define ROTATE(a, n)       ({ u64 ret; asm ("shrp %0=%1,%1,%2"     \
 				  : "=r" (ret) : "r" (a), "M" (n)); ret; })
 #endif

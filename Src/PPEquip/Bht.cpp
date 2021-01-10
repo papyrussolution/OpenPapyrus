@@ -1030,7 +1030,7 @@ public:
 			getCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
 			if(Data.ImpExpPath_.NotEmptyS()) {
 				SPathStruc ps(Data.ImpExpPath_);
-				if(ps.Drv.Empty())
+				if(ps.Drv.IsEmpty())
 					ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
 			}
 			else

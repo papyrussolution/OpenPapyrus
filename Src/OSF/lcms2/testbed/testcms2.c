@@ -6872,7 +6872,7 @@ cmsInt32Number CheckFloatXYZ(void)
 
 	input = IdentityMatrixProfile(cmsSigXYZData);
 
-#   define TYPE_XYZA_FLT          (FLOAT_SH(1)|COLORSPACE_SH(PT_XYZ)|EXTRA_SH(1)|CHANNELS_SH(3)|BYTES_SH(4))
+#define TYPE_XYZA_FLT          (FLOAT_SH(1)|COLORSPACE_SH(PT_XYZ)|EXTRA_SH(1)|CHANNELS_SH(3)|BYTES_SH(4))
 
 	xform = cmsCreateTransform(input, TYPE_XYZA_FLT, xyzProfile, TYPE_XYZA_FLT, INTENT_RELATIVE_COLORIMETRIC, cmsFLAGS_COPY_ALPHA);
 	cmsCloseProfile(input);

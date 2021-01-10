@@ -1,5 +1,5 @@
 // GDSCLS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1235,11 +1235,11 @@ void GcCalcDialog::setupFormula()
 	if(idx && GcPack.GetFormula(idx, &form) > 0)
 		selectCtrl(CTL_GDSCLSCALC_PAR1);
 	setLabelText(CTL_GDSCLSCALC_PAR1, form.Var1Name);
-	disableCtrl(CTL_GDSCLSCALC_PAR1,  form.Var1Name.Empty());
+	disableCtrl(CTL_GDSCLSCALC_PAR1,  form.Var1Name.IsEmpty());
 	setLabelText(CTL_GDSCLSCALC_PAR2, form.Var2Name);
-	disableCtrl(CTL_GDSCLSCALC_PAR2,  form.Var2Name.Empty());
+	disableCtrl(CTL_GDSCLSCALC_PAR2,  form.Var2Name.IsEmpty());
 	setLabelText(CTL_GDSCLSCALC_PAR3, form.Var3Name);
-	disableCtrl(CTL_GDSCLSCALC_PAR3,  form.Var3Name.Empty());
+	disableCtrl(CTL_GDSCLSCALC_PAR3,  form.Var3Name.IsEmpty());
 }
 
 IMPL_HANDLE_EVENT(GcCalcDialog)

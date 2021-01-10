@@ -209,6 +209,20 @@ int AbstractLayoutBlock::GetSizeByContainerY(float containerSize, float * pS) co
 	return ok;
 }
 
+FPoint AbstractLayoutBlock::CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const
+{
+	FPoint result;
+	result.X = CalcEffectiveSizeX(containerSizeX);
+	result.Y = CalcEffectiveSizeY(containerSizeY);
+	if(result.X == 0.0f && AspectRatio > 0.0f && result.Y > 0.0f) {
+		result.X = result.Y / AspectRatio;
+	}
+	else if(result.Y == 0.0f && AspectRatio > 0.0f && result.X > 0.0f) {
+		result.Y = result.X * AspectRatio;
+	}
+	return result;
+}
+
 float AbstractLayoutBlock::CalcEffectiveSizeX(float containerSize) const
 {
 	float result = 0.0f;
@@ -1045,7 +1059,7 @@ public:
 		return flags;
 	}
 	LayoutFlex(const LayoutFlexItem * pItem, const LayoutFlexItem::Param & rP) : Flags(DetermineFlags(pItem)),
-		SizeDim(0.0f), AlignDim(0.0f), frame_pos_i(0), frame_pos2_i(0), frame_size_i(0), frame_size2_i(0),
+		SizeDim(0.0f), AlignDim(0.0f), FramePos1i(0), FramePos2i(0), FrameSz1i(0), FrameSz2i(0),
 		ordered_indices(0), LineDim(0.0f), FlexDim(0.0f), ExtraFlexDim(0.0f), FlexGrows(0.0f), FlexShrinks(0.0f),
 		Pos2(0.0f), P(rP)
 	{
@@ -1062,18 +1076,18 @@ public:
 			case DIREC_HORZ:
 				SizeDim  = __width;
 				AlignDim = __height;
-				frame_pos_i   = 0;
-				frame_pos2_i  = 1;
-				frame_size_i  = 2;
-				frame_size2_i = 3;
+				FramePos1i   = 0;
+				FramePos2i  = 1;
+				FrameSz1i  = 2;
+				FrameSz2i = 3;
 				break;
 			case DIREC_VERT:
 				SizeDim  = __height;
 				AlignDim = __width;
-				frame_pos_i   = 1;
-				frame_pos2_i  = 0;
-				frame_size_i  = 3;
-				frame_size2_i = 2;
+				FramePos1i   = 1;
+				FramePos2i  = 0;
+				FrameSz1i  = 3;
+				FrameSz2i = 2;
 				break;
 			default:
 				//assert(false && "incorrect direction");
@@ -1138,20 +1152,20 @@ public:
 	};
 	// Поле Flags по идее должно быть const, но флаг fNeedLines может быть установлен позже. Потому, увы, non-const
 	/*const*/uint   Flags;
-	uint   frame_pos_i;   // main axis position
-	uint   frame_pos2_i;  // cross axis position
-	uint   frame_size_i;  // main axis size
-	uint   frame_size2_i; // cross axis size
+	uint   FramePos1i; // main axis position
+	uint   FramePos2i; // cross axis position
+	uint   FrameSz1i;  // main axis size
+	uint   FrameSz2i;  // cross axis size
 	uint * ordered_indices;
-	float  SizeDim;       // main axis parent size
-	float  AlignDim;      // cross axis parent size
+	float  SizeDim;    // main axis parent size
+	float  AlignDim;   // cross axis parent size
 	// Set for each line layout.
-	float  LineDim;        // the cross axis size
-	float  FlexDim;        // the flexible part of the main axis size
-	float  ExtraFlexDim;   // sizes of flexible items
+	float  LineDim;    // the cross axis size
+	float  FlexDim;    // the flexible part of the main axis size
+	float  ExtraFlexDim; // sizes of flexible items
 	float  FlexGrows;
 	float  FlexShrinks;
-	float  Pos2;           // cross axis position
+	float  Pos2;         // cross axis position
 	struct Line {
 		Line(uint beginChildIdx, uint endChildIdx, float aSize) : ChildBeginIdx(beginChildIdx), ChildEndIdx(endChildIdx), Size(aSize)
 		{
@@ -1265,14 +1279,7 @@ void LayoutFlexItem::UpdateShouldOrderChildren()
 	return (rChild.ALB.AlignSelf == ALB.alignAuto) ? ALB.AlignItems : rChild.ALB.AlignSelf;
 }
 
-//#define _LAYOUT_FRAME_POS(ptrLayout, child)   child.R.Frame[ptrLayout->frame_pos ## _i]
-//#define _LAYOUT_FRAME_POS2(ptrLayout, child)  child.R.Frame[ptrLayout->frame_pos2 ## _i]
-//#define _LAYOUT_FRAME_SIZE(ptrLayout, child)  child.R.Frame[ptrLayout->frame_size ## _i]
-//#define _LAYOUT_FRAME_SIZE2(ptrLayout, child) child.R.Frame[ptrLayout->frame_size2 ## _i]
-//#define CHILD_POS_(ptrLayout, child)   child.R.Frame[ptrLayout->frame_pos ## _i]
-//#define CHILD_POS2_(ptrLayout, child)  child.R.Frame[ptrLayout->frame_pos2 ## _i]
 //#define CHILD_SIZE_(ptrLayout, child)  child.R.Frame[ptrLayout->frame_size ## _i]
-//#define CHILD_SIZE2_(ptrLayout, child) child.R.Frame[ptrLayout->frame_size2 ## _i]
 //#define CHILD_MARGIN_XY_(ptrLayout, child, pnt) (ptrLayout->vertical ? child.ALB.Margin.pnt.X : child.ALB.Margin.pnt.Y)
 //#define CHILD_MARGIN_YX_(ptrLayout, child, pnt) (ptrLayout->vertical ? child.ALB.Margin.pnt.Y : child.ALB.Margin.pnt.X)
 #define CHILD_MARGIN_XY_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlex::fVertical) ? child.ALB.Margin.pnt.X : child.ALB.Margin.pnt.Y)
@@ -1310,8 +1317,7 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 				float flex_size = 0.0f;
 				if(p_layout->FlexDim > 0.0f) {
 					if(r_child.ALB.GrowFactor != 0.0f) {
-						//CHILD_SIZE_(p_layout, r_child) = 0; // Ignore previous size when growing.
-						r_child.R.Frame[p_layout->frame_size_i] = 0; // Ignore previous size when growing.
+						r_child.R.Frame[p_layout->FrameSz1i] = 0; // Ignore previous size when growing.
 						flex_size = (p_layout->FlexDim / p_layout->FlexGrows) * r_child.ALB.GrowFactor;
 					}
 				}
@@ -1320,11 +1326,9 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 						flex_size = (p_layout->FlexDim / p_layout->FlexShrinks) * r_child.ALB.ShrinkFactor;
 					}
 				}
-				//CHILD_SIZE_(p_layout, r_child) += flex_size;
-				r_child.R.Frame[p_layout->frame_size_i] += flex_size;
+				r_child.R.Frame[p_layout->FrameSz1i] += flex_size;
 				// Set the cross axis position (and stretch the cross axis size if needed).
-				//const float align_size = CHILD_SIZE2_(p_layout, r_child);
-				const float align_size = r_child.R.Frame[p_layout->frame_size2_i];
+				const float align_size = r_child.R.Frame[p_layout->FrameSz2i];
 				float align_pos = p_layout->Pos2 + 0.0f;
 				{
 					const int ca = GetChildAlign(r_child);
@@ -1337,8 +1341,7 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 							break;
 						case AbstractLayoutBlock::alignStretch:
 							if(align_size == 0) {
-								//CHILD_SIZE2_(p_layout, r_child) = p_layout->LineDim - (CHILD_MARGIN_XY_(p_layout, r_child, a) + CHILD_MARGIN_XY_(p_layout, r_child, b));
-								r_child.R.Frame[p_layout->frame_size2_i] = p_layout->LineDim - (CHILD_MARGIN_XY_(p_layout, r_child, a) + CHILD_MARGIN_XY_(p_layout, r_child, b));
+								r_child.R.Frame[p_layout->FrameSz2i] = p_layout->LineDim - (CHILD_MARGIN_XY_(p_layout, r_child, a) + CHILD_MARGIN_XY_(p_layout, r_child, b));
 							}
 						// fall through
 						case AbstractLayoutBlock::alignStart:
@@ -1350,24 +1353,19 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 							break;
 					}
 				}
-				//CHILD_POS2_(p_layout, r_child) = align_pos;
-				r_child.R.Frame[p_layout->frame_pos2_i] = align_pos;
+				r_child.R.Frame[p_layout->FramePos2i] = align_pos;
 				// Set the main axis position.
 				if(p_layout->Flags & LayoutFlex::fReverse) {
 					pos -= CHILD_MARGIN_YX_(p_layout, r_child, b);
-					//pos -= CHILD_SIZE_(p_layout, r_child);
-					pos -= r_child.R.Frame[p_layout->frame_size_i];
-					//CHILD_POS_(p_layout, r_child) = pos;
-					r_child.R.Frame[p_layout->frame_pos_i] = pos;
+					pos -= r_child.R.Frame[p_layout->FrameSz1i];
+					r_child.R.Frame[p_layout->FramePos1i] = pos;
 					pos -= spacing;
 					pos -= CHILD_MARGIN_YX_(p_layout, r_child, a);
 				}
 				else {
 					pos += CHILD_MARGIN_YX_(p_layout, r_child, a);
-					//CHILD_POS_(p_layout, r_child) = pos;
-					r_child.R.Frame[p_layout->frame_pos_i] = pos;
-					//pos += CHILD_SIZE_(p_layout, r_child);
-					pos += r_child.R.Frame[p_layout->frame_size_i];
+					r_child.R.Frame[p_layout->FramePos1i] = pos;
+					pos += r_child.R.Frame[p_layout->FrameSz1i];
 					pos += spacing;
 					pos += CHILD_MARGIN_YX_(p_layout, r_child, b);
 				}
@@ -1381,7 +1379,7 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 						r_child.R.Frame[3] = r_child.R.Frame[2] * r_child.ALB.AspectRatio;
 					}
 				}
-				r_child.DoLayoutSelf(); // Now that the item has a frame, we can layout its children.
+				r_child.Commit_(); // Now that the item has a frame, we can layout its children.
 			}
 		}
 		if((p_layout->Flags & LayoutFlex::fWrap) && !(p_layout->Flags & LayoutFlex::fReverse2)) {
@@ -1393,14 +1391,19 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 	}
 }
 
-void LayoutFlexItem::DoLayoutSelf() const
+void LayoutFlexItem::Commit_() const
 {
+	const FRect bb = R;
+	//SETFLAG(R.Flags, R.fNotFit, (P_Parent && !static_cast<FRect>(P_Parent->R).Contains(bb)));
+	//SETFLAG(R.Flags, R.fDegradedWidth,  (bb.Width() <= 0.0f));
+	//SETFLAG(R.Flags, R.fDegradedHeight, (bb.Height() <= 0.0f));
 	if(GetChildrenCount()) {
 		Param p;
-		p.ForceWidth = R.Frame[2];
-		p.ForceHeight = R.Frame[3];
+		p.ForceWidth  = bb.Width();
+		p.ForceHeight = bb.Height();
 		DoLayout(p);
 	}
+
 }
 
 void LayoutFlex::ProcessLines(const LayoutFlexItem & rItem)
@@ -1433,14 +1436,11 @@ void LayoutFlex::ProcessLines(const LayoutFlexItem & rItem)
 			for(uint j = r_line.ChildBeginIdx; j < r_line.ChildEndIdx; j++) {
 				const LayoutFlexItem & r_child = GetChildByIndex(&rItem, j);
 				if(!r_child.ALB.IsPositionAbsolute(AbstractLayoutBlock::GetCrossDirection(rItem.ALB.GetContainerDirection()))) { // Should not be re-positioned.
-					//if(fisnanf(CHILD_SIZE2_(this, r_child))) {
-					if(fisnanf(r_child.R.Frame[frame_size2_i])) {
+					if(fisnanf(r_child.R.Frame[FrameSz2i])) {
 						// If the child's cross axis size hasn't been set it, it defaults to the line size.
-						//CHILD_SIZE2_(this, r_child) = r_line.Size + ((rItem.ALB.AlignContent == AbstractLayoutBlock::alignStretch) ? spacing : 0);
-						r_child.R.Frame[frame_size2_i] = r_line.Size + ((rItem.ALB.AlignContent == AbstractLayoutBlock::alignStretch) ? spacing : 0);
+						r_child.R.Frame[FrameSz2i] = r_line.Size + ((rItem.ALB.AlignContent == AbstractLayoutBlock::alignStretch) ? spacing : 0);
 					}
-					//CHILD_POS2_(this, r_child) = pos + (CHILD_POS2_(this, r_child) - old_pos);
-					r_child.R.Frame[frame_pos2_i] = pos + (r_child.R.Frame[frame_pos2_i] - old_pos);
+					r_child.R.Frame[FramePos2i] = pos + (r_child.R.Frame[FramePos2i] - old_pos);
 				}
 			}
 			if(!(Flags & fReverse2)) {
@@ -1468,27 +1468,26 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 				r_child.R.Frame[1] = r_child.ALB.GetAbsoluteLowY();
 				r_child.R.Frame[2] = r_child.ALB.GetAbsoluteSizeX();
 				r_child.R.Frame[3] = r_child.ALB.GetAbsoluteSizeY();
-				r_child.DoLayoutSelf(); // @recursion // Now that the item has a frame, we can layout its children.
+				r_child.Commit_(); // @recursion // Now that the item has a frame, we can layout its children.
 			}
 			else {
 				// Initialize frame.
 				r_child.R.Frame[0] = 0.0f;
 				r_child.R.Frame[1] = 0.0f;
-				r_child.R.Frame[2] = r_child.ALB.CalcEffectiveSizeX(rP.ForceWidth);
-				r_child.R.Frame[3] = r_child.ALB.CalcEffectiveSizeY(rP.ForceHeight);
+				FPoint efsxy = r_child.ALB.CalcEffectiveSizeXY(rP.ForceWidth, rP.ForceHeight);
+				r_child.R.Frame[2] = efsxy.X;
+				r_child.R.Frame[3] = efsxy.Y;
 				//
 				// Main axis size defaults to 0.
 				// if(fisnanf(CHILD_SIZE_((&layout_s), r_child))) { CHILD_SIZE_((&layout_s), r_child) = 0; }
 				//
 				// Cross axis size defaults to the parent's size (or line size in wrap mode, which is calculated later on).
-				//if(fisnanf(CHILD_SIZE2_((&layout_s), r_child))) {
-				if(fisnan(r_child.R.Frame[layout_s.frame_size2_i])) {
+				if(fisnan(r_child.R.Frame[layout_s.FrameSz2i])) {
 					if(layout_s.Flags & LayoutFlex::fWrap)
 						layout_s.Flags |= LayoutFlex::fNeedLines;
 					else {
 						const float full_size = ((layout_s.Flags & LayoutFlex::fVertical) ? rP.ForceWidth : rP.ForceHeight);
-						//CHILD_SIZE2_((&layout_s), r_child) = full_size - CHILD_MARGIN_XY_((&layout_s), r_child, a) - CHILD_MARGIN_XY_((&layout_s), r_child, b);
-						r_child.R.Frame[layout_s.frame_size2_i] = full_size - CHILD_MARGIN_XY_((&layout_s), r_child, a) - CHILD_MARGIN_XY_((&layout_s), r_child, b);
+						r_child.R.Frame[layout_s.FrameSz2i] = full_size - CHILD_MARGIN_XY_((&layout_s), r_child, a) - CHILD_MARGIN_XY_((&layout_s), r_child, b);
 					}
 				}
 				// Call the self_sizing callback if provided. Only non-NAN values
@@ -1499,7 +1498,7 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 					r_child.CbSelfSizing(&r_child, size);
 					for(uint j = 0; j < 2; j++) {
 						const uint size_off = j + 2;
-						if(size_off != layout_s.frame_size2_i || GetChildAlign(r_child) != AbstractLayoutBlock::alignStretch) {
+						if(size_off != layout_s.FrameSz2i || GetChildAlign(r_child) != AbstractLayoutBlock::alignStretch) {
 							float val = size[j];
 							if(!fisnanf(val))
 								r_child.R.Frame[size_off] = val;
@@ -1509,11 +1508,9 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 				// Honor the `basis' property which overrides the main-axis size.
 				if(r_child.ALB.Basis > 0.0f) {
 					//assert(r_child.ALB.Basis >= 0.0f);
-					//CHILD_SIZE_((&layout_s), r_child) = r_child.ALB.Basis;
-					r_child.R.Frame[layout_s.frame_size_i] = r_child.ALB.Basis;
+					r_child.R.Frame[layout_s.FrameSz1i] = r_child.ALB.Basis;
 				}
-				//const float child_size = CHILD_SIZE_((&layout_s), r_child);
-				const float child_size = r_child.R.Frame[layout_s.frame_size_i];
+				const float child_size = r_child.R.Frame[layout_s.FrameSz1i];
 				if(layout_s.Flags & LayoutFlex::fWrap) {
 					if(layout_s.FlexDim < child_size) {
 						// Not enough space for this child on this line, layout the remaining items and move it to a new line.
@@ -1522,8 +1519,7 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 						last_layout_child = i;
 						relative_children_count = 0;
 					}
-					//const float child_size2 = CHILD_SIZE2_((&layout_s), r_child);
-					const float child_size2 = r_child.R.Frame[layout_s.frame_size2_i];
+					const float child_size2 = r_child.R.Frame[layout_s.FrameSz2i];
 					if(!fisnanf(child_size2) && child_size2 > layout_s.LineDim) {
 						layout_s.LineDim = child_size2;
 					}
@@ -1545,8 +1541,6 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 		layout_s.ProcessLines(*this);
 		{
 			ZFREE(layout_s.ordered_indices);
-			//ZFREE(layout_s.P_Lines);
-			//layout_s.lines_count = 0;
 			layout_s.Lines.clear();
 		}
 	}
@@ -1838,7 +1832,7 @@ void LayoutFlexItem::Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayo
 		const LayoutFlexItem * p_layout_item = pCurrentLayout->GetChildC(ci);
 		if(p_layout_item && p_layout_item->P_Link) {
 			p_layout_item->P_Link->R.CopyWithOffset(p_layout_item->R, rOffs.X, rOffs.Y);
-			p_layout_item->P_Link->DoLayoutSelf();
+			p_layout_item->P_Link->Commit_();
 		}
 	}
 	delete pCurrentLayout;
@@ -1906,7 +1900,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP) // @construction
 							assert(prev_area >= 0 && prev_area < SIZEOFARRAY(area_rect));
 							Param local_eval_param;
 							local_eval_param.Flags = rP.Flags;
-							p_current_layout->Evaluate(&local_eval_param);
+							p_current_layout->Evaluate(&local_eval_param, 0);
 							{
 								// Вычисляем полный прямоугольник занятый областью prev_area и
 								// корректируем остальные области в соответствии с этим.
@@ -1985,7 +1979,6 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP) // @construction
 					}
 					{
 						assert(p_current_layout);
-						//LayoutFlexItem * p_layout_item = p_current_layout->CreateNewItem();
 						LayoutFlexItem * p_layout_item = p_current_layout->InsertItem();
 						p_layout_item->SetLayoutBlock(r_child.ALB);
 						p_layout_item->SetCallbacks(r_child.CbSelfSizing, r_child.CbSetup, r_child.managed_ptr);
@@ -1997,7 +1990,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP) // @construction
 					assert(prev_area >= 0 && prev_area < SIZEOFARRAY(area_rect));
 					Param local_eval_param;
 					local_eval_param.Flags = rP.Flags;
-					p_current_layout->Evaluate(&local_eval_param);
+					p_current_layout->Evaluate(&local_eval_param, 0);
 					Helper_CommitInnerFloatLayout(p_current_layout, area_rect[prev_area].a);
 					p_current_layout = 0;
 				}
@@ -2006,18 +1999,20 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP) // @construction
 	}
 }
 
-void LayoutFlexItem::Setup()
+void LayoutFlexItem::Setup(uint flags)
 {
-	if(CbSetup) {
-		CbSetup(this, R.Frame);
+	if(!(flags & setupfChildrenOnly)) {
+		if(CbSetup) {
+			CbSetup(this, R);
+		}
 	}
 	const uint _cc = GetChildrenCount();
 	for(uint i = 0; i < _cc; i++) {
-		GetChild(i)->Setup(); // @recursion
+		GetChild(i)->Setup(0); // @recursion
 	}
 }
 
-int LayoutFlexItem::Evaluate(const Param * pP)
+int LayoutFlexItem::Evaluate(const Param * pP, PagingResult * pPgR)
 {
 	int    ok = -1;
 	const  uint _cc = GetChildrenCount();
@@ -2052,22 +2047,14 @@ int LayoutFlexItem::Evaluate(const Param * pP)
 				assert(P_Parent == NULL);
 				assert(CbSelfSizing == NULL);
 				DoLayout(local_evaluate_param);
-				{
-					for(uint i = 0; i < _cc; i++) {
-						GetChild(i)->Setup();
-					}
-				}
+				Setup(setupfChildrenOnly);
 				ok = 1;
 			}
 		}
 		else {
 			if(stag_x == AbstractLayoutBlock::szFixed && stag_y == AbstractLayoutBlock::szFixed && !CbSelfSizing) {
 				DoFloatLayout(local_evaluate_param);
-				{
-					for(uint i = 0; i < _cc; i++) {
-						GetChild(i)->Setup();
-					}
-				}
+				Setup(setupfChildrenOnly);
 				ok = 1;
 			}
 		}

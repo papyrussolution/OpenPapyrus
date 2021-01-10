@@ -33,6 +33,11 @@ void InventoryFilt::Setup(PPID billID)
 	SetSingleBillID(billID);
 }
 
+PPViewInventory::ExtraEntry::ExtraEntry()
+{
+	THISZERO();
+}
+
 PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY, 0, 0), P_BObj(BillObj), P_TempTbl(0), P_TempOrd(0),
 	P_TempSubstTbl(0), P_GgIter(0), P_GIter(0), Flags(0), CommonLocID(0), CommonDate(ZERODATE), LastSurrID(0), P_OuterPack(0)
 {
@@ -303,7 +308,7 @@ int PPViewInventory::UpdateTempTable(PPID billID, long oprno)
 				if(!is_extra_entry_found) {
 					ExtraEntry new_entry;
 					PPFreight freight;
-					MEMSZERO(new_entry);
+					// @v10.9.12 @ctr MEMSZERO(new_entry);
 					new_entry.SurrID = ++LastSurrID;
 					new_entry.BillID = rec.BillID;
 					new_entry.OprNo = rec.OprNo;
@@ -377,7 +382,7 @@ int PPViewInventory::MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDoubleID
 			GetObjectName(PPOBJ_GOODS, pRec->GoodsID, temp_buf);
 		else {
 			double big = 1.e9;
-			double val = (Filt.SortOrder == InventoryFilt::ordByDeficit) ? pRec->CSesDfctQtty * pRec->CSesDfctPrice : INVENT_DIFFSIGN(pRec->Flags) * pRec->DiffQtty;
+			double val = (Filt.SortOrder == InventoryFilt::ordByDeficit) ? (pRec->CSesDfctQtty * pRec->CSesDfctPrice) : (INVENT_DIFFSIGN(pRec->Flags) * pRec->DiffQtty);
 			val += big;
 			temp_buf.Printf("%055.8lf", val);
 		}
@@ -440,7 +445,7 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 				}
 				if(!do_skip) {
 					ExtraEntry new_entry;
-					MEMSZERO(new_entry);
+					// @v10.9.12 @ctr MEMSZERO(new_entry);
 					PPID   final_goods_id = 0;
 					if(!!Filt.Sgb)
 						final_goods_id = subst_bill_val;
@@ -605,7 +610,7 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 								// } @erik
 								if(!do_skip) {
 									ExtraEntry new_entry;
-									MEMSZERO(new_entry);
+									// @v10.9.12 @ctr MEMSZERO(new_entry);
 									PPID   final_goods_id = 0;
 									if(!!Filt.Sgb)
 										final_goods_id = subst_bill_val;
@@ -625,15 +630,18 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 										if(P_TempSubstTbl->search(0, &k0, spEq)) {
 											const int sr = ExtraList.lsearch(&final_goods_id, &idx, CMPF_LONG, offsetof(ExtraEntry, GoodsID));
 											assert(sr);
-											P_TempSubstTbl->data.Quantity += inv_rec.Quantity;
-											P_TempSubstTbl->data.StockRest += inv_rec.StockRest;
-											P_TempSubstTbl->data.DiffQtty += diff;
-											P_TempSubstTbl->data.DiffPrice += diff * inv_rec.Price;
-											P_TempSubstTbl->data.DiffPctQtty = 100.0 * P_TempSubstTbl->data.DiffQtty / P_TempSubstTbl->data.StockRest;
-											P_TempSubstTbl->data.SumPrice += inv_rec.Quantity * inv_rec.Price;
-											P_TempSubstTbl->data.SumStockPrice += inv_rec.StockRest * inv_rec.StockPrice;
-											P_TempSubstTbl->data.SumWrOffPrice += diff * inv_rec.WrOffPrice;
-											THROW(P_TempSubstTbl->updateRec());
+											{
+												TempInventorySubstTbl::Rec & r_st_rec = P_TempSubstTbl->data;
+												r_st_rec.Quantity += inv_rec.Quantity;
+												r_st_rec.StockRest += inv_rec.StockRest;
+												r_st_rec.DiffQtty += diff;
+												r_st_rec.DiffPrice += diff * inv_rec.Price;
+												r_st_rec.DiffPctQtty = 100.0 * r_st_rec.DiffQtty / r_st_rec.StockRest;
+												r_st_rec.SumPrice += inv_rec.Quantity * inv_rec.Price;
+												r_st_rec.SumStockPrice += inv_rec.StockRest * inv_rec.StockPrice;
+												r_st_rec.SumWrOffPrice += diff * inv_rec.WrOffPrice;
+												THROW(P_TempSubstTbl->updateRec());
+											}
 										}
 										else {
 											new_entry.SurrID = ++LastSurrID;
@@ -1028,6 +1036,7 @@ public:
 		if(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
 			showCtrl(CTL_INVITEM_STOCKREST, 0);
 			showCtrl(CTL_INVITEM_DIFFREST, 0);
+			enableCommand(cmLot, 0);
 		}
 		// } @v10.9.12 
 	}

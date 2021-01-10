@@ -1487,7 +1487,7 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->SetZero();
 					else {
 						P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, p_item->Pos, temp_buf);
-						if(temp_buf.Empty()) {
+						if(temp_buf.IsEmpty()) {
 							Goods2Tbl::Rec goods_rec;
 							if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_WANTVETISCERT)
 								temp_buf = "none";
@@ -2640,7 +2640,7 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 				SString ean_buf;
 				for(uint i = 0; i < pool.GetCount(); i++) {
 					if(pool.GetEntry(i, entry)) {
-						if(selected_bill_code.Empty() || selected_bill_code == entry.DocName) {
+						if(selected_bill_code.IsEmpty() || selected_bill_code == entry.DocName) {
 							if(mode == issebpmodeTransferItems) {
 							}
 							else if(oneof2(mode, issebpmodeLotExtCodes, issebpmodeValidLotExtCodes)) {

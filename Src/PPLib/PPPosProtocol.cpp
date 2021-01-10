@@ -1,5 +1,5 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -369,7 +369,7 @@ int PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & r
 		if(p_dict) {
 			if(rInfo.Uuid.IsZero())
 				p_dict->GetDbUUID(&rInfo.Uuid);
-			if(rInfo.Code.Empty())
+			if(rInfo.Code.IsEmpty())
 				p_dict->GetDbSymb(rInfo.Code);
 		}
 	}
@@ -957,7 +957,7 @@ void PPPosProtocol::RouteBlock::Destroy()
 
 int PPPosProtocol::RouteBlock::IsEmpty() const
 {
-	return BIN(Uuid.IsZero() && System.Empty() && Version.Empty() && Code.Empty());
+	return BIN(Uuid.IsZero() && System.IsEmpty() && Version.IsEmpty() && Code.IsEmpty());
 }
 
 int FASTCALL PPPosProtocol::RouteBlock::IsEqual(const RouteBlock & rS) const
@@ -1169,7 +1169,7 @@ int PPPosProtocol::ReadBlock::GetRouteItem(const RouteObjectBlock & rO, RouteBlo
 
 int PPPosProtocol::ReadBlock::IsTagValueBoolTrue() const
 {
-	return (TagValue.Empty() || TagValue.IsEqiAscii("true") || TagValue.IsEqiAscii("yes") || TagValue == "1");
+	return (TagValue.IsEmpty() || TagValue.IsEqiAscii("true") || TagValue.IsEqiAscii("yes") || TagValue == "1");
 }
 
 void * PPPosProtocol::ReadBlock::GetItemWithTest(uint refPos, int type) const

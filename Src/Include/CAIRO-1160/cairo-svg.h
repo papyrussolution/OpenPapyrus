@@ -104,7 +104,7 @@ cairo_public cairo_svg_unit_t cairo_svg_surface_get_document_unit(cairo_surface_
 CAIRO_END_DECLS
 
 #else  /* CAIRO_HAS_SVG_SURFACE */
-# error Cairo was not compiled with support for the svg backend
+#error Cairo was not compiled with support for the svg backend
 #endif /* CAIRO_HAS_SVG_SURFACE */
 
 #endif /* CAIRO_SVG_H */

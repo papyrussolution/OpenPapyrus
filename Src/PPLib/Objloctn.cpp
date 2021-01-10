@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -457,9 +457,8 @@ SString & PPObjLocation::MakeCodeString(const LocationTbl::Rec * pRec, int optio
 				if(temp_buf.NotEmptyS())
 					rBuf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 			}
-			if(rBuf.Empty()) {
+			if(rBuf.IsEmpty())
 				ideqvalstr(rec.ID, rBuf);
-			}
 		}
 	}
 	return rBuf;
@@ -1577,7 +1576,7 @@ int LocationExtFieldsDialog::setupList()
 		temp_buf.Z().Cat(item.Id);
 		ss.add(temp_buf);
 		temp_buf = item.Txt;
-		if(temp_buf.Empty())
+		if(temp_buf.IsEmpty())
 			temp_buf.CatEq("ID", item.Id);
 		ss.add(temp_buf);
 		Fields.GetText(item.Id, temp_buf);

@@ -1,5 +1,5 @@
 // V_CASHN.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Кассовые узлы
 //
@@ -33,7 +33,7 @@ PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNODE, PPV
 	for(long i = /*idx*/PPCMT_FIRST_DYN_DVC; GetStrFromDrvIni(ini_file, PPINISECT_DRV_SYNCPOS, i, PPCMT_FIRST_DYN_DVC, line_buf) > 0; i++) {
 		int    drv_impl = 0;
 		if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl)) {
-			if(CashTypeNames.Empty())
+			if(CashTypeNames.IsEmpty())
 				CashTypeNames.Cat(i).Comma().Cat(drv_name.Transf(CTRANSF_OUTER_TO_INNER));
 			else
 				CashTypeNames.Semicol().Cat(i).Comma().Cat(drv_name.Transf(CTRANSF_OUTER_TO_INNER));

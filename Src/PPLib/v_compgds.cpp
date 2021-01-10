@@ -1,5 +1,5 @@
 // V_COMPGDS.CPP
-// Copyright (c) V.Miller 2013, 2016, 2017, 2019, 2020
+// Copyright (c) V.Miller 2013, 2016, 2017, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -175,7 +175,7 @@ int FASTCALL PPViewSuprWare::NextIteration(SuprWareViewItem * pItem)
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {
 			Goods2Tbl::Rec rec;
 			SwObj.P_Tbl->copyBufTo(&rec);
-			if(Filt.SrchStr.Empty() || ExtStrSrch(rec.Name, Filt.SrchStr, 0)) {
+			if(Filt.SrchStr.IsEmpty() || ExtStrSrch(rec.Name, Filt.SrchStr, 0)) {
 				PPSuprWarePacket sw_pack;
 				if(SwObj.Get(rec.ID, &sw_pack) > 0) {
 					ASSIGN_PTR(pItem, sw_pack.Rec);

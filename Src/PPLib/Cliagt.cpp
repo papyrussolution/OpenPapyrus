@@ -1,5 +1,5 @@
 // CLIAGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Соглашения с клиентами об условиях торговли
 //
@@ -1846,7 +1846,7 @@ int SupplAgtDialog::EditExchangeCfg()
                 if(_tech_id) {
 					StringSet ss_tech_symb_list(';', PPLoadTextS(PPTXT_SUPPLIXTECH, temp_buf));
 					long    _ss_id = 0;
-					for(uint ssp = 0; tech_symb.Empty() && ss_tech_symb_list.get(&ssp, temp_buf);) {
+					for(uint ssp = 0; tech_symb.IsEmpty() && ss_tech_symb_list.get(&ssp, temp_buf);) {
 						++_ss_id;
 						if(_ss_id == _tech_id)
 							tech_symb = temp_buf;

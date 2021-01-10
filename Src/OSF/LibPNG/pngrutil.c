@@ -382,7 +382,7 @@ static int png_inflate_claim(png_structrp png_ptr, uint32 owner)
 	}
 
 #ifdef window_bits
-# undef window_bits
+#undef window_bits
 #endif
 }
 
@@ -2509,7 +2509,7 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 	}
 #else
 #     ifndef PNG_READ_USER_CHUNKS_SUPPORTED
-#        error no method to support READ_UNKNOWN_CHUNKS
+#error no method to support READ_UNKNOWN_CHUNKS
 #     endif
 
 	{

@@ -1,5 +1,5 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -291,8 +291,10 @@ int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, int readOnly)
 								hdr.Locking = temp_buf.ToULong();
 							else if(SXml::GetContentByName(p_hdr_node, "LastID", temp_buf))
 								hdr.LastId = temp_buf.ToLong();
-							else if(SXml::GetContentByName(p_hdr_node, "PpyVersion", temp_buf))
-								hdr.Ver = temp_buf.ToLong();
+							else if(SXml::GetContentByName(p_hdr_node, "PpyVersion", temp_buf)) {
+								// @v10.9.12 hdr.Ver = temp_buf.ToLong();
+								hdr.Ver.FromStr(temp_buf); // @v10.9.12
+							}
 						}
 						hdr.Signature = JOBSTRGSIGN;
 						LastId = hdr.LastId;
@@ -722,7 +724,7 @@ int FASTCALL PPJobPool::IsJobSuited(const PPJob * pJob) const
 	// @v10.8.3 return (DbSymb.Empty() || DbSymb.CmpNC(pJob->DbSymb) == 0) ? 1 : PPSetError(PPERR_JOBSTRNGFORPOOL);
 	// @v10.8.3 {
 	int    ok = 0;
-	if(DbSymb.Empty())
+	if(DbSymb.IsEmpty())
 		ok = 1;
 	else if(DbSymb.CmpNC(pJob->DbSymb) == 0)
 		ok = 1;
@@ -3483,7 +3485,7 @@ public:
 		THROW(PPView::ExecuteNF(param.NfSymb, param.Dl600_Name, result_fname));
 		if(param.FileName.NotEmpty()) {
 			SPathStruc dest_ps(param.FileName);
-			if(dest_ps.Nam.Empty()) {
+			if(dest_ps.Nam.IsEmpty()) {
 				SPathStruc src_ps(result_fname);
 				dest_ps.Nam = src_ps.Nam;
 				dest_ps.Ext = src_ps.Ext;

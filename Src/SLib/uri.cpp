@@ -1,6 +1,7 @@
 // URI.CPP
 // uriparser - RFC 3986 URI parsing library
 // Copyright(C) 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org> All rights reserved.
+// Adopted to SLIB by A.Sobolev 2010..2021
 // 
 #include <slib-internal.h>
 #pragma hdrstop
@@ -169,80 +170,6 @@ static int FASTCALL UriMergePath(UriUri * absWork, const UriUri * relAppend)
 	CATCHZOK
 	return ok;
 }
-
-/*static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const UriUri * absBase)
-{
-	int    ok = 1;
-	THROW_S(absDest, SLERR_URI_NULL);
-	UriResetUri(absDest);
-	THROW_S(relSource && absBase, SLERR_URI_NULL);
-	THROW_S(absBase->Scheme.P_First, SLERR_URI_ADDBASE_REL_BASE); // absBase absolute? 
-	if(relSource->Scheme.P_First) { // [01/32] if defined(R.scheme) then 
-		absDest->Scheme = relSource->Scheme; // [02/32] T.scheme = R.scheme; 
-		THROW(UriCopyAuthority(absDest, relSource)); // [03/32] T.authority = R.authority; 
-		THROW(UriCopyPath(absDest, relSource)); // [04/32] T.path = remove_dot_segments(R.path); 
-		THROW(UriRemoveDotSegmentsAbsolute(absDest));
-		absDest->query = relSource->query; // [05/32] T.query = R.query; 
-		// [06/32] else 
-	}
-	else {
-		if(UriIsHostSet(relSource)) { // [07/32] if defined(R.authority) then 
-			THROW(UriCopyAuthority(absDest, relSource)); // [08/32] T.authority = R.authority; 
-			THROW(UriCopyPath(absDest, relSource)); // [09/32] T.path = remove_dot_segments(R.path); 
-			THROW(UriRemoveDotSegmentsAbsolute(absDest));
-			absDest->query = relSource->query; // [10/32] T.query = R.query; 
-			// [11/32] else 
-		}
-		else {
-			// [28/32] T.authority = Base.authority; 
-			THROW(UriCopyAuthority(absDest, absBase));
-			// [12/32] if(R.path == "") then 
-			if(relSource->pathHead == NULL) {
-				THROW(UriCopyPath(absDest, absBase)); // [13/32] T.path = Base.path; 
-				if(relSource->query.P_First) { // [14/32] if defined(R.query) then 
-					absDest->query = relSource->query; // [15/32] T.query = R.query; 
-					// [16/32] else 
-				}
-				else {
-					absDest->query = absBase->query; // [17/32] T.query = Base.query; 
-					// [18/32] endif; 
-				}
-				// [19/32] else 
-			}
-			else {
-				if(relSource->IsAbsolutePath) { // [20/32] if(R.path starts-with "/") then 
-					THROW(UriCopyPath(absDest, relSource)); // [21/32] T.path = remove_dot_segments(R.path);
-					THROW(UriRemoveDotSegmentsAbsolute(absDest));
-					// [22/32] else 
-				}
-				else {
-					THROW(UriCopyPath(absDest, absBase)); // [23/32] T.path = merge(Base.path, R.path);
-					THROW(UriMergePath(absDest, relSource));
-					THROW(UriRemoveDotSegmentsAbsolute(absDest)); // [24/32] T.path = remove_dot_segments(T.path); 
-					THROW(UriFixAmbiguity(absDest));
-					// [25/32] endif; 
-				}
-				absDest->query = relSource->query; // [26/32] T.query = R.query; 
-				// [27/32] endif; 
-			}
-			UriFixEmptyTrailSegment(absDest);
-			// [29/32] endif; 
-		}
-		absDest->Scheme = absBase->Scheme; // [30/32] T.scheme = Base.scheme; 
-		// [31/32] endif; 
-	}
-	absDest->fragment = relSource->fragment; // [32/32] T.fragment = R.fragment; 
-	CATCHZOK
-	return ok;
-}*/
-
-/*static int UriAddBaseUri(UriUri * absDest, const UriUri * relSource, const UriUri * pAbsBase)
-{
-	int    ok = UriAddBaseUriImpl(absDest, relSource, pAbsBase);
-	if(!ok && absDest)
-		absDest->Destroy();
-	return ok;
-}*/
 //
 //
 //
@@ -280,171 +207,6 @@ static int FASTCALL UriEqualsAuthority(const UriUri * pFirst, const UriUri * sec
 	else
 		return (second->HostText.P_First == NULL);
 }
-
-#if 0 // {
-int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri * absBase, int domainRootMode)
-{
-	if(dest == NULL) {
-		return SLERR_URI_NULL;
-	}
-	UriResetUri(dest);
-	if((absSource == NULL) ||(absBase == NULL)) {
-		return SLERR_URI_NULL;
-	}
-	if(absBase->Scheme.P_First == NULL) { // absBase absolute?
-		return SLERR_URI_REMOVEBASE_REL_BASE;
-	}
-	if(absSource->Scheme.P_First == NULL) { // absSource absolute? 
-		return SLERR_URI_REMOVEBASE_REL_SOURCE;
-	}
-	// [01/50]	if(A.scheme != Base.scheme) then 
-	if(strncmp(absSource->Scheme.P_First, absBase->Scheme.P_First, absSource->Scheme.P_AfterLast-absSource->Scheme.P_First)) {
-		// [02/50]	   T.scheme    = A.scheme; 
-		dest->Scheme = absSource->Scheme;
-		// [03/50]	   T.authority = A.authority; 
-		if(!UriCopyAuthority(dest, absSource)) {
-			return SLERR_NOMEM;
-		}
-		// [04/50]	   T.path      = A.path; 
-		if(!UriCopyPath(dest, absSource)) {
-			return SLERR_NOMEM;
-		}
-		// [05/50]	else 
-	}
-	else {
-		/* [06/50]	   undef(T.scheme); */
-		/* NOOP */
-		/* [07/50]	   if(A.authority != Base.authority) then */
-		if(!UriEqualsAuthority(absSource, absBase)) {
-			/* [08/50]	      T.authority = A.authority; */
-			if(!UriCopyAuthority(dest, absSource)) {
-				return SLERR_NOMEM;
-			}
-			/* [09/50]	      T.path      = A.path; */
-			if(!UriCopyPath(dest, absSource)) {
-				return SLERR_NOMEM;
-			}
-			/* [10/50]	   else */
-		}
-		else {
-			/* [11/50]	      if domainRootMode then */
-			if(domainRootMode == TRUE) {
-				/* [12/50]	         undef(T.authority); */
-				/* NOOP */
-				/* [13/50]	         if(first(A.path) == "") then */
-				/* GROUPED */
-				/* [14/50]	            T.path   = "/." + A.path; */
-				/* GROUPED */
-				/* [15/50]	         else */
-				/* GROUPED */
-				/* [16/50]	            T.path   = A.path; */
-				/* GROUPED */
-				/* [17/50]	         endif; */
-				if(!UriCopyPath(dest, absSource)) {
-					return SLERR_NOMEM;
-				}
-				dest->IsAbsolutePath = TRUE;
-				if(!UriFixAmbiguity(dest))
-					return SLERR_NOMEM;
-				// [18/50] else 
-			}
-			else {
-				const UriUri::PathSegment * sourceSeg = absSource->pathHead;
-				const UriUri::PathSegment * baseSeg = absBase->pathHead;
-				/* [19/50]	         bool pathNaked = true; */
-				int pathNaked = TRUE;
-				/* [20/50]	         undef(last(Base.path)); */
-				/* NOOP */
-				/* [21/50]	         T.path = ""; */
-				dest->IsAbsolutePath = FALSE;
-				/* [22/50]	         while(first(A.path) == first(Base.path)) do */
-				while(sourceSeg && baseSeg && !strncmp(sourceSeg->text.P_First, baseSeg->text.P_First, sourceSeg->text.P_AfterLast-sourceSeg->text.P_First) &&
-				      !((sourceSeg->text.P_First == sourceSeg->text.P_AfterLast) && ((sourceSeg->next == NULL) != (baseSeg->next == NULL)))) {
-					/* [23/50]	            A.path++; */
-					sourceSeg = sourceSeg->next;
-					/* [24/50]	            Base.path++; */
-					baseSeg = baseSeg->next;
-					/* [25/50]	         endwhile; */
-				}
-				/* [26/50]	         while defined(first(Base.path)) do */
-				while(baseSeg && baseSeg->next) {
-					/* [27/50]	            Base.path++; */
-					baseSeg = baseSeg->next;
-					/* [28/50]	            T.path += "../"; */
-					if(!UriAppendSegment(dest, UriConstParent, UriConstParent+2)) {
-						return SLERR_NOMEM;
-					}
-					/* [29/50]	            pathNaked = false; */
-					pathNaked = FALSE;
-					/* [30/50]	         endwhile; */
-				}
-				/* [31/50]	         while defined(first(A.path)) do */
-				while(sourceSeg) {
-					/* [32/50]	            if pathNaked then */
-					if(pathNaked == TRUE) {
-						/* [33/50]	               if(first(A.path) contains ":") then */
-						int containsColon = FALSE;
-						const char * ch = sourceSeg->text.P_First;
-						for(; ch < sourceSeg->text.P_AfterLast; ch++) {
-							if(*ch == _UT(':')) {
-								containsColon = TRUE;
-								break;
-							}
-						}
-						if(containsColon) {
-							/* [34/50]	                  T.path += "./"; */
-							if(!UriAppendSegment(dest, UriConstPwd, UriConstPwd+1)) {
-								return SLERR_NOMEM;
-							}
-							/* [35/50]	               elseif(first(A.path) == "") then */
-						}
-						else if(sourceSeg->text.P_First == sourceSeg->text.P_AfterLast) {
-							/* [36/50]	                  T.path += "/."; */
-							if(!UriAppendSegment(dest, UriConstPwd, UriConstPwd+1)) {
-								return SLERR_NOMEM;
-							}
-							/* [37/50]	               endif; */
-						}
-						/* [38/50]	            endif; */
-					}
-					/* [39/50]	            T.path += first(A.path); */
-					if(!UriAppendSegment(dest, sourceSeg->text.P_First, sourceSeg->text.P_AfterLast)) {
-						return SLERR_NOMEM;
-					}
-					/* [40/50]	            pathNaked = false; */
-					pathNaked = FALSE;
-					/* [41/50]	            A.path++; */
-					sourceSeg = sourceSeg->next;
-					/* [42/50]	            if defined(first(A.path)) then */
-					/* NOOP */
-					/* [43/50]	               T.path += + "/"; */
-					/* NOOP */
-					/* [44/50]	            endif; */
-					/* NOOP */
-					/* [45/50]	         endwhile; */
-				}
-				/* [46/50]	      endif; */
-			}
-			/* [47/50]	   endif; */
-		}
-		/* [48/50]	endif; */
-	}
-	/* [49/50]	T.query     = A.query; */
-	dest->query = absSource->query;
-	/* [50/50]	T.fragment  = A.fragment; */
-	dest->fragment = absSource->fragment;
-	return SLERR_SUCCESS;
-}
-
-int UriRemoveBaseUri(UriUri * dest, const UriUri * absSource, const UriUri * absBase, int domainRootMode)
-{
-	const int res = UriRemoveBaseUriImpl(dest, absSource, absBase, domainRootMode);
-	if((res != SLERR_SUCCESS) && dest) {
-		dest->Destroy();
-	}
-	return res;
-}
-#endif // } 0
 //
 //
 //
@@ -828,8 +590,6 @@ static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace,
 	ENDCATCH
 	return p_write;
 }
-
-//const char * UriUnescapeInPlace(char * inout) { return UriUnescapeInPlaceEx(inout, FALSE, URI_BR_DONT_TOUCH); }
 
 int UriAppendQueryItem(UriQueryList ** ppPrevNext, int * pItemCount, const char * pKeyFirst, const char * pKeyAfter,
 	const char * pValueFirst, const char * pValueAfter, int plusToSpace, UriBreakConversion breakConversion)
@@ -3010,45 +2770,43 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 			for(;; ) {
 				switch(*first) {
 				    case URI_SET_DIGIT:
-					if(digitCount == 4) {
-						StopSyntax(first);
-						return NULL;
-					}
-					digitHistory[digitCount++] =static_cast<uchar>(9+*first-_UT('9'));
-					break;
-
+						if(digitCount == 4) {
+							StopSyntax(first);
+							return NULL;
+						}
+						digitHistory[digitCount++] =static_cast<uchar>(9+*first-_UT('9'));
+						break;
 				    case _UT('.'):
-					if((ip4OctetsDone == 4) || /* NOTE! */ (digitCount == 0) || (digitCount == 4)) {
-						// Invalid digit or octet count 
-						StopSyntax(first);
-						return NULL;
-					}
-					else if((digitCount > 1) && (digitHistory[0] == 0)) {
-						// Leading zero 
-						StopSyntax(first-digitCount);
-						return NULL;
-					}
-					else if((digitCount > 2) && (digitHistory[1] == 0)) {
-						// Leading zero 
-						StopSyntax(first-digitCount+1);
-						return NULL;
-					}
-					else if((digitCount == 3) && (100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
-						// Octet value too large 
-						if(digitHistory[0] > 2)
-							StopSyntax(first-3);
-						else if(digitHistory[1] > 5)
-							StopSyntax(first-2);
-						else
-							StopSyntax(first-1);
-						return NULL;
-					}
-					// Copy IPv4 octet 
-					P_Uri->HostData.ip6->data[16-4+ip4OctetsDone] = uriGetOctetValue(digitHistory, digitCount);
-					digitCount = 0;
-					ip4OctetsDone++;
-					break;
-
+						if((ip4OctetsDone == 4) || /* NOTE! */ (digitCount == 0) || (digitCount == 4)) {
+							// Invalid digit or octet count 
+							StopSyntax(first);
+							return NULL;
+						}
+						else if((digitCount > 1) && (digitHistory[0] == 0)) {
+							// Leading zero 
+							StopSyntax(first-digitCount);
+							return NULL;
+						}
+						else if((digitCount > 2) && (digitHistory[1] == 0)) {
+							// Leading zero 
+							StopSyntax(first-digitCount+1);
+							return NULL;
+						}
+						else if((digitCount == 3) && (100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
+							// Octet value too large 
+							if(digitHistory[0] > 2)
+								StopSyntax(first-3);
+							else if(digitHistory[1] > 5)
+								StopSyntax(first-2);
+							else
+								StopSyntax(first-1);
+							return NULL;
+						}
+						// Copy IPv4 octet 
+						P_Uri->HostData.ip6->data[16-4+ip4OctetsDone] = uriGetOctetValue(digitHistory, digitCount);
+						digitCount = 0;
+						ip4OctetsDone++;
+						break;
 				    case _UT(']'):
 						if((ip4OctetsDone != 3) || /* NOTE! */ (digitCount == 0) || (digitCount == 4)) {
 							// Invalid digit or octet count 

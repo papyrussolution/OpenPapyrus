@@ -2,6 +2,9 @@
 // Copyright (C) 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org> All rights reserved.
 // Adopted to SLIB by A.Sobolev 2011-2021
 //
+#ifndef __URI_H // {
+#define __URI_H
+
 #include <slib.h>
 //
 // Version helper macro 
@@ -169,10 +172,6 @@ struct UriQueryList {
 };
 
 int    UriParseUri(UriParserState * state, const char * text);
-//const  char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion);
-//const  char * UriUnescapeInPlace(char * inout);
-//int    UriAddBaseUri(UriUri * absoluteDest, const UriUri * relativeSource, const UriUri*absoluteBase);
-//int    UriRemoveBaseUri(UriUri * dest, const UriUri * absoluteSource, const UriUri * absoluteBase, int domainRootMode);
 int    UriEqualsUri(const UriUri*a, const UriUri*b);
 int    FASTCALL UriToStringCharsRequired(const UriUri*uri, int * charsRequired);
 int    UriToString(char * dest, const UriUri * uri, int maxChars, int * charsWritten);
@@ -205,3 +204,5 @@ int    UriCopyPath(UriUri * dest, const UriUri * source);
 int    UriCopyAuthority(UriUri * dest, const UriUri * source);
 int    UriFixAmbiguity(UriUri * uri);
 void   UriFixEmptyTrailSegment(UriUri * uri);
+
+#endif // } __URI_H

@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2409,7 +2409,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJob
 		// }
 		//
 		case PPSCMD_HELLO:
-			if(HelloReplyText.Empty()) {
+			if(HelloReplyText.IsEmpty()) {
 				PPVersionInfo vi = DS.GetVersionInfo();
 				//vi.GetProductName(HelloReplyText);
 				vi.GetTextAttrib(vi.taiProductName, HelloReplyText);
@@ -2712,7 +2712,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJob
 				THROW_SL(ctx.Serialize(+1, c, _temp_sbuf));
 				for(int i = 0; i < c; i++) {
 					PPThread::Info * p_item = list.at(i);
-					if(p_item->Id == this_thread_id && p_item->LastMsg.Empty()) {
+					if(p_item->Id == this_thread_id && p_item->LastMsg.IsEmpty()) {
 						p_item->LastMsg = "GetServerStat";
 					}
 					THROW(p_item->Serialize(+1, _temp_sbuf, &ctx));
@@ -2955,7 +2955,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJob
 				pEv->GetParam(3, dev_uuid); // PPGetExtStrData(3, pEv->Params, dev_uuid);
 				{
 					dev_uuid = dev_name; // @todo
-					if(dev_uuid.Empty()) {
+					if(dev_uuid.IsEmpty()) {
 						SPathStruc sp(temp_path);
 						sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, log_path);
 					}
@@ -2977,7 +2977,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJob
 						SFile file(path, mWrite);
 						file.Close();
 					}
-					if(dev_name.Empty()) {
+					if(dev_name.IsEmpty()) {
 						SString right;
 						StringSet ss("\\");
 						SPathStruc sp(temp_path);
@@ -3031,9 +3031,9 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJob
 					pEv->GetParam(2, from); // PPGetExtStrData(2, pEv->Params, from);
 					pEv->GetParam(3, message); // PPGetExtStrData(3, pEv->Params, message);
 					// @todo Error message
-					THROW(!old_phone.Empty());
-					THROW(!message.Empty());
-					THROW(!from.Empty());
+					THROW(old_phone.NotEmpty());
+					THROW(message.NotEmpty());
+					THROW(from.NotEmpty());
 					THROW(PPAlbatrosCfgMngr::Get(&alb_cfg));
 					{
 						size_t bin_size = 0;
@@ -4809,8 +4809,7 @@ SLTEST_R(PapyrusRestoreSess)
 			}
 		}
 	}
-	if(srv_addr_line.Empty())
-		srv_addr_line = "localhost";
+	srv_addr_line.SetIfEmpty("localhost");
 	if(port <= 0)
 		port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
 	timeout = 30000;

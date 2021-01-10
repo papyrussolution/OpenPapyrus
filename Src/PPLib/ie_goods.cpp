@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1417,7 +1417,7 @@ int TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 				TempBuf.TrimRightChr('.');
 			}
 			else if(lex == rePctNum || lex == rePctRange) {
-				if(single_pct_measure.Empty()) {
+				if(single_pct_measure.IsEmpty()) {
 					single_pct_measure = TempBuf;
 					single_pct_measure_idx = word_count;
 				}
@@ -1455,7 +1455,7 @@ int TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 								normalize_val = 0;
 								lex_next = 0;
 								next_buf.Z();
-								if(single_measure.Empty() && unit_id != UNIT_COLOR) {
+								if(single_measure.IsEmpty() && unit_id != UNIT_COLOR) {
 									single_measure = TempBuf;
 									single_measure_idx = word_count;
 								}
@@ -2401,7 +2401,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 							if(hier_list.IsThereChildOf(obj_code) || GGObj.SearchCode(obj_code, &barcode_rec) > 0)
 								skip = 1;
 						}
-						if(!skip && goods_name.Empty() && Param.DefParentID) {
+						if(!skip && goods_name.IsEmpty() && Param.DefParentID) {
 							if(GObj.Fetch(Param.DefParentID, &par_rec) > 0 && par_rec.GdsClsID) {
 								PPGdsClsPacket gc_pack;
 								if(gc_obj.Fetch(par_rec.GdsClsID, &gc_pack) > 0 && gc_pack.NameConv.NotEmpty())

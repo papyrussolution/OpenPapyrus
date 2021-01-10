@@ -684,8 +684,8 @@ int BIO_snprintf(char * buf, size_t n, const char * format, ...)
 ossl_bio__attr__((__format__(ossl_bio__printf__, 3, 4)));
 int BIO_vsnprintf(char * buf, size_t n, const char * format, va_list args)
 ossl_bio__attr__((__format__(ossl_bio__printf__, 3, 0)));
-# undef ossl_bio__attr__
-# undef ossl_bio__printf__
+#undef ossl_bio__attr__
+#undef ossl_bio__printf__
 
 BIO_METHOD * BIO_meth_new(int type, const char * name);
 void BIO_meth_free(BIO_METHOD * biom);

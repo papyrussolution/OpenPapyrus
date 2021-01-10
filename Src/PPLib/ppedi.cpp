@@ -1,5 +1,5 @@
 // PPEDI.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1546,7 +1546,7 @@ int PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPID arID
 		}
 	}
 	// } @v10.3.6
-	for(uint bcidx = 0; rGtin.Empty() && bcidx < bc_list.getCount(); bcidx++) {
+	for(uint bcidx = 0; rGtin.IsEmpty() && bcidx < bc_list.getCount(); bcidx++) {
 		int    d = 0;
 		int    std = 0;
 		const  BarcodeTbl::Rec & r_bc_item = bc_list.at(bcidx);
@@ -1560,7 +1560,7 @@ int PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPID arID
 				non_strict_bc_pos = bcidx+1;
 		}
 	}
-	if(rGtin.Empty()) {
+	if(rGtin.IsEmpty()) {
 		if(!(ACfg.Hdr.Flags & PPAlbatrosCfgHdr::fStrictExpGtinCheck) && non_strict_bc_pos) {
 			(temp_buf = bc_list.at(non_strict_bc_pos-1).Code).Strip();
 			while(temp_buf.Last() == '*' || temp_buf.Last() == ' ')
@@ -2439,7 +2439,7 @@ int PPEanComDocument::Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, const P
 	THROW(qtty > 0.0); // @todo error (бессмысленная строка с нулевым количеством, но пока не ясно, что с ней делать - возможно лучше просто пропустить с замечанием).
 	THROW(P_Pi->GObj.Search(rTi.GoodsID, &goods_rec) > 0);
 	P_Pi->GObj.P_Tbl->ReadBarcodes(rTi.GoodsID, bc_list);
-	for(uint bcidx = 0; goods_code.Empty() && bcidx < bc_list.getCount(); bcidx++) {
+	for(uint bcidx = 0; goods_code.IsEmpty() && bcidx < bc_list.getCount(); bcidx++) {
 		int    d = 0;
 		int    std = 0;
 		const  BarcodeTbl::Rec & r_bc_item = bc_list.at(bcidx);
@@ -3549,8 +3549,7 @@ int EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const OwnFormat
 			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.KPP);
 		if(rC.Name.NotEmpty())
 			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.Name);
-		if(msg_buf.Empty())
-			msg_buf = "*";
+		msg_buf.SetIfEmpty("*");
 		msg_buf.CatDiv('-', 1).Cat(pPack->Rec.Code).CatDiv('-', 1).Cat(pPack->Rec.Dt, DATF_DMY);
 		if(partyQ == EDIPARTYQ_SELLER) {
 			if(pPack->Rec.EdiOp == PPEDIOP_DESADV) {
@@ -5953,7 +5952,7 @@ int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt 
 int EdiProviderImplementation_Exite::Auth()
 {
 	int    ok = -1;
-	if(AT.Token.Empty() || !AT.Tm || diffdatetimesec(getcurdatetime_(), AT.Tm) >= 3600) {
+	if(AT.Token.IsEmpty() || !AT.Tm || diffdatetimesec(getcurdatetime_(), AT.Tm) >= 3600) {
 		THROW(Implement_Auth(AT.Token));
 		AT.Tm = getcurdatetime_();
 		ok = 1;

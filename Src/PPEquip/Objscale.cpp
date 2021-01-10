@@ -1,5 +1,5 @@
 // OBJSCALE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3556,7 +3556,7 @@ int Bizerba::SendPLU(const ScalePLU * pScalePLU)
 
 			(goods_name = pScalePLU->GoodsName).ReplaceChar('@', 'a').Transf(CTRANSF_INNER_TO_OUTER);
 			THROW_PP(pScalePLU->GoodsNo > 0 && pScalePLU->GoodsNo <= 999999, PPERR_SCALE_INVPLUID);
-			THROW_PP(!goods_name.Empty(), PPERR_NAMENEEDED);
+			THROW_PP(goods_name.NotEmpty(), PPERR_NAMENEEDED);
 			expiry_days  = PrepareExpiry(pScalePLU->Expiry);
 			lprice       = PreparePrice(pScalePLU->Price, &weight_class);
 			lprice = (lprice >= 0 && lprice <= 999999) ? lprice : 0;

@@ -1,5 +1,5 @@
 // SUC.CPP
-// Copyright (c) A.Sobolev 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2017, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -2398,7 +2398,7 @@ int SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoolFileN
 			{
 				for(uint i = 0; i < test_tidx_list.getCount(); i++) {
 					_TestTranslIndexEntry * p_tti = test_tidx_list.at(i);
-					if(p_tti->ResultFileName.Empty()) {
+					if(p_tti->ResultFileName.IsEmpty()) {
 						CpMap src_map;
 						CpMap dest_map;
 						assert(GetByPos(p_tti->SrcCpIdx, &src_map));

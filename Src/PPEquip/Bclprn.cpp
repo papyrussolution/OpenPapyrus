@@ -1,5 +1,5 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1004,7 +1004,7 @@ int BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * pFileNa
 		RGI.Init();
 	MEMSZERO(BLP);
 	FILE * f = 0;
-	if(VarString.Empty())
+	if(VarString.IsEmpty())
 		PPLoadText(PPTXT_BCLABEL_VARS, VarString);
 	ZDELETE(P_GPack);
 	THROW_PP_S(f = fopen(pFileName, "rt"), PPERR_BARLABELFILENEXISTS, pFileName);
@@ -1204,6 +1204,15 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 	return ok;
 }
 
+/*static*/int BarcodeLabelPrinter::GetLabelFileName(PPIniFile & rIniFile, SString & rBuf)
+{
+	rBuf.Z();
+	rIniFile.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, rBuf);
+	if(rBuf.IsEmpty())
+		PPGetFileName(PPFILNAM_BARLABEL_LBL, rBuf);
+	return rBuf.NotEmptyS();
+}
+
 /*static*/int BarcodeLabelPrinter::UpLoad(PPID prnID, const char * pLoadName, int silent)
 {
 	int    ok = 1;
@@ -1224,9 +1233,7 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 		PPIniFile ini_file;
 		BarcodeLabel label;
 		THROW(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0);
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, file_name);
-		if(file_name.Empty())
-			PPGetFileName(PPFILNAM_BARLABEL_LBL, file_name);
+		BarcodeLabelPrinter::GetLabelFileName(ini_file, file_name);
 		PPGetFilePath(PPPATH_BIN, file_name, file_path);
 		THROW_PP(fileExists(file_path), PPERR_BARLABELFILENEXISTS);
 		THROW_PP(label.ParseFormat(0, file_path, pLoadName), PPERR_LABELSYNTX);
@@ -1326,14 +1333,12 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 				pRgi->Expiry = temp_rgi.Expiry;
 			}
 		}
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, file_name);
-		if(file_name.Empty())
-			PPGetFileName(PPFILNAM_BARLABEL_LBL, file_name);
+		BarcodeLabelPrinter::GetLabelFileName(ini_file, file_name);
 		PPGetFilePath(PPPATH_BIN, file_name, file_path);
 		THROW_PP_S(fileExists(file_path), PPERR_BARLABELFILENEXISTS, file_path);
 		THROW_PP(label.ParseFormat(pRgi, file_path, rec.LabelName), PPERR_LABELSYNTX);
 		THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
-		label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt); // @v8.0.9
+		label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt);
 		THROW(p_prn->StartLabel(label.GetParam(), bclpp.NumCopies));
 		for(i = 0; i < label.GetEntryCount(); i++)
 			THROW(p_prn->PutDataEntry(label.GetEntry(i)));
@@ -1433,12 +1438,10 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 			uint   part_count = 0;
 			int    row_delay = 0;
 			PPIniFile ini_file;
-			ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, file_name);
 			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_BARLABELPRINT_DELAY, &row_delay);
 			if(row_delay <= 0 || row_delay > 10000)
 				row_delay = 250;
-			if(file_name.Empty())
-				PPGetFileName(PPFILNAM_BARLABEL_LBL, file_name);
+			BarcodeLabelPrinter::GetLabelFileName(ini_file, file_name);
 			PPGetFilePath(PPPATH_BIN, file_name, file_path);
 			THROW_PP(fileExists(file_path), PPERR_BARLABELFILENEXISTS);
 			for(uint i = 0; i < rList.getCount(); i++) {
@@ -1610,12 +1613,10 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 		SString file_name, file_path, serial;
 		PPObjGoods gobj;
 		PPIniFile ini_file;
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, file_name);
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_BARLABELPRINT_DELAY, &row_delay);
 		if(row_delay <= 0 || row_delay > 10000)
 			row_delay = 250;
-		if(file_name.Empty())
-			PPGetFileName(PPFILNAM_BARLABEL_LBL, file_name);
+		BarcodeLabelPrinter::GetLabelFileName(ini_file, file_name);
 		PPGetFilePath(PPPATH_BIN, file_name, file_path);
 		THROW_PP(fileExists(file_path), PPERR_BARLABELFILENEXISTS);
 		if(bclpp.Flags & BarcodeLabelPrintParam::fPrintAll) {

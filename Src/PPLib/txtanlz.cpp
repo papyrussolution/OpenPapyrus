@@ -1,5 +1,5 @@
 // TXTANLZ.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2163,7 +2163,7 @@ PrcssrObjTextFilt & FASTCALL PrcssrObjTextFilt::operator = (const PrcssrObjTextF
 
 int PrcssrObjTextFilt::IsEmpty() const
 {
-	return BIN(!ObjType && !ObjTextIdent && !Flags && RuleFileName.Empty() && !P_GoodsF && !P_BrandF && !P_PsnF);
+	return BIN(!ObjType && !ObjTextIdent && !Flags && RuleFileName.IsEmpty() && !P_GoodsF && !P_BrandF && !P_PsnF);
 }
 
 PrcssrObjText::SignalProcBlock::SignalProcBlock() : State(0)
@@ -2993,7 +2993,7 @@ int PPKeywordListGenerator::GetRandomWord(SString & rBuf)
 				if(rn < _c) {
 					Rwb.GetWord(rn, rBuf);
 				}
-			} while(rBuf.Empty());
+			} while(rBuf.IsEmpty());
 		}
 	}
 	return rBuf.NotEmpty();
@@ -3022,12 +3022,12 @@ int PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * pGrpTex
 				special = spcRandom;
 			else if(temp_buf == "\\group") {
 				special = spcGroup;
-				if(!pGrpText || pGrpText->Empty())
+				if(!pGrpText || pGrpText->IsEmpty())
 					special = spcSkip;
 			}
 			else if(temp_buf == "\\loc") {
 				special = spcLoc;
-				if(!pLoc || pLoc->Empty())
+				if(!pLoc || pLoc->IsEmpty())
 					special = spcSkip;
 			}
 			if(special != spcSkip && temp_buf.NotEmpty()) {
@@ -3133,11 +3133,11 @@ int PPKeywordListGenerator::Run(const char * pContext, SString & rResult, RunSta
 						}
 					}
 					else if(left.IsEqiAscii("locn")) {
-						if(loctext.Empty() && right.NotEmptyS())
+						if(loctext.IsEmpty() && right.NotEmptyS())
 							loctext = right.Strip();
 					}
 					else if(left.IsEqiAscii("locs")) {
-						if(loctext.Empty() && right.NotEmptyS()) {
+						if(loctext.IsEmpty() && right.NotEmptyS()) {
 							SETIFZ(DS.GetTLA().P_WObj, new PPObjWorld);
 							PPObjWorld * p_w_obj = DS.GetTLA().P_WObj;
 							WorldTbl::Rec w_rec;
@@ -3336,7 +3336,7 @@ int PPKeywordListGenerator::ReadData(const char * pFileName)
 	SFile  f_in(pFileName, SFile::mRead);
 	THROW_SL(f_in.IsValid());
 	SFile::GetTime(pFileName, 0, 0, &new_data_file_dtm);
-	if(DataFileName.Empty() || !DataFileDtm || DataFileDtm != new_data_file_dtm) {
+	if(DataFileName.IsEmpty() || !DataFileDtm || DataFileDtm != new_data_file_dtm) {
 		SString line_buf, temp_buf, prob_buf;
 		SString cur_context;
 		Clear();

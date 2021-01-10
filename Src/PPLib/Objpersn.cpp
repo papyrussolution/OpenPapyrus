@@ -1,5 +1,5 @@
 // OBJPERSN.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -546,7 +546,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 			else {
 				THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, 0, 0));
 			}
-			// } @v10.7.11 
+			// } @v10.7.11
 			// @v10.7.11 THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, (pCfg ? &pCfg->DlvrAddrExtFldList : 0), 0));
 		}
 		THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, (pCfg ? &pCfg->NewClientDetectionList : 0), 0)); // @vmiller
@@ -622,7 +622,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 		for(uint i = 0; i < temp_list.getCount(); i++) {
 			pCfg->DlvrAddrExtFldList.Add(temp_list.at(i).Id, temp_list.at(i).Txt);
 		}
-		// } @v10.7.11 
+		// } @v10.7.11
 		// @v10.7.11 THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &pCfg->DlvrAddrExtFldList));
 	}
 	THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, &pCfg->NewClientDetectionList)); // @vmiller
@@ -737,7 +737,7 @@ int ExtFieldsDialog::addItem(long * pPos, long * pID)
 }
 
 int ExtFieldsDialog::editItem(long pos, long id)
-{ 
+{
 	int    ok = -1;
 	if(pos >= 0 && pos < static_cast<long>(Data.getCount())) {
 		StrAssocArray::Item li = Data.Get(pos);
@@ -818,7 +818,7 @@ public:
 			MEMSZERO(Data);
 		if(Data.Oi.Obj == PPOBJ_OPRKIND) {
 			PPIDArray op_type_list;
-			op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT, 
+			op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT,
 				PPOPT_DRAFTEXPEND, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 			SetupOprKindCombo(this, CTLSEL_NEWCNTCF_OPKIND, Data.Oi.Id, 0, &op_type_list, 0);
 		}
@@ -858,7 +858,7 @@ private:
 						{
 							Data.Oi.Obj = obj_type;
 							PPIDArray op_type_list;
-							op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 
+							op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 								PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 							SetupOprKindCombo(this, CTLSEL_NEWCNTCF_OPKIND, Data.Oi.Id = 0, 0, &op_type_list, 0);
 						}
@@ -964,7 +964,7 @@ int NewPersMarksDialog::setupList()
 				temp_buf = title_txt_buf;
 				break;
 			}
-		if(temp_buf.Empty())
+		if(temp_buf.IsEmpty())
 			temp_buf.CatChar('#').Cat("OBJ").Space().Cat(item.Obj);
 		ss.add(temp_buf);
 		if(item.Obj == PPOBJ_PERSONOPKIND) {
@@ -1128,7 +1128,7 @@ void PPPersonConfig::Init()
 
 TLP_IMPL(PPObjPerson, PersonCore, P_Tbl);
 
-PPObjPerson::PPObjPerson(SCtrLite sctr) : PPObject(PPOBJ_PERSON), LocObj(sctr), P_ArObj(0), P_PrcObj(0), ExtraPtr(0), 
+PPObjPerson::PPObjPerson(SCtrLite sctr) : PPObject(PPOBJ_PERSON), LocObj(sctr), P_ArObj(0), P_PrcObj(0), ExtraPtr(0),
 	DoObjVer_Person(CConfig.Flags2 & CCFLG2_USEHISTPERSON) // @v10.5.3
 {
 	TLP_OPEN(P_Tbl);
@@ -2347,7 +2347,7 @@ int PPObjPerson::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContex
 							p_absent_kind_list->sortAndUndup();
 							p_pack->Kinds.addUnique(p_absent_kind_list);
 						}
-						// } @v10.3.0 
+						// } @v10.3.0
 						ObjTagList org_tag_list;
 						PPRef->Ot.GetList(Obj, *pID, &org_tag_list);
 						org_tag_list.Merge(p_pack->TagL, ObjTagList::mumAdd|ObjTagList::mumUpdate);
@@ -2405,13 +2405,6 @@ int PPObjPerson::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, 
 		for(i = 0; i < p_pack->ELA.getCount(); i++) {
 			THROW(ProcessObjRefInArray(PPOBJ_ELINKKIND, &p_pack->ELA.at(i).KindID, ary, replace));
 		}
-		/* @v9.0.4
-		for(i = 0; i < p_pack->BAA.getCount(); i++) {
-			BankAccountTbl::Rec & r_ba_rec = p_pack->BAA.at(i);
-			THROW(ProcessObjRefInArray(PPOBJ_PERSON, &r_ba_rec.BankID, ary, replace));
-			THROW(ProcessObjRefInArray(PPOBJ_BNKACCTYPE, &r_ba_rec.AccType, ary, replace));
-		}
-		*/
 		for(i = 0; i < p_pack->GetRelList().getCount(); i++) {
 			// @privacy_violation Здесь обходится приватность PPPerson::RelList
 			LAssoc & r_assoc = p_pack->GetRelList().at(i);
@@ -2695,7 +2688,7 @@ IMPL_HANDLE_EVENT(ReplPrsnDialog)
 int PPObjPerson::GetExtName(PPID id, SString & rBuf)
 {
 	int    r = PPRef->GetPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, rBuf);
-	if(r > 0 && rBuf.Empty())
+	if(r > 0 && rBuf.IsEmpty())
 		r = -1;
 	return r;
 }
@@ -3097,7 +3090,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 								THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
 							}
 						}
-						// } @v10.5.3 
+						// } @v10.5.3
 						THROW(P_Tbl->GetKindList(pPack->Rec.ID, &kind_list));
 						THROW_SL(losed_kinds.addUniqueExclusive(&kind_list, &pPack->Kinds));
 						THROW(Search(id, &org_rec) > 0);
@@ -3259,7 +3252,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					SSerializeContext & r_sctx = p_ovc->GetSCtx();
 					THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
 				}
-				// } @v10.5.3 
+				// } @v10.5.3
 				if(org_pack.Rec.MainLoc)
 					THROW(LocObj.PutRecord(&org_pack.Rec.MainLoc, 0, 0));
 				if(org_pack.Rec.RLoc)
@@ -3304,8 +3297,8 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
 					THROW(p_ovc->Add(&hid, PPObjID(Obj, id), &hist_buf, 0));
 				}
-			}		
-			// } @v10.5.3 
+			}
+			// } @v10.5.3
 		}
 		if(action && id)
 			DS.LogAction(action, Obj, id, hid, 0);
@@ -3556,7 +3549,7 @@ void PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam, SSt
 				rBuf.CatDivIfNotEmpty(';', 2).Cat(addr_buf);
 			}
 		}
-		if(rBuf.Empty())
+		if(rBuf.IsEmpty())
 			rBuf.CatChar('#').Cat(id);
 	}
 }
@@ -3851,7 +3844,7 @@ public:
 		// @v10.9.0 {
 		if(getCtrlView(CTL_PERSON_GENDER))
 			PersonCore::SetGender(Data.Rec, GetClusterData(CTL_PERSON_GENDER));
-		// } @v10.9.0 
+		// } @v10.9.0
 		{
 			ImageBrowseCtrlGroup::Rec rec;
 			if(getGroupData(GRP_IBG, &rec))
@@ -4078,7 +4071,7 @@ public:
 		// @v10.9.0 {
 		if(getCtrlView(CTL_PERSON_GENDER))
 			PersonCore::SetGender(Data.Rec, GetClusterData(CTL_PERSON_GENDER));
-		// } @v10.9.0 
+		// } @v10.9.0
 		sel = CTL_PERSON_NAME;
 		THROW(PsnObj.ValidatePacket(&Data, 0));
 		ASSIGN_PTR(pData, Data);
@@ -4342,7 +4335,7 @@ void ShortPersonDialog::ShowSCardCtrls(int show)
 		CTL_PERSON_ST_SCARDINFO, CTL_PERSON_SCEXPIRY, CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCDIS, CTL_PERSON_SCAG, CTLSEL_PERSON_SCAG, CTL_PERSON_SCTIME };
 	for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++)
 		showCtrl(ctl_list[i], show);
-	// } @v10.9.0 
+	// } @v10.9.0
 	/* @v10.9.0 showCtrl(CTL_PERSON_SCFRAME, show);
 	showCtrl(CTL_PERSON_SCARD, show);
 	showCtrl(CTL_PERSON_SCARDAUTO, show);
@@ -6317,7 +6310,7 @@ int PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(Search(*pID, &psnk) > 0);
 	}
-	// @v10.6.6 @ctr else MEMSZERO(psnk); 
+	// @v10.6.6 @ctr else MEMSZERO(psnk);
 	dlg->setCtrlLong(CTL_PSNKIND_ID, psnk.ID);
 	dlg->setCtrlData(CTL_PSNKIND_NAME, psnk.Name);
 	dlg->setCtrlData(CTL_PSNKIND_SYMB, psnk.Symb);
@@ -6949,12 +6942,12 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		}
 	}
 	// @v10.4.0 {
-	else if(pF->Name == "?GetExtName") { 
+	else if(pF->Name == "?GetExtName") {
 		temp_buf.Z();
 		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
 		if(p_obj) {
 			p_obj->GetExtName(H.ID, temp_buf);
-			if(temp_buf.Empty()) {
+			if(temp_buf.IsEmpty()) {
 				PersonTbl::Rec psn_rec;
 				if(p_obj->Fetch(H.ID, &psn_rec) > 0)
 					temp_buf = psn_rec.Name;
@@ -6962,7 +6955,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		}
 		_RET_STR = temp_buf;
 	}
-	// } @v10.4.0 
+	// } @v10.4.0
 	else if(pF->Name == "?GetTag") {
 		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_PERSON, H.ID, _ARG_STR(1));
 	}

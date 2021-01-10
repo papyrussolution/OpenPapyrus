@@ -1754,7 +1754,7 @@ void /* PRIVATE */ png_read_transform_info(png_structrp png_ptr, png_inforp info
 #        else
 
 		CONFIGURATION ERROR : you must enable at least one 16 to 8 method
-#        endif
+#endif
 #endif
 #endif /* !READ_16BIT */
 	}

@@ -1,5 +1,5 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1371,9 +1371,9 @@ int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int 
 			if(is_left_num && is_right_num)
 				c = BIN(left_num == right_num);
 			else if(is_right_num && right_num == 0)
-				c = BIN(left.Empty());
+				c = BIN(left.IsEmpty());
 			else if(is_left_num && left_num == 0)
-				c = BIN(right.Empty());
+				c = BIN(right.IsEmpty());
 			else
 				c = BIN(left.CmpNC(right) == 0);
 			break;
@@ -1627,7 +1627,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					ok = NextIteration(pIter, rBuf); // @recursion
 				}
 				else if(p_entry->Flags & PPSlipFormat::Entry::fSpace) {
-					if(p_entry->Text.Empty())
+					if(p_entry->Text.IsEmpty())
 						result.CatCharN(' ', PageWidth);
 					else {
 						for(uint i = 0; i < PageWidth / p_entry->Text.Len(); i++)

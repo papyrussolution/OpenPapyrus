@@ -1,5 +1,5 @@
 // PPAPPO.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1533,7 +1533,7 @@ int PPBackupSystemFiles_Arc()
 						//
 						PPIniFile ifile;
 						ifile.Get(PPINISECT_PATH, PPINIPARAM_WINLOCALRPT, path);
-						if(path.Empty()) {
+						if(path.IsEmpty()) {
 							PPGetPath(PPPATH_BIN, path);
 							path.SetLastSlash().Cat("RPT").SetLastSlash().Cat("LOCAL");
 						}
@@ -2076,7 +2076,7 @@ int PPApp::RegisterComServer()
 		{
 			const int disable = BIN(XLARegKeyDir.Len() == 0 || Data.Action == Param::aDeregister);
 			DisableClusterItem(CTL_REGCOMSVR_FLAGS, 0, disable);
-			DisableClusterItem(CTL_REGCOMSVR_FLAGS, 1, disable || Data.DllPath_XpCompat.Empty());
+			DisableClusterItem(CTL_REGCOMSVR_FLAGS, 1, disable || Data.DllPath_XpCompat.IsEmpty());
 			if(Data.Flags & Param::fXpCompat)
 				setCtrlString(CTL_REGCOMSVR_INFO, Data.DllPath_XpCompat);
 			else

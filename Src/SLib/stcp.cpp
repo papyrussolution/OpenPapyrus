@@ -1,12 +1,10 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <uri.h>
 #include <snet.h>
-// @v10.2.3 #include <winsock2.h>
 #include <wininet.h>
 #include <openssl/ssl.h>
 //
@@ -995,7 +993,7 @@ int SMailMessage::ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf)
 	size_t prefix_len = 0;
 	SString temp_buf;
 	SString decode_buf;
-	if(rLineBuf.Empty()) {
+	if(rLineBuf.IsEmpty()) {
 		if(rBlk.State == rBlk.stHeader)
 			rBlk.State = rBlk.stBody;
 		else if(rBlk.State == rBlk.stMimePartHeader)
@@ -1248,10 +1246,10 @@ int SMailMessage::ReadFromFile(SFile & rF)
 				full_line.Cat(line_buf.cptr()+1);
 		}
 		else {
-			if(blk.LineNo > 1 && (!full_line.Empty() || !prev_full_line_was_empty)) {
+			if(blk.LineNo > 1 && (!full_line.IsEmpty() || !prev_full_line_was_empty)) {
 				THROW(ProcessInputLine(blk, full_line));
 			}
-			prev_full_line_was_empty = full_line.Empty();
+			prev_full_line_was_empty = full_line.IsEmpty();
 			full_line = line_buf;
 		}
 		ok = 1;
@@ -1305,15 +1303,12 @@ int SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SString 
 		SString mime_ext;
 		SString path;
 		SString file_name;
-		if(p_attm->Cd.FileNameP) {
+		if(p_attm->Cd.FileNameP)
 			GetS(p_attm->Cd.FileNameP, file_name);
-		}
-		if(file_name.Empty() && p_attm->Cd.NameP) {
+		if(file_name.IsEmpty() && p_attm->Cd.NameP)
 			GetS(p_attm->Cd.NameP, file_name);
-		}
-		if(file_name.Empty() && p_attm->Ct.NameP) {
+		if(file_name.IsEmpty() && p_attm->Ct.NameP)
 			GetS(p_attm->Ct.NameP, file_name);
-		}
 		if(p_attm->Ct.MimeP) {
 			GetS(p_attm->Ct.MimeP, mime_type);
 			if(mime_type.NotEmpty()) {
@@ -1330,9 +1325,8 @@ int SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SString 
 			}
 			else {
 				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
-				if(file_name.Empty()) {
+				if(file_name.IsEmpty())
 					MakeTempFileName(path, "eml", mime_ext, 0, result_file_name);
-				}
 				else {
 					file_name.Transf(CTRANSF_UTF8_TO_OUTER);
 					(result_file_name = path).SetLastSlash().Cat(file_name);
@@ -1630,7 +1624,7 @@ SMailMessage::Boundary * SMailMessage::Helper_CreateBoundary(SMailMessage::Bound
 		AddS(temp_buf, &pParent->Ct.BoundaryP);
 		//
 		GetS(pParent->Ct.MimeP, temp_buf);
-		if(temp_buf.Empty())
+		if(temp_buf.IsEmpty())
 			AddS("multipart/mixed", &pParent->Ct.MimeP);
 	}
 	CATCH
@@ -2660,7 +2654,7 @@ int ScURL::SetCommonOptions(int mflags, int bufferSize, const char * pUserAgent)
 	if(P_LogF || LogFileName.NotEmpty() || mflags & mfVerbose) {
 		if(!P_LogF) {
 			SString file_name = LogFileName;
-			if(file_name.Empty()) {
+			if(file_name.IsEmpty()) {
 				SLS.QueryPath("log", file_name);
 				if(file_name.NotEmpty())
 					file_name.SetLastSlash().Cat("curl.log");
@@ -3303,7 +3297,7 @@ int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SSt
 		SPathStruc ps_local(pLocalFile);
 		SPathStruc ps_remote(url_info.Path);
 		if(ps_remote.Nam.NotEmpty()) {
-			if(ps_local.Nam.Empty()) {
+			if(ps_local.Nam.IsEmpty()) {
 				ps_local.Nam = ps_remote.Nam;
 				ps_local.Ext = ps_remote.Ext;
 				ps_local.Merge(local_file_path);
@@ -3782,13 +3776,13 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 					ResultItem ri;
 					url_src.GetComponent(InetUrl::cPath, 1, temp_buf);
 					ps.Split(temp_buf);
-					if(ps.Nam.Empty()) {
+					if(ps.Nam.IsEmpty()) {
 						has_wildcard = 1;
 						ps.Nam = "*";
 					}
 					else if(ps.Nam.HasChr('*') || ps.Nam.HasChr('?'))
 						has_wildcard = 1;
-					if(ps.Ext.Empty()) {
+					if(ps.Ext.IsEmpty()) {
 						has_wildcard = 1;
 						ps.Ext = "*";
 					}
@@ -3853,11 +3847,11 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 					url_src.GetComponent(InetUrl::cPath, 1, temp_buf);
 					if(temp_buf.NotEmptyS()) {
 						ps.Split(temp_buf);
-						if(filt_filename.Empty()) {
+						if(filt_filename.IsEmpty()) {
 							if(ps.Nam.NotEmpty())
 								ps.Merge(SPathStruc::fNam|SPathStruc::fExt, filt_filename);
 						}
-						if(filt_from.Empty()) {
+						if(filt_from.IsEmpty()) {
 							if(ps.Dir.NotEmpty()) {
 								(temp_buf = ps.Dir).RmvLastSlash();
 								STokenRecognizer tr;
@@ -3935,12 +3929,12 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 											//
 											if(ps_src.Nam.NotEmpty()) {
 												ps_src.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
-												if(filt_filename.Empty() || SFile::WildcardMatch(filt_filename, temp_buf)) {
+												if(filt_filename.IsEmpty() || SFile::WildcardMatch(filt_filename, temp_buf)) {
 													ps.Split(local_path_dest);
 													ps.Nam.SetIfEmpty(ps_src.Nam);
 													ps.Ext.SetIfEmpty(ps_src.Ext);
 													result_file_ext = ps.Ext;
-													if(ps.Nam.Empty()) {
+													if(ps.Nam.IsEmpty()) {
 														ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 														MakeTempFileName(temp_buf, "eml", result_file_ext, 0, result_file_name);
 													}

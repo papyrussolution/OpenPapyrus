@@ -1,5 +1,5 @@
 // RC2.CPP
-// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019, 2020
+// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019, 2020, 2021
 //
 #include <pp.h>
 #include "rc2.h"
@@ -763,11 +763,11 @@ int Rc2Data::GenerateCmdDefinitions()
 				(filt_symb = "PPFILT_").Cat(p_cmd->Filt.FiltSymb).ToUpper();
 			filt_ext_symb = strip(p_cmd->Filt.FiltExtraSymb);
 		}
-		if(view_symb.Empty())
+		if(view_symb.IsEmpty())
 			view_symb.CatChar('0');
-		if(filt_symb.Empty())
+		if(filt_symb.IsEmpty())
 			filt_symb.CatChar('0');
-		if(filt_ext_symb.Empty())
+		if(filt_ext_symb.IsEmpty())
 			filt_ext_symb.CatChar('0');
 		fprintf(pRc, "\t\"%s\\0\", \"%s\\0\", %s,\n\t%s, %s, 0x%08lX, %s, %s, %s\n",
 			p_cmd->Name, p_cmd->Descr, p_cmd->IconIdent,

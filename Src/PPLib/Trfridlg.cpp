@@ -1,5 +1,5 @@
 // TRFRIDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1958,7 +1958,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 				setCtrlString(CTL_LOT_SERIAL, temp_buf);
 		}
 		else if(IsTaggedItem() && P_BObj->GetConfig().Flags & BCF_AUTOSERIAL) {
-			if(getCtrlString(CTL_LOT_SERIAL, temp_buf) && temp_buf.Empty())
+			if(getCtrlString(CTL_LOT_SERIAL, temp_buf) && temp_buf.IsEmpty())
 				GenerateSerial();
 		}
 		else {
@@ -2972,7 +2972,7 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 			if(temp_buf.NotEmptyS()) {
 				State &= ~stNoSerials;
 				if(!(State & stMultipleSerial)) {
-					if(single_serial.Empty())
+					if(single_serial.IsEmpty())
 						single_serial = temp_buf;
 					else if(single_serial.CmpNC(temp_buf) != 0) {
 						single_serial = 0;
@@ -3247,7 +3247,7 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 				else
 					r = 1;
 				(rParam.RetLotSerial = p_sel->Serial).Strip();
-				if(rParam.Flags & rParam.fNotEmptySerial && rParam.RetLotSerial.Empty())
+				if(rParam.Flags & rParam.fNotEmptySerial && rParam.RetLotSerial.IsEmpty())
 					r = -1;
 			}
 		}

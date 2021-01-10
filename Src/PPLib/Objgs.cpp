@@ -1,5 +1,5 @@
 // OBJGS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1973,7 +1973,7 @@ StrAssocArray * PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
 				}
 				for(uint i = 0; i < id_list.getCount(); i++) {
 					if(Search(id_list.at(i), &gsh_rec) > 0) {
-						if((temp_buf = gsh_rec.Name).Strip().Empty())
+						if((temp_buf = gsh_rec.Name).Strip().IsEmpty())
 							(temp_buf = "BOM").Space().CatChar('#').CatLongZ((long)(i+1), 2);
 						THROW_SL(p_list->Add(gsh_rec.ID, gsh_rec.Name));
 					}
@@ -2589,7 +2589,7 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 					GetGoodsName(goods_id, g_name);
 					GetGoodsName(p_item->GoodsID, cg_name);
 					(cstruc_name = gstruc.Rec.Name).Strip();
-					if(cstruc_name.Empty())
+					if(cstruc_name.IsEmpty())
 						ideqvalstr(gstruc.Rec.ID, cstruc_name);
 					PPLoadText(PPTXT_CYCLESSTRUCT, fmt_buf);
 					buf.Printf(fmt_buf.cptr(), g_name.cptr(), struc_name.cptr(), cg_name.cptr(), cstruc_name.cptr());
@@ -2862,7 +2862,7 @@ int SaGiftItem::CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pP
 			else if(OrgStrucID != StrucID && gs_obj.Fetch(OrgStrucID, &gs_rec) > 0 && gs_rec.Name[0])
 				rPotName = gs_rec.Name;
 			else {
-				for(uint j = 0; j < GiftList.getCount() && rPotName.Empty(); ++j)
+				for(uint j = 0; j < GiftList.getCount() && rPotName.IsEmpty(); ++j)
 					GetGoodsName(GiftList.get(j), rPotName);
 			}
 			ASSIGN_PTR(pPotGoodsID, lack_goods_id);
@@ -3022,7 +3022,7 @@ int SaGiftArray::SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAsso
 							ok = 1;
 						}
 					}
-					else if(rGift.Pot.Name.Empty()) {
+					else if(rGift.Pot.Name.IsEmpty()) {
 						PPID   pot_goods_id = 0;
 						double pot_amount = 0.0;
 						double pot_deficit = 0.0;

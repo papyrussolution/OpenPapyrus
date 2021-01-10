@@ -1,5 +1,5 @@
 // D_CHARRY.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -33,7 +33,7 @@ int PPDS_CrrAddress::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 		}
 	}
 	else if(op == idoAccept) {
-		if(CityName.Empty() || WObj.AddSimple(&Data.CityID, WORLDOBJ_CITY, CityName, CountryName, 1)) {
+		if(CityName.IsEmpty() || WObj.AddSimple(&Data.CityID, WORLDOBJ_CITY, CityName, CountryName, 1)) {
 			LocationCore::SetExField(&Data, LOCEXSTR_SHORTADDR, Address.Strip());
 			ok = (Address.NotEmpty() || Data.CityID) ? 1 : -1;
 		}
@@ -1563,9 +1563,8 @@ int PPDS_CrrDbDiv::TransferField(long fldID, Tfd dir, uint * pIter, SString & rB
 					if((*pIter) < Data.LocList.getCount()) {
 						LocationTbl::Rec loc_rec;
 						if(Obj.Search(Data.LocList.get(*pIter), &loc_rec) > 0) {
-							TempBuf = loc_rec.Code;
-							if(TempBuf.Strip().Empty())
-								TempBuf = loc_rec.Name;
+							(TempBuf = loc_rec.Code).Strip();
+							TempBuf.SetIfEmpty(loc_rec.Name);
 						}
 						else
 							TempBuf.Z();

@@ -55,13 +55,13 @@
                                 } \
                         }
 
-# undef n2l
+#undef n2l
 #define n2l(c,l)        (l =((ulong)(*((c)++)))<<24L, \
                          l|=((ulong)(*((c)++)))<<16L, \
                          l|=((ulong)(*((c)++)))<< 8L, \
                          l|=((ulong)(*((c)++))))
 
-# undef l2n
+#undef l2n
 #define l2n(l,c)        (*((c)++)=(uchar)(((l)>>24L)&0xff), \
                          *((c)++)=(uchar)(((l)>>16L)&0xff), \
                          *((c)++)=(uchar)(((l)>> 8L)&0xff), \

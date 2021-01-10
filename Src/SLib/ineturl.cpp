@@ -1,5 +1,5 @@
 // INETURL.CPP
-// Copyright (c) A.Sobolev 2019, 2020
+// Copyright (c) A.Sobolev 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -67,7 +67,7 @@ InetAddr & InetAddr::Z()
 int FASTCALL InetAddr::IsEqual(const InetAddr & rS) const { return BIN(V4 == rS.V4 && Port == rS.Port && HostName == rS.HostName); }
 int FASTCALL InetAddr::operator == (const InetAddr & rS) const { return IsEqual(rS); }
 int FASTCALL InetAddr::operator != (const InetAddr & rS) const { return BIN(!IsEqual(rS)); }
-int InetAddr::IsEmpty() const { return BIN(V4 == 0 && HostName.Empty()); }
+int InetAddr::IsEmpty() const { return BIN(V4 == 0 && HostName.IsEmpty()); }
 int InetAddr::Set(const sockaddr_in * pAddr) { return Set(pAddr->sin_addr.s_addr, pAddr->sin_port); }
 
 int InetAddr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)

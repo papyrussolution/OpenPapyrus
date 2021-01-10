@@ -1,5 +1,5 @@
 // DREAMKAS.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Интерфейс с кассовым порталом DreamKas
 //
@@ -110,12 +110,11 @@ int ACS_DREAMKAS::ParseGoods(const SJson * pJsonObj, S_GUID & rUuid, SString & r
 			}
 		}
 		else if(p_cur->Text.IsEqiAscii("name")) {
-			if(p_cur->P_Child) {
+			if(p_cur->P_Child)
 				rName = (temp_buf = p_cur->P_Child->Text).Unescape();
-			}
 		}
 	}
-	if(rName.Empty() || rUuid.IsZero())
+	if(rName.IsEmpty() || rUuid.IsZero())
 		ok = -1;
 	return ok;
 }

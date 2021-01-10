@@ -211,11 +211,9 @@ static CURLcode gskit_status(struct Curl_easy * data, int rc,
 	return defcode;
 }
 
-static CURLcode set_enum(struct Curl_easy * data, gsk_handle h,
-    GSK_ENUM_ID id, GSK_ENUM_VALUE value, bool unsupported_ok)
+static CURLcode set_enum(struct Curl_easy * data, gsk_handle h, GSK_ENUM_ID id, GSK_ENUM_VALUE value, bool unsupported_ok)
 {
 	int rc = gsk_attribute_set_enum(h, id, value);
-
 	switch(rc) {
 		case GSK_OK:
 		    return CURLE_OK;
@@ -232,11 +230,9 @@ static CURLcode set_enum(struct Curl_easy * data, gsk_handle h,
 	return CURLE_SSL_CONNECT_ERROR;
 }
 
-static CURLcode set_buffer(struct Curl_easy * data, gsk_handle h,
-    GSK_BUF_ID id, const char * buffer, bool unsupported_ok)
+static CURLcode set_buffer(struct Curl_easy * data, gsk_handle h, GSK_BUF_ID id, const char * buffer, bool unsupported_ok)
 {
 	int rc = gsk_attribute_set_buffer(h, id, buffer, 0);
-
 	switch(rc) {
 		case GSK_OK:
 		    return CURLE_OK;

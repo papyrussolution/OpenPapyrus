@@ -217,7 +217,7 @@ static inline int mythread_cond_init(mythread_cond * mycond)
 	// If anything above fails, fall back to the default CLOCK_REALTIME.
 	// POSIX requires that all implementations of clock_gettime() must
 	// support at least CLOCK_REALTIME.
-#       endif
+#endif
 
 	mycond->clk_id = CLOCK_REALTIME;
 #endif

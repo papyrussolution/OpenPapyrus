@@ -269,10 +269,10 @@
 /* This is set by the Borland C system when compiling for a DLL
  * (as above.)
  */
-#           define PNG_BUILD_DLL
+#define PNG_BUILD_DLL
 #        else
 /* Add additional compiler cases here. */
-#        endif
+#endif
 #     endif
 #endif
 #endif /* Setting PNG_BUILD_DLL if required */

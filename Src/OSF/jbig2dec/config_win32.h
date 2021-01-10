@@ -22,9 +22,9 @@
 #ifdef _MSC_VER
 
 /* VS 2012 and later have stdint.h */
-# if _MSC_VER >= 1700
-#  include <stdint.h>
-# else
+#if _MSC_VER >= 1700
+#include <stdint.h>
+#else
 typedef signed char int8_t;
 typedef short int int16_t;
 typedef int int32_t;
@@ -36,32 +36,32 @@ typedef unsigned __int64 uint64_t;
 #ifndef SIZE_MAX
 #define SIZE_MAX (~((size_t) 0))
 #endif
-# endif
+#endif
 
 /* VS 2008 and later have vsnprintf */
-# if _MSC_VER < 1500
-#  define vsnprintf _vsnprintf
+#if _MSC_VER < 1500
+#define vsnprintf _vsnprintf
 /* Previously we defined inline as nothing for 2005 and below */
-#  define inline
+#define inline
 #else
 /* VS 2008 has __inline but not inline, later versiosn (unknown exactly where) define inline
  * so cater for it being defined already.
  */
-# if !(defined(inline))
-#  define inline __inline
-# endif
-# endif
+#if !(defined(inline))
+#define inline __inline
+#endif
+#endif
 
 /* VS 2014 and later have (finally) snprintf */
-# if _MSC_VER >= 1900
-#  define STDC99
-# else
-#  define snprintf _snprintf
-# endif
+#if _MSC_VER >= 1900
+#define STDC99
+#else
+#define snprintf _snprintf
+#endif
 
 #else /* _MSC_VER */
 
 /* Not VS -- it had best behave */
-# include <stdint.h>
+#include <stdint.h>
 
 #endif /* _MSC_VER */

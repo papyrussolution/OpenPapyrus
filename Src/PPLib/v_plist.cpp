@@ -1,5 +1,5 @@
 // V_PLIST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 //
 // @todo Убрать вкладку "Дополнительно" из фильтра (она полностью дублирует опции товарного фильтра)
@@ -2853,7 +2853,7 @@ int EditPriceListConfig()
 		fld_list[4] = GDSEXSTR_USAGE;
 		for(idx = 0; idx < 5; idx++) {
 			PPGetExtStrData(fld_list[idx], goods_ex_titles, item_buf);
-			if(item_buf.Empty())
+			if(item_buf.IsEmpty())
 				item_buf.CatChar('A'+idx);
 			p_lw->listBox()->addItem(fld_list[idx], item_buf);
 		}

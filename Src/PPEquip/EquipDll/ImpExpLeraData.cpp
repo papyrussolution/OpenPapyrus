@@ -1015,7 +1015,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 	// Ќа наличие pBRow->TTN можно заложитьс€, ибо его надо об€зательно указать, так как в системе провайдера
 	// идет прив€зка RECADV к DESADV именно по этому параметру.
 	// ““Ќ у всех строк одинаковый, ибо пришли от одного DESADV
-	if((MessageType == msgRecadv) && TTN.Empty()) {
+	if((MessageType == msgRecadv) && TTN.IsEmpty()) {
 		TTN = pBRow->TTN;
 		THROW(P_ExportCls->RecadvHeader());
 		THROW(P_ExportCls->DocPartiesAndCurrency());
@@ -1363,8 +1363,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 		if(!isempty(pOutFileName)) {
 			P_ExportCls->PathStruct.Split(pOutFileName);
 			P_ExportCls->PathStruct.Ext = "xml";
-			if(P_ExportCls->PathStruct.Nam.Empty())
-				P_ExportCls->PathStruct.Nam = "export_";
+			P_ExportCls->PathStruct.Nam.SetIfEmpty("export_");
 		}
 		else {
 			SLS.Init("Papyrus");
@@ -2255,10 +2254,9 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 		}
 		if(!isempty(pInputFileName)) {
 			P_ImportCls->PathStruct.Split(pInputFileName);
-			if(P_ImportCls->PathStruct.Nam.Empty())
+			if(P_ImportCls->PathStruct.Nam.IsEmpty())
 				(P_ImportCls->PathStruct.Nam = "edisoft_import_").Cat(P_ImportCls->ObjId);
-			if(P_ImportCls->PathStruct.Ext.Empty())
-				P_ImportCls->PathStruct.Ext = "xml";
+			P_ImportCls->PathStruct.Ext.SetIfEmpty("xml");
 		}
 		else {
 			//char fname[256];

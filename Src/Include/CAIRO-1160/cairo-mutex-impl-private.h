@@ -193,7 +193,7 @@
 
 #define INCL_BASE
 #define INCL_PM
-# include <os2.h>
+#include <os2.h>
 
   typedef HMTX cairo_mutex_impl_t;
 
@@ -217,7 +217,7 @@
 
 #elif CAIRO_HAS_PTHREAD /* and finally if there are no native mutexes ********/
 
-# include <pthread.h>
+#include <pthread.h>
 
   typedef pthread_mutex_t cairo_mutex_impl_t;
   typedef pthread_mutex_t cairo_recursive_mutex_impl_t;
@@ -251,7 +251,7 @@
 
 #else /**********************************************************************/
 
-# error "XXX: No mutex implementation found.  Cairo will not work with multiple threads.  Define CAIRO_NO_MUTEX to 1 to acknowledge and accept this limitation and compile cairo without thread-safety support."
+#error "XXX: No mutex implementation found.  Cairo will not work with multiple threads.  Define CAIRO_NO_MUTEX to 1 to acknowledge and accept this limitation and compile cairo without thread-safety support."
 
 #endif
 

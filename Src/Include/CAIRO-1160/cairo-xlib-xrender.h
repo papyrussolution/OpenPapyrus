@@ -57,7 +57,7 @@ cairo_xlib_surface_get_xrender_format (cairo_surface_t *surface);
 CAIRO_END_DECLS
 
 #else  /* CAIRO_HAS_XLIB_XRENDER_SURFACE */
-# error Cairo was not compiled with support for the xlib XRender backend
+#error Cairo was not compiled with support for the xlib XRender backend
 #endif /* CAIRO_HAS_XLIB_XRENDER_SURFACE */
 
 #endif /* CAIRO_XLIB_XRENDER_H */

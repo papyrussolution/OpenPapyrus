@@ -40,7 +40,7 @@ ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, char * name, ngx_int_t respawn)
 		SString temp_buf;
 		SSystem::SGetModuleFileName(0, temp_buf);
 		STRNSCPY(file, temp_buf);
-		if(temp_buf.Empty()) {
+		if(temp_buf.IsEmpty()) {
 			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "GetModuleFileName() failed");
 			return NGX_INVALID_PID;
 		}

@@ -1,5 +1,5 @@
 // CHZN.CPP
-// Copyright (c) A.Sobolev 2019, 2020
+// Copyright (c) A.Sobolev 2019, 2020, 2021
 // @codepage UTF-8
 // Реализация интерфейса к сервисам честный знак
 //
@@ -1382,7 +1382,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 				const Packet::QueryKizInfo * p_bp = static_cast<const Packet::QueryKizInfo *>(pPack->P_Data);
 				if(p_bp) {
 					subj_ident = p_bp->SubjectIdent;
-					if(subj_ident.Empty()) {
+					if(subj_ident.IsEmpty()) {
 						PPID   dlvr_psn_id = ObjectToPerson(p_bp->ArID, 0);
 						PPID   subj_psn_id = main_org_id;
 						GetTransactionPartyCode(/*dlvr_psn_id*/subj_psn_id, 0, subj_ident);
@@ -2412,7 +2412,7 @@ int ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * 
 	if(json_parse_document(&p_json_doc, pReply) == JSON_OK) {
 		SString temp_buf;
 		SJson * p_next = 0;
-		for(SJson * p_cur = p_json_doc; rResult.Empty() && p_cur; p_cur = p_next) {
+		for(SJson * p_cur = p_json_doc; rResult.IsEmpty() && p_cur; p_cur = p_next) {
 			p_next = p_cur->P_Next;
 			switch(p_cur->Type) {
 				case SJson::tOBJECT: p_next = p_cur->P_Child; break;

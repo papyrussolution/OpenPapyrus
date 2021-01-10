@@ -179,7 +179,7 @@ static const BN_ULONG _nist_p_521_sqr[] = {
 	0xFFFFFFFF, 0xFFFFFFFF, 0x0003FFFF
 };
 #else
-# error "unsupported BN_BITS2"
+#error "unsupported BN_BITS2"
 #endif
 
 static const BIGNUM _bignum_nist_p_192 = {

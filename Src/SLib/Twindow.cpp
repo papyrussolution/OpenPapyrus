@@ -1180,15 +1180,16 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 		return -1;
 }
 
-/*static*/void __stdcall TWindowBase::SetupLayoutItemFrame(LayoutFlexItem * pItem, float size[4]) // @v10.9.3
+/*static*/void __stdcall TWindowBase::SetupLayoutItemFrame(LayoutFlexItem * pItem, const LayoutFlexItem::Result & rR) // @v10.9.3
 {
 	TView * p_view = static_cast<TView *>(LayoutFlexItem::GetManagedPtr(pItem));
 	if(p_view) {
 		TRect b;
-		b.a.x = static_cast<int16>(size[0]);
-		b.a.y = static_cast<int16>(size[1]);
-		b.b.x = static_cast<int16>(size[0]+size[2]);
-		b.b.y = static_cast<int16>(size[0]+size[3]);
+		const FRect rbb = rR;
+		b.a.x = static_cast<int16>(rbb.a.X);
+		b.a.y = static_cast<int16>(rbb.a.Y);
+		b.b.x = static_cast<int16>(rbb.b.X);
+		b.b.y = static_cast<int16>(rbb.b.Y);
 		p_view->changeBounds(b);
 		//p_view->setBounds(b);
 	}
@@ -1336,7 +1337,7 @@ int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptio
 			assert(P_Lfc);
 			if(P_Lfc) {
 				pChildWindow->SetupLayoutItem(pLayout);
-				P_Lfc->GetRoot()->Evaluate(0);
+				P_Lfc->GetRoot()->Evaluate(0, 0);
 			}
 		}
 		::ShowWindow(pChildWindow->H(), SW_SHOWNORMAL);
@@ -1381,7 +1382,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				const TRect cr = getClientRect();
 				if(P_Lfc && !P_Lfc->GetParent()) {
 					P_Lfc->GetLayoutBlock().SetFixedSize(cr);
-					P_Lfc->Evaluate(0);
+					P_Lfc->Evaluate(0, 0);
 				}
 			}
 			else if(event.isCmd(cmSetBounds)) {
@@ -1394,7 +1395,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				const TRect cr = getClientRect();
 				if(P_Lfc && !P_Lfc->GetParent()) {
 					P_Lfc->GetLayoutBlock().SetFixedSize(cr);
-					P_Lfc->Evaluate(0);
+					P_Lfc->Evaluate(0, 0);
 				}
 				invalidateAll(1);
 				::UpdateWindow(H());

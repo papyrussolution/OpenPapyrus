@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Диалог редактирования товара
 //
@@ -137,9 +137,9 @@ int PPObjGoods::SearchUhttInteractive(const SString & rName, const SString & rBa
 			ok = 1;
 	}
 	if(ok > 0) {
-		if(param.Criterion == UhttSearchGoodsParam::critName && param.Name.Empty())
+		if(param.Criterion == UhttSearchGoodsParam::critName && param.Name.IsEmpty())
 			ok = -1;
-		else if(param.Criterion == UhttSearchGoodsParam::critBarcode && param.Barcode.Empty())
+		else if(param.Criterion == UhttSearchGoodsParam::critBarcode && param.Barcode.IsEmpty())
 			ok = -1;
 		else {
 			PPUhttClient uc;
@@ -2140,7 +2140,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 	if((TVBROADCAST && TVCMD == cmChangedFocus && event.isCtlEvent(CTL_GOODS_NAME)) ||
 		(TVKEYDOWN && TVKEY == kbF2 && isCurrCtlID(CTL_GOODS_NAME))) {
 		SString abbr;
-		if(getCtrlString(CTL_GOODS_ABBR, abbr) && abbr.Strip().Empty()) {
+		if(getCtrlString(CTL_GOODS_ABBR, abbr) && abbr.Strip().IsEmpty()) {
 			getCtrlString(CTL_GOODS_NAME, abbr);
 			setCtrlString(CTL_GOODS_ABBR, abbr.Strip());
 		}

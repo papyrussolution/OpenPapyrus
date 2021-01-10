@@ -813,7 +813,7 @@ int    FASTCALL SString::operator != (const SString & rS) const { return BIN(!Is
 int    FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) == 0); }
 int    FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
 int    SString::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
-int    SString::Empty() const { return BIN(Len() == 0); }
+int    SString::IsEmpty() const { return BIN(Len() == 0); }
 int    SString::NotEmpty() const { return BIN(Len()); }
 int    SString::NotEmptyS() { return Strip().NotEmpty(); }
 SString & FASTCALL SString::Tab(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
@@ -950,7 +950,7 @@ int SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
 		if(delim_len == 0)
 			rResult.add(*this);
 		else {
-			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5
+			SString & r_temp_buf = SLS.AcquireRvlStr();
 			uint   i = 0;
 			if(delim_len == 1) { // @speedcritical {
 				const char delim = pDelimChrSet[0];
@@ -1203,14 +1203,14 @@ SString & FASTCALL SString::CopyFrom(const char * pS)
 
 SString & FASTCALL SString::SetIfEmpty(const char * pS)
 {
-	if(Empty())
+	if(IsEmpty())
 		CopyFrom(pS);
 	return *this;
 }
 
 SString & FASTCALL SString::SetIfEmpty(const SString & rS)
 {
-	if(Empty())
+	if(IsEmpty())
 		CopyFrom(rS);
 	return *this;
 }
@@ -2050,7 +2050,7 @@ bool FASTCALL SString::IsEqiAscii(const char * pS) const // @v10.3.5 int-->bool
 
 int FASTCALL SString::CmpNC(const char * pS) const
 {
-	const int this_empty = Empty();
+	const int this_empty = IsEmpty();
 	const int s_empty = isempty(pS);
 	if(this_empty && s_empty)
 		return 0;
@@ -4711,7 +4711,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 {
 	int    ok = -1;
 	SPathStruc ps(rPath);
-	if(force || (ps.Drv.Empty() && ps.Dir.Empty())) {
+	if(force || (ps.Drv.IsEmpty() && ps.Dir.IsEmpty())) {
 		if(isempty(pNewPath)) {
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rPath);
 		}
@@ -7248,7 +7248,7 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					if(ss_count == 4) {
 						int   is_ip4 = 1;
 						for(uint ssp = 0; is_ip4 && ss.get(&ssp, temp_buf);) {
-							if(temp_buf.Empty())
+							if(temp_buf.IsEmpty())
 								is_ip4 = 0;
 							else {
 								long v = temp_buf.ToLong();
@@ -7266,7 +7266,7 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					else if(oneof2(ss_count, 2, 3)) {
 						int   is_ver = 1;
 						for(uint ssp = 0; is_ver && ss.get(&ssp, temp_buf);) {
-							if(temp_buf.Empty())
+							if(temp_buf.IsEmpty())
 								is_ver = 0;
 							else {
 								long v = temp_buf.ToLong();

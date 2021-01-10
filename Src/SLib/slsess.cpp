@@ -1,5 +1,5 @@
 // SLSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -29,7 +29,7 @@ void SlExtraProcBlock::Reset()
 	F_CallCalendar = 0;
 	F_GetGlobalSecureConfig = 0;
 	F_GetDefaultEncrKey = 0;
-	F_QueryPath = 0; // @v9.8.7
+	F_QueryPath = 0;
 }
 
 void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
@@ -817,7 +817,7 @@ SGlobalSecureConfig::SGlobalSecureConfig() : Flags(0)
 {
 }
 
-int SGlobalSecureConfig::IsEmpty() const { return BIN(Flags == 0 && CaFile.Empty() && CaPath.Empty()); }
+int SGlobalSecureConfig::IsEmpty() const { return BIN(!Flags && CaFile.IsEmpty() && CaPath.IsEmpty()); }
 
 const SGlobalSecureConfig & SlSession::GetGlobalSecureConfig()
 {
@@ -851,7 +851,7 @@ int SlSession::LogMessage(const char * pFileName, const char * pStr, ulong maxFi
 			ps.Split(file_name);
 		ps.Nam.SetIfEmpty("slib");
 		ps.Ext.SetIfEmpty("log");
-		if(ps.Drv.Empty() && ps.Dir.Empty()) {
+		if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 			GetLogPath(file_name);
 			if(!file_name.NotEmptyS()) {
 				getExecPath(file_name);

@@ -1,5 +1,5 @@
 // OBJWORLD.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -878,7 +878,7 @@ int PPObjWorld::GetListByFilt(const SelFilt & rFilt, SVector * pList) // @v10.6.
 			p_rec = &P_Tbl->data;
 			if(rFilt.ParentID == 0 || rFilt.ParentID == p_rec->ParentID) {
 				if(rFilt.CountryID == 0 || rFilt.CountryID == p_rec->CountryID) {
-					if(rFilt.SubName.Empty() || ExtStrSrch(p_rec->Name, rFilt.SubName.cptr(), 0) > 0)
+					if(rFilt.SubName.IsEmpty() || ExtStrSrch(p_rec->Name, rFilt.SubName.cptr(), 0) > 0)
 						THROW_SL(pList->insert(&P_Tbl->data));
 				}
 			}

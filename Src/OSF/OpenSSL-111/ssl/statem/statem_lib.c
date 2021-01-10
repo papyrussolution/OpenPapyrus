@@ -1280,7 +1280,7 @@ typedef struct {
 } version_info;
 
 #if TLS_MAX_VERSION != TLS1_3_VERSION
-# error Code needs update for TLS_method() support beyond TLS1_3_VERSION.
+#error Code needs update for TLS_method() support beyond TLS1_3_VERSION.
 #endif
 
 /* Must be in order high to low */
@@ -1314,7 +1314,7 @@ static const version_info tls_version_table[] = {
 };
 
 #if DTLS_MAX_VERSION != DTLS1_2_VERSION
-# error Code needs update for DTLS_method() support beyond DTLS1_2_VERSION.
+#error Code needs update for DTLS_method() support beyond DTLS1_2_VERSION.
 #endif
 
 /* Must be in order high to low */

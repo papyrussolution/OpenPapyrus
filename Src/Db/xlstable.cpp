@@ -1,5 +1,5 @@
 // XLSTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -196,7 +196,7 @@ int ExcelDbFile::Scan()
 			// @v10.8.1 stop = is_vert ? BIN(row >= MAX_COLUMN) : BIN(col >= MAX_COLUMN);
 			stop = is_vert ? BIN(col >= MAX_COLUMN) : BIN(row >= MAX_COLUMN); // @v10.8.1 
 			if(is_vert && stop == 0)
-				stop = BIN(temp_buf.Empty());
+				stop = BIN(temp_buf.IsEmpty());
 		}
 	}
 	else {

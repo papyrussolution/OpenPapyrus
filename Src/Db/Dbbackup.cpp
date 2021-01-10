@@ -1,5 +1,5 @@
 // DBBACKUP.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -136,7 +136,7 @@ int DBBackup::InfoFile::ReadSet(BCopySet * set)
 	BCopyData bc_data;
 	if(OpenStream(1)) {
 		while(ok && ReadRecord(Stream, &bc_data) > 0)
-			if(set->Name.Empty() || bc_data.Set.CmpNC(set->Name) == 0)
+			if(set->Name.IsEmpty() || bc_data.Set.CmpNC(set->Name) == 0)
 				set->insert(new BCopyData(bc_data));
 		CloseStream();
 	}

@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Права доступа
 //
@@ -261,9 +261,8 @@ private:
 			rBuf.CatChar((objFlags & PPR_MOD)  ? 'M' : ' ');
 			rBuf.CatChar((objFlags & PPR_DEL)  ? 'D' : ' ');
 			rBuf.CatChar((objFlags & PPR_ADM)  ? 'A' : ' ');
-			if(rBuf.Empty()) {
+			if(rBuf.IsEmpty())
 				PPLoadString("none", rBuf);
-			}
 		}
 	}
 	virtual int    editItemDialog(ObjRestrictItem *);

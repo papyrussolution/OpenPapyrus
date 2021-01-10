@@ -6397,7 +6397,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		gto_assc.Load();
 		temp_buf.Z();
 		if(gto_assc.GetListByGoods(goods_rec.ID, loc_list) > 0)
-			for(uint j = 0; temp_buf.Empty() && j < loc_list.getCount(); j++) {
+			for(uint j = 0; temp_buf.IsEmpty() && j < loc_list.getCount(); j++) {
 				const PPID loc_id = loc_list.get(j);
 				if(loc_obj.BelongTo(loc_id, p_pack->Rec.LocID, &temp_buf))
 					break;

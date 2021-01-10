@@ -97,7 +97,7 @@ cairo_vg_surface_get_width (cairo_surface_t *abstract_surface);
 CAIRO_END_DECLS
 
 #else  /* CAIRO_HAS_VG_SURFACE*/
-# error Cairo was not compiled with support for the OpenVG backend
+#error Cairo was not compiled with support for the OpenVG backend
 #endif /* CAIRO_HAS_VG_SURFACE*/
 
 #endif /* CAIRO_VG_H */

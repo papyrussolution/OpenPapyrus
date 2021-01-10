@@ -1,5 +1,5 @@
 // DL600C.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021
 // Compile-time DL600 modules
 //
 #include <pp.h>
@@ -687,7 +687,7 @@ uint DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rTe
 			dlg_ss_id = ss_id;
 		}
 	}
-	if(fld.Name.Empty()) {
+	if(fld.Name.IsEmpty()) {
 		if(dlg_symb_ser.NotEmpty() || symb_ser.NotEmpty()) {
 			(fld.Name = "CTL").CatChar('_').Cat(dlg_symb_ser.NotEmpty() ? dlg_symb_ser : symb_ser).CatChar('_').CatLongZ(p_dlg_scope->GetLocalId(), 3);
 		}

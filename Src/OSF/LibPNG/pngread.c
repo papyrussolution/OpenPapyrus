@@ -1297,7 +1297,7 @@ static void png_image_skip_unused_chunks(png_structrp png_ptr)
 			103,  65,  77,  65, '\0', /* gAMA */
 #        ifdef PNG_READ_iCCP_SUPPORTED
 			105,  67,  67,  80, '\0', /* iCCP */
-#        endif
+#endif
 			115,  66,  73,  84, '\0', /* sBIT */
 			115,  82,  71,  66, '\0', /* sRGB */
 		};
@@ -1597,10 +1597,10 @@ static void png_create_colormap_entry(png_image_read_control * display,
 		}
 
 #     ifdef afirst
-#        undef afirst
+#undef afirst
 #     endif
 #     ifdef bgr
-#        undef bgr
+#undef bgr
 #     endif
 	}
 }

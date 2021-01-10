@@ -1,5 +1,5 @@
 // PPCONVRT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Конвертация файлов данных при изменениях версий
 //
@@ -192,7 +192,7 @@ int PPTableConversion::Convert()
 		p_tbl = 0;
 
 		path_struc.Split(file_name);
-		if(_BakPath.Empty() || !::fileExists(_BakPath)) {
+		if(_BakPath.IsEmpty() || !::fileExists(_BakPath)) {
 			for(i = 1; i < 100000; i++) {
 				SPathStruc ps2;
 				ps2.Copy(&path_struc, SPathStruc::fDrv|SPathStruc::fDir);

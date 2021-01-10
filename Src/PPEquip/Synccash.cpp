@@ -1629,7 +1629,7 @@ int SCS_SYNCCASH::SetLogotype()
 	THROW(P_SlipFmt->Init("CCheck", &sdc_param));
 	P_SlipFmt->InitIteration(&p_pack);
 	P_SlipFmt->NextIteration(str, &sl_param);
-	if(sl_param.PictPath.Empty()) {
+	if(sl_param.PictPath.IsEmpty()) {
 		PrintLogo = 0;
 	}
 	else {

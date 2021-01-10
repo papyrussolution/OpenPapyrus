@@ -21473,8 +21473,7 @@ public:
 		long   Flags;     // @flags
 		SString Port;     //
 	};
-	// @v9.2.7 static BarcodeLabelPrinter * CreateInstance(PPID printerTypeID /* PPBCPT_XXX */);
-	static BarcodeLabelPrinter * CreateInstance(/*PPID printerTypeID*/const PPBarcodePrinter & rPrnPack); // @v9.2.7
+	static BarcodeLabelPrinter * CreateInstance(/*PPID printerTypeID*/const PPBarcodePrinter & rPrnPack);
 	static int PrintGoodsLabel(PPID goodsID);
 	//
 	// Descr: Печатает на принтер этикетку по данным, определенным параметром pRgi.
@@ -21506,6 +21505,7 @@ public:
 	virtual int PrintLabel(const char * pPortName, const CommPortParams *);
 	int    PrintLabelUsb(PPID devType); // @vmiller
 protected:
+	static int GetLabelFileName(PPIniFile & rIniFile, SString & rBuf);
 	int    FASTCALL PutStr(const char *);
 	int    FASTCALL PutChr(char);
 	int    PutInt(int, int numDigits);
@@ -22447,7 +22447,7 @@ struct PPAutoSmsConfig {
 		asmsDaysSun = 0x40
 	};
 	PPAutoSmsConfig();
-	int    IsEmpty() const { return TddoPath.Empty() || !AllowedWeekDays || !AllowedStartTm || !AllowedEndTm; }
+	int    IsEmpty() const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // для запихивания стурктуры в буфер
 
 	uint8  Reserve[32];
@@ -38405,6 +38405,7 @@ private:
 	//   не будет введено это поле).
 	//
 	struct ExtraEntry { // @flat
+		ExtraEntry();
 		PPID   SurrID;
 		PPID   BillID;
         long   OprNo;

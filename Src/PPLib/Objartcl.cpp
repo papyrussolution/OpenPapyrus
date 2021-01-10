@@ -1,5 +1,5 @@
 // OBJARTCL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -552,7 +552,7 @@ private:
 			SString name;
 			if(obj_id) {
 				getCtrlString(CTL_ARTICLE_NAME, name);
-				if(name.Strip().Empty()) {
+				if(name.Strip().IsEmpty()) {
 					if(GetObjectName(AccSheetRec.Assoc, obj_id, name) > 0)
 						setCtrlString(CTL_ARTICLE_NAME, name);
 				}

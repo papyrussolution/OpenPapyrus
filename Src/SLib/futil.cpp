@@ -289,7 +289,7 @@ SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, con
 			strnzcpy(ext, pExt, sizeof(ext));
 	else
 		ext[0] = 0;
-	for(rBuf.Z(); rBuf.Empty() && start < 9999999L;) {
+	for(rBuf.Z(); rBuf.IsEmpty() && start < 9999999L;) {
 		if(pDir)
 			(rBuf = pDir).Strip().SetLastSlash();
 		rBuf.Cat(prefix).CatLongZ(start++, nd).Dot().Cat(ext); // @v9.9.12 (8-prefix_len)-->nd

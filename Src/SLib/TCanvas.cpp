@@ -2730,7 +2730,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 	if(pTlo) {
 		const int do_clip = 0; // pTlo->HasOption(STextLayout::fNoClip) ? 0 : 1;
 		STextLayout::RenderGroup re;
-		SVector glyph_list(sizeof(cairo_glyph_t)); // @v9.8.6 SArray-->SVector
+		SVector glyph_list(sizeof(cairo_glyph_t));
 		if(do_clip) {
 			cairo_save(P_Cr);
 			const FRect & r_fb = pTlo->GetBounds();

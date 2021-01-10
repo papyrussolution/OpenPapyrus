@@ -44,7 +44,7 @@
 
 #ifdef __COMPILE_CAPIENG
 
-# undef X509_EXTENSIONS
+#undef X509_EXTENSIONS
 
 /* Definitions which may be missing from earlier version of headers */
 #ifndef CERT_STORE_OPEN_EXISTING_FLAG

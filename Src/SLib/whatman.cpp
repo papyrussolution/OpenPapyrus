@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -540,7 +540,7 @@ int TWhatman::InsertObject(TWhatmanObject * pObj, int beforeIdx)
 	// @v10.9.7 {
 	if(pObj->Options & TWhatmanObject::oContainer) {
 		WhatmanObjectLayoutBase * p_lo = static_cast<WhatmanObjectLayoutBase *>(pObj);
-		if(p_lo->GetContainerIdent().Empty()) {
+		if(p_lo->GetContainerIdent().IsEmpty()) {
 			SString temp_buf;
 			S_GUID uuid;
 			uuid.Generate();
@@ -709,12 +709,12 @@ int TWhatman::MoveObject(TWhatmanObject * pObj, const TRect & rRect)
 	return ok;
 }
 
-static void __stdcall FlexSetupProc_WhatmanFig(LayoutFlexItem * pItem, float size[4])
+static void __stdcall FlexSetupProc_WhatmanFig(LayoutFlexItem * pItem, const LayoutFlexItem::Result & rR)
 {
 	TWhatmanObject * p_obj = static_cast<TWhatmanObject *>(LayoutFlexItem::GetManagedPtr(pItem));
 	if(p_obj) {
 		TRect r;
-		FRect fr = pItem->GetFrame();
+		FRect fr = rR;
 		const LayoutFlexItem * p_parent = pItem->GetParent();
 		if(p_parent) {
 			const FRect parent_frame = p_parent->GetFrame();
@@ -827,7 +827,7 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 			alb_root.SetFixedSizeX(static_cast<float>(Area.width() - rParam.UlGap.x - rParam.LrGap.x));
 			alb_root.SetFixedSizeY(static_cast<float>(Area.height() - rParam.UlGap.y - rParam.LrGap.y));
 			lo_root.SetLayoutBlock(alb_root);
-			lo_root.Evaluate(0);
+			lo_root.Evaluate(0, 0);
 		}
 		/*for(uint i = 0; i < p_lo_root->getCount(); i++) {
 			const LayoutFlexItem * p_lo_item = p_lo_root->at(i);
@@ -916,22 +916,23 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam 
 	return ok;
 }
 
-static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pItem, float size[4])
+static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pItem, const LayoutFlexItem::Result & rR)
 {
 	TWhatmanObject * p_wo = static_cast<TWhatmanObject *>(LayoutFlexItem::GetManagedPtr(pItem));
 	if(p_wo) {
 		const TWhatmanObject * p_wo_root = static_cast<TWhatmanObject *>(LayoutFlexItem::GetParentsManagedPtr(pItem));
 		if(p_wo_root) {
+			const FRect rbb = rR;
 			FPoint base_lu;
 			base_lu.X = p_wo_root->GetBounds().a.x;
 			base_lu.Y = p_wo_root->GetBounds().a.y;
 			const int org_width = p_wo->GetBounds().width();
 			const int org_height = p_wo->GetBounds().height();
 			TRect b;
-			b.a.x = static_cast<int16>(size[0]+base_lu.X);
-			b.a.y = static_cast<int16>(size[1]+base_lu.Y);
-			b.b.x = static_cast<int16>(size[0]+size[2]+base_lu.X);
-			b.b.y = static_cast<int16>(size[1]+size[3]+base_lu.Y);
+			b.a.x = static_cast<int16>(rbb.a.X+base_lu.X);
+			b.a.y = static_cast<int16>(rbb.a.Y+base_lu.Y);
+			b.b.x = static_cast<int16>(rbb.b.X+base_lu.X);
+			b.b.y = static_cast<int16>(rbb.b.Y+base_lu.Y);
 			p_wo->SetBounds(b);
 			//p_item->changeBounds(b);
 			//p_view->setBounds(b);
@@ -985,7 +986,7 @@ int TWhatman::Helper_ArrangeLayoutContainer(LayoutFlexItem * pParentLayout, What
 	CATCHZOK
 	if(!pParentLayout) {
 		if(p_root_item) {
-			p_root_item->Evaluate(0);
+			p_root_item->Evaluate(0, 0);
 			delete p_root_item;
 		}
 	}
@@ -1176,7 +1177,7 @@ int TWhatman::FindContainerCandidateForObjectByPoint(TPoint p, const TWhatmanObj
 		if(c) do {
 			const TWhatmanObject * p_obj = ObjList.at(--c);
 			if(p_obj && p_obj != pObj && p_obj->HasOption(TWhatmanObject::oContainer) && p_obj->Bounds.contains(p)) {
-				if(r_current_container_symb.Empty() || p_obj->Symb != r_current_container_symb) {
+				if(r_current_container_symb.IsEmpty() || p_obj->Symb != r_current_container_symb) {
 					ASSIGN_PTR(pIdx, static_cast<int>(c));				
 					ok = 1;		
 				}

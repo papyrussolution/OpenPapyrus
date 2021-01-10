@@ -75,7 +75,7 @@ CAIRO_END_DECLS
 
 #else
 
-# error Cairo was not compiled with support for the quartz backend
+#error Cairo was not compiled with support for the quartz backend
 
 #endif /* CAIRO_HAS_QUARTZ_SURFACE */
 

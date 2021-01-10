@@ -118,7 +118,7 @@
 #ifdef __BIG_ENDIAN__
 #define XXH_VSX_BE 1
 #elif defined(__VEC_ELEMENT_REG_ORDER__) && __VEC_ELEMENT_REG_ORDER__ == __ORDER_BIG_ENDIAN__
-#    warning "-maltivec=be is not recommended. Please use native endianness."
+#warning "-maltivec=be is not recommended. Please use native endianness."
 #define XXH_VSX_BE 1
 #else
 #define XXH_VSX_BE 0

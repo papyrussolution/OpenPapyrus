@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2157,7 +2157,7 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 				else if(sgg == sggClsKind) {
 					gext_rec.KindID = gsitem.Par1;
 					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eKind, 0, rBuf);
-					if(rBuf.Empty()) {
+					if(rBuf.IsEmpty()) {
 						rBuf = gc_pack.Rec.Name;
 						rBuf.Space().CatChar('#').Cat(gsitem.Par1);
 					}
@@ -2165,7 +2165,7 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 				else if(sgg == sggClsGrade) {
 					gext_rec.GradeID = gsitem.Par1;
 					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eGrade, 0, rBuf);
-					if(rBuf.Empty()) {
+					if(rBuf.IsEmpty()) {
 						rBuf = gc_pack.Rec.Name;
 						rBuf.Space().CatChar('#').Cat(gsitem.Par1);
 					}
@@ -2173,7 +2173,7 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 				else if(sgg == sggClsAddObj) {
 					gext_rec.AddObjID = gsitem.Par1;
 					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eAdd, 0, rBuf);
-					if(rBuf.Empty()) {
+					if(rBuf.IsEmpty()) {
 						rBuf = gc_pack.Rec.Name;
 						rBuf.Space().CatChar('#').Cat(gsitem.Par1);
 					}
@@ -2186,7 +2186,7 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 					rBuf.Space();
 					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eGrade, 0, temp_buf2);
 					rBuf.Cat(temp_buf2);
-					if(rBuf.Strip().Empty()) {
+					if(rBuf.Strip().IsEmpty()) {
 						rBuf = gc_pack.Rec.Name;
 						rBuf.Space().CatChar('#').Cat(gsitem.Par1).Space().CatChar('#').Cat(gsitem.U.L.Par2);
 					}
@@ -2204,7 +2204,7 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 						rBuf.Cat(grade_buf).Space().Cat(add_buf);
 					else
 						rBuf.Cat(add_buf).Space().Cat(grade_buf);
-					if(rBuf.Strip().Empty()) {
+					if(rBuf.Strip().IsEmpty()) {
 						rBuf = gc_pack.Rec.Name;
 						rBuf.Space().CatChar('#').Cat(gsitem.U.L.Par2).Space().CatChar('#').Cat(gsitem.U.L.Par3);
 					}
@@ -3835,7 +3835,7 @@ int PPObjGoods::RemoveDupBarcodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx
 			BarcodeTbl::Rec bc_rec;
 			if(code_buf.NotEmptyS() && P_Tbl->SearchBarcode(code_buf, &bc_rec) > 0 && bc_rec.GoodsID != pPack->Rec.ID) {
 				(text_buf = pPack->Rec.Name).Space().Cat(code_buf.Quot('[', ']'));
-				if(fmt_buf.Empty())
+				if(fmt_buf.IsEmpty())
 					PPLoadText(PPTXT_RMVDUPBARCODE, fmt_buf);
 				msg_buf.Printf(fmt_buf, pPack->Rec.ID, text_buf.cptr());
 				CALLPTRMEMB(pCtx, OutReceivingMsg(msg_buf));
@@ -3855,7 +3855,7 @@ int PPObjGoods::RemoveDupArCodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx)
 			ArGoodsCodeTbl::Rec & r_rec = pPack->ArCodes.at(i);
 			ArGoodsCodeTbl::Rec temp_rec;
 			if(r_rec.Code[0] && P_Tbl->SearchByArCode(r_rec.ArID, r_rec.Code, &temp_rec, 0) > 0 && temp_rec.GoodsID != id) {
-				if(fmt_buf.Empty())
+				if(fmt_buf.IsEmpty())
 					PPLoadText(PPTXT_RMVDUPARCODE, fmt_buf);
 				PPFormat(fmt_buf, &msg_buf, pPack->Rec.Name, r_rec.Code, r_rec.ArID);
 				CALLPTRMEMB(pCtx, OutReceivingMsg(msg_buf));
@@ -4493,8 +4493,7 @@ int UhttIndexPersons(uint setSz, PPID personKindID, const SString & rOutPath)
 	SString    path;
 	PPViewPerson psn_view;
 	PersonViewItem psn_item;
-
-	THROW(!rOutPath.Empty());
+	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(PERSON_INDEX_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
 	if(p_writer) {
@@ -4552,7 +4551,7 @@ int UhttIndexGoods(uint setSz, const SString & rOutPath)
 	SString    path;
 	Goods2Tbl::Rec goods_rec;
 	GoodsIterator  goods_iter;
-	THROW(!rOutPath.Empty());
+	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(GOODS_INDEX_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
 	if(p_writer) {
@@ -4605,7 +4604,7 @@ int UhttIndexRandomGoods(uint setSz, const SString & rOutPath)
 	PPIDArray  id_ary;
 	SString    name_buf, context_buf;
 	SString    path;
-	THROW(!rOutPath.Empty());
+	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(GOODS_RAND_SET_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
 	if(p_writer) {
@@ -4649,7 +4648,7 @@ int UhttIndexChangedGoods(const SString & rOutPath)
 	PPIDArray     id_ary;
 	SString       name_buf, context_buf;
 	SString       path;
-	THROW(!rOutPath.Empty());
+	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(GOODS_CHANGED_SET_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
 	if(p_writer) {
@@ -4695,7 +4694,7 @@ int UhttIndexBrands(const SString & rOutPath)
 		Goods2Tbl::Key2 k2;
 		Goods2Tbl::Key4 k4;
 	} k_;
-	THROW(!rOutPath.Empty());
+	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(BRANDS_INDEX_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
 	if(p_writer) {
@@ -4758,7 +4757,7 @@ int UhttIndexStores(const SString & rOutPath)
 	PPIDArray id_list;
 	SString name_buf, context_buf;
 	SString path;
-	THROW(!rOutPath.Empty());
+	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(STORES_INDEX_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
 	if(p_writer) {

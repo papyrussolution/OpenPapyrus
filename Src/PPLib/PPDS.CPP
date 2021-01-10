@@ -1,5 +1,5 @@
 // PPDS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2021
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -146,7 +146,7 @@ int PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, int skip
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
 		rBuf.Z();
-		if(skipZero && rData.Empty())
+		if(skipZero && rData.IsEmpty())
 			ok = -1;
 		for(uint i = 0; i < rData.Len(); i++) {
 			char c = rData.C(i);

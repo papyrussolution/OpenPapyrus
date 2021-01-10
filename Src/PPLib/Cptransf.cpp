@@ -1,5 +1,5 @@
 // CPTRANSF.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -909,8 +909,7 @@ int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray 
 			for(j = rows.getCount()-1; !incomplete && j >= 0; j--) {
 				const PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
 				const uint pos = rows.at(j);
-				// @v9.8.11 THROW(p_pack->ClbL.AddNumber(pos, serial_buf));
-				THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, pos, serial_buf)); // @v9.8.11
+				THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, pos, serial_buf));
 				if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
 					const PPTransferItem & r_row_ti = p_pack->ConstTI(pos);
 					THROW(gs.InitCompleteData2(r_row_ti.GoodsID, r_row_ti.Quantity_, compl_list));
@@ -921,21 +920,17 @@ int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray 
 				uint   new_item_pos = 0;
 				THROW(r = InsertComplList(p_pack, compl_list, -1, &src_serial, rBlk.P_DfctList));
 				if(r > 0) {
-					// @v9.4.1 {
 					if(r == 2) {
 						if(src_serial.NotEmpty()) {
 							const uint lp = rows.at(0);
-							// @v9.8.11 p_pack->SnL.GetNumber(lp, &serial_buf);
-							p_pack->LTagL.GetNumber(PPTAG_LOT_SN, lp, serial_buf); // @v9.8.11
-							if(serial_buf.Empty()) {
+							p_pack->LTagL.GetNumber(PPTAG_LOT_SN, lp, serial_buf);
+							if(serial_buf.IsEmpty()) {
 								// @todo Следует формировать новую серию по какому-либо шаблону
 								(serial_buf = src_serial).CatChar('-').Cat("???");
-								// @v9.8.11 p_pack->SnL.AddNumber(lp, serial_buf);
-								p_pack->LTagL.AddNumber(PPTAG_LOT_SN, lp, serial_buf); // @v9.8.11
+								p_pack->LTagL.AddNumber(PPTAG_LOT_SN, lp, serial_buf);
 							}
 						}
 					}
-					// } @v9.4.1
 					p_pack->CalcModifCost();
 				}
 				else

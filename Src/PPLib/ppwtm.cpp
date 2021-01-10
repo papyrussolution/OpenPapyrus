@@ -1,5 +1,5 @@
 // PPWTM.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2828,9 +2828,8 @@ private:
 		}
 		{
 			SString file_name(pWtaFileName);
-			if(file_name.Empty()) {
+			if(file_name.IsEmpty())
 				PPGetFilePath(PPPATH_WTM, "cafetable.wta", file_name);
-			}
 			THROW(p_tool_win->LoadTools(file_name));
 		}
 		if(pWtmFileName)

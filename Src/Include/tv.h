@@ -2038,6 +2038,7 @@ struct AbstractLayoutBlock { // @persistent
 	int    GetSizeByContainerY(float containerSize, float * pS) const;
 	float  CalcEffectiveSizeX(float containerSize) const;
 	float  CalcEffectiveSizeY(float containerSize) const;
+	FPoint CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const;
 	void   SetFixedSizeX(float s);
 	void   SetFixedSizeY(float s);
 	void   SetVariableSizeX(uint var/* szXXX */, float s);
@@ -2148,7 +2149,7 @@ public:
 	};
 	// size[0] == width, size[1] == height
 	typedef void (__stdcall * FlexSelfSizingProc)(const LayoutFlexItem * pItem, float size[2]);
-	typedef void (__stdcall * FlexSetupProc)(LayoutFlexItem * pItem, float size[4]);
+	typedef void (__stdcall * FlexSetupProc)(LayoutFlexItem * pItem, /*float size[4]*/const LayoutFlexItem::Result & rR);
 
 	static void * GetManagedPtr(LayoutFlexItem * pItem);
 	static void * GetParentsManagedPtr(LayoutFlexItem * pItem);
@@ -2174,14 +2175,27 @@ public:
 	LayoutFlexItem * GetParent() { return P_Parent; }
 
 	struct Param {
-		Param() : Flags(0), ForceWidth(0.0f), ForceHeight(0.0f)
+		enum {
+			fPaginate                = 0x0001, // Рассчитывать раскладку по страницам.
+			fStopOnFirstUnfittedItem = 0x0002  // Остановить расчет на первом невместившемся элементе
+		};
+		Param() : Flags(0), FirstItemIndex(0), ForceWidth(0.0f), ForceHeight(0.0f)
 		{
 		}
 		uint   Flags;
+		uint   FirstItemIndex; // Индекс элемента [0..], с которого начинать расчет
 		float  ForceWidth;
 		float  ForceHeight;
 	};
-	int    Evaluate(const Param * pP);
+	struct PagingResult {
+		PagingResult() : LineCount(0), PageCount(0), LastFittedItemIndex(0)
+		{
+		}
+		uint   LineCount;
+		uint   PageCount;
+		uint   LastFittedItemIndex;
+	};
+	int    Evaluate(const Param * pP, PagingResult * pPgR);
 	LayoutFlexItem * InsertItem();
 	void   DeleteItem(uint idx);
 	int    GetOrder() const;
@@ -2295,14 +2309,20 @@ private:
 	const  LayoutFlexItem * GetChildByIndex(const IterIndex & rIndex, uint idxPos) const;
 	int    CommitChildResult(const IterIndex & rIndex, uint idxPos, const LayoutFlexItem * pItem);
 	//
-	// Descr: Вызывает DoLayout(R.Frame[2], R.Frame[3])
+	// Descr: Вызывается после завершения расчета элемента
+	//   Вызывает DoLayout(R.Frame[2], R.Frame[3])
 	//
-	void   DoLayoutSelf() const;
+	void   Commit_() const;
 	bool   LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const;
+
+	enum {
+		setupfChildrenOnly = 0x0001 // Вызывать callback-функцию CbSetup только для дочерних элементов, но не для самого себя //
+	};
 	//
 	// Descr: Вызывает функцию CbSetup для самого себя и рекурсивно для дочерних элементов
+	// ARG(flags IN)
 	//
-	void   Setup();
+	void   Setup(uint flags);
 	//
 	enum {
 		stShouldOrderChildren = 0x0001,
@@ -2413,7 +2433,7 @@ protected:
 	//
 	void   SetupLayoutItem(void * pLayout);
 protected:
-	static void __stdcall SetupLayoutItemFrame(LayoutFlexItem * pItem, float size[4]); // @v10.9.3
+	static void __stdcall SetupLayoutItemFrame(LayoutFlexItem * pItem, const LayoutFlexItem::Result & rR); // @v10.9.3
 	static void Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView); // @v10.9.11
 	TWindowBase(LPCTSTR pWndClsName, int capability);
 	DECL_HANDLE_EVENT;

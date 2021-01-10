@@ -1,5 +1,5 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -138,7 +138,7 @@ int	PrcssrBuild::InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Pa
 	pEntry->TargetRootPath = temp_buf;
 	//
 	rIniFile.Get(pSection, PPINIPARAM_BUILDNSIS, temp_buf.Z());
-	if(temp_buf.Empty()) {
+	if(temp_buf.IsEmpty()) {
 		(temp_buf = pEntry->RootPath).SetLastSlash().Cat("tools").SetLastSlash().Cat("nsis").SetLastSlash().Cat("makensis.exe");
 	}
 	THROW_SL(fileExists(temp_buf));
@@ -420,7 +420,7 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 		}
 	}
 	if(ok > 0 && pPrefPath) {
-		for(uint i = 0; pPrefPath->Empty() && i < rList.getCount(); i++) {
+		for(uint i = 0; pPrefPath->IsEmpty() && i < rList.getCount(); i++) {
 			StrAssocArray::Item item = rList.Get(i);
 			int    msvs_ver_major = (item.Id >> 16);
 			int    msvs_ver_minor = (item.Id & 0xffff);
@@ -795,7 +795,7 @@ int PrcssrBuild::BuildLocalDl600(const char * pPath)
 		}
 		else {
 			ps.Split(pPath);
-			if(ps.Drv.Empty() && ps.Dir.Empty()) {
+			if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 				PPGetFilePath(PPPATH_DD, pPath, src_file_name);
 			}
 		}

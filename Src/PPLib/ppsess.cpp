@@ -3731,7 +3731,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 																		local_action = PPEVNT_PHNC_UP;
 																}
 																else if(chnl_status.State == PhnSvcChannelStatus::stRinging) {
-																	if(PhnSvcLocalScanChannelSymb.Empty() ||
+																	if(PhnSvcLocalScanChannelSymb.IsEmpty() ||
 																		PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalScanChannelSymb, chnl_status.Channel) > 0)
 																		local_action = PPEVNT_PHNS_RINGING;
 																}
@@ -5757,7 +5757,7 @@ SLTEST_R(ObjTypeSymb)
 
 			symb = "abracadabra";
 			SLTEST_CHECK_EQ(0L, DS.GetObjectTypeSymb(31139, symb));
-			SLTEST_CHECK_NZ(symb.Empty());
+			SLTEST_CHECK_NZ(symb.IsEmpty());
 		}
 		{
 			temp_buf = "id";
@@ -5767,7 +5767,7 @@ SLTEST_R(ObjTypeSymb)
 
 			symb = "abracadabra";
 			SLTEST_CHECK_EQ(0L, DS.GetObjectTypeSymb(31139, symb));
-			SLTEST_CHECK_NZ(symb.Empty());
+			SLTEST_CHECK_NZ(symb.IsEmpty());
 		}
 	}
 	return CurrentStatus;

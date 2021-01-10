@@ -1228,8 +1228,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 		if(!isempty(pOutFileName)) {
 			P_ExportCls->PathStruct.Split(pOutFileName);
 			P_ExportCls->PathStruct.Ext = "xml";
-			if(P_ExportCls->PathStruct.Nam.Empty())
-				P_ExportCls->PathStruct.Nam = "export_";
+			P_ExportCls->PathStruct.Nam.SetIfEmpty("export_");
 		}
 		else {
 			SLS.Init("Papyrus");
@@ -2176,10 +2175,8 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 		}
 		if(!isempty(pInputFileName)) {
 			inp_ps.Split(pInputFileName);
-			if(inp_ps.Nam.Empty())
-				(inp_ps.Nam = "kontur_import");
-			if(inp_ps.Ext.Empty())
-				inp_ps.Ext = "xml";
+			inp_ps.Nam.SetIfEmpty("kontur_import");
+			inp_ps.Ext.SetIfEmpty("xml");
 		}
 		else {
 			//char   fname[256];
@@ -2363,7 +2360,7 @@ int ImportCls::ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 				// Если не указан номер заказа или GLN адреса доставки, то удаляем этот файл из FTP,
 				// ибо он все равно не будет воспринят ни одним магазином
 				//
-				if(AperakInfo.AddrGLN.Empty() || AperakInfo.OrderNum.Empty()) {
+				if(AperakInfo.AddrGLN.IsEmpty() || AperakInfo.OrderNum.IsEmpty()) {
 					FtpClient ftp_client(Header.EdiLogin, Header.EdiPassword);
 					if(ftp_client.Connect()) {
 						GetFtpPath(r_eme, str);

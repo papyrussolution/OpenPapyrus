@@ -1,5 +1,5 @@
 // SEXTPRC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -48,7 +48,7 @@ int ExecVDos(const ExecVDosParam & rParam)
 		startup_path.RmvLastSlash();
 		if(::fileExists(startup_path)) {
 			SPathStruc ps(startup_path.SetLastSlash());
-			if(ps.Drv.Empty()) {
+			if(ps.Drv.IsEmpty()) {
 				SPathStruc ps_cd(curdir);
 				ps.Drv = ps_cd.Drv;
 				ps.Merge(startup_path);
@@ -62,7 +62,7 @@ int ExecVDos(const ExecVDosParam & rParam)
 		THROW(::fileExists(vdos_path));
 		{
 			SPathStruc ps(vdos_path.SetLastSlash());
-			if(ps.Drv.Empty()) {
+			if(ps.Drv.IsEmpty()) {
 				SPathStruc ps_cd(curdir);
 				ps.Drv = ps_cd.Drv;
 				ps.Merge(vdos_path);

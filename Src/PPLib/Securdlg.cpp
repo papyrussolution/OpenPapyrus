@@ -216,7 +216,7 @@ static int ValidateSecurData(TDialog * dlg, PPID objType, const void * pData)
 	else if(PPRef->SearchName(objType, &temp_id, name_buf) > 0 && rec_id != temp_id)
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_DUPOBJNAME);
 	else if(symb_buf.NotEmptyS() && PPRef->SearchSymb(objType, &temp_id, symb_buf, offsetof(PPSecur, Symb)) > 0 && rec_id != temp_id) { // @v10.9.12
-		PPSetObjError(PPERR_DUPSYMB, PPOBJ_USR, temp_id);
+		PPSetObjError(PPERR_DUPSYMB, objType, temp_id);
 		ok = PPErrorByDialog(dlg, CTL_USR_SYMB, -1);
 	}
 	else {
@@ -255,7 +255,6 @@ int EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 		THROW(p_ref->LoadSecur(obj, _id, &spack));
 	}
 	else {
-		PPID   parent_obj = 0;
 		if(param.SampleID) {
 			SString temp_buf;
 			obj = param.Type;
@@ -289,6 +288,7 @@ int EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 				}
 			}
 			if(obj) {
+				PPID   parent_obj = 0;
 				spack.Secur.Tag = obj;
 				if(obj == PPOBJ_USRGRP) {
 					parent_obj = PPOBJ_CONFIG;

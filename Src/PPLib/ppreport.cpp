@@ -1,5 +1,5 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -793,13 +793,13 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 	const uint16 cr_dll_ver = PEGetVersion(PE_GV_DLL);
 	SString temp_buf, fname, buf2;
 	SString left; // Временные переменные для деления буферов по символу
-	if(ReportName.Empty())
+	if(ReportName.IsEmpty())
 		ok = -1;
 	else {
 		SString param_buf;
 		PPIniFile ifile;
 		ifile.Get(PPINISECT_PATH, PPINIPARAM_WINLOCALRPT, buf2);
-		if(buf2.Empty())
+		if(buf2.IsEmpty())
 			(buf2 = "RPT").SetLastSlash().Cat("LOCAL");
 		ifile.GetInt(PPINISECT_CONFIG, PPINIPARAM_REPORT_FORCE_DDF, &force_ddf);
 		SPathStruc::ReplaceExt((fname = ReportName), "RPT", 1);

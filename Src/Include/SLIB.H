@@ -3535,7 +3535,7 @@ public:
 	//   в противном случае возвращает 0.
 	//
 	int    Single() const;
-	int    Empty() const;
+	int    IsEmpty() const;
 	//int    operator !() const { return Empty(); }
 	int    NotEmpty() const;
 	//
@@ -4334,7 +4334,7 @@ public:
 //   Note: Гарантируется сохранение количества, размера и порядка следования переменных-членов этой структуры.
 //
 struct SVerT { // @persistent Size=4
-	SVerT(int = 0, int = 0, int = 0);
+	explicit SVerT(int = 0, int = 0, int = 0);
 	int    Get(int *, int *, int *) const;
 	int    GetMajor() const;
 	int    GetMinor() const;
@@ -11692,6 +11692,7 @@ struct FRect { // @persistent
 	int    FASTCALL IsEqual(const FRect & rS) const;
 	int    IsEmpty() const;
 	int    Contains(FPoint p) const;
+	int    FASTCALL Contains(const FRect & rR) const;
 	float  Width() const;
 	float  Height() const;
 	FPoint GetSize() const;
@@ -15022,7 +15023,7 @@ private:
 //
 //
 //
-class SRawInputInitArray : private SVector { // @v9.8.7 SArray-->SVector
+class SRawInputInitArray : private SVector {
 public:
 	friend class SRawInputData;
 
@@ -15462,7 +15463,7 @@ private:
 	{
 		int    ok = 1;
 		SString rec, tail, s1, s2, temp_buf;
-		if(!rStr.Empty()) {
+		if(!rStr.IsEmpty()) {
 			int    r = rStr.Divide(';', rec, tail);
 			if(r != 0) {
 				r = rec.Divide('=', s1, s2);
@@ -15473,7 +15474,7 @@ private:
 						p_pair->Value = s2;
 						Coll.insert(p_pair);
 					}
-					if(!tail.Empty())
+					if(!tail.IsEmpty())
 						Parse(tail);    // @recursion
 				}
 				else {

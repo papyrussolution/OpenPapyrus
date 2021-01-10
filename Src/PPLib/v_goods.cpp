@@ -1,5 +1,5 @@
 // V_GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1599,7 +1599,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				pSubTitle->Cat(temp_buf).CatDiv(':', 2).Cat(gc_pack.Rec.Name);
 			}
 		}
-		if(pSubTitle->Empty()) {
+		if(pSubTitle->IsEmpty()) {
 			if(Filt.GrpID)
 				GetGoodsName(Filt.GrpID, *pSubTitle);
 			else if(Filt.GrpIDList.GetCount()) {
@@ -3057,7 +3057,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 							}
 							if(agi.StatusFlags & agi.stEgaisCodeByGoods) {
 							}
-							if(agi.CategoryCode.Empty())
+							if(agi.CategoryCode.IsEmpty())
 								logger.LogString(PPTXT_LOG_ALCGOODSHASNTCAT, pack.Rec.Name); // Для алкогольного товара '%s' не определен вид алкогольной продукции
 							if(agi.Proof <= 0.0)
 								logger.LogString(PPTXT_LOG_ALCGOODSHASNTPROOF, pack.Rec.Name); // Для алкогольного товара '%s' не определено содержание спирта
@@ -4600,7 +4600,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		SString temp_buf;
 		for(uint i = 0; i < lot_list.getCount(); i++) {
 			const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
-			if(r_serial.Empty() || (p_bobj->GetSerialNumberByLot(r_lot_rec.ID, temp_buf, 1) > 0 && temp_buf == r_serial)) {
+			if(r_serial.IsEmpty() || (p_bobj->GetSerialNumberByLot(r_lot_rec.ID, temp_buf, 1) > 0 && temp_buf == r_serial)) {
 				double rest = 0.0;
 				p_bobj->trfr->GetRest(r_lot_rec.ID, dt, MAXLONG, &rest, 0);
 				if(rest > 0.0) {

@@ -13,9 +13,9 @@
 
 #if defined(BSWAP4) && defined(STRICT_ALIGNMENT)
 /* redefine, because alignment is ensured */
-# undef  GETU32
+#undef  GETU32
 #define GETU32(p)       BSWAP4(*(const u32*)(p))
-# undef  PUTU32
+#undef  PUTU32
 #define PUTU32(p, v)     *(u32*)(p) = BSWAP4(v)
 #endif
 
@@ -710,7 +710,7 @@ void gcm_ghash_p8(u64 Xi[2], const u128 Htable[16], const u8 * inp,
 #endif
 
 #ifdef GCM_FUNCREF_4BIT
-# undef  GCM_MUL
+#undef  GCM_MUL
 #define GCM_MUL(ctx)           (*gcm_gmult_p)(ctx->Xi.u, ctx->Htable)
 #ifdef GHASH
 #undef  GHASH
@@ -834,7 +834,7 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT * ctx, void * key, block128_f block)
 #else
 	gcm_init_4bit(ctx->Htable, ctx->H.u);
 #endif
-# undef CTX__GHASH
+#undef CTX__GHASH
 #endif
 }
 

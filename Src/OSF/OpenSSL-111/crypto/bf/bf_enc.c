@@ -18,7 +18,7 @@
  */
 
 #if (BF_ROUNDS != 16) && (BF_ROUNDS != 20)
-# error If you set BF_ROUNDS to some value other than 16 or 20, you will have \
+#error If you set BF_ROUNDS to some value other than 16 or 20, you will have \
 	to modify the code.
 #endif
 

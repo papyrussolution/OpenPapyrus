@@ -1,5 +1,5 @@
 // TXTTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -17,7 +17,7 @@ TextDbFile::Param::Param(long flags, const char * pFldDiv, const char * pVertRec
 	FldDiv = pFldDiv;
 	if(FldDiv.Cmp("\\t", 0) == 0 || FldDiv.Cmp("tab", 0) == 0)
 		FldDiv.Z().Tab();
-	if(FldDiv.Strip().Empty())
+	if(FldDiv.Strip().IsEmpty())
 		FldDiv.Semicol();
 	VertRecTerm = pVertRecTerm;
 }
@@ -77,7 +77,7 @@ TextDbFile::~TextDbFile()
 int TextDbFile::CheckParam(const SdRecord & rRec)
 {
 	if(P.Flags & fVerticalRec) {
-		if(P.VertRecTerm.Empty())
+		if(P.VertRecTerm.IsEmpty())
 			return (SLibError = SLERR_TXTDB_EMPTYVERTTERM, 0);
 	}
 	else {
@@ -86,7 +86,7 @@ int TextDbFile::CheckParam(const SdRecord & rRec)
 				if(SFMTLEN(rRec.GetFieldOuterFormat(i)) == 0)
 					return (SLibError = SLERR_TXTDB_ZEROLENFIXEDFLD, 0);
 		}
-		else if(P.FldDiv.Empty())
+		else if(P.FldDiv.IsEmpty())
 			return (SLibError = SLERR_TXTDB_EMPTYFLDDIV, 0);
 	}
 	return 1;
@@ -156,8 +156,8 @@ int TextDbFile::ParseFieldNameRec(const SString & rLine)
 
 int TextDbFile::IsTerminalLine(const SString & rLine, uint fldNo) const
 {
-	if(P.VertRecTerm.Empty() || P.VertRecTerm.Cmp("\\n", 0) == 0)
-		return BIN(rLine.Empty());
+	if(P.VertRecTerm.IsEmpty() || P.VertRecTerm.Cmp("\\n", 0) == 0)
+		return BIN(rLine.IsEmpty());
 	else {
 		const uint num_flds = (P.VertRecTerm[0] == ':' && P.VertRecTerm.Last() == ':') ? atoi(P.VertRecTerm.cptr()+1) : 0;
 		if(num_flds > 0 && num_flds < 1000)

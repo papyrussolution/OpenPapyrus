@@ -139,28 +139,28 @@
 	#ifndef conv32le
 		#define conv32le(num) bswap32(num)
 	#endif
-#       ifndef conv64le
+#ifndef conv64le
 #               define conv64le(num) bswap64(num)
-#       endif
+#endif
 #else
-#       ifndef conv16be
+#ifndef conv16be
 #               define conv16be(num) bswap16(num)
-#       endif
-#       ifndef conv32be
+#endif
+#ifndef conv32be
 #               define conv32be(num) bswap32(num)
-#       endif
-#       ifndef conv64be
+#endif
+#ifndef conv64be
 #               define conv64be(num) bswap64(num)
-#       endif
-#       ifndef conv16le
+#endif
+#ifndef conv16le
 #               define conv16le(num) ((uint16_t)(num))
-#       endif
-#       ifndef conv32le
+#endif
+#ifndef conv32le
 #               define conv32le(num) ((uint32_t)(num))
-#       endif
-#       ifndef conv64le
+#endif
+#ifndef conv64le
 #               define conv64le(num) ((uint64_t)(num))
-#       endif
+#endif
 #endif
 //
 // Unaligned reads and writes //

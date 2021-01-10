@@ -236,7 +236,7 @@ const SString & PPNamedFiltPool::GetDbSymb() const
 
 int PPNamedFiltPool::IsNamedFiltSuited(const PPNamedFilt * pNFilt) const
 {
-	if(DbSymb.Empty() || DbSymb.CmpNC(pNFilt->DbSymb) == 0)
+	if(DbSymb.IsEmpty() || DbSymb.CmpNC(pNFilt->DbSymb) == 0)
 		return 1;
 	else
 		return PPSetError(PPERR_NFSTRNGFORPOOL);
@@ -1240,7 +1240,7 @@ private:
 							if(p_zone_scope->GetFieldByID(id, 0, &fld)) {
 								setCtrlString(CTL_MOBCLEDT_FN, fld.Name);
 								getCtrlString(CTL_MOBCLEDT_TXT, temp_buf);
-								if(temp_buf.Empty())
+								if(temp_buf.IsEmpty())
 									setCtrlString(CTL_MOBCLEDT_TXT, fld.Name);
 							}
 						}

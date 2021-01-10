@@ -559,12 +559,12 @@ int PriceChecker::FormatAnswer(StGoodInfo * pInfo, SString & rFormatedInfo, int 
 		format_str.Cat(IniParam.SG20Format);
 	else
 		format_str.Cat(IniParam.SG15Format); // По умолчанию возьмем формат SG15
-	if(pInfo->Name.Empty()) {
+	if(pInfo->Name.IsEmpty()) {
 		format_str.ReplaceStr("{name}", NOGOODINFO, 1);
 		format_str.ReplaceStr("{info}", "", 1);
 		format_str.ReplaceStr("{price}", "", 1);
 	}
-	else if(pInfo->Price == 0) {
+	else if(pInfo->Price <= 0.0) {
 		format_str.ReplaceStr("{name}", pInfo->Name, 1);
 		format_str.ReplaceStr("{info}", NOPRICE, 1);
 		format_str.ReplaceStr("{price}", "", 1);

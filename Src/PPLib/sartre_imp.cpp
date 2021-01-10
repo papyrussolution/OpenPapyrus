@@ -1,5 +1,5 @@
 // SARTRE_IMP.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2102,7 +2102,7 @@ PrcssrSartreFilt & FASTCALL PrcssrSartreFilt::operator = (const PrcssrSartreFilt
 
 int PrcssrSartreFilt::IsEmpty() const
 {
-	return BIN(!Flags && SrcPath.Empty());
+	return BIN(!Flags && SrcPath.IsEmpty());
 }
 
 class PrcssrSartreFiltDialog : public TDialog {

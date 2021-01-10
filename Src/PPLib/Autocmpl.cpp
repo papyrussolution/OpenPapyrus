@@ -1,5 +1,5 @@
 // AUTOCMPL.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Автоматическая комплектация //
 //
@@ -853,7 +853,7 @@ int PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList,
 		}
 		if(ok > 0 && src_serial.NotEmpty()) {
 			LTagL.GetNumber(PPTAG_LOT_SN, pos, serial);
-			if(serial.Empty()) {
+			if(serial.IsEmpty()) {
 				// @todo Следует формировать новую серию по какому-либо шаблону
 				(serial = src_serial).CatChar('-').Cat("???");
 				LTagL.AddNumber(PPTAG_LOT_SN, pos, serial);

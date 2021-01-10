@@ -1,5 +1,5 @@
 // SCP2RC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020, 2021
 //
 #include <slib.h>
 
@@ -166,7 +166,7 @@ public:
 						{
 							PTR32(virtButtonId)[0] = 0;
 							char * p = strip(Fix.extra[2]);
-							if(strnicmp(p, "VB_", (size_t)3) == 0) {
+							if(_strnicmp(p, "VB_", (size_t)3) == 0) {
 								STRNSCPY(virtButtonId, p);
 							}
 							else {
@@ -691,12 +691,12 @@ static int ProcessFileName(SString & rFileName, const SString & rInPath, const S
 	SPathStruc ps, ps_path;
 	ps.Split(file_name);
 	ps_path.Split(rInPath);
-	if(ps.Drv.Empty() && ps_path.Drv.NotEmpty())
+	if(ps.Drv.IsEmpty() && ps_path.Drv.NotEmpty())
 		ps.Drv = ps_path.Drv;
-	if(ps.Dir.Empty() && ps_path.Dir.NotEmpty())
+	if(ps.Dir.IsEmpty() && ps_path.Dir.NotEmpty())
 		ps.Dir = ps_path.Dir;
 	(org_ext = ps.Ext).ToLower();
-	if(org_ext.Empty())
+	if(org_ext.IsEmpty())
 		org_ext = "dlg";
 	ps.Merge(file_name);
 	ps.Nam = "temp";
@@ -752,13 +752,12 @@ static int ProcessFileNameVDos(StringSet & rFileNames, StringSet & rResultFileNa
 	for(uint fnp = 0; ok && rFileNames.get(&fnp, org_file_name);) {
 		ps.Split(org_file_name);
 		ps_path.Split(rInPath);
-		if(ps.Drv.Empty() && ps_path.Drv.NotEmpty())
+		if(ps.Drv.IsEmpty() && ps_path.Drv.NotEmpty())
 			ps.Drv = ps_path.Drv;
-		if(ps.Dir.Empty() && ps_path.Dir.NotEmpty())
+		if(ps.Dir.IsEmpty() && ps_path.Dir.NotEmpty())
 			ps.Dir = ps_path.Dir;
 		(org_ext = ps.Ext).ToLower();
-		if(org_ext.Empty())
-			org_ext = "dlg";
+		org_ext.SetIfEmpty("dlg");
 		ps.Merge(file_name);
 		(temp_file_name = ps.Nam).Dot().Cat("scp");
 		ps.Ext = "scp";
@@ -851,7 +850,7 @@ int main(int argc, char ** argv)
 					}
 				}
 				if(cmd) {
-					if(arg_val.Empty()) {
+					if(arg_val.IsEmpty()) {
 						i++;
 						if(i < argc)
 							(arg_val = argv[i]).Strip();
@@ -882,10 +881,10 @@ int main(int argc, char ** argv)
 				}
 			}
 		}
-		if(out_file_name.Empty()) {
+		if(out_file_name.IsEmpty()) {
 			error("Undefined output file name");
 		}
-		if(inp_file_name.Empty() && inp_file_name_list.Empty()) {
+		if(inp_file_name.IsEmpty() && inp_file_name_list.IsEmpty()) {
 			error("Undefined input file name or list of file");
 		}
 		{
@@ -921,9 +920,9 @@ int main(int argc, char ** argv)
 								LDATETIME  depf_dtm;
 								ps.Split(temp_buf);
 								ps_path.Split(inp_file_path);
-								if(ps.Drv.Empty() && ps_path.Drv.NotEmpty())
+								if(ps.Drv.IsEmpty() && ps_path.Drv.NotEmpty())
 									ps.Drv = ps_path.Drv;
-								if(ps.Dir.Empty() && ps_path.Dir.NotEmpty())
+								if(ps.Dir.IsEmpty() && ps_path.Dir.NotEmpty())
 									ps.Dir = ps_path.Dir;
 								ps.Merge(temp_buf);
 								SFile depf(temp_buf, SFile::mRead);

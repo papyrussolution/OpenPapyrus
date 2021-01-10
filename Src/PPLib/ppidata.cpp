@@ -1,5 +1,5 @@
 // PPYIDATA.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -499,7 +499,7 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 		url.GetComponent(InetUrl::cHost, 0, host);
 		host.SetIfEmpty(url_buf);
 		url.GetComponent(InetUrl::cScheme, 0, scheme);
-		if(scheme.Empty()) {
+		if(scheme.IsEmpty()) {
 			scheme = "ftp";
 			url.SetComponent(InetUrl::cScheme, scheme);
 		}
@@ -508,7 +508,7 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 			if(url.GetComponent(InetUrl::cPassword, 0, temp_buf) > 0)
 				STRNSCPY(pwd, temp_buf);
 		}
-		if(user.Empty()) {
+		if(user.IsEmpty()) {
 			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf) > 0)
 				user = temp_buf;
 		}

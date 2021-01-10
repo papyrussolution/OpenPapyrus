@@ -1,5 +1,5 @@
 // SDRECORD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -267,7 +267,7 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 		if(T.Typ && OuterFormat && (Name.NotEmpty() || OuterFormula.NotEmpty()))
 			break;
 	}
-	if(!T.Typ || (Name.Empty() && OuterFormula.Empty()))
+	if(!T.Typ || (Name.IsEmpty() && OuterFormula.IsEmpty()))
 		ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(org_offs)).Transf(CTRANSF_OUTER_TO_INNER));
 	if(!ok) {
 		rScan.Offs = org_offs;

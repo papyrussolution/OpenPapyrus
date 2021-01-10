@@ -106,7 +106,7 @@ _cairo_quartz_scaled_font_get_cg_font_ref (cairo_scaled_font_t *sfont);
 
 #else
 
-# error Cairo was not compiled with support for the quartz backend
+#error Cairo was not compiled with support for the quartz backend
 
 #endif /* CAIRO_HAS_QUARTZ_SURFACE */
 

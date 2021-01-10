@@ -83,7 +83,7 @@ static int aesni_cbc_hmac_sha1_init_key(EVP_CIPHER_CTX * ctx,
 }
 
 #define STITCHED_CALL
-# undef  STITCHED_DECRYPT_CALL
+#undef  STITCHED_DECRYPT_CALL
 
 #if !defined(STITCHED_CALL)
 #define aes_off 0

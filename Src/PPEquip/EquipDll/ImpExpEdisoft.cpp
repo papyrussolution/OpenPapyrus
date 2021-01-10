@@ -1,8 +1,6 @@
 // IMPEXPEDISOFT.CPP
 // Библиотека для импорта/экспорта документов в xml через web-сервис EDISoft
 //
-//
-//
 // ЭКСПОРТ
 // (Order, Recadv)
 // Входные парметры от Papyrus
@@ -811,7 +809,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 	// На наличие pBRow->TTN можно заложиться, ибо его надо обязательно указать, так как в системе провайдера
 	// идет привязка RECADV к DESADV именно по этому параметру.
 	// ТТН у всех строк одинаковый, ибо пришли от одного DESADV
-	if(MessageType == PPEDIOP_RECADV && TTN.Empty()) {
+	if(MessageType == PPEDIOP_RECADV && TTN.IsEmpty()) {
 		TTN = pBRow->TTN;
 		THROW(P_ExportCls->RecadvHeader());
 		THROW(P_ExportCls->DocParties());
@@ -1429,7 +1427,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 			P_ImportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pImpHeader);
 		if(!isempty(pInputFileName)) {
 			P_ImportCls->PathStruct.Split(pInputFileName);
-			if(P_ImportCls->PathStruct.Nam.Empty())
+			if(P_ImportCls->PathStruct.Nam.IsEmpty())
 				(P_ImportCls->PathStruct.Nam = "edisoft_import_").Cat(P_ImportCls->ObjId);
 			P_ImportCls->PathStruct.Ext.SetIfEmpty("xml");
 		}
@@ -1750,7 +1748,7 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 			if(atoi(resp.ChangeDocumentStatusResult->Res) != 0) {
 				SetError(IEERR_WEBSERVСERR);
 				SetWebServcError(atoi(resp.ChangeDocumentStatusResult->Res));
-				if(rErrTrackIdList.Empty())
+				if(rErrTrackIdList.IsEmpty())
 					rErrTrackIdList = track_id_buf;
 				else
 					rErrTrackIdList.Comma().Cat(track_id_buf);
@@ -1759,7 +1757,7 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 		}
 		else {
 			ProcessError(proxy);
-			if(rErrTrackIdList.Empty())
+			if(rErrTrackIdList.IsEmpty())
 				rErrTrackIdList = track_id_buf;
 			else
 				rErrTrackIdList.Comma().Cat(track_id_buf);

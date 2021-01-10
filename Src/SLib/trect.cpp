@@ -1,5 +1,5 @@
 // TRECT.CPP
-// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -233,6 +233,7 @@ float  FRect::Height() const { return (b.Y - a.Y); }
 FPoint FRect::GetSize() const { return FPoint((b.X - a.X), (b.Y - a.Y)); }
 FPoint FRect::GetCenter() const { return FPoint((a.X + b.X) / 2.0f, (a.Y + b.Y) / 2.0f); }
 int    FRect::Contains(FPoint p) const { return (p.X >= a.X && p.X <= b.X && p.Y >= a.Y && p.Y <= b.Y); }
+int    FASTCALL FRect::Contains(const FRect & rR) const { return (Contains(rR.a) && Contains(rR.b)); }
 
 double FRect::Ratio() const
 {
@@ -1424,7 +1425,7 @@ SString & SColorBase::ToStr(SString & rBuf, int format) const
 			}
 		}
 	}
-	if(rBuf.Empty()) {
+	if(rBuf.IsEmpty()) {
 		long f = (format & ~fmtName);
 		if(f == fmtRGB) {
 			rBuf.Cat("rgb").CatChar('(').Cat((uint)R).Comma().Cat((uint)G).Comma().Cat((uint)B).CatChar(')');

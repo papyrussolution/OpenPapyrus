@@ -1,5 +1,5 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -2783,7 +2783,7 @@ PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
 	//UrlBase = cfg.UhttUrlPrefix.NotEmpty() ? cfg.UhttUrlPrefix.cptr() : 0; //"http://uhtt.ru/UHTTDispatcher/axis/Plugin_UHTT_SOAPService";
 	cfg.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 	UrlBase = temp_buf.NotEmpty() ? temp_buf.cptr() : 0; //"http://uhtt.ru/UHTTDispatcher/axis/Plugin_UHTT_SOAPService";
-	if(UrlBase.Empty())
+	if(UrlBase.IsEmpty())
 		State |= stDefaultServer;
 	cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
 	//if(cfg.UhttAccount.NotEmpty())

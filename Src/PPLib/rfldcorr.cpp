@@ -1,5 +1,5 @@
 // RFLDCORR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -109,7 +109,7 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField, int
 						if(P_Rec->GetFieldByID(temp_long, 0, &fld) > 0) {
 							Data.ID = static_cast<uint>(temp_long);
 							getCtrlString(CTL_FLDCORR_OUTERFLD, Data.Name);
-							if(Data.Name.Empty()) {
+							if(Data.Name.IsEmpty()) {
 								Data.Name = fld.Name;
 								setCtrlString(CTL_FLDCORR_OUTERFLD, Data.Name);
 							}
@@ -640,7 +640,7 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 		SString temp_buf;
 		SPathStruc ps_temp;
 		SPathStruc ps(_file_name);
-		if(ps.Drv.Empty() && ps.Dir.Empty()) {
+		if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 			PPGetPath(PPPATH_OUT, temp_buf);
 			ps_temp.Split(temp_buf);
 			ps.Drv = ps_temp.Drv;
@@ -1394,7 +1394,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 						DataFormat = dfDbf;
 					else if(val.HasPrefixIAscii("TXT") || val.HasPrefixIAscii("TEXT")) {
 						DataFormat = dfText;
-						if(fld_div.Empty()) {
+						if(fld_div.IsEmpty()) {
 							size_t pos = 0;
 							const char * p = val.SearchChar('(', &pos);
 							if(p) {

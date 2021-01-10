@@ -164,15 +164,15 @@ typedef int cmsBool;
 
 // Try to detect windows
 #if defined (_WIN32) || defined(_WIN64) || defined(WIN32) || defined(_WIN32_)
-#  define CMS_IS_WINDOWS_ 1
+#define CMS_IS_WINDOWS_ 1
 #endif
 
 #ifdef _MSC_VER
-#  define CMS_IS_WINDOWS_ 1
+#define CMS_IS_WINDOWS_ 1
 #endif
 
 #ifdef __BORLANDC__
-#  define CMS_IS_WINDOWS_ 1
+#define CMS_IS_WINDOWS_ 1
 #endif
 
 // Try to detect big endian platforms. This list can be endless, so primarily rely on the configure script
@@ -180,15 +180,15 @@ typedef int cmsBool;
 // -DCMS_USE_BIG_ENDIAN or something similar
 #ifdef CMS_USE_BIG_ENDIAN // set at compiler command line takes overall precedence
 
-#  if CMS_USE_BIG_ENDIAN == 0
-#    undef CMS_USE_BIG_ENDIAN
-#  endif
+#if CMS_USE_BIG_ENDIAN == 0
+#undef CMS_USE_BIG_ENDIAN
+#endif
 
 #else // CMS_USE_BIG_ENDIAN
 
-#  ifdef WORDS_BIGENDIAN // set by configure (or explicitly on compiler command line)
+#ifdef WORDS_BIGENDIAN // set by configure (or explicitly on compiler command line)
 #    define CMS_USE_BIG_ENDIAN 1
-#  else // WORDS_BIGENDIAN
+#else // WORDS_BIGENDIAN
 // Fall back to platform/compiler specific tests
 #    if defined(__sgi__) || defined(__sgi) || defined(sparc)
 #      define CMS_USE_BIG_ENDIAN      1
@@ -198,56 +198,56 @@ typedef int cmsBool;
 #      define CMS_USE_BIG_ENDIAN   1
 #    endif
 
-#    ifdef macintosh
+#ifdef macintosh
 #      ifdef __BIG_ENDIAN__
 #        define CMS_USE_BIG_ENDIAN      1
 #      endif
 #      ifdef __LITTLE_ENDIAN__
-#        undef CMS_USE_BIG_ENDIAN
+#undef CMS_USE_BIG_ENDIAN
 #      endif
 #    endif
-#  endif  // WORDS_BIGENDIAN
+#endif  // WORDS_BIGENDIAN
 
-#  if defined(_HOST_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+#if defined(_HOST_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
 #    define CMS_USE_BIG_ENDIAN      1
-#  endif
+#endif
 
 #endif  // CMS_USE_BIG_ENDIAN
 
 // Calling convention -- this is hardly platform and compiler dependent
 #ifdef CMS_IS_WINDOWS_
-#  if defined(CMS_DLL) || defined(CMS_DLL_BUILD)
+#if defined(CMS_DLL) || defined(CMS_DLL_BUILD)
 #     ifdef __BORLANDC__
 #        define CMSEXPORT       __stdcall _export
 #        define CMSAPI
 #     else
 #        define CMSEXPORT      __stdcall
 #        ifdef CMS_DLL_BUILD
-#            define CMSAPI    __declspec(dllexport)
+#define CMSAPI    __declspec(dllexport)
 #        else
-#           define CMSAPI     __declspec(dllimport)
-#        endif
+#define CMSAPI     __declspec(dllimport)
+#endif
 #     endif
-#  else
+#else
 #     define CMSEXPORT
 #     define CMSAPI
-#  endif
+#endif
 #else  // not Windows
-#  ifdef HAVE_FUNC_ATTRIBUTE_VISIBILITY
+#ifdef HAVE_FUNC_ATTRIBUTE_VISIBILITY
 #     define CMSEXPORT
 #     define CMSAPI    __attribute__((visibility("default")))
-#  else
+#else
 #     define CMSEXPORT
 #     define CMSAPI
-#  endif
+#endif
 #endif  // CMS_IS_WINDOWS_
 
 #ifdef HasTHREADS
-# if HasTHREADS == 1
-#    undef CMS_NO_PTHREADS
-# else
+#if HasTHREADS == 1
+#undef CMS_NO_PTHREADS
+#else
 #    define CMS_NO_PTHREADS 1
-# endif
+#endif
 #endif
 
 // Some common definitions

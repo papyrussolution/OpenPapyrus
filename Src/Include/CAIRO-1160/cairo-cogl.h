@@ -63,7 +63,7 @@ cairo_cogl_surface_end_frame (cairo_surface_t *surface);
 CAIRO_END_DECLS
 
 #else  /* CAIRO_HAS_COGL_SURFACE*/
-# error Cairo was not compiled with support for the Cogl backend
+#error Cairo was not compiled with support for the Cogl backend
 #endif /* CAIRO_HAS_COGL_SURFACE*/
 
 #endif /* CAIRO_COGL_H */

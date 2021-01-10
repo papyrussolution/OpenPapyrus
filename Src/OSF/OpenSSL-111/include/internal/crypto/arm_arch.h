@@ -31,24 +31,24 @@
    * gcc/config/arm/arm.c. On a side note it defines
    * __ARMEL__/__ARMEB__ for little-/big-endian.
    */
-#   elif defined(__ARM_ARCH)
+#elif defined(__ARM_ARCH)
 #define __ARM_ARCH__ __ARM_ARCH
-#   elif defined(__ARM_ARCH_8A__)
+#elif defined(__ARM_ARCH_8A__)
 #define __ARM_ARCH__ 8
-#   elif defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__)     || \
+#elif defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__)     || \
         defined(__ARM_ARCH_7R__)|| defined(__ARM_ARCH_7M__)     || \
         defined(__ARM_ARCH_7EM__)
 #define __ARM_ARCH__ 7
-#   elif defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__)     || \
+#elif defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__)     || \
         defined(__ARM_ARCH_6K__)|| defined(__ARM_ARCH_6M__)     || \
         defined(__ARM_ARCH_6Z__)|| defined(__ARM_ARCH_6ZK__)    || \
         defined(__ARM_ARCH_6T2__)
 #define __ARM_ARCH__ 6
-#   elif defined(__ARM_ARCH_5__) || defined(__ARM_ARCH_5T__)     || \
+#elif defined(__ARM_ARCH_5__) || defined(__ARM_ARCH_5T__)     || \
         defined(__ARM_ARCH_5E__)|| defined(__ARM_ARCH_5TE__)    || \
         defined(__ARM_ARCH_5TEJ__)
 #define __ARM_ARCH__ 5
-#   elif defined(__ARM_ARCH_4__) || defined(__ARM_ARCH_4T__)
+#elif defined(__ARM_ARCH_4__) || defined(__ARM_ARCH_4T__)
 #define __ARM_ARCH__ 4
 #else
 #error "unsupported ARM architecture"

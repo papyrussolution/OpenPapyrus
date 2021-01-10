@@ -1,5 +1,5 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1985,7 +1985,7 @@ int DlContext::TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const void *
 				}
 				if(ok > 0 && cvt) {
 					if(base_src == BTS_STRING) {
-						int32  b = (*static_cast<const SString * const *>(pSrcData))->Empty() ? 0 : 1;
+						int32  b = (*static_cast<const SString * const *>(pSrcData))->IsEmpty() ? 0 : 1;
 						stcast(MKSTYPE(S_INT, 4), te_dest.T.Typ, &b, pDestData, 0);
 					}
 					else
@@ -2756,7 +2756,7 @@ int DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 	FORMAT_FLAG(fOf);
 	FORMAT_FLAG(fStatic);
 #undef FORMAT_FLAG
-	if(temp_buf.Empty())
+	if(temp_buf.IsEmpty())
 		temp_buf.Cat(0L);
 	styp_buf.Cat(temp_buf.Quot('<', '>'));
 	if(t.Mod == STypEx::modPtr)
@@ -3143,13 +3143,12 @@ int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX 
 			p_msg = msg_list[i].P_Msg;
 	SString msg_buf, temp_buf;
 	SString added_info(NZOR(pAddedInfo, AddedMsgString.cptr()));
-	if(added_info.Empty())
-		added_info.Space() = 0;
+	if(added_info.IsEmpty())
+		added_info.Space().Z();
 	if(p_msg == 0)
 		p_msg = "Unknown error";
 	temp_buf.Printf(p_msg, added_info.cptr());
-	// @v7.8.5 msg_buf.Printf("%s(%d): error dl600: %s", (const char *)InFileName, yyline, (const char *)temp_buf);
-	msg_buf.FormatFileParsingMessage(InFileName, yyline, 0).Cat("error").Space().Cat("dl600").CatDiv(':', 2).Cat(temp_buf); // @v7.8.5
+	msg_buf.FormatFileParsingMessage(InFileName, yyline, 0).Cat("error").Space().Cat("dl600").CatDiv(':', 2).Cat(temp_buf);
 	if(flags & erfLog)
 		SLS.LogMessage(LogFileName, msg_buf);
 	printf(msg_buf.CR().ToOem().cptr());

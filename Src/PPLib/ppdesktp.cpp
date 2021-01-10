@@ -1260,9 +1260,7 @@ void PPDesktop::Unadvise()
 							SString temp_buf;
 							COLORREF clr = GetColorRef(SClrLightskyblue);
 							evs_pack.GetExtStrData(PPEventSubscriptionPacket::extssMessage, msg_buf);
-							if(msg_buf.Empty()) {
-								msg_buf = evs_pack.Rec.Name;
-							}
+							msg_buf.SetIfEmpty(evs_pack.Rec.Name);
 							if(pEv->ExtInt_) {
 								PPEventCore ec;
 								PPEventCore::Packet ec_pack;
@@ -2204,7 +2202,7 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 						SString dvc_serial;
 						UsbBasicDescrSt dev_descr, child_descr;
 						if(SUsbDevice::ParsePath(Rib.DvcNameBuf_, dev_descr)) {
-							for(i = 0; dvc_serial.Empty() && i < UsbList.getCount(); i++) {
+							for(i = 0; dvc_serial.IsEmpty() && i < UsbList.getCount(); i++) {
 								const SUsbDevice * p_usb_dev = UsbList.at(i);
 								if(p_usb_dev) {
 									for(uint j = 0; j < p_usb_dev->GetChildren().getCount(); j++) {

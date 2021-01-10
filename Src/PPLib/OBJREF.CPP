@@ -1,5 +1,5 @@
 // OBJREF.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1550,7 +1550,7 @@ int PPObjFormula::Edit(PPID * pID, void * extraPtr)
 		PPID tmpid = 0;
 		dlg->getCtrlString(CTL_FORMULA_SYMB, frm_name);
 		dlg->getCtrlString(CTL_FORMULA_EXPR, frm_expr);
-		if(frm_name.Strip().Empty())
+		if(frm_name.Strip().IsEmpty())
 			PPError(PPERR_NAMENEEDED, 0);
 		else if(SearchByName(frm_name, &tmpid) > 0 && tmpid != *pID)
 			PPError(PPERR_DUPFORMSYMB, 0);

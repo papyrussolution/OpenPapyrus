@@ -1,5 +1,5 @@
 // V_SELL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -310,7 +310,7 @@ int PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 						if(goods_obj.Fetch(Filt.GoodsID, &goods_rec) > 0 && goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
 							unit_buf = unit_rec.Name;
 					}
-					if(unit_buf.Empty())
+					if(unit_buf.IsEmpty())
 						PPGetSubStr(PPTXT_PLOT_SALES, 3, unit_buf);
 				}
 				temp_buf.Printf(fmt_buf, unit_buf.cptr());

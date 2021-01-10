@@ -867,6 +867,14 @@ if(oneof2(a, 1, 3))
 
 \section{Универсальные семантические правила}
 
+В этой секции будут рассмотрены общие спецификации и мнемоники для классов и функций.
+В основном это - только рекомендации, но не строгие предписания. Не существует и не может
+существовать правила, предписывающего обязательно в каждом случае выполнять эти рекомендации.
+
+Вместе с тем, если вы определяете новый класс или модифицируете существующий, то
+приведенные правила позволят одновременно уменьшить энтропию в исходных кодах системы и 
+избежать лишних ошибок.
+
 \subsection{Member function Z()}
 Функция Z() инициализирует состояние экземпляра класса или
 структуры. Эта функция не обязана и, чаще всего, не должна освобождать память, выделенную
@@ -906,6 +914,59 @@ if(oneof2(a, 1, 3))
 		size_t UsedBufSize;
 		size_t AllocatedBufSize;
 	}
+\end{lstlisting}
+
+\subsection{Member function Destroy()}
+Функция-член Destroy() должна полностью освободить все ресурсы, занятые экземпляром объекта
+кроме собственно самого экземпляра this. Вместе с тем, после вызова Destroy() все компоненты 
+экземпляра должны быть валидными в том смысле, что любые дальнейшие операции с экземпляром 
+допускаются. Например, если объект имеет внутренний указатель, распределением которого 
+он управляет, то после освобождения внутреннего содержимого по этому указателю сам указатель должен быть
+обнулен.
+
+Спецификация функции:
+\begin{lstlisting}
+	void Destroy();
+\end{lstlisting}
+
+Ключевое отличие Destroy() от Z() в том, что Z() имеет право не освобождать внутренние 
+ресурсы, если считает, что для последующего использования экземпляра они пригодятся.
+У Destroy() такой опции нет.
+
+В общем случае должно выполняться правило: если класс имеет метод Destroy(), 
+то деструктор класса может быть имплементирован единственным вызовом Destroy().
+
+Например:
+\begin{lstlisting}
+	class ABC {
+	public:
+		ABC()
+		{
+		}
+		~ABC()
+		{
+			Destroy();
+		}	
+		void Destroy();
+	};
+\end{lstlisting}
+
+\subsection{Member function IsEmpty()}
+Функция-член IsEmpty возвращает ненулевое значение если экземпляр объекта является \qu{пустым}.
+Термин \qu{пустой} интерпретируется в зависимости от типа объекта. 
+
+Спецификация функции, в общем случае, следующая:
+\begin{lstlisting}
+int    IsEmpty() const;
+\end{lstlisting}
+
+Допускаются изменения указанной спецификации, однако, квалификатор const крайне важен. У вас должны
+быть очень существенные основания для того, чтобы спецификация такого метода была бы non-const.
+
+Если класс имеет методы Z() и IsEmpty(), то класс должен выполняться инвариант:
+
+\begin{lstlisting}
+	assert(instance.Z().IsEmpty());
 \end{lstlisting}
 
 \subsection{Member function IsEqual()}
@@ -966,6 +1027,42 @@ if(oneof2(a, 1, 3))
 		size_t UsedBufSize;
 		size_t AllocatedBufSize;
 	}
+\end{lstlisting}
+
+\subsection{Member function Copy()}
+Метод Copy() реализует копирование экземпляра объекта, переданного аргументом функции
+в экземпляр this.
+
+Спецификация функции, в общем случае, следующая:
+\begin{lstlisting}
+	class ABC {
+	public:
+		int    FASTCALL Copy(const ABC & rS);
+	};
+\end{lstlisting}
+
+Функция Copy() должна быть сконструирована так, чтобы реализовать полное (глубокое) копирование
+rS в *this. В общем случае, реализация copy-constructor и operator = класса, при необходимости, 
+должны быть имплементированы простым вызовом метода Copy().
+
+Например:
+\begin{lstlisting}
+	class ABC {
+	public:
+		ABC()
+		{
+		}
+		ABC(const ABC & rS)
+		{
+			Copy(rS);
+		}
+		ABC & FASTCALL operator = (const ABC & rS)
+		{
+			Copy(rS);
+			return *this;
+		}
+		int    FASTCALL Copy(const ABC & rS);
+	};
 \end{lstlisting}
 
 \chapter{Общие функции}
@@ -1598,37 +1695,155 @@ size\_t. Это сделано из-за того что во многих случаях требуется получить именно 
 \chapter{Объекты данных (классы семейства PPObject)}
 
 \begin{description}
-	\item[PPOBJ\_CONFIG] ObjID=1      class PPObjSecur              
-	Конфигурация системы
+	\item[PPOBJ\_CONFIG] Конфигурация системы.
+	\begin{description}
+		\item[ObjID] 1
+		\item[class] PPObjSecur
+		\item[Заголовочная структура] PPSecur
+		\item[Пакет] PPSecurPacket
+	\end{description}
+	
+	Синглтон: единственный экземпляр на базу данных. Вместе с тем, пользователи и группы
+	пользователей имеют порожденные от этого объекта внутренние структуры для того, чтобы
+	переопределять некоторые параметры.
+	
 	\item[PPOBJ\_STATUS] ObjID=2      class PPObjSecur              
 	Текущее состояние
-	\item[PPOBJ\_USRGRP] ObjID=3      class PPObjSecur              
-	Группы пользователей
-	\item[PPOBJ\_USR] ObjID=4      class PPObjSecur              
-	Пользователи
-	\item[PPOBJ\_UNIT] ObjID=5      class PPObjUnit               
-	Единицы измерения
-	\item[PPOBJ\_CURRATE] ObjID=6      class PPObjCurRateType        
-	Типы валютных курсов      
-	\item[PPOBJ\_CITYSTATUS] ObjID=7      class PPObjWorldObjStatus     
-	Статусы населенных пунктов        
-	\item[PPOBJ\_PRSNKIND] ObjID=8      class PPObjPersonKind         
-	Виды персоналий       
-	\item[PPOBJ\_PRSNSTATUS] ObjID=9      class PPObjPersonStatus       
-	Юридические статусы персоналий        
+	
+	Не используется.
+	
+	\item[PPOBJ\_USRGRP] Группы пользователей.
+	
+	\begin{description}
+		\item[ObjID] 3
+		\item[class] PPObjSecur		
+		\item[Заголовочная структура] PPSecur
+		\item[Пакет] PPSecurPacket
+	\end{description}	
+	
+	Группирующий объект, объединяющий несколько пользователей. Иерархия имеет фиксированную глубину.
+	То есть, группа не может быть членом группы.
+	
+	\item[PPOBJ\_USR] Пользователи.
+	
+	\begin{description}
+		\item[ObjID] 4
+		\item[class] PPObjSecur				
+		\item[Заголовочная структура] PPSecur
+		\item[Пакет] PPSecurPacket
+	\end{description}		
+	
+	Запись субъекта применения прав доступа и конфигурации. Каждый пользователь для работы с
+	конкретной базой данных обязан авторизоваться, таким образом любой рабочий сеанс ассоциирован
+	с некоторой записью этого типа.
+	
+	\item[PPOBJ\_UNIT] Единицы измерения.
+	
+	\begin{description}
+		\item[ObjID] 5
+		\item[class] PPObjUnit						
+		\item[Заголовочная структура] PPUnit
+		\item[Пакет] None
+		\item[Кэш] Yes
+	\end{description}			
+	
+	\item[PPOBJ\_CURRATE] Типы валютных курсов      
+	
+	\begin{description}
+		\item[ObjID] 6
+		\item[class] PPObjCurRateType						
+		\item[Заголовочная структура] PPCurRateType
+		\item[Пакет] None
+		\item[Кэш] No
+	\end{description}				
+	
+	\item[PPOBJ\_CITYSTATUS] Статусы населенных пунктов      
+	
+	\begin{description}
+		\item[ObjID] 7
+		\item[class] PPObjWorldObjStatus						
+		\item[Заголовочная структура] PPWorldObjStatus
+		\item[Пакет] None
+		\item[Кэш] No
+	\end{description}					
+	  
+	\item[PPOBJ\_PRSNKIND] Виды персоналий       
+	
+	\begin{description}
+		\item[ObjID] 8
+		\item[class] PPObjPersonKind						
+		\item[Заголовочная структура] PPPersonKind
+		\item[Пакет] None
+		\item[Кэш] Yes
+	\end{description}						
+	
+	\item[PPOBJ\_PRSNSTATUS] Юридические статусы персоналий        
+	
+	\begin{description}
+		\item[ObjID] 9
+		\item[class] PPObjPersonStatus						
+		\item[Заголовочная структура] PPPersonStatus
+		\item[Пакет] None
+		\item[Кэш] Yes
+	\end{description}							
+	
 	\item[PPOBJ\_STAFFRANK] ObjID=10     class PPObjReference          
-	\item[PPOBJ\_OPRTYPE] ObjID=11     class PPObjOprType            
-	Типы операций
-	\item[PPOBJ\_OPRKIND] ObjID=12     class PPObjOprKind            
-	Виды операций       
-	\item[PPOBJ\_ACCSHEET] ObjID=13     class PPObjAccSheet           
-	Таблицы аналитических статей        
-	\item[PPOBJ\_BNKACCTYPE] ObjID=14     class PPObjReference          
-	Типы банковских счетов
-	\item[PPOBJ\_PRICETYPE] ObjID=15     сlass PPObjReference          unused 
-	Типы цен 
-	\item[PPOBJ\_AMOUNTTYPE] ObjID=16     class PPObjAmountType         
-	Типы сумм документов
+	\item[PPOBJ\_OPRTYPE] Типы операций
+	
+	\begin{description}
+		\item[ObjID] 11
+		\item[class] PPObjOprType						
+		\item[Заголовочная структура] PPOprType
+		\item[Пакет] None
+		\item[Кэш] No
+	\end{description}								
+	
+	\item[PPOBJ\_OPRKIND] Виды операций       
+	
+	\begin{description}
+		\item[ObjID] 12
+		\item[class] PPObjOprKind						
+		\item[Заголовочная структура] PPOprKind
+		\item[Пакет] PPOprKindPacket
+		\item[Кэш] Yes
+	\end{description}									
+	
+	\item[PPOBJ\_ACCSHEET] Таблицы аналитических статей        
+	
+	\begin{description}
+		\item[ObjID] 13
+		\item[class] PPObjAccSheet						
+		\item[Заголовочная структура] PPAccSheet
+		\item[Пакет] None
+		\item[Кэш] Yes
+	\end{description}										
+	
+	\item[PPOBJ\_BNKACCTYPE] Типы банковских счетов
+	
+	\begin{description}
+		\item[ObjID] 14
+		\item[class] PPObjReference						
+		\item[Заголовочная структура] ReferencTbl::Rec
+		\item[Пакет] None
+		\item[Кэш] No
+	\end{description}											
+	
+	\item[PPOBJ\_PRICETYPE] unused Типы цен 
+	
+	\begin{description}
+		\item[ObjID] 15
+	\end{description}												
+	
+	\item[PPOBJ\_AMOUNTTYPE] Типы сумм документов
+	
+	\begin{description}
+		\item[ObjID] 16
+		\item[class] PPObjAmountType						
+		\item[Заголовочная структура] PPAmountType
+		\item[Пакет] PPAmountTypePacket
+		\item[Кэш] Yes
+	\end{description}												
+	
 	\item[PPOBJ\_CASHNODE] ObjID=17     class PPObjCashNode           
 	Расчетные кассовые узлы     
 	\item[PPOBJ\_ACTION] ObjID=18     class PPObjReference          

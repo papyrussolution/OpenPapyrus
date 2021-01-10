@@ -1,5 +1,5 @@
 // OBJCASHN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1738,7 +1738,7 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 		SETFLAG(ef, 0x0080, Data.ExtFlags & CASHFX_KEEPORGCCUSER);
 		SETFLAG(ef, 0x0100, Data.ExtFlags & CASHFX_DISABLEZEROSCARD);
 		SETFLAG(ef, 0x0200, Data.ExtFlags & CASHFX_UHTTORDIMPORT);
-		SETFLAG(ef, 0x0400, Data.ExtFlags & CASHFX_ABSTRGOODSALLOWED); // @v9.5.10
+		SETFLAG(ef, 0x0400, Data.ExtFlags & CASHFX_ABSTRGOODSALLOWED);
 		SETFLAG(ef, 0x0800, Data.ExtFlags & CASHFX_NOTIFYEQPTIMEMISM); // @v10.8.1
 		SetClusterData(CTL_CASHN_EXTFLAGS, ef);
 		{
@@ -1746,7 +1746,7 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 			PPAlbatrosCfgMngr::Get(&acfg);
 			SString temp_buf;
 			acfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
-			DisableClusterItem(CTL_CASHN_EXTFLAGS, 9, /*acfg.UhttAccount.Empty()*/temp_buf.Empty());
+			DisableClusterItem(CTL_CASHN_EXTFLAGS, 9, /*acfg.UhttAccount.Empty()*/temp_buf.IsEmpty());
 		}
 	}
 	AddClusterAssoc(CTL_CASHN_PASSIVE, 0, CASHFX_PASSIVE);

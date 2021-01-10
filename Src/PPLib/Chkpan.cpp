@@ -1,5 +1,5 @@
 // CHKPAN.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 // Панель ввода кассовых чеков
 //
@@ -5819,7 +5819,7 @@ private:
 				}
 			}
 		}
-		DisableClusterItem(CTL_CCHKDLVR_LPHTOCRD, 1, phone_buf.Empty()); // @v10.2.7
+		DisableClusterItem(CTL_CCHKDLVR_LPHTOCRD, 1, phone_buf.IsEmpty()); // @v10.2.7
 		{
 			const  uint c = AddrByPhoneList.getCount();
 			enableCommand(cmSelAddrByPhone, BIN(c));
@@ -5870,12 +5870,12 @@ private:
 			setCtrlLong(CTLSEL_CCHKDLVR_CITY, NZOR(Data.Addr_.CityID, DefCityID));
 			setCtrlString(CTL_CCHKDLVR_ADDR, LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf));
 			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf); // @v10.2.6
-			if(temp_buf.Empty()) { // @v10.2.6
-				if(LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_PHONE, loc_phone).Empty() && PersonID)
+			if(temp_buf.IsEmpty()) { // @v10.2.6
+				if(LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_PHONE, loc_phone).IsEmpty() && PersonID)
 					loc_phone = DlvrPhone;
 				setCtrlString(CTL_CCHKDLVR_PHONE, loc_phone);
 			}
-			if(LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf).Empty() && PersonID)
+			if(LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf).IsEmpty() && PersonID)
 				GetPersonName(PersonID, temp_buf);
 			setCtrlString(CTL_CCHKDLVR_CONTACT, temp_buf);
 			SETIFZ(Data.DlvrDtm.d, getcurdate_());
@@ -5889,7 +5889,7 @@ private:
 					StrAssocArray * p_list = new StrAssocArray;
 					if(p_list) {
 						for(uint i = 0; i < sc_list.getCount(); i++) {
-							if(ScObj.Fetch(sc_list.get(i), &sc_rec) > 0) // @v9.4.11 Search-->Fetch
+							if(ScObj.Fetch(sc_list.get(i), &sc_rec) > 0)
 								p_list->Add(sc_rec.ID, sc_rec.Code);
 						}
 						ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
@@ -5953,7 +5953,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 	PPID   sc_id = 0;
 	const  int preserve_delivery_flag = BIN(P.Eccd.Flags & P.Eccd.fDelivery);
 	if(LocationCore::IsEmptyAddressRec(P.Eccd.Addr_)) {
-		if(P.Eccd.Memo.Empty() && CnSpeciality == PPCashNode::spDelivery)
+		if(P.Eccd.Memo.IsEmpty() && CnSpeciality == PPCashNode::spDelivery)
 			P.Eccd.Flags |= P.Eccd.fDelivery;
 		sc_id = CSt.GetID();
 	}
@@ -5970,7 +5970,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 							PPSCardPacket sc_pack;
 							if(ScObj.GetPacket(P.Eccd.SCardID_, &sc_pack) > 0) {
 								sc_pack.GetExtStrData(PPSCardPacket::extssPhone, ex_sc_phone);
-								if(sc_pack.Rec.LocID == 0 && sc_pack.Rec.PersonID == 0 && ex_sc_phone.Empty()) {
+								if(sc_pack.Rec.LocID == 0 && sc_pack.Rec.PersonID == 0 && ex_sc_phone.IsEmpty()) {
 									sc_pack.PutExtStrData(PPSCardPacket::extssPhone, loc_phone);
 									if(!ScObj.PutPacket(&sc_id, &sc_pack, 1))
 										PPError();
@@ -6023,7 +6023,7 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 						status_list.Get(i, cnl_status);
 						if(cnl_status.State == PhnSvcChannelStatus::stUp) {
 							if(cnl_status.Channel.HasPrefixIAscii("SIP")) {
-								if(cnl_status.ConnectedLineNum.Empty() || cnl_status.ConnectedLineNum.ToLong() != 0) {
+								if(cnl_status.ConnectedLineNum.IsEmpty() || cnl_status.ConnectedLineNum.ToLong() != 0) {
 									if(PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalChannelSymb, cnl_status.Channel)) {
 										if(CnSpeciality == PPCashNode::spDelivery && !(P.Eccd.Flags & P.Eccd.fDelivery) && IsState(sEMPTYLIST_EMPTYBUF) && !(Flags & fBarrier)) {
 											pop_dlvr_pane = 1;
@@ -8372,7 +8372,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 			else {
 				ok = CheckPaneDialog::VerifyQuantity(goodsID, rBlk.Qtty, 1, 0);
 				if(ok > 0) {
-					if(Flags & fSelSerial && rBlk.Serial.Empty()) {
+					if(Flags & fSelSerial && rBlk.Serial.IsEmpty()) {
 						const int r = SelectSerial(goodsID, rBlk.Serial, &rBlk.PriceBySerial);
 						ok = (r > 0 || r == -2) ? 1 : -1;
 					}
@@ -8754,7 +8754,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 					{
 						GoodsFilt gf;
 						gf.PutExtssData(GoodsFilt::extssNameText, temp_buf);
-						if(temp_buf.Empty() || mode != sgmAllByName) {
+						if(temp_buf.IsEmpty() || mode != sgmAllByName) {
 							if(!(CnFlags & CASHF_SELALLGOODS) && (temp_buf.NotEmpty() && mode != sgmAllByName)) {
 								gf.Flags |= GoodsFilt::fActualOnly;
 								gf.LocList.Add(CnLocID);
@@ -10497,7 +10497,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 					if(!giftID) {
 						if(rBlk.PriceBySerial > 0.0) {
 							// @v8.0.12 теперь priceBySerial уже учтена при вызове GetRetailGoodsInfo// price = priceBySerial;
-							if(rBlk.Serial.Empty())
+							if(rBlk.Serial.IsEmpty())
 								look_back_price = 1;
 							else
 								serial_price_tag = 1;
@@ -10709,7 +10709,7 @@ int CPosProcessor::ProcessGift()
 								gift.PreservePotential(ppot);
 								if(sa_gift_list.SelectGift(full_sale_list, ex_gift_id_list, 1 /* overlap */, gift) > 0)
 									do_process = 1;
-								if(gift.Pot.Name.Empty())
+								if(gift.Pot.Name.IsEmpty())
 									gift.RestorePotential(ppot);
 							}
 						}

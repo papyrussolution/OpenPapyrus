@@ -1,5 +1,5 @@
 // OBJUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2189,7 +2189,7 @@ int PPGlobalAccRights::Parse(const SString & rStr)
 		temp_buf = tail;
 		temp_buf.Divide(';', rec.Z(), tail.Z());
 		if(rec.Divide(':', s1, s2) > 0) {
-			if(s1.Empty())
+			if(s1.IsEmpty())
 				STRNSCPY(perm_rec.Scope, "@def");
 			else
 				STRNSCPY(perm_rec.Scope, s1);

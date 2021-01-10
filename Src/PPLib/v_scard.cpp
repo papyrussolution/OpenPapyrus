@@ -2232,7 +2232,7 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 							int do_upd_uhtt_card = 0;
 							sc_pack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 							if(scp.Phone.NotEmptyS()) {
-								if(temp_buf.Empty()) {
+								if(temp_buf.IsEmpty()) {
 									sc_pack.PutExtStrData(PPSCardPacket::extssPhone, scp.Phone);
 									upd = 1;
 								}
@@ -2244,7 +2244,7 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 							//
 							sc_pack.GetExtStrData(PPSCardPacket::extssMemo, temp_buf);
 							if(scp.Memo.NotEmptyS()) {
-								if(temp_buf.Empty()) {
+								if(temp_buf.IsEmpty()) {
 									sc_pack.PutExtStrData(PPSCardPacket::extssMemo, scp.Memo);
 									upd = 1;
 								}
@@ -3434,7 +3434,7 @@ int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 		THROW(Filt.GlobalAccID);
 		THROW(tc.GetTag(PPOBJ_GLOBALUSERACC, Filt.GlobalAccID, PPTAG_GUA_SCARDPREFIX, &tag));
 		ScPrefix = tag.Val.PStr;
-		THROW(!ScPrefix.Empty());
+		THROW(ScPrefix.NotEmpty());
 		{
 			PPViewCCheck     cc_view;
 			CCheckViewItem   cc_item;

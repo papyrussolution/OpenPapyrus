@@ -53,7 +53,7 @@ cairo_beos_surface_create_for_bitmap (BView*   view,
 CAIRO_END_DECLS
 
 #else  /* CAIRO_HAS_BEOS_SURFACE */
-# error Cairo was not compiled with support for the beos backend
+#error Cairo was not compiled with support for the beos backend
 #endif /* CAIRO_HAS_BEOS_SURFACE */
 
 #endif /* CAIRO_BEOS_H */

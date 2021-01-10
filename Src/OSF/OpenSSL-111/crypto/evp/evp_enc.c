@@ -265,7 +265,7 @@ int EVP_DecryptInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
  * are not partially overlapping with standard pointer arithmetic.
  */
 #ifdef PTRDIFF_T
-# undef PTRDIFF_T
+#undef PTRDIFF_T
 #endif
 #if defined(OPENSSL_SYS_VMS) && __INITIAL_POINTER_SIZE==64
 /*

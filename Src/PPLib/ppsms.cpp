@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib.h>
 #include <pp.h>
@@ -475,6 +475,8 @@ PPAutoSmsConfig::PPAutoSmsConfig() : AllowedWeekDays(0), Reserve2(0), AllowedSta
 {
 	MEMSZERO(Reserve);
 }
+
+int PPAutoSmsConfig::IsEmpty() const { return TddoPath.IsEmpty() || !AllowedWeekDays || !AllowedStartTm || !AllowedEndTm; }
 
 int PPAutoSmsConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -1270,7 +1272,7 @@ static SString & GetSmscErrorText(int error, SString & rErrorText)
 			break;
 		}
 	}
-	if(rErrorText.Empty())
+	if(rErrorText.IsEmpty())
 		rErrorText.Cat(error);
 	return rErrorText;
 }

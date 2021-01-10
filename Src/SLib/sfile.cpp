@@ -1,5 +1,5 @@
 // SFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -2079,7 +2079,7 @@ int FileFormatRegBase::Helper_Register(int id, int mimeType, const char * pMimeS
 			is_text_sign = 1; // Текстовая сигнатура
 		}
 		else {
-			THROW(new_sign.Empty() || (new_sign.Len() & 0x01) == 0);
+			THROW(new_sign.IsEmpty() || (new_sign.Len() & 0x01) == 0);
 			new_sign.ToLower();
 			for(i = 0; i < new_sign.Len(); i++) {
 				const int c = new_sign.C(i);

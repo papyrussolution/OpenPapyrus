@@ -349,7 +349,7 @@ int PPAbstractDevice::GetDllName(int dvcClass, long devTypeId, SString & rDllPat
 		SPathStruc ps;
 		THROW(ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl));
 		ps.Split(path);
-		if(ps.Drv.Empty() && ps.Dir.Empty()) {
+		if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 			PPGetPath(PPPATH_BIN, rDllPath);
 			rDllPath.SetLastSlash().Cat("DRV").SetLastSlash().Cat(path);
 		}
@@ -374,14 +374,12 @@ int PPAbstractDevice::GetDllName(int dvcClass, const char * pName, SString & rDl
 		SString symbol, drv_name, drv_path;
 		int    drv_impl = 0;
 		SPathStruc ps;
-
 		PPGetFilePath(PPPATH_BIN, "ppdrv.ini", line_buf);
 		PPIniFile ini_file(line_buf);
 		THROW_PP_S(ini_file.Get(sect_id, pName, line_buf) > 0, PPERR_DVC_UNDEFDRVSYMB, pName);
-
 		THROW(ParseRegEntry(line_buf, symbol, drv_name, drv_path, &drv_impl));
 		ps.Split(drv_path);
-		if(ps.Drv.Empty() && ps.Dir.Empty()) {
+		if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 			PPGetPath(PPPATH_BIN, rDllPath);
 			rDllPath.SetLastSlash().Cat("DRV").SetLastSlash().Cat(drv_path);
 		}

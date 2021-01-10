@@ -1,5 +1,5 @@
 // PROJECT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2013,7 +2013,7 @@ IMPL_HANDLE_EVENT(PrjTaskDialog)
 				if(!Data.Rec.DlvrAddrID)
 					PsnObj.SetupDlvrLocCombo(this, CTLSEL_TODO_DLVRADDR, templ_pack.Rec.ClientID, templ_pack.Rec.DlvrAddrID);
 				getCtrlString(CTL_TODO_DESCR, Data.SDescr);
-				if(Data.SDescr.Empty())
+				if(Data.SDescr.IsEmpty())
 					setCtrlString(CTL_TODO_DESCR, templ_pack.SDescr);
 				getCtrlData(CTL_TODO_AMOUNT, &Data.Rec.Amount);
 				if(Data.Rec.Amount == 0)

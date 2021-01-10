@@ -183,7 +183,7 @@ void DES_decrypt3(DES_LONG * data, DES_key_schedule * ks1, DES_key_schedule * ks
 
 #ifndef DES_DEFAULT_OPTIONS
 
-# undef CBC_ENC_C__DONT_UPDATE_IV
+#undef CBC_ENC_C__DONT_UPDATE_IV
 #include "ncbc_enc.c"          /* DES_ncbc_encrypt */
 
 void DES_ede3_cbc_encrypt(const uchar * input, uchar * output, long length, DES_key_schedule * ks1,

@@ -1,5 +1,5 @@
 // OBJSYNC.CPP
-// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Поддержка синхронизации объектов в распределенной базе данных
 //
@@ -614,7 +614,7 @@ int ObjSyncQueueCore::PrintDebugObjList(PPID objType)
     	if(!objType || data.ObjType == objType) {
 			PPCommSyncID commid(data);
 			commid.ToStr(0, temp_buf.Z());
-			if(buf.Empty())
+			if(buf.IsEmpty())
 				buf.Cat("ObjSyncQueue Debug List").Space().CatEq("ObjType", objType).CR();
 			buf.CatEq("DBID", (long)data.DBID).Space().CatEq("ObjType", (long)data.ObjType).Space().CatEq("ObjID", data.ObjID).Space().
 				CatEq("CommId", temp_buf).Space().Cat("Flags").CatDiv('=', 0).CatHex((long)data.Flags).Space().CatEq("PrimObjID", data.PrimObjID).CR();

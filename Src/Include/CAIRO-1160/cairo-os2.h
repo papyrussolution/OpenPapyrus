@@ -102,7 +102,7 @@ cairo_os2_surface_set_hps (cairo_surface_t *surface,
                            HPS              hps);
 
 #else  /* CAIRO_HAS_OS2_SURFACE */
-# error Cairo was not compiled with support for the OS/2 backend
+#error Cairo was not compiled with support for the OS/2 backend
 #endif /* CAIRO_HAS_OS2_SURFACE */
 
 CAIRO_END_DECLS

@@ -339,9 +339,9 @@
 #endif
 #if !defined(PNG_PRIVATE)
 #      ifdef __has_extension
-#        if __has_extension(attribute_unavailable_with_message)
+#if __has_extension(attribute_unavailable_with_message)
 #          define PNG_PRIVATE __attribute__((__unavailable__("This function is not exported by libpng.")))
-#        endif
+#endif
 #      endif
 #endif
 #    ifndef PNG_RESTRICT
@@ -363,16 +363,16 @@
 #define PNG_DEPRECATED __attribute__((__deprecated__))
 #      endif
 #      ifndef PNG_PRIVATE
-#        if 0 /* Doesn't work so we use deprecated instead*/
+#if 0 /* Doesn't work so we use deprecated instead*/
 #          define PNG_PRIVATE __attribute__((warning("This function is not exported by libpng.")))
 #        else
 #          define PNG_PRIVATE __attribute__((__deprecated__))
-#        endif
+#endif
 #      endif
 #      if ((__GNUC__ > 3) || !defined(__GNUC_MINOR__) || (__GNUC_MINOR__ >= 1))
-#        ifndef PNG_RESTRICT
+#ifndef PNG_RESTRICT
 #          define PNG_RESTRICT __restrict
-#        endif
+#endif
 #      endif /* __GNUC__.__GNUC_MINOR__ > 3.0 */
 #endif /* __GNUC__ >= 3 */
 

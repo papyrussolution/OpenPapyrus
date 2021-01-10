@@ -1,5 +1,5 @@
 // V_LOT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1596,7 +1596,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 									}
 									else if(oneof2(selection, PPEDIOP_EGAIS_ACTCHARGEONSHOP, (PPEDIOP_EGAIS_ACTCHARGEONSHOP+1000))) {
 										p_ref->Ot.GetTagStr(PPOBJ_LOT, item.ID, PPTAG_LOT_FSRARINFB, temp_buf);
-										if(temp_buf.Empty()) {
+										if(temp_buf.IsEmpty()) {
 											if(p_ref->Ot.GetTagStr(PPOBJ_LOT, item.ID, PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf) > 0) {
 												if(selection == PPEDIOP_EGAIS_ACTCHARGEONSHOP) {
 													THROW_MEM(lot_list.add(item.ID));
@@ -2590,9 +2590,8 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				GetObjectName(PPOBJ_QCERT, Filt.QCertID, sub_title, 1);
 			}
 		}
-		if(sub_title.Empty()) {
+		if(sub_title.IsEmpty())
 			PPFormatPeriod(&Filt.Period, sub_title);
-		}
 		if(Filt.ClosedTag == 1)	{
 			SString word;
 			PPGetWord(PPWORD_ONLYOPEN, 0, word);

@@ -8767,7 +8767,7 @@ int PrcssrTsStrategyAnalyze::OutputTryStrategyContainerResult(TryStrategyContain
 				symb.Z();
 				if(TsObj.Search(p_ri->TsID, &ts_rec) > 0)
 					symb = ts_rec.Symb;
-				if(symb.Empty())
+				if(symb.IsEmpty())
 					ideqvalstr(p_ri->TsID, symb);
 				msg_buf.Z().
 					Cat(symb).

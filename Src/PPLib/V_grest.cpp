@@ -1,5 +1,5 @@
 // V_GREST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1999,7 +1999,7 @@ int PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec &
 			if(Filt.DiffParam & GoodsRestParam::_diffSerial) {
 				SString serial;
 				P_BObj->GetSerialNumberByLot(rRec.ID, serial, 0);
-				if(serial.Empty() && rRec.PrevLotID) {
+				if(serial.IsEmpty() && rRec.PrevLotID) {
 					ReceiptTbl::Rec org_lot_rec;
 					if(P_BObj->trfr->Rcpt.SearchOrigin(rRec.PrevLotID, 0, 0, &org_lot_rec))
 						P_BObj->GetSerialNumberByLot(org_lot_rec.ID, serial, 0);

@@ -1,5 +1,5 @@
 // PHNPAN.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1346,7 +1346,7 @@ int PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArra
 					SString contact_buf;
 					PPObjIDArray identified_caller_list;
 					if(p_self->IdentifyCaller(connected_line, identified_caller_list) > 0) {
-						for(uint i = 0; contact_buf.Empty() && i < identified_caller_list.getCount(); i++) {
+						for(uint i = 0; contact_buf.IsEmpty() && i < identified_caller_list.getCount(); i++) {
 							const PPObjID & r_oid = identified_caller_list.at(i);
 							if(r_oid.Obj == PPOBJ_PERSON) {
 								GetPersonName(r_oid.Id, contact_buf);
@@ -1485,12 +1485,12 @@ int PPViewPhnSvcMonitor::Update()
 			SString caller_buf;
 			PhnSvcChannelStatus status_entry;
 			for(uint i = 0; i < List.GetCount(); i++) {
-				if(List.Get(i, status_entry) && status_entry.IdentifiedCallerName.Empty()) {
+				if(List.Get(i, status_entry) && status_entry.IdentifiedCallerName.IsEmpty()) {
 					PPEAddr::Phone::NormalizeStr(status_entry.ConnectedLineNum, 0, caller_buf);
 					identified_caller_list.clear();
 					if(P_PsnObj->LocObj.P_Tbl->SearchPhoneObjList(caller_buf, 0, identified_caller_list) > 0) {
 						contact_buf.Z();
-						for(uint j = 0; contact_buf.Empty() && j < identified_caller_list.getCount(); j++) {
+						for(uint j = 0; contact_buf.IsEmpty() && j < identified_caller_list.getCount(); j++) {
 							const PPObjID & r_oid = identified_caller_list.at(j);
 							if(r_oid.Obj == PPOBJ_PERSON) {
 								GetPersonName(r_oid.Id, contact_buf);

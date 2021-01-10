@@ -1,5 +1,5 @@
 // PPTVUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1160,7 +1160,7 @@ void Lst2LstObjDialog::GetItemText(long id, SString & rBuf)
 	else if(P_Object) {
 		rBuf.Z();
 		P_Object->GetName(id, &rBuf);
-		if(rBuf.Empty())
+		if(rBuf.IsEmpty())
 			ideqvalstr(id, rBuf);
 	}
 	else
@@ -1997,7 +1997,7 @@ FileBrowseCtrlGroup::Rec::Rec()
 FileBrowseCtrlGroup::FileBrowseCtrlGroup(uint buttonId, uint inputId, const char * pTitle, long flags) :
 	ButtonCtlId(buttonId), InputCtlId(inputId), Flags(flags), Title(pTitle)
 {
-	if(Title.Strip().Empty()) {
+	if(Title.Strip().IsEmpty()) {
 		PPGetSubStr(PPTXT_FILE_OR_PATH_SELECTION, (Flags & fbcgfPath) ? PPFOPS_PATH : PPFOPS_FILE, Title);
 		Title.Transf(CTRANSF_INNER_TO_OUTER);
 	}
@@ -2106,7 +2106,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	file_name[0] = 0;
 	pDlg->getCtrlString(InputCtlId, temp_buf);
 	temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-	if(temp_buf.Empty() || !fileExists(temp_buf))
+	if(temp_buf.IsEmpty() || !fileExists(temp_buf))
 		temp_buf = InitFile;
 	STRNSCPY(file_name, SUcSwitch(temp_buf));
 	memzero(&sofn, sizeof(sofn));
@@ -3734,14 +3734,14 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 								reinterpret_cast<const PPEAddr *>(ea_rec.Addr)->GetPhone(phone_buf.Z());
 								temp_name = phone_buf;
 								name.Z();
-								if(name.Empty() && loc_rec.Name[0])
+								if(name.IsEmpty() && loc_rec.Name[0])
 									name = loc_rec.Name;
-								if(name.Empty())
+								if(name.IsEmpty())
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, name);
 								name.SetIfEmpty(loc_rec.Code);
-								if(name.Empty())
+								if(name.IsEmpty())
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_FULLADDR, name);
-								if(name.Empty())
+								if(name.IsEmpty())
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, name);
 								if(name.NotEmptyS())
 									temp_name.Space().Cat(name);
@@ -6525,7 +6525,7 @@ int ExportDialogs(const char * pFileName)
 			TSArray <HWND> child_list;
 			prop_list.Z();
 			dlg->GetCtlSymb(-1000, symb);
-			if(symb.Empty()) {
+			if(symb.IsEmpty()) {
 				dlg_symb_body.Z().Cat(dlg->GetId());
 				symb.Z().Cat("DLG").CatChar('_').Cat(dlg_symb_body);
 			}
@@ -6592,8 +6592,8 @@ int ExportDialogs(const char * pFileName)
 							}
 							symb = 0; //p_view ? p_view->GetSymb() : 0;
 							dlg->GetCtlSymb(ctl_id, symb);
-							if(symb.Empty())
-								symb.Z().Cat(ctl_id);
+							if(symb.IsEmpty())
+								symb.Cat(ctl_id);
 							TLabel * p_label = dlg->getCtlLabel(ctl_id);
 							RECT   label_rect;
 							if(p_label) {
@@ -6972,7 +6972,7 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 		int    GetFileName(SString & rBuf)
 		{
 			// @v10.2.0 {
-			if(FileName.Empty() && !FileID)
+			if(FileName.IsEmpty() && !FileID)
 				getCtrlString(CTL_OPENEDFILE_SELECT, FileName);
 			// } @v10.2.0
 			if(FileID == PPRFILE_VERHIST_LOG && FileName.NotEmpty()) {

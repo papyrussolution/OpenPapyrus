@@ -19,7 +19,7 @@
 	defined(__x86_64)       || defined(__x86_64__)  || \
 	defined(_M_AMD64)       || defined(_M_X64)      ) \
 )
-# undef EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK
+#undef EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK
 #define EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK 0
 #endif
 

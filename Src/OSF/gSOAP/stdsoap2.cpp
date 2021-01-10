@@ -7709,8 +7709,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_versioning(soap_init) (struct soap * soap, soap_
 			soap_set_recv_logfile(soap, 0);
 		}
 		else {
-			if(log_path.Empty())
-				log_path = exe_path;
+			log_path.SetIfEmpty(exe_path);
 			if(log_path.NotEmptyS()) {
 				soap_set_sent_logfile(soap, (log_options & 0x01) ? (temp_buf = log_path).SetLastSlash().Cat("gsoap-sent.log").cptr() : 0);
 				soap_set_recv_logfile(soap, (log_options & 0x02) ? (temp_buf = log_path).SetLastSlash().Cat("gsoap-recv.log").cptr() : 0);

@@ -155,7 +155,7 @@ extern "C" {
  * declares them, before OPENSSL_EXTERN is used:
  *
  * #ifdef SOME_BUILD_FLAG_MACRO
- * # undef OPENSSL_EXTERN
+ * #undef OPENSSL_EXTERN
  * #define OPENSSL_EXTERN OPENSSL_EXPORT
  * #endif
  *

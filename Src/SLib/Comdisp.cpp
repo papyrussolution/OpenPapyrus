@@ -1,5 +1,5 @@
 // COMDISP.CPP
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
 //
@@ -551,7 +551,7 @@ void ComDispInterface::SetErrCode()
 		//}
 		SSystem::SFormatMessage(hr, sys_err_buf); // @v10.3.11
 	}
-	if(sys_err_buf.Empty()) {
+	if(sys_err_buf.IsEmpty()) {
 		//PPLoadTextWin(PPTXT_RETCODE, temp_buf);
 		sys_err_buf.Cat("retcode").Space().CatHex(HRes);
 	}

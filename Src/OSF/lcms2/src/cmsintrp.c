@@ -396,8 +396,8 @@ void TrilinearInterpFloat(const cmsFloat32Number Input[],
     const cmsInterpParams* p)
 
 {
-#   define LERP(a, l, h)      (cmsFloat32Number)((l)+(((h)-(l))*(a)))
-#   define DENS(i, j, k)      (LutTable[(i)+(j)+(k)+OutChan])
+#define LERP(a, l, h)      (cmsFloat32Number)((l)+(((h)-(l))*(a)))
+#define DENS(i, j, k)      (LutTable[(i)+(j)+(k)+OutChan])
 
 	const cmsFloat32Number* LutTable = (cmsFloat32Number*)p->Table;
 	cmsFloat32Number px, py, pz;

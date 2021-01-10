@@ -126,7 +126,7 @@ static int shake_ctrl(EVP_MD_CTX * evp_ctx, int cmd, int p1, void * p2)
 /*
  * IBM S390X support
  */
-# include "s390x_arch.h"
+#include "s390x_arch.h"
 
 #define S390X_SHA3_FC(ctx)     ((ctx)->pad)
 

@@ -13,6 +13,8 @@
 // Free Software Foundation, Inc.,
 // 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
+// Adopted to SLIB by A.Sobolev 200-2021
+//
 #include <slib-internal.h>
 #pragma hdrstop
 // @v10.9.4 (inlined in slib.h) #include <json.h>
@@ -34,7 +36,7 @@ struct RcString {
 // The structure holding all information needed to resume parsing
 //
 struct JsonParsingBlock {
-	JsonParsingBlock() : state(0), lex_state(0), p(0), cursor(0), string_length_limit_reached(0)
+	JsonParsingBlock() : state(0), lex_state(0), P_Cur(0), cursor(0), string_length_limit_reached(0)
 	{
 	}
 	~JsonParsingBlock()
@@ -43,7 +45,7 @@ struct JsonParsingBlock {
 	uint   state; // the state where the parsing was left on the last parser run
 	uint   lex_state;
 	SString Text;
-	char * p;
+	const  char * P_Cur;
 	int    string_length_limit_reached; // flag informing if the string limit length defined by JSON_MAX_STRING_LENGTH was reached
 	SJson * cursor; // pointers to nodes belonging to the document tree which aid the document parsing
 };
@@ -664,7 +666,358 @@ int json_format_string(const char * pText, SString & rBuf)
 	return ok;
 }
 
-static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString & rText)
+#if 0 // @construction {
+static int FASTCALL Lexer2(JsonParsingBlock * pBlk, const char * pBuffer)
+{
+	char   chr = 0; // temporary character
+	assert(pBuffer);
+	//assert(text);
+	pBlk->Text.Z();
+	SETIFZ(pBlk->P_Cur, pBuffer);
+	while(*pBlk->P_Cur) {
+		switch(pBlk->lex_state) {
+			case 0: // Root document
+				switch(*(pBlk->P_Cur)++) {
+					case '\x20': // space 
+					case '\x09': // horizontal tab 
+					case '\x0A': // line feed or new line 
+					case '\x0D': // Carriage return 
+						break;
+					case '{': return LEX_BEGIN_OBJECT;
+					case '}': return LEX_END_OBJECT;
+					case '[': return LEX_BEGIN_ARRAY;
+					case ']': return LEX_END_ARRAY;
+					case ':': return LEX_NAME_SEPARATOR;
+					case ',': return LEX_VALUE_SEPARATOR;
+					case '\"':
+						pBlk->Text.Z();
+						pBlk->lex_state = 1; // inside a JSON string 
+						break;
+					case 't': pBlk->lex_state =  7; break; // true: 1
+					case 'f': pBlk->lex_state = 10; break; // false: 1
+					case 'n': pBlk->lex_state = 14; break; // false: 1
+					case '-':
+						pBlk->Text.Z().CatChar('-');
+						pBlk->lex_state = 17; // number: '0'
+						break;
+					case '0':
+						pBlk->Text.Z().CatChar('0');
+						pBlk->lex_state = 18; // number: '0' 
+						break;
+					case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						pBlk->Text.Z().CatChar(*(pBlk->P_Cur - 1));
+						pBlk->lex_state = 19; // number: decimal followup
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 1:	// inside a JSON string
+				switch(*pBlk->P_Cur) {
+					case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
+					case 10: // line feed
+					case 11: case 12:
+					case 13: // carriage return
+					case 14: case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22:
+					case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30: case 31:
+						// ASCII control characters can only be present in a JSON string if they are escaped. If not then the document is invalid
+						return LEX_INVALID_CHARACTER;
+						break;
+					case '\"': // close JSON string
+						// it is expected that, in the routine that calls this function, text is set to NULL
+						pBlk->lex_state = 0;
+						++pBlk->P_Cur;
+						return LEX_STRING;
+						break;
+					case '\\':
+						pBlk->Text.CatChar('\\');
+						pBlk->lex_state = 2; // inside a JSON string: start escape sequence
+						break;
+					default:
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						break;
+				}
+				++pBlk->P_Cur;
+				break;
+			case 2: // inside a JSON string: start escape sequence
+				switch(*pBlk->P_Cur) {
+					case '\\':
+					case '\"':
+					case '/':
+					case 'b':
+					case 'f':
+					case 'n':
+					case 'r':
+					case 't':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						pBlk->lex_state = 1; // inside a JSON string
+						break;
+					case 'u':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						pBlk->lex_state = 3; // inside a JSON string: escape unicode
+						break;
+					default:
+						return LEX_INVALID_CHARACTER;
+				}
+				++pBlk->P_Cur;
+				break;
+			case 3: // inside a JSON string: escape unicode
+				if(ishex(*pBlk->P_Cur)) {
+					pBlk->Text.CatChar(*pBlk->P_Cur);
+					pBlk->lex_state = 4; // inside a JSON string: escape unicode
+				}
+				else
+					return LEX_INVALID_CHARACTER;
+				++pBlk->P_Cur;
+				break;
+			case 4:	// inside a JSON string: escape unicode
+				if(ishex(*pBlk->P_Cur)) {
+					pBlk->Text.CatChar(*pBlk->P_Cur);
+					pBlk->lex_state = 5; // inside a JSON string: escape unicode
+				}
+				else
+					return LEX_INVALID_CHARACTER;
+				++pBlk->P_Cur;
+				break;
+			case 5:	// inside a JSON string: escape unicode
+				if(ishex(*pBlk->P_Cur)) {
+					pBlk->Text.CatChar(*pBlk->P_Cur);
+					pBlk->lex_state = 6; // inside a JSON string: escape unicode
+				}
+				else
+					return LEX_INVALID_CHARACTER;
+				++pBlk->P_Cur;
+				break;
+			case 6:	// inside a JSON string: escape unicode
+				if(ishex(*pBlk->P_Cur)) {
+					pBlk->Text.CatChar(*pBlk->P_Cur);
+					pBlk->lex_state = 1; // inside a JSON string: escape unicode
+				}
+				else
+					return LEX_INVALID_CHARACTER;
+				++pBlk->P_Cur;
+				break;
+			case 7: // true: 1
+				switch(*(pBlk->P_Cur)++) {
+					case 'r': pBlk->lex_state = 8; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 8: // true: 2
+				switch(*(pBlk->P_Cur)++) {
+					case 'u': pBlk->lex_state = 9; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 9: // true: 3
+				switch(*(pBlk->P_Cur)++) {
+					case 'e': pBlk->lex_state = 0; return LEX_TRUE;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 10: // false: 1
+				switch(*(pBlk->P_Cur)++) {
+					case 'a': pBlk->lex_state = 11; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 11: // false: 2 
+				switch(*(pBlk->P_Cur)++) {
+					case 'l': pBlk->lex_state = 12; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 12: // false: 3 
+				switch(*(pBlk->P_Cur)++) {
+					case 's': pBlk->lex_state = 13; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 13: // false: 4 
+				switch(*(pBlk->P_Cur)++) {
+					case 'e': pBlk->lex_state = 0; return LEX_FALSE;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 14: // null: 1 
+				switch(*(pBlk->P_Cur)++) {
+					case 'u': pBlk->lex_state = 15; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 15: // null: 2 
+				switch(*(pBlk->P_Cur)++) {
+					case 'l': pBlk->lex_state = 16; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 16: // null: 3
+				switch(*(pBlk->P_Cur)++) {
+					case 'l': pBlk->lex_state = 0; return LEX_NULL;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 17: // number: minus sign
+				switch(*pBlk->P_Cur) {
+					case '0':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 18; // number: '0'
+						break;
+					case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 19; // number: decimal followup 
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 18: // number: '0'
+				switch(*pBlk->P_Cur) {
+					case '\x20':	/* space */
+					case '\x09':	/* horizontal tab */
+					case '\x0A':	/* line feed or new line */
+					case '\x0D':	/* Carriage return */
+						++pBlk->P_Cur;
+					case ']':
+					case '}':
+					case ',':
+						pBlk->lex_state = 0;
+						return LEX_NUMBER;
+					case '.':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 20; // number: frac start 
+						break;
+					case 'e':
+					case 'E':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 22; // number: exp start
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 19: // number: int followup
+				switch(*pBlk->P_Cur) {
+					case '\x20': // space
+					case '\x09': // horizontal tab
+					case '\x0A': // line feed or new line
+					case '\x0D': // Carriage return
+						++pBlk->P_Cur;
+					case ']':
+					case '}':
+					case ',':
+						pBlk->lex_state = 0;
+						return LEX_NUMBER;
+					case '.':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 20; // number: frac start
+						break;
+					case 'e':
+					case 'E':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 22; // number: exp start
+						break;
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 20: // number: frac start
+				{
+					switch(*pBlk->P_Cur) {
+						case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+							pBlk->Text.CatChar(*pBlk->P_Cur);
+							++pBlk->P_Cur;
+							pBlk->lex_state = 21; // number: frac continue 
+							break;
+						default: return LEX_INVALID_CHARACTER;
+					}
+				}
+				break;
+			case 21: // number: frac continue
+				switch(*pBlk->P_Cur) {
+					case '\x20': // space
+					case '\x09': // horizontal tab
+					case '\x0A': // line feed or new line
+					case '\x0D': // Carriage return
+						++pBlk->P_Cur;
+					case ']':
+					case '}':
+					case ',':
+						pBlk->lex_state = 0;
+						return LEX_NUMBER;
+					case 'e':
+					case 'E':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 22; // number: exp start
+						break;
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 22: // number: exp start
+				switch(*pBlk->P_Cur) {
+					case '-':
+					case '+':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 23; // number: exp continue 
+						break;
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 24; // number: exp end 
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 23: // number: exp continue
+				switch(*pBlk->P_Cur) {
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						pBlk->lex_state = 24; // number: exp end
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 24: // number: exp end
+				switch(*pBlk->P_Cur) {
+					case '\x20': // space
+					case '\x09': // horizontal tab
+					case '\x0A': // line feed or new line
+					case '\x0D': // Carriage return
+						++pBlk->P_Cur;
+					case ']':
+					case '}':
+					case ',':
+						pBlk->lex_state = 0;
+						return LEX_NUMBER;
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						pBlk->Text.CatChar(*pBlk->P_Cur);
+						++pBlk->P_Cur;
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			default: return LEX_INVALID_CHARACTER;
+		}
+	}
+	pBlk->P_Cur = NULL;
+	return LEX_MORE;
+}
+#endif // } 0 @construction
+
+static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, SString & rText)
 {
 	assert(pBuffer);
 	assert(p);
@@ -672,7 +1025,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 	//assert(text);
 	rText.Z();
 	if(*p == NULL)
-		*p = (char *)pBuffer;
+		*p = pBuffer;
 	while(**p != '\0') {
 		switch(*state) {
 			case 0:	/* Root document */
@@ -1077,11 +1430,11 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 	SJson * p_temp = 0;
 	assert(info);
 	assert(buffer);
-	info->p = (char *)buffer;
-	while(*info->p != '\0') {
+	info->P_Cur = buffer;
+	while(*info->P_Cur != '\0') {
 		switch(info->state) {
 			case 0:	// starting point 
-				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
+				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
 					case LEX_BEGIN_OBJECT: info->state = 1; break; // begin object
 					case LEX_BEGIN_ARRAY:  info->state = 7; break; // begin array
 					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT); break;
@@ -1108,7 +1461,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 				//
 				assert(info->cursor);
 				assert(info->cursor->Type == SJson::tOBJECT);
-				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
+				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
 					case LEX_STRING:
 						THROW(p_temp = new SJson(SJson::tSTRING));
 						p_temp->AssignText(info->Text);
@@ -1142,7 +1495,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 				// perform tree sanity checks
 				assert(info->cursor);
 				assert(info->cursor->Type == SJson::tOBJECT);
-				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
+				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
 					case LEX_VALUE_SEPARATOR:
 						info->state = 4; // sibling, post-object
 						break;
@@ -1172,7 +1525,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 			case 4: // sibling, post-object
 				assert(info->cursor);
 				assert(info->cursor->Type == SJson::tOBJECT);
-				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
+				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
 					case LEX_STRING:
 						THROW(p_temp = new SJson(SJson::tSTRING));
 						p_temp->AssignText(info->Text);
@@ -1192,7 +1545,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 				/* perform tree sanity checks */
 				assert(info->cursor);
 				assert(info->cursor->Type == SJson::tSTRING);
-				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
+				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
 					case LEX_NAME_SEPARATOR: info->state = 6; break; /* label, pos label:value separator */
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
@@ -1204,7 +1557,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 					// perform tree sanity checks 
 					assert(info->cursor);
 					assert(info->cursor->Type == SJson::tSTRING);
-					const uint value = Lexer(buffer, &info->p, &info->lex_state, info->Text);
+					const uint value = Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text);
 					switch(value) {
 						case LEX_STRING:
 							THROW(p_temp = new SJson(SJson::tSTRING));
@@ -1285,7 +1638,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 				// perform tree sanity checks
 				assert(info->cursor);
 				assert(info->cursor->Type == SJson::tARRAY);
-				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
+				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
 					case LEX_STRING:
 						THROW(p_temp = new SJson(SJson::tSTRING));
 						p_temp->AssignText(info->Text);
@@ -1345,7 +1698,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 			case 9: // followup to adding child to array
 				// TODO perform tree sanity checks
 				assert(info->cursor);
-				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
+				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
 					case LEX_VALUE_SEPARATOR:
 						info->state = 8;
 						break;
@@ -1377,7 +1730,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 			case 99: // finished document. only accept whitespaces until EOF
 				// perform tree sanity check
 				assert(info->cursor->P_Parent == NULL);
-				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
+				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_WAITING_FOR_EOF);
 					case LEX_MEMORY: CALLEXCEPT_S(SLERR_NOMEM);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
@@ -1386,7 +1739,7 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 			default: CALLEXCEPT_S(SLERR_JSON_UNKNOWN_PROBLEM);
 		}
 	}
-	info->p = NULL;
+	info->P_Cur = NULL;
 	/*
 	if(info->state == 99)
 		return JSON_WAITING_FOR_EOF;

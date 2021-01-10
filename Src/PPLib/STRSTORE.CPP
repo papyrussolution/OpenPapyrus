@@ -1291,7 +1291,7 @@ int StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 			rItem.Group = ++P_Pb->LastAutoGrpCode;
 	}
 	if(ok < 0) {
-		if(rItem.GroupSymb.Empty()) {
+		if(rItem.GroupSymb.IsEmpty()) {
 			empty_symb = 1;
 			if(/*P_Pb->*/GrpSymbList.Search(rItem.Group, &(pos = 0))) {
 				rItem.GroupSymb = /*P_Pb->*/GrpSymbList.Get(pos).Txt;
@@ -1465,7 +1465,7 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
             if(is_empty_str)
 				rItem.Str.CatChar('\n');
 			else {
-				if(!rItem.Str.Empty())
+				if(rItem.Str.NotEmpty())
 					rItem.Str.Space();
 				rItem.Str.Cat(temp_buf.Strip());
 			}

@@ -95,21 +95,21 @@ const EVP_CIPHER * EVP_rc5_32_12_16_cfb(void)
 
 #endif
 
-# undef EVP_aes_128_cfb
+#undef EVP_aes_128_cfb
 const EVP_CIPHER * EVP_aes_128_cfb(void);
 const EVP_CIPHER * EVP_aes_128_cfb(void)
 {
 	return EVP_aes_128_cfb128();
 }
 
-# undef EVP_aes_192_cfb
+#undef EVP_aes_192_cfb
 const EVP_CIPHER * EVP_aes_192_cfb(void);
 const EVP_CIPHER * EVP_aes_192_cfb(void)
 {
 	return EVP_aes_192_cfb128();
 }
 
-# undef EVP_aes_256_cfb
+#undef EVP_aes_256_cfb
 const EVP_CIPHER * EVP_aes_256_cfb(void);
 const EVP_CIPHER * EVP_aes_256_cfb(void)
 {

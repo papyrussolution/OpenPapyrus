@@ -1,5 +1,5 @@
 // PPTEX2HTML.CPP
-// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1509,7 +1509,7 @@ int PPTex2HtmlPrcssr::InitOutput(SFile * pOut, const char * pPartLabel, const ch
 	{
 		SString output_file_name;
 		P.GetExtStrData(Param::exsOutputFileName, output_file_name);
-		if(output_file_name.Empty()) {
+		if(output_file_name.IsEmpty()) {
 			P.GetExtStrData(Param::exsInputFileName, output_file_name);
 			SPathStruc::ReplaceExt(output_file_name, "html", 1);
 			P.PutExtStrData(Param::exsOutputFileName, output_file_name);
@@ -1541,10 +1541,10 @@ int PPTex2HtmlPrcssr::Run()
 	THROW_SL(f_in.IsValid());
 	{
 		P.GetExtStrData(Param::exsOutputPictPath, temp_buf);
-		if(temp_buf.Empty()) {
+		if(temp_buf.IsEmpty()) {
 			SString output_file_name;
 			P.GetExtStrData(Param::exsOutputFileName, output_file_name);
-			if(output_file_name.Empty()) {
+			if(output_file_name.IsEmpty()) {
 				P.GetExtStrData(Param::exsInputFileName, output_file_name);
 				SPathStruc::ReplaceExt(output_file_name, "html", 1);
 			}
@@ -2364,7 +2364,7 @@ int PPVer2HtmlPrcssr::Parse(const char * pSrcFileName)
 		}
 		else if(p_cur_entry) {
             Paragraph * p_temp_para = 0;
-			if(line_buf.Empty()) {
+			if(line_buf.IsEmpty()) {
 				if(p_cur_para) {
 					THROW(AddParagraph(p_cur_entry, p_cur_para));
 					p_cur_para = new Paragraph(Paragraph::tContinuation, 0);

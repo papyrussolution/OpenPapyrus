@@ -1,5 +1,5 @@
 // PPSUPPLIX.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1192,10 +1192,10 @@ int PPSupplExchange_Baltika::GetBarcode(PPID goodsID, char * pBuf, size_t bufSiz
 	int32  arcode_pack = 0;
 	SString barcode, temp_buf;
 	GObj.P_Tbl->GetArCode(P.SupplID, goodsID, barcode, &arcode_pack);
-	if(barcode.Empty()) {
+	if(barcode.IsEmpty()) {
 		BarcodeArray barcode_list;
 		GObj.ReadBarcodes(goodsID, barcode_list);
-		for(uint i = 0; barcode.Empty() && i < barcode_list.getCount(); i++) {
+		for(uint i = 0; barcode.IsEmpty() && i < barcode_list.getCount(); i++) {
 			temp_buf = barcode_list.at(i).Code;
 			if(temp_buf.C(0) == '=' || temp_buf.C(0) == '*') {
 				barcode = temp_buf;
@@ -4014,7 +4014,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 		if(do_cancel) {
 			if(bill_ack_tag_id)
 				pBp->BTagL.GetItemStr(bill_ack_tag_id, cancel_code);
-			if(cancel_code.Empty())
+			if(cancel_code.IsEmpty())
 				do_cancel = 0;
 		}
 		else {
@@ -4285,7 +4285,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 										(p_new_item->Country = temp_buf).Transf(CTRANSF_INNER_TO_UTF8);
 								}
 							}
-							if(p_new_item->Country.Empty())
+							if(p_new_item->Country.IsEmpty())
 								(p_new_item->Country = "RU").Transf(CTRANSF_INNER_TO_UTF8);
 						}
 						p_new_item->CLB.Z();
@@ -5469,7 +5469,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
                         p_ref->Ot.GetTagStr(PPOBJ_PERSON, cli_psn_id, Ep.Fb.CliCodeTagID, cli_code);
                         if(pack.GetDlvrAddrID())
 							p_ref->Ot.GetTagStr(PPOBJ_LOCATION, pack.GetDlvrAddrID(), Ep.Fb.LocCodeTagID, loc_code);
-						if(cli_code.Empty()) {
+						if(cli_code.IsEmpty()) {
 							if(loc_code.NotEmpty())
 								cli_code = loc_code;
 							else {
@@ -6371,7 +6371,7 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 			p_new_entry->Code = bill_code;
 			p_new_entry->Dt = pack.Rec.Dt;
 		}
-		else if(ti_pos_list.getCount() && bill_ack_tag_value.Empty()) {
+		else if(ti_pos_list.getCount() && bill_ack_tag_value.IsEmpty()) {
 			PPIDArray order_id_list;
 			PPBillPacket order_pack;
 			int    is_own_order = 0;
@@ -6398,7 +6398,7 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 					}
 				}
 			}
-			if(order_uuid.IsZero() && inner_order_code.Empty()) {
+			if(order_uuid.IsZero() && inner_order_code.IsEmpty()) {
 				(inner_order_code = bill_code).CatChar('-').Cat("ORD"); // @v10.0.08
 				// @v10.0.08 R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_EBILLHASNTORDER, &msg_buf, bill_text.cptr()));
 			}

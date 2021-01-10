@@ -858,7 +858,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				blk.VatRate = R2(param_val.ToReal());
 			}
 			if(pb.Get("VATFREE", param_val) > 0) {
-				if(param_val.Empty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") 
+				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") 
 					blk.IsVatFree = 1;
 			}
 			if(pb.Get("VATAMOUNT20", param_val) > 0) {
@@ -1015,7 +1015,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				_vat_rate = R2(param_val.ToReal());
 			}
 			if(pb.Get("VATFREE", param_val) > 0) {
-				if(param_val.Empty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") 
+				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") 
 					is_vat_free = 1;
 			}
 			if(pb.Get("PAYMENTTERMTAG", param_val) > 0) { // @v10.4.1
@@ -1224,7 +1224,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SetLastItems(0, 0);
 			ok = 0;
 		}
-		else if(cmd.Empty())
+		else if(cmd.IsEmpty())
 			ok = 0;
 		else { // Если дана неизвестная  команда, то сообщаем об этом
 			memcpy(pOutputData, "2", sizeof("2"));
@@ -1591,7 +1591,7 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 	{
 		OpLogBlock __oplb(LogFileName, "00", 0);
 		THROWERR(PutData("00", 0), PIRIT_NOTSENT); // Запрос флагов статуса
-		while(out_data.Empty() && count < max_tries) {
+		while(out_data.IsEmpty() && count < max_tries) {
 			if(numFlags == 1) { // Если запрашиваем флаги фатального состояния, дабы не зациклиться
 				GetData(out_data, r_error);
 			}
@@ -1601,10 +1601,8 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 			count++;
 		}
 		{
-			// @v9.9.4 SString s_flags;
 			StringSet fl_pack(FS, out_data);
 			int    fc = 0; // Считанное количество значений
-			// @v9.6.10 {
 			uint    sp = 0;
 			if(fl_pack.get(&sp, out_data)) {
 				flags_fatal_state = out_data.ToLong();
@@ -1630,15 +1628,8 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 					rFlags = out_data.ToLong();
 			}
 			ok = fc;*/
-			// } @v9.6.10
-			/* @v9.6.10
-			for(uint j = 1, i = 0; j < (uint)numFlags+1; j++) {
-				THROW(fl_pack.get(&i, s_flags));
-			}
-			*/
 		}
 	}
-	// @v9.6.10 rFlags = s_flags.ToLong();
 	CATCHZOK
 	return ok;
 }

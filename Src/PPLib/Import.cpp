@@ -1,5 +1,5 @@
 // IMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 // Функции импорта справочников
 //
@@ -2328,7 +2328,7 @@ int ImportBanks()
 								if(psn_obj.SearchMaxLike(&pack, &psn_id, 0, PPREGT_BIC) > 0) {
 									THROW(psn_obj.GetPacket(psn_id, &pack, 0) > 0);
 									LocationCore::GetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr);
-									if(addr.Empty() || addr.CmpNC(city) == 0) {
+									if(addr.IsEmpty() || addr.CmpNC(city) == 0) {
 										THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, city, 0, 0));
 										LocationCore::SetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr.Z());
 										name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
@@ -5488,13 +5488,13 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 					const char * p_text_data = ppAttrList[i+1];
 					if(p_text_data != 0) {
 						if(sstreqi_ascii(ppAttrList[i], "k")) {
-							if(Pb.TagKeyBuf.Empty())
+							if(Pb.TagKeyBuf.IsEmpty())
 								(Pb.TagKeyBuf = p_text_data).Strip();
 							else
 								tag_err = 1;
 						}
 						else if(sstreqi_ascii(ppAttrList[i], "v")) {
-							if(Pb.TagValBuf.Empty())
+							if(Pb.TagValBuf.IsEmpty())
 								(Pb.TagValBuf = p_text_data).Strip();
 							else
 								tag_err = 2;
@@ -5514,7 +5514,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 						CALLPTRMEMB(P_TagRelOutF, WriteLine(Pb.LineBuf));
 					}
 				}
-				if(Pb.TagKeyBuf.Empty())
+				if(Pb.TagKeyBuf.IsEmpty())
 					tag_err = 3;
 				else if(!tag_err) {
 					if(0) { // На этапе предварительного анализа данных этот блок не нужен

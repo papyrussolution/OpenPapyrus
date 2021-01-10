@@ -1,5 +1,5 @@
 // SARC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -426,7 +426,7 @@ int SArchive::ExtractEntry(int64 idx, const char * pDestName)
         THROW(GetEntryName(idx, entry_name));
         {
         	SPathStruc ps(pDestName);
-            if(ps.Nam.Empty()) {
+            if(ps.Nam.IsEmpty()) {
 				ps.Nam = entry_name;
 				ps.Ext.Z();
 				ps.Merge(temp_buf);

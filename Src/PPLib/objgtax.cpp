@@ -1,5 +1,5 @@
 // OBJGTAX.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -610,7 +610,7 @@ void PPObjGoodsTax::GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t b
 	}
 	if(R6(pRec->SalesTax) != 0)
 		text.CatDivIfNotEmpty(' ', 0).CatChar('S').Cat(pRec->SalesTax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
-	if(text.Empty())
+	if(text.IsEmpty())
 		text.CatCharN('0', 3);
 	strnzcpy(buf, text, buflen);
 }

@@ -1,7 +1,6 @@
 // IMPEXPKORUS.CPP
 // Библиотека для импорта/экспорта документов в xml
 //
-//
 // ЭКСПОРТ
 // Входные парметры от Papyrus
 //		Документ:
@@ -1454,8 +1453,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 		if(!isempty(pOutFileName)) {
 			P_ExportCls->PathStruct.Split(pOutFileName);
 			P_ExportCls->PathStruct.Ext = "xml";
-			if(P_ExportCls->PathStruct.Nam.Empty())
-				P_ExportCls->PathStruct.Nam = "export_";
+			P_ExportCls->PathStruct.Nam.SetIfEmpty("export_");
 		}
 		else {
 			SLS.Init("Papyrus");
@@ -1735,10 +1733,9 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 			P_ImportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pImpHeader);
 		if(!isempty(pInputFileName)) {
 			P_ImportCls->PathStruct.Split(pInputFileName);
-			if(P_ImportCls->PathStruct.Nam.Empty())
+			if(P_ImportCls->PathStruct.Nam.IsEmpty())
 				(P_ImportCls->PathStruct.Nam = "korus_import_").Cat(P_ImportCls->ObjId);
-			if(P_ImportCls->PathStruct.Ext.Empty())
-				P_ImportCls->PathStruct.Ext = "xml";
+			P_ImportCls->PathStruct.Ext.SetIfEmpty("xml");
 		}
 		else {
 			//char   fname[256];
@@ -2055,7 +2052,7 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 			if(atoi(resp.ChangeDocumentStatusResult->Res) != 0) {
 				SetError(IEERR_WEBSERVСERR);
 				SetWebServcError(atoi((const char *)resp.ChangeDocumentStatusResult->Res));
-				if(rErrTrackIdList.Empty())
+				if(rErrTrackIdList.IsEmpty())
 					rErrTrackIdList = track_id_buf;
 				else
 					rErrTrackIdList.Comma().Cat(track_id_buf);
@@ -2064,7 +2061,7 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 		}
 		else {
 			ProcessError(proxy);
-			if(rErrTrackIdList.Empty())
+			if(rErrTrackIdList.IsEmpty())
 				rErrTrackIdList = track_id_buf;
 			else
 				rErrTrackIdList.Comma().Cat(track_id_buf);

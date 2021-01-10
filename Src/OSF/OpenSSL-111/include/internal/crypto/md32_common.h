@@ -66,31 +66,31 @@
 //#include <openssl/crypto.h>
 
 #if !defined(DATA_ORDER_IS_BIG_ENDIAN) && !defined(DATA_ORDER_IS_LITTLE_ENDIAN)
-# error "DATA_ORDER must be defined!"
+#error "DATA_ORDER must be defined!"
 #endif
 
 #ifndef HASH_CBLOCK
-# error "HASH_CBLOCK must be defined!"
+#error "HASH_CBLOCK must be defined!"
 #endif
 #ifndef HASH_LONG
-# error "HASH_LONG must be defined!"
+#error "HASH_LONG must be defined!"
 #endif
 #ifndef HASH_CTX
-# error "HASH_CTX must be defined!"
+#error "HASH_CTX must be defined!"
 #endif
 
 #ifndef HASH_UPDATE
-# error "HASH_UPDATE must be defined!"
+#error "HASH_UPDATE must be defined!"
 #endif
 #ifndef HASH_TRANSFORM
-# error "HASH_TRANSFORM must be defined!"
+#error "HASH_TRANSFORM must be defined!"
 #endif
 #ifndef HASH_FINAL
-# error "HASH_FINAL must be defined!"
+#error "HASH_FINAL must be defined!"
 #endif
 
 #ifndef HASH_BLOCK_DATA_ORDER
-# error "HASH_BLOCK_DATA_ORDER must be defined!"
+#error "HASH_BLOCK_DATA_ORDER must be defined!"
 #endif
 
 #define ROTATE(a, n)     (((a)<<(n))|(((a)&0xffffffff)>>(32-(n))))
@@ -212,7 +212,7 @@ int HASH_FINAL(uchar * md, HASH_CTX * c)
 	OPENSSL_cleanse(p, HASH_CBLOCK);
 
 #ifndef HASH_MAKE_STRING
-# error "HASH_MAKE_STRING must be defined!"
+#error "HASH_MAKE_STRING must be defined!"
 #else
 	HASH_MAKE_STRING(c, md);
 #endif

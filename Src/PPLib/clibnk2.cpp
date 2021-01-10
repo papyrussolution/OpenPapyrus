@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Модуль формирования данных для передачи в системы клиент-банк
 //
@@ -1547,7 +1547,7 @@ int GenerateCliBnkImpData()
 				for(uint j = 0; j < p_order->LinkBillList.getCount(); j++) {
 					BillTbl::Rec bill_rec;
 					if(p_bobj->Search(p_order->LinkBillList.get(j), &bill_rec) > 0) {
-						if(temp_buf.Empty())
+						if(temp_buf.IsEmpty())
 							temp_buf.Z().Cat("Payment by bill").CatDiv(':', 2);
 						else
 							temp_buf.CatDiv(',', 2);

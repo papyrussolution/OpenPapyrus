@@ -1,5 +1,5 @@
 // EGAIS.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Интеграция с системой EGAIS
 //
@@ -324,17 +324,17 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 			break;
 		case PPEDIOP_EGAIS_WAYBILL:
 		case PPEDIOP_EGAIS_WAYBILL_V2:
-			if(msg_buf.Empty())
+			if(msg_buf.IsEmpty())
 				PPLoadText(PPTXT_EGAIS_QS_WAYBILL, msg_buf);
 			// @fallthrough
 		case PPEDIOP_EGAIS_WAYBILLACT:
 		case PPEDIOP_EGAIS_WAYBILLACT_V2:
-			if(msg_buf.Empty())
+			if(msg_buf.IsEmpty())
 				PPLoadText(PPTXT_EGAIS_QS_WAYBILLACT, msg_buf);
 			// @fallthrough
 		case PPEDIOP_EGAIS_ACTCHARGEON:
 		case PPEDIOP_EGAIS_ACTCHARGEON_V2:
-			if(msg_buf.Empty())
+			if(msg_buf.IsEmpty())
 				PPLoadText(PPTXT_EGAIS_QS_CHARGEON, msg_buf);
 			{
 				const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(rPack.P_Data);
@@ -1663,7 +1663,7 @@ int PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScope
 				w_s.PutInner(SXml::nst("pref", "ShortName"), EncText((temp_buf = goods_rec.Name).Trim(64)));
 			}
 		}
-		if(agi.EgaisCode.Empty()) {
+		if(agi.EgaisCode.IsEmpty()) {
 			added_msg_buf.Z().CatEq("Goods", goods_rec.Name).CatDiv(';', 2).CatEq("LotID", lotID);
 			LogTextWithAddendum(PPTXT_EGAIS_NOEGAISCODE, added_msg_buf);
 		}
@@ -3881,7 +3881,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 						}
 						{
 							const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_FSRARID);
-							if(!p_tag_item || (p_tag_item->GetStr(temp_buf) <= 0 || temp_buf.Empty())) {
+							if(!p_tag_item || (p_tag_item->GetStr(temp_buf) <= 0 || temp_buf.IsEmpty())) {
 								loc_pack.TagL.PutItemStr(PPTAG_LOC_FSRARID, rar_ident);
 								rarid_assigned = 2;
 							}
@@ -3903,7 +3903,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 				AssignManufTypeToPersonPacket(*pPack, roleFlag);
 				if(pPack->SelectedLocPos > 0 && pPack->GetDlvrLocByPos(pPack->SelectedLocPos-1, &loc_pack)) {
 					const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_FSRARID);
-					if(!p_tag_item || (p_tag_item->GetStr(temp_buf) <= 0 || temp_buf.Empty())) {
+					if(!p_tag_item || (p_tag_item->GetStr(temp_buf) <= 0 || temp_buf.IsEmpty())) {
 						loc_pack.TagL.PutItemStr(PPTAG_LOC_FSRARID, rar_ident);
 						rarid_assigned = 2;
 					}
@@ -3946,7 +3946,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 				// Не заменяем уже установленный ФСРАР-ИД
 				//
 				const ObjTagItem * p_tag_item = pPack->TagL.GetItem(PPTAG_PERSON_FSRARID);
-				if(!p_tag_item || (p_tag_item->GetStr(temp_buf) <= 0 || temp_buf.Empty())) {
+				if(!p_tag_item || (p_tag_item->GetStr(temp_buf) <= 0 || temp_buf.IsEmpty())) {
 					pPack->TagL.PutItemStr(PPTAG_PERSON_FSRARID, rar_ident);
 					rarid_assigned = 1;
 				}
@@ -7070,7 +7070,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 						LogLastError();
 				}
 				GetDocTypeTag(doc_type, temp_buf);
-				if(temp_buf.Empty())
+				if(temp_buf.IsEmpty())
 					temp_buf.Cat(doc_type);
 				LogTextWithAddendum(PPTXT_EGAIS_GOTUNPROCESSEDDOC, temp_buf);
 			}
@@ -7447,7 +7447,7 @@ int PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locI
 						p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_FSRARINFB, ref_b);
 						p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
 						if(ediOp == PPEDIOP_EGAIS_ACTCHARGEONSHOP) {
-							if(ref_b.NotEmptyS() || egais_code.Empty())
+							if(ref_b.NotEmptyS() || egais_code.IsEmpty())
 								skip = 1;
 						}
 						if(!skip) {
@@ -7748,7 +7748,7 @@ int PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP
 			p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIACK, edi_ack);
 			p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, edi_ident);
 			p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIREJECTACK, edi_rejectack);
-			if(edi_ack.NotEmpty() && edi_ident.NotEmpty() && bill_rec.Flags2 & BILLF2_DECLINED && edi_rejectack.Empty()) {
+			if(edi_ack.NotEmpty() && edi_ident.NotEmpty() && bill_rec.Flags2 & BILLF2_DECLINED && edi_rejectack.IsEmpty()) {
 				for_reject = 1; // По документу необходимо отправить отказ от проведения //
 			}
 			else if(suited) {
@@ -8756,7 +8756,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 				}
 				else {
 					SPathStruc ps(rParam.ParamString);
-					if(ps.Drv.Empty() && ps.Dir.Empty())
+					if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty())
 						PPGetFilePath(PPPATH_IN, rParam.ParamString, temp_buf);
 					else
 						temp_buf = rParam.ParamString;

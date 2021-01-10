@@ -759,7 +759,7 @@ int SScEditorBase::SearchAndReplace(long flags)
 	SSearchReplaceParam param = LastSrParam;
 	IntRange sel;
 	int   ssz = 0;
-	if(param.Pattern.Empty() || flags & srfUseDialog) {
+	if(param.Pattern.IsEmpty() || flags & srfUseDialog) {
 		ssz = GetSelectionText(param.Pattern);
 		if(ssz > 0)
 			param.Pattern.Transf(CTRANSF_UTF8_TO_INNER);

@@ -3517,7 +3517,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 							tec_goods_qtty = faddwsign(tec_goods_qtty, line_rec.Qtty, line_rec.Sign);
 							if(line_rec.Sign > 0 && recompl_item) {
 								THROW_PP(strip(line_rec.Serial)[0], PPERR_TSESRECOMPLNOSER);
-								if(recompl_item.Serial.Empty())
+								if(recompl_item.Serial.IsEmpty())
 									recompl_item.Serial = line_rec.Serial;
 								else
 									THROW_PP(recompl_item.Serial.Cmp(line_rec.Serial, 0) == 0, PPERR_TSESRECOMPLDIFSER);

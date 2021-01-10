@@ -61,7 +61,7 @@ cairo_xml_for_recording_surface (cairo_device_t *xml,
 CAIRO_END_DECLS
 
 #else  /*CAIRO_HAS_XML_SURFACE*/
-# error Cairo was not compiled with support for the XML backend
+#error Cairo was not compiled with support for the XML backend
 #endif /*CAIRO_HAS_XML_SURFACE*/
 
 #endif /*CAIRO_XML_H*/

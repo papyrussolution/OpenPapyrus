@@ -1,5 +1,5 @@
 // VETIS.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
@@ -28,7 +28,7 @@ struct VetisErrorEntry {
 		Qualifier.Z();
 		return *this;
 	}
-	int    IsEmpty() const { return (Item.Empty() && Code.Empty() && Qualifier.Empty()); }
+	int    IsEmpty() const { return (Item.IsEmpty() && Code.IsEmpty() && Qualifier.IsEmpty()); }
 	SString Item;
 	SString Code;
 	SString Qualifier;
@@ -38,7 +38,7 @@ struct VetisFault {
 	VetisFault() : Type(tUndef)
 	{
 	}
-	int    IsEmpty() const { return (Message.Empty() && ErrList.getCount() == 0); }
+	int    IsEmpty() const { return (Message.IsEmpty() && !ErrList.getCount()); }
 	VetisFault & FASTCALL operator = (const VetisFault & rS)
 	{
 		Type = rS.Type;
@@ -855,8 +855,8 @@ struct VetisTransportNumber {
 	}
 	int    IsEmpty() const
 	{
-		return (ContainerNumber.Empty() && WagonNumber.Empty() && VehicleNumber.Empty() &&
-			TrailerNumber.Empty() && ShipName.Empty() && FlightNumber.Empty());
+		return (ContainerNumber.IsEmpty() && WagonNumber.IsEmpty() && VehicleNumber.IsEmpty() &&
+			TrailerNumber.IsEmpty() && ShipName.IsEmpty() && FlightNumber.IsEmpty());
 	}
 	SString ContainerNumber;
 	SString WagonNumber;
@@ -3989,7 +3989,7 @@ int PPVetisInterface::ParseBusinessEntity(xmlNode * pParentNode, VetisBusinessEn
 		else if(SXml::IsName(p_a, "activityLocation")) {
 		}
 	}
-	if(rResult.Name.Empty()) {
+	if(rResult.Name.IsEmpty()) {
 		if(firm_name.NotEmptyS())
 			rResult.Name = firm_name;
 		else if(rResult.Fio.NotEmpty())
@@ -7120,7 +7120,7 @@ int PPVetisInterface::PrepareApplicationBlockForReq(VetisApplicationBlock & rBlk
 	if(oneof2(rBlk.P_AppParam->Sign, VetisApplicationData::signProcessOutgoingConsignment, VetisApplicationData::signResolveDiscrepancy)) {
 		P.GetExtStrData(extssDoctInitiator, temp_buf);
 	}
-	if(temp_buf.Empty()) {
+	if(temp_buf.IsEmpty()) {
 		P.GetExtStrData(extssQInitiator, temp_buf);
 	}
 	THROW_PP(temp_buf.NotEmpty(), PPERR_VETISINITUSERUNDEF);
@@ -7456,7 +7456,7 @@ int PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <VetisEntity
 				app_data.Pi.Product = r_bat.Product;
 				app_data.Pi.SubProduct = r_bat.SubProduct;
 			}
-			if(app_data.Pi.Name.Empty())
+			if(app_data.Pi.Name.IsEmpty())
 				app_data.Pi.Name = r_bat.ProductItem.Name;
 			app_data.VdRec.Flags |= VetisVetDocument::fDiscrepancyLack;
 			app_data.VdRec.AckVolume = 0.0;
@@ -9223,12 +9223,9 @@ int VetisEntityCore::SetupEnterpriseEntry(PPID psnID, PPID locID, VetisEnterpris
 					rEntry.NativeLocID = locID;
 				}
 			}
-			if(rEntry.Name.Empty()) {
-				rEntry.Name = loc_pack.Name;
-			}
-			if(rEntry.Address.AddressView.Empty()) {
+			rEntry.Name.SetIfEmpty(loc_pack.Name);
+			if(rEntry.Address.AddressView.IsEmpty())
 				LocationCore::GetAddress(loc_pack, 0, rEntry.Address.AddressView);
-			}
 		}
 		if(p_ref->Ot.GetTagGuid(PPOBJ_PERSON, psnID, PPTAG_PERSON_VETISUUID, issuer_uuid) > 0) {
 			VetisEntityCore::Entity sub_entity;
@@ -10539,7 +10536,7 @@ static IMPL_DBE_PROC(dbqf_vetis_productitemtextfld_iiiiip)
 		SString temp_buf;
 		VetisEntityCore::GetProductItemName(entity_id, product_item_id, subproduct_id, product_id, temp_buf);
 		// @v10.2.10 {
-		if(temp_buf.Empty() && native_goods_id)
+		if(temp_buf.IsEmpty() && native_goods_id)
 			GetGoodsName(native_goods_id, temp_buf);
 		// } @v10.2.10
 		STRNSCPY(result_buf, temp_buf);
@@ -10556,7 +10553,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vetdstatus_i)
 	else {
 		SString temp_buf;
 		PPGetSubStrById(PPTXT_VETIS_DOCSTATUS, params[0].lval, temp_buf);
-		if(temp_buf.Empty())
+		if(temp_buf.IsEmpty())
 			SIntToSymbTab_GetSymb(VetisVetDocStatus_SymbTab, SIZEOFARRAY(VetisVetDocStatus_SymbTab), params[0].lval, temp_buf);
 		temp_buf.CopyTo(buf, sizeof(buf));
 		result->init(buf);

@@ -43,10 +43,10 @@
 
 /* Now check what of those algorithms are actually enabled */
 #ifdef OPENSSL_NO_RC4
-# undef TEST_ENG_OPENSSL_RC4
-# undef TEST_ENG_OPENSSL_RC4_OTHERS
-# undef TEST_ENG_OPENSSL_RC4_P_INIT
-# undef TEST_ENG_OPENSSL_RC4_P_CIPHER
+#undef TEST_ENG_OPENSSL_RC4
+#undef TEST_ENG_OPENSSL_RC4_OTHERS
+#undef TEST_ENG_OPENSSL_RC4_P_INIT
+#undef TEST_ENG_OPENSSL_RC4_P_CIPHER
 #endif
 
 static int openssl_destroy(ENGINE * e);

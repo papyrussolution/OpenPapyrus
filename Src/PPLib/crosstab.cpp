@@ -1,5 +1,5 @@
 // CROSSTAB.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -706,7 +706,7 @@ int Crosstab::SetupBrowserCtColumns(BrowserWindow * pBrw) const
 		SString title_buf;
 		for(uint i = 0; i < ct_val_count; i++) {
 			GetTabTitle(P_CtValList->at(i), P_CtValList->getType(), title_buf.Z());
-			if(title_buf.Empty())
+			if(title_buf.IsEmpty())
 				P_CtValList->itemToString(i, 0, title_buf);
 			Helper_SetupBrowserCtColumn(pBrw, i, title_buf);
 		}

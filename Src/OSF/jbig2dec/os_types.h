@@ -29,19 +29,19 @@
 #define _JBIG2_OS_TYPES_H
 
 #if defined(HAVE_CONFIG_H)
-# include "config_types.h"
+#include "config_types.h"
 #elif defined(_WIN32)
-# include "config_win32.h"
+#include "config_win32.h"
 #elif defined (STD_INT_USE_SYS_TYPES_H)
-# include <sys/types.h>
+#include <sys/types.h>
 #elif defined (STD_INT_USE_INTTYPES_H)
-# include <inttypes.h>
+#include <inttypes.h>
 #elif defined (STD_INT_USE_SYS_INTTYPES_H)
-# include <sys/inttypes.h>
+#include <sys/inttypes.h>
 #elif defined (STD_INT_USE_SYS_INT_TYPES_H)
-# include <sys/int_types.h>
+#include <sys/int_types.h>
 #else
-# include <stdint.h>
+#include <stdint.h>
 #endif
 
 #endif /* _JBIG2_OS_TYPES_H */

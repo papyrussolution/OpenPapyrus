@@ -1,5 +1,5 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -292,7 +292,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						cntr.Init(pq.countIterations(0, &k_, spGe));
 						local_list.clear();
 						for(pq.initIteration(0, &k, spGe); pq.nextIteration() > 0; cntr.Increment()) {
-							if(srch_buf.Empty() || ExtStrSrch(pt->data.Name, srch_buf, 0))
+							if(srch_buf.IsEmpty() || ExtStrSrch(pt->data.Name, srch_buf, 0))
 								local_list.add(pt->data.ID);
 							PPWaitPercent(cntr);
 						}
@@ -2666,7 +2666,7 @@ int PPViewPerson::ExportUhtt()
 					int   dont_update = 0;
 					if(loc_rec.Code[0] && uhtt_cli.GetLocationByCode(loc_rec.Code, ret_loc_pack) > 0) {
 						uhtt_loc_id = ret_loc_pack.ID;
-						if(addr_buf.NotEmpty() && ret_loc_pack.Address.Empty())
+						if(addr_buf.NotEmpty() && ret_loc_pack.Address.IsEmpty())
 							dont_update = 0;
 						else
 							dont_update = 1;
@@ -3064,7 +3064,7 @@ int PPViewPerson::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneLi
 				elink_list.GetPhones(1, phone = 0, ELNKRT_EMAIL);
 			else {
 				elink_list.GetItem(PPELK_MOBILE, phone.Z());
-				if(phone.Empty())
+				if(phone.IsEmpty())
 					elink_list.GetItem(PPELK_WORKPHONE, phone.Z());
 			}
  			if(phone.NotEmpty()) {

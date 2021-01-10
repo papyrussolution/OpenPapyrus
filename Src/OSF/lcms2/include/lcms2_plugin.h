@@ -55,9 +55,9 @@
 
 
 #ifndef CMS_USE_CPP_API
-#   ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#   endif
+#endif
 #endif
 
 // Vector & Matrix operations -----------------------------------------------------------------------
@@ -662,9 +662,9 @@ CMSAPI void    CMSEXPORT _cmsUnlockMutex(cmsContext ContextID, void* mtx);
 
 
 #ifndef CMS_USE_CPP_API
-#   ifdef __cplusplus
+#ifdef __cplusplus
     }
-#   endif
+#endif
 #endif
 
 #define _lcms_plugin_H

@@ -53,7 +53,7 @@
 // even though sizeof(void *) is only four: for greatest flexibility
 // allow the build to specify ptr alignment.
 #ifndef CMS_PTR_ALIGNMENT
-# define CMS_PTR_ALIGNMENT sizeof(void *)
+#define CMS_PTR_ALIGNMENT sizeof(void *)
 #endif
 
 #define _cmsALIGNMEM(x)  (((x)+(CMS_PTR_ALIGNMENT - 1)) & ~(CMS_PTR_ALIGNMENT - 1))
@@ -74,34 +74,34 @@
 // The specification for "inline" is section 6.7.4 of the C99 standard (ISO/IEC 9899:1999).
 // unfortunately VisualC++ does not conform that
 #if defined(_MSC_VER) || defined(__BORLANDC__)
-#   define cmsINLINE __inline
+#define cmsINLINE __inline
 #else
-#   define cmsINLINE static inline
+#define cmsINLINE static inline
 #endif
 
 // Allow signed overflow, we know this is harmless in this particular context
 #if defined(__clang__)
-#   define CMS_NO_SANITIZE __attribute__((no_sanitize("signed-integer-overflow")))
+#define CMS_NO_SANITIZE __attribute__((no_sanitize("signed-integer-overflow")))
 #else
-#   define CMS_NO_SANITIZE
+#define CMS_NO_SANITIZE
 #endif
 
 // Other replacement functions
 #ifdef _MSC_VER
-# ifndef snprintf
+#ifndef snprintf
 #define snprintf  _snprintf
-# endif
-# ifndef vsnprintf
+#endif
+#ifndef vsnprintf
 #define vsnprintf  _vsnprintf
-# endif
+#endif
 
 /// Properly define some macros to accommodate
 /// older MSVC versions.
-# if defined(_MSC_VER) && _MSC_VER <= 1700
+#if defined(_MSC_VER) && _MSC_VER <= 1700
 	#include <float.h>
 	#define isnan _isnan
 	#define isinf(x) (!_finite((x)))
-# endif
+#endif
 
 #if !defined(_MSC_VER) && (defined(__STDC_VERSION__) && __STDC_VERSION__ < 199901L)
 	#if !defined(isinf)
@@ -118,9 +118,9 @@
 // Code analysis is broken on asserts
 #ifdef _MSC_VER
 #    if (_MSC_VER >= 1500)
-#            define _cmsAssert(a)  { assert((a)); __analysis_assume((a)); }
+#define _cmsAssert(a)  { assert((a)); __analysis_assume((a)); }
 #     else
-#            define _cmsAssert(a)   assert((a))
+#define _cmsAssert(a)   assert((a))
 #     endif
 #else
 #      define _cmsAssert(a)   assert((a))
@@ -264,10 +264,10 @@ typedef CRITICAL_SECTION _cmsMutex;
 // than 1400 (i.e. before VS2005) then we don't have
 // the InterlockedCompareExchangePointer API, so use
 // the old version.
-#    ifdef _MSC_VER
-#       if _MSC_VER < 1400
+#ifdef _MSC_VER
+#if _MSC_VER < 1400
 #          define CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
-#       endif
+#endif
 #    endif
 #endif
 

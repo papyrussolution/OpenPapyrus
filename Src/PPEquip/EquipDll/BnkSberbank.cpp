@@ -504,16 +504,15 @@ int PPDrvSberTrmnl::Init(const char * pLibPath)
 			SIniFile ini_file("pinpad.ini");
 			if(ini_file.GetParam(0, "printerfile", slip_file_name) > 0) {
 				SPathStruc ps(slip_file_name);
-				if(ps.Drv.Empty() && ps.Dir.Empty()) {
+				if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 					(SlipFileName = pLibPath).SetLastSlash().Cat(slip_file_name);
 				}
 				else
 					SlipFileName = slip_file_name;
 			}
 		}
-		if(SlipFileName.Empty()) {
+		if(SlipFileName.IsEmpty())
 			(SlipFileName = pLibPath).SetLastSlash().Cat("p");
-		}
 	}
 	CATCH
 		ok = 0;

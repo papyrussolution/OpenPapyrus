@@ -173,7 +173,7 @@ int CustomDisplayEquip::GetLastErrorText(char * pBuf, size_t bufSize)
 			break;
 		}
 	}
-	if(msg.Empty())
+	if(msg.IsEmpty())
 		msg.Cat("Error ").Cat(LastError);
 	if(msg.BufSize() > bufSize)	
 		ok = 2;

@@ -8614,7 +8614,7 @@ int PPObjBill::UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcList, int
 				if(ary.BSearch(goods_id, &dest_lot_id, &pos)) {
 					tmlof |= TMLOF_ADDLOTS;
 					GetClbNumberByLot(dest_lot_id, &dest_is_derived, dest_clb);
-					if(dest_clb.Empty() && src_clb.NotEmpty())
+					if(dest_clb.IsEmpty() && src_clb.NotEmpty())
 						THROW(SetClbNumberByLot(dest_lot_id, src_clb, 0));
 				}
 				else {

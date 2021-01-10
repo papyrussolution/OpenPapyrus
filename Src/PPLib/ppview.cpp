@@ -243,7 +243,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_USERMENU:        p_v = new PPViewUserMenu(); break; // @v10.9.3 
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
-		if(p_v && p_v->Symb.Empty()) {
+		if(p_v && p_v->Symb.IsEmpty()) {
 			Rc rc;
 			if(LoadResource(0, viewID, rc))
 				p_v->Symb = rc.Symb;

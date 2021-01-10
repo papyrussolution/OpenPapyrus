@@ -385,7 +385,7 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 					msgcode = CrwError;
 					break;
 				case PPERR_NORIGHTS:
-					if(r_ds_tla.AddedMsgStrNoRights.Empty()) {
+					if(r_ds_tla.AddedMsgStrNoRights.IsEmpty()) {
 						GetCurUserName(temp_buf.Z());
 						STRNSCPY(fname, temp_buf);
 					}

@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1484,7 +1484,7 @@ int ChangeDBListDialog::setupList()
 			dlb.GetAttr(DbLoginBlock::attrDbFriendlyName, name);
 			dlb.GetAttr(DbLoginBlock::attrDictPath, dict_path);
 			dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
-			if(data_path.Empty()) {
+			if(data_path.IsEmpty()) {
 				dlb.GetAttr(DbLoginBlock::attrServerUrl, data_path);
 			}
 			ss.clear();
@@ -2189,8 +2189,8 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 		if(pDbes->GetByID(dbentry, &dlb) > 0) {
 			ret = 1;
 			dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
-			if(path.Empty() || path.CmpNC(data_path) == 0)
-				path = 0;
+			if(path.IsEmpty() || path.CmpNC(data_path) == 0)
+				path.Z();
 			else {
 				PPSetAddedMsgString(path);
 				if(IsDirectory(path))
@@ -2205,7 +2205,7 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				THROW(pBP->LockDatabase() > 0);
 				PPWait(1);
 				param.P_DestPath = path;
-				if(param.LogFileName.Empty())
+				if(param.LogFileName.IsEmpty())
 					PPGetFilePath(PPPATH_LOG, PPFILNAM_BACKUP_LOG, param.LogFileName);
 				else {
 					PPGetPath(PPPATH_LOG, temp_buf);
