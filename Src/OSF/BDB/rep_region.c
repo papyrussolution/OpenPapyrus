@@ -17,18 +17,14 @@ static int __rep_gen_init(ENV*, REP *);
  */
 int __rep_open(ENV*env)
 {
-	DB_REP * db_rep;
-	REGENV * renv;
-	REGINFO * infop;
 	REP * rep;
-	int i, ret;
+	int i;
 	char * p;
 	char fname[sizeof(REP_DIAGNAME)+3];
-
-	db_rep = env->rep_handle;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
-	ret = 0;
+	DB_REP * db_rep = env->rep_handle;
+	REGINFO * infop = env->reginfo;
+	REGENV * renv = (REGENV *)infop->primary;
+	int ret = 0;
 	DB_ASSERT(env, DBREP_DIAG_FILES < 100);
 	if(renv->rep_off == INVALID_ROFF) {
 		/* Must create the region. */
@@ -40,8 +36,7 @@ int __rep_open(ENV*env)
 		 * have been configured before we open the region, and those
 		 * are taken from the DB_REP structure.
 		 */
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_REGION, 0, &rep->mtx_region)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_REGION, 0, &rep->mtx_region)) != 0)
 			return ret;
 		/*
 		 * Because we have no way to prevent deadlocks and cannot log
@@ -50,20 +45,15 @@ int __rep_open(ENV*env)
 		 * accessed when messages arrive out-of-order, so it should
 		 * stay small and not be used in a high-performance app.
 		 */
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_DATABASE, 0, &rep->mtx_clientdb)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_DATABASE, 0, &rep->mtx_clientdb)) != 0)
 			return ret;
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_CHKPT, 0, &rep->mtx_ckp)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_CHKPT, 0, &rep->mtx_ckp)) != 0)
 			return ret;
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_DIAG, 0, &rep->mtx_diag)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_DIAG, 0, &rep->mtx_diag)) != 0)
 			return ret;
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_EVENT, 0, &rep->mtx_event)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_EVENT, 0, &rep->mtx_event)) != 0)
 			return ret;
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_START, 0, &rep->mtx_repstart)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_START, 0, &rep->mtx_repstart)) != 0)
 			return ret;
 		rep->diag_off = 0;
 		rep->diag_index = 0;
@@ -150,18 +140,15 @@ int __rep_open(ENV*env)
 	for(i = 0; i < DBREP_DIAG_FILES; i++) {
 		db_rep->diagfile[i] = NULL;
 		snprintf(fname, sizeof(fname), REP_DIAGNAME, i);
-		if((ret = __db_appname(env, DB_APP_NONE, fname,
-			    NULL, &p)) != 0)
+		if((ret = __db_appname(env, DB_APP_NONE, fname, NULL, &p)) != 0)
 			goto err;
-		ret = __os_open(env, p, 0, DB_OSO_CREATE, DB_MODE_600,
-			&db_rep->diagfile[i]);
+		ret = __os_open(env, p, 0, DB_OSO_CREATE, DB_MODE_600, &db_rep->diagfile[i]);
 		__os_free(env, p);
 		if(ret != 0)
 			goto err;
 	}
 out:
 	return 0;
-
 err:
 	__rep_close_diagfiles(env);
 	return ret;

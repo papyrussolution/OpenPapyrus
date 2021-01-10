@@ -546,23 +546,17 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS * hosts, const char * host, size
 }
 
 /* |1|[salt]|[hash] */
-static int hashed_hostline(LIBSSH2_KNOWNHOSTS * hosts,
-    const char * host, size_t hostlen,
-    const char * key_type_name, size_t key_type_len,
-    const char * key, size_t keylen, int key_type,
-    const char * comment, size_t commentlen)
+static int hashed_hostline(LIBSSH2_KNOWNHOSTS * hosts, const char * host, size_t hostlen, const char * key_type_name, size_t key_type_len,
+    const char * key, size_t keylen, int key_type, const char * comment, size_t commentlen)
 {
 	const char * p;
 	char saltbuf[32];
 	char hostbuf[256];
-
 	const char * salt = &host[3]; /* skip the magic marker */
 	hostlen -= 3; /* deduct the marker */
-
 	/* this is where the salt starts, find the end of it */
 	for(p = salt; *p && (*p != '|'); p++)
 		;
-
 	if(*p=='|') {
 		const char * hash = NULL;
 		size_t saltlen = p - salt;
@@ -571,31 +565,21 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS * hosts,
 		memcpy(saltbuf, salt, saltlen);
 		saltbuf[saltlen] = 0; /* zero terminate */
 		salt = saltbuf; /* point to the stack based buffer */
-
 		hash = p+1; /* the host hash is after the separator */
-
 		/* now make the host point to the hash */
 		host = hash;
 		hostlen -= saltlen+1; /* deduct the salt and separator */
-
 		/* check that the lengths seem sensible */
 		if(hostlen >= sizeof(hostbuf)-1)
 			return _libssh2_error(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Failed to parse known_hosts line (unexpected length)");
-
 		memcpy(hostbuf, host, hostlen);
 		hostbuf[hostlen] = 0;
-
-		return knownhost_add(hosts, hostbuf, salt,
-		    key_type_name, key_type_len,
-		    key, keylen,
-		    comment, commentlen,
-		    key_type | LIBSSH2_KNOWNHOST_TYPE_SHA1 |
-		    LIBSSH2_KNOWNHOST_KEYENC_BASE64, NULL);
+		return knownhost_add(hosts, hostbuf, salt, key_type_name, key_type_len, key, keylen,
+		    comment, commentlen, key_type | LIBSSH2_KNOWNHOST_TYPE_SHA1|LIBSSH2_KNOWNHOST_KEYENC_BASE64, NULL);
 	}
 	else
 		return 0;  /* XXX: This should be an error, shouldn't it? */
 }
-
 /*
  * hostline()
  *

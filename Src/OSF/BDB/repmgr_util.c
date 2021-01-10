@@ -151,13 +151,12 @@ int __repmgr_new_connection(ENV * env, REPMGR_CONNECTION ** connp, socket_t s, i
  */
 int __repmgr_new_site(ENV * env, REPMGR_SITE ** sitep, const char * host, uint port)
 {
-	DB_REP * db_rep;
 	REPMGR_CONNECTION * conn;
 	REPMGR_SITE * site, * sites;
 	char * p;
 	uint i, new_site_max;
 	int ret;
-	db_rep = env->rep_handle;
+	DB_REP * db_rep = env->rep_handle;
 	if(db_rep->site_cnt >= db_rep->site_max) {
 		new_site_max = db_rep->site_max == 0 ? INITIAL_SITES_ALLOCATION : db_rep->site_max*2;
 		if((ret = __os_malloc(env, sizeof(REPMGR_SITE)*new_site_max, &sites)) != 0)

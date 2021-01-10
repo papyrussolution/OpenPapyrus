@@ -741,8 +741,6 @@ double _cairo_strtod(const char * nptr, char ** endptr)
 /* strtod replacement that ignores locale and only accepts decimal points */
 double _cairo_strtod(const char * nptr, char ** endptr)
 {
-	const char * decimal_point;
-	int decimal_point_len;
 	const char * p;
 	char buf[100];
 	char * bufptr;
@@ -751,8 +749,8 @@ double _cairo_strtod(const char * nptr, char ** endptr)
 	char * end;
 	int delta;
 	boolint have_dp;
-	decimal_point = _cairo_get_locale_decimal_point();
-	decimal_point_len = strlen(decimal_point);
+	const char * decimal_point = _cairo_get_locale_decimal_point();
+	int decimal_point_len = strlen(decimal_point);
 	assert(decimal_point_len != 0);
 	p = nptr;
 	bufptr = buf;

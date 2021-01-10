@@ -55,12 +55,10 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 	const char * p;
 	ulong l;
 	BIGNUM * bl = NULL;
-
 	if(num == 0)
 		return 0;
 	else if(num == -1)
 		num = strlen(buf);
-
 	p = buf;
 	c = *(p++);
 	num--;

@@ -1415,15 +1415,12 @@ err:
 int __set_logvrfy_dbfuid(DB_LOG_VRFY_INFO * lvinfo)
 {
 	int ret;
-	const char * p;
 	DBT key, data;
-	size_t buflen;
-	p = NULL;
 	// (replaced by ctr) memzero(&key, sizeof(DBT));
 	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	/* So far we only support verifying a specific db file. */
-	p = lvinfo->lv_config->dbfile;
-	buflen = sizeof(char)*(sstrlen(p)+1);
+	const char * p = lvinfo->lv_config->dbfile;
+	size_t buflen = sizeof(char)*(sstrlen(p)+1);
 	key.data = (char *)p;
 	key.size = (uint32)buflen;
 	BDBOP2(lvinfo->dbenv, __db_get(lvinfo->fnameuid, lvinfo->ip, NULL, &key, &data, 0), "__set_logvrfy_dbfuid");

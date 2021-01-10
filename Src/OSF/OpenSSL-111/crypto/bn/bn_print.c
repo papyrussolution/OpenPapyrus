@@ -20,7 +20,6 @@ char * BN_bn2hex(const BIGNUM * a)
 	int i, j, v, z = 0;
 	char * buf;
 	char * p;
-
 	if(BN_is_zero(a))
 		return OPENSSL_strdup("0");
 	buf = static_cast<char *>(OPENSSL_malloc(a->top * BN_BYTES * 2 + 2));
@@ -50,31 +49,28 @@ err:
 /* Must 'OPENSSL_free' the returned data */
 char * BN_bn2dec(const BIGNUM * a)
 {
-	int i = 0, num, ok = 0, n, tbytes;
-	char * buf = NULL;
+	int ok = 0, n;
 	char * p;
 	BIGNUM * t = NULL;
-	BN_ULONG * bn_data = NULL, * lp;
-	int bn_data_num;
+	BN_ULONG * lp;
 	/*-
 	 * get an upper bound for the length of the decimal integer
 	 * num <= (BN_num_bits(a) + 1) * log(2)
 	 *     <= 3 * BN_num_bits(a) * 0.101 + log(2) + 1     (rounding error)
 	 *     <= 3 * BN_num_bits(a) / 10 + 3 * BN_num_bits / 1000 + 1 + 1
 	 */
-	i = BN_num_bits(a) * 3;
-	num = (i / 10 + i / 1000 + 1) + 1;
-	tbytes = num + 3; /* negative and terminator and one spare? */
-	bn_data_num = num / BN_DEC_NUM + 1;
-	bn_data = static_cast<uint *>(OPENSSL_malloc(bn_data_num * sizeof(BN_ULONG)));
-	buf = static_cast<char *>(OPENSSL_malloc(tbytes));
+	int i = BN_num_bits(a) * 3;
+	int num = (i / 10 + i / 1000 + 1) + 1;
+	int tbytes = num + 3; /* negative and terminator and one spare? */
+	int bn_data_num = num / BN_DEC_NUM + 1;
+	BN_ULONG * bn_data = static_cast<uint *>(OPENSSL_malloc(bn_data_num * sizeof(BN_ULONG)));
+	char * buf = static_cast<char *>(OPENSSL_malloc(tbytes));
 	if(buf == NULL || bn_data == NULL) {
 		BNerr(BN_F_BN_BN2DEC, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	if((t = BN_dup(a)) == NULL)
 		goto err;
-
 	p = buf;
 	lp = bn_data;
 	if(BN_is_zero(t)) {
@@ -84,7 +80,6 @@ char * BN_bn2dec(const BIGNUM * a)
 	else {
 		if(BN_is_negative(t))
 			*p++ = '-';
-
 		while(!BN_is_zero(t)) {
 			if(lp - bn_data >= bn_data_num)
 				goto err;

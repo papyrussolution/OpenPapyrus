@@ -2166,9 +2166,8 @@ SOAP_FMAC1 char * /*SOAP_FMAC2*/FASTCALL soap_first_block(struct soap * soap, st
 
 SOAP_FMAC1 char * /*SOAP_FMAC2*/FASTCALL soap_next_block(struct soap * soap, struct soap_blist * b)
 {
-	char * p;
 	SETIFZ(b, soap->blist);
-	p = b->ptr;
+	char * p = b->ptr;
 	if(p) {
 		DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Next block\n"));
 		b->ptr = *(char **)p;
@@ -13392,11 +13391,10 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_s2base64(struct soap * soap, const uchar * s, 
 {
 	int i;
 	ulong m;
-	char * p;
 	SETIFZ(t, static_cast<char *>(soap_malloc(soap, (n+2)/3*4+1)));
 	if(!t)
 		return NULL;
-	p = t;
+	char * p = t;
 	t[0] = '\0';
 	if(s) {
 		const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
@@ -13500,11 +13498,10 @@ SOAP_FMAC1 const char * SOAP_FMAC2 soap_base642s(struct soap * soap, const char 
 
 SOAP_FMAC1 char * SOAP_FMAC2 soap_s2hex(struct soap * soap, const uchar * s, char * t, int n)
 {
-	char * p;
 	SETIFZ(t, static_cast<char *>(soap_malloc(soap, 2*n+1)));
 	if(!t)
 		return NULL;
-	p = t;
+	char * p = t;
 	t[0] = '\0';
 	if(s) {
 		for(; n > 0; n--) {

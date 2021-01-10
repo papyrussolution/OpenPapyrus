@@ -464,7 +464,8 @@ static void read_all(lua_State * L, FILE * f) {
 	luaL_pushresult(&b); /* close buffer */
 }
 
-static int read_chars(lua_State * L, FILE * f, size_t n) {
+static int read_chars(lua_State * L, FILE * f, size_t n) 
+{
 	size_t nr; /* number of chars actually read */
 	char * p;
 	luaL_Buffer b;

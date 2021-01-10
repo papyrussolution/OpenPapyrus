@@ -359,26 +359,20 @@ const char * archive_entry_fflags_text(struct archive_entry * entry)
 {
 	const char * f;
 	char * p;
-
-	if(archive_mstring_get_mbs(entry->archive,
-	    &entry->ae_fflags_text, &f) == 0) {
+	if(archive_mstring_get_mbs(entry->archive, &entry->ae_fflags_text, &f) == 0) {
 		if(f != NULL)
 			return (f);
 	}
 	else if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
-
 	if(entry->ae_fflags_set == 0  &&  entry->ae_fflags_clear == 0)
 		return (NULL);
-
 	p = ae_fflagstostr(entry->ae_fflags_set, entry->ae_fflags_clear);
 	if(p == NULL)
 		return (NULL);
-
 	archive_mstring_copy_mbs(&entry->ae_fflags_text, p);
 	free(p);
-	if(archive_mstring_get_mbs(entry->archive,
-	    &entry->ae_fflags_text, &f) == 0)
+	if(archive_mstring_get_mbs(entry->archive, &entry->ae_fflags_text, &f) == 0)
 		return (f);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -519,8 +513,7 @@ unsigned int archive_entry_nlink(struct archive_entry * entry)
 const char * archive_entry_pathname(struct archive_entry * entry)
 {
 	const char * p;
-	if(archive_mstring_get_mbs(
-		    entry->archive, &entry->ae_pathname, &p) == 0)
+	if(archive_mstring_get_mbs(entry->archive, &entry->ae_pathname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -530,8 +523,7 @@ const char * archive_entry_pathname(struct archive_entry * entry)
 const char * archive_entry_pathname_utf8(struct archive_entry * entry)
 {
 	const char * p;
-	if(archive_mstring_get_utf8(
-		    entry->archive, &entry->ae_pathname, &p) == 0)
+	if(archive_mstring_get_utf8(entry->archive, &entry->ae_pathname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -541,16 +533,14 @@ const char * archive_entry_pathname_utf8(struct archive_entry * entry)
 const wchar_t * archive_entry_pathname_w(struct archive_entry * entry)
 {
 	const wchar_t * p;
-	if(archive_mstring_get_wcs(
-		    entry->archive, &entry->ae_pathname, &p) == 0)
+	if(archive_mstring_get_wcs(entry->archive, &entry->ae_pathname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
 	return (NULL);
 }
 
-int _archive_entry_pathname_l(struct archive_entry * entry,
-    const char ** p, size_t * len, struct archive_string_conv * sc)
+int _archive_entry_pathname_l(struct archive_entry * entry, const char ** p, size_t * len, struct archive_string_conv * sc)
 {
 	return (archive_mstring_get_mbs_l(entry->archive, &entry->ae_pathname, p, len, sc));
 }
@@ -598,8 +588,7 @@ int archive_entry_size_is_set(struct archive_entry * entry)
 const char * archive_entry_sourcepath(struct archive_entry * entry)
 {
 	const char * p;
-	if(archive_mstring_get_mbs(
-		    entry->archive, &entry->ae_sourcepath, &p) == 0)
+	if(archive_mstring_get_mbs(entry->archive, &entry->ae_sourcepath, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -609,8 +598,7 @@ const char * archive_entry_sourcepath(struct archive_entry * entry)
 const wchar_t * archive_entry_sourcepath_w(struct archive_entry * entry)
 {
 	const wchar_t * p;
-	if(archive_mstring_get_wcs(
-		    entry->archive, &entry->ae_sourcepath, &p) == 0)
+	if(archive_mstring_get_wcs(entry->archive, &entry->ae_sourcepath, &p) == 0)
 		return (p);
 	return (NULL);
 }
@@ -638,8 +626,7 @@ const char * archive_entry_symlink_utf8(struct archive_entry * entry)
 	const char * p;
 	if((entry->ae_set & AE_SET_SYMLINK) == 0)
 		return (NULL);
-	if(archive_mstring_get_utf8(
-		    entry->archive, &entry->ae_symlink, &p) == 0)
+	if(archive_mstring_get_utf8(entry->archive, &entry->ae_symlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -651,16 +638,14 @@ const wchar_t * archive_entry_symlink_w(struct archive_entry * entry)
 	const wchar_t * p;
 	if((entry->ae_set & AE_SET_SYMLINK) == 0)
 		return (NULL);
-	if(archive_mstring_get_wcs(
-		    entry->archive, &entry->ae_symlink, &p) == 0)
+	if(archive_mstring_get_wcs(entry->archive, &entry->ae_symlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
 	return (NULL);
 }
 
-int _archive_entry_symlink_l(struct archive_entry * entry,
-    const char ** p, size_t * len, struct archive_string_conv * sc)
+int _archive_entry_symlink_l(struct archive_entry * entry, const char ** p, size_t * len, struct archive_string_conv * sc)
 {
 	if((entry->ae_set & AE_SET_SYMLINK) == 0) {
 		*p = NULL;

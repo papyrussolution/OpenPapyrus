@@ -2578,28 +2578,20 @@ char * SSL_get_shared_ciphers(const SSL * s, char * buf, int size)
 	STACK_OF(SSL_CIPHER) *clntsk, *srvrsk;
 	const SSL_CIPHER * c;
 	int i;
-
-	if(!s->server
-	    || s->peer_ciphers == NULL
-	    || size < 2)
+	if(!s->server || s->peer_ciphers == NULL || size < 2)
 		return NULL;
-
 	p = buf;
 	clntsk = s->peer_ciphers;
 	srvrsk = SSL_get_ciphers(s);
 	if(clntsk == NULL || srvrsk == NULL)
 		return NULL;
-
 	if(sk_SSL_CIPHER_num(clntsk) == 0 || sk_SSL_CIPHER_num(srvrsk) == 0)
 		return NULL;
-
 	for(i = 0; i < sk_SSL_CIPHER_num(clntsk); i++) {
 		int n;
-
 		c = sk_SSL_CIPHER_value(clntsk, i);
 		if(sk_SSL_CIPHER_find(srvrsk, c) < 0)
 			continue;
-
 		n = strlen(c->name);
 		if(n + 1 > size) {
 			if(p != buf)
@@ -2624,7 +2616,6 @@ const char * SSL_get_servername(const SSL * s, const int type)
 {
 	if(type != TLSEXT_NAMETYPE_host_name)
 		return NULL;
-
 	/*
 	 * SNI is not negotiated in pre-TLS-1.3 resumption flows, so fake up an
 	 * SNI value to return if we are resuming/resumed.  N.B. that we still
