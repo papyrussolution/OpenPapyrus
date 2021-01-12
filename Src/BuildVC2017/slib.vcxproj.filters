@@ -461,18 +461,6 @@
     <CustomBuild Include="..\OSF\ASMLIB\unalignedisfaster64.asm">
       <Filter>ASM64</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\OSF\XEOS\xeos-memchr-64.asm">
-      <Filter>ASM64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\OSF\XEOS\xeos-strcat-64.asm">
-      <Filter>ASM64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\OSF\XEOS\xeos-strlen-64.asm">
-      <Filter>ASM64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\OSF\XEOS\xeos-mem-32.asm">
-      <Filter>ASM</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ASM">

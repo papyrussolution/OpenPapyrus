@@ -7405,7 +7405,7 @@ public:
 //
 // Аналог strnzcpy но с использованием xeos_memchr вместо memchr
 //
-static char * FASTCALL xeos_strnzcpy(char * dest, const char * src, size_t maxlen)
+/* @v11.0.0 static char * FASTCALL xeos_strnzcpy(char * dest, const char * src, size_t maxlen)
 {
 	if(dest)
 		if(src)
@@ -7423,7 +7423,7 @@ static char * FASTCALL xeos_strnzcpy(char * dest, const char * src, size_t maxle
 		else
 			dest[0] = 0;
 	return dest;
-}
+}*/
 
 SLTEST_FIXTURE(SString, SlTestFixtureSString)
 {
@@ -7955,6 +7955,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 		}
+// @v11.0.0 xeos-функции полностью исключены из проекта
 #if 0 // @v10.8.1 После включения оптимизатора по скорости, похоже, xeos_xxx-функции стали все ломать
 		{
 			//
@@ -8098,6 +8099,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 		}
+		/* @v11.0.0
 		else if(bm == 6) {
 			for(uint phase = 0; phase < max_bm_phase; phase++) {
 				for(uint i = 0; i < scc; i++) {
@@ -8106,7 +8108,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					total_len += xeos_strlen(buffer);
 				}
 			}
-		}
+		}*/
 		else if(bm == 2) {
 			for(uint phase = 0; phase < max_bm_phase; phase++) {
 				for(uint i = 0; i < scc; i++) {

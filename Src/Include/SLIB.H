@@ -556,14 +556,14 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 //
 #include <asmlib.h>
 
-extern "C" {
+/* @v11.0.0 extern "C" {
 	void * cdecl xeos_memchr(const void * s, int c, size_t n);
 	void * cdecl xeos_memchr32(const void * s, int c, size_t n);
 	void * cdecl xeos_memchr32_sse2(const void * s, int c, size_t n);
 	uint   cdecl xeos_strlen(const char * s);
 	uint   cdecl xeos_strlen32(const char * s);
 	uint   cdecl xeos_strlen32_sse2(const char * s);
-}
+}*/
 
 #if USE_ASMLIB
 	#define memcpy   A_memcpy

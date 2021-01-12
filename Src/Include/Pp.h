@@ -3629,6 +3629,7 @@ public:
 	int    SetTimestamp(PPID tagID, LDATETIME dtm);
 	int    AddKeyword(PPID tagID, const char * pKeyword);
 	int    FASTCALL GetInt(long *) const;
+	int    FASTCALL GetInt64(int64 *) const;
 	int    FASTCALL GetReal(double *) const;
 	int    FASTCALL GetStr(SString &) const;
 	int    FASTCALL GetDate(LDATE *) const;
@@ -53129,24 +53130,54 @@ public:
 	void   GetVKAccessToken();
 	SString & GetAppIdent(SString & rBuf) const;
 	PPID   GetOuterWareIdentTagID() const;
+
+	struct SimpleRef {
+		SimpleRef() : Id(0)
+		{
+		}
+		int64  Id;
+		SString Name;
+	};
+	struct WareCategory {
+		WareCategory() : Id(0)
+		{
+		}
+		int64  Id;
+		SString Name;
+		SimpleRef Section;
+	};
+	struct WarePrice {
+		WarePrice() : Amount(0)
+		{
+		}
+		int64 Amount; // fixed(2)
+		SimpleRef Currency;
+		SString Text;
+	};
 	struct MarketWareItem : public PPObjGoods::ExportToGlbSvcItem {
-		MarketWareItem() : PPObjGoods::ExportToGlbSvcItem(), OuterId(0)
+		MarketWareItem() : 
+			PPObjGoods::ExportToGlbSvcItem(), OuterId(0), OwnerId(0), Availability(0), CartQtty(0.0), Date(0), CurrencyId(0)
 		{
 		}
-		MarketWareItem(const PPObjGoods::ExportToGlbSvcItem & rS) : PPObjGoods::ExportToGlbSvcItem(rS), OuterId(0)
+		MarketWareItem(const PPObjGoods::ExportToGlbSvcItem & rS) : 
+			PPObjGoods::ExportToGlbSvcItem(rS), OuterId(0), OwnerId(0), Availability(0), CartQtty(0.0), Date(0), CurrencyId(0)
 		{
 		}
-		int64  OuterId;  // Идентификатор в VK
+		int64  OuterId;      // Идентификатор в VK полученный предварительным запросом всех позиций на ресурсе
+		int64  OwnerId;      // Сообщество-владелец 
+		int    Availability;
+		int    CurrencyId;
+		double CartQtty;
+		int64  Date;
 		SString Name;
 		SString Description;
 		SString ImgPath;
+		SString ThumbPhoto;
+		WareCategory Category;
 	};
 	int    PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & rResultItem);
-	//int    WallPost(VkStruct & rVkStruct, SString & rOutput);
 	int    WallPost(const SString & rMessage, const SString & rLinkFilePath, SString & rOutput);
-	//int    Market_Add(double goodsPrice, const SString & rGoodsName, const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput);
-	//int    Market_Edit(PPID goodsID, double goodsPrice, const SString &rGoodsName, const SString & rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput); //edit goods from market
-	int    Market_Get(LongArray & rList); // get all goods from VK market
+	int    Market_Get(long offs, long maxItems, TSCollection <MarketWareItem> & rList); // get all goods from VK market
 	int    Photos_SaveMarketPhoto(const SString & rImage, const SString & rServer,
 		const SString & rHash, const SString & rCropData, const SString & rCropHash, SString & rOutput);
 	int    Photos_SaveWallPhoto(/*const VkStruct &rVkStruct,*/const SString & rPhoto, const SString & rServer, const SString & rHash, SString & rOutput);
@@ -53203,6 +53234,10 @@ public:
 private:
 	int    GetRequest(const SString & rUrl, SString & rOutput, int mflags);
 	int    ReadError(const SJson * pJs, ErrorResponse & rErr) const;
+	int    ParseSimpleRef(const SJson * pJs, SimpleRef & rItem) const;
+	int    ParseWareItem(const SJson * pJs, MarketWareItem & rItem) const;
+	int    ParseWareCategory(const SJson * pJs, WareCategory & rItem) const;
+	int    ParseWarePrice(const SJson * pJs, WarePrice & rItem) const;
 	SString & AppendParamProtoVer(SString & rBuf) const;
 	InitBlock Ib;
 	SString AppIdent;

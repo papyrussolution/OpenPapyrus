@@ -4743,7 +4743,6 @@ private:
 					CCheckTbl::Rec * p_rec;
 					THROW(P_Srv->GetCc().SearchByDateAndCode(chk_no, dt, unprinted_only, &temp_list));
 					for(i = 0; temp_list.enumItems(&i, (void **)&p_rec);) {
-						// @v9.3.5 MONEYTOLDBL(p_rec->Amount) <= 0.0 --> MONEYTOLDBL(p_rec->Amount) == 0.0
 						const double cc_amt = MONEYTOLDBL(p_rec->Amount);
 						int   do_remove = 0;
 						if(p_rec->Flags & CCHKF_SKIP)

@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -2019,7 +2019,7 @@ char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 	if(dest) {
 		if(src) {
 			if(maxlen) {
-				const char * p = static_cast<const char *>(/*xeos_*/memchr(src, 0, maxlen));
+				const char * p = static_cast<const char *>(memchr(src, 0, maxlen));
 				if(p)
 					memcpy(dest, src, (size_t)(p - src)+1);
 				else {

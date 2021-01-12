@@ -2617,9 +2617,20 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 				// Надо выбирать какой-то один документ
 				StrAssocArray ssbc_list;
 				long   sel_id = 0;
+				bool   multi_id = false; // если в ss_bill_code более одного значения, то true (sel_id нельзя заранее идентифицировать)
 				{
-					for(uint ssp = 0, item_id = 0; ss_bill_code.get(&ssp, temp_buf);)
-						ssbc_list.Add(++item_id, temp_buf, 0);
+					for(uint ssp = 0, item_id = 0; ss_bill_code.get(&ssp, temp_buf);) {
+						++item_id;
+						ssbc_list.Add(item_id, temp_buf, 0);
+						if(!sel_id) {
+							if(!multi_id)
+								sel_id = item_id;
+						}
+						else if(sel_id != item_id) {
+							multi_id = true;
+							sel_id = 0;
+						}
+					}
 				}
 				if(ComboBoxSelDialog2(&ssbc_list, /*PPTXT_SELECTOUTERBILLCODE*/0, PPTXT_SELECTOUTERBILLCODE, &sel_id, 0) > 0) {
 					uint pos = 0;
@@ -2718,6 +2729,13 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 															PPLogMessage(PPFILNAM_IMPEXP_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 															msg_list.add(msg_buf);
 														}
+													}
+													else { // @v11.0.0
+														//PPTXT_STYLOSCRIMP_NOGOODSBYMARKEAN  "Импорт StyloScanner: не найден товар с кодом '%s'"
+														PPLoadText(PPTXT_STYLOSCRIMP_NOGOODSBYMARKEAN, fmt_buf);
+														msg_buf.Printf(fmt_buf, ean_buf.cptr());
+														PPLogMessage(PPFILNAM_IMPEXP_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+														msg_list.add(msg_buf);
 													}
 												}
 											}

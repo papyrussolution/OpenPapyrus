@@ -187,7 +187,7 @@ typedef int cmsBool;
 #else // CMS_USE_BIG_ENDIAN
 
 #ifdef WORDS_BIGENDIAN // set by configure (or explicitly on compiler command line)
-#    define CMS_USE_BIG_ENDIAN 1
+#define CMS_USE_BIG_ENDIAN 1
 #else // WORDS_BIGENDIAN
 // Fall back to platform/compiler specific tests
 #    if defined(__sgi__) || defined(__sgi) || defined(sparc)
@@ -209,7 +209,7 @@ typedef int cmsBool;
 #endif  // WORDS_BIGENDIAN
 
 #if defined(_HOST_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
-#    define CMS_USE_BIG_ENDIAN      1
+#define CMS_USE_BIG_ENDIAN      1
 #endif
 
 #endif  // CMS_USE_BIG_ENDIAN
@@ -246,7 +246,7 @@ typedef int cmsBool;
 #if HasTHREADS == 1
 #undef CMS_NO_PTHREADS
 #else
-#    define CMS_NO_PTHREADS 1
+#define CMS_NO_PTHREADS 1
 #endif
 #endif
 

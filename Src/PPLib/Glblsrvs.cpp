@@ -332,19 +332,14 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 	}
 	{
 		SString name, descr;
-		name.Cat(rItem.Name).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
-		descr.Cat(rItem.Description).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
+		bool   test_item_not_found_error = false;
+		(name = rItem.Name).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
+		(descr = rItem.Description).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
 		SString url(P_VKMethodUrlBase);
 		if(rItem.OuterId > 0) {
-			//Market_Edit(rItem.OuterId, rItem.Price, rItem.Name, photo_id, 1100, rItem.Description, temp_buf);
-			//int VkInterface::Market_Edit(/*const VkStruct & rVkStruct,*/PPID goodsID, double goodsPrice, 
-				//const SString & rGoodsName, const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput)  //edit goods from market
 			url.SetLastDSlash().Cat("market.edit").CatChar('?').CatEq("item_id", rItem.OuterId).Cat("&");
 		}
 		else {
-			//THROW(Market_Add(rItem.Price, rItem.Name, photo_id, 1100, rItem.Description, temp_buf));
-			//int  VkInterface::Market_Add(/*const VkStruct &rVkStruct,*/double goodsPrice, const SString & rGoodsName, 
-				//const SString & rMainPhotoId, ulong catId, const SString & rDescr, SString & rOutput)
 			url.SetLastDSlash().Cat("market.add").CatChar('?');
 		}
 		url.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).Cat("&")
@@ -367,13 +362,6 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 							for(const SJson * p_response_item = p_response_node->P_Child; p_response_item; p_response_item = p_response_item->P_Next) {
 								if(p_response_item->Text.IsEqiAscii("market_item_id")) {
 									rResultItem.OuterId = p_response_item->P_Child->Text.ToInt64();
-									/*
-									temp_buf = p_response_item->P_Child->Text.Unescape();
-									ObjTagItem new_obj_tag_item;
-									new_obj_tag_item.SetStr(ifc.GetOuterWareIdentTagID(), temp_buf);
-									if(new_obj_tag_item != stored_obj_tag_item)
-										p_ref->Ot.PutTag(PPOBJ_GOODS, goods_rec.ID, &new_obj_tag_item, 0);
-									*/
 								}
 							}
 						}
@@ -381,6 +369,7 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 				}
 			}
 		}
+		ZDELETE(p_json_doc);
 	}
 	CATCHZOK
 	delete p_json_doc;
@@ -544,9 +533,114 @@ int VkInterface::ReadError(const SJson * pJs, ErrorResponse & rErr) const
 	return ok;
 }
 
-int VkInterface::Market_Get(LongArray & rList) // get all goods from VK market
+int VkInterface::ParseSimpleRef(const SJson * pJs, SimpleRef & rItem) const
 {
-	rList.clear();
+	int    ok = 1;
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+			if(p_jsn->Text.IsEqiAscii("id")) {
+				rItem.Id = p_jsn->P_Child->Text.ToInt64();
+			}
+			else if(p_jsn->Text.IsEqiAscii("name")) {
+				rItem.Name = p_jsn->P_Child->Text.Unescape();
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int VkInterface::ParseWareCategory(const SJson * pJs, WareCategory & rItem) const
+{
+	int    ok = 1;
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+			if(p_jsn->Text.IsEqiAscii("id")) {
+				rItem.Id = p_jsn->P_Child->Text.ToInt64();
+			}
+			else if(p_jsn->Text.IsEqiAscii("name")) {
+				rItem.Name = p_jsn->P_Child->Text.Unescape();
+			}
+			else if(p_jsn->Text.IsEqiAscii("section")) {
+				ParseSimpleRef(p_jsn->P_Child, rItem.Section);
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int VkInterface::ParseWarePrice(const SJson * pJs, WarePrice & rItem) const
+{
+	int    ok = 1;
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+			if(p_jsn->Text.IsEqiAscii("amount")) {
+				rItem.Amount = p_jsn->P_Child->Text.ToInt64();
+			}
+			else if(p_jsn->Text.IsEqiAscii("text")) {
+				rItem.Text = p_jsn->P_Child->Text.Unescape();
+			}
+			else if(p_jsn->Text.IsEqiAscii("currency")) {
+				ParseSimpleRef(p_jsn->P_Child, rItem.Currency);
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+	return ok;
+}
+
+int VkInterface::ParseWareItem(const SJson * pJs, MarketWareItem & rItem) const
+{
+	int    ok = 1;
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+			if(p_jsn->Text.IsEqiAscii("id")) {
+				rItem.OuterId = p_jsn->P_Child->Text.ToInt64();
+			}
+			else if(p_jsn->Text.IsEqiAscii("availability")) {
+				rItem.Availability = p_jsn->P_Child->Text.ToLong();
+			}
+			else if(p_jsn->Text.IsEqiAscii("category")) {
+				ParseWareCategory(p_jsn->P_Child, rItem.Category);
+			}
+			else if(p_jsn->Text.IsEqiAscii("description")) {
+				rItem.Description = p_jsn->P_Child->Text.Unescape();
+			}
+			else if(p_jsn->Text.IsEqiAscii("owner_id")) {
+				rItem.OwnerId = p_jsn->P_Child->Text.ToInt64();
+			}
+			else if(p_jsn->Text.IsEqiAscii("price")) {
+				WarePrice wp;
+				if(ParseWarePrice(p_jsn->P_Child, wp)) {
+					rItem.Price = static_cast<double>(wp.Amount) / 100.0;
+					rItem.CurrencyId = static_cast<int>(wp.Currency.Id);
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("thumb_photo")) {
+				rItem.ThumbPhoto = p_jsn->P_Child->Text.Unescape();
+			}
+			else if(p_jsn->Text.IsEqiAscii("title")) {
+				rItem.Name = p_jsn->P_Child->Text.Unescape();
+			}
+			else if(p_jsn->Text.IsEqiAscii("date")) {
+				rItem.Date = p_jsn->P_Child->Text.ToInt64();
+			}
+			else if(p_jsn->Text.IsEqiAscii("cart_quantity")) {
+				rItem.CartQtty = p_jsn->P_Child->Text.ToReal();
+			}
+		}
+	}
+	return ok;
+}
+
+int VkInterface::Market_Get(long offs, long maxItems, TSCollection <MarketWareItem> & rList) // get all goods from VK market
+{
+	rList.freeAll();
 	LastErrResp.Z();
 
 	int    ok = 1;
@@ -557,6 +651,12 @@ int VkInterface::Market_Get(LongArray & rList) // get all goods from VK market
 		.CatEq("owner_id", temp_buf.Z().CatChar('-').Cat(Ib.GroupId)).Cat("&")
 		.CatEq("access_token", Ib.CliAccsKey).Cat("&");
 		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/;
+	if(offs > 0) {
+		url.Cat("&").Cat(offs);
+	}
+	if(maxItems > 0) {
+		url.Cat("&").Cat(maxItems);
+	}
 	THROW(GetRequest(url, temp_buf.Z(), ScURL::mfDontVerifySslPeer));
 	{
 		long item_id = 0; 
@@ -573,32 +673,8 @@ int VkInterface::Market_Get(LongArray & rList) // get all goods from VK market
 								if(p_response->Text.IsEqiAscii("items")) {
 									//owner_id = p_response->P_Child->Text.Unescape();
 									for(const SJson * p_item = p_response->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
-										for(const SJson * p_item_child = p_item->P_Child; p_item_child; p_item_child = p_item_child->P_Next) {
-											if(p_item_child->Text.IsEqiAscii("id")) {
-												item_id = p_item_child->P_Child->Text.Unescape().ToLong();
-												rList.add(item_id);
-											}
-											else if(p_item_child->Text.IsEqiAscii("availability")) {
-											}
-											else if(p_item_child->Text.IsEqiAscii("category")) {
-												// obj
-											}
-											else if(p_item_child->Text.IsEqiAscii("description")) {
-											}
-											else if(p_item_child->Text.IsEqiAscii("owner_id")) {
-											}
-											else if(p_item_child->Text.IsEqiAscii("price")) {
-												// obj
-											}
-											else if(p_item_child->Text.IsEqiAscii("thumb_photo")) {
-											}
-											else if(p_item_child->Text.IsEqiAscii("title")) {
-											}
-											else if(p_item_child->Text.IsEqiAscii("date")) {
-											}
-											else if(p_item_child->Text.IsEqiAscii("cart_quantity")) {
-											}
-										}
+										MarketWareItem * p_new_entry = rList.CreateNewItem();
+										ParseWareItem(p_item, *p_new_entry);
 									}
 								}
 							}
@@ -1174,13 +1250,11 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 	PPWait(1);
 	PPGetFilePath(PPPATH_DD, PPFILNAM_NOIMAGE, def_img_path); // @v10.9.4
 	if(ifc.Setup(rParam.GuaID, ifc.sfInitStoreAttributes)) {
-		Goods2Tbl::Rec goods_rec; 
 		PPGoodsPacket pack;
-		ObjTagItem stored_obj_tag_item;
-		LongArray ex_outer_goods_id_list;
+		TSCollection <VkInterface::MarketWareItem> ex_outer_goods_id_list;
 		const int goods_descr_ext_str_id = oneof5(rParam.DescrExtStrId, GDSEXSTR_A, GDSEXSTR_B, GDSEXSTR_C, GDSEXSTR_D, GDSEXSTR_E) ? rParam.DescrExtStrId : GDSEXSTR_A;
 		PPWait(1);
-		if(!ifc.Market_Get(ex_outer_goods_id_list)) {
+		if(!ifc.Market_Get(0, 200, ex_outer_goods_id_list)) {
 			const VkInterface::ErrorResponse & r_err = ifc.GetLastResponseError();
 			if(r_err.Code) {
 				CALLPTRMEMB(pLogger, LogMsgCode(mfError, PPERR_VK_RESPONSE, (temp_buf = r_err.Message).Transf(CTRANSF_UTF8_TO_INNER)));
@@ -1189,72 +1263,65 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 		else {
 			for(uint i = 0; i < rSrcList.getCount(); i++) {
 				PPObjGoods::ExportToGlbSvcItem & r_src_item = rSrcList.at(i);
-				const PPID native_goods_id = r_src_item.GoodsID;
-				const PPID native_loc_id = r_src_item.LocID;
-				if(goods_obj.Search(native_goods_id, &goods_rec) > 0) {
-					SString link_file_path;
-					int   link_file_type = 0;
-					VkInterface::MarketWareItem market_item(r_src_item);
-					VkInterface::MarketWareItem result_market_item;
-					market_item.Name = goods_rec.Name;
-					p_ref->Ot.GetTag(PPOBJ_GOODS, native_goods_id, /*tag_outer_goods_id*/ifc.GetOuterWareIdentTagID(), &stored_obj_tag_item);
-					lf.Load(native_goods_id, 0L);
-					lf.At(0, market_item.ImgPath);
-					if(market_item.ImgPath.NotEmptyS()) {
-						link_file_path = market_item.ImgPath;
-						link_file_type = 1;
-					}
-					else {
-						CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNOIMG, &msg_buf, native_goods_id))); // PPTXT_LOG_UHTT_GOODSNOIMG "Для товара @goods нет изображения"
-						market_item.ImgPath = def_img_path; // @v10.9.4
-						link_file_type = 1;
-						if(!fileExists(market_item.ImgPath)) {
-							CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NODEFIMG, &msg_buf, native_goods_id))); // "Изображение по-умолчанию не найдено!"
-							continue;
-						}
-					}
-					{
-						pack.Rec.ID = native_goods_id; // @trick
-						pack.Rec.Flags |= GF_EXTPROP; // @trick
-						if(goods_obj.GetValueAddedData(native_goods_id, &pack) > 0) {
-							if(pack.GetExtStrData(goods_descr_ext_str_id, temp_buf) > 0)
-								market_item.Description = temp_buf;
-							else
-								market_item.Description = goods_rec.Name; // @v10.9.6
-							/* @v10.9.6 else {
-								CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NODESCRFORGOODS, &msg_buf, native_goods_id))); // "Изображение по-умолчанию не найдено!"
-								continue;
-							}*/
+				if(r_src_item.Price <= 0.01) {
+					PPSetError(PPERR_INVGOODSPRICE, GetGoodsName(r_src_item.GoodsID, temp_buf));
+					CALLPTRMEMB(pLogger, LogLastError());
+				}
+				else {
+					const PPID native_goods_id = r_src_item.GoodsID;
+					const PPID native_loc_id = r_src_item.LocID;
+					if(goods_obj.GetPacket(native_goods_id, &pack, 0) > 0) {
+						SString link_file_path;
+						int   link_file_type = 0;
+						VkInterface::MarketWareItem market_item(r_src_item);
+						VkInterface::MarketWareItem result_market_item;
+						market_item.Name = pack.Rec.Name;
+						const ObjTagItem * p_stored_tag_item = pack.TagL.GetItem(ifc.GetOuterWareIdentTagID());
+						lf.Load(native_goods_id, 0L);
+						lf.At(0, market_item.ImgPath);
+						if(market_item.ImgPath.NotEmptyS()) {
+							link_file_path = market_item.ImgPath;
+							link_file_type = 1;
 						}
 						else {
-							market_item.Description = goods_rec.Name; // @v10.9.6
-							// @v10.9.6 CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_ADDFIELDSFORGOODSPROBLEM, &msg_buf, native_goods_id)));
-							// @v10.9.6 continue;
+							CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNOIMG, &msg_buf, native_goods_id))); // PPTXT_LOG_UHTT_GOODSNOIMG "Для товара @goods нет изображения"
+							market_item.ImgPath = def_img_path; // @v10.9.4
+							link_file_type = 1;
+							if(!fileExists(market_item.ImgPath)) {
+								CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_VK_NODEFIMG, &msg_buf, native_goods_id))); // "Изображение по-умолчанию не найдено!"
+								continue;
+							}
+						}
+						if(pack.GetExtStrData(goods_descr_ext_str_id, temp_buf) > 0)
+							market_item.Description = temp_buf;
+						else
+							market_item.Description = pack.Rec.Name;
+						{
+							int64 outer_goods_id_by_tag = 0;
+							if(p_stored_tag_item)
+								p_stored_tag_item->GetInt64(&outer_goods_id_by_tag);
+							if(ex_outer_goods_id_list.lsearch(&outer_goods_id_by_tag, 0, PTR_CMPFUNC(int64), offsetof(VkInterface::MarketWareItem, OuterId))) {
+								market_item.OuterId = outer_goods_id_by_tag;
+							}
+							//market_item.OuterId = outer_goods_id_by_tag;
+						}
+						if(!ifc.PutWareToMarket(market_item, result_market_item)) {
+							const VkInterface::ErrorResponse & r_err = ifc.GetLastResponseError();
+							if(r_err.Message.NotEmpty()) {
+								CALLPTRMEMB(pLogger, LogMsgCode(mfError, PPERR_VK_RESPONSE, (temp_buf = r_err.Message).Transf(CTRANSF_UTF8_TO_INNER)));
+							}
+						}
+						else if(result_market_item.OuterId > 0) {
+							ObjTagItem new_obj_tag_item;
+							temp_buf.Z().Cat(result_market_item.OuterId);
+							new_obj_tag_item.SetStr(ifc.GetOuterWareIdentTagID(), temp_buf);
+							if(!p_stored_tag_item || new_obj_tag_item != *p_stored_tag_item) {
+								p_ref->Ot.PutTag(PPOBJ_GOODS, pack.Rec.ID, &new_obj_tag_item, 1);
+							}
 						}
 					}
-					{
-						PPID   outer_goods_id = 0;
-						stored_obj_tag_item.GetInt(&outer_goods_id);
-						if(!ex_outer_goods_id_list.lsearch(outer_goods_id))
-							outer_goods_id = 0;
-						market_item.OuterId = outer_goods_id;
-					}
-					if(!ifc.PutWareToMarket(market_item, result_market_item)) {
-						const VkInterface::ErrorResponse & r_err = ifc.GetLastResponseError();
-						if(r_err.Message.NotEmpty()) {
-							CALLPTRMEMB(pLogger, LogMsgCode(mfError, PPERR_VK_RESPONSE, (temp_buf = r_err.Message).Transf(CTRANSF_UTF8_TO_INNER)));
-						}
-					}
-					else {
-						ObjTagItem new_obj_tag_item;
-						temp_buf.Z().Cat(result_market_item.OuterId);
-						new_obj_tag_item.SetStr(/*tag_outer_goods_id*/ifc.GetOuterWareIdentTagID(), temp_buf);
-						if(new_obj_tag_item != stored_obj_tag_item) {
-							p_ref->Ot.PutTag(PPOBJ_GOODS, goods_rec.ID, &new_obj_tag_item, 0);
-						}
-					}
-					PPWaitPercent(i, rSrcList.getCount());
 				}
+				PPWaitPercent(i, rSrcList.getCount());
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 // V_BILL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3509,7 +3509,7 @@ int PPViewBill::UniteSellBills()
 				PPWaitPercent(i, src_ids.getCount());
 				THROW(P_BObj->UniteGoodsBill(&pack, src_ids.at(i), 0));
 				if(pack.CheckLargeBill(0)) {
-					{
+					if(P_BObj->P_LotXcT) { // @v11.0.0
 						THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // @v10.9.7 Здесь надо сохранить расширенные коды лотов для pack
 					}
 					THROW(pack.CreateBlank2(Filt.OpID, last_bill.Rec.Dt, last_bill.Rec.LocID, 0));
@@ -3522,7 +3522,7 @@ int PPViewBill::UniteSellBills()
 					dest_ids.addUnique(pack.Rec.ID);
 				}
 			}
-			{
+			if(P_BObj->P_LotXcT) { // @v11.0.0
 				THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // @v10.9.7 Здесь надо сохранить расширенные коды лотов для pack
 			}
 			for(i = 0; i < dest_ids.getCount(); i++) {

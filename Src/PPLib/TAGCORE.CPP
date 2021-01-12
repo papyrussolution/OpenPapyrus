@@ -1,5 +1,5 @@
 // TAGCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
 // @codepage windows-1251
 // @Kernel
 // Теги объектов
@@ -65,6 +65,27 @@ int FASTCALL ObjTagItem::Init(PPID tagID)
 			return PPSetError(PPERR_INVTAGID);
 	}
 	return 1;
+}
+
+int FASTCALL ObjTagItem::GetInt64(int64 * pVal) const
+{
+	int    ok = 1;
+	int64  val = 0;
+	switch(TagDataType) {
+		case OTTYP_BOOL: val = Val.IntVal; break;
+		case OTTYP_STRING: val = satoi64(Val.PStr); break;
+		case OTTYP_NUMBER: val = static_cast<int64>(round(Val.RealVal, 0)); break;
+		case OTTYP_ENUM: val = Val.IntVal; break;
+		case OTTYP_INT:  val = Val.IntVal; break;
+		case OTTYP_OBJLINK: val = Val.IntVal; break;
+		case OTTYP_DATE: val = static_cast<int64>(Val.DtVal.v); break;
+		case OTTYP_TIMESTAMP: val = static_cast<int64>(Val.DtmVal.d.v); break;
+		default:
+			ok = -1;
+			break;
+	}
+	ASSIGN_PTR(pVal, val);
+	return ok;
 }
 
 int FASTCALL ObjTagItem::GetInt(long * pVal) const

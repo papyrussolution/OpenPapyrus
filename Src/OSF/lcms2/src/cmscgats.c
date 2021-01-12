@@ -37,9 +37,9 @@
 
 #ifdef CMS_IS_WINDOWS_
 #include <io.h>
-#    define DIR_CHAR    '\\'
+#define DIR_CHAR    '\\'
 #else
-#    define DIR_CHAR    '/'
+#define DIR_CHAR    '/'
 #endif
 
 // Symbols
