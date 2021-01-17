@@ -36,8 +36,8 @@ CRegExp::~CRegExp()
 	delete P_Program;
 }
 
-int CRegExp::GetLastErr() const { return ErrCode; }
-int CRegExp::IsValid() const { return (ErrCode == 0); }
+int  CRegExp::GetLastErr() const { return ErrCode; }
+int  CRegExp::IsValid() const { return (ErrCode == 0); }
 void CRegExp::set_invalid() { ZDELETE(P_Program); }
 
 int FASTCALL CRegExp::operator == (const CRegExp & rxp) const

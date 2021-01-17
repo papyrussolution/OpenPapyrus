@@ -2066,6 +2066,19 @@ wchar_t * FASTCALL strnzcpy(wchar_t * dest, const wchar_t * src, size_t maxlen)
 	return dest;
 }
 
+char * FASTCALL sstrncat(char * pDest, size_t destSize, const char * pSrc) // @v11.0.0
+{
+	if(pDest && destSize) {
+		const size_t src_len = implement_sstrlen(pSrc);
+		if(src_len) {
+			const size_t dest_len = strlen(pDest);
+			if(destSize > (dest_len+1))
+				strnzcpy(pDest+dest_len, pSrc, destSize-dest_len);
+		}
+	}
+	return pDest;
+}
+
 char * FASTCALL trimleft(char * pStr)
 {
 	char * p = pStr;

@@ -495,14 +495,10 @@ TDialog::TDialog(const TRect & bounds, const char *aTitle) : TWindow(bounds, aTi
 	{ Helper_Constructor(0, 0, 0, coNothing); }
 TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr) : TWindow(TRect(), 0, wnNoNumber)
 	{ Helper_Constructor(resID, dlgPreFunc, extraPtr, coNothing); }
-TDialog::TDialog(uint resID) : TWindow(TRect(), 0, wnNoNumber)
-	{ Helper_Constructor(resID, 0, 0, coNothing); }
-TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect(), 0, wnNoNumber)
-	{ Helper_Constructor(resID, 0, 0, co); }
-void TDialog::ToCascade()
-	{ DlgFlags |= fCascade; }
-int FASTCALL TDialog::CheckFlag(long f) const
-	{ return BIN(DlgFlags & f); }
+TDialog::TDialog(uint resID) : TWindow(TRect(), 0, wnNoNumber) { Helper_Constructor(resID, 0, 0, coNothing); }
+TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect(), 0, wnNoNumber) { Helper_Constructor(resID, 0, 0, co); }
+void TDialog::ToCascade() { DlgFlags |= fCascade; }
+int FASTCALL TDialog::CheckFlag(long f) const { return BIN(DlgFlags & f); }
 
 TDialog::~TDialog()
 {

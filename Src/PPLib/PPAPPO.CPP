@@ -1866,7 +1866,7 @@ void PPApp::login(int processCmdLine)
 			DS.SetOperDate(oper_date);
 			StatusWinChange(1);
 			PPDesktop::RegWindowClass(TProgram::GetInst());
-			PPDesktop::Open(/*LConfig.DesktopID*/LConfig.DesktopUuid, 1/*createIfZero*/); // @todo должна вызываться после того, как будут созданы основные окна.
+			PPDesktop::Open(LConfig.DesktopUuid, 1/*createIfZero*/); // @todo должна вызываться после того, как будут созданы основные окна.
 			if(!no_login)
 				RemoveMenu(GetMenu(H_MainWnd), cmDBExit, MF_BYCOMMAND);
 			if(processCmdLine) {
@@ -1959,25 +1959,15 @@ int PPApp::InitMenuBar()
 {
 	const  PPConfig & r_cfg = LConfig;
 	const  int is_master = BIN(PPMaster);
-	//const  int from_rc = (r_cfg.MenuID && !is_master) ? 0 : 1;
 	const  int from_rc = (!!r_cfg.MenuUuid && !is_master) ? 0 : 1;
-	//if(r_cfg.Menu || r_cfg.MenuID || is_master) {
 	if(r_cfg.Menu || !!r_cfg.MenuUuid || is_master) {
 		int not_found = 0;
-		HMENU  m = 0;
-		//m = PPLoadMenu(P_SlRez, from_rc ? r_cfg.Menu : r_cfg.MenuID, from_rc, &not_found);
-		if(from_rc) {
-			m = PPLoadResourceMenu(P_SlRez, r_cfg.Menu, &not_found);
-		}
-		else {
-			m = PPLoadCommandMenu(r_cfg.MenuUuid, &not_found);
-		}
+		HMENU  m = from_rc ? PPLoadResourceMenu(P_SlRez, r_cfg.Menu, &not_found) : PPLoadCommandMenu(r_cfg.MenuUuid, &not_found);
 		if(!m || not_found) {
 			if(is_master) {
 				DS.GetTLA().Lc.Menu = 1;
 				if(m)
 					::DestroyMenu(m);
-				//m = PPLoadMenu(P_SlRez, r_cfg.Menu, 1, &not_found);
 				m = PPLoadResourceMenu(P_SlRez, r_cfg.Menu, &not_found);
 				if(!m || not_found) {
 					if(m) {

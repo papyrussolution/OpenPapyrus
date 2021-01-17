@@ -60,13 +60,13 @@ _WDIR * _wopendir(const wchar_t * dirname)
 	 * into absolute paths, so just assume it is an absolute path.
 	 */
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-	/* Desktop */
+	// Desktop 
 	DWORD n = GetFullPathNameW(dirname, 0, NULL, NULL);
 #else
-	/* WinRT */
+	// WinRT 
 	size_t n = wcslen(dirname);
 #endif
-	/* Allocate room for absolute directory name and search pattern */
+	// Allocate room for absolute directory name and search pattern 
 	dirp->patt = (wchar_t*)SAlloc::M(sizeof(wchar_t) * n + 16);
 	if(dirp->patt == NULL)
 		goto exit_closedir;

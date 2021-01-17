@@ -417,8 +417,7 @@ static ulong FASTCALL xmlDictComputeFastQKey(const xmlChar * prefix, int plen, c
 	if(len > 10) {
 		value += name[len - (plen + 1 + 1)];
 		len = 10;
-		if(plen > 10)
-			plen = 10;
+		SETMIN(plen, 10);
 	}
 	switch(plen) {
 		case 10: value += prefix[9];

@@ -2081,17 +2081,14 @@ int CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack)
 			P_LnExt->copyBufTo(&lx_rec);
 			uint pos = 0;
 			if(pPack->SearchLine(lx_rec.RByCheck, &pos)) {
-				// @v9.0.9 pPack->SetSerial(pos+1, strip((char *)lx_rec.Serial));
-				{
-					CCheckPacket::LineExt le;
-					le.Queue = lx_rec.Queue;
-					SETFLAG(le.Flags, le.fGroup,    lx_rec.Flags & le.fGroup);
-					SETFLAG(le.Flags, le.fModifier, lx_rec.Flags & le.fModifier);
-					SETFLAG(le.Flags, le.fPartOfComplex, lx_rec.Flags & le.fPartOfComplex);
-					SETFLAG(le.Flags, le.fQuotedByGift,  lx_rec.Flags & le.fQuotedByGift);
-					SETFLAG(le.Flags, le.fFixedPrice,    lx_rec.Flags & le.fFixedPrice); // @v10.1.7
-					pPack->SetLineExt(pos+1, le);
-				}
+				CCheckPacket::LineExt le;
+				le.Queue = lx_rec.Queue;
+				SETFLAG(le.Flags, le.fGroup,    lx_rec.Flags & le.fGroup);
+				SETFLAG(le.Flags, le.fModifier, lx_rec.Flags & le.fModifier);
+				SETFLAG(le.Flags, le.fPartOfComplex, lx_rec.Flags & le.fPartOfComplex);
+				SETFLAG(le.Flags, le.fQuotedByGift,  lx_rec.Flags & le.fQuotedByGift);
+				SETFLAG(le.Flags, le.fFixedPrice,    lx_rec.Flags & le.fFixedPrice); // @v10.1.7
+				pPack->SetLineExt(pos+1, le);
 			}
 		}
 	}

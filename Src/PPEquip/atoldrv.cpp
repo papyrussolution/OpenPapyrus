@@ -1,5 +1,5 @@
 // ATOLDRV.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Интерфейс с драйвером оборудования АТОЛ 
 //
@@ -64,9 +64,6 @@ public:
 				P_Fptr10->OpenDrawerProc(P_Fptr10->Handler);
 			}
 			else if(P_Disp) {
-				//THROW(Exec(GetStatus));
-				//THROW(GetProp(DrawerOpened, &is_drawer_open));
-				//if(!is_drawer_open) {
 				THROW(ExecOper(OpenDrawer));
 				ok = 1;
 			}
@@ -211,11 +208,12 @@ private:
 		AtolFptr10() : State(0), Handler(0), 
 			CreateHandleProc(0), DestroyHandleProc(0), GetVersionString(0), GetSettingsProc(0), GetErrorCodeProc(0), GetErrorDescrProc(0),
 			OpenProc(0), CloseProc(0), IsOpenedProc(0), SetParamBoolProc(0), SetParamIntProc(0), SetParamDoubleProc(0), 
-			SetParamStrProc(0), SetParamDatetimeProc(0), SetParamByteArrayProc(0), PrintTextProc(0), PaymentProc(0), CutProc(0), BeepProc(0),
+			SetParamStrProc(0), SetParamDatetimeProc(0), SetParamByteArrayProc(0), 
+			SetNonPrintableParamByteArrayProc(0), PrintTextProc(0), PaymentProc(0), CutProc(0), BeepProc(0),
 			QueryDataProc(0), GetParamIntProc(0), GetParamDoubleProc(0), GetParamBoolProc(0), GetParamStrProc(0), GetParamDateTimeProc(0),
 			GetParamByteArrayProc(0), GetSingleSettingProc(0), SetSingleSettingProc(0), ApplySingleSettingsProc(0), OpenDrawerProc(0),
 			OperatorLoginProc(0), OpenReceiptProc(0), CancelReceiptProc(0), RegistrationProc(0), CloseReceiptProc(0), PrintBarcodeProc(0),
-			ReportProc(0), CheckDocumentClosedProc(0), CashIncomeProc(0), CashOutcomeProc(0), UtilFormNomenclature(0)
+			ReportProc(0), CheckDocumentClosedProc(0), CashIncomeProc(0), CashOutcomeProc(0), UtilFormNomenclature(0), UtilFormTlvProc(0)
 		{
 			SString dll_path;
 			PPGetFilePath(PPPATH_BIN, "fptr10.dll", dll_path);
@@ -255,13 +253,15 @@ private:
 			THROW_SL(SetParamStrProc       = reinterpret_cast<int (* cdecl)(void *, int, const wchar_t *)>(Lib.GetProcAddr("libfptr_set_param_str")));
 			THROW_SL(SetParamDatetimeProc  = reinterpret_cast<int (* cdecl)(void *, int, int, int, int, int, int, int)>(Lib.GetProcAddr("libfptr_set_param_datetime")));
 			THROW_SL(SetParamByteArrayProc = reinterpret_cast<int (* cdecl)(void *, int, const uchar *, int)>(Lib.GetProcAddr("libfptr_set_param_bytearray")));
+			SetNonPrintableParamByteArrayProc = reinterpret_cast<int (* cdecl)(void *, int, const uchar *, int)>(Lib.GetProcAddr("libfptr_set_non_printable_param_bytearray"));
 			THROW_SL(GetParamBoolProc      = reinterpret_cast<int (* cdecl)(void *, int)>(Lib.GetProcAddr("libfptr_get_param_bool")));
 			THROW_SL(GetParamIntProc       = reinterpret_cast<uint (* cdecl)(void *, int)>(Lib.GetProcAddr("libfptr_get_param_int")));
 			THROW_SL(GetParamDoubleProc    = reinterpret_cast<double (* cdecl)(void *, int)>(Lib.GetProcAddr("libfptr_get_param_double")));
 			THROW_SL(GetParamStrProc       = reinterpret_cast<int (* cdecl)(void *, int, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_param_str")));
 			THROW_SL(GetParamDateTimeProc  = reinterpret_cast<void (* cdecl)(void *, int, int*, int*, int*, int*, int*, int*)>(Lib.GetProcAddr("libfptr_get_param_datetime")));
 			THROW_SL(GetParamByteArrayProc = reinterpret_cast<int (* cdecl)(void *, int, uchar *, int)>(Lib.GetProcAddr("libfptr_get_param_bytearray")));
-			UtilFormNomenclature  = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_nomenclature")); // @v10.7.12
+			UtilFormNomenclature = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_nomenclature")); // @v10.7.12
+			UtilFormTlvProc      = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_tlv")); // @v11.0.0
 			THROW(CreateHandleProc(&Handler) == 0 && Handler);
 			{
 				SString work_path;
@@ -304,6 +304,7 @@ private:
 		int (* cdecl SetParamStrProc)(void *, int paramId, const wchar_t * pValue);
 		int (* cdecl SetParamDatetimeProc)(void *, int paramId, int yr, int mon, int day, int hr, int mn, int sc);
 		int (* cdecl SetParamByteArrayProc)(void *, int paramId, const uchar * pValue, int size);
+		int (* cdecl SetNonPrintableParamByteArrayProc)(void *, int paramId, const uchar * pValue, int size); // @v11.0.0
 		int (* cdecl PrintTextProc)(void *);
 		int (* cdecl PaymentProc)(void *);
 		int (* cdecl CutProc)(void *);
@@ -316,8 +317,8 @@ private:
 		double (* cdecl GetParamDoubleProc)(void *, int);
 		void   (* cdecl GetParamDateTimeProc)(void *, int, int * pYr, int * pMon, int * pDay, int * pHr, int * pMn, int * pSc);
 		int    (* cdecl GetParamByteArrayProc)(void *, int, uchar * pValue, int size);
-		//DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_util_form_nomenclature(libfptr_handle handle);
-		int    (* cdecl UtilFormNomenclature)(void *);
+		int    (* cdecl UtilFormNomenclature)(void *); //DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_util_form_nomenclature(libfptr_handle handle);
+		int    (* cdecl UtilFormTlvProc)(void *); // @v11.0.0 //DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_util_form_tlv(libfptr_handle handle);
 		int    (* cdecl OperatorLoginProc)(void *);
 		int    (* cdecl OpenReceiptProc)(void *);
 		int    (* cdecl CancelReceiptProc)(void *);
@@ -664,16 +665,16 @@ private:
 		ReportType,
 		DocNumber,
 		PointPosition,
-		PrintBarcode,       // @v9.1.4
-		Barcode,            // @v9.1.4
-		BarcodeType,        // @v9.1.4
-		Height,             // @v9.1.4
-		PrintBarcodeText,   // @v9.1.4
-		AutoSize,           // @v9.1.8
-		Alignment,          // @v9.1.8
-		Scale,              // @v9.1.8
-		PrintPurpose,       // @v9.1.8
-		BarcodeControlCode, // @v9.1.8
+		PrintBarcode,
+		Barcode,
+		BarcodeType,
+		Height,
+		PrintBarcodeText,
+		AutoSize,
+		Alignment,
+		Scale,
+		PrintPurpose,
+		BarcodeControlCode,
 		TaxTypeNumber,      // @v10.0.03 1..5
 		OperatorName,       // @v10.2.5 Имя кассира 
 		//set_Mode, // @v10.3.9
@@ -864,7 +865,7 @@ ComDispInterface * SCS_ATOLDRV::InitDisp()
 		THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocTopMargin) > 0);
 		THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocLeftMargin) > 0);
 		THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocOrientation) > 0);
-		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintBarcode) > 0); // @v9.1.4
+		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintBarcode) > 0);
 		// Параметры
 		THROW(ASSIGN_ID_BY_NAME(p_disp, Mode) > 0);
 		THROW(ASSIGN_ID_BY_NAME(p_disp, AdvancedMode) > 0);
@@ -894,15 +895,15 @@ ComDispInterface * SCS_ATOLDRV::InitDisp()
 		THROW(ASSIGN_ID_BY_NAME(p_disp, ECRError) > 0);
 		THROW(ASSIGN_ID_BY_NAME(p_disp, DrawerOpened) > 0);
 		THROW(ASSIGN_ID_BY_NAME(p_disp, ReportType) > 0);
-		THROW(ASSIGN_ID_BY_NAME(p_disp, Barcode) > 0); // @v9.1.4
-		THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeType) > 0); // @v9.1.4
-		THROW(ASSIGN_ID_BY_NAME(p_disp, Height) > 0); // @v9.1.4
-		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintBarcodeText) > 0); // @v9.1.4
-		THROW(ASSIGN_ID_BY_NAME(p_disp, AutoSize) > 0);  // @v9.1.8
-		THROW(ASSIGN_ID_BY_NAME(p_disp, Alignment) > 0); // @v9.1.8
-		THROW(ASSIGN_ID_BY_NAME(p_disp, Scale) > 0);     // @v9.1.8
-		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintPurpose) > 0);       // @v9.1.8
-		THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeControlCode) > 0); // @v9.1.8
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Barcode) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeType) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Height) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintBarcodeText) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, AutoSize) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Alignment) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Scale) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintPurpose) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeControlCode) > 0);
 		THROW(ASSIGN_ID_BY_NAME(p_disp, TaxTypeNumber) > 0);          // @v10.0.03 1..5
 		THROW(ASSIGN_ID_BY_NAME(p_disp, OperatorName) > 0); // @v10.2.5
 	}
@@ -1316,7 +1317,9 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						if(P_Fptr10) {
 							// @v10.7.12 {
 							uint8 fptr10_mark_buf[512];
-							int mark_buf_data_len = 0;
+							int   mark_buf_data_len = 0;
+							uint8 fptr10_mdlp_buf[512];
+							int   mdlp_buf_len = 0;
 							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
 								{
 									temp_buf.Z().Cat("chzn-mark").CatDiv(':', 2).Cat(sl_param.ChZnProductType).CatChar('-').Cat(sl_param.ChZnGTIN).CatChar('-').Cat(sl_param.ChZnSerial);
@@ -1328,7 +1331,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										case GTCHZNPT_FUR: marking_type = LIBFPTR_NT_FURS; break;
 										case GTCHZNPT_TOBACCO: marking_type = LIBFPTR_NT_TOBACCO; break;
 										case GTCHZNPT_SHOE: marking_type = LIBFPTR_NT_SHOES; break;
-										case GTCHZNPT_MEDICINE: marking_type = LIBFPTR_NT_MEDICINES; break;
+										case GTCHZNPT_MEDICINE: marking_type = 0x444D; break; // @v11.0.0 LIBFPTR_NT_MEDICINES-->0x444D 
 										case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
 									}
 									if(marking_type >= 0) {
@@ -1341,6 +1344,24 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										mark_buf_data_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mark_buf, sizeof(fptr10_mark_buf));
 										temp_buf.Z().Cat("chzn-mark-composed").CatDiv(':', 2).CatEq("length", static_cast<long>(mark_buf_data_len));
 										PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);										
+										// @v11.0.0 {
+										if(sl_param.ChZnCid.NotEmpty() && P_Fptr10->UtilFormTlvProc) {
+											P_Fptr10->SetParamStrProc(fph, 1085, L"mdlp");
+											temp_buf.Z().Cat("sid").Cat(sl_param.ChZnCid).CatChar('&');
+											temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
+											P_Fptr10->SetParamStrProc(fph, 1086, temp_buf_u); // sid
+											P_Fptr10->UtilFormTlvProc(fph);
+											
+											//uint8 fptr10_mdlp_buf[512];
+											//int   mdlp_buf_len = 0;
+
+											mdlp_buf_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mdlp_buf, sizeof(fptr10_mdlp_buf));
+
+											//libfptr_set_param_str(fptr, 1191, 'mdlp1/10&');
+											//libfptr_set_param_str(fptr, 1085, "mdlp");
+											//libfptr_set_param_str(fptr, 1086, 'sid717528521946&');
+										}
+										// } @v11.0.0 
 										/*
 										fptr.setParam(fptr.LIBFPTR_PARAM_NOMENCLATURE_TYPE, fptr.LIBFPTR_NT_TOBACCO);
 										fptr.setParam(fptr.LIBFPTR_PARAM_GTIN, '98765432101234');
@@ -1355,6 +1376,12 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										fptr.setParam(fptr.LIBFPTR_PARAM_USE_ONLY_TAX_TYPE, True);
 										fptr.setParam(1162, nomenclatureCode);
 										fptr.registration; 
+										*/
+										/*
+											1191 - propertiesItem
+											1084 - properties 
+											1085 - propertyName
+											1086 - propertyValue
 										*/
 									}
 								}
@@ -1385,7 +1412,12 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							if(mark_buf_data_len > 0) {
 								P_Fptr10->SetParamByteArrayProc(fph, 1162, fptr10_mark_buf, mark_buf_data_len);
 							}
-							// } @v10.7.12 
+							// } @v10.7.12
+							// @v11.0.0 {
+							if(mdlp_buf_len > 0 && P_Fptr10->SetNonPrintableParamByteArrayProc) {
+								P_Fptr10->SetNonPrintableParamByteArrayProc(fph, 1084, fptr10_mdlp_buf, mdlp_buf_len);
+							}
+							// } @v11.0.0 
 							THROW(P_Fptr10->RegistrationProc(fph) == 0);
 						}
 						else if(P_Disp) {

@@ -5,10 +5,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <shlwapi.h>
-//
-// @v8.3.3 Удалено условие #ifdef __WIN32__
-//
-//
+
 SDynLibrary::SDynLibrary(const char * pFileName) : H(0)
 {
 	if(pFileName)

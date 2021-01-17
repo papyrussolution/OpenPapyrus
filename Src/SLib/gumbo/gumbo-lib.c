@@ -239,22 +239,23 @@ bool utf8iterator_maybe_consume_match(Utf8Iterator* iter, const char* prefix, si
 		return false;
 }
 
-void utf8iterator_mark(Utf8Iterator* iter) 
+void utf8iterator_mark(Utf8Iterator * iter) 
 {
 	iter->_mark = iter->_start;
 	iter->_mark_pos = iter->_pos;
 }
-
+//
 // Returns the current input stream position to the mark.
+//
 void FASTCALL utf8iterator_reset(Utf8Iterator* iter) 
 {
 	iter->_start = iter->_mark;
 	iter->_pos = iter->_mark_pos;
 	read_char(iter);
 }
-
-// Sets the position and original text fields of an error to the value at the
-// mark.
+//
+// Sets the position and original text fields of an error to the value at the mark.
+//
 void utf8iterator_fill_error_at_mark(Utf8Iterator* iter, GumboError* error) 
 {
 	error->position = iter->_mark_pos;

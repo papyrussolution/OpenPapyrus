@@ -51,9 +51,8 @@ void flex_regcomp(regex_t * preg, const char * regex, int cflags)
 	memzero(preg, sizeof(regex_t));
 	if((err = regcomp(preg, regex, cflags)) != 0) {
 		const size_t errbuf_sz = 200;
-		char * errbuf;
 		int n;
-		errbuf = (char*)SAlloc::M(errbuf_sz * sizeof(char));
+		char * errbuf = (char*)SAlloc::M(errbuf_sz * sizeof(char));
 		if(!errbuf)
 			flexfatal(_("Unable to allocate buffer to report regcomp"));
 		n = snprintf(errbuf, errbuf_sz, "regcomp for \"%s\" failed: ", regex);
@@ -61,13 +60,13 @@ void flex_regcomp(regex_t * preg, const char * regex, int cflags)
 		flexfatal(errbuf);  /* never returns - no need to SAlloc::F(errbuf) */
 	}
 }
-
-/** Extract a copy of the match, or NULL if no match.
- * @param m A match as returned by regexec().
- * @param src The source string that was passed to regexec().
- * @return The allocated string.
- */
-char   * regmatch_dup(regmatch_t * m, const char * src)
+// 
+// Extract a copy of the match, or NULL if no match.
+// @param m A match as returned by regexec().
+// @param src The source string that was passed to regexec().
+// @return The allocated string.
+// 
+char  * regmatch_dup(regmatch_t * m, const char * src)
 {
 	char   * str;
 	size_t len;
@@ -81,29 +80,28 @@ char   * regmatch_dup(regmatch_t * m, const char * src)
 	str[len] = 0;
 	return str;
 }
-
-/** Copy the match.
- * @param m A match as returned by regexec().
- * @param dest The destination buffer.
- * @param src The source string that was passed to regexec().
- * @return dest
- */
-char   * regmatch_cpy(regmatch_t * m, char * dest, const char * src)
+// 
+// Copy the match.
+// @param m A match as returned by regexec().
+// @param dest The destination buffer.
+// @param src The source string that was passed to regexec().
+// @return dest
+// 
+char * regmatch_cpy(regmatch_t * m, char * dest, const char * src)
 {
 	if(m == NULL || m->rm_so < 0) {
 		if(dest)
 			dest[0] = '\0';
 		return dest;
 	}
-
 	snprintf(dest, (size_t)regmatch_len(m), "%s", src + m->rm_so);
 	return dest;
 }
-
-/** Get the length in characters of the match.
- * @param m A match as returned by regexec().
- * @return The length of the match.
- */
+// 
+// Get the length in characters of the match.
+// @param m A match as returned by regexec().
+// @return The length of the match.
+// 
 int regmatch_len(regmatch_t * m)
 {
 	return (!m || m->rm_so < 0) ? 0 : (m->rm_eo - m->rm_so);

@@ -48,6 +48,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "papyrus", "papyrus.vcproj",
 		{26070AD0-2D76-41A2-AB8B-864EA198CC6F} = {26070AD0-2D76-41A2-AB8B-864EA198CC6F}
 		{86B30CD8-8C99-4CFF-804E-16EB5891A1D8} = {86B30CD8-8C99-4CFF-804E-16EB5891A1D8}
 		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94} = {15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336} = {6DF114F3-4C83-4F5E-AA2C-2CB451949336}
 		{64ADC8FF-D2CE-4D6E-A2C0-A0C75F5BA7D5} = {64ADC8FF-D2CE-4D6E-A2C0-A0C75F5BA7D5}
 	EndProjectSection
 EndProject
@@ -415,6 +416,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freetype", "freetype.vcproj
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libarchive-350", "libarchive-350.vcproj", "{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "onig", "onig.vcproj", "{6DF114F3-4C83-4F5E-AA2C-2CB451949336}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -1090,6 +1095,20 @@ Global
 		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.ServerRelease.Build.0 = ServerRelease|Win32
 		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.Universe-HTT.ActiveCfg = ServerRelease|Win32
 		{3E6B3DAF-E5ED-446D-9313-FEDA5391AB9F}.Universe-HTT.Build.0 = ServerRelease|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Debug.ActiveCfg = Debug|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Debug.Build.0 = Debug|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.MtDllDebug.ActiveCfg = Debug|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.MtDllDebug.Build.0 = Debug|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.MtDllRelease.ActiveCfg = Release|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.MtDllRelease.Build.0 = Release|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Release.ActiveCfg = Release|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Release.Build.0 = Release|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.ServerDebug.ActiveCfg = Debug|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.ServerDebug.Build.0 = Debug|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.ServerRelease.ActiveCfg = Release|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.ServerRelease.Build.0 = Release|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Universe-HTT.ActiveCfg = Release|Win32
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		optimization.txt = optimization.txt

@@ -412,7 +412,6 @@ private:
 		{
 			const PPID surr_id = getCtrlLong(CTLSEL_DESKCMDA_DESKTOP);
 			S_GUID uuid = DesktopList.GetUuidBySurrId(surr_id);
-			//Data.SetDesktopID(desktop_id);
 			Data.SetDesktopUuid(uuid);
 			ASSIGN_PTR(pData, Data);
 			return 1;
@@ -596,7 +595,6 @@ int EditName(SString & rName)
 	return ok;
 }
 
-//int EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommandGroupCategory kind)
 {
 	class EditMenusDlg : public PPListDialog {
@@ -1445,7 +1443,8 @@ static void PostprocessLoadedMenu(HMENU hMenu)
 		UserInterfaceSettings uiset;
 		uiset.Restore();
 		PPLoadStringS("cmd_menutree", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
-		::AppendMenu(h_popup, ((uiset.Flags & uiset.fShowLeftTree) ? MF_UNCHECKED : MF_CHECKED)|MF_STRING, cmShowTree, SUcSwitch(temp_buf));
+		// @v11.0.0 ::AppendMenu(h_popup, ((uiset.Flags & uiset.fShowLeftTree) ? MF_UNCHECKED : MF_CHECKED)|MF_STRING, cmShowTree, SUcSwitch(temp_buf));
+		::AppendMenu(h_popup, MF_CHECKED|MF_STRING, cmShowTree, SUcSwitch(temp_buf)); // @v11.0.0 always checked
 		PPLoadStringS("cmd_toolpane", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 		::AppendMenu(h_popup, MF_CHECKED | MF_STRING, cmShowToolbar, SUcSwitch(temp_buf));
 	}

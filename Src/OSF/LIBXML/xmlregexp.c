@@ -47,7 +47,6 @@
  * when it's guaranteed that cur is not at the beginning of ctxt->string!
  */
 #define PREV (ctxt->cur[-1])
-
 /**
  * @todo 
  *
@@ -252,23 +251,19 @@ struct xmlRegexp {
 	xmlChar ** stringMap;
 };
 
-typedef struct _xmlRegExecRollback xmlRegExecRollback;
-typedef xmlRegExecRollback * xmlRegExecRollbackPtr;
-
-struct _xmlRegExecRollback {
+struct xmlRegExecRollback {
 	xmlRegStatePtr state; /* the current state */
 	int index;      /* the index in the input stack */
 	int nextbranch; /* the next transition to explore in that state */
 	int * counts;   /* save the automata state if it has some */
 };
 
-typedef struct _xmlRegInputToken xmlRegInputToken;
-typedef xmlRegInputToken * xmlRegInputTokenPtr;
-
-struct _xmlRegInputToken {
+struct xmlRegInputToken {
 	xmlChar * value;
 	void * data;
 };
+//typedef xmlRegExecRollback * xmlRegExecRollbackPtr;
+//typedef xmlRegInputToken * xmlRegInputTokenPtr;
 
 struct _xmlRegExecCtxt {
 	int status;     /* execution status != 0 indicate an error */
@@ -297,7 +292,7 @@ struct _xmlRegExecCtxt {
 	int index;
 	int * charStack;
 	const xmlChar * inputString; /* when operating on characters */
-	xmlRegInputTokenPtr inputStack; /* when operating on strings */
+	xmlRegInputToken * inputStack; /* when operating on strings */
 	/*
 	 * error handling
 	 */
@@ -3106,7 +3101,7 @@ static void xmlFARegExecSaveInputString(xmlRegExecCtxtPtr exec, const xmlChar * 
 #endif
 	if(exec->inputStackMax == 0) {
 		exec->inputStackMax = 4;
-		exec->inputStack = (xmlRegInputTokenPtr)SAlloc::M(exec->inputStackMax * sizeof(xmlRegInputToken));
+		exec->inputStack = (xmlRegInputToken *)SAlloc::M(exec->inputStackMax * sizeof(xmlRegInputToken));
 		if(exec->inputStack == NULL) {
 			xmlRegexpErrMemory(NULL, "pushing input string");
 			exec->inputStackMax = 0;
@@ -3114,9 +3109,9 @@ static void xmlFARegExecSaveInputString(xmlRegExecCtxtPtr exec, const xmlChar * 
 		}
 	}
 	else if(exec->inputStackNr + 1 >= exec->inputStackMax) {
-		xmlRegInputTokenPtr tmp;
+		xmlRegInputToken * tmp;
 		exec->inputStackMax *= 2;
-		tmp = (xmlRegInputTokenPtr)SAlloc::R(exec->inputStack, exec->inputStackMax * sizeof(xmlRegInputToken));
+		tmp = (xmlRegInputToken *)SAlloc::R(exec->inputStack, exec->inputStackMax * sizeof(xmlRegInputToken));
 		if(!tmp) {
 			xmlRegexpErrMemory(NULL, "pushing input string");
 			exec->inputStackMax /= 2;
@@ -6708,8 +6703,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 				 * e.g.: (a | b)+,(a | c) and 'a+,a'
 				     */
 				    exp->exp_right->ref++;
-				    return (xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret,
-					    exp->exp_right, NULL, 0, 0));
+				    return (xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret, exp->exp_right, NULL, 0, 0));
 			    }
 #ifdef DEBUG_DERIV
 		    }
@@ -6978,8 +6972,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 	 */
 	len = xmlExpGetStartInt(ctxt, sub, tab, ctxt->tabSize, 0);
 	while(len < 0) {
-		const xmlChar ** temp;
-		temp = static_cast<const xmlChar **>(SAlloc::R((xmlChar **)tab, ctxt->tabSize * 2 * sizeof(const xmlChar *)));
+		const xmlChar ** temp = static_cast<const xmlChar **>(SAlloc::R((xmlChar **)tab, ctxt->tabSize * 2 * sizeof(const xmlChar *)));
 		if(temp == NULL) {
 			SAlloc::F((xmlChar **)tab);
 			return 0;
@@ -7359,7 +7352,6 @@ static void FASTCALL xmlExpDumpInt(xmlBuffer * buf, xmlExpNodePtr expr, int glob
 	if(glob)
 		xmlBufferWriteChar(buf, ")");
 }
-
 /**
  * xmlExpDump:
  * @buf:  a buffer to receive the output

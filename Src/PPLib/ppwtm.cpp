@@ -32,6 +32,8 @@ public:
 		AddClusterAssoc(CTL_WOLAYC_LAY, 2, DIREC_VERT);
 		SetClusterData(CTL_WOLAYC_LAY, Data.GetContainerDirection());
 		AddClusterAssoc(CTL_WOLAYC_FLAGS, 0, AbstractLayoutBlock::fContainerWrap);
+		AddClusterAssoc(CTL_WOLAYC_FLAGS, 1, AbstractLayoutBlock::fContainerReverseDir);
+		AddClusterAssoc(CTL_WOLAYC_FLAGS, 2, AbstractLayoutBlock::fContainerWrapReverse);
 		SetClusterData(CTL_WOLAYC_FLAGS, Data.Flags);
 		{
 			SetupStringCombo(this, CTLSEL_WOLAYC_JUSTC, PPTXT_LAYOUTALIGNMENT, Data.JustifyContent);
@@ -55,6 +57,8 @@ public:
 			long   flags = 0;
 			GetClusterData(CTL_WOLAYC_FLAGS, &flags);
 			SETFLAGBYSAMPLE(Data.Flags, AbstractLayoutBlock::fContainerWrap, flags);
+			SETFLAGBYSAMPLE(Data.Flags, AbstractLayoutBlock::fContainerReverseDir, flags);
+			SETFLAGBYSAMPLE(Data.Flags, AbstractLayoutBlock::fContainerWrapReverse, flags);
 		}
 		{
 			long   temp_alignment = 0;

@@ -1,5 +1,5 @@
 // WINSRVC.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -20,7 +20,7 @@ public:
 			CloseServiceHandle(H);
 	}
 	operator SC_HANDLE () const { return H; }
-	int    IsValid() const { return H ? 1 : 0; }
+	int    IsValid() const { return BIN(H); }
 private:
 	SC_HANDLE H;
 };

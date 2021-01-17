@@ -1769,7 +1769,15 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 		if(rInfo.P_CodeList && rInfo.P_CodeList->getCount()) {
 			for(uint i = 0; i < rInfo.P_CodeList->getCount(); i++) {
 				const BarcodeTbl::Rec & r_bc_rec = rInfo.P_CodeList->at(i);
-				w_s.PutInner("code", CorrectAndEncText(r_bc_rec.Code));
+				// @v11.0.0 w_s.PutInner("code", CorrectAndEncText(r_bc_rec.Code));
+				// @v11.0.0 {
+				SXml::WNode w_c(rB.P_Xw, "code");
+				if(IsInnerBarcodeType(r_bc_rec.BarcodeType, BARCODE_TYPE_PREFERRED))
+					w_c.PutAttrib("preferred", "true");
+				if(IsInnerBarcodeType(r_bc_rec.BarcodeType, BARCODE_TYPE_MARKED))
+					w_c.PutAttrib("marked", "true");
+				w_c.SetValue(CorrectAndEncText(r_bc_rec.Code));
+				// } @v11.0.0 
 			}
 		}
 		if(rInfo.ParentID) {
@@ -2124,6 +2132,24 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 	*/
 	int    ok = 1;
 	uint   ref_pos = 0;
+	// @v11.0.0 {
+	{
+ 		RdB.AttrList.Z();
+		if(ppAttrList) {
+			for(uint i = 0; ppAttrList[i] != 0; i += 2) {
+				const char * p_text_data = ppAttrList[i + 1];
+				if(p_text_data != 0) {
+					uint _ut = 0;
+					(RdB.TempBuf = ppAttrList[i]).ToLower();
+					if(RdB.P_ShT->Search(RdB.TempBuf, &_ut, 0)) {
+						assert(_ut);
+						RdB.AttrList.AddFast(static_cast<long>(_ut), p_text_data);
+					}
+				}
+			}
+		}
+	}
+	// } @v11.0.0 
     (RdB.TempBuf = pName).ToLower();
     int    tok = 0;
     if(RdB.P_ShT) {
@@ -2367,6 +2393,15 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 							{
 								GoodsCode * p_item = static_cast<GoodsCode *>(RdB.GetItemWithTest(goods_code_ref_pos, obGoodsCode));
 								p_item->GoodsBlkP = ref_pos; // Код ссылается на позицию товара, которому принадлежит
+								// @v11.0.0 {
+								int32 code_type = 0;
+								SString & r_temp_buf = SLS.AcquireRvlStr();
+								if(RdB.AttrList.GetText(PPHS_MARKED, r_temp_buf) && r_temp_buf.IsEqiAscii("true"))
+									SetInnerBarcodeType(&code_type, BARCODE_TYPE_MARKED);
+								if(RdB.AttrList.GetText(PPHS_PREFERRED, r_temp_buf) && r_temp_buf.IsEqiAscii("true"))
+									SetInnerBarcodeType(&code_type, BARCODE_TYPE_PREFERRED);
+								p_item->BarcodeType = code_type;
+								// } @v11.0.0 
 							}
 						}
 					}
@@ -2378,7 +2413,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_VERSION:
 				case PPHS_UUID:
 				case PPHS_TIME:
-				case PPHS_TIMESTAMP: // @v9.9.12
+				case PPHS_TIMESTAMP:
 				case PPHS_ID:
 				case PPHS_NAME:
 				case PPHS_RANK:
@@ -3021,14 +3056,16 @@ int PPPosProtocol::EndElement(const char * pName)
 					case obSCard:       Helper_AddStringToPool(&static_cast<SCardBlock *>(p_item)->CodeP); break;
 					case obParent:      Helper_AddStringToPool(&static_cast<ParentBlock *>(p_item)->CodeP); break;
 					case obQuotKind:    Helper_AddStringToPool(&static_cast<QuotKindBlock *>(p_item)->CodeP); break;
-					case obUnit:        Helper_AddStringToPool(&static_cast<UnitBlock *>(p_item)->CodeP); break; // @v9.8.6
+					case obUnit:        Helper_AddStringToPool(&static_cast<UnitBlock *>(p_item)->CodeP); break;
 					case obSource:
 					case obDestination: Helper_AddStringToPool(&static_cast<RouteObjectBlock *>(p_item)->CodeP); break;
 					case obGoods:
 						break;
 					case obGoodsCode:
-						Helper_AddStringToPool(&static_cast<GoodsCode *>(p_item)->CodeP);
-						RdB.RefPosStack.pop(ref_pos);
+						{
+							Helper_AddStringToPool(&static_cast<GoodsCode *>(p_item)->CodeP);
+							RdB.RefPosStack.pop(ref_pos);
+						}
 						break;
 					case obCSession:
 						if(RdB.TagValue.NotEmptyS()) {
@@ -3756,7 +3793,7 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 				if(temp_buf.NotEmptyS()) {
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					THROW_PP_S(temp_buf.Len() < sizeof(ex_bc_rec.Code), PPERR_PPPP_GOODSCODELENEXC, temp_buf);
-					THROW(goods_pack.Codes.Add(temp_buf, 0, 1.0));
+					THROW(goods_pack.Codes.Add(temp_buf, r_c.BarcodeType, 1.0)); // @v11.0.0 0-->r_c.BarcodeType
 					if(GObj.SearchByBarcode(temp_buf, &ex_bc_rec, &ex_goods_rec, 0 /* no adopt */) > 0) {
 						if(use_ar_code && (goods_by_ar_id && ex_goods_rec.ID != goods_by_ar_id)) {
 							THROW(GObj.P_Tbl->RemoveDupBarcode(goods_by_ar_id, temp_buf, 1));

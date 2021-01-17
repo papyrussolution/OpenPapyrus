@@ -86,8 +86,7 @@ void check_for_backing_up(int ds, int state[])
 
 void check_trailing_context(int * nfa_states, int num_states, int * accset, int nacc)
 {
-	int i, j;
-	for(i = 1; i <= num_states; ++i) {
+	for(int i = 1; i <= num_states; ++i) {
 		int ns = nfa_states[i];
 		int type = state_type[ns];
 		int ar = assoc_rule[ns];
@@ -100,7 +99,7 @@ void check_trailing_context(int * nfa_states, int num_states, int * accset, int 
 			 * since it's rare that an accepting number set
 			 * is large.
 			 */
-			for(j = 1; j <= nacc; ++j)
+			for(int j = 1; j <= nacc; ++j)
 				if(accset[j] & YY_TRAILING_HEAD_MASK) {
 					line_warning(_("dangerous trailing context"), rule_linenum[ar]);
 					return;

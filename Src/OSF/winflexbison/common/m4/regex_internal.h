@@ -383,8 +383,8 @@ static uint re_string_context_at(const re_string_t * input, Idx idx, int eflags)
 //#ifndef MAX
 	//#define MAX(a, b) ((a) < (b) ? (b) : (a))
 //#endif
-#define re_malloc(t, n) ((t*)SAlloc::M((n) * sizeof(t)))
-#define re_realloc(p, t, n) ((t*)SAlloc::R(p, (n) * sizeof(t)))
+#define re_malloc(t, n) ((t *)SAlloc::M((n) * sizeof(t)))
+#define re_realloc(p, t, n) ((t *)SAlloc::R(p, (n) * sizeof(t)))
 #define re_free(p) SAlloc::F(p)
 
 struct bin_tree_t {

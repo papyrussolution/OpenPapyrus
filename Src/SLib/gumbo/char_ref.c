@@ -23014,8 +23014,7 @@ _out:           {}
 	}
 }
 
-bool consume_char_ref(GumboParser * parser,
-    struct GumboInternalUtf8Iterator* input, int additional_allowed_char,
+bool consume_char_ref(GumboParser * parser, struct GumboInternalUtf8Iterator* input, int additional_allowed_char,
     bool is_in_attribute, OneOrTwoCodepoints* output) 
 {
 	utf8iterator_mark(input);

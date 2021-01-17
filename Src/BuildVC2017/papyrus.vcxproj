@@ -2166,6 +2166,9 @@
     <ProjectReference Include="nginx.vcxproj">
       <Project>{7e739c8a-b894-4f22-90ac-8b224ffa76a4}</Project>
     </ProjectReference>
+    <ProjectReference Include="onig.vcxproj">
+      <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
+    </ProjectReference>
     <ProjectReference Include="openssl-111-crypto.vcxproj">
       <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
     </ProjectReference>

@@ -26,7 +26,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-//#include <stdint.h>
 
 //int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, int formatChar, uint formatFlags, int formatWidth, int formatPrecision); // @prototype
 
@@ -479,9 +478,70 @@ int slprintf(SString & rBuf, const char * pFormat, ...)
 {
 	va_list va;
 	va_start(va, pFormat);
-	const int ret = sl_printf_implementation(rBuf, pFormat, va);
+	const int result = sl_printf_implementation(rBuf, pFormat, va);
 	va_end(va);
-	return ret;
+	return result;
+}
+
+int cdecl slvsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, va_list va)
+{
+	int    result = 0;
+	if(!pBuf || !pFormat) {
+		errno = EINVAL;
+		result = -1;
+	}
+	else {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		const int impl_ret = sl_printf_implementation(r_temp_buf, pFormat, va);
+		const size_t tb_len = r_temp_buf.Len();
+		if(tb_len == 0)
+			pBuf[0] = 0;
+		else if(tb_len > (bufSize-1)) {
+			memcpy(pBuf, r_temp_buf.cptr(), bufSize-1);
+			pBuf[bufSize-1] = 0;
+			result = static_cast<int>(bufSize-1);
+		}
+		else {
+			memcpy(pBuf, r_temp_buf.cptr(), tb_len);
+			pBuf[tb_len] = 0;
+			result = static_cast<int>(tb_len);
+		}
+	}
+	return result;
+}
+
+int cdecl slsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, ...)
+{
+	va_list va;
+	va_start(va, pFormat);
+	const int result = slvsprintf_s(pBuf, bufSize, pFormat, va);
+	va_end(va);
+	return result;
+}
+
+int cdecl slfprintf(FILE * pStream, const char * pFormat, ...)
+{
+	int    result = 0;
+	if(!pStream || !pFormat) {
+		errno = EINVAL;
+		result = -1;
+	}
+	else {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		va_list va;
+		va_start(va, pFormat);
+		const int impl_ret = sl_printf_implementation(r_temp_buf, pFormat, va);
+		va_end(va);
+		const size_t tb_len = r_temp_buf.Len();
+		if(tb_len != 0) {
+			const int fpr = fputs(r_temp_buf.cptr(), pStream);
+			if(fpr >= 0)
+				result = static_cast<int>(tb_len);
+			else
+				result = -1;
+		}
+	}
+	return result;
 }
 
 int slvprintf(SString & rBuf, const char * pFormat, va_list va)

@@ -172,6 +172,7 @@
     <ClCompile Include="..\SLib\tulipindicators.cpp" />
     <ClCompile Include="..\SLib\dirent.cpp" />
     <ClCompile Include="..\SLib\slib-getopt.cpp" />
+    <ClCompile Include="..\SLib\slib-winapi-helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

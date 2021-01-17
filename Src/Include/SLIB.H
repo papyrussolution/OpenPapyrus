@@ -4025,8 +4025,11 @@ private:
 	char * P_Buf; // Буфер, в котором хранится строка. @#if(P_Buf) then P_Buf[Len] == 0
 };
 
-int cdecl slprintf(SString & rBuf, const char * pFormat, ...);
 int slvprintf(SString & rBuf, const char * pFormat, va_list va);
+int slvsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, va_list va);
+int cdecl slprintf(SString & rBuf, const char * pFormat, ...);
+int cdecl slsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, ...);
+int cdecl slfprintf(FILE *, const char * pFormat, ...);
 //
 //
 //
@@ -4396,6 +4399,16 @@ void   fnmerge(char *, const char *, const char *, const char *nameP, const char
 char * FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
+//
+// Descr: Копирует в конец строки pDest строку pSrc соблюдая ограничение на общий 
+//   размер destSize буфера pDest.
+//   Если pDest == 0 || destSize == 0 || sstrlen(pSrc) == 0, то ничего не делает.
+//   Завершающий ноль гарантированно устанавливается.
+// 
+// Returns:
+//   pDest
+//
+char * FASTCALL sstrncat(char * pDest, size_t destSize, const char * pSrc); // @v11.0.0
 wchar_t * FASTCALL strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
 char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);
 uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
@@ -5520,6 +5533,7 @@ public:
 	SBuffer & FASTCALL operator = (const SBuffer & s);
 	//
 	// Desct: Возвращает 0 если в объекте произошла ошибка.
+	// Note: non-const поскольку устанавливает флаг fError в случае обнаружения ошибки
 	//
 	int    IsValid();
 	//

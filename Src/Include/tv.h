@@ -1544,8 +1544,7 @@ protected:
 		int    Busy;
 		TView * P_V;
 	};
-	uint32 SubSign; // Подпись подтипа класса. Порожденные классы сами определяют
-		// значение этого поля для идентификации "свой-чужой"
+	uint32 SubSign; // Подпись подтипа класса. Порожденные классы сами определяют значение этого поля для идентификации "свой-чужой"
 	uint16 Id;
 	uint16 Reserve;
 	uint32 Sf;      // Поле флагов состояния объекта (sfXXX)
@@ -2127,9 +2126,9 @@ private:
 };
 
 class LayoutFlexItem {
-	friend class LayoutFlex;
+	friend class LayoutFlexProcessor;
 public:
-	struct Result {
+	struct Result { // @persistent @size=24
 		enum {
 			fNotFit         = 0x0001, // Элемент не уместился в контейнер
 			fDegradedWidth  = 0x0002, // Ширина элемента деградировала (меньше или равна 0)
@@ -2139,7 +2138,8 @@ public:
 		operator FRect() const;
 		Result & CopyWithOffset(const Result & rS, float offsX, float offsY);
 		float  Frame[4];
-		uint   Flags;
+		uint32 Flags;
+		uint32 Reserve;
 	};
 	struct IndexEntry {
 		IndexEntry();
@@ -2198,6 +2198,7 @@ public:
 	int    Evaluate(const Param * pP, PagingResult * pPgR);
 	LayoutFlexItem * InsertItem();
 	void   DeleteItem(uint idx);
+	void   DeleteAllItems();
 	int    GetOrder() const;
 	void   SetOrder(int o);
 	//
@@ -2270,7 +2271,7 @@ protected:
 	void   UpdateShouldOrderChildren();
 	void   DoLayout(const Param & rP) const;
 	void   DoFloatLayout(const Param & rP);
-	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout) const;
+	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout) const;
 	//
 	// Descr: Завершает обработку искусственного элемента pCurrentLayout, устанавливает координаты его дочерних элементов
 	//   с поправкой на rOffs и разрушает pCurrentLayout.
@@ -3390,9 +3391,9 @@ class TButton : public TView {
 public:
 	TButton(const TRect& bounds, const char *aTitle, ushort aCommand, ushort aFlags, uint bmpID = 0);
 	~TButton();
-	virtual int  handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	virtual int  TransmitData(int dir, void * pData);
-	virtual void setState(uint aState, bool enable);
+	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual int    TransmitData(int dir, void * pData);
+	virtual void   setState(uint aState, bool enable);
 	void   press(ushort = 0);
 	void   drawState(bool down);
 	int    makeDefault(int enable, int sendMsg = 0);
@@ -3419,8 +3420,8 @@ class TCluster : public TView {
 public:
 	TCluster(const TRect& bounds, int aKind, const StringSet * pStrings);
 	~TCluster();
-	virtual int  TransmitData(int dir, void * pData);
-	virtual void setState(uint aState, bool enable);
+	virtual int    TransmitData(int dir, void * pData);
+	virtual void   setState(uint aState, bool enable);
 	bool   mark(int item);
 	void   press(ushort item);
 	uint   getNumItems() const;

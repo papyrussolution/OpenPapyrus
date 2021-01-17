@@ -1642,6 +1642,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\SLib\slib-winapi-helper.cpp" />
     <ClCompile Include="..\SLib\slprintf.c" />
     <ClCompile Include="..\SLib\slsess.cpp" />
     <ClCompile Include="..\SLib\sltest.cpp" />

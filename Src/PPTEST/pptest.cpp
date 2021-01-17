@@ -11,6 +11,122 @@
 //#define TEST_REGEXP
 //#define TEST_DL600
 
+#if 0 // @construction {
+class SConsole {
+public:
+	SConsole() : IsAllocated(0)
+	{
+	}
+	int Open(const char * pTitle) 
+	{
+		int    ok = 1;
+		//dont do anything if we're already attached
+		if(!IsAllocated) {
+			//attach to an existing console (if we can; this is circuitous because AttachConsole wasnt added until XP)
+			//remember to abstract this late bound function notion if we end up having to do this anywhere else
+			bool attached = false;
+			{
+				HMODULE lib = LoadLibrary(_T("kernel32.dll"));
+				if(lib) {
+					typedef BOOL (WINAPI *_TAttachConsole)(DWORD dwProcessId);
+					_TAttachConsole _AttachConsole  = (_TAttachConsole)GetProcAddress(lib, "AttachConsole");
+					if(_AttachConsole) {
+						if(_AttachConsole(-1))
+							attached = true;
+					}
+					FreeLibrary(lib);
+				}
+			}
+			//if we failed to attach, then alloc a new console
+			if(!attached) {
+				AllocConsole();
+				IsAllocated = 1;
+			}
+			{
+				//redirect stdio
+				HANDLE h_stdio = GetStdHandle(STD_OUTPUT_HANDLE);
+				int h_con = _open_osfhandle(reinterpret_cast<intptr_t>(h_stdio), _O_TEXT);
+				THROW(h_con != -1);
+				{
+					FILE * fp = _fdopen(h_con, "w");
+					if(fp) {
+						*stdout = *fp;
+						setvbuf(stdout, NULL, _IONBF, 0);
+					}
+				}
+			}
+			{
+				//redirect stderr
+				HANDLE h_stderr = GetStdHandle(STD_ERROR_HANDLE);
+				int h_con = _open_osfhandle(reinterpret_cast<intptr_t>(h_stderr), _O_TEXT);
+				THROW(h_con != -1);
+				{
+					FILE * fp = _fdopen(h_con, "w");
+					if(fp) {
+						*stderr = *fp;
+						setvbuf(stderr, NULL, _IONBF, 0);
+					}
+				}
+			}
+			{
+				//redirect stdin
+				HANDLE h_stdin = GetStdHandle(STD_INPUT_HANDLE);
+				int h_con = _open_osfhandle(reinterpret_cast<intptr_t>(h_stdin), _O_TEXT);
+				THROW(h_con != -1);
+				{
+					FILE * fp = _fdopen(h_con, "r");
+					if(fp) {
+						*stdin = *fp;
+						setvbuf(stdin, NULL, _IONBF, 0);
+					}
+				}
+			}
+			//sprintf(buf,"%s OUTPUT", DESMUME_NAME_AND_VERSION);
+			if(!isempty(pTitle))
+				SetConsoleTitle(SUcSwitch(pTitle));
+			{
+				CONSOLE_SCREEN_BUFFER_INFO csbiInfo; 
+				GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbiInfo);
+				{
+					COORD csize;
+					csize.X = csbiInfo.dwSize.X;
+					csize.Y = 800;
+					SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), csize);
+				}
+				/*{
+					SMALL_RECT srect = csbiInfo.srWindow;
+					srect.Right  = srect.Left + 99;
+					srect.Bottom = srect.Top + 64;
+					SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srect);
+				}*/
+			}
+			SetConsoleCP(GetACP());
+			SetConsoleOutputCP(GetACP());
+			/*
+			if(attached) 
+				printlog("\n");
+			printlog("%s\n",DESMUME_NAME_AND_VERSION);
+			printlog("- compiled: %s %s\n\n",__DATE__,__TIME__);
+			*/
+		}
+		else
+			ok = -1;
+		CATCHZOK
+		return ok;
+	}
+	void Close() 
+	{
+		if(IsAllocated) {
+			//printlog("Closing...");
+			::FreeConsole(); 
+			IsAllocated = 0;
+		}
+	}
+private:
+	int    IsAllocated;
+};
+#endif // } 0 @construction
+
 #if 0 // {
 
 class TestQ {
@@ -146,7 +262,6 @@ public:
 	int a;
 };
 */
-
 
 static int TestSearch(int alg, int flags, const SString & rPat, const SString & rText, size_t numSucc, size_t * pSuccList)
 {
@@ -1384,6 +1499,16 @@ int  TestAddressRecognition();
 int  TestTsDensityMap(); // @debug
 int  TestUdsInterface();
 
+extern int OnigTestSyntax_main(FILE * fOut);
+extern int OnigTestOptions_main(FILE * fOut);
+extern int OnigTestRegSet_main(FILE * fOut);
+extern int OnigTestBack_main(FILE * fOut);
+extern int OnigTestUtf8_main(FILE * fOut);
+extern int OnigTestU_main(FILE * fOut);
+extern int OnigTestP_main(FILE * fOut);
+extern int OnigTestC_main(FILE * fOut);
+extern int OnigTestC_Windows_main(FILE * fOut);
+
 /*static int TestWorkspacePath()
 {
 	SString path;
@@ -1397,6 +1522,33 @@ int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	{
+		SString out_file_name;
+		SLS.GetLogPath(out_file_name);
+		out_file_name.SetLastSlash().Cat("onig-test.log");
+		FILE * f_onig_out = fopen(out_file_name, "w");
+		OnigTestSyntax_main(f_onig_out);
+		OnigTestOptions_main(f_onig_out);
+		OnigTestRegSet_main(f_onig_out);
+		OnigTestU_main(f_onig_out);
+		OnigTestP_main(f_onig_out);
+		OnigTestC_main(f_onig_out);
+		OnigTestC_Windows_main(f_onig_out);
+		OnigTestUtf8_main(f_onig_out); // !
+		OnigTestBack_main(f_onig_out); // !
+		SFile::ZClose(&f_onig_out);
+	}
+	#if 0 // @construction {
+	{
+		SConsole con;
+		if(con.Open("Test Console")) {
+			fprintf(stdout, "Test console output\nDelay=10 sec");
+			fflush(stdout);
+			SDelay(10000);
+		}
+		con.Close();
+	}
+	#endif // } 0 @construction
 	/*{ // @v10.9.7 Ёкпериментальное внедрение тестировани€ библиотеки lcms2
 		const char * test_lcms_argv[] = { "Test_LCMS2" };
 		Test_LCMS2(1, test_lcms_argv);

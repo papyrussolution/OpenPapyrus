@@ -429,6 +429,7 @@ static void InitTest()
 	assert(isasciialpha('z'+1) == 0);
 	assert(isasciialpha('a'-1) == 0);
 	// } @v10.9.3 
+	assert(sizeof(LayoutFlexItem::Result) == 24); // @v11.0.0
 #endif // } NDEBUG
 }
 

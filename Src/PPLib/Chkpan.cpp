@@ -1508,7 +1508,7 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 							}
 						}
 						else {
-							CSt.RestByCrdCard += cc; // @v10.9.0 @fix (-=)-->(+=)
+							CSt.RestByCrdCard -= cc; // @v10.9.0 @fix (-=)-->(+=) // @v11.0.0 @fix-again (+=)-->(-=)
 							CSt.AdditionalPayment = (add_paym < 0.0) ? 0.0 : R2(add_paym);
 						}
 					}
@@ -2049,93 +2049,91 @@ double CPosProcessor::CalcCreditCharge(const CCheckPacket * pPack, const CCheckP
 	double non_crd_amt = 0.0;
 	double bonus_charge_amt = 0.0;
 	const  PPID scard_id = pPack ? pPack->Rec.SCardID : CSt.GetID();
-	if(scard_id) {
-		uint i;
-		SCardTbl::Rec sc_rec;
-		if(ScObj.Search(scard_id, &sc_rec) > 0) {
-			PPObjSCardSeries scs_obj;
-			PPSCardSeries scs_rec;
-			if(scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) {
-				double nca = 0.0;
-				CCheckLineTbl::Rec ccl_rec;
-				CCheckItem * p_item;
-				if(scs_rec.GetType() == scstBonus) {
-					PPSCardConfig sc_cfg;
-					ScObj.FetchConfig(&sc_cfg);
-					if(!(sc_cfg.Flags & sc_cfg.fDontUseBonusCards)) {
-						if(!F(fRetCheck)) { // По бонусной карте в возврате бонус не учитываем (пока)
-							const PPID bonus_goods_grp_id = scs_rec.BonusGrpID;
-							const PPID bonus_charge_grp_id = scs_rec.BonusChrgGrpID;
-							if(pPack) {
-								for(i = 0; i < pPack->GetCount(); i++) {
-									charge += CalcSCardOpBonusAmount(pPack->GetLine(i), bonus_goods_grp_id, &nca);
-									non_crd_amt += nca;
-									bonus_charge_amt += CalcSCardOpBonusAmount(pPack->GetLine(i), bonus_charge_grp_id, 0);
-								}
-								if(pExtPack)
-									for(i = 0; i < pExtPack->GetCount(); i++) {
-										charge += CalcSCardOpBonusAmount(pExtPack->GetLine(i), bonus_goods_grp_id, &nca);
-										non_crd_amt += nca;
-										bonus_charge_amt += CalcSCardOpBonusAmount(pExtPack->GetLine(i), bonus_charge_grp_id, 0);
-									}
+	uint   i;
+	SCardTbl::Rec sc_rec;
+	if(scard_id && ScObj.Search(scard_id, &sc_rec) > 0) {
+		PPObjSCardSeries scs_obj;
+		PPSCardSeries scs_rec;
+		if(scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) {
+			double nca = 0.0;
+			CCheckLineTbl::Rec ccl_rec;
+			CCheckItem * p_item;
+			if(scs_rec.GetType() == scstBonus) {
+				PPSCardConfig sc_cfg;
+				ScObj.FetchConfig(&sc_cfg);
+				if(!(sc_cfg.Flags & sc_cfg.fDontUseBonusCards)) {
+					if(!F(fRetCheck)) { // По бонусной карте в возврате бонус не учитываем (пока)
+						const PPID bonus_goods_grp_id  = scs_rec.BonusGrpID;
+						const PPID bonus_charge_grp_id = scs_rec.BonusChrgGrpID;
+						if(pPack) {
+							for(i = 0; i < pPack->GetCount(); i++) {
+								charge += CalcSCardOpBonusAmount(pPack->GetLine(i), bonus_goods_grp_id, &nca);
+								non_crd_amt += nca;
+								bonus_charge_amt += CalcSCardOpBonusAmount(pPack->GetLine(i), bonus_charge_grp_id, 0);
 							}
-							else {
-								for(i = 0; P.enumItems(&i, (void **)&p_item);) {
-									p_item->GetRec(ccl_rec, F(fRetCheck));
-									charge += CalcSCardOpBonusAmount(ccl_rec, bonus_goods_grp_id, &nca);
+							if(pExtPack)
+								for(i = 0; i < pExtPack->GetCount(); i++) {
+									charge += CalcSCardOpBonusAmount(pExtPack->GetLine(i), bonus_goods_grp_id, &nca);
 									non_crd_amt += nca;
-									bonus_charge_amt += CalcSCardOpBonusAmount(ccl_rec, bonus_charge_grp_id, 0);
+									bonus_charge_amt += CalcSCardOpBonusAmount(pExtPack->GetLine(i), bonus_charge_grp_id, 0);
 								}
-							}
-							if(pCurItem) {
-								pCurItem->GetRec(ccl_rec, F(fRetCheck));
+						}
+						else {
+							for(i = 0; P.enumItems(&i, (void **)&p_item);) {
+								p_item->GetRec(ccl_rec, F(fRetCheck));
 								charge += CalcSCardOpBonusAmount(ccl_rec, bonus_goods_grp_id, &nca);
 								non_crd_amt += nca;
 								bonus_charge_amt += CalcSCardOpBonusAmount(ccl_rec, bonus_charge_grp_id, 0);
 							}
 						}
-					}
-				}
-				else if(scs_rec.GetType() == scstCredit) {
-					const PPID crd_goods_grp_id = scs_rec.CrdGoodsGrpID;
-					const PPID charge_goods_id = GetChargeGoodsID(scard_id);
-					if(charge_goods_id != UNDEF_CHARGEGOODSID || crd_goods_grp_id) {
-						if(pPack) {
-							for(i = 0; i < pPack->GetCount(); i++) {
-								charge += CalcSCardOpAmount(pPack->GetLine(i), charge_goods_id, crd_goods_grp_id, &nca);
-								non_crd_amt += nca;
-							}
-							if(pExtPack) {
-								for(i = 0; i < pExtPack->GetCount(); i++) {
-									charge += CalcSCardOpAmount(pExtPack->GetLine(i), charge_goods_id, crd_goods_grp_id, &nca);
-									non_crd_amt += nca;
-								}
-							}
-						}
-						else {
-							for(i = 0; P.enumItems(&i, (void **)&p_item);) {
-								p_item->GetRec(ccl_rec, F(fRetCheck));
-								charge += CalcSCardOpAmount(ccl_rec, charge_goods_id, crd_goods_grp_id, &nca);
-								non_crd_amt += nca;
-							}
-						}
 						if(pCurItem) {
 							pCurItem->GetRec(ccl_rec, F(fRetCheck));
+							charge += CalcSCardOpBonusAmount(ccl_rec, bonus_goods_grp_id, &nca);
+							non_crd_amt += nca;
+							bonus_charge_amt += CalcSCardOpBonusAmount(ccl_rec, bonus_charge_grp_id, 0);
+						}
+					}
+				}
+			}
+			else if(scs_rec.GetType() == scstCredit) {
+				const PPID crd_goods_grp_id = scs_rec.CrdGoodsGrpID;
+				const PPID charge_goods_id = GetChargeGoodsID(scard_id);
+				if(charge_goods_id != UNDEF_CHARGEGOODSID || crd_goods_grp_id) {
+					if(pPack) {
+						for(i = 0; i < pPack->GetCount(); i++) {
+							charge += CalcSCardOpAmount(pPack->GetLine(i), charge_goods_id, crd_goods_grp_id, &nca);
+							non_crd_amt += nca;
+						}
+						if(pExtPack) {
+							for(i = 0; i < pExtPack->GetCount(); i++) {
+								charge += CalcSCardOpAmount(pExtPack->GetLine(i), charge_goods_id, crd_goods_grp_id, &nca);
+								non_crd_amt += nca;
+							}
+						}
+					}
+					else {
+						for(i = 0; P.enumItems(&i, (void **)&p_item);) {
+							p_item->GetRec(ccl_rec, F(fRetCheck));
 							charge += CalcSCardOpAmount(ccl_rec, charge_goods_id, crd_goods_grp_id, &nca);
 							non_crd_amt += nca;
 						}
 					}
-					else if(pPack) {
-						charge -= MONEYTOLDBL(pPack->Rec.Amount);
-						if(pExtPack)
-							charge -= MONEYTOLDBL(pExtPack->Rec.Amount);
+					if(pCurItem) {
+						pCurItem->GetRec(ccl_rec, F(fRetCheck));
+						charge += CalcSCardOpAmount(ccl_rec, charge_goods_id, crd_goods_grp_id, &nca);
+						non_crd_amt += nca;
 					}
-					else {
-						for(i = 0; P.enumItems(&i, (void **)&p_item);)
-							charge -= p_item->GetAmount();
-						if(pCurItem)
-							charge -= pCurItem->GetAmount();
-					}
+				}
+				else if(pPack) {
+					charge -= MONEYTOLDBL(pPack->Rec.Amount);
+					if(pExtPack)
+						charge -= MONEYTOLDBL(pExtPack->Rec.Amount);
+				}
+				else {
+					for(i = 0; P.enumItems(&i, (void **)&p_item);)
+						charge -= p_item->GetAmount();
+					if(pCurItem)
+						charge -= pCurItem->GetAmount();
 				}
 			}
 		}

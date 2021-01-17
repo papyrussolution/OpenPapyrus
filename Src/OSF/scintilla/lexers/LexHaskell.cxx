@@ -67,7 +67,7 @@ static bool FASTCALL IsHaskellLetter(const int ch)
 static bool FASTCALL IsHaskellAlphaNumeric(const int ch)
 {
 	if(IsASCII(ch))
-		return isasciialnum(ch);
+		return LOGIC(isasciialnum(ch));
 	else
 		return u_iswalnum(ch) != 0;
 }

@@ -1462,7 +1462,16 @@ IMPL_HANDLE_EVENT(SmartListBox)
 
 void SmartListBox::Implement_Draw()
 {
-	bool auto_calc_column_sizes = true; // @v10.9.12
+	//
+	// Descr: Варианты автоматического расчета ширины колонок 
+	//
+	enum {
+		auotocalccolszNo         = 0, // Нет
+		auotocalccolszNominal    = 1, // Пропорционально номинальным значениям ширины (заданным в ресурсе)
+		auotocalccolszContent    = 2, // Пропорционально содержимому колонок
+		auotocalccolszLogContent = 3, // Пропорционально логарифму содержимого колонок
+	};
+	int    auto_calc_column_sizes = auotocalccolszNominal;
 	if(!(State & stTreeList)) {
 		long   i;
 		long   item;
@@ -1492,19 +1501,29 @@ void SmartListBox::Implement_Draw()
 				if(cc) {
 					last_item  = def->getRecsCount();
 					// @v10.9.12 {
-					if(auto_calc_column_sizes && first_item < last_item) {
+					if(auto_calc_column_sizes/*&& first_item < last_item*/) {
 						LongArray column_text_size_list;
-						{
+						if(auto_calc_column_sizes == auotocalccolszNominal) {
 							for(uint cidx = 0; cidx < cc; cidx++) {
-								long   max_sw = 4; // minimal=4
+								const ColumnDescr * p_hdr_item = static_cast<const ColumnDescr *>(Columns.at(cidx));
+								column_text_size_list.add(NZOR(p_hdr_item->Width, 4));
+							}
+						}
+						else {
+							for(uint cidx = 0; cidx < cc; cidx++) {
+								long   max_sw = 50; // minimal=4
+								const ColumnDescr * p_hdr_item = static_cast<const ColumnDescr *>(Columns.at(cidx));
+								StrPool.get(p_hdr_item->TitlePos, cell_buf);
+								cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
+								int sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
+								SETMAX(max_sw, sw);
 								for(i = 0, item = first_item; i < last_item; i++, item++) {
 									def->getText(item, buf);
 									{
 										ss.setBuf(buf);
 										cell_buf.Z();
-										for(uint k = 0, pos = 0; k <= cidx; k++) {
+										for(uint k = 0, pos = 0; k <= cidx; k++)
 											ss.get(&pos, cell_buf);
-										}
 										cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
 									}
 									int sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
@@ -1516,10 +1535,9 @@ void SmartListBox::Implement_Draw()
 						assert(column_text_size_list.getCount() == cc);
 						{
 							RECT view_rect;
-							//ListView_GetViewRect(h_lb, &view_rect);
 							::GetClientRect(h_lb, &view_rect);
 							const int vscroll_width = GetSystemMetrics(SM_CXVSCROLL);
-							const float szy = 20.0f; /* any positive value */
+							const float szy = 20.0f; // any positive value 
 							LayoutFlexItem layout;
 							AbstractLayoutBlock alb;
 							alb.SetContainerDirection(DIREC_HORZ);
@@ -1532,13 +1550,16 @@ void SmartListBox::Implement_Draw()
 									AbstractLayoutBlock alb_c;
 									alb_c.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
 									alb_c.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
-									alb_c.GrowFactor = static_cast<float>(logf(static_cast<float>(column_text_size_list.get(cidx))));
+									float _w = static_cast<float>(column_text_size_list.get(cidx));
+									if(auto_calc_column_sizes == auotocalccolszLogContent)
+										_w = logf(_w);
+									alb_c.GrowFactor = _w;
 									LayoutFlexItem * p_lo = layout.InsertItem();
 									p_lo->SetLayoutBlock(alb_c);
 								}
+								layout.Evaluate(0, 0);
+								assert(layout.GetChildrenCount() == cc);
 							}
-							layout.Evaluate(0, 0);
-							assert(layout.GetChildrenCount() == cc);
 							{
 								for(uint cidx = 0; cidx < cc; cidx++) {
 									const LayoutFlexItem * p_lo = layout.GetChildC(cidx);

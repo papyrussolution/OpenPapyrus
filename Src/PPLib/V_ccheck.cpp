@@ -1,5 +1,5 @@
 // V_CCHECK.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -65,7 +65,7 @@ CCheckFilt & FASTCALL CCheckFilt::operator = (const CCheckFilt & src)
 			RealRange AmtR;
 			RealRange QttyR;
 			RealRange PcntR;
-			double    AmountQuant;
+			double AmountQuant;
 			long   SortOrder;        // Сортировка
 			long   GcoMinCount;      // Параметры расчета попарных включений товаров в один чек
 			SubstGrpGoods Sgg;       // Подстановка товара для попарных товаров
@@ -221,7 +221,7 @@ void PPViewCCheck::GetTabTitle(long tabID, SString & rBuf) const
 {
 	rBuf.Z();
 	if(Filt.CtKind == CCheckFilt::ctDate) {
-		LDATE dt = ZERODATE;
+		LDATE dt;
 		dt.v = tabID;
 		rBuf.Cat(dt);
 	}
@@ -242,7 +242,6 @@ int PPViewCCheck::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pC
 	THROW(GoodsList.Serialize(dir, rBuf, pCtx));
 	THROW(pCtx->Serialize(dir, &SessCnList, rBuf));
 	THROW(Gsl.Serialize(dir, rBuf, pCtx));
-
 	THROW(SerializeDbTableByFileName <TempCCheckQttyTbl> (dir, &P_TmpTbl, rBuf, pCtx));
 	THROW(SerializeDbTableByFileName <TempCCheckGrpTbl>  (dir, &P_TmpGrpTbl, rBuf, pCtx));
 	THROW(SerializeDbTableByFileName <TempCCheckGdsCorrTbl> (dir, &P_TmpGdsCorrTbl, rBuf, pCtx));
@@ -408,7 +407,8 @@ public:
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 10, CCheckFilt::fCalcSkuStat);
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 11, CCheckFilt::fWithoutSkipTag);
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 12, CCheckFilt::fPrintDetail);
-		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 13, CCheckFilt::fNotSpFinished); // @v9.7.5
+		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 13, CCheckFilt::fNotSpFinished);
+		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 14, CCheckFilt::fWithMarkOnly); // @v11.0.0
 		SetClusterData(CTL_CCHECKFLT_FLAGS, Data.Flags);
 		grp_rec.Flags |= GoodsCtrlGroup::enableSelUpLevel;
 		setGroupData(ctlgroupGoodsFilt, &grp_rec);
@@ -795,7 +795,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempGdsCorrFile, TempCCheckGdsCorr);
 
 int PPViewCCheck::DoProcessLines() const
 {
-	return BIN((State & stUseGoodsList) || !Filt.QttyR.IsZero() ||
+	return BIN((State & stUseGoodsList) || !Filt.QttyR.IsZero() || (Filt.Flags & CCheckFilt::fWithMarkOnly) ||
 		(!(Filt.Flags & CCheckFilt::fFiltByCheck) && (!Filt.AmtR.IsZero() || !Filt.PcntR.IsZero())) ||
 		Filt.LowLinesCount > 0 || Filt.UppLinesCount > 0 || Filt.Div);
 }
@@ -858,15 +858,33 @@ int PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei
 			TempCCheckQttyTbl::Rec rec;
 			// @v10.6.4 MEMSZERO(rec);
 			CCheckRec_To_TempCCheckQttyRec(_rec, rec);
-			double qtty = 0.0, amt = 0.0, dscnt = 0.0, t_dscnt = 0.0, pcnt = 0.0;
+			double qtty = 0.0;
+			double amt = 0.0;
+			double dscnt = 0.0;
+			double t_dscnt = 0.0;
+			double pcnt = 0.0;
 			BVATAccmArray temp_bva_ary;
 			CcPack.ClearLines();
 			if(P_CC->LoadLines(rec.ID, 0, &CcPack)) {
 				PPIDArray goods_id_list;
 				const uint c = CcPack.GetCount();
 				if(c && ((Filt.LowLinesCount <= 0 && Filt.UppLinesCount <= 0) || (c >= Filt.LowLinesCount && c <= Filt.UppLinesCount))) {
+					// @v11.0.0 {
+					SString temp_buf;
+					bool suitable_by_mark = (Filt.Flags & CCheckFilt::fWithMarkOnly) ? false : true;
+					StrAssocArray text_by_row_list;
+					if(Filt.Flags & CCheckFilt::fWithMarkOnly) {
+						PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &text_by_row_list);
+					}
+					// } @v11.0.0 
 					for(uint i = 0; CcPack.EnumLines(&i, &ln_rec);) {
 						const double ln_q = ln_rec.Quantity;
+						// @v11.0.0 {
+						if(!suitable_by_mark && CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextChZnMark, text_by_row_list, temp_buf) > 0)
+							suitable_by_mark = true;
+						// } @v11.0.0 
 						if(CheckLineForFilt(ln_rec)) {
 							const double ln_p = intmnytodbl(ln_rec.Price);
 							qtty  += ln_q;
@@ -888,6 +906,10 @@ int PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei
 						t_dscnt += ln_q * ln_rec.Dscnt;
 					}
 					goods_id_list.sortAndUndup();
+					// @v11.0.0 {
+					if(!suitable_by_mark)
+						ok = -1;
+					// } @v11.0.0 
 				}
 				if(ok > 0 && Filt.Flags & CCheckFilt::fFiltByCheck && Filt.QttyR.CheckVal(fabs(qtty)))
 					ok = -1;
@@ -919,7 +941,6 @@ int PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei
 		else {
 			if(pBei) {
 				TempCCheckQttyTbl::Rec rec;
-				// @v10.6.4 MEMSZERO(rec);
 				CCheckRec_To_TempCCheckQttyRec(_rec, rec);
 				if(Filt.Flags & CCheckFilt::fCalcSkuStat) {
 					PPIDArray goods_id_list;
@@ -1099,10 +1120,11 @@ int FASTCALL CCheckGrpCache::AddItem(const CCheckGrpItem * pItem)
 
 int PPViewCCheck::IsTempTblNeeded() const
 {
+	// @v11.0.0 CCheckFilt::fWithMarkOnly
 	return BIN((State & stUseGoodsList) || SessIdList.GetCount() > 1 ||
 		Filt.SCardSerID || Filt.SCardID || Filt.ScsList.GetCount() || Filt.HourBefore || Filt.WeekDays || !Filt.QttyR.IsZero() ||
 		(Filt.LowLinesCount > 0 || Filt.UppLinesCount > 0) ||
-		(Filt.Flags & (CCheckFilt::fCalcSkuStat|CCheckFilt::fStartOrderPeriod)) || !!CcIdList);
+		(Filt.Flags & (CCheckFilt::fCalcSkuStat|CCheckFilt::fStartOrderPeriod|CCheckFilt::fWithMarkOnly)) || !!CcIdList);
 }
 
 int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
@@ -1177,7 +1199,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		if(node_id_list.getCount()) {
 			//
 			// Теперь, имея исчерпывающий список кассовых узлов можно
-			// определить нужно показывать не отпечатанные чеки или нет.
+			// определить, нужно показывать не отпечатанные чеки или нет.
 			// Note: на самом деле, это не совсем корректно - чеки будут показаны по ПЕРЕСЕЧЕНИЮ
 			//   списка узлов и списка сессий, а здесь решение мы принимаем по ОБЪЕДИНЕНИЮ.
 			//   Пока оставим это противоречие (оно может сказаться в очень редких случаях, но
@@ -1575,7 +1597,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		}
 		else
 			P_CC->GetListByExtFilt(Filt, CcIdList);
-		if(!(Filt.Flags & CCheckFilt::fCheckLines)){
+		if(!(Filt.Flags & CCheckFilt::fCheckLines)) {
 			if(P_TmpTbl && (!IsTempTblNeeded() || !(Filt.Flags & CCheckFilt::fInner)))
 				ZDELETE(P_TmpTbl);
 			if(!P_TmpTbl && IsTempTblNeeded()) { // @todo Из-за того что при вызове ChangeFilt не удаляется таблица P_TmpTbl, возможны артефакты
@@ -1894,7 +1916,6 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 			else if(P_TmpTbl) {
 				TempCCheckQttyRec_To_CCheckRec(P_TmpTbl->data, *pItem);
 				cc_id = pItem->ID;
-				//*((CCheckTbl::Rec*)pItem) = *(CCheckTbl::Rec *)&P_TmpTbl->data;
 				pItem->G_LinesCount = P_TmpTbl->data.LinesCount;
 				pItem->G_SkuCount = P_TmpTbl->data.SkuCount;
 				pItem->G_Qtty = P_TmpTbl->data.Qtty;
@@ -1929,25 +1950,44 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 					CCheckCore * p_cct = P_CC;
 					*static_cast<CCheckTbl::Rec *>(pItem) = _rec;
 					cc_id = pItem->ID;
-					if(Filt.Flags & CCheckFilt::fCheckLines) {
+					if(Filt.Flags & (CCheckFilt::fCheckLines|CCheckFilt::fWithMarkOnly)) { // @v11.0.0 CCheckFilt::fWithMarkOnly
+						SString temp_buf;
 						int    suitable = 1;
-						double qtty = 0.0, amt = 0.0, dscnt = 0.0, t_dscnt = 0.0, pcnt = 0.0;
+						double qtty = 0.0;
+						double amt = 0.0;
+						double dscnt = 0.0;
+						double t_dscnt = 0.0;
+						double pcnt = 0.0;
 						CCheckLineTbl::Rec ln_rec;
+						StrAssocArray text_by_row_list;
+						bool   text_by_row_list_loaded = false;
 						if(CurLine == 0) {
 							CcPack.ClearLines();
-							p_cct->LoadLines(p_cct->data.ID, 0 /*Filt.GoodsID*/, &CcPack);
-							if((State & stUseGoodsList) || !Filt.QttyR.IsZero()) {
-								suitable = 0;
+							p_cct->LoadLines(p_cct->data.ID, 0, &CcPack);
+							if((State & stUseGoodsList) || !Filt.QttyR.IsZero() || (Filt.Flags & CCheckFilt::fFiltByCheck)) {
+								bool suitable_by_goods = (State & stUseGoodsList) ? false : true;
+								bool suitable_by_mark  = (Filt.Flags & CCheckFilt::fWithMarkOnly) ? false : true;
+								if(Filt.Flags & CCheckFilt::fWithMarkOnly) {
+									PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+									temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &text_by_row_list);
+									text_by_row_list_loaded = true;
+								}
 								for(uint i = 0; CcPack.EnumLines(&i, &ln_rec);) {
-									if(!(State & stUseGoodsList) || GoodsList.Has((uint)ln_rec.GoodsID))
-										suitable = 1;
-									if(suitable || (Filt.Flags & CCheckFilt::fFiltByCheck)) {
+									if(!suitable_by_goods && (!(State & stUseGoodsList) || GoodsList.Has((uint)ln_rec.GoodsID)))
+										suitable_by_goods = true;
+									// @v11.0.0 {
+									if(!suitable_by_mark && CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextChZnMark, text_by_row_list, temp_buf) > 0)
+										suitable_by_mark = true;
+									// } @v11.0.0 
+									if((suitable_by_goods && suitable_by_mark) || (Filt.Flags & CCheckFilt::fFiltByCheck)) {
 										qtty  += ln_rec.Quantity;
 										amt   += ln_rec.Quantity * intmnytodbl(ln_rec.Price);
 										dscnt += ln_rec.Quantity * ln_rec.Dscnt;
 									}
 									t_dscnt += ln_rec.Quantity * ln_rec.Dscnt;
 								}
+								suitable = BIN(suitable_by_goods && suitable_by_mark);
 								if(suitable && Filt.QttyR.CheckVal(fabs(qtty))) {
 									if(State & stUseGoodsList) {
 										const double chk_dscnt = MONEYTOLDBL(p_cct->data.Discount) - t_dscnt;
@@ -1964,17 +2004,12 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 							}
 						}
 						if(suitable) {
-							// @v10.2.6 {
-							SString serial;
-							StrAssocArray text_by_row_list;
-							{
-								SString text_buf;
-								PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), text_buf);
-								text_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								// @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(text_buf, text_by_row_list);
-								CCheckPacket::Helper_UnpackTextExt(text_buf, 0, &text_by_row_list); // @v10.3.9
+							if(!text_by_row_list_loaded) {
+								PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+								temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &text_by_row_list);
+								text_by_row_list_loaded = true;
 							}
-							// } @v10.2.6
 							while(CcPack.EnumLines(&CurLine, &ln_rec)) {
 								if(!(State & stUseGoodsList) || GoodsList.Has((uint)ln_rec.GoodsID)) {
 									const double price_ = intmnytodbl(ln_rec.Price);
@@ -1989,8 +2024,8 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 									pItem->G_GoodsID = ln_rec.GoodsID;
 									pItem->LinesCount = CcPack.GetCount();
 									// @v10.2.6 {
-									if(CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextSerial, text_by_row_list, serial) > 0)
-										STRNSCPY(pItem->Serial, serial);
+									if(CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextSerial, text_by_row_list, temp_buf) > 0)
+										STRNSCPY(pItem->Serial, temp_buf);
 									else
 										PTR32(pItem->Serial)[0] = 0;
 									// } @v10.2.6

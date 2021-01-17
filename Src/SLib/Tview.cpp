@@ -1,21 +1,10 @@
 // TVIEW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
+// Adopted to SLIB by A.Sobolev 1995-2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <htmlhelp.h> // @Muxa
-//
-//
-void FASTCALL ZDeleteWinGdiObject(void * pHandle)
-{
-	if(pHandle) {
-		HGDIOBJ * p_obj = static_cast<HGDIOBJ *>(pHandle);
-		if(*p_obj) {
-			::DeleteObject(*p_obj);
-			*p_obj = 0;
-		}
-	}
-}
 //
 //
 //
@@ -886,8 +875,8 @@ static _TvKeyCodeVK TvKeyCodeVKList[] = {
 	{ kbAltF8,     KeyDownCommand::stateAlt,   VK_F8 },
 	{ kbAltF9,     KeyDownCommand::stateAlt,   VK_F9 },
 	{ kbAltF10,    KeyDownCommand::stateAlt,   VK_F10 },
-	{ kbAltF11,    KeyDownCommand::stateAlt,   VK_F11 }, // @v9.8.7
-	{ kbAltF12,    KeyDownCommand::stateAlt,   VK_F12 }, // @v9.8.7
+	{ kbAltF11,    KeyDownCommand::stateAlt,   VK_F11 },
+	{ kbAltF12,    KeyDownCommand::stateAlt,   VK_F12 },
 	{ kbHome,      0, VK_HOME  },
 	{ kbUp,        0, VK_UP    },
 	{ kbPgUp,      0, VK_PRIOR },

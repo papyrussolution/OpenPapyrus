@@ -155,8 +155,7 @@ struct SnipExGlobals {
 	void CaptureWindow_OnLeftButtonUp()
 	{
 		MyOutputDebugStringW(L"[%s] Line %d: Left mouse button up over capture window. Selection complete.\n", __FUNCTIONW__, __LINE__);
-		if((gCaptureSelectionRectangle.left != gCaptureSelectionRectangle.right) &&
-			(gCaptureSelectionRectangle.bottom != gCaptureSelectionRectangle.top)) {
+		if((gCaptureSelectionRectangle.left != gCaptureSelectionRectangle.right) && (gCaptureSelectionRectangle.bottom != gCaptureSelectionRectangle.top)) {
 			MyOutputDebugStringW(L"[%s] Line %d: Left mouse button was released with a valid capture region selected.\n", __FUNCTIONW__, __LINE__);
 			gAppState = APPSTATE_AFTERCAPTURE;
 			ShowWindow(gCaptureWindowHandle, SW_HIDE);
@@ -766,11 +765,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    POINT CurrentMousePos = { 0 };
 				    GetCursorPos(&CurrentMousePos);
 				    ScreenToClient(SnExG.gMainWindowHandle, &CurrentMousePos);
-				    Rectangle(CopyDC,
-					MousePosWhenDrawingStarted.x,
-					MousePosWhenDrawingStarted.y - 56,
-					CurrentMousePos.x,
-					CurrentMousePos.y - 56);
+				    Rectangle(CopyDC, MousePosWhenDrawingStarted.x, MousePosWhenDrawingStarted.y - 56, CurrentMousePos.x, CurrentMousePos.y - 56);
 				    HDC ScratchDC = CreateCompatibleDC(NULL);
 				    SelectObject(ScratchDC, SnExG.gScratchBitmap);
 				    BitBlt(ScratchDC, 0, 0, SnExG.gCaptureWidth, SnExG.gCaptureHeight, CopyDC, 0, 0, SRCCOPY);
@@ -1772,12 +1767,9 @@ BOOL CopyButton_Click(void)
 	}
 	Result = TRUE;
 Cleanup:
-	if(SourceDC)
-		DeleteDC(SourceDC);
-	if(DestinationDC)
-		DeleteDC(DestinationDC);
-	if(ClipboardCopy)
-		DeleteObject(ClipboardCopy);
+	ZDeleteWinGdiObject(&SourceDC);
+	ZDeleteWinGdiObject(&DestinationDC);
+	ZDeleteWinGdiObject(&ClipboardCopy);
 	CloseClipboard();
 	gCopyButton.SelectedTool = FALSE;
 	gCopyButton.State = BUTTONSTATE_NORMAL;

@@ -33,8 +33,7 @@ static re_dfastate_t * create_cd_newstate(const re_dfa_t * dfa, const re_node_se
 /* This function allocate the buffers.  It is necessary to call
    re_string_reconstruct before using the object.  */
 
-static reg_errcode_t
-internal_function __attribute_warn_unused_result__ re_string_allocate(re_string_t * pstr, const char * str, Idx len, Idx init_len,
+static reg_errcode_t internal_function __attribute_warn_unused_result__ re_string_allocate(re_string_t * pstr, const char * str, Idx len, Idx init_len,
     RE_TRANSLATE_TYPE trans, bool icase, const re_dfa_t * dfa)
 {
 	reg_errcode_t ret;
@@ -109,19 +108,15 @@ static reg_errcode_t internal_function __attribute_warn_unused_result__ re_strin
 }
 
 /* Helper functions for re_string_allocate, and re_string_construct.  */
-
-static reg_errcode_t
-internal_function __attribute_warn_unused_result__ re_string_realloc_buffers(re_string_t * pstr, Idx new_buf_len)
+static reg_errcode_t internal_function __attribute_warn_unused_result__ re_string_realloc_buffers(re_string_t * pstr, Idx new_buf_len)
 {
 #ifdef RE_ENABLE_I18N
 	if(pstr->mb_cur_max > 1) {
 		wint_t * new_wcs;
-
 		/* Avoid overflow.  */
 		size_t max_object_size = MAX(sizeof(wint_t), sizeof(Idx));
 		if(BE(SIZE_MAX / max_object_size < new_buf_len, 0))
 			return REG_ESPACE;
-
 		new_wcs = re_realloc(pstr->wcs, wint_t, new_buf_len);
 		if(BE(new_wcs == NULL, 0))
 			return REG_ESPACE;
@@ -135,8 +130,7 @@ internal_function __attribute_warn_unused_result__ re_string_realloc_buffers(re_
 	}
 #endif /* RE_ENABLE_I18N  */
 	if(pstr->mbs_allocated) {
-		uchar * new_mbs = re_realloc(pstr->mbs, uchar,
-			new_buf_len);
+		uchar * new_mbs = re_realloc(pstr->mbs, uchar, new_buf_len);
 		if(BE(new_mbs == NULL, 0))
 			return REG_ESPACE;
 		pstr->mbs = new_mbs;
@@ -687,8 +681,7 @@ internal_function __attribute_warn_unused_result__ re_string_reconstruct(re_stri
 				if(wc == WEOF)
 					pstr->valid_len = re_string_skip_chars(pstr, idx, &wc) - idx;
 				if(wc == WEOF)
-					pstr->tip_context
-						= re_string_context_at(pstr, prev_valid_len - 1, eflags);
+					pstr->tip_context = re_string_context_at(pstr, prev_valid_len - 1, eflags);
 				else
 					pstr->tip_context = ((BE(pstr->word_ops_used != 0, 0)
 					    && IS_WIDE_WORD_CHAR(wc))
@@ -1060,13 +1053,11 @@ internal_function __attribute_warn_unused_result__ re_node_set_init_union(re_nod
 		dest->elems[id++] = src1->elems[i1++];
 	}
 	if(i1 < src1->nelem) {
-		memcpy(dest->elems + id, src1->elems + i1,
-		    (src1->nelem - i1) * sizeof(Idx));
+		memcpy(dest->elems + id, src1->elems + i1, (src1->nelem - i1) * sizeof(Idx));
 		id += src1->nelem - i1;
 	}
 	else if(i2 < src2->nelem) {
-		memcpy(dest->elems + id, src2->elems + i2,
-		    (src2->nelem - i2) * sizeof(Idx));
+		memcpy(dest->elems + id, src2->elems + i2, (src2->nelem - i2) * sizeof(Idx));
 		id += src2->nelem - i2;
 	}
 	dest->nelem = id;
@@ -1165,7 +1156,6 @@ internal_function __attribute_warn_unused_result__ re_node_set_insert(re_node_se
 		++set->nelem;
 		return true;
 	}
-
 	/* Realloc if we need.  */
 	if(set->alloc == set->nelem) {
 		Idx * new_elems;
@@ -1197,9 +1187,7 @@ internal_function __attribute_warn_unused_result__ re_node_set_insert(re_node_se
 /* Insert the new element ELEM to the re_node_set* SET.
    SET should not already have any element greater than or equal to ELEM.
    Return true if successful.  */
-
-static bool
-internal_function __attribute_warn_unused_result__ re_node_set_insert_last(re_node_set * set, Idx elem)
+static bool internal_function __attribute_warn_unused_result__ re_node_set_insert_last(re_node_set * set, Idx elem)
 {
 	/* Realloc if we need.  */
 	if(set->alloc == set->nelem) {
@@ -1210,7 +1198,6 @@ internal_function __attribute_warn_unused_result__ re_node_set_insert_last(re_no
 			return false;
 		set->elems = new_elems;
 	}
-
 	/* Insert the new element.  */
 	set->elems[set->nelem++] = elem;
 	return true;
@@ -1219,9 +1206,7 @@ internal_function __attribute_warn_unused_result__ re_node_set_insert_last(re_no
 /* Compare two node sets SET1 and SET2.
    Return true if SET1 and SET2 are equivalent.  */
 
-static bool
-internal_function __attribute((pure))
-re_node_set_compare(const re_node_set *set1, const re_node_set *set2)
+static bool internal_function __attribute((pure)) re_node_set_compare(const re_node_set *set1, const re_node_set *set2)
 {
 	Idx i;
 	if(set1 == NULL || set2 == NULL || set1->nelem != set2->nelem)
@@ -1234,14 +1219,11 @@ re_node_set_compare(const re_node_set *set1, const re_node_set *set2)
 
 /* Return (idx + 1) if SET contains the element ELEM, return 0 otherwise.  */
 
-static Idx
-internal_function __attribute((pure))
-re_node_set_contains(const re_node_set *set, Idx elem)
+static Idx internal_function __attribute((pure)) re_node_set_contains(const re_node_set *set, Idx elem)
 {
 	__re_size_t idx, right, mid;
 	if(!REG_VALID_NONZERO_INDEX(set->nelem))
 		return 0;
-
 	/* Binary search the element.  */
 	idx = 0;
 	right = set->nelem - 1;
@@ -1255,8 +1237,7 @@ re_node_set_contains(const re_node_set *set, Idx elem)
 	return set->elems[idx] == elem ? idx + 1 : 0;
 }
 
-static void
-internal_function re_node_set_remove_at(re_node_set * set, Idx idx)
+static void internal_function re_node_set_remove_at(re_node_set * set, Idx idx)
 {
 	if(idx < 0 || idx >= set->nelem)
 		return;
@@ -1268,23 +1249,17 @@ internal_function re_node_set_remove_at(re_node_set * set, Idx idx)
 /* Add the token TOKEN to dfa->nodes, and return the index of the token.
    Or return REG_MISSING if an error occurred.  */
 
-static Idx
-internal_function re_dfa_add_node(re_dfa_t * dfa, re_token_t token)
+static Idx internal_function re_dfa_add_node(re_dfa_t * dfa, re_token_t token)
 {
 	if(BE(dfa->nodes_len >= dfa->nodes_alloc, 0)) {
 		size_t new_nodes_alloc = dfa->nodes_alloc * 2;
 		Idx * new_nexts, * new_indices;
 		re_node_set * new_edests, * new_eclosures;
 		re_token_t * new_nodes;
-		size_t max_object_size =
-		    MAX(sizeof(re_token_t),
-			MAX(sizeof(re_node_set),
-			sizeof(Idx)));
-
+		size_t max_object_size = MAX(sizeof(re_token_t), MAX(sizeof(re_node_set), sizeof(Idx)));
 		/* Avoid overflows.  */
 		if(BE(SIZE_MAX / 2 / max_object_size < dfa->nodes_alloc, 0))
 			return REG_MISSING;
-
 		new_nodes = re_realloc(dfa->nodes, re_token_t, new_nodes_alloc);
 		if(BE(new_nodes == NULL, 0))
 			return REG_MISSING;
@@ -1293,8 +1268,7 @@ internal_function re_dfa_add_node(re_dfa_t * dfa, re_token_t token)
 		new_indices = re_realloc(dfa->org_indices, Idx, new_nodes_alloc);
 		new_edests = re_realloc(dfa->edests, re_node_set, new_nodes_alloc);
 		new_eclosures = re_realloc(dfa->eclosures, re_node_set, new_nodes_alloc);
-		if(BE(new_nexts == NULL || new_indices == NULL
-		    || new_edests == NULL || new_eclosures == NULL, 0))
+		if(BE(new_nexts == NULL || new_indices == NULL || new_edests == NULL || new_eclosures == NULL, 0))
 			return REG_MISSING;
 		dfa->nexts = new_nexts;
 		dfa->org_indices = new_indices;
@@ -1307,8 +1281,7 @@ internal_function re_dfa_add_node(re_dfa_t * dfa, re_token_t token)
 #ifdef RE_ENABLE_I18N
 	{
 		int type = token.type;
-		dfa->nodes[dfa->nodes_len].accept_mb =
-		    (type == OP_PERIOD && dfa->mb_cur_max > 1) || type == COMPLEX_BRACKET;
+		dfa->nodes[dfa->nodes_len].accept_mb = (type == OP_PERIOD && dfa->mb_cur_max > 1) || type == COMPLEX_BRACKET;
 	}
 #endif
 	dfa->nexts[dfa->nodes_len] = REG_MISSING;
@@ -1317,12 +1290,10 @@ internal_function re_dfa_add_node(re_dfa_t * dfa, re_token_t token)
 	return dfa->nodes_len++;
 }
 
-static re_hashval_t
-internal_function calc_state_hash(const re_node_set * nodes, uint context)
+static re_hashval_t internal_function calc_state_hash(const re_node_set * nodes, uint context)
 {
 	re_hashval_t hash = nodes->nelem + context;
-	Idx i;
-	for(i = 0; i < nodes->nelem; i++)
+	for(Idx i = 0; i < nodes->nelem; i++)
 		hash += nodes->elems[i];
 	return hash;
 }
@@ -1336,9 +1307,7 @@ internal_function calc_state_hash(const re_node_set * nodes, uint context)
          - We never return non-NULL value in case of any errors, it is for
            optimization.  */
 
-static re_dfastate_t *
-internal_function __attribute_warn_unused_result__ re_acquire_state(reg_errcode_t * err, const re_dfa_t * dfa,
-    const re_node_set * nodes)
+static re_dfastate_t * internal_function __attribute_warn_unused_result__ re_acquire_state(reg_errcode_t * err, const re_dfa_t * dfa, const re_node_set * nodes)
 {
 	re_hashval_t hash;
 	re_dfastate_t * new_state;
@@ -1354,7 +1323,6 @@ internal_function __attribute_warn_unused_result__ re_acquire_state(reg_errcode_
 	}
 	hash = calc_state_hash(nodes, 0);
 	spot = dfa->state_table + (hash & dfa->state_hash_mask);
-
 	for(i = 0; i < spot->num; i++) {
 		re_dfastate_t * state = spot->array[i];
 		if(hash != state->hash)
@@ -1362,12 +1330,10 @@ internal_function __attribute_warn_unused_result__ re_acquire_state(reg_errcode_
 		if(re_node_set_compare(&state->nodes, nodes))
 			return state;
 	}
-
 	/* There are no appropriate state in the dfa, create the new one.  */
 	new_state = create_ci_newstate(dfa, nodes, hash);
 	if(BE(new_state == NULL, 0))
 		*err = REG_ESPACE;
-
 	return new_state;
 }
 
@@ -1381,9 +1347,7 @@ internal_function __attribute_warn_unused_result__ re_acquire_state(reg_errcode_
          - We never return non-NULL value in case of any errors, it is for
            optimization.  */
 
-static re_dfastate_t *
-internal_function __attribute_warn_unused_result__ re_acquire_state_context(reg_errcode_t * err, const re_dfa_t * dfa,
-    const re_node_set * nodes, uint context)
+static re_dfastate_t * internal_function __attribute_warn_unused_result__ re_acquire_state_context(reg_errcode_t * err, const re_dfa_t * dfa, const re_node_set * nodes, uint context)
 {
 	re_hashval_t hash;
 	re_dfastate_t * new_state;
@@ -1399,19 +1363,15 @@ internal_function __attribute_warn_unused_result__ re_acquire_state_context(reg_
 	}
 	hash = calc_state_hash(nodes, context);
 	spot = dfa->state_table + (hash & dfa->state_hash_mask);
-
 	for(i = 0; i < spot->num; i++) {
 		re_dfastate_t * state = spot->array[i];
-		if(state->hash == hash
-		    && state->context == context
-		    && re_node_set_compare(state->entrance_nodes, nodes))
+		if(state->hash == hash && state->context == context && re_node_set_compare(state->entrance_nodes, nodes))
 			return state;
 	}
 	/* There are no appropriate state in `dfa', create the new one.  */
 	new_state = create_cd_newstate(dfa, nodes, context, hash);
 	if(BE(new_state == NULL, 0))
 		*err = REG_ESPACE;
-
 	return new_state;
 }
 
@@ -1419,14 +1379,11 @@ internal_function __attribute_warn_unused_result__ re_acquire_state_context(reg_
    HASH put in the appropriate bucket of DFA's state table.  Return value
    indicates the error code if failed.  */
 
-static reg_errcode_t
-__attribute_warn_unused_result__ register_state(const re_dfa_t * dfa, re_dfastate_t * newstate,
-    re_hashval_t hash)
+static reg_errcode_t __attribute_warn_unused_result__ register_state(const re_dfa_t * dfa, re_dfastate_t * newstate, re_hashval_t hash)
 {
 	struct re_state_table_entry * spot;
 	reg_errcode_t err;
 	Idx i;
-
 	newstate->hash = hash;
 	err = re_node_set_alloc(&newstate->non_eps_nodes, newstate->nodes.nelem);
 	if(BE(err != REG_NOERROR, 0))
@@ -1437,12 +1394,10 @@ __attribute_warn_unused_result__ register_state(const re_dfa_t * dfa, re_dfastat
 			if(BE(!re_node_set_insert_last(&newstate->non_eps_nodes, elem), 0))
 				return REG_ESPACE;
 	}
-
 	spot = dfa->state_table + (hash & dfa->state_hash_mask);
 	if(BE(spot->alloc <= spot->num, 0)) {
 		Idx new_alloc = 2 * spot->num + 2;
-		re_dfastate_t ** new_array = re_realloc(spot->array, re_dfastate_t *,
-			new_alloc);
+		re_dfastate_t ** new_array = re_realloc(spot->array, re_dfastate_t *, new_alloc);
 		if(BE(new_array == NULL, 0))
 			return REG_ESPACE;
 		spot->array = new_array;
@@ -1469,15 +1424,11 @@ static void free_state(re_dfastate_t * state)
 /* Create the new state which is independ of contexts.
    Return the new state if succeeded, otherwise return NULL.  */
 
-static re_dfastate_t *
-internal_function __attribute_warn_unused_result__ create_ci_newstate(const re_dfa_t * dfa, const re_node_set * nodes,
-    re_hashval_t hash)
+static re_dfastate_t * internal_function __attribute_warn_unused_result__ create_ci_newstate(const re_dfa_t * dfa, const re_node_set * nodes, re_hashval_t hash)
 {
 	Idx i;
 	reg_errcode_t err;
-	re_dfastate_t * newstate;
-
-	newstate = (re_dfastate_t*)SAlloc::C(sizeof(re_dfastate_t), 1);
+	re_dfastate_t * newstate = (re_dfastate_t*)SAlloc::C(sizeof(re_dfastate_t), 1);
 	if(BE(newstate == NULL, 0))
 		return NULL;
 	err = re_node_set_init_copy(&newstate->nodes, nodes);
@@ -1485,7 +1436,6 @@ internal_function __attribute_warn_unused_result__ create_ci_newstate(const re_d
 		re_free(newstate);
 		return NULL;
 	}
-
 	newstate->entrance_nodes = &newstate->nodes;
 	for(i = 0; i < nodes->nelem; i++) {
 		re_token_t * node = dfa->nodes + nodes->elems[i];
@@ -1495,7 +1445,6 @@ internal_function __attribute_warn_unused_result__ create_ci_newstate(const re_d
 #ifdef RE_ENABLE_I18N
 		newstate->accept_mb |= node->accept_mb;
 #endif /* RE_ENABLE_I18N */
-
 		/* If the state has the halt node, the state is a halt state.  */
 		if(type == END_OF_RE)
 			newstate->halt = 1;
@@ -1515,15 +1464,12 @@ internal_function __attribute_warn_unused_result__ create_ci_newstate(const re_d
 /* Create the new state which is depend on the context CONTEXT.
    Return the new state if succeeded, otherwise return NULL.  */
 
-static re_dfastate_t *
-internal_function __attribute_warn_unused_result__ create_cd_newstate(const re_dfa_t * dfa, const re_node_set * nodes,
+static re_dfastate_t * internal_function __attribute_warn_unused_result__ create_cd_newstate(const re_dfa_t * dfa, const re_node_set * nodes,
     uint context, re_hashval_t hash)
 {
 	Idx i, nctx_nodes = 0;
 	reg_errcode_t err;
-	re_dfastate_t * newstate;
-
-	newstate = (re_dfastate_t*)SAlloc::C(sizeof(re_dfastate_t), 1);
+	re_dfastate_t * newstate = (re_dfastate_t*)SAlloc::C(sizeof(re_dfastate_t), 1);
 	if(BE(newstate == NULL, 0))
 		return NULL;
 	err = re_node_set_init_copy(&newstate->nodes, nodes);
@@ -1531,15 +1477,12 @@ internal_function __attribute_warn_unused_result__ create_cd_newstate(const re_d
 		re_free(newstate);
 		return NULL;
 	}
-
 	newstate->context = context;
 	newstate->entrance_nodes = &newstate->nodes;
-
 	for(i = 0; i < nodes->nelem; i++) {
 		re_token_t * node = dfa->nodes + nodes->elems[i];
 		re_token_type_t type = node->type;
 		uint constraint = node->constraint;
-
 		if(type == CHARACTER && !constraint)
 			continue;
 #ifdef RE_ENABLE_I18N
@@ -1551,7 +1494,6 @@ internal_function __attribute_warn_unused_result__ create_cd_newstate(const re_d
 			newstate->halt = 1;
 		else if(type == OP_BACK_REF)
 			newstate->has_backref = 1;
-
 		if(constraint) {
 			if(newstate->entrance_nodes == &newstate->nodes) {
 				newstate->entrance_nodes = re_malloc(re_node_set, 1);
@@ -1559,13 +1501,11 @@ internal_function __attribute_warn_unused_result__ create_cd_newstate(const re_d
 					free_state(newstate);
 					return NULL;
 				}
-				if(re_node_set_init_copy(newstate->entrance_nodes, nodes)
-				    != REG_NOERROR)
+				if(re_node_set_init_copy(newstate->entrance_nodes, nodes) != REG_NOERROR)
 					return NULL;
 				nctx_nodes = 0;
 				newstate->has_constraint = 1;
 			}
-
 			if(NOT_SATISFY_PREV_CONSTRAINT(constraint, context)) {
 				re_node_set_remove_at(&newstate->nodes, i - nctx_nodes);
 				++nctx_nodes;

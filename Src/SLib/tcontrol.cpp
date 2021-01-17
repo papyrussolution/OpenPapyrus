@@ -1784,15 +1784,14 @@ void ComboBox::freeAll()
 				PAINTSTRUCT ps;
 				::BeginPaint(hWnd, &ps);
 				//p_view->draw();
+				RECT rc;
+				::GetClientRect(hWnd, &rc);
+				const  TRect rect_elem_i = rc;
+				APPL->InitUiToolBox();
+				SPaintToolBox & r_tb = APPL->GetUiToolBox();
 				if(p_view->P_Fig) {
-					RECT rc;
-					::GetClientRect(hWnd, &rc);
-					const  TRect rect_elem_i = rc;
 					const  FRect rect_elem = rc;
-					APPL->InitUiToolBox();
-					SPaintToolBox & r_tb = APPL->GetUiToolBox();
 					TCanvas2 canv(r_tb, ps.hdc);
-
 					FRect pic_bounds = rect_elem;
 					LMatrix2D mtx;
 					SViewPort vp;
@@ -1819,9 +1818,10 @@ void ComboBox::freeAll()
 					canv.Draw(p_view->P_Fig);
 					canv.PopTransform();
 				}
-				/*else {
-					canv.Rect(rect_elem_i, 0, SPaintToolBox::rbrWindow);
-				}*/
+				else {
+					TCanvas2 canv(r_tb, ps.hdc);
+					canv.Rect(rect_elem_i, 0, TProgram::tbiButtonBrush);
+				}
 				::EndPaint(hWnd, &ps);
 			}
 			return 0;

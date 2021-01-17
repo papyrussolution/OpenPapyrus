@@ -1,5 +1,5 @@
 // OBJSECUR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -248,14 +248,14 @@ int PPObjSecur::GetPrivateDesktop(PPID userID, S_GUID & rDesktopUuid)
 			PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcDesktop, 0);// @erik v10.6.7
 			if(p_mgr) {
 				CurDict->GetDbSymb(db_symb);
-// @erik v10.6.7 {
+				// @erik v10.6.7 {
 				p_mgr->Load__2(&desktop_list, db_symb, PPCommandMngr::fRWByXml);
 				p_item = desktop_list.SearchByName(desk_name, db_symb, 0);
 				if(!p_item) {
-					p_mgr->Load_Obsolete(&desktop_list_from_bin);
+					p_mgr->Load_Depricated(&desktop_list_from_bin);
 					p_item = desktop_list_from_bin.SearchByName(desk_name, db_symb, 0);
 				}
-// } @erik
+				// } @erik
 				if(p_item && p_item->Kind == PPCommandItem::kGroup)
 					desktop_uuid = static_cast<const PPCommandGroup *>(p_item)->Uuid;
 				ZDELETE(p_mgr);

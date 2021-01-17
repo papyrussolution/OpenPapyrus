@@ -40,7 +40,7 @@
 //
 // @transient - этим признаком помечаются флаги, поля структур, сами структуры, которые не сохраняются //
 //    в базе данных или в каких-либо файлах. Признак контекстно-зависимый: используется тогда, когда
-//    в контексте какого-либо сожержания необходимо подчеркнуть, что некоторый объект не будет
+//    в контексте какого-либо содержания необходимо подчеркнуть, что некоторый объект не будет
 //    сохраняться в базе данных или файле передачи данных.
 // @flat - помечаются структуры, которые обязательно должны быть "плоскими". То есть не иметь в своем
 //    составе указателей, и сложных объектов.
@@ -15364,8 +15364,8 @@ public:
 	PPCommandItem(const PPCommandItem & rS);
 	PPCommandItem & FASTCALL operator = (const PPCommandItem & rS);
 	virtual ~PPCommandItem();
-	virtual int Write(SBuffer &, long) const;
-	virtual int Read(SBuffer &, long);
+	virtual int Write_Depricated(SBuffer &, long) const;
+	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
@@ -15385,16 +15385,17 @@ public:
 class PPCommand : public PPCommandItem {
 public:
 	PPCommand();
-	virtual int Write(SBuffer &, long) const;
-	virtual int Read(SBuffer &, long);
+	virtual int Write_Depricated(SBuffer &, long) const;
+	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommand &);
-	long   CmdID;          // Идентификатор дескриптора команды (PPCommandDescr)
-	TPoint P;
-	char   Reserve[28];    // @reserve
+	long   CmdID;         // Идентификатор дескриптора команды (PPCommandDescr)
+	TPoint P;             // Позиция левого верхнего угла иконки на рабочем столе 
+	uint8  Reserve[4];    // @reserve
+	mutable LayoutFlexItem::Result LoR; // @v11.0.0 @transient. Функция ранжирования меняет это значение, потому mutable
 	SBuffer Param;
 };
 
@@ -15462,8 +15463,8 @@ public:
 	PPCommandFolder();
 	PPCommandFolder(const PPCommandFolder & rS);
 	PPCommandFolder & FASTCALL operator = (const PPCommandFolder & rS);
-	virtual int Write(SBuffer &, long) const;
-	virtual int Read(SBuffer &, long);
+	virtual int Write_Depricated(SBuffer &, long) const;
+	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
@@ -15509,8 +15510,8 @@ public:
 	PPCommandGroup(PPCommandGroupCategory cmdgrpc, const char * pDbSymb, const char * pName);
 	PPCommandGroup(const PPCommandGroup &);
 	PPCommandGroup & FASTCALL operator = (const PPCommandGroup &);
-	virtual int Write(SBuffer &, long) const;
-	virtual int Read(SBuffer &, long);
+	virtual int Write_Depricated(SBuffer &, long) const;
+	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
@@ -15581,7 +15582,7 @@ public:
 	~PPCommandMngr();
 	int    IsValid_() const;
 	// @v10.9.5 int    Save_Obsolete(const PPCommandGroup *);
-	int    Load_Obsolete(PPCommandGroup *);
+	int    Load_Depricated(PPCommandGroup *);
 	int    Save__2(const PPCommandGroup *, const long rwFlag); // @erik v10.6.1
 	int    Load__2(PPCommandGroup *, const char * pDbSymb, const long rwFlag); // @erik v10.6.1
 	int    SaveFromAllTo(const long rwFlag); // @erik v10.7.1
@@ -42218,8 +42219,7 @@ public:
 			// Допускается добавление и удаление чеков через кассовую панель.
 		fCheckLines       = 0x00000004, // Просматривать строки чеков (для группировки по товарам)
 		fImmOpenPanel     = 0x00000008, // Если этот флаг установлен и группировки выключены и
-			// SessIDList содержит одну сессию и Flags & CCheckFilt::fActiveSess, то
-			// сразу открывается панель ввода чеков
+			// SessIDList содержит одну сессию и Flags & CCheckFilt::fActiveSess, то сразу открывается панель ввода чеков.
 		fShowSuspended    = 0x00000010, // Показывать отложенные
 		fSuspendedOnly    = 0x00000020, // Только отложенные
 		fRetOnly          = 0x00000040, // Показывать только возвраты
@@ -42249,8 +42249,9 @@ public:
 			// HKEY_CURRENT_USER\\Software\\Papyrus\\Sessions
 			// UUID сессии, присвоившей чеки признак CCHKF_JUNK извлекается из зарезервированного тэга чека PPTAG_CCHECK_JS_UUID
 		fPrintDetail      = 0x10000000, // По умолчанию печатать детализированный отчет по структуре CCheckViewDetail
-		fNotSpFinished    = 0x20000000, // @v9.7.5 На чеке не установлен флаг CCHKF_SPFINISHED
-		fAvoidExt         = 0x40000000  // @v10.2.1 По возможности избегать чтения расширенных данных чека для улучшения производительности
+		fNotSpFinished    = 0x20000000, // На чеке не установлен флаг CCHKF_SPFINISHED
+		fAvoidExt         = 0x40000000, // @v10.2.1 По возможности избегать чтения расширенных данных чека для улучшения производительности
+		fWithMarkOnly     = 0x80000000  // @v11.0.0 Только чеки, среди строк которых имеются маркированные 
 	};
 	enum {
 		ctNone = 0,
@@ -46713,6 +46714,7 @@ private:
 		uint   GoodsBlkP;
 		uint   CodeP;
         long   Pack;
+		long   BarcodeType; // @v11.0.0
 	};
 	struct QuotBlock { // @flat
 		QuotBlock();
@@ -46956,10 +46958,11 @@ private:
 		SString TempBuf; // @allocreuse
 		SString TagValue;
 		SString SrcFileName;
-		S_GUID  SrcFileUUID; // @v9.9.12 uuid файла, считанный из заголовочной части xml-сообщения (file/uuid)
-		LDATETIME SrcFileDtm; // @v9.9.12 время создания файла, считанное из заголовочной части xml-сообщения (file/timestamp)
+		S_GUID  SrcFileUUID;  // Uuid файла, считанный из заголовочной части xml-сообщения (file/uuid)
+		LDATETIME SrcFileDtm; // Время создания файла, считанное из заголовочной части xml-сообщения (file/timestamp)
 		TSStack <int> TokPath;
 		TSStack <uint> RefPosStack; //
+		StrAssocArray AttrList; // @v11.0.0 Список атрибутов текущего тега. Сбрасывается и заполняется функцией StartElement
 		TSVector <RouteObjectBlock> SrcBlkList;
 		TSVector <RouteObjectBlock> DestBlkList;
 		TSVector <GoodsBlock> GoodsBlkList;
@@ -46967,10 +46970,10 @@ private:
 		TSVector <LotBlock> LotBlkList;
 		TSVector <GoodsCode> GoodsCodeList;
 		TSVector <QuotKindBlock> QkBlkList;
-		TSVector <UnitBlock> UnitBlkList; // @v9.8.6
+		TSVector <UnitBlock> UnitBlkList;
 		TSVector <QuotBlock> QuotBlkList;
 		TSVector <PersonBlock> PersonBlkList;
-		TSVector <SCardSeriesBlock> ScsBlkList; // @v9.8.7
+		TSVector <SCardSeriesBlock> ScsBlkList;
 		TSVector <SCardBlock> SCardBlkList;
 		TSVector <ParentBlock> ParentBlkList; // Список абстрактных блоков, идентифицирующих родительских элементов объектов
 		TSVector <PosNodeBlock> PosBlkList;
@@ -52653,7 +52656,6 @@ private:
 //
 int   EditCmdItem(const PPCommandGroup * pDesktop, PPCommand * pData, /*int isDesktopCommand*/PPCommandGroupCategory kind);
 int   EditName(SString & rName);
-//int   EditMenus(PPCommandGroup * pData, long initID, int isDesktop);
 int   EditCommandGroup(PPCommandGroup * pData, /*long initID*/const S_GUID & rInitUuid, PPCommandGroupCategory kind);
 // @v10.9.3 int   EditMenusFromFile();
 //HMENU PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound);
@@ -52671,7 +52673,8 @@ public:
 	int    Create();
 	void   Destroy();
 	int    DoCommand(TPoint p);
-	int    Move();
+	void   Move_W();
+	void   MoveOnLayout(const FRect & rRect);
 	int    LoadData();
 private:
 	void   Update();
@@ -52729,9 +52732,7 @@ class PPDesktopAssocCmdPool { // @persistent
 public:
 	PPDesktopAssocCmdPool();
 	~PPDesktopAssocCmdPool();
-	void   Init(/*PPID desktopId*/const S_GUID & rUuid);
-	//PPID   GetDesktopID() const;
-	//void   SetDesktopID(PPID id);
+	void   Init(const S_GUID & rUuid);
 	S_GUID GetDesktopUuid() const;
 	void   SetDesktopUuid(const S_GUID & rUuid);
 	uint   GetCount() const;
@@ -52739,7 +52740,7 @@ public:
 	int    GetByCode(const char * pCode, uint * pPos, PPDesktopAssocCmd * pCmd, SString * pResult = 0) const;
 	int    SetItem(uint pos, const PPDesktopAssocCmd * pCmd);
 	int    AddItem(const PPDesktopAssocCmd * pCmd);
-	int    ReadFromProp(/*PPID desktopId*/const S_GUID & rDesktopUuid);
+	int    ReadFromProp(const S_GUID & rDesktopUuid);
 	int    WriteToProp(int use_ta);
 private:
 	struct Item { // @flat
@@ -52789,8 +52790,19 @@ public:
 	int    EditIconName(long id);
 	int    DoCommand(TPoint p);
 	void   ArrangeIcons();
-	PPBizScoreWindow * GetBizScoreWnd();
-	int    CreateBizScoreWnd();
+	void   Layout();
+	//
+	// Descr: Перечисление внутренних сервисных виджетов
+	//
+	enum {
+		svcviewCommand  = 1, // Иконка вызова команды. CreateServiceView && GetServiceView для этого типа не отрабатывает.
+		svcviewBizScore = 2, // Окно бизнес-показателей
+		svcviewEvents   = 3  // @construction Окно событий
+	};
+	int    CreateServiceView(int svcviewId);
+	TWindow * GetServiceView(int svcviewId);
+	// @v11.0.0 replaced with PPDesktop::GetServiceView(int) PPBizScoreWindow * GetBizScoreWnd();
+	// @v11.0.0 replaced with PPDesktop::CreateServiceView(int) int    CreateBizScoreWnd();
 	// @v10.9.0 (inlined) int    LoadBizScoreData();
 	int    Advise();
 	void   Unadvise();

@@ -895,6 +895,14 @@ void LayoutFlexItem::DeleteItem(uint idx)
 	}
 }
 
+void LayoutFlexItem::DeleteAllItems()
+{
+	uint i = GetChildrenCount();
+	if(i) do {
+		DeleteItem(--i);
+	} while(i);
+}
+
 LayoutFlexItem::IndexEntry::IndexEntry() : ItemIdx(0), HglIdx(0)
 {
 }
@@ -1038,7 +1046,7 @@ int LayoutFlexItem::CommitChildResult(const IterIndex & rIndex, uint idxPos, con
 }
 // } @construction 
 
-class LayoutFlex {
+class LayoutFlexProcessor {
 public:
 	static uint DetermineFlags(const LayoutFlexItem * pItem)
 	{
@@ -1052,13 +1060,13 @@ public:
 				flags |= fWrap;
 				if(pItem->ALB.Flags & AbstractLayoutBlock::fContainerWrapReverse)
 					flags |= fReverse2;
-				if(pItem->ALB.AlignContent != AbstractLayoutBlock::alignStart)
+				// @v11.0.0 @experimental if(pItem->ALB.AlignContent != AbstractLayoutBlock::alignStart)
 					flags |= fNeedLines;
 			}
 		}
 		return flags;
 	}
-	LayoutFlex(const LayoutFlexItem * pItem, const LayoutFlexItem::Param & rP) : Flags(DetermineFlags(pItem)),
+	LayoutFlexProcessor(const LayoutFlexItem * pItem, const LayoutFlexItem::Param & rP) : Flags(DetermineFlags(pItem)),
 		SizeDim(0.0f), AlignDim(0.0f), FramePos1i(0), FramePos2i(0), FrameSz1i(0), FrameSz2i(0),
 		ordered_indices(0), LineDim(0.0f), FlexDim(0.0f), ExtraFlexDim(0.0f), FlexGrows(0.0f), FlexShrinks(0.0f),
 		Pos2(0.0f), P(rP)
@@ -1139,7 +1147,7 @@ public:
 		assert(_pos < pContainer->GetChildrenCount());
 		return *pContainer->GetChildC(_pos);
 	}
-	void   ProcessLines(const LayoutFlexItem & rItem);
+	void   ProcessLines(const LayoutFlexItem & rItem, LayoutFlexItem::PagingResult * pPr);
 	// Set during init.
 	enum {
 		fWrap      = 0x0001,
@@ -1193,7 +1201,6 @@ public:
 	const  LayoutFlexItem::Param P;
 };
 
-//static bool layout_align(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed)
 bool LayoutFlexItem::LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const
 {
 	assert(flexDim > 0);
@@ -1279,17 +1286,14 @@ void LayoutFlexItem::UpdateShouldOrderChildren()
 	return (rChild.ALB.AlignSelf == ALB.alignAuto) ? ALB.AlignItems : rChild.ALB.AlignSelf;
 }
 
-//#define CHILD_SIZE_(ptrLayout, child)  child.R.Frame[ptrLayout->frame_size ## _i]
-//#define CHILD_MARGIN_XY_(ptrLayout, child, pnt) (ptrLayout->vertical ? child.ALB.Margin.pnt.X : child.ALB.Margin.pnt.Y)
-//#define CHILD_MARGIN_YX_(ptrLayout, child, pnt) (ptrLayout->vertical ? child.ALB.Margin.pnt.Y : child.ALB.Margin.pnt.X)
-#define CHILD_MARGIN_XY_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlex::fVertical) ? child.ALB.Margin.pnt.X : child.ALB.Margin.pnt.Y)
-#define CHILD_MARGIN_YX_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlex::fVertical) ? child.ALB.Margin.pnt.Y : child.ALB.Margin.pnt.X)
+#define CHILD_MARGIN_XY_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.X : child.ALB.Margin.pnt.Y)
+#define CHILD_MARGIN_YX_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.Y : child.ALB.Margin.pnt.X)
 
-void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout) const
+void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout) const
 {
-	LayoutFlex * p_layout = static_cast<LayoutFlex *>(pLayout);
+	LayoutFlexProcessor * p_layout = static_cast<LayoutFlexProcessor *>(pLayout);
 	assert(childrenCount <= (childEndIdx - childBeginIdx));
-	if(childrenCount > 0) {
+	if(childrenCount) {
 		if(p_layout->FlexDim > 0 && p_layout->ExtraFlexDim > 0) {
 			// If the container has a positive flexible space, let's add to it the sizes of all flexible children.
 			p_layout->FlexDim += p_layout->ExtraFlexDim;
@@ -1300,14 +1304,14 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 		if(p_layout->FlexGrows == 0 && p_layout->FlexDim > 0.0f) {
 			const bool lar = LayoutAlign(ALB.JustifyContent, p_layout->FlexDim, childrenCount, &pos, &spacing, false);
 			assert(lar && "incorrect justify_content");
-			if(p_layout->Flags & LayoutFlex::fReverse)
+			if(p_layout->Flags & LayoutFlexProcessor::fReverse)
 				pos = p_layout->SizeDim - pos;
 		}
-		if(p_layout->Flags & LayoutFlex::fReverse)
-			pos -= (p_layout->Flags & LayoutFlex::fVertical) ? ALB.Padding.b.Y : ALB.Padding.b.X;
+		if(p_layout->Flags & LayoutFlexProcessor::fReverse)
+			pos -= (p_layout->Flags & LayoutFlexProcessor::fVertical) ? ALB.Padding.b.Y : ALB.Padding.b.X;
 		else 
-			pos += (p_layout->Flags & LayoutFlex::fVertical) ? ALB.Padding.a.Y : ALB.Padding.a.X;
-		if((p_layout->Flags & LayoutFlex::fWrap) && (p_layout->Flags & LayoutFlex::fReverse2)) {
+			pos += (p_layout->Flags & LayoutFlexProcessor::fVertical) ? ALB.Padding.a.Y : ALB.Padding.a.X;
+		if((p_layout->Flags & LayoutFlexProcessor::fWrap) && (p_layout->Flags & LayoutFlexProcessor::fReverse2)) {
 			p_layout->Pos2 -= p_layout->LineDim;
 		}
 		for(uint i = childBeginIdx; i < childEndIdx; i++) {
@@ -1355,7 +1359,7 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 				}
 				r_child.R.Frame[p_layout->FramePos2i] = align_pos;
 				// Set the main axis position.
-				if(p_layout->Flags & LayoutFlex::fReverse) {
+				if(p_layout->Flags & LayoutFlexProcessor::fReverse) {
 					pos -= CHILD_MARGIN_YX_(p_layout, r_child, b);
 					pos -= r_child.R.Frame[p_layout->FrameSz1i];
 					r_child.R.Frame[p_layout->FramePos1i] = pos;
@@ -1369,23 +1373,21 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 					pos += spacing;
 					pos += CHILD_MARGIN_YX_(p_layout, r_child, b);
 				}
-				if(r_child.R.Frame[2] == 0.0f && r_child.ALB.SzX == AbstractLayoutBlock::szUndef) {
-					if(r_child.ALB.AspectRatio > 0.0 && r_child.R.Frame[3] > 0.0f) {
+				if(r_child.ALB.AspectRatio > 0.0) {
+					if(r_child.R.Frame[2] == 0.0f && r_child.ALB.SzX == AbstractLayoutBlock::szUndef && r_child.R.Frame[3] > 0.0f) {
 						r_child.R.Frame[2] = r_child.R.Frame[3] / r_child.ALB.AspectRatio;
 					}
-				}
-				if(r_child.R.Frame[3] == 0.0f && r_child.ALB.SzY == AbstractLayoutBlock::szUndef) {
-					if(r_child.ALB.AspectRatio > 0.0 && r_child.R.Frame[2] > 0.0f) {
+					if(r_child.R.Frame[3] == 0.0f && r_child.ALB.SzY == AbstractLayoutBlock::szUndef && r_child.R.Frame[2] > 0.0f) {
 						r_child.R.Frame[3] = r_child.R.Frame[2] * r_child.ALB.AspectRatio;
 					}
 				}
 				r_child.Commit_(); // Now that the item has a frame, we can layout its children.
 			}
 		}
-		if((p_layout->Flags & LayoutFlex::fWrap) && !(p_layout->Flags & LayoutFlex::fReverse2)) {
+		if((p_layout->Flags & LayoutFlexProcessor::fWrap) && !(p_layout->Flags & LayoutFlexProcessor::fReverse2)) {
 			p_layout->Pos2 += p_layout->LineDim;
 		}
-		if(p_layout->Flags & LayoutFlex::fNeedLines) {
+		if(p_layout->Flags & LayoutFlexProcessor::fNeedLines) {
 			p_layout->Lines.Add(childBeginIdx, childEndIdx, p_layout->LineDim);
 		}
 	}
@@ -1406,57 +1408,11 @@ void LayoutFlexItem::Commit_() const
 
 }
 
-void LayoutFlex::ProcessLines(const LayoutFlexItem & rItem)
-{
-	// In wrap mode we may need to tweak the position of each line according to
-	// the align_content property as well as the cross-axis size of items that haven't been set yet.
-	if(Lines.getCount()) {
-		assert(Flags & fNeedLines); // layout_s.Lines.getCount() > 0 может быть только при условии layout_s.need_lines
-		float pos = 0.0f;
-		float spacing = 0.0f;
-		const float flex_dim = AlignDim - Lines.GetTotalSize();
-		if(flex_dim > 0.0f) {
-			const bool lar = rItem.LayoutAlign(rItem.ALB.AlignContent, flex_dim, Lines.getCount(), &pos, &spacing, true);
-			assert(lar && "incorrect align_content");
-		}
-		float old_pos = 0.0f;
-		if(Flags & fReverse2) {
-			pos = AlignDim - pos;
-			old_pos = AlignDim;
-		}
-		for(uint i = 0; i < Lines.getCount(); i++) {
-			const LayoutFlex::Line & r_line = Lines.at(i);
-			if(Flags & fReverse2) {
-				pos -= r_line.Size;
-				pos -= spacing;
-				old_pos -= r_line.Size;
-			}
-			// Re-position the children of this line, honoring any child
-			// alignment previously set within the line.
-			for(uint j = r_line.ChildBeginIdx; j < r_line.ChildEndIdx; j++) {
-				const LayoutFlexItem & r_child = GetChildByIndex(&rItem, j);
-				if(!r_child.ALB.IsPositionAbsolute(AbstractLayoutBlock::GetCrossDirection(rItem.ALB.GetContainerDirection()))) { // Should not be re-positioned.
-					if(fisnanf(r_child.R.Frame[FrameSz2i])) {
-						// If the child's cross axis size hasn't been set it, it defaults to the line size.
-						r_child.R.Frame[FrameSz2i] = r_line.Size + ((rItem.ALB.AlignContent == AbstractLayoutBlock::alignStretch) ? spacing : 0);
-					}
-					r_child.R.Frame[FramePos2i] = pos + (r_child.R.Frame[FramePos2i] - old_pos);
-				}
-			}
-			if(!(Flags & fReverse2)) {
-				pos += r_line.Size;
-				pos += spacing;
-				old_pos += r_line.Size;
-			}
-		}
-	}
-}
-
 void LayoutFlexItem::DoLayout(const Param & rP) const
 {
 	const uint _cc = GetChildrenCount();
 	if(_cc && oneof2(ALB.GetContainerDirection(), DIREC_HORZ, DIREC_VERT)) {
-		LayoutFlex layout_s(this, rP);
+		LayoutFlexProcessor layout_s(this, rP);
 		uint last_layout_child = 0;
 		uint relative_children_count = 0;
 		for(uint i = 0; i < _cc; i++) {
@@ -1479,14 +1435,13 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 				r_child.R.Frame[3] = efsxy.Y;
 				//
 				// Main axis size defaults to 0.
-				// if(fisnanf(CHILD_SIZE_((&layout_s), r_child))) { CHILD_SIZE_((&layout_s), r_child) = 0; }
 				//
 				// Cross axis size defaults to the parent's size (or line size in wrap mode, which is calculated later on).
 				if(fisnan(r_child.R.Frame[layout_s.FrameSz2i])) {
-					if(layout_s.Flags & LayoutFlex::fWrap)
-						layout_s.Flags |= LayoutFlex::fNeedLines;
+					if(layout_s.Flags & LayoutFlexProcessor::fWrap)
+						layout_s.Flags |= LayoutFlexProcessor::fNeedLines;
 					else {
-						const float full_size = ((layout_s.Flags & LayoutFlex::fVertical) ? rP.ForceWidth : rP.ForceHeight);
+						const float full_size = ((layout_s.Flags & LayoutFlexProcessor::fVertical) ? rP.ForceWidth : rP.ForceHeight);
 						r_child.R.Frame[layout_s.FrameSz2i] = full_size - CHILD_MARGIN_XY_((&layout_s), r_child, a) - CHILD_MARGIN_XY_((&layout_s), r_child, b);
 					}
 				}
@@ -1511,7 +1466,7 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 					r_child.R.Frame[layout_s.FrameSz1i] = r_child.ALB.Basis;
 				}
 				const float child_size = r_child.R.Frame[layout_s.FrameSz1i];
-				if(layout_s.Flags & LayoutFlex::fWrap) {
+				if(layout_s.Flags & LayoutFlexProcessor::fWrap) {
 					if(layout_s.FlexDim < child_size) {
 						// Not enough space for this child on this line, layout the remaining items and move it to a new line.
 						DoLayoutChildren(last_layout_child, i, relative_children_count, &layout_s);
@@ -1520,9 +1475,9 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 						relative_children_count = 0;
 					}
 					const float child_size2 = r_child.R.Frame[layout_s.FrameSz2i];
-					if(!fisnanf(child_size2) && child_size2 > layout_s.LineDim) {
+					assert(!fisnanf(child_size2));
+					if(child_size2 > layout_s.LineDim)
 						layout_s.LineDim = child_size2;
-					}
 				}
 				assert(r_child.ALB.GrowFactor >= 0.0f);
 				assert(r_child.ALB.ShrinkFactor >= 0.0f);
@@ -1530,15 +1485,66 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 				layout_s.FlexShrinks += r_child.ALB.ShrinkFactor;
 				layout_s.FlexDim     -= (child_size + (CHILD_MARGIN_YX_((&layout_s), r_child, a) + CHILD_MARGIN_YX_((&layout_s), r_child, b)));
 				relative_children_count++;
-				if(child_size > 0 && r_child.ALB.GrowFactor > 0.0f)
+				if(child_size > 0.0f && r_child.ALB.GrowFactor > 0.0f)
 					layout_s.ExtraFlexDim += child_size;
 			}
 		}
 		// Layout remaining items in wrap mode, or everything otherwise.
 		DoLayoutChildren(last_layout_child, _cc, relative_children_count, &layout_s);
+		//
 		// In wrap mode we may need to tweak the position of each line according to
 		// the align_content property as well as the cross-axis size of items that haven't been set yet.
-		layout_s.ProcessLines(*this);
+		//
+		//layout_s.ProcessLines(*this, 0);
+		//void LayoutFlexProcessor::ProcessLines(const LayoutFlexItem & rItem, LayoutFlexItem::PagingResult * pPr)
+		if(layout_s.Lines.getCount()) {
+			PagingResult pr;
+			//
+			uint  page_no = 1;
+			float last_page_bottom = 0.0f;
+			//
+			pr.LineCount = layout_s.Lines.getCount();
+			assert(layout_s.Flags & LayoutFlexProcessor::fNeedLines); // layout_s.Lines.getCount() > 0 может быть только при условии layout_s.need_lines
+			float pos = 0.0f;
+			float spacing = 0.0f;
+			const float flex_dim = layout_s.AlignDim - layout_s.Lines.GetTotalSize();
+			if(flex_dim > 0.0f) {
+				const bool lar = LayoutAlign(ALB.AlignContent, flex_dim, layout_s.Lines.getCount(), &pos, &spacing, true);
+				assert(lar && "incorrect align_content");
+			}
+			float old_pos = 0.0f;
+			if(layout_s.Flags & LayoutFlexProcessor::fReverse2) {
+				pos = layout_s.AlignDim - pos;
+				old_pos = layout_s.AlignDim;
+			}
+			for(uint i = 0; i < layout_s.Lines.getCount(); i++) {
+				const LayoutFlexProcessor::Line & r_line = layout_s.Lines.at(i);
+				if(layout_s.Flags & LayoutFlexProcessor::fReverse2) {
+					pos -= r_line.Size;
+					pos -= spacing;
+					old_pos -= r_line.Size;
+					if(pos < 0.0f) {
+						
+					}
+				}
+				// Re-position the children of this line, honoring any child alignment previously set within the line.
+				for(uint j = r_line.ChildBeginIdx; j < r_line.ChildEndIdx; j++) {
+					const LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, j);
+					if(!r_child.ALB.IsPositionAbsolute(AbstractLayoutBlock::GetCrossDirection(ALB.GetContainerDirection()))) { // Should not be re-positioned.
+						if(fisnanf(r_child.R.Frame[layout_s.FrameSz2i])) {
+							// If the child's cross axis size hasn't been set it, it defaults to the line size.
+							r_child.R.Frame[layout_s.FrameSz2i] = r_line.Size + ((ALB.AlignContent == AbstractLayoutBlock::alignStretch) ? spacing : 0);
+						}
+						r_child.R.Frame[layout_s.FramePos2i] = pos + (r_child.R.Frame[layout_s.FramePos2i] - old_pos);
+					}
+				}
+				if(!(layout_s.Flags & LayoutFlexProcessor::fReverse2)) {
+					pos += r_line.Size;
+					pos += spacing;
+					old_pos += r_line.Size;
+				}
+			}
+		}
 		{
 			ZFREE(layout_s.ordered_indices);
 			layout_s.Lines.clear();
@@ -1862,7 +1868,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP) // @construction
 		}
 		{
 			LAssocArray item_map; // Карта распределения элементов по областям {itemIdx; area}
-			LayoutFlex layout_s(this, rP);
+			LayoutFlexProcessor layout_s(this, rP);
 			{
 				for(uint cidx = 0; cidx < _cc; cidx++) {
 					const LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, cidx);

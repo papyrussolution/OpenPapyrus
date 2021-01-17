@@ -1097,7 +1097,7 @@ int PPObjGoods::ImportOld(int use_ta)
 					PPID   goods_id = 0, parent_id = 0;
 					char   added_code[32];
 					// @v10.8.5 char   temp_buf[256];
-					SString temp_buf; // @v10.8.5 
+					SString temp_buf; // @v10.8.5
 					char   goods_name[128];
 					char   barcode[32];
 					char   subc[32];
@@ -3283,7 +3283,7 @@ int PrcssrPersonImport::Run()
 		SdRecord dyn_rec;
 		SdbField dyn_fld;
 		THROW(ie.InitDynRec(&dyn_rec));
-		// } @v10.9.1 
+		// } @v10.9.1
 		PPTransaction tra(1);
 		THROW(tra);
 		cntr.Init(numrecs);
@@ -3363,7 +3363,7 @@ int PrcssrPersonImport::Run()
 					}
 				}
 			}
-			// } @v10.9.1 
+			// } @v10.9.1
 			int    do_turn = 1; // Импортированный пакет следует сохранить в БД
 			int    is_office = 0;
 			PPID   psn_id = 0, ps_id = 0;
@@ -3566,7 +3566,7 @@ int PrcssrPersonImport::Run()
 						do_turn = 1;
 					}
 				}
-				// } @v10.9.1 
+				// } @v10.9.1
 				{
 					if((temp_buf = rec.Phone).NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_WORKPHONE, temp_buf);
@@ -3911,8 +3911,7 @@ int ImportSR25()
 				goods_ids_assoc.Add(sr25_id, sw_id, &(pos = 0));
 			}
 		}
-		// @v9.2.4 PPLoadText(PPTXT_GOODS, msg_buf);
-		PPLoadString("ware_pl", msg_buf); // @v9.2.4
+		PPLoadString("ware_pl", msg_buf);
 		logger.Log(msg_buf);
 		PPLoadText(PPTXT_IMPORTEDRECS, temp_buf);
 		logger.Log(msg_buf.Printf(temp_buf, count, goods_arr.getCount()));
@@ -4160,8 +4159,7 @@ int ImportCompGS()
 			PPWaitPercent(goods_comp.GetCounter());
 			total_gds_count++;
 		}
-		// @v9.2.4 PPLoadText(PPTXT_GOODS, buf);
-		PPLoadString("ware_pl", buf); // @v9.2.4
+		PPLoadString("ware_pl", buf);
 		logger.Log(buf);
 		PPLoadText(PPTXT_IMPORTEDRECS, buf);
 		logger.Log(msg.Printf(buf, gds_count, total_gds_count));

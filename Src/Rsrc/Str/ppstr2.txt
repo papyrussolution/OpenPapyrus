@@ -12567,6 +12567,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheckfilt_fwithoutskiptag               "Пропускать неучитываемые чеки"
 @ccheckfilt_fzerosess                     "С неопределенной сессией"
 @ccheckfilt_fnotspfinished                "Без признака специального финиша"
+@ccheckfilt_fwithmarkonly                 "Только с маркированными позициями"
 @ccheckfilt_goods                         "@{ware}"
 @ccheckfilt_goodsgrp                      "@{goodsgroup}"
 @ccheckfilt_grp                           "@{grouping}"
@@ -14628,6 +14629,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tlayout_adjustment_align                 "По ширине"
 @tlayout_flags                            "@{flags}"
 @tlayout_flags_wrap                       "Перенос"
+@tlayout_flags_fcontainerreversedir       "Обратное расположение по основной оси"
+@tlayout_flags_fcontainerwrapreverse      "Обратное расположение по кросс-оси"
+
 @tlayout_parentsymb                       "Символ родительского контейнера"
 @tlayout_sizeline                         "Размеры (ширина, высота)"
 @tlayout_marginline                       "Поля (левое, верхнее, правое, нижнее)"
@@ -16503,6 +16507,7 @@ PPHS_TIMSER_PROP_VOLUME_MAX      "time-series-volume-max"      // максима
 PPHS_TIMSER_PROP_VOLUME_STEP     "time-series-volume-step"     // Минимальный шаг изменения объема для заключения сделки
 PPHS_GETCOMMONMQSCONFIG          "getcommonmqsconfig"          // @v10.5.9
 PPHS_ZIP                         "zip" // @v10.7.5
+PPHS_PREFERRED                   "preferred" // @v11.0.0
 
 #!}
 

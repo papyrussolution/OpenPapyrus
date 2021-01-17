@@ -1,5 +1,5 @@
 // TPROGRAM_EXP.CPP
-// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop

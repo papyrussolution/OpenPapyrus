@@ -40,7 +40,7 @@ static regoff_t re_search_stub(struct re_pattern_buffer * bufp,
     regoff_t range, Idx stop,
     struct re_registers * regs,
     bool ret_len) internal_function;
-static unsigned int re_copy_regs(struct re_registers * regs, regmatch_t * pmatch, Idx nregs, int regs_allocated) internal_function;
+static uint re_copy_regs(struct re_registers * regs, regmatch_t * pmatch, Idx nregs, int regs_allocated) internal_function;
 static reg_errcode_t prune_impossible_nodes(re_match_context_t * mctx) internal_function;
 static Idx check_matching(re_match_context_t * mctx, bool fl_longest_match, Idx * p_match_first) internal_function;
 static Idx check_halt_state_context(const re_match_context_t * mctx, const re_dfastate_t * state, Idx idx) internal_function;
@@ -99,7 +99,7 @@ static bool build_trtable(const re_dfa_t * dfa, re_dfastate_t * state) internal_
 #ifdef RE_ENABLE_I18N
 static int check_node_accept_bytes(const re_dfa_t * dfa, Idx node_idx, const re_string_t * input, Idx idx) internal_function;
 # ifdef _LIBC
-static unsigned int find_collation_sequence_value(const unsigned char * mbs, size_t name_len) internal_function;
+static uint find_collation_sequence_value(const uchar * mbs, size_t name_len) internal_function;
 # endif /* _LIBC */
 #endif /* RE_ENABLE_I18N */
 static Idx group_nodes_into_DFAstates(const re_dfa_t * dfa, const re_dfastate_t * state, re_node_set * states_node, bitset_t * states_ch) internal_function;
@@ -350,7 +350,7 @@ out:
 	return rval;
 }
 
-static unsigned int internal_function re_copy_regs(struct re_registers * regs, regmatch_t * pmatch, Idx nregs, int regs_allocated)
+static uint internal_function re_copy_regs(struct re_registers * regs, regmatch_t * pmatch, Idx nregs, int regs_allocated)
 {
 	int rval = REGS_REALLOCATE;
 	Idx i;
@@ -592,21 +592,18 @@ internal_function __attribute_warn_unused_result__ re_search_internal(const rege
 
 			case 7:
 			    /* Fastmap with single-byte translation, match forward.  */
-			    while(BE(match_first < right_lim, 1)
-				&& !fastmap[t[(unsigned char)string[match_first]]])
+			    while(BE(match_first < right_lim, 1) && !fastmap[t[(uchar)string[match_first]]])
 				    ++match_first;
 			    goto forward_match_found_start_or_reached_end;
 
 			case 6:
 			    /* Fastmap without translation, match forward.  */
-			    while(BE(match_first < right_lim, 1)
-				&& !fastmap[(unsigned char)string[match_first]])
+			    while(BE(match_first < right_lim, 1) && !fastmap[(uchar)string[match_first]])
 				    ++match_first;
 
 forward_match_found_start_or_reached_end:
 			    if(BE(match_first == right_lim, 0)) {
-				    ch = match_first >= length
-					? 0 : (unsigned char)string[match_first];
+				    ch = match_first >= length ? 0 : (uchar)string[match_first];
 				    if(!fastmap[t ? t[ch] : ch])
 					    goto free_return;
 			    }
@@ -617,7 +614,7 @@ forward_match_found_start_or_reached_end:
 			    /* Fastmap without multi-byte translation, match backwards.  */
 			    while(match_first >= left_lim) {
 				    ch = match_first >= length
-					? 0 : (unsigned char)string[match_first];
+					? 0 : (uchar)string[match_first];
 				    if(fastmap[t ? t[ch] : ch])
 					    break;
 				    --match_first;
@@ -869,7 +866,7 @@ static re_dfastate_t * __attribute((always_inline)) internal_function acquire_in
 {
 	const re_dfa_t * const dfa = mctx->dfa;
 	if(dfa->init_state->has_constraint) {
-		unsigned int context;
+		uint context;
 		context = re_string_context_at(&mctx->input, idx - 1, mctx->eflags);
 		if(IS_WORD_CONTEXT(context))
 			return dfa->init_state_word;
@@ -1019,11 +1016,10 @@ internal_function __attribute_warn_unused_result__ check_matching(re_match_conte
 
 /* Check NODE match the current context.  */
 
-static bool
-internal_function check_halt_node_context(const re_dfa_t * dfa, Idx node, unsigned int context)
+static bool internal_function check_halt_node_context(const re_dfa_t * dfa, Idx node, uint context)
 {
 	re_token_type_t type = dfa->nodes[node].type;
-	unsigned int constraint = dfa->nodes[node].constraint;
+	uint constraint = dfa->nodes[node].constraint;
 	if(type != END_OF_RE)
 		return false;
 	if(!constraint)
@@ -1037,12 +1033,10 @@ internal_function check_halt_node_context(const re_dfa_t * dfa, Idx node, unsign
    Return 0 if not match, if the node, STATE has, is a halt node and
    match the context, return the node.  */
 
-static Idx
-internal_function check_halt_state_context(const re_match_context_t * mctx,
-    const re_dfastate_t * state, Idx idx)
+static Idx internal_function check_halt_state_context(const re_match_context_t * mctx, const re_dfastate_t * state, Idx idx)
 {
 	Idx i;
-	unsigned int context;
+	uint context;
 #ifdef DEBUG
 	assert(state->halt);
 #endif
@@ -1976,13 +1970,10 @@ internal_function sift_states_iter_mb(const re_match_context_t * mctx, re_sift_c
    If STATE can accept a multibyte char/collating element/back reference
    update the destination of STATE_LOG.  */
 
-static re_dfastate_t *
-internal_function __attribute_warn_unused_result__ transit_state(reg_errcode_t * err, re_match_context_t * mctx,
-    re_dfastate_t * state)
+static re_dfastate_t * internal_function __attribute_warn_unused_result__ transit_state(reg_errcode_t * err, re_match_context_t * mctx, re_dfastate_t * state)
 {
 	re_dfastate_t ** trtable;
-	unsigned char ch;
-
+	uchar ch;
 #ifdef RE_ENABLE_I18N
 	/* If the current state can accept multibyte.  */
 	if(BE(state->accept_mb, 0)) {
@@ -2008,11 +1999,8 @@ internal_function __attribute_warn_unused_result__ transit_state(reg_errcode_t *
 
 		trtable = state->word_trtable;
 		if(BE(trtable != NULL, 1)) {
-			unsigned int context;
-			context
-				= re_string_context_at(&mctx->input,
-				re_string_cur_idx(&mctx->input) - 1,
-				mctx->eflags);
+			uint context;
+			context = re_string_context_at(&mctx->input, re_string_cur_idx(&mctx->input) - 1, mctx->eflags);
 			if(IS_WORD_CONTEXT(context))
 				return trtable[ch + SBC_MAX];
 			else
@@ -2045,7 +2033,7 @@ internal_function merge_state_with_log(reg_errcode_t * err, re_match_context_t *
 	}
 	else{
 		re_dfastate_t * pstate;
-		unsigned int context;
+		uint context;
 		re_node_set next_nodes, * log_nodes, * table_nodes = NULL;
 		/* If (state_log[cur_idx] != 0), it implies that cur_idx is
 		   the destination of a multibyte char/collating element/
@@ -2160,15 +2148,13 @@ internal_function check_subexp_matching_top(re_match_context_t * mctx, re_node_s
 /* Return the next state to which the current state STATE will transit by
    accepting the current input byte.  */
 
-static re_dfastate_t * transit_state_sb(reg_errcode_t * err, re_match_context_t * mctx,
-    re_dfastate_t * state)
+static re_dfastate_t * transit_state_sb(reg_errcode_t * err, re_match_context_t * mctx, re_dfastate_t * state)
 {
 	const re_dfa_t * const dfa = mctx->dfa;
 	re_node_set next_nodes;
 	re_dfastate_t * next_state;
 	Idx node_cnt, cur_str_idx = re_string_cur_idx(&mctx->input);
-	unsigned int context;
-
+	uint context;
 	*err = re_node_set_alloc(&next_nodes, state->nodes.nelem + 1);
 	if(BE(*err != REG_NOERROR, 0))
 		return NULL;
@@ -2208,18 +2194,13 @@ internal_function transit_state_mb(re_match_context_t * mctx, re_dfastate_t * ps
 		Idx cur_node_idx = pstate->nodes.elems[i];
 		int naccepted;
 		Idx dest_idx;
-		unsigned int context;
+		uint context;
 		re_dfastate_t * dest_state;
-
 		if(!dfa->nodes[cur_node_idx].accept_mb)
 			continue;
-
 		if(dfa->nodes[cur_node_idx].constraint) {
-			context = re_string_context_at(&mctx->input,
-				re_string_cur_idx(&mctx->input),
-				mctx->eflags);
-			if(NOT_SATISFY_NEXT_CONSTRAINT(dfa->nodes[cur_node_idx].constraint,
-			    context))
+			context = re_string_context_at(&mctx->input, re_string_cur_idx(&mctx->input), mctx->eflags);
+			if(NOT_SATISFY_NEXT_CONSTRAINT(dfa->nodes[cur_node_idx].constraint, context))
 				continue;
 		}
 
@@ -2275,17 +2256,14 @@ internal_function transit_state_bkref(re_match_context_t * mctx, const re_node_s
 	for(i = 0; i < nodes->nelem; ++i) {
 		Idx dest_str_idx, prev_nelem, bkc_idx;
 		Idx node_idx = nodes->elems[i];
-		unsigned int context;
+		uint context;
 		const re_token_t * node = dfa->nodes + node_idx;
 		re_node_set * new_dest_nodes;
-
 		/* Check whether `node' is a backreference or not.  */
 		if(node->type != OP_BACK_REF)
 			continue;
-
 		if(node->constraint) {
-			context = re_string_context_at(&mctx->input, cur_str_idx,
-				mctx->eflags);
+			context = re_string_context_at(&mctx->input, cur_str_idx, mctx->eflags);
 			if(NOT_SATISFY_NEXT_CONSTRAINT(node->constraint, context))
 				continue;
 		}
@@ -2563,13 +2541,12 @@ internal_function __attribute_warn_unused_result__ check_arrival(re_match_contex
 {
 	const re_dfa_t * const dfa = mctx->dfa;
 	reg_errcode_t err = REG_NOERROR;
-	Idx subexp_num, backup_cur_idx, str_idx, null_cnt;
+	Idx backup_cur_idx, str_idx, null_cnt;
 	re_dfastate_t * cur_state = NULL;
 	re_node_set * cur_nodes, next_nodes;
 	re_dfastate_t ** backup_state_log;
-	unsigned int context;
-
-	subexp_num = dfa->nodes[top_node].opr.idx;
+	uint context;
+	Idx subexp_num = dfa->nodes[top_node].opr.idx;
 	/* Extend the buffer if we need.  */
 	if(BE(path->alloc < last_str + mctx->max_mb_elem_len + 1, 0)) {
 		re_dfastate_t ** new_array;
@@ -3150,8 +3127,7 @@ static Idx internal_function group_nodes_into_DFAstates(const re_dfa_t * dfa, co
 	for(i = 0; i < cur_nodes->nelem; ++i) {
 		re_token_t * node = &dfa->nodes[cur_nodes->elems[i]];
 		re_token_type_t type = node->type;
-		unsigned int constraint = node->constraint;
-
+		uint constraint = node->constraint;
 		/* Enumerate all single byte character this node can accept.  */
 		if(type == CHARACTER)
 			bitset_set(accepts, node->opr.c);
@@ -3316,7 +3292,7 @@ static int internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx n
 	int char_len, elem_len;
 	Idx i;
 	if(BE(node->type == OP_UTF8_PERIOD, 0)) {
-		unsigned char c = re_string_byte_at(input, str_idx), d;
+		uchar c = re_string_byte_at(input, str_idx), d;
 		if(BE(c < 0xc2, 1))
 			return 0;
 		if(str_idx + 2 > input->len)
@@ -3379,8 +3355,7 @@ static int internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx n
 	if(node->type == COMPLEX_BRACKET) {
 		const re_charset_t * cset = node->opr.mbcset;
 # ifdef _LIBC
-		const unsigned char * pin
-			= ((const unsigned char*)re_string_get_buffer(input) + str_idx);
+		const uchar * pin = ((const uchar*)re_string_get_buffer(input) + str_idx);
 		Idx j;
 		uint32_t nrules;
 # endif /* _LIBC */
@@ -3404,9 +3379,9 @@ static int internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx n
 # ifdef _LIBC
 		nrules = _NL_CURRENT_WORD(LC_COLLATE, _NL_COLLATE_NRULES);
 		if(nrules != 0) {
-			unsigned int in_collseq = 0;
+			uint in_collseq = 0;
 			const int32_t * table, * indirect;
-			const unsigned char * weights, * extra;
+			const uchar * weights, * extra;
 			const char * collseqwc;
 			int32_t idx;
 			/* This #include defines a local function!  */
@@ -3414,9 +3389,9 @@ static int internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx n
 
 			/* match with collating_symbol?  */
 			if(cset->ncoll_syms)
-				extra = (const unsigned char*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_SYMB_EXTRAMB);
+				extra = (const uchar*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_SYMB_EXTRAMB);
 			for(i = 0; i < cset->ncoll_syms; ++i) {
-				const unsigned char * coll_sym = extra + cset->coll_syms[i];
+				const uchar * coll_sym = extra + cset->coll_syms[i];
 				/* Compare the length of input collating element and
 				   the length of current collating element.  */
 				if(*coll_sym != elem_len)
@@ -3448,10 +3423,10 @@ static int internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx n
 				}
 			/* match with equivalence_class?  */
 			if(cset->nequiv_classes) {
-				const unsigned char * cp = pin;
+				const uchar * cp = pin;
 				table = (const int32_t*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_TABLEMB);
-				weights = (const unsigned char*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_WEIGHTMB);
-				extra = (const unsigned char*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_EXTRAMB);
+				weights = (const uchar*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_WEIGHTMB);
+				extra = (const uchar*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_EXTRAMB);
 				indirect = (const int32_t*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_INDIRECTMB);
 				int32_t idx = findidx(&cp);
 				if(idx > 0)
@@ -3485,8 +3460,7 @@ static int internal_function check_node_accept_bytes(const re_dfa_t * dfa, Idx n
 			for(i = 0; i < cset->nranges; ++i) {
 				cmp_buf[0] = cset->range_starts[i];
 				cmp_buf[4] = cset->range_ends[i];
-				if(wcscoll(cmp_buf, cmp_buf + 2) <= 0
-				    && wcscoll(cmp_buf + 2, cmp_buf + 4) <= 0) {
+				if(wcscoll(cmp_buf, cmp_buf + 2) <= 0 && wcscoll(cmp_buf + 2, cmp_buf + 4) <= 0) {
 					match_len = char_len;
 					goto check_node_accept_bytes_match;
 				}
@@ -3506,25 +3480,21 @@ check_node_accept_bytes_match:
 }
 
 # ifdef _LIBC
-static unsigned int internal_function find_collation_sequence_value(const unsigned char * mbs, size_t mbs_len)
+static uint internal_function find_collation_sequence_value(const uchar * mbs, size_t mbs_len)
 {
 	uint32_t nrules = _NL_CURRENT_WORD(LC_COLLATE, _NL_COLLATE_NRULES);
 	if(nrules == 0) {
 		if(mbs_len == 1) {
 			/* No valid character.  Match it as a single byte character.  */
-			const unsigned char * collseq = (const unsigned char*)
-			    _NL_CURRENT(LC_COLLATE, _NL_COLLATE_COLLSEQMB);
+			const uchar * collseq = (const uchar*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_COLLSEQMB);
 			return collseq[mbs[0]];
 		}
 		return UINT_MAX;
 	}
 	else{
 		int32_t idx;
-		const unsigned char * extra = (const unsigned char*)
-		    _NL_CURRENT(LC_COLLATE, _NL_COLLATE_SYMB_EXTRAMB);
-		int32_t extrasize = (const unsigned char*)
-		    _NL_CURRENT(LC_COLLATE, _NL_COLLATE_SYMB_EXTRAMB + 1) - extra;
-
+		const uchar * extra = (const uchar*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_SYMB_EXTRAMB);
+		int32_t extrasize = (const uchar*)_NL_CURRENT(LC_COLLATE, _NL_COLLATE_SYMB_EXTRAMB + 1) - extra;
 		for(idx = 0; idx < extrasize;) {
 			int mbs_cnt;
 			bool found = false;
@@ -3565,7 +3535,7 @@ static unsigned int internal_function find_collation_sequence_value(const unsign
    byte of the INPUT.  */
 static bool internal_function check_node_accept(const re_match_context_t * mctx, const re_token_t * node, Idx idx)
 {
-	unsigned char ch = re_string_byte_at(&mctx->input, idx);
+	uchar ch = re_string_byte_at(&mctx->input, idx);
 	switch(node->type) {
 		case CHARACTER:
 		    if(node->opr.c != ch)
@@ -3591,7 +3561,7 @@ static bool internal_function check_node_accept(const re_match_context_t * mctx,
 	if(node->constraint) {
 		/* The node has constraints.  Check whether the current context
 		   satisfies the constraints.  */
-		unsigned int context = re_string_context_at(&mctx->input, idx, mctx->eflags);
+		uint context = re_string_context_at(&mctx->input, idx, mctx->eflags);
 		if(NOT_SATISFY_NEXT_CONSTRAINT(node->constraint, context))
 			return false;
 	}

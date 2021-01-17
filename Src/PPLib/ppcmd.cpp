@@ -273,7 +273,7 @@ struct _kf_block {
 	int16  Flags;
 };
 
-int PPCommandItem::Write(SBuffer & rBuf, long) const
+int PPCommandItem::Write_Depricated(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
 	_kf_block _kf(this);
@@ -285,7 +285,7 @@ int PPCommandItem::Write(SBuffer & rBuf, long) const
 	return ok;
 }
 
-int PPCommandItem::Read(SBuffer & rBuf, long)
+int PPCommandItem::Read_Depricated(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	_kf_block _kf(0);
@@ -405,10 +405,10 @@ PPCommandItem * PPCommand::Dup() const
 	return p_item;
 }
 
-int PPCommand::Write(SBuffer & rBuf, long extraParam) const
+int PPCommand::Write_Depricated(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
-	THROW(PPCommandItem::Write(rBuf, extraParam));
+	THROW(PPCommandItem::Write_Depricated(rBuf, extraParam));
 	THROW_SL(rBuf.Write(CmdID));
 	//
 	// @v9.0.11 Поля X и Y заменены на TPoint
@@ -430,10 +430,10 @@ int PPCommand::Write(SBuffer & rBuf, long extraParam) const
 	return ok;
 }
 
-int PPCommand::Read(SBuffer & rBuf, const long extraParam)
+int PPCommand::Read_Depricated(SBuffer & rBuf, const long extraParam)
 {
 	int    ok = 1;
-	THROW(PPCommandItem::Read(rBuf, extraParam));
+	THROW(PPCommandItem::Read_Depricated(rBuf, extraParam));
 	THROW(rBuf.Read(CmdID));
 	THROW(rBuf.Read(&P, sizeof(P))); // @v9.0.11 see comment in PPCommand::Write
 	THROW(rBuf.Read(Reserve, sizeof(Reserve)));
@@ -592,46 +592,46 @@ const PPCommandItem * PPCommandFolder::Next(uint * pPos) const
 		return 0;
 }
 
-int PPCommandFolder::Write(SBuffer & rBuf, long extraParam) const
+int PPCommandFolder::Write_Depricated(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
 	uint16 c = 0, i;
-	THROW(PPCommandItem::Write(rBuf, extraParam));
+	THROW(PPCommandItem::Write_Depricated(rBuf, extraParam));
 	c = List.getCount();
 	THROW_SL(rBuf.Write(&c, sizeof(c)));
 	for(i = 0; i < c; i++)
-		THROW(List.at(i)->Write(rBuf, extraParam));
+		THROW(List.at(i)->Write_Depricated(rBuf, extraParam));
 	CATCHZOK
 	return ok;
 }
 
-int PPCommandFolder::Read(SBuffer & rBuf, long extraParam)
+int PPCommandFolder::Read_Depricated(SBuffer & rBuf, long extraParam)
 {
 	int    ok = 1;
 	uint16 c = 0, i;
-	THROW(PPCommandItem::Read(rBuf, extraParam));
+	THROW(PPCommandItem::Read_Depricated(rBuf, extraParam));
 	THROW_SL(rBuf.Read(&c, sizeof(c)));
 	for(i = 0; i < c; i++) {
 		PPCommandItem * ptr = 0;
 		size_t offs = rBuf.GetRdOffs();
 		PPCommandItem item;
-		THROW(item.Read(rBuf, extraParam));
+		THROW(item.Read_Depricated(rBuf, extraParam));
 		rBuf.SetRdOffs(offs);
 		if(item.Kind == PPCommandItem::kCommand) {
 			ptr = new PPCommand;
-			static_cast<PPCommand *>(ptr)->Read(rBuf, extraParam);
+			static_cast<PPCommand *>(ptr)->Read_Depricated(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kFolder) {
 			ptr = new PPCommandFolder;
-			static_cast<PPCommandFolder *>(ptr)->Read(rBuf, extraParam);
+			static_cast<PPCommandFolder *>(ptr)->Read_Depricated(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kGroup) {
 			ptr = new PPCommandGroup;
-			static_cast<PPCommandGroup *>(ptr)->Read(rBuf, extraParam);
+			static_cast<PPCommandGroup *>(ptr)->Read_Depricated(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kSeparator) {
 			ptr = new PPCommandItem;
-			static_cast<PPCommandItem *>(ptr)->Read(rBuf, extraParam);
+			static_cast<PPCommandItem *>(ptr)->Read_Depricated(rBuf, extraParam);
 		}
 		THROW_SL(List.insert(ptr));
 	}
@@ -1388,10 +1388,10 @@ PPCommandItem * PPCommandGroup::Dup() const
 	return p_item;
 }
 
-int PPCommandGroup::Write(SBuffer & rBuf, long extraParam) const
+int PPCommandGroup::Write_Depricated(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
-	THROW(PPCommandFolder::Write(rBuf, extraParam));
+	THROW(PPCommandFolder::Write_Depricated(rBuf, extraParam));
 	THROW_SL(rBuf.Write(DbSymb));
 	if(Flags & (fBkgndImage|fBkgndImageLoaded)) {
 		SString buf, dir;
@@ -1413,15 +1413,15 @@ int PPCommandGroup::Write(SBuffer & rBuf, long extraParam) const
 	return ok;
 }
 
-int PPCommandGroup::Read(SBuffer & rBuf, long extraParam)
+int PPCommandGroup::Read_Depricated(SBuffer & rBuf, long extraParam)
 {
 	int    ok = 1;
-	THROW(PPCommandFolder::Read(rBuf, extraParam));
+	THROW(PPCommandFolder::Read_Depricated(rBuf, extraParam));
 	THROW_SL(rBuf.Read(DbSymb));
-// @erik v10.6.6 {
+	// @erik v10.6.6 {
 	if(Uuid.IsZero())
 		Uuid.Generate();
-// } @erik
+	// } @erik
 	if(Flags & fBkgndImage) {
 		PROFILE_START
 		SString buf, dir;
@@ -1737,7 +1737,7 @@ int PPCommandMngr::IsValid_() const
 	return ok;
 }*/
 
-int PPCommandMngr::Load_Obsolete(PPCommandGroup * pCmdGrp)
+int PPCommandMngr::Load_Depricated(PPCommandGroup * pCmdGrp)
 {
 	int    ok = 1;
 	if(!(CtrFlags & ctrfSkipObsolete)) {
@@ -1755,7 +1755,7 @@ int PPCommandMngr::Load_Obsolete(PPCommandGroup * pCmdGrp)
 			THROW_PP_S(hdr.Signature==PPCS_SIGNATURE, PPERR_CMDFILSIGN, F_Obsolete.GetName());
 			THROW_PP_S(hdr.Crc==crc, PPERR_CMDFILCRC, F_Obsolete.GetName());
 			THROW_SL(F_Obsolete.Read(buf));
-			THROW(pCmdGrp->Read(buf, 0));
+			THROW(pCmdGrp->Read_Depricated(buf, 0));
 		}
 	}
 	else
@@ -1850,7 +1850,7 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 					int64  fsz = 0;
 					if(F_Obsolete.CalcSize(&fsz)) {
 						if(fsz > 0) {
-							THROW(Load_Obsolete(&cg_from_bin));
+							THROW(Load_Depricated(&cg_from_bin));
 							const uint c = cg_from_bin.List.getCount();
 							PPCommandGroup cg_pool;
 							for(uint i = 0; i < c; i++) {
@@ -1935,7 +1935,7 @@ int PPCommandMngr::SaveFromAllTo(const long rwFlag)
 	PPCommandGroup cg_from_bin;
 	PPCommandGroup cg_final;
 	const PPCommandItem * p_item = 0;
-	THROW(Load_Obsolete(&cg_from_bin));
+	THROW(Load_Depricated(&cg_from_bin));
 	THROW(Load__2(&cg_from_xml, 0, PPCommandMngr::fRWByXml));
 	for(uint i = 0; p_item = cg_from_xml.Next(&i);) {
 		if(cg_final.Add(-1, p_item) > 0) {

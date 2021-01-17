@@ -4930,9 +4930,13 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_SIGNAL01                        32954
 #define PPDV_DESKTOP                         32955
 #define PPDV_MENU                            32956
-#define PPDV_LOGOPAPYRUS                     32957
-#define PPDV_LOGOUDS                         32958
-#define PPDV_LOGOVK                          32959
-#define PPDV_LOGOVETIS                       32960
-#define PPDV_LOGOCHZN                        32961
+#define PPDV_PERCENT                         32957
+#define PPDV_WARESINGLE01                    32958
+#define PPDV_WAREMULTI01                     32959
+#define PPDV_GOODSGROUPVIEW01                32960
+#define PPDV_LOGOPAPYRUS                     32961
+#define PPDV_LOGOUDS                         32962
+#define PPDV_LOGOVK                          32963
+#define PPDV_LOGOVETIS                       32964
+#define PPDV_LOGOCHZN                        32965
 

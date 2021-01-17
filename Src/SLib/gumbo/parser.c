@@ -1084,7 +1084,7 @@ static GumboNode* insert_foreign_element(GumboParser * parser, GumboToken* token
 	return element;
 }
 
-static void insert_text_token(GumboParser * parser, GumboToken * token) 
+static void FASTCALL insert_text_token(GumboParser * parser, GumboToken * token) 
 {
 	assert(oneof4(token->type, GUMBO_TOKEN_WHITESPACE, GUMBO_TOKEN_CHARACTER, GUMBO_TOKEN_NULL, GUMBO_TOKEN_CDATA));
 	TextNodeBufferState * buffer_state = &parser->_parser_state->_text_node;

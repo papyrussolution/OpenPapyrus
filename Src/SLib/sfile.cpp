@@ -1625,9 +1625,7 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 	if(T == tStdFile) {
 		THROW_S(F, SLERR_FILENOTOPENED);
 		{
-			// @v9.9.5 STempBuffer temp_buf(1024);
-			// @v9.9.5 THROW(temp_buf.IsValid());
-			THROW(LB.Alloc(1024)); // @v9.9.5
+			THROW(LB.Alloc(1024));
 			//
 			// Ќа случай, если строка в файле длиннее, чем buf_size
 			// считываем ее в цикле до тех пор, пока в конце строки не по€витс€ //

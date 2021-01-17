@@ -800,7 +800,7 @@ int GoodsRestWPrgnFltDlg::getDTS(GoodsRestFilt * pFilt)
 	THROW_PP(!Filt.PrgnPeriod.IsZero(), PPERR_PRGNPRDNEEDED);
 	GetClusterData(CTL_GRWPRGNFLT_FLAGS, &Filt.Flags);
 	getCtrlData(CTL_GRWPRGNFLT_EXHTERM, &Filt.ExhaustTerm);
-	Filt.Flags2 |= GoodsRestFilt::f2CalcPrognosis; // @v9.5.8 CalcPrognosis-->Flags2
+	Filt.Flags2 |= GoodsRestFilt::f2CalcPrognosis;
 	ok = 1;
 	ASSIGN_PTR(pFilt, Filt);
 	CATCHZOKPPERRBYDLG
@@ -812,7 +812,7 @@ int PPViewGoodsRest::EditBaseFilt(PPBaseFilt * pFilt)
 	if(!Filt.IsA(pFilt))
 		return 0;
 	GoodsRestFilt * p_filt = static_cast<GoodsRestFilt *>(pFilt);
-	if(p_filt->Flags2 & GoodsRestFilt::f2CalcPrognosis) { // @v9.5.8 CalcPrognosis-->Flags2
+	if(p_filt->Flags2 & GoodsRestFilt::f2CalcPrognosis) {
 		DIALOG_PROC_BODY(GoodsRestWPrgnFltDlg, p_filt);
 	}
 	else {
@@ -3324,17 +3324,15 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 		}
 		{
 			int    _col = 1;
-			if(!(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) && Filt.Flags & GoodsRestFilt::fEachLocation) { // @v9.5.8 CalcPrognosis-->Flags2
-				// @v9.0.2 pBrw->InsColumnWord(1, PPWORD_WAREHOUSE, 25, 0, 0, 0);
-				pBrw->InsColumn(_col++, "@warehouse", 25, 0, 0, 0); // @v9.0.2
-			}
+			if(Filt.Flags & GoodsRestFilt::fBarCode) // @v11.0.0
+				pBrw->InsColumn(_col++, "@barcode", 4, 0, 0, 0);
+			if(!(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) && Filt.Flags & GoodsRestFilt::fEachLocation)
+				pBrw->InsColumn(_col++, "@warehouse", 25, 0, 0, 0);
 			if(Filt.DiffParam & GoodsRestParam::_diffSerial || (Filt.DiffParam & GoodsRestParam::_diffLotTag && Filt.DiffLotTagID))
 				pBrw->InsColumn(_col++, "@serial", 26, 0, 0, 0);
-			// @v9.7.11 {
 			if(Filt.DiffParam & GoodsRestParam::_diffExpiry) {
 				pBrw->InsColumn(_col++, "@expirationdate", 30, 0, 0, 0);
 			}
-			// } @v9.7.11
 		}
 		if(Filt.ExtViewFlags & GoodsRestFilt::evfShowLastSaleDate)
 			pBrw->InsColumn(-1, "@lastselldate", 29, 0, MKSFMT(0, DATF_DMY|ALIGN_RIGHT), 0);
@@ -3368,7 +3366,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 	DBE  * dbe_rest_total = 0;
 	if(P_Ct == 0) {
 		THROW_MEM(tbl = new TempGoodsRestTbl(P_Tbl->GetName()));
-		if(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) { // @v9.5.8 CalcPrognosis-->Flags2
+		if(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) {
 			if(Filt.Flags & (GoodsRestFilt::fCalcOrder | GoodsRestFilt::fNoZeroOrderOnly))
 				brw_id = BROWSER_GOODSRESTORDER_PRGN;
 			else
@@ -3376,13 +3374,17 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 		}
 		else {
 			if(Filt.Flags & (GoodsRestFilt::fCalcOrder | GoodsRestFilt::fNoZeroOrderOnly))
-				if(Filt.Flags & GoodsRestFilt::fBarCode)
-					brw_id = BROWSER_BCGDSRESTORDER;
+				if(Filt.Flags & GoodsRestFilt::fBarCode) {
+					// @v11.0.0 brw_id = BROWSER_BCGDSRESTORDER;
+					brw_id = BROWSER_GOODSRESTORDER; // @v11.0.0 
+				}
 				else
 					brw_id = BROWSER_GOODSRESTORDER;
 			else
-				if(Filt.Flags & GoodsRestFilt::fBarCode)
-					brw_id = BROWSER_BCGDSREST;
+				if(Filt.Flags & GoodsRestFilt::fBarCode) {
+					// @v11.0.0 brw_id = BROWSER_BCGDSREST;
+					brw_id = BROWSER_GOODSREST; // @v11.0.0 
+				}
 				else if(DS.CheckExtFlag(ECF_GOODSRESTPACK))
 					brw_id = BROWSER_GOODSREST_UPP;
 				else
@@ -3399,7 +3401,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 		q->addField(tbl->GoodsName);      //  #3
 		{
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_barcode, tbl->BarcodeSP, &StrPool);
-			q->addField(/*tbl->BarCode*/dbe_barcode); //  #4 // @v9.8.3 tbl->BarCode-->dbe_barcode
+			q->addField(/*tbl->BarCode*/dbe_barcode); //  #4
 		}
 		q->addField(tbl->Quantity);       //  #5
 		q->addField(tbl->PhQtty);         //  #6

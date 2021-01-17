@@ -491,18 +491,12 @@ int TProgram::GetClientRect(RECT * pClientRC)
 			rc_toolbar.bottom -= rc_toolbar.top;
 			rc_toolbar.right  -= rc_toolbar.left;
 			switch(P_Toolbar->GetCurrPos()) {
-				case TOOLBAR_ON_TOP:
-					pClientRC->top += rc_toolbar.bottom;
+				case TOOLBAR_ON_TOP: pClientRC->top += rc_toolbar.bottom;
 					// @fallthrough
-				case TOOLBAR_ON_BOTTOM:
-					pClientRC->bottom -= rc_toolbar.bottom;
-					break;
-				case TOOLBAR_ON_LEFT:
-					pClientRC->left += rc_toolbar.right;
+				case TOOLBAR_ON_BOTTOM: pClientRC->bottom -= rc_toolbar.bottom; break;
+				case TOOLBAR_ON_LEFT: pClientRC->left += rc_toolbar.right;
 					// @fallthrough
-				case TOOLBAR_ON_RIGHT:
-					pClientRC->right -= rc_toolbar.right;
-					break;
+				case TOOLBAR_ON_RIGHT: pClientRC->right -= rc_toolbar.right; break;
 			}
 		}
 		ok = 1;
@@ -662,10 +656,12 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 {
 	int    is_desktop = 0;
 	HWND   h_close_wnd = APPL->H_CloseWnd;
+	HWND   h_tree_wnd = APPL->P_TreeWnd ? APPL->P_TreeWnd->Hwnd : 0; // @v11.0.0
 	{
 		HWND hwnd_tw = GetTopWindow(hWnd);
-		if(hwnd_tw == h_close_wnd)
+		while(hwnd_tw && oneof2(hwnd_tw, h_close_wnd, h_tree_wnd))
 			hwnd_tw = GetNextWindow(hwnd_tw, GW_HWNDNEXT);
+		//if(hwnd_tw == h_close_wnd) hwnd_tw = GetNextWindow(hwnd_tw, GW_HWNDNEXT);
 		is_desktop = BIN(hwnd_tw == APPL->H_Desktop);
 	}
 	switch(message) {
@@ -674,7 +670,7 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				HWND hW = GetTopWindow(hWnd);
 				HWND hWt = hW;
 				while(hW) {
-					if(hW != h_close_wnd)
+					if(!oneof2(hW, h_close_wnd, h_tree_wnd))
 						::MoveWindow(hW, 0, 0, LOWORD(lParam)-16, HIWORD(lParam), 0);
 					else {
 						::ShowWindow(hW, SW_HIDE);
@@ -683,8 +679,9 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 					}
 					hW = ::GetNextWindow(hW, GW_HWNDNEXT);
 				}
-				if(hWt == h_close_wnd)
+				while(hWt && oneof2(hWt, h_close_wnd, h_tree_wnd))
 					hWt = ::GetNextWindow(hWt, GW_HWNDNEXT);
+				//if(hWt == h_close_wnd) hWt = ::GetNextWindow(hWt, GW_HWNDNEXT);
 				if(hWt) {
 					::SetWindowPos(hWt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 					::SendMessage(hWnd, WM_USER, 0, 0);
@@ -694,8 +691,9 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		case WM_USER_NOTIFYBRWFRAME:
 			{
 				HWND   hb = ::GetTopWindow(hWnd);
-				if(hb == h_close_wnd)
+				while(hb && oneof2(hb, h_close_wnd, h_tree_wnd))
 					hb = ::GetNextWindow(hb, GW_HWNDNEXT);
+				//if(hb == h_close_wnd) hb = ::GetNextWindow(hb, GW_HWNDNEXT);
 				SString main_text_buf;
 				TView::SGetWindowText(APPL->H_MainWnd, main_text_buf);
 				size_t div_pos = 0;
@@ -718,7 +716,8 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		case WM_USER_CLOSEBROWSER:
 			{
 				HWND hb = GetTopWindow(hWnd);
-				if(hb == h_close_wnd)
+				//if(hb == h_close_wnd) hb = GetNextWindow(hb, GW_HWNDNEXT);
+				while(hb && oneof2(hb, h_close_wnd, h_tree_wnd))
 					hb = GetNextWindow(hb, GW_HWNDNEXT);
 				if(hb && !is_desktop)
 					DestroyWindow(hb);
@@ -814,8 +813,8 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 			p_pgm->SetupTreeWnd(GetMenu(hWnd), TVI_ROOT);
 			CALLPTRMEMB(p_pgm->P_Toolbar, Init(TOOLBAR_MAIN, TV_GLBTOOLBAR));
 			CALLPTRMEMB(p_pgm->P_TreeWnd, Show(1));
-			PostMessage(hWnd, WM_COMMAND, cmShowTree, 0);
-			PostMessage(hWnd, WM_SIZE, 0, 0);
+			::PostMessage(hWnd, WM_COMMAND, cmShowTree, 0);
+			::PostMessage(hWnd, WM_SIZE, 0, 0);
 			break;
 		case WM_COMMAND:
 			{
@@ -1241,7 +1240,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 						SString font_face;
 						RECT title_rect;
 						HDC hdc = 0;
-						TView::SGetWindowText(hWnd, title_buf); // @v9.1.5
+						TView::SGetWindowText(hWnd, title_buf);
 						title_rect.top = -e.CaptionHeight;
 						title_rect.left    = 10;
 						title_rect.right   = r.right - r.left - 50;

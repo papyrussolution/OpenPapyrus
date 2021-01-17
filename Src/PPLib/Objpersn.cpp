@@ -3769,7 +3769,7 @@ public:
 	{
 		if(!PsnObj.RegObj.CheckRights(PPR_READ))
 			enableCommand(cmPersonReg, 0);
-		if(!PsnObj.RegObj.CheckRights(PPR_READ)) // @v9.0.4 BaObj-->RegObj
+		if(!PsnObj.RegObj.CheckRights(PPR_READ))
 			enableCommand(cmPersonBAcct, 0);
 		CashiersPsnKindID = GetCashiersPsnKindID();
 		PPObjSecur obj_secur(PPOBJ_USR, 0);
@@ -4138,7 +4138,8 @@ IMPL_HANDLE_EVENT(ShortPersonDialog)
 		if(getDTS(&fdata)) {
 			PersonDialog * fdlg = new PersonDialog(DLG_PERSON);
 			if(CheckDialogPtrErr(&fdlg)) {
-				int    r = 1, valid_data = 0;
+				int    r = 1;
+				int    valid_data = 0;
 				fdlg->setDTS(&fdata);
 				fdlg->ToCascade();
 				while(!valid_data && (r = ExecView(fdlg)) == cmOK) {
