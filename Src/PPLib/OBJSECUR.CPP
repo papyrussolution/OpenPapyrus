@@ -239,22 +239,29 @@ int PPObjSecur::GetPrivateDesktop(PPID userID, S_GUID & rDesktopUuid)
 		SString desk_name;
 		Reference::GetExField(&cfgp_rec, PCFGEXSTR_DESKTOPNAME, desk_name);
 		desktop_uuid.Z();
-		if(desk_name.Len()) {
+		if(!!cfg_rec.DesktopUuid || desk_name.NotEmptyS()) {
 			SString def_desk_name;
 			SString db_symb;
 			const PPCommandItem * p_item = 0;
 			PPCommandGroup desktop_list;
-			PPCommandGroup desktop_list_from_bin;
-			PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcDesktop, 0);// @erik v10.6.7
+			// @v11.0.0 PPCommandGroup desktop_list_from_bin;
+			// @v11.0.0 PPCommandMngr::ctrfSkipObsolete
+			PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly|PPCommandMngr::ctrfSkipObsolete, cmdgrpcDesktop, 0); // @erik v10.6.7
 			if(p_mgr) {
 				CurDict->GetDbSymb(db_symb);
 				// @erik v10.6.7 {
 				p_mgr->Load__2(&desktop_list, db_symb, PPCommandMngr::fRWByXml);
-				p_item = desktop_list.SearchByName(desk_name, db_symb, 0);
-				if(!p_item) {
+				if(!!cfg_rec.DesktopUuid) {
+					p_item = desktop_list.SearchByUuid(cfg_rec.DesktopUuid, 0);
+				}
+				else {
+					assert(desk_name.NotEmpty());
+					p_item = desktop_list.SearchByName(desk_name, db_symb, 0);
+				}
+				/* @v11.0.0 if(!p_item) {
 					p_mgr->Load_Depricated(&desktop_list_from_bin);
 					p_item = desktop_list_from_bin.SearchByName(desk_name, db_symb, 0);
-				}
+				}*/
 				// } @erik
 				if(p_item && p_item->Kind == PPCommandItem::kGroup)
 					desktop_uuid = static_cast<const PPCommandGroup *>(p_item)->Uuid;

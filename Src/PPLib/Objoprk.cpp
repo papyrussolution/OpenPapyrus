@@ -1,5 +1,5 @@
 // OBJOPRK.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1692,9 +1692,15 @@ int OprKindDialog::getDTS(PPOprKindPacket * /*_data*/)
 	getCtrlData(CTLSEL_OPRKIND_ACCSHEET,   &P_Data->Rec.AccSheetID);
 	getCtrlData(CTLSEL_OPRKIND_ACCSHEET2,  &P_Data->Rec.AccSheet2ID);
 	getCtrlData(CTLSEL_OPRKIND_LINK,       &P_Data->Rec.LinkOpID);
+	// @v11.0.0 {
+	if(P_Data->Rec.LinkOpID) {
+		GetOpName(P_Data->Rec.LinkOpID, temp_buf);
+		THROW_PP_S(P_Data->Rec.LinkOpID != P_Data->Rec.ID, PPERR_OPRLINKRECUR, temp_buf);
+	}
+	// } @v11.0.0 
 	getCtrlData(CTLSEL_OPRKIND_INITST,     &P_Data->Rec.InitStatusID);
 	THROW_PP(P_Data->Rec.OpTypeID, PPERR_OPRTYPENEEDED);
-	if(oneof3(P_Data->Rec.OpTypeID, PPOPT_PAYMENT, PPOPT_GOODSRETURN, PPOPT_CORRECTION)) // @v7.8.10 PPOPT_CORRECTION
+	if(oneof3(P_Data->Rec.OpTypeID, PPOPT_PAYMENT, PPOPT_GOODSRETURN, PPOPT_CORRECTION))
 		THROW_PP((sel = CTL_OPRKIND_LINK, P_Data->Rec.LinkOpID), PPERR_OPRLINKNEEDED);
 	getCtrlData(CTL_OPRKIND_PAYMF, &(v = 0));
 	SETFLAG(P_Data->Rec.Flags, OPKF_RECKON, (v & 1));

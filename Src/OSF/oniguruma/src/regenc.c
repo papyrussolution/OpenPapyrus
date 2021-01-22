@@ -499,7 +499,7 @@ extern int onigenc_ascii_apply_all_case_fold(OnigCaseFoldType flag ARG_UNUSED, O
 	return 0;
 }
 
-extern int onigenc_ascii_get_case_fold_codes_by_str(OnigCaseFoldType flag ARG_UNUSED, const OnigUChar * p, const OnigUChar * end ARG_UNUSED, OnigCaseFoldCodeItem items[])
+extern int onigenc_ascii_get_case_fold_codes_by_str(OnigCaseFoldType flag ARG_UNUSED, const uchar * p, const uchar * end ARG_UNUSED, OnigCaseFoldCodeItem items[])
 {
 	if(0x41 <= *p && *p <= 0x5a) {
 		items[0].byte_len = 1;
@@ -548,10 +548,10 @@ extern int onigenc_apply_all_case_fold_with_map(int map_size, const OnigPairCase
 extern int onigenc_get_case_fold_codes_by_str_with_map(int map_size,
     const OnigPairCaseFoldCodes map[],
     int ess_tsett_flag, OnigCaseFoldType flag,
-    const OnigUChar * p, const OnigUChar * end, OnigCaseFoldCodeItem items[])
+    const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[])
 {
 	int i, j, n;
-	static OnigUChar sa[] = { LARGE_S, SMALL_S };
+	static uchar sa[] = { LARGE_S, SMALL_S };
 	if(0x41 <= *p && *p <= 0x5a) { /* A - Z */
 		if(*p == LARGE_S && ess_tsett_flag != 0 && end > p + 1
 		    && (*(p+1) == LARGE_S || *(p+1) == SMALL_S) /* SS */

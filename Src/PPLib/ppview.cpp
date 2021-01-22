@@ -1734,8 +1734,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 			if(pW->ChangeResource(brw_id, p_array, 1) == 2) {
 				if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
 					PreprocessBrowser(pW);
-					if(ExtToolbarId)
-						pW->LoadToolbar(ExtToolbarId);
+					pW->LoadToolbarResource(ExtToolbarId);
 				}
 				OnExecBrowser(pW);
 				ok = 2;
@@ -1760,8 +1759,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 							if(!(ImplementFlags & implDontSetupCtColumnsOnChgFilt))
 								P_Ct->SetupBrowserCtColumns(pW);
 							PreprocessBrowser(pW);
-							if(ExtToolbarId)
-								pW->LoadToolbar(ExtToolbarId);
+							pW->LoadToolbarResource(ExtToolbarId);
 						}
 						else
 							P_Ct->SetupBrowserCtColumns(pW);
@@ -1779,8 +1777,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 				if(pW->ChangeResource(brw_id, p_q, 1/*force*/) == 2) {
 					if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
 						PreprocessBrowser(pW);
-						if(ExtToolbarId)
-							pW->LoadToolbar(ExtToolbarId);
+						pW->LoadToolbarResource(ExtToolbarId);
 					}
 					OnExecBrowser(pW);
 					ok = 2;
@@ -1871,8 +1868,7 @@ int PPView::Browse(int modeless)
 	else
 		brw->setSubTitle(sub_title);
 	PreprocessBrowser(brw);
-	if(ExtToolbarId)
-		brw->LoadToolbar(ExtToolbarId);
+	brw->LoadToolbarResource(ExtToolbarId);
 	PPWait(0);
 	// { Почти повторяет код PPOpenBrowser() за исключением вызова OnExecBrowser
 	if(modeless) {

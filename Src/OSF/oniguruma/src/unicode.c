@@ -272,7 +272,7 @@ extern int onigenc_unicode_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyA
 }
 
 extern int onigenc_unicode_get_case_fold_codes_by_str(OnigEncoding enc,
-    OnigCaseFoldType flag, const OnigUChar * p, const OnigUChar * end,
+    OnigCaseFoldType flag, const uchar * p, const uchar * end,
     OnigCaseFoldCodeItem items[])
 {
 	int n, m, i, j, k, len, lens[3];

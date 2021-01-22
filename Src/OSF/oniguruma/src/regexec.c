@@ -1110,11 +1110,11 @@ struct OnigCalloutArgsStruct {
 	int name_id;          /* name id or ONIG_NON_NAME_ID */
 	int num;
 	OnigRegex regex;
-	const OnigUChar * string;
-	const OnigUChar * string_end;
-	const OnigUChar * start;
-	const OnigUChar * right_range;
-	const OnigUChar * current; /* current matching position */
+	const uchar * string;
+	const uchar * string_end;
+	const uchar * start;
+	const uchar * right_range;
+	const uchar * current; /* current matching position */
 	ulong retry_in_match_counter;
 	/* invisible to users */
 	MatchArg*   msa;
@@ -3110,7 +3110,7 @@ cclass_mb:
 			ss = s;
 			s += mb_len;
 			code = ONIGENC_MBC_TO_CODE(encode, ss, s);
-			if(!onig_is_in_code_range((const OnigUChar *)p->cclass_mb.mb, code)) goto fail;
+			if(!onig_is_in_code_range((const uchar *)p->cclass_mb.mb, code)) goto fail;
 		}
 		INC_OP;
 		JUMP_OUT_WITH_SPREV_SET;
@@ -3156,7 +3156,7 @@ cclass_mb_not:
 			ss = s;
 			s += mb_len;
 			code = ONIGENC_MBC_TO_CODE(encode, ss, s);
-			if(onig_is_in_code_range((const OnigUChar *)p->cclass_mb.mb, code)) goto fail;
+			if(onig_is_in_code_range((const uchar *)p->cclass_mb.mb, code)) goto fail;
 		}
 
 cc_mb_not_success:

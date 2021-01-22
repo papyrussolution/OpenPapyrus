@@ -69,9 +69,9 @@ private:
 	static LRESULT CALLBACK ScintillaWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw);
 	int    WMHCreate();
-	int    LoadToolbar(uint tbId);
+	// @v11.0.0 (replaced with TWindow::LoadToolbarResource) int    LoadToolbar(uint tbId);
 	HWND   GetSciWnd() const { return HwndSci; }
-	int    Resize();
+	void   Resize();
 
 	static LPCTSTR WndClsName; // @global
 	enum {
@@ -208,7 +208,7 @@ int LogListWindowSCI::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw
 	return ok;
 }
 
-int LogListWindowSCI::LoadToolbar(uint tbId)
+/* @v11.0.0 (replaced with TWindow::LoadToolbarResource) int LogListWindowSCI::LoadToolbar(uint tbId)
 {
 	TVRez & rez = *P_SlRez;
 	ToolbarList tb_list;
@@ -216,7 +216,7 @@ int LogListWindowSCI::LoadToolbar(uint tbId)
 	if(r > 0)
 		setupToolbar(&tb_list);
 	return r;
-}
+}*/
 
 int LogListWindowSCI::WMHCreate()
 {
@@ -224,7 +224,7 @@ int LogListWindowSCI::WMHCreate()
 	uint   toolbar_id = TOOLBAR_LOGVIEW;
 	GetWindowRect(HW, &rc);
 	P_Toolbar = new TToolbar(HW, TBS_NOMOVE);
-	if(P_Toolbar && LoadToolbar(toolbar_id) > 0) {
+	if(P_Toolbar && LoadToolbarResource(toolbar_id) > 0) {
 		P_Toolbar->Init(toolbar_id, &Toolbar);
 		if(P_Toolbar->IsValid()) {
 			RECT tbr;
@@ -290,20 +290,19 @@ int LogListWindowSCI::WMHCreate()
 	return BIN(P_SciFn && P_SciPtr);
 }
 
-int LogListWindowSCI::Resize()
+void LogListWindowSCI::Resize()
 {
 	if(HwndSci != 0) {
 		RECT rc;
-		GetWindowRect(H(), &rc);
-		if(IsWindowVisible(APPL->H_ShortcutsWnd)) {
+		::GetWindowRect(H(), &rc);
+		if(::IsWindowVisible(APPL->H_ShortcutsWnd)) {
 			RECT sh_rect;
-			GetWindowRect(APPL->H_ShortcutsWnd, &sh_rect);
+			::GetWindowRect(APPL->H_ShortcutsWnd, &sh_rect);
 			rc.bottom -= sh_rect.bottom - sh_rect.top;
 		}
 		const int sb_width = 12;
-		MoveWindow(HwndSci, 0, ToolBarWidth, rc.right - rc.left - sb_width, rc.bottom - rc.top - sb_width, 1);
+		::MoveWindow(HwndSci, 0, ToolBarWidth, rc.right - rc.left - sb_width, rc.bottom - rc.top - sb_width, 1);
 	}
-	return 1;
 }
 
 /*static*/LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

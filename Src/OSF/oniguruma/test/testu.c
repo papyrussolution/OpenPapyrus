@@ -7,37 +7,22 @@
 	#include "onigposix.h"
 #endif
 
-struct OnigTestBlock { // @construction
-	OnigTestBlock() : nsucc(0), nfail(0), nerror(0), nall(0), out_file(0), err_file(0), region(0)
-	{
-	}
-	void OutputResult()
-	{
-		slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
-	}
-	int nsucc;
-	int nfail;
-	int nerror;
-	int nall;
-	FILE * out_file;
-	FILE * err_file;
-	OnigRegion * region;
-};
+static OnigTestBlock OnigTB;
 
-static int nsucc  = 0;
-static int nfail  = 0;
-static int nerror = 0;
-#ifdef __TRUSTINSOFT_ANALYZER__
-	static int nall = 0;
-#endif
-static FILE * out_file; // @sobolev
-static FILE * err_file;
-#ifndef POSIX_TEST
-	static OnigRegion * region;
-	static OnigEncoding ENC;
-#endif
+//static int nsucc  = 0;
+//static int nfail  = 0;
+//static int nerror = 0;
+//#ifdef __TRUSTINSOFT_ANALYZER__
+	//static int nall = 0;
+//#endif
+//static FILE * out_file; // @sobolev
+//static FILE * err_file;
+//#ifndef POSIX_TEST
+	//static OnigRegion * region;
+	//static OnigEncoding ENC;
+//#endif
 
-#define ulen(p) onigenc_str_bytelen_null(ENC, (uchar *)p)
+#define ulen(p) onigenc_str_bytelen_null(OnigTB.ENC, (uchar *)p)
 
 static void uconv(char* from, char* to, int len)
 {
@@ -82,41 +67,29 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 	r = regcomp(&reg, pattern, REG_EXTENDED | REG_NEWLINE);
 	if(r) {
 		regerror(r, &reg, buf, sizeof(buf));
-		slfprintf(err_file, "ERROR: %s\n", buf);
-		nerror++;
+		OnigTB.OutputError(buf);
 		return;
 	}
 	r = regexec(&reg, str, reg.re_nsub + 1, pmatch, 0);
 	if(r != 0 && r != REG_NOMATCH) {
 		regerror(r, &reg, buf, sizeof(buf));
-		slfprintf(err_file, "ERROR: %s\n", buf);
-		nerror++;
+		OnigTB.OutputError(buf);
 		return;
 	}
 	if(r == REG_NOMATCH) {
-		if(not) {
-			slfprintf(out_file, "OK(N): /%s/ '%s'\n", cpat, cstr);
-			nsucc++;
-		}
-		else {
-			slfprintf(out_file, "FAIL: /%s/ '%s'\n", cpat, cstr);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputOkN(cpat, cstr);
+		else
+			OnigTB.OutputFail(cpat, cstr);
 	}
 	else {
-		if(not) {
-			slfprintf(out_file, "FAIL(N): /%s/ '%s'\n", cpat, cstr);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputFailN(cpat, cstr);
+		else if(pmatch[mem].rm_so == from && pmatch[mem].rm_eo == to)
+			OnigTB.OutputOk(cpat, cstr);
 		else {
-			if(pmatch[mem].rm_so == from && pmatch[mem].rm_eo == to) {
-				slfprintf(out_file, "OK: /%s/ '%s'\n", cpat, cstr);
-				nsucc++;
-			}
-			else {
-				slfprintf(out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", cpat, cstr, from, to, pmatch[mem].rm_so, pmatch[mem].rm_eo);
-				nfail++;
-			}
+			slfprintf(OnigTB.out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", cpat, cstr, from, to, pmatch[mem].rm_so, pmatch[mem].rm_eo);
+			OnigTB.nfail++;
 		}
 	}
 	regfree(&reg);
@@ -125,46 +98,34 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 	OnigErrorInfo einfo;
 	uconv(pattern, cpat, ulen(pattern));
 	uconv(str,     cstr, ulen(str));
-	r = onig_new(&reg, (uchar *)pattern, (uchar *)(pattern + ulen(pattern)), ONIG_OPTION_DEFAULT, ENC, ONIG_SYNTAX_DEFAULT, &einfo);
+	r = onig_new(&reg, (uchar *)pattern, (uchar *)(pattern + ulen(pattern)), ONIG_OPTION_DEFAULT, OnigTB.ENC, ONIG_SYNTAX_DEFAULT, &einfo);
 	if(r) {
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		onig_error_code_to_str((uchar *)s, r, &einfo);
-		slfprintf(err_file, "ERROR: %s\n", s);
-		nerror++;
+		OnigTB.OutputError(s);
 		return;
 	}
-	r = onig_search(reg, (uchar *)str, (uchar *)(str + ulen(str)), (uchar *)str, (uchar *)(str + ulen(str)), region, ONIG_OPTION_NONE);
+	r = onig_search(reg, (uchar *)str, (uchar *)(str + ulen(str)), (uchar *)str, (uchar *)(str + ulen(str)), OnigTB.region, ONIG_OPTION_NONE);
 	if(r < ONIG_MISMATCH) {
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		onig_error_code_to_str((uchar *)s, r);
-		slfprintf(err_file, "ERROR: %s\n", s);
-		nerror++;
+		OnigTB.OutputError(s);
 		return;
 	}
 	if(r == ONIG_MISMATCH) {
-		if(not) {
-			slfprintf(out_file, "OK(N): /%s/ '%s'\n", cpat, cstr);
-			nsucc++;
-		}
-		else {
-			slfprintf(out_file, "FAIL: /%s/ '%s'\n", cpat, cstr);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputOkN(cpat, cstr);
+		else
+			OnigTB.OutputFail(cpat, cstr);
 	}
 	else {
-		if(not) {
-			slfprintf(out_file, "FAIL(N): /%s/ '%s'\n", cpat, cstr);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputFailN(cpat, cstr);
+		else if(OnigTB.region->beg[mem] == from && OnigTB.region->end[mem] == to)
+			OnigTB.OutputOk(cpat, cstr);
 		else {
-			if(region->beg[mem] == from && region->end[mem] == to) {
-				slfprintf(out_file, "OK: /%s/ '%s'\n", cpat, cstr);
-				nsucc++;
-			}
-			else {
-				slfprintf(out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", cpat, cstr, from, to, region->beg[mem], region->end[mem]);
-				nfail++;
-			}
+			slfprintf(OnigTB.out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", cpat, cstr, from, to, OnigTB.region->beg[mem], OnigTB.region->end[mem]);
+			OnigTB.nfail++;
 		}
 	}
 	onig_free(reg);
@@ -177,18 +138,18 @@ static void n(char* pattern, char* str) { xx(pattern, str, 0, 0, 0, 1); }
 
 extern int OnigTestU_main(FILE * fOut)
 {
-	out_file = NZOR(fOut, stdout);
-	err_file = NZOR(fOut, stdout);
+	OnigTB.out_file = NZOR(fOut, stdout);
+	OnigTB.err_file = NZOR(fOut, stdout);
 	OnigEncoding use_encs[1];
 	use_encs[0] = ONIG_ENCODING_UTF16_BE;
 	onig_initialize(use_encs, sizeof(use_encs)/sizeof(use_encs[0]));
 #ifndef POSIX_TEST
-	region = onig_region_new();
+	OnigTB.region = onig_region_new();
 #endif
 #ifdef POSIX_TEST
 	reg_set_encoding(REG_POSIX_ENCODING_UTF16_BE);
 #else
-	ENC = ONIG_ENCODING_UTF16_BE;
+	OnigTB.ENC = ONIG_ENCODING_UTF16_BE;
 #endif
 	x2("\000\000", "\000\000", 0, 0);
 	x2("\000^\000\000", "\000\000", 0, 0);
@@ -1223,10 +1184,11 @@ extern int OnigTestU_main(FILE * fOut)
 	// TAMIL LETTER NA, TAMIL VOWEL SIGN I,
 	x2("\000^\000\\\000X\000$\000\000", "\x0B\xA8\x0B\xBF\000\000", 0, 4);
 	n("\000\\\000X\000\\\000X\000\000", "\x0B\xA8\x0B\xBF\000\000");
-	slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
+	//slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
+	OnigTB.OutputResult();
 #ifndef POSIX_TEST
-	onig_region_free(region, 1);
+	onig_region_free(OnigTB.region, 1);
 	onig_end();
 #endif
-	return ((nfail == 0 && nerror == 0) ? 0 : -1);
+	return OnigTB.GetResult();
 }

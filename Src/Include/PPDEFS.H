@@ -1894,6 +1894,7 @@
 	#define CTL_STATUS_DBSYMBOL         (21 + WINDOWS_ID_BIAS)
 	#define CTL_STATUS_USEGDSMATRIX     (22 + WINDOWS_ID_BIAS)
 	#define CTL_STATUS_IMG              (23 + WINDOWS_ID_BIAS)
+	#define CTL_STATUS_LOGPATH          (24 + WINDOWS_ID_BIAS)
 #define DLG_WAIT                   10
 	#define CTL_WAIT_TEXT                (1 + WINDOWS_ID_BIAS)
 #define DLG_COUNTRY                20 // COUNTRY
@@ -2058,6 +2059,8 @@
 	#define CTL_USR_UERFLAGS            (18 + WINDOWS_ID_BIAS)
 	#define CTL_USR_EXPIRY              (19 + WINDOWS_ID_BIAS)
 	#define CTL_USR_SYMB                (20 + WINDOWS_ID_BIAS) // @v10.3.8
+	#define CTL_USR_PDESKTOP            (21 + WINDOWS_ID_BIAS) // @v11.0.0
+	#define CTLSEL_USR_PDESKTOP         (22 + WINDOWS_ID_BIAS) // @v11.0.0
 #define DLG_GRPNUSR                42 // Просмотр групп и пользователей
 	#define cmAddSecurGrp                111
 	#define cmEditSecurGrp               112

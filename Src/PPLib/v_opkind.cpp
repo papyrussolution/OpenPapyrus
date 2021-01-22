@@ -294,9 +294,7 @@ int PPViewOprKind::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 	if(ok == -2) {
 		id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
-			case PPVCMD_USERSORT:
-				ok = 1; // The rest will be done below
-				break;
+			case PPVCMD_USERSORT: ok = 1; break; // The rest will be done below
 			case PPVCMD_ADDBYSAMPLE:
 				if(id && AddBySample(id) > 0)
 					ok = 1;

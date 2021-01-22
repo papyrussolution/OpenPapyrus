@@ -1,5 +1,5 @@
 // SBUFFER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -11,7 +11,7 @@ int FASTCALL SBuffer::Alloc(size_t sz)
 {
 	int    ok = 1;
 	if(sz == 0) {
-		Reset(1);
+		Destroy();
 	}
 	else if(sz > Size) {
 		size_t new_size = SnapUpSize(sz);
@@ -53,17 +53,14 @@ IMPL_INVARIANT_C(SBuffer)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SBuffer::SBuffer(size_t initSize, long flags)
+SBuffer::SBuffer(size_t initSize, long flags) : Size(0), WrOffs(0), RdOffs(0), Flags(flags & ~fError), P_Buf(0)
 {
-	Reset(0);
-	Flags = (flags & ~fError);
 	if(initSize)
 		Alloc(initSize);
 }
 
-SBuffer::SBuffer(const SBuffer & s)
+SBuffer::SBuffer(const SBuffer & s) : Size(0), WrOffs(0), RdOffs(0), Flags(0), P_Buf(0)
 {
-	Reset(0);
 	Copy(s);
 }
 
@@ -85,7 +82,7 @@ SBuffer & FASTCALL SBuffer::operator = (const SBuffer & s)
 
 int FASTCALL SBuffer::Copy(const SBuffer & s)
 {
-	Reset(1);
+	Destroy();
 	if(Alloc(s.WrOffs)) {
 		memcpy(P_Buf, s.P_Buf, s.WrOffs);
 		RdOffs = 0;
@@ -107,17 +104,6 @@ int SBuffer::IsValid()
 	return (Flags & fError) ? 0 : 1;
 }
 
-SBuffer & FASTCALL SBuffer::Reset(int freeBuf)
-{
-	Size = 0;
-	WrOffs = RdOffs = 0;
-	Flags &= ~fError;
-	if(freeBuf)
-		SAlloc::F(P_Buf);
-	P_Buf = 0;
-	return *this;
-}
-
 SBuffer::~SBuffer()
 {
 	SAlloc::F(P_Buf);
@@ -125,12 +111,17 @@ SBuffer::~SBuffer()
 
 void SBuffer::Destroy()
 {
-	Reset(1);
+	Size = 0;
+	WrOffs = 0;
+	RdOffs = 0;
+	Flags &= ~fError;
+	ZFREE(P_Buf);
 }
 
 SBuffer & SBuffer::Z()
 {
-	WrOffs = RdOffs = 0;
+	WrOffs = 0;
+	RdOffs = 0;
 	Flags &= ~fError;
 	return *this;
 }

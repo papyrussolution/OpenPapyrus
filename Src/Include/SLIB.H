@@ -5448,7 +5448,7 @@ struct SBaseBuffer {
 	// Note: И rS и this должны быть "правильными" объектами. То есть, для них
 	//   когда-то до этого должны были быть вызваны методы Init().
 	//   Если указатели P_Buf или размеры Size этих экземпляров инвалидны, то
-	//   последствия не предсказуемы.
+	//   последствия непредсказуемы.
 	//
 	int    FASTCALL Copy(const SBaseBuffer & rS);
 	void   Zero();
@@ -5661,7 +5661,6 @@ public:
 protected:
 	void * FASTCALL Ptr(size_t) const;
 private:
-	SBuffer & FASTCALL Reset(int freeBuf);
 	int    FASTCALL Alloc(size_t);
 	int    Search(const char * pStr, size_t * pPos) const;
 	int    FASTCALL Helper_Read(SVectorBase * pAry, long options /* = 0*/);
@@ -14673,8 +14672,8 @@ public:
 		TodoClass  Classification;
 		SString Category;
 		SString Owner;
-		SString Contact;  // @v9.4.3
-		SString Attendee; // @v9.4.3
+		SString Contact;
+		SString Attendee;
 		SString Summary;
 		SString Location;
 		SString Descr;

@@ -72,8 +72,7 @@ SlThreadLocalArea::~SlThreadLocalArea()
 void SlThreadLocalArea::Destroy()
 {
 	ZDELETE(P_Rez);
-	if(FontDc)
-		::DeleteDC(FontDc);
+	::DeleteDC(FontDc);
 	RemoveTempFiles();
 }
 
@@ -430,6 +429,26 @@ static void InitTest()
 	assert(isasciialpha('a'-1) == 0);
 	// } @v10.9.3 
 	assert(sizeof(LayoutFlexItem::Result) == 24); // @v11.0.0
+	// @v11.0.0 {
+#if CXX_OS_WINDOWS != 0
+	{
+		//
+		// Следующие проверки вызова некоторых очищающих функций WIN API нужны для того, чтобы убедиться,
+		// что при обращении к ним с явно неопределенными аргументами ничего ужасного не случается.
+		// Это важно так как я стараюсь элиминировать лишние проверки аргументов перед вызовами функций
+		// (размер исходного кода морщим, знаете-ли).
+		//
+		assert(::CloseHandle(INVALID_HANDLE_VALUE) == 0);
+		assert(::GlobalFree(0) == 0);
+		assert(::LocalFree(0) == 0);
+		assert(::RegCloseKey(0) != ERROR_SUCCESS);
+		assert(::FreeLibrary(0) == 0);
+		assert(::ReleaseDC(0, 0) == 0);
+		assert(::DeleteDC(0) == 0);
+		assert(::DeleteObject(0) == 0);
+	}
+#endif
+	// } @v11.0.0 
 #endif // } NDEBUG
 }
 

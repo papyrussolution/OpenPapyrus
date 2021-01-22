@@ -4,8 +4,6 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-#define STOOLTIP_USE_FIG
-
 STooltip::STooltip() : HwndTT(0), Parent(0)
 {
 }
@@ -130,7 +128,6 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 			{
 				PAINTSTRUCT ps;
 				::BeginPaint(hWnd, &ps);
-#ifdef STOOLTIP_USE_FIG
 				SDrawFigure * p_fig = static_cast<SDrawFigure *>(p_wnd->GetImage());
 				if(p_fig) {
 					RECT rc;
@@ -161,9 +158,6 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 					canv.Draw(p_fig);
 					canv.PopTransform();
 				}
-#else
-				((SImage*)p_wnd->GetImage())->Draw(hWnd, 0);
-#endif
 				::EndPaint(hWnd, &ps);
 			}
 			return 0;
@@ -226,7 +220,6 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 			h_img = 0;
 		}
 		else {
-#ifdef STOOLTIP_USE_FIG
 			SDrawFigure * p_fig = SDrawFigure::CreateFromFile(ImgPath, 0);
 			P_Image = p_fig;
 			if(p_fig) {
@@ -237,28 +230,6 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 				TView::SetWindowProp(h_img, GWLP_USERDATA, this);
 				PrevImgProc = static_cast<WNDPROC>(TView::SetWindowProp(h_img, GWLP_WNDPROC, ImgProc));
 			}
-#else
-			SImage * p_img = new SImage();
-			P_Image = p_img;
-			p_img->Init();
-			p_img->LoadImage(ImgPath);
-			img_height = p_img->GetHeight(); // @v9.5.10 
-			img_width = p_img->GetWidth(); // @v9.5.10
-			p_img->SetClearColor(Color);
-			TView::SetWindowProp(h_img, GWLP_USERDATA, this);
-			PrevImgProc = static_cast<WNDPROC>(TView::SetWindowProp(h_img, GWLP_WNDPROC, ImgProc));
-			// @v9.5.10 @construction {
-			if(flags & SMessageWindow::fMaxImgSize && img_height > 0.0 && img_width > 0.0) {
-				const double rel = img_width / img_height;
-				RECT   _pr;
-				::GetWindowRect(hwnd_parent, &_pr);
-				if(rel > 1.0) {
-				}
-				else {
-				}
-			}
-			// } @v9.5.10 @construction 
-#endif
 		}
 		if(h_ctl) {
 			if(Flags & SMessageWindow::fTextAlignLeft) {
@@ -318,11 +289,7 @@ void SMessageWindow::Destroy()
 	if(P_Image) {
 		HWND h_img = GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
 		TView::SetWindowProp(h_img, GWLP_WNDPROC, PrevImgProc);
-#ifdef STOOLTIP_USE_FIG
 		delete static_cast<SDrawFigure *>(P_Image);
-#else
-		delete static_cast<SImage *>(P_Image);
-#endif
 	}
 	HWnd  = 0;
 	Text.Z();

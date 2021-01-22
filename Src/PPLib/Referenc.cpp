@@ -1,5 +1,5 @@
 // REFERENC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -37,8 +37,7 @@
 	if(sl != (pwBufSize*3) && (pwBufSize == 64 && sl == (20*3))) { // @v9.8.12 Специальный случай для обратной совместимости
 		pwBufSize = 20;
 	}
-	// @v9.9.6 if(sl == (pwBufSize*3)) {
-	if((sl % 3) == 0) { // @v9.9.6
+	if((sl % 3) == 0) {
 		for(size_t i = 0, p = 0; i < pwBufSize; i++) {
 			char   nmb[16];
 			nmb[0] = temp_str[p];
@@ -911,14 +910,22 @@ int Reference::SetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 	return PutProp(obj, id, cfgID, b, s);
 }
 
-int Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * sp)
+int Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * pPack)
 {
 	int    ok = 1;
-	THROW(GetItem(obj, id, &sp->Secur) > 0);
-	THROW(Reference::VerifySecur(&sp->Secur, 0));
-	THROW(DS.FetchConfig(obj, id, &sp->Config));
-	THROW(sp->Rights.Get(obj, id, 0/*ignoreCheckSum*/));
-	THROW(sp->Paths.Get(obj, id));
+	THROW(GetItem(obj, id, &pPack->Secur) > 0);
+	THROW(Reference::VerifySecur(&pPack->Secur, 0));
+	THROW(DS.FetchConfig(obj, id, &pPack->Config));
+	THROW(pPack->Rights.Get(obj, id, 0/*ignoreCheckSum*/));
+	THROW(pPack->Paths.Get(obj, id));
+	// @v11.0.0 {
+	pPack->PrivateDesktopUUID.Z();
+	if(obj == PPOBJ_USR) {
+		PPConfigPrivate cfgp_rec;
+		if(GetConfig(PPOBJ_USR, id, PPPRP_CFGPRIVATE, &cfgp_rec, sizeof(cfgp_rec)) > 0)
+			pPack->PrivateDesktopUUID = cfgp_rec.DesktopUuid;
+	}
+	// } @v11.0.0 
 	CATCHZOK
 	return ok;
 }
@@ -1761,7 +1768,17 @@ int PPRights::CheckOpID(PPID opID, long rtflags) const
 					SString added_msg, temp_buf;
 					GetOpName(opID, added_msg);
 					added_msg.CatDiv('-', 1);
-					if(rtflags & PPR_READ && !(r_item.Flags & PPR_READ)) {
+					// @v11.0.0 {
+					static const SIntToSymbTabEntry ftos_list[] = { 
+						{ PPR_READ, "rt_view" }, { PPR_INS,  "rt_create" }, { PPR_MOD,  "rt_modif" }, { PPR_DEL,  "rt_delete" },
+					};
+					for(uint i = 0; i < SIZEOFARRAY(ftos_list); i++) {
+						const long _f = ftos_list[i].Id;
+						if(rtflags & _f && !(r_item.Flags & _f))
+							added_msg.CatBrackStr(PPLoadStringS(ftos_list[i].P_Symb, temp_buf));
+					}
+					// } @v11.0.0 
+					/* @v11.0.0 if(rtflags & PPR_READ && !(r_item.Flags & PPR_READ)) {
 						PPLoadString("rt_view", temp_buf);
 						added_msg.CatBrackStr(temp_buf);
 					}
@@ -1776,7 +1793,7 @@ int PPRights::CheckOpID(PPID opID, long rtflags) const
 					if(rtflags & PPR_DEL && !(r_item.Flags & PPR_DEL)) {
 						PPLoadString("rt_delete", temp_buf);
 						added_msg.CatBrackStr(temp_buf);
-					}
+					}*/
 					ok = PPSetError(PPERR_ISNTPRVLGFOROP, added_msg);
 				}
 			}
@@ -1825,7 +1842,7 @@ int PPRights::CheckDesktopID(long deskID, long rt) const
 
 /*static*/long PPRights::GetDefaultOprFlags()
 {
-	return 0xffffffff; // @v8.3.3 (0xffff & ~PPORF_INHERITED)-->0xffff // @v8.9.3 0xffff-->0xffffffff
+	return 0xffffffff;
 }
 
 int FASTCALL GetCommConfig(PPCommConfig * pCfg)
@@ -1879,12 +1896,13 @@ PPSecurPacket::PPSecurPacket()
 	// @v10.9.3 @ctr MEMSZERO(Secur);
 }
 
-PPSecurPacket & FASTCALL PPSecurPacket::operator = (const PPSecurPacket & src)
+PPSecurPacket & FASTCALL PPSecurPacket::operator = (const PPSecurPacket & rS)
 {
-	Secur  = src.Secur;
-	Config = src.Config;
-	Paths  = src.Paths;
-	Rights = src.Rights;
+	Secur  = rS.Secur;
+	Config = rS.Config;
+	Paths  = rS.Paths;
+	Rights = rS.Rights;
+	PrivateDesktopUUID = rS.PrivateDesktopUUID; // @v11.0.0
 	return *this;
 }
 //
@@ -1993,7 +2011,6 @@ int UuidRefCore::Search(long id, S_GUID & rUuid)
 {
 	UuidRefTbl::Rec rec;
     int    ok = SearchByID(this, PPOBJ_UUIDREF, id, &rec);
-    //TextToUuid(((ok > 0) ? rec.UUID : 0), rUuid);
     rUuid = *reinterpret_cast<const S_GUID *>(rec.UUID);
 	return ok;
 }
@@ -2014,9 +2031,6 @@ int UuidRefCore::SearchUuid(const S_GUID & rUuid, int useCache, long * pID)
 		UuidRefTbl::Rec rec;
 		UuidRefTbl::Key1 k1;
 		MEMSZERO(k1);
-		//SString temp_buf;
-		//UuidToText(rUuid, temp_buf);
-		//STRNSCPY(k1.UUID, temp_buf);
 		memcpy(k1.UUID, &rUuid, sizeof(S_GUID));
 		THROW(ok = SearchByKey(this, 1, &k1, &rec));
 		if(ok > 0) {
@@ -2131,14 +2145,12 @@ long ObjPropToTagIdent(int16 o, int16 p) // @v10.0.04 @construction
 	return MakeLong((p & ~0x7000), (o & ~0x7000);
 }*/
 //
-TextRefIdent::TextRefIdent()
+TextRefIdent::TextRefIdent() : P(0), L(0)
 {
-	THISZERO();
 }
 
-TextRefIdent::TextRefIdent(PPID objType, PPID objID, int16 prop) : P(prop), L(0)
+TextRefIdent::TextRefIdent(PPID objType, PPID objID, int16 prop) : O(objType, objID), P(prop), L(0)
 {
-	O.Set(objType, objID);
 }
 
 int TextRefIdent::operator !() const

@@ -1484,7 +1484,7 @@ void FASTCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt)
  */
 xmlParserCtxt * xmlNewParserCtxt()
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)SAlloc::M(sizeof(xmlParserCtxt));
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(SAlloc::M(sizeof(xmlParserCtxt)));
 	if(!ctxt)
 		xmlErrMemory(NULL, "cannot allocate parser context\n");
 	else {

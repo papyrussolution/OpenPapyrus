@@ -58,6 +58,23 @@ public:
 			enableCommand(cmCfgRights, (p_secur->Flags & USRF_INHRIGHTS) ? ((v |= 2), 0) : 1);
 			setCtrlData(CTL_USR_FLAGS, &v);
 			setCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate); // @v10.1.10
+			// @v11.0.0 {
+			{
+				StrAssocArray list;
+				long   desktop_surr_id = 0;
+				PPCommandFolder::CommandGroupList::Entry entry;
+				PPCommandFolder::GetCommandGroupList(0, cmdgrpcDesktop, DesktopList);
+				if(!!Data.PrivateDesktopUUID) {
+					uint idx = 0;
+					if(DesktopList.SearchByUuid(Data.PrivateDesktopUUID, &idx)) {
+						if(DesktopList.Get(idx, entry))
+							desktop_surr_id = entry.SurrID;
+					}
+				}
+				DesktopList.GetStrAssocList(list);
+				SetupStrAssocCombo(this, CTLSEL_USR_PDESKTOP, &list, desktop_surr_id, 0);
+			}
+			// } @v11.0.0 
 		}
 		// @v10.3.8 {
 		else if(ObjType == PPOBJ_USRGRP) {
@@ -112,7 +129,7 @@ private:
 	DECL_HANDLE_EVENT;
 	void   getPassword();
 	void   getPaths();
-	
+	PPCommandFolder::CommandGroupList DesktopList;
 	char   Password[sizeof(reinterpret_cast<const PPSecur *>(0)->Password)];
 };
 
@@ -318,7 +335,8 @@ int EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 		case PPOBJ_USREXCLRIGHTS: dlg_id = DLG_USRER; break;
 	}
 	if(dlg_id) {
-		THROW(CheckDialogPtr(&(dlg = new SecurDialog(dlg_id, obj, _id))));
+		dlg = new SecurDialog(dlg_id, obj, _id);
+		THROW(CheckDialogPtr(&dlg));
 		dlg->setDTS(&spack);
 		while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 			dlg->getDTS(&spack);
@@ -545,7 +563,8 @@ private:
 
 int EditCfgOptionsDialog(PPConfig * pCfg, long, EmbedDialog * pDlg)
 {
-	int    r = 0, valid_data = 0;
+	int    r = 0;
+	int    valid_data = 0;
 	CfgOptionsDialog * dlg = 0;
 	if(pDlg) {
 		dlg = new CfgOptionsDialog(0);

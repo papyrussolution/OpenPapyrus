@@ -1216,6 +1216,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		double nonfiscal = 0.0;
 		SString operator_name;
 		SString goods_name;
+		SString chzn_sid; // @v11.0.0
 		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0); // @v10.0.03
 		StateBlock stb;
 		// @v10.9.0 {
@@ -1229,6 +1230,10 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 		// } @v10.9.0 
+		// @v11.0.0 {
+		if(SCn.LocID)
+			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
+		// } @v11.0.0 
 		THROW(Connect(&stb));
 		THROW(AllowPrintOper_Fptr10());
 		// @v10.9.0 pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
@@ -1333,6 +1338,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										case GTCHZNPT_SHOE: marking_type = LIBFPTR_NT_SHOES; break;
 										case GTCHZNPT_MEDICINE: marking_type = 0x444D; break; // @v11.0.0 LIBFPTR_NT_MEDICINES-->0x444D 
 										case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
+										case GTCHZNPT_TEXTILE: marking_type = 0x444D; break; // @v11.0.0
 									}
 									if(marking_type >= 0) {
 										P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_NOMENCLATURE_TYPE, marking_type);
@@ -1345,18 +1351,16 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										temp_buf.Z().Cat("chzn-mark-composed").CatDiv(':', 2).CatEq("length", static_cast<long>(mark_buf_data_len));
 										PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);										
 										// @v11.0.0 {
-										if(sl_param.ChZnCid.NotEmpty() && P_Fptr10->UtilFormTlvProc) {
+										if(chzn_sid.NotEmpty() && P_Fptr10->UtilFormTlvProc) {
 											P_Fptr10->SetParamStrProc(fph, 1085, L"mdlp");
-											temp_buf.Z().Cat("sid").Cat(sl_param.ChZnCid).CatChar('&');
+											temp_buf.Z().Cat("sid").Cat(chzn_sid).CatChar('&');
 											temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 											P_Fptr10->SetParamStrProc(fph, 1086, temp_buf_u); // sid
 											P_Fptr10->UtilFormTlvProc(fph);
 											
 											//uint8 fptr10_mdlp_buf[512];
 											//int   mdlp_buf_len = 0;
-
 											mdlp_buf_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mdlp_buf, sizeof(fptr10_mdlp_buf));
-
 											//libfptr_set_param_str(fptr, 1191, 'mdlp1/10&');
 											//libfptr_set_param_str(fptr, 1085, "mdlp");
 											//libfptr_set_param_str(fptr, 1086, 'sid717528521946&');

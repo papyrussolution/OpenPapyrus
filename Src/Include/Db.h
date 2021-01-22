@@ -921,7 +921,7 @@ int btrnfound__();
 #define BE_TASK_LIST_FULL                  1013
 #define BE_STOP_WARNING                    1014
 #define BE_ALREADY_INITIALIZED             1016
-#define BE_MKDE_FAILEDTOINIT               1021 // @v9.9.11 The MicroKernel failed to initialize
+#define BE_MKDE_FAILEDTOINIT               1021 // The MicroKernel failed to initialize
 //
 //
 //
@@ -1856,8 +1856,7 @@ private:
 	RECORDSIZE retBufLen;
 	RECORDSIZE FixRecSize; // @*DBTable::open
 	uint16 PageSize;       // Размер страницы, определенный в спецификации.
-	uint8  Reserve[18];    // @alignment // @v9.0.0 [10]-->[14] Размер SArray снизился на 4 байта: а sizeof(DBTable) должен быть кратен 32
-		// @v9.8.4 [14]-->[18] Уменьшился размер DBLobBlock из-за перехода SArray-->SVector
+	uint8  Reserve[18];    // @alignment
 	BTABLENAME tableName;
 	BNFieldList fields;
 	BNKeyList   indexes;
@@ -3623,7 +3622,6 @@ public:
 	int    makeNode(int tblN, int * pNode, int option, int * pPos);
 	int    FASTCALL analyzeOrder(int * pKeyArray);
 	int    FASTCALL chooseKey(int tblN);
-	// @v9.8.6 int    optimizeTree(int tblN);
 	int    calcRecSize();
 	int    allocFrame(uint);
 	void   FASTCALL fillRecord(char *, RECORDNUMBER *);
@@ -3895,7 +3893,6 @@ private:
 	int    FASTCALL _search(int spMode, uint16 signature);
 	int    FASTCALL add_term(int link, int n);
 	int    FASTCALL add_tree(int link, int n);
-	// @v9.8.6 (inlined) BExtTerm * get_term(int);
 	//
 	// Descr: Перекидывает данные записи с текущим индексом cur
 	//   из буфера BExtQuery::Buf в буфер записи таблицы данных DBTable::buf.
@@ -4030,11 +4027,11 @@ public:
 		int    IdxType;      // BDbTable::idxtypXXX
 		long   Flags;        // BDbTable::cfXXX
 		uint32 DataChunk;    //
-		//uint32 CacheSize;    // @v9.6.4 Размер кэша таблицы (kilobytes!!!). 0 - default
-		uint32 PageSize;     // @v9.6.4 Размер страницы данных (bytes). 0 - default
-		uint32 HashNElem;    // @v9.7.12 Для хэш-таблиц: ожидаемый размер хэш-таблицы
-		uint32 HashFFactor;  // @v9.7.12 Для хэш-таблиц: fill-factor. Reasonable rule: (pagesize - 32) / (average_key_size + average_data_size + 8)
-		uint   PartitionCount; // @v9.8.2 Количество partitions. Если параметр не нулевой, то
+		//uint32 CacheSize;    // Размер кэша таблицы (kilobytes!!!). 0 - default
+		uint32 PageSize;     // Размер страницы данных (bytes). 0 - default
+		uint32 HashNElem;    // Для хэш-таблиц: ожидаемый размер хэш-таблицы
+		uint32 HashFFactor;  // Для хэш-таблиц: fill-factor. Reasonable rule: (pagesize - 32) / (average_key_size + average_data_size + 8)
+		uint   PartitionCount; // Количество partitions. Если параметр не нулевой, то
 			// класс таблицы обязан переопределить виртуальную функцию Implement_PartitionFunc(DBT * pKey)
 			// таким образом, чтобы она возвращала номер [0..PartitionCount-1] в зависимости от значения ключа pKey.
 		SString Name;        // Имя файла
@@ -4313,33 +4310,33 @@ public:
 	enum {
 		stError            = 0x0001,
 		stLoggedIn         = 0x0002,
-		stReadOnly         = 0x0004, // @v9.7.11 Экземпляр базы данных создан в режиме READ-ONLY
-		stWriteStatOnClose = 0x0008, // @v9.7.11 При закрытии базы сохранять статистику по таблицам (проекция oWriteStatOnClose)
+		stReadOnly         = 0x0004, // Экземпляр базы данных создан в режиме READ-ONLY
+		stWriteStatOnClose = 0x0008, // При закрытии базы сохранять статистику по таблицам (проекция oWriteStatOnClose)
 		stExclusive        = 0x0010  // @v10.0.12 База данных открыта в эксклюзивном режиме
 	};
 	enum {
 		oRecover          = 0x00000001,
-		oPrivate          = 0x00000002, // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
-		oReadOnly         = 0x00000004, // @v9.7.11 База данных открывается в режиме READ-ONLY
-		oWriteStatOnClose = 0x00000008, // @v9.7.11 При закрытии базы сохранять статистику по таблицам
+		oPrivate          = 0x00000002, // окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
+		oReadOnly         = 0x00000004, // База данных открывается в режиме READ-ONLY
+		oWriteStatOnClose = 0x00000008, // При закрытии базы сохранять статистику по таблицам
 		oExclusive        = 0x00000010, // @v10.0.12 База данных открывается в эксклюзивном режиме
 	};
 	struct Config {
 		Config();
 
 		enum {
-			fLogNoSync      = 0x00000004, // @v9.6.6 DB_LOG_NOSYNC
-			fLogAutoRemove  = 0x00000008, // @v9.6.6 DB_LOG_AUTO_REMOVE
-			fLogInMemory    = 0x00000010, // @v9.6.6 DB_LOG_IN_MEMORY
+			fLogNoSync      = 0x00000004, // DB_LOG_NOSYNC
+			fLogAutoRemove  = 0x00000008, // DB_LOG_AUTO_REMOVE
+			fLogInMemory    = 0x00000010, // DB_LOG_IN_MEMORY
 		};
 
 		long   Flags;
 		uint64 CacheSize;   // Максимальный размер кэш-буферов (bytes).
 		uint   CacheCount;  // Максимальное количество кэш-буферов.
-		uint   PageSize;    // @v9.6.4 Размер страницы данных
+		uint   PageSize;    // Размер страницы данных
 		uint   MaxLockers;  // Максимальное количество локеров.
-		uint   MaxLocks;    // @v9.6.4 A thread uses this structure to lock a page (or record for the QUEUE access method) and hold it to the end of a transactions
-		uint   MaxLockObjs; // @v9.6.4 For each page (or record) which is locked in the system, a lock object will be allocated.
+		uint   MaxLocks;    // A thread uses this structure to lock a page (or record for the QUEUE access method) and hold it to the end of a transactions
+		uint   MaxLockObjs; // For each page (or record) which is locked in the system, a lock object will be allocated.
 		uint   LogBufSize;  // Размер буфера журнала транзакция (bytes).
 		uint   LogFileSize; // Размер одного файла журнала транзакций (bytes). BerkeleyDB формирует журналы
 			// транзакций файлами одинакового размера. После заполнения очередного файла создается //

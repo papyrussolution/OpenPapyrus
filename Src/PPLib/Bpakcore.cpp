@@ -1568,6 +1568,23 @@ int PPLotExtCodeContainer::GetByIdx(uint idx, PPLotExtCodeContainer::Item2 & rIt
 	return ok;
 }
 
+int PPLotExtCodeContainer::GetByBoxID(long boxId, StringSet & rSs) const
+{
+	int    ok = -1;
+	SString temp_buf;
+	for(uint i = 0; i < getCount(); i++) {
+		const InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
+		if(r_item.BoxId == boxId && !(r_item.Flags & fBox)) {
+			GetS(r_item.CodeP, temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				rSs.add(temp_buf);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int PPLotExtCodeContainer::Search(const char * pCode, int * pRowIdx, uint * pInnerIdx) const
 {
 	int    ok = 0;

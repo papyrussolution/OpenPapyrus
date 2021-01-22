@@ -70,11 +70,10 @@
 #define USE_WARNING_REDUNDANT_NESTED_REPEAT_OPERATOR
 #define USE_RETRY_LIMIT
 #ifdef USE_GOTO_LABELS_AS_VALUES
-#define USE_THREADED_CODE
-#define USE_DIRECT_THREADED_CODE
+	#define USE_THREADED_CODE
+	#define USE_DIRECT_THREADED_CODE
 #endif
-
-/* internal config */
+// internal config 
 #define USE_CHECK_VALIDITY_OF_STRING_IN_TREE
 #define USE_OP_PUSH_OR_JUMP_EXACT
 #define USE_QUANT_PEEK_NEXT
@@ -82,12 +81,11 @@
 #define USE_TIMEOFDAY
 #define USE_STRICT_POINTER_ADDRESS
 #define USE_STRICT_POINTER_COMPARISON
-
 #define USE_WORD_BEGIN_END   /* "\<", "\>" */
 #define USE_CAPTURE_HISTORY
 #define USE_VARIABLE_META_CHARS
 #define USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE
-/* #define USE_REPEAT_AND_EMPTY_CHECK_LOCAL_VAR */
+// #define USE_REPEAT_AND_EMPTY_CHECK_LOCAL_VAR */
 #define USE_POSIX_API // enabled by configure --enable-posix-api=yes 
 
 #define DEFAULT_PARSE_DEPTH_LIMIT           4096
@@ -101,77 +99,54 @@
 #include "regenc.h"
 
 #ifndef ONIG_NO_STANDARD_C_HEADERS
-
-//#include <stddef.h>
-//#include <stdarg.h>
-//#include <limits.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <ctype.h>
-//#ifdef HAVE_STDINT_H
-	//#include <stdint.h>
-//#endif
-#if defined(HAVE_ALLOCA_H) && !defined(__GNUC__)
-	#include <alloca.h>
-#endif
-#ifdef HAVE_SYS_TYPES_H
-	#ifndef __BORLANDC__
-		#include <sys/types.h>
+	#if defined(HAVE_ALLOCA_H) && !defined(__GNUC__)
+		#include <alloca.h>
 	#endif
-#endif
-#ifdef HAVE_INTTYPES_H
-	#include <inttypes.h>
-#endif
-#if defined(_WIN32) || defined(__BORLANDC__)
-	#include <malloc.h>
-#endif
-//#if defined(ONIG_DEBUG) || defined(NEED_TO_INCLUDE_STDIO)
-	//#include <stdio.h>
-//#endif
-#ifdef ONIG_DEBUG_STATISTICS
-	#ifdef USE_TIMEOFDAY
-		#ifdef HAVE_SYS_TIME_H
-			#include <sys/time.h>
+	#ifdef HAVE_SYS_TYPES_H
+		#ifndef __BORLANDC__
+			#include <sys/types.h>
 		#endif
-		#ifdef HAVE_UNISTD_H
-			#include <unistd.h>
-		#endif
-	#else /* USE_TIMEOFDAY */
-		#ifdef HAVE_SYS_TIMES_H
-			#include <sys/times.h>
-		#endif
-	#endif /* USE_TIMEOFDAY */
-#endif /* ONIG_DEBUG_STATISTICS */
+	#endif
+	#ifdef HAVE_INTTYPES_H
+		#include <inttypes.h>
+	#endif
+	#if defined(_WIN32) || defined(__BORLANDC__)
+		#include <malloc.h>
+	#endif
+	#ifdef ONIG_DEBUG_STATISTICS
+		#ifdef USE_TIMEOFDAY
+			#ifdef HAVE_SYS_TIME_H
+				#include <sys/time.h>
+			#endif
+			#ifdef HAVE_UNISTD_H
+				#include <unistd.h>
+			#endif
+		#else /* USE_TIMEOFDAY */
+			#ifdef HAVE_SYS_TIMES_H
+				#include <sys/times.h>
+			#endif
+		#endif /* USE_TIMEOFDAY */
+	#endif /* ONIG_DEBUG_STATISTICS */
 
-/* I don't think these x....'s need to be included in
-   ONIG_NO_STANDARD_C_HEADERS, but they are required by Issue #170
-   and do so since there is no problem.
- */
-//#ifndef xmemset
-	//#define xmemset_Removed     memset
-//#endif
-#ifndef xmemcpy
-	#define xmemcpy     memcpy
-#endif
-#ifndef xmemmove
-	#define xmemmove    memmove
-#endif
-#endif /* ONIG_NO_STANDARD_C_HEADERS */
-//#ifdef MIN
-//#undef MIN
-//#endif
-//#ifdef MAX
-//#undef MAX
-//#endif
-//#define MIN(a, b) (((a)>(b)) ? (b) : (a))
-//#define MAX(a, b) (((a)<(b)) ? (b) : (a))
+	/* I don't think these x....'s need to be included in
+	   ONIG_NO_STANDARD_C_HEADERS, but they are required by Issue #170
+	   and do so since there is no problem.
+	 */
+	//#ifndef xmemset
+		//#define xmemset_Removed     memset
+	//#endif
+	#ifndef xmemcpy
+		#define xmemcpy     memcpy
+	#endif
+	#ifndef xmemmove
+		#define xmemmove    memmove
+	#endif
+#endif // ONIG_NO_STANDARD_C_HEADERS 
 #define IS_NULL(p)                    (((void*)(p)) == (void*)0)
 #define IS_NOT_NULL(p)                (((void*)(p)) != (void*)0)
 #define CHECK_NULL_RETURN(p)          if(IS_NULL(p)) return NULL
 #define CHECK_NULL_RETURN_MEMERR(p)   if(IS_NULL(p)) return ONIGERR_MEMORY
 #define NULL_UCHARP                   ((uchar *)0)
-
 #ifdef USE_STRICT_POINTER_COMPARISON
 	#define PTR_GE(p, q)   ((p) != NULL && (p) >= (q))
 #else
@@ -185,15 +160,10 @@
 #define STEP_BACK_MAX_CHAR_LEN     65535 /* INT_MAX is too big */
 #define LOOK_BEHIND_MAX_CHAR_LEN   STEP_BACK_MAX_CHAR_LEN
 
-/* escape other system uchar definition */
+// escape other system uchar definition 
 #ifdef ONIG_ESCAPE_UCHAR_COLLISION
 	#undef ONIG_ESCAPE_UCHAR_COLLISION
 #endif
-//#define xmalloc_Removed    malloc
-//#define xrealloc_Removed   realloc
-//#define xcalloc_Removed calloc
-//#define xfree_Removed  free
-
 #define st_init_table               onig_st_init_table
 #define st_init_table_with_size     onig_st_init_table_with_size
 #define st_init_numtable            onig_st_init_numtable
@@ -217,29 +187,11 @@
 	#ifndef xalloca
 		#define xalloca  _alloca
 	#endif
-	//#ifndef xvsnprintf
-		//#define xvsnprintf(buf, size, fmt, args)  _vsnprintf_s(buf, size, _TRUNCATE, fmt, args)
-	//#endif
-	//#ifndef xsnprintf
-		//#define xsnprintf  sprintf_s
-	//#endif
-	//#ifndef xstrcat
-		//#define xstrcat(dest, src, size)  strcat_s(dest, size, src)
-	//#endif
 #else
 	#ifndef xalloca
 		#define xalloca  alloca
 	#endif
-	//#ifndef xvsnprintf
-		//#define xvsnprintf  vsnprintf
-	//#endif
-	//#ifndef xsnprintf
-		//#define xsnprintf  snprintf
-	//#endif
-	//#ifndef xstrcat
-		//#define xstrcat(dest, src, size)  strcat(dest, src)
-	//#endif
-#endif /* defined(_WIN32) && !defined(__GNUC__) */
+#endif
 #ifdef _WIN32
 	#ifdef _MSC_VER
 		#if _MSC_VER < 1300
@@ -390,8 +342,9 @@ typedef Bits*     BitSetRef;
 #define BITSET_SET_BIT(bs, pos)     BS_ROOM(bs, pos) |= BS_BIT(pos)
 #define BITSET_CLEAR_BIT(bs, pos)   BS_ROOM(bs, pos) &= ~(BS_BIT(pos))
 #define BITSET_INVERT_BIT(bs, pos)  BS_ROOM(bs, pos) ^= BS_BIT(pos)
-
-/* bytes buffer */
+//
+// bytes buffer 
+//
 typedef struct _BBuf {
 	uchar * p;
 	uint used;
@@ -641,14 +594,13 @@ typedef int ModeType;
 #define SIZE_UPDATE_VAR_TYPE  sizeof(UpdateVarType)
 #define SIZE_MODE             sizeof(ModeType)
 
-/* code point's address must be aligned address. */
+// code point's address must be aligned address. 
 #define GET_CODE_POINT(code, p)   code = *((OnigCodePoint*)(p))
 
 /* op-code + arg size */
 
-/* for relative address increment to go next op. */
+// for relative address increment to go next op. 
 #define SIZE_INC                       1
-
 #define OPSIZE_ANYCHAR_STAR            1
 #define OPSIZE_ANYCHAR_STAR_PEEK_NEXT  1
 #define OPSIZE_JUMP                    1
@@ -657,7 +609,7 @@ typedef int ModeType;
 #define OPSIZE_POP                     1
 #define OPSIZE_POP_TO_MARK             1
 #ifdef USE_OP_PUSH_OR_JUMP_EXACT
-#define OPSIZE_PUSH_OR_JUMP_EXACT1     1
+	#define OPSIZE_PUSH_OR_JUMP_EXACT1 1
 #endif
 #define OPSIZE_PUSH_IF_PEEK_NEXT       1
 #define OPSIZE_REPEAT                  1
@@ -731,7 +683,6 @@ typedef struct {
 		struct {
 			uchar s[16]; /* Now used first 7 bytes only. */
 		} exact;
-
 		struct {
 			uchar * s;
 			LengthType n; /* number of chars */
@@ -759,26 +710,21 @@ typedef struct {
 		struct {
 			uchar c;
 		} anychar_star_peek_next;
-
 		struct {
 			ModeType mode;
 		} word_boundary; /* OP_WORD_BOUNDARY, OP_NO_WORD_BOUNDARY, OP_WORD_BEGIN, OP_WORD_END */
-
 		struct {
 			enum TextSegmentBoundaryType type;
 			int not;
 		} text_segment_boundary;
-
 		struct {
 			enum CheckPositionType type;
 		} check_position;
-
 		struct {
 			union {
 				MemNumType n1; /* num == 1 */
 				MemNumType* ns; /* num >  1 */
 			};
-
 			int num;
 			int nest_level;
 		} backref_general; /* BACKREF_MULTI, BACKREF_MULTI_IC, BACKREF_WITH_LEVEL, BACKREF_CHECK,
@@ -969,25 +915,24 @@ struct re_pattern_buffer {
 
 extern void onig_add_end_call(void (* func)(void));
 extern void onig_warning(const char* s);
-extern uchar * onig_error_code_to_format P_((int code));
-extern void ONIG_VARIADIC_FUNC_ATTR onig_snprintf_with_pattern PV_((uchar buf[], int bufsize, OnigEncoding enc, uchar * pat, uchar * pat_end,
-    const uchar * fmt, ...));
-extern int onig_compile P_((regex_t* reg, const uchar * pattern, const uchar * pattern_end, OnigErrorInfo* einfo));
-extern int onig_is_code_in_cc_len P_((int enclen, OnigCodePoint code, void* /* CClassNode* */ cc));
+extern uchar * onig_error_code_to_format(int code);
+extern void ONIG_VARIADIC_FUNC_ATTR onig_snprintf_with_pattern(uchar buf[], int bufsize, OnigEncoding enc, uchar * pat, uchar * pat_end, const uchar * fmt, ...);
+extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end, OnigErrorInfo* einfo);
+extern int onig_is_code_in_cc_len(int enclen, OnigCodePoint code, void* /* CClassNode* */ cc);
 extern RegexExt* onig_get_regex_ext(regex_t* reg);
 extern int onig_ext_set_pattern(regex_t* reg, const uchar * pattern, const uchar * pattern_end);
 extern int onig_positive_int_multiply(int x, int y);
-extern hash_table_type onig_st_init_strend_table_with_size P_((int size));
-extern int onig_st_lookup_strend P_((hash_table_type table, const uchar * str_key, const uchar * end_key, hash_data_type * value));
-extern int onig_st_insert_strend P_((hash_table_type table, const uchar * str_key, const uchar * end_key, hash_data_type value));
+extern hash_table_type onig_st_init_strend_table_with_size(int size);
+extern int onig_st_lookup_strend(hash_table_type table, const uchar * str_key, const uchar * end_key, hash_data_type * value);
+extern int onig_st_insert_strend(hash_table_type table, const uchar * str_key, const uchar * end_key, hash_data_type value);
 
 #ifdef ONIG_DEBUG
 	#ifdef ONIG_DEBUG_COMPILE
 		extern void onig_print_compiled_byte_code_list(FILE* f, regex_t* reg);
 	#endif
 	#ifdef ONIG_DEBUG_STATISTICS
-		extern void onig_statistics_init P_((void));
-		extern int onig_print_statistics P_((FILE* f));
+		extern void onig_statistics_init(void);
+		extern int onig_print_statistics(FILE* f);
 	#endif
 #endif /* ONIG_DEBUG */
 
@@ -1054,5 +999,68 @@ extern OnigCalloutFunc onig_get_callout_start_func(regex_t* reg, int callout_num
 #endif /* USE_CALLOUT */
 
 typedef int (* ONIGENC_INIT_PROPERTY_LIST_FUNC_TYPE)(void);
+
+struct OnigTestBlock { // @construction
+	OnigTestBlock() : nsucc(0), nfail(0), nerror(0), nall(0), out_file(0), err_file(0), region(0), ENC(0), Syntax(0)
+	{
+	}
+	void OutputResult()
+	{
+		slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
+	}
+	void OutputOk(const char * pPattern, const char * pStr)
+	{
+		nsucc++;
+		slfprintf(out_file, "OK: /%s/ '%s'\n", pPattern, pStr);
+	}
+	void OutputOkN(const char * pPattern, const char * pStr)
+	{
+		nsucc++;
+		slfprintf(out_file, "OK(N): /%s/ '%s'\n", pPattern, pStr);
+	}
+	void OutputOkN(const char * pPattern, const char * pStr, int lineNo)
+	{
+		nsucc++;
+		slfprintf(out_file, "OK(N): /%s/ '%s'  #%d\n", pPattern, pStr, lineNo);
+	}
+	void OutputFail(const char * pPattern, const char * pStr)
+	{
+		nfail++;
+		slfprintf(out_file, "FAIL: /%s/ '%s'\n", pPattern, pStr);
+	}
+	void OutputFail(const char * pPattern, const char * pStr, int lineNo)
+	{
+		nfail++;
+		slfprintf(out_file, "FAIL: /%s/ '%s'  #%d\n", pPattern, pStr, lineNo);
+	}
+	void OutputFailN(const char * pPattern, const char * pStr)
+	{
+		nfail++;
+		slfprintf(out_file, "FAIL(N): /%s/ '%s'\n", pPattern, pStr);
+	}
+	void OutputFailN(const char * pPattern, const char * pStr, int lineNo)
+	{
+		nfail++;
+		slfprintf(out_file, "FAIL(N): /%s/ '%s'  #%d\n", pPattern, pStr, lineNo);
+	}
+	void OutputError(const char * pStr)
+	{
+		nerror++;
+		slfprintf(err_file, "ERROR: %s\n", pStr);
+	}
+	int GetResult() const
+	{
+		return ((nfail == 0 && nerror == 0) ? 0 : -1);
+	}
+	int nsucc;
+	int nfail;
+	int nerror;
+	int nall;
+	FILE * out_file;
+	FILE * err_file;
+	OnigRegion * region;
+	OnigEncoding ENC;
+	OnigSyntaxType * Syntax;
+};
 
 #endif /* REGINT_H */

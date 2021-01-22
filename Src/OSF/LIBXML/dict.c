@@ -522,15 +522,12 @@ xmlDict * xmlDictCreateSub(xmlDict * sub)
  *
  * Returns 0 in case of success and -1 in case of error
  */
-int FASTCALL xmlDictReference(xmlDict * dict)
+int FASTCALL xmlDictReference(xmlDict * pDict)
 {
-	if(!xmlDictInitialized)
-		if(!__xmlInitializeDict())
-			return -1;
-	if(!dict)
+	if((!xmlDictInitialized && !__xmlInitializeDict()) || !pDict)
 		return -1;
 	xmlRMutexLock(xmlDictMutex);
-	dict->ref_counter++;
+	pDict->ref_counter++;
 	xmlRMutexUnlock(xmlDictMutex);
 	return 0;
 }

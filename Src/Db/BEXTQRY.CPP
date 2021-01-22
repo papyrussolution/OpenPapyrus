@@ -1,5 +1,5 @@
 // BEXTQRY.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Интерфейс к расширенным операциям поиска Btrieve
 //
@@ -305,10 +305,10 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 			}
 			THROW_V(Buf.Alloc(RecSize), BE_NOMEM);
 			if(fields_count) {
-				THROW(P_Stmt->BindData(+1, MaxRecs, Fields, Buf, P_Tbl->getLobBlock()));
+				THROW(P_Stmt->BindData(+1, MaxRecs, Fields, Buf.vcptr(), P_Tbl->getLobBlock()));
 			}
 			else {
-				THROW(P_Stmt->BindData(+1, MaxRecs, P_Tbl->GetFields(), Buf, P_Tbl->getLobBlock()));
+				THROW(P_Stmt->BindData(+1, MaxRecs, P_Tbl->GetFields(), Buf.vcptr(), P_Tbl->getLobBlock()));
 			}
 			THROW(r = P_Stmt->Fetch(MaxRecs, &ActCount));
 			if(r > 0) {
@@ -409,8 +409,8 @@ __again:
 				r = 0;
 			}
 			else {
-				memcpy(Buf, P_QBuf, P_QHead->bufLen);
-				P_Tbl->setDataBuf(Buf, static_cast<RECORDSIZE>(Buf.GetSize()));
+				memcpy(Buf.vptr(), P_QBuf, P_QHead->bufLen);
+				P_Tbl->setDataBuf(Buf.vptr(), static_cast<RECORDSIZE>(Buf.GetSize()));
 				if(Index_ < 0) { // @v10.4.4
 					r = P_Tbl->stepExtended(spMode);
 				}
@@ -602,23 +602,23 @@ char * BExtQuery::getRecImage()
 		if(State & stSqlProvider) {
 			if(P_Stmt && n < ActCount) {
 				P_Stmt->GetData(n);
-				p_ret = Buf;
+				p_ret = PTRCHR(Buf.vptr());
 			}
 		}
 		else {
 			if(n < *reinterpret_cast<const uint16 *>(Buf.cptr())) {
 				size_t offs = sizeof(BExtResultHeader);
 				if(State & stHasNote) {
-					p_ret = Buf + offs;
+					p_ret = PTRCHR(Buf.vptr(offs));
 					uint i = n;
 					if(i)
 						do {
 							offs += reinterpret_cast<const BExtResultItem *>(p_ret)->recLen + sizeof(BExtResultItem);
-							p_ret = Buf + offs;
+							p_ret = PTRCHR(Buf.vptr(offs));
 						} while(--i);
 				}
 				else
-					p_ret = Buf + offs + (RecSize + sizeof(BExtResultItem)) * n;
+					p_ret = PTRCHR(Buf.vptr(offs)) + (RecSize + sizeof(BExtResultItem)) * n;
 			}
 		}
 	}

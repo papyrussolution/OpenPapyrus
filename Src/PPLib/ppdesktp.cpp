@@ -10,6 +10,8 @@
 #include <gdiplus.h>
 using namespace Gdiplus;
 
+static const bool PPDesktop_Use_LayoutFlex = false;
+
 const char * PPDesktop::WndClsName = CLASSNAME_DESKTOPWINDOW;
 //
 //
@@ -30,7 +32,8 @@ PPDesktopAssocCmd & PPDesktopAssocCmd::Z()
 
 int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 {
-	int    ok = 1, done = 0;
+	int    ok = 1;
+	int    done = 0;
 	rBlk.Type = 0;
 	rBlk.Flags = 0;
 	rBlk.AddedIntVal = 0;
@@ -1591,6 +1594,7 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 					P_ActiveDesktop->SetLogo(p_prev->GetLogo());
 					P_ActiveDesktop->Name  = p_prev->Name;
 				}
+				P_ActiveDesktop->Type = cmdgrpcDesktop; // @v11.0.0
 				THROW(p_mgr->Save__2(P_ActiveDesktop, PPCommandMngr::fRWByXml)); // @erik v10.6.1
 				ok = 1;
 			}
@@ -1820,7 +1824,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				{
 					S_GUID desktop_uuid = P_ActiveDesktop->Uuid;
 					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_INS)) {
-						if(SelectCommandGroup(desktop_uuid, 0, 0, cmdgrpcDesktop, false, 0) && desktop_uuid != P_ActiveDesktop->Uuid)
+						if(SelectCommandGroup(desktop_uuid, 0, 0, cmdgrpcDesktop, false, 0) /* @v11.0.0 && desktop_uuid != P_ActiveDesktop->Uuid*/)
 							PPDesktop::Open(desktop_uuid, 0/*createIfZero*/);
 					}
 				}
@@ -1989,12 +1993,14 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			break;
 		case WM_SIZE:
 			if(lParam && p_desk) {
-				/* @v11.0.0
-				PPBizScoreWindow * p_bizscore_wnd = static_cast<PPBizScoreWindow *>(p_desk->GetServiceView(svcviewBizScore));//p_desk->GetBizScoreWnd();
-				CALLPTRMEMB(p_bizscore_wnd, Move_W());
-				p_desk->ArrangeIcons();
-				*/
-				p_desk->Layout(); // @v11.0.0
+				if(PPDesktop_Use_LayoutFlex) { // @v11.0.0
+					p_desk->Layout(); 
+				}
+				else {
+					PPBizScoreWindow * p_bizscore_wnd = static_cast<PPBizScoreWindow *>(p_desk->GetServiceView(svcviewBizScore));//p_desk->GetBizScoreWnd();
+					CALLPTRMEMB(p_bizscore_wnd, Move_W());
+					p_desk->ArrangeIcons();
+				}				
 			}
 			break;
 		case WM_RBUTTONUP:

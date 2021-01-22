@@ -1,5 +1,5 @@
 // OBJTIMESERIES.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Модуль, управляющий объектом данных PPObjTimeSeries
 //
@@ -2434,9 +2434,7 @@ int PPViewTimeSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	}
 	if(ok == -2) {
 		switch(ppvCmd) {
-			case PPVCMD_USERSORT:
-				ok = 1; // The rest will be done below
-				break;
+			case PPVCMD_USERSORT: ok = 1; break; // The rest will be done below
 			case PPVCMD_DELETEALL:
 				ok = DeleteAll();
 				break;

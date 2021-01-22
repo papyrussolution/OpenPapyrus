@@ -1840,7 +1840,7 @@ static RECT RectFromMonitor(HMONITOR hMonitor)
 			return mi.rcWork;
 	}
 	RECT rc = {0, 0, 0, 0};
-	if(::SystemParametersInfoA(SPI_GETWORKAREA, 0, &rc, 0) == 0) {
+	if(!::SystemParametersInfoA(SPI_GETWORKAREA, 0, &rc, 0)) {
 		rc.left = 0;
 		rc.top = 0;
 		rc.right = 0;

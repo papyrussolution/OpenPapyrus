@@ -110,28 +110,30 @@ static LRESULT CALLBACK win_handle_event(HWND hwnd, UINT message, WPARAM wparam,
 	else if(!proc)
 		return (DefWindowProc(hwnd, message, wparam, lparam));
 	switch(message) {
-		case WM_SIZE: {
-		    RECT r;
-		    GetClientRect(hwnd, &r);
-		    zprintf(3, "WM_SIZE %ldx%ld\n", r.right, r.bottom);
-		    assert(proc);
-		    zbar_window_resize(proc->window, r.right, r.bottom);
-		    InvalidateRect(hwnd, NULL, 0);
-		    return 0;
-	    }
-		case WM_PAINT: {
-		    PAINTSTRUCT ps;
-		    BeginPaint(hwnd, &ps);
-		    if(zbar_window_redraw(proc->window)) {
-			    HDC hdc = ::GetDC(hwnd);
-			    RECT r;
-			    ::GetClientRect(hwnd, &r);
-			    ::FillRect(hdc, &r, static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
-			    ReleaseDC(hwnd, hdc);
-		    }
-		    EndPaint(hwnd, &ps);
-		    return 0;
-	    }
+		case WM_SIZE: 
+			{
+				RECT r;
+				::GetClientRect(hwnd, &r);
+				zprintf(3, "WM_SIZE %ldx%ld\n", r.right, r.bottom);
+				assert(proc);
+				zbar_window_resize(proc->window, r.right, r.bottom);
+				::InvalidateRect(hwnd, NULL, 0);
+			}
+			return 0;
+		case WM_PAINT: 
+			{
+				PAINTSTRUCT ps;
+				BeginPaint(hwnd, &ps);
+				if(zbar_window_redraw(proc->window)) {
+					HDC hdc = ::GetDC(hwnd);
+					RECT r;
+					::GetClientRect(hwnd, &r);
+					::FillRect(hdc, &r, static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
+					ReleaseDC(hwnd, hdc);
+				}
+				EndPaint(hwnd, &ps);
+			}
+			return 0;
 		case WM_CHAR: _zbar_processor_handle_input(proc, wparam); return 0;
 		case WM_LBUTTONDOWN: _zbar_processor_handle_input(proc, 1); return 0;
 		case WM_MBUTTONDOWN: _zbar_processor_handle_input(proc, 2); return 0;

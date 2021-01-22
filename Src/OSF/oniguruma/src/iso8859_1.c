@@ -109,9 +109,9 @@ static int apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f
 	return onigenc_apply_all_case_fold_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 1, flag, f, arg);
 }
 
-static int get_case_fold_codes_by_str(OnigCaseFoldType flag, const OnigUChar * p, const OnigUChar * end, OnigCaseFoldCodeItem items[])
+static int get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[])
 {
-	static OnigUChar sa[] = { LARGE_S, SMALL_S };
+	static uchar sa[] = { LARGE_S, SMALL_S };
 	int i, j, n;
 	if(0x41 <= *p && *p <= 0x5a) {
 		if(*p == LARGE_S && end > p + 1 && (*(p+1) == LARGE_S || *(p+1) == SMALL_S) && CASE_FOLD_IS_NOT_ASCII_ONLY(flag)) { /* SS */

@@ -7,11 +7,13 @@
 
 #define SLEN(s)  strlen(s)
 
-static int nsucc  = 0;
-static int nfail  = 0;
-static int nerror = 0;
-static FILE * out_file; // @sobolev
-static FILE * err_file;
+static OnigTestBlock OnigTB;
+
+//static int nsucc  = 0;
+//static int nfail  = 0;
+//static int nerror = 0;
+//static FILE * out_file; // @sobolev
+//static FILE * err_file;
 
 static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 {
@@ -21,41 +23,29 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 	int r = regcomp(&reg, pattern, REG_EXTENDED | REG_NEWLINE);
 	if(r) {
 		regerror(r, &reg, buf, sizeof(buf));
-		slfprintf(err_file, "ERROR: %s\n", buf);
-		nerror++;
+		OnigTB.OutputError(buf);
 		return;
 	}
 	r = regexec(&reg, str, reg.re_nsub + 1, pmatch, 0);
 	if(r != 0 && r != REG_NOMATCH) {
 		regerror(r, &reg, buf, sizeof(buf));
-		slfprintf(err_file, "ERROR: %s\n", buf);
-		nerror++;
+		OnigTB.OutputError(buf);
 		return;
 	}
 	if(r == REG_NOMATCH) {
-		if(not) {
-			slfprintf(out_file, "OK(N): /%s/ '%s'\n", pattern, str);
-			nsucc++;
-		}
-		else {
-			slfprintf(out_file, "FAIL: /%s/ '%s'\n", pattern, str);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputOkN(pattern, str);
+		else
+			OnigTB.OutputFail(pattern, str);
 	}
 	else {
-		if(not) {
-			slfprintf(out_file, "FAIL(N): /%s/ '%s'\n", pattern, str);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputFailN(pattern, str);
+		else if(pmatch[mem].rm_so == from && pmatch[mem].rm_eo == to)
+			OnigTB.OutputOk(pattern, str);
 		else {
-			if(pmatch[mem].rm_so == from && pmatch[mem].rm_eo == to) {
-				slfprintf(out_file, "OK: /%s/ '%s'\n", pattern, str);
-				nsucc++;
-			}
-			else {
-				slfprintf(out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", pattern, str, from, to, pmatch[mem].rm_so, pmatch[mem].rm_eo);
-				nfail++;
-			}
+			slfprintf(OnigTB.out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", pattern, str, from, to, pmatch[mem].rm_so, pmatch[mem].rm_eo);
+			OnigTB.nfail++;
 		}
 	}
 	regfree(&reg);
@@ -67,8 +57,8 @@ static void n(char* pattern, char* str) { xx(pattern, str, 0, 0, 0, 1); }
 
 extern int OnigTestP_main(FILE * fOut)
 {
-	out_file = NZOR(fOut, stdout);
-	err_file = NZOR(fOut, stdout);
+	OnigTB.out_file = NZOR(fOut, stdout);
+	OnigTB.err_file = NZOR(fOut, stdout);
 	reg_set_encoding(REG_POSIX_ENCODING_UTF8);
 	x2("", "", 0, 0);
 	x2("^", "", 0, 0);
@@ -597,6 +587,7 @@ extern int OnigTestP_main(FILE * fOut)
 	n("\\X\\X", "\x0d\x0a");
 	x2("^\\X$", "\x0d\x0a", 0, 2);
 	x2("^\\X\\X\\X$", "ab\x0d\x0a", 0, 4);
-	slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
-	return ((nfail == 0 && nerror == 0) ? 0 : -1);
+	//slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
+	OnigTB.OutputResult();
+	return OnigTB.GetResult();
 }

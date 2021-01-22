@@ -574,7 +574,7 @@
 	//
 	// [Target OS]
 	//
-	#if defined(_WIN32) || defined(_WINDOWS)
+	#if defined(_WIN32) || defined(_WINDOWS) || defined(_WIN64) // @sobolev defined(_WIN64)
 		#define CXX_OS_WINDOWS      (1)
 	#else
 		#define CXX_OS_WINDOWS      (0)

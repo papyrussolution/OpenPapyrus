@@ -371,8 +371,10 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 			event.message.infoLong = last_command;
 		}
 	}
-	else
-		TWindow::handleEvent(event);
+	else {
+		// @v11.0.0 TWindow::handleEvent(event);
+		TWindowBase::handleEvent(event); // @v11.0.0
+	}
 }
 //
 // BrowseWindow
@@ -666,7 +668,7 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 	return 1;
 }
 
-int BrowserWindow::LoadToolbar(uint toolbarId)
+/* @v11.0.0 (replaced with TWindow::LoadToolbarResource) int BrowserWindow::LoadToolbar(uint toolbarId)
 {
 	int    ok = 1;
 	ToolbarList tb_list;
@@ -675,7 +677,7 @@ int BrowserWindow::LoadToolbar(uint toolbarId)
 	setupToolbar(&tb_list);
 	CATCHZOK
 	return ok;
-}
+}*/
 
 DECL_CMPFUNC(_PcharNoCase);
 
@@ -1655,7 +1657,6 @@ void BrowserWindow::Paint()
 						HPEN oldpen = static_cast<HPEN>(SelectObject(ps.hdc, sort_pen));
 						HBRUSH sort_br = 0; //CreateSolidBrush(color);
 						HBRUSH oldbr = 0; //static_cast<HBRUSH>(SelectObject(ps.hdc, sort_br));
-
 						POINT  points[6];
 						const int middle_y = (r.top + r.bottom) / 2;
 						const int middle_x = (2 * r.left + 11) / 2;
@@ -2133,12 +2134,12 @@ void BrowserWindow::Resize(TPoint p, int mode)
 
 void BrowserWindow::FocusItem(int hPos, int vPos)
 {
-	long   v = vPos - P_Def->_curItem();
-	long   h = hPos;
-	uint   view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
-	if(vPos < (long)(view_height + P_Def->_topItem()) && h <= (long)Right && h < (long)P_Def->getCount()) {
-		SendMessage(H(), WM_VSCROLL, MAKELONG(SB_THUMBPOSITION, v), v);
-		SendMessage(H(), WM_HSCROLL, MAKELONG(SB_THUMBPOSITION, h), h);
+	const long v = (vPos - P_Def->_curItem());
+	const long h = hPos;
+	const uint view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
+	if(vPos < (long)(view_height + P_Def->_topItem()) && h <= (long)Right && h < P_Def->getCountI()) {
+		::SendMessage(H(), WM_VSCROLL, MAKELONG(SB_THUMBPOSITION, v), v);
+		::SendMessage(H(), WM_HSCROLL, MAKELONG(SB_THUMBPOSITION, h), h);
 	}
 }
 
@@ -2579,8 +2580,8 @@ HWND GetNextBrowser(HWND hw)
 				p_view->SetupScroll();
 				p_view->CalcRight();
 				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
-				if(IsWindowVisible(hw)) {
-					MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
+				if(::IsWindowVisible(hw)) {
+					::MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
 					TView::messageCommand(p_view, cmResize);
 				}
 			}

@@ -520,7 +520,8 @@ int xmlValidateNMToken(const xmlChar * value, int space)
 	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
 		cur++;
 	if(space)
-		while(IS_BLANK_CH(*cur)) cur++;
+		while(IS_BLANK_CH(*cur)) 
+			cur++;
 	if(*cur == 0)
 		return 0;
 try_complex:
@@ -609,20 +610,16 @@ xmlNs * FASTCALL xmlNewNs(xmlNode * P_Node, const xmlChar * href, const xmlChar 
 	if(P_Node && P_Node->type != XML_ELEMENT_NODE)
 		return 0;
 	if(prefix && (sstreq(prefix, reinterpret_cast<const xmlChar *>("xml")))) {
-		/* xml namespace is predefined, no need to add it */
+		// xml namespace is predefined, no need to add it 
 		if(sstreq(href, XML_XML_NAMESPACE))
 			return 0;
-		/*
-		 * Problem, this is an attempt to bind xml prefix to a wrong
-		 * namespace, which breaks
-		 * Namespace constraint: Reserved Prefixes and Namespace Names
-		 * from XML namespace. But documents authors may not care in
-		 * their context so let's proceed.
-		 */
+		// Problem, this is an attempt to bind xml prefix to a wrong namespace, which breaks
+		// Namespace constraint: Reserved Prefixes and Namespace Names
+		// from XML namespace. But documents authors may not care in their context so let's proceed.
 	}
-	/*
-	 * Allocate a new Namespace and fill the fields.
-	 */
+	// 
+	// Allocate a new Namespace and fill the fields.
+	// 
 	cur = static_cast<xmlNs *>(SAlloc::M(sizeof(xmlNs)));
 	if(!cur) {
 		xmlTreeErrMemory("building namespace");
@@ -637,9 +634,8 @@ xmlNs * FASTCALL xmlNewNs(xmlNode * P_Node, const xmlChar * href, const xmlChar 
 	 * and checks for existing use of the prefix
 	 */
 	if(P_Node) {
-		if(P_Node->nsDef == NULL) {
+		if(!P_Node->nsDef)
 			P_Node->nsDef = cur;
-		}
 		else {
 			xmlNs * prev = P_Node->nsDef;
 			if((!prev->prefix && !cur->prefix) || sstreq(prev->prefix, cur->prefix)) {

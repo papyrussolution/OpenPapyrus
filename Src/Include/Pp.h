@@ -3849,8 +3849,7 @@ struct PPSecur2 {          // @persistent @store(Reference2Tbl+)
 	LDATE  ExpiryDate;     // @v10.1.10
 	PPID   UerID;          // Исключение прав доступа для PPOBJ_USR
 	long   UerFlags;       // Флаги исключений прав доступа для PPOBJ_USREXCLRIGHTS
-	uint32 Crc;            // Контрольная сумма для гарантии того, что запись не была создана либо
-		// изменена вне сервисов системы.
+	uint32 Crc;            // Контрольная сумма для гарантии того, что запись не была создана либо изменена вне сервисов системы.
 	LDATE  PwUpdate;       // (USER only) Дата последнего изменения пароля //
 	long   Flags;          // (USER only) Флаги (USRF_XXX)
 	long   ParentID;       // Родительский объект (группа | конфигурация)
@@ -3864,6 +3863,7 @@ struct PPSecurPacket {
 	PPConfig Config;
 	PPPaths  Paths;
 	PPRights Rights;
+	S_GUID PrivateDesktopUUID; // @v11.0.0 UUID приватного рабочего стола пользователя, используемый если конфигурация наследуется //
 };
 
 struct PropPPIDArray {
@@ -10422,6 +10422,16 @@ public:
 	int    AddValidation(const MarkSet & rS);
 	int    Set_2(int rowIdx, const MarkSet * pS);
 	int    Get(int rowIdx, LongArray * pIdxList, MarkSet & rS) const;
+	//
+	// Descr: Находит все марки в контейнере, ассоциированные с боксом boxId и возвращает их в 
+	//   StringSet'е rSs.
+	//   rSs предварительно очищается функцией.
+	//   Сам номер бокса в сет не заносится.
+	// Returns:
+	//   >0 - найдена по крайней мере одна марка, ассоциированная с боксом boxId
+	//   <0 - не найдено ни одной марки, ассоициированной с boxId
+	//
+	int    GetByBoxID(long boxId, StringSet & rSs) const;
 	int    GetByIdx(uint idx, Item2 & rItem) const;
 	//
 	// Descr: Ищет код pCode среди всех кодов контейнера.
@@ -15578,10 +15588,9 @@ public:
 		ctrfReadOnly     = 0x0001, // Только для чтения
 		ctrfSkipObsolete = 0x0002  // Не открывать устаревший бинарный файл хранения объектов
 	};
-	PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesktop*/PPCommandGroupCategory kind);
+	PPCommandMngr(const char * pFileName, uint ctrFlags, PPCommandGroupCategory kind);
 	~PPCommandMngr();
 	int    IsValid_() const;
-	// @v10.9.5 int    Save_Obsolete(const PPCommandGroup *);
 	int    Load_Depricated(PPCommandGroup *);
 	int    Save__2(const PPCommandGroup *, const long rwFlag); // @erik v10.6.1
 	int    Load__2(PPCommandGroup *, const char * pDbSymb, const long rwFlag); // @erik v10.6.1
@@ -15606,7 +15615,6 @@ private:
 	};
 	SString XmlDirPath;
 	SFile  F_Obsolete; // @v10.9.3 F-->F_Obsolete
-	//int    ReadOnly;
 	const  uint CtrFlags;
 	enum {
 		stError = 0x0001
@@ -46395,6 +46403,7 @@ public:
 	~PPViewUserMenu();
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    CmpSortIndexItems(PPViewBrowser * pBrw, const BrwItem * pItem1, const BrwItem * pItem2);
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeList(PPViewBrowser * pBrw);
@@ -52922,6 +52931,7 @@ struct RcvCharryParam {
 //
 //
 class PPWhatmanWindow : public TWindowBase {
+	friend class TWhatmanBrowser;
 public:
 	//
 	// Descr: Открывает окно просмотра файла ватмана pWtmFileName

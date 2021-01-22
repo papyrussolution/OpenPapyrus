@@ -513,10 +513,10 @@ int TView::SetupText(SString * pText)
 
 TView * TView::prev() const
 {
-	TView * res = (TView *)this; // @badcast
-	while(res->P_Next != this)
-		res = res->P_Next;
-	return res;
+	TView * p = (TView *)this; // @badcast
+	while(p && p->IsConsistent() && p->P_Next != this)
+		p = p->P_Next;
+	return p;
 }
 
 int    FASTCALL TView::IsSubSign(uint sign) const { return BIN(SubSign == sign); }
@@ -1262,6 +1262,7 @@ TGroup::~TGroup()
 	if(p) do {
 		if(p->IsConsistent()) {
 			TView * p_prev = p->prev();
+			p->setState(sfOnParentDestruction, true); // @v11.0.0
 			delete p;
 			p = p_prev;
 		}

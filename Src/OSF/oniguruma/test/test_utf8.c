@@ -7,17 +7,19 @@
 	#undef ONIG_ESCAPE_UCHAR_COLLISION
 #endif
 
+static OnigTestBlock OnigTB;
+
 #define SLEN(s)  strlen(s)
 
-static int nsucc  = 0;
-static int nfail  = 0;
-static int nerror = 0;
-#ifdef __TRUSTINSOFT_ANALYZER__
-	static int nall = 0;
-#endif
-static FILE * out_file; // @sobolev
-static FILE * err_file;
-static OnigRegion * region;
+//static int nsucc  = 0;
+//static int nfail  = 0;
+//static int nerror = 0;
+//#ifdef __TRUSTINSOFT_ANALYZER__
+	//static int nall = 0;
+//#endif
+//static FILE * out_file; // @sobolev
+//static FILE * err_file;
+//static OnigRegion * region;
 
 static void xx(char* pattern, char* str, int from, int to, int mem, int not, int error_no, int line_no)
 {
@@ -31,66 +33,57 @@ static void xx(char* pattern, char* str, int from, int to, int mem, int not, int
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		if(error_no == 0) {
 			onig_error_code_to_str((uchar *)s, r, &einfo);
-			slfprintf(err_file, "ERROR: %s  /%s/  #%d\n", s, pattern, line_no);
-			nerror++;
+			slfprintf(OnigTB.err_file, "ERROR: %s  /%s/  #%d\n", s, pattern, line_no);
+			OnigTB.nerror++;
 		}
 		else {
 			if(r == error_no) {
-				slfprintf(out_file, "OK(ERROR): /%s/ %d  #%d\n", pattern, r, line_no);
-				nsucc++;
+				slfprintf(OnigTB.out_file, "OK(ERROR): /%s/ %d  #%d\n", pattern, r, line_no);
+				OnigTB.nsucc++;
 			}
 			else {
-				slfprintf(out_file, "FAIL(ERROR): /%s/ '%s', %d, %d  #%d\n", pattern, str,
-				    error_no, r, line_no);
-				nfail++;
+				slfprintf(OnigTB.out_file, "FAIL(ERROR): /%s/ '%s', %d, %d  #%d\n", pattern, str, error_no, r, line_no);
+				OnigTB.nfail++;
 			}
 		}
 		return;
 	}
-	r = onig_search(reg, (uchar *)str, (uchar *)(str + SLEN(str)), (uchar *)str, (uchar *)(str + SLEN(str)), region, ONIG_OPTION_NONE);
+	r = onig_search(reg, (uchar *)str, (uchar *)(str + SLEN(str)), (uchar *)str, (uchar *)(str + SLEN(str)), OnigTB.region, ONIG_OPTION_NONE);
 	if(r < ONIG_MISMATCH) {
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		if(error_no == 0) {
 			onig_error_code_to_str((uchar *)s, r);
-			slfprintf(err_file, "ERROR: %s  /%s/  #%d\n", s, pattern, line_no);
-			nerror++;
+			slfprintf(OnigTB.err_file, "ERROR: %s  /%s/  #%d\n", s, pattern, line_no);
+			OnigTB.nerror++;
 		}
 		else {
 			if(r == error_no) {
-				slfprintf(out_file, "OK(ERROR): /%s/ '%s', %d  #%d\n", pattern, str, r, line_no);
-				nsucc++;
+				slfprintf(OnigTB.out_file, "OK(ERROR): /%s/ '%s', %d  #%d\n", pattern, str, r, line_no);
+				OnigTB.nsucc++;
 			}
 			else {
-				slfprintf(out_file, "FAIL ERROR NO: /%s/ '%s', %d, %d  #%d\n", pattern, str, error_no, r, line_no);
-				nfail++;
+				slfprintf(OnigTB.out_file, "FAIL ERROR NO: /%s/ '%s', %d, %d  #%d\n", pattern, str, error_no, r, line_no);
+				OnigTB.nfail++;
 			}
 		}
 		return;
 	}
 	if(r == ONIG_MISMATCH) {
-		if(not) {
-			slfprintf(out_file, "OK(N): /%s/ '%s'  #%d\n", pattern, str, line_no);
-			nsucc++;
-		}
-		else {
-			slfprintf(out_file, "FAIL: /%s/ '%s'  #%d\n", pattern, str, line_no);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputOkN(pattern, str, line_no);
+		else
+			OnigTB.OutputFail(pattern, str, line_no);
 	}
 	else {
-		if(not) {
-			slfprintf(out_file, "FAIL(N): /%s/ '%s'  #%d\n", pattern, str, line_no);
-			nfail++;
+		if(not)
+			OnigTB.OutputFailN(pattern, str, line_no);
+		else if(OnigTB.region->beg[mem] == from && OnigTB.region->end[mem] == to) {
+			slfprintf(OnigTB.out_file, "OK: /%s/ '%s'  #%d\n", pattern, str, line_no);
+			OnigTB.nsucc++;
 		}
 		else {
-			if(region->beg[mem] == from && region->end[mem] == to) {
-				slfprintf(out_file, "OK: /%s/ '%s'  #%d\n", pattern, str, line_no);
-				nsucc++;
-			}
-			else {
-				slfprintf(out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d  #%d\n", pattern, str, from, to, region->beg[mem], region->end[mem], line_no);
-				nfail++;
-			}
+			slfprintf(OnigTB.out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d  #%d\n", pattern, str, from, to, OnigTB.region->beg[mem], OnigTB.region->end[mem], line_no);
+			OnigTB.nfail++;
 		}
 	}
 	onig_free(reg);
@@ -108,12 +101,12 @@ static void xe(char* pattern, char* str, int error_no, int line_no) { xx(pattern
 
 extern int OnigTestUtf8_main(FILE * fOut)
 {
-	out_file = NZOR(fOut, stdout); // @sobolev
-	err_file = NZOR(fOut, stdout);
+	OnigTB.out_file = NZOR(fOut, stdout); // @sobolev
+	OnigTB.err_file = NZOR(fOut, stdout);
 	OnigEncoding use_encs[1];
 	use_encs[0] = ONIG_ENCODING_UTF8;
 	onig_initialize(use_encs, sizeof(use_encs)/sizeof(use_encs[0]));
-	region = onig_region_new();
+	OnigTB.region = onig_region_new();
 	x2("", "", 0, 0);
 	x2("^", "", 0, 0);
 	x2("^a", "\na", 1, 2);
@@ -1514,12 +1507,12 @@ extern int OnigTestUtf8_main(FILE * fOut)
 	x2("(?i)[ǰ]", "ǰ", 0, 2);
 	x2("(?i)[ǰ]", "j\xcc\x8c", 0, 3);
 	//x2("(?i)[j]\xcc\x8c", "ǰ", 0, 2);
-	x2("(?i)\ufb00a", "ffa", 0, 3);
+	// (@warn C4566) x2("(?i)\ufb00a", "ffa", 0, 3);
 	x2("(?i)ffz", "\xef\xac\x80z", 0, 4);
-	x2("(?i)\u2126", "\xcf\x89", 0, 2);
-	x2("a(?i)\u2126", "a\xcf\x89", 0, 3);
-	x2("(?i)A\u2126", "a\xcf\x89", 0, 3);
-	x2("(?i)A\u2126=", "a\xcf\x89=", 0, 4);
+	// (@warn C4566) x2("(?i)\u2126", "\xcf\x89", 0, 2);
+	// (@warn C4566) x2("a(?i)\u2126", "a\xcf\x89", 0, 3);
+	// (@warn C4566) x2("(?i)A\u2126", "a\xcf\x89", 0, 3);
+	// (@warn C4566) x2("(?i)A\u2126=", "a\xcf\x89=", 0, 4);
 	x2("(?i:ss)=1234567890", "\xc5\xbf\xc5\xbf=1234567890", 0, 15);
 
 	x2("\\x{000A}", "\x0a", 0, 1);
@@ -1609,8 +1602,9 @@ extern int OnigTestUtf8_main(FILE * fOut)
 	x2("(?:)*", "abc", 0, 0);
 	e("^*", "abc", ONIGERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
 
-	slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
-	onig_region_free(region, 1);
+	//slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
+	OnigTB.OutputResult();
+	onig_region_free(OnigTB.region, 1);
 	onig_end();
-	return ((nfail == 0 && nerror == 0) ? 0 : -1);
+	return OnigTB.GetResult();
 }

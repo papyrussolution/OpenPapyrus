@@ -733,10 +733,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 		else
 			MEMSZERO(brw_hdr);
 		switch(ppvCmd) {
-			case PPVCMD_USERSORT: // @v10.7.5
-				SortList(pBrw);
-				ok = 1; // The rest will be done below
-				break;
+			case PPVCMD_USERSORT: SortList(pBrw); ok = 1; break; // @v10.7.5 The rest will be done below
 			case PPVCMD_EDITITEM:
 			case PPVCMD_EDITGOODS:
 			case PPVCMD_EDITITEMGOODS:

@@ -1,13 +1,13 @@
 // SGEO.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
 /*static*/uint32 FASTCALL SZIndex2::Combine(uint16 x, uint16 y)
 {
-	const uint32 xdw = (uint32)x;
-	const uint32 ydw = (uint32)y;
+	const uint32 xdw = static_cast<uint32>(x);
+	const uint32 ydw = static_cast<uint32>(y);
 	const uint32 result =
 	((xdw & 0x0001))       | ((ydw & 0x0001) <<  1) |
 	((xdw & 0x0002) <<  1) | ((ydw & 0x0002) <<  2) |
@@ -80,7 +80,7 @@
 	return ((dw_hi << 32) | dw_lo);
 }
 
-#define GIS_EPSILON 0.0000001 // @v9.6.8 0.000001-->0.0000001
+#define GIS_EPSILON 0.0000001
 
 static int IsGeoPosValid(double lat, double lon)
 {
@@ -186,45 +186,14 @@ SGeoPosLL_Int::SGeoPosLL_Int(double lat, double lon)
 	Set(lat, lon);
 }
 
-double SGeoPosLL_Int::GetLat() const
-{
-	return Lat ? (((double)Lat) / IntGeoCoordScale) : 0.0;
-}
-
-double SGeoPosLL_Int::GetLon() const
-{
-	return Lon ? (((double)Lon) / IntGeoCoordScale) : 0.0;
-}
-
-long SGeoPosLL_Int::GetIntLat() const
-{
-	return Lat;
-}
-
-long SGeoPosLL_Int::GetIntLon() const
-{
-	return Lon;
-}
-
-int FASTCALL SGeoPosLL_Int::operator == (const SGeoPosLL_Int & rS) const
-{
-	return BIN(Cmp(rS) == 0);
-}
-
-int FASTCALL SGeoPosLL_Int::operator != (const SGeoPosLL_Int & rS) const
-{
-	return BIN(Cmp(rS) != 0);
-}
-
-int FASTCALL SGeoPosLL_Int::operator == (const SGeoPosLL & rS) const
-{
-	return BIN(Cmp(rS) == 0);
-}
-
-int FASTCALL SGeoPosLL_Int::operator != (const SGeoPosLL & rS) const
-{
-	return BIN(Cmp(rS) != 0);
-}
+double SGeoPosLL_Int::GetLat() const { return Lat ? (((double)Lat) / IntGeoCoordScale) : 0.0; }
+double SGeoPosLL_Int::GetLon() const { return Lon ? (((double)Lon) / IntGeoCoordScale) : 0.0; }
+long SGeoPosLL_Int::GetIntLat() const { return Lat; }
+long SGeoPosLL_Int::GetIntLon() const { return Lon; }
+int FASTCALL SGeoPosLL_Int::operator == (const SGeoPosLL_Int & rS) const { return BIN(Cmp(rS) == 0); }
+int FASTCALL SGeoPosLL_Int::operator != (const SGeoPosLL_Int & rS) const { return BIN(Cmp(rS) != 0); }
+int FASTCALL SGeoPosLL_Int::operator == (const SGeoPosLL & rS) const { return BIN(Cmp(rS) == 0); }
+int FASTCALL SGeoPosLL_Int::operator != (const SGeoPosLL & rS) const { return BIN(Cmp(rS) != 0); }
 
 int FASTCALL SGeoPosLL_Int::Cmp(const SGeoPosLL_Int & rS) const
 {

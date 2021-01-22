@@ -198,6 +198,12 @@
     <ClInclude Include="..\osf\oniguruma\src\st.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\oniguruma\src\oniguruma.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\oniguruma\src\oniggnu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

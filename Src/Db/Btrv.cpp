@@ -118,8 +118,8 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	uint16 bl = static_cast<uint16>(fnlen + 1);
 	DBS.SetAddedMsgString(pFileName);
 	STempBuffer temp_buf(fnlen+1);
-	strnzcpy(temp_buf, pFileName, temp_buf.GetSize());
-	return BRet(BTRV(B_CONTINUOUSOPR, 0, temp_buf, &bl, 0, WBTRVTAIL_Z));
+	strnzcpy(PTRCHR(temp_buf.vptr()), pFileName, temp_buf.GetSize());
+	return BRet(BTRV(B_CONTINUOUSOPR, 0, PTRCHR(temp_buf.vptr()), &bl, 0, WBTRVTAIL_Z));
 }
 
 /*static*/int Btrieve::RemoveContinuous(const char * pFileName /* if fname == 0 then remove all files */)
@@ -136,8 +136,8 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	}
 	DBS.SetAddedMsgString(pFileName);
 	STempBuffer temp_buf(8192);
-	strnzcpy(temp_buf, pFileName, temp_buf.GetSize());
-	return BRet(BTRV(B_CONTINUOUSOPR, 0, temp_buf, &bl, 0, WBTRVTAIL_Z));
+	strnzcpy(PTRCHR(temp_buf.vptr()), pFileName, temp_buf.GetSize());
+	return BRet(BTRV(B_CONTINUOUSOPR, 0, PTRCHR(temp_buf.vptr()), &bl, 0, WBTRVTAIL_Z));
 }
 
 /*static*/int Btrieve::GetVersion(int * pMajor, int * pMinor, int * pIsNet)

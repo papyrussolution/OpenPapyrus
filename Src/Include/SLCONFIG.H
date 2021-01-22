@@ -76,10 +76,7 @@
 #define DEFAULT_OVERFLOW_SYMB     '#'
 #define DEFAULT_PASSWORD_SYMB     '*'
 
-// @v9.8.12 #define MAXSSIZE                 255 // Maximum size of data types, processing by STYPE mechanism
-// @v9.8.12 #define COMPLEX_TYPES // Remove comment if complex types are needed (see STYPE.H)
 // #define OBJSTORE_STREAM // Remove comment if ObjStore streaming is needed
-// @v9.8.12 #define DECL_INTX // Comment if 'typedef [un]signed [char|short|long] [u]int[8|16|32]' not needed
 //
 // Если !0, то некоторые низкоуровневые функции заменяются на соответствующие функции из ASMLIB
 // Замена осуществляется в slib.h посредством #define

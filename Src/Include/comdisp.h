@@ -1,5 +1,5 @@
 // COMDISP.H
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #ifndef __COMDISP_H // {
@@ -158,8 +158,8 @@ private:
 		RowHeight,
 		Columns,
 		Clear,
-		Interior, // @v9.8.7
-		Merge     // @v9.8.7
+		Interior,
+		Merge
 	};
 };
 
@@ -203,7 +203,7 @@ private:
 		Cells,
 		Columns,
 		Rows,
-		Range, // @v9.8.7
+		Range,
 		Delete,
 		Shapes,
 		PrintOut,

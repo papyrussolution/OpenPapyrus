@@ -660,8 +660,8 @@ SScEditorBase::~SScEditorBase()
 
 void SScEditorBase::ClearIndicator(int indicatorNumber)
 {
-	int doc_start = 0;
-	int doc_end = CallFunc(SCI_GETLENGTH);
+	int    doc_start = 0;
+	int    doc_end = CallFunc(SCI_GETLENGTH);
 	CallFunc(SCI_SETINDICATORCURRENT, indicatorNumber);
 	CallFunc(SCI_INDICATORCLEARRANGE, doc_start, doc_end-doc_start);
 }
@@ -1262,19 +1262,18 @@ int STextBrowser::GetStatus(StatusBlock * pSb)
 	return ok;
 }
 
-int STextBrowser::Resize()
+void STextBrowser::Resize()
 {
 	if(HwndSci != 0) {
 		RECT rc;
-		GetWindowRect(H(), &rc);
-		if(IsWindowVisible(APPL->H_ShortcutsWnd)) {
+		::GetWindowRect(H(), &rc);
+		if(::IsWindowVisible(APPL->H_ShortcutsWnd)) {
 			RECT sh_rect;
-			GetWindowRect(APPL->H_ShortcutsWnd, &sh_rect);
+			::GetWindowRect(APPL->H_ShortcutsWnd, &sh_rect);
 			rc.bottom -= sh_rect.bottom - sh_rect.top;
 		}
-		MoveWindow(HwndSci, 0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, 1);
+		::MoveWindow(HwndSci, 0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, 1);
 	}
-	return 1;
 }
 
 SKeyAccelerator::SKeyAccelerator() : LAssocArray()
@@ -1308,16 +1307,15 @@ int SKeyAccelerator::Set(const KeyDownCommand & rK, int cmd)
 	return ok;
 }
 
-int STextBrowser::LoadToolbar(uint tbId)
+/* @v11.0.0 (replaced with TWindow::LoadToolbarResource) int STextBrowser::LoadToolbar(uint tbId)
 {
-	int    r = 0;
 	TVRez & rez = *P_SlRez;
 	ToolbarList tb_list;
-	r = rez.findResource(tbId, TV_EXPTOOLBAR, 0, 0) ? ImpLoadToolbar(rez, &tb_list) : 0;
+	int    r = rez.findResource(tbId, TV_EXPTOOLBAR, 0, 0) ? ImpLoadToolbar(rez, &tb_list) : 0;
 	if(r > 0)
 		setupToolbar(&tb_list);
 	return r;
-}
+}*/
 
 /*static*/LRESULT CALLBACK STextBrowser::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -1369,7 +1367,7 @@ int STextBrowser::WMHCreate()
 	RECT rc;
 	GetWindowRect(H(), &rc);
 	P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
-	if(P_Toolbar && LoadToolbar(ToolbarID) > 0) {
+	if(P_Toolbar && LoadToolbarResource(ToolbarID) > 0) {
 		P_Toolbar->Init(ToolbarID, &Toolbar);
 		if(P_Toolbar->IsValid()) {
 			RECT tbr;

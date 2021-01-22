@@ -30,12 +30,6 @@
 #include "ButtonDefs.h"             // Buttons!
 #include "GdiPlusInterop.h"         // Stuff to make GDI+ work in pure C
 
-static void Implement_RegCloseKey(HKEY key)
-{
-	if(key)
-		::RegCloseKey(key);
-}
-
 struct SnipExGlobals {
 	SnipExGlobals() : gAppState(APPSTATE_BEFORECAPTURE), gStartingDelayCountdown(6), gCurrentDelayCountdown(6),
 		gStartingMainWindowWidth(668), gStartingMainWindowHeight(92)
@@ -134,7 +128,7 @@ struct SnipExGlobals {
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR: Attempting to load the UAC icon failed! 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	Exit:
-		Implement_RegCloseKey(IFEOKey);
+		::RegCloseKey(IFEOKey);
 		return Result;
 	}
 	void AdjustWindowSizeForThickTitleBars() // @20201025
@@ -1163,8 +1157,8 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 					    else
 						    SnExG.PopupMessageErr(L"Error while creating SnippingTool.exe registry key!");
 				    }
-				    Implement_RegCloseKey(SnippingToolKey);
-				    Implement_RegCloseKey(IFEOKey);
+				    ::RegCloseKey(SnippingToolKey);
+				    ::RegCloseKey(IFEOKey);
 			    }
 			    else {
 				    MyOutputDebugStringW(L"[%s] Line %d: Need to UAC elevate first.\n", __FUNCTIONW__, __LINE__);
@@ -1221,7 +1215,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 						    MessageBoxW(SnExG.gMainWindowHandle, L"The built-in SnippingTool.exe has been restored.", L"Success", MB_OK | MB_ICONINFORMATION | MB_SYSTEMMODAL);
 					    }
 				    }
-					Implement_RegCloseKey(IFEOKey);
+					::RegCloseKey(IFEOKey);
 			    }
 			    else {
 				    MyOutputDebugStringW(L"[%s] Line %d: Need to UAC elevate first.\n", __FUNCTIONW__, __LINE__);
@@ -1325,12 +1319,10 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    SnExG.gCurrentDelayCountdown--;
 			    MyOutputDebugStringW(L"[%s] Line %d: WM_TIMER DELAY_TIMER received. %d seconds.\n", __FUNCTIONW__, __LINE__, SnExG.gCurrentDelayCountdown);
 			    InvalidateRect(SnExG.gMainWindowHandle, NULL, FALSE);
-			    if(SnExG.gCurrentDelayCountdown <= 0) {
+			    if(SnExG.gCurrentDelayCountdown <= 0)
 				    SendMessageW(SnExG.gMainWindowHandle, WM_COMMAND, BUTTON_NEW, 0);
-			    }
-			    else {
+			    else
 				    SetTimer(SnExG.gMainWindowHandle, DELAY_TIMER, 1000, NULL);
-			    }
 		    }
 		    break;
 	    }
@@ -1341,14 +1333,12 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    if(SnExG.gAppState == APPSTATE_AFTERCAPTURE) {
 			    HDC MemDC = CreateCompatibleDC(PaintStruct.hdc);
 			    if(CurrentlyDrawing == TRUE) {
-				    if(SnExG.gScratchBitmap) {
+				    if(SnExG.gScratchBitmap)
 					    SelectObject(MemDC, SnExG.gScratchBitmap);
-				    }
 			    }
 			    else {
-				    if(SnExG.GetCurrentSnipState()) {
+				    if(SnExG.GetCurrentSnipState())
 					    SelectObject(MemDC, SnExG.GetCurrentSnipState());
-				    }
 			    }
 			    BitBlt(PaintStruct.hdc, 2, 56, SnExG.gCaptureWidth, SnExG.gCaptureHeight, MemDC, 0, 0, SRCCOPY);
 			    DeleteDC(MemDC);
@@ -1359,7 +1349,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		default:
 		    Result = DefWindowProcW(Window, Message, WParam, LParam);
 	}
-	return(Result);
+	return Result;
 }
 
 void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
@@ -1402,13 +1392,13 @@ void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
 	TextOutW(DrawItemStruct->hDC, TextX, TextY, Button.Caption, (int)wcslen(Button.Caption));
 	MoveToEx(DrawItemStruct->hDC, TextX + 6, TextY + 13, NULL);
 	LineTo(DrawItemStruct->hDC, TextX, TextY + 13);
-	if(DeleteObject(ButtonFont) == 0) {
+	if(!DeleteObject(ButtonFont)) {
 		MyOutputDebugStringW(L"[%s] Line %d: DeleteObject(ButtonFont) failed!\n", __FUNCTIONW__, __LINE__);
 	}
-	if(DeleteObject(LighterPen) == 0) {
+	if(!DeleteObject(LighterPen)) {
 		MyOutputDebugStringW(L"[%s] Line %d: DeleteObject(LighterPen) failed!\n", __FUNCTIONW__, __LINE__);
 	}
-	if(DeleteObject(DarkPen) == 0) {
+	if(!DeleteObject(DarkPen)) {
 		MyOutputDebugStringW(L"[%s] Line %d: DeleteObject(DarkPen) failed!\n", __FUNCTIONW__, __LINE__);
 	}
 	if(SnExG.gAppState == APPSTATE_DELAYCOOKING && Button.Id == BUTTON_DELAY) {
@@ -1516,11 +1506,9 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 			    }
 			    // Finally, blit the fully-drawn backbuffer to the screen.
 			    BitBlt(PaintStruct.hdc, 0, 0, SnExG.gDisplayWidth, SnExG.gDisplayHeight, BackBufferDC, 0, 0, SRCCOPY);
-			    if(ScreenShotCopy)
-				    DeleteObject(ScreenShotCopy);
+			    DeleteObject(ScreenShotCopy);
 			    DeleteDC(BackBufferDC);
-			    if(AlphaBitmap)
-				    DeleteObject(AlphaBitmap);
+			    DeleteObject(AlphaBitmap);
 			    DeleteDC(AlphaDC);
 			    EndPaint(Window, &PaintStruct);
 		    }
@@ -1564,7 +1552,7 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 		default:
 		    Result = DefWindowProcW(Window, Message, WParam, LParam);
 	}
-	return(Result);
+	return Result;
 }
 
 BOOL NewButton_Click(void)
@@ -1635,13 +1623,9 @@ BOOL NewButton_Click(void)
 	SetForegroundWindow(SnExG.gCaptureWindowHandle);
 	Result = TRUE;
 Cleanup:
-	if(MemoryDC) {
-		DeleteDC(MemoryDC);
-	}
-	if(ScreenDC) {
-		ReleaseDC(NULL, ScreenDC);
-	}
-	return(Result);
+	DeleteDC(MemoryDC);
+	ReleaseDC(NULL, ScreenDC);
+	return Result;
 }
 
 // Returns TRUE if the snip was saved. Returns FALSE if there was an error or if user cancelled.
@@ -1732,7 +1716,7 @@ Cleanup:
 	CoUninitialize();
 	gSaveButton.SelectedTool = FALSE;
 	gSaveButton.State = BUTTONSTATE_NORMAL;
-	return(Result);
+	return Result;
 }
 
 BOOL CopyButton_Click(void)
@@ -1773,7 +1757,7 @@ Cleanup:
 	CloseClipboard();
 	gCopyButton.SelectedTool = FALSE;
 	gCopyButton.State = BUTTONSTATE_NORMAL;
-	return(Result);
+	return Result;
 }
 
 BOOL SaveBitmapToFile(_In_ wchar_t* FilePath)
@@ -1875,14 +1859,10 @@ BOOL SaveBitmapToFile(_In_ wchar_t* FilePath)
 	// If nothing has failed up to this point, set Success to TRUE.
 	Success = TRUE;
 Cleanup:
-	if(Bits != NULL)
-		GlobalFree(Bits);
-	if(BitmapInfoPointer != NULL)
-		LocalFree(BitmapInfoPointer);
-	if(DC != NULL)
-		DeleteDC(DC);
-	if(FileHandle != INVALID_HANDLE_VALUE)
-		CloseHandle(FileHandle);
+	GlobalFree(Bits);
+	LocalFree(BitmapInfoPointer);
+	DeleteDC(DC);
+	CloseHandle(FileHandle);
 	if(Success == TRUE) {
 		MyOutputDebugStringW(L"[%s] Line %d: Returning successfully.\n", __FUNCTIONW__, __LINE__);
 		return(TRUE);
@@ -1969,9 +1949,8 @@ Cleanup:
 		GdipDisposeImage(GdipBitmap);
 	if(GdiplusToken != 0)
 		GdiplusShutdown(GdiplusToken);
-	if(GDIPlus != NULL)
-		FreeLibrary(GDIPlus);
-	return(Result);
+	FreeLibrary(GDIPlus);
+	return Result;
 }
 
 BOOL IsAppRunningElevated(void)
@@ -2190,9 +2169,9 @@ LSTATUS DeleteSnipExRegValue(_In_ wchar_t* ValueName)
 		}
 	}
 Exit:
-	Implement_RegCloseKey(SnipExKey);
-	Implement_RegCloseKey(SoftwareKey);
-	return(Result);
+	::RegCloseKey(SnipExKey);
+	::RegCloseKey(SoftwareKey);
+	return Result;
 }
 
 LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
@@ -2227,9 +2206,9 @@ LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read the SnipEx registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	}
-	Implement_RegCloseKey(SnipExKey);
-	Implement_RegCloseKey(SoftwareKey);
-	return(Result);
+	::RegCloseKey(SnipExKey);
+	::RegCloseKey(SoftwareKey);
+	return Result;
 }
 
 LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
@@ -2268,9 +2247,9 @@ LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read from the SnipEx registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	}
-	Implement_RegCloseKey(SnipExKey);
-	Implement_RegCloseKey(SoftwareKey);
-	return(Result);
+	::RegCloseKey(SnipExKey);
+	::RegCloseKey(SoftwareKey);
+	return Result;
 }
 
 BOOL CALLBACK TextEditCallback(_In_ HWND Dialog, _In_ UINT Message, _In_ WPARAM WParam, _In_ LPARAM LParam)

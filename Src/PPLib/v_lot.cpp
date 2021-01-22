@@ -2337,7 +2337,7 @@ void PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw) {
 		if(Filt.Flags & LotFilt::fOrders) {
 			SString word;
-			pBrw->LoadToolbar(TOOLBAR_ORDLOTS);
+			pBrw->LoadToolbarResource(TOOLBAR_ORDLOTS);
 			PPLoadString("ordered", word);
 			pBrw->SetColumnTitle(3, word);
 			PPLoadString("orderer", word);

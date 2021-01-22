@@ -4,10 +4,12 @@
 #include "regint.h"
 #pragma hdrstop
 
-static int nsucc  = 0;
-static int nfail  = 0;
-static int nerror = 0;
-static FILE * out_file; // @sobolev
+static OnigTestBlock OnigTB;
+
+//static int nsucc  = 0;
+//static int nfail  = 0;
+//static int nerror = 0;
+//static FILE * out_file; // @sobolev
 
 static int make_regset(int line_no, int n, char* pat[], OnigRegSet** rset, int error_no)
 {
@@ -26,17 +28,17 @@ static int make_regset(int line_no, int n, char* pat[], OnigRegSet** rset, int e
 			char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 			if(error_no == 0) {
 				onig_error_code_to_str((uchar *)s, r, &einfo);
-				slfprintf(stderr, "ERROR: %d: %s  /%s/\n", line_no, s, pat[i]);
-				nerror++;
+				slfprintf(OnigTB.err_file, "ERROR: %d: %s  /%s/\n", line_no, s, pat[i]);
+				OnigTB.nerror++;
 			}
 			else {
 				if(r == error_no) {
-					slfprintf(out_file, "OK(ERROR): %d: /%s/ %d\n", line_no, pat[i], r);
-					nsucc++;
+					slfprintf(OnigTB.out_file, "OK(ERROR): %d: /%s/ %d\n", line_no, pat[i], r);
+					OnigTB.nsucc++;
 				}
 				else {
-					slfprintf(out_file, "FAIL(ERROR): %d: /%s/ %d, %d\n", line_no, pat[i], error_no, r);
-					nfail++;
+					slfprintf(OnigTB.out_file, "FAIL(ERROR): %d: /%s/ %d, %d\n", line_no, pat[i], error_no, r);
+					OnigTB.nfail++;
 				}
 			}
 			onig_regset_free(set);
@@ -45,8 +47,8 @@ static int make_regset(int line_no, int n, char* pat[], OnigRegSet** rset, int e
 		r = onig_regset_add(set, reg);
 		if(r != 0) {
 			onig_regset_free(set);
-			slfprintf(stderr, "ERROR: %d: onig_regset_add(): /%s/\n", line_no, pat[i]);
-			nerror++;
+			slfprintf(OnigTB.err_file, "ERROR: %d: onig_regset_add(): /%s/\n", line_no, pat[i]);
+			OnigTB.nerror++;
 			return r;
 		}
 	}
@@ -76,7 +78,7 @@ static int time_test(int repeat, int n, char* ps[], char* s, char* end, double* 
 	for(i = 0; i < repeat; i++) {
 		r = onig_regset_search(set, (uchar *)s, (uchar *)end, (uchar *)s, (uchar *)end, ONIG_REGSET_POSITION_LEAD, ONIG_OPTION_NONE, &match_pos);
 		if(r < 0) {
-			slfprintf(stderr, "FAIL onig_regset_search(POSITION_LEAD): %d\n", r);
+			slfprintf(OnigTB.err_file, "FAIL onig_regset_search(POSITION_LEAD): %d\n", r);
 			onig_regset_free(set);
 			return r;
 		}
@@ -87,7 +89,7 @@ static int time_test(int repeat, int n, char* ps[], char* s, char* end, double* 
 	for(i = 0; i < repeat; i++) {
 		r = onig_regset_search(set, (uchar *)s, (uchar *)end, (uchar *)s, (uchar *)end, ONIG_REGSET_REGEX_LEAD, ONIG_OPTION_NONE, &match_pos);
 		if(r < 0) {
-			slfprintf(stderr, "FAIL onig_regset_search(REGEX_LEAD): %d\n", r);
+			slfprintf(OnigTB.err_file, "FAIL onig_regset_search(REGEX_LEAD): %d\n", r);
 			onig_regset_free(set);
 			return r;
 		}
@@ -135,7 +137,7 @@ static void time_compare(int n, char* ps[], char* s, char* end)
 			total_reg += t_reg;
 		}
 		SAlloc::F(cps);
-		slfprintf(out_file, "POS lead: %6.2lfmsec.  REG lead: %6.2lfmsec.\n", total_set * 1000.0, total_reg * 1000.0);
+		slfprintf(OnigTB.out_file, "POS lead: %6.2lfmsec.  REG lead: %6.2lfmsec.\n", total_set * 1000.0, total_reg * 1000.0);
 	}
 }
 
@@ -155,58 +157,56 @@ static void xx(int line_no, int n, char* ps[], char* s, int from, int to, int me
 	if(r < 0) {
 		if(r == ONIG_MISMATCH) {
 			if(not) {
-				slfprintf(out_file, "OK(N): %d\n", line_no);
-				nsucc++;
+				slfprintf(OnigTB.out_file, "OK(N): %d\n", line_no);
+				OnigTB.nsucc++;
 			}
 			else {
-				slfprintf(out_file, "FAIL: %d\n", line_no);
-				nfail++;
+				slfprintf(OnigTB.out_file, "FAIL: %d\n", line_no);
+				OnigTB.nfail++;
 			}
 		}
 		else {
 			if(error_no == 0) {
 				char buf[ONIG_MAX_ERROR_MESSAGE_LEN];
 				onig_error_code_to_str((uchar *)buf, r);
-				slfprintf(stderr, "ERROR: %d: %s\n", line_no, buf);
-				nerror++;
+				slfprintf(OnigTB.err_file, "ERROR: %d: %s\n", line_no, buf);
+				OnigTB.nerror++;
+			}
+			else if(r == error_no) {
+				slfprintf(OnigTB.out_file, "OK(ERROR): %d: %d\n", line_no, r);
+				OnigTB.nsucc++;
 			}
 			else {
-				if(r == error_no) {
-					slfprintf(out_file, "OK(ERROR): %d: %d\n", line_no, r);
-					nsucc++;
-				}
-				else {
-					slfprintf(out_file, "FAIL ERROR NO: %d: %d, %d\n", line_no, error_no, r);
-					nfail++;
-				}
+				slfprintf(OnigTB.out_file, "FAIL ERROR NO: %d: %d, %d\n", line_no, error_no, r);
+				OnigTB.nfail++;
 			}
 		}
 	}
 	else {
 		if(not) {
-			slfprintf(out_file, "FAIL(N): %d\n", line_no);
-			nfail++;
+			slfprintf(OnigTB.out_file, "FAIL(N): %d\n", line_no);
+			OnigTB.nfail++;
 		}
 		else {
 			match_index = r;
 			OnigRegion * region = onig_regset_get_region(set, match_index);
 			if(region == 0) {
-				slfprintf(stderr, "ERROR: %d: can't get region.\n", line_no);
-				nerror++;
+				slfprintf(OnigTB.err_file, "ERROR: %d: can't get region.\n", line_no);
+				OnigTB.nerror++;
 				onig_regset_free(set);
 				return;
 			}
 			if(region->beg[mem] == from && region->end[mem] == to) {
-				slfprintf(out_file, "OK: %d\n", line_no);
-				nsucc++;
+				slfprintf(OnigTB.out_file, "OK: %d\n", line_no);
+				OnigTB.nsucc++;
 			}
 			else {
 				char buf[1000];
 				int len = region->end[mem] - region->beg[mem];
 				strncpy(buf, s + region->beg[mem], len);
 				buf[len] = '\0';
-				slfprintf(out_file, "FAIL: %d: %d-%d : %d-%d (%s)\n", line_no, from, to, region->beg[mem], region->end[mem], buf);
-				nfail++;
+				slfprintf(OnigTB.out_file, "FAIL: %d: %d-%d : %d-%d (%s)\n", line_no, from, to, region->beg[mem], region->end[mem], buf);
+				OnigTB.nfail++;
 			}
 		}
 	}
@@ -276,7 +276,8 @@ extern int OnigTestRegSet_main(FILE * fOut)
 #endif
 	//int r;
 	//char * s, * end;
-	out_file = NZOR(fOut, stdout);
+	OnigTB.out_file = NZOR(fOut, stdout);
+	OnigTB.err_file = NZOR(fOut, stdout);
 	OnigEncoding use_encs[1];
 	use_encs[0] = ONIG_ENCODING_UTF8;
 	onig_initialize(use_encs, sizeof(use_encs)/sizeof(use_encs[0]));
@@ -314,7 +315,8 @@ extern int OnigTestRegSet_main(FILE * fOut)
 		X2(p4, s, 1294, 1315);
 	}
 #endif
-	slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
+	//slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
+	OnigTB.OutputResult();
 #ifndef _WIN32
 	if(file_exist != 0) {
 		slfprintf(out_file, "\n");
@@ -328,5 +330,5 @@ extern int OnigTestRegSet_main(FILE * fOut)
 	}
 #endif
 	onig_end();
-	return ((nfail == 0 && nerror == 0) ? 0 : -1);
+	return OnigTB.GetResult();
 }

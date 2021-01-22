@@ -767,8 +767,8 @@ int DBTable::writeLobData(DBField fld, const void * pBuf, size_t dataSize, int f
 			// преобразует SLob в структуру с отвлетвлением.
 			//
 			THROW(temp_buf.Alloc(dataSize));
-			memcpy(temp_buf, pBuf, dataSize);
-			pBuf = temp_buf;
+			memcpy(temp_buf.vptr(), pBuf, dataSize);
+			pBuf = temp_buf.vcptr();
 		}
 		THROW(p_fld_data->InitPtr((dataSize > flat_size || forceCanonical) ? dataSize : 0));
 		THROW(ptr = p_fld_data->GetRawDataPtr());
@@ -1033,7 +1033,7 @@ int DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffe
 	int    ok = 1;
 	int32  c = SVectorBase::GetCount(pList); // @persistent
 	STempBuffer temp_buf(0);
-	if(dir > 0 && c > 0) { // @v9.9.12 (c > 0)
+	if(dir > 0 && c > 0) {
 		uint32 dbt_id = 0;
 		THROW(pCtx->AddDbtDescr(tableName, &fields, &dbt_id));
 	}
@@ -1046,11 +1046,11 @@ int DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffe
 			THROW(temp_buf.Alloc(8192));
 		}
 		if(dir > 0) {
-			memcpy(temp_buf, pList->at(i), pList->getItemSize());
+			memcpy(temp_buf.vptr(), pList->at(i), pList->getItemSize());
 		}
-		THROW(SerializeRecord(dir, temp_buf, rBuf, pCtx));
+		THROW(SerializeRecord(dir, temp_buf.vptr(), rBuf, pCtx));
 		if(dir < 0 && pList) {
-			THROW(pList->insert(temp_buf));
+			THROW(pList->insert(temp_buf.vcptr()));
 		}
 	}
 	CATCHZOK

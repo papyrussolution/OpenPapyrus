@@ -2757,36 +2757,6 @@ int PPWhatmanWindow::FileOpen()
 	return ok;
 }
 
-class TWhatmanBrowser : public TBaseBrowserWindow {
-public:
-	static int RegWindowClass(HINSTANCE hInst);
-	static LPCTSTR WndClsName;
-	TWhatmanBrowser() : TBaseBrowserWindow(WndClsName)
-	{
-		InitLayout();
-	}
-	TWhatmanBrowser(const char * pFileName, int toolbarId = -1) : TBaseBrowserWindow(WndClsName)
-	{
-		InitLayout();
-	}
-	~TWhatmanBrowser()
-	{
-	}
-private:
-	void   InitLayout()
-	{
-		//SRectLayout::Item li;
-		AbstractLayoutBlock alb;
-		P_Lfc = new LayoutFlexItem();
-		alb.SetContainerDirection(DIREC_HORZ);
-		alb.AlignContent = AbstractLayoutBlock::alignStretch;
-		P_Lfc->SetLayoutBlock(alb);
-		P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
-	}
-};
-
-/*static*/LPCTSTR TWhatmanBrowser::WndClsName = _T("TWhatmanBrowser"); // @global
-
 /*static*/int PPWhatmanWindow::Helper_MakeFrameWindow(TWindowBase * pFrame, const char * pWtmFileName, const char * pWtaFileName)
 {
 	int    ok = 1;
@@ -2843,15 +2813,229 @@ private:
 	return ok;
 }
 
+/*static*/LPCTSTR TWhatmanBrowser::WndClsName = _T("TWhatmanBrowser"); // @global
+
+TWhatmanBrowser::TWhatmanBrowser(Param * pP) : TBaseBrowserWindow(WndClsName)
+{
+	RVALUEPTR(P, pP);
+	InitLayout();
+	BbState |= bbsWoScrollbars;
+}
+
+TWhatmanBrowser::TWhatmanBrowser(const char * pFileName, int toolbarId/*= -1*/) : TBaseBrowserWindow(WndClsName)
+{
+	InitLayout();
+}
+
+TWhatmanBrowser::~TWhatmanBrowser()
+{
+}
+
+void TWhatmanBrowser::InitLayout()
+{
+	//SRectLayout::Item li;
+	AbstractLayoutBlock alb;
+	P_Lfc = new LayoutFlexItem();
+	alb.SetContainerDirection(DIREC_HORZ);
+	alb.AlignContent = AbstractLayoutBlock::alignStretch;
+	P_Lfc->SetLayoutBlock(alb);
+	P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
+}
+
+int TWhatmanBrowser::WMHCreate()
+{
+	RECT rc;
+	GetWindowRect(H(), &rc);
+	P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
+	if(P_Toolbar && LoadToolbarResource(ToolbarID) > 0) {
+		P_Toolbar->Init(ToolbarID, &Toolbar);
+		if(P_Toolbar->IsValid()) {
+			RECT tbr;
+			::GetWindowRect(P_Toolbar->H(), &tbr);
+			ToolBarWidth = tbr.bottom - tbr.top;
+		}
+	}
+	PPWhatmanWindow::Helper_MakeFrameWindow(this, P.WtmFileName, P.WtaFileName);
+#if 0 // 
+	HwndSci = ::CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
+		0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, H(), 0/*(HMENU)GuiID*/, APPL->GetInst(), 0);
+	SScEditorBase::Init(HwndSci, 1/*preserveFileName*/);
+	TView::SetWindowProp(HwndSci, GWLP_USERDATA, this);
+	OrgScintillaWndProc = static_cast<WNDPROC>(TView::SetWindowProp(HwndSci, GWLP_WNDPROC, ScintillaWindowProc));
+	// @v8.6.2 (SCI_SETKEYSUNICODE deprecated in sci 3.5.5) CallFunc(SCI_SETKEYSUNICODE, 1, 0);
+	CallFunc(SCI_SETCARETLINEVISIBLE, 1);
+	CallFunc(SCI_SETCARETLINEBACK, RGB(232,232,255));
+	CallFunc(SCI_SETSELBACK, 1, RGB(117,217,117));
+	CallFunc(SCI_SETFONTQUALITY, SC_EFF_QUALITY_LCD_OPTIMIZED); // @v9.8.2 SC_EFF_QUALITY_ANTIALIASED-->SC_EFF_QUALITY_LCD_OPTIMIZED
+	// CallFunc(SCI_SETTECHNOLOGY, /*SC_TECHNOLOGY_DIRECTWRITERETAIN*/SC_TECHNOLOGY_DIRECTWRITEDC, 0); // @v9.8.2
+	//
+	CallFunc(SCI_SETMOUSEDWELLTIME, 500);
+	//
+	{
+		KeyAccel.clear();
+		{
+			for(uint i = 0; i < OuterKeyAccel.getCount(); i++) {
+				const LAssoc & r_accel_item = OuterKeyAccel.at(i);
+				const KeyDownCommand & r_k = *reinterpret_cast<const KeyDownCommand *>(&r_accel_item.Key);
+				KeyAccel.Set(r_k, r_accel_item.Val);
+			}
+		}
+		if(P_Toolbar) {
+			const uint tbc = P_Toolbar->getItemsCount();
+			for(uint i = 0; i < tbc; i++) {
+				const ToolbarItem & r_tbi = P_Toolbar->getItem(i);
+				if(!(r_tbi.Flags & r_tbi.fHidden) && r_tbi.KeyCode && r_tbi.KeyCode != TV_MENUSEPARATOR && r_tbi.Cmd) {
+					KeyDownCommand k;
+					if(k.SetTvKeyCode(r_tbi.KeyCode))
+						KeyAccel.Set(k, r_tbi.Cmd);
+				}
+			}
+		}
+		KeyAccel.Sort();
+	}
+	FileLoad(Doc.FileName, cpUTF8, 0);
+	return BIN(P_SciFn && P_SciPtr);
+#endif
+	return 1;
+}
+
+/*static*/LRESULT CALLBACK TWhatmanBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	CREATESTRUCT * p_init_data;
+	TWhatmanBrowser * p_view = 0;
+	switch(message) {
+		case WM_CREATE:
+			p_view = static_cast<TWhatmanBrowser *>(Helper_InitCreation(lParam, (void **)&p_init_data));
+			if(p_view) {
+				p_view->HW = hWnd;
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
+				::SetFocus(hWnd);
+				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0L);
+				p_view->WMHCreate();
+				PostMessage(hWnd, WM_PAINT, 0, 0);
+				{
+					SString temp_buf;
+					TView::SGetWindowText(hWnd, temp_buf);
+					APPL->AddItemToMenu(temp_buf, p_view);
+				}
+				return 0;
+			}
+			else
+				return -1;
+		case WM_COMMAND:
+			{
+				p_view = static_cast<TWhatmanBrowser *>(TView::GetWindowUserData(hWnd));
+				if(p_view) {
+					if(HIWORD(wParam) == 0) {
+						/*if(p_view->KeyAccel.getCount()) {
+							long   cmd = 0;
+							KeyDownCommand k;
+							k.SetTvKeyCode(LOWORD(wParam));
+							if(p_view->KeyAccel.BSearch(*reinterpret_cast<const long *>(&k), &cmd, 0)) {
+								p_view->ProcessCommand(cmd, 0, p_view);
+							}
+						}*/
+					}
+					/*
+					if(LOWORD(wParam))
+						p_view->ProcessCommand(LOWORD(wParam), 0, p_view);
+					*/
+				}
+			}
+			break;
+		case WM_DESTROY:
+			p_view = static_cast<TWhatmanBrowser *>(TView::GetWindowUserData(hWnd));
+			if(p_view) {
+				//p_view->SaveChanges();
+				TWindowBase::Helper_Finalize(hWnd, p_view);
+			}
+			return 0;
+		case WM_SETFOCUS:
+			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION)) {
+				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
+				APPL->NotifyFrame(0);
+			}
+			p_view = static_cast<TWhatmanBrowser *>(TView::GetWindowUserData(hWnd));
+			if(p_view) {
+				//::SetFocus(p_view->HwndSci);
+				APPL->SelectTabItem(p_view);
+				TView::messageBroadcast(p_view, cmReceivedFocus);
+				p_view->select();
+			}
+			break;
+		case WM_KILLFOCUS:
+			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION))
+				APPL->NotifyFrame(0);
+			p_view = static_cast<TWhatmanBrowser *>(TView::GetWindowUserData(hWnd));
+			if(p_view) {
+				TView::messageBroadcast(p_view, cmReleasedFocus);
+				p_view->ResetOwnerCurrent();
+			}
+			break;
+		case WM_KEYDOWN:
+			if(wParam == VK_ESCAPE) {
+				p_view = static_cast<TWhatmanBrowser *>(TView::GetWindowUserData(hWnd));
+				if(p_view) {
+					p_view->endModal(cmCancel);
+					return 0;
+				}
+			}
+			else if(wParam == VK_TAB) {
+				p_view = static_cast<TWhatmanBrowser *>(TView::GetWindowUserData(hWnd));
+				if(p_view && GetKeyState(VK_CONTROL) & 0x8000 && !p_view->IsInState(sfModal)) {
+					SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
+					return 0;
+				}
+			}
+			return 0;
+		case WM_SIZE:
+			p_view = static_cast<TWhatmanBrowser *>(TView::GetWindowUserData(hWnd));
+			{ // ƒалее - полна€ копи€ обработки такого событи€ из TWindowBase::WndProc
+				SizeEvent se;
+				switch(wParam) {
+					case SIZE_MAXHIDE:   se.ResizeType = SizeEvent::tMaxHide;   break;
+					case SIZE_MAXIMIZED: se.ResizeType = SizeEvent::tMaximized; break;
+					case SIZE_MAXSHOW:   se.ResizeType = SizeEvent::tMaxShow;   break;
+					case SIZE_MINIMIZED: se.ResizeType = SizeEvent::tMinimized; break;
+					case SIZE_RESTORED:  se.ResizeType = SizeEvent::tRestored;  break;
+					default: se.ResizeType = 0; break;
+				}
+				se.PrevSize = p_view->ViewSize;
+				p_view->ViewSize = se.NewSize.setwparam(lParam);
+				if(TView::messageCommand(p_view, cmSize, &se))
+					return 0;
+			}
+			break;
+	}
+	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+/*static*/int TWhatmanBrowser::RegWindowClass(HINSTANCE hInst)
+{
+	WNDCLASSEX wc;
+	INITWINAPISTRUCT(wc);
+	wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+	wc.lpfnWndProc   = TWhatmanBrowser::WndProc;
+	wc.cbClsExtra    = BRWCLASS_CEXTRA;
+	wc.cbWndExtra    = BRWCLASS_WEXTRA;
+	wc.hInstance     = hInst;
+	wc.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
+	wc.hCursor       = NULL;
+	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
+	wc.lpszClassName = TWhatmanBrowser::WndClsName;
+	return RegisterClassEx(&wc);
+}
+
 /*static*/int PPWhatmanWindow::Edit(const char * pWtmFileName, const char * pWtaFileName)
 {
-	const int use_base_browser_window = 0;
+	const int use_base_browser_window = 1;
 	int    ok = -1;
-	PPWhatmanWindow * p_tool_win = 0;
-	PPWhatmanWindow * p_edit_win = 0;
 	if(use_base_browser_window) {
-		TWhatmanBrowser * p_frame_win = new TWhatmanBrowser;
-		THROW(PPWhatmanWindow::Helper_MakeFrameWindow(p_frame_win, pWtmFileName, pWtaFileName));
+		TWhatmanBrowser::Param param;
+		param.Flags |= param.fEditMode;
+		param.WtmFileName = pWtmFileName;
+		param.WtaFileName = pWtaFileName;
+		TWhatmanBrowser * p_frame_win = new TWhatmanBrowser(&param);
 		InsertView(p_frame_win);
 	}
 	else {
@@ -2859,7 +3043,6 @@ private:
 		public:
 			FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 			{
-				//SRectLayout::Item li;
 				AbstractLayoutBlock alb;
 				P_Lfc = new LayoutFlexItem();
 				alb.SetContainerDirection(DIREC_HORZ);
@@ -2880,4 +3063,24 @@ private:
 		ok = PPErrorZ();
 	ENDCATCH
 	return ok;
+}
+
+void PPViewWhatmanBrowser(const char * pTitle)
+{
+	TWhatmanBrowser * p_brw = 0;//PPFindLastTextBrowser(pFileName);
+	if(p_brw) {
+		PPCloseBrowser(p_brw);
+		p_brw = 0;
+	}
+	p_brw = new TWhatmanBrowser((TWhatmanBrowser::Param *)0);
+	{
+		SString title_buf;
+		if(!isempty(pTitle))
+			title_buf = pTitle;
+		else {
+			title_buf = "Whatman Window";
+		}
+		p_brw->setTitle(title_buf);
+	}
+	InsertView(p_brw);
 }

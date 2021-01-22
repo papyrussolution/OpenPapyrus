@@ -1,7 +1,7 @@
 #ifndef ONIGGNU_H
 #define ONIGGNU_H
 /**********************************************************************
-  oniggnu.h - Oniguruma (regular expression library)
+   oniggnu.h - Oniguruma (regular expression library)
 **********************************************************************/
 /*-
  * Copyright (c) 2002-2019  K.Kosako
@@ -28,7 +28,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
 #include "oniguruma.h"
 
 #ifdef __cplusplus
@@ -36,15 +35,15 @@ extern "C" {
 #endif
 
 enum {
-  RE_MBCTYPE_ASCII = 0,
-  RE_MBCTYPE_EUC   = 1,
-  RE_MBCTYPE_SJIS  = 2,
-  RE_MBCTYPE_UTF8  = 3
+	RE_MBCTYPE_ASCII = 0,
+	RE_MBCTYPE_EUC   = 1,
+	RE_MBCTYPE_SJIS  = 2,
+	RE_MBCTYPE_UTF8  = 3
 };
 
 /* GNU regex options */
 #ifndef RE_NREGS
-#define RE_NREGS                ONIG_NREGION
+	#define RE_NREGS                ONIG_NREGION
 #endif
 
 #define RE_OPTION_IGNORECASE         ONIG_OPTION_IGNORECASE
@@ -58,27 +57,16 @@ enum {
 #define RE_OPTION_DONT_CAPTURE_GROUP ONIG_OPTION_DONT_CAPTURE_GROUP
 #define RE_OPTION_CAPTURE_GROUP      ONIG_OPTION_CAPTURE_GROUP
 
-
-ONIG_EXTERN
-void re_mbcinit P_((int));
-ONIG_EXTERN
-int re_compile_pattern P_((const char*, int, struct re_pattern_buffer*, char* err_buf));
-ONIG_EXTERN
-int re_recompile_pattern P_((const char*, int, struct re_pattern_buffer*, char* err_buf));
-ONIG_EXTERN
-void re_free_pattern P_((struct re_pattern_buffer*));
-ONIG_EXTERN
-int re_adjust_startpos P_((struct re_pattern_buffer*, const char*, int, int, int));
-ONIG_EXTERN
-int re_search P_((struct re_pattern_buffer*, const char*, int, int, int, struct re_registers*));
-ONIG_EXTERN
-int re_match P_((struct re_pattern_buffer*, const char *, int, int, struct re_registers*));
-ONIG_EXTERN
-void re_set_casetable P_((const char*));
-ONIG_EXTERN
-void re_free_registers P_((struct re_registers*));
-ONIG_EXTERN
-int re_alloc_pattern P_((struct re_pattern_buffer**));  /* added */
+ONIG_EXTERN void re_mbcinit(int);
+ONIG_EXTERN int  re_compile_pattern(const char*, int, struct re_pattern_buffer*, char* err_buf);
+ONIG_EXTERN int  re_recompile_pattern(const char*, int, struct re_pattern_buffer*, char* err_buf);
+ONIG_EXTERN void re_free_pattern(struct re_pattern_buffer*);
+ONIG_EXTERN int  re_adjust_startpos(struct re_pattern_buffer*, const char*, int, int, int);
+ONIG_EXTERN int  re_search(struct re_pattern_buffer*, const char*, int, int, int, struct re_registers*);
+ONIG_EXTERN int  re_match(struct re_pattern_buffer*, const char *, int, int, struct re_registers*);
+ONIG_EXTERN void re_set_casetable(const char*);
+ONIG_EXTERN void re_free_registers(struct re_registers*);
+ONIG_EXTERN int  re_alloc_pattern(struct re_pattern_buffer**);  /* added */
 
 #ifdef __cplusplus
 }

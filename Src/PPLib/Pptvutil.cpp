@@ -499,7 +499,8 @@ int ViewStatus()
 		{ CTL_STATUS_BINPATH,  PPPATH_BIN },
 		{ CTL_STATUS_INPATH,   PPPATH_IN },
 		{ CTL_STATUS_OUTPATH,  PPPATH_OUT },
-		{ CTL_STATUS_TEMPPATH, PPPATH_TEMP }
+		{ CTL_STATUS_TEMPPATH, PPPATH_TEMP },
+		{ CTL_STATUS_LOGPATH,  PPPATH_LOG } // @v11.0.0
 	};
 	class StatusDialog : public TDialog {
 		enum {
@@ -573,31 +574,11 @@ int ViewStatus()
 	}
 	dlg->setCtrlString(CTL_STATUS_DBSYMBOL, sbuf);
 	dlg->setCtrlString(CTL_STATUS_DATAPATH, datapath.Transf(CTRANSF_OUTER_TO_INNER));
-
-	//PPLoadText(PPTXT_PATHACCESS, accbuf);
-	//PPLoadText(PPTXT_PATHACCESSNO, accbufno);
 	for(uint i = 0; i < SIZEOFARRAY(ctrl_to_path_map); i++) {
 		const CtrlToPathMapEntry & r_map_entry = ctrl_to_path_map[i];
 		PPGetPath(r_map_entry.PathID, datapath);
 		dlg->setCtrlString(r_map_entry.CtlId, datapath.Transf(CTRANSF_OUTER_TO_INNER));
 	}
-	/*
-	PPGetPath(PPPATH_BIN, datapath);
-	dlg->setCtrlString(CTL_STATUS_BINPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
-	//dlg->setCtrlString(CTL_STATUS_ACCESSBIN, fileExists(datapath) ? accbuf : accbufno);
-
-	PPGetPath(PPPATH_IN, datapath);
-    dlg->setCtrlString(CTL_STATUS_INPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
-	//dlg->setCtrlString(CTL_STATUS_ACCESSIN, fileExists(datapath) ? accbuf : accbufno);
-
-	PPGetPath(PPPATH_OUT, datapath);
-	dlg->setCtrlString(CTL_STATUS_OUTPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
-	//dlg->setCtrlString(CTL_STATUS_ACCESSOUT, fileExists(datapath) ? accbuf : accbufno);
-
-	PPGetPath(PPPATH_TEMP, datapath);
-	dlg->setCtrlString(CTL_STATUS_TEMPPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
-	//dlg->setCtrlString(CTL_STATUS_ACCESSTEMP, fileExists(datapath) ? accbuf : accbufno);
-	*/
 	if(LConfig.Flags & CFGFLG_USEGOODSMATRIX) {
 		PPLoadText(PPTXT_GOODSMATRIX_IS_USED, sbuf);
 		dlg->setStaticText(CTL_STATUS_USEGDSMATRIX, sbuf);

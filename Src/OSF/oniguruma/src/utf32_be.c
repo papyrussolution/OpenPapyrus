@@ -119,7 +119,7 @@ static uchar * utf32be_left_adjust_char_head(const uchar * start, const uchar * 
 	return (uchar *)(s - rem);
 }
 
-static int utf32be_get_case_fold_codes_by_str(OnigCaseFoldType flag, const OnigUChar * p, const OnigUChar * end, OnigCaseFoldCodeItem items[])
+static int utf32be_get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[])
 {
 	return onigenc_unicode_get_case_fold_codes_by_str(ONIG_ENCODING_UTF32_BE, flag, p, end, items);
 }

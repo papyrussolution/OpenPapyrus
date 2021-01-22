@@ -731,6 +731,21 @@ void TWindow::setupToolbar(const ToolbarList * pToolbar)
 		Toolbar.clearAll();
 }
 
+int TWindow::LoadToolbarResource(uint toolbarResourceId)
+{
+	int    ok = 1;
+	if(toolbarResourceId) {
+		ToolbarList tb_list;
+		THROW(P_SlRez);
+		THROW(::LoadToolbar(P_SlRez, TV_EXPTOOLBAR, toolbarResourceId, &tb_list));
+		setupToolbar(&tb_list);
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
 HWND TWindow::showToolbar()
 {
 	HWND   h_tool_bar = CreateWindowEx(0, TOOLBARCLASSNAME, 0, WS_CHILD|TBSTYLE_TOOLTIPS|CCS_TOP|WS_CLIPSIBLINGS, 
@@ -1218,8 +1233,9 @@ TWindowBase::TWindowBase(LPCTSTR pWndClsName, int capability) : ClsName(SUcSwitc
 TWindowBase::~TWindowBase()
 {
 	ZDeleteWinGdiObject(&H_DrawBuf);
+	TWindowBase * p_this_view_from_wnd = 0;
 	if(::IsWindow(HW)) {
-		TWindowBase * p_this_view_from_wnd = static_cast<TWindowBase *>(TView::GetWindowUserData(HW));
+		p_this_view_from_wnd = static_cast<TWindowBase *>(TView::GetWindowUserData(HW));
 		if(p_this_view_from_wnd) {
 			Sf |= sfOnDestroy;
 			::DestroyWindow(HW);
@@ -1228,7 +1244,7 @@ TWindowBase::~TWindowBase()
 		}
 	}
 	// @v10.9.3 {
-	if(P_Lfc && !(Sf & sfOnDestroy)) {
+	if(P_Lfc && !(Sf & (sfOnDestroy|sfOnParentDestruction))) {
 		if(!P_Lfc->FatherKillMe())
 			delete P_Lfc;
 		P_Lfc = 0;
@@ -1599,10 +1615,8 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 				// @v10.6.5 @ctr MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tPaint;
 				BeginPaint(hWnd, &ps);
-
 				SETFLAG(pe.Flags, PaintEvent::fErase, ps.fErase);
 				pe.Rect = ps.rcPaint;
-
 				int    use_draw_buf = 0;
 				RECT   cr;
 				HDC    h_dc_mem = 0;

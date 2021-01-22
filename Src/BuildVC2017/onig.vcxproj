@@ -248,6 +248,8 @@
     <ClCompile Include="..\OSF\oniguruma\test\test_regset.c" />
     <ClCompile Include="..\OSF\oniguruma\test\test_syntax.c" />
     <ClCompile Include="..\OSF\oniguruma\test\test_utf8.c" />
+    <ClInclude Include="..\OSF\oniguruma\src\oniggnu.h" />
+    <ClInclude Include="..\OSF\oniguruma\src\oniguruma.h" />
     <ClInclude Include="..\osf\oniguruma\src\regint.h" />
     <ClInclude Include="..\osf\oniguruma\src\regparse.h" />
     <ClInclude Include="..\osf\oniguruma\src\regenc.h" />

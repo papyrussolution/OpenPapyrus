@@ -12789,7 +12789,7 @@ int PrcssrCCheckGenerator::Run()
 	PPWait(1);
 	P.P_Pan->EnableBeep(0);
 	while((!P.MaxCc || cc_count < P.MaxCc) && (!P.MaxTime || cmp(tm_cur, tm_limit) < 0) && PPCheckUserBreak()) {
-		uint   cl_count = (uint)fabs(P_RngCount->GetGaussian(3.0) + 10.0);
+		const uint cl_count = (uint)fabs(P_RngCount->GetGaussian(3.0) + 10.0);
 		for(uint i = 0; i < cl_count;) {
 			uint goods_pos = P_RngCount->GetUniformInt(GoodsList.getCount());
 			if(goods_pos < GoodsList.getCount()) {

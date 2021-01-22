@@ -614,8 +614,8 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			if(!IsIconic(APPL->H_MainWnd)) {
 				APPL->SizeMainWnd(hWnd);
 				RECT rc;
-				GetClientRect(hWnd, &rc);
-				MoveWindow(GetDlgItem(hWnd, MENUTREE_LIST), 0, 0, rc.right, rc.bottom, 1);
+				::GetClientRect(hWnd, &rc);
+				::MoveWindow(GetDlgItem(hWnd, MENUTREE_LIST), 0, 0, rc.right, rc.bottom, 1);
 			}
 			break;
 		default:

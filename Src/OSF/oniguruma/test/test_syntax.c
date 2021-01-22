@@ -9,16 +9,18 @@
 
 #define SLEN(s)  strlen(s)
 
-static int nsucc  = 0;
-static int nfail  = 0;
-static int nerror = 0;
-#ifdef __TRUSTINSOFT_ANALYZER__
-	static int nall = 0;
-#endif
-static FILE * out_file; // @sobolev
-static FILE * err_file;
-static OnigRegion * region;
-static OnigSyntaxType * Syntax;
+static OnigTestBlock OnigTB;
+
+//static int nsucc  = 0;
+//static int nfail  = 0;
+//static int nerror = 0;
+//#ifdef __TRUSTINSOFT_ANALYZER__
+	//static int nall = 0;
+//#endif
+//static FILE * out_file; // @sobolev
+//static FILE * err_file;
+//static OnigRegion * region;
+//static OnigSyntaxType * Syntax;
 
 static void xx(char* pattern, char* str, int from, int to, int mem, int not, int error_no)
 {
@@ -27,70 +29,56 @@ static void xx(char* pattern, char* str, int from, int to, int mem, int not, int
 #endif
 	regex_t* reg;
 	OnigErrorInfo einfo;
-	int r = onig_new(&reg, (uchar *)pattern, (uchar *)(pattern + SLEN(pattern)), ONIG_OPTION_DEFAULT, ONIG_ENCODING_UTF8, Syntax, &einfo);
+	int r = onig_new(&reg, (uchar *)pattern, (uchar *)(pattern + SLEN(pattern)), ONIG_OPTION_DEFAULT, ONIG_ENCODING_UTF8, OnigTB.Syntax, &einfo);
 	if(r) {
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		if(error_no == 0) {
 			onig_error_code_to_str((uchar *)s, r, &einfo);
-			slfprintf(err_file, "ERROR: %s  /%s/\n", s, pattern);
-			nerror++;
+			slfprintf(OnigTB.err_file, "ERROR: %s  /%s/\n", s, pattern);
+			OnigTB.nerror++;
+		}
+		else if(r == error_no) {
+			slfprintf(OnigTB.out_file, "OK(ERROR): /%s/ %d\n", pattern, r);
+			OnigTB.nsucc++;
 		}
 		else {
-			if(r == error_no) {
-				slfprintf(out_file, "OK(ERROR): /%s/ %d\n", pattern, r);
-				nsucc++;
-			}
-			else {
-				slfprintf(out_file, "FAIL(ERROR): /%s/ '%s', %d, %d\n", pattern, str, error_no, r);
-				nfail++;
-			}
+			slfprintf(OnigTB.out_file, "FAIL(ERROR): /%s/ '%s', %d, %d\n", pattern, str, error_no, r);
+			OnigTB.nfail++;
 		}
 		return;
 	}
-	r = onig_search(reg, (uchar *)str, (uchar *)(str + SLEN(str)), (uchar *)str, (uchar *)(str + SLEN(str)), region, ONIG_OPTION_NONE);
+	r = onig_search(reg, (uchar *)str, (uchar *)(str + SLEN(str)), (uchar *)str, (uchar *)(str + SLEN(str)), OnigTB.region, ONIG_OPTION_NONE);
 	if(r < ONIG_MISMATCH) {
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		if(error_no == 0) {
 			onig_error_code_to_str((uchar *)s, r);
-			slfprintf(err_file, "ERROR: %s  /%s/\n", s, pattern);
-			nerror++;
+			slfprintf(OnigTB.err_file, "ERROR: %s  /%s/\n", s, pattern);
+			OnigTB.nerror++;
+		}
+		else if(r == error_no) {
+			slfprintf(OnigTB.out_file, "OK(ERROR): /%s/ '%s', %d\n", pattern, str, r);
+			OnigTB.nsucc++;
 		}
 		else {
-			if(r == error_no) {
-				slfprintf(out_file, "OK(ERROR): /%s/ '%s', %d\n", pattern, str, r);
-				nsucc++;
-			}
-			else {
-				slfprintf(out_file, "FAIL ERROR NO: /%s/ '%s', %d, %d\n", pattern, str, error_no, r);
-				nfail++;
-			}
+			slfprintf(OnigTB.out_file, "FAIL ERROR NO: /%s/ '%s', %d, %d\n", pattern, str, error_no, r);
+			OnigTB.nfail++;
 		}
 		return;
 	}
 	if(r == ONIG_MISMATCH) {
-		if(not) {
-			slfprintf(out_file, "OK(N): /%s/ '%s'\n", pattern, str);
-			nsucc++;
-		}
-		else {
-			slfprintf(out_file, "FAIL: /%s/ '%s'\n", pattern, str);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputOkN(pattern, str);
+		else
+			OnigTB.OutputFail(pattern, str);
 	}
 	else {
-		if(not) {
-			slfprintf(out_file, "FAIL(N): /%s/ '%s'\n", pattern, str);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputFailN(pattern, str);
+		else if(OnigTB.region->beg[mem] == from && OnigTB.region->end[mem] == to)
+			OnigTB.OutputOk(pattern, str);
 		else {
-			if(region->beg[mem] == from && region->end[mem] == to) {
-				slfprintf(out_file, "OK: /%s/ '%s'\n", pattern, str);
-				nsucc++;
-			}
-			else {
-				slfprintf(out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", pattern, str, from, to, region->beg[mem], region->end[mem]);
-				nfail++;
-			}
+			slfprintf(OnigTB.out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", pattern, str, from, to, OnigTB.region->beg[mem], OnigTB.region->end[mem]);
+			OnigTB.nfail++;
 		}
 	}
 	onig_free(reg);
@@ -166,13 +154,13 @@ static int test_look_behind()
 
 extern int OnigTestSyntax_main(FILE * fOut)
 {
-	out_file = NZOR(fOut, stdout); // @sobolev
-	err_file = NZOR(fOut, stdout);
+	OnigTB.out_file = NZOR(fOut, stdout); // @sobolev
+	OnigTB.err_file = NZOR(fOut, stdout);
 	OnigEncoding use_encs[1];
 	use_encs[0] = ONIG_ENCODING_UTF8;
 	onig_initialize(use_encs, sizeof(use_encs)/sizeof(use_encs[0]));
-	region = onig_region_new();
-	Syntax = ONIG_SYNTAX_PERL;
+	OnigTB.region = onig_region_new();
+	OnigTB.Syntax = ONIG_SYNTAX_PERL;
 	test_fixed_interval();
 	test_isolated_option();
 	test_prec_read();
@@ -183,7 +171,7 @@ extern int OnigTestSyntax_main(FILE * fOut)
 	e("(", "", ONIGERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
 	// different spec.
 	// e("\\x{7fffffff}", "", ONIGERR_TOO_BIG_WIDE_CHAR_VALUE);
-	Syntax = ONIG_SYNTAX_JAVA;
+	OnigTB.Syntax = ONIG_SYNTAX_JAVA;
 	test_fixed_interval();
 	test_isolated_option();
 	test_prec_read();
@@ -191,8 +179,9 @@ extern int OnigTestSyntax_main(FILE * fOut)
 	x2("(?<=ab|(.))\\1", "abb", 2, 3);
 	n("(?<!ab|b)c", "bbc");
 	n("(?<!b|ab)c", "bbc");
-	slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
-	onig_region_free(region, 1);
+	//slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
+	OnigTB.OutputResult();
+	onig_region_free(OnigTB.region, 1);
 	onig_end();
-	return ((nfail == 0 && nerror == 0) ? 0 : -1);
+	return OnigTB.GetResult();
 }

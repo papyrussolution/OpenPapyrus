@@ -439,26 +439,26 @@ typedef struct {
 #endif
 } ScanEnv;
 
-extern int onig_renumber_name_table P_((regex_t* reg, GroupNumMap* map));
-extern int onig_strncmp P_((const uchar * s1, const uchar * s2, int n));
-extern void onig_strcpy P_((uchar * dest, const uchar * src, const uchar * end));
-extern void onig_scan_env_set_error_string P_((ScanEnv* env, int ecode, uchar * arg, uchar * arg_end));
-extern int onig_reduce_nested_quantifier P_((Node* pnode));
+extern int onig_renumber_name_table(regex_t* reg, GroupNumMap* map);
+extern int onig_strncmp(const uchar * s1, const uchar * s2, int n);
+extern void onig_strcpy(uchar * dest, const uchar * src, const uchar * end);
+extern void onig_scan_env_set_error_string(ScanEnv* env, int ecode, uchar * arg, uchar * arg_end);
+extern int onig_reduce_nested_quantifier(Node* pnode);
 extern int    onig_node_copy(Node** rcopy, Node* from);
-extern int onig_node_str_cat P_((Node* node, const uchar * s, const uchar * end));
-extern int onig_node_str_set P_((Node* node, const uchar * s, const uchar * end, int need_free));
-extern void onig_node_str_clear P_((Node* node, int need_free));
-extern void onig_node_free P_((Node* node));
-extern int onig_node_reset_empty P_((Node* node));
-extern int onig_node_reset_fail P_((Node* node));
-extern Node*  onig_node_new_bag P_((enum BagType type));
-extern Node*  onig_node_new_str P_((const uchar * s, const uchar * end));
-extern Node*  onig_node_new_list P_((Node* left, Node* right));
-extern Node*  onig_node_new_alt P_((Node* left, Node* right));
-extern int onig_names_free P_((regex_t* reg));
-extern int onig_parse_tree P_((Node**root, const uchar * pattern, const uchar * end, regex_t* reg, ScanEnv* env));
-extern int onig_free_shared_cclass_table P_((void));
-extern int onig_is_code_in_cc P_((OnigEncoding enc, OnigCodePoint code, CClassNode* cc));
+extern int onig_node_str_cat(Node* node, const uchar * s, const uchar * end);
+extern int onig_node_str_set(Node* node, const uchar * s, const uchar * end, int need_free);
+extern void onig_node_str_clear(Node* node, int need_free);
+extern void onig_node_free(Node* node);
+extern int onig_node_reset_empty(Node* node);
+extern int onig_node_reset_fail(Node* node);
+extern Node*  onig_node_new_bag(enum BagType type);
+extern Node*  onig_node_new_str(const uchar * s, const uchar * end);
+extern Node*  onig_node_new_list(Node* left, Node* right);
+extern Node*  onig_node_new_alt(Node* left, Node* right);
+extern int onig_names_free(regex_t* reg);
+extern int onig_parse_tree(Node**root, const uchar * pattern, const uchar * end, regex_t* reg, ScanEnv* env);
+extern int onig_free_shared_cclass_table(void);
+extern int onig_is_code_in_cc(OnigEncoding enc, OnigCodePoint code, CClassNode* cc);
 extern int    onig_new_cclass_with_code_list(Node** rnode, OnigEncoding enc, int n, OnigCodePoint codes[]);
 extern OnigLen onig_get_tiny_min_len(Node* node, uint inhibit_node_types, int* invalid_node);
 

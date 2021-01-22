@@ -131,13 +131,12 @@ struct PropertyNameCtype {
 
 /* for encoding system implementation (internal) */
 extern int onigenc_end(void);
-extern int onigenc_ascii_apply_all_case_fold P_((OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg));
-extern int onigenc_ascii_get_case_fold_codes_by_str P_((OnigCaseFoldType flag, const OnigUChar * p, const OnigUChar * end,
-    OnigCaseFoldCodeItem items[]));
-extern int onigenc_apply_all_case_fold_with_map P_((int map_size, const OnigPairCaseFoldCodes map[], int ess_tsett_flag,
-    OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg));
-extern int onigenc_get_case_fold_codes_by_str_with_map P_((int map_size, const OnigPairCaseFoldCodes map[], int ess_tsett_flag,
-    OnigCaseFoldType flag, const OnigUChar * p, const OnigUChar * end, OnigCaseFoldCodeItem items[]));
+extern int onigenc_ascii_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg);
+extern int onigenc_ascii_get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[]);
+extern int onigenc_apply_all_case_fold_with_map(int map_size, const OnigPairCaseFoldCodes map[], int ess_tsett_flag,
+    OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg);
+extern int onigenc_get_case_fold_codes_by_str_with_map(int map_size, const OnigPairCaseFoldCodes map[], int ess_tsett_flag,
+    OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[]);
 extern int onigenc_not_support_get_ctype_code_range(OnigCtype ctype, OnigCodePoint* sb_out, const OnigCodePoint* ranges[]);
 extern int onigenc_is_mbc_newline_0x0a(const uchar * p, const uchar * end);
 
@@ -145,38 +144,37 @@ extern int onigenc_is_mbc_newline_0x0a(const uchar * p, const uchar * end);
 extern int onigenc_ascii_mbc_case_fold(OnigCaseFoldType flag, const uchar **p, const uchar * end, uchar * lower);
 extern int onigenc_single_byte_mbc_enc_len(const uchar * p);
 extern OnigCodePoint onigenc_single_byte_mbc_to_code(const uchar * p, const uchar * end);
-extern int onigenc_single_byte_code_to_mbclen P_((OnigCodePoint code));
-extern int onigenc_single_byte_code_to_mbc P_((OnigCodePoint code, uchar * buf));
-extern uchar * onigenc_single_byte_left_adjust_char_head P_((const uchar * start, const uchar * s));
-extern int onigenc_always_true_is_allowed_reverse_match P_((const uchar * s, const uchar * end));
-extern int onigenc_always_false_is_allowed_reverse_match P_((const uchar * s, const uchar * end));
-extern int onigenc_always_true_is_valid_mbc_string P_((const uchar * s, const uchar * end));
-extern int onigenc_length_check_is_valid_mbc_string P_((OnigEncoding enc, const uchar * s, const uchar * end));
+extern int onigenc_single_byte_code_to_mbclen(OnigCodePoint code);
+extern int onigenc_single_byte_code_to_mbc(OnigCodePoint code, uchar * buf);
+extern uchar * onigenc_single_byte_left_adjust_char_head(const uchar * start, const uchar * s);
+extern int onigenc_always_true_is_allowed_reverse_match(const uchar * s, const uchar * end);
+extern int onigenc_always_false_is_allowed_reverse_match(const uchar * s, const uchar * end);
+extern int onigenc_always_true_is_valid_mbc_string(const uchar * s, const uchar * end);
+extern int onigenc_length_check_is_valid_mbc_string(OnigEncoding enc, const uchar * s, const uchar * end);
 
 /* methods for multi byte encoding */
-extern OnigCodePoint onigenc_mbn_mbc_to_code P_((OnigEncoding enc, const uchar * p, const uchar * end));
-extern int onigenc_mbn_mbc_case_fold P_((OnigEncoding enc, OnigCaseFoldType flag, const uchar **p, const uchar * end, uchar * lower));
-extern int onigenc_mb2_code_to_mbc P_((OnigEncoding enc, OnigCodePoint code, uchar * buf));
-extern int onigenc_minimum_property_name_to_ctype P_((OnigEncoding enc, uchar * p, uchar * end));
-extern int onigenc_unicode_property_name_to_ctype P_((OnigEncoding enc, uchar * p, uchar * end));
-extern int onigenc_is_mbc_word_ascii P_((OnigEncoding enc, uchar * s, const uchar * end));
-extern int onigenc_mb2_is_code_ctype P_((OnigEncoding enc, OnigCodePoint code, uint ctype));
-extern int onigenc_mb4_code_to_mbc P_((OnigEncoding enc, OnigCodePoint code, uchar * buf));
-extern int onigenc_mb4_is_code_ctype P_((OnigEncoding enc, OnigCodePoint code, uint ctype));
+extern OnigCodePoint onigenc_mbn_mbc_to_code(OnigEncoding enc, const uchar * p, const uchar * end);
+extern int onigenc_mbn_mbc_case_fold(OnigEncoding enc, OnigCaseFoldType flag, const uchar **p, const uchar * end, uchar * lower);
+extern int onigenc_mb2_code_to_mbc(OnigEncoding enc, OnigCodePoint code, uchar * buf);
+extern int onigenc_minimum_property_name_to_ctype(OnigEncoding enc, uchar * p, uchar * end);
+extern int onigenc_unicode_property_name_to_ctype(OnigEncoding enc, uchar * p, uchar * end);
+extern int onigenc_is_mbc_word_ascii(OnigEncoding enc, uchar * s, const uchar * end);
+extern int onigenc_mb2_is_code_ctype(OnigEncoding enc, OnigCodePoint code, uint ctype);
+extern int onigenc_mb4_code_to_mbc(OnigEncoding enc, OnigCodePoint code, uchar * buf);
+extern int onigenc_mb4_is_code_ctype(OnigEncoding enc, OnigCodePoint code, uint ctype);
 extern struct PropertyNameCtype* onigenc_euc_jp_lookup_property_name(const char * str, size_t len);
 extern struct PropertyNameCtype* onigenc_sjis_lookup_property_name(const char * str, size_t len);
 
 /* in unicode.c */
-extern int onigenc_unicode_is_code_ctype P_((OnigCodePoint code, uint ctype));
-extern int onigenc_utf16_32_get_ctype_code_range P_((OnigCtype ctype, OnigCodePoint * sb_out, const OnigCodePoint* ranges[]));
-extern int onigenc_unicode_ctype_code_range P_((OnigCtype ctype, const OnigCodePoint* ranges[]));
-extern int onigenc_unicode_get_case_fold_codes_by_str P_((OnigEncoding enc, OnigCaseFoldType flag, const OnigUChar * p, const OnigUChar * end,
-    OnigCaseFoldCodeItem items[]));
-extern int onigenc_unicode_mbc_case_fold P_((OnigEncoding enc, OnigCaseFoldType flag, const uchar **pp, const uchar * end, uchar * fold));
-extern int onigenc_unicode_apply_all_case_fold P_((OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg));
-extern int onigenc_egcb_is_break_position P_((OnigEncoding enc, uchar * p, uchar * prev, const uchar * start, const uchar * end));
+extern int onigenc_unicode_is_code_ctype(OnigCodePoint code, uint ctype);
+extern int onigenc_utf16_32_get_ctype_code_range(OnigCtype ctype, OnigCodePoint * sb_out, const OnigCodePoint* ranges[]);
+extern int onigenc_unicode_ctype_code_range(OnigCtype ctype, const OnigCodePoint* ranges[]);
+extern int onigenc_unicode_get_case_fold_codes_by_str(OnigEncoding enc, OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[]);
+extern int onigenc_unicode_mbc_case_fold(OnigEncoding enc, OnigCaseFoldType flag, const uchar **pp, const uchar * end, uchar * fold);
+extern int onigenc_unicode_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg);
+extern int onigenc_egcb_is_break_position(OnigEncoding enc, uchar * p, uchar * prev, const uchar * start, const uchar * end);
 #ifdef USE_UNICODE_WORD_BREAK
-	extern int onigenc_wb_is_break_position P_((OnigEncoding enc, uchar * p, uchar * prev, const uchar * start, const uchar * end));
+	extern int onigenc_wb_is_break_position(OnigEncoding enc, uchar * p, uchar * prev, const uchar * start, const uchar * end);
 #endif
 #define UTF16_IS_SURROGATE_FIRST(c)    (((c) & 0xfc) == 0xd8)
 #define UTF16_IS_SURROGATE_SECOND(c)   (((c) & 0xfc) == 0xdc)

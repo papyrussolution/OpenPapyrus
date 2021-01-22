@@ -945,14 +945,14 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 	};
 	int    ok = -1;
 	PPCommandGroup command_group;
-	EditMenusDlg * p_dlg = new EditMenusDlg(/*isDesktop*/kind, /*initID*/rInitUuid);
+	EditMenusDlg * p_dlg = new EditMenusDlg(kind, rInitUuid);
 	PPCommandMngr * p_mgr = 0;
 	THROW_MEM(p_dlg);
 	THROW(CheckDialogPtr(&p_dlg));
 	if(pData)
 		command_group = *pData;
 	else {
-		THROW(p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, /*isDesktop*/kind, 0));
+		THROW(p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, kind, 0));
 		THROW(p_mgr->Load__2(&command_group, 0, PPCommandMngr::fRWByXml)); //@erik v10.7.2
 	}
 	p_dlg->setDTS(&command_group);
@@ -961,6 +961,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 		if(pData)
 			*pData = command_group;
 		else {
+			command_group.Type = kind; // @v11.0.0
 			THROW(p_mgr->Save__2(&command_group, PPCommandMngr::fRWByXml)); //@erik v10.7.2 Save__ => Save__2
 		}
 		ok = 1;
@@ -1251,32 +1252,6 @@ int EditCommandGroupSingle(PPCommandGroup * pData)
 	};
 	DIALOG_PROC_BODY(CommandGroupSingleDialog, pData);
 }
-
-/* @v10.9.3 int EditMenusFromFile()
-{
-	int    ok = -1;
-	PPCommandMngr * p_mgr = 0;
-	SString path;
-	PPCommandGroup menus;
-	if(PPOpenFile(PPTXT_FILPAT_MENU, path, 0, 0) > 0) {
-		{
-			THROW(p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcMenu, path));
-			THROW(p_mgr->Load__2(&menus, 0, PPCommandMngr::fRWByXml)); //@erik v10.7.5
-			ZDELETE(p_mgr);
-		}
-		S_GUID zero_uuid;
-		ok = EditCommandGroup(&menus, zero_uuid, cmdgrpcMenu);
-		if(ok > 0) {
-			THROW(p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, cmdgrpcMenu, path));
-			THROW(p_mgr->Save__2(&menus, PPCommandMngr::fRWByXml)); //@erik v10.7.5
-			ZDELETE(p_mgr);
-			ok = 1;
-		}
-	}
-	CATCHZOKPPERR
-	delete p_mgr;
-	return ok;
-}*/
 //
 //
 //
@@ -1634,10 +1609,29 @@ PPViewUserMenu::~PPViewUserMenu()
 	return -1;
 }
 
+int PPViewUserMenu::CmpSortIndexItems(PPViewBrowser * pBrw, const BrwItem * pItem1, const BrwItem * pItem2)
+{
+	return Implement_CmpSortIndexItems_OnArray(pBrw, pItem1, pItem2);
+}
+
+static IMPL_CMPFUNC(PPViewUserMenuBrwItem, i1, i2)
+{
+	int    si = 0;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(pExtraData);
+	if(p_brw) {
+		PPViewUserMenu * p_view = static_cast<PPViewUserMenu *>(p_brw->P_View);
+		if(p_view) {
+			const PPViewUserMenu::BrwItem * p_item1 = static_cast<const PPViewUserMenu::BrwItem *>(i1);
+			const PPViewUserMenu::BrwItem * p_item2 = static_cast<const PPViewUserMenu::BrwItem *>(i2);
+			si = p_view->CmpSortIndexItems(p_brw, p_item1, p_item2);
+		}
+	}
+	return si;
+}
+
 int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 {
 	int    ok = 1;
-	PPTimeSeries item;
 	SString temp_buf;
 	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount());
 	ZDELETE(P_MenuList);
@@ -1692,7 +1686,6 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 					{
 						PPCommandFolder new_menu_folder;
 						MenuResToMenu(locm_id, &new_menu_folder);
-
 						BrwItem entry;
 						MEMSZERO(entry);
 						entry.ID = _id;
@@ -1741,7 +1734,7 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 	if(pBrw) {
 		pBrw->Helper_SetAllColumnsSortable();
 		if(is_sorting_needed) {
-			//P_DsList->sort(PTR_CMPFUNC(PPViewTimeSeriesBrwItem), pBrw);
+			P_DsList->sort(PTR_CMPFUNC(PPViewUserMenuBrwItem), pBrw);
 		}
 	}
 	//CATCHZOK
@@ -1807,6 +1800,7 @@ void PPViewUserMenu::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewUserMenu::GetDataForBrowser, this);
 		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		pBrw->Helper_SetAllColumnsSortable(); // @v11.0.0
 	}
 	//pBrw->Advise(PPAdviseBlock::evSysJournalChanged, PPACN_EVENTDETECTION, PPOBJ_EVENTSUBSCRIPTION, 0);
 }
@@ -1960,6 +1954,7 @@ int PPViewUserMenu::DeleteItem(const S_GUID & rUuid)
 		ok = -1;
 		S_GUID new_uuid;
 		switch(ppvCmd) {
+			case PPVCMD_USERSORT: ok = 1; break; // @v11.0.0 The rest will be done below
 			case PPVCMD_ADDITEM:
 				ok = AddItem(cmdgrpcUndef, ZEROGUID, 0, &new_uuid);
 				break;
@@ -2007,9 +2002,17 @@ int PPViewUserMenu::DeleteItem(const S_GUID & rUuid)
 					}
 				}
 				else if(ppvCmd == PPVCMD_DELETEITEM) {
-					//const long c = p_def->_curItem();
 					if(MakeList(pBrw)) {
-						p_def->setArray(new SArray(*P_DsList), 0, 0);						
+						p_def->setArray(new SArray(*P_DsList), 0, 0);
+					}
+				}
+				else if(ppvCmd == PPVCMD_USERSORT) {
+					const long preserve_id = p_item ? p_item->ID : 0;
+					MemLeakTracer mlt;
+					if(MakeList(pBrw)) {
+						p_def->setArray(new SArray(*P_DsList), 0, 0);
+						if(preserve_id)
+							pBrw->search2(&preserve_id, CMPF_LONG, srchFirst, 0);
 					}
 				}
 			}

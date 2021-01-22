@@ -1627,7 +1627,7 @@ void BillItemBrowser::update(int pos)
 		const  int is_sorting_needed = BIN(GetSettledOrderList().getCount());
 		if(is_sorting_needed && org_current_pos >= 0) {
 			const BillGoodsBrwItemArray * p_org_list = static_cast<const BillGoodsBrwItemArray *>(p_def->getArray());
-			if(org_current_pos < SVectorBase::GetCount(p_org_list)) {
+			if(org_current_pos < static_cast<long>(SVectorBase::GetCount(p_org_list))) {
 				const BillGoodsBrwItem * p_org_cur_item = static_cast<const BillGoodsBrwItem *>(p_org_list->at(org_current_pos));
 				org_current_pos_in_bill = p_org_cur_item->Pos;
 			}
@@ -2826,43 +2826,66 @@ public:
 		buf_from_copy.CopyToUtf8(temp_buf, 0);
 		if(temp_buf.Tokenize("\xD\xA", ss)) {
 			temp_buf.Z();
+			SString mark_buf;
 			for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
 				if(temp_buf.NotEmptyS() && temp_buf.Len() < sizeof(static_cast<LotExtCodeTbl::Rec *>(0)->Code)) {
-					SString mark_buf;
-					GtinStruc gts;
-					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-					if(pczcr)
-						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-					if(!iemr && !pczcr) {
-						if(P_LotXcT) {
-							if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) // @v10.8.2 
-								ok = 1;
-							else
-								continue;
-						}
-						else {
-							PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
-							continue;
+					// @v11.0.0 {
+					bool   done = false;
+					int    box_prefix = 0;
+					if(temp_buf.HasPrefixIAscii("box:")) {
+						box_prefix = 1;
+						temp_buf.ShiftLeft(4).Strip();
+					}
+					if(validation > 0 && P_Pack) {
+						int  local_row_idx = 0;
+						uint local_inner_idx = 0;
+						StringSet local_ss;
+						PPLotExtCodeContainer::Item2 local_item;
+						if(P_Pack->XcL.Search(temp_buf, &local_row_idx, &local_inner_idx) && P_Pack->XcL.GetByIdx(local_inner_idx, local_item)) {
+							if(local_item.Flags & PPLotExtCodeContainer::fBox && P_Pack->XcL.GetByBoxID(local_item.BoxId, local_ss) > 0) {
+								for(uint lssp = 0; local_ss.get(&lssp, temp_buf);)
+									set.AddNum(0, temp_buf, 1);
+								done = true;
+							}
 						}
 					}
-					else {
-						if(do_check && P_LotXcT) {
-							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0)
-								ok = 1;
-							else
+					// } @v11.0.0 
+					if(!done) {
+						GtinStruc gts;
+						const int iemr  = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
+						if(pczcr)
+							gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
+						if(!iemr && !pczcr) {
+							if(P_LotXcT) {
+								if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) // @v10.8.2 
+									ok = 1;
+								else
+									continue;
+							}
+							else {
+								PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
 								continue;
+							}
 						}
 						else {
-							/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
-								rSet.AddBox(0, mark_buf, 1);*/
-							if(oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
-								long last_box_id = set.SearchLastBox(-1);
-								set.AddNum(last_box_id, mark_buf, 1);
+							if(do_check && P_LotXcT) {
+								if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0)
+									ok = 1;
+								else
+									continue;
 							}
-							else
-								set.AddNum(0, mark_buf, 1);
-							ok = 1;
+							else {
+								/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
+									rSet.AddBox(0, mark_buf, 1);*/
+								if(oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
+									long last_box_id = set.SearchLastBox(-1);
+									set.AddNum(last_box_id, mark_buf, 1);
+								}
+								else
+									set.AddNum(0, mark_buf, 1);
+								ok = 1;
+							}
 						}
 					}
 				}
@@ -2978,7 +3001,7 @@ protected:
 		return ok;
 	}
 	const  int RowIdx;
-	/*const*/PPBillPacket * P_Pack;
+	PPBillPacket * P_Pack;
 	LotExtCodeCore * P_LotXcT;
 };
 
@@ -3204,7 +3227,6 @@ private:
 		int    ok = -1;
 		PPLotExtCodeContainer::MarkSet set;
 		LotExtCodeTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		rec.BillID = P_Pack->Rec.ID;
 		rec.RByBill = RowIdx;
 		while(ok < 0 && EditItemDialog(rec, 0, set) > 0) {
@@ -3213,6 +3235,22 @@ private:
 			}
 			else
 				PPError();
+		}
+		return ok;
+	}
+	virtual int delItem(long pos, long id) // @v11.0.0
+	{
+		int    ok = -1;
+		SString code_buf;
+		getText(pos, code_buf);
+		if(code_buf.NotEmpty()) {
+			int    row_idx = 0;
+			uint  inner_idx = 0;
+			if(Data.Search(code_buf, &row_idx, &inner_idx)) {
+				if(Data.Delete(row_idx, inner_idx)) {
+					ok = 1;
+				}
+			}
 		}
 		return ok;
 	}

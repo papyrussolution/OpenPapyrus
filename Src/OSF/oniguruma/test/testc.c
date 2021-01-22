@@ -4,17 +4,19 @@
 #include "regint.h"
 #pragma hdrstop
 
+static OnigTestBlock OnigTB;
+
 #define SLEN(s)  strlen(s)
 
-static int nsucc  = 0;
-static int nfail  = 0;
-static int nerror = 0;
-#ifdef __TRUSTINSOFT_ANALYZER__
-	static int nall = 0;
-#endif
-static FILE * out_file; // @sobolev
-static FILE * err_file;
-static OnigRegion * region;
+//static int nsucc  = 0;
+//static int nfail  = 0;
+//static int nerror = 0;
+//#ifdef __TRUSTINSOFT_ANALYZER__
+	//static int nall = 0;
+//#endif
+//static FILE * out_file; // @sobolev
+//static FILE * err_file;
+//static OnigRegion * region;
 
 static void xx(char* pattern, char* str, int from, int to, int mem, int not)
 {
@@ -27,42 +29,30 @@ static void xx(char* pattern, char* str, int from, int to, int mem, int not)
 	if(r) {
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		onig_error_code_to_str((uchar *)s, r, &einfo);
-		slfprintf(err_file, "ERROR: %s\n", s);
-		nerror++;
+		OnigTB.OutputError(s);
 		return;
 	}
-	r = onig_search(reg, (uchar *)str, (uchar *)(str + SLEN(str)), (uchar *)str, (uchar *)(str + SLEN(str)), region, ONIG_OPTION_NONE);
+	r = onig_search(reg, (uchar *)str, (uchar *)(str + SLEN(str)), (uchar *)str, (uchar *)(str + SLEN(str)), OnigTB.region, ONIG_OPTION_NONE);
 	if(r < ONIG_MISMATCH) {
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		onig_error_code_to_str((uchar *)s, r);
-		slfprintf(err_file, "ERROR: %s\n", s);
-		nerror++;
+		OnigTB.OutputError(s);
 		return;
 	}
 	if(r == ONIG_MISMATCH) {
-		if(not) {
-			slfprintf(out_file, "OK(N): /%s/ '%s'\n", pattern, str);
-			nsucc++;
-		}
-		else {
-			slfprintf(out_file, "FAIL: /%s/ '%s'\n", pattern, str);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputOkN(pattern, str);
+		else
+			OnigTB.OutputFail(pattern, str);
 	}
 	else {
-		if(not) {
-			slfprintf(out_file, "FAIL(N): /%s/ '%s'\n", pattern, str);
-			nfail++;
-		}
+		if(not)
+			OnigTB.OutputFailN(pattern, str);
+		else if(OnigTB.region->beg[mem] == from && OnigTB.region->end[mem] == to)
+			OnigTB.OutputOk(pattern, str);
 		else {
-			if(region->beg[mem] == from && region->end[mem] == to) {
-				slfprintf(out_file, "OK: /%s/ '%s'\n", pattern, str);
-				nsucc++;
-			}
-			else {
-				slfprintf(out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", pattern, str, from, to, region->beg[mem], region->end[mem]);
-				nfail++;
-			}
+			slfprintf(OnigTB.out_file, "FAIL: /%s/ '%s' %d-%d : %d-%d\n", pattern, str, from, to, OnigTB.region->beg[mem], OnigTB.region->end[mem]);
+			OnigTB.nfail++;
 		}
 	}
 	onig_free(reg);
@@ -74,12 +64,12 @@ static void n(char* pattern, char* str) { xx(pattern, str, 0, 0, 0, 1); }
 
 extern int OnigTestC_main(FILE * fOut)
 {
-	out_file = NZOR(fOut, stdout); // @sobolev
-	err_file = NZOR(fOut, stdout);
+	OnigTB.out_file = NZOR(fOut, stdout); // @sobolev
+	OnigTB.err_file = NZOR(fOut, stdout);
 	OnigEncoding use_encs[1];
 	use_encs[0] = ONIG_ENCODING_EUC_JP;
 	onig_initialize(use_encs, sizeof(use_encs)/sizeof(use_encs[0]));
-	region = onig_region_new();
+	OnigTB.region = onig_region_new();
 	x2("", "", 0, 0);
 	x2("^", "", 0, 0);
 	x2("$", "", 0, 0);
@@ -878,8 +868,9 @@ extern int OnigTestC_main(FILE * fOut)
 	x2("\\n?\\z", "こんにちは", 10, 10);
 	x2("\\p{Hiragana}", "ぴ", 0, 2);
 	n("\\P{Hiragana}", "ぴ");
-	slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
-	onig_region_free(region, 1);
+	//slfprintf(out_file, "\nRESULT   SUCC: %4d,  FAIL: %d,  ERROR: %d      (by Oniguruma %s)\n", nsucc, nfail, nerror, onig_version());
+	OnigTB.OutputResult();
+	onig_region_free(OnigTB.region, 1);
 	onig_end();
-	return ((nfail == 0 && nerror == 0) ? 0 : -1);
+	return OnigTB.GetResult();
 }

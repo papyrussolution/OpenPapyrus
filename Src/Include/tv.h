@@ -1780,6 +1780,17 @@ public:
 	virtual void setState(uint aState, bool enable);
 	int    translateKeyCode(ushort keyCode, uint * pCmd) const;
 	void   setupToolbar(const ToolbarList * pToolBar);
+	//
+	// Descr: Высокоуровневая функция загружающая элементы инструментальной панели
+	//   из ресурса P_SlRez с типом TV_EXPTOOLBAR.
+	//   Если загрузка была успешной, то вызывает setupToolbar() и возвращает 1,
+	//   в противном случае возвращает 0.
+	// Returns:
+	//   >0 - панель инструментов успешно загружена
+	//   <0 - параметр toolbarResourceId == 0
+	//    0 - ошибка загрузки панели инструментов
+	//
+	int    LoadToolbarResource(uint toolbarResourceId);
 	int    AddLocalMenuItem(uint ctrlId, uint buttonId, long keyCode, const char * pText);
 	HWND   showToolbar();
 	void   showLocalMenu();
@@ -4940,7 +4951,7 @@ public:
 	//
 	int    ChangeResource(uint resID, DBQuery * pQuery, int force = 0);
 	int    ChangeResource(uint resID, SArray * pArray, int force = 0);
-	int    LoadToolbar(uint toolbarId);
+	// @v11.0.0 (replaced with TWindow::LoadToolbarResource) int    LoadToolbar(uint toolbarId);
 	void   CalcRight();
 	void   SetupScroll();
 	int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
@@ -5567,7 +5578,7 @@ public:
 	int    SetSpecialMode(int spcm);
 	int    WMHCreate();
 	HWND   GetSciWnd() const { return HwndSci; }
-	int    Resize();
+	void   Resize();
 	int    CmpFileName(const char * pFileName);
 	int    FileLoad(const char * pFileName, SCodepage cp, long flags);
 	int    FileSave(const char * pFileName, long flags);
@@ -5577,7 +5588,7 @@ private:
 	static LRESULT CALLBACK ScintillaWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw);
-	int    LoadToolbar(uint tbId);
+	// @v11.0.0 (replaced with TWindow::LoadToolbarResource) int    LoadToolbar(uint tbId);
 	int    GetText(SString & rBuf);
 	int    SetText(SString & rBuf);
 	int    SaveChanges();
@@ -5599,6 +5610,33 @@ private:
 	//uint   ToolbarId;
 	SString LexerSymb;
 	WNDPROC OrgScintillaWndProc;
+};
+//
+// 
+//
+class TWhatmanBrowser : public TBaseBrowserWindow { // @v11.0.0
+public:
+	struct Param {
+		enum {
+			fEditMode = 0x0001
+		};
+		Param() : Flags(0)
+		{
+		}
+		uint32 Flags;
+		SString WtmFileName;
+		SString WtaFileName;
+	};
+	static int RegWindowClass(HINSTANCE hInst);
+	static LPCTSTR WndClsName;
+	TWhatmanBrowser(Param * pP);
+	TWhatmanBrowser(const char * pFileName, int toolbarId = -1);
+	~TWhatmanBrowser();
+private:
+	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	void   InitLayout();
+	int    WMHCreate();
+	Param  P;
 };
 //
 //

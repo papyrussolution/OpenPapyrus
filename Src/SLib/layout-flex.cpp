@@ -702,6 +702,9 @@ LayoutFlexItem::~LayoutFlexItem()
 {
 	ZDELETE(P_Children);
 	ZDELETE(P_HgL);
+	managed_ptr = 0; // @v11.0.0
+	CbSelfSizing = 0; // @v11.0.0
+	CbSetup = 0; // @v11.0.0
 	P_Link = 0;
 }
 

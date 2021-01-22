@@ -63,6 +63,7 @@ PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : T
 {
 	SPrinter::HandlePrintError = PPHandlePrintError;
 	STextBrowser::RegWindowClass(hInst);
+	TWhatmanBrowser::RegWindowClass(hInst); // @v11.0.0
 	InitUiToolBox();
 	InitDeskTop();
 	TEvent event;
