@@ -1872,7 +1872,6 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 					// @todo Здесь надо как-то отреагировать (в лог что-то написать или что-то в этом роде)
 				}
 			}
-			// @v9.5.9 new_ti.TFlags |= PPTransferItem::tfForceNew;
 		}
 		new_ti.TFlags |= PPTransferItem::tfForceNew; // @v9.5.9 // Так как в вызове PPTransferItem::Init парам zeroRByBill == 0, данный флаг должен быть безусловно
 		if(r_ti.LotID && P_T->Rcpt.Search(r_ti.LotID, &lot_rec) > 0 && P_T->GetLotPrices(&lot_rec, P_Pack->Rec.Dt)) {

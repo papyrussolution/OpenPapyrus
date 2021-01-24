@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -1535,14 +1535,14 @@ END
 
 DLG_BUCHECK DIALOGEX 57, 40, 292, 90
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Информация о резервной копии"
+CAPTION "@backupcheck"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    LTEXT           "@creationdate",4001,111,10,70,8,0,WS_EX_RIGHT
+    LTEXT           "@backupcheck_creationdate",4001,111,10,70,8,0,WS_EX_RIGHT
     EDITTEXT        CTL_BUCHECK_LASTMODIF,121,20,60,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Размер резервной копии",4002,195,10,90,8,0,WS_EX_RIGHT
+    LTEXT           "@backupcheck_size",4002,195,10,90,8,0,WS_EX_RIGHT
     EDITTEXT        CTL_BUCHECK_SIZE,205,20,80,13,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@path",4003,5,40,140,8
+    LTEXT           "@backupcheck_path",4003,5,40,140,8
     EDITTEXT        CTL_BUCHECK_DIR,5,50,280,13,ES_AUTOHSCROLL | ES_READONLY
     DEFPUSHBUTTON   "@but_close",STDCTL_OKBUTTON,235,70,50,13
 END
@@ -14678,7 +14678,7 @@ END
 
 DLG_GCDGM DIALOGEX 88, 32, 227, 140
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Маска динамического обобщения"
+CAPTION "@goodsclass_dyngenmask"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_GCDGM_GDSCLS,10,20,155,13,ES_AUTOHSCROLL | ES_READONLY
@@ -20565,12 +20565,12 @@ END
 
 DLG_PRNSAL DIALOGEX 83, 56, 252, 45
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "@{whatprint} ?"
+CAPTION "@selection_salaryprn"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",CTL_PRNSAL_WHAT,5,5,185,33,WS_GROUP
-    CONTROL         "Стандартный отчет",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,15,85,10
-    CONTROL         "Отчет с группировкой по штатным назначениям по должностям",9393,
+    CONTROL         "@selection_salaryprn_std",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,15,85,10
+    CONTROL         "@selection_salaryprn_grpbypost",9393,
                     "Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,25,175,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,195,10,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,195,25,50,13
@@ -23528,7 +23528,7 @@ END
 
 DLG_SELMODIF DIALOGEX 83, 64, 167, 54
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Модифицируемый товар"
+CAPTION "@selection_modifiableitem"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",CTL_SELMODIF_WHAT,5,5,90,45,WS_GROUP

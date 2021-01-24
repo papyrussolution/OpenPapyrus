@@ -2280,9 +2280,9 @@ public:
 	int    AddHomogeneousEntry(long id, float vf);
 protected:
 	void   UpdateShouldOrderChildren();
-	void   DoLayout(const Param & rP) const;
+	void   DoLayout(const Param & rP, PagingResult * pPgR) const;
 	void   DoFloatLayout(const Param & rP);
-	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout) const;
+	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout, PagingResult * pPr) const;
 	//
 	// Descr: Завершает обработку искусственного элемента pCurrentLayout, устанавливает координаты его дочерних элементов
 	//   с поправкой на rOffs и разрушает pCurrentLayout.

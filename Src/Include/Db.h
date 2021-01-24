@@ -2803,6 +2803,8 @@ private:
 	void   FASTCALL OdFree(OD & rO);
 	int    ProcessBinding_AllocDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType, int descrType);
 	void   ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
+	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
+	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
 	long   Flags;
 	void * H;
 	Generator_SQL SqlGen;

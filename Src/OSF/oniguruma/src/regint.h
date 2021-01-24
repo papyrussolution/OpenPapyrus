@@ -329,15 +329,9 @@ typedef Bits BitSet[BITSET_REAL_SIZE];
 typedef Bits*     BitSetRef;
 
 #define SIZE_BITSET  sizeof(BitSet)
-
-#define BITSET_CLEAR(bs) do { \
-		int i; \
-		for(i = 0; i < (int)BITSET_REAL_SIZE; i++) { (bs)[i] = 0; } \
-} while(0)
-
+#define BITSET_CLEAR(bs) do { for(int i = 0; i < (int)BITSET_REAL_SIZE; i++) { (bs)[i] = 0; } } while(0)
 #define BS_ROOM(bs, pos)            (bs)[(uint)(pos) >> 5]
 #define BS_BIT(pos)                (1u << ((uint)(pos) & 0x1f))
-
 #define BITSET_AT(bs, pos)         (BS_ROOM(bs, pos) & BS_BIT(pos))
 #define BITSET_SET_BIT(bs, pos)     BS_ROOM(bs, pos) |= BS_BIT(pos)
 #define BITSET_CLEAR_BIT(bs, pos)   BS_ROOM(bs, pos) &= ~(BS_BIT(pos))

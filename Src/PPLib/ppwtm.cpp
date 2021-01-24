@@ -2437,7 +2437,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					else if(St.Rsz.P_MovedObjCopy) {
 						St.Rsz.Flags |= ResizeState::fDontDrawMovedObj;
 						InvalidateObjScope(St.Rsz.P_MovedObjCopy);
-						UpdateWindow(H());
+						::UpdateWindow(H());
 						//Resize(2, p_me->Coord);
 					}
 					break;
@@ -2483,7 +2483,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					case ScrollEvent::tLineDown:
 					case ScrollEvent::tPageDown:
 						{
-							TPoint delta = W.GetScrollDelta();
+							const TPoint delta = W.GetScrollDelta();
 							if(p_se->Dir == DIREC_VERT)
 								r = Sb.Move(SIDE_BOTTOM, NZOR(delta.y, 1));
 							else
@@ -2493,7 +2493,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					case ScrollEvent::tLineUp:
 					case ScrollEvent::tPageUp:
 						{
-							TPoint delta = W.GetScrollDelta();
+							const TPoint delta = W.GetScrollDelta();
 							if(p_se->Dir == DIREC_VERT)
 								r = Sb.Move(SIDE_TOP, NZOR(delta.y, 1));
 							else

@@ -272,40 +272,31 @@ static void ops_free(regex_t* reg)
 
 static int ops_calc_size_of_string_pool(regex_t* reg)
 {
-	int i;
-	int total;
-
-	if(IS_NULL(reg->ops)) return 0;
-
-	total = 0;
-	for(i = 0; i < (int)reg->ops_used; i++) {
-		enum OpCode opcode;
-		Operation* op;
-
-		op = reg->ops + i;
-#ifdef USE_DIRECT_THREADED_CODE
-		opcode = *(reg->ocs + i);
-#else
-		opcode = op->opcode;
-#endif
-
-		switch(opcode) {
-			case OP_STR_MBN:
-			    total += op->exact_len_n.len * op->exact_len_n.n;
-			    break;
-			case OP_STR_N:
-			case OP_STR_MB2N:
-			    total += op->exact_n.n * 2;
-			    break;
-			case OP_STR_MB3N:
-			    total += op->exact_n.n * 3;
-			    break;
-
-			default:
-			    break;
+	int total = 0;
+	if(reg->ops) {
+		for(int i = 0; i < (int)reg->ops_used; i++) {
+			Operation * op = reg->ops + i;
+	#ifdef USE_DIRECT_THREADED_CODE
+			const enum OpCode opcode = *(reg->ocs + i);
+	#else
+			const enum OpCode opcode = op->opcode;
+	#endif
+			switch(opcode) {
+				case OP_STR_MBN:
+					total += op->exact_len_n.len * op->exact_len_n.n;
+					break;
+				case OP_STR_N:
+				case OP_STR_MB2N:
+					total += op->exact_n.n * 2;
+					break;
+				case OP_STR_MB3N:
+					total += op->exact_n.n * 3;
+					break;
+				default:
+					break;
+			}
 		}
 	}
-
 	return total;
 }
 
@@ -322,12 +313,11 @@ static int ops_make_string_pool(regex_t* reg)
 	curr = pool = (uchar *)SAlloc::M((size_t)size);
 	CHECK_NULL_RETURN_MEMERR(pool);
 	for(i = 0; i < (int)reg->ops_used; i++) {
-		enum OpCode opcode;
-		Operation* op = reg->ops + i;
+		Operation * op = reg->ops + i;
 #ifdef USE_DIRECT_THREADED_CODE
-		opcode = *(reg->ocs + i);
+		const enum OpCode opcode = *(reg->ocs + i);
 #else
-		opcode = op->opcode;
+		const enum OpCode opcode = op->opcode;
 #endif
 		switch(opcode) {
 			case OP_STR_MBN:
@@ -353,12 +343,10 @@ copy:
 			    len = op->exact_n.n * 3;
 			    goto copy;
 			    break;
-
 			default:
 			    break;
 		}
 	}
-
 	reg->string_pool     = pool;
 	reg->string_pool_end = pool + size;
 	return 0;
@@ -377,15 +365,16 @@ extern int onig_set_default_case_fold_flag(OnigCaseFoldType case_fold_flag)
 
 static int len_multiply_cmp(OnigLen x, int y, OnigLen v)
 {
-	if(x == 0 || y == 0) return -1;
-
-	if(x < INFINITE_LEN / y) {
-		OnigLen xy = x * (OnigLen)y;
-		if(xy > v) return 1;
-		else {
-			if(xy == v) return 0;
-			else return -1;
-		}
+	if(x == 0 || y == 0) 
+		return -1;
+	else if(x < INFINITE_LEN / y) {
+		const OnigLen xy = x * (OnigLen)y;
+		if(xy > v) 
+			return 1;
+		else if(xy == v) 
+			return 0;
+		else 
+			return -1;
 	}
 	else
 		return v == INFINITE_LEN ? 0 : 1;
@@ -393,9 +382,9 @@ static int len_multiply_cmp(OnigLen x, int y, OnigLen v)
 
 extern int onig_positive_int_multiply(int x, int y)
 {
-	if(x == 0 || y == 0) return 0;
-
-	if(x < ONIG_INT_MAX / y)
+	if(x == 0 || y == 0) 
+		return 0;
+	else if(x < ONIG_INT_MAX / y)
 		return x * y;
 	else
 		return -1;
@@ -404,20 +393,19 @@ extern int onig_positive_int_multiply(int x, int y)
 static void node_swap(Node* a, Node* b)
 {
 	Node c;
-
-	c = *a; *a = *b; *b = c;
-
+	c = *a; 
+	*a = *b; 
+	*b = c;
 	if(NODE_TYPE(a) == NODE_STRING) {
-		StrNode* sn = STR_(a);
+		StrNode * sn = STR_(a);
 		if(sn->capacity == 0) {
 			int len = (int)(sn->end - sn->s);
 			sn->s   = sn->buf;
 			sn->end = sn->s + len;
 		}
 	}
-
 	if(NODE_TYPE(b) == NODE_STRING) {
-		StrNode* sn = STR_(b);
+		StrNode * sn = STR_(b);
 		if(sn->capacity == 0) {
 			int len = (int)(sn->end - sn->s);
 			sn->s   = sn->buf;
@@ -441,12 +429,14 @@ static Node* node_list_add(Node* list, Node* x)
 	Node * n = onig_node_new_list(x, NULL);
 	if(IS_NULL(n)) 
 		return NULL_NODE;
-	if(IS_NOT_NULL(list)) {
-		while(IS_NOT_NULL(NODE_CDR(list)))
-			list = NODE_CDR(list);
-		NODE_CDR(list) = n;
+	else {
+		if(IS_NOT_NULL(list)) {
+			while(IS_NOT_NULL(NODE_CDR(list)))
+				list = NODE_CDR(list);
+			NODE_CDR(list) = n;
+		}
+		return n;
 	}
-	return n;
 }
 
 static int node_str_node_cat(Node* node, Node* add)
@@ -496,7 +486,8 @@ static OnigLen distance_multiply(OnigLen d, int m)
 static int bitset_is_empty(BitSetRef bs)
 {
 	for(int i = 0; i < (int)BITSET_REAL_SIZE; i++) {
-		if(bs[i] != 0) return 0;
+		if(bs[i] != 0) 
+			return 0;
 	}
 	return 1;
 }
@@ -507,7 +498,6 @@ static int unset_addr_list_init(UnsetAddrList* list, int size)
 {
 	UnsetAddr* p = (UnsetAddr*)SAlloc::M(sizeof(UnsetAddr)* size);
 	CHECK_NULL_RETURN_MEMERR(p);
-
 	list->num   = 0;
 	list->alloc = size;
 	list->us    = p;
@@ -837,29 +827,28 @@ zero:
 
 		    {
 			    int i;
-			    int* backs;
 			    MemEnv* mem_env = SCANENV_MEMENV(env);
 			    BackRefNode* br = BACKREF_(node);
-
-			    backs = BACKREFS_P(br);
+			    int* backs = BACKREFS_P(br);
 			    r = node_char_len1(mem_env[backs[0]].mem_node, reg, ci, env, level);
-			    if(r < 0) break;
-			    if(!mmcl_fixed(ci)) ci->min_is_sure = FALSE;
-
+			    if(r < 0) 
+					break;
+			    if(!mmcl_fixed(ci)) 
+					ci->min_is_sure = FALSE;
 			    for(i = 1; i < br->back_num; i++) {
 				    r = node_char_len1(mem_env[backs[i]].mem_node, reg, &tci, env, level);
-				    if(r < 0) break;
-				    if(!mmcl_fixed(&tci)) tci.min_is_sure = FALSE;
+				    if(r < 0) 
+						break;
+				    if(!mmcl_fixed(&tci)) 
+						tci.min_is_sure = FALSE;
 				    mmcl_alt_merge(ci, &tci);
 			    }
 		    }
 		    break;
-
 		default: /* never come here */
 		    r = ONIGERR_PARSER_BUG;
 		    break;
 	}
-
 	return r;
 }
 
@@ -984,12 +973,10 @@ static int compile_call(CallNode* node, regex_t* reg, ScanEnv* env)
 #ifdef ONIG_DEBUG_MATCH_COUNTER
 	COP(reg)->call.called_mem = node->called_gnum;
 #endif
-
 	offset = COP_CURR_OFFSET_BYTES(reg, call.addr);
 	r = unset_addr_list_add(env->unset_addr_list, offset, NODE_CALL_BODY(node));
 	return r;
 }
-
 #endif
 
 static int compile_tree_n_times(Node* node, int n, regex_t* reg, ScanEnv* env)
@@ -1007,7 +994,7 @@ static int add_compile_string_length(uchar * s ARG_UNUSED, int mb_len, int str_l
 	return 1;
 }
 
-static int add_compile_string(uchar * s, int mb_len, int str_len, regex_t* reg)
+static int FASTCALL add_compile_string(uchar * s, int mb_len, int str_len, regex_t* reg)
 {
 	int byte_len;
 	uchar * p;

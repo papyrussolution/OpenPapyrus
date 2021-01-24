@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493583
+LastSignatureCode=2147493591
 LastAutoCodeList=1,12002;102,10177;103,10072;110,10000;111,12011;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10172
 
 [SignatureList]
@@ -373,6 +373,10 @@ selection_pospayment_hint=2147493485
 selection_crdraftbyccheck=2147493545
 selection_crdraftbyccheck_bycur=2147493546
 selection_crdraftbyccheck_byall=2147493547
+selection_salaryprn=2147493584
+selection_salaryprn_std=2147493585
+selection_salaryprn_grpbypost=2147493586
+selection_modifiableitem=2147493591
 scenario=2147491807
 scenario_pl=2147491808
 query=2147493300
@@ -9397,6 +9401,10 @@ backupscen_numcopies=2147492264
 backupscen_name=2147492265
 backupscen_dbname=2147492266
 backupscen_backuppath=2147492267
+backupcheck=2147493587
+backupcheck_creationdate=2147493588
+backupcheck_size=2147493589
+backupcheck_path=2147493590
 stafflistfilt=2147492268
 stafflistfilt_org=2147492269
 stafflistfilt_div=2147492270

@@ -5874,6 +5874,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @selection_crdraftbyccheck_bycur     "По текущему чеку"
 @selection_crdraftbyccheck_byall     "По всей выборке чеков"
 
+@selection_salaryprn                 "@{whatprint} ?"
+@selection_salaryprn_std             "Стандартный отчет"
+@selection_salaryprn_grpbypost       "Отчет с группировкой по штатным назначениям по должностям"
+
+@selection_modifiableitem            "Модифицируемый товар"
+
 @scenario                            "Сценарий"
 @scenario_pl                         "Сценарии"
 @query                               "Запрос"
@@ -15456,6 +15462,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @backupscen_name                          "Имя конфигурации"
 @backupscen_dbname                        "@{database}"
 @backupscen_backuppath                    "Путь копирования"
+
+@backupcheck                              "Информация о резервной копии"
+@backupcheck_creationdate                 "@{creationdate}"
+@backupcheck_size                         "Размер резервной копии"
+@backupcheck_path                         "@{path}"
 
 @stafflistfilt                            "Фильтр штатного расписания"
 @stafflistfilt_org                        "@{org}"

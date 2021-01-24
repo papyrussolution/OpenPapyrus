@@ -59,20 +59,16 @@ static int enc_inited_entry(OnigEncoding enc)
 		InitedListNum++;
 		return i;
 	}
-
 	return -1;
 }
 
 static int enc_is_inited(OnigEncoding enc)
 {
-	int i;
-
-	for(i = 0; i < InitedListNum; i++) {
+	for(int i = 0; i < InitedListNum; i++) {
 		if(InitedList[i].enc == enc) {
 			return InitedList[i].inited;
 		}
 	}
-
 	return 0;
 }
 
@@ -80,22 +76,19 @@ static int OnigEncInited;
 
 extern int onigenc_init(void)
 {
-	if(OnigEncInited != 0) return 0;
-
+	if(OnigEncInited != 0) 
+		return 0;
 	OnigEncInited = 1;
 	return 0;
 }
 
 extern int onigenc_end(void)
 {
-	int i;
-
-	for(i = 0; i < InitedListNum; i++) {
+	for(int i = 0; i < InitedListNum; i++) {
 		InitedList[i].enc    = 0;
 		InitedList[i].inited = 0;
 	}
 	InitedListNum = 0;
-
 	OnigEncInited = 0;
 	return ONIG_NORMAL;
 }
@@ -138,19 +131,14 @@ extern int onigenc_set_default_encoding(OnigEncoding enc)
 
 extern uchar * onigenc_strdup(OnigEncoding enc, const uchar * s, const uchar * end)
 {
-	int slen, term_len, i;
-	uchar * r;
-
-	slen = (int)(end - s);
-	term_len = ONIGENC_MBC_MINLEN(enc);
-
-	r = (uchar *)SAlloc::M(slen + term_len);
+	int i;
+	int slen = (int)(end - s);
+	int term_len = ONIGENC_MBC_MINLEN(enc);
+	uchar * r = (uchar *)SAlloc::M(slen + term_len);
 	CHECK_NULL_RETURN(r);
 	xmemcpy(r, s, slen);
-
 	for(i = 0; i < term_len; i++)
 		r[slen + i] = (uchar)0;
-
 	return r;
 }
 
@@ -223,16 +211,16 @@ extern int onigenc_strlen_null(OnigEncoding enc, const uchar * s)
 {
 	int n = 0;
 	uchar * p = (uchar *)s;
-
 	while(1) {
 		if(*p == '\0') {
 			uchar * q;
 			int len = ONIGENC_MBC_MINLEN(enc);
-
-			if(len == 1) return n;
+			if(len == 1) 
+				return n;
 			q = p + 1;
 			while(len > 1) {
-				if(*q != '\0') break;
+				if(*q != '\0') 
+					break;
 				q++;
 				len--;
 			}
@@ -247,16 +235,16 @@ extern int onigenc_str_bytelen_null(OnigEncoding enc, const uchar * s)
 {
 	const uchar * start = s;
 	const uchar * p = s;
-
 	while(1) {
 		if(*p == '\0') {
 			const uchar * q;
 			int len = ONIGENC_MBC_MINLEN(enc);
-
-			if(len == 1) return (int)(p - start);
+			if(len == 1) 
+				return (int)(p - start);
 			q = p + 1;
 			while(len > 1) {
-				if(*q != '\0') break;
+				if(*q != '\0') 
+					break;
 				q++;
 				len--;
 			}

@@ -142,7 +142,6 @@ static int code_to_mbc(OnigCodePoint code, uchar * buf)
 
 static int mbc_case_fold(OnigCaseFoldType flag ARG_UNUSED, const uchar ** pp, const uchar * end ARG_UNUSED, uchar * lower)
 {
-	int len;
 	const uchar * p = *pp;
 	if(ONIGENC_IS_MBC_ASCII(p)) {
 		*lower = ONIGENC_ASCII_CODE_TO_LOWER_CASE(*p);
@@ -150,9 +149,8 @@ static int mbc_case_fold(OnigCaseFoldType flag ARG_UNUSED, const uchar ** pp, co
 		return 1;
 	}
 	else {
-		int i;
-		len = enclen(ONIG_ENCODING_EUC_JP, p);
-		for(i = 0; i < len; i++) {
+		const int len = enclen(ONIG_ENCODING_EUC_JP, p);
+		for(int i = 0; i < len; i++) {
 			*lower++ = *p++;
 		}
 		(*pp) += len;
