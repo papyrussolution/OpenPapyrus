@@ -5036,9 +5036,9 @@ public:
 	};
 protected:
 	DECL_HANDLE_EVENT;
-	int    WMHScroll(int sbType, int sbEvent, int thumbPos);
+	void   WMHScroll(int sbType, int sbEvent, int thumbPos);
 	int    WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop);
-	int    LoadResource(uint, void *, int, uint uOptions = 0);
+	int    LoadResource(uint rezID, void * pData, int dataKind, uint uOptions/*= 0*/);
 
 	uint   RezID;
 	// @v10.9.11 (moved to TBaseBrowserWindow) TToolbar * P_Toolbar;

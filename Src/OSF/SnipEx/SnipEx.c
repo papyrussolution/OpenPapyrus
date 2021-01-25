@@ -26,10 +26,318 @@
 //#include <stdio.h>                  // For doing stuff with strings
 //#include <math.h>                   // Needed to introduce some math to draw the arrow head for the arrow tool
 #include "resource.h"               // Images, cursors, etc.
-#include "SnipEx.h"                 // My custom definitions
-#include "ButtonDefs.h"             // Buttons!
-#include "GdiPlusInterop.h"         // Stuff to make GDI+ work in pure C
+//#include "SnipEx.h"                 // My custom definitions
+	#define CRASH(Expression) if (!(Expression)) { MessageBoxW(NULL, L"Something has failed that should never have failed and now the program will crash. If you want to help debug this, report this crash to ryanries09@gmail.com.", L"Fatal Error", MB_ICONERROR | MB_OK | MB_SYSTEMMODAL); *(int *)0 = 0; }
+	#define REG_DROPSHADOWNAME	 L"DropShadow"
+	#define REG_REMEMBERTOOLNAME L"RememberLastTool"
+	#define REG_LASTTOOLNAME     L"LastTool"
+	#define REG_AUTOCOPYNAME	 L"AutoCopy"
 
+	// You could refer to an individual button like gButtons[BUTTON_NEW - 10001], gButtons[BUTTON_DELAY - 10001], etc.
+	#define BUTTON_NEW     10001
+	#define BUTTON_DELAY   10002
+	#define BUTTON_SAVE    10003
+	#define BUTTON_COPY    10004
+	#define BUTTON_HILIGHT 10005
+	#define BUTTON_BOX     10006
+	#define BUTTON_ARROW   10007
+	#define BUTTON_REDACT  10008
+	#define BUTTON_TEXT	   10009
+
+	#define COLOR_NONE		0	// For buttons for which color is not applicable, such as the Save button for example
+	#define COLOR_RED		1
+	#define COLOR_GREEN		2
+	#define COLOR_BLUE		3
+	#define COLOR_BLACK		4
+	#define COLOR_WHITE		5
+	#define COLOR_YELLOW	6
+	#define COLOR_PINK		7
+	#define COLOR_ORANGE	8
+
+	#define SYSCMD_REPLACE  20001
+	#define SYSCMD_RESTORE  20002
+	#define SYSCMD_SHADOW   20003
+	#define SYSCMD_UNDO     20004
+	#define SYSCMD_REMEMBER 20005
+	#define SYSCMD_AUTOCOPY 20006
+
+	#define DELAY_TIMER    30001
+
+	// This is like Microsoft's POINT struct, but smaller.
+	// It's just for efficiency's sake since I don't need LONGs for this, yet...
+	struct SMALLPOINT {
+		UINT16 x;
+		UINT16 y;
+	};
+
+	enum BUTTONSTATE {
+		BUTTONSTATE_NORMAL,
+		BUTTONSTATE_PRESSED
+	};
+
+	struct BUTTON {
+		void   Set(UINT8 clr, int enabledIconId, int cursorId)
+		{
+			Color = clr;
+			EnabledIconId = enabledIconId;
+			CursorId = cursorId;
+		}
+		RECT   Rectangle;      // left, top, right, bottom
+		const  wchar_t * Caption;
+		HBITMAP EnabledIcon;
+		HBITMAP DisabledIcon;
+		int    EnabledIconId;
+		int    DisabledIconId;
+		BUTTONSTATE State;          // Is the button pressed or not
+		UINT16 Hotkey;
+		HWND   Handle;
+		BOOL   Enabled;
+		LONGLONG Id;
+		BOOL   SelectedTool;   // If the button is selected as a tool it should stay pressed
+		int    CursorId;
+		HCURSOR Cursor;
+		UINT8  Color;
+	};
+
+	enum APPSTATE {
+		APPSTATE_BEFORECAPTURE,
+		APPSTATE_DURINGCAPTURE,
+		APPSTATE_DELAYCOOKING,
+		APPSTATE_AFTERCAPTURE
+	};
+
+	#pragma region DECLARATIONS
+
+	int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstance, _In_ LPSTR CommandLine, _In_ int WindowShowCode);
+	LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WPARAM WParam, _In_ LPARAM LParam);
+	void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button);
+	LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WPARAM WParam, _In_ LPARAM LParam);
+	BOOL CALLBACK TextEditCallback(_In_ HWND Dialog, _In_ UINT Message, _In_ WPARAM WParam, _In_ LPARAM LParam);
+	//void CaptureWindow_OnLeftButtonUp(void);
+	// Returns TRUE if we were successful in creating the capture window. FALSE if it fails.
+	BOOL NewButton_Click(void);
+	// Returns TRUE if the snip was saved. Returns FALSE if there was an error or if user cancelled.
+	BOOL SaveButton_Click(void);
+	// Returns TRUE if the snip was copied to the clipboard. FALSE if it fails.
+	BOOL CopyButton_Click(void);
+	//BOOL TextButton_Click(void);
+	// Save a 32-bit bitmap to a file. Returns FALSE if it fails.
+	BOOL SaveBitmapToFile(_In_ wchar_t* FilePath);
+	// Save png image to a file. Returns FALSE if it fails.
+	BOOL SavePngToFile(_In_ wchar_t* FilePath);
+	//HRESULT AddAllMenuItems(_In_ HINSTANCE Instance);
+	BOOL IsAppRunningElevated(void);
+	// OutputDebugStringW enhanced with varargs. Only works in debug builds.
+	void MyOutputDebugStringW(_In_ wchar_t* Message, _In_ ...);
+	BOOL AdjustForCustomScaling(void);
+	LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData);
+	LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData);
+	LSTATUS DeleteSnipExRegValue(_In_ wchar_t* ValueName);
+//
+//
+//
+//#include "ButtonDefs.h"             // Buttons!
+//
+	// Buttons!
+	// You could refer to an individual button like gButtons[BUTTON_NEW - 10001], gButtons[BUTTON_DELAY - 10001], etc.
+	//
+	static BUTTON gNewButton = {
+		{ 2,  0, 72,  52 }, L"New",
+		NULL,               // EnabledIcon
+		NULL,               // DisabledIcon
+		IDB_SCISSORS32x32E, // EnabledIconId
+		0,                  // DisabledIconId
+		BUTTONSTATE_NORMAL, // State
+		0x4E,               // Hotkey (N)
+		NULL,				// HWND Handle
+		TRUE,               // Enabled
+		BUTTON_NEW,         // Id
+		FALSE,              // SelectedTool
+		0,                  // CursorId
+		NULL,               // Cursor
+		COLOR_NONE
+	};
+
+	static BUTTON gDelayButton = {
+		{ 74, 0, 144, 52 }, L"Delay",
+		NULL,               // EnabledIcon
+		NULL,               // DisabledIcon
+		IDB_DELAY32x32E,    // EnabledIconId
+		0,                  // DisabledIconId
+		BUTTONSTATE_NORMAL, // State
+		0x44,               // Hotkey (D)
+		NULL,               // HWND Handle
+		TRUE,               // Enabled
+		BUTTON_DELAY,       // Id
+		FALSE,              // SelectedTool
+		0,                  // CursorId
+		NULL,               // HCURSOR
+		COLOR_NONE
+	};
+
+	static BUTTON gSaveButton = {
+		{ 146, 0, 216, 52 }, L"Save",
+		NULL,
+		NULL,
+		IDB_SAVE32x32E,
+		IDB_SAVE32x32D,
+		BUTTONSTATE_NORMAL,
+		0x53,
+		NULL,
+		FALSE,				// Initially disabled
+		BUTTON_SAVE,
+		FALSE,
+		0,
+		NULL,
+		COLOR_NONE
+	};
+
+	static BUTTON gCopyButton = {
+		{ 218, 0, 288, 52 }, L"Copy",
+		NULL,
+		NULL,
+		IDB_COPY32x32E,
+		IDB_COPY32x32D,
+		BUTTONSTATE_NORMAL,
+		0x43,
+		NULL,
+		FALSE,
+		BUTTON_COPY,
+		FALSE,
+		0,
+		NULL,
+		COLOR_NONE
+	};
+
+	static BUTTON gHilighterButton = {
+		{ 290, 0, 360, 52 }, L"Hilight",
+		NULL,
+		NULL,
+		IDB_YELLOWHILIGHT32x32,
+		IDB_HILIGHT32x32D,
+		BUTTONSTATE_NORMAL,
+		0x48,
+		NULL,
+		FALSE,
+		BUTTON_HILIGHT,
+		FALSE,
+		IDC_YELLOWHILIGHTCURSOR,
+		NULL,
+		COLOR_YELLOW
+	};
+
+	static BUTTON gRectangleButton = {
+		{ 362, 0, 432, 52 }, L"Box",
+		NULL,					// EnalbedIcon
+		NULL,					// DisabledIcon
+		IDB_BOX32x32RED,		// EnabledIconId
+		IDB_BOX32x32D,			// DisabledIconId
+		BUTTONSTATE_NORMAL,		// State
+		0x42,					// Hotkey (B)
+		NULL,					// HWND Handle
+		FALSE,					// Enabled
+		BUTTON_BOX,				// Id
+		FALSE,					// SelectedTool
+		IDC_REDCROSSHAIR,		// CursorId
+		NULL,					// HCURSOR
+		COLOR_RED
+	};
+
+	static BUTTON gArrowButton = {
+		{ 434, 0, 504, 52 }, L"Arrow",
+		NULL,					// EnalbedIcon
+		NULL,					// DisabledIcon
+		IDB_ARROW32x32RED,		// EnabledIconId
+		IDB_ARROW32x32D,		// DisabledIconId
+		BUTTONSTATE_NORMAL,		// State
+		0x41,					// Hotkey (A)
+		NULL,					// HWND Handle
+		FALSE,					// Enabled
+		BUTTON_ARROW,			// Id
+		FALSE,					// SelectedTool
+		IDC_REDCROSSHAIR,		// CursorId
+		NULL,					// HCURSOR
+		COLOR_RED
+	};
+
+	static BUTTON gRedactButton = {
+		{ 506, 0, 576, 52 }, L"Redact",
+		NULL,
+		NULL,
+		IDB_REDACT32x32E,
+		IDB_REDACT32x32D,
+		BUTTONSTATE_NORMAL,
+		0x52,
+		NULL,
+		FALSE,
+		BUTTON_REDACT,
+		FALSE,
+		IDC_REDACTCURSOR,
+		NULL,
+		COLOR_BLACK
+	};
+
+	static BUTTON gTextButton = {
+		{ 578, 0, 648, 52 }, L"Text",
+		NULL,
+		NULL,
+		IDB_TEXT32x32E,
+		IDB_TEXT32x32D,
+		BUTTONSTATE_NORMAL,
+		0x54,
+		NULL,
+		FALSE,
+		BUTTON_TEXT,
+		FALSE,
+		IDC_TEXTCURSOR,
+		NULL,
+		COLOR_NONE
+	};
+
+	static BUTTON * gButtons[] = { &gNewButton, &gDelayButton, &gSaveButton, &gCopyButton, &gHilighterButton, &gRectangleButton, &gArrowButton, &gRedactButton, &gTextButton };
+//
+//#include "GdiPlusInterop.h"         // Stuff to make GDI+ work in pure C
+	DEFINE_GUID(gEncoderCompressionGuid, 0xe09d739d, 0xccd4, 0x44ee, 0x8e, 0xba, 0x3f, 0xbf, 0x8b, 0xe4, 0xfc, 0x58);
+
+	enum EncoderParameterValueType {
+		EncoderParameterValueTypeByte = 1,
+		EncoderParameterValueTypeASCII = 2,
+		EncoderParameterValueTypeShort = 3,
+		EncoderParameterValueTypeLong = 4,
+		EncoderParameterValueTypeRational = 5,
+		EncoderParameterValueTypeLongRange = 6,
+		EncoderParameterValueTypeUndefined = 7,
+		EncoderParameterValueTypeRationalRange = 8,
+		EncoderParameterValueTypePointer = 9
+	};
+
+	struct EncoderParameter {
+		GUID  Guid;               // GUID of the parameter
+		ULONG NumberOfValues;     // Number of the parameter values
+		ULONG Type;               // Value type, like ValueTypeLONG  etc.
+		VOID * Value;              // A pointer to the parameter values
+	};
+
+	struct EncoderParameters {
+		UINT Count;                      // Number of parameters in this structure
+		EncoderParameter Parameter[1];   // Parameter values
+	};
+
+	struct GdiplusStartupInput {
+		UINT32 GdiplusVersion;
+		void * DebugEventCallback;
+		BOOL   SuppressBackgroundThread;
+		BOOL   SuppressExternalCodecs;
+	};
+
+	int (WINAPI* GdiplusStartup)(ULONG_PTR* Token, struct GdiplusStartupInput* Size, void*);
+	int (WINAPI* GdiplusShutdown)(ULONG_PTR Token);
+	int (WINAPI* GdipCreateBitmapFromHBITMAP)(HBITMAP hBitmap, HPALETTE hPalette, ULONG** Bitmap);
+	int (WINAPI* GdipDisposeImage)(ULONG* Bitmap);
+	int (WINAPI* GdipSaveImageToFile)(ULONG* Image, const WCHAR* Filename, const CLSID* clsidEncoder, const EncoderParameters* EncoderParams);
+//
+//
+//
 struct SnipExGlobals {
 	SnipExGlobals() : gAppState(APPSTATE_BEFORECAPTURE), gStartingDelayCountdown(6), gCurrentDelayCountdown(6),
 		gStartingMainWindowWidth(668), gStartingMainWindowHeight(92)
@@ -163,15 +471,12 @@ struct SnipExGlobals {
 			// i.e. the right could actually be the left and the top could be the bottom.
 			const int PreviousWindowWidth  = CurrentWindowPos.right - CurrentWindowPos.left;
 			const int PreviousWindowHeight = CurrentWindowPos.bottom - CurrentWindowPos.top;
-			gCaptureWidth  = (gCaptureSelectionRectangle.right - gCaptureSelectionRectangle.left) >
-				0 ? (gCaptureSelectionRectangle.right - gCaptureSelectionRectangle.left) +
-				((int)gShouldAddDropShadow * 8) : (gCaptureSelectionRectangle.left - gCaptureSelectionRectangle.right) +
-				((int)gShouldAddDropShadow * 8);
-
-			gCaptureHeight = (gCaptureSelectionRectangle.bottom - gCaptureSelectionRectangle.top) >
-				0 ? (gCaptureSelectionRectangle.bottom - gCaptureSelectionRectangle.top) +
-				((int)gShouldAddDropShadow * 8) : (gCaptureSelectionRectangle.top - gCaptureSelectionRectangle.bottom) +
-				((int)gShouldAddDropShadow * 8);
+			{
+				const int _shadow = static_cast<int>(gShouldAddDropShadow * 8);
+				const RECT & r_captr = gCaptureSelectionRectangle;
+				gCaptureWidth  = (r_captr.right - r_captr.left) > 0 ? (r_captr.right - r_captr.left) + _shadow : (r_captr.left - r_captr.right) + _shadow;
+				gCaptureHeight = (r_captr.bottom - r_captr.top) > 0 ? (r_captr.bottom - r_captr.top) + _shadow : (r_captr.top - r_captr.bottom) + _shadow;
+			}
 			const int NewWindowWidth = (gCaptureWidth > (PreviousWindowWidth - 20)) ? (gCaptureWidth + 20) : PreviousWindowWidth;
 			const int NewWindowHeight = gCaptureHeight + PreviousWindowHeight + 7;
 			SetWindowPos(gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, NewWindowWidth, NewWindowHeight, 0);
@@ -347,7 +652,8 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	// is that the buttons would get cropped as the non-client area of the window got bigger, and the screen would "zoom in"
 	// whenever the user clicked "New"!
 	// @20201025 if(AdjustForCustomScaling() == FALSE) { return 0; }
-	WNDCLASSEXW CaptureWindowClass = { sizeof(WNDCLASSEXW) };
+	WNDCLASSEXW CaptureWindowClass; // = { sizeof(WNDCLASSEXW) };
+	INITWINAPISTRUCT(CaptureWindowClass);
 	CaptureWindowClass.style         = CS_HREDRAW | CS_VREDRAW;
 	CaptureWindowClass.hInstance     = Instance;
 	CaptureWindowClass.lpszClassName = L"SnipExCaptureWindowClass";
@@ -365,12 +671,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	// using
 	// the mouse. This could also be used to play a prank on somebody and make them think their desktop was hung.
 	SnExG.gCaptureWindowHandle = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,       // No taskbar icon
-		CaptureWindowClass.lpszClassName,
-		L"", // No title
-		0, // Not visible
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		0, // Will size it later
-		0, NULL, NULL, Instance, NULL);
+		CaptureWindowClass.lpszClassName, L"", 0/*Not visible*/, CW_USEDEFAULT, CW_USEDEFAULT, 0/*Will size it later*/, 0, NULL, NULL, Instance, NULL);
 	if(SnExG.gCaptureWindowHandle == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: CreateWindowEx (capture window) failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
 		MessageBoxW(NULL, L"Failed to create Capture Window!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
@@ -384,7 +685,8 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		return 0;
 	}
 	// The main window class that appears when the application is first launched.
-	WNDCLASSEXW MainWindowClass = { sizeof(WNDCLASSEXW) };
+	WNDCLASSEXW MainWindowClass;// = { sizeof(WNDCLASSEXW) };
+	INITWINAPISTRUCT(MainWindowClass);
 	MainWindowClass.style         = CS_HREDRAW | CS_VREDRAW;
 	MainWindowClass.hInstance     = Instance;
 	MainWindowClass.lpszClassName = L"SnipExWindowClass";
@@ -408,9 +710,9 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	}
 	#if _DEBUG
 	wchar_t TitleBarBuffer[64] = { 0 };
-	GetWindowTextW(gMainWindowHandle, TitleBarBuffer, _countof(TitleBarBuffer));
+	GetWindowTextW(SnExG.gMainWindowHandle, TitleBarBuffer, _countof(TitleBarBuffer));
 	wcscat_s(TitleBarBuffer, _countof(TitleBarBuffer), L" - *DEBUG BUILD*");
-	SetWindowTextW(gMainWindowHandle, TitleBarBuffer);
+	SetWindowTextW(SnExG.gMainWindowHandle, TitleBarBuffer);
 	MyOutputDebugStringW(L"[%s] Line %d: Setting window text for *DEBUG BUILD*.\n", __FUNCTIONW__, __LINE__);
 	#endif
 	// Create all the buttons.
@@ -891,16 +1193,11 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    POINT Mouse = { 0 };
 				    GetCursorPos(&Mouse);
 				    ScreenToClient(SnExG.gMainWindowHandle, &Mouse);
-				    if(Mouse.x >= 2 && Mouse.y >= 54) {
-					    if(GetCursor() != gButtons[Counter]->Cursor) {
-						    SetCursor(gButtons[Counter]->Cursor);
-					    }
-				    }
-				    else {
-					    if(GetCursor() != LoadCursorW(NULL, IDC_ARROW)) {
-						    SetCursor(LoadCursorW(NULL, IDC_ARROW));
-					    }
-				    }
+					{
+						HCURSOR local_hcur = (Mouse.x >= 2 && Mouse.y >= 54) ? gButtons[Counter]->Cursor : LoadCursorW(NULL, IDC_ARROW);
+						if(GetCursor() != local_hcur)
+							SetCursor(local_hcur);
+					}
 			    }
 		    }
 		    break;
@@ -1018,7 +1315,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
 			    if(LOWORD(WParam) == gButtons[Counter]->Id) {
 				    DrawButton((DRAWITEMSTRUCT*)LParam, *gButtons[Counter]);
-				    return(TRUE);
+				    return TRUE;
 			    }
 		    }
 		    break;
@@ -1865,11 +2162,11 @@ Cleanup:
 	CloseHandle(FileHandle);
 	if(Success == TRUE) {
 		MyOutputDebugStringW(L"[%s] Line %d: Returning successfully.\n", __FUNCTIONW__, __LINE__);
-		return(TRUE);
+		return TRUE;
 	}
 	else {
 		MyOutputDebugStringW(L"[%s] Line %d: Returning failure!\n", __FUNCTIONW__, __LINE__);
-		return(FALSE);
+		return FALSE;
 	}
 }
 
@@ -2020,7 +2317,7 @@ BOOL AdjustForCustomScaling(void)
 	}
 	/*if(GetDpiForMonitor(MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTOPRIMARY), MDT_EFFECTIVE_DPI, &DPIx, &DPIy) != S_OK) {
 		MessageBoxW(NULL, L"Unable to determine the monitor DPI of your primary monitor!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		return(FALSE);
+		return FALSE;
 	}*/
 	MyOutputDebugStringW(L"[%s] Line %d: Detected a monitor DPI of %d.\n", __FUNCTIONW__, __LINE__, DPIx);
 	// Pct    DPI
@@ -2046,7 +2343,7 @@ BOOL AdjustForCustomScaling(void)
 	// 195% = 187
 	// 200% = 192
 	if(DPIx == 96) {
-		return(TRUE);
+		return TRUE;
 	}
 	if(DPIx > 96 && DPIx <= 106) {
 		SnExG.gStartingMainWindowHeight += 2;
@@ -2128,9 +2425,9 @@ BOOL AdjustForCustomScaling(void)
 		MessageBoxW(NULL, L"Unable to deal with your custom scaling level. I can only handle up to 200% scaling. Contact me at ryanries09@gmail.com if you want me to add support for your scaling level.",
 		    L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unsupported DPI!\n", __FUNCTIONW__, __LINE__);
-		return(FALSE);
+		return FALSE;
 	}
-	return(TRUE);
+	return TRUE;
 }
 
 LSTATUS DeleteSnipExRegValue(_In_ wchar_t* ValueName)
@@ -2283,5 +2580,5 @@ BOOL CALLBACK TextEditCallback(_In_ HWND Dialog, _In_ UINT Message, _In_ WPARAM 
 					break;
 		    }
 	}
-	return(FALSE);
+	return FALSE;
 }

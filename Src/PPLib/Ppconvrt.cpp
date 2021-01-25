@@ -7681,17 +7681,17 @@ int Convert10903()
 									//PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND     "Для объекта {oid} не удалось найти подстановку для старого идентификатора рабочего стола (%s)"
 									//PPTXT_LOG_CMDGRPREFCVG_MENUNOSUBSTFOUND   "Для объекта {oid} не удалось найти подстановку для старого идентификатора меню (%s)"
 									int local_do_update = 0;
-									if(cfg_rec.DesktopID_Obsolete && !cfg_rec.DesktopUuid) {
+									if(cfg_rec.DesktopID_Obsolete && !cfg_rec.DesktopUuid_) {
 										const PPCommandItem * p_cg_item = cg_desktop.SearchByID(cfg_rec.DesktopID_Obsolete, 0);
 										if(p_cg_item && p_cg_item->Kind == PPCommandItem::kGroup) {
 											const PPCommandGroup * p_cg_local = static_cast<const PPCommandGroup *>(p_cg_item);
 											if(oneof2(p_cg_local->Type, cmdgrpcDesktop, cmdgrpcUndef) && !!p_cg_local->Uuid) {
-												cfg_rec.DesktopUuid = p_cg_local->Uuid;
+												cfg_rec.DesktopUuid_ = p_cg_local->Uuid;
 												local_do_update = 1;
 											}
 										}
 										uint msg_id = 0;
-										if(!cfg_rec.DesktopUuid) {
+										if(!cfg_rec.DesktopUuid_) {
 											// PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND Для объекта {%s} не удалось найти подстановку для старого идентификатора рабочего стола (%s)
 											msg_id = PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND;
 											temp_buf.Z().Cat(cfg_rec.DesktopID_Obsolete);
@@ -7699,7 +7699,7 @@ int Convert10903()
 										else {
 											// PPTXT_LOG_CMDGRPREFCVG_DTSETTLED Для объекта {%s} установлен новый идентификатор рабочего стола (%s)
 											msg_id = PPTXT_LOG_CMDGRPREFCVG_DTSETTLED;
-											temp_buf.Z().Cat(cfg_rec.DesktopID_Obsolete).Cat("-->").Cat(cfg_rec.DesktopUuid, S_GUID::fmtIDL|S_GUID::fmtLower);
+											temp_buf.Z().Cat(cfg_rec.DesktopID_Obsolete).Cat("-->").Cat(cfg_rec.DesktopUuid_, S_GUID::fmtIDL|S_GUID::fmtLower);
 										}
 										if(msg_id) {
 											PPLoadText(msg_id, fmt_buf);

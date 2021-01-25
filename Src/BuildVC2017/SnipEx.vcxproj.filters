@@ -11,16 +11,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\SnipEx\ButtonDefs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\SnipEx\GdiPlusInterop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\SnipEx\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\SnipEx\SnipEx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

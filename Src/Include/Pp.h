@@ -3079,7 +3079,7 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	long   BaseRateTypeID; // 84  Базовый тип валютного курса (PPOBJ_CONFIG only)
 	long   DesktopID_Obsolete; // 88  Идентификатор рабочего стола, испольуемого пользователем (группой)
 	long   MenuID_Obsolete;    // 92  Идентификатор меню, используемого пользователем (группой)
-	S_GUID DesktopUuid;    // @v10.9.3
+	S_GUID DesktopUuid_;    // @v10.9.3
 	S_GUID MenuUuid;       // @v10.9.3
 };
 //
@@ -18968,8 +18968,8 @@ public:
 	virtual int  ProcessReservedItem(TVRez &);
 	int    GetPacket(PPID id, PPSecurPacket * pPack);
 	int    PutPacket(PPID * pID, PPSecurPacket * pPack, int use_ta);
-	int    AssignPrivateDesktop(PPID userID, /*PPID desktopID*/const S_GUID & rDesktopUuid, const char * pDeskName, int use_ta);
-	int    GetPrivateDesktop(PPID userID, /*PPID * pDesktopID*/S_GUID & rDesktopUuid);
+	int    AssignPrivateDesktop(PPID userID, const S_GUID & rDesktopUuid, const char * pDeskName, int use_ta);
+	int    GetPrivateDesktop(PPID userID, S_GUID & rDesktopUuid);
 	//
 	// Descr: осуществляет кэшированное извлечение записи по идентификатору id.
 	//   Поля инициализируемые в записи pRec: {Tag, ID, Name, Flags, PersonID, ParentID}
@@ -52778,15 +52778,14 @@ public:
 	static int   Open(const S_GUID & rDesktopUuid, int createIfZero = 0);
    	static LRESULT CALLBACK DesktopWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static int   RegWindowClass(HINSTANCE hInst);
-	static int   EditAssocCmdList(/*long desktopID*/const S_GUID & rDesktopUuid);
-	static int   CreateDefault(/*long * pID*/S_GUID & rNewUuid);
-	static PPCommandMngr * LoadDeskList(int readOnly, PPCommandGroup * pDesktopList); // will not used in future @erik
-	static int GetDeskName(/*long deskId*/const S_GUID & rDesktopUuid, SString & rDeskName);
+	static int   EditAssocCmdList(const S_GUID & rDesktopUuid);
+	static int   CreateDefault(S_GUID & rNewUuid);
+	static int GetDeskName(const S_GUID & rDesktopUuid, SString & rDeskName);
 	static int HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
 	static COLORREF GetDefaultBgColor();
 	PPDesktop();
 	~PPDesktop();
-	int    Init__(/*long desktopID*/const S_GUID & rDesktopUuid);
+	int    Init__(const S_GUID & rDesktopUuid);
 	int    Destroy(int dontAssignToDb);
 	TRect & CalcIconRect(TPoint lrp, TRect & rResult) const;
 	int    GetIconSize() const { return IconSize; }

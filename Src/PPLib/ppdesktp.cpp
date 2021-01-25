@@ -683,7 +683,7 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 		ZDELETE(P_ActiveDesktop);
 		if(PPErrCode == PPERR_DESKNOTFOUND) {
 			DS.GetTLA().Lc.DesktopID_Obsolete = 0;
-			DS.GetTLA().Lc.DesktopUuid.Z(); // @v10.9.3
+			DS.GetTLA().Lc.DesktopUuid_.Z(); // @v10.9.3
 		}
 		ok = 0;
 	ENDCATCH
@@ -711,10 +711,10 @@ int PPDesktop::Destroy(int dontAssignToDb)
 		const PPConfig & r_cfg = LConfig;
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		SString desk_name;
-		if(!!r_cfg.DesktopUuid)
-			PPDesktop::GetDeskName(r_cfg.DesktopUuid, desk_name);
+		if(!!r_cfg.DesktopUuid_)
+			PPDesktop::GetDeskName(r_cfg.DesktopUuid_, desk_name);
 		if(desk_name.Len()) {
-			THROW(sec_obj.AssignPrivateDesktop(r_cfg.UserID, r_cfg.DesktopUuid, desk_name, 1));
+			THROW(sec_obj.AssignPrivateDesktop(r_cfg.UserID, r_cfg.DesktopUuid_, desk_name, 1));
 			THROW(SaveDesktop(0, 0));
 		}
 	}
@@ -1162,9 +1162,9 @@ void PPDesktop::Layout()
 				if(p_cmd) {
 					LayoutFlexItem * p_lo_item = p_lo_center_frame->InsertItem();
 					AbstractLayoutBlock alb;
-					alb.SetFixedSizeX(IconSize * 2);
-					alb.SetFixedSizeY(IconSize * 2);
-					alb.Margin.Set(IconGap);
+					alb.SetFixedSizeX(static_cast<float>(IconSize * 2));
+					alb.SetFixedSizeY(static_cast<float>(IconSize * 2));
+					alb.Margin.Set(static_cast<float>(IconGap));
 					//alb.Padding.Set(IconGap);
 					p_lo_item->SetLayoutBlock(alb);
 					{
@@ -1506,18 +1506,6 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 	SetFocus(H());
 	SendMessage(H(), WM_NCACTIVATE, TRUE, 0L);
 	ReleaseDC(H(), hdc);
-}
-
-/*static*/PPCommandMngr * PPDesktop::LoadDeskList(int readOnly, PPCommandGroup * pDesktopList) // will not used in future @erik
-{
-	PPCommandMngr * p_mgr = 0;
-	THROW_INVARG(pDesktopList);
-	THROW(p_mgr = GetCommandMngr(readOnly ? PPCommandMngr::ctrfReadOnly : 0, cmdgrpcDesktop, 0));
-	THROW_PP(p_mgr->Load_Depricated(pDesktopList), PPERR_CANTLOADDESKTOPLIST);
-	CATCH
-		ZDELETE(p_mgr);
-	ENDCATCH
-	return p_mgr;
 }
 
 /*static*/int PPDesktop::GetDeskName(const S_GUID & rDesktopUuid, SString & rDeskName)
@@ -2454,7 +2442,7 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 	int    ok = cmError;
 	int    r = 0;
 	PPDesktop * p_v = 0;
-	DS.GetTLA().Lc.DesktopUuid = rDesktopUuid;
+	DS.GetTLA().Lc.DesktopUuid_ = rDesktopUuid;
 	if(APPL->H_Desktop) {
 		DestroyWindow(APPL->H_Desktop);
 		APPL->H_Desktop = 0;
@@ -2473,7 +2461,7 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 		r = PPDesktop::CreateDefault(temp_uuid);
 		if(r > 0) {
 			THROW_MEM(p_v = new PPDesktop());
-			DS.GetTLA().Lc.DesktopUuid = temp_uuid;
+			DS.GetTLA().Lc.DesktopUuid_ = temp_uuid;
 			THROW(p_v->Init__(temp_uuid));
 			APPL->P_DeskTop->Insert_(p_v);
 			ok = p_v->Execute();

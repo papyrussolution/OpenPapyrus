@@ -415,9 +415,9 @@ public:
 				PPCommandFolder::CommandGroupList::Entry entry;
 				{
 					PPCommandFolder::GetCommandGroupList(0, cmdgrpcDesktop, DesktopList);
-					if(!!Data.DesktopUuid) {
+					if(!!Data.DesktopUuid_) {
 						uint idx = 0;
-						if(DesktopList.SearchByUuid(Data.DesktopUuid, &idx)) {
+						if(DesktopList.SearchByUuid(Data.DesktopUuid_, &idx)) {
 							if(DesktopList.Get(idx, entry))
 								desktop_surr_id = entry.SurrID;
 						}
@@ -502,9 +502,9 @@ public:
 				uint   idx = 0;
 				getCtrlData(CTLSEL_CFGOPTIONS_DESK,  /*&Data.DesktopID*/&surr_id);
 				if(DesktopList.SearchBySurrID(surr_id, &idx) && DesktopList.Get(idx, entry)) {
-					Data.DesktopUuid = entry.Uuid;
+					Data.DesktopUuid_ = entry.Uuid;
 					Data.DesktopID_Obsolete = entry.NativeID;
-					DS.GetTLA().Lc.DesktopUuid = entry.Uuid;
+					DS.GetTLA().Lc.DesktopUuid_ = entry.Uuid;
 					DS.GetTLA().Lc.DesktopID_Obsolete = entry.NativeID;
 				}
 				//DS.GetTLA().Lc.DesktopID = Data.DesktopID;

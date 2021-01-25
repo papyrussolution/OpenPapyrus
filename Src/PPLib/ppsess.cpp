@@ -3067,7 +3067,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					}
 					{
 						PPObjSecur sec_obj(PPOBJ_USR, 0);
-						sec_obj.GetPrivateDesktop(r_lc.UserID, /*&r_lc.DesktopID*/r_lc.DesktopUuid);
+						sec_obj.GetPrivateDesktop(r_lc.UserID, r_lc.DesktopUuid_);
 					}
 				}
 			}

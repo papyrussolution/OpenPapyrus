@@ -1,5 +1,5 @@
 // PRNBILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -63,14 +63,14 @@ static int SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPID oprT
 							HWND w_spin = GetDlgItem(H(), CTL_PRNGBILL_SPIN + c);
 							if(i < 2 || !checked)
 								SendDlgItemMessage(H(), CTL_PRNGBILL_SPIN + c, UDM_SETPOS, 0, MAKELONG(1, 0));
-							EnableWindow(w_nc, /* @v8.1.3 i > 1 &&*/ checked);
-							EnableWindow(w_spin, /* @v8.1.3 i > 1 &&*/ checked);
-							if(c == 7) // @v6.4.8 AHTOXA Ценник
+							EnableWindow(w_nc, checked);
+							EnableWindow(w_spin, checked);
+							if(c == 7) // AHTOXA Ценник
 								disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, BIN(OprType != PPOPT_GOODSRECEIPT || !checked));
 						}
 					}
 					else
-						disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, 1); // @v6.4.8 AHTOXA
+						disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, 1);
 					clearEvent(event);
 				}
 			}
@@ -364,11 +364,18 @@ struct RptSel { // @flat
 	long   NotBppFlags;
 };
 
-int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printingNoAsk) // @v9.8.6 SArray-->SVector
+int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printingNoAsk)
 {
-	int    ok = 1, div_copies_flag = 0, num_div_copies = 1, num_copies = 1, i, j;
+	int    ok = 1;
+	int    div_copies_flag = 0;
+	int    num_div_copies = 1;
+	int    num_copies = 1;
+	int    i;
+	int    j;
 	int    prn_no_ask = BIN(ppAry && *ppAry && printingNoAsk);
-	uint   c, alt_rpt_id = 0, amt_types = 0;
+	uint   c;
+	uint   alt_rpt_id = 0;
+	uint   amt_types = 0;
 	const  long preserve_process_flags = pPack->ProcessFlags;
 	PPOprKind opk;
 	PPObjOprKind op_obj;
@@ -656,5 +663,3 @@ int PrintCashOrder(PPBillPacket * pPack, int pay_rcv, int prnflags)
 	uint   rpt_id = pay_rcv ? REPORT_CASHPAYORDER : REPORT_CASHRCVORDER;
 	return PPAlddPrint(rpt_id, &pf, &env);
 }
-
-

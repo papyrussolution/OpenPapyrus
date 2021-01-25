@@ -803,8 +803,8 @@ int PPApp::processCommand(uint cmd)
 		case cmRemoveZeroLinkCCLines: RemoveZeroLinkCCLines();           break;
 		case cmEditDesktops:          EditCommandGroup(0, ZEROGUID, cmdgrpcDesktop); break;
 		case cmSelDesktop:
-			if(SelectCommandGroup(DS.GetTLA().Lc.DesktopUuid, 0, 0, cmdgrpcDesktop, false, 0)) {
-				PPDesktop::Open(/*LConfig.DesktopID*/LConfig.DesktopUuid, 0/*createIfZero*/);
+			if(SelectCommandGroup(DS.GetTLA().Lc.DesktopUuid_, 0, 0, cmdgrpcDesktop, false, 0)) {
+				PPDesktop::Open(/*LConfig.DesktopID*/LConfig.DesktopUuid_, 0/*createIfZero*/);
 			}
 			break;
 		case cmEditMenus: EditCommandGroup(0, ZEROGUID, cmdgrpcMenu); break;
@@ -1867,7 +1867,7 @@ void PPApp::login(int processCmdLine)
 			DS.SetOperDate(oper_date);
 			StatusWinChange(1);
 			PPDesktop::RegWindowClass(TProgram::GetInst());
-			PPDesktop::Open(LConfig.DesktopUuid, 1/*createIfZero*/); // @todo должна вызываться после того, как будут созданы основные окна.
+			PPDesktop::Open(LConfig.DesktopUuid_, 1/*createIfZero*/); // @todo должна вызываться после того, как будут созданы основные окна.
 			if(!no_login)
 				RemoveMenu(GetMenu(H_MainWnd), cmDBExit, MF_BYCOMMAND);
 			if(processCmdLine) {

@@ -722,7 +722,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 					PPCommandGroup new_desk;
 					PPCommandGroup new_menu2;
 					PPCommandGroup * p_new_group = 0;
-					if(/*IsDesktop*/CmdGrpC == cmdgrpcDesktop) {
+					if(CmdGrpC == cmdgrpcDesktop) {
 						if(p_item && p_item->Kind == PPCommandItem::kGroup) {
 							new_desk = *static_cast<const PPCommandGroup *>(p_item);
 							new_desk.SetLogo(0);
@@ -734,7 +734,6 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 					}
 					else if(CmdGrpC == cmdgrpcMenu) {
 						if(p_item && p_item->Kind == PPCommandItem::kFolder) {
-							//new_menu = *static_cast<const PPCommandFolder *>(p_item);
 							new_menu2.PPCommandFolder::Copy(*static_cast<const PPCommandFolder *>(p_item));
 							new_menu2.Kind = PPCommandItem::kGroup; // PPCommandFolder::Copy has changed Kind so we have to revert it
 							new_menu2.Flags = p_item->Flags;
@@ -779,7 +778,6 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 			if(CheckRight(PPR_MOD)) { // @v10.9.3
 				uint ipos = 0;
 				const S_GUID uuid = List.GetUuidBySurrId(id);
-				//const PPCommandItem * p_item = Data.SearchByID(id, &ipos);
 				const PPCommandItem * p_item = Data.SearchByUuid(uuid, &ipos);
 				PPCommandItem * p_savitem = (p_item && p_item->Kind == PPCommandItem::kGroup) ? p_item->Dup() : 0;
 				if(p_savitem) {
@@ -857,7 +855,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 			}
 			if(p_edited_group) {
 				p_menus = static_cast<PPCommandGroup *>(Data.Dup());
-				THROW(CheckDialogPtr(&(p_dlg = new CommandsDialog(/*p_menus,*//*IsDesktop*/CmdGrpC))));
+				THROW(CheckDialogPtr(&(p_dlg = new CommandsDialog(CmdGrpC))));
 				p_dlg->setDTS(p_edited_group);
 				if(ExecView(p_dlg) == cmOK) {
 					if(p_dlg->getDTS(p_edited_group)) {
@@ -876,11 +874,11 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 		{
 			Reference * p_ref = PPRef;
 			const S_GUID uuid = List.GetUuidBySurrId(menuID);
-			int    used = (CmdGrpC == cmdgrpcDesktop) ? BIN(/*LConfig.DesktopID == menuID*/LConfig.DesktopUuid == uuid) : 0;
+			int    used = (CmdGrpC == cmdgrpcDesktop) ? BIN(LConfig.DesktopUuid_ == uuid) : 0;
 			for(PPID id = 0; !used && p_ref->EnumItems(obj, &id) > 0;) {
 				PPConfig cfg;
 				if(p_ref->GetProperty(obj, id, PPPRP_CFG, &cfg, sizeof(cfg)) > 0)
-					used = (CmdGrpC == cmdgrpcDesktop) ? BIN(/*cfg.DesktopID == menuID*/cfg.DesktopUuid == uuid) : BIN(/*cfg.MenuID == menuID*/cfg.MenuUuid == uuid);
+					used = (CmdGrpC == cmdgrpcDesktop) ? BIN(cfg.DesktopUuid_ == uuid) : BIN(cfg.MenuUuid == uuid);
 			}
 			return used;
 		}

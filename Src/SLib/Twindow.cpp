@@ -1372,12 +1372,10 @@ IMPL_HANDLE_EVENT(TWindowBase)
 		if(::IsIconic(APPL->H_MainWnd))
 			::ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
 		if(APPL->H_MainWnd) {
-			if(IsMDIClientWindow(APPL->H_MainWnd)) {
+			if(IsMDIClientWindow(APPL->H_MainWnd))
 				Create(APPL->H_MainWnd, coMDI);
-			}
-			else {
+			else
 				Create(APPL->H_TopOfStack, coPopup | coMaxSize);
-			}
 		}
 		::ShowWindow(HW, SW_NORMAL);
 		::UpdateWindow(HW);
@@ -1742,4 +1740,3 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
-

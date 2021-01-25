@@ -373,7 +373,11 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 	}
 	else {
 		// @v11.0.0 TWindow::handleEvent(event);
-		TWindowBase::handleEvent(event); // @v11.0.0
+		// @v11.0.0
+		if(!event.isCmd(cmSetBounds)) { // Для TBaseBrowserWindow команда cmSetBounds пока не должна обрабатываться поскольку координатная сетка унаследована от MS-DOS
+			TWindowBase::handleEvent(event); 
+		}
+		// } @v11.0.0
 	}
 }
 //
@@ -658,7 +662,7 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 						break;
 				}
 			}
-			changeBounds(_bounds);
+			/*// @v11.0.0*/ changeBounds(_bounds);
 			P_Def = p_def;
 			if(freeze)
 				SetFreeze(freeze);
@@ -839,7 +843,7 @@ int BrowserWindow::ChangeResource(uint resID, DBQuery * pQuery, int force)
 		__Init();
 		RezID = ResourceID = resID;
 		P_Header = 0;
-		LoadResource(resID, pQuery, 2);
+		LoadResource(resID, pQuery, 2, 0);
 		ViewOptions |= ofSelectable;
 		WMHCreate(0);
 		ok = 2;
@@ -865,7 +869,7 @@ int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
 		__Init();
 		RezID = ResourceID = resID;
 		P_Header = 0;
-		LoadResource(resID, pAry, 1);
+		LoadResource(resID, pAry, 1, 0);
 		ViewOptions |= ofSelectable;
 		WMHCreate(0);
 		ok = 2;
@@ -1110,26 +1114,34 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 void BrowserWindow::CalcRight()
 {
 	BrowserDef * p_def_ = P_Def;
-	uint   cnt = p_def_->getCount();
-	uint   i = 0;
-	int    x = 3;
-	BroColumn * c;
-	(c = &p_def_->at(0))->x = x;
-	while(i < Freeze && (x += (ChrSz.x*c->width + 3)) < CliSz.x)
-		(c = &p_def_->at(++i))->x = x;
-	(c = &p_def_->at(i = Left))->x = x;
-	while(++i < cnt && (x += (ChrSz.x*c->width + 3)) < CliSz.x)
-		(c = &p_def_->at(i))->x = x;
-	Right = i - 1;
+	if(p_def_) {
+		uint   cnt = p_def_->getCount();
+		uint   i = 0;
+		int    x = 3;
+		BroColumn * c;
+		(c = &p_def_->at(0))->x = x;
+		while(i < Freeze && (x += (ChrSz.x*c->width + 3)) < CliSz.x)
+			(c = &p_def_->at(++i))->x = x;
+		(c = &p_def_->at(i = Left))->x = x;
+		while(++i < cnt && (x += (ChrSz.x*c->width + 3)) < CliSz.x)
+			(c = &p_def_->at(i))->x = x;
+		Right = i - 1;
+	}
 }
 
 void BrowserWindow::SetupScroll()
 {
-	ViewHeight = (CliSz.y - CapOffs - CalcHdrWidth(1)) / YCell - 1;
-	P_Def->setViewHight(ViewHeight);
-	VScrollMax = MAX(0, static_cast<int>(P_Def->getRecsCount())-1);
+	{
+		const long hdr_width = CalcHdrWidth(1);
+		if((CapOffs + hdr_width) < CliSz.y && YCell > 0)
+			ViewHeight = ((CliSz.y - CapOffs - hdr_width) / YCell) - 1;
+		else
+			ViewHeight = 0;
+	}
+	CALLPTRMEMB(P_Def, setViewHight(ViewHeight));
+	VScrollMax = P_Def ? MAX(0, static_cast<int>(P_Def->getRecsCount())-1) : 0;
 	VScrollPos = MIN(VScrollPos, VScrollMax);
-	HScrollMax = P_Def->getCount() - 1;
+	HScrollMax = SVectorBase::GetCount(P_Def) ? (P_Def->getCount()-1) : 0;
 	HScrollPos = MIN(HScrollPos, HScrollMax);
 	SetScrollRange(H(), SB_VERT, 0, VScrollMax, FALSE);
 	SetScrollRange(H(), SB_HORZ, 0, HScrollMax, FALSE);
@@ -2145,251 +2157,255 @@ void BrowserWindow::FocusItem(int hPos, int vPos)
 
 int BrowserWindow::WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop)
 {
-	int    res = 0;
-	long   old_top;
-	int    recalc_heights = 1;
-	uint   view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
-	uint   bottom_item = 0, top = 0;
-	long   step = 0, next_page_height = 0;
-	long   scrll_delta = 0;
 	BrowserDef * p_def_ = P_Def;
-	old_top = -1;
-	switch(sbEvent) {
-		case SB_TOP:
-			res = p_def_->top();
-			break;
-		case SB_BOTTOM:
-			res = p_def_->bottom();
-			bottom_item = p_def_->_curItem();
-			break;
-		case SB_LINEUP:
-			old_top = p_def_->_topItem();
-			if(!old_top && !p_def_->_curItem() && !p_def_->IsBOQ())
-				old_top--;
-			res = p_def_->step(-1);
-			recalc_heights = 0;
-			break;
-		case SB_LINEDOWN:
-			old_top = p_def_->_topItem();
-			if((long)(p_def_->_curItem()+1) >= (long)(view_height + old_top) && !p_def_->IsEOQ())
-				old_top = -1;
-			if(p_def_->_curFrameItem() != (view_height - 1))
-				recalc_heights = 0;
-			res = p_def_->step(1);
-			if(recalc_heights) {
-				if(IsLastPage(view_height)/*p_def_->IsEOQ()*/)
-					bottom_item = p_def_->_curItem();
-				p_def_->step(-(int)(view_height - 1));
-			}
-			else
-				recalc_heights = 0;
-			break;
-		case SB_PAGEUP:
-			{
-				if(p_def_->IsBOQ())
-					old_top = p_def_->_topItem();
-				uint prev_top = p_def_->_topItem();
-				res = p_def_->step(-(int)view_height);
-				res = p_def_->step(view_height - 1);
+	int    res = 0;
+	if(p_def_) {
+		int    recalc_heights = 1;
+		uint   view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
+		uint   bottom_item = 0;
+		uint   top = 0;
+		long   step = 0;
+		long   next_page_height = 0;
+		long   scrll_delta = 0;
+		long   old_top = -1;
+		switch(sbEvent) {
+			case SB_TOP:
+				res = p_def_->top();
+				break;
+			case SB_BOTTOM:
+				res = p_def_->bottom();
 				bottom_item = p_def_->_curItem();
-				recalc_heights = 1;
-			}
-			break;
-		case SB_PAGEDOWN:
-			if(IsLastPage(view_height)/*p_def_->IsEOQ()*/) {
+				break;
+			case SB_LINEUP:
 				old_top = p_def_->_topItem();
-				bottom_item = p_def_->_topItem() + view_height - 1;
-			}
-			res = p_def_->step(view_height);
-			p_def_->step(-(int)(view_height - 1));
-			recalc_heights = 1;
-			break;
-		case SB_THUMBPOSITION:
-			old_top = p_def_->_topItem();
-			res = p_def_->step(thumbPos);
-			if(thumbPos == 0) {
-				recalc_heights = 1;
-				bottom_item = (P_RowsHeightAry && P_RowsHeightAry->getCount() && IsLastPage(view_height)) ?
-					(p_def_->_topItem() + view_height - 1) : 0;
-			}
-			else {
-				bottom_item = p_def_->_curItem();
+				if(!old_top && !p_def_->_curItem() && !p_def_->IsBOQ())
+					old_top--;
+				res = p_def_->step(-1);
 				recalc_heights = 0;
-			}
-			break;
-		default:
-			recalc_heights = 0;
-	}
-	if(!recalc_heights) {
-		p_def_->getScrollData(&scrll_delta, reinterpret_cast<long *>(&VScrollPos));
-		recalc_heights = scrll_delta ? 1 : 0;
-	}
-	//
-	// calc row hights array
-	//
-	if(recalc_heights) {
-		long   thumb_step = 0;
-		CalcRowsHeight(p_def_->_topItem(), bottom_item);
-		view_height = P_RowsHeightAry->getCount();
-		if(sbEvent == SB_THUMBPOSITION && thumbPos == 0) {
-			if((long)view_height < p_def_->_curFrameItem())
-				p_def_->step(-(long)(p_def_->_curFrameItem() - view_height + 1));
-			else if(p_def_->_curItem() < (long)view_height) {
-				thumb_step = -(long)view_height + p_def_->_curFrameItem() + 1;
-				p_def_->step(-(long)(p_def_->_curFrameItem() - view_height + 1));
-			}
+				break;
+			case SB_LINEDOWN:
+				old_top = p_def_->_topItem();
+				if((long)(p_def_->_curItem()+1) >= (long)(view_height + old_top) && !p_def_->IsEOQ())
+					old_top = -1;
+				if(p_def_->_curFrameItem() != (view_height - 1))
+					recalc_heights = 0;
+				res = p_def_->step(1);
+				if(recalc_heights) {
+					if(IsLastPage(view_height)/*p_def_->IsEOQ()*/)
+						bottom_item = p_def_->_curItem();
+					p_def_->step(-(int)(view_height - 1));
+				}
+				else
+					recalc_heights = 0;
+				break;
+			case SB_PAGEUP:
+				{
+					if(p_def_->IsBOQ())
+						old_top = p_def_->_topItem();
+					uint prev_top = p_def_->_topItem();
+					res = p_def_->step(-(int)view_height);
+					res = p_def_->step(view_height - 1);
+					bottom_item = p_def_->_curItem();
+					recalc_heights = 1;
+				}
+				break;
+			case SB_PAGEDOWN:
+				if(IsLastPage(view_height)/*p_def_->IsEOQ()*/) {
+					old_top = p_def_->_topItem();
+					bottom_item = p_def_->_topItem() + view_height - 1;
+				}
+				res = p_def_->step(view_height);
+				p_def_->step(-(int)(view_height - 1));
+				recalc_heights = 1;
+				break;
+			case SB_THUMBPOSITION:
+				old_top = p_def_->_topItem();
+				res = p_def_->step(thumbPos);
+				if(thumbPos == 0) {
+					recalc_heights = 1;
+					bottom_item = (P_RowsHeightAry && P_RowsHeightAry->getCount() && IsLastPage(view_height)) ?
+						(p_def_->_topItem() + view_height - 1) : 0;
+				}
+				else {
+					bottom_item = p_def_->_curItem();
+					recalc_heights = 0;
+				}
+				break;
+			default:
+				recalc_heights = 0;
 		}
-		p_def_->setViewHight(view_height);
-		if(oneof3(sbEvent, SB_PAGEDOWN, SB_LINEDOWN, SB_BOTTOM))
-			p_def_->step(view_height - 1);
-		else if(sbEvent == SB_PAGEUP)
-			p_def_->step(-(int)(view_height - 1));
-		else
-			p_def_->step(thumb_step);
-		old_top = -1;
+		if(!recalc_heights) {
+			p_def_->getScrollData(&scrll_delta, reinterpret_cast<long *>(&VScrollPos));
+			recalc_heights = scrll_delta ? 1 : 0;
+		}
+		//
+		// calc row hights array
+		//
+		if(recalc_heights) {
+			long   thumb_step = 0;
+			CalcRowsHeight(p_def_->_topItem(), bottom_item);
+			view_height = P_RowsHeightAry->getCount();
+			if(sbEvent == SB_THUMBPOSITION && thumbPos == 0) {
+				if((long)view_height < p_def_->_curFrameItem())
+					p_def_->step(-(long)(p_def_->_curFrameItem() - view_height + 1));
+				else if(p_def_->_curItem() < (long)view_height) {
+					thumb_step = -(long)view_height + p_def_->_curFrameItem() + 1;
+					p_def_->step(-(long)(p_def_->_curFrameItem() - view_height + 1));
+				}
+			}
+			p_def_->setViewHight(view_height);
+			if(oneof3(sbEvent, SB_PAGEDOWN, SB_LINEDOWN, SB_BOTTOM))
+				p_def_->step(view_height - 1);
+			else if(sbEvent == SB_PAGEUP)
+				p_def_->step(-(int)(view_height - 1));
+			else
+				p_def_->step(thumb_step);
+			old_top = -1;
+		}
+		ASSIGN_PTR(pOldTop, old_top);
 	}
-	ASSIGN_PTR(pOldTop, old_top);
 	return res;
 }
 
-int BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
+void BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 {
-	RECT   r;
-	const  long hdr_width = CalcHdrWidth(1);
-	int    res = 0;
-	long   scrll_delta;
-	int    oldHScrollPos;
-	int    oldLeft;
-	long   old_top;
-	uint   cur;
 	BrowserDef * p_def_ = P_Def;
-	if(sbType == SB_VERT) {
-		int multi_lines = 0;
-		old_top = -1;
-		for(uint cn = 0; !multi_lines && cn < p_def_->getCount(); cn++)
-			multi_lines = BIN(p_def_->at(cn).Options & BCO_RESIZEABLE);
-		if(multi_lines)
-			res = WMHScrollMult(sbEvent, thumbPos, &old_top);
-		else {
-			switch(sbEvent) {
-				case SB_TOP:    res = p_def_->top();    break;
-				case SB_BOTTOM: res = p_def_->bottom(); break;
-				case SB_LINEUP:
-					old_top = p_def_->_topItem();
-					if(!old_top && !p_def_->_curItem() && !p_def_->IsBOQ())
-						old_top--;
-					res = p_def_->step(-1);
-					break;
-				case SB_LINEDOWN:
-					old_top = p_def_->_topItem();
-					if((long)(p_def_->_curItem()+1) >= (long)(ViewHeight + old_top) && !p_def_->IsEOQ())
-						old_top = -1;
-					res = p_def_->step(1);
-					break;
-				case SB_PAGEUP:
-					if(p_def_->IsBOQ())
+	if(p_def_) {
+		RECT   r;
+		const  long hdr_width = CalcHdrWidth(1);
+		int    res = 0;
+		long   scrll_delta;
+		int    oldHScrollPos;
+		int    oldLeft;
+		long   old_top;
+		uint   cur;
+		if(sbType == SB_VERT) {
+			int multi_lines = 0;
+			old_top = -1;
+			for(uint cn = 0; !multi_lines && cn < p_def_->getCount(); cn++)
+				multi_lines = BIN(p_def_->at(cn).Options & BCO_RESIZEABLE);
+			if(multi_lines)
+				res = WMHScrollMult(sbEvent, thumbPos, &old_top);
+			else {
+				switch(sbEvent) {
+					case SB_TOP:    res = p_def_->top();    break;
+					case SB_BOTTOM: res = p_def_->bottom(); break;
+					case SB_LINEUP:
 						old_top = p_def_->_topItem();
-					res = p_def_->step(-(int)ViewHeight);
+						if(!old_top && !p_def_->_curItem() && !p_def_->IsBOQ())
+							old_top--;
+						res = p_def_->step(-1);
+						break;
+					case SB_LINEDOWN:
+						old_top = p_def_->_topItem();
+						if((long)(p_def_->_curItem()+1) >= (long)(ViewHeight + old_top) && !p_def_->IsEOQ())
+							old_top = -1;
+						res = p_def_->step(1);
+						break;
+					case SB_PAGEUP:
+						if(p_def_->IsBOQ())
+							old_top = p_def_->_topItem();
+						res = p_def_->step(-(int)ViewHeight);
+						break;
+					case SB_PAGEDOWN:
+						if(p_def_->IsEOQ())
+							old_top = p_def_->_topItem();
+						res = p_def_->step(ViewHeight);
+						break;
+					case SB_THUMBPOSITION:
+						old_top = p_def_->_topItem();
+						res = p_def_->step(thumbPos);
+						break;
+					default:;
+				}
+			}
+			p_def_->getScrollData(&scrll_delta, reinterpret_cast<long *>(&VScrollPos));
+			if(res) {
+				// AHTOXA {
+				RECT prev_line_rect = RectCursors.LineCursor;
+				RECT prev_cell_rect = RectCursors.CellCursor;
+				// } AHTOXA
+				r.top = CapOffs;
+				r.bottom = r.top + ViewHeight * YCell;
+				r.top    += hdr_width;
+				r.bottom += hdr_width;
+				r.left = 0;
+				r.right = CliSz.x;
+				::SendMessage(GetParent(H()), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(VScrollPos, 0));
+				ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, TRUE);
+				LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, TRUE);
+				AdjustCursorsForHdr();
+				if(p_def_->_topItem() != old_top)
+					InvalidateRect(H(), &r, TRUE);
+				// AHTOXA {
+				if(prev_line_rect.top != RectCursors.LineCursor.top) {
+					ClearFocusRect(&prev_line_rect);
+					InvalidateRect(H(), &RectCursors.LineCursor, FALSE);
+				}
+				if(prev_cell_rect.top != RectCursors.CellCursor.top || prev_cell_rect.left != RectCursors.CellCursor.left) {
+					ClearFocusRect(&prev_cell_rect);
+					InvalidateRect(H(), &RectCursors.CellCursor, FALSE);
+				}
+				::UpdateWindow(H());
+				// } AHTOXA
+			}
+			SetScrollPos(H(), SB_VERT, VScrollPos, TRUE);
+		}
+		if(sbType == SB_HORZ) {
+			oldHScrollPos = HScrollPos;
+			switch(sbEvent) {
+				case SB_TOP:    HScrollPos = 0; break;
+				case SB_BOTTOM: HScrollPos = HScrollMax; break;
+				case SB_PAGEUP:
+				case SB_LINEUP:
+					if(HScrollPos > 0)
+						HScrollPos--;
 					break;
 				case SB_PAGEDOWN:
-					if(p_def_->IsEOQ())
-						old_top = p_def_->_topItem();
-					res = p_def_->step(ViewHeight);
+				case SB_LINEDOWN:
+					if(HScrollPos < HScrollMax)
+						HScrollPos++;
 					break;
 				case SB_THUMBPOSITION:
-					old_top = p_def_->_topItem();
-					res = p_def_->step(thumbPos);
+				case SB_THUMBTRACK:
+					HScrollPos = thumbPos;
 					break;
-				default:;
+				default:
+					break;
 			}
-		}
-		p_def_->getScrollData(&scrll_delta, reinterpret_cast<long *>(&VScrollPos));
-		if(res) {
-			// AHTOXA {
-			RECT prev_line_rect = RectCursors.LineCursor;
-			RECT prev_cell_rect = RectCursors.CellCursor;
-			// } AHTOXA
-			r.top = CapOffs;
-			r.bottom = r.top + ViewHeight * YCell;
-			r.top    += hdr_width;
-			r.bottom += hdr_width;
-			r.left = 0;
-			r.right = CliSz.x;
-			::SendMessage(GetParent(H()), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(VScrollPos, 0));
-			ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, TRUE);
-			LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, TRUE);
-			AdjustCursorsForHdr();
-			if(p_def_->_topItem() != old_top)
-				InvalidateRect(H(), &r, TRUE);
-			// AHTOXA {
-			if(prev_line_rect.top != RectCursors.LineCursor.top) {
-				ClearFocusRect(&prev_line_rect);
-				InvalidateRect(H(), &RectCursors.LineCursor, FALSE);
-			}
-			if(prev_cell_rect.top != RectCursors.CellCursor.top || prev_cell_rect.left != RectCursors.CellCursor.left) {
-				ClearFocusRect(&prev_cell_rect);
-				InvalidateRect(H(), &RectCursors.CellCursor, FALSE);
-			}
-			::UpdateWindow(H());
-			// } AHTOXA
-		}
-		SetScrollPos(H(), SB_VERT, VScrollPos, TRUE);
-	}
-	if(sbType == SB_HORZ) {
-		oldHScrollPos = HScrollPos;
-		switch(sbEvent) {
-			case SB_TOP:    HScrollPos = 0; break;
-			case SB_BOTTOM: HScrollPos = HScrollMax; break;
-			case SB_PAGEUP:
-			case SB_LINEUP:
-				if(HScrollPos > 0)
-					HScrollPos--;
-				break;
-			case SB_PAGEDOWN:
-			case SB_LINEDOWN:
-				if(HScrollPos < HScrollMax)
-					HScrollPos++;
-				break;
-			case SB_THUMBPOSITION:
-			case SB_THUMBTRACK:
-				HScrollPos = thumbPos;
-				break;
-			default:
-				break;
-		}
-		if(HScrollPos != (UINT)oldHScrollPos) {
-			oldLeft = Left;
-			cur = HScrollPos;
-			if(cur >= Freeze) {
-				while(cur > Right)
-					Left++, CalcRight();
-				if(cur == Right) {
-					while(Left < (int)HScrollMax && (CellRight(p_def_->at(cur)) + 5) > CliSz.x)
+			if(HScrollPos != (UINT)oldHScrollPos) {
+				oldLeft = Left;
+				cur = HScrollPos;
+				if(cur >= Freeze) {
+					while(cur > Right)
 						Left++, CalcRight();
+					if(cur == Right) {
+						while(Left < (int)HScrollMax && (CellRight(p_def_->at(cur)) + 5) > CliSz.x)
+							Left++, CalcRight();
+					}
+					if(cur < Left)
+						Left = cur, CalcRight();
 				}
-				if(cur < Left)
-					Left = cur, CalcRight();
+				SendMessage(GetParent(H()), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(HScrollPos, 0));
+				ClearFocusRect(&RectCursors.CellCursor);
+				ClearFocusRect(&RectCursors.LineCursor);
+				ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, TRUE);
+				LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, TRUE);
+				AdjustCursorsForHdr();
+				if(Left != oldLeft) {
+					// ItemRect(Left, p_def_->_curFrameItem(), &r, TRUE);
+					r.left   = p_def_->at(Left).x+1;
+					r.top    = ToolBarWidth;
+					r.bottom = CliSz.y;
+					r.right  = CliSz.x;
+					::InvalidateRect(H(), &r, TRUE);
+				}
+				else
+					::InvalidateRect(H(), &RectCursors.CellCursor, FALSE);
+				SetScrollPos(H(), SB_HORZ, HScrollPos, TRUE);
 			}
-			SendMessage(GetParent(H()), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(HScrollPos, 0));
-			ClearFocusRect(&RectCursors.CellCursor);
-			ClearFocusRect(&RectCursors.LineCursor);
-			ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, TRUE);
-			LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, TRUE);
-			AdjustCursorsForHdr();
-			if(Left != oldLeft) {
-				// ItemRect(Left, p_def_->_curFrameItem(), &r, TRUE);
-				r.left   = p_def_->at(Left).x+1;
-				r.top    = ToolBarWidth;
-				r.bottom = CliSz.y;
-				r.right  = CliSz.x;
-				::InvalidateRect(H(), &r, TRUE);
-			}
-			else
-				::InvalidateRect(H(), &RectCursors.CellCursor, FALSE);
-			SetScrollPos(H(), SB_HORZ, HScrollPos, TRUE);
 		}
 	}
-	return 1;
 }
 
 int BrowserWindow::CalcRowsHeight(long topItem, long bottomItem)
@@ -2596,8 +2612,8 @@ HWND GetNextBrowser(HWND hw)
 		case WM_HSCROLL:
 		case WM_VSCROLL:
 			if(hWnd == GetFocus() && p_view) {
-				if(p_view->WMHScroll((msg == WM_HSCROLL) ? SB_HORZ : SB_VERT, LOWORD(wParam), (int16)HIWORD(wParam)))
-					return 0L;
+				p_view->WMHScroll((msg == WM_HSCROLL) ? SB_HORZ : SB_VERT, LOWORD(wParam), (int16)HIWORD(wParam));
+				return 0L;
 			}
 			else
 				SetFocus(hWnd);
