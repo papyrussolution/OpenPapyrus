@@ -1,0 +1,109 @@
+/*[
+ * Copyright 1999, 2004   Hans-Bernhard Broeker
+ *
+ * Permission to use, copy, and distribute this software and its
+ * documentation for any purpose with or without fee is hereby granted,
+ * provided that the above copyright notice appear in all copies and
+ * that both that copyright notice and this permission notice appear
+ * in supporting documentation.
+ *
+ * Permission to modify the software is granted, but not the right to
+ * distribute the complete modified source code.  Modifications are to
+ * be distributed as patches to the released version.  Permission to
+ * distribute binaries produced by compiling modified sources is granted,
+ * provided you
+ *   1. distribute the corresponding source modifications from the
+ *    released version in the form of a patch file along with the binaries,
+ *   2. add special version identification to distinguish your version
+ *    in addition to the base release version number,
+ *   3. provide your name and address as the primary contact for the
+ *    support of your modified version, and
+ *   4. retain our contact information in regard to use of the base
+ *    software.
+ * Permission to distribute the released version of the source code along
+ * with corresponding source modifications in the form of a patch file is
+ * granted with same provisions 2 through 4 for binary distributions.
+ *
+ * This software is provided "as is" without express or implied warranty
+ * to the extent permitted by applicable law.
+   ]*/
+
+#include <gnuplot.h>
+#pragma hdrstop
+// 
+// This module implements a dynamically growing array of arbitrary
+// elements parametrized by their sizeof(). There is no 'access
+// function', i.e. you'll have to access the elements of the
+// dynarray->v memory block by hand. It's implemented in OO-style,
+// even though this is C, not C++.  In particular, every function
+// takes a pointer to a data structure type 'dynarray', which mimics
+// the 'this' pointer of an object. 
+// 
+static char * init_failure_msg = "dynarray wasn't initialized";
+// 
+// The 'constructor' of a dynarray object: initializes all the
+// variables to well-defined startup values 
+// 
+void init_dynarray(dynarray * pThis, size_t entry_size, long size, long increment)
+{
+	pThis->v = 0;            /* preset value, in case gp_alloc fails */
+	if(size)
+		pThis->v = gp_alloc(entry_size*size, "init dynarray");
+	pThis->size = size;
+	pThis->end = 0;
+	pThis->increment = increment;
+	pThis->entry_size = entry_size;
+}
+// 
+// The 'destructor'; sets all crucial elements of the structure to
+// well-defined values to avoid problems by use of bad pointers... 
+// 
+void free_dynarray(dynarray * pThis)
+{
+	ZFREE(pThis->v); // should work, even if gp_alloc failed 
+	pThis->end = pThis->size = 0;
+}
+// 
+// Set the size of the dynamical array to a new, fixed value 
+// 
+void resize_dynarray(dynarray * pThis, long newsize)
+{
+	if(!pThis->v)
+		GPO.IntError(NO_CARET, init_failure_msg);
+	if(newsize == 0)
+		free_dynarray(pThis);
+	else {
+		pThis->v = gp_realloc(pThis->v, pThis->entry_size * newsize, "extend dynarray");
+		pThis->size = newsize;
+	}
+}
+// 
+// Increase the size of the dynarray by a given amount 
+// 
+void extend_dynarray(dynarray * pThis, long increment)
+{
+	resize_dynarray(pThis, pThis->size + increment);
+}
+// 
+// Get pointer to the element one past the current end of the dynamic
+// array. Resize it if necessary. Returns a pointer-to-void to that element. 
+// 
+void * nextfrom_dynarray(dynarray * pThis)
+{
+	if(!pThis->v)
+		GPO.IntError(NO_CARET, init_failure_msg);
+	if(pThis->end >= pThis->size)
+		extend_dynarray(pThis, pThis->increment);
+	return ((char*)(pThis->v) + pThis->entry_size * (pThis->end++));
+}
+// 
+// Release the element at the current end of the dynamic array, by
+// moving the 'end' index one element backwards 
+// 
+void droplast_dynarray(dynarray * pThis)
+{
+	if(!pThis->v)
+		GPO.IntError(NO_CARET, init_failure_msg);
+	if(pThis->end)
+		pThis->end--;
+}

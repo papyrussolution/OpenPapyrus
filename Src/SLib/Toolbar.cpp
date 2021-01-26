@@ -47,8 +47,7 @@ TToolbar::~TToolbar()
 		himl = 0;
 	}
 	TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, PrevToolProc);
-	if(H_Menu)
-		DestroyMenu(H_Menu);
+	DestroyMenu(H_Menu);
 	if(H_Wnd)
 		DestroyWindow(H_Wnd);
 }

@@ -936,7 +936,7 @@ void BZ2_bzWrite(int*    bzerror, BZFILE* b, void*   buf, int len)
 		}
 		if(bzf->strm.avail_out < BZ_MAX_UNUSED) {
 			n = BZ_MAX_UNUSED - bzf->strm.avail_out;
-			n2 = fwrite( (void*)(bzf->buf), sizeof(uchar), n, bzf->handle);
+			n2 = static_cast<int32>(fwrite((void*)(bzf->buf), sizeof(uchar), n, bzf->handle));
 			if(n != n2 || ferror(bzf->handle)) {
 				BZ_SETERR(BZ_IO_ERROR); 
 				return;
@@ -984,28 +984,22 @@ void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_
 			if(ret != BZ_FINISH_OK && ret != BZ_STREAM_END) {
 				BZ_SETERR(ret); return;
 			}
-			;
-
 			if(bzf->strm.avail_out < BZ_MAX_UNUSED) {
 				n = BZ_MAX_UNUSED - bzf->strm.avail_out;
-				n2 = fwrite( (void*)(bzf->buf), sizeof(uchar),
-				    n, bzf->handle);
+				n2 = static_cast<int32>(fwrite( (void*)(bzf->buf), sizeof(uchar), n, bzf->handle));
 				if(n != n2 || ferror(bzf->handle)) {
 					BZ_SETERR(BZ_IO_ERROR); return;
 				}
-				;
 			}
-
-			if(ret == BZ_STREAM_END) break;
+			if(ret == BZ_STREAM_END) 
+				break;
 		}
 	}
-
 	if(!abandon && !ferror(bzf->handle) ) {
 		fflush(bzf->handle);
 		if(ferror(bzf->handle)) {
 			BZ_SETERR(BZ_IO_ERROR); return;
 		}
-		;
 	}
 	ASSIGN_PTR(nbytes_in_lo32, bzf->strm.total_in_lo32);
 	ASSIGN_PTR(nbytes_in_hi32, bzf->strm.total_in_hi32);
@@ -1102,7 +1096,7 @@ int BZ2_bzRead(int * bzerror, BZFILE* b, void*   buf, int len)
 			BZ_SETERR(BZ_IO_ERROR); return 0;
 		}
 		if(bzf->strm.avail_in == 0 && !myfeof(bzf->handle)) {
-			n = fread(bzf->buf, sizeof(uchar), BZ_MAX_UNUSED, bzf->handle);
+			n = static_cast<int32>(fread(bzf->buf, sizeof(uchar), BZ_MAX_UNUSED, bzf->handle));
 			if(ferror(bzf->handle)) {
 				BZ_SETERR(BZ_IO_ERROR); return 0;
 			}

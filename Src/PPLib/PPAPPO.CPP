@@ -1967,14 +1967,11 @@ int PPApp::InitMenuBar()
 		if(!m || not_found) {
 			if(is_master) {
 				DS.GetTLA().Lc.Menu = 1;
-				if(m)
-					::DestroyMenu(m);
+				::DestroyMenu(m);
 				m = PPLoadResourceMenu(P_SlRez, r_cfg.Menu, &not_found);
 				if(!m || not_found) {
-					if(m) {
-						::DestroyMenu(m);
-						m = 0; // @v10.4.5
-					}
+					::DestroyMenu(m);
+					m = 0; // @v10.4.5
 					DS.SetMenu(MENU_MASTER);
 					// @v10.4.5 (¬строенные в windows-ресурс меню упразднены) m = ::LoadMenu(TProgram::GetInst(), MAKEINTRESOURCE(r_cfg.Menu));
 				}

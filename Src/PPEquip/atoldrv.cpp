@@ -1293,6 +1293,27 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					P_Fptr10->SetParamStrProc(fph, 1203, temp_buf_u);
 					THROW(P_Fptr10->OperatorLoginProc(fph) == 0);
 					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_RECEIPT_TYPE, (flags & PRNCHK_RETURN) ? LIBFPTR_RT_SELL_RETURN : LIBFPTR_RT_SELL);
+					// @v11.0.0 {
+					if(chzn_sid.NotEmpty() && P_Fptr10->UtilFormTlvProc) {
+						uint8  fptr10_mdlp_buf[512];
+						int    mdlp_buf_len = 0;
+						P_Fptr10->SetParamStrProc(fph, 1085, L"mdlp");
+						temp_buf.Z().Cat("sid").Cat(chzn_sid).CatChar('&');
+						temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
+						P_Fptr10->SetParamStrProc(fph, 1086, temp_buf_u); // sid
+						P_Fptr10->UtilFormTlvProc(fph);
+											
+						//uint8 fptr10_mdlp_buf[512];
+						//int   mdlp_buf_len = 0;
+						mdlp_buf_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mdlp_buf, sizeof(fptr10_mdlp_buf));
+						//libfptr_set_param_str(fptr, 1191, 'mdlp1/10&');
+						//libfptr_set_param_str(fptr, 1085, "mdlp");
+						//libfptr_set_param_str(fptr, 1086, 'sid717528521946&');
+						if(mdlp_buf_len > 0 && P_Fptr10->SetNonPrintableParamByteArrayProc) {
+							P_Fptr10->SetNonPrintableParamByteArrayProc(fph, 1084, fptr10_mdlp_buf, mdlp_buf_len);
+						}
+					}
+					// } @v11.0.0 
 					THROW(P_Fptr10->OpenReceiptProc(fph) == 0);
 				}
 				else if(P_Disp) {
@@ -1323,8 +1344,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							// @v10.7.12 {
 							uint8 fptr10_mark_buf[512];
 							int   mark_buf_data_len = 0;
-							uint8 fptr10_mdlp_buf[512];
-							int   mdlp_buf_len = 0;
 							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
 								{
 									temp_buf.Z().Cat("chzn-mark").CatDiv(':', 2).Cat(sl_param.ChZnProductType).CatChar('-').Cat(sl_param.ChZnGTIN).CatChar('-').Cat(sl_param.ChZnSerial);
@@ -1350,22 +1369,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										mark_buf_data_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mark_buf, sizeof(fptr10_mark_buf));
 										temp_buf.Z().Cat("chzn-mark-composed").CatDiv(':', 2).CatEq("length", static_cast<long>(mark_buf_data_len));
 										PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);										
-										// @v11.0.0 {
-										if(chzn_sid.NotEmpty() && P_Fptr10->UtilFormTlvProc) {
-											P_Fptr10->SetParamStrProc(fph, 1085, L"mdlp");
-											temp_buf.Z().Cat("sid").Cat(chzn_sid).CatChar('&');
-											temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
-											P_Fptr10->SetParamStrProc(fph, 1086, temp_buf_u); // sid
-											P_Fptr10->UtilFormTlvProc(fph);
-											
-											//uint8 fptr10_mdlp_buf[512];
-											//int   mdlp_buf_len = 0;
-											mdlp_buf_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mdlp_buf, sizeof(fptr10_mdlp_buf));
-											//libfptr_set_param_str(fptr, 1191, 'mdlp1/10&');
-											//libfptr_set_param_str(fptr, 1085, "mdlp");
-											//libfptr_set_param_str(fptr, 1086, 'sid717528521946&');
-										}
-										// } @v11.0.0 
 										/*
 										fptr.setParam(fptr.LIBFPTR_PARAM_NOMENCLATURE_TYPE, fptr.LIBFPTR_NT_TOBACCO);
 										fptr.setParam(fptr.LIBFPTR_PARAM_GTIN, '98765432101234');
@@ -1417,11 +1420,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								P_Fptr10->SetParamByteArrayProc(fph, 1162, fptr10_mark_buf, mark_buf_data_len);
 							}
 							// } @v10.7.12
-							// @v11.0.0 {
-							if(mdlp_buf_len > 0 && P_Fptr10->SetNonPrintableParamByteArrayProc) {
-								P_Fptr10->SetNonPrintableParamByteArrayProc(fph, 1084, fptr10_mdlp_buf, mdlp_buf_len);
-							}
-							// } @v11.0.0 
 							THROW(P_Fptr10->RegistrationProc(fph) == 0);
 						}
 						else if(P_Disp) {

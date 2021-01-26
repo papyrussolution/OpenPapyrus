@@ -3026,27 +3026,12 @@ int64 FASTCALL satoi64(const wchar_t * pT)
 
 long SString::ToLong() const
 {
-	// @v9.6.1 return (long)ToULong();
-	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
-	return (L > 1) ? satoi(P_Buf) : 0; // @v10.3.9 body is moved to satoi()
-	// } @v9.6.1
+	return (L > 1) ? satoi(P_Buf) : 0;
 }
 
 int64 SString::ToInt64() const
 {
-	/* @v9.6.1
-	if(L > 1) {
-		const char * p = P_Buf;
-		while(oneof2(*p, ' ', '\t'))
-			p++;
-		return _atoi64(p);
-	}
-	else
-		return 0;
-	*/
-	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
-	return (L > 1) ? satoi64(P_Buf) : 0; // @v10.3.9 body is moved to satoi64()
-	// } @v9.6.1
+	return (L > 1) ? satoi64(P_Buf) : 0;
 }
 
 double SString::ToReal() const

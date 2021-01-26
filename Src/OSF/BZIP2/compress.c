@@ -175,7 +175,7 @@ static void generateMTFValues(EState* s)
 				}
 				;
 				yy[0] = rtmp;
-				j = ryy_j - &(yy[0]);
+				j = static_cast<int32>(ryy_j - &(yy[0]));
 				mtfv[wr] = (uint16)(j+1); 
 				wr++; 
 				s->mtfFreq[j+1]++;

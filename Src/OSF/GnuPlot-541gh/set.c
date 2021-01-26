@@ -1,0 +1,6520 @@
+/* GNUPLOT - set.c */
+
+/*[
+ * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+ *
+ * Permission to use, copy, and distribute pThis software and its
+ * documentation for any purpose with or without fee is hereby granted,
+ * provided that the above copyright notice appear in all copies and
+ * that both that copyright notice and pThis permission notice appear
+ * in supporting documentation.
+ *
+ * Permission to modify the software is granted, but not the right to
+ * distribute the complete modified source code.  Modifications are to
+ * be distributed as patches to the released version.  Permission to
+ * distribute binaries produced by compiling modified sources is granted,
+ * provided you
+ *   1. distribute the corresponding source modifications from the
+ *    released version in the form of a patch file along with the binaries,
+ *   2. add special version identification to distinguish your version
+ *    in addition to the base release version number,
+ *   3. provide your name and address as the primary contact for the
+ *    support of your modified version, and
+ *   4. retain our contact information in regard to use of the base
+ *    software.
+ * Permission to distribute the released version of the source code along
+ * with corresponding source modifications in the form of a patch file is
+ * granted with same provisions 2 through 4 for binary distributions.
+ *
+ * This software is provided "as is" without express or implied warranty
+ * to the extent permitted by applicable law.
+   ]*/
+
+/*
+ * 19 September 1992  Lawrence Crowl  (crowl@cs.orst.edu)
+ * Added user-specified bases for log scaling.
+ */
+#include <gnuplot.h>
+#pragma hdrstop
+
+static palette_color_mode pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE;
+
+static void set_angles();
+static void set_arrow();
+static int  assign_arrow_tag();
+static void set_autoscale();
+static void set_bars();
+static void set_border();
+static void set_boxplot();
+static void set_boxdepth();
+static void set_boxwidth();
+static void set_clip();
+static void set_cntrparam();
+static void set_cntrlabel();
+static void set_contour();
+static void set_cornerpoles();
+static void set_dashtype();
+static void set_dgrid3d();
+static void set_decimalsign();
+static void set_dummy();
+static void set_encoding();
+static void set_fit();
+static void set_grid();
+static void set_hidden3d();
+static void set_history();
+static void set_pixmap();
+static void set_isosamples();
+//static void set_key();
+static void set_label();
+static int  assign_label_tag();
+static void set_loadpath();
+static void set_fontpath();
+static void set_locale();
+//static void set_logscale();
+static void set_mapping();
+//static void set_margin(t_position *);
+static void set_minus_sign();
+static void set_micro();
+static void set_missing();
+static void set_separator(char **);
+//static void set_datafile();
+static void set_datafile_commentschars();
+static void set_monochrome();
+//static void set_mouse();
+static void set_offsets();
+static void set_output();
+static void set_overflow();
+static void set_parametric();
+static void set_pm3d();
+//static void set_palette();
+static void set_colorbox();
+static void set_pointsize();
+static void set_pointintervalbox();
+static void set_polar();
+static void set_print();
+//static void set_object();
+//static void set_obj(int, int);
+static void set_wall();
+static void set_psdir();
+static void set_rgbmax();
+static void set_samples();
+static void set_size();
+//static void set_style();
+static void set_surface();
+static void set_table();
+static void set_terminal();
+//static void set_termoptions();
+static void set_theta();
+//static void set_tics();
+static void set_ticscale();
+static void set_timefmt();
+static void set_timestamp();
+static void set_view();
+static void set_zero();
+//static void set_timedata(GpAxis *);
+//static void set_range(GpAxis *);
+//static void set_paxis();
+static void set_raxis();
+static void set_xyplane();
+static void set_ticslevel();
+static void set_zeroaxis(AXIS_INDEX);
+static void set_allzeroaxis();
+
+/******** Local functions ********/
+
+static void set_xyzlabel(text_label * label);
+static void load_tics(GpAxis * axis);
+static void load_tic_user(GpAxis * axis);
+static void load_tic_series(GpAxis * axis);
+static void set_linestyle(struct linestyle_def ** head, lp_class destination_class);
+//static void set_arrowstyle();
+static int assign_arrowstyle_tag();
+//static void set_tic_prop(GpAxis *);
+static void set_mttics(GpAxis * this_axis);
+//static void set_colormap();
+static void new_colormap();
+//static void set_colormap_range();
+static void check_palette_grayscale();
+static void set_palette_colormap();
+static int  set_palette_defined();
+static void set_palette_file();
+//static void set_palette_function();
+static void parse_histogramstyle(histogram_style * hs, t_histogram_type def_type, int def_gap);
+static void set_style_parallel();
+static void set_style_spiderplot();
+static void set_spiderplot();
+static void parse_lighting_options();
+
+static const struct GpPosition default_position = {first_axes, first_axes, first_axes, 0., 0., 0.};
+static const struct GpPosition default_offset = {character, character, character, 0., 0., 0.};
+lp_style_type default_hypertext_point_style(lp_style_type::defHypertextPoint); // = {1, LT_BLACK, 4, DASHTYPE_SOLID, 0, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, {TC_RGB, 0x000000, 0.0}, DEFAULT_DASHPATTERN};
+
+/******** The 'set' command ********/
+//void set_command()
+void GnuPlot::SetCommand()
+{
+	Pgm.Shift();
+	// Mild form of backwards compatibility 
+	// Allow "set no{foo}" rather than "unset foo" 
+	const int _start_index = Pgm.GetCurTokenStartIndex();
+	if(gp_input_line[_start_index] == 'n' && gp_input_line[_start_index+1] == 'o' && gp_input_line[_start_index+2] != 'n') {
+		if(interactive)
+			IntWarnCurToken("deprecated syntax, use \"unset\"");
+		Pgm.P_Token[Pgm.CToken].start_index += 2;
+		Pgm.P_Token[Pgm.CToken].length -= 2;
+		Pgm.Rollback();
+		UnsetCommand();
+	}
+	else {
+		int save_token = Pgm.GetCurTokenIdx();
+		set_iterator = check_for_iteration();
+		if(empty_iteration(set_iterator)) {
+			// Skip iteration [i=start:end] where start > end 
+			while(!Pgm.EndOfCommand()) 
+				Pgm.Shift();
+			set_iterator = cleanup_iteration(set_iterator);
+			return;
+		}
+		if(forever_iteration(set_iterator)) {
+			set_iterator = cleanup_iteration(set_iterator);
+			IntError(save_token, "unbounded iteration not accepted here");
+		}
+		save_token = Pgm.GetCurTokenIdx();
+ITERATE:
+		switch(Pgm.LookupTableForCurrentToken(&set_tbl[0])) {
+			case S_ANGLES: set_angles(); break;
+			case S_ARROW: set_arrow(); break;
+			case S_AUTOSCALE: set_autoscale(); break;
+			case S_BARS: set_bars(); break;
+			case S_BORDER: set_border(); break;
+			case S_BOXDEPTH: set_boxdepth(); break;
+			case S_BOXWIDTH: set_boxwidth(); break;
+			case S_CLIP: set_clip(); break;
+			case S_COLOR: 
+				unset_monochrome();
+			    Pgm.Shift();
+			    break;
+			case S_COLORMAP: SetColorMap(); break;
+			case S_COLORSEQUENCE: set_colorsequence(0); break;
+			case S_CNTRPARAM: set_cntrparam(); break;
+			case S_CNTRLABEL: set_cntrlabel(); break;
+			case S_CONTOUR: set_contour(); break;
+			case S_CORNERPOLES: set_cornerpoles(); break;
+			case S_DASHTYPE: set_dashtype(); break;
+			case S_DGRID3D: set_dgrid3d(); break;
+			case S_DEBUG:
+			    /* Developer-only option (not in user documentation) */
+			    /* Does nothing in normal use */
+			    Pgm.Shift();
+			    debug = int_expression();
+			    break;
+			case S_DECIMALSIGN:
+			    set_decimalsign();
+			    break;
+			case S_DUMMY:
+			    set_dummy();
+			    break;
+			case S_ENCODING:
+			    set_encoding();
+			    break;
+			case S_FIT:
+			    set_fit();
+			    break;
+			case S_FONTPATH:
+			    set_fontpath();
+			    break;
+			case S_FORMAT:
+			    set_format();
+			    break;
+			case S_GRID:
+			    set_grid();
+			    break;
+			case S_HIDDEN3D:
+			    set_hidden3d();
+			    break;
+			case S_HISTORYSIZE: /* Deprecated in favor of "set history size" */
+			case S_HISTORY:
+			    set_history();
+			    break;
+			case S_PIXMAP:
+			    set_pixmap();
+			    break;
+			case S_ISOSAMPLES:
+			    set_isosamples();
+			    break;
+			case S_ISOSURFACE:
+			    set_isosurface();
+			    break;
+			case S_JITTER:
+			    set_jitter();
+			    break;
+			case S_KEY: SetKey(); break;
+			case S_LINESTYLE:
+			    set_linestyle(&first_linestyle, LP_STYLE);
+			    break;
+			case S_LINETYPE:
+			    if(Pgm.EqualsNext("cycle")) {
+					Pgm.Shift();
+					Pgm.Shift();
+				    linetype_recycle_count = int_expression();
+			    }
+			    else
+				    set_linestyle(&first_perm_linestyle, LP_TYPE);
+			    break;
+			case S_LABEL:
+			    set_label();
+			    break;
+			case S_LINK:
+			case S_NONLINEAR:
+			    link_command();
+			    break;
+			case S_LOADPATH:
+			    set_loadpath();
+			    break;
+			case S_LOCALE:
+			    set_locale();
+			    break;
+			case S_LOGSCALE:
+			    SetLogScale();
+			    break;
+			case S_MACROS:
+			    /* Aug 2013 - macros are always enabled */
+			    Pgm.Shift();
+			    break;
+			case S_MAPPING:
+			    set_mapping();
+			    break;
+			case S_MARGIN:
+			    // Jan 2015: CHANGE to order <left>,<right>,<bottom>,<top> 
+			    SetMargin(&lmargin);
+			    if(!Pgm.EqualsCur(","))
+				    break;
+			    SetMargin(&rmargin);
+			    if(!Pgm.EqualsCur(","))
+				    break;
+			    SetMargin(&bmargin);
+			    if(!Pgm.EqualsCur(","))
+				    break;
+			    SetMargin(&tmargin);
+			    break;
+			case S_BMARGIN: SetMargin(&bmargin); break;
+			case S_LMARGIN: SetMargin(&lmargin); break;
+			case S_RMARGIN: SetMargin(&rmargin); break;
+			case S_TMARGIN: SetMargin(&tmargin); break;
+			case S_MICRO:
+			    set_micro();
+			    break;
+			case S_MINUS_SIGN:
+			    set_minus_sign();
+			    break;
+			case S_DATAFILE: SetDataFile(); break;
+			case S_MOUSE: SetMouse(); break;
+			case S_MONOCHROME:
+			    set_monochrome();
+			    break;
+			case S_MULTIPLOT:
+			    term_start_multiplot();
+			    break;
+			case S_OFFSETS:
+			    set_offsets();
+			    break;
+			case S_ORIGIN:
+				{
+					Pgm.Shift();
+					if(Pgm.EndOfCommand()) {
+						xoffset = 0.0f;
+						yoffset = 0.0f;
+					}
+					else {
+						xoffset = static_cast<float>(GPO.RealExpression());
+						if(!Pgm.EqualsCur(","))
+							IntErrorCurToken("',' expected");
+						Pgm.Shift();
+						yoffset = static_cast<float>(GPO.RealExpression());
+					}
+				}
+			    break;
+			case SET_OUTPUT:
+			    set_output();
+			    break;
+			case S_OVERFLOW:
+			    set_overflow();
+			    break;
+			case S_PARAMETRIC:
+			    set_parametric();
+			    break;
+			case S_PM3D:
+			    set_pm3d();
+			    break;
+			case S_PALETTE: SetPalette(); break;
+			case S_COLORBOX:
+			    set_colorbox();
+			    break;
+			case S_POINTINTERVALBOX:
+			    set_pointintervalbox();
+			    break;
+			case S_POINTSIZE:
+			    set_pointsize();
+			    break;
+			case S_POLAR:
+			    set_polar();
+			    break;
+			case S_PRINT:
+			    set_print();
+			    break;
+			case S_PSDIR:
+			    set_psdir();
+			    break;
+			case S_OBJECT: SetObject(); break;
+			case S_WALL:
+			    set_wall();
+			    break;
+			case S_SAMPLES:
+			    set_samples();
+			    break;
+			case S_RGBMAX:
+			    set_rgbmax();
+			    break;
+			case S_SIZE:
+			    set_size();
+			    break;
+			case S_SPIDERPLOT:
+			    set_spiderplot();
+			    break;
+			case S_STYLE: SetStyle(); break;
+			case S_SURFACE:
+			    set_surface();
+			    break;
+			case S_TABLE:
+			    set_table();
+			    break;
+			case S_TERMINAL:
+			    set_terminal();
+			    break;
+			case S_TERMOPTIONS:
+				Pgm.SetTermOptions();
+			    break;
+			case S_THETA:
+			    set_theta();
+			    break;
+			case S_TICS: SetTics(); break;
+			case S_TICSCALE:
+			    set_ticscale();
+			    break;
+			case S_TIMEFMT:
+			    set_timefmt();
+			    break;
+			case S_TIMESTAMP:
+			    set_timestamp();
+			    break;
+			case S_TITLE:
+			    set_xyzlabel(&title);
+			    title.rotate = 0;
+			    break;
+			case S_VIEW:
+			    set_view();
+			    break;
+			case S_VGRID:
+			    set_vgrid();
+			    break;
+			case S_VXRANGE:
+			case S_VYRANGE:
+			case S_VZRANGE:
+			    set_vgrid_range();
+			    break;
+			case S_ZERO:
+			    set_zero();
+			    break;
+
+			case S_MXTICS:
+			case S_NOMXTICS:
+			case S_XTICS:
+			case S_NOXTICS:
+			case S_XDTICS:
+			case S_NOXDTICS:
+			case S_XMTICS:
+			case S_NOXMTICS: SetTicProp(&AxS[FIRST_X_AXIS]); break;
+			case S_MYTICS:
+			case S_NOMYTICS:
+			case S_YTICS:
+			case S_NOYTICS:
+			case S_YDTICS:
+			case S_NOYDTICS:
+			case S_YMTICS:
+			case S_NOYMTICS: SetTicProp(&AxS[FIRST_Y_AXIS]); break;
+			case S_MX2TICS:
+			case S_NOMX2TICS:
+			case S_X2TICS:
+			case S_NOX2TICS:
+			case S_X2DTICS:
+			case S_NOX2DTICS:
+			case S_X2MTICS:
+			case S_NOX2MTICS: SetTicProp(&AxS[SECOND_X_AXIS]); break;
+			case S_MY2TICS:
+			case S_NOMY2TICS:
+			case S_Y2TICS:
+			case S_NOY2TICS:
+			case S_Y2DTICS:
+			case S_NOY2DTICS:
+			case S_Y2MTICS:
+			case S_NOY2MTICS: SetTicProp(&AxS[SECOND_Y_AXIS]); break;
+			case S_MZTICS:
+			case S_NOMZTICS:
+			case S_ZTICS:
+			case S_NOZTICS:
+			case S_ZDTICS:
+			case S_NOZDTICS:
+			case S_ZMTICS:
+			case S_NOZMTICS: SetTicProp(&AxS[FIRST_Z_AXIS]); break;
+			case S_MCBTICS:
+			case S_NOMCBTICS:
+			case S_CBTICS:
+			case S_NOCBTICS:
+			case S_CBDTICS:
+			case S_NOCBDTICS:
+			case S_CBMTICS:
+			case S_NOCBMTICS: SetTicProp(&AxS[COLOR_AXIS]); break;
+			case S_RTICS:
+			case S_MRTICS: SetTicProp(&AxS[POLAR_AXIS]); break;
+			case S_TTICS:  SetTicProp(&AxS.Theta()); break;
+			case S_MTTICS:
+			    set_mttics(&AxS.Theta());
+			    break;
+			case S_XDATA:
+			    SetTimeData(&AxS[FIRST_X_AXIS]);
+			    AxS[T_AXIS].datatype = AxS[U_AXIS].datatype = AxS[FIRST_X_AXIS].datatype;
+			    break;
+			case S_YDATA:
+			    SetTimeData(&AxS[FIRST_Y_AXIS]);
+			    AxS[V_AXIS].datatype = AxS[FIRST_X_AXIS].datatype;
+			    break;
+			case S_ZDATA:
+			    SetTimeData(&AxS[FIRST_Z_AXIS]);
+			    break;
+			case S_CBDATA:
+			    SetTimeData(&AxS[COLOR_AXIS]);
+			    break;
+			case S_X2DATA:
+			    SetTimeData(&AxS[SECOND_X_AXIS]);
+			    break;
+			case S_Y2DATA:
+			    SetTimeData(&AxS[SECOND_Y_AXIS]);
+			    break;
+			case S_XLABEL:
+			    set_xyzlabel(&AxS[FIRST_X_AXIS].label);
+			    break;
+			case S_YLABEL:
+			    set_xyzlabel(&AxS[FIRST_Y_AXIS].label);
+			    break;
+			case S_ZLABEL:
+			    set_xyzlabel(&AxS[FIRST_Z_AXIS].label);
+			    break;
+			case S_CBLABEL:
+			    set_xyzlabel(&AxS[COLOR_AXIS].label);
+			    break;
+			case S_RLABEL:
+			    set_xyzlabel(&AxS[POLAR_AXIS].label);
+			    break;
+			case S_X2LABEL:
+			    set_xyzlabel(&AxS[SECOND_X_AXIS].label);
+			    break;
+			case S_Y2LABEL:
+			    set_xyzlabel(&AxS[SECOND_Y_AXIS].label);
+			    break;
+			case S_XRANGE:
+			    SetRange(&AxS[FIRST_X_AXIS]);
+			    break;
+			case S_X2RANGE:
+			    SetRange(&AxS[SECOND_X_AXIS]);
+			    break;
+			case S_YRANGE:
+			    SetRange(&AxS[FIRST_Y_AXIS]);
+			    break;
+			case S_Y2RANGE:
+			    SetRange(&AxS[SECOND_Y_AXIS]);
+			    break;
+			case S_ZRANGE:
+			    SetRange(&AxS[FIRST_Z_AXIS]);
+			    break;
+			case S_CBRANGE:
+			    SetRange(&AxS[COLOR_AXIS]);
+			    break;
+			case S_RRANGE:
+			    SetRange(&AxS[POLAR_AXIS]);
+			    if(polar)
+				    rrange_to_xy();
+			    break;
+			case S_TRANGE:
+			    SetRange(&AxS[T_AXIS]);
+			    break;
+			case S_URANGE:
+			    SetRange(&AxS[U_AXIS]);
+			    break;
+			case S_VRANGE:
+			    SetRange(&AxS[V_AXIS]);
+			    break;
+			case S_PAXIS: SetPAxis(); break;
+			case S_RAXIS:
+			    set_raxis();
+			    break;
+			case S_XZEROAXIS:
+			    set_zeroaxis(FIRST_X_AXIS);
+			    break;
+			case S_YZEROAXIS:
+			    set_zeroaxis(FIRST_Y_AXIS);
+			    break;
+			case S_ZZEROAXIS:
+			    set_zeroaxis(FIRST_Z_AXIS);
+			    break;
+			case S_X2ZEROAXIS:
+			    set_zeroaxis(SECOND_X_AXIS);
+			    break;
+			case S_Y2ZEROAXIS:
+			    set_zeroaxis(SECOND_Y_AXIS);
+			    break;
+			case S_ZEROAXIS:
+			    set_allzeroaxis();
+			    break;
+			case S_XYPLANE:
+			    set_xyplane();
+			    break;
+			case S_TICSLEVEL:
+			    set_ticslevel();
+			    break;
+			default:
+			    IntErrorCurToken("unrecognized option - see 'help set'.");
+			    break;
+		}
+		if(next_iteration(set_iterator)) {
+			Pgm.SetTokenIdx(save_token);
+			goto ITERATE;
+		}
+	}
+	update_gpval_variables(0);
+	set_iterator = cleanup_iteration(set_iterator);
+}
+
+/* process 'set angles' command */
+static void set_angles()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		/* assuming same as defaults */
+		ang2rad = 1;
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("r$adians")) {
+		GPO.Pgm.Shift();
+		ang2rad = 1;
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("d$egrees")) {
+		GPO.Pgm.Shift();
+		ang2rad = DEG2RAD;
+	}
+	else
+		GPO.IntErrorCurToken("expecting 'radians' or 'degrees'");
+
+	if(polar && GPO.AxS[T_AXIS].set_autoscale) {
+		/* set trange if in polar mode and no explicit range */
+		GPO.AxS[T_AXIS].set_min = 0;
+		GPO.AxS[T_AXIS].set_max = 2 * M_PI / ang2rad;
+	}
+}
+
+/* process a 'set arrow' command */
+/* set arrow {tag} {from x,y} {to x,y} {{no}head} ... */
+/* allow any order of options - pm 25.11.2001 */
+static void set_arrow()
+{
+	arrow_def * this_arrow = NULL;
+	arrow_def * new_arrow = NULL;
+	arrow_def * prev_arrow = NULL;
+	bool duplication = FALSE;
+	bool set_start = FALSE;
+	bool set_end = FALSE;
+	int save_token;
+	int tag;
+	GPO.Pgm.Shift();
+	/* get tag */
+	if(GPO.Pgm.AlmostEqualsCur("back$head") || GPO.Pgm.EqualsCur("front")
+	    || GPO.Pgm.EqualsCur("from") || GPO.Pgm.EqualsCur("at")
+	    || GPO.Pgm.EqualsCur("to") || GPO.Pgm.EqualsCur("rto")
+	    || GPO.Pgm.EqualsCur("size")
+	    || GPO.Pgm.EqualsCur("filled") || GPO.Pgm.EqualsCur("empty")
+	    || GPO.Pgm.EqualsCur("as") || GPO.Pgm.EqualsCur("arrowstyle")
+	    || GPO.Pgm.AlmostEqualsCur("head$s") || GPO.Pgm.EqualsCur("nohead")
+	    || GPO.Pgm.AlmostEqualsCur("nobo$rder")) {
+		tag = assign_arrow_tag();
+	}
+	else
+		tag = int_expression();
+
+	if(tag <= 0)
+		GPO.IntErrorCurToken("tag must be > 0");
+
+	/* OK! add arrow */
+	if(first_arrow != NULL) { /* skip to last arrow */
+		for(this_arrow = first_arrow; this_arrow != NULL;
+		    prev_arrow = this_arrow, this_arrow = this_arrow->next)
+			/* is pThis the arrow we want? */
+			if(tag <= this_arrow->tag)
+				break;
+	}
+	if(this_arrow == NULL || tag != this_arrow->tag) {
+		new_arrow = (struct arrow_def *)gp_alloc(sizeof(struct arrow_def), "arrow");
+		if(prev_arrow == NULL)
+			first_arrow = new_arrow;
+		else
+			prev_arrow->next = new_arrow;
+		new_arrow->tag = tag;
+		new_arrow->next = this_arrow;
+		this_arrow = new_arrow;
+
+		this_arrow->start = default_position;
+		this_arrow->end = default_position;
+		this_arrow->angle = 0.0;
+		this_arrow->type = arrow_end_undefined;
+
+		default_arrow_style(&(new_arrow->arrow_properties));
+	}
+
+	while(!GPO.Pgm.EndOfCommand()) {
+		/* get start position */
+		if(GPO.Pgm.EqualsCur("from") || GPO.Pgm.EqualsCur("at")) {
+			if(set_start) {
+				duplication = TRUE; break;
+			}
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.EndOfCommand())
+				GPO.IntErrorCurToken("start coordinates expected");
+			/* get coordinates */
+			get_position(&this_arrow->start);
+			set_start = TRUE;
+			continue;
+		}
+
+		/* get end or relative end position */
+		if(GPO.Pgm.EqualsCur("to") || GPO.Pgm.EqualsCur("rto")) {
+			if(set_end) {
+				duplication = TRUE; break;
+			}
+			if(GPO.Pgm.EqualsCur("rto"))
+				this_arrow->type = arrow_end_relative;
+			else
+				this_arrow->type = arrow_end_absolute;
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.EndOfCommand())
+				GPO.IntErrorCurToken("end coordinates expected");
+			/* get coordinates */
+			get_position(&this_arrow->end);
+			set_end = TRUE;
+			continue;
+		}
+
+		/* get end position specified as length + orientation angle */
+		if(GPO.Pgm.AlmostEqualsCur("len$gth")) {
+			if(set_end) {
+				duplication = TRUE; break;
+			}
+			this_arrow->type = arrow_end_oriented;
+			GPO.Pgm.Shift();
+			get_position_default(&this_arrow->end, first_axes, 1);
+			set_end = TRUE;
+			continue;
+		}
+		if(GPO.Pgm.AlmostEqualsCur("ang$le")) {
+			GPO.Pgm.Shift();
+			this_arrow->angle = GPO.RealExpression();
+			continue;
+		}
+		/* Allow interspersed style commands */
+		save_token = GPO.Pgm.GetCurTokenIdx();
+		GPO.ArrowParse(&this_arrow->arrow_properties, TRUE);
+		if(save_token != GPO.Pgm.GetCurTokenIdx())
+			continue;
+		if(!GPO.Pgm.EndOfCommand())
+			GPO.IntErrorCurToken("wrong argument in set arrow");
+	} /* while (!GPO.Pgm.EndOfCommand()) */
+
+	if(duplication)
+		GPO.IntErrorCurToken("duplicate or contradictory arguments");
+}
+
+/* assign a new arrow tag
+ * arrows are kept sorted by tag number, so pThis is easy
+ * returns the lowest unassigned tag number
+ */
+static int assign_arrow_tag()
+{
+	struct arrow_def * this_arrow;
+	int last = 0;           /* previous tag value */
+	for(this_arrow = first_arrow; this_arrow != NULL;
+	    this_arrow = this_arrow->next)
+		if(this_arrow->tag == last + 1)
+			last++;
+		else
+			break;
+
+	return (last + 1);
+}
+
+/* helper routine for 'set autoscale' on a single axis */
+static bool set_autoscale_axis(GpAxis * pThis)
+{
+	char keyword[16];
+	char * name = (char*)&(axis_name((AXIS_INDEX)pThis->index)[0]);
+	if(GPO.Pgm.EqualsCur(name)) {
+		pThis->set_autoscale = AUTOSCALE_BOTH;
+		pThis->min_constraint = CONSTRAINT_NONE;
+		pThis->max_constraint = CONSTRAINT_NONE;
+		GPO.Pgm.Shift();
+		if(GPO.Pgm.AlmostEqualsCur("noext$end")) {
+			pThis->set_autoscale |= AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX;
+			GPO.Pgm.Shift();
+		}
+		return TRUE;
+	}
+	sprintf(keyword, "%smi$n", name);
+	if(GPO.Pgm.AlmostEqualsCur(keyword)) {
+		pThis->set_autoscale |= AUTOSCALE_MIN;
+		pThis->min_constraint = CONSTRAINT_NONE;
+		GPO.Pgm.Shift();
+		return TRUE;
+	}
+	sprintf(keyword, "%sma$x", name);
+	if(GPO.Pgm.AlmostEqualsCur(keyword)) {
+		pThis->set_autoscale |= AUTOSCALE_MAX;
+		pThis->max_constraint = CONSTRAINT_NONE;
+		GPO.Pgm.Shift();
+		return TRUE;
+	}
+	sprintf(keyword, "%sfix", name);
+	if(GPO.Pgm.EqualsCur(keyword)) {
+		pThis->set_autoscale |= AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX;
+		GPO.Pgm.Shift();
+		return TRUE;
+	}
+	sprintf(keyword, "%sfixmi$n", name);
+	if(GPO.Pgm.AlmostEqualsCur(keyword)) {
+		pThis->set_autoscale |= AUTOSCALE_FIXMIN;
+		GPO.Pgm.Shift();
+		return TRUE;
+	}
+	sprintf(keyword, "%sfixma$x", name);
+	if(GPO.Pgm.AlmostEqualsCur(keyword)) {
+		pThis->set_autoscale |= AUTOSCALE_FIXMAX;
+		GPO.Pgm.Shift();
+		return TRUE;
+	}
+	return FALSE;
+}
+
+/* process 'set autoscale' command */
+static void set_autoscale()
+{
+	int axis;
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		for(axis = 0; axis<AXIS_ARRAY_SIZE; axis++)
+			GPO.AxS[axis].set_autoscale = AUTOSCALE_BOTH;
+		for(axis = 0; axis < GPO.AxS.GetParallelAxisCount(); axis++)
+			GPO.AxS.Parallel(axis).set_autoscale = AUTOSCALE_BOTH;
+		return;
+	}
+	else if(GPO.Pgm.EqualsCur("xy") || GPO.Pgm.EqualsCur("yx")) {
+		GPO.AxS[FIRST_X_AXIS].set_autoscale = GPO.AxS[FIRST_Y_AXIS].set_autoscale =  AUTOSCALE_BOTH;
+		GPO.AxS[FIRST_X_AXIS].min_constraint = GPO.AxS[FIRST_X_AXIS].max_constraint =
+			GPO.AxS[FIRST_Y_AXIS].min_constraint = GPO.AxS[FIRST_Y_AXIS].max_constraint = CONSTRAINT_NONE;
+		GPO.Pgm.Shift();
+		return;
+	}
+	else if(GPO.Pgm.EqualsCur("paxis")) {
+		GPO.Pgm.Shift();
+		if(GPO.Pgm.EndOfCommand()) {
+			for(axis = 0; axis < GPO.AxS.GetParallelAxisCount(); axis++)
+				GPO.AxS.Parallel(axis).set_autoscale = AUTOSCALE_BOTH;
+			return;
+		}
+		axis = int_expression() - 1;
+		if(0 <= axis && axis < GPO.AxS.GetParallelAxisCount()) {
+			GPO.AxS.Parallel(axis).set_autoscale = AUTOSCALE_BOTH;
+			return;
+		}
+		/* no return */
+	}
+	else if(GPO.Pgm.EqualsCur("fix") || GPO.Pgm.AlmostEqualsCur("noext$end")) {
+		for(axis = 0; axis<AXIS_ARRAY_SIZE; axis++)
+			GPO.AxS[axis].set_autoscale |= AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX;
+		for(axis = 0; axis < GPO.AxS.GetParallelAxisCount(); axis++)
+			GPO.AxS.Parallel(axis).set_autoscale |= AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX;
+		GPO.Pgm.Shift();
+		return;
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("ke$epfix")) {
+		for(axis = 0; axis<AXIS_ARRAY_SIZE; axis++)
+			GPO.AxS[axis].set_autoscale |= AUTOSCALE_BOTH;
+		for(axis = 0; axis < GPO.AxS.GetParallelAxisCount(); axis++)
+			GPO.AxS.Parallel(axis).set_autoscale |= AUTOSCALE_BOTH;
+		GPO.Pgm.Shift();
+		return;
+	}
+	if(set_autoscale_axis(&GPO.AxS[FIRST_X_AXIS])) return;
+	if(set_autoscale_axis(&GPO.AxS[FIRST_Y_AXIS])) return;
+	if(set_autoscale_axis(&GPO.AxS[FIRST_Z_AXIS])) return;
+	if(set_autoscale_axis(&GPO.AxS[SECOND_X_AXIS])) return;
+	if(set_autoscale_axis(&GPO.AxS[SECOND_Y_AXIS])) return;
+	if(set_autoscale_axis(&GPO.AxS[COLOR_AXIS])) return;
+	if(set_autoscale_axis(&GPO.AxS[POLAR_AXIS])) return;
+	/* FIXME: Do these commands make any sense? */
+	if(set_autoscale_axis(&GPO.AxS[T_AXIS])) return;
+	if(set_autoscale_axis(&GPO.AxS[U_AXIS])) return;
+	if(set_autoscale_axis(&GPO.AxS[V_AXIS])) return;
+	/* come here only if nothing found: */
+	GPO.IntErrorCurToken("Invalid axis");
+}
+
+/* process 'set bars' command */
+static void set_bars()
+{
+	int save_token;
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand())
+		reset_bars();
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.EqualsCur("default")) {
+			reset_bars();
+			GPO.Pgm.Shift();
+			return;
+		}
+		/* Jul 2015 - allow a separate line type for error bars */
+		save_token = GPO.Pgm.GetCurTokenIdx();
+		GPO.LpParse(&bar_lp, LP_ADHOC, FALSE);
+		if(GPO.Pgm.GetCurTokenIdx() != save_token) {
+			bar_lp.flags = LP_ERRORBAR_SET;
+			continue;
+		}
+		if(GPO.Pgm.AlmostEqualsCur("s$mall")) {
+			bar_size = 0.0;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("l$arge")) {
+			bar_size = 1.0;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("full$width")) {
+			bar_size = -1.0;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("front")) {
+			bar_layer = LAYER_FRONT;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("back")) {
+			bar_layer = LAYER_BACK;
+			GPO.Pgm.Shift();
+		}
+		else {
+			bar_size = GPO.RealExpression();
+		}
+	}
+}
+
+/* process 'set border' command */
+static void set_border()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		draw_border = 31;
+		border_layer = LAYER_FRONT;
+		border_lp = default_border_lp;
+	}
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.EqualsCur("front")) {
+			border_layer = LAYER_FRONT;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("back")) {
+			border_layer = LAYER_BACK;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("behind")) {
+			border_layer = LAYER_BEHIND;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("polar")) {
+			draw_border |= 0x1000;
+			GPO.Pgm.Shift();
+		}
+		else {
+			int save_token = GPO.Pgm.GetCurTokenIdx();
+			GPO.LpParse(&border_lp, LP_ADHOC, FALSE);
+			if(save_token != GPO.Pgm.GetCurTokenIdx())
+				continue;
+			draw_border = int_expression();
+		}
+	}
+
+	/* This is the only place the user can change the border	*/
+	/* so remember what he set.  If draw_border is later changed*/
+	/* internally, we can still recover the user's preference.	*/
+	user_border = draw_border;
+}
+
+/* process 'set style boxplot' command */
+static void set_boxplot()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		boxplot_style defstyle = DEFAULT_BOXPLOT_STYLE;
+		boxplot_opts = defstyle;
+	}
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.AlmostEqualsCur("noout$liers")) {
+			boxplot_opts.outliers = FALSE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("out$liers")) {
+			boxplot_opts.outliers = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("point$type") || GPO.Pgm.EqualsCur("pt")) {
+			GPO.Pgm.Shift();
+			boxplot_opts.pointtype = int_expression()-1;
+		}
+		else if(GPO.Pgm.EqualsCur("range")) {
+			GPO.Pgm.Shift();
+			boxplot_opts.limit_type = 0;
+			boxplot_opts.limit_value = GPO.RealExpression();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("frac$tion")) {
+			GPO.Pgm.Shift();
+			boxplot_opts.limit_value = GPO.RealExpression();
+			if(boxplot_opts.limit_value < 0 || boxplot_opts.limit_value > 1)
+				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "fraction must be less than 1");
+			boxplot_opts.limit_type = 1;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("candle$sticks")) {
+			GPO.Pgm.Shift();
+			boxplot_opts.plotstyle = CANDLESTICKS;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("finance$bars")) {
+			GPO.Pgm.Shift();
+			boxplot_opts.plotstyle = FINANCEBARS;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("sep$aration")) {
+			GPO.Pgm.Shift();
+			boxplot_opts.separation = GPO.RealExpression();
+			if(boxplot_opts.separation < 0)
+				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "separation must be > 0");
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("lab$els")) {
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.EqualsCur("off")) {
+				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_OFF;
+			}
+			else if(GPO.Pgm.EqualsCur("x")) {
+				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_X;
+			}
+			else if(GPO.Pgm.EqualsCur("x2")) {
+				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_X2;
+			}
+			else if(GPO.Pgm.EqualsCur("auto")) {
+				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_AUTO;
+			}
+			else
+				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "expecting 'x', 'x2', 'auto' or 'off'");
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("median$linewidth")) {
+			GPO.Pgm.Shift();
+			boxplot_opts.median_linewidth = GPO.RealExpression();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("so$rted")) {
+			boxplot_opts.sort_factors = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("un$sorted")) {
+			boxplot_opts.sort_factors = FALSE;
+			GPO.Pgm.Shift();
+		}
+		else
+			GPO.IntErrorCurToken("unrecognized option");
+	}
+}
+
+/* process 'set boxdepth' command (used by splot with boxes) */
+static void set_boxdepth()
+{
+	GPO.Pgm.Shift();
+	boxdepth = 0.0;
+	if(GPO.Pgm.EqualsCur("square")) {
+		GPO.Pgm.Shift();
+		boxdepth = -1;
+	}
+	else if(!GPO.Pgm.EndOfCommand())
+		boxdepth = GPO.RealExpression();
+}
+
+/* process 'set boxwidth' command */
+static void set_boxwidth()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		boxwidth = -1.0;
+		boxwidth_is_absolute = TRUE;
+	}
+	else {
+		boxwidth = GPO.RealExpression();
+	}
+	if(GPO.Pgm.EndOfCommand())
+		return;
+	else {
+		if(GPO.Pgm.AlmostEqualsCur("a$bsolute"))
+			boxwidth_is_absolute = TRUE;
+		else if(GPO.Pgm.AlmostEqualsCur("r$elative"))
+			boxwidth_is_absolute = FALSE;
+		else
+			GPO.IntErrorCurToken("expecting 'absolute' or 'relative' ");
+	}
+	GPO.Pgm.Shift();
+}
+
+/* process 'set clip' command */
+static void set_clip()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		/* assuming same as points */
+		clip_points = TRUE;
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("r$adial") || GPO.Pgm.EqualsCur("polar")) {
+		clip_radial = TRUE;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("p$oints")) {
+		clip_points = TRUE;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("o$ne")) {
+		clip_lines1 = TRUE;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("t$wo")) {
+		clip_lines2 = TRUE;
+		GPO.Pgm.Shift();
+	}
+	else
+		GPO.IntErrorCurToken("expecting 'points', 'one', or 'two'");
+}
+
+/* process 'set cntrparam' command */
+static void set_cntrparam()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		/* assuming same as defaults */
+		contour_pts = DEFAULT_NUM_APPROX_PTS;
+		contour_kind = CONTOUR_KIND_LINEAR;
+		contour_order = DEFAULT_CONTOUR_ORDER;
+		contour_levels = DEFAULT_CONTOUR_LEVELS;
+		contour_levels_kind = LEVELS_AUTO;
+		contour_firstlinetype = 0;
+		return;
+	}
+
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.AlmostEqualsCur("p$oints")) {
+			GPO.Pgm.Shift();
+			contour_pts = int_expression();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("first$linetype")) {
+			GPO.Pgm.Shift();
+			contour_firstlinetype = int_expression();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("sort$ed")) {
+			GPO.Pgm.Shift();
+			contour_sortlevels = TRUE;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("unsort$ed")) {
+			GPO.Pgm.Shift();
+			contour_sortlevels = FALSE;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("li$near")) {
+			GPO.Pgm.Shift();
+			contour_kind = CONTOUR_KIND_LINEAR;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("c$ubicspline")) {
+			GPO.Pgm.Shift();
+			contour_kind = CONTOUR_KIND_CUBIC_SPL;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("b$spline")) {
+			GPO.Pgm.Shift();
+			contour_kind = CONTOUR_KIND_BSPLINE;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("le$vels")) {
+			GPO.Pgm.Shift();
+
+			if(!(set_iterator && set_iterator->iteration)) {
+				free_dynarray(&dyn_contour_levels_list);
+				init_dynarray(&dyn_contour_levels_list, sizeof(double), 5, 10);
+			}
+
+			/*  RKC: I have modified the next two:
+			 *   to use commas to separate list elements as in xtics
+			 *   so that incremental lists start,incr[,end]as in "
+			 */
+			if(GPO.Pgm.AlmostEqualsCur("di$screte")) {
+				contour_levels_kind = LEVELS_DISCRETE;
+				GPO.Pgm.Shift();
+				if(GPO.Pgm.EndOfCommand())
+					GPO.IntErrorCurToken("expecting discrete level");
+				else
+					*(double*)nextfrom_dynarray(&dyn_contour_levels_list) =
+					    GPO.RealExpression();
+
+				while(!GPO.Pgm.EndOfCommand()) {
+					if(!GPO.Pgm.EqualsCur(","))
+						GPO.IntErrorCurToken("expecting comma to separate discrete levels");
+					GPO.Pgm.Shift();
+					*(double*)nextfrom_dynarray(&dyn_contour_levels_list) =
+					    GPO.RealExpression();
+				}
+				contour_levels = dyn_contour_levels_list.end;
+			}
+			else if(GPO.Pgm.AlmostEqualsCur("in$cremental")) {
+				int i = 0; /* local counter */
+				contour_levels_kind = LEVELS_INCREMENTAL;
+				GPO.Pgm.Shift();
+				contour_levels_list[i++] = GPO.RealExpression();
+				if(!GPO.Pgm.EqualsCur(","))
+					GPO.IntErrorCurToken("expecting comma to separate start,incr levels");
+				GPO.Pgm.Shift();
+				if((contour_levels_list[i++] = GPO.RealExpression()) == 0)
+					GPO.IntErrorCurToken("increment cannot be 0");
+				if(!GPO.Pgm.EndOfCommand()) {
+					if(!GPO.Pgm.EqualsCur(","))
+						GPO.IntErrorCurToken("expecting comma to separate incr,stop levels");
+					GPO.Pgm.Shift();
+					/* need to round up, since 10,10,50 is 5 levels, not four,
+					 * but 10,10,49 is four
+					 */
+					dyn_contour_levels_list.end = i;
+					contour_levels = (int)( (GPO.RealExpression()-contour_levels_list[0])/contour_levels_list[1] + 1.0);
+				}
+			}
+			else if(GPO.Pgm.AlmostEqualsCur("au$to")) {
+				contour_levels_kind = LEVELS_AUTO;
+				GPO.Pgm.Shift();
+				if(!GPO.Pgm.EndOfCommand())
+					contour_levels = int_expression();
+			}
+			else {
+				if(contour_levels_kind == LEVELS_DISCRETE)
+					GPO.IntErrorCurToken("Levels type is discrete, ignoring new number of contour levels");
+				contour_levels = int_expression();
+			}
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("o$rder")) {
+			int order;
+			GPO.Pgm.Shift();
+			order = int_expression();
+			if(order < 2 || order > MAX_BSPLINE_ORDER)
+				GPO.IntErrorCurToken("bspline order must be in [2..10] range.");
+			contour_order = order;
+		}
+		else
+			GPO.IntErrorCurToken("expecting 'linear', 'cubicspline', 'bspline', 'points', 'levels' or 'order'");
+	}
+}
+
+/* process 'set cntrlabel' command */
+static void set_cntrlabel()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		strcpy(contour_format, "%8.3g");
+		clabel_onecolor = FALSE;
+		return;
+	}
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.AlmostEqualsCur("form$at")) {
+			char * p_new;
+			GPO.Pgm.Shift();
+			if((p_new = try_to_get_string()))
+				safe_strncpy(contour_format, p_new, sizeof(contour_format));
+			SAlloc::F(p_new);
+		}
+		else if(GPO.Pgm.EqualsCur("font")) {
+			char * ctmp;
+			GPO.Pgm.Shift();
+			if((ctmp = try_to_get_string())) {
+				SAlloc::F(clabel_font);
+				clabel_font = ctmp;
+			}
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("one$color")) {
+			GPO.Pgm.Shift();
+			clabel_onecolor = TRUE;
+		}
+		else if(GPO.Pgm.EqualsCur("start")) {
+			GPO.Pgm.Shift();
+			clabel_start = int_expression();
+			if(clabel_start <= 0)
+				clabel_start = 5;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("int$erval")) {
+			GPO.Pgm.Shift();
+			clabel_interval = int_expression();
+		}
+		else {
+			GPO.IntErrorCurToken("unrecognized option");
+		}
+	}
+}
+
+/* process 'set contour' command */
+static void set_contour()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand())
+		/* assuming same as points */
+		draw_contour = CONTOUR_BASE;
+	else {
+		if(GPO.Pgm.AlmostEqualsCur("ba$se"))
+			draw_contour = CONTOUR_BASE;
+		else if(GPO.Pgm.AlmostEqualsCur("s$urface"))
+			draw_contour = CONTOUR_SRF;
+		else if(GPO.Pgm.AlmostEqualsCur("bo$th"))
+			draw_contour = CONTOUR_BOTH;
+		else
+			GPO.IntErrorCurToken("expecting 'base', 'surface', or 'both'");
+		GPO.Pgm.Shift();
+	}
+}
+
+/* process 'set colorsequence command */
+void set_colorsequence(int option)
+{
+	ulong default_colors[] = DEFAULT_COLOR_SEQUENCE;
+	ulong podo_colors[] = PODO_COLOR_SEQUENCE;
+	if(option == 0) { /* Read option from command line */
+		GPO.Pgm.Shift();
+		if(GPO.Pgm.EqualsCur("default"))
+			option = 1;
+		else if(GPO.Pgm.EqualsCur("podo"))
+			option = 2;
+		else if(GPO.Pgm.EqualsCur("classic"))
+			option = 3;
+		else
+			GPO.IntErrorCurToken("unrecognized color set");
+	}
+	if(option == 1 || option == 2) {
+		int i;
+		char * command;
+		char * command_template = "set linetype %2d lc rgb 0x%06x";
+		ulong * colors = default_colors;
+		if(option == 2)
+			colors = podo_colors;
+		linetype_recycle_count = 8;
+		for(i = 1; i <= 8; i++) {
+			command = (char *)gp_alloc(strlen(command_template)+8, "dynamic command");
+			sprintf(command, command_template, i, colors[i-1]);
+			do_string_and_free(command);
+		}
+	}
+	else if(option == 3) {
+		struct linestyle_def * p_this;
+		for(p_this = first_perm_linestyle; p_this != NULL; p_this = p_this->next) {
+			p_this->lp_properties.pm3d_color.type = TC_LT;
+			p_this->lp_properties.pm3d_color.lt = p_this->tag-1;
+		}
+		linetype_recycle_count = 0;
+	}
+	else {
+		GPO.IntErrorCurToken("Expecting 'classic' or 'default'");
+	}
+	GPO.Pgm.Shift();
+}
+
+static void set_cornerpoles()
+{
+	GPO.Pgm.Shift();
+	cornerpoles = TRUE;
+}
+
+/* process 'set dashtype' command */
+static void set_dashtype()
+{
+	struct custom_dashtype_def * this_dashtype = NULL;
+	struct custom_dashtype_def * new_dashtype = NULL;
+	struct custom_dashtype_def * prev_dashtype = NULL;
+	int tag, is_new = FALSE;
+
+	GPO.Pgm.Shift();
+
+	/* get tag */
+	if(GPO.Pgm.EndOfCommand() || ((tag = int_expression()) <= 0))
+		GPO.IntErrorCurToken("tag must be > zero");
+
+	/* Check if dashtype is already defined */
+	for(this_dashtype = first_custom_dashtype; this_dashtype != NULL;
+	    prev_dashtype = this_dashtype, this_dashtype = this_dashtype->next)
+		if(tag <= this_dashtype->tag)
+			break;
+
+	if(this_dashtype == NULL || tag != this_dashtype->tag) {
+		struct t_dashtype loc_dt = DEFAULT_DASHPATTERN;
+		new_dashtype = (struct custom_dashtype_def *)gp_alloc(sizeof(struct custom_dashtype_def), "dashtype");
+		if(prev_dashtype != NULL)
+			prev_dashtype->next = new_dashtype; /* add it to end of list */
+		else
+			first_custom_dashtype = new_dashtype; /* make it start of list */
+		new_dashtype->tag = tag;
+		new_dashtype->d_type = DASHTYPE_SOLID;
+		new_dashtype->next = this_dashtype;
+		new_dashtype->dashtype = loc_dt;
+		this_dashtype = new_dashtype;
+		is_new = TRUE;
+	}
+
+	if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
+		delete_dashtype(prev_dashtype, this_dashtype);
+		is_new = FALSE;
+		GPO.Pgm.Shift();
+	}
+	else {
+		/* FIXME: Maybe pThis should reject return values > 0 because */
+		/* otherwise we have potentially recursive definitions.      */
+		this_dashtype->d_type = parse_dashtype(&this_dashtype->dashtype);
+	}
+
+	if(!GPO.Pgm.EndOfCommand()) {
+		if(is_new)
+			delete_dashtype(prev_dashtype, this_dashtype);
+		GPO.IntErrorCurToken("Extraneous arguments to set dashtype");
+	}
+}
+
+/*
+ * Delete dashtype from linked list.
+ */
+void delete_dashtype(struct custom_dashtype_def * prev, struct custom_dashtype_def * pThis)
+{
+	if(pThis != NULL) {      /* there really is something to delete */
+		if(pThis == first_custom_dashtype)
+			first_custom_dashtype = pThis->next;
+		else
+			prev->next = pThis->next;
+		SAlloc::F(pThis);
+	}
+}
+
+/* process 'set dgrid3d' command */
+static void set_dgrid3d()
+{
+	int token_cnt = 0; /* Number of comma-separated values read in */
+
+	int gridx     = dgrid3d_row_fineness;
+	int gridy     = dgrid3d_col_fineness;
+	int normval   = dgrid3d_norm_value;
+	double scalex = dgrid3d_x_scale;
+	double scaley = dgrid3d_y_scale;
+
+	/* dgrid3d has two different syntax alternatives: classic and new.
+	   If there is a "mode" keyword, the syntax is new, otherwise it is classic.*/
+	dgrid3d_mode  = DGRID3D_DEFAULT;
+
+	dgrid3d_kdensity = FALSE;
+
+	GPO.Pgm.Shift();
+	while(!(GPO.Pgm.EndOfCommand()) ) {
+		int tmp_mode = GPO.Pgm.LookupTableForCurrentToken(&dgrid3d_mode_tbl[0]);
+		if(tmp_mode != DGRID3D_OTHER) {
+			dgrid3d_mode = tmp_mode;
+			GPO.Pgm.Shift();
+		}
+		switch(tmp_mode) {
+			case DGRID3D_QNORM:
+			    if(!(GPO.Pgm.EndOfCommand())) normval = int_expression();
+			    break;
+			case DGRID3D_SPLINES:
+			    break;
+			case DGRID3D_GAUSS:
+			case DGRID3D_CAUCHY:
+			case DGRID3D_EXP:
+			case DGRID3D_BOX:
+			case DGRID3D_HANN:
+			    if(!(GPO.Pgm.EndOfCommand()) && GPO.Pgm.AlmostEqualsCur("kdens$ity2d")) {
+				    dgrid3d_kdensity = TRUE;
+				    GPO.Pgm.Shift();
+			    }
+			    if(!(GPO.Pgm.EndOfCommand())) {
+				    scalex = GPO.RealExpression();
+				    scaley = scalex;
+				    if(GPO.Pgm.EqualsCur(",")) {
+					    GPO.Pgm.Shift();
+					    scaley = GPO.RealExpression();
+				    }
+			    }
+			    break;
+
+			default: /* {rows}{,cols{,norm}}} */
+
+			    if(GPO.Pgm.EqualsCur(",")) {
+				    GPO.Pgm.Shift();
+				    token_cnt++;
+			    }
+			    else if(token_cnt == 0) {
+				    gridx = int_expression();
+				    gridy = gridx; /* gridy defaults to gridx, unless overridden below */
+			    }
+			    else if(token_cnt == 1) {
+				    gridy = int_expression();
+			    }
+			    else if(token_cnt == 2) {
+				    normval = int_expression();
+			    }
+			    else
+				    GPO.IntErrorCurToken("Unrecognized keyword or unexpected value");
+			    break;
+		}
+	}
+	// we could warn here about floating point values being truncated... 
+	if(gridx < 2 || gridx > 1000 || gridy < 2 || gridy > 1000)
+		GPO.IntError(NO_CARET, "Number of grid points must be in [2:1000] - not changed!");
+	// no mode token found: classic format 
+	if(dgrid3d_mode == DGRID3D_DEFAULT)
+		dgrid3d_mode = DGRID3D_QNORM;
+	if(scalex < 0.0 || scaley < 0.0)
+		GPO.IntError(NO_CARET, "Scale factors must be greater than zero - not changed!");
+	dgrid3d_row_fineness = gridx;
+	dgrid3d_col_fineness = gridy;
+	dgrid3d_norm_value = normval;
+	dgrid3d_x_scale = scalex;
+	dgrid3d_y_scale = scaley;
+	dgrid3d = TRUE;
+}
+
+/* process 'set decimalsign' command */
+static void set_decimalsign()
+{
+	GPO.Pgm.Shift();
+	/* Clear current setting */
+	ZFREE(decimalsign);
+	if(GPO.Pgm.EndOfCommand()) {
+		reset_numeric_locale();
+		ZFREE(numeric_locale);
+#ifdef HAVE_LOCALE_H
+	}
+	else if(GPO.Pgm.EqualsCur("locale")) {
+		char * newlocale = NULL;
+		GPO.Pgm.Shift();
+		newlocale = try_to_get_string();
+		if(!newlocale)
+			newlocale = gp_strdup(setlocale(LC_NUMERIC, ""));
+		if(!newlocale)
+			newlocale = gp_strdup(getenv("LC_ALL"));
+		if(!newlocale)
+			newlocale = gp_strdup(getenv("LC_NUMERIC"));
+		if(!newlocale)
+			newlocale = gp_strdup(getenv("LANG"));
+		if(!setlocale(LC_NUMERIC, newlocale ? newlocale : ""))
+			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "Could not find requested locale");
+		decimalsign = gp_strdup(get_decimal_locale());
+		fprintf(stderr, "decimal_sign in locale is %s\n", decimalsign);
+		/* Save pThis locale for later use, but return to "C" for now */
+		SAlloc::F(numeric_locale);
+		numeric_locale = newlocale;
+		setlocale(LC_NUMERIC, "C");
+#endif
+	}
+	else if(!(decimalsign = try_to_get_string()))
+		GPO.IntErrorCurToken("expecting string");
+}
+//
+// process 'set dummy' command 
+//
+static void set_dummy()
+{
+	GPO.Pgm.Shift();
+	for(int i = 0; i<MAX_NUM_VAR; i++) {
+		if(GPO.Pgm.EndOfCommand())
+			return;
+		if(isalpha((uchar)gp_input_line[GPO.Pgm.GetCurTokenStartIndex()])) {
+			GPO.Pgm.CopyStr(set_dummy_var[i], GPO.Pgm.GetCurTokenIdx(), MAX_ID_LEN);
+			GPO.Pgm.Shift();
+		}
+		if(GPO.Pgm.EqualsCur(","))
+			GPO.Pgm.Shift();
+		else
+			break;
+	}
+	if(!GPO.Pgm.EndOfCommand())
+		GPO.IntErrorCurToken("unrecognized syntax");
+}
+
+/* process 'set encoding' command */
+static void set_encoding()
+{
+	char * l = NULL;
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		encoding = S_ENC_DEFAULT;
+#ifdef HAVE_LOCALE_H
+	}
+	else if(GPO.Pgm.EqualsCur("locale")) {
+		enum set_encoding_id newenc = encoding_from_locale();
+
+		l = setlocale(LC_CTYPE, "");
+		if(newenc == S_ENC_DEFAULT)
+			GPO.IntWarn(NO_CARET, "Locale not supported by gnuplot: %s", l);
+		if(newenc == S_ENC_INVALID)
+			GPO.IntWarn(NO_CARET, "Error converting locale \"%s\" to codepage number", l);
+		else
+			encoding = newenc;
+		GPO.Pgm.Shift();
+#endif
+	}
+	else {
+		int temp = GPO.Pgm.LookupTableForCurrentToken(&set_encoding_tbl[0]);
+		char * senc;
+		// allow string variables as parameter 
+		if((temp == S_ENC_INVALID) && GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (senc = try_to_get_string())) {
+			for(int i = 0; encoding_names[i] != NULL; i++)
+				if(strcmp(encoding_names[i], senc) == 0)
+					temp = i;
+			SAlloc::F(senc);
+		}
+		else {
+			GPO.Pgm.Shift();
+		}
+		if(temp == S_ENC_INVALID)
+			GPO.IntErrorCurToken("unrecognized encoding specification; see 'help encoding'.");
+		encoding = (set_encoding_id)temp;
+	}
+	init_special_chars();
+}
+
+/* process 'set fit' command */
+static void set_fit()
+{
+	int key;
+	GPO.Pgm.Shift();
+
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.AlmostEqualsCur("log$file")) {
+			char * tmp;
+			GPO.Pgm.Shift();
+			fit_suppress_log = FALSE;
+			if(GPO.Pgm.EndOfCommand()) {
+				ZFREE(fitlogfile);
+			}
+			else if(GPO.Pgm.EqualsCur("default")) {
+				GPO.Pgm.Shift();
+				ZFREE(fitlogfile);
+			}
+			else if((tmp = try_to_get_string()) != NULL) {
+				SAlloc::F(fitlogfile);
+				fitlogfile = tmp;
+			}
+			else {
+				GPO.IntErrorCurToken("expecting string");
+			}
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("nolog$file")) {
+			fit_suppress_log = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("err$orvariables")) {
+			fit_errorvariables = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("noerr$orvariables")) {
+			fit_errorvariables = FALSE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("cov$ariancevariables")) {
+			fit_covarvariables = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("nocov$ariancevariables")) {
+			fit_covarvariables = FALSE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("errors$caling")) {
+			fit_errorscaling = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("noerrors$caling")) {
+			fit_errorscaling = FALSE;
+			GPO.Pgm.Shift();
+		}
+		else if((key = GPO.Pgm.LookupTableForCurrentToken(fit_verbosity_level)) > 0) {
+			fit_verbosity = (verbosity_level)key;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("prescale")) {
+			fit_prescale = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("noprescale")) {
+			fit_prescale = FALSE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("limit")) {
+			/* preserve compatibility with FIT_LIMIT user variable */
+			struct udvt_entry * v;
+			double value;
+
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.EqualsCur("default")) {
+				GPO.Pgm.Shift();
+				value = 0.;
+			}
+			else
+				value = GPO.RealExpression();
+			if((value > 0.) && (value < 1.)) {
+				v = add_udv_by_name((char*)FITLIMIT);
+				Gcomplex(&v->udv_value, value, 0);
+			}
+			else {
+				del_udv_by_name((char*)FITLIMIT, FALSE);
+			}
+		}
+		else if(GPO.Pgm.EqualsCur("limit_abs")) {
+			double value;
+			GPO.Pgm.Shift();
+			value = GPO.RealExpression();
+			epsilon_abs = (value > 0.) ? value : 0.;
+		}
+		else if(GPO.Pgm.EqualsCur("maxiter")) {
+			/* preserve compatibility with FIT_MAXITER user variable */
+			struct udvt_entry * v;
+			int maxiter;
+
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.EqualsCur("default")) {
+				GPO.Pgm.Shift();
+				maxiter = 0;
+			}
+			else
+				maxiter = int_expression();
+			if(maxiter > 0) {
+				v = add_udv_by_name((char*)FITMAXITER);
+				Ginteger(&v->udv_value, maxiter);
+			}
+			else {
+				del_udv_by_name((char*)FITMAXITER, FALSE);
+			}
+		}
+		else if(GPO.Pgm.EqualsCur("start_lambda")) {
+			/* preserve compatibility with FIT_START_LAMBDA user variable */
+			struct udvt_entry * v;
+			double value;
+
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.EqualsCur("default")) {
+				GPO.Pgm.Shift();
+				value = 0.;
+			}
+			else
+				value = GPO.RealExpression();
+			if(value > 0.) {
+				v = add_udv_by_name((char*)FITSTARTLAMBDA);
+				Gcomplex(&v->udv_value, value, 0);
+			}
+			else {
+				del_udv_by_name((char*)FITSTARTLAMBDA, FALSE);
+			}
+		}
+		else if(GPO.Pgm.EqualsCur("lambda_factor")) {
+			/* preserve compatibility with FIT_LAMBDA_FACTOR user variable */
+			struct udvt_entry * v;
+			double value;
+
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.EqualsCur("default")) {
+				GPO.Pgm.Shift();
+				value = 0.;
+			}
+			else
+				value = GPO.RealExpression();
+			if(value > 0.) {
+				v = add_udv_by_name((char*)FITLAMBDAFACTOR);
+				Gcomplex(&v->udv_value, value, 0);
+			}
+			else {
+				del_udv_by_name((char*)FITLAMBDAFACTOR, FALSE);
+			}
+		}
+		else if(GPO.Pgm.EqualsCur("script")) {
+			char * tmp;
+
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.EndOfCommand()) {
+				ZFREE(fit_script);
+			}
+			else if(GPO.Pgm.EqualsCur("default")) {
+				GPO.Pgm.Shift();
+				ZFREE(fit_script);
+			}
+			else if((tmp = try_to_get_string())) {
+				SAlloc::F(fit_script);
+				fit_script = tmp;
+			}
+			else {
+				GPO.IntErrorCurToken("expecting string");
+			}
+		}
+		else if(GPO.Pgm.EqualsCur("wrap")) {
+			GPO.Pgm.Shift();
+			fit_wrap = int_expression();
+			if(fit_wrap < 0) fit_wrap = 0;
+		}
+		else if(GPO.Pgm.EqualsCur("nowrap")) {
+			GPO.Pgm.Shift();
+			fit_wrap = 0;
+		}
+		else if(GPO.Pgm.EqualsCur("v4")) {
+			GPO.Pgm.Shift();
+			fit_v4compatible = TRUE;
+		}
+		else if(GPO.Pgm.EqualsCur("v5")) {
+			GPO.Pgm.Shift();
+			fit_v4compatible = FALSE;
+		}
+		else {
+			GPO.IntErrorCurToken("unrecognized option --- see `help set fit`");
+		}
+	} /* while (!end) */
+}
+
+/* process 'set format' command */
+void set_format()
+{
+	bool set_for_axis[AXIS_ARRAY_SIZE] = AXIS_ARRAY_INITIALIZER(FALSE);
+	/*AXIS_INDEX*/int axis;
+	char * format;
+	td_type tictype = DT_UNINITIALIZED;
+	GPO.Pgm.Shift();
+	if((axis = (AXIS_INDEX)GPO.Pgm.LookupTableForCurrentToken(axisname_tbl)) >= 0) {
+		set_for_axis[axis] = TRUE;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.EqualsCur("xy") || GPO.Pgm.EqualsCur("yx")) {
+		set_for_axis[FIRST_X_AXIS] = set_for_axis[FIRST_Y_AXIS] = TRUE;
+		GPO.Pgm.Shift();
+	}
+	else {
+		/* Set all of them */
+		for(axis = (AXIS_INDEX)0; axis < AXIS_ARRAY_SIZE; axis++)
+			set_for_axis[axis] = TRUE;
+	}
+	if(GPO.Pgm.EndOfCommand()) {
+		for(axis = FIRST_AXES; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
+			if(set_for_axis[axis]) {
+				SAlloc::F(GPO.AxS[axis].formatstring);
+				GPO.AxS[axis].formatstring = gp_strdup(DEF_FORMAT);
+				GPO.AxS[axis].tictype = DT_NORMAL;
+			}
+		}
+		return;
+	}
+	if(!(format = try_to_get_string()))
+		GPO.IntErrorCurToken("expecting format string");
+
+	if(GPO.Pgm.AlmostEqualsCur("time$date")) {
+		tictype = DT_TIMEDATE;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("geo$graphic")) {
+		tictype = DT_DMS;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("num$eric")) {
+		tictype = DT_NORMAL;
+		GPO.Pgm.Shift();
+	}
+	for(axis = FIRST_AXES; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
+		if(set_for_axis[axis]) {
+			SAlloc::F(GPO.AxS[axis].formatstring);
+			GPO.AxS[axis].formatstring = gp_strdup(format);
+			if(tictype != DT_UNINITIALIZED)
+				GPO.AxS[axis].tictype = tictype;
+		}
+	}
+	SAlloc::F(format);
+}
+
+/* helper function for 'set grid' command */
+static bool grid_match(AXIS_INDEX axis, char * string)
+{
+	if(GPO.Pgm.AlmostEqualsCur(string+2)) {
+		if(string[2] == 'm')
+			GPO.AxS[axis].gridminor = TRUE;
+		else
+			GPO.AxS[axis].gridmajor = TRUE;
+		GPO.Pgm.Shift();
+		return TRUE;
+	}
+	else if(GPO.Pgm.AlmostEqualsCur(string)) {
+		if(string[2] == 'm')
+			GPO.AxS[axis].gridminor = FALSE;
+		else
+			GPO.AxS[axis].gridmajor = FALSE;
+		GPO.Pgm.Shift();
+		return TRUE;
+	}
+	return FALSE;
+}
+
+/* process 'set grid' command */
+static void set_grid()
+{
+	bool explicit_change = FALSE;
+	GPO.Pgm.Shift();
+	while(!GPO.Pgm.EndOfCommand()) {
+		explicit_change = grid_match(FIRST_X_AXIS, "nox$tics")
+		    ||  grid_match(FIRST_Y_AXIS, "noy$tics")
+		    ||  grid_match(FIRST_Z_AXIS, "noz$tics")
+		    ||  grid_match(SECOND_X_AXIS, "nox2$tics")
+		    ||  grid_match(SECOND_Y_AXIS, "noy2$tics")
+		    ||  grid_match(FIRST_X_AXIS, "nomx$tics")
+		    ||  grid_match(FIRST_Y_AXIS, "nomy$tics")
+		    ||  grid_match(FIRST_Z_AXIS, "nomz$tics")
+		    ||  grid_match(SECOND_X_AXIS, "nomx2$tics")
+		    ||  grid_match(SECOND_Y_AXIS, "nomy2$tics")
+		    ||  grid_match(COLOR_AXIS, "nocb$tics")
+		    ||  grid_match(COLOR_AXIS, "nomcb$tics")
+		    ||  grid_match(POLAR_AXIS, "nor$tics")
+		    ||  grid_match(POLAR_AXIS, "nomr$tics");
+
+		if(explicit_change) {
+			continue;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("po$lar")) {
+			/* Dec 2016 - zero or negative disables radial grid lines */
+			GPO.AxS[POLAR_AXIS].gridmajor = TRUE; /* Enable both circles and radii */
+			polar_grid_angle = 30*DEG2RAD;
+			GPO.Pgm.Shift();
+			if(might_be_numeric(GPO.Pgm.GetCurTokenIdx())) {
+				double ang = GPO.RealExpression();
+				polar_grid_angle = (ang > 2.*M_PI) ? DEG2RAD*ang : ang2rad*ang;
+			}
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("nopo$lar")) {
+			polar_grid_angle = 0; /* not polar grid */
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("spider$plot")) {
+			grid_spiderweb = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("back")) {
+			grid_layer = LAYER_BACK;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("front")) {
+			grid_layer = LAYER_FRONT;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("vert$ical")) {
+			grid_vertical_lines = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("novert$ical")) {
+			grid_vertical_lines = FALSE;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("layerd$efault") || GPO.Pgm.EqualsCur("behind")) {
+			grid_layer = LAYER_BEHIND;
+			GPO.Pgm.Shift();
+		}
+		else { /* only remaining possibility is a line type */
+			int save_token = GPO.Pgm.GetCurTokenIdx();
+			GPO.LpParse(&grid_lp, LP_ADHOC, FALSE);
+			if(GPO.Pgm.EqualsCur(",")) {
+				GPO.Pgm.Shift();
+				GPO.LpParse(&mgrid_lp, LP_ADHOC, FALSE);
+			}
+			else if(save_token != GPO.Pgm.GetCurTokenIdx())
+				mgrid_lp = grid_lp;
+			if(save_token == GPO.Pgm.GetCurTokenIdx())
+				break;
+		}
+	}
+	if(!explicit_change && !some_grid_selected()) {
+		/* no axis specified, thus select default grid */
+		if(polar) {
+			GPO.AxS[POLAR_AXIS].gridmajor = TRUE;
+			polar_grid_angle = 30.*DEG2RAD;
+		}
+		else if(spiderplot) {
+			grid_spiderweb = TRUE;
+		}
+		else {
+			GPO.AxS[FIRST_X_AXIS].gridmajor = TRUE;
+			GPO.AxS[FIRST_Y_AXIS].gridmajor = TRUE;
+		}
+	}
+}
+
+/* process 'set hidden3d' command */
+static void set_hidden3d()
+{
+	GPO.Pgm.Shift();
+	set_hidden3doptions();
+	hidden3d = TRUE;
+	SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);
+}
+
+static void set_history()
+{
+	GPO.Pgm.Shift();
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.EqualsCur("quiet")) {
+			GPO.Pgm.Shift();
+			history_quiet = TRUE;
+			continue;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("num$bers")) {
+			GPO.Pgm.Shift();
+			history_quiet = FALSE;
+			continue;
+		}
+		else if(GPO.Pgm.EqualsCur("full")) {
+			GPO.Pgm.Shift();
+			history_full = TRUE;
+			continue;
+		}
+		else if(GPO.Pgm.EqualsCur("trim")) {
+			GPO.Pgm.Shift();
+			history_full = FALSE;
+			continue;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
+			GPO.Pgm.Shift();
+			history_quiet = FALSE;
+			history_full = TRUE;
+			gnuplot_history_size = HISTORY_SIZE;
+			continue;
+		}
+		else if(GPO.Pgm.EqualsCur("size")) {
+			GPO.Pgm.Shift();
+			/* fall through */
+		}
+		/* Catches both the deprecated "set historysize" and "set history size" */
+		gnuplot_history_size = int_expression();
+#ifndef GNUPLOT_HISTORY
+		GPO.IntWarn(NO_CARET, "This copy of gnuplot was built without support for command history.");
+#endif
+	}
+}
+
+/* process 'set pixmap' command */
+static void set_pixmap()
+{
+	t_pixmap * this_pixmap = NULL;
+	t_pixmap * new_pixmap = NULL;
+	t_pixmap * prev_pixmap = NULL;
+	char * temp = NULL;
+	bool from_colormap = FALSE;
+	int tag;
+	GPO.Pgm.Shift();
+	tag = int_expression();
+	if(tag <= 0)
+		GPO.IntErrorCurToken("tag must be > 0");
+	for(this_pixmap = pixmap_listhead; this_pixmap != NULL;
+	    prev_pixmap = this_pixmap, this_pixmap = this_pixmap->next)
+		if(tag <= this_pixmap->tag)
+			break;
+	if(this_pixmap == NULL || tag != this_pixmap->tag) {
+		new_pixmap = (t_pixmap *)gp_alloc(sizeof(t_pixmap), "pixmap");
+		if(prev_pixmap == NULL)
+			pixmap_listhead = new_pixmap;
+		else
+			prev_pixmap->next = new_pixmap;
+		memzero(new_pixmap, sizeof(t_pixmap));
+		new_pixmap->tag = tag;
+		new_pixmap->next = this_pixmap;
+		new_pixmap->layer = LAYER_FRONT;
+		this_pixmap = new_pixmap;
+	}
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.EqualsCur("at")) {
+			GPO.Pgm.Shift();
+			get_position(&this_pixmap->pin);
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("size")) {
+			GPO.Pgm.Shift();
+			get_position(&this_pixmap->extent);
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("width")) {
+			GPO.Pgm.Shift();
+			get_position(&this_pixmap->extent);
+			this_pixmap->extent.y = 0;
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("height")) {
+			GPO.Pgm.Shift();
+			get_position(&this_pixmap->extent);
+			this_pixmap->extent.scaley = this_pixmap->extent.scalex;
+			this_pixmap->extent.y = this_pixmap->extent.x;
+			this_pixmap->extent.x = 0;
+			continue;
+		}
+		if((temp = try_to_get_string())) {
+			gp_expand_tilde(&temp);
+			SAlloc::F(this_pixmap->filename);
+			this_pixmap->filename = temp;
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("colormap")) {
+			GPO.Pgm.Shift();
+			pixmap_from_colormap(this_pixmap);
+			from_colormap = TRUE;
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("behind")) {
+			GPO.Pgm.Shift();
+			this_pixmap->layer = LAYER_BEHIND;
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("back")) {
+			GPO.Pgm.Shift();
+			this_pixmap->layer = LAYER_BACK;
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("front")) {
+			GPO.Pgm.Shift();
+			this_pixmap->layer = LAYER_FRONT;
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("center")) {
+			GPO.Pgm.Shift();
+			this_pixmap->center = TRUE;
+			continue;
+		}
+		/* Unrecognized option */
+		break;
+	}
+	if(from_colormap || this_pixmap->colormapname)
+		return;
+	if(!this_pixmap->filename)
+		GPO.IntErrorCurToken("must give filename or colormap");
+	// Enforce non-negative extents 
+	SETMAX(this_pixmap->extent.x, 0.0);
+	SETMAX(this_pixmap->extent.y, 0.0);
+	df_read_pixmap(this_pixmap); // This will open the file and read in the pixmap pixels 
+}
+
+/* process 'set isosamples' command */
+static void set_isosamples()
+{
+	GPO.Pgm.Shift();
+	int tsamp1 = int_expression();
+	int tsamp2 = tsamp1;
+	if(!GPO.Pgm.EndOfCommand()) {
+		if(!GPO.Pgm.EqualsCur(","))
+			GPO.IntErrorCurToken("',' expected");
+		GPO.Pgm.Shift();
+		tsamp2 = int_expression();
+	}
+	if(tsamp1 < 2 || tsamp2 < 2)
+		GPO.IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
+	else {
+		curve_points * f_p = first_plot;
+		surface_points * f_3dp = first_3dplot;
+		first_plot = NULL;
+		first_3dplot = NULL;
+		GnuPlot::CpFree(f_p);
+		sp_free(f_3dp);
+		iso_samples_1 = tsamp1;
+		iso_samples_2 = tsamp2;
+	}
+}
+/* When plotting an external key, the margin and l/r/t/b/c are
+   used to determine one of twelve possible positions.  They must
+   be defined appropriately in the case where stack direction
+   determines exact position. */
+static void set_key_position_from_stack_direction(legend_key * key)
+{
+	if(key->stack_dir == GPKEY_VERTICAL) {
+		switch(key->hpos) {
+			case LEFT: key->margin = GPKEY_LMARGIN; break;
+			case CENTRE: key->margin = (key->vpos == JUST_TOP) ? GPKEY_TMARGIN : GPKEY_BMARGIN; break;
+			case RIGHT: key->margin = GPKEY_RMARGIN; break;
+		}
+	}
+	else {
+		switch(key->vpos) {
+			case JUST_TOP: key->margin = GPKEY_TMARGIN; break;
+			case JUST_CENTRE: key->margin = (key->hpos == LEFT) ? GPKEY_LMARGIN : GPKEY_RMARGIN; break;
+			case JUST_BOT: key->margin = GPKEY_BMARGIN; break;
+		}
+	}
+}
+//
+// process 'set key' command 
+//
+//static void set_key()
+void GnuPlot::SetKey()
+{
+	bool   vpos_set = FALSE;
+	bool   hpos_set = FALSE;
+	bool   reg_set = FALSE;
+	bool   sdir_set = FALSE;
+	char * vpos_warn = "Multiple vertical position settings";
+	char * hpos_warn = "Multiple horizontal position settings";
+	char * reg_warn = "Multiple location region settings";
+	char * sdir_warn = "Multiple stack direction settings";
+	legend_key * key = &keyT;
+	/* Only for backward compatibility with deprecated "set keytitle foo" */
+	if(Pgm.AlmostEqualsCur("keyt$itle"))
+		goto S_KEYTITLE;
+	Pgm.Shift();
+	key->visible = TRUE;
+	while(!Pgm.EndOfCommand()) {
+		switch(Pgm.LookupTableForCurrentToken(&set_key_tbl[0])) {
+			case S_KEY_ON:
+			    key->visible = TRUE;
+			    break;
+			case S_KEY_OFF:
+			    key->visible = FALSE;
+			    break;
+			case S_KEY_DEFAULT:
+			    reset_key();
+			    break;
+			case S_KEY_TOP:
+			    if(vpos_set)
+				    IntWarnCurToken(vpos_warn);
+			    key->vpos = JUST_TOP;
+			    vpos_set = TRUE;
+			    break;
+			case S_KEY_BOTTOM:
+			    if(vpos_set)
+				    IntWarnCurToken(vpos_warn);
+			    key->vpos = JUST_BOT;
+			    vpos_set = TRUE;
+			    break;
+			case S_KEY_LEFT:
+			    if(hpos_set)
+				    IntWarnCurToken(hpos_warn);
+			    key->hpos = LEFT;
+			    hpos_set = TRUE;
+			    break;
+			case S_KEY_RIGHT:
+			    if(hpos_set)
+				    IntWarnCurToken(hpos_warn);
+			    key->hpos = RIGHT;
+			    hpos_set = TRUE;
+			    break;
+			case S_KEY_CENTER:
+			    if(!vpos_set) 
+					key->vpos = JUST_CENTRE;
+			    if(!hpos_set) 
+					key->hpos = CENTRE;
+			    if(vpos_set || hpos_set)
+				    vpos_set = hpos_set = TRUE;
+			    break;
+			case S_KEY_VERTICAL:
+			    if(sdir_set)
+				    IntWarnCurToken(sdir_warn);
+			    key->stack_dir = GPKEY_VERTICAL;
+			    sdir_set = TRUE;
+			    break;
+			case S_KEY_HORIZONTAL:
+			    if(sdir_set)
+				    IntWarnCurToken(sdir_warn);
+			    key->stack_dir = GPKEY_HORIZONTAL;
+			    sdir_set = TRUE;
+			    break;
+			case S_KEY_OVER:
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			/* Fall through */
+			case S_KEY_ABOVE:
+			    if(!hpos_set)
+				    key->hpos = CENTRE;
+			    if(!sdir_set)
+				    key->stack_dir = GPKEY_HORIZONTAL;
+			    key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
+			    key->margin = GPKEY_TMARGIN;
+			    reg_set = TRUE;
+			    break;
+			case S_KEY_UNDER:
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			/* Fall through */
+			case S_KEY_BELOW:
+			    if(!hpos_set)
+				    key->hpos = CENTRE;
+			    if(!sdir_set)
+				    key->stack_dir = GPKEY_HORIZONTAL;
+			    key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
+			    key->margin = GPKEY_BMARGIN;
+			    reg_set = TRUE;
+			    break;
+			case S_KEY_INSIDE:
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			    key->region = GPKEY_AUTO_INTERIOR_LRTBC;
+			    key->fixed = FALSE;
+			    reg_set = TRUE;
+			    break;
+			case S_KEY_OUTSIDE:
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			    key->region = GPKEY_AUTO_EXTERIOR_LRTBC;
+			    reg_set = TRUE;
+			    break;
+			case S_KEY_FIXED:
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			    key->region = GPKEY_AUTO_INTERIOR_LRTBC;
+			    key->fixed = TRUE;
+			    reg_set = TRUE;
+			    break;
+			case S_KEY_TMARGIN:
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			    key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
+			    key->margin = GPKEY_TMARGIN;
+			    reg_set = TRUE;
+			    break;
+			case S_KEY_BMARGIN:
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			    key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
+			    key->margin = GPKEY_BMARGIN;
+			    reg_set = TRUE;
+			    break;
+			case S_KEY_LMARGIN:
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			    key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
+			    key->margin = GPKEY_LMARGIN;
+			    reg_set = TRUE;
+			    break;
+			case S_KEY_RMARGIN:
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			    key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
+			    key->margin = GPKEY_RMARGIN;
+			    reg_set = TRUE;
+			    break;
+			case S_KEY_LLEFT: key->just = GPKEY_LEFT; break;
+			case S_KEY_RRIGHT: key->just = GPKEY_RIGHT; break;
+			case S_KEY_REVERSE: key->reverse = TRUE; break;
+			case S_KEY_NOREVERSE: key->reverse = FALSE; break;
+			case S_KEY_INVERT: key->invert = TRUE; break;
+			case S_KEY_NOINVERT: key->invert = FALSE; break;
+			case S_KEY_ENHANCED: key->enhanced = TRUE; break;
+			case S_KEY_NOENHANCED: key->enhanced = FALSE; break;
+			case S_KEY_BOX:
+			    Pgm.Shift();
+			    key->box.l_type = LT_BLACK;
+			    if(!Pgm.EndOfCommand()) {
+				    int old_token = Pgm.GetCurTokenIdx();
+				    LpParse(&key->box, LP_ADHOC, FALSE);
+				    if(old_token == Pgm.GetCurTokenIdx() && Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
+					    key->box.l_type = int_expression() - 1;
+					    Pgm.Shift();
+				    }
+			    }
+			    Pgm.Rollback(); // is incremented after loop 
+			    break;
+			case S_KEY_NOBOX:
+			    key->box.l_type = LT_NODRAW;
+			    break;
+			case S_KEY_SAMPLEN:
+			    Pgm.Shift();
+			    key->swidth = GPO.RealExpression();
+			    Pgm.Rollback(); // it is incremented after loop 
+			    break;
+			case S_KEY_SPACING:
+			    Pgm.Shift();
+			    key->vert_factor = GPO.RealExpression();
+			    if(key->vert_factor < 0.0)
+				    key->vert_factor = 0.0;
+			    Pgm.Rollback(); // it is incremented after loop 
+			    break;
+			case S_KEY_WIDTH:
+			    Pgm.Shift();
+			    key->width_fix = GPO.RealExpression();
+			    Pgm.Rollback(); // it is incremented after loop 
+			    break;
+			case S_KEY_HEIGHT:
+			    Pgm.Shift();
+			    key->height_fix = GPO.RealExpression();
+			    Pgm.Rollback(); // it is incremented after loop 
+			    break;
+			case S_KEY_AUTOTITLES:
+				Pgm.Shift();
+			    if(Pgm.AlmostEqualsCur("col$umnheader"))
+				    key->auto_titles = COLUMNHEAD_KEYTITLES;
+			    else {
+				    key->auto_titles = FILENAME_KEYTITLES;
+				    Pgm.Rollback();
+			    }
+			    break;
+			case S_KEY_NOAUTOTITLES:
+			    key->auto_titles = NOAUTO_KEYTITLES;
+			    break;
+			case S_KEY_TITLE:
+S_KEYTITLE:
+			    key->title.pos = CENTRE;
+			    set_xyzlabel(&key->title);
+			    Pgm.Rollback();
+			    break;
+			case S_KEY_NOTITLE:
+			    ZFREE(key->title.text);
+			    break;
+			case S_KEY_FONT:
+			    Pgm.Shift();
+			    // Make sure they've specified a font 
+			    if(!Pgm.IsStringValue(Pgm.GetCurTokenIdx()))
+				    IntErrorCurToken("expected font");
+			    else {
+				    char * tmp = try_to_get_string();
+				    if(tmp) {
+					    SAlloc::F(key->font);
+					    key->font = tmp;
+				    }
+				    Pgm.Rollback();
+			    }
+			    break;
+			case S_KEY_TEXTCOLOR:
+				{
+					t_colorspec lcolor = DEFAULT_COLORSPEC;
+					parse_colorspec(&lcolor, TC_VARIABLE);
+					// Only for backwards compatibility 
+					if(lcolor.type == TC_RGB && lcolor.value == -1.0)
+						lcolor.type = TC_VARIABLE;
+					key->textcolor = lcolor;
+				}
+			    Pgm.Rollback();
+			    break;
+			case S_KEY_MAXCOLS:
+			    Pgm.Shift();
+			    key->maxcols = (Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("a$utomatic")) ? 0 : int_expression();
+			    if(key->maxcols < 0)
+				    key->maxcols = 0;
+			    Pgm.Rollback(); // it is incremented after loop 
+			    break;
+			case S_KEY_MAXROWS:
+			    Pgm.Shift();
+			    key->maxrows = (Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("a$utomatic")) ? 0 : int_expression();
+			    if(key->maxrows < 0)
+				    key->maxrows = 0;
+			    Pgm.Rollback(); // it is incremented after loop 
+			    break;
+			case S_KEY_FRONT:
+			    key->front = TRUE;
+			    if(Pgm.AlmostEquals(Pgm.GetCurTokenIdx()+1, "fill$color") || Pgm.EqualsNext("fc")) {
+				    Pgm.Shift();
+				    parse_colorspec(&key->fillcolor, TC_RGB);
+				    Pgm.Rollback();
+			    }
+			    else
+				    key->fillcolor = background_fill;
+			    break;
+			case S_KEY_NOFRONT:
+			    key->front = FALSE;
+			    break;
+			case S_KEY_MANUAL:
+			    Pgm.Shift();
+			    if(reg_set)
+				    IntWarnCurToken(reg_warn);
+			    get_position(&key->user_pos);
+			    key->region = GPKEY_USER_PLACEMENT;
+			    reg_set = TRUE;
+			    Pgm.Rollback(); // will be incremented again soon 
+			    break;
+			case S_KEY_INVALID:
+			default:
+			    IntErrorCurToken("unknown key option");
+			    break;
+		}
+		Pgm.Shift();
+	}
+	if(key->region == GPKEY_AUTO_EXTERIOR_LRTBC)
+		set_key_position_from_stack_direction(key);
+	else if(key->region == GPKEY_AUTO_EXTERIOR_MARGIN) {
+		if(vpos_set && (key->margin == GPKEY_TMARGIN || key->margin == GPKEY_BMARGIN))
+			IntWarn(NO_CARET, "ignoring top/center/bottom; incompatible with tmargin/bmargin.");
+		else if(hpos_set && (key->margin == GPKEY_LMARGIN || key->margin == GPKEY_RMARGIN))
+			IntWarn(NO_CARET, "ignoring left/center/right; incompatible with lmargin/tmargin.");
+	}
+}
+
+/* process 'set label' command */
+/* set label {tag} {"label_text"{,<value>{,...}}} {<label options>} */
+/* EAM Mar 2003 - option parsing broken out into separate routine */
+static void set_label()
+{
+	text_label * this_label = NULL;
+	text_label * new_label = NULL;
+	text_label * prev_label = NULL;
+	GpValue a;
+	int save_token;
+	int tag = -1;
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand())
+		return;
+	// The first item must be either a tag or the label text 
+	save_token = GPO.Pgm.GetCurTokenIdx();
+	if(GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()) && GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) == 0) {
+		tag = assign_label_tag();
+	}
+	else {
+		GPO.ConstExpress(&a);
+		if(a.type == STRING) {
+			GPO.Pgm.SetTokenIdx(save_token);
+			tag = assign_label_tag();
+		}
+		else {
+			tag = (int)real(&a);
+		}
+		a.Destroy();
+	}
+	if(tag <= 0)
+		GPO.IntErrorCurToken("tag must be > zero");
+	if(first_label) { // skip to last label 
+		for(this_label = first_label; this_label != NULL;
+		    prev_label = this_label, this_label = this_label->next)
+			// is pThis the label we want? 
+			if(tag <= this_label->tag)
+				break;
+	}
+	// Insert pThis label into the list if it is a new one 
+	if(!this_label || tag != this_label->tag) {
+		new_label = new_text_label(tag);
+		new_label->offset = default_offset;
+		if(prev_label == NULL)
+			first_label = new_label;
+		else
+			prev_label->next = new_label;
+		new_label->next = this_label;
+		this_label = new_label;
+	}
+	if(!GPO.Pgm.EndOfCommand()) {
+		char * text;
+		parse_label_options(this_label, 0);
+		text = try_to_get_string();
+		if(text) {
+			SAlloc::F(this_label->text);
+			this_label->text = text;
+		}
+	}
+	// Now parse the label format and style options 
+	parse_label_options(this_label, 0);
+}
+
+/* assign a new label tag
+ * labels are kept sorted by tag number, so pThis is easy
+ * returns the lowest unassigned tag number
+ */
+static int assign_label_tag()
+{
+	int last = 0;           /* previous tag value */
+	for(text_label * this_label = first_label; this_label != NULL; this_label = this_label->next)
+		if(this_label->tag == last + 1)
+			last++;
+		else
+			break;
+	return (last + 1);
+}
+
+/* process 'set loadpath' command */
+static void set_loadpath()
+{
+	/* We pick up all loadpath elements here before passing
+	 * them on to set_var_loadpath()
+	 */
+	char * collect = NULL;
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		clear_loadpath();
+	}
+	else while(!GPO.Pgm.EndOfCommand()) {
+			char * ss;
+			if((ss = try_to_get_string())) {
+				int len = (collect ? strlen(collect) : 0);
+				gp_expand_tilde(&ss);
+				collect = (char *)gp_realloc(collect, len+1+strlen(ss)+1, "tmp loadpath");
+				if(len != 0) {
+					strcpy(collect+len+1, ss);
+					*(collect+len) = PATHSEP;
+				}
+				else
+					strcpy(collect, ss);
+				SAlloc::F(ss);
+			}
+			else {
+				GPO.IntErrorCurToken("expected string");
+			}
+		}
+	if(collect) {
+		set_var_loadpath(collect);
+		SAlloc::F(collect);
+	}
+}
+
+/* process 'set fontpath' command */
+/* Apr 2018 (V5.3) simplify pThis to a single directory */
+static void set_fontpath()
+{
+	GPO.Pgm.Shift();
+	SAlloc::F(PS_fontpath);
+	PS_fontpath = try_to_get_string();
+}
+//
+// process 'set locale' command 
+//
+static void set_locale()
+{
+	char * s;
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		init_locale();
+	}
+	else if((s = try_to_get_string())) {
+		set_var_locale(s);
+		SAlloc::F(s);
+	}
+	else
+		GPO.IntErrorCurToken("expected string");
+}
+//
+// process 'set logscale' command 
+//
+//static void set_logscale()
+void GnuPlot::SetLogScale()
+{
+	bool set_for_axis[AXIS_ARRAY_SIZE] = AXIS_ARRAY_INITIALIZER(FALSE);
+	int axis;
+	double newbase = 10;
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
+		for(axis = 0; axis < POLAR_AXIS; axis++)
+			set_for_axis[axis] = TRUE;
+	}
+	else {
+		// do reverse search because of "x", "x1", "x2" sequence in axisname_tbl 
+		for(int i = 0; i < Pgm.GetCurTokenLength();) {
+			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, gp_input_line + Pgm.GetCurTokenStartIndex() + i);
+			if(axis < 0) {
+				Pgm.P_Token[Pgm.CToken].start_index += i;
+				IntErrorCurToken("invalid axis");
+			}
+			set_for_axis[axisname_tbl[axis].value] = TRUE;
+			i += strlen(axisname_tbl[axis].key);
+		}
+		Pgm.Shift();
+		if(!Pgm.EndOfCommand()) {
+			newbase = fabs(GPO.RealExpression());
+			if(newbase <= 1.0)
+				IntErrorCurToken("log base must be > 1.0; logscale unchanged");
+		}
+	}
+	for(axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
+		if(set_for_axis[axis]) {
+			static char command[128];
+			char * dummy;
+			if(!isalpha(axis_name((AXIS_INDEX)axis)[0]))
+				continue;
+			switch(axis) {
+				case FIRST_Y_AXIS:
+				case SECOND_Y_AXIS: dummy = "y"; break;
+				case FIRST_Z_AXIS:
+				case COLOR_AXIS: dummy = "z"; break;
+				case POLAR_AXIS: dummy = "r"; break;
+				default: dummy = "x"; break;
+			}
+			/* Avoid a warning message triggered by default axis range [-10:10] */
+			if(AxS[axis].set_min <= 0 && AxS[axis].set_max > 0)
+				AxS[axis].set_min = 0.1;
+			/* Also forgive negative axis limits if we are currently autoscaling */
+			if((AxS[axis].set_autoscale != AUTOSCALE_NONE) && (AxS[axis].set_min <= 0 || AxS[axis].set_max <= 0)) {
+				AxS[axis].set_min = 0.1;
+				AxS[axis].set_max = 10.;
+			}
+			if(newbase == 10.) {
+				sprintf(command, "set nonlinear %s via log10(%s) inv 10**%s", axis_name((AXIS_INDEX)axis), dummy, dummy);
+			}
+			else {
+				sprintf(command, "set nonlinear %s via log(%s)/log(%g) inv (%g)**%s", axis_name((AXIS_INDEX)axis), dummy, newbase, newbase, dummy);
+			}
+			do_string(command);
+			AxS[axis].ticdef.logscaling = TRUE;
+			AxS[axis].base = newbase;
+			AxS[axis].log_base = log(newbase);
+			AxS[axis].linked_to_primary->base = newbase;
+			AxS[axis].linked_to_primary->log_base = log(newbase);
+			// do_string("set nonlinear") cleared the log flags 
+			AxS[axis].log = TRUE;
+			AxS[axis].linked_to_primary->log = TRUE;
+		}
+	}
+}
+
+/* process 'set mapping3d' command */
+static void set_mapping()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand())
+		mapping3d = MAP3D_CARTESIAN; /* assuming same as points */
+	else if(GPO.Pgm.AlmostEqualsCur("ca$rtesian"))
+		mapping3d = MAP3D_CARTESIAN;
+	else if(GPO.Pgm.AlmostEqualsCur("s$pherical"))
+		mapping3d = MAP3D_SPHERICAL;
+	else if(GPO.Pgm.AlmostEqualsCur("cy$lindrical"))
+		mapping3d = MAP3D_CYLINDRICAL;
+	else
+		GPO.IntErrorCurToken("expecting 'cartesian', 'spherical', or 'cylindrical'");
+	GPO.Pgm.Shift();
+}
+//
+// process 'set {blrt}margin' command 
+//
+//static void set_margin(t_position * margin)
+void GnuPlot::SetMargin(t_position * pMargin)
+{
+	pMargin->scalex = character;
+	pMargin->x = -1;
+	Pgm.Shift();
+	if(!Pgm.EndOfCommand()) {
+		if(Pgm.EqualsCur("at") && !Pgm.AlmostEquals(++Pgm.CToken, "sc$reen"))
+			IntErrorCurToken("expecting 'screen <fraction>'");
+		if(Pgm.AlmostEqualsCur("sc$reen")) {
+			pMargin->scalex = screen;
+			Pgm.Shift();
+		}
+		pMargin->x = GPO.RealExpression();
+		if(pMargin->x < 0)
+			pMargin->x = -1;
+		if(pMargin->scalex == screen) {
+			SETMAX(pMargin->x, 0.0);
+			SETMIN(pMargin->x, 1.0);
+		}
+	}
+}
+
+/* process 'set micro' command */
+static void set_micro()
+{
+	GPO.Pgm.Shift();
+	use_micro = TRUE;
+}
+
+/* process 'set minus_sign' command */
+static void set_minus_sign()
+{
+	GPO.Pgm.Shift();
+	use_minus_sign = TRUE;
+}
+
+static void set_separator(char ** xx_separators)
+{
+	GPO.Pgm.Shift();
+	SAlloc::F(*xx_separators);
+	*xx_separators = NULL;
+	if(GPO.Pgm.EndOfCommand())
+		return;
+	if(GPO.Pgm.AlmostEqualsCur("white$space")) {
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.EqualsCur("space")) {
+		*xx_separators = gp_strdup(" ");
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.EqualsCur("comma")) {
+		*xx_separators = gp_strdup(",");
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.EqualsCur("tab") || GPO.Pgm.EqualsCur("\'\\t\'")) {
+		*xx_separators = gp_strdup("\t");
+		GPO.Pgm.Shift();
+	}
+	else if(!(*xx_separators = try_to_get_string())) {
+		GPO.IntErrorCurToken("expected \"<separator_char>\"");
+	}
+}
+
+static void set_datafile_commentschars()
+{
+	char * s;
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		SAlloc::F(df_commentschars);
+		df_commentschars = gp_strdup(DEFAULT_COMMENTS_CHARS);
+	}
+	else if((s = try_to_get_string())) {
+		SAlloc::F(df_commentschars);
+		df_commentschars = s;
+	}
+	else /* Leave it the way it was */
+		GPO.IntErrorCurToken("expected string with comments chars");
+}
+
+/* process 'set datafile missing' command */
+static void set_missing()
+{
+	GPO.Pgm.Shift();
+	ZFREE(missing_val);
+	if(GPO.Pgm.EndOfCommand())
+		return;
+	if(GPO.Pgm.EqualsCur("NaN") || GPO.Pgm.EqualsCur("nan")) {
+		missing_val = sstrdup("NaN");
+		GPO.Pgm.Shift();
+	}
+	else if(!(missing_val = try_to_get_string()))
+		GPO.IntErrorCurToken("expected missing-value string");
+}
+
+/* (version 5) 'set monochrome' command */
+static void set_monochrome()
+{
+	monochrome = TRUE;
+	if(!GPO.Pgm.EndOfCommand())
+		GPO.Pgm.Shift();
+	if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
+		GPO.Pgm.Shift();
+		while(first_mono_linestyle)
+			delete_linestyle(&first_mono_linestyle, first_mono_linestyle, first_mono_linestyle);
+	}
+	init_monochrome();
+	if(GPO.Pgm.AlmostEqualsCur("linet$ype") || GPO.Pgm.EqualsCur("lt")) {
+		/* we can pass pThis off to the generic "set linetype" code */
+		if(GPO.Pgm.EqualsNext("cycle")) {
+			GPO.Pgm.Shift();
+			GPO.Pgm.Shift();
+			mono_recycle_count = int_expression();
+		}
+		else
+			set_linestyle(&first_mono_linestyle, LP_TYPE);
+	}
+	if(!GPO.Pgm.EndOfCommand())
+		GPO.IntErrorCurToken("unrecognized option");
+}
+
+//static void set_mouse()
+void GnuPlot::SetMouse()
+{
+#ifdef USE_MOUSE
+	char * ctmp;
+	Pgm.Shift();
+	mouse_setting.on = 1;
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("do$ubleclick")) {
+			Pgm.Shift();
+			mouse_setting.doubleclick = static_cast<int>(GPO.RealExpression());
+			if(mouse_setting.doubleclick < 0)
+				mouse_setting.doubleclick = 0;
+		}
+		else if(Pgm.AlmostEqualsCur("nodo$ubleclick")) {
+			mouse_setting.doubleclick = 0; /* double click off */
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("zoomco$ordinates")) {
+			mouse_setting.annotate_zoom_box = 1;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("nozoomco$ordinates")) {
+			mouse_setting.annotate_zoom_box = 0;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("po$lardistancedeg")) {
+			mouse_setting.polardistance = 1;
+			UpdateStatusline();
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("polardistancet$an")) {
+			mouse_setting.polardistance = 2;
+			UpdateStatusline();
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("nopo$lardistance")) {
+			mouse_setting.polardistance = 0;
+			UpdateStatusline();
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("label$s")) {
+			mouse_setting.label = 1;
+			Pgm.Shift();
+			// check if the optional argument "<label options>" is present 
+			if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = try_to_get_string())) {
+				SAlloc::F(mouse_setting.labelopts);
+				mouse_setting.labelopts = ctmp;
+			}
+		}
+		else if(Pgm.AlmostEqualsCur("nola$bels")) {
+			mouse_setting.label = 0;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("ve$rbose")) {
+			mouse_setting.verbose = 1;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("nove$rbose")) {
+			mouse_setting.verbose = 0;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("zoomju$mp")) {
+			mouse_setting.warp_pointer = 1;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("nozoomju$mp")) {
+			mouse_setting.warp_pointer = 0;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("fo$rmat")) {
+			Pgm.Shift();
+			if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = try_to_get_string())) {
+				if(mouse_setting.fmt != mouse_fmt_default)
+					SAlloc::F(mouse_setting.fmt);
+				mouse_setting.fmt = ctmp;
+			}
+			else
+				mouse_setting.fmt = mouse_fmt_default;
+		}
+		else if(Pgm.AlmostEqualsCur("mo$useformat")) {
+			Pgm.Shift();
+			if(Pgm.EqualsCur("function")) {
+				Pgm.Shift();
+				int start_token = Pgm.GetCurTokenIdx()/*++c_token*/;
+				if(!Pgm.EndOfCommand() || !mouse_readout_function.at) {
+					free_at(mouse_readout_function.at);
+					mouse_readout_function.at = perm_at();
+					Pgm.MCapture(&mouse_readout_function.definition, start_token, Pgm.GetPrevTokenIdx());
+				}
+				// FIXME:  wants sanity check that pThis is a string-valued  function with parameters x and y 
+				mouse_mode = MOUSE_COORDINATES_FUNCTION;
+			}
+			else if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = try_to_get_string())) {
+				SAlloc::F(mouse_alt_string);
+				mouse_alt_string = ctmp;
+				if(!strlen(mouse_alt_string)) {
+					ZFREE(mouse_alt_string);
+					if(MOUSE_COORDINATES_ALT == mouse_mode)
+						mouse_mode = MOUSE_COORDINATES_REAL;
+				}
+				else {
+					mouse_mode = MOUSE_COORDINATES_ALT;
+				}
+				Pgm.Shift();
+			}
+			else {
+				int itmp = int_expression();
+				if(itmp >= MOUSE_COORDINATES_REAL &&  itmp <= MOUSE_COORDINATES_FUNCTION) {
+					if(MOUSE_COORDINATES_ALT == itmp && !mouse_alt_string)
+						fprintf(stderr, "please 'set mouse mouseformat <fmt>' first.\n");
+					else if(MOUSE_COORDINATES_FUNCTION == itmp && mouse_readout_function.at == NULL)
+						fprintf(stderr, "please 'set mouse mouseformat function <f(x,y)>' first.\n");
+					else
+						mouse_mode = itmp;
+				}
+				else
+					IntWarn(Pgm.GetPrevTokenIdx(), "not a valid mouseformat");
+			}
+		}
+		else if(Pgm.AlmostEqualsCur("noru$ler")) {
+			Pgm.Shift();
+			set_ruler(FALSE, -1, -1);
+		}
+		else if(Pgm.AlmostEqualsCur("ru$ler")) {
+			Pgm.Shift();
+			if(Pgm.EndOfCommand() || !Pgm.EqualsCur("at")) {
+				set_ruler(TRUE, -1, -1);
+			}
+			else { /* set mouse ruler at ... */
+				GpPosition where;
+				int x, y;
+				Pgm.Shift();
+				if(Pgm.EndOfCommand())
+					IntErrorCurToken("expecting ruler coordinates");
+				get_position(&where);
+				map_position(&where, &x, &y, "ruler at");
+				set_ruler(TRUE, (int)x, (int)y);
+			}
+		}
+		else if(Pgm.AlmostEqualsCur("zoomfac$tors")) {
+			double x = 1.0, y = 1.0;
+			Pgm.Shift();
+			if(!Pgm.EndOfCommand()) {
+				x = GPO.RealExpression();
+				if(Pgm.EqualsCur(",")) {
+					Pgm.Shift();
+					y = GPO.RealExpression();
+				}
+			}
+			mouse_setting.xmzoom_factor = x;
+			mouse_setting.ymzoom_factor = y;
+		}
+		else {
+			if(!Pgm.EndOfCommand())
+				IntErrorCurToken("wrong option");
+			break;
+		}
+	}
+#else
+	while(!Pgm.EndOfCommand())
+		Pgm.Shift();
+	IntWarn(NO_CARET, "pThis copy of gnuplot has no mouse support");
+#endif
+}
+//
+// process 'set offsets' command 
+//
+static void set_offsets()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		loff.x = roff.x = toff.y = boff.y = 0.0;
+	}
+	else {
+		loff.scalex = first_axes;
+		if(GPO.Pgm.AlmostEqualsCur("gr$aph")) {
+			loff.scalex = graph;
+			GPO.Pgm.Shift();
+		}
+		loff.x = GPO.RealExpression();
+		if(GPO.Pgm.EqualsCur(",")) {
+			roff.scalex = first_axes;
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.AlmostEqualsCur("gr$aph")) {
+				roff.scalex = graph;
+				GPO.Pgm.Shift();
+			}
+			roff.x = GPO.RealExpression();
+			if(GPO.Pgm.EqualsCur(",")) {
+				toff.scaley = first_axes;
+				GPO.Pgm.Shift();
+				if(GPO.Pgm.AlmostEqualsCur("gr$aph")) {
+					toff.scaley = graph;
+					GPO.Pgm.Shift();
+				}
+				toff.y = GPO.RealExpression();
+				if(GPO.Pgm.EqualsCur(",")) {
+					boff.scaley = first_axes;
+					GPO.Pgm.Shift();
+					if(GPO.Pgm.AlmostEqualsCur("gr$aph")) {
+						boff.scaley = graph;
+						GPO.Pgm.Shift();
+					}
+					boff.y = GPO.RealExpression();
+				}
+			}
+		}
+	}
+}
+//
+// process 'set output' command 
+//
+static void set_output()
+{
+	char * testfile;
+	GPO.Pgm.Shift();
+	if(multiplot)
+		GPO.IntErrorCurToken("you can't change the output in multiplot mode");
+	if(GPO.Pgm.EndOfCommand()) {    /* no file specified */
+		term_set_output(NULL);
+		ZFREE(outstr); // means STDOUT 
+	}
+	else if((testfile = try_to_get_string())) {
+		gp_expand_tilde(&testfile);
+		term_set_output(testfile);
+		if(testfile != outstr) {
+			SAlloc::F(testfile);
+			testfile = outstr;
+		}
+		/* if we get here then it worked, and outstr now = testfile */
+	}
+	else
+		GPO.IntErrorCurToken("expecting filename");
+	invalidate_palette(); // Invalidate previous palette 
+}
+//
+// process 'set print' command 
+//
+static void set_print()
+{
+	bool append_p = FALSE;
+	char * testfile = NULL;
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) { // no file specified 
+		print_set_output(NULL, FALSE, append_p);
+	}
+	else if(GPO.Pgm.EqualsCur("$") && GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()+1)) { /* datablock */
+		// NB: has to come first because try_to_get_string will choke on the datablock name 
+		char * datablock_name = sstrdup(GPO.Pgm.ParseDatablockName());
+		if(!GPO.Pgm.EndOfCommand()) {
+			if(GPO.Pgm.EqualsCur("append")) {
+				append_p = TRUE;
+				GPO.Pgm.Shift();
+			}
+			else {
+				GPO.IntErrorCurToken("expecting keyword \'append\'");
+			}
+		}
+		print_set_output(datablock_name, TRUE, append_p);
+	}
+	else if((testfile = try_to_get_string())) { /* file name */
+		gp_expand_tilde(&testfile);
+		if(!GPO.Pgm.EndOfCommand()) {
+			if(GPO.Pgm.EqualsCur("append")) {
+				append_p = TRUE;
+				GPO.Pgm.Shift();
+			}
+			else
+				GPO.IntErrorCurToken("expecting keyword \'append\'");
+		}
+		print_set_output(testfile, FALSE, append_p);
+	}
+	else
+		GPO.IntErrorCurToken("expecting filename or datablock");
+}
+//
+// process 'set psdir' command 
+//
+static void set_psdir()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {    /* no file specified */
+		ZFREE(PS_psdir);
+	}
+	else if((PS_psdir = try_to_get_string())) {
+		gp_expand_tilde(&PS_psdir);
+	}
+	else
+		GPO.IntErrorCurToken("expecting filename");
+}
+//
+// process 'set overflow' command 
+//
+static void set_overflow()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.EqualsCur("float"))
+		overflow_handling = INT64_OVERFLOW_TO_FLOAT;
+	else if(GPO.Pgm.EqualsCur("undefined"))
+		overflow_handling = INT64_OVERFLOW_UNDEFINED;
+	else if(GPO.Pgm.EqualsCur("NaN") || GPO.Pgm.EqualsCur("nan"))
+		overflow_handling = INT64_OVERFLOW_NAN;
+	else
+		GPO.IntErrorCurToken("unrecognized option");
+	if(!GPO.Pgm.EndOfCommand())
+		GPO.Pgm.Shift();
+}
+//
+// process 'set parametric' command 
+//
+static void set_parametric()
+{
+	GPO.Pgm.Shift();
+	if(!parametric) {
+		parametric = TRUE;
+		if(!polar) { /* already done for polar */
+			strcpy(set_dummy_var[0], "t");
+			strcpy(set_dummy_var[1], "y");
+			if(interactive)
+				fprintf(stderr, "\n\tdummy variable is t for curves, u/v for surfaces\n");
+		}
+	}
+}
+
+int enable_reset_palette = 1; // is resetting palette enabled? note: reset_palette() is disabled within 'test palette'
+//
+// default settings for palette 
+//
+void reset_palette()
+{
+	if(enable_reset_palette) {
+		SAlloc::F(GPO.SmPltt.P_Gradient);
+		SAlloc::F(GPO.SmPltt.P_Color);
+		free_at(GPO.SmPltt.Afunc.at);
+		free_at(GPO.SmPltt.Bfunc.at);
+		free_at(GPO.SmPltt.Cfunc.at);
+		init_color();
+		pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE;
+	}
+}
+
+/* Process 'set palette defined' gradient specification */
+/* Syntax
+ *   set palette defined   -->  use default palette
+ *   set palette defined ( <pos1> <colorspec1>, ... , <posN> <colorspecN> )
+ *     <posX>  gray value, automatically rescaled to [0, 1]
+ *     <colorspecX>   :=  { "<color_name>" | "<X-style-color>" |  <r> <g> <b> }
+ *        <color_name>     predefined colors (see below)
+ *        <X-style-color>  "#rrggbb" with 2char hex values for red, green, blue
+ *        <r> <g> <b>      three values in [0, 1] for red, green and blue
+ *   return 1 if named colors where used, 0 otherwise
+ */
+static int set_palette_defined()
+{
+	double p = 0, r = 0, g = 0, b = 0;
+	int num, named_colors = 0;
+	int actual_size = 8;
+	invalidate_palette(); // Invalidate previous gradient 
+	SAlloc::F(GPO.SmPltt.P_Gradient);
+	GPO.SmPltt.P_Gradient = (gradient_struct *)gp_alloc(actual_size*sizeof(gradient_struct), "pm3d gradient");
+	GPO.SmPltt.smallest_gradient_interval = 1;
+	if(GPO.Pgm.EndOfCommand()) {
+		// some default gradient 
+		const double pal[][4] = { {0.0, 0.05, 0.05, 0.2}, {0.1, 0, 0, 1},
+				    {0.3, 0.05, 0.9, 0.4}, {0.5, 0.9, 0.9, 0},
+				    {0.7, 1, 0.6471, 0}, {0.8, 1, 0, 0},
+				    {0.9, 0.94, 0.195, 0.195}, {1.0, 1, .8, .8} };
+		for(int i = 0; i < 8; i++) {
+			GPO.SmPltt.P_Gradient[i].pos = pal[i][0];
+			GPO.SmPltt.P_Gradient[i].col.r = pal[i][1];
+			GPO.SmPltt.P_Gradient[i].col.g = pal[i][2];
+			GPO.SmPltt.P_Gradient[i].col.b = pal[i][3];
+		}
+		GPO.SmPltt.GradientNum = 8;
+		GPO.SmPltt.CModel = C_MODEL_RGB;
+		GPO.SmPltt.smallest_gradient_interval = 0.1; /* From pal[][] */
+		GPO.Pgm.Rollback(); // Caller will increment! 
+		return 0;
+	}
+	if(!GPO.Pgm.EqualsCur("(") )
+		GPO.IntErrorCurToken("expected ( to start gradient definition");
+	GPO.Pgm.Shift();
+	num = -1;
+	while(!GPO.Pgm.EndOfCommand()) {
+		char * col_str;
+		p = GPO.RealExpression();
+		col_str = try_to_get_string();
+		if(col_str) {
+			/* Hex constant or X-style rgb value "#rrggbb" */
+			if(col_str[0] == '#' || col_str[0] == '0') {
+				/* X-style specifier */
+				int rr, gg, bb;
+				if((sscanf(col_str, "#%2x%2x%2x", &rr, &gg, &bb) != 3 ) && (sscanf(col_str, "0x%2x%2x%2x", &rr, &gg, &bb) != 3 ))
+					GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "Unknown color specifier. Use '#RRGGBB' of '0xRRGGBB'.");
+				r = (double)(rr)/255.;
+				g = (double)(gg)/255.;
+				b = (double)(bb)/255.;
+
+				/* Predefined color names.
+				 * Could we move these definitions to some file that is included
+				 * somehow during compilation instead hardcoding them?
+				 */
+			}
+			else {
+				int rgbval = lookup_table_entry(pm3d_color_names_tbl, col_str);
+				if(rgbval < 0)
+					GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "Unknown color name.");
+				r = ((rgbval >> 16) & 255) / 255.;
+				g = ((rgbval >> 8 ) & 255) / 255.;
+				b = (rgbval & 255) / 255.;
+				named_colors = 1;
+			}
+			SAlloc::F(col_str);
+		}
+		else {
+			/* numerical rgb, hsv, xyz, ... values  [0,1] */
+			r = GPO.RealExpression();
+			if(r<0 || r>1) 
+				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "Value out of range [0,1].");
+			g = GPO.RealExpression();
+			if(g<0 || g>1) 
+				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "Value out of range [0,1].");
+			b = GPO.RealExpression();
+			if(b<0 || b>1) 
+				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "Value out of range [0,1].");
+		}
+		++num;
+		if(num >= actual_size) {
+			/* get more space for the gradient */
+			actual_size += 10;
+			GPO.SmPltt.P_Gradient = (gradient_struct *)gp_realloc(GPO.SmPltt.P_Gradient, actual_size*sizeof(gradient_struct), "pm3d gradient");
+		}
+		GPO.SmPltt.P_Gradient[num].pos = p;
+		GPO.SmPltt.P_Gradient[num].col.r = r;
+		GPO.SmPltt.P_Gradient[num].col.g = g;
+		GPO.SmPltt.P_Gradient[num].col.b = b;
+		if(GPO.Pgm.EqualsCur(")") ) break;
+		if(!GPO.Pgm.EqualsCur(",") )
+			GPO.IntErrorCurToken("expected comma");
+		GPO.Pgm.Shift();
+	}
+	if(num <= 0) {
+		reset_palette();
+		GPO.IntErrorCurToken("invalid palette syntax");
+	}
+	GPO.SmPltt.GradientNum = num + 1;
+	check_palette_grayscale();
+	return named_colors;
+}
+// 
+// process 'set palette colormap' command
+// 
+static void set_palette_colormap()
+{
+	int i, actual_size;
+	udvt_entry * colormap = get_colormap(GPO.Pgm.GetCurTokenIdx());
+	if(!colormap)
+		GPO.IntErrorCurToken("expecting colormap name");
+	ZFREE(GPO.SmPltt.P_Gradient);
+	actual_size = colormap->udv_value.v.value_array[0].v.int_val;
+	GPO.SmPltt.P_Gradient = (gradient_struct *)gp_alloc(actual_size*sizeof(gradient_struct), "gradient");
+	GPO.SmPltt.GradientNum = actual_size;
+	for(i = 0; i < actual_size; i++) {
+		uint rgb24 = colormap->udv_value.v.value_array[i+1].v.int_val;
+		GPO.SmPltt.P_Gradient[i].col.r = ((rgb24 >> 16) & 0xff) / 255.;
+		GPO.SmPltt.P_Gradient[i].col.g = ((rgb24 >> 8) & 0xff) / 255.;
+		GPO.SmPltt.P_Gradient[i].col.b = ((rgb24) & 0xff) / 255.;
+		GPO.SmPltt.P_Gradient[i].pos = i;
+	}
+	check_palette_grayscale();
+}
+// 
+// process 'set palette file' command
+// load a palette from file, honor datafile modifiers
+// 
+static void set_palette_file()
+{
+	double v[4];
+	int i, j, actual_size;
+	char * file_name;
+	GPO.Pgm.Shift();
+	/* get filename */
+	if(!(file_name = try_to_get_string()))
+		GPO.IntErrorCurToken("missing filename");
+	df_set_plot_mode(MODE_QUERY);   /* Needed only for binary datafiles */
+	df_open(file_name, 4, NULL);
+	SAlloc::F(file_name);
+	ZFREE(GPO.SmPltt.P_Gradient);
+	actual_size = 10;
+	GPO.SmPltt.P_Gradient = (gradient_struct *)gp_alloc(actual_size*sizeof(gradient_struct), "gradient");
+	i = 0;
+	// values are clipped to [0,1] without notice 
+	while((j = df_readline(v, 4)) != DF_EOF) {
+		if(i >= actual_size) {
+			actual_size += 10;
+			GPO.SmPltt.P_Gradient = (gradient_struct *)gp_realloc(GPO.SmPltt.P_Gradient, actual_size*sizeof(gradient_struct), "pm3d gradient");
+		}
+		switch(j) {
+			case 3:
+			    GPO.SmPltt.P_Gradient[i].col.r = clip_to_01(v[0]);
+			    GPO.SmPltt.P_Gradient[i].col.g = clip_to_01(v[1]);
+			    GPO.SmPltt.P_Gradient[i].col.b = clip_to_01(v[2]);
+			    GPO.SmPltt.P_Gradient[i].pos = i;
+			    break;
+			case 4:
+			    GPO.SmPltt.P_Gradient[i].col.r = clip_to_01(v[1]);
+			    GPO.SmPltt.P_Gradient[i].col.g = clip_to_01(v[2]);
+			    GPO.SmPltt.P_Gradient[i].col.b = clip_to_01(v[3]);
+			    GPO.SmPltt.P_Gradient[i].pos = v[0];
+			    break;
+			default:
+			    df_close();
+			    GPO.IntErrorCurToken("Bad data on line %d", df_line_number);
+			    break;
+		}
+		++i;
+	}
+	df_close();
+	if(!i)
+		GPO.IntErrorCurToken("No valid palette found");
+	GPO.SmPltt.GradientNum = i;
+	check_palette_grayscale();
+}
+// 
+// Process a 'set palette function' command.
+// Three functions with fixed dummy variable gray are registered which
+// map gray to the different color components.
+// The dummy variable must be 'gray'.
+// 
+//static void set_palette_function()
+void GnuPlot::SetPaletteFunction()
+{
+	int start_token;
+	char saved_dummy_var[MAX_ID_LEN+1];
+	Pgm.Shift();
+	strcpy(saved_dummy_var, c_dummy_var[0]);
+	// set dummy variable 
+	strncpy(c_dummy_var[0], "gray", MAX_ID_LEN);
+	// Afunc 
+	start_token = Pgm.GetCurTokenIdx();
+	if(GPO.SmPltt.Afunc.at) {
+		free_at(GPO.SmPltt.Afunc.at);
+		GPO.SmPltt.Afunc.at = NULL;
+	}
+	dummy_func = &GPO.SmPltt.Afunc;
+	GPO.SmPltt.Afunc.at = perm_at();
+	if(!GPO.SmPltt.Afunc.at)
+		IntError(start_token, "not enough memory for function");
+	Pgm.MCapture(&(GPO.SmPltt.Afunc.definition), start_token, Pgm.GetPrevTokenIdx());
+	dummy_func = NULL;
+	if(!Pgm.EqualsCur(","))
+		IntErrorCurToken("expected comma");
+	Pgm.Shift();
+	// Bfunc 
+	start_token = Pgm.GetCurTokenIdx();
+	if(GPO.SmPltt.Bfunc.at) {
+		free_at(GPO.SmPltt.Bfunc.at);
+		GPO.SmPltt.Bfunc.at = NULL;
+	}
+	dummy_func = &GPO.SmPltt.Bfunc;
+	GPO.SmPltt.Bfunc.at = perm_at();
+	if(!GPO.SmPltt.Bfunc.at)
+		IntError(start_token, "not enough memory for function");
+	Pgm.MCapture(&(GPO.SmPltt.Bfunc.definition), start_token, Pgm.GetPrevTokenIdx());
+	dummy_func = NULL;
+	if(!Pgm.EqualsCur(","))
+		IntErrorCurToken("expected comma");
+	Pgm.Shift();
+	// Cfunc 
+	start_token = Pgm.GetCurTokenIdx();
+	if(GPO.SmPltt.Cfunc.at) {
+		free_at(GPO.SmPltt.Cfunc.at);
+		GPO.SmPltt.Cfunc.at = NULL;
+	}
+	dummy_func = &GPO.SmPltt.Cfunc;
+	GPO.SmPltt.Cfunc.at = perm_at();
+	if(!GPO.SmPltt.Cfunc.at)
+		IntError(start_token, "not enough memory for function");
+	Pgm.MCapture(&(GPO.SmPltt.Cfunc.definition), start_token, Pgm.GetPrevTokenIdx());
+	dummy_func = NULL;
+	strcpy(c_dummy_var[0], saved_dummy_var);
+}
+/*
+ *  Normalize gray scale of gradient to fill [0,1] and
+ *  complain if gray values are not strictly increasing.
+ *  Maybe automatic sorting of the gray values could be a
+ *  feature.
+ */
+static void check_palette_grayscale()
+{
+	int i;
+	double off, f;
+	gradient_struct * gradient = GPO.SmPltt.P_Gradient;
+	// check if gray values are sorted 
+	for(i = 0; i < GPO.SmPltt.GradientNum-1; ++i) {
+		if(gradient[i].pos > gradient[i+1].pos)
+			GPO.IntErrorCurToken("Palette gradient not monotonic");
+	}
+	// fit gray axis into [0:1]:  subtract offset and rescale 
+	off = gradient[0].pos;
+	f = 1.0 / (gradient[GPO.SmPltt.GradientNum-1].pos-off);
+	for(i = 1; i < GPO.SmPltt.GradientNum-1; ++i) {
+		gradient[i].pos = f*(gradient[i].pos-off);
+	}
+	// paranoia on the first and last entries 
+	gradient[0].pos = 0.0;
+	gradient[GPO.SmPltt.GradientNum-1].pos = 1.0;
+	// save smallest interval 
+	GPO.SmPltt.smallest_gradient_interval = 1.0;
+	for(i = 1; i < GPO.SmPltt.GradientNum-1; ++i) {
+		if(((gradient[i].pos - gradient[i-1].pos) > 0) && (GPO.SmPltt.smallest_gradient_interval > (gradient[i].pos - gradient[i-1].pos)))
+			GPO.SmPltt.smallest_gradient_interval = (gradient[i].pos - gradient[i-1].pos);
+	}
+}
+
+#define CHECK_TRANSFORM  do {                             \
+		if(transform_defined)                                \
+			IntErrorCurToken("inconsistent palette options"); \
+		transform_defined = 1;                                \
+}  while(0)
+//
+// Process 'set palette' command 
+//
+//static void set_palette()
+void GnuPlot::SetPalette()
+{
+	int transform_defined = 0;
+	int named_color = 0;
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) /* reset to default settings */
+		reset_palette();
+	else { // go through all options of 'set palette' 
+		for(; !Pgm.EndOfCommand(); Pgm.Shift()) {
+			switch(Pgm.LookupTableForCurrentToken(&set_palette_tbl[0])) {
+				/* positive and negative picture */
+				case S_PALETTE_POSITIVE: /* "pos$itive" */
+				    GPO.SmPltt.Positive = SMPAL_POSITIVE;
+				    continue;
+				case S_PALETTE_NEGATIVE: /* "neg$ative" */
+				    GPO.SmPltt.Positive = SMPAL_NEGATIVE;
+				    continue;
+				// Now the options that determine the palette of smooth colours 
+				// gray or rgb-coloured 
+				case S_PALETTE_GRAY: /* "gray" */
+				    GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_GRAY;
+				    continue;
+				case S_PALETTE_GAMMA: /* "gamma" */
+				    Pgm.Shift();
+				    GPO.SmPltt.gamma = GPO.RealExpression();
+				    Pgm.Rollback();
+				    continue;
+				case S_PALETTE_COLOR: /* "col$or" */
+				    if(pm3d_last_set_palette_mode != SMPAL_COLOR_MODE_NONE)
+					    GPO.SmPltt.colorMode = pm3d_last_set_palette_mode;
+				    else
+					    GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_RGB;
+				    continue;
+				// rgb color mapping formulae: rgb$formulae r,g,b (3 integers) 
+				case S_PALETTE_RGBFORMULAE: { // "rgb$formulae" 
+				    int i;
+				    char * formerr = "color formula out of range (use `show palette rgbformulae' to display the range)";
+				    CHECK_TRANSFORM;
+				    Pgm.Shift();
+				    i = int_expression();
+				    if(abs(i) >= GPO.SmPltt.colorFormulae)
+					    IntErrorCurToken(formerr);
+				    GPO.SmPltt.formulaR = i;
+				    if(!Pgm.Equals(Pgm.CToken--, ","))
+					    continue;
+					Pgm.Shift();
+					Pgm.Shift();
+				    i = int_expression();
+				    if(abs(i) >= GPO.SmPltt.colorFormulae)
+					    IntErrorCurToken(formerr);
+				    GPO.SmPltt.formulaG = i;
+				    if(!Pgm.Equals(Pgm.CToken--, ","))
+					    continue;
+					Pgm.Shift();
+					Pgm.Shift();
+				    i = int_expression();
+				    if(abs(i) >= GPO.SmPltt.colorFormulae)
+					    IntErrorCurToken(formerr);
+				    GPO.SmPltt.formulaB = i;
+				    Pgm.Rollback();
+				    GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_RGB;
+				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_RGB;
+				    continue;
+			    } /* rgbformulae */
+				/* rgb color mapping based on the "cubehelix" scheme proposed by */
+				/* D A Green (2011)  http://arxiv.org/abs/1108.5083		     */
+				case S_PALETTE_CUBEHELIX: { /* cubehelix */
+				    bool done = FALSE;
+				    CHECK_TRANSFORM;
+				    GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_CUBEHELIX;
+				    GPO.SmPltt.CModel = C_MODEL_RGB;
+				    GPO.SmPltt.cubehelix_start = 0.5;
+				    GPO.SmPltt.cubehelix_cycles = -1.5;
+				    GPO.SmPltt.cubehelix_saturation = 1.0;
+				    Pgm.Shift();
+				    do {
+					    if(Pgm.EqualsCur("start")) {
+						    Pgm.Shift();
+						    GPO.SmPltt.cubehelix_start = GPO.RealExpression();
+					    }
+					    else if(Pgm.AlmostEqualsCur("cyc$les")) {
+						    Pgm.Shift();
+						    GPO.SmPltt.cubehelix_cycles = GPO.RealExpression();
+					    }
+					    else if(Pgm.AlmostEqualsCur("sat$uration")) {
+						    Pgm.Shift();
+						    GPO.SmPltt.cubehelix_saturation = GPO.RealExpression();
+					    }
+					    else
+						    done = TRUE;
+				    } while(!done);
+				    Pgm.Rollback();
+				    continue;
+			    } /* cubehelix */
+				case S_PALETTE_COLORMAP: { /* colormap */
+				    CHECK_TRANSFORM;
+				    Pgm.Shift();
+				    set_palette_colormap();
+				    GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_GRADIENT;
+				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_GRADIENT;
+				    continue;
+			    }
+				case S_PALETTE_DEFINED: { /* "def$ine" */
+				    CHECK_TRANSFORM;
+				    Pgm.Shift();
+				    named_color = set_palette_defined();
+				    GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_GRADIENT;
+				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_GRADIENT;
+				    continue;
+			    }
+				case S_PALETTE_FILE: { /* "file" */
+				    CHECK_TRANSFORM;
+				    set_palette_file();
+				    GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_GRADIENT;
+				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_GRADIENT;
+				    Pgm.Rollback();
+				    continue;
+			    }
+				case S_PALETTE_FUNCTIONS: { /* "func$tions" */
+				    CHECK_TRANSFORM;
+				    SetPaletteFunction();
+				    GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_FUNCTIONS;
+				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_FUNCTIONS;
+				    Pgm.Rollback();
+				    continue;
+			    }
+				case S_PALETTE_MODEL: { /* "mo$del" */
+				    int model;
+				    Pgm.Shift();
+				    if(Pgm.EndOfCommand())
+					    IntErrorCurToken("expected color model");
+				    model = Pgm.LookupTableForCurrentToken(&color_model_tbl[0]);
+				    if(model == -1)
+					    IntErrorCurToken("unknown color model");
+				    if(model == C_MODEL_XYZ)
+					    IntWarnCurToken("CIE/XYZ not supported");
+				    GPO.SmPltt.CModel = model;
+				    if(model == C_MODEL_HSV && Pgm.EqualsNext("start")) {
+						Pgm.Shift();
+						Pgm.Shift();
+					    GPO.SmPltt.HSV_offset = GPO.RealExpression();
+					    GPO.SmPltt.HSV_offset = clip_to_01(GPO.SmPltt.HSV_offset);
+					    Pgm.Rollback();
+				    }
+				    continue;
+			    }
+				/* ps_allcF: write all rgb formulae into PS file? */
+				case S_PALETTE_NOPS_ALLCF: /* "nops_allcF" */
+				    GPO.SmPltt.ps_allcF = false;
+				    continue;
+				case S_PALETTE_PS_ALLCF: /* "ps_allcF" */
+				    GPO.SmPltt.ps_allcF = true;
+				    continue;
+				/* max colors used */
+				case S_PALETTE_MAXCOLORS: { /* "maxc$olors" */
+				    Pgm.Shift();
+				    int i = int_expression();
+				    if(i < 0 || i == 1)
+					    IntWarnCurToken("maxcolors must be > 1");
+				    else
+					    GPO.SmPltt.UseMaxColors = i;
+				    Pgm.Rollback();
+				    continue;
+			    }
+			} /* switch over palette lookup table */
+			IntErrorCurToken("invalid palette option");
+		} /* end of while !end of command over palette options */
+	} /* else(arguments found) */
+	if(named_color && GPO.SmPltt.CModel != C_MODEL_RGB && interactive)
+		IntWarn(NO_CARET, "Named colors will produce strange results if not in color mode RGB.");
+	invalidate_palette(); // Invalidate previous palette 
+}
+
+#undef CHECK_TRANSFORM
+// 
+// V5.5 EXPERIMENTAL
+// set colormap new <colormap-name>
+// set colormap <colormap-name> range [min:max]
+// 
+//void set_colormap()
+void GnuPlot::SetColorMap()
+{
+	Pgm.Shift();
+	if(Pgm.EqualsCur("new"))
+		new_colormap();
+	else if(Pgm.EqualsNext("range"))
+		SetColorMapRange();
+}
+/* 'set colormap new <colormap>'
+ * saves color mapping of current palette into an array that can later be used
+ * to substitute for the main palettes, as in
+ *    splot foo with pm3d fc palette <colormap>
+ */
+static void new_colormap(void)
+{
+	struct udvt_entry * array;
+	GpValue * A;
+	double gray;
+	rgb_color rgb1;
+	rgb255_color rgb255;
+	int colormap_size = 256;
+	int i;
+	// Create or recycle a udv containing an array with the requested name 
+	GPO.Pgm.Shift();
+	if(!GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()))
+		GPO.IntErrorCurToken("illegal colormap name");
+	array = add_udv(GPO.Pgm.GetCurTokenIdx());
+	array->udv_value.Destroy();
+	GPO.Pgm.Shift();
+	/* Take size from current palette */
+	if(GPO.SmPltt.UseMaxColors > 0 && GPO.SmPltt.UseMaxColors <= 256)
+		colormap_size = GPO.SmPltt.UseMaxColors;
+	array->udv_value.v.value_array = (GpValue *)gp_alloc((colormap_size+1) * sizeof(GpValue), "colormap");
+	array->udv_value.type = ARRAY;
+	/* Element zero of the new array is not visible but contains the size
+	 */
+	A = array->udv_value.v.value_array;
+	A[0].v.int_val = colormap_size;
+	A[0].type = COLORMAP_ARRAY;
+
+	/* FIXME: Leverage the known structure of value.v as a union
+	 *        to overload both the colormap value as v.int_val
+	 *        and the min/max range as v.cmplx_val.imag
+	 *        There is nothing wrong with pThis in terms of available
+	 *        storage, but a new member field of the union would be cleaner.
+	 * Initialize to min = max = 0, which means use current cbrange.
+	 * A different min/max can be written later via set_colormap();
+	 */
+	A[1].v.cmplx_val.imag = 0.0;    /* min */
+	A[2].v.cmplx_val.imag = 0.0;    /* max */
+
+	/* All other elements contain a 24 or 32 bit [A]RGB color value
+	 * generated from the current palette.
+	 */
+	for(i = 0; i < colormap_size; i++) {
+		gray = (double)i / (colormap_size-1);
+		if(GPO.SmPltt.Positive == SMPAL_NEGATIVE)
+			gray = 1.0 - gray;
+		rgb1_from_gray(gray, &rgb1);
+		rgb255_from_rgb1(rgb1, &rgb255);
+		A[i+1].type = INTGR;
+		A[i+1].v.int_val = (int)rgb255.r<<16 | (int)rgb255.g<<8 | (int)rgb255.b;
+	}
+}
+
+/* set colormap <colormap-name> range [min:max]
+ * FIXME: parsing the bare colormap name rather than a string works
+ *        but that means you can't put the name in a variable.
+ */
+//static void set_colormap_range()
+void GnuPlot::SetColorMapRange()
+{
+	udvt_entry * colormap = get_colormap(Pgm.GetCurTokenIdx());
+	double cm_min, cm_max;
+	if(!colormap)
+		IntErrorCurToken("not a colormap");
+	Pgm.Shift();
+	if(!Pgm.EqualsCur("range") || !Pgm.Equals(++Pgm.CToken, "["))
+		IntErrorCurToken("syntax: set colormap <name> range [min:max]");
+	Pgm.Shift();
+	cm_min = GPO.RealExpression();
+	Pgm.Shift();
+	cm_max = GPO.RealExpression();
+	if(!Pgm.EqualsCur("]"))
+		IntErrorCurToken("syntax: set colormap <name> range [min:max]");
+	Pgm.Shift();
+	colormap->udv_value.v.value_array[1].v.cmplx_val.imag = cm_min;
+	colormap->udv_value.v.value_array[2].v.cmplx_val.imag = cm_max;
+}
+
+/* process 'set colorbox' command */
+static void set_colorbox()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) /* reset to default position */
+		color_box.where = SMCOLOR_BOX_DEFAULT;
+	else { /* go through all options of 'set colorbox' */
+		for(; !GPO.Pgm.EndOfCommand(); GPO.Pgm.Shift()) {
+			switch(GPO.Pgm.LookupTableForCurrentToken(&set_colorbox_tbl[0])) {
+				/* vertical or horizontal color gradient */
+				case S_COLORBOX_VERTICAL: /* "v$ertical" */
+				    color_box.rotation = 'v';
+				    continue;
+				case S_COLORBOX_HORIZONTAL: /* "h$orizontal" */
+				    color_box.rotation = 'h';
+				    continue;
+				/* color box where: default position */
+				case S_COLORBOX_DEFAULT: /* "def$ault" */
+				    color_box.where = SMCOLOR_BOX_DEFAULT;
+				    continue;
+				/* color box where: position by user */
+				case S_COLORBOX_USER: /* "u$ser" */
+				    color_box.where = SMCOLOR_BOX_USER;
+				    continue;
+				/* color box layer: front or back */
+				case S_COLORBOX_FRONT: /* "fr$ont" */
+				    color_box.layer = LAYER_FRONT;
+				    continue;
+				case S_COLORBOX_BACK: /* "ba$ck" */
+				    color_box.layer = LAYER_BACK;
+				    continue;
+				/* border of the color box */
+				case S_COLORBOX_BORDER: /* "bo$rder" */
+				    color_box.border = 1;
+				    GPO.Pgm.Shift();
+				    if(!GPO.Pgm.EndOfCommand()) {
+					    /* expecting a border line type */
+					    color_box.border_lt_tag = int_expression();
+					    if(color_box.border_lt_tag <= 0)
+						    color_box.border_lt_tag = -1;
+					    GPO.Pgm.Rollback();
+				    }
+				    continue;
+				case S_COLORBOX_CBTICS: /* "cbtics" */
+				    GPO.Pgm.Shift();
+				    color_box.cbtics_lt_tag = int_expression();
+				    if(color_box.cbtics_lt_tag <= 0)
+					    color_box.cbtics_lt_tag = -1;
+				    GPO.Pgm.Rollback();
+				    continue;
+				case S_COLORBOX_BDEFAULT: /* "bd$efault" */
+				    color_box.border_lt_tag = -1; /* use default border */
+				    color_box.cbtics_lt_tag = 0; /* and cbtics */
+				    continue;
+				case S_COLORBOX_NOBORDER: /* "nobo$rder" */
+				    color_box.border = 0;
+				    continue;
+				/* colorbox origin */
+				case S_COLORBOX_ORIGIN: /* "o$rigin" */
+				    GPO.Pgm.Shift();
+				    if(GPO.Pgm.EndOfCommand()) {
+					    GPO.IntErrorCurToken("expecting screen value [0 - 1]");
+				    }
+				    else {
+					    /* FIXME: should be 2 but old save files may have 3 */
+					    get_position_default(&color_box.origin, screen, 3);
+				    }
+				    GPO.Pgm.Rollback();
+				    continue;
+				/* colorbox size */
+				case S_COLORBOX_SIZE: /* "s$ize" */
+				    GPO.Pgm.Shift();
+				    if(GPO.Pgm.EndOfCommand()) {
+					    GPO.IntErrorCurToken("expecting screen value [0 - 1]");
+				    }
+				    else {
+					    /* FIXME: should be 2 but old save files may have 3 */
+					    get_position_default(&color_box.size, screen, 3);
+				    }
+				    GPO.Pgm.Rollback();
+				    continue;
+				case S_COLORBOX_INVERT: /* Flip direction of color gradient + cbaxis */
+				    color_box.invert = TRUE;
+				    continue;
+				case S_COLORBOX_NOINVERT: /* Flip direction of color gradient + cbaxis */
+				    color_box.invert = FALSE;
+				    continue;
+			} /* switch over colorbox lookup table */
+			GPO.IntErrorCurToken("invalid colorbox option");
+		} /* end of while !end of command over colorbox options */
+		if(color_box.where == SMCOLOR_BOX_NO) /* default: draw at default position */
+			color_box.where = SMCOLOR_BOX_DEFAULT;
+	}
+}
+
+/* process 'set pm3d' command */
+static void set_pm3d()
+{
+	GPO.Pgm.Shift();
+	int c_token0 = GPO.Pgm.GetCurTokenIdx();
+	if(GPO.Pgm.EndOfCommand()) { /* assume default settings */
+		pm3d_reset(); /* sets pm3d.implicit to PM3D_EXPLICIT and pm3d.where to "s" */
+		pm3d.implicit = PM3D_IMPLICIT; /* for historical reasons */
+	}
+	else { /* go through all options of 'set pm3d' */
+		for(; !GPO.Pgm.EndOfCommand(); GPO.Pgm.Shift()) {
+			switch(GPO.Pgm.LookupTableForCurrentToken(&set_pm3d_tbl[0])) {
+				/* where to plot */
+				case S_PM3D_AT: /* "at" */
+				    GPO.Pgm.Shift();
+				    if(get_pm3d_at_option(&pm3d.where[0]))
+					    return; /* error */
+				    GPO.Pgm.Rollback();
+#if 1
+				    if(GPO.Pgm.GetCurTokenIdx() == c_token0+1)
+					    /* for historical reasons: if "at" is the first option of pm3d,
+					     * like "set pm3d at X other_opts;", then implicit is switched on */
+					    pm3d.implicit = PM3D_IMPLICIT;
+#endif
+				    continue;
+				case S_PM3D_INTERPOLATE: /* "interpolate" */
+				    GPO.Pgm.Shift();
+				    if(GPO.Pgm.EndOfCommand()) {
+					    GPO.IntErrorCurToken("expecting step values i,j");
+				    }
+				    else {
+					    pm3d.interp_i = int_expression();
+					    if(!GPO.Pgm.EqualsCur(","))
+						    GPO.IntErrorCurToken("',' expected");
+					    GPO.Pgm.Shift();
+					    pm3d.interp_j = int_expression();
+					    GPO.Pgm.Rollback();
+				    }
+				    continue;
+				/* forward and backward drawing direction */
+				case S_PM3D_SCANSFORWARD: /* "scansfor$ward" */
+				    pm3d.direction = PM3D_SCANS_FORWARD;
+				    continue;
+				case S_PM3D_SCANSBACKWARD: /* "scansback$ward" */
+				    pm3d.direction = PM3D_SCANS_BACKWARD;
+				    continue;
+				case S_PM3D_SCANS_AUTOMATIC: /* "scansauto$matic" */
+				    pm3d.direction = PM3D_SCANS_AUTOMATIC;
+				    continue;
+				case S_PM3D_DEPTH: /* "dep$thorder" */
+				    pm3d.direction = PM3D_DEPTH;
+				    if(GPO.Pgm.EqualsNext("base")) {
+					    pm3d.base_sort = TRUE;
+					    GPO.Pgm.Shift();
+				    }
+				    else {
+					    pm3d.base_sort = FALSE;
+				    }
+				    continue;
+				/* flush scans: left, right or center */
+				case S_PM3D_FLUSH: /* "fl$ush" */
+				    GPO.Pgm.Shift();
+				    if(GPO.Pgm.AlmostEqualsCur("b$egin"))
+					    pm3d.flush = PM3D_FLUSH_BEGIN;
+				    else if(GPO.Pgm.AlmostEqualsCur("c$enter"))
+					    pm3d.flush = PM3D_FLUSH_CENTER;
+				    else if(GPO.Pgm.AlmostEqualsCur("e$nd"))
+					    pm3d.flush = PM3D_FLUSH_END;
+				    else
+					    GPO.IntErrorCurToken("expecting flush 'begin', 'center' or 'end'");
+				    continue;
+				/* clipping method */
+				case S_PM3D_CLIP_1IN: /* "clip1$in" */
+				    pm3d.clip = PM3D_CLIP_1IN;
+				    continue;
+				case S_PM3D_CLIP_4IN: /* "clip4$in" */
+				    pm3d.clip = PM3D_CLIP_4IN;
+				    continue;
+				case S_PM3D_CLIP_Z: /* "clip" */
+				    pm3d.clip = PM3D_CLIP_Z;
+				    if(GPO.Pgm.EqualsNext("z")) /* DEPRECATED */
+					    GPO.Pgm.Shift();
+				    continue;
+				case S_PM3D_CLIPCB:
+				    pm3d.no_clipcb = FALSE;
+				    continue;
+				case S_PM3D_NOCLIPCB:
+				    pm3d.no_clipcb = TRUE;
+				    continue;
+				/* setup everything for plotting a map */
+				case S_PM3D_MAP: /* "map" */
+				    pm3d.where[0] = 'b'; pm3d.where[1] = 0; /* set pm3d at b */
+				    data_style = PM3DSURFACE;
+				    func_style = PM3DSURFACE;
+				    splot_map = TRUE;
+				    continue;
+				/* flushing triangles */
+				case S_PM3D_FTRIANGLES: /* "ftr$iangles" */
+				    pm3d.ftriangles = 1;
+				    continue;
+				case S_PM3D_NOFTRIANGLES: /* "noftr$iangles" */
+				    pm3d.ftriangles = 0;
+				    continue;
+				/* deprecated pm3d "hidden3d" option, now used for borders */
+				case S_PM3D_HIDDEN:
+				    if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()+1)) {
+					    GPO.Pgm.Shift();
+					    load_linetype(&pm3d.border, int_expression());
+					    GPO.Pgm.Rollback();
+					    continue;
+				    }
+				/* fall through */
+				case S_PM3D_BORDER: /* border {linespec} */
+				    GPO.Pgm.Shift();
+				    pm3d.border = default_pm3d_border;
+				    GPO.LpParse(&pm3d.border, LP_ADHOC, FALSE);
+				    GPO.Pgm.Rollback();
+				    continue;
+				case S_PM3D_NOHIDDEN:
+				case S_PM3D_NOBORDER:
+				    pm3d.border.l_type = LT_NODRAW;
+				    continue;
+				case S_PM3D_SOLID: /* "so$lid" */
+				case S_PM3D_NOTRANSPARENT: /* "notr$ansparent" */
+				case S_PM3D_NOSOLID: /* "noso$lid" */
+				case S_PM3D_TRANSPARENT: /* "tr$ansparent" */
+				    if(interactive)
+					    GPO.IntWarnCurToken("Deprecated syntax --- ignored");
+				case S_PM3D_IMPLICIT: /* "i$mplicit" */
+				case S_PM3D_NOEXPLICIT: /* "noe$xplicit" */
+				    pm3d.implicit = PM3D_IMPLICIT;
+				    continue;
+				case S_PM3D_NOIMPLICIT: /* "noi$mplicit" */
+				case S_PM3D_EXPLICIT: /* "e$xplicit" */
+				    pm3d.implicit = PM3D_EXPLICIT;
+				    continue;
+
+				case S_PM3D_WHICH_CORNER: /* "corners2color" */
+				    GPO.Pgm.Shift();
+				    if(GPO.Pgm.EqualsCur("mean"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_MEAN;
+				    else if(GPO.Pgm.EqualsCur("geomean"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_GEOMEAN;
+				    else if(GPO.Pgm.EqualsCur("harmean"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_HARMEAN;
+				    else if(GPO.Pgm.EqualsCur("median"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_MEDIAN;
+				    else if(GPO.Pgm.EqualsCur("min"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_MIN;
+				    else if(GPO.Pgm.EqualsCur("max"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_MAX;
+				    else if(GPO.Pgm.EqualsCur("rms"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_RMS;
+				    else if(GPO.Pgm.EqualsCur("c1"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_C1;
+				    else if(GPO.Pgm.EqualsCur("c2"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_C2;
+				    else if(GPO.Pgm.EqualsCur("c3"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_C3;
+				    else if(GPO.Pgm.EqualsCur("c4"))
+					    pm3d.which_corner_color = PM3D_WHICHCORNER_C4;
+				    else
+					    GPO.IntErrorCurToken("expecting 'mean', 'geomean', 'harmean', 'median', 'min', 'max', 'c1', 'c2', 'c3' or 'c4'");
+				    continue;
+				case S_PM3D_NOLIGHTING_MODEL:
+				    pm3d_shade.strength = 0.0;
+				    continue;
+				case S_PM3D_LIGHTING_MODEL:
+				    parse_lighting_options();
+				    continue;
+			} /* switch over pm3d lookup table */
+			GPO.IntErrorCurToken("invalid pm3d option");
+		} /* end of while !end of command over pm3d options */
+		if(PM3D_SCANS_AUTOMATIC == pm3d.direction && PM3D_FLUSH_BEGIN != pm3d.flush) {
+			pm3d.direction = PM3D_SCANS_FORWARD;
+			FPRINTF((stderr, "pm3d: `scansautomatic' and `flush %s' are incompatible\n",
+			    PM3D_FLUSH_END == pm3d.flush ? "end" : "center"));
+		}
+	}
+}
+//
+// process 'set pointintervalbox' command 
+//
+static void set_pointintervalbox()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand())
+		pointintervalbox = 1.0;
+	else
+		pointintervalbox = GPO.RealExpression();
+	if(pointintervalbox <= 0)
+		pointintervalbox = 1.0;
+}
+//
+// process 'set pointsize' command 
+//
+static void set_pointsize()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand())
+		pointsize = 1.0;
+	else
+		pointsize = GPO.RealExpression();
+	if(pointsize <= 0)
+		pointsize = 1.0;
+}
+//
+// process 'set polar' command 
+//
+static void set_polar()
+{
+	GPO.Pgm.Shift();
+	if(!polar) {
+		polar = true;
+		raxis = true;
+		if(!parametric) {
+			if(interactive)
+				(void)fprintf(stderr, "\n\tdummy variable is t for curves\n");
+			strcpy(set_dummy_var[0], "t");
+		}
+		if(GPO.AxS[T_AXIS].set_autoscale) {
+			GPO.AxS[T_AXIS].set_min = 0.0; // only if user has not set a range manually 
+			GPO.AxS[T_AXIS].set_max = 2 * M_PI / ang2rad; // 360 if degrees, 2pi if radians 
+		}
+		if(GPO.AxS[POLAR_AXIS].set_autoscale != AUTOSCALE_BOTH)
+			rrange_to_xy();
+	}
+}
+/*
+ * Process command     'set object <tag> {rectangle|ellipse|circle|polygon}'
+ * set object {tag} rectangle {from <bottom_left> {to|rto} <top_right>}
+ *                     {{at|center} <xcen>,<ycen> size <w>,<h>}
+ *                     {fc|fillcolor <colorspec>} {lw|linewidth <lw>}
+ *                     {fs <fillstyle>} {front|back|behind}
+ *                     {default}
+ * EAM Jan 2005
+ */
+//static void set_object()
+void GnuPlot::SetObject()
+{
+	int tag;
+	// The next token must either be a tag or the object type 
+	Pgm.Shift();
+	if(Pgm.AlmostEqualsCur("rect$angle") || Pgm.AlmostEqualsCur("ell$ipse") || Pgm.AlmostEqualsCur("circ$le") || Pgm.AlmostEqualsCur("poly$gon"))
+		tag = -1; // We'll figure out what it really is later 
+	else {
+		tag = int_expression();
+		if(tag <= 0)
+			IntErrorCurToken("tag must be > zero");
+	}
+	if(Pgm.AlmostEqualsCur("rect$angle")) {
+		SetObj(tag, OBJ_RECTANGLE);
+	}
+	else if(Pgm.AlmostEqualsCur("ell$ipse")) {
+		SetObj(tag, OBJ_ELLIPSE);
+	}
+	else if(Pgm.AlmostEqualsCur("circ$le")) {
+		SetObj(tag, OBJ_CIRCLE);
+	}
+	else if(Pgm.AlmostEqualsCur("poly$gon")) {
+		SetObj(tag, OBJ_POLYGON);
+	}
+	else if(tag > 0) {
+		// Look for existing object with pThis tag 
+		t_object * this_object = first_object;
+		for(; this_object != NULL; this_object = this_object->next)
+			if(tag == this_object->tag)
+				break;
+		if(this_object && tag == this_object->tag) {
+			Pgm.Rollback();
+			SetObj(tag, this_object->object_type);
+		}
+		else
+			IntErrorCurToken("unknown object");
+	}
+	else
+		IntErrorCurToken("unrecognized object type");
+}
+
+static t_object * new_object(int tag, int object_type, t_object * pNew)
+{
+	t_object def_rect(t_object::defRectangle); // = DEFAULT_RECTANGLE_STYLE;
+	t_object def_ellipse(t_object::defEllipse); // = DEFAULT_ELLIPSE_STYLE;
+	t_object def_circle(t_object::defCircle); // = DEFAULT_CIRCLE_STYLE;
+	t_object def_polygon(t_object::defPolygon); // = DEFAULT_POLYGON_STYLE;
+	if(!pNew)
+		pNew = (t_object *)gp_alloc(sizeof(GpObject), "object");
+	else if(pNew->object_type == OBJ_POLYGON)
+		SAlloc::F(pNew->o.polygon.vertex);
+	if(object_type == OBJ_RECTANGLE) {
+		*pNew = def_rect;
+		pNew->lp_properties.l_type = LT_DEFAULT; /* Use default rectangle color */
+		pNew->fillstyle.fillstyle = FS_DEFAULT; /* and default fill style */
+	}
+	else if(object_type == OBJ_ELLIPSE)
+		*pNew = def_ellipse;
+	else if(object_type == OBJ_CIRCLE)
+		*pNew = def_circle;
+	else if(object_type == OBJ_POLYGON)
+		*pNew = def_polygon;
+	else
+		GPO.IntError(NO_CARET, "object initialization failure");
+	pNew->tag = tag;
+	pNew->object_type = object_type;
+	return pNew;
+}
+
+//static void set_obj(int tag, int obj_type)
+void GnuPlot::SetObj(int tag, int objType)
+{
+	t_rectangle * this_rect = NULL;
+	t_ellipse * this_ellipse = NULL;
+	t_circle * this_circle = NULL;
+	t_polygon * this_polygon = NULL;
+	t_object * this_object = NULL;
+	t_object * new_obj = NULL;
+	t_object * prev_object = NULL;
+	bool got_fill = FALSE;
+	bool got_lt = FALSE;
+	bool got_fc = FALSE;
+	bool got_corners = FALSE;
+	bool got_center = FALSE;
+	bool got_origin = FALSE;
+	Pgm.Shift();
+	// We are setting the default, not any particular rectangle 
+	if(tag < -1) {
+		Pgm.Rollback();
+		if(objType == OBJ_RECTANGLE) {
+			this_object = &default_rectangle;
+			this_rect = &this_object->o.rectangle;
+		}
+		else
+			IntErrorCurToken("Unknown object type");
+	}
+	else {
+		// Look for existing object with pThis tag 
+		for(this_object = first_object; this_object; prev_object = this_object, this_object = this_object->next)
+			if(0 < tag && tag <= this_object->tag) // is pThis the one we want? 
+				break;
+		// Insert pThis rect into the list if it is a new one 
+		if(this_object == NULL || tag != this_object->tag) {
+			if(tag == -1)
+				tag = (prev_object) ? prev_object->tag+1 : 1;
+			new_obj = new_object(tag, objType, NULL);
+			if(prev_object == NULL)
+				first_object = new_obj;
+			else
+				prev_object->next = new_obj;
+			new_obj->next = this_object;
+			this_object = new_obj;
+			// V5 CHANGE: Apply default rectangle style now rather than later 
+			if(objType == OBJ_RECTANGLE) {
+				this_object->fillstyle = default_rectangle.fillstyle;
+				this_object->lp_properties = default_rectangle.lp_properties;
+			}
+		}
+		// Over-write old object if the type has changed 
+		else if(this_object->object_type != objType) {
+			t_object * save_link = this_object->next;
+			new_obj = new_object(tag, objType, this_object);
+			this_object->next = save_link;
+		}
+		this_rect = &this_object->o.rectangle;
+		this_ellipse = &this_object->o.ellipse;
+		this_circle = &this_object->o.circle;
+		this_polygon = &this_object->o.polygon;
+	}
+	while(!Pgm.EndOfCommand()) {
+		int save_token = Pgm.GetCurTokenIdx();
+		switch(objType) {
+			case OBJ_RECTANGLE:
+			    if(Pgm.EqualsCur("from")) {
+				    // Read in the bottom left and upper right corners 
+				    Pgm.Shift();
+				    get_position(&this_rect->bl);
+				    if(Pgm.EqualsCur("to")) {
+					    Pgm.Shift();
+					    get_position(&this_rect->tr);
+				    }
+				    else if(Pgm.EqualsCur("rto")) {
+					    Pgm.Shift();
+					    get_position_default(&this_rect->tr, this_rect->bl.scalex, 2);
+					    if(this_rect->bl.scalex != this_rect->tr.scalex || this_rect->bl.scaley != this_rect->tr.scaley)
+						    IntErrorCurToken("relative coordinates must match in type");
+					    this_rect->tr.x += this_rect->bl.x;
+					    this_rect->tr.y += this_rect->bl.y;
+				    }
+				    else
+					    IntErrorCurToken("Expecting to or rto");
+				    got_corners = TRUE;
+				    this_rect->type = 0;
+				    continue;
+			    }
+			    else if(Pgm.EqualsCur("at") || Pgm.AlmostEqualsCur("cen$ter")) {
+				    // Read in the center position 
+				    Pgm.Shift();
+				    get_position(&this_rect->center);
+				    got_center = TRUE;
+				    this_rect->type = 1;
+				    continue;
+			    }
+			    else if(Pgm.EqualsCur("size")) {
+				    // Read in the width and height 
+				    Pgm.Shift();
+				    get_position(&this_rect->extent);
+				    got_center = TRUE;
+				    this_rect->type = 1;
+				    continue;
+			    }
+			    break;
+			case OBJ_CIRCLE:
+			    if(Pgm.EqualsCur("at") || Pgm.AlmostEqualsCur("cen$ter")) {
+				    // Read in the center position 
+				    Pgm.Shift();
+				    get_position(&this_circle->center);
+				    continue;
+			    }
+			    else if(Pgm.EqualsCur("size") || Pgm.EqualsCur("radius")) {
+				    // Read in the radius 
+				    Pgm.Shift();
+				    get_position(&this_circle->extent);
+				    continue;
+			    }
+			    else if(Pgm.EqualsCur("arc")) {
+				    // Start and end angle for arc 
+					Pgm.Shift();
+				    if(Pgm.EqualsCur("[")) {
+					    double arc;
+					    Pgm.Shift();
+					    arc = GPO.RealExpression();
+					    if(fabs(arc) > 1000.)
+						    IntError(Pgm.GetPrevTokenIdx(), "Angle out of range");
+					    else
+						    this_circle->arc_begin = arc;
+					    if(Pgm.EqualsCurShift(":")) {
+						    arc = GPO.RealExpression();
+						    if(fabs(arc) > 1000.)
+							    IntError(Pgm.GetPrevTokenIdx(), "Angle out of range");
+						    else
+							    this_circle->arc_end = arc;
+						    if(Pgm.EqualsCurShift("]"))
+							    continue;
+					    }
+				    }
+				    IntError(--Pgm.CToken, "Expecting arc [<begin>:<end>]");
+			    }
+			    else if(Pgm.EqualsCur("wedge")) {
+				    Pgm.Shift();
+				    this_circle->wedge = TRUE;
+				    continue;
+			    }
+			    else if(Pgm.EqualsCur("nowedge")) {
+				    Pgm.Shift();
+				    this_circle->wedge = FALSE;
+				    continue;
+			    }
+			    break;
+
+			case OBJ_ELLIPSE:
+			    if(Pgm.EqualsCur("at") || Pgm.AlmostEqualsCur("cen$ter")) {
+				    /* Read in the center position */
+				    Pgm.Shift();
+				    get_position(&this_ellipse->center);
+				    continue;
+			    }
+			    else if(Pgm.EqualsCur("size")) {
+				    /* Read in the width and height */
+				    Pgm.Shift();
+				    get_position(&this_ellipse->extent);
+				    continue;
+			    }
+			    else if(Pgm.AlmostEqualsCur("ang$le")) {
+				    Pgm.Shift();
+				    this_ellipse->orientation = GPO.RealExpression();
+				    continue;
+			    }
+			    else if(Pgm.AlmostEqualsCur("unit$s")) {
+				    Pgm.Shift();
+				    if(Pgm.EqualsCur("xy") || Pgm.EndOfCommand())
+					    this_ellipse->type = ELLIPSEAXES_XY;
+				    else if(Pgm.EqualsCur("xx"))
+					    this_ellipse->type = ELLIPSEAXES_XX;
+				    else if(Pgm.EqualsCur("yy"))
+					    this_ellipse->type = ELLIPSEAXES_YY;
+				    else
+					    IntErrorCurToken("expecting 'xy', 'xx' or 'yy'");
+				    Pgm.Shift();
+				    continue;
+			    }
+			    break;
+			case OBJ_POLYGON:
+			    if(Pgm.EqualsCur("from")) {
+				    Pgm.Shift();
+				    this_polygon->vertex = (GpPosition *)gp_realloc(this_polygon->vertex, sizeof(GpPosition), "polygon vertex");
+				    get_position(&this_polygon->vertex[0]);
+				    this_polygon->type = 1;
+				    got_origin = TRUE;
+				    continue;
+			    }
+			    if(!got_corners && (Pgm.EqualsCur("to") || Pgm.EqualsCur("rto"))) {
+				    while(Pgm.EqualsCur("to") || Pgm.EqualsCur("rto")) {
+					    if(!got_origin)
+						    goto polygon_error;
+					    this_polygon->vertex = (GpPosition *)gp_realloc(this_polygon->vertex, (this_polygon->type+1) * sizeof(GpPosition), "polygon vertex");
+					    if(Pgm.EqualsCurShift("to")) {
+						    get_position(&this_polygon->vertex[this_polygon->type]);
+					    }
+					    else { /* "rto" */
+						    int v = this_polygon->type;
+						    get_position_default(&this_polygon->vertex[v],
+							this_polygon->vertex->scalex, 2);
+						    if(this_polygon->vertex[v].scalex != this_polygon->vertex[v-1].scalex || this_polygon->vertex[v].scaley != this_polygon->vertex[v-1].scaley)
+							    IntErrorCurToken("relative coordinates must match in type");
+						    this_polygon->vertex[v].x += this_polygon->vertex[v-1].x;
+						    this_polygon->vertex[v].y += this_polygon->vertex[v-1].y;
+					    }
+					    this_polygon->type++;
+					    got_corners = TRUE;
+				    }
+				    if(got_corners && memcmp(&this_polygon->vertex[this_polygon->type-1], &this_polygon->vertex[0], sizeof(struct GpPosition))) {
+					    fprintf(stderr, "Polygon is not closed - adding extra vertex\n");
+					    this_polygon->vertex = (GpPosition *)gp_realloc(this_polygon->vertex, (this_polygon->type+1) * sizeof(GpPosition), "polygon vertex");
+					    this_polygon->vertex[this_polygon->type] = this_polygon->vertex[0];
+					    this_polygon->type++;
+				    }
+				    continue;
+			    }
+			    break;
+polygon_error:
+			    ZFREE(this_polygon->vertex);
+			    this_polygon->type = 0;
+			    IntErrorCurToken("Unrecognized polygon syntax");
+			/* End of polygon options */
+			default:
+			    IntErrorCurToken("unrecognized object type");
+		} /* End of object-specific options */
+		//
+		// The rest of the options apply to any type of object 
+		//
+		if(Pgm.EqualsCur("front")) {
+			this_object->layer = LAYER_FRONT;
+			Pgm.Shift();
+			continue;
+		}
+		else if(Pgm.EqualsCur("back")) {
+			this_object->layer = LAYER_BACK;
+			Pgm.Shift();
+			continue;
+		}
+		else if(Pgm.EqualsCur("behind")) {
+			this_object->layer = LAYER_BEHIND;
+			Pgm.Shift();
+			continue;
+		}
+		else if(Pgm.EqualsCur("fb")) {
+			// Not documented.  Used by test code for grid walls 
+			this_object->layer = LAYER_FRONTBACK;
+			Pgm.Shift();
+			continue;
+		}
+		else if(Pgm.AlmostEqualsCur("depth$order")) {
+			// Requests that pThis object be sorted with pm3d quadrangles 
+			this_object->layer = LAYER_DEPTHORDER;
+			Pgm.Shift();
+			continue;
+		}
+		else if(Pgm.AlmostEqualsCur("def$ault")) {
+			if(tag < 0) {
+				IntErrorCurToken("Invalid command - did you mean 'unset style rectangle'?");
+			}
+			else {
+				this_object->lp_properties.l_type = LT_DEFAULT;
+				this_object->fillstyle.fillstyle = FS_DEFAULT;
+			}
+			got_fill = got_lt = TRUE;
+			Pgm.Shift();
+			continue;
+		}
+		else if(Pgm.EqualsCur("clip")) {
+			this_object->clip = OBJ_CLIP;
+			Pgm.Shift();
+			continue;
+		}
+		else if(Pgm.EqualsCur("noclip")) {
+			this_object->clip = OBJ_NOCLIP;
+			Pgm.Shift();
+			continue;
+		}
+		// Now parse the style options; default to whatever the global style is 
+		if(!got_fill) {
+			if(new_obj) {
+				this_object->fillstyle = (this_object->object_type == OBJ_RECTANGLE) ? default_rectangle.fillstyle : default_fillstyle;
+			}
+			parse_fillstyle(&this_object->fillstyle);
+			if(Pgm.GetCurTokenIdx() != save_token) {
+				got_fill = TRUE;
+				continue;
+			}
+		}
+		// Parse the colorspec 
+		if(!got_fc) {
+			if(Pgm.EqualsCur("fc") || Pgm.AlmostEqualsCur("fillc$olor")) {
+				this_object->lp_properties.l_type = LT_BLACK; /* Anything but LT_DEFAULT */
+				parse_colorspec(&this_object->lp_properties.pm3d_color, TC_FRAC);
+				if(this_object->lp_properties.pm3d_color.type == TC_DEFAULT)
+					this_object->lp_properties.l_type = LT_DEFAULT;
+			}
+			if(Pgm.GetCurTokenIdx() != save_token) {
+				got_fc = TRUE;
+				continue;
+			}
+		}
+		// Line properties (will be used for the object border if the fillstyle has one. 
+		// LP_NOFILL means don't eat fillcolor here since at is set separately with "fc". 
+		if(!got_lt) {
+			lp_style_type lptmp = this_object->lp_properties;
+			LpParse(&lptmp, LP_NOFILL, FALSE);
+			if(Pgm.GetCurTokenIdx() != save_token) {
+				this_object->lp_properties.l_width = lptmp.l_width;
+				this_object->lp_properties.d_type = lptmp.d_type;
+				this_object->lp_properties.custom_dash_pattern = lptmp.custom_dash_pattern;
+				got_lt = TRUE;
+				continue;
+			}
+		}
+		IntErrorCurToken("Unrecognized or duplicate option");
+	}
+	if(got_center && got_corners)
+		IntError(NO_CARET, "Inconsistent options");
+}
+
+static void set_wall()
+{
+	t_object * this_object = NULL;
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.AlmostEqualsCur("y0")) {
+		this_object = &grid_wall[WALL_Y0_TAG];
+		this_object->layer = LAYER_FRONTBACK;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("x0")) {
+		this_object = &grid_wall[WALL_X0_TAG];
+		this_object->layer = LAYER_FRONTBACK;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("y1")) {
+		this_object = &grid_wall[WALL_Y1_TAG];
+		this_object->layer = LAYER_FRONTBACK;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("x1")) {
+		this_object = &grid_wall[WALL_X1_TAG];
+		this_object->layer = LAYER_FRONTBACK;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("z0")) {
+		this_object = &grid_wall[WALL_Z0_TAG];
+		this_object->layer = LAYER_FRONTBACK;
+		GPO.Pgm.Shift();
+	}
+	else if(GPO.Pgm.EndOfCommand()) {
+		grid_wall[WALL_Y0_TAG].layer = LAYER_FRONTBACK;
+		grid_wall[WALL_X0_TAG].layer = LAYER_FRONTBACK;
+		grid_wall[WALL_Z0_TAG].layer = LAYER_FRONTBACK;
+	}
+
+	/* Now parse the style options */
+	while(this_object && !GPO.Pgm.EndOfCommand()) {
+		lp_style_type lptmp;
+		int save_token = GPO.Pgm.GetCurTokenIdx();
+		/* fill style */
+		parse_fillstyle(&this_object->fillstyle);
+		/* fill color */
+		if(GPO.Pgm.EqualsCur("fc") || GPO.Pgm.AlmostEqualsCur("fillc$olor")) {
+			this_object->lp_properties.l_type = LT_BLACK; /* Anything but LT_DEFAULT */
+			parse_colorspec(&this_object->lp_properties.pm3d_color, TC_RGB);
+			continue;
+		}
+		/* Line properties (for the object border if the fillstyle has one.  */
+		/* LP_NOFILL means don't eat fillcolor here since at is set by "fc". */
+		lptmp = this_object->lp_properties;
+		GPO.LpParse(&lptmp, LP_NOFILL, FALSE);
+		if(GPO.Pgm.GetCurTokenIdx() != save_token) {
+			this_object->lp_properties.l_width = lptmp.l_width;
+			this_object->lp_properties.d_type = lptmp.d_type;
+			this_object->lp_properties.custom_dash_pattern = lptmp.custom_dash_pattern;
+			continue;
+		}
+		if(GPO.Pgm.GetCurTokenIdx() == save_token)
+			GPO.IntErrorCurToken("unrecognized option");
+	}
+}
+
+static void set_rgbmax()
+{
+	GPO.Pgm.Shift();
+	rgbmax = GPO.Pgm.EndOfCommand() ? 255 : GPO.RealExpression();
+	if(rgbmax <= 0)
+		rgbmax = 255;
+}
+
+/* process 'set samples' command */
+static void set_samples()
+{
+	int tsamp1, tsamp2;
+
+	GPO.Pgm.Shift();
+	tsamp1 = int_expression();
+	tsamp2 = tsamp1;
+	if(!GPO.Pgm.EndOfCommand()) {
+		if(!GPO.Pgm.EqualsCur(","))
+			GPO.IntErrorCurToken("',' expected");
+		GPO.Pgm.Shift();
+		tsamp2 = int_expression();
+	}
+	if(tsamp1 < 2 || tsamp2 < 2)
+		GPO.IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
+	else {
+		surface_points * f_3dp = first_3dplot;
+		first_3dplot = NULL;
+		sp_free(f_3dp);
+		samples_1 = tsamp1;
+		samples_2 = tsamp2;
+	}
+}
+
+/* process 'set size' command */
+static void set_size()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		xsize = 1.0;
+		ysize = 1.0;
+	}
+	else {
+		if(GPO.Pgm.AlmostEqualsCur("sq$uare")) {
+			aspect_ratio = 1.0f;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("ra$tio")) {
+			GPO.Pgm.Shift();
+			aspect_ratio = static_cast<float>(GPO.RealExpression());
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("nora$tio") || GPO.Pgm.AlmostEqualsCur("nosq$uare")) {
+			aspect_ratio = 0.0f;
+			GPO.Pgm.Shift();
+		}
+		if(!GPO.Pgm.EndOfCommand()) {
+			xsize = static_cast<float>(GPO.RealExpression());
+			if(GPO.Pgm.EqualsCur(",")) {
+				GPO.Pgm.Shift();
+				ysize = static_cast<float>(GPO.RealExpression());
+			}
+			else {
+				ysize = xsize;
+			}
+		}
+	}
+	if(xsize <= 0 || ysize <=0) {
+		xsize = ysize = 1.0;
+		GPO.IntError(NO_CARET, "Illegal value for size");
+	}
+}
+//
+// process 'set style' command 
+//
+//static void set_style()
+void GnuPlot::SetStyle()
+{
+	Pgm.Shift();
+	switch(Pgm.LookupTableForCurrentToken(&show_style_tbl[0])) {
+		case SHOW_STYLE_DATA:
+		    data_style = get_style();
+		    if(data_style == FILLEDCURVES) {
+			    get_filledcurves_style_options(&filledcurves_opts_data);
+			    if(filledcurves_opts_func.closeto == FILLEDCURVES_DEFAULT)
+				    filledcurves_opts_data.closeto = FILLEDCURVES_CLOSED;
+		    }
+		    break;
+		case SHOW_STYLE_FUNCTION:
+	    {
+		    enum PLOT_STYLE temp_style = get_style();
+		    if((temp_style & PLOT_STYLE_HAS_ERRORBAR) || oneof6(temp_style, LABELPOINTS, HISTOGRAMS, IMAGE, RGBIMAGE, RGBA_IMAGE, PARALLELPLOT))
+			    IntErrorCurToken("style not usable for function plots, left unchanged");
+		    else
+			    func_style = temp_style;
+		    if(func_style == FILLEDCURVES) {
+			    get_filledcurves_style_options(&filledcurves_opts_func);
+			    if(filledcurves_opts_func.closeto == FILLEDCURVES_DEFAULT)
+				    filledcurves_opts_func.closeto = FILLEDCURVES_CLOSED;
+		    }
+		    break;
+	    }
+		case SHOW_STYLE_LINE: set_linestyle(&first_linestyle, LP_STYLE); break;
+		case SHOW_STYLE_FILLING: parse_fillstyle(&default_fillstyle); break;
+		case SHOW_STYLE_ARROW: SetArrowStyle(); break;
+		case SHOW_STYLE_RECTANGLE:
+		    Pgm.Shift();
+		    SetObj(-2, OBJ_RECTANGLE);
+		    break;
+		case SHOW_STYLE_CIRCLE:
+		    Pgm.Shift();
+		    while(!Pgm.EndOfCommand()) {
+			    if(Pgm.AlmostEqualsCur("r$adius")) {
+				    Pgm.Shift();
+				    get_position(&default_circle.o.circle.extent);
+			    }
+			    else if(Pgm.AlmostEqualsCur("wedge$s")) {
+				    Pgm.Shift();
+				    default_circle.o.circle.wedge = TRUE;
+			    }
+			    else if(Pgm.AlmostEqualsCur("nowedge$s")) {
+				    Pgm.Shift();
+				    default_circle.o.circle.wedge = FALSE;
+			    }
+			    else if(Pgm.EqualsCur("clip")) {
+				    Pgm.Shift();
+				    default_circle.clip = OBJ_CLIP;
+			    }
+			    else if(Pgm.EqualsCur("noclip")) {
+				    Pgm.Shift();
+				    default_circle.clip = OBJ_NOCLIP;
+			    }
+			    else
+				    IntErrorCurToken("unrecognized style option");
+		    }
+		    break;
+		case SHOW_STYLE_ELLIPSE:
+		    Pgm.Shift();
+		    while(!Pgm.EndOfCommand()) {
+			    if(Pgm.EqualsCur("size")) {
+				    Pgm.Shift();
+				    get_position(&default_ellipse.o.ellipse.extent);
+				    if(default_ellipse.o.ellipse.extent.x < 0)
+					    default_ellipse.o.ellipse.extent.x = 0;
+				    if(default_ellipse.o.ellipse.extent.y < 0)
+					    default_ellipse.o.ellipse.extent.y = 0;
+				    Pgm.Rollback();
+			    }
+			    else if(Pgm.AlmostEqualsCur("ang$le")) {
+				    Pgm.Shift();
+				    if(might_be_numeric(Pgm.GetCurTokenIdx())) {
+					    default_ellipse.o.ellipse.orientation = GPO.RealExpression();
+					    Pgm.Rollback();
+				    }
+			    }
+			    else if(Pgm.AlmostEqualsCur("unit$s")) {
+				    Pgm.Shift();
+				    if(Pgm.EqualsCur("xy") || Pgm.EndOfCommand())
+					    default_ellipse.o.ellipse.type = ELLIPSEAXES_XY;
+				    else if(Pgm.EqualsCur("xx"))
+					    default_ellipse.o.ellipse.type = ELLIPSEAXES_XX;
+				    else if(Pgm.EqualsCur("yy"))
+					    default_ellipse.o.ellipse.type = ELLIPSEAXES_YY;
+				    else
+					    IntErrorCurToken("expecting 'xy', 'xx' or 'yy'");
+			    }
+			    else if(Pgm.EqualsCur("clip")) {
+				    Pgm.Shift();
+				    default_ellipse.clip = OBJ_CLIP;
+			    }
+			    else if(Pgm.EqualsCur("noclip")) {
+				    Pgm.Shift();
+				    default_ellipse.clip = OBJ_NOCLIP;
+			    }
+			    else
+				    IntErrorCurToken("expecting 'units {xy|xx|yy}', 'angle <number>' or 'size <position>'");
+			    Pgm.Shift();
+		    }
+		    break;
+		case SHOW_STYLE_HISTOGRAM:
+		    parse_histogramstyle(&histogram_opts, HT_CLUSTERED, histogram_opts.gap);
+		    break;
+		case SHOW_STYLE_TEXTBOX:
+	    {
+		    textbox_style * textbox = &textbox_opts[0];
+		    int tag = 0;
+		    Pgm.Shift();
+		    while(!Pgm.EndOfCommand()) {
+			    if(Pgm.AlmostEqualsCur("op$aque")) {
+				    textbox->opaque = TRUE;
+				    Pgm.Shift();
+			    }
+			    else if(Pgm.AlmostEqualsCur("trans$parent")) {
+				    textbox->opaque = FALSE;
+				    Pgm.Shift();
+			    }
+			    else if(Pgm.AlmostEqualsCur("mar$gins")) {
+				    Pgm.Shift();
+				    if(Pgm.EndOfCommand()) {
+					    textbox->xmargin = 1.;
+					    textbox->ymargin = 1.;
+					    break;
+				    }
+				    textbox->xmargin = GPO.RealExpression();
+					SETMAX(textbox->xmargin, 0.0);
+				    textbox->ymargin = textbox->xmargin;
+				    if(Pgm.EqualsCur(",")) {
+					    Pgm.Shift();
+					    textbox->ymargin = GPO.RealExpression();
+						SETMAX(textbox->ymargin, 0.0);
+				    }
+			    }
+			    else if(Pgm.AlmostEqualsCur("fillc$olor") || Pgm.EqualsCur("fc")) {
+				    parse_colorspec(&textbox->fillcolor, TC_RGB);
+			    }
+			    else if(Pgm.AlmostEqualsCur("nobo$rder")) {
+				    Pgm.Shift();
+				    textbox->noborder = TRUE;
+				    textbox->border_color.type = TC_LT;
+				    textbox->border_color.lt = LT_NODRAW;
+			    }
+			    else if(Pgm.AlmostEqualsCur("bo$rdercolor")) {
+				    Pgm.Shift();
+				    textbox->noborder = FALSE;
+				    textbox->border_color.type = TC_LT;
+				    textbox->border_color.lt = LT_BLACK;
+				    if(Pgm.EndOfCommand())
+					    continue;
+				    if(Pgm.EqualsCur("lt"))
+					    Pgm.Rollback();
+				    parse_colorspec(&textbox->border_color, TC_RGB);
+			    }
+			    else if(Pgm.AlmostEqualsCur("linew$idth") || Pgm.EqualsCur("lw")) {
+				    Pgm.Shift();
+				    textbox->linewidth = GPO.RealExpression();
+			    }
+			    else if(!tag) {
+				    tag = int_expression();
+				    if(tag >= NUM_TEXTBOX_STYLES)
+					    IntError(NO_CARET, "only %d textbox styles supported\n", NUM_TEXTBOX_STYLES-1);
+				    if(tag > 0)
+					    textbox = &textbox_opts[tag];
+			    }
+			    else
+				    IntErrorCurToken("unrecognized option");
+			    // only check for tag as first option 
+				SETIFZ(tag, -1);
+		    }
+		    // sanity checks 
+		    if(textbox->linewidth <= 0)
+			    textbox->linewidth = 1.0;
+		    break;
+	    }
+		case SHOW_STYLE_INCREMENT:
+		    Pgm.Shift();
+		    if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("def$ault"))
+			    prefer_line_styles = FALSE;
+		    else if(Pgm.AlmostEqualsCur("u$serstyles"))
+			    prefer_line_styles = TRUE;
+		    else
+			    IntErrorCurToken("unrecognized option");
+		    Pgm.Shift();
+		    break;
+		case SHOW_STYLE_BOXPLOT:
+		    set_boxplot();
+		    break;
+		case SHOW_STYLE_PARALLEL:
+		    set_style_parallel();
+		    break;
+		case SHOW_STYLE_SPIDERPLOT:
+		    set_style_spiderplot();
+		    break;
+		default:
+		    IntErrorCurToken("unrecognized option - see 'help set style'");
+	}
+}
+
+/* process 'set surface' command */
+static void set_surface()
+{
+	GPO.Pgm.Shift();
+	draw_surface = TRUE;
+	implicit_surface = TRUE;
+	if(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.EqualsCur("implicit"))
+			;
+		else if(GPO.Pgm.EqualsCur("explicit"))
+			implicit_surface = FALSE;
+		GPO.Pgm.Shift();
+	}
+}
+//
+// process 'set table' command 
+//
+static void set_table()
+{
+	char * tablefile;
+	GPO.Pgm.Shift();
+	int filename_token = GPO.Pgm.GetCurTokenIdx();
+	bool append = FALSE;
+	SFile::ZClose(&table_outfile);
+	table_var = NULL;
+	if(GPO.Pgm.EqualsCur("$") && GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()+1)) { /* datablock */
+		// NB: has to come first because try_to_get_string will choke on the datablock name 
+		table_var = add_udv_by_name(GPO.Pgm.ParseDatablockName());
+		if(table_var == NULL)
+			GPO.IntErrorCurToken("Error allocating datablock");
+		if(GPO.Pgm.EqualsCur("append")) {
+			GPO.Pgm.Shift();
+			append = TRUE;
+		}
+		if(!append || table_var->udv_value.type != DATABLOCK) {
+			table_var->udv_value.Destroy();
+			table_var->udv_value.type = DATABLOCK;
+			table_var->udv_value.v.data_array = NULL;
+		}
+	}
+	else if((tablefile = try_to_get_string())) { /* file name */
+		/* 'set table "foo"' creates a new output file */
+		/* 'set table "foo" append' writes to the end of an existing output file */
+		gp_expand_tilde(&tablefile);
+		if(GPO.Pgm.EqualsCur("append")) {
+			GPO.Pgm.Shift();
+			append = TRUE;
+		}
+		if(!(table_outfile = fopen(tablefile, (append ? "a" : "w"))))
+			os_error(filename_token, "cannot open table output file");
+		SAlloc::F(tablefile);
+	}
+	if(GPO.Pgm.AlmostEqualsCur("sep$arator")) {
+		set_separator(&table_sep);
+	}
+	table_mode = TRUE;
+}
+
+/* process 'set terminal' command */
+static void set_terminal()
+{
+	GPO.Pgm.Shift();
+	if(multiplot)
+		GPO.IntErrorCurToken("You can't change the terminal in multiplot mode");
+	if(GPO.Pgm.EndOfCommand()) {
+		list_terms();
+		screen_ok = FALSE;
+		return;
+	}
+	/* `set term push' */
+	if(GPO.Pgm.EqualsCur("push")) {
+		push_terminal(interactive);
+		GPO.Pgm.Shift();
+		return;
+	} /* set term push */
+#ifdef USE_MOUSE
+	event_reset(reinterpret_cast<gp_event_t *>(1)); /* cancel zoombox etc. */
+#endif
+	term_reset();
+	/* `set term pop' */
+	if(GPO.Pgm.EqualsCur("pop")) {
+		pop_terminal();
+		GPO.Pgm.Shift();
+		return;
+	} /* set term pop */
+
+	/* `set term <normal terminal>' */
+	/* NB: if set_term() exits via GPO.IntError() then term will not be changed */
+	term = set_term();
+
+	/* get optional mode parameters
+	 * not all drivers reset the option string before
+	 * strcat-ing to it, so we reset it for them
+	 */
+	*term_options = 0;
+	term->options();
+	if(interactive && *term_options)
+		fprintf(stderr, "Options are '%s'\n", term_options);
+	if((term->flags & TERM_MONOCHROME))
+		init_monochrome();
+
+	/* Sanity check:
+	 * The most common failure mode found by fuzzing is a divide-by-zero
+	 * caused by initializing the basic unit of the current terminal character
+	 * size to zero.  I keep patching the individual terminals, but a generic
+	 * sanity check may at least prevent a crash due to mistyping.
+	 */
+	if(term->h_char <= 0 || term->v_char <= 0) {
+		GPO.IntWarn(NO_CARET, "invalid terminal font size");
+		term->h_char = 10;
+		term->v_char = 10;
+	}
+}
+// 
+// Accept a single terminal option to apply to the current terminal if possible.
+// If the current terminal cannot support pThis option, we silently ignore it.
+// Only reasonably common terminal options are supported.
+// 
+// If necessary, the code in term->options() can detect that it was called
+// from here because in pThis case almost_equals(c_token-1, "termopt$ion");
+// 
+//static void set_termoptions()
+void GpProgram::SetTermOptions()
+{
+	bool  ok_to_call_terminal = FALSE;
+	const int save_end_of_line = NumTokens;
+	Shift();
+	if(EndOfCommand() || !term)
+		return;
+	if(AlmostEqualsCur("enh$anced") || AlmostEqualsCur("noenh$anced")) {
+		NumTokens = MIN(NumTokens, GetCurTokenIdx()+1);
+		if(term->enhanced_open)
+			ok_to_call_terminal = TRUE;
+		else
+			Shift();
+	}
+	else if(EqualsCur("font") || EqualsCur("fname")) {
+		NumTokens = MIN(NumTokens, GetCurTokenIdx()+2);
+		ok_to_call_terminal = TRUE;
+	}
+	else if(EqualsCur("fontscale")) {
+		NumTokens = MIN(NumTokens, GetCurTokenIdx()+2);
+		if(term->flags & TERM_FONTSCALE)
+			ok_to_call_terminal = TRUE;
+		else {
+			Shift();
+			GPO.RealExpression(); /* Silently ignore the request */
+		}
+	}
+	else if(EqualsCur("pointscale") || EqualsCur("ps")) {
+		NumTokens = MIN(NumTokens, GetCurTokenIdx()+2);
+		if(term->flags & TERM_POINTSCALE)
+			ok_to_call_terminal = TRUE;
+		else {
+			Shift();
+			GPO.RealExpression(); /* Silently ignore the request */
+		}
+	}
+	else if(EqualsCur("lw") || AlmostEqualsCur("linew$idth")) {
+		NumTokens = MIN(NumTokens, GetCurTokenIdx()+2);
+		if(term->flags & TERM_LINEWIDTH)
+			ok_to_call_terminal = TRUE;
+		else {
+			Shift();
+			GPO.RealExpression(); /* Silently ignore the request */
+		}
+	}
+	else if(AlmostEqualsCur("dash$ed") || EqualsCur("solid")) {
+		NumTokens = MIN(NumTokens, ++CToken); // Silently ignore the request 
+	}
+	else if(AlmostEqualsCur("dashl$ength") || EqualsCur("dl")) {
+		NumTokens = MIN(NumTokens, GetCurTokenIdx()+2);
+		if(term->flags & TERM_CAN_DASH)
+			ok_to_call_terminal = TRUE;
+		else {
+			Shift();
+			Shift();
+		}
+	}
+	else if(!strcmp(term->name, "gif") && EqualsCur("delay") && NumTokens == 4) {
+		ok_to_call_terminal = TRUE;
+	}
+	else {
+		GPO.IntErrorCurToken("This option cannot be changed using 'set termoption'");
+	}
+	if(ok_to_call_terminal) {
+		*term_options = 0;
+		(term->options)();
+	}
+	NumTokens = save_end_of_line;
+}
+
+/* Various properties of the theta axis in polar mode */
+static void set_theta()
+{
+	GPO.Pgm.Shift();
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.AlmostEqualsCur("r$ight"))
+			theta_origin = 0.0;
+		else if(GPO.Pgm.AlmostEqualsCur("t$op"))
+			theta_origin = 90.0;
+		else if(GPO.Pgm.AlmostEqualsCur("l$eft"))
+			theta_origin = 180.0;
+		else if(GPO.Pgm.AlmostEqualsCur("b$ottom"))
+			theta_origin = -90.;
+		else if(GPO.Pgm.EqualsCur("clockwise") || GPO.Pgm.EqualsCur("cw"))
+			theta_direction = -1;
+		else if(GPO.Pgm.EqualsCur("counterclockwise") || GPO.Pgm.EqualsCur("ccw"))
+			theta_direction = 1;
+		else
+			GPO.IntErrorCurToken("unrecognized option");
+		GPO.Pgm.Shift();
+	}
+}
+//
+// process 'set tics' command 
+//
+//static void set_tics()
+void GnuPlot::SetTics()
+{
+	int    i;
+	bool   global_opt = FALSE;
+	int    save_token = Pgm.GetCurTokenIdx();
+	// There are a few options that set_tic_prop doesn't handle
+	// because they are global rather than per-axis.
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.EqualsCur("front")) {
+			grid_tics_in_front = TRUE;
+			global_opt = TRUE;
+		}
+		else if(Pgm.EqualsCur("back")) {
+			grid_tics_in_front = FALSE;
+			global_opt = TRUE;
+		}
+		else if(Pgm.AlmostEqualsCur("sc$ale")) {
+			set_ticscale();
+			global_opt = TRUE;
+		}
+		Pgm.Shift();
+	}
+	// Otherwise we iterate over axes and apply the options to each 
+	for(i = 0; i < NUMBER_OF_MAIN_VISIBLE_AXES; i++) {
+		Pgm.SetTokenIdx(save_token);
+		SetTicProp(&AxS[i]);
+	}
+	// if tics are off, reset to default (border) 
+	if(Pgm.EndOfCommand() || global_opt) {
+		for(i = 0; i < NUMBER_OF_MAIN_VISIBLE_AXES; ++i) {
+			if((AxS[i].ticmode & TICS_MASK) == NO_TICS) {
+				if(oneof2(i, SECOND_X_AXIS, SECOND_Y_AXIS))
+					continue; /* don't switch on secondary axes by default */
+				AxS[i].ticmode = TICS_ON_BORDER;
+				if(oneof3(i, FIRST_X_AXIS, FIRST_Y_AXIS, COLOR_AXIS))
+					AxS[i].ticmode |= TICS_MIRROR;
+			}
+		}
+	}
+}
+//
+// process 'set ticscale' command 
+//
+static void set_ticscale()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
+		GPO.Pgm.Shift();
+		for(int i = 0; i < AXIS_ARRAY_SIZE; ++i) {
+			GPO.AxS[i].ticscale = 1.0;
+			GPO.AxS[i].miniticscale = 0.5;
+		}
+		ticscale[0] = 1.0;
+		ticscale[1] = 0.5;
+		for(int ticlevel = 2; ticlevel < MAX_TICLEVEL; ticlevel++)
+			ticscale[ticlevel] = 1.0;
+	}
+	else {
+		double lminiticscale;
+		double lticscale = GPO.RealExpression();
+		if(GPO.Pgm.EqualsCur(",")) {
+			GPO.Pgm.Shift();
+			lminiticscale = GPO.RealExpression();
+		}
+		else {
+			lminiticscale = 0.5 * lticscale;
+		}
+		for(int i = 0; i < NUMBER_OF_MAIN_VISIBLE_AXES; ++i) {
+			GPO.AxS[i].ticscale = lticscale;
+			GPO.AxS[i].miniticscale = lminiticscale;
+		}
+		for(int ticlevel = 2; GPO.Pgm.EqualsCur(",");) {
+			GPO.Pgm.Shift();
+			ticscale[ticlevel++] = GPO.RealExpression();
+			if(ticlevel >= MAX_TICLEVEL)
+				break;
+		}
+	}
+}
+// 
+// process 'set ticslevel' command 
+// is datatype 'time' relevant here ? 
+// 
+static void set_ticslevel()
+{
+	GPO.Pgm.Shift();
+	xyplane.z = GPO.RealExpression();
+	xyplane.absolute = FALSE;
+}
+// 
+// process 'set xyplane' command 
+// is datatype 'time' relevant here ? 
+// 
+static void set_xyplane()
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EqualsCur("at")) {
+		GPO.Pgm.Shift();
+		xyplane.z = GPO.RealExpression();
+		xyplane.absolute = TRUE;
+		return;
+	}
+	else if(!GPO.Pgm.AlmostEqualsCur("rel$ative")) { // deprecated syntax 
+		GPO.Pgm.Rollback();
+	}
+	set_ticslevel();
+}
+
+/* Process 'set P_TimeFormat' command */
+/* V5: fallback default if timecolumn(N,"format") not used during input.
+ * Use "set {axis}tics format" to control the output format.
+ */
+static void set_timefmt()
+{
+	char * ctmp;
+	GPO.Pgm.Shift();
+	if((ctmp = try_to_get_string())) {
+		SAlloc::F(P_TimeFormat);
+		P_TimeFormat = ctmp;
+	}
+	else {
+		SAlloc::F(P_TimeFormat);
+		P_TimeFormat = gp_strdup(TIMEFMT);
+	}
+}
+
+/* process 'set timestamp' command */
+static void set_timestamp()
+{
+	bool got_format = FALSE;
+	char * p_new;
+	GPO.Pgm.Shift();
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.AlmostEqualsCur("t$op")) {
+			timelabel_bottom = FALSE;
+			GPO.Pgm.Shift();
+			continue;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("b$ottom")) {
+			timelabel_bottom = TRUE;
+			GPO.Pgm.Shift();
+			continue;
+		}
+
+		if(GPO.Pgm.AlmostEqualsCur("r$otate")) {
+			timelabel.rotate = TEXT_VERTICAL;
+			GPO.Pgm.Shift();
+			continue;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("n$orotate")) {
+			timelabel.rotate = 0;
+			GPO.Pgm.Shift();
+			continue;
+		}
+		if(GPO.Pgm.AlmostEqualsCur("off$set")) {
+			GPO.Pgm.Shift();
+			get_position_default(&(timelabel.offset), character, 3);
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("font")) {
+			GPO.Pgm.Shift();
+			p_new = try_to_get_string();
+			SAlloc::F(timelabel.font);
+			timelabel.font = p_new;
+			continue;
+		}
+		if(GPO.Pgm.EqualsCur("tc") || GPO.Pgm.AlmostEqualsCur("text$color")) {
+			parse_colorspec(&(timelabel.textcolor), TC_VARIABLE);
+			continue;
+		}
+		if(!got_format && ((p_new = try_to_get_string()))) {
+			/* we have a format string */
+			SAlloc::F(timelabel.text);
+			timelabel.text = p_new;
+			got_format = TRUE;
+			continue;
+		}
+		GPO.IntErrorCurToken("unrecognized option");
+	}
+	SETIFZ(timelabel.text, gp_strdup(DEFAULT_TIMESTAMP_FORMAT));
+	timelabel.pos = (timelabel.rotate && !timelabel_bottom) ? RIGHT : LEFT;
+}
+
+/* process 'set view' command */
+static void set_view()
+{
+	int i;
+	bool was_comma = TRUE;
+	static const char errmsg1[] = "rot_%c must be in [0:360] degrees range; view unchanged";
+	static const char errmsg2[] = "%sscale must be > 0; view unchanged";
+	double local_vals[4];
+	GPO.Pgm.Shift();
+	/* 'set view map' establishes projection onto the xy plane */
+	if(GPO.Pgm.EqualsCur("map") || (GPO.Pgm.AlmostEqualsCur("proj$ection") && GPO.Pgm.EqualsNext("xy"))) {
+		splot_map = TRUE;
+		xz_projection = yz_projection = FALSE;
+		mapview_scale = 1.0;
+		azimuth = 0;
+		if(GPO.Pgm.AlmostEqualsCur("proj$ection"))
+			GPO.Pgm.Shift();
+		GPO.Pgm.Shift();
+		if(GPO.Pgm.EqualsCur("scale")) {
+			GPO.Pgm.Shift();
+			mapview_scale = static_cast<float>(GPO.RealExpression());
+		}
+		if(aspect_ratio_3D != 0) {
+			aspect_ratio = -1;
+			aspect_ratio_3D = 0;
+		}
+		return;
+	}
+	if(splot_map == TRUE)
+		splot_map = FALSE; // default is no map 
+	// 'set view projection {xz|yz} establishes projection onto xz or yz plane 
+	if(GPO.Pgm.AlmostEqualsCur("proj$ection")) {
+		GPO.Pgm.Shift();
+		xz_projection = yz_projection = FALSE;
+		if(GPO.Pgm.EqualsCur("xz"))
+			xz_projection = TRUE;
+		else if(GPO.Pgm.EqualsCur("yz"))
+			yz_projection = TRUE;
+		else
+			GPO.IntErrorCurToken("expecting xy or xz or yz");
+		GPO.Pgm.Shift();
+		/* FIXME: should these be deferred to do_3dplot()? */
+		xyplane.z = 0.0;
+		xyplane.absolute = FALSE;
+		azimuth = -90;
+		GPO.AxS[FIRST_Z_AXIS].tic_pos = CENTRE;
+		GPO.AxS[FIRST_Z_AXIS].manual_justify = TRUE;
+		return;
+	}
+
+	if(GPO.Pgm.AlmostEqualsCur("equal$_axes")) {
+		GPO.Pgm.Shift();
+		if(GPO.Pgm.EndOfCommand() || GPO.Pgm.EqualsCur("xy")) {
+			aspect_ratio_3D = 2;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("xyz")) {
+			aspect_ratio_3D = 3;
+			GPO.Pgm.Shift();
+		}
+		return;
+	}
+	else if(GPO.Pgm.AlmostEqualsCur("noequal$_axes")) {
+		/* FIXME: set aspect_ratio = 0 ?? */
+		aspect_ratio_3D = 0;
+		GPO.Pgm.Shift();
+		return;
+	}
+	if(GPO.Pgm.EqualsCur("azimuth")) {
+		GPO.Pgm.Shift();
+		azimuth = static_cast<float>(GPO.RealExpression());
+		return;
+	}
+	local_vals[0] = surface_rot_x;
+	local_vals[1] = surface_rot_z;
+	local_vals[2] = surface_scale;
+	local_vals[3] = surface_zscale;
+	for(i = 0; i < 4 && !(GPO.Pgm.EndOfCommand());) {
+		if(GPO.Pgm.EqualsCur(",")) {
+			if(was_comma) i++;
+			was_comma = TRUE;
+			GPO.Pgm.Shift();
+		}
+		else {
+			if(!was_comma)
+				GPO.IntErrorCurToken("',' expected");
+			local_vals[i] = GPO.RealExpression();
+			i++;
+			was_comma = FALSE;
+		}
+	}
+
+	if(local_vals[0] < 0 || local_vals[0] > 360)
+		GPO.IntErrorCurToken(errmsg1, 'x');
+	if(local_vals[1] < 0 || local_vals[1] > 360)
+		GPO.IntErrorCurToken(errmsg1, 'z');
+	if(local_vals[2] < 1e-6)
+		GPO.IntErrorCurToken(errmsg2, "");
+	if(local_vals[3] < 1e-6)
+		GPO.IntErrorCurToken(errmsg2, "z");
+
+	xz_projection = yz_projection = FALSE;
+	surface_rot_x = static_cast<float>(local_vals[0]);
+	surface_rot_z = static_cast<float>(local_vals[1]);
+	surface_scale = static_cast<float>(local_vals[2]);
+	surface_zscale = static_cast<float>(local_vals[3]);
+	surface_lscale = logf(surface_scale);
+}
+//
+// process 'set zero' command 
+//
+static void set_zero()
+{
+	GPO.Pgm.Shift();
+	zero = GPO.RealExpression();
+}
+//
+// process 'set {x|y|z|x2|y2}data' command 
+//
+//static void set_timedata(GpAxis * pAx)
+void GnuPlot::SetTimeData(GpAxis * pAx)
+{
+	Pgm.Shift();
+	pAx->datatype = DT_NORMAL;
+	if(Pgm.AlmostEqualsCur("t$ime")) {
+		pAx->datatype = DT_TIMEDATE;
+		Pgm.Shift();
+	}
+	else if(Pgm.AlmostEqualsCur("geo$graphic")) {
+		pAx->datatype = DT_DMS;
+		Pgm.Shift();
+	}
+	// FIXME: pThis provides approximate backwards compatibility 
+	//        but may be more trouble to explain than it's worth 
+	pAx->tictype = pAx->datatype;
+}
+
+//static void set_range(GpAxis * pAx)
+void GnuPlot::SetRange(GpAxis * pAx)
+{
+	Pgm.Shift();
+	if(Pgm.AlmostEqualsCur("re$store")) {
+		Pgm.Shift();
+		pAx->set_min = pAx->writeback_min;
+		pAx->set_max = pAx->writeback_max;
+		pAx->set_autoscale = AUTOSCALE_NONE;
+	}
+	else {
+		if(Pgm.EqualsCur("[")) {
+			Pgm.Shift();
+			pAx->set_autoscale = load_range(pAx, &pAx->set_min, &pAx->set_max, pAx->set_autoscale);
+			if(!Pgm.EqualsCur("]"))
+				IntErrorCurToken("expecting ']'");
+			Pgm.Shift();
+		}
+		while(!Pgm.EndOfCommand()) {
+			if(Pgm.AlmostEqualsCur("rev$erse")) {
+				Pgm.Shift();
+				pAx->range_flags |= RANGE_IS_REVERSED;
+			}
+			else if(Pgm.AlmostEqualsCur("norev$erse")) {
+				Pgm.Shift();
+				pAx->range_flags &= ~RANGE_IS_REVERSED;
+			}
+			else if(Pgm.AlmostEqualsCur("wr$iteback")) {
+				Pgm.Shift();
+				pAx->range_flags |= RANGE_WRITEBACK;
+			}
+			else if(Pgm.AlmostEqualsCur("nowri$teback")) {
+				Pgm.Shift();
+				pAx->range_flags &= ~RANGE_WRITEBACK;
+			}
+			else if(Pgm.AlmostEqualsCur("ext$end")) {
+				Pgm.Shift();
+				pAx->set_autoscale &= ~(AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX);
+			}
+			else if(Pgm.AlmostEqualsCur("noext$end")) {
+				Pgm.Shift();
+				pAx->set_autoscale |= AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX;
+			}
+			else
+				IntErrorCurToken("unrecognized option");
+		}
+	}
+	/* If pThis is one end of a linked axis pair, replicate the new range to the	*/
+	/* linked axis, possibly via a mapping function.                                */
+	if(pAx->linked_to_secondary)
+		clone_linked_axes(pAx, pAx->linked_to_secondary);
+	else if(pAx->linked_to_primary)
+		clone_linked_axes(pAx, pAx->linked_to_primary);
+}
+/*
+ * set paxis <axis> {range <range-options>}
+ *                  {tics <tic-options>}
+ *                  {label <label options>} (only used for spiderplots)
+ *                  {<lp-options>} (only used for spiderplots)
+ */
+//static void set_paxis()
+void GnuPlot::SetPAxis()
+{
+	Pgm.Shift();
+	int p = int_expression();
+	if(p <= 0)
+		IntError(Pgm.GetPrevTokenIdx(), "illegal paxis");
+	if(p > AxS.GetParallelAxisCount())
+		AxS.ExtendParallelAxis(p);
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.EqualsCur("range"))
+			SetRange(&AxS.Parallel(p-1));
+		else if(Pgm.AlmostEqualsCur("tic$s"))
+			SetTicProp(&AxS.Parallel(p-1));
+		else if(Pgm.EqualsCur("label"))
+			set_xyzlabel(&AxS.Parallel(p-1).label);
+		else {
+			int save_token = Pgm.GetCurTokenIdx();
+			lp_style_type axis_line(lp_style_type::defCommon);// = DEFAULT_LP_STYLE_TYPE;
+			LpParse(&axis_line, LP_ADHOC, FALSE);
+			if(Pgm.GetCurTokenIdx() != save_token) {
+				SAlloc::F(AxS.Parallel(p-1).zeroaxis);
+				AxS.Parallel(p-1).zeroaxis = (lp_style_type *)gp_alloc(sizeof(lp_style_type), NULL);
+				memcpy(AxS.Parallel(p-1).zeroaxis, &axis_line, sizeof(lp_style_type));
+			}
+			else
+				IntErrorCurToken("expecting 'range' or 'tics' or 'label'");
+		}
+	}
+}
+
+static void set_raxis()
+{
+	raxis = TRUE;
+	GPO.Pgm.Shift();
+}
+
+/* process 'set {xyz}zeroaxis' command */
+static void set_zeroaxis(AXIS_INDEX axis)
+{
+	GPO.Pgm.Shift();
+	if(GPO.AxS[axis].zeroaxis != (void*)(&default_axis_zeroaxis))
+		SAlloc::F(GPO.AxS[axis].zeroaxis);
+	if(GPO.Pgm.EndOfCommand())
+		GPO.AxS[axis].zeroaxis = (lp_style_type *)(&default_axis_zeroaxis);
+	else {
+		/* Some non-default style for the zeroaxis */
+		GPO.AxS[axis].zeroaxis = (lp_style_type *)gp_alloc(sizeof(lp_style_type), "zeroaxis");
+		*(GPO.AxS[axis].zeroaxis) = default_axis_zeroaxis;
+		GPO.LpParse(GPO.AxS[axis].zeroaxis, LP_ADHOC, FALSE);
+	}
+}
+
+/* process 'set zeroaxis' command */
+static void set_allzeroaxis()
+{
+	int save_token = GPO.Pgm.GetCurTokenIdx();
+	set_zeroaxis(FIRST_X_AXIS);
+	GPO.Pgm.SetTokenIdx(save_token);
+	set_zeroaxis(FIRST_Y_AXIS);
+	GPO.Pgm.SetTokenIdx(save_token);
+	set_zeroaxis(FIRST_Z_AXIS);
+}
+//
+// Implements 'set tics' 'set xtics' 'set ytics' etc 
+//
+//static void set_tic_prop(GpAxis * pThisAxis)
+void GnuPlot::SetTicProp(GpAxis * pThisAxis)
+{
+	bool   all_axes = FALSE;  /* distinguish the global command "set tics" */
+	char   nocmd[12];         /* fill w/ "no"+axis_name+suffix */
+	char * cmdptr = NULL, * sfxptr = NULL;
+	AXIS_INDEX axis = (AXIS_INDEX)pThisAxis->index;
+	if(Pgm.AlmostEqualsCur("tic$s") && (axis < PARALLEL_AXES))
+		all_axes = TRUE;
+	if(axis < NUMBER_OF_MAIN_VISIBLE_AXES) {
+		strcpy(nocmd, "no");
+		cmdptr = &nocmd[2];
+		strcpy(cmdptr, axis_name(axis));
+		sfxptr = &nocmd[strlen(nocmd)];
+		strcpy(sfxptr, "t$ics"); /* STRING */
+	}
+	if(axis == AxS.Theta().index)
+		cmdptr = "ttics";
+	// This loop handles all cases except "set no{axisname}" 
+	if(Pgm.AlmostEqualsCur(cmdptr) || all_axes || axis >= PARALLEL_AXES) {
+		bool axisset = FALSE;
+		bool mirror_opt = FALSE; /* set to true if (no)mirror option specified) */
+		pThisAxis->ticdef.def.mix = FALSE;
+		Pgm.Shift();
+		do {
+			if(Pgm.AlmostEqualsCur("ax$is")) {
+				axisset = TRUE;
+				pThisAxis->ticmode &= ~TICS_ON_BORDER;
+				pThisAxis->ticmode |= TICS_ON_AXIS;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("bo$rder")) {
+				pThisAxis->ticmode &= ~TICS_ON_AXIS;
+				pThisAxis->ticmode |= TICS_ON_BORDER;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("mi$rror")) {
+				pThisAxis->ticmode |= TICS_MIRROR;
+				mirror_opt = TRUE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("nomi$rror")) {
+				pThisAxis->ticmode &= ~TICS_MIRROR;
+				mirror_opt = TRUE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("in$wards")) {
+				pThisAxis->tic_in = TRUE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("out$wards")) {
+				pThisAxis->tic_in = FALSE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("sc$ale")) {
+				Pgm.Shift();
+				if(Pgm.AlmostEqualsCur("def$ault")) {
+					pThisAxis->ticscale = 1.0;
+					pThisAxis->miniticscale = 0.5;
+					Pgm.Shift();
+				}
+				else {
+					pThisAxis->ticscale = GPO.RealExpression();
+					if(Pgm.EqualsCur(",")) {
+						Pgm.Shift();
+						pThisAxis->miniticscale = GPO.RealExpression();
+					}
+					else
+						pThisAxis->miniticscale = 0.5 * pThisAxis->ticscale;
+					/* Global "set tics scale" allows additional levels */
+					if(all_axes) {
+						while(Pgm.EqualsCur(",")) {
+							Pgm.Shift();
+							GPO.RealExpression();
+						}
+					}
+				}
+			}
+			else if(Pgm.AlmostEqualsCur("ro$tate")) {
+				pThisAxis->tic_rotate = TEXT_VERTICAL;
+				Pgm.Shift();
+				if(Pgm.EqualsCur("by")) {
+					Pgm.Shift();
+					pThisAxis->tic_rotate = int_expression();
+				}
+			}
+			else if(Pgm.AlmostEqualsCur("noro$tate")) {
+				pThisAxis->tic_rotate = 0;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("off$set")) {
+				Pgm.Shift();
+				get_position_default(&pThisAxis->ticdef.offset, character, 3);
+			}
+			else if(Pgm.AlmostEqualsCur("nooff$set")) {
+				Pgm.Shift();
+				pThisAxis->ticdef.offset = default_offset;
+			}
+			else if(Pgm.AlmostEqualsCur("l$eft")) {
+				pThisAxis->tic_pos = LEFT;
+				pThisAxis->manual_justify = TRUE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("c$entre") || Pgm.AlmostEqualsCur("c$enter")) {
+				pThisAxis->tic_pos = CENTRE;
+				pThisAxis->manual_justify = TRUE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("ri$ght")) {
+				pThisAxis->tic_pos = RIGHT;
+				pThisAxis->manual_justify = TRUE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("autoj$ustify")) {
+				pThisAxis->manual_justify = FALSE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("range$limited")) {
+				pThisAxis->ticdef.rangelimited = TRUE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("norange$limited")) {
+				pThisAxis->ticdef.rangelimited = FALSE;
+				Pgm.Shift();
+			}
+			else if(Pgm.AlmostEqualsCur("f$ont")) {
+				Pgm.Shift();
+				// Make sure they've specified a font 
+				if(!Pgm.IsStringValue(Pgm.GetCurTokenIdx()))
+					IntErrorCurToken("expected font");
+				else {
+					ZFREE(pThisAxis->ticdef.font);
+					pThisAxis->ticdef.font = try_to_get_string();
+				}
+				/* The geographic/timedate/numeric options are new in version 5 */
+			}
+			else if(Pgm.AlmostEqualsCur("geo$graphic")) {
+				Pgm.Shift();
+				pThisAxis->tictype = DT_DMS;
+			}
+			else if(Pgm.AlmostEqualsCur("time$date")) {
+				Pgm.Shift();
+				pThisAxis->tictype = DT_TIMEDATE;
+			}
+			else if(Pgm.AlmostEqualsCur("numeric")) {
+				Pgm.Shift();
+				pThisAxis->tictype = DT_NORMAL;
+			}
+			else if(Pgm.EqualsCur("format")) {
+				char * format;
+				Pgm.Shift();
+				if(Pgm.EndOfCommand())
+					format = gp_strdup(DEF_FORMAT);
+				else if(!((format = try_to_get_string())))
+					IntErrorCurToken("expected format");
+				SAlloc::F(pThisAxis->formatstring);
+				pThisAxis->formatstring  = format;
+			}
+			else if(Pgm.AlmostEqualsCur("enh$anced")) {
+				Pgm.Shift();
+				pThisAxis->ticdef.enhanced = TRUE;
+			}
+			else if(Pgm.AlmostEqualsCur("noenh$anced")) {
+				Pgm.Shift();
+				pThisAxis->ticdef.enhanced = FALSE;
+			}
+			else if(Pgm.EqualsCur("tc") || Pgm.AlmostEqualsCur("text$color")) {
+				parse_colorspec(&pThisAxis->ticdef.textcolor, axis == FIRST_Z_AXIS ? TC_Z : TC_FRAC);
+			}
+			else if(Pgm.AlmostEqualsCur("au$tofreq")) {
+				// auto tic interval 
+				Pgm.Shift();
+				if(!pThisAxis->ticdef.def.mix) {
+					free_marklist(pThisAxis->ticdef.def.user);
+					pThisAxis->ticdef.def.user = NULL;
+				}
+				pThisAxis->ticdef.type = TIC_COMPUTED;
+			}
+			else if(Pgm.AlmostEqualsCur("log$scale")) {
+				Pgm.Shift();
+				pThisAxis->ticdef.logscaling = TRUE;
+			}
+			else if(Pgm.AlmostEqualsCur("nolog$scale")) {
+				Pgm.Shift();
+				pThisAxis->ticdef.logscaling = FALSE;
+			}
+			else if(Pgm.EqualsCur("add")) {
+				Pgm.Shift();
+				pThisAxis->ticdef.def.mix = TRUE;
+			}
+			else if(all_axes && (Pgm.EqualsCur("front") || Pgm.EqualsCur("back"))) {
+				// only relevant to global command set_tics() and will be applied there 
+				Pgm.Shift();
+			}
+			else if(!Pgm.EndOfCommand()) {
+				load_tics(pThisAxis);
+			}
+		} while(!Pgm.EndOfCommand());
+		// "set tics" will take care of restoring proper defaults 
+		if(all_axes)
+			return;
+		// if tics are off and not set by axis, reset to default (border) 
+		if(((pThisAxis->ticmode & TICS_MASK) == NO_TICS) && (!axisset)) {
+			if(axis >= PARALLEL_AXES)
+				pThisAxis->ticmode |= TICS_ON_AXIS;
+			else
+				pThisAxis->ticmode |= TICS_ON_BORDER;
+			if((mirror_opt == FALSE) && ((axis == FIRST_X_AXIS) || (axis == FIRST_Y_AXIS) || (axis == COLOR_AXIS))) {
+				pThisAxis->ticmode |= TICS_MIRROR;
+			}
+		}
+	}
+	/* The remaining command options cannot work for parametric or parallel axes */
+	if(axis >= NUMBER_OF_MAIN_VISIBLE_AXES)
+		return;
+	if(Pgm.AlmostEqualsCur(nocmd)) {     /* NOSTRING */
+		pThisAxis->ticmode &= ~TICS_MASK;
+		Pgm.Shift();
+	}
+/* other options */
+	strcpy(sfxptr, "m$tics"); /* MONTH */
+	if(Pgm.AlmostEqualsCur(cmdptr)) {
+		if(!pThisAxis->ticdef.def.mix) {
+			free_marklist(pThisAxis->ticdef.def.user);
+			pThisAxis->ticdef.def.user = NULL;
+		}
+		pThisAxis->ticdef.type = TIC_MONTH;
+		Pgm.Shift();
+	}
+	if(Pgm.AlmostEqualsCur(nocmd)) {     /* NOMONTH */
+		pThisAxis->ticdef.type = TIC_COMPUTED;
+		Pgm.Shift();
+	}
+	strcpy(sfxptr, "d$tics"); /* DAYS */
+	if(Pgm.AlmostEqualsCur(cmdptr)) {
+		if(!pThisAxis->ticdef.def.mix) {
+			free_marklist(pThisAxis->ticdef.def.user);
+			pThisAxis->ticdef.def.user = NULL;
+		}
+		pThisAxis->ticdef.type = TIC_DAY;
+		Pgm.Shift();
+	}
+	if(Pgm.AlmostEqualsCur(nocmd)) {     /* NODAYS */
+		pThisAxis->ticdef.type = TIC_COMPUTED;
+		Pgm.Shift();
+	}
+	*cmdptr = 'm';
+	strcpy(cmdptr + 1, axis_name(axis));
+	strcat(cmdptr, "t$ics");  /* MINISTRING */
+	if(Pgm.AlmostEqualsCur(cmdptr)) {
+		Pgm.Shift();
+		if(Pgm.EndOfCommand()) {
+			pThisAxis->minitics = MINI_AUTO;
+		}
+		else if(Pgm.AlmostEqualsCur("def$ault")) {
+			pThisAxis->minitics = MINI_DEFAULT;
+			Pgm.Shift();
+		}
+		else {
+			int freq = int_expression();
+			if(freq > 0 && freq < 101) {
+				pThisAxis->mtic_freq = freq;
+				pThisAxis->minitics = MINI_USER;
+			}
+			else {
+				pThisAxis->minitics = MINI_DEFAULT;
+				IntWarn(Pgm.GetPrevTokenIdx(), "Expecting number of intervals");
+			}
+		}
+	}
+	if(Pgm.AlmostEqualsCur(nocmd)) {     /* NOMINI */
+		pThisAxis->minitics = MINI_OFF;
+		Pgm.Shift();
+	}
+}
+/*
+ * minor tics around perimeter of polar grid circle (theta).
+ * This version works like other axes (parameter is # of subintervals)
+ * but it might be more reasonable to simply take increment in degrees.
+ */
+static void set_mttics(GpAxis * this_axis)
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) {
+		this_axis->minitics = MINI_AUTO;
+		GPO.Pgm.Shift();
+	}
+	else {
+		int freq = int_expression();
+		if(freq > 0 && freq < 361) {
+			this_axis->mtic_freq = freq;
+			this_axis->minitics = MINI_USER;
+		}
+		else {
+			this_axis->minitics = MINI_AUTO;
+			GPO.IntWarn(GPO.Pgm.GetPrevTokenIdx(), "Expecting number of intervals");
+		}
+	}
+}
+
+/* process a 'set {x/y/z}label command */
+/* set {x/y/z}label {label_text} {offset {x}{,y}} {<fontspec>} {<textcolor>} */
+static void set_xyzlabel(text_label * label)
+{
+	GPO.Pgm.Shift();
+	if(GPO.Pgm.EndOfCommand()) { // no label specified 
+		ZFREE(label->text);
+	}
+	else {
+		parse_label_options(label, 0);
+		if(!GPO.Pgm.EndOfCommand()) {
+			char * text = try_to_get_string();
+			if(text) {
+				SAlloc::F(label->text);
+				label->text = text;
+			}
+		}
+		parse_label_options(label, 0);
+	}
+}
+
+/*
+ * Change or insert a new linestyle in a list of line styles.
+ * Supports the old 'set linestyle' command (backwards-compatible)
+ * and the new "set style line" and "set linetype" commands.
+ * destination_class is either LP_STYLE or LP_TYPE.
+ */
+static void set_linestyle(linestyle_def ** head, lp_class destination_class)
+{
+	linestyle_def * this_linestyle = NULL;
+	linestyle_def * new_linestyle = NULL;
+	linestyle_def * prev_linestyle = NULL;
+	int tag;
+	GPO.Pgm.Shift();
+	// get tag 
+	if(GPO.Pgm.EndOfCommand() || ((tag = int_expression()) <= 0))
+		GPO.IntErrorCurToken("tag must be > zero");
+	// Check if linestyle is already defined 
+	for(this_linestyle = *head; this_linestyle != NULL; prev_linestyle = this_linestyle, this_linestyle = this_linestyle->next) {
+		if(tag <= this_linestyle->tag)
+			break;
+	}
+	if(this_linestyle == NULL || tag != this_linestyle->tag) {
+		// Default style is based on linetype with the same tag id 
+		lp_style_type loc_lp(lp_style_type::defCommon); // = DEFAULT_LP_STYLE_TYPE;
+		loc_lp.l_type = tag - 1;
+		loc_lp.p_type = tag - 1;
+		loc_lp.d_type = DASHTYPE_SOLID;
+		loc_lp.pm3d_color.type = TC_LT;
+		loc_lp.pm3d_color.lt = tag - 1;
+		new_linestyle = (linestyle_def *)gp_alloc(sizeof(linestyle_def), "linestyle");
+		if(prev_linestyle != NULL)
+			prev_linestyle->next = new_linestyle; /* add it to end of list */
+		else
+			*head = new_linestyle; /* make it start of list */
+		new_linestyle->tag = tag;
+		new_linestyle->next = this_linestyle;
+		new_linestyle->lp_properties = loc_lp;
+		this_linestyle = new_linestyle;
+	}
+	if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
+		delete_linestyle(head, prev_linestyle, this_linestyle);
+		GPO.Pgm.Shift();
+	}
+	else
+		GPO.LpParse(&this_linestyle->lp_properties, destination_class, TRUE); // pick up a line spec; dont allow ls, do allow point type 
+	if(!GPO.Pgm.EndOfCommand())
+		GPO.IntErrorCurToken("Extraneous arguments to set %s", head == &first_perm_linestyle ? "linetype" : "style line");
+}
+
+/*
+ * Delete linestyle from linked list.
+ * Called with pointers to the head of the list,
+ * to the previous linestyle (not strictly necessary),
+ * and to the linestyle to delete.
+ */
+void delete_linestyle(struct linestyle_def ** head, struct linestyle_def * prev, struct linestyle_def * pThis)
+{
+	if(pThis) { // there really is something to delete 
+		if(pThis == *head)
+			*head = pThis->next;
+		else
+			prev->next = pThis->next;
+		SAlloc::F(pThis);
+	}
+}
+
+// ======================================================== 
+// process a 'set arrowstyle' command 
+// set style arrow {tag} {nohead|head|backhead|heads} {size l,a{,b}} {{no}filled} {linestyle...} {layer n}
+//
+//static void set_arrowstyle()
+void GnuPlot::SetArrowStyle()
+{
+	arrowstyle_def * this_arrowstyle = NULL;
+	arrowstyle_def * new_arrowstyle = NULL;
+	arrowstyle_def * prev_arrowstyle = NULL;
+	arrow_style_type loc_arrow;
+	int tag;
+	default_arrow_style(&loc_arrow);
+	Pgm.Shift();
+	// get tag 
+	if(!Pgm.EndOfCommand()) {
+		// must be a tag expression! 
+		tag = int_expression();
+		if(tag <= 0)
+			IntErrorCurToken("tag must be > zero");
+	}
+	else
+		tag = assign_arrowstyle_tag(); // default next tag 
+	// search for arrowstyle 
+	if(first_arrowstyle) { // skip to last arrowstyle 
+		for(this_arrowstyle = first_arrowstyle; this_arrowstyle; prev_arrowstyle = this_arrowstyle, this_arrowstyle = this_arrowstyle->next)
+			if(tag <= this_arrowstyle->tag) // is pThis the arrowstyle we want? 
+				break;
+	}
+	if(this_arrowstyle == NULL || tag != this_arrowstyle->tag) {
+		// adding the arrowstyle 
+		new_arrowstyle = (arrowstyle_def *)gp_alloc(sizeof(arrowstyle_def), "arrowstyle");
+		default_arrow_style(&(new_arrowstyle->arrow_properties));
+		if(prev_arrowstyle != NULL)
+			prev_arrowstyle->next = new_arrowstyle; /* add it to end of list */
+		else
+			first_arrowstyle = new_arrowstyle; /* make it start of list */
+		new_arrowstyle->arrow_properties.tag = tag;
+		new_arrowstyle->tag = tag;
+		new_arrowstyle->next = this_arrowstyle;
+		this_arrowstyle = new_arrowstyle;
+	}
+	if(Pgm.EndOfCommand())
+		this_arrowstyle->arrow_properties = loc_arrow;
+	else if(Pgm.AlmostEqualsCur("def$ault")) {
+		this_arrowstyle->arrow_properties = loc_arrow;
+		Pgm.Shift();
+	}
+	else
+		ArrowParse(&this_arrowstyle->arrow_properties, FALSE); // pick up a arrow spec : dont allow arrowstyle 
+	if(!Pgm.EndOfCommand())
+		IntErrorCurToken("extraneous or out-of-order arguments in set arrowstyle");
+}
+// 
+// assign a new arrowstyle tag
+// arrowstyles are kept sorted by tag number, so pThis is easy
+// returns the lowest unassigned tag number
+// 
+static int assign_arrowstyle_tag()
+{
+	int last = 0; // previous tag value 
+	for(arrowstyle_def * p_this = first_arrowstyle; p_this; p_this = p_this->next)
+		if(p_this->tag == last + 1)
+			last++;
+		else
+			break;
+	return (last + 1);
+}
+
+/* For set [xy]tics... command */
+static void load_tics(GpAxis * this_axis)
+{
+	if(GPO.Pgm.EqualsCur("(")) { /* set : TIC_USER */
+		GPO.Pgm.Shift();
+		load_tic_user(this_axis);
+	}
+	else {                  /* series : TIC_SERIES */
+		load_tic_series(this_axis);
+	}
+}
+
+/* load TIC_USER definition */
+/* (tic[,tic]...)
+ * where tic is ["string"] value [level]
+ * Left paren is already scanned off before entry.
+ */
+static void load_tic_user(GpAxis * this_axis)
+{
+	char * ticlabel;
+	double ticposition;
+
+	/* Free any old tic labels */
+	if(!this_axis->ticdef.def.mix && !(set_iterator && set_iterator->iteration)) {
+		free_marklist(this_axis->ticdef.def.user);
+		this_axis->ticdef.def.user = NULL;
+	}
+
+	/* Mark pThis axis as user-generated ticmarks only, unless the */
+	/* mix flag indicates that both user- and auto- tics are OK.  */
+	if(!this_axis->ticdef.def.mix)
+		this_axis->ticdef.type = TIC_USER;
+
+	while(!GPO.Pgm.EndOfCommand() && !GPO.Pgm.EqualsCur(")")) {
+		int ticlevel = 0;
+		int save_token;
+		/* syntax is  (  {'format'} value {level} {, ...} )
+		 * but for timedata, the value itself is a string, which
+		 * complicates things somewhat
+		 */
+		/* has a string with it? */
+		save_token = GPO.Pgm.GetCurTokenIdx();
+		ticlabel = try_to_get_string();
+		if(ticlabel && this_axis->datatype == DT_TIMEDATE && (GPO.Pgm.EqualsCur(",") || GPO.Pgm.EqualsCur(")"))) {
+			GPO.Pgm.SetTokenIdx(save_token);
+			ZFREE(ticlabel);
+		}
+		/* in any case get the value */
+		ticposition = get_num_or_time(this_axis);
+		if(!GPO.Pgm.EndOfCommand() && !GPO.Pgm.EqualsCur(",") && !GPO.Pgm.EqualsCur(")")) {
+			ticlevel = int_expression(); /* tic level */
+		}
+		/* add to list */
+		add_tic_user(this_axis, ticlabel, ticposition, ticlevel);
+		SAlloc::F(ticlabel);
+		/* expect "," or ")" here */
+		if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(","))
+			GPO.Pgm.Shift(); /* loop again */
+		else
+			break;  /* hopefully ")" */
+	}
+	if(GPO.Pgm.EndOfCommand() || !GPO.Pgm.EqualsCur(")")) {
+		free_marklist(this_axis->ticdef.def.user);
+		this_axis->ticdef.def.user = NULL;
+		GPO.IntErrorCurToken("expecting right parenthesis )");
+	}
+	GPO.Pgm.Shift();
+}
+
+void free_marklist(ticmark * list)
+{
+	while(list) {
+		ticmark * freeable = list;
+		list = list->next;
+		SAlloc::F(freeable->label);
+		SAlloc::F(freeable);
+	}
+}
+// 
+// Remove tic labels that were read from a datafile during a previous plot
+// via the 'using xtics(n)' mechanism.  These have tick level < 0.
+// 
+ticmark * prune_dataticks(struct ticmark * list) 
+{
+	ticmark a = {0.0, NULL, 0, NULL};
+	ticmark * b = &a;
+	ticmark * tmp;
+	while(list) {
+		if(list->level < 0) {
+			SAlloc::F(list->label);
+			tmp = list->next;
+			SAlloc::F(list);
+			list = tmp;
+		}
+		else {
+			b->next = list;
+			b = list;
+			list = list->next;
+		}
+	}
+	b->next = NULL;
+	return a.next;
+}
+//
+// load TIC_SERIES definition 
+// [start,]incr[,end] 
+//
+static void load_tic_series(GpAxis * this_axis)
+{
+	double incr, end;
+	int incr_token;
+	t_ticdef * tdef = &(this_axis->ticdef);
+	double start = get_num_or_time(this_axis);
+	if(!GPO.Pgm.EqualsCur(",")) {
+		/* only step specified */
+		incr_token = GPO.Pgm.GetCurTokenIdx();
+		incr = start;
+		start = -VERYLARGE;
+		end = VERYLARGE;
+	}
+	else {
+		GPO.Pgm.Shift();
+		incr_token = GPO.Pgm.GetCurTokenIdx();
+		incr = get_num_or_time(this_axis);
+		if(!GPO.Pgm.EqualsCur(",")) {
+			/* only step and increment specified */
+			end = VERYLARGE;
+		}
+		else {
+			GPO.Pgm.Shift();
+			end = get_num_or_time(this_axis);
+		}
+	}
+	if(start < end && incr <= 0)
+		GPO.IntError(incr_token, "increment must be positive");
+	if(start > end && incr >= 0)
+		GPO.IntError(incr_token, "increment must be negative");
+	if(start > end) {
+		/* put in order */
+		double numtics = floor((end * (1 + SIGNIF) - start) / incr);
+		end = start;
+		start = end + numtics * incr;
+		incr = -incr;
+	}
+	if(!tdef->def.mix) { /* remove old list */
+		free_marklist(tdef->def.user);
+		tdef->def.user = NULL;
+	}
+	tdef->type = TIC_SERIES;
+	tdef->def.series.start = start;
+	tdef->def.series.incr = incr;
+	tdef->def.series.end = end;
+}
+/*
+ * new_text_label() allocates and initializes a text_label structure.
+ * This routine is also used by the plot and splot with labels commands.
+ */
+text_label * new_text_label(int tag) 
+{
+	text_label * p_new = (text_label *)gp_alloc(sizeof(text_label), "text_label");
+	memzero(p_new, sizeof(text_label));
+	p_new->tag = tag;
+	p_new->place = default_position;
+	p_new->pos = LEFT;
+	p_new->textcolor.type = TC_DEFAULT;
+	p_new->lp_properties.p_type = 1;
+	p_new->offset = default_offset;
+	return(p_new);
+}
+/*
+ * Parse the sub-options for label style and placement.
+ * This is called from set_label, and from plot2d and plot3d
+ * to handle options for 'plot with labels'
+ * Note: ndim = 2 means we are inside a plot command,
+ *       ndim = 3 means we are inside an splot command
+ *       ndim = 0 in a set command
+ */
+void parse_label_options(struct text_label * this_label, int ndim)
+{
+	struct GpPosition pos;
+	char * font = NULL;
+	enum JUSTIFY just = LEFT;
+	int  rotate = 0;
+	bool set_position = false;
+	bool set_just = false;
+	bool set_point = false;
+	bool set_rot = false;
+	bool set_font = false;
+	bool set_offset = false;
+	bool set_layer = false;
+	bool set_textcolor = false;
+	bool set_hypertext = false;
+	int  layer = LAYER_BACK;
+	bool axis_label = (this_label->tag <= NONROTATING_LABEL_TAG);
+	bool hypertext = FALSE;
+	struct GpPosition offset = default_offset;
+	t_colorspec textcolor = {TC_DEFAULT, 0, 0.0};
+	lp_style_type loc_lp(lp_style_type::defCommon);//= DEFAULT_LP_STYLE_TYPE;
+	loc_lp.flags = LP_NOT_INITIALIZED;
+	/* Now parse the label format and style options */
+	while(!GPO.Pgm.EndOfCommand()) {
+		/* get position */
+		if((ndim == 0) && !set_position && GPO.Pgm.EqualsCur("at") && !axis_label) {
+			GPO.Pgm.Shift();
+			get_position(&pos);
+			set_position = TRUE;
+			continue;
+		}
+
+		/* get justification */
+		if(!set_just) {
+			if(GPO.Pgm.AlmostEqualsCur("l$eft")) {
+				just = LEFT;
+				GPO.Pgm.Shift();
+				set_just = TRUE;
+				continue;
+			}
+			else if(GPO.Pgm.AlmostEqualsCur("c$entre")
+			    || GPO.Pgm.AlmostEqualsCur("c$enter")) {
+				just = CENTRE;
+				GPO.Pgm.Shift();
+				set_just = TRUE;
+				continue;
+			}
+			else if(GPO.Pgm.AlmostEqualsCur("r$ight")) {
+				just = RIGHT;
+				GPO.Pgm.Shift();
+				set_just = TRUE;
+				continue;
+			}
+		}
+
+		/* get rotation (added by RCC) */
+		if(GPO.Pgm.AlmostEqualsCur("rot$ate")) {
+			GPO.Pgm.Shift();
+			set_rot = TRUE;
+			rotate = this_label->rotate;
+			if(GPO.Pgm.EqualsCur("by")) {
+				GPO.Pgm.Shift();
+				rotate = int_expression();
+				if(this_label->tag == ROTATE_IN_3D_LABEL_TAG)
+					this_label->tag = NONROTATING_LABEL_TAG;
+			}
+			else if(GPO.Pgm.AlmostEqualsCur("para$llel")) {
+				if(this_label->tag >= 0)
+					GPO.IntErrorCurToken("invalid option");
+				GPO.Pgm.Shift();
+				this_label->tag = ROTATE_IN_3D_LABEL_TAG;
+			}
+			else if(GPO.Pgm.AlmostEqualsCur("var$iable")) {
+				if(ndim == 2) /* only in 2D plot with labels */
+					this_label->tag = VARIABLE_ROTATE_LABEL_TAG;
+				else
+					set_rot = FALSE;
+				GPO.Pgm.Shift();
+			}
+			else
+				rotate = TEXT_VERTICAL;
+			continue;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("norot$ate")) {
+			rotate = 0;
+			GPO.Pgm.Shift();
+			set_rot = TRUE;
+			if(this_label->tag == ROTATE_IN_3D_LABEL_TAG)
+				this_label->tag = NONROTATING_LABEL_TAG;
+			continue;
+		}
+
+		/* get font (added by DJL) */
+		if(!set_font && GPO.Pgm.EqualsCur("font")) {
+			GPO.Pgm.Shift();
+			if((font = try_to_get_string())) {
+				set_font = TRUE;
+				continue;
+			}
+			else
+				GPO.IntErrorCurToken("'fontname,fontsize' expected");
+		}
+
+		/* Flag pThis as hypertext rather than a normal label */
+		if(!set_hypertext && GPO.Pgm.AlmostEqualsCur("hyper$text")) {
+			GPO.Pgm.Shift();
+			hypertext = TRUE;
+			set_hypertext = TRUE;
+			if(!set_point)
+				loc_lp = default_hypertext_point_style;
+			continue;
+		}
+		else if(!set_hypertext && GPO.Pgm.AlmostEqualsCur("nohyper$text")) {
+			GPO.Pgm.Shift();
+			hypertext = FALSE;
+			set_hypertext = TRUE;
+			continue;
+		}
+
+		/* get front/back (added by JDP) */
+		if((ndim == 0) && !set_layer && !axis_label) {
+			if(GPO.Pgm.EqualsCur("back")) {
+				layer = LAYER_BACK;
+				GPO.Pgm.Shift();
+				set_layer = TRUE;
+				continue;
+			}
+			else if(GPO.Pgm.EqualsCur("front")) {
+				layer = LAYER_FRONT;
+				GPO.Pgm.Shift();
+				set_layer = TRUE;
+				continue;
+			}
+		}
+
+		if(GPO.Pgm.EqualsCur("boxed")) {
+			int tag = -1;
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.EqualsCur("bs")) {
+				GPO.Pgm.Shift();
+				tag = int_expression() % (NUM_TEXTBOX_STYLES);
+			}
+			this_label->boxed = tag;
+			continue;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("nobox$ed")) {
+			this_label->boxed = 0;
+			GPO.Pgm.Shift();
+			continue;
+		}
+		if(!axis_label && (loc_lp.flags == LP_NOT_INITIALIZED || set_hypertext)) {
+			if(GPO.Pgm.AlmostEqualsCur("po$int")) {
+				GPO.Pgm.Shift();
+				int stored_token = GPO.Pgm.GetCurTokenIdx();
+				struct lp_style_type tmp_lp;
+				loc_lp.flags = LP_SHOW_POINTS;
+				tmp_lp = loc_lp;
+				GPO.LpParse(&tmp_lp, LP_ADHOC, TRUE);
+				if(stored_token != GPO.Pgm.GetCurTokenIdx())
+					loc_lp = tmp_lp;
+				set_point = TRUE;
+				continue;
+			}
+			else if(GPO.Pgm.AlmostEqualsCur("nopo$int")) {
+				loc_lp.flags = 0;
+				GPO.Pgm.Shift();
+				continue;
+			}
+		}
+		if(!set_offset && GPO.Pgm.AlmostEqualsCur("of$fset")) {
+			GPO.Pgm.Shift();
+			get_position_default(&offset, character, ndim);
+			set_offset = TRUE;
+			continue;
+		}
+
+		if((GPO.Pgm.EqualsCur("tc") || GPO.Pgm.AlmostEqualsCur("text$color"))
+		    && !set_textcolor) {
+			parse_colorspec(&textcolor, TC_VARIABLE);
+			set_textcolor = TRUE;
+			continue;
+		}
+
+		if(GPO.Pgm.AlmostEqualsCur("noenh$anced")) {
+			this_label->noenhanced = TRUE;
+			GPO.Pgm.Shift();
+			continue;
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("enh$anced")) {
+			this_label->noenhanced = FALSE;
+			GPO.Pgm.Shift();
+			continue;
+		}
+
+		/* Coming here means that none of the previous 'if's struck
+		 * its "continue" statement, i.e.  whatever is in the command
+		 * line is forbidden by the 'set label' command syntax.
+		 * On the other hand, 'plot with labels' may have additional stuff coming up.
+		 */
+		break;
+	} /* while(!GPO.Pgm.EndOfCommand()) */
+
+	if(!set_position)
+		pos = default_position;
+
+	/* OK! copy the requested options into the label */
+	if(set_position)
+		this_label->place = pos;
+	if(set_just)
+		this_label->pos = just;
+	if(set_rot)
+		this_label->rotate = rotate;
+	if(set_layer)
+		this_label->layer = layer;
+	if(set_font) {
+		SAlloc::F(this_label->font);
+		this_label->font = font;
+	}
+	if(set_textcolor)
+		this_label->textcolor = textcolor;
+	if((loc_lp.flags & LP_NOT_INITIALIZED) == 0)
+		this_label->lp_properties = loc_lp;
+	if(set_offset)
+		this_label->offset = offset;
+	if(set_hypertext)
+		this_label->hypertext = hypertext;
+
+	/* Make sure the z coord and the z-coloring agree */
+	if(this_label->textcolor.type == TC_Z)
+		this_label->textcolor.value = this_label->place.z;
+	if(this_label->lp_properties.pm3d_color.type == TC_Z)
+		this_label->lp_properties.pm3d_color.value = this_label->place.z;
+}
+
+/* <histogramstyle> = {clustered {gap <n>} | rowstacked | columnstacked */
+/*                     errorbars {gap <n>} {linewidth <lw>}}            */
+/*                    {title <title_options>}                           */
+static void parse_histogramstyle(histogram_style * hs, t_histogram_type def_type, int def_gap)
+{
+	text_label title_specs; // = EMPTY_LABELSTRUCT;
+	/* Set defaults */
+	hs->type  = def_type;
+	hs->gap   = def_gap;
+	if(GPO.Pgm.EndOfCommand())
+		return;
+	if(!GPO.Pgm.EqualsCur("hs") && !GPO.Pgm.AlmostEqualsCur("hist$ogram"))
+		return;
+	GPO.Pgm.Shift();
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.AlmostEqualsCur("clust$ered")) {
+			hs->type = HT_CLUSTERED;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("error$bars")) {
+			hs->type = HT_ERRORBARS;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("rows$tacked")) {
+			hs->type = HT_STACKED_IN_LAYERS;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("columns$tacked")) {
+			hs->type = HT_STACKED_IN_TOWERS;
+			GPO.Pgm.Shift();
+		}
+		else if(GPO.Pgm.EqualsCur("gap")) {
+			GPO.Pgm.Shift();
+			if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()))
+				hs->gap = int_expression();
+			else
+				GPO.IntErrorCurToken("expected gap value");
+		}
+		else if(GPO.Pgm.AlmostEqualsCur("ti$tle")) {
+			title_specs.offset = hs->title.offset;
+			set_xyzlabel(&title_specs);
+			ZFREE(title_specs.text);
+			if(hs->title.font) {
+				ZFREE(hs->title.font);
+			}
+			hs->title = title_specs;
+		}
+		else if((GPO.Pgm.EqualsCur("lw") || GPO.Pgm.AlmostEqualsCur("linew$idth")) && (hs->type == HT_ERRORBARS)) {
+			GPO.Pgm.Shift();
+			hs->bar_lw = GPO.RealExpression();
+			if(hs->bar_lw <= 0)
+				hs->bar_lw = 1;
+		}
+		else
+			/* We hit something unexpected */
+			break;
+	}
+}
+
+/*
+ * set pm3d lighting {primary <fraction>} {specular <fraction>}
+ */
+static void parse_lighting_options()
+{
+	GPO.Pgm.Shift();
+
+	/* TODO: Add separate "set" commands for these */
+	pm3d_shade.ambient = 1.0;
+	pm3d_shade.Phong = 5.0; /* Phong exponent */
+	pm3d_shade.rot_x = 45;  /* illumination angle */
+	pm3d_shade.rot_z = 85;  /* illumination angle */
+	pm3d_shade.fixed = TRUE; /* TRUE means the light does not rotate */
+	pm3d_shade.spec2 = 0.0; /* red specular highlights on back surface */
+
+	/* This is what you get from simply "set pm3d lighting" */
+	pm3d_shade.strength = 0.5; /* contribution of primary light source */
+	pm3d_shade.spec = 0.2;  /* contribution of specular highlights */
+
+	while(!GPO.Pgm.EndOfCommand()) {
+		if(GPO.Pgm.AlmostEqualsCur("primary")) {
+			GPO.Pgm.Shift();
+			pm3d_shade.strength = GPO.RealExpression();
+			pm3d_shade.strength = clip_to_01(pm3d_shade.strength);
+			continue;
+		}
+
+		if(GPO.Pgm.AlmostEqualsCur("spec$ular")) {
+			GPO.Pgm.Shift();
+			pm3d_shade.spec = GPO.RealExpression();
+			pm3d_shade.spec = clip_to_01(pm3d_shade.spec);
+			continue;
+		}
+
+		if(GPO.Pgm.EqualsCur("spec2")) {
+			GPO.Pgm.Shift();
+			pm3d_shade.spec2 = GPO.RealExpression();
+			pm3d_shade.spec2 = clip_to_01(pm3d_shade.spec2);
+			continue;
+		}
+
+		break;
+	}
+	GPO.Pgm.Rollback();
+}
+
+/* affects both 'set style parallelaxis' and 'set style spiderplot' */
+static void set_style_parallel()
+{
+	int save_token;
+	GPO.Pgm.Shift();
+	while(!GPO.Pgm.EndOfCommand()) {
+		save_token = GPO.Pgm.GetCurTokenIdx();
+		GPO.LpParse(&parallel_axis_style.lp_properties,  LP_ADHOC, FALSE);
+		if(save_token != GPO.Pgm.GetCurTokenIdx())
+			continue;
+		if(GPO.Pgm.EqualsCur("front"))
+			parallel_axis_style.layer = LAYER_FRONT;
+		else if(GPO.Pgm.EqualsCur("back"))
+			parallel_axis_style.layer = LAYER_BACK;
+		else
+			GPO.IntErrorCurToken("unrecognized option");
+		GPO.Pgm.Shift();
+	}
+}
+
+static void set_spiderplot()
+{
+	GPO.Pgm.Shift();
+	draw_border = 0;
+	unset_all_tics();
+	aspect_ratio = 1.0;
+	polar = FALSE;
+	keyT.auto_titles = NOAUTO_KEYTITLES;
+
+	data_style = SPIDERPLOT;
+	spiderplot = TRUE;
+}
+
+static void set_style_spiderplot()
+{
+	GPO.Pgm.Shift();
+	while(!GPO.Pgm.EndOfCommand()) {
+		int save_token = GPO.Pgm.GetCurTokenIdx();
+		parse_fillstyle(&spiderplot_style.fillstyle);
+		GPO.LpParse(&spiderplot_style.lp_properties,  LP_ADHOC, TRUE);
+		if(save_token == GPO.Pgm.GetCurTokenIdx())
+			break;
+	}
+}
+//
+// Utility routine to propagate rrange into corresponding x and y ranges 
+//
+void rrange_to_xy()
+{
+	double min;
+	/* An inverted R axis makes no sense in most cases.
+	 * One reasonable use is to project altitude/azimuth spherical coordinates
+	 * so that the zenith (azimuth = 90) is in the center and the horizon
+	 * (azimuth = 0) is at the perimeter.
+	 */
+	if(GPO.AxS.__R().set_min > GPO.AxS.__R().set_max) {
+		if(nonlinear(&GPO.AxS.__R()))
+			GPO.IntError(NO_CARET, "cannot invert nonlinear R axis");
+		inverted_raxis = TRUE;
+	}
+	else {
+		inverted_raxis = FALSE;
+	}
+	if(GPO.AxS.__R().set_autoscale & AUTOSCALE_MIN)
+		min = 0;
+	else
+		min = GPO.AxS.__R().set_min;
+	if(GPO.AxS.__R().set_autoscale & AUTOSCALE_MAX) {
+		GPO.AxS.__X().set_autoscale = AUTOSCALE_BOTH;
+		GPO.AxS.__Y().set_autoscale = AUTOSCALE_BOTH;
+	}
+	else {
+		GPO.AxS.__X().set_autoscale = AUTOSCALE_NONE;
+		GPO.AxS.__Y().set_autoscale = AUTOSCALE_NONE;
+		if(nonlinear(&GPO.AxS.__R()))
+			GPO.AxS.__X().set_max = GPO.EvalLinkFunction(GPO.AxS.__R().linked_to_primary, GPO.AxS.__R().set_max) - GPO.EvalLinkFunction(GPO.AxS.__R().linked_to_primary, min);
+		else
+			GPO.AxS.__X().set_max = fabs(GPO.AxS.__R().set_max - min);
+		GPO.AxS.__Y().set_max = GPO.AxS.__X().set_max;
+		GPO.AxS.__Y().set_min = GPO.AxS.__X().set_min = -GPO.AxS.__X().set_max;
+	}
+}
+
+//static void set_datafile()
+void GnuPlot::SetDataFile()
+{
+	Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("miss$ing"))
+			set_missing();
+		else if(Pgm.AlmostEqualsCur("sep$arators"))
+			set_separator(&df_separators);
+		else if(Pgm.AlmostEqualsCur("com$mentschars"))
+			set_datafile_commentschars();
+		else if(Pgm.AlmostEqualsCur("bin$ary"))
+			df_set_datafile_binary();
+		else if(Pgm.AlmostEqualsCur("fort$ran")) {
+			df_fortran_constants = TRUE;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("nofort$ran")) {
+			df_fortran_constants = FALSE;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("fpe_trap")) {
+			df_nofpe_trap = FALSE;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("nofpe_trap")) {
+			df_nofpe_trap = TRUE;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("columnhead$ers")) {
+			df_columnheaders = TRUE;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("nocolumnhead$ers")) {
+			df_columnheaders = FALSE;
+			Pgm.Shift();
+		}
+		else
+			IntErrorCurToken("expecting datafile modifier");
+	}
+}
