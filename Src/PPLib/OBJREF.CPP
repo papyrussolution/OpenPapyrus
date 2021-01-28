@@ -383,7 +383,8 @@ PPCommObjEntry::PPCommObjEntry(PPID objType, PPID id, const char * pName, const 
 
 /*static*/int PPObjReference::EditCommObjItem(PPCommObjEntry * pEntry)
 {
-	int    r = -1, valid_data = 0;
+	int    r = -1;
+	int    valid_data = 0;
 	TDialog * p_dlg = 0;
 	PPObjReference * p_obj = 0;
 	if(pEntry) {

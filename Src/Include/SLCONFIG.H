@@ -92,7 +92,7 @@
 //
 #define SALLOC_STD       0
 #define SALLOC_NEDMALLOC 1
-
+#define USE_OPENSSL_STATIC
 #define SALLOCATOR       SALLOC_STD
 #define XXH_STATIC_LINKING_ONLY // @v10.5.6 for xxhash
 //

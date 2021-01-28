@@ -9,7 +9,6 @@
 #define HH_INITIALIZE            0x001C  // Initializes the help system.
 #define HH_UNINITIALIZE          0x001D  // Uninitializes the help system.
 // } htmlhelp.h
-#define USE_OPENSSL_STATIC
 //
 const SlConstParam _SlConst;
 //
@@ -42,7 +41,7 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 		F_CallCalendar = pS->F_CallCalendar;
 		F_GetGlobalSecureConfig = pS->F_GetGlobalSecureConfig;
 		F_GetDefaultEncrKey = pS->F_GetDefaultEncrKey;
-		F_QueryPath = pS->F_QueryPath; // @v9.8.7
+		F_QueryPath = pS->F_QueryPath;
 	}
 	else
 		Reset();
@@ -59,7 +58,6 @@ SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0)
 		DefaultYear_  = now_time.d.year();
 		DefaultMonth_ = now_time.d.month();
 	}
-	// @v9.6.5 memzero(OneCStrBuf, sizeof(OneCStrBuf));
 	Rg.Set(now_time.d.v ^ now_time.t.v);
 	NextDialogLuPos.Set(-1, -1);
 }
@@ -73,7 +71,7 @@ void SlThreadLocalArea::Destroy()
 {
 	ZDELETE(P_Rez);
 	::DeleteDC(FontDc);
-	RemoveTempFiles();
+	// @v11.0.0 (see comments in SlSession::ReleaseThread()) RemoveTempFiles(true);
 }
 
 TVRez * SlThreadLocalArea::GetRez()
@@ -116,14 +114,19 @@ int SlThreadLocalArea::RegisterTempFileName(const char * pFileName)
 	return isempty(pFileName) ? -1 : TempFileList.add(pFileName);
 }
 
-void SlThreadLocalArea::RemoveTempFiles()
+void SlThreadLocalArea::RemoveTempFiles(bool dontStoreFailedItems)
 {
 	SString file_name;
 	StringSet temp_list;
-	for(uint i = 0; TempFileList.get(&i, file_name);)
-		if(!SFile::Remove(file_name))
+	for(uint i = 0; TempFileList.get(&i, file_name);) {
+		if(!SFile::Remove(file_name) && !dontStoreFailedItems) {
 			temp_list.add(file_name);
-	TempFileList = temp_list;
+		}
+	}
+	if(dontStoreFailedItems)
+		TempFileList.clear();
+	else
+		TempFileList = temp_list;
 }
 
 SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0), DragndropObjIdx(0), GlobSymbList(512, 0), // @v9.8.1 256-->512
@@ -145,8 +148,6 @@ SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0),
 		A_memcpy(temp_buf2, temp_buf1, S);
 		A_memset(temp_buf2, '1', S/4);
 		temp_buf1[0] = 0;
-		//strcat(temp_buf1, "0");
-		//xeos_memchr(temp_buf1, '0', xeos_strlen(temp_buf1));
 		/* @v9.0.6
 		A_strlen(temp_buf2);
 		A_strcpy(temp_buf1, temp_buf2);
@@ -156,7 +157,6 @@ SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0),
 		*/
 	}
 #endif
-	// @v9.8.1 LastThread.Assign(0);
 	ExtraProcBlk.Reset();
 	SessUuid.Generate(); // Генерируем абсолютно уникальный id сессии.
 	TlsIdx = TlsAlloc();
@@ -524,6 +524,14 @@ void SlSession::ReleaseThread()
 {
 	SlThreadLocalArea * p_tla = static_cast<SlThreadLocalArea *>(TlsGetValue(TlsIdx));
 	if(p_tla) {
+		// @v11.0.0 {
+		// Эта функция вызывалась внутри деструктора SlThreadLocalArea. Однако, если какого-то 
+		// временного файла не существует, то внутренний вызов SFile::Remove инициирует ошибку
+		// которая уже не может быть правильно обработана из-за полу-разрушенного экземпляра SlThreadLocalArea.
+		// В результате сеанс аварийно завершается.
+		//
+		p_tla->RemoveTempFiles(true); 
+		// } @v11.0.0 
 		TlsSetValue(TlsIdx, 0);
 		delete p_tla;
 	}
@@ -626,7 +634,7 @@ SString & SlSession::GetStopEventName(SString & rBuf) const
 }
 
 int    SlSession::RegisterTempFileName(const char * pFileName) { return GetTLA().RegisterTempFileName(pFileName); }
-void   SlSession::RemoveTempFiles() { GetTLA().RemoveTempFiles(); }
+void   SlSession::RemoveTempFiles() { GetTLA().RemoveTempFiles(false); }
 void   SlSession::SetLogPath(const char * pPath) { GetTLA().LogPath = pPath; }
 SString & SlSession::GetLogPath(SString & rPath) const { return (rPath = GetConstTLA().LogPath); }
 //
@@ -977,42 +985,6 @@ void SlSession::LockPop()
 
 SString  & SlSession::AcquireRvlStr() { return GetTLA().RvlSStA.Get(); }
 SStringU & SlSession::AcquireRvlStrU() { return GetTLA().RvlSStW.Get(); }
-
-#if 0 // @v9.1.2 replaced by SetExtraProcBlock() {
-int SlSession::SetGlobalSecureConfigFunc(GetGlobalSecureConfigFunc fProc)
-{
-	F_GetGlobalSecureConfig = fProc;
-	return 1;
-}
-
-int SlSession::SetLoadStringFunc(LoadStringFunc fProc)
-{
-	ENTER_CRITICAL_SECTION
-	F_LoadString = fProc;
-	LEAVE_CRITICAL_SECTION
-	return 1;
-}
-
-int SlSession::SetExpandStringFunc(ExpandStringFunc fProc)
-{
-	ENTER_CRITICAL_SECTION
-	F_ExpandString = fProc;
-	LEAVE_CRITICAL_SECTION
-	return 1;
-}
-
-int SlSession::SetCallHelpFunc(CallHelpFunc fProc)
-{
-	ENTER_CRITICAL_SECTION
-	F_CallHelp = fProc;
-	if(F_CallHelp && !HelpCookie) {
-		F_CallHelp(0, HH_INITIALIZE, (uint)&HelpCookie);
-	}
-	LEAVE_CRITICAL_SECTION
-	return 1;
-}
-
-#endif // } 0 @v9.1.2 replaced by SetExtraProcBlock()
 
 int SlSession::CallHelp(void * hWnd, uint cmd, uint ctx)
 {

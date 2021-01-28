@@ -4293,8 +4293,7 @@ total_active:
 				if(s <  sr[i].low) 
 					continue;
 				if(s >= sr[i].high) {
-					if(forward_search(set->rs[i].reg, str, end, s, sr[i].sch_range,
-					    &low, &high) != 0) {
+					if(forward_search(set->rs[i].reg, str, end, s, sr[i].sch_range, &low, &high) != 0) {
 						sr[i].low      = low;
 						sr[i].high     = high;
 						if(s < low) continue;
@@ -4304,14 +4303,12 @@ total_active:
 						continue;
 					}
 				}
-
 				reg = set->rs[i].reg;
 				REGSET_MATCH_AND_RETURN_CHECK(orig_range);
 				try_count++;
 			} /* for (i) */
-
-			if(s >= range) break;
-
+			if(s >= range) 
+				break;
 			if(try_count == 0) {
 				low = (uchar *)range;
 				for(i = 0; i < n; i++) {
@@ -4319,8 +4316,8 @@ total_active:
 						low = sr[i].low;
 					}
 				}
-				if(low == range) break;
-
+				if(low == range) 
+					break;
 				s = low;
 			}
 			else {
@@ -4336,11 +4333,11 @@ total_active:
 				if(sr[i].state == SRS_LOW_HIGH) {
 					if(s <  sr[i].low) continue;
 					if(s >= sr[i].high) {
-						if(forward_search(set->rs[i].reg, str, end, s, sr[i].sch_range,
-						    &low, &high) != 0) {
+						if(forward_search(set->rs[i].reg, str, end, s, sr[i].sch_range, &low, &high) != 0) {
 							sr[i].low      = low;
 							sr[i].high     = high;
-							if(s < low) continue;
+							if(s < low) 
+								continue;
 						}
 						else {
 							sr[i].state = SRS_DEAD;
@@ -4371,21 +4368,16 @@ match:
 	return i;
 }
 
-static inline int regset_search_body_regex_lead(OnigRegSet* set,
-    const uchar * str, const uchar * end,
-    const uchar * start, const uchar * orig_range, OnigRegSetLead lead,
-    OnigOptionType option, OnigMatchParam* mps[], int* rmatch_pos)
+static inline int regset_search_body_regex_lead(OnigRegSet* set, const uchar * str, const uchar * end,
+    const uchar * start, const uchar * orig_range, OnigRegSetLead lead, OnigOptionType option, OnigMatchParam* mps[], int* rmatch_pos)
 {
 	int r;
 	int i;
-	int n;
-	int match_index;
-	const uchar * ep;
-	regex_t* reg;
+	regex_t * reg;
 	OnigRegion* region;
-	n = set->n;
-	match_index = ONIG_MISMATCH;
-	ep = orig_range;
+	int n = set->n;
+	int match_index = ONIG_MISMATCH;
+	const uchar * ep = orig_range;
 	for(i = 0; i < n; i++) {
 		reg    = set->rs[i].reg;
 		region = set->rs[i].region;
@@ -4427,19 +4419,20 @@ extern int onig_regset_search_with_param(OnigRegSet* set, const uchar * str, con
 	r = 0;
 	enc = set->enc;
 	msas = (MatchArg*)NULL;
-
 	for(i = 0; i < set->n; i++) {
 		reg    = set->rs[i].reg;
 		region = set->rs[i].region;
 		ADJUST_MATCH_PARAM(reg, mps[i]);
 		if(IS_NOT_NULL(region)) {
 			r = onig_region_resize_clear(region, reg->num_mem + 1);
-			if(r != 0) goto finish_no_msa;
+			if(r != 0) 
+				goto finish_no_msa;
 		}
 	}
-	if(start > end || start < str) goto mismatch_no_msa;
+	if(start > end || start < str) 
+		goto mismatch_no_msa;
 	if(str < end) {
-		/* forward search only */
+		// forward search only 
 		if(range < start)
 			return ONIGERR_INVALID_ARGUMENT;
 	}

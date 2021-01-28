@@ -32,8 +32,8 @@ int SlSession::InitSSL()
 		{
 			SDynLibrary ssl_lib("ssleay32.dll");
 			if(ssl_lib.IsValid()) {
-				SSL_LIBRARY_INIT_PROC ssl_init_proc = (SSL_LIBRARY_INIT_PROC)ssl_lib.GetProcAddr("SSL_library_init");
-				SSL_LOAD_ERROR_STRINGS_PROC ssl_les_proc = (SSL_LOAD_ERROR_STRINGS_PROC)ssl_lib.GetProcAddr("SSL_load_error_strings");
+				SSL_LIBRARY_INIT_PROC ssl_init_proc = reinterpret_cast<SSL_LIBRARY_INIT_PROC>(ssl_lib.GetProcAddr("SSL_library_init"));
+				SSL_LOAD_ERROR_STRINGS_PROC ssl_les_proc = reinterpret_cast<SSL_LOAD_ERROR_STRINGS_PROC>(ssl_lib.GetProcAddr("SSL_load_error_strings"));
 				if(ssl_init_proc && ssl_les_proc && ssl_init_proc()) {
 					ssl_les_proc();
 					SslInitCounter.Incr();

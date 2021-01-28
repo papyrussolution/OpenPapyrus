@@ -13757,7 +13757,7 @@ public:
 	~SlThreadLocalArea();
 	void   Destroy();
 	int    RegisterTempFileName(const char *);
-	void   RemoveTempFiles();
+	void   RemoveTempFiles(bool dontStoreFailedItems);
 	//
 	// Descr: Возвращает контекст вывода, используемый
 	//   для работы с Windows-функциями штрифтов.
