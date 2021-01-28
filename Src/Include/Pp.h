@@ -15702,10 +15702,17 @@ public:
 	virtual int EditParam(SBuffer * pParam, void * extraPtr);
 	virtual int Run(SBuffer * pParam, void * extraPtr);
 	virtual const PPJobDescr & GetDescr();
+	void   SetJobDbSymb(const char * pJobDbSymb);
 protected:
 	int    CheckParamBuf(const SBuffer *, size_t neededSize) const;
 private:
 	PPJobDescr D;
+protected: 
+	SString JobDbSymb; // @v11.0.0 @transient @crutch Символ базы данных, к которой привязана задача, 
+		// передаваемый перед вызовом EditParam() и Run().
+		// Включен ради единственной (возможно, пока) задачи резервного копирования, в которой иногда возникает
+		// коллизия, связанная с тем, что параметры задачи редактируются из сеанса, авторизованного не в той базе
+		// которая должна копироваться.
 };
 
 extern "C" typedef PPJobHandler * (*FN_JOB_FACTORY)(PPJobDescr *);
@@ -15778,8 +15785,8 @@ public:
 	int    IsPoolChanged() const;
 	DirChangeNotification * CreateDcn();
 	PPJobHandler * CreateInstance(PPID jobID, const PPJobDescr * pDescr);
-	int    DoJob(PPID jobID, SBuffer * pParam);
-	int    EditJobParam(PPID jobID, SBuffer * pParam);
+	int    DoJob(PPJob & rJob);
+	int    EditJobParam(PPJob & rJob); // @v11.0.0 Изменился список параметров
 	long   AcquireNewId();
 	void   FASTCALL UpdateLastId(long id);
 	const  SString & GetFileName() const { return XmlFilePath; }
@@ -40888,7 +40895,7 @@ public:
 		omRatingData,             // Комбинация точек: {PaymRatingVariable, DelayRatingVariable, RatingRgbColor}
 		omSigmFactor              // Комбинация точек: {PaymPeriod, SigmFactor, 0.0}
 	};
-	int    CalcRating(Total * pTotal, int outMatrixStyle = 0, TSVector <RPoint3> * pOutMatrix = 0);
+	int    CalcRating(Total * pTotal, int outMatrixStyle = 0, TSVector <SPoint3R> * pOutMatrix = 0);
 	double GetSigmFactor(double sigmA, long paymPeriod, double paymPeriodMean) const;
 	int    CalcDelayIndex(const PPDebtorStat * pItem, const Total * pTotal, double expWeight, double * pResult) const;
 private:
@@ -54566,7 +54573,7 @@ int    DBMaintainDialog(DBMaintainParam *);
 int    DoDBMaintain(const DBMaintainParam * pParam);
 int    ReadDBMaintainCfg(DBMaintainParam *);
 int    EditDBMaintainCfg();
-int    EditBackupParam(SString & rDBSymb, PPBackupScen * pScen);
+int    EditJobBackupParam(SString & rDBSymb, PPBackupScen * pScen);
 int    DeleteTmpFiles();
 int    FillPredictSales();
 int    TestPredictSales();

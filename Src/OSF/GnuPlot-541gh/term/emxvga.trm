@@ -423,12 +423,30 @@ TERM_PUBLIC void EMXVESA_reset()
 #ifdef TERM_TABLE
 #ifdef EMXVESA
 TERM_TABLE_START(vesa_driver)
-"vesa", "IBM PC/Clone with VESA SVGA graphics board [vesa mode]",
-EMXVGA_XMAX, EMXVGA_YMAX, EMXVGA_VCHAR, EMXVGA_HCHAR,
-EMXVGA_VTIC, EMXVGA_HTIC, EMXVESA_options, EMXVESA_init, EMXVESA_reset,
-EMXVESA_text, null_scale, EMXVESA_graphics, EMXVGA_move, EMXVGA_vector,
-EMXVGA_linetype, EMXVGA_put_text, EMXVGA_text_angle,
-null_justify_text, do_point, do_arrow, set_font_null TERM_TABLE_END(vesa_driver)
+	"vesa", 
+	"IBM PC/Clone with VESA SVGA graphics board [vesa mode]",
+	EMXVGA_XMAX, 
+	EMXVGA_YMAX, 
+	EMXVGA_VCHAR, 
+	EMXVGA_HCHAR,
+	EMXVGA_VTIC, 
+	EMXVGA_HTIC, 
+	EMXVESA_options, 
+	EMXVESA_init, 
+	EMXVESA_reset,
+	EMXVESA_text, 
+	null_scale, 
+	EMXVESA_graphics, 
+	EMXVGA_move, 
+	EMXVGA_vector,
+	EMXVGA_linetype, 
+	EMXVGA_put_text, 
+	EMXVGA_text_angle,
+	null_justify_text, 
+	do_point, 
+	do_arrow, 
+	set_font_null 
+TERM_TABLE_END(vesa_driver)
 
 #undef LAST_TERM
 #define LAST_TERM vesa_driver
@@ -436,14 +454,34 @@ null_justify_text, do_point, do_arrow, set_font_null TERM_TABLE_END(vesa_driver)
 #endif /* VESA */
 
 TERM_TABLE_START(emxvga_driver)
-"emxvga", "PC with VGA running DOS or OS/2",
-EMXVGA_XMAX, EMXVGA_YMAX, EMXVGA_VCHAR, EMXVGA_HCHAR,
-EMXVGA_VTIC, EMXVGA_HTIC, options_null, EMXVGA_init, EMXVGA_reset,
-EMXVGA_text, null_scale, EMXVGA_graphics, EMXVGA_move,
-EMXVGA_vector, EMXVGA_linetype, EMXVGA_put_text, EMXVGA_text_angle,
-null_justify_text, do_point, do_arrow, set_font_null,
-0,                              /* pointsize */
-TERM_CAN_MULTIPLOT, EMXVGA_suspend, EMXVGA_resume TERM_TABLE_END(emxvga_driver)
+	"emxvga", 
+	"PC with VGA running DOS or OS/2",
+	EMXVGA_XMAX, 
+	EMXVGA_YMAX, 
+	EMXVGA_VCHAR, 
+	EMXVGA_HCHAR,
+	EMXVGA_VTIC, 
+	EMXVGA_HTIC, 
+	options_null, 
+	EMXVGA_init, 
+	EMXVGA_reset,
+	EMXVGA_text, 
+	null_scale, 
+	EMXVGA_graphics, 
+	EMXVGA_move,
+	EMXVGA_vector, 
+	EMXVGA_linetype, 
+	EMXVGA_put_text, 
+	EMXVGA_text_angle,
+	null_justify_text, 
+	do_point, 
+	do_arrow, 
+	set_font_null,
+	0,                              /* pointsize */
+	TERM_CAN_MULTIPLOT, 
+	EMXVGA_suspend, 
+	EMXVGA_resume 
+TERM_TABLE_END(emxvga_driver)
 
 #undef LAST_TERM
 #define LAST_TERM emxvga_driver

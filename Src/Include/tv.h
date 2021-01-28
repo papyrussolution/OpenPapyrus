@@ -1093,12 +1093,12 @@ public:
 			// (The scripts of East Asia are sometimes written vertically.)
 	};
 	struct TextExt {
-		RPoint Bearing; // X - the horizontal distance from the origin to the leftmost part of the glyphs as drawn.
+		SPoint2R Bearing; // X - the horizontal distance from the origin to the leftmost part of the glyphs as drawn.
 			// Positive if the glyphs lie entirely to the right of the origin.
 			// Y - the vertical distance from the origin to the topmost part of the glyphs as drawn.
 			// Positive only if the glyphs lie completely below the origin; will usually be negative.
-		RPoint Size;    // Size of the glyphs as drawn
-		RPoint Advance; // X - distance to advance in the X direction after drawing these glyphs
+		SPoint2R Size;    // Size of the glyphs as drawn
+		SPoint2R Advance; // X - distance to advance in the X direction after drawing these glyphs
 			// Y - distance to advance in the Y direction after drawing these glyphs.
 			// Will typically be zero except for vertical text layout as found in East-Asian languages.
 	};

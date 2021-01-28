@@ -4395,7 +4395,7 @@ int PPDriveMapping::Get(int drive, SString & rMapping) const
 
 int PPDriveMapping::ConvertPathToUnc(SString & rPath) const
 {
-	if(isalpha(rPath[0]) && rPath[1] == ':') {
+	if(rPath.NotEmptyS() && isalpha(rPath[0]) && rPath[1] == ':') {
 		SString unc;
 		if(Get(rPath[0], unc) > 0) {
 			if(unc.Last() != '\\' && unc.Last() != '/')

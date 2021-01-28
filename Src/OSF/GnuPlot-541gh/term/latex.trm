@@ -283,7 +283,8 @@ TERM_PUBLIC void LATEX_options()
 			    GPO.Pgm.Shift();
 			    break;
 			case LATEX_SIZE: {
-			    float xmax_t = 5., ymax_t = 3.;
+			    float xmax_t = 5.0f;
+				float ymax_t = 3.0f;
 			    GPO.Pgm.Shift();
 			    latex_explicit_size = TRUE;
 			    latex_explicit_units = parse_term_size(&xmax_t, &ymax_t, INCHES);
@@ -312,7 +313,7 @@ TERM_PUBLIC void LATEX_options()
 			case LATEX_OTHER:
 			default:
 			    if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
-				    LATEX_fontsize = int_expression();
+				    LATEX_fontsize = GPO.IntExpression();
 				    if(LATEX_fontsize <= 1)
 					    LATEX_fontsize = 10;
 				    break;
@@ -972,17 +973,15 @@ TERM_PUBLIC void LATEX_set_color(t_colorspec * colorspec)
 		return;
 	switch(colorspec->type) {
 		case TC_RGB: {
-		    double r = (double)((colorspec->lt >> 16 ) & 255) / 255.;
-		    double g = (double)((colorspec->lt >> 8 ) & 255) / 255.;
-		    double b = (double)(colorspec->lt & 255) / 255.;
-
+		    double r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
+		    double g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
+		    double b = (double)(colorspec->lt & 255) / 255.0;
 		    snprintf(colorstr, sizeof(colorstr), "\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", r, g, b);
 		    break;
 	    }
 		case TC_LT: {
 		    int linetype = colorspec->lt;
 		    const char * colorname;
-
 		    if(linetype == LT_BACKGROUND)
 			    colorname = "white";
 		    else if(linetype < 0 || !latex_use_color)

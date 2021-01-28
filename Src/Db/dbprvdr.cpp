@@ -1,5 +1,5 @@
 // DBPRVDR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -250,7 +250,7 @@ int DbLoginBlockArray::GetBySymb(const char * pSymb, DbLoginBlock * pBlk) const
 		const DbLoginBlock * p_blk = at(i);
 		if(p_blk->GetAttr(DbLoginBlock::attrDbSymb, symb) > 0 && symb.CmpNC(pSymb) == 0) {
 			ASSIGN_PTR(pBlk, *p_blk);
-			ok = (int)(i+1);
+			ok = static_cast<int>(i+1);
 		}
 	}
 	if(!ok)

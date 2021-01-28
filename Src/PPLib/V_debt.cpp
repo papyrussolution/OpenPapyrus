@@ -2863,7 +2863,7 @@ double PPDebtorStatArray::PreprocessRatingVal(double val) const
 		return val;
 }
 
-int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <RPoint3> * pOutMatrix)
+int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <SPoint3R> * pOutMatrix)
 {
 	int    ok = 1;
 	Total  total;
@@ -3036,7 +3036,7 @@ int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <
 					// Заполнение исходящей матрицы
 					//
 					if(pOutMatrix) {
-						RPoint3 p;
+						SPoint3R p;
 						if(outMatrixStyle == omLimitByPaymDensity) {
 							p.x = p_item->PaymDensity;
 							p.y = p_item->PaymPeriod;
@@ -4353,7 +4353,7 @@ int PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 	PPDebtorStatArray list;
 	Generator_GnuPlot plot(0);
 	Generator_GnuPlot::PlotParam param;
-	TSVector <RPoint3> matrix; // @v9.8.4 TSArray-->TSVector
+	TSVector <SPoint3R> matrix; // @v9.8.4 TSArray-->TSVector
 	PPDebtorStatArray::Total total;
 	if(col == 8) { // sigm factor
 		if(Tbl.GetList(Filt.AccSheetID, list) > 0) {
@@ -4411,7 +4411,7 @@ int PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 			plot.Plot(&param);
 			plot.StartData(1);
 			for(i = 0; i < matrix.getCount(); i++) {
-				RPoint3 p = matrix.at(i);
+				SPoint3R p = matrix.at(i);
 				plot.PutData(p.x);
 				plot.PutData(p.y);
 				plot.PutEOR();
@@ -4483,7 +4483,7 @@ int PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 			plot.Plot(&param);
 			plot.StartData(1);
 			for(i = 0; i < matrix.getCount(); i++) {
-				RPoint3 p = matrix.at(i);
+				SPoint3R p = matrix.at(i);
 				plot.PutData(p.x);
 				plot.PutData(p.y);
 				COLORREF c = (COLORREF)(ulong)p.z;
@@ -4520,7 +4520,7 @@ int PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 			plot.Plot(&param);
 			plot.StartData(1);
 			for(i = 0; i < matrix.getCount(); i++) {
-				RPoint3 p = matrix.at(i);
+				SPoint3R p = matrix.at(i);
 				plot.PutData(p.x);
 				plot.PutData(p.y);
 				plot.PutData(p.z);
@@ -4544,7 +4544,7 @@ int PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 			i = 1;
 			double x = SMathConst::Max;
 			for(; i <= matrix.getCount(); i++) {
-				RPoint3 p = matrix.at(i-1);
+				SPoint3R p = matrix.at(i-1);
 				if(x == SMathConst::Max)
 					x = p.x;
 				plot.PutData(x);

@@ -1,5 +1,5 @@
-/* GNUPLOT - specfun.c */
-
+// GNUPLOT - specfun.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
 /*
  * FILE CONTENTS
  *
@@ -55,37 +55,6 @@
  *		Chebyshev approximation coefficients from
  *		MacLeod (2000) NuclInstMethPhysRes A443:540-545.
  */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
 /*
  * The original source for routines from the cephes library is distributed
  * via http://www.netlib.org/cephes/
@@ -2008,7 +1977,6 @@ under:
  *    IEEE      0,1         30000       3.7e-16     1.0e-16
  *
  */
-
 static double erf(double x)
 {
 #ifdef UNK
@@ -2106,18 +2074,10 @@ static double inverse_error_func(double y)
 	double y0 = 0.7; /* Central range variable */
 
 	/* Coefficients in rational approximations. */
-	static const double a[4] = {
-		0.886226899, -1.645349621, 0.914624893, -0.140543331
-	};
-	static const double b[4] = {
-		-2.118377725, 1.442710462, -0.329097515, 0.012229801
-	};
-	static const double c[4] = {
-		-1.970840454, -1.624906493, 3.429567803, 1.641345311
-	};
-	static const double d[2] = {
-		3.543889200, 1.637067800
-	};
+	static const double a[4] = { 0.886226899, -1.645349621, 0.914624893, -0.140543331 };
+	static const double b[4] = { -2.118377725, 1.442710462, -0.329097515, 0.012229801 };
+	static const double c[4] = { -1.970840454, -1.624906493, 3.429567803, 1.641345311 };
+	static const double d[2] = { 3.543889200, 1.637067800 };
 
 	if((y < -1.0) || (1.0 < y)) {
 		printf("inverse_error_func: The value out of the range of the function");
@@ -3577,7 +3537,6 @@ static double iv(double v, double x)
 			sign = -1;
 		}
 	}
-
 	/* Avoid logarithm singularity */
 	if(x == 0.0) {
 		if(v == 0.0) {
@@ -3608,7 +3567,6 @@ static double iv(double v, double x)
 	res *= sign;
 	return res;
 }
-
 /*
  * Compute Iv from (AMS5 9.7.1), asymptotic expansion for large |z|
  * Iv ~ exp(x)/sqrt(2 pi x) ( 1 + (4*v*v-1)/8x + (4*v*v-1)(4*v*v-9)/8x/2! + ...)
@@ -3616,20 +3574,16 @@ static double iv(double v, double x)
 static double iv_asymptotic(double v, double x)
 {
 	double mu;
-	double sum, term, prefactor, factor;
+	double sum, term, factor;
 	int k;
-
-	prefactor = exp(x) / sqrt(2 * M_PI * x);
-
+	double prefactor = exp(x) / sqrt(2 * M_PI * x);
 	if(isinf(prefactor)) {
 		return prefactor;
 	}
-
 	mu = 4 * v * v;
 	sum = 1.0;
 	term = 1.0;
 	k = 1;
-
 	do {
 		factor = (mu - (2 * k - 1) * (2 * k - 1)) / (8 * x) / k;
 		if(k > 100) {
@@ -3643,7 +3597,6 @@ static double iv_asymptotic(double v, double x)
 	} while(fabs(term) > MACHEP * fabs(sum));
 	return sum * prefactor;
 }
-
 /*
  * Uniform asymptotic expansion factors, (AMS5 9.3.9; AMS5 9.3.10)
  *
@@ -4433,20 +4386,16 @@ static double incbd(double a, double b, double x)
 /* Power series for incomplete beta integral.
  * Use when b*x is small and x not too close to 1.
  */
-
 static double pseries(double a, double b, double x)
 {
-	double s, t, u, v, n, t1, z, ai;
-
-	ai = 1.0 / a;
-	u = (1.0 - b) * x;
-	v = u / (a + 1.0);
-	t1 = v;
-	t = u;
-	n = 2.0;
-	s = 0.0;
-	z = MACHEP * ai;
-
+	double ai = 1.0 / a;
+	double u = (1.0 - b) * x;
+	double v = u / (a + 1.0);
+	double t1 = v;
+	double t = u;
+	double n = 2.0;
+	double s = 0.0;
+	double z = MACHEP * ai;
 	while(fabs(v) > z) {
 		u = (n - b) * x / n;
 		t *= u;
@@ -4456,7 +4405,6 @@ static double pseries(double a, double b, double x)
 	}
 	s += t1;
 	s += ai;
-
 	u = a * log(x);
 	if( (a+b) < MAXGAM && fabs(u) < MAXLOG) {
 		t = TGAMMA(a+b)/(TGAMMA(a)*TGAMMA(b));

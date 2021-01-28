@@ -931,9 +931,9 @@ int LMatrix2D::IsIdentical() const
 	{ return (xx == yy && xx == 1.0 && x0 == 0.0 && y0 == 0.0 && yx == 0.0 && xy == 0.0); }
 double LMatrix2D::GetDeterminant() const
 	{ return xx * yy - yx * xy; }
-RPoint & FASTCALL LMatrix2D::TransformDistance(RPoint & rP) const
+SPoint2R & FASTCALL LMatrix2D::TransformDistance(SPoint2R & rP) const
 	{ return rP.Set(xx * rP.x + xy * rP.y, yx * rP.x + yy * rP.y); }
-RPoint & FASTCALL LMatrix2D::Transform(RPoint & rP) const
+SPoint2R & FASTCALL LMatrix2D::Transform(SPoint2R & rP) const
 	{ return rP.Set(xx * rP.x + xy * rP.y + x0, yx * rP.x + yy * rP.y + y0); }
 static LMatrix2D & FASTCALL Push_LMatrix2D(LMatrix2D & rMtx)
 	{ return PushRecycledObject <LMatrix2D, 64> (rMtx); }

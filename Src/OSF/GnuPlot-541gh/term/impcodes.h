@@ -1,5 +1,5 @@
-/* This file is used only by imagen.trm */
-
+// This file is used only by imagen.trm 
+//
 /*
  * Copyright (c) 1985 Regents of the University of California.
  * All rights reserved.  The Berkeley software License Agreement

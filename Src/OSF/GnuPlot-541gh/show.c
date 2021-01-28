@@ -1,35 +1,6 @@
-/* GNUPLOT - show.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - show.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 /*
  * 19 September 1992  Lawrence Crowl  (crowl@cs.orst.edu)
  * Added user-specified bases for log scaling.
@@ -253,13 +224,13 @@ void GnuPlot::ShowCommand()
 
 #define CHECK_TAG_GT_ZERO                                       \
 	if(!Pgm.EndOfCommand()) {                                  \
-		tag = int_expression();                             \
+		tag = IntExpression();                             \
 		if(tag <= 0) {                                     \
 			error_message =  "tag must be > zero";          \
 			break;                                          \
 		}                                               \
 	}                                                       \
-	(void)putc('\n', stderr);
+	putc('\n', stderr);
 
 		case S_LABEL:
 		    CHECK_TAG_GT_ZERO;
@@ -654,7 +625,7 @@ void GnuPlot::ShowCommand()
  */
 static void show_at()
 {
-	(void)putc('\n', stderr);
+	putc('\n', stderr);
 	disp_at(temp_at(), 0);
 	GPO.Pgm.Shift();
 }
@@ -664,62 +635,55 @@ static void disp_at(struct at_type * curr_at, int level)
 {
 	int i, j;
 	union argument * arg;
-
 	for(i = 0; i < curr_at->a_count; i++) {
-		(void)putc('\t', stderr);
+		putc('\t', stderr);
 		for(j = 0; j < level; j++)
-			(void)putc(' ', stderr); /* indent */
-
-		/* print name of instruction */
-
-		fputs(ft[(int)(curr_at->actions[i].index)].f_name, stderr);
+			putc(' ', stderr); /* indent */
+		// print name of instruction 
+		fputs(_FuncTab[(int)(curr_at->actions[i].index)].f_name, stderr);
 		arg = &(curr_at->actions[i].arg);
-
-		/* now print optional argument */
-
+		// now print optional argument 
 		switch(curr_at->actions[i].index) {
 			case PUSH:
 			    fprintf(stderr, " %s\n", arg->udv_arg->udv_name);
 			    break;
 			case PUSHC:
-			    (void)putc(' ', stderr);
+			    putc(' ', stderr);
 			    disp_value(stderr, &(arg->v_arg), TRUE);
-			    (void)putc('\n', stderr);
+			    putc('\n', stderr);
 			    break;
 			case PUSHD1:
-			    fprintf(stderr, " %c dummy\n",
-				arg->udf_arg->udf_name[0]);
+			    fprintf(stderr, " %c dummy\n", arg->udf_arg->udf_name[0]);
 			    break;
 			case PUSHD2:
-			    fprintf(stderr, " %c dummy\n",
-				arg->udf_arg->udf_name[1]);
+			    fprintf(stderr, " %c dummy\n", arg->udf_arg->udf_name[1]);
 			    break;
 			case CALL:
 			    fprintf(stderr, " %s", arg->udf_arg->udf_name);
 			    if(level < 6) {
 				    if(arg->udf_arg->at) {
-					    (void)putc('\n', stderr);
+					    putc('\n', stderr);
 					    disp_at(arg->udf_arg->at, level + 2); /* recurse! */
 				    }
 				    else
 					    fputs(" (undefined)\n", stderr);
 			    }
 			    else
-				    (void)putc('\n', stderr);
+				    putc('\n', stderr);
 			    break;
 			case CALLN:
 			case SUM:
 			    fprintf(stderr, " %s", arg->udf_arg->udf_name);
 			    if(level < 6) {
 				    if(arg->udf_arg->at) {
-					    (void)putc('\n', stderr);
+					    putc('\n', stderr);
 					    disp_at(arg->udf_arg->at, level + 2); /* recurse! */
 				    }
 				    else
 					    fputs(" (undefined)\n", stderr);
 			    }
 			    else
-				    (void)putc('\n', stderr);
+				    putc('\n', stderr);
 			    break;
 			case JUMP:
 			case JUMPZ:
@@ -731,7 +695,7 @@ static void disp_at(struct at_type * curr_at, int level)
 			    fprintf(stderr, " %d\n", (int)(arg->v_arg.v.int_val));
 			    break;
 			default:
-			    (void)putc('\n', stderr);
+			    putc('\n', stderr);
 		}
 	}
 }
@@ -1557,14 +1521,13 @@ static void show_styles(const char * name, enum PLOT_STYLE style)
 	fprintf(stderr, "\t%s are plotted with ", name);
 	save_data_func_style(stderr, name, style);
 }
-
-/* called by show_func() */
+//
+// called by show_func() 
+//
 static void show_functions()
 {
-	struct udft_entry * udf = first_udf;
-
+	udft_entry * udf = first_udf;
 	fputs("\n\tUser-Defined Functions:\n", stderr);
-
 	while(udf) {
 		if(udf->definition)
 			fprintf(stderr, "\t%s\n", udf->definition);
@@ -1573,8 +1536,9 @@ static void show_functions()
 		udf = udf->next_udf;
 	}
 }
-
-/* process 'show grid' command */
+//
+// process 'show grid' command 
+//
 static void show_grid()
 {
 	SHOW_ALL_NL;
@@ -1606,12 +1570,9 @@ static void show_grid()
 	if(grid_vertical_lines)
 		fprintf(stderr, "\tVertical grid lines in 3D plots\n");
 	if(polar_grid_angle)
-		fprintf(stderr, "\tGrid radii drawn every %f %s\n",
-		    polar_grid_angle / ang2rad,
-		    (ang2rad == 1.0) ? "radians" : "degrees");
+		fprintf(stderr, "\tGrid radii drawn every %f %s\n", polar_grid_angle / ang2rad, (ang2rad == 1.0) ? "radians" : "degrees");
 	if(grid_spiderweb)
 		fprintf(stderr, "\tGrid shown in spiderplots\n");
-
 	fprintf(stderr, "\tGrid drawn at %s\n", (grid_layer==-1) ? "default layer" : ((grid_layer==0) ? "back" : "front"));
 }
 
@@ -1623,7 +1584,7 @@ static void show_raxis()
 static void show_paxis()
 {
 	GpAxis * paxis;
-	int p = int_expression();
+	int p = GPO.IntExpression();
 	if(p <= 0 || p > GPO.AxS.GetParallelAxisCount())
 		GPO.IntErrorCurToken("no such parallel axis is active");
 	paxis = &GPO.AxS.Parallel(p-1);
@@ -2128,7 +2089,7 @@ static void show_palette_palette()
 			GPO.Pgm.Shift();
 		}
 		else {
-			colors = int_expression();
+			colors = GPO.IntExpression();
 			if(colors < 2)
 				colors = 128;
 		}
@@ -2140,7 +2101,7 @@ static void show_palette_palette()
 		fprintf(stderr, " saved to \"%s\".", print_out_name);
 	for(i = 0; i < colors; i++) {
 		char line[80];
-		/* colours equidistantly from [0,1]  */
+		// colours equidistantly from [0,1]  
 		gray = (double)i / (colors - 1);
 		if(GPO.SmPltt.Positive == SMPAL_NEGATIVE)
 			gray = 1 - gray;
@@ -2810,10 +2771,8 @@ static void show_axislabel(AXIS_INDEX axis)
 static void show_data_is_timedate(AXIS_INDEX axis)
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\t%s is set to %s\n", axis_name(axis),
-	    GPO.AxS[axis].datatype == DT_TIMEDATE ? "time" :
-	    GPO.AxS[axis].datatype == DT_DMS ? "geographic" :  /* obsolete */
-	    "numerical");
+	fprintf(stderr, "\t%s is set to %s\n", axis_name(axis), GPO.AxS[axis].datatype == DT_TIMEDATE ? "time" :
+	    GPO.AxS[axis].datatype == DT_DMS ? "geographic" :  /* obsolete */ "numerical");
 }
 
 /* process 'show P_TimeFormat' command */
@@ -2931,11 +2890,7 @@ static void show_table()
 	foo[0] = (table_sep && *table_sep) ? *table_sep : '\t';
 	SHOW_ALL_NL;
 	if(table_mode)
-		fprintf(stderr, "\ttable mode is on, field separator %s\n",
-		    foo[0] == '\t' ? "tab" :
-		    foo[0] == ',' ? "comma" :
-		    foo[0] == ' ' ? "space" :
-		    foo);
+		fprintf(stderr, "\ttable mode is on, field separator %s\n", foo[0] == '\t' ? "tab" : foo[0] == ',' ? "comma" : foo[0] == ' ' ? "space" : foo);
 	else
 		fprintf(stderr, "\ttable mode is off\n");
 }
@@ -2960,36 +2915,27 @@ static void show_mouse()
 			fprintf(stderr, "\tno polar distance to ruler will be shown\n");
 		}
 		if(mouse_setting.doubleclick > 0) {
-			fprintf(stderr, "\tdouble click resolution is %d ms\n",
-			    mouse_setting.doubleclick);
+			fprintf(stderr, "\tdouble click resolution is %d ms\n", mouse_setting.doubleclick);
 		}
 		else {
 			fprintf(stderr, "\tdouble click resolution is off\n");
 		}
 		if(mouse_mode == MOUSE_COORDINATES_FUNCTION)
-			fprintf(stderr, "\tcoordinate readout via mouseformat function %s\n",
-			    mouse_readout_function.definition);
+			fprintf(stderr, "\tcoordinate readout via mouseformat function %s\n", mouse_readout_function.definition);
 		else if(mouse_mode == MOUSE_COORDINATES_ALT)
-			fprintf(stderr, "\tcoordinate readout via mouseformat '%s'\n",
-			    mouse_alt_string);
+			fprintf(stderr, "\tcoordinate readout via mouseformat '%s'\n", mouse_alt_string);
 		else
-			fprintf(stderr, "\tcoordinate readout via mouseformat %d\n",
-			    (int)mouse_mode);
-		fprintf(stderr, "\tformat for individual coordinates is '%s'\n",
-		    mouse_setting.fmt);
+			fprintf(stderr, "\tcoordinate readout via mouseformat %d\n", (int)mouse_mode);
+		fprintf(stderr, "\tformat for individual coordinates is '%s'\n", mouse_setting.fmt);
 		if(mouse_setting.label) {
-			fprintf(stderr, "\tButton 2 draws persistent labels with options \"%s\"\n",
-			    mouse_setting.labelopts);
+			fprintf(stderr, "\tButton 2 draws persistent labels with options \"%s\"\n", mouse_setting.labelopts);
 		}
 		else {
 			fprintf(stderr, "\tButton 2 draws temporary labels\n");
 		}
-		fprintf(stderr, "\tzoom factors are x: %g   y: %g\n",
-		    mouse_setting.xmzoom_factor, mouse_setting.ymzoom_factor);
-		fprintf(stderr, "\tzoomjump is %s\n",
-		    mouse_setting.warp_pointer ? "on" : "off");
-		fprintf(stderr, "\tcommunication commands will %sbe shown\n",
-		    mouse_setting.verbose ? "" : "not ");
+		fprintf(stderr, "\tzoom factors are x: %g   y: %g\n", mouse_setting.xmzoom_factor, mouse_setting.ymzoom_factor);
+		fprintf(stderr, "\tzoomjump is %s\n", mouse_setting.warp_pointer ? "on" : "off");
+		fprintf(stderr, "\tcommunication commands will %sbe shown\n", mouse_setting.verbose ? "" : "not ");
 	}
 	else {
 		fprintf(stderr, "\tmouse is off\n");
@@ -3049,20 +2995,19 @@ static void show_variables()
 			fprintf(stderr, "\t%-*s ", len, udv->udv_name);
 			fputs("= ", stderr);
 			disp_value(stderr, &(udv->udv_value), TRUE);
-			(void)putc('\n', stderr);
+			putc('\n', stderr);
 		}
 		udv = udv->next_udv;
 	}
 }
-
-/* Show line style number <tag> (0 means show all) */
+//
+// Show line style number <tag> (0 means show all) 
+//
 static void show_linestyle(int tag)
 {
-	struct linestyle_def * this_linestyle;
+	linestyle_def * this_linestyle;
 	bool showed = FALSE;
-
-	for(this_linestyle = first_linestyle; this_linestyle != NULL;
-	    this_linestyle = this_linestyle->next) {
+	for(this_linestyle = first_linestyle; this_linestyle != NULL; this_linestyle = this_linestyle->next) {
 		if(tag == 0 || tag == this_linestyle->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tlinestyle %d, ", this_linestyle->tag);
@@ -3073,16 +3018,15 @@ static void show_linestyle(int tag)
 	if(tag > 0 && !showed)
 		GPO.IntErrorCurToken("linestyle not found");
 }
-
-/* Show linetype number <tag> (0 means show all) */
-static void show_linetype(struct linestyle_def * listhead, int tag)
+//
+// Show linetype number <tag> (0 means show all) 
+//
+static void show_linetype(linestyle_def * listhead, int tag)
 {
-	struct linestyle_def * this_linestyle;
+	linestyle_def * this_linestyle;
 	bool showed = FALSE;
 	int recycle_count = 0;
-
-	for(this_linestyle = listhead; this_linestyle != NULL;
-	    this_linestyle = this_linestyle->next) {
+	for(this_linestyle = listhead; this_linestyle != NULL; this_linestyle = this_linestyle->next) {
 		if(tag == 0 || tag == this_linestyle->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tlinetype %d, ", this_linestyle->tag);
@@ -3092,47 +3036,34 @@ static void show_linetype(struct linestyle_def * listhead, int tag)
 	}
 	if(tag > 0 && !showed)
 		GPO.IntErrorCurToken("linetype not found");
-
 	if(listhead == first_perm_linestyle)
 		recycle_count = linetype_recycle_count;
 	else if(listhead == first_mono_linestyle)
 		recycle_count = mono_recycle_count;
 
 	if(tag == 0 && recycle_count > 0)
-		fprintf(stderr, "\tLinetypes repeat every %d unless explicitly defined\n",
-		    recycle_count);
+		fprintf(stderr, "\tLinetypes repeat every %d unless explicitly defined\n", recycle_count);
 }
-
-/* Show arrow style number <tag> (0 means show all) */
+//
+// Show arrow style number <tag> (0 means show all) 
+//
 static void show_arrowstyle(int tag)
 {
-	struct arrowstyle_def * this_arrowstyle;
+	arrowstyle_def * this_arrowstyle;
 	bool showed = FALSE;
-
-	for(this_arrowstyle = first_arrowstyle; this_arrowstyle != NULL;
-	    this_arrowstyle = this_arrowstyle->next) {
+	for(this_arrowstyle = first_arrowstyle; this_arrowstyle != NULL; this_arrowstyle = this_arrowstyle->next) {
 		if(tag == 0 || tag == this_arrowstyle->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tarrowstyle %d, ", this_arrowstyle->tag);
 			fflush(stderr);
-
-			fprintf(stderr, "\t %s %s",
-			    arrow_head_names[this_arrowstyle->arrow_properties.head],
-			    this_arrowstyle->arrow_properties.layer ? "front" : "back");
+			fprintf(stderr, "\t %s %s", arrow_head_names[this_arrowstyle->arrow_properties.head], this_arrowstyle->arrow_properties.layer ? "front" : "back");
 			save_linetype(stderr, &(this_arrowstyle->arrow_properties.lp_properties), FALSE);
 			fputc('\n', stderr);
-
 			if(this_arrowstyle->arrow_properties.head > 0) {
-				fprintf(stderr, "\t  arrow heads: %s, ",
-				    (this_arrowstyle->arrow_properties.headfill==AS_FILLED) ? "filled" :
-				    (this_arrowstyle->arrow_properties.headfill==AS_EMPTY) ? "empty" :
-				    (this_arrowstyle->arrow_properties.headfill==AS_NOBORDER) ? "noborder" :
-				    "nofilled");
+				fprintf(stderr, "\t  arrow heads: %s, ", (this_arrowstyle->arrow_properties.headfill==AS_FILLED) ? "filled" :
+				    (this_arrowstyle->arrow_properties.headfill==AS_EMPTY) ? "empty" : (this_arrowstyle->arrow_properties.headfill==AS_NOBORDER) ? "noborder" : "nofilled");
 				if(this_arrowstyle->arrow_properties.head_length > 0) {
-					static char * msg[] =
-					{"(first x axis) ", "(second x axis) ",
-					 "(graph units) ", "(screen units) ",
-					 "(character units) "};
+					static char * msg[] = {"(first x axis) ", "(second x axis) ", "(graph units) ", "(screen units) ", "(character units) "};
 					fprintf(stderr, " length %s%g, angle %g deg",
 					    this_arrowstyle->arrow_properties.head_lengthunit ==
 					    first_axes ? "" : msg[this_arrowstyle->arrow_properties.head_lengthunit],
@@ -3145,9 +3076,7 @@ static void show_arrowstyle(int tag)
 				else {
 					fprintf(stderr, " (default length and angles)");
 				}
-
-				fprintf(stderr,
-				    (this_arrowstyle->arrow_properties.head_fixedsize) ? " fixed\n" : "\n");
+				fprintf(stderr, (this_arrowstyle->arrow_properties.head_fixedsize) ? " fixed\n" : "\n");
 			}
 		}
 	}

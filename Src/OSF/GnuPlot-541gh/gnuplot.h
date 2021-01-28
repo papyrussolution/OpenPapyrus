@@ -15,7 +15,11 @@
 #define HAVE_STRERROR
 #define HAVE_VFPRINTF
 #define HAVE_TIME_T_IN_TIME_H
+#define HAVE_FDOPEN
+//#define HAVE_LUA
+//#define HAVE_CAIROPDF
 //#define HAVE_AMOS
+#define HAVE_EXTERNAL_FUNCTIONS
 #define STDC_HEADERS
 #define HAVE_STDBOOL_H 1
 #define HAVE__BOOL
@@ -170,6 +174,12 @@
 	};
 
 	struct GpValue {
+		GpValue & Init(DATA_TYPES dtyp)
+		{
+			type = dtyp;
+			memzero(&v, sizeof(v));
+			return *this;
+		}
 		void   Destroy();
 		int    IntCheck() const;
 		enum DATA_TYPES type;
@@ -449,9 +459,17 @@
 	// user-defined variable table entry 
 	//
 	struct udvt_entry {
-		udvt_entry * next_udv; /* pointer to next value in linked list */
-		char * udv_name;        /* name of this value entry */
-		GpValue udv_value;      /* value it has */
+		udvt_entry() : next_udv(0), udv_name(0) 
+		{ 
+			udv_value.Init(NOTDEFINED);
+		}
+		udvt_entry(const char * pName, DATA_TYPES dtyp) : next_udv(0), udv_name(pName)
+		{
+			udv_value.Init(dtyp);
+		}
+		udvt_entry * next_udv; // pointer to next value in linked list 
+		const char * udv_name; // name of this value entry 
+		GpValue udv_value;     // value it has 
 	};
 	//
 	// p-code argument 
@@ -472,8 +490,8 @@
 	// standard/internal function table entry 
 	//
 	struct ft_entry {
-		const char * f_name;    /* pointer to name of this function */
-		FUNC_PTR func;          /* address of function to call */
+		const char * f_name; // pointer to name of this function 
+		FUNC_PTR Func_; // address of function to call 
 	};
 	//
 	// action table entry 
@@ -490,15 +508,30 @@
 	// 
 	// Variables of eval.c needed by other modules:
 	// 
-	extern const ft_entry ft[]; /* The table of builtin functions */
-	extern udft_entry * first_udf; /* user-def'd functions */
-	extern udvt_entry * first_udv; /* user-def'd variables */
-	extern udvt_entry udv_pi; /* 'pi' variable */
-	extern udvt_entry * udv_I; /* 'I' (sqrt(-1)) */
-	extern udvt_entry * udv_NaN; /* 'NaN' variable */
-	extern udvt_entry ** udv_user_head; /* first udv that can be deleted */
-	extern bool __IsUndefined;
+	extern const ft_entry _FuncTab[]; // The table of builtin functions 
+	extern udft_entry * first_udf; // user-def'd functions 
+	extern udvt_entry * first_udv; // user-def'd variables 
+	extern udvt_entry udv_pi; // 'pi' variable 
+	extern udvt_entry * udv_I; // 'I' (sqrt(-1)) 
+	extern udvt_entry * udv_NaN; // 'NaN' variable 
+	extern udvt_entry ** udv_user_head; // first udv that can be deleted 
 	extern enum int64_overflow overflow_handling;
+	extern bool __IsUndefined;
+
+	class GpEval {
+	public:
+		GpEval() : P_FirstUdf(0), P_FirstUdv(0), P_UdvI(0), P_UdvNaN(0), PP_UdvUserHead(0), 
+			OverflowHandling(INT64_OVERFLOW_TO_FLOAT)
+		{
+		}
+		udft_entry * P_FirstUdf; // user-def'd functions 
+		udvt_entry * P_FirstUdv; // user-def'd variables 
+		udvt_entry   UdvPi; // 'pi' variable 
+		udvt_entry * P_UdvI; // 'I' (sqrt(-1)) 
+		udvt_entry * P_UdvNaN; // 'NaN' variable 
+		udvt_entry ** PP_UdvUserHead; // first udv that can be deleted 
+		enum int64_overflow OverflowHandling;		
+	};
 	//
 	// Prototypes of functions exported by eval.c 
 	//
@@ -572,7 +605,7 @@
 	//
 	// Prototypes of exported functions in parse.c 
 	//
-	intgr_t int_expression();
+	//intgr_t int_expression();
 	//double GPO.RealExpression();
 	void   parse_reset_after_error();
 	GpValue * const_string_express(GpValue * valptr);
@@ -933,7 +966,7 @@ enum t_fillstyle {
 
 	// (replaced with GnuPlot::SmPltt) extern t_sm_palette sm_palette_Removed; // @global
 
-	void   init_color();  /* call once to initialize variables */
+	//void   init_color();  /* call once to initialize variables */
 	// 
 	// Make the colour palette. Return 0 on success
 	// Put number of allocated colours into sm_palette.colors
@@ -1791,7 +1824,7 @@ enum t_fillstyle {
 	char * get_terminals_names();
 	struct termentry * set_term();
 	void init_terminal();
-	void test_term();
+	//void test_term(termentry * pTerm);
 
 	/* Support for enhanced text mode. */
 	const char * enhanced_recursion(const char * p, bool brace, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
@@ -2556,7 +2589,7 @@ enum t_fillstyle {
 	void clip_vector(termentry * pTerm, int x, int y);
 	void draw_polar_clip_line(termentry * pTerm, double, double, double, double);
 	// Common routines for setting line or text color from t_colorspec 
-	void apply_pm3dcolor(struct t_colorspec * tc);
+	void apply_pm3dcolor(termentry * pTerm, t_colorspec * tc);
 	void reset_textcolor(const struct t_colorspec * tc);
 	// Timestamp code shared by 2D and 3D 
 	void do_timelabel(int x, int y);
@@ -3088,8 +3121,8 @@ enum t_fillstyle {
 	//void   FASTCALL axis_check_range(AXIS_INDEX);
 	void   FASTCALL axis_init(GpAxis * this_axis, bool infinite);
 	void   set_explicit_range(GpAxis * axis, double newmin, double newmax);
-	double axis_log_value_checked(AXIS_INDEX, double, const char *);
-	void   FASTCALL axis_checked_extend_empty_range(AXIS_INDEX, const char * mesg);
+	//double axis_log_value_checked(AXIS_INDEX, double, const char *);
+	//void   FASTCALL axis_checked_extend_empty_range(AXIS_INDEX, const char * mesg);
 	void   FASTCALL axis_check_empty_nonlinear(const GpAxis * this_axis);
 	char * copy_or_invent_formatstring(GpAxis *);
 	double quantize_normal_tics(double, int);
@@ -3102,29 +3135,29 @@ enum t_fillstyle {
 	void   add_tic_user(GpAxis *, char *, double, int);
 	double FASTCALL get_num_or_time(const GpAxis *);
 	//bool   FASTCALL bad_axis_range(const GpAxis * axis);
-	void   save_writeback_all_axes();
-	int    parse_range(AXIS_INDEX axis);
+	//void   save_writeback_all_axes();
+	//int    parse_range(AXIS_INDEX axis);
 	//void   parse_skip_range();
 	void   check_axis_reversed(AXIS_INDEX axis);
 
 	/* set widest_tic_label: length of the longest tics label */
 	void   widest_tic_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark *);
-	void   get_position(struct GpPosition * pos);
-	void   get_position_default(struct GpPosition * pos, enum position_type default_type, int ndim);
+	//void   get_position(struct GpPosition * pos);
+	//void   get_position_default(struct GpPosition * pos, enum position_type default_type, int ndim);
 	void   gstrdms(char * label, char * format, double value);
-	void   clone_linked_axes(GpAxis * axis1, GpAxis * axis2);
+	//void   clone_linked_axes(GpAxis * axis1, GpAxis * axis2);
 	//GpAxis * get_shadow_axis(GpAxis * axis);
 	void   extend_primary_ticrange(GpAxis * axis);
 	void   update_primary_axis_range(GpAxis * secondary);
-	void   update_secondary_axis_range(GpAxis * primary);
+	//void   update_secondary_axis_range(GpAxis * primary);
 	void   reconcile_linked_axes(GpAxis * primary, GpAxis * secondary);
 	//int    map_x(double value);
 	//int    map_y(double value);
 	//double map_x_double(double value);
 	//double map_y_double(double value);
-	coord_type polar_to_xy(double theta, double r, double * x, double * y, bool update);
-	double polar_radius(double r);
-	void   set_cbminmax();
+	//coord_type polar_to_xy(double theta, double r, double * x, double * y, bool update);
+	//double polar_radius(double r);
+	//void   set_cbminmax();
 	void   save_autoscaled_ranges(const GpAxis *, const GpAxis *);
 	void   restore_autoscaled_ranges(GpAxis *, GpAxis *);
 	char * FASTCALL axis_name(AXIS_INDEX);
@@ -3317,9 +3350,9 @@ enum t_fillstyle {
 	//void do_command();
 	void if_command();
 	void else_command();
-	void import_command();
+	//void import_command();
 	void invalid_command();
-	void link_command();
+	//void link_command();
 	void load_command();
 	void begin_clause();
 	void clause_reset_after_error();
@@ -3353,7 +3386,7 @@ enum t_fillstyle {
 	int  com_line();
 	//int  do_line();
 	void do_string(const char* s);
-	void do_string_and_free(char* s);
+	//void do_string_and_free(char * s);
 	bool iteration_early_exit();
 	#ifdef USE_MOUSE
 		void toggle_display_of_ipc_commands();
@@ -3561,8 +3594,8 @@ enum t_fillstyle {
 	// function prototypes 
 	//
 	//void do_plot(termentry * pTerm, curve_points *, int);
-	void map_position(GpPosition * pos, int *x, int *y, const char *what);
-	void map_position_r(const termentry * pTerm, GpPosition * pos, double* x, double* y, const char* what);
+	//void map_position(GpPosition * pos, int *x, int *y, const char *what);
+	//void map_position_r(const termentry * pTerm, GpPosition * pos, double* x, double* y, const char* what);
 	void init_histogram(struct histogram_style * hist, text_label *title);
 	void free_histlist(struct histogram_style * hist);
 
@@ -3572,7 +3605,7 @@ enum t_fillstyle {
 		IMG_UPDATE_CORNERS
 	};
 
-	void   process_image(termentry * pTerm, const void * plot, t_procimg_action action);
+	//void   process_image(termentry * pTerm, const void * plot, t_procimg_action action);
 	bool   check_for_variable_color(curve_points * plot, double * colorvalue);
 	void   autoscale_boxplot(curve_points *plot);
 	void   place_objects(struct GpObject *listhead, int layer, int dimensions);
@@ -3719,7 +3752,7 @@ enum t_fillstyle {
 	//
 	// prototypes from plot3d.c 
 	//
-	void plot3drequest();
+	//void plot3drequest();
 	void refresh_3dbounds(struct surface_points *first_plot, int nplots);
 	void sp_free(struct surface_points *sp);
 //
@@ -3861,11 +3894,11 @@ enum t_fillstyle {
 	//
 	// Prototypes from file "graph3d.c" 
 	//
-	void do_3dplot(termentry * pTerm, surface_points * plots, int pcount, REPLOT_TYPE quick);
-	void map3d_position(GpPosition * pos, int * x, int * y, const char * what);
-	void map3d_position_double(GpPosition * pos, double * x, double * y, const char * what);
+	//void do_3dplot(termentry * pTerm, surface_points * plots, int pcount, REPLOT_TYPE quick);
+	//void map3d_position(GpPosition * pos, int * x, int * y, const char * what);
+	//void map3d_position_double(GpPosition * pos, double * x, double * y, const char * what);
 	void map3d_position_r(GpPosition * pos, int * x, int * y, const char * what);
-	void map3d_position_r_double(GpPosition * pos, double * x, double * y, const char * what);
+	//void map3d_position_r_double(GpPosition * pos, double * x, double * y, const char * what);
 //
 //#include <pm3d.h>
 	#ifndef TERM_HELP
@@ -4512,7 +4545,7 @@ enum t_fillstyle {
 	// and some accessible support functions 
 	void show_version(FILE *fp);
 	void set_format();
-	void set_colorsequence(int option);
+	//void set_colorsequence(int option);
 	const char * FASTCALL conv_text(const char * s);
 	void delete_linestyle(struct linestyle_def **, struct linestyle_def *, struct linestyle_def *);
 	void delete_dashtype(struct custom_dashtype_def *, struct custom_dashtype_def *);
@@ -4520,7 +4553,7 @@ enum t_fillstyle {
 	void reset_key();
 	void free_marklist(struct ticmark * list);
 	extern int enable_reset_palette;
-	void reset_palette();
+	//void reset_palette();
 	void reset_bars();
 	void rrange_to_xy();
 	void unset_monochrome();
@@ -5192,10 +5225,13 @@ public:
 	void   EvalPlots();
 	void   Eval3DPlots();
 	void   DoPlot(termentry * pTerm, curve_points * plots, int pcount);
+	void   Do3DPlot(termentry * pTerm, surface_points * plots, int pcount/* count of plots in linked list */, REPLOT_TYPE replot_mode/* replot/refresh/axes-only/quick-refresh */);
+	void   DoStringAndFree(char * cmdline);
 	void   EvaluateAt(at_type * pAt, GpValue * pVal);
 	double EvalLinkFunction(const GpAxis * pAx, double raw_coord);
 	GpValue * ConstExpress(GpValue * pVal);
 	double RealExpression();
+	intgr_t IntExpression();
 	void   IntError(int t_num, const char * pStr, ...);
 	void   IntErrorCurToken(const char * pStr, ...);
 	void   IntWarn(int t_num, const char * pStr, ...);
@@ -5205,30 +5241,56 @@ public:
 	void   FitCommand();
 	void   ExitCommand();
 	void   ShowCommand();
+	void   LinkCommand();
+	void   ImportCommand();
 	void   PrintLineWithError(int t_num);
 	void   PlotOptionEvery();
 	void   PlotOptionUsing(int max_using);
 	void   PlotOptionIndex();
+	void   Plot3DRequest();
 	void   RefreshRequest();
 	int    LpParse(lp_style_type * lp, lp_class destination_class, bool allow_point);
 	void   ArrowParse(arrow_style_type * arrow, bool allow_as);
 	int    MakePalette();
+	double AxisLogValueChecked(AXIS_INDEX axis, double coord, const char * pWhat);
+	void   AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg);
+	void   CloneLinkedAxes(GpAxis * pAx1, GpAxis * pAx2);
+	void   MapPositionR(const termentry * pTerm, GpPosition * pos, double * x, double * y, const char * what);
+	void   MapPositionDouble(const termentry * pTerm, GpPosition * pos, double * x, double * y, const char * what);
+	void   MapPosition(const termentry * pTerm, GpPosition * pos, int * x, int * y, const char * what);
 	void   Map3D_XYZ(double x, double y, double z/* user coordinates */, GpVertex * pOut);
 	void   Map3D_XY_double(double x, double y, double z, double * xt, double * yt);
 	void   Map3D_XY(double x, double y, double z, int * xt, int * yt);
+	int    Map3DGetPosition(GpPosition * pos, const char * what, double * xpos, double * ypos, double * zpos);
+	void   Map3DPositionRDouble(GpPosition * pos, double * xx, double * yy, const char * what);
+	void   Map3DPositionDouble(GpPosition * pos, double * x, double * y, const char * what);
+	void   Map3DPosition(GpPosition * pos, int * x, int * y, const char * what);
+	coord_type PolarToXY(double theta, double r, double * x, double * y, bool update);
+	double PolarRadius(double r);
+	void   GetPositionDefault(GpPosition * pos, enum position_type default_type, int ndim);
+	void   GetPosition(GpPosition * pos);
 	void   Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, double * ey, double * ez/* the point where it crosses an edge */);
 	bool   TwoEdge3DIntersect(coordinate * p0, coordinate * p1, double * lx, double * ly, double * lz/* lx[2], ly[2], lz[2]: points where it crosses edges */);
+	void   ProcessImage(termentry * pTerm, const void * plot, t_procimg_action action);
+	void   ApplyZoom(t_zoom * z);
 
 	void   ParseUnaryExpression();
 	void   ParseMultiplicativeExpression();
 	void   ParseAdditiveExpression();
+	int    ParseRange(AXIS_INDEX axis);
 	void   AcceptMultiplicativeExpression();
 	void   AcceptAdditiveExpression();
 	void   AcceptBitshiftExpression();
-
+	void   ResetPalette();
+	void   SetColorSequence(int option);
+	void   SetCntrParam();
+	void   SetAutoscale();
 	void   UnsetPolar();
+	void   UnsetStyle();
+	void   TestTerminal(termentry * pTerm);
 
 	GpStack EvStk;
+	GpEval  Ev;
 	GpAxisSet AxS;
 	GpProgram Pgm;
 	t_sm_palette SmPltt;
@@ -5243,6 +5305,7 @@ private:
 	void   PlotPoints(termentry * pTerm, curve_points * plot);
 	void   PlotVectors(termentry * pTerm, curve_points * plot);
 	void   PlaceGrid(termentry * pTerm, int layer);
+	void   Plot3DBoxErrorBars(termentry * pTerm, surface_points * plot);
 	void   SetLogScale();
 	void   SetMargin(t_position * pMargin);
 	void   SetPalette();
@@ -5261,12 +5324,19 @@ private:
 	void   SetDataFile();
 	void   SetTimeData(GpAxis * pAx);
 	void   SetRange(GpAxis * pAx);
+	void   SetCbMinMax();
+	void   SetOverflow();
+	void   SaveWritebackAllAxes();
+	void   UpdateSecondaryAxisRange(GpAxis * pAxPrimary);
 	double MapX3D(double x);
 	double MapY3D(double y);
 	double MapZ3D(double z);
 	void   ParsePrimaryExpression();
 	void   ParseSumExpression();
 	void   ParseBitshiftExpression();
+	void   GetPositionType(enum position_type * type, AXIS_INDEX * axes);
+	void   InitColor();
+	int    SetPaletteDefined();
 };
 
 extern GnuPlot GPO; // @global

@@ -1,62 +1,6 @@
-/* GNUPLOT - external.c */
-
-/*[
- * Copyright 2002 Stephan Boettcher
- *
- * Gnuplot license:
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
- *
- * Alternative license:
- *
- * As an alternative to distributing code in this file under the gnuplot license,
- * you may instead comply with the terms below. In this case, redistribution and
- * use in source and binary forms, with or without modification, are permitted
- * provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.  Redistributions in binary
- * form must reproduce the above copyright notice, this list of conditions and
- * the following disclaimer in the documentation and/or other materials provided
- * with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
-   ]*/
+// GNUPLOT - external.c 
+// Copyright 2002 Stephan Boettcher
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -74,12 +18,12 @@ struct exft_entry {
 	exfn_t exfn;
 	fifn_t fifn;
 	struct udft_entry * args;
-	void * private;
+	void * P_Private;
 };
 
 void f_calle(union argument * x)
 {
-	GpValue r = x->exf_arg->exfn(x->exf_arg->args->dummy_num, x->exf_arg->args->dummy_values, x->exf_arg->private);
+	GpValue r = x->exf_arg->exfn(x->exf_arg->args->dummy_num, x->exf_arg->args->dummy_values, x->exf_arg->P_Private);
 	if(r.type == INVALID_VALUE)
 		r = udv_NaN->udv_value;
 	GPO.EvStk.Push(&r);
@@ -94,7 +38,6 @@ void f_calle(union argument * x)
 		return dl;
 	}
 #endif
-
 /*
    Parse the string argument for a dll filename and function.  Create a
    one-item action list that calls a plugin function.  Call the _init,
@@ -109,7 +52,7 @@ struct at_type * external_at(const char * func_name)
 	exfn_t exfn;
 	infn_t infn;
 	fifn_t fifn;
-	struct at_type * at = NULL;
+	at_type * at = NULL;
 	if(!GPO.Pgm.IsString(GPO.Pgm.GetCurTokenIdx()))
 		GPO.IntErrorCurToken("expecting external function filename");
 	// NB: cannot use try_to_get_string() inside an expression evaluation 
@@ -141,7 +84,7 @@ struct at_type * external_at(const char * func_name)
 		int no_ext = 0;
 #endif
 		if(no_path || no_ext) {
-			char * nfile = gp_alloc(strlen(file)+7, "exfn filename");
+			char * nfile = (char *)gp_alloc(strlen(file)+7, "exfn filename");
 #ifdef DLL_EXT
 			if(no_ext) {
 				strcpy(nfile, file);
@@ -183,12 +126,12 @@ struct at_type * external_at(const char * func_name)
 	}
 	infn = (infn_t)DLL_SYM(dl, "gnuplot_init");
 	fifn = (fifn_t)DLL_SYM(dl, "gnuplot_fini");
-	if(!(at = gp_alloc(sizeof(struct at_type), "external_at")))
+	if(!(at = (at_type *)gp_alloc(sizeof(at_type), "external_at")))
 		goto bailout;
 	memzero(at, sizeof(*at));       /* reset action table !!! */
 	at->a_count = 1;
 	at->actions[0].index = CALLE;
-	at->actions[0].arg.exf_arg = gp_alloc(sizeof(struct exft_entry), "external_at");
+	at->actions[0].arg.exf_arg = (exft_entry *)gp_alloc(sizeof(exft_entry), "external_at");
 	if(!at->actions[0].arg.exf_arg) {
 		ZFREE(at);
 		goto bailout;
@@ -197,9 +140,9 @@ struct at_type * external_at(const char * func_name)
 	at->actions[0].arg.exf_arg->fifn = fifn;
 	at->actions[0].arg.exf_arg->args = dummy_func;
 	if(!infn)
-		at->actions[0].arg.exf_arg->private = 0x0;
+		at->actions[0].arg.exf_arg->P_Private = 0x0;
 	else
-		at->actions[0].arg.exf_arg->private = (*infn)(exfn);
+		at->actions[0].arg.exf_arg->P_Private = (*infn)(exfn);
 bailout:
 	GPO.Pgm.Shift();
 	SAlloc::F(file);
@@ -212,7 +155,7 @@ bailout:
 void external_free(struct at_type * at)
 {
 	if(at && at->a_count == 1 && at->actions[0].index == CALLE && at->actions[0].arg.exf_arg->fifn)
-		(*at->actions[0].arg.exf_arg->fifn)(at->actions[0].arg.exf_arg->private);
+		(*at->actions[0].arg.exf_arg->fifn)(at->actions[0].arg.exf_arg->P_Private);
 }
 
 #endif /* HAVE_EXTERNAL_FUNCTIONS */

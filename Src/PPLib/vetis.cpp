@@ -1347,7 +1347,8 @@ public:
 		signResolveDiscrepancy,              // @v10.5.0
 		signModifyProducerStockListOperation, // @v10.5.2
 		signGetStockEntryByUUID, // @v10.5.9
-		signRegisterProduction   // @v10.6.10
+		signRegisterProduction,  // @v10.6.10
+		signCheckShipmentRegionalization // @v11.0.0
 	};
 	explicit VetisApplicationData(long sign) : Sign(sign)
 	{
@@ -1487,6 +1488,15 @@ public:
 	}
 	VetisRegisterModificationType ModType;
 	VetisProductItem Pi;
+};
+
+class CheckShipmentRegionalizationRequest : public VetisApplicationData {
+public:
+	CheckShipmentRegionalizationRequest() : VetisApplicationData(signCheckShipmentRegionalization)
+	{
+	}
+	UuidArray SubGroupGuidList; // cargoType list
+	TSCollection <VetisShipmentRoutePoint> RoutePointList;
 };
 
 class VetisResolveDiscrepancyRequest : public VetisApplicationData { // @v10.5.0
@@ -3338,6 +3348,7 @@ public:
 	int    GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock & rReply);
 	int    GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBlock & rReply);
 	int    ModifyProducerStockListOperation(VetisRegisterModificationType modType, VetisProductItem & rPi, VetisApplicationBlock & rReply);
+	int    CheckShipmentRegionalizationOperation(const UuidArray & rSubProductList, const TSCollection <VetisShipmentRoutePoint> & rRoutePointList, VetisApplicationBlock & rReply); // @v11.0.0
 	enum {
 		qtProductItemByGuid = 1,
 		qtProductItemByUuid,
@@ -4995,79 +5006,6 @@ static SString & FASTCALL VGuidToStr(const S_GUID & rGuid, SString & rBuf)
 
 int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplicationBlock & rResult)
 {
-	/*
-<SOAP-ENV:Envelope 
-	xmlns:dt="http://api.vetrf.ru/schema/cdm/dictionary/v2" 
-	xmlns:bs="http://api.vetrf.ru/schema/cdm/base" 
-	xmlns:merc="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2" 
-	xmlns:apldef="http://api.vetrf.ru/schema/cdm/application/ws-definitions" 
-	xmlns:apl="http://api.vetrf.ru/schema/cdm/application" 
-	xmlns:vd="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2" 
-	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-  <SOAP-ENV:Header/>
-  <SOAP-ENV:Body>
-    <apldef:submitApplicationRequest>
-      <apldef:apiKey>apikey</apldef:apiKey>
-      <apl:application>
-        <apl:serviceId>mercury-g2b.service:2.0</apl:serviceId>
-        <apl:issuerId>issuerId</apl:issuerId>
-        <apl:issueDate>2017-09-18T19:58:14</apl:issueDate>
-        <apl:data>
-          <merc:modifyEnterpriseRequest>
-            <merc:localTransactionId>a10003</merc:localTransactionId>
-            <merc:initiator>
-              <vd:login>user_login</vd:login>
-            </merc:initiator>
-            <merc:modificationOperation>
-              <vd:type>CREATE</vd:type>
-              <vd:resultingList>
-                <dt:enterprise>
-                  <dt:name>Детский сад №4</dt:name>
-                  <dt:type>1</dt:type>
-                  <dt:address>
-                    <dt:country>
-                      <bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
-                    </dt:country>
-                    <dt:region>
-                      <bs:guid>b8837188-39ee-4ff9-bc91-fcc9ed451bb3</bs:guid>
-                    </dt:region>
-                    <dt:locality>
-                      <bs:guid>0d7d5d87-f0a6-428f-b655-d3be106c64a2</bs:guid>
-                    </dt:locality>
-                    <dt:addressView>600021, обл.Владимирская, г.Муром, ул.Октябрьской Революции,д.2Б</dt:addressView>
-                  </dt:address>
-                  <dt:activityList>
-                    <dt:activity>
-                      <dt:name>Приготовление полуфабрикатов</dt:name>
-                    </dt:activity>
-                    <dt:activity>
-                      <dt:name>Реализация пищевых продуктов</dt:name>
-                    </dt:activity>
-                    <dt:activity>
-                      <dt:name>Реализация непищевых продуктов</dt:name>
-                    </dt:activity>
-                  </dt:activityList>
-                  <dt:owner>
-                    <bs:guid>fcd89443-218a-11e2-a69b-b499babae7ea</bs:guid>
-                  </dt:owner>
-                  <dt:officialRegistration>
-                    <dt:ID>123456</dt:ID>
-                    <dt:businessEntity>
-                      <dt:inn>5702001741</dt:inn>
-                    </dt:businessEntity>
-                    <dt:kpp>570201001</dt:kpp>
-                  </dt:officialRegistration>
-                </dt:enterprise>
-              </vd:resultingList>
-              <vd:reason>Причина добавления предприятия в реестр вот такая вот.</vd:reason>
-            </merc:modificationOperation>
-          </merc:modifyEnterpriseRequest>
-        </apl:data>
-      </apl:application>
-    </apldef:submitApplicationRequest>
-  </SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
-	*/
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
@@ -5076,7 +5014,150 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 	THROW(rAppBlk.P_AppParam);
 	{
 		VetisSubmitRequestBlock srb;
-		if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyEnterprise) {
+		if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signCheckShipmentRegionalization) { // @v11.0.0
+			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
+			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib_Ns("dt",     "api.vetrf.ru", "schema/cdm/dictionary/v2");
+			n_env.PutAttrib_Ns("bs",     "api.vetrf.ru", "schema/cdm/base");
+			n_env.PutAttrib_Ns("merc",   "api.vetrf.ru", "schema/cdm/mercury/g2b/applications/v2");
+			n_env.PutAttrib_Ns("apldef", "api.vetrf.ru", "schema/cdm/application/ws-definitions");
+			n_env.PutAttrib_Ns("apl",    "api.vetrf.ru", "schema/cdm/application");
+			n_env.PutAttrib_Ns("vd",     "api.vetrf.ru", "schema/cdm/mercury/vet-document/v2");
+			PutHeader(srb);
+			{
+				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
+				{
+					SXml::WNode n_f(srb, SXml::nst("apldef", "submitApplicationRequest"));
+					P.GetExtStrData(extssApiKey, temp_buf);
+					n_f.PutInner(SXml::nst("apldef", "apiKey"), temp_buf);
+					{
+						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
+						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
+						{
+							const CheckShipmentRegionalizationRequest * p_req = static_cast<const CheckShipmentRegionalizationRequest *>(rAppBlk.P_AppParam);
+							SXml::WNode n_req(srb, SXml::nst("merc", "checkShipmentRegionalizationRequest"));
+							n_req.PutInner(SXml::nst("merc", "localTransactionId"), temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
+							PutInitiator(srb, "merc", "vd", rAppBlk.User);
+							{
+								/*
+									cargoType
+									shipmentRoute
+										routePoint
+											sqnId
+											location
+												address
+													country
+													region
+													district
+													locality
+													subLocality
+											enterprise
+								*/
+							}
+						}
+					}
+				}
+			}
+				/*
+			<SOAP-ENV:Envelope 
+				xmlns:dt="http://api.vetrf.ru/schema/cdm/dictionary/v2" 
+				xmlns:bs="http://api.vetrf.ru/schema/cdm/base" 
+				xmlns:merc="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2" 
+				xmlns:apldef="http://api.vetrf.ru/schema/cdm/application/ws-definitions" 
+				xmlns:apl="http://api.vetrf.ru/schema/cdm/application" 
+				xmlns:vd="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2" 
+				xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+			  <SOAP-ENV:Header/>
+			  <SOAP-ENV:Body>
+				<apldef:submitApplicationRequest>
+				  <apldef:apiKey>apikey</apldef:apiKey>
+				  <apl:application>
+					<apl:serviceId>mercury-g2b.service:2.0</apl:serviceId>
+					<apl:issuerId>issuerId</apl:issuerId>
+					<apl:issueDate>2017-09-29T16:58:30</apl:issueDate>
+					<apl:data>
+					  <merc:checkShipmentRegionalizationRequest>
+						<merc:localTransactionId>a10003</merc:localTransactionId>
+						<merc:initiator>
+						  <vd:login>user_login</vd:login>
+						</merc:initiator>
+						<dt:cargoType>
+						  <bs:guid>205e0d95-119b-0aa3-5be8-261b9efb574a</bs:guid>
+						</dt:cargoType>
+						<dt:cargoType>
+						  <bs:guid>55d3c8dc-432d-58c8-151f-cda720795add</bs:guid>
+						</dt:cargoType>
+						<vd:shipmentRoute>
+						  <vd:routePoint>
+							<vd:sqnId>1</vd:sqnId>
+							<vd:enterprise>
+							  <bs:guid>ac264dc6-a3eb-4b0f-a86a-9c9577209d6f</bs:guid>
+							</vd:enterprise>
+						  </vd:routePoint>
+						  <vd:routePoint>
+							<vd:sqnId>2</vd:sqnId>
+							<vd:location>
+							  <dt:address>
+								<dt:country>
+								  <bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
+								</dt:country>
+								<dt:region>
+								  <bs:guid>d00e1013-16bd-4c09-b3d5-3cb09fc54bd8</bs:guid>
+								</dt:region>
+								<dt:district>
+								  <bs:guid>f4ab6f10-4f56-4ebd-a881-4b767dbf4473</bs:guid>
+								</dt:district>
+								<dt:locality>
+								  <bs:guid>6f039940-2e3b-4857-a30e-c142865d859e</bs:guid>
+								</dt:locality>
+							  </dt:address>
+							</vd:location>
+						  </vd:routePoint>
+						  <vd:routePoint>
+							<vd:sqnId>3</vd:sqnId>
+							<vd:location>
+							  <dt:address>
+								<dt:country>
+								  <bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
+								</dt:country>
+								<dt:region>
+								  <bs:guid>889b1f3a-98aa-40fc-9d3d-0f41192758ab</bs:guid>
+								</dt:region>
+								<dt:locality>
+								  <bs:guid>e3b0eae8-a4ce-4779-ae04-5c0797de66be</bs:guid>
+								</dt:locality>
+							  </dt:address>
+							</vd:location>
+						  </vd:routePoint>
+						  <vd:routePoint>
+							<vd:sqnId>4</vd:sqnId>
+							<vd:location>
+							  <dt:address>
+								<dt:country>
+								  <bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
+								</dt:country>
+								<dt:region>
+								  <bs:guid>d028ec4f-f6da-4843-ada6-b68b3e0efa3d</bs:guid>
+								</dt:region>
+								<dt:locality>
+								  <bs:guid>b2601b18-6da2-4789-9fbe-800dde06a2bb</bs:guid>
+								</dt:locality>
+							  </dt:address>
+							</vd:location>
+						  </vd:routePoint>
+						</vd:shipmentRoute>
+					  </merc:checkShipmentRegionalizationRequest>
+					</apl:data>
+				  </apl:application>
+				</apldef:submitApplicationRequest>
+			  </SOAP-ENV:Body>
+			</SOAP-ENV:Envelope>
+			*/
+		}
+		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyEnterprise) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			n_env.PutAttrib_Ns("dt",     "api.vetrf.ru", "schema/cdm/dictionary/v2");
@@ -7392,6 +7473,26 @@ int PPVetisInterface::ModifyProducerStockListOperation(VetisRegisterModification
 	int    ok = -1;
 	ModifyProducerStockListOperationRequest app_data(modType);
 	app_data.Pi = rPi;
+	{
+		rReply.Clear();
+		VetisApplicationBlock submit_result;
+		VetisApplicationBlock blk(2, &app_data);
+		THROW(SubmitRequest(blk, submit_result));
+		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
+			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPVetisInterface::CheckShipmentRegionalizationOperation(const UuidArray & rSubProductList, const TSCollection <VetisShipmentRoutePoint> & rRoutePointList, VetisApplicationBlock & rReply) // @v11.0.0
+{
+	int    ok = -1;
+	CheckShipmentRegionalizationRequest app_data;
+	app_data.SubGroupGuidList = rSubProductList;
+	TSCollection_Copy(app_data.RoutePointList, rRoutePointList);
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
@@ -10998,7 +11099,6 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 								logger.LogLastError();
 						}
 						else {
-							// @v10.2.0 {
 							{
 								PPLoadText(PPTXT_VETISOUTGSENDING, fmt_buf);
 								BillTbl::Rec link_bill_rec;
@@ -11013,13 +11113,11 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 										addendum_msg_buf.Space().Cat(temp_buf);
 									}
 								}
-								else {
+								else
 									addendum_msg_buf.CatEq("BillID", vd_rec.LinkBillID).Space().CatChar('#').Cat(vd_rec.LinkBillRow);
-								}
 								msg_buf.Printf(fmt_buf, addendum_msg_buf.cptr());
 								logger.Log(msg_buf);
 							}
-							// } @v10.2.0
 							int cr = ifc.PrepareOutgoingConsignment(entity_id, &ure_list, reply);
 							if(cr > 0)
 								ok = 1;

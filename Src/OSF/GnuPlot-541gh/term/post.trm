@@ -267,8 +267,8 @@ static void PS_skip_image(int bytes, int x0, int y0, int dx, int dy);
 static void PS_dump_header_to_file(char * name);
 #endif
 
-static float ps_fontsize = 14.;
-static float ps_fontsize_previous = -1.;
+static float ps_fontsize = 14.0;
+static float ps_fontsize_previous = -1.0;
 
 /* for enhanced mode, we keep a separate font name and size, which
  * is restored to the default value on font of ""
@@ -1052,7 +1052,7 @@ TERM_PUBLIC void PS_options()
 				    goto PS_options_error;
 			    set_palfunc = TRUE;
 			    GPO.Pgm.Shift();
-			    ps_params->palfunc_samples = int_expression();
+			    ps_params->palfunc_samples = GPO.IntExpression();
 			    if(ps_params->palfunc_samples < 2)
 				    ps_params->palfunc_samples = 2;
 			    if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(",")) {
@@ -1122,9 +1122,9 @@ TERM_PUBLIC void PS_options()
 	}
 	/* Sanity checks on fontsize */
 	if(ps_params->fontsize > 1000.)
-		ps_params->fontsize = 100.;
+		ps_params->fontsize = 100.0;
 	if(ps_params->fontsize <= 0)
-		ps_params->fontsize = 14.;
+		ps_params->fontsize = 14.0;
 	switch(ps_params->terminal) {
 		case PSTERM_POSTSCRIPT:
 		    ps_fontsize = ps_params->fontsize;
@@ -2685,40 +2685,25 @@ TERM_PUBLIC void ENHPS_put_text(uint x, uint y, const char * str)
 	 * "font,size". That is to say, ps_params->font is used only
 	 * at startup and by ENHPS_set_font
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE, ps_enh_font,
-	    (double)(ps_enh_fontsize*PS_SCF), 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, ps_enh_font, (double)(ps_enh_fontsize*PS_SCF), 0.0, TRUE, TRUE, 0))) {
 		ENHPS_FLUSH();
-
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
-
 		if(!*++str)
 			break; /* end of string */
-
 		/* else carry on and process the rest of the string */
 	}
-
 	enhanced_max_height += enhanced_min_height;
-
 	fprintf(gppsfile, "] %.1f ", -enhanced_max_height/3);
-
 	switch(ps_justify) {
-		case LEFT:
-		    fputs("MLshow\n", gppsfile);
-		    break;
-		case CENTRE:
-		    fputs("MCshow\n", gppsfile);
-		    break;
-		case RIGHT:
-		    fputs("MRshow\n", gppsfile);
-		    break;
+		case LEFT: fputs("MLshow\n", gppsfile); break;
+		case CENTRE: fputs("MCshow\n", gppsfile); break;
+		case RIGHT: fputs("MRshow\n", gppsfile); break;
 	}
-
 	if(ps_ang != 0 && (PS_in_textbox == 0))
 		fputs("grestore\n", gppsfile);
 	ps_path_count = 0;
 	PS_relative_ok = FALSE;
-
 	/* Apr 2018: Unlike other terminals, this leaves the last-used font
 	 * in the enhanced text string active.  For a long time we dealt with
 	 * this by calling term->set_font("") in ignore_enhanced(), but that
@@ -3029,16 +3014,14 @@ TERM_PUBLIC void PS_set_color(t_colorspec * colorspec)
 		fprintf(gppsfile, "LC%1c setrgbcolor\n", "wba012345678"[linetype]);
 	}
 	else if(colorspec->type == TC_RGB) {
-		double r = (double)((colorspec->lt >> 16 ) & 255) / 255.;
-		double g = (double)((colorspec->lt >> 8 ) & 255) / 255.;
-		double b = (double)(colorspec->lt & 255) / 255.;
+		double r = (double)((colorspec->lt >> 16) & 255) / 255.0;
+		double g = (double)((colorspec->lt >> 8) & 255) / 255.0;
+		double b = (double)(colorspec->lt & 255) / 255.0;
 		PS_FLUSH_PATH;
 		fprintf(gppsfile, "%3.2f %3.2f %3.2f C\n", r, g, b);
 	}
-
 	if(colorspec->type != TC_FRAC)
 		return;
-
 /* map [0;1] to gray/colors */
 	gray = colorspec->value;
 	if(gray <= 0)
@@ -3206,11 +3189,10 @@ static int png_extract_idat_chunks(uchar * encoded_image, int image_size)
 	uchar * encoded_image_ptr;
 	uint chunk_name, chunk_length;
 	int buf_pos = 8; /* skip the PNG signature (first eight bit) */
-	/* The IDAT and IEND chunk names in correct byte order. */
+	// The IDAT and IEND chunk names in correct byte order. 
 	uint png_idat, png_iend;
-	png_idat = png_get_uint((void*)"IDAT");
-	png_iend = png_get_uint((void*)"IEND");
-
+	png_idat = png_get_uint((uchar *)"IDAT");
+	png_iend = png_get_uint((uchar *)"IEND");
 	encoded_image_ptr = encoded_image;
 	while(buf_pos < image_size) {
 		chunk_length = png_get_uint(encoded_image + buf_pos);
@@ -3319,17 +3301,15 @@ static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagec
 static cairo_status_t write_png_data_to_buffer(void * png_ptr, const uchar * data, uint length)
 {
 	png_buffer_encode_t * p = (png_buffer_encode_t*)png_ptr;
-	size_t new_size, new_length;
-	new_length = p->length + length;
-
+	size_t new_size;
+	size_t new_length = p->length + length;
 	if(new_length > p->size) {
-		/* increase the buffer by the standard size of an IDAT chunk including
-		   the chunk name, length and CRC */
+		// increase the buffer by the standard size of an IDAT chunk including the chunk name, length and CRC 
 		new_size = p->size + 8192 + 12;
 		if(new_length > new_size) {
 			new_size = new_length;
 		}
-		p->buffer = gp_realloc(p->buffer, new_size, "PNG image buffer");
+		p->buffer = (uchar *)gp_realloc(p->buffer, new_size, "PNG image buffer");
 		p->size = new_size;
 	}
 	memcpy(p->buffer + p->length, data, length);
@@ -3431,18 +3411,16 @@ static uchar * PS_encode_png_image(uint M, uint N, coordval * image, t_imagecolo
 		encoded_image_tmp = NULL;
 		return encoded_image_tmp;
 	}
-
-	/* Apply ASCII85 encoding to the deflate data. Code adapted from PS_encode_image. */
-
-	/* Compute max number of ASCII characters encoding will require. */
+	//
+	// Apply ASCII85 encoding to the deflate data. Code adapted from PS_encode_image. 
+	//
+	// Compute max number of ASCII characters encoding will require. 
 	max_encoded_bytes = (*return_num_bytes/4 + 1)*5 + 2; /* 5 tuples and additional ~> */
 	max_encoded_bytes += max_encoded_bytes / ASCII_PER_LINE; /* newline characters */
-
-	/* allocate new memory for the resulting image. */
-	encoded_image = gp_alloc(max_encoded_bytes, "encoded image");
+	// allocate new memory for the resulting image. 
+	encoded_image = (uchar *)gp_alloc(max_encoded_bytes, "encoded image");
 	encoded_image_ptr = encoded_image;
 	encoded_image_tmp_ptr = encoded_image_tmp;
-
 	i_line = ASCII_PER_LINE;
 	j = 0;
 	while(j <= (*return_num_bytes - 4)) {
@@ -3788,7 +3766,7 @@ TERM_PUBLIC void PS_image(uint M, uint N, coordval * image, gpiPoint * corner, t
 		cscale = 1.0;
 #ifdef HAVE_DEFLATE_ENCODER
 	if(ps_params->level3)
-		encoded_image = (void*)PS_encode_png_image(M, N, image, color_mode, bits_per_component, max_colors, cscale, &num_encoded_bytes);
+		encoded_image = (char *)PS_encode_png_image(M, N, image, color_mode, bits_per_component, max_colors, cscale, &num_encoded_bytes);
 	else
 #endif
 	encoded_image = PS_encode_image(M, N, image, color_mode, bits_per_component, max_colors, cscale, (ps_params->level1 ? PS_ASCII_HEX : PS_ASCII85), &num_encoded_bytes);

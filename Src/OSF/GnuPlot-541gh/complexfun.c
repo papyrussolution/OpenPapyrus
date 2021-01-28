@@ -1,30 +1,6 @@
-/* GNUPLOT - complexfun.c */
-
-/*[
- * Copyright Ethan A Merritt 2019
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.  Redistributions in binary
- * form must reproduce the above copyright notice, this list of conditions and
- * the following disclaimer in the documentation and/or other materials provided
- * with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
-   ]*/
+// GNUPLOT - complexfun.c 
+// Copyright Ethan A Merritt 2019
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -237,28 +213,21 @@ complex double LambertW(complex double z, int k)
 	if((k == 0) && (fabs(creal(z) - exp(1.0)) < LAMBERT_CONVERGENCE) && cimag(z) == 0) {
 		return 1.0;
 	}
-
 	/* Halley's method requires a good starting point */
 	w = lambert_initial(z, k);
-
 	for(i = 0; i < LAMBERT_MAXITER; i++) {
 		complex double wprev = w;
 		complex double delta = w * cexp(w) - z;
-
-		w -=    2. * (delta * dzexpz(w))
-		    / (2. * dzexpz(w) * dzexpz(w) - delta * ddzexpz(w));
-
+		w -=    2. * (delta * dzexpz(w)) / (2. * dzexpz(w) * dzexpz(w) - delta * ddzexpz(w));
 		residual = cabs(w - wprev);
 		if(residual < LAMBERT_CONVERGENCE)
 			break;
 	}
 	if(i >= LAMBERT_MAXITER) {
 		char message[1024];
-		snprintf(message, 1023, "LambertW( {%g, %g}, %d) converged only to %g",
-		    creal(z), cimag(z), k, residual);
+		snprintf(message, 1023, "LambertW( {%g, %g}, %d) converged only to %g", creal(z), cimag(z), k, residual);
 		GPO.IntWarn(NO_CARET, message);
 	}
-
 	return w;
 }
 
@@ -336,25 +305,20 @@ static complex double lnGamma(complex double z)
 		-0.26190838401581408670e-4, 0.36899182659531622704e-5
 	};
 	complex double sqrt2pi = 2.5066282746310005;
-	complex double g = 671./128.;
+	complex double g = 671.0/128.0;
 	complex double sum, temp;
-
 	complex double f;
 	int k;
-
-	/* 15 term Lanczos approximation */
+	// 15 term Lanczos approximation 
 	sum = coef[0];
 	for(k = 1; k<15; k++)
 		sum = sum + coef[k] / (z + k);
-
 	if(z == 1.0 || z == 2.0)
 		return 0.0;
-
-	/* Numerical Recipes formulation */
+	// Numerical Recipes formulation 
 	temp = z + g;
 	temp = (z + 0.5) * clog(temp) - temp;
 	f = temp + clog(sqrt2pi * sum/z);
-
 	return f;
 }
 

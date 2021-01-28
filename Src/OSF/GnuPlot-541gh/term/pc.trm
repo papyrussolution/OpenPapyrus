@@ -166,20 +166,13 @@ static struct rccoord pc_text_pos;
 /* lines */
 static int startx, starty;
 static int pc_linewidth;
-static float pc_linewidth_scale = 1.;
-
-/* points */
-static float pc_pointscale = 1.;
-
-/* text */
-static int pc_hjustify, pc_vjustify, pc_text_dir;
-
-/* nominal font size */
-#define PC_DEFAULT_FONTSIZE 18
+static float pc_linewidth_scale = 1.0;
+static float pc_pointscale = 1.0; /* points */
+static int pc_hjustify, pc_vjustify, pc_text_dir; /* text */
+#define PC_DEFAULT_FONTSIZE 18 /* nominal font size */
 static float pc_fontsize;
 static float pc_font_aspect;
-static float pc_fontscale = 1.;
-
+static float pc_fontscale = 1.0;
 /* colors */
 static rgb255_color pc_background_rgb = { 0, 0, 0 };
 static int pc_background = 0;           /* index of background color */
@@ -256,23 +249,22 @@ TERM_PUBLIC void PC_options(void)
 			    GPO.Pgm.Shift();
 			    pc_linewidth_scale =  GPO.RealExpression();
 			    if(pc_linewidth_scale <= 0)
-				    pc_linewidth_scale = 1.;
+				    pc_linewidth_scale = 1.0;
 			    break;
 			case PC_POINTSIZE:
 			    GPO.Pgm.Shift();
 			    pc_pointscale =  GPO.RealExpression();
 			    if(pc_pointscale <= 0)
-				    pc_pointscale = 1.;
+				    pc_pointscale = 1.0;
 			    break;
 			case PC_FONTSCALE:
 			    GPO.Pgm.Shift();
 			    pc_fontscale =  GPO.RealExpression();
 			    if(pc_fontscale <= 0)
-				    pc_fontscale = 1.;
+				    pc_fontscale = 1.0;
 			    break;
 			case PC_BACKGROUND: {
 			    long background;
-
 			    GPO.Pgm.Shift();
 			    background = parse_color_name();
 			    pc_background_rgb.r = (background >> 16) & 0xff;
@@ -285,15 +277,8 @@ TERM_PUBLIC void PC_options(void)
 			    break;
 		}
 	}
-
-	sprintf_s(term_options, sizeof(term_options),
-	    "%senhanced "
-	    "linewidth %.1f pointsize %.1f fontscale %.1f"
-	    " background \"#%02x%02x%02x\"",
-	    term->flags & TERM_ENHANCED_TEXT ? "" : "no",
-	    pc_linewidth_scale, pc_pointscale, pc_fontscale,
-	    pc_background_rgb.r, pc_background_rgb.g, pc_background_rgb.b
-	    );
+	sprintf_s(term_options, sizeof(term_options), "%senhanced linewidth %.1f pointsize %.1f fontscale %.1f background \"#%02x%02x%02x\"",
+	    term->flags & TERM_ENHANCED_TEXT ? "" : "no", pc_linewidth_scale, pc_pointscale, pc_fontscale, pc_background_rgb.r, pc_background_rgb.g, pc_background_rgb.b);
 }
 
 static void PC_setup(void)
@@ -301,17 +286,12 @@ static void PC_setup(void)
 	int i, x, y;
 	char pc_modename[9];
 	struct videoconfig VC;
-	const char * adaptername[] = {
-		"MDPA", "CGA", "HERCULES", "MCGA", "EGA", "VGA", "SVGA"
-	};
+	const char * adaptername[] = { "MDPA", "CGA", "HERCULES", "MCGA", "EGA", "VGA", "SVGA" };
 	short status;
 	char * pctrm;
-
 	if(pc_graphics)
 		return;
-
 	PC_save_text();
-
 	/* If environment PCTRM is set, try to initialize a specific card/mode.  */
 	pctrm = getenv("PCTRM");
 	if(pctrm != NULL)

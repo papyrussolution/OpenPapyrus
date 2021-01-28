@@ -1,19 +1,9 @@
-/*  NOTICE: Change of Copyright Status
- *
- *  The author of this module, Carsten Grammes, has expressed in
- *  personal email that he has no more interest in this code, and
- *  doesn't claim any copyright. He has agreed to put this module
- *  into the public domain.
- *
- *  Lars Hecking  15-02-1999
- */
-
+// FIT.C
+// 
 /*
- *    Nonlinear least squares fit according to the
- *      Marquardt-Levenberg-algorithm
+ *    Nonlinear least squares fit according to the Marquardt-Levenberg-algorithm
  *
- *      added as Patch to Gnuplot (v3.2 and higher)
- *      by Carsten Grammes
+ *      added as Patch to Gnuplot (v3.2 and higher) by Carsten Grammes
  *
  * Michele Marziani (marziani@ferrara.infn.it), 930726: Recoding of the
  * Unix-like raw console I/O routines.
@@ -834,47 +824,43 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 			setvarcovar(par_name[i], par_name[i], 0.0);
 		}
 	}
-
 	/* calculate unscaled parameter errors in dpar[]: */
 	dpar = vec(num_params);
-	if((covar != NULL) && !covar_invalid) {
-		/* calculate unscaled parameter errors in dpar[]: */
+	if(covar && !covar_invalid) {
+		// calculate unscaled parameter errors in dpar[]: 
 		for(i = 0; i < num_params; i++) {
 			dpar[i] = sqrt(covar[i][i]);
 		}
-
-		/* transform covariances into correlations */
+		// transform covariances into correlations 
 		corel = matr(num_params, num_params);
 		for(i = 0; i < num_params; i++) {
-			/* only lower triangle needs to be handled */
+			// only lower triangle needs to be handled 
 			for(j = 0; j < i; j++)
 				corel[i][j] = covar[i][j] / (dpar[i] * dpar[j]);
-			corel[i][i] = 1.;
+			corel[i][i] = 1.0;
 		}
 	}
 	else {
-		/* set all errors to zero if covariance matrix invalid or unavailable */
+		// set all errors to zero if covariance matrix invalid or unavailable 
 		for(i = 0; i < num_params; i++)
 			dpar[i] = 0.0;
 	}
-
 	if(fit_errorscaling || (num_errors == 0)) {
-		/* scale parameter errors based on chisq */
+		// scale parameter errors based on chisq 
 		double temp = sqrt(chisq / (num_data - num_params));
 		for(i = 0; i < num_params; i++)
 			dpar[i] *= temp;
 	}
-
-	/* Save user error variables. */
+	// Save user error variables. 
 	if(fit_errorvariables) {
 		for(i = 0; i < num_params; i++)
 			setvarerr(par_name[i], dpar[i] * scale_params[i]);
 	}
-	/* fill covariance variables if needed */
+	// fill covariance variables if needed 
 	if(fit_covarvariables && covar && !covar_invalid) {
 		double scale = (fit_errorscaling || (num_errors == 0)) ? (chisq / (num_data - num_params)) : 1.0;
 		for(i = 0; i < num_params; i++) {
-			/* only lower triangle needs to be handled */
+			// only lower triangle needs to be handled 
 			for(j = 0; j <= i; j++) {
 				double temp = scale * scale_params[i] * scale_params[j];
 				setvarcovar(par_name[i], par_name[j], covar[i][j] * temp);
@@ -886,10 +872,9 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 	SAlloc::F(dpar);
 	free_matr(corel);
 }
-
-/*****************************************************************
-    test for user request to stop the fit
-*****************************************************************/
+//
+// test for user request to stop the fit
+//
 bool regress_check_stop(int iter, double chisq, double last_chisq, double lambda)
 {
 #ifdef _WIN32
@@ -909,10 +894,9 @@ bool regress_check_stop(int iter, double chisq, double last_chisq, double lambda
 	}
 	return TRUE;
 }
-
-/*****************************************************************
-    free memory allocated by gnuplot's internal fitting code
-*****************************************************************/
+//
+// free memory allocated by gnuplot's internal fitting code
+//
 static void internal_cleanup()
 {
 	double lambda;
@@ -921,18 +905,15 @@ static void internal_cleanup()
 	lambda = -2;            /* flag value, meaning 'destruct!' */
 	marquardt(NULL, NULL, NULL, &lambda);
 }
-
-/*****************************************************************
-    frame routine for the marquardt-fit
-*****************************************************************/
+//
+// frame routine for the marquardt-fit
+//
 static bool regress(double a[])
 {
 	double ** covar, ** C, chisq, last_chisq, lambda;
 	int iter;
 	marq_res_t res;
-
 	regress_cleanup = &internal_cleanup;
-
 	chisq = last_chisq = INFINITY;
 	/* the global copy to is accessible to error_ex, too */
 	regress_C = C = matr(num_data + num_params, num_params);
@@ -1459,7 +1440,7 @@ void GnuPlot::FitCommand()
 			Eexc(Pgm.GetCurTokenIdx(), "too many range specifiers");
 		axis_init(scratch_axis, 1);
 		scratch_axis->linked_to_primary = NULL;
-		dummy_token[num_ranges] = parse_range((AXIS_INDEX)scratch_axis->index);
+		dummy_token[num_ranges] = ParseRange((AXIS_INDEX)scratch_axis->index);
 		range_min[num_ranges] = scratch_axis->min;
 		range_max[num_ranges] = scratch_axis->max;
 		range_autoscale[num_ranges] = scratch_axis->autoscale;
@@ -1983,7 +1964,7 @@ out_of_range:
 					Eexc(Pgm.GetCurTokenIdx(), "No such array");
 				Pgm.Shift();
 				Pgm.Shift();
-				index = int_expression();
+				index = IntExpression();
 				if(index <= 0 || index > udv->udv_value.v.value_array[0].v.int_val)
 					Eexc(Pgm.GetCurTokenIdx(), "array index out of range");
 				if(!Pgm.EqualsCur("]"))

@@ -1,5 +1,5 @@
 // TDDO.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -173,10 +173,8 @@ int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, 
 	SString item_name, temp_buf;
 	StrAssocArray arg_list;
 	rScan.Skip();
-	// @v8.7.8 {
 	if(pCallerRtm && pCallerRtm != pRtm)
 		pRtm->P_Ep = pCallerRtm->P_Ep;
-	// } @v8.7.8
 	if(rScan.GetIdent(temp_buf)) {
 		rScan.Skip();
 		char c = rScan[0];
@@ -309,10 +307,8 @@ int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, 
 			_opNEq
 		};
 		struct _COp {
-			_COp()
+			_COp() : Op(_opNone), Inc(0)
 			{
-				Op = _opNone;
-				Inc = 0;
 			}
 			void FASTCALL Set(int op, int inc)
 			{

@@ -1,11 +1,6 @@
-/* GNUPLOT - getcolor.c */
-
-/*[
- *
- * Petr Mikulik, December 1998 -- June 1999
- * Copyright: open source as much as possible
- *
-   ]*/
+// GNUPLOT - getcolor.c 
+// Copyright: open source as much as possible Petr Mikulik, December 1998 -- June 1999
+//
 #include <gnuplot.h>
 #pragma hdrstop
 /*
@@ -232,7 +227,7 @@ void t_sm_palette::ColorComponentsFromGray(double gray, rgb_color * pColor) cons
 				double phi = 2.0 * M_PI * (cubehelix_start/3.0 +  gray * cubehelix_cycles);
 				if(gamma != 1.0)
 					gray = pow(gray, 1.0/gamma);
-				a = cubehelix_saturation * gray * (1.-gray) / 2.;
+				a = cubehelix_saturation * gray * (1.-gray) / 2.0;
 				pColor->r = gray + a * (-0.14861 * cos(phi) + 1.78277 * sin(phi));
 				pColor->g = gray + a * (-0.29227 * cos(phi) - 0.90649 * sin(phi));
 				pColor->b = gray + a * ( 1.97294 * cos(phi));
@@ -317,7 +312,7 @@ double quantize_gray(double gray)
 				if((gray >= g[j].pos) && (gray <  g[j+1].pos)) {
 					/* See if it is so small that truncation missed it */
 					if((g[j+1].pos - g[j].pos) < small_interval)
-						qgray = (g[j].pos + g[j+1].pos) / 2.;
+						qgray = (g[j].pos + g[j+1].pos) / 2.0;
 					break;
 				}
 			}
@@ -326,19 +321,19 @@ double quantize_gray(double gray)
 		qgray = 1.0;
 	return qgray;
 }
-/*
- *  Convenience function to map gray values to R, G and B values in [0,255],
- *  taking care of palette maxcolors (i.e., discrete nb of colors).
- */
+//
+// Convenience function to map gray values to R, G and B values in [0,255],
+// taking care of palette maxcolors (i.e., discrete nb of colors).
+//
 void rgb255maxcolors_from_gray(double gray, rgb255_color * rgb255)
 {
 	rgb_color rgb1;
 	rgb1maxcolors_from_gray(gray, &rgb1);
 	rgb255_from_rgb1(rgb1, rgb255);
 }
-/*
- *  Used by approximate_palette
- */
+//
+// Used by approximate_palette
+//
 static double get_max_dev(rgb_color * colors, int j, double limit)
 {
 	double max_dev = 0.0;

@@ -1,34 +1,6 @@
-/* GNUPLOT - tables.c */
-
-/*[
- * Copyright 1999, 2004   Lars Hecking
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - tables.c 
+// Copyright 1999, 2004   Lars Hecking
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -782,10 +754,10 @@ parsefuncp_t lookup_ftable(const struct gen_ftable * ftbl, int find_token)
 	}
 	return ftbl->value;
 }
-
-/* Returns value of the first table entry for which the search string
- * is a leading substring, or -1 if there is no match.
- */
+// 
+// Returns value of the first table entry for which the search string
+// is a leading substring, or -1 if there is no match.
+// 
 int lookup_table_entry(const struct gen_table * tbl, const char * search_str)
 {
 	while(tbl->key) {
@@ -795,11 +767,11 @@ int lookup_table_entry(const struct gen_table * tbl, const char * search_str)
 	}
 	return -1;
 }
-
-/* Returns the index of the table entry whose key matches the search string.
- * If there is no exact match return the first table entry that is a leading
- * substring of the search string.  Returns -1 if there is no match.
- */
+// 
+// Returns the index of the table entry whose key matches the search string.
+// If there is no exact match return the first table entry that is a leading
+// substring of the search string.  Returns -1 if there is no match.
+// 
 int lookup_table_nth(const struct gen_table * tbl, const char * search_str)
 {
 	int k = -1;
@@ -813,16 +785,14 @@ int lookup_table_nth(const struct gen_table * tbl, const char * search_str)
 	}
 	return best_so_far;
 }
-
-/* Returns index of the table tbl whose key matches the beginning of the
- * search string search_str. The table_len is necessary because the table
- * is searched in the reversed order. The routine is used in parsing commands
- * '(un)set log x2zcb', for instance.
- * It returns index into the table or -1 if there is no match.
- */
-int lookup_table_nth_reverse(const struct gen_table * tbl,
-    int table_len,
-    const char * search_str)
+// 
+// Returns index of the table tbl whose key matches the beginning of the
+// search string search_str. The table_len is necessary because the table
+// is searched in the reversed order. The routine is used in parsing commands
+// '(un)set log x2zcb', for instance.
+// It returns index into the table or -1 if there is no match.
+// 
+int lookup_table_nth_reverse(const gen_table * tbl, int table_len, const char * search_str)
 {
 	while(--table_len >= 0) {
 		if(tbl[table_len].key && !strncmp(search_str, tbl[table_len].key, strlen(tbl[table_len].key)))
@@ -830,14 +800,12 @@ int lookup_table_nth_reverse(const struct gen_table * tbl,
 	}
 	return -1; /* not found */
 }
-
-/* Returns the key associated with this indexed value
- * or NULL if the key/value pair is not found.
- */
+//
+// Returns the key associated with this indexed value or NULL if the key/value pair is not found.
+//
 const char * reverse_table_lookup(const struct gen_table * tbl, int entry)
 {
-	int k = -1;
-	while(tbl[++k].key)
+	for(int k = -1; tbl[++k].key;)
 		if(tbl[k].value == entry)
 			return(tbl[k].key);
 	return NULL;

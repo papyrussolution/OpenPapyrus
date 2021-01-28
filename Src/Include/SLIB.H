@@ -419,7 +419,7 @@ class  SBuffer;
 class  SString;
 class  TPoint;
 class  TRect;
-class  RPoint;
+class  SPoint2R;
 class  LMatrix;
 #ifndef _WIN32_WCE // {
 class  SFile;
@@ -2612,7 +2612,7 @@ typedef int32 TYPEID;
 #define BTS_DATE             4    // 4 byte LDATE
 #define BTS_TIME             5    // 4 byte LTIME
 #define BTS_DATETIME         6    // 8 byte LDATETIME
-#define BTS_POINT2           7    // 16 byte RPoint
+#define BTS_POINT2           7    // 16 byte SPoint2R
 #define BTS_BOOL             8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но используется в локальных ситуациях.
 #define BTS_PTR              9    // Указатель. Важно, что размер его зависим от архитектуры (4 или 8 байт)
 #define BTS_INT64_          10    // 8 byte integer. Не является базовым типом. Определен для использования в DBConst
@@ -10938,8 +10938,8 @@ public:
 
 	int    IsIdentical() const;
 	double GetDeterminant() const;
-	RPoint & FASTCALL TransformDistance(RPoint & rP) const;
-	RPoint & FASTCALL Transform(RPoint & rP) const;
+	SPoint2R & FASTCALL TransformDistance(SPoint2R & rP) const;
+	SPoint2R & FASTCALL Transform(SPoint2R & rP) const;
 
 	enum {
 		fmtDefault = 0,
@@ -11934,38 +11934,36 @@ private:
 // Descr: Специализированная структура для представления 2D-точки
 //   в значениях с двойной точностью.
 //
-class RPoint {
+class SPoint2R {
 public:
-	RPoint & Set(double _xy);
-	RPoint & Set(double _x, double _y);
+	SPoint2R & Set(double _xy);
+	SPoint2R & Set(double _x, double _y);
 	//
 	// Descr: Устанавливает полярные координаты точки.
 	//   x = v * cos(rad);
 	//   y = v * sin(rad);
 	//
-	RPoint & SetPolar(double v, double rad);
+	SPoint2R & SetPolar(double v, double rad);
 	void   GetInt(int * pX, int * pY) const;
 	void   GetUInt(uint * pX, uint * pY) const;
 	int    FASTCALL FromStr(const char * pStr);
-
-	friend RPoint & FASTCALL operator - (const RPoint & one, const RPoint & two);
-	friend RPoint & FASTCALL operator + (const RPoint & one, const RPoint & two);
-	friend RPoint & FASTCALL operator + (const RPoint & p, double a);
-	friend RPoint & FASTCALL operator * (const RPoint & p, double m);
-	friend RPoint & FASTCALL operator / (const RPoint & p, double);
+	friend SPoint2R & FASTCALL operator - (const SPoint2R & one, const SPoint2R & two);
+	friend SPoint2R & FASTCALL operator + (const SPoint2R & one, const SPoint2R & two);
+	friend SPoint2R & FASTCALL operator + (const SPoint2R & p, double a);
+	friend SPoint2R & FASTCALL operator * (const SPoint2R & p, double m);
+	friend SPoint2R & FASTCALL operator / (const SPoint2R & p, double);
 
 	double x;
 	double y;
 };
 
-class RPoint3 {
+class SPoint3R {
 public:
-	RPoint3 & Set(double _x, double _y, double _z);
-
-	friend RPoint3 & FASTCALL operator - (const RPoint3 & one, const RPoint3 & two);
-	friend RPoint3 & FASTCALL operator + (const RPoint3 & one, const RPoint3 & two);
-	friend RPoint3 & FASTCALL operator * (const RPoint3 & p, double m);
-	friend RPoint3 & FASTCALL operator / (const RPoint3 & p, double);
+	SPoint3R & Set(double _x, double _y, double _z);
+	friend SPoint3R & FASTCALL operator - (const SPoint3R & one, const SPoint3R & two);
+	friend SPoint3R & FASTCALL operator + (const SPoint3R & one, const SPoint3R & two);
+	friend SPoint3R & FASTCALL operator * (const SPoint3R & p, double m);
+	friend SPoint3R & FASTCALL operator / (const SPoint3R & p, double);
 
 	double x;
 	double y;
@@ -13491,7 +13489,7 @@ private:
 //   стек для обеспечения примитивов, оперирующих простыми объектами, размеры
 //   которых превышают возможности системного стека.
 //   Например, такой стек позволяет реализовать быстрые операции над
-//   точками координат (@see: RPoint & FASTCALL operator + (const RPoint & one, const RPoint & two)).
+//   точками координат (@see: SPoint2R & FASTCALL operator + (const SPoint2R & one, const SPoint2R & two)).
 // @attention
 //
 template <class T, uint S> T & FASTCALL PushRecycledObject(T & rObj)

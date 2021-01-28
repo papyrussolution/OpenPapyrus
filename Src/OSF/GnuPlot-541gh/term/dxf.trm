@@ -366,12 +366,30 @@ TERM_PUBLIC void DXF_reset()
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(dxf_driver)
-"dxf", "dxf-file for AutoCad (default size 120x80)",
-DXF_XMAX, DXF_YMAX, DXF_VCHAR, DXF_HCHAR,
-DXF_VTIC, DXF_HTIC, options_null, DXF_init, DXF_reset,
-DXF_text, null_scale, DXF_graphics, DXF_move, DXF_vector,
-DXF_linetype, DXF_put_text, DXF_text_angle,
-DXF_justify_text, do_point, do_arrow, set_font_null TERM_TABLE_END(dxf_driver)
+"dxf", 
+"dxf-file for AutoCad (default size 120x80)",
+(uint)DXF_XMAX, 
+(uint)DXF_YMAX, 
+(uint)DXF_VCHAR, 
+(uint)DXF_HCHAR,
+(uint)DXF_VTIC, 
+(uint)DXF_HTIC, 
+options_null, 
+DXF_init, 
+DXF_reset,
+DXF_text, 
+null_scale, 
+DXF_graphics, 
+DXF_move, 
+DXF_vector,
+DXF_linetype, 
+DXF_put_text, 
+DXF_text_angle,
+DXF_justify_text, 
+do_point, 
+do_arrow, 
+set_font_null 
+TERM_TABLE_END(dxf_driver)
 
 #undef LAST_TERM
 #define LAST_TERM dxf_driver

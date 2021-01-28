@@ -1105,7 +1105,7 @@ static cairo_status_t _cairo_pdf_operators_emit_glyph(cairo_pdf_operators_t * pd
     cairo_glyph_t * glyph, cairo_scaled_font_subsets_glyph_t * subset_glyph)
 {
 	//double x, y;
-	RPoint _p;
+	SPoint2R _p;
 	cairo_status_t status;
 	if(pdf_operators->is_new_text_object || pdf_operators->font_id != subset_glyph->font_id || pdf_operators->subset_id != subset_glyph->subset_id) {
 		status = _cairo_pdf_operators_flush_glyphs(pdf_operators);
@@ -1250,7 +1250,7 @@ cairo_int_status_t _cairo_pdf_operators_show_text_glyphs(cairo_pdf_operators_t *
 	int i;
 	cairo_matrix_t text_matrix, invert_y_axis;
 	//double x, y;
-	RPoint _p;
+	SPoint2R _p;
 	const char * cur_text;
 	cairo_glyph_t * cur_glyph;
 	pdf_operators->font_matrix_inverse = scaled_font->font_matrix;

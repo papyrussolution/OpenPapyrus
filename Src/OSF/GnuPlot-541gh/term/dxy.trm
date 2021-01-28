@@ -172,12 +172,29 @@ DXY_reset()
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(dxy_driver)
-    "dxy800a", "Roland DXY800A plotter",
-    DXY_XMAX, DXY_YMAX, DXY_VCHAR, DXY_HCHAR,
-    DXY_VTIC, DXY_HTIC, options_null, DXY_init, DXY_reset,
-    DXY_text, null_scale, DXY_graphics, DXY_move, DXY_vector,
-    DXY_linetype, DXY_put_text, DXY_text_angle,
-    null_justify_text, do_point, do_arrow, set_font_null
+    "dxy800a", 
+	"Roland DXY800A plotter",
+    DXY_XMAX, 
+	DXY_YMAX, 
+	DXY_VCHAR, 
+	DXY_HCHAR,
+    DXY_VTIC, 
+	DXY_HTIC, 
+	options_null, 
+	DXY_init, 
+	DXY_reset,
+    DXY_text, 
+	null_scale, 
+	DXY_graphics, 
+	DXY_move, 
+	DXY_vector,
+    DXY_linetype, 
+	DXY_put_text, 
+	DXY_text_angle,
+    null_justify_text, 
+	do_point, 
+	do_arrow, 
+	set_font_null
 TERM_TABLE_END(dxy_driver)
 
 #undef LAST_TERM

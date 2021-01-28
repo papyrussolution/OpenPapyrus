@@ -15,10 +15,12 @@
 
 static float function(int p, double x, double y);
 
-typedef struct {
-	float xmin, xmax;
-	float ymin, ymax;
-} range;
+struct range {
+	float xmin;
+	float xmax;
+	float ymin;
+	float ymax;
+};
 
 #define NUM_PLOTS 2
 static range TheRange[] = {{-3, 3, -2, 2},

@@ -2610,17 +2610,12 @@ TERM_PUBLIC void CACA_enhanced_put_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    "" /* font */, 1 /* size */,
-	    0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, "" /* font */, 1 /* size */, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
-
 		if(!*++str)
 			break; /* end of string */
-
 		/* else carry on and process the rest of the string */
 	}
 }

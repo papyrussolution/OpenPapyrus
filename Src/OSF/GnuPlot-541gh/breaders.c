@@ -374,34 +374,29 @@ bool df_read_pixmap(t_pixmap * pixmap)
 	else if(!strcasecmp(file_ext, "jpeg") || !strcasecmp(file_ext, "jpg"))
 		filetype = GD_JPEG;
 	else {
-		/* Clear anything that was there before */
+		// Clear anything that was there before 
 		pixmap->nrows = pixmap->ncols = 0;
 		GPO.IntWarn(NO_CARET, "unrecognized pixmap type: %s", pixmap->filename);
 		return FALSE;
 	}
-
-	/* Create a blank record that gd_filetype_function can write into */
+	// Create a blank record that gd_filetype_function can write into 
 	df_add_binary_records(1, DF_CURRENT_RECORDS);
-
-	/* Open file and allocate space for image data */
+	// Open file and allocate space for image data 
 	df_filename = (char*)pixmap->filename;
 	gd_filetype_function(filetype);
 	df_filename = NULL;
 	pixmap->ncols = df_bin_record[0].scan_dim[0];
 	pixmap->nrows = df_bin_record[0].scan_dim[1];
-	pixmap->image_data = gp_realloc(pixmap->image_data,
-		4. * sizeof(coordval) * pixmap->ncols * pixmap->nrows, "pixmap");
-
-	/* Fill in image data */
+	pixmap->image_data = gp_realloc(pixmap->image_data, 4.0 * sizeof(coordval) * pixmap->ncols * pixmap->nrows, "pixmap");
+	// Fill in image data 
 	pixel = pixmap->image_data;
 	for(i = 0; i<pixmap->nrows; i++)
 		for(j = 0; j<pixmap->ncols; j++) {
-			*pixel++ = (coordval)df_libgd_get_pixel(j, i, 0) / 255.;
-			*pixel++ = (coordval)df_libgd_get_pixel(j, i, 1) / 255.;
-			*pixel++ = (coordval)df_libgd_get_pixel(j, i, 2) / 255.;
+			*pixel++ = (coordval)df_libgd_get_pixel(j, i, 0) / 255.0;
+			*pixel++ = (coordval)df_libgd_get_pixel(j, i, 1) / 255.0;
+			*pixel++ = (coordval)df_libgd_get_pixel(j, i, 2) / 255.0;
 			*pixel++ = (coordval)df_libgd_get_pixel(j, i, 3);
 		}
-
 	return TRUE;
 }
 

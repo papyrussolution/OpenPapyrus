@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493591
+LastSignatureCode=2147493599
 LastAutoCodeList=1,12002;102,10177;103,10072;110,10000;111,12011;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10172
 
 [SignatureList]
@@ -1117,6 +1117,7 @@ objects=2147484440
 objectgroup=2147484441
 dynobject=2147484442
 dynobject_pl=2147484443
+dynobjecttype=2147493599
 extobject=2147484444
 linkobject=2147484445
 parentobject=2147492997
@@ -9909,6 +9910,13 @@ signdocument=2147493558
 signdocument_signer=2147493559
 signdocument_signfile=2147493560
 signdocument_commit=2147493561
+tdiscalcmethodparam=2147493592
+tdiscalcmethodparam_method=2147493593
+tdiscalcmethodparam_method_simple=2147493594
+tdiscalcmethodparam_method_regress=2147493595
+tdiscalcmethodparam_method_regress2=2147493596
+tdiscalcmethodparam_thresholddate=2147493597
+tdiscalcmethodparam_prec=2147493598
 ttl_goodsgroups=2147492009
 ttl_vatledger=2147484941
 ttl_syncanalyze=2147484942

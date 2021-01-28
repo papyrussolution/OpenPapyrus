@@ -3348,15 +3348,16 @@ static int EditBillCfgValuationParam(PPBillConfig * pData)
 	return ok;
 }
 
-#define GRP_FILESFOLD 1
-
 class BillConfigAddednumDialog : public TDialog {
 	typedef PPBillConfig DlgDataType;
 	DlgDataType Data;
+	enum {
+		ctlgroupFilesFold = 1
+	};
 public:
 	BillConfigAddednumDialog() : TDialog(DLG_BILLCFGEXT)
 	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_BILLCFG_FILESFOLD, CTL_BILLCFG_FILESFOLDER, GRP_FILESFOLD, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_BILLCFG_FILESFOLD, CTL_BILLCFG_FILESFOLDER, ctlgroupFilesFold, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 		SetupCalDate(CTLCAL_BILLCFG_LOWDEBTDATE, CTL_BILLCFG_LOWDEBTDATE);
 	}
 	int setDTS(const DlgDataType * pData)

@@ -87,14 +87,13 @@ TERM_PUBLIC void LUA_boxed_text(uint, uint, int);
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
-
 #ifdef HAVE_CAIROPDF
-#include "wxterminal/gp_cairo.h"
-#include "wxterminal/gp_cairo_helpers.h"
-#define LUA_EXTERNAL_IMAGES 1
+	#include "wxterminal/gp_cairo.h"
+	#include "wxterminal/gp_cairo_helpers.h"
+	#define LUA_EXTERNAL_IMAGES 1
 #elif defined(HAVE_GD_PNG) && (GD2_VERS >= 2)
-#include "gd.h"
-#define LUA_EXTERNAL_IMAGES 1
+	#include "gd.h"
+	#define LUA_EXTERNAL_IMAGES 1
 #endif
 
 #include <lua.h>
@@ -102,9 +101,7 @@ TERM_PUBLIC void LUA_boxed_text(uint, uint, int);
 #include <lauxlib.h>
 
 static lua_State * L = NULL;
-
 static char * LUA_script = NULL;
-
 static int lua_term_status, lua_term_result;
 static int tb, luaterm, image_cnt, image_extern;
 
@@ -236,14 +233,10 @@ static int LUA_GP_int_error(lua_State * L)
 		    return luaL_error(L, "Got %d arguments expected 1 or 2", n);
 		    break;
 	}
-
 	snprintf(last_error_msg, MAX_LINE_LEN, "%s Lua context closed.", msg);
-
 	/* close Lua context on fatal errors */
 	LUA_close();
-
 	GPO.IntError(t_num, last_error_msg);
-
 	return 0;
 }
 
@@ -270,7 +263,6 @@ static int LUA_GP_int_warn(lua_State * L) {
 		    break;
 	}
 	GPO.IntWarn(t_num, msg);
-
 	return 0;
 }
 
@@ -279,12 +271,12 @@ static int LUA_GP_int_warn(lua_State * L) {
 
    Print user messages, e.g. help messages
  */
-static int LUA_GP_term_out(lua_State * L) {
+static int LUA_GP_term_out(lua_State * L) 
+{
 	char c;       /* dummy input char */
 	char * line, * last;
 	int pagelines = 0;
 	const char * msg = "";
-
 	int n = lua_gettop(L); /* Number of arguments */
 	switch(n) {
 		case 1:
@@ -330,21 +322,21 @@ static int LUA_GP_term_out(lua_State * L) {
    gp.is_multiplot()
 
  */
-static int LUA_GP_is_multiplot(lua_State * L) {
+static int LUA_GP_is_multiplot(lua_State * L) 
+{
 	lua_pushboolean(L, multiplot);
 	return(1);
 }
-
 /*
    returns all internal and userdefined variables
    [name] = {type, val1 [, val2]},
    [name] = {type, val1 [, val2]},
    ...
  */
-static int LUA_GP_get_all_variables(lua_State * L) {
-	struct udvt_entry * udv = first_udv;
+static int LUA_GP_get_all_variables(lua_State * L) 
+{
+	udvt_entry * udv = first_udv;
 	GpValue * val;
-
 	lua_newtable(L);
 	while(udv) {
 		/* ignore mouse related variables */
@@ -564,10 +556,10 @@ static void LUA_set_term_vars(void) {
 #endif
 }
 
-static int LUA_init_luaterm_function(const char * fnc) {
+static int LUA_init_luaterm_function(const char * fnc) 
+{
 	if(!L)
 		GPO.IntError(NO_CARET, "Missing Lua context! No script?");
-
 	lua_getfield(L, luaterm, fnc);
 	if(lua_isfunction(L, -1)) {
 		return(1);
@@ -583,7 +575,7 @@ static int LUA_call_report(int status)
 {
 	if(status) {
 		const char * msg = lua_tostring(L, -1);
-		if(msg == NULL) msg = "(error with no message)";
+		SETIFZ(msg, "(error with no message)");
 		snprintf(last_error_msg, MAX_LINE_LEN, "%s. Lua context closed.", msg);
 		LUA_close();
 		GPO.IntError(NO_CARET, last_error_msg);
@@ -620,7 +612,7 @@ static int LUA_init_lua(void)
 	SETIFZ(gp_lua_dir, GNUPLOT_LUA_DIR);
 #endif
 	if(stat(LUA_script, &stat_buf) || !S_ISREG(stat_buf.st_mode)) {
-		script_fqn = gp_alloc(strlen(gp_lua_dir) + strlen(LUA_script) + 2, "LUA_script path");
+		script_fqn = (char *)gp_alloc(strlen(gp_lua_dir) + strlen(LUA_script) + 2, "LUA_script path");
 		sprintf(script_fqn, "%s%c%s", gp_lua_dir, DIRSEP1, LUA_script);
 	}
 	else {
@@ -727,7 +719,7 @@ TERM_PUBLIC void LUA_options()
 {
 	char * opt_str = NULL;
 	char * s;
-	int tc_off = GPO.Pgm.GetNextTokenIdx(); /* token counter offset */
+	int tc_off = GPO.Pgm.GetCurTokenIdx()+1; // token counter offset 
 	int need_init = 1;
 	/* 'set term tikz' is short for 'set term lua tikz' */
 	GPO.Pgm.Rollback(); /* see how we got here */
@@ -750,7 +742,7 @@ TERM_PUBLIC void LUA_options()
 				gp_expand_tilde(&s);
 			}
 			else {
-				s = gp_alloc(GPO.Pgm.CurTokenLen()+strlen("gnuplot-.lua")+1, "LUA_script");
+				s = (char *)gp_alloc(GPO.Pgm.CurTokenLen()+strlen("gnuplot-.lua")+1, "LUA_script");
 				memcpy(s, "gnuplot-", 8);
 				memcpy(s+8, opt_str, GPO.Pgm.CurTokenLen());
 				memcpy(s+8+GPO.Pgm.CurTokenLen(), ".lua\0", 5);
@@ -776,17 +768,14 @@ TERM_PUBLIC void LUA_options()
 			LUA_close();
 			GPO.IntError(NO_CARET, "No Lua driver name or file name given!");
 		}
-
 		/* init lua when opening the terminal or on script change */
 		if(!LUA_init_lua()) {
 			return;
 		}
 	}
-
 	/* since options are tokenized again in the script we always "finish" this here */
 	while(!GPO.Pgm.EndOfCommand())
 		GPO.Pgm.Shift();
-
 	if(LUA_init_luaterm_function("options")) {
 		/* isolate the "set term ...;" part of the command line */
 		opt_str = gp_strdup(opt_str);
@@ -799,10 +788,8 @@ TERM_PUBLIC void LUA_options()
 		lua_pop(L, 1);
 		SAlloc::F(opt_str);
 	}
-
 	LUA_get_term_vars();
-
-	/* Treat "set term tikz mono" as "set term tikz; set mono" */
+	// Treat "set term tikz mono" as "set term tikz; set mono" 
 	if(strstr(term_options, "monochrome")) {
 		monochrome = TRUE;
 		init_monochrome();
@@ -813,7 +800,7 @@ TERM_PUBLIC void LUA_init()
 {
 	if(gpoutfile != stdout) {
 		fseek(gpoutfile, 0, SEEK_SET);
-		/* ignore compiler warnings here, because `gpoutfile' is already open */
+		// ignore compiler warnings here, because `gpoutfile' is already open 
 		if(fflush(gpoutfile) || ftruncate(fileno(gpoutfile), 0))
 			GPO.IntWarn(NO_CARET, "Error re-writing output file: %s", strerror(errno));
 	}
@@ -1087,15 +1074,15 @@ TERM_PUBLIC void LUA_set_color(t_colorspec * colorspec)
 	double opacity = 1.0;
 	if(LUA_init_luaterm_function("set_color")) {
 		if(colorspec->type == TC_FRAC) {
-			if(GPO.SmPltt.colors != 0) /* finite nb of colors explicitly requested */
-				gray = (gray >= ((double)(GPO.SmPltt.colors-1)) / GPO.SmPltt.colors) ? 1 : floor(gray * GPO.SmPltt.colors) / GPO.SmPltt.colors;
+			if(GPO.SmPltt.Colors != 0) /* finite nb of colors explicitly requested */
+				gray = (gray >= ((double)(GPO.SmPltt.Colors-1)) / GPO.SmPltt.Colors) ? 1 : floor(gray * GPO.SmPltt.Colors) / GPO.SmPltt.Colors;
 			rgb1_from_gray(gray, &color);
 		}
 		else if(colorspec->type == TC_RGB) {
-			opacity = 1.0 - (double)(colorspec->lt >> 24 & 255) / 255.;
-			color.r = (double)((colorspec->lt >> 16 ) & 255) / 255.;
-			color.g = (double)((colorspec->lt >> 8 ) & 255) / 255.;
-			color.b = (double)(colorspec->lt & 255) / 255.;
+			opacity = 1.0 - (double)(colorspec->lt >> 24 & 255) / 255.0;
+			color.r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
+			color.g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
+			color.b = (double)(colorspec->lt & 255) / 255.0;
 		}
 		if(color.r < 1e-4) color.r = 0;
 		if(color.g < 1e-4) color.g = 0;
@@ -1209,10 +1196,8 @@ TERM_PUBLIC void LUA_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 			write_png_image(m, n, image, color_mode, image_file);
 		}
 #endif
-
 		lua_pushinteger(L, m);
 		lua_pushinteger(L, n);
-
 		lua_newtable(L); /* pixel table */
 		for(i = 0; i < m*n; i++) {
 			if(color_mode == IC_PALETTE) {
@@ -1224,7 +1209,8 @@ TERM_PUBLIC void LUA_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 				rgb1.r = *image++;
 				rgb1.g = *image++;
 				rgb1.b = *image++;
-				if(color_mode == IC_RGBA) alpha = (*image++)/255.;
+				if(color_mode == IC_RGBA) 
+					alpha = (*image++)/255.0;
 			}
 			lua_newtable(L); /* pixel color */
 			lua_pushnumber(L, rgb1.r);

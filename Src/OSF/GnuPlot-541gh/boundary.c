@@ -186,7 +186,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	// x2label 
 	if(x2lablin) {
 		double tmpx, tmpy;
-		map_position_r(pTerm, &(AxS[SECOND_X_AXIS].label.offset), &tmpx, &tmpy, "x2label");
+		MapPositionR(pTerm, &(AxS[SECOND_X_AXIS].label.offset), &tmpx, &tmpy, "x2label");
 		if(AxS[SECOND_X_AXIS].label.font)
 			pTerm->set_font(AxS[SECOND_X_AXIS].label.font);
 		x2label_textheight = (int)(x2lablin * pTerm->v_char);
@@ -329,9 +329,9 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	// xlabel 
 	if(xlablin) {
 		double tmpx, tmpy;
-		map_position_r(pTerm, &(AxS[FIRST_X_AXIS].label.offset), &tmpx, &tmpy, "boundary");
-		/* offset is subtracted because if > 0, the margin is smaller */
-		/* textheight is inflated by 0.2 to allow descenders to clear bottom of canvas */
+		MapPositionR(pTerm, &(AxS[FIRST_X_AXIS].label.offset), &tmpx, &tmpy, "boundary");
+		// offset is subtracted because if > 0, the margin is smaller 
+		// textheight is inflated by 0.2 to allow descenders to clear bottom of canvas 
 		xlabel_textheight = (((float)xlablin + 0.2) * pTerm->v_char - tmpy);
 		if(!AxS[FIRST_X_AXIS].ticmode)
 			xlabel_textheight += 0.5 * pTerm->v_char;
@@ -383,7 +383,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	setup_tics(&AxS[SECOND_Y_AXIS], 20);
 	// Adjust color axis limits if necessary. 
 	if(is_plot_with_palette()) {
-		axis_checked_extend_empty_range(COLOR_AXIS, "All points of color axis undefined.");
+		AxisCheckedExtendEmptyRange(COLOR_AXIS, "All points of color axis undefined.");
 		if(color_box.where != SMCOLOR_BOX_NO)
 			setup_tics(&AxS[COLOR_AXIS], 20);
 	}
@@ -483,7 +483,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 				double xx;
 				int length = static_cast<int>(estimate_strlen(tic->label, NULL) * cos(DEG2RAD * (double)(AxS[FIRST_X_AXIS].tic_rotate)) * pTerm->h_char);
 				if(inrange(tic->position, AxS[FIRST_X_AXIS].set_min, AxS[FIRST_X_AXIS].set_max)) {
-					xx = axis_log_value_checked(FIRST_X_AXIS, tic->position, "xtic");
+					xx = AxisLogValueChecked(FIRST_X_AXIS, tic->position, "xtic");
 					xx = AxS.MapiX(xx);
 					xx += (AxS[FIRST_X_AXIS].tic_rotate) ? length : length /2;
 					if(maxrightlabel < xx)
@@ -498,7 +498,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 			GPO.IntWarn(NO_CARET, "difficulty making room for xtic labels");
 		}
 	}
-	/* tics */
+	// tics 
 	if(!AxS[SECOND_Y_AXIS].tic_in && ((AxS[SECOND_Y_AXIS].ticmode & TICS_ON_BORDER) || 
 		((AxS[FIRST_Y_AXIS].ticmode & TICS_MIRROR) && (AxS[FIRST_Y_AXIS].ticmode & TICS_ON_BORDER))))
 		y2tic_width = (int)(pTerm->h_tic * AxS[SECOND_Y_AXIS].ticscale);
@@ -813,7 +813,7 @@ void do_key_bounds(legend_key * key)
 		 * you must do "replot" to avoid the wrong plot ... bad luck if output does not
 		 * go to screen
 		 */
-		map_position(&key->user_pos, &x, &y, "key");
+		GPO.MapPosition(t, &key->user_pos, &x, &y, "key");
 		/* Here top, bottom, left, right refer to the alignment with respect to point. */
 		key->bounds.xleft = x;
 		if(key->hpos == CENTRE)
@@ -1040,14 +1040,14 @@ void do_key_sample(termentry * pTerm, curve_points * this_plot, legend_key * key
 	// If the plot this title belongs to specified a non-standard place 
 	// for the key sample to appear, use that to override xl, yl.       
 	if(this_plot->title_position && this_plot->title_position->scalex != character) {
-		map_position(this_plot->title_position, &xl, &yl, "key sample");
+		GPO.MapPosition(pTerm, this_plot->title_position, &xl, &yl, "key sample");
 		xl -=  (key->just == GPKEY_LEFT) ? key_text_left : key_text_right;
 	}
 	(pTerm->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
 	if(key->textcolor.type == TC_VARIABLE)
 		; /* Draw key text in same color as plot */
 	else if(key->textcolor.type != TC_DEFAULT)
-		apply_pm3dcolor(&key->textcolor); /* Draw key text in same color as key title */
+		apply_pm3dcolor(pTerm, &key->textcolor); /* Draw key text in same color as key title */
 	else
 		(pTerm->linetype)(LT_BLACK); /* Draw key text in black */
 	if(this_plot->title_is_automated && (pTerm->flags & TERM_IS_LATEX)) {
@@ -1173,7 +1173,7 @@ void do_key_sample_point(curve_points * this_plot, legend_key * key)
 	if(this_plot->title_position) {
 		if(this_plot->title_position->scalex == character)
 			return;
-		map_position(this_plot->title_position, &xl, &yl, "key sample");
+		GPO.MapPosition(t, this_plot->title_position, &xl, &yl, "key sample");
 		xl -=  (key->just == GPKEY_LEFT) ? key_text_left : key_text_right;
 	}
 	(t->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
@@ -1197,9 +1197,9 @@ void do_key_sample_point(curve_points * this_plot, legend_key * key)
 		if(on_page(xl + key_point_offset, yl)) {
 			if(this_plot->lp_properties.p_type == PT_CHARACTER) {
 				if(this_plot->labels->textcolor.type != TC_DEFAULT)
-					apply_pm3dcolor(&(this_plot->labels->textcolor));
+					apply_pm3dcolor(t, &(this_plot->labels->textcolor));
 				(*t->put_text)(xl + key_point_offset, yl, this_plot->lp_properties.p_char);
-				apply_pm3dcolor(&(this_plot->lp_properties.pm3d_color));
+				apply_pm3dcolor(t, &(this_plot->lp_properties.pm3d_color));
 			}
 			else {
 				(*t->point)(xl + key_point_offset, yl, this_plot->lp_properties.p_type);
@@ -1276,8 +1276,8 @@ void draw_titles()
 	if(GPO.AxS[FIRST_Y_AXIS].label.text) {
 		int x = ylabel_x;
 		int y = (plot_bounds.ytop + plot_bounds.ybot) / 2;
-		/* There has been much argument about the optimal ylabel position */
-		x += t->h_char / 4.;
+		// There has been much argument about the optimal ylabel position 
+		x += t->h_char / 4.0;
 		write_label(t, x, y, &(GPO.AxS[FIRST_Y_AXIS].label));
 		reset_textcolor(&(GPO.AxS[FIRST_Y_AXIS].label.textcolor));
 	}
@@ -1290,9 +1290,9 @@ void draw_titles()
 	}
 	// XLABEL 
 	if(GPO.AxS[FIRST_X_AXIS].label.text) {
-		struct text_label * label = &GPO.AxS[FIRST_X_AXIS].label;
+		text_label * label = &GPO.AxS[FIRST_X_AXIS].label;
 		double tmpx, tmpy;
-		map_position_r(t, &(label->offset), &tmpx, &tmpy, "xlabel");
+		GPO.MapPositionR(t, &(label->offset), &tmpx, &tmpy, "xlabel");
 		int x = (plot_bounds.xright + plot_bounds.xleft) / 2;
 		int y = xlabel_y - t->v_char / 2;
 		y -= tmpy; /* xlabel_y already contained tmpy */
@@ -1301,7 +1301,7 @@ void draw_titles()
 	}
 	// X2LABEL 
 	if(GPO.AxS[SECOND_X_AXIS].label.text) {
-		/* we worked out y-coordinate in boundary() */
+		// we worked out y-coordinate in boundary() 
 		int x = (plot_bounds.xright + plot_bounds.xleft) / 2;
 		int y = x2label_y - t->v_char / 2;
 		write_label(t, x, y, &(GPO.AxS[SECOND_X_AXIS].label));
@@ -1310,7 +1310,7 @@ void draw_titles()
 	// RLABEL 
 	if(GPO.AxS[POLAR_AXIS].label.text) {
 		// This assumes we always have a horizontal R axis 
-		int x = GPO.AxS.MapiX(polar_radius(GPO.AxS.__R().max) / 2.0);
+		int x = GPO.AxS.MapiX(GPO.PolarRadius(GPO.AxS.__R().max) / 2.0);
 		int y = GPO.AxS.MapiY(0.0) + t->v_char;
 		write_label(t, x, y, &(GPO.AxS[POLAR_AXIS].label));
 		reset_textcolor(&(GPO.AxS[POLAR_AXIS].label.textcolor));

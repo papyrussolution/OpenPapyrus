@@ -816,34 +816,27 @@ TERM_PUBLIC void EPSLATEX_set_color(t_colorspec * colorspec)
 	/* Only when some TeX object is output do we sync the current color by   */
 	/* writing it out.                                                       */
 	tex_color_synced = FALSE;
-
 	if(colorspec->type == TC_RGB) {
-		double r = (double)((colorspec->lt >> 16 ) & 255) / 255.;
-		double g = (double)((colorspec->lt >> 8 ) & 255) / 255.;
-		double b = (double)(colorspec->lt & 255) / 255.;
+		double r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
+		double g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
+		double b = (double)(colorspec->lt & 255) / 255.0;
 		sprintf(tex_current_color, "      \\colorrgb{%3.2f,%3.2f,%3.2f}", r, g, b);
 		sprintf(tex_rgb_colordef, "\\definecolor{tbcol}{rgb}{%3.2f,%3.2f,%3.2f}", r, g, b);
 	}
-
 	if(colorspec->type == TC_LT) {
 		int linetype = colorspec->lt;
 		if(ps_params->oldstyle)
 			linetype = (linetype % 4) + 3;
 		else
 			linetype = (linetype % 9) + 3;
-
-		sprintf(tex_current_color, "      \\csname LT%c\\endcsname",
-		    "wba012345678"[linetype]);
+		sprintf(tex_current_color, "      \\csname LT%c\\endcsname", "wba012345678"[linetype]);
 		/* FIXME */
 		sprintf(tex_rgb_colordef, "\\definecolor{tbcol}{rgb}{1,1,1}");
 	}
-
 	if(colorspec->type != TC_FRAC)
 		return;
-
 /* map [0;1] to gray/colors */
 	gray = colorspec->value;
-
 	if(ps_params->blacktext) {
 		if(gray <= 0)
 			sprintf(tex_current_color, "      \\color{black}");
@@ -864,7 +857,6 @@ TERM_PUBLIC void EPSLATEX_linetype(int linetype)
 {
 	t_colorspec tempcol = {TC_LT, 0, 0.0};
 	tempcol.lt = linetype;
-
 #ifdef HAVE_CAIROPDF
 	if(ISCAIROTERMINAL)
 		cairotrm_linetype(linetype);
@@ -986,23 +978,17 @@ TERM_PUBLIC void EPSLATEX_boxed_text(uint x, uint y, int option)
 		    }
 		    fprintf(gpoutfile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
 		    switch(ps_justify) {
-			    case LEFT:
-				fputs("{\\makebox(0,0)[l]{", gpoutfile);
-				break;
-			    case CENTRE:
-				fputs("{\\makebox(0,0){", gpoutfile);
-				break;
-			    case RIGHT:
-				fputs("{\\makebox(0,0)[r]{", gpoutfile);
-				break;
+			    case LEFT: fputs("{\\makebox(0,0)[l]{", gpoutfile); break;
+			    case CENTRE: fputs("{\\makebox(0,0){", gpoutfile); break;
+			    case RIGHT: fputs("{\\makebox(0,0)[r]{", gpoutfile); break;
 		    }
 		    if(PSLATEX_opacity < 1.0)
 			    fprintf(gpoutfile, "\\transparent{%.2f}", PSLATEX_opacity);
 		    fputs("\\colorbox{tbcol}{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
 		    break;
 		case TEXTBOX_MARGINS:
-		    PSLATEX_xmargin = (double)x / 100.;
-		    PSLATEX_ymargin = (double)y / 100.;
+		    PSLATEX_xmargin = (double)x / 100.0;
+		    PSLATEX_ymargin = (double)y / 100.0;
 		    break;
 		default:
 		    break;

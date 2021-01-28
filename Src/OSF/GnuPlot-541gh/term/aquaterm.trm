@@ -261,40 +261,32 @@ TERM_PUBLIC void AQUA_options()
 				AQUA_dashlength_factor = AQUA_DEFAULT_DASHLENGTH_FACTOR;
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("enh$anced")) {
 			term->put_text = ENHAQUA_put_text;
 			GPO.Pgm.Shift();
 			term->flags |= TERM_ENHANCED_TEXT;
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("noenh$anced")) {
 			term->put_text = AQUA_put_text;
 			GPO.Pgm.Shift();
 			term->flags &= ~TERM_ENHANCED_TEXT;
 			continue;
 		}
-
 		if(!set_number) { /* plot ref number*/
-			AQUA_plotRef = int_expression();
+			AQUA_plotRef = GPO.IntExpression();
 			set_number = TRUE;
 			continue;
 		}
-
 		GPO.IntErrorCurToken("unexpected text at end of command");
 	}
 
 	if(AQUA_title[0]=='\0') /* always set title */
 		sprintf(AQUA_title, "Figure %d", AQUA_plotRef);
 	/* Save options back into options string in normalized format */
-	sprintf(term_options, "%d title \"%s\" size %d,%d font \"%s,%g\" %s %s",
-	    AQUA_plotRef,
-	    AQUA_title,
-	    (uint)(AQUA_xSize/AQUA_RESOLUTION), (uint)(AQUA_ySize/AQUA_RESOLUTION),
-	    AQUA_fontNameCur, AQUA_fontSizeCur,
-	    term->put_text == ENHAQUA_put_text ? "enhanced" : "noenhanced",
-	    AQUA_dashedlines ? "dashed" : "solid");
+	sprintf(term_options, "%d title \"%s\" size %d,%d font \"%s,%g\" %s %s", AQUA_plotRef, AQUA_title,
+	    (uint)(AQUA_xSize/AQUA_RESOLUTION), (uint)(AQUA_ySize/AQUA_RESOLUTION), AQUA_fontNameCur, AQUA_fontSizeCur,
+	    term->put_text == ENHAQUA_put_text ? "enhanced" : "noenhanced", AQUA_dashedlines ? "dashed" : "solid");
 	if(AQUA_dashedlines)
 		sprintf(&(term_options[strlen(term_options)]), " dl %3.1f", AQUA_dashlength_factor);
 	if(AQUA_LineWidth != 1.0)
@@ -708,17 +700,16 @@ TERM_PUBLIC void AQUA_set_color(t_colorspec * colorspec)
 {
 	rgb_color color;
 	double alpha;
-
 	switch(colorspec->type) {
 		case TC_FRAC:
 		    rgb1maxcolors_from_gray(colorspec->value, &color);
 		    [adapter setColorRed:color.r green: color.g blue: color.b];
 		    break;
 		case TC_RGB:
-		    color.r = (double)((colorspec->lt >> 16) & 255) / 255.;
-		    color.g = (double)((colorspec->lt >> 8 ) & 255) / 255.;
-		    color.b = (double)(colorspec->lt & 255) / 255.;
-		    alpha   = (double)((colorspec->lt >> 24) & 255) / 255.;
+		    color.r = (double)((colorspec->lt >> 16) & 255) / 255.0;
+		    color.g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
+		    color.b = (double)(colorspec->lt & 255) / 255.0;
+		    alpha   = (double)((colorspec->lt >> 24) & 255) / 255.0;
 		    if(AQUA_hasAlphaSupport && (alpha > 0)) {
 			    alpha = 1.0 - alpha;
 			    [adapter setColorRed:color.r green: color.g blue: color.b alpha: alpha];
@@ -978,7 +969,9 @@ AQUA_previous_palette,
 AQUA_set_color,
 AQUA_filled_polygon,
 AQUA_image,
-ENHAQUA_open, ENHAQUA_flush, ENHAQUA_writec,
+ENHAQUA_open, 
+ENHAQUA_flush, 
+ENHAQUA_writec,
 0 /* layer */, 0 /* path */, 0.0 /* tscale */, 0 /* hypertext */,
 0 /* boxed_text */, 0 /* modify_plots */,
 AQUA_dashtype TERM_TABLE_END(aqua_driver)

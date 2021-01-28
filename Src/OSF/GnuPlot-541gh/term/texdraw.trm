@@ -198,11 +198,11 @@ static bool TEXDRAW_colortext = FALSE;
 static bool TEXDRAW_psarrows = TRUE;
 static bool TEXDRAW_texpoints = TRUE;
 static size_units TEXDRAW_explicit_units = INCHES;
-static double TEXDRAW_size_x = 5.;
-static double TEXDRAW_size_y = 3.;
-static double TEXDRAW_lw_scale = 1.;
-static double TEXDRAW_ps = 1.;
-static double TEXDRAW_background = 1.;
+static double TEXDRAW_size_x = 5.0;
+static double TEXDRAW_size_y = 3.0;
+static double TEXDRAW_lw_scale = 1.0;
+static double TEXDRAW_ps = 1.0;
+static double TEXDRAW_background = 1.0;
 
 /* option names */
 enum TEXDRAW_id { TEXDRAW_DEFAULT,
@@ -251,10 +251,10 @@ TERM_PUBLIC void TEXDRAW_options()
 			    TEXDRAW_colortext = TRUE;
 			    TEXDRAW_psarrows = TRUE;
 			    TEXDRAW_texpoints = TRUE;
-			    TEXDRAW_lw_scale = TEXDRAW_ps = 1.;
-			    TEXDRAW_background = 1.;
+			    TEXDRAW_lw_scale = TEXDRAW_ps = 1.0;
+			    TEXDRAW_background = 1.0;
 			    TEXDRAW_size_x = 5;
-			    TEXDRAW_size_y = 3.;
+			    TEXDRAW_size_y = 3.0;
 			    term->xmax = TEXDRAW_size_x * DOTS_PER_INCH;
 			    term->ymax = TEXDRAW_size_y * DOTS_PER_INCH;
 			    term->v_char = TEXDRAW_VCHAR;
@@ -403,20 +403,17 @@ TERM_PUBLIC void TEXDRAW_graphics()
 
 	if(TEXDRAW_background == 1.) {
 		/* enforce bounding box */
-		fprintf(gpoutfile, "\\move (0 0) \\rmove (%d %d)\n",
-		    term->xmax, term->ymax);
+		fprintf(gpoutfile, "\\move (0 0) \\rmove (%d %d)\n", term->xmax, term->ymax);
 	}
 	else {
 		fprintf(gpoutfile, "\\move (0 0) \\rlvec (%d 0) \\rlvec (0 %d) \\rlvec (%d 0) \\ifill f:%0.2f\n",
-		    term->xmax, term->ymax, -term->xmax,
-		    TEXDRAW_background);
+		    term->xmax, term->ymax, -term->xmax, TEXDRAW_background);
 	}
-
 	TEXDRAW_last_type = 0;
 	TEXDRAW_type = 0;
 	TEXDRAW_posx = TEXDRAW_posy = 0;
-	TEXDRAW_lw = TEXDRAW_last_lw = 1.;
-	TEXDRAW_gray = TEXDRAW_last_gray = 0.;
+	TEXDRAW_lw = TEXDRAW_last_lw = 1.0;
+	TEXDRAW_gray = TEXDRAW_last_gray = 0.0;
 	TEXDRAW_arrow_type = 0;
 	TEXDRAW_arrow_length = -1;
 	TEXDRAW_arrow_width = -1;
@@ -516,19 +513,14 @@ TERM_PUBLIC void TEXDRAW_pointsize(double size)
 TERM_PUBLIC void TEXDRAW_point(uint x, uint y, int number)
 {
 	char colorstr[80] = "";
-
 	TEXDRAW_move(x, y);
-
 	if(!TEXDRAW_texpoints) {
 		do_point(x, y, number);
 		return;
 	}
-
 	/* Print the character defined by 'number'; number < 0 means
 	 * to use a dot, otherwise one of the defined points. */
-	fprintf(gpoutfile, "\\move (%d %d)\n",
-	    (int)((double)x * TEXDRAW_xscale),
-	    (int)((double)y * TEXDRAW_yscale));
+	fprintf(gpoutfile, "\\move (%d %d)\n", (int)((double)x * TEXDRAW_xscale), (int)((double)y * TEXDRAW_yscale));
 	if(TEXDRAW_last_justify != CENTRE) {
 		fprintf(gpoutfile, "\\textref h:C v:C ");
 		TEXDRAW_last_justify = CENTRE;
@@ -548,12 +540,10 @@ TERM_PUBLIC void TEXDRAW_vector(uint ux, uint uy)
 {
 	if(!TEXDRAW_inline) {
 		TEXDRAW_inline = TRUE;
-
 		/* Start a new line. This depends on line type */
 		if((TEXDRAW_type != TEXDRAW_last_type) || (TEXDRAW_last_lw != TEXDRAW_lw)) {
 			if(TEXDRAW_lines[TEXDRAW_type + 2] * TEXDRAW_lw != TEXDRAW_lines[TEXDRAW_last_type + 2] * TEXDRAW_last_lw)
-				fprintf(gpoutfile, "\\linewd %d\n",
-				    (int)(TEXDRAW_lines[TEXDRAW_type + 2] * TEXDRAW_lw + 0.5));
+				fprintf(gpoutfile, "\\linewd %d\n", (int)(TEXDRAW_lines[TEXDRAW_type + 2] * TEXDRAW_lw + 0.5));
 			TEXDRAW_last_type = TEXDRAW_type;
 			TEXDRAW_last_lw = TEXDRAW_lw;
 		}
@@ -561,9 +551,7 @@ TERM_PUBLIC void TEXDRAW_vector(uint ux, uint uy)
 			fprintf(gpoutfile, "\\setgray %0.2f\n", TEXDRAW_gray);
 			TEXDRAW_last_gray = TEXDRAW_gray;
 		}
-		fprintf(gpoutfile, "\\path (%d %d)",
-		    (int)((double)TEXDRAW_posx * TEXDRAW_xscale),
-		    (int)((double)TEXDRAW_posy * TEXDRAW_yscale));
+		fprintf(gpoutfile, "\\path (%d %d)", (int)((double)TEXDRAW_posx * TEXDRAW_xscale), (int)((double)TEXDRAW_posy * TEXDRAW_yscale));
 		TEXDRAW_linecount = 1;
 	}
 	else {
@@ -576,9 +564,7 @@ TERM_PUBLIC void TEXDRAW_vector(uint ux, uint uy)
 			TEXDRAW_linecount = 1;
 		}
 	}
-	fprintf(gpoutfile, "(%d %d)",
-	    (int)((double)ux * TEXDRAW_xscale),
-	    (int)((double)uy * TEXDRAW_yscale));
+	fprintf(gpoutfile, "(%d %d)", (int)((double)ux * TEXDRAW_xscale), (int)((double)uy * TEXDRAW_yscale));
 	TEXDRAW_posx = ux;
 	TEXDRAW_posy = uy;
 }
@@ -712,7 +698,7 @@ TERM_PUBLIC void TEXDRAW_set_color(t_colorspec * colorspec)
 	    }
 		case TC_LT:
 		    /* any line type is black for now */
-		    TEXDRAW_gray = 0.;
+		    TEXDRAW_gray = 0.0;
 		    break;
 		default:
 		    break;
@@ -724,15 +710,12 @@ static double TEXDRAW_fill_gray(int style)
 	double gray = TEXDRAW_gray;
 	int pattern = style >> 4;
 	int frac = style >> 4;
-	static const double TEXDRAW_pat_gray[4] = {
-		1.0, 0.5, 0.8, 0.0
-	};
-
+	static const double TEXDRAW_pat_gray[4] = { 1.0, 0.5, 0.8, 0.0 };
 	switch(style & 0x0f) {
 		case FS_SOLID:
 		case FS_TRANSPARENT_SOLID:
 		    if(frac < 100)
-			    gray *= frac / 100.;
+			    gray *= frac / 100.0;
 		    break;
 		case FS_PATTERN:
 		case FS_TRANSPARENT_PATTERN:

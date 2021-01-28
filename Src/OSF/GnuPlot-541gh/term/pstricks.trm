@@ -160,15 +160,15 @@ static char PSTRICKS_color_str[24] = "";
 static bool PSTRICKS_palette_set = FALSE;
 static int PSTRICKS_palette_size = 128;
 static rgb_color PSTRICKS_rgbcolor;
-static double PSTRICKS_alpha = 1.;
-static double PSTRICKS_alpha_old = 1.;
+static double PSTRICKS_alpha = 1.0;
+static double PSTRICKS_alpha_old = 1.0;
 static bool PSTRICKS_have_bg;
-static rgb_color PSTRICKS_background = { 1., 1., 1. };
+static rgb_color PSTRICKS_background = { 1.0, 1.0, 1.0 };
 
 /* POINTS */
 #define PSTRICKS_TINY_DOT       0.00025         /* A tiny dot */
 static double PST_pointsize;
-static double PSTRICKS_ps = 1.;
+static double PSTRICKS_ps = 1.0;
 static const char * PSTRICKS_points[] = {
 	"\\PST@Plus",
 	"\\PST@Cross",
@@ -210,35 +210,23 @@ static const char * PSTRICKS_colors[] = {
 	"yellow"
 };
 
-/* line caps and joins */
-static bool PST_rounded = FALSE;
-
-/* current line type */
-static int PSTRICKS_type;
-
-/* current line color */
-static char PSTRICKS_old_linecolor[24] = "black";
-/* new line color */
-static char PSTRICKS_linecolor[24] = "black";
+static bool PST_rounded = FALSE; /* line caps and joins */
+static int PSTRICKS_type; /* current line type */
+static char PSTRICKS_old_linecolor[24] = "black"; /* current line color */
+static char PSTRICKS_linecolor[24] = "black"; /* new line color */
 
 /* line width */
 static double PSTRICKS_lw;
-static double PSTRICKS_lw_scale = 1.;
-
-/* are we in the middle of a line */
-static bool PSTRICKS_inline = FALSE;
-
-/* number of points in line so far */
-static int PSTRICKS_linecount = 0;
-
-/* max value for linecount */
-#define PSTRICKS_LINEMAX 100
+static double PSTRICKS_lw_scale = 1.0;
+static bool PSTRICKS_inline = FALSE; /* are we in the middle of a line */
+static int PSTRICKS_linecount = 0; /* number of points in line so far */
+#define PSTRICKS_LINEMAX 100 /* max value for linecount */
 
 /* ARROWS */
 static bool PST_psarrows = TRUE;
-static double PSTRICKS_arrowwidth = -1.;
-static double PSTRICKS_arrowlength = -1.;
-static double PSTRICKS_arrowinset = -1.;
+static double PSTRICKS_arrowwidth = -1.0;
+static double PSTRICKS_arrowlength = -1.0;
+static double PSTRICKS_arrowinset = -1.0;
 
 /* FILL PATTERN */
 static const char * PSTRICKS_patterns[] = {
@@ -308,25 +296,25 @@ TERM_PUBLIC void PSTRICKS_options()
 			case PSTRICKS_DEFAULTOPTIONS:
 			    PST_unit_plot = FALSE;
 			    PST_standalone = FALSE;
-			    PSTRICKS_size_x = 5.;
-			    PSTRICKS_size_y = 3.;
+			    PSTRICKS_size_x = 5.0;
+			    PSTRICKS_size_y = 3.0;
 			    break;
 			case PSTRICKS_UNIT:
 			    PST_unit_plot = TRUE;
-			    PSTRICKS_size_x = 5.;
-			    PSTRICKS_size_y = 5.;
-			    term->xmax = PSTRICKS_XMAX;
-			    term->ymax = PSTRICKS_YMAX;
-			    term->v_char = PSTRICKS_VCHAR * 5. / 3.;
-			    term->v_tic = PSTRICKS_VTIC * 5. / 3.;
+			    PSTRICKS_size_x = 5.0;
+			    PSTRICKS_size_y = 5.0;
+			    term->xmax = (uint)PSTRICKS_XMAX;
+			    term->ymax = (uint)PSTRICKS_YMAX;
+			    term->v_char = (uint)(PSTRICKS_VCHAR * 5.0 / 3.0);
+			    term->v_tic = (uint)(PSTRICKS_VTIC * 5.0 / 3.0);
 			    GPO.Pgm.Shift();
 			    break;
 			case PSTRICKS_NOUNIT:
 			    PST_unit_plot = FALSE;
-			    PSTRICKS_size_x = 5.;
-			    PSTRICKS_size_y = 3.;
-			    term->xmax = PSTRICKS_size_x * PSTRICKS_XMAX / 5.;
-			    term->ymax = PSTRICKS_size_y * PSTRICKS_YMAX / 5.;
+			    PSTRICKS_size_x = 5.0;
+			    PSTRICKS_size_y = 3.0;
+			    term->xmax = (uint)(PSTRICKS_size_x * PSTRICKS_XMAX / 5.0);
+			    term->ymax = (uint)(PSTRICKS_size_y * PSTRICKS_YMAX / 5.0);
 			    term->v_char = PSTRICKS_VCHAR;
 			    term->v_tic = PSTRICKS_VTIC;
 			    GPO.Pgm.Shift();
@@ -339,8 +327,8 @@ TERM_PUBLIC void PSTRICKS_options()
 			    PSTRICKS_explicit_units = parse_term_size(&width, &height, INCHES);
 			    PSTRICKS_size_x = width / gp_resolution;
 			    PSTRICKS_size_y = height / gp_resolution;
-			    term->xmax = PSTRICKS_size_x * PSTRICKS_XMAX / 5.;
-			    term->ymax = PSTRICKS_size_y * PSTRICKS_YMAX / 5.;
+			    term->xmax = (uint)(PSTRICKS_size_x * PSTRICKS_XMAX / 5.0);
+			    term->ymax = (uint)(PSTRICKS_size_y * PSTRICKS_YMAX / 5.0);
 			    term->v_char = PSTRICKS_VCHAR;
 			    term->v_tic = PSTRICKS_VTIC;
 			    break;
@@ -385,9 +373,9 @@ TERM_PUBLIC void PSTRICKS_options()
 			    int background;
 			    GPO.Pgm.Shift();
 			    background = parse_color_name();
-			    PSTRICKS_background.r = (double)((background >> 16) & 0xff) / 255.;
-			    PSTRICKS_background.g = (double)((background >>  8) & 0xff) / 255.;
-			    PSTRICKS_background.b = (double)( background        & 0xff) / 255.;
+			    PSTRICKS_background.r = (double)((background >> 16) & 0xff) / 255.0;
+			    PSTRICKS_background.g = (double)((background >>  8) & 0xff) / 255.0;
+			    PSTRICKS_background.b = (double)( background        & 0xff) / 255.0;
 			    break;
 		    }
 			case PSTRICKS_GPARROWS:
@@ -530,20 +518,14 @@ TERM_PUBLIC void PSTRICKS_graphics()
 		    );
 	}
 	else {
-		fprintf(gpoutfile, "\
-\\pspicture%s(%f,%f)(%f,%f)\n\
-\\ifx\\nofigs\\undefined\n\
-\\catcode`@=11\n\n",
-		    background,
-		    0., 0., 1., 1.
-		    );
+		fprintf(gpoutfile, "\\pspicture%s(%f,%f)(%f,%f)\n\\ifx\\nofigs\\undefined\n\\catcode`@=11\n\n", background, 0.0, 0.0, 1.0, 1.0);
 	}
 	PSTRICKS_posx = PSTRICKS_posy = 0;
 	PSTRICKS_linetype(-1);
 	PSTRICKS_palette_set = FALSE; /* PM3D palette set? */
 	/* Re-set point symbol size */
 	fputs("\\psset{dotscale=1}\n", gpoutfile);
-	PST_pointsize = 1.;
+	PST_pointsize = 1.0;
 	strcpy(PSTRICKS_old_linecolor, "black");
 	strcpy(PSTRICKS_linecolor, "black");
 	PSTRICKS_lw = 1;
@@ -600,7 +582,6 @@ TERM_PUBLIC void PSTRICKS_linetype(int linetype)
 TERM_PUBLIC void PSTRICKS_dashtype(int dt, t_dashtype * custom_dash_pattern)
 {
 	PSTRICKS_endline();
-
 	if(dt >= 0) {
 		int linetype = dt;
 		if(linetype >= PSTRICKS_NUMLINES + LT_BLACK)
@@ -623,7 +604,6 @@ TERM_PUBLIC void PSTRICKS_dashtype(int dt, t_dashtype * custom_dash_pattern)
 TERM_PUBLIC void PSTRICKS_move(uint x, uint y)
 {
 	PSTRICKS_endline();
-
 	PSTRICKS_posx = PSTRICKS_map_x(x);
 	PSTRICKS_posy = PSTRICKS_map_y(y);
 }
@@ -631,26 +611,16 @@ TERM_PUBLIC void PSTRICKS_move(uint x, uint y)
 TERM_PUBLIC void PSTRICKS_point(uint x, uint y, int number)
 {
 	PSTRICKS_move(x, y);
-
 	/* Print the character defined by 'number'; number < 0 means
 	   to use a dot, otherwise one of the defined points. */
-
 	if(PST_pointsize <= 0.)
 		return;
-
 	PSTRICKS_apply_linecolor();
-
 	if(number < 0) {
-		fprintf(gpoutfile, "\\qdisk(%.4f,%.4f){%.4f}\n",
-		    PSTRICKS_map_x(x),
-		    PSTRICKS_map_y(y),
-		    PSTRICKS_TINY_DOT);
+		fprintf(gpoutfile, "\\qdisk(%.4f,%.4f){%.4f}\n", PSTRICKS_map_x(x), PSTRICKS_map_y(y), PSTRICKS_TINY_DOT);
 	}
 	else {
-		fprintf(gpoutfile, "%s(%.4f,%.4f)\n",
-		    PSTRICKS_points[number % PSTRICKS_POINT_TYPES],
-		    PSTRICKS_map_x(x),
-		    PSTRICKS_map_y(y));
+		fprintf(gpoutfile, "%s(%.4f,%.4f)\n", PSTRICKS_points[number % PSTRICKS_POINT_TYPES], PSTRICKS_map_x(x), PSTRICKS_map_y(y));
 	}
 }
 
@@ -658,12 +628,9 @@ TERM_PUBLIC void PSTRICKS_vector(unsigned ux, unsigned uy)
 {
 	if(!PSTRICKS_inline) {
 		PSTRICKS_inline = TRUE;
-
 		/* Start a new line. This depends on line type */
 		PSTRICKS_apply_linecolor();
-		fprintf(gpoutfile, "%s(%.4f,%.4f)",
-		    PSTRICKS_lines[PSTRICKS_type + 2],
-		    PSTRICKS_posx, PSTRICKS_posy);
+		fprintf(gpoutfile, "%s(%.4f,%.4f)", PSTRICKS_lines[PSTRICKS_type + 2], PSTRICKS_posx, PSTRICKS_posy);
 		PSTRICKS_linecount = 1;
 	}
 	else {
@@ -674,9 +641,7 @@ TERM_PUBLIC void PSTRICKS_vector(unsigned ux, unsigned uy)
 		 */
 		if(PSTRICKS_linecount++ >= PSTRICKS_LINEMAX) {
 			putc('\n', gpoutfile);
-			fprintf(gpoutfile, "%s(%.4f,%.4f)",
-			    PSTRICKS_lines[PSTRICKS_type + 2],
-			    PSTRICKS_posx, PSTRICKS_posy);
+			fprintf(gpoutfile, "%s(%.4f,%.4f)", PSTRICKS_lines[PSTRICKS_type + 2], PSTRICKS_posx, PSTRICKS_posy);
 			PSTRICKS_linecount = 1;
 		}
 	}
@@ -697,22 +662,17 @@ static void PSTRICKS_endline()
 	}
 }
 
-TERM_PUBLIC void PSTRICKS_arrow(unsigned int sx, unsigned int sy,
-    unsigned int ex, unsigned int ey,
-    int head)
+TERM_PUBLIC void PSTRICKS_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 {
 	const char * head_str = "";
-	double width, length, inset = 0.;
-
+	double width, length, inset = 0.0;
 	/* Note:  we cannot handle curr_arrow_headfilled, HEADS_ONLY, and SHAFT_ONLY */
 	PSTRICKS_endline();
 	PSTRICKS_apply_linecolor();
-
 	if(!PST_psarrows) {
 		do_arrow(sx, sy, ex, ey, head);
 		return;
 	}
-
 	if(curr_arrow_headlength <= 0) {
 		double def_length = PSTRICKS_HTIC;
 		width = 2 * def_length * sin(DEG2RAD * 15);
@@ -741,7 +701,7 @@ TERM_PUBLIC void PSTRICKS_arrow(unsigned int sx, unsigned int sy,
 			fprintf(gpoutfile, "\\psset{arrowinset=%.2f}\n", PSTRICKS_arrowinset);
 		}
 		else if((width == 0.) && (PSTRICKS_arrowinset != 0.)) {
-			PSTRICKS_arrowinset = 0.;
+			PSTRICKS_arrowinset = 0.0;
 			fputs("\\psset{arrowinset=0}\n", gpoutfile);
 		}
 		/*
@@ -750,7 +710,6 @@ TERM_PUBLIC void PSTRICKS_arrow(unsigned int sx, unsigned int sy,
 		    curr_arrow_headangle,
 		    curr_arrow_headbackangle);
 		 */
-
 		if(width == 0.)
 			head &= ~BOTH_HEADS;
 
@@ -847,7 +806,6 @@ TERM_PUBLIC void PSTRICKS_reset()
 {
 	PSTRICKS_endline();
 	PSTRICKS_posx = PSTRICKS_posy = 0;
-
 	if(PST_standalone)
 		fputs("\\end{document}\n", gpoutfile);
 }
@@ -935,7 +893,7 @@ TERM_PUBLIC void PSTRICKS_set_color(t_colorspec * colorspec)
 		    PSTRICKS_color = new_color;
 		    snprintf(PSTRICKS_color_str, sizeof(PSTRICKS_color_str), "PST@COLOR%d", new_color);
 		    PSTRICKS_save_color(PSTRICKS_color_str);
-		    PSTRICKS_alpha = 1.;
+		    PSTRICKS_alpha = 1.0;
 		    break;
 		case TC_RGB: {
 		    int red, green, blue;
@@ -945,13 +903,10 @@ TERM_PUBLIC void PSTRICKS_set_color(t_colorspec * colorspec)
 		    blue  = (colorspec->lt      ) & 0xff;
 		    alpha = (double)(255 - ((colorspec->lt >> 24) & 0xff)) / 255;
 		    /* round to 3 digits */
-		    r = 1e-3 * (int)(red   / 255. * 1000);
-		    g = 1e-3 * (int)(green / 255. * 1000);
-		    b = 1e-3 * (int)(blue  / 255. * 1000);
-		    if((PSTRICKS_color_type != TC_RGB) ||
-			(PSTRICKS_rgbcolor.r != r) ||
-			(PSTRICKS_rgbcolor.g != g) ||
-			(PSTRICKS_rgbcolor.b != b)) {
+		    r = 1e-3 * (int)(red   / 255.0 * 1000);
+		    g = 1e-3 * (int)(green / 255.0 * 1000);
+		    b = 1e-3 * (int)(blue  / 255.0 * 1000);
+		    if((PSTRICKS_color_type != TC_RGB) || (PSTRICKS_rgbcolor.r != r) || (PSTRICKS_rgbcolor.g != g) || (PSTRICKS_rgbcolor.b != b)) {
 			    PSTRICKS_endline();
 			    fprintf(gpoutfile, "\\newrgbcolor{c}{%g %g %g}\n",  r, g, b);
 			    PSTRICKS_old_linecolor[0] = 0; /* invalidate old color */
@@ -974,7 +929,7 @@ TERM_PUBLIC void PSTRICKS_set_color(t_colorspec * colorspec)
 			    PSTRICKS_color = colorspec->lt % PSTRICKS_NUMCOLORS;
 			    PSTRICKS_save_color(PSTRICKS_colors[PSTRICKS_color]);
 		    }
-		    PSTRICKS_alpha = 1.;
+		    PSTRICKS_alpha = 1.0;
 		    break;
 		default:
 		    break;

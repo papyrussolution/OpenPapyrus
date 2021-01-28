@@ -179,11 +179,11 @@ TERM_PUBLIC void DUMB_options()
 #endif
 			case DUMB_ASPECT:
 			    GPO.Pgm.Shift();
-			    x = int_expression();
+			    x = GPO.IntExpression();
 			    y = 1;
 			    if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(",")) {
 				    GPO.Pgm.Shift();
-				    y = int_expression();
+				    y = GPO.IntExpression();
 			    }
 			    if(x <= 0) x = 1;
 			    if(y <= 0) y = 1;
@@ -216,13 +216,13 @@ TERM_PUBLIC void DUMB_options()
 					GPO.Pgm.Shift();
 				    break;
 			    }
-			    x = int_expression();
+			    x = GPO.IntExpression();
 			    if(x <= 0 || x > 1024)
 				    x = DUMB_XMAX;
 			    if(!GPO.Pgm.EndOfCommand()) {
 				    if(GPO.Pgm.EqualsCur(","))
 					    GPO.Pgm.Shift();
-				    y = int_expression();
+				    y = GPO.IntExpression();
 				    if(y <= 0 || y > 1024)
 					    y = DUMB_YMAX;
 				    dumb_xmax = term->xmax = x;
@@ -232,17 +232,11 @@ TERM_PUBLIC void DUMB_options()
 			    break;
 		}
 	}
-
 	{
 		const char * coloropts[] = {"mono", "ansi", "ansi256", "ansirgb"};
-
-		sprintf(term_options, "%sfeed %s size %d, %d aspect %i, %i %s",
-		    dumb_feed ? "" : "no",
-		    term->put_text == ENHdumb_put_text ? "enhanced" : "",
-		    dumb_xmax, dumb_ymax,
-		    term->h_tic, term->v_tic,
-		    coloropts[dumb_colormode == 0 ? 0 : dumb_colormode - DUMB_ANSI + 1]
-		    );
+		sprintf(term_options, "%sfeed %s size %d, %d aspect %i, %i %s", dumb_feed ? "" : "no",
+		    term->put_text == ENHdumb_put_text ? "enhanced" : "", dumb_xmax, dumb_ymax,
+		    term->h_tic, term->v_tic, coloropts[dumb_colormode == 0 ? 0 : dumb_colormode - DUMB_ANSI + 1]);
 	}
 }
 
@@ -765,27 +759,22 @@ TERM_PUBLIC void ENHdumb_FLUSH()
 TERM_PUBLIC void ENHdumb_put_text(uint x, uint y, const char * str)
 {
 	int length;
-
 	/* If no enhanced text processing is needed, we can use the plain  */
 	/* vanilla put_text() routine instead of this fancy recursive one. */
 	if(ignore_enhanced_text || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		DUMB_put_text(x, y, str);
 		return;
 	}
-
 	length = estimate_strlen(str, NULL);
 	if(x + length > dumb_xmax)
 		x = MAX(0, dumb_xmax - length);
 	if(y > dumb_ymax)
 		return;
-
 	/* Set up global variables needed by enhanced_recursion() */
 	enhanced_fontscale = 1.0;
 	ENHdumb_opened_string = FALSE;
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-
 	DUMB_move(x, y);
-
 	/* Set the recursion going. We say to keep going until a
 	 * closing brace, but we don't really expect to find one.
 	 * If the return value is not the nul-terminator of the
@@ -793,17 +782,12 @@ TERM_PUBLIC void ENHdumb_put_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    ENHdumb_font, ENHdumb_fontsize,
-	    0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, ENHdumb_font, ENHdumb_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
-
 		if(!*++str)
 			break; /* end of string */
-
 		/* else carry on and process the rest of the string */
 	}
 }

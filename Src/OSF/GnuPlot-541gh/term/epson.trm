@@ -902,13 +902,35 @@ static void DPU414_dump()
 
 #ifdef EPS180
 TERM_TABLE_START(epson180_driver)
-"epson_180dpi", "Epson LQ-style 180-dot per inch (24 pin) printers",
-EPS180XMAX, EPS180YMAX, EPSON180VCHAR, EPSON180HCHAR,
-EPSON180VTIC, EPSON180HTIC, options_null, EPSON_init, EPSON_reset,
-EPS180_text, null_scale, EPS180_graphics, b_move, b_vector,
-b_setlinetype, b_put_text, b_text_angle,
-null_justify_text, do_point, do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(epson180_driver)
+	"epson_180dpi", 
+	"Epson LQ-style 180-dot per inch (24 pin) printers",
+	EPS180XMAX, 
+	EPS180YMAX, 
+	EPSON180VCHAR, 
+	EPSON180HCHAR,
+	EPSON180VTIC, 
+	EPSON180HTIC, 
+	options_null, 
+	EPSON_init, 
+	EPSON_reset,
+	EPS180_text, 
+	null_scale, 
+	EPS180_graphics, 
+	b_move, 
+	b_vector,
+	b_setlinetype, 
+	b_put_text, 
+	b_text_angle,
+	null_justify_text, 
+	do_point, 
+	do_arrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(epson180_driver)
 
 #undef LAST_TERM
 #define LAST_TERM epson180_driver
@@ -916,13 +938,35 @@ null_justify_text, do_point, do_arrow, set_font_null, 0, TERM_BINARY,
 
 #ifdef EPS60
 TERM_TABLE_START(epson60_driver)
-"epson_60dpi", "Epson-style 60-dot per inch printers",
-EPS60XMAX, EPS60YMAX, EPSONVCHAR, EPSONHCHAR,
-EPSONVTIC, EPSONHTIC, options_null, EPSON_init, EPSON_reset,
-EPS60_text, null_scale, EPS60_graphics, b_move, b_vector,
-b_setlinetype, b_put_text, b_text_angle,
-null_justify_text, do_point, do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(epson60_driver)
+"epson_60dpi", 
+"Epson-style 60-dot per inch printers",
+EPS60XMAX, 
+EPS60YMAX, 
+EPSONVCHAR, 
+EPSONHCHAR,
+EPSONVTIC, 
+EPSONHTIC, 
+options_null, 
+EPSON_init, 
+EPSON_reset,
+EPS60_text, 
+null_scale, 
+EPS60_graphics, 
+b_move, 
+b_vector,
+b_setlinetype, 
+b_put_text, 
+b_text_angle,
+null_justify_text, 
+do_point, 
+do_arrow, 
+set_font_null, 
+0, 
+TERM_BINARY,
+0, 
+0, 
+b_boxfill 
+TERM_TABLE_END(epson60_driver)
 
 #undef LAST_TERM
 #define LAST_TERM epson60_driver
@@ -958,13 +1002,35 @@ null_justify_text, line_and_point, do_arrow, set_font_null, 0, TERM_BINARY,
 
 #ifdef OKIDATA
 TERM_TABLE_START(okidata_driver)
-"okidata", "OKIDATA 320/321 Standard",
-EPS60XMAX, EPS60YMAX, EPSONVCHAR, EPSONHCHAR,
-EPSONVTIC, EPSONHTIC, options_null, EPSON_init, EPSON_reset,
-OKIDATA_text, null_scale, EPS60_graphics, b_move, b_vector,
-b_setlinetype, b_put_text, b_text_angle,
-null_justify_text, do_point, do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(okidata_driver)
+	"okidata", 
+	"OKIDATA 320/321 Standard",
+	EPS60XMAX, 
+	EPS60YMAX, 
+	EPSONVCHAR, 
+	EPSONHCHAR,
+	EPSONVTIC, 
+	EPSONHTIC, 
+	options_null, 
+	EPSON_init, 
+	EPSON_reset,
+	OKIDATA_text, 
+	null_scale, 
+	EPS60_graphics, 
+	b_move, 
+	b_vector,
+	b_setlinetype, 
+	b_put_text, 
+	b_text_angle,
+	null_justify_text, 
+	do_point, 
+	do_arrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(okidata_driver)
 
 #undef LAST_TERM
 #define LAST_TERM okidata_driver
@@ -986,13 +1052,35 @@ null_justify_text, line_and_point, do_arrow, set_font_null, 0, TERM_BINARY,
 
 #ifdef TANDY60
 TERM_TABLE_START(tandy60_driver)
-"tandy_60dpi", "Tandy DMP-130 series 60-dot per inch graphics",
-EPS60XMAX, EPS60YMAX, EPSONVCHAR, EPSONHCHAR,
-EPSONVTIC, EPSONHTIC, options_null, EPSON_init, EPSON_reset,
-TANDY60_text, null_scale, EPS60_graphics, b_move, b_vector,
-b_setlinetype, b_put_text, b_text_angle,
-null_justify_text, do_point, do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(tandy60_driver)
+	"tandy_60dpi", 
+	"Tandy DMP-130 series 60-dot per inch graphics",
+	EPS60XMAX, 
+	EPS60YMAX, 
+	EPSONVCHAR, 
+	EPSONHCHAR,
+	EPSONVTIC, 
+	EPSONHTIC, 
+	options_null, 
+	EPSON_init, 
+	EPSON_reset,
+	TANDY60_text, 
+	null_scale, 
+	EPS60_graphics, 
+	b_move, 
+	b_vector,
+	b_setlinetype, 
+	b_put_text, 
+	b_text_angle,
+	null_justify_text, 
+	do_point, 
+	do_arrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(tandy60_driver)
 
 #undef LAST_TERM
 #define LAST_TERM tandy60_driver

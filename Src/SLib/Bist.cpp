@@ -1672,7 +1672,7 @@ char * SIPoint2::tostr(const void * s, long fmt, char * pBuf) const
 
 int SIPoint2::fromstr(void * s, long, const char * pStr) const
 {
-	RPoint p;
+	SPoint2R p;
 	p.Set(0.0);
 	if(p.FromStr(pStr)) {
 		static_cast<TPoint *>(s)->Set((int)p.x, (int)p.y);
@@ -1689,14 +1689,14 @@ int SIPoint2::base() const
 
 void SIPoint2::tobase(const void * s, void * b) const
 {
-	RPoint * p_rp = static_cast<RPoint *>(b);
+	SPoint2R * p_rp = static_cast<SPoint2R *>(b);
 	p_rp->x = static_cast<const TPoint *>(s)->x;
 	p_rp->y = static_cast<const TPoint *>(s)->y;
 }
 
 int SIPoint2::baseto(void * s, const void * b) const
 {
-	static_cast<TPoint *>(s)->Set((int)static_cast<const RPoint *>(b)->x, (int)static_cast<const RPoint *>(b)->y);
+	static_cast<TPoint *>(s)->Set((int)static_cast<const SPoint2R *>(b)->x, (int)static_cast<const SPoint2R *>(b)->y);
 	return 1;
 }
 
@@ -1771,7 +1771,7 @@ char * SFPoint2::tostr(const void * pData, long f, char * pBuf) const
 
 int SFPoint2::fromstr(void * pData, long, const char * pStr) const
 {
-	RPoint p;
+	SPoint2R p;
 	p.Set(0.0);
 	if(p.FromStr(pStr)) {
 		static_cast<FPoint *>(pData)->Set((float)p.x, (float)p.y);
@@ -1788,14 +1788,14 @@ int SFPoint2::base() const
 
 void SFPoint2::tobase(const void * pData, void * pBase) const
 {
-	RPoint * p_rp = static_cast<RPoint *>(pBase);
+	SPoint2R * p_rp = static_cast<SPoint2R *>(pBase);
 	p_rp->x = static_cast<const FPoint *>(pData)->X;
 	p_rp->y = static_cast<const FPoint *>(pData)->Y;
 }
 
 int SFPoint2::baseto(void * pData, const void * pBase) const
 {
-	static_cast<FPoint *>(pData)->Set((float)((const RPoint *)pBase)->x, (float)((const RPoint *)pBase)->y);
+	static_cast<FPoint *>(pData)->Set((float)((const SPoint2R *)pBase)->x, (float)((const SPoint2R *)pBase)->y);
 	return 1;
 }
 

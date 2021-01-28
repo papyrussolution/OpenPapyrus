@@ -1,8 +1,7 @@
-/*
- * Redirect C++ output streams to wgnuplot text window
- * (Caveat: does not compile with OpenWatcom)
- *
- */
+// 
+// Redirect C++ output streams to wgnuplot text window
+// (Caveat: does not compile with OpenWatcom)
+// 
 //#include <gnuplot.h>
 #pragma hdrstop
 #include <iostream>

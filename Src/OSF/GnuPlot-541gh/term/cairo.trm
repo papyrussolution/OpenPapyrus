@@ -31,7 +31,6 @@
  * This software is provided "as is" without express or implied warranty
  * to the extent permitted by applicable law.
    ]*/
-
 /*
  * Modifications:
  *	Peter Danenberg, Ethan Merritt	- handle png output as well as pdf
@@ -40,9 +39,8 @@
  *	Bastian Maerkisch - cairolatex terminal
  *	Henri Menke - add png option for graphics output
  */
-
 #ifdef TERM_REGISTER
-register_term(pdfcairo)
+	register_term(pdfcairo)
 #endif
 
 #ifdef TERM_PROTO
@@ -88,7 +86,7 @@ TERM_PUBLIC void WEBP_options(int);     /* We call it from cairotrm_options */
 #endif
 #include "wxterminal/gp_cairo.h"
 #include "wxterminal/gp_cairo_helpers.h"
-#include "glib.h"               /* For guint32 */
+// @sobolev #include "glib.h" // For guint32 
 
 #define CAIROTRM_DEFAULT_FONTNAME "Sans"
 
@@ -134,10 +132,17 @@ enum CAIROTRM_id {
 enum CAIRO_TERMINALTYPE {
 	CAIROTERM_EPS, CAIROTERM_PDF, CAIROTERM_PNG, CAIROTERM_LATEX
 };
-
-/* One struct that takes all terminal parameters
- * by Harald Harders <h.harders@tu-bs.de> */
-typedef struct cairo_params_t {
+// 
+// One struct that takes all terminal parameters
+// by Harald Harders <h.harders@tu-bs.de> 
+//
+struct cairo_params_t {
+	cairo_params_t() : terminal(CAIROTERM_EPS), explicit_units(INCHES), enhanced(false), dashed(false), dash_length(1.0f),
+		background(1.0, 1.0, 1.0), mono(false), linecap(0), transparent(true), crop(false), fontname(0),
+		fontsize(12.0f), fontscale(0.5f), width(5 * 72.0f), height(3 * 72.0f), base_linewidth(0.25f), lw(1.0f), ps(1.0f), 
+		output(CAIROTRM_id), resolution(0)
+	{
+	}
 	enum CAIRO_TERMINALTYPE terminal;
 	size_units explicit_units;
 	bool enhanced;
@@ -158,14 +163,14 @@ typedef struct cairo_params_t {
 	float ps;
 	enum CAIROTRM_id output; /* format of the graphics produced by cairolatex */
 	int resolution;         /* in dpi; CAIROLATEX_PNG only */
-} cairo_params_t;
+};
 
 #define CAIROEPS_PARAMS_DEFAULT { \
-		CAIROTERM_EPS, INCHES, FALSE, FALSE, 1.0, {1., 1., 1.}, FALSE, FALSE, TRUE, FALSE, NULL, \
+		CAIROTERM_EPS, INCHES, FALSE, FALSE, 1.0, {1.0, 1.0, 1.}, FALSE, FALSE, TRUE, FALSE, NULL, \
 		12, 0.5, 5*72., 3*72., 0.25, 1.0, 1.0, FALSE \
 }
-static cairo_params_t cairoeps_params = CAIROEPS_PARAMS_DEFAULT;
-static const cairo_params_t cairoeps_params_default = CAIROEPS_PARAMS_DEFAULT;
+static cairo_params_t cairoeps_params;// = CAIROEPS_PARAMS_DEFAULT;
+static const cairo_params_t cairoeps_params_default;// = CAIROEPS_PARAMS_DEFAULT;
 
 #ifdef HAVE_CAIROEPS
 #define CAIROLATEX_PARAMS_DEFAULT { \
@@ -289,7 +294,7 @@ TERM_PUBLIC void cairotrm_options()
 		cairo_params_default = &cairopdf_params_default;
 	}
 	/* Default to enhanced text mode */
-	if(!almost_equals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion") && !ISCAIROLATEX) {
+	if(!GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion") && !ISCAIROLATEX) {
 		cairo_params->enhanced = TRUE;
 		term->flags |= TERM_ENHANCED_TEXT;
 	}
@@ -411,14 +416,12 @@ TERM_PUBLIC void cairotrm_options()
 			    break;
 			case CAIROTRM_CROP:
 			    GPO.Pgm.Shift();
-			    if((cairo_params->terminal == CAIROTERM_PNG) ||
-				(cairo_params->terminal == CAIROTERM_EPS))
+			    if((cairo_params->terminal == CAIROTERM_PNG) || (cairo_params->terminal == CAIROTERM_EPS))
 				    cairo_params->crop = TRUE;
 			    break;
 			case CAIROTRM_NOCROP:
 			    GPO.Pgm.Shift();
-			    if((cairo_params->terminal == CAIROTERM_PNG) ||
-				(cairo_params->terminal == CAIROTERM_EPS))
+			    if((cairo_params->terminal == CAIROTERM_PNG) || (cairo_params->terminal == CAIROTERM_EPS))
 				    cairo_params->crop = FALSE;
 			    break;
 			case CAIROTRM_BACKGROUND:
@@ -426,13 +429,12 @@ TERM_PUBLIC void cairotrm_options()
 			    int wxt_background;
 			    GPO.Pgm.Shift();
 			    wxt_background = parse_color_name();
-			    cairo_params->background.r = (double)((wxt_background >> 16) & 0xff) / 255.;
-			    cairo_params->background.g = (double)((wxt_background >>  8) & 0xff) / 255.;
-			    cairo_params->background.b = (double)( wxt_background        & 0xff) / 255.;
+			    cairo_params->background.r = (double)((wxt_background >> 16) & 0xff) / 255.0;
+			    cairo_params->background.g = (double)((wxt_background >>  8) & 0xff) / 255.0;
+			    cairo_params->background.b = (double)( wxt_background        & 0xff) / 255.0;
 			    cairo_params->transparent = FALSE;
 			    break;
 		    }
-
 #ifdef PSLATEX_DRIVER
 			case CAIROLATEX_STANDALONE:
 			    if(!ISCAIROLATEX)
@@ -511,12 +513,11 @@ TERM_PUBLIC void cairotrm_options()
 			    if(cairo_params->output != CAIROLATEX_PNG)
 				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    GPO.Pgm.Shift();
-			    cairo_params->resolution = int_expression();
+			    cairo_params->resolution = GPO.IntExpression();
 			    if(cairo_params->resolution <= 0)
 				    cairo_params->resolution = 300;
 			    break;
 #endif /* PSLATEX_DRIVER */
-
 			case CAIROTRM_OTHER:
 			    /* Ignore irrelevant keywords used by other png/pdf drivers */
 			    if(GPO.Pgm.AlmostEqualsCur("true$color") || GPO.Pgm.AlmostEqualsCur("inter$lace") || GPO.Pgm.AlmostEqualsCur("nointer$lace")) {
@@ -654,52 +655,40 @@ TERM_PUBLIC void cairotrm_options()
 		WEBP_options(1);
 #endif
 }
-
-/* "Called once, when the device is first selected."
- * Is the 'main' function of the terminal. */
+//
+// "Called once, when the device is first selected."
+// Is the 'main' function of the terminal. 
+//
 void cairotrm_init()
 {
 	cairo_surface_t * surface = NULL;
-
 	FPRINTF((stderr, "Init\n"));
-
-	/* do a sanity check for once */
-	if(strcmp(term->name, "epscairo") && strcmp(term->name, "cairolatex") &&
-	    strcmp(term->name, "pdfcairo") && strcmp(term->name, "pngcairo"))
+	// do a sanity check for once 
+	if(strcmp(term->name, "epscairo") && strcmp(term->name, "cairolatex") && strcmp(term->name, "pdfcairo") && strcmp(term->name, "pngcairo"))
 		GPO.IntErrorCurToken("Unrecognized cairo terminal");
-
-	/* cairolatex requires a file */
+	// cairolatex requires a file 
 	if(ISCAIROLATEX && !outstr)
-		os_error(c_token, "cairolatex terminal cannot write to standard output");
-
-	/* We no longer rely on this having been done in cairotrm_reset() */
+		os_error(GPO.Pgm.GetCurTokenIdx(), "cairolatex terminal cannot write to standard output");
+	// We no longer rely on this having been done in cairotrm_reset() 
 	if(plot.cr)
 		cairo_destroy(plot.cr);
-
-	/* initialisations */
+	// initialisations 
 	gp_cairo_initialize_plot(&plot);
 	plot.device_xmax = (double)cairo_params->width;
 	plot.device_ymax = (double)cairo_params->height;
 	plot.dashlength = cairo_params->dash_length;
-
 	if(!strcmp(term->name, "pdfcairo")) {
-		/* Output can either be a file or stdout */
+		// Output can either be a file or stdout 
 #ifndef _WIN32
 		if(!outstr) {
 #endif
-		/* Redirection to a printer on Windows requires the use of gpoutfile
-		   via the cairostream_write callback.
-		 */
-		surface = cairo_pdf_surface_create_for_stream(
-			(cairo_write_func_t)cairostream_write, cairostream_error,
-			plot.device_xmax /*double width_in_points*/,
-			plot.device_ymax /*double height_in_points*/);
+		// Redirection to a printer on Windows requires the use of gpoutfile via the cairostream_write callback.
+		surface = cairo_pdf_surface_create_for_stream((cairo_write_func_t)cairostream_write, cairostream_error,
+			plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 #ifndef _WIN32
 	}
 	else {
-		surface = cairo_pdf_surface_create(outstr,
-			plot.device_xmax /*double width_in_points*/,
-			plot.device_ymax /*double height_in_points*/);
+		surface = cairo_pdf_surface_create(outstr, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 	}
 #endif
 		/* it is up to the pdf viewer to do the hinting */
@@ -774,7 +763,7 @@ void cairotrm_init()
 			case CAIROLATEX_PNG:
 			    EPSLATEX_reopen_output("png");
 			    /* We manually scale up to 300 dpi instead of the default 72 dpi */
-			    plot.upsampling_rate = cairo_params->resolution / 72.;
+			    plot.upsampling_rate = cairo_params->resolution / 72.0;
 			    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
 				    (int)floor(plot.device_xmax * plot.upsampling_rate) /*double width_in_points*/,
 				    (int)floor(plot.device_ymax * plot.upsampling_rate) /*double height_in_points*/);
@@ -929,13 +918,11 @@ void cairopng_write_cropped_image(cairo_surface_t * surface)
 	int height = cairo_image_surface_get_height(surface);
 	int stride = cairo_image_surface_get_stride(surface);
 	int i, j, x1 = 0, y1 = 0, x2 = width, y2 = height;
-
-	guint32 * row;
-	guint32 BG = (cairo_params->transparent) ? 0x0 : ~0x0;
-
-	/* Row-wise, top-down iteration */
+	uint32 * row;
+	uint32 BG = (cairo_params->transparent) ? 0x0 : ~0x0;
+	// Row-wise, top-down iteration 
 	for(i = 0; i < height; i++) {
-		row = (guint32*)(data + i * stride);
+		row = (uint32*)(data + i * stride);
 		for(j = 0; j < width; j++) {
 			if(row[j] != BG) {
 				y1 = i;
@@ -944,9 +931,9 @@ void cairopng_write_cropped_image(cairo_surface_t * surface)
 		}
 	}
 found_y1:
-	/* Row-wise, bottom-up iteration */
+	// Row-wise, bottom-up iteration 
 	for(i = height - 1; i >= y1; i--) {
-		row = (guint32*)(data + i * stride);
+		row = (uint32*)(data + i * stride);
 		for(j = 0; j < width; j++) {
 			if(row[j] != BG) {
 				y2 = i;
@@ -955,10 +942,10 @@ found_y1:
 		}
 	}
 found_y2:
-	/* Column-wise, left-to-right iteration */
+	// Column-wise, left-to-right iteration 
 	for(j = 0; j < width; j++) {
 		for(i = y1; i <= y2; i++) {
-			row = (guint32*)(data + i * stride);
+			row = (uint32 *)(data + i * stride);
 			if(row[j] != BG) {
 				x1 = j;
 				goto found_x1;
@@ -969,7 +956,7 @@ found_x1:
 	/* Column-wise, right-to-left iteration */
 	for(j = width - 1; j >= x1; j--) {
 		for(i = y1; i <= y2; i++) {
-			row = (guint32*)(data + i * stride);
+			row = (uint32 *)(data + i * stride);
 			if(row[j] != BG) {
 				x2 = j;
 				goto found_x2;
@@ -1001,14 +988,11 @@ found_x2:
 void cairotrm_text()
 {
 	FPRINTF((stderr, "Text0\n"));
-
 	/* don't forget to stroke the last path if vector was the last command */
 	gp_cairo_stroke(&plot);
 	/* and don't forget to draw the polygons if draw_polygon was the last command */
 	gp_cairo_end_polygon(&plot);
-
 	FPRINTF((stderr, "status = %s\n", cairo_status_to_string(cairo_status(plot.cr))));
-
 	/* finish the page - cairo_destroy still has to be called for the whole documentation
 	 * to be written */
 	cairo_show_page(plot.cr);
@@ -1020,29 +1004,25 @@ void cairotrm_text()
 			cairopng_write_cropped_image(surface);
 		}
 		else {
-			cairo_surface_write_to_png_stream(surface,
-			    (cairo_write_func_t)cairostream_write, cairostream_error);
+			cairo_surface_write_to_png_stream(surface, (cairo_write_func_t)cairostream_write, cairostream_error);
 		}
 	}
-
 	FPRINTF((stderr, "status = %s\n", cairo_status_to_string(cairo_status(plot.cr))));
-
 	FPRINTF((stderr, "Text finished\n"));
 }
-
-/* sent when gnuplot exits and when the terminal or the output change.*/
+//
+// sent when gnuplot exits and when the terminal or the output change.
+//
 void cairotrm_reset()
 {
 	if(plot.cr)
 		cairo_destroy(plot.cr);
 	plot.cr = NULL;
-
 #ifdef PSLATEX_DRIVER
 	/* finish latex output */
 	if(ISCAIROLATEX)
 		PSLATEX_reset();
 #endif
-
 	FPRINTF((stderr, "cairotrm_reset\n"));
 }
 
@@ -1058,61 +1038,45 @@ void cairotrm_vector(uint x, uint y)
 
 void cairotrm_put_text(uint x, uint y, const char * string)
 {
-	if(!string || !strlen(string))
-		return;
-
-	/* if ignore_enhanced_text is set, draw with the normal routine.
-	 * This is meant to avoid enhanced syntax when the enhanced mode is on */
-	if(ignore_enhanced_text || !cairo_params->enhanced) {
-		gp_cairo_draw_text(&plot, x, term->ymax - y, string, NULL, NULL);
-		return;
+	if(!isempty(string)) {
+		/* if ignore_enhanced_text is set, draw with the normal routine.
+		 * This is meant to avoid enhanced syntax when the enhanced mode is on */
+		if(ignore_enhanced_text || !cairo_params->enhanced) {
+			gp_cairo_draw_text(&plot, x, term->ymax - y, string, NULL, NULL);
+			return;
+		}
+		/* If there are no mark-up characters we can use the normal routine */
+		if(!strpbrk(string, "{}^_@&~") && !contains_unicode(string)) {
+			gp_cairo_draw_text(&plot, x, term->ymax - y, string, NULL, NULL);
+			return;
+		}
+		/* Uses enhanced_recursion() to analyse the string to print.
+		 * enhanced_recursion() calls _enhanced_open() to initialize the text drawing,
+		 * then it calls _enhanced_writec() which buffers the characters to draw,
+		 * and finally _enhanced_flush() to draw the buffer with the correct justification.
+		 */
+		gp_cairo_enhanced_init(&plot, strlen(string));
+		/* set up the global variables needed by enhanced_recursion() */
+		enhanced_fontscale = cairo_params->fontscale;
+		strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
+		/* Set the recursion going. We say to keep going until a closing brace,
+		 * but we don't really expect to find one. If the return value is not
+		 * the nul-terminator of the string, that can only mean that we did find
+		 * an unmatched closing brace in the string. We increment past it (else
+		 * we get stuck in an infinite loop) and try again.
+		 */
+		while(*(string = enhanced_recursion((char*)string, TRUE, cairo_enhanced_fontname, plot.fontsize, 0.0, TRUE, TRUE, 0))) {
+			cairotrm_enhanced_flush();
+			/* we can only get here if *str == '}' */
+			enh_err_check(string);
+			if(!*++string)
+				break; /* end of string */
+			/* else carry on and process the rest of the string */
+		}
+		/* EAM FIXME: I still don't understand why this is needed */
+		gp_cairo_clear_bold_font(&plot);
+		gp_cairo_enhanced_finish(&plot, x, term->ymax - y); // finish 
 	}
-
-	/* If there are no mark-up characters we can use the normal routine */
-	if(!strpbrk(string, "{}^_@&~") && !contains_unicode(string)) {
-		gp_cairo_draw_text(&plot, x, term->ymax - y, string, NULL, NULL);
-		return;
-	}
-
-	/* Uses enhanced_recursion() to analyse the string to print.
-	 * enhanced_recursion() calls _enhanced_open() to initialize the text drawing,
-	 * then it calls _enhanced_writec() which buffers the characters to draw,
-	 * and finally _enhanced_flush() to draw the buffer with the correct justification.
-	 */
-
-	gp_cairo_enhanced_init(&plot, strlen(string));
-
-	/* set up the global variables needed by enhanced_recursion() */
-	enhanced_fontscale = cairo_params->fontscale;
-	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-
-	/* Set the recursion going. We say to keep going until a closing brace,
-	 * but we don't really expect to find one. If the return value is not
-	 * the nul-terminator of the string, that can only mean that we did find
-	 * an unmatched closing brace in the string. We increment past it (else
-	 * we get stuck in an infinite loop) and try again.
-	 */
-
-	while(*(string = enhanced_recursion((char*)string, TRUE,
-	    cairo_enhanced_fontname,
-	    plot.fontsize,
-	    0.0, TRUE, TRUE, 0))) {
-		cairotrm_enhanced_flush();
-
-		/* we can only get here if *str == '}' */
-		enh_err_check(string);
-
-		if(!*++string)
-			break; /* end of string */
-		/* else carry on and process the rest of the string */
-	}
-
-	/* EAM FIXME: I still don't understand why this is needed */
-	gp_cairo_clear_bold_font(&plot);
-
-	/* finish */
-	gp_cairo_enhanced_finish(&plot, x, term->ymax - y);
-	return;
 }
 
 void cairotrm_enhanced_flush()
@@ -1127,18 +1091,15 @@ void cairotrm_enhanced_writec(int c)
 
 void cairotrm_enhanced_open(char* fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
-	gp_cairo_enhanced_open(&plot, fontname, fontsize,
-	    base, widthflag, showflag, overprint);
+	gp_cairo_enhanced_open(&plot, fontname, fontsize, base, widthflag, showflag, overprint);
 }
 
 void cairotrm_linetype(int lt)
 {
 	gp_cairo_set_linetype(&plot, lt);
-
 	/* Version 5: always set solid lines at this point.  If a dashed */
 	/* line is wanted there will be a later call to term->dashtype() */
 	gp_cairo_set_linestyle(&plot,  GP_CAIRO_SOLID);
-
 	if(cairo_params->mono && lt >= -1)
 		gp_cairo_set_color(&plot, gp_cairo_linetype2color(-1), 0.0);
 	else
@@ -1151,7 +1112,7 @@ int cairotrm_set_font(const char * font)
 {
 	char * fontname = NULL;
 	float fontsize = 0;
-	if(font && (*font)) {
+	if(!isempty(font)) {
 		int sep = strcspn(font, ",");
 		fontname = sstrdup(font);
 		if(font[sep] == ',') {
@@ -1164,16 +1125,10 @@ int cairotrm_set_font(const char * font)
 	}
 	if(strlen(fontname) == 0) {
 		SAlloc::F(fontname);
-		if(!cairo_params->fontname || strlen(cairo_params->fontname) == 0)
-			fontname = gp_strdup(CAIROTRM_DEFAULT_FONTNAME);
-		else
-			fontname = gp_strdup(cairo_params->fontname);
+		fontname = isempty(cairo_params->fontname) ? gp_strdup(CAIROTRM_DEFAULT_FONTNAME) : gp_strdup(cairo_params->fontname);
 	}
 	if(fontsize == 0) {
-		if(cairo_params->fontsize == 0)
-			fontsize = cairo_params_default->fontsize;
-		else
-			fontsize = cairo_params->fontsize;
+		fontsize = (cairo_params->fontsize == 0) ? cairo_params_default->fontsize : cairo_params->fontsize;
 	}
 	/* Reset the term variables (hchar, vchar, h_tic, v_tic).
 	* They may be taken into account in next plot commands */
@@ -1216,7 +1171,6 @@ int cairotrm_text_angle(int angle)
 {
 	/* a double is needed to compute cos, sin, etc. */
 	gp_cairo_set_textangle(&plot, (double)angle);
-
 	return 1; /* 1 means we can rotate */
 }
 
@@ -1227,8 +1181,7 @@ void cairotrm_fillbox(int style, uint x, uint y, uint width, uint height)
 
 int cairotrm_make_palette(t_sm_palette * palette)
 {
-	/* we can do continuous colors */
-	return 0;
+	return 0; // we can do continuous colors 
 }
 
 void cairotrm_set_color(t_colorspec * colorspec)
@@ -1242,7 +1195,7 @@ void cairotrm_set_color(t_colorspec * colorspec)
 		int save_colorMode = GPO.SmPltt.colorMode;
 		GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_GRAY;
 		rgb1maxcolors_from_gray(colorspec->value, &rgb1);
-		GPO.SmPltt.colorMode = save_colorMode;
+		GPO.SmPltt.colorMode = (palette_color_mode)save_colorMode;
 	}
 	else if(colorspec->type == TC_FRAC) {
 		rgb1maxcolors_from_gray(colorspec->value, &rgb1);

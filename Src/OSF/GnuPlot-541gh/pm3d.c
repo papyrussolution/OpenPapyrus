@@ -1,13 +1,7 @@
-/* GNUPLOT - pm3d.c */
-
-/*[
- *
- * Petr Mikulik, since December 1998
- * Copyright: open source as much as possible
- *
- * What is here: global variables and routines for the pm3d splotting mode.
- *
-   ]*/
+// GNUPLOT - pm3d.c 
+// Copyright: open source as much as possible Petr Mikulik, since December 1998
+// What is here: global variables and routines for the pm3d splotting mode.
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -311,7 +305,7 @@ void pm3d_depth_queue_clear(void)
 	current_quadrangle = 0;
 }
 
-void pm3d_depth_queue_flush(void)
+void pm3d_depth_queue_flush()
 {
 	if(pm3d.direction != PM3D_DEPTH && !track_pm3d_quadrangles)
 		return;
@@ -355,7 +349,7 @@ void pm3d_depth_queue_flush(void)
 		for(qp = quadrangles, qe = quadrangles + current_quadrangle; qp != qe; qp++) {
 			// set the color 
 			if(qp->gray == PM3D_USE_COLORSPEC_INSTEAD_OF_GRAY)
-				apply_pm3dcolor(qp->qcolor.colorspec);
+				apply_pm3dcolor(term, qp->qcolor.colorspec);
 			else if(qp->gray == PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY)
 				term->linetype(LT_BACKGROUND);
 			else if(qp->gray == PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY)

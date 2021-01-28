@@ -858,19 +858,16 @@ fill (%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--cycle withpen (
 
 TERM_PUBLIC int MP_make_palette(t_sm_palette * palette)
 {
-	/* metapost can do continuous number of colours */
-	return 0;
+	return 0; // metapost can do continuous number of colours 
 }
 
 TERM_PUBLIC void MP_set_color(t_colorspec * colorspec)
 {
 	double gray = colorspec->value;
 	rgb_color color;
-
-	/* remember that we changed the color, needed to reset color in MP_linetype()*/
-	/* FIXME: only set this if the color really did change (compare to previous color) */
+	// remember that we changed the color, needed to reset color in MP_linetype()
+	// FIXME: only set this if the color really did change (compare to previous color) 
 	MP_color_changed = 1;
-
 	if(MP_inline)
 		MP_endline();
 
@@ -894,19 +891,17 @@ TERM_PUBLIC void MP_set_color(t_colorspec * colorspec)
 			rgb1_from_gray(gray, &color);
 		}
 		else if(colorspec->type == TC_RGB) {
-			color.r = (double)((colorspec->lt >> 16 ) & 255) / 255.;
-			color.g = (double)((colorspec->lt >> 8 ) & 255) / 255.;
-			color.b = (double)(colorspec->lt & 255) / 255.;
+			color.r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
+			color.g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
+			color.b = (double)(colorspec->lt & 255) / 255.0;
 		}
 		else
 			return;
-		if(color.r < 1e-4) color.r = 0;
-		if(color.g < 1e-4) color.g = 0;
-		if(color.b < 1e-4) color.b = 0;
-		fprintf(gpoutfile, "currentcolor:=%.4g*red+%.4g*green+%.4g*blue;\n",
-		    color.r, color.g, color.b);
+		if(color.r < 1e-4) color.r = 0.0;
+		if(color.g < 1e-4) color.g = 0.0;
+		if(color.b < 1e-4) color.b = 0.0;
+		fprintf(gpoutfile, "currentcolor:=%.4g*red+%.4g*green+%.4g*blue;\n", color.r, color.g, color.b);
 	}
-	return;
 }
 
 TERM_PUBLIC void MP_filled_polygon(int points, gpiPoint * corners)

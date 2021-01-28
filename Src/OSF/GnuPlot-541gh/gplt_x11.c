@@ -153,11 +153,6 @@ Error.Incompatible options.
 #endif /* HAVE_SYS_SYSTEMINFO_H && HAVE_SYSINFO */
 
 #ifdef USE_MOUSE
-#ifdef OS2_IPC
-#define INCL_DOSPROCESS
-#define INCL_DOSSEMAPHORES
-	#include <os2.h>
-#endif
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -1373,11 +1368,7 @@ static int record()
 		    {
 #ifndef DISABLE_SPACE_RAISES_CONSOLE
 #ifdef USE_MOUSE
-#ifdef OS2_IPC
-			    sscanf(buf, "G%lu %li", &gnuplotXID, &ppidGnu);
-#else
 			    sscanf(buf, "G%lu", &gnuplotXID);
-#endif
 #endif
 #endif /* DISABLE_SPACE_RAISES_CONSOLE */
 
@@ -1385,14 +1376,6 @@ static int record()
 				    current_plot = Add_Plot_To_Linked_List(most_recent_plot_number);
 			    if(current_plot)
 				    prepare_plot(current_plot);
-#ifdef OS2_IPC
-			    if(!input_from_PM_Terminal) { /* get shared memory */
-				    sprintf(mouseShareMemName, "\\SHAREMEM\\GP%i_Mouse_Input", (int)ppidGnu);
-				    if(DosGetNamedSharedMem(&input_from_PM_Terminal, mouseShareMemName, PAG_WRITE))
-					    DosBeep(1440L, 1000L); /* indicates error */
-				    semInputReady = 0;
-			    }
-#endif
 #ifdef USE_MOUSE
 #ifdef TITLE_BAR_DRAWING_MSG
 			    /* show a message in the wm's title bar that the

@@ -48,10 +48,9 @@
 extern "C" {
 #endif /*__cplusplus*/
 
-/* for JUSTIFY, set_encoding_id, *term definitions, color.h */
-# include "term_api.h"
+//#include "term_api.h" /* for JUSTIFY, set_encoding_id, *term definitions, color.h */
 
-unsigned int * gp_cairo_helper_coordval_to_chars(coordval* image, int M, int N, t_imagecolor color_mode);
+uint * gp_cairo_helper_coordval_to_chars(coordval* image, int M, int N, t_imagecolor color_mode);
 
 #ifdef __cplusplus
 }

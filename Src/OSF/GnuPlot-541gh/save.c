@@ -1,34 +1,6 @@
-/* GNUPLOT - save.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - save.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -88,7 +60,7 @@ void save_all(FILE * fp)
 
 void save_datablocks(FILE * fp)
 {
-	struct udvt_entry * udv = first_udv->next_udv;
+	udvt_entry * udv = first_udv->next_udv;
 	while(udv) {
 		if(udv->udv_value.type == DATABLOCK) {
 			char ** line = udv->udv_value.v.data_array;
@@ -102,15 +74,13 @@ void save_datablocks(FILE * fp)
 		udv = udv->next_udv;
 	}
 }
-
 /*
  *  auxiliary functions
  */
 
 static void save_functions__sub(FILE * fp)
 {
-	struct udft_entry * udf = first_udf;
-
+	udft_entry * udf = first_udf;
 	while(udf) {
 		if(udf->definition) {
 			fprintf(fp, "%s\n", udf->definition);
@@ -121,27 +91,21 @@ static void save_functions__sub(FILE * fp)
 
 static void save_variables__sub(FILE * fp)
 {
-	/* always skip pi */
-	struct udvt_entry * udv = first_udv->next_udv;
-
+	// always skip pi 
+	udvt_entry * udv = first_udv->next_udv;
 	while(udv) {
 		if(udv->udv_value.type != NOTDEFINED) {
 			if((udv->udv_value.type == ARRAY) && strncmp(udv->udv_name, "ARGV", 4)) {
 				if(udv->udv_value.v.value_array[0].type != COLORMAP_ARRAY) {
-					fprintf(fp, "array %s[%d] = ", udv->udv_name,
-					    (int)(udv->udv_value.v.value_array[0].v.int_val));
+					fprintf(fp, "array %s[%d] = ", udv->udv_name, (int)(udv->udv_value.v.value_array[0].v.int_val));
 					save_array_content(fp, udv->udv_value.v.value_array);
 				}
 			}
-			else if(strncmp(udv->udv_name, "GPVAL_", 6)
-			    && strncmp(udv->udv_name, "GPFUN_", 6)
-			    && strncmp(udv->udv_name, "MOUSE_", 6)
-			    && strncmp(udv->udv_name, "$", 1)
-			    && (strncmp(udv->udv_name, "ARG", 3) || (strlen(udv->udv_name) != 4))
-			    && strncmp(udv->udv_name, "NaN", 4)) {
+			else if(strncmp(udv->udv_name, "GPVAL_", 6) && strncmp(udv->udv_name, "GPFUN_", 6) && strncmp(udv->udv_name, "MOUSE_", 6) && 
+				strncmp(udv->udv_name, "$", 1) && (strncmp(udv->udv_name, "ARG", 3) || (strlen(udv->udv_name) != 4)) && strncmp(udv->udv_name, "NaN", 4)) {
 				fprintf(fp, "%s = ", udv->udv_name);
 				disp_value(fp, &(udv->udv_value), TRUE);
-				(void)putc('\n', fp);
+				putc('\n', fp);
 			}
 		}
 		udv = udv->next_udv;
@@ -150,21 +114,17 @@ static void save_variables__sub(FILE * fp)
 
 void save_colormaps(FILE * fp)
 {
-	/* always skip pi */
-	struct udvt_entry * udv = first_udv->next_udv;
-
+	// always skip pi 
+	udvt_entry * udv = first_udv->next_udv;
 	while(udv) {
 		if(udv->udv_value.type != NOTDEFINED) {
-			if(udv->udv_value.type == ARRAY
-			    &&  udv->udv_value.v.value_array[0].type == COLORMAP_ARRAY) {
+			if(udv->udv_value.type == ARRAY && udv->udv_value.v.value_array[0].type == COLORMAP_ARRAY) {
 				double cm_min, cm_max;
-				fprintf(fp, "array %s[%d] colormap = ", udv->udv_name,
-				    (int)(udv->udv_value.v.value_array[0].v.int_val));
+				fprintf(fp, "array %s[%d] colormap = ", udv->udv_name, (int)(udv->udv_value.v.value_array[0].v.int_val));
 				save_array_content(fp, udv->udv_value.v.value_array);
 				get_colormap_range(udv, &cm_min, &cm_max);
 				if(cm_min != cm_max)
-					fprintf(fp, "set colormap %s range [%g:%g]\n",
-					    udv->udv_name, cm_min, cm_max);
+					fprintf(fp, "set colormap %s range [%g:%g]\n", udv->udv_name, cm_min, cm_max);
 			}
 		}
 		udv = udv->next_udv;

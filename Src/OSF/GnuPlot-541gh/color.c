@@ -1,16 +1,10 @@
-/* GNUPLOT - color.c */
-
-/*[
- *
- * Petr Mikulik, since December 1998
- * Copyright: open source as much as possible
- *
- * What is here:
- *   - Global variables declared in .h are initialized here
- *   - Palette routines
- *   - Colour box drawing
- *
-   ]*/
+// GNUPLOT - color.c 
+// Copyright: open source as much as possible Petr Mikulik, since December 1998
+// What is here:
+// - Global variables declared in .h are initialized here
+// - Palette routines
+// - Colour box drawing
+// 
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -32,25 +26,26 @@ static void cbtick_callback(GpAxis *, double place, char * text, int ticlevel, s
    ROUTINES
  */
 
-void init_color()
+//void init_color()
+void GnuPlot::InitColor()
 {
 	// initialize global palette 
-	GPO.SmPltt.colorFormulae = 37; /* const */
-	GPO.SmPltt.formulaR = 7;
-	GPO.SmPltt.formulaG = 5;
-	GPO.SmPltt.formulaB = 15;
-	GPO.SmPltt.Positive = SMPAL_POSITIVE;
-	GPO.SmPltt.UseMaxColors = 0;
-	GPO.SmPltt.Colors = 0;
-	GPO.SmPltt.P_Color = NULL;
-	GPO.SmPltt.ps_allcF = false;
-	GPO.SmPltt.GradientNum = 0;
-	GPO.SmPltt.P_Gradient = NULL;
-	GPO.SmPltt.CModel = C_MODEL_RGB;
-	GPO.SmPltt.Afunc.at = GPO.SmPltt.Bfunc.at = GPO.SmPltt.Cfunc.at = NULL;
-	GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_RGB;
-	GPO.SmPltt.gamma = 1.5;
-	GPO.SmPltt.GradientType = SMPAL_GRADIENT_TYPE_NONE;
+	SmPltt.colorFormulae = 37; /* const */
+	SmPltt.formulaR = 7;
+	SmPltt.formulaG = 5;
+	SmPltt.formulaB = 15;
+	SmPltt.Positive = SMPAL_POSITIVE;
+	SmPltt.UseMaxColors = 0;
+	SmPltt.Colors = 0;
+	SmPltt.P_Color = NULL;
+	SmPltt.ps_allcF = false;
+	SmPltt.GradientNum = 0;
+	SmPltt.P_Gradient = NULL;
+	SmPltt.CModel = C_MODEL_RGB;
+	SmPltt.Afunc.at = SmPltt.Bfunc.at = SmPltt.Cfunc.at = NULL;
+	SmPltt.colorMode = SMPAL_COLOR_MODE_RGB;
+	SmPltt.gamma = 1.5;
+	SmPltt.GradientType = SMPAL_GRADIENT_TYPE_NONE;
 }
 // 
 // Make the colour palette. Return 0 on success
@@ -138,7 +133,7 @@ void set_rgbcolor_var(uint rgbvalue)
 	//color.type = TC_RGB;
 	//*(uint*)(&color.lt) = rgbvalue;
 	//color.value = -1; /* -1 flags that this came from "rgb variable" */
-	apply_pm3dcolor(&color);
+	apply_pm3dcolor(term, &color);
 }
 
 void set_rgbcolor_const(uint rgbvalue)
@@ -147,7 +142,7 @@ void set_rgbcolor_const(uint rgbvalue)
 	//color.type = TC_RGB;
 	//*(uint*)(&color.lt) = rgbvalue;
 	//color.value = 0; /* 0 flags that this is a constant color */
-	apply_pm3dcolor(&color);
+	apply_pm3dcolor(term, &color);
 }
 // 
 // diagnose the palette gradient in three types.
@@ -486,7 +481,7 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 		map3d_position_r(&(this_axis->ticdef.offset), &offsetx, &offsety, "cbtics");
 		// User-specified different color for the tics text 
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			apply_pm3dcolor(&(this_axis->ticdef.textcolor));
+			apply_pm3dcolor(term, &(this_axis->ticdef.textcolor));
 		if(color_box.rotation == 'h') {
 			int y3 = color_box.bounds.ybot - (term->v_char);
 			int hrotate = 0;
@@ -534,15 +529,15 @@ void draw_color_smooth_box(int plot_mode)
 	if(color_box.where == SMCOLOR_BOX_USER) {
 		if(!is_3d_plot) {
 			double xtemp, ytemp;
-			map_position(&color_box.origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
-			map_position_r(term, &color_box.size, &xtemp, &ytemp, "cbox");
+			GPO.MapPosition(term, &color_box.origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
+			GPO.MapPositionR(term, &color_box.size, &xtemp, &ytemp, "cbox");
 			color_box.bounds.xright = xtemp;
 			color_box.bounds.ytop = ytemp;
 		}
 		else if(splot_map && is_3d_plot) {
-			/* In map view mode we allow any coordinate system for placement */
+			// In map view mode we allow any coordinate system for placement 
 			double xtemp, ytemp;
-			map3d_position_double(&color_box.origin, &xtemp, &ytemp, "cbox");
+			GPO.Map3DPositionDouble(&color_box.origin, &xtemp, &ytemp, "cbox");
 			color_box.bounds.xleft = xtemp;
 			color_box.bounds.ybot = ytemp;
 			map3d_position_r(&color_box.size, &color_box.bounds.xright, &color_box.bounds.ytop, "cbox");
@@ -570,9 +565,9 @@ void draw_color_smooth_box(int plot_mode)
 			GpPosition default_origin = {graph, graph, graph, 1.025, 0, 0};
 			GpPosition default_size = {graph, graph, graph, 0.05, 1.0, 0};
 			double xtemp, ytemp;
-			map_position(&default_origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
+			GPO.MapPosition(term, &default_origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
 			color_box.bounds.xleft += color_box.xoffset;
-			map_position_r(term, &default_size, &xtemp, &ytemp, "cbox");
+			GPO.MapPositionR(term, &default_size, &xtemp, &ytemp, "cbox");
 			color_box.bounds.xright = xtemp + color_box.bounds.xleft;
 			color_box.bounds.ytop = ytemp + color_box.bounds.ybot;
 		}
@@ -643,7 +638,7 @@ void draw_color_smooth_box(int plot_mode)
 		int x, y;
 		int len;
 		int save_rotation = GPO.AxS.__CB().label.rotate;
-		apply_pm3dcolor(&(GPO.AxS.__CB().label.textcolor));
+		apply_pm3dcolor(term, &(GPO.AxS.__CB().label.textcolor));
 		if(color_box.rotation == 'h') {
 			len = GPO.AxS.__CB().ticscale * (GPO.AxS.__CB().tic_in ? 1 : -1) * (term->v_tic);
 			x = (color_box.bounds.xleft + color_box.bounds.xright) / 2;

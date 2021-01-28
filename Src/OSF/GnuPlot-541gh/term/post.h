@@ -1,47 +1,16 @@
-/* GNUPLOT - post.h */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-]*/
-
+// GNUPLOT - post.h 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 #ifndef TERM_POST_H
 #define TERM_POST_H
-
-/* Needed by terminals which output postscript
- * (post.trm and pslatex.trm)
- */
-
+//
+// Needed by terminals which output postscript (post.trm and pslatex.trm)
+//
 #ifdef PSLATEX_DRIVER
-TERM_PUBLIC void PSTEX_common_init();
-TERM_PUBLIC void PSTEX_reopen_output();
-TERM_PUBLIC void EPSLATEX_common_init();
-TERM_PUBLIC void EPSLATEX_reopen_output(char *);
+	TERM_PUBLIC void PSTEX_common_init();
+	TERM_PUBLIC void PSTEX_reopen_output();
+	TERM_PUBLIC void EPSLATEX_common_init();
+	TERM_PUBLIC void EPSLATEX_reopen_output(char *);
 #endif
 
 #define PS_POINT_TYPES 8
@@ -56,19 +25,11 @@ TERM_PUBLIC void EPSLATEX_reopen_output(char *);
 #define PS_XLAST (PS_XMAX - 1)
 #define PS_YLAST (PS_YMAX - 1)
 */
-
 #define PS_VTIC (PS_YMAX/80)
 #define PS_HTIC (PS_YMAX/80)
-
-/* scale is 1pt = 10 units */
-#define PS_SC 10
-
-/* EAM March 2010 allow user to rescale fonts */
-#define PS_SCF (PS_SC * ps_params->fontscale)
-
-/* linewidth = 0.5 pts */
-#define PS_LW (0.5*PS_SC)
-
+#define PS_SC 10 // scale is 1pt = 10 units 
+#define PS_SCF (PS_SC * ps_params->fontscale) // EAM March 2010 allow user to rescale fonts 
+#define PS_LW (0.5*PS_SC) // linewidth = 0.5 pts 
 /* character size defaults: */
 /* 14 pt for postscript */
 #define PS_VCHAR (14*PS_SC)
@@ -79,7 +40,6 @@ TERM_PUBLIC void EPSLATEX_reopen_output(char *);
 /* 11 pt for epslatex */
 #define EPSLATEX_VCHAR (11*PS_SC)
 #define EPSLATEX_HCHAR (11*PS_SC*6/10)
-
 #ifdef PSLATEX_DRIVER
 	TERM_PUBLIC char * epslatex_header; // additional LaTeX header information for epslatex terminal 
 #endif

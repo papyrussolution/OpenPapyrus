@@ -226,18 +226,20 @@ static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // Back
 	return ok;
 }
 
-/*static*/PPBackup * PPBackup::CreateInstance(const PPDbEntrySet2 * dbes)
+/*static*/PPBackup * PPBackup::CreateInstance(const PPDbEntrySet2 * pDbes)
 {
 	PPBackup * ppb = 0;
-	PPID   db_id = dbes->GetSelection();
-	DbLoginBlock dlb;
-	if(dbes->GetByID(dbes->GetSelection(), &dlb)) {
-		SString db_name;
-		dlb.GetAttr(DbLoginBlock::attrDbSymb, db_name);
-		if(DS.OpenDictionary2(&dlb, 0)) {
-			ppb = new PPBackup(db_name, CurDict);
-			if(!ppb || !ppb->IsValid())
-				ZDELETE(ppb);
+	if(pDbes) {
+		const PPID db_id = pDbes->GetSelection();
+		DbLoginBlock dlb;
+		if(pDbes->GetByID(db_id, &dlb)) {
+			SString db_name;
+			dlb.GetAttr(DbLoginBlock::attrDbSymb, db_name);
+			if(DS.OpenDictionary2(&dlb, 0)) {
+				ppb = new PPBackup(db_name, CurDict);
+				if(!ppb || !ppb->IsValid())
+					ZDELETE(ppb);
+			}
 		}
 	}
 	return ppb;
@@ -1800,69 +1802,72 @@ int UseCopyContinouos(PPDbEntrySet2 * pDbes)
 	return r;
 }
 
-#define CTLGRP_FBRW 1
+//#define CTLGRP_FBRW 1
 
-class BackupParamDialog : public TDialog {
-	DECL_DIALOG_DATA(PPBackupScen);
-public:
-	BackupParamDialog() : TDialog(DLG_BUPARAM)
-	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_BUPARAM_PATH, CTL_BUPARAM_PATH, CTLGRP_FBRW, PPTXT_TITLE_SELBACKUPPATH, 0, FileBrowseCtrlGroup::fbcgfPath);
-	}
-	DECL_DIALOG_SETDTS()
-	{
-		if(!RVALUEPTR(Data, pData))
-			Data.Z();
-		Data.NumCopies = (Data.NumCopies <= 0) ? 1 : Data.NumCopies;
-		setCtrlData(CTL_BUPARAM_PATH, Data.BackupPath);
-		setCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.NumCopies);
-		AddClusterAssoc(CTL_BUPARAM_FLAGS, 0x01, BCOPYDF_USECOMPRESS);
-		SetClusterData(CTL_BUPARAM_FLAGS, Data.Flags);
-		return 1;
-	}
-	int getDTS(SString & rDBSymb, PPBackupScen * pData)
-	{
-		int    ok = 1;
-		DbProvider * p_dict = CurDict;
-		SString dbname;
-		PPIniFile ini_file;
-		PPDbEntrySet2 dbes;
-		dbes.ReadFromProfile(&ini_file);
-		getCtrlData(CTL_BUPARAM_PATH, Data.BackupPath);
-		getCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.NumCopies);
-		GetClusterData(CTL_BUPARAM_FLAGS, &Data.Flags);
-		PPSetAddedMsgString(setLastSlash(Data.BackupPath));
-		THROW_PP(pathValid(Data.BackupPath, 0), PPERR_NEXISTPATH);
-		Data.NumCopies = (Data.NumCopies <= 0) ? 1 : Data.NumCopies;
-		p_dict->GetDbSymb(rDBSymb);
-		Data.ID = dbes.GetBySymb(rDBSymb, 0);
-		rDBSymb.CopyTo(Data.Name, sizeof(Data.Name));
-		p_dict->GetDbName(dbname);
-		dbname.CopyTo(Data.DBName, sizeof(Data.DBName));
-		ASSIGN_PTR(pData, Data);
-		CATCHZOKPPERR
-		return ok;
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isKeyDown(kbF2)) {
-			SString path;
-			DBS.GetDbPath(DBS.GetDbPathID(), path);
-			setCtrlString(CTL_BUPARAM_PATH, path.SetLastSlash().Cat("backup"));
-			clearEvent(event);
-		}
-	}
-};
-
-int EditBackupParam(SString & rDBSymb, PPBackupScen * pScen)
+int EditJobBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 {
+	class BackupParamDialog : public TDialog {
+		DECL_DIALOG_DATA(PPBackupScen);
+		enum {
+			ctlgroupFbrw = 1
+		};
+	public:
+		BackupParamDialog() : TDialog(DLG_BUPARAM)
+		{
+			FileBrowseCtrlGroup::Setup(this, CTLBRW_BUPARAM_PATH, CTL_BUPARAM_PATH, ctlgroupFbrw, PPTXT_TITLE_SELBACKUPPATH, 0, FileBrowseCtrlGroup::fbcgfPath);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			if(!RVALUEPTR(Data, pData))
+				Data.Z();
+			Data.NumCopies = (Data.NumCopies <= 0) ? 1 : Data.NumCopies;
+			setCtrlData(CTL_BUPARAM_PATH, Data.BackupPath);
+			setCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.NumCopies);
+			AddClusterAssoc(CTL_BUPARAM_FLAGS, 0x01, BCOPYDF_USECOMPRESS);
+			SetClusterData(CTL_BUPARAM_FLAGS, Data.Flags);
+			return 1;
+		}
+		int getDTS(SString & rDBSymb, PPBackupScen * pData)
+		{
+			int    ok = 1;
+			DbProvider * p_dict = CurDict;
+			SString dbname;
+			PPIniFile ini_file;
+			PPDbEntrySet2 dbes;
+			dbes.ReadFromProfile(&ini_file);
+			getCtrlData(CTL_BUPARAM_PATH, Data.BackupPath);
+			getCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.NumCopies);
+			GetClusterData(CTL_BUPARAM_FLAGS, &Data.Flags);
+			PPSetAddedMsgString(setLastSlash(Data.BackupPath));
+			THROW_PP(pathValid(Data.BackupPath, 0), PPERR_NEXISTPATH);
+			Data.NumCopies = (Data.NumCopies <= 0) ? 1 : Data.NumCopies;
+			p_dict->GetDbSymb(rDBSymb);
+			Data.ID = dbes.GetBySymb(rDBSymb, 0);
+			rDBSymb.CopyTo(Data.Name, sizeof(Data.Name));
+			p_dict->GetDbName(dbname);
+			dbname.CopyTo(Data.DBName, sizeof(Data.DBName));
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERR
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isKeyDown(kbF2)) {
+				SString path;
+				DBS.GetDbPath(DBS.GetDbPathID(), path);
+				setCtrlString(CTL_BUPARAM_PATH, path.SetLastSlash().Cat("backup"));
+				clearEvent(event);
+			}
+		}
+	};
 	int    ok = -1;
 	BackupParamDialog * p_dlg = new BackupParamDialog();
 	THROW_MEM(p_dlg);
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(pScen);
+	p_dlg->setCtrlString(CTL_BUPARAM_DBSYMB, rDBSymb); // @v11.0.0
 	while(ok < 0 && ExecView(p_dlg) == cmOK)
 		if(p_dlg->getDTS(rDBSymb, pScen))
 			ok = 1;
@@ -1871,9 +1876,10 @@ int EditBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 	return ok;
 }
 
-int DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
+int DoServerBackup(const SString & rDBSymb, PPBackupScen * pScen)
 {
-	int    ok = -1, is_locked = 0;
+	int    ok = -1;
+	int    is_locked = 0;
 	int    use_copy_continouos = 0;
 	uint   count = 0, i = 0;
 	int    bss_factor = 0;
@@ -1882,6 +1888,7 @@ int DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 	PPIniFile ini_file;
 	PPDbEntrySet2 dbes;
 	DbLoginBlock dlb;
+	SString temp_buf;
 	SString data_path;
 	PPBackup * p_bu = 0;
 	BCopyData copy_data;
@@ -1906,14 +1913,25 @@ int DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 		is_locked = use_copy_continouos ? 0 : 1;
 		ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_BSSFACTOR, &bss_factor);
 		copy_data.BssFactor = bss_factor;
-		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, copy_data.TempPath);
-		if(!copy_data.TempPath.NotEmptyS()) {
-			char * p_path = getenv("TMP");
-			if(SETIFZ(p_path, getenv("TEMP")))
-				copy_data.TempPath = p_path;
+		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, temp_buf);
+		drv_map.ConvertPathToUnc(temp_buf);
+		if(IsDirectory(temp_buf))
+			copy_data.TempPath = temp_buf;
+		else {
+			PPGetPath(PPPATH_TEMP, temp_buf);
+			drv_map.ConvertPathToUnc(temp_buf);
+			if(IsDirectory(temp_buf))
+				copy_data.TempPath = temp_buf;
+			else {
+				const char * p_path = getenv("TMP");
+				if(SETIFZ(p_path, getenv("TEMP"))) {
+					temp_buf = p_path;
+					drv_map.ConvertPathToUnc(temp_buf);
+					if(IsDirectory(temp_buf))
+						copy_data.TempPath = temp_buf;
+				}
+			}
 		}
-		else
-			drv_map.ConvertPathToUnc(copy_data.TempPath);
 		copy_data.Set = pScen->Name;
 		copy_data.CopyPath = pScen->BackupPath;
 		drv_map.ConvertPathToUnc(copy_data.CopyPath);
@@ -1922,7 +1940,6 @@ int DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 		THROW_PP(p_bu->Backup(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
 		p_bu->GetCopySet(&bcset);
 		{
-			SString temp_buf;
 			for(i = 0; i < bcset.getCount(); i++) {
 				const BCopyData * p_bcd = bcset.at(i);
 				if(p_bcd) {
@@ -1960,6 +1977,7 @@ static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContin
 {
 	int    ok = 1;
 	uint   i, j;
+	SString temp_buf;
 	BCopySet bcset(pScen->Name);
 	int    do_backup = 0;
 	BCopyData copy_data;
@@ -1976,14 +1994,25 @@ static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContin
 		drv_map.Load(&ini_file);
 		ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_BSSFACTOR, &bss_factor);
 		copy_data.BssFactor = bss_factor;
-		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, copy_data.TempPath);
-		if(!copy_data.TempPath.NotEmptyS()) {
-			char * p_path = getenv("TMP");
-			if(SETIFZ(p_path, getenv("TEMP")))
-				copy_data.TempPath = p_path;
+		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, temp_buf);
+		drv_map.ConvertPathToUnc(temp_buf);
+		if(IsDirectory(temp_buf))
+			copy_data.TempPath = temp_buf;
+		else {
+			PPGetPath(PPPATH_TEMP, temp_buf);
+			drv_map.ConvertPathToUnc(temp_buf);
+			if(IsDirectory(temp_buf))
+				copy_data.TempPath = temp_buf;
+			else {
+				const char * p_path = getenv("TMP");
+				if(SETIFZ(p_path, getenv("TEMP"))) {
+					temp_buf = p_path;
+					drv_map.ConvertPathToUnc(temp_buf);
+					if(IsDirectory(temp_buf))
+						copy_data.TempPath = temp_buf;
+				}
+			}
 		}
-		else
-			drv_map.ConvertPathToUnc(copy_data.TempPath);
 		copy_data.Set = pScen->Name;
 		copy_data.CopyPath = pScen->BackupPath;
 		drv_map.ConvertPathToUnc(copy_data.CopyPath);

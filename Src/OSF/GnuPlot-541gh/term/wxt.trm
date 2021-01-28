@@ -187,7 +187,7 @@ TERM_PUBLIC void wxt_options()
 			case WXT_FONTSCALE:
 			    wxt_set_fontscale = GPO.Pgm.EndOfCommand() ? -1 : GPO.RealExpression();
 			    if(wxt_set_fontscale <= 0)
-				    wxt_set_fontscale = 1.;
+				    wxt_set_fontscale = 1.0;
 			    break;
 			case WXT_ENHANCED:
 			    wxt_enhanced_enabled = TRUE;
@@ -306,26 +306,22 @@ TERM_PUBLIC void wxt_options()
 				    wxt_lw = 1.0;
 			    break;
 			case WXT_BACKGROUND:
-		    {
 			    wxt_background = parse_color_name();
-			    wxt_rgb_background.r = (double)((wxt_background >> 16) & 0xff) / 255.;
-			    wxt_rgb_background.g = (double)((wxt_background >>  8) & 0xff) / 255.;
-			    wxt_rgb_background.b = (double)( wxt_background        & 0xff) / 255.;
+			    wxt_rgb_background.r = (double)((wxt_background >> 16) & 0xff) / 255.0;
+			    wxt_rgb_background.g = (double)((wxt_background >>  8) & 0xff) / 255.0;
+			    wxt_rgb_background.b = (double)( wxt_background        & 0xff) / 255.0;
 			    break;
-		    }
 			case WXT_NOBACKGROUND:
-		    {
 			    wxt_background = 0xffffff;
 			    wxt_rgb_background.r = 1.0;
 			    wxt_rgb_background.g = 1.0;
 			    wxt_rgb_background.b = 1.0;
 			    break;
-		    }
 			case WXT_OTHER:
 			default:
 			    GPO.Pgm.Rollback();
 			    if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()) || GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) == INTGR) {
-				    wxt_window_number = int_expression();
+				    wxt_window_number = GPO.IntExpression();
 				    if(set_number) 
 						duplication = TRUE;
 				    set_number = TRUE;
@@ -341,8 +337,7 @@ TERM_PUBLIC void wxt_options()
 			duplication = FALSE;
 		}
 	}
-
-	/* Save options back into options string in normalized format */
+	// Save options back into options string in normalized format 
 	snprintf(term_options, sizeof(term_options)-strlen(term_options), "%d", wxt_window_number);
 	if(set_title) {
 		strncat(term_options, " title \"", sizeof(term_options)-strlen(term_options)-1);
@@ -350,7 +345,6 @@ TERM_PUBLIC void wxt_options()
 		strncat(term_options, "\"", sizeof(term_options)-strlen(term_options)-1);
 		wxt_update_title(wxt_window_number);
 	}
-
 	if(wxt_dashlength != 1.0) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " dashlength %g", wxt_dashlength);

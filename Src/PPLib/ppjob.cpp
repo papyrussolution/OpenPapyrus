@@ -56,17 +56,27 @@ int PPJobMngr::GetXmlPoolDir(SString &rXmlPoolPath)
 	return ok;
 }
 
-int PPJobMngr::DoJob(PPID jobID, SBuffer * pParam)
+//int PPJobMngr::DoJob(PPID jobID, const PPJob & rJob, SBuffer * pParam)
+int PPJobMngr::DoJob(PPJob & rJob)
 {
-	PPJobHandler * p_job = CreateInstance(jobID, 0);
-	int    ok = p_job ? p_job->Run(pParam, 0) : 0;
-	return ok;
+	PPJobHandler * p_jobh = CreateInstance(rJob.Descr.CmdID, 0);
+	if(p_jobh) {
+		p_jobh->SetJobDbSymb(rJob.DbSymb);
+		return p_jobh->Run(&rJob.Param, 0);
+	}
+	else
+		return 0;
 }
 
-int PPJobMngr::EditJobParam(PPID jobID, SBuffer * pParam)
+int PPJobMngr::EditJobParam(PPJob & rJob)
 {
-	PPJobHandler * p_job = CreateInstance(jobID, 0);
-	return p_job ? p_job->EditParam(pParam, 0) : 0;
+	PPJobHandler * p_jobh = CreateInstance(rJob.Descr.CmdID, 0);
+	if(p_jobh) {
+		p_jobh->SetJobDbSymb(rJob.DbSymb); // @v11.0.0
+		return p_jobh->EditParam(&rJob.Param, 0);
+	}
+	else
+		return 0;
 }
 //
 //
@@ -893,6 +903,11 @@ int PPJobHandler::Run(SBuffer * pParam, void * extraPtr)
 	return 1;
 }
 
+void PPJobHandler::SetJobDbSymb(const char * pJobDbSymb)
+{
+	(JobDbSymb = pJobDbSymb).Strip();
+}
+
 int PPJobHandler::CheckParamBuf(const SBuffer * pBuf, size_t neededSize) const
 {
 	int    ok = 1;
@@ -990,16 +1005,17 @@ public:
 	PPBackupParam()
 	{
 	}
-	void Init()
+	PPBackupParam & Z()
 	{
-		DBSymb.Z();
+		DBSymb_Unused.Z();
 		BuScen.Z();
+		return *this;
 	}
 	int Read(SBuffer & rBuf, long)
 	{
 		int    ok = -1;
 		if(rBuf.GetAvailableSize()) {
-			if(rBuf.Read(DBSymb) && rBuf.Read(&BuScen, sizeof(BuScen)))
+			if(rBuf.Read(DBSymb_Unused) && rBuf.Read(&BuScen, sizeof(BuScen)))
 				ok = 1;
 			else
 				ok = PPSetErrorSLib();
@@ -1008,16 +1024,16 @@ public:
 	}
 	int Write(SBuffer & rBuf, long)
 	{
-		if(rBuf.Write(DBSymb) && rBuf.Write(&BuScen, sizeof(BuScen)))
+		if(rBuf.Write(DBSymb_Unused) && rBuf.Write(&BuScen, sizeof(BuScen)))
 			return 1;
 		else
 			return PPSetErrorSLib();
 	}
-	SString DBSymb;
+	SString DBSymb_Unused; // @v11.0.0
 	PPBackupScen BuScen;
 };
 
-int DoServerBackup(SString & rDBSymb, PPBackupScen * pScen); // @prototype(ppdbutil.cpp)
+int DoServerBackup(const SString & rDBSymb, PPBackupScen * pScen); // @prototype(ppdbutil.cpp)
 
 class JOB_HDL_CLS(BACKUP) : public PPJobHandler {
 public:
@@ -1030,7 +1046,8 @@ public:
 		PPBackupParam param;
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = param.Read(*pParam, 0)) != 0) {
-			ok = EditBackupParam(param.DBSymb, &param.BuScen);
+			SString temp_db_symb = JobDbSymb; // @v11.0.0
+			ok = EditJobBackupParam(/*param.DBSymb*/temp_db_symb, &param.BuScen);
 			if(ok > 0) {
 				param.Write(pParam->Z(), 0);
 			}
@@ -1044,7 +1061,10 @@ public:
 		int    ok = 1;
 		PPBackupParam param;
 		THROW(param.Read(*pParam, 0));
-		THROW(DoServerBackup(param.DBSymb, &param.BuScen));
+		{
+			SString temp_db_symb = JobDbSymb; // @v11.0.0
+			THROW(DoServerBackup(/*param.DBSymb*/temp_db_symb, &param.BuScen));
+		}
 		CATCHZOK
 		return ok;
 	}
@@ -1922,8 +1942,7 @@ public:
 		int    ok = 1;
 		CSessCrDraftParam param;
 		THROW(param.Read(*pParam, 0));
-		// @v9.7.10 THROW(PPViewCSess::CreateDraft(&param));
-		THROW(PrcssrBillAutoCreate::CreateDraftByCSessRule(&param)); // @v9.7.10
+		THROW(PrcssrBillAutoCreate::CreateDraftByCSessRule(&param));
 		CATCHZOK
 		return ok;
 	}

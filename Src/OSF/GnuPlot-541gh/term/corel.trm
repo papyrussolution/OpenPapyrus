@@ -411,12 +411,30 @@ TERM_PUBLIC int COREL_justify_text(enum JUSTIFY mode)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(corel_driver)
-"corel", "EPS format for CorelDRAW",
-CORELD_XMAX, CORELD_YMAX, CORELD_VCHAR, CORELD_HCHAR,
-CORELD_VTIC, CORELD_HTIC, COREL_options, COREL_init, COREL_reset,
-COREL_text, null_scale, COREL_graphics, COREL_move, COREL_vector,
-COREL_linetype, COREL_put_text, COREL_text_angle,
-COREL_justify_text, do_point, do_arrow, set_font_null TERM_TABLE_END(corel_driver)
+	"corel", 
+	"EPS format for CorelDRAW",
+	CORELD_XMAX, 
+	CORELD_YMAX, 
+	CORELD_VCHAR, 
+	CORELD_HCHAR,
+	CORELD_VTIC, 
+	CORELD_HTIC, 
+	COREL_options, 
+	COREL_init, 
+	COREL_reset,
+	COREL_text, 
+	null_scale, 
+	COREL_graphics, 
+	COREL_move, 
+	COREL_vector,
+	COREL_linetype, 
+	COREL_put_text, 
+	COREL_text_angle,
+	COREL_justify_text, 
+	do_point, 
+	do_arrow, 
+	set_font_null 
+TERM_TABLE_END(corel_driver)
 
 #undef LAST_TERM
 #define LAST_TERM corel_driver

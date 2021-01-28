@@ -281,21 +281,24 @@ TERM_PUBLIC void WIN_options()
 			case WIN_FONTSCALE: {
 			    GPO.Pgm.Shift();
 			    fontscale = GPO.RealExpression();
-			    if(fontscale <= 0) fontscale = 1.;
+			    if(fontscale <= 0) 
+					fontscale = 1.0;
 			    set_fontscale = TRUE;
 			    break;
 		    }
 			case WIN_LINEWIDTH: {
 			    GPO.Pgm.Shift();
 			    linewidth = GPO.RealExpression();
-			    if(linewidth <= 0) linewidth = 1.;
+			    if(linewidth <= 0) 
+					linewidth = 1.0;
 			    set_linewidth = TRUE;
 			    break;
 		    }
 			case WIN_POINTSCALE:
 			    GPO.Pgm.Shift();
 			    pointscale = GPO.RealExpression();
-			    if(pointscale <= 0.0) pointscale = 1.;
+			    if(pointscale <= 0.0) 
+					pointscale = 1.0;
 			    set_pointscale = TRUE;
 			    break;
 			case WIN_SOLID:
@@ -401,7 +404,7 @@ TERM_PUBLIC void WIN_options()
 				    if(set_fontsize)
 					    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 				    set_fontsize = TRUE;
-				    fontsize = int_expression();
+				    fontsize = GPO.IntExpression();
 			    }
 			    break;
 			case WIN_DOCKED:
@@ -425,7 +428,7 @@ TERM_PUBLIC void WIN_options()
 			    break;
 			case WIN_LAYOUT:
 			    GPO.Pgm.Shift();
-			    dock_rows = int_expression();
+			    dock_rows = GPO.IntExpression();
 			    if(GPO.Pgm.EndOfCommand() || !GPO.Pgm.EqualsCur(","))
 				    GPO.IntErrorCurToken("expecting ', <num_cols>'");
 			    if(dock_rows == 0) {
@@ -435,7 +438,7 @@ TERM_PUBLIC void WIN_options()
 			    GPO.Pgm.Shift();
 			    if(GPO.Pgm.EndOfCommand())
 				    GPO.IntErrorCurToken("expecting <num_cols>");
-			    dock_cols = int_expression();
+			    dock_cols = GPO.IntExpression();
 			    if(dock_cols == 0) {
 				    dock_cols = 1;
 				    fprintf(stderr, "Warning: layout requires at least one column.\n");
@@ -446,13 +449,12 @@ TERM_PUBLIC void WIN_options()
 			    break;
 			case WIN_OTHER:
 			default:
-			    window_number = int_expression();
+			    window_number = GPO.IntExpression();
 			    set_number = TRUE;
 			    break;
 		}
 	}
-
-	/* change window? */
+	// change window? 
 	if(set_number) {
 		char status[100];
 		LPGW lpgw = listgraphs;
@@ -1032,35 +1034,62 @@ TERM_PUBLIC void WIN_modify_plots(uint operations, int plotno)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(win_driver)
-"windows", "Microsoft Windows",
-WIN_XMAX, WIN_YMAX, WIN_VCHAR, WIN_HCHAR,
-WIN_VTIC, WIN_HTIC, WIN_options, WIN_init, WIN_reset,
-WIN_text, null_scale, WIN_graphics, WIN_move, WIN_vector,
-WIN_linetype, WIN_put_text, WIN_text_angle,
-WIN_justify_text, WIN_point, do_arrow, WIN_set_font,
-WIN_set_pointsize,
-TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE|TERM_ALPHA_CHANNEL|TERM_CAN_DASH
-|TERM_LINEWIDTH|TERM_FONTSCALE|TERM_POINTSCALE|TERM_ENHANCED_TEXT,
-WIN_text /* suspend */, WIN_resume,
-WIN_boxfill, WIN_linewidth,
-#ifdef USE_MOUSE
-#ifdef WGP_CONSOLE
-WIN_waitforinput,
-#else
-0 /* WIN_waitforinput */,
-#endif /* WGP_CONSOLE */
-WIN_put_tmptext, WIN_set_ruler, WIN_set_cursor, WIN_set_clipboard,
-#endif
-WIN_make_palette, 0 /* previous_palette */,
-WIN_set_color, WIN_filled_polygon,
-WIN_image,
-WIN_enhanced_open, WIN_enhanced_flush, do_enh_writec,
-WIN_layer,
-0,     /* no term->path */
-0.0,     /* Scale (unused) */
-WIN_hypertext,
-WIN_boxed_text,
-WIN_modify_plots, WIN_dashtype TERM_TABLE_END(win_driver)
+	"windows", 
+	"Microsoft Windows",
+	WIN_XMAX, 
+	WIN_YMAX, 
+	WIN_VCHAR, 
+	WIN_HCHAR,
+	WIN_VTIC, 
+	WIN_HTIC, 
+	WIN_options, 
+	WIN_init, 
+	WIN_reset,
+	WIN_text, 
+	null_scale, 
+	WIN_graphics, 
+	WIN_move, 
+	WIN_vector,
+	WIN_linetype, 
+	WIN_put_text, 
+	WIN_text_angle,
+	WIN_justify_text, 
+	WIN_point, 
+	do_arrow, 
+	WIN_set_font,
+	WIN_set_pointsize,
+	TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE|TERM_ALPHA_CHANNEL|TERM_CAN_DASH|TERM_LINEWIDTH|TERM_FONTSCALE|TERM_POINTSCALE|TERM_ENHANCED_TEXT,
+	WIN_text /* suspend */, 
+	WIN_resume,
+	WIN_boxfill, 
+	WIN_linewidth,
+	#ifdef USE_MOUSE
+		#ifdef WGP_CONSOLE
+			WIN_waitforinput,
+		#else
+			0 /* WIN_waitforinput */,
+		#endif /* WGP_CONSOLE */
+		WIN_put_tmptext, 
+		WIN_set_ruler, 
+		WIN_set_cursor, 
+		WIN_set_clipboard,
+	#endif
+	WIN_make_palette, 
+	0 /* previous_palette */,
+	WIN_set_color, 
+	WIN_filled_polygon,
+	WIN_image,
+	WIN_enhanced_open, 
+	WIN_enhanced_flush, 
+	do_enh_writec,
+	WIN_layer,
+	0,     /* no term->path */
+	0.0,     /* Scale (unused) */
+	WIN_hypertext,
+	WIN_boxed_text,
+	WIN_modify_plots, 
+	WIN_dashtype 
+TERM_TABLE_END(win_driver)
 
 #undef LAST_TERM
 #define LAST_TERM win_driver

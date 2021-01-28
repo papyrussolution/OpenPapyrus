@@ -1,63 +1,6 @@
-/* GNUPLOT - voxelgrid.c */
-
-/*[
- * Copyright Ethan A Merritt 2019
- *
- * Gnuplot license:
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
- *
- * Alternative license:
- *
- * As an alternative to distributing code in this file under the gnuplot license,
- * you may instead comply with the terms below. In this case, redistribution and
- * use in source and binary forms, with or without modification, are permitted
- * provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.  Redistributions in binary
- * form must reproduce the above copyright notice, this list of conditions and
- * the following disclaimer in the documentation and/or other materials provided
- * with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
-   ]*/
-
+// GNUPLOT - voxelgrid.c 
+// Copyright Ethan A Merritt 2019
+//
 /*
  * This file implements a 3D grid of NxNxN evenly spaced voxels.
  * The command
@@ -203,7 +146,7 @@ void set_vgrid()
 	}
 	if(GPO.Pgm.EqualsCur("size")) {
 		GPO.Pgm.Shift();
-		new_size = int_expression();
+		new_size = GPO.IntExpression();
 	}
 	/* FIXME: arbitrary limit to reduce chance of memory exhaustion */
 	if(new_size < 10 || new_size > 256)
@@ -254,7 +197,7 @@ void set_vgrid_range()
  */
 void show_vgrid()
 {
-	for(udvt_entry * udv = first_udv; udv != NULL; udv = udv->next_udv) {
+	for(udvt_entry * udv = first_udv; udv; udv = udv->next_udv) {
 		if(udv->udv_value.type == VOXELGRID) {
 			vgrid * vgrid = udv->udv_value.v.vgrid;
 			fprintf(stderr, "\t%s:", udv->udv_name);
@@ -386,9 +329,9 @@ void unset_vgrid()
 		GPO.IntErrorCurToken("no such vgrid");
 	gpfree_vgrid(grid);
 }
-/*
- * "set isosurface {triangles|mixed}"
- */
+//
+// "set isosurface {triangles|mixed}"
+//
 void set_isosurface()
 {
 	while(!GPO.Pgm.EndOfCommand()) {
@@ -406,7 +349,7 @@ void set_isosurface()
 			if(GPO.Pgm.EndOfCommand())
 				isosurface_options.inside_offset = 1;
 			else
-				isosurface_options.inside_offset = int_expression();
+				isosurface_options.inside_offset = GPO.IntExpression();
 		}
 		else if(GPO.Pgm.AlmostEqualsCur("noin$sidecolor")) {
 			GPO.Pgm.Shift();
@@ -540,7 +483,7 @@ static void vfill(t_voxel * grid, bool gridcoordinates)
 		/* Check for a sampling range */
 		if(GPO.Pgm.EqualsCur("sample") && GPO.Pgm.EqualsNext("["))
 			GPO.Pgm.Shift();
-		sample_range_token = parse_range(SAMPLE_AXIS);
+		sample_range_token = GPO.ParseRange(SAMPLE_AXIS);
 		if(sample_range_token != 0)
 			GPO.AxS[SAMPLE_AXIS].range_flags |= RANGE_SAMPLED;
 		// FIXME: allow replacement of dummy variable? 

@@ -1,34 +1,6 @@
-/* GNUPLOT - unset.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute pThis software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and pThis permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - unset.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -102,7 +74,7 @@ static void unset_print();
 static void unset_psdir();
 static void unset_samples();
 static void unset_size();
-static void unset_style();
+//static void unset_style();
 static void unset_spiderplot();
 static void unset_surface();
 static void unset_table();
@@ -181,7 +153,7 @@ ITERATE:
 		    if(Pgm.EndOfCommand())
 			    unset_pixmaps();
 		    else {
-			    i = int_expression();
+			    i = IntExpression();
 			    unset_pixmap(i);
 		    }
 		    break;
@@ -193,7 +165,7 @@ ITERATE:
 		case S_LINK:
 		case S_NONLINEAR:
 		    Pgm.Rollback();
-		    link_command();
+		    LinkCommand();
 		    break;
 		case S_LOADPATH: unset_loadpath(); break;
 		case S_LOCALE: unset_locale(); break;
@@ -281,7 +253,7 @@ ITERATE:
 		case S_RTICS: unset_tics(&AxS[POLAR_AXIS]); break;
 		case S_TTICS: unset_tics(&AxS.Theta()); break;
 		case S_PAXIS:
-		    i = int_expression();
+		    i = IntExpression();
 		    if(Pgm.AlmostEqualsCur("tic$s")) {
 			    if(i > 0 && i <= AxS.GetParallelAxisCount())
 				    unset_tics(&AxS.Parallel(i-1));
@@ -292,7 +264,7 @@ ITERATE:
 		case S_SAMPLES: unset_samples(); break;
 		case S_SIZE: unset_size(); break;
 		case S_SPIDERPLOT: unset_spiderplot(); break;
-		case S_STYLE: unset_style(); break;
+		case S_STYLE: UnsetStyle(); break;
 		case S_SURFACE: unset_surface(); break;
 		case S_TABLE: unset_table(); break;
 		case S_TERMINAL: unset_terminal(); break;
@@ -390,13 +362,13 @@ static void unset_arrow()
 	arrow_def * prev_arrow;
 	int tag;
 	if(GPO.Pgm.EndOfCommand()) {
-		/* delete all arrows */
-		while(first_arrow != NULL)
-			delete_arrow((struct arrow_def *)NULL, first_arrow);
+		// delete all arrows 
+		while(first_arrow)
+			delete_arrow((arrow_def *)NULL, first_arrow);
 	}
 	else {
-		/* get tag */
-		tag = int_expression();
+		// get tag 
+		tag = GPO.IntExpression();
 		if(!GPO.Pgm.EndOfCommand())
 			GPO.IntErrorCurToken("extraneous arguments to unset arrow");
 		for(this_arrow = first_arrow, prev_arrow = NULL;
@@ -561,12 +533,13 @@ static void unset_fillstyle()
 	default_fillstyle.fillpattern = 0;
 	default_fillstyle.border_color.type = TC_DEFAULT;
 }
-
-/* process 'unset clip' command */
+//
+// process 'unset clip' command 
+//
 static void unset_clip()
 {
 	if(GPO.Pgm.EndOfCommand()) {
-		/* same as all three */
+		// same as all three 
 		clip_points = FALSE;
 		clip_lines1 = FALSE;
 		clip_lines2 = FALSE;
@@ -623,7 +596,7 @@ static void unset_dashtype()
 			delete_dashtype((struct custom_dashtype_def *)NULL, first_custom_dashtype);
 	}
 	else {
-		int tag = int_expression();
+		int tag = GPO.IntExpression();
 		for(pThis = first_custom_dashtype, prev = NULL; pThis != NULL;
 		    prev = pThis, pThis = pThis->next) {
 			if(pThis->tag == tag) {
@@ -764,21 +737,19 @@ static void unset_key()
 /* process 'unset label' command */
 static void unset_label()
 {
-	text_label * this_label;
-	text_label * prev_label;
 	if(GPO.Pgm.EndOfCommand()) {
-		/* delete all labels */
+		// delete all labels 
 		while(first_label != NULL)
 			delete_label((struct text_label *)NULL, first_label);
 	}
 	else {
-		/* get tag */
-		int tag = int_expression();
+		// get tag 
+		text_label * this_label;
+		text_label * prev_label;
+		int tag = GPO.IntExpression();
 		if(!GPO.Pgm.EndOfCommand())
 			GPO.IntErrorCurToken("extraneous arguments to unset label");
-		for(this_label = first_label, prev_label = NULL;
-		    this_label != NULL;
-		    prev_label = this_label, this_label = this_label->next) {
+		for(this_label = first_label, prev_label = NULL; this_label != NULL; prev_label = this_label, this_label = this_label->next) {
 			if(this_label->tag == tag) {
 				delete_label(prev_label, this_label);
 				return; /* exit, our job is done */
@@ -808,7 +779,7 @@ static void delete_label(struct text_label * prev, struct text_label * pThis)
 
 static void unset_linestyle(linestyle_def ** head)
 {
-	int tag = int_expression();
+	int tag = GPO.IntExpression();
 	linestyle_def * p_this, * prev;
 	for(p_this = *head, prev = NULL; p_this; prev = p_this, p_this = p_this->next) {
 		if(p_this->tag == tag) {
@@ -830,8 +801,8 @@ static void unset_linetype()
 
 static void unset_object()
 {
-	struct GpObject * this_object;
-	struct GpObject * prev_object;
+	GpObject * this_object;
+	GpObject * prev_object;
 	int tag;
 	if(GPO.Pgm.EndOfCommand()) {
 		/* delete all objects */
@@ -839,13 +810,11 @@ static void unset_object()
 			delete_object((struct GpObject *)NULL, first_object);
 	}
 	else {
-		/* get tag */
-		tag = int_expression();
+		// get tag 
+		tag = GPO.IntExpression();
 		if(!GPO.Pgm.EndOfCommand())
 			GPO.IntErrorCurToken("extraneous arguments to unset rectangle");
-		for(this_object = first_object, prev_object = NULL;
-		    this_object != NULL;
-		    prev_object = this_object, this_object = this_object->next) {
+		for(this_object = first_object, prev_object = NULL; this_object != NULL; prev_object = this_object, this_object = this_object->next) {
 			if(this_object->tag == tag) {
 				delete_object(prev_object, this_object);
 				return; /* exit, our job is done */
@@ -942,33 +911,38 @@ static void unset_mapping()
 	/* assuming same as points */
 	mapping3d = MAP3D_CARTESIAN;
 }
-
-/* process 'unset {blrt}margin' command */
+//
+// process 'unset {blrt}margin' command 
+//
 static void unset_margin(t_position * margin)
 {
 	margin->scalex = character;
 	margin->x = -1;
 }
-
-/* process 'unset micro' command */
+//
+// process 'unset micro' command 
+//
 static void unset_micro()
 {
 	use_micro = FALSE;
 }
-
-/* process 'unset minus_sign' command */
+//
+// process 'unset minus_sign' command 
+//
 static void unset_minus_sign()
 {
 	use_minus_sign = FALSE;
 }
-
-/* process 'unset datafile' command */
+//
+// process 'unset datafile' command 
+//
 static void unset_missing()
 {
 	ZFREE(missing_val);
 }
-
-/* process 'unset mouse' command */
+//
+// process 'unset mouse' command 
+//
 static void unset_mouse()
 {
 #ifdef USE_MOUSE
@@ -976,15 +950,17 @@ static void unset_mouse()
 	UpdateStatusline(); /* wipe status line */
 #endif
 }
-
-/* process 'unset mxtics' command */
+//
+// process 'unset mxtics' command 
+//
 static void unset_minitics(GpAxis * this_axis)
 {
 	this_axis->minitics = MINI_OFF;
 	this_axis->mtic_freq = 10.0;
 }
-
-/*process 'unset {x|y|x2|y2|z}tics' command */
+//
+// process 'unset {x|y|x2|y2|z}tics' command 
+//
 void unset_all_tics()
 {
 	for(int i = 0; i < NUMBER_OF_MAIN_VISIBLE_AXES; i++)
@@ -1180,11 +1156,13 @@ static void unset_size()
 	ysize = 1.0;
 	zsize = 1.0;
 }
-
-/* process 'unset style' command */
-static void unset_style()
+//
+// process 'unset style' command 
+//
+//static void unset_style()
+void GnuPlot::UnsetStyle()
 {
-	if(GPO.Pgm.EndOfCommand()) {
+	if(Pgm.EndOfCommand()) {
 		data_style = POINTSTYLE;
 		func_style = LINES;
 		while(first_linestyle)
@@ -1196,21 +1174,21 @@ static void unset_style()
 		unset_histogram();
 		unset_boxplot();
 		unset_textbox_style();
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 		return;
 	}
-	switch(GPO.Pgm.LookupTableForCurrentToken(show_style_tbl)) {
+	switch(Pgm.LookupTableForCurrentToken(show_style_tbl)) {
 		case SHOW_STYLE_DATA:
 		    data_style = POINTSTYLE;
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_FUNCTION:
 		    func_style = LINES;
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_LINE:
-		    GPO.Pgm.Shift();
-		    if(GPO.Pgm.EndOfCommand()) {
+		    Pgm.Shift();
+		    if(Pgm.EndOfCommand()) {
 			    while(first_linestyle)
 				    delete_linestyle(&first_linestyle, NULL, first_linestyle);
 		    }
@@ -1220,46 +1198,46 @@ static void unset_style()
 		    break;
 		case SHOW_STYLE_FILLING:
 		    unset_fillstyle();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_HISTOGRAM:
 		    unset_histogram();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_ARROW:
 		    unset_arrowstyles();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_RECTANGLE:
 		    unset_style_rectangle();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_CIRCLE:
 		    unset_style_circle();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_ELLIPSE:
 		    unset_style_ellipse();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_TEXTBOX:
 		    unset_textbox_style();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_BOXPLOT:
 		    unset_boxplot();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_PARALLEL:
 		    unset_style_parallel();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_SPIDERPLOT:
 		    unset_style_spiderplot();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		default:
-		    GPO.IntErrorCurToken("unrecognized style");
+		    IntErrorCurToken("unrecognized style");
 	}
 }
 
@@ -1571,7 +1549,7 @@ void reset_command()
 	unset_pointintervalbox();
 	pm3d_reset();
 	reset_colorbox();
-	reset_palette();
+	GPO.ResetPalette();
 	df_unset_datafile_binary();
 	unset_fillstyle();
 	unset_histogram();

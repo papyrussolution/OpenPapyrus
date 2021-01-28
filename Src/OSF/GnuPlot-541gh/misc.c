@@ -1,34 +1,6 @@
-/* GNUPLOT - misc.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - misc.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -535,7 +507,7 @@ void pop_terminal()
 		i = interactive;
 		interactive = 0;
 		sprintf(s, "set term %s %s", push_term_name, (push_term_opts ? push_term_opts : ""));
-		do_string_and_free(s);
+		GPO.DoStringAndFree(s);
 		interactive = i;
 		if(interactive)
 			fprintf(stderr, "   restored terminal is %s %s\n", term->name, ((*term_options) ? term_options : ""));
@@ -633,7 +605,7 @@ bool FASTCALL need_fill_border(const fill_style_type * fillstyle)
 	}
 	// Wants a border in a new color 
 	if(p.pm3d_color.type != TC_DEFAULT)
-		apply_pm3dcolor(&p.pm3d_color);
+		apply_pm3dcolor(term, &p.pm3d_color);
 	return TRUE;
 }
 
@@ -643,13 +615,13 @@ int parse_dashtype(struct t_dashtype * dt)
 	int j = 0;
 	int k = 0;
 	char * dash_str = NULL;
-	/* Erase any previous contents */
+	// Erase any previous contents 
 	memzero(dt, sizeof(struct t_dashtype));
-	/* Fill in structure based on keyword ... */
+	// Fill in structure based on keyword ... 
 	if(GPO.Pgm.EqualsCur("solid")) {
 		res = DASHTYPE_SOLID;
 		GPO.Pgm.Shift();
-		/* Or numerical pattern consisting of pairs solid,empty,solid,empty... */
+		// Or numerical pattern consisting of pairs solid,empty,solid,empty... 
 	}
 	else if(GPO.Pgm.EqualsCur("(")) {
 		GPO.Pgm.Shift();
@@ -657,10 +629,10 @@ int parse_dashtype(struct t_dashtype * dt)
 			if(j >= DASHPATTERN_LENGTH) {
 				GPO.IntErrorCurToken("too many pattern elements");
 			}
-			dt->pattern[j++] = GPO.RealExpression(); /* The solid portion */
+			dt->pattern[j++] = GPO.RealExpression(); // The solid portion 
 			if(!GPO.Pgm.EqualsCurShift(","))
 				GPO.IntErrorCurToken("expecting comma");
-			dt->pattern[j++] = GPO.RealExpression(); /* The empty portion */
+			dt->pattern[j++] = GPO.RealExpression(); // The empty portion 
 			if(GPO.Pgm.EqualsCur(")"))
 				break;
 			if(!GPO.Pgm.EqualsCurShift(","))
@@ -670,7 +642,7 @@ int parse_dashtype(struct t_dashtype * dt)
 			GPO.IntErrorCurToken("expecting , or )");
 		GPO.Pgm.Shift();
 		res = DASHTYPE_CUSTOM;
-		/* Or string representing pattern elements ... */
+		// Or string representing pattern elements ... 
 	}
 	else if((dash_str = try_to_get_string())) {
 		int leading_space = 0;
@@ -708,7 +680,6 @@ int parse_dashtype(struct t_dashtype * dt)
 		if(k > 0)
 			dt->pattern[k-1] += leading_space * DSCALE;
 #undef  DSCALE
-
 		/* truncate dash_str if we ran out of space in the array representation */
 		dash_str[j] = '\0';
 		safe_strncpy(dt->dstring, dash_str, sizeof(dt->dstring));
@@ -717,11 +688,10 @@ int parse_dashtype(struct t_dashtype * dt)
 			res = DASHTYPE_SOLID;
 		else
 			res = DASHTYPE_CUSTOM;
-
 		/* Or index of previously defined dashtype */
 	}
 	else {
-		res = int_expression();
+		res = GPO.IntExpression();
 		if(res < 0)
 			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "dashtype must be non-negative");
 		if(res == 0)
@@ -729,7 +699,6 @@ int parse_dashtype(struct t_dashtype * dt)
 		else
 			res = res - 1;
 	}
-
 	return res;
 }
 // 
@@ -755,7 +724,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 	lp_style_type newlp = *lp;
 	if((destination_class == LP_ADHOC) && (Pgm.AlmostEqualsCur("lines$tyle") || Pgm.EqualsCur("ls"))) {
 		Pgm.Shift();
-		lp_use_properties(lp, int_expression());
+		lp_use_properties(lp, IntExpression());
 	}
 	while(!Pgm.EndOfCommand()) {
 		// This special case is to flag an attempt to "set object N lt <lt>",
@@ -796,10 +765,10 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				Pgm.Shift();
 			}
 			else {
-				/* These replace the base style */
-				new_lt = int_expression();
+				// These replace the base style 
+				new_lt = IntExpression();
 				lp->l_type = new_lt - 1;
-				/* user may prefer explicit line styles */
+				// user may prefer explicit line styles 
 				if(prefer_line_styles && (destination_class != LP_STYLE))
 					lp_use_properties(lp, new_lt);
 				else
@@ -868,12 +837,12 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				/* only if we are not in the middle of defining one! */
 				if(destination_class != LP_STYLE) {
 					lp_style_type temp;
-					load_linetype(&temp, int_expression());
+					load_linetype(&temp, IntExpression());
 					newlp.pm3d_color = temp.pm3d_color;
 				}
 				else {
 					newlp.pm3d_color.type = TC_LT;
-					newlp.pm3d_color.lt = int_expression() - 1;
+					newlp.pm3d_color.lt = IntExpression() - 1;
 				}
 			}
 			continue;
@@ -917,9 +886,8 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 					newlp.p_type = PT_VARIABLE;
 					Pgm.Shift();
 				}
-				else {
-					newlp.p_type = int_expression() - 1;
-				}
+				else
+					newlp.p_type = IntExpression() - 1;
 			}
 			else {
 				IntWarnCurToken("No pointtype specifier allowed, here");
@@ -957,29 +925,27 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 		if(Pgm.AlmostEqualsCur("pointi$nterval") || Pgm.EqualsCur("pi")) {
 			Pgm.Shift();
 			if(allow_point) {
-				newlp.p_interval = int_expression();
+				newlp.p_interval = IntExpression();
 				set_pi = 1;
 			}
 			else {
 				IntWarnCurToken("No pointinterval specifier allowed here");
-				int_expression();
+				IntExpression();
 			}
 			continue;
 		}
-
 		if(Pgm.AlmostEqualsCur("pointn$umber") || Pgm.EqualsCur("pn")) {
 			Pgm.Shift();
 			if(allow_point) {
-				newlp.p_number = int_expression();
+				newlp.p_number = IntExpression();
 				set_pn = 1;
 			}
 			else {
 				IntWarnCurToken("No pointnumber specifier allowed here)");
-				int_expression();
+				IntExpression();
 			}
 			continue;
 		}
-
 		if(Pgm.AlmostEqualsCur("dasht$ype") || Pgm.EqualsCur("dt")) {
 			int tmp;
 			if(set_dt++)
@@ -1094,7 +1060,7 @@ void parse_fillstyle(struct fill_style_type * fs)
 						    fs->filldensity = 100;
 				    }
 				    else if(fs->fillstyle == FS_PATTERN) {
-					    fs->fillpattern = int_expression();
+					    fs->fillpattern = GPO.IntExpression();
 					    if(fs->fillpattern < 0)
 						    fs->fillpattern = 0;
 				    }
@@ -1103,7 +1069,6 @@ void parse_fillstyle(struct fill_style_type * fs)
 			    }
 			    continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("bo$rder")) {
 			if(set_border && fs->border_color.lt == LT_NODRAW)
 				GPO.IntErrorCurToken("conflicting option");
@@ -1114,7 +1079,7 @@ void parse_fillstyle(struct fill_style_type * fs)
 				continue;
 			if(GPO.Pgm.EqualsCur("-") || GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
 				fs->border_color.type = TC_LT;
-				fs->border_color.lt = int_expression() - 1;
+				fs->border_color.lt = GPO.IntExpression() - 1;
 			}
 			else if(GPO.Pgm.EqualsCur("lc") || GPO.Pgm.AlmostEqualsCur("linec$olor")) {
 				parse_colorspec(&fs->border_color, TC_Z);
@@ -1180,7 +1145,7 @@ void parse_colorspec(struct t_colorspec * tc, int options)
 		if(GPO.Pgm.EndOfCommand())
 			GPO.IntErrorCurToken("expected linetype");
 		tc->type = TC_LT;
-		tc->lt = int_expression()-1;
+		tc->lt = GPO.IntExpression()-1;
 		if(tc->lt < LT_BACKGROUND) {
 			tc->type = TC_DEFAULT;
 			GPO.IntWarnCurToken("illegal linetype");
@@ -1290,7 +1255,7 @@ long parse_color_name()
 			GPO.IntErrorCurToken("unrecognized color name and not a string \"#AARRGGBB\" or \"0xAARRGGBB\"");
 	}
 	else
-		color = int_expression();
+		color = GPO.IntExpression();
 	return (ulong)(color);
 }
 
@@ -1336,15 +1301,14 @@ void GnuPlot::ArrowParse(arrow_style_type * arrow, bool allow_as)
 	int    set_headsize = 0;
 	int    set_headfilled = 0;
 	// Use predefined arrow style 
-	if(allow_as && (Pgm.AlmostEqualsCur("arrows$tyle") ||
-	    Pgm.EqualsCur("as"))) {
+	if(allow_as && (Pgm.AlmostEqualsCur("arrows$tyle") || Pgm.EqualsCur("as"))) {
 		Pgm.Shift();
 		if(Pgm.AlmostEqualsCur("var$iable")) {
 			arrow->tag = AS_VARIABLE;
 			Pgm.Shift();
 		}
 		else {
-			arrow_use_properties(arrow, int_expression());
+			arrow_use_properties(arrow, IntExpression());
 		}
 		return;
 	}
@@ -1418,7 +1382,7 @@ void GnuPlot::ArrowParse(arrow_style_type * arrow, bool allow_as)
 			Pgm.Shift();
 			if(Pgm.EndOfCommand())
 				IntErrorCurToken("head size expected");
-			get_position(&hsize);
+			GetPosition(&hsize);
 			arrow->head_length = hsize.x;
 			arrow->head_lengthunit = hsize.scalex;
 			arrow->head_angle = hsize.y;

@@ -1,34 +1,6 @@
-/* GNUPLOT - axis.c */
-
-/*[
- * Copyright 2000, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - axis.c 
+// Copyright 2000, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -44,7 +16,6 @@
  */
 //GpAxis axis_array_Removed[AXIS_ARRAY_SIZE];
 //GpAxis * shadow_axis_array_Removed; // Only if nonlinear axes are in use 
-
 
 /*static*/void GpAxis::UnsetLabelOrTitle(text_label * pLabel)
 {
@@ -206,7 +177,7 @@ static double round_outward(GpAxis *, bool, double);
 static bool axis_position_zeroaxis(AXIS_INDEX);
 static void load_one_range(GpAxis * axis, double * a, t_autoscale * autoscale, t_autoscale which);
 static double quantize_duodecimal_tics(double, int);
-static void get_position_type(enum position_type * type, AXIS_INDEX * axes);
+//static void get_position_type(enum position_type * type, AXIS_INDEX * axes);
 
 /* ---------------------- routines ----------------------- */
 
@@ -243,10 +214,11 @@ void  FASTCALL GpAxisSet::CheckRange(AXIS_INDEX idx)
 }
 
 /* {{{ axis_log_value_checked() */
-double axis_log_value_checked(AXIS_INDEX axis, double coord, const char * what)
+//double axis_log_value_checked(AXIS_INDEX axis, double coord, const char * what)
+double GnuPlot::AxisLogValueChecked(AXIS_INDEX axis, double coord, const char * pWhat)
 {
-	if(GPO.AxS[axis].log && !(coord > 0.0))
-		GPO.IntError(NO_CARET, "%s has %s coord of %g; must be above 0 for log scale!", what, axis_name(axis), coord);
+	if(AxS[axis].log && !(coord > 0.0))
+		IntError(NO_CARET, "%s has %s coord of %g; must be above 0 for log scale!", pWhat, axis_name(axis), coord);
 	return coord;
 }
 
@@ -398,37 +370,38 @@ bool GpAxis::BadRange() const
  * c_token = (in) (defined in plot.h) Used in formatting an error message.
  *
  */
-void FASTCALL axis_checked_extend_empty_range(AXIS_INDEX axis, const char * mesg)
+//void FASTCALL axis_checked_extend_empty_range(AXIS_INDEX axis, const char * mesg)
+void GnuPlot::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
 {
-	GpAxis * this_axis = &GPO.AxS[axis];
-	/* These two macro definitions set the range-widening policy: */
-	/* widen [0:0] by +/- this absolute amount */
+	GpAxis * p_this_axis = &AxS[axis];
+	// These two macro definitions set the range-widening policy: 
+	// widen [0:0] by +/- this absolute amount 
 #define FIXUP_RANGE__WIDEN_ZERO_ABS     1.0
-	/* widen [nonzero:nonzero] by -/+ this relative amount */
+	// widen [nonzero:nonzero] by -/+ this relative amount 
 #define FIXUP_RANGE__WIDEN_NONZERO_REL  0.01
-	double dmin = this_axis->min;
-	double dmax = this_axis->max;
-	/* pass msg == NULL if for some reason you trust the axis range */
-	if(mesg && this_axis->BadRange())
-		GPO.IntErrorCurToken(mesg);
+	double dmin = p_this_axis->min;
+	double dmax = p_this_axis->max;
+	// pass msg == NULL if for some reason you trust the axis range 
+	if(mesg && p_this_axis->BadRange())
+		IntErrorCurToken(mesg);
 	if(dmax - dmin == 0.0) {
-		/* empty range */
-		if(this_axis->autoscale) {
-			/* range came from autoscaling ==> widen it */
+		// empty range 
+		if(p_this_axis->autoscale) {
+			// range came from autoscaling ==> widen it 
 			double widen = (dmax == 0.0) ? FIXUP_RANGE__WIDEN_ZERO_ABS : FIXUP_RANGE__WIDEN_NONZERO_REL * fabs(dmax);
 			if(!(axis == FIRST_Z_AXIS && !mesg)) /* set view map */
 				fprintf(stderr, "Warning: empty %s range [%g:%g], ", axis_name(axis), dmin, dmax);
 			// HBB 20010525: correctly handle single-ended autoscaling, too: 
-			if(this_axis->autoscale & AUTOSCALE_MIN)
-				this_axis->min -= widen;
-			if(this_axis->autoscale & AUTOSCALE_MAX)
-				this_axis->max += widen;
+			if(p_this_axis->autoscale & AUTOSCALE_MIN)
+				p_this_axis->min -= widen;
+			if(p_this_axis->autoscale & AUTOSCALE_MAX)
+				p_this_axis->max += widen;
 			if(!(axis == FIRST_Z_AXIS && !mesg)) /* set view map */
-				fprintf(stderr, "adjusting to [%g:%g]\n", this_axis->min, this_axis->max);
+				fprintf(stderr, "adjusting to [%g:%g]\n", p_this_axis->min, p_this_axis->max);
 		}
 		else {
-			/* user has explicitly set the range (to something empty) */
-			GPO.IntError(NO_CARET, "Can't plot with an empty %s range!", axis_name(axis));
+			// user has explicitly set the range (to something empty) 
+			IntError(NO_CARET, "Can't plot with an empty %s range!", axis_name(axis));
 		}
 	}
 }
@@ -953,9 +926,9 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 			char label[MAX_ID_LEN]; /* Scratch space to construct a label */
 			char * ticlabel; /* Points either to ^^ or to some existing text */
 			// This condition is only possible if we are in polar mode 
-			const double internal = (pThis->index == POLAR_AXIS) ? polar_radius(mark->position) : mark->position;
+			const double internal = (pThis->index == POLAR_AXIS) ? GPO.PolarRadius(mark->position) : mark->position;
 			if(pThis->index == THETA_index)
-				; /* No harm done if the angular placement wraps at 2pi */
+				; // No harm done if the angular placement wraps at 2pi 
 			else if(!inrange(internal, internal_min, internal_max))
 				continue;
 			if(mark->level < 0) {
@@ -1205,9 +1178,9 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 			/* Allows placement of theta tics outside the range [0:360] */
 			if(pThis->index == THETA_index) {
 				if(internal > internal_max)
-					internal -= 360.;
+					internal -= 360.0;
 				if(internal < internal_min)
-					internal += 360.;
+					internal += 360.0;
 			}
 			if(internal > internal_max)
 				break; /* gone too far - end of series = VERYLARGE perhaps */
@@ -1230,11 +1203,11 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 						def->def.user);
 					    break;
 				    }
-					default: { /* comp or series */
-					    char label[MAX_ID_LEN]; /* Leave room for enhanced text markup */
+					default: { // comp or series 
+					    char label[MAX_ID_LEN]; // Leave room for enhanced text markup 
 					    double position = 0;
 					    if(pThis->tictype == DT_TIMEDATE) {
-						    /* If they are doing polar time plot, good luck to them */
+						    // If they are doing polar time plot, good luck to them 
 						    gstrftime(label, MAX_ID_LEN-1, pThis->ticfmt, (double)user);
 					    }
 					    else if(pThis->tictype == DT_DMS) {
@@ -1242,7 +1215,7 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 					    }
 					    else if(pThis->index == POLAR_AXIS) {
 						    user = internal;
-						    internal = polar_radius(user);
+						    internal = GPO.PolarRadius(user);
 						    gprintf(label, sizeof(label), pThis->ticfmt, log10_base, tic);
 					    }
 					    else if(pThis->index >= PARALLEL_AXES) {
@@ -1253,21 +1226,21 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 					    else {
 						    gprintf(label, sizeof(label), pThis->ticfmt, log10_base, user);
 					    }
-					    /* This is where we finally decided to put the tic mark */
+					    // This is where we finally decided to put the tic mark 
 					    if(nonlinear(pThis) && (def->type == TIC_SERIES && def->logscaling))
 						    position = user;
 					    else if(nonlinear(pThis) && (def->type == TIC_COMPUTED))
 						    position = user;
 					    else
 						    position = internal;
-					    /* Range-limited tic placement */
+					    // Range-limited tic placement 
 					    if(def->rangelimited && !inrange(position, pThis->data_min, pThis->data_max))
 						    continue;
-					    /* This writes the tic mark and label */
+					    // This writes the tic mark and label 
 					    (*callback)(pThis, position, label, 0, lgrd, def->def.user);
-					    /* Polar axis tics are mirrored across the origin */
+					    // Polar axis tics are mirrored across the origin 
 					    if(pThis->index == POLAR_AXIS && (pThis->ticmode & TICS_MIRROR)) {
-						    int save_gridline = lgrd.l_type;
+						    const int save_gridline = lgrd.l_type;
 						    lgrd.l_type = LT_NODRAW;
 						    (*callback)(pThis, -position, label, 0, lgrd, def->def.user);
 						    lgrd.l_type = save_gridline;
@@ -1277,7 +1250,7 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 				/* }}} */
 			}
 			if((minitics != MINI_OFF) && (pThis->miniticscale != 0)) {
-				/* {{{  process minitics */
+				// {{{  process minitics 
 				double mplace, mtic_user, mtic_internal;
 				for(mplace = ministart; mplace < miniend; mplace += ministep) {
 					if(pThis->tictype == DT_TIMEDATE) {
@@ -1300,14 +1273,14 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 						mtic_internal = mtic_user;
 					}
 					if(polar && pThis->index == POLAR_AXIS) {
-						/* FIXME: is pThis really the only case where	*/
-						/* mtic_internal is the correct position?	*/
+						// FIXME: is pThis really the only case where	
+						// mtic_internal is the correct position?	
 						mtic_user = user + mplace;
-						mtic_internal = polar_radius(mtic_user);
+						mtic_internal = GPO.PolarRadius(mtic_user);
 						(*callback)(pThis, mtic_internal, NULL, 1, mgrd, NULL);
 						continue;
 					}
-					/* Range-limited tic placement */
+					// Range-limited tic placement 
 					if(def->rangelimited &&  !inrange(mtic_user, pThis->data_min, pThis->data_max))
 						continue;
 					if(inrange(mtic_internal, internal_min, internal_max) &&  inrange(mtic_internal, start - step * SIGNIF, end + step * SIGNIF))
@@ -1382,7 +1355,7 @@ void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dea
 	int axis_position;      /* 'non-running' coordinate */
 	int mirror_position;    /* 'non-running' coordinate, 'other' side */
 	double axis_coord = 0.0; /* coordinate of this axis along non-running axis */
-	if((zeroaxis_basis == SECOND_X_AXIS) || (zeroaxis_basis == SECOND_Y_AXIS)) {
+	if(oneof2(zeroaxis_basis, SECOND_X_AXIS, SECOND_Y_AXIS)) {
 		axis_position = GPO.AxS[zeroaxis_basis].term_upper;
 		mirror_position = GPO.AxS[zeroaxis_basis].term_lower;
 	}
@@ -1540,9 +1513,9 @@ void set_explicit_range(GpAxis * this_axis, double newmin, double newmax)
 	// If this is one end of a linked axis pair, replicate the new range to the
 	// linked axis, possibly via a mapping function.
 	if(this_axis->linked_to_secondary)
-		clone_linked_axes(this_axis, this_axis->linked_to_secondary);
+		GPO.CloneLinkedAxes(this_axis, this_axis->linked_to_secondary);
 	else if(this_axis->linked_to_primary)
-		clone_linked_axes(this_axis, this_axis->linked_to_primary);
+		GPO.CloneLinkedAxes(this_axis, this_axis->linked_to_primary);
 }
 
 double FASTCALL get_num_or_time(const GpAxis * axis)
@@ -1741,20 +1714,18 @@ void widest_tic_callback(GpAxis * this_axis, double place, char * text, int ticl
 			widest_tic_strlen = len;
 	}
 }
-
-/*
- * get and set routines for range writeback
- * ULIG *
- */
-
-void save_writeback_all_axes()
+//
+// get and set routines for range writeback ULIG
+//
+//void save_writeback_all_axes()
+void GnuPlot::SaveWritebackAllAxes()
 {
-	/*AXIS_INDEX*/int axis;
-	for(axis = (AXIS_INDEX)0; axis < AXIS_ARRAY_SIZE; axis++)
-		if(GPO.AxS[axis].range_flags & RANGE_WRITEBACK) {
-			GPO.AxS[axis].writeback_min = GPO.AxS[axis].min;
-			GPO.AxS[axis].writeback_max = GPO.AxS[axis].max;
+	for(int axis = 0; axis < AXIS_ARRAY_SIZE; axis++) {
+		if(AxS[axis].range_flags & RANGE_WRITEBACK) {
+			AxS[axis].writeback_min = AxS[axis].min;
+			AxS[axis].writeback_max = AxS[axis].max;
 		}
+	}
 }
 
 void check_axis_reversed(AXIS_INDEX axis)
@@ -1778,29 +1749,30 @@ bool some_grid_selected()
 		return TRUE;
 	return FALSE;
 }
-/*
- * Range checks for the color axis.
- */
-void set_cbminmax()
+//
+// Range checks for the color axis.
+//
+//void set_cbminmax()
+void GnuPlot::SetCbMinMax()
 {
-	if(GPO.AxS.__CB().set_autoscale & AUTOSCALE_MIN) {
-		if(GPO.AxS.__CB().min >= VERYLARGE)
-			GPO.AxS.__CB().min = GPO.AxS.__Z().min;
+	GpAxis & r_cb_ax = AxS.__CB();
+	if(r_cb_ax.set_autoscale & AUTOSCALE_MIN) {
+		if(r_cb_ax.min >= VERYLARGE)
+			r_cb_ax.min = AxS.__Z().min;
 	}
-	GPO.AxS.__CB().min = axis_log_value_checked(COLOR_AXIS, GPO.AxS.__CB().min, "color axis");
-
-	if(GPO.AxS.__CB().set_autoscale & AUTOSCALE_MAX) {
-		if(GPO.AxS.__CB().max <= -VERYLARGE)
-			GPO.AxS.__CB().max = GPO.AxS.__Z().max;
+	r_cb_ax.min = AxisLogValueChecked(COLOR_AXIS, r_cb_ax.min, "color axis");
+	if(r_cb_ax.set_autoscale & AUTOSCALE_MAX) {
+		if(r_cb_ax.max <= -VERYLARGE)
+			r_cb_ax.max = AxS.__Z().max;
 	}
-	GPO.AxS.__CB().max = axis_log_value_checked(COLOR_AXIS, GPO.AxS.__CB().max, "color axis");
-	if(GPO.AxS.__CB().min > GPO.AxS.__CB().max) {
-		double tmp = GPO.AxS.__CB().max;
-		GPO.AxS.__CB().max = GPO.AxS.__CB().min;
-		GPO.AxS.__CB().min = tmp;
+	r_cb_ax.max = AxisLogValueChecked(COLOR_AXIS, r_cb_ax.max, "color axis");
+	if(r_cb_ax.min > r_cb_ax.max) {
+		double tmp = r_cb_ax.max;
+		r_cb_ax.max = r_cb_ax.min;
+		r_cb_ax.min = tmp;
 	}
-	if(GPO.AxS.__CB().linked_to_primary)
-		clone_linked_axes(&GPO.AxS.__CB(), GPO.AxS.__CB().linked_to_primary);
+	if(r_cb_ax.linked_to_primary)
+		CloneLinkedAxes(&r_cb_ax, r_cb_ax.linked_to_primary);
 }
 
 void save_autoscaled_ranges(const GpAxis * x_axis, const GpAxis * y_axis)
@@ -1827,30 +1799,31 @@ void restore_autoscaled_ranges(GpAxis * x_axis, GpAxis * y_axis)
 	}
 }
 
-static void get_position_type(enum position_type * type, AXIS_INDEX * axes)
+//static void get_position_type(enum position_type * type, AXIS_INDEX * axes)
+void GnuPlot::GetPositionType(enum position_type * type, AXIS_INDEX * axes)
 {
-	if(GPO.Pgm.AlmostEqualsCur("fir$st")) {
-		GPO.Pgm.Shift();
+	if(Pgm.AlmostEqualsCur("fir$st")) {
+		Pgm.Shift();
 		*type = first_axes;
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("sec$ond")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("sec$ond")) {
+		Pgm.Shift();
 		*type = second_axes;
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("gr$aph")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("gr$aph")) {
+		Pgm.Shift();
 		*type = graph;
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("sc$reen")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("sc$reen")) {
+		Pgm.Shift();
 		*type = screen;
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("char$acter")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("char$acter")) {
+		Pgm.Shift();
 		*type = character;
 	}
-	else if(GPO.Pgm.EqualsCur("polar")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("polar")) {
+		Pgm.Shift();
 		*type = polar_axes;
 	}
 	switch(*type) {
@@ -1860,29 +1833,32 @@ static void get_position_type(enum position_type * type, AXIS_INDEX * axes)
 		default: *axes = NO_AXIS; return;
 	}
 }
-
-/* get_position() - reads a position for label,arrow,key,... */
-void get_position(struct GpPosition * pos)
+//
+// get_position() - reads a position for label,arrow,key,... 
+//
+//void get_position(GpPosition * pos)
+void GnuPlot::GetPosition(GpPosition * pos)
 {
-	get_position_default(pos, first_axes, 3);
+	GetPositionDefault(pos, first_axes, 3);
 }
-
-/* get_position() - reads a position for label,arrow,key,...
- * with given default coordinate system
- * ndim = 2 only reads x,y
- * otherwise it reads x,y,z
- */
-void get_position_default(GpPosition * pos, enum position_type default_type, int ndim)
+// 
+// get_position() - reads a position for label,arrow,key,...
+// with given default coordinate system
+// ndim = 2 only reads x,y
+// otherwise it reads x,y,z
+// 
+//void get_position_default(GpPosition * pos, enum position_type default_type, int ndim)
+void GnuPlot::GetPositionDefault(GpPosition * pos, enum position_type default_type, int ndim)
 {
 	AXIS_INDEX axes;
 	enum position_type type = default_type;
 	memzero(pos, sizeof(GpPosition));
-	get_position_type(&type, &axes);
+	GetPositionType(&type, &axes);
 	pos->scalex = type;
 	GET_NUMBER_OR_TIME(pos->x, axes, FIRST_X_AXIS);
-	if(GPO.Pgm.EqualsCur(",")) {
-		GPO.Pgm.Shift();
-		get_position_type(&type, &axes);
+	if(Pgm.EqualsCur(",")) {
+		Pgm.Shift();
+		GetPositionType(&type, &axes);
 		pos->scaley = type;
 		GET_NUMBER_OR_TIME(pos->y, axes, FIRST_Y_AXIS);
 	}
@@ -1891,9 +1867,9 @@ void get_position_default(GpPosition * pos, enum position_type default_type, int
 		pos->scaley = type;
 	}
 	// Resolves ambiguous syntax when trailing comma ends a plot command 
-	if(ndim != 2 && GPO.Pgm.EqualsCur(",")) {
-		GPO.Pgm.Shift();
-		get_position_type(&type, &axes);
+	if(ndim != 2 && Pgm.EqualsCur(",")) {
+		Pgm.Shift();
+		GetPositionType(&type, &axes);
 		// HBB 2015-01-28: no secondary Z axis, so patch up if it was selected 
 		if(type == second_axes) {
 			type = first_axes;
@@ -1983,15 +1959,15 @@ void gstrdms(char * label, char * format, double value)
 	char compass = ' ';
 	char * c, * cfmt;
 	// Limit the range to +/- 180 degrees 
-	if(value > 180.)
-		value -= 360.;
-	if(value < -180.)
-		value += 360.;
+	if(value > 180.0)
+		value -= 360.0;
+	if(value < -180.0)
+		value += 360.0;
 	degrees = fabs(value);
 	Degrees = floor(degrees);
-	minutes = (degrees - (double)Degrees) * 60.;
+	minutes = (degrees - (double)Degrees) * 60.0;
 	Minutes = floor(minutes);
-	seconds = (degrees - (double)Degrees) * 3600. -  (double)Minutes*60.;
+	seconds = (degrees - (double)Degrees) * 3600.0 -  (double)Minutes*60.0;
 	Seconds = floor(seconds);
 	for(c = cfmt = gp_strdup(format); *c;) {
 		if(*c++ == '%') {
@@ -2024,10 +2000,8 @@ void gstrdms(char * label, char * format, double value)
 		compass = (value == 0) ? ' ' : (value < 0) ? 'W' : 'E';
 	if(NSflag)
 		compass = (value == 0) ? ' ' : (value < 0) ? 'S' : 'N';
-
-	/* This is tricky because we have to deal with the possibility that
-	 * the user may not have specified all the possible format components
-	 */
+	// This is tricky because we have to deal with the possibility that
+	// the user may not have specified all the possible format components
 	if(dtype == 0) { /* No degrees */
 		if(mtype == 0) {
 			if(stype == 0) /* Must be some non-DMS format */
@@ -2056,7 +2030,6 @@ void gstrdms(char * label, char * format, double value)
 				snprintf(label, MAX_ID_LEN, cfmt, degrees, minutes, seconds, compass);
 		}
 	}
-
 	SAlloc::F(cfmt);
 }
 // 
@@ -2067,51 +2040,51 @@ void gstrdms(char * label, char * format, double value)
 //   -1 = range spec with no attached variable name
 //   >0 = token indexing the attached variable name
 // 
-int parse_range(AXIS_INDEX axis)
+//int parse_range(AXIS_INDEX axis)
+int GnuPlot::ParseRange(AXIS_INDEX axisIdx)
 {
-	GpAxis * this_axis = &GPO.AxS[axis];
+	GpAxis * this_axis = &AxS[axisIdx];
 	int dummy_token = -1;
-	if(!GPO.Pgm.EqualsCur("[")) // No range present 
+	if(!Pgm.EqualsCur("[")) // No range present 
 		return 0;
-	else if(GPO.Pgm.EqualsCur("[]")) { // Empty brackets serve as a place holder 
-		GPO.Pgm.Shift();
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("[]")) { // Empty brackets serve as a place holder 
+		Pgm.Shift();
+		Pgm.Shift();
 		return 0;
 	}
 	else {
 		// If the range starts with "[var=" return the token of the named variable. 
-		GPO.Pgm.Shift();
-		if(GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()) && GPO.Pgm.EqualsNext("=")) {
-			dummy_token = GPO.Pgm.GetCurTokenIdx();
-			GPO.Pgm.Shift();
-			GPO.Pgm.Shift();
+		Pgm.Shift();
+		if(Pgm.IsLetter(Pgm.GetCurTokenIdx()) && Pgm.EqualsNext("=")) {
+			dummy_token = Pgm.GetCurTokenIdx();
+			Pgm.Shift();
+			Pgm.Shift();
 		}
 		this_axis->autoscale = load_range(this_axis, &this_axis->min, &this_axis->max, this_axis->autoscale);
 		// Nonlinear axis - find the linear range equivalent 
 		if(this_axis->linked_to_primary) {
 			GpAxis * primary = this_axis->linked_to_primary;
-			clone_linked_axes(this_axis, primary);
+			CloneLinkedAxes(this_axis, primary);
 		}
-		/* This handles (imperfectly) the problem case
-		 *    set link x2 via f(x) inv g(x)
-		 *    plot [x=min:max][] something that involves x2
-		 * Other cases of in-line range changes on a linked axis may fail
-		 */
+		// This handles (imperfectly) the problem case
+		//   set link x2 via f(x) inv g(x)
+		//   plot [x=min:max][] something that involves x2
+		// Other cases of in-line range changes on a linked axis may fail
 		else if(this_axis->linked_to_secondary) {
 			GpAxis * secondary = this_axis->linked_to_secondary;
 			if(secondary->link_udf && secondary->link_udf->at != NULL)
-				clone_linked_axes(this_axis, secondary);
+				CloneLinkedAxes(this_axis, secondary);
 		}
-		if(oneof4(axis, SAMPLE_AXIS, T_AXIS, U_AXIS, V_AXIS)) {
+		if(oneof4(axisIdx, SAMPLE_AXIS, T_AXIS, U_AXIS, V_AXIS)) {
 			this_axis->SAMPLE_INTERVAL = 0;
-			if(GPO.Pgm.EqualsCur(":")) {
-				GPO.Pgm.Shift();
-				this_axis->SAMPLE_INTERVAL = GPO.RealExpression();
+			if(Pgm.EqualsCur(":")) {
+				Pgm.Shift();
+				this_axis->SAMPLE_INTERVAL = RealExpression();
 			}
 		}
-		if(!GPO.Pgm.EqualsCur("]"))
-			GPO.IntErrorCurToken("']' expected");
-		GPO.Pgm.Shift();
+		if(!Pgm.EqualsCur("]"))
+			IntErrorCurToken("']' expected");
+		Pgm.Shift();
 		return dummy_token;
 	}
 }
@@ -2129,53 +2102,55 @@ void GpProgram::ParseSkipRange()
 // When a secondary axis (axis2) is linked to the corresponding primary
 // axis (axis1), this routine copies the relevant range/scale data
 //
-void clone_linked_axes(GpAxis * axis1, GpAxis * axis2)
+//void clone_linked_axes(GpAxis * pAx1, GpAxis * pAx2)
+void GnuPlot::CloneLinkedAxes(GpAxis * pAx1, GpAxis * pAx2)
 {
 	double testmin, testmax, scale;
 	bool suspect = FALSE;
-	memcpy(axis2, axis1, AXIS_CLONE_SIZE);
-	if(!axis2->link_udf || !axis2->link_udf->at)
-		return;
-	// Transform the min/max limits of linked secondary axis 
-inverse_function_sanity_check:
-	axis2->set_min = GPO.EvalLinkFunction(axis2, axis1->set_min);
-	axis2->set_max = GPO.EvalLinkFunction(axis2, axis1->set_max);
-	axis2->min = GPO.EvalLinkFunction(axis2, axis1->min);
-	axis2->max = GPO.EvalLinkFunction(axis2, axis1->max);
-	/* Confirm that the inverse mapping actually works, at least at the endpoints.
-
-	   We makes sure that inverse_f( f(x) ) = x at the edges of our plot
-	   bounds, and if not, we throw a warning, and we try to be robust to
-	   numerical-precision errors causing false-positive warnings. We look at
-	   the error relative to a scaling:
-
-	   (inverse_f( f(x) ) - x) / scale
-
-	   where the scale is the mean of (x(min edge of plot), x(max edge of
-	   plot)). I.e. we only care about errors that are large on the scale of
-	   the plot bounds we're looking at.
-	 */
-	if(isnan(axis2->set_min) || isnan(axis2->set_max))
-		suspect = TRUE;
-	testmin = GPO.EvalLinkFunction(axis1, axis2->set_min);
-	testmax = GPO.EvalLinkFunction(axis1, axis2->set_max);
-	scale = (fabs(axis1->set_min) + fabs(axis1->set_max))/2.0;
-	if(isnan(testmin) || isnan(testmax))
-		suspect = TRUE;
-	if(fabs(testmin - axis1->set_min) != 0 &&  fabs((testmin - axis1->set_min) / scale) > 1.e-6)
-		suspect = TRUE;
-	if(fabs(testmax - axis1->set_max) != 0 &&  fabs((testmax - axis1->set_max) / scale) > 1.e-6)
-		suspect = TRUE;
-	if(suspect) {
-		/* Give it one chance to ignore a bad default range [-10:10] */
-		if(((axis1->autoscale & AUTOSCALE_MIN) == AUTOSCALE_MIN) &&  axis1->set_min <= 0 && axis1->set_max > 0.1) {
-			axis1->set_min = 0.1;
-			suspect = FALSE;
-			goto inverse_function_sanity_check;
+	memcpy(pAx2, pAx1, AXIS_CLONE_SIZE);
+	if(pAx2->link_udf && pAx2->link_udf->at) {
+		// Transform the min/max limits of linked secondary axis 
+	inverse_function_sanity_check:
+		pAx2->set_min = EvalLinkFunction(pAx2, pAx1->set_min);
+		pAx2->set_max = EvalLinkFunction(pAx2, pAx1->set_max);
+		pAx2->min = EvalLinkFunction(pAx2, pAx1->min);
+		pAx2->max = EvalLinkFunction(pAx2, pAx1->max);
+		// 
+		// Confirm that the inverse mapping actually works, at least at the endpoints.
+		// 
+		// We makes sure that inverse_f( f(x) ) = x at the edges of our plot
+		// bounds, and if not, we throw a warning, and we try to be robust to
+		// numerical-precision errors causing false-positive warnings. We look at
+		// the error relative to a scaling:
+		// 
+		// (inverse_f( f(x) ) - x) / scale
+		// 
+		// where the scale is the mean of (x(min edge of plot), x(max edge of
+		// plot)). I.e. we only care about errors that are large on the scale of
+		// the plot bounds we're looking at.
+		// 
+		if(isnan(pAx2->set_min) || isnan(pAx2->set_max))
+			suspect = TRUE;
+		testmin = EvalLinkFunction(pAx1, pAx2->set_min);
+		testmax = EvalLinkFunction(pAx1, pAx2->set_max);
+		scale = (fabs(pAx1->set_min) + fabs(pAx1->set_max))/2.0;
+		if(isnan(testmin) || isnan(testmax))
+			suspect = TRUE;
+		if(fabs(testmin - pAx1->set_min) != 0 &&  fabs((testmin - pAx1->set_min) / scale) > 1.e-6)
+			suspect = TRUE;
+		if(fabs(testmax - pAx1->set_max) != 0 &&  fabs((testmax - pAx1->set_max) / scale) > 1.e-6)
+			suspect = TRUE;
+		if(suspect) {
+			// Give it one chance to ignore a bad default range [-10:10] 
+			if(((pAx1->autoscale & AUTOSCALE_MIN) == AUTOSCALE_MIN) &&  pAx1->set_min <= 0 && pAx1->set_max > 0.1) {
+				pAx1->set_min = 0.1;
+				suspect = FALSE;
+				goto inverse_function_sanity_check;
+			}
+			IntWarn(NO_CARET, "could not confirm linked axis inverse mapping function");
+			dump_axis_range(pAx1);
+			dump_axis_range(pAx2);
 		}
-		GPO.IntWarn(NO_CARET, "could not confirm linked axis inverse mapping function");
-		dump_axis_range(axis1);
-		dump_axis_range(axis2);
 	}
 }
 //
@@ -2285,12 +2260,11 @@ void extend_primary_ticrange(GpAxis * axis)
 		}
 	}
 }
-
-/*
- * As data is read in or functions evaluated, the min/max values are tracked
- * for the secondary (visible) axes but not for the linked primary (linear) axis.
- * This routine fills in the primary min/max from the secondary axis.
- */
+// 
+// As data is read in or functions evaluated, the min/max values are tracked
+// for the secondary (visible) axes but not for the linked primary (linear) axis.
+// This routine fills in the primary min/max from the secondary axis.
+// 
 void update_primary_axis_range(GpAxis * secondary)
 {
 	GpAxis * primary = secondary->linked_to_primary;
@@ -2302,29 +2276,28 @@ void update_primary_axis_range(GpAxis * secondary)
 		primary->data_max = GPO.EvalLinkFunction(primary, secondary->data_max);
 	}
 }
-
-/*
- * Same thing but in the opposite direction.  We read in data on the primary axis
- * and want the autoscaling on a linked secondary axis to match.
- */
-void update_secondary_axis_range(GpAxis * primary)
+// 
+// Same thing but in the opposite direction.  We read in data on the primary axis
+// and want the autoscaling on a linked secondary axis to match.
+// 
+//void update_secondary_axis_range(GpAxis * pAxPrimary)
+void GnuPlot::UpdateSecondaryAxisRange(GpAxis * pAxPrimary)
 {
-	GpAxis * secondary = primary->linked_to_secondary;
-	if(secondary) {
-		secondary->min = GPO.EvalLinkFunction(secondary, primary->min);
-		secondary->max = GPO.EvalLinkFunction(secondary, primary->max);
-		secondary->data_min = GPO.EvalLinkFunction(secondary, primary->data_min);
-		secondary->data_max = GPO.EvalLinkFunction(secondary, primary->data_max);
+	GpAxis * p_ax_secondary = pAxPrimary->linked_to_secondary;
+	if(p_ax_secondary) {
+		p_ax_secondary->min = EvalLinkFunction(p_ax_secondary, pAxPrimary->min);
+		p_ax_secondary->max = EvalLinkFunction(p_ax_secondary, pAxPrimary->max);
+		p_ax_secondary->data_min = EvalLinkFunction(p_ax_secondary, pAxPrimary->data_min);
+		p_ax_secondary->data_max = EvalLinkFunction(p_ax_secondary, pAxPrimary->data_max);
 	}
 }
-
-/*
- * gnuplot version 5.0 always maintained autoscaled range on x1
- * specifically, transforming from x2 coordinates if necessary.
- * In version 5.2 we track the x1 and x2 axis data limits separately.
- * However if x1 and x2 are linked to each other we must reconcile
- * their data limits before plotting.
- */
+// 
+// gnuplot version 5.0 always maintained autoscaled range on x1
+// specifically, transforming from x2 coordinates if necessary.
+// In version 5.2 we track the x1 and x2 axis data limits separately.
+// However if x1 and x2 are linked to each other we must reconcile
+// their data limits before plotting.
+// 
 void reconcile_linked_axes(GpAxis * primary, GpAxis * secondary)
 {
 	double dummy;
@@ -2386,94 +2359,94 @@ int GpAxisSet::MapiY(double value) const
 	const double y = MapY(value);
 	return isnan(y) ? intNaN : GpAxis::MapRealToInt(y);
 }
-/*
- * Convert polar coordinates [theta;r] to the corresponding [x;y]
- * If update is TRUE then check and update rrange autoscaling
- */
-coord_type polar_to_xy(double theta, double r, double * x, double * y, bool update)
+// 
+// Convert polar coordinates [theta;r] to the corresponding [x;y]
+// If update is TRUE then check and update rrange autoscaling
+// 
+//coord_type polar_to_xy(double theta, double r, double * x, double * y, bool update)
+coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bool update)
 {
 	coord_type status = INRANGE;
-	/* NB: Range checks from multiple original sites are consolidated here.
-	 * They were not all identical but I hope this version is close enough.
-	 * One caller (parametric fixup) did GPO.AxS.__R().max range checks
-	 * against fabs(r) rather than r.  Does that matter?  Did something break?
-	 */
+	// NB: Range checks from multiple original sites are consolidated here.
+	// They were not all identical but I hope this version is close enough.
+	// One caller (parametric fixup) did GPO.AxS.__R().max range checks
+	// against fabs(r) rather than r.  Does that matter?  Did something break?
 	if(update) {
 		if(inverted_raxis) {
-			if(!inrange(r, GPO.AxS.__R().set_min, GPO.AxS.__R().set_max))
+			if(!inrange(r, AxS.__R().set_min, AxS.__R().set_max))
 				status = OUTRANGE;
 		}
 		else {
-			if(r < GPO.AxS.__R().min) {
-				if(GPO.AxS.__R().autoscale & AUTOSCALE_MIN)
-					GPO.AxS.__R().min = 0;
-				else if(GPO.AxS.__R().min < 0)
+			if(r < AxS.__R().min) {
+				if(AxS.__R().autoscale & AUTOSCALE_MIN)
+					AxS.__R().min = 0.0;
+				else if(AxS.__R().min < 0.0)
 					status = OUTRANGE;
-				else if(r < 0 && -r > GPO.AxS.__R().max)
+				else if(r < 0 && -r > AxS.__R().max)
 					status = OUTRANGE;
 				else if(r >= 0)
 					status = OUTRANGE;
 			}
-			if(r > GPO.AxS.__R().max) {
-				if(GPO.AxS.__R().autoscale & AUTOSCALE_MAX) {
-					if((GPO.AxS.__R().max_constraint & CONSTRAINT_UPPER) && (GPO.AxS.__R().max_ub < r))
-						GPO.AxS.__R().max = GPO.AxS.__R().max_ub;
+			if(r > AxS.__R().max) {
+				if(AxS.__R().autoscale & AUTOSCALE_MAX) {
+					if((AxS.__R().max_constraint & CONSTRAINT_UPPER) && (AxS.__R().max_ub < r))
+						AxS.__R().max = AxS.__R().max_ub;
 					else
-						GPO.AxS.__R().max = r;
+						AxS.__R().max = r;
 				}
-				else {
+				else
 					status = OUTRANGE;
-				}
 			}
 		}
 	}
-	if(nonlinear(&GPO.AxS.__R())) {
-		GpAxis * shadow = GPO.AxS.__R().linked_to_primary;
-		if(GPO.AxS.__R().log && r <= 0)
+	if(nonlinear(&AxS.__R())) {
+		GpAxis * shadow = AxS.__R().linked_to_primary;
+		if(AxS.__R().log && r <= 0)
 			r = not_a_number();
 		else
-			r = GPO.EvalLinkFunction(shadow, r) - shadow->min;
+			r = EvalLinkFunction(shadow, r) - shadow->min;
 	}
 	else if(inverted_raxis) {
-		r = GPO.AxS.__R().set_min - r;
+		r = AxS.__R().set_min - r;
 	}
-	else if((GPO.AxS.__R().autoscale & AUTOSCALE_MIN)) {
+	else if((AxS.__R().autoscale & AUTOSCALE_MIN)) {
 		; /* Leave it */
 	}
-	else if(r >= GPO.AxS.__R().min) {
-		/* We store internally as if plotting r(theta) - rmin */
-		r = r - GPO.AxS.__R().min;
+	else if(r >= AxS.__R().min) {
+		// We store internally as if plotting r(theta) - rmin 
+		r = r - AxS.__R().min;
 	}
-	else if(r < -GPO.AxS.__R().min) {
-		/* If (r < GPO.AxS.__R().min < 0) we already flagged OUTRANGE above */
-		/* That leaves the case (r < 0  &&  GPO.AxS.__R().min >= 0) */
-		r = r + GPO.AxS.__R().min;
+	else if(r < -AxS.__R().min) {
+		// If (r < AxS.__R().min < 0) we already flagged OUTRANGE above 
+		// That leaves the case (r < 0  &&  AxS.__R().min >= 0) 
+		r = r + AxS.__R().min;
 	}
 	else {
 		*x = not_a_number();
 		*y = not_a_number();
 		return OUTRANGE;
 	}
-	/* Correct for theta=0 position and handedness */
+	// Correct for theta=0 position and handedness 
 	theta = theta * theta_direction * ang2rad + theta_origin * DEG2RAD;
 	*x = r * cos(theta);
 	*y = r * sin(theta);
 	return status;
 }
-/*
- * converts polar coordinate r into a magnitude on x
- * allowing for GPO.AxS.__R().min != 0, axis inversion, nonlinearity, etc.
- */
-double polar_radius(double r)
+// 
+// converts polar coordinate r into a magnitude on x
+// allowing for GPO.AxS.__R().min != 0, axis inversion, nonlinearity, etc.
+// 
+//double polar_radius(double r)
+double GnuPlot::PolarRadius(double r)
 {
 	double px, py;
-	polar_to_xy(0.0, r, &px, &py, FALSE);
+	PolarToXY(0.0, r, &px, &py, FALSE);
 	return sqrt(px*px + py*py);
 }
-/*
- * Print current axis range values to terminal.
- * Mostly for debugging.
- */
+// 
+// Print current axis range values to terminal.
+// Mostly for debugging.
+// 
 void dump_axis_range(GpAxis * axis)
 {
 	if(axis) {
@@ -2481,70 +2454,74 @@ void dump_axis_range(GpAxis * axis)
 		fprintf(stderr, "                set_min/max %10g %10g \t link:\t %s\n", axis->set_min, axis->set_max, axis->linked_to_primary ? axis_name((AXIS_INDEX)axis->linked_to_primary->index) : "none");
 	}
 }
-/*
- * This routine replaces former macro ACTUAL_STORE_AND_UPDATE_RANGE().
- *
- * Version 5: OK to store infinities or NaN
- * Return UNDEFINED so that caller can take action if desired.
- */
-coord_type store_and_update_range(double * store, double curval, coord_type * type, GpAxis * axis, bool noautoscale)
+// 
+// This routine replaces former macro ACTUAL_STORE_AND_UPDATE_RANGE().
+// 
+// Version 5: OK to store infinities or NaN
+// Return UNDEFINED so that caller can take action if desired.
+// 
+coord_type store_and_update_range(double * pStore, double curval, coord_type * pType, GpAxis * pAx, bool noautoscale)
 {
-	*store = curval;
+	*pStore = curval;
 	if(!(curval > -VERYLARGE && curval < VERYLARGE)) {
-		*type = UNDEFINED;
+		*pType = UNDEFINED;
 		return UNDEFINED;
 	}
-	if(axis->log) {
-		if(curval < 0.0) {
-			*type = UNDEFINED;
-			return UNDEFINED;
+	else {
+		if(pAx->log) {
+			if(curval < 0.0) {
+				*pType = UNDEFINED;
+				return UNDEFINED;
+			}
+			else if(curval == 0.0) {
+				*pType = OUTRANGE;
+				return OUTRANGE;
+			}
 		}
-		else if(curval == 0.0) {
-			*type = OUTRANGE;
-			return OUTRANGE;
-		}
-	}
-	if(noautoscale)
-		return (coord_type)0; /* this plot is not being used for autoscaling */
-	if(*type != INRANGE)
-		return (coord_type)0; /* don't set y range if x is outrange, for example */
-	if((curval < axis->min) && ((curval <= axis->max) || (axis->max == -VERYLARGE))) {
-		if(axis->autoscale & AUTOSCALE_MIN) {
-			axis->min = curval;
-			if(axis->min_constraint & CONSTRAINT_LOWER) {
-				if(axis->min_lb > curval) {
-					axis->min = axis->min_lb;
-					*type = OUTRANGE;
+		if(noautoscale)
+			return (coord_type)0; /* this plot is not being used for autoscaling */
+		else if(*pType != INRANGE)
+			return (coord_type)0; /* don't set y range if x is outrange, for example */
+		else {
+			if((curval < pAx->min) && ((curval <= pAx->max) || (pAx->max == -VERYLARGE))) {
+				if(pAx->autoscale & AUTOSCALE_MIN) {
+					pAx->min = curval;
+					if(pAx->min_constraint & CONSTRAINT_LOWER) {
+						if(pAx->min_lb > curval) {
+							pAx->min = pAx->min_lb;
+							*pType = OUTRANGE;
+							return OUTRANGE;
+						}
+					}
+				}
+				else if(curval != pAx->max) {
+					*pType = OUTRANGE;
 					return OUTRANGE;
 				}
 			}
-		}
-		else if(curval != axis->max) {
-			*type = OUTRANGE;
-			return OUTRANGE;
-		}
-	}
-	if(curval > axis->max && (curval >= axis->min || axis->min == VERYLARGE)) {
-		if(axis->autoscale & AUTOSCALE_MAX) {
-			axis->max = curval;
-			if(axis->max_constraint & CONSTRAINT_UPPER) {
-				if(axis->max_ub < curval) {
-					axis->max = axis->max_ub;
-					*type = OUTRANGE;
-					return OUTRANGE;
+			if(curval > pAx->max && (curval >= pAx->min || pAx->min == VERYLARGE)) {
+				if(pAx->autoscale & AUTOSCALE_MAX) {
+					pAx->max = curval;
+					if(pAx->max_constraint & CONSTRAINT_UPPER) {
+						if(pAx->max_ub < curval) {
+							pAx->max = pAx->max_ub;
+							*pType = OUTRANGE;
+							return OUTRANGE;
+						}
+					}
+				}
+				else if(curval != pAx->min) {
+					*pType = OUTRANGE;
 				}
 			}
-		}
-		else if(curval != axis->min) {
-			*type = OUTRANGE;
+			// Only update data min/max if the point is INRANGE Jun 2016 
+			if(*pType == INRANGE) {
+				SETMIN(pAx->data_min, curval);
+				SETMAX(pAx->data_max, curval);
+			}
+			return (coord_type)0;
 		}
 	}
-	/* Only update data min/max if the point is INRANGE Jun 2016 */
-	if(*type == INRANGE) {
-		SETMIN(axis->data_min, curval);
-		SETMAX(axis->data_max, curval);
-	}
-	return (coord_type)0;
 }
 // 
 // Simplest form of autoscaling (no check on autoscale constraints).

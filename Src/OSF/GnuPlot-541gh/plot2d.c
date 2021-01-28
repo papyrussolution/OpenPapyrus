@@ -1,34 +1,6 @@
-/* GNUPLOT - plot2d.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - plot2d.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 //
@@ -149,15 +121,15 @@ void GnuPlot::PlotRequest()
 	// Range limits for the entire plot are optional but must be given
 	// in a fixed order. The keyword 'sample' terminates range parsing.
 	if(parametric || polar) {
-		dummy_token = parse_range(T_AXIS);
-		parse_range(FIRST_X_AXIS);
+		dummy_token = ParseRange(T_AXIS);
+		ParseRange(FIRST_X_AXIS);
 	}
 	else {
-		dummy_token = parse_range(FIRST_X_AXIS);
+		dummy_token = ParseRange(FIRST_X_AXIS);
 	}
-	parse_range(FIRST_Y_AXIS);
-	parse_range(SECOND_X_AXIS);
-	parse_range(SECOND_Y_AXIS);
+	ParseRange(FIRST_Y_AXIS);
+	ParseRange(SECOND_X_AXIS);
+	ParseRange(SECOND_Y_AXIS);
 	if(Pgm.EqualsCur("sample") && Pgm.EqualsNext("["))
 		Pgm.Shift();
 	// Clear out any tick labels read from data files in previous plot 
@@ -200,7 +172,7 @@ void refresh_bounds(curve_points * first_plot, int nplots)
 		// IMAGE clipping is done elsewhere, so we don't need INRANGE/OUTRANGE checks 
 		if(this_plot->plot_style == IMAGE || this_plot->plot_style == RGBIMAGE) {
 			if(x_axis->set_autoscale || y_axis->set_autoscale)
-				process_image(term, this_plot, IMG_UPDATE_AXES);
+				GPO.ProcessImage(term, this_plot, IMG_UPDATE_AXES);
 			continue;
 		}
 		for(i = 0; i < this_plot->p_count; i++) {
@@ -229,7 +201,7 @@ void refresh_bounds(curve_points * first_plot, int nplots)
 				continue;
 			}
 		}
-		if(this_plot->plot_style == BOXES || this_plot->plot_style == IMPULSES)
+		if(oneof2(this_plot->plot_style, BOXES, IMPULSES))
 			impulse_range_fiddling(this_plot);
 	}
 	this_plot = first_plot;
@@ -238,8 +210,8 @@ void refresh_bounds(curve_points * first_plot, int nplots)
 		GPO.AxS.CheckRange(this_plot->AxIdx_X);
 		GPO.AxS.CheckRange(this_plot->AxIdx_Y);
 		// Make sure the bounds are reasonable, and tweak them if they aren't 
-		axis_checked_extend_empty_range(this_plot->AxIdx_X, NULL);
-		axis_checked_extend_empty_range(this_plot->AxIdx_Y, NULL);
+		GPO.AxisCheckedExtendEmptyRange(this_plot->AxIdx_X, NULL);
+		GPO.AxisCheckedExtendEmptyRange(this_plot->AxIdx_Y, NULL);
 	}
 }
 //
@@ -1154,27 +1126,25 @@ static void store2d_point(curve_points * current_plot, int i/* point number */, 
 			if((theta_axis->autoscale & AUTOSCALE_MIN) == 0)
 				excluded_range = TRUE;
 		}
-		/* "y" at this point is really "r", so check it against rrange.	*/
+		// "y" at this point is really "r", so check it against rrange.	
 		if(y < GPO.AxS.__R().data_min)
 			GPO.AxS.__R().data_min = y;
 		if(y > GPO.AxS.__R().data_max)
 			GPO.AxS.__R().data_max = y;
-
-		/* Convert from polar to cartesian coordinates and check ranges */
-		if(polar_to_xy(x, y, &x, &y, TRUE) == OUTRANGE)
+		// Convert from polar to cartesian coordinates and check ranges 
+		if(GPO.PolarToXY(x, y, &x, &y, TRUE) == OUTRANGE)
 			cp->type = OUTRANGE;
-
-		/* Some plot styles use xhigh and yhigh for other quantities, */
-		/* which polar mode transforms would break		      */
+		// Some plot styles use xhigh and yhigh for other quantities, 
+		// which polar mode transforms would break		      
 		if(current_plot->plot_style == CIRCLES) {
 			double radius = (xhigh - xlow)/2.0;
 			xlow = x - radius;
 			xhigh = x + radius;
 		}
 		else {
-			/* Jan 2017 - now skipping range check on rhigh, rlow */
-			polar_to_xy(xhigh, yhigh, &xhigh, &yhigh, FALSE);
-			polar_to_xy(xlow, ylow, &xlow, &ylow, FALSE);
+			// Jan 2017 - now skipping range check on rhigh, rlow 
+			GPO.PolarToXY(xhigh, yhigh, &xhigh, &yhigh, FALSE);
+			GPO.PolarToXY(xlow, ylow, &xlow, &ylow, FALSE);
 		}
 	}
 	/* Version 5: Allow to store Inf or NaN
@@ -1624,9 +1594,9 @@ struct text_label * store_label(struct text_label * listhead, struct coordinate 
 	tl->place.y = cp->y;
 	tl->place.z = cp->z;
 
-	/* optional variables from user spec */
-	tl->rotate = cp->CRD_ROTATE;
-	tl->lp_properties.p_type = cp->CRD_PTTYPE;
+	// optional variables from user spec 
+	tl->rotate = static_cast<int>(cp->CRD_ROTATE);
+	tl->lp_properties.p_type = static_cast<int>(cp->CRD_PTTYPE);
 	tl->lp_properties.p_size = cp->CRD_PTSIZE;
 
 	// Check for optional (textcolor palette ...) 
@@ -1634,7 +1604,7 @@ struct text_label * store_label(struct text_label * listhead, struct coordinate 
 		tl->textcolor.value = colorval;
 	// Check for optional (textcolor rgb variable) 
 	else if(listhead->textcolor.type == TC_RGB && listhead->textcolor.value < 0)
-		tl->textcolor.lt = colorval;
+		tl->textcolor.lt = static_cast<int>(colorval);
 	// Check for optional (textcolor variable) 
 	else if(listhead->textcolor.type == TC_VARIABLE) {
 		lp_style_type lptmp;
@@ -1645,13 +1615,13 @@ struct text_label * store_label(struct text_label * listhead, struct coordinate 
 		tl->textcolor = lptmp.pm3d_color;
 	}
 	if((listhead->lp_properties.flags & LP_SHOW_POINTS)) {
-		/* Check for optional (point linecolor palette ...) */
+		// Check for optional (point linecolor palette ...) 
 		if(tl->lp_properties.pm3d_color.type == TC_Z)
 			tl->lp_properties.pm3d_color.value = colorval;
-		/* Check for optional (point linecolor rgb variable) */
+		// Check for optional (point linecolor rgb variable) 
 		else if(listhead->lp_properties.pm3d_color.type == TC_RGB && listhead->lp_properties.pm3d_color.value < 0)
-			tl->lp_properties.pm3d_color.lt = colorval;
-		/* Check for optional (point linecolor variable) */
+			tl->lp_properties.pm3d_color.lt = static_cast<int>(colorval);
+		// Check for optional (point linecolor variable) 
 		else if(listhead->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 			lp_style_type lptmp;
 			if(prefer_line_styles)
@@ -1803,7 +1773,7 @@ void GnuPlot::EvalPlots()
 				/* Allow explicit starting color or pattern for this histogram */
 				if(Pgm.EqualsCur("lt") || Pgm.AlmostEqualsCur("linet$ype")) {
 					Pgm.Shift();
-					newhist_color = int_expression();
+					newhist_color = IntExpression();
 				}
 				fs.fillstyle = FS_SOLID;
 				fs.filldensity = 100;
@@ -1849,7 +1819,7 @@ void GnuPlot::EvalPlots()
 			plot_num++;
 			// Check for a sampling range
 			AxS.InitSampleRange(&AxS[FIRST_X_AXIS], DATA);
-			sample_range_token = parse_range(SAMPLE_AXIS);
+			sample_range_token = ParseRange(SAMPLE_AXIS);
 			v_range_token = 0;
 			if(sample_range_token != 0) {
 				AxS[SAMPLE_AXIS].range_flags |= RANGE_SAMPLED;
@@ -1860,7 +1830,7 @@ void GnuPlot::EvalPlots()
 					AxS[U_AXIS].autoscale = AxS[SAMPLE_AXIS].autoscale;
 					AxS[U_AXIS].SAMPLE_INTERVAL = AxS[SAMPLE_AXIS].SAMPLE_INTERVAL;
 					AxS[U_AXIS].range_flags = AxS[SAMPLE_AXIS].range_flags;
-					v_range_token = parse_range(V_AXIS);
+					v_range_token = ParseRange(V_AXIS);
 					if(v_range_token != 0)
 						AxS[V_AXIS].range_flags |= RANGE_SAMPLED;
 				}
@@ -1967,14 +1937,14 @@ void GnuPlot::EvalPlots()
 					nbins = samples_1;
 					if(Pgm.EqualsCur("=")) {
 						Pgm.Shift();
-						nbins = int_expression();
+						nbins = IntExpression();
 						if(nbins <= 0)
 							nbins = samples_1;
 					}
 					binlow = binhigh = 0.0;
 					if(Pgm.EqualsCur("binrange")) {
 						Pgm.Shift();
-						if(!parse_range(SAMPLE_AXIS))
+						if(!ParseRange(SAMPLE_AXIS))
 							IntErrorCurToken("incomplete bin range");
 						binlow  = AxS[SAMPLE_AXIS].min;
 						binhigh = AxS[SAMPLE_AXIS].max;
@@ -2654,7 +2624,7 @@ void GnuPlot::EvalPlots()
 				 */
 				if(oneof3(this_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
 					this_plot->image_properties.type = IC_PALETTE;
-					process_image(term, this_plot, IMG_UPDATE_AXES);
+					ProcessImage(term, this_plot, IMG_UPDATE_AXES);
 				}
 			}
 SKIPPED_EMPTY_FILE:
@@ -2723,16 +2693,16 @@ SKIPPED_EMPTY_FILE:
 				AxS[FIRST_X_AXIS].max = 10;
 			}
 		if(uses_axis[FIRST_X_AXIS] & USES_AXIS_FOR_DATA) {
-			axis_checked_extend_empty_range(FIRST_X_AXIS, "x range is invalid"); // check that x1min -> x1max is not too small 
+			AxisCheckedExtendEmptyRange(FIRST_X_AXIS, "x range is invalid"); // check that x1min -> x1max is not too small 
 		}
 		if(uses_axis[SECOND_X_AXIS] & USES_AXIS_FOR_DATA) {
-			axis_checked_extend_empty_range(SECOND_X_AXIS, "x2 range is invalid"); // check that x2min -> x2max is not too small 
+			AxisCheckedExtendEmptyRange(SECOND_X_AXIS, "x2 range is invalid"); // check that x2min -> x2max is not too small 
 		}
 		else if(AxS[SECOND_X_AXIS].autoscale) {
-			/* copy x1's range */
-			/* FIXME:  merge both cases into update_secondary_axis_range */
+			// copy x1's range 
+			// FIXME:  merge both cases into update_secondary_axis_range 
 			if(AxS[SECOND_X_AXIS].linked_to_primary) {
-				update_secondary_axis_range(&AxS[FIRST_X_AXIS]);
+				UpdateSecondaryAxisRange(&AxS[FIRST_X_AXIS]);
 			}
 			else {
 				if(AxS[SECOND_X_AXIS].autoscale & AUTOSCALE_MIN)
@@ -2800,7 +2770,7 @@ SKIPPED_EMPTY_FILE:
 				// Only relevant to function plots, and only needed in second pass. 
 				if(!parametric && !polar)
 					AxS.InitSampleRange(&AxS[AxS.Idx_X], FUNC);
-				sample_range_token = parse_range(SAMPLE_AXIS);
+				sample_range_token = ParseRange(SAMPLE_AXIS);
 				dummy_func = &plot_func;
 				if(Pgm.AlmostEqualsCur("newhist$ogram")) {
 					name_str = ""; /* Make sure this isn't interpreted as a function */
@@ -2896,11 +2866,11 @@ SKIPPED_EMPTY_FILE:
 							double y;
 							double theta = x;
 							// Convert from polar to cartesian coordinates and check ranges
-							if(polar_to_xy(theta, temp, &x, &y, TRUE) == OUTRANGE)
+							if(GPO.PolarToXY(theta, temp, &x, &y, TRUE) == OUTRANGE)
 								this_plot->points[i].type = OUTRANGE; ;
 							if((this_plot->plot_style == FILLEDCURVES) && (this_plot->filledcurves_options.closeto == FILLEDCURVES_ATR)) {
 								double xhigh, yhigh;
-								(void)polar_to_xy(theta, this_plot->filledcurves_options.at, &xhigh, &yhigh, TRUE);
+								GPO.PolarToXY(theta, this_plot->filledcurves_options.at, &xhigh, &yhigh, TRUE);
 								STORE_AND_UPDATE_RANGE(this_plot->points[i].xhigh, xhigh, this_plot->points[i].type, AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
 								STORE_AND_UPDATE_RANGE(this_plot->points[i].yhigh, yhigh, this_plot->points[i].type, AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
 							}
@@ -2990,10 +2960,10 @@ come_here_if_undefined:
 			// Now actually fix the plot pairs to be single plots
 			// also fixes up polar&&parametric fn plots 
 			parametric_fixup(first_plot, &plot_num);
-			/* we omitted earlier check for range too small */
-			axis_checked_extend_empty_range(FIRST_X_AXIS, NULL);
+			// we omitted earlier check for range too small 
+			AxisCheckedExtendEmptyRange(FIRST_X_AXIS, NULL);
 			if(uses_axis[SECOND_X_AXIS]) {
-				axis_checked_extend_empty_range(SECOND_X_AXIS, NULL);
+				AxisCheckedExtendEmptyRange(SECOND_X_AXIS, NULL);
 			}
 		}
 		// This is the earliest that polar autoscaling can be done for function plots 
@@ -3067,19 +3037,19 @@ come_here_if_undefined:
 		;
 	}
 	else if(uses_axis[FIRST_Y_AXIS] && nonlinear(&AxS[FIRST_Y_AXIS])) {
-		axis_checked_extend_empty_range(FIRST_Y_AXIS, "all points y value undefined!");
+		AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "all points y value undefined!");
 		update_primary_axis_range(&AxS[FIRST_Y_AXIS]);
 	}
 	else if(uses_axis[FIRST_Y_AXIS]) {
-		axis_checked_extend_empty_range(FIRST_Y_AXIS, "all points y value undefined!");
+		AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "all points y value undefined!");
 		AxS.CheckRange(FIRST_Y_AXIS);
 	}
 	if(uses_axis[SECOND_Y_AXIS] && AxS[SECOND_Y_AXIS].linked_to_primary) {
-		axis_checked_extend_empty_range(SECOND_Y_AXIS, "all points y2 value undefined!");
+		AxisCheckedExtendEmptyRange(SECOND_Y_AXIS, "all points y2 value undefined!");
 		update_primary_axis_range(&AxS[SECOND_Y_AXIS]);
 	}
 	else if(uses_axis[SECOND_Y_AXIS]) {
-		axis_checked_extend_empty_range(SECOND_Y_AXIS, "all points y2 value undefined!");
+		AxisCheckedExtendEmptyRange(SECOND_Y_AXIS, "all points y2 value undefined!");
 		AxS.CheckRange(SECOND_Y_AXIS);
 	}
 	else {
@@ -3091,7 +3061,7 @@ come_here_if_undefined:
 	 */
 	set_plot_with_palette(0, MODE_PLOT);
 	if(is_plot_with_palette())
-		set_cbminmax();
+		SetCbMinMax();
 	// if we get here, all went well, so record this line for replot 
 	if(plot_token != -1) {
 		// note that m_capture also frees the old replot_line 
@@ -3109,7 +3079,7 @@ come_here_if_undefined:
 		 * to tic marks, not only the min/max data values)
 		 *  --> save them now for writeback if requested
 		 */
-		save_writeback_all_axes();
+		SaveWritebackAllAxes();
 		// Mark these plots as safe for quick refresh 
 		SET_REFRESH_OK(E_REFRESH_OK_2D, plot_num);
 	}
@@ -3155,23 +3125,20 @@ static void parametric_fixup(curve_points * start_plot, int * plot_num)
 			/* IMPORTANT: because syntax is   plot x(t), y(t) XnYnaxes ..., only
 			 * the y function axes are correct
 			 */
-
-			/*
-			 * Go through all the points assigning the y's from xp to be
-			 * the x's for yp. In polar mode, we need to check max's and
-			 * min's as we go.
-			 */
-
+			//
+			// Go through all the points assigning the y's from xp to be
+			// the x's for yp. In polar mode, we need to check max's and
+			// min's as we go.
+			//
 			for(i = 0; i < yp->p_count; ++i) {
 				double x, y;
 				if(polar) {
 					const double r = yp->points[i].y;
 					const double t = xp->points[i].y;
-					/* Convert from polar to cartesian coordinate and check ranges */
-					/* Note: The old in-line conversion checked GPO.AxS.__R().max against fabs(r).
-					 * That's not what polar_to_xy() is currently doing.
-					 */
-					if(polar_to_xy(t, r, &x, &y, TRUE) == OUTRANGE)
+					// Convert from polar to cartesian coordinate and check ranges */
+					// Note: The old in-line conversion checked GPO.AxS.__R().max against fabs(r).
+					// That's not what GPO.PolarToXY() is currently doing.
+					if(GPO.PolarToXY(t, r, &x, &y, TRUE) == OUTRANGE)
 						yp->points[i].type = OUTRANGE;
 				}
 				else {
@@ -3316,7 +3283,7 @@ void parse_plot_title(curve_points * this_plot, char * xtitle, char * ytitle, bo
 				GPO.Pgm.Shift();
 			}
 			else {
-				get_position_default(this_plot->title_position, screen, 2);
+				GPO.GetPositionDefault(this_plot->title_position, screen, 2);
 			}
 			if(save_token == GPO.Pgm.GetCurTokenIdx())
 				GPO.IntErrorCurToken("expecting \"at {beginning|end|<xpos>,<ypos>}\"");

@@ -822,8 +822,9 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 					if(cn_rec.Flags & CASHF_ASYNC) {
 						PPAsyncCashNode acn_pack;
 						if(CnObj.GetAsync(srcPosNodeID, &acn_pack) > 0) {
-							if(acn_pack.ExpPaths.NotEmpty()) {
-								ss_paths.setBuf(acn_pack.ExpPaths);
+							(temp_buf = acn_pack.ExpPaths).Strip().Transf(CTRANSF_INNER_TO_OUTER); // @v11.0.0
+							if(temp_buf.NotEmpty()) {
+								ss_paths.setBuf(temp_buf);
 								path_done = 1;
 							}
 						}
@@ -832,6 +833,7 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 						PPSyncCashNode scn_pack;
 						if(CnObj.GetSync(srcPosNodeID, &scn_pack) > 0) {
 							if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+								temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v11.0.0
 								ss_paths.setBuf(temp_buf);
 								path_done = 1;
 							}

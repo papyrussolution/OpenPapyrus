@@ -854,7 +854,7 @@ int PlotRandomGeneration(int distrib, uint argCount, double * pArgList)
 		SHistogram
 		for(i = 0; i < 10000; i++) {
 			double v
-			RPoint3 p = matrix.at(i);
+			SPoint3R p = matrix.at(i);
 			plot.PutData(p.x);
 			plot.PutData(p.y);
 			plot.PutEOR();

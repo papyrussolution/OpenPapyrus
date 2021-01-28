@@ -1,38 +1,7 @@
-/* GNUPLOT - graphics.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
-/* Daniel Sebald: added plot_image_or_update_axes() routine for images.
- * (5 November 2003)
- */
+// GNUPLOT - graphics.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+// Daniel Sebald: added plot_image_or_update_axes() routine for images. (5 November 2003)
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -74,7 +43,7 @@ static void   recheck_ranges(curve_points * plot);
 static void   plot_impulses(curve_points * plot, int yaxis_x, int xaxis_y);
 static void   plot_lines(termentry * pTerm, curve_points * plot);
 //static void   plot_points(termentry * pTerm, curve_points * plot);
-static void   plot_dots(curve_points * plot);
+static void   plot_dots(termentry * pTerm, curve_points * plot);
 //static void   plot_bars(termentry * pTerm, curve_points * plot);
 //static void   plot_boxes(termentry * pTerm, curve_points * plot, int xaxis_y);
 static void   plot_filledcurves(termentry * pTerm, curve_points * plot);
@@ -91,7 +60,7 @@ static void   place_raxis();
 static void   place_parallel_axes(termentry * pTerm, curve_points * plots, int layer);
 static void   place_spiderplot_axes(termentry * pTerm, curve_points * plots, int layer);
 //static void   plot_steps(termentry * pTerm, curve_points * plot);     /* JG */
-static void   plot_fsteps(curve_points * plot);    /* HOE */
+static void   plot_fsteps(termentry * pTerm, curve_points * plot);    /* HOE */
 static void   plot_histeps(curve_points * plot);   /* CAC */
 static void   ytick2d_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
 static void   xtick2d_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
@@ -99,7 +68,7 @@ static void   ttick_callback(GpAxis *, double place, char * text, int ticlevel, 
 static void   spidertick_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
 static int    histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static void   get_arrow(arrow_def * arrow, double* sx, double* sy, double* ex, double* ey);
-static void   map_position_double(GpPosition * pos, double* x, double* y, const char* what);
+//static void   map_position_double(const termentry * pTerm, GpPosition * pos, double* x, double* y, const char* what);
 static void   plot_circles(curve_points * plot);
 static void   plot_ellipses(curve_points * plot);
 static void   do_rectangle(int dimensions, t_object * this_object, const fill_style_type * fillstyle);
@@ -131,12 +100,12 @@ static bool boxplot_factor_sort_required; /* used by compare_ypoints via q_sort 
 
 static void get_arrow(arrow_def * arrow, double* sx, double* sy, double* ex, double* ey)
 {
-	map_position_double(&arrow->start, sx, sy, "arrow");
+	GPO.MapPositionDouble(term, &arrow->start, sx, sy, "arrow");
 	if(arrow->type == arrow_end_relative) {
-		/* different coordinate systems:
-		 * add the values in the drivers coordinate system.
-		 * For log scale: relative coordinate is factor */
-		map_position_r(term, &arrow->end, ex, ey, "arrow");
+		// different coordinate systems:
+		// add the values in the drivers coordinate system.
+		// For log scale: relative coordinate is factor 
+		GPO.MapPositionR(term, &arrow->end, ex, ey, "arrow");
 		*ex += *sx;
 		*ey += *sy;
 	}
@@ -147,12 +116,12 @@ static void get_arrow(arrow_def * arrow, double* sx, double* sy, double* ex, dou
 		if(strcmp(term->name, "windows") == 0)
 			aspect = 1.;
 #endif
-		map_position_r(term, &arrow->end, &radius, NULL, "arrow");
+		GPO.MapPositionR(term, &arrow->end, &radius, NULL, "arrow");
 		*ex = *sx + cos(DEG2RAD * arrow->angle) * radius;
 		*ey = *sy + sin(DEG2RAD * arrow->angle) * radius * aspect;
 	}
 	else
-		map_position_double(&arrow->end, ex, ey, "arrow");
+		GPO.MapPositionDouble(term, &arrow->end, ex, ey, "arrow");
 }
 
 //static void place_grid(termentry * pTerm, int layer)
@@ -213,7 +182,7 @@ void GnuPlot::PlaceGrid(termentry * pTerm, int layer)
 		pTerm->layer(TERM_LAYER_BEGIN_GRID);
 		term_apply_lp_properties(pTerm, &grid_lp);
 		if(largest_polar_circle <= 0)
-			largest_polar_circle = polar_radius(GPO.AxS.__R().max);
+			largest_polar_circle = PolarRadius(AxS.__R().max);
 		for(theta = 0; theta < 6.29; theta += polar_grid_angle) {
 			int x = AxS.MapiX(largest_polar_circle * cos(theta));
 			int y = AxS.MapiY(largest_polar_circle * sin(theta));
@@ -225,7 +194,7 @@ void GnuPlot::PlaceGrid(termentry * pTerm, int layer)
 	if(AxS.Theta().ticmode) {
 		term_apply_lp_properties(pTerm, &border_lp);
 		if(largest_polar_circle <= 0)
-			largest_polar_circle = polar_radius(GPO.AxS.__R().max);
+			largest_polar_circle = PolarRadius(GPO.AxS.__R().max);
 		copy_or_invent_formatstring(&AxS.Theta());
 		gen_tics(&AxS.Theta(), ttick_callback);
 		pTerm->text_angle(0);
@@ -277,9 +246,9 @@ void place_pixmaps(int layer, int dimensions)
 		if(layer == LAYER_BEHIND && multiplot_count > 1)
 			continue;
 		if(dimensions == 3)
-			map3d_position(&pixmap->pin, &x, &y, "pixmap");
+			GPO.Map3DPosition(&pixmap->pin, &x, &y, "pixmap");
 		else
-			map_position(&pixmap->pin, &x, &y, "pixmap");
+			GPO.MapPosition(term, &pixmap->pin, &x, &y, "pixmap");
 		// dx = dy = 0 means 1-to-1 representation of pixels 
 		if(pixmap->extent.x == 0 && pixmap->extent.y == 0) {
 			dx = static_cast<int>(pixmap->ncols * term->tscale);
@@ -294,7 +263,7 @@ void place_pixmaps(int layer, int dimensions)
 		}
 		else {
 			double Dx, Dy;
-			map_position_r(term, &pixmap->extent, &Dx, &Dy, "pixmap");
+			GPO.MapPositionR(term, &pixmap->extent, &Dx, &Dy, "pixmap");
 			dx = static_cast<int>(fabs(Dx));
 			dy = static_cast<int>(fabs(Dy));
 		}
@@ -341,7 +310,7 @@ static void place_labels(termentry * pTerm, text_label * listhead, int layer, bo
 				y = GPO.AxS.MapiY(this_label->place.y);
 			}
 			else
-				map_position(&this_label->place, &x, &y, "label");
+				GPO.MapPosition(pTerm, &this_label->place, &x, &y, "label");
 			// Trap undefined values from e.g. nonlinear axis mapping 
 			if(invalid_coordinate(x, y))
 				continue;
@@ -388,28 +357,28 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 			    double radius;
 			    BoundingBox * clip_save = clip_area;
 			    if(dimensions == 2) {
-				    map_position_double(&e->center, &x1, &y1, "object");
-				    map_position_r(term, &e->extent, &radius, NULL, "object");
+				    GPO.MapPositionDouble(term, &e->center, &x1, &y1, "object");
+				    GPO.MapPositionR(term, &e->extent, &radius, NULL, "object");
 			    }
 			    else if(splot_map) {
 				    int junkw, junkh;
-				    map3d_position_double(&e->center, &x1, &y1, "object");
+				    GPO.Map3DPositionDouble(&e->center, &x1, &y1, "object");
 				    map3d_position_r(&e->extent, &junkw, &junkh, "object");
 				    radius = junkw;
 			    }
-			    else { /* General 3D splot */
+			    else { // General 3D splot 
 				    if(e->center.scalex == screen)
-					    map_position_double(&e->center, &x1, &y1, "object");
+					    GPO.MapPositionDouble(term, &e->center, &x1, &y1, "object");
 				    else if(e->center.scalex == first_axes || e->center.scalex == polar_axes)
-					    map3d_position_double(&e->center, &x1, &y1, "object");
+					    GPO.Map3DPositionDouble(&e->center, &x1, &y1, "object");
 				    else
 					    break;
-				    /* radius must not change with rotation */
+				    // radius must not change with rotation 
 				    if(e->extent.scalex == first_axes) {
 					    radius = e->extent.x * radius_scaler;
 				    }
 				    else {
-					    map_position_r(term, &e->extent, &radius, NULL, "object");
+					    GPO.MapPositionR(term, &e->extent, &radius, NULL, "object");
 				    }
 			    }
 			    if((e->center.scalex == screen || e->center.scaley == screen) || (this_object->clip == OBJ_NOCLIP))
@@ -519,17 +488,16 @@ static void adjust_offsets(void)
 		if(GPO.AxS.__Y().min == GPO.AxS.__Y().max)
 			GPO.IntError(NO_CARET, "y_min should not equal y_max!");
 		if(GPO.AxS[FIRST_X_AXIS].linked_to_secondary)
-			clone_linked_axes(&GPO.AxS[FIRST_X_AXIS], &GPO.AxS[SECOND_X_AXIS]);
+			GPO.CloneLinkedAxes(&GPO.AxS[FIRST_X_AXIS], &GPO.AxS[SECOND_X_AXIS]);
 		if(GPO.AxS[FIRST_Y_AXIS].linked_to_secondary)
-			clone_linked_axes(&GPO.AxS[FIRST_Y_AXIS], &GPO.AxS[SECOND_Y_AXIS]);
+			GPO.CloneLinkedAxes(&GPO.AxS[FIRST_Y_AXIS], &GPO.AxS[SECOND_Y_AXIS]);
 	}
 }
-
-/*
- * This routine is called only if we know the axis passed in is either
- * nonlinear X or nonlinear Y.  We apply the offsets to the primary (linear)
- * end of the linkage and then transform back to the axis itself (seconary).
- */
+//
+// This routine is called only if we know the axis passed in is either
+// nonlinear X or nonlinear Y.  We apply the offsets to the primary (linear)
+// end of the linkage and then transform back to the axis itself (seconary).
+//
 static void adjust_nonlinear_offset(GpAxis * secondary)
 {
 	GpAxis * primary = secondary->linked_to_primary;
@@ -710,14 +678,14 @@ SECOND_KEY_PASS:
 				case LINES: plot_lines(pTerm, this_plot); break;
 				case STEPS: 
 				case FILLSTEPS: PlotSteps(pTerm, this_plot); break;
-				case FSTEPS: plot_fsteps(this_plot); break;
+				case FSTEPS: plot_fsteps(pTerm, this_plot); break;
 				case HISTEPS: plot_histeps(this_plot); break;
 				case POINTSTYLE: PlotPoints(pTerm, this_plot); break;
 				case LINESPOINTS:
 				    plot_lines(pTerm, this_plot);
 				    PlotPoints(pTerm, this_plot);
 				    break;
-				case DOTS: plot_dots(this_plot); break;
+				case DOTS: plot_dots(pTerm, this_plot); break;
 				case YERRORLINES:
 				case XERRORLINES:
 				case XYERRORLINES:
@@ -784,25 +752,25 @@ SECOND_KEY_PASS:
 				case CANDLESTICKS: plot_c_bars(this_plot); break;
 				case BOXPLOT: plot_boxplot(this_plot, FALSE); break;
 				case PM3DSURFACE:
-				case SURFACEGRID: GPO.IntWarn(NO_CARET, "Can't use pm3d or surface for 2d plots"); break;
+				case SURFACEGRID: IntWarn(NO_CARET, "Can't use pm3d or surface for 2d plots"); break;
 				case LABELPOINTS: place_labels(pTerm, this_plot->labels->next, LAYER_PLOTLABELS, TRUE); break;
 				case IMAGE:
 				    this_plot->image_properties.type = IC_PALETTE;
-				    process_image(pTerm, this_plot, IMG_PLOT);
+				    ProcessImage(pTerm, this_plot, IMG_PLOT);
 				    break;
 				case RGBIMAGE:
 				    this_plot->image_properties.type = IC_RGB;
-				    process_image(pTerm, this_plot, IMG_PLOT);
+				    ProcessImage(pTerm, this_plot, IMG_PLOT);
 				    break;
 				case RGBA_IMAGE:
 				    this_plot->image_properties.type = IC_RGBA;
-				    process_image(pTerm, this_plot, IMG_PLOT);
+				    ProcessImage(pTerm, this_plot, IMG_PLOT);
 				    break;
 				case CIRCLES: plot_circles(this_plot); break;
 				case ELLIPSES: plot_ellipses(this_plot); break;
 				case PARALLELPLOT: plot_parallel(this_plot); break;
 				case SPIDERPLOT: plot_spiderplot(this_plot); break;
-				default: GPO.IntError(NO_CARET, "unknown plot style");
+				default: IntError(NO_CARET, "unknown plot style");
 			}
 		}
 		/* If there are two passes, defer key sample till the second */
@@ -1363,12 +1331,12 @@ void GnuPlot::PlotSteps(termentry * pTerm, curve_points * plot)
 		prev = plot->points[i].type;
 	}
 }
-
-/* plot_fsteps:
- * Each new value is reached by tracing up/down to the new y value
- * and then horizontally to the new x value.
- */
-static void plot_fsteps(curve_points * plot)
+//
+// plot_fsteps:
+// Each new value is reached by tracing up/down to the new y value
+// and then horizontally to the new x value.
+//
+static void plot_fsteps(termentry * pTerm, curve_points * plot)
 {
 	int x = 0, y = 0; // point in terminal coordinates 
 	enum coord_type prev = UNDEFINED; /* type of previous point */
@@ -1383,12 +1351,12 @@ static void plot_fsteps(curve_points * plot)
 			    if(prev == UNDEFINED || invalid_coordinate(x, y))
 				    break;
 			    if(prev == INRANGE) {
-				    draw_clip_line(term, xprev, yprev, xprev, y);
-				    draw_clip_line(term, xprev, y, x, y);
+				    draw_clip_line(pTerm, xprev, yprev, xprev, y);
+				    draw_clip_line(pTerm, xprev, y, x, y);
 			    }
 			    else if(prev == OUTRANGE) {
-				    draw_clip_line(term, xprev, yprev, xprev, y);
-				    draw_clip_line(term, xprev, y, x, y);
+				    draw_clip_line(pTerm, xprev, yprev, xprev, y);
+				    draw_clip_line(pTerm, xprev, y, x, y);
 			    }
 			    break;
 			default: /* just a safety */
@@ -1771,12 +1739,12 @@ void GnuPlot::PlotBoxes(termentry * pTerm, curve_points * plot, int xaxis_y)
 				    switch(histogram_opts.type) {
 					    case HT_STACKED_IN_TOWERS: /* columnstacked */
 						stack = 0;
-						/* Line type (color) must match row number */
+						// Line type (color) must match row number 
 						if(prefer_line_styles)
 							lp_use_properties(&ls, histogram_linetype);
 						else
 							load_linetype(&ls, histogram_linetype);
-						apply_pm3dcolor(&ls.pm3d_color);
+						apply_pm3dcolor(pTerm, &ls.pm3d_color);
 						plot->fill_properties.fillpattern = histogram_linetype;
 					    /* Fall through */
 					    case HT_STACKED_IN_LAYERS: /* rowstacked */
@@ -1945,17 +1913,15 @@ void GnuPlot::PlotPoints(termentry * pTerm, curve_points * plot)
 				if(oneof2(plot->plot_style, POINTSTYLE, LINESPOINTS) &&  plot->lp_properties.p_size == PTSZ_VARIABLE)
 					(pTerm->pointsize)(pointsize * plot->points[i].CRD_PTSIZE);
 				// Feb 2016: variable point type 
-				if(oneof2(plot->plot_style, POINTSTYLE, LINESPOINTS) && (plot->lp_properties.p_type == PT_VARIABLE) && !(isnan(plot->points[i].CRD_PTTYPE))) {
-					pointtype = plot->points[i].CRD_PTTYPE - 1;
-				}
-				else {
+				if(oneof2(plot->plot_style, POINTSTYLE, LINESPOINTS) && (plot->lp_properties.p_type == PT_VARIABLE) && !(isnan(plot->points[i].CRD_PTTYPE)))
+					pointtype = static_cast<int>(plot->points[i].CRD_PTTYPE-1);
+				else
 					pointtype = plot->lp_properties.p_type;
-				}
-				/* A negative interval indicates we should try to blank out the */
-				/* area behind the point symbol. This could be done better by   */
-				/* implementing a special point type, but that would require    */
-				/* modification to all terminal drivers. It might be worth it.  */
-				/* term_apply_lp_properties will restore the point type and size*/
+				// A negative interval indicates we should try to blank out the 
+				// area behind the point symbol. This could be done better by   
+				// implementing a special point type, but that would require    
+				// modification to all terminal drivers. It might be worth it.  
+				// term_apply_lp_properties will restore the point type and size
 				if(plot->plot_style == LINESPOINTS && interval < 0) {
 					(pTerm->set_color)(&background_fill);
 					(pTerm->pointsize)(pointsize * pointintervalbox);
@@ -1979,7 +1945,7 @@ void GnuPlot::PlotPoints(termentry * pTerm, curve_points * plot)
 				// Print special character rather than drawn symbol 
 				if(ptchar) {
 					if(plot->labels && (plot->labels->textcolor.type != TC_DEFAULT))
-						apply_pm3dcolor(&(plot->labels->textcolor));
+						apply_pm3dcolor(pTerm, &(plot->labels->textcolor));
 					(pTerm->put_text)(x, y, ptchar);
 				}
 				// The normal case 
@@ -2020,7 +1986,7 @@ static void plot_circles(curve_points * plot)
 				continue;
 			radius = x - GPO.AxS.MapiX(plot->points[i].xlow);
 			if(plot->points[i].z == DEFAULT_RADIUS)
-				map_position_r(term, &default_circle.o.circle.extent, &radius, NULL, "radius");
+				GPO.MapPositionR(term, &default_circle.o.circle.extent, &radius, NULL, "radius");
 			arc_begin = plot->points[i].ylow;
 			arc_end = plot->points[i].xhigh;
 			// rgb variable  -  color read from data column 
@@ -2063,7 +2029,7 @@ static void plot_ellipses(curve_points * plot)
 				continue;
 			e->orientation = plot->points[i].ylow;
 			if(plot->points[i].z <= DEFAULT_RADIUS) {
-				map_position_r(term, &default_ellipse.o.ellipse.extent, &e->extent.x, &e->extent.y, "ellipse");
+				GPO.MapPositionR(term, &default_ellipse.o.ellipse.extent, &e->extent.x, &e->extent.y, "ellipse");
 			}
 			else {
 				e->extent.x = plot->points[i].xlow; /* major axis */
@@ -2074,23 +2040,23 @@ static void plot_ellipses(curve_points * plot)
 				/* clumsy solution */
 				switch(e->type) {
 					case ELLIPSEAXES_XY:
-					    map_position_r(term, &e->extent, &tempx, &tempy, "ellipse");
+					    GPO.MapPositionR(term, &e->extent, &tempx, &tempy, "ellipse");
 					    e->extent.x = tempx;
 					    e->extent.y = tempy;
 					    break;
 					case ELLIPSEAXES_XX:
-					    map_position_r(term, &e->extent, &tempx, &tempy, "ellipse");
+					    GPO.MapPositionR(term, &e->extent, &tempx, &tempy, "ellipse");
 					    tempfoo = tempx;
 					    e->extent.x = e->extent.y;
-					    map_position_r(term, &e->extent, &tempy, &tempx, "ellipse");
+					    GPO.MapPositionR(term, &e->extent, &tempy, &tempx, "ellipse");
 					    e->extent.x = tempfoo;
 					    e->extent.y = tempy;
 					    break;
 					case ELLIPSEAXES_YY:
-					    map_position_r(term, &e->extent, &tempx, &tempy, "ellipse");
+					    GPO.MapPositionR(term, &e->extent, &tempx, &tempy, "ellipse");
 					    tempfoo = tempy;
 					    e->extent.y = e->extent.x;
-					    map_position_r(term, &e->extent, &tempy, &tempx, "ellipse");
+					    GPO.MapPositionR(term, &e->extent, &tempy, &tempx, "ellipse");
 					    e->extent.x = tempx;
 					    e->extent.y = tempfoo;
 					    break;
@@ -2113,9 +2079,9 @@ static void plot_ellipses(curve_points * plot)
 // plot_dots:
 // Plot the curves in DOTS style
 //
-static void plot_dots(curve_points * plot)
+static void plot_dots(termentry * pTerm, curve_points * plot)
 {
-	struct termentry * t = term;
+	//struct termentry * t = term;
 	for(int i = 0; i < plot->p_count; i++) {
 		if(plot->points[i].type == INRANGE) {
 			int x = GPO.AxS.MapiX(plot->points[i].x);
@@ -2125,7 +2091,7 @@ static void plot_dots(curve_points * plot)
 			// rgb variable  -  color read from data column 
 			check_for_variable_color(plot, &plot->varcolor[i]);
 			// point type -1 is a dot 
-			(*t->point)(x, y, -1);
+			(pTerm->point)(x, y, -1);
 		}
 	}
 }
@@ -2587,7 +2553,7 @@ static void plot_spiderplot(curve_points * plot)
 			this_axis = &GPO.AxS.Parallel(thisplot->AxIdx_P-1);
 			theta = M_PI_2 - (thisplot->points[i].x - 1) * 2*M_PI / n_spokes;
 			r = (thisplot->points[i].y - this_axis->min) / (this_axis->max - this_axis->min);
-			polar_to_xy(theta, r, &x, &y, FALSE);
+			GPO.PolarToXY(theta, r, &x, &y, FALSE);
 			corners[thisplot->AxIdx_P-1].x = GPO.AxS.MapiX(x);
 			corners[thisplot->AxIdx_P-1].y = GPO.AxS.MapiY(y);
 		}
@@ -2625,27 +2591,25 @@ static void plot_spiderplot(curve_points * plot)
 		corners[n_spokes].y = corners[0].y;
 		clip_polygon(corners, clpcorn, n_spokes, &out_length);
 		clpcorn[0].style = style_from_fill(&plot->fill_properties);
-
-		/* rgb variable  -  color read from data column */
-		if(!check_for_variable_color(plot, &plot->varcolor[i])
-		    &&   plot->lp_properties.pm3d_color.type == TC_DEFAULT) {
+		// rgb variable  -  color read from data column 
+		if(!check_for_variable_color(plot, &plot->varcolor[i]) && plot->lp_properties.pm3d_color.type == TC_DEFAULT) {
 			lp_style_type lptmp;
 			load_linetype(&lptmp, i+1);
-			apply_pm3dcolor(&(lptmp.pm3d_color));
+			apply_pm3dcolor(term, &(lptmp.pm3d_color));
 		}
-		/* variable point type */
-		p_type = plot->points[i].CRD_PTTYPE - 1;
-		/* Draw filled area */
+		// variable point type 
+		p_type = static_cast<int>(plot->points[i].CRD_PTTYPE-1);
+		// Draw filled area 
 		if(out_length > 1 && plot->fill_properties.fillstyle != FS_EMPTY) {
 			if(term->filled_polygon)
 				term->filled_polygon(out_length, clpcorn);
 		}
-		/* Draw perimeter */
+		// Draw perimeter 
 		if(need_fill_border(&plot->fill_properties)) {
 			for(j = 0; j < n_spokes; j++)
 				draw_clip_line(term, corners[j].x, corners[j].y, corners[j+1].x, corners[j+1].y);
 		}
-		/* Points */
+		// Points 
 		if(p_type) {
 			for(j = 0; j < n_spokes; j++)
 				term->point(corners[j].x, corners[j].y, p_type);
@@ -2705,7 +2669,7 @@ static void plot_boxplot(curve_points * plot, bool only_autoscale)
 	int N;
 	struct coordinate * subset_points;
 	int subset_count, true_count;
-	struct text_label * subset_label = plot->labels;
+	text_label * subset_label = plot->labels;
 	struct coordinate candle;
 	double median, quartile1, quartile3;
 	double whisker_top = 0, whisker_bot = 0;
@@ -2867,19 +2831,18 @@ outliers:
 				/* previous INRANGE/OUTRANGE no longer valid */
 				if(x < plot_bounds.xleft + p_width ||  y < plot_bounds.ybot + p_height ||  x > plot_bounds.xright - p_width ||  y > plot_bounds.ytop - p_height)
 					continue;
-
 				/* Separate any duplicate outliers */
 				for(j = 1; (i >= j) && (subset_points[i].y == subset_points[i-j].y); j++)
 					x += p_width * ((j & 1) == 0 ? -j : j); ;
-
 				(term->point)(x, y, plot->lp_properties.p_type);
 			}
 		}
 	}
 }
-
-/* display a x-axis ticmark - called by gen_ticks */
-/* also uses global tic_start, tic_direction, tic_text and tic_just */
+//
+// display a x-axis ticmark - called by gen_ticks 
+// also uses global tic_start, tic_direction, tic_text and tic_just 
+//
 static void xtick2d_callback(GpAxis * this_axis, double place, char * text, int ticlevel,
     lp_style_type grid/* grid.l_type == LT_NODRAW means no grid */, struct ticmark * userlabels/* User-specified tic labels */)
 {
@@ -2938,19 +2901,20 @@ static void xtick2d_callback(GpAxis * this_axis, double place, char * text, int 
 	if(text) {
 		/* get offset */
 		double offsetx_d, offsety_d;
-		map_position_r(t, &(this_axis->ticdef.offset), &offsetx_d, &offsety_d, "xtics");
+		GPO.MapPositionR(t, &(this_axis->ticdef.offset), &offsetx_d, &offsety_d, "xtics");
 		/* User-specified different color for the tics text */
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			apply_pm3dcolor(&(this_axis->ticdef.textcolor));
+			apply_pm3dcolor(t, &(this_axis->ticdef.textcolor));
 		ignore_enhanced(!this_axis->ticdef.enhanced);
 		write_multiline(x+(int)offsetx_d, tic_text+(int)offsety_d, text, (JUSTIFY)tic_hjust, (VERT_JUSTIFY)tic_vjust, rotate_tics, this_axis->ticdef.font);
 		ignore_enhanced(FALSE);
 		term_apply_lp_properties(t, &border_lp); /* reset to border linetype */
 	}
 }
-
-/* display a y-axis ticmark - called by gen_ticks */
-/* also uses global tic_start, tic_direction, tic_text and tic_just */
+//
+// display a y-axis ticmark - called by gen_ticks 
+// also uses global tic_start, tic_direction, tic_text and tic_just 
+//
 static void ytick2d_callback(GpAxis * this_axis, double place, char * text, int ticlevel,
     lp_style_type grid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
@@ -3005,10 +2969,10 @@ static void ytick2d_callback(GpAxis * this_axis, double place, char * text, int 
 	if(text) {
 		/* get offset */
 		double offsetx_d, offsety_d;
-		map_position_r(t, &(this_axis->ticdef.offset), &offsetx_d, &offsety_d, "ytics");
+		GPO.MapPositionR(t, &(this_axis->ticdef.offset), &offsetx_d, &offsety_d, "ytics");
 		/* User-specified different color for the tics text */
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			apply_pm3dcolor(&(this_axis->ticdef.textcolor));
+			apply_pm3dcolor(t, &(this_axis->ticdef.textcolor));
 		ignore_enhanced(!this_axis->ticdef.enhanced);
 		write_multiline(tic_text+(int)offsetx_d, y+(int)offsety_d, text, (JUSTIFY)tic_hjust, (VERT_JUSTIFY)tic_vjust, rotate_tics, this_axis->ticdef.font);
 		ignore_enhanced(FALSE);
@@ -3028,7 +2992,7 @@ static void ttick_callback(GpAxis * this_axis, double place, char * text, int ti
 	double theta = (place * theta_direction + theta_origin) * DEG2RAD;
 	double cos_t = largest_polar_circle * cos(theta);
 	double sin_t = largest_polar_circle * sin(theta);
-	/* Skip label if we've already written a user-specified one here */
+	// Skip label if we've already written a user-specified one here 
 	while(userlabels) {
 		double here = userlabels->position;
 		if(fabs(here - place) <= 0.02) {
@@ -3043,10 +3007,10 @@ static void ttick_callback(GpAxis * this_axis, double place, char * text, int ti
 	yu = GPO.AxS.MapiY(sin_t);
 	// The normal meaning of "offset" as x/y displacement doesn't work well 
 	// for theta tic labels. Use it as a radial offset instead 
-	text_x = xu + (xu-xl) * (2. + this_axis->ticdef.offset.x);
-	text_y = yu + (yu-yl) * (2. + this_axis->ticdef.offset.x);
-	xl = GPO.AxS.MapiX((1.+delta) * cos_t);
-	yl = GPO.AxS.MapiY((1.+delta) * sin_t);
+	text_x = xu + (xu-xl) * (2.0 + this_axis->ticdef.offset.x);
+	text_y = yu + (yu-yl) * (2.0 + this_axis->ticdef.offset.x);
+	xl = GPO.AxS.MapiX((1.0+delta) * cos_t);
+	yl = GPO.AxS.MapiY((1.0+delta) * sin_t);
 	if(this_axis->ticmode & TICS_MIRROR) {
 		xu = GPO.AxS.MapiX( (1.-delta) * cos_t);
 		yu = GPO.AxS.MapiY( (1.-delta) * sin_t);
@@ -3054,8 +3018,8 @@ static void ttick_callback(GpAxis * this_axis, double place, char * text, int ti
 	draw_clip_line(term, xl, yl, xu, yu);
 	if(text && !clip_point(xu, yu)) {
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			apply_pm3dcolor(&(this_axis->ticdef.textcolor));
-		/* The only rotation angle that makes sense is the angle being labeled */
+			apply_pm3dcolor(term, &(this_axis->ticdef.textcolor));
+		// The only rotation angle that makes sense is the angle being labeled 
 		if(this_axis->tic_rotate != 0.0)
 			term->text_angle(place * theta_direction + theta_origin - 90.0);
 		write_multiline(text_x, text_y, text, (JUSTIFY)tic_hjust, (VERT_JUSTIFY)tic_vjust, 0.0/* FIXME: these are not correct */, this_axis->ticdef.font);
@@ -3064,10 +3028,11 @@ static void ttick_callback(GpAxis * this_axis, double place, char * text, int ti
 }
 
 /*{{{  map_position, wrapper, which maps double to int */
-void map_position(GpPosition * pos, int * x, int * y, const char * what)
+//void map_position(const termentry * pTerm, GpPosition * pos, int * x, int * y, const char * what)
+void GnuPlot::MapPosition(const termentry * pTerm, GpPosition * pos, int * x, int * y, const char * what)
 {
 	double xx = 0, yy = 0;
-	map_position_double(pos, &xx, &yy, what);
+	MapPositionDouble(pTerm, pos, &xx, &yy, what);
 	*x = xx;
 	*y = yy;
 }
@@ -3075,7 +3040,8 @@ void map_position(GpPosition * pos, int * x, int * y, const char * what)
 /*}}} */
 
 /*{{{  map_position_double */
-static void map_position_double(GpPosition * pos, double * x, double * y, const char * what)
+//static void map_position_double(const termentry * pTerm, GpPosition * pos, double * x, double * y, const char * what)
+void GnuPlot::MapPositionDouble(const termentry * pTerm, GpPosition * pos, double * x, double * y, const char * what)
 {
 	switch(pos->scalex) {
 		case first_axes:
@@ -3083,10 +3049,10 @@ static void map_position_double(GpPosition * pos, double * x, double * y, const 
 		default:
 	    {
 		    AXIS_INDEX index = (pos->scalex == first_axes) ? FIRST_X_AXIS : SECOND_X_AXIS;
-		    GpAxis * this_axis = &GPO.AxS[index];
+		    GpAxis * this_axis = &AxS[index];
 		    GpAxis * primary = this_axis->linked_to_primary;
 		    if(primary && primary->link_udf->at) {
-			    double xx = GPO.EvalLinkFunction(primary, pos->x);
+			    double xx = EvalLinkFunction(primary, pos->x);
 			    *x = primary->MapI(xx);
 		    }
 		    else
@@ -3099,23 +3065,17 @@ static void map_position_double(GpPosition * pos, double * x, double * y, const 
 		    break;
 	    }
 		case screen:
-	    {
-		    struct termentry * t = term;
-		    *x = pos->x * (t->xmax - 1);
+		    *x = pos->x * (pTerm->xmax - 1);
 		    break;
-	    }
 		case character:
-	    {
-		    struct termentry * t = term;
-		    *x = pos->x * t->h_char;
+		    *x = pos->x * pTerm->h_char;
 		    break;
-	    }
 		case polar_axes:
 	    {
 		    double xx, yy;
-		    polar_to_xy(pos->x, pos->y, &xx, &yy, FALSE);
-		    *x = GPO.AxS[FIRST_X_AXIS].MapI(xx);
-		    *y = GPO.AxS[FIRST_Y_AXIS].MapI(yy);
+		    PolarToXY(pos->x, pos->y, &xx, &yy, FALSE);
+		    *x = AxS[FIRST_X_AXIS].MapI(xx);
+		    *y = AxS[FIRST_Y_AXIS].MapI(yy);
 		    pos->scaley = polar_axes; /* Just to make sure */
 		    break;
 	    }
@@ -3126,10 +3086,10 @@ static void map_position_double(GpPosition * pos, double * x, double * y, const 
 		default:
 	    {
 		    AXIS_INDEX index = (pos->scaley == first_axes) ? FIRST_Y_AXIS : SECOND_Y_AXIS;
-		    const GpAxis * this_axis = &GPO.AxS[index];
+		    const GpAxis * this_axis = &AxS[index];
 		    const GpAxis * primary = this_axis->linked_to_primary;
 		    if(primary && primary->link_udf->at) {
-			    double yy = GPO.EvalLinkFunction(primary, pos->y);
+			    double yy = EvalLinkFunction(primary, pos->y);
 			    *y = primary->MapI(yy);
 		    }
 		    else
@@ -3140,17 +3100,11 @@ static void map_position_double(GpPosition * pos, double * x, double * y, const 
 		    *y = plot_bounds.ybot + pos->y * (plot_bounds.ytop - plot_bounds.ybot);
 		    break;
 		case screen:
-	    {
-		    struct termentry * t = term;
-		    *y = pos->y * (t->ymax -1);
+		    *y = pos->y * (pTerm->ymax -1);
 		    break;
-	    }
 		case character:
-	    {
-		    struct termentry * t = term;
-		    *y = pos->y * t->v_char;
+		    *y = pos->y * pTerm->v_char;
 		    break;
-	    }
 		case polar_axes:
 		    break;
 	}
@@ -3161,7 +3115,8 @@ static void map_position_double(GpPosition * pos, double * x, double * y, const 
 /*}}} */
 
 /*{{{  map_position_r */
-void map_position_r(const termentry * pTerm, GpPosition * pos, double * x, double * y, const char * what)
+//void map_position_r(const termentry * pTerm, GpPosition * pos, double * x, double * y, const char * what)
+void GnuPlot::MapPositionR(const termentry * pTerm, GpPosition * pos, double * x, double * y, const char * what)
 {
 	// Catches the case of "first" or "second" coords on a log-scaled axis 
 	if(pos->x == 0)
@@ -3170,14 +3125,14 @@ void map_position_r(const termentry * pTerm, GpPosition * pos, double * x, doubl
 		switch(pos->scalex) {
 			case first_axes:
 		    {
-			    double xx = axis_log_value_checked(FIRST_X_AXIS, pos->x, what);
-			    *x = xx * GPO.AxS[FIRST_X_AXIS].term_scale;
+			    double xx = AxisLogValueChecked(FIRST_X_AXIS, pos->x, what);
+			    *x = xx * AxS[FIRST_X_AXIS].term_scale;
 			    break;
 		    }
 			case second_axes:
 		    {
-			    double xx = axis_log_value_checked(SECOND_X_AXIS, pos->x, what);
-			    *x = xx * GPO.AxS[SECOND_X_AXIS].term_scale;
+			    double xx = AxisLogValueChecked(SECOND_X_AXIS, pos->x, what);
+			    *x = xx * AxS[SECOND_X_AXIS].term_scale;
 			    break;
 		    }
 			case graph:
@@ -3202,14 +3157,14 @@ void map_position_r(const termentry * pTerm, GpPosition * pos, double * x, doubl
 			switch(pos->scaley) {
 				case first_axes:
 				{
-					double yy = axis_log_value_checked(FIRST_Y_AXIS, pos->y, what);
-					*y = yy * GPO.AxS[FIRST_Y_AXIS].term_scale;
+					double yy = AxisLogValueChecked(FIRST_Y_AXIS, pos->y, what);
+					*y = yy * AxS[FIRST_Y_AXIS].term_scale;
 					return;
 				}
 				case second_axes:
 				{
-					double yy = axis_log_value_checked(SECOND_Y_AXIS, pos->y, what);
-					*y = yy * GPO.AxS[SECOND_Y_AXIS].term_scale;
+					double yy = AxisLogValueChecked(SECOND_Y_AXIS, pos->y, what);
+					*y = yy * AxS[SECOND_Y_AXIS].term_scale;
 					return;
 				}
 				case graph:
@@ -3243,8 +3198,8 @@ void GnuPlot::PlotBorder(termentry * pTerm)
 	(pTerm->move)(plot_bounds.xleft, plot_bounds.ytop);
 	if(border_west && AxS[FIRST_Y_AXIS].ticdef.rangelimited) {
 		AxS.Idx_Y = FIRST_Y_AXIS;
-		max = GPO.AxS.MapiY(AxS[FIRST_Y_AXIS].data_max);
-		min = GPO.AxS.MapiY(AxS[FIRST_Y_AXIS].data_min);
+		max = AxS.MapiY(AxS[FIRST_Y_AXIS].data_max);
+		min = AxS.MapiY(AxS[FIRST_Y_AXIS].data_min);
 		(pTerm->move)(plot_bounds.xleft, max);
 		(pTerm->vector)(plot_bounds.xleft, min);
 		(pTerm->move)(plot_bounds.xleft, plot_bounds.ybot);
@@ -3257,8 +3212,8 @@ void GnuPlot::PlotBorder(termentry * pTerm)
 	}
 	if(border_south && AxS[FIRST_X_AXIS].ticdef.rangelimited) {
 		AxS.Idx_X = FIRST_X_AXIS;
-		max = GPO.AxS.MapiX(AxS[FIRST_X_AXIS].data_max);
-		min = GPO.AxS.MapiX(AxS[FIRST_X_AXIS].data_min);
+		max = AxS.MapiX(AxS[FIRST_X_AXIS].data_max);
+		min = AxS.MapiX(AxS[FIRST_X_AXIS].data_min);
 		(pTerm->move)(min, plot_bounds.ybot);
 		(pTerm->vector)(max, plot_bounds.ybot);
 		(pTerm->move)(plot_bounds.xright, plot_bounds.ybot);
@@ -3271,8 +3226,8 @@ void GnuPlot::PlotBorder(termentry * pTerm)
 	}
 	if(border_east && AxS[SECOND_Y_AXIS].ticdef.rangelimited) {
 		AxS.Idx_Y = SECOND_Y_AXIS;
-		max = GPO.AxS.MapiY(AxS[SECOND_Y_AXIS].data_max);
-		min = GPO.AxS.MapiY(AxS[SECOND_Y_AXIS].data_min);
+		max = AxS.MapiY(AxS[SECOND_Y_AXIS].data_max);
+		min = AxS.MapiY(AxS[SECOND_Y_AXIS].data_min);
 		(pTerm->move)(plot_bounds.xright, min);
 		(pTerm->vector)(plot_bounds.xright, max);
 		(pTerm->move)(plot_bounds.xright, plot_bounds.ytop);
@@ -3285,8 +3240,8 @@ void GnuPlot::PlotBorder(termentry * pTerm)
 	}
 	if(border_north && AxS[SECOND_X_AXIS].ticdef.rangelimited) {
 		AxS.Idx_X = SECOND_X_AXIS;
-		max = GPO.AxS.MapiX(AxS[SECOND_X_AXIS].data_max);
-		min = GPO.AxS.MapiX(AxS[SECOND_X_AXIS].data_min);
+		max = AxS.MapiX(AxS[SECOND_X_AXIS].data_max);
+		min = AxS.MapiX(AxS[SECOND_X_AXIS].data_min);
 		(pTerm->move)(max, plot_bounds.ytop);
 		(pTerm->vector)(min, plot_bounds.ytop);
 		(pTerm->move)(plot_bounds.xright, plot_bounds.ytop);
@@ -3299,16 +3254,16 @@ void GnuPlot::PlotBorder(termentry * pTerm)
 	}
 	if(border_complete)
 		closepath(pTerm);
-	// Polar border.  FIXME: Should this be limited to known GPO.AxS.__R().max? 
+	// Polar border.  FIXME: Should this be limited to known AxS.__R().max? 
 	if((draw_border & 0x1000) != 0) {
 		lp_style_type polar_border = border_lp;
 		BoundingBox * clip_save = clip_area;
 		clip_area = &plot_bounds;
-		/* Full-width circular border is visually too heavy compared to the edges */
+		// Full-width circular border is visually too heavy compared to the edges 
 		polar_border.l_width = polar_border.l_width / 2.;
 		term_apply_lp_properties(pTerm, &polar_border);
 		if(largest_polar_circle <= 0)
-			largest_polar_circle = polar_radius(GPO.AxS.__R().max);
+			largest_polar_circle = PolarRadius(AxS.__R().max);
 		draw_polar_circle(largest_polar_circle);
 		clip_area = clip_save;
 	}
@@ -3348,7 +3303,7 @@ static void place_histogram_titles()
 	while((hist = hist->next)) {
 		if(hist->title.text && *(hist->title.text)) {
 			double xoffset_d, yoffset_d;
-			map_position_r(term, &(histogram_opts.title.offset), &xoffset_d, &yoffset_d, "histogram");
+			GPO.MapPositionR(term, &(histogram_opts.title.offset), &xoffset_d, &yoffset_d, "histogram");
 			x = GPO.AxS.MapiX((hist->start + hist->end) / 2.);
 			y = xlabel_y;
 			// NB: offset in "newhistogram" is additive with that in "set style hist" 
@@ -3379,8 +3334,8 @@ static void place_raxis()
 	raxis_circle.tag = 1;
 	int x0, y0, xend, yend;
 	if(inverted_raxis) {
-		xend = GPO.AxS.MapiX(polar_radius(GPO.AxS.__R().set_min));
-		x0   = GPO.AxS.MapiX(polar_radius(GPO.AxS.__R().set_max));
+		xend = GPO.AxS.MapiX(GPO.PolarRadius(GPO.AxS.__R().set_min));
+		x0   = GPO.AxS.MapiX(GPO.PolarRadius(GPO.AxS.__R().set_max));
 	}
 	else {
 		double rightend = (GPO.AxS.__R().autoscale & AUTOSCALE_MAX) ? GPO.AxS.__R().max : GPO.AxS.__R().set_max;
@@ -3497,7 +3452,7 @@ void attach_title_to_plot(curve_points * this_plot, legend_key * key)
 	if(key->textcolor.type == TC_VARIABLE)
 		; // Draw key text in same color as plot 
 	else if(key->textcolor.type != TC_DEFAULT)
-		apply_pm3dcolor(&key->textcolor); // Draw key text in same color as key title 
+		apply_pm3dcolor(term, &key->textcolor); // Draw key text in same color as key title 
 	else
 		(*term->linetype)(LT_BLACK); // Draw key text in black 
 	title = this_plot->title;
@@ -3518,12 +3473,12 @@ void do_rectangle(int dimensions, t_object * this_object, const fill_style_type 
 	if(this_rect->type == 1) {      /* specified as center + size */
 		double width, height;
 		if(dimensions == 2 || this_rect->center.scalex == screen) {
-			map_position_double(&this_rect->center, &x1, &y1, "rect");
-			map_position_r(term, &this_rect->extent, &width, &height, "rect");
+			GPO.MapPositionDouble(term, &this_rect->center, &x1, &y1, "rect");
+			GPO.MapPositionR(term, &this_rect->extent, &width, &height, "rect");
 		}
 		else if(splot_map || xz_projection || yz_projection) {
 			int junkw, junkh;
-			map3d_position_double(&this_rect->center, &x1, &y1, "rect");
+			GPO.Map3DPositionDouble(&this_rect->center, &x1, &y1, "rect");
 			map3d_position_r(&this_rect->extent, &junkw, &junkh, "rect");
 			width = abs(junkw);
 			height = abs(junkh);
@@ -3545,12 +3500,12 @@ void do_rectangle(int dimensions, t_object * this_object, const fill_style_type 
 	}
 	else {
 		if((dimensions == 2) || (this_rect->bl.scalex == screen && this_rect->tr.scalex == screen)) {
-			map_position_double(&this_rect->bl, &x1, &y1, "rect");
-			map_position_double(&this_rect->tr, &x2, &y2, "rect");
+			GPO.MapPositionDouble(term, &this_rect->bl, &x1, &y1, "rect");
+			GPO.MapPositionDouble(term, &this_rect->tr, &x2, &y2, "rect");
 		}
 		else if(splot_map || xz_projection || yz_projection) {
-			map3d_position_double(&this_rect->bl, &x1, &y1, "rect");
-			map3d_position_double(&this_rect->tr, &x2, &y2, "rect");
+			GPO.Map3DPositionDouble(&this_rect->bl, &x1, &y1, "rect");
+			GPO.Map3DPositionDouble(&this_rect->tr, &x2, &y2, "rect");
 		}
 		else
 			return;
@@ -3636,9 +3591,9 @@ void do_ellipse(int dimensions, t_ellipse * e, int style, bool do_own_mapping)
 		cy = e->center.y;
 	}
 	else if(dimensions == 2)
-		map_position_double(&e->center, &cx, &cy, "ellipse");
+		GPO.MapPositionDouble(term, &e->center, &cx, &cy, "ellipse");
 	else
-		map3d_position_double(&e->center, &cx, &cy, "ellipse");
+		GPO.Map3DPositionDouble(&e->center, &cx, &cy, "ellipse");
 	// Calculate the vertices 
 	for(i = 0, angle = 0.0; i<=segments; i++, angle += ang_inc) {
 		// Given that the (co)sines of same sequence of angles
@@ -3653,17 +3608,17 @@ void do_ellipse(int dimensions, t_ellipse * e, int style, bool do_own_mapping)
 		else if(dimensions == 2) {
 			switch(e->type) {
 				case ELLIPSEAXES_XY:
-				    map_position_r(term, &pos, &xoff, &yoff, "ellipse");
+				    GPO.MapPositionR(term, &pos, &xoff, &yoff, "ellipse");
 				    break;
 				case ELLIPSEAXES_XX:
-				    map_position_r(term, &pos, &xoff, NULL, "ellipse");
+				    GPO.MapPositionR(term, &pos, &xoff, NULL, "ellipse");
 				    pos.x = pos.y;
-				    map_position_r(term, &pos, &yoff, NULL, "ellipse");
+				    GPO.MapPositionR(term, &pos, &yoff, NULL, "ellipse");
 				    break;
 				case ELLIPSEAXES_YY:
-				    map_position_r(term, &pos, &junkfoo, &yoff, "ellipse");
+				    GPO.MapPositionR(term, &pos, &junkfoo, &yoff, "ellipse");
 				    pos.y = pos.x;
-				    map_position_r(term, &pos, &junkfoo, &xoff, "ellipse");
+				    GPO.MapPositionR(term, &pos, &junkfoo, &xoff, "ellipse");
 				    break;
 			}
 		}
@@ -3721,22 +3676,21 @@ void do_polygon(int dimensions, t_object * this_object, int style, int facing)
 	int nv;
 	if(!p->vertex || vertices < 2)
 		return;
-	/* opt out of coordinate transform in xz or yz projection
-	 * that would otherwise convert graph x/y/z to hor/ver
-	 */
+	// opt out of coordinate transform in xz or yz projection
+	// that would otherwise convert graph x/y/z to hor/ver
 	in_3d_polygon = TRUE;
 	corners = (gpiPoint *)gp_realloc(corners, vertices * sizeof(gpiPoint), "polygon");
 	clpcorn = (gpiPoint *)gp_realloc(clpcorn, 2 * vertices * sizeof(gpiPoint), "polygon");
 	for(nv = 0; nv < vertices; nv++) {
 		if(dimensions == 3)
-			map3d_position(&p->vertex[nv], &corners[nv].x, &corners[nv].y, "pvert");
+			GPO.Map3DPosition(&p->vertex[nv], &corners[nv].x, &corners[nv].y, "pvert");
 		else
-			map_position(&p->vertex[nv], &corners[nv].x, &corners[nv].y, "pvert");
-		/* Any vertex given in screen coords will disable clipping */
+			GPO.MapPosition(term, &p->vertex[nv], &corners[nv].x, &corners[nv].y, "pvert");
+		// Any vertex given in screen coords will disable clipping 
 		if(p->vertex[nv].scalex == screen || p->vertex[nv].scaley == screen)
 			clip = OBJ_NOCLIP;
 	}
-	/* Do we require this polygon to face front or back? */
+	// Do we require this polygon to face front or back? 
 	if(dimensions == 3 && facing >= 0) {
 		double v1[2], v2[2], cross_product;
 		v1[0] = corners[1].x - corners[0].x;
@@ -3830,7 +3784,7 @@ bool check_for_variable_color(curve_points * plot, double * colorvalue)
 			lp_use_properties(&lptmp, (int)(*colorvalue));
 		else
 			load_linetype(&lptmp, (int)(*colorvalue));
-		apply_pm3dcolor(&(lptmp.pm3d_color));
+		apply_pm3dcolor(term, &(lptmp.pm3d_color));
 		return TRUE;
 	}
 	else
@@ -3864,7 +3818,8 @@ static double rgbscale(double component)
  * IMG_UPDATE_CORNERS - Update the corners of the outlining phantom
  *  parallelogram for `set hidden3d` and then return.
  */
-void process_image(termentry * pTerm, const void * plot, t_procimg_action action)
+//void process_image(termentry * pTerm, const void * plot, t_procimg_action action)
+void GnuPlot::ProcessImage(termentry * pTerm, const void * plot, t_procimg_action action)
 {
 	struct coordinate * points;
 	int    p_count;
@@ -3885,7 +3840,7 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 	bool project_points = false; // True if 3D plot 
 	int image_x_axis, image_y_axis;
 	if(static_cast<const surface_points *>(plot)->plot_type == NODATA) {
-		GPO.IntWarn(NO_CARET, "no image data");
+		IntWarn(NO_CARET, "no image data");
 		return;
 	}
 	if(oneof2(static_cast<const surface_points *>(plot)->plot_type, DATA3D, FUNC3D))
@@ -3909,15 +3864,15 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 		image_y_axis = ((const curve_points *)plot)->AxIdx_Y;
 	}
 	if(p_count < 1) {
-		GPO.IntWarn(NO_CARET, "No points (visible or invisible) to plot.\n\n");
+		IntWarn(NO_CARET, "No points (visible or invisible) to plot.\n\n");
 		return;
 	}
 	if(p_count < 4) {
-		GPO.IntWarn(NO_CARET, "Image grid must be at least 4 points (2 x 2).\n\n");
+		IntWarn(NO_CARET, "Image grid must be at least 4 points (2 x 2).\n\n");
 		return;
 	}
-	if(project_points && (GPO.AxS.__X().log || GPO.AxS.__Y().log || GPO.AxS.__Z().log)) {
-		GPO.IntWarn(NO_CARET, "Log scaling of 3D image plots is not supported");
+	if(project_points && (AxS.__X().log || AxS.__Y().log || AxS.__Z().log)) {
+		IntWarn(NO_CARET, "Log scaling of 3D image plots is not supported");
 		return;
 	}
 	// Check if a special color map was provided 
@@ -3928,8 +3883,8 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 	// function for images will be used.  Otherwise, the terminal function for
 	// filled polygons are used to construct parallelograms for the pixel elements.
 	if(project_points) {
-		GPO.Map3D_XY_double(points[0].x, points[0].y, points[0].z, &p_start_corner[0], &p_start_corner[1]);
-		GPO.Map3D_XY_double(points[p_count-1].x, points[p_count-1].y, points[p_count-1].z, &p_end_corner[0], &p_end_corner[1]);
+		Map3D_XY_double(points[0].x, points[0].y, points[0].z, &p_start_corner[0], &p_start_corner[1]);
+		Map3D_XY_double(points[p_count-1].x, points[p_count-1].y, points[p_count-1].z, &p_end_corner[0], &p_end_corner[1]);
 	}
 	else {
 		p_start_corner[0] = points[0].x;
@@ -3939,7 +3894,7 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 	}
 	// Catch pathological cases 
 	if(isnan(p_start_corner[0]) || isnan(p_end_corner[0]) || isnan(p_start_corner[1]) || isnan(p_end_corner[1]))
-		GPO.IntError(NO_CARET, "image coordinates undefined");
+		IntError(NO_CARET, "image coordinates undefined");
 	// This is a vestige of older code that calculated K and L on the fly	
 	// rather than keeping track of matrix/array/image dimensions on input
 	K = ncols;
@@ -4012,7 +3967,7 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 		return;
 	}
 	if(project_points) {
-		GPO.Map3D_XY_double(points[K-1].x, points[K-1].y, points[K-1].z, &p_mid_corner[0], &p_mid_corner[1]);
+		Map3D_XY_double(points[K-1].x, points[K-1].y, points[K-1].z, &p_mid_corner[0], &p_mid_corner[1]);
 	}
 	else {
 		p_mid_corner[0] = points[K-1].x;
@@ -4042,27 +3997,27 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 			else
 				fallback = ((const curve_points *)plot)->image_properties.fallback;
 		}
-		if(pixel_planes == IC_PALETTE && GPO.MakePalette()) {
-			// GPO.IntWarn(NO_CARET, "This terminal does not support palette-based images.\n\n"); 
+		if(pixel_planes == IC_PALETTE && MakePalette()) {
+			// IntWarn(NO_CARET, "This terminal does not support palette-based images.\n\n"); 
 			return;
 		}
 		if(oneof2(pixel_planes, IC_RGB, IC_RGBA) && (pTerm->flags & TERM_NULL_SET_COLOR)) {
-			// GPO.IntWarn(NO_CARET, "This terminal does not support rgb images.\n\n"); 
+			// IntWarn(NO_CARET, "This terminal does not support rgb images.\n\n"); 
 			return;
 		}
 		// Use generic code to handle alpha channel if the terminal can't 
 		if(pixel_planes == IC_RGBA && !(pTerm->flags & TERM_ALPHA_CHANNEL))
 			fallback = true;
 		// Also use generic code if the pixels are of unequal size, e.g. log scale 
-		if(GPO.AxS.__X().log || GPO.AxS.__Y().log)
+		if(AxS.__X().log || AxS.__Y().log)
 			fallback = true;
-		view_port_x[0] = (GPO.AxS.__X().set_autoscale & AUTOSCALE_MIN) ? GPO.AxS.__X().min : GPO.AxS.__X().set_min;
-		view_port_x[1] = (GPO.AxS.__X().set_autoscale & AUTOSCALE_MAX) ? GPO.AxS.__X().max : GPO.AxS.__X().set_max;
-		view_port_y[0] = (GPO.AxS.__Y().set_autoscale & AUTOSCALE_MIN) ? GPO.AxS.__Y().min : GPO.AxS.__Y().set_min;
-		view_port_y[1] = (GPO.AxS.__Y().set_autoscale & AUTOSCALE_MAX) ? GPO.AxS.__Y().max : GPO.AxS.__Y().set_max;
+		view_port_x[0] = (AxS.__X().set_autoscale & AUTOSCALE_MIN) ? AxS.__X().min : AxS.__X().set_min;
+		view_port_x[1] = (AxS.__X().set_autoscale & AUTOSCALE_MAX) ? AxS.__X().max : AxS.__X().set_max;
+		view_port_y[0] = (AxS.__Y().set_autoscale & AUTOSCALE_MIN) ? AxS.__Y().min : AxS.__Y().set_min;
+		view_port_y[1] = (AxS.__Y().set_autoscale & AUTOSCALE_MAX) ? AxS.__Y().max : AxS.__Y().set_max;
 		if(project_points) {
-			view_port_z[0] = (GPO.AxS.__Z().set_autoscale & AUTOSCALE_MIN) ? GPO.AxS.__Z().min : GPO.AxS.__Z().set_min;
-			view_port_z[1] = (GPO.AxS.__Z().set_autoscale & AUTOSCALE_MAX) ? GPO.AxS.__Z().max : GPO.AxS.__Z().set_max;
+			view_port_z[0] = (AxS.__Z().set_autoscale & AUTOSCALE_MIN) ? AxS.__Z().min : AxS.__Z().set_min;
+			view_port_z[1] = (AxS.__Z().set_autoscale & AUTOSCALE_MAX) ? AxS.__Z().max : AxS.__Z().set_max;
 		}
 		if(rectangular_image && pTerm->image && !fallback) {
 			// There are eight ways that a valid pixel grid can be entered.  Use table
@@ -4075,8 +4030,8 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 			float xsts, ysts;
 			if(!project_points) {
 				// Determine axis direction according to the sign of the terminal scale. 
-				xsts = (GPO.AxS[GPO.AxS.Idx_X].term_scale > 0 ? +1.0f : -1.0f);
-				ysts = (GPO.AxS[GPO.AxS.Idx_Y].term_scale > 0 ? +1.0f : -1.0f);
+				xsts = (AxS[AxS.Idx_X].term_scale > 0 ? +1.0f : -1.0f);
+				ysts = (AxS[AxS.Idx_Y].term_scale > 0 ? +1.0f : -1.0f);
 			}
 			else {
 				// 3D plots do not use the term_scale mechanism 
@@ -4125,7 +4080,7 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 					// This of course should not happen, but if an improperly constructed
 					// input file presents more data than expected, the extra data can cause this overflow.
 					if(i_image >= p_count || i_image < 0)
-						GPO.IntError(NO_CARET, "Unexpected line of data in matrix encountered");
+						IntError(NO_CARET, "Unexpected line of data in matrix encountered");
 					x = points[i_image].x;
 					y = points[i_image].y;
 					z = points[i_image].z;
@@ -4169,14 +4124,14 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 								N += 1;
 							line_pixel_count++;
 							if((N != 1) && (line_pixel_count > M)) {
-								GPO.IntWarn(NO_CARET, "Visible pixel grid has a scan line longer than previous scan lines.");
+								IntWarn(NO_CARET, "Visible pixel grid has a scan line longer than previous scan lines.");
 								return;
 							}
 						}
 						// This can happen if the data supplied for a matrix does not
 						// match the matrix dimensions found when the file was opened 
 						if(i_sub_image >= array_size) {
-							GPO.IntWarn(NO_CARET, "image data corruption");
+							IntWarn(NO_CARET, "image data corruption");
 							break;
 						}
 						pixel_M_N = i_image;
@@ -4196,7 +4151,7 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 						if(M == 0)
 							M = line_pixel_count;
 						else if((line_pixel_count > 0) && (line_pixel_count != M)) {
-							GPO.IntWarn(NO_CARET, "Visible pixel grid has a scan line shorter than previous scan lines.");
+							IntWarn(NO_CARET, "Visible pixel grid has a scan line shorter than previous scan lines.");
 							return;
 						}
 						line_pixel_count = 0;
@@ -4216,35 +4171,35 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 					// One of the delta values in each direction is zero, so add. 
 					if(project_points) {
 						double x, y;
-						GPO.Map3D_XY_double(points[pixel_1_1].x, points[pixel_1_1].y, points[pixel_1_1].z, &x, &y);
+						Map3D_XY_double(points[pixel_1_1].x, points[pixel_1_1].y, points[pixel_1_1].z, &x, &y);
 						corners[0].x = static_cast<int>(x - fabs(delta_x_grid[0]+delta_x_grid[1])/2);
 						corners[0].y = static_cast<int>(y + fabs(delta_y_grid[0]+delta_y_grid[1])/2);
-						GPO.Map3D_XY_double(points[pixel_M_N].x, points[pixel_M_N].y, points[pixel_M_N].z, &x, &y);
+						Map3D_XY_double(points[pixel_M_N].x, points[pixel_M_N].y, points[pixel_M_N].z, &x, &y);
 						corners[1].x = static_cast<int>(x + fabs(delta_x_grid[0]+delta_x_grid[1])/2);
 						corners[1].y = static_cast<int>(y - fabs(delta_y_grid[0]+delta_y_grid[1])/2);
-						GPO.Map3D_XY_double(view_port_x[0], view_port_y[0], view_port_z[0], &x, &y);
+						Map3D_XY_double(view_port_x[0], view_port_y[0], view_port_z[0], &x, &y);
 						corners[2].x = static_cast<int>(x);
 						corners[2].y = static_cast<int>(y);
-						GPO.Map3D_XY_double(view_port_x[1], view_port_y[1], view_port_z[1], &x, &y);
+						Map3D_XY_double(view_port_x[1], view_port_y[1], view_port_z[1], &x, &y);
 						corners[3].x = static_cast<int>(x);
 						corners[3].y = static_cast<int>(y);
 					}
 					else {
-						corners[0].x = GPO.AxS.MapiX(points[pixel_1_1].x - xsts*fabs(d_x_o_2));
-						corners[0].y = GPO.AxS.MapiY(points[pixel_1_1].y + ysts*fabs(d_y_o_2));
-						corners[1].x = GPO.AxS.MapiX(points[pixel_M_N].x + xsts*fabs(d_x_o_2));
-						corners[1].y = GPO.AxS.MapiY(points[pixel_M_N].y - ysts*fabs(d_y_o_2));
-						corners[2].x = GPO.AxS.MapiX(view_port_x[0]);
-						corners[2].y = GPO.AxS.MapiY(view_port_y[1]);
-						corners[3].x = GPO.AxS.MapiX(view_port_x[1]);
-						corners[3].y = GPO.AxS.MapiY(view_port_y[0]);
+						corners[0].x = AxS.MapiX(points[pixel_1_1].x - xsts*fabs(d_x_o_2));
+						corners[0].y = AxS.MapiY(points[pixel_1_1].y + ysts*fabs(d_y_o_2));
+						corners[1].x = AxS.MapiX(points[pixel_M_N].x + xsts*fabs(d_x_o_2));
+						corners[1].y = AxS.MapiY(points[pixel_M_N].y - ysts*fabs(d_y_o_2));
+						corners[2].x = AxS.MapiX(view_port_x[0]);
+						corners[2].y = AxS.MapiY(view_port_y[1]);
+						corners[3].x = AxS.MapiX(view_port_x[1]);
+						corners[3].y = AxS.MapiY(view_port_y[0]);
 					}
 					(pTerm->image)(M, N, image, corners, pixel_planes);
 				}
 				SAlloc::F((void*)image);
 			}
 			else {
-				GPO.IntWarn(NO_CARET, "Could not allocate memory for image.");
+				IntWarn(NO_CARET, "Could not allocate memory for image.");
 				return;
 			}
 		}
@@ -4255,7 +4210,7 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 			// If the pixels are rectangular we will call term->fillbox
 			// non-rectangular pixels must be treated as general polygons 
 			if(!pTerm->filled_polygon && !rectangular_image)
-				GPO.IntError(NO_CARET, "This terminal does not support filled polygons");
+				IntError(NO_CARET, "This terminal does not support filled polygons");
 			(pTerm->layer)(TERM_LAYER_BEGIN_IMAGE);
 			// Grid spacing in 3D space. 
 			delta_grid[0].x = (points[grid_corner[1]].x - points[grid_corner[0]].x) / (K-1);
@@ -4318,13 +4273,13 @@ void process_image(termentry * pTerm, const void * plot, t_procimg_action action
 							N_corners = 4;
 							for(int i_corners = 0; i_corners < N_corners; i_corners++) {
 								if(project_points) {
-									GPO.Map3D_XY_double(p_corners[i_corners].x, p_corners[i_corners].y, p_corners[i_corners].z, &x, &y);
+									Map3D_XY_double(p_corners[i_corners].x, p_corners[i_corners].y, p_corners[i_corners].z, &x, &y);
 									corners[i_corners].x = static_cast<int>(x);
 									corners[i_corners].y = static_cast<int>(y);
 								}
 								else {
-									corners[i_corners].x = GPO.AxS.MapiX(p_corners[i_corners].x);
-									corners[i_corners].y = GPO.AxS.MapiY(p_corners[i_corners].y);
+									corners[i_corners].x = AxS.MapiX(p_corners[i_corners].x);
+									corners[i_corners].y = AxS.MapiY(p_corners[i_corners].y);
 								}
 								// Clip rectangle if necessary 
 								if(rectangular_image && pTerm->fillbox && (corners_in_view < 4) &&  clip_area) {
@@ -4466,8 +4421,8 @@ static void place_spiderplot_axes(termentry * pTerm, curve_points * first_plot, 
 					term_apply_lp_properties(pTerm, this_axis->zeroaxis);
 				else
 					term_apply_lp_properties(pTerm, &parallel_axis_style.lp_properties);
-				polar_to_xy(theta, 0.0, &spoke_x0, &spoke_y0, FALSE);
-				polar_to_xy(theta, 1.0, &spoke_x1, &spoke_y1, FALSE);
+				GPO.PolarToXY(theta, 0.0, &spoke_x0, &spoke_y0, FALSE);
+				GPO.PolarToXY(theta, 1.0, &spoke_x1, &spoke_y1, FALSE);
 				draw_clip_line(pTerm, GPO.AxS.MapiX(spoke_x0), GPO.AxS.MapiY(spoke_y0), GPO.AxS.MapiX(spoke_x1), GPO.AxS.MapiY(spoke_y1) );
 				// Draw the tickmarks and labels 
 				if(this_axis->ticmode) {
@@ -4511,7 +4466,7 @@ static void spidertick_callback(GpAxis * axis, double place, char * text, int ti
 		int i;
 		for(i = 0; i < n_spokes; i++) {
 			double theta = M_PI_2 - 2*M_PI * (double)i / (double)n_spokes;
-			polar_to_xy(theta, fraction, &x, &y, FALSE);
+			GPO.PolarToXY(theta, fraction, &x, &y, FALSE);
 			corners[i].x = GPO.AxS.MapiX(x);
 			corners[i].y = GPO.AxS.MapiY(y);
 		}
@@ -4529,9 +4484,9 @@ static void spidertick_callback(GpAxis * axis, double place, char * text, int ti
 		double offsetx_d, offsety_d;
 		int tic_label_x = GPO.AxS.MapiX(tic_x - (4.+ticsize)*spoke_dx);
 		int tic_label_y = GPO.AxS.MapiY(tic_y - (4.+ticsize)*spoke_dy);
-		map_position_r(term, &(axis->ticdef.offset), &offsetx_d, &offsety_d, "");
+		GPO.MapPositionR(term, &(axis->ticdef.offset), &offsetx_d, &offsety_d, "");
 		if(axis->ticdef.textcolor.type != TC_DEFAULT)
-			apply_pm3dcolor(&(axis->ticdef.textcolor));
+			apply_pm3dcolor(term, &(axis->ticdef.textcolor));
 		ignore_enhanced(!axis->ticdef.enhanced);
 		write_multiline(tic_label_x + (int)offsetx_d, tic_label_y + (int)offsety_d, text, CENTRE, JUST_CENTRE, axis->tic_rotate, axis->ticdef.font);
 		ignore_enhanced(FALSE);

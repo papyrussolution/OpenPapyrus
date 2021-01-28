@@ -1,42 +1,11 @@
-/* GNUPLOT - datafile.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
-/* AUTHOR : David Denholm */
-
-/*
- * this file provides the functions to handle data-file reading..
- * takes care of all the pipe / stdin / index / using worries
- */
-
+// GNUPLOT - datafile.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
+// AUTHOR : David Denholm 
+//
+// this file provides the functions to handle data-file reading..
+// takes care of all the pipe / stdin / index / using worries
+//
 /*{{{  notes */
 /*
  * every a:b:c:d:e:f  - plot every a'th point from c to e,
@@ -191,11 +160,11 @@ static int df_index_step = 1;   /* 'every' for indices */
 static int df_current_index;    /* current mesh */
 static int df_last_index_read;  /* last mesh we actually read data from */
 
-/* stuff for named index support */
+// stuff for named index support 
 static char * indexname = NULL;
 static bool index_found = FALSE;
 static int df_longest_columnhead = 0;
-/* stuff for every point:line */
+// stuff for every point:line 
 static bool set_every = FALSE;
 static int everypoint = 1;
 static int firstpoint = 0;
@@ -206,37 +175,32 @@ static int lastline = MAXINT;
 static int point_count = -1;    /* point counter - preincrement and test 0 */
 static int line_count = 0;      /* line counter */
 static int df_skip_at_front = 0; /* for ascii file "skip" lines at head of file */
-/* for pseudo-data (1 if filename = '+'; 2 if filename = '++') */
+// for pseudo-data (1 if filename = '+'; 2 if filename = '++') 
 static int df_pseudodata = 0;
 static int df_pseudorecord = 0;
 static int df_pseudospan = 0;
 static double df_pseudovalue_0 = 0;
 static double df_pseudovalue_1 = 0;
-
-/* for datablocks */
+// for datablocks 
 static bool df_datablock = FALSE;
 static char ** df_datablock_line = NULL;
-
-/* for arrays */
+// for arrays 
 static int df_array_index = 0;
-static char * df_arrayname = NULL;
-
-/* track dimensions of input matrix/array/image */
+static const char * df_arrayname = NULL;
+// track dimensions of input matrix/array/image 
 static uint df_xpixels;
 static uint df_ypixels;
 static bool df_transpose;
-
-/* parsing stuff */
+// parsing stuff 
 struct use_spec_s use_spec[MAXDATACOLS];
 static char * df_format = NULL;
 static char * df_binary_format = NULL;
 bool evaluate_inside_using = FALSE;
 bool df_warn_on_missing_columnheader = FALSE;
-
-/* rather than three arrays which all grow dynamically, make one
- * dynamic array of this structure
- */
-
+// 
+// rather than three arrays which all grow dynamically, make one
+// dynamic array of this structure
+// 
 struct df_column_struct {
 	double datum;
 	enum DF_STATUS good;
@@ -253,10 +217,10 @@ static char * df_stringexpression[MAXDATACOLS];  /* filled in after evaluate_at(
 static curve_points * df_current_plot;    /* used to process histogram labels + key entries */
 GpValue df_strings[MAXDATACOLS];           /* used only by TABLESTYLE */
 static bool df_tabulate_strings = FALSE;    /* used only by TABLESTYLE */
-
-/* These control the handling of fields in the first row of a data file.
- * See also parse_1st_row_as_headers.
- */
+//
+// These control the handling of fields in the first row of a data file.
+// See also parse_1st_row_as_headers.
+//
 #define NO_COLUMN_HEADER (-99)  /* some value that can never be a real column */
 static int column_for_key_title = NO_COLUMN_HEADER;
 static bool df_already_got_headers = FALSE;
@@ -1121,7 +1085,7 @@ int df_open(const char * cmd_filename, int max_using, curve_points * plot)
 			}
 			set_skip = TRUE;
 			GPO.Pgm.Shift();
-			df_skip_at_front = int_expression();
+			df_skip_at_front = GPO.IntExpression();
 			if(df_skip_at_front < 0)
 				df_skip_at_front = 0;
 			continue;
@@ -1198,18 +1162,15 @@ int df_open(const char * cmd_filename, int max_using, curve_points * plot)
 #if defined(HAVE_FDOPEN)
 	if(*df_filename == '<' && strlen(df_filename) > 1 && df_filename[1] == '&') {
 		char * substr;
-		/* read from an already open file descriptor */
+		// read from an already open file descriptor 
 		data_fd = strtol(df_filename + 2, &substr, 10);
 		if(*substr != '\0' || data_fd < 0 || substr == df_filename+2)
 			GPO.IntError(name_token, "invalid file descriptor integer");
-		else if(data_fd == fileno(stdin)
-		    ||  data_fd == fileno(stdout)
-		    ||  data_fd == fileno(stderr))
+		else if(data_fd == fileno(stdin) || data_fd == fileno(stdout) || data_fd == fileno(stderr))
 			GPO.IntError(name_token, "cannot plot from stdin/stdout/stderr");
 		else if((data_fp = fdopen(data_fd, "r")) == (FILE*)NULL)
 			GPO.IntError(name_token, "cannot open file descriptor for reading data");
-
-		/* if this stream isn't seekable, set it to volatile */
+		// if this stream isn't seekable, set it to volatile 
 		if(fseek(data_fp, 0, SEEK_CUR) < 0)
 			volatile_data = TRUE;
 	}
@@ -1225,14 +1186,12 @@ int df_open(const char * cmd_filename, int max_using, curve_points * plot)
 	}
 	else
 #endif /* PIPES */
-
-	/* Special filenames '-' '+' '++' '$DATABLOCK' */
+	// Special filenames '-' '+' '++' '$DATABLOCK' 
 	if(*df_filename == '-' && strlen(df_filename) == 1) {
 		plotted_data_from_stdin = TRUE;
 		volatile_data = TRUE;
 		data_fp = lf_top();
-		if(!data_fp)
-			data_fp = stdin;
+		SETIFZ(data_fp, stdin);
 		mixed_data_fp = TRUE; /* don't close command file */
 	}
 	else if(!strcmp(df_filename, "+")) {
@@ -1244,24 +1203,22 @@ int df_open(const char * cmd_filename, int max_using, curve_points * plot)
 	else if(df_filename[0] == '$') {
 		df_datablock = TRUE;
 		df_datablock_line = get_datablock(df_filename);
-		/* Better safe than sorry. Check for inblock != outblock */
+		// Better safe than sorry. Check for inblock != outblock 
 		if(plot && table_var && table_var->udv_value.v.data_array == df_datablock_line)
 			GPO.IntError(NO_CARET, "input and output datablock are the same");
 	}
 	else if(!strcmp(df_filename, "@@") && df_array) {
-		/* df_array was set in string_or_express() */
+		// df_array was set in string_or_express() 
 		df_array_index = 0;
-		/* save name so we can refer to it later */
+		// save name so we can refer to it later 
 		df_arrayname = df_array->udv_name;
 	}
 	else {
-		/* filename cannot be static array! */
+		// filename cannot be static array! 
 		gp_expand_tilde(&df_filename);
-
-		/* Open failure generates a warning rather than an immediate fatal error.
-		 * We assume success (GPVAL_ERRNO == 0) and let the caller change this to
-		 * something else if it considers DF_EOF a serious error.
-		 */
+		// Open failure generates a warning rather than an immediate fatal error.
+		// We assume success (GPVAL_ERRNO == 0) and let the caller change this to
+		// something else if it considers DF_EOF a serious error.
 		fill_gpval_integer("GPVAL_ERRNO", 0);
 
 #ifdef HAVE_SYS_STAT_H
@@ -1400,7 +1357,7 @@ void GnuPlot::PlotOptionEvery()
 	// allow empty fields - every a:b:c::e we have already established the defaults 
 	Pgm.Shift();
 	if(!Pgm.EqualsCur(":")) {
-		everypoint = int_expression();
+		everypoint = IntExpression();
 		if(everypoint < 0) 
 			everypoint = 1;
 		else if(everypoint < 1)
@@ -1409,24 +1366,24 @@ void GnuPlot::PlotOptionEvery()
 	// if it fails on first test, no more tests will succeed. If it
 	// fails on second test, next test will succeed with correct c_token 
 	if(Pgm.EqualsCur(":") && !Pgm.Equals(++Pgm.CToken, ":")) {
-		everyline = int_expression();
+		everyline = IntExpression();
 		if(everyline < 0) 
 			everyline = 1;
 		else if(everyline < 1)
 			IntErrorCurToken("Expected positive integer");
 	}
 	if(Pgm.EqualsCur(":") && !Pgm.Equals(++Pgm.CToken, ":")) {
-		firstpoint = int_expression();
+		firstpoint = IntExpression();
 		if(firstpoint < 0) 
 			firstpoint = 0;
 	}
 	if(Pgm.EqualsCur(":") && !Pgm.Equals(++Pgm.CToken, ":")) {
-		firstline = int_expression();
+		firstline = IntExpression();
 		if(firstline < 0) 
 			firstline = 0;
 	}
 	if(Pgm.EqualsCur(":") && !Pgm.Equals(++Pgm.CToken, ":")) {
-		lastpoint = int_expression();
+		lastpoint = IntExpression();
 		if(lastpoint < 0) 
 			lastpoint = MAXINT;
 		else if(lastpoint < firstpoint)
@@ -1434,7 +1391,7 @@ void GnuPlot::PlotOptionEvery()
 	}
 	if(Pgm.EqualsCur(":")) {
 		Pgm.Shift();
-		lastline = int_expression();
+		lastline = IntExpression();
 		if(lastline < 0) 
 			lastline = MAXINT;
 		else if(lastline < firstline)
@@ -1454,7 +1411,7 @@ void GnuPlot::PlotOptionIndex()
 	}
 	else {
 		// Numerical index list 
-		df_lower_index = int_expression();
+		df_lower_index = IntExpression();
 		if(df_lower_index < 0)
 			IntErrorCurToken("index must be non-negative");
 		if(Pgm.EqualsCur(":")) {
@@ -1463,13 +1420,13 @@ void GnuPlot::PlotOptionIndex()
 				df_upper_index = MAXINT; /* If end index not specified */
 			}
 			else {
-				df_upper_index = int_expression();
+				df_upper_index = IntExpression();
 				if(df_upper_index < df_lower_index)
 					IntErrorCurToken("Upper index should be bigger than lower index");
 			}
 			if(Pgm.EqualsCur(":")) {
 				Pgm.Shift();
-				df_index_step = int_expression();
+				df_index_step = IntExpression();
 				if(df_index_step < 1)
 					IntErrorCurToken("Index step must be positive");
 			}
@@ -1561,14 +1518,14 @@ void GnuPlot::PlotOptionUsing(int max_using)
 				use_spec[df_no_use_specs++].column = NO_COLUMN_HEADER;
 				parse_1st_row_as_headers = TRUE;
 				fast_columns = 0;
-				/* FIXME - is it safe to always take the title from the 2nd use spec? */
+				// FIXME - is it safe to always take the title from the 2nd use spec? 
 				if(df_no_use_specs == 2) {
 					SAlloc::F(df_key_title);
 					df_key_title = gp_strdup(column_label);
 				}
 			}
 			else {
-				int col = int_expression();
+				int col = IntExpression();
 				if(col == -3) /* pseudocolumn -3 means "last column" */
 					fast_columns = 0;
 				else if(col < -2)
@@ -1607,7 +1564,7 @@ static void plot_ticlabel_using(int axis)
 	/* opposed to a dummy expression. This is similar to the problem with */
 	/* with parsing the first argument of the plot command itself.        */
 	if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()) || GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) == INTGR) {
-		col = int_expression();
+		col = GPO.IntExpression();
 		use_spec[df_no_use_specs+df_no_tic_specs].at = NULL;
 	}
 	else {
@@ -2228,14 +2185,14 @@ void df_determine_matrix_info(FILE * fin)
 		else if(nc > 1e8)
 			GPO.IntError(NO_CARET, "Read grid width too large");
 		// Read second value for corner_0 x. 
-		fdummy = df_read_a_float(fin);
+		fdummy = static_cast<float>(df_read_a_float(fin));
 		df_matrix_corner[0][0] = fdummy;
 		// Read nc+1 value for corner_1 x. 
 		if(nc > 1) {
 			ierr = fseek(fin, (nc-2)*sizeof(float), SEEK_CUR);
 			if(ierr < 0)
 				GPO.IntError(NO_CARET, "seek error in binary input stream - %s", strerror(errno));
-			fdummy = df_read_a_float(fin);
+			fdummy = static_cast<float>(df_read_a_float(fin));
 		}
 		df_matrix_corner[1][0] = fdummy;
 		// Read nc+2 value for corner_0 y. 
@@ -2648,14 +2605,11 @@ static int check_missing(char * s)
 static bool valid_format(const char * format)
 {
 	int formats_found = 0;
-
 	if(!format)
 		return FALSE;
-
 	for(;;) {
 		if(!(format = strchr(format, '%'))) /* look for format spec  */
 			return (formats_found > 0 && formats_found <= 7);
-
 		/* Found a % to check --- scan past option specifiers: */
 		do {
 			format++;
@@ -2678,7 +2632,6 @@ static bool valid_format(const char * format)
 		}
 	}
 }
-
 /*
  * Plotting routines can call this prior to invoking df_readline() to indicate
  * that they expect a certain column to contain an ascii string rather than a
@@ -2686,24 +2639,23 @@ static bool valid_format(const char * format)
  */
 int expect_string(const char column)
 {
-	/* Used only by TABLESTYLE */
+	// Used only by TABLESTYLE 
 	if(column <= 0) {
 		df_tabulate_strings = TRUE;
 		return -1;
 	}
-
-	use_spec[column-1].expected_type = CT_STRING;
-	/* Nasty hack to make 'plot "file" using "A":"B":"C" with labels' work.
-	 * The case of named columns is handled by create_call_column_at(),
-	 * which fakes an action table as if '(column("string"))' was written
-	 * in the using spec instead of simply "string". In this specific case, however,
-	 * we need the values as strings - so we change the action table to call
-	 * f_stringcolumn() instead of f_column. */
-	if(use_spec[column-1].at
-	    && (use_spec[column-1].at->a_count == 2)
-	    && (use_spec[column-1].at->actions[1].index == COLUMN))
-		use_spec[column-1].at->actions[1].index = STRINGCOLUMN;
-	return(use_spec[column-1].column);
+	else {
+		use_spec[column-1].expected_type = CT_STRING;
+		// Nasty hack to make 'plot "file" using "A":"B":"C" with labels' work.
+		// The case of named columns is handled by create_call_column_at(),
+		// which fakes an action table as if '(column("string"))' was written
+		// in the using spec instead of simply "string". In this specific case, however,
+		// we need the values as strings - so we change the action table to call
+		// f_stringcolumn() instead of f_column. 
+		if(use_spec[column-1].at && (use_spec[column-1].at->a_count == 2) && (use_spec[column-1].at->actions[1].index == COLUMN))
+			use_spec[column-1].at->actions[1].index = STRINGCOLUMN;
+		return(use_spec[column-1].column);
+	}
 }
 
 /*
@@ -2715,54 +2667,49 @@ void require_value(const char column)
 {
 	use_spec[column-1].expected_type = CT_MUST_HAVE;
 }
-
 /*
  * Load plot title used in key box from the string found earlier by df_readline.
  * Called from get_data().
  */
 void df_set_key_title(curve_points * plot)
 {
-	if(!df_key_title)
-		return;
-	if(plot->plot_style == HISTOGRAMS &&  histogram_opts.type == HT_STACKED_IN_TOWERS) {
-		/* In this case it makes no sense to treat key titles in the usual
-		 * way, so we assume that it is supposed to be an xtic label.
-		 */
-		/* Only for "plot ... title columnhead" */
-		double xpos = plot->histogram_sequence + plot->histogram->start;
-		add_tic_user(&GPO.AxS[FIRST_X_AXIS], df_key_title, xpos, -1);
-		ZFREE(df_key_title);
-		return;
+	if(df_key_title) {
+		if(plot->plot_style == HISTOGRAMS &&  histogram_opts.type == HT_STACKED_IN_TOWERS) {
+			// In this case it makes no sense to treat key titles in the usual
+			// way, so we assume that it is supposed to be an xtic label.
+			// Only for "plot ... title columnhead" 
+			double xpos = plot->histogram_sequence + plot->histogram->start;
+			add_tic_user(&GPO.AxS[FIRST_X_AXIS], df_key_title, xpos, -1);
+			ZFREE(df_key_title);
+		}
+		else if(df_plot_title_at) { // What if there was already a title specified? 
+			reevaluate_plot_title(plot);
+		}
+		else if(plot->title_is_suppressed) // "notitle <whatever-the-title-would-have-been>" 
+			;
+		else {
+			// Note: I think we can only get here for histogram labels 
+			SAlloc::F(plot->title);
+			plot->title = df_key_title;
+			df_key_title = NULL;
+			plot->title_no_enhanced = !keyT.enhanced;
+		}
 	}
-	/* What if there was already a title specified? */
-	if(df_plot_title_at) {
-		reevaluate_plot_title(plot);
-		return;
-	}
-	/* "notitle <whatever-the-title-would-have-been>" */
-	if(plot->title_is_suppressed)
-		return;
-	/* Note: I think we can only get here for histogram labels */
-	SAlloc::F(plot->title);
-	plot->title = df_key_title;
-	df_key_title = NULL;
-	plot->title_no_enhanced = !keyT.enhanced;
 }
-
-/*
- * Load plot title for key box from columnheader.
- * Called from eval_plots(), eval_3dplots() while parsing the plot title option
- */
+//
+// Load plot title for key box from columnheader.
+// Called from eval_plots(), eval_3dplots() while parsing the plot title option
+//
 void df_set_key_title_columnhead(curve_points * plot)
 {
 	GPO.Pgm.Shift();
 	if(GPO.Pgm.EqualsCur("(")) {
 		GPO.Pgm.Shift();
-		column_for_key_title = int_expression();
+		column_for_key_title = GPO.IntExpression();
 		GPO.Pgm.Shift();
 	}
 	else if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
-		column_for_key_title = int_expression();
+		column_for_key_title = GPO.IntExpression();
 	}
 	else {
 		if(!plot) /* stats "name" option rather than plot title */
@@ -3756,9 +3703,9 @@ static void clear_binary_records(df_records_type records_type)
 	}
 	*temp_num_bin_records = 0;
 }
-/*
- * Syntax is:   array=(xdim,ydim):(xdim,ydim):CONST:(xdim) etc
- */
+//
+// Syntax is:   array=(xdim,ydim):(xdim,ydim):CONST:(xdim) etc
+//
 static void plot_option_array(void)
 {
 	int number_of_records = 0;
@@ -3771,8 +3718,8 @@ static void plot_option_array(void)
 		if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
 			if(++number_of_records > df_num_bin_records)
 				df_add_binary_records(1, DF_CURRENT_RECORDS);
-			df_bin_record[df_num_bin_records - 1].cart_dim[0] = int_expression();
-			/* Handle the old syntax:  array=123x456 */
+			df_bin_record[df_num_bin_records - 1].cart_dim[0] = GPO.IntExpression();
+			// Handle the old syntax:  array=123x456 
 			if(!GPO.Pgm.EndOfCommand()) {
 				char xguy[8]; int itmp = 0;
 				GPO.Pgm.CopyStr(xguy, GPO.Pgm.GetCurTokenIdx(), 6);
@@ -3787,10 +3734,10 @@ static void plot_option_array(void)
 			GPO.Pgm.Shift();
 			if(++number_of_records > df_num_bin_records)
 				df_add_binary_records(1, DF_CURRENT_RECORDS);
-			df_bin_record[df_num_bin_records - 1].cart_dim[0] = int_expression();
+			df_bin_record[df_num_bin_records - 1].cart_dim[0] = GPO.IntExpression();
 			if(GPO.Pgm.EqualsCur(",")) {
 				GPO.Pgm.Shift();
-				df_bin_record[df_num_bin_records - 1].cart_dim[1] = int_expression();
+				df_bin_record[df_num_bin_records - 1].cart_dim[1] = GPO.IntExpression();
 			}
 			if(!GPO.Pgm.EqualsCur(")"))
 				GPO.IntErrorCurToken("tuple syntax error");
@@ -3809,7 +3756,6 @@ int token2tuple(double * tuple, int dimension)
 	if(GPO.Pgm.EqualsCur(LEFT_TUPLE_CHAR)) {
 		bool expecting_number = TRUE;
 		int N = 0;
-
 		GPO.Pgm.Shift();
 		while(!GPO.Pgm.EndOfCommand()) {
 			if(expecting_number) {
@@ -3831,9 +3777,7 @@ int token2tuple(double * tuple, int dimension)
 				GPO.IntErrorCurToken("Expecting ',' or '" RIGHT_TUPLE_CHAR "'");
 		}
 	}
-
-	/* Not a tuple */
-	return 0;
+	return 0; // Not a tuple 
 }
 
 /* Determine the 2D rotational matrix from the "rotation" qualifier. */
@@ -4753,18 +4697,15 @@ int df_readbinary(double v[], int max)
 					continue;
 				}
 			}
-
 			/* Update all the binary columns.  Matrix binary and
 			 * matrix ASCII is a slight abuse of notation.  At the
 			 * command line, 1 means first row, 2 means first
 			 * column.  There can only be one column of data input
 			 * because it is a matrix of data, not columns.  */
 			{
-				int j;
-				df_datum = df_column[i].datum;
-				/* Fill backward so that current read value is not
-				 * overwritten. */
-				for(j = df_no_bin_cols-1; j >= 0; j--) {
+				df_datum = static_cast<int>(df_column[i].datum);
+				// Fill backward so that current read value is not overwritten. 
+				for(int j = df_no_bin_cols-1; j >= 0; j--) {
 					if(j == 0)
 						df_column[j].datum = df_nonuniform_matrix ? scanned_matrix_row[df_M_count] : df_M_count;
 					else if(j == 1)
@@ -5099,8 +5040,8 @@ static char * df_generate_pseudodata()
 				v_max = GPO.AxS[V_AXIS].max;
 			}
 			else {
-				axis_checked_extend_empty_range(u_axis, "u range is invalid");
-				axis_checked_extend_empty_range(v_axis, "v range is invalid");
+				GPO.AxisCheckedExtendEmptyRange(u_axis, "u range is invalid");
+				GPO.AxisCheckedExtendEmptyRange(v_axis, "v range is invalid");
 				if(nonlinear(&(GPO.AxS[u_axis]))) {
 					u_min = GPO.AxS[u_axis].linked_to_primary->min;
 					u_max = GPO.AxS[u_axis].linked_to_primary->max;
@@ -5120,7 +5061,7 @@ static char * df_generate_pseudodata()
 			}
 			if((GPO.AxS[u_axis].range_flags & RANGE_SAMPLED) && (GPO.AxS[u_axis].SAMPLE_INTERVAL != 0)) {
 				u_step = GPO.AxS[u_axis].SAMPLE_INTERVAL;
-				nusteps = floor( (u_max - u_min) / u_step) + 1;
+				nusteps = ffloori((u_max - u_min) / u_step) + 1;
 			}
 			else if(hidden3d) {
 				u_step = (u_max - u_min) / (iso_samples_1 - 1);
@@ -5133,15 +5074,14 @@ static char * df_generate_pseudodata()
 
 			if((GPO.AxS[v_axis].range_flags & RANGE_SAMPLED) && (GPO.AxS[v_axis].SAMPLE_INTERVAL != 0)) {
 				v_isostep = GPO.AxS[v_axis].SAMPLE_INTERVAL;
-				nvsteps = floor( (v_max - v_min) / v_isostep) + 1;
+				nvsteps = ffloori((v_max - v_min) / v_isostep) + 1;
 			}
 			else {
 				v_isostep = (v_max - v_min) / (iso_samples_2 - 1);
 				nvsteps = iso_samples_2;
 			}
 		}
-
-		/* wrap at end of each line */
+		// wrap at end of each line 
 		if(df_pseudorecord >= nusteps) {
 			df_pseudorecord = 0;
 			if(++df_pseudospan >= nvsteps)

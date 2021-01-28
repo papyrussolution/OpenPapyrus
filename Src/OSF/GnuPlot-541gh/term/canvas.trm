@@ -236,10 +236,10 @@ TERM_PUBLIC void CANVAS_options()
 				    canvas_ymax = CANVAS_YMAX;
 			    }
 			    else {
-				    canvas_xmax = int_expression() * CANVAS_OVERSAMPLE;
+				    canvas_xmax = GPO.IntExpression() * CANVAS_OVERSAMPLE;
 				    if(GPO.Pgm.EqualsCur(",")) {
 					    GPO.Pgm.Shift();
-					    canvas_ymax = int_expression() * CANVAS_OVERSAMPLE;
+					    canvas_ymax = GPO.IntExpression() * CANVAS_OVERSAMPLE;
 				    }
 			    }
 			    if(canvas_xmax <= 0)
@@ -1049,7 +1049,6 @@ TERM_PUBLIC void CANVAS_set_color(t_colorspec * colorspec)
 {
 	rgb255_color rgb255;
 	canvas_state.alpha = 0.0;
-
 	if(colorspec->type == TC_LT) {
 		CANVAS_linetype(colorspec->lt);
 		return;
@@ -1058,21 +1057,17 @@ TERM_PUBLIC void CANVAS_set_color(t_colorspec * colorspec)
 		rgb255.r = (colorspec->lt >> 16) & 0xff;
 		rgb255.g = (colorspec->lt >> 8) & 0xff;
 		rgb255.b = colorspec->lt & 0xff;
-		canvas_state.alpha = (double)((colorspec->lt >> 24) & 0xff)/255.;
+		canvas_state.alpha = (double)((colorspec->lt >> 24) & 0xff)/255.0;
 	}
 	else if(colorspec->type == TC_FRAC) {
 		rgb255maxcolors_from_gray(colorspec->value, &rgb255);
 	}
 	else
-		/* Other color types not yet supported */
-		return;
-
+		return; // Other color types not yet supported 
 	CANVAS_finish();
-
-	/* Jan 2017: Always allow for alpha channel */
-	sprintf(canvas_state.color, "rgba(%03d,%03d,%03d,%4.2f)",
-	    rgb255.r, rgb255.g, rgb255.b, 1.0 - canvas_state.alpha);
-	/* Jan 2017: Apply color to BOTH strokeStyle and fillStyle */
+	// Jan 2017: Always allow for alpha channel 
+	sprintf(canvas_state.color, "rgba(%03d,%03d,%03d,%4.2f)", rgb255.r, rgb255.g, rgb255.b, 1.0 - canvas_state.alpha);
+	// Jan 2017: Apply color to BOTH strokeStyle and fillStyle 
 	if(strcmp(canvas_state.color, canvas_state.previous_color)) {
 		fprintf(gpoutfile, "ctx.strokeStyle = \"%s\";\n", canvas_state.color);
 		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
@@ -1084,8 +1079,7 @@ TERM_PUBLIC void CANVAS_set_color(t_colorspec * colorspec)
 
 TERM_PUBLIC int CANVAS_make_palette(t_sm_palette * palette)
 {
-	/* We can do full RGB color */
-	return 0;
+	return 0; // We can do full RGB color 
 }
 
 static char * CANVAS_fillstyle(int style)
@@ -1094,11 +1088,9 @@ static char * CANVAS_fillstyle(int style)
 	int pattern = style >> 4;
 	bool transparent_pattern = TRUE;
 	static char fillcolor[24];
-
 	switch(style & 0xf) {
 		case FS_TRANSPARENT_SOLID:
-		    sprintf(fillcolor, "rgba(%11.11s,%4.2f)%c",
-			&canvas_state.color[5], density, '\0');
+		    sprintf(fillcolor, "rgba(%11.11s,%4.2f)%c", &canvas_state.color[5], density, '\0');
 		    break;
 		case FS_EMPTY:
 		    strcpy(fillcolor, "rgba(255,255,255,0.00)");
@@ -1112,15 +1104,10 @@ static char * CANVAS_fillstyle(int style)
 			    break;
 		    }
 		    /* Write one copy of the pattern into the Tile element. */
-		    fprintf(gpoutfile,
-			"var template = document.getElementById('Tile');\n"
-			"var tile = template.getContext('2d');\n"
-			"tile.clearRect(0,0,32,32);\n");
+		    fprintf(gpoutfile, "var template = document.getElementById('Tile');\nvar tile = template.getContext('2d');\ntile.clearRect(0,0,32,32);\n");
 		    if(!transparent_pattern)
-			    fprintf(gpoutfile, "tile.fillStyle = \"%s\"; tile.fillRect(0,0,32,32);\n",
-				(*CANVAS_background) ? CANVAS_background : "white");
-		    fprintf(gpoutfile,
-			"tile.beginPath();\n");
+			    fprintf(gpoutfile, "tile.fillStyle = \"%s\"; tile.fillRect(0,0,32,32);\n", (*CANVAS_background) ? CANVAS_background : "white");
+		    fprintf(gpoutfile, "tile.beginPath();\n");
 		    switch(pattern%6) {
 			    case 1: fprintf(gpoutfile, "%s %s\n", PATTERN1, PATTERN2); break;
 			    case 2: fprintf(gpoutfile, "%s %s %s\n", PATTERN1, PATTERN2, PATTERN3); break;
@@ -1128,18 +1115,14 @@ static char * CANVAS_fillstyle(int style)
 			    case 5: fprintf(gpoutfile, "%s\n", PATTERN2); break;
 			    default: break;
 		    }
-		    fprintf(gpoutfile,
-			"tile.strokeStyle=\"%s\"; tile.lineWidth=\"2\"; tile.stroke();\n",
-			canvas_state.color);
-		    /* Then load it as a fill style */
-		    fprintf(gpoutfile,
-			"ctx.fillStyle = ctx.createPattern(template,\"repeat\");\n");
+		    fprintf(gpoutfile, "tile.strokeStyle=\"%s\"; tile.lineWidth=\"2\"; tile.stroke();\n", canvas_state.color);
+		    // Then load it as a fill style 
+		    fprintf(gpoutfile, "ctx.fillStyle = ctx.createPattern(template,\"repeat\");\n");
 		    strcpy(fillcolor, "pattern");
 		    break;
 		case FS_SOLID:
 		    if(canvas_state.alpha > 0) {
-			    sprintf(fillcolor, "rgba(%11.11s,%4.2f)%c",
-				&canvas_state.color[5], 1.0 - canvas_state.alpha, '\0');
+			    sprintf(fillcolor, "rgba(%11.11s,%4.2f)%c", &canvas_state.color[5], 1.0 - canvas_state.alpha, '\0');
 		    }
 		    else if(density == 1) {
 			    strcpy(fillcolor, canvas_state.color);
@@ -1155,26 +1138,21 @@ static char * CANVAS_fillstyle(int style)
 		    }
 		    break;
 		default:
-		    /* Use current color, wherever it came from */
-		    memcpy(fillcolor, canvas_state.color, sizeof(fillcolor));
+		    memcpy(fillcolor, canvas_state.color, sizeof(fillcolor)); // Use current color, wherever it came from 
 	}
-
 	return fillcolor;
 }
 
 TERM_PUBLIC void CANVAS_filled_polygon(int points, gpiPoint * corners)
 {
 	int i;
-
 	CANVAS_finish();
-
 	/* FIXME: I do not understand why this is necessary, but without it */
 	/*        a dashed line followed by a filled area fails to fill.    */
 	if(canvas_dashed) {
 		fprintf(gpoutfile, "DT(gnuplot.solid);\n");
 		canvas_line_type = LT_UNDEFINED;
 	}
-
 	if(corners->style != FS_OPAQUE && corners->style != FS_DEFAULT) {
 		char * fillcolor = CANVAS_fillstyle(corners->style);
 		if(strcmp(fillcolor, "pattern"))
@@ -1183,36 +1161,25 @@ TERM_PUBLIC void CANVAS_filled_polygon(int points, gpiPoint * corners)
 				strcpy(canvas_state.previous_fill, fillcolor);
 			}
 	}
-
-	fprintf(gpoutfile,
-	    "bp(%d, %d);\n"
-	    , corners[0].x, canvas_ymax - corners[0].y);
-
+	fprintf(gpoutfile, "bp(%d, %d);\n", corners[0].x, canvas_ymax - corners[0].y);
 	for(i = 1; i < points; i++) {
-		fprintf(gpoutfile,
-		    "L(%d, %d);\n"
-		    , corners[i].x, canvas_ymax - corners[i].y);
+		fprintf(gpoutfile, "L(%d, %d);\n", corners[i].x, canvas_ymax - corners[i].y);
 	}
-
 	if(corners->style != FS_OPAQUE && corners->style != FS_DEFAULT)
-		/* Fill with separate fillStyle color */
-		fprintf(gpoutfile, "cfp();\n");
+		fprintf(gpoutfile, "cfp();\n"); // Fill with separate fillStyle color 
 	else
-		/* Fill with stroke color */
-		fprintf(gpoutfile, "cfsp();\n");
+		fprintf(gpoutfile, "cfsp();\n"); // Fill with stroke color 
 }
 
 TERM_PUBLIC void CANVAS_fillbox(int style, uint x1, uint y1, uint width, uint height)
 {
 	char * fillcolor = CANVAS_fillstyle(style);
-
 	/* FIXME: I do not understand why this is necessary, but without it */
 	/*        a dashed line followed by a filled area fails to fill.    */
 	if(canvas_dashed) {
 		fprintf(gpoutfile, "DT(gnuplot.solid);\n");
 		canvas_line_type = LT_UNDEFINED;
 	}
-
 	/* Since filled-rectangle is a primitive operation for the canvas element */
 	/* it's worth making this a special case rather than using filled_polygon */
 	if(strcmp(fillcolor, "pattern"))
@@ -1220,25 +1187,19 @@ TERM_PUBLIC void CANVAS_fillbox(int style, uint x1, uint y1, uint width, uint he
 			fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", fillcolor);
 			strcpy(canvas_state.previous_fill, fillcolor);
 		}
-
-	fprintf(gpoutfile, "R(%d,%d,%d,%d);\n",
-	    x1, canvas_ymax - (y1+height), width, height);
+	fprintf(gpoutfile, "R(%d,%d,%d,%d);\n", x1, canvas_ymax - (y1+height), width, height);
 }
 
 TERM_PUBLIC void CANVAS_layer(t_termlayer layer)
 {
 	char * basename = (CANVAS_name) ? CANVAS_name : "gp";
-
 	switch(layer) {
 		case TERM_LAYER_BEFORE_PLOT:
 		    canvas_state.plotno++;
 		    CANVAS_finish();
-		    fprintf(gpoutfile,
-			"if (typeof(gnuplot.hide_%s_plot_%d) == \"undefined\""
-			"|| !gnuplot.hide_%s_plot_%d) {\n",
-			basename, canvas_state.plotno, basename, canvas_state.plotno);
+		    fprintf(gpoutfile, "if (typeof(gnuplot.hide_%s_plot_%d) == \"undefined\"|| !gnuplot.hide_%s_plot_%d) {\n",
+				basename, canvas_state.plotno, basename, canvas_state.plotno);
 		    break;
-
 		case TERM_LAYER_AFTER_PLOT:
 		    CANVAS_finish();
 		    fprintf(gpoutfile, "} // End %s_plot_%d \n", basename, canvas_state.plotno);
@@ -1250,22 +1211,15 @@ TERM_PUBLIC void CANVAS_layer(t_termlayer layer)
 		    break;
 
 		case TERM_LAYER_BEGIN_GRID:
-		    fprintf(gpoutfile, "if (gnuplot.grid_lines) {\n"
-			"var saveWidth = ctx.lineWidth;\n"
-			"ctx.lineWidth = ctx.lineWidth * 0.5;\n");
+		    fprintf(gpoutfile, "if (gnuplot.grid_lines) {\nvar saveWidth = ctx.lineWidth;\nctx.lineWidth = ctx.lineWidth * 0.5;\n");
 		    break;
-
 		case TERM_LAYER_END_GRID:
-		    fprintf(gpoutfile,
-			"ctx.lineWidth = saveWidth;\n"
-			"} // grid_lines\n");
+		    fprintf(gpoutfile, "ctx.lineWidth = saveWidth;\n} // grid_lines\n");
 		    break;
-
 		case TERM_LAYER_RESET:
 		case TERM_LAYER_RESET_PLOTNO:
 		    canvas_state.plotno = 0;
 		    break;
-
 		default:
 		    break;
 	}
@@ -1307,7 +1261,6 @@ TERM_PUBLIC void CANVAS_hypertext(int type, const char * hypertext)
 TERM_PUBLIC int CANVAS_set_font(const char * newfont)
 {
 	int sep;
-
 	if(!newfont || !(*newfont))
 		canvas_font_size = CANVAS_default_fsize;
 	else {
@@ -1407,22 +1360,18 @@ TERM_PUBLIC void ENHCANVAS_FLUSH()
 	double save_fontsize;
 	int x, y;
 	double w;
-
 	if(ENHCANVAS_opened_string) {
 		ENHCANVAS_opened_string = FALSE;
 		*enhanced_cur_text = '\0';
-
 		save_fontsize = canvas_font_size;
 		x = canvas_x;
 		y = canvas_y;
-		w = canvas_strwidth(enhanced_text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.;
-
+		w = canvas_strwidth(enhanced_text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.0;
 		canvas_font_size = ENHCANVAS_fontsize;
 		x += sin((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
 		y += cos((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
 		if(ENHCANVAS_show && !ENHCANVAS_sizeonly)
 			CANVAS_put_text(x, y, enhanced_text);
-
 		if(ENHCANVAS_overprint == 1) {
 			canvas_x += w * cos((double)canvas_text_angle * M_PI_2/90.)/2;
 			canvas_y -= w * sin((double)canvas_text_angle * M_PI_2/90.)/2;
@@ -1438,27 +1387,21 @@ TERM_PUBLIC void ENHCANVAS_FLUSH()
 TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 {
 	char * original_string = (char*)str;
-
 	/* Save starting font properties */
 	double fontsize = canvas_font_size;
 	char * fontname = "";
-
 	if(!strlen(str))
 		return;
-
 	if(ignore_enhanced_text || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		CANVAS_put_text(x, y, str);
 		return;
 	}
-
 	/* ctx.fillText uses fillStyle rather than strokeStyle */
 	if(strcmp(canvas_state.previous_fill, canvas_state.color)) {
 		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
 		strcpy(canvas_state.previous_fill, canvas_state.color);
 	}
-
 	CANVAS_move(x, y);
-
 	/* Set up global variables needed by enhanced_recursion() */
 	enhanced_fontscale = 1.0;
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
@@ -1466,15 +1409,12 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 	ENHCANVAS_fontsize = canvas_font_size;
 	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center"))
 		ENHCANVAS_sizeonly = TRUE;
-
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		enh_err_check(str);
 		if(!*++str)
 			break; /* end of string */
 	}
-
 	/* We can do text justification by running the entire top level string */
 	/* through 2 times, with the ENHgd_sizeonly flag set the first time.   */
 	/* After seeing where the final position is, we then offset the start  */
@@ -1483,10 +1423,8 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 		char * justification = canvas_justify;
 		int x_offset = canvas_x - x;
 		int y_offset = (canvas_text_angle == 0) ? 0 : canvas_y - y;
-
 		canvas_justify = "";
 		ENHCANVAS_sizeonly = FALSE;
-
 		if(!strcmp(justification, "Right")) {
 			ENHCANVAS_put_text(x - x_offset, y - y_offset, original_string);
 		}
@@ -1495,35 +1433,26 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 		}
 		canvas_justify = justification;
 	}
-
 	/* Make sure we leave with the same font properties as on entry */
 	canvas_font_size = fontsize;
 	ENHCANVAS_base = 0;
-
-	return;
 }
 
 #ifdef WRITE_PNG_IMAGE
 TERM_PUBLIC void CANVAS_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
-	char * image_file;
 	char * base_name = CANVAS_name ? CANVAS_name : "gp";
 	canvas_imagefile * thisimage = NULL;
-
-	/* Write the image to a png file */
-	image_file = gp_alloc(strlen(base_name)+16, "CANVAS_image");
+	// Write the image to a png file 
+	char * image_file = static_cast<char * >(gp_alloc(strlen(base_name)+16, "CANVAS_image"));
 	sprintf(image_file, "%s_image_%02d.png", base_name, ++CANVAS_imageno);
 	write_png_image(m, n, image, color_mode, image_file);
-
-	/* Map it onto the terminals coordinate system. */
-	fprintf(gpoutfile, "gnuplot.ZI(%s_image_%02d, %d, %d, %d, %d, %d, %d);\n",
-	    base_name, CANVAS_imageno, m, n,
-	    corner[0].x, canvas_ymax - corner[0].y,
-	    corner[1].x, canvas_ymax - corner[1].y);
-
-	/* Maintain a linked list of imageno|filename pairs */
-	/* so that we can load them at the end of the plot. */
-	thisimage = gp_alloc(sizeof(canvas_imagefile), "canvas imagefile");
+	// Map it onto the terminals coordinate system. 
+	fprintf(gpoutfile, "gnuplot.ZI(%s_image_%02d, %d, %d, %d, %d, %d, %d);\n", base_name, CANVAS_imageno, m, n,
+	    corner[0].x, canvas_ymax - corner[0].y, corner[1].x, canvas_ymax - corner[1].y);
+	// Maintain a linked list of imageno|filename pairs 
+	// so that we can load them at the end of the plot. 
+	thisimage = static_cast<canvas_imagefile *>(gp_alloc(sizeof(canvas_imagefile), "canvas imagefile"));
 	thisimage->imageno = CANVAS_imageno;
 	thisimage->filename = image_file;
 	thisimage->next = imagelist;

@@ -1,8 +1,7 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
-//
-// Редактирование списка процессорных задач
+// Редактирование списка задач JobServer'а
 //
 #include <pp.h>
 #pragma hdrstop
@@ -42,7 +41,7 @@ public:
 		AddClusterAssoc(CTL_JOBITEM_FLAGS, 4, PPJob::fUnSheduled);
 		AddClusterAssoc(CTL_JOBITEM_FLAGS, 5, PPJob::fSkipEmptyNotification);
 		SetClusterData(CTL_JOBITEM_FLAGS, Data.Flags);
-		setCtrlTime(CTL_JOBITEM_SCHDLBEFORE, Data.ScheduleBeforeTime); // @v9.2.11
+		setCtrlTime(CTL_JOBITEM_SCHDLBEFORE, Data.ScheduleBeforeTime);
 		dbes.ReadFromProfile(&ini_file);
 		if(Data.DbSymb.NotEmpty()) {
 			db_id = dbes.GetBySymb(Data.DbSymb, 0);
@@ -69,8 +68,8 @@ public:
 			else
 				enableCommand(cmJobParam, 0);
 			enableCommand(cmSchedule, !(Data.Flags & PPJob::fUnSheduled));
-			DisableClusterItem(CTL_JOBITEM_FLAGS, 5, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
-			disableCtrl(CTL_JOBITEM_SCHDLBEFORE, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
+			DisableClusterItem(CTL_JOBITEM_FLAGS, 5, (Data.Flags & PPJob::fUnSheduled));
+			disableCtrl(CTL_JOBITEM_SCHDLBEFORE, (Data.Flags & PPJob::fUnSheduled));
 		}
 		return ok;
 	}
@@ -88,7 +87,7 @@ public:
 		THROW(P_Mngr->LoadResource(cmd_id, &Data.Descr));
 		getCtrlData(sel = CTLSEL_JOBITEM_NEXTJOB, &Data.NextJobID);
 		GetClusterData(CTL_JOBITEM_FLAGS, &Data.Flags);
-		Data.ScheduleBeforeTime = getCtrlTime(CTL_JOBITEM_SCHDLBEFORE); // @v9.2.11
+		Data.ScheduleBeforeTime = getCtrlTime(CTL_JOBITEM_SCHDLBEFORE);
 		THROW(CheckRecursion(&Data));
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -125,13 +124,18 @@ IMPL_HANDLE_EVENT(JobItemDialog)
 		else if(event.isClusterClk(CTL_JOBITEM_FLAGS)) {
 			GetClusterData(CTL_JOBITEM_FLAGS, &Data.Flags);
 			enableCommand(cmSchedule, !(Data.Flags & PPJob::fUnSheduled));
-			DisableClusterItem(CTL_JOBITEM_FLAGS, 5, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
-			disableCtrl(CTL_JOBITEM_SCHDLBEFORE, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
+			DisableClusterItem(CTL_JOBITEM_FLAGS, 5, (Data.Flags & PPJob::fUnSheduled));
+			disableCtrl(CTL_JOBITEM_SCHDLBEFORE, (Data.Flags & PPJob::fUnSheduled));
 		}
 		else if(TVCMD == cmSchedule)
 			editSchedule();
-		else if(TVCMD == cmJobParam)
-			P_Mngr->EditJobParam(getCtrlLong(CTLSEL_JOBITEM_CMD), &Data.Param);
+		else if(TVCMD == cmJobParam) {
+			// @v11.0.0 P_Mngr->EditJobParam(getCtrlLong(CTLSEL_JOBITEM_CMD), Data, &Data.Param);
+			// @v11.0.0 {
+			Data.Descr.CmdID = getCtrlLong(CTLSEL_JOBITEM_CMD);
+			P_Mngr->EditJobParam(Data);
+			// } @v11.0.0 
+		}
 		else if(TVCMD == cmEmailParam) {
             EmailToBlock etb;
             SString temp_buf;

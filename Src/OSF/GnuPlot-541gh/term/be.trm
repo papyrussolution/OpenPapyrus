@@ -326,15 +326,35 @@ TERM_PUBLIC void BE_fillbox(int style; uint x, uint y, uint w, uint h)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(be_driver)
-"be", "BeOS Window System",
-BE_XMAX, BE_YMAX, BE_VCHAR, BE_HCHAR,
-BE_VTIC, BE_HTIC, BE_options, BE_init, BE_reset,
-BE_text, null_scale, BE_graphics, BE_move, BE_vector,
-BE_linetype, BE_put_text, null_text_angle,
-BE_justify_text, BE_point, do_arrow, set_font_null,
-BE_pointsize, TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE,
-BE_text /* suspend can use same routine */, 0 /* resume */,
-BE_fillbox, BE_linewidth TERM_TABLE_END(be_driver)
+	"be", 
+	"BeOS Window System",
+	BE_XMAX, 
+	BE_YMAX, 
+	BE_VCHAR, 
+	BE_HCHAR,
+	BE_VTIC, 
+	BE_HTIC, 
+	BE_options, 
+	BE_init, 
+	BE_reset,
+	BE_text, 
+	null_scale, 
+	BE_graphics, 
+	BE_move, 
+	BE_vector,
+	BE_linetype, 
+	BE_put_text, 
+	null_text_angle,
+	BE_justify_text, 
+	BE_point, 
+	do_arrow, 
+	set_font_null,
+	BE_pointsize, 
+	TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE,
+	BE_text /* suspend can use same routine */, 0 /* resume */,
+	BE_fillbox, 
+	BE_linewidth 
+TERM_TABLE_END(be_driver)
 
 #undef LAST_TERM
 #define LAST_TERM be_driver

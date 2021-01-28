@@ -1,35 +1,6 @@
-/* GNUPLOT - tabulate.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - tabulate.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 /*
  * EAM - April 2007
  * Collect the routines for tablular output into a separate file, and
@@ -105,30 +76,22 @@ void print_table(curve_points * current_plot, int plot_num)
 	size_t size = 2*BUFFERSIZE;
 	char * line = (char*)gp_alloc(size, "print_table: line buffer");
 	size_t len = 0;
-
 	outfile = (table_outfile) ? table_outfile : gpoutfile;
-
-	for(curve = 0; curve < plot_num;
-	    curve++, current_plot = current_plot->next) {
+	for(curve = 0; curve < plot_num; curve++, current_plot = current_plot->next) {
 		struct coordinate * point = NULL;
-
 		/* "with table" already wrote the output */
 		if(current_plot->plot_style == TABLESTYLE)
 			continue;
-
 		/* two blank lines between tabulated plots by prepending an empty line here */
 		print_line("");
-		snprintf(line, size, "# Curve %d of %d, %d points",
-		    curve, plot_num, current_plot->p_count);
+		snprintf(line, size, "# Curve %d of %d, %d points", curve, plot_num, current_plot->p_count);
 		print_line(line);
-
 		if((current_plot->title) && (*current_plot->title)) {
 			char * title = expand_newline(current_plot->title);
 			snprintf(line, size, "# Curve title: \"%s\"", title);
 			print_line(line);
 			SAlloc::F(title);
 		}
-
 		len = snprintf(line, size, "# x y");
 		switch(current_plot->plot_style) {
 			case BOXES:
@@ -177,9 +140,7 @@ void print_table(curve_points * current_plot, int plot_num)
 
 			default:
 			    if(interactive)
-				    fprintf(stderr, "Tabular output of %s plot style not fully implemented\n",
-					current_plot->plot_style == HISTOGRAMS ? "histograms" :
-					"this");
+				    fprintf(stderr, "Tabular output of %s plot style not fully implemented\n", current_plot->plot_style == HISTOGRAMS ? "histograms" : "this");
 			    break;
 		}
 		if(current_plot->varcolor)
@@ -282,8 +243,7 @@ void print_table(curve_points * current_plot, int plot_num)
 
 				if(current_plot->varcolor) {
 					double colorval = current_plot->varcolor[i];
-					if((current_plot->lp_properties.pm3d_color.value < 0.0)
-					    && (current_plot->lp_properties.pm3d_color.type == TC_RGB)) {
+					if((current_plot->lp_properties.pm3d_color.value < 0.0) && (current_plot->lp_properties.pm3d_color.type == TC_RGB)) {
 						snprintf(buffer, BUFFERSIZE, "0x%06x", (uint)(colorval));
 						len = strappend(&line, &size, len, buffer);
 					}
@@ -294,25 +254,19 @@ void print_table(curve_points * current_plot, int plot_num)
 						OUTPUT_NUMBER(colorval, COLOR_AXIS);
 					}
 				}
-
 				type = current_plot->points[i].type;
-
-				snprintf(buffer, BUFFERSIZE, " %c",
-				    type == INRANGE ? 'i' : type == OUTRANGE ? 'o' : 'u');
+				snprintf(buffer, BUFFERSIZE, " %c", type == INRANGE ? 'i' : type == OUTRANGE ? 'o' : 'u');
 				strappend(&line, &size, len, buffer);
-
-				/* cp_implode() inserts dummy undefined point between curves */
-				/* but datafiles use a blank line for this purpose */
+				// cp_implode() inserts dummy undefined point between curves 
+				// but datafiles use a blank line for this purpose 
 				if(type == UNDEFINED && replace_undefined_with_blank)
 					print_line("");
 				else
 					print_line(line);
 			} /* for(point i) */
 		}
-
 		print_line("");
 	} /* for(curve) */
-
 	if(outfile)
 		fflush(outfile);
 	SAlloc::F(buffer);
@@ -321,7 +275,7 @@ void print_table(curve_points * current_plot, int plot_num)
 
 void print_3dtable(int pcount)
 {
-	struct surface_points * this_plot;
+	surface_points * this_plot;
 	int i, surface;
 	struct coordinate * point;
 	struct coordinate * tail;
@@ -329,16 +283,11 @@ void print_3dtable(int pcount)
 	size_t size = 2*BUFFERSIZE;
 	char * line = (char*)gp_alloc(size, "print_3dtable: line buffer");
 	size_t len = 0;
-
 	outfile = (table_outfile) ? table_outfile : gpoutfile;
-
-	for(surface = 0, this_plot = first_3dplot;
-	    surface < pcount;
-	    this_plot = this_plot->next_sp, surface++) {
+	for(surface = 0, this_plot = first_3dplot; surface < pcount; this_plot = this_plot->next_sp, surface++) {
 		print_line("");
 		snprintf(line, size, "# Surface %d of %d surfaces", surface, pcount);
 		print_line(line);
-
 		if((this_plot->title) && (*this_plot->title)) {
 			char * title = expand_newline(this_plot->title);
 			print_line("");
@@ -346,27 +295,24 @@ void print_3dtable(int pcount)
 			print_line(line);
 			SAlloc::F(title);
 		}
-
 		switch(this_plot->plot_style) {
 			case LABELPOINTS:
-		    {
-			    struct text_label * this_label;
-			    for(this_label = this_plot->labels->next;
-				this_label != NULL;
-				this_label = this_label->next) {
-				    char * label = expand_newline(this_label->text);
-				    line[0] = NUL;
-				    len = 0;
-				    OUTPUT_NUMBER(this_label->place.x, FIRST_X_AXIS);
-				    OUTPUT_NUMBER(this_label->place.y, FIRST_Y_AXIS);
-				    OUTPUT_NUMBER(this_label->place.z, FIRST_Z_AXIS);
-				    len = strappend(&line, &size, len, "\"");
-				    len = strappend(&line, &size, len, label);
-				    len = strappend(&line, &size, len, "\"");
-				    print_line(line);
-				    SAlloc::F(label);
-			    }
-		    }
+				{
+					text_label * this_label;
+					for(this_label = this_plot->labels->next; this_label != NULL; this_label = this_label->next) {
+						char * label = expand_newline(this_label->text);
+						line[0] = NUL;
+						len = 0;
+						OUTPUT_NUMBER(this_label->place.x, FIRST_X_AXIS);
+						OUTPUT_NUMBER(this_label->place.y, FIRST_Y_AXIS);
+						OUTPUT_NUMBER(this_label->place.z, FIRST_Z_AXIS);
+						len = strappend(&line, &size, len, "\"");
+						len = strappend(&line, &size, len, label);
+						len = strappend(&line, &size, len, "\"");
+						print_line(line);
+						SAlloc::F(label);
+					}
+				}
 			    continue;
 			case LINES:
 			case POINTSTYLE:
@@ -378,27 +324,20 @@ void print_3dtable(int pcount)
 			case RGBIMAGE:
 			case RGBA_IMAGE:
 			    break;
-
 			default:
 			    fprintf(stderr, "Tabular output of this 3D plot style not implemented\n");
 			    continue;
 		}
-
 		if(draw_surface) {
-			struct iso_curve * icrvs;
+			iso_curve * icrvs;
 			int curve;
-
 			/* only the curves in one direction */
-			for(curve = 0, icrvs = this_plot->iso_crvs;
-			    icrvs && curve < this_plot->num_iso_read;
-			    icrvs = icrvs->next, curve++) {
+			for(curve = 0, icrvs = this_plot->iso_crvs; icrvs && curve < this_plot->num_iso_read; icrvs = icrvs->next, curve++) {
 				print_line("");
-				snprintf(line, size, "# IsoCurve %d, %d points",
-				    curve, icrvs->p_count);
+				snprintf(line, size, "# IsoCurve %d, %d points", curve, icrvs->p_count);
 				print_line(line);
 				len = sprintf(line, "# x y z");
 				tail = NULL; /* Just to shut up a compiler warning */
-
 				switch(this_plot->plot_style) {
 					case VECTOR:
 					    tail = icrvs->next->points;
@@ -414,10 +353,8 @@ void print_3dtable(int pcount)
 					default:
 					    break;
 				}
-
 				strappend(&line, &size, len, " type");
 				print_line(line);
-
 				for(i = 0, point = icrvs->points;
 				    i < icrvs->p_count;
 				    i++, point++) {
@@ -453,15 +390,12 @@ void print_3dtable(int pcount)
 			} /* for (icrvs) */
 			print_line("");
 		} /* if (draw_surface) */
-
 		if(draw_contour) {
 			int number = 0;
-			struct gnuplot_contours * c = this_plot->contours;
-
+			gnuplot_contours * c = this_plot->contours;
 			while(c) {
 				int count = c->num_pts;
 				struct coordinate * point = c->coords;
-
 				if(c->isNewLevel) {
 					/* don't display count - contour split across chunks */
 					/* put # in case user wants to use it for a plot */
@@ -487,7 +421,6 @@ void print_3dtable(int pcount)
 			} /* while (contour) */
 		} /* if (draw_contour) */
 	} /* for(surface) */
-
 	if(outfile)
 		fflush(outfile);
 	SAlloc::F(buffer);
@@ -582,6 +515,5 @@ bool tabulate_one_line(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], int ncol
 		}
 		append_to_datablock(&table_var->udv_value, line);
 	}
-
 	return TRUE;
 }

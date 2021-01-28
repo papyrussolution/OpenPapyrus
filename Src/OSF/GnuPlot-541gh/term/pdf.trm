@@ -4,21 +4,16 @@
         GNUPLOT - pdf.trm
 
         This file is included by ../term.c.
-
         This driver uses PDFlib from www.pdflib.com
-
         Author:
-
                 Hans-Bernhard Br"oker
                 broeker@physik.rwth-aachen.de
 
         Licence: see the gnuplot copyright (to be merged into here...)
-
         Options: can #define PDF_DONT_COMPRESS to avoid PDF output
         generated being compressed (by the 'deflate' algorithm as used
         in 'zip' or 'gzip'). That helps in debugging.
-
-   ------------------------------*/
+------------------------------*/
 
 /* CODEME: Add patterned lines (?). */
 
@@ -61,9 +56,7 @@ TERM_PUBLIC void PDF_filled_polygon(int, gpiPoint *);
 
 /* To support "set term png enhanced" */
 TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void ENHPDF_OPEN(char * fontname, double fontsize,
-    double base, bool widthflag, bool showflag,
-    int overprint);
+TERM_PUBLIC void ENHPDF_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void ENHPDF_FLUSH();
 
 #define PDF_NUM_POINTTYPES 75   /* number of point symbol types not counting the dot */
@@ -205,22 +198,17 @@ static void PDF_SetFont()
 	else if(encoding == S_ENC_CP1252) {
 		pdfenc = "cp1252";
 	}
-
 	font_handle = PDF_findfont(myPDF, PDF_fontNameCur, pdfenc, 0);
-
 	if(font_handle == -1 && strcmp(pdfenc, "host")) {
 		fprintf(stderr, "Couldn't find font %s in encoding %s, trying \"host\"\n",
 		    PDF_fontNameCur, pdfenc);
 		font_handle = PDF_findfont(myPDF, PDF_fontNameCur, "host", 0);
 	}
-
 	if(font_handle == -1) {
 		font_handle = PDF_findfont(myPDF, "Times-Roman", "host", 0);
 		fprintf(stderr, "Couldn't find font %s, falling back to Times-Roman\n", PDF_fontNameCur);
 	}
-
 	PDF_setfont(myPDF, font_handle, PDF_fontSizeCur * PDF_RESOLUTION * PDF_fontscale);
-
 	/* Ask PDFlib for the actual numbers */
 	PDF_fontAscent = (int)(PDF_RESOLUTION * PDF_fontSizeCur * PDF_fontscale * PDF_get_value(myPDF, "ascender", 0));
 	PDF_fontDescent = (int)(-PDF_RESOLUTION * PDF_fontSizeCur * PDF_fontscale * PDF_get_value(myPDF, "descender", 0));
@@ -239,7 +227,6 @@ static void PDF_SetFont()
 static void PDF_DefinePatterns()
 {
 	int i;
-
 	/* EAM April 2003 - Rearrange patterns to maximize contrast in mono.
 	 * Because of the finite linewidth, each pattern must include line
 	 * fragments at the "empty" corners.
@@ -458,15 +445,11 @@ TERM_PUBLIC void PDF_init()
 	char * username;
 	char * timedate;
 	time_t now;
-
 	if(!PDFlib_booted) {
 		PDF_boot();
 		PDFlib_booted = TRUE;
 	}
-
-	if(!myPDF)
-		myPDF = PDF_new();
-
+	SETIFZ(myPDF, PDF_new());
 	/*open new PDF file */
 #ifdef HAVE_LIBPDF_OPEN_FILE
 	if(PDF_open_file(myPDF, outstr) == -1)
@@ -475,61 +458,41 @@ TERM_PUBLIC void PDF_init()
 	    "compatibility=1.4") == -1)
 #endif /* HAVE_LIBPDF_OPEN_FILE */
 		GPO.IntError(NO_CARET, "Error:cannot open PDF file .\n");
-
 #ifdef PDF_DONT_COMPRESS
-	/* for easier debugging of the output, turn off PDF stream
-	 * compression */
+	// for easier debugging of the output, turn off PDF stream compression 
 	PDF_set_value(myPDF, "compress", 0);
 #endif
-
-	gpversionstring = gp_alloc(20 + strlen(gnuplot_version) +
-		strlen(gnuplot_patchlevel) + 1, "PDF_init");
-	sprintf(gpversionstring, "gnuplot %s patchlevel %s",
-	    gnuplot_version, gnuplot_patchlevel);
-
+	gpversionstring = gp_alloc(20 + strlen(gnuplot_version) + strlen(gnuplot_patchlevel) + 1, "PDF_init");
+	sprintf(gpversionstring, "gnuplot %s patchlevel %s", gnuplot_version, gnuplot_patchlevel);
 	time(&now);
 	timedate = asctime(localtime(&now));
 	timedate[strlen(timedate)-1] = '\0';
-
 	PDF_set_info(myPDF, "Creator", gpversionstring);
-
 	username = getusername();
 	if(username) {
 		PDF_set_info(myPDF, "Author", username);
 		SAlloc::F(username);
 	}
-
 	if(outstr)
 		PDF_set_info(myPDF, "Title", outstr); /* FIXME: use 'set title', if any? */
 	PDF_set_info(myPDF, "Subject", "gnuplot plot");
-
-	if(gpversionstring)
-		SAlloc::F(gpversionstring);
-
+	SAlloc::F(gpversionstring);
 	PDF_LineType = LT_UNDEFINED;
-
-	/* set current font to default */
+	// set current font to default 
 	strcpy(PDF_fontNameCur, PDF_fontNameDef);
 	PDF_fontSizeCur = PDF_fontSizeDef;
-
 #if !HAVE_OLD_LIBPDF
 	PDF_DefinePatterns();
 #endif
-
-	/* Have to start the first page now, in order to know the actual
-	 * size of the selected font */
+	// Have to start the first page now, in order to know the actual size of the selected font 
 	PDF_graphics();
-
 	/* set h_char, v_char*/
 	term->h_char = PDF_fontAvWidth;
 	term->v_char = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
-
 	/* set h_tic, v_tic*/
 	term->h_tic = term->v_tic = 3 * PDF_RESOLUTION;
-
 	/* initialize terminal's pointsize from "set pointsize" value */
 	term_pointsize = pointsize;
-
 	/* Initialize other default settings */
 	PDF_setlinecap(myPDF, PDF_LineCap);
 	PDF_setlinejoin(myPDF, PDF_LineCap);    /* round+round or butt+mitre */
@@ -582,26 +545,22 @@ TERM_PUBLIC void PDF_reset()
 TERM_PUBLIC void PDF_linetype(int linetype)
 {
 	int dash = linetype % 8;
-
 	linetype = PDF_Pen_RealID(linetype);
 	if(linetype == PDF_LineType)
 		return;
-
 	PDF_PathClose();
 	PDF_LineType = linetype;
-
 	if(PDF_monochrome) {
 		PDF_current_gray = 0.0;
 		PDF_setgray(myPDF, PDF_current_gray);
 	}
 	else {
 		uint irgb = pm3d_color_names_tbl[1+linetype].value;
-		PDF_current_rgb.r = (double)((irgb >> 16) & 0xff) / 255.;
-		PDF_current_rgb.g = (double)((irgb >>  8) & 0xff) / 255.;
-		PDF_current_rgb.b = (double)((irgb      ) & 0xff) / 255.;
+		PDF_current_rgb.r = (double)((irgb >> 16) & 0xff) / 255.0;
+		PDF_current_rgb.g = (double)((irgb >>  8) & 0xff) / 255.0;
+		PDF_current_rgb.b = (double)((irgb      ) & 0xff) / 255.0;
 		PDF_setrgbcolor(myPDF, PDF_current_rgb.r, PDF_current_rgb.g, PDF_current_rgb.b);
 	}
-
 #ifndef HAVE_NODASH_LIBPDF
 	if(PDF_dashedlines) {
 		char dashtype[64];
@@ -635,10 +594,8 @@ TERM_PUBLIC void PDF_move(uint x, uint y)
 {
 	if(PDF_pathIsOpen && x == PDF_xLast && y == PDF_yLast)
 		return;
-
 	PDF_PathOpen();
 	PDF_moveto(myPDF, x, y);
-
 	PDF_xLast = x;
 	PDF_yLast = y;
 }
@@ -647,14 +604,11 @@ TERM_PUBLIC void PDF_vector(uint x, uint y)
 {
 	if(PDF_pathIsOpen && x == PDF_xLast && y == PDF_yLast)
 		return;
-
 	if(!PDF_pathIsOpen) {
 		PDF_PathOpen();
 		PDF_moveto(myPDF, PDF_xLast, PDF_yLast);
 	}
-
 	PDF_lineto(myPDF, x, y);
-
 	PDF_xLast = x;
 	PDF_yLast = y;
 }
@@ -896,22 +850,15 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 	PDF_arc(myPDF, 0, 0, 1, angle + 90, angle + 360);   \
 	PDF_stroke(myPDF);                                  \
 	break;
-			case 15+5:
-			    CIRCLE_TWO_OPPOSING_QUADRANTS(1, 0, 0);
-			case 15+10:
-			    CIRCLE_TWO_OPPOSING_QUADRANTS(0, 1, 90);
+			case 15+5: CIRCLE_TWO_OPPOSING_QUADRANTS(1, 0, 0);
+			case 15+10: CIRCLE_TWO_OPPOSING_QUADRANTS(0, 1, 90);
 #undef CIRCLE_TWO_OPPOSING_QUADRANTS
 
-#define CIRCLE_THREE_QUADRANTS(x, y, angle)                     \
-	CIRCLE_SINGLE_PIESLICE(x, y, angle, angle+270)
-			case 15+7:
-			    CIRCLE_THREE_QUADRANTS(1, 0, 0);
-			case 15+14:
-			    CIRCLE_THREE_QUADRANTS(0, 1, 90);
-			case 15+13:
-			    CIRCLE_THREE_QUADRANTS(-1, 0, 180);
-			case 15+11:
-			    CIRCLE_THREE_QUADRANTS(0, -1, 270);
+#define CIRCLE_THREE_QUADRANTS(x, y, angle) CIRCLE_SINGLE_PIESLICE(x, y, angle, angle+270)
+			case 15+7: CIRCLE_THREE_QUADRANTS(1, 0, 0);
+			case 15+14: CIRCLE_THREE_QUADRANTS(0, 1, 90);
+			case 15+13: CIRCLE_THREE_QUADRANTS(-1, 0, 180);
+			case 15+11: CIRCLE_THREE_QUADRANTS(0, -1, 270);
 #undef CIRCLE_THREE_QUADRANTS
 #undef CIRCLE_SINGLE_PIESLICE
 
@@ -991,7 +938,6 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 	{                                           \
 		int x = x0, y = y0, dummy;              \
 		int counter = 0;                        \
-                                                        \
 		while(counter++ < 2) {                 \
 			PDF_moveto(myPDF, 0, 0);            \
 			PDF_lineto(myPDF, x, y);            \
@@ -999,7 +945,6 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			dummy = x; x = -y; y = dummy;       \
 			PDF_lineto(myPDF, x, y);            \
 			PDF_closepath_fill_stroke(myPDF);   \
-                                                        \
 			PDF_moveto(myPDF, x, y);            \
 			PDF_lineto(myPDF, x-y, x+y);        \
 			dummy = x; x = -y; y = dummy;       \
@@ -1009,99 +954,56 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 		break;                                  \
 	}
 
-/* Macros for diamonds just prepend the rotation and then call those
- * for squares: */
-#define DIAMOND_SINGLE_PIESLICE(x, y, quadrants)        \
-	PDF_rotate(myPDF, 45);                      \
-	SQUARE_SINGLE_PIESLICE(x, y, quadrants);
-#define DIAMOND_TWO_OPPOSING_QUADRANTS(x, y, angle)     \
-	PDF_rotate(myPDF, 45);                      \
-	SQUARE_TWO_OPPOSING_QUADRANTS(x, y, angle);
+// Macros for diamonds just prepend the rotation and then call those for squares: 
+#define DIAMOND_SINGLE_PIESLICE(x, y, quadrants)    PDF_rotate(myPDF, 45); SQUARE_SINGLE_PIESLICE(x, y, quadrants);
+#define DIAMOND_TWO_OPPOSING_QUADRANTS(x, y, angle) PDF_rotate(myPDF, 45); SQUARE_TWO_OPPOSING_QUADRANTS(x, y, angle);
 
 /* ... and now all the individual cases. The 'angle' arguments' are
 * purely for the sake of easing cut'n'paste with the circle case */
-#define SQUARE_SINGLE_QUADRANT(x, y, angle)                     \
-	SQUARE_SINGLE_PIESLICE(x, y, 1);
-			case 31+1:
-			    SQUARE_SINGLE_QUADRANT(1, 0, 0);
-			case 31+2:
-			    SQUARE_SINGLE_QUADRANT(0, 1, 90);
-			case 31+4:
-			    SQUARE_SINGLE_QUADRANT(-1, 0, 180);
-			case 31+8:
-			    SQUARE_SINGLE_QUADRANT(0, -1, 270);
+#define SQUARE_SINGLE_QUADRANT(x, y, angle) SQUARE_SINGLE_PIESLICE(x, y, 1);
+			case 31+1: SQUARE_SINGLE_QUADRANT(1, 0, 0);
+			case 31+2: SQUARE_SINGLE_QUADRANT(0, 1, 90);
+			case 31+4: SQUARE_SINGLE_QUADRANT(-1, 0, 180);
+			case 31+8: SQUARE_SINGLE_QUADRANT(0, -1, 270);
 #undef SQUARE_SINGLE_QUADRANT
-
-#define SQUARE_TWO_NEIGHBOR_QUADRANTS(x, y, angle)              \
-	SQUARE_SINGLE_PIESLICE(x, y, 2)
-			case 31+3:
-			    SQUARE_TWO_NEIGHBOR_QUADRANTS(1, 0, 0);
-			case 31+6:
-			    SQUARE_TWO_NEIGHBOR_QUADRANTS(0, 1, 90);
-			case 31+12:
-			    SQUARE_TWO_NEIGHBOR_QUADRANTS(-1, 0, 180);
-			case 31+9:
-			    SQUARE_TWO_NEIGHBOR_QUADRANTS(0, -1, 270);
+#define SQUARE_TWO_NEIGHBOR_QUADRANTS(x, y, angle) SQUARE_SINGLE_PIESLICE(x, y, 2)
+			case 31+3: SQUARE_TWO_NEIGHBOR_QUADRANTS(1, 0, 0);
+			case 31+6: SQUARE_TWO_NEIGHBOR_QUADRANTS(0, 1, 90);
+			case 31+12: SQUARE_TWO_NEIGHBOR_QUADRANTS(-1, 0, 180);
+			case 31+9: SQUARE_TWO_NEIGHBOR_QUADRANTS(0, -1, 270);
 #undef SQUARE_TWO_NEIGHBOR_QUADRANTS
-
-			case 31+5:
-			    SQUARE_TWO_OPPOSING_QUADRANTS(1, 0, 0);
-			case 31+10:
-			    SQUARE_TWO_OPPOSING_QUADRANTS(0, 1, 90);
-
-#define SQUARE_THREE_QUADRANTS(x, y, angle)                     \
-	SQUARE_SINGLE_PIESLICE(x, y, 3)
-			case 31+7:
-			    SQUARE_THREE_QUADRANTS(1, 0, 0);
-			case 31+14:
-			    SQUARE_THREE_QUADRANTS(0, 1, 90);
-			case 31+13:
-			    SQUARE_THREE_QUADRANTS(-1, 0, 180);
-			case 31+11:
-			    SQUARE_THREE_QUADRANTS(0, -1, 270);
+			case 31+5: SQUARE_TWO_OPPOSING_QUADRANTS(1, 0, 0);
+			case 31+10: SQUARE_TWO_OPPOSING_QUADRANTS(0, 1, 90);
+#define SQUARE_THREE_QUADRANTS(x, y, angle) SQUARE_SINGLE_PIESLICE(x, y, 3)
+			case 31+7: SQUARE_THREE_QUADRANTS(1, 0, 0);
+			case 31+14: SQUARE_THREE_QUADRANTS(0, 1, 90);
+			case 31+13: SQUARE_THREE_QUADRANTS(-1, 0, 180);
+			case 31+11: SQUARE_THREE_QUADRANTS(0, -1, 270);
 #undef SQUARE_THREE_QUADRANTS
 
-#define DIAMOND_SINGLE_QUADRANT(x, y, angle)                    \
-	DIAMOND_SINGLE_PIESLICE(x, y, 1)
-			case 47+1:
-			    DIAMOND_SINGLE_QUADRANT(1, 0, 0);
-			case 47+2:
-			    DIAMOND_SINGLE_QUADRANT(0, 1, 90);
-			case 47+4:
-			    DIAMOND_SINGLE_QUADRANT(-1, 0, 180);
-			case 47+8:
-			    DIAMOND_SINGLE_QUADRANT(0, -1, 270);
+#define DIAMOND_SINGLE_QUADRANT(x, y, angle) DIAMOND_SINGLE_PIESLICE(x, y, 1)
+			case 47+1: DIAMOND_SINGLE_QUADRANT(1, 0, 0);
+			case 47+2: DIAMOND_SINGLE_QUADRANT(0, 1, 90);
+			case 47+4: DIAMOND_SINGLE_QUADRANT(-1, 0, 180);
+			case 47+8: DIAMOND_SINGLE_QUADRANT(0, -1, 270);
 #undef DIAMOND_SINGLE_QUADRANT
 
-#define DIAMOND_TWO_NEIGHBOR_QUADRANTS(x, y, angle)             \
-	DIAMOND_SINGLE_PIESLICE(x, y, 2)
-			case 47+3:
-			    DIAMOND_TWO_NEIGHBOR_QUADRANTS(1, 0, 0);
-			case 47+6:
-			    DIAMOND_TWO_NEIGHBOR_QUADRANTS(0, 1, 90);
-			case 47+12:
-			    DIAMOND_TWO_NEIGHBOR_QUADRANTS(-1, 0, 180);
-			case 47+9:
-			    DIAMOND_TWO_NEIGHBOR_QUADRANTS(0, -1, 270);
+#define DIAMOND_TWO_NEIGHBOR_QUADRANTS(x, y, angle) DIAMOND_SINGLE_PIESLICE(x, y, 2)
+			case 47+3: DIAMOND_TWO_NEIGHBOR_QUADRANTS(1, 0, 0);
+			case 47+6: DIAMOND_TWO_NEIGHBOR_QUADRANTS(0, 1, 90);
+			case 47+12: DIAMOND_TWO_NEIGHBOR_QUADRANTS(-1, 0, 180);
+			case 47+9: DIAMOND_TWO_NEIGHBOR_QUADRANTS(0, -1, 270);
 #undef DIAMOND_TWO_NEIGHBOR_QUADRANTS
-
-			case 47+5:
-			    DIAMOND_TWO_OPPOSING_QUADRANTS(1, 0, 0);
-			case 47+10:
-			    DIAMOND_TWO_OPPOSING_QUADRANTS(0, 1, 90);
+			case 47+5: DIAMOND_TWO_OPPOSING_QUADRANTS(1, 0, 0);
+			case 47+10: DIAMOND_TWO_OPPOSING_QUADRANTS(0, 1, 90);
 #undef DIAMOND_TWO_OPPOSING_QUADRANTS
 #undef SQUARE_TWO_OPPOSING_QUADRANTS
 
-#define DIAMOND_THREE_QUADRANTS(x, y, angle)                    \
-	DIAMOND_SINGLE_PIESLICE(x, y, 3)
-			case 47+7:
-			    DIAMOND_THREE_QUADRANTS(1, 0, 0);
-			case 47+14:
-			    DIAMOND_THREE_QUADRANTS(0, 1, 90);
-			case 47+13:
-			    DIAMOND_THREE_QUADRANTS(-1, 0, 180);
-			case 47+11:
-			    DIAMOND_THREE_QUADRANTS(0, -1, 270);
+#define DIAMOND_THREE_QUADRANTS(x, y, angle) DIAMOND_SINGLE_PIESLICE(x, y, 3)
+			case 47+7: DIAMOND_THREE_QUADRANTS(1, 0, 0);
+			case 47+14: DIAMOND_THREE_QUADRANTS(0, 1, 90);
+			case 47+13: DIAMOND_THREE_QUADRANTS(-1, 0, 180);
+			case 47+11: DIAMOND_THREE_QUADRANTS(0, -1, 270);
 #undef DIAMOND_THREE_QUADRANTS
 #undef DIAMOND_SINGLE_PIESLICE
 #undef SQUARE_SINGLE_PIESLICE
@@ -1132,22 +1034,13 @@ TERM_PUBLIC void PDF_put_text(uint x, uint y, const char * str)
 {
 	char * alignment = NULL;
 	double h = x, v = y;
-
 	PDF_PathClose();
-
 	/* horizontal justification*/
 	switch(PDF_TextJust) {
-		case LEFT:
-		    alignment = "left";
-		    break;
-		case CENTRE:
-		    alignment = "center";
-		    break;
-		case RIGHT:
-		    alignment = "right";
-		    break;
+		case LEFT: alignment = "left"; break;
+		case CENTRE: alignment = "center"; break;
+		case RIGHT: alignment = "right"; break;
 	}
-
 	if(PDF_TextAngle) {
 		PDF_save(myPDF);
 		PDF_translate(myPDF, h, v);
@@ -1311,9 +1204,9 @@ TERM_PUBLIC void PDF_set_color(t_colorspec * colorspec)
 {
 	if(colorspec->type == TC_LT) {
 		uint irgb = pm3d_color_names_tbl[ 1 + PDF_Pen_RealID(colorspec->lt) ].value;
-		PDF_current_rgb.r = (double)((irgb >> 16) & 0xff) / 255.;
-		PDF_current_rgb.g = (double)((irgb >>  8) & 0xff) / 255.;
-		PDF_current_rgb.b = (double)((irgb      ) & 0xff) / 255.;
+		PDF_current_rgb.r = (double)((irgb >> 16) & 0xff) / 255.0;
+		PDF_current_rgb.g = (double)((irgb >>  8) & 0xff) / 255.0;
+		PDF_current_rgb.b = (double)((irgb      ) & 0xff) / 255.0;
 		PDF_current_gray = 0.0; /* monochrome mode only */
 	}
 	else if(colorspec->type == TC_FRAC) {
@@ -1321,13 +1214,12 @@ TERM_PUBLIC void PDF_set_color(t_colorspec * colorspec)
 		PDF_current_gray = colorspec->value; /* monochrome mode only */
 	}
 	else if(colorspec->type == TC_RGB) {
-		PDF_current_rgb.r = (double)((colorspec->lt >> 16 ) & 255) / 255.;
-		PDF_current_rgb.g = (double)((colorspec->lt >> 8 ) & 255) / 255.;
-		PDF_current_rgb.b = (double)(colorspec->lt & 255) / 255.;
+		PDF_current_rgb.r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
+		PDF_current_rgb.g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
+		PDF_current_rgb.b = (double)(colorspec->lt & 255) / 255.0;
 	}
 	else
 		return;
-
 	/* make sure that the path is stroked with the current color
 	 * before changing the color */
 	PDF_PathClose();
@@ -1474,7 +1366,6 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 {
 	int x, y;
 	float stringlength;
-
 	if(ENHpdf_opened_string) {
 		ENHpdf_opened_string = FALSE;
 		*enhanced_cur_text = '\0';
@@ -1482,9 +1373,8 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 		y = PDF_yLast;
 		x -= sin((double)PDF_TextAngle * M_PI_2/90.) * ENHpdf_base;
 		y += cos((double)PDF_TextAngle * M_PI_2/90.) * ENHpdf_base;
-		x += sin((double)PDF_TextAngle * M_PI_2/90.) * (double)PDF_fontAvWidth/2.;
-		y -= cos((double)PDF_TextAngle * M_PI_2/90.) * (double)PDF_fontAvWidth/2.;
-
+		x += sin((double)PDF_TextAngle * M_PI_2/90.) * (double)PDF_fontAvWidth/2.0;
+		y -= cos((double)PDF_TextAngle * M_PI_2/90.) * (double)PDF_fontAvWidth/2.0;
 		/* Select current font for enhanced text fragment, then restore context */
 		if(1) {
 			char save_fontname[MAX_ID_LEN + 1];
@@ -1495,12 +1385,9 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 			strcpy(PDF_fontNameCur, save_fontname);
 			PDF_fontSizeCur = save_fontsize;
 		}
-
 		/* Find length of string in current font */
-		stringlength = PDF_stringwidth(myPDF, enhanced_text,
-			PDF_currentFontHandle, ENHpdf_fontsize);
+		stringlength = PDF_stringwidth(myPDF, enhanced_text, PDF_currentFontHandle, ENHpdf_fontsize);
 		stringlength *= PDF_RESOLUTION;
-
 		if(ENHpdf_show && !ENHpdf_sizeonly) {
 			if(PDF_TextAngle == 0) {
 				/* PDF_show(myPDF, enhanced_text); */
@@ -1517,12 +1404,12 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 			}
 		}
 		if(ENHpdf_overprint == 1) {
-			PDF_xLast += stringlength * cos((double)PDF_TextAngle * M_PI_2/90.) / 2.;
-			PDF_yLast += stringlength * sin((double)PDF_TextAngle * M_PI_2/90.);
+			PDF_xLast += stringlength * cos((double)PDF_TextAngle * M_PI_2/90.0) / 2.0;
+			PDF_yLast += stringlength * sin((double)PDF_TextAngle * M_PI_2/90.0);
 		}
 		else if(ENHpdf_widthflag) {
-			PDF_xLast += stringlength * cos((double)PDF_TextAngle * M_PI_2/90.);
-			PDF_yLast += stringlength * sin((double)PDF_TextAngle * M_PI_2/90.);
+			PDF_xLast += stringlength * cos((double)PDF_TextAngle * M_PI_2/90.0);
+			PDF_yLast += stringlength * sin((double)PDF_TextAngle * M_PI_2/90.0);
 		}
 	}
 }
@@ -1530,43 +1417,32 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 {
 	char * original_string = (char*)str;
-
 	if(ignore_enhanced_text) {
 		PDF_put_text(x, y, str);
 		return;
 	}
-
-	if(!str || !strlen(str))
+	if(isempty(str))
 		return;
-
-	/* if there are no magic characters, we should just be able
-	 * punt the string to PDF_put_text()
-	 */
+	// if there are no magic characters, we should just be able punt the string to PDF_put_text()
 	if(!strpbrk(str, "{}^_@&~")) {
 		/* do something to ensure default font is selected */
 		PDF_put_text(x, y, str);
 		return;
 	}
-
 	PDF_move(x, y);
 	PDF_PathClose();
 	PDF_save(myPDF);
-
 	/* FIXME - Is this the way to do it?????
 	   if (PDF_TextAngle != 0)
 	    ENHPDF_DEBUG(("currentpoint gsave translate %d rotate 0 0 moveto\n", PDF_TextAngle));
 	 */
-
 	/* set up the global variables needed by enhanced_recursion() */
 	enhanced_fontscale = PDF_fontscale;
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-
 	ENHpdf_opened_string = FALSE;
-
 	/* EAM - Software text justification requires two passes */
-	if(PDF_TextJust == RIGHT || PDF_TextJust == CENTRE)
+	if(oneof2(PDF_TextJust, RIGHT, CENTRE))
 		ENHpdf_sizeonly = TRUE;
-
 	/* Set the recursion going. We say to keep going until a
 	 * closing brace, but we don't really expect to find one.
 	 * If the return value is not the nul-terminator of the
@@ -1574,22 +1450,15 @@ TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    PDF_fontNameCur, PDF_fontSizeCur * PDF_fontscale,
-	    0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, PDF_fontNameCur, PDF_fontSizeCur * PDF_fontscale, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
-
 		if(!*++str)
 			break; /* end of string */
-
 		/* else carry on and process the rest of the string */
 	}
-
 	PDF_restore(myPDF);
-
 	/* We can do text justification by running the entire top level string */
 	/* through 2 times, with the ENHpdf_sizeonly flag set the first time.   */
 	/* After seeing where the final position is, we then offset the start  */
@@ -1598,12 +1467,10 @@ TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 		int justification = PDF_TextJust;
 		int x_offset = PDF_xLast - x;
 		int y_offset = 0;
-
 		if(PDF_TextAngle != 0)
 			y_offset = PDF_yLast - y;
 		PDF_TextJust = LEFT;
 		ENHpdf_sizeonly = FALSE;
-
 		if(justification == RIGHT) {
 			ENHPDF_put_text(x - x_offset, y - y_offset, original_string);
 		}

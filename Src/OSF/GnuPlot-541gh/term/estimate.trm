@@ -127,7 +127,6 @@ TERM_PUBLIC void ENHest_put_text(uint x, uint y, const char * str)
 	ENHest_min_height = 0.0;
 	ENHest_total_width = 0.0;
 	strncpy(enhanced_escape_format, ".", sizeof(enhanced_escape_format));
-
 	/* buffer in which we will return plaintext version of enhanced text string */
 	while(ENHest_plaintext_buflen <= strlen(str)) {
 		ENHest_plaintext_buflen += MAX_ID_LEN;
@@ -135,7 +134,6 @@ TERM_PUBLIC void ENHest_put_text(uint x, uint y, const char * str)
 	}
 	ENHest_plaintext[0] = '\0';
 	ENHest_plaintext_pos = 0;
-
 	/* If no enhanced text processing is needed, strlen() is sufficient */
 	if(ignore_enhanced_text || (!strpbrk(str, "{}^_@&~\n") && !contains_unicode(str))) {
 		if(encoding == S_ENC_UTF8)
@@ -146,20 +144,14 @@ TERM_PUBLIC void ENHest_put_text(uint x, uint y, const char * str)
 		strcpy(ENHest_plaintext, str);
 		return;
 	}
-
 	ENHest_x = x;
 	ENHest_y = y;
-
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    ENHest_font, ENHest_fontsize,
-	    0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, ENHest_font, ENHest_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-
 		enh_err_check(str);
 		if(!*++str)
 			break; /* end of string */
 	}
-
 	ENHest_plaintext[ENHest_plaintext_pos] = '\0';
 	if(ENHest_x > 0.0 && ENHest_x < 1.0)
 		ENHest_x = 1;

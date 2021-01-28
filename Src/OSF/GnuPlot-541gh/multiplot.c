@@ -1,35 +1,6 @@
-/* GNUPLOT - term.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - term.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 /*
  * Bookkeeping and support routines for 'set multiplot layout ...'
  * Jul 2004 Volker Dobler     layout rows, columns
@@ -261,13 +232,13 @@ void multiplot_start()
 			if(GPO.Pgm.EndOfCommand())
 				GPO.IntErrorCurToken("expecting '<num_cols>,<num_rows>'");
 			// read row,col 
-			mp_layout.num_rows = int_expression();
+			mp_layout.num_rows = GPO.IntExpression();
 			if(GPO.Pgm.EndOfCommand() || !GPO.Pgm.EqualsCur(",") )
 				GPO.IntErrorCurToken("expecting ', <num_cols>'");
 			GPO.Pgm.Shift();
 			if(GPO.Pgm.EndOfCommand())
 				GPO.IntErrorCurToken("expecting <num_cols>");
-			mp_layout.num_cols = int_expression();
+			mp_layout.num_cols = GPO.IntExpression();
 			// remember current values of the plot size and the margins 
 			mp_layout.prev_xsize = xsize;
 			mp_layout.prev_ysize = ysize;
@@ -586,10 +557,8 @@ static void mp_layout_margins_and_spacing(void)
 static void mp_layout_set_margin_or_spacing(t_position * margin)
 {
 	margin->x = -1;
-
 	if(GPO.Pgm.EndOfCommand())
 		return;
-
 	if(GPO.Pgm.AlmostEqualsCur("sc$reen")) {
 		margin->scalex = screen;
 		GPO.Pgm.Shift();
@@ -598,11 +567,9 @@ static void mp_layout_set_margin_or_spacing(t_position * margin)
 		margin->scalex = character;
 		GPO.Pgm.Shift();
 	}
-
 	margin->x = GPO.RealExpression();
 	if(margin->x < 0)
 		margin->x = -1;
-
 	if(margin->scalex == screen) {
 		if(margin->x < 0)
 			margin->x = 0;

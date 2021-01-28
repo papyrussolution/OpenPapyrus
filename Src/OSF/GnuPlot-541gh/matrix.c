@@ -41,11 +41,12 @@
 /* allocates a double vector with n elements */
 double * vec(int n)
 {
-	double * dp;
 	if(n < 1)
 		return NULL;
-	dp = (double *)gp_alloc(n * sizeof(double), "vec");
-	return dp;
+	else {
+		double * dp = (double *)gp_alloc(n * sizeof(double), "vec");
+		return dp;
+	}
 }
 
 /* allocates a double matrix */
@@ -63,7 +64,7 @@ double ** matr(int rows, int cols)
 
 void free_matr(double ** m)
 {
-	if(m != NULL) {
+	if(m) {
 		SAlloc::F(m[0]);
 		SAlloc::F(m);
 	}
@@ -296,7 +297,6 @@ double sumsq_vec(int n, const double * x)
 	int i;
 	double s;
 	double c = 0.0;
-
 	if((x == NULL) || (n == 0))
 		return 0;
 
@@ -316,9 +316,7 @@ double sumsq_vec(int n, const double * x)
 }
 
 /*****************************************************************
-
     Euclidean norm of a vector
-
 *****************************************************************/
 double enorm_vec(int n, const double * x)
 {

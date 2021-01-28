@@ -1057,37 +1057,37 @@ FPoint FASTCALL trans01(FPoint p, FPoint radius, float angle) { return FPoint(p.
 //
 //
 //
-RPoint & RPoint::Set(double _xy)
+SPoint2R & SPoint2R::Set(double _xy)
 {
 	x = y = _xy;
 	return *this;
 }
 
-RPoint & RPoint::Set(double _x, double _y)
+SPoint2R & SPoint2R::Set(double _x, double _y)
 {
 	x = _x;
 	y = _y;
 	return *this;
 }
 
-RPoint & RPoint::SetPolar(double v, double rad)
+SPoint2R & SPoint2R::SetPolar(double v, double rad)
 {
 	return Set(v * cos(rad), v * sin(rad));
 }
 
-void RPoint::GetInt(int * pX, int * pY) const
+void SPoint2R::GetInt(int * pX, int * pY) const
 {
 	ASSIGN_PTR(pX, (int)x);
 	ASSIGN_PTR(pY, (int)y);
 }
 
-void RPoint::GetUInt(uint * pX, uint * pY) const
+void SPoint2R::GetUInt(uint * pX, uint * pY) const
 {
 	ASSIGN_PTR(pX, (uint)x);
 	ASSIGN_PTR(pY, (uint)y);
 }
 
-int FASTCALL RPoint::FromStr(const char * pStr)
+int FASTCALL SPoint2R::FromStr(const char * pStr)
 {
 	int    ok = 0;
 	SString temp_buf;
@@ -1110,32 +1110,32 @@ int FASTCALL RPoint::FromStr(const char * pStr)
 	return ok;
 }
 
-static RPoint & Push_RPoint(double x, double y)
+static SPoint2R & Push_RPoint(double x, double y)
 {
-	RPoint p;
+	SPoint2R p;
 	p.x = x;
 	p.y = y;
-	return PushRecycledObject <RPoint, 64> (p);
+	return PushRecycledObject <SPoint2R, 64> (p);
 }
 
-static RPoint3 & Push_RPoint3(double x, double y, double z)
+static SPoint3R & Push_RPoint3(double x, double y, double z)
 {
-	RPoint3 p;
+	SPoint3R p;
 	p.x = x;
 	p.y = y;
 	p.z = z;
-	return PushRecycledObject <RPoint3, 64> (p);
+	return PushRecycledObject <SPoint3R, 64> (p);
 }
 
-RPoint & FASTCALL operator - (const RPoint & one, const RPoint & two) { return Push_RPoint(one.x - two.x, one.y - two.y); }
-RPoint & FASTCALL operator + (const RPoint & one, const RPoint & two) { return Push_RPoint(one.x + two.x, one.y + two.y); }
-RPoint & FASTCALL operator + (const RPoint & p, double a) { return Push_RPoint(p.x + a, p.y + a); }
-RPoint & FASTCALL operator * (const RPoint & p, double m) { return Push_RPoint(p.x * m, p.y * m); }
-RPoint & FASTCALL operator / (const RPoint & p, double d) { return (d != 0.0) ? Push_RPoint(p.x / d, p.y / d) : Push_RPoint(0.0, 0.0); }
+SPoint2R & FASTCALL operator - (const SPoint2R & one, const SPoint2R & two) { return Push_RPoint(one.x - two.x, one.y - two.y); }
+SPoint2R & FASTCALL operator + (const SPoint2R & one, const SPoint2R & two) { return Push_RPoint(one.x + two.x, one.y + two.y); }
+SPoint2R & FASTCALL operator + (const SPoint2R & p, double a) { return Push_RPoint(p.x + a, p.y + a); }
+SPoint2R & FASTCALL operator * (const SPoint2R & p, double m) { return Push_RPoint(p.x * m, p.y * m); }
+SPoint2R & FASTCALL operator / (const SPoint2R & p, double d) { return (d != 0.0) ? Push_RPoint(p.x / d, p.y / d) : Push_RPoint(0.0, 0.0); }
 //
 //
 //
-RPoint3 & RPoint3::Set(double _x, double _y, double _z)
+SPoint3R & SPoint3R::Set(double _x, double _y, double _z)
 {
 	x = _x;
 	y = _y;
@@ -1143,22 +1143,22 @@ RPoint3 & RPoint3::Set(double _x, double _y, double _z)
 	return *this;
 }
 
-RPoint3 & FASTCALL operator - (const RPoint3 & one, const RPoint3 & two)
+SPoint3R & FASTCALL operator - (const SPoint3R & one, const SPoint3R & two)
 {
 	return Push_RPoint3(one.x - two.x, one.y - two.y, one.z - two.z);
 }
 
-RPoint3 & FASTCALL operator + (const RPoint3 & one, const RPoint3 & two)
+SPoint3R & FASTCALL operator + (const SPoint3R & one, const SPoint3R & two)
 {
 	return Push_RPoint3(one.x + two.x, one.y + two.y, one.z + two.z);
 }
 
-RPoint3 & FASTCALL operator * (const RPoint3 & p, double m)
+SPoint3R & FASTCALL operator * (const SPoint3R & p, double m)
 {
 	return Push_RPoint3(p.x * m, p.y * m, p.z * m);
 }
 
-RPoint3 & FASTCALL operator / (const RPoint3 & p, double d)
+SPoint3R & FASTCALL operator / (const SPoint3R & p, double d)
 {
 	return (d != 0.0) ? Push_RPoint3(p.x / d, p.y / d, p.z / d) : Push_RPoint3(0.0, 0.0, 0.0);
 }

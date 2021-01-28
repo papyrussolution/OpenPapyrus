@@ -1488,7 +1488,7 @@ TERM_PUBLIC void SVG_put_text(uint x, uint y, const char * str)
 	}
 
 /* vertical justification*/
-	vertical_offset = (SVG_fontAscent - SVG_fontDescent) / 2.;
+	vertical_offset = (SVG_fontAscent - SVG_fontDescent) / 2.0;
 	h += vertical_offset * sin(SVG_TextAngle * DEG2RAD);
 	v -= vertical_offset * cos(SVG_TextAngle * DEG2RAD);
 
@@ -1640,14 +1640,12 @@ TERM_PUBLIC void SVG_set_color(t_colorspec * colorspec)
 		rgb255.r = colorspec->lt >> 16 & 0xff;
 		rgb255.g = colorspec->lt >> 8 & 0xff;
 		rgb255.b = colorspec->lt & 0xff;
-		SVG_alpha = (double)(colorspec->lt >> 24 & 0xff) / 255.;
+		SVG_alpha = (double)(colorspec->lt >> 24 & 0xff) / 255.0;
 	}
 	else {
 		return;
 	}
-
 	SVG_color_mode = TC_RGB;
-
 	if(rgb255.r != SVG_red || rgb255.g != SVG_green || rgb255.b != SVG_blue) {
 		/* pm3d color has changed. We must start a new path
 		 * with a different line color. This is necessary when
@@ -1657,7 +1655,6 @@ TERM_PUBLIC void SVG_set_color(t_colorspec * colorspec)
 		SVG_green = rgb255.g;
 		SVG_blue = rgb255.b;
 	}
-
 	return;
 }
 
@@ -1758,11 +1755,9 @@ TERM_PUBLIC void SVG_layer(t_termlayer syncpoint)
 		    SVG_gridline = TRUE;
 		    SVG_hasgrid = TRUE;
 		    break;
-
 		case TERM_LAYER_END_GRID:
 		    SVG_gridline = FALSE;
 		    break;
-
 		case TERM_LAYER_BEGIN_KEYSAMPLE:
 		    if(SVG_mouseable) {
 			    SVG_PathClose();
@@ -1814,10 +1809,10 @@ TERM_PUBLIC void SVG_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 		fprintf(gpoutfile, "'/>\n");
 	}
 	else {
-		/* Write the image to a png file */
+		// Write the image to a png file 
 		char * base_name = SVG_name ? SVG_name : "gp";
 		int wpiresult;
-		char * image_file = gp_alloc(strlen(base_name)+16, "SVG_image");
+		char * image_file = (char *)gp_alloc(strlen(base_name)+16, "SVG_image");
 		sprintf(image_file, "%s_image_%02d.png", base_name, ++SVG_imageno);
 		wpiresult = write_png_image(m, n, image, color_mode, image_file);
 		/* Reference the png image file */
@@ -1830,16 +1825,12 @@ TERM_PUBLIC void SVG_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 
 #endif
 
-/* Enhanced text mode support starts here */
-
+// Enhanced text mode support starts here 
 static double ENHsvg_base = 0.0;
 static bool ENHsvg_opened_string = FALSE;
 static int ENHsvg_charcount = 0;
 
-TERM_PUBLIC void ENHsvg_OPEN(char * fontname,
-    double fontsize, double base,
-    bool widthflag, bool showflag,
-    int overprint)
+TERM_PUBLIC void ENHsvg_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	/* overprint = 1 means print the base text (leave position in center)
 	 * overprint = 2 means print the overlying text
@@ -1855,8 +1846,7 @@ TERM_PUBLIC void ENHsvg_OPEN(char * fontname,
 		     *        they all get piled on top of one another.
 		     */
 		    ENHsvg_FLUSH();
-		    fprintf(gpoutfile, "<tspan dx=\"-%.1fem\" dy=\"%.1fpx\">",
-			0.5 * ENHsvg_charcount, ENHsvg_base-base);
+		    fprintf(gpoutfile, "<tspan dx=\"-%.1fem\" dy=\"%.1fpx\">", 0.5 * ENHsvg_charcount, ENHsvg_base-base);
 		    ENHsvg_base = base;
 		    ENHsvg_x_offset = 0.0;
 		    enhanced_cur_text = enhanced_text;
@@ -1875,11 +1865,9 @@ TERM_PUBLIC void ENHsvg_OPEN(char * fontname,
 		default:
 		    break;
 	}
-
 	if(!ENHsvg_opened_string) {
 		ENHsvg_opened_string = TRUE;
 		enhanced_cur_text = enhanced_text;
-
 		/* Start a new textspan fragment */
 		fputs("<tspan", gpoutfile);
 		if(!fontname)
@@ -1992,14 +1980,11 @@ TERM_PUBLIC void ENHsvg_put_text(uint x, uint y, const char * str)
 	/* fragment. Without this, all whitespace is collapsed to a single ' '.*/
 	if(strstr(str, "  "))
 		ENHsvg_preserve_spaces = TRUE;
-
 	/* Set up global variables needed by enhanced_recursion() */
 	ENHsvg_charcount = 0;
 	enhanced_fontscale = 1.0;
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		enh_err_check(str);
 		if(!*++str)
@@ -2146,34 +2131,57 @@ TERM_PUBLIC void SVG_boxed_text(uint x, uint y, int option)
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(svg_driver)
-"svg", "W3C Scalable Vector Graphics",
-0 /* xmax */, 0 /* ymax */, 0 /* vchar */, 0 /* hchar */,
-0 /* vtic */, 0 /* htic */,
-SVG_options, SVG_init, SVG_reset, SVG_text, null_scale, SVG_graphics,
-SVG_move, SVG_vector, SVG_linetype, SVG_put_text, SVG_text_angle,
-SVG_justify_text, SVG_point, do_arrow, SVG_set_font, do_pointsize,
-TERM_CAN_DASH | TERM_ALPHA_CHANNEL|TERM_LINEWIDTH,
-0 /* suspend */, 0 /* resume */, SVG_fillbox, SVG_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0    /* no mouse support for svg */
-#endif
-, SVG_make_palette,
-SVG_previous_palette,
-SVG_set_color,
-SVG_filled_polygon
-#ifdef WRITE_PNG_IMAGE
-, SVG_image
-#else
-, NULL          /* image */
-#endif
-, ENHsvg_OPEN, ENHsvg_FLUSH, ENHsvg_writec
-, SVG_layer     /* layer */
-, SVG_path      /* path */
-, SVG_SCALE     /* pixel oversampling scale */
-, SVG_hypertext         /* hypertext support */
-, SVG_boxed_text        /* boxed text labels */
-, NULL                  /* modify_plots */
-, SVG_dashtype          /* Version 5 dashtype support */
+	"svg", 
+	"W3C Scalable Vector Graphics",
+	0 /* xmax */, 
+	0 /* ymax */, 
+	0 /* vchar */, 
+	0 /* hchar */,
+	0 /* vtic */, 
+	0 /* htic */,
+	SVG_options, 
+	SVG_init, 
+	SVG_reset, 
+	SVG_text, 
+	null_scale, 
+	SVG_graphics,
+	SVG_move, 
+	SVG_vector, 
+	SVG_linetype, 
+	SVG_put_text, 
+	SVG_text_angle,
+	SVG_justify_text, 
+	SVG_point, 
+	do_arrow, 
+	SVG_set_font, 
+	do_pointsize,
+	TERM_CAN_DASH | TERM_ALPHA_CHANNEL|TERM_LINEWIDTH,
+	0 /* suspend */, 
+	0 /* resume */, 
+	SVG_fillbox, 
+	SVG_linewidth
+	#ifdef USE_MOUSE
+	, 0, 0, 0, 0, 0    /* no mouse support for svg */
+	#endif
+	, SVG_make_palette,
+	SVG_previous_palette,
+	SVG_set_color,
+	SVG_filled_polygon
+	#ifdef WRITE_PNG_IMAGE
+	, SVG_image
+	#else
+	, NULL          /* image */
+	#endif
+	, ENHsvg_OPEN, 
+	ENHsvg_FLUSH, 
+	ENHsvg_writec, 
+	SVG_layer,     /* layer */
+	SVG_path,      /* path */
+	SVG_SCALE,     /* pixel oversampling scale */
+	SVG_hypertext,         /* hypertext support */
+	SVG_boxed_text,        /* boxed text labels */
+	NULL,                  /* modify_plots */
+	SVG_dashtype          /* Version 5 dashtype support */
 TERM_TABLE_END(svg_driver)
 
 #undef LAST_TERM

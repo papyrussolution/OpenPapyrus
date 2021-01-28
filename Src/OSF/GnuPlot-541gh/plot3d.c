@@ -1,34 +1,6 @@
-/* GNUPLOT - plot3d.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - plot3d.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -251,15 +223,16 @@ void iso_free(struct iso_curve * ip)
 	}
 }
 
-void plot3drequest()
-/*
- * in the parametric case we would say splot [u= -Pi:Pi] [v= 0:2*Pi] [-1:1]
- * [-1:1] [-1:1] sin(v)*cos(u),sin(v)*cos(u),sin(u) in the non-parametric
- * case we would say only splot [x= -2:2] [y= -5:5] sin(x)*cos(y)
- *
- */
+//void plot3drequest()
+void GnuPlot::Plot3DRequest()
 {
-	int dummy_token0 = -1, dummy_token1 = -1;
+	// 
+	// in the parametric case we would say splot [u= -Pi:Pi] [v= 0:2*Pi] [-1:1]
+	// [-1:1] [-1:1] sin(v)*cos(u),sin(v)*cos(u),sin(u) in the non-parametric
+	// case we would say only splot [x= -2:2] [y= -5:5] sin(x)*cos(y)
+	// 
+	int    dummy_token0 = -1;
+	int    dummy_token1 = -1;
 	/*AXIS_INDEX*/int axis;
 	/*AXIS_INDEX*/int u_axis;
 	/*AXIS_INDEX*/int v_axis;
@@ -268,28 +241,27 @@ void plot3drequest()
 		strcpy(set_dummy_var[0], "u");
 		strcpy(set_dummy_var[1], "v");
 	}
-
-	/* initialize the arrays from the 'set' scalars */
-	axis_init(&GPO.AxS[FIRST_X_AXIS], FALSE);
-	axis_init(&GPO.AxS[FIRST_Y_AXIS], FALSE);
-	axis_init(&GPO.AxS[FIRST_Z_AXIS], TRUE);
-	axis_init(&GPO.AxS[U_AXIS], FALSE);
-	axis_init(&GPO.AxS[V_AXIS], FALSE);
-	axis_init(&GPO.AxS[COLOR_AXIS], TRUE);
+	// initialize the arrays from the 'set' scalars 
+	axis_init(&AxS[FIRST_X_AXIS], FALSE);
+	axis_init(&AxS[FIRST_Y_AXIS], FALSE);
+	axis_init(&AxS[FIRST_Z_AXIS], TRUE);
+	axis_init(&AxS[U_AXIS], FALSE);
+	axis_init(&AxS[V_AXIS], FALSE);
+	axis_init(&AxS[COLOR_AXIS], TRUE);
 
 	/* Always be prepared to restore the autoscaled values on "refresh"
 	 * Dima Kogan April 2018
 	 * FIXME: Could we fold this into axis_init?
 	 */
 	for(axis = (AXIS_INDEX)0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
-		GpAxis * this_axis = &GPO.AxS[axis];
+		GpAxis * this_axis = &AxS[axis];
 		if(this_axis->set_autoscale != AUTOSCALE_NONE)
 			this_axis->range_flags |= RANGE_WRITEBACK;
 	}
 	/* Nonlinear mapping of x or y via linkage to a hidden primary axis. */
 	/* The user set autoscale for the visible axis; apply it also to the hidden axis. */
 	for(axis = (AXIS_INDEX)0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
-		GpAxis * secondary = &GPO.AxS[axis];
+		GpAxis * secondary = &AxS[axis];
 		if(axis == SAMPLE_AXIS)
 			continue;
 		if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -secondary->index) {
@@ -299,47 +271,47 @@ void plot3drequest()
 		}
 	}
 	if(!term)               /* unknown */
-		GPO.IntErrorCurToken("use 'set term' to set terminal type first");
+		IntErrorCurToken("use 'set term' to set terminal type first");
 	/* Range limits for the entire plot are optional but must be given	*/
 	/* in a fixed order. The keyword 'sample' terminates range parsing.	*/
 	u_axis = (parametric ? U_AXIS : FIRST_X_AXIS);
 	v_axis = (parametric ? V_AXIS : FIRST_Y_AXIS);
-	dummy_token0 = parse_range((AXIS_INDEX)u_axis);
-	dummy_token1 = parse_range((AXIS_INDEX)v_axis);
+	dummy_token0 = ParseRange((AXIS_INDEX)u_axis);
+	dummy_token1 = ParseRange((AXIS_INDEX)v_axis);
 	if(parametric) {
-		parse_range(FIRST_X_AXIS);
-		parse_range(FIRST_Y_AXIS);
+		ParseRange(FIRST_X_AXIS);
+		ParseRange(FIRST_Y_AXIS);
 	}
-	parse_range(FIRST_Z_AXIS);
+	ParseRange(FIRST_Z_AXIS);
 	check_axis_reversed(FIRST_X_AXIS);
 	check_axis_reversed(FIRST_Y_AXIS);
 	check_axis_reversed(FIRST_Z_AXIS);
-	if(GPO.Pgm.EqualsCur("sample") && GPO.Pgm.EqualsNext("["))
-		GPO.Pgm.Shift();
+	if(Pgm.EqualsCur("sample") && Pgm.EqualsNext("["))
+		Pgm.Shift();
 	/* Clear out any tick labels read from data files in previous plot */
 	for(axis = (AXIS_INDEX)0; axis<AXIS_ARRAY_SIZE; axis++) {
-		t_ticdef * ticdef = &GPO.AxS[axis].ticdef;
+		t_ticdef * ticdef = &AxS[axis].ticdef;
 		if(ticdef->def.user)
 			ticdef->def.user = prune_dataticks(ticdef->def.user);
 		if(!ticdef->def.user && ticdef->type == TIC_USER)
 			ticdef->type = TIC_COMPUTED;
 	}
-	/* use the default dummy variable unless changed */
+	// use the default dummy variable unless changed 
 	if(dummy_token0 > 0)
-		GPO.Pgm.CopyStr(c_dummy_var[0], dummy_token0, MAX_ID_LEN);
+		Pgm.CopyStr(c_dummy_var[0], dummy_token0, MAX_ID_LEN);
 	else
 		strcpy(c_dummy_var[0], set_dummy_var[0]);
 	if(dummy_token1 > 0)
-		GPO.Pgm.CopyStr(c_dummy_var[1], dummy_token1, MAX_ID_LEN);
+		Pgm.CopyStr(c_dummy_var[1], dummy_token1, MAX_ID_LEN);
 	else
 		strcpy(c_dummy_var[1], set_dummy_var[1]);
 	// In "set view map" mode the x2 and y2 axes are legal 
 	// but must be linked to the respective primary axis. 
 	if(splot_map) {
-		if((GPO.AxS[SECOND_X_AXIS].ticmode && !GPO.AxS[SECOND_X_AXIS].linked_to_primary) || (GPO.AxS[SECOND_Y_AXIS].ticmode && !GPO.AxS[SECOND_Y_AXIS].linked_to_primary))
-			GPO.IntError(NO_CARET, "Secondary axis must be linked to primary axis in order to draw tics");
+		if((AxS[SECOND_X_AXIS].ticmode && !AxS[SECOND_X_AXIS].linked_to_primary) || (AxS[SECOND_Y_AXIS].ticmode && !AxS[SECOND_Y_AXIS].linked_to_primary))
+			IntError(NO_CARET, "Secondary axis must be linked to primary axis in order to draw tics");
 	}
-	GPO.Eval3DPlots();
+	Eval3DPlots();
 }
 
 /* Helper function for refresh command.  Reexamine each data point and update the
@@ -360,7 +332,7 @@ void refresh_3dbounds(surface_points * first_plot, int nplots)
 		/* IMAGE clipping is done elsewhere, so we don't need INRANGE/OUTRANGE checks */
 		if(this_plot->plot_style == IMAGE || this_plot->plot_style == RGBIMAGE || this_plot->plot_style == RGBA_IMAGE) {
 			if(x_axis->set_autoscale)
-				process_image(term, this_plot, IMG_UPDATE_AXES);
+				GPO.ProcessImage(term, this_plot, IMG_UPDATE_AXES);
 			continue;
 		}
 		for(this_curve = this_plot->iso_crvs; this_curve; this_curve = this_curve->next) {
@@ -404,15 +376,14 @@ void refresh_3dbounds(surface_points * first_plot, int nplots)
 			} /* End of points in this curve */
 		} /* End of curves in this plot */
 	} /* End of plots in this splot command */
-
 	// handle 'reverse' ranges 
 	GPO.AxS.CheckRange(FIRST_X_AXIS);
 	GPO.AxS.CheckRange(FIRST_Y_AXIS);
 	GPO.AxS.CheckRange(FIRST_Z_AXIS);
 	// Make sure the bounds are reasonable, and tweak them if they aren't 
-	axis_checked_extend_empty_range(FIRST_X_AXIS, NULL);
-	axis_checked_extend_empty_range(FIRST_Y_AXIS, NULL);
-	axis_checked_extend_empty_range(FIRST_Z_AXIS, NULL);
+	GPO.AxisCheckedExtendEmptyRange(FIRST_X_AXIS, NULL);
+	GPO.AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, NULL);
+	GPO.AxisCheckedExtendEmptyRange(FIRST_Z_AXIS, NULL);
 }
 
 static double splines_kernel(double h)
@@ -1091,16 +1062,15 @@ static int get_3ddata(struct surface_points * this_plot)
 				}
 				else if(GPO.AxS.__X().log) {
 					double width = (boxwidth > 0) ? boxwidth : 0.1;
-					xlow = x * pow(GPO.AxS.__X().base, -width/2.);
-					xhigh = x * pow(GPO.AxS.__X().base, width/2.);
+					xlow = x * pow(GPO.AxS.__X().base, -width/2.0);
+					xhigh = x * pow(GPO.AxS.__X().base, width/2.0);
 				}
 				else {
 					double width = (boxwidth > 0) ? boxwidth : 1.0;
-					xlow = x - width/2.;
-					xhigh = x + width/2.;;
+					xlow = x - width/2.0;
+					xhigh = x + width/2.0;
 				}
 				track_pm3d_quadrangles = TRUE;
-
 #ifdef BOXERROR_3D
 			}
 			else if(this_plot->plot_style == BOXERROR) {
@@ -1157,11 +1127,9 @@ static int get_3ddata(struct surface_points * this_plot)
 				}
 			}
 #undef color_from_column
-
-			/* The STORE_AND_UPDATE_RANGE macro cannot use "continue" as
-			 * an action statement because it is wrapped in a loop.
-			 * I regard this as correct goto use
-			 */
+			// The STORE_AND_UPDATE_RANGE macro cannot use "continue" as
+			// an action statement because it is wrapped in a loop.
+			// I regard this as correct goto use
 			cp->type = INRANGE;
 			STORE_AND_UPDATE_RANGE(cp->x, x, cp->type, GPO.AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
 			STORE_AND_UPDATE_RANGE(cp->y, y, cp->type, GPO.AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
@@ -1171,26 +1139,23 @@ static int get_3ddata(struct surface_points * this_plot)
 				STORE_AND_UPDATE_RANGE(cphead->y, ytail, cphead->type, GPO.AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
 			}
 			if(dgrid3d) {
-				/* No point in auto-scaling before we re-grid the data */
+				// No point in auto-scaling before we re-grid the data 
 				cp->z = z;
 				cp->CRD_COLOR = (pm3d_color_from_column) ? color : z;
 			}
 			else {
 				coord_type dummy_type;
-				/* Without this,  z=Nan or z=Inf or DF_MISSING fails to set
-				 * CRD_COLOR at all, since the z test bails to a goto.
-				 */
+				// Without this,  z=Nan or z=Inf or DF_MISSING fails to set
+				// CRD_COLOR at all, since the z test bails to a goto.
 				if(this_plot->plot_style == IMAGE) {
 					dummy_type = INRANGE;
 					store_and_update_range(&cp->CRD_COLOR, (pm3d_color_from_column) ? color : z, &dummy_type, &GPO.AxS.__CB(), this_plot->noautoscale);
-					/* Rejecting z because x or y is OUTRANGE causes lost pixels
-					 * and possilbe non-rectangular image arrays, which then fail.
-					 * Better to mark all pixels INRANGE and clip them later.
-					 */
+					// Rejecting z because x or y is OUTRANGE causes lost pixels
+					// and possilbe non-rectangular image arrays, which then fail.
+					// Better to mark all pixels INRANGE and clip them later.
 					cp->type = INRANGE;
 				}
-
-				/* Version 5: cp->z=0 in the UNDEF_ACTION recovers what	version 4 did */
+				// Version 5: cp->z=0 in the UNDEF_ACTION recovers what	version 4 did 
 				STORE_AND_UPDATE_RANGE(cp->z, z, cp->type, GPO.AxS.Idx_Z, this_plot->noautoscale, cp->z = 0; goto come_here_if_undefined);
 				if(this_plot->plot_style == ZERRORFILL ||  this_plot->plot_style == BOXERROR) {
 					STORE_AND_UPDATE_RANGE(cp->CRD_ZLOW, zlow, cp->type, GPO.AxS.Idx_Z, this_plot->noautoscale, goto come_here_if_undefined);
@@ -1202,7 +1167,7 @@ static int get_3ddata(struct surface_points * this_plot)
 				if(this_plot->plot_style == BOXES) {
 					STORE_AND_UPDATE_RANGE(cp->xlow, xlow, cp->type, GPO.AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
 					STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, cp->type, GPO.AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
-					/* autoscale on y without losing color information stored in CRD_COLOR */
+					// autoscale on y without losing color information stored in CRD_COLOR 
 					if(boxdepth > 0) {
 						double dummy;
 						STORE_AND_UPDATE_RANGE(dummy, y - boxdepth, cp->type, GPO.AxS.Idx_Y, this_plot->noautoscale, {});
@@ -1492,14 +1457,14 @@ void GnuPlot::Eval3DPlots()
 			was_definition = FALSE;
 			// Check for sampling range[s]
 			// Note: we must allow both for '+', which uses SAMPLE_AXIS, and '++', which uses U_AXIS and V_AXIS
-			u_sample_range_token = parse_range(SAMPLE_AXIS);
+			u_sample_range_token = ParseRange(SAMPLE_AXIS);
 			if(u_sample_range_token != 0) {
 				AxS[U_AXIS].min = AxS[SAMPLE_AXIS].min;
 				AxS[U_AXIS].max = AxS[SAMPLE_AXIS].max;
 				AxS[U_AXIS].autoscale = AxS[SAMPLE_AXIS].autoscale;
 				AxS[U_AXIS].SAMPLE_INTERVAL = AxS[SAMPLE_AXIS].SAMPLE_INTERVAL;
 			}
-			v_sample_range_token = parse_range(V_AXIS);
+			v_sample_range_token = ParseRange(V_AXIS);
 			if(u_sample_range_token > 0)
 				AxS[SAMPLE_AXIS].range_flags |= RANGE_SAMPLED;
 			if(u_sample_range_token > 0 && AxS[U_AXIS].SAMPLE_INTERVAL != 0)
@@ -2191,8 +2156,8 @@ SKIPPED_EMPTY_FILE:
 			// Give error if xrange badly set from missing datafile error.
 			// Parametric fn can still set ranges.
 			// If there are no fns, we'll report it later as 'nothing to plot'.
-			axis_checked_extend_empty_range(FIRST_X_AXIS, "x range is invalid");
-			axis_checked_extend_empty_range(FIRST_Y_AXIS, "y range is invalid");
+			AxisCheckedExtendEmptyRange(FIRST_X_AXIS, "x range is invalid");
+			AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "y range is invalid");
 		}
 		if(parametric && !some_data_files) {
 			// parametric fn can still change x/y range 
@@ -2206,14 +2171,14 @@ SKIPPED_EMPTY_FILE:
 				AxS[FIRST_Y_AXIS].max = -VERYLARGE;
 		}
 		/*{{{  figure ranges, restricting logscale limits to be positive */
-		u_min = axis_log_value_checked(u_axis, AxS[u_axis].min, "x range");
-		u_max = axis_log_value_checked(u_axis, AxS[u_axis].max, "x range");
+		u_min = AxisLogValueChecked(u_axis, AxS[u_axis].min, "x range");
+		u_max = AxisLogValueChecked(u_axis, AxS[u_axis].max, "x range");
 		if(nonlinear(&AxS[u_axis])) {
 			u_min = AxS[u_axis].linked_to_primary->min;
 			u_max = AxS[u_axis].linked_to_primary->max;
 		}
-		v_min = axis_log_value_checked(v_axis, AxS[v_axis].min, "y range");
-		v_max = axis_log_value_checked(v_axis, AxS[v_axis].max, "y range");
+		v_min = AxisLogValueChecked(v_axis, AxS[v_axis].min, "y range");
+		v_max = AxisLogValueChecked(v_axis, AxS[v_axis].max, "y range");
 		if(nonlinear(&AxS[v_axis])) {
 			v_min = AxS[v_axis].linked_to_primary->min;
 			v_max = AxS[v_axis].linked_to_primary->max;
@@ -2263,8 +2228,8 @@ SKIPPED_EMPTY_FILE:
 				// Check for a sampling range
 				// Currently we only support sampling of pseudofiles '+' and '++'.
 				// This loop is for functions only, so the sampling range is ignored.
-				parse_range(U_AXIS);
-				parse_range(V_AXIS);
+				ParseRange(U_AXIS);
+				ParseRange(V_AXIS);
 				dummy_func = &plot_func;
 				name_str = string_or_express(&at_ptr);
 				if(Pgm.EqualsCur("keyentry")) {
@@ -2340,7 +2305,7 @@ SKIPPED_EMPTY_FILE:
 		axis_check_empty_nonlinear(&AxS[FIRST_X_AXIS]);
 	}
 	else {
-		axis_checked_extend_empty_range(FIRST_X_AXIS, "All points x value undefined");
+		AxisCheckedExtendEmptyRange(FIRST_X_AXIS, "All points x value undefined");
 		AxS.CheckRange(FIRST_X_AXIS);
 	}
 	if(nonlinear(&AxS[FIRST_Y_AXIS])) {
@@ -2350,7 +2315,7 @@ SKIPPED_EMPTY_FILE:
 		axis_check_empty_nonlinear(&AxS[FIRST_Y_AXIS]);
 	}
 	else {
-		axis_checked_extend_empty_range(FIRST_Y_AXIS, "All points y value undefined");
+		AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "All points y value undefined");
 		AxS.CheckRange(FIRST_Y_AXIS);
 	}
 	if(nonlinear(&AxS[FIRST_Z_AXIS])) {
@@ -2358,7 +2323,7 @@ SKIPPED_EMPTY_FILE:
 		extend_primary_ticrange(&AxS[FIRST_Z_AXIS]);
 	}
 	else {
-		axis_checked_extend_empty_range(FIRST_Z_AXIS, splot_map ? NULL : "All points z value undefined");
+		AxisCheckedExtendEmptyRange(FIRST_Z_AXIS, splot_map ? NULL : "All points z value undefined");
 		AxS.CheckRange(FIRST_Z_AXIS);
 	}
 	setup_tics(&AxS[FIRST_X_AXIS], 20);
@@ -2370,8 +2335,8 @@ SKIPPED_EMPTY_FILE:
 	}
 	set_plot_with_palette(plot_num, MODE_SPLOT);
 	if(is_plot_with_palette()) {
-		set_cbminmax();
-		axis_checked_extend_empty_range(COLOR_AXIS, "All points of colorbox value undefined");
+		SetCbMinMax();
+		AxisCheckedExtendEmptyRange(COLOR_AXIS, "All points of colorbox value undefined");
 		setup_tics(&AxS[COLOR_AXIS], 20);
 	}
 	if(!plot_num || !first_3dplot) {
@@ -2434,7 +2399,7 @@ SKIPPED_EMPTY_FILE:
 				new_plot->plot_type = DATA3D;
 				new_plot->opt_out_of_hidden3d = FALSE;
 				// Compute the geometry of the phantom 
-				process_image(term, this_plot, IMG_UPDATE_CORNERS);
+				ProcessImage(term, this_plot, IMG_UPDATE_CORNERS);
 				// Advance over the phantom 
 				plot_num++;
 				this_plot = this_plot->next_sp;
@@ -2456,13 +2421,13 @@ SKIPPED_EMPTY_FILE:
 		print_3dtable(plot_num);
 	}
 	else {
-		do_3dplot(term, first_3dplot, plot_num, NORMAL_REPLOT);
+		Do3DPlot(term, first_3dplot, plot_num, NORMAL_REPLOT);
 		/* after do_3dplot(), AxS[].min and .max
 		 * contain the plotting range actually used (rounded
 		 * to tic marks, not only the min/max data values)
 		 * --> save them now for writeback if requested
 		 */
-		save_writeback_all_axes();
+		SaveWritebackAllAxes();
 		// Mark these plots as safe for quick refresh 
 		SET_REFRESH_OK(E_REFRESH_OK_3D, plot_num);
 	}

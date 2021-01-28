@@ -1091,32 +1091,22 @@ TERM_PUBLIC void EMF_filled_polygon(int points, gpiPoint * corners)
 #endif
 		case FS_SOLID: /* solid fill */
 		    if(fillpar >= 0 && fillpar < 100) {
-			    double density = (double)fillpar / 100.;
-			    color = ((int)((double)((emf_color>>16)&0xff)*density) << 16)
-				+ ((int)((double)((emf_color>>8)&0xff)*density) << 8)
-				+ ((int)((double)(emf_color&0xff)*density));
-			    color += ((int)(255.*(1.-density)) << 16)
-				+ ((int)(255.*(1.-density)) << 8)
-				+ ((int)(255.*(1.-density)));
+			    double density = (double)fillpar / 100.0;
+			    color = ((int)((double)((emf_color>>16)&0xff)*density) << 16) + ((int)((double)((emf_color>>8)&0xff)*density) << 8) + ((int)((double)(emf_color&0xff)*density));
+			    color += ((int)(255.*(1.-density)) << 16) + ((int)(255.*(1.-density)) << 8) + ((int)(255.*(1.-density)));
 		    }
 		    break;
 		default:
 		    break;
 	}
-
 	EMF_flush_dashtype();
-
 	/* MS documentation says not to delete an object while it is selected */
 	EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
 	EMF_SelectObject(EMF_STOCK_OBJECT_WHITE_BRUSH);
-
 	EMF_DeleteObject(EMF_HANDLE_BRUSH);
-
-	if(style == FS_PATTERN || style == FS_TRANSPARENT_PATTERN) {
-		/* Implementation of bitmapped pattern fill */
-		const uchar * pattern;
-
-		pattern = pattern_bitmaps[fillpar % pattern_num];
+	if(oneof2(style, FS_PATTERN, FS_TRANSPARENT_PATTERN)) {
+		// Implementation of bitmapped pattern fill 
+		const uchar * pattern = pattern_bitmaps[fillpar % pattern_num];
 		emf_textcolor = color;
 		EMF_SetTextColor(emf_textcolor);
 		EMF_CreateMonoBrush(EMF_HANDLE_BRUSH);
@@ -1125,17 +1115,13 @@ TERM_PUBLIC void EMF_filled_polygon(int points, gpiPoint * corners)
 	}
 	else
 		EMF_CreateBrush(EMF_HANDLE_BRUSH, 0, color, 0);
-
 	EMF_SelectObject(EMF_HANDLE_BRUSH);
-
 	EMF_DeleteObject(EMF_HANDLE_PEN);
 	EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, emf_linewidth * EMF_PX2HM, color);
 	EMF_SelectObject(EMF_HANDLE_PEN);
-
 	EMF_CreatePolygon(points);
 	for(i = 0; i<points; i++)
 		EMF_write_pointl(corners[i].x, term->ymax - corners[i].y);
-
 	/* Force re-evaluation of linetype next time we draw a line */
 	emf_linetype = LT_UNDEFINED;
 	emf_dashtype = LT_UNDEFINED;
@@ -1144,13 +1130,11 @@ TERM_PUBLIC void EMF_filled_polygon(int points, gpiPoint * corners)
 TERM_PUBLIC void EMF_fillbox(int style, uint x1, uint y1, uint width, uint height)
 {
 	gpiPoint corner[4];
-
 	corner[0].x = x1;        corner[0].y = y1;
 	corner[1].x = x1+width;  corner[1].y = y1;
 	corner[2].x = x1+width;  corner[2].y = y1+height;
 	corner[3].x = x1;        corner[3].y = y1+height;
 	corner->style = style;
-
 	EMF_filled_polygon(4, corner);
 }
 
@@ -1808,10 +1792,8 @@ TERM_PUBLIC void ENHemf_FLUSH()
 TERM_PUBLIC void ENHemf_put_text(uint x, uint y, const char * str)
 {
 	char * original_string = (char*)str;
-
 	if(str == NULL || *str == '\0')
 		return;
-
 	/* if there are no magic characters, we should just be able
 	 * punt the string to EMF_put_text()
 	 */
@@ -1821,31 +1803,24 @@ TERM_PUBLIC void ENHemf_put_text(uint x, uint y, const char * str)
 			EMF_put_text(x, y, str);
 			return;
 		}
-
 	EMF_move(x, y);
-
 	if(emf_textcolor != emf_color) {
 		EMF_SetTextColor(emf_color);
 		emf_textcolor = emf_color;
 	}
-
 	/* set up the global variables needed by enhanced_recursion() */
 	enhanced_fontscale = 1.0;
 	safe_strncpy(enhanced_escape_format, "&#x%2.2x;", sizeof(enhanced_escape_format));
-
 	ENHemf_opened_string = FALSE;
 	ENHemf_overprint = 0;
 	ENHemf_fontsize = emf_fontsize;
-
 	if(emf_justify == RIGHT || emf_justify == CENTRE)
 		ENHemf_sizeonly = TRUE;
-
 #ifdef UPDATECP_MODE
 	EMF_SetTextAlign(GP_TA_BASELINE|GP_TA_LEFT|GP_TA_UPDATECP);
 #else
 	EMF_SetTextAlign(GP_TA_BASELINE|GP_TA_LEFT|GP_TA_NOUPDATECP);
 #endif
-
 	/* Set the recursion going. We say to keep going until a
 	 * closing brace, but we don't really expect to find one.
 	 * If the return value is not the nul-terminator of the
@@ -1853,21 +1828,14 @@ TERM_PUBLIC void ENHemf_put_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    emf_fontname, ENHemf_fontsize,
-	    0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, emf_fontname, ENHemf_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
-
 		if(!*++str)
 			break; /* end of string */
-
 		/* else carry on and process the rest of the string */
 	}
-
 	/* EAM May 2010 - 2-pass text justification */
 	/* We can do text justification by running the entire top level string */
 	/* through 2 times, with the ENHgd_sizeonly flag set the first time.   */
@@ -1877,7 +1845,6 @@ TERM_PUBLIC void ENHemf_put_text(uint x, uint y, const char * str)
 		enum JUSTIFY justification = emf_justify;
 		int x_offset = emf_posx - x;
 		int y_offset = (emf_vert_text == 0) ? 0 : emf_posy - y;
-
 		emf_justify = LEFT;
 		ENHemf_sizeonly = FALSE;
 		if(justification == RIGHT)
@@ -1886,11 +1853,9 @@ TERM_PUBLIC void ENHemf_put_text(uint x, uint y, const char * str)
 			ENHemf_put_text(x - x_offset/2, y - y_offset/2, original_string);
 		emf_justify = justification;
 	}
-
 	/* Restore everything we messed with */
 	EMF_setfont();
-	SAlloc::F(emf_last_fontname); /* invalidate any previous font */
-	emf_last_fontname = NULL;
+	ZFREE(emf_last_fontname); // invalidate any previous font 
 	ENHemf_base = 0;
 }
 
@@ -1898,12 +1863,29 @@ TERM_PUBLIC void ENHemf_put_text(uint x, uint y, const char * str)
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(emf_driver)
-"emf", "Enhanced Metafile format",
-EMF_XMAX, EMF_YMAX, EMF_VCHAR, EMF_HCHAR,
-EMF_VTIC, EMF_HTIC, EMF_options, EMF_init, EMF_reset,
-EMF_text, null_scale, EMF_graphics, EMF_move, EMF_solid_vector,
-EMF_linetype, EMF_put_text, EMF_text_angle,
-EMF_justify_text, EMF_point, do_arrow, EMF_set_font,
+"emf", 
+"Enhanced Metafile format",
+(uint)EMF_XMAX, 
+(uint)EMF_YMAX, 
+(uint)EMF_VCHAR, 
+(uint)EMF_HCHAR,
+(uint)EMF_VTIC, 
+(uint)EMF_HTIC, 
+EMF_options, 
+EMF_init, 
+EMF_reset,
+EMF_text, 
+null_scale, 
+EMF_graphics, 
+EMF_move, 
+EMF_solid_vector,
+EMF_linetype, 
+EMF_put_text, 
+EMF_text_angle,
+EMF_justify_text, 
+EMF_point, 
+do_arrow, 
+EMF_set_font,
 EMF_set_pointsize,
 TERM_BINARY|TERM_CAN_DASH|TERM_LINEWIDTH|TERM_FONTSCALE,
 NULL,                                   /* suspend */

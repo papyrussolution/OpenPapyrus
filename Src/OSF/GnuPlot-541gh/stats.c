@@ -1,34 +1,8 @@
-/* GNUPLOT - stats.c */
-/*
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
- */
+// GNUPLOT - stats.c 
+//
 #include <gnuplot.h>
 #pragma hdrstop
-#ifdef USE_STATS  /* Only compile this if configured with --enable-stats */
+#ifdef USE_STATS // Only compile this if configured with --enable-stats 
 
 #define INITIAL_DATA_SIZE (4096)   /* initial size of data arrays */
 
@@ -41,19 +15,13 @@ static char* fmt(char * buf, double val);
 static void sgl_column_output_nonformat(struct sgl_column_stats s, char * x);
 static void file_output(struct file_stats s);
 static void sgl_column_output(struct sgl_column_stats s, long n);
-static void two_column_output(struct sgl_column_stats x,
-    struct sgl_column_stats y,
-    struct two_column_stats xy, long n);
-
+static void two_column_output(struct sgl_column_stats x, struct sgl_column_stats y, struct two_column_stats xy, long n);
 static void clear_one_var(char * prefix, char * base);
 static void clear_stats_variables(char * prefix);
-
 static void create_and_set_var(double val, char * prefix, char * base, char * suffix);
 static void create_and_set_int_var(int ival, char * prefix, char * base, char * suffix);
-static void create_and_store_var(GpValue * data, char * prefix, char * base, char * suffix);
-
+static void create_and_store_var(const GpValue * data, char * prefix, char * base, char * suffix);
 static void sgl_column_variables(struct sgl_column_stats res, char * prefix, char * postfix);
-
 static bool validate_data(double v, AXIS_INDEX ax);
 
 /* =================================================================
@@ -112,15 +80,11 @@ struct sgl_column_stats {
 
 struct two_column_stats {
 	double sum_xy;
-
 	double slope;    /* linear regression */
 	double intercept;
-
 	double slope_err;
 	double intercept_err;
-
 	double correlation;
-
 	double pos_min_y; /* x coordinate of min y */
 	double pos_max_y; /* x coordinate of max y */
 };
@@ -137,15 +101,14 @@ static int comparator(const void * a, const void * b)
 {
 	struct pair * x = (struct pair *)a;
 	struct pair * y = (struct pair *)b;
-
 	if(x->val < y->val) return -1;
 	if(x->val > y->val) return 1;
 	return 0;
 }
 
-static struct file_stats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers) {
+static struct file_stats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers) 
+{
 	struct file_stats res;
-
 	res.records = n;
 	res.invalid = invalid;
 	res.blanks  = blank;
@@ -153,15 +116,13 @@ static struct file_stats analyze_file(long n, int outofrange, int invalid, int b
 	res.outofrange = outofrange;
 	res.header_records = headers;
 	res.columns = df_last_col;
-
 	return res;
 }
 
-static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc) {
+static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc) 
+{
 	struct sgl_column_stats res;
-
 	long i;
-
 	double s  = 0.0;
 	double s2 = 0.0;
 	double ad = 0.0;
@@ -469,10 +430,8 @@ static void sgl_column_output(struct sgl_column_stats s, long n)
 
 	/* For matrices, the quartiles and the median do not make too much sense */
 	if(s.sx > 0) {
-		fprintf(print_out, "  Minimum:       %s [%*ld %ld ]\n", fmt(buf, s.min.val), width,
-		    (s.min.index) % s.sx, (s.min.index) / s.sx);
-		fprintf(print_out, "  Maximum:       %s [%*ld %ld ]\n", fmt(buf, s.max.val), width,
-		    (s.max.index) % s.sx, (s.max.index) / s.sx);
+		fprintf(print_out, "  Minimum:       %s [%*ld %ld ]\n", fmt(buf, s.min.val), width, (s.min.index) % s.sx, (s.min.index) / s.sx);
+		fprintf(print_out, "  Maximum:       %s [%*ld %ld ]\n", fmt(buf, s.max.val), width, (s.max.index) % s.sx, (s.max.index) / s.sx);
 		fprintf(print_out, "  COG:           %s %s\n", fmt(buf, s.cog_x), fmt(buf2, s.cog_y) );
 	}
 	else {
@@ -486,24 +445,18 @@ static void sgl_column_output(struct sgl_column_stats s, long n)
 	}
 }
 
-static void two_column_output(struct sgl_column_stats x,
-    struct sgl_column_stats y,
-    struct two_column_stats xy,
-    long n)
+static void two_column_output(struct sgl_column_stats x, struct sgl_column_stats y, struct two_column_stats xy, long n)
 {
 	int width = 1;
 	char bfx[32];
 	char bfy[32];
 	char blank[32];
-
 	if(n > 0)
 		width = 1 + (int)log10((double)n);
-
 	/* Non-formatted to disk */
 	if(print_out != stdout && print_out != stderr) {
 		sgl_column_output_nonformat(x, "_x");
 		sgl_column_output_nonformat(y, "_y");
-
 		fprintf(print_out, "%s\t%f\n", "slope", xy.slope);
 		if(n > 2)
 			fprintf(print_out, "%s\t%f\n", "slope_err", xy.slope_err);
@@ -540,17 +493,11 @@ static void two_column_output(struct sgl_column_stats x,
 	fprintf(print_out, "\n");
 
 	/* FIXME:  The "positions" are randomly selected from a non-unique set.  Bad! */
-	fprintf(print_out, "  Minimum:       %s [%*ld]   %s [%*ld]\n", fmt(bfx, x.min.val),
-	    width, x.min.index, fmt(bfy, y.min.val), width, y.min.index);
-	fprintf(print_out, "  Maximum:       %s [%*ld]   %s [%*ld]\n", fmt(bfx, x.max.val),
-	    width, x.max.index, fmt(bfy, y.max.val), width, y.max.index);
-
-	fprintf(print_out, "  Quartile:      %s %s %s\n",
-	    fmt(bfx, x.lower_quartile), blank, fmt(bfy, y.lower_quartile) );
-	fprintf(print_out, "  Median:        %s %s %s\n",
-	    fmt(bfx, x.median), blank, fmt(bfy, y.median) );
-	fprintf(print_out, "  Quartile:      %s %s %s\n",
-	    fmt(bfx, x.upper_quartile), blank, fmt(bfy, y.upper_quartile) );
+	fprintf(print_out, "  Minimum:       %s [%*ld]   %s [%*ld]\n", fmt(bfx, x.min.val), width, x.min.index, fmt(bfy, y.min.val), width, y.min.index);
+	fprintf(print_out, "  Maximum:       %s [%*ld]   %s [%*ld]\n", fmt(bfx, x.max.val), width, x.max.index, fmt(bfy, y.max.val), width, y.max.index);
+	fprintf(print_out, "  Quartile:      %s %s %s\n", fmt(bfx, x.lower_quartile), blank, fmt(bfy, y.lower_quartile) );
+	fprintf(print_out, "  Median:        %s %s %s\n", fmt(bfx, x.median), blank, fmt(bfy, y.median) );
+	fprintf(print_out, "  Quartile:      %s %s %s\n", fmt(bfx, x.upper_quartile), blank, fmt(bfy, y.upper_quartile) );
 	fprintf(print_out, "\n");
 
 	/* Simpler below - don't care about alignment */
@@ -653,27 +600,19 @@ static void create_and_set_int_var(int ival, char * prefix, char * base, char * 
 	create_and_store_var(&data, prefix, base, suffix);
 }
 
-static void create_and_store_var(GpValue * data, char * prefix, char * base, char * suffix)
+static void create_and_store_var(const GpValue * data, char * prefix, char * base, char * suffix)
 {
-	int len;
-	char * varname;
-	struct udvt_entry * udv_ptr;
-
-	/* In case prefix (or suffix) is NULL - make them empty strings */
-	prefix = prefix ? prefix : "";
-	suffix = suffix ? suffix : "";
-
-	len = strlen(prefix) + strlen(base) + strlen(suffix) + 1;
-	varname = (char*)gp_alloc(len, "create_and_set_var");
+	// In case prefix (or suffix) is NULL - make them empty strings 
+	SETIFZ(prefix, "");
+	SETIFZ(suffix, "");
+	int len = strlen(prefix) + strlen(base) + strlen(suffix) + 1;
+	char * varname = (char*)gp_alloc(len, "create_and_set_var");
 	sprintf(varname, "%s%s%s", prefix, base, suffix);
-
-	/* Note that add_udv_by_name() checks if the name already exists, and
-	 * returns the existing ptr if found. It also allocates memory for
-	 * its own copy of the varname.
-	 */
-	udv_ptr = add_udv_by_name(varname);
+	// Note that add_udv_by_name() checks if the name already exists, and
+	// returns the existing ptr if found. It also allocates memory for
+	// its own copy of the varname.
+	udvt_entry * udv_ptr = add_udv_by_name(varname);
 	udv_ptr->udv_value = *data;
-
 	SAlloc::F(varname);
 }
 
@@ -689,11 +628,10 @@ static void file_variables(struct file_stats s, char * prefix)
 	create_and_set_int_var(s.columns, prefix, "columns", "");
 	/* copy column headers to an array */
 	if(df_columnheaders) {
-		int i;
 		GpValue headers;
 		GpValue * A = (GpValue *)gp_alloc((s.columns+1) * sizeof(GpValue), "column_headers");
 		A[0].v.int_val = s.columns;
-		for(i = 1; i <= s.columns; i++)
+		for(int i = 1; i <= s.columns; i++)
 			Gstring(&A[i], gp_strdup(df_retrieve_columnhead(i)));
 		headers.type = ARRAY;
 		headers.v.value_array = A;
@@ -764,7 +702,7 @@ static void two_column_variables(struct two_column_stats s, char * prefix, long 
  */
 static bool validate_data(double v, AXIS_INDEX ax)
 {
-	/* These are flag bits, not constants!!! */
+	// These are flag bits, not constants!!! 
 	if((GPO.AxS[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) 
 		return TRUE;
 	if(((GPO.AxS[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_MIN) && (v <= GPO.AxS[ax].max))
@@ -807,12 +745,12 @@ void statsrequest(void)
 	bool do_output = TRUE;  /* Generate formatted output */
 	bool array_data = FALSE;
 	GPO.Pgm.Shift();
-	/* Parse ranges */
+	// Parse ranges 
 	axis_init(&GPO.AxS[FIRST_X_AXIS], FALSE);
 	axis_init(&GPO.AxS[FIRST_Y_AXIS], FALSE);
-	parse_range(FIRST_X_AXIS);
-	parse_range(FIRST_Y_AXIS);
-	/* Initialize */
+	GPO.ParseRange(FIRST_X_AXIS);
+	GPO.ParseRange(FIRST_Y_AXIS);
+	// Initialize 
 	invalid = 0;      /* number of missing/invalid records */
 	blanks = 0;       /* number of blank lines */
 	header_records = 0; /* number of records treated as headers rather than data */
@@ -1039,14 +977,11 @@ void statsrequest(void)
 		prefix = (char*)gp_realloc(prefix, i+2, "prefix");
 		strcat(prefix, "_");
 	}
-
 	/* Do the actual analysis */
 	res_file = analyze_file(n, out_of_range, invalid, blanks, doubleblanks, header_records);
-
 	/* Jan 2015: Revised detection and handling of matrix data */
 	if(array_data)
 		res_file.columns = columns = 1;
-
 	if(df_matrix) {
 		int nc = df_bin_record[df_num_bin_records-1].submatrix_ncols;
 		res_y = analyze_sgl_column(data_y, n, nc);
@@ -1062,23 +997,18 @@ void statsrequest(void)
 		res_y = analyze_sgl_column(data_y, n, 0);
 		res_xy = analyze_two_columns(data_x, data_y, res_x, res_y, n);
 	}
-
 	/* Store results in user-accessible variables */
 	/* Clear out any previous use of these variables */
 	del_udv_by_name(prefix, TRUE);
-
 	file_variables(res_file, prefix);
-
 	if(columns == 1) {
 		sgl_column_variables(res_y, prefix, "");
 	}
-
 	if(columns == 2) {
 		sgl_column_variables(res_x, prefix, "_x");
 		sgl_column_variables(res_y, prefix, "_y");
 		two_column_variables(res_xy, prefix, n);
 	}
-
 	/* Output */
 	if(do_output) {
 		file_output(res_file);
@@ -1087,21 +1017,12 @@ void statsrequest(void)
 		else
 			two_column_output(res_x, res_y, res_xy, res_file.records);
 	}
-
 	/* Cleanup */
 stats_cleanup:
-
-	SAlloc::F(data_x);
-	SAlloc::F(data_y);
-
-	data_x = NULL;
-	data_y = NULL;
-
-	SAlloc::F(file_name);
-	file_name = NULL;
-
-	SAlloc::F(prefix);
-	prefix = NULL;
+	ZFREE(data_x);
+	ZFREE(data_y);
+	ZFREE(file_name);
+	ZFREE(prefix);
 }
 
 #endif /* The whole file is conditional on USE_STATS */

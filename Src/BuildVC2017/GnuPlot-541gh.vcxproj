@@ -86,7 +86,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;..\include\CAIRO-1160;..\OSF\lua\5.3.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -118,7 +118,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;..\include\CAIRO-1160;..\OSF\lua\5.3.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -150,7 +150,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;..\include\CAIRO-1160;..\OSF\lua\5.3.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -185,7 +185,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;..\include\CAIRO-1160;..\OSF\lua\5.3.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>

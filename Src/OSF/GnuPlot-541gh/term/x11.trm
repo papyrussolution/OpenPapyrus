@@ -538,14 +538,14 @@ TERM_PUBLIC void X11_options()
 			    }
 			    else {
 				    int x_in, y_in;
-				    x_in = int_expression();
+				    x_in = GPO.IntExpression();
 				    if(x_in > 0)
 					    X11_SIZE_X = x_in;
 				    else
 					    GPO.IntErrorCurToken("X size must be > 0");
 				    if(GPO.Pgm.EqualsCur(",")) {
 					    GPO.Pgm.Shift();
-					    y_in = int_expression();
+					    y_in = GPO.IntExpression();
 					    if(y_in > 0)
 						    X11_SIZE_Y = y_in;
 					    else
@@ -560,10 +560,10 @@ TERM_PUBLIC void X11_options()
 				    GPO.IntErrorCurToken("expecting X[,Y]");
 			    }
 			    else {
-				    X11_POSITION_X = int_expression();
+				    X11_POSITION_X = GPO.IntExpression();
 				    if(GPO.Pgm.EqualsCur(",")) {
 					    GPO.Pgm.Shift();
-					    X11_POSITION_Y = int_expression();
+					    X11_POSITION_Y = GPO.IntExpression();
 				    }
 				    set_position = yes;
 			    }
@@ -595,12 +595,13 @@ TERM_PUBLIC void X11_options()
 			    /* Silently ignore these, as they are not yet implemented */
 			    if(GPO.Pgm.EqualsCur("dl") || GPO.Pgm.AlmostEqualsCur("dashl$ength")) {
 				    GPO.Pgm.Shift();
-				    (void)GPO.RealExpression();
+				    GPO.RealExpression();
 				    break;
 			    }
-			    if(set_number) duplication = TRUE;
-			    /* let gnuplot_x11 check range */
-			    new_term_number = int_expression();
+			    if(set_number) 
+					duplication = TRUE;
+			    // let gnuplot_x11 check range 
+			    new_term_number = GPO.IntExpression();
 			    if(new_term_number < 0)
 				    GPO.IntErrorCurToken("plot number must be non-negative");
 			    set_number = TRUE;
@@ -1987,21 +1988,15 @@ PASS2:
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    ENHx11_font, firstpass_fontsize,
-	    0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, ENHx11_font, firstpass_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
-
 		if(!*++str)
 			break; /* end of string */
-
 		/* else carry on and process the rest of the string */
 	}
 	X11_set_font("");
-
 	/* Restore text justification flag after 2nd pass */
 	if(pass > 1) {
 		PRINT1("J%d\n", X11_last_justification);

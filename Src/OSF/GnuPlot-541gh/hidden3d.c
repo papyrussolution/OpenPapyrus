@@ -1,40 +1,9 @@
-/* GNUPLOT - hidden3d.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 1999, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - hidden3d.c 
+// Copyright 1986 - 1993, 1998, 1999, 2004   Thomas Williams, Colin Kelley
+//
 /*
  * 1999 Hans-Bernhard Broeker (Broeker@physik.rwth-aachen.de)
- *
  * Major rewrite, affecting just about everything
- *
  */
 #include <gnuplot.h>
 #pragma hdrstop
@@ -273,7 +242,7 @@ void set_hidden3doptions()
 			    break;
 			case S_HI_OFFSET:
 			    GPO.Pgm.Shift();
-			    hiddenBacksideLinetypeOffset = int_expression();
+			    hiddenBacksideLinetypeOffset = GPO.IntExpression();
 			    GPO.Pgm.Rollback();
 			    break;
 			case S_HI_NOOFFSET:
@@ -281,12 +250,12 @@ void set_hidden3doptions()
 			    break;
 			case S_HI_TRIANGLEPATTERN:
 			    GPO.Pgm.Shift();
-			    hiddenTriangleLinesdrawnPattern = int_expression();
+			    hiddenTriangleLinesdrawnPattern = GPO.IntExpression();
 			    GPO.Pgm.Rollback();
 			    break;
 			case S_HI_UNDEFINED:
 			    GPO.Pgm.Shift();
-			    tmp = int_expression();
+			    tmp = GPO.IntExpression();
 			    if(tmp <= 0 || tmp > UNHANDLED)
 				    tmp = UNHANDLED;
 			    hiddenHandleUndefinedPoints = tmp;
@@ -1472,7 +1441,7 @@ static void draw_vertex(GpVertex * v)
 			lp_style_type style = *(v->lp_style);
 			load_linetype(&style, (int)v->real_z);
 			tc = &style.pm3d_color;
-			apply_pm3dcolor(tc);
+			apply_pm3dcolor(term, tc);
 		}
 		else if(tc->type == TC_RGB && tc->lt == LT_COLORFROMCOLUMN)
 			set_rgbcolor_var((uint)v->real_z);
@@ -1510,24 +1479,22 @@ static void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2)
 	 * This destroyed any style attributes set in the splot command.
 	 * We really just want to extract a colorspec.
 	 */
-	struct t_colorspec color = e->lp->pm3d_color;
-	struct lp_style_type lptemp = *(e->lp);
+	t_colorspec color = e->lp->pm3d_color;
+	lp_style_type lptemp = *(e->lp);
 	bool recolor = FALSE;
 	bool arrow = (lptemp.p_type == PT_ARROWHEAD || lptemp.p_type == PT_BACKARROW);
 	int varcolor;
-
 	if(arrow && (e->style == PT_BACKARROW))
-		varcolor = v2->real_z;
+		varcolor = static_cast<int>(v2->real_z);
 	else
-		varcolor = v1->real_z;
-
-	/* This handles 'lc rgb variable' */
+		varcolor = static_cast<int>(v1->real_z);
+	// This handles 'lc rgb variable' 
 	if(color.type == TC_RGB && color.lt == LT_COLORFROMCOLUMN) {
 		recolor = TRUE;
 		lptemp.pm3d_color.lt = varcolor;
 	}
 	else
-	/* This handles explicit 'lc rgb' in the plot command */
+	// This handles explicit 'lc rgb' in the plot command 
 	if(color.type == TC_RGB && (lptemp.flags & LP_EXPLICIT_COLOR)) {
 		recolor = TRUE;
 	}
@@ -1535,7 +1502,7 @@ static void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2)
 		lptemp.pm3d_color.lt = varcolor;
 	}
 	else
-	/* This handles 'lc variable' */
+	// This handles 'lc variable' 
 	if(lptemp.l_type == LT_COLORFROMCOLUMN) {
 		recolor = TRUE;
 		load_linetype(&lptemp, varcolor);

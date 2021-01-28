@@ -716,7 +716,7 @@ TERM_PUBLIC void BLOCK_put_text(unsigned int x, unsigned int y, const char * str
 	DUMB_put_text(xd, yd, str);
 }
 
-TERM_PUBLIC void BLOCK_point(unsigned int x, unsigned int y, int point)
+TERM_PUBLIC void BLOCK_point(uint x, uint y, int point)
 {
 	int xd = x / BLOCK_modeinfo[BLOCK_mode].cellx;
 	int yd = y / BLOCK_modeinfo[BLOCK_mode].celly;
@@ -729,12 +729,10 @@ TERM_PUBLIC void BLOCK_point(unsigned int x, unsigned int y, int point)
 		0x25c7, 0x25c6, /* empty/full diamond */
 		0x2b20, 0x2b1f, /* empty/full pentagon */
 	};
-
 	if(!BLOCK_charpoints) {
 		do_point(x, y, point);
 		return;
 	}
-
 	if((signed)x < 0 || (signed)y < 0)
 		return;
 
@@ -754,18 +752,15 @@ TERM_PUBLIC void BLOCK_point(unsigned int x, unsigned int y, int point)
 TERM_PUBLIC void BLOCK_linetype(int linetype)
 {
 	t_colorspec color;
-
 	// set dash pattern
 	if(linetype != LT_AXIS)
 		b_setlinetype(LT_SOLID); // always solid
 	else
 		b_setlinetype(LT_AXIS);
-
 	// set line color
 	color.type = TC_LT;
 	color.lt = linetype;
 	BLOCK_set_color(&color);
-
 	// set text color
 	DUMB_linetype(linetype);
 }

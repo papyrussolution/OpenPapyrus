@@ -185,8 +185,8 @@ static long FIG_poly_vec_cnt;
 static int FIG_linedepth = 500;
 static int FIG_thickness = 1;
 static double FIG_linewidth_factor = 1.0;
-static double FIG_current_pointsize = 1.;
-static double FIG_current_linewidth = 1.;
+static double FIG_current_pointsize = 1.0;
+static double FIG_current_linewidth = 1.0;
 static size_units FIG_size_units = INCHES;
 
 /* Maximum number of points per POLYLINE. */
@@ -385,7 +385,7 @@ TERM_PUBLIC void FIG_options()
 		    }
 			case FIG_FONTSIZE:
 			    GPO.Pgm.Shift();
-			    FIG_font_s = int_expression();
+			    FIG_font_s = GPO.IntExpression();
 			    break;
 			case FIG_THICKNESS:
 			    GPO.Pgm.Shift();
@@ -403,7 +403,7 @@ TERM_PUBLIC void FIG_options()
 			case FIG_DEPTH:
 			    GPO.Pgm.Shift();
 			    // V5.3 - depth is now based on TERM_LAYER 
-			    int_expression();
+			    GPO.IntExpression();
 			    break;
 			case FIG_OTHER:
 			default:
@@ -697,15 +697,12 @@ TERM_PUBLIC void FIG_vector(uint ux, uint uy)
 		FIG_polyvec_stat = FIG_poly_part;
 	}
 	/* allocate memory for the next point */
-	FIG_points = (F_point*)gp_realloc(FIG_points, (FIG_poly_vec_cnt + 1) *
-		sizeof(F_point), "FIG_points");                                 /* JFS */
+	FIG_points = (F_point*)gp_realloc(FIG_points, (FIG_poly_vec_cnt + 1) * sizeof(F_point), "FIG_points"); /* JFS */
 	FIG_points[FIG_poly_vec_cnt].x = FIG_xoff + x;
 	FIG_points[FIG_poly_vec_cnt].y = term->ymax + FIG_yoff - y;
-
 	FIG_poly_vec_cnt++;
 	if(FIG_poly_vec_cnt > FIG_poly_vec_max)
 		FIG_poly_clean(FIG_polyvec_stat);
-
 	FIG_posx = x;
 	FIG_posy = y;
 }
@@ -741,37 +738,23 @@ TERM_PUBLIC void FIG_arrow(uint sx, uint sy/* start coord */, uint ex, uint ey/*
 			awidth  = (double)curr_arrow_headlength * 2*sin(curr_arrow_headangle*M_PI/180);
 			aheight = (double)curr_arrow_headlength * cos(curr_arrow_headangle*M_PI/180);
 		}
-
-		/* arrow head geometry */
+		// arrow head geometry 
 		if(curr_arrow_headbackangle < 70)
 			headbackangleparameter = 2;
 		else if(curr_arrow_headbackangle > 110)
 			headbackangleparameter = 3;
 		else
 			headbackangleparameter = 1;
-
-		if(curr_arrow_headfilled==2)
-			headfillparameter = 1;
-		else
-			headfillparameter = 0;
-
-		/* forward head */
+		headfillparameter = (curr_arrow_headfilled==2) ? 1 : 0;
+		// forward head 
 		if((head & END_HEAD))
-			fprintf(gpoutfile, "%d %d %.3f %.3f %.3f\n",
-			    headbackangleparameter, headfillparameter,
-			    1.0, awidth, aheight);
+			fprintf(gpoutfile, "%d %d %.3f %.3f %.3f\n", headbackangleparameter, headfillparameter, 1.0, awidth, aheight);
 		/* backward head */
 		if((head & BACKHEAD))
-			fprintf(gpoutfile, "%d %d %.3f %.3f %.3f\n",
-			    headbackangleparameter,  headfillparameter,
-			    1.0, awidth, aheight);
+			fprintf(gpoutfile, "%d %d %.3f %.3f %.3f\n", headbackangleparameter,  headfillparameter, 1.0, awidth, aheight);
 	}
-
 	/* arrow line */
-	fprintf(gpoutfile, "%d %d %d %d\n",
-	    FIG_xoff + sx, FIG_yoff + term->ymax - sy,
-	    FIG_yoff + ex, FIG_yoff + term->ymax - ey);
-
+	fprintf(gpoutfile, "%d %d %d %d\n", FIG_xoff + sx, FIG_yoff + term->ymax - sy, FIG_yoff + ex, FIG_yoff + term->ymax - ey);
 	FIG_posx = ex;
 	FIG_posy = ey;
 }
@@ -780,10 +763,8 @@ TERM_PUBLIC void FIG_put_text(uint x, uint y, const char * str)
 {
 	char * s1, * s2, * output_string;
 	int text_depth = FIG_linedepth;
-
 	if(strlen(str) == 0)
 		return;
-
 	output_string = (char*)gp_alloc(2*strlen(str)+1, "FIG text");
 	s1 = (char*)str;
 	s2 = output_string;
@@ -798,7 +779,6 @@ TERM_PUBLIC void FIG_put_text(uint x, uint y, const char * str)
 		x += (int)(term->v_char*sin(FIG_angle)/4.);
 		y -= (int)(term->v_char*cos(FIG_angle)/4.);
 	}
-
 	/* Adjust depth so that labels are drawn after objects */
 	if(FIG_current_layer != LAYER_PLOT)
 		text_depth -= 1;
@@ -828,7 +808,7 @@ TERM_PUBLIC int FIG_justify_text(enum JUSTIFY mode)
 
 TERM_PUBLIC int FIG_text_angle(int ang)
 {
-	FIG_angle = ang * M_PI_2 / 90.;
+	FIG_angle = ang * M_PI_2 / 90.0;
 	return (TRUE);
 }
 
@@ -841,9 +821,7 @@ TERM_PUBLIC void FIG_lpoint(uint x, uint y, int number)
 		int r, d, h, xpc, ypc;
 		int line_color, fill_color, fill_style;
 		int cnum, tnum;
-
 		FIG_poly_clean(FIG_polyvec_stat);
-
 		number %= 100;
 		cnum = (number + 1) % 10;
 		tnum = (number - 49) / 10;
@@ -1188,15 +1166,34 @@ TERM_PUBLIC void FIG_layer(t_termlayer syncpoint)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(fig_driver)
-"fig", "FIG graphics language V3.2 for XFIG graphics editor",
-FIG_XMAX, FIG_YMAX, FIG_VCHAR, FIG_HCHAR,
-FIG_VTIC, FIG_HTIC, FIG_options, FIG_init, FIG_reset,
-FIG_text, null_scale, FIG_graphics, FIG_move, FIG_vector,
-FIG_linetype, FIG_put_text, FIG_text_angle, FIG_justify_text,
-FIG_lpoint, FIG_arrow, set_font_null, FIG_pointsize,
+"fig", 
+"FIG graphics language V3.2 for XFIG graphics editor",
+FIG_XMAX, 
+FIG_YMAX, 
+FIG_VCHAR, 
+FIG_HCHAR,
+FIG_VTIC, 
+FIG_HTIC, 
+FIG_options, 
+FIG_init, 
+FIG_reset,
+FIG_text, 
+null_scale, 
+FIG_graphics, 
+FIG_move, 
+FIG_vector,
+FIG_linetype, 
+FIG_put_text, 
+FIG_text_angle, 
+FIG_justify_text,
+FIG_lpoint, 
+FIG_arrow, 
+set_font_null, 
+FIG_pointsize,
 TERM_BINARY|TERM_CAN_DASH /*flags */,
 0 /*suspend */, 0 /*resume */,
-FIG_boxfill, FIG_linewidth
+FIG_boxfill, 
+FIG_linewidth
 #ifdef USE_MOUSE
 , 0, 0, 0, 0, 0    /* no mouse support for the fig terminal */
 #endif

@@ -73,12 +73,9 @@
 extern "C" {
 #endif /*__cplusplus*/
 
-/* for JUSTIFY, set_encoding_id, *term definitions, color.h */
-# include "term_api.h"
-/* for rgb functions */
-# include "getcolor.h"
-
-# include <cairo.h>
+//#include "term_api.h" // for JUSTIFY, set_encoding_id, *term definitions, color.h 
+//#include "getcolor.h" // for rgb functions 
+#include <cairo.h> // for rgb functions 
 
 /* oversampling scale */
 #define GP_CAIRO_SCALE 20
@@ -138,26 +135,18 @@ typedef struct plot_struct {
 	double text_angle;
 	rgba_color color;
 	rgb_color background;
-
-	/* "polyline" */
-	TBOOLEAN opened_path;
-
+	bool   opened_path; // "polyline" 
 	/* font handling */
 	char fontname[MAX_ID_LEN + 1];
 	int fontweight;
 	int fontstyle;
 	double fontsize;
 	enum set_encoding_id encoding;
-
 	/* state of the cairo context creation */
-	TBOOLEAN success;
-
-	TBOOLEAN antialiasing;
-
-	TBOOLEAN oversampling;
-
+	bool   success;
+	bool   antialiasing;
+	bool   oversampling;
 	t_linecap linecap;
-
 	/* hinting option for horizontal and vertical lines :
 	 * Hinting is the process of fitting outlines to the pixel grid
 	 * in order to improve the appearance of the result.
@@ -166,17 +155,13 @@ typedef struct plot_struct {
 	 * hinting = 100 means full hinting
 	 * hinting = 0 means no hinting */
 	int hinting;
-
-	TBOOLEAN polygons_saturate;
-
+	bool   polygons_saturate;
 	/* cairo drawing context */
 	cairo_t *cr;
-
 	/* polygons list */
 	path_item *polygon_path_last;
-
 	/* flag set to true when the user hit ctrl-c */
-	TBOOLEAN interrupt;
+	bool   interrupt;
 } plot_struct;
 
 /* linetype enums */
@@ -210,7 +195,7 @@ void gp_cairo_draw_text(plot_struct *plot, int x1, int y1, const char* str, int 
 void gp_cairo_draw_enhanced_text(plot_struct *plot, int x1, int y1, const char* str);
 void gp_cairo_enhanced_init(plot_struct *plot, int len);
 void gp_cairo_enhanced_finish(plot_struct *plot, int x, int y);
-void gp_cairo_enhanced_open(plot_struct *plot, char* fontname, double fontsize, double base, TBOOLEAN widthflag, TBOOLEAN showflag, int overprint);
+void gp_cairo_enhanced_open(plot_struct *plot, char* fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 void gp_cairo_enhanced_flush(plot_struct *plot);
 void gp_cairo_enhanced_writec(plot_struct *plot, int character);
 void gp_cairo_draw_point(plot_struct *plot, int x1, int y1, int style);

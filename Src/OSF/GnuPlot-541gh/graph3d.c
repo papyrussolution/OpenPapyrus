@@ -1,48 +1,13 @@
-/* GNUPLOT - graph3d.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - graph3d.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 /*
  * AUTHORS
- *
- *   Original Software:
- *       Gershon Elber and many others.
- *
+ *   Original Software: Gershon Elber and many others.
  * 19 September 1992  Lawrence Crowl  (crowl@cs.orst.edu)
  * Added user-specified bases for log scaling.
  *
- * 3.6 - split graph3d.c into graph3d.c (graph),
- *                            util3d.c (intersections, etc)
- *                            hidden3d.c (hidden-line removal code)
- *
+ * 3.6 - split graph3d.c into graph3d.c (graph), util3d.c (intersections, etc) hidden3d.c (hidden-line removal code)
  */
 #include <gnuplot.h>
 #pragma hdrstop
@@ -58,11 +23,8 @@ bool clabel_onecolor = FALSE;   /* use same linetype for all contours */
 int clabel_interval = 20;               /* label every 20th contour segment */
 int clabel_start = 5;                   /*       starting with the 5th */
 char * clabel_font = NULL;               /* default to current font */
-
-/* Draw the surface at all? (FALSE if only contours are wanted) */
-bool draw_surface = TRUE;
-/* Always create a gridded surface when lines are read from a data file */
-bool implicit_surface = TRUE;
+bool draw_surface = TRUE; /* Draw the surface at all? (FALSE if only contours are wanted) */
+bool implicit_surface = TRUE; /* Always create a gridded surface when lines are read from a data file */
 
 /* Was hidden3d display selected by user? */
 bool hidden3d = FALSE;
@@ -108,7 +70,7 @@ static void plot3d_points(struct surface_points * plot);
 static void plot3d_polygons(struct surface_points * plot);
 static void plot3d_zerrorfill(struct surface_points * plot);
 static void plot3d_boxes(struct surface_points * plot);
-static void plot3d_boxerrorbars(struct surface_points * plot);
+static void plot3d_boxerrorbars(termentry * pTerm, surface_points * plot);
 static void plot3d_vectors(struct surface_points * plot);
 static void plot3d_lines_pm3d(struct surface_points * plot);
 static void get_surface_cbminmax(struct surface_points * plot, double * cbmin, double * cbmax);
@@ -134,18 +96,17 @@ static void key_sample_fill(int xl, int yl, struct surface_points * this_plot);
 static bool can_pm3d = FALSE;
 static void key_text(int xl, int yl, char * text);
 static void check3d_for_variable_color(struct surface_points * plot, struct coordinate * point);
-
 static bool get_arrow3d(struct arrow_def*, double*, double*, double*, double*);
 static void place_arrows3d(int);
 static void place_labels3d(struct text_label * listhead, int layer);
-static int map3d_getposition(struct GpPosition* pos, const char* what, double* xpos, double* ypos, double* zpos);
+//static int map3d_getposition(struct GpPosition* pos, const char* what, double* xpos, double* ypos, double* zpos);
 
 static void flip_projection_axis(GpAxis * axis);
 static void splot_map_activate();
 static void splot_map_deactivate();
 
-#define f_max(a, b) MAX((a), (b))
-#define f_min(a, b) MIN((a), (b))
+//#define f_max(a, b) MAX((a), (b))
+//#define f_min(a, b) MIN((a), (b))
 #define i_inrange(z, a, b) inrange((z), (a), (b))
 
 #define apx_eq(x, y) (fabs(x-y) < 0.001)
@@ -225,31 +186,26 @@ static double tic_unitx, tic_unity, tic_unitz;
  */
 static int find_maxl_keys3d(const surface_points * plots, int count, int * kcnt)
 {
-	int len, surf;
+	int len;
 	const surface_points * this_plot = plots;
 	int mlen = 0;
 	int cnt = 0;
-	for(surf = 0; surf < count; this_plot = this_plot->next_sp, surf++) {
-		/* we draw a main entry if there is one, and we are
-		 * drawing either surface, or unlabeled contours
-		 */
-		if(this_plot->title && *this_plot->title
-		    && !this_plot->title_is_suppressed && !this_plot->title_position) {
+	for(int surf = 0; surf < count; this_plot = this_plot->next_sp, surf++) {
+		// we draw a main entry if there is one, and we are
+		// drawing either surface, or unlabeled contours
+		if(this_plot->title && *this_plot->title && !this_plot->title_is_suppressed && !this_plot->title_position) {
 			++cnt;
 			len = estimate_strlen(this_plot->title, NULL);
 			if(len > mlen)
 				mlen = len;
 		}
-		if(draw_contour && !clabel_onecolor && this_plot->contours != NULL
-		    &&  this_plot->plot_style != LABELPOINTS) {
+		if(draw_contour && !clabel_onecolor && this_plot->contours && this_plot->plot_style != LABELPOINTS) {
 			len = find_maxl_cntr(this_plot->contours, &cnt);
 			if(len > mlen)
 				mlen = len;
 		}
 	}
-
-	if(kcnt != NULL)
-		*kcnt = cnt;
+	ASSIGN_PTR(kcnt, cnt);
 	return (mlen);
 }
 
@@ -257,8 +213,7 @@ static int find_maxl_cntr(struct gnuplot_contours * contours, int * count)
 {
 	int cnt;
 	int mlen, len;
-	struct gnuplot_contours * cntrs = contours;
-
+	gnuplot_contours * cntrs = contours;
 	mlen = cnt = 0;
 	while(cntrs) {
 		if(cntrs->isNewLevel) {
@@ -378,10 +333,8 @@ static void boundary3d(const surface_points * plots, int count)
 		plot_bounds.ytop = ysize * t->ymax - t->v_char * (titlelin + 1.5) - 1;
 
 	if(key->visible)
-		if(key->region == GPKEY_AUTO_INTERIOR_LRTBC
-		    || ((key->region == GPKEY_AUTO_EXTERIOR_LRTBC || key->region == GPKEY_AUTO_EXTERIOR_MARGIN)
-		    && key->margin == GPKEY_RMARGIN)) {
-			/* calculate max no rows, limited by plot_bounds.ytop-plot_bounds.ybot */
+		if(key->region == GPKEY_AUTO_INTERIOR_LRTBC || (oneof2(key->region, GPKEY_AUTO_EXTERIOR_LRTBC, GPKEY_AUTO_EXTERIOR_MARGIN) && key->margin == GPKEY_RMARGIN)) {
+			// calculate max no rows, limited by plot_bounds.ytop-plot_bounds.ybot 
 			i = (int)(plot_bounds.ytop - plot_bounds.ybot) / t->v_char - 1 - ktitle_lines;
 			if(i > key->maxrows && key->maxrows > 0)
 				i = key->maxrows;
@@ -394,21 +347,18 @@ static void boundary3d(const surface_points * plots, int count)
 			}
 		}
 	if(key->visible)
-		if((key->region == GPKEY_AUTO_EXTERIOR_LRTBC || key->region == GPKEY_AUTO_EXTERIOR_MARGIN)
-		    && key->margin == GPKEY_RMARGIN) {
+		if(oneof2(key->region, GPKEY_AUTO_EXTERIOR_LRTBC, GPKEY_AUTO_EXTERIOR_MARGIN) && key->margin == GPKEY_RMARGIN) {
 			int key_width = key_col_wth * key_cols - 2 * t->h_char;
 			if(rmargin.scalex != screen)
 				plot_bounds.xright -= key_width;
 		}
 
 	if(key->visible)
-		if((key->region == GPKEY_AUTO_EXTERIOR_LRTBC || key->region == GPKEY_AUTO_EXTERIOR_MARGIN)
-		    && key->margin == GPKEY_LMARGIN) {
+		if(oneof2(key->region, GPKEY_AUTO_EXTERIOR_LRTBC, GPKEY_AUTO_EXTERIOR_MARGIN) && key->margin == GPKEY_LMARGIN) {
 			int key_width = key_col_wth * key_cols - 2 * t->h_char;
 			if(lmargin.scalex != screen)
 				plot_bounds.xleft += key_width;
 		}
-
 	if(!splot_map && aspect_ratio_3D > 0) {
 		int height = (plot_bounds.ytop - plot_bounds.ybot);
 		int width  = (plot_bounds.xright - plot_bounds.xleft);
@@ -421,7 +371,6 @@ static void boundary3d(const surface_points * plots, int count)
 			plot_bounds.xright -= (width-height)/2;
 		}
 	}
-
 	if(lmargin.scalex != screen)
 		plot_bounds.xleft += t->xmax * xoffset;
 	if(rmargin.scalex != screen)
@@ -432,53 +381,37 @@ static void boundary3d(const surface_points * plots, int count)
 		plot_bounds.ybot += t->ymax * yoffset;
 	xmiddle = (plot_bounds.xright + plot_bounds.xleft) / 2;
 	ymiddle = (plot_bounds.ytop + plot_bounds.ybot) / 2;
-
-	/* HBB: Magic number alert! */
+	// HBB: Magic number alert! 
 	xscaler = ((plot_bounds.xright - plot_bounds.xleft) * 4L) / 7L;
 	yscaler = ((plot_bounds.ytop - plot_bounds.ybot) * 4L) / 7L;
-
-	/* Allow explicit control via set {}margin screen */
+	// Allow explicit control via set {}margin screen 
 	if(tmargin.scalex == screen || bmargin.scalex == screen)
 		yscaler = (plot_bounds.ytop - plot_bounds.ybot) / surface_scale;
 	if(rmargin.scalex == screen || lmargin.scalex == screen)
 		xscaler = (plot_bounds.xright - plot_bounds.xleft) / surface_scale;
-
-	/* prevent infinite loop or divide-by-zero if scaling is bad */
+	// prevent infinite loop or divide-by-zero if scaling is bad 
 	if(yscaler == 0) yscaler = 1;
 	if(xscaler == 0) xscaler = 1;
-
-	/* 'set size {square|ratio}' for splots */
+	// 'set size {square|ratio}' for splots 
 	if(splot_map && aspect_ratio != 0.0) {
 		double current_aspect_ratio;
-
 		if(aspect_ratio < 0 && (GPO.AxS.__X().max - GPO.AxS.__X().min) != 0.0) {
-			current_aspect_ratio = -aspect_ratio
-			    * fabs((GPO.AxS.__Y().max - GPO.AxS.__Y().min) /
-				(GPO.AxS.__X().max - GPO.AxS.__X().min));
+			current_aspect_ratio = -aspect_ratio * fabs((GPO.AxS.__Y().max - GPO.AxS.__Y().min) / (GPO.AxS.__X().max - GPO.AxS.__X().min));
 		}
 		else
 			current_aspect_ratio = aspect_ratio;
-
 		/*{{{  set aspect ratio if valid and sensible */
 		if(current_aspect_ratio >= 0.01 && current_aspect_ratio <= 100.0) {
 			double current = (double)yscaler / xscaler;
 			double required = current_aspect_ratio * t->v_tic / t->h_tic;
-
-			if(current > required)
-				/* too tall */
+			if(current > required) /* too tall */
 				yscaler = xscaler * required;
-			else
-				/* too wide */
+			else /* too wide */
 				xscaler = yscaler / required;
 		}
 	}
-
-	/* For anything that really wants to be the same on x and y */
-	xyscaler = sqrt(xscaler*yscaler);
-
-	/* This one is used to scale circles in 3D plots */
-	radius_scaler = xscaler * surface_scale / (GPO.AxS.__X().max - GPO.AxS.__X().min);
-
+	xyscaler = sqrt(xscaler*yscaler); // For anything that really wants to be the same on x and y 
+	radius_scaler = xscaler * surface_scale / (GPO.AxS.__X().max - GPO.AxS.__X().min); // This one is used to scale circles in 3D plots 
 	/* Set default clipping */
 	if(splot_map)
 		clip_area = &plot_bounds;
@@ -488,14 +421,11 @@ static void boundary3d(const surface_points * plots, int count)
 		clip_area = &canvas;
 }
 
-static bool get_arrow3d(struct arrow_def* arrow,
-    double* dsx, double* dsy,
-    double* dex, double* dey)
+static bool get_arrow3d(struct arrow_def* arrow, double* dsx, double* dsy, double* dex, double* dey)
 {
-	map3d_position_double(&(arrow->start), dsx, dsy, "arrow");
-
+	GPO.Map3DPositionDouble(&(arrow->start), dsx, dsy, "arrow");
 	if(arrow->type == arrow_end_relative) {
-		map3d_position_r_double(&(arrow->end), dex, dey, "arrow");
+		GPO.Map3DPositionRDouble(&(arrow->end), dex, dey, "arrow");
 		*dex += *dsx;
 		*dey += *dsy;
 	}
@@ -503,22 +433,20 @@ static bool get_arrow3d(struct arrow_def* arrow,
 		double aspect = (double)term->v_tic / (double)term->h_tic;
 		double radius;
 		double junkw, junkh;
-
 #ifdef _WIN32
 		if(strcmp(term->name, "windows") == 0)
 			aspect = 1.;
 #endif
 		if(arrow->end.scalex != screen && arrow->end.scalex != character && !splot_map)
 			return FALSE;
-		map3d_position_r_double(&arrow->end, &junkw, &junkh, "arrow");
+		GPO.Map3DPositionRDouble(&arrow->end, &junkw, &junkh, "arrow");
 		radius = junkw;
 		*dex = *dsx + cos(DEG2RAD * arrow->angle) * radius;
 		*dey = *dsy + sin(DEG2RAD * arrow->angle) * radius * aspect;
 	}
 	else {
-		map3d_position_double(&(arrow->end), dex, dey, "arrow");
+		GPO.Map3DPositionDouble(&(arrow->end), dex, dey, "arrow");
 	}
-
 	return TRUE;
 }
 
@@ -527,9 +455,7 @@ static void place_labels3d(struct text_label * listhead, int layer)
 	text_label * this_label;
 	int x, y;
 	term->pointsize(pointsize);
-	for(this_label = listhead;
-	    this_label != NULL;
-	    this_label = this_label->next) {
+	for(this_label = listhead; this_label != NULL; this_label = this_label->next) {
 		if(this_label->layer != layer)
 			continue;
 		if(layer == LAYER_PLOTLABELS) {
@@ -537,12 +463,12 @@ static void place_labels3d(struct text_label * listhead, int layer)
 			GPO.Map3D_XY_double(this_label->place.x, this_label->place.y, this_label->place.z, &xx, &yy);
 			x = xx;
 			y = yy;
-			/* Only clip in 2D */
+			// Only clip in 2D 
 			if(splot_map && clip_point(x, y))
 				continue;
 		}
 		else
-			map3d_position(&this_label->place, &x, &y, "label");
+			GPO.Map3DPosition(&this_label->place, &x, &y, "label");
 		write_label(term, x, y, this_label);
 	}
 }
@@ -581,7 +507,8 @@ static int key_text_right;      /* offset from x for right-justified text */
 static int key_size_left;       /* distance from x to left edge of box */
 static int key_size_right;      /* distance from x to right edge of box */
 
-void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of plots in linked list */, REPLOT_TYPE replot_mode/* replot/refresh/axes-only/quick-refresh */)
+//void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of plots in linked list */, REPLOT_TYPE replot_mode/* replot/refresh/axes-only/quick-refresh */)
+void GnuPlot::Do3DPlot(termentry * pTerm, surface_points * plots, int pcount/* count of plots in linked list */, REPLOT_TYPE replot_mode/* replot/refresh/axes-only/quick-refresh */)
 {
 	//struct termentry * t = term;
 	int surface;
@@ -601,15 +528,15 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 		splot_map_activate();
 	}
 	else if(xz_projection) {
-		surface_rot_x = 270.;
-		surface_rot_z = 0.;
-		surface_scale = 1.425 * mapview_scale;
+		surface_rot_x = 270.0f;
+		surface_rot_z = 0.0f;
+		surface_scale = 1.425f * mapview_scale;
 	}
 	else if(yz_projection) {
-		surface_rot_x = 90.;
-		surface_rot_z = 90.;
-		surface_scale = 1.425 * mapview_scale;
-		flip_projection_axis(&GPO.AxS[FIRST_Z_AXIS]);
+		surface_rot_x = 90.0f;
+		surface_rot_z = 90.0f;
+		surface_scale = 1.425f * mapview_scale;
+		flip_projection_axis(&AxS[FIRST_Z_AXIS]);
 	}
 	in_3d_polygon = FALSE;  /* protects polygons from xz, yz projections */
 	mat_rot_z(surface_rot_z, trans_mat);
@@ -623,24 +550,21 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 		mat_mult(trans_mat, trans_mat, mat);
 	}
 	if(polar)
-		GPO.IntError(NO_CARET, "Cannot splot in polar coordinate system.");
+		IntError(NO_CARET, "Cannot splot in polar coordinate system.");
 	// In the case of a nonlinear z axis this points to the linear version 
 	// that shadows it.  Otherwise it just points to FIRST_Z_AXIS.         
-	primary_z = (nonlinear(&GPO.AxS.__Z())) ? GPO.AxS.__Z().linked_to_primary : &GPO.AxS.__Z();
+	primary_z = (nonlinear(&AxS.__Z())) ? AxS.__Z().linked_to_primary : &AxS.__Z();
 	// absolute or relative placement of xyplane along z 
-	if(nonlinear(&GPO.AxS.__Z())) {
+	if(nonlinear(&AxS.__Z())) {
 		if(xyplane.absolute) {
-			if(primary_z->log && xyplane.z <= 0) {
-				base_z1 = GPO.EvalLinkFunction(primary_z, GPO.AxS.__Z().min);
-			}
-			else {
-				base_z1 = GPO.EvalLinkFunction(primary_z, xyplane.z);
-			}
+			if(primary_z->log && xyplane.z <= 0)
+				base_z1 = EvalLinkFunction(primary_z, AxS.__Z().min);
+			else
+				base_z1 = EvalLinkFunction(primary_z, xyplane.z);
 		}
-		else {
+		else
 			base_z1 = primary_z->min - (primary_z->max - primary_z->min) * xyplane.z;
-		}
-		base_z = GPO.EvalLinkFunction(&GPO.AxS.__Z(), base_z1);
+		base_z = EvalLinkFunction(&AxS.__Z(), base_z1);
 	}
 	else {
 		if(xyplane.absolute)
@@ -650,7 +574,7 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 		base_z = base_z1;
 	}
 	// If we are to draw some portion of the xyplane make sure zmin is updated properly. 
-	if(GPO.AxS.__X().ticmode || GPO.AxS.__Y().ticmode || draw_border & 0x00F) {
+	if(AxS.__X().ticmode || AxS.__Y().ticmode || draw_border & 0x00F) {
 		if(primary_z->min > primary_z->max) {
 			floor_z1 = MAX(primary_z->min, base_z1);
 			ceiling_z1 = MIN(primary_z->max, base_z1);
@@ -664,20 +588,20 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 		floor_z1 = primary_z->min;
 		ceiling_z1 = primary_z->max;
 	}
-	if(nonlinear(&GPO.AxS.__Z())) {
-		floor_z = GPO.EvalLinkFunction(&GPO.AxS.__Z(), floor_z1);
-		ceiling_z = GPO.EvalLinkFunction(&GPO.AxS.__Z(), ceiling_z1);
+	if(nonlinear(&AxS.__Z())) {
+		floor_z = EvalLinkFunction(&AxS.__Z(), floor_z1);
+		ceiling_z = EvalLinkFunction(&AxS.__Z(), ceiling_z1);
 	}
 	else {
 		floor_z = floor_z1;
 		ceiling_z = ceiling_z1;
 	}
-	if(GPO.AxS.__X().min == GPO.AxS.__X().max)
-		GPO.IntError(NO_CARET, "x_min3d should not equal x_max3d!");
-	if(GPO.AxS.__Y().min == GPO.AxS.__Y().max)
-		GPO.IntError(NO_CARET, "y_min3d should not equal y_max3d!");
-	if(GPO.AxS.__Z().min == GPO.AxS.__Z().max)
-		GPO.IntError(NO_CARET, "z_min3d should not equal z_max3d!");
+	if(AxS.__X().min == AxS.__X().max)
+		IntError(NO_CARET, "x_min3d should not equal x_max3d!");
+	if(AxS.__Y().min == AxS.__Y().max)
+		IntError(NO_CARET, "y_min3d should not equal y_max3d!");
+	if(AxS.__Z().min == AxS.__Z().max)
+		IntError(NO_CARET, "z_min3d should not equal z_max3d!");
 	// Special case projections of the xz or yz plane 
 	// Place x or y axis to the left of the plot 
 	xz_plane = yz_plane = FALSE;
@@ -697,18 +621,18 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 	screen_ok = FALSE;
 	(pTerm->layer)(TERM_LAYER_BACKTEXT); /* Sync point for epslatex text positioning */
 	boundary3d(plots, pcount); /* now compute boundary for plot */
-	axis_set_scale_and_range(&GPO.AxS[FIRST_X_AXIS], plot_bounds.xleft, plot_bounds.xright);
-	axis_set_scale_and_range(&GPO.AxS[FIRST_Y_AXIS], plot_bounds.ybot, plot_bounds.ytop);
-	axis_set_scale_and_range(&GPO.AxS[FIRST_Z_AXIS], floor_z, ceiling_z);
+	axis_set_scale_and_range(&AxS[FIRST_X_AXIS], plot_bounds.xleft, plot_bounds.xright);
+	axis_set_scale_and_range(&AxS[FIRST_Y_AXIS], plot_bounds.ybot, plot_bounds.ytop);
+	axis_set_scale_and_range(&AxS[FIRST_Z_AXIS], floor_z, ceiling_z);
 	// SCALE FACTORS 
 	zscale3d = 2.0 / (ceiling_z - floor_z) * surface_zscale;
-	yscale3d = 2.0 / (GPO.AxS.__Y().max - GPO.AxS.__Y().min);
-	xscale3d = 2.0 / (GPO.AxS.__X().max - GPO.AxS.__X().min);
-	if(nonlinear(&GPO.AxS.__X()))
-		xscale3d = 2.0 / (GPO.AxS.__X().linked_to_primary->max - GPO.AxS.__X().linked_to_primary->min);
-	if(nonlinear(&GPO.AxS.__Y()))
-		yscale3d = 2.0 / (GPO.AxS.__Y().linked_to_primary->max - GPO.AxS.__Y().linked_to_primary->min);
-	if(nonlinear(&GPO.AxS.__Z()))
+	yscale3d = 2.0 / (AxS.__Y().max - AxS.__Y().min);
+	xscale3d = 2.0 / (AxS.__X().max - AxS.__X().min);
+	if(nonlinear(&AxS.__X()))
+		xscale3d = 2.0 / (AxS.__X().linked_to_primary->max - AxS.__X().linked_to_primary->min);
+	if(nonlinear(&AxS.__Y()))
+		yscale3d = 2.0 / (AxS.__Y().linked_to_primary->max - AxS.__Y().linked_to_primary->min);
+	if(nonlinear(&AxS.__Z()))
 		zscale3d = 2.0 / (ceiling_z1 - floor_z1) * surface_zscale;
 	// Allow 'set view equal xy' to adjust rendered length of the X and/or Y axes.
 	// NB: only works correctly for terminals whose coordinate system is isotropic. 
@@ -726,28 +650,27 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 			zscale3d = xscale3d;
 	}
 	// FIXME: I do not understand why this is correct 
-	if(nonlinear(&GPO.AxS.__Z()))
+	if(nonlinear(&AxS.__Z()))
 		zcenter3d = 0.0;
 	// Without this the rotation center would be located at 
 	// the bottom of the plot. This places it in the middle.
 	else
 		zcenter3d =  -(ceiling_z - floor_z) / 2.0 * zscale3d + 1;
-
-	/* Needed for mousing by outboard terminal drivers */
+	// Needed for mousing by outboard terminal drivers 
 	if(splot_map) {
-		GpAxis * X = &GPO.AxS[FIRST_X_AXIS];
-		GpAxis * Y = &GPO.AxS[FIRST_Y_AXIS];
+		GpAxis * p_ax_x = &AxS[FIRST_X_AXIS];
+		GpAxis * p_ax_y = &AxS[FIRST_Y_AXIS];
 		int xl, xr, yb, yt;
-		GPO.Map3D_XY(X->min, Y->min, 0.0, &xl, &yb);
-		GPO.Map3D_XY(X->max, Y->max, 0.0, &xr, &yt);
-		axis_set_scale_and_range(&GPO.AxS[FIRST_X_AXIS], xl, xr);
-		axis_set_scale_and_range(&GPO.AxS[FIRST_Y_AXIS], yb, yt);
+		Map3D_XY(p_ax_x->min, p_ax_y->min, 0.0, &xl, &yb);
+		Map3D_XY(p_ax_x->max, p_ax_y->max, 0.0, &xr, &yt);
+		axis_set_scale_and_range(p_ax_x, xl, xr);
+		axis_set_scale_and_range(p_ax_y, yb, yt);
 	}
-	/* Initialize palette */
+	// Initialize palette 
 	if(replot_mode != AXIS_ONLY_ROTATE) {
-		can_pm3d = is_plot_with_palette() && !GPO.MakePalette() && ((pTerm->flags & TERM_NULL_SET_COLOR) == 0);
+		can_pm3d = is_plot_with_palette() && !MakePalette() && ((pTerm->flags & TERM_NULL_SET_COLOR) == 0);
 	}
-	/* Give a chance for rectangles to be behind everything else */
+	// Give a chance for rectangles to be behind everything else 
 	place_objects(first_object, LAYER_BEHIND, 3);
 	if(replot_mode != AXIS_ONLY_ROTATE)
 		place_pixmaps(LAYER_BEHIND, 3);
@@ -775,8 +698,8 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 	/* FIXME:  Wasn't this already done in boundary3d?            */
 	if(splot_map) {
 		int map_x1, map_y1, map_x2, map_y2;
-		GPO.Map3D_XY(GPO.AxS.__X().min, GPO.AxS.__Y().min, base_z, &map_x1, &map_y1);
-		GPO.Map3D_XY(GPO.AxS.__X().max, GPO.AxS.__Y().max, base_z, &map_x2, &map_y2);
+		Map3D_XY(AxS.__X().min, AxS.__Y().min, base_z, &map_x1, &map_y1);
+		Map3D_XY(AxS.__X().max, AxS.__Y().max, base_z, &map_x2, &map_y2);
 		plot_bounds.xleft = map_x1;
 		plot_bounds.xright = map_x2;
 		plot_bounds.ybot = map_y2;
@@ -791,10 +714,10 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 	 */
 	else if(azimuth == 0) {
 		int xl, xb, xr, xf, yl, yb, yr, yf;
-		GPO.Map3D_XY(zaxis_x, zaxis_y, base_z, &xl, &yl);
-		GPO.Map3D_XY(back_x, back_y, base_z, &xb, &yb);
-		GPO.Map3D_XY(right_x, right_y, base_z, &xr, &yr);
-		GPO.Map3D_XY(front_x, front_y, base_z, &xf, &yf);
+		Map3D_XY(zaxis_x, zaxis_y, base_z, &xl, &yl);
+		Map3D_XY(back_x, back_y, base_z, &xb, &yb);
+		Map3D_XY(right_x, right_y, base_z, &xr, &yr);
+		Map3D_XY(front_x, front_y, base_z, &xf, &yf);
 		plot_bounds.xleft = MIN(xl, xb); /* Always xl? */
 		plot_bounds.xright = MAX(xb, xr); /* Always xr? */
 	}
@@ -804,12 +727,12 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 		if(splot_map) { /* case 'set view map' */
 			int map_x1, map_y1, map_x2, map_y2;
 			int tics_len = 0;
-			if(GPO.AxS.__X().ticmode & TICS_MIRROR) {
-				tics_len = (int)(GPO.AxS.__X().ticscale * (GPO.AxS.__X().tic_in ? -1 : 1) * (pTerm->v_tic));
+			if(AxS.__X().ticmode & TICS_MIRROR) {
+				tics_len = (int)(AxS.__X().ticscale * (AxS.__X().tic_in ? -1 : 1) * (pTerm->v_tic));
 				if(tics_len < 0) tics_len = 0; /* take care only about upward tics */
 			}
-			GPO.Map3D_XY(GPO.AxS.__X().min, GPO.AxS.__Y().min, base_z, &map_x1, &map_y1);
-			GPO.Map3D_XY(GPO.AxS.__X().max, GPO.AxS.__Y().max, base_z, &map_x2, &map_y2);
+			Map3D_XY(AxS.__X().min, AxS.__Y().min, base_z, &map_x1, &map_y1);
+			Map3D_XY(AxS.__X().max, AxS.__Y().max, base_z, &map_x2, &map_y2);
 			// Distance between the title base line and graph top line or the upper part of
 			// tics is as given by character height: 
 			x = ((map_x1 + map_x2) / 2);
@@ -826,7 +749,7 @@ void do_3dplot(termentry * pTerm, surface_points * plots, int pcount/* count of 
 	/* PLACE TIMELABEL */
 	if(timelabel.text) {
 		int x = pTerm->v_char;
-		int y = timelabel_bottom ? (yoffset * GPO.AxS.__Y().max + pTerm->v_char) : (plot_bounds.ytop - pTerm->v_char);
+		int y = timelabel_bottom ? (yoffset * AxS.__Y().max + pTerm->v_char) : (plot_bounds.ytop - pTerm->v_char);
 		do_timelabel(x, y);
 	}
 	// Add 'back' color box 
@@ -939,7 +862,7 @@ SECOND_KEY_PASS:
 				xl_prev = xl;
 				yl_prev = yl;
 				if(this_plot->title_position->scalex != character) {
-					map3d_position(this_plot->title_position, &xl, &yl, "key sample");
+					Map3DPosition(this_plot->title_position, &xl, &yl, "key sample");
 					xl -=  (key->just == GPKEY_LEFT) ? key_text_left : key_text_right;
 				}
 				else {
@@ -952,7 +875,7 @@ SECOND_KEY_PASS:
 				if(this_plot->title_is_automated && (term->flags & TERM_IS_LATEX))
 					title = texify_title(title, this_plot->plot_type);
 				if(key->textcolor.type != TC_DEFAULT)
-					apply_pm3dcolor(&key->textcolor); /* Draw key text in same color as key title */
+					apply_pm3dcolor(pTerm, &key->textcolor); /* Draw key text in same color as key title */
 				else
 					(pTerm->linetype)(LT_BLACK); /* Draw key text in black */
 				ignore_enhanced(this_plot->title_no_enhanced);
@@ -978,7 +901,7 @@ SECOND_KEY_PASS:
 					    break;
 				}
 			}
-			/* First draw the graph plot itself */
+			// First draw the graph plot itself 
 			if(!key_pass && this_plot->plot_type != KEYENTRY && this_plot->plot_type != VOXELDATA)
 				switch(this_plot->plot_style) {
 					case FILLEDCURVES: /* same, but maybe we could dummy up ZERRORFILL? */
@@ -1043,7 +966,7 @@ SECOND_KEY_PASS:
 						    plot3d_impulses(this_plot);
 					    break;
 					case BOXERROR:
-					    plot3d_boxerrorbars(this_plot);
+					    Plot3DBoxErrorBars(pTerm, this_plot);
 					    break;
 					case PM3DSURFACE:
 					    if(draw_this_surface) {
@@ -1074,20 +997,20 @@ SECOND_KEY_PASS:
 					case IMAGE:
 					    // Plot image using projection of 3D plot coordinates to 2D viewing coordinates. 
 					    this_plot->image_properties.type = IC_PALETTE;
-					    process_image(pTerm, this_plot, IMG_PLOT);
+					    ProcessImage(pTerm, this_plot, IMG_PLOT);
 					    break;
 					case RGBIMAGE:
 					    // Plot image using projection of 3D plot coordinates to 2D viewing coordinates. 
 					    this_plot->image_properties.type = IC_RGB;
-					    process_image(pTerm, this_plot, IMG_PLOT);
+					    ProcessImage(pTerm, this_plot, IMG_PLOT);
 					    break;
 					case RGBA_IMAGE:
 					    this_plot->image_properties.type = IC_RGBA;
-					    process_image(pTerm, this_plot, IMG_PLOT);
+					    ProcessImage(pTerm, this_plot, IMG_PLOT);
 					    break;
 					case PARALLELPLOT:
 					case SPIDERPLOT:
-					    GPO.IntError(NO_CARET, "plot style not supported in 3D");
+					    IntError(NO_CARET, "plot style not supported in 3D");
 					    break;
 					case ISOSURFACE:
 					case PLOT_STYLE_NONE:
@@ -1160,7 +1083,7 @@ SECOND_KEY_PASS:
 					    key_sample_line_pm3d(this_plot, xl, yl);
 					    break;
 					case ZERRORFILL:
-					    apply_pm3dcolor(&this_plot->fill_properties.border_color);
+					    apply_pm3dcolor(pTerm, &this_plot->fill_properties.border_color);
 					    key_sample_fill(xl, yl, this_plot);
 					    term_apply_lp_properties(pTerm, &this_plot->lp_properties);
 					    key_sample_line(xl, yl);
@@ -1168,17 +1091,15 @@ SECOND_KEY_PASS:
 					case BOXES:
 					case CIRCLES:
 					case BOXERROR:
-					    apply_pm3dcolor(&this_plot->lp_properties.pm3d_color);
+					    apply_pm3dcolor(pTerm, &this_plot->lp_properties.pm3d_color);
 					    if(this_plot->iso_crvs)
 						    check3d_for_variable_color(this_plot, this_plot->iso_crvs->points);
 					    key_sample_fill(xl, yl, this_plot);
 					    break;
-
 					case ISOSURFACE:
-					    apply_pm3dcolor(&this_plot->fill_properties.border_color);
+					    apply_pm3dcolor(pTerm, &this_plot->fill_properties.border_color);
 					    key_sample_fill(xl, yl, this_plot);
 					    break;
-
 					case PLOT_STYLE_NONE:
 					/* cannot happen */
 					default:
@@ -1351,11 +1272,11 @@ SECOND_KEY_PASS:
 	// finally, store the 2d projection of the x and y axis, to enable zooming by mouse 
 	{
 		int x, y;
-		GPO.Map3D_XY(GPO.AxS.__X().min, GPO.AxS.__Y().min, base_z, &axis3d_o_x, &axis3d_o_y);
-		GPO.Map3D_XY(GPO.AxS.__X().max, GPO.AxS.__Y().min, base_z, &x, &y);
+		Map3D_XY(AxS.__X().min, AxS.__Y().min, base_z, &axis3d_o_x, &axis3d_o_y);
+		Map3D_XY(AxS.__X().max, AxS.__Y().min, base_z, &x, &y);
 		axis3d_x_dx = x - axis3d_o_x;
 		axis3d_x_dy = y - axis3d_o_y;
-		GPO.Map3D_XY(GPO.AxS.__X().min, GPO.AxS.__Y().max, base_z, &x, &y);
+		Map3D_XY(AxS.__X().min, AxS.__Y().max, base_z, &x, &y);
 		axis3d_y_dx = x - axis3d_o_x;
 		axis3d_y_dy = y - axis3d_o_y;
 	}
@@ -1372,12 +1293,12 @@ SECOND_KEY_PASS:
 	else if(xz_projection || yz_projection)
 		surface_scale = 1.0;
 	else if(yz_projection)
-		flip_projection_axis(&GPO.AxS[FIRST_Z_AXIS]);
+		flip_projection_axis(&AxS[FIRST_Z_AXIS]);
 }
-
-/* plot3d_impulses:
- * Plot the surfaces in IMPULSES style
- */
+// 
+// plot3d_impulses:
+// Plot the surfaces in IMPULSES style
+// 
 static void plot3d_impulses(surface_points * plot)
 {
 	int i;                          /* point index */
@@ -1471,7 +1392,7 @@ static void plot3d_lines(surface_points * plot)
 				set_rgbcolor_var((uint)points[i].CRD_COLOR);
 			else if(plot->lp_properties.pm3d_color.type == TC_LINESTYLE) {
 				plot->lp_properties.pm3d_color.lt = (int)(points[i].CRD_COLOR);
-				apply_pm3dcolor(&(plot->lp_properties.pm3d_color));
+				apply_pm3dcolor(term, &(plot->lp_properties.pm3d_color));
 			}
 			switch(points[i].type) {
 				case INRANGE: {
@@ -1564,7 +1485,7 @@ static void plot3d_lines_pm3d(surface_points * plot)
 	bool color_from_column = plot->pm3d_color_from_column;
 	/* If plot really uses RGB rather than pm3d colors, let plot3d_lines take over */
 	if(plot->lp_properties.pm3d_color.type == TC_RGB) {
-		apply_pm3dcolor(&(plot->lp_properties.pm3d_color));
+		apply_pm3dcolor(term, &(plot->lp_properties.pm3d_color));
 		plot3d_lines(plot);
 		return;
 	}
@@ -1689,18 +1610,16 @@ static void plot3d_lines_pm3d(surface_points * plot)
 	SAlloc::F(icrvs_pair[0]);
 	SAlloc::F(icrvs_pair[1]);
 }
-
-/* plot3d_points:
- * Plot the surfaces in POINTSTYLE style
- */
+// 
+// Plot the surfaces in POINTSTYLE style
+// 
 static void plot3d_points(struct surface_points * plot)
 {
 	int i;
 	int x, y;
 	struct termentry * t = term;
-	struct iso_curve * icrvs = plot->iso_crvs;
+	iso_curve * icrvs = plot->iso_crvs;
 	int interval = plot->lp_properties.p_interval;
-
 	/* Set whatever we can that applies to every point in the loop */
 	if(plot->lp_properties.p_type == PT_CHARACTER) {
 		ignore_enhanced(TRUE);
@@ -1708,23 +1627,19 @@ static void plot3d_points(struct surface_points * plot)
 			(*t->set_font)(plot->labels->font);
 		(*t->justify_text)(CENTRE);
 	}
-
 	while(icrvs) {
 		struct coordinate * point;
 		int colortype = plot->lp_properties.pm3d_color.type;
 		const char * ptchar;
-
 		/* Apply constant color outside of the loop */
 		if(plot->plot_style == CIRCLES)
 			set_rgbcolor_const(plot->fill_properties.border_color.lt);
 		else if(colortype == TC_RGB)
 			set_rgbcolor_const(plot->lp_properties.pm3d_color.lt);
-
 		for(i = 0; i < icrvs->p_count; i++) {
 			/* Only print 1 point per interval */
 			if((plot->plot_style == LINESPOINTS) && (interval) && (i % interval))
 				continue;
-
 			point = &(icrvs->points[i]);
 			if(point->type == INRANGE) {
 				GPO.Map3D_XY(point->x, point->y, point->z, &x, &y);
@@ -1751,44 +1666,36 @@ static void plot3d_points(struct surface_points * plot)
 							do_arc(x, y, radius, 0., 360., 0, FALSE);
 						continue;
 					}
-
 					/* This code is also used for "splot ... with dots" */
 					if(plot->plot_style == DOTS) {
 						(*t->point)(x, y, -1);
 						continue;
 					}
-
 					/* variable point type */
-					if((plot->lp_properties.p_type == PT_VARIABLE)
-					    &&  !(isnan(point->CRD_PTTYPE))) {
+					if((plot->lp_properties.p_type == PT_VARIABLE) && !(isnan(point->CRD_PTTYPE))) {
 						(*t->point)(x, y, (int)(point->CRD_PTTYPE) - 1);
 					}
-
 					/* Print special character rather than drawn symbol */
 					if(plot->lp_properties.p_type == PT_CHARACTER)
 						ptchar = plot->lp_properties.p_char;
-					else if(plot->lp_properties.p_type == PT_VARIABLE
-					    &&  isnan(point->CRD_PTTYPE))
+					else if(plot->lp_properties.p_type == PT_VARIABLE && isnan(point->CRD_PTTYPE))
 						ptchar = (char*)(&point->CRD_PTCHAR);
 					else
 						ptchar = NULL;
 					if(ptchar) {
 						if(plot->labels)
-							apply_pm3dcolor(&(plot->labels->textcolor));
+							apply_pm3dcolor(t, &(plot->labels->textcolor));
 						(*t->put_text)(x, y, ptchar);
 					}
-
 					/* The normal case */
 					else if(plot->lp_properties.p_type >= -1)
 						(*t->point)(x, y, plot->lp_properties.p_type);
 				}
 			}
 		}
-
 		icrvs = icrvs->next;
 	}
-
-	/* Return to initial state */
+	// Return to initial state 
 	if(plot->lp_properties.p_type == PT_CHARACTER) {
 		if(plot->labels->font && plot->labels->font[0])
 			(*t->set_font)("");
@@ -2572,12 +2479,10 @@ static void xtick_callback(GpAxis * this_axis, double place, char * text, int ti
 			}
 			userlabels = userlabels->next;
 		}
-#       undef MINIMUM_SEPARATION
-
-		/* get offset */
+#undef MINIMUM_SEPARATION
+		// get offset 
 		map3d_position_r(&(this_axis->ticdef.offset), &offsetx, &offsety, "xtics");
-
-		/* allow manual justification of tick labels, but only for projections */
+		// allow manual justification of tick labels, but only for projections 
 		if((splot_map || xz_projection) && this_axis->manual_justify)
 			just = this_axis->tic_pos;
 		else if(tic_unitx * xscaler < -0.9)
@@ -2586,7 +2491,6 @@ static void xtick_callback(GpAxis * this_axis, double place, char * text, int ti
 			just = CENTRE;
 		else
 			just = RIGHT;
-
 		if(this_axis->index == SECOND_X_AXIS) {
 			v4.x = v3.x + tic_unitx * t->h_char * 1;
 			v4.y = v3.y + tic_unity * t->v_char * 1;
@@ -2608,7 +2512,7 @@ static void xtick_callback(GpAxis * this_axis, double place, char * text, int ti
 
 		/* User-specified different color for the tics text */
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			apply_pm3dcolor(&(this_axis->ticdef.textcolor));
+			apply_pm3dcolor(t, &(this_axis->ticdef.textcolor));
 		angle = this_axis->tic_rotate;
 		if(!(splot_map && angle && term->text_angle(angle)))
 			angle = 0;
@@ -2721,10 +2625,9 @@ static void ytick_callback(GpAxis * this_axis, double place, char * text, int ti
 			}
 			TERMCOORD(&v2, x2, y2);
 		}
-
-		/* User-specified different color for the tics text */
+		// User-specified different color for the tics text 
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			apply_pm3dcolor(&(this_axis->ticdef.textcolor));
+			apply_pm3dcolor(t, &(this_axis->ticdef.textcolor));
 		angle = this_axis->tic_rotate;
 		if(!(splot_map && angle && term->text_angle(angle)))
 			angle = 0;
@@ -2807,7 +2710,7 @@ static void ztick_callback(GpAxis * this_axis, double place, char * text, int ti
 		if(this_axis->ticdef.textcolor.type == TC_Z)
 			this_axis->ticdef.textcolor.value = place;
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			apply_pm3dcolor(&(this_axis->ticdef.textcolor));
+			apply_pm3dcolor(t, &(this_axis->ticdef.textcolor));
 		ignore_enhanced(!this_axis->ticdef.enhanced);
 		write_multiline(x1+offsetx, y1+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0, this_axis->ticdef.font);
 		ignore_enhanced(FALSE);
@@ -2831,7 +2734,8 @@ static void ztick_callback(GpAxis * this_axis, double place, char * text, int ti
 	}
 }
 
-static int map3d_getposition(GpPosition * pos, const char * what, double * xpos, double * ypos, double * zpos)
+//static int map3d_getposition(GpPosition * pos, const char * what, double * xpos, double * ypos, double * zpos)
+int GnuPlot::Map3DGetPosition(GpPosition * pos, const char * what, double * xpos, double * ypos, double * zpos)
 {
 	bool screen_coords = FALSE;
 	bool char_coords = FALSE;
@@ -2841,17 +2745,17 @@ static int map3d_getposition(GpPosition * pos, const char * what, double * xpos,
 	switch(pos->scalex) {
 		case first_axes:
 		case second_axes:
-		    *xpos = axis_log_value_checked(FIRST_X_AXIS, *xpos, what);
+		    *xpos = AxisLogValueChecked(FIRST_X_AXIS, *xpos, what);
 		    plot_coords = TRUE;
 		    break;
 		case graph:
 		    if(xz_projection && flat && !in_3d_polygon)
-			    *zpos = GPO.AxS.__Z().min + *xpos * (GPO.AxS.__Z().max - GPO.AxS.__Z().min);
+			    *zpos = AxS.__Z().min + *xpos * (AxS.__Z().max - AxS.__Z().min);
 		    else if(yz_projection && flat && !in_3d_polygon)
-			    /* Why is the direction inverted? */
-			    *zpos = GPO.AxS.__Z().max + *xpos * (GPO.AxS.__Z().min - GPO.AxS.__Z().max);
+			    // Why is the direction inverted? 
+			    *zpos = AxS.__Z().max + *xpos * (AxS.__Z().min - AxS.__Z().max);
 		    else
-			    *xpos = GPO.AxS.__X().min + *xpos * (GPO.AxS.__X().max - GPO.AxS.__X().min);
+			    *xpos = AxS.__X().min + *xpos * (AxS.__X().max - AxS.__X().min);
 		    plot_coords = TRUE;
 		    break;
 		case screen:
@@ -2863,9 +2767,9 @@ static int map3d_getposition(GpPosition * pos, const char * what, double * xpos,
 		    char_coords = TRUE;
 		    break;
 		case polar_axes:
-		    polar_to_xy(*xpos, *ypos, &xx, &yy, FALSE);
-		    *xpos = axis_log_value_checked(FIRST_X_AXIS, xx, what);
-		    *ypos = axis_log_value_checked(FIRST_Y_AXIS, yy, what);
+		    PolarToXY(*xpos, *ypos, &xx, &yy, FALSE);
+		    *xpos = AxisLogValueChecked(FIRST_X_AXIS, xx, what);
+		    *ypos = AxisLogValueChecked(FIRST_Y_AXIS, yy, what);
 		    plot_coords = TRUE;
 		    pos->scaley = polar_axes; /* Just to make sure */
 		    break;
@@ -2873,16 +2777,16 @@ static int map3d_getposition(GpPosition * pos, const char * what, double * xpos,
 	switch(pos->scaley) {
 		case first_axes:
 		case second_axes:
-		    *ypos = axis_log_value_checked(FIRST_Y_AXIS, *ypos, what);
+		    *ypos = AxisLogValueChecked(FIRST_Y_AXIS, *ypos, what);
 		    plot_coords = TRUE;
 		    break;
 		case graph:
 		    if(xz_projection && flat && !in_3d_polygon)
-			    *xpos = GPO.AxS.__X().min + *ypos * (GPO.AxS.__X().max - GPO.AxS.__X().min);
+			    *xpos = AxS.__X().min + *ypos * (AxS.__X().max - AxS.__X().min);
 		    else if(splot_map)
-			    *ypos = GPO.AxS.__Y().max - *ypos * (GPO.AxS.__Y().max - GPO.AxS.__Y().min);
+			    *ypos = AxS.__Y().max - *ypos * (AxS.__Y().max - AxS.__Y().min);
 		    else
-			    *ypos = GPO.AxS.__Y().min + *ypos * (GPO.AxS.__Y().max - GPO.AxS.__Y().min);
+			    *ypos = AxS.__Y().min + *ypos * (AxS.__Y().max - AxS.__Y().min);
 		    plot_coords = TRUE;
 		    break;
 		case screen:
@@ -2901,16 +2805,16 @@ static int map3d_getposition(GpPosition * pos, const char * what, double * xpos,
 		case second_axes:
 		case polar_axes:
 		    if(splot_map)
-			    *zpos = 1; /* Avoid failure if z=0 with logscale z */
+			    *zpos = 1.0; // Avoid failure if z=0 with logscale z 
 		    else
-			    *zpos = axis_log_value_checked(FIRST_Z_AXIS, *zpos, what);
+			    *zpos = AxisLogValueChecked(FIRST_Z_AXIS, *zpos, what);
 		    plot_coords = TRUE;
 		    break;
 		case graph:
 		    if((xz_projection || yz_projection) && flat && !in_3d_polygon)
 			    ; /* already received "x" fraction */
 		    else
-			    *zpos = GPO.AxS.__Z().min + *zpos * (GPO.AxS.__Z().max - GPO.AxS.__Z().min);
+			    *zpos = AxS.__Z().min + *zpos * (AxS.__Z().max - AxS.__Z().min);
 		    plot_coords = TRUE;
 		    break;
 		case screen:
@@ -2921,28 +2825,30 @@ static int map3d_getposition(GpPosition * pos, const char * what, double * xpos,
 		    break;
 	}
 	if(plot_coords && (screen_coords || char_coords))
-		GPO.IntError(NO_CARET, "Cannot mix screen or character coords with plot coords");
+		IntError(NO_CARET, "Cannot mix screen or character coords with plot coords");
 	return (screen_coords || char_coords);
 #undef flat
 }
 /*
  * map3d_position()  wrapper for map3d_position_double
  */
-void map3d_position(struct GpPosition * pos, int * x, int * y, const char * what)
+//void map3d_position(GpPosition * pos, int * x, int * y, const char * what)
+void GnuPlot::Map3DPosition(GpPosition * pos, int * x, int * y, const char * what)
 {
 	double xx, yy;
-	map3d_position_double(pos, &xx, &yy, what);
-	*x = xx;
-	*y = yy;
+	Map3DPositionDouble(pos, &xx, &yy, what);
+	*x = static_cast<int>(xx);
+	*y = static_cast<int>(yy);
 }
 
-void map3d_position_double(struct GpPosition * pos, double * x, double * y, const char * what)
+//void map3d_position_double(struct GpPosition * pos, double * x, double * y, const char * what)
+void GnuPlot::Map3DPositionDouble(GpPosition * pos, double * x, double * y, const char * what)
 {
 	double xpos = pos->x;
 	double ypos = pos->y;
 	double zpos = pos->z;
-	if(map3d_getposition(pos, what, &xpos, &ypos, &zpos) == 0) {
-		GPO.Map3D_XY_double(xpos, ypos, zpos, x, y);
+	if(Map3DGetPosition(pos, what, &xpos, &ypos, &zpos) == 0) {
+		Map3D_XY_double(xpos, ypos, zpos, x, y);
 	}
 	else {
 		// Screen or character coordinates 
@@ -2954,35 +2860,37 @@ void map3d_position_double(struct GpPosition * pos, double * x, double * y, cons
 void map3d_position_r(struct GpPosition * pos, int * x, int * y, const char * what)
 {
 	double xx, yy;
-	map3d_position_r_double(pos, &xx, &yy, what);
-	*x = xx;
-	*y = yy;
+	GPO.Map3DPositionRDouble(pos, &xx, &yy, what);
+	*x = static_cast<int>(xx);
+	*y = static_cast<int>(yy);
 }
 
-void map3d_position_r_double(struct GpPosition * pos, double * xx, double * yy, const char * what)
+//void map3d_position_r_double(GpPosition * pos, double * xx, double * yy, const char * what)
+void GnuPlot::Map3DPositionRDouble(GpPosition * pos, double * xx, double * yy, const char * what)
 {
 	double xpos = pos->x;
 	double ypos = pos->y;
-	double zpos = (splot_map) ? GPO.AxS.__Z().min : pos->z;
-	/* startpoint in graph coordinates */
-	if(map3d_getposition(pos, what, &xpos, &ypos, &zpos) == 0) {
-		int xoriginlocal, yoriginlocal;
-		GPO.Map3D_XY_double(xpos, ypos, zpos, xx, yy);
+	double zpos = (splot_map) ? AxS.__Z().min : pos->z;
+	// startpoint in graph coordinates 
+	if(Map3DGetPosition(pos, what, &xpos, &ypos, &zpos) == 0) {
+		int xoriginlocal;
+		int yoriginlocal;
+		Map3D_XY_double(xpos, ypos, zpos, xx, yy);
 		if(pos->scalex == graph)
-			xpos = GPO.AxS.__X().min;
+			xpos = AxS.__X().min;
 		else
 			xpos = 0;
 		if(pos->scaley == graph)
-			ypos = (splot_map) ? GPO.AxS.__Y().max : GPO.AxS.__Y().min;
+			ypos = (splot_map) ? AxS.__Y().max : AxS.__Y().min;
 		else
 			ypos = 0;
 		if(pos->scalez == graph)
-			zpos = GPO.AxS.__Z().min;
+			zpos = AxS.__Z().min;
 		else if(splot_map)
-			zpos = GPO.AxS.__Z().min;
+			zpos = AxS.__Z().min;
 		else
 			zpos = 0;
-		GPO.Map3D_XY(xpos, ypos, zpos, &xoriginlocal, &yoriginlocal);
+		Map3D_XY(xpos, ypos, zpos, &xoriginlocal, &yoriginlocal);
 		*xx -= xoriginlocal;
 		*yy -= yoriginlocal;
 	}
@@ -3033,9 +2941,9 @@ static void key_sample_point(surface_points * this_plot, int xl, int yl, int poi
 	(term->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
 	if(!clip_point(xl + key_point_offset, yl)) {
 		if(pointtype == PT_CHARACTER && this_plot) {
-			apply_pm3dcolor(&(this_plot->labels->textcolor));
+			apply_pm3dcolor(term, &(this_plot->labels->textcolor));
 			(*term->put_text)(xl + key_point_offset, yl, this_plot->lp_properties.p_char);
-			apply_pm3dcolor(&(this_plot->lp_properties.pm3d_color));
+			apply_pm3dcolor(term, &(this_plot->lp_properties.pm3d_color));
 		}
 		else {
 			(*term->point)(xl + key_point_offset, yl, pointtype);
@@ -3130,7 +3038,7 @@ static void key_sample_line_pm3d(surface_points * plot, int xl, int yl)
 		lp_style_type lptmp = plot->lp_properties;
 		if(plot->lp_properties.l_type == LT_COLORFROMCOLUMN)
 			lp_use_properties(&lptmp, (int)(plot->iso_crvs->points[0].CRD_COLOR));
-		apply_pm3dcolor(&lptmp.pm3d_color);
+		apply_pm3dcolor(term, &lptmp.pm3d_color);
 		key_sample_line(xl, yl);
 	}
 	else {
@@ -3178,7 +3086,7 @@ static void key_sample_point_pm3d(surface_points * plot, int xl, int yl, int poi
 		lp_style_type lptmp = plot->lp_properties;
 		if(plot->lp_properties.l_type == LT_COLORFROMCOLUMN)
 			lp_use_properties(&lptmp, (int)(plot->iso_crvs->points[0].CRD_COLOR));
-		apply_pm3dcolor(&lptmp.pm3d_color);
+		apply_pm3dcolor(term, &lptmp.pm3d_color);
 		key_sample_point(plot, xl, yl, pointtype);
 		return;
 	}
@@ -3299,17 +3207,14 @@ static void plot3d_zerrorfill(struct surface_points * plot)
 		pm3d_add_quadrangle(plot, corner);
 		i1 = i2;
 	}
-
 	if(count == 0)
 		GPO.IntError(NO_CARET, "all points out of range");
-
 	/* Default is to write out each zerror plot as we come to it     */
 	/* (most recent plot occludes all previous plots). To get proper */
 	/* sorting, use "set pm3d depthorder".                           */
 	if(pm3d.direction != PM3D_DEPTH)
 		pm3d_depth_queue_flush();
 }
-
 /*
  * 3D version of plot with boxes.
  * By default only a flat rectangle is drawn.  "set boxdepth <depth>"
@@ -3364,70 +3269,57 @@ static void plot3d_boxes(struct surface_points * plot)
 				cliptorange(dyl, GPO.AxS.__Y().min, GPO.AxS.__Y().max);
 				cliptorange(dyh, GPO.AxS.__Y().min, GPO.AxS.__Y().max);
 			}
-
-			/* clip to border */
+			// clip to border 
 			cliptorange(dxl, GPO.AxS.__X().min, GPO.AxS.__X().max);
 			cliptorange(dxh, GPO.AxS.__X().min, GPO.AxS.__X().max);
-
-			/* Entire box is out of range on x */
+			// Entire box is out of range on x 
 			if(dxl == dxh && (dxl == GPO.AxS.__X().min || dxl == GPO.AxS.__X().max))
 				continue;
-
 			zbase = 0;
 			cliptorange(zbase, GPO.AxS.__Z().min, GPO.AxS.__Z().max);
-
-			/* Copy variable color value into plot header for pm3d_add_quadrangle */
+			// Copy variable color value into plot header for pm3d_add_quadrangle 
 			if(plot->pm3d_color_from_column)
-				plot->lp_properties.pm3d_color.lt =  points[i].CRD_COLOR;
-
-			/* Construct and store single pm3d rectangle (front of box) */
-			/* Z	corner1	corner2	*/
-			/* 0	corner0 corner3 */
+				plot->lp_properties.pm3d_color.lt = static_cast<int>(points[i].CRD_COLOR);
+			// Construct and store single pm3d rectangle (front of box) 
+			// Z	corner1	corner2	
+			// 0	corner0 corner3 
 			corner[0].x = corner[1].x = dxl;
 			corner[2].x = corner[3].x = dxh;
 			corner[0].y = corner[1].y = corner[2].y = corner[3].y = dyl;
 			corner[0].z = corner[3].z = zbase;
 			corner[1].z = corner[2].z = dz;
 			pm3d_add_quadrangle(plot, corner);
-
-			/* The normal case is to draw the front only (boxdepth = 0) */
+			// The normal case is to draw the front only (boxdepth = 0) 
 			if(boxdepth == 0)
 				continue;
-
-			/* Back side of the box */
+			// Back side of the box 
 			corner[0].y = corner[1].y = corner[2].y = corner[3].y = dyh;
 			pm3d_add_quadrangle(plot, corner);
-
-			/* Left side of box */
+			// Left side of box 
 			corner[2].x = corner[3].x = dxl;
 			corner[0].y = corner[1].y = dyl;
 			corner[0].z = corner[3].z = zbase;
 			corner[1].z = corner[2].z = dz;
 			pm3d_add_quadrangle(plot, corner);
-
-			/* Right side of box */
+			// Right side of box 
 			corner[0].x = corner[1].x = corner[2].x = corner[3].x = dxh;
 			pm3d_add_quadrangle(plot, corner);
-
-			/* Top of box */
+			// Top of box 
 			corner[0].x = corner[1].x = dxl;
 			corner[0].y = corner[3].y = dyl;
 			corner[1].y = corner[2].y = dyh;
 			corner[0].z = corner[3].z = dz;
 			pm3d_add_quadrangle(plot, corner);
 		} /* loop over points */
-
 		icrvs = icrvs->next;
 	}
-
-	/* FIXME The only way to get the pm3d flush code to see our fill */
-	/* style is to temporarily copy it to the global fillstyle.      */
+	// FIXME The only way to get the pm3d flush code to see our fill 
+	// style is to temporarily copy it to the global fillstyle.      
 	save_fillstyle = default_fillstyle;
 	default_fillstyle = plot->fill_properties;
-
-	/* By default we write out each set of boxes as it is seen.  */
-	/* The other option is to let them accummulate and then sort */
-	/* them together with all other pm3d elements to draw later. */
+	// By default we write out each set of boxes as it is seen.  
+	// The other option is to let them accummulate and then sort 
+	// them together with all other pm3d elements to draw later. 
 	if(pm3d.direction != PM3D_DEPTH) {
 		pm3d.base_sort = TRUE;
 		pm3d_depth_queue_flush();
@@ -3519,10 +3411,9 @@ static void plot3d_polygons(struct surface_points * plot)
 	quad = NULL;
 }
 
-static void check3d_for_variable_color(struct surface_points * plot, struct coordinate * point)
+static void check3d_for_variable_color(surface_points * plot, struct coordinate * point)
 {
 	int colortype = plot->lp_properties.pm3d_color.type;
-
 	switch(colortype) {
 		case TC_RGB:
 		    if(plot->pm3d_color_from_column && plot->lp_properties.pm3d_color.value < 0.0)
@@ -3537,7 +3428,7 @@ static void check3d_for_variable_color(struct surface_points * plot, struct coor
 		    break;
 		case TC_LINESTYLE: /* color from linestyle in data column */
 		    plot->lp_properties.pm3d_color.lt = (int)(point->CRD_COLOR);
-		    apply_pm3dcolor(&(plot->lp_properties.pm3d_color));
+		    apply_pm3dcolor(term, &(plot->lp_properties.pm3d_color));
 		    break;
 		case TC_COLORMAP:
 		    if(plot->lp_properties.P_Colormap) {
@@ -3569,12 +3460,11 @@ void do_3dkey_layout(legend_key * key, int * xinkey, int * yinkey)
 		key_sample_right = key_sample_width;
 		key_text_left = -(int)(t->h_char * (max_ptitl_len + 1));
 		key_text_right = -(int)t->h_char;
-		key_size_left = t->h_char * (max_ptitl_len + 2 + key->width_fix);
+		key_size_left  = t->h_char * (max_ptitl_len + 2 + key->width_fix);
 		key_size_right = t->h_char + key_sample_width;
 	}
 	key_point_offset = (key_sample_left + key_sample_right) / 2;
-
-	/* Key title width and height, adjusted for font size and markup */
+	// Key title width and height, adjusted for font size and markup 
 	key_title_extra = 0;
 	key_title_height = 0;
 	if(key->title.text) {
@@ -3585,19 +3475,18 @@ void do_3dkey_layout(legend_key * key, int * xinkey, int * yinkey)
 		key_title_height = est_height * t->v_char;
 		if(key->title.font)
 			t->set_font("");
-		/* Allow a little extra clearance for markup */
+		// Allow a little extra clearance for markup 
 		if((t->flags & TERM_ENHANCED_TEXT) && (strchr(key->title.text, '^') || strchr(key->title.text, '_')))
 			key_title_extra = t->v_char/2;
 	}
 	key_width = key_col_wth * (key_cols - 1) + key_size_right + key_size_left;
 	key_height = key_title_height + key_title_extra + key_entry_height * key_rows + key->height_fix * t->v_char;
-	/* Make room for extra long title */
-	if(key_width < key_title_width)
-		key_width = key_title_width;
-	/* Now that we know the size of the key, we can position it as requested */
+	// Make room for extra long title 
+	SETMAX(key_width, key_title_width);
+	// Now that we know the size of the key, we can position it as requested 
 	if(key->region == GPKEY_USER_PLACEMENT) {
 		int corner_x, corner_y;
-		map3d_position(&key->user_pos, &corner_x, &corner_y, "key");
+		GPO.Map3DPosition(&key->user_pos, &corner_x, &corner_y, "key");
 		if(key->hpos == CENTRE)
 			key->bounds.xleft = corner_x - key_width / 2;
 		else if(key->hpos == RIGHT)
@@ -3605,19 +3494,13 @@ void do_3dkey_layout(legend_key * key, int * xinkey, int * yinkey)
 		else
 			key->bounds.xleft = corner_x;
 		key->bounds.xright = key->bounds.xleft + key_width;
-
 		key->bounds.ytop = corner_y;
 		key->bounds.ybot = corner_y - key_height;
-
 		*xinkey = key->bounds.xleft + key_size_left;
 		*yinkey = key->bounds.ytop - key_title_height - key_title_extra;
 	}
 	else {
-		BoundingBox * bounds;
-		if(key->fixed && !splot_map)
-			bounds = &page_bounds;
-		else
-			bounds = &plot_bounds;
+		BoundingBox * bounds = (key->fixed && !splot_map) ? &page_bounds : &plot_bounds;
 		if(key->region != GPKEY_AUTO_INTERIOR_LRTBC && key->margin == GPKEY_BMARGIN) {
 			if(ptitl_cnt > 0) {
 				/* we divide into columns, then centre in column by considering
@@ -3629,7 +3512,6 @@ void do_3dkey_layout(legend_key * key, int * xinkey, int * yinkey)
 				*xinkey = bounds->xleft + ((bounds->xright - bounds->xleft) * key_size_left) / (key_cols * (key_size_left + key_size_right));
 				key->bounds.xleft = *xinkey - key_size_left;
 				key->bounds.xright = key->bounds.xleft + key_width;
-
 				key->bounds.ytop = bounds->ybot;
 				key->bounds.ybot = bounds->ybot - key_height;
 				*yinkey = key->bounds.ytop - key_title_height - key_title_extra;
@@ -3671,15 +3553,12 @@ void do_3dkey_layout(legend_key * key, int * xinkey, int * yinkey)
 		}
 		yl_ref = *yinkey - key_title_height - key_title_extra;
 	}
-
-	/* Center the key entries vertically, allowing for requested extra space */
-	*yinkey -= (key->height_fix * t->v_char) / 2;
+	*yinkey -= (key->height_fix * t->v_char) / 2; // Center the key entries vertically, allowing for requested extra space 
 }
-
 /*
  * Support routines for "set view map"
  */
-static int splot_map_active = 0;
+static int   splot_map_active = 0;
 static float splot_map_surface_rot_x;
 static float splot_map_surface_rot_z;
 static float splot_map_surface_scale;
@@ -3706,10 +3585,10 @@ void splot_map_activate()
 		splot_map_surface_rot_z = surface_rot_z;
 		splot_map_surface_scale = surface_scale;
 		// set new values 
-		surface_rot_x = 180;
-		surface_rot_z = 0;
+		surface_rot_x = 180.0f;
+		surface_rot_z = 0.0f;
 		// version 4 had constant value surface_scale = 1.3 
-		surface_scale = 1.425 * mapview_scale;
+		surface_scale = 1.425f * mapview_scale;
 		// The Y axis runs backwards from a normal 2D plot 
 		flip_projection_axis(&GPO.AxS[FIRST_Y_AXIS]);
 	}
@@ -3734,7 +3613,8 @@ void splot_map_deactivate()
 // The only intended use for this is in xz projection, where it generates a
 // box + errorbar plot oriented horizontally rather than vertically.
 // 
-static void plot3d_boxerrorbars(surface_points * plot)
+//static void plot3d_boxerrorbars(termentry * pTerm, surface_points * plot)
+void GnuPlot::Plot3DBoxErrorBars(termentry * pTerm, surface_points * plot)
 {
 	int i;                  /* point index */
 	double dx, dxl, dxh;    /* rectangle extent along X axis (vertical) */
@@ -3745,7 +3625,7 @@ static void plot3d_boxerrorbars(surface_points * plot)
 	int style = style_from_fill(&plot->fill_properties);
 	int colortype = plot->fill_properties.border_color.type;
 	if(!xz_projection) {
-		GPO.IntWarn(NO_CARET, "splot 'with boxerrorbars' only works in xz projection");
+		IntWarn(NO_CARET, "splot 'with boxerrorbars' only works in xz projection");
 		return;
 	}
 	// We make two passes through the data
@@ -3760,9 +3640,9 @@ static void plot3d_boxerrorbars(surface_points * plot)
 		if(pass == 2) {
 			// Errorbar line style from "set bars" 
 			if((bar_lp.flags & LP_ERRORBAR_SET) != 0)
-				term_apply_lp_properties(term, &bar_lp);
+				term_apply_lp_properties(pTerm, &bar_lp);
 			else {
-				term_apply_lp_properties(term, &plot->lp_properties);
+				term_apply_lp_properties(pTerm, &plot->lp_properties);
 				need_fill_border(&plot->fill_properties);
 			}
 		}
@@ -3778,72 +3658,70 @@ static void plot3d_boxerrorbars(surface_points * plot)
 				dzl = points[i].CRD_ZLOW;
 				dzh = points[i].CRD_ZHIGH;
 				dy = 0;
-
 				/* clip to border */
-				cliptorange(dxl, GPO.AxS.__X().min, GPO.AxS.__X().max);
-				cliptorange(dxh, GPO.AxS.__X().min, GPO.AxS.__X().max);
-				cliptorange(dzl, GPO.AxS.__Z().min, GPO.AxS.__Z().max);
-				cliptorange(dzh, GPO.AxS.__Z().min, GPO.AxS.__Z().max);
-				cliptorange(dz, GPO.AxS.__Z().min, GPO.AxS.__Z().max);
-
+				cliptorange(dxl, AxS.__X().min, AxS.__X().max);
+				cliptorange(dxh, AxS.__X().min, AxS.__X().max);
+				cliptorange(dzl, AxS.__Z().min, AxS.__Z().max);
+				cliptorange(dzh, AxS.__Z().min, AxS.__Z().max);
+				cliptorange(dz, AxS.__Z().min, AxS.__Z().max);
 				/* Entire box is out of range */
-				if(dxl == dxh && (dxl == GPO.AxS.__X().min || dxl == GPO.AxS.__X().max))
+				if(dxl == dxh && (dxl == AxS.__X().min || dxl == AxS.__X().max))
 					continue;
-
 				if(pass == 1) {
 					// Variable color 
 					check3d_for_variable_color(plot, &points[i]);
 					// Draw box 
-					GPO.Map3D_XY(dxl, dy, GPO.AxS.__Z().min, &x0, &y0);
-					GPO.Map3D_XY(dxh, dy, dz, &x1, &y1);
-					(term->fillbox)(style, x0, MIN(y0, y1), (x1-x0), abs(y1-y0));
+					Map3D_XY(dxl, dy, AxS.__Z().min, &x0, &y0);
+					Map3D_XY(dxh, dy, dz, &x1, &y1);
+					(pTerm->fillbox)(style, x0, MIN(y0, y1), (x1-x0), abs(y1-y0));
 					// Draw border 
 					if(need_fill_border(&plot->fill_properties)) {
-						newpath(term);
-						(term->move)(x0, y0);
-						(term->vector)(x1, y0);
-						(term->vector)(x1, y1);
-						(term->vector)(x0, y1);
-						(term->vector)(x0, y0);
-						closepath(term);
+						newpath(pTerm);
+						(pTerm->move)(x0, y0);
+						(pTerm->vector)(x1, y0);
+						(pTerm->vector)(x1, y1);
+						(pTerm->vector)(x0, y1);
+						(pTerm->vector)(x0, y0);
+						closepath(pTerm);
 						if(plot->fill_properties.border_color.type != TC_DEFAULT)
-							term_apply_lp_properties(term, &plot->lp_properties);
+							term_apply_lp_properties(pTerm, &plot->lp_properties);
 					}
 				}
 				if(pass == 2) {
 					int vl, vh;
 					// conservative clipping 
-					if((GPO.AxS.__X().min < GPO.AxS.__X().max) && (dx <= GPO.AxS.__X().min || dx >= GPO.AxS.__X().max))
+					if((AxS.__X().min < AxS.__X().max) && (dx <= AxS.__X().min || dx >= AxS.__X().max))
 						continue;
-					if((GPO.AxS.__X().min > GPO.AxS.__X().max) && (dx <= GPO.AxS.__X().max || dx >= GPO.AxS.__X().min))
+					if((AxS.__X().min > AxS.__X().max) && (dx <= AxS.__X().max || dx >= AxS.__X().min))
 						continue;
 					// Draw error bars 
-					GPO.Map3D_XY(dxl, dy, dz, &x0, &vl);
-					GPO.Map3D_XY(dxh, dy, dz, &x0, &vh);
-					GPO.Map3D_XY(dx, dy, dzl, &x0, &y0);
-					GPO.Map3D_XY(dx, dy, dzh, &x1, &y1);
+					Map3D_XY(dxl, dy, dz, &x0, &vl);
+					Map3D_XY(dxh, dy, dz, &x0, &vh);
+					Map3D_XY(dx, dy, dzl, &x0, &y0);
+					Map3D_XY(dx, dy, dzh, &x1, &y1);
 					// Draw main error bar 
-					(term->move)(x0, y0);
-					(term->vector)(x1, y1);
+					(pTerm->move)(x0, y0);
+					(pTerm->vector)(x1, y1);
 					// Draw the whiskers perpendicular to the main bar 
 					if(bar_size >= 0.0) {
 						vl = y0 + bar_size * (y0 - vl);
 						vh = y0 + bar_size * (y0 - vh);
 					}
-					draw_clip_line(term, x0, vl, x0, vh);
-					draw_clip_line(term, x1, vl, x1, vh);
+					draw_clip_line(pTerm, x0, vl, x0, vh);
+					draw_clip_line(pTerm, x1, vl, x1, vh);
 				}
 			} /* loop over points */
 			icrvs = icrvs->next;
 		}
 	} /* Passes 1 and 2 */
 	// Restore base properties before key sample is drawn 
-	term_apply_lp_properties(term, &plot->lp_properties);
+	term_apply_lp_properties(pTerm, &plot->lp_properties);
 }
 
 #else
-static void plot3d_boxerrorbars(struct surface_points * plot)
+//static void plot3d_boxerrorbars(termentry * pTerm, struct surface_points * plot)
+void GnuPlot::Plot3DBoxErrorBars(termentry * pTerm, surface_points * plot)
 {
-	GPO.IntError(NO_CARET, "this copy of gnuplot does not support 3D boxerrorbars");
+	IntError(NO_CARET, "this copy of gnuplot does not support 3D boxerrorbars");
 }
 #endif /* BOXERROR_3D */

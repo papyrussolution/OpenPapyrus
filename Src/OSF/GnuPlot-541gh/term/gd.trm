@@ -453,18 +453,13 @@ static int PNG_FillSolid(int fillpar)
 	int red   = (png_state.rgb >> 16) & 0xff;
 	int green = (png_state.rgb >> 8) & 0xff;
 	int blue  = png_state.rgb & 0xff;
-
 	double fact = (double)(100 - fillpar) * 0.01;
-
 	int color;
-
 	if(fact <= 0 || fact >= 1.0)
 		return png_state.color;
-
 	red   += (0xff - red) * fact;
 	green += (0xff - green) * fact;
 	blue  += (0xff - blue) * fact;
-
 	color = gdImageColorExact(png_state.image, red, green, blue);
 	if(color < 0) {
 		color = gdImageColorAllocate(png_state.image, red, green, blue);
@@ -472,7 +467,6 @@ static int PNG_FillSolid(int fillpar)
 	if(color < 0) {
 		color = gdImageColorClosest(png_state.image, red, green, blue);
 	}
-
 	return color;
 }
 
@@ -481,8 +475,7 @@ static int PNG_FillTransparent(int fillpar)
 	int red   = (png_state.rgb >> 16) & 0xff;
 	int green = (png_state.rgb >> 8) & 0xff;
 	int blue  = png_state.rgb & 0xff;
-	int alpha = 127 * (double)(100-fillpar) / 100.;
-
+	int alpha = 127 * (double)(100-fillpar) / 100.0;
 	return gdImageColorExactAlpha(png_state.image, red, green, blue, alpha);
 }
 
@@ -831,7 +824,7 @@ TERM_PUBLIC void PNG_options()
 			    GPO.Pgm.Shift();
 			    png_state.fontscale = GPO.Pgm.EndOfCommand() ? 1 : GPO.RealExpression();
 			    if(png_state.fontscale <= 0)
-				    png_state.fontscale = 1.;
+				    png_state.fontscale = 1.0;
 			    break;
 			case PNG_SIZE:
 			    GPO.Pgm.Shift();
@@ -906,7 +899,7 @@ TERM_PUBLIC void PNG_options()
 			    if(strncmp("gif", term->name, 3))
 				    GPO.IntWarnCurToken("This terminal does not support animation");
 			    GPO.Pgm.Shift();
-			    png_state.frame_delay = int_expression();
+			    png_state.frame_delay = GPO.IntExpression();
 			    if(png_state.frame_delay <= 0)
 				    png_state.frame_delay = 10;
 			    gif_anim_option = 1;
@@ -915,7 +908,7 @@ TERM_PUBLIC void PNG_options()
 			    if(strncmp("gif", term->name, 3))
 				    GPO.IntWarnCurToken("This terminal does not support animation");
 			    GPO.Pgm.Shift();
-			    png_state.loop_count = int_expression();
+			    png_state.loop_count = GPO.IntExpression();
 			    gif_anim_option = 1;
 			    break;
 			case GIF_NOOPT:
@@ -1695,16 +1688,16 @@ TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
 			    err, string, png_state.ttffont);
 		}
 		else {
-			x += sin((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.;
-			y -= cos((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.;
+			x += sin((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.0;
+			y -= cos((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.0;
 			switch(png_state.justify) {
 				case RIGHT:
 				    x -= (brect[2]-brect[0]);
 				    y += (brect[3]-brect[1]);
 				    break;
 				case CENTRE:
-				    x -= (brect[2]-brect[0]) / 2.;
-				    y += (brect[3]-brect[1]) / 2.;
+				    x -= (brect[2]-brect[0]) / 2.0;
+				    y += (brect[3]-brect[1]) / 2.0;
 				    break;
 				case LEFT:
 				default:        break;
@@ -2013,8 +2006,8 @@ TERM_PUBLIC void ENHGD_FLUSH()
 	y = png_state.y;
 	x -= sin((double)png_state.angle * M_PI_2/90.) * ENHgd_base;
 	y += cos((double)png_state.angle * M_PI_2/90.) * ENHgd_base;
-	x += sin((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.;
-	y -= cos((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.;
+	x += sin((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.0;
+	y -= cos((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.0;
 	/* First try the old GDFONTPATH mechanism for locating fonts */
 	gdUseFontConfig(0);
 #ifdef gdFTEX_Adobe_Custom
@@ -2086,15 +2079,12 @@ TERM_PUBLIC void ENHGD_FLUSH()
 TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char * str)
 {
 	char * original_string = (char*)str;
-
 	if(ignore_enhanced_text || !png_state.ttffont) {
 		PNG_put_text(x, y, str);
 		return;
 	}
-
 	if(!strlen(str))
 		return;
-
 	/* if there are no magic characters, we should just be able
 	 * punt the string to PNG_put_text()
 	 */
@@ -2103,9 +2093,7 @@ TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char * str)
 		PNG_put_text(x, y, str);
 		return;
 	}
-
 	PNG_move(x, y);
-
 	/* set up the global variables needed by enhanced_recursion() */
 	enhanced_fontscale = png_state.fontscale;
 	strncpy(enhanced_escape_format, "&#x%2.2x;", sizeof(enhanced_escape_format));
@@ -2129,20 +2117,14 @@ TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    ENHgd_font, ENHgd_fontsize * png_state.fontscale,
-	    0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, ENHgd_font, ENHgd_fontsize * png_state.fontscale, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
-
 		if(!*++str)
 			break; /* end of string */
-
 		/* else carry on and process the rest of the string */
 	}
-
 	/* We can do text justification by running the entire top level string */
 	/* through 2 times, with the ENHgd_sizeonly flag set the first time.   */
 	/* After seeing where the final position is, we then offset the start  */
@@ -2151,12 +2133,10 @@ TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char * str)
 		int justification = png_state.justify;
 		int x_offset = png_state.x - x;
 		int y_offset = 0;
-
 		if(png_state.angle != 0)
 			y_offset = png_state.y - y;
 		png_state.justify = LEFT;
 		ENHgd_sizeonly = FALSE;
-
 		if(justification == RIGHT) {
 			ENHGD_put_text(x - x_offset, y - y_offset, original_string);
 		}
@@ -2205,8 +2185,8 @@ TERM_PUBLIC void ENHGD_boxed_text(uint x, uint y, int option)
 		    break;
 		case TEXTBOX_MARGINS:
 		    /* Change the text margins */
-		    bounding_xmargin = GD_TEXTBOX_MARGIN * (double)x / 100.;
-		    bounding_ymargin = GD_TEXTBOX_MARGIN * (double)y / 100.;
+		    bounding_xmargin = GD_TEXTBOX_MARGIN * (double)x / 100.0;
+		    bounding_ymargin = GD_TEXTBOX_MARGIN * (double)y / 100.0;
 		    break;
 		default:
 		    break;
@@ -2233,8 +2213,7 @@ TERM_PUBLIC void PNG_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 			GPO.IntError(NO_CARET, "libgd: failed to create image structure");
 		gdImagePaletteCopy(im, png_state.image);
 	}
-
-	/* Set clipping bound for area into which we will copy */
+	// Set clipping bound for area into which we will copy 
 	xclip1 = MIN(corner[2].x, corner[3].x);
 	xclip2 = MAX(corner[2].x, corner[3].x);
 	yclip1 = MIN(Y(corner[2].y), Y(corner[3].y));

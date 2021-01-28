@@ -1,50 +1,19 @@
-/* GNUPLOT - contour.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - contour.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 /*
  * AUTHORS
- *
  *   Original Software:
  *       Gershon Elber
- *
  *   Improvements to the numerical algorithms:
  *        Hans-Martin Keller, 1995,1997 (hkeller@gwdg.de)
  *
  */
 #include <gnuplot.h>
 #pragma hdrstop
-
-/* exported variables (to be handled by the 'set' and friends): */
-
+//
+// exported variables (to be handled by the 'set' and friends): 
+//
 char contour_format[32] = "%8.3g";      /* format for contour key entries */
 t_contour_kind contour_kind = CONTOUR_KIND_LINEAR;
 t_contour_levels_kind contour_levels_kind = LEVELS_AUTO;
@@ -833,14 +802,14 @@ static void put_contour_cubic(cntr_struct * p_cntr, double xx_min, double xx_max
 			return;
 		}
 	}
-	/* If following (num_pts > 1) is TRUE then exactly 2 points in contour.  */
+	// If following (num_pts > 1) is TRUE then exactly 2 points in contour.  
 	else if(num_pts > 1) {
-		/* set all second derivatives to zero, interval length to 1 */
-		d2x[0] = 0.;
-		d2y[0] = 0.;
-		d2x[1] = 0.;
-		d2y[1] = 0.;
-		delta_t[0] = 1.;
+		// set all second derivatives to zero, interval length to 1 
+		d2x[0] = 0.0;
+		d2y[0] = 0.0;
+		d2x[1] = 0.0;
+		d2y[1] = 0.0;
+		delta_t[0] = 1.0;
 	}
 	else {                  /* Only one point ( ?? ) - ignore it. */
 		SAlloc::F(delta_t);
@@ -946,44 +915,39 @@ static int gen_cubic_spline(int num_pts,                /* Number of points (num
 	 */
 	n = num_pts - 2;        /* Without first and last point */
 	if(contr_isclosed) {
-		/* First and last points must be equal for closed contours */
+		// First and last points must be equal for closed contours 
 		delta_t[num_pts - 1] = delta_t[0];
 		d2x[num_pts - 1] = d2x[0];
 		d2y[num_pts - 1] = d2y[0];
-		n++;            /* Add last point (= first point) */
+		n++; // Add last point (= first point) 
 	}
 	for(i = 0; i < n; i++) {
-		/* Matrix M, mainly tridiagonal with cyclic second index ("j = j+n mod n") */
+		// Matrix M, mainly tridiagonal with cyclic second index ("j = j+n mod n") 
 		m[i][0] = delta_t[i]; /* Off-diagonal element M_{i,i-1} */
 		m[i][1] = 2. * (delta_t[i] + delta_t[i + 1]); /* M_{i,i} */
 		m[i][2] = delta_t[i + 1]; /* Off-diagonal element M_{i,i+1} */
-
-		/* Right side b_x and b_y */
-		d2x[i] = (d2x[i + 1] - d2x[i]) * 6.;
-		d2y[i] = (d2y[i + 1] - d2y[i]) * 6.;
-
+		// Right side b_x and b_y 
+		d2x[i] = (d2x[i + 1] - d2x[i]) * 6.0;
+		d2y[i] = (d2y[i + 1] - d2y[i]) * 6.0;
 		/*
 		 * If the linear stroke shows a cusps of more than 90 degree, the right
 		 * side is reduced to avoid oscillations in the spline:
 		 */
 		norm = sqrt(SQR(d2x[i] / unit_x) + SQR(d2y[i] / unit_y)) / 8.5;
-
 		if(norm > 1.) {
 			d2x[i] /= norm;
 			d2y[i] /= norm;
-			/* The first derivative will not be continuous */
+			// The first derivative will not be continuous 
 		}
 	}
-
 	if(!contr_isclosed) {
-		/* Third derivative is set to zero at both ends */
-		m[0][1] += m[0][0]; /* M_{0,0}     */
-		m[0][0] = 0.;   /* M_{0,n-1}   */
-		m[n - 1][1] += m[n - 1][2]; /* M_{n-1,n-1} */
-		m[n - 1][2] = 0.; /* M_{n-1,0}   */
+		// Third derivative is set to zero at both ends 
+		m[0][1] += m[0][0]; // M_{0,0}
+		m[0][0] = 0.0; // M_{0,n-1}   
+		m[n - 1][1] += m[n - 1][2]; // M_{n-1,n-1} 
+		m[n - 1][2] = 0.0; // M_{n-1,0}   
 	}
-	/* Solve linear systems for d2x[] and d2y[] */
-
+	// Solve linear systems for d2x[] and d2y[] 
 	if(solve_cubic_1(m, n)) { /* Calculate Cholesky decomposition */
 		solve_cubic_2(m, d2x, n); /* solve M * d2x = b_x */
 		solve_cubic_2(m, d2y, n); /* solve M * d2y = b_y */
@@ -992,7 +956,7 @@ static int gen_cubic_spline(int num_pts,                /* Number of points (num
 		SAlloc::F(m);
 		return FALSE;
 	}
-	/* Shift all second derivatives one place right and abdate end points */
+	// Shift all second derivatives one place right and abdate end points 
 	for(i = n; i > 0; i--) {
 		d2x[i] = d2x[i - 1];
 		d2y[i] = d2y[i - 1];
@@ -1022,22 +986,18 @@ static void intp_cubic_spline(int n, cntr_struct * p_cntr, double d2x[], double 
 	double x0, x1, x, y0, y1, y;
 	double d, hx, dx0, dx01, hy, dy0, dy01;
 	int i;
-	/* The length of the total interval */
-	double t_max = 0.0;
+	double t_max = 0.0; // The length of the total interval 
 	for(i = 0; i < n - 1; i++)
 		t_max += delta_t[i];
-	/* The distance between interpolated points */
+	// The distance between interpolated points 
 	t_skip = (1. - 1e-7) * t_max / (n_intpol - 1);
-
-	t = 0.;                 /* Parameter value */
+	t = 0.0; // Parameter value 
 	x1 = p_cntr->X;
 	y1 = p_cntr->Y;
 	add_cntr_point(x1, y1); /* First point. */
 	t += t_skip;
-
 	for(i = 0; i < n - 1; i++) {
 		p_cntr = p_cntr->next;
-
 		d = delta_t[i]; /* Interval length */
 		x0 = x1;
 		y0 = y1;
@@ -1045,20 +1005,19 @@ static void intp_cubic_spline(int n, cntr_struct * p_cntr, double d2x[], double 
 		y1 = p_cntr->Y;
 		hx = (x1 - x0) / d;
 		hy = (y1 - y0) / d;
-		dx0 = (d2x[i + 1] + 2 * d2x[i]) / 6.;
-		dy0 = (d2y[i + 1] + 2 * d2y[i]) / 6.;
-		dx01 = (d2x[i + 1] - d2x[i]) / (6. * d);
-		dy01 = (d2y[i + 1] - d2y[i]) / (6. * d);
-		while(t <= delta_t[i]) { /* t in current interval ? */
+		dx0 = (d2x[i + 1] + 2 * d2x[i]) / 6.0;
+		dy0 = (d2y[i + 1] + 2 * d2y[i]) / 6.0;
+		dx01 = (d2x[i + 1] - d2x[i]) / (6.0 * d);
+		dy01 = (d2y[i + 1] - d2y[i]) / (6.0 * d);
+		while(t <= delta_t[i]) { // t in current interval ? 
 			x = x0 + t * (hx + (t - d) * (dx0 + t * dx01));
 			y = y0 + t * (hy + (t - d) * (dy0 + t * dy01));
-			add_cntr_point(x, y); /* next point. */
+			add_cntr_point(x, y); // next point. 
 			t += t_skip;
 		}
-		t -= delta_t[i]; /* Parameter t relative to start of next interval */
+		t -= delta_t[i]; // Parameter t relative to start of next interval 
 	}
 }
-
 /*
  * The following two procedures solve the special linear system which arise
  * in cubic spline interpolation. If x is assumed cyclic ( x[i]=x[n+i] ) the

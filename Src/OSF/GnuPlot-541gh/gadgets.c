@@ -1,34 +1,6 @@
-/* GNUPLOT - gadgets.c */
-
-/*[
- * Copyright 2000, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - gadgets.c 
+// Copyright 2000, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -49,19 +21,19 @@ color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_
 	{screen, screen, screen, 0.05, 0.6, 0.0}, FALSE,
 	{0, 0, 0, 0} };
 
-BoundingBox plot_bounds; /* The graph box (terminal coordinates) calculated by boundary() or boundary3d() */
-BoundingBox page_bounds; /* The bounding box for 3D plots prior to applying view transformations */
-BoundingBox canvas; /* The bounding box for the entire drawable area  of current terminal */
-BoundingBox * clip_area = &plot_bounds; /* The bounding box against which clipping is to be done */
+BoundingBox plot_bounds; // The graph box (terminal coordinates) calculated by boundary() or boundary3d() 
+BoundingBox page_bounds; // The bounding box for 3D plots prior to applying view transformations 
+BoundingBox canvas; // The bounding box for the entire drawable area  of current terminal 
+BoundingBox * clip_area = &plot_bounds; // The bounding box against which clipping is to be done 
 
 // 'set size', 'set origin' settings 
-float  xsize = 1.0;              /* scale factor for size */
-float  ysize = 1.0;              /* scale factor for size */
-float  zsize = 1.0;              /* scale factor for size */
-float  xoffset = 0.0;            /* x origin */
-float  yoffset = 0.0;            /* y origin */
-float  aspect_ratio = 0.0;       /* don't attempt to force it */
-int    aspect_ratio_3D = 0;        /* 2 will put x and y on same scale, 3 for z also */
+float  xsize = 1.0f;        // scale factor for size
+float  ysize = 1.0f;        // scale factor for size 
+float  zsize = 1.0f;        // scale factor for size 
+float  xoffset = 0.0f;      // x origin
+float  yoffset = 0.0f;      // y origin
+float  aspect_ratio = 0.0f; // don't attempt to force it 
+int    aspect_ratio_3D = 0; // 2 will put x and y on same scale, 3 for z also 
 
 // EAM Augest 2006 - redefine margin as t_position so that absolute placement is possible 
 t_position lmargin = DEFAULT_MARGIN_POSITION; /* space between left edge and plot_bounds.xleft in chars (-1: computed) */
@@ -135,7 +107,7 @@ GpObject default_ellipse(t_object::defEllipse);// = DEFAULT_ELLIPSE_STYLE;
 filledcurves_opts filledcurves_opts_data = EMPTY_FILLEDCURVES_OPTS;
 filledcurves_opts filledcurves_opts_func = EMPTY_FILLEDCURVES_OPTS;
 bool   prefer_line_styles = false; /* Prefer line styles over plain line types */
-#define monochrome_terminal ((t->flags & TERM_MONOCHROME) != 0) /* If current terminal claims to be monochrome, don't try to send it colors */
+#define monochrome_terminal(__pTerm) (((__pTerm)->flags & TERM_MONOCHROME) != 0) // If current terminal claims to be monochrome, don't try to send it colors 
 histogram_style histogram_opts; // = DEFAULT_HISTOGRAM_STYLE;
 boxplot_style boxplot_opts = DEFAULT_BOXPLOT_STYLE;
 int current_x11_windowid = 0; /* WINDOWID to be filled by terminals running on X11 (x11, wxt, qt, ...) */
@@ -632,63 +604,63 @@ outside:
 //
 // Common routines for setting text or line color from t_colorspec 
 //
-void apply_pm3dcolor(struct t_colorspec * tc)
+void apply_pm3dcolor(termentry * pTerm, t_colorspec * tc)
 {
-	struct termentry * t = term;
+	//struct termentry * t = term;
 	double cbval;
-	/* V5 - term->linetype(LT_BLACK) would clobber the current	*/
-	/* dashtype so instead we use term->set_color(black).	*/
+	// V5 - term->linetype(LT_BLACK) would clobber the current	
+	// dashtype so instead we use term->set_color(black).	
 	static t_colorspec black = BLACK_COLORSPEC;
-	/* Replace colorspec with that of the requested line style */
+	// Replace colorspec with that of the requested line style 
 	lp_style_type style;
 	if(tc->type == TC_LINESTYLE) {
 		lp_use_properties(&style, tc->lt);
 		tc = &style.pm3d_color;
 	}
 	if(tc->type == TC_DEFAULT) {
-		t->set_color(&black);
+		pTerm->set_color(&black);
 		return;
 	}
-	if(tc->type == TC_LT) {
-		t->set_color(tc);
+	else if(tc->type == TC_LT) {
+		pTerm->set_color(tc);
 		return;
 	}
-	if(tc->type == TC_RGB) {
-		/* FIXME: several plausible ways for monochrome terminals to handle color request
-		 * (1) Allow all color requests despite the label "monochrome"
-		 * (2) Choose any color you want so long as it is black
-		 * (3) Convert colors to gray scale (NTSC?)
-		 */
-		/* Monochrome terminals are still allowed to display rgb variable colors */
-		if(monochrome_terminal && tc->value >= 0)
-			t->set_color(&black);
+	else if(tc->type == TC_RGB) {
+		// FIXME: several plausible ways for monochrome terminals to handle color request
+		// (1) Allow all color requests despite the label "monochrome"
+		// (2) Choose any color you want so long as it is black
+		// (3) Convert colors to gray scale (NTSC?)
+		// Monochrome terminals are still allowed to display rgb variable colors 
+		if(monochrome_terminal(pTerm) && tc->value >= 0)
+			pTerm->set_color(&black);
 		else
-			t->set_color(tc);
+			pTerm->set_color(tc);
 		return;
 	}
-	// Leave unchanged. (used only by "set errorbars"??) 
-	if(tc->type == TC_VARIABLE)
+	else if(tc->type == TC_VARIABLE) // Leave unchanged. (used only by "set errorbars"??) 
 		return;
-	if(!is_plot_with_palette()) {
-		t->set_color(&black);
+	else if(!is_plot_with_palette()) {
+		pTerm->set_color(&black);
 		return;
 	}
-	switch(tc->type) {
-		case TC_Z:
-		    set_color(cb2gray(tc->value));
-		    break;
-		case TC_CB:
-		    if(GPO.AxS.__CB().log)
-			    cbval = (tc->value <= 0) ? GPO.AxS.__CB().min : tc->value;
-		    else
-			    cbval = tc->value;
-		    set_color(cb2gray(cbval));
-		    break;
-		case TC_FRAC:
-		    set_color(GPO.SmPltt.Positive == SMPAL_POSITIVE ?  tc->value : 1-tc->value);
-		    break;
-		default:
-		    break; /* cannot happen */
+	else {
+		switch(tc->type) {
+			case TC_Z:
+				set_color(cb2gray(tc->value));
+				break;
+			case TC_CB:
+				if(GPO.AxS.__CB().log)
+					cbval = (tc->value <= 0) ? GPO.AxS.__CB().min : tc->value;
+				else
+					cbval = tc->value;
+				set_color(cb2gray(cbval));
+				break;
+			case TC_FRAC:
+				set_color(GPO.SmPltt.Positive == SMPAL_POSITIVE ?  tc->value : 1-tc->value);
+				break;
+			default:
+				break; /* cannot happen */
+		}
 	}
 }
 
@@ -719,12 +691,12 @@ void apply_head_properties(arrow_style_type * arrow_properties)
 	curr_arrow_headfixedsize = arrow_properties->head_fixedsize;
 	curr_arrow_headlength = 0;
 	if(arrow_properties->head_length > 0) {
-		/* set head length+angle for term->arrow */
+		// set head length+angle for term->arrow 
 		double xtmp, ytmp;
 		GpPosition headsize = {first_axes, graph, graph, 0., 0., 0.};
 		headsize.x = arrow_properties->head_length;
 		headsize.scalex = (position_type)arrow_properties->head_lengthunit;
-		map_position_r(term, &headsize, &xtmp, &ytmp, "arrow");
+		GPO.MapPositionR(term, &headsize, &xtmp, &ytmp, "arrow");
 		curr_arrow_headangle = arrow_properties->head_angle;
 		curr_arrow_headbackangle = arrow_properties->head_backangle;
 		curr_arrow_headlength = static_cast<int>(xtmp);
@@ -764,7 +736,7 @@ void get_offsets(struct text_label * this_label, int * htic, int * vtic)
 	}
 	else {
 		double htic2, vtic2;
-		map_position_r(term, &(this_label->offset), &htic2, &vtic2, "get_offsets");
+		GPO.MapPositionR(term, &(this_label->offset), &htic2, &vtic2, "get_offsets");
 		*htic += (int)htic2;
 		*vtic += (int)vtic2;
 	}
@@ -778,7 +750,7 @@ void write_label(termentry * pTerm, int x, int y, struct text_label * this_label
 	int htic, vtic;
 	int justify = JUST_TOP; /* This was the 2D default; 3D had CENTRE */
 	textbox_style * textbox = NULL;
-	apply_pm3dcolor(&(this_label->textcolor));
+	apply_pm3dcolor(pTerm, &(this_label->textcolor));
 	ignore_enhanced(this_label->noenhanced);
 	// The text itself 
 	if(this_label->hypertext) {
@@ -816,32 +788,32 @@ void write_label(termentry * pTerm, int x, int y, struct text_label * this_label
 		(*pTerm->boxed_text)((int)(textbox->xmargin * 100.), (int)(textbox->ymargin * 100.0), TEXTBOX_MARGINS);
 		// Blank out the box and reprint the label 
 		if(textbox->opaque) {
-			apply_pm3dcolor(&textbox->fillcolor);
-			(*pTerm->boxed_text)(0, 0, TEXTBOX_BACKGROUNDFILL);
-			apply_pm3dcolor(&(this_label->textcolor));
+			apply_pm3dcolor(pTerm, &textbox->fillcolor);
+			(pTerm->boxed_text)(0, 0, TEXTBOX_BACKGROUNDFILL);
+			apply_pm3dcolor(pTerm, &(this_label->textcolor));
 			// Init for each of fill and border 
 			if(!textbox->noborder)
-				(*pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
+				(pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
 			if(this_label->rotate && (*pTerm->text_angle)(this_label->rotate)) {
 				write_multiline(x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, this_label->rotate, this_label->font);
-				(*pTerm->text_angle)(0);
+				(pTerm->text_angle)(0);
 			}
 			else
 				write_multiline(x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, 0, this_label->font);
 		}
 		// Draw the bounding box 
 		if(!textbox->noborder) {
-			(*pTerm->linewidth)(textbox->linewidth);
-			apply_pm3dcolor(&textbox->border_color);
-			(*pTerm->boxed_text)(0, 0, TEXTBOX_OUTLINE);
+			(pTerm->linewidth)(textbox->linewidth);
+			apply_pm3dcolor(pTerm, &textbox->border_color);
+			(pTerm->boxed_text)(0, 0, TEXTBOX_OUTLINE);
 		}
-		(*pTerm->boxed_text)(0, 0, TEXTBOX_FINISH);
+		(pTerm->boxed_text)(0, 0, TEXTBOX_FINISH);
 	}
 	// The associated point, if any 
 	// write_multiline() clips text to on_page; do the same for any point 
 	if((this_label->lp_properties.flags & LP_SHOW_POINTS) && on_page(x, y)) {
 		term_apply_lp_properties(pTerm, &this_label->lp_properties);
-		(*pTerm->point)(x, y, this_label->lp_properties.p_type);
+		(pTerm->point)(x, y, this_label->lp_properties.p_type);
 		// the default label color is that of border 
 		term_apply_lp_properties(pTerm, &border_lp);
 	}

@@ -1129,14 +1129,12 @@ TERM_PUBLIC void CONTEXT_vector(uint x, uint y)
  */
 TERM_PUBLIC void CONTEXT_linetype(int lt)
 {
-	/* reset the color in case it has been changed in CONTEXT_set_color() */
+	// reset the color in case it has been changed in CONTEXT_set_color() 
 	if(CONTEXT_old_linetype != lt || CONTEXT_color_changed) {
-		/* close and draw the current path first */
+		// close and draw the current path first 
 		if(CONTEXT_path_count > 0)
 			CONTEXT_endpath();
-
 		fprintf(gpoutfile, "gp_set_linetype(%d);\n", lt);
-
 		CONTEXT_old_linetype = lt;
 		CONTEXT_color_changed = FALSE;
 	}
@@ -1153,41 +1151,38 @@ TERM_PUBLIC void CONTEXT_put_text(uint x, uint y, const char str[])
 	const char * s; /* pointer to string */
 	int alignment = 0;
 	char alignments[3][10] = {"center", "left", "right"};
-	/* ignore empty strings */
-	if(!str || !strlen(str))
-		return;
-	/* close and draw the current path first */
-	if(CONTEXT_path_count > 0)
-		CONTEXT_endpath();
-	/* see the values of "alignments" above */
-	switch(CONTEXT_justify) {
-		case CENTRE: alignment = 0; break;
-		case LEFT: alignment = 1; break;
-		case RIGHT: alignment = 2; break;
+	// ignore empty strings 
+	if(!isempty(str)) {
+		// close and draw the current path first 
+		if(CONTEXT_path_count > 0)
+			CONTEXT_endpath();
+		// see the values of "alignments" above 
+		switch(CONTEXT_justify) {
+			case CENTRE: alignment = 0; break;
+			case LEFT: alignment = 1; break;
+			case RIGHT: alignment = 2; break;
+		}
+		/* remove whitespace at the beginning of string
+		 * (usually a problem in positive numbers)
+		 * They interfere with positioning: whitespace at the beginning takes
+		 * some place although it's invisible, so left-aligned and centered labels
+		 * are positioned incorrectly.
+		 * Example:
+		 *   -1 0 1 2: centered labels on x axis
+		 * if we had a space in front, positive numbers would be "centered" in a weird way */
+		for(s = str; s[0] == ' '; s++);
+		// label position 
+		fprintf(gpoutfile, "gp_put_text((%.3fa, %.3fa), ", 0.001*x, 0.001*y);
+		// angle of rotation - optional and needed only if it's different from 0 
+		if(CONTEXT_ang != 0)
+			fprintf(gpoutfile, "angle(%d), ", CONTEXT_ang);
+		// alignment - "center" is optional, but we'll add it anyway 
+		fprintf(gpoutfile, "align(%s), \\sometxt[gp]", alignments[alignment]);
+		// fontface/fontsize - optional second argument 
+		if(CONTEXT_font_explicit[0] != 0)
+			fprintf(gpoutfile, "[%s]", CONTEXT_font_explicit);
+		fprintf(gpoutfile, "{%s});\n", s); // finally the text label itself 
 	}
-	/* remove whitespace at the beginning of string
-	 * (usually a problem in positive numbers)
-	 * They interfere with positioning: whitespace at the beginning takes
-	 * some place although it's invisible, so left-aligned and centered labels
-	 * are positioned incorrectly.
-	 * Example:
-	 *   -1 0 1 2: centered labels on x axis
-	 * if we had a space in front, positive numbers would be "centered" in a weird way */
-	for(s = str; s[0] == ' '; s++);
-
-	/* label position */
-	fprintf(gpoutfile, "gp_put_text((%.3fa, %.3fa), ", 0.001*x, 0.001*y);
-	/* angle of rotation - optional and needed only if it's different from 0 */
-	if(CONTEXT_ang != 0)
-		fprintf(gpoutfile, "angle(%d), ", CONTEXT_ang);
-
-	/* alignment - "center" is optional, but we'll add it anyway */
-	fprintf(gpoutfile, "align(%s), \\sometxt[gp]", alignments[alignment]);
-	/* fontface/fontsize - optional second argument */
-	if(CONTEXT_font_explicit[0] != 0)
-		fprintf(gpoutfile, "[%s]", CONTEXT_font_explicit);
-	/* finally the text label itself */
-	fprintf(gpoutfile, "{%s});\n", s);
 }
 
 /* ********************
@@ -1269,11 +1264,9 @@ TERM_PUBLIC void CONTEXT_arrow(uint sx, uint sy, uint ex, uint ey, int head)
  */
 static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int to_size, double * fontsize)
 {
-	double tmp_fontsize = 0.;
-	char * comma;
+	double tmp_fontsize = 0.0;
 	size_t n;
-
-	comma = strrchr(from_string, ',');
+	char * comma = strrchr(from_string, ',');
 	if(comma) {
 		sscanf(comma + 1, "%lf", &tmp_fontsize);
 		n = comma - from_string;
@@ -1287,7 +1280,6 @@ static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int t
 	memcpy(to_string, from_string, n);
 	to_string[n] = NUL;
 }
-
 /* -------------------------
  * CONTEXT_adjust_dimensions
  * -------------------------
@@ -1644,26 +1636,21 @@ TERM_PUBLIC void CONTEXT_set_color(t_colorspec * colorspec)
    [0...num_colors-1], then set to the ith color in the palette.
    If (colorspec->type == TC_RGB):
    Set current color to the rgb triple given in colorspec->lt. */
-
 	/* close and draw the current path first */
 	if(CONTEXT_path_count > 0)
 		CONTEXT_endpath();
-
 	switch(colorspec->type) {
 		/* TC_DEFAULT, TC_CB, TC_Z: probably unused; what about linestyle? */
-
 		/* color equal as that of linetype in colorspec->lt */
 		case TC_LT:
 		    fprintf(gpoutfile, "gp_set_color(lt(%d));\n", colorspec->lt);
 		    CONTEXT_color_changed = TRUE;
 		    break;
-
 		/* rgb color */
 		case TC_RGB:
-		    r = (double)((colorspec->lt >> 16 ) & 255) / 255.;
-		    g = (double)((colorspec->lt >> 8 ) & 255) / 255.;
-		    b = (double)(colorspec->lt & 255) / 255.;
-
+		    r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
+		    g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
+		    b = (double)(colorspec->lt & 255) / 255.0;
 		    fprintf(gpoutfile, "gp_set_color(rgb(%3.2f,%3.2f,%3.2f));\n", r, g, b);
 		    CONTEXT_color_changed = TRUE;
 		    break;
@@ -1671,11 +1658,9 @@ TERM_PUBLIC void CONTEXT_set_color(t_colorspec * colorspec)
 		/* map [0:1] to gray colors or to the corresponding color from the palette */
 		case TC_FRAC:
 		    gray = colorspec->value;
-
 		    /* limit negative and >1 values to [0:1] first */
 		    if(gray < 0) gray = 0;
 		    if(gray > 1) gray = 1;
-
 		    /* TODO: if ConTeXt start supporting palettes, we'll uncomment the following: */
 		    fprintf(gpoutfile, "%%gp_set_color(frac(%.4f));\n", gray);
 		    /* but now it doesn't, so let's use the fallback instead: */

@@ -197,9 +197,9 @@ static bool dj_in_path = FALSE;
 static int dj_path[DJSVGA_MAXPATH][2];
 static int dj_polygon_points = 0;
 static double dj_linewidth;     /* store linewidth assignments here */
-static double dj_lwscale = 1.;
-static double dj_pointscale = 1.;
-static double dj_fontscale = 1.;
+static double dj_lwscale = 1.0;
+static double dj_pointscale = 1.0;
+static double dj_fontscale = 1.0;
 static int dj_dashpatlen = 0;
 static uchar dj_dashpat[3*DASHPATTERN_LENGTH] = "";
 /* Fill pattern copied from bitmap.c */
@@ -271,17 +271,20 @@ TERM_PUBLIC void DJSVGA_options()
 			case DJSVGA_LINEWIDTH:
 			    GPO.Pgm.Shift();
 			    dj_lwscale = GPO.RealExpression();
-			    if(dj_lwscale <= 0) dj_lwscale = 1.;
+			    if(dj_lwscale <= 0) 
+					dj_lwscale = 1.0;
 			    break;
 			case DJSVGA_POINTSCALE:
 			    GPO.Pgm.Shift();
 			    dj_pointscale = GPO.RealExpression();
-			    if(dj_pointscale <= 0.0) dj_pointscale = 1.;
+			    if(dj_pointscale <= 0.0) 
+					dj_pointscale = 1.0;
 			    break;
 			case DJSVGA_FONTSCALE:
 			    GPO.Pgm.Shift();
 			    dj_fontscale = GPO.RealExpression();
-			    if(dj_fontscale <= 0.0) dj_fontscale = 1.;
+			    if(dj_fontscale <= 0.0) 
+					dj_fontscale = 1.0;
 			    break;
 			case DJSVGA_FONT:
 			    GPO.Pgm.Shift();
@@ -1196,17 +1199,13 @@ TERM_PUBLIC void DJSVGA_enhanced_put_text(uint x, uint y, const char * str)
 		DJSVGA_put_text(x, y, str);
 		return;
 	}
-
 	DJSVGA_flush_line();
-
 	/* Set up global variables needed by enhanced_recursion() */
 	enhanced_fontscale = 1.0;
 	dj_enhanced_opened_string = FALSE;
 	safe_strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-
 	dj_x = x;
 	dj_y = y;
-
 	/* Text justification requires two passes. During the first pass we */
 	/* don't draw anything, we just measure the space it will take.     */
 	/* Without justification one pass is enough                         */
@@ -1218,7 +1217,6 @@ TERM_PUBLIC void DJSVGA_enhanced_put_text(uint x, uint y, const char * str)
 		num_passes = 2;
 		dj_sizeonly = TRUE;
 	}
-
 	for(pass = 1; pass <= num_passes; pass++) {
 		/* Set the recursion going. We say to keep going until a
 		 * closing brace, but we don't really expect to find one.
@@ -1227,9 +1225,7 @@ TERM_PUBLIC void DJSVGA_enhanced_put_text(uint x, uint y, const char * str)
 		 * closing brace in the string. We increment past it (else
 		 * we get stuck in an infinite loop) and try again.
 		 */
-		while(*(str = enhanced_recursion(str, TRUE,
-		    DJSVGA_fontname, 1 /* size */,
-		    0.0, TRUE, TRUE, 0))) {
+		while(*(str = enhanced_recursion(str, TRUE, DJSVGA_fontname, 1 /* size */, 0.0, TRUE, TRUE, 0))) {
 			DJSVGA_enhanced_flush();
 			/* I think we can only get here if *str == '}' */
 			enh_err_check(str);
@@ -1237,7 +1233,6 @@ TERM_PUBLIC void DJSVGA_enhanced_put_text(uint x, uint y, const char * str)
 				break; /* end of string */
 			/* else carry on and process the rest of the string */
 		}
-
 		/* In order to do text justification we need to do a second pass
 		 * that uses information stored during the first pass, see
 		 * GraphEnhancedFlush().
@@ -1248,7 +1243,6 @@ TERM_PUBLIC void DJSVGA_enhanced_put_text(uint x, uint y, const char * str)
 			str = original_string;
 		}
 	}
-
 	DJSVGA_set_font("");
 }
 

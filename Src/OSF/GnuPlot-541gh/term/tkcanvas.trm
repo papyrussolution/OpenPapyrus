@@ -1339,18 +1339,14 @@ static char * tk_enhanced_text_end[TK_LANG_MAX] = {
 TERM_PUBLIC void TK_enhanced_flush()
 {
 	char * str = enhanced_text; /* The fragment to print */
-
 	if(!tk_enhanced_opened_string)
 		return;
-
 	*enhanced_cur_text = NUL;
-
 	/* print the string fragment in any case */
 	/* NB: base expresses offset from current y pos */
 	fprintf(gpoutfile, "set yenh [expr int($yenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * cos(tk_angle * DEG2RAD)));
 	fprintf(gpoutfile, "set xenh [expr int($xenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * sin(tk_angle * DEG2RAD)));
-	fprintf(gpoutfile, tk_enhanced_text_begin[tk_script_language],
-	    "xenh", "yenh", str, tk_color, tk_anchor);
+	fprintf(gpoutfile, tk_enhanced_text_begin[tk_script_language], "xenh", "yenh", str, tk_color, tk_anchor);
 	if(tk_next_text_use_font) {
 		fputs(tk_create_text_font[tk_script_language], gpoutfile);
 		tk_next_text_use_font = FALSE;
@@ -1379,13 +1375,10 @@ TERM_PUBLIC void TK_enhanced_flush()
 		fprintf(gpoutfile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * DEG2RAD));
 		fprintf(gpoutfile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * DEG2RAD));
 	}
-
 	if(tk_angle != 0)
 		fprintf(gpoutfile, "$cv itemconfigure $et -angle %d\n", tk_angle);
-
 	if(!tk_enhanced_show)
 		fprintf(gpoutfile, "$cv delete $et\n");
-
 	tk_enhanced_opened_string = FALSE;
 }
 
@@ -1395,15 +1388,12 @@ static void TK_put_enhanced_text(uint x, uint y, const char * str)
 	enhanced_fontscale = 1.0;
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
 	tk_enhanced_opened_string = FALSE;
-
 	tk_lastx = x;
 	tk_lasty = TK_YMAX - y;
-
 	fprintf(gpoutfile, "set xenh0 [expr $cmx * %d /1000]; set yenh0 [expr $cmy * %d /1000];\n", x, TK_YMAX - y);
 	fprintf(gpoutfile, "set xenh $xenh0; set yenh $yenh0;\n");
 	fprintf(gpoutfile, "set xenhb $xenh0; set yenhb $yenh0;\n");
 	strcpy(tk_anchor, "w");
-
 	/* Set the recursion going. We say to keep going until a
 	 * closing brace, but we don't really expect to find one.
 	 * If the return value is not the nul-terminator of the
@@ -1411,20 +1401,14 @@ static void TK_put_enhanced_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE,
-	    "" /* font */, 10 /* size */,
-	    0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char*)str, TRUE, "" /* font */, 10 /* size */, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
-
 		if(!*++str)
 			break; /* end of string */
-
 		/* else carry on and process the rest of the string */
 	}
-
 	if(tk_justify == RIGHT)
 		fprintf(gpoutfile, "$cv move enhancedtext [expr ($xenh0 - $xenhb)] [expr ($yenh0 - $yenhb)]\n");
 	else if(tk_justify == CENTRE)

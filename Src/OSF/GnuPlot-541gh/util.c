@@ -1,34 +1,6 @@
-/* GNUPLOT - util.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - util.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -202,8 +174,7 @@ int is_definition(int t_num)
 		}
 		return (GPO.Pgm.Equals(t_num, ")") && GPO.Pgm.Equals(t_num + 1, "="));
 	}
-	// neither 
-	return 0;
+	return 0; // neither 
 }
 // 
 // copy_str() copies the string in token number t_num into str, appending
@@ -374,29 +345,19 @@ static void mant_exp(double log10_base, double x, bool scientific/* round to pow
 		/* Scientific mode makes no sense whatsoever if the base of
 		 * the logarithmic axis is anything but 10.0 */
 		assert(log10_base == 1.0);
-
 		/* HBB FIXED 20040701: negative modulo positive may yield
 		 * negative result.  But we always want an effectively
 		 * positive modulus --> adjust input by one step */
 		switch(power % 3) {
-			case -1:
-			    power -= 3;
-			case 2:
-			    mantissa *= 100;
-			    break;
-			case -2:
-			    power -= 3;
-			case 1:
-			    mantissa *= 10;
-			    break;
-			case 0:
-			    break;
-			default:
-			    GPO.IntError(NO_CARET, "Internal error in scientific number formatting");
+			case -1: power -= 3; 
+			case 2:  mantissa *= 100; break;
+			case -2: power -= 3;
+			case 1:  mantissa *= 10; break;
+			case 0:  break;
+			default: GPO.IntError(NO_CARET, "Internal error in scientific number formatting");
 		}
 		power -= (power % 3);
 	}
-
 	/* HBB 20010121: new code for decimal mantissa fixups.  Looks at
 	 * format string to see how many decimals will be put there.  Iff
 	 * the number is so close to an exact power of 10 that it will be
@@ -496,9 +457,7 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 			got_hash = TRUE;
 		}
 		/* dont put isdigit first since side effect in macro is bad */
-		while(*++format == '.' || isdigit((uchar)*format)
-		    || *format == '-' || *format == '+' || *format == ' '
-		    || *format == '\'')
+		while(*++format == '.' || isdigit((uchar)*format) || *format == '-' || *format == '+' || *format == ' ' || *format == '\'')
 			*t++ = *format;
 		/*}}} */
 
@@ -630,8 +589,7 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 			    t[0] = 'f';
 			    t[1] = 0;
 			    stored_power_base = 1.0;
-			    mant_exp(stored_power_base, x, FALSE, &mantissa,
-				&stored_power, temp);
+			    mant_exp(stored_power_base, x, FALSE, &mantissa, &stored_power, temp);
 			    seen_mantissa = TRUE;
 			    snprintf(dest, remaining_space, temp, mantissa);
 			    break;
@@ -641,12 +599,10 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 			case 's':
 		    {
 			    double mantissa;
-
 			    t[0] = 'f';
 			    t[1] = 0;
 			    stored_power_base = 1.0;
-			    mant_exp(stored_power_base, x, TRUE, &mantissa,
-				&stored_power, temp);
+			    mant_exp(stored_power_base, x, TRUE, &mantissa, &stored_power, temp);
 			    seen_mantissa = TRUE;
 			    snprintf(dest, remaining_space, temp, mantissa);
 			    break;

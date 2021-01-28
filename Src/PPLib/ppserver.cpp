@@ -910,7 +910,8 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 			//
 			{
 				const uint64 tm_start = SLS.GetProfileTime();
-				ok = pMngr->DoJob(p_job->Descr.CmdID, &p_job->Param);
+				// @v11.0.0 ok = pMngr->DoJob(p_job->Descr.CmdID, *p_job, &p_job->Param); 
+				ok = pMngr->DoJob(*p_job); // @v11.0.0
 				const uint64 tm_finish = SLS.GetProfileTime();
 				msg_buf.Printf(PPLoadTextS(PPTXT_JOBFINISHED, fmt_buf), p_job->Descr.Text.cptr(), p_job->Name.cptr(),
 					p_job->DbSymb.cptr(), (int64)(tm_finish-tm_start));
@@ -921,7 +922,6 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 				DS.SetTempLogFileName(0);
 				SFile::Remove(tmp_log_fpath);
 			}
-			// @v8.6.1 THROW(ok);
 			{
 				const PPID next_job_id = p_job->NextJobID;
 				if(next_job_id) {

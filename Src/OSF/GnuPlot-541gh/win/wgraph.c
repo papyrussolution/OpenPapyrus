@@ -1,40 +1,6 @@
-/* GNUPLOT - win/wgraph.c */
-/*[
- * Copyright 1992, 1993, 1998, 2004   Maurice Castro, Russell Lang
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
-/*
- * AUTHORS
- *
- *   Maurice Castro
- *   Russell Lang
- */
+// GNUPLOT - win/wgraph.c 
+// Copyright 1992, 1993, 1998, 2004   Maurice Castro, Russell Lang
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -884,8 +850,7 @@ static void DestroyPens(LPGW lpgw)
 static void Wnd_GetTextSize(HDC hdc, LPCSTR str, size_t len, int * cx, int * cy)
 {
 	SIZE size;
-
-	/* FIXME: Do we need to call the Unicode version here? */
+	// FIXME: Do we need to call the Unicode version here? 
 	GetTextExtentPoint32A(hdc, str, len, &size);
 	*cx = size.cx;
 	*cy = size.cy;
@@ -900,12 +865,9 @@ static BOOL GetPlotRect(LPGW lpgw, LPRECT rect)
 static void GetPlotRectInMM(LPGW lpgw, LPRECT rect, HDC hdc)
 {
 	int iWidthMM, iHeightMM, iWidthPels, iHeightPels;
-
 	GetPlotRect(lpgw, rect);
-
-	/* Taken from
-	   http://msdn.microsoft.com/en-us/library/dd183519(VS.85).aspx
-	 */
+	// Taken from http://msdn.microsoft.com/en-us/library/dd183519(VS.85).aspx
+	//
 	// Determine the picture frame dimensions.
 	// iWidthMM is the display width in millimeters.
 	// iHeightMM is the display height in millimeters.
@@ -915,7 +877,6 @@ static void GetPlotRectInMM(LPGW lpgw, LPRECT rect, HDC hdc)
 	iHeightMM = GetDeviceCaps(hdc, VERTSIZE);
 	iWidthPels = GetDeviceCaps(hdc, HORZRES);
 	iHeightPels = GetDeviceCaps(hdc, VERTRES);
-
 	// Convert client coordinates to .01-mm units.
 	// Use iWidthMM, iWidthPels, iHeightMM, and
 	// iHeightPels to determine the number of
@@ -932,18 +893,16 @@ static bool TryCreateFont(LPGW lpgw, LPTSTR fontface, HDC hdc)
 	if(fontface != NULL)
 		_tcsncpy(lpgw->lf.lfFaceName, fontface, LF_FACESIZE);
 	lpgw->hfonth = CreateFontIndirect(&(lpgw->lf));
-
 	if(lpgw->hfonth != 0) {
-		/* Test if we actually got the requested font. Note that this also seems to work
-		        with GDI's magic font substitutions (e.g. Helvetica->Arial, Times->Times New Roman) */
+		// Test if we actually got the requested font. Note that this also seems to work
+		// with GDI's magic font substitutions (e.g. Helvetica->Arial, Times->Times New Roman) 
 		HFONT hfontold = (HFONT)SelectObject(hdc, lpgw->hfonth);
-		if(hfontold != NULL) {
+		if(hfontold) {
 			TCHAR fontname[MAXFONTNAME];
 			GetTextFace(hdc, MAXFONTNAME, fontname);
 			SelectObject(hdc, hfontold);
-			if(_tcscmp(fontname, lpgw->lf.lfFaceName) == 0) {
+			if(_tcscmp(fontname, lpgw->lf.lfFaceName) == 0)
 				return TRUE;
-			}
 			else {
 				FPRINTF((stderr, "Warning: GDI would have substituted \"%s\" for \"%s\"\n", fontname, lpgw->lf.lfFaceName));
 				DeleteObject(lpgw->hfonth);
@@ -953,9 +912,8 @@ static bool TryCreateFont(LPGW lpgw, LPTSTR fontface, HDC hdc)
 		}
 		return TRUE;
 	}
-	else {
+	else
 		return FALSE;
-	}
 	return FALSE;
 }
 
@@ -1013,11 +971,9 @@ static void MakeFonts(LPGW lpgw, LPRECT lprect, HDC hdc)
 	lpgw->lf.lfOutPrecision = OUT_OUTLINE_PRECIS;
 	lpgw->lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 	lpgw->lf.lfQuality = lpgw->antialiasing ? CLEARTYPE_QUALITY : PROOF_QUALITY;
-
-	/* Handle zero length type face name by replacing with default name */
+	// Handle zero length type face name by replacing with default name 
 	if(lpgw->lf.lfFaceName[0] == 0)
 		_tcsncpy(lpgw->lf.lfFaceName, GraphDefaultFont(), LF_FACESIZE);
-
 	if(!TryCreateFont(lpgw, NULL, hdc)) {
 		//static const char warn_font_not_available[] =
 		//	"Warning:  font \"" TCHARFMT "\" not available, trying \"" TCHARFMT "\" instead.\n";
@@ -1389,70 +1345,68 @@ void GraphEnhancedFlush(void)
 {
 	int width, height;
 	uint x, y, len;
-	double angle = M_PI/180. * enhstate.lpgw->angle;
-	if(!enhstate.opened_string)
-		return;
-	*enhanced_cur_text = '\0';
-	/* print the string fragment, perhaps invisibly */
-	/* NB: base expresses offset from current y pos */
-	x = enhstate.x - enhstate.base * sin(angle);
-	y = enhstate.y - enhstate.base * cos(angle);
-
-	/* calculate length of string first */
-	len = enhstate.text_length(enhanced_text);
-	width = cos(angle) * len;
-	height = -sin(angle) * len;
-
-	if(enhstate.widthflag && !enhstate.sizeonly && !enhstate.overprint) {
-		/* do not take rotation into account */
-		int ypos = -enhstate.base;
-		enhstate.totalwidth += len;
-		if(enhstate.totalasc > (ypos + enhstate.shift - enhstate.lpgw->tmAscent))
-			enhstate.totalasc = ypos + enhstate.shift - enhstate.lpgw->tmAscent;
-		if(enhstate.totaldesc < (ypos + enhstate.shift + enhstate.lpgw->tmDescent))
-			enhstate.totaldesc = ypos + enhstate.shift + enhstate.lpgw->tmDescent;
-	}
-	// display string 
-	if(enhstate.show && !enhstate.sizeonly)
-		enhstate.put_text(x, y, enhanced_text);
-	// update drawing position according to text length 
-	if(!enhstate.widthflag) {
-		width = 0;
-		height = 0;
-	}
-	if(enhstate.sizeonly) {
-		/* This is the first pass for justified printing.        */
-		/* We just adjust the starting position for second pass. */
-		if(enhstate.lpgw->justify == RIGHT) {
-			enhstate.x -= width;
-			enhstate.y -= height;
+	double angle = M_PI/180.0 * enhstate.lpgw->angle;
+	if(enhstate.opened_string) {
+		*enhanced_cur_text = '\0';
+		// print the string fragment, perhaps invisibly 
+		// NB: base expresses offset from current y pos 
+		x = enhstate.x - enhstate.base * sin(angle);
+		y = enhstate.y - enhstate.base * cos(angle);
+		// calculate length of string first 
+		len = enhstate.text_length(enhanced_text);
+		width = cos(angle) * len;
+		height = -sin(angle) * len;
+		if(enhstate.widthflag && !enhstate.sizeonly && !enhstate.overprint) {
+			// do not take rotation into account 
+			int ypos = -enhstate.base;
+			enhstate.totalwidth += len;
+			if(enhstate.totalasc > (ypos + enhstate.shift - enhstate.lpgw->tmAscent))
+				enhstate.totalasc = ypos + enhstate.shift - enhstate.lpgw->tmAscent;
+			if(enhstate.totaldesc < (ypos + enhstate.shift + enhstate.lpgw->tmDescent))
+				enhstate.totaldesc = ypos + enhstate.shift + enhstate.lpgw->tmDescent;
 		}
-		else if(enhstate.lpgw->justify == CENTRE) {
-			enhstate.x -= width / 2;
-			enhstate.y -= height / 2;
+		// display string 
+		if(enhstate.show && !enhstate.sizeonly)
+			enhstate.put_text(x, y, enhanced_text);
+		// update drawing position according to text length 
+		if(!enhstate.widthflag) {
+			width = 0;
+			height = 0;
 		}
-		/* nothing to do for LEFT justified text */
+		if(enhstate.sizeonly) {
+			// This is the first pass for justified printing.        
+			// We just adjust the starting position for second pass. 
+			if(enhstate.lpgw->justify == RIGHT) {
+				enhstate.x -= width;
+				enhstate.y -= height;
+			}
+			else if(enhstate.lpgw->justify == CENTRE) {
+				enhstate.x -= width / 2;
+				enhstate.y -= height / 2;
+			}
+			// nothing to do for LEFT justified text 
+		}
+		else if(enhstate.overprint == 1) {
+			// Save current position 
+			enhstate.xsave = enhstate.x + width;
+			enhstate.ysave = enhstate.y + height;
+			// First pass of overprint, leave position in center of fragment 
+			enhstate.x += width / 2;
+			enhstate.y += height / 2;
+		}
+		else if(enhstate.overprint == 2) {
+			// Restore current position,
+			// this sets the position behind the overprinted text 
+			enhstate.x = enhstate.xsave;
+			enhstate.y = enhstate.ysave;
+		}
+		else {
+			// Normal case is to update position to end of fragment 
+			enhstate.x += width;
+			enhstate.y += height;
+		}
+		enhstate.opened_string = FALSE;
 	}
-	else if(enhstate.overprint == 1) {
-		/* Save current position */
-		enhstate.xsave = enhstate.x + width;
-		enhstate.ysave = enhstate.y + height;
-		/* First pass of overprint, leave position in center of fragment */
-		enhstate.x += width / 2;
-		enhstate.y += height / 2;
-	}
-	else if(enhstate.overprint == 2) {
-		/* Restore current position,                          */
-		/* this sets the position behind the overprinted text */
-		enhstate.x = enhstate.xsave;
-		enhstate.y = enhstate.ysave;
-	}
-	else {
-		/* Normal case is to update position to end of fragment */
-		enhstate.x += width;
-		enhstate.y += height;
-	}
-	enhstate.opened_string = FALSE;
 }
 
 int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
@@ -1462,28 +1416,24 @@ int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
 	struct termentry * tsave;
 	TCHAR save_fontname[MAXFONTNAME];
 	int save_fontsize;
-
-	/* Init enhanced text state */
+	// Init enhanced text state 
 	enhstate.lpgw = lpgw;
 	enhstate.rect = rect;
 	enhstate.opened_string = FALSE;
 	_tcscpy(enhstate.fontname, lpgw->fontname);
 	enhstate.fontsize = lpgw->fontsize;
-	/* Store the start position */
+	// Store the start position 
 	enhstate.x = x;
 	enhstate.y = y;
 	enhstate.totalwidth = 0;
 	enhstate.totalasc = 0;
 	enhstate.totaldesc = 0;
-
-	/* Save font information */
+	// Save font information 
 	_tcscpy(save_fontname, lpgw->fontname);
 	save_fontsize = lpgw->fontsize;
-
-	/* Set up global variables needed by enhanced_recursion() */
+	// Set up global variables needed by enhanced_recursion() 
 	enhanced_fontscale = 1.0;
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-
 	/* Text justification requires two passes. During the first pass we */
 	/* don't draw anything, we just measure the space it will take.     */
 	/* Without justification one pass is enough                         */
@@ -1494,15 +1444,12 @@ int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
 		num_passes = 2;
 		enhstate.sizeonly = TRUE;
 	}
-
 	/* We actually print everything left to right. */
 	/* Adjust baseline position: */
 	enhstate.shift = lpgw->tmHeight/2 - lpgw->tmDescent;
 	enhstate.x += sin(lpgw->angle * M_PI/180) * enhstate.shift;
 	enhstate.y += cos(lpgw->angle * M_PI/180) * enhstate.shift;
-
-	/* enhanced_recursion() uses the callback functions of the current
-	   terminal. So we have to switch temporarily. */
+	// enhanced_recursion() uses the callback functions of the current terminal. So we have to switch temporarily. 
 	if(WIN_term) {
 		tsave = term;
 		term = WIN_term;
@@ -1522,15 +1469,12 @@ int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
 #else
 		char * save_fontname_a = save_fontname;
 #endif
-		while(*(str = enhanced_recursion(str, TRUE,
-		    save_fontname_a, save_fontsize,
-		    0.0, TRUE, TRUE, 0))) {
+		while(*(str = enhanced_recursion(str, TRUE, save_fontname_a, save_fontsize, 0.0, TRUE, TRUE, 0))) {
 			GraphEnhancedFlush();
 			if(!*++str)
 				break; /* end of string */
 			/* else carry on and process the rest of the string */
 		}
-
 		/* In order to do text justification we need to do a second pass
 		 * that uses information stored during the first pass, see
 		 * GraphEnhancedFlush().

@@ -2234,7 +2234,7 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 					if(input_buf.NotEmpty()) {
 						StringSet ss(';', input_buf);
 						for(uint ssp = 0; local_result != 0 && ss.get(&ssp, temp_buf);) {
-							temp_buf.Strip().RmvLastSlash();
+							temp_buf.Strip().RmvLastSlash().Transf(CTRANSF_INNER_TO_OUTER); // @v11.0.0 Transf(CTRANSF_INNER_TO_OUTER)
 							local_result = (IsDirectory(temp_buf) || fileExists(temp_buf)) ? 1 : 0;
 						}
 					}

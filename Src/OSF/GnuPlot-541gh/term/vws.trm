@@ -388,14 +388,14 @@ TERM_PUBLIC void VWS_put_text(uint x, uint y, const char * str)
 	fy = (float)y;
 	switch(justify_mode) {
 		case LEFT:
-		    fy += thih / 2.;
+		    fy += thih / 2.0;
 		    break;
 		case RIGHT:
-		    fy += thih / 2.;
+		    fy += thih / 2.0;
 		    fx -= twid;
 		    break;
 		case CENTRE:
-		    fy += thih / 2.;
+		    fy += thih / 2.0;
 		    fx -= twid / 2;
 		    break;
 	};

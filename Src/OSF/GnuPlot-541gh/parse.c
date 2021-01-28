@@ -1,34 +1,6 @@
-/* GNUPLOT - parse.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - parse.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 // 
@@ -95,9 +67,10 @@ static void convert(GpValue * pVal, int t_num)
 	*pVal = GPO.Pgm.P_Token[t_num].l_val;
 }
 
-intgr_t int_expression()
+//intgr_t int_expression()
+intgr_t GnuPlot::IntExpression()
 {
-	return (intgr_t)GPO.RealExpression();
+	return (intgr_t)RealExpression();
 }
 
 //double GPO.RealExpression()
@@ -537,13 +510,13 @@ void GnuPlot::ParsePrimaryExpression()
 					IntErrorCurToken("')' expected");
 				Pgm.Shift();
 				// The sprintf built-in function has a variable number of arguments 
-				if(!strcmp(ft[whichfunc].f_name, "sprintf"))
+				if(!strcmp(_FuncTab[whichfunc].f_name, "sprintf"))
 					add_action(PUSHC)->v_arg = num_params;
 				// v4 timecolumn only had 1 param; v5 has 2. Accept either 
-				if(!strcmp(ft[whichfunc].f_name, "timecolumn"))
+				if(!strcmp(_FuncTab[whichfunc].f_name, "timecolumn"))
 					add_action(PUSHC)->v_arg = num_params;
 				// The column() function has side effects requiring special handling 
-				if(!strcmp(ft[whichfunc].f_name, "column")) {
+				if(!strcmp(_FuncTab[whichfunc].f_name, "column")) {
 					set_up_columnheader_parsing(&(P_At->actions[P_At->a_count-1]) );
 				}
 				add_action(whichfunc);
@@ -1084,8 +1057,8 @@ udft_entry * add_udf(int t_num)
 //
 int is_builtin_function(int t_num)
 {
-	for(int i = (int)SF_START; ft[i].f_name; i++) {
-		if(GPO.Pgm.Equals(t_num, ft[i].f_name))
+	for(int i = (int)SF_START; _FuncTab[i].f_name; i++) {
+		if(GPO.Pgm.Equals(t_num, _FuncTab[i].f_name))
 			return (i);
 	}
 	return (0);
@@ -1149,7 +1122,7 @@ GpIterator * check_for_iteration()
 			GPO.Pgm.Shift();
 			if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()) && GPO.Pgm.EqualsNext(":")) {
 				// Save the constant value only 
-				iteration_start = int_expression();
+				iteration_start = GPO.IntExpression();
 			}
 			else {
 				// Save the expression as well as the value 
@@ -1171,7 +1144,7 @@ GpIterator * check_for_iteration()
 			}
 			else if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()) && (GPO.Pgm.EqualsNext(":") || GPO.Pgm.EqualsNext("]"))) {
 				// Save the constant value only 
-				iteration_end = int_expression();
+				iteration_end = GPO.IntExpression();
 			}
 			else {
 				// Save the expression as well as the value 
@@ -1187,7 +1160,7 @@ GpIterator * check_for_iteration()
 			}
 			if(GPO.Pgm.EqualsCur(":")) {
 				GPO.Pgm.Shift();
-				iteration_increment = int_expression();
+				iteration_increment = GPO.IntExpression();
 				if(iteration_increment == 0)
 					GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), errormsg);
 			}

@@ -1,34 +1,6 @@
-/* GNUPLOT - eval.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// GNUPLOT - eval.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 #include <gnuplot.h>
 #pragma hdrstop
 
@@ -37,7 +9,8 @@ static RETSIGTYPE fpe(int an_int);
 //
 // Global variables exported by this module 
 //
-udvt_entry udv_pi = { NULL, "pi", {INTGR, {0} } };
+//udvt_entry udv_pi = { NULL, "pi", {INTGR, {0} } };
+udvt_entry udv_pi("pi", INTGR);
 udvt_entry * udv_I;
 udvt_entry * udv_NaN;
 // first in linked list 
@@ -109,8 +82,8 @@ static int jump_offset; // to be modified by 'jump' operators
 // The table of built-in functions */
 // These must strictly parallel enum operators in eval.h 
 //
-const struct ft_entry ft[] = {
-	/* internal functions: */
+const struct ft_entry _FuncTab[] = {
+	// internal functions: 
 	{"push",  f_push},
 	{"pushc",  f_pushc},
 	{"pushd1",  f_pushd1},
@@ -606,23 +579,19 @@ void f_jtern(union argument * x)
 	if(!a.v.int_val)
 		jump_offset = x->j_arg; /* go jump to FALSE code */
 }
-
-/* This is the heart of the expression evaluation module: the stack
-   program execution loop.
-
-   'ft' is a table containing C functions within this program.
-
-   An 'action_table' contains pointers to these functions and
-   arguments to be passed to them.
-
-   at_ptr is a pointer to the action table which must be executed
-   (evaluated).
-
-   so the iterated line executes the function indexed by the at_ptr
-   and passes the address of the argument which is pointed to by the
-   arg_ptr
-
- */
+// 
+// This is the heart of the expression evaluation module: the stack program execution loop.
+// 
+// 'ft' is a table containing C functions within this program.
+// 
+// An 'action_table' contains pointers to these functions and
+// arguments to be passed to them.
+// 
+// at_ptr is a pointer to the action table which must be executed (evaluated).
+// 
+// so the iterated line executes the function indexed by the at_ptr
+// and passes the address of the argument which is pointed to by the arg_ptr
+// 
 void execute_at(at_type * at_ptr)
 {
 	const int saved_jump_offset = jump_offset;
@@ -630,7 +599,7 @@ void execute_at(at_type * at_ptr)
 	for(int instruction_index = 0; instruction_index < count;) {
 		const int op_ = (int)at_ptr->actions[instruction_index].index;
 		jump_offset = 1; // jump operators can modify this 
-		(*ft[op_].func)(&(at_ptr->actions[instruction_index].arg));
+		(_FuncTab[op_].Func_)(&(at_ptr->actions[instruction_index].arg));
 		assert(is_jump(op_) || (jump_offset == 1));
 		instruction_index += jump_offset;
 	}

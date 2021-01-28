@@ -170,7 +170,7 @@ static void PICT2E_flushline(void);
 
 static float pict2e_size = 0;   /* current line thickness */
 static float pict2e_lw;
-static float pict2e_lw_scale = 1.;
+static float pict2e_lw_scale = 1.0;
 static bool pict2e_rounded = FALSE;
 static float pict2e_dotspace = 0;       /* current dotspace of line in points */
 #define PICT2E_DOT_SPACE 3.0
@@ -264,7 +264,8 @@ TERM_PUBLIC void PICT2E_options()
 			    }
 			    break;
 			case PICT2E_SIZE: {
-			    float xmax_t = 5., ymax_t = 3.;
+			    float xmax_t = 5.0f;
+				float ymax_t = 3.0f;
 			    GPO.Pgm.Shift();
 			    pict2e_explicit_size = TRUE;
 			    pict2e_explicit_units = parse_term_size(&xmax_t, &ymax_t, INCHES);
@@ -636,8 +637,8 @@ static void PICT2E_do_arrow(int sx, int sy, int ex, int ey/* start and end point
 
 	// pict2e has no restriction on slope
 	len = sqrt(dx * dx + dy * dy);
-	dx /= len / 100.;
-	dy /= len / 100.;
+	dx /= len / 100.0;
+	dy /= len / 100.0;
 	// TODO: divide by GCD
 	if((head & HEADS_ONLY) != 0) {
 		if((head & END_HEAD) != 0) {
@@ -733,37 +734,30 @@ TERM_PUBLIC void PICT2E_set_color(t_colorspec * colorspec)
 {
 	if(!pict2e_use_color)
 		return;
-
 	switch(colorspec->type) {
 		case TC_RGB: {
-		    double r = (double)((colorspec->lt >> 16 ) & 255) / 255.;
-		    double g = (double)((colorspec->lt >> 8 ) & 255) / 255.;
-		    double b = (double)(colorspec->lt & 255) / 255.;
-
-		    snprintf(pict2e_new_color, sizeof(pict2e_new_color),
-			"\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", r, g, b);
+		    double r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
+		    double g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
+		    double b = (double)(colorspec->lt & 255) / 255.0;
+		    snprintf(pict2e_new_color, sizeof(pict2e_new_color), "\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", r, g, b);
 		    break;
 	    }
 		case TC_LT: {
 		    int linetype = colorspec->lt;
 		    const char * colorname;
-
 		    if(linetype == LT_BACKGROUND)
 			    colorname = "white";
 		    else if(linetype < 0 || !pict2e_use_color)
 			    colorname = "black";
 		    else
 			    colorname = PICT2E_lt_colors[linetype % PICT2E_NUM_COLORS];
-		    snprintf(pict2e_new_color, sizeof(pict2e_new_color),
-			"\\color{%s}\n", colorname);
+		    snprintf(pict2e_new_color, sizeof(pict2e_new_color), "\\color{%s}\n", colorname);
 		    break;
 	    }
 		case TC_FRAC: {
 		    rgb_color color;
-
 		    rgb1maxcolors_from_gray(colorspec->value, &color);
-		    snprintf(pict2e_new_color, sizeof(pict2e_new_color),
-			"\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", color.r, color.g, color.b);
+		    snprintf(pict2e_new_color, sizeof(pict2e_new_color), "\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", color.r, color.g, color.b);
 		    break;
 	    }
 		default:
@@ -775,14 +769,12 @@ static void PICT2E_flushline(void)
 {
 	if(pict2e_inline) {
 		int i;
-
 		if(pict2e_linecount >= 2) {
 			if(pict2e_linecount == 2) {
 				// short line segment
 				fputs("\\Line", gpoutfile);
 			}
-			else if((pict2e_path[0][0] == pict2e_path[pict2e_linecount - 1][0]) &&
-			    (pict2e_path[0][1] == pict2e_path[pict2e_linecount - 1][1])) {
+			else if((pict2e_path[0][0] == pict2e_path[pict2e_linecount - 1][0]) && (pict2e_path[0][1] == pict2e_path[pict2e_linecount - 1][1])) {
 				// closed path
 				fputs("\\polygon", gpoutfile);
 				pict2e_linecount--;

@@ -1,35 +1,6 @@
-/* GNUPLOT - command.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - command.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 /*
  * Changes:
  *
@@ -293,21 +264,22 @@ int GpProgram::DoLine()
 void do_string(const char * s)
 {
 	char * cmdline = gp_strdup(s);
-	do_string_and_free(cmdline);
+	GPO.DoStringAndFree(cmdline);
 }
 
-void do_string_and_free(char * cmdline)
+//void do_string_and_free(char * cmdline)
+void GnuPlot::DoStringAndFree(char * cmdline)
 {
 #ifdef USE_MOUSE
 	if(display_ipc_commands())
 		fprintf(stderr, "%s\n", cmdline);
 #endif
-	GPO.Pgm.LfPush(NULL, NULL, cmdline); /* save state for errors and recursion */
+	Pgm.LfPush(NULL, NULL, cmdline); /* save state for errors and recursion */
 	while(gp_input_line_len < strlen(cmdline) + 1)
 		extend_input_line();
 	strcpy(gp_input_line, cmdline);
 	screen_ok = FALSE;
-	command_exit_requested = GPO.Pgm.DoLine();
+	command_exit_requested = Pgm.DoLine();
 	// 
 	// "exit" is supposed to take us out of the current file from a
 	// "load <file>" command.  But the LFS stack holds both files and
@@ -316,11 +288,11 @@ void do_string_and_free(char * cmdline)
 	if(command_exit_requested) {
 		while(lf_head && !lf_head->name) {
 			FPRINTF((stderr, "pop one level of non-file LFS\n"));
-			GPO.Pgm.LfPop();
+			Pgm.LfPop();
 		}
 	}
 	else
-		GPO.Pgm.LfPop();
+		Pgm.LfPop();
 }
 
 #ifdef USE_MOUSE
@@ -512,7 +484,7 @@ void GpProgram::Command()
 			else if(AlmostEquals(cur_tok_idx, "if"))
 				if_command();
 			else if(AlmostEquals(cur_tok_idx, "import"))
-				import_command();
+				GPO.ImportCommand();
 			else if(AlmostEquals(cur_tok_idx, "else"))
 				else_command();
 			else if(AlmostEquals(cur_tok_idx, "l$oad"))
@@ -692,7 +664,7 @@ void GpProgram::ArrayCommand()
 	Shift();
 	if(EqualsCur("[")) {
 		Shift();
-		nsize = int_expression();
+		nsize = GPO.IntExpression();
 		if(!Equals(CToken++, "]"))
 			GPO.IntError(GetPrevTokenIdx(), "expecting array[size>0]");
 	}
@@ -794,7 +766,7 @@ bool GpProgram::IsArrayAssignment()
 			// Evaluate index 
 			Shift();
 			Shift();
-			index = int_expression();
+			index = GPO.IntExpression();
 			if(index <= 0 || index > udv->udv_value.v.value_array[0].v.int_val)
 				GPO.IntErrorCurToken("array index out of range");
 			if(!EqualsCur("]") || !EqualsNext("="))
@@ -953,7 +925,7 @@ void eval_command()
 	char * command = try_to_get_string();
 	if(!command)
 		GPO.IntErrorCurToken("Expected command string");
-	do_string_and_free(command);
+	GPO.DoStringAndFree(command);
 }
 //
 // process the 'exit' and 'quit' commands 
@@ -967,7 +939,7 @@ void GnuPlot::ExitCommand()
 	if(Pgm.EqualsNext("status")) {
 		Pgm.Shift();
 		Pgm.Shift();
-		int status = int_expression();
+		int status = IntExpression();
 		gp_exit(status);
 	}
 	// exit error 'error message'  returns to the top command line 
@@ -1003,7 +975,7 @@ void history_command()
 		const char * line_to_do = NULL; /* command returned by search	*/
 		GPO.Pgm.Shift();
 		if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
-			int i = int_expression();
+			int i = GPO.IntExpression();
 			line_to_do = history_find_by_number(i);
 		}
 		else {
@@ -1036,7 +1008,7 @@ void history_command()
 		}
 		/* show history entries */
 		if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
-			n = int_expression();
+			n = GPO.IntExpression();
 		}
 		if((tmp = try_to_get_string())) {
 			SAlloc::F(name);
@@ -1121,7 +1093,7 @@ void GpProgram::IfElseCommand(ifstate if_state)
 				if_state = IF_TRUE;
 				char * clause = new_clause(clause_start, clause_end);
 				begin_clause();
-				do_string_and_free(clause);
+				GPO.DoStringAndFree(clause);
 				end_clause();
 				if(iteration_early_exit())
 					SetTokenIdx(NumTokens);
@@ -1148,7 +1120,7 @@ void GpProgram::IfElseCommand(ifstate if_state)
 				if_state = IF_TRUE;
 				clause = new_clause(clause_start, clause_end);
 				begin_clause();
-				do_string_and_free(clause);
+				GPO.DoStringAndFree(clause);
 				end_clause();
 				if(iteration_early_exit())
 					SetTokenIdx(NumTokens);
@@ -1299,37 +1271,37 @@ void GpProgram::WhileCommand()
  * unset link [x2|y2]
  * unset nonlinear <axis>
  */
-void link_command()
+//void link_command()
+void GnuPlot::LinkCommand()
 {
 	GpAxis * primary_axis = NULL;
 	GpAxis * secondary_axis = NULL;
 	bool linked = FALSE;
-	int command_token = GPO.Pgm.GetCurTokenIdx();    /* points to "link" or "nonlinear" */
-	GPO.Pgm.Shift();
-	/* Set variable name accepatable for the via/inverse functions */
+	int command_token = Pgm.GetCurTokenIdx();    /* points to "link" or "nonlinear" */
+	Pgm.Shift();
+	// Set variable name accepatable for the via/inverse functions 
 	strcpy(c_dummy_var[0], "x");
 	strcpy(c_dummy_var[1], "y");
-	if(GPO.Pgm.EqualsCur("z") || GPO.Pgm.EqualsCur("cb"))
+	if(Pgm.EqualsCur("z") || Pgm.EqualsCur("cb"))
 		strcpy(c_dummy_var[0], "z");
-	if(GPO.Pgm.EqualsCur("r"))
+	if(Pgm.EqualsCur("r"))
 		strcpy(c_dummy_var[0], "r");
-
 	/*
 	 * "set nonlinear" currently supports axes x x2 y y2 z r cb
 	 */
-	if(GPO.Pgm.Equals(command_token, "nonlinear")) {
+	if(Pgm.Equals(command_token, "nonlinear")) {
 		AXIS_INDEX axis;
-		if((axis = (AXIS_INDEX)GPO.Pgm.LookupTableForCurrentToken(axisname_tbl)) >= 0)
-			secondary_axis = &GPO.AxS[axis];
+		if((axis = (AXIS_INDEX)Pgm.LookupTableForCurrentToken(axisname_tbl)) >= 0)
+			secondary_axis = &AxS[axis];
 		else
-			GPO.IntErrorCurToken("not a valid nonlinear axis");
-		primary_axis = GPO.AxS.GetShadowAxis(secondary_axis);
+			IntErrorCurToken("not a valid nonlinear axis");
+		primary_axis = AxS.GetShadowAxis(secondary_axis);
 		/* Trap attempt to set an already-linked axis to nonlinear */
 		/* This catches the sequence "set link y; set nonlinear y2" */
 		if(secondary_axis->linked_to_primary && secondary_axis->linked_to_primary->index > 0)
-			GPO.IntError(NO_CARET, "must unlink axis before setting it to nonlinear");
+			IntError(NO_CARET, "must unlink axis before setting it to nonlinear");
 		if(secondary_axis->linked_to_secondary && secondary_axis->linked_to_secondary->index > 0)
-			GPO.IntError(NO_CARET, "must unlink axis before setting it to nonlinear");
+			IntError(NO_CARET, "must unlink axis before setting it to nonlinear");
 		/* Clear previous log status */
 		secondary_axis->log = FALSE;
 		secondary_axis->ticdef.logscaling = FALSE;
@@ -1340,41 +1312,39 @@ void link_command()
 		 */
 	}
 	else {
-		if(GPO.Pgm.AlmostEqualsCur("x$2")) {
-			primary_axis = &GPO.AxS[FIRST_X_AXIS];
-			secondary_axis = &GPO.AxS[SECOND_X_AXIS];
+		if(Pgm.AlmostEqualsCur("x$2")) {
+			primary_axis = &AxS[FIRST_X_AXIS];
+			secondary_axis = &AxS[SECOND_X_AXIS];
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("y$2")) {
-			primary_axis = &GPO.AxS[FIRST_Y_AXIS];
-			secondary_axis = &GPO.AxS[SECOND_Y_AXIS];
+		else if(Pgm.AlmostEqualsCur("y$2")) {
+			primary_axis = &AxS[FIRST_Y_AXIS];
+			secondary_axis = &AxS[SECOND_Y_AXIS];
 		}
 		else {
-			GPO.IntErrorCurToken("expecting x2 or y2");
+			IntErrorCurToken("expecting x2 or y2");
 		}
-		/* This catches the sequence "set nonlinear x; set link x2" */
+		// This catches the sequence "set nonlinear x; set link x2" 
 		if(primary_axis->linked_to_primary)
-			GPO.IntError(NO_CARET, "You must clear nonlinear x or y before linking it");
-		/* This catches the sequence "set nonlinear x2; set link x2" */
+			IntError(NO_CARET, "You must clear nonlinear x or y before linking it");
+		// This catches the sequence "set nonlinear x2; set link x2" 
 		if(secondary_axis->linked_to_primary && secondary_axis->linked_to_primary->index <= 0)
-			GPO.IntError(NO_CARET, "You must clear nonlinear x2 or y2 before linking it");
+			IntError(NO_CARET, "You must clear nonlinear x2 or y2 before linking it");
 	}
-	GPO.Pgm.Shift();
-
-	/* "unset link {x|y}" command */
-	if(GPO.Pgm.Equals(command_token-1, "unset")) {
+	Pgm.Shift();
+	// "unset link {x|y}" command 
+	if(Pgm.Equals(command_token-1, "unset")) {
 		primary_axis->linked_to_secondary = NULL;
 		if(secondary_axis->linked_to_primary == NULL)
 			/* It wasn't linked anyhow */
 			return;
 		else
 			secondary_axis->linked_to_primary = NULL;
-		/* FIXME: could return here except for the need to free link_udf->at */
+		// FIXME: could return here except for the need to free link_udf->at 
 		linked = FALSE;
 	}
-	else {
+	else
 		linked = TRUE;
-	}
-	/* Initialize the action tables for the mapping function[s] */
+	// Initialize the action tables for the mapping function[s] 
 	if(!primary_axis->link_udf) {
 		primary_axis->link_udf = (udft_entry *)gp_alloc(sizeof(udft_entry), "link_at");
 		memzero(primary_axis->link_udf, sizeof(udft_entry));
@@ -1383,46 +1353,44 @@ void link_command()
 		secondary_axis->link_udf = (udft_entry *)gp_alloc(sizeof(udft_entry), "link_at");
 		memzero(secondary_axis->link_udf, sizeof(udft_entry));
 	}
-	if(GPO.Pgm.EqualsCur("via")) {
+	if(Pgm.EqualsCur("via")) {
 		parse_link_via(secondary_axis->link_udf);
-		if(GPO.Pgm.AlmostEqualsCur("inv$erse")) {
+		if(Pgm.AlmostEqualsCur("inv$erse")) {
 			parse_link_via(primary_axis->link_udf);
 		}
 		else {
-			GPO.IntWarnCurToken("inverse mapping function required");
+			IntWarnCurToken("inverse mapping function required");
 			linked = FALSE;
 		}
 	}
-	else if(GPO.Pgm.Equals(command_token, "nonlinear") && linked) {
-		GPO.IntWarnCurToken("via mapping function required");
+	else if(Pgm.Equals(command_token, "nonlinear") && linked) {
+		IntWarnCurToken("via mapping function required");
 		linked = FALSE;
 	}
-
-	if(GPO.Pgm.Equals(command_token, "nonlinear") && linked) {
-		/* Save current user-visible axis range (note reversed order!) */
-		struct udft_entry * temp = primary_axis->link_udf;
+	if(Pgm.Equals(command_token, "nonlinear") && linked) {
+		// Save current user-visible axis range (note reversed order!) 
+		udft_entry * temp = primary_axis->link_udf;
 		primary_axis->link_udf = secondary_axis->link_udf;
 		secondary_axis->link_udf = temp;
 		secondary_axis->linked_to_primary = primary_axis;
 		primary_axis->linked_to_secondary = secondary_axis;
-		clone_linked_axes(secondary_axis, primary_axis);
+		CloneLinkedAxes(secondary_axis, primary_axis);
 	}
 	else if(linked) {
-		/* Clone the range information */
+		// Clone the range information 
 		secondary_axis->linked_to_primary = primary_axis;
 		primary_axis->linked_to_secondary = secondary_axis;
-		clone_linked_axes(primary_axis, secondary_axis);
+		CloneLinkedAxes(primary_axis, secondary_axis);
 	}
 	else {
 		free_at(secondary_axis->link_udf->at);
 		secondary_axis->link_udf->at = NULL;
 		free_at(primary_axis->link_udf->at);
 		primary_axis->link_udf->at = NULL;
-		/* Shouldn't be necessary, but it doesn't hurt */
+		// Shouldn't be necessary, but it doesn't hurt 
 		primary_axis->linked_to_secondary = NULL;
 		secondary_axis->linked_to_primary = NULL;
 	}
-
 	if(secondary_axis->index == POLAR_AXIS)
 		rrange_to_xy();
 }
@@ -1894,10 +1862,10 @@ void GnuPlot::RefreshRequest()
 		else
 			this_axis->max = this_axis->set_max;
 		if(this_axis->linked_to_secondary)
-			clone_linked_axes(this_axis, this_axis->linked_to_secondary);
+			CloneLinkedAxes(this_axis, this_axis->linked_to_secondary);
 		else if(this_axis->linked_to_primary) {
 			if(this_axis->linked_to_primary->autoscale != AUTOSCALE_BOTH)
-				clone_linked_axes(this_axis, this_axis->linked_to_primary);
+				CloneLinkedAxes(this_axis, this_axis->linked_to_primary);
 		}
 	}
 	if(refresh_ok == E_REFRESH_OK_2D) {
@@ -1907,7 +1875,7 @@ void GnuPlot::RefreshRequest()
 	}
 	else if(refresh_ok == E_REFRESH_OK_3D) {
 		refresh_3dbounds(first_3dplot, refresh_nplots);
-		do_3dplot(term, first_3dplot, refresh_nplots, /*0*/NORMAL_REPLOT);
+		Do3DPlot(term, first_3dplot, refresh_nplots, /*0*/NORMAL_REPLOT);
 		update_gpval_variables(1);
 	}
 	else
@@ -2050,8 +2018,9 @@ void screendump_command()
 /* 'shell' command is processed by do_shell(), see below */
 
 /* show_command() is in show.c */
-
-/* process the 'splot' command */
+//
+// process the 'splot' command 
+//
 void splot_command()
 {
 	plot_token = GPO.Pgm.Shift();
@@ -2066,8 +2035,8 @@ void splot_command()
 	add_udv_by_name("MOUSE_Y2")->udv_value.type = NOTDEFINED;
 	add_udv_by_name("MOUSE_BUTTON")->udv_value.type = NOTDEFINED;
 #endif
-	plot3drequest();
-	/* Clear "hidden" flag for any plots that may have been toggled off */
+	GPO.Plot3DRequest();
+	// Clear "hidden" flag for any plots that may have been toggled off 
 	if(term->modify_plots)
 		term->modify_plots(MODPLOTS_SET_VISIBLE, -1);
 	SET_CURSOR_ARROW;
@@ -2194,13 +2163,14 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	replot_line = save_replot_line;
 	is_3d_plot = save_is_3d_plot;
 }
-
-/* process the 'test' command */
+//
+// process the 'test' command 
+//
 void test_command()
 {
 	int what;
 	int save_token = GPO.Pgm.Shift();
-	if(!term) /* unknown terminal */
+	if(!term) // unknown terminal 
 		GPO.IntErrorCurToken("use 'set term' to set terminal type first");
 	what = GPO.Pgm.LookupTableForCurrentToken(&test_tbl[0]);
 	switch(what) {
@@ -2208,7 +2178,7 @@ void test_command()
 		    if(!GPO.Pgm.EndOfCommand())
 			    GPO.IntErrorCurToken("unrecognized test option");
 		// otherwise fall through to test_term 
-		case TEST_TERMINAL: test_term(); break;
+		case TEST_TERMINAL: GPO.TestTerminal(term); break;
 		case TEST_PALETTE: test_palette_subcommand(); break;
 	}
 	// prevent annoying error messages if there was no previous plot 
@@ -2217,18 +2187,15 @@ void test_command()
 		GPO.Pgm.MCapture(&replot_line, save_token, GPO.Pgm.GetCurTokenIdx());
 	}
 }
-
-/* toggle a single plot on/off from the command line
- * (only possible for qt, wxt, x11, win)
- */
+// 
+// toggle a single plot on/off from the command line (only possible for qt, wxt, x11, win)
+// 
 void toggle_command()
 {
 	int plotno = -1;
 	char * plottitle = NULL;
 	bool foundit = FALSE;
-
 	GPO.Pgm.Shift();
-
 	if(GPO.Pgm.EqualsCur("all")) {
 		GPO.Pgm.Shift();
 	}
@@ -2244,9 +2211,7 @@ void toggle_command()
 		if(last >= 0) {
 			for(plotno = 0; plot != NULL; plot = plot->next, plotno++) {
 				if(plot->title)
-					if(!strcmp(plot->title, plottitle)
-					    ||  (plottitle[last] == '*'
-					    && !strncmp(plot->title, plottitle, last))) {
+					if(!strcmp(plot->title, plottitle) || (plottitle[last] == '*' && !strncmp(plot->title, plottitle, last))) {
 						foundit = TRUE;
 						break;
 					}
@@ -2259,9 +2224,8 @@ void toggle_command()
 		}
 	}
 	else {
-		plotno = int_expression() - 1;
+		plotno = GPO.IntExpression() - 1;
 	}
-
 	if(term->modify_plots)
 		term->modify_plots(MODPLOTS_INVERT_VISIBILITIES, plotno);
 }
@@ -2270,32 +2234,35 @@ void update_command()
 {
 	GPO.IntError(NO_CARET, "DEPRECATED command 'update', please use 'save fit' instead");
 }
-
-/* the "import" command is only implemented if support is configured for */
-/* using functions from external shared objects as plugins. */
-void import_command()
+//
+// the "import" command is only implemented if support is configured for */
+// using functions from external shared objects as plugins. 
+//
+//void import_command()
+void GnuPlot::ImportCommand()
 {
-	int start_token = GPO.Pgm.GetCurTokenIdx();
-
+	int start_token = Pgm.GetCurTokenIdx();
 #ifdef HAVE_EXTERNAL_FUNCTIONS
 	udft_entry * udf;
 	int dummy_num = 0;
 	char save_dummy[MAX_NUM_VAR][MAX_ID_LEN+1];
-	if(!GPO.Pgm.Equals(++c_token + 1, "("))
-		GPO.IntErrorCurToken("Expecting function template");
+	Pgm.Shift();
+	if(!Pgm.Equals(Pgm.GetCurTokenIdx()+1, "("))
+		IntErrorCurToken("Expecting function template");
 	memcpy(save_dummy, c_dummy_var, sizeof(save_dummy));
 	do {
-		c_token += 2; /* skip to the next dummy */
-		GPO.Pgm.CopyStr(c_dummy_var[dummy_num++], GPO.Pgm.GetCurTokenIdx(), MAX_ID_LEN);
-	} while(GPO.Pgm.Equals(GPO.Pgm.GetCurTokenIdx()+1, ",") && (dummy_num < MAX_NUM_VAR));
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EqualsCur(","))
-		GPO.IntError(GPO.Pgm.GetCurTokenIdx()+1, "function contains too many parameters");
-	if(!GPO.Pgm.EqualsCurShift(")"))
-		GPO.IntErrorCurToken("missing ')'");
-	if(!GPO.Pgm.EqualsCur("from"))
-		GPO.IntErrorCurToken("Expecting 'from <sharedobj>'");
-	GPO.Pgm.Shift();
+		Pgm.Shift(); // skip to the next dummy 
+		Pgm.Shift();
+		Pgm.CopyStr(c_dummy_var[dummy_num++], Pgm.GetCurTokenIdx(), MAX_ID_LEN);
+	} while(Pgm.Equals(Pgm.GetCurTokenIdx()+1, ",") && (dummy_num < MAX_NUM_VAR));
+	Pgm.Shift();
+	if(Pgm.EqualsCur(","))
+		IntError(Pgm.GetCurTokenIdx()+1, "function contains too many parameters");
+	if(!Pgm.EqualsCurShift(")"))
+		IntErrorCurToken("missing ')'");
+	if(!Pgm.EqualsCur("from"))
+		IntErrorCurToken("Expecting 'from <sharedobj>'");
+	Pgm.Shift();
 	udf = dummy_func = add_udf(start_token+1);
 	udf->dummy_num = dummy_num;
 	free_at(udf->at); /* In case there was a previous function by this name */
@@ -2303,13 +2270,13 @@ void import_command()
 	memcpy(c_dummy_var, save_dummy, sizeof(save_dummy));
 	dummy_func = NULL; /* dont let anyone else use our workspace */
 	if(!udf->at)
-		GPO.IntError(NO_CARET, "failed to load external function");
+		IntError(NO_CARET, "failed to load external function");
 	// Don't copy the definition until we know it worked 
-	GPO.Pgm.MCapture(&(udf->definition), start_token, GPO.Pgm.GetCurTokenIdx()-1);
+	Pgm.MCapture(&(udf->definition), start_token, Pgm.GetCurTokenIdx()-1);
 #else
-	while(!GPO.Pgm.EndOfCommand())
-		GPO.Pgm.Shift();
-	GPO.IntError(start_token, "This copy of gnuplot does not support plugins");
+	while(!Pgm.EndOfCommand())
+		Pgm.Shift();
+	IntError(start_token, "This copy of gnuplot does not support plugins");
 #endif
 }
 //
@@ -2391,7 +2358,7 @@ void GpProgram::ReplotRequest()
 		test_command();
 	}
 	else if(AlmostEquals(0, "s$plot"))
-		plot3drequest();
+		GPO.Plot3DRequest();
 	else
 		GPO.PlotRequest();
 }

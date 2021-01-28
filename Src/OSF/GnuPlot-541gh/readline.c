@@ -1,46 +1,11 @@
-/* GNUPLOT - readline.c */
-
-/*[
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - readline.c 
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
 /*
  * AUTHORS
- *
- *   Original Software:
- *     Tom Tkacik
- *
- *   Msdos port and some enhancements:
- *     Gershon Elber and many others.
- *
- *   Adapted to work with UTF-8 encoding.
- *     Ethan A Merritt  April 2011
+ *   Original Software: Tom Tkacik
+ *   Msdos port and some enhancements: Gershon Elber and many others.
+ *   Adapted to work with UTF-8 encoding. Ethan A Merritt  April 2011
  */
 #include <gnuplot.h>
 #pragma hdrstop
@@ -431,20 +396,15 @@ static int char_seqlen()
 		    do {
 			    i++;
 		    }
-		    while(((cur_line[i] & 0xc0) != 0xc0)
-			&& ((cur_line[i] & 0x80) != 0)
-			&& (i < max_pos));
+		    while(((cur_line[i] & 0xc0) != 0xc0) && ((cur_line[i] & 0x80) != 0) && (i < max_pos));
 		    return (i - cur_pos);
 	    }
-
 		case S_ENC_SJIS:
 		    return is_sjis_lead_byte(cur_line[cur_pos]) ? 2 : 1;
-
 		default:
 		    return 1;
 	}
 }
-
 /*
  * Back up over one multi-byte character sequence immediately preceding
  * the current position.  Non-destructive.  Affects both cur_pos and screen cursor.
@@ -457,29 +417,20 @@ static int backspace()
 		    do {
 			    cur_pos--;
 			    seqlen++;
-		    } while(((cur_line[cur_pos] & 0xc0) != 0xc0)
-			&& ((cur_line[cur_pos] & 0x80) != 0)
-			&& (cur_pos > 0)
-			);
-
-		    if(   ((cur_line[cur_pos] & 0xc0) == 0xc0)
-			|| isprint((uchar)cur_line[cur_pos])
-			)
+		    } while(((cur_line[cur_pos] & 0xc0) != 0xc0) && ((cur_line[cur_pos] & 0x80) != 0) && (cur_pos > 0));
+		    if(((cur_line[cur_pos] & 0xc0) == 0xc0) || isprint((uchar)cur_line[cur_pos]))
 			    user_putc(BACKSPACE);
 		    if(isdoublewidth(cur_pos))
 			    user_putc(BACKSPACE);
 		    return seqlen;
 	    }
-
 		case S_ENC_SJIS: {
 		    /* With S-JIS you cannot always determine if a byte is a single byte or part
 		       of a double-byte sequence by looking of an arbitrary byte in a string.
 		       Always test from the start of the string instead.
 		     */
-		    int i;
 		    int seqlen = 1;
-
-		    for(i = 0; i < cur_pos; i += seqlen) {
+		    for(int i = 0; i < cur_pos; i += seqlen) {
 			    seqlen = is_sjis_lead_byte(cur_line[i]) ? 2 : 1;
 		    }
 		    cur_pos -= seqlen;
@@ -488,14 +439,12 @@ static int backspace()
 			    user_putc(BACKSPACE);
 		    return seqlen;
 	    }
-
 		default:
 		    cur_pos--;
 		    user_putc(BACKSPACE);
 		    return 1;
 	}
 }
-
 /*
  * Step forward over one multi-byte character sequence.
  * We don't assume a non-destructive forward space, so we have
@@ -1266,16 +1215,13 @@ static void clear_eoline(const char * prompt)
 static void delete_previous_word()
 {
 	size_t save_pos = cur_pos;
-
 	SUSPENDOUTPUT;
 	/* skip whitespace */
-	while((cur_pos > 0) &&
-	    (cur_line[cur_pos - 1] == SPACE)) {
+	while((cur_pos > 0) && (cur_line[cur_pos - 1] == SPACE)) {
 		backspace();
 	}
 	/* find start of previous word */
-	while((cur_pos > 0) &&
-	    (cur_line[cur_pos - 1] != SPACE)) {
+	while((cur_pos > 0) && (cur_line[cur_pos - 1] != SPACE)) {
 		backspace();
 	}
 	if(cur_pos != save_pos) {
@@ -1317,7 +1263,6 @@ static void copy_line(char * line)
 static int ansi_getc()
 {
 	int c;
-
 #ifdef USE_MOUSE
 	/* EAM June 2020 why only interactive?
 	 * if (term && term->waitforinput && interactive)
@@ -1327,7 +1272,6 @@ static int ansi_getc()
 	else
 #endif
 	c = getc(stdin);
-
 	if(c == 033) {
 		c = getc(stdin); /* check for CSI */
 		if(c == '[') {

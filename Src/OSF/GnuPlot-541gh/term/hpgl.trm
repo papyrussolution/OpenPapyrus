@@ -687,9 +687,9 @@ static int HPGL2_font_num = 0;  /* font from options */
 static double HPGL2_point_size = HPGL2_DEF_POINT; /* pointsize from options */
 static char * PCL_dim = "letter"; /* default plotting dimensions */
 static char PCL_dim_buf[256];
-static float HPGL2_fontscale = 1.;
-static float HPGL2_pointscale = 1.;
-static float HPGL2_linewidth_scale = 1.;
+static float HPGL2_fontscale = 1.0;
+static float HPGL2_pointscale = 1.0;
+static float HPGL2_linewidth_scale = 1.0;
 static bool HPGL2_rounded = FALSE;
 
 enum PCL_id {
@@ -774,7 +774,7 @@ TERM_PUBLIC void PCL_options()
 		switch(GPO.Pgm.LookupTableForCurrentToken(PCL_opts)) {
 			case HPGL2_COLOR:
 			    GPO.Pgm.Shift();
-			    HPGL2_numpen = GPO.Pgm.EndOfCommand() ? 8 : int_expression();
+			    HPGL2_numpen = GPO.Pgm.EndOfCommand() ? 8 : GPO.IntExpression();
 			    if(HPGL2_numpen < 2) {
 				    HPGL2_numpen = 8;
 				    GPO.IntErrorCurToken("Number of pens must be larger than two.");
@@ -835,20 +835,20 @@ TERM_PUBLIC void PCL_options()
 			    GPO.Pgm.Shift();
 			    HPGL2_linewidth_scale =  GPO.RealExpression();
 			    if(HPGL2_linewidth_scale <= 0)
-				    HPGL2_linewidth_scale = 1.;
+				    HPGL2_linewidth_scale = 1.0;
 			    break;
 			    break;
 			case HPGL2_POINTSIZE:
 			    GPO.Pgm.Shift();
 			    HPGL2_pointscale =  GPO.RealExpression();
 			    if(HPGL2_pointscale <= 0)
-				    HPGL2_pointscale = 1.;
+				    HPGL2_pointscale = 1.0;
 			    break;
 			case HPGL2_FONTSCALE:
 			    GPO.Pgm.Shift();
 			    HPGL2_fontscale =  GPO.RealExpression();
 			    if(HPGL2_fontscale <= 0)
-				    HPGL2_fontscale = 1.;
+				    HPGL2_fontscale = 1.0;
 			    break;
 			case HPGL2_ENHANCED:
 			    GPO.Pgm.Shift();
@@ -1222,15 +1222,15 @@ TERM_PUBLIC void HPGL2_dashtype(int type, t_dashtype * custom_dash_pattern)
 			    break;
 			case DASHTYPE_CUSTOM: {
 			    int i, count = 0;
-			    float len = 0.;
-
+			    float len = 0.0;
 			    fputs("UL8", gpoutfile);
-			    /* normalize total pattern length to 100 */
+			    // normalize total pattern length to 100 
 			    while((custom_dash_pattern->pattern[count] != 0.) && (count < DASHPATTERN_LENGTH)) {
 				    len += custom_dash_pattern->pattern[count];
 				    count++;
 			    }
-			    if(len == 0) len = 1.;
+			    if(len == 0) 
+					len = 1.0;
 			    for(i = 0; i < count; i++) {
 				    fprintf(gpoutfile, ",%d", (int)(100 * custom_dash_pattern->pattern[i] / len + 0.5));
 			    }
@@ -2999,23 +2999,18 @@ TERM_PUBLIC void HPGL2_enh_put_text(uint x, uint y, const char str[])
 	double fontsize = HPGL2_point_size_current;
 	int pass, num_passes;
 	const char * original_str = str;
-
 	if(!strlen(str))
 		return;
-
-	if(fontsize == 0.)
+	if(fontsize == 0.0)
 		fontsize = HPGL2_DEF_POINT;
-
 	/* If no enhanced text processing is needed, we can use the plain  */
 	/* vanilla put_text() routine instead of this fancy recursive one. */
 	if(ignore_enhanced_text || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		HPGL2_put_text(x, y, str);
 		return;
 	}
-
 	HPGL2_move(x, y);
 	HPGL2_end_poly();
-
 	/* Align with baseline */
 	fputs("LO1", gpoutfile);
 	/* Adjust baseline position: */
@@ -3024,9 +3019,8 @@ TERM_PUBLIC void HPGL2_enh_put_text(uint x, uint y, const char str[])
 	/* Set up global variables needed by enhanced_recursion() */
 	enhanced_fontscale = 1.0;
 	HPGL2_opened_string = FALSE;
-	HPGL2_base = 0.;
+	HPGL2_base = 0.0;
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-
 	/* Text justification requires two passes. During the first pass we */
 	/* don't draw anything, we just move the "cursor".                  */
 	/* Without justification one pass is enough.                        */
@@ -3050,7 +3044,6 @@ TERM_PUBLIC void HPGL2_enh_put_text(uint x, uint y, const char str[])
 		/* We actually print everything left to right. */
 		HPGL2_justification = LEFT;
 	}
-
 	for(pass = 1; pass <= num_passes; pass++) {
 		/* Set the recursion going. We say to keep going until a
 		 * closing brace, but we don't really expect to find one.
@@ -3059,15 +3052,12 @@ TERM_PUBLIC void HPGL2_enh_put_text(uint x, uint y, const char str[])
 		 * closing brace in the string. We increment past it (else
 		 * we get stuck in an infinite loop) and try again.
 		 */
-		while(*(str = enhanced_recursion(str, TRUE,
-		    fontname, fontsize,
-		    0.0, TRUE, TRUE, 0))) {
+		while(*(str = enhanced_recursion(str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 			term->enhanced_flush();
 			if(!*++str)
 				break; /* end of string */
 			/* else carry on and process the rest of the string */
 		}
-
 		/* In order to do text justification we need to do a second pass */
 		if(num_passes == 2 && pass == 1) {
 			/* do the actual printing in the next pass */
@@ -3078,29 +3068,24 @@ TERM_PUBLIC void HPGL2_enh_put_text(uint x, uint y, const char str[])
 			fprintf(gpoutfile, "SP%dCF\n", HPGL2_pen);
 			if(just == CENTRE) {
 				/* restore font size to normal */
-				HPGL2_enh_fontscale = 1.;
+				HPGL2_enh_fontscale = 1.0;
 				HPGL2_point_size_current = -1;
 				HPGL2_set_font_size(fontname, fontsize);
 			}
 		}
 		str = original_str;
 	}
-
 	/* restore text alignment */
 	HPGL2_justify_text(LEFT);
 	HPGL2_lost = TRUE;
-
 	/* restore font */
-	HPGL2_enh_fontscale = 1.;
+	HPGL2_enh_fontscale = 1.0;
 	HPGL2_set_font("");
 }
 
-TERM_PUBLIC void HPGL2_enh_open(char * fontname, double fontsize,
-    double base, bool widthflag, bool showflag,
-    int overprint)
+TERM_PUBLIC void HPGL2_enh_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
-	const int scale = 0.9 * HPGL_PUPI / 72.; /* scaling of base offset */
-
+	const int scale = 0.9 * HPGL_PUPI / 72.0; /* scaling of base offset */
 	/* There are two special cases:
 	 * overprint = 3 means save current position
 	 * overprint = 4 means restore saved position
@@ -3118,10 +3103,8 @@ TERM_PUBLIC void HPGL2_enh_open(char * fontname, double fontsize,
 		HPGL2_base = HPGL2_base_save;
 		return;
 	}
-
 	if(!HPGL2_opened_string) {
 		double base_shift;
-
 		/* Start new text fragment */
 		HPGL2_opened_string = TRUE;
 		enhanced_cur_text = enhanced_text;

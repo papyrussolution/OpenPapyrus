@@ -1,36 +1,7 @@
-/* GNUPLOT - gpexecute.c */
-
-/*[
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - gpexecute.c 
+//
 /*
  * AUTHORS
- *
  *   Original Software (October 1999 - January 2000):
  *     Pieter-Tjerk de Boer <ptdeboer@cs.utwente.nl>
  *     Petr Mikulik <mikulik@physics.muni.cz>
@@ -51,70 +22,6 @@
 /*
  * gp_execute functions
  */
-
-#ifdef OS2_IPC
-char mouseShareMemName[40];
-PVOID input_from_PM_Terminal;
-/* pointer to shared memory for storing the command to be executed */
-HEV semInputReady = 0;
-/* handle to event semaphore (post an event to gnuplot that the shared
-   memory contains a command to be executed) */
-int pausing = 0;
-/* avoid passing data back to gnuplot in `pause' mode */
-/* gplt_x11.c */
-ULONG ppidGnu = 0;
-
-/*
- * Let the command in the shared memory be executed.
- */
-void gp_post_shared_mem()
-{
-	APIRET rc;
-	if(semInputReady == 0) { /* but it must be open for the first time */
-		char semInputReadyName[40];
-		sprintf(semInputReadyName, "\\SEM32\\GP%i_Input_Ready", (int)ppidGnu);
-		DosOpenEventSem(semInputReadyName, &semInputReady);
-	}
-	rc = DosPostEventSem(semInputReady);
-	DosSleep(10);
-	/* dirty trick: wait a little bit; otherwise problems to
-	 * distinguish mouse button down and up, for instance
-	 * (info sent to shared memory was too fast; maybe a blocking
-	 * semaphore would help, but no fun to implement it...)
-	   &*/
-}
-
-/* Copy the command (given by the input string) to the shared memory
- * and let gnuplot execute it.
- * If this routine is called during a 'pause', then the command is
- * ignored (shared memory is cleared). Needed for actions launched by a
- * hotkey.
- * Firstly, the command is copied from shared memory to clipboard
- * if this option is set on.
- * Secondly, gnuplot is informed that shared memory contains a command
- * by posting semInputReady event semaphore.
- *
- * OS/2 specific: if (!s), then the command has been already sprintf'ed to
- * the shared memory.
- */
-void gp_execute(char * s)
-{
-	if(input_from_PM_Terminal == NULL)
-		return;
-	if(s)                   /* copy the command to shared memory */
-		strcpy(input_from_PM_Terminal, s);
-	if(((char*)input_from_PM_Terminal)[0] == 0)
-		return;
-	if(pausing) {           /* no communication during pause */
-		/* DosBeep(440,111); */
-		((char*)input_from_PM_Terminal)[0] = 0;
-		return;
-	}
-	gp_post_shared_mem();
-}
-
-#endif /* OS2_IPC */
-
 #if defined(PIPE_IPC) /* || defined(WIN_IPC) */
 
 int buffered_output_pending = 0;
@@ -149,7 +56,8 @@ static void gpe_push(gpe_fifo_t ** base, struct gp_event_t * ge)
 	(*base)->prev->ge = *ge;
 }
 
-static struct gp_event_t * gpe_front(gpe_fifo_t ** base)                           {
+static struct gp_event_t * gpe_front(gpe_fifo_t ** base)                           
+{
 	return &((*base)->ge);
 }
 
@@ -169,18 +77,16 @@ static int gpe_pop(gpe_fifo_t ** base)
 		return 1;
 	}
 }
-
 #endif /* PIPE_IPC || WIN_IPC */
 
 #ifdef PIPE_IPC
-RETSIGTYPE pipe_died_handler(int signum)
-{
-	(void)signum;           /* avoid -Wunused warning. */
-	/* fprintf(stderr, "\n*******(pipe_died_handler)*******\n"); */
-	close(1);
-	pipe_died = 1;
-}
-
+	RETSIGTYPE pipe_died_handler(int signum)
+	{
+		(void)signum;           /* avoid -Wunused warning. */
+		/* fprintf(stderr, "\n*******(pipe_died_handler)*******\n"); */
+		close(1);
+		pipe_died = 1;
+	}
 #endif /* PIPE_IPC */
 
 void gp_exec_event(char type, int mx, int my, int par1, int par2, int winid)
@@ -189,7 +95,6 @@ void gp_exec_event(char type, int mx, int my, int par1, int par2, int winid)
 #if defined(PIPE_IPC) /* || defined(WIN_IPC) */
 	static struct gpe_fifo_t * base = (gpe_fifo_t*)0;
 #endif
-
 	ge.type = type;
 	ge.mx = mx;
 	ge.my = my;
@@ -233,17 +138,4 @@ void gp_exec_event(char type, int mx, int my, int par1, int par2, int winid)
 		}
 	} while(gpe_pop(&base));
 #endif /* PIPE_IPC */
-
-#ifdef OS2_IPC                  /* OS/2 communication via shared memory; coded according to gp_execute() */
-	if(input_from_PM_Terminal == NULL)
-		return;
-	((char*)input_from_PM_Terminal)[0] = '%'; /* flag that passing gp_event_t */
-	memcpy(((char*)input_from_PM_Terminal) + 1, &ge, sizeof(ge));   /* copy the command to shared memory */
-	if(pausing) {           /* no communication during pause */
-		/* DosBeep(440,111); */
-		((char*)input_from_PM_Terminal)[0] = 0;
-		return;
-	}
-	gp_post_shared_mem();
-#endif
 }
