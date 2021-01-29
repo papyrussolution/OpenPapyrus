@@ -1167,7 +1167,7 @@ struct termentry * set_term()
 	if(!GPO.Pgm.EndOfCommand()) {
 		char * input_name = gp_input_line + GPO.Pgm.GetCurTokenStartIndex();
 		t = change_term(input_name, GPO.Pgm.GetCurTokenLength());
-		if(!t && GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (input_name = try_to_get_string())) {
+		if(!t && GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (input_name = GPO.TryToGetString())) {
 			if(strchr(input_name, ' '))
 				*strchr(input_name, ' ') = '\0';
 			t = change_term(input_name, strlen(input_name));
@@ -1506,7 +1506,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	(pTerm->linewidth)(1.0);
 	(pTerm->linetype)(0);
 	(pTerm->dashtype)(DASHTYPE_SOLID, NULL);
-	x = x0 + 2. * pTerm->v_char;
+	x = static_cast<int>(x0 + 2.0 * pTerm->v_char);
 	y = y0 + ymax_t/2;
 	xl = pTerm->h_tic * 7;
 	yl = pTerm->v_tic * 7;
@@ -1545,7 +1545,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	(pTerm->justify_text)(LEFT);
 	xl = xmax_t / 10;
 	yl = ymax_t / 25;
-	x = x0 + xmax_t * .075;
+	x = static_cast<int>(x0 + xmax_t * 0.075);
 	y = y0 + yl;
 
 	for(i = 1; i<7; i++) {
@@ -1561,7 +1561,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	(pTerm->justify_text)(LEFT);
 	xl = xmax_t / 10;
 	yl = ymax_t / 25;
-	x = x0 + xmax_t * .3;
+	x = static_cast<int>(x0 + xmax_t * 0.3);
 	y = y0 + yl;
 	for(i = 0; i<5; i++) {
 		(pTerm->linewidth)(1.0);
@@ -1576,7 +1576,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	}
 	(pTerm->put_text)(x, y, "dashtype");
 	// test fill patterns 
-	x = x0 + xmax_t * 0.5;
+	x = static_cast<int>(x0 + xmax_t * 0.5);
 	y = y0;
 	xl = xmax_t / 40;
 	yl = ymax_t / 8;
@@ -1584,8 +1584,8 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	(pTerm->linetype)(LT_BLACK);
 	(pTerm->justify_text)(CENTRE);
 	(pTerm->put_text)(x+xl*7, y + yl+pTerm->v_char*1.5, "pattern fill");
-	for(i = 0; i<9; i++) {
-		int style = ((i<<4) + FS_PATTERN);
+	for(i = 0; i < 9; i++) {
+		const int style = ((i<<4) + FS_PATTERN);
 		if(pTerm->fillbox)
 			(pTerm->fillbox)(style, x, y, xl, yl);
 		newpath(pTerm);

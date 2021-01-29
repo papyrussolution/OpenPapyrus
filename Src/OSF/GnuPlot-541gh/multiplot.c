@@ -219,7 +219,7 @@ void multiplot_start()
 			GPO.Pgm.Shift();
 			parse_label_options(&mp_layout.title, 2);
 			if(!GPO.Pgm.EndOfCommand())
-				mp_layout.title.text = try_to_get_string();
+				mp_layout.title.text = GPO.TryToGetString();
 			parse_label_options(&mp_layout.title, 2);
 			continue;
 		}

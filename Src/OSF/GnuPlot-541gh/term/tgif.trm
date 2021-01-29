@@ -358,7 +358,7 @@ TERM_PUBLIC void TGIF_options()
 			default:
 		    {
 			    char * s;
-			    if((s = try_to_get_string())) {
+			    if((s = GPO.TryToGetString())) {
 				    double fontsize;
 				    int sep = strcspn(s, ",");
 				    if(s[sep] == ',' && (1 == sscanf(&s[sep+1], "%lf", &fontsize)))

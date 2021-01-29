@@ -132,49 +132,54 @@ int GpProgram::IsLetter(int t_num) const
 	uchar c = gp_input_line[P_Token[t_num].start_index];
 	return (P_Token[t_num].is_token && (isalpha(c) || (c == '_') || ALLOWED_8BITVAR(c)));
 }
-
-/* Test whether following bit of command line might be parsable as a number.
- * constant, defined variable, function, ...
- */
-bool might_be_numeric(int t_num)
+//
+// Test whether following bit of command line might be parsable as a number.
+// constant, defined variable, function, ...
+//
+//bool might_be_numeric(int t_num)
+bool GnuPlot::MightBeNumeric(int t_num) const
 {
-	if(GPO.Pgm.EndOfCommand())
-		return FALSE;
-	if(GPO.Pgm.IsANumber(t_num) || is_function(t_num))
-		return TRUE;
-	const int _t = GPO.Pgm.TypeUdv(t_num);
-	if(oneof3(_t, INTGR, CMPLX, ARRAY))
-		return TRUE;
-	if(GPO.Pgm.Equals(t_num, "("))
-		return TRUE;
-	return FALSE;
+	if(Pgm.EndOfCommand())
+		return false;
+	else if(Pgm.IsANumber(t_num) || IsFunction(t_num))
+		return true;
+	else {
+		const int _t = Pgm.TypeUdv(t_num);
+		if(oneof3(_t, INTGR, CMPLX, ARRAY))
+			return true;
+		else if(Pgm.Equals(t_num, "("))
+			return true;
+		else
+			return false;
+	}
 }
-/*
- * is_definition() returns TRUE if the next tokens are of the form
- *   identifier =
- *              -or-
- *   identifier ( identifier {,identifier} ) =
- */
-int is_definition(int t_num)
+// 
+// is_definition() returns TRUE if the next tokens are of the form
+//   identifier = -or- identifier ( identifier {,identifier} ) =
+// 
+//int is_definition(int t_num)
+int GnuPlot::IsDefinition(int t_num) const
 {
 	// variable? 
-	if(GPO.Pgm.IsLetter(t_num) && GPO.Pgm.Equals(t_num + 1, "="))
+	if(Pgm.IsLetter(t_num) && Pgm.Equals(t_num + 1, "="))
 		return 1;
-	// function? 
-	// look for dummy variables 
-	if(GPO.Pgm.IsLetter(t_num) && GPO.Pgm.Equals(t_num + 1, "(") && GPO.Pgm.IsLetter(t_num + 2)) {
-		// Block redefinition of reserved function names 
-		if(is_builtin_function(t_num))
-			return 0;
-		t_num += 3; // point past first dummy 
-		while(GPO.Pgm.Equals(t_num, ",")) {
-			if(!GPO.Pgm.IsLetter(++t_num))
+	else {
+		// function? 
+		// look for dummy variables 
+		if(Pgm.IsLetter(t_num) && Pgm.Equals(t_num + 1, "(") && Pgm.IsLetter(t_num + 2)) {
+			// Block redefinition of reserved function names 
+			if(IsBuiltinFunction(t_num))
 				return 0;
-			t_num += 1;
+			t_num += 3; // point past first dummy 
+			while(Pgm.Equals(t_num, ",")) {
+				if(!Pgm.IsLetter(++t_num))
+					return 0;
+				t_num += 1;
+			}
+			return (Pgm.Equals(t_num, ")") && Pgm.Equals(t_num + 1, "="));
 		}
-		return (GPO.Pgm.Equals(t_num, ")") && GPO.Pgm.Equals(t_num + 1, "="));
+		return 0; // neither 
 	}
-	return 0; // neither 
 }
 // 
 // copy_str() copies the string in token number t_num into str, appending
@@ -256,22 +261,23 @@ void GpProgram::MQuoteCapture(char ** ppStr, int start, int end)
 	else
 		parse_sq(*ppStr);
 }
-/*
- * Wrapper for isstring + m_quote_capture or const_string_express
- */
-char * try_to_get_string()
+//
+// Wrapper for isstring + m_quote_capture or const_string_express
+//
+//char * try_to_get_string()
+char * GnuPlot::TryToGetString()
 {
-	char * newstring = NULL;
+	char * p_newstring = NULL;
 	GpValue a;
-	int save_token = GPO.Pgm.GetCurTokenIdx();
-	if(GPO.Pgm.EndOfCommand())
+	const int save_token = Pgm.GetCurTokenIdx();
+	if(Pgm.EndOfCommand())
 		return NULL;
-	const_string_express(&a);
+	ConstStringExpress(&a);
 	if(a.type == STRING)
-		newstring = a.v.string_val;
+		p_newstring = a.v.string_val;
 	else
-		GPO.Pgm.SetTokenIdx(save_token);
-	return newstring;
+		Pgm.SetTokenIdx(save_token);
+	return p_newstring;
 }
 
 /* Our own version of sstrdup()

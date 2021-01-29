@@ -84,183 +84,519 @@ static int jump_offset; // to be modified by 'jump' operators
 //
 const struct ft_entry _FuncTab[] = {
 	// internal functions: 
-	{"push",  f_push},
-	{"pushc",  f_pushc},
-	{"pushd1",  f_pushd1},
-	{"pushd2",  f_pushd2},
-	{"pushd",  f_pushd},
-	{"pop",  f_pop},
-	{"call",  f_call},
-	{"calln",  f_calln},
-	{"sum", f_sum},
-	{"lnot",  f_lnot},
-	{"bnot",  f_bnot},
-	{"uminus",  f_uminus},
-	{"lor",  f_lor},
-	{"land",  f_land},
-	{"bor",  f_bor},
-	{"xor",  f_xor},
-	{"band",  f_band},
-	{"eq",  f_eq},
-	{"ne",  f_ne},
-	{"gt",  f_gt},
-	{"lt",  f_lt},
-	{"ge",  f_ge},
-	{"le",  f_le},
-	{"leftshift", f_leftshift},
-	{"rightshift", f_rightshift},
-	{"plus",  f_plus},
-	{"minus",  f_minus},
-	{"mult",  f_mult},
-	{"div",  f_div},
-	{"mod",  f_mod},
-	{"power",  f_power},
-	{"factorial",  f_factorial},
-	{"bool",  f_bool},
-	{"dollars",  f_dollars},/* for usespec */
-	{"concatenate",  f_concatenate},/* for string variables only */
-	{"eqs",  f_eqs},                /* for string variables only */
-	{"nes",  f_nes},                /* for string variables only */
-	{"[]",  f_range},               /* for string variables only */
-	{"[]",  f_index},               /* for array variables only */
-	{"||",  f_cardinality},         /* for array variables only */
-	{"assign", f_assign},           /* assignment operator '=' */
-	{"jump",  f_jump},
-	{"jumpz",  f_jumpz},
-	{"jumpnz",  f_jumpnz},
-	{"jtern",  f_jtern},
-	{"", NULL}, // Placeholder for SF_START 
+	{"push",         f_push},
+	{"pushc",   	 f_pushc},
+	{"pushd1",  	 f_pushd1},
+	{"pushd2",  	 f_pushd2},
+	{"pushd",   	 f_pushd},
+	{"pop",     	 f_pop},
+	{"call",    	 f_call},
+	{"calln",   	 f_calln},
+	{"sum",     	 f_sum},
+	{"lnot",    	 f_lnot},
+	{"bnot",    	 f_bnot},
+	{"uminus",  	 f_uminus},
+	{"lor",     	 f_lor},
+	{"land",    	 f_land},
+	{"bor",     	 f_bor},
+	{"xor",     	 f_xor},
+	{"band",    	 f_band},
+	{"eq",      	 f_eq},
+	{"ne",      	 f_ne},
+	{"gt",      	 f_gt},
+	{"lt",           f_lt},
+	{"ge",           f_ge},
+	{"le",           f_le},
+	{"leftshift",    f_leftshift},
+	{"rightshift",   f_rightshift},
+	{"plus",         f_plus},
+	{"minus",        f_minus},
+	{"mult",         f_mult},
+	{"div",          f_div},
+	{"mod",          f_mod},
+	{"power",        f_power},
+	{"factorial",    f_factorial},
+	{"bool",         f_bool},
+	{"dollars",      f_dollars},             //  for usespec 
+	{"concatenate",  f_concatenate},         //  for string variables only 
+	{"eqs",          f_eqs},                 //  for string variables only 
+	{"nes",          f_nes},                 //  for string variables only 
+	{"[]",           f_range},               //  for string variables only 
+	{"[]",           f_index},               //  for array variables only 
+	{"||",           f_cardinality},         //  for array variables only 
+	{"assign",       f_assign},              //  assignment operator '=' 
+	{"jump",         f_jump},
+	{"jumpz",        f_jumpz},
+	{"jumpnz",       f_jumpnz},
+	{"jtern",        f_jtern},
+	{"",             NULL},                  // Placeholder for SF_START 
 #ifdef HAVE_EXTERNAL_FUNCTIONS
-	{"", f_calle},
+	{"",             f_calle},
 #endif
 	// legal in using spec only 
-	{"column",  f_column},
-	{"stringcolumn",  f_stringcolumn},/* for using specs */
-	{"strcol",  f_stringcolumn},    /* shorthand form */
-	{"columnhead",  f_columnhead},
+	{"column",        f_column},
+	{"stringcolumn",  f_stringcolumn},       //  for using specs 
+	{"strcol",        f_stringcolumn},       //  shorthand form 
+	{"columnhead",    f_columnhead},
 	{"columnheader",  f_columnhead},
-	{"valid",  f_valid},
-	{"timecolumn",  f_timecolumn},
+	{"valid",         f_valid},
+	{"timecolumn",    f_timecolumn},
 	// standard functions: 
-	{"real",  f_real},
-	{"imag",  f_imag},
-	{"arg",  f_arg},
-	{"conj",  f_conjg},
-	{"conjg",  f_conjg},
-	{"sin",  f_sin},
-	{"cos",  f_cos},
-	{"tan",  f_tan},
-	{"asin",  f_asin},
-	{"acos",  f_acos},
-	{"atan",  f_atan},
-	{"atan2",  f_atan2},
-	{"sinh",  f_sinh},
-	{"cosh",  f_cosh},
-	{"tanh",  f_tanh},
-	{"EllipticK",  f_ellip_first},
-	{"EllipticE",  f_ellip_second},
-	{"EllipticPi", f_ellip_third},
-	{"int",  f_int},
-	{"round",  f_round},
-	{"abs",  f_abs},
-	{"sgn",  f_sgn},
-	{"sqrt",  f_sqrt},
-	{"exp",  f_exp},
-	{"log10",  f_log10},
-	{"log",  f_log},
-	{"besi0",  f_besi0},
-	{"besi1",  f_besi1},
-	{"besin",  f_besin},
-	{"besj0",  f_besj0},
-	{"besj1",  f_besj1},
-	{"besjn",  f_besjn},
-	{"besy0",  f_besy0},
-	{"besy1",  f_besy1},
-	{"besyn",  f_besyn},
-	{"erf",  f_erf},
-	{"erfc",  f_erfc},
-	{"gamma",  f_gamma},
-	{"lgamma",  f_lgamma},
-	{"ibeta",  f_ibeta},
-	{"voigt",  f_voigt},
-	{"rand",  f_rand},
-	{"floor",  f_floor},
-	{"ceil",  f_ceil},
-	{"norm",  f_normal},
-	{"inverf",  f_inverse_erf},
-	{"invnorm",  f_inverse_normal},
-	{"invigamma", f_inverse_igamma},
-	{"invibeta", f_inverse_ibeta},
-	{"asinh",  f_asinh},
-	{"acosh",  f_acosh},
-	{"atanh",  f_atanh},
-	{"lambertw",  f_lambertw},/* HBB, from G.Kuhnle 20001107 */
-	{"airy",  f_airy},      /* cephes library version */
+	{"real",          f_real},
+	{"imag",       	  f_imag},
+	{"arg",        	  f_arg},
+	{"conj",       	  f_conjg},
+	{"conjg",      	  f_conjg},
+	{"sin",        	  f_sin},
+	{"cos",        	  f_cos},
+	{"tan",        	  f_tan},
+	{"asin",       	  f_asin},
+	{"acos",       	  f_acos},
+	{"atan",       	  f_atan},
+	{"atan2",      	  f_atan2},
+	{"sinh",       	  f_sinh},
+	{"cosh",       	  f_cosh},
+	{"tanh",       	  f_tanh},
+	{"EllipticK",  	  f_ellip_first},
+	{"EllipticE",  	  f_ellip_second},
+	{"EllipticPi", 	  f_ellip_third},
+	{"int",        	  f_int},
+	{"round",         f_round},
+	{"abs",    		  f_abs},
+	{"sgn",    		  f_sgn},
+	{"sqrt",   		  f_sqrt},
+	{"exp",    		  f_exp},
+	{"log10",  		  f_log10},
+	{"log",    		  f_log},
+	{"besi0",  		  f_besi0},
+	{"besi1",  		  f_besi1},
+	{"besin",  		  f_besin},
+	{"besj0",  		  f_besj0},
+	{"besj1",  		  f_besj1},
+	{"besjn",  		  f_besjn},
+	{"besy0",  		  f_besy0},
+	{"besy1",  		  f_besy1},
+	{"besyn",  		  f_besyn},
+	{"erf",    		  f_erf},
+	{"erfc",   		  f_erfc},
+	{"gamma",  		  f_gamma},
+	{"lgamma", 		  f_lgamma},
+	{"ibeta",  		  f_ibeta},
+	{"voigt",  		  f_voigt},
+	{"rand",   		  f_rand},
+	{"floor",  		  f_floor},
+	{"ceil",   		  f_ceil},
+	{"norm",   		  f_normal},
+	{"inverf",        f_inverse_erf},
+	{"invnorm",   	  f_inverse_normal},
+	{"invigamma", 	  f_inverse_igamma},
+	{"invibeta",  	  f_inverse_ibeta},
+	{"asinh",     	  f_asinh},
+	{"acosh",     	  f_acosh},
+	{"atanh",     	  f_atanh},
+	{"lambertw",   	  f_lambertw},     //  HBB, from G.Kuhnle 20001107
+	{"airy",      	  f_airy},         //  cephes library version 
 #ifdef HAVE_AMOS
-	{"Ai", f_amos_Ai},      /* Amos version from libopenspecfun */
-	{"Bi", f_amos_Bi},      /* Amos version from libopenspecfun */
-	{"BesselI", f_amos_BesselI},/* Amos version from libopenspecfun */
-	{"BesselJ", f_amos_BesselJ},/* Amos version from libopenspecfun */
-	{"BesselK", f_amos_BesselK},/* Amos version from libopenspecfun */
-	{"BesselY", f_amos_BesselY},/* Amos version from libopenspecfun */
-	{"Hankel1", f_Hankel1}, /* Amos version from libopenspecfun */
-	{"Hankel2", f_Hankel2}, /* Amos version from libopenspecfun */
+	{"Ai",            f_amos_Ai},      //  Amos version from libopenspecfun  
+	{"Bi",        	  f_amos_Bi},      //  Amos version from libopenspecfun 
+	{"BesselI",   	  f_amos_BesselI}, //  Amos version from libopenspecfun 
+	{"BesselJ",   	  f_amos_BesselJ}, //  Amos version from libopenspecfun 
+	{"BesselK",   	  f_amos_BesselK}, //  Amos version from libopenspecfun 
+	{"BesselY",   	  f_amos_BesselY}, //  Amos version from libopenspecfun 
+	{"Hankel1",   	  f_Hankel1},      //  Amos version from libopenspecfun 
+	{"Hankel2",   	  f_Hankel2},      //  Amos version from libopenspecfun 
 #endif
 #ifdef HAVE_CEXINT
-	{"expint",  f_amos_cexint},/* Amos algorithm 683 from libamos */
+	{"expint",        f_amos_cexint},  //  Amos algorithm 683 from libamos 
 #else
-	{"expint",  f_expint},  /* Jim Van Zandt, 20101010 */
+	{"expint",        f_expint},       //  Jim Van Zandt, 20101010 
 #endif
 #ifdef HAVE_COMPLEX_FUNCS
-	{"igamma", f_Igamma},   /* Complex igamma(a,z) */
-	{"LambertW", f_LambertW}, /* Complex W(z,k) */
-	{"lnGamma", f_lnGamma}, /* Complex lnGamma(z) */
-	{"Sign", f_Sign},       /* Complex sign function */
+	{"igamma",        f_Igamma},       //  Complex igamma(a,z) 
+	{"LambertW",  	  f_LambertW},     //  Complex W(z,k) 
+	{"lnGamma",   	  f_lnGamma},      //  Complex lnGamma(z) 
+	{"Sign",      	  f_Sign},         //  Complex sign function 
 #else
-	{"igamma",  f_igamma},  /* Jos van der Woude 1992 */
+	{"igamma",    	  f_igamma},       //  Jos van der Woude 1992 
 #endif
 #ifdef HAVE_LIBCERF
-	{"cerf", f_cerf},       /* complex error function */
-	{"cdawson", f_cdawson}, /* complex Dawson's integral */
-	{"erfi", f_erfi},       /* imaginary error function */
-	{"VP", f_voigtp},       /* Voigt profile */
-	{"VP_fwhm", f_VP_fwhm}, /* Voigt profile full width at half maximum */
-	{"faddeeva", f_faddeeva}, /* Faddeeva rescaled complex error function "w_of_z" */
-	{"FresnelC", f_FresnelC}, /* Fresnel integral cosine term calculated from cerf */
-	{"FresnelS", f_FresnelS}, /* Fresnel integral sine term calculated from cerf */
+	{"cerf",          f_cerf},         //  complex error function  
+	{"cdawson",   	  f_cdawson},      //  complex Dawson's integral 
+	{"erfi",      	  f_erfi},         //  imaginary error function 
+	{"VP",        	  f_voigtp},       //  Voigt profile 
+	{"VP_fwhm",   	  f_VP_fwhm},      //  Voigt profile full width at half maximum 
+	{"faddeeva",  	  f_faddeeva},     //  Faddeeva rescaled complex error function "w_of_z" 
+	{"FresnelC",  	  f_FresnelC},     //  Fresnel integral cosine term calculated from cerf 
+	{"FresnelS",  	  f_FresnelS},     //  Fresnel integral sine term calculated from cerf 
 #endif
-	{"SynchrotronF", f_SynchrotronF}, /* Synchrotron F */
-	{"tm_sec",  f_tmsec},   /* for timeseries */
-	{"tm_min",  f_tmmin},   /* for timeseries */
-	{"tm_hour", f_tmhour},  /* for timeseries */
-	{"tm_mday", f_tmmday},  /* for timeseries */
-	{"tm_mon",  f_tmmon},   /* for timeseries */
-	{"tm_year", f_tmyear},  /* for timeseries */
-	{"tm_wday", f_tmwday},  /* for timeseries */
-	{"tm_yday", f_tmyday},  /* for timeseries */
-	{"tm_week", f_tmweek},  /* for timeseries */
-	{"sprintf",  f_sprintf},/* for string variables only */
-	{"gprintf",  f_gprintf},/* for string variables only */
-	{"strlen",  f_strlen},  /* for string variables only */
-	{"strstrt",  f_strstrt},/* for string variables only */
-	{"substr",  f_range},   /* for string variables only */
-	{"trim",  f_trim},      /* for string variables only */
-	{"word",  f_word},      /* for string variables only */
-	{"words", f_words},     /* implemented as word(s,-1) */
-	{"strftime",  f_strftime},/* time to string */
-	{"strptime",  f_strptime},/* string to time */
-	{"time", f_time},       /* get current time */
-	{"system", f_system},   /* "dynamic backtics" */
-	{"exist", f_exists},    /* exists("foo") replaces defined(foo) */
-	{"exists", f_exists},   /* exists("foo") replaces defined(foo) */
-	{"value", f_value},     /* retrieve value of variable known by name */
-	{"hsv2rgb", f_hsv2rgb}, /* color conversion */
-	{"palette", f_palette}, /* palette color lookup */
-	{"rgbcolor", f_rgbcolor}, /* 32bit ARGB color lookup by name or string */
+	{"SynchrotronF",  f_SynchrotronF}, //  Synchrotron F 
+	{"tm_sec",        f_tmsec},        //  for timeseries 
+	{"tm_min",        f_tmmin},   	   //  for timeseries 
+	{"tm_hour",   	  f_tmhour},  	   //  for timeseries 
+	{"tm_mday",   	  f_tmmday},  	   //  for timeseries 
+	{"tm_mon",    	  f_tmmon},   	   //  for timeseries 
+	{"tm_year",   	  f_tmyear},  	   //  for timeseries 
+	{"tm_wday",   	  f_tmwday},  	   //  for timeseries 
+	{"tm_yday",   	  f_tmyday},  	   //  for timeseries 
+	{"tm_week",   	  f_tmweek},  	   //  for timeseries 
+	{"sprintf",   	  f_sprintf}, 	   //  for string variables only 
+	{"gprintf",   	  f_gprintf}, 	   //  for string variables only 
+	{"strlen",    	  f_strlen},  	   //  for string variables only 
+	{"strstrt",   	  f_strstrt}, 	   //  for string variables only 
+	{"substr",    	  f_range},   	   //  for string variables only 
+	{"trim",      	  f_trim},         //  for string variables only 
+	{"word",      	  f_word},         //  for string variables only 
+	{"words",     	  f_words},        //  implemented as word(s,-1) 
+	{"strftime",  	  f_strftime},     //  time to string 
+	{"strptime",  	  f_strptime},     //  string to time 
+	{"time",      	  f_time},         //  get current time 
+	{"system",    	  f_system},       //  "dynamic backtics" 
+	{"exist",     	  f_exists},       //  exists("foo") replaces defined(foo) 
+	{"exists",    	  f_exists},       //  exists("foo") replaces defined(foo) 
+	{"value",     	  f_value},        //  retrieve value of variable known by name 
+	{"hsv2rgb",   	  f_hsv2rgb},      //  color conversion 
+	{"palette",   	  f_palette},      //  palette color lookup 
+	{"rgbcolor",  	  f_rgbcolor},     //  32bit ARGB color lookup by name or string 
 #ifdef VOXEL_GRID_SUPPORT
-	{"voxel", f_voxel},     /* extract value of single voxel */
+	{"voxel",         f_voxel},        //  extract value of single voxel 
 #endif
-	{NULL, NULL}
+	{NULL,            NULL}
+};
+
+enum {
+	gpfunc_PUSH,
+	gpfunc_PUSHC,
+	gpfunc_PUSHD1,
+	gpfunc_PUSHD2,
+	gpfunc_PUSHD,
+	gpfunc_POP,
+	gpfunc_CALL,
+	gpfunc_CALLN,
+	gpfunc_SUM,
+	gpfunc_LNOT,
+	gpfunc_BNOT,
+	gpfunc_UMINUS,
+	gpfunc_LOR,
+	gpfunc_LAND,
+	gpfunc_BOR,
+	gpfunc_XOR,
+	gpfunc_BAND,
+	gpfunc_EQ,
+	gpfunc_NE,
+	gpfunc_GT,
+	gpfunc_LT,
+	gpfunc_GE,
+	gpfunc_LE,
+	gpfunc_LEFTSHIFT,
+	gpfunc_RIGHTSHIFT,
+	gpfunc_PLUS,
+	gpfunc_MINUS,
+	gpfunc_MULT,
+	gpfunc_DIV,
+	gpfunc_MOD,
+	gpfunc_POWER,
+	gpfunc_FACTORIAL,
+	gpfunc_BOOL,
+	gpfunc_DOLLARS,       
+	gpfunc_CONCATENATE,   
+	gpfunc_EQS,           
+	gpfunc_NES,           
+	gpfunc_RANGE,         
+	gpfunc_INDEX,         
+	gpfunc_CARDINALITY,   
+	gpfunc_ASSIGN,        
+	gpfunc_JUMP,
+	gpfunc_JUMPZ,
+	gpfunc_JUMPNZ,
+	gpfunc_JTERN,
+	gpfunc_CALLE,
+	gpfunc_COLUMN,
+	gpfunc_STRINGCOLUMN, 
+	gpfunc_COLUMNHEAD,
+	gpfunc_VALID,
+	gpfunc_TIMECOLUMN,
+	gpfunc_REAL,
+	gpfunc_IMAG,
+	gpfunc_ARG,
+	gpfunc_CONJG,
+	gpfunc_SIN,
+	gpfunc_COS,
+	gpfunc_TAN,
+	gpfunc_ASIN,
+	gpfunc_ACOS,
+	gpfunc_ATAN,
+	gpfunc_ATAN2,
+	gpfunc_SINH,
+	gpfunc_COSH,
+	gpfunc_TANH,
+	gpfunc_ELLIP_FIRST,
+	gpfunc_ELLIP_SECOND,
+	gpfunc_ELLIP_THIRD,
+	gpfunc_INT,
+	gpfunc_ROUND,
+	gpfunc_ABS,
+	gpfunc_SGN,
+	gpfunc_SQRT,
+	gpfunc_EXP,
+	gpfunc_LOG10,
+	gpfunc_LOG,
+	gpfunc_BESI0,
+	gpfunc_BESI1,
+	gpfunc_BESIN,
+	gpfunc_BESJ0,
+	gpfunc_BESJ1,
+	gpfunc_BESJN,
+	gpfunc_BESY0,
+	gpfunc_BESY1,
+	gpfunc_BESYN,
+	gpfunc_ERF,
+	gpfunc_ERFC,
+	gpfunc_GAMMA,
+	gpfunc_LGAMMA,
+	gpfunc_IBETA,
+	gpfunc_VOIGT,
+	gpfunc_RAND,
+	gpfunc_FLOOR,
+	gpfunc_CEIL,
+	gpfunc_NORMAL,
+	gpfunc_INVERSE_ERF,
+	gpfunc_INVERSE_NORMAL,
+	gpfunc_INVERSE_IGAMMA,
+	gpfunc_INVERSE_IBETA,
+	gpfunc_ASINH,
+	gpfunc_ACOSH,
+	gpfunc_ATANH,
+	gpfunc_LAMBERTW,     
+	gpfunc_AIRY,         
+	gpfunc_AMOS_AI,      
+	gpfunc_AMOS_BI,      
+	gpfunc_AMOS_BESSELI, 
+	gpfunc_AMOS_BESSELJ, 
+	gpfunc_AMOS_BESSELK, 
+	gpfunc_AMOS_BESSELY, 
+	gpfunc_HANKEL1,      
+	gpfunc_HANKEL2,      
+	gpfunc_AMOS_CEXINT,  
+	gpfunc_EXPINT,       
+	gpfunc_IGAMMA,       
+	gpfunc_LNGAMMA,      
+	gpfunc_SIGN,         
+	gpfunc_CERF,         
+	gpfunc_CDAWSON,      
+	gpfunc_ERFI,         
+	gpfunc_VOIGTP,       
+	gpfunc_VP_FWHM,      
+	gpfunc_FADDEEVA,     
+	gpfunc_FRESNELC,     
+	gpfunc_FRESNELS,     
+	gpfunc_SYNCHROTRONF, 
+	gpfunc_TMSEC,        
+	gpfunc_TMMIN,   	   
+	gpfunc_TMHOUR,  	   
+	gpfunc_TMMDAY,  	   
+	gpfunc_TMMON,   	   
+	gpfunc_TMYEAR,  	   
+	gpfunc_TMWDAY,  	   
+	gpfunc_TMYDAY,  	   
+	gpfunc_TMWEEK,  	   
+	gpfunc_SPRINTF, 	   
+	gpfunc_GPRINTF, 	   
+	gpfunc_STRLEN,  	   
+	gpfunc_STRSTRT, 	   
+	gpfunc_TRIM,         
+	gpfunc_WORD,         
+	gpfunc_WORDS,        
+	gpfunc_STRFTIME,     
+	gpfunc_STRPTIME,     
+	gpfunc_TIME,         
+	gpfunc_SYSTEM,       
+	gpfunc_EXISTS,       
+	gpfunc_VALUE,        
+	gpfunc_HSV2RGB,      
+	gpfunc_PALETTE,      
+	gpfunc_RGBCOLOR,     
+	gpfunc_VOXEL,        
+};
+
+const GpFuncEntry _FuncTab2[] = {
+	// internal functions: 
+	{ 0, "push",         f_push          },
+	{ 0, "pushc",   	 f_pushc 		 },
+	{ 0, "pushd1",  	 f_pushd1		 },
+	{ 0, "pushd2",  	 f_pushd2		 },
+	{ 0, "pushd",   	 f_pushd 		 },
+	{ 0, "pop",     	 f_pop   		 },
+	{ 0, "call",    	 f_call  		 },
+	{ 0, "calln",   	 f_calln 		 },
+	{ 0, "sum",     	 f_sum   		 },
+	{ 0, "lnot",    	 f_lnot  		 },
+	{ 0, "bnot",    	 f_bnot  		 },
+	{ 0, "uminus",  	 f_uminus		 },
+	{ 0, "lor",     	 f_lor   		 },
+	{ 0, "land",    	 f_land  		 },
+	{ 0, "bor",     	 f_bor   		 },
+	{ 0, "xor",     	 f_xor   		 },
+	{ 0, "band",    	 f_band  		 },
+	{ 0, "eq",      	 f_eq    		 },
+	{ 0, "ne",      	 f_ne    		 },
+	{ 0, "gt",      	 f_gt    		 },
+	{ 0, "lt",           f_lt    		 },
+	{ 0, "ge",           f_ge    		 },
+	{ 0, "le",           f_le    		 },
+	{ 0, "leftshift",    f_leftshift     },
+	{ 0, "rightshift",   f_rightshift 	 },
+	{ 0, "plus",         f_plus       	 },
+	{ 0, "minus",        f_minus      	 },
+	{ 0, "mult",         f_mult       	 },
+	{ 0, "div",          f_div        	 },
+	{ 0, "mod",          f_mod        	 },
+	{ 0, "power",        f_power      	 },
+	{ 0, "factorial",    f_factorial  	 },
+	{ 0, "bool",         f_bool       	 },
+	{ 0, "dollars",      f_dollars       },          //  for usespec 
+	{ 0, "concatenate",  f_concatenate   },      //  for string variables only 
+	{ 0, "eqs",          f_eqs           },              //  for string variables only 
+	{ 0, "nes",          f_nes           },                 //  for string variables only 
+	{ 0, "[]",           f_range         },            //  for string variables only 
+	{ 0, "[]",           f_index         },            //  for array variables only 
+	{ 0, "||",           f_cardinality   },      //  for array variables only 
+	{ 0, "assign",       f_assign        },           //  assignment operator '=' 
+	{ 0, "jump",         f_jump       	 },
+	{ 0, "jumpz",        f_jumpz      	 },
+	{ 0, "jumpnz",       f_jumpnz     	 },
+	{ 0, "jtern",        f_jtern      	 },
+	{ 0, "",             NULL            },               // Placeholder for SF_START 
+#ifdef HAVE_EXTERNAL_FUNCTIONS
+	{ 0, "",             f_calle      	 },
+#endif
+	// legal in using spec only 
+	{ 0, "column",        f_column       },
+	{ 0, "stringcolumn",  f_stringcolumn },       //  for using specs 
+	{ 0, "strcol",        f_stringcolumn },       //  shorthand form 
+	{ 0, "columnhead",    f_columnhead   },
+	{ 0, "columnheader",  f_columnhead   },
+	{ 0, "valid",         f_valid        },
+	{ 0, "timecolumn",    f_timecolumn   },
+	// standard functions: 
+	{ 0, "real",          f_real         },
+	{ 0, "imag",       	  f_imag 		 },
+	{ 0, "arg",        	  f_arg  		 },
+	{ 0, "conj",       	  f_conjg		 },
+	{ 0, "conjg",      	  f_conjg		 },
+	{ 0, "sin",        	  f_sin  		 },
+	{ 0, "cos",        	  f_cos  		 },
+	{ 0, "tan",        	  f_tan  		 },
+	{ 0, "asin",       	  f_asin 		 },
+	{ 0, "acos",       	  f_acos 		 },
+	{ 0, "atan",       	  f_atan 		 },
+	{ 0, "atan2",      	  f_atan2		 },
+	{ 0, "sinh",       	  f_sinh 		 },
+	{ 0, "cosh",       	  f_cosh 		 },
+	{ 0, "tanh",       	  f_tanh 		 },
+	{ 0, "EllipticK",  	  f_ellip_first  },
+	{ 0, "EllipticE",  	  f_ellip_second },
+	{ 0, "EllipticPi", 	  f_ellip_third  },
+	{ 0, "int",        	  f_int          },
+	{ 0, "round",         f_round 		 },
+	{ 0, "abs",    		  f_abs   		 },
+	{ 0, "sgn",    		  f_sgn   		 },
+	{ 0, "sqrt",   		  f_sqrt  		 },
+	{ 0, "exp",    		  f_exp   		 },
+	{ 0, "log10",  		  f_log10 		 },
+	{ 0, "log",    		  f_log   		 },
+	{ 0, "besi0",  		  f_besi0 		 },
+	{ 0, "besi1",  		  f_besi1 		 },
+	{ 0, "besin",  		  f_besin 		 },
+	{ 0, "besj0",  		  f_besj0 		 },
+	{ 0, "besj1",  		  f_besj1 		 },
+	{ 0, "besjn",  		  f_besjn 		 },
+	{ 0, "besy0",  		  f_besy0 		 },
+	{ 0, "besy1",  		  f_besy1 		 },
+	{ 0, "besyn",  		  f_besyn 		 },
+	{ 0, "erf",    		  f_erf   		 },
+	{ 0, "erfc",   		  f_erfc  		 },
+	{ 0, "gamma",  		  f_gamma 		 },
+	{ 0, "lgamma", 		  f_lgamma		 },
+	{ 0, "ibeta",  		  f_ibeta 		 },
+	{ 0, "voigt",  		  f_voigt 		 },
+	{ 0, "rand",   		  f_rand  		 },
+	{ 0, "floor",  		  f_floor 		 },
+	{ 0, "ceil",   		  f_ceil  		 },
+	{ 0, "norm",   		  f_normal		 },
+	{ 0, "inverf",        f_inverse_erf    },
+	{ 0, "invnorm",   	  f_inverse_normal },
+	{ 0, "invigamma", 	  f_inverse_igamma },
+	{ 0, "invibeta",  	  f_inverse_ibeta  },
+	{ 0, "asinh",     	  f_asinh          },
+	{ 0, "acosh",     	  f_acosh          },
+	{ 0, "atanh",     	  f_atanh          },
+	{ 0, "lambertw",   	  f_lambertw       },     //  HBB, from G.Kuhnle 20001107
+	{ 0, "airy",      	  f_airy           },         //  cephes library version 
+#ifdef HAVE_AMOS
+	{ 0, "Ai",            f_amos_Ai},      //  Amos version from libopenspecfun  
+	{ 0, "Bi",        	  f_amos_Bi},      //  Amos version from libopenspecfun 
+	{ 0, "BesselI",   	  f_amos_BesselI}, //  Amos version from libopenspecfun 
+	{ 0, "BesselJ",   	  f_amos_BesselJ}, //  Amos version from libopenspecfun 
+	{ 0, "BesselK",   	  f_amos_BesselK}, //  Amos version from libopenspecfun 
+	{ 0, "BesselY",   	  f_amos_BesselY}, //  Amos version from libopenspecfun 
+	{ 0, "Hankel1",   	  f_Hankel1},      //  Amos version from libopenspecfun 
+	{ 0, "Hankel2",   	  f_Hankel2},      //  Amos version from libopenspecfun 
+#endif
+#ifdef HAVE_CEXINT
+	{ 0, "expint",        f_amos_cexint},  //  Amos algorithm 683 from libamos 
+#else
+	{ 0, "expint",        f_expint  },       //  Jim Van Zandt, 20101010 
+#endif
+#ifdef HAVE_COMPLEX_FUNCS
+	{ 0, "igamma",        f_Igamma  },       //  Complex igamma(a,z) 
+	{ 0, "LambertW",  	  f_LambertW},     //  Complex W(z,k) 
+	{ 0, "lnGamma",   	  f_lnGamma },      //  Complex lnGamma(z) 
+	{ 0, "Sign",      	  f_Sign    },         //  Complex sign function 
+#else
+	{ 0, "igamma",    	  f_igamma  },       //  Jos van der Woude 1992 
+#endif
+#ifdef HAVE_LIBCERF
+	{ 0, "cerf",          f_cerf     },         //  complex error function  
+	{ 0, "cdawson",   	  f_cdawson  },      //  complex Dawson's integral 
+	{ 0, "erfi",      	  f_erfi     },         //  imaginary error function 
+	{ 0, "VP",        	  f_voigtp   },       //  Voigt profile 
+	{ 0, "VP_fwhm",   	  f_VP_fwhm  },      //  Voigt profile full width at half maximum 
+	{ 0, "faddeeva",  	  f_faddeeva },     //  Faddeeva rescaled complex error function "w_of_z" 
+	{ 0, "FresnelC",  	  f_FresnelC },     //  Fresnel integral cosine term calculated from cerf 
+	{ 0, "FresnelS",  	  f_FresnelS },     //  Fresnel integral sine term calculated from cerf 
+#endif
+	{ 0, "SynchrotronF",  f_SynchrotronF}, //  Synchrotron F 
+	{ 0, "tm_sec",        f_tmsec    },        //  for timeseries 
+	{ 0, "tm_min",        f_tmmin    },   	   //  for timeseries 
+	{ 0, "tm_hour",   	  f_tmhour   },  	   //  for timeseries 
+	{ 0, "tm_mday",   	  f_tmmday   },  	   //  for timeseries 
+	{ 0, "tm_mon",    	  f_tmmon    },   	   //  for timeseries 
+	{ 0, "tm_year",   	  f_tmyear   },  	   //  for timeseries 
+	{ 0, "tm_wday",   	  f_tmwday   },  	   //  for timeseries 
+	{ 0, "tm_yday",   	  f_tmyday   },  	   //  for timeseries 
+	{ 0, "tm_week",   	  f_tmweek   },  	   //  for timeseries 
+	{ 0, "sprintf",   	  f_sprintf  }, 	   //  for string variables only 
+	{ 0, "gprintf",   	  f_gprintf  }, 	   //  for string variables only 
+	{ 0, "strlen",    	  f_strlen   },  	   //  for string variables only 
+	{ 0, "strstrt",   	  f_strstrt  }, 	   //  for string variables only 
+	{ 0, "substr",    	  f_range    },   	   //  for string variables only 
+	{ 0, "trim",      	  f_trim     },         //  for string variables only 
+	{ 0, "word",      	  f_word     },         //  for string variables only 
+	{ 0, "words",     	  f_words    },        //  implemented as word(s,-1) 
+	{ 0, "strftime",  	  f_strftime },     //  time to string 
+	{ 0, "strptime",  	  f_strptime },     //  string to time 
+	{ 0, "time",      	  f_time     },         //  get current time 
+	{ 0, "system",    	  f_system   },       //  "dynamic backtics" 
+	{ 0, "exist",     	  f_exists   },       //  exists("foo") replaces defined(foo) 
+	{ 0, "exists",    	  f_exists   },       //  exists("foo") replaces defined(foo) 
+	{ 0, "value",     	  f_value    },        //  retrieve value of variable known by name 
+	{ 0, "hsv2rgb",   	  f_hsv2rgb  },      //  color conversion 
+	{ 0, "palette",   	  f_palette  },      //  palette color lookup 
+	{ 0, "rgbcolor",  	  f_rgbcolor },     //  32bit ARGB color lookup by name or string 
+#ifdef VOXEL_GRID_SUPPORT
+	{ 0, "voxel",         f_voxel    },        //  extract value of single voxel 
+#endif
+	{ 0, NULL,            NULL}
 };
 //
 // Module-local variables:
@@ -503,14 +839,14 @@ GpValue * FASTCALL pop_or_convert_from_string(GpValue * v)
 		if(*(v->v.string_val) &&  strspn(v->v.string_val, "0123456789 ") == strlen(v->v.string_val)) {
 			int64 li = atoll(v->v.string_val);
 			gpfree_string(v);
-			Ginteger(v, li);
+			Ginteger(v, static_cast<intgr_t>(li));
 		}
 		else {
 			double d = strtod(v->v.string_val, &eov);
 			if(v->v.string_val == eov) {
 				gpfree_string(v);
 				GPO.IntError(NO_CARET, "Non-numeric string found where a numeric expression was expected");
-				/* Note: This also catches syntax errors like "set term ''*0 " */
+				// Note: This also catches syntax errors like "set term ''*0 " 
 			}
 			gpfree_string(v);
 			Gcomplex(v, d, 0.);
@@ -815,14 +1151,14 @@ void fill_gpval_complex(const char * var, double areal, double aimag)
  */
 static void update_plot_bounds(void)
 {
-	fill_gpval_integer("GPVAL_TERM_XMIN", GPO.AxS[FIRST_X_AXIS].term_lower / term->tscale);
-	fill_gpval_integer("GPVAL_TERM_XMAX", GPO.AxS[FIRST_X_AXIS].term_upper / term->tscale);
-	fill_gpval_integer("GPVAL_TERM_YMIN", GPO.AxS[FIRST_Y_AXIS].term_lower / term->tscale);
-	fill_gpval_integer("GPVAL_TERM_YMAX", GPO.AxS[FIRST_Y_AXIS].term_upper / term->tscale);
+	fill_gpval_integer("GPVAL_TERM_XMIN", static_cast<intgr_t>(GPO.AxS[FIRST_X_AXIS].term_lower / term->tscale));
+	fill_gpval_integer("GPVAL_TERM_XMAX", static_cast<intgr_t>(GPO.AxS[FIRST_X_AXIS].term_upper / term->tscale));
+	fill_gpval_integer("GPVAL_TERM_YMIN", static_cast<intgr_t>(GPO.AxS[FIRST_Y_AXIS].term_lower / term->tscale));
+	fill_gpval_integer("GPVAL_TERM_YMAX", static_cast<intgr_t>(GPO.AxS[FIRST_Y_AXIS].term_upper / term->tscale));
 	fill_gpval_integer("GPVAL_TERM_XSIZE", canvas.xright+1);
 	fill_gpval_integer("GPVAL_TERM_YSIZE", canvas.ytop+1);
-	fill_gpval_integer("GPVAL_TERM_SCALE", term->tscale);
-	/* May be useful for debugging font problems */
+	fill_gpval_integer("GPVAL_TERM_SCALE", static_cast<intgr_t>(term->tscale));
+	// May be useful for debugging font problems 
 	fill_gpval_integer("GPVAL_TERM_HCHAR", term->h_char);
 	fill_gpval_integer("GPVAL_TERM_VCHAR", term->v_char);
 }

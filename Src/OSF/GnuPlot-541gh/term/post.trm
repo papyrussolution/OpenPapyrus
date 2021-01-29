@@ -742,9 +742,9 @@ TERM_PUBLIC void PS_options()
 			    set_epslheader = TRUE;
 			    GPO.Pgm.Shift();
 			    SAlloc::F(epslatex_header);
-			    /* Protect against GPO.IntError() bail from try_to_get_string() */
+			    /* Protect against GPO.IntError() bail from GPO.TryToGetString() */
 			    epslatex_header = NULL;
-			    epslatex_header = try_to_get_string();
+			    epslatex_header = GPO.TryToGetString();
 			    if(!epslatex_header)
 				    GPO.IntErrorCurToken("String containing header information expected");
 			    break;
@@ -944,7 +944,7 @@ TERM_PUBLIC void PS_options()
 				    deleteentry = TRUE;
 				    GPO.Pgm.Shift();
 			    }
-			    if(!(fontfilename = try_to_get_string())) {
+			    if(!(fontfilename = GPO.TryToGetString())) {
 				    GPO.IntErrorCurToken("Font filename expected");
 			    }
 			    else {
@@ -1076,13 +1076,12 @@ TERM_PUBLIC void PS_options()
 			    eps_explicit_y = 2 * term->ymax;
 			    break;
 		    }
-
 			case PS_FONT:
 			    GPO.Pgm.Shift();
-			/* Fall through to attempt to read font name */
+			// Fall through to attempt to read font name 
 			case PS_OTHER:
 			default:
-			    if((s = try_to_get_string())) {
+			    if((s = GPO.TryToGetString())) {
 				    if(set_font)
 					    goto PS_options_error;
 				    set_font = TRUE;

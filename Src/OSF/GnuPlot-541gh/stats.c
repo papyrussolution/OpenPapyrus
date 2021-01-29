@@ -22,7 +22,7 @@ static void create_and_set_var(double val, char * prefix, char * base, char * su
 static void create_and_set_int_var(int ival, char * prefix, char * base, char * suffix);
 static void create_and_store_var(const GpValue * data, char * prefix, char * base, char * suffix);
 static void sgl_column_variables(struct sgl_column_stats res, char * prefix, char * postfix);
-static bool validate_data(double v, AXIS_INDEX ax);
+//static bool validate_data(double v, AXIS_INDEX ax);
 
 /* =================================================================
    Data Structures
@@ -133,10 +133,7 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 	double cx = 0.0;
 	double cy = 0.0;
 	double var;
-
-	struct pair * tmp = (struct pair *)gp_alloc(n*sizeof(struct pair),
-		"analyze_sgl_column");
-
+	struct pair * tmp = (struct pair *)gp_alloc(n*sizeof(struct pair), "analyze_sgl_column");
 	if(nc > 0) {
 		res.sx = nc;
 		res.sy = n / nc;
@@ -145,8 +142,7 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 		res.sx = 0;
 		res.sy = n;
 	}
-
-	/* Mean and centre of gravity */
+	// Mean and centre of gravity 
 	for(i = 0; i<n; i++) {
 		s  += data[i];
 		s2 += data[i]*data[i];
@@ -156,11 +152,9 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 		}
 	}
 	res.mean = s/(double)n;
-
 	res.sum  = s;
 	res.sum_sq = s2;
-
-	/* Standard deviation, mean absolute deviation, skewness, and kurtosis */
+	// Standard deviation, mean absolute deviation, skewness, and kurtosis 
 	for(i = 0; i<n; i++) {
 		double t = data[i] - res.mean;
 		ad += fabs(t);
@@ -169,8 +163,7 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 		d3 += t*t*t;
 		d4 += t*t*t*t;
 	}
-
-	/* population (not sample) variance, stddev, skew, kurtosis */
+	// population (not sample) variance, stddev, skew, kurtosis 
 	var = (d2 - d * d / n) / n;
 	res.stddev = sqrt(var);
 	res.adev = ad / n;
@@ -181,24 +174,19 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 	else {
 		res.skewness = res.kurtosis = not_a_number();
 	}
-
 	res.mean_err = res.stddev / sqrt((double)n);
 	res.stddev_err = res.stddev / sqrt(2.0 * n);
 	res.skewness_err = sqrt(6.0 / n);
 	res.kurtosis_err = sqrt(24.0 / n);
-
-	/* sample standard deviation */
+	// sample standard deviation 
 	res.ssd = res.stddev * sqrt((double)(n) / (double)(n-1));
-
 	for(i = 0; i<n; i++) {
 		tmp[i].val = data[i];
 		tmp[i].index = i;
 	}
 	qsort(tmp, n, sizeof(struct pair), comparator);
-
 	res.min = tmp[0];
 	res.max = tmp[n-1];
-
 	/*
 	 * This uses the same quartile definitions as the boxplot code in graphics.c
 	 */
@@ -214,8 +202,7 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 		res.upper_quartile = 0.5 * (tmp[n - n/4].val + tmp[n - n/4 - 1].val);
 	else
 		res.upper_quartile = tmp[n - (n+3)/4].val;
-
-	/* Note: the centre of gravity makes sense for positive value matrices only */
+	// Note: the centre of gravity makes sense for positive value matrices only 
 	if(cx == 0.0 && cy == 0.0) {
 		res.cog_x = 0.0;
 		res.cog_y = 0.0;
@@ -224,45 +211,34 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 		res.cog_x = cx / s;
 		res.cog_y = cy / s;
 	}
-
 	SAlloc::F(tmp);
-
 	return res;
 }
 
-static struct two_column_stats analyze_two_columns(double * x, double * y,
-    struct sgl_column_stats res_x,
-    struct sgl_column_stats res_y,
-    long n){
-	struct two_column_stats res;
-
+static two_column_stats analyze_two_columns(double * x, double * y, sgl_column_stats res_x, sgl_column_stats res_y, long n)
+{
+	two_column_stats res;
 	long i;
 	double s = 0;
 	double ssyy, ssxx, ssxy;
-
 	for(i = 0; i<n; i++) {
 		s += x[i] * y[i];
 	}
 	res.sum_xy = s;
-
-	/* Definitions according to
-	   http://mathworld.wolfram.com/LeastSquaresFitting.html
-	 */
+	// Definitions according to
+	// http://mathworld.wolfram.com/LeastSquaresFitting.html
 	ssyy = res_y.sum_sq - res_y.sum * res_y.sum / n;
 	ssxx = res_x.sum_sq - res_x.sum * res_x.sum / n;
 	ssxy = res.sum_xy   - res_x.sum * res_y.sum / n;
-
 	if(ssxx != 0.0)
 		res.slope = ssxy / ssxx;
 	else
 		res.slope = not_a_number();
 	res.intercept = res_y.mean - res.slope * res_x.mean;
-
 	if(res_y.stddev != 0.0)
 		res.correlation = res.slope * res_x.stddev / res_y.stddev;
 	else
 		res.correlation = not_a_number();
-
 	if(n > 2) {
 		double ss = (ssyy - res.slope * ssxy) / (n - 2);
 		if(ssxx != 0.0) {
@@ -274,18 +250,15 @@ static struct two_column_stats analyze_two_columns(double * x, double * y,
 		}
 	}
 	else if(n == 2) {
-		fprintf(stderr,
-		    "Warning:  Errors of slope and intercept are zero. There are as many data points as there are parameters.\n");
+		fprintf(stderr, "Warning:  Errors of slope and intercept are zero. There are as many data points as there are parameters.\n");
 		res.slope_err = res.intercept_err = 0.0;
 	}
 	else {
 		fprintf(stderr, "Warning:  Can't compute errors of slope and intercept. Not enough data points.\n");
 		res.slope_err = res.intercept_err = not_a_number();
 	}
-
 	res.pos_min_y = x[res_y.min.index];
 	res.pos_max_y = x[res_y.max.index];
-
 	return res;
 }
 
@@ -298,8 +271,7 @@ static struct two_column_stats analyze_two_columns(double * x, double * y,
 
 static void ensure_output()
 {
-	if(!print_out)
-		print_out = stderr;
+	SETIFZ(print_out, stderr);
 }
 
 static char* fmt(char * buf, double val)
@@ -318,13 +290,10 @@ static char* fmt(char * buf, double val)
 static void file_output(struct file_stats s)
 {
 	int width = 3;
-
 	/* Assuming that records is the largest number of the four... */
 	if(s.records > 0)
 		width = 1 + (int)( log10((double)s.records) );
-
 	ensure_output();
-
 	/* Non-formatted to disk */
 	if(print_out != stdout && print_out != stderr) {
 		fprintf(print_out, "%s\t%ld\n", "records", s.records);
@@ -357,12 +326,10 @@ static void sgl_column_output_nonformat(struct sgl_column_stats s, char * x)
 	fprintf(print_out, "%s%s\t%f\n", "adev",     x, s.adev);
 	fprintf(print_out, "%s%s\t%f\n", "sum",      x, s.sum);
 	fprintf(print_out, "%s%s\t%f\n", "sum_sq",   x, s.sum_sq);
-
 	fprintf(print_out, "%s%s\t%f\n", "mean_err",     x, s.mean_err);
 	fprintf(print_out, "%s%s\t%f\n", "stddev_err",   x, s.stddev_err);
 	fprintf(print_out, "%s%s\t%f\n", "skewness_err", x, s.skewness_err);
 	fprintf(print_out, "%s%s\t%f\n", "kurtosis_err", x, s.kurtosis_err);
-
 	fprintf(print_out, "%s%s\t%f\n", "min",     x, s.min.val);
 	if(s.sx == 0) {
 		fprintf(print_out, "%s%s\t%f\n", "lo_quartile", x, s.lower_quartile);
@@ -370,8 +337,7 @@ static void sgl_column_output_nonformat(struct sgl_column_stats s, char * x)
 		fprintf(print_out, "%s%s\t%f\n", "up_quartile", x, s.upper_quartile);
 	}
 	fprintf(print_out, "%s%s\t%f\n", "max",     x, s.max.val);
-
-	/* If data set is matrix */
+	// If data set is matrix 
 	if(s.sx > 0) {
 		fprintf(print_out, "%s%s\t%ld\n", "index_min_x",  x, (s.min.index) % s.sx);
 		fprintf(print_out, "%s%s\t%ld\n", "index_min_y",  x, (s.min.index) / s.sx);
@@ -391,12 +357,9 @@ static void sgl_column_output(struct sgl_column_stats s, long n)
 	int width = 1;
 	char buf[32];
 	char buf2[32];
-
 	if(n > 0)
 		width = 1 + (int)( log10( (double)n) );
-
 	ensure_output();
-
 	/* Non-formatted to disk */
 	if(print_out != stdout && print_out != stderr) {
 		sgl_column_output_nonformat(s, "_y");
@@ -520,15 +483,10 @@ static void two_column_output(struct sgl_column_stats x, struct sgl_column_stats
 
 static void clear_one_var(char * prefix, char * base)
 {
-	int len;
-	char * varname;
-
-	len = strlen(prefix) + strlen(base) + 2;
-	varname = (char*)gp_alloc(len, "create_and_set_var");
+	int len = strlen(prefix) + strlen(base) + 2;
+	char * varname = (char*)gp_alloc(len, "create_and_set_var");
 	sprintf(varname, "%s_%s", prefix, base);
-
 	del_udv_by_name(varname, TRUE);
-
 	SAlloc::F(varname);
 }
 
@@ -563,16 +521,14 @@ static void clear_stats_variables(char * prefix)
 	clear_one_var(prefix, "up_quartile");
 	clear_one_var(prefix, "index_min");
 	clear_one_var(prefix, "index_max");
-
-	/* matrix variables */
+	// matrix variables 
 	clear_one_var(prefix, "index_min_x");
 	clear_one_var(prefix, "index_min_y");
 	clear_one_var(prefix, "index_max_x");
 	clear_one_var(prefix, "index_max_y");
 	clear_one_var(prefix, "size_x");
 	clear_one_var(prefix, "size_y");
-
-	/* two column variables */
+	// two column variables 
 	clear_one_var(prefix, "slope");
 	clear_one_var(prefix, "intercept");
 	clear_one_var(prefix, "slope_err");
@@ -581,8 +537,7 @@ static void clear_stats_variables(char * prefix)
 	clear_one_var(prefix, "sumxy");
 	clear_one_var(prefix, "pos_min_y");
 	clear_one_var(prefix, "pos_max_y");
-
-	/* column headers */
+	// column headers 
 	clear_one_var(prefix, "column_header");
 }
 
@@ -695,38 +650,41 @@ static void two_column_variables(struct two_column_stats s, char * prefix, long 
 /* =================================================================
    Range Handling
    ================================================================= */
-
-/* We validate our data here: discard everything that is outside
- * the specified range. However, we have to be a bit careful here,
- * because if no range is specified, we keep everything
- */
-static bool validate_data(double v, AXIS_INDEX ax)
+// 
+// We validate our data here: discard everything that is outside
+// the specified range. However, we have to be a bit careful here,
+// because if no range is specified, we keep everything
+// 
+//static bool validate_data(double v, AXIS_INDEX ax)
+bool GpAxisSet::ValidateData(double v, AXIS_INDEX ax) const
 {
 	// These are flag bits, not constants!!! 
-	if((GPO.AxS[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) 
-		return TRUE;
-	if(((GPO.AxS[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_MIN) && (v <= GPO.AxS[ax].max))
-		return TRUE;
-	if(((GPO.AxS[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_MAX) && (v >= GPO.AxS[ax].min))
-		return TRUE;
-	if(((GPO.AxS[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) && ((v <= GPO.AxS[ax].max) && (v >= GPO.AxS[ax].min)))
-		return(TRUE);
-	return(FALSE);
+	if((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) 
+		return true;
+	else if(((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_MIN) && (v <= AxArray[ax].max))
+		return true;
+	else if(((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_MAX) && (v >= AxArray[ax].min))
+		return true;
+	else if(((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) && ((v <= AxArray[ax].max) && (v >= AxArray[ax].min)))
+		return true;
+	else
+		return false;
 }
 
 /* =================================================================
    Parse Command Line and Process
    ================================================================= */
 
-void statsrequest(void)
+//void statsrequest(void)
+void GnuPlot::StatsRequest()
 {
-	int i;
-	int columns;
+	int    i;
+	int    columns;
 	double v[2];
 	static char * file_name = NULL;
 	char * temp_name;
-	/* Vars to hold data and results */
-	long n;            /* number of records retained */
+	// Vars to hold data and results 
+	long n; // number of records retained 
 	long max_n;
 	static double * data_x = NULL;
 	static double * data_y = NULL; /* values read from file */
@@ -735,21 +693,21 @@ void statsrequest(void)
 	long doubleblanks; /* number of repeated blank lines */
 	long header_records; /* number of records treated as headers rather than data */
 	long out_of_range; /* number pts rejected, because out of range */
-	struct file_stats res_file;
-	struct sgl_column_stats res_x = {0}, res_y = {0};
-	struct two_column_stats res_xy = {0};
-	/* Vars for variable handling */
-	static char * prefix = NULL; /* prefix for user-defined vars names */
+	file_stats res_file;
+	sgl_column_stats res_x = {0}, res_y = {0};
+	two_column_stats res_xy = {0};
+	// Vars for variable handling 
+	static char * prefix = NULL; // prefix for user-defined vars names 
 	bool prefix_from_columnhead = FALSE;
-	/* Vars that control output */
-	bool do_output = TRUE;  /* Generate formatted output */
+	// Vars that control output 
+	bool do_output = TRUE;  // Generate formatted output 
 	bool array_data = FALSE;
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	// Parse ranges 
-	axis_init(&GPO.AxS[FIRST_X_AXIS], FALSE);
-	axis_init(&GPO.AxS[FIRST_Y_AXIS], FALSE);
-	GPO.ParseRange(FIRST_X_AXIS);
-	GPO.ParseRange(FIRST_Y_AXIS);
+	axis_init(&AxS[FIRST_X_AXIS], FALSE);
+	axis_init(&AxS[FIRST_Y_AXIS], FALSE);
+	ParseRange(FIRST_X_AXIS);
+	ParseRange(FIRST_Y_AXIS);
 	// Initialize 
 	invalid = 0;      /* number of missing/invalid records */
 	blanks = 0;       /* number of blank lines */
@@ -765,36 +723,36 @@ void statsrequest(void)
 	SAlloc::F(prefix);
 	prefix = NULL;
 	if(!data_x || !data_y)
-		GPO.IntError(NO_CARET, "Internal error: out of memory in stats");
+		IntError(NO_CARET, "Internal error: out of memory in stats");
 	n = invalid = blanks = header_records = doubleblanks = out_of_range = 0;
-	/* Get filename */
-	i = GPO.Pgm.GetCurTokenIdx();
-	temp_name = string_or_express(NULL);
+	// Get filename 
+	i = Pgm.GetCurTokenIdx();
+	temp_name = StringOrExpress(NULL);
 	if(temp_name) {
 		SAlloc::F(file_name);
 		file_name = gp_strdup(temp_name);
 	}
 	else
-		GPO.IntError(i, "missing filename or datablock");
-
-	/* Jan 2015: We used to handle ascii matrix data as a special case but
-	 * the code did not work correctly.  Since df_read_matrix() dummies up
-	 * ascii matrix data to look as if had been presented as a binary blob,
-	 * we should be able to proceed with no special attention other than
-	 * to set the effective number of columns to 1.
-	 */
+		IntError(i, "missing filename or datablock");
+	//
+	// Jan 2015: We used to handle ascii matrix data as a special case but
+	// the code did not work correctly.  Since df_read_matrix() dummies up
+	// ascii matrix data to look as if had been presented as a binary blob,
+	// we should be able to proceed with no special attention other than
+	// to set the effective number of columns to 1.
+	//
 	if(TRUE) {
 		df_set_plot_mode(MODE_PLOT);    /* Used for matrix datafiles */
 		columns = df_open(file_name, 2, NULL); /* up to 2 using specs allowed */
-
-		/* "stats <badfilename> nooutput"
-		 * allows user to test for existance of a file without generating a fatal error.
-		 * The 'nooutput' keyword suppresses the resulting error message as well.
-		 */
+		// 
+		// "stats <badfilename> nooutput"
+		// allows user to test for existance of a file without generating a fatal error.
+		// The 'nooutput' keyword suppresses the resulting error message as well.
+		//
 		if(columns < 0) {
 			fill_gpval_integer("GPVAL_ERRNO", 1);
-			while(!GPO.Pgm.EndOfCommand())
-				if(GPO.Pgm.AlmostEquals(GPO.Pgm.CToken++, "noout$put"))
+			while(!Pgm.EndOfCommand())
+				if(Pgm.AlmostEquals(Pgm.CToken++, "noout$put"))
 					do_output = FALSE;
 			if(do_output)
 				fprintf(stderr, "Cannot find or open file \"%s\"\n", file_name);
@@ -802,44 +760,42 @@ void statsrequest(void)
 		}
 		if(df_array && columns == 0)
 			array_data = TRUE;
-		/* For all these below: we could save the state, switch off, then restore */
-		if(GPO.AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE || GPO.AxS[FIRST_Y_AXIS].datatype == DT_TIMEDATE)
-			GPO.IntError(NO_CARET, "Stats command not available in timedata mode");
+		// For all these below: we could save the state, switch off, then restore 
+		if(AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE || AxS[FIRST_Y_AXIS].datatype == DT_TIMEDATE)
+			IntError(NO_CARET, "Stats command not available in timedata mode");
 		if(polar)
-			GPO.IntError(NO_CARET, "Stats command not available in polar mode");
+			IntError(NO_CARET, "Stats command not available in polar mode");
 		if(parametric)
-			GPO.IntError(NO_CARET, "Stats command not available in parametric mode");
-		/* Parse the remainder of the command line */
-		while(!(GPO.Pgm.EndOfCommand()) ) {
-			if(GPO.Pgm.AlmostEqualsCur("out$put") ) {
+			IntError(NO_CARET, "Stats command not available in parametric mode");
+		// Parse the remainder of the command line 
+		while(!(Pgm.EndOfCommand()) ) {
+			if(Pgm.AlmostEqualsCur("out$put") ) {
 				do_output = TRUE;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 			}
-			else if(GPO.Pgm.AlmostEqualsCur("noout$put") ) {
+			else if(Pgm.AlmostEqualsCur("noout$put") ) {
 				do_output = FALSE;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 			}
-			else if(GPO.Pgm.AlmostEqualsCur("pre$fix") || GPO.Pgm.EqualsCur("name")) {
-				GPO.Pgm.Shift();
-				if(GPO.Pgm.AlmostEqualsCur("col$umnheader")) {
+			else if(Pgm.AlmostEqualsCur("pre$fix") || Pgm.EqualsCur("name")) {
+				Pgm.Shift();
+				if(Pgm.AlmostEqualsCur("col$umnheader")) {
 					df_set_key_title_columnhead(NULL);
 					prefix_from_columnhead = TRUE;
 					continue;
 				}
-				prefix = try_to_get_string();
+				prefix = TryToGetString();
 				if(!legal_identifier(prefix) || !strcmp("GPVAL_", prefix))
-					GPO.IntError(--GPO.Pgm.CToken, "illegal prefix");
+					IntError(--Pgm.CToken, "illegal prefix");
 			}
 			else {
-				GPO.IntErrorCurToken("Unrecognized stats option");
+				IntErrorCurToken("Unrecognized stats option");
 			}
 		}
-
-		/* Clear any previous variables STATS_* so that if we exit early */
-		/* they cannot be mistaken as resulting from the current analysis. */
+		// Clear any previous variables STATS_* so that if we exit early 
+		// they cannot be mistaken as resulting from the current analysis. 
 		clear_stats_variables(prefix ? prefix : "STATS");
-
-		/* Special case for voxel grid stats: "stats $vgrid {name <prefix>} */
+		// Special case for voxel grid stats: "stats $vgrid {name <prefix>} 
 		if(df_voxelgrid) {
 			vgrid * vgrid = get_vgrid_by_name(file_name)->udv_value.v.vgrid;
 			int N, nonzero;
@@ -855,11 +811,9 @@ void statsrequest(void)
 			create_and_set_var(nonzero, prefix, "_nonzero", "");
 			goto stats_cleanup;
 		}
-
-		/* If the user has set an explicit locale for numeric input, apply it */
-		/* here so that it affects data fields read from the input file. */
+		// If the user has set an explicit locale for numeric input, apply it 
+		// here so that it affects data fields read from the input file. 
 		set_numeric_locale();
-
 		/* The way readline and friends work is as follows:
 		   - df_open will return the number of columns requested in the using spec
 		   so that "columns" will be 0, 1, or 2 (no using, using 1, using 1:2)
@@ -869,50 +823,40 @@ void statsrequest(void)
 		   - no using  = first two columns if both are present on the first line of data
 		               else first column only
 		 */
-		while( (i = df_readline(v, 2)) != DF_EOF) {
+		while((i = df_readline(v, 2)) != DF_EOF) {
 			if(n >= max_n) {
-				max_n = (max_n * 3) / 2; /* increase max_n by factor of 1.5 */
-
-				/* Some of the reallocations went bad: */
-				if(!redim_vec(&data_x, max_n) || !redim_vec(&data_y, max_n) ) {
+				max_n = (max_n * 3) / 2; // increase max_n by factor of 1.5 
+				// Some of the reallocations went bad: 
+				if(!redim_vec(&data_x, max_n) || !redim_vec(&data_y, max_n)) {
 					df_close();
-					GPO.IntError(NO_CARET,
-					    "Out of memory in stats: too many datapoints (%d)?", max_n);
+					IntError(NO_CARET, "Out of memory in stats: too many datapoints (%d)?", max_n);
 				}
 			} /* if (need to extend storage space) */
-
-			/* FIXME: ascii "matrix" input from df_readline via df_readbinary does not
-			 * flag NaN values so we must check each returned value here
-			 */
+			// FIXME: ascii "matrix" input from df_readline via df_readbinary does not
+			// flag NaN values so we must check each returned value here
 			if(df_matrix && (i == 2) && isnan(v[1]))
 				i = DF_UNDEFINED;
-
 			switch(i) {
 				case DF_MISSING:
 				case DF_UNDEFINED:
 				    invalid += 1;
 				    continue;
-
 				case DF_FIRST_BLANK:
 				    blanks += 1;
 				    continue;
-
 				case DF_SECOND_BLANK:
 				    blanks += 1;
 				    doubleblanks += 1;
 				    continue;
-
 				case DF_COLUMN_HEADERS:
 				    header_records += 1;
 				    continue;
-
 				case 0:
-				    GPO.IntWarn(NO_CARET, "bad data on line %d of file %s",
+				    IntWarn(NO_CARET, "bad data on line %d of file %s",
 					df_line_number, df_filename ? df_filename : "");
 				    break;
-
-				case 1: /* Read single column successfully  */
-				    if(validate_data(v[0], FIRST_Y_AXIS) ) {
+				case 1: // Read single column successfully 
+				    if(AxS.ValidateData(v[0], FIRST_Y_AXIS) ) {
 					    data_y[n] = v[0];
 					    n++;
 				    }
@@ -921,10 +865,8 @@ void statsrequest(void)
 				    }
 				    columns = 1;
 				    break;
-
-				case 2: /* Read two columns successfully  */
-				    if(validate_data(v[0], FIRST_X_AXIS) &&
-					validate_data(v[1], FIRST_Y_AXIS) ) {
+				case 2: // Read two columns successfully 
+				    if(AxS.ValidateData(v[0], FIRST_X_AXIS) && AxS.ValidateData(v[1], FIRST_Y_AXIS) ) {
 					    data_x[n] = v[0];
 					    data_y[n] = v[1];
 					    n++;
@@ -934,52 +876,46 @@ void statsrequest(void)
 				    }
 				    columns = 2;
 				    break;
-
-				default: /* Who are these? */
+				default: // Who are these? 
 				    FPRINTF((stderr, "unhandled return code %d from df_readline\n", i));
 				    break;
 			}
-		} /* end-while : done reading file */
+		} // end-while : done reading file 
 		df_close();
-
-		/* now resize fields to actual length: */
+		// now resize fields to actual length: 
 		redim_vec(&data_x, n);
 		redim_vec(&data_y, n);
 	}
-
-	/* Now finished reading user input; return to C locale for internal use*/
+	// Now finished reading user input; return to C locale for internal use
 	reset_numeric_locale();
-
-	/* No data! Try to explain why. */
+	// No data! Try to explain why. 
 	if(n == 0) {
 		if(out_of_range > 0)
-			GPO.IntWarn(NO_CARET, "All points out of range");
+			IntWarn(NO_CARET, "All points out of range");
 		else
-			GPO.IntWarn(NO_CARET, "No valid data points found in file");
+			IntWarn(NO_CARET, "No valid data points found in file");
 		goto stats_cleanup;
 	}
-
-	/* The analysis variables are named STATS_* unless the user either */
-	/* gave a specific name or told us to use a columnheader.          */
+	// The analysis variables are named STATS_* unless the user either 
+	// gave a specific name or told us to use a columnheader.          
 	if(!prefix && prefix_from_columnhead && df_key_title && *df_key_title) {
 		prefix = gp_strdup(df_key_title);
 		squash_spaces(prefix, 0);
 		if(!legal_identifier(prefix)) {
-			GPO.IntWarn(NO_CARET, "columnhead %s is not a valid prefix", prefix ? prefix : "");
+			IntWarn(NO_CARET, "columnhead %s is not a valid prefix", prefix ? prefix : "");
 			SAlloc::F(prefix);
 			prefix = NULL;
 		}
 	}
-	if(!prefix)
-		prefix = gp_strdup("STATS_");
+	SETIFZ(prefix, gp_strdup("STATS_"));
 	i = strlen(prefix);
 	if(prefix[i-1] != '_') {
 		prefix = (char*)gp_realloc(prefix, i+2, "prefix");
 		strcat(prefix, "_");
 	}
-	/* Do the actual analysis */
+	// Do the actual analysis 
 	res_file = analyze_file(n, out_of_range, invalid, blanks, doubleblanks, header_records);
-	/* Jan 2015: Revised detection and handling of matrix data */
+	// Jan 2015: Revised detection and handling of matrix data 
 	if(array_data)
 		res_file.columns = columns = 1;
 	if(df_matrix) {
@@ -992,13 +928,13 @@ void statsrequest(void)
 		res_y = analyze_sgl_column(data_y, n, 0);
 	}
 	else {
-		/* If there are two columns, then the data file is not a matrix */
-		res_x = analyze_sgl_column(data_x, n, 0);
-		res_y = analyze_sgl_column(data_y, n, 0);
+		// If there are two columns, then the data file is not a matrix 
+		res_x  = analyze_sgl_column(data_x, n, 0);
+		res_y  = analyze_sgl_column(data_y, n, 0);
 		res_xy = analyze_two_columns(data_x, data_y, res_x, res_y, n);
 	}
-	/* Store results in user-accessible variables */
-	/* Clear out any previous use of these variables */
+	// Store results in user-accessible variables 
+	// Clear out any previous use of these variables 
 	del_udv_by_name(prefix, TRUE);
 	file_variables(res_file, prefix);
 	if(columns == 1) {
@@ -1009,7 +945,7 @@ void statsrequest(void)
 		sgl_column_variables(res_y, prefix, "_y");
 		two_column_variables(res_xy, prefix, n);
 	}
-	/* Output */
+	// Output 
 	if(do_output) {
 		file_output(res_file);
 		if(columns == 1)
@@ -1017,7 +953,7 @@ void statsrequest(void)
 		else
 			two_column_output(res_x, res_y, res_xy, res_file.records);
 	}
-	/* Cleanup */
+	// Cleanup 
 stats_cleanup:
 	ZFREE(data_x);
 	ZFREE(data_y);

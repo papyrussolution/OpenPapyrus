@@ -774,7 +774,7 @@ TERM_PUBLIC void PNG_options()
 				    int brect[8];
 				    char * err;
 				    char * s;
-				    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = try_to_get_string())) {
+				    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = GPO.TryToGetString())) {
 					    char * comma = strrchr(s, ',');
 					    double fontsize;
 					    if(comma && (1 == sscanf(comma+1, "%lf", &fontsize))) {

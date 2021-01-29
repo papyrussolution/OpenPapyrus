@@ -1292,8 +1292,8 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					temp_buf_u.Z().CopyFromMb_OUTER(P_Fptr10->UserPassword, P_Fptr10->UserPassword.Len());
 					P_Fptr10->SetParamStrProc(fph, 1203, temp_buf_u);
 					THROW(P_Fptr10->OperatorLoginProc(fph) == 0);
-					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_RECEIPT_TYPE, (flags & PRNCHK_RETURN) ? LIBFPTR_RT_SELL_RETURN : LIBFPTR_RT_SELL);
 					// @v11.0.0 {
+					// LIBFPTR_PARAM_TAG_VALUE LIBFPTR_PARAM_RECEIPT_TYPE
 					if(chzn_sid.NotEmpty() && P_Fptr10->UtilFormTlvProc) {
 						uint8  fptr10_mdlp_buf[512];
 						int    mdlp_buf_len = 0;
@@ -1314,6 +1314,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 					}
 					// } @v11.0.0 
+					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_RECEIPT_TYPE, (flags & PRNCHK_RETURN) ? LIBFPTR_RT_SELL_RETURN : LIBFPTR_RT_SELL);
 					THROW(P_Fptr10->OpenReceiptProc(fph) == 0);
 				}
 				else if(P_Disp) {

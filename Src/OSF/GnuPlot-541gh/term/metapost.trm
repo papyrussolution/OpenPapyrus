@@ -306,7 +306,7 @@ TERM_PUBLIC void MP_options()
 			default:
 		    {
 			    char * s;
-			    if((s = try_to_get_string())) {
+			    if((s = GPO.TryToGetString())) {
 				    int sep = strcspn(s, ",");
 				    if(0 < sep && sep < sizeof(MP_fontname)) {
 					    strncpy(MP_fontname, s, sizeof(MP_fontname));

@@ -249,7 +249,7 @@ TERM_PUBLIC void PICT2E_options()
 			    break;
 			case PICT2E_FONT:
 			    GPO.Pgm.Shift();
-			    if((s = try_to_get_string()) != NULL) {
+			    if((s = GPO.TryToGetString()) != NULL) {
 				    int fontsize;
 				    char * comma = strrchr(s, ',');
 				    if(comma && (1 == sscanf(comma + 1, "%i", &fontsize))) {

@@ -619,18 +619,19 @@ void GnuPlot::ShowCommand()
 	putc('\n', stderr);
 #undef CHECK_TAG_GT_ZERO
 }
-
-/* process 'show actiontable|at' command
- * not documented
- */
+//
+// process 'show actiontable|at' command
+// not documented
+//
 static void show_at()
 {
 	putc('\n', stderr);
-	disp_at(temp_at(), 0);
+	disp_at(GPO.TempAt(), 0);
 	GPO.Pgm.Shift();
 }
-
-/* called by show_at(), and recursively by itself */
+//
+// called by show_at(), and recursively by itself 
+//
 static void disp_at(struct at_type * curr_at, int level)
 {
 	int i, j;
@@ -699,12 +700,12 @@ static void disp_at(struct at_type * curr_at, int level)
 		}
 	}
 }
-
-/* process 'show all' command */
+//
+// process 'show all' command 
+//
 static void show_all()
 {
 	var_show_all = 1;
-
 	show_version(stderr);
 	show_autoscale();
 	save_bars(stderr);

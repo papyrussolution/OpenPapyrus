@@ -81,8 +81,9 @@ void f_pushd(union argument * x)
 	GPO.EvStk.Pop(&param);
 	GPO.EvStk.Push(&(x->udf_arg->dummy_values[param.v.int_val]));
 }
-
-/* execute a udf */
+//
+// execute a udf 
+//
 void f_call(union argument * x)
 {
 	GpValue save_dummy;
@@ -109,8 +110,9 @@ void f_call(union argument * x)
 	udf->dummy_values[0] = save_dummy;
 	recursion_depth--;
 }
-
-/* execute a udf of n variables */
+//
+// execute a udf of n variables 
+//
 void f_calln(union argument * x)
 {
 	GpValue save_dummy[MAX_NUM_VAR];
@@ -124,12 +126,12 @@ void f_calln(union argument * x)
 	num_pop = num_params.v.int_val;
 	if(num_pop != udf->dummy_num)
 		GPO.IntError(NO_CARET, "function %s requires %d variable%c", udf->udf_name, udf->dummy_num, (udf->dummy_num == 1) ? '\0' : 's');
-	/* Jul 2020 CHANGE: we used to discard and ignore extra parameters */
+	// Jul 2020 CHANGE: we used to discard and ignore extra parameters 
 	if(num_pop > MAX_NUM_VAR)
 		GPO.IntError(NO_CARET, "too many parameters passed to function %s", udf->udf_name);
 	for(i = 0; i < num_pop; i++)
 		save_dummy[i] = udf->dummy_values[i];
-	/* pop parameters we can use */
+	// pop parameters we can use 
 	for(i = num_pop - 1; i >= 0; i--) {
 		GPO.EvStk.Pop(&(udf->dummy_values[i]));
 		if(udf->dummy_values[i].type == ARRAY)
@@ -144,12 +146,12 @@ void f_calln(union argument * x)
 		udf->dummy_values[i] = save_dummy[i];
 	}
 }
-
-/* Evaluate expression   sum [i=beg:end] f(i)
- * Return an integer if f(i) are all integral, complex otherwise.
- * This is a change from versions 5.0 and 5.2 which always returned
- * a complex value.
- */
+//
+// Evaluate expression   sum [i=beg:end] f(i)
+// Return an integer if f(i) are all integral, complex otherwise.
+// This is a change from versions 5.0 and 5.2 which always returned
+// a complex value.
+//
 void f_sum(union argument * arg)
 {
 	GpValue beg, end, varname; /* [<var> = <start>:<end>] */
@@ -163,7 +165,7 @@ void f_sum(union argument * arg)
 	GPO.EvStk.Pop(&end);
 	GPO.EvStk.Pop(&beg);
 	GPO.EvStk.Pop(&varname);
-	/* Initialize sum to 0 */
+	// Initialize sum to 0 
 	Gcomplex(&result, 0, 0);
 	llsum = 0;
 	if(beg.type != INTGR || end.type != INTGR)
@@ -171,14 +173,12 @@ void f_sum(union argument * arg)
 	if((varname.type != STRING) || !(udv = get_udv_by_name(varname.v.string_val)))
 		GPO.IntError(NO_CARET, "internal error: lost iteration variable for summation");
 	gpfree_string(&varname);
-
 	udf = arg->udf_arg;
 	if(!udf)
 		GPO.IntError(NO_CARET, "internal error: lost expression to be evaluated during summation");
-
 	for(i = beg.v.int_val; i<=end.v.int_val; ++i) {
 		double x, y;
-		/* calculate f_i = f() with user defined variable i */
+		// calculate f_i = f() with user defined variable i 
 		Ginteger(&udv->udv_value, i);
 		execute_at(udf->at);
 		GPO.EvStk.Pop(&f_i);
@@ -189,10 +189,10 @@ void f_sum(union argument * arg)
 			integer_terms = FALSE;
 		if(!integer_terms)
 			continue;
-		/* So long as the individual terms are integral */
-		/* keep an integer sum as well.			*/
+		// So long as the individual terms are integral 
+		// keep an integer sum as well.			
 		llsum += f_i.v.int_val;
-		/* Check for integer overflow */
+		// Check for integer overflow 
 		if(overflow_handling == INT64_OVERFLOW_IGNORE)
 			continue;
 		if(sgn(result.v.cmplx_val.real) != sgn(llsum)) {

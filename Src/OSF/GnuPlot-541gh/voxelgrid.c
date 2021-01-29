@@ -158,36 +158,37 @@ void set_vgrid()
 		memzero(current_vgrid->vdata, new_size*new_size*new_size*sizeof(t_voxel));
 	}
 }
-/*
- * set vxrange [min:max]
- */
-void set_vgrid_range()
+//
+// set vxrange [min:max]
+//
+//void set_vgrid_range()
+void GnuPlot::SetVGridRange()
 {
 	double gridmin;
 	double gridmax;
-	int    save_token = GPO.Pgm.Shift();
+	int    save_token = Pgm.Shift();
 	if(!current_vgrid)
-		GPO.IntError(NO_CARET, "no voxel grid is active");
-	if(!GPO.Pgm.EqualsCur("["))
+		IntError(NO_CARET, "no voxel grid is active");
+	if(!Pgm.EqualsCur("["))
 		return;
-	GPO.Pgm.Shift();
-	gridmin = GPO.RealExpression();
-	if(!GPO.Pgm.EqualsCur(":"))
+	Pgm.Shift();
+	gridmin = RealExpression();
+	if(!Pgm.EqualsCur(":"))
 		return;
-	GPO.Pgm.Shift();
-	gridmax = GPO.RealExpression();
-	if(!GPO.Pgm.EqualsCur("]"))
+	Pgm.Shift();
+	gridmax = RealExpression();
+	if(!Pgm.EqualsCur("]"))
 		return;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.AlmostEquals(save_token, "vxr$ange")) {
+	Pgm.Shift();
+	if(Pgm.AlmostEquals(save_token, "vxr$ange")) {
 		current_vgrid->vxmin = gridmin;
 		current_vgrid->vxmax = gridmax;
 	}
-	if(GPO.Pgm.AlmostEquals(save_token, "vyr$ange")) {
+	if(Pgm.AlmostEquals(save_token, "vyr$ange")) {
 		current_vgrid->vymin = gridmin;
 		current_vgrid->vymax = gridmax;
 	}
-	if(GPO.Pgm.AlmostEquals(save_token, "vzr$ange")) {
+	if(Pgm.AlmostEquals(save_token, "vzr$ange")) {
 		current_vgrid->vzmin = gridmin;
 		current_vgrid->vzmax = gridmax;
 	}
@@ -233,7 +234,7 @@ void vgrid_stats(vgrid * vgrid)
 	t_voxel * voxel;
 	int N = vgrid->size;
 	int i;
-	/* bookkeeping for standard deviation */
+	// bookkeeping for standard deviation 
 	double num = 0;
 	double delta = 0;
 	double delta2 = 0;
@@ -245,10 +246,8 @@ void vgrid_stats(vgrid * vgrid)
 			continue;
 		}
 		sum += *voxel;
-		if(min > *voxel)
-			min = *voxel;
-		if(max < *voxel)
-			max = *voxel;
+		SETMIN(min, *voxel);
+		SETMAX(max, *voxel);
 		// standard deviation 
 		num += 1.0;
 		delta = *voxel - mean;
@@ -279,10 +278,9 @@ udvt_entry * get_vgrid_by_name(const char * name)
 	udvt_entry * vgrid = get_udv_by_name((char*)name);
 	return (!vgrid || vgrid->udv_value.type != VOXELGRID) ? NULL : vgrid;
 }
-
-/*
- * initialize content of voxel grid to all zero
- */
+// 
+// initialize content of voxel grid to all zero
+// 
 void vclear_command()
 {
 	vgrid * vgrid = current_vgrid;
@@ -299,9 +297,9 @@ void vclear_command()
 		memzero(vgrid->vdata, size*size*size * sizeof(t_voxel));
 	}
 }
-/*
- * deallocate storage for a voxel grid
- */
+// 
+// deallocate storage for a voxel grid
+// 
 void gpfree_vgrid(struct udvt_entry * grid)
 {
 	if(grid->udv_value.type == VOXELGRID) {
@@ -369,28 +367,29 @@ void show_isosurface()
 // 
 // voxel(x,y,z) = expr()
 // 
-void voxel_command()
+//void voxel_command()
+void GnuPlot::VoxelCommand()
 {
 	double vx, vy, vz;
 	t_voxel * voxel;
 	check_grid_ranges();
-	GPO.Pgm.Shift();
-	if(!GPO.Pgm.EqualsCurShift("("))
-		GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
-	vx = GPO.RealExpression();
-	if(!GPO.Pgm.EqualsCurShift(","))
-		GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
-	vy = GPO.RealExpression();
-	if(!GPO.Pgm.EqualsCurShift(","))
-		GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
-	vz = GPO.RealExpression();
-	if(!GPO.Pgm.EqualsCurShift(")"))
-		GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
-	if(!GPO.Pgm.EqualsCurShift("="))
-		GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
+	Pgm.Shift();
+	if(!Pgm.EqualsCurShift("("))
+		IntError(Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
+	vx = RealExpression();
+	if(!Pgm.EqualsCurShift(","))
+		IntError(Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
+	vy = RealExpression();
+	if(!Pgm.EqualsCurShift(","))
+		IntError(Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
+	vz = RealExpression();
+	if(!Pgm.EqualsCurShift(")"))
+		IntError(Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
+	if(!Pgm.EqualsCurShift("="))
+		IntError(Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
 	if(vx < current_vgrid->vxmin || vx > current_vgrid->vxmax || vy < current_vgrid->vymin || vy > current_vgrid->vymax || vz < current_vgrid->vzmin || vz > current_vgrid->vzmax) {
-		GPO.IntWarn(NO_CARET, "voxel out of range");
-		GPO.RealExpression();
+		IntWarn(NO_CARET, "voxel out of range");
+		RealExpression();
 	}
 	else {
 		int ivx = fceili((vx - current_vgrid->vxmin) / current_vgrid->vxdelta);
@@ -399,7 +398,7 @@ void voxel_command()
 		int N = current_vgrid->size;
 		FPRINTF((stderr, "\tvgrid array index = %d\n",  ivx + ivy * N + ivz * N*N));
 		voxel = &current_vgrid->vdata[ ivx + ivy * N + ivz * N*N ];
-		*voxel = static_cast<t_voxel>(GPO.RealExpression());
+		*voxel = static_cast<t_voxel>(RealExpression());
 	}
 }
 // 
@@ -465,29 +464,29 @@ static void vfill(t_voxel * grid, bool gridcoordinates)
 	GpValue original_value_sample_var;
 	char * name_str;
 	check_grid_ranges();
-	/*
-	 * This part is modelled on eval_plots()
-	 */
+	//
+	// This part is modelled on eval_plots()
+	//
 	plot_iterator = check_for_iteration();
 	while(TRUE) {
 		int sample_range_token;
 		int start_token = GPO.Pgm.GetCurTokenIdx();
 		int specs;
-		/* Forgive trailing comma on a multi-element plot command */
+		// Forgive trailing comma on a multi-element plot command 
 		if(GPO.Pgm.EndOfCommand()) {
 			if(plot_num == 0)
 				GPO.IntErrorCurToken("data input source expected");
 			break;
 		}
 		plot_num++;
-		/* Check for a sampling range */
+		// Check for a sampling range 
 		if(GPO.Pgm.EqualsCur("sample") && GPO.Pgm.EqualsNext("["))
 			GPO.Pgm.Shift();
 		sample_range_token = GPO.ParseRange(SAMPLE_AXIS);
 		if(sample_range_token != 0)
 			GPO.AxS[SAMPLE_AXIS].range_flags |= RANGE_SAMPLED;
 		// FIXME: allow replacement of dummy variable? 
-		name_str = string_or_express(NULL);
+		name_str = GPO.StringOrExpress(NULL);
 		if(!name_str)
 			GPO.IntErrorCurToken("no input data source");
 		if(!strcmp(name_str, "@@"))
@@ -725,10 +724,12 @@ static void modify_voxels(t_voxel * grid, double x, double y, double z, double r
 #define NO_SUPPORT GPO.IntError(NO_CARET, "this gnuplot does not support voxel grids")
 void check_grid_ranges()  { NO_SUPPORT; }
 void set_vgrid()          { NO_SUPPORT; }
-void set_vgrid_range()    { NO_SUPPORT; }
+//void set_vgrid_range()    { NO_SUPPORT; }
+void GnuPlot::SetVGridRange() { NO_SUPPORT; }
 void show_vgrid()         { NO_SUPPORT; }
 void show_isosurface()    { NO_SUPPORT; }
-void voxel_command()      { NO_SUPPORT; }
+//void voxel_command()      { NO_SUPPORT; }
+void GnuPlot::VoxelCommand() { NO_SUPPORT; }
 void vfill_command()      { NO_SUPPORT; }
 void vclear_command()     {}
 void unset_vgrid()        {}

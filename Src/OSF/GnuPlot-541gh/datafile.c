@@ -90,7 +90,7 @@ static double * df_read_matrix(int * rows, int * columns);
 static bool valid_format(const char *);
 static void plot_ticlabel_using(int);
 static void add_key_entry(char * temp_string, int df_datum);
-static char * df_generate_pseudodata();
+//static char * df_generate_pseudodata();
 static char * df_generate_ascii_array_entry();
 static int df_skip_bytes(off_t nbytes);
 static int axcol_for_ticlabel(enum COLUMN_TYPE type, int * axis);
@@ -511,25 +511,24 @@ void df_init()
 /*{{{  static char *df_gets() */
 static char * df_gets()
 {
-	/* HBB 20000526: prompt user for inline data, if in interactive mode */
+	// HBB 20000526: prompt user for inline data, if in interactive mode 
 	if(mixed_data_fp && interactive)
 		fputs("input data ('e' ends) > ", stderr);
-	/* Special pseudofiles '+' and '++' return coords of sample */
+	// Special pseudofiles '+' and '++' return coords of sample 
 	if(df_pseudodata)
-		return df_generate_pseudodata();
+		return GPO.DfGeneratePseudodata();
 	if(df_datablock)
 		return *(df_datablock_line++);
 	if(df_array)
 		return df_generate_ascii_array_entry();
 	return df_fgets(data_fp);
 }
-
 /*}}} */
 
-/*{{{  char *df_gets() */
-/*
- * This one is shared by df_gets() and by datablock.c:datablock_command
- */
+// {{{  char *df_gets() */
+// 
+// This one is shared by df_gets() and by datablock.c:datablock_command
+// 
 char * df_fgets(FILE * fin)
 {
 	int len = 0;
@@ -720,35 +719,35 @@ static int df_tokenise(char * s)
  */
 static double * df_read_matrix(int * rows, int * cols)
 {
-	int max_rows = 0;
-	int c;
+	int    max_rows = 0;
+	int    c;
 	double * linearized_matrix = NULL;
 	char * s;
-	int index = 0;
+	int    index = 0;
 	df_bad_matrix_values = 0;
 	*rows = 0;
 	*cols = 0;
 	for(;;) {
 		if(!(s = df_gets())) {
 			df_eof = 1;
-			/* NULL if we have not read anything yet */
+			// NULL if we have not read anything yet 
 			return linearized_matrix;
 		}
-		/* skip leading spaces */
+		// skip leading spaces 
 		while(isspace((uchar)*s) && NOTSEP)
 			++s;
-		/* skip blank lines and comments */
+		// skip blank lines and comments 
 		if(!*s || is_comment(*s)) {
-			/* except that some comments hide an index name */
+			// except that some comments hide an index name 
 			if(indexname) {
 				while(is_comment(*s) || isspace((uchar)*s))
 					++s;
 				if(*s && !strncmp(s, indexname, strlen(indexname)))
 					index_found = TRUE;
 			}
-			/* This whole section copied with minor tweaks from df_readascii() */
+			// This whole section copied with minor tweaks from df_readascii() 
 			if(++blank_count == 1) {
-				/* first blank line */
+				// first blank line 
 				if(linearized_matrix)
 					return linearized_matrix;
 				if(indexname && !index_found)
@@ -771,11 +770,10 @@ static double * df_read_matrix(int * rows, int * cols)
 				}
 			}
 			else {
-				/* Ignore any blank lines beyond the 2nd */
-				continue;
+				continue; // Ignore any blank lines beyond the 2nd 
 			}
 		}
-		/* get here => was not blank */
+		// get here => was not blank 
 		df_last_index_read = df_current_index;
 		/* TODO:  Handle columnheaders for 2nd and subsequent data blocks?
 		 * if (blank_count >= 2) { do something }
@@ -788,7 +786,7 @@ static double * df_read_matrix(int * rows, int * cols)
 		c = df_tokenise(s);
 		if(!c)
 			return linearized_matrix;
-		/* If the first row of matrix data contains column headers */
+		// If the first row of matrix data contains column headers 
 		if(!df_already_got_headers && df_matrix_columnheaders && *rows == 0) {
 			int i;
 			char * temp_string;
@@ -811,7 +809,7 @@ static double * df_read_matrix(int * rows, int * cols)
 			continue;
 		}
 		if(*cols && c != *cols) {
-			/* it's not regular */
+			// it's not regular 
 			SAlloc::F(linearized_matrix);
 			GPO.IntError(NO_CARET, "Matrix does not represent a grid");
 		}
@@ -821,15 +819,15 @@ static double * df_read_matrix(int * rows, int * cols)
 			max_rows = MAX(2*max_rows, 1);
 			linearized_matrix = (double *)gp_realloc(linearized_matrix, *cols * max_rows * sizeof(double), "df_matrix");
 		}
-		/* store data */
+		// store data 
 		{
 			for(int i = 0; i < c; ++i) {
-				/* First column in "matrix rowheaders" is a ytic label */
+				// First column in "matrix rowheaders" is a ytic label 
 				if(df_matrix_rowheaders && i == 0) {
 					char * temp_string;
 					double ypos = *rows - 1;
 					if(use_spec[1].at) {
-						/* The save/restore is to make sure 1:(f($2)):3 works */
+						// The save/restore is to make sure 1:(f($2)):3 works 
 						GpValue a;
 						const double save = df_column[1].datum;
 						df_column[1].datum = ypos;
@@ -845,15 +843,14 @@ static double * df_read_matrix(int * rows, int * cols)
 					continue;
 				}
 				if(i < firstpoint && df_column[i].good != DF_GOOD) {
-					/* It's going to be skipped anyhow, so... */
+					// It's going to be skipped anyhow, so... 
 					linearized_matrix[index++] = 0;
 				}
 				else
 					linearized_matrix[index++] = df_column[i].datum;
 				if(df_column[i].good != DF_GOOD) {
 					if(df_nonuniform_matrix && index == 1)
-						/* This field is typically a label or comment */
-						;
+						; // This field is typically a label or comment 
 					else if(df_bad_matrix_values++ == 0)
 						GPO.IntWarn(NO_CARET, "matrix contains missing or undefined values");
 				}
@@ -1406,7 +1403,7 @@ void GnuPlot::PlotOptionIndex()
 		IntErrorCurToken("Binary matrix file format does not allow more than one surface per file");
 	Pgm.Shift();
 	// Check for named index 
-	if((indexname = try_to_get_string())) {
+	if((indexname = TryToGetString())) {
 		index_found = FALSE;
 	}
 	else {
@@ -1447,7 +1444,7 @@ void GnuPlot::PlotOptionUsing(int max_using)
 	// Try to distinguish between 'using "A":"B"' and 'using "%lf %lf" 
 	if(!Pgm.EndOfCommand() && Pgm.IsString(++Pgm.CToken)) {
 		int save_token = Pgm.GetCurTokenIdx();
-		df_format = try_to_get_string();
+		df_format = TryToGetString();
 		if(valid_format(df_format))
 			return;
 		ZFREE(df_format);
@@ -1512,7 +1509,7 @@ void GnuPlot::PlotOptionUsing(int max_using)
 			else if(Pgm.AlmostEqualsCur("key")) {
 				plot_ticlabel_using(CT_KEYLABEL);
 			}
-			else if((column_label = try_to_get_string())) {
+			else if((column_label = TryToGetString())) {
 				/* ...using "A"... Dummy up a call to column(column_label) */
 				use_spec[df_no_use_specs].at = create_call_column_at(column_label);
 				use_spec[df_no_use_specs++].column = NO_COLUMN_HEADER;
@@ -1547,7 +1544,7 @@ void GnuPlot::PlotOptionUsing(int max_using)
 	// Allow a format specifier after the enumeration of columns.
 	// Note: This was left out by mistake in versions 4.6.0 + 4.6.1 
 	if(!Pgm.EndOfCommand() && Pgm.IsString(Pgm.GetCurTokenIdx())) {
-		df_format = try_to_get_string();
+		df_format = TryToGetString();
 		if(!valid_format(df_format))
 			IntErrorCurToken("format must have 1-7 conversions of type double (%%lf)");
 	}
@@ -1587,14 +1584,10 @@ int df_readline(double v[], int max)
 {
 	if(!data_fp && !df_pseudodata && !df_datablock && !df_array)
 		return DF_EOF;
-
-	if(df_read_binary) {
-		/* General binary, matrix binary or matrix ascii converted to binary */
+	if(df_read_binary) // General binary, matrix binary or matrix ascii converted to binary 
 		return df_readbinary(v, max);
-	}
-	else {
+	else
 		return df_readascii(v, max);
-	}
 }
 
 /*}}} */
@@ -1834,13 +1827,13 @@ int df_readascii(double v[], int max)
 		{
 			int limit = (df_no_use_specs ? (df_no_use_specs + df_no_tic_specs) : MAXDATACOLS);
 			SETMIN(limit, max + df_no_tic_specs);
-			/* Used only by TABLESTYLE */
+			// Used only by TABLESTYLE 
 			if(df_tabulate_strings)
 				for(output = 0; output < limit; ++output)
 					gpfree_string(&df_strings[output]);
-			/* The real processing starts here */
+			// The real processing starts here 
 			for(output = 0; output < limit; ++output) {
-				/* if there was no using spec, column is output+1 and at=NULL */
+				// if there was no using spec, column is output+1 and at=NULL 
 				int column = use_spec[output].column;
 				if(column == -3) /* pseudocolumn -3 means "last column" */
 					column = use_spec[output].column = df_no_cols;
@@ -1849,7 +1842,7 @@ int df_readascii(double v[], int max)
 				if(use_spec[output].expected_type >= CT_XTICLABEL) {
 					int axis, axcol;
 					double xpos;
-					/* EAM FIXME - skip columnstacked histograms also */
+					// EAM FIXME - skip columnstacked histograms also 
 					if(df_current_plot) {
 						if(df_current_plot->plot_style == BOXPLOT)
 							continue;
@@ -1954,14 +1947,12 @@ int df_readascii(double v[], int max)
 							SAlloc::F(df_stringexpression[output]);
 							df_tokens[output] = df_stringexpression[output] = s;
 						}
-
-						/* Check for P_TimeFormat string generated by a function */
+						// Check for P_TimeFormat string generated by a function 
 						if(timefield) {
 							struct tm tm;
 							double reltime;
 							double usec = 0.0;
-							td_type status
-								= gstrptime(a.v.string_val, P_TimeFormat, &tm, &usec, &reltime);
+							td_type status = gstrptime(a.v.string_val, P_TimeFormat, &tm, &usec, &reltime);
 							if(status == DT_TIMEDATE)
 								v[output] = (double)gtimegm(&tm) + usec;
 							else if(status == DT_DMS)
@@ -1969,20 +1960,16 @@ int df_readascii(double v[], int max)
 							else
 								return_value = DF_BAD;
 						}
-
-						/* Expecting a numerical type but got a string value */
+						// Expecting a numerical type but got a string value 
 						else
-						/* 'with points pt variable' is the only current user */
-						if(df_current_plot
-						    && (df_current_plot->lp_properties.p_type == PT_VARIABLE)) {
+						// 'with points pt variable' is the only current user 
+						if(df_current_plot && (df_current_plot->lp_properties.p_type == PT_VARIABLE)) {
 							static char varchar[8];
 							safe_strncpy(varchar, a.v.string_val, 8);
 							df_tokens[output] = varchar;
 						}
-
 						gpfree_string(&a);
 					}
-
 					else {
 						v[output] = real(&a);
 						if(isnan(v[output]))
@@ -2000,8 +1987,7 @@ int df_readascii(double v[], int max)
 				}
 				else if(column <= 0) /* really < -2, but */
 					GPO.IntError(NO_CARET, "internal error: column <= 0 in datafile.c");
-				else if((df_axis[output] != NO_AXIS)
-				    && (GPO.AxS[df_axis[output]].datatype == DT_TIMEDATE)) {
+				else if((df_axis[output] != NO_AXIS) && (GPO.AxS[df_axis[output]].datatype == DT_TIMEDATE)) {
 					struct tm tm;
 					double usec = 0.0;
 					double reltime;
@@ -2036,25 +2022,21 @@ int df_readascii(double v[], int max)
 				}
 				else {
 					/* column > 0 */
-					if((column <= df_no_cols)
-					    && df_column[column - 1].good == DF_GOOD) {
+					if((column <= df_no_cols) && df_column[column - 1].good == DF_GOOD) {
 						v[output] = df_column[column - 1].datum;
-
 						/* Version 5:
 						 * Do not return immediately on DF_MISSING or DF_UNDEFINED.
 						 * THIS IS A CHANGE.
 						 */
 					}
-					else if((column <= df_no_cols)
-					    && (use_spec[output].expected_type == CT_MUST_HAVE)) {
+					else if((column <= df_no_cols) && (use_spec[output].expected_type == CT_MUST_HAVE)) {
 						/* This catches cases where the plot style cannot tolerate
 						 * silently missed points (e.g. stacked histograms)
 						 */
 						v[output] = not_a_number();
 						return DF_UNDEFINED;
 					}
-					else if((column <= df_no_cols)
-					    && (df_column[column - 1].good == DF_MISSING)) {
+					else if((column <= df_no_cols) && (df_column[column - 1].good == DF_MISSING)) {
 						v[output] = not_a_number();
 						if(missing_val && df_current_plot->plot_style == TABLESTYLE) {
 							df_strings[output].type = STRING;
@@ -2062,14 +2044,11 @@ int df_readascii(double v[], int max)
 						}
 						return_value = DF_MISSING;
 					}
-					else if((column <= df_no_cols)
-					    && (df_column[column - 1].good == DF_UNDEFINED)) {
+					else if((column <= df_no_cols) && (df_column[column - 1].good == DF_UNDEFINED)) {
 						v[output] = df_column[column - 1].datum;
 						return_value = DF_UNDEFINED;
 					}
-					else if((df_current_plot && df_current_plot->plot_style == POLYGONS
-					    && df_no_use_specs
-					    && column == df_no_cols+1)) {
+					else if((df_current_plot && df_current_plot->plot_style == POLYGONS && df_no_use_specs && column == df_no_cols+1)) {
 						/* DEBUG - the idea here is to forgive a missing color value in
 						 *         polygon vertices after the first one. The test is not
 						 *         quite correct since we don't track the vertex number.
@@ -2159,7 +2138,7 @@ double df_matrix_corner[2][2]; /* First argument is corner, second argument is x
 static double df_read_a_float(FILE * fin) 
 {
 	float fdummy;
-	/* FIXME:  What if the file contains doubles rather than floats? */
+	// FIXME:  What if the file contains doubles rather than floats? 
 	if(fread(&fdummy, sizeof(fdummy), 1, fin) != 1) {
 		if(feof(fin))
 			GPO.IntError(NO_CARET, "Data file is empty");
@@ -3611,8 +3590,7 @@ static void plot_option_binary(bool set_matrix, bool set_default)
 			set_endian = TRUE;
 			continue;
 		}
-
-		/* deal with various types of binary files */
+		// deal with various types of binary files 
 		if(GPO.Pgm.AlmostEqualsCur("form$at")) {
 			if(set_format) {
 				duplication = TRUE; break;
@@ -3628,10 +3606,10 @@ static void plot_option_binary(bool set_matrix, bool set_default)
 			GPO.Pgm.Shift();
 			if(set_default) {
 				SAlloc::F(df_binary_format);
-				df_binary_format = try_to_get_string();
+				df_binary_format = GPO.TryToGetString();
 			}
 			else {
-				char * format_string = try_to_get_string();
+				char * format_string = GPO.TryToGetString();
 				if(!format_string)
 					GPO.IntErrorCurToken("missing format string");
 				plot_option_binary_format(format_string);
@@ -4034,61 +4012,40 @@ void plot_option_binary_format(char * format_string)
 	int prev_read_type = DF_DEFAULT_TYPE; /* Defaults when none specified. */
 	int no_fields = 0;
 	char * substr = format_string;
-
 	while(*substr != '\0' && *substr != '\"' && *substr != '\'') {
 		if(*substr == ' ') {
 			substr++;
 			continue;
 		} /* Ignore spaces. */
-
 		if(*substr == '%') {
-			int ignore, field_repeat, j = 0, k = 0, m = 0, breakout;
-
+			int field_repeat, j = 0, k = 0, m = 0, breakout;
 			substr++;
-			ignore = (*substr == '*');
+			int ignore = (*substr == '*');
 			if(ignore)
 				substr++;
-
-			/* Check for field repeat number. */
+			// Check for field repeat number. 
 			field_repeat = isdigit((uchar)*substr) ? strtol(substr, &substr, 10) : 1;
-
-			/* Try finding the word among the valid type names. */
-			for(j = 0, breakout = 0;
-			    j < (sizeof(df_binary_tables)
-			    /sizeof(df_binary_tables[0]));
-			    j++) {
-				for(k = 0, breakout = 0;
-				    k < df_binary_tables[j].group_length;
-				    k++) {
-					for(m = 0;
-					    m < df_binary_tables[j].group[k].no_names;
-					    m++) {
-						int strl
-							= strlen(df_binary_tables[j].group[k].name[m]);
-
-						/* Check for exact match, which includes character
-						 * after the substring being non-alphanumeric. */
-						if(!strncmp(substr,
-						    df_binary_tables[j].group[k].name[m],
-						    strl)
-						    && strchr("%\'\" ", *(substr + strl)) ) {
+			// Try finding the word among the valid type names. 
+			for(j = 0, breakout = 0; j < (sizeof(df_binary_tables)/sizeof(df_binary_tables[0])); j++) {
+				for(k = 0, breakout = 0; k < df_binary_tables[j].group_length; k++) {
+					for(m = 0; m < df_binary_tables[j].group[k].no_names; m++) {
+						int strl = strlen(df_binary_tables[j].group[k].name[m]);
+						// Check for exact match, which includes character
+						// after the substring being non-alphanumeric. 
+						if(!strncmp(substr, df_binary_tables[j].group[k].name[m], strl) && strchr("%\'\" ", *(substr + strl))) {
 							substr += strl; /* Advance pointer in array to next text. */
 							if(!ignore) {
-								int n;
-
-								for(n = 0; n < field_repeat; n++) {
+								for(int n = 0; n < field_repeat; n++) {
 									no_fields++;
 									df_set_skip_after(no_fields, 0);
-									df_set_read_type(no_fields,
-									    df_binary_tables[j].group[k].type.read_type);
+									df_set_read_type(no_fields, df_binary_tables[j].group[k].type.read_type);
 									prev_read_type = df_binary_tables[j].group[k].type.read_type;
 								}
 							}
 							else {
 								if(!df_column_bininfo)
 									GPO.IntError(NO_CARET, "Failure in binary table initialization");
-								df_column_bininfo[no_fields].skip_bytes
-									+= field_repeat * df_binary_tables[j].group[k].type.read_size;
+								df_column_bininfo[no_fields].skip_bytes += field_repeat * df_binary_tables[j].group[k].type.read_size;
 							}
 							breakout = 1;
 							break;
@@ -4100,11 +4057,7 @@ void plot_option_binary_format(char * format_string)
 				if(breakout)
 					break;
 			}
-
-			if(j == (sizeof(df_binary_tables)
-			    /sizeof(df_binary_tables[0]))
-			    && (k == df_binary_tables[j-1].group_length)
-			    && (m == df_binary_tables[j-1].group[k-1].no_names)) {
+			if(j == (sizeof(df_binary_tables)/sizeof(df_binary_tables[0])) && (k == df_binary_tables[j-1].group_length) && (m == df_binary_tables[j-1].group[k-1].no_names)) {
 				GPO.IntErrorCurToken("Unrecognized binary format specification");
 			}
 		}
@@ -4112,10 +4065,8 @@ void plot_option_binary_format(char * format_string)
 			GPO.IntErrorCurToken("Format specifier must begin with '%'");
 		}
 	}
-
-	/* Any remaining unspecified fields are assumed to be of the same type
-	 * as the last specified field.
-	 */
+	// Any remaining unspecified fields are assumed to be of the same type
+	// as the last specified field.
 	for(; no_fields < df_no_bin_cols; no_fields++) {
 		df_set_skip_after(no_fields, 0);
 		df_set_skip_before(no_fields, 0);
@@ -4128,9 +4079,7 @@ void df_show_binary(FILE * fp)
 {
 	int i, num_record;
 	df_binary_file_record_struct * bin_record;
-
 	fprintf(fp, "\tDefault binary data file settings (in-file settings may override):\n");
-
 	if(!df_num_bin_records_default) {
 		bin_record = &df_bin_record_reset;
 		num_record = 1;
@@ -4139,22 +4088,15 @@ void df_show_binary(FILE * fp)
 		bin_record = df_bin_record_default;
 		num_record = df_num_bin_records_default;
 	}
-
 	fprintf(fp, "\n\t  File Type: ");
 	if(df_bin_filetype_default >= 0)
 		fprintf(fp, "%s", df_bin_filetype_table[df_bin_filetype_default].key);
 	else
 		fprintf(fp, "none");
-
-	fprintf(fp, "\n\t  File Endianess: %s",
-	    df_endian[df_bin_file_endianess_default]);
-
-	fprintf(fp, "\n\t  Default binary format: %s",
-	    df_binary_format ? df_binary_format : "none");
-
+	fprintf(fp, "\n\t  File Endianess: %s", df_endian[df_bin_file_endianess_default]);
+	fprintf(fp, "\n\t  Default binary format: %s", df_binary_format ? df_binary_format : "none");
 	for(i = 0; i < num_record; i++) {
 		int dimension = 1;
-
 		fprintf(fp, "\n\t  Record %d:\n", i);
 		fprintf(fp, "\t    Dimension: ");
 		if(bin_record[i].cart_dim[0] < 0)
@@ -4170,12 +4112,10 @@ void df_show_binary(FILE * fp)
 				}
 			}
 		}
-		fprintf(fp, "\n\t    Generate coordinates: %s",
-		    (bin_record[i].scan_generate_coord ? "yes" : "no"));
+		fprintf(fp, "\n\t    Generate coordinates: %s", (bin_record[i].scan_generate_coord ? "yes" : "no"));
 		if(bin_record[i].scan_generate_coord) {
 			int j;
 			bool no_flip = TRUE;
-
 			fprintf(fp, "\n\t    Direction: ");
 			if(bin_record[i].cart_dir[0] == -1) {
 				fprintf(fp, "flip x");
@@ -4191,8 +4131,7 @@ void df_show_binary(FILE * fp)
 			}
 			if(no_flip)
 				fprintf(fp, "all forward");
-			fprintf(fp, "\n\t    Sample periods: dx=%f",
-			    bin_record[i].cart_delta[0]);
+			fprintf(fp, "\n\t    Sample periods: dx=%f", bin_record[i].cart_delta[0]);
 			if(dimension > 1)
 				fprintf(fp, ", dy=%f", bin_record[i].cart_delta[1]);
 			if(dimension > 2)
@@ -4258,9 +4197,8 @@ void df_show_datasizes(FILE * fp)
 
 void df_show_filetypes(FILE * fp)
 {
-	int i = 0;
 	fprintf(fp, "\tThis version of gnuplot understands the following binary file types:\n");
-	while(df_bin_filetype_table[i].key)
+	for(int i = 0; df_bin_filetype_table[i].key;)
 		fprintf(fp, "\t  %s", df_bin_filetype_table[i++].key);
 	fputs("\n", fp);
 }
@@ -4276,19 +4214,15 @@ void df_swap_bytes_by_endianess(char * data, int read_order, int read_size)
 		int k = read_size - 1;
 		for(; j < k; j++, k--) {
 			char temp = data[j];
-
 			data[j] = data[k];
 			data[k] = temp;
 		}
 	}
-
 #if SUPPORT_MIDDLE_ENDIAN
 	if((read_order == DF_1032) || (read_order == DF_2301)) {
 		int j = read_size - 1;
-
 		for(; j > 0; j -= 2) {
 			char temp = data[j-1];
-
 			data[j-1] = data[j];
 			data[j] = temp;
 		}
@@ -4300,7 +4234,6 @@ static int df_skip_bytes(off_t nbytes)
 {
 #if defined(PIPES)
 	char cval;
-
 	if(df_pipe_open || plotted_data_from_stdin) {
 		while(nbytes--) {
 			if(1 == fread(&cval, 1, 1, data_fp))
@@ -4321,7 +4254,6 @@ static int df_skip_bytes(off_t nbytes)
 		}
 		GPO.IntError(NO_CARET, read_error_msg);
 	}
-
 	return 0;
 }
 
@@ -4375,48 +4307,41 @@ int df_readbinary(double v[], int max)
 		D3 = rotation_matrix_3D(P, this_record->cart_p);
 		translation_required = D2 || D3;
 		if(df_matrix_file) {
-			/* Dimensions */
+			// Dimensions 
 			scan_size[0] = this_record->scan_dim[0];
 			scan_size[1] = this_record->scan_dim[1];
-
 			if(df_xpixels == 0) {
 				/* df_xpixels and df_ypixels were corrected for ascii `matrix every`
 				 * but scan_size was not. For that case we must not overwrite here.
 				 * For binary matrix, df_xpixels is still 0.
 				 */
-				FPRINTF((stderr, "datafile.c:%d matrix dimensions %d x %d\n",
-				    __LINE__, scan_size[1], scan_size[0]));
+				FPRINTF((stderr, "datafile.c:%d matrix dimensions %d x %d\n", __LINE__, scan_size[1], scan_size[0]));
 				df_xpixels = scan_size[1];
 				df_ypixels = scan_size[0];
 			}
-
 			if(scan_size[0] == 0)
 				GPO.IntError(NO_CARET, "Scan size of matrix is zero");
-
-			/* To accomplish flipping in this case, multiply the
-			 * appropriate column of the rotation matrix by -1.  */
+			// To accomplish flipping in this case, multiply the
+			// appropriate column of the rotation matrix by -1.  
 			for(i = 0; i < 2; i++) {
-				int j;
-
-				for(j = 0; j < 2; j++) {
+				for(int j = 0; j < 2; j++) {
 					R[i][j] *= this_record->cart_dir[i];
 				}
 			}
-			/* o */
+			// o 
 			for(i = 0; i < 3; i++) {
 				if(this_record->cart_trans != DF_TRANSLATE_DEFAULT) {
 					o[i] = this_record->cart_cen_or_ori[i];
 				}
 				else {
-					/* Default is translate by center. */
+					// Default is translate by center. 
 					if(i < 2)
-						o[i] = (df_matrix_corner[1][i]
-						    + df_matrix_corner[0][i]) / 2;
+						o[i] = (df_matrix_corner[1][i] + df_matrix_corner[0][i]) / 2;
 					else
 						o[i] = 0;
 				}
 			}
-			/* c */
+			// c 
 			for(i = 0; i < 3; i++) {
 				if(this_record->cart_trans == DF_TRANSLATE_VIA_ORIGIN) {
 					if(i < 2)
@@ -4426,13 +4351,11 @@ int df_readbinary(double v[], int max)
 				}
 				else {
 					if(i < 2)
-						c[i] = (df_matrix_corner[1][i]
-						    + df_matrix_corner[0][i]) / 2;
+						c[i] = (df_matrix_corner[1][i] + df_matrix_corner[0][i]) / 2;
 					else
 						c[i] = 0;
 				}
 			}
-
 			first_matrix_row_col_count = 0;
 		}
 		else { /* general binary */
@@ -4481,31 +4404,21 @@ int df_readbinary(double v[], int max)
 				}
 			}
 		}
-
-		/* Check if c and o are the same. */
+		// Check if c and o are the same. 
 		for(i = 0; i < 3; i++)
 			translation_required = translation_required || (c[i] != o[i]);
-
-		/* Should data come from memory? */
-		memory_data = this_record->memory_data;
-
-		/* byte read order */
-		read_order = byte_read_order(df_bin_file_endianess);
-
-		/* amount to skip before first record */
-		record_skip = this_record->scan_skip[0];
-
+		memory_data = this_record->memory_data; // Should data come from memory? 
+		read_order = byte_read_order(df_bin_file_endianess); // byte read order 
+		record_skip = this_record->scan_skip[0]; // amount to skip before first record 
 		end_of_scan_line = FALSE;
 		end_of_block = FALSE;
 		point_count = -1;
 		line_count = 0;
 		df_current_index = df_bin_record_count;
 		df_last_index_read = df_current_index;
-
-		/* Craig DeForest Feb 2013 - Fast version of uniform binary matrix.
-		 * Don't apply this to ascii input or special filetypes.
-		 * Slurp all data from file or pipe in one shot to minimize fread calls.
-		 */
+		// Craig DeForest Feb 2013 - Fast version of uniform binary matrix.
+		// Don't apply this to ascii input or special filetypes.
+		// Slurp all data from file or pipe in one shot to minimize fread calls.
 		if(!memory_data && !(df_bin_filetype > 0) && df_binary_file &&  df_matrix && !df_nonuniform_matrix) {
 			int i;
 			ulong bytes_per_point = 0;
@@ -4521,14 +4434,12 @@ int df_readbinary(double v[], int max)
 			bytes_per_plane = bytes_per_line * ( (scan_size[1] > 0) ? scan_size[1] : 1 );
 			bytes_total     = bytes_per_plane * ( (scan_size[2]>0) ? scan_size[2] : 1);
 			bytes_total    += record_skip;
-
-			/* Allocate a chunk of memory and stuff it */
+			// Allocate a chunk of memory and stuff it 
 			memory_data = (char *)gp_alloc(bytes_total, "df_readbinary slurper");
 			this_record->memory_data = memory_data;
-
 			FPRINTF((stderr, "Fast matrix code:\n"));
 			FPRINTF((stderr, "\t\t skip %ld bytes, read %ld bytes per point %ld total as %d x %d array\n", record_skip, bytes_per_point, bytes_total, scan_size[0], scan_size[1]));
-			/* Do the actual slurping */
+			// Do the actual slurping 
 			fread_ret = fread(memory_data, 1, bytes_total, data_fp);
 			if(fread_ret != bytes_total) {
 				GPO.IntWarn(NO_CARET, "Couldn't slurp %ld bytes (return was %zd)\n", bytes_total, fread_ret);
@@ -4939,51 +4850,51 @@ void df_set_plot_mode(int mode)
 // Special pseudofile '+' returns x coord of sample for 2D plots,
 // Special pseudofile '++' returns x and y coordinates of grid for 3D plots.
 //
-static char * df_generate_pseudodata()
+//static char * df_generate_pseudodata()
+char * GnuPlot::DfGeneratePseudodata()
 {
-	/* Pseudofile '+' returns a set of (samples) x coordinates */
-	/* This code copied from that in second pass through eval_plots() */
+	// Pseudofile '+' returns a set of (samples) x coordinates */
+	// This code copied from that in second pass through eval_plots() */
 	if(df_pseudodata == 1) {
 		static double t, t_min, t_max, t_step;
 		if(df_pseudorecord == 0) {
 			t_step = 0;
-			if((GPO.AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED)) {
-				t_min = GPO.AxS[SAMPLE_AXIS].min;
-				t_max = GPO.AxS[SAMPLE_AXIS].max;
-				t_step = GPO.AxS[SAMPLE_AXIS].SAMPLE_INTERVAL;
+			if((AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED)) {
+				t_min = AxS[SAMPLE_AXIS].min;
+				t_max = AxS[SAMPLE_AXIS].max;
+				t_step = AxS[SAMPLE_AXIS].SAMPLE_INTERVAL;
 			}
 			else if(parametric || polar) {
-				t_min = GPO.AxS[T_AXIS].min;
-				t_max = GPO.AxS[T_AXIS].max;
+				t_min = AxS[T_AXIS].min;
+				t_max = AxS[T_AXIS].max;
 			}
-			else if(GPO.AxS[T_AXIS].autoscale == AUTOSCALE_NONE) {
-				t_min = GPO.AxS[T_AXIS].min;
-				t_max = GPO.AxS[T_AXIS].max;
-			}
-			else {
-				if(GPO.AxS[FIRST_X_AXIS].max == -VERYLARGE)
-					GPO.AxS[FIRST_X_AXIS].max = 10;
-				if(GPO.AxS[FIRST_X_AXIS].min == VERYLARGE)
-					GPO.AxS[FIRST_X_AXIS].min = -10;
-				t_min = GPO.AxS.__X().min;
-				t_max = GPO.AxS.__X().max;
-			}
-			if((GPO.AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED)) {
-				/* Nothing special */
-				;
+			else if(AxS[T_AXIS].autoscale == AUTOSCALE_NONE) {
+				t_min = AxS[T_AXIS].min;
+				t_max = AxS[T_AXIS].max;
 			}
 			else {
-				/* If the axis is nonlinear we do the sampling on the primary   */
-				/* (hidden) axis so that the samples are evenly spaced.         */
-				/* The extra test allows sampling on x2 after "set link x2"     */
-				/* NB: This means "t" is in the hidden linear coordinate space. */
-				if(GPO.AxS.__X().linked_to_primary != NULL && GPO.AxS.__X().link_udf->at &&  GPO.AxS.__X().linked_to_primary != &GPO.AxS[FIRST_X_AXIS]) {
-					const GpAxis * primary = GPO.AxS.__X().linked_to_primary;
-					t_min = GPO.EvalLinkFunction(primary, t_min);
-					t_max = GPO.EvalLinkFunction(primary, t_max);
+				if(AxS[FIRST_X_AXIS].max == -VERYLARGE)
+					AxS[FIRST_X_AXIS].max = 10;
+				if(AxS[FIRST_X_AXIS].min == VERYLARGE)
+					AxS[FIRST_X_AXIS].min = -10;
+				t_min = AxS.__X().min;
+				t_max = AxS.__X().max;
+			}
+			if((AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED)) {
+				; // Nothing special 
+			}
+			else {
+				// If the axis is nonlinear we do the sampling on the primary   
+				// (hidden) axis so that the samples are evenly spaced.         
+				// The extra test allows sampling on x2 after "set link x2"     
+				// NB: This means "t" is in the hidden linear coordinate space. 
+				if(AxS.__X().linked_to_primary != NULL && AxS.__X().link_udf->at &&  AxS.__X().linked_to_primary != &AxS[FIRST_X_AXIS]) {
+					const GpAxis * primary = AxS.__X().linked_to_primary;
+					t_min = EvalLinkFunction(primary, t_min);
+					t_max = EvalLinkFunction(primary, t_max);
 				}
 				else {
-					check_log_limits(&GPO.AxS.__X(), t_min, t_max);
+					check_log_limits(&AxS.__X(), t_min, t_max);
 				}
 			}
 			if(t_step == 0) /* always true unless explicit sample interval was given */
@@ -4992,75 +4903,72 @@ static char * df_generate_pseudodata()
 				t_step = 1;
 		}
 		t = t_min + df_pseudorecord * t_step;
-
-		if((GPO.AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED)) {
-			/* This is the case of an explicit sampling range */
+		if((AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED)) {
+			// This is the case of an explicit sampling range 
 			if(!inrange(t, t_min, t_max))
 				return NULL;
 		}
 		else {
-			/* This is the usual case */
+			// This is the usual case 
 			if(df_pseudorecord >= samples_1)
 				return NULL;
-			if(nonlinear(&GPO.AxS.__X())) {
-				const GpAxis * visible = GPO.AxS.__X().linked_to_primary->linked_to_secondary;
-				t = GPO.EvalLinkFunction(visible, t);
+			if(nonlinear(&AxS.__X())) {
+				const GpAxis * visible = AxS.__X().linked_to_primary->linked_to_secondary;
+				t = EvalLinkFunction(visible, t);
 			}
 		}
-		/* This allows commands of the form
-		 *   plot sample [foo=0:10] '+' using (sin(foo)):(cos(foo)):(foo)
-		 */
+		// This allows commands of the form
+		// plot sample [foo=0:10] '+' using (sin(foo)):(cos(foo)):(foo)
 		if(df_current_plot && df_current_plot->sample_var)
 			Gcomplex(&(df_current_plot->sample_var->udv_value), t, 0.0);
 		df_pseudovalue_0 = t;
 		sprintf(df_line, "%g", t);
 		++df_pseudorecord;
 	}
-	/* Pseudofile '++' returns a (samples X isosamples) grid of x,y coordinates */
-	/* This code copied from that in second pass through eval_3dplots */
+	// Pseudofile '++' returns a (samples X isosamples) grid of x,y coordinates 
+	// This code copied from that in second pass through eval_3dplots 
 	if(df_pseudodata == 2) {
 		static double u_min, u_max, u_step, v_min, v_max, v_isostep;
 		static int nusteps, nvsteps;
 		double u, v;
-		/* (March 2017) THIS IS A CHANGE
-		 * Sample on u and v rather than on x and y.
-		 * This decouples the sampling range from the plot range.
-		 * Allow explicit sampling interval in the range specifiers for u and v.
-		 */
+		// (March 2017) THIS IS A CHANGE
+		// Sample on u and v rather than on x and y.
+		// This decouples the sampling range from the plot range.
+		// Allow explicit sampling interval in the range specifiers for u and v.
 		AXIS_INDEX u_axis = U_AXIS;
 		AXIS_INDEX v_axis = V_AXIS;
-		/* Fill in the static variables only once per plot */
+		// Fill in the static variables only once per plot 
 		if(df_pseudospan == 0 && df_pseudorecord == 0) {
 			if(samples_1 < 2 || samples_2 < 2 || iso_samples_1 < 2 || iso_samples_2 < 2)
-				GPO.IntError(NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
+				IntError(NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
 			if(parametric) {
-				u_min = GPO.AxS[U_AXIS].min;
-				u_max = GPO.AxS[U_AXIS].max;
-				v_min = GPO.AxS[V_AXIS].min;
-				v_max = GPO.AxS[V_AXIS].max;
+				u_min = AxS[U_AXIS].min;
+				u_max = AxS[U_AXIS].max;
+				v_min = AxS[V_AXIS].min;
+				v_max = AxS[V_AXIS].max;
 			}
 			else {
-				GPO.AxisCheckedExtendEmptyRange(u_axis, "u range is invalid");
-				GPO.AxisCheckedExtendEmptyRange(v_axis, "v range is invalid");
-				if(nonlinear(&(GPO.AxS[u_axis]))) {
-					u_min = GPO.AxS[u_axis].linked_to_primary->min;
-					u_max = GPO.AxS[u_axis].linked_to_primary->max;
+				AxisCheckedExtendEmptyRange(u_axis, "u range is invalid");
+				AxisCheckedExtendEmptyRange(v_axis, "v range is invalid");
+				if(nonlinear(&(AxS[u_axis]))) {
+					u_min = AxS[u_axis].linked_to_primary->min;
+					u_max = AxS[u_axis].linked_to_primary->max;
 				}
 				else {
-					u_min = GPO.AxS[u_axis].min;
-					u_max = GPO.AxS[u_axis].max;
+					u_min = AxS[u_axis].min;
+					u_max = AxS[u_axis].max;
 				}
-				if(nonlinear(&GPO.AxS[v_axis])) {
-					v_min = GPO.AxS[v_axis].linked_to_primary->min;
-					v_max = GPO.AxS[v_axis].linked_to_primary->max;
+				if(nonlinear(&AxS[v_axis])) {
+					v_min = AxS[v_axis].linked_to_primary->min;
+					v_max = AxS[v_axis].linked_to_primary->max;
 				}
 				else {
-					v_min = GPO.AxS[v_axis].min;
-					v_max = GPO.AxS[v_axis].max;
+					v_min = AxS[v_axis].min;
+					v_max = AxS[v_axis].max;
 				}
 			}
-			if((GPO.AxS[u_axis].range_flags & RANGE_SAMPLED) && (GPO.AxS[u_axis].SAMPLE_INTERVAL != 0)) {
-				u_step = GPO.AxS[u_axis].SAMPLE_INTERVAL;
+			if((AxS[u_axis].range_flags & RANGE_SAMPLED) && (AxS[u_axis].SAMPLE_INTERVAL != 0)) {
+				u_step = AxS[u_axis].SAMPLE_INTERVAL;
 				nusteps = ffloori((u_max - u_min) / u_step) + 1;
 			}
 			else if(hidden3d) {
@@ -5071,9 +4979,8 @@ static char * df_generate_pseudodata()
 				u_step = (u_max - u_min) / (samples_1 - 1);
 				nusteps = samples_1;
 			}
-
-			if((GPO.AxS[v_axis].range_flags & RANGE_SAMPLED) && (GPO.AxS[v_axis].SAMPLE_INTERVAL != 0)) {
-				v_isostep = GPO.AxS[v_axis].SAMPLE_INTERVAL;
+			if((AxS[v_axis].range_flags & RANGE_SAMPLED) && (AxS[v_axis].SAMPLE_INTERVAL != 0)) {
+				v_isostep = AxS[v_axis].SAMPLE_INTERVAL;
 				nvsteps = ffloori((v_max - v_min) / v_isostep) + 1;
 			}
 			else {
@@ -5089,47 +4996,42 @@ static char * df_generate_pseudodata()
 			else
 				return ""; /* blank record for end of scan line */
 		}
-
-		/* Duplicate algorithm from calculate_set_of_isolines() */
+		// Duplicate algorithm from calculate_set_of_isolines() 
 		u = u_min + df_pseudorecord * u_step;
 		v = v_max - df_pseudospan * v_isostep;
-
-		/* Round-off error is most visible at the border */
+		// Round-off error is most visible at the border 
 		if(df_pseudorecord == nusteps-1)
 			u = u_max;
 		if(df_pseudospan == nvsteps-1)
 			v = v_min;
-
 		if(parametric) {
 			df_pseudovalue_0 = u;
 			df_pseudovalue_1 = v;
 		}
 		else {
-			if(nonlinear(&GPO.AxS[u_axis]))
-				df_pseudovalue_0 = GPO.EvalLinkFunction(&GPO.AxS[u_axis], u);
+			if(nonlinear(&AxS[u_axis]))
+				df_pseudovalue_0 = EvalLinkFunction(&AxS[u_axis], u);
 			else
 				df_pseudovalue_0 = u;
-			if(nonlinear(&GPO.AxS[v_axis]))
-				df_pseudovalue_1 = GPO.EvalLinkFunction(&GPO.AxS[v_axis], v);
+			if(nonlinear(&AxS[v_axis]))
+				df_pseudovalue_1 = EvalLinkFunction(&AxS[v_axis], v);
 			else
 				df_pseudovalue_1 = v;
 		}
 		sprintf(df_line, "%g %g", df_pseudovalue_0, df_pseudovalue_1);
 		++df_pseudorecord;
-
-		/* This allows commands of the form
-		 *   splot sample [foo=0:10][baz=44:55] '++' using (foo):(baz):(foo*baz)
-		 */
+		// This allows commands of the form
+		//   splot sample [foo=0:10][baz=44:55] '++' using (foo):(baz):(foo*baz)
 		if(df_current_plot && df_current_plot->sample_var)
 			Gcomplex(&(df_current_plot->sample_var->udv_value), df_pseudovalue_0, 0.0);
 		if(df_current_plot && df_current_plot->sample_var2)
 			Gcomplex(&(df_current_plot->sample_var2->udv_value), df_pseudovalue_1, 0.0);
 	}
-
 	return df_line;
 }
-
-/* Allocate space for more data columns as needed */
+//
+// Allocate space for more data columns as needed 
+//
 void expand_df_column(int new_max)
 {
 	df_column = (df_column_struct *)gp_realloc(df_column, new_max * sizeof(df_column_struct), "datafile column");

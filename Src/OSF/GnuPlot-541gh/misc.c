@@ -34,7 +34,7 @@ static void prepare_call(int calltype)
 	if(calltype == 2) {
 		call_argc = 0;
 		while(!GPO.Pgm.EndOfCommand() && call_argc < 9) {
-			call_args[call_argc] = try_to_get_string();
+			call_args[call_argc] = GPO.TryToGetString();
 			if(!call_args[call_argc]) {
 				int save_token = GPO.Pgm.GetCurTokenIdx();
 				// This catches call "file" STRINGVAR (expression) 
@@ -644,7 +644,7 @@ int parse_dashtype(struct t_dashtype * dt)
 		res = DASHTYPE_CUSTOM;
 		// Or string representing pattern elements ... 
 	}
-	else if((dash_str = try_to_get_string())) {
+	else if((dash_str = GPO.TryToGetString())) {
 		int leading_space = 0;
 #define DSCALE 10.
 		while(dash_str[j] && (k < DASHPATTERN_LENGTH || dash_str[j] == ' ')) {
@@ -876,7 +876,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				if(set_pt++)
 					break;
 				Pgm.Shift();
-				if((symbol = try_to_get_string())) {
+				if((symbol = TryToGetString())) {
 					newlp.p_type = PT_CHARACTER;
 					truncate_to_one_utf8_char(symbol);
 					safe_strncpy(newlp.p_char, symbol, sizeof(newlp.p_char));
@@ -1036,23 +1036,19 @@ void parse_fillstyle(struct fill_style_type * fs)
 		switch(i) {
 			default:
 			    break;
-
 			case FS_EMPTY:
 			case FS_SOLID:
 			case FS_PATTERN:
-
 			    if(set_fill && fs->fillstyle != i)
 				    GPO.IntErrorCurToken("conflicting option");
 			    fs->fillstyle = i;
 			    set_fill = TRUE;
 			    GPO.Pgm.Shift();
-
 			    if(!transparent)
 				    fs->filldensity = 100;
-
-			    if(might_be_numeric(GPO.Pgm.GetCurTokenIdx())) {
+			    if(GPO.MightBeNumeric(GPO.Pgm.GetCurTokenIdx())) {
 				    if(fs->fillstyle == FS_SOLID) {
-					    /* user sets 0...1, but is stored as an integer 0..100 */
+					    // user sets 0...1, but is stored as an integer 0..100 
 					    fs->filldensity = 100.0 * GPO.RealExpression() + 0.5;
 					    if(fs->filldensity < 0)
 						    fs->filldensity = 0;
@@ -1248,7 +1244,7 @@ long parse_color_name()
 	// Terminal drivers call this after seeing a "background" option 
 	if(GPO.Pgm.AlmostEqualsCur("rgb$color") && GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "back$ground"))
 		GPO.Pgm.Shift();
-	if((string = try_to_get_string())) {
+	if((string = GPO.TryToGetString())) {
 		color = lookup_color_name(string);
 		SAlloc::F(string);
 		if(color == -2)

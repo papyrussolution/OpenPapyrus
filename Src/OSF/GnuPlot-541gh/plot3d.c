@@ -1422,7 +1422,7 @@ void GnuPlot::Eval3DPlots()
 	plot_iterator = check_for_iteration();
 	last_iteration_in_first_pass = INT_MAX;
 	while(TRUE) {
-		/* Forgive trailing comma on a multi-element plot command */
+		// Forgive trailing comma on a multi-element plot command 
 		if(Pgm.EndOfCommand()) {
 			if(plot_num == 0)
 				IntErrorCurToken("function to plot expected");
@@ -1430,7 +1430,7 @@ void GnuPlot::Eval3DPlots()
 		}
 		if(crnt_param == 0 && !was_definition)
 			start_token = Pgm.GetCurTokenIdx();
-		if(is_definition(Pgm.GetCurTokenIdx())) {
+		if(IsDefinition(Pgm.GetCurTokenIdx())) {
 			Pgm.Define();
 			if(Pgm.EqualsCur(","))
 				Pgm.Shift();
@@ -1494,7 +1494,7 @@ void GnuPlot::Eval3DPlots()
 			 *   key entry (keyword 'keyentry')
 			 */
 			dummy_func = &plot_func;
-			name_str = string_or_express(NULL);
+			name_str = StringOrExpress(NULL);
 			dummy_func = NULL;
 			if(Pgm.EqualsCur("keyentry"))
 				this_component = SP_KEYENTRY;
@@ -2095,7 +2095,7 @@ SKIPPED_EMPTY_FILE:
 				this_plot->sample_var->udv_value = original_value_u;
 				this_plot->sample_var2->udv_value = original_value_v;
 			}
-		}               /* !is_definition() : end of scope of this_plot */
+		} /* !IsDefinition() : end of scope of this_plot */
 		if(crnt_param != 0) {
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
@@ -2209,7 +2209,7 @@ SKIPPED_EMPTY_FILE:
 		while(TRUE) {
 			if(crnt_param == 0 && !was_definition)
 				start_token = Pgm.GetCurTokenIdx();
-			if(is_definition(Pgm.GetCurTokenIdx())) {
+			if(IsDefinition(Pgm.GetCurTokenIdx())) {
 				Pgm.Define();
 				if(Pgm.EqualsCur(","))
 					Pgm.Shift();
@@ -2231,7 +2231,7 @@ SKIPPED_EMPTY_FILE:
 				ParseRange(U_AXIS);
 				ParseRange(V_AXIS);
 				dummy_func = &plot_func;
-				name_str = string_or_express(&at_ptr);
+				name_str = StringOrExpress(&at_ptr);
 				if(Pgm.EqualsCur("keyentry")) {
 				}
 				else if(!name_str) {   /* func to plot */
@@ -2259,17 +2259,17 @@ SKIPPED_EMPTY_FILE:
 					}
 					/*}}} */
 				} /* end of ITS A FUNCTION TO PLOT */
-				/* we saved it from first pass */
-				GPO.Pgm.SetTokenIdx(this_plot->token);
-				/* we may have seen this one data file in multiple iterations */
+				// we saved it from first pass 
+				Pgm.SetTokenIdx(this_plot->token);
+				// we may have seen this one data file in multiple iterations 
 				i = this_plot->iteration;
 				do {
 					this_plot = this_plot->next_sp;
-				} while(this_plot && this_plot->token == GPO.Pgm.GetCurTokenIdx() && this_plot->iteration == i);
-			}       /* !is_definition */
+				} while(this_plot && this_plot->token == Pgm.GetCurTokenIdx() && this_plot->iteration == i);
+			} // !IsDefinition 
 			// Iterate-over-plot mechanism 
 			if(crnt_param == 0 && next_iteration(plot_iterator)) {
-				GPO.Pgm.SetTokenIdx(start_token);
+				Pgm.SetTokenIdx(start_token);
 				continue;
 			}
 			if(crnt_param == 0)

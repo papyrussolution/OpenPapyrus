@@ -289,13 +289,11 @@ TERM_PUBLIC void DJSVGA_options()
 			case DJSVGA_FONT:
 			    GPO.Pgm.Shift();
 			default:
-			    font = try_to_get_string();
-			    if(font != NULL) {
+			    font = GPO.TryToGetString();
+			    if(font)
 				    DJSVGA_trim_font_string(font, DJSVGA_default_fontname, sizeof(DJSVGA_default_fontname));
-			    }
-			    else {
+			    else
 				    GPO.IntErrorCurToken("Expect font string");
-			    }
 			    break;
 		}
 	}

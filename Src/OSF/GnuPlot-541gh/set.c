@@ -385,13 +385,10 @@ ITERATE:
 			    break;
 			case S_VXRANGE:
 			case S_VYRANGE:
-			case S_VZRANGE:
-			    set_vgrid_range();
-			    break;
+			case S_VZRANGE: SetVGridRange(); break;
 			case S_ZERO:
 			    set_zero();
 			    break;
-
 			case S_MXTICS:
 			case S_NOMXTICS:
 			case S_XTICS:
@@ -1196,14 +1193,14 @@ static void set_cntrlabel()
 		if(GPO.Pgm.AlmostEqualsCur("form$at")) {
 			char * p_new;
 			GPO.Pgm.Shift();
-			if((p_new = try_to_get_string()))
+			if((p_new = GPO.TryToGetString()))
 				safe_strncpy(contour_format, p_new, sizeof(contour_format));
 			SAlloc::F(p_new);
 		}
 		else if(GPO.Pgm.EqualsCur("font")) {
 			char * ctmp;
 			GPO.Pgm.Shift();
-			if((ctmp = try_to_get_string())) {
+			if((ctmp = GPO.TryToGetString())) {
 				SAlloc::F(clabel_font);
 				clabel_font = ctmp;
 			}
@@ -1462,7 +1459,7 @@ static void set_decimalsign()
 	else if(GPO.Pgm.EqualsCur("locale")) {
 		char * newlocale = NULL;
 		GPO.Pgm.Shift();
-		newlocale = try_to_get_string();
+		newlocale = GPO.TryToGetString();
 		if(!newlocale)
 			newlocale = gp_strdup(setlocale(LC_NUMERIC, ""));
 		if(!newlocale)
@@ -1481,7 +1478,7 @@ static void set_decimalsign()
 		setlocale(LC_NUMERIC, "C");
 #endif
 	}
-	else if(!(decimalsign = try_to_get_string()))
+	else if(!(decimalsign = GPO.TryToGetString()))
 		GPO.IntErrorCurToken("expecting string");
 }
 //
@@ -1532,7 +1529,7 @@ static void set_encoding()
 		int temp = GPO.Pgm.LookupTableForCurrentToken(&set_encoding_tbl[0]);
 		char * senc;
 		// allow string variables as parameter 
-		if((temp == S_ENC_INVALID) && GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (senc = try_to_get_string())) {
+		if((temp == S_ENC_INVALID) && GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (senc = GPO.TryToGetString())) {
 			for(int i = 0; encoding_names[i] != NULL; i++)
 				if(strcmp(encoding_names[i], senc) == 0)
 					temp = i;
@@ -1553,7 +1550,6 @@ static void set_fit()
 {
 	int key;
 	GPO.Pgm.Shift();
-
 	while(!GPO.Pgm.EndOfCommand()) {
 		if(GPO.Pgm.AlmostEqualsCur("log$file")) {
 			char * tmp;
@@ -1566,7 +1562,7 @@ static void set_fit()
 				GPO.Pgm.Shift();
 				ZFREE(fitlogfile);
 			}
-			else if((tmp = try_to_get_string()) != NULL) {
+			else if((tmp = GPO.TryToGetString()) != NULL) {
 				SAlloc::F(fitlogfile);
 				fitlogfile = tmp;
 			}
@@ -1710,7 +1706,7 @@ static void set_fit()
 				GPO.Pgm.Shift();
 				ZFREE(fit_script);
 			}
-			else if((tmp = try_to_get_string())) {
+			else if((tmp = GPO.TryToGetString())) {
 				SAlloc::F(fit_script);
 				fit_script = tmp;
 			}
@@ -1772,9 +1768,8 @@ void set_format()
 		}
 		return;
 	}
-	if(!(format = try_to_get_string()))
+	if(!(format = GPO.TryToGetString()))
 		GPO.IntErrorCurToken("expecting format string");
-
 	if(GPO.Pgm.AlmostEqualsCur("time$date")) {
 		tictype = DT_TIMEDATE;
 		GPO.Pgm.Shift();
@@ -1849,7 +1844,7 @@ static void set_grid()
 			GPO.AxS[POLAR_AXIS].gridmajor = TRUE; /* Enable both circles and radii */
 			polar_grid_angle = 30*DEG2RAD;
 			GPO.Pgm.Shift();
-			if(might_be_numeric(GPO.Pgm.GetCurTokenIdx())) {
+			if(GPO.MightBeNumeric(GPO.Pgm.GetCurTokenIdx())) {
 				double ang = GPO.RealExpression();
 				polar_grid_angle = (ang > 2.*M_PI) ? DEG2RAD*ang : ang2rad*ang;
 			}
@@ -2017,7 +2012,7 @@ static void set_pixmap()
 			this_pixmap->extent.x = 0;
 			continue;
 		}
-		if((temp = try_to_get_string())) {
+		if((temp = GPO.TryToGetString())) {
 			gp_expand_tilde(&temp);
 			SAlloc::F(this_pixmap->filename);
 			this_pixmap->filename = temp;
@@ -2330,7 +2325,7 @@ S_KEYTITLE:
 			    if(!Pgm.IsStringValue(Pgm.GetCurTokenIdx()))
 				    IntErrorCurToken("expected font");
 			    else {
-				    char * tmp = try_to_get_string();
+				    char * tmp = TryToGetString();
 				    if(tmp) {
 					    SAlloc::F(key->font);
 					    key->font = tmp;
@@ -2455,7 +2450,7 @@ static void set_label()
 	if(!GPO.Pgm.EndOfCommand()) {
 		char * text;
 		parse_label_options(this_label, 0);
-		text = try_to_get_string();
+		text = GPO.TryToGetString();
 		if(text) {
 			SAlloc::F(this_label->text);
 			this_label->text = text;
@@ -2493,7 +2488,7 @@ static void set_loadpath()
 	}
 	else while(!GPO.Pgm.EndOfCommand()) {
 			char * ss;
-			if((ss = try_to_get_string())) {
+			if((ss = GPO.TryToGetString())) {
 				int len = (collect ? strlen(collect) : 0);
 				gp_expand_tilde(&ss);
 				collect = (char *)gp_realloc(collect, len+1+strlen(ss)+1, "tmp loadpath");
@@ -2521,7 +2516,7 @@ static void set_fontpath()
 {
 	GPO.Pgm.Shift();
 	SAlloc::F(PS_fontpath);
-	PS_fontpath = try_to_get_string();
+	PS_fontpath = GPO.TryToGetString();
 }
 //
 // process 'set locale' command 
@@ -2533,7 +2528,7 @@ static void set_locale()
 	if(GPO.Pgm.EndOfCommand()) {
 		init_locale();
 	}
-	else if((s = try_to_get_string())) {
+	else if((s = GPO.TryToGetString())) {
 		set_var_locale(s);
 		SAlloc::F(s);
 	}
@@ -2691,7 +2686,7 @@ static void set_separator(char ** xx_separators)
 		*xx_separators = gp_strdup("\t");
 		GPO.Pgm.Shift();
 	}
-	else if(!(*xx_separators = try_to_get_string())) {
+	else if(!(*xx_separators = GPO.TryToGetString())) {
 		GPO.IntErrorCurToken("expected \"<separator_char>\"");
 	}
 }
@@ -2704,7 +2699,7 @@ static void set_datafile_commentschars()
 		SAlloc::F(df_commentschars);
 		df_commentschars = gp_strdup(DEFAULT_COMMENTS_CHARS);
 	}
-	else if((s = try_to_get_string())) {
+	else if((s = GPO.TryToGetString())) {
 		SAlloc::F(df_commentschars);
 		df_commentschars = s;
 	}
@@ -2723,7 +2718,7 @@ static void set_missing()
 		missing_val = sstrdup("NaN");
 		GPO.Pgm.Shift();
 	}
-	else if(!(missing_val = try_to_get_string()))
+	else if(!(missing_val = GPO.TryToGetString()))
 		GPO.IntErrorCurToken("expected missing-value string");
 }
 
@@ -2798,7 +2793,7 @@ void GnuPlot::SetMouse()
 			mouse_setting.label = 1;
 			Pgm.Shift();
 			// check if the optional argument "<label options>" is present 
-			if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = try_to_get_string())) {
+			if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
 				SAlloc::F(mouse_setting.labelopts);
 				mouse_setting.labelopts = ctmp;
 			}
@@ -2825,7 +2820,7 @@ void GnuPlot::SetMouse()
 		}
 		else if(Pgm.AlmostEqualsCur("fo$rmat")) {
 			Pgm.Shift();
-			if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = try_to_get_string())) {
+			if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
 				if(mouse_setting.fmt != mouse_fmt_default)
 					SAlloc::F(mouse_setting.fmt);
 				mouse_setting.fmt = ctmp;
@@ -2846,7 +2841,7 @@ void GnuPlot::SetMouse()
 				// FIXME:  wants sanity check that pThis is a string-valued  function with parameters x and y 
 				mouse_mode = MOUSE_COORDINATES_FUNCTION;
 			}
-			else if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = try_to_get_string())) {
+			else if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
 				SAlloc::F(mouse_alt_string);
 				mouse_alt_string = ctmp;
 				if(!strlen(mouse_alt_string)) {
@@ -2976,7 +2971,7 @@ static void set_output()
 		term_set_output(NULL);
 		ZFREE(outstr); // means STDOUT 
 	}
-	else if((testfile = try_to_get_string())) {
+	else if((testfile = GPO.TryToGetString())) {
 		gp_expand_tilde(&testfile);
 		term_set_output(testfile);
 		if(testfile != outstr) {
@@ -3001,7 +2996,7 @@ static void set_print()
 		print_set_output(NULL, FALSE, append_p);
 	}
 	else if(GPO.Pgm.EqualsCur("$") && GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()+1)) { /* datablock */
-		// NB: has to come first because try_to_get_string will choke on the datablock name 
+		// NB: has to come first because GPO.TryToGetString will choke on the datablock name 
 		char * datablock_name = sstrdup(GPO.Pgm.ParseDatablockName());
 		if(!GPO.Pgm.EndOfCommand()) {
 			if(GPO.Pgm.EqualsCur("append")) {
@@ -3014,7 +3009,7 @@ static void set_print()
 		}
 		print_set_output(datablock_name, TRUE, append_p);
 	}
-	else if((testfile = try_to_get_string())) { /* file name */
+	else if((testfile = GPO.TryToGetString())) { /* file name */
 		gp_expand_tilde(&testfile);
 		if(!GPO.Pgm.EndOfCommand()) {
 			if(GPO.Pgm.EqualsCur("append")) {
@@ -3038,7 +3033,7 @@ static void set_psdir()
 	if(GPO.Pgm.EndOfCommand()) {    /* no file specified */
 		ZFREE(PS_psdir);
 	}
-	else if((PS_psdir = try_to_get_string())) {
+	else if((PS_psdir = GPO.TryToGetString())) {
 		gp_expand_tilde(&PS_psdir);
 	}
 	else
@@ -3143,11 +3138,11 @@ int GnuPlot::SetPaletteDefined()
 	while(!Pgm.EndOfCommand()) {
 		char * col_str;
 		p = RealExpression();
-		col_str = try_to_get_string();
+		col_str = TryToGetString();
 		if(col_str) {
-			/* Hex constant or X-style rgb value "#rrggbb" */
+			// Hex constant or X-style rgb value "#rrggbb" 
 			if(col_str[0] == '#' || col_str[0] == '0') {
-				/* X-style specifier */
+				// X-style specifier 
 				int rr, gg, bb;
 				if((sscanf(col_str, "#%2x%2x%2x", &rr, &gg, &bb) != 3 ) && (sscanf(col_str, "0x%2x%2x%2x", &rr, &gg, &bb) != 3 ))
 					IntError(Pgm.GetPrevTokenIdx(), "Unknown color specifier. Use '#RRGGBB' of '0xRRGGBB'.");
@@ -3239,7 +3234,7 @@ static void set_palette_file()
 	char * file_name;
 	GPO.Pgm.Shift();
 	/* get filename */
-	if(!(file_name = try_to_get_string()))
+	if(!(file_name = GPO.TryToGetString()))
 		GPO.IntErrorCurToken("missing filename");
 	df_set_plot_mode(MODE_QUERY);   /* Needed only for binary datafiles */
 	df_open(file_name, 4, NULL);
@@ -4586,7 +4581,7 @@ void GnuPlot::SetStyle()
 			    }
 			    else if(Pgm.AlmostEqualsCur("ang$le")) {
 				    Pgm.Shift();
-				    if(might_be_numeric(Pgm.GetCurTokenIdx())) {
+				    if(MightBeNumeric(Pgm.GetCurTokenIdx())) {
 					    default_ellipse.o.ellipse.orientation = GPO.RealExpression();
 					    Pgm.Rollback();
 				    }
@@ -4739,7 +4734,7 @@ static void set_table()
 	SFile::ZClose(&table_outfile);
 	table_var = NULL;
 	if(GPO.Pgm.EqualsCur("$") && GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()+1)) { /* datablock */
-		// NB: has to come first because try_to_get_string will choke on the datablock name 
+		// NB: has to come first because GPO.TryToGetString will choke on the datablock name 
 		table_var = add_udv_by_name(GPO.Pgm.ParseDatablockName());
 		if(table_var == NULL)
 			GPO.IntErrorCurToken("Error allocating datablock");
@@ -4753,7 +4748,7 @@ static void set_table()
 			table_var->udv_value.v.data_array = NULL;
 		}
 	}
-	else if((tablefile = try_to_get_string())) { /* file name */
+	else if((tablefile = GPO.TryToGetString())) { /* file name */
 		/* 'set table "foo"' creates a new output file */
 		/* 'set table "foo" append' writes to the end of an existing output file */
 		gp_expand_tilde(&tablefile);
@@ -5038,16 +5033,16 @@ static void set_xyplane()
 	}
 	set_ticslevel();
 }
-
-/* Process 'set P_TimeFormat' command */
-/* V5: fallback default if timecolumn(N,"format") not used during input.
- * Use "set {axis}tics format" to control the output format.
- */
+//
+// Process 'set P_TimeFormat' command */
+// V5: fallback default if timecolumn(N,"format") not used during input.
+// Use "set {axis}tics format" to control the output format.
+//
 static void set_timefmt()
 {
 	char * ctmp;
 	GPO.Pgm.Shift();
-	if((ctmp = try_to_get_string())) {
+	if((ctmp = GPO.TryToGetString())) {
 		SAlloc::F(P_TimeFormat);
 		P_TimeFormat = ctmp;
 	}
@@ -5092,7 +5087,7 @@ static void set_timestamp()
 		}
 		if(GPO.Pgm.EqualsCur("font")) {
 			GPO.Pgm.Shift();
-			p_new = try_to_get_string();
+			p_new = GPO.TryToGetString();
 			SAlloc::F(timelabel.font);
 			timelabel.font = p_new;
 			continue;
@@ -5101,8 +5096,8 @@ static void set_timestamp()
 			parse_colorspec(&(timelabel.textcolor), TC_VARIABLE);
 			continue;
 		}
-		if(!got_format && ((p_new = try_to_get_string()))) {
-			/* we have a format string */
+		if(!got_format && ((p_new = GPO.TryToGetString()))) {
+			// we have a format string 
 			SAlloc::F(timelabel.text);
 			timelabel.text = p_new;
 			got_format = TRUE;
@@ -5507,9 +5502,9 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 					IntErrorCurToken("expected font");
 				else {
 					ZFREE(pThisAxis->ticdef.font);
-					pThisAxis->ticdef.font = try_to_get_string();
+					pThisAxis->ticdef.font = TryToGetString();
 				}
-				/* The geographic/timedate/numeric options are new in version 5 */
+				// The geographic/timedate/numeric options are new in version 5 
 			}
 			else if(Pgm.AlmostEqualsCur("geo$graphic")) {
 				Pgm.Shift();
@@ -5528,7 +5523,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 				Pgm.Shift();
 				if(Pgm.EndOfCommand())
 					format = gp_strdup(DEF_FORMAT);
-				else if(!((format = try_to_get_string())))
+				else if(!((format = TryToGetString())))
 					IntErrorCurToken("expected format");
 				SAlloc::F(pThisAxis->formatstring);
 				pThisAxis->formatstring  = format;
@@ -5686,7 +5681,7 @@ static void set_xyzlabel(text_label * label)
 	else {
 		parse_label_options(label, 0);
 		if(!GPO.Pgm.EndOfCommand()) {
-			char * text = try_to_get_string();
+			char * text = GPO.TryToGetString();
 			if(text) {
 				SAlloc::F(label->text);
 				label->text = text;
@@ -5873,7 +5868,7 @@ static void load_tic_user(GpAxis * this_axis)
 		 */
 		/* has a string with it? */
 		save_token = GPO.Pgm.GetCurTokenIdx();
-		ticlabel = try_to_get_string();
+		ticlabel = GPO.TryToGetString();
 		if(ticlabel && this_axis->datatype == DT_TIMEDATE && (GPO.Pgm.EqualsCur(",") || GPO.Pgm.EqualsCur(")"))) {
 			GPO.Pgm.SetTokenIdx(save_token);
 			ZFREE(ticlabel);
@@ -6096,19 +6091,17 @@ void parse_label_options(struct text_label * this_label, int ndim)
 				this_label->tag = NONROTATING_LABEL_TAG;
 			continue;
 		}
-
-		/* get font (added by DJL) */
+		// get font (added by DJL) 
 		if(!set_font && GPO.Pgm.EqualsCur("font")) {
 			GPO.Pgm.Shift();
-			if((font = try_to_get_string())) {
+			if((font = GPO.TryToGetString())) {
 				set_font = TRUE;
 				continue;
 			}
 			else
 				GPO.IntErrorCurToken("'fontname,fontsize' expected");
 		}
-
-		/* Flag pThis as hypertext rather than a normal label */
+		// Flag pThis as hypertext rather than a normal label 
 		if(!set_hypertext && GPO.Pgm.AlmostEqualsCur("hyper$text")) {
 			GPO.Pgm.Shift();
 			hypertext = TRUE;

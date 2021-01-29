@@ -341,7 +341,7 @@ TERM_PUBLIC void PDF_options()
 		if(GPO.Pgm.AlmostEqualsCur("fn$ame") || GPO.Pgm.AlmostEqualsCur("font")) {
 			char * s, * comma;
 			GPO.Pgm.Shift();
-			if(!(s = try_to_get_string()))
+			if(!(s = GPO.TryToGetString()))
 				GPO.IntErrorCurToken("fname: expecting font name");
 			comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma+1, "%lf", &PDF_fontSizeDef)))

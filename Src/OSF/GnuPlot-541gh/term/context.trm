@@ -429,23 +429,21 @@ TERM_PUBLIC void CONTEXT_options()
 			    GPO.Pgm.Shift();
 			    CONTEXT_params.timestamp = FALSE;
 			    break;
-
 			case CONTEXT_OPT_HEADER:
 			    GPO.Pgm.Shift();
 			    /* parse the string */
-			    tmp_string = try_to_get_string();
+			    tmp_string = GPO.TryToGetString();
 			    if(!tmp_string) {
 				    GPO.IntErrorCurToken("String containing header information expected");
-				    /* only touch the options if the string is OK */
+				    // only touch the options if the string is OK 
 			    }
 			    else {
-				    /* remove the old header if any */
+				    // remove the old header if any 
 				    if(CONTEXT_params.header) {
 					    SAlloc::F(CONTEXT_params.header);
 					    CONTEXT_params.header = NULL;
 				    }
-				    /* and set the new one if nonempty;
-				     * empty header will be treated as 'noheader' */
+				    // and set the new one if nonempty; empty header will be treated as 'noheader' 
 				    if(strlen(tmp_string) > 0) {
 					    CONTEXT_params.header = tmp_string;
 				    }
@@ -568,7 +566,7 @@ TERM_PUBLIC void CONTEXT_options()
 			    double tmp_fontsize;
 			    char tmp_font[MAX_ID_LEN+1] = "";
 			    GPO.Pgm.Shift();
-			    if((tmp_string = try_to_get_string()) && (tmp_string != NULL)) {
+			    if((tmp_string = GPO.TryToGetString()) && tmp_string) {
 				    CONTEXT_fontstring_parse(tmp_string, tmp_font, MAX_ID_LEN+1, &tmp_fontsize);
 				    /* copies font name to parameters */
 				    safe_strncpy(CONTEXT_params.font, tmp_font, sizeof(CONTEXT_params.font));

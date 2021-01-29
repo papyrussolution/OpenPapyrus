@@ -26,32 +26,32 @@ GpIterator * set_iterator = NULL;
 //
 static void extend_at();
 static union argument * add_action(enum operators sf_index);
-static void parse_expression();
-static void accept_logical_OR_expression();
-static void accept_logical_AND_expression();
-static void accept_inclusive_OR_expression();
-static void accept_exclusive_OR_expression();
-static void accept_AND_expression();
-static void accept_equality_expression();
-static void accept_relational_expression();
+//static void parse_expression();
+//static void accept_logical_OR_expression();
+//static void accept_logical_AND_expression();
+//static void accept_inclusive_OR_expression();
+//static void accept_exclusive_OR_expression();
+//static void accept_AND_expression();
+//static void accept_equality_expression();
+//static void accept_relational_expression();
 //static void accept_bitshift_expression();
 //static void accept_additive_expression();
 //static void accept_multiplicative_expression();
-static void parse_conditional_expression();
-static void parse_logical_OR_expression();
-static void parse_logical_AND_expression();
-static void parse_inclusive_OR_expression();
-static void parse_exclusive_OR_expression();
-static void parse_AND_expression();
-static void parse_equality_expression();
-static void parse_relational_expression();
+//static void parse_conditional_expression();
+//static void parse_logical_OR_expression();
+//static void parse_logical_AND_expression();
+//static void parse_inclusive_OR_expression();
+//static void parse_exclusive_OR_expression();
+//static void parse_AND_expression();
+//static void parse_equality_expression();
+//static void parse_relational_expression();
 //static void parse_bitshift_expression();
 //static void parse_additive_expression();
 //static void parse_multiplicative_expression();
 //static void parse_unary_expression();
 //static void parse_sum_expression();
-static int  parse_assignment_expression();
-static int  parse_array_assignment_expression();
+//static int  parse_assignment_expression();
+//static int  parse_array_assignment_expression();
 static void set_up_columnheader_parsing(struct at_entry * previous);
 static bool no_iteration(GpIterator *);
 static void reevaluate_iteration_limits(GpIterator * iter);
@@ -87,18 +87,19 @@ void parse_reset_after_error()
 	string_result_only = FALSE;
 	parse_recursion_level = 0;
 }
-
-/* JW 20051126:
- * Wrapper around const_express() called by try_to_get_string().
- * Disallows top level + and - operators.
- * This enables things like set xtics ('-\pi' -pi, '-\pi/2' -pi/2.)
- */
-GpValue * const_string_express(GpValue * valptr)                
+// 
+// JW 20051126:
+// Wrapper around const_express() called by try_to_get_string().
+// Disallows top level + and - operators.
+// This enables things like set xtics ('-\pi' -pi, '-\pi/2' -pi/2.)
+// 
+//GpValue * const_string_express(GpValue * pVal)
+GpValue * GnuPlot::ConstStringExpress(GpValue * pVal)
 {
 	string_result_only = TRUE;
-	GPO.ConstExpress(valptr);
+	ConstExpress(pVal);
 	string_result_only = FALSE;
-	return (valptr);
+	return pVal;
 }
 
 //GpValue * const_express(GpValue * pVal)
@@ -109,22 +110,23 @@ GpValue * GnuPlot::ConstExpress(GpValue * pVal)
 		IntErrorCurToken("constant expression required");
 	// div - no dummy variables in a constant expression 
 	dummy_func = NULL;
-	EvaluateAt(temp_at(), pVal); // run it and send answer back 
+	EvaluateAt(TempAt(), pVal); // run it and send answer back 
 	if(__IsUndefined)
 		IntError(tkn, "undefined value");
 	return pVal;
 }
-
-/* Used by plot2d/plot3d/stats/fit:
- * Parse an expression that may return a filename string, a datablock name,
- * a constant, or a dummy function using dummy variables x, y, ...
- * If any dummy variables are present, set (*atptr) to point to an action table
- * corresponding to the parsed expression, and return NULL.
- * Otherwise evaluate the expression and return a string if there is one.
- * The return value "str" and "*atptr" both point to locally-managed memory,
- * which must not be freed by the caller!
- */
-char * string_or_express(at_type ** atptr)
+// 
+// Used by plot2d/plot3d/stats/fit:
+// Parse an expression that may return a filename string, a datablock name,
+// a constant, or a dummy function using dummy variables x, y, ...
+// If any dummy variables are present, set (*atptr) to point to an action table
+// corresponding to the parsed expression, and return NULL.
+// Otherwise evaluate the expression and return a string if there is one.
+// The return value "str" and "*atptr" both point to locally-managed memory,
+// which must not be freed by the caller!
+// 
+//char * string_or_express(at_type ** ppAt)
+char * GnuPlot::StringOrExpress(at_type ** ppAt)
 {
 	int i;
 	bool has_dummies;
@@ -132,27 +134,27 @@ char * string_or_express(at_type ** atptr)
 	static char * str = NULL;
 	ZFREE(str);
 	df_array = NULL;
-	ASSIGN_PTR(atptr, NULL);
-	if(GPO.Pgm.EndOfCommand())
-		GPO.IntErrorCurToken("expression expected");
+	ASSIGN_PTR(ppAt, NULL);
+	if(Pgm.EndOfCommand())
+		IntErrorCurToken("expression expected");
 	// parsing for datablocks 
-	if(GPO.Pgm.EqualsCur("$"))
-		return GPO.Pgm.ParseDatablockName();
+	if(Pgm.EqualsCur("$"))
+		return Pgm.ParseDatablockName();
 	// special keywords 
-	if(GPO.Pgm.EqualsCur("keyentry"))
+	if(Pgm.EqualsCur("keyentry"))
 		return NULL;
-	if(GPO.Pgm.IsString(GPO.Pgm.GetCurTokenIdx()) && (str = try_to_get_string()))
+	if(Pgm.IsString(Pgm.GetCurTokenIdx()) && (str = TryToGetString()))
 		return str;
 	// If this is a bare array name for an existing array, store a pointer
 	// for df_open() to use.  "@@" is a magic pseudo-filename passed to
 	// df_open() that tells it to use the stored pointer.
-	if(GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) == ARRAY && !GPO.Pgm.EqualsNext("[")) {
-		df_array = add_udv(GPO.Pgm.GetCurTokenIdx());
-		GPO.Pgm.Shift();
+	if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == ARRAY && !Pgm.EqualsNext("[")) {
+		df_array = add_udv(Pgm.GetCurTokenIdx());
+		Pgm.Shift();
 		return array_placeholder;
 	}
 	// parse expression 
-	temp_at();
+	TempAt();
 	// check if any dummy variables are used 
 	has_dummies = FALSE;
 	for(i = 0; i < P_At->a_count; i++) {
@@ -165,7 +167,7 @@ char * string_or_express(at_type ** atptr)
 	if(!has_dummies) {
 		// no dummy variables: evaluate expression 
 		GpValue val;
-		GPO.EvaluateAt(P_At, &val);
+		EvaluateAt(P_At, &val);
 		if(!__IsUndefined && val.type == STRING) {
 			// prevent empty string variable from treated as special file '' or "" 
 			if(*val.v.string_val == '\0') {
@@ -177,15 +179,15 @@ char * string_or_express(at_type ** atptr)
 		}
 	}
 	// prepare return 
-	ASSIGN_PTR(atptr, P_At);
+	ASSIGN_PTR(ppAt, P_At);
 	return str;
 }
-
-/* build an action table and return its pointer, but keep a pointer in at
- * so that we can free it later if the caller hasn't taken over management
- * of this table.
- */
-at_type * temp_at()                 
+//
+// build an action table and return its pointer, but keep a pointer in at
+// so that we can free it later if the caller hasn't taken over management of this table.
+//
+//at_type * temp_at()
+at_type * GnuPlot::TempAt()
 {
 	if(P_At)
 		free_at(P_At);
@@ -193,7 +195,7 @@ at_type * temp_at()
 	memzero(P_At, sizeof(*P_At));     /* reset action table !!! */
 	AtSize = MAX_AT_LEN;
 	parse_recursion_level = 0;
-	parse_expression();
+	ParseExpression();
 	return (P_At);
 }
 //
@@ -201,7 +203,7 @@ at_type * temp_at()
 //
 at_type * perm_at()                 
 {
-	temp_at();
+	GPO.TempAt();
 	size_t len = sizeof(at_type) + (P_At->a_count - MAX_AT_LEN) * sizeof(struct at_entry);
 	at_type * at_ptr = (at_type *)gp_realloc(P_At, len, "perm_at");
 	P_At = NULL; // invalidate at pointer 
@@ -257,59 +259,68 @@ static union argument * add_action(enum operators sf_index)
 	P_At->actions[P_At->a_count].index = sf_index;
 	return (&(P_At->actions[P_At->a_count++].arg));
 }
-
-/* For external calls to parse_expressions()
- * parse_recursion_level is expected to be 0 */
-static void parse_expression()
+// 
+// For external calls to parse_expressions()
+// parse_recursion_level is expected to be 0 
+// 
+//static void parse_expression()
+void GnuPlot::ParseExpression()
 {                               /* full expressions */
-	if(parse_assignment_expression())
+	if(ParseAssignmentExpression())
 		return;
 	parse_recursion_level++;
-	accept_logical_OR_expression();
-	parse_conditional_expression();
+	AcceptLogicalOrExpression();
+	ParseConditionalExpression();
 	parse_recursion_level--;
 }
 
-static void accept_logical_OR_expression()
+//static void accept_logical_OR_expression()
+void GnuPlot::AcceptLogicalOrExpression()
 {                               /* ? : expressions */
-	accept_logical_AND_expression();
-	parse_logical_OR_expression();
+	AcceptLogicalAndExpression();
+	ParseLogicalOrExpression();
 }
 
-static void accept_logical_AND_expression()
+//static void accept_logical_AND_expression()
+void GnuPlot::AcceptLogicalAndExpression()
 {
-	accept_inclusive_OR_expression();
-	parse_logical_AND_expression();
+	AcceptInclusiveOrExpression();
+	ParseLogicalAndExpression();
 }
 
-static void accept_inclusive_OR_expression()
+//static void accept_inclusive_OR_expression()
+void GnuPlot::AcceptInclusiveOrExpression()
 {
-	accept_exclusive_OR_expression();
-	parse_inclusive_OR_expression();
+	AcceptExclusiveOrExpression();
+	ParseInclusiveOrExpression();
 }
 
-static void accept_exclusive_OR_expression()
+//static void accept_exclusive_OR_expression()
+void GnuPlot::AcceptExclusiveOrExpression()
 {
-	accept_AND_expression();
-	parse_exclusive_OR_expression();
+	AcceptAndExpression();
+	ParseExclusiveOrExpression();
 }
 
-static void accept_AND_expression()
+//static void accept_AND_expression()
+void GnuPlot::AcceptAndExpression()
 {
-	accept_equality_expression();
-	parse_AND_expression();
+	AcceptEqualityExpression();
+	ParseAndExpression();
 }
 
-static void accept_equality_expression()
+//static void accept_equality_expression()
+void GnuPlot::AcceptEqualityExpression()
 {
-	accept_relational_expression();
-	parse_equality_expression();
+	AcceptRelationalExpression();
+	ParseEqualityExpression();
 }
 
-static void accept_relational_expression()
+//static void accept_relational_expression()
+void GnuPlot::AcceptRelationalExpression()
 {
-	GPO.AcceptBitshiftExpression();
-	parse_relational_expression();
+	AcceptBitshiftExpression();
+	ParseRelationalExpression();
 }
 
 //static void accept_bitshift_expression()
@@ -333,30 +344,31 @@ void GnuPlot::AcceptMultiplicativeExpression()
 	ParseMultiplicativeExpression(); /* * / % */
 }
 
-static int parse_assignment_expression()
+//static int parse_assignment_expression()
+int GnuPlot::ParseAssignmentExpression()
 {
 	// Check for assignment operator Var = <expr> 
-	if(GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()) && GPO.Pgm.Equals(GPO.Pgm.GetCurTokenIdx()+1, "=")) {
-		/* push the variable name */
+	if(Pgm.IsLetter(Pgm.GetCurTokenIdx()) && Pgm.Equals(Pgm.GetCurTokenIdx()+1, "=")) {
+		// push the variable name 
 		union argument * foo = add_action(PUSHC);
 		char * varname = NULL;
-		GPO.Pgm.MCapture(&varname, GPO.Pgm.GetCurTokenIdx(), GPO.Pgm.GetCurTokenIdx());
+		Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 		foo->v_arg.type = STRING;
 		foo->v_arg.v.string_val = varname;
-		/* push a dummy variable that would be the index if this were an array */
-		/* FIXME: It would be nice to hide this from "show at" */
+		// push a dummy variable that would be the index if this were an array 
+		// FIXME: It would be nice to hide this from "show at" 
 		foo = add_action(PUSHC);
 		foo->v_arg.type = NOTDEFINED;
 		// push the expression whose value it will get 
-		GPO.Pgm.Shift();
-		GPO.Pgm.Shift();
-		parse_expression();
+		Pgm.Shift();
+		Pgm.Shift();
+		ParseExpression();
 		// push the actual assignment operation 
 		add_action(ASSIGN);
 		return 1;
 	}
 	// Check for assignment to an array element Array[<expr>] = <expr> 
-	if(parse_array_assignment_expression())
+	if(ParseArrayAssignmentExpression())
 		return 1;
 	return 0;
 }
@@ -368,47 +380,48 @@ static int parse_assignment_expression()
  *	print A[2] = foo
  *	A[1] = A[2] = A[3] = 0
  */
-static int parse_array_assignment_expression()
+//static int parse_array_assignment_expression()
+int GnuPlot::ParseArrayAssignmentExpression()
 {
 	// Check for assignment to an array element Array[<expr>] = <expr> 
-	if(GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()) && GPO.Pgm.EqualsNext("[")) {
+	if(Pgm.IsLetter(Pgm.GetCurTokenIdx()) && Pgm.EqualsNext("[")) {
 		char * varname = NULL;
 		union argument * foo;
 		int save_action, save_token;
 		/* Quick check for the most common false positives */
 		/* i.e. other constructs that begin with "name["   */
 		/* FIXME: quicker than the full test below, but do we care? */
-		if(GPO.Pgm.Equals(GPO.Pgm.GetCurTokenIdx()+3, "]") && !GPO.Pgm.Equals(GPO.Pgm.GetCurTokenIdx()+4, "="))
+		if(Pgm.Equals(Pgm.GetCurTokenIdx()+3, "]") && !Pgm.Equals(Pgm.GetCurTokenIdx()+4, "="))
 			return 0;
-		if(GPO.Pgm.Equals(GPO.Pgm.GetCurTokenIdx()+3, ":")) /* substring s[foo:baz] */
+		if(Pgm.Equals(Pgm.GetCurTokenIdx()+3, ":")) /* substring s[foo:baz] */
 			return 0;
 		// Is this really a known array name? 
-		if(GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) != ARRAY)
+		if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) != ARRAY)
 			return 0;
 		// Save state of the action table and the command line 
 		save_action = P_At->a_count;
-		save_token = GPO.Pgm.GetCurTokenIdx();
+		save_token = Pgm.GetCurTokenIdx();
 		// push the array name 
-		GPO.Pgm.MCapture(&varname, GPO.Pgm.GetCurTokenIdx(), GPO.Pgm.GetCurTokenIdx());
+		Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 		foo = add_action(PUSHC);
 		foo->v_arg.type = STRING;
 		foo->v_arg.v.string_val = varname;
 		// push the index 
-		GPO.Pgm.Shift();
-		GPO.Pgm.Shift();
-		parse_expression();
+		Pgm.Shift();
+		Pgm.Shift();
+		ParseExpression();
 		/* If this wasn't really an array element assignment, back out. */
 		/* NB: Depending on what we just parsed, this may leak memory.  */
-		if(!GPO.Pgm.EqualsCur("]") || !GPO.Pgm.EqualsNext("=")) {
-			GPO.Pgm.SetTokenIdx(save_token);
+		if(!Pgm.EqualsCur("]") || !Pgm.EqualsNext("=")) {
+			Pgm.SetTokenIdx(save_token);
 			P_At->a_count = save_action;
 			SAlloc::F(varname);
 			return 0;
 		}
 		// Now we evaluate the expression whose value it will get 
-		GPO.Pgm.Shift();
-		GPO.Pgm.Shift();
-		parse_expression();
+		Pgm.Shift();
+		Pgm.Shift();
+		ParseExpression();
 		// push the actual assignment operation 
 		add_action(ASSIGN);
 		return 1;
@@ -427,12 +440,12 @@ void GnuPlot::ParsePrimaryExpression()
 {
 	if(Pgm.EqualsCur("(")) {
 		Pgm.Shift();
-		parse_expression();
+		ParseExpression();
 		// Expressions may be separated by a comma 
 		while(Pgm.EqualsCur(",")) {
 			Pgm.Shift();
 			add_action(POP);
-			parse_expression();
+			ParseExpression();
 		}
 		if(!Pgm.EqualsCur(")"))
 			IntErrorCurToken("')' expected");
@@ -492,19 +505,19 @@ void GnuPlot::ParsePrimaryExpression()
 		// Found an identifier --- check whether its a function or a
 		// variable by looking for the parentheses of a function argument list 
 		if(Pgm.EqualsNext("(")) {
-			enum operators whichfunc = (enum operators)is_builtin_function(Pgm.GetCurTokenIdx());
+			enum operators whichfunc = (enum operators)IsBuiltinFunction(Pgm.GetCurTokenIdx());
 			GpValue num_params;
 			num_params.type = INTGR;
 			if(whichfunc) {
 				/* skip fnc name and '(' */
 				Pgm.Shift();
 				Pgm.Shift();
-				parse_expression(); /* parse fnc argument */
+				ParseExpression(); // parse fnc argument 
 				num_params.v.int_val = 1;
 				while(Pgm.EqualsCur(",")) {
 					Pgm.Shift();
 					num_params.v.int_val++;
-					parse_expression();
+					ParseExpression();
 				}
 				if(!Pgm.EqualsCur(")"))
 					IntErrorCurToken("')' expected");
@@ -528,13 +541,13 @@ void GnuPlot::ParsePrimaryExpression()
 				// skip func name and '(' 
 				Pgm.Shift();
 				Pgm.Shift();
-				parse_expression();
+				ParseExpression();
 				if(Pgm.EqualsCur(",")) { /* more than 1 argument? */
 					num_params.v.int_val = 1;
 					while(Pgm.EqualsCur(",")) {
 						num_params.v.int_val += 1;
 						Pgm.Shift();
-						parse_expression();
+						ParseExpression();
 					}
 					add_action(PUSHC)->v_arg = num_params;
 					call_type = (enum operators)CALLN;
@@ -629,7 +642,7 @@ void GnuPlot::ParsePrimaryExpression()
 					Pgm.Shift();
 			}
 			else
-				parse_expression();
+				ParseExpression();
 			// handle array indexing (single value in square brackets) 
 			if(Pgm.EqualsCur("]")) {
 				Pgm.Shift();
@@ -647,7 +660,7 @@ void GnuPlot::ParsePrimaryExpression()
 					Pgm.Shift();
 			}
 			else
-				parse_expression();
+				ParseExpression();
 			if(!Pgm.EqualsCur("]"))
 				IntErrorCurToken("']' expected");
 			Pgm.Shift();
@@ -664,10 +677,11 @@ void GnuPlot::ParsePrimaryExpression()
 // of at->actions[]. That array may be realloc()ed by add_action() or
 // express() calls!. Access via index savepc1/savepc2, instead. 
 // 
-static void parse_conditional_expression()
+//static void parse_conditional_expression()
+void GnuPlot::ParseConditionalExpression()
 {
 	// create action code for ? : expressions 
-	if(GPO.Pgm.EqualsCur("?")) {
+	if(Pgm.EqualsCur("?")) {
 		int savepc1, savepc2;
 		/* Fake same recursion level for alternatives
 		 *   set xlabel a>b ? 'foo' : 'bar' -1, 1
@@ -675,103 +689,109 @@ static void parse_conditional_expression()
 		 *   set xlabel a-b>c ? 'foo' : 'bar'  offset -1, 1
 		 */
 		parse_recursion_level--;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 		savepc1 = P_At->a_count;
 		add_action(JTERN);
-		parse_expression();
-		if(!GPO.Pgm.EqualsCur(":"))
-			GPO.IntErrorCurToken("expecting ':'");
-		GPO.Pgm.Shift();
+		ParseExpression();
+		if(!Pgm.EqualsCur(":"))
+			IntErrorCurToken("expecting ':'");
+		Pgm.Shift();
 		savepc2 = P_At->a_count;
 		add_action(JUMP);
 		P_At->actions[savepc1].arg.j_arg = P_At->a_count - savepc1;
-		parse_expression();
+		ParseExpression();
 		P_At->actions[savepc2].arg.j_arg = P_At->a_count - savepc2;
 		parse_recursion_level++;
 	}
 }
 
-static void parse_logical_OR_expression()
+//static void parse_logical_OR_expression()
+void GnuPlot::ParseLogicalOrExpression()
 {
 	// create action codes for || operator 
-	while(GPO.Pgm.EqualsCur("||")) {
+	while(Pgm.EqualsCur("||")) {
 		int savepc;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 		savepc = P_At->a_count;
 		add_action(JUMPNZ); /* short-circuit if already TRUE */
-		accept_logical_AND_expression();
+		AcceptLogicalAndExpression();
 		// offset for jump 
 		P_At->actions[savepc].arg.j_arg = P_At->a_count - savepc;
 		add_action(BOOLE);
 	}
 }
 
-static void parse_logical_AND_expression()
+//static void parse_logical_AND_expression()
+void GnuPlot::ParseLogicalAndExpression()
 {
 	// create action code for && operator 
-	while(GPO.Pgm.EqualsCur("&&")) {
+	while(Pgm.EqualsCur("&&")) {
 		int savepc;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 		savepc = P_At->a_count;
 		add_action(JUMPZ); /* short-circuit if already FALSE */
-		accept_inclusive_OR_expression();
+		AcceptInclusiveOrExpression();
 		P_At->actions[savepc].arg.j_arg = P_At->a_count - savepc; /* offset for jump */
 		add_action(BOOLE);
 	}
 }
 
-static void parse_inclusive_OR_expression()
+//static void parse_inclusive_OR_expression()
+void GnuPlot::ParseInclusiveOrExpression()
 {
 	// create action code for | operator 
-	while(GPO.Pgm.EqualsCur("|")) {
-		GPO.Pgm.Shift();
-		accept_exclusive_OR_expression();
+	while(Pgm.EqualsCur("|")) {
+		Pgm.Shift();
+		AcceptExclusiveOrExpression();
 		add_action(BOR);
 	}
 }
 
-static void parse_exclusive_OR_expression()
+//static void parse_exclusive_OR_expression()
+void GnuPlot::ParseExclusiveOrExpression()
 {
 	// create action code for ^ operator 
-	while(GPO.Pgm.EqualsCur("^")) {
-		GPO.Pgm.Shift();
-		accept_AND_expression();
+	while(Pgm.EqualsCur("^")) {
+		Pgm.Shift();
+		AcceptAndExpression();
 		add_action(XOR);
 	}
 }
 
-static void parse_AND_expression()
+//static void parse_AND_expression()
+void GnuPlot::ParseAndExpression()
 {
 	// create action code for & operator 
-	while(GPO.Pgm.EqualsCur("&")) {
-		GPO.Pgm.Shift();
-		accept_equality_expression();
+	while(Pgm.EqualsCur("&")) {
+		Pgm.Shift();
+		AcceptEqualityExpression();
 		add_action(BAND);
 	}
 }
 
-static void parse_equality_expression()
+//static void parse_equality_expression()
+void GnuPlot::ParseEqualityExpression()
 {
 	// create action codes for == and != numeric operators eq and ne string operators 
 	while(TRUE) {
-		if(GPO.Pgm.EqualsCur("==")) {
-			GPO.Pgm.Shift();
-			accept_relational_expression();
+		if(Pgm.EqualsCur("==")) {
+			Pgm.Shift();
+			AcceptRelationalExpression();
 			add_action(EQ);
 		}
-		else if(GPO.Pgm.EqualsCur("!=")) {
-			GPO.Pgm.Shift();
-			accept_relational_expression();
+		else if(Pgm.EqualsCur("!=")) {
+			Pgm.Shift();
+			AcceptRelationalExpression();
 			add_action(NE);
 		}
-		else if(GPO.Pgm.EqualsCur("eq")) {
-			GPO.Pgm.Shift();
-			accept_relational_expression();
+		else if(Pgm.EqualsCur("eq")) {
+			Pgm.Shift();
+			AcceptRelationalExpression();
 			add_action(EQS);
 		}
-		else if(GPO.Pgm.EqualsCur("ne")) {
-			GPO.Pgm.Shift();
-			accept_relational_expression();
+		else if(Pgm.EqualsCur("ne")) {
+			Pgm.Shift();
+			AcceptRelationalExpression();
 			add_action(NES);
 		}
 		else
@@ -779,32 +799,33 @@ static void parse_equality_expression()
 	}
 }
 
-static void parse_relational_expression()
+//static void parse_relational_expression()
+void GnuPlot::ParseRelationalExpression()
 {
 	// create action code for < > >= or <= operators 
 	while(TRUE) {
-		if(GPO.Pgm.EqualsCur(">")) {
-			GPO.Pgm.Shift();
-			GPO.AcceptBitshiftExpression();
+		if(Pgm.EqualsCur(">")) {
+			Pgm.Shift();
+			AcceptBitshiftExpression();
 			add_action(GT);
 		}
-		else if(GPO.Pgm.EqualsCur("<")) {
+		else if(Pgm.EqualsCur("<")) {
 			// Workaround for * in syntax of range constraints  
-			if(scanning_range_in_progress && GPO.Pgm.EqualsNext("*") ) {
+			if(scanning_range_in_progress && Pgm.EqualsNext("*") ) {
 				break;
 			}
-			GPO.Pgm.Shift();
-			GPO.AcceptBitshiftExpression();
+			Pgm.Shift();
+			AcceptBitshiftExpression();
 			add_action(LT);
 		}
-		else if(GPO.Pgm.EqualsCur(">=")) {
-			GPO.Pgm.Shift();
-			GPO.AcceptBitshiftExpression();
+		else if(Pgm.EqualsCur(">=")) {
+			Pgm.Shift();
+			AcceptBitshiftExpression();
 			add_action(GE);
 		}
-		else if(GPO.Pgm.EqualsCur("<=")) {
-			GPO.Pgm.Shift();
-			GPO.AcceptBitshiftExpression();
+		else if(Pgm.EqualsCur("<=")) {
+			Pgm.Shift();
+			AcceptBitshiftExpression();
 			add_action(LE);
 		}
 		else
@@ -984,13 +1005,13 @@ void GnuPlot::ParseSumExpression()
 	if(!Pgm.EqualsCur("="))
 		IntErrorCurToken(errormsg);
 	Pgm.Shift();
-	/* <start> */
-	parse_expression();
+	// <start> 
+	ParseExpression();
 	if(!Pgm.EqualsCur(":"))
 		IntErrorCurToken(errormsg);
 	Pgm.Shift();
-	/* <end> */
-	parse_expression();
+	// <end> 
+	ParseExpression();
 	if(!Pgm.EqualsCur("]"))
 		IntErrorCurToken(errormsg);
 	Pgm.Shift();
@@ -1039,7 +1060,7 @@ udft_entry * add_udf(int t_num)
 		udf_ptr = &((*udf_ptr)->next_udf);
 	}
 	// get here => not found. udf_ptr points at first_udf or next_udf field of last udf
-	if(is_builtin_function(t_num))
+	if(GPO.IsBuiltinFunction(t_num))
 		GPO.IntWarn(t_num, "Warning : udf shadowed by built-in function of the same name");
 	// create and return a new udf slot 
 	*udf_ptr = (udft_entry *)gp_alloc(sizeof(udft_entry), "function");
@@ -1055,32 +1076,35 @@ udft_entry * add_udf(int t_num)
 //
 // return standard function index or 0 
 //
-int is_builtin_function(int t_num)
+//int is_builtin_function(int t_num)
+int GnuPlot::IsBuiltinFunction(int t_num) const
 {
 	for(int i = (int)SF_START; _FuncTab[i].f_name; i++) {
-		if(GPO.Pgm.Equals(t_num, _FuncTab[i].f_name))
-			return (i);
-	}
-	return (0);
-}
-/*
- * Test for the existence of a function without triggering errors
- * Return values:
- *   0  no such function is defined
- *  -1  built-in function
- *   1  user-defined function
- */
-int is_function(int t_num)
-{
-	udft_entry ** udf_ptr = &first_udf;
-	if(is_builtin_function(t_num))
-		return -1;
-	while(*udf_ptr) {
-		if(GPO.Pgm.Equals(t_num, (*udf_ptr)->udf_name))
-			return 1;
-		udf_ptr = &((*udf_ptr)->next_udf);
+		if(Pgm.Equals(t_num, _FuncTab[i].f_name))
+			return i;
 	}
 	return 0;
+}
+// 
+// Test for the existence of a function without triggering errors
+// Return values:
+//   0  no such function is defined
+//   -1  built-in function
+//   1  user-defined function
+// 
+//int is_function(int t_num)
+int GnuPlot::IsFunction(int t_num) const
+{
+	if(IsBuiltinFunction(t_num))
+		return -1;
+	else {
+		for(const udft_entry * const * udf_ptr = &first_udf; *udf_ptr;) {
+			if(Pgm.Equals(t_num, (*udf_ptr)->udf_name))
+				return 1;
+			udf_ptr = &((*udf_ptr)->next_udf);
+		}
+		return 0;
+	}
 }
 /* Look for iterate-over-plot constructs, of the form
  *    for [<var> = <start> : <end> { : <increment>}] ...

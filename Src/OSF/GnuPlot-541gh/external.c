@@ -55,7 +55,7 @@ struct at_type * external_at(const char * func_name)
 	at_type * at = NULL;
 	if(!GPO.Pgm.IsString(GPO.Pgm.GetCurTokenIdx()))
 		GPO.IntErrorCurToken("expecting external function filename");
-	// NB: cannot use try_to_get_string() inside an expression evaluation 
+	// NB: cannot use GPO.TryToGetString() inside an expression evaluation 
 	GPO.Pgm.MQuoteCapture(&file, GPO.Pgm.GetCurTokenIdx(), GPO.Pgm.GetCurTokenIdx());
 	if(!file)
 		GPO.IntErrorCurToken("expecting external function filename");

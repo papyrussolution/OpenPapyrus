@@ -498,7 +498,7 @@ TERM_PUBLIC void X11_options()
 			    GPO.Pgm.Shift();
 			    if(GPO.Pgm.EndOfCommand())
 				    GPO.IntErrorCurToken("expecting font name");
-			    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = try_to_get_string())) {
+			    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = GPO.TryToGetString())) {
 				    strncpy(X11_default_font, s, sizeof(X11_default_font)-1);
 				    SAlloc::F(s);
 			    }
@@ -579,7 +579,7 @@ TERM_PUBLIC void X11_options()
 		    {
 			    char * windowid;
 			    GPO.Pgm.Shift();
-			    if(!(windowid = try_to_get_string()))
+			    if(!(windowid = GPO.TryToGetString()))
 				    GPO.IntErrorCurToken("expecting X window ID as string in hex");
 			    sscanf(windowid, "%lx", &existing_X11_window_id);
 			    SAlloc::F(windowid);
@@ -683,7 +683,7 @@ TERM_PUBLIC void X11_options()
 		GPO.Pgm.SetTokenIdx(c_title_token);
 		strncat(term_options, " title \"", sizeof(term_options)-strlen(term_options)-1);
 		title = term_options + strlen(term_options);
-		if(GPO.Pgm.IsStringValue(c_title_token) && (s = try_to_get_string())) {
+		if(GPO.Pgm.IsStringValue(c_title_token) && (s = GPO.TryToGetString())) {
 			strncat(term_options, s, sizeof(term_options)-strlen(term_options)-1);
 			SAlloc::F(s);
 		}

@@ -1766,7 +1766,7 @@ void GnuPlot::EvalPlots()
 					histogram_title.textcolor = histogram_opts.title.textcolor;
 					histogram_title.boxed = histogram_opts.title.boxed;
 					histogram_title.pos = histogram_opts.title.pos;
-					histogram_title.text = try_to_get_string();
+					histogram_title.text = TryToGetString();
 					histogram_title.font = gp_strdup(histogram_opts.title.font);
 					parse_label_options(&histogram_title, 2);
 				}
@@ -1790,7 +1790,7 @@ void GnuPlot::EvalPlots()
 			if(!Pgm.EqualsCur(","))
 				IntErrorCurToken("syntax error (missing comma)");
 		}
-		else if(is_definition(Pgm.GetCurTokenIdx())) {
+		else if(IsDefinition(Pgm.GetCurTokenIdx())) {
 			Pgm.Define();
 			if(Pgm.EqualsCur(","))
 				Pgm.Shift();
@@ -1844,7 +1844,7 @@ void GnuPlot::EvalPlots()
 			else
 				strcpy(c_dummy_var[0], orig_dummy_var);
 			dummy_func = &plot_func; /* needed by parsing code */
-			name_str = string_or_express(NULL);
+			name_str = StringOrExpress(NULL);
 			dummy_func = NULL;
 			if(name_str) { /* data file to plot */
 				if(parametric && in_parametric)
@@ -2735,17 +2735,17 @@ SKIPPED_EMPTY_FILE:
 			t_max = AxS[T_AXIS].max;
 			t_step = (t_max - t_min) / (samples_1 - 1);
 		}
-		/* else we'll do it on each plot (see below) */
+		// else we'll do it on each plot (see below) 
 		tp_ptr = &(first_plot);
 		plot_num = 0;
 		this_plot = first_plot;
 		GPO.Pgm.SetTokenIdx(begin_token); /* start over */
 		plot_iterator = check_for_iteration();
-		/* Read through functions */
+		// Read through functions 
 		while(TRUE) {
 			if(!in_parametric && !was_definition)
 				start_token = Pgm.GetCurTokenIdx();
-			if(is_definition(Pgm.GetCurTokenIdx())) {
+			if(IsDefinition(Pgm.GetCurTokenIdx())) {
 				Pgm.Define();
 				if(Pgm.EqualsCur(","))
 					Pgm.Shift();
@@ -2790,7 +2790,7 @@ SKIPPED_EMPTY_FILE:
 					else
 						strcpy(c_dummy_var[0], orig_dummy_var);
 					// WARNING: do NOT free name_str 
-					name_str = string_or_express(&at_ptr);
+					name_str = StringOrExpress(&at_ptr);
 				}
 				if(!name_str) { /* function to plot */
 					if(parametric) { /* toggle parametric axes */
@@ -3233,7 +3233,7 @@ void parse_plot_title(curve_points * this_plot, char * xtitle, char * ytitle, bo
 			/* If the command is "plot ... notitle <optional title text>" */
 			/* we can throw the result away now that we have stepped over it  */
 			if(this_plot->title_is_suppressed) {
-				char * skip = try_to_get_string();
+				char * skip = GPO.TryToGetString();
 				SAlloc::F(skip);
 				/* In the very common case of a string constant, use it as-is. */
 				/* This guarantees that the title is only entered in the key once per
@@ -3244,7 +3244,7 @@ void parse_plot_title(curve_points * this_plot, char * xtitle, char * ytitle, bo
 				free_at(df_plot_title_at);
 				df_plot_title_at = NULL;
 				SAlloc::F(this_plot->title);
-				this_plot->title = try_to_get_string();
+				this_plot->title = GPO.TryToGetString();
 				/* Create an action table that can generate the title later */
 			}
 			else {

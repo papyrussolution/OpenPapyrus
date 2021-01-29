@@ -372,7 +372,7 @@ TERM_PUBLIC void FIG_options()
 			    char * fontname;
 			    int sep;
 			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand() || !((fontname = try_to_get_string())))
+			    if(GPO.Pgm.EndOfCommand() || !((fontname = GPO.TryToGetString())))
 				    GPO.IntErrorCurToken("expecting font name");
 			    sep = strcspn(fontname, ",");
 			    sscanf(&(fontname[sep+1]), "%d", &FIG_font_s);

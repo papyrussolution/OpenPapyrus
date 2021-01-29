@@ -472,7 +472,6 @@ TERM_PUBLIC void CACA_options()
 			    break;
 			case CACA_SIZE: {
 			    float width, height;
-
 			    GPO.Pgm.Shift();
 			    parse_term_size(&width, &height, PIXELS);
 			    term->xmax = CACA_xmax = width - 1;
@@ -483,7 +482,7 @@ TERM_PUBLIC void CACA_options()
 			    GPO.Pgm.Shift();
 			    if(!GPO.Pgm.EndOfCommand()) {
 				    SAlloc::F(CACA_title);
-				    CACA_title = sstrdup(try_to_get_string());
+				    CACA_title = sstrdup(GPO.TryToGetString());
 			    }
 			    else {
 				    GPO.IntErrorCurToken("Option `title` requires an argument, see `help caca`.");
@@ -495,7 +494,6 @@ TERM_PUBLIC void CACA_options()
 			    break;
 		}
 	}
-
 	CACA_update_options();
 #ifdef DEBUG
 	{

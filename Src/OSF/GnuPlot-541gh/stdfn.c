@@ -258,7 +258,6 @@ size_t gp_strcspn(const char * str1, const char * str2)
 int ms_vsnprintf(char * str, size_t size, const char * format, va_list ap)
 {
 	int count = -1;
-
 	if((size != 0) && (str != NULL))
 		count = _vsnprintf_s(str, size, _TRUNCATE, format, ap);
 	if(count == -1)
@@ -270,7 +269,6 @@ int ms_snprintf(char * str, size_t size, const char * format, ...)
 {
 	int result;
 	va_list ap;
-
 	va_start(ap, format);
 	result = ms_vsnprintf(str, size, format, ap);
 	va_end(ap);

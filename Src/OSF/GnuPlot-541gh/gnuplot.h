@@ -493,6 +493,12 @@
 		const char * f_name; // pointer to name of this function 
 		FUNC_PTR Func_; // address of function to call 
 	};
+
+	struct GpFuncEntry {
+		int   FuncId;
+		const char * P_Name; // pointer to name of this function 
+		FUNC_PTR Func_; // address of function to call 
+	};
 	//
 	// action table entry 
 	//
@@ -595,7 +601,7 @@
 	extern bool parse_1st_row_as_headers; /* This is checked by df_readascii() */
 	extern udvt_entry *df_array; /* This is used by df_open() and df_readascii() */
 	// This is used to block re-definition of built-in functions 
-	extern int is_builtin_function(int t_num);
+	//extern int is_builtin_function(int t_num);
 	// 
 	// Protection mechanism for trying to parse a string followed by a + or - sign.
 	// Also suppresses an undefined variable message if an unrecognized token
@@ -608,17 +614,17 @@
 	//intgr_t int_expression();
 	//double GPO.RealExpression();
 	void   parse_reset_after_error();
-	GpValue * const_string_express(GpValue * valptr);
+	//GpValue * const_string_express(GpValue * valptr);
 	//GpValue * const_express(GpValue * valptr);
-	char * string_or_express(at_type ** atptr);
-	at_type * temp_at();
+	//char * string_or_express(at_type ** atptr);
+	//at_type * temp_at();
 	at_type * perm_at();
 	at_type * create_call_column_at(char *);
 	at_type * create_call_columnhead();
 	udvt_entry * add_udv(int t_num);
 	udft_entry * add_udf(int t_num);
 	void   cleanup_udvlist();
-	int    is_function(int t_num);
+	//int    is_function(int t_num);
 	//
 	// Code that uses the iteration routines here must provide
 	// a blank iteration structure to use for bookkeeping.     
@@ -679,14 +685,14 @@
 	//int    FASTCALL isstring(int);
 	//int    isanumber(int);
 	//int    isletter(int);
-	int    is_definition(int);
-	bool   might_be_numeric(int);
+	//int    is_definition(int);
+	//bool   might_be_numeric(int);
 	//void   copy_str(char *, int, int);
 	// (replaced wiht GpProgram::TokenLen()) size_t token_len_Removed(int);
 	//void   capture(char *, int, int, int);
 	//void   m_capture(char **, int, int);
 	//void   m_quote_capture(char **, int, int);
-	char * try_to_get_string();
+	//char * try_to_get_string();
 	void   parse_esc(char *);
 	//int    FASTCALL type_udv(int);
 	char * gp_stradd(const char *, const char *);
@@ -3046,6 +3052,7 @@ enum t_fillstyle {
 		int    MapiX(double value) const;
 		int    MapiY(double value) const;
 		void   SaveAxisFormat(FILE * fp, AXIS_INDEX axis) const;
+		bool   ValidateData(double v, AXIS_INDEX ax) const;
 
 		AXIS_INDEX Idx_X; // axes being used by the current plot 
 		AXIS_INDEX Idx_Y; // axes being used by the current plot 
@@ -4565,7 +4572,7 @@ enum t_fillstyle {
 	extern struct ticmark * prune_dataticks(struct ticmark *list);
 //
 //#include <stats.h>
-	void statsrequest();
+	//void statsrequest();
 //
 //#include <external.h>
 	#ifdef HAVE_EXTERNAL_FUNCTIONS
@@ -4720,13 +4727,13 @@ enum t_fillstyle {
 	//
 	// function prototypes 
 	//
-	void   voxel_command();
+	//void   voxel_command();
 	void   vclear_command();
 	void   vfill_command();
 	void   f_voxel(union argument * x);
 	void   init_voxelsupport();
 	void   set_vgrid();
-	void   set_vgrid_range();
+	//void   set_vgrid_range();
 	void   show_vgrid();
 	void   gpfree_vgrid(struct udvt_entry * grid);
 	void   unset_vgrid();
@@ -5243,12 +5250,14 @@ public:
 	void   ShowCommand();
 	void   LinkCommand();
 	void   ImportCommand();
+	void   VoxelCommand();
 	void   PrintLineWithError(int t_num);
 	void   PlotOptionEvery();
 	void   PlotOptionUsing(int max_using);
 	void   PlotOptionIndex();
 	void   Plot3DRequest();
 	void   RefreshRequest();
+	void   StatsRequest();
 	int    LpParse(lp_style_type * lp, lp_class destination_class, bool allow_point);
 	void   ArrowParse(arrow_style_type * arrow, bool allow_as);
 	int    MakePalette();
@@ -5277,10 +5286,32 @@ public:
 	void   ParseUnaryExpression();
 	void   ParseMultiplicativeExpression();
 	void   ParseAdditiveExpression();
+	int    ParseAssignmentExpression();
+	void   ParseLogicalOrExpression();
+	void   ParseLogicalAndExpression();
+	void   ParseInclusiveOrExpression();
+	void   ParseExclusiveOrExpression();
+	void   ParseAndExpression();
+	void   ParseRelationalExpression();
+	void   ParseEqualityExpression();
+	int    ParseArrayAssignmentExpression();
+	void   ParseConditionalExpression();
+	void   ParseExpression();
 	int    ParseRange(AXIS_INDEX axis);
+	GpValue * ConstStringExpress(GpValue * pVal);
+	char * TryToGetString();
+	char * StringOrExpress(at_type ** ppAt);
+	at_type * TempAt();
 	void   AcceptMultiplicativeExpression();
 	void   AcceptAdditiveExpression();
 	void   AcceptBitshiftExpression();
+	void   AcceptLogicalOrExpression();
+	void   AcceptLogicalAndExpression();
+	void   AcceptInclusiveOrExpression();
+	void   AcceptExclusiveOrExpression();
+	void   AcceptAndExpression();
+	void   AcceptRelationalExpression();
+	void   AcceptEqualityExpression();
 	void   ResetPalette();
 	void   SetColorSequence(int option);
 	void   SetCntrParam();
@@ -5288,6 +5319,11 @@ public:
 	void   UnsetPolar();
 	void   UnsetStyle();
 	void   TestTerminal(termentry * pTerm);
+	char * DfGeneratePseudodata();
+	int    IsBuiltinFunction(int t_num) const;
+	int    IsFunction(int t_num) const;
+	int    IsDefinition(int t_num) const;
+	bool   MightBeNumeric(int t_num) const;
 
 	GpStack EvStk;
 	GpEval  Ev;
@@ -5326,6 +5362,7 @@ private:
 	void   SetRange(GpAxis * pAx);
 	void   SetCbMinMax();
 	void   SetOverflow();
+	void   SetVGridRange();
 	void   SaveWritebackAllAxes();
 	void   UpdateSecondaryAxisRange(GpAxis * pAxPrimary);
 	double MapX3D(double x);

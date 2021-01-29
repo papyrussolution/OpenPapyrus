@@ -544,20 +544,18 @@ TERM_PUBLIC void SVG_options()
 		}
 		if(GPO.Pgm.EqualsCur("name")) {
 			GPO.Pgm.Shift();
-			SVG_name = try_to_get_string();
+			SVG_name = GPO.TryToGetString();
 			if(!SVG_name)
 				GPO.IntErrorCurToken("expecting a plot name");
 			if(SVG_name[strspn(SVG_name, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890")])
 				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "name must contain only alphanumerics or _");
 			continue;
 		}
-
 		if(GPO.Pgm.EqualsCur("jsdir")) {
 			GPO.Pgm.Shift();
-			SVG_scriptdir = try_to_get_string();
+			SVG_scriptdir = GPO.TryToGetString();
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("d$ynamic")) {
 			GPO.Pgm.Shift();
 			SVG_fixed_size = FALSE;
@@ -576,19 +574,16 @@ TERM_PUBLIC void SVG_options()
 			term->flags |= TERM_ENHANCED_TEXT;
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("noenh$anced")) {
 			GPO.Pgm.Shift();
 			term->put_text = SVG_put_text;
 			term->flags &= ~TERM_ENHANCED_TEXT;
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("fn$ame") || GPO.Pgm.AlmostEqualsCur("font")) {
 			char * s, * comma;
 			GPO.Pgm.Shift();
-
-			if(!(s = try_to_get_string()))
+			if(!(s = GPO.TryToGetString()))
 				GPO.IntErrorCurToken("expecting font name");
 			comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma + 1, "%lf", &SVG_fontSizeDef)))

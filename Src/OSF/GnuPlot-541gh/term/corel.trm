@@ -113,11 +113,11 @@ TERM_PUBLIC void COREL_options()
 			default:
 			    // font name 
 			    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx())) {
-				    char * font = try_to_get_string();
+				    char * font = GPO.TryToGetString();
 				    strncpy(corel_font, font, MAX_ID_LEN);
 			    }
 			    else {
-				    /* We have font size specified */
+				    // We have font size specified 
 				    corel_fontsize = (int)real(const_express(&a));
 				    GPO.Pgm.Shift();
 				    term->v_char = (uint)(corel_fontsize * COREL_SC);

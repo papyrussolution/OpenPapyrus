@@ -371,7 +371,7 @@ TERM_PUBLIC void WIN_options()
 		    }
 			case WIN_GTITLE:
 			    GPO.Pgm.Shift();
-			    title = try_to_get_string();
+			    title = GPO.TryToGetString();
 			    if(title == NULL)
 				    GPO.IntErrorCurToken("expecting string argument");
 			    if(strcmp(title, "") == 0)
@@ -384,8 +384,8 @@ TERM_PUBLIC void WIN_options()
 			    break;
 			case WIN_FONT:
 			    GPO.Pgm.Shift();
-			    /* Code copied from ps.trm and modified for windows terminal */
-			    if((s = try_to_get_string())) {
+			    // Code copied from ps.trm and modified for windows terminal 
+			    if((s = GPO.TryToGetString())) {
 				    char * comma;
 				    if(set_font)
 					    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);

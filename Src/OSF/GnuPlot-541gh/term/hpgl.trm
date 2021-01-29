@@ -783,7 +783,7 @@ TERM_PUBLIC void PCL_options()
 			case HPGL2_FONT: {
 			    char * s;
 			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = try_to_get_string())) {
+			    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = GPO.TryToGetString())) {
 				    double fontsize;
 				    char * comma = strrchr(s, ',');
 				    if(comma && (sscanf(comma + 1, "%lf", &fontsize) == 1)) {

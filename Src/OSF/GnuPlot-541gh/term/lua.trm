@@ -738,7 +738,7 @@ TERM_PUBLIC void LUA_options()
 	if(need_init) {
 		if(!GPO.Pgm.EndOfCommand()) {
 			if(*opt_str == '"' || *opt_str == '\'') {
-				s = try_to_get_string();
+				s = GPO.TryToGetString();
 				gp_expand_tilde(&s);
 			}
 			else {

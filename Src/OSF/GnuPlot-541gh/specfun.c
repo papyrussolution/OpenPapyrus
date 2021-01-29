@@ -288,7 +288,6 @@ static int mtherr(char * name, int code)
  * program in microcode or assembly language.
  *
  */
-
 /*
    Cephes Math Library Release 2.1:  December, 1988
    Copyright 1984, 1987, 1988 by Stephen L. Moshier
@@ -296,52 +295,37 @@ static int mtherr(char * name, int code)
  */
 static double polevl(double x, const double coef[], int N)
 {
-	double ans;
-	int i;
-	const double    * p;
-
-	p = coef;
-	ans = *p++;
-	i = N;
-
-	do
+	const double * p = coef;
+	double ans = *p++;
+	int i = N;
+	do {
 		ans = ans * x + *p++;
-	while(--i);
-
+	} while(--i);
 	return (ans);
 }
-
 /*                                          N
  * Evaluate polynomial when coefficient of x  is 1.0.
  * Otherwise same as polevl.
  */
 static double p1evl(double x, const double coef[], int N)
 {
-	double ans;
-	const double        * p;
-	int i;
-
-	p = coef;
-	ans = x + *p++;
-	i = N - 1;
-
-	do
+	const double * p = coef;
+	double ans = x + *p++;
+	int i = N - 1;
+	do {
 		ans = ans * x + *p++;
-	while(--i);
-
+	} while(--i);
 	return (ans);
 }
 
 #ifndef LGAMMA
 
-/* Provide lgamma function for those who do not already have one */
-
+// Provide lgamma function for those who do not already have one 
 int sgngam;
 
 static int ISNAN(double x)
 {
 	volatile double a = x;
-
 	if(a != a)
 		return 1;
 	return 0;
@@ -350,7 +334,6 @@ static int ISNAN(double x)
 static int ISFINITE(double x)
 {
 	volatile double a = x;
-
 	if(a < DBL_MAX)
 		return 1;
 	return 0;
@@ -486,12 +469,9 @@ double lngamma(double x)
 #define LS2PI *(double*)LS2P
 #define MAXLGM 2.556348e305
 #endif /* MIEEE */
-
 	static const double LOGPI = 1.1447298858494001741434273513530587116472948129153;
-
 	double p, q, u, w, z;
 	int i;
-
 	sgngam = 1;
 #ifdef NANS
 	if(ISNAN(x))
@@ -574,12 +554,9 @@ loverf:
 	q = (x - 0.5) * log(x) - x + LS2PI;
 	if(x > 1.0e8)
 		return (q);
-
 	p = 1.0 / (x * x);
 	if(x >= 1000.0)
-		q += ((7.9365079365079365079365e-4 * p
-		    - 2.7777777777777777777778e-3) * p
-		    + 0.0833333333333333333333) / x;
+		q += ((7.9365079365079365079365e-4 * p - 2.7777777777777777777778e-3) * p + 0.0833333333333333333333) / x;
 	else
 		q += polevl(p, A, 4) / x;
 	return (q);
@@ -599,8 +576,7 @@ loverf:
 void f_erf(union argument * arg)
 {
 	GpValue a;
-	double x;
-	x = real(__POP__(&a));
+	double x = real(__POP__(&a));
 	x = erf(x);
 	GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
 }

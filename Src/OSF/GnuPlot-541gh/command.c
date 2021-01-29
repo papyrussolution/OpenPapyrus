@@ -428,7 +428,7 @@ void GpProgram::Command()
 {
 	for(int i = 0; i < MAX_NUM_VAR; i++)
 		c_dummy_var[i][0] = NUL; /* no dummy variables */
-	if(is_definition(GetCurTokenIdx()))
+	if(GPO.IsDefinition(GetCurTokenIdx()))
 		Define();
 	else if(IsArrayAssignment())
 		;
@@ -542,7 +542,7 @@ void GpProgram::Command()
 			else if(AlmostEquals(cur_tok_idx, "vgfill"))
 				vfill_command();
 			else if(AlmostEquals(cur_tok_idx, "voxel"))
-				voxel_command();
+				GPO.VoxelCommand();
 			else if(AlmostEquals(cur_tok_idx, "while"))
 				WhileCommand();
 			else if(AlmostEquals(cur_tok_idx, "{"))
@@ -803,7 +803,7 @@ void GpProgram::BindCommand()
 	if(EndOfCommand()) {
 		; /* Fall through */
 	}
-	else if(IsStringValue(GetCurTokenIdx()) && (lhs = try_to_get_string())) {
+	else if(IsStringValue(GetCurTokenIdx()) && (lhs = GPO.TryToGetString())) {
 		FPRINTF((stderr, "Got bind quoted lhs = \"%s\"\n", lhs));
 	}
 	else {
@@ -822,7 +822,7 @@ void GpProgram::BindCommand()
 	if(EndOfCommand()) {
 		; /* Fall through */
 	}
-	else if(IsStringValue(GetCurTokenIdx()) && (rhs = try_to_get_string())) {
+	else if(IsStringValue(GetCurTokenIdx()) && (rhs = GPO.TryToGetString())) {
 		FPRINTF((stderr, "Got bind quoted rhs = \"%s\"\n", rhs));
 	}
 	else {
@@ -878,7 +878,7 @@ void call_command()
 {
 	char * save_file = NULL;
 	GPO.Pgm.Shift();
-	save_file = try_to_get_string();
+	save_file = GPO.TryToGetString();
 	if(!save_file)
 		GPO.IntErrorCurToken("expecting filename");
 	gp_expand_tilde(&save_file);
@@ -890,7 +890,7 @@ void call_command()
 void changedir_command()
 {
 	GPO.Pgm.Shift();
-	char * save_file = try_to_get_string();
+	char * save_file = GPO.TryToGetString();
 	if(!save_file)
 		GPO.IntErrorCurToken("expecting directory name");
 	gp_expand_tilde(&save_file);
@@ -922,7 +922,7 @@ void clear_command()
 void eval_command()
 {
 	GPO.Pgm.Shift();
-	char * command = try_to_get_string();
+	char * command = GPO.TryToGetString();
 	if(!command)
 		GPO.IntErrorCurToken("Expected command string");
 	GPO.DoStringAndFree(command);
@@ -946,7 +946,7 @@ void GnuPlot::ExitCommand()
 	if(Pgm.EqualsNext("error")) {
 		Pgm.Shift();
 		Pgm.Shift();
-		IntError(NO_CARET, try_to_get_string());
+		IntError(NO_CARET, TryToGetString());
 	}
 	// else graphics will be tidied up in main 
 	command_exit_requested = 1;
@@ -1010,7 +1010,7 @@ void history_command()
 		if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
 			n = GPO.IntExpression();
 		}
-		if((tmp = try_to_get_string())) {
+		if((tmp = GPO.TryToGetString())) {
 			SAlloc::F(name);
 			name = tmp;
 			if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.AlmostEqualsCur("ap$pend")) {
@@ -1066,7 +1066,7 @@ void GpProgram::IfElseCommand(ifstate if_state)
 		if(!Equals(++CToken, "("))
 			GPO.IntErrorCurToken("expecting (expression)");
 		// advance past if condition whether or not we evaluate it 
-		expr = temp_at();
+		expr = GPO.TempAt();
 		if(EqualsCur("{")) {
 			next_token = FindClause(&clause_start, &clause_end);
 		}
@@ -1394,8 +1394,9 @@ void GnuPlot::LinkCommand()
 	if(secondary_axis->index == POLAR_AXIS)
 		rrange_to_xy();
 }
-
-/* process the 'load' command */
+//
+// process the 'load' command 
+//
 void load_command()
 {
 	GPO.Pgm.Shift();
@@ -1409,7 +1410,7 @@ void load_command()
 		/* These need to be local so that recursion works. */
 		/* They will eventually be freed by lf_pop(). */
 		FILE * fp;
-		char * save_file = try_to_get_string();
+		char * save_file = GPO.TryToGetString();
 		if(!save_file)
 			GPO.IntErrorCurToken("expecting filename");
 		gp_expand_tilde(&save_file);
@@ -1579,7 +1580,7 @@ void pause_command()
 		buf = gp_strdup("paused"); /* default message, used in Windows GUI pause dialog */
 	}
 	else {
-		char * tmp = try_to_get_string();
+		char * tmp = GPO.TryToGetString();
 		if(!tmp)
 			GPO.IntErrorCurToken("expecting string");
 		else {
@@ -1941,8 +1942,7 @@ void save_command()
 		default:
 		    break;
 	}
-
-	save_file = try_to_get_string();
+	save_file = GPO.TryToGetString();
 	if(!save_file)
 		GPO.IntErrorCurToken("expecting filename");
 	if(GPO.Pgm.EqualsCur("append")) {
@@ -2041,22 +2041,24 @@ void splot_command()
 		term->modify_plots(MODPLOTS_SET_VISIBLE, -1);
 	SET_CURSOR_ARROW;
 }
-
-/* process the 'stats' command */
+//
+// process the 'stats' command 
+//
 void stats_command()
 {
 #ifdef USE_STATS
-	statsrequest();
+	GPO.StatsRequest();
 #else
 	GPO.IntError(NO_CARET, "This copy of gnuplot was not configured with support for the stats command");
 #endif
 }
-
-/* process the 'system' command */
+//
+// process the 'system' command 
+//
 void system_command()
 {
 	GPO.Pgm.Shift();
-	char * cmd = try_to_get_string();
+	char * cmd = GPO.TryToGetString();
 	do_system(cmd);
 	SAlloc::F(cmd);
 }
@@ -2199,7 +2201,7 @@ void toggle_command()
 	if(GPO.Pgm.EqualsCur("all")) {
 		GPO.Pgm.Shift();
 	}
-	else if((plottitle = try_to_get_string()) != NULL) {
+	else if((plottitle = GPO.TryToGetString()) != NULL) {
 		curve_points * plot;
 		int last = strlen(plottitle) - 1;
 		if(refresh_ok == E_REFRESH_OK_2D)

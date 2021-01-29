@@ -426,7 +426,7 @@ TERM_PUBLIC void CGM_options()
 				    char * s = NULL;
 				    if(GPO.Pgm.EqualsCur("font"))
 					    GPO.Pgm.Shift();
-				    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = try_to_get_string())) {
+				    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = GPO.TryToGetString())) {
 					    double relwidth;
 					    int font_index;
 					    char * comma = strchr(s, ',');

@@ -777,8 +777,8 @@ TERM_PUBLIC void EMF_options()
 		}
 		if(GPO.Pgm.EqualsCur("font"))
 			GPO.Pgm.Shift();
-		/* Fall through to old-style bare font name */
-		if((s = try_to_get_string())) {
+		// Fall through to old-style bare font name 
+		if((s = GPO.TryToGetString())) {
 			char * comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma+1, "%f", &new_defaultfontsize))) {
 				*comma = '\0';

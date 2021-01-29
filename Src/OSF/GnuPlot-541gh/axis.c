@@ -1525,7 +1525,7 @@ double FASTCALL get_num_or_time(const GpAxis * axis)
 		struct tm tm;
 		double usec;
 		char * ss;
-		if((ss = try_to_get_string()))
+		if((ss = GPO.TryToGetString()))
 			if(gstrptime(ss, P_TimeFormat, &tm, &usec, &value) == DT_TIMEDATE)
 				value = (double)gtimegm(&tm) + usec;
 		SAlloc::F(ss);

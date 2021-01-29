@@ -172,7 +172,7 @@ TERM_PUBLIC void AQUA_options()
 	while(!GPO.Pgm.EndOfCommand()) {
 		if(GPO.Pgm.AlmostEqualsCur("ti$tle")) {
 			GPO.Pgm.Shift();
-			if(!(s = try_to_get_string()))
+			if(!(s = GPO.TryToGetString()))
 				GPO.IntErrorCurToken("fname: expecting plot title");
 			strncpy(AQUA_title, s, sizeof(AQUA_title));
 			SAlloc::F(s);
@@ -198,16 +198,12 @@ TERM_PUBLIC void AQUA_options()
 			AQUA_ySize = (uint)value * AQUA_RESOLUTION;
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("fn$ame") || GPO.Pgm.AlmostEqualsCur("font")) {
 			char * name;
 			double size;
-
 			GPO.Pgm.Shift();
-
-			if(!(s = try_to_get_string()))
+			if(!(s = GPO.TryToGetString()))
 				GPO.IntErrorCurToken("expecting font specifier");
-
 			get_font_name_and_size(s, &name, &size);
 			SAlloc::F(s);
 			if(name)

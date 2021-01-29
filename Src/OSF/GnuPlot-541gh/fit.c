@@ -1467,8 +1467,8 @@ void GnuPlot::FitCommand()
 	func.at = perm_at();    /* parse expression and save action table */
 	dummy_func = NULL;
 	token2 = Pgm.GetCurTokenIdx();
-	/* get filename */
-	file_name = string_or_express(NULL);
+	// get filename 
+	file_name = StringOrExpress(NULL);
 	if(file_name)
 		file_name = gp_strdup(file_name);
 	else
@@ -1878,7 +1878,7 @@ out_of_range:
 		double tmp_par;
 		char c = '\0', * s;
 		char sstr[MAX_LINE_LEN + 1];
-		char * viafile = try_to_get_string();
+		char * viafile = TryToGetString();
 		if(!viafile || !(via_f = loadpath_fopen(viafile, "r")))
 			Eex2("could not read parameter-file \"%s\"", viafile);
 		if(!fit_suppress_log)

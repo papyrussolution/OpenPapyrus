@@ -251,12 +251,12 @@ TERM_PUBLIC void CANVAS_options()
 			    break;
 
 			case CANVAS_TITLE:
-			    CANVAS_title = try_to_get_string();
+			    CANVAS_title = GPO.TryToGetString();
 			    if(!CANVAS_title)
 				    GPO.IntErrorCurToken("expecting an HTML title string");
 			    break;
 			case CANVAS_NAME:
-			    CANVAS_name = try_to_get_string();
+			    CANVAS_name = GPO.TryToGetString();
 			    if(!CANVAS_name)
 				    GPO.IntErrorCurToken("expecting a javascript function name");
 			    if(CANVAS_name[strspn(CANVAS_name, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890")])
@@ -270,7 +270,7 @@ TERM_PUBLIC void CANVAS_options()
 			case CANVAS_FONT:
 			    /* FIXME: See note at CANVAS_set_font() */
 			    SAlloc::F(canvas_font_name);
-			    if(!(canvas_font_name = try_to_get_string()))
+			    if(!(canvas_font_name = GPO.TryToGetString()))
 				    GPO.IntErrorCurToken("font: expecting string");
 			    CANVAS_set_font(canvas_font_name);
 			    break;
@@ -284,7 +284,7 @@ TERM_PUBLIC void CANVAS_options()
 			    CANVAS_mouseable = TRUE;
 			    break;
 			case CANVAS_JSDIR:
-			    CANVAS_scriptdir = try_to_get_string();
+			    CANVAS_scriptdir = GPO.TryToGetString();
 			    break;
 			case CANVAS_ENH:
 			    term->put_text = ENHCANVAS_put_text;
@@ -1464,35 +1464,59 @@ TERM_PUBLIC void CANVAS_image(unsigned m, unsigned n, coordval * image, gpiPoint
 #endif /* TERM_BODY */
 
 #ifdef TERM_TABLE
-TERM_TABLE_START(canvas_driver)
-"canvas", "HTML Canvas object",
-CANVAS_XMAX, CANVAS_YMAX, CANVASVCHAR, CANVASHCHAR,
-CANVASVTIC, CANVASHTIC, CANVAS_options, CANVAS_init, CANVAS_reset,
-CANVAS_text, null_scale, CANVAS_graphics, CANVAS_move, CANVAS_vector,
-CANVAS_linetype, CANVAS_put_text, CANVAS_text_angle,
-CANVAS_justify_text, CANVAS_point, do_arrow,
-CANVAS_set_font,
-CANVAS_pointsize,
-TERM_CAN_MULTIPLOT|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_CAN_DASH,
-NULL, NULL, CANVAS_fillbox, CANVAS_linewidth
-#ifdef USE_MOUSE
-, NULL, NULL, NULL, NULL, NULL
-#endif
-, CANVAS_make_palette, NULL, CANVAS_set_color
-, CANVAS_filled_polygon
-#ifdef WRITE_PNG_IMAGE
-, CANVAS_image
-#else
-, NULL
-#endif
-, ENHCANVAS_OPEN, ENHCANVAS_FLUSH, do_enh_writec
-, CANVAS_layer
-, CANVAS_path                   /* path */
-, 1.0                           /* Should this be CANVAS_OVERSAMPLE? */
-, CANVAS_hypertext
-, NULL                          /* boxed text */
-, NULL                          /* modify_plots */
-, CANVAS_dashtype TERM_TABLE_END(canvas_driver)
+	TERM_TABLE_START(canvas_driver)
+	"canvas", 
+	"HTML Canvas object",
+	CANVAS_XMAX, 
+	CANVAS_YMAX, 
+	CANVASVCHAR, 
+	CANVASHCHAR,
+	CANVASVTIC, 
+	CANVASHTIC, 
+	CANVAS_options, 
+	CANVAS_init, 
+	CANVAS_reset,
+	CANVAS_text, 
+	null_scale, 
+	CANVAS_graphics, 
+	CANVAS_move, 
+	CANVAS_vector,
+	CANVAS_linetype, 
+	CANVAS_put_text, 
+	CANVAS_text_angle,
+	CANVAS_justify_text, 
+	CANVAS_point, 
+	do_arrow,
+	CANVAS_set_font,
+	CANVAS_pointsize,
+	TERM_CAN_MULTIPLOT|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_CAN_DASH,
+	NULL, 
+	NULL, 
+	CANVAS_fillbox, 
+	CANVAS_linewidth
+	#ifdef USE_MOUSE
+	, NULL, NULL, NULL, NULL, NULL
+	#endif
+	, CANVAS_make_palette, 
+	NULL, 
+	CANVAS_set_color, 
+	CANVAS_filled_polygon
+	#ifdef WRITE_PNG_IMAGE
+	, CANVAS_image
+	#else
+	, NULL
+	#endif
+	, ENHCANVAS_OPEN, 
+	ENHCANVAS_FLUSH, 
+	do_enh_writec, 
+	CANVAS_layer
+	, CANVAS_path                   /* path */
+	, 1.0                           /* Should this be CANVAS_OVERSAMPLE? */
+	, CANVAS_hypertext
+	, NULL                          /* boxed text */
+	, NULL,                          /* modify_plots */
+	CANVAS_dashtype 
+TERM_TABLE_END(canvas_driver)
 
 #undef LAST_TERM
 #define LAST_TERM canvas_driver

@@ -160,7 +160,7 @@ TERM_PUBLIC void AI_options()
 			case AI_OTHER:
 			default:
 			    if(GPO.Pgm.IsString(GPO.Pgm.GetCurTokenIdx())) {
-				    char * font = try_to_get_string();
+				    char * font = GPO.TryToGetString();
 				    strcpy(ai_font, font);
 				    strcpy(ai_oldfont, font);
 				    SAlloc::F(font);
