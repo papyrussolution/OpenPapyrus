@@ -1478,13 +1478,13 @@ void GnuPlot::FitCommand()
 		IntError(Pgm.GetPrevTokenIdx(), "cannot fit voxel data");
 	// use datafile module to parse the datafile and qualifiers 
 	df_set_plot_mode(MODE_QUERY); /* Does nothing except for binary datafiles */
-	/* Historically we could only handle 7 using specs, hence 5 independent	*/
-	/* variables (the last 2 cols are used for z and z_err).			*/
-	/* June 2013 - Now the number of using specs can be increased by changing	*/
-	/* MAXDATACOLS.  Logically this should be at least as large as MAX_NUM_VAR,	*/
-	/* the limit on parameters passed to a user-defined function.		*/
-	/* I.e. we expect that MAXDATACOLS >= MAX_NUM_VAR + 2			*/
-	columns = df_open(file_name, MAX_NUM_VAR+2, NULL);
+	// Historically we could only handle 7 using specs, hence 5 independent	
+	// variables (the last 2 cols are used for z and z_err).
+	// June 2013 - Now the number of using specs can be increased by changing
+	// MAXDATACOLS.  Logically this should be at least as large as MAX_NUM_VAR,
+	// the limit on parameters passed to a user-defined function.
+	// I.e. we expect that MAXDATACOLS >= MAX_NUM_VAR + 2
+	columns = DfOpen(file_name, MAX_NUM_VAR+2, NULL);
 	if(columns < 0)
 		Eexc2(token2, "Can't read data from", file_name);
 	SAlloc::F(file_name);
@@ -1493,11 +1493,11 @@ void GnuPlot::FitCommand()
 	// Allow time data only on first two dimensions (x and y) 
 	df_axis[0] = FIRST_X_AXIS;
 	df_axis[1] = FIRST_Y_AXIS;
-	/* BM: New options to distinguish fits with and without errors */
-	/* reset error columns */
+	// BM: New options to distinguish fits with and without errors 
+	// reset error columns 
 	memzero(err_cols, sizeof(err_cols));
 	if(Pgm.AlmostEqualsCur("err$ors")) {
-		/* error column specs follow */
+		// error column specs follow 
 		Pgm.Shift();
 		num_errors = 0;
 		do {
@@ -1505,7 +1505,7 @@ void GnuPlot::FitCommand()
 			if(!Pgm.IsLetter(Pgm.GetCurTokenIdx()))
 				Eexc(Pgm.GetCurTokenIdx(), "Expecting a variable specifier.");
 			Pgm.MCapture(&err_spec, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
-			/* check if this is a valid dummy var */
+			// check if this is a valid dummy var 
 			for(i = 0; i < MAX_NUM_VAR; i++) {
 				if(strcmp(err_spec, c_dummy_var[i]) == 0) {
 					err_cols[i] = TRUE;
@@ -1553,7 +1553,7 @@ void GnuPlot::FitCommand()
 		Pgm.Shift();
 	}
 	else if(Pgm.AlmostEqualsCur("yerr$ors")) {
-		/* convenience alias, x:z:sz (or x:y:sy) */
+		// convenience alias, x:z:sz (or x:y:sy) 
 		if((columns != 0) && (columns != 3))
 			Eexc(Pgm.GetCurTokenIdx(), "yerror requires exactly 3 columns");
 		num_indep = 1;
@@ -1562,8 +1562,8 @@ void GnuPlot::FitCommand()
 		Pgm.Shift();
 	}
 	else if(Pgm.AlmostEqualsCur("xyerr$ors")) {
-		/* convenience alias, x:z:sx:sz (or x:y:sx:sy) */
-		if((columns != 0) && (columns != 4))
+		// convenience alias, x:z:sx:sz (or x:y:sx:sy) 
+		if(columns != 0 && columns != 4)
 			Eexc(Pgm.GetCurTokenIdx(), "xyerror requires exactly 4 columns");
 		num_indep = 1;
 		num_errors = 2;

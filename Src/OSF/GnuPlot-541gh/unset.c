@@ -9,14 +9,14 @@ static void unset_arrow();
 static void unset_arrowstyles();
 static void free_arrowstyle(struct arrowstyle_def *);
 static void delete_arrow(struct arrow_def *, struct arrow_def *);
-static void unset_autoscale();
+//static void unset_autoscale();
 static void unset_bars();
 static void unset_border();
 static void unset_boxplot();
 static void unset_boxdepth();
 static void unset_boxwidth();
 static void unset_fillstyle();
-static void unset_clip();
+//static void unset_clip();
 static void unset_cntrparam();
 static void unset_cntrlabel();
 static void unset_contour();
@@ -49,10 +49,10 @@ static void unset_style_spiderplot();
 static void unset_wall(int which);
 static void unset_loadpath();
 static void unset_locale();
-static void reset_logscale(GpAxis *);
-static void unset_logscale();
+//static void reset_logscale(GpAxis *);
+//static void unset_logscale();
 static void unset_mapping();
-static void unset_margin(t_position *);
+//static void unset_margin(GpPosition *);
 static void unset_missing();
 static void unset_micro();
 static void unset_minus_sign();
@@ -73,7 +73,7 @@ static void unset_pointintervalbox();
 static void unset_print();
 static void unset_psdir();
 static void unset_samples();
-static void unset_size();
+//static void unset_size();
 //static void unset_style();
 static void unset_spiderplot();
 static void unset_surface();
@@ -85,12 +85,12 @@ static void unset_timefmt();
 static void unset_timestamp();
 static void unset_view();
 static void unset_zero();
-static void unset_timedata(AXIS_INDEX);
+//static void unset_timedata(AXIS_INDEX);
 static void unset_range(AXIS_INDEX);
 static void unset_zeroaxis(AXIS_INDEX);
 static void unset_all_zeroaxes();
 //static void unset_axislabel_or_title(text_label *);
-static void unset_axislabel(AXIS_INDEX);
+//static void unset_axislabel(AXIS_INDEX);
 static void reset_mouse();
 //
 // The 'unset' command 
@@ -103,10 +103,11 @@ void GnuPlot::UnsetCommand()
 	int i;
 	Pgm.Shift();
 	save_token = Pgm.GetCurTokenIdx();
-	set_iterator = check_for_iteration();
+	set_iterator = CheckForIteration();
 	if(empty_iteration(set_iterator)) {
-		/* Skip iteration [i=start:end] where start > end */
-		while(!Pgm.EndOfCommand()) Pgm.Shift();
+		// Skip iteration [i=start:end] where start > end 
+		while(!Pgm.EndOfCommand()) 
+			Pgm.Shift();
 		set_iterator = cleanup_iteration(set_iterator);
 		return;
 	}
@@ -115,7 +116,7 @@ void GnuPlot::UnsetCommand()
 		IntError(save_token, "unbounded iteration not accepted here");
 	}
 	found_token = Pgm.LookupTableForCurrentToken(&set_tbl[0]);
-	/* HBB 20000506: rationalize occurrences of c_token++ ... */
+	// HBB 20000506: rationalize occurrences of c_token++ ... 
 	if(found_token != S_INVALID)
 		Pgm.Shift();
 	save_token = Pgm.GetCurTokenIdx();
@@ -123,12 +124,12 @@ ITERATE:
 	switch(found_token) {
 		case S_ANGLES: unset_angles(); break;
 		case S_ARROW:  unset_arrow(); break;
-		case S_AUTOSCALE: unset_autoscale(); break;
+		case S_AUTOSCALE: UnsetAutoScale(); break;
 		case S_BARS: unset_bars(); break;
 		case S_BORDER: unset_border(); break;
 		case S_BOXDEPTH: unset_boxdepth(); break;
 		case S_BOXWIDTH: unset_boxwidth(); break;
-		case S_CLIP: unset_clip(); break;
+		case S_CLIP: UnsetClip(); break;
 		case S_CNTRPARAM: unset_cntrparam(); break;
 		case S_CNTRLABEL: unset_cntrlabel(); break;
 		case S_CLABEL: clabel_onecolor = TRUE; break; /* deprecated command */
@@ -143,7 +144,7 @@ ITERATE:
 		case S_FIT: unset_fit(); break;
 		case S_FORMAT:
 		    Pgm.Rollback();
-		    set_format();
+		    SetFormat();
 		    break;
 		case S_GRID: unset_grid(); break;
 		case S_HIDDEN3D: unset_hidden3d(); break;
@@ -169,19 +170,19 @@ ITERATE:
 		    break;
 		case S_LOADPATH: unset_loadpath(); break;
 		case S_LOCALE: unset_locale(); break;
-		case S_LOGSCALE: unset_logscale(); break;
-		case S_MACROS: break; /* Aug 2013 - macros are always enabled */
+		case S_LOGSCALE: UnsetLogScale(); break;
+		case S_MACROS: break; // Aug 2013 - macros are always enabled 
 		case S_MAPPING: unset_mapping(); break;
 		case S_MARGIN:
-		    unset_margin(&lmargin);
-		    unset_margin(&rmargin);
-		    unset_margin(&tmargin);
-		    unset_margin(&bmargin);
+		    V.MarginL.UnsetMargin();
+		    V.MarginR.UnsetMargin();
+		    V.MarginT.UnsetMargin();
+		    V.MarginB.UnsetMargin();
 		    break;
-		case S_BMARGIN: unset_margin(&bmargin); break;
-		case S_LMARGIN: unset_margin(&lmargin); break;
-		case S_RMARGIN: unset_margin(&rmargin); break;
-		case S_TMARGIN: unset_margin(&tmargin); break;
+		case S_BMARGIN: V.MarginB.UnsetMargin(); break;
+		case S_LMARGIN: V.MarginL.UnsetMargin(); break;
+		case S_RMARGIN: V.MarginR.UnsetMargin(); break;
+		case S_TMARGIN: V.MarginT.UnsetMargin(); break;
 		case S_DATAFILE:
 		    if(Pgm.AlmostEqualsCur("fort$ran")) {
 			    df_fortran_constants = FALSE;
@@ -262,7 +263,7 @@ ITERATE:
 		    break;
 		case S_RGBMAX: rgbmax = 255; break;
 		case S_SAMPLES: unset_samples(); break;
-		case S_SIZE: unset_size(); break;
+		case S_SIZE: UnsetSize(); break;
 		case S_SPIDERPLOT: unset_spiderplot(); break;
 		case S_STYLE: UnsetStyle(); break;
 		case S_SURFACE: unset_surface(); break;
@@ -305,19 +306,19 @@ ITERATE:
 		case S_CBMTICS: unset_month_day_tics(FIRST_X_AXIS); break;
 		case S_MRTICS: unset_minitics(&AxS[POLAR_AXIS]); break;
 		case S_MTTICS: unset_minitics(&AxS.Theta()); break;
-		case S_XDATA: unset_timedata(FIRST_X_AXIS); break;
-		case S_YDATA: unset_timedata(FIRST_Y_AXIS); break;
-		case S_ZDATA: unset_timedata(FIRST_Z_AXIS); break;
-		case S_CBDATA: unset_timedata(COLOR_AXIS); break;
-		case S_X2DATA: unset_timedata(SECOND_X_AXIS); break;
-		case S_Y2DATA: unset_timedata(SECOND_Y_AXIS); break;
-		case S_XLABEL: unset_axislabel(FIRST_X_AXIS); break;
-		case S_YLABEL: unset_axislabel(FIRST_Y_AXIS); break;
-		case S_ZLABEL: unset_axislabel(FIRST_Z_AXIS); break;
-		case S_CBLABEL: unset_axislabel(COLOR_AXIS); break;
-		case S_RLABEL: unset_axislabel(POLAR_AXIS); break;
-		case S_X2LABEL: unset_axislabel(SECOND_X_AXIS); break;
-		case S_Y2LABEL: unset_axislabel(SECOND_Y_AXIS); break;
+		case S_XDATA: UnsetTimeData(FIRST_X_AXIS); break;
+		case S_YDATA: UnsetTimeData(FIRST_Y_AXIS); break;
+		case S_ZDATA: UnsetTimeData(FIRST_Z_AXIS); break;
+		case S_CBDATA: UnsetTimeData(COLOR_AXIS); break;
+		case S_X2DATA: UnsetTimeData(SECOND_X_AXIS); break;
+		case S_Y2DATA: UnsetTimeData(SECOND_Y_AXIS); break;
+		case S_XLABEL: UnsetAxisLabel(FIRST_X_AXIS); break;
+		case S_YLABEL: UnsetAxisLabel(FIRST_Y_AXIS); break;
+		case S_ZLABEL: UnsetAxisLabel(FIRST_Z_AXIS); break;
+		case S_CBLABEL: UnsetAxisLabel(COLOR_AXIS); break;
+		case S_RLABEL: UnsetAxisLabel(POLAR_AXIS); break;
+		case S_X2LABEL: UnsetAxisLabel(SECOND_X_AXIS); break;
+		case S_Y2LABEL: UnsetAxisLabel(SECOND_Y_AXIS); break;
 		case S_XRANGE: unset_range(FIRST_X_AXIS); break;
 		case S_X2RANGE: unset_range(SECOND_X_AXIS); break;
 		case S_YRANGE: unset_range(FIRST_Y_AXIS); break;
@@ -345,22 +346,23 @@ ITERATE:
 		Pgm.SetTokenIdx(save_token);
 		goto ITERATE;
 	}
-	update_gpval_variables(0);
+	UpdateGpvalVariables(0);
 	set_iterator = cleanup_iteration(set_iterator);
 }
-
-/* process 'unset angles' command */
+//
+// process 'unset angles' command 
+//
 static void unset_angles()
 {
 	ang2rad = 1.0;
 }
-
-/* process 'unset arrow' command */
+//
+// process 'unset arrow' command 
+//
 static void unset_arrow()
 {
 	arrow_def * this_arrow;
 	arrow_def * prev_arrow;
-	int tag;
 	if(GPO.Pgm.EndOfCommand()) {
 		// delete all arrows 
 		while(first_arrow)
@@ -368,12 +370,10 @@ static void unset_arrow()
 	}
 	else {
 		// get tag 
-		tag = GPO.IntExpression();
+		int tag = GPO.IntExpression();
 		if(!GPO.Pgm.EndOfCommand())
 			GPO.IntErrorCurToken("extraneous arguments to unset arrow");
-		for(this_arrow = first_arrow, prev_arrow = NULL;
-		    this_arrow != NULL;
-		    prev_arrow = this_arrow, this_arrow = this_arrow->next) {
+		for(this_arrow = first_arrow, prev_arrow = NULL; this_arrow != NULL; prev_arrow = this_arrow, this_arrow = this_arrow->next) {
 			if(this_arrow->tag == tag) {
 				delete_arrow(prev_arrow, this_arrow);
 				return; /* exit, our job is done */
@@ -398,8 +398,9 @@ static void delete_arrow(struct arrow_def * prev, struct arrow_def * pThis)
 		SAlloc::F(pThis);
 	}
 }
-
-/* delete the whole list of arrow styles */
+//
+// delete the whole list of arrow styles 
+//
 static void unset_arrowstyles()
 {
 	free_arrowstyle(first_arrowstyle);
@@ -452,32 +453,35 @@ static void unset_pixmap(int i)
 		}
 	}
 }
-
-/* process 'unset autoscale' command */
-static void unset_autoscale()
+//
+// process 'unset autoscale' command 
+//
+//static void unset_autoscale()
+void GnuPlot::UnsetAutoScale()
 {
-	if(GPO.Pgm.EndOfCommand()) {
+	if(Pgm.EndOfCommand()) {
 		int axis;
 		for(axis = 0; axis<AXIS_ARRAY_SIZE; axis++)
-			GPO.AxS[axis].set_autoscale = (t_autoscale)FALSE;
-		for(axis = 0; axis < GPO.AxS.GetParallelAxisCount(); axis++)
-			GPO.AxS.Parallel(axis).set_autoscale = (t_autoscale)FALSE;
+			AxS[axis].set_autoscale = (t_autoscale)FALSE;
+		for(axis = 0; axis < AxS.GetParallelAxisCount(); axis++)
+			AxS.Parallel(axis).set_autoscale = (t_autoscale)FALSE;
 	}
-	else if(GPO.Pgm.EqualsCur("xy") || GPO.Pgm.EqualsCur("tyx")) {
-		GPO.AxS[FIRST_X_AXIS].set_autoscale = GPO.AxS[FIRST_Y_AXIS].set_autoscale = AUTOSCALE_NONE;
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("xy") || Pgm.EqualsCur("tyx")) {
+		AxS[FIRST_X_AXIS].set_autoscale = AxS[FIRST_Y_AXIS].set_autoscale = AUTOSCALE_NONE;
+		Pgm.Shift();
 	}
 	else {
 		// HBB 20000506: parse axis name, and unset the right element of the array: 
-		AXIS_INDEX axis = (AXIS_INDEX)GPO.Pgm.LookupTableForCurrentToken(axisname_tbl);
+		AXIS_INDEX axis = (AXIS_INDEX)Pgm.LookupTableForCurrentToken(axisname_tbl);
 		if(axis >= 0) {
-			GPO.AxS[axis].set_autoscale = AUTOSCALE_NONE;
-			GPO.Pgm.Shift();
+			AxS[axis].set_autoscale = AUTOSCALE_NONE;
+			Pgm.Shift();
 		}
 	}
 }
-
-/* process 'unset bars' command */
+//
+// process 'unset bars' command 
+//
 static void unset_bars()
 {
 	bar_size = 0.0;
@@ -536,26 +540,27 @@ static void unset_fillstyle()
 //
 // process 'unset clip' command 
 //
-static void unset_clip()
+//static void unset_clip()
+void GnuPlot::UnsetClip()
 {
-	if(GPO.Pgm.EndOfCommand()) {
+	if(Pgm.EndOfCommand()) {
 		// same as all three 
 		clip_points = FALSE;
 		clip_lines1 = FALSE;
 		clip_lines2 = FALSE;
 		clip_radial = FALSE;
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("r$adial") || GPO.Pgm.EqualsCur("polar"))
+	else if(Pgm.AlmostEqualsCur("r$adial") || Pgm.EqualsCur("polar"))
 		clip_radial = FALSE;
-	else if(GPO.Pgm.AlmostEqualsCur("p$oints"))
+	else if(Pgm.AlmostEqualsCur("p$oints"))
 		clip_points = FALSE;
-	else if(GPO.Pgm.AlmostEqualsCur("o$ne"))
+	else if(Pgm.AlmostEqualsCur("o$ne"))
 		clip_lines1 = FALSE;
-	else if(GPO.Pgm.AlmostEqualsCur("t$wo"))
+	else if(Pgm.AlmostEqualsCur("t$wo"))
 		clip_lines2 = FALSE;
 	else
-		GPO.IntErrorCurToken("expecting 'points', 'one', 'two', or 'radial'");
-	GPO.Pgm.Shift();
+		IntErrorCurToken("expecting 'points', 'one', 'two', or 'radial'");
+	Pgm.Shift();
 }
 
 /* process 'unset cntrparam' command */
@@ -579,28 +584,29 @@ static void unset_cntrlabel()
 	strcpy(contour_format, "%8.3g");
 	ZFREE(clabel_font);
 }
-
-/* process 'unset contour' command */
+//
+// process 'unset contour' command 
+//
 static void unset_contour()
 {
 	draw_contour = CONTOUR_NONE;
 }
-
-/* process 'unset dashtype' command */
+//
+// process 'unset dashtype' command 
+//
 static void unset_dashtype()
 {
-	struct custom_dashtype_def * pThis, * prev;
+	custom_dashtype_def * p_this, * prev;
 	if(GPO.Pgm.EndOfCommand()) {
-		/* delete all */
+		// delete all 
 		while(first_custom_dashtype != NULL)
-			delete_dashtype((struct custom_dashtype_def *)NULL, first_custom_dashtype);
+			delete_dashtype((custom_dashtype_def *)NULL, first_custom_dashtype);
 	}
 	else {
 		int tag = GPO.IntExpression();
-		for(pThis = first_custom_dashtype, prev = NULL; pThis != NULL;
-		    prev = pThis, pThis = pThis->next) {
-			if(pThis->tag == tag) {
-				delete_dashtype(prev, pThis);
+		for(p_this = first_custom_dashtype, prev = NULL; p_this; prev = p_this, p_this = p_this->next) {
+			if(p_this->tag == tag) {
+				delete_dashtype(prev, p_this);
 				break;
 			}
 		}
@@ -659,8 +665,9 @@ static void unset_fit()
 	fit_wrap = 0;
 	/* do not reset fit_v4compatible */
 }
-
-/* process 'unset grid' command */
+//
+// process 'unset grid' command 
+//
 static void unset_grid()
 {
 	/* FIXME HBB 20000506: there is no command to explicitly reset the
@@ -726,15 +733,17 @@ void reset_key()
 	SAlloc::F(keyT.title.font);
 	memcpy(&keyT, &temp_key, sizeof(keyT));
 }
-
-/* process 'unset key' command */
+//
+// process 'unset key' command 
+//
 static void unset_key()
 {
 	legend_key * key = &keyT;
 	key->visible = FALSE;
 }
-
-/* process 'unset label' command */
+//
+// process 'unset label' command 
+//
 static void unset_label()
 {
 	if(GPO.Pgm.EndOfCommand()) {
@@ -757,13 +766,13 @@ static void unset_label()
 		}
 	}
 }
-
-/* delete label from linked list started by first_label.
- * called with pointers to the previous label (prev) and the
- * label to delete (pThis).
- * If there is no previous label (the label to delete is
- * first_label) then call with prev = NULL.
- */
+// 
+// delete label from linked list started by first_label.
+// called with pointers to the previous label (prev) and the
+// label to delete (pThis).
+// If there is no previous label (the label to delete is
+// first_label) then call with prev = NULL.
+// 
 static void delete_label(struct text_label * prev, struct text_label * pThis)
 {
 	if(pThis) { // there really is something to delete 
@@ -805,8 +814,8 @@ static void unset_object()
 	GpObject * prev_object;
 	int tag;
 	if(GPO.Pgm.EndOfCommand()) {
-		/* delete all objects */
-		while(first_object != NULL)
+		// delete all objects 
+		while(first_object)
 			delete_object((struct GpObject *)NULL, first_object);
 	}
 	else {
@@ -817,7 +826,7 @@ static void unset_object()
 		for(this_object = first_object, prev_object = NULL; this_object != NULL; prev_object = this_object, this_object = this_object->next) {
 			if(this_object->tag == tag) {
 				delete_object(prev_object, this_object);
-				return; /* exit, our job is done */
+				return; // exit, our job is done 
 			}
 		}
 	}
@@ -855,69 +864,72 @@ static void unset_locale()
 	init_locale();
 }
 
-static void reset_logscale(GpAxis * this_axis)
+//static void reset_logscale(GpAxis * pAx)
+void GnuPlot::ResetLogScale(GpAxis * pAx)
 {
-	bool undo_rlog = (this_axis->index == POLAR_AXIS && this_axis->log);
-	this_axis->log = FALSE;
-	/* Do not zero the base because we can still use it for gprintf formats
-	 * %L and %l with linear axis scaling.
-	   this_axis->base = 0.0;
-	 */
+	bool undo_rlog = (pAx->index == POLAR_AXIS && pAx->log);
+	pAx->log = FALSE;
+	// Do not zero the base because we can still use it for gprintf formats
+	// %L and %l with linear axis scaling.
+	// this_axis->base = 0.0;
 	if(undo_rlog)
-		rrange_to_xy();
+		RRangeToXY();
 }
 //
 // process 'unset logscale' command 
 //
-static void unset_logscale()
+//static void unset_logscale()
+void GnuPlot::UnsetLogScale()
 {
 	bool set_for_axis[AXIS_ARRAY_SIZE] = AXIS_ARRAY_INITIALIZER(FALSE);
 	int axis;
-	if(GPO.Pgm.EndOfCommand()) {
+	if(Pgm.EndOfCommand()) {
 		for(axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++)
 			set_for_axis[axis] = TRUE;
 	}
 	else {
 		// do reverse search because of "x", "x1", "x2" sequence in axisname_tbl 
-		for(int i = 0; i < GPO.Pgm.GetCurTokenLength();) {
-			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, gp_input_line + GPO.Pgm.GetCurTokenStartIndex() + i);
+		for(int i = 0; i < Pgm.GetCurTokenLength();) {
+			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, gp_input_line + Pgm.GetCurTokenStartIndex() + i);
 			if(axis < 0) {
-				GPO.Pgm.P_Token[GPO.Pgm.CToken].start_index += i;
-				GPO.IntErrorCurToken("invalid axis");
+				Pgm.P_Token[Pgm.CToken].start_index += i;
+				IntErrorCurToken("invalid axis");
 			}
 			set_for_axis[axisname_tbl[axis].value] = TRUE;
 			i += strlen(axisname_tbl[axis].key);
 		}
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 	}
 	for(axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
 		if(set_for_axis[axis]) {
 			static char command[64];
 			if(!isalpha(axis_name((AXIS_INDEX)axis)[0]))
 				continue;
-			if(GPO.AxS[axis].log) {
+			if(AxS[axis].log) {
 				sprintf(command, "unset nonlinear %s", axis_name((AXIS_INDEX)axis));
 				do_string(command);
-				GPO.AxS[axis].log = FALSE;
+				AxS[axis].log = FALSE;
 			}
-			GPO.AxS[axis].ticdef.logscaling = FALSE;
+			AxS[axis].ticdef.logscaling = FALSE;
 		}
 	}
 }
-
-/* process 'unset mapping3d' command */
+//
+// process 'unset mapping3d' command 
+//
 static void unset_mapping()
 {
-	/* assuming same as points */
+	// assuming same as points 
 	mapping3d = MAP3D_CARTESIAN;
 }
 //
 // process 'unset {blrt}margin' command 
 //
-static void unset_margin(t_position * margin)
+//static void unset_margin(GpPosition * margin)
+void GpPosition::UnsetMargin()
 {
-	margin->scalex = character;
-	margin->x = -1;
+	scalex = character;
+	x = -1.0;
 }
 //
 // process 'unset micro' command 
@@ -953,10 +965,10 @@ static void unset_mouse()
 //
 // process 'unset mxtics' command 
 //
-static void unset_minitics(GpAxis * this_axis)
+static void unset_minitics(GpAxis * pAx)
 {
-	this_axis->minitics = MINI_OFF;
-	this_axis->mtic_freq = 10.0;
+	pAx->minitics = MINI_OFF;
+	pAx->mtic_freq = 10.0;
 }
 //
 // process 'unset {x|y|x2|y2|z}tics' command 
@@ -1004,19 +1016,21 @@ void unset_monochrome()
 	}
 	term->flags &= ~TERM_MONOCHROME;
 }
-
-/* process 'unset offsets' command */
+//
+// process 'unset offsets' command 
+//
 static void unset_offsets()
 {
 	loff.x = roff.x = 0.0;
 	toff.y = boff.y = 0.0;
 }
-
-/* process 'unset origin' command */
+//
+// process 'unset origin' command 
+//
 static void unset_origin()
 {
-	xoffset = 0.0;
-	yoffset = 0.0;
+	GPO.V.XOffset = 0.0f;
+	GPO.V.YOffset = 0.0f;
 }
 
 /* process 'unset output' command */
@@ -1148,13 +1162,15 @@ static void unset_samples()
 	samples_1 = SAMPLES;
 	samples_2 = SAMPLES;
 }
-
-/* process 'unset size' command */
-static void unset_size()
+//
+// process 'unset size' command 
+//
+//static void unset_size()
+void GnuPlot::UnsetSize()
 {
-	xsize = 1.0;
-	ysize = 1.0;
-	zsize = 1.0;
+	V.XSize = 1.0f;
+	V.YSize = 1.0f;
+	V.ZSize = 1.0f;
 }
 //
 // process 'unset style' command 
@@ -1333,12 +1349,14 @@ static void unset_zero()
 {
 	zero = ZERO;
 }
-
-/* process 'unset {x|y|z|x2|y2}data' command */
-static void unset_timedata(AXIS_INDEX axis)
+//
+// process 'unset {x|y|z|x2|y2}data' command 
+//
+//static void unset_timedata(AXIS_INDEX axis)
+void GnuPlot::UnsetTimeData(AXIS_INDEX axis)
 {
-	GPO.AxS[axis].datatype = DT_NORMAL;
-	GPO.AxS[axis].tictype = DT_NORMAL;
+	AxS[axis].datatype = DT_NORMAL;
+	AxS[axis].tictype = DT_NORMAL;
 }
 
 /* process 'unset {x|y|z|x2|y2|t|u|v|r}range' command */
@@ -1352,8 +1370,9 @@ static void unset_range(AXIS_INDEX axis)
 	this_axis->max_constraint = CONSTRAINT_NONE;
 	this_axis->range_flags = 0;
 }
-
-/* process 'unset {x|y|x2|y2|z}zeroaxis' command */
+//
+// process 'unset {x|y|x2|y2|z}zeroaxis' command 
+//
 static void unset_zeroaxis(AXIS_INDEX axis)
 {
 	if(GPO.AxS[axis].zeroaxis != &default_axis_zeroaxis)
@@ -1369,213 +1388,220 @@ static void unset_all_zeroaxes()
 }
 
 // process 'unset [xyz]{2}label command 
-static void unset_axislabel(AXIS_INDEX axis)
+//static void unset_axislabel(AXIS_INDEX axis)
+void GnuPlot::UnsetAxisLabel(AXIS_INDEX axis)
 {
-	GpAxis::UnsetLabelOrTitle(&GPO.AxS[axis].label);
-	GPO.AxS[axis].label = default_axis_label;
+	GpAxis::UnsetLabelOrTitle(&AxS[axis].label);
+	AxS[axis].label = default_axis_label;
 	if(oneof3(axis, FIRST_Y_AXIS, SECOND_Y_AXIS, COLOR_AXIS))
-		GPO.AxS[axis].label.rotate = TEXT_VERTICAL;
+		AxS[axis].label.rotate = TEXT_VERTICAL;
 }
-/******** The 'reset' command ********/
-/* HBB 20000506: I moved pThis here, from set.c, because 'reset' really
- * is more like a big lot of 'unset' commands, rather than a bunch of
- * 'set's. The benefit is that it can make use of many of the
- * unset_something() contained in pThis module, i.e. you now have one
- * place less to keep in sync if the semantics or defaults of any
- * option is changed. This is only true for options for which 'unset'
- * state is the default, however, e.g. not for 'surface', 'bars' and
- * some others. */
-void reset_command()
+// 
+// The 'reset' command 
+// HBB 20000506: I moved pThis here, from set.c, because 'reset' really
+// is more like a big lot of 'unset' commands, rather than a bunch of
+// 'set's. The benefit is that it can make use of many of the
+// unset_something() contained in pThis module, i.e. you now have one
+// place less to keep in sync if the semantics or defaults of any
+// option is changed. This is only true for options for which 'unset'
+// state is the default, however, e.g. not for 'surface', 'bars' and
+// some others. 
+// 
+//void reset_command()
+void GnuPlot::ResetCommand()
 {
 	int i;
 	/*AXIS_INDEX*/int axis;
 	bool save_interactive = interactive;
-	GPO.Pgm.Shift();
-	/* Reset session state as well as internal graphics state */
-	if(GPO.Pgm.EqualsCur("session")) {
+	Pgm.Shift();
+	// Reset session state as well as internal graphics state 
+	if(Pgm.EqualsCur("session")) {
 		clear_udf_list();
 		init_constants();
 		init_session();
 		reset_mouse();
 		return;
 	}
-	/* Reset error state (only?) */
-	update_gpval_variables(4);
-	if(GPO.Pgm.AlmostEqualsCur("err$orstate")) {
-		GPO.Pgm.Shift();
-		return;
+	else {
+		// Reset error state (only?) 
+		UpdateGpvalVariables(4);
+		if(Pgm.AlmostEqualsCur("err$orstate")) {
+			Pgm.Shift();
+			return;
+		}
+		else {
+		#ifdef USE_MOUSE
+			// Reset key bindings only 
+			if(Pgm.EqualsCur("bind")) {
+				bind_remove_all();
+				Pgm.Shift();
+				return;
+			}
+		#endif
+			if(!(Pgm.EndOfCommand())) {
+				IntWarnCurToken("invalid option, expecting 'session', 'bind' or 'errorstate'");
+				while(!(Pgm.EndOfCommand()))
+					Pgm.Shift();
+			}
+		#if (0)
+			// DEBUG - enable pThis code for testing
+			// The *.dem unit tests all end with a "reset" command.
+			// In order to test save/load from a wide variety of states we can intercept
+			// pThis command and insert save/load before execution.
+			extern bool successful_initialization;
+			if(successful_initialization) {
+				FILE * fp = fopen("/tmp/gnuplot_debug.sav", "w+");
+				replot_line[0] = '\0';
+				save_all(fp);
+				rewind(fp);
+				Pgm.LoadFile(fp, gp_strdup("/tmp/gnuplot_debug.sav"), 1);
+				// load_file closes fp 
+			}
+		#endif
+			// Kludge alert, HBB 20000506: set to noninteractive mode, to
+			// suppress some of the commentary output by the individual
+			// unset_...() routines. 
+			interactive = FALSE;
+			unset_samples();
+			unset_isosamples();
+			unset_jitter();
+			// delete arrows 
+			while(first_arrow)
+				delete_arrow((arrow_def *)NULL, first_arrow);
+			unset_arrowstyles();
+			// delete labels 
+			while(first_label)
+				delete_label((text_label *)NULL, first_label);
+			// delete linestyles 
+			while(first_linestyle)
+				delete_linestyle(&first_linestyle, NULL, first_linestyle);
+			// delete objects 
+			while(first_object)
+				delete_object((GpObject *)NULL, first_object);
+			unset_style_rectangle();
+			unset_style_circle();
+			unset_style_ellipse();
+			unset_pixmaps(); // delete pixmaps 
+			// 'polar', 'parametric' and 'dummy' are interdependent, so be sure to keep the order intact 
+			UnsetPolar();
+			unset_parametric();
+			unset_dummy();
+			unset_spiderplot();
+			unset_style_spiderplot();
+			GpAxis::UnsetLabelOrTitle(&title);
+			reset_key();
+			unset_view();
+			for(axis = (AXIS_INDEX)0; axis<AXIS_ARRAY_SIZE; axis++) {
+				GpAxis * this_axis = &AxS[axis];
+				// Free contents before overwriting with default values 
+				this_axis->Destroy();
+				// Fill with generic values, then customize 
+				memcpy(this_axis, &default_axis_state, sizeof(GpAxis));
+				this_axis->formatstring = gp_strdup(DEF_FORMAT);
+				this_axis->index = axis;
+				UnsetAxisLabel((AXIS_INDEX)axis); // sets vertical label for y/y2/cb 
+				unset_range((AXIS_INDEX)axis); // copies min/max from axis_defaults 
+				// 'tics' default is on for some, off for the other axes: 
+				unset_tics(this_axis);
+				unset_minitics(this_axis);
+				this_axis->ticdef = default_axis_ticdef;
+				this_axis->minitics = MINI_DEFAULT;
+				this_axis->ticmode = axis_defaults[axis].ticmode;
+				ResetLogScale(this_axis);
+			}
+			// Free all previously allocated parallel axis structures 
+			for(axis = (AXIS_INDEX)0; axis < AxS.GetParallelAxisCount(); axis++) {
+				GpAxis * this_axis = &AxS.Parallel(axis);
+				this_axis->Destroy();
+			}
+			AxS.DestroyParallelAxes();
+			unset_style_parallel();
+			AxS.DestroyShadowAxes();
+			raxis = FALSE;
+			for(i = 2; i<MAX_TICLEVEL; i++)
+				ticscale[i] = 1;
+			unset_timefmt();
+			unset_boxplot();
+			unset_boxdepth();
+			unset_boxwidth();
+			clip_points = FALSE;
+			clip_lines1 = TRUE;
+			clip_lines2 = FALSE;
+			clip_radial = FALSE;
+			border_lp = default_border_lp;
+			border_layer = LAYER_FRONT;
+			draw_border = 31;
+			cornerpoles = TRUE;
+			draw_surface = TRUE;
+			implicit_surface = TRUE;
+			data_style = POINTSTYLE;
+			func_style = LINES;
+			// Reset individual plot style options to the default 
+			filledcurves_opts_data.closeto = FILLEDCURVES_CLOSED;
+			filledcurves_opts_func.closeto = FILLEDCURVES_CLOSED;
+			unset_grid();
+			grid_lp = default_grid_lp;
+			mgrid_lp = default_grid_lp;
+			polar_grid_angle = 0;
+			grid_layer = LAYER_BEHIND;
+			grid_tics_in_front = FALSE;
+			for(i = 0; i<5; i++)
+				unset_wall(i);
+			SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);
+			reset_hidden3doptions();
+			hidden3d = FALSE;
+			unset_angles();
+			reset_bars();
+			unset_mapping();
+			UnsetSize();
+			aspect_ratio = 0.0;     /* don't force it */
+			rgbmax = 255;
+			unset_origin();
+			unset_timestamp();
+			unset_offsets();
+			unset_contour();
+			unset_cntrparam();
+			unset_cntrlabel();
+			unset_zero();
+			unset_dgrid3d();
+			unset_ticslevel();
+			V.MarginB.UnsetMargin();
+			V.MarginL.UnsetMargin();
+			V.MarginR.UnsetMargin();
+			V.MarginT.UnsetMargin();
+			unset_pointsize();
+			unset_pointintervalbox();
+			pm3d_reset();
+			reset_colorbox();
+			ResetPalette();
+			df_unset_datafile_binary();
+			unset_fillstyle();
+			unset_histogram();
+			unset_textbox_style();
+			prefer_line_styles = FALSE;
+		#ifdef USE_MOUSE
+			mouse_setting = default_mouse_setting;
+		#endif
+			// restore previous multiplot offset and margins 
+			if(multiplot)
+				multiplot_reset();
+			unset_missing();
+			ZFREE(df_separators);
+			SAlloc::F(df_commentschars);
+			df_commentschars = gp_strdup(DEFAULT_COMMENTS_CHARS);
+			df_init();
+			{ // Preserve some settings for `reset`, but not for `unset fit` 
+				verbosity_level save_verbosity = fit_verbosity;
+				bool save_errorscaling = fit_errorscaling;
+				unset_fit();
+				fit_verbosity = save_verbosity;
+				fit_errorscaling = save_errorscaling;
+			}
+			UpdateGpvalVariables(0); /* update GPVAL_ inner variables */
+			// HBB 20000506: set 'interactive' back to its real value: 
+			interactive = save_interactive;
+		}
 	}
-#ifdef USE_MOUSE
-	/* Reset key bindings only */
-	if(GPO.Pgm.EqualsCur("bind")) {
-		bind_remove_all();
-		GPO.Pgm.Shift();
-		return;
-	}
-#endif
-	if(!(GPO.Pgm.EndOfCommand())) {
-		GPO.IntWarnCurToken("invalid option, expecting 'session', 'bind' or 'errorstate'");
-		while(!(GPO.Pgm.EndOfCommand()))
-			GPO.Pgm.Shift();
-	}
-#if (0)
-	/* DEBUG - enable pThis code for testing
-	 * The *.dem unit tests all end with a "reset" command.
-	 * In order to test save/load from a wide variety of states we can intercept
-	 * pThis command and insert save/load before execution.
-	 */
-	extern bool successful_initialization;
-	if(successful_initialization) {
-		FILE * fp = fopen("/tmp/gnuplot_debug.sav", "w+");
-		replot_line[0] = '\0';
-		save_all(fp);
-		rewind(fp);
-		GPO.Pgm.LoadFile(fp, gp_strdup("/tmp/gnuplot_debug.sav"), 1);
-		/* load_file closes fp */
-	}
-#endif
-	/* Kludge alert, HBB 20000506: set to noninteractive mode, to
-	 * suppress some of the commentary output by the individual
-	 * unset_...() routines. */
-	interactive = FALSE;
-	unset_samples();
-	unset_isosamples();
-	unset_jitter();
-	/* delete arrows */
-	while(first_arrow)
-		delete_arrow((arrow_def *)NULL, first_arrow);
-	unset_arrowstyles();
-	/* delete labels */
-	while(first_label)
-		delete_label((text_label *)NULL, first_label);
-	/* delete linestyles */
-	while(first_linestyle)
-		delete_linestyle(&first_linestyle, NULL, first_linestyle);
-	/* delete objects */
-	while(first_object)
-		delete_object((GpObject *)NULL, first_object);
-	unset_style_rectangle();
-	unset_style_circle();
-	unset_style_ellipse();
-	unset_pixmaps(); // delete pixmaps 
-	// 'polar', 'parametric' and 'dummy' are interdependent, so be sure to keep the order intact 
-	GPO.UnsetPolar();
-	unset_parametric();
-	unset_dummy();
-	unset_spiderplot();
-	unset_style_spiderplot();
-	GpAxis::UnsetLabelOrTitle(&title);
-	reset_key();
-	unset_view();
-	for(axis = (AXIS_INDEX)0; axis<AXIS_ARRAY_SIZE; axis++) {
-		GpAxis * this_axis = &GPO.AxS[axis];
-		/* Free contents before overwriting with default values */
-		this_axis->Destroy();
-		/* Fill with generic values, then customize */
-		memcpy(this_axis, &default_axis_state, sizeof(GpAxis));
-		this_axis->formatstring = gp_strdup(DEF_FORMAT);
-		this_axis->index = axis;
-		unset_axislabel((AXIS_INDEX)axis); /* sets vertical label for y/y2/cb */
-		unset_range((AXIS_INDEX)axis); /* copies min/max from axis_defaults */
-		/* 'tics' default is on for some, off for the other axes: */
-		unset_tics(this_axis);
-		unset_minitics(this_axis);
-		this_axis->ticdef = default_axis_ticdef;
-		this_axis->minitics = MINI_DEFAULT;
-		this_axis->ticmode = axis_defaults[axis].ticmode;
-		reset_logscale(this_axis);
-	}
-	// Free all previously allocated parallel axis structures 
-	for(axis = (AXIS_INDEX)0; axis < GPO.AxS.GetParallelAxisCount(); axis++) {
-		GpAxis * this_axis = &GPO.AxS.Parallel(axis);
-		this_axis->Destroy();
-	}
-	GPO.AxS.DestroyParallelAxes();
-	unset_style_parallel();
-	GPO.AxS.DestroyShadowAxes();
-	raxis = FALSE;
-	for(i = 2; i<MAX_TICLEVEL; i++)
-		ticscale[i] = 1;
-	unset_timefmt();
-	unset_boxplot();
-	unset_boxdepth();
-	unset_boxwidth();
-	clip_points = FALSE;
-	clip_lines1 = TRUE;
-	clip_lines2 = FALSE;
-	clip_radial = FALSE;
-	border_lp = default_border_lp;
-	border_layer = LAYER_FRONT;
-	draw_border = 31;
-	cornerpoles = TRUE;
-	draw_surface = TRUE;
-	implicit_surface = TRUE;
-	data_style = POINTSTYLE;
-	func_style = LINES;
-	// Reset individual plot style options to the default 
-	filledcurves_opts_data.closeto = FILLEDCURVES_CLOSED;
-	filledcurves_opts_func.closeto = FILLEDCURVES_CLOSED;
-	unset_grid();
-	grid_lp = default_grid_lp;
-	mgrid_lp = default_grid_lp;
-	polar_grid_angle = 0;
-	grid_layer = LAYER_BEHIND;
-	grid_tics_in_front = FALSE;
-	for(i = 0; i<5; i++)
-		unset_wall(i);
-	SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);
-	reset_hidden3doptions();
-	hidden3d = FALSE;
-	unset_angles();
-	reset_bars();
-	unset_mapping();
-	unset_size();
-	aspect_ratio = 0.0;     /* don't force it */
-	rgbmax = 255;
-	unset_origin();
-	unset_timestamp();
-	unset_offsets();
-	unset_contour();
-	unset_cntrparam();
-	unset_cntrlabel();
-	unset_zero();
-	unset_dgrid3d();
-	unset_ticslevel();
-	unset_margin(&bmargin);
-	unset_margin(&lmargin);
-	unset_margin(&rmargin);
-	unset_margin(&tmargin);
-	unset_pointsize();
-	unset_pointintervalbox();
-	pm3d_reset();
-	reset_colorbox();
-	GPO.ResetPalette();
-	df_unset_datafile_binary();
-	unset_fillstyle();
-	unset_histogram();
-	unset_textbox_style();
-	prefer_line_styles = FALSE;
-#ifdef USE_MOUSE
-	mouse_setting = default_mouse_setting;
-#endif
-	// restore previous multiplot offset and margins 
-	if(multiplot)
-		multiplot_reset();
-	unset_missing();
-	ZFREE(df_separators);
-	SAlloc::F(df_commentschars);
-	df_commentschars = gp_strdup(DEFAULT_COMMENTS_CHARS);
-	df_init();
-	{ // Preserve some settings for `reset`, but not for `unset fit` 
-		verbosity_level save_verbosity = fit_verbosity;
-		bool save_errorscaling = fit_errorscaling;
-		unset_fit();
-		fit_verbosity = save_verbosity;
-		fit_errorscaling = save_errorscaling;
-	}
-	update_gpval_variables(0); /* update GPVAL_ inner variables */
-	// HBB 20000506: set 'interactive' back to its real value: 
-	interactive = save_interactive;
 }
 
 static void unset_style_rectangle()

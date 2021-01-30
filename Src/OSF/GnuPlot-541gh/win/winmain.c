@@ -85,17 +85,17 @@ int Pause(LPSTR str)
 	return rc;
 }
 
-void kill_pending_Pause_dialog(void)
+void kill_pending_Pause_dialog()
 {
 	if(!pausewin.bPause) /* no Pause dialog displayed */
 		return;
-	/* Pause dialog displayed, thus kill it */
+	// Pause dialog displayed, thus kill it 
 	DestroyWindow(pausewin.hWndPause);
 	pausewin.bPause = FALSE;
 }
 
 /* atexit procedure */
-void WinExit(void)
+void WinExit()
 {
 	LPGW lpgw;
 	/* Last chance to close Windows help, call before anything else to avoid a crash. */
@@ -127,7 +127,7 @@ void WinExit(void)
 }
 
 /* call back function from Text Window WM_CLOSE */
-int CALLBACK ShutDown(void)
+int CALLBACK ShutDown()
 {
 	/* First chance for wgnuplot to close help system. */
 	WinCloseHelp();
@@ -166,7 +166,7 @@ DWORD GetDllVersion(LPCTSTR lpszDllName)
 	return dwVersion;
 }
 
-BOOL IsWindowsXPorLater(void)
+BOOL IsWindowsXPorLater()
 {
 	OSVERSIONINFO versionInfo;
 	/* get Windows version */
@@ -176,7 +176,7 @@ BOOL IsWindowsXPorLater(void)
 	return ((versionInfo.dwMajorVersion > 5) || ((versionInfo.dwMajorVersion == 5) && (versionInfo.dwMinorVersion >= 1)));
 }
 
-char * appdata_directory(void)
+char * appdata_directory()
 {
 	static char dir[MAX_PATH] = "";
 	if(dir[0])
@@ -221,7 +221,7 @@ LPSTR RelativePathToGnuplot(const char * path)
 	return rel_path;
 }
 
-static void WinCloseHelp(void)
+static void WinCloseHelp()
 {
 	/* Due to a known bug in the HTML help system we have to
 	 * call this as soon as possible before the end of the program.
@@ -232,7 +232,7 @@ static void WinCloseHelp(void)
 	Sleep(0);
 }
 
-static LPTSTR GetLanguageCode(void)
+static LPTSTR GetLanguageCode()
 {
 	static TCHAR lang[6] = TEXT("");
 	if(lang[0] == NUL) {
@@ -622,9 +622,9 @@ void MultiByteAccumulate(BYTE ch, LPWSTR wstr, int * count)
 #endif
 int MyPutCh(int ch) { return PUTCH(ch); }
 #ifndef WGP_CONSOLE
-	int MyKBHit(void) { return TextKBHit(&textwin); }
-	int MyGetCh(void) { return TextGetCh(&textwin); }
-	int MyGetChE(void) { return TextGetChE(&textwin); }
+	int MyKBHit() { return TextKBHit(&textwin); }
+	int MyGetCh() { return TextGetCh(&textwin); }
+	int MyGetChE() { return TextGetChE(&textwin); }
 #endif
 int MyFGetC(FILE * file) { return isterm(file) ? GETCH() : fgetc(file); }
 
@@ -896,7 +896,7 @@ int fake_pclose(FILE * stream)
 
 #ifdef WGP_CONSOLE
 
-int ConsoleGetch(void)
+int ConsoleGetch()
 {
 	int fd = _fileno(stdin);
 	DWORD waitResult;
@@ -934,7 +934,7 @@ int ConsoleGetch(void)
 
 #endif /* WGP_CONSOLE */
 
-int ConsoleReadCh(void)
+int ConsoleReadCh()
 {
 	const int max_input = 8;
 	static char console_input[8];
@@ -1070,7 +1070,7 @@ BOOL WINAPI ConsoleHandler(DWORD dwType)
 #define MAX_PRT_LEN 256
 static char win_prntmp[MAX_PRT_LEN+1];
 
-FILE * open_printer(void)
+FILE * open_printer()
 {
 	char * temp;
 	if((temp = getenv("TEMP")) == NULL)
@@ -1114,7 +1114,7 @@ void close_printer(FILE * outfile)
 #endif
 }
 
-void screen_dump(void)
+void screen_dump()
 {
 	if(term == NULL) {
 		GPO.IntErrorCurToken("");
@@ -1162,15 +1162,16 @@ void win_lower_terminal_window(int id)
 		SetWindowPos(lpgw->hWndGraph, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 }
 
-void win_lower_terminal_group(void)
+void win_lower_terminal_group()
 {
 	for(LPGW lpgw = listgraphs; lpgw; lpgw = lpgw->next) {
 		SetWindowPos(lpgw->hWndGraph, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 	}
 }
-
-/* returns true if there are any graph windows open (win terminal) */
-static bool WinWindowOpened(void)
+//
+// returns true if there are any graph windows open (win terminal) 
+//
+static bool WinWindowOpened()
 {
 	for(LPGW lpgw = listgraphs; lpgw; lpgw = lpgw->next) {
 		if(GraphHasWindow(lpgw))
@@ -1182,7 +1183,7 @@ static bool WinWindowOpened(void)
 /* returns true if there are any graph windows open (wxt/caca/win terminals) */
 /* Note: This routine is used to handle "persist". Do not test for qt windows here
          since they run in a separate process */
-bool WinAnyWindowOpen(void)
+bool WinAnyWindowOpen()
 {
 	bool window_opened = WinWindowOpened();
 #ifdef WXWIDGETS
@@ -1195,14 +1196,14 @@ bool WinAnyWindowOpen(void)
 }
 
 #ifndef WGP_CONSOLE
-	void WinPersistTextClose(void)
+	void WinPersistTextClose()
 	{
 		if(!WinAnyWindowOpen() && (textwin.hWndParent != NULL) && !IsWindowVisible(textwin.hWndParent))
 			PostMessage(textwin.hWndParent, WM_CLOSE, 0, 0);
 	}
 #endif
 
-void WinMessageLoop(void)
+void WinMessageLoop()
 {
 	MSG msg;
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -1215,7 +1216,7 @@ void WinMessageLoop(void)
 }
 
 #ifndef WGP_CONSOLE
-	void WinOpenConsole(void)
+	void WinOpenConsole()
 	{
 		/* Try to attach to an existing console window. */
 		if(AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
@@ -1229,7 +1230,7 @@ void WinMessageLoop(void)
 	}
 #endif
 
-void WinRaiseConsole(void)
+void WinRaiseConsole()
 {
 	HWND console = NULL;
 #ifndef WGP_CONSOLE
@@ -1337,7 +1338,7 @@ FILE * win_fopen(const char * filename, const char * mode)
 	}
 #endif
 
-UINT GetDPI(void)
+UINT GetDPI()
 {
 	HDC hdc_screen = GetDC(NULL);
 	if(hdc_screen) {

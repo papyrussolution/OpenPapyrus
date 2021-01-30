@@ -10,7 +10,6 @@
     <ClCompile Include="..\Osf\GnuPlot-541gh\contour.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\datablock.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\datafile.c" />
-    <ClCompile Include="..\Osf\GnuPlot-541gh\dynarray.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\encoding.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\eval.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\external.c" />

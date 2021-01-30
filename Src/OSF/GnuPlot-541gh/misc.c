@@ -515,8 +515,9 @@ void pop_terminal()
 	else
 		fprintf(stderr, "No terminal has been pushed yet\n");
 }
-
-/* Parse a plot style. Used by 'set style {data|function}' and by (s)plot.  */
+// 
+// Parse a plot style. Used by 'set style {data|function}' and by (s)plot.  
+// 
 enum PLOT_STYLE get_style()                
 {
 	/* defined in plot.h */
@@ -528,10 +529,10 @@ enum PLOT_STYLE get_style()
 		GPO.IntErrorCurToken("unrecognized plot type");
 	return ps;
 }
-
-/* Parse options for style filledcurves and fill fco accordingly.
- * If no option given, set it to FILLEDCURVES_DEFAULT.
- */
+// 
+// Parse options for style filledcurves and fill fco accordingly.
+// If no option given, set it to FILLEDCURVES_DEFAULT.
+// 
 void get_filledcurves_style_options(filledcurves_opts * fco)
 {
 	enum filledcurves_opts_id p;
@@ -609,42 +610,43 @@ bool FASTCALL need_fill_border(const fill_style_type * fillstyle)
 	return TRUE;
 }
 
-int parse_dashtype(struct t_dashtype * dt)
+//int parse_dashtype(t_dashtype * dt)
+int GnuPlot::ParseDashType(t_dashtype * pDashTyp)
 {
 	int res = DASHTYPE_SOLID;
 	int j = 0;
 	int k = 0;
 	char * dash_str = NULL;
 	// Erase any previous contents 
-	memzero(dt, sizeof(struct t_dashtype));
+	memzero(pDashTyp, sizeof(t_dashtype));
 	// Fill in structure based on keyword ... 
-	if(GPO.Pgm.EqualsCur("solid")) {
+	if(Pgm.EqualsCur("solid")) {
 		res = DASHTYPE_SOLID;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 		// Or numerical pattern consisting of pairs solid,empty,solid,empty... 
 	}
-	else if(GPO.Pgm.EqualsCur("(")) {
-		GPO.Pgm.Shift();
-		while(!GPO.Pgm.EndOfCommand()) {
+	else if(Pgm.EqualsCur("(")) {
+		Pgm.Shift();
+		while(!Pgm.EndOfCommand()) {
 			if(j >= DASHPATTERN_LENGTH) {
-				GPO.IntErrorCurToken("too many pattern elements");
+				IntErrorCurToken("too many pattern elements");
 			}
-			dt->pattern[j++] = GPO.RealExpression(); // The solid portion 
-			if(!GPO.Pgm.EqualsCurShift(","))
-				GPO.IntErrorCurToken("expecting comma");
-			dt->pattern[j++] = GPO.RealExpression(); // The empty portion 
-			if(GPO.Pgm.EqualsCur(")"))
+			pDashTyp->pattern[j++] = RealExpression(); // The solid portion 
+			if(!Pgm.EqualsCurShift(","))
+				IntErrorCurToken("expecting comma");
+			pDashTyp->pattern[j++] = RealExpression(); // The empty portion 
+			if(Pgm.EqualsCur(")"))
 				break;
-			if(!GPO.Pgm.EqualsCurShift(","))
-				GPO.IntErrorCurToken("expecting comma");
+			if(!Pgm.EqualsCurShift(","))
+				IntErrorCurToken("expecting comma");
 		}
-		if(!GPO.Pgm.EqualsCur(")"))
-			GPO.IntErrorCurToken("expecting , or )");
-		GPO.Pgm.Shift();
+		if(!Pgm.EqualsCur(")"))
+			IntErrorCurToken("expecting , or )");
+		Pgm.Shift();
 		res = DASHTYPE_CUSTOM;
 		// Or string representing pattern elements ... 
 	}
-	else if((dash_str = GPO.TryToGetString())) {
+	else if((dash_str = TryToGetString())) {
 		int leading_space = 0;
 #define DSCALE 10.
 		while(dash_str[j] && (k < DASHPATTERN_LENGTH || dash_str[j] == ' ')) {
@@ -654,46 +656,46 @@ int parse_dashtype(struct t_dashtype * dt)
 			 * space  Don't add new dash, just increase last space */
 			switch(dash_str[j]) {
 				case '.':
-				    dt->pattern[k++] = 0.2 * DSCALE;
-				    dt->pattern[k++] = 0.5 * DSCALE;
+				    pDashTyp->pattern[k++] = 0.2 * DSCALE;
+				    pDashTyp->pattern[k++] = 0.5 * DSCALE;
 				    break;
 				case '-':
-				    dt->pattern[k++] = 1.0 * DSCALE;
-				    dt->pattern[k++] = 1.0 * DSCALE;
+				    pDashTyp->pattern[k++] = 1.0 * DSCALE;
+				    pDashTyp->pattern[k++] = 1.0 * DSCALE;
 				    break;
 				case '_':
-				    dt->pattern[k++] = 2.0 * DSCALE;
-				    dt->pattern[k++] = 1.0 * DSCALE;
+				    pDashTyp->pattern[k++] = 2.0 * DSCALE;
+				    pDashTyp->pattern[k++] = 1.0 * DSCALE;
 				    break;
 				case ' ':
 				    if(k == 0)
 					    leading_space++;
 				    else
-					    dt->pattern[k-1] += 1.0 * DSCALE;
+					    pDashTyp->pattern[k-1] += 1.0 * DSCALE;
 				    break;
 				default:
-				    GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "expecting one of . - _ or space");
+				    IntError(Pgm.GetPrevTokenIdx(), "expecting one of . - _ or space");
 			}
 			j++;
 		}
-		/* Move leading space, if any, to the end */
+		// Move leading space, if any, to the end 
 		if(k > 0)
-			dt->pattern[k-1] += leading_space * DSCALE;
+			pDashTyp->pattern[k-1] += leading_space * DSCALE;
 #undef  DSCALE
-		/* truncate dash_str if we ran out of space in the array representation */
+		// truncate dash_str if we ran out of space in the array representation 
 		dash_str[j] = '\0';
-		safe_strncpy(dt->dstring, dash_str, sizeof(dt->dstring));
+		safe_strncpy(pDashTyp->dstring, dash_str, sizeof(pDashTyp->dstring));
 		SAlloc::F(dash_str);
 		if(k == 0)
 			res = DASHTYPE_SOLID;
 		else
 			res = DASHTYPE_CUSTOM;
-		/* Or index of previously defined dashtype */
+		// Or index of previously defined dashtype 
 	}
 	else {
-		res = GPO.IntExpression();
+		res = IntExpression();
 		if(res < 0)
-			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "dashtype must be non-negative");
+			IntError(Pgm.GetPrevTokenIdx(), "dashtype must be non-negative");
 		if(res == 0)
 			res = DASHTYPE_AXIS;
 		else
@@ -951,7 +953,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 			if(set_dt++)
 				break;
 			Pgm.Shift();
-			tmp = parse_dashtype(&newlp.custom_dash_pattern);
+			tmp = ParseDashType(&newlp.custom_dash_pattern);
 			/* Pull the dashtype from the list of already defined dashtypes, */
 			/* but only if it we didn't get an explicit one back from parse_dashtype */
 			if(tmp == DASHTYPE_AXIS)

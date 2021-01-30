@@ -502,13 +502,13 @@ void GpProgram::Command()
 			else if(AlmostEquals(cur_tok_idx, "q$uit"))
 				GPO.ExitCommand();
 			else if(AlmostEquals(cur_tok_idx, "ref$resh"))
-				refresh_command();
+				GPO.RefreshCommand();
 			else if(AlmostEquals(cur_tok_idx, "rep$lot"))
 				replot_command();
 			else if(AlmostEquals(cur_tok_idx, "re$read"))
 				reread_command();
 			else if(AlmostEquals(cur_tok_idx, "res$et"))
-				reset_command();
+				GPO.ResetCommand();
 			else if(AlmostEquals(cur_tok_idx, "sa$ve"))
 				save_command();
 			else if(AlmostEquals(cur_tok_idx, "scr$eendump"))
@@ -897,7 +897,7 @@ void changedir_command()
 	if(changedir(save_file))
 		GPO.IntErrorCurToken("Can't change to this directory");
 	else
-		update_gpval_variables(5);
+		GPO.UpdateGpvalVariables(5);
 	SAlloc::F(save_file);
 }
 
@@ -906,10 +906,10 @@ void clear_command()
 {
 	term_start_plot();
 	if(multiplot && term->fillbox) {
-		int xx1 = static_cast<int>(xoffset * term->xmax);
-		int yy1 = static_cast<int>(yoffset * term->ymax);
-		uint width  = static_cast<uint>(xsize * term->xmax);
-		uint height = static_cast<uint>(ysize * term->ymax);
+		int xx1 = static_cast<int>(GPO.V.XOffset * term->xmax);
+		int yy1 = static_cast<int>(GPO.V.YOffset * term->ymax);
+		uint width  = static_cast<uint>(GPO.V.XSize * term->xmax);
+		uint height = static_cast<uint>(GPO.V.YSize * term->ymax);
 		(*term->fillbox)(0, xx1, yy1, width, height);
 	}
 	term_end_plot();
@@ -1189,7 +1189,7 @@ void GpProgram::DoCommand()
 	int end_token;
 	char * clause;
 	Shift();
-	GpIterator * do_iterator = check_for_iteration();
+	GpIterator * do_iterator = GPO.CheckForIteration();
 	if(forever_iteration(do_iterator)) {
 		cleanup_iteration(do_iterator);
 		GPO.IntError(CToken-2, "unbounded iteration not accepted here");
@@ -1392,7 +1392,7 @@ void GnuPlot::LinkCommand()
 		secondary_axis->linked_to_primary = NULL;
 	}
 	if(secondary_axis->index == POLAR_AXIS)
-		rrange_to_xy();
+		RRangeToXY();
 }
 //
 // process the 'load' command 
@@ -1825,16 +1825,17 @@ void pwd_command()
 	SAlloc::F(save_file);
 	GPO.Pgm.Shift();
 }
-
-/* EAM April 2007
- * The "refresh" command replots the previous graph without going back to read
- * the original data. This allows zooming or other operations on data that was
- * only transiently available in the input stream.
- */
-void refresh_command()
+// 
+// EAM April 2007
+// The "refresh" command replots the previous graph without going back to read
+// the original data. This allows zooming or other operations on data that was
+// only transiently available in the input stream.
+// 
+//void refresh_command()
+void GnuPlot::RefreshCommand()
 {
-	GPO.Pgm.Shift();
-	GPO.RefreshRequest();
+	Pgm.Shift();
+	RefreshRequest();
 }
 
 //void refresh_request()
@@ -1870,14 +1871,14 @@ void GnuPlot::RefreshRequest()
 		}
 	}
 	if(refresh_ok == E_REFRESH_OK_2D) {
-		refresh_bounds(first_plot, refresh_nplots);
+		RefreshBounds(first_plot, refresh_nplots);
 		DoPlot(term, first_plot, refresh_nplots);
-		update_gpval_variables(1);
+		UpdateGpvalVariables(1);
 	}
 	else if(refresh_ok == E_REFRESH_OK_3D) {
 		refresh_3dbounds(first_3dplot, refresh_nplots);
 		Do3DPlot(term, first_3dplot, refresh_nplots, /*0*/NORMAL_REPLOT);
-		update_gpval_variables(1);
+		UpdateGpvalVariables(1);
 	}
 	else
 		IntError(NO_CARET, "Internal error - refresh of unknown plot type");
@@ -1891,7 +1892,7 @@ void replot_command()
 		GPO.IntErrorCurToken("no previous plot");
 	if(volatile_data && (refresh_ok != E_REFRESH_NOT_OK) && !replot_disabled) {
 		FPRINTF((stderr, "volatile_data %d refresh_ok %d plotted_data_from_stdin %d\n", volatile_data, refresh_ok, plotted_data_from_stdin));
-		refresh_command();
+		GPO.RefreshCommand();
 	}
 	else {
 		// Disable replot for some reason; currently used by the mouse/hotkey
@@ -1916,7 +1917,7 @@ void replot_command()
 void reread_command()
 {
 	FILE * fp = lf_top();
-	if(fp != (FILE*)NULL)
+	if(fp)
 		rewind(fp);
 	GPO.Pgm.Shift();
 }
@@ -1969,28 +1970,14 @@ void save_command()
 	if(!fp)
 		os_error(GPO.Pgm.GetCurTokenIdx(), "Cannot open save file");
 	switch(what) {
-		case SAVE_FUNCS:
-		    save_functions(fp);
-		    break;
-		case SAVE_SET:
-		    save_set(fp);
-		    break;
-		case SAVE_TERMINAL:
-		    save_term(fp);
-		    break;
-		case SAVE_VARS:
-		    save_variables(fp);
-		    break;
-		case SAVE_FIT:
-		    save_fit(fp);
-		    break;
-		case SAVE_DATABLOCKS:
-		    save_datablocks(fp);
-		    break;
-		default:
-		    save_all(fp);
+		case SAVE_FUNCS: save_functions(fp); break;
+		case SAVE_SET: save_set(fp); break;
+		case SAVE_TERMINAL: save_term(fp); break;
+		case SAVE_VARS: save_variables(fp); break;
+		case SAVE_FIT: save_fit(fp); break;
+		case SAVE_DATABLOCKS: save_datablocks(fp); break;
+		default: save_all(fp);
 	}
-
 	if(stdout != fp) {
 #ifdef PIPES
 		if(save_file[0] == '|')
@@ -2001,8 +1988,9 @@ void save_command()
 	}
 	SAlloc::F(save_file);
 }
-
-/* process the 'screendump' command */
+//
+// process the 'screendump' command 
+//
 void screendump_command()
 {
 	GPO.Pgm.Shift();

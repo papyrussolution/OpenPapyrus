@@ -473,7 +473,7 @@ TERM_PUBLIC void CACA_options()
 			case CACA_SIZE: {
 			    float width, height;
 			    GPO.Pgm.Shift();
-			    parse_term_size(&width, &height, PIXELS);
+			    GPO.ParseTermSize(&width, &height, PIXELS);
 			    term->xmax = CACA_xmax = width - 1;
 			    term->ymax = CACA_ymax = height - 1;
 			    break;
@@ -505,11 +505,10 @@ TERM_PUBLIC void CACA_options()
 #endif
 }
 
-static void CACA_update_options(void)
+static void CACA_update_options()
 {
 	char options[MAX_LINE_LEN + 1];
 	int n;
-
 	term_options[0] = NUL;
 	if(CACA_driver != NULL)
 		snprintf(term_options, MAX_LINE_LEN + 1, "%s %s ", CACA_exportonly ? "format" : "driver", CACA_driver);
@@ -554,7 +553,7 @@ TERM_PUBLIC void CACA_init()
 	}
 }
 
-static void CACA_refresh(void)
+static void CACA_refresh()
 {
 	CACA_HYPERTEXT * hypertext = CACA_hypertext_list;
 	if((CACA_dp == NULL) || (CACA_cv == NULL) || CACA_exportonly)
@@ -665,7 +664,7 @@ void CACA_sigint_handler(int sig)
 	raise(SIGINT);
 }
 
-static void CACA_init_display(void)
+static void CACA_init_display()
 {
 	if((CACA_dp == NULL) && !CACA_exportonly) {
 		if(CACA_driver == NULL)
@@ -766,11 +765,10 @@ static void CACA_init_display(void)
 	}
 }
 
-static void CACA_init_aspect_ratio(void)
+static void CACA_init_aspect_ratio()
 {
 	int width = 6;
 	int height = 10;
-
 	if(CACA_dp) {
 		height = caca_get_display_height(CACA_dp) / (CACA_ymax + CACA_status_height + 1);
 		width = caca_get_display_width(CACA_dp) / (CACA_xmax + 1);
@@ -872,7 +870,7 @@ TERM_PUBLIC void CACA_text()
 			term_graphics = TRUE;
 		}
 		else {
-			(void)getchar();
+			getchar();
 			CACA_close_display();
 		}
 	}
@@ -910,7 +908,7 @@ TERM_PUBLIC void CACA_text()
 #endif
 }
 
-static void CACA_close_display(void)
+static void CACA_close_display()
 {
 	/* make a copy of the current canvas */
 	if((CACA_dp != NULL) || (CACA_cv != NULL)) {
@@ -953,7 +951,7 @@ static void CACA_close_display(void)
 	}
 }
 
-TERM_PUBLIC void CACA_suspend(void)
+TERM_PUBLIC void CACA_suspend()
 {
 	if(CACA_exportonly || CACA_nosuspend)
 		return;
@@ -962,7 +960,7 @@ TERM_PUBLIC void CACA_suspend(void)
 		CACA_close_display();
 }
 
-TERM_PUBLIC void CACA_resume(void)
+TERM_PUBLIC void CACA_resume()
 {
 	if(CACA_exportonly || CACA_nosuspend)
 		return;
@@ -1386,21 +1384,17 @@ static struct angles CACA_angles[] = {
 	{-1, 0, 0}
 };
 
-static void CACA_init_angles(void)
+static void CACA_init_angles()
 {
 	int i;
 	int width = 6;
 	int height = 10;
-
 	if(CACA_dp != NULL) {
 		height = caca_get_display_height(CACA_dp) / (CACA_ymax + CACA_status_height + 1);
 		width  = caca_get_display_width(CACA_dp)  / (CACA_xmax + 1);
 	}
-
 	for(i = 0; CACA_angles[i].angle >= 0; i++) {
-		CACA_angles[i].angle = (int)(0.5 + 180. / M_PI *
-		    atan2l(CACA_angles[i].xdiv * height,
-		    CACA_angles[i].ydiv * width));
+		CACA_angles[i].angle = (int)(0.5 + 180. / M_PI * atan2l(CACA_angles[i].xdiv * height, CACA_angles[i].ydiv * width));
 	}
 }
 
@@ -1408,12 +1402,9 @@ static char * CACA_encode_text(const char * str)
 {
 	char * text = (char*)str;
 	int i;
-
 	if(text == NULL)
 		return NULL;
-
-	if(((encoding == S_ENC_DEFAULT) || (encoding == S_ENC_UTF8))
-	    && (CACA_charset == CACA_ASCII)) {
+	if(((encoding == S_ENC_DEFAULT) || (encoding == S_ENC_UTF8)) && (CACA_charset == CACA_ASCII)) {
 		/* convert from utf8 to ascii */
 		char const * s = str;
 		size_t len = strlen_utf8(str);
@@ -1780,7 +1771,6 @@ static int CACA_translate_key(int key)
 		-1
 	};
 	int i;
-
 	for(i = 0; caca_keys[i] != -1; i++) {
 		if(key == caca_keys[i])
 			return gp_keys[i];
@@ -1788,7 +1778,7 @@ static int CACA_translate_key(int key)
 	return key;
 }
 
-static ulong CACA_event_time(void)
+static ulong CACA_event_time()
 {
 #ifdef HAVE_SYS_TIME_H
 	struct timeval tv;
@@ -1804,12 +1794,11 @@ static ulong CACA_event_time(void)
 #endif
 }
 
-CACA_result CACA_process_events(void)
+CACA_result CACA_process_events()
 {
 	CACA_result loop = CACA_loop;
 	caca_event_t ev;
-	const int event_mask =
-	    CACA_EVENT_KEY_PRESS | CACA_EVENT_RESIZE |  CACA_EVENT_QUIT
+	const int event_mask = CACA_EVENT_KEY_PRESS | CACA_EVENT_RESIZE |  CACA_EVENT_QUIT
 #ifdef USE_MOUSE
 	    | CACA_EVENT_MOUSE_MOTION | CACA_EVENT_MOUSE_PRESS | CACA_EVENT_MOUSE_RELEASE
 #endif
@@ -1977,7 +1966,7 @@ bool CACA_window_opened()
 	return (CACA_dp != NULL);
 }
 
-static void CACA_discard_events(void)
+static void CACA_discard_events()
 {
 	if(CACA_dp != NULL)
 		while(caca_get_event(CACA_dp, CACA_EVENT_ANY, NULL, 50) != 0);
@@ -2026,15 +2015,13 @@ TERM_PUBLIC int CACA_waitforinput(int options)
 		if(loop == CACA_loop && gp_kbhit())
 			return getchar();
 	}
-
 	/* We get here only if the window was closed previously, e.g. via pressing the 'q' key. */
 	if(CACA_dp == NULL || loop == CACA_quit)
 		return getchar();
-
 	return EOF;
 }
 
-static void CACA_print_status(void)
+static void CACA_print_status()
 {
 	if((CACA_dp != NULL) && (CACA_screen_cv != NULL)) {
 		uint32_t attr = caca_get_attr(CACA_screen_cv, -1, -1);
@@ -2819,21 +2806,14 @@ static void CACA_draw_line(caca_canvas_t * cv, int x1, int y1, int x2, int y2, u
 	int dx, dy;
 	int xinc, yinc;
 	bool first = TRUE;
-
-	/* silence compiler warning */
-	(void)first;
-
 	dx = abs(x2 - x1);
 	dy = abs(y2 - y1);
-
 	xinc = (x1 > x2) ? -1 : 1;
 	yinc = (y1 > y2) ? -1 : 1;
-
 	if(dx >= dy) {
 		int dpr = dy << 1;
 		int dpru = dpr - (dx << 1);
 		int delta = dpr - dx;
-
 		for(; dx>=0; dx--) {
 #if 0
 			/* Try to merge tic marks and border. Mostly useless since border is normally drawn after the
@@ -3143,25 +3123,23 @@ static char const * CACA_get_color_name(uint8_t color)
    ------------------------------------------------------------------------- */
 
 #ifdef USE_MOUSE
-static int gp_kbhit(void)
+static int gp_kbhit()
 {
 #ifndef _WIN32
 #ifdef HAVE_SELECT
 	struct timeval tv = {0L, 0L};
 	fd_set fds;
-
 	FD_ZERO(&fds);
 	FD_SET(0, &fds);
 	return select(1, &fds, NULL, NULL, &tv);
-# elif (defined(MSDOS) && !defined(__EMX__))
+#elif (defined(MSDOS) && !defined(__EMX__))
 	return kbhit();
 #else
-#  error "No definition of kbhit() available."
+	#error "No definition of kbhit() available."
 #endif
 #else
 #ifdef WGP_CONSOLE
-	/* FIXME: This snippet actually determines the number of _all_ events,
-	   not just key presses. But typically this is not a problem. */
+	// FIXME: This snippet actually determines the number of _all_ events, not just key presses. But typically this is not a problem. 
 	int fd = fileno(stdin);
 	if(!isatty(fd))
 		return TRUE;
@@ -3179,7 +3157,6 @@ static int gp_kbhit(void)
 }
 
 #endif
-
 #endif /* TERM_BODY */
 
 #ifdef TERM_TABLE

@@ -730,7 +730,7 @@ static void __stdcall FlexSetupProc_WhatmanFig(LayoutFlexItem * pItem, const Lay
 	}
 }
 
-int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam)
+int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam, LayoutFlexItem::PagingResult * pPr)
 {
 	int    ok = -1;
 	TRect area = Area;
@@ -827,7 +827,7 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 			alb_root.SetFixedSizeX(static_cast<float>(Area.width() - rParam.UlGap.x - rParam.LrGap.x));
 			alb_root.SetFixedSizeY(static_cast<float>(Area.height() - rParam.UlGap.y - rParam.LrGap.y));
 			lo_root.SetLayoutBlock(alb_root);
-			lo_root.Evaluate(0, 0);
+			lo_root.Evaluate(0, pPr);
 		}
 		/*for(uint i = 0; i < p_lo_root->getCount(); i++) {
 			const LayoutFlexItem * p_lo_item = p_lo_root->at(i);

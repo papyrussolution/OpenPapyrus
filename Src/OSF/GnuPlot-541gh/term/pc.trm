@@ -230,7 +230,7 @@ static struct gen_table pc_opts[] =
 	{ NULL, PC_INVALID }
 };
 
-TERM_PUBLIC void PC_options(void)
+TERM_PUBLIC void PC_options()
 {
 	int i;
 	while(!GPO.Pgm.EndOfCommand()) {
@@ -281,7 +281,7 @@ TERM_PUBLIC void PC_options(void)
 	    term->flags & TERM_ENHANCED_TEXT ? "" : "no", pc_linewidth_scale, pc_pointscale, pc_fontscale, pc_background_rgb.r, pc_background_rgb.g, pc_background_rgb.b);
 }
 
-static void PC_setup(void)
+static void PC_setup()
 {
 	int i, x, y;
 	char pc_modename[9];
@@ -385,68 +385,56 @@ static void PC_setup(void)
 	}
 }
 
-TERM_PUBLIC void PC_init(void)
+TERM_PUBLIC void PC_init()
 {
 	struct _fontinfo fi;
-
 	if(!pc_graphics)
 		PC_setup();
-
 	if(!pc_graphics) {
 		term = NULL;
 		GPO.IntError(NO_CARET, "Unable to initialize dospc graphics.\n");
 		return;
 	}
-
-	/* init terminal: fixed size... */
+	// init terminal: fixed size... 
 	term->xmax = pc_lastx + 1;
 	term->ymax = pc_lasty + 1;
 }
 
-TERM_PUBLIC void PC_graphics(void)
+TERM_PUBLIC void PC_graphics()
 {
 	struct textsettings ts;
-
 	if(!graphics_on && !pc_processing_events) {
 		PC_save_text();
-
 		graphics_on = TRUE;
 		_setvideomode(pc_mode);
 	}
-
 	/* init text properties */
 	_settextang(0);
 	PC_justify_text(LEFT);
 	_settextalign(pc_hjustify, pc_vjustify);
-
 	/* save initial font aspect ratio */
 	_gettextsettings(&ts);
 	pc_font_aspect = (float)ts.height / (float)ts.width;
-
 	/* set default font */
 	PC_set_font("");
 	_gettextsettings(&ts);
 	term->h_char = ts.width;
 	term->v_char = 12 * ts.height / 10; /* reserve some extra line spacing */
 	term->h_tic = term->v_tic = term->v_char / 2.5;
-
 	pc_linewidth = 1;
 	pc_pal_colors = 0;
-	/* reserved palette entries for default colors */
-	pc_rgbcolors = 16;
-
+	pc_rgbcolors = 16; // reserved palette entries for default colors 
 	/* set background */
 	pc_background = ((pc_background_rgb.b >> 2) << 16) | ((pc_background_rgb.g >> 2) << 8) | (pc_background_rgb.r >> 2);
 	_setbkcolor(pc_background);
 	_clearscreen(_GCLEARSCREEN);
 }
 
-static void PC_save_text(void)
+static void PC_save_text()
 {
 	if(pc_text_image == NULL) {
 		struct videoconfig vc;
 		long size;
-
 		_getvideoconfig(&vc);
 		pc_text_cols = vc.numtextcols;
 		pc_text_rows = vc.numtextrows;
@@ -455,13 +443,11 @@ static void PC_save_text(void)
 	}
 	if(pc_text_image != NULL) {
 		union REGS regs;
-
-		/* make a copy of the text memory */
+		// make a copy of the text memory 
 		char * video = (char*)(int)0xB8000;
 		int size = 2 * pc_text_cols * pc_text_rows;
 		memcpy(pc_text_image, video, size);
-
-		/* save text cursor position */
+		// save text cursor position 
 		regs.h.ah = 0x03;
 		regs.h.bh = 0;
 		int386(0x10, &regs, &regs);
@@ -470,20 +456,17 @@ static void PC_save_text(void)
 	}
 }
 
-static void PC_restore_text(void)
+static void PC_restore_text()
 {
 	graphics_on = FALSE;
 	_setvideomode(_DEFAULTMODE);
-
-	if(pc_text_image != NULL) {
+	if(pc_text_image) {
 		union REGS regs;
-
-		/* restore text memory -*/
+		// restore text memory -
 		char * video = (char*)(int)0xB8000;
 		int size = 2 * pc_text_cols * pc_text_rows;
 		memcpy(video, pc_text_image, size);
-
-		/* restore text cursor position */
+		// restore text cursor position 
 		regs.h.ah = 0x02;
 		regs.h.bh = 0;
 		regs.h.dh = pc_text_pos.row;
@@ -696,15 +679,13 @@ static int PC_translate_key(int key, int * mod)
 
 #endif
 
-TERM_PUBLIC void PC_text(void)
+TERM_PUBLIC void PC_text()
 {
 	if(!graphics_on)
 		return;
-
 #ifdef USE_MOUSE
-	/* signal that we are done */
+	// signal that we are done 
 	exec_event(GE_plotdone, 0, 0, 0, 0, 0);
-
 	if(!pc_processing_events) {
 		/* Hack to let the gnuplot kernel do new plots */
 		term_graphics = FALSE;
@@ -746,30 +727,22 @@ TERM_PUBLIC void PC_text(void)
 		PC_restore_text();
 	}
 #else /* !USE_MOUSE */
-	(void)getch();
+	getch();
 	PC_restore_text();
 #endif
 	if(pc_rgbcolors == 256)
 		printf("\tWarning: number of palette colors exhausted.\n");
 }
 
-TERM_PUBLIC void PC_reset(void)
+TERM_PUBLIC void PC_reset()
 {
 	if(graphics_on)
 		PC_restore_text();
-
-	if(pc_image != NULL) {
-		SAlloc::F(pc_image);
-		pc_image = NULL;
-	}
-
-	if(pc_text_image != NULL) {
-		SAlloc::F(pc_text_image);
-		pc_text_image = NULL;
-	}
+	ZFREE(pc_image);
+	ZFREE(pc_text_image);
 }
 
-TERM_PUBLIC void PC_suspend(void)
+TERM_PUBLIC void PC_suspend()
 {
 	if(pc_image == NULL) {
 		long size = _imagesize(0, 0, pc_lastx, pc_lasty);
@@ -780,10 +753,10 @@ TERM_PUBLIC void PC_suspend(void)
 	PC_text();
 }
 
-TERM_PUBLIC void PC_resume(void)
+TERM_PUBLIC void PC_resume()
 {
 	PC_graphics();
-	if(pc_image != NULL)
+	if(pc_image)
 		_putimage(0, 0, pc_image, _GPSET);
 }
 
@@ -961,7 +934,7 @@ TERM_PUBLIC void PC_enhanced_open(char * fontname,
 	}
 }
 
-TERM_PUBLIC void PC_enhanced_flush(void)
+TERM_PUBLIC void PC_enhanced_flush()
 {
 	char * str = enhanced_text; /* The fragment to print */
 	int len;
@@ -969,11 +942,9 @@ TERM_PUBLIC void PC_enhanced_flush(void)
 	int height = 0;
 	struct xycoord concat;
 	struct xycoord extent[4];
-
 	if(!pc_enhanced_opened_string)
 		return;
 	*enhanced_cur_text = NUL;
-
 	/* calculate length of string first */
 	_settextang(0);
 	_gettextextent(pc_x, pc_lasty - pc_y, str, &concat, extent);

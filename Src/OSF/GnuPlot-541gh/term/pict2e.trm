@@ -54,38 +54,29 @@
 
 // transparency for pict2e width pdflatex and package "transparent"
 #define PICT2E_TRANSPARENT
-
 #ifdef TERM_REGISTER
-register_term(pict2e)
+	register_term(pict2e)
 #endif
 
 #ifdef TERM_PROTO
 
-TERM_PUBLIC void PICT2E_options(void);
-
-TERM_PUBLIC void PICT2E_init(void);
-TERM_PUBLIC void PICT2E_graphics(void);
-TERM_PUBLIC void PICT2E_text(void);
-TERM_PUBLIC void PICT2E_reset(void);
-
+TERM_PUBLIC void PICT2E_options();
+TERM_PUBLIC void PICT2E_init();
+TERM_PUBLIC void PICT2E_graphics();
+TERM_PUBLIC void PICT2E_text();
+TERM_PUBLIC void PICT2E_reset();
 TERM_PUBLIC int PICT2E_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int PICT2E_text_angle(int ang);
-TERM_PUBLIC void PICT2E_put_text(unsigned int x, unsigned int y, const char str[]);
-
+TERM_PUBLIC void PICT2E_put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC int PICT2E_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void PICT2E_set_color(t_colorspec * colorspec);
 TERM_PUBLIC void PICT2E_linetype(int linetype);
 TERM_PUBLIC void PICT2E_dashtype(int dt, t_dashtype * custom_dash_pattern);
-
-TERM_PUBLIC void PICT2E_move(unsigned int x, unsigned int y);
-TERM_PUBLIC void PICT2E_point(unsigned int x, unsigned int y, int number);
-TERM_PUBLIC void PICT2E_vector(unsigned int ux, unsigned int uy);
-
-TERM_PUBLIC void PICT2E_arrow(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey, int head);
-
-TERM_PUBLIC void PICT2E_fillbox(int style,
-    unsigned int x1, unsigned int y1,
-    unsigned int width, unsigned int height);
+TERM_PUBLIC void PICT2E_move(uint x, uint y);
+TERM_PUBLIC void PICT2E_point(uint x, uint y, int number);
+TERM_PUBLIC void PICT2E_vector(uint ux, uint uy);
+TERM_PUBLIC void PICT2E_arrow(uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC void PICT2E_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void PICT2E_filled_polygon(int points, gpiPoint * corners);
 
 #define PICT2E_PTS_PER_INCH (72.27)
@@ -113,7 +104,7 @@ static char pict2e_font[MAX_ID_LEN+1] = "";
 static enum JUSTIFY pict2e_justify = LEFT;
 static int pict2e_angle = 0;
 static bool pict2e_explicit_size = FALSE;
-static size_units pict2e_explicit_units = INCHES;
+static GpSizeUnits pict2e_explicit_units = INCHES;
 
 /* Default line-drawing character */
 /* the definition of plotpoint varies with linetype */
@@ -121,9 +112,8 @@ static size_units pict2e_explicit_units = INCHES;
 #define PICT2E_TINY_DOT "\\rule[-0.5pt]{1pt}{1pt}"      /* for dots plot style */
 
 /* COLORS */
-static void PICT2E_apply_color(void);
-static void PICT2E_apply_opacity(void);
-
+static void PICT2E_apply_color();
+static void PICT2E_apply_opacity();
 static bool pict2e_use_color = TRUE; /* LATEX terminal option */
 static char pict2e_color[32] = "";
 static char pict2e_new_color[32] = "";
@@ -160,13 +150,13 @@ static const char * pict2e_point_type[PICT2E_POINT_TYPES] = {
 };
 
 /* LINES */
-static void PICT2E_linesize(void);
+static void PICT2E_linesize();
 static void PICT2E_solid_line(int x1, int x2, int y1, int y2);
 static void PICT2E_dot_line(int x1, int x2, int y1, int y2);
-static void PICT2E_flushdot(void);
-static void PICT2E_pushpath(unsigned int x, unsigned int y);
-static void PICT2E_endline(void);
-static void PICT2E_flushline(void);
+static void PICT2E_flushdot();
+static void PICT2E_pushpath(uint x, uint y);
+static void PICT2E_endline();
+static void PICT2E_flushline();
 
 static float pict2e_size = 0;   /* current line thickness */
 static float pict2e_lw;
@@ -268,7 +258,7 @@ TERM_PUBLIC void PICT2E_options()
 				float ymax_t = 3.0f;
 			    GPO.Pgm.Shift();
 			    pict2e_explicit_size = TRUE;
-			    pict2e_explicit_units = parse_term_size(&xmax_t, &ymax_t, INCHES);
+			    pict2e_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
 			    term->xmax = xmax_t * PICT2E_DPI / 72;
 			    term->ymax = ymax_t * PICT2E_DPI / 72;
 			    break;
@@ -417,20 +407,15 @@ TERM_PUBLIC void PICT2E_reset()
 	pict2e_moved = TRUE;            /* pen is up after move */
 }
 
-static void PICT2E_linesize(void)
+static void PICT2E_linesize()
 {
 	float size;
-
 	PICT2E_endline();
-
 	/* Find the new desired line thickness. */
 	size = pict2e_lw * 0.4;
-
 	/* If different from current size, redefine \plotpoint */
 	if(size != pict2e_size) {
-		fprintf(gpoutfile,
-		    "\\sbox{\\plotpoint}{\\rule[%.3fpt]{%.3fpt}{%.3fpt}}%%\n",
-		    -size / 2, size, size);
+		fprintf(gpoutfile, "\\sbox{\\plotpoint}{\\rule[%.3fpt]{%.3fpt}{%.3fpt}}%%\n", -size / 2, size, size);
 		fprintf(gpoutfile, "\\linethickness{%.1fpt}%%\n", size);
 	}
 	pict2e_size = size;
@@ -509,7 +494,7 @@ TERM_PUBLIC void PICT2E_point(unsigned int x, unsigned int y, int number)
 	}
 }
 
-static void PICT2E_endline(void)
+static void PICT2E_endline()
 {
 	PICT2E_flushline();
 	PICT2E_flushdot();
@@ -698,7 +683,7 @@ TERM_PUBLIC int PICT2E_make_palette(t_sm_palette * palette)
 	return 0; /* we can do continuous colors */
 }
 
-static void PICT2E_apply_color(void)
+static void PICT2E_apply_color()
 {
 	if(strcmp(pict2e_new_color, pict2e_color) != 0) {
 		strcpy(pict2e_color, pict2e_new_color);
@@ -709,11 +694,10 @@ static void PICT2E_apply_color(void)
 	}
 }
 
-static void PICT2E_apply_opacity(void)
+static void PICT2E_apply_opacity()
 {
 	if(!pict2e_use_color)
 		return;
-
 #ifdef PICT2E_TRANSPARENT
 	if(pict2e_opacity != pict2e_new_opacity) {
 		pict2e_opacity = pict2e_new_opacity;
@@ -765,7 +749,7 @@ TERM_PUBLIC void PICT2E_set_color(t_colorspec * colorspec)
 	}
 }
 
-static void PICT2E_flushline(void)
+static void PICT2E_flushline()
 {
 	if(pict2e_inline) {
 		int i;

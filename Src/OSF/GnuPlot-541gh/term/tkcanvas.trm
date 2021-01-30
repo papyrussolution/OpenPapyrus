@@ -707,8 +707,8 @@ TERM_PUBLIC void TK_move(uint x, uint y)
 	(GPO.AxS[axis].log) ? pow(GPO.AxS[axis].base, GPO.AxS[axis].min + value*(GPO.AxS[axis].max-GPO.AxS[axis].min))  \
 	: GPO.AxS[axis].min + value*(GPO.AxS[axis].max-GPO.AxS[axis].min)
 
-#define TK_X_VALUE(value) (double)(value-plot_bounds.xleft)/(double)(plot_bounds.xright-plot_bounds.xleft)
-#define TK_Y_VALUE(value) (double)((TK_YMAX-value)-plot_bounds.ybot)/(double)(plot_bounds.ytop-plot_bounds.ybot)
+#define TK_X_VALUE(value) (double)(value-GPO.V.BbPlot.xleft)/(double)(GPO.V.BbPlot.xright-GPO.V.BbPlot.xleft)
+#define TK_Y_VALUE(value) (double)((TK_YMAX-value)-GPO.V.BbPlot.ybot)/(double)(GPO.V.BbPlot.ytop-GPO.V.BbPlot.ybot)
 
 static char * tk_bind_init[TK_LANG_MAX] = {
 	/* Tcl */
@@ -1739,7 +1739,7 @@ TERM_PUBLIC void TK_text()
 	fputs(tk_endblock[tk_script_language], gpoutfile);
 	if(!is_3d_plot)
 		fprintf(gpoutfile, tk_info_procs[tk_script_language],
-		    plot_bounds.xleft, plot_bounds.xright, TK_YMAX - plot_bounds.ytop, TK_YMAX - plot_bounds.ybot,
+		    GPO.V.BbPlot.xleft, GPO.V.BbPlot.xright, TK_YMAX - GPO.V.BbPlot.ytop, TK_YMAX - GPO.V.BbPlot.ybot,
 		    GPO.AxS[FIRST_X_AXIS].min,  GPO.AxS[FIRST_X_AXIS].max, GPO.AxS[FIRST_Y_AXIS].min,  GPO.AxS[FIRST_Y_AXIS].max,
 		    GPO.AxS[SECOND_X_AXIS].min, GPO.AxS[SECOND_X_AXIS].max, GPO.AxS[SECOND_Y_AXIS].min, GPO.AxS[SECOND_Y_AXIS].max);
 	if(tk_interactive)

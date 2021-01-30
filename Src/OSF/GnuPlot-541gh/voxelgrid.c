@@ -456,7 +456,7 @@ void vfill_command()
 	vfill(current_vgrid->vdata, gridcoordinates);
 }
 
-static void vfill(t_voxel * grid, bool gridcoordinates)
+static void vfill(t_voxel * pGrid, bool gridCoordinates)
 {
 	int plot_num = 0;
 	curve_points dummy_plot;
@@ -467,7 +467,7 @@ static void vfill(t_voxel * grid, bool gridcoordinates)
 	//
 	// This part is modelled on eval_plots()
 	//
-	plot_iterator = check_for_iteration();
+	plot_iterator = GPO.CheckForIteration();
 	while(TRUE) {
 		int sample_range_token;
 		int start_token = GPO.Pgm.GetCurTokenIdx();
@@ -498,7 +498,7 @@ static void vfill(t_voxel * grid, bool gridcoordinates)
 		// FIXME:  what exactly do we need to fill in? 
 		this_plot->plot_type = DATA;
 		this_plot->noautoscale = TRUE;
-		specs = df_open(name_str, 5, this_plot); // Fixed number of input columns x:y:z:radius:(density_function) 
+		specs = GPO.DfOpen(name_str, 5, this_plot); // Fixed number of input columns x:y:z:radius:(density_function) 
 		// We will invoke density_function in modify_voxels rather than df_readline 
 		if(use_spec[4].at == NULL)
 			GPO.IntError(NO_CARET, "5th user spec to vfill must be an expression");
@@ -523,17 +523,16 @@ static void vfill(t_voxel * grid, bool gridcoordinates)
 		// However we process each point as we come to it.
 		if(df_no_use_specs == 5) {
 			int j;
-			int ngood;
 			double v[MAXDATACOLS];
 			memzero(v, sizeof(v));
-			/* Initialize stats */
-			ngood = 0;
+			// Initialize stats 
+			int ngood = 0;
 			nvoxels_modified = 0;
 			fprintf(stderr, "vfill from %s :\n", name_str);
-			/* If the user has set an explicit locale for numeric input, apply it */
-			/* here so that it affects data fields read from the input file.      */
+			// If the user has set an explicit locale for numeric input, apply it 
+			// here so that it affects data fields read from the input file.      
 			set_numeric_locale();
-			/* Initial state */
+			// Initial state 
 			df_warn_on_missing_columnheader = TRUE;
 			while((j = df_readline(v, 5)) != DF_EOF) {
 				switch(j) {
@@ -555,32 +554,31 @@ static void vfill(t_voxel * grid, bool gridcoordinates)
 					default:
 					    break; /* Not continue! */
 				}
-				/* Ignore out of range points */
-				/* FIXME: probably should be range + radius! */
+				// Ignore out of range points 
+				// FIXME: probably should be range + radius! 
 				if(v[0] < current_vgrid->vxmin || current_vgrid->vxmax < v[0])
 					continue;
 				if(v[1] < current_vgrid->vymin || current_vgrid->vymax < v[1])
 					continue;
 				if(v[2] < current_vgrid->vzmin || current_vgrid->vzmax < v[2])
 					continue;
-				/* Now we know for sure we will use the data point */
+				// Now we know for sure we will use the data point 
 				ngood++;
-				/* At this point get_data() would interpret the contents of v[]
-				 * according to the current plot style and store it.
-				 * vfill() has a fixed interpretation of v[] and will use it to
-				 * modify the current voxel grid.
-				 */
-				modify_voxels(grid, v[0], v[1], v[2], v[3], density_function, gridcoordinates);
-			} /* End of loop over input data points */
+				// At this point get_data() would interpret the contents of v[]
+				// according to the current plot style and store it.
+				// vfill() has a fixed interpretation of v[] and will use it to
+				// modify the current voxel grid.
+				modify_voxels(pGrid, v[0], v[1], v[2], v[3], density_function, gridCoordinates);
+			} // End of loop over input data points 
 			df_close();
-			/* We are finished reading user input; return to C locale for internal use */
+			// We are finished reading user input; return to C locale for internal use 
 			reset_numeric_locale();
 			if(ngood == 0) {
 				if(!forever_iteration(plot_iterator))
 					GPO.IntWarn(NO_CARET, "Skipping data file with no valid points");
 				this_plot->plot_type = NODATA;
 			}
-			/* print some basic stats */
+			// print some basic stats 
 			fprintf(stderr, "\tnumber of points input:    %8d\n", ngood);
 			fprintf(stderr, "\tnumber of voxels modified: %8d\n", nvoxels_modified);
 		}
@@ -590,13 +588,13 @@ static void vfill(t_voxel * grid, bool gridcoordinates)
 		else {
 			GPO.IntError(NO_CARET, "vfill requires exactly 5 using specs x:y:z:radius:(func)");
 		}
-		/* restore original value of sample variables */
+		// restore original value of sample variables 
 		this_plot->sample_var->udv_value = original_value_sample_var;
-		/* Iterate-over-plot mechanism */
+		// Iterate-over-plot mechanism 
 		if(empty_iteration(plot_iterator) && this_plot)
 			this_plot->plot_type = NODATA;
 		if(forever_iteration(plot_iterator) && (this_plot->plot_type == NODATA)) {
-			/* nothing to do here */;
+			; // nothing to do here 
 		}
 		else if(next_iteration(plot_iterator)) {
 			GPO.Pgm.SetTokenIdx(start_token);
@@ -605,7 +603,7 @@ static void vfill(t_voxel * grid, bool gridcoordinates)
 		plot_iterator = cleanup_iteration(plot_iterator);
 		if(GPO.Pgm.EqualsCur(",")) {
 			GPO.Pgm.Shift();
-			plot_iterator = check_for_iteration();
+			plot_iterator = GPO.CheckForIteration();
 		}
 		else
 			break;

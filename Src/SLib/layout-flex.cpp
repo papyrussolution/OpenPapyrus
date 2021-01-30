@@ -1079,10 +1079,10 @@ public:
 		assert(pItem->ALB.Padding.b.X >= 0.0f);
 		assert(pItem->ALB.Padding.a.Y >= 0.0f);
 		assert(pItem->ALB.Padding.b.Y >= 0.0f);
-		const float __width  = rP.ForceWidth - (pItem->ALB.Padding.a.X + pItem->ALB.Padding.b.X);
-		const float __height = rP.ForceHeight - (pItem->ALB.Padding.a.Y + pItem->ALB.Padding.b.Y);
-		assert(__width >= 0.0f);
-		assert(__height >= 0.0f);
+		const float __width  = smax(0.0f, rP.ForceWidth  - (pItem->ALB.Padding.a.X + pItem->ALB.Padding.b.X));
+		const float __height = smax(0.0f, rP.ForceHeight - (pItem->ALB.Padding.a.Y + pItem->ALB.Padding.b.Y));
+		// (smax above) assert(__width >= 0.0f);
+		// (smax above) assert(__height >= 0.0f);
 		switch(pItem->ALB.GetContainerDirection()) {
 			case DIREC_HORZ:
 				SizeDim  = __width;

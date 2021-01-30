@@ -21,25 +21,25 @@ color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_
 	{screen, screen, screen, 0.05, 0.6, 0.0}, FALSE,
 	{0, 0, 0, 0} };
 
-BoundingBox plot_bounds; // The graph box (terminal coordinates) calculated by boundary() or boundary3d() 
-BoundingBox page_bounds; // The bounding box for 3D plots prior to applying view transformations 
-BoundingBox canvas; // The bounding box for the entire drawable area  of current terminal 
-BoundingBox * clip_area = &plot_bounds; // The bounding box against which clipping is to be done 
+//BoundingBox plot_bounds_Removed; // The graph box (terminal coordinates) calculated by boundary() or boundary3d() 
+//BoundingBox page_bounds_Removed; // The bounding box for 3D plots prior to applying view transformations 
+//BoundingBox canvas_Removed; // The bounding box for the entire drawable area  of current terminal 
+//BoundingBox * clip_area_Removed = &GPO.V.BbPlot; // The bounding box against which clipping is to be done 
 
 // 'set size', 'set origin' settings 
-float  xsize = 1.0f;        // scale factor for size
-float  ysize = 1.0f;        // scale factor for size 
-float  zsize = 1.0f;        // scale factor for size 
-float  xoffset = 0.0f;      // x origin
-float  yoffset = 0.0f;      // y origin
+//float  xsize_Removed = 1.0f;        // scale factor for size
+//float  ysize_Removed = 1.0f;        // scale factor for size 
+//float  zsize_Removed = 1.0f;        // scale factor for size 
+//float  xoffset_Removed = 0.0f;      // x origin
+//float  yoffset_Removed = 0.0f;      // y origin
 float  aspect_ratio = 0.0f; // don't attempt to force it 
 int    aspect_ratio_3D = 0; // 2 will put x and y on same scale, 3 for z also 
 
-// EAM Augest 2006 - redefine margin as t_position so that absolute placement is possible 
-t_position lmargin = DEFAULT_MARGIN_POSITION; /* space between left edge and plot_bounds.xleft in chars (-1: computed) */
-t_position bmargin = DEFAULT_MARGIN_POSITION; /* space between bottom and plot_bounds.ybot in chars (-1: computed) */
-t_position rmargin = DEFAULT_MARGIN_POSITION; /* space between right edge and plot_bounds.xright in chars (-1: computed) */
-t_position tmargin = DEFAULT_MARGIN_POSITION; /* space between top edge and plot_bounds.ytop in chars (-1: computed) */
+// EAM Augest 2006 - redefine margin as GpPosition so that absolute placement is possible 
+//GpPosition lmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between left edge and GPO.V.BbPlot.xleft in chars (-1: computed) */
+//GpPosition bmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between bottom and GPO.V.BbPlot.ybot in chars (-1: computed) */
+//GpPosition rmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between right edge and GPO.V.BbPlot.xright in chars (-1: computed) */
+//GpPosition tmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between top edge and GPO.V.BbPlot.ytop in chars (-1: computed) */
 custom_dashtype_def * first_custom_dashtype = NULL; /* Pointer to first 'set dashtype' definition in linked list */
 text_label * first_label = NULL; /* Pointer to the start of the linked list of 'set label' definitions */
 // Pointer to first 'set linestyle' definition in linked list 
@@ -127,19 +127,20 @@ textbox_style textbox_opts[NUM_TEXTBOX_STYLES];
  * bit 3 if above of ytop.
  * 0 is returned if inside.
  */
-int FASTCALL clip_point(int x, int y)
+//int FASTCALL clip_point(int x, int y)
+int FASTCALL GpView::ClipPoint(int x, int y) const
 {
 	int ret_val = 0;
-	if(!clip_area)
-		return 0;
-	if(x < clip_area->xleft)
-		ret_val |= 0x01;
-	if(x > clip_area->xright)
-		ret_val |= 0x02;
-	if(y < clip_area->ybot)
-		ret_val |= 0x04;
-	if(y > clip_area->ytop)
-		ret_val |= 0x08;
+	if(P_ClipArea) {
+		if(x < P_ClipArea->xleft)
+			ret_val |= 0x01;
+		if(x > P_ClipArea->xright)
+			ret_val |= 0x02;
+		if(y < P_ClipArea->ybot)
+			ret_val |= 0x04;
+		if(y > P_ClipArea->ytop)
+			ret_val |= 0x08;
+	}
 	return ret_val;
 }
 // 
@@ -174,14 +175,14 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 		continuous = false;
 	x1 = p[0].x;
 	y1 = p[0].y;
-	pos1 = clip_point(x1, y1);
+	pos1 = GPO.V.ClipPoint(x1, y1);
 	if(!pos1) // move to first point if it is inside 
 		(*pTerm->move)(x1, y1);
 	newpath(pTerm);
 	for(i = 1; i < points; i++) {
 		x2 = p[i].x;
 		y2 = p[i].y;
-		pos2 = clip_point(x2, y2);
+		pos2 = GPO.V.ClipPoint(x2, y2);
 		clip_ret = clip_line(&x1, &y1, &x2, &y2);
 		if(clip_ret) {
 			// there is a line to draw 
@@ -219,9 +220,9 @@ void draw_clip_arrow(termentry * pTerm, double dsx, double dsy, double dex, doub
 	int ey = GpAxis::MapRealToInt(dey);
 	int dx, dy;
 	// Don't draw head if the arrow itself is clipped 
-	if(clip_point(sx, sy))
+	if(GPO.V.ClipPoint(sx, sy))
 		head = (t_arrow_head)(((int)head) & ~BACKHEAD);
-	if(clip_point(ex, ey))
+	if(GPO.V.ClipPoint(ex, ey))
 		head = (t_arrow_head)(((int)head) & ~END_HEAD);
 	// clip_line returns 0 if the whole thing is out of range 
 	if(!clip_line(&sx, &sy, &ex, &ey))
@@ -287,8 +288,8 @@ int clip_line(int * x1, int * y1, int * x2, int * y2)
 	double dx, dy, x, y;
 	int x_intr[4], y_intr[4], count;
 	int x_max, x_min, y_max, y_min;
-	int pos1 = clip_point(*x1, *y1);
-	int pos2 = clip_point(*x2, *y2);
+	int pos1 = GPO.V.ClipPoint(*x1, *y1);
+	int pos2 = GPO.V.ClipPoint(*x2, *y2);
 	if(!pos1 && !pos2)
 		return 1;       /* segment is totally in */
 	if(pos1 & pos2)
@@ -304,27 +305,27 @@ int clip_line(int * x1, int * y1, int * x2, int * y2)
 	dy = *y2 - *y1;
 	// Find intersections with the x parallel bbox lines: 
 	if(dy != 0) {
-		x = (clip_area->ybot - *y2) * dx / dy + *x2; // Test for clip_area->ybot boundary. 
-		if(x >= clip_area->xleft && x <= clip_area->xright) {
+		x = (GPO.V.P_ClipArea->ybot - *y2) * dx / dy + *x2; // Test for GPO.V.P_ClipArea->ybot boundary. 
+		if(x >= GPO.V.P_ClipArea->xleft && x <= GPO.V.P_ClipArea->xright) {
 			x_intr[count] = static_cast<int>(x);
-			y_intr[count++] = clip_area->ybot;
+			y_intr[count++] = GPO.V.P_ClipArea->ybot;
 		}
-		x = (clip_area->ytop - *y2) * dx / dy + *x2; // Test for clip_area->ytop boundary. 
-		if(x >= clip_area->xleft && x <= clip_area->xright) {
+		x = (GPO.V.P_ClipArea->ytop - *y2) * dx / dy + *x2; // Test for GPO.V.P_ClipArea->ytop boundary. 
+		if(x >= GPO.V.P_ClipArea->xleft && x <= GPO.V.P_ClipArea->xright) {
 			x_intr[count] = static_cast<int>(x);
-			y_intr[count++] = clip_area->ytop;
+			y_intr[count++] = GPO.V.P_ClipArea->ytop;
 		}
 	}
 	// Find intersections with the y parallel bbox lines: 
 	if(dx != 0) {
-		y = (clip_area->xleft - *x2) * dy / dx + *y2; /* Test for clip_area->xleft boundary. */
-		if(y >= clip_area->ybot && y <= clip_area->ytop) {
-			x_intr[count] = clip_area->xleft;
+		y = (GPO.V.P_ClipArea->xleft - *x2) * dy / dx + *y2; // Test for GPO.V.P_ClipArea->xleft boundary. 
+		if(y >= GPO.V.P_ClipArea->ybot && y <= GPO.V.P_ClipArea->ytop) {
+			x_intr[count] = GPO.V.P_ClipArea->xleft;
 			y_intr[count++] = static_cast<int>(y);
 		}
-		y = (clip_area->xright - *x2) * dy / dx + *y2; /* Test for clip_area->xright boundary. */
-		if(y >= clip_area->ybot && y <= clip_area->ytop) {
-			x_intr[count] = clip_area->xright;
+		y = (GPO.V.P_ClipArea->xright - *x2) * dy / dx + *y2; // Test for GPO.V.P_ClipArea->xright boundary. 
+		if(y >= GPO.V.P_ClipArea->ybot && y <= GPO.V.P_ClipArea->ytop) {
+			x_intr[count] = GPO.V.P_ClipArea->xright;
 			y_intr[count++] = static_cast<int>(y);
 		}
 	}
@@ -396,20 +397,24 @@ int clip_line(int * x1, int * y1, int * x2, int * y2)
 // and end points for the clip_boundary must be in correct order for
 // this to work properly (see respective definitions in clip_polygon()). 
 // 
-bool vertex_is_inside(gpiPoint test_vertex, gpiPoint * clip_boundary)
+static bool vertex_is_inside(gpiPoint test_vertex, const gpiPoint * clip_boundary)
 {
 	if(clip_boundary[1].x > clip_boundary[0].x)           /*bottom edge*/
-		if(test_vertex.y >= clip_boundary[0].y) return TRUE;
+		if(test_vertex.y >= clip_boundary[0].y) 
+			return TRUE;
 	if(clip_boundary[1].x < clip_boundary[0].x)           /*top edge*/
-		if(test_vertex.y <= clip_boundary[0].y) return TRUE;
+		if(test_vertex.y <= clip_boundary[0].y) 
+			return TRUE;
 	if(clip_boundary[1].y > clip_boundary[0].y)           /*right edge*/
-		if(test_vertex.x <= clip_boundary[1].x) return TRUE;
+		if(test_vertex.x <= clip_boundary[1].x) 
+			return TRUE;
 	if(clip_boundary[1].y < clip_boundary[0].y)           /*left edge*/
-		if(test_vertex.x >= clip_boundary[1].x) return TRUE;
+		if(test_vertex.x >= clip_boundary[1].x) 
+			return TRUE;
 	return FALSE;
 }
 
-void intersect_polyedge_with_boundary(gpiPoint first, gpiPoint second, gpiPoint * intersect, gpiPoint * clip_boundary)
+static void intersect_polyedge_with_boundary(gpiPoint first, gpiPoint second, gpiPoint * intersect, const gpiPoint * clip_boundary)
 {
 	/* this routine is called only if one point is outside and the other
 	   is inside, which implies that clipping is needed at a horizontal
@@ -424,9 +429,10 @@ void intersect_polyedge_with_boundary(gpiPoint first, gpiPoint second, gpiPoint 
 		(*intersect).y = first.y + (clip_boundary[0].x - first.x) * (second.y - first.y)/(second.x - first.x);
 	}
 }
-
-/* Clip the given polygon to a single edge of the bounding box. */
-void clip_polygon_to_boundary(gpiPoint * in, gpiPoint * out, int in_length, int * out_length, gpiPoint * clip_boundary)
+//
+// Clip the given polygon to a single edge of the bounding box. 
+//
+static void clip_polygon_to_boundary(gpiPoint * in, gpiPoint * out, int in_length, int * out_length, const gpiPoint * clip_boundary)
 {
 	gpiPoint prev, curr; /* start and end point of current polygon edge. */
 	int j;
@@ -466,30 +472,31 @@ void clip_polygon_to_boundary(gpiPoint * in, gpiPoint * out, int in_length, int 
 // this function, you must make sure that you reserved enough
 // memory for the output polygon. out_length can be as big as 2*(in_length - 1)
 // 
-void clip_polygon(gpiPoint * in, gpiPoint * out, int in_length, int * out_length)
+//void clip_polygon(const gpiPoint * pIn, gpiPoint * pOut, int in_length, int * out_length)
+void GpView::ClipPolygon(const gpiPoint * pIn, gpiPoint * pOut, int in_length, int * out_length) const
 {
 	static gpiPoint * tmp_corners = NULL;
-	if(!clip_area) {
-		memcpy(out, in, in_length * sizeof(gpiPoint));
+	if(!P_ClipArea) {
+		memcpy(pOut, pIn, in_length * sizeof(gpiPoint));
 		*out_length = in_length;
 	}
 	else {
 		gpiPoint clip_boundary[5];
 		tmp_corners = (gpiPoint *)gp_realloc(tmp_corners, 4 * in_length * sizeof(gpiPoint), "clip_polygon");
 		// vertices of the rectangular clipping window starting from top-left in counterclockwise direction 
-		clip_boundary[0].x = clip_area->xleft; /* top left */
-		clip_boundary[0].y = clip_area->ytop;
-		clip_boundary[1].x = clip_area->xleft; /* bottom left */
-		clip_boundary[1].y = clip_area->ybot;
-		clip_boundary[2].x = clip_area->xright; /* bottom right */
-		clip_boundary[2].y = clip_area->ybot;
-		clip_boundary[3].x = clip_area->xright; /* top right */
-		clip_boundary[3].y = clip_area->ytop;
+		clip_boundary[0].x = P_ClipArea->xleft; // top left 
+		clip_boundary[0].y = P_ClipArea->ytop;
+		clip_boundary[1].x = P_ClipArea->xleft; // bottom left 
+		clip_boundary[1].y = P_ClipArea->ybot;
+		clip_boundary[2].x = P_ClipArea->xright; // bottom right 
+		clip_boundary[2].y = P_ClipArea->ybot;
+		clip_boundary[3].x = P_ClipArea->xright; // top right 
+		clip_boundary[3].y = P_ClipArea->ytop;
 		clip_boundary[4] = clip_boundary[0];
-		memcpy(tmp_corners, in, in_length * sizeof(gpiPoint));
+		memcpy(tmp_corners, pIn, in_length * sizeof(gpiPoint));
 		for(int i = 0; i < 4; i++) {
-			clip_polygon_to_boundary(tmp_corners, out, in_length, out_length, clip_boundary+i);
-			memcpy(tmp_corners, out, *out_length * sizeof(gpiPoint));
+			clip_polygon_to_boundary(tmp_corners, pOut, in_length, out_length, clip_boundary+i);
+			memcpy(tmp_corners, pOut, *out_length * sizeof(gpiPoint));
 			in_length = *out_length;
 		}
 	}
@@ -646,17 +653,17 @@ void apply_pm3dcolor(termentry * pTerm, t_colorspec * tc)
 	else {
 		switch(tc->type) {
 			case TC_Z:
-				set_color(cb2gray(tc->value));
+				set_color(pTerm, cb2gray(tc->value));
 				break;
 			case TC_CB:
 				if(GPO.AxS.__CB().log)
 					cbval = (tc->value <= 0) ? GPO.AxS.__CB().min : tc->value;
 				else
 					cbval = tc->value;
-				set_color(cb2gray(cbval));
+				set_color(pTerm, cb2gray(cbval));
 				break;
 			case TC_FRAC:
-				set_color(GPO.SmPltt.Positive == SMPAL_POSITIVE ?  tc->value : 1-tc->value);
+				set_color(pTerm, GPO.SmPltt.Positive == SMPAL_POSITIVE ?  tc->value : 1-tc->value);
 				break;
 			default:
 				break; /* cannot happen */
@@ -685,7 +692,7 @@ void default_arrow_style(struct arrow_style_type * arrow)
 	arrow->head_fixedsize = FALSE;
 }
 
-void apply_head_properties(arrow_style_type * arrow_properties)
+void apply_head_properties(const arrow_style_type * arrow_properties)
 {
 	curr_arrow_headfilled = arrow_properties->headfill;
 	curr_arrow_headfixedsize = arrow_properties->head_fixedsize;
@@ -730,7 +737,7 @@ void get_offsets(struct text_label * this_label, int * htic, int * vtic)
 	}
 	if(is_3d_plot) {
 		int htic2, vtic2;
-		map3d_position_r(&(this_label->offset), &htic2, &vtic2, "get_offsets");
+		GPO.Map3DPositionR(&(this_label->offset), &htic2, &vtic2, "get_offsets");
 		*htic += htic2;
 		*vtic += vtic2;
 	}
@@ -878,11 +885,11 @@ void init_gadgets()
 //#define WALL_X1 { NULL, WALL_X1_TAG, LAYER_FRONTBACK, OBJ_POLYGON, OBJ_CLIP, {FS_TRANSPARENT_SOLID, 50, 0, BLACK_COLORSPEC}, DEFAULT_LP_STYLE_TYPE, {.polygon = {5, NULL} } }
 //#define WALL_Z0 { NULL, WALL_Z0_TAG, LAYER_FRONTBACK, OBJ_POLYGON, OBJ_CLIP, {FS_TRANSPARENT_SOLID, 50, 0, BLACK_COLORSPEC}, DEFAULT_LP_STYLE_TYPE, {.polygon = {5, NULL} } }
 	int i;
-	static t_position y0_wall_corners[5] = WALL_Y0_CORNERS;
-	static t_position x0_wall_corners[5] = WALL_X0_CORNERS;
-	static t_position y1_wall_corners[5] = WALL_Y1_CORNERS;
-	static t_position x1_wall_corners[5] = WALL_X1_CORNERS;
-	static t_position z0_wall_corners[5] = WALL_Z0_CORNERS;
+	static GpPosition y0_wall_corners[5] = WALL_Y0_CORNERS;
+	static GpPosition x0_wall_corners[5] = WALL_X0_CORNERS;
+	static GpPosition y1_wall_corners[5] = WALL_Y1_CORNERS;
+	static GpPosition x1_wall_corners[5] = WALL_X1_CORNERS;
+	static GpPosition z0_wall_corners[5] = WALL_Z0_CORNERS;
 	for(i = 0; i < SIZEOFARRAY(grid_wall); i++) {
 		grid_wall[i].SetDefaultGridWall();
 		grid_wall[i].tag = i;

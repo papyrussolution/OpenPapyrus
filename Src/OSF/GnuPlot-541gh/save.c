@@ -6,10 +6,10 @@
 
 static void save_functions__sub(FILE *);
 static void save_variables__sub(FILE *);
-static void save_tics(FILE *, GpAxis *);
-static void save_mtics(FILE *, GpAxis *);
-static void save_zeroaxis(FILE *, AXIS_INDEX);
-static void save_set_all(FILE *);
+static void save_tics(FILE *, const GpAxis * pAx);
+static void save_mtics(FILE *, const GpAxis * pAx);
+//static void save_zeroaxis(FILE *, AXIS_INDEX);
+//static void save_set_all(FILE *);
 static void save_justification(int just, FILE * fp);
 
 const char * coord_msg[] = {"first ", "second ", "graph ", "screen ", "character ", "polar "};
@@ -35,14 +35,14 @@ void save_variables(FILE * fp)
 void save_set(FILE * fp)
 {
 	show_version(fp);
-	save_set_all(fp);
+	GPO.SaveSetAll(fp);
 	fputs("#    EOF\n", fp);
 }
 
 void save_all(FILE * fp)
 {
 	show_version(fp);
-	save_set_all(fp);
+	GPO.SaveSetAll(fp);
 	save_functions__sub(fp);
 	save_variables__sub(fp);
 	save_colormaps(fp);
@@ -207,7 +207,8 @@ static void save_justification(int just, FILE * fp)
 	}
 }
 
-static void save_set_all(FILE * fp)
+//static void save_set_all(FILE * fp)
+void GnuPlot::SaveSetAll(FILE * fp)
 {
 	text_label * this_label;
 	arrow_def * this_arrow;
@@ -215,9 +216,8 @@ static void save_set_all(FILE * fp)
 	arrowstyle_def * this_arrowstyle;
 	legend_key * key = &keyT;
 	int axis;
-	/* opinions are split as to whether we save term and outfile
-	 * as a compromise, we output them as comments !
-	 */
+	// opinions are split as to whether we save term and outfile
+	// as a compromise, we output them as comments !
 	if(term)
 		fprintf(fp, "# set terminal %s %s\n", term->name, term_options);
 	else
@@ -241,7 +241,7 @@ static void save_set_all(FILE * fp)
 		if(axis == SAMPLE_AXIS) continue;
 		if(axis == COLOR_AXIS) continue;
 		if(axis == POLAR_AXIS) continue;
-		fprintf(fp, "set %sdata %s\n", axis_name((AXIS_INDEX)axis), GPO.AxS[axis].datatype == DT_TIMEDATE ? "time" : GPO.AxS[axis].datatype == DT_DMS ? "geographic" : "");
+		fprintf(fp, "set %sdata %s\n", axis_name((AXIS_INDEX)axis), AxS[axis].datatype == DT_TIMEDATE ? "time" : AxS[axis].datatype == DT_DMS ? "geographic" : "");
 	}
 	if(boxwidth < 0.0)
 		fputs("set boxwidth\n", fp);
@@ -250,16 +250,16 @@ static void save_set_all(FILE * fp)
 	fprintf(fp, "set boxdepth %g\n", boxdepth > 0 ? boxdepth : 0.0);
 	fprintf(fp, "set style fill ");
 	save_fillstyle(fp, &default_fillstyle);
-	/* Default rectangle style */
+	// Default rectangle style 
 	fprintf(fp, "set style rectangle %s fc ", default_rectangle.layer > 0 ? "front" : default_rectangle.layer < 0 ? "behind" : "back");
 	save_pm3dcolor(fp, &default_rectangle.lp_properties.pm3d_color);
 	fprintf(fp, " fillstyle ");
 	save_fillstyle(fp, &default_rectangle.fillstyle);
-	/* Default circle properties */
+	// Default circle properties 
 	fprintf(fp, "set style circle radius ");
 	save_position(fp, &default_circle.o.circle.extent, 1, FALSE);
 	fputs(" \n", fp);
-	/* Default ellipse properties */
+	// Default ellipse properties 
 	fprintf(fp, "set style ellipse size ");
 	save_position(fp, &default_ellipse.o.ellipse.extent, 2, FALSE);
 	fprintf(fp, " angle %g ", default_ellipse.o.ellipse.orientation);
@@ -281,7 +281,7 @@ static void save_set_all(FILE * fp)
 			    reverse_table_lookup(dgrid3d_mode_tbl, dgrid3d_mode), dgrid3d_kdensity ? " kdensity2d" : "", dgrid3d_x_scale, dgrid3d_y_scale);
 		}
 	}
-	/* Dummy variable names */
+	// Dummy variable names 
 	fprintf(fp, "set dummy %s", set_dummy_var[0]);
 	for(axis = 1; axis<MAX_NUM_VAR; axis++) {
 		if(*set_dummy_var[axis] == '\0')
@@ -289,14 +289,14 @@ static void save_set_all(FILE * fp)
 		fprintf(fp, ", %s", set_dummy_var[axis]);
 	}
 	fprintf(fp, "\n");
-	GPO.AxS.SaveAxisFormat(fp, FIRST_X_AXIS);
-	GPO.AxS.SaveAxisFormat(fp, FIRST_Y_AXIS);
-	GPO.AxS.SaveAxisFormat(fp, SECOND_X_AXIS);
-	GPO.AxS.SaveAxisFormat(fp, SECOND_Y_AXIS);
-	GPO.AxS.SaveAxisFormat(fp, FIRST_Z_AXIS);
-	GPO.AxS.SaveAxisFormat(fp, COLOR_AXIS);
-	GPO.AxS.SaveAxisFormat(fp, POLAR_AXIS);
-	fprintf(fp, "set ttics format \"%s\"\n", GPO.AxS.Theta().formatstring);
+	AxS.SaveAxisFormat(fp, FIRST_X_AXIS);
+	AxS.SaveAxisFormat(fp, FIRST_Y_AXIS);
+	AxS.SaveAxisFormat(fp, SECOND_X_AXIS);
+	AxS.SaveAxisFormat(fp, SECOND_Y_AXIS);
+	AxS.SaveAxisFormat(fp, FIRST_Z_AXIS);
+	AxS.SaveAxisFormat(fp, COLOR_AXIS);
+	AxS.SaveAxisFormat(fp, POLAR_AXIS);
+	fprintf(fp, "set ttics format \"%s\"\n", AxS.Theta().formatstring);
 	fprintf(fp, "set P_TimeFormat \"%s\"\n", P_TimeFormat);
 	fprintf(fp, "set angles %s\n", (ang2rad == 1.0) ? "radians" : "degrees");
 	fprintf(fp, "set tics %s\n", grid_tics_in_front ? "front" : "back");
@@ -307,11 +307,10 @@ static void save_set_all(FILE * fp)
 			fprintf(fp, "set grid polar %f\n", polar_grid_angle / ang2rad);
 		else
 			fputs("set grid nopolar\n", fp);
-
 #define SAVE_GRID(axis)                                 \
 	fprintf(fp, " %s%stics %sm%stics",              \
-	    GPO.AxS[axis].gridmajor ? "" : "no", axis_name(axis), \
-	    GPO.AxS[axis].gridminor ? "" : "no", axis_name(axis));
+	    AxS[axis].gridmajor ? "" : "no", axis_name(axis), \
+	    AxS[axis].gridminor ? "" : "no", axis_name(axis));
 		fputs("set grid", fp);
 		SAVE_GRID(FIRST_X_AXIS);
 		SAVE_GRID(FIRST_Y_AXIS);
@@ -323,26 +322,18 @@ static void save_set_all(FILE * fp)
 		SAVE_GRID(COLOR_AXIS);
 		fputs("\n", fp);
 #undef SAVE_GRID
-
-		fprintf(fp, "set grid %s%s  ",
-		    (grid_vertical_lines) ? "vertical " : "",
-		    (grid_layer==-1) ? "layerdefault" : ((grid_layer==0) ? "back" : "front"));
+		fprintf(fp, "set grid %s%s  ", (grid_vertical_lines) ? "vertical " : "", (grid_layer==-1) ? "layerdefault" : ((grid_layer==0) ? "back" : "front"));
 		save_linetype(fp, &grid_lp, FALSE);
 		fprintf(fp, ", ");
 		save_linetype(fp, &mgrid_lp, FALSE);
 		fputc('\n', fp);
 	}
 	fprintf(fp, "%sset raxis\n", raxis ? "" : "un");
-
-	/* Theta axis origin and direction */
-	fprintf(fp, "set theta %s %s\n",
-	    theta_direction > 0 ? "counterclockwise" : "clockwise",
-	    theta_origin == 180 ? "left" : theta_origin ==  90 ? "top" :
-	    theta_origin == -90 ? "bottom" : "right");
-
-	/* Save parallel axis state */
+	// Theta axis origin and direction 
+	fprintf(fp, "set theta %s %s\n", theta_direction > 0 ? "counterclockwise" : "clockwise",
+	    theta_origin == 180 ? "left" : theta_origin ==  90 ? "top" : theta_origin == -90 ? "bottom" : "right");
+	// Save parallel axis state 
 	save_style_parallel(fp);
-
 	if(key->title.text == NULL)
 		fprintf(fp, "set key notitle\n");
 	else {
@@ -352,29 +343,16 @@ static void save_set_all(FILE * fp)
 		save_justification(key->title.pos, fp);
 		fputs("\n", fp);
 	}
-
 	fputs("set key ", fp);
 	switch(key->region) {
-		case GPKEY_AUTO_INTERIOR_LRTBC:
-		    fputs(key->fixed ? "fixed" : "inside", fp);
-		    break;
-		case GPKEY_AUTO_EXTERIOR_LRTBC:
-		    fputs("outside", fp);
-		    break;
+		case GPKEY_AUTO_INTERIOR_LRTBC: fputs(key->fixed ? "fixed" : "inside", fp); break;
+		case GPKEY_AUTO_EXTERIOR_LRTBC: fputs("outside", fp); break;
 		case GPKEY_AUTO_EXTERIOR_MARGIN:
 		    switch(key->margin) {
-			    case GPKEY_TMARGIN:
-				fputs("tmargin", fp);
-				break;
-			    case GPKEY_BMARGIN:
-				fputs("bmargin", fp);
-				break;
-			    case GPKEY_LMARGIN:
-				fputs("lmargin", fp);
-				break;
-			    case GPKEY_RMARGIN:
-				fputs("rmargin", fp);
-				break;
+			    case GPKEY_TMARGIN: fputs("tmargin", fp); break;
+			    case GPKEY_BMARGIN: fputs("bmargin", fp); break;
+			    case GPKEY_LMARGIN: fputs("lmargin", fp); break;
+			    case GPKEY_RMARGIN: fputs("rmargin", fp); break;
 		    }
 		    break;
 		case GPKEY_USER_PLACEMENT:
@@ -382,22 +360,14 @@ static void save_set_all(FILE * fp)
 		    save_position(fp, &key->user_pos, 2, FALSE);
 		    break;
 	}
-	if(!(key->region == GPKEY_AUTO_EXTERIOR_MARGIN
-	    && (key->margin == GPKEY_LMARGIN || key->margin == GPKEY_RMARGIN))) {
+	if(!(key->region == GPKEY_AUTO_EXTERIOR_MARGIN && (key->margin == GPKEY_LMARGIN || key->margin == GPKEY_RMARGIN))) {
 		save_justification(key->hpos, fp);
 	}
-	if(!(key->region == GPKEY_AUTO_EXTERIOR_MARGIN
-	    && (key->margin == GPKEY_TMARGIN || key->margin == GPKEY_BMARGIN))) {
+	if(!(key->region == GPKEY_AUTO_EXTERIOR_MARGIN && (key->margin == GPKEY_TMARGIN || key->margin == GPKEY_BMARGIN))) {
 		switch(key->vpos) {
-			case JUST_TOP:
-			    fputs(" top", fp);
-			    break;
-			case JUST_BOT:
-			    fputs(" bottom", fp);
-			    break;
-			case JUST_CENTRE:
-			    fputs(" center", fp);
-			    break;
+			case JUST_TOP: fputs(" top", fp); break;
+			case JUST_BOT: fputs(" bottom", fp); break;
+			case JUST_CENTRE: fputs(" center", fp); break;
 		}
 	}
 	fprintf(fp, " %s %s %sreverse %senhanced %s ",
@@ -405,25 +375,20 @@ static void save_set_all(FILE * fp)
 	    key->just == GPKEY_LEFT ? "Left" : "Right",
 	    key->reverse ? "" : "no",
 	    key->enhanced ? "" : "no",
-	    key->auto_titles == COLUMNHEAD_KEYTITLES ? "autotitle columnhead"
-	    : key->auto_titles == FILENAME_KEYTITLES ? "autotitle"
-	    : "noautotitle");
+	    key->auto_titles == COLUMNHEAD_KEYTITLES ? "autotitle columnhead" : key->auto_titles == FILENAME_KEYTITLES ? "autotitle" : "noautotitle");
 	if(key->box.l_type > LT_NODRAW) {
 		fputs("box", fp);
 		save_linetype(fp, &(key->box), FALSE);
 	}
 	else
 		fputs("nobox", fp);
-
-	/* These are for the key entries, not the key title */
+	// These are for the key entries, not the key title 
 	if(key->font)
 		fprintf(fp, " font \"%s\"", key->font);
 	if(key->textcolor.type != TC_LT || key->textcolor.lt != LT_BLACK)
 		save_textcolor(fp, &key->textcolor);
-
-	/* Put less common options on separate lines */
-	fprintf(fp, "\nset key %sinvert samplen %g spacing %g width %g height %g ",
-	    key->invert ? "" : "no",
+	// Put less common options on separate lines 
+	fprintf(fp, "\nset key %sinvert samplen %g spacing %g width %g height %g ", key->invert ? "" : "no",
 	    key->swidth, key->vert_factor, key->width_fix, key->height_fix);
 	fprintf(fp, "\nset key maxcolumns %d maxrows %d", key->maxcols, key->maxrows);
 	fputc('\n', fp);
@@ -441,8 +406,7 @@ static void save_set_all(FILE * fp)
 	if(!(key->visible))
 		fputs("unset key\n", fp);
 	fputs("unset label\n", fp);
-	for(this_label = first_label; this_label != NULL;
-	    this_label = this_label->next) {
+	for(this_label = first_label; this_label != NULL; this_label = this_label->next) {
 		fprintf(fp, "set label %d \"%s\" at ", this_label->tag, conv_text(this_label->text));
 		save_position(fp, &this_label->place, 3, FALSE);
 		if(this_label->hypertext)
@@ -623,16 +587,16 @@ static void save_set_all(FILE * fp)
 	}
 	fprintf(fp, "\nset cntrparam firstlinetype %d", contour_firstlinetype);
 	fprintf(fp, " %ssorted\n", contour_sortlevels ? "" : "un");
-	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", contour_pts, aspect_ratio, xsize, ysize, xoffset, yoffset);
+	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", contour_pts, aspect_ratio, GPO.V.XSize, GPO.V.YSize, GPO.V.XOffset, GPO.V.YOffset);
 	fprintf(fp, "set style data ");
 	save_data_func_style(fp, "data", data_style);
 	fprintf(fp, "set style function ");
 	save_data_func_style(fp, "function", func_style);
-	save_zeroaxis(fp, FIRST_X_AXIS);
-	save_zeroaxis(fp, FIRST_Y_AXIS);
-	save_zeroaxis(fp, FIRST_Z_AXIS);
-	save_zeroaxis(fp, SECOND_X_AXIS);
-	save_zeroaxis(fp, SECOND_Y_AXIS);
+	SaveZeroAxis(fp, FIRST_X_AXIS);
+	SaveZeroAxis(fp, FIRST_Y_AXIS);
+	SaveZeroAxis(fp, FIRST_Z_AXIS);
+	SaveZeroAxis(fp, SECOND_X_AXIS);
+	SaveZeroAxis(fp, SECOND_Y_AXIS);
 	if(xyplane.absolute)
 		fprintf(fp, "set xyplane at %g\n", xyplane.z);
 	else
@@ -642,49 +606,47 @@ static void save_set_all(FILE * fp)
 		for(int i = 0; i<MAX_TICLEVEL; i++)
 			fprintf(fp, " %g%c", ticscale[i], i<MAX_TICLEVEL-1 ? ',' : '\n');
 	}
-	save_mtics(fp, &GPO.AxS[FIRST_X_AXIS]);
-	save_mtics(fp, &GPO.AxS[FIRST_Y_AXIS]);
-	save_mtics(fp, &GPO.AxS[FIRST_Z_AXIS]);
-	save_mtics(fp, &GPO.AxS[SECOND_X_AXIS]);
-	save_mtics(fp, &GPO.AxS[SECOND_Y_AXIS]);
-	save_mtics(fp, &GPO.AxS[COLOR_AXIS]);
-	save_mtics(fp, &GPO.AxS.__R());
-	save_mtics(fp, &GPO.AxS.Theta());
-
-	save_tics(fp, &GPO.AxS[FIRST_X_AXIS]);
-	save_tics(fp, &GPO.AxS[FIRST_Y_AXIS]);
-	save_tics(fp, &GPO.AxS[FIRST_Z_AXIS]);
-	save_tics(fp, &GPO.AxS[SECOND_X_AXIS]);
-	save_tics(fp, &GPO.AxS[SECOND_Y_AXIS]);
-	save_tics(fp, &GPO.AxS[COLOR_AXIS]);
-	save_tics(fp, &GPO.AxS.__R());
-	save_tics(fp, &GPO.AxS.Theta());
-	for(axis = 0; axis < GPO.AxS.GetParallelAxisCount(); axis++)
-		save_tics(fp, &GPO.AxS.Parallel(axis));
+	save_mtics(fp, &AxS[FIRST_X_AXIS]);
+	save_mtics(fp, &AxS[FIRST_Y_AXIS]);
+	save_mtics(fp, &AxS[FIRST_Z_AXIS]);
+	save_mtics(fp, &AxS[SECOND_X_AXIS]);
+	save_mtics(fp, &AxS[SECOND_Y_AXIS]);
+	save_mtics(fp, &AxS[COLOR_AXIS]);
+	save_mtics(fp, &AxS.__R());
+	save_mtics(fp, &AxS.Theta());
+	save_tics(fp, &AxS[FIRST_X_AXIS]);
+	save_tics(fp, &AxS[FIRST_Y_AXIS]);
+	save_tics(fp, &AxS[FIRST_Z_AXIS]);
+	save_tics(fp, &AxS[SECOND_X_AXIS]);
+	save_tics(fp, &AxS[SECOND_Y_AXIS]);
+	save_tics(fp, &AxS[COLOR_AXIS]);
+	save_tics(fp, &AxS.__R());
+	save_tics(fp, &AxS.Theta());
+	for(axis = 0; axis < AxS.GetParallelAxisCount(); axis++)
+		save_tics(fp, &AxS.Parallel(axis));
 	save_axis_label_or_title(fp, "", "title", &title, TRUE);
 	fprintf(fp, "set timestamp %s \n", timelabel_bottom ? "bottom" : "top");
 	save_axis_label_or_title(fp, "", "timestamp", &timelabel, FALSE);
-	save_prange(fp, &GPO.AxS[T_AXIS]);
-	save_prange(fp, &GPO.AxS[U_AXIS]);
-	save_prange(fp, &GPO.AxS[V_AXIS]);
-#define SAVE_AXISLABEL(axis) save_axis_label_or_title(fp, axis_name(axis), "label", &GPO.AxS[axis].label, TRUE)
+	save_prange(fp, &AxS[T_AXIS]);
+	save_prange(fp, &AxS[U_AXIS]);
+	save_prange(fp, &AxS[V_AXIS]);
+#define SAVE_AXISLABEL(axis) save_axis_label_or_title(fp, axis_name(axis), "label", &AxS[axis].label, TRUE)
 	SAVE_AXISLABEL(FIRST_X_AXIS);
 	SAVE_AXISLABEL(SECOND_X_AXIS);
-	save_prange(fp, &GPO.AxS[FIRST_X_AXIS]);
-	save_prange(fp, &GPO.AxS[SECOND_X_AXIS]);
-
+	save_prange(fp, &AxS[FIRST_X_AXIS]);
+	save_prange(fp, &AxS[SECOND_X_AXIS]);
 	SAVE_AXISLABEL(FIRST_Y_AXIS);
 	SAVE_AXISLABEL(SECOND_Y_AXIS);
-	save_prange(fp, &GPO.AxS[FIRST_Y_AXIS]);
-	save_prange(fp, &GPO.AxS[SECOND_Y_AXIS]);
+	save_prange(fp, &AxS[FIRST_Y_AXIS]);
+	save_prange(fp, &AxS[SECOND_Y_AXIS]);
 	SAVE_AXISLABEL(FIRST_Z_AXIS);
-	save_prange(fp, &GPO.AxS[FIRST_Z_AXIS]);
+	save_prange(fp, &AxS[FIRST_Z_AXIS]);
 	SAVE_AXISLABEL(COLOR_AXIS);
-	save_prange(fp, &GPO.AxS[COLOR_AXIS]);
+	save_prange(fp, &AxS[COLOR_AXIS]);
 	SAVE_AXISLABEL(POLAR_AXIS);
-	save_prange(fp, &GPO.AxS[POLAR_AXIS]);
-	for(axis = 0; axis < GPO.AxS.GetParallelAxisCount(); axis++) {
-		GpAxis * paxis = &GPO.AxS.Parallel(axis);
+	save_prange(fp, &AxS[POLAR_AXIS]);
+	for(axis = 0; axis < AxS.GetParallelAxisCount(); axis++) {
+		GpAxis * paxis = &AxS.Parallel(axis);
 		save_prange(fp, paxis);
 		if(paxis->label.text)
 			save_axis_label_or_title(fp, axis_name((AXIS_INDEX)paxis->index), "label", &paxis->label, TRUE);
@@ -698,20 +660,20 @@ static void save_set_all(FILE * fp)
 #undef SAVE_AXISLABEL
 	fputs("unset logscale\n", fp);
 	for(axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
-		if(GPO.AxS[axis].log)
-			fprintf(fp, "set logscale %s %g\n", axis_name((AXIS_INDEX)axis), GPO.AxS[axis].base);
+		if(AxS[axis].log)
+			fprintf(fp, "set logscale %s %g\n", axis_name((AXIS_INDEX)axis), AxS[axis].base);
 		else
-			save_nonlinear(fp, &GPO.AxS[axis]);
+			save_nonlinear(fp, &AxS[axis]);
 	}
-	/* These will only print something if the axis is, in fact, linked */
-	save_link(fp, &GPO.AxS[SECOND_X_AXIS]);
-	save_link(fp, &GPO.AxS[SECOND_Y_AXIS]);
+	// These will only print something if the axis is, in fact, linked 
+	save_link(fp, &AxS[SECOND_X_AXIS]);
+	save_link(fp, &AxS[SECOND_Y_AXIS]);
 	save_jitter(fp);
 	fprintf(fp, "set zero %g\n", zero);
-	fprintf(fp, "set lmargin %s %g\n", lmargin.scalex == screen ? "at screen" : "", lmargin.x);
-	fprintf(fp, "set bmargin %s %g\n", bmargin.scalex == screen ? "at screen" : "", bmargin.x);
-	fprintf(fp, "set rmargin %s %g\n", rmargin.scalex == screen ? "at screen" : "", rmargin.x);
-	fprintf(fp, "set tmargin %s %g\n", tmargin.scalex == screen ? "at screen" : "", tmargin.x);
+	fprintf(fp, "set lmargin %s %g\n", GPO.V.MarginL.scalex == screen ? "at screen" : "", GPO.V.MarginL.x);
+	fprintf(fp, "set bmargin %s %g\n", GPO.V.MarginB.scalex == screen ? "at screen" : "", GPO.V.MarginB.x);
+	fprintf(fp, "set rmargin %s %g\n", GPO.V.MarginR.scalex == screen ? "at screen" : "", GPO.V.MarginR.x);
+	fprintf(fp, "set tmargin %s %g\n", GPO.V.MarginT.scalex == screen ? "at screen" : "", GPO.V.MarginT.x);
 	fprintf(fp, "set locale \"%s\"\n", get_time_locale());
 	/* pm3d options */
 	fputs("set pm3d ", fp);
@@ -762,36 +724,36 @@ static void save_set_all(FILE * fp)
 	/*
 	 *  Save palette information
 	 */
-	fprintf(fp, "set palette %s %s maxcolors %d ", (GPO.SmPltt.Positive == SMPAL_POSITIVE) ? "positive" : "negative",
-	    GPO.SmPltt.ps_allcF ? "ps_allcF" : "nops_allcF", GPO.SmPltt.UseMaxColors);
-	fprintf(fp, "gamma %g ", GPO.SmPltt.gamma);
-	if(GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) {
+	fprintf(fp, "set palette %s %s maxcolors %d ", (SmPltt.Positive == SMPAL_POSITIVE) ? "positive" : "negative",
+	    SmPltt.ps_allcF ? "ps_allcF" : "nops_allcF", SmPltt.UseMaxColors);
+	fprintf(fp, "gamma %g ", SmPltt.gamma);
+	if(SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) {
 		fputs("gray\n", fp);
 	}
 	else {
 		fputs("color model ", fp);
-		switch(GPO.SmPltt.CModel) {
+		switch(SmPltt.CModel) {
 			default:
 			case C_MODEL_RGB: fputs("RGB ", fp); break;
 			case C_MODEL_CMY: fputs("CMY ", fp); break;
 			case C_MODEL_HSV: fputs("HSV ", fp); break;
 		}
-		if(GPO.SmPltt.CModel == C_MODEL_HSV && GPO.SmPltt.HSV_offset != 0)
-			fprintf(fp, "start %.2f ", GPO.SmPltt.HSV_offset);
+		if(SmPltt.CModel == C_MODEL_HSV && SmPltt.HSV_offset != 0)
+			fprintf(fp, "start %.2f ", SmPltt.HSV_offset);
 		fputs("\nset palette ", fp);
-		switch(GPO.SmPltt.colorMode) {
+		switch(SmPltt.colorMode) {
 			default:
 			case SMPAL_COLOR_MODE_RGB:
-			    fprintf(fp, "rgbformulae %d, %d, %d\n", GPO.SmPltt.formulaR,
-				GPO.SmPltt.formulaG, GPO.SmPltt.formulaB);
+			    fprintf(fp, "rgbformulae %d, %d, %d\n", SmPltt.formulaR,
+				SmPltt.formulaG, SmPltt.formulaB);
 			    break;
 			case SMPAL_COLOR_MODE_GRADIENT: {
 			    int i = 0;
 			    fprintf(fp, "defined (");
-			    for(i = 0; i<GPO.SmPltt.GradientNum; i++) {
-				    fprintf(fp, " %.4g %.4g %.4g %.4g", GPO.SmPltt.P_Gradient[i].pos,
-					GPO.SmPltt.P_Gradient[i].col.r, GPO.SmPltt.P_Gradient[i].col.g, GPO.SmPltt.P_Gradient[i].col.b);
-				    if(i < GPO.SmPltt.GradientNum-1) {
+			    for(i = 0; i<SmPltt.GradientNum; i++) {
+				    fprintf(fp, " %.4g %.4g %.4g %.4g", SmPltt.P_Gradient[i].pos,
+					SmPltt.P_Gradient[i].col.r, SmPltt.P_Gradient[i].col.g, SmPltt.P_Gradient[i].col.b);
+				    if(i < SmPltt.GradientNum-1) {
 					    fputs(",", fp);
 					    if(i==2 || i%4==2) 
 							fputs("\\\n    ", fp);
@@ -801,11 +763,11 @@ static void save_set_all(FILE * fp)
 			    break;
 		    }
 			case SMPAL_COLOR_MODE_FUNCTIONS:
-			    fprintf(fp, "functions %s, %s, %s\n", GPO.SmPltt.Afunc.definition, GPO.SmPltt.Bfunc.definition, GPO.SmPltt.Cfunc.definition);
+			    fprintf(fp, "functions %s, %s, %s\n", SmPltt.Afunc.definition, SmPltt.Bfunc.definition, SmPltt.Cfunc.definition);
 			    break;
 			case SMPAL_COLOR_MODE_CUBEHELIX:
 			    fprintf(fp, "cubehelix start %.2g cycles %.2g saturation %.2g\n",
-					GPO.SmPltt.cubehelix_start, GPO.SmPltt.cubehelix_cycles, GPO.SmPltt.cubehelix_saturation);
+					SmPltt.cubehelix_start, SmPltt.cubehelix_cycles, SmPltt.cubehelix_saturation);
 			    break;
 		}
 	}
@@ -847,12 +809,10 @@ static void save_set_all(FILE * fp)
 			fprintf(fp, "\"%s\" ", s);
 		fputc('\n', fp);
 	}
-
 	if(PS_fontpath)
 		fprintf(fp, "set fontpath \"%s\"\n", PS_fontpath);
 	else
 		fprintf(fp, "set fontpath\n");
-
 	if(PS_psdir)
 		fprintf(fp, "set psdir \"%s\"\n", PS_psdir);
 	else
@@ -899,68 +859,64 @@ static void save_set_all(FILE * fp)
 	fputc('\n', fp);
 }
 
-static void save_tics(FILE * fp, GpAxis * this_axis)
+static void save_tics(FILE * fp, const GpAxis * pAx)
 {
-	if((this_axis->ticmode & TICS_MASK) == NO_TICS) {
-		fprintf(fp, "unset %stics\n", axis_name((AXIS_INDEX)this_axis->index));
+	if((pAx->ticmode & TICS_MASK) == NO_TICS) {
+		fprintf(fp, "unset %stics\n", axis_name((AXIS_INDEX)pAx->index));
 		return;
 	}
-	fprintf(fp, "set %stics %s %s scale %g,%g %smirror %s ", axis_name((AXIS_INDEX)this_axis->index), 
-		((this_axis->ticmode & TICS_MASK) == TICS_ON_AXIS) ? "axis" : "border",
-	    (this_axis->tic_in) ? "in" : "out",
-	    this_axis->ticscale, this_axis->miniticscale,
-	    (this_axis->ticmode & TICS_MIRROR) ? "" : "no",
-	    this_axis->tic_rotate ? "rotate" : "norotate");
-	if(this_axis->tic_rotate)
-		fprintf(fp, "by %d ", this_axis->tic_rotate);
-	save_position(fp, &this_axis->ticdef.offset, 3, TRUE);
-	if(this_axis->manual_justify)
-		save_justification(this_axis->tic_pos, fp);
+	fprintf(fp, "set %stics %s %s scale %g,%g %smirror %s ", axis_name((AXIS_INDEX)pAx->index), 
+		((pAx->ticmode & TICS_MASK) == TICS_ON_AXIS) ? "axis" : "border",
+	    (pAx->tic_in) ? "in" : "out",
+	    pAx->ticscale, pAx->miniticscale,
+	    (pAx->ticmode & TICS_MIRROR) ? "" : "no",
+	    pAx->tic_rotate ? "rotate" : "norotate");
+	if(pAx->tic_rotate)
+		fprintf(fp, "by %d ", pAx->tic_rotate);
+	save_position(fp, &pAx->ticdef.offset, 3, TRUE);
+	if(pAx->manual_justify)
+		save_justification(pAx->tic_pos, fp);
 	else
 		fputs(" autojustify", fp);
-	fprintf(fp, "\nset %stics ", axis_name((AXIS_INDEX)this_axis->index));
-	fprintf(fp, (this_axis->ticdef.rangelimited) ? " rangelimit " : " norangelimit ");
-	if(this_axis->ticdef.logscaling)
+	fprintf(fp, "\nset %stics ", axis_name((AXIS_INDEX)pAx->index));
+	fprintf(fp, (pAx->ticdef.rangelimited) ? " rangelimit " : " norangelimit ");
+	if(pAx->ticdef.logscaling)
 		fputs("logscale ", fp);
-	switch(this_axis->ticdef.type) {
+	switch(pAx->ticdef.type) {
 		case TIC_COMPUTED: fputs("autofreq ", fp); break;
-		case TIC_MONTH: fprintf(fp, "\nset %smtics", axis_name((AXIS_INDEX)this_axis->index)); break;
-		case TIC_DAY: fprintf(fp, "\nset %sdtics", axis_name((AXIS_INDEX)this_axis->index)); break;
+		case TIC_MONTH: fprintf(fp, "\nset %smtics", axis_name((AXIS_INDEX)pAx->index)); break;
+		case TIC_DAY: fprintf(fp, "\nset %sdtics", axis_name((AXIS_INDEX)pAx->index)); break;
 		case TIC_SERIES:
-		    if(this_axis->ticdef.def.series.start != -VERYLARGE) {
-			    save_num_or_time_input(fp,
-				(double)this_axis->ticdef.def.series.start,
-				this_axis);
+		    if(pAx->ticdef.def.series.start != -VERYLARGE) {
+			    save_num_or_time_input(fp, (double)pAx->ticdef.def.series.start, pAx);
 			    putc(',', fp);
 		    }
-		    fprintf(fp, "%g", this_axis->ticdef.def.series.incr);
-		    if(this_axis->ticdef.def.series.end != VERYLARGE) {
+		    fprintf(fp, "%g", pAx->ticdef.def.series.incr);
+		    if(pAx->ticdef.def.series.end != VERYLARGE) {
 			    putc(',', fp);
-			    save_num_or_time_input(fp,
-				(double)this_axis->ticdef.def.series.end,
-				this_axis);
+			    save_num_or_time_input(fp, (double)pAx->ticdef.def.series.end, pAx);
 		    }
 		    break;
 		case TIC_USER:
 		    break;
 	}
-	if(this_axis->ticdef.font && *this_axis->ticdef.font)
-		fprintf(fp, " font \"%s\"", this_axis->ticdef.font);
-	if(this_axis->ticdef.enhanced == FALSE)
+	if(pAx->ticdef.font && *pAx->ticdef.font)
+		fprintf(fp, " font \"%s\"", pAx->ticdef.font);
+	if(pAx->ticdef.enhanced == FALSE)
 		fprintf(fp, " noenhanced");
-	if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-		save_textcolor(fp, &this_axis->ticdef.textcolor);
+	if(pAx->ticdef.textcolor.type != TC_DEFAULT)
+		save_textcolor(fp, &pAx->ticdef.textcolor);
 	putc('\n', fp);
-	if(this_axis->ticdef.def.user) {
+	if(pAx->ticdef.def.user) {
 		struct ticmark * t;
-		fprintf(fp, "set %stics %s ", axis_name((AXIS_INDEX)this_axis->index), (this_axis->ticdef.type == TIC_USER) ? "" : "add");
+		fprintf(fp, "set %stics %s ", axis_name((AXIS_INDEX)pAx->index), (pAx->ticdef.type == TIC_USER) ? "" : "add");
 		fputs(" (", fp);
-		for(t = this_axis->ticdef.def.user; t != NULL; t = t->next) {
+		for(t = pAx->ticdef.def.user; t != NULL; t = t->next) {
 			if(t->level < 0) /* Don't save ticlabels read from data file */
 				continue;
 			if(t->label)
 				fprintf(fp, "\"%s\" ", conv_text(t->label));
-			save_num_or_time_input(fp, (double)t->position, this_axis);
+			save_num_or_time_input(fp, (double)t->position, pAx);
 			if(t->level)
 				fprintf(fp, " %d", t->level);
 			if(t->next) {
@@ -971,20 +927,20 @@ static void save_tics(FILE * fp, GpAxis * this_axis)
 	}
 }
 
-static void save_mtics(FILE * fp, GpAxis * axis)
+static void save_mtics(FILE * fp, const GpAxis * pAx)
 {
-	char * name = axis_name((AXIS_INDEX)axis->index);
-	switch(axis->minitics & TICS_MASK) {
+	char * name = axis_name((AXIS_INDEX)pAx->index);
+	switch(pAx->minitics & TICS_MASK) {
 		case 0: fprintf(fp, "set nom%stics\n", name); break;
 		case MINI_AUTO: fprintf(fp, "set m%stics\n", name); break;
 		case MINI_DEFAULT: fprintf(fp, "set m%stics default\n", name); break;
-		case MINI_USER: fprintf(fp, "set m%stics %f\n", name, axis->mtic_freq); break;
+		case MINI_USER: fprintf(fp, "set m%stics %f\n", name, pAx->mtic_freq); break;
 	}
 }
 
-void save_num_or_time_input(FILE * fp, double x, GpAxis * this_axis)
+void save_num_or_time_input(FILE * fp, double x, const GpAxis * pAx)
 {
-	if(this_axis->datatype == DT_TIMEDATE) {
+	if(pAx->datatype == DT_TIMEDATE) {
 		char s[80];
 		putc('"', fp);
 		gstrftime(s, 80, P_TimeFormat, (double)(x));
@@ -1045,41 +1001,43 @@ void save_style_textbox(FILE * fp)
 	}
 }
 
-void save_position(FILE * fp, struct GpPosition * pos, int ndim, bool offset)
+void save_position(FILE * fp, const GpPosition * pPos, int ndim, bool offset)
 {
 	if(offset) {
-		if(pos->x == 0 && pos->y == 0 && pos->z == 0)
+		if(pPos->x == 0.0 && pPos->y == 0.0 && pPos->z == 0.0)
 			return;
 		fprintf(fp, " offset ");
 	}
-	/* Save in time coordinates if appropriate */
-	if(pos->scalex == first_axes) {
-		save_num_or_time_input(fp, pos->x, &GPO.AxS[FIRST_X_AXIS]);
+	// Save in time coordinates if appropriate 
+	if(pPos->scalex == first_axes) {
+		save_num_or_time_input(fp, pPos->x, &GPO.AxS[FIRST_X_AXIS]);
 	}
 	else {
-		fprintf(fp, "%s%g", coord_msg[pos->scalex], pos->x);
+		fprintf(fp, "%s%g", coord_msg[pPos->scalex], pPos->x);
 	}
 	if(ndim == 1)
 		return;
 	else
 		fprintf(fp, ", ");
-	if(pos->scaley == first_axes || pos->scalex == polar_axes) {
-		if(pos->scaley != pos->scalex) fprintf(fp, "first ");
-		save_num_or_time_input(fp, pos->y, &GPO.AxS[FIRST_Y_AXIS]);
+	if(pPos->scaley == first_axes || pPos->scalex == polar_axes) {
+		if(pPos->scaley != pPos->scalex) 
+			fprintf(fp, "first ");
+		save_num_or_time_input(fp, pPos->y, &GPO.AxS[FIRST_Y_AXIS]);
 	}
 	else {
-		fprintf(fp, "%s%g", pos->scaley == pos->scalex ? "" : coord_msg[pos->scaley], pos->y);
+		fprintf(fp, "%s%g", (pPos->scaley == pPos->scalex) ? "" : coord_msg[pPos->scaley], pPos->y);
 	}
 	if(ndim == 2)
 		return;
 	else
 		fprintf(fp, ", ");
-	if(pos->scalez == first_axes) {
-		if(pos->scalez != pos->scaley) fprintf(fp, "first ");
-		save_num_or_time_input(fp, pos->z, &GPO.AxS[FIRST_Z_AXIS]);
+	if(pPos->scalez == first_axes) {
+		if(pPos->scalez != pPos->scaley) 
+			fprintf(fp, "first ");
+		save_num_or_time_input(fp, pPos->z, &GPO.AxS[FIRST_Z_AXIS]);
 	}
 	else {
-		fprintf(fp, "%s%g", pos->scalez == pos->scaley ? "" : coord_msg[pos->scalez], pos->z);
+		fprintf(fp, "%s%g", (pPos->scalez == pPos->scaley) ? "" : coord_msg[pPos->scalez], pPos->z);
 	}
 }
 
@@ -1172,15 +1130,16 @@ void save_nonlinear(FILE * fp, GpAxis * this_axis)
 	}
 }
 
-static void save_zeroaxis(FILE * fp, AXIS_INDEX axis)
+//static void save_zeroaxis(FILE * fp, AXIS_INDEX axis)
+void GnuPlot::SaveZeroAxis(FILE * fp, AXIS_INDEX axis)
 {
-	if(GPO.AxS[axis].zeroaxis == NULL) {
+	if(AxS[axis].zeroaxis == NULL) {
 		fprintf(fp, "unset %szeroaxis", axis_name(axis));
 	}
 	else {
 		fprintf(fp, "set %szeroaxis", axis_name(axis));
-		if(GPO.AxS[axis].zeroaxis != &default_axis_zeroaxis)
-			save_linetype(fp, GPO.AxS[axis].zeroaxis, FALSE);
+		if(AxS[axis].zeroaxis != &default_axis_zeroaxis)
+			save_linetype(fp, AxS[axis].zeroaxis, FALSE);
 	}
 	putc('\n', fp);
 }
@@ -1319,7 +1278,6 @@ void save_linetype(FILE * fp, lp_style_type * lp, bool show_point)
 		; /* Dont' print anything */
 	else if(lp->l_type == LT_AXIS)
 		fprintf(fp, " lt 0");
-
 	if(lp->l_type == LT_BLACK && lp->pm3d_color.type == TC_LT)
 		fprintf(fp, " lt black");
 	else if(lp->pm3d_color.type != TC_DEFAULT) {
@@ -1332,9 +1290,7 @@ void save_linetype(FILE * fp, lp_style_type * lp, bool show_point)
 			save_pm3dcolor(fp, &(lp->pm3d_color));
 	}
 	fprintf(fp, " linewidth %.3f", lp->l_width);
-
 	save_dashtype(fp, lp->d_type, &lp->custom_dash_pattern);
-
 	if(show_point) {
 		if(lp->p_type == PT_CHARACTER)
 			fprintf(fp, " pointtype \"%s\"", lp->p_char);
@@ -1370,14 +1326,16 @@ void save_bars(FILE * fp)
 		fprintf(fp, "unset errorbars\n");
 		return;
 	}
-	fprintf(fp, "set errorbars %s", (bar_layer == LAYER_BACK) ? "back" : "front");
-	if(bar_size > 0.0)
-		fprintf(fp, " %f ", bar_size);
-	else
-		fprintf(fp, " fullwidth ");
-	if((bar_lp.flags & LP_ERRORBAR_SET) != 0)
-		save_linetype(fp, &bar_lp, FALSE);
-	fputs("\n", fp);
+	else {
+		fprintf(fp, "set errorbars %s", (bar_layer == LAYER_BACK) ? "back" : "front");
+		if(bar_size > 0.0)
+			fprintf(fp, " %f ", bar_size);
+		else
+			fprintf(fp, " fullwidth ");
+		if((bar_lp.flags & LP_ERRORBAR_SET) != 0)
+			save_linetype(fp, &bar_lp, FALSE);
+		fputs("\n", fp);
+	}
 }
 
 void save_histogram_opts(FILE * fp)
@@ -1441,7 +1399,7 @@ void save_object(FILE * fp, int tag)
 			}
 		}
 		else if((this_object->object_type == OBJ_CIRCLE) && (tag == 0 || tag == this_object->tag)) {
-			struct GpPosition * e = &this_object->o.circle.extent;
+			GpPosition * e = &this_object->o.circle.extent;
 			this_circle = &this_object->o.circle;
 			showed = TRUE;
 			fprintf(fp, "%sobject %2d circle ", (fp==stderr) ? "\t" : "set ", this_object->tag);

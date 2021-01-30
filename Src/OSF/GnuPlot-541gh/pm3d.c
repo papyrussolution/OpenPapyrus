@@ -298,7 +298,7 @@ static int compare_quadrangles(const void* v1, const void* v2)
 		return 0;
 }
 
-void pm3d_depth_queue_clear(void)
+void pm3d_depth_queue_clear()
 {
 	ZFREE(quadrangles);
 	allocated_quadrangles = 0;
@@ -357,7 +357,7 @@ void pm3d_depth_queue_flush()
 			else if(pm3d_shade.strength > 0)
 				set_rgbcolor_var((uint)qp->gray);
 			else
-				set_color(qp->gray);
+				set_color(term, qp->gray);
 			if(qp->type == QUAD_TYPE_LARGEPOLYGON) {
 				gpdPoint * vertices = &polygonlist[qp->vertex.array_index];
 				int nv = vertices[2].c;
@@ -730,7 +730,7 @@ static void pm3d_plot(struct surface_points * this_plot, int at_which_z)
 						else if(private_colormap)
 							set_rgbcolor_var(rgb_from_colormap(gray, private_colormap));
 						else
-							set_color(gray);
+							set_color(term, gray);
 					}
 				}
 			}
@@ -917,7 +917,7 @@ static void pm3d_plot(struct surface_points * this_plot, int at_which_z)
 							else if(private_colormap)
 								set_rgbcolor_var(rgb_from_colormap(gray, private_colormap));
 							else
-								set_color(gray);
+								set_color(term, gray);
 							if(at_which_z == PM3D_AT_BASE)
 								corners[0].z = corners[1].z = corners[2].z = corners[3].z = base_z;
 							else if(at_which_z == PM3D_AT_TOP)
@@ -992,7 +992,6 @@ void pm3d_reset()
 	pm3d_shade.spec = 0.0;
 	pm3d_shade.fixed = TRUE;
 }
-
 /*
  * Draw (one) PM3D color surface.
  */
@@ -1000,21 +999,16 @@ void pm3d_draw_one(struct surface_points * plot)
 {
 	int i = 0;
 	char * where = plot->pm3d_where[0] ? plot->pm3d_where : pm3d.where;
-	/* Draw either at 'where' option of the given surface or at pm3d.where
-	 * global option. */
-
+	// Draw either at 'where' option of the given surface or at pm3d.where global option. 
 	if(!where[0])
 		return;
-
-	/* Initialize lighting model */
+	// Initialize lighting model 
 	if(pm3d_shade.strength > 0)
 		pm3d_init_lighting_model();
-
 	for(; where[i]; i++) {
 		pm3d_plot(plot, where[i]);
 	}
 }
-
 /*
  * Add one pm3d quadrangle to the mix.
  * Called by zerrorfill() and by plot3d_boxes().
@@ -1032,7 +1026,7 @@ void pm3d_add_quadrangle(struct surface_points * plot, gpdPoint corners[4])
 void pm3d_add_polygon(struct surface_points * plot, gpdPoint corners[4], int vertices)
 {
 	quadrangle * q;
-	/* FIXME: I have no idea how to estimate the number of facets for an isosurface */
+	// FIXME: I have no idea how to estimate the number of facets for an isosurface 
 	if(!plot || (plot->plot_style == ISOSURFACE)) {
 		if(allocated_quadrangles < current_quadrangle + 100) {
 			allocated_quadrangles += 1000.;
@@ -1049,14 +1043,11 @@ void pm3d_add_polygon(struct surface_points * plot, gpdPoint corners[4], int ver
 		q->fillstyle = style_from_fill(&plot->fill_properties);
 	else
 		q->fillstyle = 0;
-
-	/* For triangles and normal quadrangles, the vertices are stored in
-	 * q->vertex.corners.  For larger polygons we store them in external array
-	 * polygonlist and keep only an index into the array q->vertex.array.
-	 */
+	// For triangles and normal quadrangles, the vertices are stored in
+	// q->vertex.corners.  For larger polygons we store them in external array
+	// polygonlist and keep only an index into the array q->vertex.array.
 	q->type = QUAD_TYPE_NORMAL;
-	if(corners[3].x == corners[2].x && corners[3].y == corners[2].y
-	    &&  corners[3].z == corners[2].z)
+	if(corners[3].x == corners[2].x && corners[3].y == corners[2].y && corners[3].z == corners[2].z)
 		q->type = QUAD_TYPE_TRIANGLE;
 	if(vertices > 4) {
 		gpdPoint * save_corners = get_polygon(vertices);
@@ -1065,9 +1056,8 @@ void pm3d_add_polygon(struct surface_points * plot, gpdPoint corners[4], int ver
 		memcpy(save_corners, corners, vertices * sizeof(gpdPoint));
 		save_corners[2].c = vertices;
 	}
-
 	if(!plot) {
-		/* This quadrangle came from "set object polygon" rather than "splot with pm3d" */
+		// This quadrangle came from "set object polygon" rather than "splot with pm3d" 
 		if(corners[0].c == LT_BACKGROUND) {
 			q->gray = PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY;
 		}
@@ -1077,10 +1067,9 @@ void pm3d_add_polygon(struct surface_points * plot, gpdPoint corners[4], int ver
 		}
 		q->fillstyle = corners[1].c;
 	}
-	else if(plot->pm3d_color_from_column
-	    && !(plot->plot_style == POLYGONS)) {
-		/* FIXME: color_from_rgbvar need only be set once per plot */
-		/* This is the usual path for 'splot with boxes' */
+	else if(plot->pm3d_color_from_column && !(plot->plot_style == POLYGONS)) {
+		// FIXME: color_from_rgbvar need only be set once per plot 
+		// This is the usual path for 'splot with boxes' 
 		color_from_rgbvar = TRUE;
 		if(pm3d_shade.strength > 0) {
 			q->gray = plot->lp_properties.pm3d_color.lt;
@@ -1092,7 +1081,7 @@ void pm3d_add_polygon(struct surface_points * plot, gpdPoint corners[4], int ver
 		}
 	}
 	else if(plot->lp_properties.pm3d_color.type == TC_Z) {
-		/* This is a special case for 'splot with boxes lc palette z' */
+		// This is a special case for 'splot with boxes lc palette z' 
 		q->gray = cb2gray(corners[1].z);
 		color_from_rgbvar = FALSE;
 		if(pm3d_shade.strength > 0)
@@ -1108,7 +1097,7 @@ void pm3d_add_polygon(struct surface_points * plot, gpdPoint corners[4], int ver
 			lp_style_type style;
 			struct coordinate v[3];
 			int i;
-			for(i = 0; i<3; i++) {
+			for(i = 0; i < 3; i++) {
 				v[i].x = corners[i].x;
 				v[i].y = corners[i].y;
 				v[i].z = corners[i].z;
@@ -1127,7 +1116,7 @@ void pm3d_add_polygon(struct surface_points * plot, gpdPoint corners[4], int ver
 		}
 	}
 	else {
-		/* This is the usual [only?] path for 'splot with zerror' */
+		// This is the usual [only?] path for 'splot with zerror' 
 		q->qcolor.colorspec = &plot->fill_properties.border_color;
 		q->gray = PM3D_USE_COLORSPEC_INSTEAD_OF_GRAY;
 	}
@@ -1148,14 +1137,14 @@ static void pm3d_option_at_error()
  */
 int get_pm3d_at_option(char * pm3d_where)
 {
-	char* c;
+	char * c;
 	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.GetCurTokenLength() >= sizeof(pm3d.where)) {
 		pm3d_option_at_error();
 		return 1;
 	}
 	memcpy(pm3d_where, gp_input_line + GPO.Pgm.GetCurTokenStartIndex(), GPO.Pgm.GetCurTokenLength());
 	pm3d_where[GPO.Pgm.GetCurTokenLength()] = 0;
-	/* verify the parameter */
+	// verify the parameter 
 	for(c = pm3d_where; *c; c++) {
 		if(*c != PM3D_AT_BASE && *c != PM3D_AT_TOP && *c != PM3D_AT_SURFACE) {
 			pm3d_option_at_error();
@@ -1428,7 +1417,7 @@ static void filled_polygon(gpdPoint * corners, int fillstyle, int nv)
 	if(splot_map && (pm3d.clip == PM3D_CLIP_Z)) {
 		for(i = 0; i<nv; i++)
 			ocorners[i] = icorners[i];
-		clip_polygon(ocorners, icorners, nv, &nv);
+		GPO.V.ClipPolygon(ocorners, icorners, nv, &nv);
 	}
 	if(fillstyle)
 		icorners[0].style = fillstyle;

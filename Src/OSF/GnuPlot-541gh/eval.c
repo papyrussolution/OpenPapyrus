@@ -78,6 +78,8 @@ GpValue * FASTCALL GpStack::Pop(GpValue * x)
 //static int s_p = -1; // stack pointer 
 //#define top_of_stack stack[s_p]
 static int jump_offset; // to be modified by 'jump' operators 
+
+#if 0 // (replaced with _FuncTab2) {
 //
 // The table of built-in functions */
 // These must strictly parallel enum operators in eval.h 
@@ -262,8 +264,10 @@ const struct ft_entry _FuncTab[] = {
 #endif
 	{NULL,            NULL}
 };
+#endif // } 0
 
 enum {
+	gpfunc_NONE_,
 	gpfunc_PUSH,
 	gpfunc_PUSHC,
 	gpfunc_PUSHD1,
@@ -420,183 +424,183 @@ enum {
 
 const GpFuncEntry _FuncTab2[] = {
 	// internal functions: 
-	{ 0, "push",         f_push          },
-	{ 0, "pushc",   	 f_pushc 		 },
-	{ 0, "pushd1",  	 f_pushd1		 },
-	{ 0, "pushd2",  	 f_pushd2		 },
-	{ 0, "pushd",   	 f_pushd 		 },
-	{ 0, "pop",     	 f_pop   		 },
-	{ 0, "call",    	 f_call  		 },
-	{ 0, "calln",   	 f_calln 		 },
-	{ 0, "sum",     	 f_sum   		 },
-	{ 0, "lnot",    	 f_lnot  		 },
-	{ 0, "bnot",    	 f_bnot  		 },
-	{ 0, "uminus",  	 f_uminus		 },
-	{ 0, "lor",     	 f_lor   		 },
-	{ 0, "land",    	 f_land  		 },
-	{ 0, "bor",     	 f_bor   		 },
-	{ 0, "xor",     	 f_xor   		 },
-	{ 0, "band",    	 f_band  		 },
-	{ 0, "eq",      	 f_eq    		 },
-	{ 0, "ne",      	 f_ne    		 },
-	{ 0, "gt",      	 f_gt    		 },
-	{ 0, "lt",           f_lt    		 },
-	{ 0, "ge",           f_ge    		 },
-	{ 0, "le",           f_le    		 },
-	{ 0, "leftshift",    f_leftshift     },
-	{ 0, "rightshift",   f_rightshift 	 },
-	{ 0, "plus",         f_plus       	 },
-	{ 0, "minus",        f_minus      	 },
-	{ 0, "mult",         f_mult       	 },
-	{ 0, "div",          f_div        	 },
-	{ 0, "mod",          f_mod        	 },
-	{ 0, "power",        f_power      	 },
-	{ 0, "factorial",    f_factorial  	 },
-	{ 0, "bool",         f_bool       	 },
-	{ 0, "dollars",      f_dollars       },          //  for usespec 
-	{ 0, "concatenate",  f_concatenate   },      //  for string variables only 
-	{ 0, "eqs",          f_eqs           },              //  for string variables only 
-	{ 0, "nes",          f_nes           },                 //  for string variables only 
-	{ 0, "[]",           f_range         },            //  for string variables only 
-	{ 0, "[]",           f_index         },            //  for array variables only 
-	{ 0, "||",           f_cardinality   },      //  for array variables only 
-	{ 0, "assign",       f_assign        },           //  assignment operator '=' 
-	{ 0, "jump",         f_jump       	 },
-	{ 0, "jumpz",        f_jumpz      	 },
-	{ 0, "jumpnz",       f_jumpnz     	 },
-	{ 0, "jtern",        f_jtern      	 },
-	{ 0, "",             NULL            },               // Placeholder for SF_START 
+	{ gpfunc_PUSH,        "push",    0/*f_push*/},
+	{ gpfunc_PUSHC,       "pushc",   0/*f_pushc*/},
+	{ gpfunc_PUSHD1,      "pushd1",  0/*f_pushd1*/},
+	{ gpfunc_PUSHD2		, "pushd2",  0/*f_pushd2*/},
+	{ gpfunc_PUSHD 		, "pushd",   0/*f_pushd*/},
+	{ gpfunc_POP   		, "pop",     0/*f_pop*/},
+	{ gpfunc_CALL  		, "call",    0/*f_call*/  		   },
+	{ gpfunc_CALLN 		, "calln",   0/*f_calln*/ 		   },
+	{ gpfunc_SUM   		, "sum",     0/*f_sum*/   		   },
+	{ gpfunc_LNOT  		, "lnot",    0/*f_lnot*/  		   },
+	{ gpfunc_BNOT  		, "bnot",    0/*f_bnot*/  		   },
+	{ gpfunc_UMINUS		, "uminus",  0/*f_uminus*/		   },
+	{ gpfunc_LOR   		, "lor",     0/*f_lor*/   		   },
+	{ gpfunc_LAND  		, "land",    0/*f_land*/  		   },
+	{ gpfunc_BOR   		, "bor",     0/*f_bor*/   		   },
+	{ gpfunc_XOR   		, "xor",     0/*f_xor*/   		   },
+	{ gpfunc_BAND  		, "band",    0/*f_band*/  		   },
+	{ gpfunc_EQ    		, "eq",      0/*f_eq*/    		   },
+	{ gpfunc_NE    		, "ne",      0/*f_ne*/    		   },
+	{ gpfunc_GT    		, "gt",      0/*f_gt*/    		   },
+	{ gpfunc_LT    		, "lt",           0/*f_lt*/    		   },
+	{ gpfunc_GE    		, "ge",           0/*f_ge*/    		   },
+	{ gpfunc_LE    		, "le",           0/*f_le*/    		   },
+	{ gpfunc_LEFTSHIFT  , "leftshift",    0/*f_leftshift*/       },
+	{ gpfunc_RIGHTSHIFT , "rightshift",   0/*f_rightshift*/ 	   },
+	{ gpfunc_PLUS       , "plus",         0/*f_plus*/       	   },
+	{ gpfunc_MINUS      , "minus",        0/*f_minus*/      	   },
+	{ gpfunc_MULT       , "mult",         0/*f_mult*/       	   },
+	{ gpfunc_DIV        , "div",          0/*f_div*/        	   },
+	{ gpfunc_MOD        , "mod",          0/*f_mod*/        	   },
+	{ gpfunc_POWER      , "power",        0/*f_power*/      	   },
+	{ gpfunc_FACTORIAL  , "factorial",    0/*f_factorial*/  	   },
+	{ gpfunc_BOOL       , "bool",         0/*f_bool*/       	   },
+	{ gpfunc_DOLLARS    , "dollars",      0/*f_dollars*/         },        //  for usespec 
+	{ gpfunc_CONCATENATE, "concatenate",  0/*f_concatenate*/     },    //  for string variables only 
+	{ gpfunc_EQS        , "eqs",          0/*f_eqs*/             },            //  for string variables only 
+	{ gpfunc_NES        , "nes",          0/*f_nes*/             },               //  for string variables only 
+	{ gpfunc_RANGE      , "[]",           0/*f_range*/           },          //  for string variables only 
+	{ gpfunc_INDEX      , "[]",           0/*f_index*/           },          //  for array variables only 
+	{ gpfunc_CARDINALITY, "||",           0/*f_cardinality*/     },    //  for array variables only 
+	{ gpfunc_ASSIGN     , "assign",       0/*f_assign*/          },         //  assignment operator '=' 
+	{ gpfunc_JUMP       , "jump",         0/*f_jump*/       	   },
+	{ gpfunc_JUMPZ      , "jumpz",        0/*f_jumpz*/      	   },
+	{ gpfunc_JUMPNZ     , "jumpnz",       0/*f_jumpnz*/     	   },
+	{ gpfunc_JTERN      , "jtern",        0/*f_jtern*/      	   },
+	{ gpfunc_NONE_      , "",             NULL              },             // Placeholder for SF_START 
 #ifdef HAVE_EXTERNAL_FUNCTIONS
-	{ 0, "",             f_calle      	 },
+	{ gpfunc_CALLE, "", f_calle },
 #endif
 	// legal in using spec only 
-	{ 0, "column",        f_column       },
-	{ 0, "stringcolumn",  f_stringcolumn },       //  for using specs 
-	{ 0, "strcol",        f_stringcolumn },       //  shorthand form 
-	{ 0, "columnhead",    f_columnhead   },
-	{ 0, "columnheader",  f_columnhead   },
-	{ 0, "valid",         f_valid        },
-	{ 0, "timecolumn",    f_timecolumn   },
+	{ gpfunc_COLUMN      , "column",        0/*f_column*/ },
+	{ gpfunc_STRINGCOLUMN, "stringcolumn",  0/*f_stringcolumn*/   },     //  for using specs 
+	{ gpfunc_STRINGCOLUMN, "strcol",        0/*f_stringcolumn*/   },     //  shorthand form 
+	{ gpfunc_COLUMNHEAD  , "columnhead",    0/*f_columnhead*/     },
+	{ gpfunc_COLUMNHEAD  , "columnheader",  0/*f_columnhead*/     },
+	{ gpfunc_VALID       , "valid",         0/*f_valid*/          },
+	{ gpfunc_TIMECOLUMN  , "timecolumn",    0/*f_timecolumn*/     },
 	// standard functions: 
-	{ 0, "real",          f_real         },
-	{ 0, "imag",       	  f_imag 		 },
-	{ 0, "arg",        	  f_arg  		 },
-	{ 0, "conj",       	  f_conjg		 },
-	{ 0, "conjg",      	  f_conjg		 },
-	{ 0, "sin",        	  f_sin  		 },
-	{ 0, "cos",        	  f_cos  		 },
-	{ 0, "tan",        	  f_tan  		 },
-	{ 0, "asin",       	  f_asin 		 },
-	{ 0, "acos",       	  f_acos 		 },
-	{ 0, "atan",       	  f_atan 		 },
-	{ 0, "atan2",      	  f_atan2		 },
-	{ 0, "sinh",       	  f_sinh 		 },
-	{ 0, "cosh",       	  f_cosh 		 },
-	{ 0, "tanh",       	  f_tanh 		 },
-	{ 0, "EllipticK",  	  f_ellip_first  },
-	{ 0, "EllipticE",  	  f_ellip_second },
-	{ 0, "EllipticPi", 	  f_ellip_third  },
-	{ 0, "int",        	  f_int          },
-	{ 0, "round",         f_round 		 },
-	{ 0, "abs",    		  f_abs   		 },
-	{ 0, "sgn",    		  f_sgn   		 },
-	{ 0, "sqrt",   		  f_sqrt  		 },
-	{ 0, "exp",    		  f_exp   		 },
-	{ 0, "log10",  		  f_log10 		 },
-	{ 0, "log",    		  f_log   		 },
-	{ 0, "besi0",  		  f_besi0 		 },
-	{ 0, "besi1",  		  f_besi1 		 },
-	{ 0, "besin",  		  f_besin 		 },
-	{ 0, "besj0",  		  f_besj0 		 },
-	{ 0, "besj1",  		  f_besj1 		 },
-	{ 0, "besjn",  		  f_besjn 		 },
-	{ 0, "besy0",  		  f_besy0 		 },
-	{ 0, "besy1",  		  f_besy1 		 },
-	{ 0, "besyn",  		  f_besyn 		 },
-	{ 0, "erf",    		  f_erf   		 },
-	{ 0, "erfc",   		  f_erfc  		 },
-	{ 0, "gamma",  		  f_gamma 		 },
-	{ 0, "lgamma", 		  f_lgamma		 },
-	{ 0, "ibeta",  		  f_ibeta 		 },
-	{ 0, "voigt",  		  f_voigt 		 },
-	{ 0, "rand",   		  f_rand  		 },
-	{ 0, "floor",  		  f_floor 		 },
-	{ 0, "ceil",   		  f_ceil  		 },
-	{ 0, "norm",   		  f_normal		 },
-	{ 0, "inverf",        f_inverse_erf    },
-	{ 0, "invnorm",   	  f_inverse_normal },
-	{ 0, "invigamma", 	  f_inverse_igamma },
-	{ 0, "invibeta",  	  f_inverse_ibeta  },
-	{ 0, "asinh",     	  f_asinh          },
-	{ 0, "acosh",     	  f_acosh          },
-	{ 0, "atanh",     	  f_atanh          },
-	{ 0, "lambertw",   	  f_lambertw       },     //  HBB, from G.Kuhnle 20001107
-	{ 0, "airy",      	  f_airy           },         //  cephes library version 
+	{ gpfunc_REAL         , "real",       0/*f_real*/           },
+	{ gpfunc_IMAG 		  , "imag",       0/*f_imag*/ 		   },
+	{ gpfunc_ARG  		  , "arg",        0/*f_arg*/ },
+	{ gpfunc_CONJG		  , "conj",       0/*f_conjg*/ },
+	{ gpfunc_CONJG		  , "conjg",      0/*f_conjg*/		   },
+	{ gpfunc_SIN  		  , "sin",        0/*f_sin*/  		   },
+	{ gpfunc_COS  		  , "cos",        0/*f_cos*/  		   },
+	{ gpfunc_TAN  		  , "tan",        0/*f_tan*/  		   },
+	{ gpfunc_ASIN 		  , "asin",       0/*f_asin*/ 		   },
+	{ gpfunc_ACOS 		  , "acos",       0/*f_acos*/ 		   },
+	{ gpfunc_ATAN 		  , "atan",       0/*f_atan*/ },
+	{ gpfunc_ATAN2		  , "atan2",      0/*f_atan2*/		   },
+	{ gpfunc_SINH 		  , "sinh",       0/*f_sinh*/ 		   },
+	{ gpfunc_COSH 		  , "cosh",       0/*f_cosh*/ 		   },
+	{ gpfunc_TANH 		  , "tanh",       0/*f_tanh*/ 		   },
+	{ gpfunc_ELLIP_FIRST  , "EllipticK",  0/*f_ellip_first*/    },
+	{ gpfunc_ELLIP_SECOND , "EllipticE",  0/*f_ellip_second*/   },
+	{ gpfunc_ELLIP_THIRD  , "EllipticPi", 0/*f_ellip_third*/    },
+	{ gpfunc_INT          , "int",        0/*f_int*/            },
+	{ gpfunc_ROUND 		  , "round",      0/*f_round*/ 		   },
+	{ gpfunc_ABS   		  , "abs",    0/*f_abs*/   		   },
+	{ gpfunc_SGN   		  , "sgn",    0/*f_sgn*/   		   },
+	{ gpfunc_SQRT  		  , "sqrt",   0/*f_sqrt*/  		   },
+	{ gpfunc_EXP   		  , "exp",    0/*f_exp*/   		   },
+	{ gpfunc_LOG10 		  , "log10",  0/*f_log10*/ 		   },
+	{ gpfunc_LOG   		  , "log",    0/*f_log*/   		   },
+	{ gpfunc_BESI0 		  , "besi0",  0/*f_besi0*/ 		   },
+	{ gpfunc_BESI1 		  , "besi1",  0/*f_besi1*/ 		   },
+	{ gpfunc_BESIN 		  , "besin",  0/*f_besin*/ 		   },
+	{ gpfunc_BESJ0 		  , "besj0",  0/*f_besj0*/ 		   },
+	{ gpfunc_BESJ1 		  , "besj1",  0/*f_besj1*/ 		   },
+	{ gpfunc_BESJN 		  , "besjn",  0/*f_besjn*/ 		   },
+	{ gpfunc_BESY0 		  , "besy0",  0/*f_besy0*/ 		   },
+	{ gpfunc_BESY1 		  , "besy1",  0/*f_besy1*/ 		   },
+	{ gpfunc_BESYN 		  , "besyn",  0/*f_besyn*/ 		   },
+	{ gpfunc_ERF   		  , "erf",    0/*f_erf*/   		   },
+	{ gpfunc_ERFC  		  , "erfc",   0/*f_erfc*/  		   },
+	{ gpfunc_GAMMA 		  , "gamma",  0/*f_gamma*/ 		   },
+	{ gpfunc_LGAMMA		  , "lgamma", 0/*f_lgamma*/		   },
+	{ gpfunc_IBETA 		  , "ibeta",  0/*f_ibeta*/ 		   },
+	{ gpfunc_VOIGT 		  , "voigt",  0/*f_voigt*/ 		   },
+	{ gpfunc_RAND  		  , "rand",   0/*f_rand*/  		   },
+	{ gpfunc_FLOOR 		  , "floor",  0/*f_floor*/ 		   },
+	{ gpfunc_CEIL  		  , "ceil",   0/*f_ceil*/  		   },
+	{ gpfunc_NORMAL		  , "norm",   0/*f_normal*/		   },
+	{ gpfunc_INVERSE_ERF   , "inverf",    0/*f_inverse_erf*/    },
+	{ gpfunc_INVERSE_NORMAL, "invnorm",   0/*f_inverse_normal*/ },
+	{ gpfunc_INVERSE_IGAMMA, "invigamma", 0/*f_inverse_igamma*/ },
+	{ gpfunc_INVERSE_IBETA , "invibeta",  0/*f_inverse_ibeta*/  },
+	{ gpfunc_ASINH         , "asinh",     0/*f_asinh*/          },
+	{ gpfunc_ACOSH         , "acosh",     0/*f_acosh*/          },
+	{ gpfunc_ATANH         , "atanh",     0/*f_atanh*/          },
+	{ gpfunc_LAMBERTW      , "lambertw",  0/*f_lambertw*/       },     //  HBB, from G.Kuhnle 20001107
+	{ gpfunc_AIRY          , "airy",      0/*f_airy*/           },         //  cephes library version 
 #ifdef HAVE_AMOS
-	{ 0, "Ai",            f_amos_Ai},      //  Amos version from libopenspecfun  
-	{ 0, "Bi",        	  f_amos_Bi},      //  Amos version from libopenspecfun 
-	{ 0, "BesselI",   	  f_amos_BesselI}, //  Amos version from libopenspecfun 
-	{ 0, "BesselJ",   	  f_amos_BesselJ}, //  Amos version from libopenspecfun 
-	{ 0, "BesselK",   	  f_amos_BesselK}, //  Amos version from libopenspecfun 
-	{ 0, "BesselY",   	  f_amos_BesselY}, //  Amos version from libopenspecfun 
-	{ 0, "Hankel1",   	  f_Hankel1},      //  Amos version from libopenspecfun 
-	{ 0, "Hankel2",   	  f_Hankel2},      //  Amos version from libopenspecfun 
+	{ gpfunc_AMOS_AI     , "Ai",        0/*f_amos_Ai*/        }, //  Amos version from libopenspecfun  
+	{ gpfunc_AMOS_BI     , "Bi",        0/*f_amos_Bi*/        }, //  Amos version from libopenspecfun
+	{ gpfunc_AMOS_BESSELI, "BesselI",   0/*f_amos_BesselI*/   }, //  Amos version from libopenspecfun
+	{ gpfunc_AMOS_BESSELJ, "BesselJ",   0/*f_amos_BesselJ*/   }, //  Amos version from libopenspecfun
+	{ gpfunc_AMOS_BESSELK, "BesselK",   0/*f_amos_BesselK*/   }, //  Amos version from libopenspecfun
+	{ gpfunc_AMOS_BESSELY, "BesselY",   0/*f_amos_BesselY*/   }, //  Amos version from libopenspecfun
+	{ gpfunc_HANKEL1     , "Hankel1",   0/*f_Hankel1*/        }, //  Amos version from libopenspecfun
+	{ gpfunc_HANKEL2     , "Hankel2",   0/*f_Hankel2*/        }, //  Amos version from libopenspecfun
 #endif
 #ifdef HAVE_CEXINT
-	{ 0, "expint",        f_amos_cexint},  //  Amos algorithm 683 from libamos 
+	{ gpfunc_AMOS_CEXINT , "expint",    0/*f_amos_cexint*/    },  //  Amos algorithm 683 from libamos 
 #else
-	{ 0, "expint",        f_expint  },       //  Jim Van Zandt, 20101010 
+	{ gpfunc_EXPINT, "expint",        0/*f_expint*/         },       //  Jim Van Zandt, 20101010 
 #endif
 #ifdef HAVE_COMPLEX_FUNCS
-	{ 0, "igamma",        f_Igamma  },       //  Complex igamma(a,z) 
-	{ 0, "LambertW",  	  f_LambertW},     //  Complex W(z,k) 
-	{ 0, "lnGamma",   	  f_lnGamma },      //  Complex lnGamma(z) 
-	{ 0, "Sign",      	  f_Sign    },         //  Complex sign function 
+	{ gpfunc_IGAMMA  , "igamma",    0/*f_Igamma*/         },       //  Complex igamma(a,z) 
+	{ gpfunc_LAMBERTW, "LambertW",  0/*f_LambertW*/       },     //  Complex W(z,k) 
+	{ gpfunc_LNGAMMA , "lnGamma",   0/*f_lnGamma*/        },      //  Complex lnGamma(z) 
+	{ gpfunc_SIGN    , "Sign",      0/*f_Sign*/           },         //  Complex sign function 
 #else
-	{ 0, "igamma",    	  f_igamma  },       //  Jos van der Woude 1992 
+	{ gpfunc_IGAMMA, "igamma",    0/*f_igamma*/         },       //  Jos van der Woude 1992 
 #endif
 #ifdef HAVE_LIBCERF
-	{ 0, "cerf",          f_cerf     },         //  complex error function  
-	{ 0, "cdawson",   	  f_cdawson  },      //  complex Dawson's integral 
-	{ 0, "erfi",      	  f_erfi     },         //  imaginary error function 
-	{ 0, "VP",        	  f_voigtp   },       //  Voigt profile 
-	{ 0, "VP_fwhm",   	  f_VP_fwhm  },      //  Voigt profile full width at half maximum 
-	{ 0, "faddeeva",  	  f_faddeeva },     //  Faddeeva rescaled complex error function "w_of_z" 
-	{ 0, "FresnelC",  	  f_FresnelC },     //  Fresnel integral cosine term calculated from cerf 
-	{ 0, "FresnelS",  	  f_FresnelS },     //  Fresnel integral sine term calculated from cerf 
+	{ gpfunc_CERF    , "cerf",      0/*f_cerf*/           },   //  complex error function  
+	{ gpfunc_CDAWSON , "cdawson",   0/*f_cdawson*/        },   //  complex Dawson's integral 
+	{ gpfunc_ERFI    , "erfi",      0/*f_erfi*/           },   //  imaginary error function 
+	{ gpfunc_VOIGTP  , "VP",        0/*f_voigtp*/         },   //  Voigt profile 
+	{ gpfunc_VP_FWHM , "VP_fwhm",   0/*f_VP_fwhm*/        },   //  Voigt profile full width at half maximum 
+	{ gpfunc_FADDEEVA, "faddeeva",  0/*f_faddeeva*/       },   //  Faddeeva rescaled complex error function "w_of_z" 
+	{ gpfunc_FRESNELC, "FresnelC",  0/*f_FresnelC*/       },   //  Fresnel integral cosine term calculated from cerf 
+	{ gpfunc_FRESNELS, "FresnelS",  	  0/*f_FresnelS*/ },   //  Fresnel integral sine term calculated from cerf 
 #endif
-	{ 0, "SynchrotronF",  f_SynchrotronF}, //  Synchrotron F 
-	{ 0, "tm_sec",        f_tmsec    },        //  for timeseries 
-	{ 0, "tm_min",        f_tmmin    },   	   //  for timeseries 
-	{ 0, "tm_hour",   	  f_tmhour   },  	   //  for timeseries 
-	{ 0, "tm_mday",   	  f_tmmday   },  	   //  for timeseries 
-	{ 0, "tm_mon",    	  f_tmmon    },   	   //  for timeseries 
-	{ 0, "tm_year",   	  f_tmyear   },  	   //  for timeseries 
-	{ 0, "tm_wday",   	  f_tmwday   },  	   //  for timeseries 
-	{ 0, "tm_yday",   	  f_tmyday   },  	   //  for timeseries 
-	{ 0, "tm_week",   	  f_tmweek   },  	   //  for timeseries 
-	{ 0, "sprintf",   	  f_sprintf  }, 	   //  for string variables only 
-	{ 0, "gprintf",   	  f_gprintf  }, 	   //  for string variables only 
-	{ 0, "strlen",    	  f_strlen   },  	   //  for string variables only 
-	{ 0, "strstrt",   	  f_strstrt  }, 	   //  for string variables only 
-	{ 0, "substr",    	  f_range    },   	   //  for string variables only 
-	{ 0, "trim",      	  f_trim     },         //  for string variables only 
-	{ 0, "word",      	  f_word     },         //  for string variables only 
-	{ 0, "words",     	  f_words    },        //  implemented as word(s,-1) 
-	{ 0, "strftime",  	  f_strftime },     //  time to string 
-	{ 0, "strptime",  	  f_strptime },     //  string to time 
-	{ 0, "time",      	  f_time     },         //  get current time 
-	{ 0, "system",    	  f_system   },       //  "dynamic backtics" 
-	{ 0, "exist",     	  f_exists   },       //  exists("foo") replaces defined(foo) 
-	{ 0, "exists",    	  f_exists   },       //  exists("foo") replaces defined(foo) 
-	{ 0, "value",     	  f_value    },        //  retrieve value of variable known by name 
-	{ 0, "hsv2rgb",   	  f_hsv2rgb  },      //  color conversion 
-	{ 0, "palette",   	  f_palette  },      //  palette color lookup 
-	{ 0, "rgbcolor",  	  f_rgbcolor },     //  32bit ARGB color lookup by name or string 
+	{ gpfunc_SYNCHROTRONF, "SynchrotronF", 0/*f_SynchrotronF*/   },   //  Synchrotron F 
+	{ gpfunc_TMSEC       , "tm_sec",       0/*f_tmsec*/          },   //  for timeseries 
+	{ gpfunc_TMMIN       , "tm_min",       0/*f_tmmin*/      	   },   //  for timeseries 
+	{ gpfunc_TMHOUR      , "tm_hour",   0/*f_tmhour*/    	   },   //  for timeseries 
+	{ gpfunc_TMMDAY      , "tm_mday",   0/*f_tmmday*/    	   },   //  for timeseries 
+	{ gpfunc_TMMON      , "tm_mon",    0/*f_tmmon*/      	   },   //  for timeseries 
+	{ gpfunc_TMYEAR     , "tm_year",   0/*f_tmyear*/    	   },   //  for timeseries 
+	{ gpfunc_TMWDAY     , "tm_wday",   0/*f_tmwday*/    	   },   //  for timeseries 
+	{ gpfunc_TMYDAY     , "tm_yday",   0/*f_tmyday*/    	   },   //  for timeseries 
+	{ gpfunc_TMWEEK     , "tm_week",   0/*f_tmweek*/    	   },   //  for timeseries 
+	{ gpfunc_SPRINTF    , "sprintf",   0/*f_sprintf*/  },   //  for string variables only 
+	{ gpfunc_GPRINTF    , "gprintf",   0/*f_gprintf*/  },   //  for string variables only 
+	{ gpfunc_STRLEN     , "strlen",    0/*f_strlen*/   },   //  for string variables only 
+	{ gpfunc_STRSTRT    , "strstrt",   0/*f_strstrt*/  },   //  for string variables only 
+	{ gpfunc_RANGE      , "substr",    0/*f_range*/    },   //  for string variables only 
+	{ gpfunc_TRIM        , "trim",     0/*f_trim*/     },   //  for string variables only 
+	{ gpfunc_WORD        , "word",     0/*f_word*/     },   //  for string variables only 
+	{ gpfunc_WORDS       , "words",    0/*f_words*/    },   //  implemented as word(s,-1) 
+	{ gpfunc_STRFTIME    , "strftime", 0/*f_strftime*/ },   //  time to string 
+	{ gpfunc_STRPTIME    , "strptime", 0/*f_strptime*/ },   //  string to time 
+	{ gpfunc_TIME        , "time",     0/*f_time*/     },   //  get current time 
+	{ gpfunc_SYSTEM      , "system",   0/*f_system*/   },   //  "dynamic backtics" 
+	{ gpfunc_EXISTS      , "exist",    0/*f_exists*/   },   //  exists("foo") replaces defined(foo) 
+	{ gpfunc_EXISTS      , "exists",   0/*f_exists*/   },   //  exists("foo") replaces defined(foo) 
+	{ gpfunc_VALUE       , "value",    0/*f_value*/    },   //  retrieve value of variable known by name 
+	{ gpfunc_HSV2RGB     , "hsv2rgb",  0/*f_hsv2rgb*/  },   //  color conversion 
+	{ gpfunc_PALETTE     , "palette",  0/*f_palette*/  },   //  palette color lookup 
+	{ gpfunc_RGBCOLOR    , "rgbcolor", 0/*f_rgbcolor*/ },   //  32bit ARGB color lookup by name or string 
 #ifdef VOXEL_GRID_SUPPORT
-	{ 0, "voxel",         f_voxel    },        //  extract value of single voxel 
+	{ gpfunc_VOXEL,      "voxel", 0/*f_voxel*/ },   //  extract value of single voxel 
 #endif
-	{ 0, NULL,            NULL}
+	{ gpfunc_NONE_, NULL, NULL}
 };
 //
 // Module-local variables:
@@ -686,11 +690,11 @@ double magnitude(GpValue * val)
 		default:
 		    GPO.IntError(NO_CARET, "unknown type in magnitude()");
 	}
-	/* NOTREACHED */
-	return ((double)0.0);
+	return 0.0; // NOTREACHED 
 }
-
-/* returns the angle of val */
+//
+// returns the angle of val 
+//
 double angle(GpValue * val)
 {
 	switch(val->type) {
@@ -764,12 +768,12 @@ int GpValue::IntCheck() const
 	gpfree_array(a);
 	a->type = NOTDEFINED;
 }*/
-
-/* It is always safe to call gpfree_string with a->type is INTGR or CMPLX.
- * However it would be fatal to call it with a->type = STRING if a->string_val
- * was not obtained by a previous call to gp_alloc(), or has already been freed.
- * Thus 'a->type' is set to NOTDEFINED afterwards to make subsequent calls safe.
- */
+// 
+// It is always safe to call gpfree_string with a->type is INTGR or CMPLX.
+// However it would be fatal to call it with a->type = STRING if a->string_val
+// was not obtained by a previous call to gp_alloc(), or has already been freed.
+// Thus 'a->type' is set to NOTDEFINED afterwards to make subsequent calls safe.
+// 
 void FASTCALL gpfree_string(GpValue * a)
 {
 	if(a->type == STRING) {
@@ -788,13 +792,12 @@ void gpfree_array(GpValue * a)
 		a->type = NOTDEFINED;
 	}
 }
-
-/* some machines have trouble with exp(-x) for large x
- * if E_MINEXP is defined at compile time, use gp_exp(x) instead,
- * which returns 0 for exp(x) with x < E_MINEXP
- * exp(x) will already have been defined as gp_exp(x) in plot.h
- */
-
+// 
+// some machines have trouble with exp(-x) for large x
+// if E_MINEXP is defined at compile time, use gp_exp(x) instead,
+// which returns 0 for exp(x) with x < E_MINEXP
+// exp(x) will already have been defined as gp_exp(x) in plot.h
+// 
 double gp_exp(double x)
 {
 #ifdef E_MINEXP
@@ -862,18 +865,17 @@ void FASTCALL push_Removed(GpValue * x)
 	if(s_p == STACK_DEPTH - 1)
 		GPO.IntError(NO_CARET, "stack overflow");
 	stack[++s_p] = *x;
-	/* WARNING - This is a memory leak if the string is not later freed */
+	// WARNING - This is a memory leak if the string is not later freed 
 	if(x->type == STRING && x->v.string_val)
 		stack[s_p].v.string_val = gp_strdup(x->v.string_val);
 }
 #endif // } 0
 
 //void FASTCALL int_check(const GpValue * v) { if(v->type != INTGR) GPO.IntError(NO_CARET, "non-integer passed to boolean operator"); }
-
-/* Internal operators of the stack-machine, not directly represented
- * by any user-visible operator, or using private status variables
- * directly */
-
+// 
+// Internal operators of the stack-machine, not directly represented
+// by any user-visible operator, or using private status variables directly 
+//
 // converts top-of-stack to boolean 
 void f_bool(union argument * /*x*/)
 {
@@ -928,6 +930,7 @@ void f_jtern(union argument * x)
 // so the iterated line executes the function indexed by the at_ptr
 // and passes the address of the argument which is pointed to by the arg_ptr
 // 
+#if 0 // (replaced with GnuPlot::_ExecuteAt2) {
 void execute_at(at_type * at_ptr)
 {
 	const int saved_jump_offset = jump_offset;
@@ -936,6 +939,191 @@ void execute_at(at_type * at_ptr)
 		const int op_ = (int)at_ptr->actions[instruction_index].index;
 		jump_offset = 1; // jump operators can modify this 
 		(_FuncTab[op_].Func_)(&(at_ptr->actions[instruction_index].arg));
+		assert(is_jump(op_) || (jump_offset == 1));
+		instruction_index += jump_offset;
+	}
+	jump_offset = saved_jump_offset;
+}
+#endif // } 0
+
+void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
+{
+	const int saved_jump_offset = jump_offset;
+	int count = pAt->a_count;
+	for(int instruction_index = 0; instruction_index < count;) {
+		const int op_ = (int)pAt->actions[instruction_index].index;
+		jump_offset = 1; // jump operators can modify this 
+		argument * p_arg = &pAt->actions[instruction_index].arg;
+		switch(_FuncTab2[op_].FuncId) {
+			case gpfunc_PUSH:            f_push(p_arg); break; 
+			case gpfunc_PUSHC:			 f_pushc(p_arg); break;
+			case gpfunc_PUSHD1:			 f_pushd1(p_arg); break;
+			case gpfunc_PUSHD2:			 f_pushd2(p_arg); break;
+			case gpfunc_PUSHD:			 f_pushd(p_arg); break;
+			case gpfunc_POP:			 f_pop(p_arg); break;
+			case gpfunc_CALL:			 f_call(p_arg); break;
+			case gpfunc_CALLN:			 f_calln(p_arg); break;
+			case gpfunc_SUM:			 f_sum(p_arg); break;
+			case gpfunc_LNOT:			 f_lnot(p_arg); break;
+			case gpfunc_BNOT:			 f_bnot(p_arg); break;
+			case gpfunc_UMINUS:			 f_uminus(p_arg); break;
+			case gpfunc_LOR:			 f_lor(p_arg); break;
+			case gpfunc_LAND:			 f_land(p_arg); break;
+			case gpfunc_BOR:			 f_bor(p_arg); break;
+			case gpfunc_XOR:			 f_xor(p_arg); break;
+			case gpfunc_BAND:			 f_band(p_arg); break;
+			case gpfunc_EQ:				 f_eq(p_arg); break;
+			case gpfunc_NE:				 f_ne(p_arg); break;
+			case gpfunc_GT:				 f_gt(p_arg); break;
+			case gpfunc_LT:				 f_lt(p_arg); break;
+			case gpfunc_GE:				 f_ge(p_arg); break;
+			case gpfunc_LE:				 f_le(p_arg); break;
+			case gpfunc_LEFTSHIFT:		 f_leftshift(p_arg); break;
+			case gpfunc_RIGHTSHIFT:		 f_rightshift(p_arg); break;
+			case gpfunc_PLUS:			 f_plus(p_arg); break;
+			case gpfunc_MINUS:			 f_minus(p_arg); break;
+			case gpfunc_MULT:			 f_mult(p_arg); break;
+			case gpfunc_DIV:			 f_div(p_arg); break;
+			case gpfunc_MOD:			 f_mod(p_arg); break;
+			case gpfunc_POWER:			 f_power(p_arg); break;
+			case gpfunc_FACTORIAL:		 f_factorial(p_arg); break;
+			case gpfunc_BOOL:			 f_bool(p_arg); break;
+			case gpfunc_DOLLARS:       	 F_Dollars(p_arg); break;       
+			case gpfunc_CONCATENATE:   	 f_concatenate(p_arg); break;   
+			case gpfunc_EQS:           	 f_eqs(p_arg); break;           
+			case gpfunc_NES:           	 f_nes(p_arg); break;           
+			case gpfunc_RANGE:         	 f_range(p_arg); break;         
+			case gpfunc_INDEX:         	 f_index(p_arg); break;         
+			case gpfunc_CARDINALITY:   	 f_cardinality(p_arg); break;   
+			case gpfunc_ASSIGN:        	 f_assign(p_arg); break;        
+			case gpfunc_JUMP:			 f_jump(p_arg); break;
+			case gpfunc_JUMPZ:			 f_jumpz(p_arg); break;
+			case gpfunc_JUMPNZ:			 f_jumpnz(p_arg); break;
+			case gpfunc_JTERN:			 f_jtern(p_arg); break;
+#ifdef HAVE_EXTERNAL_FUNCTIONS
+			case gpfunc_CALLE:			 f_calle(p_arg); break;
+#endif
+			case gpfunc_COLUMN:			 F_Column(p_arg); break;
+			case gpfunc_STRINGCOLUMN: 	 F_StringColumn(p_arg); break; 
+			case gpfunc_COLUMNHEAD:		 F_Columnhead(p_arg); break;
+			case gpfunc_VALID:			 f_valid(p_arg); break;
+			case gpfunc_TIMECOLUMN:		 f_timecolumn(p_arg); break;
+			case gpfunc_REAL:			 F_Real(p_arg); break;
+			case gpfunc_IMAG:			 F_Imag(p_arg); break;
+			case gpfunc_ARG:			 F_Arg(p_arg); break;
+			case gpfunc_CONJG:			 f_conjg(p_arg); break;
+			case gpfunc_SIN:			 f_sin(p_arg); break;
+			case gpfunc_COS:			 f_cos(p_arg); break;
+			case gpfunc_TAN:			 f_tan(p_arg); break;
+			case gpfunc_ASIN:			 f_asin(p_arg); break;
+			case gpfunc_ACOS:			 f_acos(p_arg); break;
+			case gpfunc_ATAN:			 f_atan(p_arg); break;
+			case gpfunc_ATAN2:			 f_atan2(p_arg); break;
+			case gpfunc_SINH:			 f_sinh(p_arg); break;
+			case gpfunc_COSH:			 f_cosh(p_arg); break;
+			case gpfunc_TANH:			 f_tanh(p_arg); break;
+			case gpfunc_ELLIP_FIRST:	 f_ellip_first(p_arg); break;
+			case gpfunc_ELLIP_SECOND:	 f_ellip_second(p_arg); break;
+			case gpfunc_ELLIP_THIRD:	 f_ellip_third(p_arg); break;
+			case gpfunc_INT:			 F_Int(p_arg); break;
+			case gpfunc_ROUND:			 F_Round(p_arg); break;
+			case gpfunc_ABS:			 f_abs(p_arg); break;
+			case gpfunc_SGN:			 f_sgn(p_arg); break;
+			case gpfunc_SQRT:			 f_sqrt(p_arg); break;
+			case gpfunc_EXP:			 f_exp(p_arg); break;
+			case gpfunc_LOG10:			 f_log10(p_arg); break;
+			case gpfunc_LOG:			 f_log(p_arg); break;
+			case gpfunc_BESI0:			 F_Besi0(p_arg); break;
+			case gpfunc_BESI1:			 F_Besi1(p_arg); break;
+			case gpfunc_BESIN:			 F_Besin(p_arg); break;
+			case gpfunc_BESJ0:			 F_Besj0(p_arg); break;
+			case gpfunc_BESJ1:			 F_Besj1(p_arg); break;
+			case gpfunc_BESJN:			 F_Besjn(p_arg); break;
+			case gpfunc_BESY0:			 F_Besy0(p_arg); break;
+			case gpfunc_BESY1:			 F_Besy1(p_arg); break;
+			case gpfunc_BESYN:			 F_Besyn(p_arg); break;
+			case gpfunc_ERF:			 f_erf(p_arg); break;
+			case gpfunc_ERFC:			 f_erfc(p_arg); break;
+			case gpfunc_GAMMA:			 f_gamma(p_arg); break;
+			case gpfunc_LGAMMA:			 f_lgamma(p_arg); break;
+			case gpfunc_IBETA:			 f_ibeta(p_arg); break;
+			case gpfunc_VOIGT:			 f_voigt(p_arg); break;
+			case gpfunc_RAND:			 f_rand(p_arg); break;
+			case gpfunc_FLOOR:			 f_floor(p_arg); break;
+			case gpfunc_CEIL:			 f_ceil(p_arg); break;
+			case gpfunc_NORMAL:			 f_normal(p_arg); break;
+			case gpfunc_INVERSE_ERF:	 f_inverse_erf(p_arg); break;
+			case gpfunc_INVERSE_NORMAL:	 f_inverse_normal(p_arg); break;
+			case gpfunc_INVERSE_IGAMMA:	 f_inverse_igamma(p_arg); break;
+			case gpfunc_INVERSE_IBETA:	 f_inverse_ibeta(p_arg); break;
+			case gpfunc_ASINH:			 f_asinh(p_arg); break;
+			case gpfunc_ACOSH:			 f_acosh(p_arg); break;
+			case gpfunc_ATANH:			 f_atanh(p_arg); break;
+			case gpfunc_LAMBERTW:     	 f_lambertw(p_arg); break;
+			case gpfunc_AIRY:         	 f_airy(p_arg); break;
+#ifdef HAVE_AMOS
+			case gpfunc_AMOS_AI:      	 f_amos_ai(p_arg); break;      
+			case gpfunc_AMOS_BI:      	 f_amos_bi(p_arg); break;      
+			case gpfunc_AMOS_BESSELI: 	 f_amos_besseli(p_arg); break; 
+			case gpfunc_AMOS_BESSELJ: 	 f_amos_besselj(p_arg); break; 
+			case gpfunc_AMOS_BESSELK: 	 f_amos_besselk(p_arg); break; 
+			case gpfunc_AMOS_BESSELY: 	 f_amos_bessely(p_arg); break; 
+			case gpfunc_HANKEL1:      	 f_hankel1(p_arg); break;      
+			case gpfunc_HANKEL2:      	 f_hankel2(p_arg); break;      
+#endif
+#ifdef HAVE_CEXINT
+			case gpfunc_AMOS_CEXINT:  	 f_amos_cexint(p_arg); break;  
+#else
+			case gpfunc_EXPINT:       	 f_expint(p_arg); break;       
+#endif
+#ifdef HAVE_COMPLEX_FUNCS
+			case gpfunc_IGAMMA:       	 f_Igamma(p_arg); break;       
+			case gpfunc_LAMBERTW:     	 f_LambertW(p_arg); break;
+			case gpfunc_LNGAMMA:      	 f_lnGamma(p_arg); break;      
+			case gpfunc_SIGN:         	 f_Sign(p_arg); break;         
+#else
+			case gpfunc_IGAMMA:          f_igamma(p_arg); break;
+#endif
+#ifdef HAVE_LIBCERF
+			case gpfunc_CERF:         	 f_cerf(p_arg); break;         
+			case gpfunc_CDAWSON:      	 f_cdawson(p_arg); break;      
+			case gpfunc_ERFI:         	 f_erfi(p_arg); break;         
+			case gpfunc_VOIGTP:       	 f_voigtp(p_arg); break;       
+			case gpfunc_VP_FWHM:      	 f_vp_fwhm(p_arg); break;      
+			case gpfunc_FADDEEVA:     	 f_faddeeva(p_arg); break;     
+			case gpfunc_FRESNELC:     	 f_fresnelc(p_arg); break;     
+			case gpfunc_FRESNELS:     	 f_fresnels(p_arg); break;     
+#endif
+			case gpfunc_SYNCHROTRONF: 	 f_SynchrotronF(p_arg); break; 
+			case gpfunc_TMSEC:        	 f_tmsec(p_arg); break;        
+			case gpfunc_TMMIN:   	   	 f_tmmin(p_arg); break;   	   
+			case gpfunc_TMHOUR:  	   	 f_tmhour(p_arg); break;  	   
+			case gpfunc_TMMDAY:  	   	 f_tmmday(p_arg); break;  	   
+			case gpfunc_TMMON:   	   	 f_tmmon(p_arg); break;   	   
+			case gpfunc_TMYEAR:  	   	 f_tmyear(p_arg); break;  	   
+			case gpfunc_TMWDAY:  	   	 f_tmwday(p_arg); break;  	   
+			case gpfunc_TMYDAY:  	   	 f_tmyday(p_arg); break;  	   
+			case gpfunc_TMWEEK:  	   	 f_tmweek(p_arg); break;  	   
+			case gpfunc_SPRINTF: 	   	 f_sprintf(p_arg); break; 	   
+			case gpfunc_GPRINTF: 	   	 f_gprintf(p_arg); break; 	   
+			case gpfunc_STRLEN:  	   	 f_strlen(p_arg); break;  	   
+			case gpfunc_STRSTRT: 	   	 f_strstrt(p_arg); break; 	   
+			case gpfunc_TRIM:         	 f_trim(p_arg); break;         
+			case gpfunc_WORD:         	 f_word(p_arg); break;         
+			case gpfunc_WORDS:        	 f_words(p_arg); break;        
+			case gpfunc_STRFTIME:     	 f_strftime(p_arg); break;     
+			case gpfunc_STRPTIME:     	 f_strptime(p_arg); break;     
+			case gpfunc_TIME:         	 f_time(p_arg); break;         
+			case gpfunc_SYSTEM:       	 f_system(p_arg); break;       
+			case gpfunc_EXISTS:       	 f_exists(p_arg); break;       
+			case gpfunc_VALUE:        	 f_value(p_arg); break;
+			case gpfunc_HSV2RGB:      	 f_hsv2rgb(p_arg); break;
+			case gpfunc_PALETTE:      	 f_palette(p_arg); break;
+			case gpfunc_RGBCOLOR:     	 f_rgbcolor(p_arg); break;
+#ifdef VOXEL_GRID_SUPPORT
+			case gpfunc_VOXEL:        	 f_voxel(p_arg); break;
+#endif
+		}
 		assert(is_jump(op_) || (jump_offset == 1));
 		instruction_index += jump_offset;
 	}
@@ -960,7 +1148,7 @@ void GnuPlot::EvaluateAt(at_type * pAt, GpValue * pVal)
 			return;
 		signal(SIGFPE, (sigfunc)fpe);
 	}
-	execute_at(pAt);
+	_ExecuteAt2(pAt);
 	if(!evaluate_inside_using || !df_nofpe_trap)
 		signal(SIGFPE, SIG_DFL);
 	if(oneof2(errno, EDOM, ERANGE))
@@ -1080,7 +1268,7 @@ void clear_udf_list()
 	first_udf = NULL;
 }
 
-static void update_plot_bounds();
+//static void update_plot_bounds();
 static void fill_gpval_axis(AXIS_INDEX axis);
 static void fill_gpval_sysinfo();
 
@@ -1145,37 +1333,39 @@ void fill_gpval_complex(const char * var, double areal, double aimag)
 	if(v)
 		Gcomplex(&v->udv_value, areal, aimag);
 }
-/*
- * Export axis bounds in terminal coordinates from previous plot.
- * This allows offline mapping of pixel coordinates onto plot coordinates.
- */
-static void update_plot_bounds(void)
+// 
+// Export axis bounds in terminal coordinates from previous plot.
+// This allows offline mapping of pixel coordinates onto plot coordinates.
+// 
+//static void update_plot_bounds()
+void GnuPlot::UpdatePlotBounds(termentry * pTerm)
 {
-	fill_gpval_integer("GPVAL_TERM_XMIN", static_cast<intgr_t>(GPO.AxS[FIRST_X_AXIS].term_lower / term->tscale));
-	fill_gpval_integer("GPVAL_TERM_XMAX", static_cast<intgr_t>(GPO.AxS[FIRST_X_AXIS].term_upper / term->tscale));
-	fill_gpval_integer("GPVAL_TERM_YMIN", static_cast<intgr_t>(GPO.AxS[FIRST_Y_AXIS].term_lower / term->tscale));
-	fill_gpval_integer("GPVAL_TERM_YMAX", static_cast<intgr_t>(GPO.AxS[FIRST_Y_AXIS].term_upper / term->tscale));
-	fill_gpval_integer("GPVAL_TERM_XSIZE", canvas.xright+1);
-	fill_gpval_integer("GPVAL_TERM_YSIZE", canvas.ytop+1);
-	fill_gpval_integer("GPVAL_TERM_SCALE", static_cast<intgr_t>(term->tscale));
+	fill_gpval_integer("GPVAL_TERM_XMIN", static_cast<intgr_t>(AxS[FIRST_X_AXIS].term_lower / pTerm->tscale));
+	fill_gpval_integer("GPVAL_TERM_XMAX", static_cast<intgr_t>(AxS[FIRST_X_AXIS].term_upper / pTerm->tscale));
+	fill_gpval_integer("GPVAL_TERM_YMIN", static_cast<intgr_t>(AxS[FIRST_Y_AXIS].term_lower / pTerm->tscale));
+	fill_gpval_integer("GPVAL_TERM_YMAX", static_cast<intgr_t>(AxS[FIRST_Y_AXIS].term_upper / pTerm->tscale));
+	fill_gpval_integer("GPVAL_TERM_XSIZE", V.BbCanvas.xright+1);
+	fill_gpval_integer("GPVAL_TERM_YSIZE", V.BbCanvas.ytop+1);
+	fill_gpval_integer("GPVAL_TERM_SCALE", static_cast<intgr_t>(pTerm->tscale));
 	// May be useful for debugging font problems 
-	fill_gpval_integer("GPVAL_TERM_HCHAR", term->h_char);
-	fill_gpval_integer("GPVAL_TERM_VCHAR", term->v_char);
+	fill_gpval_integer("GPVAL_TERM_HCHAR", pTerm->h_char);
+	fill_gpval_integer("GPVAL_TERM_VCHAR", pTerm->v_char);
 }
-/*
- * Put all the handling for GPVAL_* variables in this one routine.
- * We call it from one of several contexts:
- * 0: following a successful set/unset command
- * 1: following a successful plot/splot
- * 2: following an unsuccessful command (int_error)
- * 3: program entry
- * 4: explicit reset of error status
- * 5: directory changed
- * 6: X11 Window ID changed
- */
-void update_gpval_variables(int context)
+// 
+// Put all the handling for GPVAL_* variables in this one routine.
+// We call it from one of several contexts:
+// 0: following a successful set/unset command
+// 1: following a successful plot/splot
+// 2: following an unsuccessful command (int_error)
+// 3: program entry
+// 4: explicit reset of error status
+// 5: directory changed
+// 6: X11 Window ID changed
+// 
+//void update_gpval_variables(int context)
+void GnuPlot::UpdateGpvalVariables(int context)
 {
-	/* These values may change during a plot command due to auto range */
+	// These values may change during a plot command due to auto range 
 	if(context == 1) {
 		fill_gpval_axis(FIRST_X_AXIS);
 		fill_gpval_axis(FIRST_Y_AXIS);
@@ -1186,10 +1376,10 @@ void update_gpval_variables(int context)
 		fill_gpval_axis(T_AXIS);
 		fill_gpval_axis(U_AXIS);
 		fill_gpval_axis(V_AXIS);
-		fill_gpval_float("GPVAL_R_MIN", GPO.AxS.__R().min);
-		fill_gpval_float("GPVAL_R_MAX", GPO.AxS.__R().max);
-		fill_gpval_float("GPVAL_R_LOG", GPO.AxS.__R().base);
-		update_plot_bounds();
+		fill_gpval_float("GPVAL_R_MIN", AxS.__R().min);
+		fill_gpval_float("GPVAL_R_MAX", AxS.__R().max);
+		fill_gpval_float("GPVAL_R_LOG", AxS.__R().base);
+		UpdatePlotBounds(term);
 		fill_gpval_integer("GPVAL_PLOT", is_3d_plot ? 0 : 1);
 		fill_gpval_integer("GPVAL_SPLOT", is_3d_plot ? 1 : 0);
 		fill_gpval_integer("GPVAL_VIEW_MAP", splot_map ? 1 : 0);
@@ -1198,28 +1388,22 @@ void update_gpval_variables(int context)
 		fill_gpval_float("GPVAL_VIEW_SCALE", surface_scale);
 		fill_gpval_float("GPVAL_VIEW_ZSCALE", surface_zscale);
 		fill_gpval_float("GPVAL_VIEW_AZIMUTH", azimuth);
-
-		/* Screen coordinates of 3D rotational center and radius of the sphere */
-		/* in which x/y axes are drawn after 'set view equal xy[z]' */
-		fill_gpval_float("GPVAL_VIEW_XCENT",
-		    (double)(canvas.xright+1 - xmiddle)/(double)(canvas.xright+1));
-		fill_gpval_float("GPVAL_VIEW_YCENT",
-		    1.0 - (double)(canvas.ytop+1 - ymiddle)/(double)(canvas.ytop+1));
-		fill_gpval_float("GPVAL_VIEW_RADIUS",
-		    0.5 * surface_scale * xscaler/(double)(canvas.xright+1));
-
+		// Screen coordinates of 3D rotational center and radius of the sphere */
+		// in which x/y axes are drawn after 'set view equal xy[z]' */
+		fill_gpval_float("GPVAL_VIEW_XCENT", (double)(V.BbCanvas.xright+1 - xmiddle)/(double)(V.BbCanvas.xright+1));
+		fill_gpval_float("GPVAL_VIEW_YCENT", 1.0 - (double)(V.BbCanvas.ytop+1 - ymiddle)/(double)(V.BbCanvas.ytop+1));
+		fill_gpval_float("GPVAL_VIEW_RADIUS", 0.5 * surface_scale * xscaler/(double)(V.BbCanvas.xright+1));
 		return;
 	}
-
-	/* These are set after every "set" command, which is kind of silly */
-	/* because they only change after 'set term' 'set output' ...      */
-	if(context == 0 || context == 2 || context == 3) {
-		/* This prevents a segfault if term==NULL, which can */
-		/* happen if set_terminal() exits via GPO.IntError().   */
+	// These are set after every "set" command, which is kind of silly
+	// because they only change after 'set term' 'set output' ...
+	if(oneof3(context, 0, 2, 3)) {
+		// This prevents a segfault if term==NULL, which can 
+		// happen if set_terminal() exits via IntError().
 		if(!term)
 			fill_gpval_string("GPVAL_TERM", "unknown");
 		else
-			fill_gpval_string("GPVAL_TERM", (char*)(term->name));
+			fill_gpval_string("GPVAL_TERM", term->name);
 		fill_gpval_string("GPVAL_TERMOPTIONS", term_options);
 		fill_gpval_string("GPVAL_OUTPUT", (outstr) ? outstr : "");
 		fill_gpval_string("GPVAL_ENCODING", encoding_names[encoding]);
@@ -1227,10 +1411,10 @@ void update_gpval_variables(int context)
 		fill_gpval_string("GPVAL_MICRO", micro ? micro : "u");
 		fill_gpval_string("GPVAL_DEGREE_SIGN", degree_sign);
 	}
-	/* If we are called from GPO.IntError() then set the error state */
+	// If we are called from IntError() then set the error state 
 	if(context == 2)
 		fill_gpval_integer("GPVAL_ERRNO", 1);
-	/* These initializations need only be done once, on program entry */
+	// These initializations need only be done once, on program entry 
 	if(context == 3) {
 		struct udvt_entry * v = add_udv_by_name("GPVAL_VERSION");
 		char * tmp;
@@ -1242,7 +1426,7 @@ void update_gpval_variables(int context)
 		v = add_udv_by_name("GPVAL_COMPILE_OPTIONS");
 		if(v && v->udv_value.type == NOTDEFINED)
 			fill_gpval_string("GPVAL_COMPILE_OPTIONS", compile_options);
-		/* Start-up values */
+		// Start-up values 
 		fill_gpval_integer("GPVAL_MULTIPLOT", 0);
 		fill_gpval_integer("GPVAL_PLOT", 0);
 		fill_gpval_integer("GPVAL_SPLOT", 0);
@@ -1250,22 +1434,21 @@ void update_gpval_variables(int context)
 		fill_gpval_string("GPVAL_TERMINALS", tmp);
 		SAlloc::F(tmp);
 		fill_gpval_string("GPVAL_ENCODING", encoding_names[encoding]);
-		/* Permanent copy of user-clobberable variables pi and NaN */
+		// Permanent copy of user-clobberable variables pi and NaN 
 		fill_gpval_float("GPVAL_pi", M_PI);
 		fill_gpval_float("GPVAL_NaN", not_a_number());
 		fill_gpval_sysinfo(); // System information 
 	}
-	if(context == 3 || context == 4) {
+	if(oneof2(context, 3, 4)) {
 		fill_gpval_integer("GPVAL_ERRNO", 0);
 		fill_gpval_string("GPVAL_ERRMSG", "");
 		fill_gpval_integer("GPVAL_SYSTEM_ERRNO", 0);
 		fill_gpval_string("GPVAL_SYSTEM_ERRMSG", "");
 	}
-	/* GPVAL_PWD is unreliable.  If the current directory becomes invalid,
-	 * GPVAL_PWD does not reflect this.  If this matters, the user can
-	 * instead do something like    MY_PWD = "`pwd`"
-	 */
-	if(context == 3 || context == 5) {
+	// GPVAL_PWD is unreliable.  If the current directory becomes invalid,
+	// GPVAL_PWD does not reflect this.  If this matters, the user can
+	// instead do something like    MY_PWD = "`pwd`"
+	if(oneof2(context, 3, 5)) {
 		char * save_file = (char *)gp_alloc(PATH_MAX, "GPVAL_PWD");
 		int ierror = (GP_GETCWD(save_file, PATH_MAX) == NULL);
 		fill_gpval_string("GPVAL_PWD", ierror ? "" : save_file);
@@ -1275,8 +1458,9 @@ void update_gpval_variables(int context)
 		fill_gpval_integer("GPVAL_TERM_WINDOWID", current_x11_windowid);
 	}
 }
-
-/* System information is stored in GPVAL_BITS GPVAL_MACHINE GPVAL_SYSNAME */
+// 
+// System information is stored in GPVAL_BITS GPVAL_MACHINE GPVAL_SYSNAME 
+// 
 #ifdef HAVE_UNAME
 	#include <sys/utsname.h>
 #elif defined(_WIN32)
@@ -1320,12 +1504,13 @@ int gp_words(char * string)
 {
 	GpValue a;
 	GPO.EvStk.Push(Gstring(&a, string));
-	f_words((union argument *)NULL);
+	f_words(0);
 	GPO.EvStk.Pop(&a);
 	return a.v.int_val;
 }
-
-/* Callable wrapper for the word() internal function */
+// 
+// Callable wrapper for the word() internal function 
+// 
 char * gp_word(char * string, int i)
 {
 	GpValue a;

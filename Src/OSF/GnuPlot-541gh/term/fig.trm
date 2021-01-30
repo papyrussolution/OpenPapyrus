@@ -187,7 +187,7 @@ static int FIG_thickness = 1;
 static double FIG_linewidth_factor = 1.0;
 static double FIG_current_pointsize = 1.0;
 static double FIG_current_linewidth = 1.0;
-static size_units FIG_size_units = INCHES;
+static GpSizeUnits FIG_size_units = INCHES;
 
 /* Maximum number of points per POLYLINE. */
 static int FIG_poly_vec_max = 999;      /* JFS */
@@ -363,7 +363,7 @@ TERM_PUBLIC void FIG_options()
 			    break;
 			case FIG_SIZE:
 			    GPO.Pgm.Shift();
-			    FIG_size_units = parse_term_size(&xsize_t, &ysize_t, INCHES);
+			    FIG_size_units = GPO.ParseTermSize(&xsize_t, &ysize_t, INCHES);
 			    FIG_width = xsize_t * FIG_IRES/gp_resolution;
 			    FIG_height = ysize_t * FIG_IRES/gp_resolution;
 			    break;
@@ -1099,10 +1099,10 @@ TERM_PUBLIC void FIG_layer(t_termlayer syncpoint)
 		    fputs("6", gpoutfile);
 		    /* Bounding box?  Give it the entire plot area */
 		    fprintf(gpoutfile, " %d %d %d %d\n",
-			FIG_xoff + plot_bounds.xleft,
-			term->ymax + FIG_yoff - plot_bounds.ytop,
-			FIG_xoff + plot_bounds.xright,
-			term->ymax + FIG_yoff - plot_bounds.ybot);
+			FIG_xoff + GPO.V.BbPlot.xleft,
+			term->ymax + FIG_yoff - GPO.V.BbPlot.ytop,
+			FIG_xoff + GPO.V.BbPlot.xright,
+			term->ymax + FIG_yoff - GPO.V.BbPlot.ybot);
 		    fprintf(gpoutfile, "# Begin plot #%d\n", ++FIG_plotno);
 		    FIG_current_layer = LAYER_PLOT;
 		    FIG_linedepth = 700 - FIG_plotno;

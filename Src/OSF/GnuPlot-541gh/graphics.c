@@ -12,10 +12,10 @@
  * The retain_offsets flag is an interlock to prevent repeated application
  * of the offsets when a plot is refreshed or scrolled.
  */
-t_position loff = {first_axes, first_axes, first_axes, 0.0, 0.0, 0.0};
-t_position roff = {first_axes, first_axes, first_axes, 0.0, 0.0, 0.0};
-t_position toff = {first_axes, first_axes, first_axes, 0.0, 0.0, 0.0};
-t_position boff = {first_axes, first_axes, first_axes, 0.0, 0.0, 0.0};
+GpPosition loff = {first_axes, first_axes, first_axes, 0.0, 0.0, 0.0};
+GpPosition roff = {first_axes, first_axes, first_axes, 0.0, 0.0, 0.0};
+GpPosition toff = {first_axes, first_axes, first_axes, 0.0, 0.0, 0.0};
+GpPosition boff = {first_axes, first_axes, first_axes, 0.0, 0.0, 0.0};
 bool retain_offsets = FALSE;
 /* set bars */
 double bar_size = 1.0;
@@ -130,7 +130,7 @@ void GnuPlot::PlaceGrid(termentry * pTerm, int layer)
 	//struct termentry * t = term;
 	int save_lgrid = grid_lp.l_type;
 	int save_mgrid = mgrid_lp.l_type;
-	BoundingBox * clip_save = clip_area;
+	BoundingBox * clip_save = V.P_ClipArea;
 	term_apply_lp_properties(pTerm, &border_lp);   /* border linetype */
 	largest_polar_circle = 0;
 	// We used to go through this process only once, drawing both the grid lines
@@ -155,21 +155,21 @@ void GnuPlot::PlaceGrid(termentry * pTerm, int layer)
 	AxS.Idx_X = FIRST_X_AXIS;
 	AxS.Idx_Y = FIRST_Y_AXIS;
 	// Sep 2018: polar grid is clipped to x/y range limits 
-	clip_area = &plot_bounds;
+	V.P_ClipArea = &V.BbPlot;
 	// POLAR GRID circles 
-	if(GPO.AxS.__R().ticmode && (raxis || polar)) {
+	if(AxS.__R().ticmode && (raxis || polar)) {
 		// Piggyback on the xtick2d_callback.  Avoid a call to the full    
 		// axis_output_tics(), which wasn't really designed for this axis. 
 		tic_start = AxS.MapiY(0); /* Always equivalent to tics on theta=0 axis */
 		tic_mirror = tic_start; /* tic extends on both sides of theta=0 */
 		tic_text = tic_start - pTerm->v_char;
-		rotate_tics = GPO.AxS.__R().tic_rotate;
+		rotate_tics = AxS.__R().tic_rotate;
 		if(rotate_tics == 0)
 			tic_hjust = CENTRE;
 		else if((pTerm->text_angle)(rotate_tics))
 			tic_hjust = (rotate_tics == TEXT_VERTICAL) ? RIGHT : LEFT;
-		if(GPO.AxS.__R().manual_justify)
-			tic_hjust = GPO.AxS.__R().tic_pos;
+		if(AxS.__R().manual_justify)
+			tic_hjust = AxS.__R().tic_pos;
 		tic_direction = 1;
 		gen_tics(&AxS[POLAR_AXIS], xtick2d_callback);
 		(pTerm->text_angle)(0);
@@ -194,7 +194,7 @@ void GnuPlot::PlaceGrid(termentry * pTerm, int layer)
 	if(AxS.Theta().ticmode) {
 		term_apply_lp_properties(pTerm, &border_lp);
 		if(largest_polar_circle <= 0)
-			largest_polar_circle = PolarRadius(GPO.AxS.__R().max);
+			largest_polar_circle = PolarRadius(AxS.__R().max);
 		copy_or_invent_formatstring(&AxS.Theta());
 		gen_tics(&AxS.Theta(), ttick_callback);
 		pTerm->text_angle(0);
@@ -202,15 +202,15 @@ void GnuPlot::PlaceGrid(termentry * pTerm, int layer)
 	// Restore the grid line types if we had turned them off to draw labels only 
 	grid_lp.l_type = save_lgrid;
 	mgrid_lp.l_type = save_mgrid;
-	clip_area = clip_save;
+	V.P_ClipArea = clip_save;
 }
 
 static void place_arrows(int layer)
 {
-	struct arrow_def * this_arrow;
-	BoundingBox * clip_save = clip_area;
+	arrow_def * this_arrow;
+	BoundingBox * clip_save = GPO.V.P_ClipArea;
 	// Allow arrows to run off the plot, so long as they are still on the canvas 
-	clip_area = (term->flags & TERM_CAN_CLIP) ? NULL : &canvas;
+	GPO.V.P_ClipArea = (term->flags & TERM_CAN_CLIP) ? NULL : &GPO.V.BbCanvas;
 	for(this_arrow = first_arrow; this_arrow != NULL; this_arrow = this_arrow->next) {
 		double dsx = 0, dsy = 0, dex = 0, dey = 0;
 		if(this_arrow->arrow_properties.layer != layer)
@@ -223,7 +223,7 @@ static void place_arrows(int layer)
 		draw_clip_arrow(term, dsx, dsy, dex, dey, this_arrow->arrow_properties.head);
 	}
 	term_apply_lp_properties(term, &border_lp);
-	clip_area = clip_save;
+	GPO.V.P_ClipArea = clip_save;
 }
 // 
 // place_pixmaps() handles both 2D and 3D pixmaps
@@ -255,7 +255,7 @@ void place_pixmaps(int layer, int dimensions)
 			dy = static_cast<int>(pixmap->ncols * term->tscale);
 		}
 		else if(dimensions == 3) {
-			map3d_position_r(&pixmap->extent, &dx, &dy, "pixmap");
+			GPO.Map3DPositionR(&pixmap->extent, &dx, &dy, "pixmap");
 			if(pixmap->extent.scalex == first_axes)
 				dx = static_cast<int>(pixmap->extent.x * radius_scaler);
 			if(pixmap->extent.scaley == first_axes)
@@ -355,7 +355,7 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 		    {
 			    t_circle * e = &this_object->o.circle;
 			    double radius;
-			    BoundingBox * clip_save = clip_area;
+			    BoundingBox * clip_save = GPO.V.P_ClipArea;
 			    if(dimensions == 2) {
 				    GPO.MapPositionDouble(term, &e->center, &x1, &y1, "object");
 				    GPO.MapPositionR(term, &e->extent, &radius, NULL, "object");
@@ -363,7 +363,7 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 			    else if(splot_map) {
 				    int junkw, junkh;
 				    GPO.Map3DPositionDouble(&e->center, &x1, &y1, "object");
-				    map3d_position_r(&e->extent, &junkw, &junkh, "object");
+				    GPO.Map3DPositionR(&e->extent, &junkw, &junkh, "object");
 				    radius = junkw;
 			    }
 			    else { // General 3D splot 
@@ -382,20 +382,20 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 				    }
 			    }
 			    if((e->center.scalex == screen || e->center.scaley == screen) || (this_object->clip == OBJ_NOCLIP))
-				    clip_area = &canvas;
+				    GPO.V.P_ClipArea = &GPO.V.BbCanvas;
 			    do_arc((int)x1, (int)y1, radius, e->arc_begin, e->arc_end, style, FALSE);
 			    // Retrace the border if the style requests it 
 			    if(need_fill_border(fillstyle))
 				    do_arc((int)x1, (int)y1, radius, e->arc_begin, e->arc_end, 0, e->wedge);
-			    clip_area = clip_save;
+			    GPO.V.P_ClipArea = clip_save;
 			    break;
 		    }
 			case OBJ_ELLIPSE:
 		    {
 			    t_ellipse * e = &this_object->o.ellipse;
-			    BoundingBox * clip_save = clip_area;
+			    BoundingBox * clip_save = GPO.V.P_ClipArea;
 			    if((e->center.scalex == screen || e->center.scaley == screen) || (this_object->clip == OBJ_NOCLIP))
-				    clip_area = &canvas;
+				    GPO.V.P_ClipArea = &GPO.V.BbCanvas;
 			    if(dimensions == 2)
 				    do_ellipse(2, e, style, TRUE);
 			    else if(splot_map)
@@ -407,7 +407,7 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 			    if(need_fill_border(fillstyle))
 				    do_ellipse(dimensions, e, 0, TRUE);
 
-			    clip_area = clip_save;
+			    GPO.V.P_ClipArea = clip_save;
 			    break;
 		    }
 
@@ -541,9 +541,9 @@ void GnuPlot::DoPlot(termentry * pTerm, curve_points * plots, int pcount)
 	term_start_plot();
 	// Figure out if we need a colorbox for this plot 
 	set_plot_with_palette(0, MODE_PLOT); /* EAM FIXME - 1st parameter is a dummy */
-	// compute boundary for plot (plot_bounds.xleft, plot_bounds.xright, plot_bounds.ytop, plot_bounds.ybot)
-	// also calculates tics, since xtics depend on plot_bounds.xleft
-	// but plot_bounds.xleft depends on ytics. Boundary calculations depend
+	// compute boundary for plot (GPO.V.BbPlot.xleft, GPO.V.BbPlot.xright, GPO.V.BbPlot.ytop, GPO.V.BbPlot.ybot)
+	// also calculates tics, since xtics depend on GPO.V.BbPlot.xleft
+	// but GPO.V.BbPlot.xleft depends on ytics. Boundary calculations depend
 	// on term->v_char etc, so terminal must be initialised first.
 	Boundary(pTerm, plots, pcount);
 	// Make palette 
@@ -558,10 +558,10 @@ void GnuPlot::DoPlot(termentry * pTerm, curve_points * plots, int pcount)
 	if(oneof2(grid_layer, LAYER_BACK, LAYER_BEHIND))
 		PlaceGrid(pTerm, grid_layer);
 	// DRAW ZERO AXES and update axis->term_zero 
-	axis_draw_2d_zeroaxis(pTerm, FIRST_X_AXIS, FIRST_Y_AXIS);
-	axis_draw_2d_zeroaxis(pTerm, FIRST_Y_AXIS, FIRST_X_AXIS);
-	axis_draw_2d_zeroaxis(pTerm, SECOND_X_AXIS, SECOND_Y_AXIS);
-	axis_draw_2d_zeroaxis(pTerm, SECOND_Y_AXIS, SECOND_X_AXIS);
+	AxisDraw2DZeroAxis(pTerm, FIRST_X_AXIS, FIRST_Y_AXIS);
+	AxisDraw2DZeroAxis(pTerm, FIRST_Y_AXIS, FIRST_X_AXIS);
+	AxisDraw2DZeroAxis(pTerm, SECOND_X_AXIS, SECOND_Y_AXIS);
+	AxisDraw2DZeroAxis(pTerm, SECOND_Y_AXIS, SECOND_X_AXIS);
 	place_parallel_axes(pTerm, plots, LAYER_BACK); // DRAW VERTICAL AXES OF PARALLEL AXIS PLOTS 
 	place_spiderplot_axes(pTerm, plots, LAYER_BACK); // DRAW RADIAL AXES OF SPIDERPLOTS 
 	// DRAW PLOT BORDER 
@@ -577,7 +577,7 @@ void GnuPlot::DoPlot(termentry * pTerm, curve_points * plots, int pcount)
 	(pTerm->layer)(TERM_LAYER_FRONTTEXT); // Sync point for epslatex text positioning 
 	// Draw axis labels and timestamps 
 	// Note: As of Dec 2012 these are drawn as "front" text. 
-	draw_titles();
+	DrawTitles(pTerm);
 	// Draw the key, or at least reserve space for it (pass 1) 
 	if(key->visible)
 		draw_key(key, key_pass);
@@ -812,10 +812,10 @@ SECOND_KEY_PASS:
 	// DRAW ZERO AXES 
 	// redraw after grid so that axes linetypes are on top 
 	if(grid_layer == LAYER_FRONT) {
-		axis_draw_2d_zeroaxis(pTerm, FIRST_X_AXIS, FIRST_Y_AXIS);
-		axis_draw_2d_zeroaxis(pTerm, FIRST_Y_AXIS, FIRST_X_AXIS);
-		axis_draw_2d_zeroaxis(pTerm, SECOND_X_AXIS, SECOND_Y_AXIS);
-		axis_draw_2d_zeroaxis(pTerm, SECOND_Y_AXIS, SECOND_X_AXIS);
+		AxisDraw2DZeroAxis(pTerm, FIRST_X_AXIS, FIRST_Y_AXIS);
+		AxisDraw2DZeroAxis(pTerm, FIRST_Y_AXIS, FIRST_X_AXIS);
+		AxisDraw2DZeroAxis(pTerm, SECOND_X_AXIS, SECOND_Y_AXIS);
+		AxisDraw2DZeroAxis(pTerm, SECOND_Y_AXIS, SECOND_X_AXIS);
 	}
 	// DRAW VERTICAL AXES OF PARALLEL AXIS PLOTS 
 	if(parallel_axis_style.layer == LAYER_FRONT)
@@ -1066,7 +1066,7 @@ static void finish_filled_curve(int points, gpiPoint * corners, curve_points * p
 			return;
 		// EAM Apr 2013 - Use new polygon clipping code 
 		clipcorners = (gpiPoint *)gp_realloc(clipcorners, 2*points*sizeof(gpiPoint), "filledcurve verticess");
-		clip_polygon(corners, clipcorners, points, &clippoints);
+		GPO.V.ClipPolygon(corners, clipcorners, points, &clippoints);
 		clipcorners->style = style_from_fill(&plot->fill_properties);
 		if(clippoints > 0)
 			term->filled_polygon(clippoints, clipcorners);
@@ -1491,12 +1491,12 @@ void GnuPlot::PlotBars(termentry * pTerm, curve_points * plot)
 				/* Calculate width also */
 				halfwidth = (plot->points[i].xhigh - plot->points[i].xlow) / (2.0 * clustersize);
 			}
-			if(!inrange(x, GPO.AxS.__X().min, GPO.AxS.__X().max))
+			if(!inrange(x, AxS.__X().min, AxS.__X().max))
 				continue;
 			xM = AxS.MapiX(x);
 			// check to see if in yrange 
 			y = plot->points[i].y;
-			if(!inrange(y, GPO.AxS.__Y().min, GPO.AxS.__Y().max))
+			if(!inrange(y, AxS.__Y().min, AxS.__Y().max))
 				continue;
 			yM = AxS.MapiY(y);
 			// find low and high points of bar, and check yrange 
@@ -1506,7 +1506,7 @@ void GnuPlot::PlotBars(termentry * pTerm, curve_points * plot)
 			ylowM  = AxS.MapiY(ylow);
 			// This can happen if the y errorbar on a log-scaled Y goes negative 
 			if(plot->points[i].ylow == -VERYLARGE)
-				ylowM = AxS.MapiY(MIN(GPO.AxS.__Y().min, GPO.AxS.__Y().max));
+				ylowM = AxS.MapiY(MIN(AxS.__Y().min, AxS.__Y().max));
 			// find low and high points of bar, and check xrange 
 			xhigh = plot->points[i].xhigh;
 			xlow  = plot->points[i].xlow;
@@ -1561,7 +1561,7 @@ void GnuPlot::PlotBars(termentry * pTerm, curve_points * plot)
 					int y1 = static_cast<int>(ylowM + (bar_size * tic * cos(slope)));
 					int y2 = static_cast<int>(ylowM - (bar_size * tic * cos(slope)));
 					// draw the bottom tic 
-					if(!clip_point(xlowM, ylowM)) {
+					if(!V.ClipPoint(xlowM, ylowM)) {
 						(pTerm->move)(x1, y1);
 						(pTerm->vector)(x2, y2);
 					}
@@ -1570,7 +1570,7 @@ void GnuPlot::PlotBars(termentry * pTerm, curve_points * plot)
 					y1 += yhighM - ylowM;
 					y2 += yhighM - ylowM;
 					// draw the top tic 
-					if(!clip_point(xhighM, yhighM)) {
+					if(!V.ClipPoint(xhighM, yhighM)) {
 						(pTerm->move)(x1, y1);
 						(pTerm->vector)(x2, y2);
 					}
@@ -1586,7 +1586,7 @@ void GnuPlot::PlotBars(termentry * pTerm, curve_points * plot)
 				continue;
 			// check to see if in yrange 
 			y = plot->points[i].y;
-			if(!inrange(y, GPO.AxS.__Y().min, GPO.AxS.__Y().max))
+			if(!inrange(y, AxS.__Y().min, AxS.__Y().max))
 				continue;
 			yM = AxS.MapiY(y);
 			// find low and high points of bar, and check xrange 
@@ -1596,7 +1596,7 @@ void GnuPlot::PlotBars(termentry * pTerm, curve_points * plot)
 			xlowM = AxS.MapiX(xlow);
 			/* This can happen if the x errorbar on a log-scaled X goes negative */
 			if(plot->points[i].xlow == -VERYLARGE)
-				xlowM = AxS.MapiX(MIN(GPO.AxS.__X().min, GPO.AxS.__X().max));
+				xlowM = AxS.MapiX(MIN(AxS.__X().min, AxS.__X().max));
 			// Check for variable color - June 2010 
 			check_for_variable_color(plot, &plot->varcolor[i]);
 			// Error bars can now have their own line style 
@@ -1697,7 +1697,7 @@ void GnuPlot::PlotBoxes(termentry * pTerm, curve_points * plot, int xaxis_y)
 			    }
 			    if(plot->plot_style == BOXXYERROR) {
 				    dyb = plot->points[i].ylow;
-				    cliptorange(dyb, GPO.AxS.__Y().min, GPO.AxS.__Y().max);
+				    cliptorange(dyb, AxS.__Y().min, AxS.__Y().max);
 				    xaxis_y = AxS.MapiY(dyb);
 				    dyt = plot->points[i].yhigh;
 			    }
@@ -1758,10 +1758,10 @@ void GnuPlot::PlotBoxes(termentry * pTerm, curve_points * plot, int xaxis_y)
 							dyt += stackheight[stack].ylow;
 							stackheight[stack].ylow += plot->points[i].y;
 						}
-						if((GPO.AxS.__Y().min < GPO.AxS.__Y().max && dyb < GPO.AxS.__Y().min) || (GPO.AxS.__Y().max < GPO.AxS.__Y().min && dyb > GPO.AxS.__Y().min))
-							dyb = GPO.AxS.__Y().min;
-						if((GPO.AxS.__Y().min < GPO.AxS.__Y().max && dyb > GPO.AxS.__Y().max) || (GPO.AxS.__Y().max < GPO.AxS.__Y().min && dyb < GPO.AxS.__Y().max))
-							dyb = GPO.AxS.__Y().max;
+						if((AxS.__Y().min < AxS.__Y().max && dyb < AxS.__Y().min) || (AxS.__Y().max < AxS.__Y().min && dyb > AxS.__Y().min))
+							dyb = AxS.__Y().min;
+						if((AxS.__Y().min < AxS.__Y().max && dyb > AxS.__Y().max) || (AxS.__Y().max < AxS.__Y().min && dyb < AxS.__Y().max))
+							dyb = AxS.__Y().max;
 						break;
 					    case HT_CLUSTERED:
 					    case HT_ERRORBARS:
@@ -1769,18 +1769,18 @@ void GnuPlot::PlotBoxes(termentry * pTerm, curve_points * plot, int xaxis_y)
 				    }
 			    }
 			    // clip to border 
-			    cliptorange(dyt, GPO.AxS.__Y().min, GPO.AxS.__Y().max);
-			    cliptorange(dxr, GPO.AxS.__X().min, GPO.AxS.__X().max);
-			    cliptorange(dxl, GPO.AxS.__X().min, GPO.AxS.__X().max);
+			    cliptorange(dyt, AxS.__Y().min, AxS.__Y().max);
+			    cliptorange(dxr, AxS.__X().min, AxS.__X().max);
+			    cliptorange(dxl, AxS.__X().min, AxS.__X().max);
 			    // Entire box is out of range on x 
-			    if(dxr == dxl && (dxr == GPO.AxS.__X().min || dxr == GPO.AxS.__X().max))
+			    if(dxr == dxl && (dxr == AxS.__X().min || dxr == AxS.__X().max))
 				    break;
 			    xl = AxS.MapiX(dxl);
 			    xr = AxS.MapiX(dxr);
 			    yt = AxS.MapiY(dyt);
 			    yb = xaxis_y;
 			    // Entire box is out of range on y 
-			    if(yb == yt && (dyt == GPO.AxS.__Y().min || dyt == GPO.AxS.__Y().max))
+			    if(yb == yt && (dyt == AxS.__Y().min || dyt == AxS.__Y().max))
 				    break;
 			    if(plot->plot_style == HISTOGRAMS && (histogram_opts.type == HT_STACKED_IN_LAYERS || histogram_opts.type == HT_STACKED_IN_TOWERS))
 				    yb = AxS.MapiY(dyb);
@@ -1909,7 +1909,7 @@ void GnuPlot::PlotPoints(termentry * pTerm, curve_points * plot)
 				}
 			}
 			// do clipping if necessary 
-			if(!clip_points || (x >= plot_bounds.xleft + p_width && y >= plot_bounds.ybot + p_height && x <= plot_bounds.xright - p_width && y <= plot_bounds.ytop - p_height)) {
+			if(!clip_points || (x >= V.BbPlot.xleft + p_width && y >= V.BbPlot.ybot + p_height && x <= V.BbPlot.xright - p_width && y <= V.BbPlot.ytop - p_height)) {
 				if(oneof2(plot->plot_style, POINTSTYLE, LINESPOINTS) &&  plot->lp_properties.p_size == PTSZ_VARIABLE)
 					(pTerm->pointsize)(pointsize * plot->points[i].CRD_PTSIZE);
 				// Feb 2016: variable point type 
@@ -1973,9 +1973,9 @@ static void plot_circles(curve_points * plot)
 	fill_style_type * fillstyle = &plot->fill_properties;
 	int style = style_from_fill(fillstyle);
 	bool withborder = FALSE;
-	BoundingBox * clip_save = clip_area;
+	BoundingBox * clip_save = GPO.V.P_ClipArea;
 	if(default_circle.clip == OBJ_NOCLIP)
-		clip_area = &canvas;
+		GPO.V.P_ClipArea = &GPO.V.BbCanvas;
 	if(fillstyle->border_color.type != TC_LT || fillstyle->border_color.lt != LT_NODRAW)
 		withborder = TRUE;
 	for(i = 0; i < plot->p_count; i++) {
@@ -1999,7 +1999,7 @@ static void plot_circles(curve_points * plot)
 			}
 		}
 	}
-	clip_area = clip_save;
+	GPO.V.P_ClipArea = clip_save;
 }
 // 
 // plot_ellipses:
@@ -2013,9 +2013,9 @@ static void plot_ellipses(curve_points * plot)
 	fill_style_type * fillstyle = &plot->fill_properties;
 	int style = style_from_fill(fillstyle);
 	bool withborder = FALSE;
-	BoundingBox * clip_save = clip_area;
+	BoundingBox * clip_save = GPO.V.P_ClipArea;
 	if(default_ellipse.clip == OBJ_NOCLIP)
-		clip_area = &canvas;
+		GPO.V.P_ClipArea = &GPO.V.BbCanvas;
 	if(fillstyle->border_color.type != TC_LT || fillstyle->border_color.lt != LT_NODRAW)
 		withborder = TRUE;
 	e->extent.scalex = (plot->AxIdx_X == SECOND_X_AXIS) ? second_axes : first_axes;
@@ -2073,7 +2073,7 @@ static void plot_ellipses(curve_points * plot)
 		}
 	}
 	SAlloc::F(e);
-	clip_area = clip_save;
+	GPO.V.P_ClipArea = clip_save;
 }
 //
 // plot_dots:
@@ -2102,13 +2102,13 @@ static void plot_dots(termentry * pTerm, curve_points * plot)
 //static void plot_vectors(termentry * pTerm, curve_points * plot)
 void GnuPlot::PlotVectors(termentry * pTerm, curve_points * plot)
 {
-	BoundingBox * clip_save = clip_area;
+	BoundingBox * clip_save = GPO.V.P_ClipArea;
 	// Normally this is only necessary once because all arrows equal 
 	arrow_style_type ap = plot->arrow_properties;
 	term_apply_lp_properties(pTerm, &ap.lp_properties);
 	apply_head_properties(&ap);
 	// Clip to plot 
-	clip_area = &plot_bounds;
+	GPO.V.P_ClipArea = &GPO.V.BbPlot;
 	for(int i = 0; i < plot->p_count; i++) {
 		double x0, y0, x1, y1;
 		struct coordinate * tail = &(plot->points[i]);
@@ -2133,7 +2133,7 @@ void GnuPlot::PlotVectors(termentry * pTerm, curve_points * plot)
 					length = AxS.MapX(tail->x + tail->xhigh) - x0;
 				else {
 					// -1 < length < 0 indicates graph coordinates 
-					length = tail->xhigh * (plot_bounds.xright - plot_bounds.xleft);
+					length = tail->xhigh * (GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft);
 					length = fabs(length);
 				}
 				x1 = x0 + cos(angle) * length;
@@ -2152,7 +2152,7 @@ void GnuPlot::PlotVectors(termentry * pTerm, curve_points * plot)
 			draw_clip_arrow(pTerm, x0, y0, x1, y1, ap.head);
 		}
 	}
-	clip_area = clip_save;
+	GPO.V.P_ClipArea = clip_save;
 }
 // 
 // plot_f_bars:
@@ -2489,7 +2489,7 @@ static void plot_spiderplot(curve_points * plot)
 	curve_points * thisplot;
 	static gpiPoint * corners = NULL;
 	static gpiPoint * clpcorn = NULL;
-	BoundingBox * clip_save = clip_area;
+	BoundingBox * clip_save = GPO.V.P_ClipArea;
 	int n_spokes = 0;
 	/* The parallel axis data is stored in successive plot structures.
 	 * We will draw it all at once when we see the first one and ignore the rest.
@@ -2516,10 +2516,10 @@ static void plot_spiderplot(curve_points * plot)
 	}
 	if(n_spokes < 3)
 		GPO.IntError(NO_CARET, "at least 3 axes are needed for a spiderplot");
-	/* Allocate data structures for one polygon */
+	// Allocate data structures for one polygon 
 	corners = (gpiPoint *)gp_realloc(corners, (n_spokes+1) * sizeof(gpiPoint), "polygon");
 	clpcorn = (gpiPoint *)gp_realloc(clpcorn, (2*n_spokes+1) * sizeof(gpiPoint), "polygon");
-	clip_area = &canvas;
+	GPO.V.P_ClipArea = &GPO.V.BbCanvas;
 	/*
 	 * Each row of data (NB: *not* each column) describes a vertex of a polygon.
 	 * There is one vertex for each comma-separated clause within the overall 2D
@@ -2589,7 +2589,7 @@ static void plot_spiderplot(curve_points * plot)
 		}
 		corners[n_spokes].x = corners[0].x;
 		corners[n_spokes].y = corners[0].y;
-		clip_polygon(corners, clpcorn, n_spokes, &out_length);
+		GPO.V.ClipPolygon(corners, clpcorn, n_spokes, &out_length);
 		clpcorn[0].style = style_from_fill(&plot->fill_properties);
 		// rgb variable  -  color read from data column 
 		if(!check_for_variable_color(plot, &plot->varcolor[i]) && plot->lp_properties.pm3d_color.type == TC_DEFAULT) {
@@ -2615,7 +2615,7 @@ static void plot_spiderplot(curve_points * plot)
 				term->point(corners[j].x, corners[j].y, p_type);
 		}
 	} /* End of loop over rows, each a separate polygon */
-	clip_area = clip_save;
+	GPO.V.P_ClipArea = clip_save;
 }
 /*
  * Plot the curves in BOXPLOT style
@@ -2731,10 +2731,7 @@ static void plot_boxplot(curve_points * plot, bool only_autoscale)
 			quartile3 = 0.5 * (subset_points[N - N/4].y + subset_points[N - N/4 - 1].y);
 		else
 			quartile3 = subset_points[N - (N+3)/4].y;
-
-		FPRINTF((stderr, "Boxplot: quartile boundaries for %d points: %g %g %g\n",
-		    N, quartile1, median, quartile3));
-
+		FPRINTF((stderr, "Boxplot: quartile boundaries for %d points: %g %g %g\n", N, quartile1, median, quartile3));
 		/* Set the whisker limits based on the user-defined style */
 		if(boxplot_opts.limit_type == 0) {
 			/* Fraction of interquartile range */
@@ -2829,7 +2826,7 @@ outliers:
 				x = GPO.AxS.MapiX(candle.x);
 				y = GPO.AxS.MapiY(subset_points[i].y);
 				/* previous INRANGE/OUTRANGE no longer valid */
-				if(x < plot_bounds.xleft + p_width ||  y < plot_bounds.ybot + p_height ||  x > plot_bounds.xright - p_width ||  y > plot_bounds.ytop - p_height)
+				if(x < GPO.V.BbPlot.xleft + p_width ||  y < GPO.V.BbPlot.ybot + p_height ||  x > GPO.V.BbPlot.xright - p_width ||  y > GPO.V.BbPlot.ytop - p_height)
 					continue;
 				/* Separate any duplicate outliers */
 				for(j = 1; (i >= j) && (subset_points[i].y == subset_points[i-j].y); j++)
@@ -2871,26 +2868,26 @@ static void xtick2d_callback(GpAxis * this_axis, double place, char * text, int 
 		}
 		else {
 			legend_key * key = &keyT;
-			if(key->visible && x < key->bounds.xright && x > key->bounds.xleft && key->bounds.ytop > plot_bounds.ybot && key->bounds.ybot < plot_bounds.ytop) {
-				if(key->bounds.ybot > plot_bounds.ybot) {
-					(*t->move)(x, plot_bounds.ybot);
+			if(key->visible && x < key->bounds.xright && x > key->bounds.xleft && key->bounds.ytop > GPO.V.BbPlot.ybot && key->bounds.ybot < GPO.V.BbPlot.ytop) {
+				if(key->bounds.ybot > GPO.V.BbPlot.ybot) {
+					(*t->move)(x, GPO.V.BbPlot.ybot);
 					(*t->vector)(x, key->bounds.ybot);
 				}
-				if(key->bounds.ytop < plot_bounds.ytop) {
+				if(key->bounds.ytop < GPO.V.BbPlot.ytop) {
 					(*t->move)(x, key->bounds.ytop);
-					(*t->vector)(x, plot_bounds.ytop);
+					(*t->vector)(x, GPO.V.BbPlot.ytop);
 				}
 			}
 			else {
-				(*t->move)(x, plot_bounds.ybot);
-				(*t->vector)(x, plot_bounds.ytop);
+				(*t->move)(x, GPO.V.BbPlot.ybot);
+				(*t->vector)(x, GPO.V.BbPlot.ytop);
 			}
 		}
 		term_apply_lp_properties(t, &border_lp); // border linetype 
 		(t->layer)(TERM_LAYER_END_GRID);
 	} /* End of grid code */
 	// we precomputed tic posn and text posn in global vars 
-	if(x < clip_area->xleft || x > clip_area->xright)
+	if(x < GPO.V.P_ClipArea->xleft || x > GPO.V.P_ClipArea->xright)
 		return;
 	(*t->move)(x, tic_start);
 	(*t->vector)(x, tic_start + ticsize);
@@ -2942,19 +2939,19 @@ static void ytick2d_callback(GpAxis * this_axis, double place, char * text, int 
 		(t->layer)(TERM_LAYER_BEGIN_GRID);
 		term_apply_lp_properties(t, &grid);
 		// Make the grid avoid the key box 
-		if(key->visible && y < key->bounds.ytop && y > key->bounds.ybot &&  key->bounds.xleft < plot_bounds.xright && key->bounds.xright > plot_bounds.xleft) {
-			if(key->bounds.xleft > plot_bounds.xleft) {
-				(*t->move)(plot_bounds.xleft, y);
+		if(key->visible && y < key->bounds.ytop && y > key->bounds.ybot &&  key->bounds.xleft < GPO.V.BbPlot.xright && key->bounds.xright > GPO.V.BbPlot.xleft) {
+			if(key->bounds.xleft > GPO.V.BbPlot.xleft) {
+				(*t->move)(GPO.V.BbPlot.xleft, y);
 				(*t->vector)(key->bounds.xleft, y);
 			}
-			if(key->bounds.xright < plot_bounds.xright) {
+			if(key->bounds.xright < GPO.V.BbPlot.xright) {
 				(*t->move)(key->bounds.xright, y);
-				(*t->vector)(plot_bounds.xright, y);
+				(*t->vector)(GPO.V.BbPlot.xright, y);
 			}
 		}
 		else {
-			(*t->move)(plot_bounds.xleft, y);
-			(*t->vector)(plot_bounds.xright, y);
+			(*t->move)(GPO.V.BbPlot.xleft, y);
+			(*t->vector)(GPO.V.BbPlot.xright, y);
 		}
 		term_apply_lp_properties(t, &border_lp); /* border linetype */
 		(t->layer)(TERM_LAYER_END_GRID);
@@ -3016,7 +3013,7 @@ static void ttick_callback(GpAxis * this_axis, double place, char * text, int ti
 		yu = GPO.AxS.MapiY( (1.-delta) * sin_t);
 	}
 	draw_clip_line(term, xl, yl, xu, yu);
-	if(text && !clip_point(xu, yu)) {
+	if(text && !GPO.V.ClipPoint(xu, yu)) {
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
 			apply_pm3dcolor(term, &(this_axis->ticdef.textcolor));
 		// The only rotation angle that makes sense is the angle being labeled 
@@ -3061,7 +3058,7 @@ void GnuPlot::MapPositionDouble(const termentry * pTerm, GpPosition * pos, doubl
 	    }
 		case graph:
 	    {
-		    *x = plot_bounds.xleft + pos->x * (plot_bounds.xright - plot_bounds.xleft);
+		    *x = GPO.V.BbPlot.xleft + pos->x * (GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft);
 		    break;
 	    }
 		case screen:
@@ -3097,7 +3094,7 @@ void GnuPlot::MapPositionDouble(const termentry * pTerm, GpPosition * pos, doubl
 		    break;
 	    }
 		case graph:
-		    *y = plot_bounds.ybot + pos->y * (plot_bounds.ytop - plot_bounds.ybot);
+		    *y = GPO.V.BbPlot.ybot + pos->y * (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot);
 		    break;
 		case screen:
 		    *y = pos->y * (pTerm->ymax -1);
@@ -3136,7 +3133,7 @@ void GnuPlot::MapPositionR(const termentry * pTerm, GpPosition * pos, double * x
 			    break;
 		    }
 			case graph:
-			    *x = pos->x * (plot_bounds.xright - plot_bounds.xleft);
+			    *x = pos->x * (GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft);
 			    break;
 			case screen:
 			    *x = pos->x * (pTerm->xmax - 1);
@@ -3168,7 +3165,7 @@ void GnuPlot::MapPositionR(const termentry * pTerm, GpPosition * pos, double * x
 					return;
 				}
 				case graph:
-					*y = pos->y * (plot_bounds.ytop - plot_bounds.ybot);
+					*y = pos->y * (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot);
 					return;
 				case screen:
 					*y = pos->y * (pTerm->ymax -1);
@@ -3195,77 +3192,77 @@ void GnuPlot::PlotBorder(termentry * pTerm)
 	if(border_complete)
 		newpath(pTerm);
 	// Trace border anticlockwise from upper left 
-	(pTerm->move)(plot_bounds.xleft, plot_bounds.ytop);
+	(pTerm->move)(V.BbPlot.xleft, V.BbPlot.ytop);
 	if(border_west && AxS[FIRST_Y_AXIS].ticdef.rangelimited) {
 		AxS.Idx_Y = FIRST_Y_AXIS;
 		max = AxS.MapiY(AxS[FIRST_Y_AXIS].data_max);
 		min = AxS.MapiY(AxS[FIRST_Y_AXIS].data_min);
-		(pTerm->move)(plot_bounds.xleft, max);
-		(pTerm->vector)(plot_bounds.xleft, min);
-		(pTerm->move)(plot_bounds.xleft, plot_bounds.ybot);
+		(pTerm->move)(V.BbPlot.xleft, max);
+		(pTerm->vector)(V.BbPlot.xleft, min);
+		(pTerm->move)(V.BbPlot.xleft, V.BbPlot.ybot);
 	}
 	else if(border_west) {
-		(pTerm->vector)(plot_bounds.xleft, plot_bounds.ybot);
+		(pTerm->vector)(V.BbPlot.xleft, V.BbPlot.ybot);
 	}
 	else {
-		(pTerm->move)(plot_bounds.xleft, plot_bounds.ybot);
+		(pTerm->move)(V.BbPlot.xleft, V.BbPlot.ybot);
 	}
 	if(border_south && AxS[FIRST_X_AXIS].ticdef.rangelimited) {
 		AxS.Idx_X = FIRST_X_AXIS;
 		max = AxS.MapiX(AxS[FIRST_X_AXIS].data_max);
 		min = AxS.MapiX(AxS[FIRST_X_AXIS].data_min);
-		(pTerm->move)(min, plot_bounds.ybot);
-		(pTerm->vector)(max, plot_bounds.ybot);
-		(pTerm->move)(plot_bounds.xright, plot_bounds.ybot);
+		(pTerm->move)(min, V.BbPlot.ybot);
+		(pTerm->vector)(max, V.BbPlot.ybot);
+		(pTerm->move)(V.BbPlot.xright, V.BbPlot.ybot);
 	}
 	else if(border_south) {
-		(pTerm->vector)(plot_bounds.xright, plot_bounds.ybot);
+		(pTerm->vector)(V.BbPlot.xright, V.BbPlot.ybot);
 	}
 	else {
-		(pTerm->move)(plot_bounds.xright, plot_bounds.ybot);
+		(pTerm->move)(V.BbPlot.xright, V.BbPlot.ybot);
 	}
 	if(border_east && AxS[SECOND_Y_AXIS].ticdef.rangelimited) {
 		AxS.Idx_Y = SECOND_Y_AXIS;
 		max = AxS.MapiY(AxS[SECOND_Y_AXIS].data_max);
 		min = AxS.MapiY(AxS[SECOND_Y_AXIS].data_min);
-		(pTerm->move)(plot_bounds.xright, min);
-		(pTerm->vector)(plot_bounds.xright, max);
-		(pTerm->move)(plot_bounds.xright, plot_bounds.ytop);
+		(pTerm->move)(V.BbPlot.xright, min);
+		(pTerm->vector)(V.BbPlot.xright, max);
+		(pTerm->move)(V.BbPlot.xright, V.BbPlot.ytop);
 	}
 	else if(border_east) {
-		(pTerm->vector)(plot_bounds.xright, plot_bounds.ytop);
+		(pTerm->vector)(V.BbPlot.xright, V.BbPlot.ytop);
 	}
 	else {
-		(pTerm->move)(plot_bounds.xright, plot_bounds.ytop);
+		(pTerm->move)(V.BbPlot.xright, V.BbPlot.ytop);
 	}
 	if(border_north && AxS[SECOND_X_AXIS].ticdef.rangelimited) {
 		AxS.Idx_X = SECOND_X_AXIS;
 		max = AxS.MapiX(AxS[SECOND_X_AXIS].data_max);
 		min = AxS.MapiX(AxS[SECOND_X_AXIS].data_min);
-		(pTerm->move)(max, plot_bounds.ytop);
-		(pTerm->vector)(min, plot_bounds.ytop);
-		(pTerm->move)(plot_bounds.xright, plot_bounds.ytop);
+		(pTerm->move)(max, V.BbPlot.ytop);
+		(pTerm->vector)(min, V.BbPlot.ytop);
+		(pTerm->move)(V.BbPlot.xright, V.BbPlot.ytop);
 	}
 	else if(border_north) {
-		(pTerm->vector)(plot_bounds.xleft, plot_bounds.ytop);
+		(pTerm->vector)(V.BbPlot.xleft, V.BbPlot.ytop);
 	}
 	else {
-		(pTerm->move)(plot_bounds.xleft, plot_bounds.ytop);
+		(pTerm->move)(V.BbPlot.xleft, V.BbPlot.ytop);
 	}
 	if(border_complete)
 		closepath(pTerm);
 	// Polar border.  FIXME: Should this be limited to known AxS.__R().max? 
 	if((draw_border & 0x1000) != 0) {
 		lp_style_type polar_border = border_lp;
-		BoundingBox * clip_save = clip_area;
-		clip_area = &plot_bounds;
+		BoundingBox * clip_save = V.P_ClipArea;
+		V.P_ClipArea = &V.BbPlot;
 		// Full-width circular border is visually too heavy compared to the edges 
 		polar_border.l_width = polar_border.l_width / 2.;
 		term_apply_lp_properties(pTerm, &polar_border);
 		if(largest_polar_circle <= 0)
 			largest_polar_circle = PolarRadius(AxS.__R().max);
 		draw_polar_circle(largest_polar_circle);
-		clip_area = clip_save;
+		V.P_ClipArea = clip_save;
 	}
 	(pTerm->layer)(TERM_LAYER_END_BORDER);
 }
@@ -3361,8 +3358,8 @@ static void place_parallel_axes(termentry * pTerm, curve_points * first_plot, in
 			axes_in_use = plot->AxIdx_P;
 			this_axis = &GPO.AxS.Parallel(plot->AxIdx_P - 1);
 			axis_invert_if_requested(this_axis);
-			this_axis->term_lower = plot_bounds.ybot;
-			this_axis->term_scale = (plot_bounds.ytop - plot_bounds.ybot) / (this_axis->max - this_axis->min);
+			this_axis->term_lower = GPO.V.BbPlot.ybot;
+			this_axis->term_scale = (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / (this_axis->max - this_axis->min);
 			setup_tics(this_axis, 20);
 		}
 	}
@@ -3479,7 +3476,7 @@ void do_rectangle(int dimensions, t_object * this_object, const fill_style_type 
 		else if(splot_map || xz_projection || yz_projection) {
 			int junkw, junkh;
 			GPO.Map3DPositionDouble(&this_rect->center, &x1, &y1, "rect");
-			map3d_position_r(&this_rect->extent, &junkw, &junkh, "rect");
+			GPO.Map3DPositionR(&this_rect->extent, &junkw, &junkh, "rect");
 			width = abs(junkw);
 			height = abs(junkh);
 		}
@@ -3525,18 +3522,18 @@ void do_rectangle(int dimensions, t_object * this_object, const fill_style_type 
 	// FIXME - Should there be a generic clip_rectangle() routine?
 	// Clip to the graph boundaries, but only if the rectangle
 	// itself was specified in plot coords.
-	if(clip_area) {
-		BoundingBox * clip_save = clip_area;
-		clip_area = &plot_bounds;
+	if(GPO.V.P_ClipArea) {
+		BoundingBox * clip_save = GPO.V.P_ClipArea;
+		GPO.V.P_ClipArea = &GPO.V.BbPlot;
 		if(clip_x) {
-			cliptorange(x1, clip_area->xleft, clip_area->xright);
-			cliptorange(x2, clip_area->xleft, clip_area->xright);
+			cliptorange(x1, GPO.V.P_ClipArea->xleft, GPO.V.P_ClipArea->xright);
+			cliptorange(x2, GPO.V.P_ClipArea->xleft, GPO.V.P_ClipArea->xright);
 		}
 		if(clip_y) {
-			cliptorange(y1, clip_area->ybot, clip_area->ytop);
-			cliptorange(y2, clip_area->ybot, clip_area->ytop);
+			cliptorange(y1, GPO.V.P_ClipArea->ybot, GPO.V.P_ClipArea->ytop);
+			cliptorange(y2, GPO.V.P_ClipArea->ybot, GPO.V.P_ClipArea->ytop);
 		}
-		clip_area = clip_save;
+		GPO.V.P_ClipArea = clip_save;
 	}
 	w = x2 - x1;
 	h = y2 - y1;
@@ -3625,22 +3622,22 @@ void do_ellipse(int dimensions, t_ellipse * e, int style, bool do_own_mapping)
 		else {
 			switch(e->type) {
 				case ELLIPSEAXES_XY:
-				    map3d_position_r(&pos, &junkw, &junkh, "ellipse");
+				    GPO.Map3DPositionR(&pos, &junkw, &junkh, "ellipse");
 				    xoff = junkw;
 				    yoff = junkh;
 				    break;
 				case ELLIPSEAXES_XX:
-				    map3d_position_r(&pos, &junkw, &junkh, "ellipse");
+				    GPO.Map3DPositionR(&pos, &junkw, &junkh, "ellipse");
 				    xoff = junkw;
 				    pos.x = pos.y;
-				    map3d_position_r(&pos, &junkh, &junkw, "ellipse");
+				    GPO.Map3DPositionR(&pos, &junkh, &junkw, "ellipse");
 				    yoff = junkh;
 				    break;
 				case ELLIPSEAXES_YY:
-				    map3d_position_r(&pos, &junkw, &junkh, "ellipse");
+				    GPO.Map3DPositionR(&pos, &junkw, &junkh, "ellipse");
 				    yoff = junkh;
 				    pos.y = pos.x;
-				    map3d_position_r(&pos, &junkh, &junkw, "ellipse");
+				    GPO.Map3DPositionR(&pos, &junkh, &junkw, "ellipse");
 				    xoff = junkw;
 				    break;
 			}
@@ -3654,7 +3651,7 @@ void do_ellipse(int dimensions, t_ellipse * e, int style, bool do_own_mapping)
 	if(style) {
 		// Fill in the center 
 		gpiPoint fillarea[120];
-		clip_polygon(vertex, fillarea, segments, &in);
+		GPO.V.ClipPolygon(vertex, fillarea, segments, &in);
 		fillarea[0].style = style;
 		if((in > 1) && term->filled_polygon)
 			term->filled_polygon(in, fillarea);
@@ -3671,7 +3668,7 @@ void do_polygon(int dimensions, t_object * this_object, int style, int facing)
 	t_clip_object clip = this_object->clip;
 	static gpiPoint * corners = NULL;
 	static gpiPoint * clpcorn = NULL;
-	BoundingBox * clip_save = clip_area;
+	BoundingBox * clip_save = GPO.V.P_ClipArea;
 	int vertices = p->type;
 	int nv;
 	if(!p->vertex || vertices < 2)
@@ -3703,17 +3700,14 @@ void do_polygon(int dimensions, t_object * this_object, int style, int facing)
 		if(facing == LAYER_BACK && cross_product < 0)
 			return;
 	}
-
 	if(clip == OBJ_NOCLIP)
-		clip_area = &canvas;
-
+		GPO.V.P_ClipArea = &GPO.V.BbCanvas;
 	if(term->filled_polygon && style) {
 		int out_length;
-		clip_polygon(corners, clpcorn, nv, &out_length);
+		GPO.V.ClipPolygon(corners, clpcorn, nv, &out_length);
 		clpcorn[0].style = style;
-
 		if((this_object->layer == LAYER_DEPTHORDER) && (vertices < 12)) {
-			/* FIXME - size arbitrary limit */
+			// FIXME - size arbitrary limit 
 			gpdPoint quad[12];
 			for(nv = 0; nv < vertices; nv++) {
 				quad[nv].x = p->vertex[nv].x;
@@ -3755,11 +3749,11 @@ void do_polygon(int dimensions, t_object * this_object, int style, int facing)
 		draw_clip_polygon(term, nv, corners);
 		closepath(term);
 	}
-	clip_area = clip_save;
+	GPO.V.P_ClipArea = clip_save;
 	in_3d_polygon = FALSE;
 }
 
-bool check_for_variable_color(curve_points * plot, double * colorvalue)
+bool check_for_variable_color(const curve_points * plot, const double * colorvalue)
 {
 	if(!plot->varcolor)
 		return FALSE;
@@ -3768,7 +3762,7 @@ bool check_for_variable_color(curve_points * plot, double * colorvalue)
 		return TRUE;
 	}
 	else if(plot->lp_properties.pm3d_color.type == TC_Z) {
-		set_color(cb2gray(*colorvalue) );
+		set_color(term, cb2gray(*colorvalue) );
 		return TRUE;
 	}
 	else if(plot->lp_properties.pm3d_color.type == TC_COLORMAP) {
@@ -4282,15 +4276,15 @@ void GnuPlot::ProcessImage(termentry * pTerm, const void * plot, t_procimg_actio
 									corners[i_corners].y = AxS.MapiY(p_corners[i_corners].y);
 								}
 								// Clip rectangle if necessary 
-								if(rectangular_image && pTerm->fillbox && (corners_in_view < 4) &&  clip_area) {
-									if(corners[i_corners].x < clip_area->xleft)
-										corners[i_corners].x = clip_area->xleft;
-									if(corners[i_corners].x > clip_area->xright)
-										corners[i_corners].x = clip_area->xright;
-									if(corners[i_corners].y > clip_area->ytop)
-										corners[i_corners].y = clip_area->ytop;
-									if(corners[i_corners].y < clip_area->ybot)
-										corners[i_corners].y = clip_area->ybot;
+								if(rectangular_image && pTerm->fillbox && (corners_in_view < 4) &&  GPO.V.P_ClipArea) {
+									if(corners[i_corners].x < GPO.V.P_ClipArea->xleft)
+										corners[i_corners].x = GPO.V.P_ClipArea->xleft;
+									if(corners[i_corners].x > GPO.V.P_ClipArea->xright)
+										corners[i_corners].x = GPO.V.P_ClipArea->xright;
+									if(corners[i_corners].y > GPO.V.P_ClipArea->ytop)
+										corners[i_corners].y = GPO.V.P_ClipArea->ytop;
+									if(corners[i_corners].y < GPO.V.P_ClipArea->ybot)
+										corners[i_corners].y = GPO.V.P_ClipArea->ybot;
 								}
 							}
 						}
@@ -4313,7 +4307,7 @@ void GnuPlot::ProcessImage(termentry * pTerm, const void * plot, t_procimg_actio
 								set_rgbcolor_var(rgb_from_colormap(gray, private_colormap));
 							}
 							else
-								set_color(cb2gray(points[i_image].CRD_COLOR) );
+								set_color(pTerm, cb2gray(points[i_image].CRD_COLOR) );
 						}
 						else {
 							const int r = static_cast<int>(rgbscale(points[i_image].CRD_R));

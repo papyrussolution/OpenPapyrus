@@ -355,13 +355,13 @@ static void MousePosToGraphPosReal(int xx, int yy, double * x, double * y, doubl
 		return;
 	}
 	/* 2D plot */
-	if(plot_bounds.xright == plot_bounds.xleft)
+	if(GPO.V.BbPlot.xright == GPO.V.BbPlot.xleft)
 		*x = *x2 = VERYLARGE; /* protection */
 	else {
 		*x  = GPO.AxS[FIRST_X_AXIS].MapBack(xx);
 		*x2 = GPO.AxS[SECOND_X_AXIS].MapBack(xx);
 	}
-	if(plot_bounds.ytop == plot_bounds.ybot)
+	if(GPO.V.BbPlot.ytop == GPO.V.BbPlot.ybot)
 		*y = *y2 = VERYLARGE; /* protection */
 	else {
 		*y  = GPO.AxS[FIRST_Y_AXIS].MapBack(yy);
@@ -1045,13 +1045,13 @@ static char * builtin_nearest_log(struct gp_event_t * ge)
 		bool change_y1 = FALSE;
 		bool change_x2 = FALSE;
 		bool change_y2 = FALSE;
-		if(mouse_y < plot_bounds.ybot + (plot_bounds.ytop - plot_bounds.ybot) / 4 &&  mouse_x > plot_bounds.xleft && mouse_x < plot_bounds.xright)
+		if(mouse_y < GPO.V.BbPlot.ybot + (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / 4 &&  mouse_x > GPO.V.BbPlot.xleft && mouse_x < GPO.V.BbPlot.xright)
 			change_x1 = TRUE;
-		if(mouse_x < plot_bounds.xleft + (plot_bounds.xright - plot_bounds.xleft) / 4 &&  mouse_y > plot_bounds.ybot && mouse_y < plot_bounds.ytop)
+		if(mouse_x < GPO.V.BbPlot.xleft + (GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / 4 &&  mouse_y > GPO.V.BbPlot.ybot && mouse_y < GPO.V.BbPlot.ytop)
 			change_y1 = TRUE;
-		if(mouse_y > plot_bounds.ytop - (plot_bounds.ytop - plot_bounds.ybot) / 4 &&  mouse_x > plot_bounds.xleft && mouse_x < plot_bounds.xright)
+		if(mouse_y > GPO.V.BbPlot.ytop - (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / 4 &&  mouse_x > GPO.V.BbPlot.xleft && mouse_x < GPO.V.BbPlot.xright)
 			change_x2 = TRUE;
-		if(mouse_x > plot_bounds.xright - (plot_bounds.xright - plot_bounds.xleft) / 4 &&  mouse_y > plot_bounds.ybot && mouse_y < plot_bounds.ytop)
+		if(mouse_x > GPO.V.BbPlot.xright - (GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / 4 &&  mouse_y > GPO.V.BbPlot.ybot && mouse_y < GPO.V.BbPlot.ytop)
 			change_y2 = TRUE;
 		if(change_x1)
 			do_string(GPO.AxS[FIRST_X_AXIS].log ? "unset log x" : "set log x");
@@ -2149,22 +2149,19 @@ void do_event(struct gp_event_t * ge)
 {
 	if(!term)
 		return;
-
-	/* disable `replot` when some data were sent through stdin */
+	// disable `replot` when some data were sent through stdin 
 	replot_disabled = plotted_data_from_stdin;
-
 	if(ge->type) {
 		FPRINTF((stderr, "(do_event) type       = %s\n", GE_evt_name(ge->type)));
 		FPRINTF((stderr, "           mx, my     = %d, %d\n", ge->mx, ge->my));
 		FPRINTF((stderr, "           par1, par2 = %d, %d\n", ge->par1, ge->par2));
 	}
-
 	switch(ge->type) {
 		case GE_plotdone:
 		    event_plotdone();
 		    if(ge->winid) {
 			    current_x11_windowid = ge->winid;
-			    update_gpval_variables(6); /* fill GPVAL_TERM_WINDOWID */
+			    GPO.UpdateGpvalVariables(6); // fill GPVAL_TERM_WINDOWID 
 		    }
 		    break;
 		case GE_keypress:

@@ -1479,20 +1479,21 @@ static bool axis_position_zeroaxis(AXIS_INDEX axis)
 }
 /* }}} */
 
-void axis_draw_2d_zeroaxis(termentry * pTerm, AXIS_INDEX axis, AXIS_INDEX crossaxis)
+//void axis_draw_2d_zeroaxis(termentry * pTerm, AXIS_INDEX axis, AXIS_INDEX crossaxis)
+void GnuPlot::AxisDraw2DZeroAxis(termentry * pTerm, AXIS_INDEX axis, AXIS_INDEX crossaxis)
 {
-	GpAxis * p_this = &GPO.AxS[axis];
+	GpAxis * p_this = &AxS[axis];
 	if(axis_position_zeroaxis(crossaxis) && p_this->zeroaxis) {
 		term_apply_lp_properties(pTerm, p_this->zeroaxis);
 		if(oneof2(axis, FIRST_X_AXIS, SECOND_X_AXIS)) {
 			// zeroaxis is horizontal, at y == 0 
-			(pTerm->move)(p_this->term_lower, GPO.AxS[crossaxis].term_zero);
-			(pTerm->vector)(p_this->term_upper, GPO.AxS[crossaxis].term_zero);
+			(pTerm->move)(p_this->term_lower, AxS[crossaxis].term_zero);
+			(pTerm->vector)(p_this->term_upper, AxS[crossaxis].term_zero);
 		}
 		else if(oneof2(axis, FIRST_Y_AXIS, SECOND_Y_AXIS)) {
 			// zeroaxis is vertical, at x == 0 
-			(pTerm->move)(GPO.AxS[crossaxis].term_zero, p_this->term_lower);
-			(pTerm->vector)(GPO.AxS[crossaxis].term_zero, p_this->term_upper);
+			(pTerm->move)(AxS[crossaxis].term_zero, p_this->term_lower);
+			(pTerm->vector)(AxS[crossaxis].term_zero, p_this->term_upper);
 		}
 	}
 }
@@ -1701,11 +1702,6 @@ t_autoscale load_range(GpAxis * this_axis, double * a, double * b, t_autoscale a
 
 void widest_tic_callback(GpAxis * this_axis, double place, char * text, int ticlevel, lp_style_type grid, ticmark * userlabels)
 {
-	//(void)this_axis;        /* avoid "unused parameter" warnings */
-	//(void)place;
-	//(void)grid;
-	//(void)userlabels;
-	//
 	// historically, minitics used to have no text,
 	// but now they can, except at ticlevel 1 (and this restriction is there only for compatibility reasons) */
 	if(ticlevel != 1) {

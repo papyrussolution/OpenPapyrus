@@ -13,10 +13,10 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-#define AXIS_ACTUAL_MIN(axis) MIN(GPO.AxS[axis].max, GPO.AxS[axis].min)
-#define AXIS_ACTUAL_MAX(axis) MAX(GPO.AxS[axis].max, GPO.AxS[axis].min)
+#define AXIS_ACTUAL_MIN(axis) MIN(AxS[axis].max, AxS[axis].min)
+#define AXIS_ACTUAL_MAX(axis) MAX(AxS[axis].max, AxS[axis].min)
 
-/* Prototypes for local functions */
+// Prototypes for local functions 
 static void mat_unit(transform_matrix mat);
 static GP_INLINE void draw3d_point_unconditional(GpVertex *, lp_style_type *);
 
@@ -79,7 +79,7 @@ void mat_mult(transform_matrix mat_res, transform_matrix mat1, transform_matrix 
 			mat_res[i][j] = mat_res_temp[i][j];
 }
 
-#define IN_AXIS_RANGE(val, axis) inrange((val), GPO.AxS[axis].min, GPO.AxS[axis].max)
+#define IN_AXIS_RANGE(val, axis) inrange((val), AxS[axis].min, AxS[axis].max)
 // 
 // single edge intersection algorithm */
 // Given two points, one inside and one outside the plot, return
@@ -109,12 +109,11 @@ void GnuPlot::Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, dou
 		iz = oz;
 		oz = z;
 	}
-	/* nasty degenerate cases, effectively drawing to an infinity point (?)
-	   cope with them here, so don't process them as a "real" OUTRANGE point
-
-	   If more than one coord is -VERYLARGE, then can't ratio the "infinities"
-	   so drop out by returning FALSE */
-
+	// nasty degenerate cases, effectively drawing to an infinity point (?)
+	// cope with them here, so don't process them as a "real" OUTRANGE point
+	// 
+	// If more than one coord is -VERYLARGE, then can't ratio the "infinities"
+	// so drop out by returning FALSE 
 	count = 0;
 	if(ox == -VERYLARGE)
 		count++;
@@ -122,8 +121,8 @@ void GnuPlot::Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, dou
 		count++;
 	if(oz == -VERYLARGE)
 		count++;
-	/* either doesn't pass through 3D volume *or*
-	   can't ratio infinities to get a direction to draw line, so return the INRANGE point */
+	// either doesn't pass through 3D volume *or*
+	// can't ratio infinities to get a direction to draw line, so return the INRANGE point 
 	if(count > 1) {
 		*ex = ix;
 		*ey = iy;
@@ -142,18 +141,18 @@ void GnuPlot::Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, dou
 			*ey = AXIS_ACTUAL_MIN(FIRST_Y_AXIS);
 			return;
 		}
-		/* obviously oz is -VERYLARGE and (ox != -VERYLARGE && oy != -VERYLARGE) */
+		// obviously oz is -VERYLARGE and (ox != -VERYLARGE && oy != -VERYLARGE) 
 		*ez = AXIS_ACTUAL_MIN(FIRST_Z_AXIS);
 		return;
 	}
-	/*
-	 * Can't have case (ix == ox && iy == oy && iz == oz) as one point
-	 * is INRANGE and one point is OUTRANGE.
-	 */
+	// 
+	// Can't have case (ix == ox && iy == oy && iz == oz) as one point
+	// is INRANGE and one point is OUTRANGE.
+	// 
 	if(ix == ox) {
 		if(iy == oy) {
-			/* line parallel to z axis */
-			/* assume iy in yrange, && ix in xrange */
+			// line parallel to z axis 
+			// assume iy in yrange, && ix in xrange 
 			*ex = ix; /* == ox */
 			*ey = iy; /* == oy */
 			if(inrange(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), iz, oz))
@@ -166,12 +165,10 @@ void GnuPlot::Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, dou
 			return;
 		}
 		if(iz == oz) {
-			/* line parallel to y axis */
-
-			/* assume iz in zrange && ix in xrange */
+			// line parallel to y axis 
+			// assume iz in zrange && ix in xrange 
 			*ex = ix; /* == ox */
 			*ez = iz; /* == oz */
-
 			if(inrange(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), iy, oy))
 				*ey = AXIS_ACTUAL_MAX(FIRST_Y_AXIS);
 			else if(inrange(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), iy, oy))
@@ -181,7 +178,7 @@ void GnuPlot::Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, dou
 			}
 			return;
 		}
-		/* nasty 2D slanted line in a yz plane */
+		// nasty 2D slanted line in a yz plane 
 #define INTERSECT_PLANE(cut, axis, eff, eff_axis, res_x, res_y, res_z)  \
 	do {                                                            \
 		if(inrange(cut, i ## axis, o ## axis) && cut != i ## axis && cut != o ## axis) { \
@@ -216,26 +213,23 @@ void GnuPlot::Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, dou
 			}
 			return;
 		}
-		/* nasty 2D slanted line in an xz plane */
+		// nasty 2D slanted line in an xz plane 
 		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), iy, z);
 		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), iy, z);
 		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, iy, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
 		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, iy, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
 	} /* if(iy==oy) */
-
 	if(iz == oz) {
-		/* already checked cases (ix == ox && iz == oz) and (iy == oy && iz == oz) */
-		/* 2D slanted line in an xy plane */
-		/* assume inrange(oz) */
+		// already checked cases (ix == ox && iz == oz) and (iy == oy && iz == oz) 
+		// 2D slanted line in an xy plane 
+		// assume inrange(oz) 
 		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), y, iz);
 		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), y, iz);
 		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), iz);
 		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), iz);
 	} /* if(iz==oz) */
 #undef INTERSECT_PLANE
-
-	/* really nasty general slanted 3D case */
-
+	// really nasty general slanted 3D case 
 #define INTERSECT_DIAG(cut, axis, eff, eff_axis, eff2, eff2_axis, res_x, res_y, res_z) \
 	do {                                                            \
 		if(inrange(cut, i ## axis, o ## axis) && cut != i ## axis && cut != o ## axis) { \
@@ -256,12 +250,10 @@ void GnuPlot::Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, dou
 	INTERSECT_DIAG(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, y, FIRST_Y_AXIS, x, y, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
 	INTERSECT_DIAG(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, y, FIRST_Y_AXIS, x, y, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
 #undef INTERSECT_DIAG
-	/* If we reach here, the inrange point is on the edge, and
-	 * the line segment from the outrange point does not cross any
-	 * other edges to get there. In this case, we return the inrange
-	 * point as the 'edge' intersection point. This will basically draw
-	 * line.
-	 */
+	// If we reach here, the inrange point is on the edge, and
+	// the line segment from the outrange point does not cross any
+	// other edges to get there. In this case, we return the inrange
+	// point as the 'edge' intersection point. This will basically draw line.
 	*ex = ix;
 	*ey = iy;
 	*ez = iz;
@@ -774,7 +766,7 @@ static GP_INLINE void draw3d_point_unconditional(GpVertex * v, struct lp_style_t
 	// Jul 2010 EAM - is it safe to overwrite like this? Make a copy instead? 
 	lp->pm3d_color.value = v->real_z;
 	term_apply_lp_properties(term, lp);
-	if(!clip_point(x, y))
+	if(!GPO.V.ClipPoint(x, y))
 		(term->point)(x, y, lp->p_type);
 }
 // 

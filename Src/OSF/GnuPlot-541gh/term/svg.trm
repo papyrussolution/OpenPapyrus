@@ -1077,31 +1077,26 @@ TERM_PUBLIC void SVG_text()
 {
 	SVG_PathClose();
 	SVG_GroupClose();
-
 	if(SVG_mouseable) {
 		GpAxis * this_axis;
-
 		fprintf(gpoutfile, "\n<script type=\"text/javascript\"><![CDATA[\n");
 		fprintf(gpoutfile, "// plot boundaries and axis scaling information for mousing \n");
 		fprintf(gpoutfile, "gnuplot_svg.plot_term_xmax = %d;\n", (int)(term->xmax / SVG_SCALE));
 		fprintf(gpoutfile, "gnuplot_svg.plot_term_ymax = %d;\n", (int)(term->ymax / SVG_SCALE));
-		fprintf(gpoutfile, "gnuplot_svg.plot_xmin = %.1f;\n", (double)plot_bounds.xleft / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_xmax = %.1f;\n", (double)plot_bounds.xright / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_ybot = %.1f;\n", (double)(term->ymax-plot_bounds.ybot) / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_ytop = %.1f;\n", (double)(term->ymax-plot_bounds.ytop) / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_width = %.1f;\n", (double)(plot_bounds.xright - plot_bounds.xleft) / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_height = %.1f;\n", (double)(plot_bounds.ytop - plot_bounds.ybot) / SVG_SCALE);
-
-		/* Get true axis ranges as used in the plot */
-		update_gpval_variables(1);
-
+		fprintf(gpoutfile, "gnuplot_svg.plot_xmin = %.1f;\n", (double)GPO.V.BbPlot.xleft / SVG_SCALE);
+		fprintf(gpoutfile, "gnuplot_svg.plot_xmax = %.1f;\n", (double)GPO.V.BbPlot.xright / SVG_SCALE);
+		fprintf(gpoutfile, "gnuplot_svg.plot_ybot = %.1f;\n", (double)(term->ymax-GPO.V.BbPlot.ybot) / SVG_SCALE);
+		fprintf(gpoutfile, "gnuplot_svg.plot_ytop = %.1f;\n", (double)(term->ymax-GPO.V.BbPlot.ytop) / SVG_SCALE);
+		fprintf(gpoutfile, "gnuplot_svg.plot_width = %.1f;\n", (double)(GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / SVG_SCALE);
+		fprintf(gpoutfile, "gnuplot_svg.plot_height = %.1f;\n", (double)(GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / SVG_SCALE);
+		// Get true axis ranges as used in the plot 
+		GPO.UpdateGpvalVariables(1);
 #define MOUSE_PARAM(GP_NAME, js_NAME) svg_mouse_param(GP_NAME, js_NAME)
-
 		if(GPO.AxS[FIRST_X_AXIS].datatype != DT_TIMEDATE) {
 			MOUSE_PARAM("GPVAL_X_MIN", "plot_axis_xmin");
 			MOUSE_PARAM("GPVAL_X_MAX", "plot_axis_xmax");
 		}
-		/* FIXME: Should this inversion be done at a higher level? */
+		// FIXME: Should this inversion be done at a higher level? 
 		if(is_3d_plot && splot_map) {
 			MOUSE_PARAM("GPVAL_Y_MAX", "plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MIN", "plot_axis_ymax");
@@ -1110,17 +1105,13 @@ TERM_PUBLIC void SVG_text()
 			MOUSE_PARAM("GPVAL_Y_MIN", "plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MAX", "plot_axis_ymax");
 		}
-
-		fprintf(gpoutfile, "gnuplot_svg.polar_mode = %s;\n",
-		    polar ? "true" : "false");
+		fprintf(gpoutfile, "gnuplot_svg.polar_mode = %s;\n", polar ? "true" : "false");
 		if(polar) {
-			fprintf(gpoutfile, "gnuplot_svg.plot_axis_rmin = %g;\n",
-			    (GPO.AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : GPO.AxS.__R().set_min);
+			fprintf(gpoutfile, "gnuplot_svg.plot_axis_rmin = %g;\n", (GPO.AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : GPO.AxS.__R().set_min);
 			fprintf(gpoutfile, "gnuplot_svg.plot_axis_rmax = %g;\n", GPO.AxS.__R().set_max);
 			fprintf(gpoutfile, "gnuplot_svg.polar_theta0 = %d;\n", (int)theta_origin);
 			fprintf(gpoutfile, "gnuplot_svg.polar_sense = %d;\n", (int)theta_direction);
 		}
-
 		if((GPO.AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS) {
 			MOUSE_PARAM("GPVAL_X2_MIN", "plot_axis_x2min");
 			MOUSE_PARAM("GPVAL_X2_MAX", "plot_axis_x2max");
@@ -1134,7 +1125,6 @@ TERM_PUBLIC void SVG_text()
 		else
 			fprintf(gpoutfile, "gnuplot_svg.plot_axis_y2min = \"none\";\n");
 #undef MOUSE_PARAM
-
 		/*
 		 * Note:
 		 * Offline mousing cannot automatically deal with

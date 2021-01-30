@@ -909,11 +909,10 @@ TERM_PUBLIC void PCL_options()
 					    default: {
 						/* no known abbreviation */
 						float xmax, ymax;
-						size_units explicit_units;
+						GpSizeUnits explicit_units;
 						char * unit = "in";
 						float scale = 1;
-
-						explicit_units = parse_term_size(&xmax, &ymax, INCHES);
+						explicit_units = GPO.ParseTermSize(&xmax, &ymax, INCHES);
 						PCL_mode.xmax = xmax / gp_resolution * HPGL_PUPI;
 						PCL_mode.ymax = ymax / gp_resolution * HPGL_PUPI;
 						if(xmax <= 0)

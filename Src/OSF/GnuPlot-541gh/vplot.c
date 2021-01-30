@@ -68,32 +68,28 @@ void vplot_points(struct surface_points * plot, double level)
 	for(ix = 0; ix < N; ix++) {
 		for(iy = 0; iy < N; iy++) {
 			for(iz = 0; iz < N; iz++) {
-				/* The pointinterval property can be used to downsample */
-				if((downsample > 0)
-				    && (ix % downsample || iy % downsample || iz % downsample))
+				// The pointinterval property can be used to downsample 
+				if((downsample > 0) && (ix % downsample || iy % downsample || iz % downsample))
 					continue;
-
 				index = ix + iy * N + iz * N*N;
 				voxel = &vgrid->vdata[index];
-
 				if(*voxel <= level)
 					continue;
-
-				/* vx, vy, vz are the true coordinates of this voxel */
+				// vx, vy, vz are the true coordinates of this voxel 
 				vx = vgrid->vxmin + ix * vgrid->vxdelta;
 				vy = vgrid->vymin + iy * vgrid->vydelta;
 				vz = vgrid->vzmin + iz * vgrid->vzdelta;
 
 				if(jitter.spread > 0) {
-					vx += jitter.spread * vgrid->vxdelta * ( (double)(rand()/(double)RAND_MAX ) - 0.5);
-					vy += jitter.spread * vgrid->vydelta * ( (double)(rand()/(double)RAND_MAX ) - 0.5);
-					vz += jitter.spread * vgrid->vzdelta * ( (double)(rand()/(double)RAND_MAX ) - 0.5);
+					vx += jitter.spread * vgrid->vxdelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
+					vy += jitter.spread * vgrid->vydelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
+					vz += jitter.spread * vgrid->vzdelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
 				}
 				GPO.Map3D_XY(vx, vy, vz, &x, &y);
 				// the usual variable color array cannot be used for voxel data 
 				// but we can use the voxel value itself as a palette index     
 				if(plot->lp_properties.pm3d_color.type == TC_Z)
-					set_color(cb2gray(*voxel));
+					set_color(t, cb2gray(*voxel));
 				// This code is also used for "splot ... with dots" 
 				if(plot->plot_style == DOTS)
 					(*t->point)(x, y, -1);

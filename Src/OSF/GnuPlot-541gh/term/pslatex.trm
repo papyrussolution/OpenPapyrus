@@ -243,9 +243,8 @@ TERM_PUBLIC void PSTEX_reopen_output()
 
 TERM_PUBLIC void PSTEX_common_init()
 {
-	PSLATEX_pagesize_x = term->xmax * xsize;
-	PSLATEX_pagesize_y = term->ymax * ysize;
-
+	PSLATEX_pagesize_x = term->xmax * GPO.V.XSize;
+	PSLATEX_pagesize_y = term->ymax * GPO.V.YSize;
 	switch(ps_params->terminal) {
 		case PSTERM_PSLATEX:
 		    fprintf(gpoutfile,
@@ -413,12 +412,12 @@ TERM_PUBLIC void EPSLATEX_common_init()
 	char * fontfamily = NULL;
 	char * fontseries = NULL;
 	char * fontshape = NULL;
-	PSLATEX_pagesize_x = term->xmax * xsize;
-	PSLATEX_pagesize_y = term->ymax * ysize;
+	PSLATEX_pagesize_x = term->xmax * GPO.V.XSize;
+	PSLATEX_pagesize_y = term->ymax * GPO.V.YSize;
 	/* cairo terminals use a different convention for xmax/ymax */
 	if(!strcmp(term->name, "cairolatex")) {
-		PSLATEX_pagesize_x += 2*PS_SC * xsize;
-		PSLATEX_pagesize_y += 2*PS_SC * ysize;
+		PSLATEX_pagesize_x += 2*PS_SC * GPO.V.XSize;
+		PSLATEX_pagesize_y += 2*PS_SC * GPO.V.YSize;
 	}
 	if(!gpoutfile) {
 		char * temp = (char *)gp_alloc(strlen(outstr) + 1, "temp file string");

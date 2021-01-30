@@ -66,7 +66,7 @@ TERM_PUBLIC void ENHPDF_FLUSH();
 #define PDF_YMAX        (3*72*PDF_RESOLUTION) /* 3 inches, 72 pt/inch */
 
 static bool pdf_explicit_size = FALSE;
-static size_units pdf_explicit_units = INCHES;
+static GpSizeUnits pdf_explicit_units = INCHES;
 
 #endif /* TERM_PROTO */
 
@@ -406,7 +406,7 @@ TERM_PUBLIC void PDF_options()
 			float xmax_t, ymax_t;
 			GPO.Pgm.Shift();
 			pdf_explicit_size = TRUE;
-			pdf_explicit_units = parse_term_size(&xmax_t, &ymax_t, INCHES);
+			pdf_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
 			term->xmax = xmax_t*PDF_RESOLUTION*72./gp_resolution;
 			term->ymax = ymax_t*PDF_RESOLUTION*72./gp_resolution;
 			continue;

@@ -803,7 +803,7 @@ int lookup_table_nth_reverse(const gen_table * tbl, int table_len, const char * 
 //
 // Returns the key associated with this indexed value or NULL if the key/value pair is not found.
 //
-const char * reverse_table_lookup(const struct gen_table * tbl, int entry)
+const char * reverse_table_lookup(const gen_table * tbl, int entry)
 {
 	for(int k = -1; tbl[++k].key;)
 		if(tbl[k].value == entry)

@@ -129,7 +129,7 @@ static const char * edf_findInHeader(const char * header, const char * key)
 	return value_ptr;
 }
 
-void edf_filetype_function(void)
+void edf_filetype_function()
 {
 	char * header = NULL;
 	int header_size = 0;
@@ -256,9 +256,9 @@ void edf_filetype_function(void)
 #define GD_JPEG 3
 void gd_filetype_function(int filetype);
 
-void png_filetype_function(void) { gd_filetype_function(GD_PNG); }
-void gif_filetype_function(void) { gd_filetype_function(GD_GIF); }
-void jpeg_filetype_function(void) { gd_filetype_function(GD_JPEG); }
+void png_filetype_function() { gd_filetype_function(GD_PNG); }
+void gif_filetype_function() { gd_filetype_function(GD_GIF); }
+void jpeg_filetype_function() { gd_filetype_function(GD_JPEG); }
 
 #ifndef HAVE_GD_PNG
 

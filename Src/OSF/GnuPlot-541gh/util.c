@@ -1019,8 +1019,8 @@ void GnuPlot::IntErrorCurToken(const char * pStr, ...)
 
 void common_error_exit()
 {
-	/* We are bailing out of nested context without ever reaching */
-	/* the normal cleanup code. Reset any flags before bailing.   */
+	// We are bailing out of nested context without ever reaching 
+	// the normal cleanup code. Reset any flags before bailing.   
 	df_reset_after_error();
 	eval_reset_after_error();
 	clause_reset_after_error();
@@ -1034,7 +1034,7 @@ void common_error_exit()
 	setlocale(LC_NUMERIC, "C");
 #endif
 	// Load error state variables 
-	update_gpval_variables(2);
+	GPO.UpdateGpvalVariables(2);
 	bail_to_command_line();
 }
 

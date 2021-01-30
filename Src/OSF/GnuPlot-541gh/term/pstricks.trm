@@ -138,7 +138,7 @@ static bool PST_standalone = FALSE;
 
 /* plot size */
 static bool PST_unit_plot = FALSE;      /* Unit-sized plot off */
-static size_units PSTRICKS_explicit_units = INCHES;
+static GpSizeUnits PSTRICKS_explicit_units = INCHES;
 static float PSTRICKS_size_x = 5.f;
 static float PSTRICKS_size_y = 3.f;
 
@@ -321,10 +321,9 @@ TERM_PUBLIC void PSTRICKS_options()
 			    break;
 			case PSTRICKS_SIZE: {
 			    float width, height;
-
 			    GPO.Pgm.Shift();
 			    PST_unit_plot = FALSE;
-			    PSTRICKS_explicit_units = parse_term_size(&width, &height, INCHES);
+			    PSTRICKS_explicit_units = GPO.ParseTermSize(&width, &height, INCHES);
 			    PSTRICKS_size_x = width / gp_resolution;
 			    PSTRICKS_size_y = height / gp_resolution;
 			    term->xmax = (uint)(PSTRICKS_size_x * PSTRICKS_XMAX / 5.0);

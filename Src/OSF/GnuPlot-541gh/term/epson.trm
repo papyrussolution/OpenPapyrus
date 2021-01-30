@@ -203,8 +203,7 @@ TERM_PUBLIC void EPSON_init()
 TERM_PUBLIC void EPSON_graphics()
 {
 	b_charsize(FNT5X9);
-	b_makebitmap((uint)(EPSONXMAX * xsize),
-	    (uint)(EPSONYMAX * ysize), 1);
+	b_makebitmap((uint)(EPSONXMAX * GPO.V.XSize), (uint)(EPSONYMAX * GPO.V.YSize), 1);
 }
 
 TERM_PUBLIC void EPSON_text()
@@ -310,7 +309,7 @@ TERM_PUBLIC void NEC_init()
 TERM_PUBLIC void NEC_graphics()
 {
 	b_charsize(FNT5X9);
-	b_makebitmap((uint)(NECXMAX * xsize), (uint)(NECYMAX * ysize), (NECmode == 'c' ? 4 : 1));
+	b_makebitmap((uint)(NECXMAX * GPO.V.XSize), (uint)(NECYMAX * GPO.V.YSize), (NECmode == 'c' ? 4 : 1));
 }
 
 TERM_PUBLIC void NEC_text()
@@ -467,8 +466,7 @@ TERM_PUBLIC void STARC_init()
 TERM_PUBLIC void STARC_graphics()
 {
 	b_charsize(FNT5X9);
-	b_makebitmap((uint)(STARCXMAX * xsize),
-	    (uint)(STARCYMAX * ysize), 4);
+	b_makebitmap((uint)(STARCXMAX * GPO.V.XSize), (uint)(STARCYMAX * GPO.V.YSize), 4);
 }
 
 TERM_PUBLIC void STARC_text()
@@ -529,7 +527,7 @@ static void eps180_dump();
 TERM_PUBLIC void EPS180_graphics()
 {
 	b_charsize(FNT13X25);
-	b_makebitmap((uint)(EPS180XMAX * xsize), (uint)(EPS180YMAX * ysize), 1);
+	b_makebitmap((uint)(EPS180XMAX * GPO.V.XSize), (uint)(EPS180YMAX * GPO.V.YSize), 1);
 }
 
 TERM_PUBLIC void EPS180_text()
@@ -575,8 +573,7 @@ static void eps60_dump();
 TERM_PUBLIC void EPS60_graphics()
 {
 	b_charsize(FNT5X9);
-	b_makebitmap((uint)(EPS60XMAX * xsize),
-	    (uint)(EPS60YMAX * ysize), 1);
+	b_makebitmap((uint)(EPS60XMAX * GPO.V.XSize), (uint)(EPS60YMAX * GPO.V.YSize), 1);
 }
 
 TERM_PUBLIC void EPS60_text()
@@ -832,14 +829,12 @@ TERM_PUBLIC void DPU414_graphics()
 {
 	switch(DPU414_quality) {
 		case 1:
-		    b_makebitmap((uint)(DPU414XMAX * xsize),
-			(uint)(DPU414YMAX * ysize), 1);
+		    b_makebitmap((uint)(DPU414XMAX * GPO.V.XSize), (uint)(DPU414YMAX * GPO.V.YSize), 1);
 		    break;
 		case 2:
 		    term->xmax = DPU414XMAX / 2;
 		    term->ymax = DPU414YMAX / 2;
-		    b_makebitmap((uint)(DPU414XMAX / 2 * xsize),
-			(uint)(DPU414YMAX / 2 * ysize), 1);
+		    b_makebitmap((uint)(DPU414XMAX / 2 * GPO.V.XSize), (uint)(DPU414YMAX / 2 * GPO.V.YSize), 1);
 		    break;
 	}
 }

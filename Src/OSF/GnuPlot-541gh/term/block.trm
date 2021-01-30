@@ -36,13 +36,13 @@ register_term(block)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void BLOCK_options(void);
-TERM_PUBLIC void BLOCK_init(void);
-TERM_PUBLIC void BLOCK_reset(void);
-TERM_PUBLIC void BLOCK_text(void);
-TERM_PUBLIC void BLOCK_graphics(void);
-TERM_PUBLIC void BLOCK_put_text(unsigned int x, unsigned int y, const char * str);
-TERM_PUBLIC void BLOCK_point(unsigned int x, unsigned int y, int point);
+TERM_PUBLIC void BLOCK_options();
+TERM_PUBLIC void BLOCK_init();
+TERM_PUBLIC void BLOCK_reset();
+TERM_PUBLIC void BLOCK_text();
+TERM_PUBLIC void BLOCK_graphics();
+TERM_PUBLIC void BLOCK_put_text(uint x, uint y, const char * str);
+TERM_PUBLIC void BLOCK_point(uint x, uint y, int point);
 TERM_PUBLIC void BLOCK_linetype(int linetype);
 TERM_PUBLIC void BLOCK_dashtype(int type, t_dashtype * custom_dash_type);
 TERM_PUBLIC void BLOCK_set_color(t_colorspec * color);
@@ -193,7 +193,7 @@ TERM_PUBLIC void BLOCK_options()
 			case BLOCK_SIZE: {
 			    float width, height;
 			    GPO.Pgm.Shift();
-			    parse_term_size(&width, &height, PIXELS);
+			    GPO.ParseTermSize(&width, &height, PIXELS);
 			    BLOCK_xchars = width;
 			    BLOCK_ychars = height;
 			    break;
@@ -687,17 +687,14 @@ TERM_PUBLIC void BLOCK_text()
 	printf("optimised  : %u (%3.1f\%)\n", noptimised, 100 * ((float)noptimised) / noptimisable);
 #endif
 #endif
-
 	free(line);
-	(void)fflush(gpoutfile); /* finish the graphics */
+	fflush(gpoutfile); /* finish the graphics */
 }
 
 TERM_PUBLIC void BLOCK_graphics()
 {
 	b_boxfill(FS_EMPTY, 0, 0, term->xmax, term->ymax);
-
 	DUMB_graphics();
-
 	/* kludge: fix keybox size */
 	if(keyT.width_fix == 0) keyT.width_fix = 1;
 	if(keyT.height_fix == 0) keyT.height_fix = 1;

@@ -269,12 +269,12 @@ int main(int argc_orig, char ** argv)
 			break;
 		}
 	}
-	/* Need this before show_version is called for the first time */
+	// Need this before show_version is called for the first time 
 	if(interactive)
 		show_version(stderr);
 	else
-		show_version(NULL); /* Only load GPVAL_COMPILE_OPTIONS */
-	update_gpval_variables(3); /* update GPVAL_ variables available to user */
+		show_version(NULL); // Only load GPVAL_COMPILE_OPTIONS 
+	GPO.UpdateGpvalVariables(3); // update GPVAL_ variables available to user 
 #ifdef VMS
 	/* initialise screen management routines for command recall */
 	{
@@ -528,10 +528,10 @@ void init_session()
 	overflow_handling = INT64_OVERFLOW_TO_FLOAT; /* Reset program variables not handled by 'reset' */
 	init_voxelsupport(); /* Reset voxel data structures if supported */
 	// Make sure all variables start in the same state 'reset' would set them to. 
-	reset_command();        /* FIXME: this does c_token++ */
+	GPO.ResetCommand();        /* FIXME: this does c_token++ */
 	load_rcfile(0);         /* System-wide gnuplotrc if configured */
 	load_rcfile(1);         /* ./.gnuplot if configured */
-	/* After this point we allow pipes and system commands */
+	// After this point we allow pipes and system commands 
 	successful_initialization = TRUE;
 	load_rcfile(2);         /* ~/.gnuplot */
 	load_rcfile(3);         /* ~/.config/gnuplot/gnuplotrc */

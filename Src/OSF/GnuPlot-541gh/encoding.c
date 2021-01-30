@@ -19,7 +19,7 @@ static bool utf8_getmore(ulong * wch, const char ** str, int nbytes);
 /*
  * encoding functions
  */
-void init_encoding(void)
+void init_encoding()
 {
 	encoding = encoding_from_locale();
 	if(encoding == S_ENC_INVALID)
@@ -27,7 +27,7 @@ void init_encoding(void)
 	init_special_chars();
 }
 
-enum set_encoding_id encoding_from_locale(void)                     
+enum set_encoding_id encoding_from_locale()                     
 {
 	char * l = NULL;
 	enum set_encoding_id encoding = S_ENC_INVALID;
@@ -94,7 +94,7 @@ enum set_encoding_id encoding_from_locale(void)
 	return encoding;
 }
 
-void init_special_chars(void)
+void init_special_chars()
 {
 	/* Set degree sign to match encoding */
 	char * l = NULL;
@@ -175,10 +175,8 @@ static void set_degreesign(char * locale)
 		}
 		return;
 	}
-#else
-	(void)locale; /* -Wunused argument */
 #endif
-	/* These are the internally-known encodings */
+	// These are the internally-known encodings 
 	memzero(degree_sign, sizeof(degree_sign));
 	switch(encoding) {
 		case S_ENC_UTF8:    degree_sign[0] = '\302'; degree_sign[1] = '\260'; break;

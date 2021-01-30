@@ -16,9 +16,9 @@
 
 /******** Local functions ********/
 
-static void show_at();
+//static void show_at();
 static void disp_at(struct at_type *, int);
-static void show_all();
+//static void show_all();
 static void show_autoscale();
 static void show_border();
 static void show_boxwidth();
@@ -30,27 +30,27 @@ static void show_dashtype(int);
 static void show_dgrid3d();
 static void show_mapping();
 static void show_dummy();
-static void show_format();
+//static void show_format();
 static void show_styles(const char * name, enum PLOT_STYLE style);
-static void show_style();
+//static void show_style();
 static void show_style_rectangle();
 static void show_style_circle();
 static void show_style_ellipse();
 static void show_grid();
 static void show_raxis();
-static void show_paxis();
-static void show_zeroaxis(AXIS_INDEX);
+//static void show_paxis();
+//static void show_zeroaxis(AXIS_INDEX);
 static void show_label(int tag);
 static void show_keytitle();
 static void show_key();
 static void show_logscale();
 static void show_offsets();
-static void show_margin();
+//static void show_margin();
 static void show_output();
 static void show_overflow();
 static void show_parametric();
 static void show_pm3d();
-static void show_palette();
+//static void show_palette();
 static void show_palette_rgbformulae();
 static void show_palette_fit2rgbformulae();
 static void show_palette_palette();
@@ -94,7 +94,7 @@ static void show_locale();
 static void show_loadpath();
 static void show_fontpath();
 static void show_zero();
-static void show_datafile();
+//static void show_datafile();
 static void show_table();
 static void show_micro();
 static void show_minus_sign();
@@ -106,8 +106,8 @@ static void show_linetype(struct linestyle_def * listhead, int tag);
 static void show_arrowstyle(int tag);
 static void show_arrow(int tag);
 static void show_ticdef(AXIS_INDEX);
-static void show_ticdefp(GpAxis *);
-void show_position(struct GpPosition * pos, int ndim);
+static void show_ticdefp(const GpAxis *);
+void show_position(const GpPosition * pPos, int ndim);
 static void show_functions();
 
 static int var_show_all = 0;
@@ -127,16 +127,12 @@ void GnuPlot::ShowCommand()
 	char * error_message = NULL;
 	Pgm.Shift();
 	token_found = (enum set_id)Pgm.LookupTableForCurrentToken(&set_tbl[0]);
-	/* rationalize c_token advancement stuff a bit: */
+	// rationalize c_token advancement stuff a bit: 
 	if(token_found != S_INVALID)
 		Pgm.Shift();
 	switch(token_found) {
-		case S_ACTIONTABLE:
-		    show_at();
-		    break;
-		case S_ALL:
-		    show_all();
-		    break;
+		case S_ACTIONTABLE: ShowAt(); break;
+		case S_ALL: ShowAll(); break;
 		case S_VERSION:
 		    show_version(stderr);
 		    break;
@@ -184,9 +180,7 @@ void GnuPlot::ShowCommand()
 		case S_DUMMY:
 		    show_dummy();
 		    break;
-		case S_FORMAT:
-		    show_format();
-		    break;
+		case S_FORMAT: ShowFormat(); break;
 		case S_FUNCTIONS:
 		    show_functions();
 		    break;
@@ -196,31 +190,19 @@ void GnuPlot::ShowCommand()
 		case S_RAXIS:
 		    show_raxis();
 		    break;
-		case S_PAXIS:
-		    show_paxis();
-		    break;
+		case S_PAXIS: ShowPAxis(); break;
 		case S_ZEROAXIS:
-		    show_zeroaxis(FIRST_X_AXIS);
-		    show_zeroaxis(SECOND_X_AXIS);
-		    show_zeroaxis(FIRST_Y_AXIS);
-		    show_zeroaxis(SECOND_Y_AXIS);
-		    show_zeroaxis(FIRST_Z_AXIS);
+		    ShowZeroAxis(FIRST_X_AXIS);
+		    ShowZeroAxis(SECOND_X_AXIS);
+		    ShowZeroAxis(FIRST_Y_AXIS);
+		    ShowZeroAxis(SECOND_Y_AXIS);
+		    ShowZeroAxis(FIRST_Z_AXIS);
 		    break;
-		case S_XZEROAXIS:
-		    show_zeroaxis(FIRST_X_AXIS);
-		    break;
-		case S_YZEROAXIS:
-		    show_zeroaxis(FIRST_Y_AXIS);
-		    break;
-		case S_X2ZEROAXIS:
-		    show_zeroaxis(SECOND_X_AXIS);
-		    break;
-		case S_Y2ZEROAXIS:
-		    show_zeroaxis(SECOND_Y_AXIS);
-		    break;
-		case S_ZZEROAXIS:
-		    show_zeroaxis(FIRST_Z_AXIS);
-		    break;
+		case S_XZEROAXIS: ShowZeroAxis(FIRST_X_AXIS); break;
+		case S_YZEROAXIS: ShowZeroAxis(FIRST_Y_AXIS); break;
+		case S_X2ZEROAXIS: ShowZeroAxis(SECOND_X_AXIS); break;
+		case S_Y2ZEROAXIS: ShowZeroAxis(SECOND_Y_AXIS); break;
+		case S_ZZEROAXIS: ShowZeroAxis(FIRST_Z_AXIS); break;
 
 #define CHECK_TAG_GT_ZERO                                       \
 	if(!Pgm.EndOfCommand()) {                                  \
@@ -281,15 +263,11 @@ void GnuPlot::ShowCommand()
 		case S_OFFSETS:
 		    show_offsets();
 		    break;
-
 		case S_LMARGIN: /* HBB 20010525: handle like 'show margin' */
 		case S_RMARGIN:
 		case S_TMARGIN:
 		case S_BMARGIN:
-		case S_MARGIN:
-		    show_margin();
-		    break;
-
+		case S_MARGIN: ShowMargin(); break;
 		case SET_OUTPUT:
 		    show_output();
 		    break;
@@ -302,9 +280,7 @@ void GnuPlot::ShowCommand()
 		case S_PM3D:
 		    show_pm3d();
 		    break;
-		case S_PALETTE:
-		    show_palette();
-		    break;
+		case S_PALETTE: ShowPalette(); break;
 		case S_COLORBOX:
 		    show_colorbox();
 		    break;
@@ -380,9 +356,7 @@ void GnuPlot::ShowCommand()
 		case S_DATA:
 		    error_message = "keyword 'data' deprecated, use 'show style data'";
 		    break;
-		case S_STYLE:
-		    show_style();
-		    break;
+		case S_STYLE: ShowStyle(); break;
 		case S_SURFACE:
 		    show_surface();
 		    break;
@@ -527,9 +501,7 @@ void GnuPlot::ShowCommand()
 		case S_ZERO:
 		    show_zero();
 		    break;
-		case S_DATAFILE:
-		    show_datafile();
-		    break;
+		case S_DATAFILE: ShowDataFile(); break;
 		case S_TABLE:
 		    show_table();
 		    break;
@@ -623,11 +595,12 @@ void GnuPlot::ShowCommand()
 // process 'show actiontable|at' command
 // not documented
 //
-static void show_at()
+//static void show_at()
+void GnuPlot::ShowAt()
 {
 	putc('\n', stderr);
-	disp_at(GPO.TempAt(), 0);
-	GPO.Pgm.Shift();
+	disp_at(TempAt(), 0);
+	Pgm.Shift();
 }
 //
 // called by show_at(), and recursively by itself 
@@ -641,7 +614,7 @@ static void disp_at(struct at_type * curr_at, int level)
 		for(j = 0; j < level; j++)
 			putc(' ', stderr); /* indent */
 		// print name of instruction 
-		fputs(_FuncTab[(int)(curr_at->actions[i].index)].f_name, stderr);
+		fputs(_FuncTab2[(int)(curr_at->actions[i].index)].P_Name, stderr);
 		arg = &(curr_at->actions[i].arg);
 		// now print optional argument 
 		switch(curr_at->actions[i].index) {
@@ -703,7 +676,8 @@ static void disp_at(struct at_type * curr_at, int level)
 //
 // process 'show all' command 
 //
-static void show_all()
+//static void show_all()
+void GnuPlot::ShowAll()
 {
 	var_show_all = 1;
 	show_version(stderr);
@@ -716,25 +690,25 @@ static void show_all()
 	show_dgrid3d();
 	show_mapping();
 	show_dummy();
-	show_format();
-	show_style();
+	ShowFormat();
+	ShowStyle();
 	show_grid();
 	show_raxis();
-	show_zeroaxis(FIRST_X_AXIS);
-	show_zeroaxis(FIRST_Y_AXIS);
-	show_zeroaxis(FIRST_Z_AXIS);
+	ShowZeroAxis(FIRST_X_AXIS);
+	ShowZeroAxis(FIRST_Y_AXIS);
+	ShowZeroAxis(FIRST_Z_AXIS);
 	show_label(0);
 	show_arrow(0);
 	show_key();
 	show_logscale();
 	show_offsets();
-	show_margin();
+	ShowMargin();
 	show_micro();
 	show_minus_sign();
 	show_output();
 	show_print();
 	show_parametric();
-	show_palette();
+	ShowPalette();
 	show_colorbox();
 	show_pm3d();
 	show_pointsize();
@@ -756,11 +730,11 @@ static void show_all()
 	show_origin();
 	show_term();
 	show_tics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
-	show_mtics(&GPO.AxS[FIRST_X_AXIS]);
-	show_mtics(&GPO.AxS[FIRST_Y_AXIS]);
-	show_mtics(&GPO.AxS[FIRST_Z_AXIS]);
-	show_mtics(&GPO.AxS[SECOND_X_AXIS]);
-	show_mtics(&GPO.AxS[SECOND_Y_AXIS]);
+	show_mtics(&AxS[FIRST_X_AXIS]);
+	show_mtics(&AxS[FIRST_Y_AXIS]);
+	show_mtics(&AxS[FIRST_Z_AXIS]);
+	show_mtics(&AxS[SECOND_X_AXIS]);
+	show_mtics(&AxS[SECOND_Y_AXIS]);
 	show_xyzlabel("", "time", &timelabel);
 	if(parametric || polar) {
 		if(!is_3d_plot)
@@ -793,14 +767,13 @@ static void show_all()
 	show_psdir();
 	show_locale();
 	show_zero();
-	show_datafile();
+	ShowDataFile();
 #ifdef USE_MOUSE
 	show_mouse();
 #endif
 	show_plot();
 	show_variables();
 	show_functions();
-
 	var_show_all = 0;
 }
 
@@ -1063,15 +1036,11 @@ static void show_autoscale()
 	SHOW_ALL_NL;
 
 #define SHOW_AUTOSCALE(axis) {                                                \
-		t_autoscale ascale = GPO.AxS[axis].set_autoscale; \
-		fprintf(stderr, "\t%s: %s%s%s%s%s, ",                                 \
-		    axis_name(axis),                                      \
-		    (ascale & AUTOSCALE_BOTH) ? "ON" : "OFF",                     \
-		    ((ascale & AUTOSCALE_BOTH) == AUTOSCALE_MIN) ? " (min)" : "", \
-		    ((ascale & AUTOSCALE_BOTH) == AUTOSCALE_MAX) ? " (max)" : "", \
-		    (ascale & AUTOSCALE_FIXMIN) ? " (fixmin)" : "",               \
-		    (ascale & AUTOSCALE_FIXMAX) ? " (fixmax)" : "");              \
-}
+		const t_autoscale ascale = GPO.AxS[axis].set_autoscale; \
+		fprintf(stderr, "\t%s: %s%s%s%s%s, ", axis_name(axis), \
+		    (ascale & AUTOSCALE_BOTH) ? "ON" : "OFF", ((ascale & AUTOSCALE_BOTH) == AUTOSCALE_MIN) ? " (min)" : "", \
+		    ((ascale & AUTOSCALE_BOTH) == AUTOSCALE_MAX) ? " (max)" : "", (ascale & AUTOSCALE_FIXMIN) ? " (fixmin)" : "", \
+		    (ascale & AUTOSCALE_FIXMAX) ? " (fixmax)" : ""); }
 
 	fputs("\tautoscaling is ", stderr);
 	if(parametric) {
@@ -1099,28 +1068,25 @@ static void show_autoscale()
 static void show_border()
 {
 	SHOW_ALL_NL;
-
 	if(!draw_border)
 		fprintf(stderr, "\tborder is not drawn\n");
 	else {
 		fprintf(stderr, "\tborder %d (0x%X) is drawn in %s layer with\n\t ",
-		    draw_border, draw_border,
-		    border_layer == LAYER_BEHIND ? "behind" : border_layer == LAYER_BACK ? "back" : "front");
+		    draw_border, draw_border, border_layer == LAYER_BEHIND ? "behind" : border_layer == LAYER_BACK ? "back" : "front");
 		save_linetype(stderr, &border_lp, FALSE);
 		fputc('\n', stderr);
 	}
 }
-
-/* process 'show boxwidth' command */
+//
+// process 'show boxwidth' command 
+//
 static void show_boxwidth()
 {
 	SHOW_ALL_NL;
-
 	if(boxwidth < 0.0)
 		fputs("\tboxwidth is auto\n", stderr);
 	else {
-		fprintf(stderr, "\tboxwidth is %g %s\n", boxwidth,
-		    (boxwidth_is_absolute) ? "absolute" : "relative");
+		fprintf(stderr, "\tboxwidth is %g %s\n", boxwidth, (boxwidth_is_absolute) ? "absolute" : "relative");
 	}
 	fprintf(stderr, "\tboxdepth is %g\n", boxdepth);
 }
@@ -1132,48 +1098,33 @@ static void show_boxplot()
 	    boxplot_opts.plotstyle == FINANCEBARS ? "finance bar" : "box and whisker");
 	fprintf(stderr, "\tboxplot range extends from the ");
 	if(boxplot_opts.limit_type == 1)
-		fprintf(stderr, "  median to include %5.2f of the points\n",
-		    boxplot_opts.limit_value);
+		fprintf(stderr, "  median to include %5.2f of the points\n", boxplot_opts.limit_value);
 	else
-		fprintf(stderr, "  box by %5.2f of the interquartile distance\n",
-		    boxplot_opts.limit_value);
+		fprintf(stderr, "  box by %5.2f of the interquartile distance\n", boxplot_opts.limit_value);
 	if(boxplot_opts.outliers)
-		fprintf(stderr, "\toutliers will be drawn using point type %d\n",
-		    boxplot_opts.pointtype+1);
+		fprintf(stderr, "\toutliers will be drawn using point type %d\n", boxplot_opts.pointtype+1);
 	else
 		fprintf(stderr, "\toutliers will not be drawn\n");
-	fprintf(stderr, "\tseparation between boxplots is %g\n",
-	    boxplot_opts.separation);
+	fprintf(stderr, "\tseparation between boxplots is %g\n", boxplot_opts.separation);
 	fprintf(stderr, "\tfactor labels %s\n",
 	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X)    ? "will be put on the x axis"  :
 	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X2)   ? "will be put on the x2 axis" :
-	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_AUTO) ? "are automatic" :
-	    "are off");
-	fprintf(stderr, "\tfactor labels will %s\n",
-	    boxplot_opts.sort_factors ?
-	    "be sorted alphabetically" :
-	    "appear in the order they were found");
+	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_AUTO) ? "are automatic" : "are off");
+	fprintf(stderr, "\tfactor labels will %s\n", boxplot_opts.sort_factors ? "be sorted alphabetically" : "appear in the order they were found");
 }
 
 /* process 'show fillstyle' command */
 static void show_fillstyle()
 {
 	SHOW_ALL_NL;
-
 	switch(default_fillstyle.fillstyle) {
 		case FS_SOLID:
 		case FS_TRANSPARENT_SOLID:
-		    fprintf(stderr,
-			"\tFill style uses %s solid colour with density %.3f",
-			default_fillstyle.fillstyle == FS_SOLID ? "" : "transparent",
-			default_fillstyle.filldensity/100.0);
+		    fprintf(stderr, "\tFill style uses %s solid colour with density %.3f", default_fillstyle.fillstyle == FS_SOLID ? "" : "transparent", default_fillstyle.filldensity/100.0);
 		    break;
 		case FS_PATTERN:
 		case FS_TRANSPARENT_PATTERN:
-		    fprintf(stderr,
-			"\tFill style uses %s patterns starting at %d",
-			default_fillstyle.fillstyle == FS_PATTERN ? "" : "transparent",
-			default_fillstyle.fillpattern);
+		    fprintf(stderr, "\tFill style uses %s patterns starting at %d", default_fillstyle.fillstyle == FS_PATTERN ? "" : "transparent", default_fillstyle.fillpattern);
 		    break;
 		default:
 		    fprintf(stderr, "\tFill style is empty");
@@ -1191,27 +1142,17 @@ static void show_fillstyle()
 static void show_clip()
 {
 	SHOW_ALL_NL;
-
 	fprintf(stderr, "\tpoint clip is %s\n", (clip_points) ? "ON" : "OFF");
-
-	fprintf(stderr, "\t%s lines with one end out of range (clip one)\n",
-	    clip_lines1 ? "clipping" : "not drawing");
-
-	fprintf(stderr, "\t%s lines with both ends out of range (clip two)\n",
-	    clip_lines2 ? "clipping" : "not drawing");
-
-	fprintf(stderr, "\t%sclipping lines on polar plot at maximum radius\n",
-	    clip_radial ? "" : "not ");
+	fprintf(stderr, "\t%s lines with one end out of range (clip one)\n", clip_lines1 ? "clipping" : "not drawing");
+	fprintf(stderr, "\t%s lines with both ends out of range (clip two)\n", clip_lines2 ? "clipping" : "not drawing");
+	fprintf(stderr, "\t%sclipping lines on polar plot at maximum radius\n", clip_radial ? "" : "not ");
 }
 
 /* process 'show cntrparam|cntrlabel|contour' commands */
 static void show_contour()
 {
 	SHOW_ALL_NL;
-
-	fprintf(stderr, "\tcontour for surfaces are %s",
-	    (draw_contour) ? "drawn" : "not drawn\n");
-
+	fprintf(stderr, "\tcontour for surfaces are %s", (draw_contour) ? "drawn" : "not drawn\n");
 	if(draw_contour) {
 		fprintf(stderr, " in %d levels on ", contour_levels);
 		switch(draw_contour) {
@@ -1263,14 +1204,10 @@ static void show_contour()
 			    /* contour-levels counts both ends */
 			    break;
 		}
-
 		/* Show contour label options */
-		fprintf(stderr, "\tcontour lines are drawn in %s linetypes\n",
-		    clabel_onecolor ? "the same" : "individual");
-		fprintf(stderr, "\tformat for contour labels is '%s' font '%s'\n",
-		    contour_format, clabel_font ? clabel_font : "");
-		fprintf(stderr, "\ton-plot labels placed at segment %d with interval %d\n",
-		    clabel_start, clabel_interval);
+		fprintf(stderr, "\tcontour lines are drawn in %s linetypes\n", clabel_onecolor ? "the same" : "individual");
+		fprintf(stderr, "\tformat for contour labels is '%s' font '%s'\n", contour_format, clabel_font ? clabel_font : "");
+		fprintf(stderr, "\ton-plot labels placed at segment %d with interval %d\n", clabel_start, clabel_interval);
 		if(contour_firstlinetype > 0)
 			fprintf(stderr, "\tfirst contour linetype will be %d\n", contour_firstlinetype);
 		else
@@ -1282,11 +1219,8 @@ static void show_contour()
 /* process 'show dashtype' command (tag 0 means show all) */
 static void show_dashtype(int tag)
 {
-	struct custom_dashtype_def * this_dashtype;
 	bool showed = FALSE;
-
-	for(this_dashtype = first_custom_dashtype; this_dashtype != NULL;
-	    this_dashtype = this_dashtype->next) {
+	for(custom_dashtype_def * this_dashtype = first_custom_dashtype; this_dashtype != NULL; this_dashtype = this_dashtype->next) {
 		if(tag == 0 || tag == this_dashtype->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tdashtype %d, ", this_dashtype->tag);
@@ -1302,24 +1236,15 @@ static void show_dashtype(int tag)
 static void show_dgrid3d()
 {
 	SHOW_ALL_NL;
-
 	if(dgrid3d)
 		if(dgrid3d_mode == DGRID3D_QNORM) {
-			fprintf(stderr,
-			    "\tdata grid3d is enabled for mesh of size %dx%d, norm=%d\n",
-			    dgrid3d_row_fineness,
-			    dgrid3d_col_fineness,
-			    dgrid3d_norm_value);
+			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, norm=%d\n", dgrid3d_row_fineness, dgrid3d_col_fineness, dgrid3d_norm_value);
 		}
 		else if(dgrid3d_mode == DGRID3D_SPLINES) {
-			fprintf(stderr,
-			    "\tdata grid3d is enabled for mesh of size %dx%d, splines\n",
-			    dgrid3d_row_fineness,
-			    dgrid3d_col_fineness);
+			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, splines\n", dgrid3d_row_fineness, dgrid3d_col_fineness);
 		}
 		else {
-			fprintf(stderr,
-			    "\tdata grid3d is enabled for mesh of size %dx%d, kernel=%s,\n\tscale factors x=%f, y=%f%s\n",
+			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, kernel=%s,\n\tscale factors x=%f, y=%f%s\n",
 			    dgrid3d_row_fineness,
 			    dgrid3d_col_fineness,
 			    reverse_table_lookup(dgrid3d_mode_tbl, dgrid3d_mode),
@@ -1335,19 +1260,11 @@ static void show_dgrid3d()
 static void show_mapping()
 {
 	SHOW_ALL_NL;
-
 	fputs("\tmapping for 3-d data is ", stderr);
-
 	switch(mapping3d) {
-		case MAP3D_CARTESIAN:
-		    fputs("cartesian\n", stderr);
-		    break;
-		case MAP3D_SPHERICAL:
-		    fputs("spherical\n", stderr);
-		    break;
-		case MAP3D_CYLINDRICAL:
-		    fputs("cylindrical\n", stderr);
-		    break;
+		case MAP3D_CARTESIAN: fputs("cartesian\n", stderr); break;
+		case MAP3D_SPHERICAL: fputs("spherical\n", stderr); break;
+		case MAP3D_CYLINDRICAL: fputs("cylindrical\n", stderr); break;
 	}
 }
 
@@ -1356,7 +1273,6 @@ static void show_dummy()
 {
 	int i;
 	SHOW_ALL_NL;
-
 	fputs("\tdummy variables are ", stderr);
 	for(i = 0; i<MAX_NUM_VAR; i++) {
 		if(*set_dummy_var[i] == '\0') {
@@ -1368,91 +1284,95 @@ static void show_dummy()
 		}
 	}
 }
-
-/* process 'show format' command */
-static void show_format()
+//
+// process 'show format' command 
+//
+//static void show_format()
+void GnuPlot::ShowFormat()
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\ttic format is:\n");
-	GPO.AxS.SaveAxisFormat(stderr, FIRST_X_AXIS);
-	GPO.AxS.SaveAxisFormat(stderr, FIRST_Y_AXIS);
-	GPO.AxS.SaveAxisFormat(stderr, SECOND_X_AXIS);
-	GPO.AxS.SaveAxisFormat(stderr, SECOND_Y_AXIS);
-	GPO.AxS.SaveAxisFormat(stderr, FIRST_Z_AXIS);
-	GPO.AxS.SaveAxisFormat(stderr, COLOR_AXIS);
-	GPO.AxS.SaveAxisFormat(stderr, POLAR_AXIS);
+	AxS.SaveAxisFormat(stderr, FIRST_X_AXIS);
+	AxS.SaveAxisFormat(stderr, FIRST_Y_AXIS);
+	AxS.SaveAxisFormat(stderr, SECOND_X_AXIS);
+	AxS.SaveAxisFormat(stderr, SECOND_Y_AXIS);
+	AxS.SaveAxisFormat(stderr, FIRST_Z_AXIS);
+	AxS.SaveAxisFormat(stderr, COLOR_AXIS);
+	AxS.SaveAxisFormat(stderr, POLAR_AXIS);
 }
-
-/* process 'show style' sommand */
-static void show_style()
+//
+// process 'show style' sommand 
+//
+//static void show_style()
+void GnuPlot::ShowStyle()
 {
 	int tag = 0;
 #define CHECK_TAG_GT_ZERO                                       \
-	if(!GPO.Pgm.EndOfCommand()) {                                  \
-		tag = static_cast<int>(GPO.RealExpression());     \
+	if(!Pgm.EndOfCommand()) {                                  \
+		tag = static_cast<int>(RealExpression());     \
 		if(tag <= 0)                                       \
-			GPO.IntErrorCurToken("tag must be > zero");        \
+			IntErrorCurToken("tag must be > zero");        \
 	}
-	switch(GPO.Pgm.LookupTableForCurrentToken(&show_style_tbl[0])) {
+	switch(Pgm.LookupTableForCurrentToken(&show_style_tbl[0])) {
 		case SHOW_STYLE_DATA:
 		    SHOW_ALL_NL;
 		    show_styles("Data", data_style);
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_FUNCTION:
 		    SHOW_ALL_NL;
 		    show_styles("Functions", func_style);
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_LINE:
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    CHECK_TAG_GT_ZERO;
 		    show_linestyle(tag);
 		    break;
 		case SHOW_STYLE_FILLING:
 		    show_fillstyle();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_INCREMENT:
 		    show_increment();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_HISTOGRAM:
 		    show_histogram();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_TEXTBOX:
 		    show_textbox();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_PARALLEL:
 		    save_style_parallel(stderr);
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_SPIDERPLOT:
 		    save_style_spider(stderr);
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_ARROW:
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    CHECK_TAG_GT_ZERO;
 		    show_arrowstyle(tag);
 		    break;
 		case SHOW_STYLE_BOXPLOT:
 		    show_boxplot();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_RECTANGLE:
 		    show_style_rectangle();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_CIRCLE:
 		    show_style_circle();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_ELLIPSE:
 		    show_style_ellipse();
-		    GPO.Pgm.Shift();
+		    Pgm.Shift();
 		    break;
 		default:
 		    /* show all styles */
@@ -1582,34 +1502,37 @@ static void show_raxis()
 	fprintf(stderr, "\traxis is %sdrawn\n", raxis ? "" : "not ");
 }
 
-static void show_paxis()
+//static void show_paxis()
+void GnuPlot::ShowPAxis()
 {
 	GpAxis * paxis;
-	int p = GPO.IntExpression();
-	if(p <= 0 || p > GPO.AxS.GetParallelAxisCount())
-		GPO.IntErrorCurToken("no such parallel axis is active");
-	paxis = &GPO.AxS.Parallel(p-1);
+	int p = IntExpression();
+	if(p <= 0 || p > AxS.GetParallelAxisCount())
+		IntErrorCurToken("no such parallel axis is active");
+	paxis = &AxS.Parallel(p-1);
 	fputs("\t", stderr);
-	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.EqualsCur("range"))
+	if(Pgm.EndOfCommand() || Pgm.EqualsCur("range"))
 		save_prange(stderr, paxis);
-	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.AlmostEqualsCur("tic$s"))
+	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("tic$s"))
 		show_ticdefp(paxis);
-	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.EqualsCur("label")) {
+	if(Pgm.EndOfCommand() || Pgm.EqualsCur("label")) {
 		fprintf(stderr, "\t");
 		save_axis_label_or_title(stderr, axis_name((AXIS_INDEX)paxis->index), "label", &paxis->label, TRUE);
 	}
 	if(paxis->zeroaxis)
 		save_linetype(stderr, paxis->zeroaxis, FALSE);
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 }
-
-/* process 'show {x|y|z}zeroaxis' command */
-static void show_zeroaxis(AXIS_INDEX axis)
+//
+// process 'show {x|y|z}zeroaxis' command 
+//
+//static void show_zeroaxis(AXIS_INDEX axis)
+void GnuPlot::ShowZeroAxis(AXIS_INDEX axis)
 {
 	SHOW_ALL_NL;
-	if(GPO.AxS[axis].zeroaxis) {
+	if(AxS[axis].zeroaxis) {
 		fprintf(stderr, "\t%szeroaxis is drawn with", axis_name(axis));
-		save_linetype(stderr, GPO.AxS[axis].zeroaxis, FALSE);
+		save_linetype(stderr, AxS[axis].zeroaxis, FALSE);
 		fputc('\n', stderr);
 	}
 	else
@@ -1845,10 +1768,10 @@ static void show_key()
 	show_keytitle();
 }
 
-void show_position(struct GpPosition * pos, int ndim)
+void show_position(const GpPosition * pPos, int ndim)
 {
 	fprintf(stderr, "(");
-	save_position(stderr, pos, ndim, FALSE);
+	save_position(stderr, pPos, ndim, FALSE);
 	fprintf(stderr, ")");
 }
 
@@ -1880,42 +1803,43 @@ static void show_logscale()
 	count += show_log(&GPO.AxS[POLAR_AXIS]);
 	fputs(count ? "\n" : "none\n", stderr);
 }
-
-/* process 'show offsets' command */
+//
+// process 'show offsets' command 
+//
 static void show_offsets()
 {
 	SHOW_ALL_NL;
 	save_offsets(stderr, "\toffsets are");
 }
-
-/* process 'show margin' command */
-static void show_margin()
+//
+// process 'show margin' command 
+//
+//static void show_margin()
+void GnuPlot::ShowMargin()
 {
 	SHOW_ALL_NL;
-	if(lmargin.scalex == screen)
-		fprintf(stderr, "\tlmargin is set to screen %g\n", lmargin.x);
-	else if(lmargin.x >= 0)
-		fprintf(stderr, "\tlmargin is set to %g\n", lmargin.x);
+	if(V.MarginL.scalex == screen)
+		fprintf(stderr, "\tlmargin is set to screen %g\n", V.MarginL.x);
+	else if(V.MarginL.x >= 0)
+		fprintf(stderr, "\tlmargin is set to %g\n", V.MarginL.x);
 	else
 		fputs("\tlmargin is computed automatically\n", stderr);
-	if(rmargin.scalex == screen)
-		fprintf(stderr, "\trmargin is set to screen %g\n", rmargin.x);
-	else if(rmargin.x >= 0)
-		fprintf(stderr, "\trmargin is set to %g\n", rmargin.x);
+	if(V.MarginR.scalex == screen)
+		fprintf(stderr, "\trmargin is set to screen %g\n", V.MarginR.x);
+	else if(V.MarginR.x >= 0)
+		fprintf(stderr, "\trmargin is set to %g\n", V.MarginR.x);
 	else
 		fputs("\trmargin is computed automatically\n", stderr);
-
-	if(bmargin.scalex == screen)
-		fprintf(stderr, "\tbmargin is set to screen %g\n", bmargin.x);
-	else if(bmargin.x >= 0)
-		fprintf(stderr, "\tbmargin is set to %g\n", bmargin.x);
+	if(V.MarginB.scalex == screen)
+		fprintf(stderr, "\tbmargin is set to screen %g\n", V.MarginB.x);
+	else if(V.MarginB.x >= 0)
+		fprintf(stderr, "\tbmargin is set to %g\n", V.MarginB.x);
 	else
 		fputs("\tbmargin is computed automatically\n", stderr);
-
-	if(tmargin.scalex == screen)
-		fprintf(stderr, "\ttmargin is set to screen %g\n", tmargin.x);
-	else if(tmargin.x >= 0)
-		fprintf(stderr, "\ttmargin is set to %g\n", tmargin.x);
+	if(V.MarginT.scalex == screen)
+		fprintf(stderr, "\ttmargin is set to screen %g\n", V.MarginT.x);
+	else if(V.MarginT.x >= 0)
+		fprintf(stderr, "\ttmargin is set to %g\n", V.MarginT.x);
 	else
 		fputs("\ttmargin is computed automatically\n", stderr);
 }
@@ -2074,7 +1998,6 @@ static void show_palette_palette()
 	    3: 0x5500a4
 	 */
 	int format = 0;
-
 	GPO.Pgm.Shift();
 	while(!GPO.Pgm.EndOfCommand()) {
 		if(GPO.Pgm.EqualsCur("float")) {
@@ -2095,7 +2018,6 @@ static void show_palette_palette()
 				colors = 128;
 		}
 	}
-
 	f = (print_out) ? print_out : stderr;
 	fprintf(stderr, "%s palette with %i discrete colors", (GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) ? "Gray" : "Color", colors);
 	if(print_out_name)
@@ -2136,19 +2058,21 @@ static void show_palette_gradient()
 	GPO.Pgm.Shift();
 	if(GPO.SmPltt.colorMode != SMPAL_COLOR_MODE_GRADIENT) {
 		fputs("\tcolor mapping *not* done by defined gradient.\n", stderr);
-		return;
 	}
-	for(int i = 0; i < GPO.SmPltt.GradientNum; i++) {
-		gray = GPO.SmPltt.P_Gradient[i].pos;
-		r = GPO.SmPltt.P_Gradient[i].col.r;
-		g = GPO.SmPltt.P_Gradient[i].col.g;
-		b = GPO.SmPltt.P_Gradient[i].col.b;
-		fprintf(stderr, "%3i. gray=%0.4f, (r,g,b)=(%0.4f,%0.4f,%0.4f), #%02x%02x%02x = %3i %3i %3i\n",
-		    i, gray, r, g, b, (int)(255*r+.5), (int)(255*g+.5), (int)(255*b+.5), (int)(255*r+.5), (int)(255*g+.5), (int)(255*b+.5) );
+	else {
+		for(int i = 0; i < GPO.SmPltt.GradientNum; i++) {
+			gray = GPO.SmPltt.P_Gradient[i].pos;
+			r = GPO.SmPltt.P_Gradient[i].col.r;
+			g = GPO.SmPltt.P_Gradient[i].col.g;
+			b = GPO.SmPltt.P_Gradient[i].col.b;
+			fprintf(stderr, "%3i. gray=%0.4f, (r,g,b)=(%0.4f,%0.4f,%0.4f), #%02x%02x%02x = %3i %3i %3i\n",
+				i, gray, r, g, b, (int)(255*r+.5), (int)(255*g+.5), (int)(255*b+.5), (int)(255*r+.5), (int)(255*g+.5), (int)(255*b+.5) );
+		}
 	}
 }
-
-/* Helper function for show_palette_colornames() */
+//
+// Helper function for show_palette_colornames() 
+//
 static void show_colornames(const struct gen_table * tbl)
 {
 	int i = 0;
@@ -2173,83 +2097,84 @@ static void show_palette_colornames()
 	show_colornames(pm3d_color_names_tbl);
 }
 
-static void show_palette()
+//static void show_palette()
+void GnuPlot::ShowPalette()
 {
 	// no option given, i.e. "show palette" 
-	if(GPO.Pgm.EndOfCommand()) {
-		fprintf(stderr, "\tpalette is %s\n", GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY ? "GRAY" : "COLOR");
-		switch(GPO.SmPltt.colorMode) {
+	if(Pgm.EndOfCommand()) {
+		fprintf(stderr, "\tpalette is %s\n", SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY ? "GRAY" : "COLOR");
+		switch(SmPltt.colorMode) {
 			default:
 			case SMPAL_COLOR_MODE_GRAY: break;
 			case SMPAL_COLOR_MODE_RGB:
-			    fprintf(stderr, "\trgb color mapping by rgbformulae are %i,%i,%i\n", GPO.SmPltt.formulaR, GPO.SmPltt.formulaG, GPO.SmPltt.formulaB);
+			    fprintf(stderr, "\trgb color mapping by rgbformulae are %i,%i,%i\n", SmPltt.formulaR, SmPltt.formulaG, SmPltt.formulaB);
 			    break;
 			case SMPAL_COLOR_MODE_GRADIENT:
 			    fputs("\tcolor mapping by defined gradient\n", stderr);
 			    break;
 			case SMPAL_COLOR_MODE_FUNCTIONS:
 			    fputs("\tcolor mapping is done by user defined functions\n", stderr);
-			    if(GPO.SmPltt.Afunc.at && GPO.SmPltt.Afunc.definition)
-				    fprintf(stderr, "\t  A-formula: %s\n", GPO.SmPltt.Afunc.definition);
-			    if(GPO.SmPltt.Bfunc.at && GPO.SmPltt.Bfunc.definition)
-				    fprintf(stderr, "\t  B-formula: %s\n", GPO.SmPltt.Bfunc.definition);
-			    if(GPO.SmPltt.Cfunc.at && GPO.SmPltt.Cfunc.definition)
-				    fprintf(stderr, "\t  C-formula: %s\n", GPO.SmPltt.Cfunc.definition);
+			    if(SmPltt.Afunc.at && SmPltt.Afunc.definition)
+				    fprintf(stderr, "\t  A-formula: %s\n", SmPltt.Afunc.definition);
+			    if(SmPltt.Bfunc.at && SmPltt.Bfunc.definition)
+				    fprintf(stderr, "\t  B-formula: %s\n", SmPltt.Bfunc.definition);
+			    if(SmPltt.Cfunc.at && SmPltt.Cfunc.definition)
+				    fprintf(stderr, "\t  C-formula: %s\n", SmPltt.Cfunc.definition);
 			    break;
 			case SMPAL_COLOR_MODE_CUBEHELIX:
-			    fprintf(stderr, "\tCubehelix color palette: start %g cycles %g saturation %g\n", GPO.SmPltt.cubehelix_start, GPO.SmPltt.cubehelix_cycles, GPO.SmPltt.cubehelix_saturation);
+			    fprintf(stderr, "\tCubehelix color palette: start %g cycles %g saturation %g\n", SmPltt.cubehelix_start, SmPltt.cubehelix_cycles, SmPltt.cubehelix_saturation);
 			    break;
 		}
-		fprintf(stderr, "\tfigure is %s\n", (GPO.SmPltt.Positive == SMPAL_POSITIVE) ? "POSITIVE" : "NEGATIVE");
-		fprintf(stderr, "\tall color formulae ARE%s written into output postscript file\n", !GPO.SmPltt.ps_allcF ? " NOT" : "");
+		fprintf(stderr, "\tfigure is %s\n", (SmPltt.Positive == SMPAL_POSITIVE) ? "POSITIVE" : "NEGATIVE");
+		fprintf(stderr, "\tall color formulae ARE%s written into output postscript file\n", !SmPltt.ps_allcF ? " NOT" : "");
 		fputs("\tallocating ", stderr);
-		if(GPO.SmPltt.UseMaxColors)
-			fprintf(stderr, "MAX %i", GPO.SmPltt.UseMaxColors);
+		if(SmPltt.UseMaxColors)
+			fprintf(stderr, "MAX %i", SmPltt.UseMaxColors);
 		else
 			fputs("ALL remaining", stderr);
 		fputs(" color positions for discrete palette terminals\n", stderr);
 		fputs("\tColor-Model: ", stderr);
-		switch(GPO.SmPltt.CModel) {
+		switch(SmPltt.CModel) {
 			default:
 			case C_MODEL_RGB: fputs("RGB\n", stderr); break;
 			case C_MODEL_CMY: fputs("CMY\n", stderr); break;
 			case C_MODEL_HSV:
-			    if(GPO.SmPltt.HSV_offset != 0)
-				    fprintf(stderr, "HSV start %.2f\n", GPO.SmPltt.HSV_offset);
+			    if(SmPltt.HSV_offset != 0)
+				    fprintf(stderr, "HSV start %.2f\n", SmPltt.HSV_offset);
 			    else
 				    fputs("HSV\n", stderr);
 			    break;
 		}
-		fprintf(stderr, "\tgamma is %.4g\n", GPO.SmPltt.gamma);
+		fprintf(stderr, "\tgamma is %.4g\n", SmPltt.gamma);
 		return;
 	}
-	if(GPO.Pgm.AlmostEqualsCur("pal$ette")) {
+	if(Pgm.AlmostEqualsCur("pal$ette")) {
 		// 'show palette palette <n>' 
 		show_palette_palette();
 		return;
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("gra$dient")) {
+	else if(Pgm.AlmostEqualsCur("gra$dient")) {
 		// 'show palette gradient' 
 		show_palette_gradient();
 		return;
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("rgbfor$mulae")) {
+	else if(Pgm.AlmostEqualsCur("rgbfor$mulae")) {
 		// 'show palette rgbformulae' 
 		show_palette_rgbformulae();
 		return;
 	}
-	else if(GPO.Pgm.EqualsCur("colors") || GPO.Pgm.AlmostEqualsCur("color$names")) {
+	else if(Pgm.EqualsCur("colors") || Pgm.AlmostEqualsCur("color$names")) {
 		// 'show palette colornames' 
 		show_palette_colornames();
 		return;
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("fit2rgb$formulae")) {
+	else if(Pgm.AlmostEqualsCur("fit2rgb$formulae")) {
 		// 'show palette fit2rgbformulae' 
 		show_palette_fit2rgbformulae();
 		return;
 	}
 	else { // wrong option to "show palette" 
-		GPO.IntErrorCurToken("Expecting 'gradient' or 'palette <n>' or 'rgbformulae' or 'colornames'");
+		IntErrorCurToken("Expecting 'gradient' or 'palette <n>' or 'rgbformulae' or 'colornames'");
 	}
 }
 
@@ -2422,16 +2347,13 @@ static void show_decimalsign()
 static void show_micro()
 {
 	SHOW_ALL_NL;
-
-	fprintf(stderr, "\tmicro character for output is %s \n",
-	    (use_micro && micro) ? micro : "u");
+	fprintf(stderr, "\tmicro character for output is %s \n", (use_micro && micro) ? micro : "u");
 }
 
 /* process 'show minus_sign' command */
 static void show_minus_sign()
 {
 	SHOW_ALL_NL;
-
 	if(use_minus_sign && minus_sign)
 		fprintf(stderr, "\tminus sign for output is %s \n", minus_sign);
 	else
@@ -2578,9 +2500,7 @@ static void show_surface()
 static void show_hidden3d()
 {
 	SHOW_ALL_NL;
-
-	fprintf(stderr, "\thidden surface is %s\n",
-	    hidden3d ? "removed" : "drawn");
+	fprintf(stderr, "\thidden surface is %s\n", hidden3d ? "removed" : "drawn");
 	show_hidden3doptions();
 }
 
@@ -2610,56 +2530,49 @@ static void show_history()
 #ifndef GNUPLOT_HISTORY
 	fprintf(stderr, "\tThis copy of gnuplot was not built to use a command history file\n");
 #endif
-	fprintf(stderr, "\t history size %d%s,  %s,  %s\n",
-	    gnuplot_history_size, gnuplot_history_size<0 ? "(unlimited)" : "",
-	    history_quiet ? "quiet" : "numbers",
-	    history_full ? "full" : "suppress duplicates");
+	fprintf(stderr, "\t history size %d%s,  %s,  %s\n", gnuplot_history_size, gnuplot_history_size<0 ? "(unlimited)" : "",
+	    history_quiet ? "quiet" : "numbers", history_full ? "full" : "suppress duplicates");
 }
 
 /* process 'show size' command */
 static void show_size()
 {
 	SHOW_ALL_NL;
-
-	fprintf(stderr, "\tsize is scaled by %g,%g\n", xsize, ysize);
+	fprintf(stderr, "\tsize is scaled by %g,%g\n", GPO.V.XSize, GPO.V.YSize);
 	if(aspect_ratio > 0)
 		fprintf(stderr, "\tTry to set aspect ratio to %g:1.0\n", aspect_ratio);
 	else if(aspect_ratio == 0)
 		fputs("\tNo attempt to control aspect ratio\n", stderr);
 	else
-		fprintf(stderr, "\tTry to set LOCKED aspect ratio to %g:1.0\n",
-		    -aspect_ratio);
+		fprintf(stderr, "\tTry to set LOCKED aspect ratio to %g:1.0\n", -aspect_ratio);
 }
-
-/* process 'show origin' command */
+//
+// process 'show origin' command 
+//
 static void show_origin()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\torigin is set to %g,%g\n", xoffset, yoffset);
+	fprintf(stderr, "\torigin is set to %g,%g\n", GPO.V.XOffset, GPO.V.YOffset);
 }
-
-/* process 'show term' command */
+//
+// process 'show term' command 
+//
 static void show_term()
 {
 	SHOW_ALL_NL;
-
 	if(term)
-		fprintf(stderr, "   terminal type is %s %s\n",
-		    term->name, term_options);
+		fprintf(stderr, "   terminal type is %s %s\n", term->name, term_options);
 	else
 		fputs("\tterminal type is unknown\n", stderr);
 }
-
-/* process 'show tics|[xyzx2y2cb]tics' commands */
-static void show_tics(bool showx, bool showy, bool showz,
-    bool showx2, bool showy2,
-    bool showcb)
+//
+// process 'show tics|[xyzx2y2cb]tics' commands 
+//
+static void show_tics(bool showx, bool showy, bool showz, bool showx2, bool showy2, bool showcb)
 {
 	int i;
 	SHOW_ALL_NL;
-
 	fprintf(stderr, "\ttics are in %s of plot\n", (grid_tics_in_front) ? "front" : "back");
-
 	if(showx)
 		show_ticdef(FIRST_X_AXIS);
 	if(showx2)
@@ -2833,10 +2746,11 @@ static void show_zero()
 //
 // process 'show datafile' command 
 //
-static void show_datafile()
+//static void show_datafile()
+void GnuPlot::ShowDataFile()
 {
 	SHOW_ALL_NL;
-	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.AlmostEqualsCur("miss$ing")) {
+	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("miss$ing")) {
 		if(missing_val == NULL)
 			fputs("\tNo missing data string set for datafile\n", stderr);
 		else if(!strcmp(missing_val, "NaN"))
@@ -2844,16 +2758,16 @@ static void show_datafile()
 		else
 			fprintf(stderr, "\t\"%s\" in datafile is interpreted as missing value\n", missing_val);
 	}
-	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.AlmostEqualsCur("sep$arators")) {
+	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("sep$arators")) {
 		if(df_separators)
 			fprintf(stderr, "\tdatafile fields separated by any of %d characters \"%s\"\n", (int)strlen(df_separators), df_separators);
 		else
 			fprintf(stderr, "\tdatafile fields separated by whitespace\n");
 	}
-	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.AlmostEqualsCur("com$mentschars")) {
+	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("com$mentschars")) {
 		fprintf(stderr, "\tComments chars are \"%s\"\n", df_commentschars);
 	}
-	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.AlmostEqualsCur("columnhead$ers")) {
+	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("columnhead$ers")) {
 		if(df_columnheaders)
 			fprintf(stderr, "\tFirst line is always treated as headers rather than data\n");
 		else
@@ -2863,28 +2777,27 @@ static void show_datafile()
 		fputs("\tDatafile parsing will accept Fortran D or Q constants\n", stderr);
 	if(df_nofpe_trap)
 		fputs("\tNo floating point exception handler during data input\n", stderr);
-	if(GPO.Pgm.AlmostEqualsCur("bin$ary")) {
-		if(!GPO.Pgm.EndOfCommand())
-			GPO.Pgm.Shift();
-		if(GPO.Pgm.EndOfCommand()) {
-			/* 'show datafile binary' */
+	if(Pgm.AlmostEqualsCur("bin$ary")) {
+		if(!Pgm.EndOfCommand())
+			Pgm.Shift();
+		if(Pgm.EndOfCommand()) {
+			// 'show datafile binary' 
 			df_show_binary(stderr);
 			fputc('\n', stderr);
 		}
-		if(GPO.Pgm.EndOfCommand() || GPO.Pgm.AlmostEqualsCur("datas$izes"))
-			/* 'show datafile binary datasizes' */
-			df_show_datasizes(stderr);
-		if(GPO.Pgm.EndOfCommand())
+		if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("datas$izes"))
+			df_show_datasizes(stderr); // 'show datafile binary datasizes' 
+		if(Pgm.EndOfCommand())
 			fputc('\n', stderr);
-		if(GPO.Pgm.EndOfCommand() || GPO.Pgm.AlmostEqualsCur("filet$ypes"))
-			/* 'show datafile binary filetypes' */
-			df_show_filetypes(stderr);
+		if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("filet$ypes"))
+			df_show_filetypes(stderr); // 'show datafile binary filetypes' 
 	}
-	if(!GPO.Pgm.EndOfCommand())
-		GPO.Pgm.Shift();
+	if(!Pgm.EndOfCommand())
+		Pgm.Shift();
 }
-
-/* process 'show table' command */
+//
+// process 'show table' command 
+//
 static void show_table()
 {
 	char foo[2] = {0, 0};
@@ -3084,113 +2997,89 @@ static void show_arrowstyle(int tag)
 	if(tag > 0 && !showed)
 		GPO.IntErrorCurToken("arrowstyle not found");
 }
-
-/* called by show_tics */
-static void show_ticdefp(GpAxis * this_axis)
+//
+// called by show_tics 
+//
+static void show_ticdefp(const GpAxis * pAx)
 {
 	struct ticmark * t;
-	const char * ticfmt = conv_text(this_axis->formatstring);
+	const char * ticfmt = conv_text(pAx->formatstring);
 	fprintf(stderr, "\t%s-axis tics are %s, \tmajor ticscale is %g and minor ticscale is %g\n",
-	    axis_name((AXIS_INDEX)this_axis->index), (this_axis->tic_in ? "IN" : "OUT"), this_axis->ticscale, this_axis->miniticscale);
-	fprintf(stderr, "\t%s-axis tics:\t", axis_name((AXIS_INDEX)this_axis->index));
-	switch(this_axis->ticmode & TICS_MASK) {
+	    axis_name((AXIS_INDEX)pAx->index), (pAx->tic_in ? "IN" : "OUT"), pAx->ticscale, pAx->miniticscale);
+	fprintf(stderr, "\t%s-axis tics:\t", axis_name((AXIS_INDEX)pAx->index));
+	switch(pAx->ticmode & TICS_MASK) {
 		case NO_TICS:
 		    fputs("OFF\n", stderr);
 		    return;
 		case TICS_ON_AXIS:
 		    fputs("on axis", stderr);
-		    if(this_axis->ticmode & TICS_MIRROR)
-			    fprintf(stderr, " and mirrored %s", (this_axis->tic_in ? "OUT" : "IN"));
+		    if(pAx->ticmode & TICS_MIRROR)
+			    fprintf(stderr, " and mirrored %s", (pAx->tic_in ? "OUT" : "IN"));
 		    break;
 		case TICS_ON_BORDER:
 		    fputs("on border", stderr);
-		    if(this_axis->ticmode & TICS_MIRROR)
+		    if(pAx->ticmode & TICS_MIRROR)
 			    fputs(" and mirrored on opposite border", stderr);
 		    break;
 	}
-
-	if(this_axis->ticdef.rangelimited && !spiderplot)
+	if(pAx->ticdef.rangelimited && !spiderplot)
 		fprintf(stderr, "\n\t  tics are limited to data range");
 	fputs("\n\t  labels are ", stderr);
-	if(this_axis->manual_justify) {
-		switch(this_axis->tic_pos) {
-			case LEFT: {
-			    fputs("left justified, ", stderr);
-			    break;
-		    }
-			case RIGHT: {
-			    fputs("right justified, ", stderr);
-			    break;
-		    }
-			case CENTRE: {
-			    fputs("center justified, ", stderr);
-			    break;
-		    }
+	if(pAx->manual_justify) {
+		switch(pAx->tic_pos) {
+			case LEFT: fputs("left justified, ", stderr); break;
+			case RIGHT: fputs("right justified, ", stderr); break;
+			case CENTRE: fputs("center justified, ", stderr); break;
 		}
 	}
 	else
 		fputs("justified automatically, ", stderr);
 	fprintf(stderr, "format \"%s\"", ticfmt);
-	fprintf(stderr, "%s",
-	    this_axis->tictype == DT_DMS ? " geographic" :
-	    this_axis->tictype == DT_TIMEDATE ? " timedate" :
-	    "");
-	if(this_axis->ticdef.enhanced == FALSE)
+	fprintf(stderr, "%s", pAx->tictype == DT_DMS ? " geographic" : pAx->tictype == DT_TIMEDATE ? " timedate" : "");
+	if(pAx->ticdef.enhanced == FALSE)
 		fprintf(stderr, "  noenhanced");
-	if(this_axis->tic_rotate) {
+	if(pAx->tic_rotate) {
 		fprintf(stderr, " rotated");
-		fprintf(stderr, " by %d", this_axis->tic_rotate);
+		fprintf(stderr, " by %d", pAx->tic_rotate);
 		fputs(" in 2D mode, terminal permitting,\n\t", stderr);
 	}
 	else
 		fputs(" and are not rotated,\n\t", stderr);
 	fputs("    offset ", stderr);
-	show_position(&this_axis->ticdef.offset, 3);
+	show_position(&pAx->ticdef.offset, 3);
 	fputs("\n\t", stderr);
-	switch(this_axis->ticdef.type) {
-		case TIC_COMPUTED: {
-		    fputs("  intervals computed automatically\n", stderr);
-		    break;
-	    }
-		case TIC_MONTH: {
-		    fputs("  Months computed automatically\n", stderr);
-		    break;
-	    }
-		case TIC_DAY: {
-		    fputs("  Days computed automatically\n", stderr);
-		    break;
-	    }
-		case TIC_SERIES: {
-		    fputs("  series", stderr);
-		    if(this_axis->ticdef.def.series.start != -VERYLARGE) {
-			    fputs(" from ", stderr);
-			    save_num_or_time_input(stderr, this_axis->ticdef.def.series.start, this_axis);
-		    }
-		    fprintf(stderr, " by %g%s", this_axis->ticdef.def.series.incr,
-			this_axis->datatype == DT_TIMEDATE ? " secs" : "");
-		    if(this_axis->ticdef.def.series.end != VERYLARGE) {
-			    fputs(" until ", stderr);
-			    save_num_or_time_input(stderr, this_axis->ticdef.def.series.end, this_axis);
-		    }
-		    putc('\n', stderr);
-		    break;
-	    }
-		case TIC_USER: {
-		    fputs("  no auto-generated tics\n", stderr);
-		    break;
-	    }
+	switch(pAx->ticdef.type) {
+		case TIC_COMPUTED: fputs("  intervals computed automatically\n", stderr); break;
+		case TIC_MONTH: fputs("  Months computed automatically\n", stderr); break;
+		case TIC_DAY: fputs("  Days computed automatically\n", stderr); break;
+		case TIC_SERIES: 
+			{
+				fputs("  series", stderr);
+				if(pAx->ticdef.def.series.start != -VERYLARGE) {
+					fputs(" from ", stderr);
+					save_num_or_time_input(stderr, pAx->ticdef.def.series.start, pAx);
+				}
+				fprintf(stderr, " by %g%s", pAx->ticdef.def.series.incr,
+				pAx->datatype == DT_TIMEDATE ? " secs" : "");
+				if(pAx->ticdef.def.series.end != VERYLARGE) {
+					fputs(" until ", stderr);
+					save_num_or_time_input(stderr, pAx->ticdef.def.series.end, pAx);
+				}
+				putc('\n', stderr);
+			}
+			break;
+		case TIC_USER: fputs("  no auto-generated tics\n", stderr); break;
 		default: {
 		    GPO.IntError(NO_CARET, "unknown ticdef type in show_ticdef()");
 		    /* NOTREACHED */
 	    }
 	}
-
-	if(this_axis->ticdef.def.user) {
+	if(pAx->ticdef.def.user) {
 		fputs("\t  explicit list (", stderr);
-		for(t = this_axis->ticdef.def.user; t != NULL; t = t->next) {
+		for(t = pAx->ticdef.def.user; t != NULL; t = t->next) {
 			if(t->label)
 				fprintf(stderr, "\"%s\" ", conv_text(t->label));
-			save_num_or_time_input(stderr, t->position, this_axis);
+			save_num_or_time_input(stderr, t->position, pAx);
 			if(t->level)
 				fprintf(stderr, " %d", t->level);
 			if(t->next)
@@ -3198,14 +3087,13 @@ static void show_ticdefp(GpAxis * this_axis)
 		}
 		fputs(")\n", stderr);
 	}
-
-	if(this_axis->ticdef.textcolor.type != TC_DEFAULT) {
+	if(pAx->ticdef.textcolor.type != TC_DEFAULT) {
 		fputs("\t ", stderr);
-		save_textcolor(stderr, &this_axis->ticdef.textcolor);
+		save_textcolor(stderr, &pAx->ticdef.textcolor);
 		fputs("\n", stderr);
 	}
-	if(this_axis->ticdef.font && *this_axis->ticdef.font) {
-		fprintf(stderr, "\t  font \"%s\"\n", this_axis->ticdef.font);
+	if(pAx->ticdef.font && *pAx->ticdef.font) {
+		fprintf(stderr, "\t  font \"%s\"\n", pAx->ticdef.font);
 	}
 }
 

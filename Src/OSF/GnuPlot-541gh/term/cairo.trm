@@ -144,7 +144,7 @@ struct cairo_params_t {
 	{
 	}
 	enum CAIRO_TERMINALTYPE terminal;
-	size_units explicit_units;
+	GpSizeUnits explicit_units;
 	bool enhanced;
 	bool dashed;
 	float dash_length;
@@ -337,13 +337,13 @@ TERM_PUBLIC void cairotrm_options()
 			case CAIROTRM_SIZE:
 			    GPO.Pgm.Shift();
 			    if(!strcmp(term->name, "pngcairo"))
-				    cairo_params->explicit_units = parse_term_size(&cairo_params->width, &cairo_params->height, PIXELS);
+				    cairo_params->explicit_units = GPO.ParseTermSize(&cairo_params->width, &cairo_params->height, PIXELS);
 #ifdef HAVE_WEBP
 			    else if(!strcmp(term->name, "webp"))
-				    cairo_params->explicit_units = parse_term_size(&cairo_params->width, &cairo_params->height, PIXELS);
+				    cairo_params->explicit_units = GPO.ParseTermSize(&cairo_params->width, &cairo_params->height, PIXELS);
 #endif
 			    else
-				    cairo_params->explicit_units = parse_term_size(&cairo_params->width, &cairo_params->height, INCHES);
+				    cairo_params->explicit_units = GPO.ParseTermSize(&cairo_params->width, &cairo_params->height, INCHES);
 			    if(set_size) duplication = TRUE;
 			    set_size = TRUE;
 			    break;

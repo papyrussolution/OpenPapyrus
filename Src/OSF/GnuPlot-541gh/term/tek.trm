@@ -595,9 +595,8 @@ TERM_PUBLIC void SIXEL_options()
 			    break;
 			case SIXEL_SIZE: {
 			    float width, height;
-
 			    GPO.Pgm.Shift();
-			    parse_term_size(&width, &height, PIXELS);
+			    GPO.ParseTermSize(&width, &height, PIXELS);
 			    if(width > 0 && height > 0) {
 				    term->xmax = width - 1;
 				    term->ymax = height - 1;

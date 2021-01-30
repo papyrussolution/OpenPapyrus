@@ -3344,17 +3344,14 @@ double expint(double n, double z)
 		}
 		y = exp(-z)*y;
 	}
-
-	else{ /* For small z, use series (Abramowitz & Stegun 5.1.12):
+	else { /* For small z, use series (Abramowitz & Stegun 5.1.12):
 		 E_1(z) = -\gamma + \ln z +
 		          \sum_{m=1}^\infty { (-z)^m \over (m) m! }
 		 The series is valid for z>0, and efficient for z<4 or so.  */
 		/* from Abramowitz & Stegun, Table 1.1 */
 		double Euler_constant = .577215664901532860606512;
-
 		double y_prev = 0;
 		double t, m;
-
 		y = -Euler_constant - log(z);
 		t = 1;
 		for(m = 1; m<333; m++) {
@@ -3404,19 +3401,19 @@ void f_expint(union argument * /*arg*/)
 #define BESIN
 
 #ifndef BESIN
-void f_besin(union argument * arg)
+void GnuPlot::F_Besin(union argument * arg)
 {
-	GPO.IntError(NO_CARET, "This copy of gnuplot was built without support for besin(n,x)");
+	IntError(NO_CARET, "This copy of gnuplot was built without support for besin(n,x)");
 }
 #else
 
-/* local prototypes */
+// local prototypes 
 static double iv_asymptotic(double v, double x);
 static void ikv_asymptotic_uniform(double v, double x, double * Iv, double * Kv);
 static void ikv_temme(double v, double x, double * Iv, double * Kv);
 static double iv(double v, double x);
 
-void f_besin(union argument * arg)
+void GnuPlot::F_Besin(union argument * arg)
 {
 	GpValue a;
 	double x = real(__POP__(&a));
@@ -3424,12 +3421,12 @@ void f_besin(union argument * arg)
 	// The underlying function iv(v,x) accepts fractional v but the 
 	// valid range is complicated. We only support integral values. 
 	if(a.type != INTGR) {
-		GPO.EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
 		__IsUndefined = true;
-		GPO.IntError(NO_CARET, "improper argument to besin(int,real)");
+		IntError(NO_CARET, "improper argument to besin(int,real)");
 	}
 	else
-		GPO.EvStk.Push(Gcomplex(&a, iv(v, x), 0.0));
+		EvStk.Push(Gcomplex(&a, iv(v, x), 0.0));
 }
 
 #define MAXITER 500

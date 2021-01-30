@@ -103,7 +103,7 @@ GpValue * GnuPlot::ConstStringExpress(GpValue * pVal)
 }
 
 //GpValue * const_express(GpValue * pVal)
-GpValue * GnuPlot::ConstExpress(GpValue * pVal)
+GpValue * FASTCALL GnuPlot::ConstExpress(GpValue * pVal)
 {
 	int tkn = Pgm.GetCurTokenIdx();
 	if(Pgm.EndOfCommand())
@@ -523,13 +523,13 @@ void GnuPlot::ParsePrimaryExpression()
 					IntErrorCurToken("')' expected");
 				Pgm.Shift();
 				// The sprintf built-in function has a variable number of arguments 
-				if(!strcmp(_FuncTab[whichfunc].f_name, "sprintf"))
+				if(!strcmp(_FuncTab2[whichfunc].P_Name, "sprintf"))
 					add_action(PUSHC)->v_arg = num_params;
 				// v4 timecolumn only had 1 param; v5 has 2. Accept either 
-				if(!strcmp(_FuncTab[whichfunc].f_name, "timecolumn"))
+				if(!strcmp(_FuncTab2[whichfunc].P_Name, "timecolumn"))
 					add_action(PUSHC)->v_arg = num_params;
 				// The column() function has side effects requiring special handling 
-				if(!strcmp(_FuncTab[whichfunc].f_name, "column")) {
+				if(!strcmp(_FuncTab2[whichfunc].P_Name, "column")) {
 					set_up_columnheader_parsing(&(P_At->actions[P_At->a_count-1]) );
 				}
 				add_action(whichfunc);
@@ -1064,7 +1064,7 @@ udft_entry * add_udf(int t_num)
 		GPO.IntWarn(t_num, "Warning : udf shadowed by built-in function of the same name");
 	// create and return a new udf slot 
 	*udf_ptr = (udft_entry *)gp_alloc(sizeof(udft_entry), "function");
-	(*udf_ptr)->next_udf = (udft_entry *)NULL;
+	(*udf_ptr)->next_udf = 0;
 	(*udf_ptr)->definition = NULL;
 	(*udf_ptr)->at = NULL;
 	(*udf_ptr)->udf_name = (char *)gp_alloc(GPO.Pgm.TokenLen(t_num)+1, "user func");
@@ -1079,8 +1079,8 @@ udft_entry * add_udf(int t_num)
 //int is_builtin_function(int t_num)
 int GnuPlot::IsBuiltinFunction(int t_num) const
 {
-	for(int i = (int)SF_START; _FuncTab[i].f_name; i++) {
-		if(Pgm.Equals(t_num, _FuncTab[i].f_name))
+	for(int i = (int)SF_START; _FuncTab2[i].P_Name; i++) {
+		if(Pgm.Equals(t_num, _FuncTab2[i].P_Name))
 			return i;
 	}
 	return 0;
@@ -1106,17 +1106,19 @@ int GnuPlot::IsFunction(int t_num) const
 		return 0;
 	}
 }
-/* Look for iterate-over-plot constructs, of the form
- *    for [<var> = <start> : <end> { : <increment>}] ...
- * If one (or more) is found, an iterator structure is allocated and filled
- * and a pointer to that structure is returned.
- * The pointer is NULL if no "for" statements are found.
- * If the iteration limits are constants, store them as is.
- * If they are given as expressions, store an action table for the expression.
- */
-GpIterator * check_for_iteration()
+// 
+// Look for iterate-over-plot constructs, of the form
+//   for [<var> = <start> : <end> { : <increment>}] ...
+// If one (or more) is found, an iterator structure is allocated and filled
+// and a pointer to that structure is returned.
+// The pointer is NULL if no "for" statements are found.
+// If the iteration limits are constants, store them as is.
+// If they are given as expressions, store an action table for the expression.
+// 
+//GpIterator * check_for_iteration()
+GpIterator * GnuPlot::CheckForIteration()
 {
-	char * errormsg = "Expecting iterator \tfor [<var> = <start> : <end> {: <incr>}]\n\t\t\tor\tfor [<var> in \"string of words\"]";
+	const char * p_errormsg = "Expecting iterator \tfor [<var> = <start> : <end> {: <incr>}]\n\t\t\tor\tfor [<var> in \"string of words\"]";
 	int nesting_depth = 0;
 	GpIterator * iter = NULL;
 	GpIterator * prev = NULL;
@@ -1124,8 +1126,8 @@ GpIterator * check_for_iteration()
 	bool no_parent = FALSE;
 	// Now checking for iteration parameters 
 	// Nested "for" statements are supported, each one corresponds to a node of the linked list 
-	while(GPO.Pgm.EqualsCur("for")) {
-		struct udvt_entry * iteration_udv = NULL;
+	while(Pgm.EqualsCur("for")) {
+		udvt_entry * iteration_udv = NULL;
 		GpValue original_udv_value;
 		char * iteration_string = NULL;
 		int iteration_start;
@@ -1135,18 +1137,18 @@ GpIterator * check_for_iteration()
 		int iteration = 0;
 		at_type * iteration_start_at = NULL;
 		at_type * iteration_end_at = NULL;
-		GPO.Pgm.Shift();
-		if(!GPO.Pgm.EqualsCurShift("[") || !GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()))
-			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), errormsg);
-		iteration_udv = add_udv(GPO.Pgm.GetCurTokenIdx());
-		GPO.Pgm.Shift();
+		Pgm.Shift();
+		if(!Pgm.EqualsCurShift("[") || !Pgm.IsLetter(Pgm.GetCurTokenIdx()))
+			IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
+		iteration_udv = add_udv(Pgm.GetCurTokenIdx());
+		Pgm.Shift();
 		original_udv_value = iteration_udv->udv_value;
 		iteration_udv->udv_value.type = NOTDEFINED;
-		if(GPO.Pgm.EqualsCur("=")) {
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()) && GPO.Pgm.EqualsNext(":")) {
+		if(Pgm.EqualsCur("=")) {
+			Pgm.Shift();
+			if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) && Pgm.EqualsNext(":")) {
 				// Save the constant value only 
-				iteration_start = GPO.IntExpression();
+				iteration_start = IntExpression();
 			}
 			else {
 				// Save the expression as well as the value 
@@ -1156,19 +1158,19 @@ GpIterator * check_for_iteration()
 					iteration_start = 0;
 				}
 				else {
-					GPO.EvaluateAt(iteration_start_at, &v);
+					EvaluateAt(iteration_start_at, &v);
 					iteration_start = static_cast<int>(real(&v));
 				}
 			}
-			if(!GPO.Pgm.EqualsCurShift(":"))
-				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), errormsg);
-			if(GPO.Pgm.EqualsCur("*")) {
+			if(!Pgm.EqualsCurShift(":"))
+				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
+			if(Pgm.EqualsCur("*")) {
 				iteration_end = INT_MAX;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 			}
-			else if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()) && (GPO.Pgm.EqualsNext(":") || GPO.Pgm.EqualsNext("]"))) {
+			else if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) && (Pgm.EqualsNext(":") || Pgm.EqualsNext("]"))) {
 				// Save the constant value only 
-				iteration_end = GPO.IntExpression();
+				iteration_end = IntExpression();
 			}
 			else {
 				// Save the expression as well as the value 
@@ -1178,39 +1180,39 @@ GpIterator * check_for_iteration()
 					iteration_end = 0;
 				}
 				else {
-					GPO.EvaluateAt(iteration_end_at, &v);
+					EvaluateAt(iteration_end_at, &v);
 					iteration_end = static_cast<int>(real(&v));
 				}
 			}
-			if(GPO.Pgm.EqualsCur(":")) {
-				GPO.Pgm.Shift();
-				iteration_increment = GPO.IntExpression();
+			if(Pgm.EqualsCur(":")) {
+				Pgm.Shift();
+				iteration_increment = IntExpression();
 				if(iteration_increment == 0)
-					GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), errormsg);
+					IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
 			}
-			if(!GPO.Pgm.EqualsCurShift("]"))
-				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), errormsg);
+			if(!Pgm.EqualsCurShift("]"))
+				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
 			iteration_udv->udv_value.Destroy();
 			Ginteger(&(iteration_udv->udv_value), iteration_start);
 		}
-		else if(GPO.Pgm.EqualsCurShift("in")) {
-			/* Assume this is a string-valued expression. */
-			/* It might be worth treating a string constant as a special case */
+		else if(Pgm.EqualsCurShift("in")) {
+			// Assume this is a string-valued expression. 
+			// It might be worth treating a string constant as a special case 
 			GpValue v;
 			iteration_start_at = perm_at();
-			GPO.EvaluateAt(iteration_start_at, &v);
+			EvaluateAt(iteration_start_at, &v);
 			if(v.type != STRING)
-				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), errormsg);
-			if(!GPO.Pgm.EqualsCurShift("]"))
-				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), errormsg);
+				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
+			if(!Pgm.EqualsCurShift("]"))
+				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
 			iteration_string = v.v.string_val;
 			iteration_start = 1;
 			iteration_end = gp_words(iteration_string);
 			iteration_udv->udv_value.Destroy();
 			Gstring(&(iteration_udv->udv_value), gp_word(iteration_string, 1));
 		}
-		else /* Neither [i=B:E] or [s in "foo"] */
-			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), errormsg);
+		else // Neither [i=B:E] or [s in "foo"] 
+			IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
 		iteration_current = iteration_start;
 		this_iter = (GpIterator *)gp_alloc(sizeof(GpIterator), "iteration linked list");
 		this_iter->original_udv_value = original_udv_value;
@@ -1224,35 +1226,29 @@ GpIterator * check_for_iteration()
 		this_iter->start_at = iteration_start_at;
 		this_iter->end_at = iteration_end_at;
 		this_iter->next = NULL;
-
 		if(nesting_depth == 0) {
-			/* first "for" statement: this will be the listhead */
-			iter = this_iter;
+			iter = this_iter; // first "for" statement: this will be the listhead 
 		}
 		else {
-			/* nested "for": attach newly created node to the end of the list */
-			prev->next = this_iter;
+			prev->next = this_iter; // nested "for": attach newly created node to the end of the list 
 		}
 		prev = this_iter;
-
-		/* If some depth of a nested iteration evaluates to an empty range, the
-		 * evaluated limits of depths below it are moot (and possibly invalid).
-		 * This flag tells us to skip their evaluation to avoid irrelevant errors.
-		 */
+		// If some depth of a nested iteration evaluates to an empty range, the
+		// evaluated limits of depths below it are moot (and possibly invalid).
+		// This flag tells us to skip their evaluation to avoid irrelevant errors.
 		if(no_iteration(this_iter)) {
 			no_parent = TRUE;
 			FPRINTF((stderr, "iteration at level %d is moot\n", nesting_depth));
 		}
-
 		nesting_depth++;
 	}
 	return iter;
 }
-/*
- * Reevaluate the iteration limits
- * (in case they are functions whose parameters have taken
- * on a new value)
- */
+// 
+// Reevaluate the iteration limits
+// (in case they are functions whose parameters have taken
+// on a new value)
+// 
 static void reevaluate_iteration_limits(GpIterator * iter)
 {
 	if(iter->start_at) {
@@ -1288,39 +1284,35 @@ static void reset_iteration(GpIterator * iter)
 		iter->iteration_current = iter->iteration_start;
 		if(iter->iteration_string) {
 			gpfree_string(&(iter->iteration_udv->udv_value));
-			Gstring(&(iter->iteration_udv->udv_value),
-				gp_word(iter->iteration_string, iter->iteration_current));
+			Gstring(&(iter->iteration_udv->udv_value), gp_word(iter->iteration_string, iter->iteration_current));
 		}
 		else {
-			/* This traps fatal user error of reassigning iteration variable to a string */
+			// This traps fatal user error of reassigning iteration variable to a string 
 			gpfree_string(&(iter->iteration_udv->udv_value));
 			Ginteger(&(iter->iteration_udv->udv_value), iter->iteration_current);
 		}
 		reset_iteration(iter->next);
 	}
 }
-
-/*
- * Increment the iteration position recursively.
- * returns TRUE if the iteration is still in range
- * returns FALSE if the incement put it past the end limit
- */
+// 
+// Increment the iteration position recursively.
+// returns TRUE if the iteration is still in range
+// returns FALSE if the incement put it past the end limit
+// 
 bool next_iteration(GpIterator * iter)
 {
-	/* Once it goes out of range it will stay that way until reset */
+	// Once it goes out of range it will stay that way until reset 
 	if(!iter || no_iteration(iter))
 		return FALSE;
-
-	/* Give sub-iterations a chance to advance */
+	// Give sub-iterations a chance to advance 
 	if(next_iteration(iter->next)) {
 		if(iter->iteration < 0)
 			iter->iteration = 0;
 		return TRUE;
 	}
-
-	/* Increment at this level */
+	// Increment at this level 
 	if(iter->iteration < 0) {
-		/* Just reset, haven't used start value yet */
+		// Just reset, haven't used start value yet 
 		iter->iteration = 0;
 		if(!empty_iteration(iter))
 			return TRUE;
@@ -1331,27 +1323,25 @@ bool next_iteration(GpIterator * iter)
 	}
 	if(iter->iteration_string) {
 		gpfree_string(&(iter->iteration_udv->udv_value));
-		Gstring(&(iter->iteration_udv->udv_value),
-		    gp_word(iter->iteration_string, iter->iteration_current));
+		Gstring(&(iter->iteration_udv->udv_value), gp_word(iter->iteration_string, iter->iteration_current));
 	}
 	else {
-		/* This traps fatal user error of reassigning iteration variable to a string */
+		// This traps fatal user error of reassigning iteration variable to a string 
 		gpfree_string(&(iter->iteration_udv->udv_value));
 		Ginteger(&(iter->iteration_udv->udv_value), iter->iteration_current);
 	}
-	/* If this runs off the end, leave the value out-of-range and return FALSE */
+	// If this runs off the end, leave the value out-of-range and return FALSE 
 	if(iter->iteration_increment > 0 &&  iter->iteration_end - iter->iteration_current < 0)
 		return FALSE;
 	if(iter->iteration_increment < 0 &&  iter->iteration_end - iter->iteration_current > 0)
 		return FALSE;
 	if(iter->next == NULL)
 		return TRUE;
-	/* Reset sub-iterations, if any */
+	// Reset sub-iterations, if any 
 	reset_iteration(iter->next);
-	/* Go back to top or call self recursively */
+	// Go back to top or call self recursively 
 	return next_iteration(iter);
 }
-
 /*
  * Returns TRUE if
  * - this really is an iteration and

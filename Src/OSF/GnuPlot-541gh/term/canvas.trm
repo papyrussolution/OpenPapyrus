@@ -556,23 +556,20 @@ TERM_PUBLIC void CANVAS_text()
 		fprintf(gpoutfile, "\n// plot boundaries and axis scaling information for mousing \n");
 		fprintf(gpoutfile, "gnuplot.plot_term_xmax = %d;\n", (int)(term->xmax / CANVAS_OVERSAMPLE));
 		fprintf(gpoutfile, "gnuplot.plot_term_ymax = %d;\n", (int)(term->ymax / CANVAS_OVERSAMPLE));
-		fprintf(gpoutfile, "gnuplot.plot_xmin = %.1f;\n", (double)plot_bounds.xleft / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_xmax = %.1f;\n", (double)plot_bounds.xright / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ybot = %.1f;\n", (double)(term->ymax-plot_bounds.ybot) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ytop = %.1f;\n", (double)(term->ymax-plot_bounds.ytop) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_width = %.1f;\n", (double)(plot_bounds.xright - plot_bounds.xleft) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_height = %.1f;\n", (double)(plot_bounds.ytop - plot_bounds.ybot) / CANVAS_OVERSAMPLE);
-
-		/* Get true axis ranges as used in the plot */
-		update_gpval_variables(1);
-
+		fprintf(gpoutfile, "gnuplot.plot_xmin = %.1f;\n", (double)GPO.V.BbPlot.xleft / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_xmax = %.1f;\n", (double)GPO.V.BbPlot.xright / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_ybot = %.1f;\n", (double)(term->ymax-GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_ytop = %.1f;\n", (double)(term->ymax-GPO.V.BbPlot.ytop) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_width = %.1f;\n", (double)(GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_height = %.1f;\n", (double)(GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
+		// Get true axis ranges as used in the plot 
+		GPO.UpdateGpvalVariables(1);
 #define MOUSE_PARAM(GP_NAME, js_NAME) CANVAS_mouse_param(GP_NAME, js_NAME)
-
 		if(GPO.AxS[FIRST_X_AXIS].datatype != DT_TIMEDATE) {
 			MOUSE_PARAM("GPVAL_X_MIN", "gnuplot.plot_axis_xmin");
 			MOUSE_PARAM("GPVAL_X_MAX", "gnuplot.plot_axis_xmax");
 		}
-		/* FIXME: Should this inversion be done at a higher level? */
+		// FIXME: Should this inversion be done at a higher level? 
 		if(is_3d_plot && splot_map) {
 			MOUSE_PARAM("GPVAL_Y_MAX", "gnuplot.plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MIN", "gnuplot.plot_axis_ymax");
@@ -581,13 +578,10 @@ TERM_PUBLIC void CANVAS_text()
 			MOUSE_PARAM("GPVAL_Y_MIN", "gnuplot.plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MAX", "gnuplot.plot_axis_ymax");
 		}
-
 		if(polar) {
-			fprintf(gpoutfile, "gnuplot.plot_axis_rmin = %g;\n",
-			    (GPO.AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : GPO.AxS.__R().set_min);
+			fprintf(gpoutfile, "gnuplot.plot_axis_rmin = %g;\n", (GPO.AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : GPO.AxS.__R().set_min);
 			fprintf(gpoutfile, "gnuplot.plot_axis_rmax = %g;\n", GPO.AxS.__R().set_max);
 		}
-
 		if((GPO.AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS) {
 			MOUSE_PARAM("GPVAL_X2_MIN", "gnuplot.plot_axis_x2min");
 			MOUSE_PARAM("GPVAL_X2_MAX", "gnuplot.plot_axis_x2max");

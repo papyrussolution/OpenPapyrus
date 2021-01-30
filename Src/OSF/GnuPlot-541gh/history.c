@@ -50,15 +50,14 @@ void read_history(char * filename)
 	gp_read_history(filename);
 }
 
-void using_history(void)
+void using_history()
 {
 	/* Nothing to do. */
 }
 
-void clear_history(void)
+void clear_history()
 {
-	HIST_ENTRY * entry = history;
-	while(entry != NULL) {
+	for(HIST_ENTRY * entry = history; entry;) {
 		HIST_ENTRY * prev = entry->prev;
 		SAlloc::F(entry->line);
 		SAlloc::F(entry);
@@ -69,7 +68,7 @@ void clear_history(void)
 	history = NULL;
 }
 
-int where_history(void)
+int where_history()
 {
 	HIST_ENTRY * entry = history; /* last_entry */
 	int hist_index = history_length;
@@ -127,12 +126,12 @@ HIST_ENTRY * history_get(int offset)
 	return NULL;
 }
 
-HIST_ENTRY * current_history(void)
+HIST_ENTRY * current_history()
 {
 	return cur_entry;
 }
 
-HIST_ENTRY * previous_history(void)
+HIST_ENTRY * previous_history()
 {
 	if(cur_entry == NULL)
 		return (cur_entry = history);
@@ -142,9 +141,9 @@ HIST_ENTRY * previous_history(void)
 		return NULL;
 }
 
-HIST_ENTRY * next_history(void)
+HIST_ENTRY * next_history()
 {
-	if(cur_entry != NULL)
+	if(cur_entry)
 		return (cur_entry = cur_entry->next);
 	else
 		return NULL;

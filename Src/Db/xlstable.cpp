@@ -364,9 +364,9 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	SdbField fld;
 	SString  field_buf;
 	THROW(CheckParam(rRec));
-	cur_rec += 1 + BIN(P.Flags & fFldNameRec);
+	cur_rec += (1 + BIN(P.Flags & fFldNameRec));
 	if(!is_vert)
-		 cur_rec += P.HdrLinesCount;
+		cur_rec += P.HdrLinesCount;
 	else
 		cur_rec += P.ColumnsCount;
 	if(CurRec <= 0) {
@@ -383,9 +383,9 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 				if(!field_buf.NotEmptyS())
 					field_buf.Cat(fld.ID);
 				_commfmt(fld.OuterFormat, field_buf);
-				const long row = (is_vert) ? 1 + i + P.HdrLinesCount : cur_rec - 1;
-				const long col = (is_vert) ? cur_rec - 1 : 1 + i + P.ColumnsCount;
-				THROW(P_Sheet->SetValue(row, col, field_buf.Transf(CTRANSF_INNER_TO_OUTER).Strip().cptr()) > 0);
+				const long row = is_vert ? (1 + i + P.HdrLinesCount) : (cur_rec - 1);
+				const long col = is_vert ? (cur_rec - 1) : (1 + i + P.ColumnsCount);
+				THROW(P_Sheet->SetValue(row, col, field_buf./* @v11.0.0 Transf(CTRANSF_INNER_TO_OUTER).*/Strip().cptr()) > 0);
 				THROW(P_Sheet->SetBold(row, col, 1));
 				if(WidthList.getCountI() < (col - P.ColumnsCount))
 					WidthList.add(field_buf.Len());
@@ -396,8 +396,8 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	}
 	for(i = 0; i < rRec.GetCount(); i++) {
 		THROW(rRec.GetFieldByPos(i, &fld));
-		const long row = (is_vert) ? 1 + i + P.HdrLinesCount : cur_rec;
-		const long col = (is_vert) ? cur_rec : 1 + i + P.ColumnsCount;
+		const long row = is_vert ? (1 + i + P.HdrLinesCount) : cur_rec;
+		const long col = is_vert ? cur_rec : (1 + i + P.ColumnsCount);
 		{
 			const  TYPEID st = fld.T.GetDbFieldType();
 			int    base_type = stbase(st);

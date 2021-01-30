@@ -289,7 +289,7 @@ TERM_PUBLIC void PS_load_fontfiles(bool);
 static char * fontpath_fullname(const char * name, const char * dir);
 
 static bool ps_explicit_size = FALSE;
-static size_units ps_explicit_units = INCHES;
+static GpSizeUnits ps_explicit_units = INCHES;
 static int eps_explicit_x = 0;
 static int eps_explicit_y = 0;
 
@@ -1068,8 +1068,8 @@ TERM_PUBLIC void PS_options()
 			    float xmax_t, ymax_t;
 			    GPO.Pgm.Shift();
 			    ps_explicit_size = TRUE;
-			    ps_explicit_units = parse_term_size(&xmax_t, &ymax_t, INCHES);
-			    /* PostScript *always* works in pts, not locally defined dpi */
+			    ps_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
+			    // PostScript *always* works in pts, not locally defined dpi 
 			    term->xmax = xmax_t * PS_SC * 72./gp_resolution;
 			    term->ymax = ymax_t * PS_SC * 72./gp_resolution;
 			    eps_explicit_x = 2 * term->xmax;
@@ -1742,10 +1742,10 @@ TERM_PUBLIC void PS_init()
 			    else
 				    term->ymax = PS_YMAX;
 		    }
-		    xmin_t = term->xmax * xoffset / (2*PS_SC);
-		    xmax_t = term->xmax * (xsize + xoffset) / (2*PS_SC);
-		    ymin_t = term->ymax * yoffset / (2*PS_SC);
-		    ymax_t = term->ymax * (ysize + yoffset) / (2*PS_SC);
+		    xmin_t = term->xmax * GPO.V.XOffset / (2*PS_SC);
+		    xmax_t = term->xmax * (GPO.V.XSize + GPO.V.XOffset) / (2*PS_SC);
+		    ymin_t = term->ymax * GPO.V.YOffset / (2*PS_SC);
+		    ymax_t = term->ymax * (GPO.V.YSize + GPO.V.YOffset) / (2*PS_SC);
 		    term->tscale = PS_SC * 2;
 		    break;
 		case PSTERM_PORTRAIT:
@@ -1753,10 +1753,10 @@ TERM_PUBLIC void PS_init()
 			    term->xmax = PS_YMAX;
 			    term->ymax = PS_XMAX;
 		    }
-		    xmin_t = term->xmax * xoffset / PS_SC;
-		    xmax_t = term->xmax * (xsize + xoffset) / PS_SC;
-		    ymin_t = term->ymax * yoffset / PS_SC;
-		    ymax_t = term->ymax * (ysize + yoffset) / PS_SC;
+		    xmin_t = term->xmax * GPO.V.XOffset / PS_SC;
+		    xmax_t = term->xmax * (GPO.V.XSize + GPO.V.XOffset) / PS_SC;
+		    ymin_t = term->ymax * GPO.V.YOffset / PS_SC;
+		    ymax_t = term->ymax * (GPO.V.YSize + GPO.V.YOffset) / PS_SC;
 		    term->tscale = PS_SC;
 		    break;
 		case PSTERM_LANDSCAPE:
@@ -1764,10 +1764,10 @@ TERM_PUBLIC void PS_init()
 			    term->xmax = PS_XMAX;
 			    term->ymax = PS_YMAX;
 		    }
-		    ymin_t = term->xmax * xoffset / PS_SC;
-		    ymax_t = term->xmax * (xsize+xoffset) / PS_SC;
-		    xmin_t = term->ymax * (1-ysize-yoffset) / PS_SC;
-		    xmax_t = term->ymax * (1-yoffset) / PS_SC;
+		    ymin_t = term->xmax * GPO.V.XOffset / PS_SC;
+		    ymax_t = term->xmax * (GPO.V.XSize+GPO.V.XOffset) / PS_SC;
+		    xmin_t = term->ymax * (1-GPO.V.YSize-GPO.V.YOffset) / PS_SC;
+		    xmax_t = term->ymax * (1-GPO.V.YOffset) / PS_SC;
 		    term->tscale = PS_SC;
 		    break;
 		default:
@@ -1847,8 +1847,7 @@ doclip\n\
 		fputs("BackgroundColor 0 lt 3 1 roll 0 lt exch 0 lt or or not {", gppsfile);
 		if(ps_params->psformat == PSTERM_EPS) {
 			/* for eps files set the color only for the graphics area */
-			fprintf(gppsfile, "BackgroundColor C 1.000 0 0 %.2f %.2f BoxColFill",
-			    term->xmax * xsize, term->ymax * ysize);
+			fprintf(gppsfile, "BackgroundColor C 1.000 0 0 %.2f %.2f BoxColFill", term->xmax * GPO.V.XSize, term->ymax * GPO.V.YSize);
 		}
 		else {
 			/* otherwise set the page background color, the code is taken from the

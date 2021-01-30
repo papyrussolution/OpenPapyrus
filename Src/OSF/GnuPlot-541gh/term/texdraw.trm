@@ -197,7 +197,7 @@ static bool TEXDRAW_rounded = TRUE;
 static bool TEXDRAW_colortext = FALSE;
 static bool TEXDRAW_psarrows = TRUE;
 static bool TEXDRAW_texpoints = TRUE;
-static size_units TEXDRAW_explicit_units = INCHES;
+static GpSizeUnits TEXDRAW_explicit_units = INCHES;
 static double TEXDRAW_size_x = 5.0;
 static double TEXDRAW_size_y = 3.0;
 static double TEXDRAW_lw_scale = 1.0;
@@ -205,16 +205,24 @@ static double TEXDRAW_ps = 1.0;
 static double TEXDRAW_background = 1.0;
 
 /* option names */
-enum TEXDRAW_id { TEXDRAW_DEFAULT,
-		  TEXDRAW_SIZE,
-		  TEXDRAW_STANDALONE, TEXDRAW_INPUT,
-		  TEXDRAW_BLACKTEXT, TEXDRAW_COLORTEXT,
-		  TEXDRAW_ROUNDED, TEXDRAW_BUTT,
-		  TEXDRAW_LINEWIDTH, TEXDRAW_POINTSCALE,
-		  TEXDRAW_PSARROWS, TEXDRAW_GPARROWS,
-		  TEXDRAW_TEXPOINTS, TEXDRAW_GPPOINTS,
-		  TEXDRAW_BACKGROUND,
-		  TEXDRAW_OTHER };
+enum TEXDRAW_id { 
+	TEXDRAW_DEFAULT,
+	TEXDRAW_SIZE,
+	TEXDRAW_STANDALONE, 
+	TEXDRAW_INPUT,
+	TEXDRAW_BLACKTEXT, 
+	TEXDRAW_COLORTEXT,
+	TEXDRAW_ROUNDED, 
+	TEXDRAW_BUTT,
+	TEXDRAW_LINEWIDTH, 
+	TEXDRAW_POINTSCALE,
+	TEXDRAW_PSARROWS, 
+	TEXDRAW_GPARROWS,
+	TEXDRAW_TEXPOINTS, 
+	TEXDRAW_GPPOINTS,
+	TEXDRAW_BACKGROUND,
+	TEXDRAW_OTHER 
+};
 
 static struct gen_table TEXDRAW_opts[] =
 {
@@ -262,9 +270,8 @@ TERM_PUBLIC void TEXDRAW_options()
 			    break;
 			case TEXDRAW_SIZE: {
 			    float width, height;
-
 			    GPO.Pgm.Shift();
-			    TEXDRAW_explicit_units = parse_term_size(&width, &height, INCHES);
+			    TEXDRAW_explicit_units = GPO.ParseTermSize(&width, &height, INCHES);
 			    TEXDRAW_size_x = width / gp_resolution;
 			    TEXDRAW_size_y = height / gp_resolution;
 			    term->xmax = TEXDRAW_size_x * DOTS_PER_INCH;

@@ -96,8 +96,8 @@ TERM_PUBLIC void HP500C_text();
 #define HP500C_DPP (hpdj_dpp)   /* dots per pixel */
 #define HP500C_PPI (300/HP500C_DPP)     /* pixel per inch */
 /* make XMAX and YMAX a multiple of 8 */
-#define HP500C_XMAX (8*(uint)(xsize*1920/HP500C_DPP/8.0+0.9))
-#define HP500C_YMAX (8*(uint)(ysize*1920/HP500C_DPP/8.0+0.9))
+#define HP500C_XMAX (8*(uint)(GPO.V.XSize*1920/HP500C_DPP/8.0+0.9))
+#define HP500C_YMAX (8*(uint)(GPO.V.YSize*1920/HP500C_DPP/8.0+0.9))
 
 /* Courier font with 6 lines per inch */
 #define HP500C_VCHAR (HP500C_PPI/6)
@@ -163,7 +163,6 @@ TERM_PUBLIC void HP500C_options()
 		}
 		GPO.Pgm.Shift();
 	}
-
 	term->xmax = HP500C_XMAX;
 	term->ymax = HP500C_YMAX;
 	switch(hpdj_dpp) {

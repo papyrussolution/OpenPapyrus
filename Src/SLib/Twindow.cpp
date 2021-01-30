@@ -1740,3 +1740,137 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
+//
+// @construction {
+// Универсальный (очень на это надеюсь) механизм управления скроллированием в одном измерении
+//
+class SScroller {
+public:
+	SScroller();
+	~SScroller();
+	int    LineDown(uint ic);
+	int    LineUp(uint ic);
+	int    PageDown(uint pc);
+	int    PageUp(uint pc);
+	int    Top();
+	int    Bottom();
+	int    CursonDown(uint ic);
+	int    CursorUp(uint ic);
+	uint   GetPageBottomIndex() const;
+	//
+	// Элементы скроллируемого списка индексируются номерами [0..(ItemCount-1)]
+	//
+	enum {
+		fDisabled  = 0x0001,
+		fUsePaging = 0x0002,
+		fReverse   = 0x0004,
+		fUseCursor = 0x0008  // Если установлен, то применяется понятие текущего элемента (ItemIdxCurrent).
+			// Текущий элемент может перемещаться в пределах страницы без сдвига фрейма.
+			// При отсутствии текущего элемента любое движение вызывает смещение фрейма.
+	};
+	uint   Flags;
+	uint   ItemCount;
+	uint   PageCount;
+	uint   PageCurrent;
+
+	float  ViewSize;
+	float  FixedItemSize;
+	uint   ItemIdxPageTop;
+	uint   ItemIdxCurrent;
+	FloatArray * P_ItemSizeList; // Используется если размеры элементов отличаются один от другого
+};
+
+SScroller::SScroller() : P_ItemSizeList(0), Flags(0), ItemCount(0), PageCount(0), PageCurrent(0), ViewSize(0.0f), FixedItemSize(0.0f)
+{
+}
+
+SScroller::~SScroller()
+{
+	delete P_ItemSizeList;
+}
+
+uint SScroller::GetPageBottomIndex() const
+{
+	uint    result_idx = ItemIdxPageTop;
+	assert(ItemIdxPageTop < ItemCount);
+	if(ViewSize > 0.0f) {
+		uint c = 0;
+		if(FixedItemSize > 0.0f) {
+			c = fceili(ViewSize / FixedItemSize);
+		}
+		else if(P_ItemSizeList) {
+			assert(P_ItemSizeList->getCount() == ItemCount);
+			float s = 0.0f;
+			for(uint i = ItemIdxPageTop; i < ItemCount; i++) {
+				if(s < ViewSize) {
+					c++;
+					s += P_ItemSizeList->at(i);
+				}
+				else
+					break;
+			}
+		}
+		if(c)
+			result_idx = ItemIdxPageTop + c - 1;
+	}
+	assert(result_idx < ItemCount);
+	return result_idx;
+}
+
+int SScroller::LineDown(uint ic)
+{
+	int    updated = 0;
+	uint   bottom_idx = GetPageBottomIndex();
+	if(Flags & fUseCursor) {
+		if(ItemIdxCurrent < ItemCount) {
+			if(ItemIdxCurrent < bottom_idx) {
+				ItemIdxCurrent++;
+				if(ItemIdxCurrent < ItemIdxPageTop) {
+					// сдвинуть фрейм так, чтобы ItemIdxCurrent стал равен ItemIdxPageTop
+				}
+			}
+			else {
+				// сдвинуть фрейм на одну позицию вниз
+			}
+		}
+	}
+	else {
+	}
+	return updated;
+}
+
+int SScroller::LineUp(uint ic)
+{
+	return 0;
+}
+
+int SScroller::PageDown(uint pc)
+{
+	return 0;
+}
+
+int SScroller::PageUp(uint pc)
+{
+	return 0;
+}
+
+int SScroller::Top()
+{
+	return 0;
+}
+
+int SScroller::Bottom()
+{
+	return 0;
+}
+
+int SScroller::CursonDown(uint ic)
+{
+	return 0;
+}
+
+int SScroller::CursorUp(uint ic)
+{
+	return 0;
+}
+// } @construction

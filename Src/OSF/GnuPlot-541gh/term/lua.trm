@@ -160,16 +160,16 @@ static char last_error_msg[MAX_LINE_LEN+1] = "";
 static int LUA_GP_get_boundingbox(lua_State * L) {
 	lua_newtable(L);
 	lua_pushstring(L, "xleft");
-	lua_pushinteger(L, plot_bounds.xleft);
+	lua_pushinteger(L, GPO.V.BbPlot.xleft);
 	lua_rawset(L, -3);
 	lua_pushstring(L, "xright");
-	lua_pushinteger(L, plot_bounds.xright);
+	lua_pushinteger(L, GPO.V.BbPlot.xright);
 	lua_rawset(L, -3);
 	lua_pushstring(L, "ybot");
-	lua_pushinteger(L, plot_bounds.ybot);
+	lua_pushinteger(L, GPO.V.BbPlot.ybot);
 	lua_rawset(L, -3);
 	lua_pushstring(L, "ytop");
-	lua_pushinteger(L, plot_bounds.ytop);
+	lua_pushinteger(L, GPO.V.BbPlot.ytop);
 	lua_rawset(L, -3);
 	return(1);
 }

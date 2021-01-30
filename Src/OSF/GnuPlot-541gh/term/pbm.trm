@@ -239,26 +239,19 @@ TERM_PUBLIC void PBM_setfont()
 TERM_PUBLIC void PBM_graphics()
 {
 	int numplanes = 1;
-	unsigned int xpixels = term->xmax;
-	unsigned int ypixels = term->ymax;
-
+	uint xpixels = term->xmax;
+	uint ypixels = term->ymax;
 	/* 'set size' should not affect the size of the canvas in pixels,
 	 * but versions prior to 4.2 did not have a separate 'set term size'
 	 */
 	if(!PBM_explicit_size) {
-		xpixels *= xsize;
-		ypixels *= ysize;
+		xpixels *= GPO.V.XSize;
+		ypixels *= GPO.V.YSize;
 	}
-
 	switch(pbm_mode) {
-		case 1:
-		    numplanes = 3;
-		    break;
-		case 2:
-		    numplanes = 4;
-		    break;
+		case 1: numplanes = 3; break;
+		case 2: numplanes = 4; break;
 	}
-
 	/* HBB 980226: this is not the right place to do this: setfont() influences
 	 * fields of the termtable entry, and therefore must be called by init()
 	 * already. */
@@ -267,7 +260,6 @@ TERM_PUBLIC void PBM_graphics()
 	   setting b_rastermode to TRUE */
 	b_makebitmap(ypixels, xpixels, numplanes);
 	b_rastermode = TRUE;
-
 	if(pbm_mode != 0)
 		b_setlinetype(0); /* solid lines */
 }

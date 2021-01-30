@@ -429,7 +429,7 @@ TERM_PUBLIC void EEPIC_options()
 		}
 		else if(GPO.Pgm.EqualsCur("size")) {
 			GPO.Pgm.Shift();
-			eepic_explicit_units = parse_term_size(&eepic_xsize, &eepic_ysize, INCHES);
+			eepic_explicit_units = GPO.ParseTermSize(&eepic_xsize, &eepic_ysize, INCHES);
 			term->xmax = eepic_xsize / EEPIC_UNIT;
 			term->ymax = eepic_ysize / EEPIC_UNIT;
 			size_set = TRUE;

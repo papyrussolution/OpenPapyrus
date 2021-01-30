@@ -145,7 +145,7 @@ static int latex_angle = 0;
 static bool latex_rotate = FALSE;
 
 static bool latex_explicit_size = FALSE;
-static size_units latex_explicit_units = INCHES;
+static GpSizeUnits latex_explicit_units = INCHES;
 
 /* Default line-drawing character */
 /* the definition of plotpoint varies with linetype */
@@ -287,7 +287,7 @@ TERM_PUBLIC void LATEX_options()
 				float ymax_t = 3.0f;
 			    GPO.Pgm.Shift();
 			    latex_explicit_size = TRUE;
-			    latex_explicit_units = parse_term_size(&xmax_t, &ymax_t, INCHES);
+			    latex_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
 			    term->xmax = xmax_t * DOTS_PER_INCH/72;
 			    term->ymax = ymax_t * DOTS_PER_INCH/72;
 			    break;

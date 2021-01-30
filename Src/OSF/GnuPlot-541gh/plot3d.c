@@ -3,19 +3,18 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
-
-/* global variables exported by this module */
-
+//
+// global variables exported by this module 
+//
 t_data_mapping mapping3d = MAP3D_CARTESIAN;
-
-int dgrid3d_row_fineness = 10;
-int dgrid3d_col_fineness = 10;
-int dgrid3d_norm_value = 1;
-int dgrid3d_mode = DGRID3D_QNORM;
+int    dgrid3d_row_fineness = 10;
+int    dgrid3d_col_fineness = 10;
+int    dgrid3d_norm_value = 1;
+int    dgrid3d_mode = DGRID3D_QNORM;
 double dgrid3d_x_scale = 1.0;
 double dgrid3d_y_scale = 1.0;
-bool dgrid3d = FALSE;
-bool dgrid3d_kdensity = FALSE;
+bool   dgrid3d = FALSE;
+bool   dgrid3d_kdensity = FALSE;
 double boxdepth = 0.0;
 
 /* static prototypes */
@@ -33,26 +32,23 @@ static struct iso_curve * iso_alloc(int num);
 static void iso_extend(struct iso_curve * ip, int num);
 static void iso_free(struct iso_curve * ip);
 
-/* helper functions for grid_nongrid_data() */
+// helper functions for grid_nongrid_data() 
 static double splines_kernel(double h);
 static void thin_plate_splines_setup(struct iso_curve * old_iso_crvs, double ** p_xx, int * p_numpoints);
 static double qnorm(double dist_x, double dist_y, int q);
 static double pythag(double dx, double dy);
-
-/* helper function to detect empty data sets */
+// helper function to detect empty data sets 
 static void count_3dpoints(struct surface_points * plot, int * nt, int * ni, int * nu);
-
-/* helper functions for parsing */
+// helper functions for parsing 
 static void load_contour_label_options(struct text_label * contour_label);
 
-typedef enum splot_component {
+enum splot_component {
 	SP_FUNCTION, SP_DATAFILE, SP_DATABLOCK, SP_KEYENTRY, SP_VOXELGRID
-} splot_component;
+};
 
-/* the curves/surfaces of the plot */
-struct surface_points * first_3dplot = NULL;
-static struct udft_entry plot_func;
-
+// the curves/surfaces of the plot 
+surface_points * first_3dplot = NULL;
+static udft_entry plot_func;
 int plot3d_num = 0;
 
 /* FIXME:
@@ -82,7 +78,7 @@ static int n_complex_values = 0;
 static struct surface_points * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)                               
 {
 	lp_style_type default_lp_properties; // = DEFAULT_LP_STYLE_TYPE;
-	struct surface_points * sp = (struct surface_points *)gp_alloc(sizeof(*sp), "surface");
+	surface_points * sp = (struct surface_points *)gp_alloc(sizeof(*sp), "surface");
 	memzero(sp, sizeof(struct surface_points));
 	/* Initialize various fields */
 	sp->lp_properties = default_lp_properties;
@@ -92,30 +88,26 @@ static struct surface_points * sp_alloc(int num_samp_1, int num_iso_1, int num_s
 	default_arrow_style(&(sp->arrow_properties));
 	if(num_iso_2 > 0 && num_samp_1 > 0) {
 		int i;
-		struct iso_curve * icrv;
 		for(i = 0; i < num_iso_1; i++) {
-			icrv = iso_alloc(num_samp_2);
+			iso_curve * icrv = iso_alloc(num_samp_2);
 			icrv->next = sp->iso_crvs;
 			sp->iso_crvs = icrv;
 		}
 		for(i = 0; i < num_iso_2; i++) {
-			icrv = iso_alloc(num_samp_1);
+			iso_curve * icrv = iso_alloc(num_samp_1);
 			icrv->next = sp->iso_crvs;
 			sp->iso_crvs = icrv;
 		}
 	}
-
 	return (sp);
 }
-
 /*
  * sp_replace() updates a surface_points structure so it can hold 'num_iso_1'
  * iso-curves with 'num_samp_2' samples and 'num_iso_2' iso-curves with
  * 'num_samp_1' samples.
  * If, however num_iso_2 or num_samp_1 is zero no iso curves are allocated.
  */
-static void sp_replace(struct surface_points * sp,
-    int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)
+static void sp_replace(struct surface_points * sp, int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)
 {
 	int i;
 	iso_curve * icrv, * icrvs = sp->iso_crvs;
@@ -179,7 +171,7 @@ void sp_free(struct surface_points * sp)
  */
 struct iso_curve * iso_alloc(int num)                   
 {
-	struct iso_curve * ip = (struct iso_curve *)gp_alloc(sizeof(struct iso_curve), "iso curve");
+	iso_curve * ip = (iso_curve *)gp_alloc(sizeof(iso_curve), "iso curve");
 	ip->p_max = (num >= 0 ? num : 0);
 	ip->p_count = 0;
 	if(num > 0) {
@@ -1326,7 +1318,7 @@ static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, struct 
 			if(nonlinear(&GPO.AxS[sam_axis]))
 				sam = GPO.EvalLinkFunction(&GPO.AxS[sam_axis], sam);
 			temp = sam;
-			(void)Gcomplex(&plot_func.dummy_values[cross ? 1 : 0], temp, 0.0);
+			Gcomplex(&plot_func.dummy_values[cross ? 1 : 0], temp, 0.0);
 			if(cross) {
 				points[i].x = iso;
 				points[i].y = sam;
@@ -1414,12 +1406,12 @@ void GnuPlot::Eval3DPlots()
 	ytitle = NULL;
 	begin_token = Pgm.GetCurTokenIdx();
 /*** First Pass: Read through data files ***/
-	/*
-	 * This pass serves to set the x/yranges and to parse the command, as
-	 * well as filling in everything except the function data. That is done
-	 * after the x/yrange is defined.
-	 */
-	plot_iterator = check_for_iteration();
+	//
+	// This pass serves to set the x/yranges and to parse the command, as
+	// well as filling in everything except the function data. That is done
+	// after the x/yrange is defined.
+	//
+	plot_iterator = CheckForIteration();
 	last_iteration_in_first_pass = INT_MAX;
 	while(TRUE) {
 		// Forgive trailing comma on a multi-element plot command 
@@ -1529,25 +1521,25 @@ void GnuPlot::Eval3DPlots()
 				    }
 				    if(*tp_3d_ptr)
 					    this_plot = *tp_3d_ptr;
-				    else { /* no memory malloc()'d there yet */
-					    /* Allocate enough isosamples and samples */
+				    else { // no memory malloc()'d there yet 
+					    // Allocate enough isosamples and samples 
 					    this_plot = sp_alloc(0, 0, 0, 0);
 					    *tp_3d_ptr = this_plot;
 				    }
 				    this_plot->plot_type = DATA3D;
 				    this_plot->plot_style = data_style;
 				    eof_during_iteration = FALSE;
-				    /* FIXME: additional fields may need to be reset */
+				    // FIXME: additional fields may need to be reset 
 				    this_plot->opt_out_of_hidden3d = FALSE;
 				    this_plot->title_is_suppressed = FALSE;
-				    /* Mechanism for deferred evaluation of plot title */
+				    // Mechanism for deferred evaluation of plot title 
 				    free_at(df_plot_title_at);
 				    df_plot_title_at = NULL;
 				    df_set_plot_mode(MODE_SPLOT);
-				    specs = df_open(name_str, MAXDATACOLS, (curve_points *)this_plot);
+				    specs = DfOpen(name_str, MAXDATACOLS, (curve_points *)this_plot);
 				    if(df_matrix)
 					    this_plot->has_grid_topology = TRUE;
-				    /* Store pointers to the named variables used for sampling */
+				    // Store pointers to the named variables used for sampling 
 				    if(u_sample_range_token > 0)
 					    this_plot->sample_var = add_udv(u_sample_range_token);
 				    else
@@ -1556,7 +1548,7 @@ void GnuPlot::Eval3DPlots()
 					    this_plot->sample_var2 = add_udv(v_sample_range_token);
 				    else
 					    this_plot->sample_var2 = add_udv_by_name(c_dummy_var[1]);
-				    /* Save prior values of u, v so we can restore later */
+				    // Save prior values of u, v so we can restore later 
 				    original_value_u = this_plot->sample_var->udv_value;
 				    original_value_v = this_plot->sample_var2->udv_value;
 				    this_plot->token = end_token = Pgm.GetPrevTokenIdx(); // for capture to key 
@@ -1659,7 +1651,7 @@ void GnuPlot::Eval3DPlots()
 					continue;
 				}
 				// deal with title 
-				parse_plot_title((curve_points *)this_plot, xtitle, ytitle, &set_title);
+				ParsePlotTitle(reinterpret_cast<curve_points *>(this_plot), xtitle, ytitle, &set_title);
 				if(save_token != Pgm.GetCurTokenIdx())
 					continue;
 				// EXPERIMENTAL smoothing options for splot with lines 
@@ -2111,29 +2103,29 @@ SKIPPED_EMPTY_FILE:
 			eof_during_iteration = FALSE;
 		}
 		else if(next_iteration(plot_iterator)) {
-			GPO.Pgm.SetTokenIdx(start_token);
+			Pgm.SetTokenIdx(start_token);
 			continue;
 		}
 		plot_iterator = cleanup_iteration(plot_iterator);
 		if(Pgm.EqualsCur(",")) {
 			Pgm.Shift();
-			plot_iterator = check_for_iteration();
+			plot_iterator = CheckForIteration();
 			if(forever_iteration(plot_iterator))
 				if(last_iteration_in_first_pass != INT_MAX)
 					IntWarn(NO_CARET, "splot does not support multiple unbounded iterations");
 		}
 		else
 			break;
-	}                       /* while(TRUE), ie first pass */
+	} // while(TRUE), ie first pass 
 	if(parametric && crnt_param != 0)
 		IntError(NO_CARET, "parametric function not fully specified");
 /*** Second Pass: Evaluate the functions ***/
-	/*
-	 * Everything is defined now, except the function data. We expect no
-	 * syntax errors, etc, since the above parsed it all. This makes the code
-	 * below simpler. If AxS[FIRST_Y_AXIS].autoscale, the yrange may still change.
-	 * - eh ?  - z can still change.  x/y/z can change if we are parametric ??
-	 */
+	//
+	// Everything is defined now, except the function data. We expect no
+	// syntax errors, etc, since the above parsed it all. This makes the code
+	// below simpler. If AxS[FIRST_Y_AXIS].autoscale, the yrange may still change.
+	// - eh ?  - z can still change.  x/y/z can change if we are parametric ??
+	//
 	if(some_functions) {
 		// I've changed the controlled variable in fn plots to u_min etc since
 		// it's easier for me to think parametric - 'normal' plot is after all
@@ -2190,8 +2182,8 @@ SKIPPED_EMPTY_FILE:
 		}
 		// start over 
 		this_plot = first_3dplot;
-		GPO.Pgm.SetTokenIdx(begin_token);
-		plot_iterator = check_for_iteration();
+		Pgm.SetTokenIdx(begin_token);
+		plot_iterator = CheckForIteration();
 		// We kept track of the last productive iteration in the first pass 
 		if(forever_iteration(plot_iterator))
 			plot_iterator->iteration_end = last_iteration_in_first_pass;
@@ -2277,7 +2269,7 @@ SKIPPED_EMPTY_FILE:
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
 				if(crnt_param == 0)
-					plot_iterator = check_for_iteration();
+					plot_iterator = CheckForIteration();
 				if(forever_iteration(plot_iterator))
 					plot_iterator->iteration_end = last_iteration_in_first_pass;
 			}
@@ -2431,7 +2423,7 @@ SKIPPED_EMPTY_FILE:
 		// Mark these plots as safe for quick refresh 
 		SET_REFRESH_OK(E_REFRESH_OK_3D, plot_num);
 	}
-	update_gpval_variables(1); // update GPVAL_ variables available to user 
+	UpdateGpvalVariables(1); // update GPVAL_ variables available to user 
 }
 /*
  * The hardest part of this routine is collapsing the FUNC plot types in the

@@ -293,7 +293,7 @@ static void substitute(char ** strp, size_t * str_lenp, int current)
 	pgm_len = last - str;
 	pgm = (char*)gp_alloc(pgm_len, "command string");
 	safe_strncpy(pgm, str + 1, pgm_len); /* omit ` to leave room for NUL */
-	/* save rest of line, if any */
+	// save rest of line, if any 
 	if(*last) {
 		last++;         /* advance past ` */
 		rest_len = strlen(last) + 1;
@@ -302,10 +302,10 @@ static void substitute(char ** strp, size_t * str_lenp, int current)
 			strcpy(rest, last);
 		}
 	}
-	/* do system call */
-	(void)do_system_func(pgm, &output);
+	// do system call 
+	do_system_func(pgm, &output);
 	SAlloc::F(pgm);
-	/* now replace ` ` with output */
+	// now replace ` ` with output 
 	output_pos = 0;
 	while((c = output[output_pos++])) {
 		if((output[output_pos] != '\0') || (c != '\n'))
@@ -315,7 +315,7 @@ static void substitute(char ** strp, size_t * str_lenp, int current)
 	}
 	(*strp)[current] = 0;
 	SAlloc::F(output);
-	/* tack on rest of line to output */
+	// tack on rest of line to output
 	if(rest) {
 		while(current + rest_len > *str_lenp)
 			extend_input_line();

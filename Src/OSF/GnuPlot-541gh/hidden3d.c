@@ -1430,7 +1430,7 @@ static void draw_vertex(GpVertex * v)
 		return;
 	p_type = v->lp_style->p_type;
 	TERMCOORD(v, x, y);
-	if((p_type >= -1 || p_type == PT_CHARACTER || p_type == PT_VARIABLE || p_type == PT_CIRCLE) && !clip_point(x, y)) {
+	if((p_type >= -1 || p_type == PT_CHARACTER || p_type == PT_VARIABLE || p_type == PT_CIRCLE) && !GPO.V.ClipPoint(x, y)) {
 		t_colorspec * tc = &(v->lp_style->pm3d_color);
 		if(v->label) {
 			write_label(term, x, y, v->label);
@@ -1448,11 +1448,11 @@ static void draw_vertex(GpVertex * v)
 		else if(tc->type == TC_RGB)
 			set_rgbcolor_const(tc->lt);
 		else if(tc->type == TC_CB)
-			set_color(cb2gray(v->real_z) );
+			set_color(term, cb2gray(v->real_z));
 		else if(tc->type == TC_Z)
-			set_color(cb2gray(v->real_z) );
+			set_color(term, cb2gray(v->real_z));
 		if(p_type == PT_CIRCLE) {
-			double radius = v->original->CRD_PTSIZE * radius_scaler;
+			const double radius = v->original->CRD_PTSIZE * radius_scaler;
 			do_arc(x, y, radius, 0., 360.0, style_from_fill(&default_fillstyle), FALSE);
 			if(need_fill_border(&default_fillstyle))
 				do_arc(x, y, radius, 0., 360., 0, FALSE);
@@ -1471,8 +1471,9 @@ static void draw_vertex(GpVertex * v)
 		v->lp_style = NULL;
 	}
 }
-
-/* The function that actually draws the visible portions of lines */
+//
+// The function that actually draws the visible portions of lines 
+//
 static void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2)
 {
 	/* It used to be that e contained style as a integer linetype.
@@ -1514,13 +1515,11 @@ static void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2)
 	}
 	else
 	/* This is the default style: color top and bottom in successive colors */
-	if((hiddenBacksideLinetypeOffset != 0)
-	    && (e->lp->pm3d_color.type != TC_Z)) {
+	if((hiddenBacksideLinetypeOffset != 0) && (e->lp->pm3d_color.type != TC_Z)) {
 		recolor = TRUE;
 		load_linetype(&lptemp, e->style + 1);
 		color = lptemp.pm3d_color;
 	}
-
 	/* The remaining case is hiddenBacksideLinetypeOffset == 0  */
 	/* in which case we assume the correct color is already set */
 	else
@@ -1544,10 +1543,8 @@ static void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2)
 		apply_head_properties(as);
 		if(as->head == BOTH_HEADS)
 			lptemp.p_type = PT_BOTHHEADS;
-
 		if(e->v2 != v2-vlist && e->v1 != v1-vlist)
 			lptemp.p_type = 0;
-
 		if(lptemp.p_type == PT_BACKARROW) {
 			if(e->v2 == v2-vlist && e->v1 != v1-vlist)
 				lptemp.p_type = 0;

@@ -6,8 +6,8 @@
 //
 // static prototypes 
 //
-static int get_data(curve_points *);
-static void store2d_point(curve_points *, int i, double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width);
+//static int get_data(curve_points *);
+//static void store2d_point(curve_points *, int i, double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width);
 //static void eval_plots();
 static void parametric_fixup(curve_points * start_plot, int * plot_num);
 static void box_range_fiddling(curve_points * plot);
@@ -154,25 +154,26 @@ void GnuPlot::PlotRequest()
 		strcpy(c_dummy_var[0], set_dummy_var[0]);
 	EvalPlots();
 }
-
-/* Helper function for refresh command.  Reexamine each data point and update the
- * flags for INRANGE/OUTRANGE/UNDEFINED based on the current limits for that axis.
- * Normally the axis limits are already known at this point. But if the user has
- * forced "set autoscale" since the previous plot or refresh, we need to reset the
- * axis limits and try to approximate the full auto-scaling behaviour.
- */
-void refresh_bounds(curve_points * first_plot, int nplots)
+// 
+// Helper function for refresh command.  Reexamine each data point and update the
+// flags for INRANGE/OUTRANGE/UNDEFINED based on the current limits for that axis.
+// Normally the axis limits are already known at this point. But if the user has
+// forced "set autoscale" since the previous plot or refresh, we need to reset the
+// axis limits and try to approximate the full auto-scaling behaviour.
+// 
+//void refresh_bounds(curve_points * first_plot, int nplots)
+void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 {
-	const curve_points * this_plot = first_plot;
+	const curve_points * this_plot = pFirstPlot;
 	int iplot; // plot index 
 	for(iplot = 0; iplot < nplots; iplot++, this_plot = this_plot->next) {
 		int i; // point index 
-		GpAxis * x_axis = &GPO.AxS[this_plot->AxIdx_X];
-		GpAxis * y_axis = &GPO.AxS[this_plot->AxIdx_Y];
+		GpAxis * x_axis = &AxS[this_plot->AxIdx_X];
+		GpAxis * y_axis = &AxS[this_plot->AxIdx_Y];
 		// IMAGE clipping is done elsewhere, so we don't need INRANGE/OUTRANGE checks 
 		if(this_plot->plot_style == IMAGE || this_plot->plot_style == RGBIMAGE) {
 			if(x_axis->set_autoscale || y_axis->set_autoscale)
-				GPO.ProcessImage(term, this_plot, IMG_UPDATE_AXES);
+				ProcessImage(term, this_plot, IMG_UPDATE_AXES);
 			continue;
 		}
 		for(i = 0; i < this_plot->p_count; i++) {
@@ -207,18 +208,19 @@ void refresh_bounds(curve_points * first_plot, int nplots)
 	this_plot = first_plot;
 	for(iplot = 0; iplot < nplots; iplot++, this_plot = this_plot->next) {
 		// handle 'reverse' ranges 
-		GPO.AxS.CheckRange(this_plot->AxIdx_X);
-		GPO.AxS.CheckRange(this_plot->AxIdx_Y);
+		AxS.CheckRange(this_plot->AxIdx_X);
+		AxS.CheckRange(this_plot->AxIdx_Y);
 		// Make sure the bounds are reasonable, and tweak them if they aren't 
-		GPO.AxisCheckedExtendEmptyRange(this_plot->AxIdx_X, NULL);
-		GPO.AxisCheckedExtendEmptyRange(this_plot->AxIdx_Y, NULL);
+		AxisCheckedExtendEmptyRange(this_plot->AxIdx_X, NULL);
+		AxisCheckedExtendEmptyRange(this_plot->AxIdx_Y, NULL);
 	}
 }
 //
 // current_plot->token is after datafile spec, for error reporting
 // it will later be moved past title/with/linetype/pointtype
 //
-static int get_data(curve_points * current_plot)
+//static int get_data(curve_points * current_plot)
+int GnuPlot::GetData(curve_points * pPlot)
 {
 	int i /* num. points ! */, j;
 	int ngood;
@@ -226,24 +228,24 @@ static int get_data(curve_points * current_plot)
 	struct coordinate * cp;
 	double v[MAXDATACOLS];
 	memzero(v, sizeof(v));
-	if(current_plot->varcolor == NULL) {
+	if(pPlot->varcolor == NULL) {
 		bool variable_color = FALSE;
-		if((current_plot->lp_properties.pm3d_color.type == TC_RGB) && (current_plot->lp_properties.pm3d_color.value < 0))
+		if((pPlot->lp_properties.pm3d_color.type == TC_RGB) && (pPlot->lp_properties.pm3d_color.value < 0))
 			variable_color = TRUE;
-		if(current_plot->lp_properties.pm3d_color.type == TC_Z)
+		if(pPlot->lp_properties.pm3d_color.type == TC_Z)
 			variable_color = TRUE;
-		if(current_plot->lp_properties.pm3d_color.type == TC_COLORMAP)
+		if(pPlot->lp_properties.pm3d_color.type == TC_COLORMAP)
 			variable_color = TRUE;
-		if(current_plot->lp_properties.l_type == LT_COLORFROMCOLUMN)
+		if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN)
 			variable_color = TRUE;
-		if(current_plot->plot_smooth != SMOOTH_NONE && current_plot->plot_smooth != SMOOTH_ZSORT) {
+		if(pPlot->plot_smooth != SMOOTH_NONE && pPlot->plot_smooth != SMOOTH_ZSORT) {
 			/* FIXME:  It would be possible to support smooth cspline lc palette */
 			/* but it would require expanding and interpolating plot->varcolor   */
 			/* in parallel with the y values.                                    */
 			variable_color = FALSE;
 		}
 		if(variable_color) {
-			current_plot->varcolor = (double *)gp_alloc(current_plot->p_max * sizeof(double), "varcolor array");
+			pPlot->varcolor = (double *)gp_alloc(pPlot->p_max * sizeof(double), "varcolor array");
 		}
 	}
 
@@ -253,13 +255,13 @@ static int get_data(curve_points * current_plot)
 	 * Set it to NO_AXIS to account for that. For styles that use
 	 * the z coordinate as a real coordinate (i.e. not a width or
 	 * 'delta' component, change the setting inside the switch: */
-	current_plot->AxIdx_Z = NO_AXIS;
+	pPlot->AxIdx_Z = NO_AXIS;
 	/* HBB NEW 20060427: if there's only one, explicit using column,
 	 * it's y data.  df_axis[] has to reflect that, so df_readline()
 	 * will expect time/date input. */
 	if(df_no_use_specs == 1)
 		df_axis[0] = df_axis[1];
-	switch(current_plot->plot_style) { /* set maximum columns to scan */
+	switch(pPlot->plot_style) { /* set maximum columns to scan */
 		case XYERRORLINES:
 		case XYERRORBARS:
 		case BOXXYERROR:
@@ -275,7 +277,7 @@ static int get_data(curve_points * current_plot)
 		    break;
 		case FINANCEBARS:
 		    // HBB 20000504: use 'z' coordinate for y-axis quantity 
-		    current_plot->AxIdx_Z = current_plot->AxIdx_Y;
+		    pPlot->AxIdx_Z = pPlot->AxIdx_Y;
 		    min_cols = 5;
 		    max_cols = 6;
 		    // HBB 20060427: signal 3rd and 4th column are absolute y data --- needed so time/date parsing works
@@ -287,7 +289,7 @@ static int get_data(curve_points * current_plot)
 		    expect_string(4);
 		    break;
 		case CANDLESTICKS:
-		    current_plot->AxIdx_Z = current_plot->AxIdx_Y;
+		    pPlot->AxIdx_Z = pPlot->AxIdx_Y;
 		    min_cols = 5;
 		    max_cols = 7;
 		    df_axis[2] = df_axis[3] = df_axis[4] = df_axis[1];
@@ -306,33 +308,27 @@ static int get_data(curve_points * current_plot)
 			     * data --- needed so time/date parsing works */
 			    df_axis[2] = df_axis[3] = df_axis[1];
 		    break;
-
 		case VECTOR: /* x, y, dx, dy, variable color or arrow style */
 		case ARROWS: /* x, y, len, ang, variable color or arrow style */
 		    min_cols = 4;
 		    max_cols = 5;
 		    break;
-
 		case XERRORLINES:
 		case XERRORBARS:
 		    min_cols = 3;
 		    max_cols = 5;
 		    if(df_no_use_specs >= 4)
-			    /* HBB 20060427: signal 3rd and 4th column are absolute x
-			     * data --- needed so time/date parsing works */
+			    // HBB 20060427: signal 3rd and 4th column are absolute x data --- needed so time/date parsing works 
 			    df_axis[2] = df_axis[3] = df_axis[0];
 		    break;
-
 		case YERRORLINES:
 		case YERRORBARS:
 		    min_cols = 2;
 		    max_cols = 5;
 		    if(df_no_use_specs >= 4)
-			    /* HBB 20060427: signal 3rd and 4th column are absolute y
-			     * data --- needed so time/date parsing works */
+			    // HBB 20060427: signal 3rd and 4th column are absolute y data --- needed so time/date parsing works
 			    df_axis[2] = df_axis[3] = df_axis[1];
 		    break;
-
 		case HISTOGRAMS:
 		    min_cols = 1;
 		    max_cols = 3;
@@ -340,23 +336,18 @@ static int get_data(curve_points * current_plot)
 		     * input data are silently ignored.  require_value() forces a
 		     * value of NaN to be returned in this case.
 		     */
-		    if(histogram_opts.type == HT_STACKED_IN_TOWERS
-			||  histogram_opts.type == HT_STACKED_IN_LAYERS)
+		    if(oneof2(histogram_opts.type, HT_STACKED_IN_TOWERS, HT_STACKED_IN_LAYERS))
 			    require_value(1);
 		    break;
-
 		case BOXES:
 		    min_cols = 1;
 		    max_cols = 4;
-
 		    break;
-
 		case FILLEDCURVES:
 		    min_cols = 1;
 		    max_cols = 3;
 		    df_axis[2] = df_axis[1]; /* Both curves use same y axis */
 		    break;
-
 		case IMPULSES: /* 2 + possible variable color */
 		case POLYGONS:
 		case LINES:
@@ -364,7 +355,6 @@ static int get_data(curve_points * current_plot)
 		    min_cols = 1;
 		    max_cols = 3;
 		    break;
-
 		case LABELPOINTS:
 		    /* 3 column data: X Y Label */
 		    /* extra columns allow variable pointsize, pointtype, and/or rotation */
@@ -372,32 +362,26 @@ static int get_data(curve_points * current_plot)
 		    max_cols = 6;
 		    expect_string(3);
 		    break;
-
 		case IMAGE:
 		    min_cols = 3;
 		    max_cols = 3;
 		    break;
-
 		case RGBIMAGE:
 		    min_cols = 3;
 		    max_cols = 6;
 		    break;
-
 		case RGBA_IMAGE:
 		    min_cols = 3;
 		    max_cols = 6;
 		    break;
-
 		case CIRCLES: /* 3 + possible variable color, or 5 + possible variable color */
 		    min_cols = 2;
 		    max_cols = 6;
 		    break;
-
 		case ELLIPSES:
 		    min_cols = 2; /* x, y, major axis, minor axis */
 		    max_cols = 6; /* + optional angle, possible variable color */
 		    break;
-
 		case POINTSTYLE:
 		case LINESPOINTS:
 		    /* 1 column: y coordinate only */
@@ -408,7 +392,6 @@ static int get_data(curve_points * current_plot)
 		    min_cols = 1;
 		    max_cols = 5;
 		    break;
-
 		case PARALLELPLOT:
 		case SPIDERPLOT:
 		    /* 1 column: y coordinate only */
@@ -427,49 +410,47 @@ static int get_data(curve_points * current_plot)
 		    max_cols = 2;
 		    break;
 	}
-
 	/* Restictions on plots with "smooth" option */
-	switch(current_plot->plot_smooth) {
+	switch(pPlot->plot_smooth) {
 		case SMOOTH_NONE:
 		    break;
 		case SMOOTH_ZSORT:
 		    min_cols = 3;
-		    if(current_plot->plot_style != POINTSTYLE)
-			    GPO.IntError(NO_CARET, "'smooth zsort' only possible in plots 'with points'");
+		    if(pPlot->plot_style != POINTSTYLE)
+			    IntError(NO_CARET, "'smooth zsort' only possible in plots 'with points'");
 		    break;
 		case SMOOTH_ACSPLINES:
 		    max_cols++;
 		    break;
 		default:
-		    if(df_no_use_specs > 2 && current_plot->plot_style != FILLEDCURVES)
-			    GPO.IntWarn(NO_CARET, "extra columns ignored by smoothing option");
+		    if(df_no_use_specs > 2 && pPlot->plot_style != FILLEDCURVES)
+			    IntWarn(NO_CARET, "extra columns ignored by smoothing option");
 		    break;
 	}
-	if(current_plot->plot_smooth && current_plot->plot_style == FILLEDCURVES) {
-		if(current_plot->filledcurves_options.closeto == FILLEDCURVES_CLOSED) {
-			if(current_plot->plot_smooth == SMOOTH_CSPLINES)
-				current_plot->plot_smooth = SMOOTH_PATH;
-			if(current_plot->plot_smooth != SMOOTH_PATH) {
-				current_plot->plot_smooth = SMOOTH_NONE;
-				GPO.IntWarn(NO_CARET, "only 'smooth path' or 'smooth cspline' is supported for closed curves");
+	if(pPlot->plot_smooth && pPlot->plot_style == FILLEDCURVES) {
+		if(pPlot->filledcurves_options.closeto == FILLEDCURVES_CLOSED) {
+			if(pPlot->plot_smooth == SMOOTH_CSPLINES)
+				pPlot->plot_smooth = SMOOTH_PATH;
+			if(pPlot->plot_smooth != SMOOTH_PATH) {
+				pPlot->plot_smooth = SMOOTH_NONE;
+				IntWarn(NO_CARET, "only 'smooth path' or 'smooth cspline' is supported for closed curves");
 			}
 		}
 	}
-
 	/* May 2013 - Treating timedata columns as strings allows
 	 * functions column(N) and column("HEADER") to work on time data.
 	 * Sep 2014: But the column count is wrong for HISTOGRAMS
 	 */
-	if(current_plot->plot_style != HISTOGRAMS) {
-		if(GPO.AxS[current_plot->AxIdx_X].datatype == DT_TIMEDATE)
+	if(pPlot->plot_style != HISTOGRAMS) {
+		if(AxS[pPlot->AxIdx_X].datatype == DT_TIMEDATE)
 			expect_string(1);
-		if(GPO.AxS[current_plot->AxIdx_Y].datatype == DT_TIMEDATE)
+		if(AxS[pPlot->AxIdx_Y].datatype == DT_TIMEDATE)
 			expect_string(2);
 	}
 	if(df_no_use_specs > max_cols)
-		GPO.IntError(NO_CARET, "Too many using specs for this style");
+		IntError(NO_CARET, "Too many using specs for this style");
 	if(df_no_use_specs > 0 && df_no_use_specs < min_cols)
-		GPO.IntError(NO_CARET, "Not enough columns for this style");
+		IntError(NO_CARET, "Not enough columns for this style");
 	i = 0; ngood = 0;
 	/* If the user has set an explicit locale for numeric input, apply it */
 	/* here so that it affects data fields read from the input file.      */
@@ -477,23 +458,21 @@ static int get_data(curve_points * current_plot)
 	/* Initial state */
 	df_warn_on_missing_columnheader = TRUE;
 	while((j = df_readline(v, max_cols)) != DF_EOF) {
-		if(i >= current_plot->p_max) {
+		if(i >= pPlot->p_max) {
 			/* overflow about to occur. Extend size of points[]
 			 * array. Double the size, and add 1000 points, to avoid
 			 * needlessly small steps. */
-			cp_extend(current_plot, i + i + 1000);
+			cp_extend(pPlot, i + i + 1000);
 		}
-		/* Assume range is OK; we will check later */
-		current_plot->points[i].type = (j == 0) ? UNDEFINED : INRANGE;
-
+		// Assume range is OK; we will check later 
+		pPlot->points[i].type = (j == 0) ? UNDEFINED : INRANGE;
 		/* First handle all the special cases (j <= 0) */
 		switch(j) {
 			case 0:
 			    df_close();
-			    GPO.IntError(current_plot->token, "Bad data on line %d of file %s",
+			    IntError(pPlot->token, "Bad data on line %d of file %s",
 				df_line_number, df_filename ? df_filename : "");
 			    continue;
-
 			case DF_COMPLEX_VALUE:
 			    n_complex_values++;
 			    fprintf(stderr, "plot2d.c:%d caught a complex value\n", __LINE__);
@@ -502,7 +481,7 @@ static int get_data(curve_points * current_plot)
 			    /* Version 5 - We are now trying to pass back all available info even
 			     * if one of the requested columns was missing or undefined.
 			     */
-			    current_plot->points[i].type = UNDEFINED;
+			    pPlot->points[i].type = UNDEFINED;
 			    if(missing_val && !strcmp(missing_val, "NaN")) {
 				    j = DF_MISSING;
 				    /* fall through to short-circuit for missing data */
@@ -514,18 +493,17 @@ static int get_data(curve_points * current_plot)
 			    }
 
 			case DF_MISSING:
-			    /* Plot type specific handling of missing points goes here. */
-			    if((current_plot->plot_style == PARALLELPLOT)
-				||  (current_plot->plot_style == SPIDERPLOT)) {
-				    current_plot->points[i].type = UNDEFINED;
+			    // Plot type specific handling of missing points goes here. 
+			    if((pPlot->plot_style == PARALLELPLOT) || (pPlot->plot_style == SPIDERPLOT)) {
+				    pPlot->points[i].type = UNDEFINED;
 				    j = df_no_use_specs;
 				    break;
 			    }
-			    if(current_plot->plot_style == HISTOGRAMS) {
-				    current_plot->points[i].type = UNDEFINED;
+			    if(pPlot->plot_style == HISTOGRAMS) {
+				    pPlot->points[i].type = UNDEFINED;
 				    i++;
 			    }
-			    if(current_plot->plot_style == TABLESTYLE) {
+			    if(pPlot->plot_style == TABLESTYLE) {
 				    j = df_no_use_specs;
 				    break;
 			    }
@@ -539,17 +517,17 @@ static int get_data(curve_points * current_plot)
 			     * ignored for certain plot types requiring 3D coordinates in
 			     * MODE_PLOT.
 			     */
-			    if(current_plot->plot_style == IMAGE || current_plot->plot_style == RGBIMAGE || current_plot->plot_style == RGBA_IMAGE)
+			    if(pPlot->plot_style == IMAGE || pPlot->plot_style == RGBIMAGE || pPlot->plot_style == RGBA_IMAGE)
 				    continue;
 			    // make type of next point undefined, but recognizable 
-			    current_plot->points[i] = blank_data_line;
+			    pPlot->points[i] = blank_data_line;
 			    i++;
 			    continue;
 			case DF_SECOND_BLANK:
 			    // second blank line. We dont do anything (we did everything when we got FIRST one)
 			    continue;
 			case DF_FOUND_KEY_TITLE:
-			    df_set_key_title(current_plot);
+			    df_set_key_title(pPlot);
 			    continue;
 			case DF_KEY_TITLE_MISSING:
 			    fprintf(stderr, "get_data: key title not found in requested column\n");
@@ -559,36 +537,38 @@ static int get_data(curve_points * current_plot)
 			default:
 			    if(j < 0) {
 				    df_close();
-				    GPO.IntErrorCurToken("internal error : df_readline returned %d : datafile line %d", j, df_line_number);
+				    IntErrorCurToken("internal error : df_readline returned %d : datafile line %d", j, df_line_number);
 			    }
 			    break; /* Not continue!! */
 		}
 		/* We now know that j > 0, i.e. there is some data on this input line */
 		ngood++;
 		/* "plot ... with table" bypasses all the column interpretation */
-		if(current_plot->plot_style == TABLESTYLE) {
+		if(pPlot->plot_style == TABLESTYLE) {
 			tabulate_one_line(v, df_strings, j);
 			continue;
 		}
 		/* June 2010 - New mechanism for variable color                  */
 		/* If variable color is requested, take the color value from the */
 		/* final column of input and decrement the column count by one.  */
-		if(current_plot->varcolor) {
+		if(pPlot->varcolor) {
 			static char * errmsg = "Not enough columns for variable color";
-			switch(current_plot->plot_style) {
+			switch(pPlot->plot_style) {
 				case CANDLESTICKS:
 				case FINANCEBARS:
 				    if(j < 6) 
-						GPO.IntError(NO_CARET, errmsg);
+						IntError(NO_CARET, errmsg);
 				    break;
 				case XYERRORLINES:
 				case XYERRORBARS:
 				case BOXXYERROR:
-				    if(j != 7 && j != 5) GPO.IntError(NO_CARET, errmsg);
+				    if(j != 7 && j != 5) 
+						IntError(NO_CARET, errmsg);
 				    break;
 				case VECTOR:
 				case ARROWS:
-				    if(j < 5) GPO.IntError(NO_CARET, errmsg);
+				    if(j < 5) 
+						IntError(NO_CARET, errmsg);
 				    break;
 				case LABELPOINTS:
 				case BOXERROR:
@@ -596,10 +576,12 @@ static int get_data(curve_points * current_plot)
 				case XERRORBARS:
 				case YERRORLINES:
 				case YERRORBARS:
-				    if(j < 4) GPO.IntError(NO_CARET, errmsg);
+				    if(j < 4) 
+						IntError(NO_CARET, errmsg);
 				    break;
 				case CIRCLES:
-				    if(j == 5 || j < 3) GPO.IntError(NO_CARET, errmsg);
+				    if(j == 5 || j < 3) 
+						IntError(NO_CARET, errmsg);
 				    break;
 				case ELLIPSES:
 				case BOXES:
@@ -608,23 +590,23 @@ static int get_data(curve_points * current_plot)
 				case IMPULSES:
 				case LINES:
 				case DOTS:
-				    if(j < 3) GPO.IntError(NO_CARET, errmsg);
+				    if(j < 3) 
+						IntError(NO_CARET, errmsg);
 				    break;
 				case PARALLELPLOT:
 				case SPIDERPLOT:
-				    if(j < 1) GPO.IntError(NO_CARET, errmsg);
+				    if(j < 1) 
+						IntError(NO_CARET, errmsg);
 				    break;
 				case BOXPLOT:
-				    /* Only the key sample uses this value */
-				    v[j++] = current_plot->base_linetype + 1;
+				    // Only the key sample uses this value 
+				    v[j++] = pPlot->base_linetype + 1;
 				    break;
 				default:
 				    break;
 			}
-
-			current_plot->varcolor[i] = v[--j];
+			pPlot->varcolor[i] = v[--j];
 		}
-
 		/* Unusual special cases */
 
 		/* In spiderplots the implicit "x coordinate" v[0] is really the axis number. */
@@ -635,10 +617,9 @@ static int get_data(curve_points * current_plot)
 				v[is] = v[is-1];
 			v[0] = paxis_current;
 		}
-
-		/* Single data value - is it y with implicit x or something else? */
-		if(j == 1 && !(current_plot->plot_style == HISTOGRAMS)) {
-			if(default_smooth_weight(current_plot->plot_smooth))
+		// Single data value - is it y with implicit x or something else? 
+		if(j == 1 && !(pPlot->plot_style == HISTOGRAMS)) {
+			if(default_smooth_weight(pPlot->plot_smooth))
 				v[1] = 1.0;
 			else {
 				v[1] = v[0];
@@ -646,33 +627,30 @@ static int get_data(curve_points * current_plot)
 			}
 			j = 2;
 		}
-
 		/* May 2018:  The huge switch statement below is now organized by plot	*/
 		/* style.  Each plot style can have its own understanding of what the	*/
 		/* value in a particular field of the "using" specifier represents.	*/
 		/* E.g. the 3rd field might be z or radius or color.			*/
-		switch(current_plot->plot_style) {
+		switch(pPlot->plot_style) {
 			case LINES:
 			case DOTS:
 			case IMPULSES:
-		    { /* x y [acspline weight] */
-			    coordval w; /* only for (current_plot->plot_smooth == SMOOTH_ACSPLINES) */
+		    { // x y [acspline weight] 
+			    coordval w; // only for (pPlot->plot_smooth == SMOOTH_ACSPLINES) 
 			    w = (j > 2) ? v[2] : 1.0;
-			    store2d_point(current_plot, i++, v[0], v[1],
-				v[0], v[0], v[1], v[1], w);
+			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], w);
 			    break;
 		    }
-
 			case POINTSTYLE:
 			case LINESPOINTS:
 		    { /* x y {z} {var_ps} {var_pt} {lc variable} */
 			/* NB: assumes CRD_PTSIZE == xlow CRD_PTTYPE == xhigh CRD_PTCHAR == ylow */
 			    int var = 2; /* column number for next variable spec */
-			    coordval weight = (current_plot->plot_smooth == SMOOTH_ACSPLINES) ? v[2] : 1.0;
-			    coordval var_ps = current_plot->lp_properties.p_size;
-			    coordval var_pt = current_plot->lp_properties.p_type;
+			    coordval weight = (pPlot->plot_smooth == SMOOTH_ACSPLINES) ? v[2] : 1.0;
+			    coordval var_ps = pPlot->lp_properties.p_size;
+			    coordval var_pt = pPlot->lp_properties.p_type;
 			    coordval var_char = 0;
-			    if(current_plot->plot_smooth == SMOOTH_ZSORT)
+			    if(pPlot->plot_smooth == SMOOTH_ZSORT)
 				    weight = v[var++];
 			    if(var_pt == PT_VARIABLE) {
 				    if(isnan(v[var]) && df_tokens[var]) {
@@ -684,56 +662,47 @@ static int get_data(curve_points * current_plot)
 			    if(var_ps == PTSZ_VARIABLE)
 				    var_ps = v[var++];
 			    if(var > j)
-				    GPO.IntError(NO_CARET, "Not enough using specs");
+				    IntError(NO_CARET, "Not enough using specs");
 			    if(var_pt < 0)
 				    var_pt = 0;
-			    store2d_point(current_plot, i++, v[0], v[1],
+			    Store2DPoint(pPlot, i++, v[0], v[1],
 				var_ps, var_pt, var_char, v[1], weight);
 			    break;
 		    }
-
 			case LABELPOINTS:
 		    { /* x y string {rotate variable}
 				 *            {point {pt variable} {ps variable}}
 				 *            {tc|lc variable}
 				 */
 			    int var = 3; /* column number for next variable spec */
-			    coordval var_rotation = current_plot->labels->rotate;
-			    coordval var_ps = current_plot->labels->lp_properties.p_size;
-			    coordval var_pt = current_plot->labels->lp_properties.p_type;
-
-			    if(current_plot->labels->tag == VARIABLE_ROTATE_LABEL_TAG)
+			    coordval var_rotation = pPlot->labels->rotate;
+			    coordval var_ps = pPlot->labels->lp_properties.p_size;
+			    coordval var_pt = pPlot->labels->lp_properties.p_type;
+			    if(pPlot->labels->tag == VARIABLE_ROTATE_LABEL_TAG)
 				    var_rotation = v[var++];
 			    if(var_pt == PT_VARIABLE)
 				    var_pt = v[var++];
 			    if(var_ps == PTSZ_VARIABLE)
 				    var_ps = v[var++];
 			    if(var > j)
-				    GPO.IntError(NO_CARET, "Not enough using specs");
-
-			    store2d_point(current_plot, i, v[0], v[1],
+				    IntError(NO_CARET, "Not enough using specs");
+			    Store2DPoint(pPlot, i, v[0], v[1],
 				var_ps, var_pt, var_rotation, v[1], 0.0);
-
-			    /* Allocate and fill in a text_label structure to match it */
-			    if(current_plot->points[i].type != UNDEFINED) {
-				    store_label(current_plot->labels, &(current_plot->points[i]),
-					i, df_tokens[2],
-					current_plot->varcolor ? current_plot->varcolor[i] : 0.0);
+			    // Allocate and fill in a text_label structure to match it 
+			    if(pPlot->points[i].type != UNDEFINED) {
+				    store_label(pPlot->labels, &(pPlot->points[i]), i, df_tokens[2], pPlot->varcolor ? pPlot->varcolor[i] : 0.0);
 			    }
 			    i++;
 			    break;
 		    }
-
 			case STEPS:
 			case FSTEPS:
 			case FILLSTEPS:
 			case HISTEPS:
 		    { /* x y */
-			    store2d_point(current_plot, i++, v[0], v[1],
-				v[0], v[0], v[1], v[1], -1.0);
+			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], -1.0);
 			    break;
 		    }
-
 			case CANDLESTICKS:
 			case FINANCEBARS:
 		    { /* x yopen ylow yhigh yclose [xhigh] */
@@ -743,35 +712,28 @@ static int get_data(curve_points * current_plot)
 			    coordval yclose = v[4];
 			    coordval xlow = v[0];
 			    coordval xhigh = v[0];
-
 			    /* NB: plot_c_bars will set xhigh = xlow + 2*(x-xlow) */
 			    if(j > 5 && v[5] > 0)
 				    xlow = v[0] - v[5]/2.;
-			    store2d_point(current_plot, i++, v[0], yopen,
-				xlow, xhigh, ylow, yhigh, yclose);
+			    Store2DPoint(pPlot, i++, v[0], yopen, xlow, xhigh, ylow, yhigh, yclose);
 			    break;
 		    }
-
 			case XERRORLINES:
 			case XERRORBARS:
 		    { /* x y xdelta   or    x y xlow xhigh */
 			    coordval xlow  = (j > 3) ? v[2] : v[0] - v[2];
 			    coordval xhigh = (j > 3) ? v[3] : v[0] + v[2];
-			    store2d_point(current_plot, i++, v[0], v[1],
-				xlow, xhigh, v[1], v[1], 0.0);
+			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], 0.0);
 			    break;
 		    }
-
 			case YERRORLINES:
 			case YERRORBARS:
 		    { /* x y ydelta   or    x y ylow yhigh */
 			    coordval ylow  = (j > 3) ? v[2] : v[1] - v[2];
 			    coordval yhigh = (j > 3) ? v[3] : v[1] + v[2];
-			    store2d_point(current_plot, i++, v[0], v[1],
-				v[0], v[0], ylow, yhigh, -1.0);
+			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], ylow, yhigh, -1.0);
 			    break;
 		    }
-
 			case BOXERROR:
 		    { /* 3 columns:  x y ydelta
 				 * 4 columns:  x y ydelta xdelta     (if xdelta <=0 use boxwidth)
@@ -806,11 +768,9 @@ static int get_data(curve_points * current_plot)
 				    yhigh = v[3];
 				    width = 0.0;
 			    }
-			    store2d_point(current_plot, i++, v[0], v[1],
-				xlow, xhigh, ylow, yhigh, width);
+			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, ylow, yhigh, width);
 			    break;
 		    }
-
 			case XYERRORLINES:
 			case XYERRORBARS:
 			case BOXXYERROR:
@@ -821,13 +781,11 @@ static int get_data(curve_points * current_plot)
 			    coordval xhigh = (j>5) ? v[3] : v[0] + v[2];
 			    coordval ylow  = (j>5) ? v[4] : v[1] - v[3];
 			    coordval yhigh = (j>5) ? v[5] : v[1] + v[3];
-			    store2d_point(current_plot, i++, v[0], v[1],
-				xlow, xhigh, ylow, yhigh, 0.0);
+			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, ylow, yhigh, 0.0);
 			    if(j == 5)
-				    GPO.IntError(NO_CARET, "wrong number of columns for this plot style");
+				    IntError(NO_CARET, "wrong number of columns for this plot style");
 			    break;
 		    }
-
 			case BOXES:
 		    { /* 2 columns: x y (width depends on "set boxwidth")
 				 * 3 columns: x y xdelta
@@ -836,15 +794,15 @@ static int get_data(curve_points * current_plot)
 			    coordval xlow  = v[0];
 			    coordval xhigh = v[0];
 			    coordval width = 0.0;
-			    double base = GPO.AxS[current_plot->AxIdx_X].base;
+			    double base = AxS[pPlot->AxIdx_X].base;
 			    if(j == 2) {
 				    /* For boxwidth auto, we cannot calculate xlow/xhigh yet since they
 				     * depend on both adjacent boxes.  This is signalled by storing -1
 				     * in point->z to indicate xlow/xhigh must be calculated later.
 				     */
 				    if(boxwidth > 0 && boxwidth_is_absolute) {
-					    xlow = (GPO.AxS[current_plot->AxIdx_X].log) ? v[0] * pow(base, -boxwidth/2.) : v[0] - boxwidth / 2;
-					    xhigh = (GPO.AxS[current_plot->AxIdx_X].log) ? v[0] * pow(base, boxwidth/2.) : v[0] + boxwidth / 2;
+					    xlow = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, -boxwidth/2.) : v[0] - boxwidth / 2;
+					    xhigh = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, boxwidth/2.) : v[0] + boxwidth / 2;
 				    }
 				    else {
 					    width = -1.0;
@@ -858,7 +816,7 @@ static int get_data(curve_points * current_plot)
 				    xlow  = v[2];
 				    xhigh = v[3];
 			    }
-			    store2d_point(current_plot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], width);
+			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], width);
 			    break;
 		    }
 			case FILLEDCURVES:
@@ -869,17 +827,17 @@ static int get_data(curve_points * current_plot)
 			    coordval y2;
 			    coordval w = 0.0; /* only needed for SMOOTH_ACSPLINES) */
 			    if(j==2) {
-				    if(oneof2(current_plot->filledcurves_options.closeto, FILLEDCURVES_CLOSED, FILLEDCURVES_DEFAULT))
+				    if(oneof2(pPlot->filledcurves_options.closeto, FILLEDCURVES_CLOSED, FILLEDCURVES_DEFAULT))
 					    y2 = y1;
 				    else
-					    y2 = current_plot->filledcurves_options.at;
+					    y2 = pPlot->filledcurves_options.at;
 			    }
 			    else {
 				    y2 = v[2];
-				    if(current_plot->filledcurves_options.closeto == FILLEDCURVES_DEFAULT)
-					    current_plot->filledcurves_options.closeto = FILLEDCURVES_BETWEEN;
-				    if(oneof3(current_plot->filledcurves_options.closeto, FILLEDCURVES_BETWEEN, FILLEDCURVES_ABOVE, FILLEDCURVES_BELOW)) {
-					    switch(current_plot->plot_smooth) {
+				    if(pPlot->filledcurves_options.closeto == FILLEDCURVES_DEFAULT)
+					    pPlot->filledcurves_options.closeto = FILLEDCURVES_BETWEEN;
+				    if(oneof3(pPlot->filledcurves_options.closeto, FILLEDCURVES_BETWEEN, FILLEDCURVES_ABOVE, FILLEDCURVES_BELOW)) {
+					    switch(pPlot->plot_smooth) {
 						    case SMOOTH_NONE:
 						    case SMOOTH_CSPLINES:
 						    case SMOOTH_SBEZIER:
@@ -888,23 +846,20 @@ static int get_data(curve_points * current_plot)
 							w = (j > 3) ? v[3] : 1.0;
 							break;
 						    default:
-							GPO.IntWarn(NO_CARET, "use csplines, acsplines or sbezier to smooth non-closed filledcurves");
-							current_plot->plot_smooth = SMOOTH_NONE;
+							IntWarn(NO_CARET, "use csplines, acsplines or sbezier to smooth non-closed filledcurves");
+							pPlot->plot_smooth = SMOOTH_NONE;
 							break;
 					    }
 				    }
 			    }
-			    store2d_point(current_plot, i++, v[0], y1,
-				v[0], v[0], y1, y2, w);
+			    Store2DPoint(pPlot, i++, v[0], y1, v[0], v[0], y1, y2, w);
 			    break;
 		    }
-
 			case POLYGONS:
-		    { /* Nothing yet to distinguish this from filledcurves */
-			    store2d_point(current_plot, i++, v[0], v[1], v[0], v[0], v[1], v[1], 0);
+		    { // Nothing yet to distinguish this from filledcurves 
+			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], 0);
 			    break;
 		    }
-
 			case BOXPLOT:
 		    { /* 2 columns:  x data
 				 * 3 columns:  x data width
@@ -914,12 +869,10 @@ static int get_data(curve_points * current_plot)
 			    coordval xlow =  (j > 2) ? v[0] - v[2]/2. : v[0];
 			    coordval xhigh = (j > 2) ? v[0] + v[2]/2. : v[0];
 			    if(j == 4)
-				    extra = check_or_add_boxplot_factor(current_plot, df_tokens[3], v[0]);
-			    store2d_point(current_plot, i++, v[0], v[1],
-				xlow, xhigh, v[1], v[1], extra);
+				    extra = check_or_add_boxplot_factor(pPlot, df_tokens[3], v[0]);
+			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], extra);
 			    break;
 		    }
-
 			case VECTOR:
 		    { /* 4 columns:	x y xdelta ydelta [arrowstyle variable] */
 			    coordval xlow  = v[0];
@@ -927,12 +880,9 @@ static int get_data(curve_points * current_plot)
 			    coordval ylow  = v[1];
 			    coordval yhigh = v[1] + v[3];
 			    coordval arrowstyle = (j == 5) ? v[4] : 0.0;
-
-			    store2d_point(current_plot, i++, v[0], v[1],
-				xlow, xhigh, ylow, yhigh, arrowstyle);
+			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, ylow, yhigh, arrowstyle);
 			    break;
 		    }
-
 			case ARROWS:
 		    { /* 4 columns:	x y len ang [arrowstyle variable] */
 			    coordval xlow  = v[0];
@@ -940,11 +890,9 @@ static int get_data(curve_points * current_plot)
 			    coordval len = v[2];
 			    coordval ang = v[3];
 			    coordval arrowstyle = (j == 5) ? v[4] : 0.0;
-			    store2d_point(current_plot, i++, v[0], v[1],
-				xlow, len, ylow, ang, arrowstyle);
+			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, len, ylow, ang, arrowstyle);
 			    break;
 		    }
-
 			case CIRCLES:
 		    { /* x y
 				 * x y radius
@@ -957,17 +905,14 @@ static int get_data(curve_points * current_plot)
 			    coordval arc_begin = (j >= 5) ? v[3] : 0.0;
 			    coordval arc_end = (j >= 5) ? v[4] : 360.0;
 			    coordval radius = DEFAULT_RADIUS;
-
 			    if(j >= 3 && v[2] >= 0) {
 				    xlow  = x - v[2];
 				    xhigh = x + v[2];
 				    radius = 0.0;
 			    }
-			    store2d_point(current_plot, i++, x, y,
-				xlow, xhigh, arc_begin, arc_end, radius);
+			    Store2DPoint(pPlot, i++, x, y, xlow, xhigh, arc_begin, arc_end, radius);
 			    break;
 		    }
-
 			case ELLIPSES:
 		    { /* x y
 				 * x y diam  (used for both major and minor axis)
@@ -980,28 +925,23 @@ static int get_data(curve_points * current_plot)
 			    coordval minor_axis = (j >= 4) ? v[3] : (j >= 3) ? v[2] : 0.0;
 			    coordval orientation = (j >= 5) ? v[4] : 0.0;
 			    coordval flag = (major_axis <= 0 || minor_axis <= 0) ?  DEFAULT_RADIUS : 0;
-
 			    if(j == 2) /* FIXME: why not also for j == 3 or 4? */
 				    orientation = default_ellipse.o.ellipse.orientation;
-
-			    store2d_point(current_plot, i++, x, y,
+			    Store2DPoint(pPlot, i++, x, y,
 				major_axis, minor_axis, orientation, 0.0 /* not used */,
 				flag);
 			    break;
 		    }
-
 			case IMAGE:
 		    { /* x y color_value */
-			    store2d_point(current_plot, i++, v[0], v[1],
-				v[0], v[0], v[1], v[1], v[2]);
+			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], v[2]);
 			    break;
 		    }
-
 			case RGBIMAGE:
 			case RGBA_IMAGE:
-		    { /* x y red green blue [alpha] */
-			    store2d_point(current_plot, i, v[0], v[1], v[0], v[0], v[1], v[1], 0.0);
-			    /* If there is only one column of image data, it must be 32-bit ARGB */
+		    { // x y red green blue [alpha] 
+			    Store2DPoint(pPlot, i, v[0], v[1], v[0], v[0], v[1], v[1], 0.0);
+			    // If there is only one column of image data, it must be 32-bit ARGB 
 			    if(j==3) {
 				    uint argb = static_cast<uint>(v[2]);
 				    v[2] = (argb >> 16) & 0xff;
@@ -1010,7 +950,7 @@ static int get_data(curve_points * current_plot)
 				    /* The alpha channel convention is unfortunate */
 				    v[5] = 255 - (uint)((argb >> 24) & 0xff);
 			    }
-			    cp = &(current_plot->points[i]);
+			    cp = &(pPlot->points[i]);
 			    cp->CRD_R = v[2];
 			    cp->CRD_G = v[3];
 			    cp->CRD_B = v[4];
@@ -1032,7 +972,7 @@ static int get_data(curve_points * current_plot)
 			    coordval xhigh = x + width / 2.;
 			    if(histogram_opts.type == HT_ERRORBARS) {
 				    if(j == 1)
-					    GPO.IntErrorCurToken("No column given for errorbars in using specifier");
+					    IntErrorCurToken("No column given for errorbars in using specifier");
 				    if(j == 2) {
 					    ylow  = y - v[1];
 					    yhigh = y + v[1];
@@ -1043,76 +983,77 @@ static int get_data(curve_points * current_plot)
 				    }
 			    }
 			    else if(j > 1)
-				    GPO.IntErrorCurToken("Too many columns in using specification");
+				    IntErrorCurToken("Too many columns in using specification");
 			    if(histogram_opts.type == HT_STACKED_IN_TOWERS) {
-				    histogram_rightmost = current_plot->histogram_sequence + current_plot->histogram->start;
-				    current_plot->histogram->end = histogram_rightmost;
+				    histogram_rightmost = pPlot->histogram_sequence + pPlot->histogram->start;
+				    pPlot->histogram->end = histogram_rightmost;
 			    }
-			    else if(x + current_plot->histogram->start > histogram_rightmost) {
-				    histogram_rightmost = x + current_plot->histogram->start;
-				    current_plot->histogram->end = histogram_rightmost;
+			    else if(x + pPlot->histogram->start > histogram_rightmost) {
+				    histogram_rightmost = x + pPlot->histogram->start;
+				    pPlot->histogram->end = histogram_rightmost;
 			    }
-			    store2d_point(current_plot, i++, x, y, xlow, xhigh, ylow, yhigh, 0.0);
+			    Store2DPoint(pPlot, i++, x, y, xlow, xhigh, ylow, yhigh, 0.0);
 			    break;
 		    }
 			case PARALLELPLOT:
 		    { // Similar to histogram plots, each parallel axis gets a separate comma-separated plot element with a single "using" spec.
-			    coordval x = GPO.AxS.Parallel(paxis_current-1).paxis_x;
+			    coordval x = AxS.Parallel(paxis_current-1).paxis_x;
 			    coordval y = v[1];
-			    store2d_point(current_plot, i++, x, y, x, x, y, y, 0.0);
+			    Store2DPoint(pPlot, i++, x, y, x, x, y, y, 0.0);
 			    break;
 		    }
 			case SPIDERPLOT:
 		    { // Spider plots are essentially parallelaxis plots in polar coordinates.
-			    coordval var_color = current_plot->varcolor ? current_plot->varcolor[i] : i;
-			    coordval var_pt = current_plot->lp_properties.p_type;
+			    coordval var_color = pPlot->varcolor ? pPlot->varcolor[i] : i;
+			    coordval var_pt = pPlot->lp_properties.p_type;
 			    coordval theta = paxis_current;
 			    coordval r = v[1];
 			    var_pt = (var_pt == PT_VARIABLE) ? v[2] : var_pt + 1;
-			    store2d_point(current_plot, i++, theta, r, theta, var_pt, r, var_color, 0.0);
+			    Store2DPoint(pPlot, i++, theta, r, theta, var_pt, r, var_color, 0.0);
 			    break;
 		    }
-			/* These exist for 3D (splot) but not for 2D (plot) */
+			// These exist for 3D (splot) but not for 2D (plot) 
 			case PM3DSURFACE:
 			case SURFACEGRID:
 			case ZERRORFILL:
 			case ISOSURFACE:
-			    GPO.IntError(NO_CARET, "This plot style only available for splot");
+			    IntError(NO_CARET, "This plot style only available for splot");
 			    break;
 			// If anybody hits this it is because we missed handling a plot style above. To be fixed immediately!
 			default:
-			    GPO.IntError(NO_CARET, "This plot style must have been missed in the grand code reorganization");
+			    IntError(NO_CARET, "This plot style must have been missed in the grand code reorganization");
 			    break;
 		} /* switch (plot->plot_style) */
 	} /* while more input data */
-	/* This removes an extra point caused by blank lines after data. */
-	if(i > 0 && current_plot->points[i-1].type == UNDEFINED)
+	// This removes an extra point caused by blank lines after data. 
+	if(i > 0 && pPlot->points[i-1].type == UNDEFINED)
 		i--;
-	current_plot->p_count = i;
-	cp_extend(current_plot, i); /* shrink to fit */
+	pPlot->p_count = i;
+	cp_extend(pPlot, i); /* shrink to fit */
 	df_close();
-	/* We are finished reading user input; return to C locale for internal use */
+	// We are finished reading user input; return to C locale for internal use 
 	reset_numeric_locale();
-	/* Deferred evaluation of plot title now that we know column headers */
-	reevaluate_plot_title(current_plot);
-	return ngood;               /* 0 indicates an 'empty' file */
+	// Deferred evaluation of plot title now that we know column headers 
+	reevaluate_plot_title(pPlot);
+	return ngood; //0 indicates an 'empty' file 
 }
 //
 // called by get_data for each point 
 //
-static void store2d_point(curve_points * current_plot, int i/* point number */, double x, double y, 
-	double xlow, double xhigh, double ylow, double yhigh, double width/* BOXES widths: -1 -> autocalc, 0 ->  use xlow/xhigh */)
+//static void store2d_point(curve_points * current_plot, int i/* point number */, double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width/* BOXES widths: -1 -> autocalc, 0 ->  use xlow/xhigh */)
+void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */, 
+	double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width/* BOXES widths: -1 -> autocalc, 0 ->  use xlow/xhigh */)
 {
-	struct coordinate * cp = &(current_plot->points[i]);
+	struct coordinate * cp = &(pPlot->points[i]);
 	GpAxis * x_axis_ptr, * y_axis_ptr;
 	coord_type * y_type_ptr;
 	coord_type dummy_type = INRANGE; /* sometimes we dont care about outranging */
 	bool excluded_range = FALSE;
-	/* FIXME this destroys any UNDEFINED flag assigned during input */
+	// FIXME this destroys any UNDEFINED flag assigned during input 
 	cp->type = INRANGE;
 	if(polar) {
 		double theta = x;
-		GpAxis * theta_axis = &GPO.AxS[T_AXIS];
+		GpAxis * theta_axis = &AxS[T_AXIS];
 		/* "x" is really the polar angle theta,	so check it against trange. */
 		if(theta < theta_axis->data_min)
 			theta_axis->data_min = theta;
@@ -1127,45 +1068,44 @@ static void store2d_point(curve_points * current_plot, int i/* point number */, 
 				excluded_range = TRUE;
 		}
 		// "y" at this point is really "r", so check it against rrange.	
-		if(y < GPO.AxS.__R().data_min)
-			GPO.AxS.__R().data_min = y;
-		if(y > GPO.AxS.__R().data_max)
-			GPO.AxS.__R().data_max = y;
+		if(y < AxS.__R().data_min)
+			AxS.__R().data_min = y;
+		if(y > AxS.__R().data_max)
+			AxS.__R().data_max = y;
 		// Convert from polar to cartesian coordinates and check ranges 
-		if(GPO.PolarToXY(x, y, &x, &y, TRUE) == OUTRANGE)
+		if(PolarToXY(x, y, &x, &y, TRUE) == OUTRANGE)
 			cp->type = OUTRANGE;
 		// Some plot styles use xhigh and yhigh for other quantities, 
 		// which polar mode transforms would break		      
-		if(current_plot->plot_style == CIRCLES) {
+		if(pPlot->plot_style == CIRCLES) {
 			double radius = (xhigh - xlow)/2.0;
 			xlow = x - radius;
 			xhigh = x + radius;
 		}
 		else {
 			// Jan 2017 - now skipping range check on rhigh, rlow 
-			GPO.PolarToXY(xhigh, yhigh, &xhigh, &yhigh, FALSE);
-			GPO.PolarToXY(xlow, ylow, &xlow, &ylow, FALSE);
+			PolarToXY(xhigh, yhigh, &xhigh, &yhigh, FALSE);
+			PolarToXY(xlow, ylow, &xlow, &ylow, FALSE);
 		}
 	}
 	/* Version 5: Allow to store Inf or NaN
 	 *  We used to exit immediately in this case rather than storing anything
 	 */
-	x_axis_ptr = &GPO.AxS[current_plot->AxIdx_X];
+	x_axis_ptr = &AxS[pPlot->AxIdx_X];
 	dummy_type = cp->type;  /* Save result of range check on x */
-	y_axis_ptr = &GPO.AxS[current_plot->AxIdx_Y];
-	store_and_update_range(&(cp->x), x, &(cp->type), x_axis_ptr, current_plot->noautoscale);
-	store_and_update_range(&(cp->y), y, &(cp->type), y_axis_ptr, current_plot->noautoscale);
-	/* special cases for the "y" axes of parallel axis plots */
-	if((current_plot->plot_style == PARALLELPLOT) || (current_plot->plot_style == SPIDERPLOT)) {
+	y_axis_ptr = &AxS[pPlot->AxIdx_Y];
+	store_and_update_range(&(cp->x), x, &(cp->type), x_axis_ptr, pPlot->noautoscale);
+	store_and_update_range(&(cp->y), y, &(cp->type), y_axis_ptr, pPlot->noautoscale);
+	// special cases for the "y" axes of parallel axis plots 
+	if((pPlot->plot_style == PARALLELPLOT) || (pPlot->plot_style == SPIDERPLOT)) {
 		y_type_ptr = &dummy_type; /* Use xrange test result as a start point */
-		y_axis_ptr = &GPO.AxS.Parallel(current_plot->AxIdx_P-1);
+		y_axis_ptr = &AxS.Parallel(pPlot->AxIdx_P-1);
 		store_and_update_range(&(cp->y), y, y_type_ptr, y_axis_ptr, FALSE);
 	}
 	else {
 		dummy_type = INRANGE;
 	}
-
-	switch(current_plot->plot_style) {
+	switch(pPlot->plot_style) {
 		case POINTSTYLE: /* Only x and y are relevant to axis scaling */
 		case LINES:
 		case LINESPOINTS:
@@ -1187,13 +1127,13 @@ static void store2d_point(curve_points * current_plot, int i/* point number */, 
 		case BOXPLOT:   /* auto-scale to xlow xhigh, factor is already in z */
 		    cp->ylow = ylow; /* ylow yhigh not really needed but store them anyway */
 		    cp->yhigh = yhigh;
-		    STORE_AND_UPDATE_RANGE(cp->xlow, xlow, dummy_type, current_plot->AxIdx_X, current_plot->noautoscale, cp->xlow = -VERYLARGE);
-		    STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, dummy_type, current_plot->AxIdx_X, current_plot->noautoscale, cp->xhigh = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->xlow, xlow, dummy_type, pPlot->AxIdx_X, pPlot->noautoscale, cp->xlow = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, dummy_type, pPlot->AxIdx_X, pPlot->noautoscale, cp->xhigh = -VERYLARGE);
 		    break;
 		case CIRCLES:
 		    cp->yhigh = yhigh;
-		    STORE_AND_UPDATE_RANGE(cp->xlow, xlow, dummy_type, current_plot->AxIdx_X, current_plot->noautoscale, cp->xlow = -VERYLARGE);
-		    STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, dummy_type, current_plot->AxIdx_X, current_plot->noautoscale, cp->xhigh = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->xlow, xlow, dummy_type, pPlot->AxIdx_X, pPlot->noautoscale, cp->xlow = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, dummy_type, pPlot->AxIdx_X, pPlot->noautoscale, cp->xhigh = -VERYLARGE);
 		    cp->ylow = ylow; /* arc begin */
 		    cp->xhigh = yhigh; /* arc end */
 		    if(fabs(ylow) > 1000. || fabs(yhigh) > 1000.) /* safety check for insane arc angles */
@@ -1207,39 +1147,39 @@ static void store2d_point(curve_points * current_plot, int i/* point number */, 
 		     * So we just use the larger of the two axes, multiplied by some empirical factors
 		     * to ensure^Whope that all parts of the ellipses will be in the auto-scaled area. */
 		    /* xlow = major axis, xhigh = minor axis, ylow = orientation */
-#define YRANGE_FACTOR ((current_plot->ellipseaxes_units == ELLIPSEAXES_YY) ? 1.0 : 1.4)
-#define XRANGE_FACTOR ((current_plot->ellipseaxes_units == ELLIPSEAXES_XX) ? 1.1 : 1.0)
-		    STORE_AND_UPDATE_RANGE(cp->xlow, x-0.5*MAX(xlow, xhigh)*XRANGE_FACTOR, dummy_type, current_plot->AxIdx_X, current_plot->noautoscale, cp->xlow = -VERYLARGE);
-		    STORE_AND_UPDATE_RANGE(cp->xhigh, x+0.5*MAX(xlow, xhigh)*XRANGE_FACTOR, dummy_type, current_plot->AxIdx_X, current_plot->noautoscale, cp->xhigh = -VERYLARGE);
-		    STORE_AND_UPDATE_RANGE(cp->ylow, y-0.5*MAX(xlow, xhigh)*YRANGE_FACTOR, dummy_type, current_plot->AxIdx_Y, current_plot->noautoscale, cp->ylow = -VERYLARGE);
-		    STORE_AND_UPDATE_RANGE(cp->yhigh, y+0.5*MAX(xlow, xhigh)*YRANGE_FACTOR, dummy_type, current_plot->AxIdx_Y, current_plot->noautoscale, cp->yhigh = -VERYLARGE);
+#define YRANGE_FACTOR ((pPlot->ellipseaxes_units == ELLIPSEAXES_YY) ? 1.0 : 1.4)
+#define XRANGE_FACTOR ((pPlot->ellipseaxes_units == ELLIPSEAXES_XX) ? 1.1 : 1.0)
+		    STORE_AND_UPDATE_RANGE(cp->xlow, x-0.5*MAX(xlow, xhigh)*XRANGE_FACTOR, dummy_type, pPlot->AxIdx_X, pPlot->noautoscale, cp->xlow = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->xhigh, x+0.5*MAX(xlow, xhigh)*XRANGE_FACTOR, dummy_type, pPlot->AxIdx_X, pPlot->noautoscale, cp->xhigh = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->ylow, y-0.5*MAX(xlow, xhigh)*YRANGE_FACTOR, dummy_type, pPlot->AxIdx_Y, pPlot->noautoscale, cp->ylow = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->yhigh, y+0.5*MAX(xlow, xhigh)*YRANGE_FACTOR, dummy_type, pPlot->AxIdx_Y, pPlot->noautoscale, cp->yhigh = -VERYLARGE);
 		    /* So after updating the axes we re-store the parameters */
 		    cp->xlow = xlow; /* major axis */
 		    cp->xhigh = xhigh; /* minor axis */
 		    cp->ylow = ylow; /* orientation */
 		    break;
 		case IMAGE:
-		    STORE_AND_UPDATE_RANGE(cp->CRD_COLOR, width, dummy_type, COLOR_AXIS, current_plot->noautoscale, NOOP);
+		    STORE_AND_UPDATE_RANGE(cp->CRD_COLOR, width, dummy_type, COLOR_AXIS, pPlot->noautoscale, NOOP);
 		    break;
 		default:        /* auto-scale to xlow xhigh ylow yhigh */
-		    STORE_AND_UPDATE_RANGE(cp->xlow, xlow, dummy_type, current_plot->AxIdx_X, current_plot->noautoscale, cp->xlow = -VERYLARGE);
-		    STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, dummy_type, current_plot->AxIdx_X, current_plot->noautoscale, cp->xhigh = -VERYLARGE);
-		    STORE_AND_UPDATE_RANGE(cp->ylow, ylow, dummy_type, current_plot->AxIdx_Y, current_plot->noautoscale, cp->ylow = -VERYLARGE);
-		    STORE_AND_UPDATE_RANGE(cp->yhigh, yhigh, dummy_type, current_plot->AxIdx_Y, current_plot->noautoscale, cp->yhigh = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->xlow, xlow, dummy_type, pPlot->AxIdx_X, pPlot->noautoscale, cp->xlow = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, dummy_type, pPlot->AxIdx_X, pPlot->noautoscale, cp->xhigh = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->ylow, ylow, dummy_type, pPlot->AxIdx_Y, pPlot->noautoscale, cp->ylow = -VERYLARGE);
+		    STORE_AND_UPDATE_RANGE(cp->yhigh, yhigh, dummy_type, pPlot->AxIdx_Y, pPlot->noautoscale, cp->yhigh = -VERYLARGE);
 		    break;
 	}
-	/* HBB 20010214: if z is not used for some actual value, just
-	 * store 'width' to that axis and be done with it */
-	if((int)current_plot->AxIdx_Z == NO_AXIS)
+	// HBB 20010214: if z is not used for some actual value, just
+	// store 'width' to that axis and be done with it 
+	if((int)pPlot->AxIdx_Z == NO_AXIS)
 		cp->z = width;
 	else
-		STORE_AND_UPDATE_RANGE(cp->z, width, dummy_type, current_plot->AxIdx_Z, current_plot->noautoscale, cp->z = -VERYLARGE);
+		STORE_AND_UPDATE_RANGE(cp->z, width, dummy_type, pPlot->AxIdx_Z, pPlot->noautoscale, cp->z = -VERYLARGE);
 	// If we have variable color corresponding to a z-axis value, use it to autoscale 
-	if(current_plot->lp_properties.pm3d_color.type == TC_Z && current_plot->varcolor)
-		STORE_AND_UPDATE_RANGE(current_plot->varcolor[i], current_plot->varcolor[i], dummy_type, COLOR_AXIS, current_plot->noautoscale, NOOP);
+	if(pPlot->lp_properties.pm3d_color.type == TC_Z && pPlot->varcolor)
+		STORE_AND_UPDATE_RANGE(pPlot->varcolor[i], pPlot->varcolor[i], dummy_type, COLOR_AXIS, pPlot->noautoscale, NOOP);
 	// Same thing for colormap z-values 
-	if(current_plot->lp_properties.pm3d_color.type == TC_COLORMAP && current_plot->varcolor && current_plot->lp_properties.P_Colormap)
-		STORE_AND_UPDATE_RANGE(current_plot->varcolor[i], current_plot->varcolor[i], dummy_type, COLOR_AXIS, current_plot->noautoscale, NOOP);
+	if(pPlot->lp_properties.pm3d_color.type == TC_COLORMAP && pPlot->varcolor && pPlot->lp_properties.P_Colormap)
+		STORE_AND_UPDATE_RANGE(pPlot->varcolor[i], pPlot->varcolor[i], dummy_type, COLOR_AXIS, pPlot->noautoscale, NOOP);
 	// July 2014 - Some points are excluded because they fall outside of trange	
 	// even though they would be inside the plot if drawn.			
 	if(excluded_range)
@@ -1252,14 +1192,12 @@ static void store2d_point(curve_points * current_plot, int i/* point number */, 
 static int check_or_add_boxplot_factor(curve_points * plot, char* string, double x)
 {
 	char * trimmed_string;
-	struct text_label * label, * prev_label, * new_label;
+	text_label * label, * prev_label, * new_label;
 	int index = DEFAULT_BOXPLOT_FACTOR;
-
-	/* If there is no factor column (4th using spec) fall back to a single boxplot */
+	// If there is no factor column (4th using spec) fall back to a single boxplot 
 	if(!string)
 		return index;
-
-	/* Remove the trailing garbage, quotes etc. from the string */
+	// Remove the trailing garbage, quotes etc. from the string 
 	trimmed_string = df_parse_string_field(string);
 	if(strlen(trimmed_string) > 0) {
 		bool is_new = FALSE;
@@ -1731,7 +1669,7 @@ void GnuPlot::EvalPlots()
 	 * as filling in every thing except the function data. That is done after
 	 * the xrange is defined.
 	 */
-	plot_iterator = check_for_iteration();
+	plot_iterator = CheckForIteration();
 	while(TRUE) {
 		/* Forgive trailing comma on a multi-element plot command */
 		if(Pgm.EndOfCommand()) {
@@ -1758,7 +1696,7 @@ void GnuPlot::EvalPlots()
 				previous_token = Pgm.GetCurTokenIdx();
 				if(Pgm.EqualsCur("at")) {
 					Pgm.Shift();
-					newhist_start = GPO.RealExpression();
+					newhist_start = RealExpression();
 				}
 				// Store title in temporary variable and then copy into the 
 				// new histogram structure when it is allocated.            
@@ -1779,7 +1717,7 @@ void GnuPlot::EvalPlots()
 				fs.filldensity = 100;
 				fs.border_color = default_fillstyle.border_color;
 				parse_fillstyle(&fs);
-			} while(GPO.Pgm.GetCurTokenIdx() != previous_token);
+			} while(Pgm.GetCurTokenIdx() != previous_token);
 			newhist_pattern = fs.fillpattern;
 			if(!Pgm.EqualsCur(","))
 				IntErrorCurToken("syntax error");
@@ -1846,16 +1784,16 @@ void GnuPlot::EvalPlots()
 			dummy_func = &plot_func; /* needed by parsing code */
 			name_str = StringOrExpress(NULL);
 			dummy_func = NULL;
-			if(name_str) { /* data file to plot */
+			if(name_str) { // data file to plot 
 				if(parametric && in_parametric)
 					IntErrorCurToken("previous parametric function not fully specified");
 				if(sample_range_token !=0 && *name_str != '+')
 					IntWarn(sample_range_token, "Ignoring sample range in non-sampled data plot");
 				if(*name_str == '$' && !get_datablock(name_str))
-					IntError(GPO.Pgm.GetPrevTokenIdx(), "cannot plot voxel data");
+					IntError(Pgm.GetPrevTokenIdx(), "cannot plot voxel data");
 				if(*tp_ptr)
 					this_plot = *tp_ptr;
-				else { /* no memory malloc()'d there yet */
+				else { // no memory malloc()'d there yet 
 					this_plot = GnuPlot::CpAlloc(MIN_CRV_POINTS);
 					*tp_ptr = this_plot;
 				}
@@ -1863,14 +1801,14 @@ void GnuPlot::EvalPlots()
 				this_plot->plot_style = data_style;
 				this_plot->plot_smooth = SMOOTH_NONE;
 				this_plot->filledcurves_options = filledcurves_opts_data;
-				/* Only relevant to "with table" */
+				// Only relevant to "with table" 
 				free_at(table_filter_at);
 				table_filter_at = NULL;
-				free_at(df_plot_title_at); /* Mechanism for deferred evaluation of plot title */
-				/* up to MAXDATACOLS cols */
-				df_set_plot_mode(MODE_PLOT); /* Needed for binary datafiles */
-				specs = df_open(name_str, MAXDATACOLS, this_plot);
-				/* Store a pointer to the named variable used for sampling */
+				free_at(df_plot_title_at); // Mechanism for deferred evaluation of plot title 
+				// up to MAXDATACOLS cols 
+				df_set_plot_mode(MODE_PLOT); // Needed for binary datafiles 
+				specs = DfOpen(name_str, MAXDATACOLS, this_plot);
+				// Store a pointer to the named variable used for sampling 
 				if(sample_range_token > 0)
 					this_plot->sample_var = add_udv(sample_range_token);
 				else
@@ -1885,7 +1823,7 @@ void GnuPlot::EvalPlots()
 				this_plot->sample_var->udv_value.type = NOTDEFINED;
 				this_plot->sample_var2->udv_value.type = NOTDEFINED;
 				Gcomplex(&(this_plot->sample_var->udv_value), 0.0, 0.0); /* Not sure this is necessary */
-				this_plot->token = end_token = GPO.Pgm.GetPrevTokenIdx(); /* include modifiers in default title */
+				this_plot->token = end_token = Pgm.GetPrevTokenIdx(); /* include modifiers in default title */
 			}
 			else if(Pgm.EqualsCur("keyentry")) {
 				Pgm.Shift();
@@ -1897,7 +1835,7 @@ void GnuPlot::EvalPlots()
 				}
 				this_plot->plot_type = KEYENTRY;
 				this_plot->plot_style = LABELPOINTS;
-				this_plot->token = end_token = GPO.Pgm.GetPrevTokenIdx();
+				this_plot->token = end_token = Pgm.GetPrevTokenIdx();
 			}
 			else { // function to plot 
 				some_functions = TRUE;
@@ -1916,14 +1854,14 @@ void GnuPlot::EvalPlots()
 				this_plot->plot_type = FUNC;
 				this_plot->plot_style = func_style;
 				this_plot->filledcurves_options = filledcurves_opts_func;
-				end_token = GPO.Pgm.GetPrevTokenIdx();
+				end_token = Pgm.GetPrevTokenIdx();
 			} /* end of IS THIS A FILE OR A FUNC block */
-			/* axis defaults */
+			// axis defaults 
 			AxS.Idx_X = FIRST_X_AXIS;
 			AxS.Idx_Y = FIRST_Y_AXIS;
-			/*  Set this before parsing any modifying options */
+			// Set this before parsing any modifying options 
 			this_plot->base_linetype = line_num;
-			/* pm 25.11.2001 allow any order of options */
+			// pm 25.11.2001 allow any order of options 
 			while(!Pgm.EndOfCommand()) {
 				int save_token = Pgm.GetCurTokenIdx();
 				/* bin the data if requested */
@@ -1955,7 +1893,7 @@ void GnuPlot::EvalPlots()
 						if(!Pgm.EqualsCur("="))
 							IntErrorCurToken("expecting binwidth=<width>");
 						Pgm.Shift();
-						binwidth = GPO.RealExpression();
+						binwidth = RealExpression();
 					}
 					continue;
 				}
@@ -1972,7 +1910,7 @@ void GnuPlot::EvalPlots()
 					switch(found_token) {
 						case SMOOTH_BINS:
 						    // catch the "bins" keyword by itself on the next pass 
-						    GPO.Pgm.Rollback();
+						    Pgm.Rollback();
 						    continue;
 						case SMOOTH_UNWRAP:
 						case SMOOTH_FREQUENCY:
@@ -2044,17 +1982,17 @@ void GnuPlot::EvalPlots()
 					set_axes = TRUE;
 					continue;
 				}
-				/* Allow this plot not to affect autoscaling */
+				// Allow this plot not to affect autoscaling 
 				if(Pgm.AlmostEqualsCur("noauto$scale")) {
 					Pgm.Shift();
 					this_plot->noautoscale = TRUE;
 					continue;
 				}
-				/* deal with title */
-				parse_plot_title(this_plot, xtitle, NULL, &set_title);
+				// deal with title 
+				ParsePlotTitle(this_plot, xtitle, NULL, &set_title);
 				if(save_token != Pgm.GetCurTokenIdx())
 					continue;
-				/* deal with style */
+				// deal with style 
 				if(Pgm.AlmostEqualsCur("w$ith")) {
 					if(set_with) {
 						duplication = TRUE;
@@ -2064,7 +2002,7 @@ void GnuPlot::EvalPlots()
 						IntErrorCurToken("\"with\" allowed only after parametric function fully specified");
 					this_plot->plot_style = get_style();
 					if(this_plot->plot_style == FILLEDCURVES) {
-						/* read a possible option for 'with filledcurves' */
+						// read a possible option for 'with filledcurves' 
 						get_filledcurves_style_options(&this_plot->filledcurves_options);
 					}
 					if(oneof3(this_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
@@ -2101,13 +2039,13 @@ void GnuPlot::EvalPlots()
 						this_plot->arrow_properties.head = BOTH_HEADS;
 						Pgm.Shift();
 						if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) || Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == INTGR || Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == CMPLX)
-							this_plot->arrow_properties.head_length = GPO.RealExpression();
+							this_plot->arrow_properties.head_length = RealExpression();
 					}
 				}
 				if(this_plot->plot_style == PARALLELPLOT) {
 					if(Pgm.EqualsCur("at")) {
 						Pgm.Shift();
-						paxis_x = GPO.RealExpression();
+						paxis_x = RealExpression();
 						continue;
 					}
 				}
@@ -2467,18 +2405,18 @@ void GnuPlot::EvalPlots()
 					goto SKIPPED_EMPTY_FILE;
 				}
 				// Reset flags to auto-scale X axis to contents of data set 
-				if(!(uses_axis[AxS.Idx_X] & USES_AXIS_FOR_DATA) && GPO.AxS.__X().autoscale) {
+				if(!(uses_axis[AxS.Idx_X] & USES_AXIS_FOR_DATA) && AxS.__X().autoscale) {
 					GpAxis * scaling_axis = &AxS[this_plot->AxIdx_X];
 					if(scaling_axis->autoscale & AUTOSCALE_MIN)
 						scaling_axis->min = VERYLARGE;
 					if(scaling_axis->autoscale & AUTOSCALE_MAX)
 						scaling_axis->max = -VERYLARGE;
 				}
-				if(GPO.AxS.__X().datatype == DT_TIMEDATE) {
+				if(AxS.__X().datatype == DT_TIMEDATE) {
 					if(specs < 2)
 						IntErrorCurToken("Need full using spec for x time data");
 				}
-				if(GPO.AxS.__Y().datatype == DT_TIMEDATE) {
+				if(AxS.__Y().datatype == DT_TIMEDATE) {
 					if(specs < 1)
 						IntErrorCurToken("Need using spec for y time data");
 				}
@@ -2511,7 +2449,7 @@ void GnuPlot::EvalPlots()
 				/* current autoscaled ranges here so we can restore them later.   */
 				save_autoscaled_ranges(&AxS[this_plot->AxIdx_X], &AxS[this_plot->AxIdx_Y]);
 				// actually get the data now 
-				if(get_data(this_plot) == 0) {
+				if(GetData(this_plot) == 0) {
 					if(!forever_iteration(plot_iterator))
 						IntWarn(NO_CARET, "Skipping data file with no valid points");
 					this_plot->plot_type = NODATA;
@@ -2581,8 +2519,7 @@ void GnuPlot::EvalPlots()
 					    break;
 				}
 				switch(this_plot->plot_smooth) {
-					/* create new data set by evaluation of
-					 * interpolation routines */
+					// create new data set by evaluation of interpolation routines 
 					case SMOOTH_UNWRAP:
 					    gen_interp_unwrap(this_plot);
 					    break;
@@ -2590,17 +2527,17 @@ void GnuPlot::EvalPlots()
 					case SMOOTH_FREQUENCY_NORMALISED:
 					case SMOOTH_CUMULATIVE:
 					case SMOOTH_CUMULATIVE_NORMALISED:
-					    /* These commands all replace the original data  */
-					    /* so we must reevaluate min/max for autoscaling */
+					    // These commands all replace the original data  
+					    // so we must reevaluate min/max for autoscaling 
 					    gen_interp_frequency(this_plot);
-					    refresh_bounds(this_plot, 1);
+					    RefreshBounds(this_plot, 1);
 					    break;
 					case SMOOTH_CSPLINES:
 					case SMOOTH_ACSPLINES:
 					case SMOOTH_BEZIER:
 					case SMOOTH_SBEZIER:
 					    gen_interp(this_plot);
-					    refresh_bounds(this_plot, 1);
+					    RefreshBounds(this_plot, 1);
 					    break;
 					case SMOOTH_KDENSITY:
 					    gen_interp(this_plot);
@@ -2659,13 +2596,13 @@ SKIPPED_EMPTY_FILE:
 			IntError(NO_CARET, "unbounded iteration in something other than a data plot");
 		}
 		else if(next_iteration(plot_iterator)) {
-			GPO.Pgm.SetTokenIdx(start_token);
+			Pgm.SetTokenIdx(start_token);
 			continue;
 		}
 		plot_iterator = cleanup_iteration(plot_iterator);
 		if(Pgm.EqualsCur(",")) {
 			Pgm.Shift();
-			plot_iterator = check_for_iteration();
+			plot_iterator = CheckForIteration();
 		}
 		else
 			break;
@@ -2739,8 +2676,8 @@ SKIPPED_EMPTY_FILE:
 		tp_ptr = &(first_plot);
 		plot_num = 0;
 		this_plot = first_plot;
-		GPO.Pgm.SetTokenIdx(begin_token); /* start over */
-		plot_iterator = check_for_iteration();
+		Pgm.SetTokenIdx(begin_token); // start over 
+		plot_iterator = CheckForIteration();
 		// Read through functions 
 		while(TRUE) {
 			if(!in_parametric && !was_definition)
@@ -2811,7 +2748,7 @@ SKIPPED_EMPTY_FILE:
 							FPRINTF((stderr, "sample range on primary axis: %g %g\n", t_min, t_max));
 						}
 						else {
-							check_log_limits(&GPO.AxS.__X(), t_min, t_max);
+							check_log_limits(&AxS.__X(), t_min, t_max);
 						}
 						t_step = (t_max - t_min) / (samples_1 - 1);
 					}
@@ -2866,11 +2803,11 @@ SKIPPED_EMPTY_FILE:
 							double y;
 							double theta = x;
 							// Convert from polar to cartesian coordinates and check ranges
-							if(GPO.PolarToXY(theta, temp, &x, &y, TRUE) == OUTRANGE)
+							if(PolarToXY(theta, temp, &x, &y, TRUE) == OUTRANGE)
 								this_plot->points[i].type = OUTRANGE; ;
 							if((this_plot->plot_style == FILLEDCURVES) && (this_plot->filledcurves_options.closeto == FILLEDCURVES_ATR)) {
 								double xhigh, yhigh;
-								GPO.PolarToXY(theta, this_plot->filledcurves_options.at, &xhigh, &yhigh, TRUE);
+								PolarToXY(theta, this_plot->filledcurves_options.at, &xhigh, &yhigh, TRUE);
 								STORE_AND_UPDATE_RANGE(this_plot->points[i].xhigh, xhigh, this_plot->points[i].type, AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
 								STORE_AND_UPDATE_RANGE(this_plot->points[i].yhigh, yhigh, this_plot->points[i].type, AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
 							}
@@ -2925,8 +2862,8 @@ come_here_if_undefined:
 					} /* loop over samples_1 */
 					this_plot->p_count = i; /* samples_1 */
 				}
-				GPO.Pgm.SetTokenIdx(this_plot->token); // skip all modifiers func / whole of data plots 
-				/* used below */
+				Pgm.SetTokenIdx(this_plot->token); // skip all modifiers func / whole of data plots 
+				// used below 
 				tp_ptr = &(this_plot->next);
 				this_plot = this_plot->next;
 			}
@@ -2939,17 +2876,17 @@ come_here_if_undefined:
 			/* Iterate-over-plot mechanism */
 			if(forever_iteration(plot_iterator) && this_plot->plot_type == NODATA) {
 				plot_iterator = cleanup_iteration(plot_iterator);
-				GPO.Pgm.SetTokenIdx(start_token);
+				Pgm.SetTokenIdx(start_token);
 				continue;
 			}
 			if(next_iteration(plot_iterator)) {
-				GPO.Pgm.SetTokenIdx(start_token);
+				Pgm.SetTokenIdx(start_token);
 				continue;
 			}
 			plot_iterator = cleanup_iteration(plot_iterator);
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
-				plot_iterator = check_for_iteration();
+				plot_iterator = CheckForIteration();
 			}
 			else
 				break;
@@ -3083,7 +3020,7 @@ come_here_if_undefined:
 		// Mark these plots as safe for quick refresh 
 		SET_REFRESH_OK(E_REFRESH_OK_2D, plot_num);
 	}
-	update_gpval_variables(1); // update GPVAL_ variables available to user 
+	UpdateGpvalVariables(1); // update GPVAL_ variables available to user 
 }
 /*
  * The hardest part of this routine is collapsing the FUNC plot types in the
@@ -3136,8 +3073,8 @@ static void parametric_fixup(curve_points * start_plot, int * plot_num)
 					const double r = yp->points[i].y;
 					const double t = xp->points[i].y;
 					// Convert from polar to cartesian coordinate and check ranges */
-					// Note: The old in-line conversion checked GPO.AxS.__R().max against fabs(r).
-					// That's not what GPO.PolarToXY() is currently doing.
+					// Note: The old in-line conversion checked AxS.__R().max against fabs(r).
+					// That's not what PolarToXY() is currently doing.
 					if(GPO.PolarToXY(t, r, &x, &y, TRUE) == OUTRANGE)
 						yp->points[i].type = OUTRANGE;
 				}
@@ -3196,116 +3133,116 @@ static void parse_kdensity_options(curve_points * this_plot)
 // 
 // Shared by plot and splot
 // 
-void parse_plot_title(curve_points * this_plot, char * xtitle, char * ytitle, bool * set_title)
+//void parse_plot_title(curve_points * this_plot, char * xtitle, char * ytitle, bool * set_title)
+void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitle, bool * pSetTitle)
 {
 	legend_key * key = &keyT;
-	if(GPO.Pgm.AlmostEqualsCur("t$itle") || GPO.Pgm.AlmostEqualsCur("not$itle")) {
-		if(*set_title)
-			GPO.IntErrorCurToken("duplicate title");
-		*set_title = TRUE;
+	if(Pgm.AlmostEqualsCur("t$itle") || Pgm.AlmostEqualsCur("not$itle")) {
+		if(*pSetTitle)
+			IntErrorCurToken("duplicate title");
+		*pSetTitle = true;
 		// title can be enhanced if not explicitly disabled 
-		this_plot->title_no_enhanced = !key->enhanced;
-		if(GPO.Pgm.AlmostEquals(GPO.Pgm.CToken++, "not$itle"))
-			this_plot->title_is_suppressed = TRUE;
-		if(parametric || this_plot->title_is_suppressed) {
+		pPlot->title_no_enhanced = !key->enhanced;
+		if(Pgm.AlmostEquals(Pgm.CToken++, "not$itle"))
+			pPlot->title_is_suppressed = TRUE;
+		if(parametric || pPlot->title_is_suppressed) {
 			if(in_parametric)
-				GPO.IntErrorCurToken("title allowed only after parametric function fully specified");
-			ASSIGN_PTR(xtitle, 0); /* Remove default title . */
-			ASSIGN_PTR(ytitle, 0); /* Remove default title . */
-			if(GPO.Pgm.EqualsCur(","))
+				IntErrorCurToken("title allowed only after parametric function fully specified");
+			ASSIGN_PTR(pXTitle, 0); // Remove default title . 
+			ASSIGN_PTR(pYTitle, 0); // Remove default title . 
+			if(Pgm.EqualsCur(","))
 				return;
 		}
-		/* This catches both "title columnheader" and "title columnhead(foo)" */
-		/* FIXME:  but it doesn't catch "title sprintf( f(columnhead(foo)) )" */
-		if(GPO.Pgm.AlmostEqualsCur("col$umnheader")) {
+		// This catches both "title columnheader" and "title columnhead(foo)" 
+		// FIXME:  but it doesn't catch "title sprintf( f(columnhead(foo)) )" 
+		if(Pgm.AlmostEqualsCur("col$umnheader")) {
 			parse_1st_row_as_headers = true;
 		}
-		/* This ugliness is because columnheader can be either a keyword */
-		/* or a function name.  Yes, the design could have been better. */
-		if(GPO.Pgm.AlmostEqualsCur("col$umnheader") && !(GPO.Pgm.AlmostEqualsCur("columnhead$er") && GPO.Pgm.EqualsNext("(")) ) {
-			df_set_key_title_columnhead(this_plot);
+		// This ugliness is because columnheader can be either a keyword 
+		// or a function name.  Yes, the design could have been better. 
+		if(Pgm.AlmostEqualsCur("col$umnheader") && !(Pgm.AlmostEqualsCur("columnhead$er") && Pgm.EqualsNext("(")) ) {
+			df_set_key_title_columnhead(pPlot);
 		}
-		else if(GPO.Pgm.EqualsCur("at")) {
-			*set_title = false;
+		else if(Pgm.EqualsCur("at")) {
+			*pSetTitle = false;
 		}
 		else {
-			int save_token = GPO.Pgm.GetCurTokenIdx();
-			/* If the command is "plot ... notitle <optional title text>" */
-			/* we can throw the result away now that we have stepped over it  */
-			if(this_plot->title_is_suppressed) {
-				char * skip = GPO.TryToGetString();
+			int save_token = Pgm.GetCurTokenIdx();
+			// If the command is "plot ... notitle <optional title text>" 
+			// we can throw the result away now that we have stepped over it  
+			if(pPlot->title_is_suppressed) {
+				char * skip = TryToGetString();
 				SAlloc::F(skip);
-				/* In the very common case of a string constant, use it as-is. */
-				/* This guarantees that the title is only entered in the key once per
-				 * data file rather than once per data set within the file.
-				 */
+				// In the very common case of a string constant, use it as-is. 
+				// This guarantees that the title is only entered in the key once per
+				// data file rather than once per data set within the file.
 			}
-			else if(GPO.Pgm.IsString(GPO.Pgm.GetCurTokenIdx()) && !GPO.Pgm.EqualsNext(".")) {
+			else if(Pgm.IsString(Pgm.GetCurTokenIdx()) && !Pgm.EqualsNext(".")) {
 				free_at(df_plot_title_at);
 				df_plot_title_at = NULL;
-				SAlloc::F(this_plot->title);
-				this_plot->title = GPO.TryToGetString();
-				/* Create an action table that can generate the title later */
+				SAlloc::F(pPlot->title);
+				pPlot->title = TryToGetString();
+				// Create an action table that can generate the title later 
 			}
 			else {
 				free_at(df_plot_title_at);
 				df_plot_title_at = perm_at();
-				/* We can evaluate the title for a function plot immediately */
-				/* FIXME: or this code could go into eval_plots() so that    */
-				/*        function and data plots are treated the same way.  */
-				if(oneof4(this_plot->plot_type, FUNC, FUNC3D, VOXELDATA, KEYENTRY)) {
+				// We can evaluate the title for a function plot immediately 
+				// FIXME: or this code could go into eval_plots() so that    
+				//        function and data plots are treated the same way.  
+				if(oneof4(pPlot->plot_type, FUNC, FUNC3D, VOXELDATA, KEYENTRY)) {
 					GpValue a;
-					GPO.EvaluateAt(df_plot_title_at, &a);
+					EvaluateAt(df_plot_title_at, &a);
 					if(a.type == STRING) {
-						SAlloc::F(this_plot->title);
-						this_plot->title = a.v.string_val;
+						SAlloc::F(pPlot->title);
+						pPlot->title = a.v.string_val;
 					}
 					else
-						GPO.IntWarn(save_token, "expecting string for title");
+						IntWarn(save_token, "expecting string for title");
 					free_at(df_plot_title_at);
 					df_plot_title_at = NULL;
 				}
 			}
 		}
-		if(GPO.Pgm.EqualsCur("at")) {
-			int save_token = ++GPO.Pgm.CToken;
-			this_plot->title_position = (t_position *)gp_alloc(sizeof(t_position), NULL);
-			if(GPO.Pgm.EqualsCur("end")) {
-				this_plot->title_position->scalex = character;
-				this_plot->title_position->x = 1;
-				this_plot->title_position->y = LEFT;
-				GPO.Pgm.Shift();
+		if(Pgm.EqualsCur("at")) {
+			int save_token = ++Pgm.CToken;
+			pPlot->title_position = (GpPosition *)gp_alloc(sizeof(GpPosition), NULL);
+			if(Pgm.EqualsCur("end")) {
+				pPlot->title_position->scalex = character;
+				pPlot->title_position->x = 1;
+				pPlot->title_position->y = LEFT;
+				Pgm.Shift();
 			}
-			else if(GPO.Pgm.AlmostEqualsCur("beg$inning")) {
-				this_plot->title_position->scalex = character;
-				this_plot->title_position->x = -1;
-				this_plot->title_position->y = RIGHT;
-				GPO.Pgm.Shift();
+			else if(Pgm.AlmostEqualsCur("beg$inning")) {
+				pPlot->title_position->scalex = character;
+				pPlot->title_position->x = -1;
+				pPlot->title_position->y = RIGHT;
+				Pgm.Shift();
 			}
 			else {
-				GPO.GetPositionDefault(this_plot->title_position, screen, 2);
+				GetPositionDefault(pPlot->title_position, screen, 2);
 			}
-			if(save_token == GPO.Pgm.GetCurTokenIdx())
-				GPO.IntErrorCurToken("expecting \"at {beginning|end|<xpos>,<ypos>}\"");
-			if(GPO.Pgm.EqualsCur("right")) {
-				if(this_plot->title_position->scalex == character)
-					this_plot->title_position->y = RIGHT;
-				GPO.Pgm.Shift();
+			if(save_token == Pgm.GetCurTokenIdx())
+				IntErrorCurToken("expecting \"at {beginning|end|<xpos>,<ypos>}\"");
+			if(Pgm.EqualsCur("right")) {
+				if(pPlot->title_position->scalex == character)
+					pPlot->title_position->y = RIGHT;
+				Pgm.Shift();
 			}
-			if(GPO.Pgm.EqualsCur("left")) {
-				if(this_plot->title_position->scalex == character)
-					this_plot->title_position->y = LEFT;
-				GPO.Pgm.Shift();
+			if(Pgm.EqualsCur("left")) {
+				if(pPlot->title_position->scalex == character)
+					pPlot->title_position->y = LEFT;
+				Pgm.Shift();
 			}
 		}
 	}
-	if(GPO.Pgm.AlmostEqualsCur("enh$anced")) {
-		GPO.Pgm.Shift();
-		this_plot->title_no_enhanced = FALSE;
+	if(Pgm.AlmostEqualsCur("enh$anced")) {
+		Pgm.Shift();
+		pPlot->title_no_enhanced = FALSE;
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("noenh$anced")) {
-		GPO.Pgm.Shift();
-		this_plot->title_no_enhanced = TRUE;
+	else if(Pgm.AlmostEqualsCur("noenh$anced")) {
+		Pgm.Shift();
+		pPlot->title_no_enhanced = TRUE;
 	}
 }
 // 

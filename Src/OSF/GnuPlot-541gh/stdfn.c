@@ -280,7 +280,7 @@ int ms_snprintf(char * str, size_t size, const char * format, ...)
 /* Implement portable generation of a NaN value. */
 /* NB: Supposedly DJGPP V2.04 can use atof("NaN"), but... */
 
-double not_a_number(void)
+double not_a_number()
 {
 #if defined (_MSC_VER) || defined (DJGPP) || defined(__DJGPP__) || defined(__MINGW32__)
 	ulong lnan[2] = {0xffffffff, 0x7fffffff};
@@ -342,7 +342,7 @@ static struct EXIT_HANDLER* exit_handlers = NULL;
  * confused because they expect a return statement at the very end. In that
  * case, gp_exit_cleanup() should be called before the return statement.
  */
-void gp_exit_cleanup(void)
+void gp_exit_cleanup()
 {
 	/* Call exit handlers registered using gp_atexit(). This is used instead of
 	 * normal atexit-handlers, because some libraries (notably Qt) seem to have
@@ -358,20 +358,20 @@ void gp_exit_cleanup(void)
 		SAlloc::F(handler);
 	}
 }
-
-/* Called from exit(3). Verifies that all exit handlers have already been
- * called.
- */
-static void debug_exit_handler(void)
+//
+// Called from exit(3). Verifies that all exit handlers have already been called.
+//
+static void debug_exit_handler()
 {
 	if(exit_handlers) {
 		fprintf(stderr, "Gnuplot exiting abnormally. Trying to execute exit handlers anyway.\n");
 		gp_exit_cleanup();
 	}
 }
-
-/* Gnuplot replacement for atexit(3) */
-void gp_atexit(void (*function)(void))
+//
+// Gnuplot replacement for atexit(3) 
+//
+void gp_atexit(void (*function)())
 {
 	/* Register new handler */
 	static bool debug_exit_handler_registered = false;

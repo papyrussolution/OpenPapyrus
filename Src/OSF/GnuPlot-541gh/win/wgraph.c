@@ -521,23 +521,20 @@ void GraphInit(LPGW lpgw)
 			button.dwData = i;
 			ret = SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
 		}
-
-		/* silence compiler warning */
-		(void)ret;
-		/* auto-resize and show */
+		// auto-resize and show 
 		SendMessage(lpgw->hToolbar, TB_AUTOSIZE, (WPARAM)0, (LPARAM)0);
 		ShowWindow(lpgw->hToolbar, SW_SHOWNOACTIVATE);
-		/* make room */
+		// make room 
 		GetWindowRect(lpgw->hToolbar, &rect);
 		lpgw->ToolbarHeight = rect.bottom - rect.top;
 	}
 	lpgw->hPopMenu = CreatePopupMenu();
-	/* actions */
+	// actions 
 	AppendMenu(lpgw->hPopMenu, MF_STRING, M_COPY_CLIP, TEXT("&Copy to Clipboard (Ctrl+C)"));
 	AppendMenu(lpgw->hPopMenu, MF_STRING, M_SAVE_AS_EMF, TEXT("&Save as EMF... (Ctrl+S)"));
 	AppendMenu(lpgw->hPopMenu, MF_STRING, M_SAVE_AS_BITMAP, TEXT("S&ave as Bitmap..."));
 	AppendMenu(lpgw->hPopMenu, MF_STRING, M_PRINT, TEXT("&Print..."));
-	/* settings */
+	// settings 
 	AppendMenu(lpgw->hPopMenu, MF_SEPARATOR, 0, NULL);
 	AppendMenu(lpgw->hPopMenu, MF_STRING | (lpgw->graphtotop ? MF_CHECKED : MF_UNCHECKED), M_GRAPH_TO_TOP, TEXT("Bring to &Top"));
 	AppendMenu(lpgw->hPopMenu, MF_STRING | (lpgw->color ? MF_CHECKED : MF_UNCHECKED), M_COLOR, TEXT("C&olor"));
@@ -1341,7 +1338,7 @@ void GraphEnhancedOpen(char * fontname, double fontsize, double base, bool width
 	}
 }
 
-void GraphEnhancedFlush(void)
+void GraphEnhancedFlush()
 {
 	int width, height;
 	uint x, y, len;
@@ -3347,7 +3344,7 @@ static void WriteGraphIni(LPGW lpgw)
 #endif
 }
 
-LPTSTR GraphDefaultFont(void)
+LPTSTR GraphDefaultFont()
 {
 	if(GetACP() == 932)  /* Japanese Shift-JIS */
 		return TEXT(WINJPFONT);

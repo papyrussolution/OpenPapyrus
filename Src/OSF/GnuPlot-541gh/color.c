@@ -104,27 +104,27 @@ int GnuPlot::MakePalette()
 		}
 	}
 }
-/*
- * Force a mismatch between the current palette and whatever is sent next,
- * so that the new one will always be loaded
- */
+// 
+// Force a mismatch between the current palette and whatever is sent next,
+// so that the new one will always be loaded
+// 
 void invalidate_palette()
 {
 	prev_palette.Colors = -1;
 }
-/*
-   Set the colour on the terminal
-   Each terminal takes care of remembering the current colour,
-   so there is not much to do here.
-   FIXME: NaN could alternatively map to LT_NODRAW or TC_RGB full transparency
- */
-void set_color(double gray)
+// 
+// Set the colour on the terminal
+// Each terminal takes care of remembering the current colour,
+// so there is not much to do here.
+// FIXME: NaN could alternatively map to LT_NODRAW or TC_RGB full transparency
+// 
+void set_color(termentry * pTerm, double gray)
 {
 	t_colorspec color(isnan(gray) ? TC_LT : TC_FRAC, LT_BACKGROUND, gray);
 	//color.value = gray;
 	//color.lt = LT_BACKGROUND;
 	//color.type = (isnan(gray)) ? TC_LT : TC_FRAC;
-	term->set_color(&color);
+	pTerm->set_color(&color);
 }
 
 void set_rgbcolor_var(uint rgbvalue)
@@ -255,7 +255,7 @@ static void draw_inside_colorbox_bitmap_mixed()
 		gray = (double)(1 + xy - xy_from) / range;
 		if(GPO.SmPltt.Positive == SMPAL_NEGATIVE)
 			gray = 1 - gray;
-		set_color(gray);
+		set_color(term, gray);
 		/* If this is a defined palette, make sure that the range increment */
 		/* does not straddle a palette segment boundary. If it does, split  */
 		/* it into two parts.                                               */
@@ -329,7 +329,7 @@ static void draw_inside_colorbox_bitmap_discrete()
 			continue;
 		}
 		gray = GPO.SmPltt.P_Gradient[i1].pos;
-		set_color(gray);
+		set_color(term, gray);
 		if(color_box.rotation == 'v') {
 			corners[0].y = corners[1].y = xy;
 			corners[2].y = corners[3].y = MIN(xy_to, xy2+1);
@@ -384,7 +384,7 @@ static void draw_inside_colorbox_bitmap_smooth()
 		}
 		if(GPO.SmPltt.Positive == SMPAL_NEGATIVE)
 			gray = 1 - gray;
-		set_color(gray);
+		set_color(term, gray);
 		if(color_box.rotation == 'v') {
 			corners[0].y = corners[1].y = xy;
 			corners[2].y = corners[3].y = MIN(xy_to, xy2+1);
@@ -478,7 +478,7 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 		}
 #undef MINIMUM_SEPARATION
 		// get offset 
-		map3d_position_r(&(this_axis->ticdef.offset), &offsetx, &offsety, "cbtics");
+		GPO.Map3DPositionR(&(this_axis->ticdef.offset), &offsetx, &offsety, "cbtics");
 		// User-specified different color for the tics text 
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
 			apply_pm3dcolor(term, &(this_axis->ticdef.textcolor));
@@ -540,7 +540,7 @@ void draw_color_smooth_box(int plot_mode)
 			GPO.Map3DPositionDouble(&color_box.origin, &xtemp, &ytemp, "cbox");
 			color_box.bounds.xleft = xtemp;
 			color_box.bounds.ybot = ytemp;
-			map3d_position_r(&color_box.size, &color_box.bounds.xright, &color_box.bounds.ytop, "cbox");
+			GPO.Map3DPositionR(&color_box.size, &color_box.bounds.xright, &color_box.bounds.ytop, "cbox");
 		}
 		else {
 			/* But in full 3D mode we only allow screen coordinates */

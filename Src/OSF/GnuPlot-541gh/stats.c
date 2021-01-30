@@ -743,7 +743,7 @@ void GnuPlot::StatsRequest()
 	//
 	if(TRUE) {
 		df_set_plot_mode(MODE_PLOT);    /* Used for matrix datafiles */
-		columns = df_open(file_name, 2, NULL); /* up to 2 using specs allowed */
+		columns = DfOpen(file_name, 2, NULL); /* up to 2 using specs allowed */
 		// 
 		// "stats <badfilename> nooutput"
 		// allows user to test for existance of a file without generating a fatal error.

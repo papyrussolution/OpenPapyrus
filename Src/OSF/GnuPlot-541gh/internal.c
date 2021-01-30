@@ -41,11 +41,10 @@ void eval_reset_after_error()
 
 void f_push(union argument * x)
 {
-	struct udvt_entry * udv = x->udv_arg;
+	udvt_entry * udv = x->udv_arg;
 	if(udv->udv_value.type == NOTDEFINED) {
 		if(string_result_only)
-			/* We're only here to check whether this is a string. It isn't. */
-			udv = udv_NaN;
+			udv = udv_NaN; // We're only here to check whether this is a string. It isn't. 
 		else
 			GPO.IntError(NO_CARET, "undefined variable: %s", udv->udv_name);
 	}
@@ -105,7 +104,7 @@ void f_call(union argument * x)
 		GPO.IntError(NO_CARET, "function %s requires %d variables", udf->udf_name, udf->dummy_num);
 	if(recursion_depth++ > STACK_DEPTH)
 		GPO.IntError(NO_CARET, "recursion depth limit exceeded");
-	execute_at(udf->at);
+	GPO._ExecuteAt2(udf->at);
 	gpfree_string(&udf->dummy_values[0]);
 	udf->dummy_values[0] = save_dummy;
 	recursion_depth--;
@@ -139,7 +138,7 @@ void f_calln(union argument * x)
 	}
 	if(recursion_depth++ > STACK_DEPTH)
 		GPO.IntError(NO_CARET, "recursion depth limit exceeded");
-	execute_at(udf->at);
+	GPO._ExecuteAt2(udf->at);
 	recursion_depth--;
 	for(i = 0; i < num_pop; i++) {
 		gpfree_string(&udf->dummy_values[i]);
@@ -180,7 +179,7 @@ void f_sum(union argument * arg)
 		double x, y;
 		// calculate f_i = f() with user defined variable i 
 		Ginteger(&udv->udv_value, i);
-		execute_at(udf->at);
+		GPO._ExecuteAt2(udf->at);
 		GPO.EvStk.Pop(&f_i);
 		x = real(&result) + real(&f_i);
 		y = imag(&result) + imag(&f_i);
@@ -1186,7 +1185,6 @@ void f_word(union argument * /*arg*/)
 	if(GPO.EvStk.Pop(&a)->type != STRING)
 		GPO.IntError(NO_CARET, "internal error : non-STRING argument");
 	s = a.v.string_val;
-
 	Gstring(&result, "");
 	while(*s) {
 		while(isspace((uchar)*s)) s++;
@@ -1212,7 +1210,7 @@ void f_word(union argument * /*arg*/)
 			s++;
 		}
 	}
-	/* words(s) = word(s,magic_number) = # of words in string */
+	// words(s) = word(s,magic_number) = # of words in string 
 	if(ntarget == RETURN_WORD_COUNT)
 		Ginteger(&result, nwords);
 	GPO.EvStk.Push(&result);

@@ -134,19 +134,17 @@ static double term_pointsize = 1; /* internal pointsize for do_point */
 /* Internal prototypes: */
 static void term_suspend();
 static void term_close_output();
-
 static void null_linewidth(double);
 static void do_point(uint x, uint y, int number);
 static void do_pointsize(double size);
 static void line_and_point(uint x, uint y, int number);
 static void do_arrow(uint sx, uint sy, uint ex, uint ey, int headstyle);
 static void null_dashtype(int type, t_dashtype * custom_dash_pattern);
-
-static int null_text_angle(int ang);
-static int null_justify_text(enum JUSTIFY just);
-static int null_scale(double x, double y);
+static int  null_text_angle(int ang);
+static int  null_justify_text(enum JUSTIFY just);
+static int  null_scale(double x, double y);
 static void null_layer(t_termlayer layer);
-static int null_set_font(const char * font);
+static int  null_set_font(const char * font);
 static void null_set_color(struct t_colorspec * colorspec);
 static void options_null();
 static void graphics_null();
@@ -154,18 +152,9 @@ static void UNKNOWN_null();
 static void MOVE_null(uint, uint);
 static void LINETYPE_null(int);
 static void PUTTEXT_null(uint, uint, const char *);
-
 static int strlen_tex(const char *);
-
 static char * stylefont(const char * fontname, bool isbold, bool isitalic);
-
-/* Used by terminals and by shared routine parse_term_size() */
-typedef enum {
-	PIXELS,
-	INCHES,
-	CM
-} size_units;
-static size_units parse_term_size(float * xsize, float * ysize, size_units def_units);
+//static GpSizeUnits parse_term_size(float * xsize, float * ysize, GpSizeUnits def_units);
 
 #ifdef VMS
 	#include "vms.h"
@@ -396,22 +385,19 @@ void term_start_plot()
 	if(term->flags & TERM_IS_POSTSCRIPT)
 		invalidate_palette();
 	// Set canvas size to full range of current terminal coordinates 
-	canvas.xleft  = 0;
-	canvas.xright = term->xmax - 1;
-	canvas.ybot   = 0;
-	canvas.ytop   = term->ymax - 1;
+	GPO.V.BbCanvas.xleft  = 0;
+	GPO.V.BbCanvas.xright = term->xmax - 1;
+	GPO.V.BbCanvas.ybot   = 0;
+	GPO.V.BbCanvas.ytop   = term->ymax - 1;
 }
 
 void term_end_plot()
 {
 	FPRINTF((stderr, "term_end_plot()\n"));
-
 	if(!term_initialised)
 		return;
-
-	/* Sync point for epslatex text positioning */
+	// Sync point for epslatex text positioning 
 	(*term->layer)(TERM_LAYER_END_TEXT);
-
 	if(!multiplot) {
 		FPRINTF((stderr, "- calling term->text()\n"));
 		(*term->text)();
@@ -475,7 +461,7 @@ void term_reset()
 	}
 }
 
-void term_apply_lp_properties(termentry * pTerm, lp_style_type * lp)
+void term_apply_lp_properties(termentry * pTerm, const lp_style_type * lp)
 {
 	// This function passes all the line and point properties to the
 	// terminal driver and issues the corresponding commands.
@@ -567,10 +553,8 @@ void term_end_multiplot()
 void term_check_multiplot_okay(bool f_interactive)
 {
 	FPRINTF((stderr, "term_multiplot_okay(%d)\n", f_interactive));
-
 	if(!term_initialised)
 		return;         /* they've not started yet */
-
 	/* make sure that it is safe to issue an interactive prompt
 	 * it is safe if
 	 *   it is not an interactive read, or
@@ -626,11 +610,9 @@ void write_multiline(int x, int y, char * text, JUSTIFY hor/* horizontal ... */,
 		else
 			y += (vert * lines * t->v_char) / 2;
 	}
-
 	for(;;) {               /* we will explicitly break out */
-		if((text != NULL) && (p = strchr(text, '\n')) != NULL)
+		if(text && (p = strchr(text, '\n')) != NULL)
 			*p = 0; /* terminate the string */
-
 		if((*t->justify_text)(hor)) {
 			if(on_page(x, y))
 				(*t->put_text)(x, y, text);
@@ -811,8 +793,8 @@ static void do_arrow(uint usx, uint usy/* start point */, uint uex, uint uey/* e
 	BoundingBox * clip_save;
 	// The arrow shaft was clipped already in draw_clip_arrow() but we still 
 	// need to clip the head here. 
-	clip_save = clip_area;
-	clip_area = (term->flags & TERM_CAN_CLIP) ? NULL : &canvas;
+	clip_save = GPO.V.P_ClipArea;
+	GPO.V.P_ClipArea = (term->flags & TERM_CAN_CLIP) ? NULL : &GPO.V.BbCanvas;
 	// Calculate and draw arrow heads.
 	// Draw no head for arrows with length = 0, or, to be more specific,
 	// length < DBL_EPSILON, because len_arrow will almost always be != 0.
@@ -860,7 +842,7 @@ static void do_arrow(uint usx, uint usy/* start point */, uint uex, uint uey/* e
 			xm = (int)(dx2 + backlen*effective_length * cos(phi + beta));
 			ym = (int)(dy2 + backlen*effective_length * sin(phi + beta));
 		}
-		if((headstyle & END_HEAD) && !clip_point(ex, ey)) {
+		if((headstyle & END_HEAD) && !GPO.V.ClipPoint(ex, ey)) {
 			head_points[0].x = ex + xm;
 			head_points[0].y = ey + ym;
 			head_points[1].x = ex + x1;
@@ -886,7 +868,7 @@ static void do_arrow(uint usx, uint usy/* start point */, uint uex, uint uey/* e
 			}
 		}
 		// backward arrow head 
-		if((headstyle & BACKHEAD) && !clip_point(sx, sy)) {
+		if((headstyle & BACKHEAD) && !GPO.V.ClipPoint(sx, sy)) {
 			head_points[0].x = sx - xm;
 			head_points[0].y = sy - ym;
 			head_points[1].x = sx - x1;
@@ -924,7 +906,7 @@ static void do_arrow(uint usx, uint usy/* start point */, uint uex, uint uey/* e
 	/* Draw the line for the arrow. */
 	if(!((headstyle & HEADS_ONLY)))
 		draw_clip_line(t, sx, sy, ex, ey);
-	clip_area = clip_save; // Restore previous clipping box 
+	GPO.V.P_ClipArea = clip_save; // Restore previous clipping box 
 }
 
 /* Generic routine for drawing circles or circular arcs.          */
@@ -972,7 +954,7 @@ void do_arc(int cx, int cy/* Center */, double radius, double arc_start, double 
 	if(style) { // Fill in the center 
 		gpiPoint fillarea[250];
 		int in;
-		clip_polygon(vertex, fillarea, segments, &in);
+		GPO.V.ClipPolygon(vertex, fillarea, segments, &in);
 		fillarea[0].style = style;
 		if(term->filled_polygon)
 			term->filled_polygon(in, fillarea);
@@ -1134,22 +1116,21 @@ char* get_terminals_names()
 {
 	int i;
 	char * buf = (char*)gp_alloc(TERMCOUNT*15, "all_term_names"); /* max 15 chars per name */
-	char * names;
 	int sort_idxs[TERMCOUNT];
-	/* sort terminal types alphabetically */
+	// sort terminal types alphabetically 
 	for(i = 0; i < TERMCOUNT; i++)
 		sort_idxs[i] = i;
 	qsort(sort_idxs, TERMCOUNT, sizeof(int), termcomp);
-	/* now sort_idxs[] contains the sorted indices */
-
-	strcpy(buf, " "); /* let the string have leading and trailing " " in order to search via
-	                     strstrt(GPVAL_TERMINALS, " png "); */
+	// now sort_idxs[] contains the sorted indices 
+	strcpy(buf, " "); // let the string have leading and trailing " " in order to search via strstrt(GPVAL_TERMINALS, " png "); 
 	for(i = 0; i < TERMCOUNT; i++)
 		sprintf(buf+strlen(buf), "%s ", term_tbl[sort_idxs[i]].name);
-	names = (char*)gp_alloc(strlen(buf)+1, "all_term_names2");
-	strcpy(names, buf);
-	SAlloc::F(buf);
-	return names;
+	{
+		char * names = (char*)gp_alloc(strlen(buf)+1, "all_term_names2");
+		strcpy(names, buf);
+		SAlloc::F(buf);
+		return names;
+	}
 }
 
 static int termcomp(const generic * arga, const generic * argb)
@@ -1158,10 +1139,11 @@ static int termcomp(const generic * arga, const generic * argb)
 	const int * b = (const int*)argb;
 	return( strcasecmp(term_tbl[*a].name, term_tbl[*b].name) );
 }
-/* set_term: get terminal number from name on command line
- * will change 'term' variable if successful
- */
-struct termentry * set_term()                   
+//
+// set_term: get terminal number from name on command line
+// will change 'term' variable if successful
+// 
+struct termentry * set_term()
 {
 	struct termentry * t = NULL;
 	if(!GPO.Pgm.EndOfCommand()) {
@@ -1297,9 +1279,7 @@ void init_terminal()
 #ifdef VMS
 		term_name = vms_init();
 #endif /* VMS */
-
-		if(term_name == (char*)NULL
-		    && getenv("DOMTERM") != NULL)
+		if(term_name == (char*)NULL && getenv("DOMTERM") != NULL)
 			term_name = "domterm";
 
 #ifdef __BEOS__
@@ -1380,10 +1360,10 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 		do_string("set termopt enh");
 	term_start_plot();
 	screen_ok = FALSE;
-	xmax_t = (pTerm->xmax * xsize);
-	ymax_t = (pTerm->ymax * ysize);
-	x0 = (xoffset * pTerm->xmax);
-	y0 = (yoffset * pTerm->ymax);
+	xmax_t = (pTerm->xmax * V.XSize);
+	ymax_t = (pTerm->ymax * V.YSize);
+	x0 = (V.XOffset * pTerm->xmax);
+	y0 = (V.YOffset * pTerm->ymax);
 	p_width = pointsize * pTerm->h_tic;
 	key_entry_height = pointsize * pTerm->v_tic * 1.25;
 	if(key_entry_height < pTerm->v_char)
@@ -1409,7 +1389,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 		sprintf(tbuf, "%s  terminal test", pTerm->name);
 		(pTerm->put_text)(x0 + pTerm->h_char * 2, y0 + ymax_t - pTerm->v_char, tbuf);
 		sprintf(tbuf, "gnuplot version %s.%s  ", gnuplot_version, gnuplot_patchlevel);
-		(pTerm->put_text)(x0 + pTerm->h_char * 2, y0 + ymax_t - pTerm->v_char * 2.25, tbuf);
+		(pTerm->put_text)(x0 + pTerm->h_char * 2, static_cast<uint>(y0 + ymax_t - pTerm->v_char * 2.25), tbuf);
 	}
 	(pTerm->linetype)(LT_AXIS);
 	(pTerm->move)(x0 + xmax_t / 2, y0);
@@ -1635,7 +1615,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 			str = "No filled polygons";
 		(pTerm->linetype)(LT_BLACK);
 		i = ((pTerm->justify_text)(CENTRE)) ? 0 : pTerm->h_char * strlen(str) / 2;
-		(pTerm->put_text)(cen_x - i, cen_y + radius + pTerm->v_char * 0.5, str);
+		(pTerm->put_text)(cen_x - i, static_cast<uint>(cen_y + radius + pTerm->v_char * 0.5), str);
 	}
 	term_end_plot();
 }
@@ -1682,21 +1662,19 @@ void do_enh_writec(int c)
 	// the same reasons applying to putc() and friends 
 	*enhanced_cur_text++ = c;
 }
-/*
- * Process a bit of string, and return the last character used.
- * p is start of string
- * brace is TRUE to keep processing to }, FALSE to do one character only
- * fontname & fontsize are obvious
- * base is the current baseline
- * widthflag is TRUE if the width of this should count,
- *              FALSE for zero width boxes
- * showflag is TRUE if this should be shown,
- *             FALSE if it should not be shown (like TeX \phantom)
- * overprint is 0 for normal operation,
- *              1 for the underprinted text (included in width calculation),
- *              2 for the overprinted text (not included in width calc)
- *              (overprinted text is centered horizontally on underprinted text
- */
+// 
+// Process a bit of string, and return the last character used.
+// p is start of string
+// brace is TRUE to keep processing to }, FALSE to do one character only
+// fontname & fontsize are obvious
+// base is the current baseline
+// widthflag is TRUE if the width of this should count, FALSE for zero width boxes
+// showflag is TRUE if this should be shown, FALSE if it should not be shown (like TeX \phantom)
+// overprint is 0 for normal operation,
+//   1 for the underprinted text (included in width calculation),
+//   2 for the overprinted text (not included in width calc)
+//   (overprinted text is centered horizontally on underprinted text
+// 
 const char * enhanced_recursion(const char * p, bool brace, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	// Keep track of the style of the font passed in at this recursion level 
@@ -1715,14 +1693,14 @@ const char * enhanced_recursion(const char * p, bool brace, char * fontname, dou
 	}
 	while(*p) {
 		double shift;
-		/*
-		 * EAM Jun 2009 - treating bytes one at a time does not work for multibyte
-		 * encodings, including utf-8. If we hit a byte with the high bit set, test
-		 * whether it starts a legal UTF-8 sequence and if so copy the whole thing.
-		 * Other multibyte encodings are still a problem.
-		 * Gnuplot's other defined encodings are all single-byte; for those we
-		 * really do want to treat one byte at a time.
-		 */
+		// 
+		// EAM Jun 2009 - treating bytes one at a time does not work for multibyte
+		// encodings, including utf-8. If we hit a byte with the high bit set, test
+		// whether it starts a legal UTF-8 sequence and if so copy the whole thing.
+		// Other multibyte encodings are still a problem.
+		// Gnuplot's other defined encodings are all single-byte; for those we
+		// really do want to treat one byte at a time.
+		// 
 		if((*p & 0x80) && (encoding == S_ENC_DEFAULT || encoding == S_ENC_UTF8)) {
 			ulong utf8char;
 			const char * nextchar = p;
@@ -1751,7 +1729,6 @@ const char * enhanced_recursion(const char * p, bool brace, char * fontname, dou
 				    GPO.IntWarn(NO_CARET, "enhanced text parser - spurious }");
 				    break;
 				/*}}}*/
-
 				case '_':
 				case '^':
 				    /*{{{  deal with super/sub script*/
@@ -2139,12 +2116,12 @@ void ignore_enhanced(bool flag)
 {
 	ignore_enhanced_text = flag;
 }
-
-/* Simple-minded test for whether the point (x,y) is in bounds for the current terminal.
- * Some terminals can do their own clipping, and can clip partial objects.
- * If the flag TERM_CAN_CLIP is set, we skip this relative crude test and let the
- * driver or the hardware handle clipping.
- */
+// 
+// Simple-minded test for whether the point (x,y) is in bounds for the current terminal.
+// Some terminals can do their own clipping, and can clip partial objects.
+// If the flag TERM_CAN_CLIP is set, we skip this relative crude test and let the
+// driver or the hardware handle clipping.
+// 
 bool on_page(int x, int y)
 {
 	if(term->flags & TERM_CAN_CLIP)
@@ -2153,49 +2130,49 @@ bool on_page(int x, int y)
 		return TRUE;
 	return FALSE;
 }
-
-/* Utility routine for drivers to accept an explicit size for the
- * output image.
- */
-size_units parse_term_size(float * xsize, float * ysize, size_units default_units)
+// 
+// Utility routine for drivers to accept an explicit size for the output image.
+// 
+//GpSizeUnits parse_term_size(float * pXSize, float * pYSize, GpSizeUnits default_units)
+GpSizeUnits GnuPlot::ParseTermSize(float * pXSize, float * pYSize, GpSizeUnits default_units)
 {
-	size_units units = default_units;
-	if(GPO.Pgm.EndOfCommand())
-		GPO.IntErrorCurToken("size requires two numbers:  xsize, ysize");
-	*xsize = GPO.RealExpression();
-	if(GPO.Pgm.AlmostEqualsCur("in$ches")) {
-		GPO.Pgm.Shift();
+	GpSizeUnits units = default_units;
+	if(Pgm.EndOfCommand())
+		IntErrorCurToken("size requires two numbers:  xsize, ysize");
+	*pXSize = RealExpression();
+	if(Pgm.AlmostEqualsCur("in$ches")) {
+		Pgm.Shift();
 		units = INCHES;
 	}
-	else if(GPO.Pgm.EqualsCur("cm")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("cm")) {
+		Pgm.Shift();
 		units = CM;
 	}
 	switch(units) {
-		case INCHES:        *xsize *= gp_resolution; break;
-		case CM:            *xsize *= (float)gp_resolution / 2.54; break;
+		case INCHES: *pXSize *= gp_resolution; break;
+		case CM:     *pXSize *= (float)gp_resolution / 2.54f; break;
 		case PIXELS:
-		default:             break;
+		default:     break;
 	}
-	if(!GPO.Pgm.EqualsCurShift(","))
-		GPO.IntErrorCurToken("size requires two numbers:  xsize, ysize");
-	*ysize = GPO.RealExpression();
-	if(GPO.Pgm.AlmostEqualsCur("in$ches")) {
-		GPO.Pgm.Shift();
+	if(!Pgm.EqualsCurShift(","))
+		IntErrorCurToken("size requires two numbers:  xsize, ysize");
+	*pYSize = RealExpression();
+	if(Pgm.AlmostEqualsCur("in$ches")) {
+		Pgm.Shift();
 		units = INCHES;
 	}
-	else if(GPO.Pgm.EqualsCur("cm")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("cm")) {
+		Pgm.Shift();
 		units = CM;
 	}
 	switch(units) {
-		case INCHES:        *ysize *= gp_resolution; break;
-		case CM:            *ysize *= (float)gp_resolution / 2.54; break;
+		case INCHES: *pYSize *= gp_resolution; break;
+		case CM:     *pYSize *= (float)gp_resolution / 2.54f; break;
 		case PIXELS:
-		default:             break;
+		default:     break;
 	}
-	if(*xsize < 1 || *ysize < 1)
-		GPO.IntErrorCurToken("size: out of range");
+	if(*pXSize < 1.0f || *pYSize < 1.0f)
+		IntErrorCurToken("size: out of range");
 	return units;
 }
 // 
