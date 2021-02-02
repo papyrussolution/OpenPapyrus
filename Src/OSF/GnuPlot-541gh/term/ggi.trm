@@ -854,16 +854,14 @@ TERM_PUBLIC int GGI_eventually_update_modifiers(const ggi_event* event, const in
 	return 1;
 }
 
-TERM_PUBLIC int GGI_dispatch_event(const ggi_event* event)
+TERM_PUBLIC int GGI_dispatch_event(const ggi_event * event)
 {
-	struct gp_event_t gp_ev;
-
+	gp_event_t gp_ev;
 	gp_ev.type = 0;
 	gp_ev.mx   = GGI_mouse_x;
 	gp_ev.my   = GGI_y(GGI_mouse_y);
 	gp_ev.par1 = 0;
 	gp_ev.par2 = 0;
-
 	switch(event->any.type) {
 		/* [-- KEY EVENTS --] */
 		case evKeyPress:
@@ -945,15 +943,12 @@ TERM_PUBLIC void GGI_save_frame_canvas()
 {
 	if(!GGI_saved_canvas && GGIvisual) {
 		int display_frame = ggiGetDisplayFrame(GGIvisual);
-
 		/* save the currently displayed frame to alternate frame */
 		ggiSetReadFrame(GGIvisual, display_frame);
 		ggiSetWriteFrame(GGIvisual, !display_frame);
 		ggiCopyBox(GGIvisual, 0, 0, GGIwidth, GGIcanvas_height, 0, 0);
-
 		/* write again directly to the display frame */
 		ggiSetWriteFrame(GGIvisual, display_frame);
-
 		/* remember that the alternate frame is valid */
 		GGI_saved_canvas = 1;
 	}

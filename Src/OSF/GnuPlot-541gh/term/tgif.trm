@@ -275,8 +275,8 @@ TERM_PUBLIC void TGIF_options()
 			    strcpy(sDefaultFont, "Helvetica");
 			    uActFontSize = 18;
 			    uDefaultFontSize = 18;
-			    term->v_char = (uint)(uActFontSize);
-			    term->h_char = (uint)(uActFontSize * 6 / 10);
+			    term->ChrV = (uint)(uActFontSize);
+			    term->ChrH = (uint)(uActFontSize * 6 / 10);
 
 			    TgifPortrait = TRUE;
 			    TgifUseColor = TRUE;
@@ -377,8 +377,8 @@ TERM_PUBLIC void TGIF_options()
 				    /* We have font size specified */
 				    uActFontSize = (uint)real(const_express(&b));
 				    uDefaultFontSize = uActFontSize;
-				    term->v_char = (uint)(uActFontSize);
-				    term->h_char = (uint)(uActFontSize * 6 / 10);
+				    term->ChrV = (uint)(uActFontSize);
+				    term->ChrH = (uint)(uActFontSize * 6 / 10);
 			    }
 			    break;
 		    }
@@ -595,7 +595,7 @@ TERM_PUBLIC void TGIF_put_text(unsigned int ux, unsigned int uy, const char * st
 	TGIF_flush_poly();
 
 	x = ux + uXshift;
-	y = uYshift - uy - t->v_char / 2;
+	y = uYshift - uy - t->ChrV / 2;
 
 	if(strlen(str) == 0)
 		return;
@@ -1763,24 +1763,20 @@ TERM_PUBLIC void TGIF_set_color(t_colorspec * colorspec)
 		TGIF_linetype(colorspec->lt);
 	}
 	else if(colorspec->type == TC_FRAC) {
-		rgb255maxcolors_from_gray(colorspec->value, &rgbActColor);
-		sprintf(sActColor, "#%.2x%.2x%.2x",
-		    rgbActColor.r, rgbActColor.g, rgbActColor.b);
+		GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgbActColor);
+		sprintf(sActColor, "#%.2x%.2x%.2x", rgbActColor.r, rgbActColor.g, rgbActColor.b);
 	}
 	else if(colorspec->type == TC_RGB) {
 		rgbActColor.r = colorspec->lt >> 16 & 0xff;
 		rgbActColor.g = colorspec->lt >> 8 & 0xff;
 		rgbActColor.b = colorspec->lt & 0xff;
-		sprintf(sActColor, "#%.2x%.2x%.2x",
-		    rgbActColor.r, rgbActColor.g, rgbActColor.b);
+		sprintf(sActColor, "#%.2x%.2x%.2x", rgbActColor.r, rgbActColor.g, rgbActColor.b);
 	}
 }
 
-TERM_PUBLIC void TGIF_fillbox(int style, uint x1, uint y1,
-    uint width, uint height)
+TERM_PUBLIC void TGIF_fillbox(int style, uint x1, uint y1, uint width, uint height)
 {
 	gpiPoint corner[4];
-
 	corner[0].x = x1;        corner[0].y = y1;
 	corner[1].x = x1+width;  corner[1].y = y1;
 	corner[2].x = x1+width;  corner[2].y = y1+height;

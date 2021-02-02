@@ -67,7 +67,6 @@
     <ClCompile Include="..\OSF\GnuPlot-541gh\bf_test.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\complexfun.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\gplt_x11.c" />
-    <ClCompile Include="..\OSF\GnuPlot-541gh\vms.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\voxelgrid.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\vplot.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\xdg.c" />
@@ -125,9 +124,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\GnuPlot-541gh\syscfg.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\GnuPlot-541gh\vms.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

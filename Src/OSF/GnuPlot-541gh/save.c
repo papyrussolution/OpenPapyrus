@@ -60,7 +60,7 @@ void save_all(FILE * fp)
 
 void save_datablocks(FILE * fp)
 {
-	udvt_entry * udv = first_udv->next_udv;
+	udvt_entry * udv = GPO.Ev.P_FirstUdv->next_udv;
 	while(udv) {
 		if(udv->udv_value.type == DATABLOCK) {
 			char ** line = udv->udv_value.v.data_array;
@@ -80,7 +80,7 @@ void save_datablocks(FILE * fp)
 
 static void save_functions__sub(FILE * fp)
 {
-	udft_entry * udf = first_udf;
+	udft_entry * udf = GPO.Ev.P_FirstUdf;
 	while(udf) {
 		if(udf->definition) {
 			fprintf(fp, "%s\n", udf->definition);
@@ -92,7 +92,7 @@ static void save_functions__sub(FILE * fp)
 static void save_variables__sub(FILE * fp)
 {
 	// always skip pi 
-	udvt_entry * udv = first_udv->next_udv;
+	udvt_entry * udv = GPO.Ev.P_FirstUdv->next_udv;
 	while(udv) {
 		if(udv->udv_value.type != NOTDEFINED) {
 			if((udv->udv_value.type == ARRAY) && strncmp(udv->udv_name, "ARGV", 4)) {
@@ -115,7 +115,7 @@ static void save_variables__sub(FILE * fp)
 void save_colormaps(FILE * fp)
 {
 	// always skip pi 
-	udvt_entry * udv = first_udv->next_udv;
+	udvt_entry * udv = GPO.Ev.P_FirstUdv->next_udv;
 	while(udv) {
 		if(udv->udv_value.type != NOTDEFINED) {
 			if(udv->udv_value.type == ARRAY && udv->udv_value.v.value_array[0].type == COLORMAP_ARRAY) {
@@ -243,10 +243,10 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		if(axis == POLAR_AXIS) continue;
 		fprintf(fp, "set %sdata %s\n", axis_name((AXIS_INDEX)axis), AxS[axis].datatype == DT_TIMEDATE ? "time" : AxS[axis].datatype == DT_DMS ? "geographic" : "");
 	}
-	if(boxwidth < 0.0)
+	if(V.BoxWidth < 0.0)
 		fputs("set boxwidth\n", fp);
 	else
-		fprintf(fp, "set boxwidth %g %s\n", boxwidth, (boxwidth_is_absolute) ? "absolute" : "relative");
+		fprintf(fp, "set boxwidth %g %s\n", V.BoxWidth, (V.BoxWidthIsAbsolute) ? "absolute" : "relative");
 	fprintf(fp, "set boxdepth %g\n", boxdepth > 0 ? boxdepth : 0.0);
 	fprintf(fp, "set style fill ");
 	save_fillstyle(fp, &default_fillstyle);
@@ -526,8 +526,8 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fprintf(fp, "%g, %g, %g, %g", surface_rot_x, surface_rot_z, surface_scale, surface_zscale);
 		fprintf(fp, "\nset view azimuth %g", azimuth);
 	}
-	if(aspect_ratio_3D)
-		fprintf(fp, "\nset view  %s", aspect_ratio_3D == 2 ? "equal xy" : aspect_ratio_3D == 3 ? "equal xyz" : "");
+	if(V.AspectRatio3D)
+		fprintf(fp, "\nset view  %s", (V.AspectRatio3D == 2) ? "equal xy" : ((V.AspectRatio3D == 3) ? "equal xyz" : ""));
 	fprintf(fp, "\nset rgbmax %g", rgbmax);
 	fprintf(fp, "\nset samples %d, %d\nset isosamples %d, %d\n%sset surface %s", samples_1, samples_2, iso_samples_1, iso_samples_2,
 	    (draw_surface) ? "" : "un", (implicit_surface) ? "" : "explicit");
@@ -538,7 +538,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		case CONTOUR_SRF: fputs(" surface\n", fp); break;
 		case CONTOUR_BOTH: fputs(" both\n", fp); break;
 	}
-	/* Contour label options */
+	// Contour label options 
 	fprintf(fp, "set cntrlabel %s format '%s' font '%s' start %d interval %d\n", clabel_onecolor ? "onecolor" : "", contour_format,
 	    clabel_font ? clabel_font : "", clabel_start, clabel_interval);
 	fputs("set mapping ", fp);
@@ -587,7 +587,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	}
 	fprintf(fp, "\nset cntrparam firstlinetype %d", contour_firstlinetype);
 	fprintf(fp, " %ssorted\n", contour_sortlevels ? "" : "un");
-	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", contour_pts, aspect_ratio, GPO.V.XSize, GPO.V.YSize, GPO.V.XOffset, GPO.V.YOffset);
+	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", contour_pts, V.AspectRatio, V.XSize, V.YSize, V.XOffset, V.YOffset);
 	fprintf(fp, "set style data ");
 	save_data_func_style(fp, "data", data_style);
 	fprintf(fp, "set style function ");
@@ -817,7 +817,6 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fprintf(fp, "set psdir \"%s\"\n", PS_psdir);
 	else
 		fprintf(fp, "set psdir\n");
-
 	fprintf(fp, "set fit");
 	if(fit_suppress_log)
 		fprintf(fp, " nologfile");
@@ -830,21 +829,21 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, " %sprescale", fit_prescale ? "" : "no");
 	{
 		int i;
-		udvt_entry * v = get_udv_by_name((char*)FITLIMIT);
+		udvt_entry * v = Ev.GetUdvByName((char*)FITLIMIT);
 		double d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
-		if((d > 0.) && (d < 1.))
+		if(d > 0.0 && d < 1.0)
 			fprintf(fp, " limit %g", d);
 		if(epsilon_abs > 0.)
 			fprintf(fp, " limit_abs %g", epsilon_abs);
-		v = get_udv_by_name((char*)FITMAXITER);
+		v = Ev.GetUdvByName((char*)FITMAXITER);
 		i = (v && (v->udv_value.type != NOTDEFINED)) ? static_cast<int>(real(&(v->udv_value))) : -1;
 		if(i > 0)
 			fprintf(fp, " maxiter %i", i);
-		v = get_udv_by_name((char*)FITSTARTLAMBDA);
+		v = Ev.GetUdvByName((char*)FITSTARTLAMBDA);
 		d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " start_lambda %g", d);
-		v = get_udv_by_name((char*)FITLAMBDAFACTOR);
+		v = Ev.GetUdvByName((char*)FITLAMBDAFACTOR);
 		d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " lambda_factor %g", d);

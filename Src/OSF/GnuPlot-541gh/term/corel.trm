@@ -120,8 +120,8 @@ TERM_PUBLIC void COREL_options()
 				    // We have font size specified 
 				    corel_fontsize = (int)real(const_express(&a));
 				    GPO.Pgm.Shift();
-				    term->v_char = (uint)(corel_fontsize * COREL_SC);
-				    term->h_char = (uint)(corel_fontsize * COREL_SC * 6 / 10);
+				    term->ChrV = (uint)(corel_fontsize * COREL_SC);
+				    term->ChrH = (uint)(corel_fontsize * COREL_SC * 6 / 10);
 			    }
 			    break;
 		}
@@ -137,8 +137,8 @@ TERM_PUBLIC void COREL_options()
 		}
 		term->xmax = corel_xmax;
 		term->ymax = corel_ymax;
-		term->v_tic = corel_ymax / 80;
-		term->h_tic = corel_ymax / 80;
+		term->TicV = corel_ymax / 80;
+		term->TicH = corel_ymax / 80;
 	}
 	if(!GPO.Pgm.EndOfCommand()) {
 		corel_lw = real(const_express(&a)) * COREL_SC;

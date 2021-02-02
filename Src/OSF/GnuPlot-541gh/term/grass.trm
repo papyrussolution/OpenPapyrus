@@ -195,11 +195,11 @@ TERM_PUBLIC void GRASS_init()
 	grass_yoffset = b;
 
 	dots_per_line = (int)(size / 100.0 * (float)(t->ymax));
-	t->v_char = t->h_char = (int)(.8 * (float)dots_per_line);
-	R_text_size(t->h_char, t->v_char);
+	t->ChrV = t->ChrH = (int)(.8 * (float)dots_per_line);
+	R_text_size(t->ChrH, t->ChrV);
 	R_font("romans");
 
-	t->v_tic = t->h_tic = 4;
+	t->TicV = t->TicH = 4;
 
 	y_max = t->ymax; /* kludge? */
 
@@ -215,10 +215,10 @@ TERM_PUBLIC void GRASS_init()
 	fprintf(stderr, "description = %s\n", t->description);
 	fprintf(stderr, "xmax = %d\t", (int)t->xmax);
 	fprintf(stderr, "ymax = %d\n", (int)t->ymax);
-	fprintf(stderr, "v_char = %d\t", (int)t->v_char);
-	fprintf(stderr, "h_char = %d\n", (int)t->h_char);
-	fprintf(stderr, "v_tic = %d\t", (int)t->v_tic);
-	fprintf(stderr, "h_tic = %d\n", (int)t->h_tic);
+	fprintf(stderr, "ChrV = %d\t", (int)t->ChrV);
+	fprintf(stderr, "ChrH = %d\n", (int)t->ChrH);
+	fprintf(stderr, "TicV = %d\t", (int)t->TicV);
+	fprintf(stderr, "TicH = %d\n", (int)t->TicH);
 	fprintf(stderr, "**********************************************\n\n");
 }
 
@@ -535,8 +535,8 @@ TERM_PUBLIC int GRASS_set_font(const char * font)
 	if(size==0)
 		size = 3;
 	dots_per_line = (int)(size / 100.0 * (float)(t->ymax));
-	t->v_char = t->h_char = (int)(.8 * (float)dots_per_line);
-	R_text_size(t->h_char, t->v_char);
+	t->ChrV = t->ChrH = (int)(.8 * (float)dots_per_line);
+	R_text_size(t->ChrH, t->ChrV);
 /* cyrilc,gothgbt,gothgrt,gothitt,greekc,greekcs,greekp,
    greeks,italicc,italiccs,italict,romanc,romancs,romand,
    romans,romant,scriptc,scripts */

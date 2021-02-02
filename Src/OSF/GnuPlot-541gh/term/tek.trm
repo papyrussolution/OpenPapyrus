@@ -609,10 +609,10 @@ TERM_PUBLIC void SIXEL_options()
 			    break;
 		}
 	}
-	term->v_tic = (term->xmax < term->ymax) ? term->xmax/100 : term->ymax/100;
-	if(term->v_tic < 1)
-		term->v_tic = 1;
-	term->h_tic = term->v_tic;
+	term->TicV = (term->xmax < term->ymax) ? term->xmax/100 : term->ymax/100;
+	if(term->TicV < 1)
+		term->TicV = 1;
+	term->TicH = term->TicV;
 	/* setup options string */
 	switch(SIXEL_font) {
 		case 1: strcpy(term_options, "small"); break;
@@ -739,18 +739,18 @@ static void SIXEL_setfont()
 	switch(SIXEL_font) {
 		case 1:
 		    b_charsize(FNT5X9);
-		    term->v_char = FNT5X9_VCHAR;
-		    term->h_char = FNT5X9_HCHAR;
+		    term->ChrV = FNT5X9_VCHAR;
+		    term->ChrH = FNT5X9_HCHAR;
 		    break;
 		case 2:
 		    b_charsize(FNT9X17);
-		    term->v_char = FNT9X17_VCHAR;
-		    term->h_char = FNT9X17_HCHAR;
+		    term->ChrV = FNT9X17_VCHAR;
+		    term->ChrH = FNT9X17_HCHAR;
 		    break;
 		case 3:
 		    b_charsize(FNT13X25);
-		    term->v_char = FNT13X25_VCHAR;
-		    term->h_char = FNT13X25_HCHAR;
+		    term->ChrV = FNT13X25_VCHAR;
+		    term->ChrH = FNT13X25_HCHAR;
 		    break;
 	}
 }

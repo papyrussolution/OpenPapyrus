@@ -43,7 +43,7 @@ static void show_raxis();
 static void show_label(int tag);
 static void show_keytitle();
 static void show_key();
-static void show_logscale();
+//static void show_logscale();
 static void show_offsets();
 //static void show_margin();
 static void show_output();
@@ -51,10 +51,10 @@ static void show_overflow();
 static void show_parametric();
 static void show_pm3d();
 //static void show_palette();
-static void show_palette_rgbformulae();
-static void show_palette_fit2rgbformulae();
-static void show_palette_palette();
-static void show_palette_gradient();
+//static void show_palette_rgbformulae();
+//static void show_palette_fit2rgbformulae();
+//static void show_palette_palette();
+//static void show_palette_gradient();
 static void show_palette_colornames();
 static void show_colorbox();
 static void show_pointsize();
@@ -83,7 +83,7 @@ static void show_tics(bool showx, bool showy, bool showz, bool showx2, bool show
 static void show_mtics(GpAxis *);
 static void show_timestamp();
 static void show_range(AXIS_INDEX axis);
-static void show_link();
+//static void show_link();
 static void show_nonlinear();
 static void show_xyzlabel(const char * name, const char * suffix, text_label * label);
 static void show_title();
@@ -242,18 +242,14 @@ void GnuPlot::ShowCommand()
 		    CHECK_TAG_GT_ZERO;
 		    show_dashtype(tag);
 		    break;
-		case S_LINK:
-		    show_link();
-		    break;
+		case S_LINK: ShowLink(); break;
 		case S_NONLINEAR:
 		    show_nonlinear();
 		    break;
 		case S_KEY:
 		    show_key();
 		    break;
-		case S_LOGSCALE:
-		    show_logscale();
-		    break;
+		case S_LOGSCALE: ShowLogScale(); break;
 		case S_MICRO:
 		    show_micro();
 		    break;
@@ -700,7 +696,7 @@ void GnuPlot::ShowAll()
 	show_label(0);
 	show_arrow(0);
 	show_key();
-	show_logscale();
+	ShowLogScale();
 	show_offsets();
 	ShowMargin();
 	show_micro();
@@ -1083,10 +1079,10 @@ static void show_border()
 static void show_boxwidth()
 {
 	SHOW_ALL_NL;
-	if(boxwidth < 0.0)
+	if(GPO.V.BoxWidth < 0.0)
 		fputs("\tboxwidth is auto\n", stderr);
 	else {
-		fprintf(stderr, "\tboxwidth is %g %s\n", boxwidth, (boxwidth_is_absolute) ? "absolute" : "relative");
+		fprintf(stderr, "\tboxwidth is %g %s\n", GPO.V.BoxWidth, (GPO.V.BoxWidthIsAbsolute) ? "absolute" : "relative");
 	}
 	fprintf(stderr, "\tboxdepth is %g\n", boxdepth);
 }
@@ -1447,7 +1443,7 @@ static void show_styles(const char * name, enum PLOT_STYLE style)
 //
 static void show_functions()
 {
-	udft_entry * udf = first_udf;
+	udft_entry * udf = GPO.Ev.P_FirstUdf;
 	fputs("\n\tUser-Defined Functions:\n", stderr);
 	while(udf) {
 		if(udf->definition)
@@ -1786,21 +1782,22 @@ static int show_log(GpAxis * axis)
 	}
 	return 0;
 }
-
-/* process 'show logscale' command */
-static void show_logscale()
+//
+// process 'show logscale' command 
+//
+//static void show_logscale()
+void GnuPlot::ShowLogScale()
 {
 	int count = 0;
-
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tlogscaling on ");
-	count += show_log(&GPO.AxS[FIRST_X_AXIS]);
-	count += show_log(&GPO.AxS[FIRST_Y_AXIS]);
-	count += show_log(&GPO.AxS[FIRST_Z_AXIS]);
-	count += show_log(&GPO.AxS[SECOND_X_AXIS]);
-	count += show_log(&GPO.AxS[SECOND_Y_AXIS]);
-	count += show_log(&GPO.AxS[COLOR_AXIS]);
-	count += show_log(&GPO.AxS[POLAR_AXIS]);
+	count += show_log(&AxS[FIRST_X_AXIS]);
+	count += show_log(&AxS[FIRST_Y_AXIS]);
+	count += show_log(&AxS[FIRST_Z_AXIS]);
+	count += show_log(&AxS[SECOND_X_AXIS]);
+	count += show_log(&AxS[SECOND_Y_AXIS]);
+	count += show_log(&AxS[COLOR_AXIS]);
+	count += show_log(&AxS[POLAR_AXIS]);
 	fputs(count ? "\n" : "none\n", stderr);
 }
 //
@@ -1878,28 +1875,30 @@ static void show_psdir()
 	fprintf(stderr, "\tfall through to built-in defaults\n");
 #endif
 }
-
-/* process 'show overflow' command */
+//
+// process 'show overflow' command 
+//
 static void show_overflow()
 {
-	fprintf(stderr, "\t64-bit integer overflow %s\n", overflow_handling == INT64_OVERFLOW_UNDEFINED ? "is treated as an undefined value" :
-	    overflow_handling == INT64_OVERFLOW_NAN ? "is treated as NaN (not a number)" :
-	    overflow_handling == INT64_OVERFLOW_TO_FLOAT ? "becomes a floating point value" : "is ignored");
+	fprintf(stderr, "\t64-bit integer overflow %s\n", GPO.Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED ? "is treated as an undefined value" :
+	    GPO.Ev.OverflowHandling == INT64_OVERFLOW_NAN ? "is treated as NaN (not a number)" :
+	    GPO.Ev.OverflowHandling == INT64_OVERFLOW_TO_FLOAT ? "becomes a floating point value" : "is ignored");
 }
-
-/* process 'show parametric' command */
+//
+// process 'show parametric' command 
+//
 static void show_parametric()
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tparametric is %s\n", (parametric) ? "ON" : "OFF");
 }
 
-static void show_palette_rgbformulae()
+//static void show_palette_rgbformulae()
+void GnuPlot::ShowPalette_RgbFormulae()
 {
-	int i;
-	fprintf(stderr, "\t  * there are %i available rgb color mapping formulae:", GPO.SmPltt.colorFormulae);
-	/* print the description of the color formulae */
-	i = 0;
+	fprintf(stderr, "\t  * there are %i available rgb color mapping formulae:", SmPltt.colorFormulae);
+	// print the description of the color formulae 
+	int i = 0;
 	while(*(ps_math_color_formulae[2*i]) ) {
 		if(i % 3 == 0)
 			fputs("\n\t    ", stderr);
@@ -1908,39 +1907,40 @@ static void show_palette_rgbformulae()
 	}
 	fputs("\n", stderr);
 	fputs("\t  * negative numbers mean inverted=negative colour component\n", stderr);
-	fprintf(stderr, "\t  * thus the ranges in `set pm3d rgbformulae' are -%i..%i\n", GPO.SmPltt.colorFormulae-1, GPO.SmPltt.colorFormulae-1);
-	GPO.Pgm.Shift();
+	fprintf(stderr, "\t  * thus the ranges in `set pm3d rgbformulae' are -%i..%i\n", SmPltt.colorFormulae-1, SmPltt.colorFormulae-1);
+	Pgm.Shift();
 }
 
-static void show_palette_fit2rgbformulae()
+//static void show_palette_fit2rgbformulae()
+void GnuPlot::ShowPalette_Fit2RgbFormulae()
 {
 #define rgb_distance(r, g, b) ((r)*(r) + (g)*(g) + (b)*(b))
 	int pts = 32; /* resolution: nb of points in the discrete raster for comparisons */
 	int i, p, ir, ig, ib;
 	int rMin = 0, gMin = 0, bMin = 0;
-	int maxFormula = GPO.SmPltt.colorFormulae - 1; /* max formula number */
+	int maxFormula = SmPltt.colorFormulae - 1; /* max formula number */
 	double gray, dist, distMin;
 	rgb_color * currRGB;
 	int * formulaeSeq;
 	double ** formulae;
-	GPO.Pgm.Shift();
-	if(GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_RGB && GPO.SmPltt.CModel == C_MODEL_RGB) {
-		fprintf(stderr, "\tCurrent palette is\n\t    set palette rgbformulae %i,%i,%i\n", GPO.SmPltt.formulaR, GPO.SmPltt.formulaG, GPO.SmPltt.formulaB);
+	Pgm.Shift();
+	if(SmPltt.colorMode == SMPAL_COLOR_MODE_RGB && SmPltt.CModel == C_MODEL_RGB) {
+		fprintf(stderr, "\tCurrent palette is\n\t    set palette rgbformulae %i,%i,%i\n", SmPltt.formulaR, SmPltt.formulaG, SmPltt.formulaB);
 		return;
 	}
-	/* allocate and fill R, G, B values rastered on pts points */
+	// allocate and fill R, G, B values rastered on pts points 
 	currRGB = (rgb_color*)gp_alloc(pts * sizeof(rgb_color), "RGB pts");
 	for(p = 0; p < pts; p++) {
 		gray = (double)p / (pts - 1);
-		rgb1_from_gray(gray, &(currRGB[p]));
+		Rgb1FromGray(gray, &(currRGB[p]));
 	}
-	/* organize sequence of rgb formulae */
+	// organize sequence of rgb formulae 
 	formulaeSeq = (int *)gp_alloc((2*maxFormula+1) * sizeof(int), "formulaeSeq");
 	for(i = 0; i <= maxFormula; i++)
 		formulaeSeq[i] = i;
 	for(i = 1; i <= maxFormula; i++)
 		formulaeSeq[maxFormula+i] = -i;
-	/* allocate and fill all +-formulae on the interval of given number of points */
+	// allocate and fill all +-formulae on the interval of given number of points 
 	formulae = (double **)gp_alloc((2*maxFormula+1) * sizeof(double*), "formulae");
 	for(i = 0; i < 2*maxFormula+1; i++) {
 		formulae[i] = (double *)gp_alloc(pts * sizeof(double), "formulae pts");
@@ -1983,7 +1983,8 @@ static void show_palette_fit2rgbformulae()
 	SAlloc::F(currRGB);
 }
 
-static void show_palette_palette()
+//static void show_palette_palette()
+void GnuPlot::ShowPalette_Palette()
 {
 	int i;
 	int colors = 128;
@@ -1998,37 +1999,37 @@ static void show_palette_palette()
 	    3: 0x5500a4
 	 */
 	int format = 0;
-	GPO.Pgm.Shift();
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.EqualsCur("float")) {
+	Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.EqualsCur("float")) {
 			format = 1;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("int")) {
+		else if(Pgm.EqualsCur("int")) {
 			format = 2;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("hex")) {
+		else if(Pgm.EqualsCur("hex")) {
 			format = 3;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
 		else {
-			colors = GPO.IntExpression();
+			colors = IntExpression();
 			if(colors < 2)
 				colors = 128;
 		}
 	}
 	f = (print_out) ? print_out : stderr;
-	fprintf(stderr, "%s palette with %i discrete colors", (GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) ? "Gray" : "Color", colors);
+	fprintf(stderr, "%s palette with %i discrete colors", (SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) ? "Gray" : "Color", colors);
 	if(print_out_name)
 		fprintf(stderr, " saved to \"%s\".", print_out_name);
 	for(i = 0; i < colors; i++) {
 		char line[80];
 		// colours equidistantly from [0,1]  
 		gray = (double)i / (colors - 1);
-		if(GPO.SmPltt.Positive == SMPAL_NEGATIVE)
+		if(SmPltt.Positive == SMPAL_NEGATIVE)
 			gray = 1 - gray;
-		rgb1_from_gray(gray, &rgb1);
+		Rgb1FromGray(gray, &rgb1);
 		rgb255_from_rgb1(rgb1, &rgb255);
 		switch(format) {
 			case 1:
@@ -2052,19 +2053,20 @@ static void show_palette_palette()
 	}
 }
 
-static void show_palette_gradient()
+//static void show_palette_gradient()
+void GnuPlot::ShowPalette_Gradient()
 {
 	double gray, r, g, b;
-	GPO.Pgm.Shift();
-	if(GPO.SmPltt.colorMode != SMPAL_COLOR_MODE_GRADIENT) {
+	Pgm.Shift();
+	if(SmPltt.colorMode != SMPAL_COLOR_MODE_GRADIENT) {
 		fputs("\tcolor mapping *not* done by defined gradient.\n", stderr);
 	}
 	else {
-		for(int i = 0; i < GPO.SmPltt.GradientNum; i++) {
-			gray = GPO.SmPltt.P_Gradient[i].pos;
-			r = GPO.SmPltt.P_Gradient[i].col.r;
-			g = GPO.SmPltt.P_Gradient[i].col.g;
-			b = GPO.SmPltt.P_Gradient[i].col.b;
+		for(int i = 0; i < SmPltt.GradientNum; i++) {
+			gray = SmPltt.P_Gradient[i].pos;
+			r = SmPltt.P_Gradient[i].col.r;
+			g = SmPltt.P_Gradient[i].col.g;
+			b = SmPltt.P_Gradient[i].col.b;
 			fprintf(stderr, "%3i. gray=%0.4f, (r,g,b)=(%0.4f,%0.4f,%0.4f), #%02x%02x%02x = %3i %3i %3i\n",
 				i, gray, r, g, b, (int)(255*r+.5), (int)(255*g+.5), (int)(255*b+.5), (int)(255*r+.5), (int)(255*g+.5), (int)(255*b+.5) );
 		}
@@ -2077,11 +2079,10 @@ static void show_colornames(const struct gen_table * tbl)
 {
 	int i = 0;
 	while(tbl->key) {
-		/* Print color names and their rgb values, table with 1 column */
+		// Print color names and their rgb values, table with 1 column 
 		int r = ((tbl->value >> 16 ) & 255);
 		int g = ((tbl->value >> 8 ) & 255);
 		int b = (tbl->value & 255);
-
 		fprintf(stderr, "\n  %-18s ", tbl->key);
 		fprintf(stderr, "#%02x%02x%02x = %3i %3i %3i", r, g, b, r, g, b);
 		++tbl;
@@ -2150,17 +2151,17 @@ void GnuPlot::ShowPalette()
 	}
 	if(Pgm.AlmostEqualsCur("pal$ette")) {
 		// 'show palette palette <n>' 
-		show_palette_palette();
+		ShowPalette_Palette();
 		return;
 	}
 	else if(Pgm.AlmostEqualsCur("gra$dient")) {
 		// 'show palette gradient' 
-		show_palette_gradient();
+		ShowPalette_Gradient();
 		return;
 	}
 	else if(Pgm.AlmostEqualsCur("rgbfor$mulae")) {
 		// 'show palette rgbformulae' 
-		show_palette_rgbformulae();
+		ShowPalette_RgbFormulae();
 		return;
 	}
 	else if(Pgm.EqualsCur("colors") || Pgm.AlmostEqualsCur("color$names")) {
@@ -2170,7 +2171,7 @@ void GnuPlot::ShowPalette()
 	}
 	else if(Pgm.AlmostEqualsCur("fit2rgb$formulae")) {
 		// 'show palette fit2rgbformulae' 
-		show_palette_fit2rgbformulae();
+		ShowPalette_Fit2RgbFormulae();
 		return;
 	}
 	else { // wrong option to "show palette" 
@@ -2245,18 +2246,17 @@ static void show_pm3d()
 		fprintf(stderr, "\ttrue depth ordering\n");
 	}
 	else if(pm3d.direction != PM3D_SCANS_AUTOMATIC) {
-		fprintf(stderr, "\ttaking scans in %s direction\n",
-		    pm3d.direction == PM3D_SCANS_FORWARD ? "FORWARD" : "BACKWARD");
+		fprintf(stderr, "\ttaking scans in %s direction\n", pm3d.direction == PM3D_SCANS_FORWARD ? "FORWARD" : "BACKWARD");
 	}
 	else {
 		fputs("\ttaking scans direction automatically\n", stderr);
 	}
 	fputs("\tsubsequent scans with different nb of pts are ", stderr);
-	if(pm3d.flush == PM3D_FLUSH_CENTER) fputs("CENTERED\n", stderr);
-	else fprintf(stderr, "flushed from %s\n",
-		    pm3d.flush == PM3D_FLUSH_BEGIN ? "BEGIN" : "END");
-	fprintf(stderr, "\tflushing triangles are %sdrawn\n",
-	    pm3d.ftriangles ? "" : "not ");
+	if(pm3d.flush == PM3D_FLUSH_CENTER) 
+		fputs("CENTERED\n", stderr);
+	else 
+		fprintf(stderr, "flushed from %s\n", pm3d.flush == PM3D_FLUSH_BEGIN ? "BEGIN" : "END");
+	fprintf(stderr, "\tflushing triangles are %sdrawn\n", pm3d.ftriangles ? "" : "not ");
 	fputs("\tclipping: ", stderr);
 	if(pm3d.clip == PM3D_CLIP_1IN)
 		fputs("at least 1 point of the quadrangle in x,y ranges\n", stderr);
@@ -2342,15 +2342,17 @@ static void show_decimalsign()
 
 	fprintf(stderr, "\tdegree sign for output is %s \n", degree_sign);
 }
-
-/* process 'show micro' command */
+//
+// process 'show micro' command 
+//
 static void show_micro()
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tmicro character for output is %s \n", (use_micro && micro) ? micro : "u");
 }
-
-/* process 'show minus_sign' command */
+//
+// process 'show minus_sign' command 
+//
 static void show_minus_sign()
 {
 	SHOW_ALL_NL;
@@ -2359,8 +2361,9 @@ static void show_minus_sign()
 	else
 		fprintf(stderr, "\tno special minus sign\n");
 }
-
-/* process 'show fit' command */
+//
+// process 'show fit' command 
+//
 static void show_fit()
 {
 	udvt_entry * v = NULL;
@@ -2400,22 +2403,22 @@ static void show_fit()
 			SAlloc::F(logfile);
 		}
 	}
-	v = get_udv_by_name((char*)FITLIMIT);
+	v = GPO.Ev.GetUdvByName((char*)FITLIMIT);
 	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	fprintf(stderr, "\tfits will be considered to have converged if  delta chisq < chisq * %g", ((d > 0.) && (d < 1.)) ? d : DEF_FIT_LIMIT);
 	if(epsilon_abs > 0.)
 		fprintf(stderr, " + %g", epsilon_abs);
 	fprintf(stderr, "\n");
-	v = get_udv_by_name((char*)FITMAXITER);
+	v = GPO.Ev.GetUdvByName((char*)FITMAXITER);
 	if(v  && (v->udv_value.type != NOTDEFINED) && (real(&(v->udv_value)) > 0))
 		fprintf(stderr, "\tfit will stop after a maximum of %i iterations\n", (int)real(&(v->udv_value)));
 	else
 		fprintf(stderr, "\tfit has no limit in the number of iterations\n");
-	v = get_udv_by_name((char*)FITSTARTLAMBDA);
+	v = GPO.Ev.GetUdvByName((char*)FITSTARTLAMBDA);
 	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will start with lambda = %g\n", d);
-	v = get_udv_by_name((char*)FITLAMBDAFACTOR);
+	v = GPO.Ev.GetUdvByName((char*)FITLAMBDAFACTOR);
 	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will change lambda by a factor of %g\n", d);
@@ -2424,7 +2427,7 @@ static void show_fit()
 	else
 		fprintf(stderr, "\tfit will default to `unitweights` if no `error`keyword is given on the command line.\n");
 	fprintf(stderr, "\tfit can run the following command when interrupted:\n\t\t'%s'\n", getfitscript());
-	v = get_udv_by_name("GPVAL_LAST_FIT");
+	v = GPO.Ev.GetUdvByName("GPVAL_LAST_FIT");
 	if(v && v->udv_value.type != NOTDEFINED)
 		fprintf(stderr, "\tlast fit command was: %s\n", v->udv_value.v.string_val);
 }
@@ -2484,12 +2487,13 @@ static void show_view()
 	else {
 		fprintf(stderr, "%g rot_x, %g rot_z, %g scale, %g scale_z\n", surface_rot_x, surface_rot_z, surface_scale, surface_zscale);
 	}
-	fprintf(stderr, "\t\t%s axes are %s\n", aspect_ratio_3D == 2 ? "x/y" : aspect_ratio_3D == 3 ? "x/y/z" : "",
-	    aspect_ratio_3D >= 2 ? "on the same scale" : "independently scaled");
+	fprintf(stderr, "\t\t%s axes are %s\n", (GPO.V.AspectRatio3D == 2) ? "x/y" : ((GPO.V.AspectRatio3D == 3) ? "x/y/z" : ""),
+	    (GPO.V.AspectRatio3D >= 2) ? "on the same scale" : "independently scaled");
 	fprintf(stderr, "\t\t azimuth %g\n", azimuth);
 }
-
-/* process 'show surface' command */
+//
+// process 'show surface' command 
+//
 static void show_surface()
 {
 	SHOW_ALL_NL;
@@ -2533,18 +2537,19 @@ static void show_history()
 	fprintf(stderr, "\t history size %d%s,  %s,  %s\n", gnuplot_history_size, gnuplot_history_size<0 ? "(unlimited)" : "",
 	    history_quiet ? "quiet" : "numbers", history_full ? "full" : "suppress duplicates");
 }
-
-/* process 'show size' command */
+//
+// process 'show size' command 
+//
 static void show_size()
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tsize is scaled by %g,%g\n", GPO.V.XSize, GPO.V.YSize);
-	if(aspect_ratio > 0)
-		fprintf(stderr, "\tTry to set aspect ratio to %g:1.0\n", aspect_ratio);
-	else if(aspect_ratio == 0)
+	if(GPO.V.AspectRatio > 0.0f)
+		fprintf(stderr, "\tTry to set aspect ratio to %g:1.0\n", GPO.V.AspectRatio);
+	else if(GPO.V.AspectRatio == 0.0f)
 		fputs("\tNo attempt to control aspect ratio\n", stderr);
 	else
-		fprintf(stderr, "\tTry to set LOCKED aspect ratio to %g:1.0\n", -aspect_ratio);
+		fprintf(stderr, "\tTry to set LOCKED aspect ratio to %g:1.0\n", -GPO.V.AspectRatio);
 }
 //
 // process 'show origin' command 
@@ -2695,16 +2700,18 @@ static void show_timefmt()
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tDefault format for reading time data is \"%s\"\n", P_TimeFormat);
 }
-
-/* process 'show link' command */
-static void show_link()
+//
+// process 'show link' command 
+//
+//static void show_link()
+void GnuPlot::ShowLink()
 {
-	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.AlmostEqualsCur("x$2"))
-		save_link(stderr, &GPO.AxS[SECOND_X_AXIS]);
-	if(GPO.Pgm.EndOfCommand() || GPO.Pgm.AlmostEqualsCur("y$2"))
-		save_link(stderr, &GPO.AxS[SECOND_Y_AXIS]);
-	if(!GPO.Pgm.EndOfCommand())
-		GPO.Pgm.Shift();
+	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("x$2"))
+		save_link(stderr, &AxS[SECOND_X_AXIS]);
+	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("y$2"))
+		save_link(stderr, &AxS[SECOND_Y_AXIS]);
+	if(!Pgm.EndOfCommand())
+		Pgm.Shift();
 }
 
 /* process 'show link' command */
@@ -2858,18 +2865,20 @@ static void show_mouse()
 	GPO.IntWarn(NO_CARET, "this copy of gnuplot has no mouse support");
 #endif /* USE_MOUSE */
 }
-
-/* process 'show plot' command */
+//
+// process 'show plot' command 
+//
 static void show_plot()
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tlast plot command was: %s\n", replot_line);
 }
-
-/* process 'show variables' command */
+//
+// process 'show variables' command 
+//
 static void show_variables()
 {
-	udvt_entry * udv = first_udv;
+	udvt_entry * udv = GPO.Ev.P_FirstUdv;
 	int    len;
 	bool   show_all = FALSE;
 	char   leading_string[MAX_ID_LEN+1] = {'\0'};

@@ -150,8 +150,8 @@ struct SVG_PEN {
 	char color[8];
 };
 
-static uint SVG_xSize = SVG_XMAX; /* plot horizontal size */
-static uint SVG_ySize = SVG_YMAX; /* plot vertical size*/
+static uint SVG_xSize = static_cast<uint>(SVG_XMAX); /* plot horizontal size */
+static uint SVG_ySize = static_cast<uint>(SVG_YMAX); /* plot vertical size*/
 static bool SVG_fixed_size = TRUE;  /* make SVG viewer size fixed */
 static uint SVG_xLast = UINT_MAX; /* current pen horizontal position*/
 static uint SVG_yLast = UINT_MAX;       /* current pen vertical position*/
@@ -378,8 +378,8 @@ static void SVG_SetFont(const char * name, double size)
 	SVG_fontLeading = (SVG_fontSizeCur * 0.35 * SVG_SCALE);
 	SVG_fontAvWidth = (SVG_fontSizeCur * 0.70 * SVG_SCALE);
 
-	term->h_char = SVG_fontAvWidth;
-	term->v_char = (SVG_fontAscent + SVG_fontDescent + SVG_fontLeading);
+	term->ChrH = SVG_fontAvWidth;
+	term->ChrV = (SVG_fontAscent + SVG_fontDescent + SVG_fontLeading);
 }
 
 static void SVG_GroupFilledOpen()
@@ -794,14 +794,14 @@ TERM_PUBLIC void SVG_init()
 	term->xmax = SVG_xSize;
 	term->ymax = SVG_ySize;
 
-/* set current font, including h_char and v_char */
+/* set current font, including ChrH and ChrV */
 
 	SVG_SetFont(SVG_fontNameCur, SVG_fontSizeCur);
 
-/* set h_tic, v_tic*/
+/* set TicH, TicV*/
 
-	term->h_tic = term->v_char / 2;
-	term->v_tic = term->v_char / 2;
+	term->TicH = term->ChrV / 2;
+	term->TicV = term->ChrV / 2;
 }
 
 /* write file header*/
@@ -961,7 +961,7 @@ static void SVG_write_preamble()
 	 * defined one :-( That would make for much larger files */
 	/* "\t<path id='gpPt3' stroke-width='%.3f' d='M-1,-1 h2 v2 h-2 z'/>\n" */
 
-	stroke_width = 2.0 *SVG_SCALE / term->h_tic;
+	stroke_width = 2.0 *SVG_SCALE / term->TicH;
 	fprintf(gpoutfile,
 	    "\n"
 	    /* dot: */
@@ -1042,30 +1042,26 @@ TERM_PUBLIC void SVG_graphics()
 	/* We must force a new group with fill:none in order for multiple */
 	/* plots per page to work. Otherwise new plots are black-filled   */
 	SVG_GroupOpen();
-
 	SVG_fillPattern = -1;
 	SVG_fillPatternIndex = 0;
 	SVG_groupFilledIsOpen = FALSE;
 	SVG_color_mode = TC_DEFAULT;
 	SVG_pathIsOpen = FALSE;
-
 /* reset position*/
-
 	SVG_xLast = SVG_yLast = UINT_MAX;
 }
 
 static void svg_mouse_param(char * gp_name, const char * js_name)
 {
 	struct udvt_entry * udv;
-	if((udv = add_udv_by_name(gp_name))) {
+	if((udv = GPO.Ev.AddUdvByName(gp_name))) {
 		if(udv->udv_value.type == INTGR) {
 			fprintf(gpoutfile, "gnuplot_svg.%s = ", js_name);
 			fprintf(gpoutfile, PLD, udv->udv_value.v.int_val);
 			fprintf(gpoutfile, "\n");
 		}
 		else if(udv->udv_value.type == CMPLX) {
-			fprintf(gpoutfile, "gnuplot_svg.%s = %g;\n",
-			    js_name, udv->udv_value.v.cmplx_val.real);
+			fprintf(gpoutfile, "gnuplot_svg.%s = %g;\n", js_name, udv->udv_value.v.cmplx_val.real);
 		}
 	}
 }
@@ -1413,7 +1409,7 @@ onmouseout=\"gnuplot_svg.hideHypertext()\"><title> </title>\n",
 		fprintf(gpoutfile, "\
 \t<use xlink:href='#gpPt%u' transform='translate(%.*f,%.*f) scale(%.2f)'%s/>",
 		    number % 15, PREC, X(x), PREC, Y(y),
-		    term_pointsize * term->h_tic / (2 * SVG_SCALE),
+		    term_pointsize * term->TicH / (2 * SVG_SCALE),
 		    color_spec);
 	}
 	SVG_xLast = x;
@@ -1619,7 +1615,7 @@ TERM_PUBLIC void SVG_set_color(t_colorspec * colorspec)
 		return;
 	}
 	else if(colorspec->type == TC_FRAC) {
-		rgb255maxcolors_from_gray(colorspec->value, &rgb255);
+		GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 	}
 	else if(colorspec->type == TC_RGB) {
 		rgb255.r = colorspec->lt >> 16 & 0xff;

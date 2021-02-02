@@ -358,12 +358,12 @@ static void get_font_name_and_size(const char * s, char ** name, double * size)
 		*name = buf;
 }
 
-/* set font size, and reset h_char, v_char */
+/* set font size, and reset ChrH, ChrV */
 static void set_font_size(double size)
 {
 	[adapter setFontsize: size];
-	term->h_char = (int)(size * 0.6 * AQUA_RESOLUTION);
-	term->v_char = (int)(size * 1.5 * AQUA_RESOLUTION);
+	term->ChrH = (int)(size * 0.6 * AQUA_RESOLUTION);
+	term->ChrV = (int)(size * 1.5 * AQUA_RESOLUTION);
 }
 
 TERM_PUBLIC void AQUA_init()
@@ -394,10 +394,10 @@ TERM_PUBLIC void AQUA_init()
 	term->ymax = AQUA_ySize;
 	/* set current font*/
 	[adapter setFontname: AQUA_convert_using_encoding(AQUA_fontNameCur)];
-	set_font_size(AQUA_fontSizeCur); /* this also sets v_char and h_char */
-	/* set h_tic, v_tic*/
-	term->h_tic = term->v_char / 3;
-	term->v_tic = term->v_char / 3;
+	set_font_size(AQUA_fontSizeCur); /* this also sets ChrV and ChrH */
+	/* set TicH, TicV*/
+	term->TicH = term->ChrV / 3;
+	term->TicV = term->ChrV / 3;
 
 	[adapter setPlotSize: NSMakeSize(AQUA_xSize/AQUA_RESOLUTION, AQUA_ySize/AQUA_RESOLUTION)];
 	[adapter setPlotTitle: AQUA_convert_using_encoding(AQUA_title)];
@@ -698,7 +698,7 @@ TERM_PUBLIC void AQUA_set_color(t_colorspec * colorspec)
 	double alpha;
 	switch(colorspec->type) {
 		case TC_FRAC:
-		    rgb1maxcolors_from_gray(colorspec->value, &color);
+		    GPO.Rgb1MaxColorsFromGray(colorspec->value, &color);
 		    [adapter setColorRed:color.r green: color.g blue: color.b];
 		    break;
 		case TC_RGB:
@@ -810,7 +810,7 @@ TERM_PUBLIC void AQUA_image(uint M, uint N, coordval * image, gpiPoint * corner,
 			uchar * bitmapPtr = bitmap;
 			srcSize = bitmapSize;
 			for(i = 0; i<srcSize; i++) {
-				rgb1maxcolors_from_gray(image[i], &color);
+				GPO.Rgb1MaxColorsFromGray(image[i], &color);
 				*bitmapPtr = (uchar)(255*color.r);
 				bitmapPtr++;
 				*bitmapPtr = (uchar)(255*color.g);

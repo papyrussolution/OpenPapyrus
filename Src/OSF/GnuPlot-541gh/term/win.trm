@@ -654,10 +654,10 @@ TERM_PUBLIC void WIN_graphics()
 {
 	GraphStart(graphwin, pointsize);
 	/* Fix up the text size if the user has resized the window. */
-	term->h_char = graphwin->hchar;
-	term->v_char = graphwin->vchar;
-	term->h_tic = graphwin->htic;
-	term->v_tic = graphwin->vtic;
+	term->ChrH = graphwin->hchar;
+	term->ChrV = graphwin->vchar;
+	term->TicH = graphwin->htic;
+	term->TicV = graphwin->vtic;
 	WIN_last_linetype = LT_NODRAW;          /* HBB 20000813: linetype caching */
 
 	/* Save current text encoding */
@@ -836,7 +836,7 @@ TERM_PUBLIC void WIN_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 			rgb_image -= 3 * M + pad_bytes;
 			for(x = 0; x<M; x++) {
 				rgb255_color rgb255;
-				rgb255maxcolors_from_gray(*image++, &rgb255);
+				GPO.Rgb255MaxColorsFromGray(*image++, &rgb255);
 				*(rgb_image++) = rgb255.b;
 				*(rgb_image++) = rgb255.g;
 				*(rgb_image++) = rgb255.r;
@@ -910,17 +910,16 @@ TERM_PUBLIC void WIN_set_color(t_colorspec * colorspec)
 {
 	// TODO: color caching
 	WIN_flush_line(&WIN_poly);
-
 	switch(colorspec->type) {
 		case TC_FRAC: {
-		    /* Immediately translate palette index to RGB colour */
+		    // Immediately translate palette index to RGB colour 
 		    rgb255_color rgb255;
-		    rgb255maxcolors_from_gray(colorspec->value, &rgb255);
+		    GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 		    GraphOp(graphwin, W_setcolor, (rgb255.g << 8) | rgb255.b, (rgb255.r), NULL);
 		    break;
 	    }
 		case TC_RGB:
-		    /* highest byte of colorspec->lt contains alpha */
+		    // highest byte of colorspec->lt contains alpha 
 		    GraphOp(graphwin, W_setcolor, (colorspec->lt) & 0xffff, (colorspec->lt >> 16) & 0xffff, NULL);
 		    break;
 		case TC_LT:

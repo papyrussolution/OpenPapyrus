@@ -74,7 +74,7 @@ void f_amos_Ai(union argument * arg)
 	zairy_(&z.real, &z.imag, &id, &kode, &ai.real, &ai.imag, &underflow, &ierr);
 	if(underflow != 0 || ierr != 0) {
 		FPRINTF((stderr, "zairy( {%.3f, %.3f} ): underflow = %d   ierr = %d\n", z.real, z.imag, underflow, ierr));
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		Gcomplex(&a, not_a_number(), 0.0);
 	}
 	else {
@@ -103,7 +103,7 @@ void f_amos_Bi(union argument * arg)
 	zbiry_(&z.real, &z.imag, &id, &kode, &bi.real, &bi.imag, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbiry( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		Gcomplex(&a, not_a_number(), 0.0);
 	}
 	else {
@@ -143,7 +143,7 @@ void f_amos_BesselK(union argument * arg)
 	zbesk_(&z.real, &z.imag, &nu, &kode, &length, &Bk[0].real, &Bk[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesk( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		Gcomplex(&a, not_a_number(), 0.0);
 	}
 	else {
@@ -184,7 +184,7 @@ void f_amos_Hankel(int k, union argument * arg)
 	zbesh_(&z.real, &z.imag, &nu, &kode, &kind, &length, &H[0].real, &H[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesh( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		Gcomplex(&a, not_a_number(), 0.0);
 	}
 	else {
@@ -227,7 +227,7 @@ void f_amos_BesselI(union argument * arg)
 	zbesi_(&z.real, &z.imag, &nu, &kode, &length, &Bi[0].real, &Bi[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesi( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		Gcomplex(&a, not_a_number(), 0.0);
 	}
 	else {
@@ -267,7 +267,7 @@ void f_amos_BesselJ(union argument * arg)
 	zbesj_(&z.real, &z.imag, &nu, &kode, &length, &Bj[0].real, &Bj[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesj( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		Gcomplex(&a, not_a_number(), 0.0);
 	}
 	else {
@@ -308,7 +308,7 @@ void f_amos_BesselY(union argument * arg)
 	zbesy_(&z.real, &z.imag, &nu, &kode, &length, &By[0].real, &By[0].imag, &underflow, &WorkR[0],  &WorkI[0], &ierr);
 	if(ierr != 0) {
 		fprintf(stderr, "zbesy( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr);
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		Gcomplex(&a, not_a_number(), 0.0);
 	}
 	else {

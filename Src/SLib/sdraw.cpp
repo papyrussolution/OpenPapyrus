@@ -115,7 +115,7 @@ LMatrix2D & SViewPort::GetMatrix(const FRect & rBounds, LMatrix2D & rMtx) const
 	double h_c = (Flags & fDontScale) ? h0 : rBounds.Height();
 	const double r0 = h0 / w0;
 	const double r = h_c / w_c;
-	FPoint diff = rBounds.a - a;
+	SPoint2F diff = rBounds.a - a;
 	LMatrix2D transl_mtx;
 	if((ParX == parNone && ParY == parNone) || r == r0) {
 		if(Flags & fDontEnlarge) {
@@ -338,7 +338,7 @@ void SDrawFigure::SetViewPort(const SViewPort * pVp)
 	}
 }
 
-void SDrawFigure::SetSize(FPoint sz)
+void SDrawFigure::SetSize(SPoint2F sz)
 {
 	if(sz.X || sz.Y) {
 		Size = sz;
@@ -376,7 +376,7 @@ int FASTCALL SDrawFigure::GetViewPort(SViewPort * pVp) const
 int SDrawFigure::TransformToImage(const SViewPort * pVp, SImageBuffer & rImg) const
 {
 	int    ok = 1;
-	FPoint size = rImg.GetDimF();
+	SPoint2F size = rImg.GetDimF();
 	if(size.X > 0 && size.Y > 0) {
 		LMatrix2D mtx;
 		SPaintToolBox tb;
@@ -396,7 +396,7 @@ int SDrawFigure::TransformToImage(const SViewPort * pVp, SImageBuffer & rImg) co
 	return ok;
 }
 
-SDrawImage * SDrawFigure::DupToImage(TPoint size, const SViewPort * pVp, const char * pSid)
+SDrawImage * SDrawFigure::DupToImage(SPoint2S size, const SViewPort * pVp, const char * pSid)
 {
 	SDrawImage * p_fig = 0;
 	SImageBuffer img_buf;
@@ -443,7 +443,7 @@ void SDrawFigure::SetStyle(int identPen, int identBrush, long flags)
 int    SDrawFigure::GetKind() const { return Kind; }
 long   SDrawFigure::GetFlags() const { return Flags; }
 const  SString & SDrawFigure::GetSid() const { return Sid; }
-const  FPoint & SDrawFigure::GetSize() const { return Size; }
+const  SPoint2F & SDrawFigure::GetSize() const { return Size; }
 const  SViewPort & SDrawFigure::GetViewPort() const { return Vp; }
 void   SDrawFigure::SetSid(const char * pSid) { Sid = pSid; }
 int    SDrawFigure::GetPen() const { return IdPen; }
@@ -715,7 +715,7 @@ int SDrawPath::HasCurrent() const
 	return BIN(c && OpList.at(c-1).Key != opNop);
 }
 
-const FPoint & SDrawPath::GetCurrent()
+const SPoint2F & SDrawPath::GetCurrent()
 {
 	if(HasCurrent()) {
 		uint   rc = ArgList.getCount();
@@ -768,7 +768,7 @@ int SDrawPath::Nop()
 	return OpList.Add(opNop, -1, 0);
 }
 
-int FASTCALL SDrawPath::Move(const FPoint & rP)
+int FASTCALL SDrawPath::Move(const SPoint2F & rP)
 {
 	int    ok = 1;
 	Flags |= fHasLastMove;
@@ -780,7 +780,7 @@ int FASTCALL SDrawPath::Move(const FPoint & rP)
 	return ok;
 }
 
-int FASTCALL SDrawPath::Line(const FPoint & rP)
+int FASTCALL SDrawPath::Line(const SPoint2F & rP)
 {
 	int    ok = 1;
 	if(Flags & fHasCur) {
@@ -793,7 +793,7 @@ int FASTCALL SDrawPath::Line(const FPoint & rP)
 	return ok;
 }
 
-int SDrawPath::Curve(const FPoint & rMiddle1, const FPoint & rMiddle2, const FPoint & rEnd)
+int SDrawPath::Curve(const SPoint2F & rMiddle1, const SPoint2F & rMiddle2, const SPoint2F & rEnd)
 {
 	int    ok = 1;
 	if(!(Flags & fHasCur)) {
@@ -807,7 +807,7 @@ int SDrawPath::Curve(const FPoint & rMiddle1, const FPoint & rMiddle2, const FPo
 	return ok;
 }
 
-int SDrawPath::Quad(const FPoint & rMiddle, const FPoint & rEnd)
+int SDrawPath::Quad(const SPoint2F & rMiddle, const SPoint2F & rEnd)
 {
 	int    ok = 1;
 	OpList.Add(opQuad, ArgList.getCount(), 0);
@@ -817,7 +817,7 @@ int SDrawPath::Quad(const FPoint & rMiddle, const FPoint & rEnd)
 	return ok;
 }
 
-int SDrawPath::ArcSvg(const FPoint & rCenter, float xAxRotation, int largeFlag, int sweepFlag, const FPoint & rEnd)
+int SDrawPath::ArcSvg(const SPoint2F & rCenter, float xAxRotation, int largeFlag, int sweepFlag, const SPoint2F & rEnd)
 {
 	int    ok = 1;
 	// @todo Проверить на существование текущей точки
@@ -867,7 +867,7 @@ static int GetSvgPathBinaryFlag(SStrScan & rScan, SString & rTempBuf, int & rF)
 	return ok;
 }
 
-static int GetSvgPathPoint(SStrScan & rScan, SString & rTempBuf, FPoint & rP)
+static int GetSvgPathPoint(SStrScan & rScan, SString & rTempBuf, SPoint2F & rP)
 {
 	int    ok = 1;
 	float  temp_val = 0.0f;
@@ -892,8 +892,8 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 	if(fmt == fmtSVG) {
 		SString temp_buf;
 		SStrScan scan(pStr);
-		FPoint pnt;
-		FPoint pa[4];
+		SPoint2F pnt;
+		SPoint2F pa[4];
 		float  nmb;
 		for(int c = scan.Skip()[0]; c != 0; c = scan.Skip()[0]) {
 			scan.Incr();
@@ -911,7 +911,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				//case 'm': // 2, SVG_PATH_CMD_REL_MOVE_TO
 				//	for(int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
 				//		THROW(GetSvgPathPoint(scan, temp_buf, pnt));
-				//		const FPoint cur = GetCurrent();
+				//		const SPoint2F cur = GetCurrent();
 				//		if(first)
 				//			Move(cur + pnt);
 				//		else
@@ -922,7 +922,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					for(int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
 						scan.Skip().IncrChr(','); // @v10.7.8
-						const FPoint cur = GetCurrent();
+						const SPoint2F cur = GetCurrent();
 						if(first)
 							Move(cur + pnt);
 						else
@@ -931,11 +931,11 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					break;
 				//case 'm': // 2, SVG_PATH_CMD_REL_MOVE_TO
 				//{
-				//	const FPoint cur = GetCurrent();
+				//	const SPoint2F cur = GetCurrent();
 				//	int first = 1;
 				//	while (scan.Skip().IsDotPrefixedNumber()) {
 				//		THROW(GetSvgPathPoint(scan, temp_buf, pnt));
-				//		//const FPoint cur = GetCurrent();
+				//		//const SPoint2F cur = GetCurrent();
 				//		if (first) {
 				//			Move(cur + pnt);
 				//			first = 0;
@@ -956,7 +956,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
 						scan.Skip().IncrChr(','); // @v10.7.8
-						const FPoint cur = GetCurrent();
+						const SPoint2F cur = GetCurrent();
 						Line(cur + pnt);
 					}
 					break;
@@ -964,7 +964,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
 						scan.Skip().IncrChr(','); // @v10.7.8
-						const FPoint cur = GetCurrent();
+						const SPoint2F cur = GetCurrent();
 						Line(pnt.Set(nmb, cur.Y));
 					}
 					break;
@@ -980,7 +980,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
 						scan.Skip().IncrChr(','); // @v10.7.8
-						const FPoint cur = GetCurrent();
+						const SPoint2F cur = GetCurrent();
 						Line(pnt.Set(cur.X, nmb));
 					}
 					break;
@@ -1012,7 +1012,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 							scan.Skip().IncrChr(',');
 							THROW(GetSvgPathPoint(scan, temp_buf, pa[2]));
 							scan.Skip().IncrChr(','); // @v10.7.8
-							const FPoint cur = GetCurrent();
+							const SPoint2F cur = GetCurrent();
 							Curve(cur + pa[0], cur + pa[1], cur + pa[2]);
 						}
 					}
@@ -1025,12 +1025,12 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						scan.Skip().IncrChr(','); // @v10.7.8
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opCurve) {
 							pnt = ArgList.getPoint(ArgList.getCount()-2);
-							FPoint pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
-							FPoint rpnt(2.0f * pnt.X - pnt_1.X, 2.0f * pnt.Y - pnt_1.Y);
+							SPoint2F pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
+							SPoint2F rpnt(2.0f * pnt.X - pnt_1.X, 2.0f * pnt.Y - pnt_1.Y);
 							Curve(rpnt, pa[0], pa[1]);
 						}
 						else {
-							const FPoint cur = GetCurrent();
+							const SPoint2F cur = GetCurrent();
 							Curve(cur, pa[0], pa[1]);
 						}
 					}
@@ -1043,13 +1043,13 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						scan.Skip().IncrChr(','); // @v10.7.8
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opCurve) {
 							pnt = ArgList.getPoint(ArgList.getCount()-2);
-							FPoint pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
-							FPoint rpnt(2.0f * pnt.X - pnt_1.X, 2.0f * pnt.Y - pnt_1.Y);
-							const FPoint cur = GetCurrent();
+							SPoint2F pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
+							SPoint2F rpnt(2.0f * pnt.X - pnt_1.X, 2.0f * pnt.Y - pnt_1.Y);
+							const SPoint2F cur = GetCurrent();
 							Curve(rpnt, cur + pa[0], cur + pa[1]);
 						}
 						else {
-							const FPoint cur = GetCurrent();
+							const SPoint2F cur = GetCurrent();
 							Curve(cur, cur + pa[0], cur + pa[1]);
 						}
 					}
@@ -1067,7 +1067,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
 						scan.Skip().IncrChr(','); // @v10.7.8
-						const FPoint cur = GetCurrent();
+						const SPoint2F cur = GetCurrent();
 						Quad(cur + pa[0], cur + pa[1]);
 					}
 					break;
@@ -1076,14 +1076,14 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 						scan.Skip().IncrChr(','); // @v10.7.8
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opQuad) {
-							//FPoint refl_p2 = ArgList[ArgList.getCount()-1];
-							//FPoint refl_p1 = ArgList[ArgList.getCount()-2];
+							//SPoint2F refl_p2 = ArgList[ArgList.getCount()-1];
+							//SPoint2F refl_p1 = ArgList[ArgList.getCount()-2];
 							//pnt = refl_p2 + refl_p2 - refl_p1;
 							pnt = ArgList.getPoint(ArgList.getCount()-4);
 							Quad(pnt, pa[0]);
 						}
 						else {
-							const FPoint cur = GetCurrent();
+							const SPoint2F cur = GetCurrent();
 							Quad(cur, pa[0]);
 						}
 					}
@@ -1094,11 +1094,11 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						scan.Skip().IncrChr(','); // @v10.7.8
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opQuad) {
 							pnt = ArgList.getPoint(ArgList.getCount()-4);
-							const FPoint cur = GetCurrent();
+							const SPoint2F cur = GetCurrent();
 							Quad(pnt, cur+pa[0]);
 						}
 						else {
-							const FPoint cur = GetCurrent();
+							const SPoint2F cur = GetCurrent();
 							Quad(cur, cur+pa[0]);
 						}
 					}
@@ -1140,7 +1140,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1])); // start point
 						scan.Skip().IncrChr(','); // @v10.7.8
-						const FPoint cur = GetCurrent();
+						const SPoint2F cur = GetCurrent();
 						ArcSvg(pa[0], x_axis_rotation, large_arc_flag, sweep_flag, cur + pa[1]);
 					}
 					break;
@@ -1871,7 +1871,7 @@ void * SImageBuffer::CreateSurface(SDrawSystem sys) const
 	return p_result;
 }
 
-int SImageBuffer::TransformToBounds(TPoint size, const SViewPort * pVp)
+int SImageBuffer::TransformToBounds(SPoint2S size, const SViewPort * pVp)
 {
 	int    ok = 1;
 	cairo_t * p_cr = 0;
@@ -1964,8 +1964,8 @@ int FASTCALL SImageBuffer::IsEqual(const SImageBuffer & rS) const
 SImageBuffer::PixF SImageBuffer::GetFormat() const { return F; }
 uint   SImageBuffer::GetWidth() const { return (uint)S.x; }
 uint   SImageBuffer::GetHeight() const { return (uint)S.y; }
-TPoint SImageBuffer::GetDim() const { return S; }
-FPoint SImageBuffer::GetDimF() const { return (FPoint)S; }
+SPoint2S SImageBuffer::GetDim() const { return S; }
+SPoint2F SImageBuffer::GetDimF() const { return (SPoint2F)S; }
 const  uint8 * SImageBuffer::GetData() const { return reinterpret_cast<const uint8 *>(P_Buf); }
 
 int SImageBuffer::Store(const StoreParam & rP, SFile & rF)
@@ -2165,7 +2165,7 @@ int SImageBuffer::PremultiplyAlpha()
 	return 1;
 }
 
-int SImageBuffer::GetSubImage(SImageBuffer & rDest, TPoint start, TPoint size) const
+int SImageBuffer::GetSubImage(SImageBuffer & rDest, SPoint2S start, SPoint2S size) const
 {
 	int    ok = 1;
 	TRect  rect;
@@ -2401,7 +2401,7 @@ int SImageBuffer::LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx, uint subImgSq
 			THROW(Helper_LoadBmp(buffer, ""));
 			if(subImgSqIdx) {
 				if(subImgSqSide && subImgSqSide < width && subImgSqSide < height) {
-					TPoint sz, p;
+					SPoint2S sz, p;
 					sz = static_cast<int>(subImgSqSide);
 					p.Z();
 					for(uint i = 1; i < subImgSqIdx; i++) {
@@ -3166,7 +3166,7 @@ int SDrawImage::Store(const SImageBuffer::StoreParam & rP, SFile & rF)
 	return Buf.Store(rP, rF);
 }
 
-int SDrawImage::TransformToBounds(TPoint size, const SViewPort * pVp)
+int SDrawImage::TransformToBounds(SPoint2S size, const SViewPort * pVp)
 {
 	int    ok = Buf.TransformToBounds(size, pVp);
 	Size = Buf.GetDimF();

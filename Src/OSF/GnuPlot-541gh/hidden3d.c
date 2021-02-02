@@ -186,8 +186,9 @@ typedef qtreelist * p_qtreelist;
 	#define QUADTREE_GRANULARITY 30
 #endif
 static long quadtree[QUADTREE_GRANULARITY][QUADTREE_GRANULARITY];
-
-/* and a routine to calculate the cells' position in that array: */
+//
+// and a routine to calculate the cells' position in that array: 
+//
 static int coord_to_treecell(coordval x)
 {
 	int index = static_cast<int>(((((x) / surface_scale) + 1.0) / 2.0) * QUADTREE_GRANULARITY);
@@ -205,10 +206,10 @@ static dynarray qtree;
 /* Prototypes for internal functions of this module. */
 static long int store_vertex(struct coordinate * point, lp_style_type * lp_style, bool color_from_column);
 static long int make_edge(long int vnum1, long int vnum2, struct lp_style_type * lp, int style, int next);
-static long int store_edge(long int vnum1, edge_direction direction, long int crvlen, struct lp_style_type * lp, int style);
+//static long store_edge(long int vnum1, edge_direction direction, long crvlen, lp_style_type * lp, int style);
 static GP_INLINE double eval_plane_equation(t_plane p, GpVertex * v);
 static GP_INLINE double intersect_line_plane(GpVertex * v1, GpVertex * v2, t_plane p);
-static double intersect_line_line(GpVertex * v1, GpVertex * v2, GpVertex * w1, GpVertex * w2);
+static double intersect_line_line(const GpVertex * v1, const GpVertex * v2, const GpVertex * w1, const GpVertex * w2);
 static int cover_point_poly(GpVertex * v1, GpVertex * v2, double u, p_polygon poly);
 static long int store_polygon(long int vnum1, polygon_direction direction, long int crvlen);
 static void color_edges(long int new_edge, long int old_edge, long int new_poly, long int old_poly, int style_above, int style_below);
@@ -220,74 +221,57 @@ static void sort_polys_by_z();
 static bool get_plane(p_polygon p, t_plane plane);
 static long split_line_at_ratio(long int vnum1, long int vnum2, double w);
 static GP_INLINE double area2D(GpVertex * v1, GpVertex * v2, GpVertex * v3);
-static void draw_vertex(GpVertex * v);
-static GP_INLINE void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2);
+//static void draw_vertex(GpVertex * v);
+//static GP_INLINE void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2);
 static int in_front(long int edgenum, long int vnum1, long int vnum2, long int * firstpoly);
 // 
 // Set the options for hidden3d. To be called from set.c, when the
 // user has begun a command with 'set hidden3d', to parse the rest of that command 
 // 
-void set_hidden3doptions()
+//void set_hidden3doptions()
+void GnuPlot::SetHidden3DOptions()
 {
 	int tmp;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&set_hidden3d_tbl[0])) {
+	while(!Pgm.EndOfCommand()) {
+		switch(Pgm.LookupTableForCurrentToken(&set_hidden3d_tbl[0])) {
 			case S_HI_DEFAULTS:
 			    // reset all parameters to defaults 
 			    reset_hidden3doptions();
-			    GPO.Pgm.Shift();
-			    if(!GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("No further options allowed after 'defaults'");
+			    Pgm.Shift();
+			    if(!Pgm.EndOfCommand())
+				    IntErrorCurToken("No further options allowed after 'defaults'");
 			    return;
 			    break;
 			case S_HI_OFFSET:
-			    GPO.Pgm.Shift();
-			    hiddenBacksideLinetypeOffset = GPO.IntExpression();
-			    GPO.Pgm.Rollback();
+			    Pgm.Shift();
+			    hiddenBacksideLinetypeOffset = IntExpression();
+			    Pgm.Rollback();
 			    break;
-			case S_HI_NOOFFSET:
-			    hiddenBacksideLinetypeOffset = 0;
-			    break;
+			case S_HI_NOOFFSET: hiddenBacksideLinetypeOffset = 0; break;
 			case S_HI_TRIANGLEPATTERN:
-			    GPO.Pgm.Shift();
-			    hiddenTriangleLinesdrawnPattern = GPO.IntExpression();
-			    GPO.Pgm.Rollback();
+			    Pgm.Shift();
+			    hiddenTriangleLinesdrawnPattern = IntExpression();
+			    Pgm.Rollback();
 			    break;
 			case S_HI_UNDEFINED:
-			    GPO.Pgm.Shift();
-			    tmp = GPO.IntExpression();
+			    Pgm.Shift();
+			    tmp = IntExpression();
 			    if(tmp <= 0 || tmp > UNHANDLED)
 				    tmp = UNHANDLED;
 			    hiddenHandleUndefinedPoints = tmp;
-			    GPO.Pgm.Rollback();
+			    Pgm.Rollback();
 			    break;
-			case S_HI_NOUNDEFINED:
-			    hiddenHandleUndefinedPoints = UNHANDLED;
-			    break;
-			case S_HI_ALTDIAGONAL:
-			    hiddenShowAlternativeDiagonal = 1;
-			    break;
-			case S_HI_NOALTDIAGONAL:
-			    hiddenShowAlternativeDiagonal = 0;
-			    break;
-			case S_HI_BENTOVER:
-			    hiddenHandleBentoverQuadrangles = 1;
-			    break;
-			case S_HI_NOBENTOVER:
-			    hiddenHandleBentoverQuadrangles = 0;
-			    break;
-			case S_HI_BACK:
-			    hidden3d_layer = LAYER_BACK;
-			    break;
-			case S_HI_FRONT:
-			    hidden3d_layer = LAYER_FRONT;
-			    break;
-			case S_HI_INVALID:
-			    GPO.IntErrorCurToken("No such option to hidden3d (or wrong order)");
-			default:
-			    break;
+			case S_HI_NOUNDEFINED: hiddenHandleUndefinedPoints = UNHANDLED; break;
+			case S_HI_ALTDIAGONAL: hiddenShowAlternativeDiagonal = 1; break;
+			case S_HI_NOALTDIAGONAL: hiddenShowAlternativeDiagonal = 0; break;
+			case S_HI_BENTOVER: hiddenHandleBentoverQuadrangles = 1; break;
+			case S_HI_NOBENTOVER: hiddenHandleBentoverQuadrangles = 0; break;
+			case S_HI_BACK: hidden3d_layer = LAYER_BACK; break;
+			case S_HI_FRONT: hidden3d_layer = LAYER_FRONT; break;
+			case S_HI_INVALID: IntErrorCurToken("No such option to hidden3d (or wrong order)");
+			default: break;
 		}
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 	}
 }
 
@@ -421,13 +405,13 @@ static long int make_edge(long vnum1, long vnum2, struct lp_style_type * lp, int
 		if(lp->p_type == PT_ARROWHEAD) thisedge->style = PT_BACKARROW;
 		if(lp->p_type == PT_BACKARROW) thisedge->style = PT_ARROWHEAD;
 	}
-
 	return thisedge - elist;
 }
-
-/* store the edge from vnum1 to vnum2 into the edge list. Ensure that
- * the vertex with higher z is stored in v1, to ease sorting by zmax */
-static long int store_edge(long vnum1, edge_direction direction, long crvlen, struct lp_style_type * lp, int style)
+//
+// store the edge from vnum1 to vnum2 into the edge list. Ensure that
+// the vertex with higher z is stored in v1, to ease sorting by zmax 
+//
+static long store_edge(long vnum1, edge_direction direction, long crvlen, lp_style_type * lp, int style)
 {
 	GpVertex * v1 = vlist + vnum1;
 	GpVertex * v2 = NULL;     /* just in case: initialize... */
@@ -461,19 +445,12 @@ static long int store_edge(long vnum1, edge_direction direction, long crvlen, st
 		    drawbits = 0; /* nothing to draw, but disable check */
 		    break;
 	}
-
 	vnum2 = v2 - vlist;
-
-	if(VERTEX_IS_UNDEFINED(*v1)
-	    || VERTEX_IS_UNDEFINED(*v2)) {
+	if(VERTEX_IS_UNDEFINED(*v1) || VERTEX_IS_UNDEFINED(*v2)) {
 		return -2;
 	}
-
-	if(drawbits &&          /* no bits set: 'blind' edge --> no test! */
-	    !(hiddenTriangleLinesdrawnPattern & drawbits)
-	    )
+	if(drawbits && /* no bits set: 'blind' edge --> no test! */ !(hiddenTriangleLinesdrawnPattern & drawbits))
 		style = LT_NODRAW;
-
 	return make_edge(vnum1, vnum2, lp, style, -1);
 }
 
@@ -574,7 +551,7 @@ static GP_INLINE double intersect_line_plane(GpVertex * v1, GpVertex * v2, t_pla
 
 /* Find the intersection of two lines in 2d space in terms
  * of parameterization u where v = v1 + u * (v2 - v1) */
-static double intersect_line_line(GpVertex * v1, GpVertex * v2, GpVertex * w1, GpVertex * w2)
+static double intersect_line_line(const GpVertex * v1, const GpVertex * v2, const GpVertex * w1, const GpVertex * w2)
 {
 	double numerator = (w2->x - w1->x)*(v1->y - w1->y) - (w2->y - w1->y)*(v1->x - w1->x);
 	if(numerator == 0)
@@ -837,15 +814,15 @@ static void build_networks(surface_points * plots, int pcount)
 	long int i;
 	surface_points * this_plot;
 	int surface;            /* count the surfaces (i.e. sub-plots) */
-	long int crv, ncrvs;    /* count isolines */
-	long int nverts;        /* count vertices */
-	long int max_crvlen;    /* maximal length of isoline in any plot */
-	long int nv, ne, np;    /* local poly/edge/vertex counts */
-	long int * north_polygons; /* stores polygons of isoline above */
-	long int * these_polygons; /* same, being built for use by next turn */
-	long int * north_edges; /* stores edges of polyline above */
-	long int * these_edges; /* same, being built for use by next turn */
-	struct iso_curve * icrvs;
+	long crv, ncrvs;    /* count isolines */
+	long nverts;        /* count vertices */
+	long max_crvlen;    /* maximal length of isoline in any plot */
+	long nv, ne, np;    /* local poly/edge/vertex counts */
+	long * north_polygons; /* stores polygons of isoline above */
+	long * these_polygons; /* same, being built for use by next turn */
+	long * north_edges; /* stores edges of polyline above */
+	long * these_edges; /* same, being built for use by next turn */
+	iso_curve * icrvs;
 	int above = LT_NODRAW;  /* linetype for edges of front side*/
 	int below = LT_NODRAW;  /* linetype for edges of back side*/
 	lp_style_type * lp; /* pointer to line and point properties */
@@ -854,20 +831,20 @@ static void build_networks(surface_points * plots, int pcount)
 	nv = ne = np = 0;
 	max_crvlen = -1;
 	for(this_plot = plots, surface = 0; surface < pcount; this_plot = this_plot->next_sp, surface++) {
-		long int crvlen;
-		/* Quietly skip empty plots */
+		long crvlen;
+		// Quietly skip empty plots 
 		if(this_plot->plot_type == NODATA || this_plot->plot_type == KEYENTRY)
 			continue;
-		/* Allow individual plots to opt out of hidden3d calculations */
+		// Allow individual plots to opt out of hidden3d calculations 
 		if(this_plot->opt_out_of_hidden3d)
 			continue;
 		crvlen = this_plot->iso_crvs->p_count;
-		/* register maximal isocurve length. Only necessary for
-		 * grid-topology plots that will create polygons, so I can do
-		 * it here, already. */
+		// register maximal isocurve length. Only necessary for
+		// grid-topology plots that will create polygons, so I can do
+		// it here, already. 
 		if(crvlen > max_crvlen)
 			max_crvlen = crvlen;
-		/* count 'curves' (i.e. isolines) and vertices in this plot */
+		// count 'curves' (i.e. isolines) and vertices in this plot
 		nverts = 0;
 		if(this_plot->plot_type == FUNC3D) {
 			ncrvs = 0;
@@ -883,18 +860,16 @@ static void build_networks(surface_points * plots, int pcount)
 			else if(this_plot->plot_style == VECTOR)
 				nverts += this_plot->iso_crvs->p_count;
 			else {
-				/* have to check each isoline separately: */
+				// have to check each isoline separately: 
 				for(icrvs = this_plot->iso_crvs; icrvs; icrvs = icrvs->next)
 					nverts += icrvs->p_count;
 			}
 		}
 		else {
-			/* Cannot happen */
-			return;
+			return; // Cannot happen 
 		}
-		/* To avoid possibly surprising error messages, several 2d-only
-		 * plot styles are mapped to others, that are genuinely
-		 * available in 3d. */
+		// To avoid possibly surprising error messages, several 2d-only
+		// plot styles are mapped to others, that are genuinely available in 3d. 
 		switch(this_plot->plot_style) {
 			case PM3DSURFACE:
 			case LINESPOINTS:
@@ -961,51 +936,38 @@ static void build_networks(surface_points * plots, int pcount)
 	/* initialize the lists, all in one large loop. This is different
 	 * from the previous approach, which went over the vertices,
 	 * first, and only then, in new loop, built polygons */
-	for(this_plot = plots, surface = 0;
-	    surface < pcount;
-	    this_plot = this_plot->next_sp, surface++) {
+	for(this_plot = plots, surface = 0; surface < pcount; this_plot = this_plot->next_sp, surface++) {
 		bool color_from_column = this_plot->pm3d_color_from_column;
-		long int crvlen;
-
+		long crvlen;
 		lp = &(this_plot->lp_properties);
-
-		/* Quietly skip empty plots */
+		// Quietly skip empty plots 
 		if(this_plot->plot_type == NODATA || this_plot->plot_type == KEYENTRY)
 			continue;
-
-		/* Allow individual plots to opt out of hidden3d calculations */
+		// Allow individual plots to opt out of hidden3d calculations 
 		if(this_plot->opt_out_of_hidden3d)
 			continue;
-
 		crvlen = this_plot->iso_crvs->p_count;
-
-		/* We can't use the linetype passed to us, because it has been through */
-		/* load_linetype(), which replaced the nominal linetype with the one   */
-		/* assigned by "set linetype ..."                                      */
+		// We can't use the linetype passed to us, because it has been through 
+		// load_linetype(), which replaced the nominal linetype with the one   
+		// assigned by "set linetype ..."                                      
 		above = this_plot->hidden3d_top_linetype;
 		below = above + hiddenBacksideLinetypeOffset;
-
-		/* The "nosurface" flag is interpreted by hidden3d mode to mean */
-		/* "don't draw this surface".  I.e. draw only the contours.	*/
+		// The "nosurface" flag is interpreted by hidden3d mode to mean 
+		// "don't draw this surface".  I.e. draw only the contours.	
 		if(this_plot->opt_out_of_surface)
 			above = below = LT_NODRAW;
-
-		/* This is a special flag indicating that the user specified an	*/
-		/* explicit surface color in the splot command.			*/
+		// This is a special flag indicating that the user specified an	
+		// explicit surface color in the splot command.			
 		if((lp->flags & LP_EXPLICIT_COLOR))
 			below = above;
-
-		/* We will not actually draw PM3D surfaces here, but their      */
-		/* edges can be used to calculate occlusion of lines, including */
-		/* the plot borders. (NB: the PM3D surface will _not_ be hidden */
-		/* by other non-PM3D surfaces.					*/
+		// We will not actually draw PM3D surfaces here, but their      
+		// edges can be used to calculate occlusion of lines, including 
+		// the plot borders. (NB: the PM3D surface will _not_ be hidden 
+		// by other non-PM3D surfaces.					
 		if(this_plot->plot_style == PM3DSURFACE)
 			above = below = LT_NODRAW;
-
-		/* calculate the point symbol type: */
-		/* Assumes that upstream functions have made sure this is
-		 * initialized sensibly --- thou hast been warned */
-
+		// calculate the point symbol type: 
+		// Assumes that upstream functions have made sure this is initialized sensibly --- thou hast been warned 
 		if(this_plot->plot_style == VECTOR) {
 			lp->p_type = PT_ARROWHEAD;
 			if(this_plot->arrow_properties.head == BACKHEAD)
@@ -1017,24 +979,19 @@ static void build_networks(surface_points * plots, int pcount)
 			/* NB: It would not work to apply arrowhead properties now */
 			/* because hidden3d code mixes arrows from multiple plots. */
 		}
-
-		/* HBB 20000715: new initialization code block for non-grid
-		 * structured datasets. Sufficiently different from the rest
-		 * to warrant separate code, I think. */
+		// HBB 20000715: new initialization code block for non-grid
+		// structured datasets. Sufficiently different from the rest
+		// to warrant separate code, I think. 
 		if(!this_plot->has_grid_topology) {
-			for(crv = 0, icrvs = this_plot->iso_crvs;
-			    icrvs;
-			    crv++, icrvs = icrvs->next) {
+			for(crv = 0, icrvs = this_plot->iso_crvs; icrvs; crv++, icrvs = icrvs->next) {
 				struct coordinate * points = icrvs->points;
-				long int previousvertex = -1;
-
-				/* To handle labels we must look inside a separate list */
-				/* rather than just walking through the points arrays.  */
+				long previousvertex = -1;
+				// To handle labels we must look inside a separate list 
+				// rather than just walking through the points arrays.  
 				if(this_plot->plot_style == LABELPOINTS) {
-					struct text_label * label;
-					long int thisvertex;
+					text_label * label;
+					long thisvertex;
 					struct coordinate labelpoint;
-
 					lp->flags |= LP_SHOW_POINTS; /* Labels can use the code for hidden points */
 					labelpoint.type = INRANGE;
 					for(label = this_plot->labels->next; label != NULL; label = label->next) {
@@ -1045,7 +1002,6 @@ static void build_networks(surface_points * plots, int pcount)
 							labelpoint.CRD_COLOR = label->textcolor.value;
 						else
 							labelpoint.CRD_COLOR = label->textcolor.lt;
-
 						thisvertex = store_vertex(&labelpoint, lp, color_from_column);
 						if(thisvertex < 0)
 							continue;
@@ -1054,24 +1010,20 @@ static void build_networks(surface_points * plots, int pcount)
 					}
 				}
 				else for(i = 0; i < icrvs->p_count; i++) {
-						long int thisvertex, basevertex;
+						long thisvertex, basevertex;
 						int interval = this_plot->lp_properties.p_interval;
-
-						/* NULL lp means don't draw a point at this vertex */
+						// NULL lp means don't draw a point at this vertex 
 						if(this_plot->plot_style == LINESPOINTS && interval && (i % interval))
 							thisvertex = store_vertex(points + i, NULL, color_from_column);
 						else
 							thisvertex = store_vertex(points + i, lp, color_from_column);
-
 						if(this_plot->plot_style == VECTOR) {
 							store_vertex(icrvs->next->points+i, 0, 0);
 						}
-
 						if(thisvertex < 0) {
 							previousvertex = thisvertex;
 							continue;
 						}
-
 						switch(this_plot->plot_style) {
 							case PM3DSURFACE:
 							case LINESPOINTS:
@@ -1091,10 +1043,8 @@ static void build_networks(surface_points * plots, int pcount)
 							    /* set second vertex to the low end of zrange */
 						    {
 							    coordval remember_z = points[i].z;
-
 							    points[i].z = GPO.AxS[FIRST_Z_AXIS].min;
-							    basevertex = store_vertex(points + i, lp,
-								    color_from_column);
+							    basevertex = store_vertex(points + i, lp, color_from_column);
 							    points[i].z = remember_z;
 						    }
 							    if(basevertex > 0)
@@ -1105,10 +1055,8 @@ static void build_networks(surface_points * plots, int pcount)
 							    /* set second vertex to z=0 */
 						    {
 							    coordval remember_z = points[i].z;
-
 							    points[i].z = 0.0;
-							    basevertex = store_vertex(points + i, lp,
-								    color_from_column);
+							    basevertex = store_vertex(points + i, lp, color_from_column);
 							    points[i].z = remember_z;
 						    }
 							    if(basevertex > 0)
@@ -1126,30 +1074,17 @@ static void build_networks(surface_points * plots, int pcount)
 							    store_edge(thisvertex, edir_point, crvlen, lp, above);
 							    break;
 						} /* switch(plot_style) */
-
 						previousvertex = thisvertex;
 					}/* for(vertex) */
 			} /* for(crv) */
-
 			continue; /* done with this plot! */
 		}
-
-		/* initialize stored indices of north-of-this-isoline polygons and
-		 * edges properly */
+		// initialize stored indices of north-of-this-isoline polygons and edges properly 
 		for(i = 0; i < this_plot->iso_crvs->p_count; i++) {
-			north_polygons[2 * i]
-				= north_polygons[2 * i + 1]
-				    = north_edges[3 * i]
-					= north_edges[3 * i + 1]
-					    = north_edges[3 * i + 2]
-						= -3;
+			north_polygons[2 * i] = north_polygons[2 * i + 1] = north_edges[3 * i] = north_edges[3 * i + 1] = north_edges[3 * i + 2] = -3;
 		}
-
-		for(crv = 0, icrvs = this_plot->iso_crvs;
-		    icrvs;
-		    crv++, icrvs = icrvs->next) {
+		for(crv = 0, icrvs = this_plot->iso_crvs; icrvs; crv++, icrvs = icrvs->next) {
 			struct coordinate * points = icrvs->points;
-
 			for(i = 0; i < icrvs->p_count; i++) {
 				long int thisvertex, basevertex;
 				long int e1, e2, e3;
@@ -1344,28 +1279,27 @@ static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 
 static void sort_edges_by_z()
 {
-	long * sortarray, i;
-	p_edge p_this;
-	if(!edges.end)
-		return;
-	sortarray = (long *)gp_alloc(sizeof(long) * edges.end, "hidden sort edges");
-	/* initialize sortarray with an identity mapping */
-	for(i = 0; i < edges.end; i++)
-		sortarray[i] = i;
-	/* sort it */
-	qsort(sortarray, (size_t)edges.end, sizeof(long), compare_edges_by_zmin);
-
-	/* traverse plist in the order given by sortarray, and set the
-	 * 'next' pointers */
-	p_this = elist + sortarray[0];
-	for(i = 1; i < edges.end; i++) {
-		p_this->next = sortarray[i];
-		p_this = elist + sortarray[i];
+	if(edges.end) {
+		long i;
+		long * sortarray = (long *)gp_alloc(sizeof(long) * edges.end, "hidden sort edges");
+		// initialize sortarray with an identity mapping 
+		for(i = 0; i < edges.end; i++)
+			sortarray[i] = i;
+		// sort it 
+		qsort(sortarray, (size_t)edges.end, sizeof(long), compare_edges_by_zmin);
+		{
+			// traverse plist in the order given by sortarray, and set the 'next' pointers 
+			p_edge p_this = elist + sortarray[0];
+			for(i = 1; i < edges.end; i++) {
+				p_this->next = sortarray[i];
+				p_this = elist + sortarray[i];
+			}
+			p_this->next = -1L;
+		}
+		// 'efirst' is the index of the leading element of plist 
+		efirst = sortarray[0];
+		SAlloc::F(sortarray);
 	}
-	p_this->next = -1L;
-	/* 'efirst' is the index of the leading element of plist */
-	efirst = sortarray[0];
-	SAlloc::F(sortarray);
 }
 
 static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
@@ -1375,54 +1309,52 @@ static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 
 static void sort_polys_by_z()
 {
-	long * sortarray, i;
-	p_polygon p_this;
-	if(!polygons.end)
-		return;
-	sortarray = (long *)gp_alloc(sizeof(long) * polygons.end, "hidden sortarray");
-	/* initialize sortarray with an identity mapping */
-	for(i = 0; i < polygons.end; i++)
-		sortarray[i] = i;
-	/* sort it */
-	qsort(sortarray, (size_t)polygons.end, sizeof(long), compare_polys_by_zmax);
-	/* traverse plist in the order given by sortarray, and set the
-	 * 'next' pointers */
-	/* HBB 20000716: Loop backwards, to ease construction of
-	 * linked lists from the head: */
-	{
-		int grid_x, grid_y;
-		int grid_x_low, grid_x_high, grid_y_low, grid_y_high;
-		for(grid_x = 0; grid_x < QUADTREE_GRANULARITY; grid_x++)
-			for(grid_y = 0; grid_y < QUADTREE_GRANULARITY; grid_y++)
-				quadtree[grid_x][grid_y] = -1;
-
-		for(i = polygons.end - 1; i >= 0; i--) {
-			p_this = plist + sortarray[i];
-			grid_x_low = coord_to_treecell(p_this->xmin);
-			grid_x_high = coord_to_treecell(p_this->xmax);
-			grid_y_low = coord_to_treecell(p_this->ymin);
-			grid_y_high = coord_to_treecell(p_this->ymax);
-			for(grid_x = grid_x_low; grid_x <= grid_x_high; grid_x++) {
-				for(grid_y = grid_y_low; grid_y <= grid_y_high; grid_y++) {
-					p_qtreelist newhead = (p_qtreelist)nextfrom_dynarray(&qtree);
-					newhead->next = quadtree[grid_x][grid_y];
-					newhead->p = sortarray[i];
-					quadtree[grid_x][grid_y] = newhead - qlist;
+	long i;
+	if(polygons.end) {
+		long * sortarray = (long *)gp_alloc(sizeof(long) * polygons.end, "hidden sortarray");
+		// initialize sortarray with an identity mapping 
+		for(i = 0; i < polygons.end; i++)
+			sortarray[i] = i;
+		// sort it 
+		qsort(sortarray, (size_t)polygons.end, sizeof(long), compare_polys_by_zmax);
+		// traverse plist in the order given by sortarray, and set the
+		// 'next' pointers 
+		// HBB 20000716: Loop backwards, to ease construction of
+		// linked lists from the head: 
+		{
+			int grid_x;
+			int grid_y;
+			for(grid_x = 0; grid_x < QUADTREE_GRANULARITY; grid_x++)
+				for(grid_y = 0; grid_y < QUADTREE_GRANULARITY; grid_y++)
+					quadtree[grid_x][grid_y] = -1;
+			for(i = polygons.end - 1; i >= 0; i--) {
+				p_polygon p_this = plist + sortarray[i];
+				int grid_x_low = coord_to_treecell(p_this->xmin);
+				int grid_x_high = coord_to_treecell(p_this->xmax);
+				int grid_y_low = coord_to_treecell(p_this->ymin);
+				int grid_y_high = coord_to_treecell(p_this->ymax);
+				for(grid_x = grid_x_low; grid_x <= grid_x_high; grid_x++) {
+					for(grid_y = grid_y_low; grid_y <= grid_y_high; grid_y++) {
+						p_qtreelist newhead = (p_qtreelist)nextfrom_dynarray(&qtree);
+						newhead->next = quadtree[grid_x][grid_y];
+						newhead->p = sortarray[i];
+						quadtree[grid_x][grid_y] = newhead - qlist;
+					}
 				}
 			}
 		}
+		pfirst = sortarray[0];
+		SAlloc::F(sortarray);
 	}
-	pfirst = sortarray[0];
-	SAlloc::F(sortarray);
 }
-
-/************************************************/
-/*******            Drawing the polygons ********/
-/************************************************/
-
-/* draw a single vertex as a point symbol, if requested by the chosen
- * plot style (linespoints, points, or dots...) */
-static void draw_vertex(GpVertex * v)
+//
+// Drawing the polygons
+//
+//
+// draw a single vertex as a point symbol, if requested by the chosen
+// plot style (linespoints, points, or dots...) 
+//
+static void draw_vertex(termentry * pTerm, GpVertex * v)
 {
 	int x, y;
 	int p_type;
@@ -1433,24 +1365,24 @@ static void draw_vertex(GpVertex * v)
 	if((p_type >= -1 || p_type == PT_CHARACTER || p_type == PT_VARIABLE || p_type == PT_CIRCLE) && !GPO.V.ClipPoint(x, y)) {
 		t_colorspec * tc = &(v->lp_style->pm3d_color);
 		if(v->label) {
-			write_label(term, x, y, v->label);
+			write_label(pTerm, x, y, v->label);
 			v->lp_style = NULL;
 			return;
 		}
 		if(tc->type == TC_LINESTYLE && tc->lt == LT_COLORFROMCOLUMN) {
 			lp_style_type style = *(v->lp_style);
-			load_linetype(&style, (int)v->real_z);
+			load_linetype(pTerm, &style, (int)v->real_z);
 			tc = &style.pm3d_color;
-			apply_pm3dcolor(term, tc);
+			GPO.ApplyPm3DColor(pTerm, tc);
 		}
 		else if(tc->type == TC_RGB && tc->lt == LT_COLORFROMCOLUMN)
 			set_rgbcolor_var((uint)v->real_z);
 		else if(tc->type == TC_RGB)
 			set_rgbcolor_const(tc->lt);
 		else if(tc->type == TC_CB)
-			set_color(term, cb2gray(v->real_z));
+			set_color(pTerm, GPO.Cb2Gray(v->real_z));
 		else if(tc->type == TC_Z)
-			set_color(term, cb2gray(v->real_z));
+			set_color(pTerm, GPO.Cb2Gray(v->real_z));
 		if(p_type == PT_CIRCLE) {
 			const double radius = v->original->CRD_PTSIZE * radius_scaler;
 			do_arc(x, y, radius, 0., 360.0, style_from_fill(&default_fillstyle), FALSE);
@@ -1460,13 +1392,13 @@ static void draw_vertex(GpVertex * v)
 			return;
 		}
 		if(v->lp_style->p_size == PTSZ_VARIABLE)
-			(term->pointsize)(pointsize * v->original->CRD_PTSIZE);
+			(pTerm->pointsize)(pointsize * v->original->CRD_PTSIZE);
 		if(p_type == PT_CHARACTER)
-			(term->put_text)(x, y, v->lp_style->p_char);
+			(pTerm->put_text)(x, y, v->lp_style->p_char);
 		else if(p_type == PT_VARIABLE)
-			(term->point)(x, y, (int)(v->original->CRD_PTTYPE) - 1);
+			(pTerm->point)(x, y, (int)(v->original->CRD_PTTYPE) - 1);
 		else
-			(term->point)(x, y, p_type);
+			(pTerm->point)(x, y, p_type);
 		// vertex has been drawn --> flag it as done 
 		v->lp_style = NULL;
 	}
@@ -1476,10 +1408,9 @@ static void draw_vertex(GpVertex * v)
 //
 static void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2)
 {
-	/* It used to be that e contained style as a integer linetype.
-	 * This destroyed any style attributes set in the splot command.
-	 * We really just want to extract a colorspec.
-	 */
+	// It used to be that e contained style as a integer linetype.
+	// This destroyed any style attributes set in the splot command.
+	// We really just want to extract a colorspec.
 	t_colorspec color = e->lp->pm3d_color;
 	lp_style_type lptemp = *(e->lp);
 	bool recolor = FALSE;
@@ -1494,37 +1425,26 @@ static void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2)
 		recolor = TRUE;
 		lptemp.pm3d_color.lt = varcolor;
 	}
-	else
-	// This handles explicit 'lc rgb' in the plot command 
-	if(color.type == TC_RGB && (lptemp.flags & LP_EXPLICIT_COLOR)) {
+	else if(color.type == TC_RGB && (lptemp.flags & LP_EXPLICIT_COLOR)) { // This handles explicit 'lc rgb' in the plot command 
 		recolor = TRUE;
 	}
 	else if(color.type == TC_RGB && e->lp == &border_lp) {
 		lptemp.pm3d_color.lt = varcolor;
 	}
-	else
-	// This handles 'lc variable' 
-	if(lptemp.l_type == LT_COLORFROMCOLUMN) {
+	else if(lptemp.l_type == LT_COLORFROMCOLUMN) { // This handles 'lc variable' 
 		recolor = TRUE;
-		load_linetype(&lptemp, varcolor);
+		load_linetype(term, &lptemp, varcolor);
 	}
-	else
-	/* This handles style VECTORS */
-	if(arrow) {
+	else if(arrow) { // This handles style VECTORS 
 		lptemp.p_type = e->style;
 	}
-	else
-	/* This is the default style: color top and bottom in successive colors */
-	if((hiddenBacksideLinetypeOffset != 0) && (e->lp->pm3d_color.type != TC_Z)) {
+	else if((hiddenBacksideLinetypeOffset != 0) && (e->lp->pm3d_color.type != TC_Z)) { // This is the default style: color top and bottom in successive colors 
 		recolor = TRUE;
-		load_linetype(&lptemp, e->style + 1);
+		load_linetype(term, &lptemp, e->style + 1);
 		color = lptemp.pm3d_color;
 	}
-	/* The remaining case is hiddenBacksideLinetypeOffset == 0  */
-	/* in which case we assume the correct color is already set */
-	else
+	else // The remaining case is hiddenBacksideLinetypeOffset == 0 in which case we assume the correct color is already set 
 		;
-
 	if(recolor) {
 		color = lptemp.pm3d_color;
 		lptemp = *(e->lp);
@@ -1532,12 +1452,11 @@ static void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2)
 		if(arrow)
 			lptemp.p_type = e->style;
 	}
-
-	/* Only the original tip of an arrow should show an arrowhead */
-	/* FIXME:  Arrowhead lines are not themselves subject to hidden line removal */
+	// Only the original tip of an arrow should show an arrowhead 
+	// FIXME:  Arrowhead lines are not themselves subject to hidden line removal 
 	if(arrow) {
-		/* FIXME: e->lp points to this_plot->lp_properties but what we need is */
-		/* a pointer to the immediately following field e->arrow_properties.   */
+		// FIXME: e->lp points to this_plot->lp_properties but what we need is 
+		// a pointer to the immediately following field e->arrow_properties.   
 		lp_style_type * lp = e->lp;
 		arrow_style_type * as = (arrow_style_type*)(&lp[1]);
 		apply_head_properties(as);
@@ -1560,10 +1479,10 @@ static void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2)
 				lptemp.p_type = PT_ARROWHEAD;
 		}
 	}
-	draw3d_line_unconditional(term, v1, v2, &lptemp, color);
+	GPO.Draw3DLineUnconditional(term, v1, v2, &lptemp, color);
 	if((e->lp->flags & LP_SHOW_POINTS)) {
-		draw_vertex(v1);
-		draw_vertex(v2);
+		draw_vertex(term, v1);
+		draw_vertex(term, v2);
 	}
 }
 
@@ -1633,12 +1552,10 @@ static GP_INLINE double area2D(GpVertex * v1, GpVertex * v2, GpVertex * v3)
  * the edge, so Test 2 will catch on even after the subject edge has
  * been split up before one of its two polygons is tested against it. */
 
-static int in_front(long edgenum,               /* number of the edge in elist */
-    long vnum1, long vnum2,     /* numbers of its endpoints */
-    long * firstpoly)            /* first plist index to consider */
+static int in_front(long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */)
 {
 	p_polygon p;            /* pointer to current testing polygon */
-	long int polynum;       /* ... and its index in the plist */
+	long polynum;       /* ... and its index in the plist */
 	GpVertex * v1;
 	GpVertex * v2; /* pointers to vertices of input edge */
 	coordval xmin, xmax;    /* all of these are for the edge */
@@ -1648,16 +1565,13 @@ static int in_front(long edgenum,               /* number of the edge in elist *
 	int grid_x_low, grid_x_high;
 	int grid_y_low, grid_y_high;
 	long listhead;
-
 	/* zmin of the edge, as it started out. This is needed separately to
 	 * allow modifying '*firstpoly', without moving it too far to the
 	 * front. */
 	coordval first_zmin;
-
 	/* Keep track of number of vertices before the process and compare
 	 * at end of process to know how many vertices to remove. */
 	long enter_vertices;
-
 	/* macro for eliminating tail-recursion inside in_front: when the
 	 * current edge is modified, recompute all function-wide status
 	 * variables. Note that it guarantees that v1 is always closer to
@@ -1721,14 +1635,8 @@ static int in_front(long edgenum,               /* number of the edge in elist *
 
 				/* Test 1 (2D): minimax tests. Do x/y ranges of polygon
 				 * and edge have any overlap? */
-				if(0
-				    || (p->xmax < xmin)
-				    || (p->xmin > xmax)
-				    || (p->ymax < ymin)
-				    || (p->ymin > ymax)
-				    )
+				if(0 || (p->xmax < xmin) || (p->xmin > xmax) || (p->ymax < ymin) || (p->ymin > ymax))
 					continue;
-
 				/* Tests 2 and 3 switched... */
 
 				/* Test 3 (3D): Is edge completely in front of polygon? */
@@ -1748,17 +1656,8 @@ static int in_front(long edgenum,               /* number of the edge in elist *
 				/* 20001108: to make this rejector more effective, do keep
 				 * the original edge vertices unchanged */
 				if(1
-				    && (0
-				    || (p->vertex[0] == elist[edgenum].v1)
-				    || (p->vertex[1] == elist[edgenum].v1)
-				    || (p->vertex[2] == elist[edgenum].v1)
-				    )
-				    && (0
-				    || (p->vertex[0] == elist[edgenum].v2)
-				    || (p->vertex[1] == elist[edgenum].v2)
-				    || (p->vertex[2] == elist[edgenum].v2)
-				    )
-				    )
+				    && (0 || (p->vertex[0] == elist[edgenum].v1) || (p->vertex[1] == elist[edgenum].v1) || (p->vertex[2] == elist[edgenum].v1))
+				    && (0 || (p->vertex[0] == elist[edgenum].v2) || (p->vertex[1] == elist[edgenum].v2) || (p->vertex[2] == elist[edgenum].v2)))
 					continue;
 
 				w1 = vlist + p->vertex[0];
@@ -1899,64 +1798,64 @@ static int in_front(long edgenum,               /* number of the edge in elist *
 	/* Came here, so there's something left of this edge, which needs
 	 * to be drawn.  But the vertices are different, now, so copy our
 	 * new vertices back into 'e' */
-
 	draw_edge(elist + edgenum, vlist + vnum1, vlist + vnum2);
-
 	while(vertices.end > enter_vertices)
 		droplast_dynarray(&vertices);
-
 	return 1;
 }
-
-/* HBB 20000617: reimplemented this routine from scratch */
-/* Externally callable function to draw a line, but hide it behind the
- * visible surface. */
-/* NB: The p_vertex arguments are not allowed to be pointers into the
- * hidden3d 'vlist' structure. If they are, they may become invalid
- * before they're used, because of the nextfrom_dynarray() call. */
+// 
+// HBB 20000617: reimplemented this routine from scratch */
+// Externally callable function to draw a line, but hide it behind the
+// visible surface. 
+// NB: The p_vertex arguments are not allowed to be pointers into the
+// hidden3d 'vlist' structure. If they are, they may become invalid
+// before they're used, because of the nextfrom_dynarray() call. 
+// 
 void draw_line_hidden(GpVertex * v1, GpVertex * v2/* pointers to the end vertices */, lp_style_type * lp/* line and point style to draw in */)
 {
-	long int vstore1, vstore2;
-	long int edgenum;
-	long int temp_pfirst;
-	/* If no polygons have been stored, nothing can be hidden, and we
-	 * can't use in_front() because the datastructures are partly
-	 * invalid. So just draw the line and be done with it */
+	long vstore1, vstore2;
+	long edgenum;
+	long temp_pfirst;
+	// If no polygons have been stored, nothing can be hidden, and we
+	// can't use in_front() because the datastructures are partly
+	// invalid. So just draw the line and be done with it 
 	if(!polygons.end) {
-		draw3d_line_unconditional(term, v1, v2, lp, lp->pm3d_color);
-		return;
-	}
-	/* Copy two vertices into hidden3d arrays: */
-	nextfrom_dynarray(&vertices);
-	vstore1 = vertices.end - 1;
-	vlist[vstore1] = *v1;
-	if(v2) {
-		vlist[vstore1].lp_style = NULL;
-		nextfrom_dynarray(&vertices);
-		vstore2 = vertices.end - 1;
-		vlist[vstore2] = *v2;
-		vlist[vstore2].lp_style = NULL;
+		GPO.Draw3DLineUnconditional(term, v1, v2, lp, lp->pm3d_color);
 	}
 	else {
-		/* v2 == NULL --> this is a point symbol to be drawn. Make two
-		 * vertex pointers the same, and set up the 'style' field */
-		vstore2 = vstore1;
-		vlist[vstore2].lp_style = lp;
-	}
-	/* store the edge into the hidden3d datastructures */
-	edgenum = make_edge(vstore1, vstore2, lp, lp->l_type, -1);
-	/* remove hidden portions of the line, and draw what remains */
-	temp_pfirst = pfirst;
-	in_front(edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
-	/* release allocated storage slots: */
-	droplast_dynarray(&edges);
-	droplast_dynarray(&vertices);
-	if(v2)
+		// Copy two vertices into hidden3d arrays: 
+		nextfrom_dynarray(&vertices);
+		vstore1 = vertices.end - 1;
+		vlist[vstore1] = *v1;
+		if(v2) {
+			vlist[vstore1].lp_style = NULL;
+			nextfrom_dynarray(&vertices);
+			vstore2 = vertices.end - 1;
+			vlist[vstore2] = *v2;
+			vlist[vstore2].lp_style = NULL;
+		}
+		else {
+			// v2 == NULL --> this is a point symbol to be drawn. Make two
+			// vertex pointers the same, and set up the 'style' field 
+			vstore2 = vstore1;
+			vlist[vstore2].lp_style = lp;
+		}
+		// store the edge into the hidden3d datastructures 
+		edgenum = make_edge(vstore1, vstore2, lp, lp->l_type, -1);
+		// remove hidden portions of the line, and draw what remains 
+		temp_pfirst = pfirst;
+		in_front(edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
+		// release allocated storage slots: 
+		droplast_dynarray(&edges);
 		droplast_dynarray(&vertices);
+		if(v2)
+			droplast_dynarray(&vertices);
+	}
 }
-
-/* Externally callable function to draw a label, but hide it behind any
- * visible occluding surfaces. */
+//
+// Externally callable function to draw a label, but hide it behind any
+// visible occluding surfaces. 
+//
 void draw_label_hidden(GpVertex * v, struct lp_style_type * lp, int x, int y)
 {
 	long thisvertex, edgenum, temp_pfirst;
@@ -2005,8 +1904,7 @@ void plot3d_hidden(surface_points * plots, int pcount)
 		temporary_pfirst = pfirst;
 		while(efirst >=0) {
 			if(elist[efirst].style != LT_NODRAW) /* skip invisible edges */
-				in_front(efirst, elist[efirst].v1, elist[efirst].v2,
-				    &temporary_pfirst);
+				in_front(efirst, elist[efirst].v1, elist[efirst].v2, &temporary_pfirst);
 			efirst = elist[efirst].next;
 		}
 	}

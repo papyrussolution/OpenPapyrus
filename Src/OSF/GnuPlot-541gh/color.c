@@ -96,7 +96,7 @@ int GnuPlot::MakePalette()
 			// fill SmPltt.color[]  
 			for(i = 0; i < SmPltt.Colors; i++) {
 				const double gray = (double)i / (SmPltt.Colors - 1); /* rescale to [0;1] */
-				rgb1_from_gray(gray, &(SmPltt.P_Color[i]) );
+				Rgb1FromGray(gray, &(SmPltt.P_Color[i]) );
 			}
 			// let the terminal make the palette from the supplied RGB triplets 
 			term->make_palette(&SmPltt);
@@ -133,7 +133,7 @@ void set_rgbcolor_var(uint rgbvalue)
 	//color.type = TC_RGB;
 	//*(uint*)(&color.lt) = rgbvalue;
 	//color.value = -1; /* -1 flags that this came from "rgb variable" */
-	apply_pm3dcolor(term, &color);
+	GPO.ApplyPm3DColor(term, &color);
 }
 
 void set_rgbcolor_const(uint rgbvalue)
@@ -142,7 +142,7 @@ void set_rgbcolor_const(uint rgbvalue)
 	//color.type = TC_RGB;
 	//*(uint*)(&color.lt) = rgbvalue;
 	//color.value = 0; /* 0 flags that this is a constant color */
-	apply_pm3dcolor(term, &color);
+	GPO.ApplyPm3DColor(term, &color);
 }
 // 
 // diagnose the palette gradient in three types.
@@ -380,7 +380,7 @@ static void draw_inside_colorbox_bitmap_smooth()
 		xy2 = xy_from + (int)(xy_step * (i + 1));
 		gray = i / (double)steps;
 		if(GPO.SmPltt.UseMaxColors != 0) {
-			gray = quantize_gray(gray);
+			gray = GPO.QuantizeGray(gray);
 		}
 		if(GPO.SmPltt.Positive == SMPAL_NEGATIVE)
 			gray = 1 - gray;
@@ -401,7 +401,7 @@ static void draw_inside_colorbox_bitmap_smooth()
 
 static void cbtick_callback(GpAxis * this_axis, double place, char * text, int ticlevel, struct lp_style_type grid/* linetype or -2 for no grid */, struct ticmark * userlabels)
 {
-	int len = tic_scale(ticlevel, this_axis) * (this_axis->tic_in ? -1 : 1) * (term->h_tic);
+	int len = tic_scale(ticlevel, this_axis) * (this_axis->tic_in ? -1 : 1) * (term->TicH);
 	uint x1, y1, x2, y2;
 	double cb_place;
 	// position of tic as a fraction of the full palette range 
@@ -425,7 +425,7 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 	}
 	// draw grid line 
 	if(grid.l_type > LT_NODRAW) {
-		term_apply_lp_properties(term, &grid); /* grid linetype */
+		GPO.TermApplyLpProperties(term, &grid); /* grid linetype */
 		if(color_box.rotation == 'h') {
 			(*term->move)(x1, color_box.bounds.ybot);
 			(*term->vector)(x1, color_box.bounds.ytop);
@@ -434,7 +434,7 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 			(*term->move)(color_box.bounds.xleft, y1);
 			(*term->vector)(color_box.bounds.xright, y1);
 		}
-		term_apply_lp_properties(term, &border_lp); /* border linetype */
+		GPO.TermApplyLpProperties(term, &border_lp); /* border linetype */
 	}
 	// draw tic 
 	if(len != 0) {
@@ -444,7 +444,7 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 		if(lt > 0) {
 			lp_style_type lp = border_lp;
 			lp_use_properties(&lp, lt);
-			term_apply_lp_properties(term, &lp);
+			GPO.TermApplyLpProperties(term, &lp);
 		}
 		(*term->move)(x1, y1);
 		(*term->vector)(x2, y2);
@@ -461,13 +461,13 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 			(*term->vector)(x2, y2);
 		}
 		if(lt != 0)
-			term_apply_lp_properties(term, &border_lp);
+			GPO.TermApplyLpProperties(term, &border_lp);
 	}
 	// draw label 
 	if(text) {
 		int just;
 		int offsetx, offsety;
-		/* Skip label if we've already written a user-specified one here */
+		// Skip label if we've already written a user-specified one here 
 #define MINIMUM_SEPARATION 0.001
 		while(userlabels) {
 			if(fabs((place - userlabels->position) / (GPO.AxS.__CB().max - GPO.AxS.__CB().min)) <= MINIMUM_SEPARATION) {
@@ -481,9 +481,9 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 		GPO.Map3DPositionR(&(this_axis->ticdef.offset), &offsetx, &offsety, "cbtics");
 		// User-specified different color for the tics text 
 		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			apply_pm3dcolor(term, &(this_axis->ticdef.textcolor));
+			GPO.ApplyPm3DColor(term, &(this_axis->ticdef.textcolor));
 		if(color_box.rotation == 'h') {
-			int y3 = color_box.bounds.ybot - (term->v_char);
+			int y3 = color_box.bounds.ybot - (term->ChrV);
 			int hrotate = 0;
 			if(this_axis->tic_rotate && (*term->text_angle)(this_axis->tic_rotate))
 				hrotate = this_axis->tic_rotate;
@@ -492,68 +492,69 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 			just = hrotate ? LEFT : CENTRE;
 			if(this_axis->manual_justify)
 				just = this_axis->tic_pos;
-			write_multiline(x2+offsetx, y3+offsety, text, (JUSTIFY)just, JUST_CENTRE, hrotate, this_axis->ticdef.font);
+			write_multiline(term, x2+offsetx, y3+offsety, text, (JUSTIFY)just, JUST_CENTRE, hrotate, this_axis->ticdef.font);
 			if(hrotate)
 				(*term->text_angle)(0);
 		}
 		else {
-			uint x3 = color_box.bounds.xright + (term->h_char);
+			uint x3 = color_box.bounds.xright + (term->ChrH);
 			if(len > 0) 
 				x3 += len; // add outer tics len 
 			just = LEFT;
 			if(this_axis->manual_justify)
 				just = this_axis->tic_pos;
-			write_multiline(x3+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0.0, this_axis->ticdef.font);
+			write_multiline(term, x3+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0.0, this_axis->ticdef.font);
 		}
-		term_apply_lp_properties(term, &border_lp); /* border linetype */
+		GPO.TermApplyLpProperties(term, &border_lp); /* border linetype */
 	}
 }
 // 
 // Finally the main colour smooth box drawing routine
 // 
-void draw_color_smooth_box(int plot_mode)
+//void draw_color_smooth_box(termentry * pTerm, int plot_mode)
+void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 {
 	if(color_box.where == SMCOLOR_BOX_NO)
 		return;
-	if(!term->filled_polygon)
+	if(!pTerm->filled_polygon)
 		return;
-	/*
-	   firstly, choose some good position of the color box
-
-	   user's position like that (?):
-	   else {
-	   x_from = color_box.xlow;
-	   x_to   = color_box.xhigh;
-	   }
-	 */
+	// 
+	// firstly, choose some good position of the color box
+	// 
+	// user's position like that (?):
+	// else {
+	// x_from = color_box.xlow;
+	// x_to   = color_box.xhigh;
+	// }
+	// 
 	if(color_box.where == SMCOLOR_BOX_USER) {
 		if(!is_3d_plot) {
 			double xtemp, ytemp;
-			GPO.MapPosition(term, &color_box.origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
-			GPO.MapPositionR(term, &color_box.size, &xtemp, &ytemp, "cbox");
+			MapPosition(pTerm, &color_box.origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
+			MapPositionR(pTerm, &color_box.size, &xtemp, &ytemp, "cbox");
 			color_box.bounds.xright = xtemp;
 			color_box.bounds.ytop = ytemp;
 		}
 		else if(splot_map && is_3d_plot) {
 			// In map view mode we allow any coordinate system for placement 
 			double xtemp, ytemp;
-			GPO.Map3DPositionDouble(&color_box.origin, &xtemp, &ytemp, "cbox");
+			Map3DPositionDouble(&color_box.origin, &xtemp, &ytemp, "cbox");
 			color_box.bounds.xleft = xtemp;
 			color_box.bounds.ybot = ytemp;
-			GPO.Map3DPositionR(&color_box.size, &color_box.bounds.xright, &color_box.bounds.ytop, "cbox");
+			Map3DPositionR(&color_box.size, &color_box.bounds.xright, &color_box.bounds.ytop, "cbox");
 		}
 		else {
-			/* But in full 3D mode we only allow screen coordinates */
-			color_box.bounds.xleft = color_box.origin.x * (term->xmax) + 0.5;
-			color_box.bounds.ybot = color_box.origin.y * (term->ymax) + 0.5;
-			color_box.bounds.xright = color_box.size.x * (term->xmax-1) + 0.5;
-			color_box.bounds.ytop = color_box.size.y * (term->ymax-1) + 0.5;
+			// But in full 3D mode we only allow screen coordinates 
+			color_box.bounds.xleft = color_box.origin.x * (pTerm->xmax) + 0.5;
+			color_box.bounds.ybot = color_box.origin.y * (pTerm->ymax) + 0.5;
+			color_box.bounds.xright = color_box.size.x * (pTerm->xmax-1) + 0.5;
+			color_box.bounds.ytop = color_box.size.y * (pTerm->ymax-1) + 0.5;
 		}
 		color_box.bounds.xright += color_box.bounds.xleft;
 		color_box.bounds.ytop += color_box.bounds.ybot;
 	}
-	else { /* color_box.where == SMCOLOR_BOX_DEFAULT */
-		if(plot_mode == MODE_SPLOT && !splot_map) {
+	else { // color_box.where == SMCOLOR_BOX_DEFAULT 
+		if(plotMode == MODE_SPLOT && !splot_map) {
 			// general 3D plot 
 			color_box.bounds.xleft = xmiddle + 0.709 * xscaler;
 			color_box.bounds.xright   = xmiddle + 0.778 * xscaler;
@@ -565,21 +566,21 @@ void draw_color_smooth_box(int plot_mode)
 			GpPosition default_origin = {graph, graph, graph, 1.025, 0, 0};
 			GpPosition default_size = {graph, graph, graph, 0.05, 1.0, 0};
 			double xtemp, ytemp;
-			GPO.MapPosition(term, &default_origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
+			MapPosition(pTerm, &default_origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
 			color_box.bounds.xleft += color_box.xoffset;
-			GPO.MapPositionR(term, &default_size, &xtemp, &ytemp, "cbox");
+			MapPositionR(pTerm, &default_size, &xtemp, &ytemp, "cbox");
 			color_box.bounds.xright = xtemp + color_box.bounds.xleft;
 			color_box.bounds.ytop = ytemp + color_box.bounds.ybot;
 		}
 		// now corrections for outer tics 
 		if(color_box.rotation == 'v') {
-			int cblen = static_cast<int>((GPO.AxS.__CB().tic_in ? -1 : 1) * GPO.AxS.__CB().ticscale * (term->h_tic)); // positive for outer tics 
-			int ylen  = static_cast<int>((GPO.AxS.__Y().tic_in ? -1 : 1) * GPO.AxS.__Y().ticscale * (term->h_tic)); // positive for outer tics 
-			if((cblen > 0) && (GPO.AxS.__CB().ticmode & TICS_MIRROR)) {
+			int cblen = static_cast<int>((AxS.__CB().tic_in ? -1 : 1) * AxS.__CB().ticscale * (pTerm->TicH)); // positive for outer tics 
+			int ylen  = static_cast<int>((AxS.__Y().tic_in ? -1 : 1) * AxS.__Y().ticscale * (pTerm->TicH)); // positive for outer tics 
+			if((cblen > 0) && (AxS.__CB().ticmode & TICS_MIRROR)) {
 				color_box.bounds.xleft += cblen;
 				color_box.bounds.xright += cblen;
 			}
-			if((ylen > 0) && (GPO.AxS[FIRST_Y_AXIS].ticmode & TICS_MIRROR)) {
+			if((ylen > 0) && (AxS[FIRST_Y_AXIS].ticmode & TICS_MIRROR)) {
 				color_box.bounds.xleft += ylen;
 				color_box.bounds.xright += ylen;
 			}
@@ -595,87 +596,88 @@ void draw_color_smooth_box(int plot_mode)
 		color_box.bounds.ytop = color_box.bounds.ybot;
 		color_box.bounds.ybot = tmp;
 	}
-	term->layer(TERM_LAYER_BEGIN_COLORBOX);
+	pTerm->layer(TERM_LAYER_BEGIN_COLORBOX);
 	// The PostScript terminal has an Optimized version 
-	if((term->flags & TERM_IS_POSTSCRIPT) != 0)
+	if((pTerm->flags & TERM_IS_POSTSCRIPT) != 0)
 		draw_inside_color_smooth_box_postscript();
 	else {
-		if(GPO.SmPltt.GradientType == SMPAL_GRADIENT_TYPE_SMOOTH)
+		if(SmPltt.GradientType == SMPAL_GRADIENT_TYPE_SMOOTH)
 			draw_inside_colorbox_bitmap_smooth();
-		else if(GPO.SmPltt.GradientType == SMPAL_GRADIENT_TYPE_DISCRETE)
+		else if(SmPltt.GradientType == SMPAL_GRADIENT_TYPE_DISCRETE)
 			draw_inside_colorbox_bitmap_discrete();
 		else
 			draw_inside_colorbox_bitmap_mixed();
 	}
-	term->layer(TERM_LAYER_END_COLORBOX);
+	pTerm->layer(TERM_LAYER_END_COLORBOX);
 	if(color_box.border) {
 		// now make boundary around the colour box 
 		if(color_box.border_lt_tag >= 0) {
 			// user specified line type 
 			lp_style_type lp = border_lp;
 			lp_use_properties(&lp, color_box.border_lt_tag);
-			term_apply_lp_properties(term, &lp);
+			TermApplyLpProperties(pTerm, &lp);
 		}
 		else
-			term_apply_lp_properties(term, &border_lp); // black solid colour should be chosen, so it's border linetype 
-		newpath(term);
-		(term->move)(color_box.bounds.xleft, color_box.bounds.ybot);
-		(term->vector)(color_box.bounds.xright, color_box.bounds.ybot);
-		(term->vector)(color_box.bounds.xright, color_box.bounds.ytop);
-		(term->vector)(color_box.bounds.xleft, color_box.bounds.ytop);
-		(term->vector)(color_box.bounds.xleft, color_box.bounds.ybot);
-		closepath(term);
+			TermApplyLpProperties(pTerm, &border_lp); // black solid colour should be chosen, so it's border linetype 
+		newpath(pTerm);
+		(pTerm->move)(color_box.bounds.xleft, color_box.bounds.ybot);
+		(pTerm->vector)(color_box.bounds.xright, color_box.bounds.ybot);
+		(pTerm->vector)(color_box.bounds.xright, color_box.bounds.ytop);
+		(pTerm->vector)(color_box.bounds.xleft, color_box.bounds.ytop);
+		(pTerm->vector)(color_box.bounds.xleft, color_box.bounds.ybot);
+		closepath(pTerm);
 		// Set line properties to some value, this also draws lines in postscript terminals. 
-		term_apply_lp_properties(term, &border_lp);
+		TermApplyLpProperties(pTerm, &border_lp);
 	}
 	// draw tics 
-	if(GPO.AxS[COLOR_AXIS].ticmode) {
-		term_apply_lp_properties(term, &border_lp); /* border linetype */
-		gen_tics(&GPO.AxS[COLOR_AXIS], cbtick_callback);
+	if(AxS[COLOR_AXIS].ticmode) {
+		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
+		gen_tics(&AxS[COLOR_AXIS], cbtick_callback);
 	}
 	// write the colour box label 
-	if(GPO.AxS.__CB().label.text) {
+	if(AxS.__CB().label.text) {
 		int x, y;
 		int len;
-		int save_rotation = GPO.AxS.__CB().label.rotate;
-		apply_pm3dcolor(term, &(GPO.AxS.__CB().label.textcolor));
+		int save_rotation = AxS.__CB().label.rotate;
+		ApplyPm3DColor(pTerm, &(AxS.__CB().label.textcolor));
 		if(color_box.rotation == 'h') {
-			len = GPO.AxS.__CB().ticscale * (GPO.AxS.__CB().tic_in ? 1 : -1) * (term->v_tic);
+			len = AxS.__CB().ticscale * (AxS.__CB().tic_in ? 1 : -1) * (pTerm->TicV);
 			x = (color_box.bounds.xleft + color_box.bounds.xright) / 2;
-			y = color_box.bounds.ybot - 2.7 * term->v_char;
+			y = color_box.bounds.ybot - 2.7 * pTerm->ChrV;
 			if(len < 0) 
 				y += len;
-			if(GPO.AxS.__CB().label.rotate == TEXT_VERTICAL)
-				GPO.AxS.__CB().label.rotate = 0;
+			if(AxS.__CB().label.rotate == TEXT_VERTICAL)
+				AxS.__CB().label.rotate = 0;
 		}
 		else {
-			len = GPO.AxS.__CB().ticscale * (GPO.AxS.__CB().tic_in ? -1 : 1) * (term->h_tic);
+			len = AxS.__CB().ticscale * (AxS.__CB().tic_in ? -1 : 1) * (pTerm->TicH);
 			// calculate max length of cb-tics labels 
 			widest_tic_strlen = 0;
-			if(GPO.AxS.__CB().ticmode & TICS_ON_BORDER) /* Recalculate widest_tic_strlen */
-				gen_tics(&GPO.AxS[COLOR_AXIS], widest_tic_callback);
-			x = color_box.bounds.xright + (widest_tic_strlen + 1.5) * term->h_char;
+			if(AxS.__CB().ticmode & TICS_ON_BORDER) /* Recalculate widest_tic_strlen */
+				gen_tics(&AxS[COLOR_AXIS], widest_tic_callback);
+			x = color_box.bounds.xright + (widest_tic_strlen + 1.5) * pTerm->ChrH;
 			if(len > 0) 
 				x += len;
 			y = (color_box.bounds.ybot + color_box.bounds.ytop) / 2;
 		}
 		SETMAX(x, 0);
 		SETMAX(y, 0);
-		write_label(term, x, y, &(GPO.AxS.__CB().label));
-		reset_textcolor(&(GPO.AxS.__CB().label.textcolor));
-		GPO.AxS.__CB().label.rotate = save_rotation;
+		write_label(pTerm, x, y, &(AxS.__CB().label));
+		reset_textcolor(&(AxS.__CB().label.textcolor));
+		AxS.__CB().label.rotate = save_rotation;
 	}
 }
 // 
 // User-callable builtin color conversion
 // 
-void f_hsv2rgb(union argument * /*arg*/)
+//void f_hsv2rgb(union argument * /*arg*/)
+void GnuPlot::F_Hsv2Rgb(union argument * /*arg*/)
 {
 	GpValue h, s, v, result;
 	rgb_color color = {0., 0., 0.};
-	GPO.EvStk.Pop(&v);
-	GPO.EvStk.Pop(&s);
-	GPO.EvStk.Pop(&h);
+	EvStk.Pop(&v);
+	EvStk.Pop(&s);
+	EvStk.Pop(&h);
 	if(h.type == INTGR)
 		color.r = h.v.int_val;
 	else if(h.type == CMPLX)
@@ -695,34 +697,36 @@ void f_hsv2rgb(union argument * /*arg*/)
 	SETMIN(color.g, 1.0);
 	SETMIN(color.b, 1.0);
 	Ginteger(&result, hsv2rgb(&color));
-	GPO.EvStk.Push(&result);
+	EvStk.Push(&result);
 }
 // 
 // user-callable lookup of palette color for specific z-value
 // 
-void f_palette(union argument * arg)
+//void f_palette(union argument * arg)
+void GnuPlot::F_Palette(union argument * arg)
 {
 	GpValue result;
 	double z;
 	rgb255_color color;
 	uint rgb;
-	GPO.EvStk.Pop(&result);
+	EvStk.Pop(&result);
 	z = real(&result);
-	if(((GPO.AxS.__CB().set_autoscale & AUTOSCALE_BOTH) != 0) && (fabs(GPO.AxS.__CB().min) >= VERYLARGE || fabs(GPO.AxS.__CB().max) >= VERYLARGE))
-		GPO.IntError(NO_CARET, "palette(z) requires known cbrange");
-	rgb255maxcolors_from_gray(cb2gray(z), &color);
+	if(((AxS.__CB().set_autoscale & AUTOSCALE_BOTH) != 0) && (fabs(AxS.__CB().min) >= VERYLARGE || fabs(AxS.__CB().max) >= VERYLARGE))
+		IntError(NO_CARET, "palette(z) requires known cbrange");
+	Rgb255MaxColorsFromGray(Cb2Gray(z), &color);
 	rgb = (uint)color.r << 16 | (uint)color.g << 8 | (uint)color.b;
-	GPO.EvStk.Push(Ginteger(&result, rgb));
+	EvStk.Push(Ginteger(&result, rgb));
 }
 // 
 // User-callable interpretation of a string as a 24bit RGB color
 // replicating the colorspec interpretation in e.g. 'linecolor rgb "foo"'.
 // 
-void f_rgbcolor(union argument * arg)
+//void f_rgbcolor(union argument * arg)
+void GnuPlot::F_RgbColor(union argument * arg)
 {
 	GpValue a;
 	long rgb;
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	if(a.type == STRING) {
 		rgb = lookup_color_name(a.v.string_val);
 		if(rgb == -2)
@@ -732,19 +736,19 @@ void f_rgbcolor(union argument * arg)
 	else {
 		rgb = 0;
 	}
-	GPO.EvStk.Push(Ginteger(&a, rgb));
+	EvStk.Push(Ginteger(&a, rgb));
 }
-/*
- * A colormap can have specific min/max stored internally,
- * but otherwise we use the current cbrange
- */
+//
+// A colormap can have specific min/max stored internally,
+// but otherwise we use the current cbrange
+//
 double map2gray(double z, udvt_entry * colormap)
 {
 	double gray;
 	double cm_min, cm_max;
 	get_colormap_range(colormap, &cm_min, &cm_max);
 	if(cm_min == cm_max)
-		gray = cb2gray(z);
+		gray = GPO.Cb2Gray(z);
 	else
 		gray = (z - cm_min) / (cm_max - cm_min);
 	return gray;
@@ -780,11 +784,11 @@ uint rgb_from_colorspec(struct t_colorspec * tc)
 		case TC_RGB:
 		    return tc->lt;
 		case TC_Z:
-		    cbval = cb2gray(tc->value);
+		    cbval = GPO.Cb2Gray(tc->value);
 		    break;
 		case TC_CB:
 		    cbval = (GPO.AxS.__CB().log && tc->value <= 0) ? GPO.AxS.__CB().min : tc->value;
-		    cbval = cb2gray(cbval);
+		    cbval = GPO.Cb2Gray(cbval);
 		    break;
 		case TC_FRAC:
 		    cbval = (GPO.SmPltt.Positive == SMPAL_POSITIVE) ?  tc->value : 1-tc->value;
@@ -794,6 +798,6 @@ uint rgb_from_colorspec(struct t_colorspec * tc)
 		default:
 		    return 0; // cannot happen in a linetype 
 	}
-	rgb255maxcolors_from_gray(cbval, &color);
+	GPO.Rgb255MaxColorsFromGray(cbval, &color);
 	return (uint)color.r << 16 | (uint)color.g << 8 | (uint)color.b;
 }

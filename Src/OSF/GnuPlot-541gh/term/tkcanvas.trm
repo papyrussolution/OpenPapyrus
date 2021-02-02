@@ -353,10 +353,10 @@ TERM_PUBLIC void TK_options()
 	}
 
 	/* calculate the proper tic sizes and character size */
-	term->h_char = TK_HCHAR * TK_XMAX / (double)tk_width + 0.5;
-	term->h_tic  = TK_HTIC  * TK_XMAX / (double)tk_width + 0.5;
-	term->v_char = TK_VCHAR * TK_YMAX / (double)tk_height + 0.5;
-	term->v_tic  = TK_VTIC  * TK_YMAX / (double)tk_height + 0.5;
+	term->ChrH = TK_HCHAR * TK_XMAX / (double)tk_width + 0.5;
+	term->TicH  = TK_HTIC  * TK_XMAX / (double)tk_width + 0.5;
+	term->ChrV = TK_VCHAR * TK_YMAX / (double)tk_height + 0.5;
+	term->TicV  = TK_VTIC  * TK_YMAX / (double)tk_height + 0.5;
 
 	/* FIXME: image support only available for Tcl */
 	if((term->image != NULL) && (tk_script_language != TK_LANG_TCL))
@@ -608,18 +608,15 @@ TERM_PUBLIC void TK_color(t_colorspec * colorspec)
 	    }
 		case TC_FRAC: {
 		    rgb255_color rgb255;
-
-		    /* Immediately translate palette index to RGB colour */
-		    rgb255maxcolors_from_gray(colorspec->value, &rgb255);
+		    // Immediately translate palette index to RGB colour 
+		    GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 		    snprintf(tmp_color, sizeof(tmp_color), "#%02x%02x%02x", rgb255.r, rgb255.g, rgb255.b);
 		    break;
 	    }
 		case TC_RGB: {
-		    int red, green, blue;
-
-		    red = (colorspec->lt >> 16) & 0xff;
-		    green = (colorspec->lt >> 8) & 0xff;
-		    blue = (colorspec->lt) & 0xff;
+		    int red = (colorspec->lt >> 16) & 0xff;
+		    int green = (colorspec->lt >> 8) & 0xff;
+		    int blue = (colorspec->lt) & 0xff;
 		    snprintf(tmp_color, sizeof(tk_color), "#%02x%02x%02x", red, green, blue);
 		    break;
 	    }
@@ -1539,7 +1536,7 @@ void TK_arrow(unsigned int usx, unsigned int usy, unsigned int uex, unsigned int
 			double dx = sx - ex;
 			double dy = sy - ey;
 			double len_arrow = sqrt(dx * dx + dy * dy);
-			double len_tic = ((double)(term->h_tic + term->v_tic)) / 2.0;
+			double len_tic = ((double)(term->TicH + term->TicV)) / 2.0;
 			double head_coeff = MAX(len_tic * HEAD_SHORT_LIMIT, MIN(HEAD_COEFF * len_arrow, len_tic * HEAD_LONG_LIMIT));
 			int length = (int)(COS15 * head_coeff);
 			int width  = (int)(SIN15 * head_coeff);

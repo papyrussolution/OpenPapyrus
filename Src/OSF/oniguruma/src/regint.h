@@ -43,20 +43,17 @@
 
 #include <slib.h>
 
-#if defined(ONIG_DEBUG_PARSE) || defined(ONIG_DEBUG_MATCH) || \
-	defined(ONIG_DEBUG_SEARCH) || defined(ONIG_DEBUG_COMPILE) || \
-	defined(ONIG_DEBUG_MATCH_COUNTER) || defined(ONIG_DEBUG_CALL) || \
-	defined(ONIG_DEBUG_STATISTICS)
-#ifndef ONIG_DEBUG
-#define ONIG_DEBUG
-#define DBGFP   stderr
+#if defined(ONIG_DEBUG_PARSE) || defined(ONIG_DEBUG_MATCH) || defined(ONIG_DEBUG_SEARCH) || defined(ONIG_DEBUG_COMPILE) || \
+	defined(ONIG_DEBUG_MATCH_COUNTER) || defined(ONIG_DEBUG_CALL) || defined(ONIG_DEBUG_STATISTICS)
+	#ifndef ONIG_DEBUG
+		#define ONIG_DEBUG
+		#define DBGFP   stderr
+	#endif
 #endif
-#endif
-
 #ifndef ONIG_DISABLE_DIRECT_THREADING
-#ifdef __GNUC__
-#define USE_GOTO_LABELS_AS_VALUES
-#endif
+	#ifdef __GNUC__
+		#define USE_GOTO_LABELS_AS_VALUES
+	#endif
 #endif
 
 /* config */

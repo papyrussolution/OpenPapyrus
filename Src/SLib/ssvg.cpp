@@ -692,7 +692,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					FShape::RoundedRect rrect;
 					float height = 0.0f;
 					float width = 0.0f;
-					FPoint vr;
+					SPoint2F vr;
 					GetAttrList(p_node, attr_list);
 					for(uint i = 0; i < attr_list.getCount(); i++) {
 						StrAssocArray::Item item = attr_list.Get(i);
@@ -842,7 +842,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 			case tUse: // @v10.4.5
 				{
 					SDrawRef * p_ref = new SDrawRef;
-					FPoint sz;
+					SPoint2F sz;
 					GetAttrList(p_node, attr_list);
 					if(attr_list.GetText(tHRef, temp_buf)) {
 						p_ref->Ref = temp_buf.Strip();
@@ -1079,7 +1079,7 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 			if(sstreqi_ascii(reinterpret_cast<const char *>(p_node->name), "svg")) {
 				GetAttrList(p_node, attr_list);
 				{
-					FPoint sz;
+					SPoint2F sz;
 					if(attr_list.GetText(tWidth, temp_buf)) {
 						_GetUSize(temp_buf, DIREC_HORZ, sz.X);
 					}

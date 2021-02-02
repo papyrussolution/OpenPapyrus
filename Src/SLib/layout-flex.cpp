@@ -209,9 +209,9 @@ int AbstractLayoutBlock::GetSizeByContainerY(float containerSize, float * pS) co
 	return ok;
 }
 
-FPoint AbstractLayoutBlock::CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const
+SPoint2F AbstractLayoutBlock::CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const
 {
-	FPoint result;
+	SPoint2F result;
 	result.X = CalcEffectiveSizeX(containerSizeX);
 	result.Y = CalcEffectiveSizeY(containerSizeY);
 	if(result.X == 0.0f && AspectRatio > 0.0f && result.Y > 0.0f) {
@@ -426,7 +426,7 @@ void AbstractLayoutBlock::SetContainerDirection(int direc /*DIREC_XXX*/)
 SString & AbstractLayoutBlock::SizeToString(SString & rBuf) const
 {
 	rBuf.Z();
-	FPoint s;
+	SPoint2F s;
 	int  szx = GetSizeX(&s.X);
 	int  szy = GetSizeY(&s.Y);
 	if(szx != szUndef || szy != szUndef) {
@@ -524,7 +524,7 @@ int AbstractLayoutBlock::SizeFromString(const char * pBuf)
 	input.Strip();
 	SString x_buf, y_buf;
 	if(input.Divide(',', x_buf, y_buf) > 0 || input.Divide(';', x_buf, y_buf) > 0 || input.Divide(' ', x_buf, y_buf) > 0) {
-		FPoint s;
+		SPoint2F s;
 		int szx = ParseSizeStr(x_buf, s.X);
 		int szy = ParseSizeStr(y_buf, s.Y);
 		if(szx == szFixed)
@@ -1451,7 +1451,7 @@ void LayoutFlexItem::DoLayout(const Param & rP, PagingResult * pPgR) const
 				// Initialize frame.
 				r_child.R.Frame[0] = 0.0f;
 				r_child.R.Frame[1] = 0.0f;
-				FPoint efsxy = r_child.ALB.CalcEffectiveSizeXY(rP.ForceWidth, rP.ForceHeight);
+				SPoint2F efsxy = r_child.ALB.CalcEffectiveSizeXY(rP.ForceWidth, rP.ForceHeight);
 				r_child.R.Frame[2] = efsxy.X;
 				r_child.R.Frame[3] = efsxy.Y;
 				//
@@ -1868,7 +1868,7 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 	return ok;
 }
 
-void LayoutFlexItem::Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayout, const FPoint & rOffs) const
+void LayoutFlexItem::Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayout, const SPoint2F & rOffs) const
 {
 	//const float offs_x = area_rect[prev_area].a.X;
 	//const float offs_y = area_rect[prev_area].a.Y;

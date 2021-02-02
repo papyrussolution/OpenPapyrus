@@ -888,7 +888,7 @@ LMatrix2D & LMatrix2D::InitTranslate(double dx, double dy)
 	return *this;
 }
 
-LMatrix2D & LMatrix2D::InitTranslate(FPoint p)
+LMatrix2D & LMatrix2D::InitTranslate(SPoint2F p)
 {
 	xx = 1.0;
 	yx = 0.0;

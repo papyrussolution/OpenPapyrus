@@ -108,7 +108,7 @@ int FASTCALL GpProgram::IsString(int t_num) const
 //int FASTCALL type_udv(int t_num)
 int FASTCALL GpProgram::TypeUdv(int t_num) const
 {
-	udvt_entry ** udv_ptr = &first_udv;
+	udvt_entry ** udv_ptr = &GPO.Ev.P_FirstUdv;
 	// End of command 
 	if(t_num >= NumTokens || Equals(t_num, ";"))
 		return 0;
@@ -399,22 +399,24 @@ static void mant_exp(double log10_base, double x, bool scientific/* round to pow
 }
 
 /*}}} */
-
-/* Wrapper for gprintf_value() */
+// 
+// Wrapper for gprintf_value() 
+// 
 void gprintf(char * outstring, size_t count, char * format, double log10_base, double x)
 {
 	GpValue v;
 	Gcomplex(&v, x, 0.0);
 	gprintf_value(outstring, count, format, log10_base, &v);
 }
-
-/* Analogous to snprintf() but uses gnuplot's private format specs */
-/* HBB 20010121: added code to maintain consistency between mantissa
- * and exponent across sprintf() calls.  The problem: format string
- * '%t*10^%T' will display 9.99 as '10.0*10^0', but 10.01 as
- * '1.0*10^1'.  This causes problems for people using the %T part,
- * only, with logscaled axes, in combination with the occasional
- * round-off error. */
+// 
+// Analogous to snprintf() but uses gnuplot's private format specs */
+// HBB 20010121: added code to maintain consistency between mantissa
+// and exponent across sprintf() calls.  The problem: format string
+// '%t*10^%T' will display 9.99 as '10.0*10^0', but 10.01 as
+// '1.0*10^1'.  This causes problems for people using the %T part,
+// only, with logscaled axes, in combination with the occasional
+// round-off error. 
+// 
 void gprintf_value(char * outstring, size_t count, char * format, double log10_base, GpValue * v)
 {
 	double x = real(v);
@@ -433,28 +435,26 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 	*dest = '\0';
 	if(!evaluate_inside_using)
 		set_numeric_locale();
-	/* Should never happen but fuzzer managed to hit it */
+	// Should never happen but fuzzer managed to hit it 
 	SETIFZ(format, DEF_FORMAT);
 	// By default we wrap numbers output to latex terminals in $...$ 
 	if(!strcmp(format, DEF_FORMAT)  && !table_mode && ((term->flags & TERM_IS_LATEX)))
 		format = DEF_FORMAT_LATEX;
 	for(;;) {
-		/*{{{  copy to dest until % */
+		//{{{  copy to dest until % 
 		while(*format != '%')
 			if(!(*dest++ = *format++) || (remaining_space == 0)) {
 				goto done;
 			}
-		/*}}} */
-
-		/*{{{  check for %% */
+		//}}} 
+		//{{{  check for %% 
 		if(format[1] == '%') {
 			*dest++ = '%';
 			format += 2;
 			continue;
 		}
-		/*}}} */
-
-		/*{{{  copy format part to temp, excluding conversion character */
+		//}}} 
+		//{{{  copy format part to temp, excluding conversion character 
 		t = temp;
 		*t++ = '%';
 		if(format[1] == '#') {
@@ -462,12 +462,11 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 			format++;
 			got_hash = TRUE;
 		}
-		/* dont put isdigit first since side effect in macro is bad */
-		while(*++format == '.' || isdigit((uchar)*format) || *format == '-' || *format == '+' || *format == ' ' || *format == '\'')
+		// dont put isdigit first since side effect in macro is bad 
+		while(*++format == '.' || isdigit((uchar)*format) || oneof4(*format, '-', '+', ' ', '\''))
 			*t++ = *format;
-		/*}}} */
-
-		/*{{{  convert conversion character */
+		//}}} 
+		//{{{  convert conversion character 
 		switch(*format) {
 			/*{{{  x and o can handle 64bit unsigned integers */
 			case 'x':
@@ -498,14 +497,11 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 			    /* g/G with enhanced formatting (if applicable) */
 			    t[0] = (*format == 'h') ? 'g' : 'G';
 			    t[1] = 0;
-
 			    if((term->flags & (TERM_ENHANCED_TEXT | TERM_IS_LATEX)) == 0) {
-				    /* Not enhanced, not latex, just print it */
-				    snprintf(dest, remaining_space, temp, x);
+				    snprintf(dest, remaining_space, temp, x); // Not enhanced, not latex, just print it 
 			    }
 			    else if(table_mode) {
-				    /* Tabular output should contain no markup */
-				    snprintf(dest, remaining_space, temp, x);
+				    snprintf(dest, remaining_space, temp, x); // Tabular output should contain no markup 
 			    }
 			    else {
 				    /* in enhanced mode -- convert E/e to x10^{foo} or *10^{foo} */
@@ -527,26 +523,26 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 								    j += 5;
 							    }
 						    }
-						    else switch(encoding) {
+						    else { 
+								switch(encoding) {
 								    case S_ENC_UTF8:
-									strcpy(&tmp2[j], "\xc3\x97"); /* UTF character
-								                                         '×' */
-									j += 2;
-									break;
+										strcpy(&tmp2[j], "\xc3\x97"); // UTF character '×' 
+										j += 2;
+										break;
 								    case S_ENC_CP1252:
-									tmp2[j++] = (*format=='h') ? 0xd7 : 0xb7;
-									break;
+										tmp2[j++] = (*format=='h') ? 0xd7 : 0xb7;
+										break;
 								    case S_ENC_ISO8859_1:
 								    case S_ENC_ISO8859_2:
 								    case S_ENC_ISO8859_9:
 								    case S_ENC_ISO8859_15:
-									tmp2[j++] = (*format=='h') ? 0xd7 : '*';
-									break;
+										tmp2[j++] = (*format=='h') ? 0xd7 : '*';
+										break;
 								    default:
-									tmp2[j++] = (*format=='h') ? 'x' : '*';
-									break;
+										tmp2[j++] = (*format=='h') ? 'x' : '*';
+										break;
 							    }
-
+							}
 						    strcpy(&tmp2[j], "10^{");
 						    j += 4;
 						    bracket_flag = TRUE;
@@ -974,7 +970,7 @@ void os_error(int t_num, const char * str, va_dcl)
 	putc('\n', stderr);
 	perror("system error");
 	putc('\n', stderr);
-	fill_gpval_string("GPVAL_ERRMSG", strerror(errno));
+	GPO.Ev.FillGpValString("GPVAL_ERRMSG", strerror(errno));
 	common_error_exit();
 }
 
@@ -994,7 +990,7 @@ void GnuPlot::IntError(int t_num, const char * pStr, ...)
 #endif
 	va_end(args);
 	fputs("\n\n", stderr);
-	fill_gpval_string("GPVAL_ERRMSG", error_message);
+	Ev.FillGpValString("GPVAL_ERRMSG", error_message);
 	common_error_exit();
 }
 
@@ -1013,7 +1009,7 @@ void GnuPlot::IntErrorCurToken(const char * pStr, ...)
 #endif
 	va_end(args);
 	fputs("\n\n", stderr);
-	fill_gpval_string("GPVAL_ERRMSG", error_message);
+	Ev.FillGpValString("GPVAL_ERRMSG", error_message);
 	common_error_exit();
 }
 

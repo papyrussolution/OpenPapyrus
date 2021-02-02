@@ -283,7 +283,6 @@
     <ClCompile Include="..\Osf\GnuPlot-541gh\util.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\util3d.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\variable.c" />
-    <ClCompile Include="..\OSF\GnuPlot-541gh\vms.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\voxelgrid.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\vplot.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\win\screenbuf.c" />
@@ -313,7 +312,6 @@
     <ClInclude Include="..\Osf\GnuPlot-541gh\term.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\term\impcodes.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\term\post.h" />
-    <ClInclude Include="..\OSF\GnuPlot-541gh\vms.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\win\screenbuf.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\win\wcommon.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\win\wd2d.h" />

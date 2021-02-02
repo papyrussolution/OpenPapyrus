@@ -486,11 +486,11 @@ TERM_PUBLIC void PDF_init()
 #endif
 	// Have to start the first page now, in order to know the actual size of the selected font 
 	PDF_graphics();
-	/* set h_char, v_char*/
-	term->h_char = PDF_fontAvWidth;
-	term->v_char = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
-	/* set h_tic, v_tic*/
-	term->h_tic = term->v_tic = 3 * PDF_RESOLUTION;
+	/* set ChrH, ChrV*/
+	term->ChrH = PDF_fontAvWidth;
+	term->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
+	/* set TicH, TicV*/
+	term->TicH = term->TicV = 3 * PDF_RESOLUTION;
 	/* initialize terminal's pointsize from "set pointsize" value */
 	term_pointsize = pointsize;
 	/* Initialize other default settings */
@@ -644,12 +644,12 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 		 * to avoid introducing another static driver-local variable
 		 * */
 		PDF_translate(myPDF, x, y);
-		PDF_scale(myPDF, term->h_tic / 2.0 * term_pointsize,
-		    term->v_tic / 2.0 * term_pointsize);
+		PDF_scale(myPDF, term->TicH / 2.0 * term_pointsize,
+		    term->TicV / 2.0 * term_pointsize);
 		/* Correct linewidth to counter the scaling effect --- assume
-		* h_tic is usable, to avoid having to average h_ and v_tic */
+		* TicH is usable, to avoid having to average h_ and TicV */
 		PDF_setlinewidth(myPDF,
-		    PDF_LineWidth / (term->h_tic / 2.0 * term_pointsize));
+		    PDF_LineWidth / (term->TicH / 2.0 * term_pointsize));
 		switch(number %= PDF_NUM_POINTTYPES) {
 			case 0: /* Plus */
 			    PDF_moveto(myPDF, -1, 0);
@@ -1080,8 +1080,8 @@ TERM_PUBLIC int PDF_set_font(const char * font)
 	PDF_PathClose();
 	PDF_SetFont();
 
-	term->h_char = PDF_fontAvWidth;
-	term->v_char = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
+	term->ChrH = PDF_fontAvWidth;
+	term->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
 
 	return (TRUE);
 }
@@ -1210,7 +1210,7 @@ TERM_PUBLIC void PDF_set_color(t_colorspec * colorspec)
 		PDF_current_gray = 0.0; /* monochrome mode only */
 	}
 	else if(colorspec->type == TC_FRAC) {
-		rgb1maxcolors_from_gray(colorspec->value, &PDF_current_rgb);
+		GPO.Rgb1MaxColorsFromGray(colorspec->value, &PDF_current_rgb);
 		PDF_current_gray = colorspec->value; /* monochrome mode only */
 	}
 	else if(colorspec->type == TC_RGB) {
@@ -1271,20 +1271,15 @@ TERM_PUBLIC void PDF_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 			}
 			else {
 				rgb255_color rgb;
-				rgb255maxcolors_from_gray(image[i], &rgb);
+				GPO.Rgb255MaxColorsFromGray(image[i], &rgb);
 				*pixel++ = rgb.r;
 				*pixel++ = rgb.g;
 				*pixel++ = rgb.b;
 			}
 		}
 	}
-
 	/* Describe this image to PDF library */
-	im = PDF_open_image(myPDF, "raw", "memory", (char*)rawrgb,
-		(long)(M*N*3), (int)M, (int)N,
-		3, 8,                                   /* 3 colors, 8 bits each */
-		"");
-
+	im = PDF_open_image(myPDF, "raw", "memory", (char*)rawrgb, (long)(M*N*3), (int)M, (int)N, 3, 8/* 3 colors, 8 bits each */, "");
 	/* Clip to bounding box requested */
 	PDF_save(myPDF);
 	PDF_moveto(myPDF, corner[2].x, corner[2].y);

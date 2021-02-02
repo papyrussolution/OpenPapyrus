@@ -331,26 +331,22 @@ static void p_rel_addr(FILE* f, RelAddrType rel_addr, Operation* p, Operation* s
 	char* space2;
 	RelAddrType curr;
 	AbsAddrType abs_addr;
-
 	curr = (RelAddrType)(p - start);
 	abs_addr = curr + rel_addr;
-
 	flag   = rel_addr <  0 ? ""  : "+";
 	space1 = rel_addr < 10 ? " " : "";
 	space2 = abs_addr < 10 ? " " : "";
-
 	fprintf(f, "%s%s%d => %s%d", space1, flag, rel_addr, space2, abs_addr);
 }
 
 static int bitset_on_num(BitSetRef bs)
 {
-	int i, n;
-
-	n = 0;
+	int i;
+	int n = 0;
 	for(i = 0; i < SINGLE_BYTE_SIZE; i++) {
-		if(BITSET_AT(bs, i)) n++;
+		if(BITSET_AT(bs, i)) 
+			n++;
 	}
-
 	return n;
 }
 
@@ -665,20 +661,15 @@ static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
 	    }
 	    break;
 #endif
-
 		case OP_TEXT_SEGMENT_BOUNDARY:
 		    if(p->text_segment_boundary.not != 0)
 			    fprintf(f, " not");
 		    break;
-
 		case OP_CHECK_POSITION:
 		    switch(p->check_position.type) {
-			    case CHECK_POSITION_SEARCH_START:
-				fprintf(f, "search-start"); break;
-			    case CHECK_POSITION_CURRENT_RIGHT_RANGE:
-				fprintf(f, "current-right-range"); break;
-			    default:
-				break;
+			    case CHECK_POSITION_SEARCH_START: fprintf(f, "search-start"); break;
+			    case CHECK_POSITION_CURRENT_RIGHT_RANGE: fprintf(f, "current-right-range"); break;
+			    default: break;
 		    };
 		    break;
 
@@ -706,7 +697,6 @@ static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
 		case OP_RETURN:
 #endif
 		    break;
-
 		default:
 		    fprintf(DBGFP, "print_compiled_byte_code: undefined code %d\n", opcode);
 		    break;
@@ -721,15 +711,11 @@ extern void onig_print_compiled_byte_code_list(FILE* f, regex_t* reg)
 	Operation* bp;
 	Operation* start = reg->ops;
 	Operation* end   = reg->ops + reg->ops_used;
-
-	fprintf(f, "push_mem_start: 0x%x, push_mem_end: 0x%x\n",
-	    reg->push_mem_start, reg->push_mem_end);
+	fprintf(f, "push_mem_start: 0x%x, push_mem_end: 0x%x\n", reg->push_mem_start, reg->push_mem_end);
 	fprintf(f, "code-length: %d\n", reg->ops_used);
-
 	bp = start;
 	while(bp < end) {
 		int pos = bp - start;
-
 		fprintf(f, "%4d: ", pos);
 		print_compiled_byte_code(f, reg, pos, start, reg->enc);
 		fprintf(f, "\n");
@@ -746,9 +732,8 @@ static void history_tree_free(OnigCaptureTreeNode* node);
 static void history_tree_clear(OnigCaptureTreeNode* node)
 {
 	int i;
-
-	if(IS_NULL(node)) return;
-
+	if(IS_NULL(node)) 
+		return;
 	for(i = 0; i < node->num_childs; i++) {
 		if(IS_NOT_NULL(node->childs[i])) {
 			history_tree_free(node->childs[i]);
@@ -875,7 +860,8 @@ extern int onig_region_resize(OnigRegion* region, int n)
 static int onig_region_resize_clear(OnigRegion* region, int n)
 {
 	int r = onig_region_resize(region, n);
-	if(r != 0) return r;
+	if(r != 0) 
+		return r;
 	onig_region_clear(region);
 	return 0;
 }
@@ -3851,7 +3837,6 @@ empty_check_found:
 		CASE_OP(PUSH_OR_JUMP_EXACT1)
 		{
 			uchar c;
-
 			addr = p->push_or_jump_exact1.addr;
 			c    = p->push_or_jump_exact1.c;
 			if(DATA_ENSURE_CHECK1 && c == *s) {
@@ -4045,11 +4030,9 @@ empty_check_found:
 				case SAVE_KEEP:
 				    STACK_PUSH_SAVE_VAL(mem, type, s);
 				    break;
-
 				case SAVE_S:
 				    STACK_PUSH_SAVE_VAL_WITH_SPREV(mem, type, s);
 				    break;
-
 				case SAVE_RIGHT_RANGE:
 				    STACK_PUSH_SAVE_VAL(mem, SAVE_RIGHT_RANGE, right_range);
 				    break;
@@ -5696,7 +5679,7 @@ extern int onig_builtin_error(OnigCalloutArgs* args, void* user_data ARG_UNUSED)
 
 extern int onig_builtin_count(OnigCalloutArgs* args, void* user_data)
 {
-	(void)onig_check_callout_data_and_clear_old_values(args);
+	onig_check_callout_data_and_clear_old_values(args);
 	return onig_builtin_total_count(args, user_data);
 }
 
@@ -5717,10 +5700,9 @@ extern int onig_builtin_total_count(OnigCalloutArgs* args, void* user_data ARG_U
 	if(r < ONIG_NORMAL)
 		return r;
 	else if(r > ONIG_NORMAL) {
-		/* type == void: initial state */
+		// type == void: initial state 
 		val.l = 0;
 	}
-
 	if(args->in == ONIG_CALLOUT_IN_RETRACTION) {
 		slot = 2;
 		if(count_type == '<')
@@ -5745,8 +5727,8 @@ extern int onig_builtin_total_count(OnigCalloutArgs* args, void* user_data ARG_U
 	}
 	val.l++;
 	r = onig_set_callout_data_by_callout_args_self(args, slot, ONIG_TYPE_LONG, &val);
-	if(r != ONIG_NORMAL) return r;
-
+	if(r != ONIG_NORMAL) 
+		return r;
 	return ONIG_CALLOUT_SUCCESS;
 }
 
@@ -5759,19 +5741,19 @@ extern int onig_builtin_max(OnigCalloutArgs* args, void* user_data ARG_UNUSED)
 	OnigType type;
 	OnigValue val;
 	OnigValue aval;
-	(void)onig_check_callout_data_and_clear_old_values(args);
+	onig_check_callout_data_and_clear_old_values(args);
 	slot = 0;
 	r = onig_get_callout_data_by_callout_args_self(args, slot, &type, &val);
 	if(r < ONIG_NORMAL)
 		return r;
 	else if(r > ONIG_NORMAL) {
-		/* type == void: initial state */
+		// type == void: initial state 
 		type  = ONIG_TYPE_LONG;
 		val.l = 0;
 	}
-
 	r = onig_get_arg_by_callout_args(args, 0, &type, &aval);
-	if(r != ONIG_NORMAL) return r;
+	if(r != ONIG_NORMAL) 
+		return r;
 	if(type == ONIG_TYPE_TAG) {
 		r = onig_get_callout_data_by_callout_args(args, aval.tag, 0, &type, &aval);
 		if(r < ONIG_NORMAL) return r;
@@ -5788,7 +5770,6 @@ extern int onig_builtin_max(OnigCalloutArgs* args, void* user_data ARG_UNUSED)
 	count_type = aval.c;
 	if(count_type != '>' && count_type != 'X' && count_type != '<')
 		return ONIGERR_INVALID_CALLOUT_ARG;
-
 	if(args->in == ONIG_CALLOUT_IN_RETRACTION) {
 		if(count_type == '<') {
 			if(val.l >= max_val) return ONIG_CALLOUT_FAIL;

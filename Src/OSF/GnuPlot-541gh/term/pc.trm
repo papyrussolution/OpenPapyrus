@@ -418,9 +418,9 @@ TERM_PUBLIC void PC_graphics()
 	/* set default font */
 	PC_set_font("");
 	_gettextsettings(&ts);
-	term->h_char = ts.width;
-	term->v_char = 12 * ts.height / 10; /* reserve some extra line spacing */
-	term->h_tic = term->v_tic = term->v_char / 2.5;
+	term->ChrH = ts.width;
+	term->ChrV = 12 * ts.height / 10; /* reserve some extra line spacing */
+	term->TicH = term->TicV = term->ChrV / 2.5;
 	pc_linewidth = 1;
 	pc_pal_colors = 0;
 	pc_rgbcolors = 16; // reserved palette entries for default colors 
@@ -928,7 +928,7 @@ TERM_PUBLIC void PC_enhanced_open(char * fontname,
 		sprintf_s(font, sizeof(font), ",%.1f", fontsize);
 		PC_set_font(font);
 		/* Scale fractional font height to vertical units of display */
-		pc_enhanced_base = base * term->v_char / (PC_DEFAULT_FONTSIZE * pc_fontscale) / 1.2;
+		pc_enhanced_base = base * term->ChrV / (PC_DEFAULT_FONTSIZE * pc_fontscale) / 1.2;
 		/* draw text left to right, align with baseline */
 		_settextalign(_LEFT, _BASE);
 	}
@@ -1225,14 +1225,13 @@ TERM_PUBLIC void PC_set_color(t_colorspec * colorspec)
 		case TC_FRAC: {
 		    float gray = colorspec->value;
 		    rgb255_color rgb255;
-
 		    if(pc_colors == 256) {
 			    if(pc_pal_colors != 0) {
 				    _setcolor(gray * pc_pal_colors + pc_pal_ofs);
 			    }
 			    else {
 				    // RGB colors or palette full
-				    rgb255maxcolors_from_gray(colorspec->value, &rgb255);
+				    GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 				    color = PC_set_rgb_color(rgb255.r, rgb255.g, rgb255.b);
 				    _setcolor(color);
 			    }

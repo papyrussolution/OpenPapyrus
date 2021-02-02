@@ -3387,7 +3387,7 @@ FloatArray::FloatArray() : TSVector <float>() {}
 int    FASTCALL FloatArray::operator == (const FloatArray & rS) const { return IsEqual(&rS); }
 int    FASTCALL FloatArray::operator != (const FloatArray & rS) const { return BIN(!IsEqual(&rS)); }
 int    FASTCALL FloatArray::add(float item) { return insert(&item); }
-int    FASTCALL FloatArray::add(FPoint p) { return insertChunk(2, &p); }
+int    FASTCALL FloatArray::add(SPoint2F p) { return insertChunk(2, &p); }
 float  FASTCALL FloatArray::get(uint i) const { return at(i); }
 float & FASTCALL FloatArray::operator [] (size_t i) const { return at(i); }
 
@@ -3397,10 +3397,10 @@ int FASTCALL FloatArray::dim(uint numItems)
 	return insertChunk(numItems, 0);
 }
 
-const FPoint & FASTCALL FloatArray::getPoint(uint i) const
+const SPoint2F & FASTCALL FloatArray::getPoint(uint i) const
 {
 	assert(i < (count-1));
-	return *static_cast<const FPoint *>(SVector::at(i)); // @v9.8.4 SArray-->SVector
+	return *static_cast<const SPoint2F *>(SVector::at(i)); // @v9.8.4 SArray-->SVector
 }
 
 int FASTCALL FloatArray::IsEqual(const FloatArray * pS) const
@@ -3444,13 +3444,13 @@ FloatStack::FloatStack() : TSStack <float>(/*4*/)
 {
 }
 
-void FloatStack::pushPoint(FPoint p)
+void FloatStack::pushPoint(SPoint2F p)
 {
 	push(p.Y);
 	push(p.X);
 }
 
-int FloatStack::popPoint(FPoint & rP)
+int FloatStack::popPoint(SPoint2F & rP)
 	{ return (pop(rP.X) && pop(rP.Y)) ? 1 : 0; }
 //
 //

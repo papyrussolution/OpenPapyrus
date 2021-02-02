@@ -332,12 +332,12 @@ TERM_PUBLIC void MP_options()
 		MP_fontsize = 5.0;
 	if(MP_fontsize > 99.99)
 		MP_fontsize = 99.99;
-	term->v_char = (uint)(MP_DPI * MP_fontsize * MP_textmag * 11 / 720);
+	term->ChrV = (uint)(MP_DPI * MP_fontsize * MP_textmag * 11 / 720);
 	if(MP_tex == MP_NO_TEX) { /* Courier is a little wider than cmtt */
-		term->h_char = (uint)(MP_DPI * MP_fontsize * MP_textmag * 6.0 / 720 + 0.5);
+		term->ChrH = (uint)(MP_DPI * MP_fontsize * MP_textmag * 6.0 / 720 + 0.5);
 	}
 	else {
-		term->h_char = (uint)(MP_DPI * MP_fontsize * MP_textmag * 5.3 / 720 + 0.5);
+		term->ChrH = (uint)(MP_DPI * MP_fontsize * MP_textmag * 5.3 / 720 + 0.5);
 	}
 	if(MP_psnfss == MP_PSNFSS_NONE) { /* using the normal font scheme */
 		sprintf(term_options, "%s %s %stex%s%s mag %.3f font \"%s,%.2f\" %sprologues(%d)",
@@ -888,7 +888,7 @@ TERM_PUBLIC void MP_set_color(t_colorspec * colorspec)
 		if(colorspec->type == TC_FRAC) {
 			if(GPO.SmPltt.colors != 0) /* finite nb of colors explicitly requested */
 				gray = (gray >= ((double)(GPO.SmPltt.colors-1)) / GPO.SmPltt.colors) ? 1 : floor(gray * GPO.SmPltt.colors) / GPO.SmPltt.colors;
-			rgb1_from_gray(gray, &color);
+			GPO.Rgb1FromGray(gray, &color);
 		}
 		else if(colorspec->type == TC_RGB) {
 			color.r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;

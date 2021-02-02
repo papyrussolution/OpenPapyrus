@@ -580,7 +580,7 @@ void call_gnuplot(const double * par, double * data)
 		for(j = 0; j < num_indep; j++)
 			Gcomplex(&func.dummy_values[j], fit_x[i * num_indep + j], 0.0);
 		GPO.EvaluateAt(func.at, &v);
-		if(__IsUndefined || isnan(real(&v))) {
+		if(GPO.Ev.IsUndefined_ || isnan(real(&v))) {
 			/* Print useful info on undefined-function error. */
 			Dblf("\nCurrent data point\n");
 			Dblf("=========================\n");
@@ -593,7 +593,7 @@ void call_gnuplot(const double * par, double * data)
 			for(j = 0; j < num_params; j++)
 				Dblf3("%-15.15s = %-15g\n", par_name[j], par[j] * scale_params[j]);
 			Dblf("\n");
-			if(__IsUndefined) {
+			if(GPO.Ev.IsUndefined_) {
 				Eex("Undefined value during function evaluation");
 			}
 			else {
@@ -711,15 +711,12 @@ const char * getfitscript()
 *****************************************************************/
 static void regress_init()
 {
-	struct udvt_entry * v;  /* For exporting results to the user */
-	/* Reset flag describing fit result status */
-	v = add_udv_by_name("FIT_CONVERGED");
+	// Reset flag describing fit result status 
+	udvt_entry * v = GPO.Ev.AddUdvByName("FIT_CONVERGED"); // For exporting results to the user 
 	Ginteger(&v->udv_value, 0);
-
-	/* Ctrl-C now serves as Hotkey */
+	// Ctrl-C now serves as Hotkey 
 	ctrlc_setup();
-
-	/* HBB 981118: initialize new variable 'user_break' */
+	// HBB 981118: initialize new variable 'user_break' 
 	user_stop = FALSE;
 }
 
@@ -779,43 +776,39 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 	}
 	else {
 		Dblf2("\nAfter %d iterations the fit converged.\n", iter);
-		v = add_udv_by_name("FIT_CONVERGED");
+		v = GPO.Ev.AddUdvByName("FIT_CONVERGED");
 		Ginteger(&v->udv_value, 1);
 	}
-
-	/* fit results */
+	// fit results 
 	ndf    = num_data - num_params;
 	stdfit = sqrt(chisq / ndf);
 	pvalue = 1. - chisq_cdf(ndf, chisq);
 	niter = iter;
-
-	/* Export these to user-accessible variables */
-	v = add_udv_by_name("FIT_NDF");
+	// Export these to user-accessible variables 
+	v = GPO.Ev.AddUdvByName("FIT_NDF");
 	Ginteger(&v->udv_value, ndf);
-	v = add_udv_by_name("FIT_STDFIT");
+	v = GPO.Ev.AddUdvByName("FIT_STDFIT");
 	Gcomplex(&v->udv_value, stdfit, 0);
-	v = add_udv_by_name("FIT_WSSR");
+	v = GPO.Ev.AddUdvByName("FIT_WSSR");
 	Gcomplex(&v->udv_value, chisq, 0);
-	v = add_udv_by_name("FIT_P");
+	v = GPO.Ev.AddUdvByName("FIT_P");
 	Gcomplex(&v->udv_value, pvalue, 0);
-	v = add_udv_by_name("FIT_NITER");
+	v = GPO.Ev.AddUdvByName("FIT_NITER");
 	Ginteger(&v->udv_value, niter);
-
-	/* Save final parameters. Depending on the backend and
-	   its internal state, the last call_gnuplot may not have been
-	   at the minimum */
+	// Save final parameters. Depending on the backend and
+	// its internal state, the last call_gnuplot may not have been
+	// at the minimum 
 	for(i = 0; i < num_params; i++)
 		Gcomplex(par_udv[i], a[i] * scale_params[i], 0.0);
-
-	/* Set error and covariance variables to zero,
-	   thus making sure they are created. */
+	// Set error and covariance variables to zero,
+	// thus making sure they are created. 
 	if(fit_errorvariables) {
 		for(i = 0; i < num_params; i++)
 			setvarerr(par_name[i], 0.0);
 	}
 	if(fit_covarvariables) {
-		/* first, remove all previous covariance variables */
-		del_udv_by_name("FIT_COV_*", TRUE);
+		// first, remove all previous covariance variables 
+		GPO.Ev.DelUdvByName("FIT_COV_*", TRUE);
 		for(i = 0; i < num_params; i++) {
 			for(j = 0; j < i; j++) {
 				setvarcovar(par_name[i], par_name[j], 0.0);
@@ -824,7 +817,7 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 			setvarcovar(par_name[i], par_name[i], 0.0);
 		}
 	}
-	/* calculate unscaled parameter errors in dpar[]: */
+	// calculate unscaled parameter errors in dpar[]: 
 	dpar = vec(num_params);
 	if(covar && !covar_invalid) {
 		// calculate unscaled parameter errors in dpar[]: 
@@ -1209,7 +1202,7 @@ static void setvar(char * varname, double data)
 		if(*c == '[' || *c == ']')
 			*c = '_';
 	}
-	fill_gpval_float(varname, data);
+	GPO.Ev.FillGpValFoat(varname, data);
 }
 
 /*****************************************************************
@@ -1245,7 +1238,7 @@ static void setvarcovar(char * varname1, char * varname2, double value)
 *****************************************************************/
 static intgr_t getivar(const char * varname)
 {
-	udvt_entry * v = get_udv_by_name(varname);
+	udvt_entry * v = GPO.Ev.GetUdvByName(varname);
 	if(v && (v->udv_value.type != NOTDEFINED))
 		return (intgr_t)real(&(v->udv_value));
 	else
@@ -1257,7 +1250,7 @@ static intgr_t getivar(const char * varname)
 *****************************************************************/
 static double getdvar(const char * varname)
 {
-	udvt_entry * v = get_udv_by_name(varname);
+	udvt_entry * v = GPO.Ev.GetUdvByName(varname);
 	if(v && (v->udv_value.type != NOTDEFINED))
 		return real(&(v->udv_value));
 	else
@@ -1271,7 +1264,7 @@ static double getdvar(const char * varname)
 *****************************************************************/
 static double createdvar(const char * varname, double value)
 {
-	udvt_entry * udv_ptr = add_udv_by_name(varname);
+	udvt_entry * udv_ptr = GPO.Ev.AddUdvByName(varname);
 	if(udv_ptr->udv_value.type == NOTDEFINED) { /* new variable */
 		Gcomplex(&udv_ptr->udv_value, value, 0.0);
 	}
@@ -1453,7 +1446,7 @@ void GnuPlot::FitCommand()
 		func.at = NULL; /* in case perm_at() does int_error */
 	}
 	dummy_func = &func;
-	/* set all possible dummy variable names, even if we're using fewer */
+	// set all possible dummy variable names, even if we're using fewer 
 	for(i = 0; i < MAX_NUM_VAR; i++) {
 		if(dummy_token[i] > 0)
 			Pgm.CopyStr(c_dummy_var[i], dummy_token[i], MAX_ID_LEN);
@@ -1461,7 +1454,7 @@ void GnuPlot::FitCommand()
 			strcpy(c_dummy_var[i], set_dummy_var[i]);
 		else if(i < 5) /* Fall back to legacy ordering x y t u v */
 			strcpy(c_dummy_var[i], dummy_old_default[i]);
-		fit_dummy_udvs[i] = add_udv_by_name(c_dummy_var[i]);
+		fit_dummy_udvs[i] = Ev.AddUdvByName(c_dummy_var[i]);
 	}
 	memzero(fit_dummy_var, sizeof(fit_dummy_var));
 	func.at = perm_at();    /* parse expression and save action table */
@@ -1906,8 +1899,8 @@ out_of_range:
 			if(!legal_identifier(tmp) || strlen(tmp) > MAX_ID_LEN)
 				Eex("syntax error in parameter file");
 			if(c == '[') {
-				/* Special case: array element */
-				udvt_entry * udv = get_udv_by_name(tmp);
+				// Special case: array element 
+				udvt_entry * udv = Ev.GetUdvByName(tmp);
 				int index;
 				if(udv->udv_value.type != ARRAY)
 					Eex("no such array");
@@ -1917,11 +1910,11 @@ out_of_range:
 				par_udv[num_params] = &(udv->udv_value.v.value_array[index]);
 			}
 			else {
-				/* Normal case */
+				// Normal case 
 				safe_strncpy(par_name[num_params], tmp, sizeof(fixstr));
-				par_udv[num_params] = &(add_udv_by_name(tmp)->udv_value);
+				par_udv[num_params] = &Ev.AddUdvByName(tmp)->udv_value;
 			}
-			/* next must be '=' */
+			// next must be '=' 
 			if(c != '=') {
 				tmp = strchr(s, '=');
 				if(tmp == NULL)
@@ -1932,7 +1925,7 @@ out_of_range:
 			if(sscanf(tmp, "%lf", &tmp_par) != 1)
 				Eex("syntax error in parameter file");
 			Gcomplex(par_udv[num_params], tmp_par, 0.0);
-			/* Fixed parameters are updated but not counted against num_params */
+			// Fixed parameters are updated but not counted against num_params 
 			if(!fixed) {
 				if(num_params >= max_params)
 					Eex("too many fit parameters");
@@ -1974,11 +1967,11 @@ out_of_range:
 				par_udv[num_params] = &(udv->udv_value.v.value_array[index]);
 			}
 			else {
-				/* Normal case: via param_name */
+				// Normal case: via param_name 
 				Pgm.Capture(par_name[num_params], Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx(), (int)sizeof(par_name[0]));
-				/* create variable if it doesn't exist */
+				// create variable if it doesn't exist 
 				a[num_params] = createdvar(par_name[num_params], INITIAL_VALUE);
-				par_udv[num_params] = &(get_udv_by_name(par_name[num_params])->udv_value);
+				par_udv[num_params] = &Ev.GetUdvByName(par_name[num_params])->udv_value;
 			}
 			num_params++;
 		} while(Pgm.Equals(++Pgm.CToken, ",") && ++Pgm.CToken);
@@ -2044,7 +2037,7 @@ out_of_range:
 	if(strchr(last_fit_command, ';'))
 		*strchr(last_fit_command, ';') = '\0';
 	// save fit command to user variable 
-	fill_gpval_string("GPVAL_LAST_FIT", last_fit_command);
+	Ev.FillGpValString("GPVAL_LAST_FIT", last_fit_command);
 }
 /*
  * Print message to stderr and log file
@@ -2135,7 +2128,7 @@ void save_fit(FILE * fp)
 		fputs("# ", fp);
 		fputs(last_fit_command, fp);
 		fputs("\n", fp);
-		udv = get_udv_by_name("FIT_STDFIT");
+		udv = GPO.Ev.GetUdvByName("FIT_STDFIT");
 		if(udv)
 			fprintf(fp, "# final sum of squares of residuals : %g\n", udv->udv_value.v.cmplx_val.real);
 	}

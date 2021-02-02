@@ -280,7 +280,7 @@
 #define cmSetupTooltip       66 // evCommand Посылается окну, для того, чтобы оно смогло инициализировать подсказки (tooltip) //
 #define cmSetupResizeParams  67 // evCommand Посылается окну, для того, чтобы оно установило параметры изменения размеров для управляющих элементов
 #define cmMouseHover         68 // evBroadcast Посылается окну, когда курсор мыши задерживается на определенное время.
-	// В infoPtr содержатся координаты курсора мыши (TPoint).
+	// В infoPtr содержатся координаты курсора мыши (SPoint2S).
 #define cmTimeChange         69 // evCommand Посылается классу TProgram, когда какое-либо приложение изменило системное время //
 //
 // ComboBox messages

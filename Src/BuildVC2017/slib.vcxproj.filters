@@ -173,6 +173,7 @@
     <ClCompile Include="..\SLib\dirent.cpp" />
     <ClCompile Include="..\SLib\slib-getopt.cpp" />
     <ClCompile Include="..\SLib\slib-winapi-helper.cpp" />
+    <ClCompile Include="..\SLib\sregexp2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

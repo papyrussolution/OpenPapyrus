@@ -19,9 +19,9 @@ double boxdepth = 0.0;
 
 /* static prototypes */
 
-static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, iso_curve ** this_iso,
-    AXIS_INDEX iso_axis, double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use);
-static int get_3ddata(struct surface_points * this_plot);
+//static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, iso_curve ** this_iso,
+    //AXIS_INDEX iso_axis, double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use);
+//static int get_3ddata(struct surface_points * this_plot);
 //static void eval_3dplots();
 static void grid_nongrid_data(struct surface_points * this_plot);
 static void parametric_3dfixup(struct surface_points * start_plot, int * plot_num);
@@ -312,9 +312,9 @@ void GnuPlot::Plot3DRequest()
  * forced "set autoscale" since the previous plot or refresh, we need to reset the
  * axis limits and try to approximate the full auto-scaling behaviour.
  */
-void refresh_3dbounds(surface_points * first_plot, int nplots)
+void refresh_3dbounds(surface_points * pFirstPlot, int nplots)
 {
-	const surface_points * this_plot = first_plot;
+	const surface_points * this_plot = pFirstPlot;
 	for(int iplot = 0; iplot < nplots; iplot++, this_plot = this_plot->next_sp) {
 		int i;  /* point index */
 		GpAxis * x_axis = &GPO.AxS[FIRST_X_AXIS];
@@ -677,27 +677,29 @@ static void grid_nongrid_data(struct surface_points * this_plot)
 		iso_free(oicrv);
 	}
 }
-
-/* Get 3D data from file, and store into this_plot data
- * structure. Takes care of 'set mapping' and 'set dgrid3d'.
- *
- * Notice: this_plot->token is end of datafile spec, before title etc
- * will be moved past title etc after we return */
-static int get_3ddata(struct surface_points * this_plot)
+// 
+// Get 3D data from file, and store into this_plot data
+// structure. Takes care of 'set mapping' and 'set dgrid3d'.
+// 
+// Notice: this_plot->token is end of datafile spec, before title etc
+// will be moved past title etc after we return 
+// 
+//static int get_3ddata(surface_points * this_plot)
+int GnuPlot::Get3DData(surface_points * pPlot)
 {
 	int xdatum = 0;
 	int ydatum = 0;
 	int j;
 	int pt_in_iso_crv = 0;
-	struct iso_curve * this_iso;
+	iso_curve * this_iso;
 	int retval = 0;
 	double v[MAXDATACOLS];
-	/* Initialize the space that will hold input data values */
+	// Initialize the space that will hold input data values 
 	memzero(v, sizeof(v));
 	if(mapping3d == MAP3D_CARTESIAN) {
-		/* do this check only, if we have PM3D / PM3D-COLUMN not compiled in */
+		// do this check only, if we have PM3D / PM3D-COLUMN not compiled in 
 		if(df_no_use_specs == 2)
-			GPO.IntError(this_plot->token, "Need 1 or 3 columns for cartesian data");
+			IntError(pPlot->token, "Need 1 or 3 columns for cartesian data");
 		/* HBB NEW 20060427: if there's only one, explicit using
 		 * column, it's z data.  df_axis[] has to reflect that, so
 		 * df_readline() will expect time/date input. */
@@ -706,31 +708,26 @@ static int get_3ddata(struct surface_points * this_plot)
 	}
 	else {
 		if(df_no_use_specs == 1)
-			GPO.IntError(this_plot->token, "Need 2 or 3 columns for polar data");
+			IntError(pPlot->token, "Need 2 or 3 columns for polar data");
 	}
-
-	this_plot->num_iso_read = 0;
-	this_plot->has_grid_topology = TRUE;
-	this_plot->pm3d_color_from_column = FALSE;
-
-	/* we ought to keep old memory - most likely case
-	 * is a replot, so it will probably exactly fit into
-	 * memory already allocated ?
-	 */
-	if(this_plot->iso_crvs != NULL) {
-		struct iso_curve * icrv, * icrvs = this_plot->iso_crvs;
+	pPlot->num_iso_read = 0;
+	pPlot->has_grid_topology = TRUE;
+	pPlot->pm3d_color_from_column = FALSE;
+	// we ought to keep old memory - most likely case
+	// is a replot, so it will probably exactly fit into
+	// memory already allocated ?
+	if(pPlot->iso_crvs != NULL) {
+		iso_curve * icrv, * icrvs = pPlot->iso_crvs;
 		while(icrvs) {
 			icrv = icrvs;
 			icrvs = icrvs->next;
 			iso_free(icrv);
 		}
-		this_plot->iso_crvs = NULL;
+		pPlot->iso_crvs = NULL;
 	}
-	/* data file is already open */
-
+	// data file is already open 
 	if(df_matrix)
-		this_plot->has_grid_topology = TRUE;
-
+		pPlot->has_grid_topology = TRUE;
 	{
 		/*{{{  read surface from text file */
 		struct iso_curve * local_this_iso = iso_alloc(samples_1);
@@ -744,17 +741,14 @@ static int get_3ddata(struct surface_points * this_plot)
 		double color = VERYLARGE;
 		int pm3d_color_from_column = FALSE;
 #define color_from_column(x) pm3d_color_from_column = x
-
-		if(this_plot->plot_style == LABELPOINTS)
+		if(pPlot->plot_style == LABELPOINTS)
 			expect_string(4);
-
-		if(this_plot->plot_style == VECTOR) {
+		if(pPlot->plot_style == VECTOR) {
 			local_this_iso->next = iso_alloc(samples_1);
 			local_this_iso->next->p_count = 0;
 		}
-
-		if(this_plot->plot_style == POLYGONS) {
-			this_plot->has_grid_topology = FALSE;
+		if(pPlot->plot_style == POLYGONS) {
+			pPlot->has_grid_topology = FALSE;
 			track_pm3d_quadrangles = TRUE;
 		}
 		/* If the user has set an explicit locale for numeric input, apply it */
@@ -764,7 +758,7 @@ static int get_3ddata(struct surface_points * this_plot)
 		while((retval = df_readline(v, MAXDATACOLS)) != DF_EOF) {
 			j = retval;
 			if(j == 0) /* not blank line, but df_readline couldn't parse it */
-				GPO.IntWarn(NO_CARET, "Bad data on line %d of file %s", df_line_number, df_filename ? df_filename : "");
+				IntWarn(NO_CARET, "Bad data on line %d of file %s", df_line_number, df_filename ? df_filename : "");
 
 			if(j == DF_SECOND_BLANK)
 				break; /* two blank lines */
@@ -777,11 +771,11 @@ static int get_3ddata(struct surface_points * this_plot)
 				 * record.  So, toss out isoline information for
 				 * images.
 				 */
-				if(oneof3(this_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE))
+				if(oneof3(pPlot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE))
 					continue;
-				if(this_plot->plot_style == VECTOR)
+				if(pPlot->plot_style == VECTOR)
 					continue;
-				/* one blank line */
+				// one blank line 
 				if(pt_in_iso_crv == 0) {
 					if(xdatum == 0)
 						continue;
@@ -789,11 +783,11 @@ static int get_3ddata(struct surface_points * this_plot)
 				}
 				if(xdatum > 0) {
 					local_this_iso->p_count = xdatum;
-					local_this_iso->next = this_plot->iso_crvs;
-					this_plot->iso_crvs = local_this_iso;
-					this_plot->num_iso_read++;
+					local_this_iso->next = pPlot->iso_crvs;
+					pPlot->iso_crvs = local_this_iso;
+					pPlot->num_iso_read++;
 					if(xdatum != pt_in_iso_crv)
-						this_plot->has_grid_topology = FALSE;
+						pPlot->has_grid_topology = FALSE;
 					local_this_iso = iso_alloc(pt_in_iso_crv);
 					xdatum = 0;
 					ydatum++;
@@ -801,8 +795,8 @@ static int get_3ddata(struct surface_points * this_plot)
 				continue;
 			}
 			else if(j == DF_FOUND_KEY_TITLE) {
-				/* only the shared part of the 2D and 3D headers is used */
-				df_set_key_title((curve_points *)this_plot);
+				// only the shared part of the 2D and 3D headers is used 
+				df_set_key_title((curve_points *)pPlot);
 				continue;
 			}
 			else if(j == DF_KEY_TITLE_MISSING) {
@@ -812,19 +806,19 @@ static int get_3ddata(struct surface_points * this_plot)
 			else if(j == DF_COLUMN_HEADERS) {
 				continue;
 			}
-			/* its a data point or undefined */
+			// its a data point or undefined 
 			if(xdatum >= local_this_iso->p_max) {
-				/* overflow about to occur. Extend size of points[]
-				 * array. Double the size, and add 1000 points, to
-				 * avoid needlessly small steps. */
+				// overflow about to occur. Extend size of points[]
+				// array. Double the size, and add 1000 points, to
+				// avoid needlessly small steps. 
 				iso_extend(local_this_iso, xdatum + xdatum + 1000);
-				if(this_plot->plot_style == VECTOR) {
+				if(pPlot->plot_style == VECTOR) {
 					iso_extend(local_this_iso->next, xdatum + xdatum + 1000);
 					local_this_iso->next->p_count = 0;
 				}
 			}
 			cp = local_this_iso->points + xdatum;
-			if(this_plot->plot_style == VECTOR) {
+			if(pPlot->plot_style == VECTOR) {
 				if(j < 6) {
 					cp->type = UNDEFINED;
 					continue;
@@ -846,12 +840,12 @@ static int get_3ddata(struct surface_points * this_plot)
 				n_complex_values++;
 				goto come_here_if_undefined;
 			}
-			cp->type = INRANGE; /* unless we find out different */
-			/* EAM Oct 2004 - Substantially rework this section */
-			/* now that there are many more plot types.         */
+			cp->type = INRANGE; // unless we find out different 
+			// EAM Oct 2004 - Substantially rework this section 
+			// now that there are many more plot types.         
 			x = y = z = 0.0;
 			xtail = ytail = ztail = 0.0;
-			/* The x, y, z coordinates depend on the mapping type */
+			// The x, y, z coordinates depend on the mapping type 
 			switch(mapping3d) {
 				case MAP3D_CARTESIAN:
 				    if(j == 1) {
@@ -862,8 +856,8 @@ static int get_3ddata(struct surface_points * this_plot)
 					    break;
 				    }
 				    if(j == 2) {
-					    if(PM3DSURFACE != this_plot->plot_style)
-						    GPO.IntError(this_plot->token, "2 columns only possible with explicit pm3d style (line %d)", df_line_number);
+					    if(PM3DSURFACE != pPlot->plot_style)
+						    IntError(pPlot->token, "2 columns only possible with explicit pm3d style (line %d)", df_line_number);
 					    x = xdatum;
 					    y = ydatum;
 					    z = v[0];
@@ -872,38 +866,31 @@ static int get_3ddata(struct surface_points * this_plot)
 					    j = 3;
 					    break;
 				    }
-
-				    /* Assume everybody agrees that x,y,z are the first three specs */
+				    // Assume everybody agrees that x,y,z are the first three specs 
 				    if(j >= 3) {
 					    x = v[0];
 					    y = v[1];
 					    z = v[2];
 					    break;
 				    }
-
 				    break;
-
 				case MAP3D_SPHERICAL:
 				    if(j < 2)
-					    GPO.IntError(this_plot->token, "Need 2 or 3 columns");
+					    IntError(pPlot->token, "Need 2 or 3 columns");
 				    if(j < 3) {
 					    v[2] = 1; /* default radius */
 					    j = 3;
 				    }
-
-				    /* Convert to radians. */
+				    // Convert to radians. 
 				    v[0] *= ang2rad;
 				    v[1] *= ang2rad;
-
 				    x = v[2] * cos(v[0]) * cos(v[1]);
 				    y = v[2] * sin(v[0]) * cos(v[1]);
 				    z = v[2] * sin(v[1]);
-
 				    break;
-
 				case MAP3D_CYLINDRICAL:
 				    if(j < 2)
-					    GPO.IntError(this_plot->token, "Need 2 or 3 columns");
+					    IntError(pPlot->token, "Need 2 or 3 columns");
 				    if(j < 3) {
 					    v[2] = 1; /* default radius */
 					    j = 3;
@@ -916,37 +903,36 @@ static int get_3ddata(struct surface_points * this_plot)
 				    z = v[1];
 				    break;
 				default:
-				    GPO.IntError(NO_CARET, "Internal error: Unknown mapping type");
+				    IntError(NO_CARET, "Internal error: Unknown mapping type");
 				    return retval;
 			}
 			if(j < df_no_use_specs)
-				GPO.IntError(this_plot->token, "Wrong number of columns in input data - line %d", df_line_number);
-
-			/* Work-around for hidden3d, which otherwise would use the */
-			/* color of the vector midpoint rather than the endpoint. */
-			if(this_plot->plot_style == IMPULSES) {
-				if(this_plot->lp_properties.pm3d_color.type == TC_Z) {
+				IntError(pPlot->token, "Wrong number of columns in input data - line %d", df_line_number);
+			// Work-around for hidden3d, which otherwise would use the 
+			// color of the vector midpoint rather than the endpoint. 
+			if(pPlot->plot_style == IMPULSES) {
+				if(pPlot->lp_properties.pm3d_color.type == TC_Z) {
 					color = z;
 					color_from_column(TRUE);
 				}
 			}
-			/* After the first three columns it gets messy because */
-			/* different plot styles assume different contents in the columns */
-			if(( this_plot->plot_style == POINTSTYLE || this_plot->plot_style == LINESPOINTS)) {
+			// After the first three columns it gets messy because 
+			// different plot styles assume different contents in the columns 
+			if(( pPlot->plot_style == POINTSTYLE || pPlot->plot_style == LINESPOINTS)) {
 				int varcol = 3;
 				coordval var_char = 0;
-				if(this_plot->lp_properties.p_size == PTSZ_VARIABLE)
+				if(pPlot->lp_properties.p_size == PTSZ_VARIABLE)
 					cp->CRD_PTSIZE = v[varcol++];
-				if(this_plot->lp_properties.p_type == PT_VARIABLE) {
+				if(pPlot->lp_properties.p_type == PT_VARIABLE) {
 					if(isnan(v[varcol]) && df_tokens[varcol]) {
-						safe_strncpy( (char*)(&var_char), df_tokens[varcol], sizeof(coordval));
+						safe_strncpy((char*)(&var_char), df_tokens[varcol], sizeof(coordval));
 						truncate_to_one_utf8_char((char*)(&var_char));
 						cp->CRD_PTCHAR = var_char;
 					}
 					cp->CRD_PTTYPE = v[varcol++];
 				}
 				if(j < varcol)
-					GPO.IntError(NO_CARET, "Not enough input columns");
+					IntError(NO_CARET, "Not enough input columns");
 				else if(j == varcol) {
 					color = z;
 					color_from_column(FALSE);
@@ -956,21 +942,21 @@ static int get_3ddata(struct surface_points * this_plot)
 					color_from_column(TRUE);
 				}
 			}
-			else if(this_plot->plot_style == LABELPOINTS) {
-				if(draw_contour && !this_plot->opt_out_of_contours) {
+			else if(pPlot->plot_style == LABELPOINTS) {
+				if(draw_contour && !pPlot->opt_out_of_contours) {
 					/* j is 3 for some reason */;
 				}
 				else {
 					int varcol = 4;
-					cp->CRD_ROTATE = this_plot->labels->rotate;
-					cp->CRD_PTSIZE = this_plot->labels->lp_properties.p_size;
-					cp->CRD_PTTYPE = this_plot->labels->lp_properties.p_type;
+					cp->CRD_ROTATE = pPlot->labels->rotate;
+					cp->CRD_PTSIZE = pPlot->labels->lp_properties.p_size;
+					cp->CRD_PTTYPE = pPlot->labels->lp_properties.p_type;
 					if(cp->CRD_PTSIZE == PTSZ_VARIABLE)
 						cp->CRD_PTSIZE = v[varcol++];
 					if(cp->CRD_PTTYPE == PT_VARIABLE)
 						cp->CRD_PTTYPE = v[varcol++];
 					if(j < varcol)
-						GPO.IntError(NO_CARET, "Not enough input columns");
+						IntError(NO_CARET, "Not enough input columns");
 					if(j == varcol) {
 						/* 4th column holds label text rather than color */
 						color = z;
@@ -982,20 +968,20 @@ static int get_3ddata(struct surface_points * this_plot)
 					}
 				}
 			}
-			else if(this_plot->plot_style == CIRCLES) {
+			else if(pPlot->plot_style == CIRCLES) {
 				int varcol = 3;
-				/* require 4th column = radius */
+				// require 4th column = radius 
 				cp->CRD_PTSIZE = v[varcol++];
 				if(j < varcol)
-					GPO.IntError(NO_CARET, "Not enough input columns");
+					IntError(NO_CARET, "Not enough input columns");
 				if(j == varcol)
-					color = this_plot->fill_properties.border_color.lt;
+					color = pPlot->fill_properties.border_color.lt;
 				else
 					color = v[varcol];
 				color_from_column(TRUE);
 			}
-			else if(this_plot->plot_style == VECTOR) {
-				/* We already enforced that j >= 6 */
+			else if(pPlot->plot_style == VECTOR) {
+				// We already enforced that j >= 6 
 				xtail = x + v[3];
 				ytail = y + v[4];
 				ztail = z + v[5];
@@ -1008,7 +994,7 @@ static int get_3ddata(struct surface_points * this_plot)
 					color_from_column(FALSE);
 				}
 			}
-			else if(this_plot->plot_style == ZERRORFILL) {
+			else if(pPlot->plot_style == ZERRORFILL) {
 				if(j == 4) {
 					zlow = v[2] - v[3];
 					zhigh = v[2] + v[3];
@@ -1018,33 +1004,33 @@ static int get_3ddata(struct surface_points * this_plot)
 					zhigh = v[4];
 				}
 				else {
-					GPO.IntError(NO_CARET, "this plot style wants 4 or 5 input columns");
+					IntError(NO_CARET, "this plot style wants 4 or 5 input columns");
 				}
 				color_from_column(FALSE);
 				track_pm3d_quadrangles = TRUE;
 			}
-			else if(this_plot->plot_style == BOXES) {
+			else if(pPlot->plot_style == BOXES) {
 				// Pop last using value to use as variable color 
-				if(this_plot->fill_properties.border_color.type == TC_RGB &&  this_plot->fill_properties.border_color.value < 0) {
+				if(pPlot->fill_properties.border_color.type == TC_RGB &&  pPlot->fill_properties.border_color.value < 0) {
 					color_from_column(TRUE);
 					color = v[--j];
 				}
-				else if(this_plot->fill_properties.border_color.type == TC_Z && j >= 4) {
+				else if(pPlot->fill_properties.border_color.type == TC_Z && j >= 4) {
 					rgb255_color rgbcolor;
 					uint rgb;
-					rgb255maxcolors_from_gray(cb2gray(v[--j]), &rgbcolor);
+					Rgb255MaxColorsFromGray(Cb2Gray(v[--j]), &rgbcolor);
 					rgb = (uint)rgbcolor.r << 16 | (uint)rgbcolor.g << 8 | (uint)rgbcolor.b;
 					color_from_column(TRUE);
 					color = rgb;
 				}
-				else if(this_plot->fill_properties.border_color.type == TC_COLORMAP && j >= 4) {
-					double gray = map2gray(v[--j], this_plot->lp_properties.P_Colormap);
+				else if(pPlot->fill_properties.border_color.type == TC_COLORMAP && j >= 4) {
+					double gray = map2gray(v[--j], pPlot->lp_properties.P_Colormap);
 					color_from_column(TRUE);
-					color = rgb_from_colormap(gray, this_plot->lp_properties.P_Colormap);
+					color = rgb_from_colormap(gray, pPlot->lp_properties.P_Colormap);
 				}
-				else if(this_plot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
+				else if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 					lp_style_type lptmp;
-					load_linetype(&lptmp, (int)v[--j]);
+					load_linetype(term, &lptmp, (int)v[--j]);
 					color_from_column(TRUE);
 					color = rgb_from_colorspec(&lptmp.pm3d_color);
 				}
@@ -1052,29 +1038,27 @@ static int get_3ddata(struct surface_points * this_plot)
 					xlow = x - v[3]/2.;
 					xhigh = x + v[3]/2.;
 				}
-				else if(GPO.AxS.__X().log) {
-					double width = (boxwidth > 0) ? boxwidth : 0.1;
-					xlow = x * pow(GPO.AxS.__X().base, -width/2.0);
-					xhigh = x * pow(GPO.AxS.__X().base, width/2.0);
+				else if(AxS.__X().log) {
+					double width = (V.BoxWidth > 0.0) ? V.BoxWidth : 0.1;
+					xlow = x * pow(AxS.__X().base, -width/2.0);
+					xhigh = x * pow(AxS.__X().base, width/2.0);
 				}
 				else {
-					double width = (boxwidth > 0) ? boxwidth : 1.0;
+					double width = (V.BoxWidth > 0.0) ? V.BoxWidth : 1.0;
 					xlow = x - width/2.0;
 					xhigh = x + width/2.0;
 				}
 				track_pm3d_quadrangles = TRUE;
 #ifdef BOXERROR_3D
 			}
-			else if(this_plot->plot_style == BOXERROR) {
+			else if(pPlot->plot_style == BOXERROR) {
 				/* This style only makes sense in xz projection, as a way
 				 * to produce horizontal bar charts with error bars.
 				 * 4 column:	x (y) z zerror
 				 * 5 column:	x (y) z zlow zhigh
 				 */
 				/* Optional variable color in last column */
-				if((this_plot->lp_properties.pm3d_color.type == TC_RGB
-				    &&  this_plot->lp_properties.pm3d_color.value < 0)
-				    ||  this_plot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
+				if((pPlot->lp_properties.pm3d_color.type == TC_RGB &&  pPlot->lp_properties.pm3d_color.value < 0) || pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 					color_from_column(TRUE);
 					color = v[--j];
 				}
@@ -1087,26 +1071,25 @@ static int get_3ddata(struct surface_points * this_plot)
 					zhigh = v[4];
 				}
 				else {
-					GPO.IntError(NO_CARET, "this plot style wants 4 or 5 input columns");
+					IntError(NO_CARET, "this plot style wants 4 or 5 input columns");
 				}
 #endif /* BOXERROR_3D */
 			}
-			else if(this_plot->plot_style == LINES && this_plot->plot_smooth == SMOOTH_ACSPLINES) {
+			else if(pPlot->plot_style == LINES && pPlot->plot_smooth == SMOOTH_ACSPLINES) {
 				if(j >= 4)
 					weight = v[3]; /* spline weights */
 				else
 					weight = 1.0; /* default weight */
 			}
-			else if(this_plot->plot_style == POLYGONS) {
+			else if(pPlot->plot_style == POLYGONS) {
 				if(j >= 4) {
-					if(this_plot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
+					if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 						struct lp_style_type lptmp;
-						load_linetype(&lptmp, (int)(v[3]));
+						load_linetype(term, &lptmp, (int)(v[3]));
 						color = rgb_from_colorspec(&lptmp.pm3d_color);
 						color_from_column(TRUE);
 					}
-					if(this_plot->fill_properties.border_color.type == TC_RGB
-					    &&  this_plot->fill_properties.border_color.value < 0) {
+					if(pPlot->fill_properties.border_color.type == TC_RGB && pPlot->fill_properties.border_color.value < 0) {
 						color = v[3];
 						color_from_column(TRUE);
 					}
@@ -1123,12 +1106,12 @@ static int get_3ddata(struct surface_points * this_plot)
 			// an action statement because it is wrapped in a loop.
 			// I regard this as correct goto use
 			cp->type = INRANGE;
-			STORE_AND_UPDATE_RANGE(cp->x, x, cp->type, GPO.AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
-			STORE_AND_UPDATE_RANGE(cp->y, y, cp->type, GPO.AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
-			if(this_plot->plot_style == VECTOR) {
+			STORE_AND_UPDATE_RANGE(cp->x, x, cp->type, AxS.Idx_X, pPlot->noautoscale, goto come_here_if_undefined);
+			STORE_AND_UPDATE_RANGE(cp->y, y, cp->type, AxS.Idx_Y, pPlot->noautoscale, goto come_here_if_undefined);
+			if(pPlot->plot_style == VECTOR) {
 				cphead->type = INRANGE;
-				STORE_AND_UPDATE_RANGE(cphead->x, xtail, cphead->type, GPO.AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
-				STORE_AND_UPDATE_RANGE(cphead->y, ytail, cphead->type, GPO.AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
+				STORE_AND_UPDATE_RANGE(cphead->x, xtail, cphead->type, AxS.Idx_X, pPlot->noautoscale, goto come_here_if_undefined);
+				STORE_AND_UPDATE_RANGE(cphead->y, ytail, cphead->type, AxS.Idx_Y, pPlot->noautoscale, goto come_here_if_undefined);
 			}
 			if(dgrid3d) {
 				// No point in auto-scaling before we re-grid the data 
@@ -1139,73 +1122,70 @@ static int get_3ddata(struct surface_points * this_plot)
 				coord_type dummy_type;
 				// Without this,  z=Nan or z=Inf or DF_MISSING fails to set
 				// CRD_COLOR at all, since the z test bails to a goto.
-				if(this_plot->plot_style == IMAGE) {
+				if(pPlot->plot_style == IMAGE) {
 					dummy_type = INRANGE;
-					store_and_update_range(&cp->CRD_COLOR, (pm3d_color_from_column) ? color : z, &dummy_type, &GPO.AxS.__CB(), this_plot->noautoscale);
+					store_and_update_range(&cp->CRD_COLOR, (pm3d_color_from_column) ? color : z, &dummy_type, &AxS.__CB(), pPlot->noautoscale);
 					// Rejecting z because x or y is OUTRANGE causes lost pixels
 					// and possilbe non-rectangular image arrays, which then fail.
 					// Better to mark all pixels INRANGE and clip them later.
 					cp->type = INRANGE;
 				}
 				// Version 5: cp->z=0 in the UNDEF_ACTION recovers what	version 4 did 
-				STORE_AND_UPDATE_RANGE(cp->z, z, cp->type, GPO.AxS.Idx_Z, this_plot->noautoscale, cp->z = 0; goto come_here_if_undefined);
-				if(this_plot->plot_style == ZERRORFILL ||  this_plot->plot_style == BOXERROR) {
-					STORE_AND_UPDATE_RANGE(cp->CRD_ZLOW, zlow, cp->type, GPO.AxS.Idx_Z, this_plot->noautoscale, goto come_here_if_undefined);
-					STORE_AND_UPDATE_RANGE(cp->CRD_ZHIGH, zhigh, cp->type, GPO.AxS.Idx_Z, this_plot->noautoscale, goto come_here_if_undefined);
+				STORE_AND_UPDATE_RANGE(cp->z, z, cp->type, AxS.Idx_Z, pPlot->noautoscale, cp->z = 0; goto come_here_if_undefined);
+				if(pPlot->plot_style == ZERRORFILL ||  pPlot->plot_style == BOXERROR) {
+					STORE_AND_UPDATE_RANGE(cp->CRD_ZLOW, zlow, cp->type, AxS.Idx_Z, pPlot->noautoscale, goto come_here_if_undefined);
+					STORE_AND_UPDATE_RANGE(cp->CRD_ZHIGH, zhigh, cp->type, AxS.Idx_Z, pPlot->noautoscale, goto come_here_if_undefined);
 				}
-				if(this_plot->plot_style == LINES && this_plot->plot_smooth == SMOOTH_ACSPLINES) {
+				if(pPlot->plot_style == LINES && pPlot->plot_smooth == SMOOTH_ACSPLINES) {
 					cp->ylow = weight;
 				}
-				if(this_plot->plot_style == BOXES) {
-					STORE_AND_UPDATE_RANGE(cp->xlow, xlow, cp->type, GPO.AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
-					STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, cp->type, GPO.AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
+				if(pPlot->plot_style == BOXES) {
+					STORE_AND_UPDATE_RANGE(cp->xlow, xlow, cp->type, AxS.Idx_X, pPlot->noautoscale, goto come_here_if_undefined);
+					STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, cp->type, AxS.Idx_X, pPlot->noautoscale, goto come_here_if_undefined);
 					// autoscale on y without losing color information stored in CRD_COLOR 
 					if(boxdepth > 0) {
 						double dummy;
-						STORE_AND_UPDATE_RANGE(dummy, y - boxdepth, cp->type, GPO.AxS.Idx_Y, this_plot->noautoscale, {});
-						STORE_AND_UPDATE_RANGE(dummy, y + boxdepth, cp->type, GPO.AxS.Idx_Y, this_plot->noautoscale, {});
+						STORE_AND_UPDATE_RANGE(dummy, y - boxdepth, cp->type, AxS.Idx_Y, pPlot->noautoscale, {});
+						STORE_AND_UPDATE_RANGE(dummy, y + boxdepth, cp->type, AxS.Idx_Y, pPlot->noautoscale, {});
 					}
 					/* We converted linetype colors (lc variable) to RGB colors on input.
 					 * Most plot styles do not do this.
 					 * When we later call check3d_for_variable_color it needs to know this.
 					 */
-					if(this_plot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
-						this_plot->lp_properties.pm3d_color.type = TC_RGB;
-						this_plot->lp_properties.pm3d_color.value = -1.0;
+					if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
+						pPlot->lp_properties.pm3d_color.type = TC_RGB;
+						pPlot->lp_properties.pm3d_color.value = -1.0;
 					}
 				}
-				if(this_plot->plot_style == VECTOR)
-					STORE_AND_UPDATE_RANGE(cphead->z, ztail, cphead->type, GPO.AxS.Idx_Z, this_plot->noautoscale, goto come_here_if_undefined);
+				if(pPlot->plot_style == VECTOR)
+					STORE_AND_UPDATE_RANGE(cphead->z, ztail, cphead->type, AxS.Idx_Z, pPlot->noautoscale, goto come_here_if_undefined);
 				if(pm3d_color_from_column) {
-					if(this_plot->plot_style == VECTOR)
+					if(pPlot->plot_style == VECTOR)
 						cphead->CRD_COLOR = color;
 				}
 				else {
 					color = z;
 				}
 				dummy_type = cp->type;
-				STORE_AND_UPDATE_RANGE(cp->CRD_COLOR, color, dummy_type, COLOR_AXIS, this_plot->noautoscale, goto come_here_if_undefined);
+				STORE_AND_UPDATE_RANGE(cp->CRD_COLOR, color, dummy_type, COLOR_AXIS, pPlot->noautoscale, goto come_here_if_undefined);
 			}
-
-			/* At this point we have stored the point coordinates. Now we need to copy */
-			/* x,y,z into the text_label structure and add the actual text string.     */
-			if(this_plot->plot_style == LABELPOINTS) {
-				/* Aug 2018: only store INRANGE labels. This is a CHANGE. */
+			// At this point we have stored the point coordinates. Now we need to copy 
+			// x,y,z into the text_label structure and add the actual text string.     
+			if(pPlot->plot_style == LABELPOINTS) {
+				// Aug 2018: only store INRANGE labels. This is a CHANGE. 
 				if(cp->type == INRANGE)
-					store_label(this_plot->labels, cp, xdatum, df_tokens[3], color);
+					store_label(pPlot->labels, cp, xdatum, df_tokens[3], color);
 			}
-
-			if(this_plot->plot_style == RGBIMAGE || this_plot->plot_style == RGBA_IMAGE) {
-				/* We will autoscale the RGB components to  a total range [0:255]
-				 * so we don't need to do any fancy scaling here.
-				 */
-				/* If there is only one column of image data, it must be 32-bit ARGB */
+			if(pPlot->plot_style == RGBIMAGE || pPlot->plot_style == RGBA_IMAGE) {
+				// We will autoscale the RGB components to  a total range [0:255]
+				// so we don't need to do any fancy scaling here.
+				// If there is only one column of image data, it must be 32-bit ARGB 
 				if(j==4) {
 					uint argb = (uint)v[3];
 					v[3] = (argb >> 16) & 0xff;
 					v[4] = (argb >> 8) & 0xff;
 					v[5] = (argb) & 0xff;
-					/* The alpha channel convention is unfortunate */
+					// The alpha channel convention is unfortunate 
 					v[6] = 255 - (uint)((argb >> 24) & 0xff);
 				}
 				cp->CRD_R = v[3];
@@ -1213,110 +1193,91 @@ static int get_3ddata(struct surface_points * this_plot)
 				cp->CRD_B = v[5];
 				cp->CRD_A = v[6]; /* Alpha channel */
 			}
-
 come_here_if_undefined:
 			/* some may complain, but I regard this as the correct use of goto */
 			++xdatum;
 		}               /* end of whileloop - end of surface */
-
 		/* We are finished reading user input; return to C locale for internal use */
 		reset_numeric_locale();
-
 		if(pm3d_color_from_column) {
-			this_plot->pm3d_color_from_column = pm3d_color_from_column;
+			pPlot->pm3d_color_from_column = pm3d_color_from_column;
 		}
-
 		if(xdatum > 0) {
-			this_plot->num_iso_read++; /* Update last iso. */
+			pPlot->num_iso_read++; /* Update last iso. */
 			local_this_iso->p_count = xdatum;
-
-			/* If this is a VECTOR plot then iso->next is already */
-			/* occupied by the vector tail coordinates.           */
-			if(this_plot->plot_style != VECTOR)
-				local_this_iso->next = this_plot->iso_crvs;
-			this_plot->iso_crvs = local_this_iso;
-
+			// If this is a VECTOR plot then iso->next is already 
+			// occupied by the vector tail coordinates.           
+			if(pPlot->plot_style != VECTOR)
+				local_this_iso->next = pPlot->iso_crvs;
+			pPlot->iso_crvs = local_this_iso;
 			if(xdatum != pt_in_iso_crv)
-				this_plot->has_grid_topology = FALSE;
+				pPlot->has_grid_topology = FALSE;
 		}
 		else { /* Free last allocation */
-			if(this_plot->plot_style == VECTOR)
+			if(pPlot->plot_style == VECTOR)
 				iso_free(local_this_iso->next);
 			iso_free(local_this_iso);
 		}
-
 		/*}}} */
 	}
-
-	if(dgrid3d && this_plot->num_iso_read > 0)
-		grid_nongrid_data(this_plot);
-
-	if(this_plot->num_iso_read <= 1)
-		this_plot->has_grid_topology = FALSE;
-
-	if(this_plot->has_grid_topology && !hidden3d
-	    &&   (implicit_surface || this_plot->plot_style == SURFACEGRID)) {
-		struct iso_curve * new_icrvs = NULL;
-		int num_new_iso = this_plot->iso_crvs->p_count;
-		int len_new_iso = this_plot->num_iso_read;
+	if(dgrid3d && pPlot->num_iso_read > 0)
+		grid_nongrid_data(pPlot);
+	if(pPlot->num_iso_read <= 1)
+		pPlot->has_grid_topology = FALSE;
+	if(pPlot->has_grid_topology && !hidden3d && (implicit_surface || pPlot->plot_style == SURFACEGRID)) {
+		iso_curve * new_icrvs = NULL;
+		int num_new_iso = pPlot->iso_crvs->p_count;
+		int len_new_iso = pPlot->num_iso_read;
 		int i;
-
-		/* Now we need to set the other direction (pseudo) isolines. */
+		// Now we need to set the other direction (pseudo) isolines. 
 		for(i = 0; i < num_new_iso; i++) {
-			struct iso_curve * new_icrv = iso_alloc(len_new_iso);
-
+			iso_curve * new_icrv = iso_alloc(len_new_iso);
 			new_icrv->p_count = len_new_iso;
-
-			for(j = 0, this_iso = this_plot->iso_crvs;
-			    this_iso != NULL;
-			    j++, this_iso = this_iso->next) {
-				/* copy whole point struct to get type too.
-				 * wasteful for windows, with padding */
-				/* more efficient would be extra pointer to same struct */
+			for(j = 0, this_iso = pPlot->iso_crvs; this_iso != NULL; j++, this_iso = this_iso->next) {
+				// copy whole point struct to get type too.
+				// wasteful for windows, with padding 
+				// more efficient would be extra pointer to same struct 
 				new_icrv->points[j] = this_iso->points[i];
 			}
-
 			new_icrv->next = new_icrvs;
 			new_icrvs = new_icrv;
 		}
-
-		/* Append the new iso curves after the read ones. */
-		for(this_iso = this_plot->iso_crvs;
-		    this_iso->next != NULL;
-		    this_iso = this_iso->next);
+		// Append the new iso curves after the read ones. 
+		for(this_iso = pPlot->iso_crvs; this_iso->next != NULL; this_iso = this_iso->next)
+			;
 		this_iso->next = new_icrvs;
 	}
-
-	/* Deferred evaluation of plot title now that we know column headers */
-	reevaluate_plot_title( (curve_points *)this_plot);
-
+	// Deferred evaluation of plot title now that we know column headers 
+	reevaluate_plot_title((curve_points *)pPlot);
 	return retval;
 }
-
-/* HBB 20000501: code isolated from eval_3dplots(), where practically
- * identical code occurred twice, for direct and crossing isolines,
- * respectively.  The latter only are done for in non-hidden3d
- * mode. */
-static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, struct iso_curve ** this_iso, AXIS_INDEX iso_axis,
-    double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use)
+// 
+// HBB 20000501: code isolated from eval_3dplots(), where practically
+// identical code occurred twice, for direct and crossing isolines,
+// respectively.  The latter only are done for in non-hidden3d mode. 
+// 
+//static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, iso_curve ** this_iso, AXIS_INDEX iso_axis,
+    //double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use)
+void GnuPlot::CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curve ** ppThisIso, AXIS_INDEX iso_axis,
+	double isoMin, double isoStep, int numIsoToUse, AXIS_INDEX samAxIdx, double samMin, double samStep, int numSamToUse)
 {
-	int i, j;
-	struct coordinate * points = (*this_iso)->points;
-	int do_update_color = (!parametric || (parametric && value_axis == FIRST_Z_AXIS));
-	for(j = 0; j < num_iso_to_use; j++) {
-		double iso = iso_min + j * iso_step;
+	int i;
+	struct coordinate * points = (*ppThisIso)->points;
+	int do_update_color = (!parametric || (parametric && valueAxIdx == FIRST_Z_AXIS));
+	for(int j = 0; j < numIsoToUse; j++) {
+		double iso = isoMin + j * isoStep;
 		double isotemp;
-		if(nonlinear(&GPO.AxS[iso_axis]))
-			isotemp = iso = GPO.EvalLinkFunction(&GPO.AxS[iso_axis], iso);
+		if(nonlinear(&AxS[iso_axis]))
+			isotemp = iso = EvalLinkFunction(&AxS[iso_axis], iso);
 		else
 			isotemp = iso;
 		Gcomplex(&plot_func.dummy_values[cross ? 0 : 1], isotemp, 0.0);
-		for(i = 0; i < num_sam_to_use; i++) {
-			double sam = sam_min + i * sam_step;
+		for(i = 0; i < numSamToUse; i++) {
+			double sam = samMin + i * samStep;
 			GpValue a;
 			double temp;
-			if(nonlinear(&GPO.AxS[sam_axis]))
-				sam = GPO.EvalLinkFunction(&GPO.AxS[sam_axis], sam);
+			if(nonlinear(&AxS[samAxIdx]))
+				sam = EvalLinkFunction(&AxS[samAxIdx], sam);
 			temp = sam;
 			Gcomplex(&plot_func.dummy_values[cross ? 1 : 0], temp, 0.0);
 			if(cross) {
@@ -1327,8 +1288,8 @@ static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, struct 
 				points[i].x = sam;
 				points[i].y = iso;
 			}
-			GPO.EvaluateAt(plot_func.at, &a);
-			if(__IsUndefined) {
+			EvaluateAt(plot_func.at, &a);
+			if(Ev.IsUndefined_) {
 				points[i].type = UNDEFINED;
 				continue;
 			}
@@ -1339,15 +1300,15 @@ static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, struct 
 			}
 			temp = real(&a);
 			points[i].type = INRANGE;
-			STORE_AND_UPDATE_RANGE(points[i].z, temp, points[i].type, value_axis, FALSE, NOOP);
+			STORE_AND_UPDATE_RANGE(points[i].z, temp, points[i].type, valueAxIdx, FALSE, NOOP);
 			if(do_update_color) {
 				coord_type dummy_type = points[i].type;
 				STORE_AND_UPDATE_RANGE(points[i].CRD_COLOR, temp, dummy_type, COLOR_AXIS, FALSE, NOOP);
 			}
 		}
-		(*this_iso)->p_count = num_sam_to_use;
-		*this_iso = (*this_iso)->next;
-		points = (*this_iso) ? (*this_iso)->points : NULL;
+		(*ppThisIso)->p_count = numSamToUse;
+		*ppThisIso = (*ppThisIso)->next;
+		points = (*ppThisIso) ? (*ppThisIso)->points : NULL;
 	}
 }
 // 
@@ -1543,18 +1504,18 @@ void GnuPlot::Eval3DPlots()
 				    if(u_sample_range_token > 0)
 					    this_plot->sample_var = add_udv(u_sample_range_token);
 				    else
-					    this_plot->sample_var = add_udv_by_name(c_dummy_var[0]);
+					    this_plot->sample_var = Ev.AddUdvByName(c_dummy_var[0]);
 				    if(v_sample_range_token > 0)
 					    this_plot->sample_var2 = add_udv(v_sample_range_token);
 				    else
-					    this_plot->sample_var2 = add_udv_by_name(c_dummy_var[1]);
+					    this_plot->sample_var2 = Ev.AddUdvByName(c_dummy_var[1]);
 				    // Save prior values of u, v so we can restore later 
 				    original_value_u = this_plot->sample_var->udv_value;
 				    original_value_v = this_plot->sample_var2->udv_value;
 				    this_plot->token = end_token = Pgm.GetPrevTokenIdx(); // for capture to key 
-				    this_plot->iteration = plot_iterator ? plot_iterator->iteration : 0; /* FIXME: Is this really needed? */
-				    /* this_plot->token is temporary, for errors in get_3ddata() */
-				    /* NB: df_axis is used only for timedate data and 3D cbticlabels */
+				    this_plot->iteration = plot_iterator ? plot_iterator->iteration : 0; // FIXME: Is this really needed? 
+				    // this_plot->token is temporary, for errors in get_3ddata() 
+				    // NB: df_axis is used only for timedate data and 3D cbticlabels 
 				    if(specs < 3) {
 					    if(AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE)
 						    IntErrorCurToken("Need full using spec for x time data");
@@ -1640,7 +1601,7 @@ void GnuPlot::Eval3DPlots()
 			if(prefer_line_styles)
 				lp_use_properties(&this_plot->lp_properties, line_num+1);
 			else
-				load_linetype(&this_plot->lp_properties, line_num+1);
+				load_linetype(term, &this_plot->lp_properties, line_num+1);
 			// pm 25.11.2001 allow any order of options 
 			while(!Pgm.EndOfCommand() || !checked_once) {
 				int save_token = Pgm.GetCurTokenIdx();
@@ -1748,8 +1709,7 @@ void GnuPlot::Eval3DPlots()
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(!checked_once) {
 						default_arrow_style(&this_plot->arrow_properties);
-						load_linetype(&(this_plot->arrow_properties.lp_properties),
-						    line_num+1);
+						load_linetype(term, &(this_plot->arrow_properties.lp_properties), line_num+1);
 						checked_once = TRUE;
 					}
 					ArrowParse(&this_plot->arrow_properties, TRUE);
@@ -1787,7 +1747,7 @@ void GnuPlot::Eval3DPlots()
 					if(prefer_line_styles)
 						lp_use_properties(&lp, line_num+1);
 					else
-						load_linetype(&lp, line_num+1);
+						load_linetype(term, &lp, line_num+1);
 					new_lt = LpParse(&lp, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
 					checked_once = TRUE;
 					if(stored_token != Pgm.GetCurTokenIdx()) {
@@ -1815,7 +1775,7 @@ void GnuPlot::Eval3DPlots()
 						this_plot->labels->pos = CENTRE;
 						this_plot->labels->layer = LAYER_PLOTLABELS;
 					}
-					parse_label_options(this_plot->labels, 3);
+					ParseLabelOptions(this_plot->labels, 3);
 					if(draw_contour)
 						load_contour_label_options(this_plot->labels);
 					checked_once = TRUE;
@@ -1844,13 +1804,13 @@ void GnuPlot::Eval3DPlots()
 						this_plot->fill_properties.filldensity = default_fillstyle.filldensity;
 						this_plot->fill_properties.fillpattern = 1;
 						this_plot->fill_properties.border_color = this_plot->lp_properties.pm3d_color;
-						parse_fillstyle(&this_plot->fill_properties);
+						ParseFillStyle(&this_plot->fill_properties);
 						set_fillstyle = TRUE;
 					}
 					if(this_plot->plot_style == PM3DSURFACE)
 						this_plot->fill_properties.border_color.type = TC_DEFAULT;
 					if(Pgm.EqualsCur("fc") || Pgm.AlmostEqualsCur("fillc$olor")) {
-						parse_colorspec(&fillcolor, TC_RGB);
+						ParseColorSpec(&fillcolor, TC_RGB);
 						set_fillstyle = TRUE;
 						set_fillcolor = TRUE;
 					}
@@ -1908,7 +1868,7 @@ void GnuPlot::Eval3DPlots()
 					if(prefer_line_styles)
 						lp_use_properties(&this_plot->lp_properties, line_num+1);
 					else
-						load_linetype(&this_plot->lp_properties, line_num+1);
+						load_linetype(term, &this_plot->lp_properties, line_num+1);
 					new_lt = LpParse(&this_plot->lp_properties, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
 					if(new_lt)
 						this_plot->hidden3d_top_linetype = new_lt - 1;
@@ -1984,15 +1944,14 @@ void GnuPlot::Eval3DPlots()
 					//
 					// used by get_3ddata() 
 					this_plot->token = this_token;
-					df_return = get_3ddata(this_plot);
+					df_return = Get3DData(this_plot);
 					// for second pass 
 					this_plot->token = Pgm.GetCurTokenIdx();
 					this_plot->iteration = plot_iterator ? plot_iterator->iteration : 0;
 					if(this_plot->num_iso_read == 0)
 						this_plot->plot_type = NODATA;
-
-					/* Sep 2017 - Check for all points bad or out of range  */
-					/* (normally harmless but must not cause infinite loop) */
+					// Sep 2017 - Check for all points bad or out of range  
+					// (normally harmless but must not cause infinite loop) 
 					if(forever_iteration(plot_iterator)) {
 						int ntotal, ninrange, nundefined;
 						count_3dpoints(this_plot, &ntotal, &ninrange, &nundefined);
@@ -2001,8 +1960,7 @@ void GnuPlot::Eval3DPlots()
 							goto SKIPPED_EMPTY_FILE;
 						}
 					}
-
-					/* okay, we have read a surface */
+					// okay, we have read a surface 
 					plot_num++;
 					tp_3d_ptr = &(this_plot->next_sp);
 					if(df_return == DF_EOF)
@@ -2142,8 +2100,8 @@ SKIPPED_EMPTY_FILE:
 		if(!parametric) {
 			// Autoscaling tracked the visible axis coordinates.	
 			// For nonlinear axes we must transform the limits back to the primary axis 
-			update_primary_axis_range(&AxS[FIRST_X_AXIS]);
-			update_primary_axis_range(&AxS[FIRST_Y_AXIS]);
+			UpdatePrimaryAxisRange(&AxS[FIRST_X_AXIS]);
+			UpdatePrimaryAxisRange(&AxS[FIRST_Y_AXIS]);
 			// Check that xmin -> xmax is not too small.
 			// Give error if xrange badly set from missing datafile error.
 			// Parametric fn can still set ranges.
@@ -2243,11 +2201,11 @@ SKIPPED_EMPTY_FILE:
 
 					num_iso_to_use = iso_samples_2;
 					num_sam_to_use = hidden3d ? iso_samples_1 : samples_1;
-					calculate_set_of_isolines((AXIS_INDEX)crnt_param, FALSE, &this_iso, v_axis, v_min, v_isostep, num_iso_to_use, u_axis, u_min, u_step, num_sam_to_use);
+					CalculateSetOfIsoLines((AXIS_INDEX)crnt_param, FALSE, &this_iso, v_axis, v_min, v_isostep, num_iso_to_use, u_axis, u_min, u_step, num_sam_to_use);
 					if(!hidden3d) {
 						num_iso_to_use = iso_samples_1;
 						num_sam_to_use = samples_2;
-						calculate_set_of_isolines((AXIS_INDEX)crnt_param, TRUE, &this_iso, u_axis, u_min, u_isostep, num_iso_to_use, v_axis, v_min, v_step, num_sam_to_use);
+						CalculateSetOfIsoLines((AXIS_INDEX)crnt_param, TRUE, &this_iso, u_axis, u_min, u_isostep, num_iso_to_use, v_axis, v_min, v_step, num_sam_to_use);
 					}
 					/*}}} */
 				} /* end of ITS A FUNCTION TO PLOT */
@@ -2292,8 +2250,8 @@ SKIPPED_EMPTY_FILE:
 		IntWarn(NO_CARET, "Did you try to plot a complex-valued function?");
 	if(nonlinear(&AxS[FIRST_X_AXIS])) {
 		// Transfer observed data or function ranges back to primary axes 
-		update_primary_axis_range(&AxS[FIRST_X_AXIS]);
-		extend_primary_ticrange(&AxS[FIRST_X_AXIS]);
+		UpdatePrimaryAxisRange(&AxS[FIRST_X_AXIS]);
+		ExtendPrimaryTicRange(&AxS[FIRST_X_AXIS]);
 		axis_check_empty_nonlinear(&AxS[FIRST_X_AXIS]);
 	}
 	else {
@@ -2302,8 +2260,8 @@ SKIPPED_EMPTY_FILE:
 	}
 	if(nonlinear(&AxS[FIRST_Y_AXIS])) {
 		// Transfer observed data or function ranges back to primary axes 
-		update_primary_axis_range(&AxS[FIRST_Y_AXIS]);
-		extend_primary_ticrange(&AxS[FIRST_Y_AXIS]);
+		UpdatePrimaryAxisRange(&AxS[FIRST_Y_AXIS]);
+		ExtendPrimaryTicRange(&AxS[FIRST_Y_AXIS]);
 		axis_check_empty_nonlinear(&AxS[FIRST_Y_AXIS]);
 	}
 	else {
@@ -2311,8 +2269,8 @@ SKIPPED_EMPTY_FILE:
 		AxS.CheckRange(FIRST_Y_AXIS);
 	}
 	if(nonlinear(&AxS[FIRST_Z_AXIS])) {
-		update_primary_axis_range(&AxS[FIRST_Z_AXIS]);
-		extend_primary_ticrange(&AxS[FIRST_Z_AXIS]);
+		UpdatePrimaryAxisRange(&AxS[FIRST_Z_AXIS]);
+		ExtendPrimaryTicRange(&AxS[FIRST_Z_AXIS]);
 	}
 	else {
 		AxisCheckedExtendEmptyRange(FIRST_Z_AXIS, splot_map ? NULL : "All points z value undefined");
@@ -2348,7 +2306,7 @@ SKIPPED_EMPTY_FILE:
 				this_plot->contours = NULL;
 			}
 			// Make sure this one can be contoured. 
-			if(this_plot->plot_style == VECTOR ||  this_plot->plot_style == IMAGE ||  this_plot->plot_style == RGBIMAGE || this_plot->plot_style == RGBA_IMAGE)
+			if(oneof4(this_plot->plot_style, VECTOR, IMAGE, RGBIMAGE, RGBA_IMAGE))
 				continue;
 			if(this_plot->plot_type == NODATA)
 				continue;
@@ -2364,13 +2322,12 @@ SKIPPED_EMPTY_FILE:
 			else
 				this_plot->contours = contour(iso_samples_2, this_plot->iso_crvs);
 		}
-	}                       /* draw_contour */
-	/* Images don't fit the grid model.  (The image data correspond
-	 * to pixel centers.)  To make image work in hidden 3D, add
-	 * another non-visible phantom surface of only four points
-	 * outlining the image.  Opt out of hidden3d for the {RGB}IMAGE
-	 * to avoid processing large amounts of data.
-	 */
+	} // draw_contour 
+	// Images don't fit the grid model.  (The image data correspond
+	// to pixel centers.)  To make image work in hidden 3D, add
+	// another non-visible phantom surface of only four points
+	// outlining the image.  Opt out of hidden3d for the {RGB}IMAGE
+	// to avoid processing large amounts of data.
 	if(hidden3d && plot_num) {
 		surface_points * this_plot = first_3dplot;
 		do {
@@ -2404,7 +2361,7 @@ SKIPPED_EMPTY_FILE:
 		// note that m_capture also frees the old replot_line 
 		Pgm.MCapture(&replot_line, plot_token, Pgm.GetPrevTokenIdx());
 		plot_token = -1;
-		fill_gpval_string("GPVAL_LAST_PLOT", replot_line);
+		Ev.FillGpValString("GPVAL_LAST_PLOT", replot_line);
 	}
 	// record that all went well 
 	plot3d_num = plot_num;
@@ -2496,8 +2453,7 @@ static void parametric_3dfixup(struct surface_points * start_plot, int * plot_nu
 			assert(xp->next_sp == yp);
 			yp->next_sp = free_list;
 			free_list = xp;
-
-			/* add zp to tail of new_list */
+			// add zp to tail of new_list 
 			*last_pointer = zp;
 			last_pointer = &(zp->next_sp);
 			xp = zp->next_sp;
@@ -2508,8 +2464,7 @@ static void parametric_3dfixup(struct surface_points * start_plot, int * plot_nu
 			xp = xp->next_sp;
 		}
 	}
-
-	/* Ok, append free list and write first_plot */
+	// Ok, append free list and write first_plot 
 	*last_pointer = free_list;
 	first_3dplot = new_list;
 }

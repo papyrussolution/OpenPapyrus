@@ -776,15 +776,15 @@ static void CACA_init_aspect_ratio()
 		/* But in practice they can return 0. */
 	}
 	if(height == 0 || width == 0) {
-		term->h_tic = term->v_tic = 1;
+		term->TicH = term->TicV = 1;
 	}
 	else if(height > width) {
-		term->h_tic = (height + width / 2) / width;
-		term->v_tic = 1;
+		term->TicH = (height + width / 2) / width;
+		term->TicV = 1;
 	}
 	else {
-		term->h_tic = 1;
-		term->v_tic = (width + height / 2) / height;
+		term->TicH = 1;
+		term->TicV = (width + height / 2) / height;
 	}
 }
 
@@ -1058,14 +1058,11 @@ TERM_PUBLIC void CACA_color(t_colorspec * colorspec)
 		    uint16_t alpha;
 		    uint16_t fg_color;
 		    uint16_t bg_color;
-
 		    /* Immediately translate palette index to RGB colour */
-		    rgb255maxcolors_from_gray(colorspec->value, &rgb255);
+		    GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 		    alpha = 0xf;
-
 		    /* keep background color */
 		    attr = caca_get_attr(CACA_cv, -1, -1);      /* get current attribute */
-
 		    if(!CACA_truecolor) {
 			    uint32_t fg_color32;
 			    bg_color = caca_attr_to_ansi_bg(attr);
@@ -1827,19 +1824,13 @@ CACA_result CACA_process_events()
 				case CACA_EVENT_MOUSE_PRESS: {
 				    int button = caca_get_event_mouse_button(&ev);
 				    if(button == 1) {
-					    int i;
-
-					    for(i = 0; (i < CACA_plotno) && (i < CACA_maxkeyboxes) && (i < CACA_maxhideplots); i++) {
+					    for(int i = 0; (i < CACA_plotno) && (i < CACA_maxkeyboxes) && (i < CACA_maxhideplots); i++) {
 						    /* Is this a click in a key box? */
-						    if((CACA_keyboxes[i].left != INT_MAX) &&
-							(CACA_mouse.x >= CACA_keyboxes[i].left) &&
-							(CACA_mouse.x <= CACA_keyboxes[i].right) &&
-							(CACA_mouse.y <= CACA_keyboxes[i].top) &&
-							(CACA_mouse.y >= CACA_keyboxes[i].bottom)) {
+						    if((CACA_keyboxes[i].left != INT_MAX) && (CACA_mouse.x >= CACA_keyboxes[i].left) &&
+							(CACA_mouse.x <= CACA_keyboxes[i].right) && (CACA_mouse.y <= CACA_keyboxes[i].top) && (CACA_mouse.y >= CACA_keyboxes[i].bottom)) {
 							    CACA_hideplot[i] = !CACA_hideplot[i];
 							    FPRINTF((stderr, "CACA: hide plot #%i: %i\n", i, CACA_hideplot[i]));
-							    /* If something changed, replot and do not pass this event
-							       on to the core. */
+							    // If something changed, replot and do not pass this event on to the core. 
 							    CACA_zoom_or_replot = TRUE;
 							    exec_event(GE_replot, 0, 0, 0, 0, 0);
 							    break;
@@ -1851,18 +1842,18 @@ CACA_result CACA_process_events()
 				    FPRINTF((stderr, "CACA: mouse press: button = %i, pos = %i, %i\n", button, mx, my));
 				    break;
 			    }
-				case CACA_EVENT_MOUSE_RELEASE: {
-				    ulong timestamp;
-				    int button = caca_get_event_mouse_button(&ev);
-				    ulong event_time = CACA_event_time();
-				    timestamp = event_time - last_event_time;
-				    last_event_time = event_time;
-				    if(exec_event(GE_buttonrelease, mx, my, button, timestamp, 0))
-					    loop = CACA_endpause;
-				    FPRINTF((stderr, "CACA: mouse release: button = %i, pos = %i, %i time = %lu\n", button, mx, my,
-					timestamp));
-				    break;
-			    }
+				case CACA_EVENT_MOUSE_RELEASE: 
+					{
+						ulong timestamp;
+						int button = caca_get_event_mouse_button(&ev);
+						ulong event_time = CACA_event_time();
+						timestamp = event_time - last_event_time;
+						last_event_time = event_time;
+						if(exec_event(GE_buttonrelease, mx, my, button, timestamp, 0))
+							loop = CACA_endpause;
+						FPRINTF((stderr, "CACA: mouse release: button = %i, pos = %i, %i time = %lu\n", button, mx, my, timestamp));
+						break;
+					}
 				case CACA_EVENT_KEY_PRESS: {
 				    int key = CACA_translate_key(caca_get_event_key_ch(&ev));
 				    switch(key) {
@@ -2299,11 +2290,9 @@ TERM_PUBLIC void CACA_image(uint M, uint N, coordval * image, gpiPoint * corner,
 	/* create palette data */
 	if(bpp == 8) {
 		uint32_t red[256], green[256], blue[256], alpha[256];
-		int i;
 		rgb255_color rgb255;
-
-		for(i = 0; i < 256; i++) {
-			rgb255maxcolors_from_gray(i / 255.0, &rgb255);
+		for(int i = 0; i < 256; i++) {
+			GPO.Rgb255MaxColorsFromGray(i / 255.0, &rgb255);
 			red[i]   = rgb255.r << 4;
 			green[i] = rgb255.g << 4;
 			blue[i]  = rgb255.b << 4;
@@ -2311,11 +2300,7 @@ TERM_PUBLIC void CACA_image(uint M, uint N, coordval * image, gpiPoint * corner,
 		}
 		caca_set_dither_palette(dither, red, green, blue, alpha);
 	}
-
-	caca_dither_bitmap(CACA_cv,
-	    corner[0].x, CACA_ymax - corner[0].y,
-	    corner[1].x - corner[0].x, abs(corner[0].y - corner[1].y),
-	    dither, data);
+	caca_dither_bitmap(CACA_cv, corner[0].x, CACA_ymax - corner[0].y, corner[1].x - corner[0].x, abs(corner[0].y - corner[1].y), dither, data);
 	SAlloc::F(data);
 	caca_free_dither(dither);
 }

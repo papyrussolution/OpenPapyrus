@@ -1749,7 +1749,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			pen = UiToolBox.Get(tbiButtonPen_F);
 		canv.SelectObjectAndPush(brush);
 		canv.SelectObjectAndPush(pen);
-		TPoint pt_round;
+		SPoint2S pt_round;
 		pt_round = 4; // ROUNDRECT_RADIUS * 2;
 		canv.RoundRect(rect_elem, pt_round);
 		if(draw_text || draw_bitmap) {

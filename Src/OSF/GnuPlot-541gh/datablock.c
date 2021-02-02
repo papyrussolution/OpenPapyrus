@@ -31,7 +31,7 @@ void GpProgram::DatablockCommand()
 		GPO.IntErrorCurToken("illegal datablock name");
 	// Create or recycle a datablock with the requested name 
 	name = ParseDatablockName();
-	datablock = add_udv_by_name(name);
+	datablock = GPO.Ev.AddUdvByName(name);
 	if(!EqualsCur("<<") || !IsLetter(GetCurTokenIdx()+1))
 		GPO.IntErrorCurToken("data block name must be followed by << EODmarker");
 	if(datablock->udv_value.type != NOTDEFINED)
@@ -86,7 +86,7 @@ char * GpProgram::ParseDatablockName()
 
 char ** get_datablock(char * name)
 {
-	udvt_entry * datablock = get_udv_by_name(name);
+	udvt_entry * datablock = GPO.Ev.GetUdvByName(name);
 	if(!datablock || datablock->udv_value.type != DATABLOCK ||  datablock->udv_value.v.data_array == NULL)
 		GPO.IntError(NO_CARET, "no datablock named %s", name);
 	return datablock->udv_value.v.data_array;

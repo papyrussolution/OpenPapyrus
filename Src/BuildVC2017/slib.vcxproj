@@ -1653,6 +1653,7 @@
     <ClCompile Include="..\SLib\sossl.cpp" />
     <ClCompile Include="..\SLib\spip.cpp" />
     <ClCompile Include="..\SLib\Sprinter.cpp" />
+    <ClCompile Include="..\SLib\sregexp2.cpp" />
     <ClCompile Include="..\SLib\srng.cpp" />
     <ClCompile Include="..\SLib\Sstack.cpp" />
     <ClCompile Include="..\SLib\sstorage.cpp" />

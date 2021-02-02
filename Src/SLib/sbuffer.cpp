@@ -924,8 +924,8 @@ int SSerializeContext::Serialize(int dir, float  & rV, SBuffer & rBuf) { return 
 int SSerializeContext::Serialize(int dir, double & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FLOAT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, S_GUID & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UUID_, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, SColor & rV, SBuffer & rBuf) { return Serialize(dir, T_COLOR_RGBA, &rV, 0, rBuf); } // @v10.9.10
-int SSerializeContext::Serialize(int dir, TPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_IPOINT2, 4), &rV, 0, rBuf); }
-int SSerializeContext::Serialize(int dir, FPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, SPoint2S & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_IPOINT2, 4), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, SPoint2F & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, FRect & rV, SBuffer & rBuf) 
 { 
 	return (Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV.a, 0, rBuf) && Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV.b, 0, rBuf));
@@ -1248,8 +1248,8 @@ int FASTCALL SSerializer::Serialize(double & rV) { return P_SCtx->Serialize(Dir,
 int FASTCALL SSerializer::Serialize(S_GUID & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int SSerializer::Serialize(char * pV, size_t valBufLen) { return P_SCtx->Serialize(Dir, pV, valBufLen, R_Buf); }
 int SSerializer::SerializeFieldList(BNFieldList * pFldList) { return P_SCtx->SerializeFieldList(Dir, pFldList, R_Buf); }
-int FASTCALL SSerializer::Serialize(TPoint & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
-int FASTCALL SSerializer::Serialize(FPoint & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(SPoint2S & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(SPoint2F & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(SArray * pArray) { return P_SCtx->Serialize(Dir, pArray, R_Buf); }
 int FASTCALL SSerializer::Serialize(SStrCollection * pColl) { return P_SCtx->Serialize(Dir, pColl, R_Buf); }
 int FASTCALL SSerializer::Serialize(StrAssocArray & rArray) { return P_SCtx->Serialize(Dir, rArray, R_Buf); }

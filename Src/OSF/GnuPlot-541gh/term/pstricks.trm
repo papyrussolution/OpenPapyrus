@@ -305,8 +305,8 @@ TERM_PUBLIC void PSTRICKS_options()
 			    PSTRICKS_size_y = 5.0;
 			    term->xmax = (uint)PSTRICKS_XMAX;
 			    term->ymax = (uint)PSTRICKS_YMAX;
-			    term->v_char = (uint)(PSTRICKS_VCHAR * 5.0 / 3.0);
-			    term->v_tic = (uint)(PSTRICKS_VTIC * 5.0 / 3.0);
+			    term->ChrV = (uint)(PSTRICKS_VCHAR * 5.0 / 3.0);
+			    term->TicV = (uint)(PSTRICKS_VTIC * 5.0 / 3.0);
 			    GPO.Pgm.Shift();
 			    break;
 			case PSTRICKS_NOUNIT:
@@ -315,8 +315,8 @@ TERM_PUBLIC void PSTRICKS_options()
 			    PSTRICKS_size_y = 3.0;
 			    term->xmax = (uint)(PSTRICKS_size_x * PSTRICKS_XMAX / 5.0);
 			    term->ymax = (uint)(PSTRICKS_size_y * PSTRICKS_YMAX / 5.0);
-			    term->v_char = PSTRICKS_VCHAR;
-			    term->v_tic = PSTRICKS_VTIC;
+			    term->ChrV = PSTRICKS_VCHAR;
+			    term->TicV = PSTRICKS_VTIC;
 			    GPO.Pgm.Shift();
 			    break;
 			case PSTRICKS_SIZE: {
@@ -328,8 +328,8 @@ TERM_PUBLIC void PSTRICKS_options()
 			    PSTRICKS_size_y = height / gp_resolution;
 			    term->xmax = (uint)(PSTRICKS_size_x * PSTRICKS_XMAX / 5.0);
 			    term->ymax = (uint)(PSTRICKS_size_y * PSTRICKS_YMAX / 5.0);
-			    term->v_char = PSTRICKS_VCHAR;
-			    term->v_tic = PSTRICKS_VTIC;
+			    term->ChrV = PSTRICKS_VCHAR;
+			    term->TicV = PSTRICKS_VTIC;
 			    break;
 		    }
 			case PSTRICKS_STANDALONE:
@@ -881,7 +881,7 @@ TERM_PUBLIC void PSTRICKS_set_color(t_colorspec * colorspec)
 		case TC_FRAC:
 		    PSTRICKS_color_type = colorspec->type;
 		    if(GPO.SmPltt.UseMaxColors != 0)
-			    gray = quantize_gray(gray);
+			    gray = GPO.QuantizeGray(gray);
 		    new_color = (gray <= 0) ? 0 : ((gray >= 1) ? (GPO.SmPltt.Colors-1) : (int)(gray * GPO.SmPltt.Colors));
 		    if(new_color >= PSTRICKS_palette_size)
 			    new_color = PSTRICKS_palette_size - 1;
@@ -1107,7 +1107,7 @@ TERM_PUBLIC void PSTRICKS_boxed_text(uint x, uint y, int option)
 		    //printf(" border ");
 		    break;
 		case TEXTBOX_MARGINS:
-		    PSTRICKS_textbox_sep = PSTRICKS_map_x(term->h_char * MAX(x, y) / 1000);
+		    PSTRICKS_textbox_sep = PSTRICKS_map_x(term->ChrH * MAX(x, y) / 1000);
 		    break;
 		case TEXTBOX_FINISH:
 		    //printf("... finish\n");

@@ -3817,18 +3817,15 @@ static void PaletteMake(t_sm_palette * tpal)
 		for(/* EMPTY */; max_colors >= min_colors; max_colors /= 2) {
 			XColor xcolor;
 			double fact = 1.0 / (double)(max_colors-1);
-
 			if(current_plot)
 				ReallocColors(new_cmap, max_colors);
-
 			for(new_cmap->allocated = 0; new_cmap->allocated < max_colors; new_cmap->allocated++) {
 				double gray = (double)new_cmap->allocated * fact;
 				rgb_color color;
-				rgb1_from_gray(gray, &color);
+				GPO.Rgb1FromGray(gray, &color);
 				xcolor.red = 0xffff * color.r + 0.5;
 				xcolor.green = 0xffff * color.g + 0.5;
 				xcolor.blue = 0xffff * color.b + 0.5;
-
 				if(XAllocColor(dpy, new_cmap->colormap, &xcolor)) {
 					new_cmap->pixels[new_cmap->allocated] = xcolor.pixel;
 				}
@@ -3917,10 +3914,10 @@ static void PaletteSetColor(plot_struct * plot, double gray)
 {
 	if(plot->cmap->allocated) {
 		int index;
-		/* FIXME  -  I don't understand why GPO.SmPltt is not always in sync	*/
-		/* with plot->cmap->allocated, but in practice they can be different.	*/
+		// FIXME  -  I don't understand why GPO.SmPltt is not always in sync
+		// with plot->cmap->allocated, but in practice they can be different.	
 		if(GPO.SmPltt.UseMaxColors == plot->cmap->allocated) {
-			gray = quantize_gray(gray);
+			gray = GPO.QuantizeGray(gray);
 			FPRINTF((stderr, " %d", plot->cmap->allocated));
 		}
 		else

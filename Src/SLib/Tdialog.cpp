@@ -65,7 +65,7 @@ int TDialog::setupPosition()
 			ok = 0;
 	}
 	else {
-		TPoint next_dialog_lu_pos = SLS.GetTLA().GetNextDialogLuPos();
+		SPoint2S next_dialog_lu_pos = SLS.GetTLA().GetNextDialogLuPos();
 		if(next_dialog_lu_pos.x >= 0 && next_dialog_lu_pos.y >= 0) {
 			RECT  pr;
 			if(::GetWindowRect(PrevInStack, &pr) && ::GetWindowRect(H(), &r))

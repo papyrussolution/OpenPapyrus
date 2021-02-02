@@ -164,34 +164,34 @@ int FASTCALL TCanvas2::PopObjectN(uint c)
 	return 1;
 }
 
-FPoint TCanvas2::GetCurPoint()
+SPoint2F TCanvas2::GetCurPoint()
 {
 	double x, y;
 	cairo_get_current_point(P_Cr, &x, &y);
-	FPoint p(static_cast<float>(x), static_cast<float>(y));
+	SPoint2F p(static_cast<float>(x), static_cast<float>(y));
 	return p;
 }
 
-void FASTCALL TCanvas2::MoveTo(FPoint p)
+void FASTCALL TCanvas2::MoveTo(SPoint2F p)
 {
 	cairo_move_to(P_Cr, p.X, p.Y);
 }
 
-void FASTCALL TCanvas2::Line(FPoint p)
+void FASTCALL TCanvas2::Line(SPoint2F p)
 {
 	cairo_line_to(P_Cr, p.X, p.Y);
 }
 
 void FASTCALL TCanvas2::LineV(float yTo)
 {
-	FPoint p = GetCurPoint();
+	SPoint2F p = GetCurPoint();
 	p.Y = yTo;
 	Line(p);
 }
 
 void FASTCALL TCanvas2::LineH(float xTo)
 {
-	FPoint p = GetCurPoint();
+	SPoint2F p = GetCurPoint();
 	p.X = xTo;
 	Line(p);
 }
@@ -204,7 +204,7 @@ void FASTCALL TCanvas2::Rect(const TRect & rRect)
 
 void FASTCALL TCanvas2::Rect(const FRect & rRect)
 {
-	FPoint p;
+	SPoint2F p;
 	MoveTo(rRect.a);
 	Line(p.Set(rRect.b.X, rRect.a.Y));
 	Line(rRect.b);
@@ -222,7 +222,7 @@ void TCanvas2::RoundRect(const FRect & rRect, float radius)
 	cairo_arc (cr, x + radius,         y + radius,          radius, 180 * degrees, 270 * degrees);
 	cairo_close_path (cr);
 	*/
-	FPoint p;
+	SPoint2F p;
 	const float degrees = SMathConst::Pi_f / 180.0f;
 	Arc(p.Set(rRect.b.X - radius, rRect.a.Y + radius), radius, -90.0f * degrees, 0.0f);
 	Arc(p.Set(rRect.b.X - radius, rRect.b.Y - radius), radius, 0.0f,             90.0f * degrees);
@@ -249,7 +249,7 @@ static __inline INT GDI_ROUND(FLOAT val)
 // coordinates (-1.0, -1.0) correspond to corners[0], the coordinates
 // (1.0, 1.0) correspond to corners[1].
 //
-void FASTCALL PATH_ScaleNormalizedPoint(FPoint corners[], double x, double y, POINT * pPoint)
+void FASTCALL PATH_ScaleNormalizedPoint(SPoint2F corners[], double x, double y, POINT * pPoint)
 {
     assert(corners);
     assert(pPoint);
@@ -295,7 +295,7 @@ BOOL FASTCALL PATH_AddEntry(PPATH pPath, const POINT * pPoint, BYTE flags)
 // control point is added to the path; otherwise, it is assumed that the current
 // position is equal to the first control point.
 //
-BOOL FASTCALL PATH_DoArcPart(PPATH pPath, FPoint corners[], double angleStart, double angleEnd, BYTE startEntryType)
+BOOL FASTCALL PATH_DoArcPart(PPATH pPath, SPoint2F corners[], double angleStart, double angleEnd, BYTE startEntryType)
 {
     double halfAngle, a;
     double xNorm[4], yNorm[4];
@@ -339,7 +339,7 @@ BOOL FASTCALL PATH_DoArcPart(PPATH pPath, FPoint corners[], double angleStart, d
 #endif // } 0 @sample(ReactOS)
 
 
-void TCanvas2::Arc(FPoint center, float radius, float startAngleRad, float endAngleRad)
+void TCanvas2::Arc(SPoint2F center, float radius, float startAngleRad, float endAngleRad)
 {
 	if(radius >= 0.0f)
 		cairo_arc(P_Cr, center.X, center.Y, radius, startAngleRad, endAngleRad);
@@ -347,7 +347,7 @@ void TCanvas2::Arc(FPoint center, float radius, float startAngleRad, float endAn
 		cairo_arc_negative(P_Cr, center.X, center.Y, -radius, startAngleRad, endAngleRad);
 }
 
-void TCanvas2::Bezier(FPoint middle1, FPoint middle2, FPoint end)
+void TCanvas2::Bezier(SPoint2F middle1, SPoint2F middle2, SPoint2F end)
 {
 	cairo_curve_to(P_Cr, middle1.X, middle1.Y, middle2.X, middle2.Y, end.X, end.Y);
 }
@@ -879,7 +879,7 @@ void TCanvas2::LineHorz(int xFrom, int xTo, int y)
 	::LineTo(static_cast<HDC>(S.HCtx), xTo, y);
 }
 
-TPoint TCanvas2::GetTextSize(const char * pStr)
+SPoint2S TCanvas2::GetTextSize(const char * pStr)
 {
 	size_t len;
 	char   zero[16];
@@ -890,7 +890,7 @@ TPoint TCanvas2::GetTextSize(const char * pStr)
 		memzero(zero, sizeof(zero));
 		pStr = zero;
 	}
-	TPoint p;
+	SPoint2S p;
 	SIZE   sz;
 	return ::GetTextExtentPoint32(static_cast<HDC>(S.HCtx), SUcSwitch(pStr), static_cast<int>(len), &sz) ? p.Set(sz.cx, sz.cy) : p.Z(); // @unicodeproblem
 }
@@ -924,7 +924,7 @@ int TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
 	return BIN(::DrawText(static_cast<HDC>(S.HCtx), SUcSwitch(pText), len, &rect, options));
 }
 
-int TCanvas2::TextOut(TPoint p, const char * pText)
+int TCanvas2::TextOut(SPoint2S p, const char * pText)
 {
 	char   zero[16];
 	const  int len = sstrlen(pText);
@@ -1005,8 +1005,8 @@ int FASTCALL TCanvas2::Ellipse(const FRect & rRect)
 		float distance = static_cast<float>(sqrt(pow(cosrad * x_radius, 2) + pow(sinrad * y_radius, 2)));
 		float angle = atan2f(cosrad * x_radius, sinrad * y_radius);
 		//
-		//FPoint pt(distance * cosf(angle + SMathConst::Pi_f) + centerX, distance * sinf(angle + SMathConst::Pi_f) + centerY);
-		FPoint pt(distance * sinf(angle + SMathConst::Pi_f) + centerX, distance * cosf(angle + SMathConst::Pi_f) + centerY);
+		//SPoint2F pt(distance * cosf(angle + SMathConst::Pi_f) + centerX, distance * sinf(angle + SMathConst::Pi_f) + centerY);
+		SPoint2F pt(distance * sinf(angle + SMathConst::Pi_f) + centerX, distance * cosf(angle + SMathConst::Pi_f) + centerY);
 		if(i == 0)
 			MoveTo(pt);
 		else {
@@ -1037,12 +1037,12 @@ int FASTCALL TCanvas2::Draw(const SDrawShape * pShape)
 			/*
 			PushTransform();
 			SetTransform(mtx2.InitScale(1.0, arc.R.Ratio()) * mtx.InitTranslate(arc.C));
-			FPoint p(arc.R.X, 0.0f);
+			SPoint2F p(arc.R.X, 0.0f);
 			MoveTo(p);
 			Arc(p.Set(0.0f), arc.R.X, arc.Start, arc.End);
 			PopTransform();
 			*/
-			//FPoint p(arc.C.X, arc.C.Y);
+			//SPoint2F p(arc.C.X, arc.C.Y);
 			//MoveTo(p);
 			//SetTransform(mtx2.InitScale(1.0, arc.R.Ratio()));
 
@@ -1064,7 +1064,7 @@ int FASTCALL TCanvas2::Draw(const SDrawShape * pShape)
 		SETMIN(rect.R.X, rect.Width()/2.0f);
 		SETMIN(rect.R.Y, rect.Height()/2.0f);
 		if(rect.R.X > 0.0f || rect.R.Y > 0.0f) {
-			FPoint p = rect.a;
+			SPoint2F p = rect.a;
 			MoveTo(p.AddX(rect.R.X));
 			p.X += rect.Width();
 			Line(p.AddX(rect.R.X));
@@ -1146,7 +1146,7 @@ int FASTCALL TCanvas2::Draw(const SDrawPath * pPath)
 					break;
 				case SDrawPath::opQuad:
 					while(p < dpitem.ArgCount) {
-						FPoint cur = GetCurPoint();
+						SPoint2F cur = GetCurPoint();
 						Bezier(cur + (dpitem.Pnt(p)-cur) * 2.0/3.0,
 							(dpitem.Pnt(p)-dpitem.Pnt(p+2)) * 2.0/3.0 + dpitem.Pnt(p+2), dpitem.Pnt(p+2));
 						p += 4;
@@ -1180,7 +1180,7 @@ int FASTCALL TCanvas2::Draw(const SImageBuffer * pImg)
 {
 	int    ok = -1;
 	if(pImg) {
-		TPoint dim = pImg->GetDim();
+		SPoint2S dim = pImg->GetDim();
 		if(dim.x > 0 && dim.y > 0) {
 			cairo_surface_t * p_img_surf = static_cast<cairo_surface_t *>(pImg->CreateSurface(dsysCairo));
 			THROW(p_img_surf);
@@ -1273,17 +1273,17 @@ int FASTCALL TCanvas2::Draw(const SDrawFigure * pDraw)
 	return Implement_DrawFigure(pDraw, 0);
 }
 
-int TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc_flag, int sweep_flag, FPoint toPoint)
+int TCanvas2::Implement_ArcSvg(SPoint2F radius, float xAxisRotation, int large_arc_flag, int sweep_flag, SPoint2F toPoint)
 {
 	int    ok = 1;
 	radius.X = static_cast<float>(fabs(radius.X));
 	radius.Y = static_cast<float>(fabs(radius.Y));
-	const FPoint cur = GetCurPoint();
+	const SPoint2F cur = GetCurPoint();
 	const float sin_th = sinf(degtorad(xAxisRotation));
 	const float cos_th = cosf(degtorad(xAxisRotation));
 	{
-		FPoint d_ = (cur - toPoint) / 2.0f;
-		FPoint d1(cos_th*d_.X+sin_th*d_.Y, -sin_th*d_.X+cos_th*d_.Y);
+		SPoint2F d_ = (cur - toPoint) / 2.0f;
+		SPoint2F d1(cos_th*d_.X+sin_th*d_.Y, -sin_th*d_.X+cos_th*d_.Y);
 		float check = ((d1 * d1) / (radius * radius)).Add();
 		if(check > 1.0f) {
 			radius.Scale(sqrtf(check));
@@ -1295,15 +1295,15 @@ int TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc
 		The arc fits a unit-radius circle in this space.
 	 */
 	{
-		FPoint pc;
+		SPoint2F pc;
 		float  th_arc, th0;
 		{
-			FPoint p1;
+			SPoint2F p1;
 			{
-				FPoint p0;
+				SPoint2F p0;
 				{
-					FPoint a0(cos_th/radius.X, sin_th/radius.X);
-					FPoint a1(-sin_th/radius.Y, cos_th/radius.Y);
+					SPoint2F a0(cos_th/radius.X, sin_th/radius.X);
+					SPoint2F a1(-sin_th/radius.Y, cos_th/radius.Y);
 					p0 = cur.Combine(a0, a1);
 					p1 = toPoint.Combine(a0, a1);
 				}
@@ -1334,17 +1334,17 @@ int TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc
 		*/
 		int    n_segs = fceili(fabs(th_arc/(SMathConst::PiDiv2+0.001)));
 		const  float th_part = th_arc/n_segs;
-		const  FPoint a_(cos_th*radius.X, -sin_th*radius.Y);
-		const  FPoint b_(sin_th*radius.X,  cos_th*radius.Y);
+		const  SPoint2F a_(cos_th*radius.X, -sin_th*radius.Y);
+		const  SPoint2F b_(sin_th*radius.X,  cos_th*radius.Y);
 		for(int i = 0; i < n_segs; i++) {
 			float _th0 = th0+i*th_part;
 			float _th1 = th0+(i+1)*th_part;
 			// inverse transform compared with rsvg_path_arc
 			float th_half = 0.5f*(_th1-_th0);
 			float t = (8.0f/3.0f)*sinf(th_half*0.5f)*sinf(th_half*0.5f)/sinf(th_half);
-			FPoint p1(pc.X + cosf(_th0) - t * sinf(_th0), pc.Y + sinf(_th0) + t * cosf(_th0));
-			FPoint p3(pc.X + cosf(_th1),                 pc.Y + sinf(_th1));
-			FPoint p2(p3.X + t * sinf(_th1),             p3.Y - t * cosf(_th1));
+			SPoint2F p1(pc.X + cosf(_th0) - t * sinf(_th0), pc.Y + sinf(_th0) + t * cosf(_th0));
+			SPoint2F p3(pc.X + cosf(_th1),                 pc.Y + sinf(_th1));
+			SPoint2F p2(p3.X + t * sinf(_th1),             p3.Y - t * cosf(_th1));
 			Bezier(p1.Combine(a_, b_), p2.Combine(a_, b_), p3.Combine(a_, b_));
 		}
 	}
@@ -1549,7 +1549,7 @@ int FASTCALL TCanvas::Rectangle(const TRect & rRect)
 	return ::Rectangle(H_Dc, rRect.a.x, rRect.a.y, rRect.b.x, rRect.b.y);
 }
 
-int TCanvas::RoundRect(const TRect & rRect, const TPoint & rRoundPt)
+int TCanvas::RoundRect(const TRect & rRect, const SPoint2S & rRoundPt)
 {
 	return ::RoundRect(H_Dc, rRect.a.x, rRect.a.y, rRect.b.x, rRect.b.y, rRoundPt.x, rRoundPt.y);
 }
@@ -1572,7 +1572,7 @@ void TCanvas::LineHorz(int xFrom, int xTo, int y)
 	::LineTo(H_Dc, xTo, y);
 }
 
-TPoint FASTCALL TCanvas::GetTextSize(const char * pStr)
+SPoint2S FASTCALL TCanvas::GetTextSize(const char * pStr)
 {
 	const int len = sstrlen(pStr);
 	char   zero[16];
@@ -1580,7 +1580,7 @@ TPoint FASTCALL TCanvas::GetTextSize(const char * pStr)
 		memzero(zero, sizeof(zero));
 		pStr = zero;
 	}
-	TPoint p;
+	SPoint2S p;
 	SIZE   sz;
 	return ::GetTextExtentPoint32(H_Dc, SUcSwitch(pStr), len, &sz) ?  p.Set(sz.cx, sz.cy) : p.Z(); // @unicodeproblem
 }
@@ -1617,7 +1617,7 @@ int TCanvas::DrawText_(const TRect & rRect, const char * pText, uint options)
 	return BIN(::DrawText(H_Dc, SUcSwitch(pText), -1, &rect, options)); // @unicodeproblem
 }
 
-int TCanvas::TextOut_(TPoint p, const char * pText)
+int TCanvas::TextOut_(SPoint2S p, const char * pText)
 {
 	int    len;
 	char   zero[16];
@@ -2265,7 +2265,7 @@ void STextLayout::Reset()
 	DefCStyleIdent = 0;
 	Flags = 0;
 	State = 0;
-	Bounds = FPoint(0.0f);
+	Bounds = SPoint2F(0.0f);
 	EndPoint = 0.0f;
 	Text.Z();
 	CStyleList.clear();
@@ -2502,7 +2502,7 @@ public:
 		}
 		return x;
 	}
-	int PushGlyph(const SGlyph * pGlyph, FPoint p, uint16 flags)
+	int PushGlyph(const SGlyph * pGlyph, SPoint2F p, uint16 flags)
 	{
 		{
 			STextLayout::Item item(p, pGlyph, flags);
@@ -2570,7 +2570,7 @@ int STextLayout::Arrange(SDrawContext & rCtx, SPaintToolBox & rTb)
 		const uint pc = ParaList.getCount();
 		TloRowState row_state(List, Bounds);
 		int    justif = ADJ_LEFT; // Выравнивание по последнему определителю параграфа
-		FPoint cur = Bounds.a;
+		SPoint2F cur = Bounds.a;
 		for(uint i = 0; i < pc; i++) {
 			const LAssoc & r_pitem = ParaList.at(i);
 			const uint para_pos = static_cast<uint>(r_pitem.Key);
@@ -2588,7 +2588,7 @@ int STextLayout::Arrange(SDrawContext & rCtx, SPaintToolBox & rTb)
 			if(p_obj_para && p_obj_para->GetType() == SPaintObj::tParagraph) {
 				p_obj_para->CreateInnerHandle(rCtx);
 				const SPaintObj::Para * p_para_style = p_obj_para->GetParagraph();
-				const TPoint _indent = p_para_style->LuIndent;
+				const SPoint2S _indent = p_para_style->LuIndent;
 				justif = p_para_style->GetJustif();
 				cur.X += (_indent.x + p_para_style->StartIndent);
 				cur.Y += _indent.y;
@@ -2787,7 +2787,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 						const uint gli = (uint)special_positions.get(spi);
 						cairo_glyph_t * p_cgl = static_cast<cairo_glyph_t *>(glyph_list.at(gli));
 						cairo_glyph_extents(P_Cr, p_cgl, 1, &te);
-						MoveTo(FPoint((float)p_cgl->P.x+1.0f, (float)p_cgl->P.y+2.0f));
+						MoveTo(SPoint2F((float)p_cgl->P.x+1.0f, (float)p_cgl->P.y+2.0f));
 						LineH((float)(p_cgl->P.x+te.width-2.0f));
 						Implement_Stroke(1);
 					}

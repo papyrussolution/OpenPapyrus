@@ -1281,17 +1281,17 @@ static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int t
  * CONTEXT_adjust_dimensions
  * -------------------------
  *
- * - sets the v_char and h_char based on current font size (approximation only)
+ * - sets the ChrV and ChrH based on current font size (approximation only)
  *   using CONTEXT_fontsize in points (from CONTEXT_params.fontsize) and CONTEXT_params.scale_text
  * - sets xmax and ymax based on CONTEXT_params.xsize and CONTEXT_params.ysize
  */
 static void CONTEXT_adjust_dimensions()
 {
 	/* sets vertical dimension of characters based on current fontsize in pt */
-	term->v_char = (uint)((double)CONTEXT_DPI *
+	term->ChrV = (uint)((double)CONTEXT_DPI *
 	    CONTEXT_fontsize / 72.27 * CONTEXT_params.scale_text + 0.5);
 	/* based on proportions of LM digits at 12pt */
-	term->h_char = (uint)(CONTEXT_LM_H_TO_V_RATIO * term->v_char + 0.5);
+	term->ChrH = (uint)(CONTEXT_LM_H_TO_V_RATIO * term->ChrV + 0.5);
 
 	/* we might want to fix CONTEXT_DPI in case that the figure becomes too big */
 	if(CONTEXT_params.unit == INCHES) {
@@ -1661,9 +1661,8 @@ TERM_PUBLIC void CONTEXT_set_color(t_colorspec * colorspec)
 		    /* TODO: if ConTeXt start supporting palettes, we'll uncomment the following: */
 		    fprintf(gpoutfile, "%%gp_set_color(frac(%.4f));\n", gray);
 		    /* but now it doesn't, so let's use the fallback instead: */
-		    rgb1maxcolors_from_gray(gray, &rgb1);
+		    GPO.Rgb1MaxColorsFromGray(gray, &rgb1);
 		    fprintf(gpoutfile, "gp_set_color(rgb(%3.2f,%3.2f,%3.2f));\n", rgb1.r, rgb1.g, rgb1.b);
-
 		    CONTEXT_color_changed = TRUE;
 		    break;
 		default:
@@ -1806,11 +1805,10 @@ TERM_PUBLIC void CONTEXT_image(unsigned M, unsigned N, coordval * image, gpiPoin
 					line_length = 1;
 					fprintf(gpoutfile, "%%\n");
 				}
-				rgb1maxcolors_from_gray(image[i], &color);
+				GPO.Rgb1MaxColorsFromGray(image[i], &color);
 				fprintf(gpoutfile, "%02x%02x%02x", (uchar)(255*color.r), (uchar)(255*color.g), (uchar)(255*color.b));
 			}
 			fprintf(gpoutfile, "\";\n");
-
 			/* IC_RGB or IC_RGBA */
 		}
 		else {

@@ -187,8 +187,8 @@ TERM_PUBLIC void DUMB_options()
 			    }
 			    if(x <= 0) x = 1;
 			    if(y <= 0) y = 1;
-			    term->h_tic = x;
-			    term->v_tic = y;
+			    term->TicH = x;
+			    term->TicV = y;
 			    break;
 			case DUMB_ANSI:
 			case DUMB_ANSI256:
@@ -236,7 +236,7 @@ TERM_PUBLIC void DUMB_options()
 		const char * coloropts[] = {"mono", "ansi", "ansi256", "ansirgb"};
 		sprintf(term_options, "%sfeed %s size %d, %d aspect %i, %i %s", dumb_feed ? "" : "no",
 		    term->put_text == ENHdumb_put_text ? "enhanced" : "", dumb_xmax, dumb_ymax,
-		    term->h_tic, term->v_tic, coloropts[dumb_colormode == 0 ? 0 : dumb_colormode - DUMB_ANSI + 1]);
+		    term->TicH, term->TicV, coloropts[dumb_colormode == 0 ? 0 : dumb_colormode - DUMB_ANSI + 1]);
 	}
 }
 
@@ -379,16 +379,14 @@ const char * ansi_colorstring(t_colorspec * color, t_colorspec * prev_color)
 	    }
 		case TC_FRAC: {
 		    rgb255_color rgb255;
-
 		    if(prev_color != NULL && prev_color->type == TC_FRAC && prev_color->value == color->value)
 			    break;
-		    rgb255maxcolors_from_gray(color->value, &rgb255);
+		    GPO.Rgb255MaxColorsFromGray(color->value, &rgb255);
 		    dumb_rgb_color(rgb255, colorstring);
 		    break;
 	    }
 		case TC_RGB: {
 		    rgb255_color rgb255;
-
 		    if(prev_color != NULL && prev_color->type == TC_RGB && prev_color->lt == color->lt)
 			    break;
 		    rgb255.r = (color->lt >> 16) & 0xff;

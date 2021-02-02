@@ -225,7 +225,7 @@ TERM_PUBLIC void EEPIC_graphics()
 	 * picture box size and position */
 	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(%d,%d)\n", (int)(t->xmax * xsize), (int)(t->ymax * ysize), (int)(t->xmax * xoffset), (int)(t->ymax * xoffset));
 	if(eepic_fontsize_set) {
-		float x = t->v_char * EEPIC_UNIT + 0.5;
+		float x = t->ChrV * EEPIC_UNIT + 0.5;
 		fprintf(gpoutfile, "\\fontsize{%d}{%g}\\selectfont\n", (int)x,  1.2 * x);
 	}
 	else
@@ -451,8 +451,8 @@ TERM_PUBLIC void EEPIC_options()
 				GPO.IntErrorCurToken("font size out of bounds [1..100]");
 			else {
 				eepic_fontsize_set = TRUE;
-				term->v_char = (uint)(fontsize/EEPIC_UNIT);
-				term->h_char = (uint)((fontsize/EEPIC_UNIT)/2);
+				term->ChrV = (uint)(fontsize/EEPIC_UNIT);
+				term->ChrH = (uint)((fontsize/EEPIC_UNIT)/2);
 			}
 		}
 		else

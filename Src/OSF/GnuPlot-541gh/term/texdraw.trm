@@ -265,8 +265,8 @@ TERM_PUBLIC void TEXDRAW_options()
 			    TEXDRAW_size_y = 3.0;
 			    term->xmax = TEXDRAW_size_x * DOTS_PER_INCH;
 			    term->ymax = TEXDRAW_size_y * DOTS_PER_INCH;
-			    term->v_char = TEXDRAW_VCHAR;
-			    term->v_tic = TEXDRAW_VTIC;
+			    term->ChrV = TEXDRAW_VCHAR;
+			    term->TicV = TEXDRAW_VTIC;
 			    break;
 			case TEXDRAW_SIZE: {
 			    float width, height;
@@ -276,8 +276,8 @@ TERM_PUBLIC void TEXDRAW_options()
 			    TEXDRAW_size_y = height / gp_resolution;
 			    term->xmax = TEXDRAW_size_x * DOTS_PER_INCH;
 			    term->ymax = TEXDRAW_size_y * DOTS_PER_INCH;
-			    term->v_char = TEXDRAW_VCHAR;
-			    term->v_tic = TEXDRAW_VTIC;
+			    term->ChrV = TEXDRAW_VCHAR;
+			    term->TicV = TEXDRAW_VTIC;
 			    break;
 		    }
 			case TEXDRAW_STANDALONE:
@@ -589,9 +589,8 @@ TERM_PUBLIC void TEXDRAW_arrow(unsigned int sx, unsigned int sy, unsigned int ex
 	char text;
 	char type = 'T'; // empty triangle
 	// These are the default arrow sizes:
-	int tiplen = (0.16 * 72 / TEXDRAW_scalefactor + 0.5);
-	int width = (0.08 * 72 / TEXDRAW_scalefactor + 0.5);
-
+	int tiplen = static_cast<int>((0.16 * 72 / TEXDRAW_scalefactor + 0.5));
+	int width = static_cast<int>((0.08 * 72 / TEXDRAW_scalefactor + 0.5));
 	// Texdraw cannot only draw vector heads, fall back to built-in code.
 	if(!TEXDRAW_psarrows || (head & HEADS_ONLY)) {
 		do_arrow(sx, sy, ex, ey, head);

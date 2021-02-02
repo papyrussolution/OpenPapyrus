@@ -389,7 +389,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		SImageBuffer img_buf;
 		HBITMAP h_bmp = static_cast<HBITMAP>(::LoadImage(0, MAKEINTRESOURCE(OBM_CHECKBOXES), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE|LR_SHARED));
 		if(img_buf.LoadBmp(0, h_bmp, 5, 13) > 0) {
-			FPoint fp(static_cast<float>(b.a.x + _cxborder), static_cast<float>(b.a.y + _cyborder));
+			SPoint2F fp(static_cast<float>(b.a.x + _cxborder), static_cast<float>(b.a.y + _cyborder));
 			LMatrix2D mtx;
 			rCanv.PushTransform();
 			rCanv.AddTransform(mtx.InitTranslate(fp));
@@ -410,7 +410,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		SImageBuffer img_buf;
 		HBITMAP h_bmp = static_cast<HBITMAP>(::LoadImage(0, MAKEINTRESOURCE(OBM_CHECKBOXES), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE|LR_SHARED));
 		if(img_buf.LoadBmp(0, h_bmp, 1, 13) > 0) {
-			FPoint fp(static_cast<float>(b.a.x + _cxborder), static_cast<float>(b.a.y + _cyborder));
+			SPoint2F fp(static_cast<float>(b.a.x + _cxborder), static_cast<float>(b.a.y + _cyborder));
 			LMatrix2D mtx;
 			rCanv.PushTransform();
 			rCanv.AddTransform(mtx.InitTranslate(fp));
@@ -585,7 +585,7 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 					const ToolItemExtData * p_ext = (p_item->ExtSize >= sizeof(ToolItemExtData)) ? reinterpret_cast<const ToolItemExtData *>(p_item->ExtData) : 0;
 					if(p_ext && p_ext->UiKindID) {
 						UiKind = p_ext->UiKindID;
-						TPoint p;
+						SPoint2S p;
 						Rect.L.Set(p.Z());
 						p = p_item->FigSize;
 						Rect.R.Set(p);

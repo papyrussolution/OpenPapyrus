@@ -444,12 +444,12 @@ TERM_PUBLIC void FIG_options()
 
 	term->xmax = FIG_width;
 	term->ymax = FIG_height;
-	term->v_tic = FIG_VTIC;
-	term->h_tic = FIG_HTIC;
+	term->TicV = FIG_VTIC;
+	term->TicH = FIG_HTIC;
 
 	/* Empirical guess at font metrics */
-	term->v_char = FIG_font_s * FIG_IRES/72. * 0.75;
-	term->h_char = term->v_char * 0.6;
+	term->ChrV = FIG_font_s * FIG_IRES/72. * 0.75;
+	term->ChrH = term->ChrV * 0.6;
 
 	FIG_thickness = FIG_linewidth_factor;
 	if(parse_error)
@@ -731,8 +731,8 @@ TERM_PUBLIC void FIG_arrow(uint sx, uint sy/* start coord */, uint ex, uint ey/*
 		uint headfillparameter = 0;
 		/* arrow head size */
 		if(curr_arrow_headlength == 0) {
-			awidth  = (double)(term->h_tic / 2 + 1);
-			aheight = (double)term->h_tic;
+			awidth  = (double)(term->TicH / 2 + 1);
+			aheight = (double)term->TicH;
 		}
 		else {
 			awidth  = (double)curr_arrow_headlength * 2*sin(curr_arrow_headangle*M_PI/180);
@@ -774,10 +774,10 @@ TERM_PUBLIC void FIG_put_text(uint x, uint y, const char * str)
 	} while(*(s1++) );
 	FIG_poly_clean(FIG_polyvec_stat);
 	if(FIG_angle == 0.)
-		y -= term->v_char / 2; /* assuming vertical center justified */
+		y -= term->ChrV / 2; /* assuming vertical center justified */
 	else {
-		x += (int)(term->v_char*sin(FIG_angle)/4.);
-		y -= (int)(term->v_char*cos(FIG_angle)/4.);
+		x += (int)(term->ChrV*sin(FIG_angle)/4.0);
+		y -= (int)(term->ChrV*cos(FIG_angle)/4.0);
 	}
 	/* Adjust depth so that labels are drawn after objects */
 	if(FIG_current_layer != LAYER_PLOT)
@@ -785,8 +785,8 @@ TERM_PUBLIC void FIG_put_text(uint x, uint y, const char * str)
 	fprintf(gpoutfile, "%d %d %d %d %d %d %6.3f %6.3f %d %6.3f %6.3f %d %d %s\\001\n",
 	    OBJ_TEXT, FIG_justify, FIG_color, text_depth, FIG_DEFAULT,
 	    FIG_font_id, (float)FIG_font_s,
-	    FIG_angle, FIG_text_flags, (float)term->v_char,
-	    (float)term->h_char * strlen(str),
+	    FIG_angle, FIG_text_flags, (float)term->ChrV,
+	    (float)term->ChrH * strlen(str),
 	    FIG_xoff + x, term->ymax + FIG_yoff - y, output_string);
 	SAlloc::F(output_string);
 }
@@ -839,7 +839,7 @@ TERM_PUBLIC void FIG_lpoint(uint x, uint y, int number)
 		ypc = term->ymax + FIG_yoff - y;
 
 		if(tnum == 0) { /* circle */
-			r = FIG_current_pointsize * term->v_char / 4 + 1;
+			r = FIG_current_pointsize * term->ChrV / 4 + 1;
 			fprintf(gpoutfile, "1 3 %d %d %d %d %d %d %d %6.3f 1 0.000 %d %d %d %d %d %d %d %d\n",
 			    SOLID_LINE, FIG_thickness, line_color, fill_color, FIG_linedepth, 0, fill_style, FIG_spacing, xpc, ypc, r, r, xpc, ypc, xpc, ypc - r);
 		}
@@ -847,22 +847,22 @@ TERM_PUBLIC void FIG_lpoint(uint x, uint y, int number)
 			fprintf(gpoutfile, "2 3 %d %d %d %d %d %d %d %6.3f 0 0 0 0 0 ",
 			    SOLID_LINE, FIG_thickness, line_color, fill_color, FIG_linedepth, 0, fill_style, FIG_spacing);
 			if(tnum == 1) { /* square */
-				d = FIG_current_pointsize * term->v_char / 4 + 1;
+				d = FIG_current_pointsize * term->ChrV / 4 + 1;
 				fprintf(gpoutfile, "5\n\t%d %d %d %d %d %d %d %d %d %d\n",
 				    xpc - d, ypc - d, xpc - d, ypc + d, xpc + d, ypc + d, xpc + d, ypc - d, xpc - d, ypc - d);
 			}
 			else if(tnum == 2) { /* diamond */
-				d = FIG_current_pointsize * term->v_char / 3 + 1;
+				d = FIG_current_pointsize * term->ChrV / 3 + 1;
 				fprintf(gpoutfile, "5\n\t%d %d %d %d %d %d %d %d %d %d\n", xpc - d, ypc, xpc, ypc + d, xpc + d, ypc, xpc, ypc - d, xpc - d, ypc);
 			}
 			else if(tnum == 3) { /* triangle up */
-				d = FIG_current_pointsize * term->v_char / 3 + 1;
+				d = FIG_current_pointsize * term->ChrV / 3 + 1;
 				h = d * 4 / 7; /* About d times one 3rd of sqrt(3) */
 				fprintf(gpoutfile, "4\n\t%d %d %d %d %d %d %d %d\n",
 				    xpc - d, ypc + h, xpc, ypc - 2 * h, xpc + d, ypc + h, xpc - d, ypc + h);
 			}
 			else if(tnum == 4) { /* triangle down */
-				d = FIG_current_pointsize * term->v_char / 3 + 1;
+				d = FIG_current_pointsize * term->ChrV / 3 + 1;
 				h = d * 4 / 7;
 				fprintf(gpoutfile, "4\n\t%d %d %d %d %d %d %d %d\n",
 				    xpc - d, ypc - h, xpc, ypc + 2 * h, xpc + d, ypc - h, xpc - d, ypc - h);
@@ -1012,7 +1012,7 @@ TERM_PUBLIC void FIG_set_color(t_colorspec * colorspec)
 		    break;
 		case TC_FRAC:
 		    if(GPO.SmPltt.UseMaxColors != 0)
-			    gray = quantize_gray(gray);
+			    gray = GPO.QuantizeGray(gray);
 		    new_color = (gray <= 0) ? 0 : ((gray >= 1) ? (GPO.SmPltt.Colors-1) : (int)(gray * GPO.SmPltt.Colors));
 		    if(new_color >= FIG_palette_size)
 			    new_color = FIG_palette_size - 1;
@@ -1020,7 +1020,6 @@ TERM_PUBLIC void FIG_set_color(t_colorspec * colorspec)
 			    GPO.IntWarn(NO_CARET, "fig: Palette used before set\n");
 		    new_color += FIG_palette_offst;
 		    break;
-
 		case TC_RGB:
 		    /* Look through all of user colors, named colors, and palette colors */
 		    rgbval = colorspec->lt & 0xffffff;
@@ -1043,11 +1042,9 @@ TERM_PUBLIC void FIG_set_color(t_colorspec * colorspec)
 			    new_color = FIG_gray_index;
 		    }
 		    break;
-
 		default:
 		    break;
 	}
-
 	if(FIG_color != new_color) {
 		FIG_poly_clean(FIG_polyvec_stat);
 		FIG_color = new_color;
@@ -1057,9 +1054,7 @@ TERM_PUBLIC void FIG_set_color(t_colorspec * colorspec)
 TERM_PUBLIC void FIG_filled_polygon(int points, gpiPoint * corners)
 {
 	int i, j;
-
 	FIG_poly_clean(FIG_polyvec_stat); /* Clean up current data */
-
 	fprintf(gpoutfile, "%d %d %d %d %d %d %d %d %d %9.3f %d %d %d %d %d %ld\n\t",
 	    O_POLYLINE, T_POLYGON, FIG_line.style, 0,
 	    FIG_color, FIG_color, FIG_linedepth,
@@ -1067,7 +1062,6 @@ TERM_PUBLIC void FIG_filled_polygon(int points, gpiPoint * corners)
 	    FIG_line.join_style, FIG_line.cap_style, FIG_line.radius,
 	    0, 0, (long)(points+1));
 	/* set thickness (arg 4) to 0 */
-
 	j = 0;
 	for(i = 0; i < points; i++) {
 		fprintf(gpoutfile, " %d %d", FIG_xoff + corners[i].x,
@@ -1077,8 +1071,7 @@ TERM_PUBLIC void FIG_filled_polygon(int points, gpiPoint * corners)
 			j = 0;  /* JFS */
 		}
 	}
-	fprintf(gpoutfile, " %d %d", FIG_xoff + corners[0].x,
-	    term->ymax + FIG_yoff - corners[0].y);
+	fprintf(gpoutfile, " %d %d", FIG_xoff + corners[0].x, term->ymax + FIG_yoff - corners[0].y);
 	j++;
 	if(j != 0) {
 		putc('\n', gpoutfile);
@@ -1088,12 +1081,10 @@ TERM_PUBLIC void FIG_filled_polygon(int points, gpiPoint * corners)
 TERM_PUBLIC void FIG_layer(t_termlayer syncpoint)
 {
 	static int save_depth = FIG_DEPTH;
-
-	/* We must ignore all syncpoints that we don't recognize */
+	// We must ignore all syncpoints that we don't recognize 
 	switch(syncpoint) {
 		default:
 		    break;
-
 		case TERM_LAYER_BEFORE_PLOT:
 		    FIG_poly_clean(FIG_polyvec_stat);
 		    fputs("6", gpoutfile);
@@ -1107,7 +1098,6 @@ TERM_PUBLIC void FIG_layer(t_termlayer syncpoint)
 		    FIG_current_layer = LAYER_PLOT;
 		    FIG_linedepth = 700 - FIG_plotno;
 		    break;
-
 		case TERM_LAYER_AFTER_PLOT:
 		    FIG_poly_clean(FIG_polyvec_stat);
 		    fprintf(gpoutfile, "# End plot #%d\n", FIG_plotno);
@@ -1115,46 +1105,37 @@ TERM_PUBLIC void FIG_layer(t_termlayer syncpoint)
 		    FIG_current_layer = LAYER_FRONT;
 		    FIG_linedepth = 200;
 		    break;
-
 		case TERM_LAYER_RESET:
 		    if(!multiplot)
 			    FIG_plotno = 0;
 		    FIG_current_layer = LAYER_BEHIND;
 		    FIG_linedepth = 900;
 		    break;
-
 		case TERM_LAYER_BACKTEXT:
 		    FIG_current_layer = LAYER_BACK;
 		    FIG_linedepth = 800;
 		    break;
-
 		case TERM_LAYER_BEGIN_GRID:
 		    save_depth = FIG_linedepth;
 		    FIG_linedepth = 801;
 		    break;
-
 		case TERM_LAYER_END_GRID:
 		    FIG_linedepth = save_depth;
 		    break;
-
 		case TERM_LAYER_BEGIN_KEYSAMPLE:
 		    save_depth = FIG_linedepth;
 		    FIG_linedepth = 201;
 		    break;
-
 		case TERM_LAYER_END_KEYSAMPLE:
 		    FIG_linedepth = save_depth;
 		    break;
-
 		case TERM_LAYER_KEYBOX:
 		    FIG_linedepth = 202;
 		    break;
-
 		case TERM_LAYER_BEGIN_PM3D_FLUSH:
 		    save_depth = FIG_linedepth;
 		    FIG_linedepth = 203;
 		    break;
-
 		case TERM_LAYER_END_PM3D_FLUSH:
 		    FIG_linedepth = save_depth;
 		    break;
@@ -1170,8 +1151,8 @@ TERM_TABLE_START(fig_driver)
 "FIG graphics language V3.2 for XFIG graphics editor",
 FIG_XMAX, 
 FIG_YMAX, 
-FIG_VCHAR, 
-FIG_HCHAR,
+static_cast<uint>(FIG_VCHAR), 
+static_cast<uint>(FIG_HCHAR),
 FIG_VTIC, 
 FIG_HTIC, 
 FIG_options, 

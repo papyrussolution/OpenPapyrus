@@ -32,8 +32,8 @@ color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_
 //float  zsize_Removed = 1.0f;        // scale factor for size 
 //float  xoffset_Removed = 0.0f;      // x origin
 //float  yoffset_Removed = 0.0f;      // y origin
-float  aspect_ratio = 0.0f; // don't attempt to force it 
-int    aspect_ratio_3D = 0; // 2 will put x and y on same scale, 3 for z also 
+//float  aspect_ratio = 0.0f; // don't attempt to force it 
+//int    aspect_ratio_3D = 0; // 2 will put x and y on same scale, 3 for z also 
 
 // EAM Augest 2006 - redefine margin as GpPosition so that absolute placement is possible 
 //GpPosition lmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between left edge and GPO.V.BbPlot.xleft in chars (-1: computed) */
@@ -66,8 +66,8 @@ double zero = ZERO; /* zero threshold, may _not_ be 0! */
 double pointsize = 1.0;
 double pointintervalbox = 1.0;
 t_colorspec background_fill(TC_LT, LT_BACKGROUND, 0.0); // = BACKGROUND_COLORSPEC; /* used for filled points */
-double boxwidth              = -1.0; /* box width (automatic) for plot style "with boxes" */
-bool   boxwidth_is_absolute  = true; /* whether box width is absolute (default) or relative */
+//double boxwidth              = -1.0; /* box width (automatic) for plot style "with boxes" */
+//bool   boxwidth_is_absolute  = true; /* whether box width is absolute (default) or relative */
 // set border 
 int    draw_border = 31; // The current settings 
 int    user_border = 31; // What the user last set explicitly 
@@ -83,7 +83,7 @@ bool   clip_lines2 = false;
 bool   clip_points = false;
 bool   clip_radial = false;
 
-static int clip_line(int *, int *, int *, int *);
+//static int clip_line(int *, int *, int *, int *);
 
 // set samples 
 int    samples_1 = SAMPLES;
@@ -148,10 +148,11 @@ int FASTCALL GpView::ClipPoint(int x, int y) const
 //   This routine uses the cohen & sutherland bit mapping for fast clipping -
 // see "Principles of Interactive Computer Graphics" Newman & Sproull page 65.
 // 
-int draw_clip_line(termentry * pTerm, int x1, int y1, int x2, int y2)
+//int draw_clip_line(termentry * pTerm, int x1, int y1, int x2, int y2)
+int GnuPlot::DrawClipLine(termentry * pTerm, int x1, int y1, int x2, int y2)
 {
 	//struct termentry * t = term;
-	int state = clip_line(&x1, &y1, &x2, &y2);
+	int state = V.ClipLine(&x1, &y1, &x2, &y2);
 	if(state != 0) {
 		(*pTerm->move)(x1, y1);
 		(*pTerm->vector)(x2, y2);
@@ -183,7 +184,7 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 		x2 = p[i].x;
 		y2 = p[i].y;
 		pos2 = GPO.V.ClipPoint(x2, y2);
-		clip_ret = clip_line(&x1, &y1, &x2, &y2);
+		clip_ret = GPO.V.ClipLine(&x1, &y1, &x2, &y2);
 		if(clip_ret) {
 			// there is a line to draw 
 			if(pos1) // first vertex was recalculated, move to new start point 
@@ -211,7 +212,8 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 // but we use double rather than int so that the precision is sufficient
 // to orient and draw the arrow head correctly even for very short vectors.
 // 
-void draw_clip_arrow(termentry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head)
+//void draw_clip_arrow(termentry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head)
+void GnuPlot::DrawClipArrow(termentry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head)
 {
 	//struct termentry * t = term;
 	int sx = GpAxis::MapRealToInt(dsx);
@@ -220,12 +222,12 @@ void draw_clip_arrow(termentry * pTerm, double dsx, double dsy, double dex, doub
 	int ey = GpAxis::MapRealToInt(dey);
 	int dx, dy;
 	// Don't draw head if the arrow itself is clipped 
-	if(GPO.V.ClipPoint(sx, sy))
+	if(V.ClipPoint(sx, sy))
 		head = (t_arrow_head)(((int)head) & ~BACKHEAD);
-	if(GPO.V.ClipPoint(ex, ey))
+	if(V.ClipPoint(ex, ey))
 		head = (t_arrow_head)(((int)head) & ~END_HEAD);
 	// clip_line returns 0 if the whole thing is out of range 
-	if(!clip_line(&sx, &sy, &ex, &ey))
+	if(!V.ClipLine(&sx, &sy, &ex, &ey))
 		return;
 	// Special case code for short vectors */
 	// Most terminals are OK with using this code for long vectors also.	
@@ -274,7 +276,8 @@ void draw_clip_arrow(termentry * pTerm, double dsx, double dsy, double dex, doub
  *        1: entire line segment is inside bounding box
  *       -1: line segment has been clipped to bounding box
  */
-int clip_line(int * x1, int * y1, int * x2, int * y2)
+//int clip_line(int * x1, int * y1, int * x2, int * y2)
+int GpView::ClipLine(int * x1, int * y1, int * x2, int * y2) const
 {
 	/* Apr 2014: This algorithm apparently assumed infinite precision
 	 * integer arithmetic. It was failing when passed coordinates that
@@ -288,8 +291,8 @@ int clip_line(int * x1, int * y1, int * x2, int * y2)
 	double dx, dy, x, y;
 	int x_intr[4], y_intr[4], count;
 	int x_max, x_min, y_max, y_min;
-	int pos1 = GPO.V.ClipPoint(*x1, *y1);
-	int pos2 = GPO.V.ClipPoint(*x2, *y2);
+	int pos1 = ClipPoint(*x1, *y1);
+	int pos2 = ClipPoint(*x2, *y2);
 	if(!pos1 && !pos2)
 		return 1;       /* segment is totally in */
 	if(pos1 & pos2)
@@ -305,27 +308,27 @@ int clip_line(int * x1, int * y1, int * x2, int * y2)
 	dy = *y2 - *y1;
 	// Find intersections with the x parallel bbox lines: 
 	if(dy != 0) {
-		x = (GPO.V.P_ClipArea->ybot - *y2) * dx / dy + *x2; // Test for GPO.V.P_ClipArea->ybot boundary. 
-		if(x >= GPO.V.P_ClipArea->xleft && x <= GPO.V.P_ClipArea->xright) {
+		x = (P_ClipArea->ybot - *y2) * dx / dy + *x2; // Test for P_ClipArea->ybot boundary. 
+		if(x >= P_ClipArea->xleft && x <= P_ClipArea->xright) {
 			x_intr[count] = static_cast<int>(x);
-			y_intr[count++] = GPO.V.P_ClipArea->ybot;
+			y_intr[count++] = P_ClipArea->ybot;
 		}
-		x = (GPO.V.P_ClipArea->ytop - *y2) * dx / dy + *x2; // Test for GPO.V.P_ClipArea->ytop boundary. 
-		if(x >= GPO.V.P_ClipArea->xleft && x <= GPO.V.P_ClipArea->xright) {
+		x = (P_ClipArea->ytop - *y2) * dx / dy + *x2; // Test for P_ClipArea->ytop boundary. 
+		if(x >= P_ClipArea->xleft && x <= P_ClipArea->xright) {
 			x_intr[count] = static_cast<int>(x);
-			y_intr[count++] = GPO.V.P_ClipArea->ytop;
+			y_intr[count++] = P_ClipArea->ytop;
 		}
 	}
 	// Find intersections with the y parallel bbox lines: 
 	if(dx != 0) {
-		y = (GPO.V.P_ClipArea->xleft - *x2) * dy / dx + *y2; // Test for GPO.V.P_ClipArea->xleft boundary. 
-		if(y >= GPO.V.P_ClipArea->ybot && y <= GPO.V.P_ClipArea->ytop) {
-			x_intr[count] = GPO.V.P_ClipArea->xleft;
+		y = (P_ClipArea->xleft - *x2) * dy / dx + *y2; // Test for P_ClipArea->xleft boundary. 
+		if(y >= P_ClipArea->ybot && y <= P_ClipArea->ytop) {
+			x_intr[count] = P_ClipArea->xleft;
 			y_intr[count++] = static_cast<int>(y);
 		}
-		y = (GPO.V.P_ClipArea->xright - *x2) * dy / dx + *y2; // Test for GPO.V.P_ClipArea->xright boundary. 
-		if(y >= GPO.V.P_ClipArea->ybot && y <= GPO.V.P_ClipArea->ytop) {
-			x_intr[count] = GPO.V.P_ClipArea->xright;
+		y = (P_ClipArea->xright - *x2) * dy / dx + *y2; // Test for P_ClipArea->xright boundary. 
+		if(y >= P_ClipArea->ybot && y <= P_ClipArea->ytop) {
+			x_intr[count] = P_ClipArea->xright;
 			y_intr[count++] = static_cast<int>(y);
 		}
 	}
@@ -514,7 +517,7 @@ void clip_move(int x, int y)
 
 void clip_vector(termentry * pTerm, int x, int y)
 {
-	draw_clip_line(pTerm, move_pos_x, move_pos_y, x, y);
+	GPO.DrawClipLine(pTerm, move_pos_x, move_pos_y, x, y);
 	move_pos_x = x;
 	move_pos_y = y;
 }
@@ -537,7 +540,7 @@ void draw_polar_clip_line(termentry * pTerm, double xbeg, double ybeg, double xe
 	beg_inrange = (xbeg*xbeg + ybeg*ybeg) <= R*R;
 	end_inrange = (xend*xend + yend*yend) <= R*R;
 	if(beg_inrange && end_inrange) {
-		draw_clip_line(pTerm, GPO.AxS.MapiX(xbeg), GPO.AxS.MapiY(ybeg), GPO.AxS.MapiX(xend), GPO.AxS.MapiY(yend));
+		GPO.DrawClipLine(pTerm, GPO.AxS.MapiX(xbeg), GPO.AxS.MapiY(ybeg), GPO.AxS.MapiX(xend), GPO.AxS.MapiY(yend));
 	}
 	else {
 		// FIXME:  logscale and other odd cases are not covered by this equation 
@@ -611,7 +614,8 @@ outside:
 //
 // Common routines for setting text or line color from t_colorspec 
 //
-void apply_pm3dcolor(termentry * pTerm, t_colorspec * tc)
+//void apply_pm3dcolor(termentry * pTerm, t_colorspec * tc)
+void GnuPlot::ApplyPm3DColor(termentry * pTerm, t_colorspec * tc)
 {
 	//struct termentry * t = term;
 	double cbval;
@@ -653,20 +657,20 @@ void apply_pm3dcolor(termentry * pTerm, t_colorspec * tc)
 	else {
 		switch(tc->type) {
 			case TC_Z:
-				set_color(pTerm, cb2gray(tc->value));
+				set_color(pTerm, Cb2Gray(tc->value));
 				break;
 			case TC_CB:
-				if(GPO.AxS.__CB().log)
-					cbval = (tc->value <= 0) ? GPO.AxS.__CB().min : tc->value;
+				if(AxS.__CB().log)
+					cbval = (tc->value <= 0) ? AxS.__CB().min : tc->value;
 				else
 					cbval = tc->value;
-				set_color(pTerm, cb2gray(cbval));
+				set_color(pTerm, Cb2Gray(cbval));
 				break;
 			case TC_FRAC:
-				set_color(pTerm, GPO.SmPltt.Positive == SMPAL_POSITIVE ?  tc->value : 1-tc->value);
+				set_color(pTerm, SmPltt.Positive == SMPAL_POSITIVE ?  tc->value : 1-tc->value);
 				break;
 			default:
-				break; /* cannot happen */
+				break; // cannot happen 
 		}
 	}
 }
@@ -728,8 +732,8 @@ void free_labels(struct text_label * label)
 void get_offsets(struct text_label * this_label, int * htic, int * vtic)
 {
 	if((this_label->lp_properties.flags & LP_SHOW_POINTS)) {
-		*htic = static_cast<int>(pointsize * term->h_tic * 0.5);
-		*vtic = static_cast<int>(pointsize * term->v_tic * 0.5);
+		*htic = static_cast<int>(pointsize * term->TicH * 0.5);
+		*vtic = static_cast<int>(pointsize * term->TicV * 0.5);
 	}
 	else {
 		*htic = 0;
@@ -757,7 +761,7 @@ void write_label(termentry * pTerm, int x, int y, struct text_label * this_label
 	int htic, vtic;
 	int justify = JUST_TOP; /* This was the 2D default; 3D had CENTRE */
 	textbox_style * textbox = NULL;
-	apply_pm3dcolor(pTerm, &(this_label->textcolor));
+	GPO.ApplyPm3DColor(pTerm, &(this_label->textcolor));
 	ignore_enhanced(this_label->noenhanced);
 	// The text itself 
 	if(this_label->hypertext) {
@@ -783,11 +787,11 @@ void write_label(termentry * pTerm, int x, int y, struct text_label * this_label
 		if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder))
 			(*pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
 		if(this_label->rotate && (*pTerm->text_angle)(this_label->rotate)) {
-			write_multiline(x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, this_label->rotate, this_label->font);
+			write_multiline(pTerm, x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, this_label->rotate, this_label->font);
 			(*pTerm->text_angle)(0);
 		}
 		else {
-			write_multiline(x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, 0, this_label->font);
+			write_multiline(pTerm, x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, 0, this_label->font);
 		}
 	}
 	if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder)) {
@@ -795,23 +799,23 @@ void write_label(termentry * pTerm, int x, int y, struct text_label * this_label
 		(*pTerm->boxed_text)((int)(textbox->xmargin * 100.), (int)(textbox->ymargin * 100.0), TEXTBOX_MARGINS);
 		// Blank out the box and reprint the label 
 		if(textbox->opaque) {
-			apply_pm3dcolor(pTerm, &textbox->fillcolor);
+			GPO.ApplyPm3DColor(pTerm, &textbox->fillcolor);
 			(pTerm->boxed_text)(0, 0, TEXTBOX_BACKGROUNDFILL);
-			apply_pm3dcolor(pTerm, &(this_label->textcolor));
+			GPO.ApplyPm3DColor(pTerm, &(this_label->textcolor));
 			// Init for each of fill and border 
 			if(!textbox->noborder)
 				(pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
 			if(this_label->rotate && (*pTerm->text_angle)(this_label->rotate)) {
-				write_multiline(x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, this_label->rotate, this_label->font);
+				write_multiline(pTerm, x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, this_label->rotate, this_label->font);
 				(pTerm->text_angle)(0);
 			}
 			else
-				write_multiline(x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, 0, this_label->font);
+				write_multiline(pTerm, x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, 0, this_label->font);
 		}
 		// Draw the bounding box 
 		if(!textbox->noborder) {
 			(pTerm->linewidth)(textbox->linewidth);
-			apply_pm3dcolor(pTerm, &textbox->border_color);
+			GPO.ApplyPm3DColor(pTerm, &textbox->border_color);
 			(pTerm->boxed_text)(0, 0, TEXTBOX_OUTLINE);
 		}
 		(pTerm->boxed_text)(0, 0, TEXTBOX_FINISH);
@@ -819,18 +823,18 @@ void write_label(termentry * pTerm, int x, int y, struct text_label * this_label
 	// The associated point, if any 
 	// write_multiline() clips text to on_page; do the same for any point 
 	if((this_label->lp_properties.flags & LP_SHOW_POINTS) && on_page(x, y)) {
-		term_apply_lp_properties(pTerm, &this_label->lp_properties);
+		GPO.TermApplyLpProperties(pTerm, &this_label->lp_properties);
 		(pTerm->point)(x, y, this_label->lp_properties.p_type);
 		// the default label color is that of border 
-		term_apply_lp_properties(pTerm, &border_lp);
+		GPO.TermApplyLpProperties(pTerm, &border_lp);
 	}
 	ignore_enhanced(FALSE);
 }
-
-/* STR points to a label string, possibly with several lines separated
-   by \n.  Return the number of characters in the longest line.  If
-   LINES is not NULL, set *LINES to the number of lines in the
-   label. */
+// 
+// STR points to a label string, possibly with several lines separated
+// by \n.  Return the number of characters in the longest line.  If
+// LINES is not NULL, set *LINES to the number of lines in the label. 
+//
 int label_width(const char * str, int * lines)
 {
 	int mlen = 0;
@@ -869,7 +873,7 @@ void do_timelabel(int x, int y)
 	char str[MAX_LINE_LEN+1];
 	time_t now;
 	if(timelabel.rotate == 0 && !timelabel_bottom)
-		y -= term->v_char;
+		y -= term->ChrV;
 	time(&now);
 	strftime(str, MAX_LINE_LEN, timelabel.text, localtime(&now));
 	temp.text = str;

@@ -474,13 +474,13 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 			break;
 		case S_IPOINT2:
 			if(style == 0)
-				type_text = "TPoint";
+				type_text = "SPoint2S";
 			else if(style == 1)
 				type_text = "ipoint2";
 			break;
 		case S_FPOINT2:
 			if(style == 0)
-				type_text = "FPoint";
+				type_text = "SPoint2F";
 			else if(style == 1)
 				type_text = "fpoint2";
 			break;

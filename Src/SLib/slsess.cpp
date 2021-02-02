@@ -90,9 +90,9 @@ void SlThreadLocalArea::SetNextDialogLuPos(int left, int top)
 	NextDialogLuPos.Set(left, top);
 }
 
-TPoint SlThreadLocalArea::GetNextDialogLuPos()
+SPoint2S SlThreadLocalArea::GetNextDialogLuPos()
 {
-	TPoint result = NextDialogLuPos;
+	SPoint2S result = NextDialogLuPos;
 	NextDialogLuPos.Set(-1, -1);
 	return result;
 }

@@ -953,7 +953,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		if(!df_filename || !*df_filename)
 			IntError(Pgm.GetPrevTokenIdx(), "No previous filename");
 		if(!strcmp(df_filename, "@@") && df_arrayname) {
-			df_array = get_udv_by_name(df_arrayname);
+			df_array = Ev.GetUdvByName(df_arrayname);
 			if(df_array->udv_value.type != ARRAY)
 				IntError(Pgm.GetPrevTokenIdx(), "Array %s invalid", df_arrayname);
 		}
@@ -1197,14 +1197,14 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		// Open failure generates a warning rather than an immediate fatal error.
 		// We assume success (GPVAL_ERRNO == 0) and let the caller change this to
 		// something else if it considers DF_EOF a serious error.
-		fill_gpval_integer("GPVAL_ERRNO", 0);
+		Ev.FillGpValInteger("GPVAL_ERRNO", 0);
 #ifdef HAVE_SYS_STAT_H
 		{
 			struct stat statbuf;
 			if((stat(df_filename, &statbuf) > -1) && S_ISDIR(statbuf.st_mode)) {
 				char * errmsg = (char *)gp_alloc(32 + strlen(df_filename), "errmsg");
 				sprintf(errmsg, "\"%s\" is a directory", df_filename);
-				fill_gpval_string("GPVAL_ERRMSG", errmsg);
+				Ev.FillGpValString("GPVAL_ERRMSG", errmsg);
 				SAlloc::F(errmsg);
 				IntWarn(name_token, "\"%s\" is a directory", df_filename);
 				df_eof = 1;
@@ -1215,7 +1215,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		if((data_fp = loadpath_fopen(df_filename, df_binary_file ? "rb" : "r")) == NULL) {
 			char * errmsg = (char *)gp_alloc(32 + strlen(df_filename), "errmsg");
 			sprintf(errmsg, "Cannot find or open file \"%s\"", df_filename);
-			fill_gpval_string("GPVAL_ERRMSG", errmsg);
+			Ev.FillGpValString("GPVAL_ERRMSG", errmsg);
 			SAlloc::F(errmsg);
 			if(pPlot) // suppress message if this is a stats command 
 				IntWarn(NO_CARET, "Cannot find or open file \"%s\"", df_filename);
@@ -1883,7 +1883,7 @@ int df_readascii(double v[], int max)
 						v[output] = not_a_number();
 						continue;
 					}
-					if(__IsUndefined) {
+					if(GPO.Ev.IsUndefined_) {
 						return_value = DF_UNDEFINED;
 						v[output] = not_a_number();
 						continue;
@@ -2307,7 +2307,7 @@ void GnuPlot::F_Column(union argument * arg)
 	else if(column == -3) // pseudocolumn -3 means "last column" 
 		EvStk.Push(Gcomplex(&a, df_column[df_no_cols - 1].datum, 0.0));
 	else if(column < 1 || column > df_no_cols) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		// Nov 2014: This is needed in case the value is referenced 
 		// in an expression inside a 'using' clause.		    
 		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
@@ -2317,7 +2317,7 @@ void GnuPlot::F_Column(union argument * arg)
 		EvStk.Push(Gcomplex(&a, not_a_number(), (double)DF_MISSING));
 	}
 	else if(df_column[column-1].good != DF_GOOD) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
 	}
 	else
@@ -2386,7 +2386,7 @@ void GnuPlot::F_StringColumn(union argument * /*arg*/)
 		EvStk.Push(Gstring(&a, temp_string));
 	}
 	else if(column < 1 || column > df_no_cols) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		EvStk.Push(&a); // any objection to this ? 
 	}
 	else {
@@ -2482,7 +2482,7 @@ void f_timecolumn(union argument * arg)
 	if(b.type != STRING)
 		GPO.IntError(NO_CARET, "non-string passed as a format to timecolumn");
 	if(column < 1 || column > df_no_cols || !df_column[column - 1].position) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		GPO.EvStk.Push(&a);
 	}
 	else {
@@ -2493,7 +2493,7 @@ void f_timecolumn(union argument * arg)
 		else if(status == DT_DMS)
 			Gcomplex(&a, reltime, 0.0);
 		else
-			__IsUndefined = true;
+			GPO.Ev.IsUndefined_ = true;
 		GPO.EvStk.Push(&a);
 	}
 	gpfree_string(&b);
@@ -4606,7 +4606,7 @@ int df_readbinary(double v[], int max)
 					evaluate_inside_using = TRUE;
 					GPO.EvaluateAt(use_spec[output].at, &a);
 					evaluate_inside_using = FALSE;
-					if(__IsUndefined) {
+					if(GPO.Ev.IsUndefined_) {
 						v[output] = not_a_number();
 						return DF_UNDEFINED;
 					}

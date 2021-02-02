@@ -324,8 +324,8 @@ TERM_PUBLIC void LATEX_options()
 	/* tell gnuplot core about char. sizes. Horizontal spacing
 	 * is about half the text pointsize
 	 */
-	term->v_char = (uint)(LATEX_fontsize * DOTS_PER_INCH / 72);
-	term->h_char = (uint)(LATEX_fontsize * DOTS_PER_INCH / 144);
+	term->ChrV = (uint)(LATEX_fontsize * DOTS_PER_INCH / 72);
+	term->ChrH = (uint)(LATEX_fontsize * DOTS_PER_INCH / 144);
 	if(strcmp(LATEX_font, "doc")==0)
 		sprintf(term_options, "(document specific font) %d", LATEX_fontsize);
 	else
@@ -993,15 +993,13 @@ TERM_PUBLIC void LATEX_set_color(t_colorspec * colorspec)
 	    }
 		case TC_FRAC: {
 		    rgb_color color;
-
-		    rgb1_from_gray(colorspec->value, &color);
+		    GPO.Rgb1FromGray(colorspec->value, &color);
 		    snprintf(colorstr, sizeof(colorstr), "\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", color.r, color.g, color.b);
 		    break;
 	    }
 		default:
 		    break;
 	}
-
 	if(strcmp(colorstr, latex_color) != 0) {
 		strcpy(latex_color, colorstr);
 		if(latex_use_color)

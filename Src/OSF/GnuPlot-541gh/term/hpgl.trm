@@ -1063,8 +1063,8 @@ TERM_PUBLIC void HPGL2_graphics()
  * SP - Select pen
  * SD - Set default font
  */
-	term->v_char = (int)HPGL_PUPI * HPGL2_point_size * HPGL2_fontscale / 72;
-	term->h_char = term->v_char * 2 / 3;
+	term->ChrV = (int)HPGL_PUPI * HPGL2_point_size * HPGL2_fontscale / 72;
+	term->ChrH = term->ChrV * 2 / 3;
 
 	fprintf(gpoutfile, "INNP8SP1SD1,%d,2,%d,", HPGL2_map_encoding(), HPGL2_font->spacing);
 	HPGL2_pen = 1;
@@ -1663,8 +1663,8 @@ static int HPGL2_set_font_size(const char * font, double size)
 	HPGL2_point_size_current = size;
 	HPGL2_is_italic = italic;
 	HPGL2_is_bold = bold;
-	t->v_char = (int)HPGL_PUPI * HPGL2_point_size_current * scale / 72;
-	t->h_char = t->v_char * 2 / 3;
+	t->ChrV = (int)HPGL_PUPI * HPGL2_point_size_current * scale / 72;
+	t->ChrH = t->ChrV * 2 / 3;
 	fprintf(gpoutfile, "SD1,%d,2,%d,", HPGL2_map_encoding(), HPGL2_font->spacing);
 	if(HPGL2_font->spacing) {
 		HPGL2_font->height = HPGL2_point_size_current;
@@ -2959,23 +2959,15 @@ TERM_PUBLIC void HPGL2_set_color(t_colorspec * colorspec)
 		    break;
 		case TC_RGB: {
 		    unsigned int rgb = colorspec->lt;
-
 		    HPGL2_end_poly();
-		    fprintf(gpoutfile, "PC%i,%i,%i,%i;\n",
-			HPGL2_pen,
-			(rgb >> 16) & 0xff,
-			(rgb >>  8) & 0xff,
-			rgb        & 0xff);
+		    fprintf(gpoutfile, "PC%i,%i,%i,%i;\n", HPGL2_pen, (rgb >> 16) & 0xff, (rgb >>  8) & 0xff, rgb & 0xff);
 		    break;
 	    }
 		case TC_FRAC: {
 		    rgb255_color color;
-
 		    HPGL2_end_poly();
-		    rgb255maxcolors_from_gray(gray, &color);
-		    fprintf(gpoutfile, "PC%i,%i,%i,%i;\n",
-			HPGL2_pen,
-			(int)color.r, (int)color.g, (int)color.b);
+		    GPO.Rgb255MaxColorsFromGray(gray, &color);
+		    fprintf(gpoutfile, "PC%i,%i,%i,%i;\n", HPGL2_pen, (int)color.r, (int)color.g, (int)color.b);
 		    break;
 	    }
 		default:
@@ -3084,7 +3076,7 @@ TERM_PUBLIC void HPGL2_enh_put_text(uint x, uint y, const char str[])
 
 TERM_PUBLIC void HPGL2_enh_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
-	const int scale = 0.9 * HPGL_PUPI / 72.0; /* scaling of base offset */
+	const int scale = static_cast<int>(0.9 * HPGL_PUPI / 72.0); // scaling of base offset 
 	/* There are two special cases:
 	 * overprint = 3 means save current position
 	 * overprint = 4 means restore saved position

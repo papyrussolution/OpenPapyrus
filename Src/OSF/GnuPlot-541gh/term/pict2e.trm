@@ -324,8 +324,8 @@ TERM_PUBLIC void PICT2E_options()
 	/* tell gnuplot core about char sizes. Horizontal spacing
 	 * is about half the text pointsize
 	 */
-	term->v_char = (uint)(pict2e_fontsize * PICT2E_DPI / 72);
-	term->h_char = (uint)(pict2e_fontsize * PICT2E_DPI / 144);
+	term->ChrV = (uint)(pict2e_fontsize * PICT2E_DPI / 72);
+	term->ChrH = (uint)(pict2e_fontsize * PICT2E_DPI / 144);
 	sprintf(term_options, "font \"%s,%d\"", pict2e_font, pict2e_fontsize);
 	if(pict2e_explicit_size) {
 		if(pict2e_explicit_units == CM)
@@ -540,7 +540,7 @@ static void PICT2E_dot_line(int x1, int x2, int y1, int y2)
 			fprintf(gpoutfile, "\\put(%u,%u){%s}\n", x1, y1, PICT2E_DOT);
 	}
 	else {
-		float dotspace = pict2e_dotspace / PICT2E_UNIT;
+		float dotspace = static_cast<float>(pict2e_dotspace / PICT2E_UNIT);
 		float x, y;     /* current position */
 		float xinc, yinc; /* increments */
 		float slope;    /* slope of line */
@@ -740,7 +740,7 @@ TERM_PUBLIC void PICT2E_set_color(t_colorspec * colorspec)
 	    }
 		case TC_FRAC: {
 		    rgb_color color;
-		    rgb1maxcolors_from_gray(colorspec->value, &color);
+		    GPO.Rgb1MaxColorsFromGray(colorspec->value, &color);
 		    snprintf(pict2e_new_color, sizeof(pict2e_new_color), "\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", color.r, color.g, color.b);
 		    break;
 	    }

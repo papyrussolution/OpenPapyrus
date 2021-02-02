@@ -639,9 +639,8 @@ TERM_PUBLIC void DJSVGA_color(t_colorspec * colorspec)
 	    }
 		case TC_FRAC: {
 		    rgb255_color rgb255;
-
-		    /* Translate palette index to RGB colour */
-		    rgb255maxcolors_from_gray(colorspec->value, &rgb255);
+		    // Translate palette index to RGB colour 
+		    GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 		    DJSVGA_TextOption.GRX_TXO_FGCOLOR = dj_color = GrAllocColorID(rgb255.r, rgb255.g, rgb255.b);
 		    break;
 	    }
@@ -863,8 +862,8 @@ TERM_PUBLIC int DJSVGA_set_font(const char * fontspec)
 		const char text[] = "0123456789";
 		int len = strlen(text);
 		/* Note: ASCII test string, no need to convert encoding */
-		term->h_char = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
-		term->v_char = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
+		term->ChrH = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
+		term->ChrV = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
 	}
 	return res;
 }
@@ -1024,7 +1023,7 @@ TERM_PUBLIC void DJSVGA_enhanced_open(char * fontname,
 		/* Start new text fragment */
 		enhanced_cur_text = &enhanced_text[0];
 		/* Scale fractional font height to vertical units of display */
-		dj_enhanced_base = base * term->v_char;
+		dj_enhanced_base = base * term->ChrV;
 		/* Keep track of whether we are supposed to show this string */
 		dj_enhanced_show = showflag;
 		/* 0/1/2  no overprint / 1st pass / 2nd pass */
@@ -1073,8 +1072,8 @@ TERM_PUBLIC void DJSVGA_enhanced_open(char * fontname,
 			const char text[] = "0123456789";
 			int len = strlen(text);
 			/* Note: ASCII test string, no need to convert encoding */
-			term->h_char = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
-			term->v_char = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
+			term->ChrH = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
+			term->ChrV = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
 		}
 	}
 }
@@ -1447,7 +1446,7 @@ TERM_PUBLIC void DJSVGA_image(uint M, uint N, coordval * image, gpiPoint * corne
 		    colors[0] = 256; /* first entry denotes number of color table entries */
 		    for(n = 0; n < 256; n++) {
 			    rgb255_color rgb255;
-			    rgb255maxcolors_from_gray(n / 255.0, &rgb255);
+			    GPO.Rgb255MaxColorsFromGray(n / 255.0, &rgb255);
 			    colors[n + 1] = GrAllocColorID(rgb255.r, rgb255.g, rgb255.b);
 		    }
 		    /* create image */

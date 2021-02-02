@@ -1355,7 +1355,7 @@ void GraphEnhancedFlush()
 		height = -sin(angle) * len;
 		if(enhstate.widthflag && !enhstate.sizeonly && !enhstate.overprint) {
 			// do not take rotation into account 
-			int ypos = -enhstate.base;
+			int ypos = static_cast<int>(-enhstate.base);
 			enhstate.totalwidth += len;
 			if(enhstate.totalasc > (ypos + enhstate.shift - enhstate.lpgw->tmAscent))
 				enhstate.totalasc = ypos + enhstate.shift - enhstate.lpgw->tmAscent;
@@ -2413,28 +2413,24 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 					    draw_update_keybox(lpgw, plotno, xdash + 1, ydash);
 				    break;
 			    }
-
 				case W_text_angle:
 				    if(lpgw->angle != (int)curptr->x) {
 					    lpgw->angle = (int)curptr->x;
 					    SetFont(lpgw, hdc);
-					    /* recalculate shifting of rotated text */
-					    hshift = -sin(M_PI/180. * lpgw->angle) * lpgw->tmHeight / 2.;
-					    vshift = -cos(M_PI/180. * lpgw->angle) * lpgw->tmHeight / 2.;
+					    // recalculate shifting of rotated text 
+					    hshift = static_cast<int>(-sin(M_PI/180.0 * lpgw->angle) * lpgw->tmHeight / 2.0);
+					    vshift = static_cast<int>(-cos(M_PI/180.0 * lpgw->angle) * lpgw->tmHeight / 2.0);
 				    }
 				    break;
-
 				case W_justify:
 				    draw_text_justify(hdc, curptr->x);
 				    lpgw->justify = curptr->x;
 				    break;
-
 				case W_font: {
 				    int size = curptr->x;
 				    char * font = (char*)LocalLock(curptr->htext);
-				    /* GraphChangeFont already handles font==NULL and size==0,
-				       so the checks below are a bit paranoid...
-				     */
+				    // GraphChangeFont already handles font==NULL and size==0,
+				    // so the checks below are a bit paranoid...
 #ifdef UNICODE
 				    TCHAR tfont[MAXFONTNAME];
 				    if(font != NULL)
@@ -2442,18 +2438,14 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 #else
 				    LPTSTR tfont = font;
 #endif
-				    GraphChangeFont(lpgw,
-					font != NULL ? tfont : lpgw->deffontname,
-					size > 0 ? size : lpgw->deffontsize,
-					hdc, *rect);
+				    GraphChangeFont(lpgw, font != NULL ? tfont : lpgw->deffontname, size > 0 ? size : lpgw->deffontsize, hdc, *rect);
 				    LocalUnlock(curptr->htext);
 				    SetFont(lpgw, hdc);
-				    /* recalculate shifting of rotated text */
-				    hshift = -sin(M_PI/180. * lpgw->angle) * lpgw->tmHeight / 2.;
-				    vshift = -cos(M_PI/180. * lpgw->angle) * lpgw->tmHeight / 2.;
+				    // recalculate shifting of rotated text */
+				    hshift = static_cast<int>(-sin(M_PI/180.0 * lpgw->angle) * lpgw->tmHeight / 2.0);
+				    vshift = static_cast<int>(-cos(M_PI/180.0 * lpgw->angle) * lpgw->tmHeight / 2.0);
 				    break;
 			    }
-
 				case W_pointsize:
 				    if(curptr->x > 0) {
 					    double pointsize = curptr->x / 100.0;

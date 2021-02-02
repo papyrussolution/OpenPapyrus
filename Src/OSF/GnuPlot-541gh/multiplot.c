@@ -177,25 +177,26 @@ int multiplot_current_panel()
 	return mp_layout.current_panel;
 }
 
-void multiplot_start()
+//void multiplot_start()
+void GnuPlot::MultiplotStart()
 {
 	bool set_spacing = FALSE;
 	bool set_margins = FALSE;
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	// Only a few options are possible if we are already in multiplot mode 
 	// So far we have "next".  Maybe also "previous", "clear"? 
 	if(multiplot) {
-		if(GPO.Pgm.EqualsCur("next")) {
-			GPO.Pgm.Shift();
+		if(Pgm.EqualsCur("next")) {
+			Pgm.Shift();
 			if(!mp_layout.auto_layout)
-				GPO.IntErrorCurToken("only valid inside an auto-layout multiplot");
+				IntErrorCurToken("only valid inside an auto-layout multiplot");
 			multiplot_next();
 			return;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("prev$ious")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("prev$ious")) {
+			Pgm.Shift();
 			if(!mp_layout.auto_layout)
-				GPO.IntErrorCurToken("only valid inside an auto-layout multiplot");
+				IntErrorCurToken("only valid inside an auto-layout multiplot");
 			multiplot_previous();
 			return;
 		}
@@ -214,155 +215,153 @@ void multiplot_start()
 	mp_layout.title.font = NULL;
 	mp_layout.title.boxed = 0;
 	// Parse options 
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("ti$tle")) {
-			GPO.Pgm.Shift();
-			parse_label_options(&mp_layout.title, 2);
-			if(!GPO.Pgm.EndOfCommand())
-				mp_layout.title.text = GPO.TryToGetString();
-			parse_label_options(&mp_layout.title, 2);
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("ti$tle")) {
+			Pgm.Shift();
+			ParseLabelOptions(&mp_layout.title, 2);
+			if(!Pgm.EndOfCommand())
+				mp_layout.title.text = TryToGetString();
+			ParseLabelOptions(&mp_layout.title, 2);
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("lay$out")) {
+		if(Pgm.AlmostEqualsCur("lay$out")) {
 			if(mp_layout.auto_layout)
-				GPO.IntErrorCurToken("too many layout commands");
+				IntErrorCurToken("too many layout commands");
 			else
 				mp_layout.auto_layout = TRUE;
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting '<num_cols>,<num_rows>'");
+			Pgm.Shift();
+			if(Pgm.EndOfCommand())
+				IntErrorCurToken("expecting '<num_cols>,<num_rows>'");
 			// read row,col 
-			mp_layout.num_rows = GPO.IntExpression();
-			if(GPO.Pgm.EndOfCommand() || !GPO.Pgm.EqualsCur(",") )
-				GPO.IntErrorCurToken("expecting ', <num_cols>'");
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting <num_cols>");
-			mp_layout.num_cols = GPO.IntExpression();
+			mp_layout.num_rows = IntExpression();
+			if(Pgm.EndOfCommand() || !Pgm.EqualsCur(",") )
+				IntErrorCurToken("expecting ', <num_cols>'");
+			Pgm.Shift();
+			if(Pgm.EndOfCommand())
+				IntErrorCurToken("expecting <num_cols>");
+			mp_layout.num_cols = IntExpression();
 			// remember current values of the plot size and the margins 
-			mp_layout.prev_xsize = GPO.V.XSize;
-			mp_layout.prev_ysize = GPO.V.YSize;
-			mp_layout.prev_xoffset = GPO.V.XOffset;
-			mp_layout.prev_yoffset = GPO.V.YOffset;
-			mp_layout.prev_lmargin = GPO.V.MarginL;
-			mp_layout.prev_rmargin = GPO.V.MarginR;
-			mp_layout.prev_bmargin = GPO.V.MarginB;
-			mp_layout.prev_tmargin = GPO.V.MarginT;
+			mp_layout.prev_xsize = V.XSize;
+			mp_layout.prev_ysize = V.YSize;
+			mp_layout.prev_xoffset = V.XOffset;
+			mp_layout.prev_yoffset = V.YOffset;
+			mp_layout.prev_lmargin = V.MarginL;
+			mp_layout.prev_rmargin = V.MarginR;
+			mp_layout.prev_bmargin = V.MarginB;
+			mp_layout.prev_tmargin = V.MarginT;
 			mp_layout.act_row = 0;
 			mp_layout.act_col = 0;
 			continue;
 		}
 		// The remaining options are only valid for auto-layout mode 
 		if(!mp_layout.auto_layout)
-			GPO.IntErrorCurToken("only valid in the context of an auto-layout command");
-		switch(GPO.Pgm.LookupTableForCurrentToken(&set_multiplot_tbl[0])) {
+			IntErrorCurToken("only valid in the context of an auto-layout command");
+		switch(Pgm.LookupTableForCurrentToken(&set_multiplot_tbl[0])) {
 			case S_MULTIPLOT_COLUMNSFIRST:
 			    mp_layout.row_major = TRUE;
-			    GPO.Pgm.Shift();
+			    Pgm.Shift();
 			    break;
 			case S_MULTIPLOT_ROWSFIRST:
 			    mp_layout.row_major = FALSE;
-			    GPO.Pgm.Shift();
+			    Pgm.Shift();
 			    break;
 			case S_MULTIPLOT_DOWNWARDS:
 			    mp_layout.downwards = TRUE;
-			    GPO.Pgm.Shift();
+			    Pgm.Shift();
 			    break;
 			case S_MULTIPLOT_UPWARDS:
 			    mp_layout.downwards = FALSE;
-			    GPO.Pgm.Shift();
+			    Pgm.Shift();
 			    break;
 			case S_MULTIPLOT_SCALE:
-			    GPO.Pgm.Shift();
-			    mp_layout.xscale = GPO.RealExpression();
+			    Pgm.Shift();
+			    mp_layout.xscale = RealExpression();
 			    mp_layout.yscale = mp_layout.xscale;
-			    if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(",") ) {
-				    GPO.Pgm.Shift();
-				    if(GPO.Pgm.EndOfCommand()) {
-					    GPO.IntErrorCurToken("expecting <yscale>");
+			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",") ) {
+				    Pgm.Shift();
+				    if(Pgm.EndOfCommand()) {
+					    IntErrorCurToken("expecting <yscale>");
 				    }
-				    mp_layout.yscale = GPO.RealExpression();
+				    mp_layout.yscale = RealExpression();
 			    }
 			    break;
 			case S_MULTIPLOT_OFFSET:
-			    GPO.Pgm.Shift();
-			    mp_layout.xoffset = GPO.RealExpression();
+			    Pgm.Shift();
+			    mp_layout.xoffset = RealExpression();
 			    mp_layout.yoffset = mp_layout.xoffset;
-			    if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(",") ) {
-				    GPO.Pgm.Shift();
-				    if(GPO.Pgm.EndOfCommand()) {
-					    GPO.IntErrorCurToken("expecting <yoffset>");
+			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",") ) {
+				    Pgm.Shift();
+				    if(Pgm.EndOfCommand()) {
+					    IntErrorCurToken("expecting <yoffset>");
 				    }
-				    mp_layout.yoffset = GPO.RealExpression();
+				    mp_layout.yoffset = RealExpression();
 			    }
 			    break;
 			case S_MULTIPLOT_MARGINS:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("expecting '<left>,<right>,<bottom>,<top>'");
+			    Pgm.Shift();
+			    if(Pgm.EndOfCommand())
+				    IntErrorCurToken("expecting '<left>,<right>,<bottom>,<top>'");
 			    mp_layout.lmargin.scalex = screen;
 			    mp_layout_set_margin_or_spacing(&(mp_layout.lmargin));
-			    if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(",") ) {
-				    GPO.Pgm.Shift();
-				    if(GPO.Pgm.EndOfCommand())
-					    GPO.IntErrorCurToken("expecting <right>");
+			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",") ) {
+				    Pgm.Shift();
+				    if(Pgm.EndOfCommand())
+					    IntErrorCurToken("expecting <right>");
 				    mp_layout.rmargin.scalex = mp_layout.lmargin.scalex;
 				    mp_layout_set_margin_or_spacing(&(mp_layout.rmargin));
 			    }
 			    else {
-				    GPO.IntErrorCurToken("expecting <right>");
+				    IntErrorCurToken("expecting <right>");
 			    }
-			    if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(",") ) {
-				    GPO.Pgm.Shift();
-				    if(GPO.Pgm.EndOfCommand())
-					    GPO.IntErrorCurToken("expecting <top>");
+			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",") ) {
+				    Pgm.Shift();
+				    if(Pgm.EndOfCommand())
+					    IntErrorCurToken("expecting <top>");
 
 				    mp_layout.bmargin.scalex = mp_layout.rmargin.scalex;
 				    mp_layout_set_margin_or_spacing(&(mp_layout.bmargin));
 			    }
 			    else {
-				    GPO.IntErrorCurToken("expecting <bottom>");
+				    IntErrorCurToken("expecting <bottom>");
 			    }
-			    if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(",") ) {
-				    GPO.Pgm.Shift();
-				    if(GPO.Pgm.EndOfCommand())
-					    GPO.IntErrorCurToken("expecting <bottom>");
-
+			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",") ) {
+				    Pgm.Shift();
+				    if(Pgm.EndOfCommand())
+					    IntErrorCurToken("expecting <bottom>");
 				    mp_layout.tmargin.scalex = mp_layout.bmargin.scalex;
 				    mp_layout_set_margin_or_spacing(&(mp_layout.tmargin));
 			    }
 			    else {
-				    GPO.IntErrorCurToken("expecting <top>");
+				    IntErrorCurToken("expecting <top>");
 			    }
 			    set_margins = TRUE;
 			    break;
 			case S_MULTIPLOT_SPACING:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("expecting '<xspacing>,<yspacing>'");
+			    Pgm.Shift();
+			    if(Pgm.EndOfCommand())
+				    IntErrorCurToken("expecting '<xspacing>,<yspacing>'");
 			    mp_layout.xspacing.scalex = screen;
 			    mp_layout_set_margin_or_spacing(&(mp_layout.xspacing));
 			    mp_layout.yspacing = mp_layout.xspacing;
-			    if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(",")) {
-				    GPO.Pgm.Shift();
-				    if(GPO.Pgm.EndOfCommand())
-					    GPO.IntErrorCurToken("expecting <yspacing>");
+			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",")) {
+				    Pgm.Shift();
+				    if(Pgm.EndOfCommand())
+					    IntErrorCurToken("expecting <yspacing>");
 				    mp_layout_set_margin_or_spacing(&(mp_layout.yspacing));
 			    }
 			    set_spacing = TRUE;
 			    break;
 			default:
-			    GPO.IntErrorCurToken("invalid or duplicate option");
+			    IntErrorCurToken("invalid or duplicate option");
 			    break;
 		}
 	}
-
 	if(set_spacing || set_margins) {
 		if(set_spacing && set_margins) {
 			if(mp_layout.lmargin.x >= 0 && mp_layout.rmargin.x >= 0 && mp_layout.tmargin.x >= 0 && mp_layout.bmargin.x >= 0 && mp_layout.xspacing.x >= 0 && mp_layout.yspacing.x >= 0)
 				mp_layout.auto_layout_margins = TRUE;
 			else
-				GPO.IntError(NO_CARET, "must give positive margin and spacing values");
+				IntError(NO_CARET, "must give positive margin and spacing values");
 		}
 		else if(set_margins) {
 			mp_layout.auto_layout_margins = TRUE;
@@ -386,12 +385,12 @@ void multiplot_start()
 	term_start_plot();
 	multiplot = TRUE;
 	multiplot_count = 0;
-	fill_gpval_integer("GPVAL_MULTIPLOT", 1);
+	Ev.FillGpValInteger("GPVAL_MULTIPLOT", 1);
 	// Place overall title before doing anything else 
 	if(mp_layout.title.text) {
 		char * p = mp_layout.title.text;
 		uint x = term->xmax  / 2;
-		uint y = term->ymax - term->v_char;
+		uint y = term->ymax - term->ChrV;
 		write_label(term, x, y, &(mp_layout.title));
 		reset_textcolor(&(mp_layout.title.textcolor));
 		// Calculate fractional height of title compared to entire page 
@@ -399,10 +398,10 @@ void multiplot_start()
 		for(y = 1; *p; p++)
 			if(*p == '\n')
 				y++;
-		// Oct 2012 - v_char depends on the font used 
+		// Oct 2012 - ChrV depends on the font used 
 		if(mp_layout.title.font && *mp_layout.title.font)
 			term->set_font(mp_layout.title.font);
-		mp_layout.title_height = (double)(y * term->v_char) / (double)term->ymax;
+		mp_layout.title_height = (double)(y * term->ChrV) / (double)term->ymax;
 		if(mp_layout.title.font && *mp_layout.title.font)
 			term->set_font("");
 		if(mp_layout.title_height > 0.9)
@@ -413,21 +412,22 @@ void multiplot_start()
 	multiplot_reset();
 }
 
-void multiplot_end()
+//void multiplot_end()
+void GnuPlot::MultiplotEnd()
 {
 	multiplot = FALSE;
 	multiplot_count = 0;
-	fill_gpval_integer("GPVAL_MULTIPLOT", 0);
+	GPO.Ev.FillGpValInteger("GPVAL_MULTIPLOT", 0);
 	// reset plot size, origin and margins to values before 'set multiplot layout' 
 	if(mp_layout.auto_layout) {
-		GPO.V.XSize = mp_layout.prev_xsize;
-		GPO.V.YSize = mp_layout.prev_ysize;
-		GPO.V.XOffset = mp_layout.prev_xoffset;
-		GPO.V.YOffset = mp_layout.prev_yoffset;
-		GPO.V.MarginL = mp_layout.prev_lmargin;
-		GPO.V.MarginR = mp_layout.prev_rmargin;
-		GPO.V.MarginB = mp_layout.prev_bmargin;
-		GPO.V.MarginT = mp_layout.prev_tmargin;
+		V.XSize = mp_layout.prev_xsize;
+		V.YSize = mp_layout.prev_ysize;
+		V.XOffset = mp_layout.prev_xoffset;
+		V.YOffset = mp_layout.prev_yoffset;
+		V.MarginL = mp_layout.prev_lmargin;
+		V.MarginR = mp_layout.prev_rmargin;
+		V.MarginB = mp_layout.prev_bmargin;
+		V.MarginT = mp_layout.prev_tmargin;
 	}
 	// reset automatic multiplot layout 
 	mp_layout.auto_layout = FALSE;
@@ -492,27 +492,27 @@ static void mp_layout_margins_and_spacing()
 	if(mp_layout.lmargin.scalex == screen)
 		leftmargin = mp_layout.lmargin.x;
 	else
-		leftmargin = (mp_layout.lmargin.x * term->h_char) / term->xmax;
+		leftmargin = (mp_layout.lmargin.x * term->ChrH) / term->xmax;
 	if(mp_layout.rmargin.scalex == screen)
 		rightmargin = mp_layout.rmargin.x;
 	else
-		rightmargin = 1 - (mp_layout.rmargin.x * term->h_char) / term->xmax;
+		rightmargin = 1 - (mp_layout.rmargin.x * term->ChrH) / term->xmax;
 	if(mp_layout.tmargin.scalex == screen)
 		topmargin = mp_layout.tmargin.x;
 	else
-		topmargin = 1 - (mp_layout.tmargin.x * term->v_char) / term->ymax;
+		topmargin = 1 - (mp_layout.tmargin.x * term->ChrV) / term->ymax;
 	if(mp_layout.bmargin.scalex == screen)
 		bottommargin = mp_layout.bmargin.x;
 	else
-		bottommargin = (mp_layout.bmargin.x * term->v_char) / term->ymax;
+		bottommargin = (mp_layout.bmargin.x * term->ChrV) / term->ymax;
 	if(mp_layout.xspacing.scalex == screen)
 		xspacing = mp_layout.xspacing.x;
 	else
-		xspacing = (mp_layout.xspacing.x * term->h_char) / term->xmax;
+		xspacing = (mp_layout.xspacing.x * term->ChrH) / term->xmax;
 	if(mp_layout.yspacing.scalex == screen)
 		yspacing = mp_layout.yspacing.x;
 	else
-		yspacing = (mp_layout.yspacing.x * term->v_char) / term->ymax;
+		yspacing = (mp_layout.yspacing.x * term->ChrV) / term->ymax;
 	tmp_width = (rightmargin - leftmargin - (mp_layout.num_cols - 1) * xspacing) / mp_layout.num_cols;
 	tmp_height = (topmargin - bottommargin - (mp_layout.num_rows - 1) * yspacing) / mp_layout.num_rows;
 	GPO.V.MarginL.x = leftmargin + mp_layout.act_col * (tmp_width + xspacing);

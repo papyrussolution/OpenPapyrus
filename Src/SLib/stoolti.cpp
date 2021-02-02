@@ -409,7 +409,7 @@ int SMessageWindow::Move()
 	return 1;
 }
 
-int SMessageWindow::DoCommand(TPoint p)
+int SMessageWindow::DoCommand(SPoint2S p)
 {
 	int    ok = -1;
 	/*
@@ -436,7 +436,7 @@ int SMessageWindow::DoCommand(TPoint p)
 			break;
 		case WM_LBUTTONDBLCLK:
 			if(p_win) {
-				TPoint p;
+				SPoint2S p;
 				p_win->DoCommand(p.setwparam(static_cast<uint32>(lParam)));
 				::DestroyWindow(hWnd);
 			}

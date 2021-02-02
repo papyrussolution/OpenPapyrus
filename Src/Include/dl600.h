@@ -377,7 +377,7 @@ public:
 		cuifLayoutSzkX,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси X
 		cuifLayoutSzkY,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси Y
 		cuifLayoutUOM,            // @v10.9.12 int32 
-		cuifLayoutSize,           // @v10.9.12 FPoint
+		cuifLayoutSize,           // @v10.9.12 SPoint2F
 		cuifLayoutJustifyContent, // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов вдоль основной оси
 		cuifLayoutAlignContent,   // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
 		cuifLayoutAlignItems,     // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX

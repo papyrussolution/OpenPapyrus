@@ -16,12 +16,12 @@ static int  assign_arrow_tag();
 //static void set_autoscale();
 static void set_bars();
 static void set_border();
-static void set_boxplot();
+//static void set_boxplot();
 static void set_boxdepth();
 static void set_boxwidth();
 static void set_clip();
 //static void set_cntrparam();
-static void set_cntrlabel();
+//static void set_cntrlabel();
 static void set_contour();
 static void set_cornerpoles();
 //static void set_dashtype();
@@ -29,10 +29,10 @@ static void set_dgrid3d();
 static void set_decimalsign();
 static void set_dummy();
 static void set_encoding();
-static void set_fit();
+//static void set_fit();
 //static void set_grid();
-static void set_hidden3d();
-static void set_history();
+//static void set_hidden3d();
+//static void set_history();
 static void set_pixmap();
 static void set_isosamples();
 //static void set_key();
@@ -47,10 +47,10 @@ static void set_mapping();
 static void set_minus_sign();
 static void set_micro();
 static void set_missing();
-static void set_separator(char **);
+//static void set_separator(char **);
 //static void set_datafile();
-static void set_datafile_commentschars();
-static void set_monochrome();
+//static void set_datafile_commentschars();
+//static void set_monochrome();
 //static void set_mouse();
 //static void set_offsets();
 static void set_output();
@@ -65,21 +65,21 @@ static void set_pointintervalbox();
 static void set_print();
 //static void set_object();
 //static void set_obj(int, int);
-static void set_wall();
+//static void set_wall();
 static void set_psdir();
 static void set_rgbmax();
 static void set_samples();
 static void set_size();
 //static void set_style();
 static void set_surface();
-static void set_table();
+//static void set_table();
 //static void set_terminal();
 //static void set_termoptions();
-static void set_theta();
+//static void set_theta();
 //static void set_tics();
-static void set_ticscale();
+//static void set_ticscale();
 static void set_timefmt();
-static void set_timestamp();
+//static void set_timestamp();
 //static void set_view();
 static void set_zero();
 //static void set_timedata(GpAxis *);
@@ -108,8 +108,8 @@ static void set_mttics(GpAxis * this_axis);
 //static void check_palette_grayscale();
 //static void set_palette_function();
 static void parse_histogramstyle(histogram_style * hs, t_histogram_type def_type, int def_gap);
-static void set_style_parallel();
-static void set_style_spiderplot();
+//static void set_style_parallel();
+//static void set_style_spiderplot();
 static void set_spiderplot();
 //static void parse_lighting_options();
 
@@ -165,8 +165,8 @@ ITERATE:
 			case S_COLORMAP: SetColorMap(); break;
 			case S_COLORSEQUENCE: SetColorSequence(0); break;
 			case S_CNTRPARAM: SetCntrParam(); break;
-			case S_CNTRLABEL: set_cntrlabel(); break;
-			case S_CONTOUR: set_contour(); break;
+			case S_CNTRLABEL: SetCntrLabel(); break;
+			case S_CONTOUR: SetContour(); break;
 			case S_CORNERPOLES: set_cornerpoles(); break;
 			case S_DASHTYPE: SetDashType(); break;
 			case S_DGRID3D: set_dgrid3d(); break;
@@ -185,33 +185,23 @@ ITERATE:
 			case S_ENCODING:
 			    set_encoding();
 			    break;
-			case S_FIT:
-			    set_fit();
-			    break;
+			case S_FIT: SetFit(); break;
 			case S_FONTPATH:
 			    set_fontpath();
 			    break;
 			case S_FORMAT: SetFormat(); break;
 			case S_GRID: SetGrid(); break;
-			case S_HIDDEN3D:
-			    set_hidden3d();
-			    break;
+			case S_HIDDEN3D: SetHidden3D(); break;
 			case S_HISTORYSIZE: /* Deprecated in favor of "set history size" */
-			case S_HISTORY:
-			    set_history();
-			    break;
+			case S_HISTORY: SetHistory(); break;
 			case S_PIXMAP:
 			    set_pixmap();
 			    break;
 			case S_ISOSAMPLES:
 			    set_isosamples();
 			    break;
-			case S_ISOSURFACE:
-			    set_isosurface();
-			    break;
-			case S_JITTER:
-			    set_jitter();
-			    break;
+			case S_ISOSURFACE: SetIsoSurface(); break;
+			case S_JITTER: SetJitter(); break;
 			case S_KEY: SetKey(); break;
 			case S_LINESTYLE:
 			    set_linestyle(&first_linestyle, LP_STYLE);
@@ -271,9 +261,7 @@ ITERATE:
 			    break;
 			case S_DATAFILE: SetDataFile(); break;
 			case S_MOUSE: SetMouse(); break;
-			case S_MONOCHROME:
-			    set_monochrome();
-			    break;
+			case S_MONOCHROME: SetMonochrome(); break;
 			case S_MULTIPLOT:
 			    term_start_multiplot();
 			    break;
@@ -318,9 +306,7 @@ ITERATE:
 			    set_psdir();
 			    break;
 			case S_OBJECT: SetObject(); break;
-			case S_WALL:
-			    set_wall();
-			    break;
+			case S_WALL:   SetWall(); break;
 			case S_SAMPLES:
 			    set_samples();
 			    break;
@@ -337,26 +323,16 @@ ITERATE:
 			case S_SURFACE:
 			    set_surface();
 			    break;
-			case S_TABLE:
-			    set_table();
-			    break;
+			case S_TABLE: SetTable(); break;
 			case S_TERMINAL: SetTerminal(); break;
-			case S_TERMOPTIONS:
-				Pgm.SetTermOptions();
-			    break;
-			case S_THETA:
-			    set_theta();
-			    break;
+			case S_TERMOPTIONS: Pgm.SetTermOptions(); break;
+			case S_THETA: SetTheta(); break;
 			case S_TICS: SetTics(); break;
-			case S_TICSCALE:
-			    set_ticscale();
-			    break;
+			case S_TICSCALE: SetTicScale(); break;
 			case S_TIMEFMT:
 			    set_timefmt();
 			    break;
-			case S_TIMESTAMP:
-			    set_timestamp();
-			    break;
+			case S_TIMESTAMP: SetTimeStamp(); break;
 			case S_TITLE:
 			    set_xyzlabel(&title);
 			    title.rotate = 0;
@@ -886,86 +862,88 @@ static void set_border()
 	/* internally, we can still recover the user's preference.	*/
 	user_border = draw_border;
 }
-
-/* process 'set style boxplot' command */
-static void set_boxplot()
+//
+// process 'set style boxplot' command 
+//
+//static void set_boxplot()
+void GnuPlot::SetBoxPlot()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
 		boxplot_style defstyle = DEFAULT_BOXPLOT_STYLE;
 		boxplot_opts = defstyle;
 	}
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("noout$liers")) {
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("noout$liers")) {
 			boxplot_opts.outliers = FALSE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("out$liers")) {
+		else if(Pgm.AlmostEqualsCur("out$liers")) {
 			boxplot_opts.outliers = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("point$type") || GPO.Pgm.EqualsCur("pt")) {
-			GPO.Pgm.Shift();
-			boxplot_opts.pointtype = GPO.IntExpression()-1;
+		else if(Pgm.AlmostEqualsCur("point$type") || Pgm.EqualsCur("pt")) {
+			Pgm.Shift();
+			boxplot_opts.pointtype = IntExpression()-1;
 		}
-		else if(GPO.Pgm.EqualsCur("range")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.EqualsCur("range")) {
+			Pgm.Shift();
 			boxplot_opts.limit_type = 0;
-			boxplot_opts.limit_value = GPO.RealExpression();
+			boxplot_opts.limit_value = RealExpression();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("frac$tion")) {
-			GPO.Pgm.Shift();
-			boxplot_opts.limit_value = GPO.RealExpression();
+		else if(Pgm.AlmostEqualsCur("frac$tion")) {
+			Pgm.Shift();
+			boxplot_opts.limit_value = RealExpression();
 			if(boxplot_opts.limit_value < 0 || boxplot_opts.limit_value > 1)
-				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "fraction must be less than 1");
+				IntError(Pgm.GetPrevTokenIdx(), "fraction must be less than 1");
 			boxplot_opts.limit_type = 1;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("candle$sticks")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("candle$sticks")) {
+			Pgm.Shift();
 			boxplot_opts.plotstyle = CANDLESTICKS;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("finance$bars")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("finance$bars")) {
+			Pgm.Shift();
 			boxplot_opts.plotstyle = FINANCEBARS;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("sep$aration")) {
-			GPO.Pgm.Shift();
-			boxplot_opts.separation = GPO.RealExpression();
+		else if(Pgm.AlmostEqualsCur("sep$aration")) {
+			Pgm.Shift();
+			boxplot_opts.separation = RealExpression();
 			if(boxplot_opts.separation < 0)
-				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "separation must be > 0");
+				IntError(Pgm.GetPrevTokenIdx(), "separation must be > 0");
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("lab$els")) {
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EqualsCur("off")) {
+		else if(Pgm.AlmostEqualsCur("lab$els")) {
+			Pgm.Shift();
+			if(Pgm.EqualsCur("off")) {
 				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_OFF;
 			}
-			else if(GPO.Pgm.EqualsCur("x")) {
+			else if(Pgm.EqualsCur("x")) {
 				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_X;
 			}
-			else if(GPO.Pgm.EqualsCur("x2")) {
+			else if(Pgm.EqualsCur("x2")) {
 				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_X2;
 			}
-			else if(GPO.Pgm.EqualsCur("auto")) {
+			else if(Pgm.EqualsCur("auto")) {
 				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_AUTO;
 			}
 			else
-				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "expecting 'x', 'x2', 'auto' or 'off'");
-			GPO.Pgm.Shift();
+				IntError(Pgm.GetPrevTokenIdx(), "expecting 'x', 'x2', 'auto' or 'off'");
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("median$linewidth")) {
-			GPO.Pgm.Shift();
-			boxplot_opts.median_linewidth = GPO.RealExpression();
+		else if(Pgm.AlmostEqualsCur("median$linewidth")) {
+			Pgm.Shift();
+			boxplot_opts.median_linewidth = RealExpression();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("so$rted")) {
+		else if(Pgm.AlmostEqualsCur("so$rted")) {
 			boxplot_opts.sort_factors = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("un$sorted")) {
+		else if(Pgm.AlmostEqualsCur("un$sorted")) {
 			boxplot_opts.sort_factors = FALSE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
 		else
-			GPO.IntErrorCurToken("unrecognized option");
+			IntErrorCurToken("unrecognized option");
 	}
 }
 //
@@ -982,25 +960,26 @@ static void set_boxdepth()
 	else if(!GPO.Pgm.EndOfCommand())
 		boxdepth = GPO.RealExpression();
 }
-
-/* process 'set boxwidth' command */
+//
+// process 'set boxwidth' command 
+//
 static void set_boxwidth()
 {
 	GPO.Pgm.Shift();
 	if(GPO.Pgm.EndOfCommand()) {
-		boxwidth = -1.0;
-		boxwidth_is_absolute = TRUE;
+		GPO.V.BoxWidth = -1.0;
+		GPO.V.BoxWidthIsAbsolute = true;
 	}
 	else {
-		boxwidth = GPO.RealExpression();
+		GPO.V.BoxWidth = GPO.RealExpression();
 	}
 	if(GPO.Pgm.EndOfCommand())
 		return;
 	else {
 		if(GPO.Pgm.AlmostEqualsCur("a$bsolute"))
-			boxwidth_is_absolute = TRUE;
+			GPO.V.BoxWidthIsAbsolute = true;
 		else if(GPO.Pgm.AlmostEqualsCur("r$elative"))
-			boxwidth_is_absolute = FALSE;
+			GPO.V.BoxWidthIsAbsolute = false;
 		else
 			GPO.IntErrorCurToken("expecting 'absolute' or 'relative' ");
 	}
@@ -1042,7 +1021,7 @@ void GnuPlot::SetCntrParam()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		/* assuming same as defaults */
+		// assuming same as defaults 
 		contour_pts = DEFAULT_NUM_APPROX_PTS;
 		contour_kind = CONTOUR_KIND_LINEAR;
 		contour_order = DEFAULT_CONTOUR_ORDER;
@@ -1101,8 +1080,7 @@ void GnuPlot::SetCntrParam()
 					if(!Pgm.EqualsCur(","))
 						IntErrorCurToken("expecting comma to separate discrete levels");
 					Pgm.Shift();
-					*(double*)nextfrom_dynarray(&dyn_contour_levels_list) =
-					    RealExpression();
+					*(double*)nextfrom_dynarray(&dyn_contour_levels_list) = RealExpression();
 				}
 				contour_levels = dyn_contour_levels_list.end;
 			}
@@ -1151,66 +1129,68 @@ void GnuPlot::SetCntrParam()
 //
 // process 'set cntrlabel' command 
 //
-static void set_cntrlabel()
+//static void set_cntrlabel()
+void GnuPlot::SetCntrLabel()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
 		strcpy(contour_format, "%8.3g");
 		clabel_onecolor = FALSE;
 		return;
 	}
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("form$at")) {
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("form$at")) {
 			char * p_new;
-			GPO.Pgm.Shift();
-			if((p_new = GPO.TryToGetString()))
+			Pgm.Shift();
+			if((p_new = TryToGetString()))
 				safe_strncpy(contour_format, p_new, sizeof(contour_format));
 			SAlloc::F(p_new);
 		}
-		else if(GPO.Pgm.EqualsCur("font")) {
+		else if(Pgm.EqualsCur("font")) {
 			char * ctmp;
-			GPO.Pgm.Shift();
-			if((ctmp = GPO.TryToGetString())) {
+			Pgm.Shift();
+			if((ctmp = TryToGetString())) {
 				SAlloc::F(clabel_font);
 				clabel_font = ctmp;
 			}
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("one$color")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("one$color")) {
+			Pgm.Shift();
 			clabel_onecolor = TRUE;
 		}
-		else if(GPO.Pgm.EqualsCur("start")) {
-			GPO.Pgm.Shift();
-			clabel_start = GPO.IntExpression();
+		else if(Pgm.EqualsCur("start")) {
+			Pgm.Shift();
+			clabel_start = IntExpression();
 			if(clabel_start <= 0)
 				clabel_start = 5;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("int$erval")) {
-			GPO.Pgm.Shift();
-			clabel_interval = GPO.IntExpression();
+		else if(Pgm.AlmostEqualsCur("int$erval")) {
+			Pgm.Shift();
+			clabel_interval = IntExpression();
 		}
 		else
-			GPO.IntErrorCurToken("unrecognized option");
+			IntErrorCurToken("unrecognized option");
 	}
 }
 //
 // process 'set contour' command 
 //
-static void set_contour()
+//static void set_contour()
+void GnuPlot::SetContour()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand())
+	Pgm.Shift();
+	if(Pgm.EndOfCommand())
 		draw_contour = CONTOUR_BASE; // assuming same as points 
 	else {
-		if(GPO.Pgm.AlmostEqualsCur("ba$se"))
+		if(Pgm.AlmostEqualsCur("ba$se"))
 			draw_contour = CONTOUR_BASE;
-		else if(GPO.Pgm.AlmostEqualsCur("s$urface"))
+		else if(Pgm.AlmostEqualsCur("s$urface"))
 			draw_contour = CONTOUR_SRF;
-		else if(GPO.Pgm.AlmostEqualsCur("bo$th"))
+		else if(Pgm.AlmostEqualsCur("bo$th"))
 			draw_contour = CONTOUR_BOTH;
 		else
-			GPO.IntErrorCurToken("expecting 'base', 'surface', or 'both'");
-		GPO.Pgm.Shift();
+			IntErrorCurToken("expecting 'base', 'surface', or 'both'");
+		Pgm.Shift();
 	}
 }
 //
@@ -1330,19 +1310,14 @@ void delete_dashtype(struct custom_dashtype_def * prev, struct custom_dashtype_d
 static void set_dgrid3d()
 {
 	int token_cnt = 0; /* Number of comma-separated values read in */
-
 	int gridx     = dgrid3d_row_fineness;
 	int gridy     = dgrid3d_col_fineness;
 	int normval   = dgrid3d_norm_value;
 	double scalex = dgrid3d_x_scale;
 	double scaley = dgrid3d_y_scale;
-
-	/* dgrid3d has two different syntax alternatives: classic and new.
-	   If there is a "mode" keyword, the syntax is new, otherwise it is classic.*/
+	// dgrid3d has two different syntax alternatives: classic and new. If there is a "mode" keyword, the syntax is new, otherwise it is classic.
 	dgrid3d_mode  = DGRID3D_DEFAULT;
-
 	dgrid3d_kdensity = FALSE;
-
 	GPO.Pgm.Shift();
 	while(!(GPO.Pgm.EndOfCommand()) ) {
 		int tmp_mode = GPO.Pgm.LookupTableForCurrentToken(&dgrid3d_mode_tbl[0]);
@@ -1424,17 +1399,12 @@ static void set_decimalsign()
 #ifdef HAVE_LOCALE_H
 	}
 	else if(GPO.Pgm.EqualsCur("locale")) {
-		char * newlocale = NULL;
 		GPO.Pgm.Shift();
-		newlocale = GPO.TryToGetString();
-		if(!newlocale)
-			newlocale = gp_strdup(setlocale(LC_NUMERIC, ""));
-		if(!newlocale)
-			newlocale = gp_strdup(getenv("LC_ALL"));
-		if(!newlocale)
-			newlocale = gp_strdup(getenv("LC_NUMERIC"));
-		if(!newlocale)
-			newlocale = gp_strdup(getenv("LANG"));
+		char * newlocale = GPO.TryToGetString();
+		SETIFZ(newlocale, gp_strdup(setlocale(LC_NUMERIC, "")));
+		SETIFZ(newlocale, gp_strdup(getenv("LC_ALL")));
+		SETIFZ(newlocale, gp_strdup(getenv("LC_NUMERIC")));
+		SETIFZ(newlocale, gp_strdup(getenv("LANG")));
 		if(!setlocale(LC_NUMERIC, newlocale ? newlocale : ""))
 			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "Could not find requested locale");
 		decimalsign = gp_strdup(get_decimal_locale());
@@ -1511,195 +1481,188 @@ static void set_encoding()
 	}
 	init_special_chars();
 }
-
-/* process 'set fit' command */
-static void set_fit()
+//
+// process 'set fit' command 
+//
+//static void set_fit()
+void GnuPlot::SetFit()
 {
 	int key;
-	GPO.Pgm.Shift();
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("log$file")) {
+	Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("log$file")) {
 			char * tmp;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 			fit_suppress_log = FALSE;
-			if(GPO.Pgm.EndOfCommand()) {
+			if(Pgm.EndOfCommand()) {
 				ZFREE(fitlogfile);
 			}
-			else if(GPO.Pgm.EqualsCur("default")) {
-				GPO.Pgm.Shift();
+			else if(Pgm.EqualsCur("default")) {
+				Pgm.Shift();
 				ZFREE(fitlogfile);
 			}
-			else if((tmp = GPO.TryToGetString()) != NULL) {
+			else if((tmp = TryToGetString()) != NULL) {
 				SAlloc::F(fitlogfile);
 				fitlogfile = tmp;
 			}
 			else {
-				GPO.IntErrorCurToken("expecting string");
+				IntErrorCurToken("expecting string");
 			}
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("nolog$file")) {
+		else if(Pgm.AlmostEqualsCur("nolog$file")) {
 			fit_suppress_log = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("err$orvariables")) {
+		else if(Pgm.AlmostEqualsCur("err$orvariables")) {
 			fit_errorvariables = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("noerr$orvariables")) {
+		else if(Pgm.AlmostEqualsCur("noerr$orvariables")) {
 			fit_errorvariables = FALSE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("cov$ariancevariables")) {
+		else if(Pgm.AlmostEqualsCur("cov$ariancevariables")) {
 			fit_covarvariables = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("nocov$ariancevariables")) {
+		else if(Pgm.AlmostEqualsCur("nocov$ariancevariables")) {
 			fit_covarvariables = FALSE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("errors$caling")) {
+		else if(Pgm.AlmostEqualsCur("errors$caling")) {
 			fit_errorscaling = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("noerrors$caling")) {
+		else if(Pgm.AlmostEqualsCur("noerrors$caling")) {
 			fit_errorscaling = FALSE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if((key = GPO.Pgm.LookupTableForCurrentToken(fit_verbosity_level)) > 0) {
+		else if((key = Pgm.LookupTableForCurrentToken(fit_verbosity_level)) > 0) {
 			fit_verbosity = (verbosity_level)key;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("prescale")) {
+		else if(Pgm.EqualsCur("prescale")) {
 			fit_prescale = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("noprescale")) {
+		else if(Pgm.EqualsCur("noprescale")) {
 			fit_prescale = FALSE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("limit")) {
-			/* preserve compatibility with FIT_LIMIT user variable */
-			struct udvt_entry * v;
+		else if(Pgm.EqualsCur("limit")) {
+			// preserve compatibility with FIT_LIMIT user variable 
 			double value;
-
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EqualsCur("default")) {
-				GPO.Pgm.Shift();
-				value = 0.;
+			Pgm.Shift();
+			if(Pgm.EqualsCur("default")) {
+				Pgm.Shift();
+				value = 0.0;
 			}
 			else
-				value = GPO.RealExpression();
-			if((value > 0.) && (value < 1.)) {
-				v = add_udv_by_name((char*)FITLIMIT);
+				value = RealExpression();
+			if(value > 0.0 && value < 1.0) {
+				udvt_entry * v = Ev.AddUdvByName((char*)FITLIMIT);
 				Gcomplex(&v->udv_value, value, 0);
 			}
 			else {
-				del_udv_by_name((char*)FITLIMIT, FALSE);
+				Ev.DelUdvByName(FITLIMIT, FALSE);
 			}
 		}
-		else if(GPO.Pgm.EqualsCur("limit_abs")) {
-			double value;
-			GPO.Pgm.Shift();
-			value = GPO.RealExpression();
+		else if(Pgm.EqualsCur("limit_abs")) {
+			Pgm.Shift();
+			double value = RealExpression();
 			epsilon_abs = (value > 0.) ? value : 0.;
 		}
-		else if(GPO.Pgm.EqualsCur("maxiter")) {
+		else if(Pgm.EqualsCur("maxiter")) {
 			// preserve compatibility with FIT_MAXITER user variable 
-			udvt_entry * v;
 			int maxiter;
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EqualsCur("default")) {
-				GPO.Pgm.Shift();
+			Pgm.Shift();
+			if(Pgm.EqualsCur("default")) {
+				Pgm.Shift();
 				maxiter = 0;
 			}
 			else
-				maxiter = GPO.IntExpression();
+				maxiter = IntExpression();
 			if(maxiter > 0) {
-				v = add_udv_by_name((char*)FITMAXITER);
+				udvt_entry * v = Ev.AddUdvByName(FITMAXITER);
 				Ginteger(&v->udv_value, maxiter);
 			}
 			else {
-				del_udv_by_name((char*)FITMAXITER, FALSE);
+				Ev.DelUdvByName(FITMAXITER, FALSE);
 			}
 		}
-		else if(GPO.Pgm.EqualsCur("start_lambda")) {
-			/* preserve compatibility with FIT_START_LAMBDA user variable */
-			struct udvt_entry * v;
+		else if(Pgm.EqualsCur("start_lambda")) {
+			// preserve compatibility with FIT_START_LAMBDA user variable 
 			double value;
-
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EqualsCur("default")) {
-				GPO.Pgm.Shift();
+			Pgm.Shift();
+			if(Pgm.EqualsCur("default")) {
+				Pgm.Shift();
 				value = 0.;
 			}
 			else
-				value = GPO.RealExpression();
+				value = RealExpression();
 			if(value > 0.) {
-				v = add_udv_by_name((char*)FITSTARTLAMBDA);
+				udvt_entry * v = Ev.AddUdvByName(FITSTARTLAMBDA);
 				Gcomplex(&v->udv_value, value, 0);
 			}
 			else {
-				del_udv_by_name((char*)FITSTARTLAMBDA, FALSE);
+				Ev.DelUdvByName(FITSTARTLAMBDA, FALSE);
 			}
 		}
-		else if(GPO.Pgm.EqualsCur("lambda_factor")) {
-			/* preserve compatibility with FIT_LAMBDA_FACTOR user variable */
-			struct udvt_entry * v;
+		else if(Pgm.EqualsCur("lambda_factor")) {
+			// preserve compatibility with FIT_LAMBDA_FACTOR user variable 
 			double value;
-
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EqualsCur("default")) {
-				GPO.Pgm.Shift();
-				value = 0.;
+			Pgm.Shift();
+			if(Pgm.EqualsCur("default")) {
+				Pgm.Shift();
+				value = 0.0;
 			}
 			else
-				value = GPO.RealExpression();
+				value = RealExpression();
 			if(value > 0.) {
-				v = add_udv_by_name((char*)FITLAMBDAFACTOR);
+				udvt_entry * v = Ev.AddUdvByName(FITLAMBDAFACTOR);
 				Gcomplex(&v->udv_value, value, 0);
 			}
 			else {
-				del_udv_by_name((char*)FITLAMBDAFACTOR, FALSE);
+				Ev.DelUdvByName(FITLAMBDAFACTOR, FALSE);
 			}
 		}
-		else if(GPO.Pgm.EqualsCur("script")) {
+		else if(Pgm.EqualsCur("script")) {
 			char * tmp;
-
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand()) {
+			Pgm.Shift();
+			if(Pgm.EndOfCommand()) {
 				ZFREE(fit_script);
 			}
-			else if(GPO.Pgm.EqualsCur("default")) {
-				GPO.Pgm.Shift();
+			else if(Pgm.EqualsCur("default")) {
+				Pgm.Shift();
 				ZFREE(fit_script);
 			}
-			else if((tmp = GPO.TryToGetString())) {
+			else if((tmp = TryToGetString())) {
 				SAlloc::F(fit_script);
 				fit_script = tmp;
 			}
 			else {
-				GPO.IntErrorCurToken("expecting string");
+				IntErrorCurToken("expecting string");
 			}
 		}
-		else if(GPO.Pgm.EqualsCur("wrap")) {
-			GPO.Pgm.Shift();
-			fit_wrap = GPO.IntExpression();
+		else if(Pgm.EqualsCur("wrap")) {
+			Pgm.Shift();
+			fit_wrap = IntExpression();
 			if(fit_wrap < 0) fit_wrap = 0;
 		}
-		else if(GPO.Pgm.EqualsCur("nowrap")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.EqualsCur("nowrap")) {
+			Pgm.Shift();
 			fit_wrap = 0;
 		}
-		else if(GPO.Pgm.EqualsCur("v4")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.EqualsCur("v4")) {
+			Pgm.Shift();
 			fit_v4compatible = TRUE;
 		}
-		else if(GPO.Pgm.EqualsCur("v5")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.EqualsCur("v5")) {
+			Pgm.Shift();
 			fit_v4compatible = FALSE;
 		}
 		else {
-			GPO.IntErrorCurToken("unrecognized option --- see `help set fit`");
+			IntErrorCurToken("unrecognized option --- see `help set fit`");
 		}
 	} /* while (!end) */
 }
@@ -1877,60 +1840,64 @@ void GnuPlot::SetGrid()
 		}
 	}
 }
-
-/* process 'set hidden3d' command */
-static void set_hidden3d()
+//
+// process 'set hidden3d' command 
+//
+//static void set_hidden3d()
+void GnuPlot::SetHidden3D()
 {
-	GPO.Pgm.Shift();
-	set_hidden3doptions();
+	Pgm.Shift();
+	SetHidden3DOptions();
 	hidden3d = TRUE;
 	SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);
 }
 
-static void set_history()
+//static void set_history()
+void GnuPlot::SetHistory()
 {
-	GPO.Pgm.Shift();
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.EqualsCur("quiet")) {
-			GPO.Pgm.Shift();
+	Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.EqualsCur("quiet")) {
+			Pgm.Shift();
 			history_quiet = TRUE;
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("num$bers")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("num$bers")) {
+			Pgm.Shift();
 			history_quiet = FALSE;
 			continue;
 		}
-		else if(GPO.Pgm.EqualsCur("full")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.EqualsCur("full")) {
+			Pgm.Shift();
 			history_full = TRUE;
 			continue;
 		}
-		else if(GPO.Pgm.EqualsCur("trim")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.EqualsCur("trim")) {
+			Pgm.Shift();
 			history_full = FALSE;
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("def$ault")) {
+			Pgm.Shift();
 			history_quiet = FALSE;
 			history_full = TRUE;
 			gnuplot_history_size = HISTORY_SIZE;
 			continue;
 		}
-		else if(GPO.Pgm.EqualsCur("size")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.EqualsCur("size")) {
+			Pgm.Shift();
 			/* fall through */
 		}
 		// Catches both the deprecated "set historysize" and "set history size" 
-		gnuplot_history_size = GPO.IntExpression();
+		gnuplot_history_size = IntExpression();
 #ifndef GNUPLOT_HISTORY
-		GPO.IntWarn(NO_CARET, "This copy of gnuplot was built without support for command history.");
+		IntWarn(NO_CARET, "This copy of gnuplot was built without support for command history.");
 #endif
 	}
 }
-
-/* process 'set pixmap' command */
+//
+// process 'set pixmap' command 
+//
 static void set_pixmap()
 {
 	t_pixmap * this_pixmap = NULL;
@@ -2044,9 +2011,9 @@ static void set_isosamples()
 	if(tsamp1 < 2 || tsamp2 < 2)
 		GPO.IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
 	else {
-		curve_points * f_p = first_plot;
+		curve_points * f_p = P_FirstPlot;
 		surface_points * f_3dp = first_3dplot;
-		first_plot = NULL;
+		P_FirstPlot = NULL;
 		first_3dplot = NULL;
 		GnuPlot::CpFree(f_p);
 		sp_free(f_3dp);
@@ -2308,7 +2275,7 @@ S_KEYTITLE:
 			case S_KEY_TEXTCOLOR:
 				{
 					t_colorspec lcolor = DEFAULT_COLORSPEC;
-					parse_colorspec(&lcolor, TC_VARIABLE);
+					ParseColorSpec(&lcolor, TC_VARIABLE);
 					// Only for backwards compatibility 
 					if(lcolor.type == TC_RGB && lcolor.value == -1.0)
 						lcolor.type = TC_VARIABLE;
@@ -2334,7 +2301,7 @@ S_KEYTITLE:
 			    key->front = TRUE;
 			    if(Pgm.AlmostEquals(Pgm.GetCurTokenIdx()+1, "fill$color") || Pgm.EqualsNext("fc")) {
 				    Pgm.Shift();
-				    parse_colorspec(&key->fillcolor, TC_RGB);
+				    ParseColorSpec(&key->fillcolor, TC_RGB);
 				    Pgm.Rollback();
 			    }
 			    else
@@ -2421,7 +2388,7 @@ static void set_label()
 	}
 	if(!GPO.Pgm.EndOfCommand()) {
 		char * text;
-		parse_label_options(this_label, 0);
+		GPO.ParseLabelOptions(this_label, 0);
 		text = GPO.TryToGetString();
 		if(text) {
 			SAlloc::F(this_label->text);
@@ -2429,7 +2396,7 @@ static void set_label()
 		}
 	}
 	// Now parse the label format and style options 
-	parse_label_options(this_label, 0);
+	GPO.ParseLabelOptions(this_label, 0);
 }
 
 /* assign a new label tag
@@ -2636,47 +2603,49 @@ static void set_minus_sign()
 	use_minus_sign = TRUE;
 }
 
-static void set_separator(char ** xx_separators)
+//static void set_separator(char ** xx_separators)
+void GnuPlot::SetSeparator(char ** ppSeparators)
 {
-	GPO.Pgm.Shift();
-	SAlloc::F(*xx_separators);
-	*xx_separators = NULL;
-	if(GPO.Pgm.EndOfCommand())
+	Pgm.Shift();
+	SAlloc::F(*ppSeparators);
+	*ppSeparators = NULL;
+	if(Pgm.EndOfCommand())
 		return;
-	if(GPO.Pgm.AlmostEqualsCur("white$space")) {
-		GPO.Pgm.Shift();
+	if(Pgm.AlmostEqualsCur("white$space")) {
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.EqualsCur("space")) {
-		*xx_separators = gp_strdup(" ");
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("space")) {
+		*ppSeparators = gp_strdup(" ");
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.EqualsCur("comma")) {
-		*xx_separators = gp_strdup(",");
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("comma")) {
+		*ppSeparators = gp_strdup(",");
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.EqualsCur("tab") || GPO.Pgm.EqualsCur("\'\\t\'")) {
-		*xx_separators = gp_strdup("\t");
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("tab") || Pgm.EqualsCur("\'\\t\'")) {
+		*ppSeparators = gp_strdup("\t");
+		Pgm.Shift();
 	}
-	else if(!(*xx_separators = GPO.TryToGetString())) {
-		GPO.IntErrorCurToken("expected \"<separator_char>\"");
+	else if(!(*ppSeparators = TryToGetString())) {
+		IntErrorCurToken("expected \"<separator_char>\"");
 	}
 }
 
-static void set_datafile_commentschars()
+//static void set_datafile_commentschars()
+void GnuPlot::SetDataFileCommentsChars()
 {
 	char * s;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
 		SAlloc::F(df_commentschars);
 		df_commentschars = gp_strdup(DEFAULT_COMMENTS_CHARS);
 	}
-	else if((s = GPO.TryToGetString())) {
+	else if((s = TryToGetString())) {
 		SAlloc::F(df_commentschars);
 		df_commentschars = s;
 	}
-	else /* Leave it the way it was */
-		GPO.IntErrorCurToken("expected string with comments chars");
+	else // Leave it the way it was 
+		IntErrorCurToken("expected string with comments chars");
 }
 
 /* process 'set datafile missing' command */
@@ -2693,31 +2662,33 @@ static void set_missing()
 	else if(!(missing_val = GPO.TryToGetString()))
 		GPO.IntErrorCurToken("expected missing-value string");
 }
-
-/* (version 5) 'set monochrome' command */
-static void set_monochrome()
+//
+// (version 5) 'set monochrome' command 
+//
+//static void set_monochrome()
+void GnuPlot::SetMonochrome()
 {
 	monochrome = TRUE;
-	if(!GPO.Pgm.EndOfCommand())
-		GPO.Pgm.Shift();
-	if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
-		GPO.Pgm.Shift();
+	if(!Pgm.EndOfCommand())
+		Pgm.Shift();
+	if(Pgm.AlmostEqualsCur("def$ault")) {
+		Pgm.Shift();
 		while(first_mono_linestyle)
 			delete_linestyle(&first_mono_linestyle, first_mono_linestyle, first_mono_linestyle);
 	}
 	init_monochrome();
-	if(GPO.Pgm.AlmostEqualsCur("linet$ype") || GPO.Pgm.EqualsCur("lt")) {
-		/* we can pass pThis off to the generic "set linetype" code */
-		if(GPO.Pgm.EqualsNext("cycle")) {
-			GPO.Pgm.Shift();
-			GPO.Pgm.Shift();
-			mono_recycle_count = GPO.IntExpression();
+	if(Pgm.AlmostEqualsCur("linet$ype") || Pgm.EqualsCur("lt")) {
+		// we can pass pThis off to the generic "set linetype" code 
+		if(Pgm.EqualsNext("cycle")) {
+			Pgm.Shift();
+			Pgm.Shift();
+			mono_recycle_count = IntExpression();
 		}
 		else
 			set_linestyle(&first_mono_linestyle, LP_TYPE);
 	}
-	if(!GPO.Pgm.EndOfCommand())
-		GPO.IntErrorCurToken("unrecognized option");
+	if(!Pgm.EndOfCommand())
+		IntErrorCurToken("unrecognized option");
 }
 
 //static void set_mouse()
@@ -2864,10 +2835,10 @@ void GnuPlot::SetMouse()
 			double x = 1.0, y = 1.0;
 			Pgm.Shift();
 			if(!Pgm.EndOfCommand()) {
-				x = GPO.RealExpression();
+				x = RealExpression();
 				if(Pgm.EqualsCur(",")) {
 					Pgm.Shift();
-					y = GPO.RealExpression();
+					y = RealExpression();
 				}
 			}
 			mouse_setting.xmzoom_factor = x;
@@ -3020,11 +2991,11 @@ void GnuPlot::SetOverflow()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand() || Pgm.EqualsCur("float"))
-		overflow_handling = INT64_OVERFLOW_TO_FLOAT;
+		Ev.OverflowHandling = INT64_OVERFLOW_TO_FLOAT;
 	else if(Pgm.EqualsCur("undefined"))
-		overflow_handling = INT64_OVERFLOW_UNDEFINED;
+		Ev.OverflowHandling = INT64_OVERFLOW_UNDEFINED;
 	else if(Pgm.EqualsCur("NaN") || Pgm.EqualsCur("nan"))
-		overflow_handling = INT64_OVERFLOW_NAN;
+		Ev.OverflowHandling = INT64_OVERFLOW_NAN;
 	else
 		IntErrorCurToken("unrecognized option");
 	if(!Pgm.EndOfCommand())
@@ -3591,7 +3562,7 @@ void GnuPlot::NewColorMap()
 		gray = (double)i / (colormap_size-1);
 		if(SmPltt.Positive == SMPAL_NEGATIVE)
 			gray = 1.0 - gray;
-		rgb1_from_gray(gray, &rgb1);
+		Rgb1FromGray(gray, &rgb1);
 		rgb255_from_rgb1(rgb1, &rgb255);
 		A[i+1].type = INTGR;
 		A[i+1].v.int_val = (int)rgb255.r<<16 | (int)rgb255.g<<8 | (int)rgb255.b;
@@ -3822,11 +3793,11 @@ void GnuPlot::SetPm3D()
 				case S_PM3D_NOFTRIANGLES: /* "noftr$iangles" */
 				    pm3d.ftriangles = 0;
 				    continue;
-				/* deprecated pm3d "hidden3d" option, now used for borders */
+				// deprecated pm3d "hidden3d" option, now used for borders 
 				case S_PM3D_HIDDEN:
 				    if(Pgm.IsANumber(Pgm.GetCurTokenIdx()+1)) {
 					    Pgm.Shift();
-					    load_linetype(&pm3d.border, IntExpression());
+					    load_linetype(term, &pm3d.border, IntExpression());
 					    Pgm.Rollback();
 					    continue;
 				    }
@@ -4311,9 +4282,9 @@ polygon_error:
 			if(new_obj) {
 				this_object->fillstyle = (this_object->object_type == OBJ_RECTANGLE) ? default_rectangle.fillstyle : default_fillstyle;
 			}
-			parse_fillstyle(&this_object->fillstyle);
+			ParseFillStyle(&this_object->fillstyle);
 			if(Pgm.GetCurTokenIdx() != save_token) {
-				got_fill = TRUE;
+				got_fill = true;
 				continue;
 			}
 		}
@@ -4321,7 +4292,7 @@ polygon_error:
 		if(!got_fc) {
 			if(Pgm.EqualsCur("fc") || Pgm.AlmostEqualsCur("fillc$olor")) {
 				this_object->lp_properties.l_type = LT_BLACK; /* Anything but LT_DEFAULT */
-				parse_colorspec(&this_object->lp_properties.pm3d_color, TC_FRAC);
+				ParseColorSpec(&this_object->lp_properties.pm3d_color, TC_FRAC);
 				if(this_object->lp_properties.pm3d_color.type == TC_DEFAULT)
 					this_object->lp_properties.l_type = LT_DEFAULT;
 			}
@@ -4349,65 +4320,65 @@ polygon_error:
 		IntError(NO_CARET, "Inconsistent options");
 }
 
-static void set_wall()
+//static void set_wall()
+void GnuPlot::SetWall()
 {
-	t_object * this_object = NULL;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.AlmostEqualsCur("y0")) {
-		this_object = &grid_wall[WALL_Y0_TAG];
-		this_object->layer = LAYER_FRONTBACK;
-		GPO.Pgm.Shift();
+	t_object * p_object = NULL;
+	Pgm.Shift();
+	if(Pgm.AlmostEqualsCur("y0")) {
+		p_object = &grid_wall[WALL_Y0_TAG];
+		p_object->layer = LAYER_FRONTBACK;
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("x0")) {
-		this_object = &grid_wall[WALL_X0_TAG];
-		this_object->layer = LAYER_FRONTBACK;
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("x0")) {
+		p_object = &grid_wall[WALL_X0_TAG];
+		p_object->layer = LAYER_FRONTBACK;
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("y1")) {
-		this_object = &grid_wall[WALL_Y1_TAG];
-		this_object->layer = LAYER_FRONTBACK;
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("y1")) {
+		p_object = &grid_wall[WALL_Y1_TAG];
+		p_object->layer = LAYER_FRONTBACK;
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("x1")) {
-		this_object = &grid_wall[WALL_X1_TAG];
-		this_object->layer = LAYER_FRONTBACK;
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("x1")) {
+		p_object = &grid_wall[WALL_X1_TAG];
+		p_object->layer = LAYER_FRONTBACK;
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("z0")) {
-		this_object = &grid_wall[WALL_Z0_TAG];
-		this_object->layer = LAYER_FRONTBACK;
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("z0")) {
+		p_object = &grid_wall[WALL_Z0_TAG];
+		p_object->layer = LAYER_FRONTBACK;
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.EndOfCommand()) {
+	else if(Pgm.EndOfCommand()) {
 		grid_wall[WALL_Y0_TAG].layer = LAYER_FRONTBACK;
 		grid_wall[WALL_X0_TAG].layer = LAYER_FRONTBACK;
 		grid_wall[WALL_Z0_TAG].layer = LAYER_FRONTBACK;
 	}
-
-	/* Now parse the style options */
-	while(this_object && !GPO.Pgm.EndOfCommand()) {
+	// Now parse the style options 
+	while(p_object && !Pgm.EndOfCommand()) {
 		lp_style_type lptmp;
-		int save_token = GPO.Pgm.GetCurTokenIdx();
-		/* fill style */
-		parse_fillstyle(&this_object->fillstyle);
-		/* fill color */
-		if(GPO.Pgm.EqualsCur("fc") || GPO.Pgm.AlmostEqualsCur("fillc$olor")) {
-			this_object->lp_properties.l_type = LT_BLACK; /* Anything but LT_DEFAULT */
-			parse_colorspec(&this_object->lp_properties.pm3d_color, TC_RGB);
+		int save_token = Pgm.GetCurTokenIdx();
+		// fill style 
+		ParseFillStyle(&p_object->fillstyle);
+		// fill color 
+		if(Pgm.EqualsCur("fc") || Pgm.AlmostEqualsCur("fillc$olor")) {
+			p_object->lp_properties.l_type = LT_BLACK; // Anything but LT_DEFAULT 
+			ParseColorSpec(&p_object->lp_properties.pm3d_color, TC_RGB);
 			continue;
 		}
-		/* Line properties (for the object border if the fillstyle has one.  */
-		/* LP_NOFILL means don't eat fillcolor here since at is set by "fc". */
-		lptmp = this_object->lp_properties;
-		GPO.LpParse(&lptmp, LP_NOFILL, FALSE);
-		if(GPO.Pgm.GetCurTokenIdx() != save_token) {
-			this_object->lp_properties.l_width = lptmp.l_width;
-			this_object->lp_properties.d_type = lptmp.d_type;
-			this_object->lp_properties.custom_dash_pattern = lptmp.custom_dash_pattern;
+		// Line properties (for the object border if the fillstyle has one.  
+		// LP_NOFILL means don't eat fillcolor here since at is set by "fc". 
+		lptmp = p_object->lp_properties;
+		LpParse(&lptmp, LP_NOFILL, FALSE);
+		if(Pgm.GetCurTokenIdx() != save_token) {
+			p_object->lp_properties.l_width = lptmp.l_width;
+			p_object->lp_properties.d_type = lptmp.d_type;
+			p_object->lp_properties.custom_dash_pattern = lptmp.custom_dash_pattern;
 			continue;
 		}
-		if(GPO.Pgm.GetCurTokenIdx() == save_token)
-			GPO.IntErrorCurToken("unrecognized option");
+		if(Pgm.GetCurTokenIdx() == save_token)
+			IntErrorCurToken("unrecognized option");
 	}
 }
 
@@ -4442,8 +4413,9 @@ static void set_samples()
 		samples_2 = tsamp2;
 	}
 }
-
-/* process 'set size' command */
+//
+// process 'set size' command 
+//
 static void set_size()
 {
 	GPO.Pgm.Shift();
@@ -4453,15 +4425,15 @@ static void set_size()
 	}
 	else {
 		if(GPO.Pgm.AlmostEqualsCur("sq$uare")) {
-			aspect_ratio = 1.0f;
+			GPO.V.AspectRatio = 1.0f;
 			GPO.Pgm.Shift();
 		}
 		else if(GPO.Pgm.AlmostEqualsCur("ra$tio")) {
 			GPO.Pgm.Shift();
-			aspect_ratio = static_cast<float>(GPO.RealExpression());
+			GPO.V.AspectRatio = static_cast<float>(GPO.RealExpression());
 		}
 		else if(GPO.Pgm.AlmostEqualsCur("nora$tio") || GPO.Pgm.AlmostEqualsCur("nosq$uare")) {
-			aspect_ratio = 0.0f;
+			GPO.V.AspectRatio = 0.0f;
 			GPO.Pgm.Shift();
 		}
 		if(!GPO.Pgm.EndOfCommand()) {
@@ -4510,7 +4482,7 @@ void GnuPlot::SetStyle()
 		    break;
 	    }
 		case SHOW_STYLE_LINE: set_linestyle(&first_linestyle, LP_STYLE); break;
-		case SHOW_STYLE_FILLING: parse_fillstyle(&default_fillstyle); break;
+		case SHOW_STYLE_FILLING: ParseFillStyle(&default_fillstyle); break;
 		case SHOW_STYLE_ARROW: SetArrowStyle(); break;
 		case SHOW_STYLE_RECTANGLE:
 		    Pgm.Shift();
@@ -4620,7 +4592,7 @@ void GnuPlot::SetStyle()
 				    }
 			    }
 			    else if(Pgm.AlmostEqualsCur("fillc$olor") || Pgm.EqualsCur("fc")) {
-				    parse_colorspec(&textbox->fillcolor, TC_RGB);
+				    ParseColorSpec(&textbox->fillcolor, TC_RGB);
 			    }
 			    else if(Pgm.AlmostEqualsCur("nobo$rder")) {
 				    Pgm.Shift();
@@ -4637,7 +4609,7 @@ void GnuPlot::SetStyle()
 					    continue;
 				    if(Pgm.EqualsCur("lt"))
 					    Pgm.Rollback();
-				    parse_colorspec(&textbox->border_color, TC_RGB);
+				    ParseColorSpec(&textbox->border_color, TC_RGB);
 			    }
 			    else if(Pgm.AlmostEqualsCur("linew$idth") || Pgm.EqualsCur("lw")) {
 				    Pgm.Shift();
@@ -4670,15 +4642,9 @@ void GnuPlot::SetStyle()
 			    IntErrorCurToken("unrecognized option");
 		    Pgm.Shift();
 		    break;
-		case SHOW_STYLE_BOXPLOT:
-		    set_boxplot();
-		    break;
-		case SHOW_STYLE_PARALLEL:
-		    set_style_parallel();
-		    break;
-		case SHOW_STYLE_SPIDERPLOT:
-		    set_style_spiderplot();
-		    break;
+		case SHOW_STYLE_BOXPLOT: SetBoxPlot(); break;
+		case SHOW_STYLE_PARALLEL: SetStyleParallel(); break;
+		case SHOW_STYLE_SPIDERPLOT: SetStyleSpiderPlot(); break;
 		default:
 		    IntErrorCurToken("unrecognized option - see 'help set style'");
 	}
@@ -4701,21 +4667,22 @@ static void set_surface()
 //
 // process 'set table' command 
 //
-static void set_table()
+//static void set_table()
+void GnuPlot::SetTable()
 {
 	char * tablefile;
-	GPO.Pgm.Shift();
-	int filename_token = GPO.Pgm.GetCurTokenIdx();
+	Pgm.Shift();
+	int filename_token = Pgm.GetCurTokenIdx();
 	bool append = FALSE;
 	SFile::ZClose(&table_outfile);
 	table_var = NULL;
-	if(GPO.Pgm.EqualsCur("$") && GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()+1)) { /* datablock */
-		// NB: has to come first because GPO.TryToGetString will choke on the datablock name 
-		table_var = add_udv_by_name(GPO.Pgm.ParseDatablockName());
+	if(Pgm.EqualsCur("$") && Pgm.IsLetter(Pgm.GetCurTokenIdx()+1)) { /* datablock */
+		// NB: has to come first because TryToGetString will choke on the datablock name 
+		table_var = Ev.AddUdvByName(Pgm.ParseDatablockName());
 		if(table_var == NULL)
-			GPO.IntErrorCurToken("Error allocating datablock");
-		if(GPO.Pgm.EqualsCur("append")) {
-			GPO.Pgm.Shift();
+			IntErrorCurToken("Error allocating datablock");
+		if(Pgm.EqualsCur("append")) {
+			Pgm.Shift();
 			append = TRUE;
 		}
 		if(!append || table_var->udv_value.type != DATABLOCK) {
@@ -4724,20 +4691,20 @@ static void set_table()
 			table_var->udv_value.v.data_array = NULL;
 		}
 	}
-	else if((tablefile = GPO.TryToGetString())) { /* file name */
-		/* 'set table "foo"' creates a new output file */
-		/* 'set table "foo" append' writes to the end of an existing output file */
+	else if((tablefile = TryToGetString())) { /* file name */
+		// 'set table "foo"' creates a new output file 
+		// 'set table "foo" append' writes to the end of an existing output file 
 		gp_expand_tilde(&tablefile);
-		if(GPO.Pgm.EqualsCur("append")) {
-			GPO.Pgm.Shift();
+		if(Pgm.EqualsCur("append")) {
+			Pgm.Shift();
 			append = TRUE;
 		}
 		if(!(table_outfile = fopen(tablefile, (append ? "a" : "w"))))
 			os_error(filename_token, "cannot open table output file");
 		SAlloc::F(tablefile);
 	}
-	if(GPO.Pgm.AlmostEqualsCur("sep$arator")) {
-		set_separator(&table_sep);
+	if(Pgm.AlmostEqualsCur("sep$arator")) {
+		SetSeparator(&table_sep);
 	}
 	table_mode = TRUE;
 }
@@ -4788,10 +4755,10 @@ void GnuPlot::SetTerminal()
 	// caused by initializing the basic unit of the current terminal character
 	// size to zero.  I keep patching the individual terminals, but a generic
 	// sanity check may at least prevent a crash due to mistyping.
-	if(term->h_char <= 0 || term->v_char <= 0) {
+	if(term->ChrH <= 0 || term->ChrV <= 0) {
 		IntWarn(NO_CARET, "invalid terminal font size");
-		term->h_char = 10;
-		term->v_char = 10;
+		term->ChrH = 10;
+		term->ChrV = 10;
 	}
 }
 // 
@@ -4872,27 +4839,29 @@ void GpProgram::SetTermOptions()
 	}
 	NumTokens = save_end_of_line;
 }
-
-/* Various properties of the theta axis in polar mode */
-static void set_theta()
+//
+// Various properties of the theta axis in polar mode 
+//
+//static void set_theta()
+void GnuPlot::SetTheta()
 {
-	GPO.Pgm.Shift();
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("r$ight"))
+	Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("r$ight"))
 			theta_origin = 0.0;
-		else if(GPO.Pgm.AlmostEqualsCur("t$op"))
+		else if(Pgm.AlmostEqualsCur("t$op"))
 			theta_origin = 90.0;
-		else if(GPO.Pgm.AlmostEqualsCur("l$eft"))
+		else if(Pgm.AlmostEqualsCur("l$eft"))
 			theta_origin = 180.0;
-		else if(GPO.Pgm.AlmostEqualsCur("b$ottom"))
+		else if(Pgm.AlmostEqualsCur("b$ottom"))
 			theta_origin = -90.;
-		else if(GPO.Pgm.EqualsCur("clockwise") || GPO.Pgm.EqualsCur("cw"))
+		else if(Pgm.EqualsCur("clockwise") || Pgm.EqualsCur("cw"))
 			theta_direction = -1;
-		else if(GPO.Pgm.EqualsCur("counterclockwise") || GPO.Pgm.EqualsCur("ccw"))
+		else if(Pgm.EqualsCur("counterclockwise") || Pgm.EqualsCur("ccw"))
 			theta_direction = 1;
 		else
-			GPO.IntErrorCurToken("unrecognized option");
-		GPO.Pgm.Shift();
+			IntErrorCurToken("unrecognized option");
+		Pgm.Shift();
 	}
 }
 //
@@ -4916,7 +4885,7 @@ void GnuPlot::SetTics()
 			global_opt = TRUE;
 		}
 		else if(Pgm.AlmostEqualsCur("sc$ale")) {
-			set_ticscale();
+			SetTicScale();
 			global_opt = TRUE;
 		}
 		Pgm.Shift();
@@ -4942,14 +4911,15 @@ void GnuPlot::SetTics()
 //
 // process 'set ticscale' command 
 //
-static void set_ticscale()
+//static void set_ticscale()
+void GnuPlot::SetTicScale()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
-		GPO.Pgm.Shift();
+	Pgm.Shift();
+	if(Pgm.AlmostEqualsCur("def$ault")) {
+		Pgm.Shift();
 		for(int i = 0; i < AXIS_ARRAY_SIZE; ++i) {
-			GPO.AxS[i].ticscale = 1.0;
-			GPO.AxS[i].miniticscale = 0.5;
+			AxS[i].ticscale = 1.0;
+			AxS[i].miniticscale = 0.5;
 		}
 		ticscale[0] = 1.0;
 		ticscale[1] = 0.5;
@@ -4958,21 +4928,21 @@ static void set_ticscale()
 	}
 	else {
 		double lminiticscale;
-		double lticscale = GPO.RealExpression();
-		if(GPO.Pgm.EqualsCur(",")) {
-			GPO.Pgm.Shift();
-			lminiticscale = GPO.RealExpression();
+		double lticscale = RealExpression();
+		if(Pgm.EqualsCur(",")) {
+			Pgm.Shift();
+			lminiticscale = RealExpression();
 		}
 		else {
 			lminiticscale = 0.5 * lticscale;
 		}
 		for(int i = 0; i < NUMBER_OF_MAIN_VISIBLE_AXES; ++i) {
-			GPO.AxS[i].ticscale = lticscale;
-			GPO.AxS[i].miniticscale = lminiticscale;
+			AxS[i].ticscale = lticscale;
+			AxS[i].miniticscale = lminiticscale;
 		}
-		for(int ticlevel = 2; GPO.Pgm.EqualsCur(",");) {
-			GPO.Pgm.Shift();
-			ticscale[ticlevel++] = GPO.RealExpression();
+		for(int ticlevel = 2; Pgm.EqualsCur(",");) {
+			Pgm.Shift();
+			ticscale[ticlevel++] = RealExpression();
 			if(ticlevel >= MAX_TICLEVEL)
 				break;
 		}
@@ -5024,59 +4994,60 @@ static void set_timefmt()
 		P_TimeFormat = gp_strdup(TIMEFMT);
 	}
 }
-
-/* process 'set timestamp' command */
-static void set_timestamp()
+//
+// process 'set timestamp' command 
+//
+//static void set_timestamp()
+void GnuPlot::SetTimeStamp()
 {
 	bool got_format = FALSE;
 	char * p_new;
-	GPO.Pgm.Shift();
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("t$op")) {
+	Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("t$op")) {
 			timelabel_bottom = FALSE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("b$ottom")) {
+		else if(Pgm.AlmostEqualsCur("b$ottom")) {
 			timelabel_bottom = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 			continue;
 		}
-
-		if(GPO.Pgm.AlmostEqualsCur("r$otate")) {
+		if(Pgm.AlmostEqualsCur("r$otate")) {
 			timelabel.rotate = TEXT_VERTICAL;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("n$orotate")) {
+		else if(Pgm.AlmostEqualsCur("n$orotate")) {
 			timelabel.rotate = 0;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("off$set")) {
-			GPO.Pgm.Shift();
-			GPO.GetPositionDefault(&(timelabel.offset), character, 3);
+		if(Pgm.AlmostEqualsCur("off$set")) {
+			Pgm.Shift();
+			GetPositionDefault(&(timelabel.offset), character, 3);
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("font")) {
-			GPO.Pgm.Shift();
-			p_new = GPO.TryToGetString();
+		if(Pgm.EqualsCur("font")) {
+			Pgm.Shift();
+			p_new = TryToGetString();
 			SAlloc::F(timelabel.font);
 			timelabel.font = p_new;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("tc") || GPO.Pgm.AlmostEqualsCur("text$color")) {
-			parse_colorspec(&(timelabel.textcolor), TC_VARIABLE);
+		if(Pgm.EqualsCur("tc") || Pgm.AlmostEqualsCur("text$color")) {
+			ParseColorSpec(&(timelabel.textcolor), TC_VARIABLE);
 			continue;
 		}
-		if(!got_format && ((p_new = GPO.TryToGetString()))) {
+		if(!got_format && ((p_new = TryToGetString()))) {
 			// we have a format string 
 			SAlloc::F(timelabel.text);
 			timelabel.text = p_new;
 			got_format = TRUE;
 			continue;
 		}
-		GPO.IntErrorCurToken("unrecognized option");
+		IntErrorCurToken("unrecognized option");
 	}
 	SETIFZ(timelabel.text, gp_strdup(DEFAULT_TIMESTAMP_FORMAT));
 	timelabel.pos = (timelabel.rotate && !timelabel_bottom) ? RIGHT : LEFT;
@@ -5106,9 +5077,9 @@ void GnuPlot::SetView()
 			Pgm.Shift();
 			mapview_scale = static_cast<float>(RealExpression());
 		}
-		if(aspect_ratio_3D != 0) {
-			aspect_ratio = -1;
-			aspect_ratio_3D = 0;
+		if(V.AspectRatio3D != 0) {
+			V.AspectRatio = -1.0f;
+			V.AspectRatio3D = 0;
 		}
 		return;
 	}
@@ -5136,18 +5107,18 @@ void GnuPlot::SetView()
 	if(Pgm.AlmostEqualsCur("equal$_axes")) {
 		Pgm.Shift();
 		if(Pgm.EndOfCommand() || Pgm.EqualsCur("xy")) {
-			aspect_ratio_3D = 2;
+			V.AspectRatio3D = 2;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("xyz")) {
-			aspect_ratio_3D = 3;
+			V.AspectRatio3D = 3;
 			Pgm.Shift();
 		}
 		return;
 	}
 	else if(Pgm.AlmostEqualsCur("noequal$_axes")) {
 		// FIXME: set aspect_ratio = 0 ?? 
-		aspect_ratio_3D = 0;
+		V.AspectRatio3D = 0;
 		Pgm.Shift();
 		return;
 	}
@@ -5231,7 +5202,7 @@ void GnuPlot::SetRange(GpAxis * pAx)
 	else {
 		if(Pgm.EqualsCur("[")) {
 			Pgm.Shift();
-			pAx->set_autoscale = load_range(pAx, &pAx->set_min, &pAx->set_max, pAx->set_autoscale);
+			pAx->set_autoscale = LoadRange(pAx, &pAx->set_min, &pAx->set_max, pAx->set_autoscale);
 			if(!Pgm.EqualsCur("]"))
 				IntErrorCurToken("expecting ']'");
 			Pgm.Shift();
@@ -5515,7 +5486,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 				pThisAxis->ticdef.enhanced = FALSE;
 			}
 			else if(Pgm.EqualsCur("tc") || Pgm.AlmostEqualsCur("text$color")) {
-				parse_colorspec(&pThisAxis->ticdef.textcolor, axis == FIRST_Z_AXIS ? TC_Z : TC_FRAC);
+				ParseColorSpec(&pThisAxis->ticdef.textcolor, axis == FIRST_Z_AXIS ? TC_Z : TC_FRAC);
 			}
 			else if(Pgm.AlmostEqualsCur("au$tofreq")) {
 				// auto tic interval 
@@ -5657,7 +5628,7 @@ static void set_xyzlabel(text_label * label)
 		ZFREE(label->text);
 	}
 	else {
-		parse_label_options(label, 0);
+		GPO.ParseLabelOptions(label, 0);
 		if(!GPO.Pgm.EndOfCommand()) {
 			char * text = GPO.TryToGetString();
 			if(text) {
@@ -5665,7 +5636,7 @@ static void set_xyzlabel(text_label * label)
 				label->text = text;
 			}
 		}
-		parse_label_options(label, 0);
+		GPO.ParseLabelOptions(label, 0);
 	}
 }
 
@@ -5970,15 +5941,16 @@ text_label * new_text_label(int tag)
 	p_new->offset = default_offset;
 	return(p_new);
 }
-/*
- * Parse the sub-options for label style and placement.
- * This is called from set_label, and from plot2d and plot3d
- * to handle options for 'plot with labels'
- * Note: ndim = 2 means we are inside a plot command,
- *       ndim = 3 means we are inside an splot command
- *       ndim = 0 in a set command
- */
-void parse_label_options(struct text_label * this_label, int ndim)
+// 
+// Parse the sub-options for label style and placement.
+// This is called from set_label, and from plot2d and plot3d
+// to handle options for 'plot with labels'
+// Note: ndim = 2 means we are inside a plot command,
+//   ndim = 3 means we are inside an splot command
+//   ndim = 0 in a set command
+// 
+//void parse_label_options(struct text_label * this_label, int ndim)
+void GnuPlot::ParseLabelOptions(text_label * pLabel, int ndim)
 {
 	GpPosition pos;
 	char * font = NULL;
@@ -5994,219 +5966,213 @@ void parse_label_options(struct text_label * this_label, int ndim)
 	bool set_textcolor = false;
 	bool set_hypertext = false;
 	int  layer = LAYER_BACK;
-	bool axis_label = (this_label->tag <= NONROTATING_LABEL_TAG);
+	bool axis_label = (pLabel->tag <= NONROTATING_LABEL_TAG);
 	bool hypertext = FALSE;
 	GpPosition offset = default_offset;
 	t_colorspec textcolor = {TC_DEFAULT, 0, 0.0};
 	lp_style_type loc_lp(lp_style_type::defCommon);//= DEFAULT_LP_STYLE_TYPE;
 	loc_lp.flags = LP_NOT_INITIALIZED;
 	// Now parse the label format and style options 
-	while(!GPO.Pgm.EndOfCommand()) {
+	while(!Pgm.EndOfCommand()) {
 		// get position 
-		if((ndim == 0) && !set_position && GPO.Pgm.EqualsCur("at") && !axis_label) {
-			GPO.Pgm.Shift();
-			GPO.GetPosition(&pos);
+		if((ndim == 0) && !set_position && Pgm.EqualsCur("at") && !axis_label) {
+			Pgm.Shift();
+			GetPosition(&pos);
 			set_position = TRUE;
 			continue;
 		}
 		// get justification 
 		if(!set_just) {
-			if(GPO.Pgm.AlmostEqualsCur("l$eft")) {
+			if(Pgm.AlmostEqualsCur("l$eft")) {
 				just = LEFT;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 				set_just = TRUE;
 				continue;
 			}
-			else if(GPO.Pgm.AlmostEqualsCur("c$entre") || GPO.Pgm.AlmostEqualsCur("c$enter")) {
+			else if(Pgm.AlmostEqualsCur("c$entre") || Pgm.AlmostEqualsCur("c$enter")) {
 				just = CENTRE;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 				set_just = TRUE;
 				continue;
 			}
-			else if(GPO.Pgm.AlmostEqualsCur("r$ight")) {
+			else if(Pgm.AlmostEqualsCur("r$ight")) {
 				just = RIGHT;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 				set_just = TRUE;
 				continue;
 			}
 		}
 		// get rotation (added by RCC) 
-		if(GPO.Pgm.AlmostEqualsCur("rot$ate")) {
-			GPO.Pgm.Shift();
+		if(Pgm.AlmostEqualsCur("rot$ate")) {
+			Pgm.Shift();
 			set_rot = TRUE;
-			rotate = this_label->rotate;
-			if(GPO.Pgm.EqualsCur("by")) {
-				GPO.Pgm.Shift();
-				rotate = GPO.IntExpression();
-				if(this_label->tag == ROTATE_IN_3D_LABEL_TAG)
-					this_label->tag = NONROTATING_LABEL_TAG;
+			rotate = pLabel->rotate;
+			if(Pgm.EqualsCur("by")) {
+				Pgm.Shift();
+				rotate = IntExpression();
+				if(pLabel->tag == ROTATE_IN_3D_LABEL_TAG)
+					pLabel->tag = NONROTATING_LABEL_TAG;
 			}
-			else if(GPO.Pgm.AlmostEqualsCur("para$llel")) {
-				if(this_label->tag >= 0)
-					GPO.IntErrorCurToken("invalid option");
-				GPO.Pgm.Shift();
-				this_label->tag = ROTATE_IN_3D_LABEL_TAG;
+			else if(Pgm.AlmostEqualsCur("para$llel")) {
+				if(pLabel->tag >= 0)
+					IntErrorCurToken("invalid option");
+				Pgm.Shift();
+				pLabel->tag = ROTATE_IN_3D_LABEL_TAG;
 			}
-			else if(GPO.Pgm.AlmostEqualsCur("var$iable")) {
+			else if(Pgm.AlmostEqualsCur("var$iable")) {
 				if(ndim == 2) /* only in 2D plot with labels */
-					this_label->tag = VARIABLE_ROTATE_LABEL_TAG;
+					pLabel->tag = VARIABLE_ROTATE_LABEL_TAG;
 				else
 					set_rot = FALSE;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 			}
 			else
 				rotate = TEXT_VERTICAL;
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("norot$ate")) {
+		else if(Pgm.AlmostEqualsCur("norot$ate")) {
 			rotate = 0;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 			set_rot = TRUE;
-			if(this_label->tag == ROTATE_IN_3D_LABEL_TAG)
-				this_label->tag = NONROTATING_LABEL_TAG;
+			if(pLabel->tag == ROTATE_IN_3D_LABEL_TAG)
+				pLabel->tag = NONROTATING_LABEL_TAG;
 			continue;
 		}
 		// get font (added by DJL) 
-		if(!set_font && GPO.Pgm.EqualsCur("font")) {
-			GPO.Pgm.Shift();
-			if((font = GPO.TryToGetString())) {
+		if(!set_font && Pgm.EqualsCur("font")) {
+			Pgm.Shift();
+			if((font = TryToGetString())) {
 				set_font = TRUE;
 				continue;
 			}
 			else
-				GPO.IntErrorCurToken("'fontname,fontsize' expected");
+				IntErrorCurToken("'fontname,fontsize' expected");
 		}
 		// Flag pThis as hypertext rather than a normal label 
-		if(!set_hypertext && GPO.Pgm.AlmostEqualsCur("hyper$text")) {
-			GPO.Pgm.Shift();
+		if(!set_hypertext && Pgm.AlmostEqualsCur("hyper$text")) {
+			Pgm.Shift();
 			hypertext = TRUE;
 			set_hypertext = TRUE;
 			if(!set_point)
 				loc_lp = default_hypertext_point_style;
 			continue;
 		}
-		else if(!set_hypertext && GPO.Pgm.AlmostEqualsCur("nohyper$text")) {
-			GPO.Pgm.Shift();
+		else if(!set_hypertext && Pgm.AlmostEqualsCur("nohyper$text")) {
+			Pgm.Shift();
 			hypertext = FALSE;
 			set_hypertext = TRUE;
 			continue;
 		}
-
-		/* get front/back (added by JDP) */
+		// get front/back (added by JDP) 
 		if((ndim == 0) && !set_layer && !axis_label) {
-			if(GPO.Pgm.EqualsCur("back")) {
+			if(Pgm.EqualsCur("back")) {
 				layer = LAYER_BACK;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 				set_layer = TRUE;
 				continue;
 			}
-			else if(GPO.Pgm.EqualsCur("front")) {
+			else if(Pgm.EqualsCur("front")) {
 				layer = LAYER_FRONT;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 				set_layer = TRUE;
 				continue;
 			}
 		}
-
-		if(GPO.Pgm.EqualsCur("boxed")) {
+		if(Pgm.EqualsCur("boxed")) {
 			int tag = -1;
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EqualsCur("bs")) {
-				GPO.Pgm.Shift();
-				tag = GPO.IntExpression() % (NUM_TEXTBOX_STYLES);
+			Pgm.Shift();
+			if(Pgm.EqualsCur("bs")) {
+				Pgm.Shift();
+				tag = IntExpression() % (NUM_TEXTBOX_STYLES);
 			}
-			this_label->boxed = tag;
+			pLabel->boxed = tag;
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("nobox$ed")) {
-			this_label->boxed = 0;
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("nobox$ed")) {
+			pLabel->boxed = 0;
+			Pgm.Shift();
 			continue;
 		}
 		if(!axis_label && (loc_lp.flags == LP_NOT_INITIALIZED || set_hypertext)) {
-			if(GPO.Pgm.AlmostEqualsCur("po$int")) {
-				GPO.Pgm.Shift();
-				int stored_token = GPO.Pgm.GetCurTokenIdx();
-				struct lp_style_type tmp_lp;
+			if(Pgm.AlmostEqualsCur("po$int")) {
+				Pgm.Shift();
+				int stored_token = Pgm.GetCurTokenIdx();
+				lp_style_type tmp_lp;
 				loc_lp.flags = LP_SHOW_POINTS;
 				tmp_lp = loc_lp;
-				GPO.LpParse(&tmp_lp, LP_ADHOC, TRUE);
-				if(stored_token != GPO.Pgm.GetCurTokenIdx())
+				LpParse(&tmp_lp, LP_ADHOC, TRUE);
+				if(stored_token != Pgm.GetCurTokenIdx())
 					loc_lp = tmp_lp;
 				set_point = TRUE;
 				continue;
 			}
-			else if(GPO.Pgm.AlmostEqualsCur("nopo$int")) {
+			else if(Pgm.AlmostEqualsCur("nopo$int")) {
 				loc_lp.flags = 0;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 				continue;
 			}
 		}
-		if(!set_offset && GPO.Pgm.AlmostEqualsCur("of$fset")) {
-			GPO.Pgm.Shift();
-			GPO.GetPositionDefault(&offset, character, ndim);
+		if(!set_offset && Pgm.AlmostEqualsCur("of$fset")) {
+			Pgm.Shift();
+			GetPositionDefault(&offset, character, ndim);
 			set_offset = TRUE;
 			continue;
 		}
-		if((GPO.Pgm.EqualsCur("tc") || GPO.Pgm.AlmostEqualsCur("text$color")) && !set_textcolor) {
-			parse_colorspec(&textcolor, TC_VARIABLE);
+		if((Pgm.EqualsCur("tc") || Pgm.AlmostEqualsCur("text$color")) && !set_textcolor) {
+			ParseColorSpec(&textcolor, TC_VARIABLE);
 			set_textcolor = TRUE;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("noenh$anced")) {
-			this_label->noenhanced = TRUE;
-			GPO.Pgm.Shift();
+		if(Pgm.AlmostEqualsCur("noenh$anced")) {
+			pLabel->noenhanced = TRUE;
+			Pgm.Shift();
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("enh$anced")) {
-			this_label->noenhanced = FALSE;
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("enh$anced")) {
+			pLabel->noenhanced = FALSE;
+			Pgm.Shift();
 			continue;
 		}
-
 		/* Coming here means that none of the previous 'if's struck
 		 * its "continue" statement, i.e.  whatever is in the command
 		 * line is forbidden by the 'set label' command syntax.
 		 * On the other hand, 'plot with labels' may have additional stuff coming up.
 		 */
 		break;
-	} /* while(!GPO.Pgm.EndOfCommand()) */
-
+	} /* while(!Pgm.EndOfCommand()) */
 	if(!set_position)
 		pos = default_position;
-
 	/* OK! copy the requested options into the label */
 	if(set_position)
-		this_label->place = pos;
+		pLabel->place = pos;
 	if(set_just)
-		this_label->pos = just;
+		pLabel->pos = just;
 	if(set_rot)
-		this_label->rotate = rotate;
+		pLabel->rotate = rotate;
 	if(set_layer)
-		this_label->layer = layer;
+		pLabel->layer = layer;
 	if(set_font) {
-		SAlloc::F(this_label->font);
-		this_label->font = font;
+		SAlloc::F(pLabel->font);
+		pLabel->font = font;
 	}
 	if(set_textcolor)
-		this_label->textcolor = textcolor;
+		pLabel->textcolor = textcolor;
 	if((loc_lp.flags & LP_NOT_INITIALIZED) == 0)
-		this_label->lp_properties = loc_lp;
+		pLabel->lp_properties = loc_lp;
 	if(set_offset)
-		this_label->offset = offset;
+		pLabel->offset = offset;
 	if(set_hypertext)
-		this_label->hypertext = hypertext;
-
-	/* Make sure the z coord and the z-coloring agree */
-	if(this_label->textcolor.type == TC_Z)
-		this_label->textcolor.value = this_label->place.z;
-	if(this_label->lp_properties.pm3d_color.type == TC_Z)
-		this_label->lp_properties.pm3d_color.value = this_label->place.z;
+		pLabel->hypertext = hypertext;
+	// Make sure the z coord and the z-coloring agree 
+	if(pLabel->textcolor.type == TC_Z)
+		pLabel->textcolor.value = pLabel->place.z;
+	if(pLabel->lp_properties.pm3d_color.type == TC_Z)
+		pLabel->lp_properties.pm3d_color.value = pLabel->place.z;
 }
-
-/* <histogramstyle> = {clustered {gap <n>} | rowstacked | columnstacked */
-/*                     errorbars {gap <n>} {linewidth <lw>}}            */
-/*                    {title <title_options>}                           */
+// 
+// <histogramstyle> = {clustered {gap <n>} | rowstacked | columnstacked 
+//   errorbars {gap <n>} {linewidth <lw>}}
+//   {title <title_options>}
 static void parse_histogramstyle(histogram_style * hs, t_histogram_type def_type, int def_gap)
 {
 	text_label title_specs; // = EMPTY_LABELSTRUCT;
@@ -6302,24 +6268,26 @@ void GnuPlot::ParseLightingOptions()
 	}
 	Pgm.Rollback();
 }
-
-/* affects both 'set style parallelaxis' and 'set style spiderplot' */
-static void set_style_parallel()
+//
+// affects both 'set style parallelaxis' and 'set style spiderplot' 
+//
+//static void set_style_parallel()
+void GnuPlot::SetStyleParallel()
 {
 	int save_token;
-	GPO.Pgm.Shift();
-	while(!GPO.Pgm.EndOfCommand()) {
-		save_token = GPO.Pgm.GetCurTokenIdx();
-		GPO.LpParse(&parallel_axis_style.lp_properties,  LP_ADHOC, FALSE);
-		if(save_token != GPO.Pgm.GetCurTokenIdx())
+	Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
+		save_token = Pgm.GetCurTokenIdx();
+		LpParse(&parallel_axis_style.lp_properties,  LP_ADHOC, FALSE);
+		if(save_token != Pgm.GetCurTokenIdx())
 			continue;
-		if(GPO.Pgm.EqualsCur("front"))
+		if(Pgm.EqualsCur("front"))
 			parallel_axis_style.layer = LAYER_FRONT;
-		else if(GPO.Pgm.EqualsCur("back"))
+		else if(Pgm.EqualsCur("back"))
 			parallel_axis_style.layer = LAYER_BACK;
 		else
-			GPO.IntErrorCurToken("unrecognized option");
-		GPO.Pgm.Shift();
+			IntErrorCurToken("unrecognized option");
+		Pgm.Shift();
 	}
 }
 
@@ -6328,21 +6296,22 @@ static void set_spiderplot()
 	GPO.Pgm.Shift();
 	draw_border = 0;
 	unset_all_tics();
-	aspect_ratio = 1.0;
+	GPO.V.AspectRatio = 1.0f;
 	polar = FALSE;
 	keyT.auto_titles = NOAUTO_KEYTITLES;
 	data_style = SPIDERPLOT;
 	spiderplot = TRUE;
 }
 
-static void set_style_spiderplot()
+//static void set_style_spiderplot()
+void GnuPlot::SetStyleSpiderPlot()
 {
-	GPO.Pgm.Shift();
-	while(!GPO.Pgm.EndOfCommand()) {
-		int save_token = GPO.Pgm.GetCurTokenIdx();
-		parse_fillstyle(&spiderplot_style.fillstyle);
-		GPO.LpParse(&spiderplot_style.lp_properties,  LP_ADHOC, TRUE);
-		if(save_token == GPO.Pgm.GetCurTokenIdx())
+	Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
+		const int save_token = Pgm.GetCurTokenIdx();
+		ParseFillStyle(&spiderplot_style.fillstyle);
+		LpParse(&spiderplot_style.lp_properties,  LP_ADHOC, TRUE);
+		if(save_token == Pgm.GetCurTokenIdx())
 			break;
 	}
 }
@@ -6389,9 +6358,9 @@ void GnuPlot::SetDataFile()
 		if(Pgm.AlmostEqualsCur("miss$ing"))
 			set_missing();
 		else if(Pgm.AlmostEqualsCur("sep$arators"))
-			set_separator(&df_separators);
+			SetSeparator(&df_separators);
 		else if(Pgm.AlmostEqualsCur("com$mentschars"))
-			set_datafile_commentschars();
+			SetDataFileCommentsChars();
 		else if(Pgm.AlmostEqualsCur("bin$ary"))
 			df_set_datafile_binary();
 		else if(Pgm.AlmostEqualsCur("fort$ran")) {

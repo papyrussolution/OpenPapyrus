@@ -244,8 +244,8 @@ TERM_PUBLIC void BLOCK_init()
 		    break;
 	}
 
-	term->h_char = BLOCK_modeinfo[BLOCK_mode].cellx;
-	term->v_char = BLOCK_modeinfo[BLOCK_mode].celly;
+	term->ChrH = BLOCK_modeinfo[BLOCK_mode].cellx;
+	term->ChrV = BLOCK_modeinfo[BLOCK_mode].celly;
 	// FIXME: is this correct or should the -1 go?
 	dumb_xmax = BLOCK_xchars - 1;
 	dumb_ymax = BLOCK_ychars - 1;
@@ -825,11 +825,11 @@ TERM_PUBLIC void BLOCK_set_color(t_colorspec * color)
 		    break;
 		case TC_FRAC: {
 		    rgb255_color rgb255;
-		    rgb255maxcolors_from_gray(color->value, &rgb255);
+		    GPO.Rgb255MaxColorsFromGray(color->value, &rgb255);
 		    if(dumb_colormode == DUMB_ANSIRGB) {
 			    unsigned color = (((unsigned)rgb255.r) << 16) |
-				(((unsigned)rgb255.g) <<  8) |
-				((unsigned)rgb255.b);
+				(((uint)rgb255.g) <<  8) |
+				((uint)rgb255.b);
 			    b_setvalue(((color & 0xffffff) << 1) + 1);
 		    }
 		    else if(dumb_colormode == DUMB_ANSI256)

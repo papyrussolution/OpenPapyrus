@@ -417,7 +417,7 @@ typedef int                 boolint; // @v10.5.2 Введен с целью ун
 
 class  SBuffer;
 class  SString;
-class  TPoint;
+class  SPoint2S;
 class  TRect;
 class  SPoint2R;
 class  LMatrix;
@@ -3305,33 +3305,33 @@ private:
 //
 //
 //
-class FPoint { // @persistent
+class SPoint2F { // @persistent
 public:
 	//
 	// Descr: Конструктор по умолчанию. Ради скорости ничего не инициализирует.
 	//
-	FPoint();
+	SPoint2F();
 	//
 	// Descr: Конструктор. Инициализирует X и Y в xy.
 	//
-	explicit FPoint(float xy);
-	FPoint(float x, float y);
-	FPoint & FASTCALL operator = (const TPoint & p);
-	FPoint & FASTCALL operator = (float f);
-	int    FASTCALL operator == (const FPoint & rS) const;
-	int    FASTCALL operator != (const FPoint & rS) const;
-	int    FASTCALL IsEqual(const FPoint & rS) const;
+	explicit SPoint2F(float xy);
+	SPoint2F(float x, float y);
+	SPoint2F & FASTCALL operator = (const SPoint2S & p);
+	SPoint2F & FASTCALL operator = (float f);
+	int    FASTCALL operator == (const SPoint2F & rS) const;
+	int    FASTCALL operator != (const SPoint2F & rS) const;
+	int    FASTCALL IsEqual(const SPoint2F & rS) const;
 	int    IsZero() const;
 	int    IsPositive() const;
-	FPoint Set(float xy);
-	FPoint Set(float x, float y);
-	FPoint SetZero();
-	FPoint Neg() const;
-	FPoint Scale(float);
+	SPoint2F Set(float xy);
+	SPoint2F Set(float x, float y);
+	SPoint2F SetZero();
+	SPoint2F Neg() const;
+	SPoint2F Scale(float);
 	float  Ratio() const;
 	float  Add() const;
-	FPoint AddX(float x) const;
-	FPoint AddY(float y) const;
+	SPoint2F AddX(float x) const;
+	SPoint2F AddY(float y) const;
 	float  Sub() const;
 	float  Sq() const;
 	//
@@ -3343,8 +3343,8 @@ public:
 	//
 	// Descr: (a.X*X + a.Y*Y, b.X*X + b.Y*Y)
 	//
-	FPoint Combine(FPoint a, FPoint b) const;
-	FPoint Swap() const;
+	SPoint2F Combine(SPoint2F a, SPoint2F b) const;
+	SPoint2F Swap() const;
 	int    FASTCALL Write(SBuffer &) const;
 	int    FASTCALL Read(SBuffer &);
 
@@ -3352,29 +3352,29 @@ public:
 	float  Y;
 };
 
-extern const FPoint ZEROFPOINT; // @global
+extern const SPoint2F ZEROFPOINT; // @global
 
-// @v10.9.10 (replaced with FPoint::operator ==) int    FASTCALL operator == (FPoint p1, FPoint p2);
-int    FASTCALL operator <  (FPoint p1, FPoint p2);
-int    FASTCALL operator >  (FPoint p1, FPoint p2);
-FPoint FASTCALL operator +  (FPoint p, float);
-FPoint FASTCALL operator +  (FPoint p1, FPoint p2);
-FPoint FASTCALL operator -  (FPoint p1, FPoint p2);
-FPoint FASTCALL operator *  (FPoint p, float);
-FPoint FASTCALL operator *  (FPoint p, double);
-FPoint FASTCALL operator *  (FPoint p1, FPoint p2);
-FPoint FASTCALL operator /  (FPoint p, float);
-FPoint FASTCALL operator /  (FPoint p1, FPoint p2);
-FPoint FASTCALL fmin(FPoint p1, FPoint p2);
-FPoint FASTCALL fmax(FPoint p1, FPoint p2);
+// @v10.9.10 (replaced with SPoint2F::operator ==) int    FASTCALL operator == (SPoint2F p1, SPoint2F p2);
+int    FASTCALL operator <  (SPoint2F p1, SPoint2F p2);
+int    FASTCALL operator >  (SPoint2F p1, SPoint2F p2);
+SPoint2F FASTCALL operator +  (SPoint2F p, float);
+SPoint2F FASTCALL operator +  (SPoint2F p1, SPoint2F p2);
+SPoint2F FASTCALL operator -  (SPoint2F p1, SPoint2F p2);
+SPoint2F FASTCALL operator *  (SPoint2F p, float);
+SPoint2F FASTCALL operator *  (SPoint2F p, double);
+SPoint2F FASTCALL operator *  (SPoint2F p1, SPoint2F p2);
+SPoint2F FASTCALL operator /  (SPoint2F p, float);
+SPoint2F FASTCALL operator /  (SPoint2F p1, SPoint2F p2);
+SPoint2F FASTCALL fmin(SPoint2F p1, SPoint2F p2);
+SPoint2F FASTCALL fmax(SPoint2F p1, SPoint2F p2);
 //
 // Descr: Возвращает atan2f(p1.Y-p2.Y, p1.X-p2.X)
 //
-float  FASTCALL atan2(FPoint p1, FPoint p2);
+float  FASTCALL atan2(SPoint2F p1, SPoint2F p2);
 //
 // Descr: X = p.X + radius.X * sinf(angle), Y = p.Y - radius.Y * cosf(angle)
 //
-FPoint FASTCALL trans01(FPoint p, FPoint radius, float angle);
+SPoint2F FASTCALL trans01(SPoint2F p, SPoint2F radius, float angle);
 //
 // Compare sign sets
 //
@@ -7010,7 +7010,7 @@ public:
 	int    FASTCALL operator != (const FloatArray & rS) const;
 	int    FASTCALL IsEqual(const FloatArray *) const;
 	int    FASTCALL add(float);
-	int    FASTCALL add(FPoint);
+	int    FASTCALL add(SPoint2F);
 	float  FASTCALL get(uint) const;
 	//
 	// Descr: Распределяет память ровно на numItems элементов.
@@ -7021,7 +7021,7 @@ public:
 	// Descr: Специализированная функция, позволяющая извлечь 2-мерную точку из массива,
 	//   начиная с позиции i.
 	//
-	const  FPoint & FASTCALL getPoint(uint i) const;
+	const  SPoint2F & FASTCALL getPoint(uint i) const;
 	float & FASTCALL operator [] (size_t i) const;
 };
 //
@@ -7138,8 +7138,8 @@ public:
 class FloatStack : public TSStack <float> {
 public:
 	FloatStack();
-	void   pushPoint(FPoint p);
-	int    popPoint(FPoint & rP);
+	void   pushPoint(SPoint2F p);
+	int    popPoint(SPoint2F & rP);
 };
 //
 //
@@ -10043,6 +10043,33 @@ public:
 //
 #define NSUBEXP 10
 
+class SRegExp2 { // @construction
+public:
+	SRegExp2();
+	explicit SRegExp2(const char * s);
+	SRegExp2(const SRegExp2 &);
+	~SRegExp2();
+	int    Compile(const char * pPattern); // Compiles char* --> regexp
+	int    Find(const char * pText);       // TRUE if regexp in char* arg
+	int    Find(SStrScan *);
+	int    GetLastErr() const;
+	int    IsValid() const;
+	//
+	// Descr: Returns index into the searched string that corresponds to the  beginning pointer
+	//
+	long   Start() const;
+	//
+	// Descr: Returns index into the searched string that corresponds to the  end pointer
+	//
+	long   End() const;
+	int    FASTCALL operator == (const SRegExp2 & r) const;
+	int    FASTCALL operator != (const SRegExp2 & r) const { return (!(*this == r)); }
+	int    FASTCALL DeepEqual(const SRegExp2 & r) const; // Same regexp and state?
+	void   SetInvalid();
+private:
+	void * H;
+};
+
 class CRegExp {
 public:
 	CRegExp();
@@ -10921,7 +10948,7 @@ public:
 	LMatrix2D & InitUnit(double v = 1.0);
 	LMatrix2D & InitScale(double x, double y);
 	LMatrix2D & InitTranslate(double dx, double dy);
-	LMatrix2D & InitTranslate(FPoint p);
+	LMatrix2D & InitTranslate(SPoint2F p);
 	LMatrix2D & InitRotate(double teta);
 	LMatrix2D & InitRotateDeg(double tetaDeg);
 	LMatrix2D & InitSkew(double angleX, double angleY);
@@ -11697,19 +11724,19 @@ struct FRect { // @persistent
 	//   *this
 	//
 	FRect & Set(float v);
-	FRect & FASTCALL operator = (FPoint p);
-	FRect & Around(FPoint p, FPoint size);
+	FRect & FASTCALL operator = (SPoint2F p);
+	FRect & Around(SPoint2F p, SPoint2F size);
 	FRect & Grow(float aDX, float aDY);
 	FRect & Move__(float aDX, float aDY);
-	FRect & FASTCALL MoveCenterTo(FPoint center);
+	FRect & FASTCALL MoveCenterTo(SPoint2F center);
 	int    FASTCALL IsEqual(const FRect & rS) const;
 	int    IsEmpty() const;
-	int    Contains(FPoint p) const;
+	int    Contains(SPoint2F p) const;
 	int    FASTCALL Contains(const FRect & rR) const;
 	float  Width() const;
 	float  Height() const;
-	FPoint GetSize() const;
-	FPoint GetCenter() const;
+	SPoint2F GetSize() const;
+	SPoint2F GetCenter() const;
 	//
 	// Descr: Возвращает отношение высоты (Height) к ширине (Width) прямоугольника.
 	//   Если ширина равна нулю, то возвращает SMathConst::Max.
@@ -11717,8 +11744,8 @@ struct FRect { // @persistent
 	double Ratio() const;
 	FRect & FASTCALL Union(const FRect & rR);
 
-	FPoint a;
-	FPoint b;
+	SPoint2F a;
+	SPoint2F b;
 };
 
 class FShape { // @persistent @store(SSerializeContext)
@@ -11726,17 +11753,17 @@ public:
 	typedef FRect Rect;
 
 	struct Line {
-		FPoint A;
-		FPoint B;
+		SPoint2F A;
+		SPoint2F B;
 	};
 	struct Circle {
 		Circle();
-		FPoint C; // Center
+		SPoint2F C; // Center
 		float  R; // Radius
 	};
 	struct Ellipse {
-		FPoint C; // Center
-		FPoint R; // Радиус по осям X и Y
+		SPoint2F C; // Center
+		SPoint2F R; // Радиус по осям X и Y
 	};
 	struct EllipseArc : public Ellipse {
 		EllipseArc();
@@ -11749,12 +11776,12 @@ public:
 		float  End;   // Конечный угол (RAD)
 	};
 	struct Triangle {
-		FPoint A;
-		FPoint B;
-		FPoint C;
+		SPoint2F A;
+		SPoint2F B;
+		SPoint2F C;
 	};
 	struct RoundedRect : public FRect {
-		FPoint R;     // Эллиптический (по осям X и Y) радиус скругления углов.
+		SPoint2F R;     // Эллиптический (по осям X и Y) радиус скругления углов.
 	};
 	struct Polygon : public FloatArray {
 		uint   GetVertexCount() const;
@@ -11804,27 +11831,27 @@ private:
 //
 //
 //
-class TPoint { // @persistent @store(SSerializeContext) @noctr @nodestructor @novtbl @size=4
+class SPoint2S { // @persistent @store(SSerializeContext) @noctr @nodestructor @novtbl @size=4
 public:
-	operator FPoint () const;
+	operator SPoint2F () const;
 	uint32 towparam() const;
-	TPoint FASTCALL operator = (TPoint p);
-	TPoint FASTCALL operator = (int v);
-	TPoint FASTCALL operator = (POINT p);
+	SPoint2S FASTCALL operator = (SPoint2S p);
+	SPoint2S FASTCALL operator = (int v);
+	SPoint2S FASTCALL operator = (POINT p);
 	operator POINT() const;
 	int    IsZero() const;
-	TPoint & Z();
-	TPoint Set(int _x, int _y);
-	TPoint FASTCALL setwparam(uint32 wp);
-	TPoint Add(int add_x, int add_y);
-	TPoint operator += (TPoint adder);
-	TPoint operator -= (TPoint subber);
+	SPoint2S & Z();
+	SPoint2S Set(int _x, int _y);
+	SPoint2S FASTCALL setwparam(uint32 wp);
+	SPoint2S Add(int add_x, int add_y);
+	SPoint2S operator += (SPoint2S adder);
+	SPoint2S operator -= (SPoint2S subber);
 
-	friend TPoint operator - (TPoint one, TPoint two);
-	friend TPoint operator + (TPoint one, TPoint two);
-	friend TPoint operator + (TPoint pnt, int _x);
-	friend int operator == (TPoint one, TPoint two);
-	friend int operator != (TPoint one, TPoint two);
+	friend SPoint2S operator - (SPoint2S one, SPoint2S two);
+	friend SPoint2S operator + (SPoint2S one, SPoint2S two);
+	friend SPoint2S operator + (SPoint2S pnt, int _x);
+	friend int operator == (SPoint2S one, SPoint2S two);
+	friend int operator != (SPoint2S one, SPoint2S two);
 
 	int16  x;
 	int16  y;
@@ -11834,11 +11861,11 @@ class TRect {
 public:
 	TRect();
 	TRect(int ax, int ay, int bx, int by);
-	TRect(TPoint p1, TPoint p2);
-	TRect(TPoint sz);
+	TRect(SPoint2S p1, SPoint2S p2);
+	TRect(SPoint2S sz);
 	TRect(const RECT &);
 	TRect & FASTCALL operator = (const RECT &);
-	TRect & FASTCALL operator = (TPoint p);
+	TRect & FASTCALL operator = (SPoint2S p);
 	int    IsEmpty() const;
 	//
 	// Descr: Если прямоугольник вырожден до прямой линии, то возвращает !0.
@@ -11861,8 +11888,8 @@ public:
 	float  CenterX() const;
 	float  CenterY() const;
 	TRect & move(int aDX, int aDY);
-	TRect & FASTCALL move(TPoint delta);
-	TRect & FASTCALL movecenterto(TPoint center);
+	TRect & FASTCALL move(SPoint2S delta);
+	TRect & FASTCALL movecenterto(SPoint2S center);
 	TRect & grow(int aDX, int aDY);
 	//
 	// Descr: Находит пересечение прямоугольников *this и rD.
@@ -11896,12 +11923,12 @@ public:
 	//   света (SOW_XXX), на границе которой лежит точка.
 	//   Если точка содержится в прямоугольнике, но не на границе, то функция возвращает 1000.
 	//
-	int    FASTCALL contains(TPoint p) const;
+	int    FASTCALL contains(SPoint2S p) const;
 	int    FASTCALL operator == (const TRect& r) const;
 	int    FASTCALL operator != (const TRect& r) const;
 
-	TPoint a;
-	TPoint b;
+	SPoint2S a;
+	SPoint2S b;
 };
 //
 // Descr: Геометрический регион. Представляет собой комбинацию геометрических
@@ -11990,7 +12017,7 @@ struct UiCoord {
 };
 
 struct UiRelPoint {
-	UiRelPoint & FASTCALL Set(const TPoint & rP);
+	UiRelPoint & FASTCALL Set(const SPoint2S & rP);
 
 	UiCoord X;
 	UiCoord Y;
@@ -12305,8 +12332,8 @@ public:
 	int    Serialize(int dir, SColor & rV, SBuffer & rBuf);
 	int    Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf);
 	int    SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf);
-	int    Serialize(int dir, TPoint & rV, SBuffer & rBuf);
-	int    Serialize(int dir, FPoint & rV, SBuffer & rBuf);
+	int    Serialize(int dir, SPoint2S & rV, SBuffer & rBuf);
+	int    Serialize(int dir, SPoint2F & rV, SBuffer & rBuf);
 	int    Serialize(int dir, FRect & rV, SBuffer & rBuf);
 	int    Serialize(int dir, SArray * pArray, SBuffer & rBuf);
 	int    Serialize(int dir, SVector * pArray, SBuffer & rBuf);
@@ -12424,8 +12451,8 @@ public:
 	int    FASTCALL Serialize(S_GUID & rV);
 	int    Serialize(char * pV, size_t valBufLen);
 	int    SerializeFieldList(BNFieldList * pFldList);
-	int    FASTCALL Serialize(TPoint & rV);
-	int    FASTCALL Serialize(FPoint & rV);
+	int    FASTCALL Serialize(SPoint2S & rV);
+	int    FASTCALL Serialize(SPoint2F & rV);
 	int    FASTCALL Serialize(SArray * pArray);
 	int    FASTCALL Serialize(SStrCollection * pColl);
 	int    FASTCALL Serialize(StrAssocArray & rArray);
@@ -13775,7 +13802,7 @@ public:
 	//   диалогового окна.
 	// Note: Эта функция сразу же сбрасывает значение этого угла в неопределенное.
 	//
-	TPoint GetNextDialogLuPos();
+	SPoint2S GetNextDialogLuPos();
 
 	long   Id;
 	int    LastErr;
@@ -13806,7 +13833,7 @@ private:
 	TVRez * P_Rez;
 	HDC    FontDc;          // Искусственный глобальный контекст вывода для манипулирования шрифтами.
 		// (Window-функции, оперирующие со шрифтами требуют HDC с установленным в нем текущим шрифтом).
-	TPoint NextDialogLuPos;  // Позиция, в которую необходимо установить верхний левый угол диалога.
+	SPoint2S NextDialogLuPos;  // Позиция, в которую необходимо установить верхний левый угол диалога.
 		// Функция вызова диалога сразу после получения позиции сбрасывает ее в {-1, -1}
 };
 
@@ -14069,7 +14096,7 @@ public:
 	public:
 		UC();
 		virtual int Describe(int unitId, int dir, int * pCls, double * pToBase, SString * pName) const;
-		FPoint Dpi;       // Разрешение экрана в точках на дюйм
+		SPoint2F Dpi;       // Разрешение экрана в точках на дюйм
 		float  FontSize;
 	};
 
@@ -14228,10 +14255,10 @@ public:
 	PixF   GetFormat() const;
 	uint   GetWidth() const;
 	uint   GetHeight() const;
-	TPoint GetDim() const;
-	FPoint GetDimF() const;
+	SPoint2S GetDim() const;
+	SPoint2F GetDimF() const;
 	const  uint8 * GetData() const;
-	int    GetSubImage(SImageBuffer & rDest, TPoint start, TPoint size) const;
+	int    GetSubImage(SImageBuffer & rDest, SPoint2S start, SPoint2S size) const;
 	//
 	// Descr: Создает контекст вывода для графической подсистемы sys.
 	// Note: Пока поддерживает только dsysCairo.
@@ -14246,7 +14273,7 @@ public:
 	int    LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx = 0, uint subImgSqSide = 0);
 	int    LoadMime_Base64(const char * pFormatStr, const SString & rS);
 	int    Store(const StoreParam &, SFile & rF);
-	int    TransformToBounds(TPoint size, const SViewPort * pVp);
+	int    TransformToBounds(SPoint2S size, const SViewPort * pVp);
 	int    TransformToGrayscale();
 	void * TransformToIcon() const;
 private:
@@ -14265,7 +14292,7 @@ private:
 	uint8 * FASTCALL GetScanline(uint lineNo) const;
 
 	PixF   F; // Формат пикселей
-	TPoint S; // Размер образа
+	SPoint2S S; // Размер образа
 };
 //
 // Descr: Базовый класс для представления фигур рисования.
@@ -14324,7 +14351,7 @@ public:
 	int    GetPen() const;
 	int    GetBrush() const;
 	void   SetViewPort(const SViewPort * pVp);
-	void   SetSize(FPoint sz);
+	void   SetSize(SPoint2F sz);
 	//
 	// Descr: Возвращает ссылку на внутреннюю структуру SViewPort (порт вывода).
 	//
@@ -14334,11 +14361,11 @@ public:
 	//   (с учетом контекста).
 	//
 	int    FASTCALL GetViewPort(SViewPort * pVp) const;
-	const  FPoint   & GetSize() const;
+	const  SPoint2F   & GetSize() const;
 	const  LMatrix2D & GetTransform() const;
 	SPaintToolBox * GetToolBox() const;
 	int    TransformToImage(const SViewPort * pVp, SImageBuffer & rImg) const;
-	SDrawImage * DupToImage(TPoint size, const SViewPort * pVp, const char * pSid);
+	SDrawImage * DupToImage(SPoint2S size, const SViewPort * pVp, const char * pSid);
 	const  SDrawFigure * SearchRef(const char * pSymb) const;
 protected:
 	SDrawFigure(int kind, const char * pSid);
@@ -14349,7 +14376,7 @@ protected:
 	int32  IdPen;   // Если IdPen < 0, то это означает, что при отрисовке необходимо
 		// внешнее определение карандаша (либо некоторое default-значение)
 	int32  IdBrush;
-	FPoint Size;
+	SPoint2F Size;
 	SViewPort Vp;
 	LMatrix2D Tf;
 	SDrawFigure * P_Parent; // Родительский контейнер
@@ -14374,7 +14401,7 @@ public:
 	int    FASTCALL Copy(const SDrawRef & rS);
 
 	SString Ref; // Текст, идентифицирующий объект для отрисовки
-	FPoint Origin;
+	SPoint2F Origin;
 };
 
 class SDrawText : public SDrawFigure { // @persistent @store(SSerializeContext)
@@ -14385,7 +14412,7 @@ public:
 	int    FASTCALL Copy(const SDrawText & rS);
 
 	int32  IdFont;
-	FPoint Begin;  // Левый верхний угол текста. Размер прямоугольника определяется полем SDrawFigure::Size
+	SPoint2F Begin;  // Левый верхний угол текста. Размер прямоугольника определяется полем SDrawFigure::Size
 	SString Text;  // UTF-8
 };
 
@@ -14403,7 +14430,7 @@ public:
 		opClose     // arg_count=0
 	};
 	struct Item {
-		const  FPoint & Pnt(uint p) const { return *reinterpret_cast<const FPoint *>(P_ArgList+p); }
+		const  SPoint2F & Pnt(uint p) const { return *reinterpret_cast<const SPoint2F *>(P_ArgList+p); }
 		int    Op;
 		uint   ArgCount;
 		const  float * P_ArgList;
@@ -14414,16 +14441,16 @@ public:
 	int    FASTCALL Copy(const SDrawPath & rS);
 	int    IsEmpty() const;
 	int    HasCurrent() const;
-	const  FPoint & GetCurrent();
+	const  SPoint2F & GetCurrent();
 	void   Clear();
 	uint   GetCount() const;
 	const Item * FASTCALL Get(uint i, Item &) const;
 	int    Nop();
-	int    FASTCALL Move(const FPoint &);
-	int    FASTCALL Line(const FPoint &);
-	int    Curve(const FPoint & rMiddle1, const FPoint & rMiddle2, const FPoint & rEnd);
-	int    Quad(const FPoint & rMiddle, const FPoint & rEnd);
-	int    ArcSvg(const FPoint & rCenter, float xAxRotation, int largeFlag, int sweepFlag, const FPoint & rEnd);
+	int    FASTCALL Move(const SPoint2F &);
+	int    FASTCALL Line(const SPoint2F &);
+	int    Curve(const SPoint2F & rMiddle1, const SPoint2F & rMiddle2, const SPoint2F & rEnd);
+	int    Quad(const SPoint2F & rMiddle, const SPoint2F & rEnd);
+	int    ArcSvg(const SPoint2F & rCenter, float xAxRotation, int largeFlag, int sweepFlag, const SPoint2F & rEnd);
 	int    Close();
 
 	enum {
@@ -14439,8 +14466,8 @@ private:
 		fHasCur      = 0x00010000,
 		fHasLastMove = 0x00020000
 	};
-	FPoint Cur;      // Текущая точка
-	FPoint LastMove; // Начало последнего подпути
+	SPoint2F Cur;      // Текущая точка
+	SPoint2F LastMove; // Начало последнего подпути
 	LAssocArray OpList; // Key - op, Val - index of arg_list in ArgList;
 	FloatArray ArgList;
 };
@@ -14459,7 +14486,7 @@ public:
 	int    LoadBuf(int fm, SBuffer & rInBuf);
 	int    LoadMime_Base64(const char * pFormatStr, const SString & rS);
 	int    Store(const SImageBuffer::StoreParam & rP, SFile & rF);
-	int    TransformToBounds(TPoint size, const SViewPort * pVp);
+	int    TransformToBounds(SPoint2S size, const SViewPort * pVp);
 	int    TransformToGrayscale();
 private:
 	SImageBuffer Buf;

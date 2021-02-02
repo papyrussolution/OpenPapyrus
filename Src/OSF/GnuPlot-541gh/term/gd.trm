@@ -629,7 +629,7 @@ TERM_PUBLIC void PNG_options()
 	if(!PNG_initialized) {
 		PNG_initialized = TRUE;
 		term_options[0] = '\0';
-		term->h_char = PNG_HCHAR; /* Default to medium font */
+		term->ChrH = PNG_HCHAR; /* Default to medium font */
 		png_state.default_font = gdfont;
 		png_state.n_colors = 0;
 		png_state.flags = 0;
@@ -682,7 +682,7 @@ TERM_PUBLIC void PNG_options()
 		png_state.frame_optimization = FALSE;
 		png_state.loop_count = 0;
 		/* And default font size */
-		term->h_char = PNG_HCHAR;
+		term->ChrH = PNG_HCHAR;
 		png_state.default_ttfsize = 0;
 		PNG_linewidth_factor = 1.0;
 		PNG_dashlength_factor = 1.0;
@@ -720,7 +720,7 @@ TERM_PUBLIC void PNG_options()
 #ifdef HAVE_GD_TTF
 #define UNSET_TTF_FONT \
 	ZFREE(png_state.ttffont); \
-	png_state.default_ttfsize = 2 * term->h_char - 2; \
+	png_state.default_ttfsize = 2 * term->ChrH - 2; \
 	png_state.use_builtin = TRUE;
 #else
 #define UNSET_TTF_FONT \
@@ -729,36 +729,36 @@ TERM_PUBLIC void PNG_options()
 
 			case PNG_TINY:
 			    png_state.default_font = gdFontGetTiny();
-			    term->v_char = png_state.default_font->h;
-			    term->h_char = png_state.default_font->w;
+			    term->ChrV = png_state.default_font->h;
+			    term->ChrH = png_state.default_font->w;
 			    GPO.Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_SMALL:
 			    png_state.default_font = gdFontGetSmall();
-			    term->v_char = png_state.default_font->h;
-			    term->h_char = png_state.default_font->w;
+			    term->ChrV = png_state.default_font->h;
+			    term->ChrH = png_state.default_font->w;
 			    GPO.Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_MEDIUM:
 			    png_state.default_font = gdFontGetMediumBold();
-			    term->v_char = png_state.default_font->h;
-			    term->h_char = png_state.default_font->w;
+			    term->ChrV = png_state.default_font->h;
+			    term->ChrH = png_state.default_font->w;
 			    GPO.Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_LARGE:
 			    png_state.default_font = gdFontGetLarge();
-			    term->v_char = png_state.default_font->h;
-			    term->h_char = png_state.default_font->w;
+			    term->ChrV = png_state.default_font->h;
+			    term->ChrH = png_state.default_font->w;
 			    GPO.Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_GIANT:
 			    png_state.default_font = gdFontGetGiant();
-			    term->v_char = png_state.default_font->h;
-			    term->h_char = png_state.default_font->w;
+			    term->ChrV = png_state.default_font->h;
+			    term->ChrH = png_state.default_font->w;
 			    GPO.Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
@@ -846,10 +846,10 @@ TERM_PUBLIC void PNG_options()
 			    term->ymax = PNG_YMAX;
 			    term->xmax = PNG_XMAX;
 			    /* EAM Apr 2003 - same tic size on both x and y axes */
-			    term->v_tic = (PNG_XMAX < PNG_YMAX) ? PNG_XMAX/100 : PNG_YMAX/100;
-			    if(term->v_tic < 1)
-				    term->v_tic = 1;
-			    term->h_tic = term->v_tic;
+			    term->TicV = (PNG_XMAX < PNG_YMAX) ? PNG_XMAX/100 : PNG_YMAX/100;
+			    if(term->TicV < 1)
+				    term->TicV = 1;
+			    term->TicH = term->TicV;
 			    break;
 			case PNG_ENHANCED:
 			    term->flags |= TERM_ENHANCED_TEXT;
@@ -983,7 +983,7 @@ TERM_PUBLIC void PNG_options()
 		SAlloc::F(png_state.default_ttffont);
 		png_state.default_ttffont = gp_strdup(png_state.ttffont);
 		if(png_state.default_ttfsize == 0)
-			png_state.default_ttfsize = 2 * term->h_char - 2;
+			png_state.default_ttfsize = 2 * term->ChrH - 2;
 
 		/* First try the old GDFONTPATH mechanism for locating fonts */
 		gdUseFontConfig(0);
@@ -1001,7 +1001,7 @@ TERM_PUBLIC void PNG_options()
 	}
 	/* If no explicit TTF font size found, generate default */
 	if(!(png_state.default_ttfsize > 0))
-		png_state.default_ttfsize = 2 * term->h_char - 2;
+		png_state.default_ttfsize = 2 * term->ChrH - 2;
 	png_state.ttfsize = png_state.default_ttfsize;
 
 	/* Find approximate character width of selected TTF font   */
@@ -1013,8 +1013,8 @@ TERM_PUBLIC void PNG_options()
 			png_state.default_ttffont, png_state.default_ttfsize*png_state.fontscale,
 			0.0, 0, 0, "f00000000g");
 		if(!err) {
-			term->h_char = .11 * (double)(brect[2] - brect[0]) + 0.5;
-			term->v_char = 1.1 * (double)(brect[1] - brect[7]) + 0.5;
+			term->ChrH = .11 * (double)(brect[2] - brect[0]) + 0.5;
+			term->ChrV = 1.1 * (double)(brect[1] - brect[7]) + 0.5;
 		}
 	}
 #endif
@@ -1086,7 +1086,7 @@ TERM_PUBLIC void PNG_options()
 			sprintf(term_options + strlen(term_options),
 			    "font \"%s,%.1f\" ", png_state.ttffont, png_state.ttfsize);
 	}
-	else switch(term->h_char) {
+	else switch(term->ChrH) {
 			case 5:
 			    strcat(term_options, "tiny ");
 			    break;
@@ -1288,7 +1288,7 @@ TERM_PUBLIC void PNG_set_color(t_colorspec * colorspec)
 		case TC_FRAC:
 		    if(png_state.TrueColor) {
 			    rgb255_color color;
-			    rgb255maxcolors_from_gray(gray, &color);
+			    GPO.Rgb255MaxColorsFromGray(gray, &color);
 			    png_state.color = gdImageColorResolve(png_state.image, (int)color.r, (int)color.g, (int)color.b);
 			    png_state.rgb = (color.r << 16) + (color.g << 8) +color.b;
 			    return;
@@ -1296,7 +1296,7 @@ TERM_PUBLIC void PNG_set_color(t_colorspec * colorspec)
 		    else {
 			    int png_color;
 			    if(GPO.SmPltt.UseMaxColors > 0)
-				    gray = quantize_gray(gray);
+				    gray = GPO.QuantizeGray(gray);
 			    png_color = (gray <= 0) ? 0 : (int)(gray * GPO.SmPltt.Colors);
 			    if(png_color >= GPO.SmPltt.Colors)
 				    png_color = (GPO.SmPltt.Colors-1);
@@ -1448,8 +1448,8 @@ TERM_PUBLIC void PNG_graphics()
 		GPO.IntError(NO_CARET, "libgd: failed to create output image structure");
 
 	png_state.height = PNG_YMAX - 1;
-	png_state.charw = term->h_char; /* png_state.font->w; */
-	png_state.charh = term->v_char; /* png_state.font->h; */
+	png_state.charw = term->ChrH; /* png_state.font->w; */
+	png_state.charh = term->ChrV; /* png_state.font->h; */
 	png_state.font = png_state.default_font;
 	png_state.color = 0;
 	png_state.dashfraction = -1.0;
@@ -1680,16 +1680,13 @@ TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
 		/* Draw once with a NULL image to get the bounding rectangle */
 		/* then draw it again, centered.                             */
 		err = gdImageStringFT(NULL, brect, png_state.color,
-			png_state.ttffont, png_state.ttfsize*png_state.fontscale,
-			(double)png_state.angle * M_PI_2 / 90.,
-			x, Y(y), (char*)string);
+			png_state.ttffont, png_state.ttfsize*png_state.fontscale, (double)png_state.angle * M_PI_2 / 90.0, x, Y(y), (char*)string);
 		if(err) {
-			fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n",
-			    err, string, png_state.ttffont);
+			fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n", err, string, png_state.ttffont);
 		}
 		else {
-			x += sin((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.0;
-			y -= cos((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.0;
+			x += sin((double)png_state.angle * M_PI_2/90.0) * (double)png_state.charh/4.0;
+			y -= cos((double)png_state.angle * M_PI_2/90.0) * (double)png_state.charh/4.0;
 			switch(png_state.justify) {
 				case RIGHT:
 				    x -= (brect[2]-brect[0]);
@@ -1703,13 +1700,10 @@ TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
 				default:        break;
 			}
 			err = gdImageStringFT(png_state.image, brect, png_state.color,
-				png_state.ttffont, png_state.ttfsize*png_state.fontscale,
-				(double)png_state.angle * M_PI_2 / 90.,
+				png_state.ttffont, png_state.ttfsize*png_state.fontscale, (double)png_state.angle * M_PI_2 / 90.0,
 				x, Y(y), (char*)string);
 			if(err)
-				fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n",
-				    err, string, png_state.ttffont);
-
+				fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n", err, string, png_state.ttffont);
 			if(!ENHgd_sizeonly) {
 				int xmax = MAX(brect[2], brect[6]);
 				int xmin = MIN(brect[0], brect[4]);
@@ -1732,9 +1726,7 @@ TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
 			case LEFT:
 			default:    break;
 		}
-		gdImageStringUp(png_state.image, png_state.font,
-		    x, Y(y),
-		    (uchar*)string, png_state.color);
+		gdImageStringUp(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
 	}
 	else {
 		y += png_state.charh / 2;
@@ -1746,9 +1738,7 @@ TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
 			case LEFT:
 			default:    break;
 		}
-		gdImageString(png_state.image, png_state.font,
-		    x, Y(y),
-		    (uchar*)string, png_state.color);
+		gdImageString(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
 	}
 }
 
@@ -1900,8 +1890,8 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 	png_state.charw = font->w;
 	png_state.charh = font->h;
 /* EAM 9-Feb-2003 Make new font size visible to higher level routines like write_multiline */
-	term->h_char = font->w;
-	term->v_char = font->h;
+	term->ChrH = font->w;
+	term->ChrV = font->h;
 #ifdef HAVE_GD_TTF
 	/* Find approximate character width and height of selected TTF font */
 	if(png_state.ttffont) {
@@ -1919,8 +1909,8 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 				0.0, 0, 0, "f00000000g");
 		}
 		if(!err) {
-			term->h_char = .11 * (double)(brect[2] - brect[0]) + 0.5;
-			term->v_char = 1.1 * (double)(brect[1] - brect[7]) + 0.5;
+			term->ChrH = .11 * (double)(brect[2] - brect[0]) + 0.5;
+			term->ChrV = 1.1 * (double)(brect[1] - brect[7]) + 0.5;
 		}
 	}
 #endif
@@ -2278,15 +2268,13 @@ TERM_PUBLIC void PNG_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 					image++;
 				}
 				else {
-					rgb255maxcolors_from_gray(*image++, &rgb);
-					pixel = gdImageColorResolve(im,
-						(int)rgb.r, (int)rgb.g, (int)rgb.b);
+					GPO.Rgb255MaxColorsFromGray(*image++, &rgb);
+					pixel = gdImageColorResolve(im, (int)rgb.r, (int)rgb.g, (int)rgb.b);
 				}
 				gdImageSetPixel(im, m, n, pixel);
 			}
 		}
 	}
-
 	/* Copy and resize onto requested region of plot */
 	if(color_mode != IC_RGBA)
 		gdImageCopyResized(png_state.image, im,
@@ -2365,27 +2353,52 @@ static void gd_iconv(char ** string)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(png_driver)
-"png", "PNG images using libgd and TrueType fonts",
-GREG_XMAX, GREG_YMAX, PNG_VCHAR, PNG_HCHAR,
-PNG_TICSIZE, PNG_TICSIZE, PNG_options, PNG_init, PNG_reset,
-PNG_text, null_scale, PNG_graphics, PNG_move, PNG_vector,
-PNG_linetype, PNG_put_text, PNG_text_angle,
-PNG_justify_text, PNG_point, do_arrow, PNG_set_font,
+"png", 
+"PNG images using libgd and TrueType fonts",
+GREG_XMAX, 
+GREG_YMAX, 
+PNG_VCHAR, 
+PNG_HCHAR,
+PNG_TICSIZE, 
+PNG_TICSIZE, 
+PNG_options, 
+PNG_init, 
+PNG_reset,
+PNG_text, 
+null_scale, 
+PNG_graphics, 
+PNG_move, 
+PNG_vector,
+PNG_linetype, 
+PNG_put_text, 
+PNG_text_angle,
+PNG_justify_text, 
+PNG_point, 
+do_arrow, 
+PNG_set_font,
 PNG_pointsize,
 TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_LINEWIDTH|TERM_FONTSCALE,     /* TERM_ALPHA_CHANNEL only if truecolor */
-0 /*suspend*/, 0 /*resume*/,
+0 /*suspend*/, 
+0 /*resume*/,
 PNG_boxfill /*EAM - fillbox*/,
 PNG_linewidth     /*EAM - linewidth*/
 #ifdef USE_MOUSE
-, 0, 0, 0, 0, 0     /* no mouse support */
+, 
+0, 
+0, 
+0, 
+0, 
+0     /* no mouse support */
 #endif
 , PNG_make_palette,
 0,     /* previous_palette() ... no, single array of 256 colours for PNG */
 PNG_set_color,
-PNG_filled_polygon
-, PNG_image
-, ENHGD_OPEN, ENHGD_FLUSH, do_enh_writec
-, NULL                  /* layering */
+PNG_filled_polygon, 
+PNG_image, 
+ENHGD_OPEN, 
+ENHGD_FLUSH, 
+do_enh_writec, 
+NULL                  /* layering */
 , NULL                  /* path */
 , 0.0                   /* tscale */
 , NULL                  /* hypertext */

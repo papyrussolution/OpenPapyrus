@@ -486,7 +486,7 @@ static void clear_one_var(char * prefix, char * base)
 	int len = strlen(prefix) + strlen(base) + 2;
 	char * varname = (char*)gp_alloc(len, "create_and_set_var");
 	sprintf(varname, "%s_%s", prefix, base);
-	del_udv_by_name(varname, TRUE);
+	GPO.Ev.DelUdvByName(varname, TRUE);
 	SAlloc::F(varname);
 }
 
@@ -566,7 +566,7 @@ static void create_and_store_var(const GpValue * data, char * prefix, char * bas
 	// Note that add_udv_by_name() checks if the name already exists, and
 	// returns the existing ptr if found. It also allocates memory for
 	// its own copy of the varname.
-	udvt_entry * udv_ptr = add_udv_by_name(varname);
+	udvt_entry * udv_ptr = GPO.Ev.AddUdvByName(varname);
 	udv_ptr->udv_value = *data;
 	SAlloc::F(varname);
 }
@@ -750,7 +750,7 @@ void GnuPlot::StatsRequest()
 		// The 'nooutput' keyword suppresses the resulting error message as well.
 		//
 		if(columns < 0) {
-			fill_gpval_integer("GPVAL_ERRNO", 1);
+			Ev.FillGpValInteger("GPVAL_ERRNO", 1);
 			while(!Pgm.EndOfCommand())
 				if(Pgm.AlmostEquals(Pgm.CToken++, "noout$put"))
 					do_output = FALSE;
@@ -935,7 +935,7 @@ void GnuPlot::StatsRequest()
 	}
 	// Store results in user-accessible variables 
 	// Clear out any previous use of these variables 
-	del_udv_by_name(prefix, TRUE);
+	Ev.DelUdvByName(prefix, TRUE);
 	file_variables(res_file, prefix);
 	if(columns == 1) {
 		sgl_column_variables(res_y, prefix, "");

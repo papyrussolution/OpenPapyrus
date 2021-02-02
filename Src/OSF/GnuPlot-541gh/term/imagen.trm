@@ -612,8 +612,8 @@ static void IMAGEN_setfont(int sz)
 	IMAGEN_hchar = sz * 5;
 	IMAGEN_wchar = IMAGEN_hchar / 2;
 	IMAGEN_blofs = IMAGEN_hchar / 3;
-	term->v_char = IMAGEN_hchar;
-	term->h_char = IMAGEN_wchar;
+	term->ChrV = IMAGEN_hchar;
+	term->ChrH = IMAGEN_wchar;
 	putc(imP_SET_FAMILY, gpoutfile);
 	putc(sz, gpoutfile);
 	putc(imP_SET_SP, gpoutfile);

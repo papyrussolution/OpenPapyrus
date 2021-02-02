@@ -41,15 +41,13 @@ static struct udvt_entry * udv_VoxelDistance = NULL;     /* reserved user variab
 static struct udvt_entry * udv_GridDistance = NULL;      /* reserved user variable */
 struct isosurface_opt isosurface_options;
 
-/* Internal prototypes */
-static void vfill(t_voxel * grid, bool gridcoordinates);
-static void modify_voxels(t_voxel * grid, double x, double y, double z,
-    double radius, struct at_type * function,
-    bool gridcoordinates);
+// Internal prototypes 
+//static void vfill(t_voxel * grid, bool gridcoordinates);
+static void modify_voxels(t_voxel * grid, double x, double y, double z, double radius, struct at_type * function, bool gridcoordinates);
 
-/* Purely local bookkeeping */
+// Purely local bookkeeping 
 static int nvoxels_modified;
-static struct at_type * density_function = NULL;
+static at_type * density_function = NULL;
 
 /*
  * called on program entry and by "reset session"
@@ -60,10 +58,10 @@ void init_voxelsupport()
 	 * to the function in the 5th spec of "vfill".
 	 * Scripts can test if (exists("VoxelDistance")) to check for voxel support.
 	 */
-	udv_VoxelDistance = add_udv_by_name("VoxelDistance");
+	udv_VoxelDistance = GPO.Ev.AddUdvByName("VoxelDistance");
 	udv_VoxelDistance->udv_value.type = CMPLX;
 	Gcomplex(&udv_VoxelDistance->udv_value, 0.0, 0.0);
-	udv_GridDistance = add_udv_by_name("GridDistance");
+	udv_GridDistance = GPO.Ev.AddUdvByName("GridDistance");
 	udv_GridDistance->udv_value.type = CMPLX;
 	Gcomplex(&udv_GridDistance->udv_value, 0.0, 0.0);
 
@@ -71,37 +69,37 @@ void init_voxelsupport()
 	isosurface_options.inside_offset = 1;   /* inside color = outside + 1 */
 	isosurface_options.tessellation = 0;            /* mixed triangles + quadrangles */
 }
-
-/*
- * vx vy vz ranges must be established before the grid can be used
- */
-void check_grid_ranges()
+// 
+// vx vy vz ranges must be established before the grid can be used
+// 
+//void check_grid_ranges()
+void GnuPlot::CheckGridRanges()
 {
 	if(current_vgrid == NULL)
-		GPO.IntError(NO_CARET, "vgrid must be set before use");
+		IntError(NO_CARET, "vgrid must be set before use");
 	if(isnan(current_vgrid->vxmin) || isnan(current_vgrid->vxmax)) {
-		if((GPO.AxS[FIRST_X_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
-			current_vgrid->vxmin = GPO.AxS[FIRST_X_AXIS].set_min;
-			current_vgrid->vxmax = GPO.AxS[FIRST_X_AXIS].set_max;
+		if((AxS[FIRST_X_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
+			current_vgrid->vxmin = AxS[FIRST_X_AXIS].set_min;
+			current_vgrid->vxmax = AxS[FIRST_X_AXIS].set_max;
 		}
 		else
-			GPO.IntError(NO_CARET, "grid limits must be set before use");
+			IntError(NO_CARET, "grid limits must be set before use");
 	}
 	if(isnan(current_vgrid->vymin) || isnan(current_vgrid->vymax)) {
-		if((GPO.AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
-			current_vgrid->vymin = GPO.AxS[FIRST_Y_AXIS].set_min;
-			current_vgrid->vymax = GPO.AxS[FIRST_Y_AXIS].set_max;
+		if((AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
+			current_vgrid->vymin = AxS[FIRST_Y_AXIS].set_min;
+			current_vgrid->vymax = AxS[FIRST_Y_AXIS].set_max;
 		}
 		else
-			GPO.IntError(NO_CARET, "grid limits must be set before use");
+			IntError(NO_CARET, "grid limits must be set before use");
 	}
 	if(isnan(current_vgrid->vzmin) || isnan(current_vgrid->vzmax)) {
-		if((GPO.AxS[FIRST_Z_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
-			current_vgrid->vzmin = GPO.AxS[FIRST_Z_AXIS].set_min;
-			current_vgrid->vzmax = GPO.AxS[FIRST_Z_AXIS].set_max;
+		if((AxS[FIRST_Z_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
+			current_vgrid->vzmin = AxS[FIRST_Z_AXIS].set_min;
+			current_vgrid->vzmax = AxS[FIRST_Z_AXIS].set_max;
 		}
 		else
-			GPO.IntError(NO_CARET, "grid limits must be set before use");
+			IntError(NO_CARET, "grid limits must be set before use");
 	}
 	current_vgrid->vxdelta = (current_vgrid->vxmax - current_vgrid->vxmin) / (current_vgrid->size - 1);
 	current_vgrid->vydelta = (current_vgrid->vymax - current_vgrid->vymin) / (current_vgrid->size - 1);
@@ -124,7 +122,7 @@ void set_vgrid()
 		GPO.IntErrorCurToken("syntax: set vgrid $<gridname> {size N}");
 	// Create or recycle a datablock with the requested name 
 	name = GPO.Pgm.ParseDatablockName();
-	grid = add_udv_by_name(name);
+	grid = GPO.Ev.AddUdvByName(name);
 	if(grid->udv_value.type == VOXELGRID) {
 		// Keep size of existing grid 
 		new_size = grid->udv_value.v.vgrid->size;
@@ -193,12 +191,12 @@ void GnuPlot::SetVGridRange()
 		current_vgrid->vzmax = gridmax;
 	}
 }
-/*
- * show state of all voxel grids
- */
+//
+// show state of all voxel grids
+//
 void show_vgrid()
 {
-	for(udvt_entry * udv = first_udv; udv; udv = udv->next_udv) {
+	for(udvt_entry * udv = GPO.Ev.P_FirstUdv; udv; udv = udv->next_udv) {
 		if(udv->udv_value.type == VOXELGRID) {
 			vgrid * vgrid = udv->udv_value.v.vgrid;
 			fprintf(stderr, "\t%s:", udv->udv_name);
@@ -275,7 +273,7 @@ void vgrid_stats(vgrid * vgrid)
 
 udvt_entry * get_vgrid_by_name(const char * name)
 {
-	udvt_entry * vgrid = get_udv_by_name((char*)name);
+	udvt_entry * vgrid = GPO.Ev.GetUdvByName((char*)name);
 	return (!vgrid || vgrid->udv_value.type != VOXELGRID) ? NULL : vgrid;
 }
 // 
@@ -330,31 +328,32 @@ void unset_vgrid()
 //
 // "set isosurface {triangles|mixed}"
 //
-void set_isosurface()
+//void set_isosurface()
+void GnuPlot::SetIsoSurface()
 {
-	while(!GPO.Pgm.EndOfCommand()) {
-		GPO.Pgm.Shift();
-		if(GPO.Pgm.AlmostEqualsCur("triang$les")) {
-			GPO.Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
+		Pgm.Shift();
+		if(Pgm.AlmostEqualsCur("triang$les")) {
+			Pgm.Shift();
 			isosurface_options.tessellation = 1;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("mix$ed")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("mix$ed")) {
+			Pgm.Shift();
 			isosurface_options.tessellation = 0;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("inside$color")) {
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
+		else if(Pgm.AlmostEqualsCur("inside$color")) {
+			Pgm.Shift();
+			if(Pgm.EndOfCommand())
 				isosurface_options.inside_offset = 1;
 			else
-				isosurface_options.inside_offset = GPO.IntExpression();
+				isosurface_options.inside_offset = IntExpression();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("noin$sidecolor")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("noin$sidecolor")) {
+			Pgm.Shift();
 			isosurface_options.inside_offset = 0;
 		}
 		else
-			GPO.IntErrorCurToken("unrecognized option");
+			IntErrorCurToken("unrecognized option");
 	}
 }
 
@@ -372,7 +371,7 @@ void GnuPlot::VoxelCommand()
 {
 	double vx, vy, vz;
 	t_voxel * voxel;
-	check_grid_ranges();
+	CheckGridRanges();
 	Pgm.Shift();
 	if(!Pgm.EqualsCurShift("("))
 		IntError(Pgm.GetPrevTokenIdx(), "syntax: voxel(x,y,z) = newvalue");
@@ -419,18 +418,19 @@ t_voxel voxel(double vx, double vy, double vz)
 // 
 // user-callable retrieval function voxel(x,y,z)
 // 
-void f_voxel(union argument * /*arg*/)
+//void f_voxel(union argument * /*arg*/)
+void GnuPlot::F_Voxel(union argument * x)
 {
 	GpValue a;
-	double vz = real(GPO.EvStk.Pop(&a));
-	double vy = real(GPO.EvStk.Pop(&a));
-	double vx = real(GPO.EvStk.Pop(&a));
+	double vz = real(EvStk.Pop(&a));
+	double vy = real(EvStk.Pop(&a));
+	double vx = real(EvStk.Pop(&a));
 	if(!current_vgrid)
-		GPO.IntError(NO_CARET, "no active voxel grid");
+		IntError(NO_CARET, "no active voxel grid");
 	if(vx < current_vgrid->vxmin || vx > current_vgrid->vxmax || vy < current_vgrid->vymin || vy > current_vgrid->vymax || vz < current_vgrid->vzmin || vz > current_vgrid->vzmax)
-		GPO.EvStk.Push(&(udv_NaN->udv_value));
+		EvStk.Push(&(Ev.P_UdvNaN->udv_value));
 	else
-		GPO.EvStk.Push(Gcomplex(&a, voxel(vx, vy, vz), 0.0) );
+		EvStk.Push(Gcomplex(&a, voxel(vx, vy, vz), 0.0) );
 }
 /*
  * "vfill" works very much like "plot" in that it reads from an input stream
@@ -450,58 +450,60 @@ void f_voxel(union argument * /*arg*/)
  * (e.g. "set view equal xyz") then vfill and vgfill are identical except
  * possibly for a linear scale factor.
  */
-void vfill_command()
+//void vfill_command()
+void GnuPlot::VFillCommand()
 {
-	bool gridcoordinates = GPO.Pgm.EqualsCurShift("vgfill");
-	vfill(current_vgrid->vdata, gridcoordinates);
+	bool gridcoordinates = Pgm.EqualsCurShift("vgfill");
+	VFill(current_vgrid->vdata, gridcoordinates);
 }
 
-static void vfill(t_voxel * pGrid, bool gridCoordinates)
+//static void vfill(t_voxel * pGrid, bool gridCoordinates)
+void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 {
 	int plot_num = 0;
 	curve_points dummy_plot;
 	curve_points * this_plot = &dummy_plot;
 	GpValue original_value_sample_var;
 	char * name_str;
-	check_grid_ranges();
+	CheckGridRanges();
 	//
 	// This part is modelled on eval_plots()
 	//
-	plot_iterator = GPO.CheckForIteration();
+	plot_iterator = CheckForIteration();
 	while(TRUE) {
 		int sample_range_token;
-		int start_token = GPO.Pgm.GetCurTokenIdx();
+		int start_token = Pgm.GetCurTokenIdx();
 		int specs;
 		// Forgive trailing comma on a multi-element plot command 
-		if(GPO.Pgm.EndOfCommand()) {
+		if(Pgm.EndOfCommand()) {
 			if(plot_num == 0)
-				GPO.IntErrorCurToken("data input source expected");
+				IntErrorCurToken("data input source expected");
 			break;
 		}
 		plot_num++;
 		// Check for a sampling range 
-		if(GPO.Pgm.EqualsCur("sample") && GPO.Pgm.EqualsNext("["))
-			GPO.Pgm.Shift();
-		sample_range_token = GPO.ParseRange(SAMPLE_AXIS);
+		if(Pgm.EqualsCur("sample") && Pgm.EqualsNext("["))
+			Pgm.Shift();
+		sample_range_token = ParseRange(SAMPLE_AXIS);
 		if(sample_range_token != 0)
-			GPO.AxS[SAMPLE_AXIS].range_flags |= RANGE_SAMPLED;
+			AxS[SAMPLE_AXIS].range_flags |= RANGE_SAMPLED;
 		// FIXME: allow replacement of dummy variable? 
-		name_str = GPO.StringOrExpress(NULL);
+		name_str = StringOrExpress(NULL);
 		if(!name_str)
-			GPO.IntErrorCurToken("no input data source");
+			IntErrorCurToken("no input data source");
 		if(!strcmp(name_str, "@@"))
-			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "filling from array not supported");
+			IntError(Pgm.GetPrevTokenIdx(), "filling from array not supported");
 		if(sample_range_token !=0 && *name_str != '+')
-			GPO.IntWarn(sample_range_token, "Ignoring sample range in non-sampled data plot");
+			IntWarn(sample_range_token, "Ignoring sample range in non-sampled data plot");
 		// Dummy up a plot structure so that we can share code with plot command 
 		memzero(this_plot, sizeof(curve_points));
 		// FIXME:  what exactly do we need to fill in? 
 		this_plot->plot_type = DATA;
 		this_plot->noautoscale = TRUE;
-		specs = GPO.DfOpen(name_str, 5, this_plot); // Fixed number of input columns x:y:z:radius:(density_function) 
+		specs = DfOpen(name_str, 5, this_plot); // Fixed number of input columns x:y:z:radius:(density_function) 
 		// We will invoke density_function in modify_voxels rather than df_readline 
 		if(use_spec[4].at == NULL)
-			GPO.IntError(NO_CARET, "5th user spec to vfill must be an expression");
+			IntError(NO_CARET, "5th user spec to vfill must be an expression");
 		else {
 			free_at(density_function);
 			density_function = use_spec[4].at;
@@ -513,12 +515,12 @@ static void vfill(t_voxel * pGrid, bool gridCoordinates)
 		Gcomplex(&udv_GridDistance->udv_value, 0.0, 0.0);
 		// Store a pointer to the named variable used for sampling 
 		// Save prior value of sample variables so we can restore them later 
-		this_plot->sample_var = add_udv_by_name(c_dummy_var[0]);
+		this_plot->sample_var = Ev.AddUdvByName(c_dummy_var[0]);
 		original_value_sample_var = this_plot->sample_var->udv_value;
 		this_plot->sample_var->udv_value.type = NOTDEFINED;
 		// We don't support any further options 
-		if(GPO.Pgm.AlmostEqualsCur("w$ith"))
-			GPO.IntErrorCurToken("vfill does not support 'with' options");
+		if(Pgm.AlmostEqualsCur("w$ith"))
+			IntErrorCurToken("vfill does not support 'with' options");
 		// This part is modelled on get_data().
 		// However we process each point as we come to it.
 		if(df_no_use_specs == 5) {
@@ -538,7 +540,7 @@ static void vfill(t_voxel * pGrid, bool gridCoordinates)
 				switch(j) {
 					case 0:
 					    df_close();
-					    GPO.IntError(this_plot->token, "Bad data on line %d of file %s",
+					    IntError(this_plot->token, "Bad data on line %d of file %s",
 						df_line_number, df_filename ? df_filename : "");
 					    continue;
 					case DF_UNDEFINED:
@@ -575,7 +577,7 @@ static void vfill(t_voxel * pGrid, bool gridCoordinates)
 			reset_numeric_locale();
 			if(ngood == 0) {
 				if(!forever_iteration(plot_iterator))
-					GPO.IntWarn(NO_CARET, "Skipping data file with no valid points");
+					IntWarn(NO_CARET, "Skipping data file with no valid points");
 				this_plot->plot_type = NODATA;
 			}
 			// print some basic stats 
@@ -586,7 +588,7 @@ static void vfill(t_voxel * pGrid, bool gridCoordinates)
 			this_plot->plot_type = NODATA;
 		}
 		else {
-			GPO.IntError(NO_CARET, "vfill requires exactly 5 using specs x:y:z:radius:(func)");
+			IntError(NO_CARET, "vfill requires exactly 5 using specs x:y:z:radius:(func)");
 		}
 		// restore original value of sample variables 
 		this_plot->sample_var->udv_value = original_value_sample_var;
@@ -597,22 +599,21 @@ static void vfill(t_voxel * pGrid, bool gridCoordinates)
 			; // nothing to do here 
 		}
 		else if(next_iteration(plot_iterator)) {
-			GPO.Pgm.SetTokenIdx(start_token);
+			Pgm.SetTokenIdx(start_token);
 			continue;
 		}
 		plot_iterator = cleanup_iteration(plot_iterator);
-		if(GPO.Pgm.EqualsCur(",")) {
-			GPO.Pgm.Shift();
-			plot_iterator = GPO.CheckForIteration();
+		if(Pgm.EqualsCur(",")) {
+			Pgm.Shift();
+			plot_iterator = CheckForIteration();
 		}
 		else
 			break;
 	}
 	if(plot_num == 0)
-		GPO.IntErrorCurToken("no data to plot");
+		IntErrorCurToken("no data to plot");
 	plot_token = -1;
 }
-
 /* This is called by vfill for every data point.
  * It modifies all voxels within a specified radius of the point coordinates.
  * There are two modes of operation
@@ -720,7 +721,8 @@ static void modify_voxels(t_voxel * grid, double x, double y, double z, double r
 
 #ifndef VOXEL_GRID_SUPPORT
 #define NO_SUPPORT GPO.IntError(NO_CARET, "this gnuplot does not support voxel grids")
-void check_grid_ranges()  { NO_SUPPORT; }
+//void check_grid_ranges()  { NO_SUPPORT; }
+void GnuPlot::CheckGridRanges() { NO_SUPPORT; }
 void set_vgrid()          { NO_SUPPORT; }
 //void set_vgrid_range()    { NO_SUPPORT; }
 void GnuPlot::SetVGridRange() { NO_SUPPORT; }
@@ -728,11 +730,13 @@ void show_vgrid()         { NO_SUPPORT; }
 void show_isosurface()    { NO_SUPPORT; }
 //void voxel_command()      { NO_SUPPORT; }
 void GnuPlot::VoxelCommand() { NO_SUPPORT; }
-void vfill_command()      { NO_SUPPORT; }
+//void vfill_command()      { NO_SUPPORT; }
+void GnuPlot::VFillCommand() { NO_SUPPORT; }
 void vclear_command()     {}
 void unset_vgrid()        {}
 void init_voxelsupport()  {}
-void set_isosurface()     {}
+//void set_isosurface()     {}
+void GnuPlot::SetIsoSurface() {}
 udvt_entry * get_vgrid_by_name(char * c) { return NULL; }
 
 void gpfree_vgrid(struct udvt_entry * x) {

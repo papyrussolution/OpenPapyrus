@@ -1936,7 +1936,7 @@ int BrowserWindow::SelColByPoint(const POINT * point, int action)
 			else {
 				long col = 0;
 				uint pos = 0;
-				TPoint tp;
+				SPoint2S tp;
 				tp = *point;
 				if(ItemByPoint(tp, &col, 0)) {
 					if(SelectedColumns.bsearch(col, &pos) > 0)
@@ -1977,7 +1977,7 @@ int BrowserWindow::GetColumnByX(int x) const
 	return found ? i : -1;
 }
 
-int BrowserWindow::HeaderByPoint(TPoint point, int hdrzone, long * pVertPos) const
+int BrowserWindow::HeaderByPoint(SPoint2S point, int hdrzone, long * pVertPos) const
 {
 	int    ok = 0;
 	long   vpos = 0;
@@ -2008,7 +2008,7 @@ int BrowserWindow::HeaderByPoint(TPoint point, int hdrzone, long * pVertPos) con
 	return ok;
 }
 
-int BrowserWindow::ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos) const
+int BrowserWindow::ItemByPoint(SPoint2S point, long * pHorzPos, long * pVertPos) const
 {
 	int    ok = 1;
 	const  long hdr_width = CalcHdrWidth(1);
@@ -2059,7 +2059,7 @@ int BrowserWindow::ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos) c
 
 int BrowserWindow::ItemByMousePos(long * pHorzPos, long * pVertPos)
 {
-	TPoint tp;
+	SPoint2S tp;
 	POINT p;
 	RECT parent_rect;
 	::GetWindowRect(H(), &parent_rect);
@@ -2070,7 +2070,7 @@ int BrowserWindow::ItemByMousePos(long * pHorzPos, long * pVertPos)
 	return ItemByPoint(tp, pHorzPos, pVertPos);
 }
 
-int BrowserWindow::IsResizePos(TPoint p)
+int BrowserWindow::IsResizePos(SPoint2S p)
 {
 	const long hdr_width = CalcHdrWidth(0);
 	if(p.y > hdr_width && p.y < hdr_width + ToolBarWidth + P_Def->GetCapHeight() * YCell)
@@ -2082,7 +2082,7 @@ int BrowserWindow::IsResizePos(TPoint p)
 	return 0;
 }
 
-void BrowserWindow::Resize(TPoint p, int mode)
+void BrowserWindow::Resize(SPoint2S p, int mode)
 {
 	RECT   r;
 	const  long hdr_width = CalcHdrWidth(1);
@@ -2505,7 +2505,7 @@ HWND GetNextBrowser(HWND hw)
 	long   hPos;
 	long   vPos;
 	POINT  pnt;
-	TPoint tp;
+	SPoint2S tp;
 	TEvent e;
 	BrowserWindow * p_view = static_cast<BrowserWindow *>(TView::GetWindowUserData(hWnd));
 	long   hdr_width = p_view ? p_view->CalcHdrWidth(1) : 0;

@@ -67,14 +67,14 @@ void FASTCALL SInflateRect(RECT & rRect, int cx, int cy)
     rRect.bottom += cy;
 }
 //
-// TPoint
+// SPoint2S
 //
-uint32 TPoint::towparam() const
+uint32 SPoint2S::towparam() const
 {
 	return MAKEWPARAM(x, y);
 }
 
-TPoint::operator POINT() const
+SPoint2S::operator POINT() const
 {
 	POINT p;
 	p.x = x;
@@ -82,105 +82,105 @@ TPoint::operator POINT() const
 	return p;
 }
 
-TPoint::operator FPoint () const
+SPoint2S::operator SPoint2F () const
 {
-	FPoint p;
+	SPoint2F p;
 	p.Set((float)x, (float)y);
 	return p;
 }
 
-TPoint & TPoint::Z()
+SPoint2S & SPoint2S::Z()
 {
 	x = 0;
 	y = 0;
 	return *this;
 }
 
-int TPoint::IsZero() const
+int SPoint2S::IsZero() const
 {
 	return (x == 0 && y == 0);
 }
 
-TPoint FASTCALL TPoint::operator = (TPoint p)
+SPoint2S FASTCALL SPoint2S::operator = (SPoint2S p)
 {
 	x = p.x;
 	y = p.y;
 	return *this;
 }
 
-TPoint FASTCALL TPoint::operator = (int v)
+SPoint2S FASTCALL SPoint2S::operator = (int v)
 {
 	x = y = static_cast<int16>(v);
 	return *this;
 }
 
-TPoint FASTCALL TPoint::operator = (POINT p)
+SPoint2S FASTCALL SPoint2S::operator = (POINT p)
 {
 	x = static_cast<int16>(p.x);
 	y = static_cast<int16>(p.y);
 	return *this;
 }
 
-TPoint FASTCALL TPoint::setwparam(uint32 wp)
+SPoint2S FASTCALL SPoint2S::setwparam(uint32 wp)
 {
 	x = LOWORD(wp);
 	y = HIWORD(wp);
 	return *this;
 }
 
-TPoint TPoint::Set(int _x, int _y)
+SPoint2S SPoint2S::Set(int _x, int _y)
 {
 	x = _x;
 	y = _y;
 	return *this;
 }
 
-TPoint TPoint::Add(int add_x, int add_y)
+SPoint2S SPoint2S::Add(int add_x, int add_y)
 {
 	x += add_x;
 	y += add_y;
 	return *this;
 }
 
-TPoint TPoint::operator += (TPoint adder)
+SPoint2S SPoint2S::operator += (SPoint2S adder)
 {
 	x += adder.x;
 	y += adder.y;
 	return *this;
 }
 
-TPoint TPoint::operator -= (TPoint subber)
+SPoint2S SPoint2S::operator -= (SPoint2S subber)
 {
 	x -= subber.x;
 	y -= subber.y;
 	return *this;
 }
 
-TPoint operator + (TPoint pnt, int adder)
+SPoint2S operator + (SPoint2S pnt, int adder)
 {
 	pnt.x += adder;
 	pnt.y += adder;
 	return pnt;
 }
 
-TPoint operator - (TPoint one, TPoint two)
+SPoint2S operator - (SPoint2S one, SPoint2S two)
 {
-	TPoint result;
+	SPoint2S result;
 	result.x = one.x - two.x;
 	result.y = one.y - two.y;
 	return result;
 }
 
-TPoint operator + (TPoint one, TPoint two)
+SPoint2S operator + (SPoint2S one, SPoint2S two)
 {
-	TPoint result;
+	SPoint2S result;
 	result.x = one.x + two.x;
 	result.y = one.y + two.y;
 	return result;
 }
 
-int operator == (TPoint one, TPoint two) { return (one.x == two.x && one.y == two.y); }
-int operator != (TPoint one, TPoint two) { return (one.x != two.x || one.y != two.y); }
+int operator == (SPoint2S one, SPoint2S two) { return (one.x == two.x && one.y == two.y); }
+int operator != (SPoint2S one, SPoint2S two) { return (one.x != two.x || one.y != two.y); }
 //
 // FRect
 //
@@ -220,7 +220,7 @@ FRect & FRect::Z()
 	return *this;
 }
 
-FRect & FASTCALL FRect::operator = (FPoint p)
+FRect & FASTCALL FRect::operator = (SPoint2F p)
 {
 	a = 0.0f;
 	b = p;
@@ -230,9 +230,9 @@ FRect & FASTCALL FRect::operator = (FPoint p)
 int    FRect::IsEmpty() const { return (a.X == 0.0f && b.X == 0.0f && a.Y == 0.0f && b.Y == 0.0f); }
 float  FRect::Width() const { return (b.X - a.X); }
 float  FRect::Height() const { return (b.Y - a.Y); }
-FPoint FRect::GetSize() const { return FPoint((b.X - a.X), (b.Y - a.Y)); }
-FPoint FRect::GetCenter() const { return FPoint((a.X + b.X) / 2.0f, (a.Y + b.Y) / 2.0f); }
-int    FRect::Contains(FPoint p) const { return (p.X >= a.X && p.X <= b.X && p.Y >= a.Y && p.Y <= b.Y); }
+SPoint2F FRect::GetSize() const { return SPoint2F((b.X - a.X), (b.Y - a.Y)); }
+SPoint2F FRect::GetCenter() const { return SPoint2F((a.X + b.X) / 2.0f, (a.Y + b.Y) / 2.0f); }
+int    FRect::Contains(SPoint2F p) const { return (p.X >= a.X && p.X <= b.X && p.Y >= a.Y && p.Y <= b.Y); }
 int    FASTCALL FRect::Contains(const FRect & rR) const { return (Contains(rR.a) && Contains(rR.b)); }
 
 double FRect::Ratio() const
@@ -241,7 +241,7 @@ double FRect::Ratio() const
 	return (w != 0.0) ? (Height() / w) : SMathConst::Max;
 }
 
-FRect & FRect::Around(FPoint center, FPoint size)
+FRect & FRect::Around(SPoint2F center, SPoint2F size)
 {
 	const float hx = (size.X / 2.0f);
 	const float hy = (size.Y / 2.0f);
@@ -270,7 +270,7 @@ FRect & FRect::Move__(float aDX, float aDY)
 	return *this;	
 }
 
-FRect & FASTCALL FRect::MoveCenterTo(FPoint center)
+FRect & FASTCALL FRect::MoveCenterTo(SPoint2F center)
 {
 	const float  w = Width();
 	const float  h = Height();
@@ -678,9 +678,9 @@ int FASTCALL FShape::Get(Polygon & rS) const
 		ok = Get(rect);
 		if(ok) {
 			rS.add(rect.a);
-			rS.add(FPoint(rect.a.X, rect.b.Y));
+			rS.add(SPoint2F(rect.a.X, rect.b.Y));
 			rS.add(rect.b);
-			rS.add(FPoint(rect.b.X, rect.a.Y));
+			rS.add(SPoint2F(rect.b.X, rect.a.Y));
 		}
 		else {
 			Triangle triangle;
@@ -724,11 +724,11 @@ TRect::TRect(int ax, int ay, int bx, int by)
 	b.y = by;
 }
 
-TRect::TRect(TPoint p1, TPoint p2) : a(p1), b(p2)
+TRect::TRect(SPoint2S p1, SPoint2S p2) : a(p1), b(p2)
 {
 }
 
-TRect::TRect(TPoint sz)
+TRect::TRect(SPoint2S sz)
 {
 	a.Z();
 	b = sz;
@@ -752,7 +752,7 @@ TRect & FASTCALL TRect::operator = (const RECT & rS)
 	return *this;
 }
 
-TRect & FASTCALL TRect::operator = (TPoint p)
+TRect & FASTCALL TRect::operator = (SPoint2S p)
 {
 	a.Z();
 	b = p;
@@ -860,7 +860,7 @@ TRect & TRect::move(int aDX, int aDY)
 	return *this;
 }
 
-TRect & FASTCALL TRect::movecenterto(TPoint center)
+TRect & FASTCALL TRect::movecenterto(SPoint2S center)
 {
 	int    w = width();
 	int    h = height();
@@ -873,7 +873,7 @@ TRect & FASTCALL TRect::movecenterto(TPoint center)
 	return *this;
 }
 
-TRect & FASTCALL TRect::move(TPoint delta)
+TRect & FASTCALL TRect::move(SPoint2S delta)
 {
 	a.x += delta.x;
 	a.y += delta.y;
@@ -933,7 +933,7 @@ TRect & FASTCALL TRect::Union(const TRect & r)
 	return *this;
 }
 
-int FASTCALL TRect::contains(TPoint p) const
+int FASTCALL TRect::contains(SPoint2S p) const
 {
 	if(p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y) {
 		if(p.x == a.x)
@@ -966,94 +966,94 @@ TRect & TRect::Normalize()
 //
 //
 //
-const FPoint ZEROFPOINT;
+const SPoint2F ZEROFPOINT;
 
-FPoint::FPoint() : X(0.0f), Y(0.0f)
+SPoint2F::SPoint2F() : X(0.0f), Y(0.0f)
 {
 }
 
-FPoint::FPoint(float xy) : X(xy), Y(xy)
+SPoint2F::SPoint2F(float xy) : X(xy), Y(xy)
 {
 }
 
-FPoint::FPoint(float x, float y) : X(x), Y(y)
+SPoint2F::SPoint2F(float x, float y) : X(x), Y(y)
 {
 }
 
-FPoint & FASTCALL FPoint::operator = (const TPoint & p)
+SPoint2F & FASTCALL SPoint2F::operator = (const SPoint2S & p)
 {
 	X = (float)p.x;
 	Y = (float)p.y;
 	return *this;
 }
 
-FPoint & FASTCALL FPoint::operator = (float f)
+SPoint2F & FASTCALL SPoint2F::operator = (float f)
 {
 	X = Y = f;
 	return *this;
 }
 
-FPoint FPoint::Set(float xy)
+SPoint2F SPoint2F::Set(float xy)
 {
 	X = Y = xy;
 	return *this;
 }
 
-FPoint FPoint::Set(float x, float y)
+SPoint2F SPoint2F::Set(float x, float y)
 {
 	X = x;
 	Y = y;
 	return *this;
 }
 
-FPoint FPoint::SetZero()
+SPoint2F SPoint2F::SetZero()
 {
 	X = Y = 0.0f;
 	return *this;
 }
 
-FPoint FPoint::Scale(float factor)
+SPoint2F SPoint2F::Scale(float factor)
 {
 	X *= factor;
 	Y *= factor;
 	return *this;
 }
 
-int    FASTCALL FPoint::operator == (const FPoint & rS) const { return IsEqual(rS); } // @v10.9.10
-int    FASTCALL FPoint::operator != (const FPoint & rS) const { return !IsEqual(rS); } // @v10.9.10
-int    FASTCALL FPoint::IsEqual(const FPoint & rS) const { return (X == rS.X && Y == rS.Y); } // @v10.9.10
-int    FPoint::IsZero() const { return (X != 0.0f && Y != 0.0f); }
-int    FPoint::IsPositive() const { return (X > 0.0f && Y > 0.0f); }
-int    FASTCALL FPoint::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
-int    FASTCALL FPoint::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
-FPoint FPoint::Neg()   const { return FPoint(-X, -Y); }
-float  FPoint::Ratio() const { return (Y / X); }
-float  FPoint::Add()   const { return X + Y; }
-FPoint FPoint::AddX(float x) const { return FPoint(X + x, Y); }
-FPoint FPoint::AddY(float y) const { return FPoint(X, Y + y); }
-float  FPoint::Sub()  const { return X - Y; }
-float  FPoint::Sq()   const { return (X * X + Y * Y); }
-double FPoint::Hypot() const { return _hypot(X, Y); }
-float  FPoint::Hypotf() const { return static_cast<float>(_hypot(X, Y)); }
-FPoint FPoint::Swap() const { return FPoint(Y, X); }
-FPoint FPoint::Combine(FPoint a, FPoint b) const { return FPoint(a.X*X + a.Y*Y, b.X*X + b.Y*Y); }
+int    FASTCALL SPoint2F::operator == (const SPoint2F & rS) const { return IsEqual(rS); } // @v10.9.10
+int    FASTCALL SPoint2F::operator != (const SPoint2F & rS) const { return !IsEqual(rS); } // @v10.9.10
+int    FASTCALL SPoint2F::IsEqual(const SPoint2F & rS) const { return (X == rS.X && Y == rS.Y); } // @v10.9.10
+int    SPoint2F::IsZero() const { return (X != 0.0f && Y != 0.0f); }
+int    SPoint2F::IsPositive() const { return (X > 0.0f && Y > 0.0f); }
+int    FASTCALL SPoint2F::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
+int    FASTCALL SPoint2F::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
+SPoint2F SPoint2F::Neg()   const { return SPoint2F(-X, -Y); }
+float  SPoint2F::Ratio() const { return (Y / X); }
+float  SPoint2F::Add()   const { return X + Y; }
+SPoint2F SPoint2F::AddX(float x) const { return SPoint2F(X + x, Y); }
+SPoint2F SPoint2F::AddY(float y) const { return SPoint2F(X, Y + y); }
+float  SPoint2F::Sub()  const { return X - Y; }
+float  SPoint2F::Sq()   const { return (X * X + Y * Y); }
+double SPoint2F::Hypot() const { return _hypot(X, Y); }
+float  SPoint2F::Hypotf() const { return static_cast<float>(_hypot(X, Y)); }
+SPoint2F SPoint2F::Swap() const { return SPoint2F(Y, X); }
+SPoint2F SPoint2F::Combine(SPoint2F a, SPoint2F b) const { return SPoint2F(a.X*X + a.Y*Y, b.X*X + b.Y*Y); }
 
-FPoint FASTCALL operator + (FPoint p,  float addendum) { return FPoint(p.X + addendum, p.Y + addendum); }
-FPoint FASTCALL operator + (FPoint p1, FPoint p2)      { return FPoint(p1.X + p2.X, p1.Y + p2.Y); }
-FPoint FASTCALL operator - (FPoint p1, FPoint p2)      { return FPoint(p1.X - p2.X, p1.Y - p2.Y); }
-FPoint FASTCALL operator * (FPoint p, double mul)      { return FPoint((float)(p.X * mul), (float)(p.Y * mul)); }
-FPoint FASTCALL operator * (FPoint p,  float mul)      { return FPoint(p.X * mul, p.Y * mul); }
-FPoint FASTCALL operator * (FPoint p1, FPoint p2)      { return FPoint(p1.X * p2.X, p1.Y * p2.Y); }
-FPoint FASTCALL operator / (FPoint p,  float divider)  { return FPoint(p.X / divider, p.Y / divider); }
-FPoint FASTCALL operator / (FPoint p1, FPoint p2)      { return FPoint(p1.X / p2.X, p1.Y / p2.Y); }
+SPoint2F FASTCALL operator + (SPoint2F p,  float addendum) { return SPoint2F(p.X + addendum, p.Y + addendum); }
+SPoint2F FASTCALL operator + (SPoint2F p1, SPoint2F p2)      { return SPoint2F(p1.X + p2.X, p1.Y + p2.Y); }
+SPoint2F FASTCALL operator - (SPoint2F p1, SPoint2F p2)      { return SPoint2F(p1.X - p2.X, p1.Y - p2.Y); }
+SPoint2F FASTCALL operator * (SPoint2F p, double mul)      { return SPoint2F((float)(p.X * mul), (float)(p.Y * mul)); }
+SPoint2F FASTCALL operator * (SPoint2F p,  float mul)      { return SPoint2F(p.X * mul, p.Y * mul); }
+SPoint2F FASTCALL operator * (SPoint2F p1, SPoint2F p2)      { return SPoint2F(p1.X * p2.X, p1.Y * p2.Y); }
+SPoint2F FASTCALL operator / (SPoint2F p,  float divider)  { return SPoint2F(p.X / divider, p.Y / divider); }
+SPoint2F FASTCALL operator / (SPoint2F p1, SPoint2F p2)      { return SPoint2F(p1.X / p2.X, p1.Y / p2.Y); }
 
-// @v10.9.10 (replaced with FPoint::operator ==) int FASTCALL operator == (FPoint p1, FPoint p2) { return (p1.X == p2.X && p1.Y == p2.Y); }
-int FASTCALL operator < (FPoint p1, FPoint p2)  { return (p1.X < p2.X && p1.Y < p2.Y) ? 1 : 0; }
-int FASTCALL operator > (FPoint p1, FPoint p2)  { return (p1.X > p2.X && p1.Y > p2.Y) ? 1 : 0; }
-FPoint FASTCALL fmin(FPoint p1, FPoint p2)      { return FPoint(MIN(p1.X, p2.X), MIN(p1.Y, p2.Y)); }
-FPoint FASTCALL fmax(FPoint p1, FPoint p2)      { return FPoint(MAX(p1.X, p2.X), MAX(p1.Y, p2.Y)); }
-float  FASTCALL atan2(FPoint p1, FPoint p2)     { return atan2f(p1.Y-p2.Y, p1.X-p2.X); }
-FPoint FASTCALL trans01(FPoint p, FPoint radius, float angle) { return FPoint(p.X + radius.X * sinf(angle), p.Y - radius.Y * cosf(angle)); }
+// @v10.9.10 (replaced with SPoint2F::operator ==) int FASTCALL operator == (SPoint2F p1, SPoint2F p2) { return (p1.X == p2.X && p1.Y == p2.Y); }
+int FASTCALL operator < (SPoint2F p1, SPoint2F p2)  { return (p1.X < p2.X && p1.Y < p2.Y) ? 1 : 0; }
+int FASTCALL operator > (SPoint2F p1, SPoint2F p2)  { return (p1.X > p2.X && p1.Y > p2.Y) ? 1 : 0; }
+SPoint2F FASTCALL fmin(SPoint2F p1, SPoint2F p2)      { return SPoint2F(MIN(p1.X, p2.X), MIN(p1.Y, p2.Y)); }
+SPoint2F FASTCALL fmax(SPoint2F p1, SPoint2F p2)      { return SPoint2F(MAX(p1.X, p2.X), MAX(p1.Y, p2.Y)); }
+float  FASTCALL atan2(SPoint2F p1, SPoint2F p2)     { return atan2f(p1.Y-p2.Y, p1.X-p2.X); }
+SPoint2F FASTCALL trans01(SPoint2F p, SPoint2F radius, float angle) { return SPoint2F(p.X + radius.X * sinf(angle), p.Y - radius.Y * cosf(angle)); }
 //
 //
 //
@@ -1644,7 +1644,7 @@ int UiCoord::IsEmpty() const
 	return (Val == 0 && Flags == 0);
 }
 
-UiRelPoint & FASTCALL UiRelPoint::Set(const TPoint & rP)
+UiRelPoint & FASTCALL UiRelPoint::Set(const SPoint2S & rP)
 {
 	X.Set(rP.x, 0);
 	Y.Set(rP.y, 0);

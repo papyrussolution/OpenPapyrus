@@ -7998,7 +7998,7 @@ public:
 			// 0 - в буфер Buffer, SFileFormat::Png, SFileFormat::Svg, SFileFormat::Gif, SFileFormat::Bmp
 			// Остальные значения считаются инвалидными.
 		int   Angle;             // Угол поворота изображения. Допустимы следующие значения: 0, 90, 180, 270
-		TPoint Size;             // Размеры изображения в пикселах. Если 0, то используются размеры по умолчанию.
+		SPoint2S Size;             // Размеры изображения в пикселах. Если 0, то используются размеры по умолчанию.
 		SColor ColorFg;          // Цвет штрихов. Если ColorFg == ZEROCOLOR, то - черный
 		SColor ColorBg;          // Цвет фона. Если ColorBg == ZROCOLOR, то - белый
 		SString Code;            // Текстовое представление кода, который необходимо отобразить
@@ -15403,7 +15403,7 @@ public:
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommand &);
 	long   CmdID;         // Идентификатор дескриптора команды (PPCommandDescr)
-	TPoint P;             // Позиция левого верхнего угла иконки на рабочем столе 
+	SPoint2S P;             // Позиция левого верхнего угла иконки на рабочем столе 
 	uint8  Reserve[4];    // @reserve
 	mutable LayoutFlexItem::Result LoR; // @v11.0.0 @transient. Функция ранжирования меняет это значение, потому mutable
 	SBuffer Param;
@@ -15488,11 +15488,11 @@ public:
 	PPCommandItem * SearchByIDRecursive(long id, long * pParentID);
 	const  PPCommandItem * SearchByIDRecursive_Const(long id, long * pParentID) const;
 	const  PPCommandItem * SearchByName(const char * pName, const char * pDbSymb, uint * pPos) const;
-	const  PPCommandItem * SearchByCoord(TPoint coord, const PPDesktop & rD, uint * pPos) const;
-	int    SearchFreeCoord(RECT r, const PPDesktop & rD, TPoint * pCoord) const;
+	const  PPCommandItem * SearchByCoord(SPoint2S coord, const PPDesktop & rD, uint * pPos) const;
+	int    SearchFreeCoord(RECT r, const PPDesktop & rD, SPoint2S * pCoord) const;
 	const PPCommandItem * SearchNextByCoord(POINT coord, const PPDesktop & rD, Direction next, uint * pPos);
 	const PPCommandItem * SearchFirst(uint * pPos);
-	int    GetIntersectIDs(TPoint coord, const PPDesktop & rD, PPIDArray * pAry);
+	int    GetIntersectIDs(SPoint2S coord, const PPDesktop & rD, PPIDArray * pAry);
 	int    GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPIDArray * pAry);
 	int    GetIconRect(long id, const PPDesktop & rD, TRect * pRect) const;
 	int    Add(int pos, const PPCommandItem * pItem);
@@ -51428,7 +51428,7 @@ private:
 	PPID   CurIterID;
 	GoodsGroupIterator * P_Iter;
 	PPObjGoodsGroup GGObj;
-	TPoint mouse;
+	SPoint2S mouse;
 };
 //
 //
@@ -52688,7 +52688,7 @@ public:
 	~PPBizScoreWindow();
 	int    Create();
 	void   Destroy();
-	int    DoCommand(TPoint p);
+	int    DoCommand(SPoint2S p);
 	void   Move_W();
 	void   MoveOnLayout(const FRect & rRect);
 	int    LoadData();
@@ -52794,16 +52794,16 @@ public:
 	~PPDesktop();
 	int    Init__(const S_GUID & rDesktopUuid);
 	int    Destroy(int dontAssignToDb);
-	TRect & CalcIconRect(TPoint lrp, TRect & rResult) const;
+	TRect & CalcIconRect(SPoint2S lrp, TRect & rResult) const;
 	int    GetIconSize() const { return IconSize; }
 	int    GetIconGap() const { return IconGap; }
 	void   Paint();
-	int    BeginIconMove(TPoint p);
-	int    MoveIcon(TPoint p);
-	void   EndIconMove(TPoint p);
+	int    BeginIconMove(SPoint2S p);
+	int    MoveIcon(SPoint2S p);
+	void   EndIconMove(SPoint2S p);
 	void   Update(const TRect * pR, int drawBackgnd);
 	int    EditIconName(long id);
-	int    DoCommand(TPoint p);
+	int    DoCommand(SPoint2S p);
 	void   ArrangeIcons();
 	void   Layout();
 	//
@@ -52847,11 +52847,11 @@ private:
 	ushort Execute();
 	void   WMHCreate(LPCREATESTRUCT);
 	void   DrawIcon(TCanvas & rC, long cmdID, int isSelected);
-	void   DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rText, const SString & rIcon, int isSelected);
-	void   AddTooltip(long id, TPoint coord, const char * pText);
-	int    DrawText(TCanvas & rC, TPoint coord, COLORREF color, const char * pText);
+	void   DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & rText, const SString & rIcon, int isSelected);
+	void   AddTooltip(long id, SPoint2S coord, const char * pText);
+	int    DrawText(TCanvas & rC, SPoint2S coord, COLORREF color, const char * pText);
 	int    ArrangeIcon(PPCommand * pCmd);
-	int    ArrangeIcon(TPoint * pCoord);
+	int    ArrangeIcon(SPoint2S * pCoord);
 	int    SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList);
 	int    WaitCommand();
 	int    ProcessRawInput(void * rawInputHandle);
@@ -52867,8 +52867,8 @@ private:
 	};
 	long   State;
 	SImage Logotype;
-	TPoint MoveIconCoord;
-	TPoint CoordOffs;
+	SPoint2S MoveIconCoord;
+	SPoint2S CoordOffs;
 	//
 	enum {
 		dummyFirst = 1,
@@ -53030,7 +53030,7 @@ private:
 		int    Kind;
 		int    ObjIdx;
 		int    ObjRszDir;
-		TPoint Pt;
+		SPoint2S Pt;
 		const  TWhatmanObject * P_Obj;
 	};
 	struct ResizeState {
@@ -53056,8 +53056,8 @@ private:
 		int    ObjIdx;    //
 		int    ObjRszDir; // Направление изменения размера объекта (SOW_XXX)
 		long   Flags;     // @flags
-		TPoint StartPt;   // Стартовая точка начала перемещения //
-		TPoint EndPt;     // Последняя фиксация точки, в которую необходимо осуществить перемещение.
+		SPoint2S StartPt;   // Стартовая точка начала перемещения //
+		SPoint2S EndPt;     // Последняя фиксация точки, в которую необходимо осуществить перемещение.
 		TWhatmanObject * P_MovedObjCopy;
 	};
 	struct State_ {
@@ -53081,8 +53081,8 @@ private:
 		TWhatmanToolArray::Item WtaItem;
 	};
 
-	int    Resize(int mode, TPoint p);
-	int    Locate(TPoint p, Loc * pLoc) const;
+	int    Resize(int mode, SPoint2S p);
+	int    Locate(SPoint2S p, Loc * pLoc) const;
 	int    Rearrange();
 	int    LocalMenu(int objIdx);
 	int    InvalidateObjScope(const TWhatmanObject * pObj);

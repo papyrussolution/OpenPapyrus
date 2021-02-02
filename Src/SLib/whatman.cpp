@@ -282,7 +282,7 @@ TRect TWhatmanObject::GetTextBounds() const
 	TRect  rc;
 	const  float wd = static_cast<float>(Bounds.width());
 	const  float ht = static_cast<float>(Bounds.height());
-	FPoint size(wd, ht);
+	SPoint2F size(wd, ht);
 	if(oneof2(TextOptions.Side, SIDE_BOTTOM, SIDE_TOP)) {
 		if(TextOptions.AlongSize < 0.0f)
 			size.X *= -TextOptions.AlongSize;
@@ -526,7 +526,7 @@ const  LongArray * TWhatman::GetMultSelIdxList() const { return P_MultObjPosList
 int    FASTCALL TWhatman::IsMultSelObject(int idx) const { return BIN(P_MultObjPosList && P_MultObjPosList->lsearch(idx)); }
 const  TRect & TWhatman::GetArea() const { return Area; }
 const  TRect & TWhatman::GetSelArea() const { return SelArea; }
-void   TWhatman::SetScrollPos(TPoint p) { ScrollPos = p; }
+void   TWhatman::SetScrollPos(SPoint2S p) { ScrollPos = p; }
 
 int TWhatman::SetParam(const TWhatman::Param & rP)
 {
@@ -682,7 +682,7 @@ int TWhatman::MoveObject(TWhatmanObject * pObj, const TRect & rRect)
 		if(P.Flags & Param::fSnapToGrid && P.Flags & Param::fGrid) {
 			TRect result = rRect;
 			//result.move(-ScrollPos.x, -ScrollPos.y);
-			FPoint p;
+			SPoint2F p;
 			if(SnapX(rRect.a.x, &p.X) > 0)
 				result.setwidthrel(static_cast<int>(p.X), rRect.width());
 			else if(SnapX(rRect.b.x, &p.X) > 0) {
@@ -734,7 +734,7 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 {
 	int    ok = -1;
 	TRect area = Area;
-	TPoint pt_next;
+	SPoint2S pt_next;
 	pt_next = area.a + rParam.UlGap;
 	const  uint row_size = rParam.RowSize;
 	//const  int dir = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? DIREC_VERT : DIREC_HORZ;
@@ -846,7 +846,7 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam 
 {
 	int    ok = -1;
 	TRect area = Area;
-	TPoint pt_next;
+	SPoint2S pt_next;
 	pt_next = area.a + rParam.UlGap;
 	const  uint row_size = rParam.RowSize;
 	const  int dir = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? DIREC_VERT : DIREC_HORZ;
@@ -860,8 +860,8 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam 
 				const TRect obj_bounds = p_obj->Bounds;
 				TRect bounds;
 				STextLayout tlo;
-				TPoint ul_txt_gap; // Зазор верхнего левого угла для текста
-				TPoint lr_txt_gap; // Зазор нижнего правого угла для текста
+				SPoint2S ul_txt_gap; // Зазор верхнего левого угла для текста
+				SPoint2S lr_txt_gap; // Зазор нижнего правого угла для текста
 				ul_txt_gap.Z();
 				lr_txt_gap.Z();
 				if(p_obj->GetTextLayout(tlo, TWhatmanObject::gtloQueryForArrangeObject) > 0) {
@@ -923,7 +923,7 @@ static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pIte
 		const TWhatmanObject * p_wo_root = static_cast<TWhatmanObject *>(LayoutFlexItem::GetParentsManagedPtr(pItem));
 		if(p_wo_root) {
 			const FRect rbb = rR;
-			FPoint base_lu;
+			SPoint2F base_lu;
 			base_lu.X = p_wo_root->GetBounds().a.x;
 			base_lu.Y = p_wo_root->GetBounds().a.y;
 			const int org_width = p_wo->GetBounds().width();
@@ -947,7 +947,7 @@ int TWhatman::Helper_ArrangeLayoutContainer(LayoutFlexItem * pParentLayout, What
 	if(pC) {
 		const SString & r_container_ident = pC->GetContainerIdent();
 		if(r_container_ident.NotEmpty()) {
-			const FPoint base_lu(pC->Bounds.a.x, pC->Bounds.a.y);
+			const SPoint2F base_lu(pC->Bounds.a.x, pC->Bounds.a.y);
 			if(!p_root_item) {
 				AbstractLayoutBlock alb(pC->GetLayoutBlock());
 				THROW(p_root_item = new LayoutFlexItem());
@@ -1136,7 +1136,7 @@ int FASTCALL TWhatman::HaveMultSelObjectsOption(int f) const
 	return ok;
 }
 
-int TWhatman::FindObjectByPoint(TPoint p, int * pIdx) const
+int TWhatman::FindObjectByPoint(SPoint2S p, int * pIdx) const
 {
 	int    ok = 0;
 	uint   c = ObjList.getCount();
@@ -1167,7 +1167,7 @@ int TWhatman::FindObjectByPoint(TPoint p, int * pIdx) const
 	return ok;
 }
 
-int TWhatman::FindContainerCandidateForObjectByPoint(TPoint p, const TWhatmanObject * pObj, int * pIdx) const
+int TWhatman::FindContainerCandidateForObjectByPoint(SPoint2S p, const TWhatmanObject * pObj, int * pIdx) const
 {
 	int    ok = 0;
 	if(pObj) {
@@ -1250,7 +1250,7 @@ int TWhatman::SetArea(const TRect & rArea)
 	return 1;
 }
 
-int TWhatman::SetSelArea(TPoint p, int mode)
+int TWhatman::SetSelArea(SPoint2S p, int mode)
 {
 	int    ok = 1;
 	if(mode == 0)
@@ -1271,9 +1271,9 @@ void TWhatman::GetScrollRange(IntRange * pX, IntRange * pY) const
 	CALLPTRMEMB(pY, Set(ScrollRange.a.y, ScrollRange.b.y));
 }
 
-TPoint TWhatman::GetScrollDelta() const
+SPoint2S TWhatman::GetScrollDelta() const
 {
-	TPoint delta;
+	SPoint2S delta;
 	return delta.Set(RuleX.ScrollDelta, RuleY.ScrollDelta);
 }
 
@@ -1309,8 +1309,8 @@ void TWhatman::GetFrameRectList(const TWhatmanObject * pObj, ObjZone * pList) co
 
 void TWhatman::GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) const
 {
-	FPoint sq_size(frame_sq);
-	FPoint dot;
+	SPoint2F sq_size(frame_sq);
+	SPoint2F dot;
 
 	dot = pObj->Bounds.a;
 	pList[0].R.Around(dot, sq_size);
@@ -1362,14 +1362,14 @@ int TWhatman::EditObject(int objIdx)
 	return ok;
 }
 
-int TWhatman::ResizeObject(TWhatmanObject * pObj, int dir, TPoint toPoint, TRect * pResult)
+int TWhatman::ResizeObject(TWhatmanObject * pObj, int dir, SPoint2S toPoint, TRect * pResult)
 {
 	int    ok = -1;
 	TRect  b;
 	if(pObj) {
 		b = pObj->Bounds;
 		if(P.Flags & Param::fSnapToGrid && P.Flags & Param::fGrid) {
-			FPoint fp;
+			SPoint2F fp;
 			SnapX(toPoint.x, &fp.X);
 			SnapY(toPoint.y, &fp.Y);
 			switch(dir) {
@@ -1471,21 +1471,21 @@ int TWhatman::ResizeObject(TWhatmanObject * pObj, int dir, TPoint toPoint, TRect
 	return ok;
 }
 
-TPoint FASTCALL TWhatman::TransformScreenToPoint(TPoint p) const
+SPoint2S FASTCALL TWhatman::TransformScreenToPoint(SPoint2S p) const
 {
 	p.x += ScrollPos.x;
 	p.y += ScrollPos.y;
 	return p;
 }
 
-TPoint FASTCALL TWhatman::TransformPointToScreen(TPoint p) const
+SPoint2S FASTCALL TWhatman::TransformPointToScreen(SPoint2S p) const
 {
 	p.x -= ScrollPos.x;
 	p.y -= ScrollPos.y;
 	return p;
 }
 
-FPoint FASTCALL TWhatman::TransformPointToScreen(FPoint p) const
+SPoint2F FASTCALL TWhatman::TransformPointToScreen(SPoint2F p) const
 {
 	p.X -= static_cast<float>(ScrollPos.x);
 	p.Y -= static_cast<float>(ScrollPos.y);
@@ -1525,7 +1525,7 @@ int TWhatman::DrawSingleObject(TCanvas2 & rCanv, TWhatmanObject * pObj)
 	return ok;
 }
 
-int TWhatman::DrawObjectContour(TCanvas2 & rCanv, const TWhatmanObject * pObj, const TPoint * pOffs)
+int TWhatman::DrawObjectContour(TCanvas2 & rCanv, const TWhatmanObject * pObj, const SPoint2S * pOffs)
 {
 	int    ok = 1;
 	if(pObj) {
@@ -1558,7 +1558,7 @@ int FASTCALL TWhatman::InvalidateObjScope(const TWhatmanObject * pObj)
 }
 
 
-int TWhatman::InvalidateMultSelContour(const TPoint * pOffs)
+int TWhatman::InvalidateMultSelContour(const SPoint2S * pOffs)
 {
 	int    ok = -1;
 	if(P_MultObjPosList && P_Wnd) {
@@ -1583,7 +1583,7 @@ int TWhatman::InvalidateMultSelContour(const TPoint * pOffs)
 	return ok;
 }
 
-int TWhatman::DrawMultSelContour(TCanvas2 & rCanv, const TPoint * pOffs)
+int TWhatman::DrawMultSelContour(TCanvas2 & rCanv, const SPoint2S * pOffs)
 {
 	int    ok = 1;
 	if(P_MultObjPosList) {
@@ -1687,8 +1687,8 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	FRect  hrr; // Область горизонтальной линейки
 	FRect  vrr; // Область вертикальной линейки
 	LMatrix2D mtx;
-	FPoint notch_area;
-	FPoint notch_offs;
+	SPoint2F notch_area;
+	SPoint2F notch_offs;
 	TSVector <RuleNotch> notch_list; // @v9.8.4 TSArray-->TSVector
 	TCanvas2::Capability caps;
 	rCanv.GetCapability(&caps);
@@ -1724,7 +1724,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			GetNotchList(RuleX, notch_area.X, notch_offs.X, 1, notch_list);
 			nc = notch_list.getCount();
 			for(i = 0; i < nc; i++) {
-				FPoint p(notch_list.at(i).P, hrr.b.Y);
+				SPoint2F p(notch_list.at(i).P, hrr.b.Y);
 				rCanv.MoveTo(p);
 				p.Y = static_cast<float>(Area.height());
 				rCanv.Line(p);
@@ -1735,7 +1735,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			GetNotchList(RuleY, notch_area.Y, notch_offs.Y, 1, notch_list);
 			nc = notch_list.getCount();
 			for(i = 0; i < nc; i++) {
-				FPoint p(vrr.b.X, notch_list.at(i).P);
+				SPoint2F p(vrr.b.X, notch_list.at(i).P);
 				rCanv.MoveTo(p);
 				p.X = static_cast<float>(Area.width());
 				rCanv.Line(p);
@@ -1752,7 +1752,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			GetNotchList(RuleX, notch_area.X, notch_offs.X, 2, notch_list);
 			nc = notch_list.getCount();
 			for(i = 0; i < nc; i++) {
-				FPoint p(notch_list.at(i).P, hrr.b.Y);
+				SPoint2F p(notch_list.at(i).P, hrr.b.Y);
 				rCanv.MoveTo(p);
 				p.Y = static_cast<float>(Area.height());
 				rCanv.Line(p);
@@ -1763,7 +1763,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			GetNotchList(RuleY, notch_area.Y, notch_offs.Y, 2, notch_list);
 			nc = notch_list.getCount();
 			for(i = 0; i < nc; i++) {
-				FPoint p(vrr.b.X, notch_list.at(i).P);
+				SPoint2F p(vrr.b.X, notch_list.at(i).P);
 				rCanv.MoveTo(p);
 				p.X = static_cast<float>(Area.width());
 				rCanv.Line(p);
@@ -1807,7 +1807,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 		nc = notch_list.getCount();
 		for(i = 0; i < nc; i++) {
 			const RuleNotch & r_n = notch_list.at(i);
-			FPoint p(r_n.P, hrr.b.Y);
+			SPoint2F p(r_n.P, hrr.b.Y);
 			rCanv.MoveTo(p);
 			p.Y = hrr.b.Y - r_n.H * TWhatman::GetRuleWidth();
 			rCanv.Line(p);
@@ -1819,7 +1819,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 		nc = notch_list.getCount();
 		for(i = 0; i < nc; i++) {
 			const RuleNotch & r_n = notch_list.at(i);
-			FPoint p(vrr.b.X, r_n.P);
+			SPoint2F p(vrr.b.X, r_n.P);
 			rCanv.MoveTo(p);
 			p.X = vrr.b.X - r_n.H * TWhatman::GetRuleWidth();
 			rCanv.Line(p);
@@ -2352,8 +2352,8 @@ int TWhatmanToolArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 		uint32 WtmObjSymbP;    	 // Позиция символа класса объекта в буфере Pool
 		uint32 FigPathP;       	 // Позиция пути до файла фигуры в буфере Pool
 		uint32 PicPathP;       	 // Позиция пути до файла пиктограммы в буфере Pool
-		TPoint FigSize;        	 // Исходный размер фигуры при размещении на ватмане
-		TPoint PicSize;        	 // Размер иконки
+		SPoint2S FigSize;        	 // Исходный размер фигуры при размещении на ватмане
+		SPoint2S PicSize;        	 // Размер иконки
 		int32  Flags;          	 // @flags
 		uint32 ExtDataP;       	 // Позиция дополнительных данных в буфере Pool (в кодировке MIME64)
 		uint32 Id;             	 // Целочисленный идентификатор элемента

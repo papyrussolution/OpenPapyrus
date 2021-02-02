@@ -175,7 +175,7 @@ static double quantize_time_tics(GpAxis *, double, double, int);
 static double time_tic_just(t_timelevel, double);
 static double round_outward(GpAxis *, bool, double);
 static bool axis_position_zeroaxis(AXIS_INDEX);
-static void load_one_range(GpAxis * axis, double * a, t_autoscale * autoscale, t_autoscale which);
+//static void load_one_range(GpAxis * axis, double * a, t_autoscale * autoscale, t_autoscale which);
 static double quantize_duodecimal_tics(double, int);
 //static void get_position_type(enum position_type * type, AXIS_INDEX * axes);
 
@@ -408,17 +408,17 @@ void GnuPlot::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
 //
 // Simpler alternative routine for nonlinear axes (including log scale) 
 //
-void FASTCALL axis_check_empty_nonlinear(const GpAxis * axis)
+void FASTCALL axis_check_empty_nonlinear(const GpAxis * pAx)
 {
 	// Poorly defined via/inv nonlinear mappings can leave NaN in derived range 
-	if(axis->BadRange())
+	if(pAx->BadRange())
 		goto undefined_axis_range_error;
-	axis = axis->linked_to_primary;
-	if(axis->BadRange())
+	pAx = pAx->linked_to_primary;
+	if(pAx->BadRange())
 		goto undefined_axis_range_error;
 	return;
 undefined_axis_range_error:
-	GPO.IntError(NO_CARET, "empty or undefined %s axis range", axis_name((AXIS_INDEX)axis->index));
+	GPO.IntError(NO_CARET, "empty or undefined %s axis range", axis_name((AXIS_INDEX)pAx->index));
 }
 
 /* }}} */
@@ -745,7 +745,6 @@ static double quantize_duodecimal_tics(double arg, int guide)
 static double quantize_time_tics(GpAxis * axis, double tic, double xr, int guide)
 {
 	int guide12 = guide * 3 / 5; /* --> 12 for default of 20 */
-
 	axis->timelevel = TIMELEVEL_SECONDS;
 	if(tic > 5) {
 		/* turn tic into units of minutes */
@@ -1372,7 +1371,7 @@ void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dea
 			tic_vjust = axis_is_vertical ? (axis_is_second ? JUST_TOP : JUST_BOT) : JUST_CENTRE;
 			rotate_tics = TEXT_VERTICAL;
 			if(axis == FIRST_Y_AXIS)
-				(*ticlabel_position) += pTerm->v_char / 2;
+				(*ticlabel_position) += pTerm->ChrV / 2;
 			/* EAM - allow rotation by arbitrary angle in degrees      */
 			/*       Justification of ytic labels is a problem since   */
 			/*	 the position is already [mis]corrected for length */
@@ -1380,7 +1379,7 @@ void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dea
 		else if(this_axis->tic_rotate && (pTerm->text_angle)(this_axis->tic_rotate)) {
 			switch(axis) {
 				case FIRST_Y_AXIS: /* EAM Purely empirical shift - is there a better? */
-				    *ticlabel_position += pTerm->h_char * 2.5;
+				    *ticlabel_position += pTerm->ChrH * 2.5;
 				    tic_hjust = RIGHT; 
 					break;
 				case SECOND_Y_AXIS:         tic_hjust = LEFT;  break;
@@ -1412,20 +1411,20 @@ void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dea
 			/* put text at boundary if axis is close to boundary and the
 			 * corresponding boundary is switched on */
 			if(axis_is_vertical) {
-				if(((axis_is_second ? -1 : 1) * (tic_start - axis_position) > (3 * pTerm->h_char)) || 
+				if(((axis_is_second ? -1 : 1) * (tic_start - axis_position) > (3 * pTerm->ChrH)) || 
 					(!axis_is_second && (!(draw_border & 2))) || (axis_is_second && (!(draw_border & 8))))
 					tic_text = tic_start;
 				else
 					tic_text = axis_position;
-				tic_text += (axis_is_second ? 1 : -1) * pTerm->h_char;
+				tic_text += (axis_is_second ? 1 : -1) * pTerm->ChrH;
 			}
 			else {
-				if(((axis_is_second ? -1 : 1) * (tic_start - axis_position) > (2 * pTerm->v_char)) || 
+				if(((axis_is_second ? -1 : 1) * (tic_start - axis_position) > (2 * pTerm->ChrV)) || 
 					(!axis_is_second && (!(draw_border & 1))) || (axis_is_second && (!(draw_border & 4))))
-					tic_text = static_cast<int>(tic_start + (axis_is_second ? 0 : -this_axis->ticscale * pTerm->v_tic));
+					tic_text = static_cast<int>(tic_start + (axis_is_second ? 0 : -this_axis->ticscale * pTerm->TicV));
 				else
 					tic_text = axis_position;
-				tic_text -= pTerm->v_char;
+				tic_text -= pTerm->ChrV;
 			}
 		}
 		else {
@@ -1443,16 +1442,16 @@ void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dea
 /* }}} */
 
 /* {{{ axis_set_scale_and_range() */
-void axis_set_scale_and_range(GpAxis * axis, int lower, int upper)
+void axis_set_scale_and_range(GpAxis * pAx, int lower, int upper)
 {
-	axis->term_scale = (upper - lower) / (axis->max - axis->min);
-	axis->term_lower = lower;
-	axis->term_upper = upper;
-	if(axis->linked_to_primary && axis->linked_to_primary->index <= 0) {
-		axis = axis->linked_to_primary;
-		axis->term_scale = (upper - lower) / (axis->max - axis->min);
-		axis->term_lower = lower;
-		axis->term_upper = upper;
+	pAx->term_scale = (upper - lower) / (pAx->max - pAx->min);
+	pAx->term_lower = lower;
+	pAx->term_upper = upper;
+	if(pAx->linked_to_primary && pAx->linked_to_primary->index <= 0) {
+		pAx = pAx->linked_to_primary;
+		pAx->term_scale = (upper - lower) / (pAx->max - pAx->min);
+		pAx->term_lower = lower;
+		pAx->term_upper = upper;
 	}
 }
 
@@ -1484,7 +1483,7 @@ void GnuPlot::AxisDraw2DZeroAxis(termentry * pTerm, AXIS_INDEX axis, AXIS_INDEX 
 {
 	GpAxis * p_this = &AxS[axis];
 	if(axis_position_zeroaxis(crossaxis) && p_this->zeroaxis) {
-		term_apply_lp_properties(pTerm, p_this->zeroaxis);
+		TermApplyLpProperties(pTerm, p_this->zeroaxis);
 		if(oneof2(axis, FIRST_X_AXIS, SECOND_X_AXIS)) {
 			// zeroaxis is horizontal, at y == 0 
 			(pTerm->move)(p_this->term_lower, AxS[crossaxis].term_zero);
@@ -1497,26 +1496,26 @@ void GnuPlot::AxisDraw2DZeroAxis(termentry * pTerm, AXIS_INDEX axis, AXIS_INDEX 
 		}
 	}
 }
-
-/* Mouse zoom/scroll operations were constructing a series of "set [xyx2y2]range"
- * commands for interpretation.  This caused loss of precision.
- * This routine replaces the interpreted string with a direct update of the
- * axis min/max.   Called from mouse.c (apply_zoom)
- */
-void set_explicit_range(GpAxis * this_axis, double newmin, double newmax)
+// 
+// Mouse zoom/scroll operations were constructing a series of "set [xyx2y2]range"
+// commands for interpretation.  This caused loss of precision.
+// This routine replaces the interpreted string with a direct update of the
+// axis min/max.   Called from mouse.c (apply_zoom)
+// 
+void set_explicit_range(GpAxis * pAx, double newmin, double newmax)
 {
-	this_axis->set_min = newmin;
-	this_axis->set_autoscale &= ~AUTOSCALE_MIN;
-	this_axis->min_constraint = CONSTRAINT_NONE;
-	this_axis->set_max = newmax;
-	this_axis->set_autoscale &= ~AUTOSCALE_MAX;
-	this_axis->max_constraint = CONSTRAINT_NONE;
+	pAx->set_min = newmin;
+	pAx->set_autoscale &= ~AUTOSCALE_MIN;
+	pAx->min_constraint = CONSTRAINT_NONE;
+	pAx->set_max = newmax;
+	pAx->set_autoscale &= ~AUTOSCALE_MAX;
+	pAx->max_constraint = CONSTRAINT_NONE;
 	// If this is one end of a linked axis pair, replicate the new range to the
 	// linked axis, possibly via a mapping function.
-	if(this_axis->linked_to_secondary)
-		GPO.CloneLinkedAxes(this_axis, this_axis->linked_to_secondary);
-	else if(this_axis->linked_to_primary)
-		GPO.CloneLinkedAxes(this_axis, this_axis->linked_to_primary);
+	if(pAx->linked_to_secondary)
+		GPO.CloneLinkedAxes(pAx, pAx->linked_to_secondary);
+	else if(pAx->linked_to_primary)
+		GPO.CloneLinkedAxes(pAx, pAx->linked_to_primary);
 }
 
 double FASTCALL get_num_or_time(const GpAxis * axis)
@@ -1537,22 +1536,23 @@ double FASTCALL get_num_or_time(const GpAxis * axis)
 	return value;
 }
 
-static void load_one_range(GpAxis * this_axis, double * a, t_autoscale * autoscale, t_autoscale which)
+//static void load_one_range(GpAxis * pAx, double * a, t_autoscale * autoscale, t_autoscale which)
+void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, t_autoscale which)
 {
 	double number;
 	assert(oneof2(which, AUTOSCALE_MIN, AUTOSCALE_MAX));
-	if(GPO.Pgm.EqualsCur("*")) {
+	if(Pgm.EqualsCur("*")) {
 		// easy:  do autoscaling!  
-		*autoscale |= which;
+		*pAutoscale |= which;
 		if(which==AUTOSCALE_MIN) {
-			this_axis->min_constraint &= ~CONSTRAINT_LOWER;
-			this_axis->min_lb = 0; /*  dummy entry  */
+			pAx->min_constraint &= ~CONSTRAINT_LOWER;
+			pAx->min_lb = 0; /*  dummy entry  */
 		}
 		else {
-			this_axis->max_constraint &= ~CONSTRAINT_LOWER;
-			this_axis->max_lb = 0; /*  dummy entry  */
+			pAx->max_constraint &= ~CONSTRAINT_LOWER;
+			pAx->max_lb = 0; /*  dummy entry  */
 		}
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 	}
 	else {
 		/*  this _might_ be autoscaling with constraint or fixed value */
@@ -1562,135 +1562,136 @@ static void load_one_range(GpAxis * this_axis, double * a, t_autoscale * autosca
 		    trying to build an action table if he finds '<' followed by '*'
 		    (which would normally trigger a 'invalid expression'),  */
 		scanning_range_in_progress = TRUE;
-		number = get_num_or_time(this_axis);
+		number = get_num_or_time(pAx);
 		scanning_range_in_progress = FALSE;
-		if(GPO.Pgm.EndOfCommand())
-			GPO.IntErrorCurToken("unfinished range");
-		if(GPO.Pgm.EqualsCur("<")) {
+		if(Pgm.EndOfCommand())
+			IntErrorCurToken("unfinished range");
+		if(Pgm.EqualsCur("<")) {
 			// this _seems_ to be autoscaling with lower bound 
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand()) {
-				GPO.IntErrorCurToken("unfinished range with constraint");
+			Pgm.Shift();
+			if(Pgm.EndOfCommand()) {
+				IntErrorCurToken("unfinished range with constraint");
 			}
-			else if(GPO.Pgm.EqualsCur("*")) {
+			else if(Pgm.EqualsCur("*")) {
 				// okay:  this _is_ autoscaling with lower bound!  
-				*autoscale |= which;
+				*pAutoscale |= which;
 				if(which==AUTOSCALE_MIN) {
-					this_axis->min_constraint |= CONSTRAINT_LOWER;
-					this_axis->min_lb = number;
+					pAx->min_constraint |= CONSTRAINT_LOWER;
+					pAx->min_lb = number;
 				}
 				else {
-					this_axis->max_constraint |= CONSTRAINT_LOWER;
-					this_axis->max_lb = number;
+					pAx->max_constraint |= CONSTRAINT_LOWER;
+					pAx->max_lb = number;
 				}
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 			}
 			else {
-				GPO.IntErrorCurToken("malformed range with constraint");
+				IntErrorCurToken("malformed range with constraint");
 			}
 		}
-		else if(GPO.Pgm.EqualsCur(">")) {
-			GPO.IntErrorCurToken("malformed range with constraint (use '<' only)");
+		else if(Pgm.EqualsCur(">")) {
+			IntErrorCurToken("malformed range with constraint (use '<' only)");
 		}
 		else {
 			// no autoscaling-with-lower-bound but simple fixed value only  
-			*autoscale &= ~which;
+			*pAutoscale &= ~which;
 			if(which==AUTOSCALE_MIN) {
-				this_axis->min_constraint = CONSTRAINT_NONE;
-				this_axis->min_ub = 0; /*  dummy entry  */
+				pAx->min_constraint = CONSTRAINT_NONE;
+				pAx->min_ub = 0; /*  dummy entry  */
 			}
 			else {
-				this_axis->max_constraint = CONSTRAINT_NONE;
-				this_axis->max_ub = 0; /*  dummy entry  */
+				pAx->max_constraint = CONSTRAINT_NONE;
+				pAx->max_ub = 0; /*  dummy entry  */
 			}
-			*a = number;
+			*pA = number;
 		}
 	}
-	if(*autoscale & which) {
+	if(*pAutoscale & which) {
 		// check for upper bound only if autoscaling is on  
-		if(GPO.Pgm.EndOfCommand()) 
-			GPO.IntErrorCurToken("unfinished range");
-		if(GPO.Pgm.EqualsCur("<")) {
+		if(Pgm.EndOfCommand()) 
+			IntErrorCurToken("unfinished range");
+		if(Pgm.EqualsCur("<")) {
 			// looks like upper bound up to now... 
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand()) 
-				GPO.IntErrorCurToken("unfinished range with constraint");
-			number = get_num_or_time(this_axis);
+			Pgm.Shift();
+			if(Pgm.EndOfCommand()) 
+				IntErrorCurToken("unfinished range with constraint");
+			number = get_num_or_time(pAx);
 			// this autoscaling has an upper bound: 
 			if(which==AUTOSCALE_MIN) {
-				this_axis->min_constraint |= CONSTRAINT_UPPER;
-				this_axis->min_ub = number;
+				pAx->min_constraint |= CONSTRAINT_UPPER;
+				pAx->min_ub = number;
 			}
 			else {
-				this_axis->max_constraint |= CONSTRAINT_UPPER;
-				this_axis->max_ub = number;
+				pAx->max_constraint |= CONSTRAINT_UPPER;
+				pAx->max_ub = number;
 			}
 		}
-		else if(GPO.Pgm.EqualsCur(">")) {
-			GPO.IntErrorCurToken("malformed range with constraint (use '<' only)");
+		else if(Pgm.EqualsCur(">")) {
+			IntErrorCurToken("malformed range with constraint (use '<' only)");
 		}
 		else {
 			// there is _no_ upper bound on this autoscaling 
 			if(which==AUTOSCALE_MIN) {
-				this_axis->min_constraint &= ~CONSTRAINT_UPPER;
-				this_axis->min_ub = 0; /*  dummy entry  */
+				pAx->min_constraint &= ~CONSTRAINT_UPPER;
+				pAx->min_ub = 0; /*  dummy entry  */
 			}
 			else {
-				this_axis->max_constraint &= ~CONSTRAINT_UPPER;
-				this_axis->max_ub = 0; /*  dummy entry  */
+				pAx->max_constraint &= ~CONSTRAINT_UPPER;
+				pAx->max_ub = 0; /*  dummy entry  */
 			}
 		}
 	}
-	else if(!GPO.Pgm.EndOfCommand()) {
+	else if(!Pgm.EndOfCommand()) {
 		// no autoscaling = fixed value --> complain about constraints 
-		if(GPO.Pgm.EqualsCur("<") || GPO.Pgm.EqualsCur(">") ) {
-			GPO.IntErrorCurToken("no upper bound constraint allowed if not autoscaling");
+		if(Pgm.EqualsCur("<") || Pgm.EqualsCur(">") ) {
+			IntErrorCurToken("no upper bound constraint allowed if not autoscaling");
 		}
 	}
 	// Consistency check  
-	if(*autoscale & which) {
-		if(which==AUTOSCALE_MIN && this_axis->min_constraint==CONSTRAINT_BOTH) {
-			if(this_axis->min_ub < this_axis->min_lb) {
-				GPO.IntWarnCurToken("Upper bound of constraint < lower bound:  Turning of constraints.");
-				this_axis->min_constraint = CONSTRAINT_NONE;
+	if(*pAutoscale & which) {
+		if(which==AUTOSCALE_MIN && pAx->min_constraint==CONSTRAINT_BOTH) {
+			if(pAx->min_ub < pAx->min_lb) {
+				IntWarnCurToken("Upper bound of constraint < lower bound:  Turning of constraints.");
+				pAx->min_constraint = CONSTRAINT_NONE;
 			}
 		}
-		if(which==AUTOSCALE_MAX && this_axis->max_constraint==CONSTRAINT_BOTH) {
-			if(this_axis->max_ub < this_axis->max_lb) {
-				GPO.IntWarnCurToken("Upper bound of constraint < lower bound:  Turning of constraints.");
-				this_axis->max_constraint = CONSTRAINT_NONE;
+		if(which==AUTOSCALE_MAX && pAx->max_constraint==CONSTRAINT_BOTH) {
+			if(pAx->max_ub < pAx->max_lb) {
+				IntWarnCurToken("Upper bound of constraint < lower bound:  Turning of constraints.");
+				pAx->max_constraint = CONSTRAINT_NONE;
 			}
 		}
 	}
 }
-
-/* {{{ load_range() */
-/* loads a range specification from the input line into variables 'a'
- * and 'b' */
-t_autoscale load_range(GpAxis * this_axis, double * a, double * b, t_autoscale autoscale)
+//
+// {{{ load_range() */
+// loads a range specification from the input line into variables 'a' and 'b' 
+//
+//t_autoscale load_range(GpAxis * pAx, double * pA, double * pB, t_autoscale autoscale)
+t_autoscale GnuPlot::LoadRange(GpAxis * pAx, double * pA, double * pB, t_autoscale autoscale)
 {
-	if(GPO.Pgm.EqualsCur("]")) {
-		this_axis->min_constraint = CONSTRAINT_NONE;
-		this_axis->max_constraint = CONSTRAINT_NONE;
+	if(Pgm.EqualsCur("]")) {
+		pAx->min_constraint = CONSTRAINT_NONE;
+		pAx->max_constraint = CONSTRAINT_NONE;
 		return (autoscale);
 	}
-	if(GPO.Pgm.EndOfCommand()) {
-		GPO.IntErrorCurToken("starting range value or ':' or 'to' expected");
+	if(Pgm.EndOfCommand()) {
+		IntErrorCurToken("starting range value or ':' or 'to' expected");
 	}
-	else if(!GPO.Pgm.EqualsCur("to") && !GPO.Pgm.EqualsCur(":")) {
-		load_one_range(this_axis, a, &autoscale, AUTOSCALE_MIN);
+	else if(!Pgm.EqualsCur("to") && !Pgm.EqualsCur(":")) {
+		LoadOneRange(pAx, pA, &autoscale, AUTOSCALE_MIN);
 	}
-	if(!GPO.Pgm.EqualsCur("to") && !GPO.Pgm.EqualsCur(":"))
-		GPO.IntErrorCurToken("':' or keyword 'to' expected");
-	GPO.Pgm.Shift();
-	if(!GPO.Pgm.EqualsCur("]")) {
-		load_one_range(this_axis, b, &autoscale, AUTOSCALE_MAX);
+	if(!Pgm.EqualsCur("to") && !Pgm.EqualsCur(":"))
+		IntErrorCurToken("':' or keyword 'to' expected");
+	Pgm.Shift();
+	if(!Pgm.EqualsCur("]")) {
+		LoadOneRange(pAx, pB, &autoscale, AUTOSCALE_MAX);
 	}
-	/* Not all the code can deal nicely with +/- infinity */
-	if(*a < -VERYLARGE)
-		*a = -VERYLARGE;
-	if(*b > VERYLARGE)
-		*b = VERYLARGE;
+	// Not all the code can deal nicely with +/- infinity 
+	if(*pA < -VERYLARGE)
+		*pA = -VERYLARGE;
+	if(*pB > VERYLARGE)
+		*pB = VERYLARGE;
 	return (autoscale);
 }
 
@@ -2056,7 +2057,7 @@ int GnuPlot::ParseRange(AXIS_INDEX axisIdx)
 			Pgm.Shift();
 			Pgm.Shift();
 		}
-		this_axis->autoscale = load_range(this_axis, &this_axis->min, &this_axis->max, this_axis->autoscale);
+		this_axis->autoscale = LoadRange(this_axis, &this_axis->min, &this_axis->max, this_axis->autoscale);
 		// Nonlinear axis - find the linear range equivalent 
 		if(this_axis->linked_to_primary) {
 			GpAxis * primary = this_axis->linked_to_primary;
@@ -2159,7 +2160,7 @@ double GnuPlot::EvalLinkFunction(const GpAxis * pAx, double raw_coord)
 	// A test for if (undefined) is allowed only immediately following
 	// either evalute_at() or eval_link_function().  Both must clear it
 	// on entry so that the value on return reflects what really happened.
-	__IsUndefined = false;
+	Ev.IsUndefined_ = false;
 	// Special case to speed up evaluation of log scaling 
 	// benchmark timing summary
 	// v4.6 (old-style logscale)	42.7 u 42.7 total
@@ -2185,12 +2186,12 @@ double GnuPlot::EvalLinkFunction(const GpAxis * pAx, double raw_coord)
 		link_udf->dummy_values[1-dummy_var].type = INVALID_NAME;
 		Gcomplex(&link_udf->dummy_values[dummy_var], raw_coord, 0.0);
 		EvaluateAt(link_udf->at, &a);
-		if(__IsUndefined || a.type != CMPLX) {
+		if(Ev.IsUndefined_ || a.type != CMPLX) {
 			FPRINTF((stderr, "eval_link_function(%g) returned %s\n", raw_coord, undefined ? "undefined" : "unexpected type"));
-			a = udv_NaN->udv_value;
+			a = Ev.P_UdvNaN->udv_value;
 		}
 		if(isnan(a.v.cmplx_val.real))
-			__IsUndefined = true;
+			Ev.IsUndefined_ = true;
 		return a.v.cmplx_val.real;
 	}
 }
@@ -2232,27 +2233,28 @@ void GpAxisSet::DestroyParallelAxes()
 	ZFREE(P_ParallelAxArray);
 	NumParallelAxes = 0;
 }
-/*
- * This is necessary if we are to reproduce the old logscaling.
- * Extend the tic range on an independent log-scaled axis to the
- * nearest power of 10.
- * Transfer the new limits over to the user-visible secondary axis.
- */
-void extend_primary_ticrange(GpAxis * axis)
+// 
+// This is necessary if we are to reproduce the old logscaling.
+// Extend the tic range on an independent log-scaled axis to the
+// nearest power of 10.
+// Transfer the new limits over to the user-visible secondary axis.
+// 
+//void extend_primary_ticrange(GpAxis * axis)
+void GnuPlot::ExtendPrimaryTicRange(GpAxis * pAx)
 {
-	GpAxis * primary = axis->linked_to_primary;
-	if(axis->ticdef.logscaling) {
+	GpAxis * primary = pAx->linked_to_primary;
+	if(pAx->ticdef.logscaling) {
 		// This can happen on "refresh" if the axis was unused 
 		if(primary->min >= VERYLARGE || primary->max <= -VERYLARGE)
 			return;
 		// NB: "zero" is the minimum non-zero value from "set zero" 
-		if((primary->autoscale & AUTOSCALE_MIN) ||  fabs(primary->min - floor(primary->min)) < zero) {
+		if((primary->autoscale & AUTOSCALE_MIN) || fabs(primary->min - floor(primary->min)) < zero) {
 			primary->min = floor(primary->min);
-			axis->min = GPO.EvalLinkFunction(axis, primary->min);
+			pAx->min = EvalLinkFunction(pAx, primary->min);
 		}
-		if((primary->autoscale & AUTOSCALE_MAX) ||  fabs(primary->max - ceil(primary->max)) < zero) {
+		if((primary->autoscale & AUTOSCALE_MAX) || fabs(primary->max - ceil(primary->max)) < zero) {
 			primary->max = ceil(primary->max);
-			axis->max = GPO.EvalLinkFunction(axis, primary->max);
+			pAx->max = EvalLinkFunction(pAx, primary->max);
 		}
 	}
 }
@@ -2261,15 +2263,16 @@ void extend_primary_ticrange(GpAxis * axis)
 // for the secondary (visible) axes but not for the linked primary (linear) axis.
 // This routine fills in the primary min/max from the secondary axis.
 // 
-void update_primary_axis_range(GpAxis * secondary)
+//void update_primary_axis_range(GpAxis * secondary)
+void GnuPlot::UpdatePrimaryAxisRange(GpAxis * pAxSecondary)
 {
-	GpAxis * primary = secondary->linked_to_primary;
-	if(primary) {
+	GpAxis * p_ax_primary = pAxSecondary->linked_to_primary;
+	if(p_ax_primary) {
 		// nonlinear axis (secondary is visible; primary is hidden) 
-		primary->min = GPO.EvalLinkFunction(primary, secondary->min);
-		primary->max = GPO.EvalLinkFunction(primary, secondary->max);
-		primary->data_min = GPO.EvalLinkFunction(primary, secondary->data_min);
-		primary->data_max = GPO.EvalLinkFunction(primary, secondary->data_max);
+		p_ax_primary->min = EvalLinkFunction(p_ax_primary, pAxSecondary->min);
+		p_ax_primary->max = EvalLinkFunction(p_ax_primary, pAxSecondary->max);
+		p_ax_primary->data_min = EvalLinkFunction(p_ax_primary, pAxSecondary->data_min);
+		p_ax_primary->data_max = EvalLinkFunction(p_ax_primary, pAxSecondary->data_max);
 	}
 }
 // 
@@ -2323,7 +2326,7 @@ double GpAxisSet::MapX(double value) const
 		GpAxis * primary = AxArray[Idx_X].linked_to_primary;
 		if(primary->link_udf->at) {
 			value = GPO.EvalLinkFunction(primary, value);
-			return __IsUndefined ? not_a_number() : primary->Map(value);
+			return GPO.Ev.IsUndefined_ ? not_a_number() : primary->Map(value);
 		}
 	}
 	return AxArray[Idx_X].Map(value);
@@ -2343,7 +2346,7 @@ double GpAxisSet::MapY(double value) const
 		GpAxis * primary = AxArray[Idx_Y].linked_to_primary;
 		if(primary->link_udf->at) {
 			value = GPO.EvalLinkFunction(primary, value);
-			return __IsUndefined ? not_a_number() : primary->Map(value);
+			return GPO.Ev.IsUndefined_ ? not_a_number() : primary->Map(value);
 		}
 	}
 	return AxArray[Idx_Y].Map(value);

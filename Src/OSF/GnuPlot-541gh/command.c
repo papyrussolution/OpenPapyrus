@@ -236,7 +236,7 @@ int GpProgram::DoLine()
 		}
 		CToken = 0;
 		while(CToken < NumTokens) {
-			Command();
+			GPO.Command();
 			if(command_exit_requested) {
 				command_exit_requested = 0; /* yes this is necessary */
 				return 1;
@@ -375,7 +375,7 @@ void GpProgram::Define()
 		tmpnam = (char *)gp_alloc(8+strlen(udf->udf_name), "varname");
 		strcpy(tmpnam, "GPFUN_");
 		strcat(tmpnam, udf->udf_name);
-		fill_gpval_string(tmpnam, udf->definition);
+		GPO.Ev.FillGpValString(tmpnam, udf->definition);
 		SAlloc::F(tmpnam);
 	}
 	else {
@@ -418,19 +418,20 @@ void GpProgram::UndefineCommand()
 			GPO.IntErrorCurToken("Cannot undefine function or array element");
 		// ignore internal variables 
 		if(strncmp(key, "GPVAL_", 6) && strncmp(key, "MOUSE_", 6))
-			del_udv_by_name(key, wildcard);
+			GPO.Ev.DelUdvByName(key, wildcard);
 		Shift();
 	}
 }
 
 //static void command()
-void GpProgram::Command()
+//void GpProgram::Command()
+void GnuPlot::Command()
 {
 	for(int i = 0; i < MAX_NUM_VAR; i++)
 		c_dummy_var[i][0] = NUL; /* no dummy variables */
-	if(GPO.IsDefinition(GetCurTokenIdx()))
-		Define();
-	else if(IsArrayAssignment())
+	if(GPO.IsDefinition(Pgm.GetCurTokenIdx()))
+		Pgm.Define();
+	else if(Pgm.IsArrayAssignment())
 		;
 	else {
 		//(*lookup_ftable(&command_ftbl[0], GetCurTokenIdx()))();
@@ -446,113 +447,113 @@ void GpProgram::Command()
 			}
 		*/
 		{
-			int cur_tok_idx = GetCurTokenIdx();
-			if(AlmostEquals(cur_tok_idx, "ra$ise"))
+			int cur_tok_idx = Pgm.GetCurTokenIdx();
+			if(Pgm.AlmostEquals(cur_tok_idx, "ra$ise"))
 				raise_command();
-			else if(AlmostEquals(cur_tok_idx, "low$er"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "low$er"))
 				lower_command();
 		#ifdef USE_MOUSE
-			else if(AlmostEquals(cur_tok_idx, "bi$nd"))
-				BindCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "bi$nd"))
+				Pgm.BindCommand();
 		#endif
-			else if(AlmostEquals(cur_tok_idx, "array"))
-				ArrayCommand();
-			else if(AlmostEquals(cur_tok_idx, "break"))
-				BreakCommand();
-			else if(AlmostEquals(cur_tok_idx, "ca$ll"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "array"))
+				Pgm.ArrayCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "break"))
+				Pgm.BreakCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "ca$ll"))
 				call_command();
-			else if(AlmostEquals(cur_tok_idx, "cd"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "cd"))
 				changedir_command();
-			else if(AlmostEquals(cur_tok_idx, "cl$ear"))
-				clear_command();
-			else if(AlmostEquals(cur_tok_idx, "continue"))
-				ContinueCommand();
-			else if(AlmostEquals(cur_tok_idx, "do"))
-				DoCommand();
-			else if(AlmostEquals(cur_tok_idx, "eval$uate"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "cl$ear"))
+				ClearCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "continue"))
+				Pgm.ContinueCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "do"))
+				Pgm.DoCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "eval$uate"))
 				eval_command();
-			else if(AlmostEquals(cur_tok_idx, "ex$it"))
-				GPO.ExitCommand();
-			else if(AlmostEquals(cur_tok_idx, "f$it"))
-				GPO.FitCommand();
-			else if(AlmostEquals(cur_tok_idx, "h$elp"))
-				HelpCommand();
-			else if(AlmostEquals(cur_tok_idx, "?"))
-				HelpCommand();
-			else if(AlmostEquals(cur_tok_idx, "hi$story"))
-				history_command();
-			else if(AlmostEquals(cur_tok_idx, "if"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "ex$it"))
+				ExitCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "f$it"))
+				FitCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "h$elp"))
+				Pgm.HelpCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "?"))
+				Pgm.HelpCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "hi$story"))
+				HistoryCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "if"))
 				if_command();
-			else if(AlmostEquals(cur_tok_idx, "import"))
-				GPO.ImportCommand();
-			else if(AlmostEquals(cur_tok_idx, "else"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "import"))
+				ImportCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "else"))
 				else_command();
-			else if(AlmostEquals(cur_tok_idx, "l$oad"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "l$oad"))
 				load_command();
-			else if(AlmostEquals(cur_tok_idx, "pa$use"))
-				pause_command();
-			else if(AlmostEquals(cur_tok_idx, "p$lot"))
-				plot_command();
-			else if(AlmostEquals(cur_tok_idx, "pr$int"))
-				PrintCommand();
-			else if(AlmostEquals(cur_tok_idx, "printerr$or"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "pa$use"))
+				PauseCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "p$lot"))
+				PlotCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "pr$int"))
+				Pgm.PrintCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "printerr$or"))
 				printerr_command();
-			else if(AlmostEquals(cur_tok_idx, "pwd"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "pwd"))
 				pwd_command();
-			else if(AlmostEquals(cur_tok_idx, "q$uit"))
-				GPO.ExitCommand();
-			else if(AlmostEquals(cur_tok_idx, "ref$resh"))
-				GPO.RefreshCommand();
-			else if(AlmostEquals(cur_tok_idx, "rep$lot"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "q$uit"))
+				ExitCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "ref$resh"))
+				RefreshCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "rep$lot"))
 				replot_command();
-			else if(AlmostEquals(cur_tok_idx, "re$read"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "re$read"))
 				reread_command();
-			else if(AlmostEquals(cur_tok_idx, "res$et"))
-				GPO.ResetCommand();
-			else if(AlmostEquals(cur_tok_idx, "sa$ve"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "res$et"))
+				ResetCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "sa$ve"))
 				save_command();
-			else if(AlmostEquals(cur_tok_idx, "scr$eendump"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "scr$eendump"))
 				screendump_command();
-			else if(AlmostEquals(cur_tok_idx, "se$t"))
-				GPO.SetCommand();
-			else if(AlmostEquals(cur_tok_idx, "she$ll"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "se$t"))
+				SetCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "she$ll"))
 				do_shell();
-			else if(AlmostEquals(cur_tok_idx, "sh$ow"))
-				GPO.ShowCommand();
-			else if(AlmostEquals(cur_tok_idx, "sp$lot"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "sh$ow"))
+				ShowCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "sp$lot"))
 				splot_command();
-			else if(AlmostEquals(cur_tok_idx, "st$ats"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "st$ats"))
 				stats_command();
-			else if(AlmostEquals(cur_tok_idx, "sy$stem"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "sy$stem"))
 				system_command();
-			else if(AlmostEquals(cur_tok_idx, "test"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "test"))
 				test_command();
-			else if(AlmostEquals(cur_tok_idx, "tog$gle"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "tog$gle"))
 				toggle_command();
-			else if(AlmostEquals(cur_tok_idx, "und$efine"))
-				UndefineCommand();
-			else if(AlmostEquals(cur_tok_idx, "uns$et"))
-				GPO.UnsetCommand();
-			else if(AlmostEquals(cur_tok_idx, "up$date"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "und$efine"))
+				Pgm.UndefineCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "uns$et"))
+				UnsetCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "up$date"))
 				update_command();
-			else if(AlmostEquals(cur_tok_idx, "vclear"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "vclear"))
 				vclear_command();
-			else if(AlmostEquals(cur_tok_idx, "vfill"))
-				vfill_command();
-			else if(AlmostEquals(cur_tok_idx, "vgfill"))
-				vfill_command();
-			else if(AlmostEquals(cur_tok_idx, "voxel"))
-				GPO.VoxelCommand();
-			else if(AlmostEquals(cur_tok_idx, "while"))
-				WhileCommand();
-			else if(AlmostEquals(cur_tok_idx, "{"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "vfill"))
+				VFillCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "vgfill"))
+				VFillCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "voxel"))
+				VoxelCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "while"))
+				Pgm.WhileCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "{"))
 				begin_clause();
-			else if(AlmostEquals(cur_tok_idx, "}"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, "}"))
 				end_clause();
-			else if(AlmostEquals(cur_tok_idx, ";"))
+			else if(Pgm.AlmostEquals(cur_tok_idx, ";"))
 				null_command();
-			else if(AlmostEquals(cur_tok_idx, "$"))
-				DatablockCommand();
+			else if(Pgm.AlmostEquals(cur_tok_idx, "$"))
+				Pgm.DatablockCommand();
 		}
 	}
 }
@@ -885,8 +886,9 @@ void call_command()
 	// Argument list follows filename 
 	GPO.Pgm.LoadFile(loadpath_fopen(save_file, "r"), save_file, 2);
 }
-
+//
 // process the 'cd' command 
+//
 void changedir_command()
 {
 	GPO.Pgm.Shift();
@@ -900,21 +902,23 @@ void changedir_command()
 		GPO.UpdateGpvalVariables(5);
 	SAlloc::F(save_file);
 }
-
-/* process the 'clear' command */
-void clear_command()
+//
+// process the 'clear' command 
+//
+//void clear_command()
+void GnuPlot::ClearCommand()
 {
 	term_start_plot();
 	if(multiplot && term->fillbox) {
-		int xx1 = static_cast<int>(GPO.V.XOffset * term->xmax);
-		int yy1 = static_cast<int>(GPO.V.YOffset * term->ymax);
-		uint width  = static_cast<uint>(GPO.V.XSize * term->xmax);
-		uint height = static_cast<uint>(GPO.V.YSize * term->ymax);
+		int xx1 = static_cast<int>(V.XOffset * term->xmax);
+		int yy1 = static_cast<int>(V.YOffset * term->ymax);
+		uint width  = static_cast<uint>(V.XSize * term->xmax);
+		uint height = static_cast<uint>(V.YSize * term->ymax);
 		(*term->fillbox)(0, xx1, yy1, width, height);
 	}
 	term_end_plot();
 	screen_ok = FALSE;
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 }
 // 
 // process the 'evaluate' command 
@@ -955,45 +959,45 @@ void GnuPlot::ExitCommand()
 /* fit_command() is in fit.c */
 
 /* help_command() is below */
-
-/* process the 'history' command */
-void history_command()
+//
+// process the 'history' command 
+//
+//void history_command()
+void GnuPlot::HistoryCommand()
 {
 #ifdef USE_READLINE
-	GPO.Pgm.Shift();
-	if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur("?")) {
-		static char * search_str = NULL; /* string from command line to search for */
-		/* find and show the entries */
-		GPO.Pgm.Shift();
-		GPO.Pgm.MCapture(&search_str, GPO.Pgm.GetCurTokenIdx(), GPO.Pgm.GetCurTokenIdx()); // reallocates memory 
+	Pgm.Shift();
+	if(!Pgm.EndOfCommand() && Pgm.EqualsCur("?")) {
+		static char * search_str = NULL; // string from command line to search for 
+		// find and show the entries 
+		Pgm.Shift();
+		Pgm.MCapture(&search_str, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx()); // reallocates memory 
 		printf("history ?%s\n", search_str);
 		if(!history_find_all(search_str))
-			GPO.IntErrorCurToken("not in history");
-		GPO.Pgm.Shift();
+			IntErrorCurToken("not in history");
+		Pgm.Shift();
 	}
-	else if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur("!")) {
+	else if(!Pgm.EndOfCommand() && Pgm.EqualsCur("!")) {
 		const char * line_to_do = NULL; /* command returned by search	*/
-		GPO.Pgm.Shift();
-		if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
-			int i = GPO.IntExpression();
+		Pgm.Shift();
+		if(Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
+			int i = IntExpression();
 			line_to_do = history_find_by_number(i);
 		}
 		else {
 			char * search_str = NULL; /* string from command line to search for */
-			GPO.Pgm.MCapture(&search_str, GPO.Pgm.GetCurTokenIdx(), GPO.Pgm.GetCurTokenIdx());
+			Pgm.MCapture(&search_str, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 			line_to_do = history_find(search_str);
 			SAlloc::F(search_str);
 		}
 		if(line_to_do == NULL)
-			GPO.IntErrorCurToken("not in history");
-
-		/* Add the command to the history.
-		   Note that history commands themselves are no longer added to the history. */
+			IntErrorCurToken("not in history");
+		// Add the command to the history.
+		// Note that history commands themselves are no longer added to the history. 
 		add_history((char*)line_to_do);
-
 		printf("  Executing:\n\t%s\n", line_to_do);
 		do_string(line_to_do);
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 	}
 	else {
 		int n = 0;         /* print only <last> entries */
@@ -1001,29 +1005,28 @@ void history_command()
 		bool append = FALSE; /* rewrite output file or append it */
 		static char * name = NULL; /* name of the output file; NULL for stdout */
 		bool quiet = history_quiet;
-		if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.AlmostEqualsCur("q$uiet")) {
+		if(!Pgm.EndOfCommand() && Pgm.AlmostEqualsCur("q$uiet")) {
 			/* option quiet to suppress history entry numbers */
 			quiet = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
 		/* show history entries */
-		if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
-			n = GPO.IntExpression();
+		if(!Pgm.EndOfCommand() && Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
+			n = IntExpression();
 		}
-		if((tmp = GPO.TryToGetString())) {
+		if((tmp = TryToGetString())) {
 			SAlloc::F(name);
 			name = tmp;
-			if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.AlmostEqualsCur("ap$pend")) {
+			if(!Pgm.EndOfCommand() && Pgm.AlmostEqualsCur("ap$pend")) {
 				append = TRUE;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 			}
 		}
 		write_history_n(n, (quiet ? "" : name), (append ? "a" : "w"));
 	}
-
 #else
-	GPO.Pgm.Shift();
-	GPO.IntWarn(NO_CARET, "This copy of gnuplot was built without support for command history.");
+	Pgm.Shift();
+	IntWarn(NO_CARET, "This copy of gnuplot was built without support for command history.");
 #endif /* defined(USE_READLINE) */
 }
 
@@ -1504,85 +1507,79 @@ void timed_pause(double sleep_time)
 /* process the 'pause' command */
 #define EAT_INPUT_WITH(slurp) do {int junk = 0; do {junk = slurp;} while(junk != EOF && junk != '\n');} while(0)
 
-void pause_command()
+//void pause_command()
+void GnuPlot::PauseCommand()
 {
 	int text = 0;
 	double sleep_time;
 	static char * buf = NULL;
-
-	GPO.Pgm.Shift();
-
+	Pgm.Shift();
 #ifdef USE_MOUSE
 	paused_for_mouse = 0;
-	if(GPO.Pgm.EqualsCur("mouse")) {
+	if(Pgm.EqualsCur("mouse")) {
 		sleep_time = -1;
-		GPO.Pgm.Shift();
-
-/*	EAM FIXME - This is not the correct test; what we really want */
-/*	to know is whether or not the terminal supports mouse feedback */
-/*	if (term_initialised) { */
+		Pgm.Shift();
+		// EAM FIXME - This is not the correct test; what we really want 
+		// to know is whether or not the terminal supports mouse feedback 
+		// if (term_initialised) { 
 		if(mouse_setting.on && term) {
-			struct udvt_entry * current;
+			udvt_entry * current;
 			int end_condition = 0;
-
-			while(!(GPO.Pgm.EndOfCommand())) {
-				if(GPO.Pgm.AlmostEqualsCur("key$press")) {
+			while(!(Pgm.EndOfCommand())) {
+				if(Pgm.AlmostEqualsCur("key$press")) {
 					end_condition |= PAUSE_KEYSTROKE;
-					GPO.Pgm.Shift();
+					Pgm.Shift();
 				}
-				else if(GPO.Pgm.EqualsCur(",")) {
-					GPO.Pgm.Shift();
+				else if(Pgm.EqualsCur(",")) {
+					Pgm.Shift();
 				}
-				else if(GPO.Pgm.EqualsCur("any")) {
+				else if(Pgm.EqualsCur("any")) {
 					end_condition |= PAUSE_ANY;
-					GPO.Pgm.Shift();
+					Pgm.Shift();
 				}
-				else if(GPO.Pgm.EqualsCur("button1")) {
+				else if(Pgm.EqualsCur("button1")) {
 					end_condition |= PAUSE_BUTTON1;
-					GPO.Pgm.Shift();
+					Pgm.Shift();
 				}
-				else if(GPO.Pgm.EqualsCur("button2")) {
+				else if(Pgm.EqualsCur("button2")) {
 					end_condition |= PAUSE_BUTTON2;
-					GPO.Pgm.Shift();
+					Pgm.Shift();
 				}
-				else if(GPO.Pgm.EqualsCur("button3")) {
+				else if(Pgm.EqualsCur("button3")) {
 					end_condition |= PAUSE_BUTTON3;
-					GPO.Pgm.Shift();
+					Pgm.Shift();
 				}
-				else if(GPO.Pgm.EqualsCur("close")) {
+				else if(Pgm.EqualsCur("close")) {
 					end_condition |= PAUSE_WINCLOSE;
-					GPO.Pgm.Shift();
+					Pgm.Shift();
 				}
 				else
 					break;
 			}
-
 			if(end_condition)
 				paused_for_mouse = end_condition;
 			else
 				paused_for_mouse = PAUSE_CLICK;
-
-			/* Set the pause mouse return codes to -1 */
-			current = add_udv_by_name("MOUSE_KEY");
+			// Set the pause mouse return codes to -1 
+			current = Ev.AddUdvByName("MOUSE_KEY");
 			Ginteger(&current->udv_value, -1);
-			current = add_udv_by_name("MOUSE_BUTTON");
+			current = Ev.AddUdvByName("MOUSE_BUTTON");
 			Ginteger(&current->udv_value, -1);
 		}
 		else
-			GPO.IntWarn(NO_CARET, "Mousing not active");
+			IntWarn(NO_CARET, "Mousing not active");
 	}
 	else
 #endif
-	sleep_time = GPO.RealExpression();
-
-	if(GPO.Pgm.EndOfCommand()) {
+	sleep_time = RealExpression();
+	if(Pgm.EndOfCommand()) {
 		SAlloc::F(buf); /* remove the previous message */
 		buf = gp_strdup("paused"); /* default message, used in Windows GUI pause dialog */
 	}
 	else {
-		char * tmp = GPO.TryToGetString();
+		char * tmp = TryToGetString();
 		if(!tmp)
-			GPO.IntErrorCurToken("expecting string");
+			IntErrorCurToken("expecting string");
 		else {
 #ifdef _WIN32
 			SAlloc::F(buf);
@@ -1641,24 +1638,25 @@ void pause_command()
 //
 // process the 'plot' command 
 //
-void plot_command()
+//void plot_command()
+void GnuPlot::PlotCommand()
 {
-	plot_token = GPO.Pgm.Shift();
+	plot_token = Pgm.Shift();
 	plotted_data_from_stdin = FALSE;
 	refresh_nplots = 0;
 	SET_CURSOR_WAIT;
 #ifdef USE_MOUSE
 	plot_mode(MODE_PLOT);
-	add_udv_by_name("MOUSE_X")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_Y")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_X2")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_Y2")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_BUTTON")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_SHIFT")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_ALT")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_CTRL")->udv_value.type = NOTDEFINED;
+	Ev.AddUdvByName("MOUSE_X")->udv_value.type = NOTDEFINED;
+	Ev.AddUdvByName("MOUSE_Y")->udv_value.type = NOTDEFINED;
+	Ev.AddUdvByName("MOUSE_X2")->udv_value.type = NOTDEFINED;
+	Ev.AddUdvByName("MOUSE_Y2")->udv_value.type = NOTDEFINED;
+	Ev.AddUdvByName("MOUSE_BUTTON")->udv_value.type = NOTDEFINED;
+	Ev.AddUdvByName("MOUSE_SHIFT")->udv_value.type = NOTDEFINED;
+	Ev.AddUdvByName("MOUSE_ALT")->udv_value.type = NOTDEFINED;
+	Ev.AddUdvByName("MOUSE_CTRL")->udv_value.type = NOTDEFINED;
 #endif
-	GPO.PlotRequest();
+	PlotRequest();
 	// Clear "hidden" flag for any plots that may have been toggled off 
 	if(term->modify_plots)
 		term->modify_plots(MODPLOTS_SET_VISIBLE, -1);
@@ -1708,7 +1706,7 @@ void print_set_output(char * name, bool datablock, bool append_p)
 		}
 	}
 	else {
-		print_out_var = add_udv_by_name(name);
+		print_out_var = GPO.Ev.AddUdvByName(name);
 		if(!append_p)
 			gpfree_datablock(&print_out_var->udv_value);
 		/* If this is not an existing datablock to be appended */
@@ -1842,7 +1840,7 @@ void GnuPlot::RefreshCommand()
 void GnuPlot::RefreshRequest()
 {
 	/*AXIS_INDEX*/int axis;
-	if((!first_plot && (refresh_ok == E_REFRESH_OK_2D)) || (!first_3dplot && (refresh_ok == E_REFRESH_OK_3D)) || (!*replot_line && (refresh_ok == E_REFRESH_NOT_OK)))
+	if((!P_FirstPlot && (refresh_ok == E_REFRESH_OK_2D)) || (!first_3dplot && (refresh_ok == E_REFRESH_OK_3D)) || (!*replot_line && (refresh_ok == E_REFRESH_NOT_OK)))
 		IntError(NO_CARET, "no active plot; cannot refresh");
 	if(refresh_ok == E_REFRESH_NOT_OK) {
 		IntWarn(NO_CARET, "cannot refresh from this state. trying full replot");
@@ -1871,8 +1869,8 @@ void GnuPlot::RefreshRequest()
 		}
 	}
 	if(refresh_ok == E_REFRESH_OK_2D) {
-		RefreshBounds(first_plot, refresh_nplots);
-		DoPlot(term, first_plot, refresh_nplots);
+		RefreshBounds(P_FirstPlot, refresh_nplots);
+		DoPlot(term, P_FirstPlot, refresh_nplots);
 		UpdateGpvalVariables(1);
 	}
 	else if(refresh_ok == E_REFRESH_OK_3D) {
@@ -2017,11 +2015,11 @@ void splot_command()
 	SET_CURSOR_WAIT;
 #ifdef USE_MOUSE
 	plot_mode(MODE_SPLOT);
-	add_udv_by_name("MOUSE_X")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_Y")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_X2")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_Y2")->udv_value.type = NOTDEFINED;
-	add_udv_by_name("MOUSE_BUTTON")->udv_value.type = NOTDEFINED;
+	GPO.Ev.AddUdvByName("MOUSE_X")->udv_value.type = NOTDEFINED;
+	GPO.Ev.AddUdvByName("MOUSE_Y")->udv_value.type = NOTDEFINED;
+	GPO.Ev.AddUdvByName("MOUSE_X2")->udv_value.type = NOTDEFINED;
+	GPO.Ev.AddUdvByName("MOUSE_Y2")->udv_value.type = NOTDEFINED;
+	GPO.Ev.AddUdvByName("MOUSE_BUTTON")->udv_value.type = NOTDEFINED;
 #endif
 	GPO.Plot3DRequest();
 	// Clear "hidden" flag for any plots that may have been toggled off 
@@ -2060,9 +2058,10 @@ void system_command()
  */
 static void test_palette_subcommand()
 {
-	enum {test_palette_colors = 256};
-
-	struct udvt_entry * datablock;
+	enum {
+		test_palette_colors = 256
+	};
+	udvt_entry * datablock;
 	char * save_replot_line;
 	bool save_is_3d_plot;
 	int i;
@@ -2097,29 +2096,26 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	/* On Vista/Windows 7 tmpfile() fails. */
 	if(!f) {
 		char buf[PATH_MAX];
-		/* We really want the "ANSI" version */
+		// We really want the "ANSI" version 
 		GetTempPathA(sizeof(buf), buf);
 		strcat(buf, "gnuplot-pal.tmp");
 		f = fopen(buf, "w+");
 	}
 #endif
-
 	while(!GPO.Pgm.EndOfCommand())
 		GPO.Pgm.Shift();
 	if(!f)
 		GPO.IntError(NO_CARET, "cannot write temporary file");
-
-	/* Store R/G/B/Int curves in a datablock */
-	datablock = add_udv_by_name("$PALETTE");
+	// Store R/G/B/Int curves in a datablock 
+	datablock = GPO.Ev.AddUdvByName("$PALETTE");
 	if(datablock->udv_value.type != NOTDEFINED)
 		gpfree_datablock(&datablock->udv_value);
 	datablock->udv_value.type = DATABLOCK;
 	datablock->udv_value.v.data_array = NULL;
-
-	/* Part of the purpose for writing these values into a datablock */
-	/* is so that the user can read them back if desired.  But data  */
-	/* will be read back using the current numeric locale, so for    */
-	/* consistency we must also use the locale when creating it.     */
+	// Part of the purpose for writing these values into a datablock 
+	// is so that the user can read them back if desired.  But data  
+	// will be read back using the current numeric locale, so for    
+	// consistency we must also use the locale when creating it.     
 	set_numeric_locale();
 	for(i = 0; i < test_palette_colors; i++) {
 		char dataline[64];
@@ -2127,7 +2123,7 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 		double ntsc;
 		double z = (double)i / (test_palette_colors - 1);
 		double gray = (GPO.SmPltt.Positive == SMPAL_NEGATIVE) ? 1. - z : z;
-		rgb1_from_gray(gray, &rgb);
+		GPO.Rgb1FromGray(gray, &rgb);
 		ntsc = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
 		sprintf(dataline, "%0.4f %0.4f %0.4f %0.4f %0.4f %c", z, rgb.r, rgb.g, rgb.b, ntsc, '\0');
 		append_to_datablock(&datablock->udv_value, sstrdup(dataline));
@@ -2193,7 +2189,7 @@ void toggle_command()
 		curve_points * plot;
 		int last = strlen(plottitle) - 1;
 		if(refresh_ok == E_REFRESH_OK_2D)
-			plot = first_plot;
+			plot = P_FirstPlot;
 		else if(refresh_ok == E_REFRESH_OK_3D)
 			plot = (curve_points *)first_3dplot;
 		else
@@ -2934,14 +2930,14 @@ int expand_1level_macros()
 	temp_string[len] = '\0';
 	for(c = temp_string; len && c && *c; c++, len--) {
 		switch(*c) {
-			case '@': /* The only tricky bit */
+			case '@': // The only tricky bit 
 			    if(!in_squote && !in_dquote && !in_comment && isalpha((uchar)c[1])) {
-				    /* Isolate the udv key as a null-terminated substring */
+				    // Isolate the udv key as a null-terminated substring 
 				    m = ++c;
 				    while(isalnum((uchar)*c) || (*c=='_')) c++;
 				    temp_char = *c; *c = '\0';
-				    /* Look up the key and restore the original following char */
-				    udv = get_udv_by_name(m);
+				    // Look up the key and restore the original following char 
+				    udv = GPO.Ev.GetUdvByName(m);
 				    if(udv && udv->udv_value.type == STRING) {
 					    nfound++;
 					    m = udv->udv_value.v.string_val;
@@ -3060,15 +3056,15 @@ int do_system_func(const char * cmd, char ** output)
 static int report_error(int ierr)
 {
 	int reported_error;
-	/* FIXME:  This does not seem to report all reasonable errors correctly */
+	// FIXME:  This does not seem to report all reasonable errors correctly 
 	if(ierr == -1 && errno != 0)
 		reported_error = errno;
 	else
 		reported_error = WEXITSTATUS(ierr);
-	fill_gpval_integer("GPVAL_SYSTEM_ERRNO", reported_error);
+	GPO.Ev.FillGpValInteger("GPVAL_SYSTEM_ERRNO", reported_error);
 	if(reported_error == 127)
-		fill_gpval_string("GPVAL_SYSTEM_ERRMSG", "command not found or shell failed");
+		GPO.Ev.FillGpValString("GPVAL_SYSTEM_ERRMSG", "command not found or shell failed");
 	else
-		fill_gpval_string("GPVAL_SYSTEM_ERRMSG", strerror(reported_error));
+		GPO.Ev.FillGpValString("GPVAL_SYSTEM_ERRMSG", strerror(reported_error));
 	return reported_error;
 }

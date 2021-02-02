@@ -764,8 +764,8 @@ TERM_PUBLIC void EMF_options()
 				term->xmax = tempxmax * EMF_PX2HM;
 			if(tempymax > 0)
 				term->ymax = tempymax * EMF_PX2HM;
-			term->h_tic = term->xmax / 160;
-			term->v_tic = term->h_tic;
+			term->TicH = term->xmax / 160;
+			term->TicV = term->TicH;
 			continue;
 		}
 		if(GPO.Pgm.EqualsCur("fontscale")) {
@@ -828,11 +828,10 @@ TERM_PUBLIC void EMF_init()
 
 TERM_PUBLIC void EMF_graphics()
 {
-	int width = 0.5 + term->xmax/EMF_PX2HM;
-	int height = 0.5 + term->ymax/EMF_PX2HM;
-	int mmwidth = 0.5 + (term->xmax/EMF_PX2HM) * (270./1024.);
-	int mmheight = 0.5 + (term->ymax/EMF_PX2HM) * (200./768.);
-
+	int width    = static_cast<int>(0.5 + term->xmax/EMF_PX2HM);
+	int height   = static_cast<int>(0.5 + term->ymax/EMF_PX2HM);
+	int mmwidth  = static_cast<int>(0.5 + (term->xmax/EMF_PX2HM) * (270.0/1024.0));
+	int mmheight = static_cast<int>(0.5 + (term->ymax/EMF_PX2HM) * (200.0/768.0));
 	/* header start */
 	emf_record_count = 0;
 	EMF_write_emr(1, 100);
@@ -914,8 +913,8 @@ TERM_PUBLIC int EMF_set_font(const char * font)
 		emf_last_fontsize = emf_fontsize;
 	}
 
-	term->h_char = 0.6 * (emf_fontsize * EMF_PT2HM * emf_fontscale);
-	term->v_char = 1.3 * (emf_fontsize * EMF_PT2HM * emf_fontscale);
+	term->ChrH = 0.6 * (emf_fontsize * EMF_PT2HM * emf_fontscale);
+	term->ChrV = 1.3 * (emf_fontsize * EMF_PT2HM * emf_fontscale);
 	EMF_setfont();
 	return TRUE;
 }
@@ -1044,28 +1043,22 @@ TERM_PUBLIC void EMF_previous_palette()
 TERM_PUBLIC void EMF_set_color(t_colorspec * colorspec)
 {
 	rgb255_color rgb255;
-
 	EMF_flush_polyline();
-
 	if(colorspec->type == TC_LT) {
 		EMF_linecolor(colorspec->lt);
 	}
 	else if(colorspec->type == TC_FRAC) {
-		rgb255maxcolors_from_gray(colorspec->value, &rgb255);
+		GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 		emf_color = RGB(rgb255.r, rgb255.g, rgb255.b);
 	}
 	else if(colorspec->type == TC_RGB) {
-		emf_color = RGB(colorspec->lt >> 16 & 0xff,
-			colorspec->lt >> 8 & 0xff,
-			colorspec->lt & 0xff);
+		emf_color = RGB(colorspec->lt >> 16 & 0xff, colorspec->lt >> 8 & 0xff, colorspec->lt & 0xff);
 	}
-
 	/*
 	   else {
 	    fprintf(stderr, "unhandled colorspec type %d\n", colorspec->type);
 	   }
 	 */
-
 	/* Force reevaluation of dash type */
 	emf_dashtype_count++;
 }
@@ -1371,8 +1364,8 @@ TERM_PUBLIC void EMF_put_text(uint x, uint y, const char str[])
 	/* positioning... y is recentered from bottom reference set in
 	 * text align */
 	EMF_write_pointl(
-		x + (long)((term->v_char/ 2) * sin(emf_vert_text * EMF_10THDEG2RAD)),
-		term->ymax - y + (long)(term->v_char / 2
+		x + (long)((term->ChrV/ 2) * sin(emf_vert_text * EMF_10THDEG2RAD)),
+		term->ymax - y + (long)(term->ChrV / 2
 		* cos(emf_vert_text * EMF_10THDEG2RAD)));
 	EMF_write_long(nchars); /* true number of characters */
 	EMF_write_long(76);     /* offset to text */
@@ -1608,7 +1601,7 @@ TERM_PUBLIC void EMF_set_pointsize(double size)
 {
 	if(size < 0)
 		size = 1;
-	emf_tic = (size * term->h_tic);
+	emf_tic = (size * term->TicH);
 	emf_tic707 = floor((double)emf_tic * 0.707 + 0.5);
 	emf_tic866 = emf_tic * 13 / 15;
 	emf_tic500 = emf_tic / 2;
@@ -1725,7 +1718,7 @@ TERM_PUBLIC void ENHemf_FLUSH()
 		/* Best is to pile up all our errors on top of leading space. */
 		i = strspn(enhanced_text, " ");
 		if(i > 0) {
-			double blank = i * term->h_char * EMF_AVG_WID;
+			double blank = i * term->ChrH * EMF_AVG_WID;
 			x += cos(emf_vert_text * EMF_10THDEG2RAD) * blank;
 			y += sin(emf_vert_text * EMF_10THDEG2RAD) * blank;
 			emf_posx = x;
@@ -1771,14 +1764,14 @@ TERM_PUBLIC void ENHemf_FLUSH()
 			strl -= 0.15 * thin;
 		}
 
-		incr_x = strl * EMF_AVG_WID * term->h_char;
+		incr_x = strl * EMF_AVG_WID * term->ChrH;
 
 		/* Attempt to handle slanted text. Not entirely successful */
 		emf_posx = x + incr_x * cos(emf_vert_text * EMF_10THDEG2RAD);
 		emf_posy = y + incr_x * sin(emf_vert_text * EMF_10THDEG2RAD);
 
 		FPRINTF((stderr, "fontwidth = %d text box: %d x %d\n",
-		    (int)(EMF_AVG_WID * term->h_char),
+		    (int)(EMF_AVG_WID * term->ChrH),
 		    (int)(incr_x * cos(emf_vert_text * EMF_10THDEG2RAD)),
 		    (int)(incr_x * sin(emf_vert_text * EMF_10THDEG2RAD))));
 

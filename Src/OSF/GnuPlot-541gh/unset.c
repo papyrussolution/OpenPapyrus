@@ -236,7 +236,7 @@ ITERATE:
 		case S_OFFSETS: unset_offsets(); break;
 		case S_ORIGIN: unset_origin(); break;
 		case SET_OUTPUT: unset_output(); break;
-		case S_OVERFLOW: overflow_handling = INT64_OVERFLOW_IGNORE; break;
+		case S_OVERFLOW: Ev.OverflowHandling = INT64_OVERFLOW_IGNORE; break;
 		case S_PARAMETRIC: unset_parametric(); break;
 		case S_PM3D: unset_pm3d(); break;
 		case S_PALETTE: unset_palette(); break;
@@ -500,36 +500,40 @@ void reset_bars()
 	bar_layer = LAYER_FRONT;
 	bar_lp.flags = 0;
 }
-
-/* process 'unset border' command */
+//
+// process 'unset border' command 
+//
 static void unset_border()
 {
-	/* pThis is not the effect as with reset, as the border is enabled,
-	 * by default */
+	// pThis is not the effect as with reset, as the border is enabled, by default 
 	draw_border = 0;
 }
-
-/* process 'unset style boxplot' command */
+//
+// process 'unset style boxplot' command 
+//
 static void unset_boxplot()
 {
 	boxplot_style defstyle = DEFAULT_BOXPLOT_STYLE;
 	boxplot_opts = defstyle;
 }
-
-/* process 'unset boxdepth' command */
+//
+// process 'unset boxdepth' command 
+//
 static void unset_boxdepth()
 {
 	boxdepth = 0.0;
 }
-
-/* process 'unset boxwidth' command */
+//
+// process 'unset boxwidth' command 
+//
 static void unset_boxwidth()
 {
-	boxwidth = -1.0;
-	boxwidth_is_absolute = TRUE;
+	GPO.V.BoxWidth = -1.0;
+	GPO.V.BoxWidthIsAbsolute = true;
 }
-
-/* process 'unset fill' command */
+//
+// process 'unset fill' command 
+//
 static void unset_fillstyle()
 {
 	default_fillstyle.fillstyle = FS_EMPTY;
@@ -646,8 +650,9 @@ static void unset_decimalsign()
 	ZFREE(decimalsign);
 	ZFREE(numeric_locale);
 }
-
-/* process 'unset fit' command */
+//
+// process 'unset fit' command 
+//
 static void unset_fit()
 {
 	ZFREE(fitlogfile);
@@ -656,14 +661,14 @@ static void unset_fit()
 	fit_errorscaling = TRUE;
 	fit_prescale = TRUE;
 	fit_verbosity = BRIEF;
-	del_udv_by_name((char*)FITLIMIT, FALSE);
+	GPO.Ev.DelUdvByName(FITLIMIT, FALSE);
 	epsilon_abs = 0.;
-	del_udv_by_name((char*)FITMAXITER, FALSE);
-	del_udv_by_name((char*)FITSTARTLAMBDA, FALSE);
-	del_udv_by_name((char*)FITLAMBDAFACTOR, FALSE);
+	GPO.Ev.DelUdvByName(FITMAXITER, FALSE);
+	GPO.Ev.DelUdvByName(FITSTARTLAMBDA, FALSE);
+	GPO.Ev.DelUdvByName(FITLAMBDAFACTOR, FALSE);
 	ZFREE(fit_script);
 	fit_wrap = 0;
-	/* do not reset fit_v4compatible */
+	// do not reset fit_v4compatible 
 }
 //
 // process 'unset grid' command 
@@ -707,18 +712,20 @@ static void unset_textbox_style()
 			textbox_opts[i].linewidth = 0.;
 	}
 }
-
-/* process 'unset historysize' command DEPRECATED */
+//
+// process 'unset historysize' command DEPRECATED 
+//
 static void unset_historysize()
 {
 	gnuplot_history_size = -1; /* don't ever truncate the history. */
 }
-
-/* process 'unset isosamples' command */
+//
+// process 'unset isosamples' command 
+//
 static void unset_isosamples()
 {
-	/* HBB 20000506: was freeing 2D data structures although
-	 * isosamples are only used by 3D plots. */
+	// HBB 20000506: was freeing 2D data structures although
+	// isosamples are only used by 3D plots. 
 	sp_free(first_3dplot);
 	first_3dplot = NULL;
 	iso_samples_1 = ISO_SAMPLES;
@@ -810,20 +817,20 @@ static void unset_linetype()
 
 static void unset_object()
 {
-	GpObject * this_object;
-	GpObject * prev_object;
 	int tag;
 	if(GPO.Pgm.EndOfCommand()) {
 		// delete all objects 
 		while(first_object)
-			delete_object((struct GpObject *)NULL, first_object);
+			delete_object((GpObject *)NULL, first_object);
 	}
 	else {
 		// get tag 
 		tag = GPO.IntExpression();
 		if(!GPO.Pgm.EndOfCommand())
 			GPO.IntErrorCurToken("extraneous arguments to unset rectangle");
-		for(this_object = first_object, prev_object = NULL; this_object != NULL; prev_object = this_object, this_object = this_object->next) {
+		GpObject * this_object;
+		GpObject * prev_object;
+		for(this_object = first_object, prev_object = NULL; this_object; prev_object = this_object, this_object = this_object->next) {
 			if(this_object->tag == tag) {
 				delete_object(prev_object, this_object);
 				return; // exit, our job is done 
@@ -831,13 +838,13 @@ static void unset_object()
 		}
 	}
 }
-
-/* delete object from linked list started by first_object.
- * called with pointers to the previous object (prev) and the
- * object to delete (pThis).
- * If there is no previous object (the object to delete is
- * first_object) then call with prev = NULL.
- */
+// 
+// delete object from linked list started by first_object.
+// called with pointers to the previous object (prev) and the
+// object to delete (pThis).
+// If there is no previous object (the object to delete is
+// first_object) then call with prev = NULL.
+// 
 static void delete_object(struct GpObject * prev, struct GpObject * pThis)
 {
 	if(pThis) { // there really is something to delete 
@@ -851,19 +858,21 @@ static void delete_object(struct GpObject * prev, struct GpObject * pThis)
 		SAlloc::F(pThis);
 	}
 }
-
-/* process 'unset loadpath' command */
+// 
+// process 'unset loadpath' command 
+// 
 static void unset_loadpath()
 {
 	clear_loadpath();
 }
-
-/* process 'unset locale' command */
+// 
+// process 'unset locale' command 
+// 
 static void unset_locale()
 {
 	init_locale();
 }
-
+// 
 //static void reset_logscale(GpAxis * pAx)
 void GnuPlot::ResetLogScale(GpAxis * pAx)
 {
@@ -1077,37 +1086,42 @@ static void unset_palette()
 	GPO.Pgm.Shift();
 	fprintf(stderr, "you can't unset the palette.\n");
 }
-
-/* reset colorbox to default settings */
+//
+// reset colorbox to default settings 
+//
 static void reset_colorbox()
 {
 	color_box = default_color_box;
 }
-
-/* process 'unset colorbox' command: reset to default settings and then
- * switch it off */
+//
+// process 'unset colorbox' command: reset to default settings and then
+// switch it off 
+//
 static void unset_colorbox()
 {
 	reset_colorbox();
 	color_box.where = SMCOLOR_BOX_NO;
 }
-
-/* process 'unset pm3d' command */
+//
+// process 'unset pm3d' command 
+//
 static void unset_pm3d()
 {
 	pm3d.implicit = PM3D_EXPLICIT;
-	/* reset styles, required to 'plot something' after e.g. 'set pm3d map' */
+	// reset styles, required to 'plot something' after e.g. 'set pm3d map' 
 	if(data_style == PM3DSURFACE) data_style = POINTSTYLE;
 	if(func_style == PM3DSURFACE) func_style = LINES;
 }
-
-/* process 'unset pointintervalbox' command */
+//
+// process 'unset pointintervalbox' command 
+//
 static void unset_pointintervalbox()
 {
 	pointintervalbox = 1.0;
 }
-
-/* process 'unset pointsize' command */
+//
+// process 'unset pointsize' command 
+//
 static void unset_pointsize()
 {
 	pointsize = 1.0;
@@ -1121,14 +1135,14 @@ void GnuPlot::UnsetPolar()
 	if(polar) {
 		polar = FALSE;
 		if(parametric && AxS[T_AXIS].set_autoscale) {
-			/* only if user has not set an explicit range */
+			// only if user has not set an explicit range 
 			AxS[T_AXIS].set_min = axis_defaults[T_AXIS].min;
 			AxS[T_AXIS].set_max = axis_defaults[T_AXIS].min;
 		}
 		if(!parametric) {
 			strcpy(set_dummy_var[0], "x");
 			if(interactive)
-				(void)fprintf(stderr, "\n\tdummy variable is x for curves\n");
+				fprintf(stderr, "\n\tdummy variable is x for curves\n");
 		}
 	}
 	raxis = FALSE;
@@ -1153,10 +1167,9 @@ void GnuPlot::UnsetPolar()
 //
 static void unset_samples()
 {
-	/* HBB 20000506: unlike unset_isosamples(), pThis one *has* to
-	 * clear 2D data structures! */
-	GnuPlot::CpFree(first_plot);
-	first_plot = NULL;
+	// HBB 20000506: unlike unset_isosamples(), pThis one *has* to clear 2D data structures! 
+	GnuPlot::CpFree(P_FirstPlot);
+	P_FirstPlot = NULL;
 	sp_free(first_3dplot);
 	first_3dplot = NULL;
 	samples_1 = SAMPLES;
@@ -1262,7 +1275,7 @@ static void unset_spiderplot()
 	if(spiderplot) {
 		spiderplot = FALSE;
 		data_style = POINTSTYLE;
-		aspect_ratio = 0;
+		GPO.V.AspectRatio = 0.0f;
 	}
 }
 
@@ -1277,20 +1290,22 @@ static void unset_surface()
 {
 	draw_surface = FALSE;
 }
-
-/* process 'unset table' command */
+//
+// process 'unset table' command 
+//
 static void unset_table()
 {
 	SFile::ZClose(&table_outfile);
 	table_var = NULL;
 	table_mode = FALSE;
 }
-
-/* process 'unset terminal' command */
-/* Aug 2012:  restore original terminal type */
+//
+// process 'unset terminal' command 
+// Aug 2012:  restore original terminal type 
+//
 static void unset_terminal()
 {
-	struct udvt_entry * original_terminal = get_udv_by_name("GNUTERM");
+	udvt_entry * original_terminal = GPO.Ev.GetUdvByName("GNUTERM");
 	if(multiplot)
 		term_end_multiplot();
 	term_reset();
@@ -1305,8 +1320,9 @@ static void unset_terminal()
 	}
 	screen_ok = FALSE;
 }
-
-/* process 'unset ticslevel' command */
+//
+// process 'unset ticslevel' command 
+//
 static void unset_ticslevel()
 {
 	xyplane.z = 0.5;
@@ -1327,15 +1343,16 @@ static void unset_timestamp()
 	timelabel.rotate = 0;
 	timelabel_bottom = TRUE;
 }
-
-/* process 'unset view' command */
+//
+// process 'unset view' command 
+//
 static void unset_view()
 {
 	splot_map = FALSE;
 	xz_projection = FALSE;
 	yz_projection = FALSE;
 	in_3d_polygon = FALSE;
-	aspect_ratio_3D = 0;
+	GPO.V.AspectRatio3D = 0;
 	surface_rot_z = 30.0;
 	surface_rot_x = 60.0;
 	surface_scale = 1.0;
@@ -1343,8 +1360,9 @@ static void unset_view()
 	surface_zscale = 1.0;
 	azimuth = 0.0;
 }
-
-/* process 'unset zero' command */
+//
+// process 'unset zero' command 
+//
 static void unset_zero()
 {
 	zero = ZERO;
@@ -1416,9 +1434,9 @@ void GnuPlot::ResetCommand()
 	Pgm.Shift();
 	// Reset session state as well as internal graphics state 
 	if(Pgm.EqualsCur("session")) {
-		clear_udf_list();
-		init_constants();
-		init_session();
+		Ev.ClearUdfList();
+		Ev.InitConstants();
+		InitSession();
 		reset_mouse();
 		return;
 	}
@@ -1554,7 +1572,7 @@ void GnuPlot::ResetCommand()
 			reset_bars();
 			unset_mapping();
 			UnsetSize();
-			aspect_ratio = 0.0;     /* don't force it */
+			V.AspectRatio = 0.0f; // don't force it 
 			rgbmax = 255;
 			unset_origin();
 			unset_timestamp();

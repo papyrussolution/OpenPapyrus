@@ -111,7 +111,7 @@ GpValue * FASTCALL GnuPlot::ConstExpress(GpValue * pVal)
 	// div - no dummy variables in a constant expression 
 	dummy_func = NULL;
 	EvaluateAt(TempAt(), pVal); // run it and send answer back 
-	if(__IsUndefined)
+	if(GPO.Ev.IsUndefined_)
 		IntError(tkn, "undefined value");
 	return pVal;
 }
@@ -168,7 +168,7 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 		// no dummy variables: evaluate expression 
 		GpValue val;
 		EvaluateAt(P_At, &val);
-		if(!__IsUndefined && val.type == STRING) {
+		if(!GPO.Ev.IsUndefined_ && val.type == STRING) {
 			// prevent empty string variable from treated as special file '' or "" 
 			if(*val.v.string_val == '\0') {
 				SAlloc::F(val.v.string_val);
@@ -458,7 +458,7 @@ void GnuPlot::ParsePrimaryExpression()
 			if(Pgm.EqualsNext("[")) {
 				udvt_entry * datablock_udv;
 				Pgm.Rollback();
-				datablock_udv = get_udv_by_name(Pgm.ParseDatablockName());
+				datablock_udv = Ev.GetUdvByName(Pgm.ParseDatablockName());
 				if(!datablock_udv)
 					IntError(Pgm.GetCurTokenIdx()-2, "No such datablock");
 				add_action(PUSH)->udv_arg = datablock_udv;
@@ -480,7 +480,7 @@ void GnuPlot::ParsePrimaryExpression()
 		udvt_entry * udv;
 		Pgm.Shift();
 		if(Pgm.EqualsCur("$")) {
-			udv = get_udv_by_name(Pgm.ParseDatablockName());
+			udv = Ev.GetUdvByName(Pgm.ParseDatablockName());
 			if(!udv)
 				IntError(Pgm.GetPrevTokenIdx(), "no such datablock");
 		}
@@ -1045,14 +1045,14 @@ udvt_entry * add_udv(int t_num)
 	GPO.Pgm.CopyStr(varname, t_num, MAX_ID_LEN);
 	if(GPO.Pgm.P_Token[t_num].length > MAX_ID_LEN-1)
 		GPO.IntWarn(t_num, "truncating variable name that is too long");
-	return add_udv_by_name(varname);
+	return GPO.Ev.AddUdvByName(varname);
 }
 //
 // find or add function at index <t_num>, and return pointer 
 //
 udft_entry * add_udf(int t_num)                    
 {
-	udft_entry ** udf_ptr = &first_udf;
+	udft_entry ** udf_ptr = &GPO.Ev.P_FirstUdf;
 	int i;
 	while(*udf_ptr) {
 		if(GPO.Pgm.Equals(t_num, (*udf_ptr)->udf_name))
@@ -1098,7 +1098,7 @@ int GnuPlot::IsFunction(int t_num) const
 	if(IsBuiltinFunction(t_num))
 		return -1;
 	else {
-		for(const udft_entry * const * udf_ptr = &first_udf; *udf_ptr;) {
+		for(const udft_entry * const * udf_ptr = &Ev.P_FirstUdf; *udf_ptr;) {
 			if(Pgm.Equals(t_num, (*udf_ptr)->udf_name))
 				return 1;
 			udf_ptr = &((*udf_ptr)->next_udf);
@@ -1207,9 +1207,9 @@ GpIterator * GnuPlot::CheckForIteration()
 				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
 			iteration_string = v.v.string_val;
 			iteration_start = 1;
-			iteration_end = gp_words(iteration_string);
+			iteration_end = Gp_Words(iteration_string);
 			iteration_udv->udv_value.Destroy();
-			Gstring(&(iteration_udv->udv_value), gp_word(iteration_string, 1));
+			Gstring(&(iteration_udv->udv_value), Gp_Word(iteration_string, 1));
 		}
 		else // Neither [i=B:E] or [s in "foo"] 
 			IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
@@ -1261,7 +1261,7 @@ static void reevaluate_iteration_limits(GpIterator * iter)
 				GPO.IntError(NO_CARET, "corrupt iteration string");
 			iter->iteration_string = v.v.string_val;
 			iter->iteration_start = 1;
-			iter->iteration_end = gp_words(iter->iteration_string);
+			iter->iteration_end = GPO.Gp_Words(iter->iteration_string);
 		}
 		else
 			iter->iteration_start = static_cast<int>(real(&v));
@@ -1284,7 +1284,7 @@ static void reset_iteration(GpIterator * iter)
 		iter->iteration_current = iter->iteration_start;
 		if(iter->iteration_string) {
 			gpfree_string(&(iter->iteration_udv->udv_value));
-			Gstring(&(iter->iteration_udv->udv_value), gp_word(iter->iteration_string, iter->iteration_current));
+			Gstring(&(iter->iteration_udv->udv_value), GPO.Gp_Word(iter->iteration_string, iter->iteration_current));
 		}
 		else {
 			// This traps fatal user error of reassigning iteration variable to a string 
@@ -1323,7 +1323,7 @@ bool next_iteration(GpIterator * iter)
 	}
 	if(iter->iteration_string) {
 		gpfree_string(&(iter->iteration_udv->udv_value));
-		Gstring(&(iter->iteration_udv->udv_value), gp_word(iter->iteration_string, iter->iteration_current));
+		Gstring(&(iter->iteration_udv->udv_value), GPO.Gp_Word(iter->iteration_string, iter->iteration_current));
 	}
 	else {
 		// This traps fatal user error of reassigning iteration variable to a string 

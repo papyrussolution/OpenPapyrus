@@ -3215,7 +3215,7 @@ static int FASTCALL ZBarStdToPp(zbar_symbol_type_t zbarstd)
 			p_ib = &static_cast<const SDrawImage *>(p_fig)->GetBuffer();
 		}
 		else if(p_fig->GetKind()) { // Вероятно, векторная фигура
-			FPoint sz = p_fig->GetSize();
+			SPoint2F sz = p_fig->GetSize();
 			if(sz.X <= 0.0f || sz.Y <= 0.0f) {
 				sz.Set(300.0f);
 			}

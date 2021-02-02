@@ -368,14 +368,14 @@ void term_start_plot()
 	if(!term_graphics) {
 		FPRINTF((stderr, "- calling term->graphics()\n"));
 		(*term->graphics)();
-		term_graphics = TRUE;
+		term_graphics = true;
 	}
 	else if(multiplot && term_suspended) {
 		if(term->resume) {
 			FPRINTF((stderr, "- calling term->resume()\n"));
 			(*term->resume)();
 		}
-		term_suspended = FALSE;
+		term_suspended = false;
 	}
 	if(multiplot)
 		multiplot_count++;
@@ -461,7 +461,8 @@ void term_reset()
 	}
 }
 
-void term_apply_lp_properties(termentry * pTerm, const lp_style_type * lp)
+//void term_apply_lp_properties(termentry * pTerm, const lp_style_type * lp)
+void GnuPlot::TermApplyLpProperties(termentry * pTerm, const lp_style_type * lp)
 {
 	// This function passes all the line and point properties to the
 	// terminal driver and issues the corresponding commands.
@@ -478,30 +479,30 @@ void term_apply_lp_properties(termentry * pTerm, const lp_style_type * lp)
 		// Currently, there is no 'pointtype' function.  For points
 		// there is a special function also dealing with (x,y) co-ordinates.
 		if(lp->p_size < 0)
-			(*pTerm->pointsize)(pointsize);
+			(pTerm->pointsize)(pointsize);
 		else
-			(*pTerm->pointsize)(lp->p_size);
+			(pTerm->pointsize)(lp->p_size);
 	}
 	//  _first_ set the line width, _then_ set the line type !
 	// The linetype might depend on the linewidth in some terminals.
-	(*pTerm->linewidth)(lp->l_width);
+	(pTerm->linewidth)(lp->l_width);
 	// LT_DEFAULT (used only by "set errorbars"?) means don't change it 
 	if(lt == LT_DEFAULT)
 		;
 	else
-	/* The paradigm for handling linetype and dashtype in version 5 is */
-	/* linetype < 0 (e.g. LT_BACKGROUND, LT_NODRAW) means some special */
-	/* category that will be handled directly by term->linetype().     */
-	/* linetype > 0 is now redundant. It used to encode both a color   */
-	/* and a dash pattern.  Now we have separate mechanisms for those. */
+	// The paradigm for handling linetype and dashtype in version 5 is 
+	// linetype < 0 (e.g. LT_BACKGROUND, LT_NODRAW) means some special 
+	// category that will be handled directly by term->linetype().     
+	// linetype > 0 is now redundant. It used to encode both a color   
+	// and a dash pattern.  Now we have separate mechanisms for those. 
 	if(LT_COLORFROMCOLUMN < lt && lt < 0)
-		(*pTerm->linetype)(lt);
+		(pTerm->linetype)(lt);
 	else if(pTerm->set_color == null_set_color) {
-		(*pTerm->linetype)(lt-1);
+		(pTerm->linetype)(lt-1);
 		return;
 	}
 	else // All normal lines will be solid unless a dashtype is given 
-		(*pTerm->linetype)(LT_SOLID);
+		(pTerm->linetype)(LT_SOLID);
 	// Version 5.3
 	// If the line is not wanted at all, setting dashtype and color can only hurt
 	if(lt == LT_NODRAW)
@@ -511,23 +512,23 @@ void term_apply_lp_properties(termentry * pTerm, const lp_style_type * lp)
 	if(lt == LT_AXIS)
 		; // LT_AXIS is a special linetype that may incorporate a dash pattern 
 	else if(dt == DASHTYPE_CUSTOM)
-		(*pTerm->dashtype)(dt, &custom_dash_pattern);
+		(pTerm->dashtype)(dt, &custom_dash_pattern);
 	else if(dt == DASHTYPE_SOLID)
-		(*pTerm->dashtype)(dt, NULL);
+		(pTerm->dashtype)(dt, NULL);
 	else if(dt >= 0) {
 		// The null_dashtype() routine or a version 5 terminal's private
 		// dashtype routine converts this into a call to term->linetype()
 		// yielding the same result as in version 4 except possibly for a 
 		// different line width.
-		(*pTerm->dashtype)(dt, NULL);
+		(pTerm->dashtype)(dt, NULL);
 	}
-	apply_pm3dcolor(pTerm, &colorspec); // Finally adjust the color of the line 
+	ApplyPm3DColor(pTerm, &colorspec); // Finally adjust the color of the line 
 }
 
 void term_start_multiplot()
 {
 	FPRINTF((stderr, "term_start_multiplot()\n"));
-	multiplot_start();
+	GPO.MultiplotStart();
 #ifdef USE_MOUSE
 	UpdateStatusline();
 #endif
@@ -536,118 +537,108 @@ void term_start_multiplot()
 void term_end_multiplot()
 {
 	FPRINTF((stderr, "term_end_multiplot()\n"));
-	if(!multiplot)
-		return;
-	if(term_suspended) {
-		if(term->resume)
-			(*term->resume)();
-		term_suspended = FALSE;
-	}
-	multiplot_end();
-	term_end_plot();
+	if(multiplot) {
+		if(term_suspended) {
+			if(term->resume)
+				(*term->resume)();
+			term_suspended = FALSE;
+		}
+		GPO.MultiplotEnd();
+		term_end_plot();
 #ifdef USE_MOUSE
-	UpdateStatusline();
+		UpdateStatusline();
 #endif
+	}
 }
 
 void term_check_multiplot_okay(bool f_interactive)
 {
 	FPRINTF((stderr, "term_multiplot_okay(%d)\n", f_interactive));
 	if(!term_initialised)
-		return;         /* they've not started yet */
-	/* make sure that it is safe to issue an interactive prompt
-	 * it is safe if
-	 *   it is not an interactive read, or
-	 *   the terminal supports interactive multiplot, or
-	 *   we are not writing to stdout and terminal doesn't
-	 *     refuse multiplot outright
-	 */
-	if(!f_interactive || (term->flags & TERM_CAN_MULTIPLOT) ||
-	    ((gpoutfile != stdout) && !(term->flags & TERM_CANNOT_MULTIPLOT))
-	    ) {
-		/* it's okay to use multiplot here, but suspend first */
+		return; // they've not started yet 
+	// make sure that it is safe to issue an interactive prompt
+	// it is safe if
+	//   it is not an interactive read, or
+	//   the terminal supports interactive multiplot, or
+	//   we are not writing to stdout and terminal doesn't
+	//   refuse multiplot outright
+	if(!f_interactive || (term->flags & TERM_CAN_MULTIPLOT) || ((gpoutfile != stdout) && !(term->flags & TERM_CANNOT_MULTIPLOT))) {
+		// it's okay to use multiplot here, but suspend first 
 		term_suspend();
 		return;
 	}
-	/* uh oh: they're not allowed to be in multiplot here */
-
+	// uh oh: they're not allowed to be in multiplot here 
 	term_end_multiplot();
-
-	/* at this point we know that it is interactive and that the
-	 * terminal can either only do multiplot when writing to
-	 * to a file, or it does not do multiplot at all
-	 */
-
+	// at this point we know that it is interactive and that the
+	// terminal can either only do multiplot when writing to
+	// to a file, or it does not do multiplot at all
 	if(term->flags & TERM_CANNOT_MULTIPLOT)
 		GPO.IntError(NO_CARET, "This terminal does not support multiplot");
 	else
 		GPO.IntError(NO_CARET, "Must set output to a file or put all multiplot commands on one input line");
 }
 
-void write_multiline(int x, int y, char * text, JUSTIFY hor/* horizontal ... */,
+void write_multiline(termentry * pTerm, int x, int y, char * text, JUSTIFY hor/* horizontal ... */,
     VERT_JUSTIFY vert/* ... and vertical just - text in hor direction despite angle */, int angle/* assume term has already been set for this */,
-    const char * font/* NULL or "" means use default */)
+    const char * pFont/* NULL or "" means use default */)
 {
-	struct termentry * t = term;
+	//struct termentry * t = term;
 	char * p = text;
-
-	if(!p)
-		return;
-
-	/* EAM 9-Feb-2003 - Set font before calculating sizes */
-	if(font && *font)
-		(*t->set_font)(font);
-
-	if(vert != JUST_TOP) {
-		/* count lines and adjust y */
-		int lines = 0;  /* number of linefeeds - one fewer than lines */
-		while(*p) {
-			if(*p++ == '\n')
-				++lines;
+	if(p) {
+		// EAM 9-Feb-2003 - Set font before calculating sizes 
+		if(!isempty(pFont))
+			(pTerm->set_font)(pFont);
+		if(vert != JUST_TOP) {
+			// count lines and adjust y 
+			int lines = 0; // number of linefeeds - one fewer than lines 
+			while(*p) {
+				if(*p++ == '\n')
+					++lines;
+			}
+			if(angle)
+				x -= (vert * lines * pTerm->ChrV) / 2;
+			else
+				y += (vert * lines * pTerm->ChrV) / 2;
 		}
-		if(angle)
-			x -= (vert * lines * t->v_char) / 2;
-		else
-			y += (vert * lines * t->v_char) / 2;
-	}
-	for(;;) {               /* we will explicitly break out */
-		if(text && (p = strchr(text, '\n')) != NULL)
-			*p = 0; /* terminate the string */
-		if((*t->justify_text)(hor)) {
-			if(on_page(x, y))
-				(*t->put_text)(x, y, text);
-		}
-		else {
-			int len = estimate_strlen(text, NULL);
-			int hfix, vfix;
-			if(angle == 0) {
-				hfix = hor * t->h_char * len / 2;
-				vfix = 0;
+		for(;;) { // we will explicitly break out 
+			if(text && (p = strchr(text, '\n')) != NULL)
+				*p = 0; // terminate the string 
+			if((pTerm->justify_text)(hor)) {
+				if(on_page(x, y))
+					(pTerm->put_text)(x, y, text);
 			}
 			else {
-				// Attention: This relies on the numeric values of enum JUSTIFY! 
-				hfix = static_cast<int>(hor * t->h_char * len * cos(angle * DEG2RAD) / 2 + 0.5);
-				vfix = static_cast<int>(hor * t->v_char * len * sin(angle * DEG2RAD) / 2 + 0.5);
+				int len = estimate_strlen(text, NULL);
+				int hfix, vfix;
+				if(angle == 0) {
+					hfix = hor * pTerm->ChrH * len / 2;
+					vfix = 0;
+				}
+				else {
+					// Attention: This relies on the numeric values of enum JUSTIFY! 
+					hfix = static_cast<int>(hor * pTerm->ChrH * len * cos(angle * DEG2RAD) / 2 + 0.5);
+					vfix = static_cast<int>(hor * pTerm->ChrV * len * sin(angle * DEG2RAD) / 2 + 0.5);
+				}
+				if(on_page(x - hfix, y - vfix))
+					(pTerm->put_text)(x - hfix, y - vfix, text);
 			}
-			if(on_page(x - hfix, y - vfix))
-				(*t->put_text)(x - hfix, y - vfix, text);
-		}
-		if(angle == 90 || angle == TEXT_VERTICAL)
-			x += t->v_char;
-		else if(angle == -90 || angle == -TEXT_VERTICAL)
-			x -= t->v_char;
-		else
-			y -= t->v_char;
-		if(!p)
-			break;
-		else {
-			// put it back 
-			*p = '\n';
-		}
-		text = p + 1;
-	}                       /* unconditional branch back to the for(;;) - just a goto ! */
-	if(font && *font)
-		(*t->set_font)("");
+			if(angle == 90 || angle == TEXT_VERTICAL)
+				x += pTerm->ChrV;
+			else if(angle == -90 || angle == -TEXT_VERTICAL)
+				x -= pTerm->ChrV;
+			else
+				y -= pTerm->ChrV;
+			if(!p)
+				break;
+			else {
+				// put it back 
+				*p = '\n';
+			}
+			text = p + 1;
+		} // unconditional branch back to the for(;;) - just a goto ! 
+		if(!isempty(pFont))
+			(pTerm->set_font)("");
+	}
 }
 
 static void do_point(uint x, uint y, int number)
@@ -665,8 +656,8 @@ static void do_point(uint x, uint y, int number)
 	else {
 		number %= POINT_TYPES;
 		// should be in term_tbl[] in later version 
-		htic = (term_pointsize * t->h_tic / 2);
-		vtic = (term_pointsize * t->v_tic / 2);
+		htic = (term_pointsize * t->TicH / 2);
+		vtic = (term_pointsize * t->TicV / 2);
 		// point types 1..4 are same as in postscript, png and x11
 		// point types 5..6 are "similar"
 		// (note that (number) equals (pointtype-1)
@@ -782,7 +773,7 @@ static void do_arrow(uint usx, uint usy/* start point */, uint uex, uint uey/* e
 	int ex = (int)uex;
 	int ey = (int)uey;
 	struct termentry * t = term;
-	double len_tic = ((double)(t->h_tic + t->v_tic)) / 2.0;
+	double len_tic = ((double)(t->TicH + t->TicV)) / 2.0;
 	// average of tic sizes 
 	// (dx,dy) : vector from end to start 
 	double dx = sx - ex;
@@ -903,17 +894,17 @@ static void do_arrow(uint usx, uint usy/* start point */, uint uex, uint uey/* e
 		ex += xm;
 		ey += ym;
 	}
-	/* Draw the line for the arrow. */
+	// Draw the line for the arrow. 
 	if(!((headstyle & HEADS_ONLY)))
-		draw_clip_line(t, sx, sy, ex, ey);
+		GPO.DrawClipLine(t, sx, sy, ex, ey);
 	GPO.V.P_ClipArea = clip_save; // Restore previous clipping box 
 }
-
-/* Generic routine for drawing circles or circular arcs.          */
-/* If this feature proves useful, we can add a new terminal entry */
-/* point term->arc() to the API and let terminals either provide  */
-/* a private implementation or use this generic one.               */
-
+//
+// Generic routine for drawing circles or circular arcs.          
+// If this feature proves useful, we can add a new terminal entry 
+// point term->arc() to the API and let terminals either provide  
+// a private implementation or use this generic one.               
+//
 void do_arc(int cx, int cy/* Center */, double radius, double arc_start, double arc_end/* Limits of arc in degrees */, int style, bool wedge)
 {
 	gpiPoint vertex[250];
@@ -934,7 +925,7 @@ void do_arc(int cx, int cy/* Center */, double radius, double arc_start, double 
 	segments = (arc_end - arc_start) / INC;
 	SETMAX(segments, 1);
 	// Calculate the vertices 
-	aspect = (double)term->v_tic / (double)term->h_tic;
+	aspect = (double)term->TicV / (double)term->TicH;
 	for(i = 0; i<segments; i++) {
 		vertex[i].x = cx + cos(DEG2RAD * (arc_start + i*INC)) * radius;
 		vertex[i].y = cy + sin(DEG2RAD * (arc_start + i*INC)) * radius * aspect;
@@ -1272,7 +1263,7 @@ void init_terminal()
 		do_string(set_term_command);
 		SAlloc::F(set_term_command);
 		/* replicate environmental variable GNUTERM for internal use */
-		Gstring(&(add_udv_by_name("GNUTERM")->udv_value), gp_strdup(gnuterm));
+		Gstring(&(GPO.Ev.AddUdvByName("GNUTERM")->udv_value), gp_strdup(gnuterm));
 		return;
 	}
 	else {
@@ -1321,7 +1312,7 @@ void init_terminal()
 	// We have a name, try to set term type 
 	if(term_name != NULL && *term_name != '\0') {
 		int namelength = strlen(term_name);
-		udvt_entry * name = add_udv_by_name("GNUTERM");
+		udvt_entry * name = GPO.Ev.AddUdvByName("GNUTERM");
 		Gstring(&name->udv_value, gp_strdup(term_name));
 		if(strchr(term_name, ' '))
 			namelength = strchr(term_name, ' ') - term_name;
@@ -1364,10 +1355,10 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	ymax_t = (pTerm->ymax * V.YSize);
 	x0 = (V.XOffset * pTerm->xmax);
 	y0 = (V.YOffset * pTerm->ymax);
-	p_width = pointsize * pTerm->h_tic;
-	key_entry_height = pointsize * pTerm->v_tic * 1.25;
-	if(key_entry_height < pTerm->v_char)
-		key_entry_height = pTerm->v_char;
+	p_width = pointsize * pTerm->TicH;
+	key_entry_height = pointsize * pTerm->TicV * 1.25;
+	if(key_entry_height < pTerm->ChrV)
+		key_entry_height = pTerm->ChrV;
 	// Sync point for epslatex text positioning 
 	(pTerm->layer)(TERM_LAYER_FRONTTEXT);
 	// border linetype 
@@ -1387,9 +1378,9 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 		char tbuf[64];
 		(pTerm->justify_text)(LEFT);
 		sprintf(tbuf, "%s  terminal test", pTerm->name);
-		(pTerm->put_text)(x0 + pTerm->h_char * 2, y0 + ymax_t - pTerm->v_char, tbuf);
+		(pTerm->put_text)(x0 + pTerm->ChrH * 2, y0 + ymax_t - pTerm->ChrV, tbuf);
 		sprintf(tbuf, "gnuplot version %s.%s  ", gnuplot_version, gnuplot_patchlevel);
-		(pTerm->put_text)(x0 + pTerm->h_char * 2, static_cast<uint>(y0 + ymax_t - pTerm->v_char * 2.25), tbuf);
+		(pTerm->put_text)(x0 + pTerm->ChrH * 2, static_cast<uint>(y0 + ymax_t - pTerm->ChrV * 2.25), tbuf);
 	}
 	(pTerm->linetype)(LT_AXIS);
 	(pTerm->move)(x0 + xmax_t / 2, y0);
@@ -1418,13 +1409,13 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 		textbox_opts[0] = save_opts;
 		sample.boxed = 0;
 		sample.text = "true vs. estimated text dimensions";
-		write_label(pTerm, xmax_t/2, ymax_t/2 + 1.5 * pTerm->v_char, &sample);
+		write_label(pTerm, xmax_t/2, ymax_t/2 + 1.5 * pTerm->ChrV, &sample);
 		newpath(pTerm);
-		(pTerm->move)(x0 + xmax_t / 2 - pTerm->h_char * 10, y0 + ymax_t / 2 + pTerm->v_char / 2);
-		(pTerm->vector)(x0 + xmax_t / 2 + pTerm->h_char * 10, y0 + ymax_t / 2 + pTerm->v_char / 2);
-		(pTerm->vector)(x0 + xmax_t / 2 + pTerm->h_char * 10, y0 + ymax_t / 2 - pTerm->v_char / 2);
-		(pTerm->vector)(x0 + xmax_t / 2 - pTerm->h_char * 10, y0 + ymax_t / 2 - pTerm->v_char / 2);
-		(pTerm->vector)(x0 + xmax_t / 2 - pTerm->h_char * 10, y0 + ymax_t / 2 + pTerm->v_char / 2);
+		(pTerm->move)(x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
+		(pTerm->vector)(x0 + xmax_t / 2 + pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
+		(pTerm->vector)(x0 + xmax_t / 2 + pTerm->ChrH * 10, y0 + ymax_t / 2 - pTerm->ChrV / 2);
+		(pTerm->vector)(x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 - pTerm->ChrV / 2);
+		(pTerm->vector)(x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
 		closepath(pTerm);
 	}
 	// Test for enhanced text 
@@ -1440,56 +1431,56 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	}
 	/* test justification */
 	(pTerm->justify_text)(LEFT);
-	(pTerm->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->v_char * 6, "left justified");
+	(pTerm->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 6, "left justified");
 	str = "centre+d text";
 	if((pTerm->justify_text)(CENTRE))
-		(pTerm->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->v_char * 5, str);
+		(pTerm->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 5, str);
 	else
-		(pTerm->put_text)(x0 + xmax_t / 2 - strlen(str) * pTerm->h_char / 2, y0 + ymax_t / 2 + pTerm->v_char * 5, str);
+		(pTerm->put_text)(x0 + xmax_t / 2 - strlen(str) * pTerm->ChrH / 2, y0 + ymax_t / 2 + pTerm->ChrV * 5, str);
 	str = "right justified";
 	if((pTerm->justify_text)(RIGHT))
-		(pTerm->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->v_char * 4, str);
+		(pTerm->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 4, str);
 	else
-		(pTerm->put_text)(x0 + xmax_t / 2 - strlen(str) * pTerm->h_char, y0 + ymax_t / 2 + pTerm->v_char * 4, str);
+		(pTerm->put_text)(x0 + xmax_t / 2 - strlen(str) * pTerm->ChrH, y0 + ymax_t / 2 + pTerm->ChrV * 4, str);
 	// test tic size 
 	(pTerm->linetype)(2);
-	(pTerm->move)((uint)(x0 + xmax_t / 2 + pTerm->h_tic * (1 + AxS[FIRST_X_AXIS].ticscale)), y0 + (uint)ymax_t - 1);
-	(pTerm->vector)((uint)(x0 + xmax_t / 2 + pTerm->h_tic * (1 + AxS[FIRST_X_AXIS].ticscale)),
-	    (uint)(y0 + ymax_t - AxS[FIRST_X_AXIS].ticscale * pTerm->v_tic));
-	(pTerm->move)((uint)(x0 + xmax_t / 2), y0 + (uint)(ymax_t - pTerm->v_tic * (1 + AxS[FIRST_X_AXIS].ticscale)));
-	(pTerm->vector)((uint)(x0 + xmax_t / 2 + AxS[FIRST_X_AXIS].ticscale * pTerm->h_tic), (uint)(y0 + ymax_t - pTerm->v_tic * (1 + AxS[FIRST_X_AXIS].ticscale)));
+	(pTerm->move)((uint)(x0 + xmax_t / 2 + pTerm->TicH * (1 + AxS[FIRST_X_AXIS].ticscale)), y0 + (uint)ymax_t - 1);
+	(pTerm->vector)((uint)(x0 + xmax_t / 2 + pTerm->TicH * (1 + AxS[FIRST_X_AXIS].ticscale)),
+	    (uint)(y0 + ymax_t - AxS[FIRST_X_AXIS].ticscale * pTerm->TicV));
+	(pTerm->move)((uint)(x0 + xmax_t / 2), y0 + (uint)(ymax_t - pTerm->TicV * (1 + AxS[FIRST_X_AXIS].ticscale)));
+	(pTerm->vector)((uint)(x0 + xmax_t / 2 + AxS[FIRST_X_AXIS].ticscale * pTerm->TicH), (uint)(y0 + ymax_t - pTerm->TicV * (1 + AxS[FIRST_X_AXIS].ticscale)));
 	(pTerm->justify_text)(RIGHT);
-	(pTerm->put_text)(x0 + (uint)(xmax_t / 2 - 1* pTerm->h_char), y0 + (uint)(ymax_t - pTerm->v_char), "show ticscale");
+	(pTerm->put_text)(x0 + (uint)(xmax_t / 2 - 1* pTerm->ChrH), y0 + (uint)(ymax_t - pTerm->ChrV), "show ticscale");
 	(pTerm->justify_text)(LEFT);
 	(pTerm->linetype)(LT_BLACK);
 	// test line and point types 
-	x = x0 + xmax_t - pTerm->h_char * 7 - p_width;
+	x = x0 + xmax_t - pTerm->ChrH * 7 - p_width;
 	y = y0 + ymax_t - key_entry_height;
 	(pTerm->pointsize)(pointsize);
 	for(i = -2; y > y0 + key_entry_height; i++) {
 		lp_style_type ls; // = DEFAULT_LP_STYLE_TYPE;
 		ls.l_width = 1;
-		load_linetype(&ls, i+1);
-		term_apply_lp_properties(pTerm, &ls);
+		load_linetype(pTerm, &ls, i+1);
+		TermApplyLpProperties(pTerm, &ls);
 		sprintf(label, "%d", i + 1);
 		if((pTerm->justify_text)(RIGHT))
 			(pTerm->put_text)(x, y, label);
 		else
-			(pTerm->put_text)(x - strlen(label) * pTerm->h_char, y, label);
-		(pTerm->move)(x + pTerm->h_char, y);
-		(pTerm->vector)(x + pTerm->h_char * 5, y);
+			(pTerm->put_text)(x - strlen(label) * pTerm->ChrH, y, label);
+		(pTerm->move)(x + pTerm->ChrH, y);
+		(pTerm->vector)(x + pTerm->ChrH * 5, y);
 		if(i >= -1)
-			(pTerm->point)(x + pTerm->h_char * 6 + p_width / 2, y, i);
+			(pTerm->point)(x + pTerm->ChrH * 6 + p_width / 2, y, i);
 		y -= key_entry_height;
 	}
 	// test arrows (should line up with rotated text) 
 	(pTerm->linewidth)(1.0);
 	(pTerm->linetype)(0);
 	(pTerm->dashtype)(DASHTYPE_SOLID, NULL);
-	x = static_cast<int>(x0 + 2.0 * pTerm->v_char);
+	x = static_cast<int>(x0 + 2.0 * pTerm->ChrV);
 	y = y0 + ymax_t/2;
-	xl = pTerm->h_tic * 7;
-	yl = pTerm->v_tic * 7;
+	xl = pTerm->TicH * 7;
+	yl = pTerm->TicV * 7;
 	i = curr_arrow_headfilled;
 	curr_arrow_headfilled = AS_NOBORDER;
 	(pTerm->arrow)(x, y-yl, x, y+yl, BOTH_HEADS);
@@ -1503,21 +1494,21 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	str = "rotated ce+ntred text";
 	if((pTerm->text_angle)(TEXT_VERTICAL)) {
 		if((pTerm->justify_text)(CENTRE))
-			(pTerm->put_text)(x0 + pTerm->v_char, y0 + ymax_t / 2, str);
+			(pTerm->put_text)(x0 + pTerm->ChrV, y0 + ymax_t / 2, str);
 		else
-			(pTerm->put_text)(x0 + pTerm->v_char, y0 + ymax_t / 2 - strlen(str) * pTerm->h_char / 2, str);
+			(pTerm->put_text)(x0 + pTerm->ChrV, y0 + ymax_t / 2 - strlen(str) * pTerm->ChrH / 2, str);
 		(pTerm->justify_text)(LEFT);
 		str = "  rotate by +45";
 		(pTerm->text_angle)(45);
-		(pTerm->put_text)(x0 + pTerm->v_char * 3, y0 + ymax_t / 2, str);
+		(pTerm->put_text)(x0 + pTerm->ChrV * 3, y0 + ymax_t / 2, str);
 		(pTerm->justify_text)(LEFT);
 		str = "  rotate by -45";
 		(pTerm->text_angle)(-45);
-		(pTerm->put_text)(x0 + pTerm->v_char * 3, y0 + ymax_t / 2, str);
+		(pTerm->put_text)(x0 + pTerm->ChrV * 3, y0 + ymax_t / 2, str);
 	}
 	else {
 		(pTerm->justify_text)(LEFT);
-		(pTerm->put_text)(x0 + pTerm->h_char * 2, y0 + ymax_t / 2, "cannot rotate text");
+		(pTerm->put_text)(x0 + pTerm->ChrH * 2, y0 + ymax_t / 2, "cannot rotate text");
 	}
 	(pTerm->justify_text)(LEFT);
 	(pTerm->text_angle)(0);
@@ -1563,7 +1554,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	(pTerm->linewidth)(1.0);
 	(pTerm->linetype)(LT_BLACK);
 	(pTerm->justify_text)(CENTRE);
-	(pTerm->put_text)(x+xl*7, y + yl+pTerm->v_char*1.5, "pattern fill");
+	(pTerm->put_text)(x+xl*7, y + yl+pTerm->ChrV*1.5, "pattern fill");
 	for(i = 0; i < 9; i++) {
 		const int style = ((i<<4) + FS_PATTERN);
 		if(pTerm->fillbox)
@@ -1576,7 +1567,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 		(pTerm->vector)(x, y);
 		closepath(pTerm);
 		sprintf(label, "%2d", i);
-		(pTerm->put_text)(x+xl/2, y+yl+pTerm->v_char*0.5, label);
+		(pTerm->put_text)(x+xl/2, y+yl+pTerm->ChrV*0.5, label);
 		x += xl * 1.5;
 	}
 	{
@@ -1614,8 +1605,8 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 		else
 			str = "No filled polygons";
 		(pTerm->linetype)(LT_BLACK);
-		i = ((pTerm->justify_text)(CENTRE)) ? 0 : pTerm->h_char * strlen(str) / 2;
-		(pTerm->put_text)(cen_x - i, static_cast<uint>(cen_y + radius + pTerm->v_char * 0.5), str);
+		i = ((pTerm->justify_text)(CENTRE)) ? 0 : pTerm->ChrH * strlen(str) / 2;
+		(pTerm->put_text)(cen_x - i, static_cast<uint>(cen_y + radius + pTerm->ChrV * 0.5), str);
 	}
 	term_end_plot();
 }
@@ -2071,7 +2062,7 @@ int estimate_strlen(const char * text, double * height)
 	int len;
 	char * s;
 	double estimated_fontheight = 1.0;
-	if((term->flags & TERM_IS_LATEX))
+	if(term->flags & TERM_IS_LATEX)
 		return strlen_tex(text);
 #ifdef GP_ENH_EST
 	if(strchr(text, '\n') || (term->flags & TERM_ENHANCED_TEXT)) {
@@ -2081,8 +2072,8 @@ int estimate_strlen(const char * text, double * height)
 		len = term->xmax;
 		estimated_fontheight = term->ymax / 10.;
 		term = tsave;
-		/* Assume that unicode escape sequences  \U+xxxx will generate a single character */
-		/* ENHest_plaintext is filled in by the put_text() call to estimate.trm           */
+		// Assume that unicode escape sequences  \U+xxxx will generate a single character 
+		// ENHest_plaintext is filled in by the put_text() call to estimate.trm           
 		s = ENHest_plaintext;
 		while((s = contains_unicode(s)) != NULL) {
 			len -= 6;
@@ -2251,25 +2242,25 @@ void lp_use_properties(lp_style_type * lp, int tag)
 		else
 			p_this = p_this->next;
 	}
-	load_linetype(lp, tag); // No user-defined style with p_this tag; fall back to default line type. 
+	load_linetype(term, lp, tag); // No user-defined style with p_this tag; fall back to default line type. 
 }
-/*
- * Load lp with the properties of a user-defined linetype
- */
-void load_linetype(struct lp_style_type * lp, int tag)
+// 
+// Load lp with the properties of a user-defined linetype
+// 
+void load_linetype(termentry * pTerm, lp_style_type * lp, int tag)
 {
 	linestyle_def * p_this;
 	bool recycled = false;
 recycle:
-	if((tag > 0) && (monochrome || (term && (term->flags & TERM_MONOCHROME)))) {
+	if((tag > 0) && (monochrome || (pTerm && (pTerm->flags & TERM_MONOCHROME)))) {
 		for(p_this = first_mono_linestyle; p_this; p_this = p_this->next) {
 			if(tag == p_this->tag) {
 				*lp = p_this->lp_properties;
 				return;
 			}
 		}
-		/* This linetype wasn't defined explicitly.		*/
-		/* Should we recycle one of the first N linetypes?	*/
+		// This linetype wasn't defined explicitly.		
+		// Should we recycle one of the first N linetypes?	
 		if(tag > mono_recycle_count && mono_recycle_count > 0) {
 			tag = (tag-1) % mono_recycle_count + 1;
 			goto recycle;
@@ -2285,14 +2276,12 @@ recycle:
 			lp->pm3d_color = p_this->lp_properties.pm3d_color;
 			lp->d_type = p_this->lp_properties.d_type;
 			lp->custom_dash_pattern = p_this->lp_properties.custom_dash_pattern;
-
-			/* Needed in version 5.0 to handle old terminals (pbm hpgl ...) */
-			/* with no support for user-specified colors */
-			if(term && term->set_color == null_set_color)
+			// Needed in version 5.0 to handle old terminals (pbm hpgl ...) 
+			// with no support for user-specified colors 
+			if(pTerm && pTerm->set_color == null_set_color)
 				lp->l_type = tag;
-
-			/* Do not recycle point properties. */
-			/* FIXME: there should be a separate command "set pointtype cycle N" */
+			// Do not recycle point properties. 
+			// FIXME: there should be a separate command "set pointtype cycle N" 
 			if(!recycled) {
 				lp->p_type = p_this->lp_properties.p_type;
 				lp->p_interval = p_this->lp_properties.p_interval;
@@ -2305,17 +2294,15 @@ recycle:
 			p_this = p_this->next;
 		}
 	}
-
-	/* This linetype wasn't defined explicitly.		*/
-	/* Should we recycle one of the first N linetypes?	*/
+	// This linetype wasn't defined explicitly.		
+	// Should we recycle one of the first N linetypes?	
 	if(tag > linetype_recycle_count && linetype_recycle_count > 0) {
 		tag = (tag-1) % linetype_recycle_count + 1;
 		recycled = TRUE;
 		goto recycle;
 	}
-
-	/* No user-defined linetype with p_this tag; fall back to default line type. */
-	/* NB: We assume that the remaining fields of lp have been initialized. */
+	// No user-defined linetype with p_this tag; fall back to default line type. 
+	// NB: We assume that the remaining fields of lp have been initialized. 
 	lp->l_type = tag - 1;
 	lp->pm3d_color.type = TC_LT;
 	lp->pm3d_color.lt = lp->l_type;

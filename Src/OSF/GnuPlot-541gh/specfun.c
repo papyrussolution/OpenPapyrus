@@ -635,7 +635,7 @@ void f_igamma(union argument * arg)
 		arg1 = real(&a);
 	x = igamma(arg1, x);
 	if(x == -1.0) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		GPO.EvStk.Push(Ginteger(&a, 0));
 	}
 	else
@@ -1216,13 +1216,11 @@ void f_normal(union argument * /*arg*/)
 {                               /* Normal or Gaussian Probability Function */
 	GpValue a;
 	double x;
-
 	/* ref. Abramowitz and Stegun 1964, "Handbook of Mathematical
 	   Functions", Applied Mathematics Series, vol 55,
 	   Chapter 26, page 934, Eqn. 26.2.29 and Jos van der Woude
 	   code found above */
 	x = real(__POP__(&a));
-
 	/* using erfc instead of erf produces accurate values for -38 < arg < -8 */
 	if(x > -38) {
 		x = 0.5 * SQRT_TWO * x;
@@ -1239,7 +1237,7 @@ void f_inverse_normal(union argument * /*arg*/)
 	GpValue a;
 	double x = real(__POP__(&a));
 	if(x <= 0.0 || x >= 1.0) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		GPO.EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 	}
 	else {
@@ -1252,7 +1250,7 @@ void f_inverse_erf(union argument * /*arg*/)
 	GpValue a;
 	double x = real(__POP__(&a));
 	if(fabs(x) >= 1.0) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		GPO.EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 	}
 	else {
@@ -2098,12 +2096,12 @@ void f_inverse_igamma(union argument * /*arg*/)
 	double p = real(__POP__(&ret));
 	double a = real(__POP__(&ret));
 	if(a <= 0) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		GPO.EvStk.Push(Gcomplex(&ret, not_a_number(), 0.0));
 		GPO.IntWarn(NO_CARET, "invigamma: a<=0 invalid");
 	}
 	else if(p < 0 || p > 1) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		GPO.EvStk.Push(Gcomplex(&ret, not_a_number(), 0.0));
 		GPO.IntWarn(NO_CARET, "invigamma: p invalid");
 	}
@@ -2135,18 +2133,16 @@ static double inverse_incomplete_gamma(double a, double p)
 	double afac = exp( (a-1) * (log(a-1)-1.) - lngamma_a);
 	int j;
 	const double EPS = sqrt(MACHEP);
-
-	/* Initial guess based on Abramovitz & Stegun 26.2.22, 26.4.17 */
+	// Initial guess based on Abramovitz & Stegun 26.2.22, 26.4.17 
 	if(a > 1.) {
 		double pp = (p < 0.5) ? p : (1.-p);
-		/* Abramowitz & Stegun 26.2.22 */
+		// Abramowitz & Stegun 26.2.22 
 		t = sqrt(-2.*log(pp));
 		z = t - (2.30753 + 0.27061*t) / (1. + 0.99229*t + 0.04481*t*t);
 		if(p < 0.5) z = -z;
-		/* Abramowitz & Stegun 26.4.17 */
+		// Abramowitz & Stegun 26.4.17 
 		z = a * pow( (1. - 2./(9.*a) + z*sqrt(2./(9.*a))), 3);
-
-		/* Initial guess based on NR 6.2.8 6.2.9 */
+		// Initial guess based on NR 6.2.8 6.2.9 
 	}
 	else {
 		t = 1. - a * (0.253 + a * 0.12);
@@ -2155,8 +2151,7 @@ static double inverse_incomplete_gamma(double a, double p)
 		else
 			z = 1. - log(1. - (p-t)/(1.-t));
 	}
-
-	/* Halley's method */
+	// Halley's method 
 	for(j = 0; j<12; j++) {
 		if(z <= 0)
 			return 0;
@@ -2167,10 +2162,9 @@ static double inverse_incomplete_gamma(double a, double p)
 			t = exp(-z + (a-1)*log(z) - lngamma_a);
 		u = err/t;
 		t = u / (1. - 0.5*MIN(1., u * ((a-1)/z - 1.)));
-		/* FIXME: underflow OK? */
+		// FIXME: underflow OK? 
 		if(errno) {
-			GPO.IntWarn(NO_CARET, "inverse_incomplete_gamma: %s\nt = %g u = %g z = %g\n",
-			    strerror(errno), t, u, z);
+			GPO.IntWarn(NO_CARET, "inverse_incomplete_gamma: %s\nt = %g u = %g z = %g\n", strerror(errno), t, u, z);
 			z = not_a_number();
 			break;
 		}
@@ -2183,7 +2177,6 @@ static double inverse_incomplete_gamma(double a, double p)
 
 	return z;
 }
-
 /*
  *   invibeta(a, b, p) returns z such that ibeta(a, b, z) = p
  *   a, b > 0    0 <= p <= 1
@@ -2324,7 +2317,7 @@ void f_lambertw(union argument * /*arg*/)
 	double x = real(__POP__(&a));
 	x = lambertw(x);
 	if(x <= -1)
-		__IsUndefined = true; // Error return from lambertw --> flag 'undefined' 
+		GPO.Ev.IsUndefined_ = true; // Error return from lambertw --> flag 'undefined' 
 	GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
 }
 /*							airy.c
@@ -3388,7 +3381,7 @@ void f_expint(union argument * /*arg*/)
 	n = a.v.int_val;
 	x = expint(n, x);
 	if(x <= -1)
-		__IsUndefined = true; // Error return from expint --> flag 'undefined' 
+		GPO.Ev.IsUndefined_ = true; // Error return from expint --> flag 'undefined' 
 	GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
 }
 
@@ -3422,7 +3415,7 @@ void GnuPlot::F_Besin(union argument * arg)
 	// valid range is complicated. We only support integral values. 
 	if(a.type != INTGR) {
 		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besin(int,real)");
 	}
 	else
@@ -3698,21 +3691,18 @@ static void ikv_asymptotic_uniform(double v, double x,
 
 		divisor *= v;
 	}
-
 	if(fabs(term) > 1e-3 * fabs(i_sum)) {
-		/* Didn't converge */
+		// Didn't converge 
 		mtherr("ikv_asymptotic_uniform", MTHERR_TLPREC);
 	}
 	if(fabs(term) > MACHEP * fabs(i_sum)) {
-		/* Some precision lost */
+		// Some precision lost 
 		mtherr("ikv_asymptotic_uniform", MTHERR_PLPREC);
 	}
-
 	if(k_value != NULL) {
-		/* symmetric in v */
+		// symmetric in v 
 		*k_value = k_prefactor * k_sum;
 	}
-
 	if(i_value != NULL) {
 		if(sign == 1) {
 			*i_value = i_prefactor * i_sum;
@@ -4047,7 +4037,7 @@ void f_ibeta(union argument * /*arg*/)
 	double arg1 = real(__POP__(&a));
 	x = incbet(arg1, arg2, x);
 	if(x == -1.0) {
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 		GPO.EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
 	}
 	else

@@ -145,25 +145,26 @@ static double rms4(double x1, double x2, double x3, double x4)
  * Now the routines which are really just those for pm3d.c
  */
 
-/*
- * Rescale cb (color) value into the interval of grays [0,1], taking care
- * of palette being positive or negative.
- * Note that it is OK for logarithmic cb-axis too.
- */
-double cb2gray(double cb)
+// 
+// Rescale cb (color) value into the interval of grays [0,1], taking care
+// of palette being positive or negative.
+// Note that it is OK for logarithmic cb-axis too.
+// 
+//double cb2gray(double cb)
+double GnuPlot::Cb2Gray(double cb)
 {
-	const GpAxis * cbaxis = &GPO.AxS.__CB();
-	if(cb <= cbaxis->min)
-		return (GPO.SmPltt.Positive == SMPAL_POSITIVE) ? 0 : 1;
-	else if(cb >= cbaxis->max)
-		return (GPO.SmPltt.Positive == SMPAL_POSITIVE) ? 1 : 0;
+	const GpAxis * p_ax_cb = &AxS.__CB();
+	if(cb <= p_ax_cb->min)
+		return (SmPltt.Positive == SMPAL_POSITIVE) ? 0 : 1;
+	else if(cb >= p_ax_cb->max)
+		return (SmPltt.Positive == SMPAL_POSITIVE) ? 1 : 0;
 	else {
-		if(nonlinear(cbaxis)) {
-			cbaxis = cbaxis->linked_to_primary;
-			cb = GPO.EvalLinkFunction(cbaxis, cb);
+		if(nonlinear(p_ax_cb)) {
+			p_ax_cb = p_ax_cb->linked_to_primary;
+			cb = EvalLinkFunction(p_ax_cb, cb);
 		}
-		cb = (cb - cbaxis->min) / (cbaxis->max - cbaxis->min);
-		return (GPO.SmPltt.Positive == SMPAL_POSITIVE) ? cb : 1-cb;
+		cb = (cb - p_ax_cb->min) / (p_ax_cb->max - p_ax_cb->min);
+		return (SmPltt.Positive == SMPAL_POSITIVE) ? cb : 1-cb;
 	}
 }
 /*
@@ -349,7 +350,7 @@ void pm3d_depth_queue_flush()
 		for(qp = quadrangles, qe = quadrangles + current_quadrangle; qp != qe; qp++) {
 			// set the color 
 			if(qp->gray == PM3D_USE_COLORSPEC_INSTEAD_OF_GRAY)
-				apply_pm3dcolor(term, qp->qcolor.colorspec);
+				GPO.ApplyPm3DColor(term, qp->qcolor.colorspec);
 			else if(qp->gray == PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY)
 				term->linetype(LT_BACKGROUND);
 			else if(qp->gray == PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY)
@@ -360,7 +361,7 @@ void pm3d_depth_queue_flush()
 				set_color(term, qp->gray);
 			if(qp->type == QUAD_TYPE_LARGEPOLYGON) {
 				gpdPoint * vertices = &polygonlist[qp->vertex.array_index];
-				int nv = vertices[2].c;
+				int nv = static_cast<int>(vertices[2].c);
 				filled_polygon(vertices, qp->fillstyle, nv);
 			}
 			else {
@@ -409,7 +410,7 @@ static void pm3d_plot(struct surface_points * this_plot, int at_which_z)
 	if(this_plot->lp_properties.P_Colormap)
 		private_colormap = this_plot->lp_properties.P_Colormap;
 	// Apply and save the user-requested line properties 
-	term_apply_lp_properties(term, &this_plot->lp_properties);
+	GPO.TermApplyLpProperties(term, &this_plot->lp_properties);
 	if(at_which_z != PM3D_AT_BASE && at_which_z != PM3D_AT_TOP && at_which_z != PM3D_AT_SURFACE)
 		return;
 	else
@@ -650,10 +651,10 @@ static void pm3d_plot(struct surface_points * this_plot, int at_which_z)
 					/* Fancy averages of RGB color make no sense */
 					if(color_from_rgbvar) {
 						uint r, g, b, a;
-						uint u1 = cb1;
-						uint u2 = cb2;
-						uint u3 = cb3;
-						uint u4 = cb4;
+						uint u1 = static_cast<uint>(cb1);
+						uint u2 = static_cast<uint>(cb2);
+						uint u3 = static_cast<uint>(cb3);
+						uint u4 = static_cast<uint>(cb4);
 						switch(pm3d.which_corner_color) {
 							default:
 							    r = (u1&0xff0000) + (u2&0xff0000) + (u3&0xff0000) + (u4&0xff0000);
@@ -697,8 +698,8 @@ static void pm3d_plot(struct surface_points * this_plot, int at_which_z)
 						gray = avgC;
 					else if(private_colormap)
 						gray = map2gray(avgC, private_colormap);
-					else /* transform z value to gray, i.e. to interval [0,1] */
-						gray = cb2gray(avgC);
+					else // transform z value to gray, i.e. to interval [0,1] 
+						gray = GPO.Cb2Gray(avgC);
 					// apply lighting model 
 					if(pm3d_shade.strength > 0) {
 						if(at_which_z == PM3D_AT_SURFACE) {
@@ -707,19 +708,18 @@ static void pm3d_plot(struct surface_points * this_plot, int at_which_z)
 								gray = rgb_from_colormap(gray, private_colormap);
 								gray_is_rgb = TRUE;
 							}
-							gray = apply_lighting_model(&pointsA[i], &pointsA[i1],
-								&pointsB[ii], &pointsB[ii1], gray, gray_is_rgb);
+							gray = apply_lighting_model(&pointsA[i], &pointsA[i1], &pointsB[ii], &pointsB[ii1], gray, gray_is_rgb);
 						}
-						/* Don't apply lighting model to TOP/BOTTOM projections  */
-						/* but convert from floating point 0<gray<1 to RGB color */
-						/* since that is what would have been returned from the  */
-						/* lighting code.					     */
+						// Don't apply lighting model to TOP/BOTTOM projections  
+						// but convert from floating point 0<gray<1 to RGB color 
+						// since that is what would have been returned from the  
+						// lighting code.					    
 						else if(private_colormap) {
 							gray = rgb_from_colormap(gray, private_colormap);
 						}
 						else if(!color_from_rgbvar) {
 							rgb255_color temp;
-							rgb255maxcolors_from_gray(gray, &temp);
+							GPO.Rgb255MaxColorsFromGray(gray, &temp);
 							gray = (long)((temp.r << 16) + (temp.g << 8) + (temp.b));
 						}
 					}
@@ -849,15 +849,15 @@ static void pm3d_plot(struct surface_points * this_plot, int at_which_z)
 							}
 						}
 						else if(color_from_rgbvar) {
-							/* we were given an explicit color */
+							// we were given an explicit color 
 							gray = avgC;
 						}
 						else {
-							/* clip if out of range */
+							// clip if out of range 
 							if(pm3d.no_clipcb && (avgC < GPO.AxS.__CB().min || avgC > GPO.AxS.__CB().max))
 								continue;
-							/* transform z value to gray, i.e. to interval [0,1] */
-							gray = cb2gray(avgC);
+							// transform z value to gray, i.e. to interval [0,1] 
+							gray = GPO.Cb2Gray(avgC);
 						}
 						/* apply lighting model */
 						if(pm3d_shade.strength > 0) {
@@ -887,12 +887,12 @@ static void pm3d_plot(struct surface_points * this_plot, int at_which_z)
 							}
 							else if(!color_from_rgbvar) {
 								rgb255_color temp;
-								rgb255maxcolors_from_gray(gray, &temp);
+								GPO.Rgb255MaxColorsFromGray(gray, &temp);
 								gray = (long)((temp.r << 16) + (temp.g << 8) + (temp.b));
 							}
 						}
 						if(pm3d.direction == PM3D_DEPTH) {
-							/* copy quadrangle */
+							// copy quadrangle 
 							quadrangle* qp = quadrangles + current_quadrangle;
 							memcpy(qp->vertex.corners, corners, 4 * sizeof(gpdPoint));
 							if(color_from_rgbvar || pm3d_shade.strength > 0) {
@@ -1082,13 +1082,13 @@ void pm3d_add_polygon(struct surface_points * plot, gpdPoint corners[4], int ver
 	}
 	else if(plot->lp_properties.pm3d_color.type == TC_Z) {
 		// This is a special case for 'splot with boxes lc palette z' 
-		q->gray = cb2gray(corners[1].z);
+		q->gray = GPO.Cb2Gray(corners[1].z);
 		color_from_rgbvar = FALSE;
 		if(pm3d_shade.strength > 0)
 			illuminate_one_quadrangle(q);
 	}
 	else if(oneof2(plot->plot_style, ISOSURFACE, POLYGONS)) {
-		int rgb_color = corners[0].c;
+		int rgb_color = static_cast<int>(corners[0].c);
 		if(corners[0].c == LT_BACKGROUND)
 			q->gray = PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY;
 		else
@@ -1161,7 +1161,7 @@ int get_pm3d_at_option(char * pm3d_where)
 void set_plot_with_palette(int plot_num, int plot_mode)
 {
 	struct surface_points * this_3dplot = first_3dplot;
-	curve_points * this_2dplot = first_plot;
+	curve_points * this_2dplot = P_FirstPlot;
 	int surface = 0;
 	struct text_label * this_label = first_label;
 	struct GpObject * this_object;
@@ -1296,7 +1296,7 @@ int apply_lighting_model(struct coordinate * v0, struct coordinate * v1, struct 
 		alpha = rgb & 0xff000000;
 	}
 	else {
-		rgb1_from_gray(gray, &color);
+		GPO.Rgb1FromGray(gray, &color);
 		r = color.r;
 		g = color.g;
 		b = color.b;
@@ -1427,18 +1427,16 @@ static void filled_polygon(gpdPoint * corners, int fillstyle, int nv)
 		icorners[0].style = style_from_fill(&default_fillstyle);
 	term->filled_polygon(nv, icorners);
 	if(pm3d.border.l_type != LT_NODRAW) {
-		/* LT_DEFAULT means draw border in current color */
-		/* FIXME: currently there is no obvious way to set LT_DEFAULT  */
+		// LT_DEFAULT means draw border in current color 
+		// FIXME: currently there is no obvious way to set LT_DEFAULT  
 		if(pm3d.border.l_type != LT_DEFAULT)
-			term_apply_lp_properties(term, &pm3d.border);
-
+			GPO.TermApplyLpProperties(term, &pm3d.border);
 		term->move(icorners[0].x, icorners[0].y);
 		for(i = nv-1; i >= 0; i--) {
 			term->vector(icorners[i].x, icorners[i].y);
 		}
 	}
 }
-
 /*
  * Clip existing filled polygon again zmax or zmin.
  * We already know this is a convex polygon with at least one vertex in range.

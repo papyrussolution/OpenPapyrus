@@ -1654,14 +1654,14 @@ SIPoint2::SIPoint2(uint32 sz) : DataType(sz)
 
 int SIPoint2::comp(const void * i1, const void * i2) const
 {
-	FPoint p1 = *static_cast<const TPoint *>(i1);
-	FPoint p2 = *static_cast<const TPoint *>(i2);
+	SPoint2F p1 = *static_cast<const SPoint2S *>(i1);
+	SPoint2F p2 = *static_cast<const SPoint2S *>(i2);
 	return CMPSIGN(p1.Hypot(), p2.Hypot());
 }
 
 char * SIPoint2::tostr(const void * s, long fmt, char * pBuf) const
 {
-	const TPoint * p_pnt = static_cast<const TPoint *>(s);
+	const SPoint2S * p_pnt = static_cast<const SPoint2S *>(s);
 	char * p = pBuf;
 	itoa(p_pnt->x, p, 10);
 	p += sstrlen(p);
@@ -1675,7 +1675,7 @@ int SIPoint2::fromstr(void * s, long, const char * pStr) const
 	SPoint2R p;
 	p.Set(0.0);
 	if(p.FromStr(pStr)) {
-		static_cast<TPoint *>(s)->Set((int)p.x, (int)p.y);
+		static_cast<SPoint2S *>(s)->Set((int)p.x, (int)p.y);
 		return 1;
 	}
 	else
@@ -1690,30 +1690,30 @@ int SIPoint2::base() const
 void SIPoint2::tobase(const void * s, void * b) const
 {
 	SPoint2R * p_rp = static_cast<SPoint2R *>(b);
-	p_rp->x = static_cast<const TPoint *>(s)->x;
-	p_rp->y = static_cast<const TPoint *>(s)->y;
+	p_rp->x = static_cast<const SPoint2S *>(s)->x;
+	p_rp->y = static_cast<const SPoint2S *>(s)->y;
 }
 
 int SIPoint2::baseto(void * s, const void * b) const
 {
-	static_cast<TPoint *>(s)->Set((int)static_cast<const SPoint2R *>(b)->x, (int)static_cast<const SPoint2R *>(b)->y);
+	static_cast<SPoint2S *>(s)->Set((int)static_cast<const SPoint2R *>(b)->x, (int)static_cast<const SPoint2R *>(b)->y);
 	return 1;
 }
 
 void SIPoint2::minval(void * s) const
 {
-	static_cast<TPoint *>(s)->Z();
+	static_cast<SPoint2S *>(s)->Z();
 }
 
 void SIPoint2::maxval(void * s) const
 {
-	static_cast<TPoint *>(s)->Set(0x7fff, 0x7fff);
+	static_cast<SPoint2S *>(s)->Set(0x7fff, 0x7fff);
 }
 
 int SIPoint2::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	TPoint & r_p = *static_cast<TPoint *>(pData);
+	SPoint2S & r_p = *static_cast<SPoint2S *>(pData);
 	if(dir > 0) {
 		if(r_p.x == r_p.y) {
 			if(r_p.x == 0) {
@@ -1750,17 +1750,17 @@ int SIPoint2::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSe
 //
 SFPoint2::SFPoint2(uint32 sz) : DataType(sz)
 {
-	assert(sz == sizeof(FPoint));
+	assert(sz == sizeof(SPoint2F));
 }
 
 int SFPoint2::comp(const void * i1, const void * i2) const
 {
-	return CMPSIGN(static_cast<const FPoint *>(i1)->Hypot(), static_cast<const FPoint *>(i2)->Hypot());
+	return CMPSIGN(static_cast<const SPoint2F *>(i1)->Hypot(), static_cast<const SPoint2F *>(i2)->Hypot());
 }
 
 char * SFPoint2::tostr(const void * pData, long f, char * pBuf) const
 {
-	const FPoint * p_pnt = static_cast<const FPoint *>(pData);
+	const SPoint2F * p_pnt = static_cast<const SPoint2F *>(pData);
 	char * p = pBuf;
 	realfmt(p_pnt->X, MKSFMTD(0, 5, NMBF_NOTRAILZ), p);
 	p += sstrlen(p);
@@ -1774,7 +1774,7 @@ int SFPoint2::fromstr(void * pData, long, const char * pStr) const
 	SPoint2R p;
 	p.Set(0.0);
 	if(p.FromStr(pStr)) {
-		static_cast<FPoint *>(pData)->Set((float)p.x, (float)p.y);
+		static_cast<SPoint2F *>(pData)->Set((float)p.x, (float)p.y);
 		return 1;
 	}
 	else
@@ -1789,30 +1789,30 @@ int SFPoint2::base() const
 void SFPoint2::tobase(const void * pData, void * pBase) const
 {
 	SPoint2R * p_rp = static_cast<SPoint2R *>(pBase);
-	p_rp->x = static_cast<const FPoint *>(pData)->X;
-	p_rp->y = static_cast<const FPoint *>(pData)->Y;
+	p_rp->x = static_cast<const SPoint2F *>(pData)->X;
+	p_rp->y = static_cast<const SPoint2F *>(pData)->Y;
 }
 
 int SFPoint2::baseto(void * pData, const void * pBase) const
 {
-	static_cast<FPoint *>(pData)->Set((float)((const SPoint2R *)pBase)->x, (float)((const SPoint2R *)pBase)->y);
+	static_cast<SPoint2F *>(pData)->Set((float)((const SPoint2R *)pBase)->x, (float)((const SPoint2R *)pBase)->y);
 	return 1;
 }
 
 void SFPoint2::minval(void * pData) const
 {
-	static_cast<FPoint *>(pData)->Set(0.0f, 0.0f);
+	static_cast<SPoint2F *>(pData)->Set(0.0f, 0.0f);
 }
 
 void SFPoint2::maxval(void * pData) const
 {
-	static_cast<FPoint *>(pData)->Set(32000.0f, 32000.0f);
+	static_cast<SPoint2F *>(pData)->Set(32000.0f, 32000.0f);
 }
 
 int SFPoint2::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	FPoint & r_p = *static_cast<FPoint *>(pData);
+	SPoint2F & r_p = *static_cast<SPoint2F *>(pData);
 	if(dir > 0) {
 		if(r_p.X == r_p.Y) {
 			if(r_p.X == 0.0f) {

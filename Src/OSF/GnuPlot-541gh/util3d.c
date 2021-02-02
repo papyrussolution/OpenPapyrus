@@ -18,7 +18,7 @@
 
 // Prototypes for local functions 
 static void mat_unit(transform_matrix mat);
-static GP_INLINE void draw3d_point_unconditional(GpVertex *, lp_style_type *);
+//static GP_INLINE void draw3d_point_unconditional(GpVertex *, lp_style_type *);
 
 static void mat_unit(transform_matrix mat)
 {
@@ -759,49 +759,51 @@ void GnuPlot::Map3D_XY_double(double x, double y, double z, double * xt, double 
 // HBB 20020313: New routine, broken out of draw3d_point, to be used
 // to output a single point without any checks for hidden3d 
 //
-static GP_INLINE void draw3d_point_unconditional(GpVertex * v, struct lp_style_type * lp)
+//void draw3d_point_unconditional(termentry * pTerm, GpVertex * v, lp_style_type * lp)
+void GnuPlot::Draw3DPointUnconditional(termentry * pTerm, const GpVertex * pV, lp_style_type * pLp)
 {
 	int x, y;
-	TERMCOORD(v, x, y);
+	TERMCOORD(pV, x, y);
 	// Jul 2010 EAM - is it safe to overwrite like this? Make a copy instead? 
-	lp->pm3d_color.value = v->real_z;
-	term_apply_lp_properties(term, lp);
-	if(!GPO.V.ClipPoint(x, y))
-		(term->point)(x, y, lp->p_type);
+	pLp->pm3d_color.value = pV->real_z;
+	TermApplyLpProperties(pTerm, pLp);
+	if(!V.ClipPoint(x, y))
+		(pTerm->point)(x, y, pLp->p_type);
 }
 // 
 // Moved this upward, to make optional inlining in draw3d_line easier for compilers 
 // HBB 20021128: removed GP_INLINE qualifier to avoid MSVC++ silliness 
 // 
-void draw3d_line_unconditional(termentry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp, t_colorspec color)
+//void draw3d_line_unconditional(termentry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp, t_colorspec color)
+void GnuPlot::Draw3DLineUnconditional(termentry * pTerm, const GpVertex * pV1, const GpVertex * pV2, lp_style_type * lp, t_colorspec color)
 {
 	// HBB 20020312: v2 can be NULL, if this call is coming from draw_line_hidden. --> redirect to point drawing routine 
-	if(!v2) {
-		draw3d_point_unconditional(v1, lp);
+	if(!pV2) {
+		Draw3DPointUnconditional(pTerm, pV1, lp);
 	}
 	else {
 		double x1, y1, x2, y2;
 		lp_style_type ls = *lp;
-		TERMCOORD_DOUBLE(v1, x1, y1);
-		TERMCOORD_DOUBLE(v2, x2, y2);
+		TERMCOORD_DOUBLE(pV1, x1, y1);
+		TERMCOORD_DOUBLE(pV2, x2, y2);
 		ls.pm3d_color = color; // Replace original color with the one passed in 
-		// Color by Z value */
+		// Color by Z value 
 		if(ls.pm3d_color.type == TC_Z)
-			ls.pm3d_color.value = (v1->real_z + v2->real_z) * 0.5;
+			ls.pm3d_color.value = (pV1->real_z + pV2->real_z) * 0.5;
 		// This interrupts the polyline, messing up dash patterns. 
 		// Skip it if the caller indicates that the line properties are 
 		// already set by passing in color.type = TC_DEFAULT 
 		if(color.type != TC_DEFAULT)
-			term_apply_lp_properties(pTerm, &ls);
+			TermApplyLpProperties(pTerm, &ls);
 		// Support for hidden3d VECTOR mode with arrowheads 
 		if(lp->p_type == PT_ARROWHEAD)
-			draw_clip_arrow(pTerm, x1, y1, x2, y2, END_HEAD);
+			DrawClipArrow(pTerm, x1, y1, x2, y2, END_HEAD);
 		else if(lp->p_type == PT_BACKARROW)
-			draw_clip_arrow(pTerm, x1, y1, x2, y2, BACKHEAD);
+			DrawClipArrow(pTerm, x1, y1, x2, y2, BACKHEAD);
 		else if(lp->p_type == PT_BOTHHEADS)
-			draw_clip_arrow(pTerm, x1, y1, x2, y2, BOTH_HEADS);
+			DrawClipArrow(pTerm, x1, y1, x2, y2, BOTH_HEADS);
 		else
-			draw_clip_line(pTerm, static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
+			DrawClipLine(pTerm, static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
 	}
 }
 
@@ -811,7 +813,7 @@ void draw3d_line(GpVertex * v1, GpVertex * v2, lp_style_type * lp)
 	if(hidden3d && draw_surface)
 		draw_line_hidden(v1, v2, lp);
 	else
-		draw3d_line_unconditional(term, v1, v2, lp, lp->pm3d_color);
+		GPO.Draw3DLineUnconditional(term, v1, v2, lp, lp->pm3d_color);
 }
 //
 // HBB 20000621: new routine, to allow for hiding point symbols behind the surface 
@@ -822,7 +824,7 @@ void draw3d_point(GpVertex * v, lp_style_type * lp)
 	if(hidden3d && draw_surface)
 		draw_line_hidden(v, NULL, lp); // Draw vertex as a zero-length edge 
 	else
-		draw3d_point_unconditional(v, lp);
+		GPO.Draw3DPointUnconditional(term, v, lp);
 }
 
 /* HBB NEW 20031218: tools for drawing polylines in 3D with a semantic
@@ -850,6 +852,6 @@ void polyline3d_next(GpVertex * v2, lp_style_type * lp)
 	if(hidden3d && draw_surface)
 		draw_line_hidden(&polyline3d_previous_vertex, v2, lp);
 	else
-		draw3d_line_unconditional(term, &polyline3d_previous_vertex, v2, lp, nochange);
+		GPO.Draw3DLineUnconditional(term, &polyline3d_previous_vertex, v2, lp, nochange);
 	polyline3d_previous_vertex = *v2;
 }

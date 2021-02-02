@@ -4,7 +4,7 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-static void prepare_call(int calltype);
+//static void prepare_call(int calltype);
 
 /* State information for load_file(), to recover from errors
  * and properly handle recursive load_file calls
@@ -19,9 +19,10 @@ static const char * argname[] = {"ARG0", "ARG1", "ARG2", "ARG3", "ARG4", "ARG5",
 /* Used by postscript terminal if a font file is found by loadpath_fopen() */
 char * loadpath_fontname = NULL;
 
-static void prepare_call(int calltype)
+//static void prepare_call(int calltype)
+void GnuPlot::PrepareCall(int calltype)
 {
-	struct udvt_entry * udv;
+	udvt_entry * udv;
 	GpValue * ARGV;
 	int argindex;
 	int argv_size;
@@ -33,20 +34,20 @@ static void prepare_call(int calltype)
 		argval[argindex].type = NOTDEFINED;
 	if(calltype == 2) {
 		call_argc = 0;
-		while(!GPO.Pgm.EndOfCommand() && call_argc < 9) {
-			call_args[call_argc] = GPO.TryToGetString();
+		while(!Pgm.EndOfCommand() && call_argc < 9) {
+			call_args[call_argc] = TryToGetString();
 			if(!call_args[call_argc]) {
-				int save_token = GPO.Pgm.GetCurTokenIdx();
+				int save_token = Pgm.GetCurTokenIdx();
 				// This catches call "file" STRINGVAR (expression) 
-				if(GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) == STRING) {
-					call_args[call_argc] = gp_strdup(add_udv(GPO.Pgm.GetCurTokenIdx())->udv_value.v.string_val);
-					GPO.Pgm.Shift();
+				if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == STRING) {
+					call_args[call_argc] = gp_strdup(add_udv(Pgm.GetCurTokenIdx())->udv_value.v.string_val);
+					Pgm.Shift();
 					// Evaluate a parenthesized expression or a bare numeric user variable and store the result in a string
 				}
-				else if(GPO.Pgm.EqualsCur("(") || (GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) == INTGR || GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) == CMPLX)) {
+				else if(Pgm.EqualsCur("(") || (Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == INTGR || Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == CMPLX)) {
 					char val_as_string[32];
 					GpValue a;
-					GPO.ConstExpress(&a);
+					ConstExpress(&a);
 					argval[call_argc] = a;
 					switch(a.type) {
 						case CMPLX: /* FIXME: More precision? Some way to provide a format? */
@@ -54,7 +55,7 @@ static void prepare_call(int calltype)
 						    call_args[call_argc] = gp_strdup(val_as_string);
 						    break;
 						default:
-						    GPO.IntError(save_token, "Unrecognized argument type");
+						    IntError(save_token, "Unrecognized argument type");
 						    break;
 						case INTGR:
 						    sprintf(val_as_string, PLD, a.v.int_val);
@@ -67,8 +68,8 @@ static void prepare_call(int calltype)
 				else {
 					double temp;
 					char * endptr;
-					GPO.Pgm.MCapture(&call_args[call_argc], GPO.Pgm.GetCurTokenIdx(), GPO.Pgm.GetCurTokenIdx());
-					GPO.Pgm.Shift();
+					Pgm.MCapture(&call_args[call_argc], Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
+					Pgm.Shift();
 					temp = strtod(call_args[call_argc], &endptr);
 					if(endptr != call_args[call_argc] && *endptr == '\0')
 						Gcomplex(&argval[call_argc], temp, 0.0);
@@ -76,10 +77,10 @@ static void prepare_call(int calltype)
 			}
 			call_argc++;
 		}
-		lf_head->_CToken = GPO.Pgm.GetCurTokenIdx();
-		if(!GPO.Pgm.EndOfCommand()) {
-			GPO.Pgm.Shift();
-			GPO.IntErrorCurToken("too many arguments for 'call <file>'");
+		lf_head->_CToken = Pgm.GetCurTokenIdx();
+		if(!Pgm.EndOfCommand()) {
+			Pgm.Shift();
+			IntErrorCurToken("too many arguments for 'call <file>'");
 		}
 	}
 	else if(calltype == 5) {
@@ -97,12 +98,12 @@ static void prepare_call(int calltype)
 	// Old-style "call" arguments were referenced as $0 ... $9 and $#.
 	// New-style has ARG0 = script-name, ARG1 ... ARG9 and ARGC
 	// Version 5.3 adds ARGV[n]
-	udv = add_udv_by_name("ARGC");
+	udv = Ev.AddUdvByName("ARGC");
 	Ginteger(&(udv->udv_value), call_argc);
-	udv = add_udv_by_name("ARG0");
+	udv = Ev.AddUdvByName("ARG0");
 	gpfree_string(&(udv->udv_value));
 	Gstring(&(udv->udv_value), gp_strdup(lf_head->name));
-	udv = add_udv_by_name("ARGV");
+	udv = Ev.AddUdvByName("ARGV");
 	udv->udv_value.Destroy();
 	argv_size = MIN(call_argc, 9);
 	udv->udv_value.type = ARRAY;
@@ -111,7 +112,7 @@ static void prepare_call(int calltype)
 	ARGV[0].type = NOTDEFINED;
 	for(argindex = 1; argindex <= 9; argindex++) {
 		char * argstring = call_args[argindex-1];
-		udv = add_udv_by_name(argname[argindex]);
+		udv = Ev.AddUdvByName(argname[argindex]);
 		gpfree_string(&(udv->udv_value));
 		Gstring(&(udv->udv_value), argstring ? gp_strdup(argstring) : gp_strdup(""));
 		if(argindex > argv_size)
@@ -146,7 +147,7 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 	if(!fp && !datablock_input_line)
 		GPO.IntError(NO_CARET, "Cannot load input from '%s'", pName);
 	// Provide a user-visible copy of the current line number in the input file 
-	gpval_lineno = add_udv_by_name("GPVAL_LINENO");
+	gpval_lineno = GPO.Ev.AddUdvByName("GPVAL_LINENO");
 	Ginteger(&gpval_lineno->udv_value, 0);
 	LfPush(fp, pName, NULL); // save state for errors and recursion 
 	if(fp == stdin) {
@@ -159,7 +160,7 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 	}
 	else {
 		// We actually will read from a file 
-		prepare_call(calltype);
+		GPO.PrepareCall(calltype);
 		// things to do after lf_push 
 		inline_num = 0;
 		// go into non-interactive mode during load 
@@ -296,15 +297,15 @@ bool GpProgram::LfPop()
 			}
 			call_argc = lf->call_argc;
 			// Restore ARGC and ARG0 ... ARG9 
-			if((udv = get_udv_by_name("ARGC"))) {
+			if((udv = GPO.Ev.GetUdvByName("ARGC"))) {
 				Ginteger(&(udv->udv_value), call_argc);
 			}
-			if((udv = get_udv_by_name("ARG0"))) {
+			if((udv = GPO.Ev.GetUdvByName("ARG0"))) {
 				gpfree_string(&(udv->udv_value));
 				Gstring(&(udv->udv_value), (lf->prev && lf->prev->name) ? gp_strdup(lf->prev->name) : gp_strdup(""));
 			}
 			for(argindex = 1; argindex <= 9; argindex++) {
-				if((udv = get_udv_by_name(argname[argindex]))) {
+				if((udv = GPO.Ev.GetUdvByName(argname[argindex]))) {
 					gpfree_string(&(udv->udv_value));
 					if(!call_args[argindex-1])
 						udv->udv_value.type = NOTDEFINED;
@@ -312,7 +313,7 @@ bool GpProgram::LfPop()
 						Gstring(&(udv->udv_value), gp_strdup(call_args[argindex-1]));
 				}
 			}
-			if((udv = get_udv_by_name("ARGV")) && udv->udv_value.type == ARRAY) {
+			if((udv = GPO.Ev.GetUdvByName("ARGV")) && udv->udv_value.type == ARRAY) {
 				GpValue * ARGV;
 				int argv_size = lf->argv[0].v.int_val;
 				gpfree_array(&(udv->udv_value));
@@ -324,7 +325,7 @@ bool GpProgram::LfPop()
 		}
 		interactive = lf->interactive;
 		inline_num = lf->inline_num;
-		add_udv_by_name("GPVAL_LINENO")->udv_value.v.int_val = inline_num;
+		GPO.Ev.AddUdvByName("GPVAL_LINENO")->udv_value.v.int_val = inline_num;
 		if_open_for_else = lf->if_open_for_else;
 		// Restore saved input state and free the copy 
 		if(lf->P_Tokens) {
@@ -379,7 +380,7 @@ void GpProgram::LfPush(FILE * fp, char * pName, char * pCmdLine)
 		// Save ARGV[] 
 		lf->argv[0].v.int_val = 0;
 		lf->argv[0].type = NOTDEFINED;
-		if((udv = get_udv_by_name("ARGV")) && udv->udv_value.type == ARRAY) {
+		if((udv = GPO.Ev.GetUdvByName("ARGV")) && udv->udv_value.type == ARRAY) {
 			for(argindex = 0; argindex <= call_argc; argindex++) {
 				lf->argv[argindex] = udv->udv_value.v.value_array[argindex];
 				if(lf->argv[argindex].type == STRING)
@@ -602,11 +603,11 @@ bool FASTCALL need_fill_border(const fill_style_type * fillstyle)
 		// Doesn't want a border at all 
 		if(p.pm3d_color.lt == LT_NODRAW)
 			return FALSE;
-		load_linetype(&p, p.pm3d_color.lt+1);
+		load_linetype(term, &p, p.pm3d_color.lt+1);
 	}
 	// Wants a border in a new color 
 	if(p.pm3d_color.type != TC_DEFAULT)
-		apply_pm3dcolor(term, &p.pm3d_color);
+		GPO.ApplyPm3DColor(term, &p.pm3d_color);
 	return TRUE;
 }
 
@@ -744,7 +745,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				if(set_pal++)
 					break;
 				Pgm.Rollback();
-				parse_colorspec(&(newlp.pm3d_color), TC_RGB);
+				ParseColorSpec(&(newlp.pm3d_color), TC_RGB);
 			}
 			else
 			/* both syntaxes allowed: 'with lt pal' as well as 'with pal' */
@@ -752,7 +753,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				if(set_pal++)
 					break;
 				Pgm.Rollback();
-				parse_colorspec(&(newlp.pm3d_color), TC_Z);
+				ParseColorSpec(&(newlp.pm3d_color), TC_Z);
 			}
 			else if(Pgm.EqualsCur("bgnd")) {
 				*lp = background_lp;
@@ -774,7 +775,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				if(prefer_line_styles && (destination_class != LP_STYLE))
 					lp_use_properties(lp, new_lt);
 				else
-					load_linetype(lp, new_lt);
+					load_linetype(term, lp, new_lt);
 			}
 		} /* linetype, lt */
 
@@ -783,7 +784,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 			if(set_pal++)
 				break;
 			Pgm.Rollback();
-			parse_colorspec(&(newlp.pm3d_color), TC_Z);
+			ParseColorSpec(&(newlp.pm3d_color), TC_Z);
 			continue;
 		}
 		/* This is so that "set obj ... lw N fc <colorspec>" doesn't eat up the
@@ -800,7 +801,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 			Pgm.Shift();
 			if(Pgm.AlmostEqualsCur("rgb$color") || Pgm.IsString(Pgm.GetCurTokenIdx())) {
 				Pgm.Rollback();
-				parse_colorspec(&(newlp.pm3d_color), TC_RGB);
+				ParseColorSpec(&(newlp.pm3d_color), TC_RGB);
 			}
 			else if(Pgm.AlmostEqualsCur("pal$ette")) {
 				/* The next word could be any of {z|cb|frac|<colormap-name>}.
@@ -816,7 +817,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				}
 				else {
 					Pgm.Rollback();
-					parse_colorspec(&(newlp.pm3d_color), TC_Z);
+					ParseColorSpec(&(newlp.pm3d_color), TC_Z);
 				}
 			}
 			else if(Pgm.EqualsCur("bgnd")) {
@@ -839,7 +840,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				/* only if we are not in the middle of defining one! */
 				if(destination_class != LP_STYLE) {
 					lp_style_type temp;
-					load_linetype(&temp, IntExpression());
+					load_linetype(term, &temp, IntExpression());
 					newlp.pm3d_color = temp.pm3d_color;
 				}
 				else {
@@ -1016,25 +1017,26 @@ const struct gen_table fs_opt_tbl[] = {
 	{NULL, -1}
 };
 
-void parse_fillstyle(struct fill_style_type * fs)
+//void parse_fillstyle(fill_style_type * fs)
+void GnuPlot::ParseFillStyle(fill_style_type * fs)
 {
 	bool set_fill = FALSE;
 	bool set_border = FALSE;
 	bool transparent = FALSE;
-	if(GPO.Pgm.EndOfCommand())
+	if(Pgm.EndOfCommand())
 		return;
-	if(!GPO.Pgm.EqualsCur("fs") && !GPO.Pgm.AlmostEqualsCur("fill$style"))
+	if(!Pgm.EqualsCur("fs") && !Pgm.AlmostEqualsCur("fill$style"))
 		return;
-	GPO.Pgm.Shift();
-	while(!GPO.Pgm.EndOfCommand()) {
+	Pgm.Shift();
+	while(!Pgm.EndOfCommand()) {
 		int i;
-		if(GPO.Pgm.AlmostEqualsCur("trans$parent")) {
+		if(Pgm.AlmostEqualsCur("trans$parent")) {
 			transparent = TRUE;
 			fs->filldensity = 50;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 			continue;
 		}
-		i = GPO.Pgm.LookupTableForCurrentToken(fs_opt_tbl);
+		i = Pgm.LookupTableForCurrentToken(fs_opt_tbl);
 		switch(i) {
 			default:
 			    break;
@@ -1042,59 +1044,59 @@ void parse_fillstyle(struct fill_style_type * fs)
 			case FS_SOLID:
 			case FS_PATTERN:
 			    if(set_fill && fs->fillstyle != i)
-				    GPO.IntErrorCurToken("conflicting option");
+				    IntErrorCurToken("conflicting option");
 			    fs->fillstyle = i;
 			    set_fill = TRUE;
-			    GPO.Pgm.Shift();
+			    Pgm.Shift();
 			    if(!transparent)
 				    fs->filldensity = 100;
-			    if(GPO.MightBeNumeric(GPO.Pgm.GetCurTokenIdx())) {
+			    if(MightBeNumeric(Pgm.GetCurTokenIdx())) {
 				    if(fs->fillstyle == FS_SOLID) {
 					    // user sets 0...1, but is stored as an integer 0..100 
-					    fs->filldensity = 100.0 * GPO.RealExpression() + 0.5;
+					    fs->filldensity = static_cast<int>(100.0 * RealExpression() + 0.5);
 					    if(fs->filldensity < 0)
 						    fs->filldensity = 0;
 					    if(fs->filldensity > 100)
 						    fs->filldensity = 100;
 				    }
 				    else if(fs->fillstyle == FS_PATTERN) {
-					    fs->fillpattern = GPO.IntExpression();
+					    fs->fillpattern = IntExpression();
 					    if(fs->fillpattern < 0)
 						    fs->fillpattern = 0;
 				    }
 				    else
-					    GPO.IntErrorCurToken("this fill style does not have a parameter");
+					    IntErrorCurToken("this fill style does not have a parameter");
 			    }
 			    continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("bo$rder")) {
+		if(Pgm.AlmostEqualsCur("bo$rder")) {
 			if(set_border && fs->border_color.lt == LT_NODRAW)
-				GPO.IntErrorCurToken("conflicting option");
+				IntErrorCurToken("conflicting option");
 			fs->border_color.type = TC_DEFAULT;
 			set_border = TRUE;
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
+			Pgm.Shift();
+			if(Pgm.EndOfCommand())
 				continue;
-			if(GPO.Pgm.EqualsCur("-") || GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
+			if(Pgm.EqualsCur("-") || Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
 				fs->border_color.type = TC_LT;
-				fs->border_color.lt = GPO.IntExpression() - 1;
+				fs->border_color.lt = IntExpression() - 1;
 			}
-			else if(GPO.Pgm.EqualsCur("lc") || GPO.Pgm.AlmostEqualsCur("linec$olor")) {
-				parse_colorspec(&fs->border_color, TC_Z);
+			else if(Pgm.EqualsCur("lc") || Pgm.AlmostEqualsCur("linec$olor")) {
+				ParseColorSpec(&fs->border_color, TC_Z);
 			}
-			else if(GPO.Pgm.EqualsCur("rgb") || GPO.Pgm.EqualsCur("lt") || GPO.Pgm.AlmostEqualsCur("linet$ype")) {
-				GPO.Pgm.Rollback();
-				parse_colorspec(&fs->border_color, TC_Z);
+			else if(Pgm.EqualsCur("rgb") || Pgm.EqualsCur("lt") || Pgm.AlmostEqualsCur("linet$ype")) {
+				Pgm.Rollback();
+				ParseColorSpec(&fs->border_color, TC_Z);
 			}
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("nobo$rder")) {
+		else if(Pgm.AlmostEqualsCur("nobo$rder")) {
 			if(set_border && fs->border_color.lt != LT_NODRAW)
-				GPO.IntErrorCurToken("conflicting option");
+				IntErrorCurToken("conflicting option");
 			fs->border_color.type = TC_LT;
 			fs->border_color.lt = LT_NODRAW;
 			set_border = TRUE;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 			continue;
 		}
 
@@ -1108,121 +1110,120 @@ void parse_fillstyle(struct fill_style_type * fs)
 			fs->fillstyle = FS_TRANSPARENT_PATTERN;
 	}
 }
-
-/*
- * Parse the sub-options of text color specification
- *   { def$ault | lt <linetype> | pal$ette { cb <val> | frac$tion <val> | z }
- * The ordering of alternatives shown in the line above is kept in the symbol definitions
- * TC_DEFAULT TC_LT TC_LINESTYLE TC_RGB TC_CB TC_FRAC TC_Z TC_VARIABLE (0 1 2 3 4 5 6 7)
- * and the "options" parameter to parse_colorspec limits legal input to the
- * corresponding point in the series. So TC_LT allows only default or linetype
- * coloring, while TC_Z allows all coloring options up to and including pal z
- */
-void parse_colorspec(struct t_colorspec * tc, int options)
+// 
+// Parse the sub-options of text color specification
+//   { def$ault | lt <linetype> | pal$ette { cb <val> | frac$tion <val> | z }
+// The ordering of alternatives shown in the line above is kept in the symbol definitions
+// TC_DEFAULT TC_LT TC_LINESTYLE TC_RGB TC_CB TC_FRAC TC_Z TC_VARIABLE (0 1 2 3 4 5 6 7)
+// and the "options" parameter to parse_colorspec limits legal input to the
+// corresponding point in the series. So TC_LT allows only default or linetype
+// coloring, while TC_Z allows all coloring options up to and including pal z
+// 
+//void parse_colorspec(t_colorspec * tc, int options)
+void GnuPlot::ParseColorSpec(t_colorspec * tc, int options)
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand())
-		GPO.IntErrorCurToken("expected colorspec");
-	if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
-		GPO.Pgm.Shift();
+	Pgm.Shift();
+	if(Pgm.EndOfCommand())
+		IntErrorCurToken("expected colorspec");
+	if(Pgm.AlmostEqualsCur("def$ault")) {
+		Pgm.Shift();
 		tc->type = TC_DEFAULT;
 	}
-	else if(GPO.Pgm.EqualsCur("bgnd")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("bgnd")) {
+		Pgm.Shift();
 		tc->type = TC_LT;
 		tc->lt = LT_BACKGROUND;
 	}
-	else if(GPO.Pgm.EqualsCur("black")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("black")) {
+		Pgm.Shift();
 		tc->type = TC_LT;
 		tc->lt = LT_BLACK;
 	}
-	else if(GPO.Pgm.EqualsCur("lt")) {
-		struct lp_style_type lptemp;
-		GPO.Pgm.Shift();
-		if(GPO.Pgm.EndOfCommand())
-			GPO.IntErrorCurToken("expected linetype");
+	else if(Pgm.EqualsCur("lt")) {
+		lp_style_type lptemp;
+		Pgm.Shift();
+		if(Pgm.EndOfCommand())
+			IntErrorCurToken("expected linetype");
 		tc->type = TC_LT;
-		tc->lt = GPO.IntExpression()-1;
+		tc->lt = IntExpression()-1;
 		if(tc->lt < LT_BACKGROUND) {
 			tc->type = TC_DEFAULT;
-			GPO.IntWarnCurToken("illegal linetype");
+			IntWarnCurToken("illegal linetype");
 		}
-
-		/*
-		 * July 2014 - translate linetype into user-defined linetype color.
-		 * This is a CHANGE!
-		 */
-		load_linetype(&lptemp, tc->lt + 1);
+		//
+		// July 2014 - translate linetype into user-defined linetype color.
+		// This is a CHANGE!
+		//
+		load_linetype(term, &lptemp, tc->lt + 1);
 		*tc = lptemp.pm3d_color;
 	}
 	else if(options <= TC_LT) {
 		tc->type = TC_DEFAULT;
-		GPO.IntErrorCurToken("only tc lt <n> possible here");
+		IntErrorCurToken("only tc lt <n> possible here");
 	}
-	else if(GPO.Pgm.EqualsCur("ls") || GPO.Pgm.AlmostEqualsCur("lines$tyle")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.EqualsCur("ls") || Pgm.AlmostEqualsCur("lines$tyle")) {
+		Pgm.Shift();
 		tc->type = TC_LINESTYLE;
-		tc->lt = GPO.RealExpression();
+		tc->lt = static_cast<int>(RealExpression());
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("rgb$color")) {
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("rgb$color")) {
+		Pgm.Shift();
 		tc->type = TC_RGB;
-		if(GPO.Pgm.AlmostEqualsCur("var$iable")) {
+		if(Pgm.AlmostEqualsCur("var$iable")) {
 			tc->value = -1.0;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
 		else {
 			tc->value = 0.0;
 			tc->lt = parse_color_name();
 		}
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("pal$ette")) {
-		GPO.Pgm.Shift();
-		if(GPO.Pgm.EqualsCur("z")) {
+	else if(Pgm.AlmostEqualsCur("pal$ette")) {
+		Pgm.Shift();
+		if(Pgm.EqualsCur("z")) {
 			/* The actual z value is not yet known, fill it in later */
 			if(options >= TC_Z) {
 				tc->type = TC_Z;
 			}
 			else {
 				tc->type = TC_DEFAULT;
-				GPO.IntErrorCurToken("palette z not possible here");
+				IntErrorCurToken("palette z not possible here");
 			}
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("cb")) {
+		else if(Pgm.EqualsCur("cb")) {
 			tc->type = TC_CB;
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expected cb value");
-			tc->value = GPO.RealExpression();
+			Pgm.Shift();
+			if(Pgm.EndOfCommand())
+				IntErrorCurToken("expected cb value");
+			tc->value = RealExpression();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("frac$tion")) {
+		else if(Pgm.AlmostEqualsCur("frac$tion")) {
 			tc->type = TC_FRAC;
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expected palette fraction");
-			tc->value = GPO.RealExpression();
+			Pgm.Shift();
+			if(Pgm.EndOfCommand())
+				IntErrorCurToken("expected palette fraction");
+			tc->value = RealExpression();
 			if(tc->value < 0. || tc->value > 1.0)
-				GPO.IntErrorCurToken("palette fraction out of range");
+				IntErrorCurToken("palette fraction out of range");
 		}
 		else {
-			/* GPO.Pgm.EndOfCommand() or palette <blank> */
+			/* Pgm.EndOfCommand() or palette <blank> */
 			if(options >= TC_Z)
 				tc->type = TC_Z;
 		}
 	}
-	else if(options >= TC_VARIABLE && GPO.Pgm.AlmostEqualsCur("var$iable")) {
+	else if(options >= TC_VARIABLE && Pgm.AlmostEqualsCur("var$iable")) {
 		tc->type = TC_VARIABLE;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 		/* New: allow to skip the rgb keyword, as in  'plot $foo lc "blue"' */
 	}
-	else if(GPO.Pgm.IsString(GPO.Pgm.GetCurTokenIdx())) {
+	else if(Pgm.IsString(Pgm.GetCurTokenIdx())) {
 		tc->type = TC_RGB;
 		tc->lt = parse_color_name();
 	}
 	else {
-		GPO.IntErrorCurToken("colorspec option not recognized");
+		IntErrorCurToken("colorspec option not recognized");
 	}
 }
 

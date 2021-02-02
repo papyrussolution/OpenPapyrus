@@ -2480,7 +2480,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 				P_View->ProcessCommand(PPVCMD_RECEIVEDFOCUS, TVINFOVIEW, this);
 			else if(TVCMD == cmMouseHover) {
 				long   h = 0, v = 0;
-				TPoint point = *static_cast<const TPoint *>(event.message.infoPtr);
+				SPoint2S point = *static_cast<const SPoint2S *>(event.message.infoPtr);
 				if(ItemByPoint(point, &h, &v)) {
 					const void * p_row = getItemByPos(v);
 					if(P_View->ProcessCommand(PPVCMD_MOUSEHOVER, p_row, this) > 0)

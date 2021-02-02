@@ -530,7 +530,7 @@ void PPBizScoreWindow::MoveOnLayout(const FRect & rRect)
 	}
 }
 
-int PPBizScoreWindow::DoCommand(TPoint p)
+int PPBizScoreWindow::DoCommand(SPoint2S p)
 {
 	int    ok = -1;
 	/*
@@ -564,7 +564,7 @@ int PPBizScoreWindow::DoCommand(TPoint p)
 			break;
 		case WM_LBUTTONDBLCLK:
 			if(p_win) {
-				TPoint p;
+				SPoint2S p;
 				p_win->DoCommand(p.setwparam(lParam));
 				::DestroyWindow(hWnd);
 			}
@@ -727,7 +727,7 @@ int PPDesktop::Destroy(int dontAssignToDb)
 	return ok;
 }
 
-void PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
+void PPDesktop::AddTooltip(long id, SPoint2S coord, const char * pText)
 {
 	TCHAR  tooltip[512];
 	memzero(tooltip, sizeof(tooltip));
@@ -746,7 +746,7 @@ void PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 	::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 }
 
-int PPDesktop::DrawText(TCanvas & rC, TPoint coord, COLORREF color, const char * pText)
+int PPDesktop::DrawText(TCanvas & rC, SPoint2S coord, COLORREF color, const char * pText)
 {
 	long   text_h = 0;
 	SString text(pText);
@@ -783,7 +783,7 @@ void PPDesktop::DrawIcon(TCanvas & rC, long cmdID, int isSelected)
 	ZDELETE(p_cmd);
 }
 
-void PPDesktop::DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rText, const SString & rIcon, int isSelected)
+void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & rText, const SString & rIcon, int isSelected)
 {
 	RECT   cr;
 	GetClientRect(H(), &cr);
@@ -955,7 +955,7 @@ void PPDesktop::Paint()
 	::EndPaint(H(), &ps);
 }
 
-int PPDesktop::BeginIconMove(TPoint coord)
+int PPDesktop::BeginIconMove(SPoint2S coord)
 {
 	int    ok = -1;
 	const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, 0);
@@ -985,14 +985,14 @@ int PPDesktop::BeginIconMove(TPoint coord)
 	return ok;
 }
 
-TRect & PPDesktop::CalcIconRect(TPoint lrp, TRect & rResult) const
+TRect & PPDesktop::CalcIconRect(SPoint2S lrp, TRect & rResult) const
 {
 	rResult.setwidthrel(lrp.x,  IconSize * 2);
 	rResult.setheightrel(lrp.y, IconSize * 2);
 	return rResult;
 }
 
-int PPDesktop::MoveIcon(TPoint coord)
+int PPDesktop::MoveIcon(SPoint2S coord)
 {
 	int    ok = -1;
 	if(State & stIconMove) {
@@ -1015,7 +1015,7 @@ int PPDesktop::MoveIcon(TPoint coord)
 	return ok;
 }
 
-void PPDesktop::EndIconMove(TPoint coord)
+void PPDesktop::EndIconMove(SPoint2S coord)
 {
 	if(State & stIconMove) {
 		int    intersect = 0;
@@ -1190,7 +1190,7 @@ void PPDesktop::ArrangeIcons()
 	for(uint i = 0; p_item = P_ActiveDesktop->Next(&i);) {
 		p_cmd = (p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 		if(p_cmd) {
-			const TPoint preserve_pnt = p_cmd->P;
+			const SPoint2S preserve_pnt = p_cmd->P;
 			if(ArrangeIcon(p_cmd)) {
 				P_ActiveDesktop->Update(i-1, static_cast<const PPCommandItem *>(p_cmd));
 				if(preserve_pnt != p_cmd->P)
@@ -1206,7 +1206,7 @@ int PPDesktop::ArrangeIcon(PPCommand * pCmd)
 {
 	int    ok = 0;
 	if(pCmd) {
-		TPoint coord = pCmd->P;
+		SPoint2S coord = pCmd->P;
 		ok = ArrangeIcon(&coord);
 		if(ok)
 			pCmd->P = coord;
@@ -1214,7 +1214,7 @@ int PPDesktop::ArrangeIcon(PPCommand * pCmd)
 	return ok;
 }
 
-int PPDesktop::ArrangeIcon(TPoint * pCoord)
+int PPDesktop::ArrangeIcon(SPoint2S * pCoord)
 {
 	int    ok = 1;
 	int    intersect = 0;
@@ -1223,7 +1223,7 @@ int PPDesktop::ArrangeIcon(TPoint * pCoord)
 	TRect  desk_rect;
 	TRect  bizs_rect;
 	TRect  intrs_rect;
-	TPoint coord;
+	SPoint2S coord;
 	coord = *pCoord;
 	int    delta_x = -(coord.x % ((IconSize * 2) + IconGap));
 	int    delta_y = -(coord.y % ((IconSize * 2) + IconGap));
@@ -1277,7 +1277,7 @@ int PPDesktop::EditIconName(long id)
 	return ok;
 }
 
-int PPDesktop::DoCommand(TPoint coord)
+int PPDesktop::DoCommand(SPoint2S coord)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -1706,7 +1706,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 		switch(TVCMD) {
 			case cmaInsert:
 				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
-					TPoint coord;
+					SPoint2S coord;
 					coord = *static_cast<const POINT *>(event.message.infoPtr);
 					PPCommand cmd;
 					if(EditCmdItem(P_ActiveDesktop, &cmd, cmdgrpcDesktop) > 0) {
@@ -1744,7 +1744,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			case cmaEdit: // Редактирование иконки
 				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 					uint   pos = 0;
-					TPoint coord;
+					SPoint2S coord;
 					coord = *static_cast<const POINT *>(event.message.infoPtr);
 					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
 					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
@@ -1763,7 +1763,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			case cmaDelete:
 				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 					uint   pos = 0;
-					TPoint coord;
+					SPoint2S coord;
 					coord = *static_cast<const POINT *>(event.message.infoPtr);
 					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
 					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
@@ -1794,7 +1794,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			case cmaRename:
 				{
 					uint   pos = 0;
-					TPoint coord;
+					SPoint2S coord;
 					coord = *static_cast<const POINT *>(event.message.infoPtr);
 					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
 					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
@@ -2021,7 +2021,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			break;
 		case WM_LBUTTONDBLCLK:
 			if(p_desk) {
-				TPoint p;
+				SPoint2S p;
 				p_desk->DoCommand(p.setwparam(lParam));
 			}
 			break;
@@ -2036,20 +2036,20 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				ClipCursor(&r);
 				if(hWnd != GetFocus())
 					SetFocus(hWnd);
-				TPoint coord;
+				SPoint2S coord;
 				p_desk->BeginIconMove(coord.setwparam(lParam));
 			}
 			return 0;
 		case WM_LBUTTONUP:
 			if(p_desk) {
-				TPoint coord;
+				SPoint2S coord;
 				p_desk->EndIconMove(coord.setwparam(lParam));
 				ClipCursor(0);
 			}
 			return 0;
 		case WM_MOUSEMOVE:
 			if(wParam == MK_LBUTTON && p_desk) {
-				TPoint coord;
+				SPoint2S coord;
 				p_desk->MoveIcon(coord.setwparam(lParam));
 			}
 			return 0;

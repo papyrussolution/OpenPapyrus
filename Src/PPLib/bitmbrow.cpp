@@ -3629,7 +3629,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 			if(TVCMD == cmMouseHover) {
 				long   v = 0;
 				SString buf;
-				TPoint point = *static_cast<TPoint *>(event.message.infoPtr);
+				SPoint2S point = *static_cast<SPoint2S *>(event.message.infoPtr);
 				if(ItemByPoint(point, 0, &v)) {
 					if(ProblemsList.GetText(v, buf) > 0)
 						PPTooltipMessage(buf, 0, H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|

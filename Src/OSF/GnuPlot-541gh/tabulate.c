@@ -478,7 +478,7 @@ bool tabulate_one_line(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], int ncol
 		evaluate_inside_using = TRUE;
 		GPO.EvaluateAt(table_filter_at, &keep);
 		evaluate_inside_using = FALSE;
-		if(__IsUndefined || isnan(real(&keep)) || real(&keep) == 0)
+		if(GPO.Ev.IsUndefined_ || isnan(real(&keep)) || real(&keep) == 0)
 			return FALSE;
 	}
 	if(table_var == NULL) {

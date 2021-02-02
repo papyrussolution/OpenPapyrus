@@ -15,9 +15,9 @@
  * into gnuplot_x11.  With GPLT_X11_MODE defined this file does not
  * contain code for calculating colors from gray by user defined functions.
  */
-#ifndef GPLT_X11_MODE
-static int calculate_color_from_formulae(double, rgb_color *);
-#endif
+//#ifndef GPLT_X11_MODE
+//static int calculate_color_from_formulae(double, rgb_color *);
+//#endif
 
 //static void color_components_from_gray(double gray, rgb_color * color);
 //static int interpolate_color_from_gray(double, rgb_color *);
@@ -54,11 +54,10 @@ int palettes_differ(t_sm_palette * p1, t_sm_palette * p2)
 			    return 1;
 		    if(p1->formulaB != p2->formulaB)
 			    return 1;
-		    /* if (p1->ps_allcF != p2->ps_allcF)
-		       return 1; */
+		    // if(p1->ps_allcF != p2->ps_allcF) return 1; 
 		    break;
 		case SMPAL_COLOR_MODE_FUNCTIONS:
-		    /* coarse check based on typed fnct definitions */
+		    // coarse check based on typed fnct definitions 
 		    if(strcmp(p1->Afunc.definition, p2->Afunc.definition))
 			    return 1;
 		    if(strcmp(p1->Bfunc.definition, p2->Bfunc.definition))
@@ -88,7 +87,6 @@ int palettes_differ(t_sm_palette * p1, t_sm_palette * p2)
 			break;
 	    /* case GRADIENT */
 	} /* switch() */
-
 	return 0; /* no real difference found */
 }
 
@@ -158,37 +156,39 @@ int t_sm_palette::InterpolateColorFromGray(double gray, rgb_color * pColor) cons
 }
 
 #ifndef GPLT_X11_MODE
-/*  Fills color with the values calculated from GPO.SmPltt.[ABC]func
- *  The color values are clipped to [0,1] without further notice.
- *  Returns 0 or does an GPO.IntError() when function evaluatin failed.
- *  The result is not in RGB color space jet.
- */
-static int calculate_color_from_formulae(double gray, rgb_color * color)
+// 
+// Fills color with the values calculated from GPO.SmPltt.[ABC]func
+// The color values are clipped to [0,1] without further notice.
+// Returns 0 or does an GPO.IntError() when function evaluatin failed.
+// The result is not in RGB color space jet.
+// 
+//static int calculate_color_from_formulae(double gray, rgb_color * color)
+int GnuPlot::CalculateColorFromFormulae(double gray, rgb_color * pColor)
 {
 	GpValue v;
 	double a, b, c;
 #define NO_CARET (-1)
-	Gcomplex(&GPO.SmPltt.Afunc.dummy_values[0], gray, 0.0);
-	GPO.EvaluateAt(GPO.SmPltt.Afunc.at, &v);
-	if(__IsUndefined)
-		GPO.IntError(NO_CARET, "Undefined value first color during function evaluation");
+	Gcomplex(&SmPltt.Afunc.dummy_values[0], gray, 0.0);
+	EvaluateAt(SmPltt.Afunc.at, &v);
+	if(Ev.IsUndefined_)
+		IntError(NO_CARET, "Undefined value first color during function evaluation");
 	a = real(&v);
 	a = CONSTRAIN(a);
-	Gcomplex(&GPO.SmPltt.Bfunc.dummy_values[0], gray, 0.0);
-	GPO.EvaluateAt(GPO.SmPltt.Bfunc.at, &v);
-	if(__IsUndefined)
-		GPO.IntError(NO_CARET, "Undefined value second color during function evaluation");
+	Gcomplex(&SmPltt.Bfunc.dummy_values[0], gray, 0.0);
+	EvaluateAt(SmPltt.Bfunc.at, &v);
+	if(Ev.IsUndefined_)
+		IntError(NO_CARET, "Undefined value second color during function evaluation");
 	b = real(&v);
 	b = CONSTRAIN(b);
-	Gcomplex(&GPO.SmPltt.Cfunc.dummy_values[0], gray, 0.0);
-	GPO.EvaluateAt(GPO.SmPltt.Cfunc.at, &v);
-	if(__IsUndefined)
-		GPO.IntError(NO_CARET, "Undefined value third color during function evaluation");
+	Gcomplex(&SmPltt.Cfunc.dummy_values[0], gray, 0.0);
+	EvaluateAt(SmPltt.Cfunc.at, &v);
+	if(Ev.IsUndefined_)
+		IntError(NO_CARET, "Undefined value third color during function evaluation");
 	c = real(&v);
 	c = CONSTRAIN(c);
-	color->r = a;
-	color->g = b;
-	color->b = c;
+	pColor->r = a;
+	pColor->g = b;
+	pColor->b = c;
 #undef NO_CARET
 	return 0;
 }
@@ -218,7 +218,7 @@ void t_sm_palette::ColorComponentsFromGray(double gray, rgb_color * pColor) cons
 		    break;
 #ifndef GPLT_X11_MODE
 		case SMPAL_COLOR_MODE_FUNCTIONS:
-		    calculate_color_from_formulae(gray, pColor);
+		    GPO.CalculateColorFromFormulae(gray, pColor);
 		    break;
 #endif
 		case SMPAL_COLOR_MODE_CUBEHELIX: 
@@ -245,17 +245,18 @@ void t_sm_palette::ColorComponentsFromGray(double gray, rgb_color * pColor) cons
 // Note -- November 2003: this routine has been renamed from color_from_gray()
 // to rgb1_from_gray() in order to more clearly distinguish structures rgb_color and rgb255_color.
 // 
-void rgb1_from_gray(double gray, rgb_color * color)
+//void rgb1_from_gray(double gray, rgb_color * pColor)
+void GnuPlot::Rgb1FromGray(double gray, rgb_color * pColor)
 {
 	// get the color 
-	GPO.SmPltt.ColorComponentsFromGray(gray, color);
-	if(GPO.SmPltt.colorMode != SMPAL_COLOR_MODE_GRAY) {
+	SmPltt.ColorComponentsFromGray(gray, pColor);
+	if(SmPltt.colorMode != SMPAL_COLOR_MODE_GRAY) {
 		// transform to RGB if necessary 
-		switch(GPO.SmPltt.CModel) {
+		switch(SmPltt.CModel) {
 			default:
 			case C_MODEL_RGB: break;
-			case C_MODEL_HSV: GPO.SmPltt.HsvToRgb(color); break;
-			case C_MODEL_CMY: CMY_2_RGB(color); break;
+			case C_MODEL_HSV: SmPltt.HsvToRgb(pColor); break;
+			case C_MODEL_CMY: CMY_2_RGB(pColor); break;
 		}
 	}
 }
@@ -268,38 +269,40 @@ void rgb255_from_rgb1(rgb_color rgb1, rgb255_color * rgb255)
 	rgb255->g = (uchar)(255 * rgb1.g + 0.5);
 	rgb255->b = (uchar)(255 * rgb1.b + 0.5);
 }
-/*
- *  Convenience function to map gray values to R, G and B values in [0,1],
- *  limiting the resolution of sampling a continuous palette to UseMaxColors.
- *
- *  EAM Sep 2010 - Guarantee that for palettes with multiple segments
- *  (created by 'set palette defined ...') the mapped gray value is always
- *  in the appropriate segment.  This has the effect of overriding
- *  UseMaxColors if the defined palette has more segments than the nominal limit.
- */
-void rgb1maxcolors_from_gray(double gray, rgb_color * color)
+// 
+// Convenience function to map gray values to R, G and B values in [0,1],
+// limiting the resolution of sampling a continuous palette to UseMaxColors.
+// 
+// EAM Sep 2010 - Guarantee that for palettes with multiple segments
+// (created by 'set palette defined ...') the mapped gray value is always
+// in the appropriate segment.  This has the effect of overriding
+// UseMaxColors if the defined palette has more segments than the nominal limit.
+// 
+//void rgb1maxcolors_from_gray(double gray, rgb_color * pColor)
+void GnuPlot::Rgb1MaxColorsFromGray(double gray, rgb_color * pColor)
 {
-	if(GPO.SmPltt.UseMaxColors != 0)
-		gray = quantize_gray(gray);
-	rgb1_from_gray(gray, color);
+	if(SmPltt.UseMaxColors != 0)
+		gray = QuantizeGray(gray);
+	Rgb1FromGray(gray, pColor);
 }
 
-double quantize_gray(double gray)
+//double quantize_gray(double gray)
+double GnuPlot::QuantizeGray(double gray)
 {
 	double qgray = gray;
-	if(GPO.SmPltt.GradientType == SMPAL_GRADIENT_TYPE_DISCRETE)
+	if(SmPltt.GradientType == SMPAL_GRADIENT_TYPE_DISCRETE)
 		return qgray;
-	qgray = floor(gray * GPO.SmPltt.UseMaxColors) / (GPO.SmPltt.UseMaxColors-1);
-	if(GPO.SmPltt.GradientType == SMPAL_GRADIENT_TYPE_MIXED) {
-		gradient_struct * g = GPO.SmPltt.P_Gradient;
-		double small_interval = 1. / GPO.SmPltt.UseMaxColors;
+	qgray = floor(gray * SmPltt.UseMaxColors) / (SmPltt.UseMaxColors-1);
+	if(SmPltt.GradientType == SMPAL_GRADIENT_TYPE_MIXED) {
+		gradient_struct * g = SmPltt.P_Gradient;
+		double small_interval = 1. / SmPltt.UseMaxColors;
 		int j;
 		// Backward compatibility with common case of 1 segment 
-		if((GPO.SmPltt.GradientNum <= 2) && (qgray == 0))
+		if((SmPltt.GradientNum <= 2) && (qgray == 0))
 			;
 		// All palette segments are large compared to the sampling interval.
 		// Simple truncation of gray is good enough.
-		else if(GPO.SmPltt.smallest_gradient_interval > small_interval)
+		else if(SmPltt.smallest_gradient_interval > small_interval)
 			;
 		// There is at least one palette segment that is smaller than the sampling
 		// interval. Earlier versions of quantize_gray() handled this case poorly.
@@ -307,10 +310,10 @@ double quantize_gray(double gray)
 		// converse problematic case where qgray is inside some small interval but
 		// the true gray value is not.  This causes a color from the narrow segment
 		// to be applied incorrectly to neighboring segments as well.
-		else for(j = 0; j<GPO.SmPltt.GradientNum; j++) {
-				/* Does the true gray value lie in this interval? */
+		else for(j = 0; j < SmPltt.GradientNum; j++) {
+				// Does the true gray value lie in this interval? 
 				if((gray >= g[j].pos) && (gray <  g[j+1].pos)) {
-					/* See if it is so small that truncation missed it */
+					// See if it is so small that truncation missed it
 					if((g[j+1].pos - g[j].pos) < small_interval)
 						qgray = (g[j].pos + g[j+1].pos) / 2.0;
 					break;
@@ -325,10 +328,11 @@ double quantize_gray(double gray)
 // Convenience function to map gray values to R, G and B values in [0,255],
 // taking care of palette maxcolors (i.e., discrete nb of colors).
 //
-void rgb255maxcolors_from_gray(double gray, rgb255_color * rgb255)
+//void rgb255maxcolors_from_gray(double gray, rgb255_color * rgb255)
+void GnuPlot::Rgb255MaxColorsFromGray(double gray, rgb255_color * rgb255)
 {
 	rgb_color rgb1;
-	rgb1maxcolors_from_gray(gray, &rgb1);
+	Rgb1MaxColorsFromGray(gray, &rgb1);
 	rgb255_from_rgb1(rgb1, rgb255);
 }
 //
@@ -343,10 +347,8 @@ static double get_max_dev(rgb_color * colors, int j, double limit)
 	double sr = (colors[j].r - r) / j;
 	double sg = (colors[j].g - g) / j;
 	double sb = (colors[j].b - b) / j;
-
 	for(i = 1; i<j; ++i) {
 		double dx = i;
-
 		rdev = fabs(sr*dx + r - colors[i].r);
 		gdev = fabs(sg*dx + g - colors[i].g);
 		bdev = fabs(sb*dx + b - colors[i].b);

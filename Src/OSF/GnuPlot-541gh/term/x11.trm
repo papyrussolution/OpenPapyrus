@@ -1370,7 +1370,7 @@ TERM_PUBLIC void X11_graphics()
 
 	/* EAM June 2003 - Flush the set font command through the pipe */
 	/* to gnuplot_x11, then wait for it to return the resulting    */
-	/* font size information (v_char and h_char). The feedback is  */
+	/* font size information (ChrV and ChrH). The feedback is  */
 	/* caught by do_event() as an event of type GE_fontprops.      */
 
 	/* Dima Kogan Sep 2012: Above is true when generating the plot THE FIRST
@@ -1402,9 +1402,9 @@ TERM_PUBLIC void X11_graphics()
 
 		if(X11_ymax_saved > 0.0) {
 			/* use saved sizes if they're valid */
-			term->h_char = X11_hchar_saved;
-			term->v_char = X11_vchar_saved;
-			term->h_tic = term->v_tic = X11_vchar_saved / 2.5;
+			term->ChrH = X11_hchar_saved;
+			term->ChrV = X11_vchar_saved;
+			term->TicH = term->TicV = X11_vchar_saved / 2.5;
 			term->ymax = X11_ymax_saved;
 		}
 	}
@@ -1894,7 +1894,7 @@ TERM_PUBLIC void ENHX11_OPEN(char * fontname,
 		enhanced_cur_text = &enhanced_text[0];
 		ENHx11_font = fontname;
 		ENHx11_fontsize = fontsize;
-		ENHx11_base = base * 10; /* FIXME - should this be v_char? v_tic? */
+		ENHx11_base = base * 10; /* FIXME - should this be ChrV? TicV? */
 		ENHx11_show = showflag;
 		ENHx11_overprint = overprint;
 		ENHx11_widthflag = widthflag;

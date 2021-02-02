@@ -411,8 +411,8 @@ int PPCommand::Write_Depricated(SBuffer & rBuf, long extraParam) const
 	THROW(PPCommandItem::Write_Depricated(rBuf, extraParam));
 	THROW_SL(rBuf.Write(CmdID));
 	//
-	// @v9.0.11 Поля X и Y заменены на TPoint
-	// TPoint содержит x и y в том же порядке но используются знаковые int16
+	// @v9.0.11 Поля X и Y заменены на SPoint2S
+	// SPoint2S содержит x и y в том же порядке но используются знаковые int16
 	// (ранее X и Y были беззнаковыми uint16).
 	// Вероятнее всего замена
 	// {
@@ -1135,14 +1135,14 @@ const PPCommandItem * PPCommandFolder::SearchByIDRecursive_Const(long id, long *
 	return _s.P_Item;
 }
 
-const PPCommandItem * PPCommandFolder::SearchByCoord(TPoint coord, const PPDesktop & rD, uint * pPos) const
+const PPCommandItem * PPCommandFolder::SearchByCoord(SPoint2S coord, const PPDesktop & rD, uint * pPos) const
 {
 	const  int _igap = rD.GetIconGap();
 	const  int _isz  = rD.GetIconSize();
 	const PPCommandItem * p_item = 0;
 	for(uint i = 0; p_item = Next(&i);) {
 		if(p_item->Kind == PPCommandItem::kCommand) {
-			TPoint lu = static_cast<const PPCommand *>(p_item)->P;
+			SPoint2S lu = static_cast<const PPCommand *>(p_item)->P;
 			TRect sqr_coord(lu, lu + (_isz * 2));
 			if(sqr_coord.contains(coord)) {
 				ASSIGN_PTR(pPos, i - 1);
@@ -1153,7 +1153,7 @@ const PPCommandItem * PPCommandFolder::SearchByCoord(TPoint coord, const PPDeskt
 	return p_item;
 }
 
-int PPCommandFolder::SearchFreeCoord(RECT r, const PPDesktop & rD, TPoint * pCoord) const
+int PPCommandFolder::SearchFreeCoord(RECT r, const PPDesktop & rD, SPoint2S * pCoord) const
 {
 	const  int _igap = rD.GetIconGap();
 	const  int _isz  = rD.GetIconSize();
@@ -1164,7 +1164,7 @@ int PPCommandFolder::SearchFreeCoord(RECT r, const PPDesktop & rD, TPoint * pCoo
 	long   my = r.bottom - _igap;
 	for(long dx = x; ok < 0 && dx < mx; dx += (_isz * 2 + _igap)) {
 		for(long dy = y; ok < 0 && dy < my; dy += (_isz * 2 + _igap)) {
-			TPoint c;
+			SPoint2S c;
 			c.Set(dx - _isz * 2, dy - _isz * 2);
 			if(SearchByCoord(c, rD, 0) == 0) {
 				ASSIGN_PTR(pCoord, c);
@@ -1252,7 +1252,7 @@ int PPCommandFolder::GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPI
 	return found;
 }
 
-int PPCommandFolder::GetIntersectIDs(TPoint coord, const PPDesktop & rD, PPIDArray * pAry)
+int PPCommandFolder::GetIntersectIDs(SPoint2S coord, const PPDesktop & rD, PPIDArray * pAry)
 {
 	/*
 	const  int _isz  = rD.GetIconSize();

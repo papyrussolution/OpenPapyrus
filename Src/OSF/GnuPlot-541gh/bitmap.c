@@ -1055,7 +1055,7 @@ static void b_putc(uint x, uint y, int c, uint c_angle)
 		fc = b_font[j][i];
 		if(c == '_') {  /* treat underline specially */
 			if(fc) { /* this this the underline row ? */
-				/* draw the under line for the full h_char width */
+				/* draw the under line for the full ChrH width */
 				for(k = (b_hbits - b_hchar) / 2;
 				    k < (b_hbits + b_hchar) / 2; k++) {
 					switch(c_angle) {

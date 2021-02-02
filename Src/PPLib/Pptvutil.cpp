@@ -5580,7 +5580,7 @@ private:
 			long   h = -1, m = -1;
 			long   hours_in_line = (Hours.getCount()) ? 24 / Hours.getCount()  : 0;
 			long   mins_in_line = (Minuts.getCount()) ? 12 / Minuts.getCount() : 0;
-			TPoint p;
+			SPoint2S p;
 			p.Set(x, y);
 			for(uint i = 0; h == -1 && i < Hours.getCount(); i++) {
 				TRect item = Hours.at(i);
@@ -5742,7 +5742,7 @@ void TimePickerDialog::DrawHourText(TCanvas * pCanv)
 {
 	if(TmRects.Hours.getCount()) {
 		SString temp_buf;
-		TPoint text_point;
+		SPoint2S text_point;
 		TRect  h_rect = TmRects.Hours.at(0);
 		text_point.Set(h_rect.a.x, 10);
 		PPGetWord(PPWORD_HOURS, 1, temp_buf.Z());
@@ -5786,7 +5786,7 @@ void TimePickerDialog::DrawMinutsRect(TCanvas * pCanv)
 void TimePickerDialog::DrawMinutText(TCanvas * pCanv)
 {
 	if(TmRects.Minuts.getCount()) {
-		TPoint text_point;
+		SPoint2S text_point;
 		SString temp_buf;
 		TRect  m_rect = TmRects.Minuts.at(0);
 		text_point.Set(m_rect.a.x, m_rect.a.y - 20);
@@ -5829,7 +5829,7 @@ void TimePickerDialog::Implement_Draw()
 				long x = TmRects.Hours.at(i).a.x + delta * j;
 				long y = TmRects.Hours.at(i).a.y;
 				COLORREF color;
-				TPoint round_pt;
+				SPoint2S round_pt;
 				TRect text_rect(x + 1, y + 1, x + delta - 1, y + delta - 1);
 				temp_buf.Z().Cat(h_);
 				round_pt.Set(6, 6);
@@ -5865,7 +5865,7 @@ void TimePickerDialog::Implement_Draw()
 				long x = TmRects.Minuts.at(i).a.x + delta * j;
 				long y = TmRects.Minuts.at(i).a.y;
 				COLORREF color;
-				TPoint round_pt;
+				SPoint2S round_pt;
 				TRect  text_rect(x + 1, y + 1, x + delta - 1, y + delta -1);
 				temp_buf.Z().Cat(min5);
 				round_pt.Set(6, 6);

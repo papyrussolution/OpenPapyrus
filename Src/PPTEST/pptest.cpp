@@ -1324,7 +1324,7 @@ protected:
 				TCanvas2 canv(Tb, (HDC)p_pe->H_DeviceContext);
 				TRect rect_cli = getClientRect();
 				SString msg_buf;
-				//TPoint p;
+				//SPoint2S p;
 				canv.Rect(rect_cli, 0, brBackg);
 				//canv.Rect(rect_cli.grow(-1, -1), penMain, 0);
 				TRect sq(1, 1, 3, 3);

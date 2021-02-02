@@ -427,7 +427,7 @@ public:
 	{
 		Options |= (oMovable | oResizable | oMultSelectable);
 		if(P_Fig) {
-			FPoint sz = P_Fig->GetSize();
+			SPoint2F sz = P_Fig->GetSize();
 			TRect b(0, 0, fceili(sz.X), fceili(sz.Y));
 			SetBounds(b);
 		}
@@ -961,7 +961,7 @@ int WhatmanObjectProcessor::Draw(TCanvas2 & rCanv)
 	const float _p = 8.0f;
 	const float w = (float)b.width();
 	const float h = (float)b.height();
-	FPoint c((float)b.b.x - w/_p + w/(2*_p), (float)b.b.y - h/_p + h/(2*_p));
+	SPoint2F c((float)b.b.x - w/_p + w/(2*_p), (float)b.b.y - h/_p + h/(2*_p));
 	float r = (MIN(w/_p, h/_p)) / 2.0f;
 	rCanv.Arc(c, r, 0.0, SMathConst::Pi2_f);
 	SColor clr;
@@ -1340,7 +1340,7 @@ int WhatmanObjectCafeTable::Draw(TCanvas2 & rCanv)
 	const float _p = 6.0f;
 	const float w = (float)b.width();
 	const float h = (float)b.height();
-	FPoint c((float)b.b.x - w/_p + w/(2*_p), (float)b.b.y - h/_p + h/(2*_p));
+	SPoint2F c((float)b.b.x - w/_p + w/(2*_p), (float)b.b.y - h/_p + h/(2*_p));
 	float r = (MIN(w/_p, h/_p)) / 2.0f;
 	rCanv.Arc(c, r, 0.0, (float)SMathConst::Pi2);
 	SColor clr;
@@ -1725,7 +1725,7 @@ int PPWhatmanWindow::Rearrange()
 	return ok;
 }
 
-int PPWhatmanWindow::Locate(TPoint p, Loc * pLoc) const
+int PPWhatmanWindow::Locate(SPoint2S p, Loc * pLoc) const
 {
 	int    ok = 0;
 	int    obj_idx = 0;
@@ -1764,7 +1764,7 @@ int PPWhatmanWindow::InvalidateObjScope(const TWhatmanObject * pObj)
 	return W.InvalidateObjScope(pObj);
 }
 
-int PPWhatmanWindow::Resize(int mode, TPoint p)
+int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 {
 	int    ok = -1;
 	int    do_update_win = 0;
@@ -1964,7 +1964,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 			else if(St.Rsz.Kind == ResizeState::kMultObjMove) {
 				const LongArray * p_list = W.GetMultSelIdxList();
 				const uint c = SVectorBase::GetCount(p_list);
-				const TPoint coffs = p - St.Rsz.StartPt;
+				const SPoint2S coffs = p - St.Rsz.StartPt;
 				for(uint i = 0; i < c; i++) {
 					TWhatmanObject * p_obj = W.GetObjectByIndex(p_list->get(i));
 					if(p_obj) {
@@ -1974,7 +1974,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 					}
 				}
 				{
-					TPoint offs;
+					SPoint2S offs;
 					W.InvalidateMultSelContour(&(offs = St.Rsz.EndPt - St.Rsz.StartPt));
 				}
 				do_update_win = 1;
@@ -2004,7 +2004,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 		//
 		if(!!St.Rsz) {
 			if(St.Rsz.Kind == ResizeState::kMultObjMove) {
-				TPoint offs;
+				SPoint2S offs;
 				W.InvalidateMultSelContour(&(offs = St.Rsz.EndPt - St.Rsz.StartPt));
 				W.InvalidateMultSelContour(&(offs = p - St.Rsz.StartPt));
 			}
@@ -2285,7 +2285,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 						if(!(St.Rsz.Flags & ResizeState::fDontDrawMovedObj))
 							W.DrawSingleObject(canv, St.Rsz.P_MovedObjCopy);
 						if(St.Rsz.Kind == ResizeState::kMultObjMove) {
-							TPoint offs = St.Rsz.EndPt - St.Rsz.StartPt;
+							SPoint2S offs = St.Rsz.EndPt - St.Rsz.StartPt;
 							W.DrawMultSelContour(canv, &offs);
 						}
 					}
@@ -2333,7 +2333,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					}
 				}
 				else if(p_ev->Action == DragndropEvent::acnAccept) {
-					TPoint zero_point;
+					SPoint2S zero_point;
 					Resize(0, zero_point.Z());
 				}
 			}
@@ -2461,7 +2461,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 						else if(p_me->WeelDelta > 0)
 							r = Sb.Move(SIDE_BOTTOM, p_me->WeelDelta);
 						if(r > 0) {
-							TPoint sp;
+							SPoint2S sp;
 							W.SetScrollPos(sp.Set(Sb.ScX, Sb.ScY));
 							Sb.SetupWindow(H());
 							invalidateAll(0);
@@ -2487,7 +2487,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					case ScrollEvent::tLineDown:
 					case ScrollEvent::tPageDown:
 						{
-							const TPoint delta = W.GetScrollDelta();
+							const SPoint2S delta = W.GetScrollDelta();
 							if(p_se->Dir == DIREC_VERT)
 								r = Sb.Move(SIDE_BOTTOM, NZOR(delta.y, 1));
 							else
@@ -2497,7 +2497,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					case ScrollEvent::tLineUp:
 					case ScrollEvent::tPageUp:
 						{
-							const TPoint delta = W.GetScrollDelta();
+							const SPoint2S delta = W.GetScrollDelta();
 							if(p_se->Dir == DIREC_VERT)
 								r = Sb.Move(SIDE_TOP, NZOR(delta.y, 1));
 							else
@@ -2514,7 +2514,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 						break;
 				}
 				if(r > 0) {
-					TPoint sp;
+					SPoint2S sp;
 					W.SetScrollPos(sp.Set(Sb.ScX, Sb.ScY));
 					Sb.SetupWindow(H());
 					invalidateAll(0);

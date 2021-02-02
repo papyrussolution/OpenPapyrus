@@ -1048,6 +1048,9 @@
 				RelativePath="..\SLib\Sprinter.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\sregexp2.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\srng.cpp">
 			</File>
 			<File

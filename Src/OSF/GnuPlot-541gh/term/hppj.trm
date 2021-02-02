@@ -129,22 +129,22 @@ TERM_PUBLIC void HPPJ_init()
 	 * change fields of *term ! */
 	switch(hppj_font) {
 		case FNT5X9:
-		    term->v_char = FNT5X9_VCHAR;
-		    term->h_char = FNT5X9_HCHAR;
-		    term->v_tic = FNT5X9_VCHAR / 2;
-		    term->h_tic = FNT5X9_HCHAR / 2;
+		    term->ChrV = FNT5X9_VCHAR;
+		    term->ChrH = FNT5X9_HCHAR;
+		    term->TicV = FNT5X9_VCHAR / 2;
+		    term->TicH = FNT5X9_HCHAR / 2;
 		    break;
 		case FNT9X17:
-		    term->v_char = FNT9X17_VCHAR;
-		    term->h_char = FNT9X17_HCHAR;
-		    term->v_tic = FNT9X17_VCHAR / 2;
-		    term->h_tic = FNT9X17_HCHAR / 2;
+		    term->ChrV = FNT9X17_VCHAR;
+		    term->ChrH = FNT9X17_HCHAR;
+		    term->TicV = FNT9X17_VCHAR / 2;
+		    term->TicH = FNT9X17_HCHAR / 2;
 		    break;
 		case FNT13X25:
-		    term->v_char = FNT13X25_VCHAR;
-		    term->h_char = FNT13X25_HCHAR;
-		    term->v_tic = FNT13X25_VCHAR / 2;
-		    term->h_tic = FNT13X25_HCHAR / 2;
+		    term->ChrV = FNT13X25_VCHAR;
+		    term->ChrH = FNT13X25_HCHAR;
+		    term->TicV = FNT13X25_VCHAR / 2;
+		    term->TicH = FNT13X25_HCHAR / 2;
 		    break;
 	}
 }

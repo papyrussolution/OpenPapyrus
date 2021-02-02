@@ -67,11 +67,9 @@ static int make_int_stack(int_stack** rs, int init_size)
 		SAlloc::F(s);
 		return ONIGERR_MEMORY;
 	}
-
 	s->n = 0;
 	s->alloc = init_size;
 	s->v = v;
-
 	*rs = s;
 	return ONIG_NORMAL;
 }
@@ -104,7 +102,6 @@ static int int_stack_push(int_stack* s, int v)
 static int int_stack_pop(int_stack* s)
 {
 	int v;
-
 #ifdef ONIG_DEBUG
 	if(s->n <= 0) {
 		fprintf(DBGFP, "int_stack_pop: fail empty. %p\n", s);
@@ -115,7 +112,6 @@ static int int_stack_pop(int_stack* s)
 	s->n--;
 	return v;
 }
-
 #endif
 
 static int ops_init(regex_t* reg, int init_alloc_size)
@@ -143,11 +139,9 @@ static int ops_init(regex_t* reg, int init_alloc_size)
 		reg->ocs = (enum OpCode*)0;
 #endif
 	}
-
 	reg->ops_curr  = 0;/* !!! not yet done ops_new() */
 	reg->ops_alloc = init_alloc_size;
 	reg->ops_used  = 0;
-
 	return ONIG_NORMAL;
 }
 
@@ -160,16 +154,13 @@ static int ops_expand(regex_t* reg, int n)
 #endif
 	Operation* p;
 	size_t size;
-
-	if(n <= 0) n = MIN_OPS_EXPAND_SIZE;
-
+	if(n <= 0) 
+		n = MIN_OPS_EXPAND_SIZE;
 	n += reg->ops_alloc;
-
 	size = sizeof(Operation) * n;
 	p = (Operation*)SAlloc::R(reg->ops, size);
 	CHECK_NULL_RETURN_MEMERR(p);
 	reg->ops = p;
-
 #ifdef USE_DIRECT_THREADED_CODE
 	size = sizeof(enum OpCode) * n;
 	cp = (enum OpCode*)SAlloc::R(reg->ocs, size);
@@ -231,7 +222,6 @@ static void ops_free(regex_t* reg)
 			case OP_CCLASS_NOT: case OP_CCLASS:
 			    SAlloc::F(op->cclass.bsp);
 			    break;
-
 			case OP_CCLASS_MB_NOT: case OP_CCLASS_MB:
 			    SAlloc::F(op->cclass_mb.mb);
 			    break;
@@ -239,7 +229,6 @@ static void ops_free(regex_t* reg)
 			    SAlloc::F(op->cclass_mix.mb);
 			    SAlloc::F(op->cclass_mix.bsp);
 			    break;
-
 			case OP_BACKREF1: case OP_BACKREF2: case OP_BACKREF_N: case OP_BACKREF_N_IC:
 			    break;
 			case OP_BACKREF_MULTI:      case OP_BACKREF_MULTI_IC:
@@ -257,13 +246,11 @@ static void ops_free(regex_t* reg)
 			    break;
 		}
 	}
-
 	SAlloc::F(reg->ops);
 #ifdef USE_DIRECT_THREADED_CODE
 	SAlloc::F(reg->ocs);
 	reg->ocs = 0;
 #endif
-
 	reg->ops = 0;
 	reg->ops_curr  = 0;
 	reg->ops_alloc = 0;
@@ -392,8 +379,7 @@ extern int onig_positive_int_multiply(int x, int y)
 
 static void node_swap(Node* a, Node* b)
 {
-	Node c;
-	c = *a; 
+	Node c = *a; 
 	*a = *b; 
 	*b = c;
 	if(NODE_TYPE(a) == NODE_STRING) {
@@ -467,10 +453,10 @@ static OnigLen distance_add(OnigLen d1, OnigLen d2)
 {
 	if(d1 == INFINITE_LEN || d2 == INFINITE_LEN)
 		return INFINITE_LEN;
-	else {
-		if(d1 <= INFINITE_LEN - d2) return d1 + d2;
-		else return INFINITE_LEN;
-	}
+	else if(d1 <= INFINITE_LEN - d2) 
+		return d1 + d2;
+	else 
+		return INFINITE_LEN;
 }
 
 static OnigLen distance_multiply(OnigLen d, int m)
@@ -698,11 +684,9 @@ static int node_char_len1(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* 
 		    mmcl_set(ci, clen);
 	    }
 	    break;
-
 		case NODE_QUANT:
 	    {
 		    QuantNode* qn = QUANT_(node);
-
 		    if(qn->lower == qn->upper) {
 			    if(qn->upper == 0) {
 				    mmcl_set(ci, 0);
@@ -734,7 +718,6 @@ static int node_char_len1(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* 
 		case NODE_CCLASS:
 		    mmcl_set(ci, 1);
 		    break;
-
 		case NODE_BAG:
 	    {
 		    BagNode* en = BAG_(node);
@@ -770,24 +753,23 @@ static int node_char_len1(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* 
 			    case BAG_IF_ELSE:
 			{
 				MinMaxCharLen eci;
-
 				r = node_char_len1(NODE_BODY(node), reg, ci, env, level);
-				if(r < 0) break;
-
+				if(r < 0) 
+					break;
 				if(IS_NOT_NULL(en->te.Then)) {
 					r = node_char_len1(en->te.Then, reg, &tci, env, level);
-					if(r < 0) break;
+					if(r < 0) 
+						break;
 					mmcl_add(ci, &tci);
 				}
-
 				if(IS_NOT_NULL(en->te.Else)) {
 					r = node_char_len1(en->te.Else, reg, &eci, env, level);
-					if(r < 0) break;
+					if(r < 0) 
+						break;
 				}
 				else {
 					mmcl_set(&eci, 0);
 				}
-
 				mmcl_alt_merge(ci, &eci);
 			}
 			break;
@@ -797,22 +779,18 @@ static int node_char_len1(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* 
 		    }
 	    }
 	    break;
-
 		case NODE_GIMMICK:
 		    mmcl_set(ci, 0);
 		    break;
-
 		case NODE_ANCHOR:
 zero:
 		    mmcl_set(ci, 0);
 		    /* can't optimize look-behind if anchor exists. */
 		    ci->min_is_sure = FALSE;
 		    break;
-
 		case NODE_BACKREF:
 		    if(NODE_IS_CHECKER(node))
 			    goto zero;
-
 		    if(NODE_IS_RECURSION(node)) {
 #ifdef USE_BACKREF_WITH_LEVEL
 			    if(NODE_IS_NEST_LEVEL(node)) {
@@ -820,11 +798,9 @@ zero:
 				    break;
 			    }
 #endif
-
 			    mmcl_set_min_max(ci, 0, 0, FALSE);
 			    break;
 		    }
-
 		    {
 			    int i;
 			    MemEnv* mem_env = SCANENV_MEMENV(env);
@@ -1085,13 +1061,12 @@ static int compile_string_node(Node* node, regex_t* reg)
 		}
 		else {
 			r = add_compile_string(prev, prev_len, slen, reg);
-			if(r != 0) return r;
-
+			if(r != 0) 
+				return r;
 			prev  = p;
 			slen  = 1;
 			prev_len = len;
 		}
-
 		p += len;
 	}
 	return add_compile_string(prev, prev_len, slen, reg);
@@ -1157,10 +1132,8 @@ static int compile_cclass_node(CClassNode* cc, regex_t* reg)
 
 static void set_addr_in_repeat_range(regex_t* reg)
 {
-	int i;
-
-	for(i = 0; i < reg->num_repeat; i++) {
-		RepeatRange* p = reg->repeat_range + i;
+	for(int i = 0; i < reg->num_repeat; i++) {
+		RepeatRange * p = reg->repeat_range + i;
 		int offset = p->u.offset;
 		p->u.pcode = reg->ops + offset;
 	}
@@ -1169,9 +1142,7 @@ static void set_addr_in_repeat_range(regex_t* reg)
 static int entry_repeat_range(regex_t* reg, int id, int lower, int upper, int ops_index)
 {
 #define REPEAT_RANGE_ALLOC  4
-
 	RepeatRange* p;
-
 	if(reg->repeat_range_alloc == 0) {
 		p = (RepeatRange*)SAlloc::M(sizeof(RepeatRange) * REPEAT_RANGE_ALLOC);
 		CHECK_NULL_RETURN_MEMERR(p);
@@ -1189,7 +1160,6 @@ static int entry_repeat_range(regex_t* reg, int id, int lower, int upper, int op
 	else {
 		p = reg->repeat_range;
 	}
-
 	p[id].lower    = lower;
 	p[id].upper    = (IS_INFINITE_REPEAT(upper) ? 0x7fffffff : upper);
 	p[id].u.offset = ops_index;
@@ -1815,7 +1785,6 @@ static int compile_length_anchor_node(AnchorNode* node, regex_t* reg)
 		    len = SIZE_OPCODE;
 		    break;
 	}
-
 	return len;
 }
 

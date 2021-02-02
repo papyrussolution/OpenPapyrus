@@ -1529,8 +1529,8 @@ DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID))
 		AddType("raw",      MKSTYPE(S_RAW, 0));
 		AddType("blob",     MKSTYPE(S_BLOB, 0));
 		AddType("clob",     MKSTYPE(S_CLOB, 0));
-		AddType("ipoint2",  MKSTYPE(S_IPOINT2, sizeof(TPoint)));
-		AddType("fpoint2",  MKSTYPE(S_FPOINT2, sizeof(FPoint)));
+		AddType("ipoint2",  MKSTYPE(S_IPOINT2, sizeof(SPoint2S)));
+		AddType("fpoint2",  MKSTYPE(S_FPOINT2, sizeof(SPoint2F)));
 		AddType("guid",     MKSTYPE(S_UUID_, sizeof(S_GUID)));
 		BuiltinOp(0, 0);
 		AddMacro("Date2WStr", "date2wstr");

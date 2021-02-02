@@ -237,28 +237,27 @@ int main(int argc_orig, char ** argv)
 	setvbuf(stdin, (char*)NULL, _IONBF, 0);
 #endif
 	gpoutfile = stdout;
-	/* Initialize pre-loaded user variables */
-	/* "pi" is hard-wired as the first variable */
-	add_udv_by_name("GNUTERM");
-	add_udv_by_name("I");
-	add_udv_by_name("NaN");
-	init_constants();
-	udv_user_head = &(udv_NaN->next_udv);
+	// Initialize pre-loaded user variables 
+	// "pi" is hard-wired as the first variable 
+	GPO.Ev.AddUdvByName("GNUTERM");
+	GPO.Ev.AddUdvByName("I");
+	GPO.Ev.AddUdvByName("NaN");
+	GPO.Ev.InitConstants();
+	GPO.Ev.PP_UdvUserHead = &(GPO.Ev.P_UdvNaN->next_udv);
 	init_memory();
 	interactive = FALSE;
-	/* April 2017:  We used to call init_terminal() here, but now   */
-	/* We defer initialization until error handling has been set up. */
+	// April 2017:  We used to call init_terminal() here, but now   
+	// We defer initialization until error handling has been set up. 
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
 	interactive = TRUE;
 #else
 	interactive = isatty(fileno(stdin));
 #endif
-	/* Note: we want to know whether this is an interactive session so that we can
-	 * decide whether or not to write status information to stderr.  The old test
-	 * for this was to see if (argc > 1) but the addition of optional command line
-	 * switches broke this.  What we really wanted to know was whether any of the
-	 * command line arguments are file names or an explicit in-line "-e command".
-	 */
+	// Note: we want to know whether this is an interactive session so that we can
+	// decide whether or not to write status information to stderr.  The old test
+	// for this was to see if (argc > 1) but the addition of optional command line
+	// switches broke this.  What we really wanted to know was whether any of the
+	// command line arguments are file names or an explicit in-line "-e command".
 	for(i = 1; i < argc; i++) {
 #ifdef _WIN32
 		if(sstreqi_ascii(argv[i], "/noend"))
@@ -310,7 +309,7 @@ int main(int argc_orig, char ** argv)
 		push_terminal(0); /* remember the initial terminal */
 		gp_atexit(term_reset);
 		/* Execute commands in ~/.gnuplot */
-		init_session();
+		GPO.InitSession();
 		if(interactive && term != 0) {  /* not unknown */
 #ifdef GNUPLOT_HISTORY
 #if (defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)) && !defined(_WIN32)
@@ -499,36 +498,38 @@ RECOVER_FROM_ERROR_IN_DASH:
 // Set up to catch interrupts 
 void interrupt_setup()
 {
-	(void)signal(SIGINT, (sigfunc)inter);
+	signal(SIGINT, (sigfunc)inter);
 #ifdef SIGPIPE
 	// ignore pipe errors, this might happen with set output "|head" 
-	(void)signal(SIGPIPE, SIG_IGN);
-#endif /* SIGPIPE */
+	signal(SIGPIPE, SIG_IGN);
+#endif
 }
 //
 // Initialize 'constants' stored as variables (user could mangle these)
 //
-void init_constants()
+//void init_constants()
+void GpEval::InitConstants()
 {
-	Gcomplex(&udv_pi.udv_value, M_PI, 0.0);
-	udv_NaN = get_udv_by_name("NaN");
-	Gcomplex(&(udv_NaN->udv_value), not_a_number(), 0.0);
-	udv_I = get_udv_by_name("I");
-	Gcomplex(&(udv_I->udv_value), 0.0, 1.0);
+	Gcomplex(&UdvPi.udv_value, M_PI, 0.0);
+	P_UdvNaN = GetUdvByName("NaN");
+	Gcomplex(&(P_UdvNaN->udv_value), not_a_number(), 0.0);
+	P_UdvI = GetUdvByName("I");
+	Gcomplex(&P_UdvI->udv_value, 0.0, 1.0);
 }
 //
 // Initialize graphics context, color palette, local preferences.
 // Called both at program startup and by "reset session".
 //
-void init_session()
+//void init_session()
+void GnuPlot::InitSession()
 {
 	successful_initialization = FALSE; /* Disable pipes and system commands during initialization */
-	del_udv_by_name("", TRUE); /* Undefine any previously-used variables */
-	GPO.SetColorSequence(1); /* Restore default colors before loading local preferences */
-	overflow_handling = INT64_OVERFLOW_TO_FLOAT; /* Reset program variables not handled by 'reset' */
+	Ev.DelUdvByName("", TRUE); /* Undefine any previously-used variables */
+	SetColorSequence(1); /* Restore default colors before loading local preferences */
+	Ev.OverflowHandling = INT64_OVERFLOW_TO_FLOAT; /* Reset program variables not handled by 'reset' */
 	init_voxelsupport(); /* Reset voxel data structures if supported */
 	// Make sure all variables start in the same state 'reset' would set them to. 
-	GPO.ResetCommand();        /* FIXME: this does c_token++ */
+	ResetCommand();        /* FIXME: this does c_token++ */
 	load_rcfile(0);         /* System-wide gnuplotrc if configured */
 	load_rcfile(1);         /* ./.gnuplot if configured */
 	// After this point we allow pipes and system commands 

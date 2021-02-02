@@ -93,50 +93,52 @@ void jitter_points(curve_points * plot)
 //
 // process 'set jitter' command 
 //
-void set_jitter()
+//void set_jitter()
+void GnuPlot::SetJitter()
 {
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	// Default overlap criterion 1 character (usually on y) 
 	jitter.overlap.scalex = character;
 	jitter.overlap.x = 1;
 	jitter.spread = 1.0;
 	jitter.limit = 0.0;
 	jitter.style = JITTER_DEFAULT;
-	if(GPO.Pgm.EndOfCommand())
+	if(Pgm.EndOfCommand())
 		return;
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("over$lap")) {
-			GPO.Pgm.Shift();
-			GPO.GetPositionDefault(&jitter.overlap, character, 2);
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("over$lap")) {
+			Pgm.Shift();
+			GetPositionDefault(&jitter.overlap, character, 2);
 		}
-		else if(GPO.Pgm.EqualsCur("spread")) {
-			GPO.Pgm.Shift();
-			jitter.spread = GPO.RealExpression();
+		else if(Pgm.EqualsCur("spread")) {
+			Pgm.Shift();
+			jitter.spread = RealExpression();
 			if(jitter.spread <= 0)
 				jitter.spread = 1.0;
 		}
-		else if(GPO.Pgm.EqualsCur("swarm")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.EqualsCur("swarm")) {
+			Pgm.Shift();
 			jitter.style = JITTER_SWARM;
 		}
-		else if(GPO.Pgm.EqualsCur("square")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.EqualsCur("square")) {
+			Pgm.Shift();
 			jitter.style = JITTER_SQUARE;
 		}
-		else if(GPO.Pgm.EqualsCur("wrap")) {
-			GPO.Pgm.Shift();
-			jitter.limit = GPO.RealExpression();
+		else if(Pgm.EqualsCur("wrap")) {
+			Pgm.Shift();
+			jitter.limit = RealExpression();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("vert$ical")) {
-			GPO.Pgm.Shift();
+		else if(Pgm.AlmostEqualsCur("vert$ical")) {
+			Pgm.Shift();
 			jitter.style = JITTER_ON_Y;
 		}
 		else
-			GPO.IntErrorCurToken("unrecognized keyword");
+			IntErrorCurToken("unrecognized keyword");
 	}
 }
-
-/* process 'show jitter' command */
+//
+// process 'show jitter' command 
+//
 void show_jitter()
 {
 	if(jitter.spread <= 0) {

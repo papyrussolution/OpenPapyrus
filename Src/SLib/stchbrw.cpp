@@ -261,7 +261,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 
 /*static*/LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	TPoint p;
+	SPoint2S p;
 	STimeChunkBrowser::Loc loc;
 	CREATESTRUCT * p_init_data;
 	STimeChunkBrowser * p_view = 0;
@@ -412,7 +412,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 		case WM_MOUSEMOVE:
 			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
-				TPoint tp;
+				SPoint2S tp;
 				tp.setwparam(lParam);
 				if(p_view->PrevMouseCoord != tp) {
 					p_view->PrevMouseCoord = tp;
@@ -504,7 +504,7 @@ STimeChunkBrowser::SRectArray::SRectArray() : TSVector <SRect> ()
 {
 }
 
-const STimeChunkBrowser::SRect * FASTCALL STimeChunkBrowser::SRectArray::SearchPoint(TPoint p) const
+const STimeChunkBrowser::SRect * FASTCALL STimeChunkBrowser::SRectArray::SearchPoint(SPoint2S p) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const STimeChunkBrowser::SRect & r_item = at(i);
@@ -1082,7 +1082,7 @@ int STimeChunkBrowser::SetupDate(LDATE dt)
 	return ok;
 }
 
-int STimeChunkBrowser::ProcessDblClk(TPoint p)
+int STimeChunkBrowser::ProcessDblClk(SPoint2S p)
 {
 	int    ok = -1, done = 0;
 	Loc    loc;
@@ -1163,14 +1163,14 @@ int STimeChunkBrowser::ProcessDblClk(TPoint p)
 	return ok;
 }
 
-void STimeChunkBrowser::ResizeState::Setup(int kind, TPoint p)
+void STimeChunkBrowser::ResizeState::Setup(int kind, SPoint2S p)
 {
 	Kind = kind;
 	Org = p;
 	Shift = 0;
 }
 
-int STimeChunkBrowser::Resize(int mode, TPoint p)
+int STimeChunkBrowser::Resize(int mode, SPoint2S p)
 {
 	int    ok = -1;
 	int    do_redraw = 0;
@@ -1428,7 +1428,7 @@ int STimeChunkBrowser::Resize(int mode, TPoint p)
 		}
 		else if(St.Rsz.Kind == ResizeState::kScroll) {
 			Area   a2;
-			TPoint delta = p - St.Rsz.Org;
+			SPoint2S delta = p - St.Rsz.Org;
 			if(delta.x) {
 				GetArea(a2);
 				int scroll_delta = delta.x / a2.PixQuant;
@@ -1452,7 +1452,7 @@ int STimeChunkBrowser::Resize(int mode, TPoint p)
 	return ok;
 }
 
-int STimeChunkBrowser::Locate(TPoint p, Loc * pLoc) const
+int STimeChunkBrowser::Locate(SPoint2S p, Loc * pLoc) const
 {
 	int    ok = -1;
 	Loc    loc;
@@ -2253,7 +2253,7 @@ int STimeChunkBrowser::SelectChunkColor(const STimeChunkAssoc * pChunk, HBRUSH *
 	return ok;
 }
 
-void STimeChunkBrowser::DrawMoveSpot(TCanvas & rCanv, TPoint p)
+void STimeChunkBrowser::DrawMoveSpot(TCanvas & rCanv, SPoint2S p)
 {
 	if(p.x || p.y) {
 		rCanv.SelectObjectAndPush(Ptb.Get(penSelectedChunk));
@@ -2483,7 +2483,7 @@ void STimeChunkBrowser::Paint()
 		// Main area
 		//
 		{
-			TPoint move_spot; // Пятно в активном отрезке, при нажатии на которое его можно двигать
+			SPoint2S move_spot; // Пятно в активном отрезке, при нажатии на которое его можно двигать
 			move_spot.Z();    // Отрисовывается после общего цикла рисования основной области, дабы текст не затирал пятно.
 			canv.SelectObjectAndPush(Ptb.Get(fontChunkText));
 			canv.SelectObjectAndPush(Ptb.Get(penDefChunk));
@@ -2726,7 +2726,7 @@ void STimeChunkBrowser::Paint()
 		canv.SelectObjectAndPush(Ptb.Get(fontLeftText));
 		canv.SelectObjectAndPush(Ptb.Get(penDefChunk));
 		canv.SelectObjectAndPush(Ptb.Get(brushDefChunk));
-		TPoint move_spot; // Пятно в активном отрезке, при нажатии на которое его можно двигать
+		SPoint2S move_spot; // Пятно в активном отрезке, при нажатии на которое его можно двигать
 		move_spot.Z();    // Отрисовывается после общего цикла рисования основной области, дабы текст не затирал пятно.
 		int    is_move_rect = 0;
 		TRect  move_rect; // Область перемещаемого отрезка (рисуется в самом конце процедуры для того, чтобы быть на переднем плане)

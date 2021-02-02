@@ -40,17 +40,15 @@ static t_voxel cornervalue[8];
 
 /* local prototypes */
 static void vertex_interp(int edge_no, int start, int end, t_voxel isolevel);
-static void tessellate_one_cube(struct surface_points * plot,
-    int ix, int iy, int iz);
-
+static void tessellate_one_cube(struct surface_points * plot, int ix, int iy, int iz);
 /*
  * splot $vgrid with {dots|points} {above <value>}
  */
-void vplot_points(struct surface_points * plot, double level)
+void vplot_points(surface_points * plot, double level)
 {
 	int ix, iy, iz;
 	double vx, vy, vz;
-	struct vgrid * vgrid = plot->vgrid;
+	vgrid * vgrid = plot->vgrid;
 	struct termentry * t = term;
 	int N = vgrid->size;
 	t_voxel * voxel;
@@ -89,7 +87,7 @@ void vplot_points(struct surface_points * plot, double level)
 				// the usual variable color array cannot be used for voxel data 
 				// but we can use the voxel value itself as a palette index     
 				if(plot->lp_properties.pm3d_color.type == TC_Z)
-					set_color(t, cb2gray(*voxel));
+					set_color(t, GPO.Cb2Gray(*voxel));
 				// This code is also used for "splot ... with dots" 
 				if(plot->plot_style == DOTS)
 					(*t->point)(x, y, -1);

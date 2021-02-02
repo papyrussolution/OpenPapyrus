@@ -281,7 +281,7 @@ TERM_PUBLIC void BE_pointsize(double ps)
 	if(ps < 0)
 		ps = 1;
 	PRINT2("P7%04d%04d\n",  /* size of point symbols */
-	    (int)(term->h_tic * ps * 0.5), (int)(term->v_tic * ps * 0.5));
+	    (int)(term->TicH * ps * 0.5), (int)(term->TicV * ps * 0.5));
 }
 
 TERM_PUBLIC void BE_linewidth(double lw)

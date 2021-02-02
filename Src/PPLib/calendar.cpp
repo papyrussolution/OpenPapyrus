@@ -128,18 +128,18 @@ private:
 	void   DrawDayOfWeekHeader(HDC hdc);
 	void   DrawMonthGrid(HDC hdc);
 	void   DrawMonthCells(HDC hdc, int decr);
-	void   PaintMonthRect(TCanvas & rCanv, TPoint p, uint j, COLORREF color, COLORREF textColor);
+	void   PaintMonthRect(TCanvas & rCanv, SPoint2S p, uint j, COLORREF color, COLORREF textColor);
 	void   DrawSelectedYearRect(HDC hdc, int brushType, int);
 	void   InvalidateMonthBar(HWND);
-	int    IsYearMarker(const TPoint pt) const;
-	int    IsYearBar(const TPoint pt) const;
-	int    IsMonthBar(const TPoint pt) const;
+	int    IsYearMarker(const SPoint2S pt) const;
+	int    IsYearBar(const SPoint2S pt) const;
+	int    IsMonthBar(const SPoint2S pt) const;
 	int    SelectYear(HWND hWnd, int n /* 1..NumYearInBar */);
 	int    ScrollYear(HWND hWnd, int dir);
-	void   SelectMonth(HWND hWnd, const TPoint pt);
-	void   SelectQuart(HWND hWnd, const TPoint pt);
+	void   SelectMonth(HWND hWnd, const SPoint2S pt);
+	void   SelectQuart(HWND hWnd, const SPoint2S pt);
 	void   SelectDay(HWND hWnd, int x, int y);
-	void   SelectWeek(HWND hWnd, TPoint pt);
+	void   SelectWeek(HWND hWnd, SPoint2S pt);
 	int    RetCmd;
 };
 
@@ -398,7 +398,7 @@ const int M_CELLH = 15;
 const int M_DIFFY = 45;
 // const int Y_DIFFY = 70;
 
-void TDateCalendar::PaintMonthRect(TCanvas & rCanv, TPoint p, uint j, COLORREF color, COLORREF textColor)
+void TDateCalendar::PaintMonthRect(TCanvas & rCanv, SPoint2S p, uint j, COLORREF color, COLORREF textColor)
 {
 	HPEN   pen = CreatePen(PS_SOLID, 3, color);
 	rCanv.SelectObjectAndPush(pen);
@@ -438,7 +438,7 @@ void TDateCalendar::DrawMonthGrid(HDC hdc)
 		for(int j = 0; j <= 6; j++)
 			if(C[i][j][1] != ' ') {
 				canv.SetTextColor(0);
-				TPoint p, txt_sz;
+				SPoint2S p, txt_sz;
 				p.Set(Left + j * c_cell_w, Top  + i * c_cell_h);
 				int    tmpd = satoi(C[i][j]);
 				int    is_year = BIN(D1.year() >= 1970 || D2.year() < 2500);
@@ -470,7 +470,7 @@ void TDateCalendar::DrawSelectedYearRect(HDC hdc, int brushType, int i)
 {
 	TCanvas canv(hdc);
 	canv.SelectObjectAndPush(GetStockObject(brushType));
-	TPoint p;
+	SPoint2S p;
 	p.Set(Left + (y_br - y_bl - y_w) / 2, y_t);
 	TRect r(p.x + (i - y_firstyear - 2) * y_w, p.y - 1, p.x + (i - y_firstyear - 1) * y_w, p.y + y_th + 2);
 	canv.Rectangle(r);
@@ -648,7 +648,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 void TDateCalendar::OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	if(PeriodSelect && wParam == MK_LBUTTON) {
-		TPoint pt;
+		SPoint2S pt;
 		pt.setwparam(lParam);
 		if((seltype == SEL_DAYS && IsDayBar(pt.x, pt.y)) ||
 			(oneof2(seltype, SEL_MONTHS, SEL_QUARTALS) && IsMonthBar(pt)) ||
@@ -659,7 +659,7 @@ void TDateCalendar::OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 void TDateCalendar::OnLButtonUp(HWND hWnd, LPARAM lParam)
 {
-	TPoint pt;
+	SPoint2S pt;
 	pt.setwparam(lParam);
 	if(IsMonthBar(pt) || IsYearBar(pt))
 		InvalidateRect(hWnd, NULL, false);
@@ -729,7 +729,7 @@ int TDateCalendar::ScrollYear(HWND hWnd, int dir)
 //    -1 - left Year marker
 //    +1 - right Year marker
 //
-int TDateCalendar::IsYearMarker(const TPoint pt) const
+int TDateCalendar::IsYearMarker(const SPoint2S pt) const
 {
 	if(pt.y >= y_t && pt.y <= (y_t + y_th)) {
 		if(pt.x >= y_bl && pt.x <= (y_bl + y_bw))
@@ -740,7 +740,7 @@ int TDateCalendar::IsYearMarker(const TPoint pt) const
 	return 0;
 }
 
-int TDateCalendar::IsYearBar(const TPoint pt) const
+int TDateCalendar::IsYearBar(const SPoint2S pt) const
 {
 	if(pt.x >= (y_bl + y_bw) && pt.x <= (y_br - y_bw) && pt.y >= y_t && pt.y <= (y_t + y_th))
 		return 1 + (pt.x - (y_bl + y_bw)) / y_w;
@@ -748,7 +748,7 @@ int TDateCalendar::IsYearBar(const TPoint pt) const
 		return 0;
 }
 
-int TDateCalendar::IsMonthBar(const TPoint pt) const
+int TDateCalendar::IsMonthBar(const SPoint2S pt) const
 {
 	int  m_cell_h = M_CELLH * y_th / 13;
 	int  m_diff_y = M_DIFFY * y_th / 13;
@@ -773,7 +773,7 @@ int TDateCalendar::IsDayBar(int x, int y) const
 	return BIN((x > Left + 2) && (x < Left + (y_br - y_bl) - 3) && (y > Top + cht + 2) && (y < Top + 7 * cht - 3));
 }
 
-void TDateCalendar::SelectMonth(HWND hWnd, const TPoint pt)
+void TDateCalendar::SelectMonth(HWND hWnd, const SPoint2S pt)
 {
 	int    j = (pt.x - Left) * 6 / (y_br - y_bl);
 	int    i = (pt.y - (Top - M_DIFFY * y_th / 13 - 2)) / (M_CELLH * y_th / 13 + 2);
@@ -816,7 +816,7 @@ void TDateCalendar::SelectMonth(HWND hWnd, const TPoint pt)
 	}
 }
 
-void TDateCalendar::SelectQuart(HWND hWnd, const TPoint pt)
+void TDateCalendar::SelectQuart(HWND hWnd, const SPoint2S pt)
 {
 	int    j = (pt.x - Left) * 6 / (y_br - y_bl);
 	int    i = (pt.y - (Top - M_DIFFY * y_th / 13 - 2)) / (M_CELLH * y_th / 13 + 2);
@@ -1005,7 +1005,7 @@ void TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 	}
 }
 
-void TDateCalendar::SelectWeek(HWND hWnd, TPoint pt)
+void TDateCalendar::SelectWeek(HWND hWnd, SPoint2S pt)
 {
 	const int c_cell_w = (y_br - y_bl + 1) / 7;
 	const int c_cell_h = C_CELLH * y_th / 13;
@@ -1139,7 +1139,7 @@ void TDateCalendar::OnLButtonDown(HWND hWnd, LPARAM lParam)
 	int i;
 	//int x = LOWORD(lParam);
 	//int y = HIWORD(lParam);
-	TPoint pt;
+	SPoint2S pt;
 	pt.setwparam(lParam);
 	SetFocus(hWnd);
 	if((i = IsYearBar(pt)) != 0)
@@ -1165,7 +1165,7 @@ void TDateCalendar::OnLButtonDown(HWND hWnd, LPARAM lParam)
 	}
 }
 
-static void FASTCALL SendLButtDownMsg(HWND hWnd, TPoint p)
+static void FASTCALL SendLButtDownMsg(HWND hWnd, SPoint2S p)
 {
 	::SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, p.towparam());
 }
@@ -1174,7 +1174,7 @@ void TDateCalendar::OnTimer(HWND hWnd)
 {
 	int    c_cell_w = (y_br - y_bl + 1) / 7;
 	int    c_cell_h = C_CELLH * y_th / 13;
-	TPoint p;
+	SPoint2S p;
 	unsigned short r = GetKeyState(VK_LEFT);
 	if(r & 0x8000) {
 		CheckTimer();
@@ -1263,7 +1263,7 @@ int TDateCalendar::StepMonth(HWND hWnd, int forward)
 		else
 			ok = -1;
 	if(ok > 0) {
-		TPoint p;
+		SPoint2S p;
 		if(mon <= 6)
 			p.Set((mon - 1) * m_cell_w + Left + 3, Top - m_diff_y + 3);
 		else

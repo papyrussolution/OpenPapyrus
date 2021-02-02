@@ -99,8 +99,8 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint, uint, const char *);
 
 static int canvas_x = -1;       /* current X position */
 static int canvas_y = -1;       /* current Y position */
-static int canvas_xmax = CANVAS_XMAX;
-static int canvas_ymax = CANVAS_YMAX;
+static int canvas_xmax = static_cast<int>(CANVAS_XMAX);
+static int canvas_ymax = static_cast<int>(CANVAS_YMAX);
 static int canvas_line_type = LT_UNDEFINED;
 static int canvas_dash_type = DASHTYPE_SOLID;
 static double canvas_linewidth = 1.0;
@@ -339,8 +339,8 @@ TERM_PUBLIC void CANVAS_options()
 		}
 	}
 
-	term->v_char = canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE;
-	term->h_char = canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE;
+	term->ChrV = canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE;
+	term->ChrH = canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE;
 
 	if(canvas_dashlength_factor != 1.0)
 		sprintf(term_options + strlen(term_options), " dashlength %3.1f", canvas_dashlength_factor);
@@ -531,7 +531,7 @@ TERM_PUBLIC void CANVAS_graphics()
 static void CANVAS_mouse_param(char * gp_name, const char * js_name)
 {
 	struct udvt_entry * udv;
-	if((udv = add_udv_by_name(gp_name))) {
+	if((udv = GPO.Ev.AddUdvByName(gp_name))) {
 		if(udv->udv_value.type == INTGR) {
 			fprintf(gpoutfile, "%s = ", js_name);
 			fprintf(gpoutfile, PLD, udv->udv_value.v.int_val);
@@ -546,9 +546,7 @@ static void CANVAS_mouse_param(char * gp_name, const char * js_name)
 TERM_PUBLIC void CANVAS_text()
 {
 	GpAxis * this_axis;
-
 	CANVAS_finish();
-
 	/* FIXME: I am not sure whether these variable names should always be the */
 	/* same, so that they are re-used by all plots in a document, or whether  */
 	/* they should be tied to the function name and hence private.            */
@@ -1054,7 +1052,7 @@ TERM_PUBLIC void CANVAS_set_color(t_colorspec * colorspec)
 		canvas_state.alpha = (double)((colorspec->lt >> 24) & 0xff)/255.0;
 	}
 	else if(colorspec->type == TC_FRAC) {
-		rgb255maxcolors_from_gray(colorspec->value, &rgb255);
+		GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 	}
 	else
 		return; // Other color types not yet supported 
@@ -1266,8 +1264,8 @@ TERM_PUBLIC int CANVAS_set_font(const char * newfont)
 		}
 	}
 
-	term->v_char = canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE;
-	term->h_char = canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE;
+	term->ChrV = canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE;
+	term->ChrH = canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE;
 
 	return 1;
 }
@@ -1367,12 +1365,12 @@ TERM_PUBLIC void ENHCANVAS_FLUSH()
 		if(ENHCANVAS_show && !ENHCANVAS_sizeonly)
 			CANVAS_put_text(x, y, enhanced_text);
 		if(ENHCANVAS_overprint == 1) {
-			canvas_x += w * cos((double)canvas_text_angle * M_PI_2/90.)/2;
-			canvas_y -= w * sin((double)canvas_text_angle * M_PI_2/90.)/2;
+			canvas_x += w * cos((double)canvas_text_angle * M_PI_2/90.0)/2;
+			canvas_y -= w * sin((double)canvas_text_angle * M_PI_2/90.0)/2;
 		}
 		else if(ENHCANVAS_widthflag) {
-			canvas_x += w * cos((double)canvas_text_angle * M_PI_2/90.);
-			canvas_y -= w * sin((double)canvas_text_angle * M_PI_2/90.);
+			canvas_x += w * cos((double)canvas_text_angle * M_PI_2/90.0);
+			canvas_y -= w * sin((double)canvas_text_angle * M_PI_2/90.0);
 		}
 		canvas_font_size = save_fontsize;
 	}
@@ -1461,12 +1459,12 @@ TERM_PUBLIC void CANVAS_image(unsigned m, unsigned n, coordval * image, gpiPoint
 	TERM_TABLE_START(canvas_driver)
 	"canvas", 
 	"HTML Canvas object",
-	CANVAS_XMAX, 
-	CANVAS_YMAX, 
-	CANVASVCHAR, 
-	CANVASHCHAR,
-	CANVASVTIC, 
-	CANVASHTIC, 
+	static_cast<uint>(CANVAS_XMAX),
+	static_cast<uint>(CANVAS_YMAX),
+	static_cast<uint>(CANVASVCHAR),
+	static_cast<uint>(CANVASHCHAR),
+	static_cast<uint>(CANVASVTIC), 
+	static_cast<uint>(CANVASHTIC), 
 	CANVAS_options, 
 	CANVAS_init, 
 	CANVAS_reset,

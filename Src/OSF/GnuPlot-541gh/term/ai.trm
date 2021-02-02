@@ -170,8 +170,8 @@ TERM_PUBLIC void AI_options()
 				    GpValue a;
 				    ai_fontsize = (int)real(const_express(&a));
 				    ai_oldfontsize = ai_fontsize;
-				    term->v_char = (uint)(ai_fontsize * AI_SC);
-				    term->h_char = (uint)(ai_fontsize * AI_SC * 6 / 10);
+				    term->ChrV = (uint)(ai_fontsize * AI_SC);
+				    term->ChrH = (uint)(ai_fontsize * AI_SC * 6 / 10);
 			    }
 			    break;
 		}

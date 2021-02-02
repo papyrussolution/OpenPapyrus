@@ -37,6 +37,7 @@ extern "C" {
 #define ONIGURUMA_VERSION_MINOR   9
 #define ONIGURUMA_VERSION_TEENY   6
 #define ONIGURUMA_VERSION_INT     60906
+#define ONIG_STATIC // @sobolev
 #ifndef ONIG_STATIC
 	#ifndef ONIG_EXTERN
 		#if defined(_WIN32) && !defined(__GNUC__)

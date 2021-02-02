@@ -335,11 +335,11 @@ static int LUA_GP_is_multiplot(lua_State * L)
  */
 static int LUA_GP_get_all_variables(lua_State * L) 
 {
-	udvt_entry * udv = first_udv;
+	udvt_entry * udv = GPO.Ev.P_FirstUdv;
 	GpValue * val;
 	lua_newtable(L);
 	while(udv) {
-		/* ignore mouse related variables */
+		// ignore mouse related variables 
 		if(!strncmp(udv->udv_name, "MOUSE_", 6)) {
 			udv = udv->next_udv;
 			continue;
@@ -475,20 +475,20 @@ static void LUA_get_term_vars(void) {
 	term->ymax = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_YMAX;
 	lua_pop(L, 1);
 
-	lua_getfield(L, luaterm, "v_char");
-	term->v_char = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VCHAR;
+	lua_getfield(L, luaterm, "ChrV");
+	term->ChrV = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VCHAR;
 	lua_pop(L, 1);
 
-	lua_getfield(L, luaterm, "h_char");
-	term->h_char = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HCHAR;
+	lua_getfield(L, luaterm, "ChrH");
+	term->ChrH = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HCHAR;
 	lua_pop(L, 1);
 
-	lua_getfield(L, luaterm, "v_tic");
-	term->v_tic = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VTIC;
+	lua_getfield(L, luaterm, "TicV");
+	term->TicV = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VTIC;
 	lua_pop(L, 1);
 
-	lua_getfield(L, luaterm, "h_tic");
-	term->h_tic = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HTIC;
+	lua_getfield(L, luaterm, "TicH");
+	term->TicH = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HTIC;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "flags");
@@ -1001,11 +1001,11 @@ TERM_PUBLIC int LUA_set_font(const char * font)
 		lua_term_result = (int)lua_tonumber(L, -1);
 		lua_pop(L, 1);
 		if(lua_term_result) {
-			lua_getfield(L, luaterm, "v_char");
-			term->v_char = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VCHAR;
+			lua_getfield(L, luaterm, "ChrV");
+			term->ChrV = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VCHAR;
 			lua_pop(L, 1);
-			lua_getfield(L, luaterm, "h_char");
-			term->h_char = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HCHAR;
+			lua_getfield(L, luaterm, "ChrH");
+			term->ChrH = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HCHAR;
 			lua_pop(L, 1);
 			return TRUE;
 		}
@@ -1076,7 +1076,7 @@ TERM_PUBLIC void LUA_set_color(t_colorspec * colorspec)
 		if(colorspec->type == TC_FRAC) {
 			if(GPO.SmPltt.Colors != 0) /* finite nb of colors explicitly requested */
 				gray = (gray >= ((double)(GPO.SmPltt.Colors-1)) / GPO.SmPltt.Colors) ? 1 : floor(gray * GPO.SmPltt.Colors) / GPO.SmPltt.Colors;
-			rgb1_from_gray(gray, &color);
+			GPO.Rgb1FromGray(gray, &color);
 		}
 		else if(colorspec->type == TC_RGB) {
 			opacity = 1.0 - (double)(colorspec->lt >> 24 & 255) / 255.0;
@@ -1201,9 +1201,8 @@ TERM_PUBLIC void LUA_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 		lua_newtable(L); /* pixel table */
 		for(i = 0; i < m*n; i++) {
 			if(color_mode == IC_PALETTE) {
-				/* FIXME: Is this correct? Needs a testcase. Would be nice to map it correctly to RGB.
-				   */
-				rgb1maxcolors_from_gray(*image++, &rgb1);
+				// FIXME: Is this correct? Needs a testcase. Would be nice to map it correctly to RGB.
+				GPO.Rgb1MaxColorsFromGray(*image++, &rgb1);
 			}
 			else { /* IC_RGB and IC_RGBA*/
 				rgb1.r = *image++;

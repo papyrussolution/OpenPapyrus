@@ -471,11 +471,11 @@ TERM_PUBLIC void CGM_options()
 		term->xmax = CGM_LARGE - CGM_MARGIN;
 		term->ymax = CGM_SMALL - CGM_MARGIN;
 	}
-	{ /* cgm_font, cgm_fontsize, and/or term->v_char may have changed */
+	{ /* cgm_font, cgm_fontsize, and/or term->ChrV may have changed */
 		double w;
 		CGM_find_font(cgm_font, strlen(cgm_font), &w);
-		term->v_char = (uint)(cgm_fontsize*CGM_PT);
-		term->h_char = (uint)(cgm_fontsize*CGM_PT*.527*w);
+		term->ChrV = (uint)(cgm_fontsize*CGM_PT);
+		term->ChrH = (uint)(cgm_fontsize*CGM_PT*.527*w);
 	}
 
 	sprintf(CGM_default_font, "%s,%d", cgm_font, cgm_fontsize);
@@ -526,8 +526,8 @@ static void CGM_local_reset()
 	strcpy(cgm_font, DEFAULT_CGMFONT);
 	CGM_find_font(cgm_font, strlen(cgm_font), &w);
 	cgm_fontsize = 12;
-	term->v_char = (uint)(cgm_fontsize * CGM_PT);
-	term->h_char = (uint)(cgm_fontsize * CGM_PT * .527 * w);
+	term->ChrV = (uint)(cgm_fontsize * CGM_PT);
+	term->ChrH = (uint)(cgm_fontsize * CGM_PT * .527 * w);
 	cgm_linewidth_pt = 1;
 	cgm_monochrome = FALSE;
 	cgm_plotwidth = 6 * 72;
@@ -740,7 +740,7 @@ Gnuplot version %s patchlevel %s,\
 	CGM_linecolor(0);
 
 	cgm_current = cgm_reset;
-	cgm_next.char_height = t->v_char;
+	cgm_next.char_height = t->ChrV;
 
 	CGM_write_int_record(5, 22, 2, interior_style_data);
 	CGM_write_int_record(5, 24, 2, hatch_index_data);
@@ -810,11 +810,11 @@ TERM_PUBLIC int CGM_set_font(const char * font)
 	if(comma)
 		sscanf(comma + 1, "%d", &size);
 	if(size > 0) {
-		t->v_char = size * CGM_PT;
-		t->h_char = size * CGM_PT * .527 * width;
+		t->ChrV = size * CGM_PT;
+		t->ChrH = size * CGM_PT * .527 * width;
 	}
 
-	cgm_next.char_height = t->v_char;
+	cgm_next.char_height = t->ChrV;
 
 	return TRUE;
 }
@@ -1566,7 +1566,7 @@ TERM_PUBLIC void CGM_set_pointsize(double size)
 	   continued fractions. */
 	if(size < 0)
 		size = 1;
-	cgm_tic = (size * term->h_tic / 2);
+	cgm_tic = (size * term->TicH / 2);
 	cgm_tic707 = cgm_tic * 12 / 17;
 	cgm_tic866 = cgm_tic * 13 / 15;
 	cgm_tic500 = cgm_tic / 2;

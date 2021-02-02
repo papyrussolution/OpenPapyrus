@@ -13,21 +13,20 @@ static double carlson_elliptic_rj(double x, double y, double z, double p);
 #define PI_ON_TWO        1.57079632679489661923131269163975144
 #define THREE_PI_ON_FOUR 2.35619449019234492884698253745962716
 #define TWO_ON_PI        0.63661977236758134307553505349005744
-
-/* April 2018
- * libm does not provide Bessel approximations for i0 and i1
- * so we do not include these in the conditional HAVE_LIBM
- */
+// 
+// April 2018
+// libm does not provide Bessel approximations for i0 and i1
+// so we do not include these in the conditional HAVE_LIBM
+// 
 static double ri0(double x);
 static double ri1(double x);
 
 #ifndef HAVE_LIBM
-
-/* June 2017
- * These hard-coded Bessel approximations are used only if we
- * can't use the functions in libm
- */
-
+// 
+// June 2017
+// These hard-coded Bessel approximations are used only if we
+// can't use the functions in libm
+// 
 static double jzero(double x);
 static double pzero(double x);
 static double qzero(double x);
@@ -40,25 +39,22 @@ static double qone(double x);
 static double yone(double x);
 static double rj1(double x);
 static double ry1(double x);
-
-/* The bessel function approximations here are from
- * "Computer Approximations"
- * by Hart, Cheney et al.
- * John Wiley & Sons, 1968
- */
+// 
+// The bessel function approximations here are from
+// "Computer Approximations"
+// by Hart, Cheney et al.
+// John Wiley & Sons, 1968
+// 
 static double dzero = 0.0;
-
-/* There appears to be a mistake in Hart, Cheney et al. on page 149.
- * Where it list Qn(x)/x ~ P(z*z)/Q(z*z), z = 8/x, it should read
- *               Qn(x)/z ~ P(z*z)/Q(z*z), z = 8/x
- * In the functions below, Qn(x) is implemented using the later
- * equation.
- * These bessel functions are accurate to about 1e-13.
- */
-
-/* jzero for x in [0,8]
- * Index 5849, 19.22 digits precision
- */
+// 
+// There appears to be a mistake in Hart, Cheney et al. on page 149.
+// Where it list Qn(x)/x ~ P(z*z)/Q(z*z), z = 8/x, it should read Qn(x)/z ~ P(z*z)/Q(z*z), z = 8/x
+// In the functions below, Qn(x) is implemented using the later equation.
+// These bessel functions are accurate to about 1e-13.
+// 
+// jzero for x in [0,8]
+// Index 5849, 19.22 digits precision
+// 
 static double pjzero[] = {
 	0.4933787251794133561816813446e+21,
 	-0.11791576291076105360384408e+21,
@@ -393,10 +389,10 @@ static double cheb_i1_B[] =
 	-9.76109749136146840777E-3,
 	7.78576235018280120474E-1
 };
-/*
- * Make all the following internal routines perform autoconversion
- * from string to numeric value.
- */
+// 
+// Make all the following internal routines perform autoconversion
+// from string to numeric value.
+// 
 #define __POP__(x) pop_or_convert_from_string(x)
 
 //void f_real(union argument * /*arg*/)
@@ -421,48 +417,53 @@ void GnuPlot::F_Arg(union argument * /*arg*/)
 	EvStk.Push(Gcomplex(&a, angle(__POP__(&a)) / ang2rad, 0.0));
 }
 
-void f_conjg(union argument * /*arg*/)
+//void f_conjg(union argument * /*arg*/)
+void GnuPlot::F_Conjg(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	GPO.EvStk.Push(Gcomplex(&a, real(&a), -imag(&a)));
+	EvStk.Push(Gcomplex(&a, real(&a), -imag(&a)));
 }
 
 /* ang2rad is 1 if we are in radians, or pi/180 if we are in degrees */
 
-void f_sin(union argument * /*arg*/)
+//void f_sin(union argument * /*arg*/)
+void GnuPlot::F_Sin(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	GPO.EvStk.Push(Gcomplex(&a, sin(ang2rad * real(&a)) * cosh(ang2rad * imag(&a)), cos(ang2rad * real(&a)) * sinh(ang2rad * imag(&a))));
+	EvStk.Push(Gcomplex(&a, sin(ang2rad * real(&a)) * cosh(ang2rad * imag(&a)), cos(ang2rad * real(&a)) * sinh(ang2rad * imag(&a))));
 }
 
-void f_cos(union argument * /*arg*/)
+//void f_cos(union argument * /*arg*/)
+void GnuPlot::F_Cos(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	GPO.EvStk.Push(Gcomplex(&a, cos(ang2rad * real(&a)) * cosh(ang2rad * imag(&a)), -sin(ang2rad * real(&a)) * sinh(ang2rad * imag(&a))));
+	EvStk.Push(Gcomplex(&a, cos(ang2rad * real(&a)) * cosh(ang2rad * imag(&a)), -sin(ang2rad * real(&a)) * sinh(ang2rad * imag(&a))));
 }
 
-void f_tan(union argument * /*arg*/)
+//void f_tan(union argument * /*arg*/)
+void GnuPlot::F_Tan(union argument * /*arg*/)
 {
 	GpValue a;
 	double den;
 	__POP__(&a);
 	if(imag(&a) == 0.0)
-		GPO.EvStk.Push(Gcomplex(&a, tan(ang2rad * real(&a)), 0.0));
+		EvStk.Push(Gcomplex(&a, tan(ang2rad * real(&a)), 0.0));
 	else {
 		den = cos(2 * ang2rad * real(&a)) + cosh(2 * ang2rad * imag(&a));
 		if(den == 0.0) {
-			__IsUndefined = true;
-			GPO.EvStk.Push(&a);
+			Ev.IsUndefined_ = true;
+			EvStk.Push(&a);
 		}
 		else
-			GPO.EvStk.Push(Gcomplex(&a, sin(2 * ang2rad * real(&a)) / den, sinh(2 * ang2rad * imag(&a)) / den));
+			EvStk.Push(Gcomplex(&a, sin(2 * ang2rad * real(&a)) / den, sinh(2 * ang2rad * imag(&a)) / den));
 	}
 }
 
-void f_asin(union argument * /*arg*/)
+//void f_asin(union argument * /*arg*/)
+void GnuPlot::F_ASin(union argument * /*arg*/)
 {
 	GpValue a;
 	double alpha, beta;
@@ -472,14 +473,14 @@ void f_asin(union argument * /*arg*/)
 	double y = imag(&a);
 	int ysign = (y >= 0) ? 1 : -1;
 	if(y == 0.0 && fabs(x) <= 1.0) {
-		GPO.EvStk.Push(Gcomplex(&a, asin(x) / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, asin(x) / ang2rad, 0.0));
 	}
 	else if(x == 0.0) {
 		// Rearrange terms to avoid loss of precision 
 		// t = -log(-y + sqrt(y * y + 1)) 
 		alpha = sqrt(1 + y * y);
 		t = ysign * log(alpha + sqrt(alpha * alpha - 1));
-		GPO.EvStk.Push(Gcomplex(&a, 0.0, t / ang2rad));
+		EvStk.Push(Gcomplex(&a, 0.0, t / ang2rad));
 	}
 	else {
 		beta = sqrt((x + 1) * (x + 1) + y * y) / 2 - sqrt((x - 1) * (x - 1) + y * y) / 2;
@@ -487,11 +488,12 @@ void f_asin(union argument * /*arg*/)
 			beta = 1; // Avoid rounding error problems 
 		alpha = sqrt((x + 1) * (x + 1) + y * y) / 2 + sqrt((x - 1) * (x - 1) + y * y) / 2;
 		t = ysign * log(alpha + sqrt(alpha * alpha - 1));
-		GPO.EvStk.Push(Gcomplex(&a, asin(beta) / ang2rad, t / ang2rad));
+		EvStk.Push(Gcomplex(&a, asin(beta) / ang2rad, t / ang2rad));
 	}
 }
 
-void f_acos(union argument * /*arg*/)
+//void f_acos(union argument * /*arg*/)
+void GnuPlot::F_ACos(union argument * /*arg*/)
 {
 	GpValue a;
 	double ysign;
@@ -500,7 +502,7 @@ void f_acos(union argument * /*arg*/)
 	double y = imag(&a);
 	if(y == 0.0 && fabs(x) <= 1.0) {
 		// real result 
-		GPO.EvStk.Push(Gcomplex(&a, acos(x) / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, acos(x) / ang2rad, 0.0));
 	}
 	else {
 		double alpha = sqrt((x + 1) * (x + 1) + y * y) / 2 + sqrt((x - 1) * (x - 1) + y * y) / 2;
@@ -510,11 +512,12 @@ void f_acos(union argument * /*arg*/)
 		else if(beta < -1)
 			beta = -1;
 		ysign = (y >= 0) ? 1 : -1;
-		GPO.EvStk.Push(Gcomplex(&a, acos(beta) / ang2rad, -ysign * log(alpha + sqrt(alpha * alpha - 1)) / ang2rad));
+		EvStk.Push(Gcomplex(&a, acos(beta) / ang2rad, -ysign * log(alpha + sqrt(alpha * alpha - 1)) / ang2rad));
 	}
 }
 
-void f_atan(union argument * /*arg*/)
+//void f_atan(union argument * /*arg*/)
+void GnuPlot::F_ATan(union argument * /*arg*/)
 {
 	GpValue a;
 	double u, v, w, z;
@@ -522,10 +525,10 @@ void f_atan(union argument * /*arg*/)
 	double x = real(&a);
 	double y = imag(&a);
 	if(y == 0.0)
-		GPO.EvStk.Push(Gcomplex(&a, atan(x) / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, atan(x) / ang2rad, 0.0));
 	else if(x == 0.0 && fabs(y) >= 1.0) {
-		__IsUndefined = true;
-		GPO.EvStk.Push(Gcomplex(&a, 0.0, 0.0));
+		Ev.IsUndefined_ = true;
+		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 	}
 	else {
 		if(x >= 0) {
@@ -544,39 +547,43 @@ void f_atan(union argument * /*arg*/)
 			z = -z;
 			w = -w;
 		}
-		GPO.EvStk.Push(Gcomplex(&a, 0.5 * z / ang2rad, w));
+		EvStk.Push(Gcomplex(&a, 0.5 * z / ang2rad, w));
 	}
 }
 //
 // real parts only 
 //
-void f_atan2(union argument * /*arg*/)
+//void f_atan2(union argument * /*arg*/)
+void GnuPlot::F_ATan2(union argument * /*arg*/)
 {
 	GpValue a;
 	double x = real(__POP__(&a));
 	double y = real(__POP__(&a));
 	if(x == 0.0 && y == 0.0) {
-		__IsUndefined = true;
-		GPO.EvStk.Push(Ginteger(&a, 0));
+		Ev.IsUndefined_ = true;
+		EvStk.Push(Ginteger(&a, 0));
 	}
-	GPO.EvStk.Push(Gcomplex(&a, atan2(y, x) / ang2rad, 0.0));
+	EvStk.Push(Gcomplex(&a, atan2(y, x) / ang2rad, 0.0));
 }
 
-void f_sinh(union argument * /*arg*/)
+//void f_sinh(union argument * /*arg*/)
+void GnuPlot::F_Sinh(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	GPO.EvStk.Push(Gcomplex(&a, sinh(real(&a)) * cos(imag(&a)), cosh(real(&a)) * sin(imag(&a))));
+	EvStk.Push(Gcomplex(&a, sinh(real(&a)) * cos(imag(&a)), cosh(real(&a)) * sin(imag(&a))));
 }
 
-void f_cosh(union argument * /*arg*/)
+//void f_cosh(union argument * /*arg*/)
+void GnuPlot::F_Cosh(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	GPO.EvStk.Push(Gcomplex(&a, cosh(real(&a)) * cos(imag(&a)), sinh(real(&a)) * sin(imag(&a))));
+	EvStk.Push(Gcomplex(&a, cosh(real(&a)) * cos(imag(&a)), sinh(real(&a)) * sin(imag(&a))));
 }
 
-void f_tanh(union argument * /*arg*/)
+//void f_tanh(union argument * /*arg*/)
+void GnuPlot::F_Tanh(union argument * /*arg*/)
 {
 	GpValue a;
 	double den;
@@ -586,7 +593,7 @@ void f_tanh(union argument * /*arg*/)
 	imag_2arg = 2. * imag(&a);
 #ifdef E_MINEXP
 	if(-fabs(real_2arg) < E_MINEXP) {
-		GPO.EvStk.Push(Gcomplex(&a, real_2arg < 0 ? -1.0 : 1.0, 0.0));
+		EvStk.Push(Gcomplex(&a, real_2arg < 0 ? -1.0 : 1.0, 0.0));
 		return;
 	}
 #else
@@ -595,16 +602,17 @@ void f_tanh(union argument * /*arg*/)
 		if(exp(-fabs(real_2arg)) == 0.0) {
 			/* some libm's will raise a silly ERANGE in cosh() and sin() */
 			errno = old_errno;
-			GPO.EvStk.Push(Gcomplex(&a, real_2arg < 0 ? -1.0 : 1.0, 0.0));
+			EvStk.Push(Gcomplex(&a, real_2arg < 0 ? -1.0 : 1.0, 0.0));
 			return;
 		}
 	}
 #endif
 	den = cosh(real_2arg) + cos(imag_2arg);
-	GPO.EvStk.Push(Gcomplex(&a, sinh(real_2arg) / den, sin(imag_2arg) / den));
+	EvStk.Push(Gcomplex(&a, sinh(real_2arg) / den, sin(imag_2arg) / den));
 }
 
-void f_asinh(union argument * arg)
+//void f_asinh(union argument * arg)
+void GnuPlot::F_ASinh(union argument * arg)
 {
 	GpValue a;      /* asinh(z) = -I*asin(I*z) */
 	double alpha, beta, x, y;
@@ -615,28 +623,29 @@ void f_asinh(union argument * arg)
 	y = real(&a);
 	ysign = (y >= 0) ? 1 : -1;
 	if(y == 0.0 && fabs(x) <= 1.0) {
-		GPO.EvStk.Push(Gcomplex(&a, 0.0, -asin(x) / ang2rad));
+		EvStk.Push(Gcomplex(&a, 0.0, -asin(x) / ang2rad));
 	}
 	else if(y == 0.0) {
-		GPO.EvStk.Push(Gcomplex(&a, 0.0, 0.0));
-		__IsUndefined = true;
+		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
+		Ev.IsUndefined_ = true;
 	}
 	else if(x == 0.0) {
 		/* Rearrange terms to avoid loss of precision */
 		/* t = log(y + sqrt(y * y + 1)) */
 		alpha = sqrt(y * y + 1);
 		t = ysign * log(alpha + sqrt(alpha * alpha - 1));
-		GPO.EvStk.Push(Gcomplex(&a, t / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, t / ang2rad, 0.0));
 	}
 	else {
 		beta  = sqrt((x + 1) * (x + 1) + y * y) / 2 - sqrt((x - 1) * (x - 1) + y * y) / 2;
 		alpha = sqrt((x + 1) * (x + 1) + y * y) / 2 + sqrt((x - 1) * (x - 1) + y * y) / 2;
 		t = ysign * log(alpha + sqrt(alpha * alpha - 1));
-		GPO.EvStk.Push(Gcomplex(&a, t / ang2rad, -asin(beta) / ang2rad));
+		EvStk.Push(Gcomplex(&a, t / ang2rad, -asin(beta) / ang2rad));
 	}
 }
 
-void f_acosh(union argument * arg)
+//void f_acosh(union argument * arg)
+void GnuPlot::F_ACosh(union argument * arg)
 {
 	GpValue a;
 	double alpha, beta, x, y; /* acosh(z) = I*acos(z) */
@@ -644,19 +653,20 @@ void f_acosh(union argument * arg)
 	x = real(&a);
 	y = imag(&a);
 	if(y == 0.0 && fabs(x) <= 1.0) {
-		GPO.EvStk.Push(Gcomplex(&a, 0.0, acos(x) / ang2rad));
+		EvStk.Push(Gcomplex(&a, 0.0, acos(x) / ang2rad));
 	}
 	else if(y == 0.0 && x > 1.0) {
-		GPO.EvStk.Push(Gcomplex(&a, log(x + sqrt(x * x - 1)) / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, log(x + sqrt(x * x - 1)) / ang2rad, 0.0));
 	}
 	else {
 		alpha = sqrt((x + 1) * (x + 1) + y * y) / 2 + sqrt((x - 1) * (x - 1) + y * y) / 2;
 		beta = sqrt((x + 1) * (x + 1) + y * y) / 2 - sqrt((x - 1) * (x - 1) + y * y) / 2;
-		GPO.EvStk.Push(Gcomplex(&a, log(alpha + sqrt(alpha * alpha - 1)) / ang2rad, (y<0 ? -1 : 1) * acos(beta) / ang2rad));
+		EvStk.Push(Gcomplex(&a, log(alpha + sqrt(alpha * alpha - 1)) / ang2rad, (y<0 ? -1 : 1) * acos(beta) / ang2rad));
 	}
 }
 
-void f_atanh(union argument * arg)
+//void f_atanh(union argument * arg)
+void GnuPlot::F_ATanh(union argument * arg)
 {
 	GpValue a;
 	double x, y, u, v, w, z; /* atanh(z) = -I*atan(I*z) */
@@ -664,10 +674,10 @@ void f_atanh(union argument * arg)
 	x = -imag(&a);
 	y = real(&a);
 	if(y == 0.0)
-		GPO.EvStk.Push(Gcomplex(&a, 0.0, -atan(x) / ang2rad));
+		EvStk.Push(Gcomplex(&a, 0.0, -atan(x) / ang2rad));
 	else if(x == 0.0 && fabs(y) >= 1.0) {
-		__IsUndefined = true;
-		GPO.EvStk.Push(Gcomplex(&a, 0.0, 0.0));
+		Ev.IsUndefined_ = true;
+		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 	}
 	else {
 		if(x >= 0) {
@@ -686,66 +696,69 @@ void f_atanh(union argument * arg)
 			z = -z;
 			w = -w;
 		}
-		GPO.EvStk.Push(Gcomplex(&a, w, -0.5 * z / ang2rad));
+		EvStk.Push(Gcomplex(&a, w, -0.5 * z / ang2rad));
 	}
 }
 
-void f_ellip_first(union argument * arg)
+//void f_ellip_first(union argument * arg)
+void GnuPlot::F_EllipFirst(union argument * arg)
 {
 	GpValue a;
 	double ak, q;
 	__POP__(&a);
 	if(fabs(imag(&a)) > zero)
-		GPO.IntError(NO_CARET, "can only do elliptic integrals of reals");
+		IntError(NO_CARET, "can only do elliptic integrals of reals");
 	ak = real(&a);
 	q = (1.0-ak)*(1.0+ak);
 	if(q > 0.0)
-		GPO.EvStk.Push(Gcomplex(&a, carlson_elliptic_rf(0.0, q, 1.0), 0.0));
+		EvStk.Push(Gcomplex(&a, carlson_elliptic_rf(0.0, q, 1.0), 0.0));
 	else {
-		GPO.EvStk.Push(&a);
-		__IsUndefined = true;
+		EvStk.Push(&a);
+		Ev.IsUndefined_ = true;
 	}
 }
 
-void f_ellip_second(union argument * /*arg*/)
+//void f_ellip_second(union argument * /*arg*/)
+void GnuPlot::F_EllipSecond(union argument * /*arg*/)
 {
 	GpValue a;
 	double ak, q, e;
 	__POP__(&a);
 	if(fabs(imag(&a)) > zero)
-		GPO.IntError(NO_CARET, "can only do elliptic integrals of reals");
+		IntError(NO_CARET, "can only do elliptic integrals of reals");
 	ak = real(&a);
 	q = (1.0-ak)*(1.0+ak);
 	if(q > 0.0) {
 		e = carlson_elliptic_rf(0.0, q, 1.0)-(ak*ak)*carlson_elliptic_rd(0.0, q, 1.0)/3.0;
-		GPO.EvStk.Push(Gcomplex(&a, e, 0.0));
+		EvStk.Push(Gcomplex(&a, e, 0.0));
 	}
 	else if(q < 0.0) {
-		__IsUndefined = true;
-		GPO.EvStk.Push(&a);
+		Ev.IsUndefined_ = true;
+		EvStk.Push(&a);
 	}
 	else {
 		e = 1.0;
-		GPO.EvStk.Push(Gcomplex(&a, e, 0.0));
+		EvStk.Push(Gcomplex(&a, e, 0.0));
 	}
 }
 
-void f_ellip_third(union argument * arg)
+//void f_ellip_third(union argument * arg)
+void GnuPlot::F_EllipThird(union argument * arg)
 {
 	GpValue a1, a2;
 	double ak, en, q;
 	__POP__(&a1);
 	__POP__(&a2);
 	if(fabs(imag(&a1)) > zero || fabs(imag(&a2)) > zero)
-		GPO.IntError(NO_CARET, "can only do elliptic integrals of reals");
+		IntError(NO_CARET, "can only do elliptic integrals of reals");
 	ak = real(&a1);
 	en = real(&a2);
 	q = (1.0-ak)*(1.0+ak);
 	if(q > 0.0 && en < 1.0)
-		GPO.EvStk.Push(Gcomplex(&a2, carlson_elliptic_rf(0.0, q, 1.0)+en*carlson_elliptic_rj(0.0, q, 1.0, 1.0-en)/3.0, 0.0));
+		EvStk.Push(Gcomplex(&a2, carlson_elliptic_rf(0.0, q, 1.0)+en*carlson_elliptic_rj(0.0, q, 1.0, 1.0-en)/3.0, 0.0));
 	else {
-		__IsUndefined = true;
-		GPO.EvStk.Push(&a1);
+		Ev.IsUndefined_ = true;
+		EvStk.Push(&a1);
 	}
 }
 // 
@@ -765,15 +778,15 @@ void GnuPlot::F_Int(union argument * /*arg*/)
 	double foo = real(__POP__(&a));
 	if(a.type == NOTDEFINED || isnan(foo)) {
 		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 	}
 	else if(a.type == INTGR) {
 		EvStk.Push(&a);
 #ifdef GNUPLOT_INT64_SUPPORT
 	}
 	else if(fabs(foo) >= LARGEST_GUARANTEED_NONOVERFLOW) {
-		if(overflow_handling == INT64_OVERFLOW_UNDEFINED)
-			__IsUndefined = true;
+		if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
+			Ev.IsUndefined_ = true;
 		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
 #else
 	}
@@ -797,15 +810,15 @@ void GnuPlot::F_Round(union argument * /*arg*/)
 	double foo = real(__POP__(&a));
 	if(a.type == NOTDEFINED || isnan(foo)) {
 		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
-		__IsUndefined = true;
+		GPO.Ev.IsUndefined_ = true;
 	}
 	else if(a.type == INTGR) {
 		EvStk.Push(&a);
 #ifdef GNUPLOT_INT64_SUPPORT
 	}
 	else if(fabs(foo) >= LARGEST_EXACT_INT/2.) {
-		if(overflow_handling == INT64_OVERFLOW_UNDEFINED)
-			__IsUndefined = true;
+		if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
+			Ev.IsUndefined_ = true;
 		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
 #else
 	}
@@ -819,115 +832,122 @@ void GnuPlot::F_Round(union argument * /*arg*/)
 
 #define BAD_DEFAULT default: GPO.IntError(NO_CARET, "internal error : argument neither INT or CMPLX")
 
-void f_abs(union argument * /*arg*/)
+//void f_abs(union argument * /*arg*/)
+void GnuPlot::F_Abs(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
 	switch(a.type) {
 		case INTGR:
-		    GPO.EvStk.Push(Ginteger(&a, a.v.int_val < 0 ? -a.v.int_val : a.v.int_val));
+		    EvStk.Push(Ginteger(&a, a.v.int_val < 0 ? -a.v.int_val : a.v.int_val));
 		    break;
 		case CMPLX:
-		    GPO.EvStk.Push(Gcomplex(&a, magnitude(&a), 0.0));
+		    EvStk.Push(Gcomplex(&a, magnitude(&a), 0.0));
 		    break;
 		    BAD_DEFAULT;
 	}
 }
 
-void f_sgn(union argument * /*arg*/)
+//void f_sgn(union argument * /*arg*/)
+void GnuPlot::F_Sgn(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
 	switch(a.type) {
 		case INTGR:
-		    GPO.EvStk.Push(Ginteger(&a, (a.v.int_val > 0) ? 1 : (a.v.int_val < 0) ? -1 : 0));
+		    EvStk.Push(Ginteger(&a, (a.v.int_val > 0) ? 1 : (a.v.int_val < 0) ? -1 : 0));
 		    break;
 		case CMPLX:
-		    GPO.EvStk.Push(Ginteger(&a, (a.v.cmplx_val.real > 0.0) ? 1 : (a.v.cmplx_val.real < 0.0) ? -1 : 0));
+		    EvStk.Push(Ginteger(&a, (a.v.cmplx_val.real > 0.0) ? 1 : (a.v.cmplx_val.real < 0.0) ? -1 : 0));
 		    break;
 		    BAD_DEFAULT;
 	}
 }
 
-void f_sqrt(union argument * /*arg*/)
+//void f_sqrt(union argument * /*arg*/)
+void GnuPlot::F_Sqrt(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
 	double mag = sqrt(magnitude(&a));
 	if(imag(&a) == 0.0) {
 		if(real(&a) < 0.0)
-			GPO.EvStk.Push(Gcomplex(&a, 0.0, mag));
+			EvStk.Push(Gcomplex(&a, 0.0, mag));
 		else
-			GPO.EvStk.Push(Gcomplex(&a, mag, 0.0));
+			EvStk.Push(Gcomplex(&a, mag, 0.0));
 	}
 	else {
-		/* -pi < ang < pi, so real(sqrt(z)) >= 0 */
+		// -pi < ang < pi, so real(sqrt(z)) >= 0 
 		double ang = angle(&a) / 2.0;
-		GPO.EvStk.Push(Gcomplex(&a, mag * cos(ang), mag * sin(ang)));
+		EvStk.Push(Gcomplex(&a, mag * cos(ang), mag * sin(ang)));
 	}
 }
 
-void f_exp(union argument * /*arg*/)
+//void f_exp(union argument * /*arg*/)
+void GnuPlot::F_Exp(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
 	double mag = gp_exp(real(&a));
 	double ang = imag(&a);
-	GPO.EvStk.Push(Gcomplex(&a, mag * cos(ang), mag * sin(ang)));
+	EvStk.Push(Gcomplex(&a, mag * cos(ang), mag * sin(ang)));
 }
 
-void f_log10(union argument * /*arg*/)
+//void f_log10(union argument * /*arg*/)
+void GnuPlot::F_Log10(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
 	if(magnitude(&a) == 0.0) {
-		__IsUndefined = true;
-		GPO.EvStk.Push(&a);
+		Ev.IsUndefined_ = true;
+		EvStk.Push(&a);
 	}
 	else
-		GPO.EvStk.Push(Gcomplex(&a, log(magnitude(&a)) / M_LN10, angle(&a) / M_LN10));
+		EvStk.Push(Gcomplex(&a, log(magnitude(&a)) / M_LN10, angle(&a) / M_LN10));
 }
 
-void f_log(union argument * /*arg*/)
+//void f_log(union argument * /*arg*/)
+void GnuPlot::F_Log(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
 	if(magnitude(&a) == 0.0) {
-		__IsUndefined = true;
-		GPO.EvStk.Push(&a);
+		Ev.IsUndefined_ = true;
+		EvStk.Push(&a);
 	}
 	else
-		GPO.EvStk.Push(Gcomplex(&a, log(magnitude(&a)), angle(&a)));
+		EvStk.Push(Gcomplex(&a, log(magnitude(&a)), angle(&a)));
 }
 // 
 // This is a wrapper for C99 floor(x) except that we always return an int.
 // If x is so large that floor(x) would not necessarily be the nearest int
 // due to limited precision, we return NaN rather than an incorrect integer.
 // 
-void f_floor(union argument * /*arg*/)
+//void f_floor(union argument * /*arg*/)
+void GnuPlot::F_Floor(union argument * /*arg*/)
 {
 	GpValue a;
 	double foo;
 	__POP__(&a);
 	switch(a.type) {
 		case INTGR:
-		    GPO.EvStk.Push(&a);
+		    EvStk.Push(&a);
 		    break;
 		case CMPLX:
 		    foo = a.v.cmplx_val.real;
 #ifdef GNUPLOT_INT64_SUPPORT
 		    // Note: this test catches NaN also 
 		    if(!(fabs(foo) < LARGEST_EXACT_INT/2.)) {
-			    if(overflow_handling == INT64_OVERFLOW_UNDEFINED)
-				    __IsUndefined = true;
-			    GPO.EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+			    if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
+				    Ev.IsUndefined_ = true;
+			    EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
 #else
 		    if(fabs(foo) >= LARGEST_GUARANTEED_NONOVERFLOW) {
-			    GPO.EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+			    EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
 #endif
 		    }
 		    else {
-			    GPO.EvStk.Push(Ginteger(&a, (intgr_t)floor(foo)));
+			    EvStk.Push(Ginteger(&a, (intgr_t)floor(foo)));
 		    }
 		    break;
 		    BAD_DEFAULT;
@@ -938,30 +958,31 @@ void f_floor(union argument * /*arg*/)
 // If x is so large that ceil(x) would not necessarily be the nearest int
 // due to limited precision, we return NaN rather than an incorrect integer.
 // 
-void f_ceil(union argument * /*arg*/)
+//void f_ceil(union argument * /*arg*/)
+void GnuPlot::F_Ceil(union argument * /*arg*/)
 {
 	GpValue a;
 	double foo;
 	__POP__(&a);
 	switch(a.type) {
 		case INTGR:
-		    GPO.EvStk.Push(&a);
+		    EvStk.Push(&a);
 		    break;
 		case CMPLX:
 		    foo = a.v.cmplx_val.real;
 #ifdef GNUPLOT_INT64_SUPPORT
 		    // Note: this test catches NaN also 
 		    if(!(fabs(foo) < LARGEST_EXACT_INT/2.)) {
-			    if(overflow_handling == INT64_OVERFLOW_UNDEFINED)
-				    __IsUndefined = true;
-			    GPO.EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+			    if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
+				    Ev.IsUndefined_ = true;
+			    EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
 #else
 		    if(fabs(foo) >= LARGEST_GUARANTEED_NONOVERFLOW) {
-			    GPO.EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+			    EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
 #endif
 		    }
 		    else {
-			    GPO.EvStk.Push(Ginteger(&a, (intgr_t)ceil(foo)));
+			    EvStk.Push(Ginteger(&a, (intgr_t)ceil(foo)));
 		    }
 		    break;
 		    BAD_DEFAULT;
@@ -973,17 +994,17 @@ void f_ceil(union argument * /*arg*/)
 // EAM - replacement for defined(foo) + f_pushv + f_isvar
 //       implements      exists("foo") instead
 // 
-void f_exists(union argument * /*arg*/)
+void GnuPlot::F_Exists(union argument * /*arg*/)
 {
 	GpValue a;
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	if(a.type == STRING) {
-		udvt_entry * udv = add_udv_by_name(a.v.string_val);
+		udvt_entry * udv = Ev.AddUdvByName(a.v.string_val);
 		gpfree_string(&a);
-		GPO.EvStk.Push(Ginteger(&a, udv->udv_value.type == NOTDEFINED ? 0 : 1));
+		EvStk.Push(Ginteger(&a, udv->udv_value.type == NOTDEFINED ? 0 : 1));
 	}
 	else {
-		GPO.EvStk.Push(Ginteger(&a, 0));
+		EvStk.Push(Ginteger(&a, 0));
 	}
 }
 
@@ -1260,7 +1281,7 @@ void GnuPlot::F_Besy0(union argument * /*arg*/)
 		EvStk.Push(Gcomplex(&a, ry0(real(&a)), 0.0));
 	else {
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
-		__IsUndefined = true;
+		Ev.IsUndefined_ = true;
 	}
 }
 
@@ -1274,7 +1295,7 @@ void GnuPlot::F_Besy1(union argument * /*arg*/)
 		EvStk.Push(Gcomplex(&a, ry1(real(&a)), 0.0));
 	else {
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
-		__IsUndefined = true;
+		Ev.IsUndefined_ = true;
 	}
 }
 
@@ -1285,7 +1306,7 @@ void GnuPlot::F_Besjn(union argument * /*arg*/)
 	EvStk.Pop(&n);
 	if((n.type != INTGR) || (fabs(imag(&a)) > zero)) {
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
-		__IsUndefined = true;
+		Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besjn(int,real)");
 	}
 	else {
@@ -1300,7 +1321,7 @@ void GnuPlot::F_Besyn(union argument * /*arg*/)
 	EvStk.Pop(&n);
 	if((n.type != INTGR) || (fabs(imag(&a)) > zero)) {
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
-		__IsUndefined = true;
+		Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besyn(int,real)");
 	}
 	else {
@@ -1316,26 +1337,27 @@ void GnuPlot::F_Besyn(union argument * /*arg*/)
 	{                                                               \
 		GpValue a;                                          \
 		struct tm tm;                                               \
-		GPO.EvStk.Pop(&a);                                             \
+		EvStk.Pop(&a);                                             \
 		ggmtime(&tm, real(&a));                                     \
-		GPO.EvStk.Push(Gcomplex(&a, (double)tm.field, 0.0));                  \
+		EvStk.Push(Gcomplex(&a, (double)tm.field, 0.0));                  \
 	}
 
-TIMEFUNC(f_tmsec, tm_sec)
-TIMEFUNC(f_tmmin, tm_min)
-TIMEFUNC(f_tmhour, tm_hour)
-TIMEFUNC(f_tmmday, tm_mday)
-TIMEFUNC(f_tmmon, tm_mon)
-TIMEFUNC(f_tmyear, tm_year)
-TIMEFUNC(f_tmwday, tm_wday)
-TIMEFUNC(f_tmyday, tm_yday)
+TIMEFUNC(GnuPlot::F_TmSec, tm_sec)
+TIMEFUNC(GnuPlot::F_TmMin, tm_min)
+TIMEFUNC(GnuPlot::F_TmHour, tm_hour)
+TIMEFUNC(GnuPlot::F_TmMDay, tm_mday)
+TIMEFUNC(GnuPlot::F_TmMon, tm_mon)
+TIMEFUNC(GnuPlot::F_TmYear, tm_year)
+TIMEFUNC(GnuPlot::F_TmWDay, tm_wday)
+TIMEFUNC(GnuPlot::F_TmYDay, tm_yday)
 
-void f_tmweek(union argument * /*arg*/)
+//void f_tmweek(union argument * /*arg*/)
+void GnuPlot::F_TmWeek(union argument * /*arg*/)
 {
 	GpValue a;
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	int week = tmweek(real(&a));
-	GPO.EvStk.Push(Gcomplex(&a, (double)week, 0.0));
+	EvStk.Push(Gcomplex(&a, (double)week, 0.0));
 }
 
 /*****************************************************************************/

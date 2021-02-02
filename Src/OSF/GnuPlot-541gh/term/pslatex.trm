@@ -846,7 +846,7 @@ TERM_PUBLIC void EPSLATEX_set_color(t_colorspec * colorspec)
 	}
 	else {
 		rgb_color color;
-		rgb1_from_gray(colorspec->value, &color);
+		GPO.Rgb1FromGray(colorspec->value, &color);
 		sprintf(tex_current_color, "      \\colorrgb{%3.2f,%3.2f,%3.2f}", color.r, color.g, color.b);
 		sprintf(tex_rgb_colordef, "\\definecolor{tbcol}{rgb}{%3.2f,%3.2f,%3.2f}", color.r, color.g, color.b);
 	}

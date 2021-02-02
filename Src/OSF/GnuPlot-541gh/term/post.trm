@@ -1139,11 +1139,11 @@ TERM_PUBLIC void PS_options()
 			    ps_fontsize = 20; /* default: 10pt */
 		    break;
 	}
-	term->v_char = (uint)(ps_fontsize*PS_SCF);
+	term->ChrV = (uint)(ps_fontsize*PS_SCF);
 	if(ps_params->oldstyle)
-		term->h_char = (uint)(ps_fontsize*PS_SCF*5/10);
+		term->ChrH = (uint)(ps_fontsize*PS_SCF*5/10);
 	else
-		term->h_char = (uint)(ps_fontsize*PS_SCF*6/10);
+		term->ChrH = (uint)(ps_fontsize*PS_SCF*6/10);
 	snprintf(PS_default_font, sizeof(PS_default_font)-1, "%s, %.2g", ps_params->font, ps_fontsize);
 
 	if(ps_params->terminal == PSTERM_POSTSCRIPT) {
@@ -1614,7 +1614,7 @@ end\n\
 	    ps_params->background.r,
 	    ps_params->background.g,
 	    ps_params->background.b, /* background color, used only if all components >= 0 */
-	    (int)(t->v_char)/(-3),      /* shift for vertical centring */
+	    (int)(t->ChrV)/(-3),      /* shift for vertical centring */
 	    PS_SC*1.0,  /* dash length */
 	    PS_SC*1.0,  /* dash length */
 	    PS_HTIC/2.0,                /* half point width */
@@ -1833,7 +1833,7 @@ doclip\n\
 	fprintf(gppsfile, "0 setgray\nnewpath\n");
 	if(ps_common_uses_fonts)
 		fprintf(gppsfile, "(%s) findfont %d scalefont setfont\n",
-		    ps_params->font, (t->v_char));
+		    ps_params->font, (t->ChrV));
 	ps_path_count = 0;
 	PS_relative_ok = FALSE;
 	PS_pen_x = PS_pen_y = -4000;
@@ -2320,8 +2320,8 @@ static int PS_common_set_font(const char * font, int caller(const char * font) )
 
 	SAlloc::F(name);
 
-	term->v_char = (uint)(size*PS_SCF);
-	term->h_char = (uint)(size*PS_SCF*6/10);
+	term->ChrV = (uint)(size*PS_SCF);
+	term->ChrH = (uint)(size*PS_SCF*6/10);
 	return TRUE;
 }
 
@@ -3814,7 +3814,7 @@ TERM_PUBLIC void PS_image(uint M, uint N, coordval * image, gpiPoint * corner, t
 		for(allocated = 0, i_tuple = 0; allocated < max_colors; allocated++, i_tuple--) {
 			double gray = (double)allocated * fact;
 			rgb255_color color;
-			rgb255maxcolors_from_gray(gray, &color);
+			GPO.Rgb255MaxColorsFromGray(gray, &color);
 			if(!i_tuple) {
 				fprintf(gppsfile, "\n  "); i_tuple = TUPLES_PER_LINE;
 			}

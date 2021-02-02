@@ -12,7 +12,7 @@
 static void parametric_fixup(curve_points * start_plot, int * plot_num);
 static void box_range_fiddling(curve_points * plot);
 //static void boxplot_range_fiddling(curve_points * plot);
-static void spiderplot_range_fiddling(curve_points * plot);
+//static void spiderplot_range_fiddling(curve_points * plot);
 static void histogram_range_fiddling(curve_points * plot);
 static void impulse_range_fiddling(const curve_points * plot);
 static void parallel_range_fiddling(curve_points * plot);
@@ -23,7 +23,7 @@ static void parse_kdensity_options(curve_points * this_plot);
 /* internal and external variables */
 
 /* the curves/surfaces of the plot */
-curve_points * first_plot = NULL;
+curve_points * P_FirstPlot = NULL;
 static udft_entry plot_func;
 static double histogram_rightmost = 0.0; // Highest x-coord of histogram so far 
 static text_label histogram_title;       // Subtitle for this histogram 
@@ -161,7 +161,7 @@ void GnuPlot::PlotRequest()
 // forced "set autoscale" since the previous plot or refresh, we need to reset the
 // axis limits and try to approximate the full auto-scaling behaviour.
 // 
-//void refresh_bounds(curve_points * first_plot, int nplots)
+//void refresh_bounds(curve_points * pFirstPlot, int nplots)
 void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 {
 	const curve_points * this_plot = pFirstPlot;
@@ -205,7 +205,7 @@ void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 		if(oneof2(this_plot->plot_style, BOXES, IMPULSES))
 			impulse_range_fiddling(this_plot);
 	}
-	this_plot = first_plot;
+	this_plot = pFirstPlot;
 	for(iplot = 0; iplot < nplots; iplot++, this_plot = this_plot->next) {
 		// handle 'reverse' ranges 
 		AxS.CheckRange(this_plot->AxIdx_X);
@@ -303,7 +303,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		    /* 4 cols, boxwidth!=-2 --> (x,y,dy,dx) */
 		    /* 5 cols --> (x,y,ylow,yhigh,dx) */
 		    /* In each case an additional column may hold variable color */
-		    if((df_no_use_specs == 4 && boxwidth == -2) || df_no_use_specs >= 5)
+		    if((df_no_use_specs == 4 && GPO.V.BoxWidth == -2.0) || df_no_use_specs >= 5)
 			    /* HBB 20060427: signal 3rd and 4th column are absolute y
 			     * data --- needed so time/date parsing works */
 			    df_axis[2] = df_axis[3] = df_axis[1];
@@ -752,16 +752,16 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    }
 			    else if(j == 4) {
 				    if(v[3] <= 0)
-					    v[3] = boxwidth;
-				    xlow  = (boxwidth == -2) ? v[0] : v[0] - v[3]/2.;
-				    xhigh = (boxwidth == -2) ? v[0] : v[0] + v[3]/2.;
-				    ylow  = (boxwidth == -2) ? v[2] : v[1] - v[2];
-				    yhigh = (boxwidth == -2) ? v[3] : v[1] + v[2];
-				    width = (boxwidth == -2) ? -1.0 : 0.0;
+					    v[3] = GPO.V.BoxWidth;
+				    xlow  = (GPO.V.BoxWidth == -2.0) ? v[0] : v[0] - v[3]/2.;
+				    xhigh = (GPO.V.BoxWidth == -2.0) ? v[0] : v[0] + v[3]/2.;
+				    ylow  = (GPO.V.BoxWidth == -2.0) ? v[2] : v[1] - v[2];
+				    yhigh = (GPO.V.BoxWidth == -2.0) ? v[3] : v[1] + v[2];
+				    width = (GPO.V.BoxWidth == -2.0) ? -1.0 : 0.0;
 			    }
 			    else {
 				    if(v[4] <= 0)
-					    v[4] = boxwidth;
+					    v[4] = GPO.V.BoxWidth;
 				    xlow  = v[0] - v[4]/2.;
 				    xhigh = v[0] + v[4]/2.;
 				    ylow  = v[2];
@@ -800,9 +800,9 @@ int GnuPlot::GetData(curve_points * pPlot)
 				     * depend on both adjacent boxes.  This is signalled by storing -1
 				     * in point->z to indicate xlow/xhigh must be calculated later.
 				     */
-				    if(boxwidth > 0 && boxwidth_is_absolute) {
-					    xlow = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, -boxwidth/2.) : v[0] - boxwidth / 2;
-					    xhigh = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, boxwidth/2.) : v[0] + boxwidth / 2;
+				    if(V.BoxWidth > 0 && V.BoxWidthIsAbsolute) {
+					    xlow = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, -V.BoxWidth/2.0) : v[0] - V.BoxWidth / 2.0;
+					    xhigh = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, V.BoxWidth/2.0) : v[0] + V.BoxWidth / 2.0;
 				    }
 				    else {
 					    width = -1.0;
@@ -967,9 +967,9 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    coordval y = v[0];
 			    coordval ylow  = v[0];
 			    coordval yhigh = v[0];
-			    coordval width = (boxwidth > 0) ? boxwidth : 1.0;
-			    coordval xlow  = x - width / 2.;
-			    coordval xhigh = x + width / 2.;
+			    coordval width = (V.BoxWidth > 0.0) ? V.BoxWidth : 1.0;
+			    coordval xlow  = x - width / 2.0;
+			    coordval xhigh = x + width / 2.0;
 			    if(histogram_opts.type == HT_ERRORBARS) {
 				    if(j == 1)
 					    IntErrorCurToken("No column given for errorbars in using specifier");
@@ -1247,9 +1247,10 @@ static void add_tics_boxplot_factors(curve_points * plot)
 		i++;
 	}
 }
-
-/* Autoscaling of box plots cuts off half of the box on each end. */
-/* Add a half-boxwidth to the range in this case.  EAM Aug 2007   */
+//
+// Autoscaling of box plots cuts off half of the box on each end. 
+// Add a half-boxwidth to the range in this case.  EAM Aug 2007   
+//
 static void box_range_fiddling(curve_points * plot)
 {
 	double xlow, xhigh;
@@ -1258,8 +1259,8 @@ static void box_range_fiddling(curve_points * plot)
 		return;
 	if(GPO.AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MIN) {
 		if(plot->points[0].type != UNDEFINED && plot->points[1].type != UNDEFINED) {
-			if(boxwidth_is_absolute)
-				xlow = plot->points[0].x - boxwidth;
+			if(GPO.V.BoxWidthIsAbsolute)
+				xlow = plot->points[0].x - GPO.V.BoxWidth;
 			else
 				xlow = plot->points[0].x - (plot->points[1].x - plot->points[0].x) / 2.0;
 			SETMIN(GPO.AxS[plot->AxIdx_X].min, xlow);
@@ -1267,8 +1268,8 @@ static void box_range_fiddling(curve_points * plot)
 	}
 	if(GPO.AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MAX) {
 		if(plot->points[i].type != UNDEFINED && plot->points[i-1].type != UNDEFINED) {
-			if(boxwidth_is_absolute)
-				xhigh = plot->points[i].x + boxwidth;
+			if(GPO.V.BoxWidthIsAbsolute)
+				xhigh = plot->points[i].x + GPO.V.BoxWidth;
 			else
 				xhigh = plot->points[i].x + (plot->points[i].x - plot->points[i-1].x) / 2.0;
 			SETMAX(GPO.AxS[plot->AxIdx_X].max, xhigh);
@@ -1293,17 +1294,17 @@ void GnuPlot::BoxPlotRangeFiddling(curve_points * pPlot)
 		N = filter_boxplot(pPlot);
 		pPlot->p_count = N;
 		if(pPlot->points[0].type == UNDEFINED)
-			GPO.IntError(NO_CARET, "boxplot has undefined x coordinate");
+			IntError(NO_CARET, "boxplot has undefined x coordinate");
 		// If outliers were processed, that has taken care of autoscaling on y.
 		// If not, we need to calculate the whisker bar ends to determine yrange.
 		if(boxplot_opts.outliers)
 			restore_autoscaled_ranges(&AxS[pPlot->AxIdx_X], NULL);
 		else
 			restore_autoscaled_ranges(&AxS[pPlot->AxIdx_X], &AxS[pPlot->AxIdx_Y]);
-		autoscale_boxplot(pPlot);
+		AutoscaleBoxPlot(term, pPlot);
 		extra_width = pPlot->points[0].xhigh - pPlot->points[0].xlow;
 		if(extra_width == 0)
-			extra_width = (boxwidth > 0 && boxwidth_is_absolute) ? boxwidth : 0.5;
+			extra_width = (V.BoxWidth > 0.0 && V.BoxWidthIsAbsolute) ? V.BoxWidth : 0.5;
 		if(extra_width < 0)
 			extra_width = -extra_width;
 		if(AxS[pPlot->AxIdx_X].autoscale & AUTOSCALE_MIN) {
@@ -1487,20 +1488,21 @@ static void parallel_range_fiddling(curve_points * plot)
 //
 // Clean up x and y axis bounds for spider plots 
 //
-static void spiderplot_range_fiddling(curve_points * plot)
+//static void spiderplot_range_fiddling(curve_points * plot)
+void GnuPlot::SpiderPlotRangeFiddling(curve_points * plot)
 {
 	while(plot) {
 		if(plot->plot_style == SPIDERPLOT) {
-			/* The normal x and y axes are not used by spider plots, so if no */
-			/* range is established then we get lots of warning messages */
-			if(GPO.AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MIN)
-				GPO.AxS[FIRST_X_AXIS].min = -1.0;
-			if(GPO.AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MAX)
-				GPO.AxS[FIRST_X_AXIS].max =  1.0;
-			if(GPO.AxS[plot->AxIdx_Y].autoscale & AUTOSCALE_MIN)
-				GPO.AxS[FIRST_Y_AXIS].min = -1.0;
-			if(GPO.AxS[plot->AxIdx_Y].autoscale & AUTOSCALE_MAX)
-				GPO.AxS[FIRST_Y_AXIS].max =  1.0;
+			// The normal x and y axes are not used by spider plots, so if no 
+			// range is established then we get lots of warning messages 
+			if(AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MIN)
+				AxS[FIRST_X_AXIS].min = -1.0;
+			if(AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MAX)
+				AxS[FIRST_X_AXIS].max =  1.0;
+			if(AxS[plot->AxIdx_Y].autoscale & AUTOSCALE_MIN)
+				AxS[FIRST_Y_AXIS].min = -1.0;
+			if(AxS[plot->AxIdx_Y].autoscale & AUTOSCALE_MAX)
+				AxS[FIRST_Y_AXIS].max =  1.0;
 			return;
 		}
 		plot = plot->next;
@@ -1510,7 +1512,7 @@ static void spiderplot_range_fiddling(curve_points * plot)
 // store_label() is called by get_data for each point 
 // This routine is exported so it can be shared by plot3d 
 //
-struct text_label * store_label(struct text_label * listhead, struct coordinate * cp, int i/* point number */, char * string/* start of label string */, 
+text_label * store_label(text_label * listhead, struct coordinate * cp, int i/* point number */, char * string/* start of label string */, 
 	double colorval/* used if text color derived from palette */)
 {           
 	static text_label * tl = NULL;
@@ -1549,7 +1551,7 @@ struct text_label * store_label(struct text_label * listhead, struct coordinate 
 		if(prefer_line_styles)
 			lp_use_properties(&lptmp, (int)colorval);
 		else
-			load_linetype(&lptmp, (int)colorval);
+			load_linetype(term, &lptmp, (int)colorval);
 		tl->textcolor = lptmp.pm3d_color;
 	}
 	if((listhead->lp_properties.flags & LP_SHOW_POINTS)) {
@@ -1565,7 +1567,7 @@ struct text_label * store_label(struct text_label * listhead, struct coordinate 
 			if(prefer_line_styles)
 				lp_use_properties(&lptmp, (int)colorval);
 			else
-				load_linetype(&lptmp, (int)colorval);
+				load_linetype(term, &lptmp, (int)colorval);
 			tl->lp_properties.pm3d_color = lptmp.pm3d_color;
 		}
 	}
@@ -1646,19 +1648,19 @@ void GnuPlot::EvalPlots()
 	paxis_current = -1;
 	uses_axis[FIRST_X_AXIS] = uses_axis[FIRST_Y_AXIS] = uses_axis[SECOND_X_AXIS] = uses_axis[SECOND_Y_AXIS] = (t_uses_axis)0;
 	/* Original Comment follows: */
-	/* Reset first_plot. This is usually done at the end of this function.
+	/* Reset P_FirstPlot. This is usually done at the end of this function.
 	 * If there is an error within this function, the memory is left allocated,
 	 * since we cannot call cp_free if the list is incomplete. Making sure that
 	 * the list structure is always valid requires some rewriting */
 	/* EAM Apr 2007 - but we need to keep the previous structures around in
 	 * order to be able to refresh/zoom them without re-reading all the data.
 	 */
-	GnuPlot::CpFree(first_plot);
-	first_plot = NULL;
-	tp_ptr = &(first_plot);
+	GnuPlot::CpFree(P_FirstPlot);
+	P_FirstPlot = NULL;
+	tp_ptr = &P_FirstPlot;
 	plot_num = 0;
-	line_num = 0;           /* default line type */
-	pattern_num = default_fillstyle.fillpattern;    /* default fill pattern */
+	line_num = 0; // default line type 
+	pattern_num = default_fillstyle.fillpattern; // default fill pattern 
 	strcpy(orig_dummy_var, c_dummy_var[0]);
 	in_parametric = FALSE;
 	xtitle = NULL;
@@ -1706,7 +1708,7 @@ void GnuPlot::EvalPlots()
 					histogram_title.pos = histogram_opts.title.pos;
 					histogram_title.text = TryToGetString();
 					histogram_title.font = gp_strdup(histogram_opts.title.font);
-					parse_label_options(&histogram_title, 2);
+					ParseLabelOptions(&histogram_title, 2);
 				}
 				/* Allow explicit starting color or pattern for this histogram */
 				if(Pgm.EqualsCur("lt") || Pgm.AlmostEqualsCur("linet$ype")) {
@@ -1716,7 +1718,7 @@ void GnuPlot::EvalPlots()
 				fs.fillstyle = FS_SOLID;
 				fs.filldensity = 100;
 				fs.border_color = default_fillstyle.border_color;
-				parse_fillstyle(&fs);
+				ParseFillStyle(&fs);
 			} while(Pgm.GetCurTokenIdx() != previous_token);
 			newhist_pattern = fs.fillpattern;
 			if(!Pgm.EqualsCur(","))
@@ -1812,12 +1814,12 @@ void GnuPlot::EvalPlots()
 				if(sample_range_token > 0)
 					this_plot->sample_var = add_udv(sample_range_token);
 				else
-					this_plot->sample_var = add_udv_by_name(c_dummy_var[0]);
+					this_plot->sample_var = Ev.AddUdvByName(c_dummy_var[0]);
 				if(v_range_token > 0)
 					this_plot->sample_var2 = add_udv(v_range_token);
 				else
-					this_plot->sample_var2 = add_udv_by_name(c_dummy_var[1]);
-				/* Save prior value of sample variables so we can restore them later */
+					this_plot->sample_var2 = Ev.AddUdvByName(c_dummy_var[1]);
+				// Save prior value of sample variables so we can restore them later 
 				original_value_sample_var = this_plot->sample_var->udv_value;
 				original_value_sample_var2 = this_plot->sample_var2->udv_value;
 				this_plot->sample_var->udv_value.type = NOTDEFINED;
@@ -2056,7 +2058,7 @@ void GnuPlot::EvalPlots()
 						if(prefer_line_styles)
 							lp_use_properties(&(this_plot->arrow_properties.lp_properties), line_num+1);
 						else
-							load_linetype(&(this_plot->arrow_properties.lp_properties), line_num+1);
+							load_linetype(term, &(this_plot->arrow_properties.lp_properties), line_num+1);
 					}
 					ArrowParse(&(this_plot->arrow_properties), TRUE);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
@@ -2111,11 +2113,11 @@ void GnuPlot::EvalPlots()
 					lp.l_type = line_num;
 					lp.p_type = line_num;
 					lp.d_type = line_num;
-					/* user may prefer explicit line styles */
+					// user may prefer explicit line styles 
 					if(prefer_line_styles)
 						lp_use_properties(&lp, line_num+1);
 					else
-						load_linetype(&lp, line_num+1);
+						load_linetype(term, &lp, line_num+1);
 					if(this_plot->plot_style == BOXPLOT) {
 						lp.p_type = boxplot_opts.pointtype;
 						lp.p_size = PTSZ_DEFAULT;
@@ -2154,7 +2156,7 @@ void GnuPlot::EvalPlots()
 						if(!set_labelstyle)
 							this_plot->labels->textcolor.type = TC_DEFAULT;
 					}
-					parse_label_options(this_plot->labels, 2);
+					ParseLabelOptions(this_plot->labels, 2);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
 						if(set_labelstyle) {
 							duplication = TRUE;
@@ -2175,13 +2177,13 @@ void GnuPlot::EvalPlots()
 						else
 							this_plot->fill_properties = default_fillstyle;
 						this_plot->fill_properties.fillpattern = pattern_num;
-						parse_fillstyle(&this_plot->fill_properties);
+						ParseFillStyle(&this_plot->fill_properties);
 						if(this_plot->plot_style == FILLEDCURVES && this_plot->fill_properties.fillstyle == FS_EMPTY)
 							this_plot->fill_properties.fillstyle = FS_SOLID;
 						set_fillstyle = TRUE;
 					}
 					if(Pgm.EqualsCur("fc") || Pgm.AlmostEqualsCur("fillc$olor")) {
-						parse_colorspec(&fillcolor, TC_VARIABLE);
+						ParseColorSpec(&fillcolor, TC_VARIABLE);
 						set_fillcolor = TRUE;
 					}
 					if(stored_token != Pgm.GetCurTokenIdx())
@@ -2224,7 +2226,7 @@ void GnuPlot::EvalPlots()
 					if(prefer_line_styles)
 						lp_use_properties(&(this_plot->arrow_properties.lp_properties), line_num+1);
 					else
-						load_linetype(&(this_plot->arrow_properties.lp_properties), line_num+1);
+						load_linetype(term, &(this_plot->arrow_properties.lp_properties), line_num+1);
 					ArrowParse(&this_plot->arrow_properties, TRUE);
 				}
 				this_plot->lp_properties = this_plot->arrow_properties.lp_properties;
@@ -2243,7 +2245,7 @@ void GnuPlot::EvalPlots()
 				if(prefer_line_styles)
 					lp_use_properties(&this_plot->lp_properties, line_num+1);
 				else
-					load_linetype(&this_plot->lp_properties, line_num+1);
+					load_linetype(term, &this_plot->lp_properties, line_num+1);
 				if(this_plot->plot_style == BOXPLOT) {
 					this_plot->lp_properties.p_type = boxplot_opts.pointtype;
 					this_plot->lp_properties.p_size = PTSZ_DEFAULT;
@@ -2297,7 +2299,7 @@ void GnuPlot::EvalPlots()
 					else
 						this_plot->fill_properties = default_fillstyle;
 					this_plot->fill_properties.fillpattern = pattern_num;
-					parse_fillstyle(&this_plot->fill_properties);
+					ParseFillStyle(&this_plot->fill_properties);
 				}
 				if((this_plot->fill_properties.fillstyle == FS_PATTERN) ||(this_plot->fill_properties.fillstyle == FS_TRANSPARENT_PATTERN))
 					pattern_num = this_plot->fill_properties.fillpattern + 1;
@@ -2306,15 +2308,15 @@ void GnuPlot::EvalPlots()
 			}
 			this_plot->AxIdx_X = AxS.Idx_X;
 			this_plot->AxIdx_Y = AxS.Idx_Y;
-			/* If we got this far without initializing the character font, do it now */
+			// If we got this far without initializing the character font, do it now 
 			if(this_plot->plot_style & PLOT_STYLE_HAS_POINT && this_plot->lp_properties.p_type == PT_CHARACTER) {
 				if(this_plot->labels == NULL) {
 					this_plot->labels = new_text_label(-1);
 					this_plot->labels->pos = CENTRE;
-					parse_label_options(this_plot->labels, 2);
+					ParseLabelOptions(this_plot->labels, 2);
 				}
 			}
-			/* If we got this far without initializing the label list, do it now */
+			// If we got this far without initializing the label list, do it now 
 			if(this_plot->plot_style == LABELPOINTS) {
 				if(this_plot->labels == NULL) {
 					this_plot->labels = new_text_label(-1);
@@ -2373,7 +2375,7 @@ void GnuPlot::EvalPlots()
 				// Normally each histogram gets a new set of colors, but in 
 				// 'newhistogram' you can force a starting color instead.   
 				if(!set_lpstyle && this_plot->histogram->startcolor != LT_UNDEFINED)
-					load_linetype(&this_plot->lp_properties, this_plot->histogram_sequence + this_plot->histogram->startcolor);
+					load_linetype(term, &this_plot->lp_properties, this_plot->histogram_sequence + this_plot->histogram->startcolor);
 				if(this_plot->histogram->startpattern != LT_UNDEFINED)
 					this_plot->fill_properties.fillpattern = this_plot->histogram_sequence + this_plot->histogram->startpattern;
 			}
@@ -2541,7 +2543,7 @@ void GnuPlot::EvalPlots()
 					    break;
 					case SMOOTH_KDENSITY:
 					    gen_interp(this_plot);
-					    fill_gpval_float("GPVAL_KDENSITY_BANDWIDTH",
+					    Ev.FillGpValFoat("GPVAL_KDENSITY_BANDWIDTH",
 						fabs(this_plot->smooth_parameter));
 					    break;
 					case SMOOTH_MONOTONE_CSPLINE:
@@ -2673,9 +2675,9 @@ SKIPPED_EMPTY_FILE:
 			t_step = (t_max - t_min) / (samples_1 - 1);
 		}
 		// else we'll do it on each plot (see below) 
-		tp_ptr = &(first_plot);
+		tp_ptr = &P_FirstPlot;
 		plot_num = 0;
-		this_plot = first_plot;
+		this_plot = P_FirstPlot;
 		Pgm.SetTokenIdx(begin_token); // start over 
 		plot_iterator = CheckForIteration();
 		// Read through functions 
@@ -2772,7 +2774,7 @@ SKIPPED_EMPTY_FILE:
 						x = t;
 						Gcomplex(&plot_func.dummy_values[0], x, 0.0);
 						EvaluateAt(plot_func.at, &a);
-						if(__IsUndefined) {
+						if(GPO.Ev.IsUndefined_) {
 							this_plot->points[i].type = UNDEFINED;
 							continue;
 						}
@@ -2796,8 +2798,8 @@ SKIPPED_EMPTY_FILE:
 							 */
 							this_plot->points[i].x = t;
 							this_plot->points[i].y = temp;
-							if(boxwidth >= 0 && boxwidth_is_absolute)
-								this_plot->points[i].z = 0;
+							if(V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute)
+								this_plot->points[i].z = 0.0;
 						}
 						else if(polar) {
 							double y;
@@ -2814,7 +2816,7 @@ SKIPPED_EMPTY_FILE:
 							STORE_AND_UPDATE_RANGE(this_plot->points[i].x, x, this_plot->points[i].type, AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
 							STORE_AND_UPDATE_RANGE(this_plot->points[i].y, y, this_plot->points[i].type, AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
 						}
-						else { /* neither parametric or polar */
+						else { // neither parametric or polar 
 							this_plot->points[i].x = t;
 							// A sampled function can only be OUTRANGE if it has a private range 
 							if(sample_range_token != 0) {
@@ -2822,19 +2824,19 @@ SKIPPED_EMPTY_FILE:
 								if(!inrange(xx, AxS[this_plot->AxIdx_X].min, AxS[this_plot->AxIdx_X].max))
 									this_plot->points[i].type = OUTRANGE;
 							}
-							/* For boxes [only] check use of boxwidth */
-							if((this_plot->plot_style == BOXES) && (boxwidth >= 0 && boxwidth_is_absolute)) {
+							// For boxes [only] check use of boxwidth 
+							if((this_plot->plot_style == BOXES) && (V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute)) {
 								double xlow, xhigh;
 								coord_type dmy_type = INRANGE;
 								this_plot->points[i].z = 0;
 								if(AxS[this_plot->AxIdx_X].log) {
 									double base = AxS[this_plot->AxIdx_X].base;
-									xlow = x * pow(base, -boxwidth/2.);
-									xhigh = x * pow(base, boxwidth/2.);
+									xlow = x * pow(base, -V.BoxWidth/2.0);
+									xhigh = x * pow(base, V.BoxWidth/2.0);
 								}
 								else {
-									xlow = x - boxwidth/2;
-									xhigh = x + boxwidth/2;
+									xlow = x - V.BoxWidth/2.0;
+									xhigh = x + V.BoxWidth/2.0;
 								}
 								STORE_AND_UPDATE_RANGE(this_plot->points[i].xlow, xlow, dmy_type, AxS.Idx_X, this_plot->noautoscale, NOOP);
 								dmy_type = INRANGE;
@@ -2896,7 +2898,7 @@ come_here_if_undefined:
 		if(parametric) {
 			// Now actually fix the plot pairs to be single plots
 			// also fixes up polar&&parametric fn plots 
-			parametric_fixup(first_plot, &plot_num);
+			parametric_fixup(P_FirstPlot, &plot_num);
 			// we omitted earlier check for range too small 
 			AxisCheckedExtendEmptyRange(FIRST_X_AXIS, NULL);
 			if(uses_axis[SECOND_X_AXIS]) {
@@ -2905,29 +2907,29 @@ come_here_if_undefined:
 		}
 		// This is the earliest that polar autoscaling can be done for function plots 
 		if(polar)
-			polar_range_fiddling(first_plot);
+			polar_range_fiddling(P_FirstPlot);
 	}
-	// if first_plot is NULL, we have no functions or data at all. This can
+	// if P_FirstPlot is NULL, we have no functions or data at all. This can
 	// happen if you type "plot x=5", since x=5 is a variable assignment.
-	if(plot_num == 0 || first_plot == NULL) {
+	if(plot_num == 0 || P_FirstPlot == NULL) {
 		IntErrorCurToken("no functions or data to plot");
 	}
 	// Is this too severe? 
 	if(n_complex_values > 3)
 		IntWarn(NO_CARET, "Did you try to plot a complex-valued function?");
 	if(!uses_axis[FIRST_X_AXIS] && !uses_axis[SECOND_X_AXIS])
-		if(first_plot->plot_type == NODATA)
+		if(P_FirstPlot->plot_type == NODATA)
 			IntError(NO_CARET, "No data in plot");
 	/* Parallelaxis plots do not use the normal y axis so if no other plots
 	 * are present yrange may still be undefined. We fix that now.
 	 * In the absence of parallelaxis plots this call does nothing.
 	 */
-	parallel_range_fiddling(first_plot);
+	parallel_range_fiddling(P_FirstPlot);
 	/* The x/y values stored during data entry for spider plots are not
 	 * true x/y values.  Reset x/y ranges to [-1:+1].
 	 */
 	if(spiderplot)
-		spiderplot_range_fiddling(first_plot);
+		SpiderPlotRangeFiddling(P_FirstPlot);
 	/* gnuplot version 5.0 always used x1 to track autoscaled range
 	 * regardless of whether x1 or x2 was used to plot the data.
 	 * In version 5.2 we track the x1/x2 axis data limits separately.
@@ -2960,22 +2962,20 @@ come_here_if_undefined:
 	else {
 		assert(uses_axis[FIRST_X_AXIS]);
 	}
-	/* For nonlinear axes, but must also be compatible with "set link x".   */
-	/* min/max values were tracked during input for the visible axes.       */
-	/* Now we use them to update the corresponding shadow (nonlinear) ones. */
-	update_primary_axis_range(&AxS[FIRST_X_AXIS]);
-	update_primary_axis_range(&AxS[SECOND_X_AXIS]);
+	// For nonlinear axes, but must also be compatible with "set link x".   
+	// min/max values were tracked during input for the visible axes.       
+	// Now we use them to update the corresponding shadow (nonlinear) ones. 
+	UpdatePrimaryAxisRange(&AxS[FIRST_X_AXIS]);
+	UpdatePrimaryAxisRange(&AxS[SECOND_X_AXIS]);
 	if(this_plot && this_plot->plot_style == TABLESTYLE) {
-		/* the y axis range has no meaning in this case */
-		;
+		; // the y axis range has no meaning in this case 
 	}
 	else if(this_plot && this_plot->plot_style == PARALLELPLOT) {
-		/* we should maybe check one of the parallel axes? */
-		;
+		; // we should maybe check one of the parallel axes?
 	}
 	else if(uses_axis[FIRST_Y_AXIS] && nonlinear(&AxS[FIRST_Y_AXIS])) {
 		AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "all points y value undefined!");
-		update_primary_axis_range(&AxS[FIRST_Y_AXIS]);
+		UpdatePrimaryAxisRange(&AxS[FIRST_Y_AXIS]);
 	}
 	else if(uses_axis[FIRST_Y_AXIS]) {
 		AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "all points y value undefined!");
@@ -2983,7 +2983,7 @@ come_here_if_undefined:
 	}
 	if(uses_axis[SECOND_Y_AXIS] && AxS[SECOND_Y_AXIS].linked_to_primary) {
 		AxisCheckedExtendEmptyRange(SECOND_Y_AXIS, "all points y2 value undefined!");
-		update_primary_axis_range(&AxS[SECOND_Y_AXIS]);
+		UpdatePrimaryAxisRange(&AxS[SECOND_Y_AXIS]);
 	}
 	else if(uses_axis[SECOND_Y_AXIS]) {
 		AxisCheckedExtendEmptyRange(SECOND_Y_AXIS, "all points y2 value undefined!");
@@ -2992,10 +2992,9 @@ come_here_if_undefined:
 	else {
 		assert(uses_axis[FIRST_Y_AXIS]);
 	}
-	/* This call cannot be in boundary(), called from do_plot(), because
-	 * it would cause logscaling problems if do_plot() itself was called for
-	 * refresh rather than for plot/replot.
-	 */
+	// This call cannot be in boundary(), called from do_plot(), because
+	// it would cause logscaling problems if do_plot() itself was called for
+	// refresh rather than for plot/replot.
 	set_plot_with_palette(0, MODE_PLOT);
 	if(is_plot_with_palette())
 		SetCbMinMax();
@@ -3004,13 +3003,13 @@ come_here_if_undefined:
 		// note that m_capture also frees the old replot_line 
 		Pgm.MCapture(&replot_line, plot_token, Pgm.GetPrevTokenIdx());
 		plot_token = -1;
-		fill_gpval_string("GPVAL_LAST_PLOT", replot_line);
+		Ev.FillGpValString("GPVAL_LAST_PLOT", replot_line);
 	}
 	if(table_mode) {
-		print_table(first_plot, plot_num);
+		print_table(P_FirstPlot, plot_num);
 	}
 	else {
-		DoPlot(term, first_plot, plot_num);
+		DoPlot(term, P_FirstPlot, plot_num);
 		/* after do_plot(), AxS[].min and .max
 		 * contain the plotting range actually used (rounded
 		 * to tic marks, not only the min/max data values)
@@ -3082,19 +3081,19 @@ static void parametric_fixup(curve_points * start_plot, int * plot_num)
 					x = xp->points[i].y;
 					y = yp->points[i].y;
 				}
-				if(boxwidth >= 0 && boxwidth_is_absolute) {
+				if(GPO.V.BoxWidth >= 0.0 && GPO.V.BoxWidthIsAbsolute) {
 					coord_type dmy_type = INRANGE;
-					STORE_AND_UPDATE_RANGE(yp->points[i].xlow, x - boxwidth/2, dmy_type, yp->AxIdx_X, xp->noautoscale, NOOP);
+					STORE_AND_UPDATE_RANGE(yp->points[i].xlow, x - GPO.V.BoxWidth/2.0, dmy_type, yp->AxIdx_X, xp->noautoscale, NOOP);
 					dmy_type = INRANGE;
-					STORE_AND_UPDATE_RANGE(yp->points[i].xhigh, x + boxwidth/2, dmy_type, yp->AxIdx_X, xp->noautoscale, NOOP);
+					STORE_AND_UPDATE_RANGE(yp->points[i].xhigh, x + GPO.V.BoxWidth/2.0, dmy_type, yp->AxIdx_X, xp->noautoscale, NOOP);
 				}
 				STORE_AND_UPDATE_RANGE(yp->points[i].x, x, yp->points[i].type, yp->AxIdx_X, xp->noautoscale, NOOP);
 				STORE_AND_UPDATE_RANGE(yp->points[i].y, y, yp->points[i].type, yp->AxIdx_Y, xp->noautoscale, NOOP);
 			}
-			/* move xp to head of free list */
+			// move xp to head of free list 
 			xp->next = free_list;
 			free_list = xp;
-			/* append yp to new_list */
+			// append yp to new_list 
 			*last_pointer = yp;
 			last_pointer = &(yp->next);
 			xp = yp->next;
@@ -3104,9 +3103,9 @@ static void parametric_fixup(curve_points * start_plot, int * plot_num)
 			last_pointer = &(xp->next);
 			xp = xp->next;
 		}
-	}                       /* loop over plots */
-	first_plot = new_list;
-	/* Ok, stick the free list at the end of the curve_points plot list. */
+	} // loop over plots 
+	P_FirstPlot = new_list;
+	// Ok, stick the free list at the end of the curve_points plot list. 
 	*last_pointer = free_list;
 }
 /*
@@ -3260,7 +3259,7 @@ void reevaluate_plot_title(curve_points * this_plot)
 		evaluate_inside_using = TRUE;
 		GPO.EvaluateAt(df_plot_title_at, &a);
 		evaluate_inside_using = FALSE;
-		if(!__IsUndefined && a.type == STRING) {
+		if(!GPO.Ev.IsUndefined_ && a.type == STRING) {
 			SAlloc::F(this_plot->title);
 			this_plot->title = a.v.string_val;
 			// Special case where the "title" is used as a tic label 

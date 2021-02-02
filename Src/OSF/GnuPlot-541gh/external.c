@@ -25,7 +25,7 @@ void f_calle(union argument * x)
 {
 	GpValue r = x->exf_arg->exfn(x->exf_arg->args->dummy_num, x->exf_arg->args->dummy_values, x->exf_arg->P_Private);
 	if(r.type == INVALID_VALUE)
-		r = udv_NaN->udv_value;
+		r = GPO.Ev.P_UdvNaN->udv_value;
 	GPO.EvStk.Push(&r);
 }
 

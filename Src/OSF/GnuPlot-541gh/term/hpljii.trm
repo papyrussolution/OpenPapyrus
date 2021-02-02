@@ -164,23 +164,23 @@ TERM_PUBLIC void HPLJII_options()
 	switch(hplj_dpp) {
 		case 1:
 		    strcpy(term_options, "300");
-		    term->v_tic = 15;
-		    term->h_tic = 15;
+		    term->TicV = 15;
+		    term->TicH = 15;
 		    break;
 		case 2:
 		    strcpy(term_options, "150");
-		    term->v_tic = 8;
-		    term->h_tic = 8;
+		    term->TicV = 8;
+		    term->TicH = 8;
 		    break;
 		case 3:
 		    strcpy(term_options, "100");
-		    term->v_tic = 6;
-		    term->h_tic = 6;
+		    term->TicV = 6;
+		    term->TicH = 6;
 		    break;
 		case 4:
 		    strcpy(term_options, "75");
-		    term->v_tic = 5;
-		    term->h_tic = 5;
+		    term->TicV = 5;
+		    term->TicH = 5;
 		    break;
 	}
 
@@ -190,8 +190,8 @@ TERM_PUBLIC void HPLJII_options()
 
 TERM_PUBLIC void HPLJII_init()
 {
-	term->v_char = HPLJII_VCHAR;
-	term->h_char = HPLJII_HCHAR;
+	term->ChrV = HPLJII_VCHAR;
+	term->ChrH = HPLJII_HCHAR;
 }
 
 TERM_PUBLIC void HPLJII_graphics()
@@ -285,23 +285,23 @@ TERM_PUBLIC void HPDJ_graphics()
 	switch(hplj_dpp) {
 		case 1:
 		    b_charsize(FNT13X25);
-		    term->v_char = FNT13X25_VCHAR;
-		    term->h_char = FNT13X25_HCHAR;
+		    term->ChrV = FNT13X25_VCHAR;
+		    term->ChrH = FNT13X25_HCHAR;
 		    break;
 		case 2:
 		    b_charsize(FNT13X25);
-		    term->v_char = FNT13X25_VCHAR;
-		    term->h_char = FNT13X25_HCHAR;
+		    term->ChrV = FNT13X25_VCHAR;
+		    term->ChrH = FNT13X25_HCHAR;
 		    break;
 		case 3:
 		    b_charsize(FNT9X17);
-		    term->v_char = FNT9X17_VCHAR;
-		    term->h_char = FNT9X17_HCHAR;
+		    term->ChrV = FNT9X17_VCHAR;
+		    term->ChrH = FNT9X17_HCHAR;
 		    break;
 		case 4:
 		    b_charsize(FNT5X9);
-		    term->v_char = FNT5X9_VCHAR;
-		    term->h_char = FNT5X9_HCHAR;
+		    term->ChrV = FNT5X9_VCHAR;
+		    term->ChrH = FNT5X9_HCHAR;
 		    break;
 	}
 	/* rotate plot -90 degrees by reversing XMAX and YMAX and by

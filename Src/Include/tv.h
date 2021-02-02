@@ -159,7 +159,7 @@ struct HelpEvent {
 	int    CtlId;
 	void * H_Item;
 	uint32 ContextId;
-	TPoint Mouse;
+	SPoint2S Mouse;
 };
 //
 // Descr: Структура, передаваемая с сообщением cmSize.
@@ -173,8 +173,8 @@ struct SizeEvent {
 		tRestored
 	};
 	int    ResizeType; // tXXX тип события изменения размера.
-	TPoint PrevSize;   // Размеры окна до получения этого сообщения //
-	TPoint NewSize;    // Новые размеры окна.
+	SPoint2S PrevSize;   // Размеры окна до получения этого сообщения //
+	SPoint2S NewSize;    // Новые размеры окна.
 };
 //
 // Descr: Структура, передаваемая с сообщением cmPaint.
@@ -227,7 +227,7 @@ struct MouseEvent {
 	int    Type;
 	int    Flags;
 	int    WeelDelta;
-	TPoint Coord;
+	SPoint2S Coord;
 };
 //
 // Descr: Структура, передаваемая с сообщением cmScroll
@@ -463,8 +463,8 @@ struct SParaDescr { // @persistent
 		fJustRight   = 0x0001, // Выравнивать строки по правому краю
 		fJustCenter  = 0x0002  // Выравнивать строки по центру
 	};
-	TPoint LuIndent;    // Левый и верхний отступы
-	TPoint RlIndent;    // Правый и нижний отступы
+	SPoint2S LuIndent;    // Левый и верхний отступы
+	SPoint2S RlIndent;    // Правый и нижний отступы
 	int16  StartIndent; // Отступ первой строки
 	int16  Spacing;     // Интерлиньяж (расстояние между строками)
 	int32  Flags;
@@ -476,9 +476,9 @@ struct SParaDescr { // @persistent
 struct SGlyph {
 	uint16 Chr;     // Unicode-символ
 	int16  Idx;     // Индекс начертания символа в шрифте
-	FPoint Sz;      // Specifies the size of the smallest rectangle that completely encloses the glyph (its black box).
-	FPoint Org;     // Specifies coordinates of the upper left corner of the smallest rectangle that completely encloses the glyph.
-	FPoint Advance; // Specifies the distance from the origin of the current character cell to the origin of the next character cell.
+	SPoint2F Sz;      // Specifies the size of the smallest rectangle that completely encloses the glyph (its black box).
+	SPoint2F Org;     // Specifies coordinates of the upper left corner of the smallest rectangle that completely encloses the glyph.
+	SPoint2F Advance; // Specifies the distance from the origin of the current character cell to the origin of the next character cell.
 	float  LineAdv; // Смещение, на которое необходимо переместиться при переходе на новую строку.
 		// Значение извлекается из метрики шрифта.
 };
@@ -983,7 +983,7 @@ public:
 			// @#(fVCenter^fVBottom)
 	};
 	struct Item {
-		Item(FPoint p, const SGlyph * pGlyph, uint16 flags) : P(p), GlyphIdx(pGlyph ? pGlyph->Idx : -1), Flags(flags)
+		Item(SPoint2F p, const SGlyph * pGlyph, uint16 flags) : P(p), GlyphIdx(pGlyph ? pGlyph->Idx : -1), Flags(flags)
 		{
 		}
 		enum {
@@ -991,7 +991,7 @@ public:
 		};
 		int16  GlyphIdx; // -1 - не выводить символ
 		uint16 Flags;    // Специальные опции отображения символа
-		FPoint P;
+		SPoint2F P;
 	};
 	struct RenderGroup {
 		RenderGroup();
@@ -1047,7 +1047,7 @@ private:
 	long   Flags;
 	long   State;
 	FRect  Bounds;
-	FPoint EndPoint;          // @*STextLayout::Arrange Точка, до которой простирается собственно текст.
+	SPoint2F EndPoint;          // @*STextLayout::Arrange Точка, до которой простирается собственно текст.
 	SStringU Text;
 	LongArray GlyphIdList;                     // @transient
 	TSVector <CStyle> CStyleList;              //
@@ -1067,9 +1067,9 @@ public:
 	};
 	struct Capability {
 		Capability();
-		TPoint SizePt; // Размер устройства в точках
-		FPoint SizeMm; // Размер устройства в миллиметрах
-		FPoint PtPerInch; // Количество точек на дюйм
+		SPoint2S SizePt; // Размер устройства в точках
+		SPoint2F SizeMm; // Размер устройства в миллиметрах
+		SPoint2F PtPerInch; // Количество точек на дюйм
 	};
 
 	struct FontExt {
@@ -1086,7 +1086,7 @@ public:
 			// lines of text with the font. This is greater than ascent+descent by a quantity known as the
 			// line spacing  or external leading. When space is at a premium, most fonts can be set with only
 			// a distance of ascent+descent between lines.
-		FPoint MaxAdvance; // X - the maximum distance in the X direction that the the origin is advanced
+		SPoint2F MaxAdvance; // X - the maximum distance in the X direction that the the origin is advanced
 			// for any glyph in the font.
 			// Y - the maximum distance in the Y direction that the the origin is advanced for any glyph
 			// in the font. this will be zero for normal fonts used for horizontal writing.
@@ -1159,17 +1159,17 @@ public:
 	//
 	// Primitives
 	//
-	FPoint GetCurPoint();
-	void   FASTCALL MoveTo(FPoint to);
-	void   FASTCALL Line(FPoint to);
+	SPoint2F GetCurPoint();
+	void   FASTCALL MoveTo(SPoint2F to);
+	void   FASTCALL Line(SPoint2F to);
 	void   FASTCALL LineV(float yTo);
 	void   FASTCALL LineH(float xTo);
 	void   FASTCALL Rect(const FRect & rRect);
 	void   FASTCALL Rect(const TRect & rRect);
 	void   RoundRect(const FRect &, float radius);
 	int    FASTCALL Ellipse(const FRect & rRect);
-	void   Arc(FPoint center, float radius, float startAngleRad, float endAngleRad);
-	void   Bezier(FPoint middle1, FPoint middle2, FPoint end);
+	void   Arc(SPoint2F center, float radius, float startAngleRad, float endAngleRad);
+	void   Bezier(SPoint2F middle1, SPoint2F middle2, SPoint2F end);
 	int    Text(const char * pText, int identFont);
 	void   ClosePath();
 	void   SubPath();
@@ -1219,9 +1219,9 @@ public:
 	int    FASTCALL SetBkColor(COLORREF);
 	int    FASTCALL SetTextColor(COLORREF);
 	void   SetBkTranparent();
-	TPoint GetTextSize(const char * pStr);
+	SPoint2S GetTextSize(const char * pStr);
 		// @>>BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize);
-	int    TextOut(TPoint p, const char * pText);
+	int    TextOut(SPoint2S p, const char * pText);
 	int    _DrawText(const TRect & rRect, const char * pText, uint options);
 	int    DrawTextLayout(STextLayout * pTlo);
 	int    FASTCALL Draw(const SImageBuffer * pImg);
@@ -1296,7 +1296,7 @@ private:
 	int    FASTCALL SetCairoColor(SColor c);
 	int    Helper_SelectPen(SPaintToolBox * pTb, int penId);
 	int    Helper_SelectBrush(SPaintToolBox * pTb, int brushId, PatternWrapper & rPw);
-	int    Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc_flag, int sweep_flag, FPoint toPoint);
+	int    Implement_ArcSvg(SPoint2F radius, float xAxisRotation, int large_arc_flag, int sweep_flag, SPoint2F toPoint);
 	int    Implement_Stroke(SPaintToolBox * pTb, int paintObjIdent, int preserve);
 	//
 	// Descr: Отрисовывает линии без выбора инструментов (предполагается, что они до этого уже были выбраны).
@@ -1350,19 +1350,19 @@ public:
 	int    FASTCALL SelectObjectAndPush(HGDIOBJ);
 	int    PopObject();
 	int    FASTCALL PopObjectN(uint c);
-	int    FASTCALL MoveTo(TPoint);
-	int    FASTCALL Line(TPoint);
+	int    FASTCALL MoveTo(SPoint2S);
+	int    FASTCALL Line(SPoint2S);
 	void   LineVert(int x, int yFrom, int yTo);
 	void   LineHorz(int xFrom, int xTo, int y);
 	void   SetBkTranparent();
 	int    FASTCALL SetBkColor(COLORREF);
 	int    FASTCALL SetTextColor(COLORREF);
 	int    FASTCALL Rectangle(const TRect &);
-	int    RoundRect(const TRect &, const TPoint & rRoundPt);
+	int    RoundRect(const TRect &, const SPoint2S & rRoundPt);
 	int    FillRect(const TRect & rRect, HBRUSH brush);
-	TPoint FASTCALL GetTextSize(const char * pStr);
+	SPoint2S FASTCALL GetTextSize(const char * pStr);
 		// @>>BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize);
-	int    TextOut_(TPoint p, const char * pText);
+	int    TextOut_(SPoint2S p, const char * pText);
 	int    DrawText_(const TRect & rRect, const char * pText, uint options);
 private:
 	enum {
@@ -1550,8 +1550,8 @@ protected:
 	uint32 Sf;      // Поле флагов состояния объекта (sfXXX)
 	WordSel_ExtraBlock * P_WordSelBlk; // owner
 public:
-	TPoint ViewSize;
-	TPoint ViewOrigin;
+	SPoint2S ViewSize;
+	SPoint2S ViewOrigin;
 	uint32 ViewOptions;
 	TView  * P_Next;
 	TGroup * P_Owner;
@@ -1903,7 +1903,7 @@ public:
 	int    SetContainerBounds(const TRect &);
 	int    Arrange();
 	int    GetItemBounds(long id, TRect & rBounds);
-	int    Locate(TPoint p, uint * pItemPos) const;
+	int    Locate(SPoint2S p, uint * pItemPos) const;
 private:
 	struct RItem {
 		enum {
@@ -2048,7 +2048,7 @@ struct AbstractLayoutBlock { // @persistent
 	int    GetSizeByContainerY(float containerSize, float * pS) const;
 	float  CalcEffectiveSizeX(float containerSize) const;
 	float  CalcEffectiveSizeY(float containerSize) const;
-	FPoint CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const;
+	SPoint2F CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const;
 	void   SetFixedSizeX(float s);
 	void   SetFixedSizeY(float s);
 	void   SetVariableSizeX(uint var/* szXXX */, float s);
@@ -2125,7 +2125,7 @@ struct AbstractLayoutBlock { // @persistent
 	uint16 GravityY;       // Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
 	int32  Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
 	FRect  Nominal;        // Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
-	FPoint Size;           // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
+	SPoint2F Size;           // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
 	FRect  Padding;        // { 0.0f, 0.0f, 0.0f, 0.0f } Внешние поля элемента
 	FRect  Margin;         // { 0.0f, 0.0f, 0.0f, 0.0f } Внутренние поля контейнера
 	float  GrowFactor;     // Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
@@ -2287,7 +2287,7 @@ protected:
 	// Descr: Завершает обработку искусственного элемента pCurrentLayout, устанавливает координаты его дочерних элементов
 	//   с поправкой на rOffs и разрушает pCurrentLayout.
 	//
-	void   Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayout, const FPoint & rOffs) const;
+	void   Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayout, const SPoint2F & rOffs) const;
 	/*flex_align*/int FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
 private:
 	class IterIndex : public TSVector <IndexEntry> {
@@ -2479,10 +2479,10 @@ struct TArrangeParam { // @persistent
 
 	int16  Dir;        // DIREC_HORZ || DIREC_VERT
 	uint16 RowSize;    // Количество элементов в ряду
-	TPoint UlGap;      // Зазор между левой и верхней границами области и объектами
-	TPoint LrGap;      // Зазор между правой и нижней границами области и объектами
-	TPoint InnerGap;   // Зазор между объектами
-	TPoint ForceSize;  // @unused Изменяет размер объектов до ForceSize. Если ForceSize.x <= 0,
+	SPoint2S UlGap;      // Зазор между левой и верхней границами области и объектами
+	SPoint2S LrGap;      // Зазор между правой и нижней границами области и объектами
+	SPoint2S InnerGap;   // Зазор между объектами
+	SPoint2S ForceSize;  // @unused Изменяет размер объектов до ForceSize. Если ForceSize.x <= 0,
 		// то ширина не меняется, если ForceSize.y <= 0, то высота не меняется.
 };
 //
@@ -2512,8 +2512,8 @@ public:
 		SString WtmObjSymb;   	 // Символ класса семейства TWhatmanObject, который создается посредством данного инструмента.
 		SString FigPath;      	 // Имя файла, содержащего изображение фигуры инструмента
 		SString PicPath;      	 // Имя файла, содержащего изображение иконки инструмента
-		TPoint FigSize;       	 // Начальный размер фигуры инструмента.
-		TPoint PicSize;       	 // Если !isZero() то переопределяет TWhatmanToolArray::Param::PicSize
+		SPoint2S FigSize;       	 // Начальный размер фигуры инструмента.
+		SPoint2S PicSize;       	 // Если !isZero() то переопределяет TWhatmanToolArray::Param::PicSize
 		long   Flags;         	 // @flags
 		SColor ReplacedColor; 	 // Цвет, который должен замещаться на какой-либо внешний цвет. Если ReplacedColor.IsEmpty(), то замещаемый цвет не определен.
 		AbstractLayoutBlock Alb; // @v10.9.10
@@ -2532,7 +2532,7 @@ public:
 		SString Text;         // Описание коллекции.
 		SString FileName;     // Имя файла, из которого был извлечен объект
 		long   Flags;         // @flags
-		TPoint PicSize;       // Размер иконки по умолчанию.
+		SPoint2S PicSize;       // Размер иконки по умолчанию.
 		TArrangeParam Ap;     // Параметры упорядочивания иконок
 	};
 	static uint32 GetSerializeSignature();
@@ -2568,8 +2568,8 @@ private:
 		uint32 WtmObjSymbP;    	 // Позиция символа класса объекта в буфере Pool
 		uint32 FigPathP;       	 // Позиция пути до файла фигуры в буфере Pool
 		uint32 PicPathP;       	 // Позиция пути до файла пиктограммы в буфере Pool
-		TPoint FigSize;        	 // Исходный размер фигуры при размещении на ватмане
-		TPoint PicSize;        	 // Размер иконки
+		SPoint2S FigSize;        	 // Исходный размер фигуры при размещении на ватмане
+		SPoint2S PicSize;        	 // Размер иконки
 		int32  Flags;          	 // @flags
 		uint32 ExtDataP;       	 // Позиция дополнительных данных в буфере Pool (в кодировке MIME64)
 		uint32 Id;             	 // Целочисленный идентификатор элемента
@@ -2581,7 +2581,7 @@ private:
 	uint32 TextP;
 	uint32 FileP;   // @transient Имя файла, из которого был извлечен данный экземпляр
 	int32  Flags;
-	TPoint PicSize;
+	SPoint2S PicSize;
 	TArrangeParam Ap;
 	StringSet Pool; // Контейнер строковых констант (символы, описания, пути к файлам и т.д.)
 	SDrawGroup Dg;  // Контейнер для иконок и фигур.
@@ -2839,9 +2839,9 @@ public:
 	static uint32 GetSerializeSignature();
 	explicit TWhatman(TWindow * pOwnerWin);
 	~TWhatman();
-	TPoint FASTCALL TransformPointToScreen(TPoint p) const;
-	FPoint FASTCALL TransformPointToScreen(FPoint p) const;
-	TPoint FASTCALL TransformScreenToPoint(TPoint p) const;
+	SPoint2S FASTCALL TransformPointToScreen(SPoint2S p) const;
+	SPoint2F FASTCALL TransformPointToScreen(SPoint2F p) const;
+	SPoint2S FASTCALL TransformScreenToPoint(SPoint2S p) const;
 	TWindow * GetOwnerWindow() const;
 	const  Param & GetParam() const;
 	int    SetParam(const Param &);
@@ -2898,8 +2898,8 @@ public:
 	int    FASTCALL IsMultSelObject(int idx) const;
 	int    FASTCALL HaveMultSelObjectsOption(int f) const;
 	const  LongArray * GetMultSelIdxList() const;
-	int    FindObjectByPoint(TPoint p, int * pIdx) const;
-	int    FindContainerCandidateForObjectByPoint(TPoint p, const TWhatmanObject * pObj, int * pIdx) const;
+	int    FindObjectByPoint(SPoint2S p, int * pIdx) const;
+	int    FindContainerCandidateForObjectByPoint(SPoint2S p, const TWhatmanObject * pObj, int * pIdx) const;
 	int    GetContaiterCandidateIdx() const { return ContainerCandidatePos; }
 	void   SetupContainerCandidate(int idx, bool set);
 	int    MoveObject(TWhatmanObject * pObj, const TRect & rRect);
@@ -2915,13 +2915,13 @@ public:
 	//   объекта, не включенного в коллекцию this.
 	//
 	int    DrawSingleObject(TCanvas2 & rCanv, TWhatmanObject * pObj);
-	int    DrawObjectContour(TCanvas2 & rCanv, const TWhatmanObject * pObj, const TPoint * pOffs);
-	int    DrawMultSelContour(TCanvas2 & rCanv, const TPoint * pOffs);
-	int    InvalidateMultSelContour(const TPoint * pOffs);
+	int    DrawObjectContour(TCanvas2 & rCanv, const TWhatmanObject * pObj, const SPoint2S * pOffs);
+	int    DrawMultSelContour(TCanvas2 & rCanv, const SPoint2S * pOffs);
+	int    InvalidateMultSelContour(const SPoint2S * pOffs);
 	//
 	// @ARG(dir IN): SOW_XXX
 	//
-	int    ResizeObject(TWhatmanObject * pObj, int dir, TPoint toPoint, TRect * pResult);
+	int    ResizeObject(TWhatmanObject * pObj, int dir, SPoint2S toPoint, TRect * pResult);
 	int    SetArea(const TRect & rArea);
 	const  TRect & GetArea() const;
 	//
@@ -2930,11 +2930,11 @@ public:
 	//   2 - end point
 	//   0 - reset
 	//
-	int    SetSelArea(TPoint p, int mode);
+	int    SetSelArea(SPoint2S p, int mode);
 	const  TRect & GetSelArea() const;
-	void   SetScrollPos(TPoint p);
+	void   SetScrollPos(SPoint2S p);
 	void   GetScrollRange(IntRange * pX, IntRange * pY) const;
-	TPoint GetScrollDelta() const;
+	SPoint2S GetScrollDelta() const;
 	int    SetTool(int toolId, int paintObjIdent);
 	int    GetTool(int toolId) const;
 	int    ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam);
@@ -2988,7 +2988,7 @@ private:
 	TRect  Area;        // @transient Видимая область
 	TRect  SelArea;     // @transient Область, выделенная пользователем для выбора нескольких объектов
 	TRect  ScrollRange; // @transient Автоматически рассчитываемый диапазон скроллирования области просмотра //
-	TPoint ScrollPos;   // @transient Позиция скроллеров
+	SPoint2S ScrollPos;   // @transient Позиция скроллеров
 	Rule   RuleX;       // @transient
 	Rule   RuleY;       // @transient
 	Param  P;
@@ -4582,7 +4582,7 @@ public:
 	void   Destroy();
 	int    Paint();
 	int    Move();
-	int    DoCommand(TPoint p);
+	int    DoCommand(SPoint2S p);
 	void * GetImage() { return P_Image; }
 
 	COLORREF Color;
@@ -4901,7 +4901,7 @@ protected:
 	const  SString ClsName; // Window class name
 	uint   ToolbarID;       // ID Toolbar'a для сохранения в реестре = LastCmd (команда по которой был запущен данный броузер) + TOOLBAR_OFFS (смещение)
 	uint   ResourceID;
-	TPoint PrevMouseCoord;
+	SPoint2S PrevMouseCoord;
 	long   BbState;
 	int    ToolBarWidth;
 	TToolbar * P_Toolbar;
@@ -4965,12 +4965,12 @@ public:
 	LPRECT ItemRect(int hPos, int vPos, LPRECT, BOOL isFocus) const;
 	LPRECT LineRect(int vPos, LPRECT, BOOL isFocus);
 	int    GetColumnByX(int x) const;
-	int    ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos) const;
+	int    ItemByPoint(SPoint2S point, long * pHorzPos, long * pVertPos) const;
 	enum {
 		hdrzoneAny = 0,
 		hdrzoneSortPoint = 1,
 	};
-	int    HeaderByPoint(TPoint point, int hdrzone, long * pVertPos) const;
+	int    HeaderByPoint(SPoint2S point, int hdrzone, long * pVertPos) const;
 	int    ItemByMousePos(long * pHorzPos, long * pVertPos);
 	//
 	// ARG(action IN):
@@ -4980,8 +4980,8 @@ public:
 	//
 	int    SelColByPoint(const POINT *, int action);
 	void   FocusItem(int hPos, int vPos);
-	int    IsResizePos(TPoint);
-	void   Resize(TPoint p, int mode); // mode: 0 - toggle off, 1 - toggle on, 2 - process
+	int    IsResizePos(SPoint2S);
+	void   Resize(SPoint2S p, int mode); // mode: 0 - toggle off, 1 - toggle on, 2 - process
 	void   Refresh();
 	BrowserDef * getDef();
 	const BrowserDef * getDefC() const;
@@ -5079,8 +5079,8 @@ private:
 	HCURSOR ResizeCursor;
 	BrowserRectCursors RectCursors;
 	int    ResizedCol;
-	TPoint CliSz;   // Размер клиентской области окна
-	TPoint ChrSz;   // Средний размер символов.
+	SPoint2S CliSz;   // Размер клиентской области окна
+	SPoint2S ChrSz;   // Средний размер символов.
 	int    YCell;   // Hight of cell
 	int    CapOffs; // Offset from top of window to begining of rows
 	uint   Left;
@@ -5187,11 +5187,11 @@ public:
 	// Descr: Обновляет данные, измененные вне диаграммы
 	//
 	void   UpdateData();
-	int    Locate(TPoint p, Loc * pLoc) const;
+	int    Locate(SPoint2S p, Loc * pLoc) const;
 	int    RestoreParameters(STimeChunkBrowser::Param & rParam);
 protected:
 	struct ResizeState {
-		void   Setup(int kind, TPoint p);
+		void   Setup(int kind, SPoint2S p);
 		enum {
 			kNone = 0,    // Нет режима изменения размера (масштаба)
 			kRescale = 1, // Изменение масштаба захватом левой грани элемента заголовка
@@ -5211,7 +5211,7 @@ protected:
 		};
 		long   RowId;        // Ид строки, в которой находится в текущий момент перемещаемый отрезок
 		long   Shift;        // Текущее смещение от начальной позиции
-		TPoint Org;          // Точка отсчета для изменения размеров (масштаба)
+		SPoint2S Org;          // Точка отсчета для изменения размеров (масштаба)
 		TRect  Prev;         //
 	};
 	struct State {
@@ -5274,7 +5274,7 @@ protected:
 	class SRectArray : public TSVector <SRect> {
 	public:
 		SRectArray();
-		const SRect * FASTCALL SearchPoint(TPoint p) const;
+		const SRect * FASTCALL SearchPoint(SPoint2S p) const;
 	};
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -5297,7 +5297,7 @@ protected:
 	TRect  GetMargin() const;
 	int    FASTCALL InvalidateChunk(long chunkId);
 	void   Paint();
-	void   DrawMoveSpot(TCanvas & rCanv, TPoint p);
+	void   DrawMoveSpot(TCanvas & rCanv, SPoint2S p);
 	//
 	// Descr: Вычисляет области окна, занимаемые временными отрезками
 	//
@@ -5321,8 +5321,8 @@ protected:
 	//   >0 - окно находится в режиме изменения размеров
 	//   <0 - окно не находится в режиме изменения размеров
 	//
-	int    Resize(int mode, TPoint p);
-	int    ProcessDblClk(TPoint p);
+	int    Resize(int mode, SPoint2S p);
+	int    ProcessDblClk(SPoint2S p);
 	void   OnUpdateData();
 	void   SetupScroll();
 	int    GetChunkText(long chunkId, SString & rBuf);

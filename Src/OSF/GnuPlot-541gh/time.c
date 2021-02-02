@@ -9,8 +9,6 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-static char * read_int(char * s, int nr, int * d);
-
 static char * read_int(char * s, int nr, int * d)
 {
 	int result = 0;
@@ -121,8 +119,7 @@ td_type gstrptime(char * s, char * fmt, struct tm * tm, double * usec, double * 
 			    int m;
 
 			    for(m = 0; m < 12; ++m)
-				    if(strncasecmp(s, abbrev_month_names[m],
-					strlen(abbrev_month_names[m])) == 0) {
+				    if(strncasecmp(s, abbrev_month_names[m], strlen(abbrev_month_names[m])) == 0) {
 					    s += strlen(abbrev_month_names[m]);
 					    goto found_abbrev_mon;
 				    }
@@ -137,10 +134,8 @@ found_abbrev_mon:
 			case 'B': /* full month name */
 		    {
 			    int m;
-
 			    for(m = 0; m < 12; ++m)
-				    if(strncasecmp(s, full_month_names[m],
-					strlen(full_month_names[m])) == 0) {
+				    if(strncasecmp(s, full_month_names[m], strlen(full_month_names[m])) == 0) {
 					    s += strlen(full_month_names[m]);
 					    goto found_full_mon;
 				    }
@@ -151,11 +146,9 @@ found_full_mon:
 			    tm->tm_mon = m;
 			    break;
 		    }
-
 			case 'd': /* read a day of month */
 			    s = read_int(s, 2, &tm->tm_mday);
 			    break;
-
 			case 'm': /* month number */
 			    s = read_int(s, 2, &tm->tm_mon);
 			    --tm->tm_mon;
