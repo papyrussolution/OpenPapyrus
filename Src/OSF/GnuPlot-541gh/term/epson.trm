@@ -54,32 +54,31 @@
  */
 
 #include "driver.h"
-
 #ifdef TERM_REGISTER
-#ifdef EPS180
-register_term(epson_180dpi)
-#endif /* EPS180 */
-#ifdef EPS60
-register_term(epson_60dpi)
-#endif /* EPS60 */
-#ifdef EPSONP
-register_term(epson_lx800)
-#endif /* EPSONP */
-#ifdef NEC
-register_term(nec_cp6)
-#endif /* NEC */
-#ifdef OKIDATA
-register_term(okidata)
-#endif /* OKIDATA */
-#ifdef STARC
-register_term(starc)
-#endif /* STARC */
-#ifdef TANDY60
-register_term(tandy_60dpi)
-#endif /* TANDY60 */
-#ifdef DPU414
-register_term(dpu414)
-#endif /* DPU414 */
+	#ifdef EPS180
+		register_term(epson_180dpi)
+	#endif /* EPS180 */
+	#ifdef EPS60
+		register_term(epson_60dpi)
+	#endif /* EPS60 */
+	#ifdef EPSONP
+		register_term(epson_lx800)
+	#endif /* EPSONP */
+	#ifdef NEC
+		register_term(nec_cp6)
+	#endif /* NEC */
+	#ifdef OKIDATA
+		register_term(okidata)
+	#endif /* OKIDATA */
+	#ifdef STARC
+		register_term(starc)
+	#endif /* STARC */
+	#ifdef TANDY60
+		register_term(tandy_60dpi)
+	#endif /* TANDY60 */
+	#ifdef DPU414
+		register_term(dpu414)
+	#endif /* DPU414 */
 #endif /* TERM_REGISTER */
 
 #ifdef TERM_PROTO
@@ -681,7 +680,6 @@ static void okidata_dump()
 	uint x;
 	int j;
 	char cur_char;
-
 	/* set line spacing 16/144" = 8 dots, turn on single density
 	 * graphics mode: */
 	fprintf(gpoutfile, "\033%c%c\020\033*eP:\003", '%', '9');
@@ -1134,7 +1132,7 @@ TERM_TABLE_START(tandy60_driver)
 TERM_TABLE_END(tandy60_driver)
 
 #undef LAST_TERM
-#define LAST_TERM tandy60_driver
+	#define LAST_TERM tandy60_driver
 #endif /* TANDY60 */
 
 #ifdef DPU414
@@ -1170,7 +1168,7 @@ TERM_TABLE_START(dpu414_driver)
 TERM_TABLE_END(dpu414_driver)
 
 #undef LAST_TERM
-#define LAST_TERM dpu414_driver
+	#define LAST_TERM dpu414_driver
 #endif /* DPU414 */
 
 #endif /* TERM_TABLE */

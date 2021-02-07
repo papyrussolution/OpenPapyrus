@@ -304,13 +304,10 @@ TERM_PUBLIC void PSTEX_common_init()
 		char * psfile_basename = gp_basename(pslatex_auxname);
 
 		/* generate special which xdvi and dvips can handle */
-		fprintf(gpoutfile,
-		    "  \\special{psfile=%s llx=0 lly=0 urx=%d ury=%d rwi=%d}\n",
-		    psfile_basename, urx, ury, 10 * urx);
+		fprintf(gpoutfile, "  \\special{psfile=%s llx=0 lly=0 urx=%d ury=%d rwi=%d}\n", psfile_basename, urx, ury, 10 * urx);
 	}
 	else
 		fputs("  {\\GNUPLOTspecial{\"\n", gpoutfile);
-
 	/* HH: really necessary?
 	   ps_ang = 0;
 	   ps_justify = 0;
@@ -455,33 +452,22 @@ TERM_PUBLIC void EPSLATEX_common_init()
   \\def\\@ptsize{0}\n\
   \\input{size10.clo}%%\n\
 }%%\n\
-\\makeatother\n",
-			    (int)(ps_params->fontsize-10),
-			    (int)(ps_params->fontsize),
-			    (int)(ps_params->fontsize));
-
+\\makeatother\n", (int)(ps_params->fontsize-10), (int)(ps_params->fontsize), (int)(ps_params->fontsize));
 			if(fontfamily && strlen(fontfamily) > 0)
-				fprintf(gpoutfile, "\\renewcommand*\\rmdefault{%s}%%\n",
-				    fontfamily);
+				fprintf(gpoutfile, "\\renewcommand*\\rmdefault{%s}%%\n", fontfamily);
 			if(fontseries && strlen(fontseries) > 0)
-				fprintf(gpoutfile, "\\renewcommand*\\mddefault{%s}%%\n",
-				    fontseries);
+				fprintf(gpoutfile, "\\renewcommand*\\mddefault{%s}%%\n", fontseries);
 			if(fontshape && strlen(fontshape) > 0)
-				fprintf(gpoutfile, "\\renewcommand*\\updefault{%s}%%\n",
-				    fontshape);
-
+				fprintf(gpoutfile, "\\renewcommand*\\updefault{%s}%%\n", fontshape);
 			fputs("\
 % Load packages\n\
 \\usepackage{calc}\n\
 \\usepackage{graphicx}\n\
 \\usepackage{color}\n", gpoutfile);
-
 			if(ISCAIROTERMINAL)
 				fprintf(gpoutfile, "\\usepackage{transparent}\n");
-
 			if(inputenc)
 				fprintf(gpoutfile, "\\usepackage[%s]{inputenc}\n", inputenc);
-
 			fprintf(gpoutfile,
 			    "\
 \\makeatletter\n\
@@ -652,26 +638,16 @@ TERM_PUBLIC void EPSLATEX_common_init()
   \\fi\n",
 		    gpoutfile);
 
-		fprintf(gpoutfile, "\
-    \\setlength{\\unitlength}{%.4fbp}%%\n",
-		    1.0 / (2*PS_SC));
-		fprintf(gpoutfile,
-		    "\
-    \\ifx\\gptboxheight\\undefined%%\n\
-      \\newlength{\\gptboxheight}%%\n\
-      \\newlength{\\gptboxwidth}%%\n\
-      \\newsavebox{\\gptboxtext}%%\n\
+		fprintf(gpoutfile, "\\setlength{\\unitlength}{%.4fbp}%%\n", 1.0 / (2*PS_SC));
+		fprintf(gpoutfile, "\\ifx\\gptboxheight\\undefined%%\n\\newlength{\\gptboxheight}%%\n\\newlength{\\gptboxwidth}%%\n\\newsavebox{\\gptboxtext}%%\n\
     \\fi%%\n\
     \\setlength{\\fboxrule}{0.5pt}%%\n\
     \\setlength{\\fboxsep}{1pt}%%\n");
-		fprintf(gpoutfile, "\\begin{picture}(%.2f,%.2f)%%\n",
-		    PSLATEX_pagesize_x, PSLATEX_pagesize_y);
+		fprintf(gpoutfile, "\\begin{picture}(%.2f,%.2f)%%\n", PSLATEX_pagesize_x, PSLATEX_pagesize_y);
 	}
 	if(ps_params->background.r >= 0) {
-		fprintf(gpoutfile, "\\definecolor{gpBackground}{rgb}{%.3f, %.3f, %.3f}%%\n",
-		    ps_params->background.r, ps_params->background.g, ps_params->background.b);
-		fprintf(gpoutfile, "\\put(0,0){\\colorbox{gpBackground}{\\makebox(%.2f,%.2f)[]{}}}%%\n",
-		    PSLATEX_pagesize_x, PSLATEX_pagesize_y);
+		fprintf(gpoutfile, "\\definecolor{gpBackground}{rgb}{%.3f, %.3f, %.3f}%%\n", ps_params->background.r, ps_params->background.g, ps_params->background.b);
+		fprintf(gpoutfile, "\\put(0,0){\\colorbox{gpBackground}{\\makebox(%.2f,%.2f)[]{}}}%%\n", PSLATEX_pagesize_x, PSLATEX_pagesize_y);
 	}
 	SAlloc::F(fontfamily);
 	SAlloc::F(fontseries);
@@ -729,19 +705,18 @@ void EPSLATEX_reopen_output(char * ext)
 		if(strrchr(outstr, '.') != &outstr[outstrlen-4]) {
 			GPO.IntError(NO_CARET, "epslatex output file name must be of the form filename.xxx");
 		}
-		/* copy filename to postsript output */
+		// copy filename to postsript output 
 		psoutstr = (char *)gp_alloc(outstrlen+5, "epslatex eps filename");
 		strcpy(psoutstr, outstr);
 		if((!strncmp(&outstr[outstrlen-4], ".eps", 4)) || (!strncmp(&outstr[outstrlen-4], ".EPS", 4))) {
 			if(ps_params->epslatex_standalone)
 				GPO.IntError(NO_CARET, "For epslatex standalone mode, you have to %s", "give the tex filename as output");
-			/* rename primary output (tex) */
+			// rename primary output (tex) 
 			strncpy(&outstr[outstrlen-4], ".tex", 5);
-			/* redirect FILE stream */
+			// redirect FILE stream 
 			gppsfile = gpoutfile;
 			gpoutfile = fopen(outstr, "w");
-			GPO.IntWarn(NO_CARET, "Resetting primary output file to %s,\n\
-                  PostScript output to %s", outstr, psoutstr);
+			GPO.IntWarn(NO_CARET, "Resetting primary output file to %s,\nPostScript output to %s", outstr, psoutstr);
 			if(!gpoutfile)
 				GPO.IntError(NO_CARET, "--- reopen failed");
 		}
@@ -771,28 +746,26 @@ void EPSLATEX_reopen_output(char * ext)
 TERM_PUBLIC void EPSLATEX_set_color(t_colorspec * colorspec)
 {
 	double gray;
-
 #ifdef HAVE_CAIROPDF
-	/* Fancy footwork to deal with mono/grayscale plots */
+	// Fancy footwork to deal with mono/grayscale plots 
 	if(ISCAIROTERMINAL) {
 		cairotrm_set_color(colorspec);
 	}
 	else
 #endif
 	{
-		/* Filter out duplicate requests */
+		// Filter out duplicate requests 
 		if(!memcmp(&tex_previous_colorspec, colorspec, sizeof(t_colorspec)))
 			return;
 		else
 			memcpy(&tex_previous_colorspec, colorspec, sizeof(t_colorspec));
 		PS_set_color(colorspec);
 	}
-
-	/* Many [most? all?] of the set_color commands only affect the *.eps     */
-	/* output stream.  So rather than printing them all to the *.tex stream, */
-	/* we update the current color and set a flag to say it has changed.     */
-	/* Only when some TeX object is output do we sync the current color by   */
-	/* writing it out.                                                       */
+	// Many [most? all?] of the set_color commands only affect the *.eps
+	// output stream.  So rather than printing them all to the *.tex stream,
+	// we update the current color and set a flag to say it has changed.
+	// Only when some TeX object is output do we sync the current color by   
+	// writing it out.
 	tex_color_synced = FALSE;
 	if(colorspec->type == TC_RGB) {
 		double r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
@@ -813,7 +786,7 @@ TERM_PUBLIC void EPSLATEX_set_color(t_colorspec * colorspec)
 	}
 	if(colorspec->type != TC_FRAC)
 		return;
-/* map [0;1] to gray/colors */
+	// map [0;1] to gray/colors 
 	gray = colorspec->value;
 	if(ps_params->blacktext) {
 		if(gray <= 0)
@@ -853,13 +826,11 @@ TERM_PUBLIC void EPSLATEX_linetype(int linetype)
 TERM_PUBLIC void EPSLATEX_layer(t_termlayer syncpoint)
 {
 	static int plotno = 0;
-
 	switch(syncpoint) {
 		case TERM_LAYER_BEFORE_PLOT:
 		    if(!ISCAIROTERMINAL)
 			    fprintf(gppsfile, "%% Begin plot #%d\n", ++plotno);
 		    break;
-
 		case TERM_LAYER_AFTER_PLOT:
 		    PS_linetype(LT_UNDEFINED); /* Forces a stroke and resets linetype */
 		    if(!ISCAIROTERMINAL)
@@ -916,60 +887,59 @@ TERM_PUBLIC void EPSLATEX_layer(t_termlayer syncpoint)
 
 TERM_PUBLIC void EPSLATEX_boxed_text(uint x, uint y, int option)
 {
-	if(!gpoutfile)
-		return;
-
-	switch(option) {
-		case TEXTBOX_INIT:
-		    /* Initialize bounding box for this text string */
-		    PSLATEX_inbox = TRUE;
-		    PSLATEX_saved = FALSE;
-		    break;
-		case TEXTBOX_FINISH:
-		    PSLATEX_inbox = FALSE;
-		    break;
-		case TEXTBOX_OUTLINE:
-		    fputs("\t\\settowidth{\\gptboxwidth}{\\usebox{\\gptboxtext}}\n", gpoutfile);
-		    fputs("\t\\advance\\gptboxwidth by 2\\fboxsep\n", gpoutfile);
-		    fprintf(gpoutfile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
-		    switch(ps_justify) {
-			    case LEFT:
-				fputs("{\\makebox(0,0)[l]", gpoutfile);
-				fputs("{\\framebox[\\gptboxwidth]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+	if(gpoutfile) {
+		switch(option) {
+			case TEXTBOX_INIT:
+				// Initialize bounding box for this text string 
+				PSLATEX_inbox = TRUE;
+				PSLATEX_saved = FALSE;
 				break;
-			    case CENTRE:
-				fputs("{\\makebox(0,0)", gpoutfile);
-				fputs("{\\framebox[\\gptboxwidth][c]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+			case TEXTBOX_FINISH:
+				PSLATEX_inbox = FALSE;
 				break;
-			    case RIGHT:
-				fputs("{\\makebox(0,0)[r]", gpoutfile);
-				fputs("{\\framebox[\\gptboxwidth][r]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+			case TEXTBOX_OUTLINE:
+				fputs("\t\\settowidth{\\gptboxwidth}{\\usebox{\\gptboxtext}}\n", gpoutfile);
+				fputs("\t\\advance\\gptboxwidth by 2\\fboxsep\n", gpoutfile);
+				fprintf(gpoutfile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
+				switch(ps_justify) {
+					case LEFT:
+					fputs("{\\makebox(0,0)[l]", gpoutfile);
+					fputs("{\\framebox[\\gptboxwidth]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+					break;
+					case CENTRE:
+					fputs("{\\makebox(0,0)", gpoutfile);
+					fputs("{\\framebox[\\gptboxwidth][c]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+					break;
+					case RIGHT:
+					fputs("{\\makebox(0,0)[r]", gpoutfile);
+					fputs("{\\framebox[\\gptboxwidth][r]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+					break;
+				}
+				PSLATEX_inbox = FALSE;
 				break;
-		    }
-		    PSLATEX_inbox = FALSE;
-		    break;
-		case TEXTBOX_BACKGROUNDFILL:
-		    if(!tex_color_synced) {
-			    /* FIXME: sync tex_current_color also? */
-			    fprintf(gpoutfile, "        %s\n", tex_rgb_colordef);
-			    tex_color_synced = TRUE;
-		    }
-		    fprintf(gpoutfile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
-		    switch(ps_justify) {
-			    case LEFT: fputs("{\\makebox(0,0)[l]{", gpoutfile); break;
-			    case CENTRE: fputs("{\\makebox(0,0){", gpoutfile); break;
-			    case RIGHT: fputs("{\\makebox(0,0)[r]{", gpoutfile); break;
-		    }
-		    if(PSLATEX_opacity < 1.0)
-			    fprintf(gpoutfile, "\\transparent{%.2f}", PSLATEX_opacity);
-		    fputs("\\colorbox{tbcol}{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
-		    break;
-		case TEXTBOX_MARGINS:
-		    PSLATEX_xmargin = (double)x / 100.0;
-		    PSLATEX_ymargin = (double)y / 100.0;
-		    break;
-		default:
-		    break;
+			case TEXTBOX_BACKGROUNDFILL:
+				if(!tex_color_synced) {
+					/* FIXME: sync tex_current_color also? */
+					fprintf(gpoutfile, "        %s\n", tex_rgb_colordef);
+					tex_color_synced = TRUE;
+				}
+				fprintf(gpoutfile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
+				switch(ps_justify) {
+					case LEFT: fputs("{\\makebox(0,0)[l]{", gpoutfile); break;
+					case CENTRE: fputs("{\\makebox(0,0){", gpoutfile); break;
+					case RIGHT: fputs("{\\makebox(0,0)[r]{", gpoutfile); break;
+				}
+				if(PSLATEX_opacity < 1.0)
+					fprintf(gpoutfile, "\\transparent{%.2f}", PSLATEX_opacity);
+				fputs("\\colorbox{tbcol}{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+				break;
+			case TEXTBOX_MARGINS:
+				PSLATEX_xmargin = (double)x / 100.0;
+				PSLATEX_ymargin = (double)y / 100.0;
+				break;
+			default:
+				break;
+		}
 	}
 }
 
@@ -978,92 +948,166 @@ TERM_PUBLIC void EPSLATEX_boxed_text(uint x, uint y, int option)
 #ifdef TERM_TABLE
 
 #ifndef GOT_POST_PROTO
-#define TERM_PROTO_ONLY
-#include "post.trm"
-#undef TERM_PROTO_ONLY
+	#define TERM_PROTO_ONLY
+	#include "post.trm"
+	#undef TERM_PROTO_ONLY
 #endif /* GOT_POST_PROTO */
 
 TERM_TABLE_START(epslatex_driver)
-"epslatex", "LaTeX picture environment using graphicx package",
-PS_XMAX, PS_YMAX, EPSLATEX_VCHAR, EPSLATEX_HCHAR,
-PS_VTIC, PS_HTIC, PS_options, PS_init, PSLATEX_reset,
-PS_text, GnuPlot::NullScale, PS_graphics, PS_move,
-PS_vector, EPSLATEX_linetype, EPSLATEX_put_text, PS_text_angle,
-PS_justify_text, PS_point, GnuPlot::DoArrow, PS_set_font,
-PS_pointsize, TERM_BINARY|TERM_IS_POSTSCRIPT|TERM_CAN_CLIP|TERM_IS_LATEX /*flags */,
-0 /*suspend */, 0 /*resume */,
-PS_fillbox, PS_linewidth,
-#ifdef USE_MOUSE
-0, 0, 0, 0, 0,     /* no mouse support for postscript */
-#endif
-PS_make_palette, PS_previous_palette,
-EPSLATEX_set_color, PS_filled_polygon,
-PS_image,
-0, 0, 0,     /* Enhanced text mode not used */
-EPSLATEX_layer,     /* Used to signal front/back text */
-PS_path,
-0.0,            /* scale */
-0,              /* hypertext */
-EPSLATEX_boxed_text,
-NULL,
-PS_dashtype TERM_TABLE_END(epslatex_driver)
+	"epslatex", 
+	"LaTeX picture environment using graphicx package",
+	PS_XMAX, 
+	PS_YMAX, 
+	EPSLATEX_VCHAR, 
+	EPSLATEX_HCHAR,
+	PS_VTIC, 
+	PS_HTIC, 
+	PS_options, 
+	PS_init, 
+	PSLATEX_reset,
+	PS_text, 
+	GnuPlot::NullScale, 
+	PS_graphics, 
+	PS_move,
+	PS_vector, 
+	EPSLATEX_linetype, 
+	EPSLATEX_put_text, 
+	PS_text_angle,
+	PS_justify_text, 
+	PS_point, 
+	GnuPlot::DoArrow, 
+	PS_set_font,
+	PS_pointsize, 
+	TERM_BINARY|TERM_IS_POSTSCRIPT|TERM_CAN_CLIP|TERM_IS_LATEX /*flags */,
+	0 /*suspend */, 
+	0 /*resume */,
+	PS_fillbox, 
+	PS_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,     /* no mouse support for postscript */
+	#endif
+	PS_make_palette, 
+	PS_previous_palette,
+	EPSLATEX_set_color, 
+	PS_filled_polygon,
+	PS_image,
+	0, 
+	0, 
+	0,     /* Enhanced text mode not used */
+	EPSLATEX_layer,     /* Used to signal front/back text */
+	PS_path,
+	0.0,            /* scale */
+	0,              /* hypertext */
+	EPSLATEX_boxed_text,
+	NULL,
+	PS_dashtype 
+TERM_TABLE_END(epslatex_driver)
 #undef LAST_TERM
 #define LAST_TERM epslatex_driver
 
 TERM_TABLE_START(pslatex_driver)
-"pslatex", "LaTeX picture environment with PostScript \\specials",
-PS_XMAX, PS_YMAX, PSTEX_VCHAR, PSTEX_HCHAR,
-PS_VTIC, PS_HTIC, PS_options, PS_init, PSLATEX_reset,
-PSTEX_text, GnuPlot::NullScale, PS_graphics, PS_move,
-PS_vector, PS_linetype, PSTEX_put_text, PS_text_angle,
-PS_justify_text, PS_point, GnuPlot::DoArrow, set_font_null,
-PS_pointsize, TERM_CAN_CLIP|TERM_IS_LATEX /*flags */, 0      /*suspend */
-, 0 /*resume */,
-PS_fillbox, PS_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0    /* no mouse support for postscript */
-#endif
-, PS_make_palette,
-PS_previous_palette,    /* write grestore */
-PS_set_color,
-PS_filled_polygon
-, PS_image
-, 0, 0, 0       /* No enhanced text mode because this is LaTeX */
-, 0             /* layer */
-, PS_path TERM_TABLE_END(pslatex_driver)
+	"pslatex", 
+	"LaTeX picture environment with PostScript \\specials",
+	PS_XMAX, 
+	PS_YMAX, 
+	PSTEX_VCHAR, 
+	PSTEX_HCHAR,
+	PS_VTIC, 
+	PS_HTIC, 
+	PS_options, 
+	PS_init, 
+	PSLATEX_reset,
+	PSTEX_text, 
+	GnuPlot::NullScale, 
+	PS_graphics, 
+	PS_move,
+	PS_vector, 
+	PS_linetype, 
+	PSTEX_put_text, 
+	PS_text_angle,
+	PS_justify_text, 
+	PS_point, 
+	GnuPlot::DoArrow, 
+	set_font_null,
+	PS_pointsize, 
+	TERM_CAN_CLIP|TERM_IS_LATEX /*flags */, 
+	0, /*suspend */
+	0, /*resume */
+	PS_fillbox, 
+	PS_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,    /* no mouse support for postscript */
+	#endif
+	PS_make_palette,
+	PS_previous_palette,    /* write grestore */
+	PS_set_color,
+	PS_filled_polygon,
+	PS_image,
+	0, 
+	0, 
+	0, // No enhanced text mode because this is LaTeX 
+	0, // layer 
+	PS_path 
+TERM_TABLE_END(pslatex_driver)
 #undef LAST_TERM
 #define LAST_TERM pslatex_driver
 
 TERM_TABLE_START(pstex_driver)
-"pstex", 
-"plain TeX with PostScript \\specials",
-PS_XMAX, 
-PS_YMAX, 
-PSTEX_VCHAR, 
-PSTEX_HCHAR,
-PS_VTIC, 
-PS_HTIC, 
-PS_options, 
-PS_init, 
-PSLATEX_reset,
-PSTEX_text, 
-GnuPlot::NullScale, PS_graphics, PS_move,
-PS_vector, PS_linetype, PSTEX_put_text, PS_text_angle,
-PS_justify_text, PS_point, GnuPlot::DoArrow, set_font_null,
-PS_pointsize, TERM_CAN_CLIP|TERM_IS_LATEX /*flags */, 0      /*suspend */
-, 0 /*resume */,
-PS_fillbox, PS_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0    /* no mouse support for postscript */
-#endif
-, PS_make_palette,
-PS_previous_palette,    /* write grestore */
-PS_set_color,
-PS_filled_polygon
-, PS_image
-, 0, 0, 0       /* No enhanced text mode because this is LaTeX */
-, 0             /* layer */
-, PS_path TERM_TABLE_END(pstex_driver)
+	"pstex", 
+	"plain TeX with PostScript \\specials",
+	PS_XMAX, 
+	PS_YMAX, 
+	PSTEX_VCHAR, 
+	PSTEX_HCHAR,
+	PS_VTIC, 
+	PS_HTIC, 
+	PS_options, 
+	PS_init, 
+	PSLATEX_reset,
+	PSTEX_text, 
+	GnuPlot::NullScale, 
+	PS_graphics, 
+	PS_move,
+	PS_vector, 
+	PS_linetype, 
+	PSTEX_put_text, 
+	PS_text_angle,
+	PS_justify_text, 
+	PS_point, 
+	GnuPlot::DoArrow, 
+	set_font_null,
+	PS_pointsize, 
+	TERM_CAN_CLIP|TERM_IS_LATEX, // flags 
+	0, // suspend 
+	0, // resume 
+	PS_fillbox, 
+	PS_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0, // no mouse support for postscript 
+	#endif
+	PS_make_palette,
+	PS_previous_palette, // write grestore 
+	PS_set_color,
+	PS_filled_polygon,
+	PS_image,
+	0, 
+	0, 
+	0, // No enhanced text mode because this is LaTeX 
+	0, // layer 
+	PS_path 
+TERM_TABLE_END(pstex_driver)
 #undef LAST_TERM
 #define LAST_TERM pstex_driver
 

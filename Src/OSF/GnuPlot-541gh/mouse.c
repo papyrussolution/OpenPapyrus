@@ -822,7 +822,7 @@ void GnuPlot::UpdateStatusLineWithMouseSetting(termentry * pTerm, mouse_setting_
 	char s0[256], * sp;
 	s0[0] = 0;
 	// This suppresses mouse coordinate update after a ^C 
-	if(term_initialised && ms->on) {
+	if(TermInitialised && ms->on) {
 		if(!ALMOST2D) {
 			char format[0xff];
 			format[0] = '\0';
@@ -2077,19 +2077,18 @@ void event_reset(struct gp_event_t * ge)
 	modifier_mask = 0;
 	button = 0;
 	builtin_cancel_zoom(ge);
-	if(term && term_initialised && term->set_cursor) {
+	if(term && GPO.TermInitialised && term->set_cursor) {
 		term->set_cursor(0, 0, 0);
 		if(mouse_setting.annotate_zoom_box && term->put_tmptext) {
 			term->put_tmptext(1, "");
 			term->put_tmptext(2, "");
 		}
 	}
-	/* This hack is necessary on some systems in order to prevent one
-	 * character of input from being swallowed when the plot window is
-	 * closed. But which systems, exactly, and in what circumstances?
-	 */
+	// This hack is necessary on some systems in order to prevent one
+	// character of input from being swallowed when the plot window is
+	// closed. But which systems, exactly, and in what circumstances?
 	if(paused_for_mouse || !interactive) {
-		if(term && term_initialised && (!strncmp("x11", term->name, 3) || !strncmp("wxt", term->name, 3) || !strncmp("qt", term->name, 2)))
+		if(term && GPO.TermInitialised && (!strncmp("x11", term->name, 3) || !strncmp("wxt", term->name, 3) || !strncmp("qt", term->name, 2)))
 			ungetc('\n', stdin);
 	}
 	if(paused_for_mouse) {

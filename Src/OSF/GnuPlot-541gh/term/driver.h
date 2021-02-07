@@ -35,11 +35,10 @@
 #define TERM_DRIVER_H
 
 #include "syscfg.h"
-
-#include <stdio.h>
-
-/* functions provided by term.c */
-
+//#include <stdio.h>
+//
+// functions provided by term.c 
+//
 static void do_point(unsigned int x, unsigned int y, int number);
 static void line_and_point(unsigned int x, unsigned int y, int number);
 static int null_text_angle(int ang);
@@ -47,14 +46,13 @@ static int null_justify_text(enum JUSTIFY just);
 static int null_scale(double x, double y);
 static void options_null(void);
 static void UNKNOWN_null(void);
-/* static int set_font_null(const char *s);     */ /* unused */
+// static int set_font_null(const char *s);     */ /* unused */
 #define set_font_null NULL
 
-extern FILE *gpoutfile;
-extern struct termentry *term;
+extern FILE * gpoutfile;
+extern struct termentry * term;
 
-/* for use by all drivers */
-#define sign(x) ((x) >= 0 ? 1 : -1)
+#define sign(x) ((x) >= 0 ? 1 : -1) // for use by all drivers 
 
 /* abs as macro is now uppercase, there are conflicts with a few C compilers
    that have abs as macro, even though ANSI defines abs as function
@@ -62,7 +60,7 @@ extern struct termentry *term;
    they use only int arguments and others to fabs, but for the time being,
    all calls are done via the macro */
 #ifndef ABS
-# define ABS(x) ((x) >= 0 ? (x) : -(x))
+	#define ABS(x) ((x) >= 0 ? (x) : -(x))
 #endif /* ABS */
 
 #define NICE_LINE		0

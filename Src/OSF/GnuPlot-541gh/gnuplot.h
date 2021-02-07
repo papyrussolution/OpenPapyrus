@@ -1748,10 +1748,10 @@ enum t_fillstyle {
 	extern int multiplot_count;
 	extern enum set_encoding_id encoding; /* 'set encoding' support: index of current encoding ... */
 	extern const char * encoding_names[]; /* ... in table of encoding names: */
-	extern const struct gen_table set_encoding_tbl[]; /* parsing table for encodings */
-	extern bool term_initialised; /* mouse module needs this */
-	/* The qt and wxt terminals cannot be used in the same session. */
-	/* Whichever one is used first to plot, this locks out the other. */
+	extern const gen_table set_encoding_tbl[]; /* parsing table for encodings */
+	//extern bool term_initialised; // mouse module needs this 
+	// The qt and wxt terminals cannot be used in the same session. 
+	// Whichever one is used first to plot, this locks out the other. 
 	extern void * term_interlock;
 	// Support for enhanced text mode. 
 	extern char   enhanced_text[MAX_LINE_LEN+1];
@@ -5122,7 +5122,7 @@ struct GpEdge {
 
 class GnuPlot {
 public:
-	GnuPlot() : TermPointSize(1.0)
+	GnuPlot() : TermPointSize(1.0), TermInitialised(false), TermGraphics(false), TermSuspended(false), TermOpenedBinary(false), TermForceInit(false)
 	{
 	}
 	void   PlotRequest();
@@ -5327,6 +5327,11 @@ public:
 	GpView V;
 	MpLayout_ MpLo;// = MP_LAYOUT_DEFAULT;
 	double TermPointSize;
+	bool   TermInitialised; // true if terminal has been initialized 
+	bool   TermGraphics;   //= false; // true if terminal is in graphics mode 
+	bool   TermSuspended;  //= false; // we have suspended the driver, in multiplot mode 
+	bool   TermOpenedBinary; //= false; // true if? 
+	bool   TermForceInit;  //= false; // true if require terminal to be initialized 
 private:
 	termentry * SetTerm();
 	void   TermInitialise(termentry * pTerm);

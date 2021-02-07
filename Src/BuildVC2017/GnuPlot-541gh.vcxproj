@@ -280,6 +280,7 @@
     <ClCompile Include="..\Osf\GnuPlot-541gh\term.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-canvas.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cgm.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-emf.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-estimate.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-svg.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-win.c" />
@@ -341,7 +342,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\dxf.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\dxy.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\eepic.trm" />
-    <None Include="..\OSF\GnuPlot-541gh\term\emf.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\emxvga.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\epson.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\excl.trm" />
@@ -399,6 +399,9 @@
     <Image Include="..\OSF\GnuPlot-541gh\win\texticon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="cairo-1.16.0.vcxproj">
+      <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
+    </ProjectReference>
     <ProjectReference Include="openssl-111-crypto.vcxproj">
       <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
     </ProjectReference>

@@ -117,15 +117,11 @@ TERM_PUBLIC void PS_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
 /* To support "set term post enhanced" */
 TERM_PUBLIC void ENHPS_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC int  ENHPS_set_font(const char * font);
-TERM_PUBLIC void ENHPS_OPEN(char * fontname, double fontsize,
-    double base, bool widthflag, bool showflag,
-    int overprint);
+TERM_PUBLIC void ENHPS_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void ENHPS_FLUSH();
 TERM_PUBLIC void ENHPS_WRITEC(int c);
 static void PS_RememberFont(char * fname);
-
 TERM_PUBLIC char * PS_escape_string(char * origstr, char * escapelist);
-
 TERM_PUBLIC void PS_path(int p);
 static bool PS_newpath = FALSE;
 static bool ENHps_opened_string = FALSE;  /* try to cut out empty ()'s */
@@ -140,9 +136,7 @@ static int PS_in_textbox = 0;
 #ifndef TERM_PROTO_ONLY
 
 #ifdef TERM_BODY
-
 #include "post.h"
-
 #ifdef HAVE_GD_PNG
 
 #include "gd.h"
@@ -773,18 +767,14 @@ TERM_PUBLIC void PS_options()
 			    GPO.Pgm.Shift();
 			    break;
 			case PSLATEX_AUXFILE:
-			    if(set_pslauxfile ||
-				((ps_params->terminal == PSTERM_POSTSCRIPT) ||
-				(ps_params->terminal == PSTERM_EPSLATEX)))
+			    if(set_pslauxfile || ((ps_params->terminal == PSTERM_POSTSCRIPT) || (ps_params->terminal == PSTERM_EPSLATEX)))
 				    goto PS_options_error;
 			    set_pslauxfile = TRUE;
 			    ps_params->useauxfile = TRUE;
 			    GPO.Pgm.Shift();
 			    break;
 			case PSLATEX_NOAUXFILE:
-			    if(set_pslauxfile ||
-				((ps_params->terminal == PSTERM_POSTSCRIPT) ||
-				(ps_params->terminal == PSTERM_EPSLATEX)))
+			    if(set_pslauxfile || ((ps_params->terminal == PSTERM_POSTSCRIPT) || (ps_params->terminal == PSTERM_EPSLATEX)))
 				    goto PS_options_error;
 			    set_pslauxfile = TRUE;
 			    ps_params->useauxfile = FALSE;

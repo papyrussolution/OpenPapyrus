@@ -123,7 +123,7 @@
  * http://images.autodesk.com/adsk/files/autocad_2012_pdf_dxf-reference_enu.pdf
  */
 #include "dxf.trm"
-#include "emf.trm" // Enhanced Metafile Format driver 
+//#include "emf.trm" // Enhanced Metafile Format driver 
 // #include "dxy.trm"  // Roland DXY800A plotter 
 // #include "excl.trm" // QMS/EXCL laserprinter (Talaris 1590 and others) 
 #include "fig.trm" // fig graphics 
@@ -157,21 +157,20 @@
 #endif
 // @sobolev #include "tkcanvas.trm" /* tcl/tk with perl extensions */
 #ifndef NO_BITMAP_SUPPORT
-#include "pbm.trm" /* portable bit map */
-/* wire printers */
-#define EPSONP /* Epson LX-800, Star NL-10, NX-1000 and lots of others */
-#define EPS60 /* Epson-style 60-dot per inch printers */
-#define EPS180 /* Epson-style 180-dot per inch (24 pin) printers */
-#define NEC
-#define OKIDATA
-#define STARC
-#define DPU414 /* Seiko DPU-414 thermal printer */
-#define TANDY60 /* Tandy DMP-130 series 60-dot per inch graphics */
-#include "epson.trm" /* the common driver file for all of these */
+	#include "pbm.trm" /* portable bit map */
+	// wire printers 
+	#define EPSONP /* Epson LX-800, Star NL-10, NX-1000 and lots of others */
+	#define EPS60 /* Epson-style 60-dot per inch printers */
+	#define EPS180 /* Epson-style 180-dot per inch (24 pin) printers */
+	#define NEC
+	#define OKIDATA
+	#define STARC
+	#define DPU414 /* Seiko DPU-414 thermal printer */
+	#define TANDY60 /* Tandy DMP-130 series 60-dot per inch graphics */
+	#include "epson.trm" /* the common driver file for all of these */
 #endif /* NO_BITMAP_SUPPORT */
 
-/* TeX related terminals start here */
-
+// TeX related terminals start here 
 #include "pict2e.trm" /* LaTeX2e picture environment */
 #ifdef PSLATEX_DRIVER
 	#include "pslatex.trm" /* latex/tex with picture in postscript */
@@ -183,9 +182,9 @@
 	#include "metapost.trm" /* METAPOST */
 #endif
 #include "context.trm" /* ConTeXt */
-/*
- * DEPRECATED latex terminals no longer built by default
- */
+// 
+// DEPRECATED latex terminals no longer built by default
+// 
 #if 0
 	#define EMTEX
 	#define EEPIC

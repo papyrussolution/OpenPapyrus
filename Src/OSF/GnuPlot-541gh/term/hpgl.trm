@@ -1271,12 +1271,9 @@ TERM_PUBLIC void HPGL_put_text(uint x, uint y, const char * str)
 
 TERM_PUBLIC void HPGL2_put_text(uint x, uint y, const char * str)
 {
-/*
- * Position the pen
- */
+	// Position the pen
 	HPGL2_move(x, y);
 	HPGL2_end_poly();
-
 	HPGL2_put_text_here(str, TRUE);
 }
 
@@ -1472,14 +1469,12 @@ TERM_PUBLIC void HPGL2_vector(uint x, uint y)
 	HPGL_x = x;
 	HPGL_y = y;
 }
-
 /*
  * Routine to encode position in base 32 or base 64 characters
  */
 TERM_PUBLIC void HPGL2_encode(int d)
 {
 	int c;
-
 	if((d <<= 1) < 0)
 		d = 1 - d;
 	do {
@@ -1574,17 +1569,10 @@ TERM_PUBLIC int HPGL2_justify_text(enum JUSTIFY just)
 	HPGL2_end_poly();
 	HPGL2_justification = just;
 	switch(just) {
-		case LEFT:
-		    fputs("LO2", gpoutfile);
-		    break;
-		case CENTRE:
-		    fputs("LO5", gpoutfile);
-		    break;
-		case RIGHT:
-		    fputs("LO8", gpoutfile);
-		    break;
-		default:
-		    return 0;
+		case LEFT: fputs("LO2", gpoutfile); break;
+		case CENTRE: fputs("LO5", gpoutfile); break;
+		case RIGHT: fputs("LO8", gpoutfile); break;
+		default: return 0;
 	}
 	return 1;
 }
@@ -1595,25 +1583,19 @@ TERM_PUBLIC int HPGL2_set_font(const char * font)
 	int sep;
 	int int_size;
 	double size;
-
-	if(font == NULL)
-		font = "";
-
+	SETIFZ(font, "");
 	sep = strcspn(font, ",");
 	strncpy(name, font, sizeof(name)-1);
-
 	if(sep < sizeof(name))
 		name[sep] = NUL;
-
-/* determine font size, use default from options if invalid */
+	// determine font size, use default from options if invalid 
 	int_size = 0;
-	/* FIXME: use strtod instead */
+	// FIXME: use strtod instead 
 	sscanf(&(font[sep + 1]), "%d", &int_size);
 	if(int_size > 0)
 		size = int_size;
 	else
 		size = HPGL2_point_size;
-
 	return HPGL2_set_font_size(name, size);
 }
 
@@ -1627,7 +1609,7 @@ static int HPGL2_set_font_size(const char * font, double size)
 	char * p2;
 	double scale = HPGL2_fontscale * HPGL2_enh_fontscale;
 	HPGL2_end_poly();
-/* determine font, use default from options if invalid */
+	// determine font, use default from options if invalid 
 	if((p1 = (char *)strstr(font, ":Italic")) != NULL) // @badcast
 		italic = TRUE;
 	if((p2 = (char *)strstr(font, ":Bold")) != NULL) // @badcast
@@ -2843,14 +2825,11 @@ TERM_PUBLIC void HPGL2_filled_polygon(int points, gpiPoint * corners)
 	/* draw polygon */
 	for(i = 1; i < points; i++)
 		HPGL2_vector(corners[i].x, corners[i].y);
-	if((corners[points - 1].x != corners[0].x) ||
-	    (corners[points - 1].y != corners[0].y))
+	if((corners[points - 1].x != corners[0].x) || (corners[points - 1].y != corners[0].y))
 		HPGL2_vector(corners[0].x, corners[0].y);
 	HPGL2_end_poly();
-
 	/* exit polygon mode */
 	fputs("PM2;", gpoutfile);
-
 	switch(style) {
 		case FS_EMPTY: /* fill with background color */
 		    /* select pen 0: white */
@@ -2903,10 +2882,8 @@ TERM_PUBLIC void HPGL2_set_color(t_colorspec * colorspec)
 {
 	double gray = colorspec->value;
 	int linetype = colorspec->lt;
-
 	FPRINTF((stderr, "set_color : %i\n", HPGL2_pentype));
 	HPGL2_end_poly();
-
 	switch(colorspec->type) {
 		case TC_LT:
 		    if(linetype >= 0) {

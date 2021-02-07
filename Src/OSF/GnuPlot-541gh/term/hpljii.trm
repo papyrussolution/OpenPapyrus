@@ -375,14 +375,35 @@ TERM_TABLE_END(hpljii_driver)
 #define LAST_TERM hpljii_driver
 
 TERM_TABLE_START(hpdj_driver)
-"hpdj", "HP DeskJet 500, [75 100 150 300]",
-HPLJII_75PPI_XMAX, HPLJII_75PPI_YMAX, HPLJII_75PPI_VCHAR,
-HPLJII_75PPI_HCHAR, HPLJII_75PPI_VTIC, HPLJII_75PPI_HTIC, HPLJII_options,
-HPLJII_init, HPLJII_reset, HPDJ_text, GnuPlot::NullScale,
-HPDJ_graphics, b_move, b_vector, HPLJII_linetype,
-b_put_text, b_text_angle, null_justify_text, line_and_point,
-GnuPlot::DoArrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(hpdj_driver)
+	"hpdj", 
+	"HP DeskJet 500, [75 100 150 300]",
+	HPLJII_75PPI_XMAX, 
+	HPLJII_75PPI_YMAX, 
+	HPLJII_75PPI_VCHAR,
+	HPLJII_75PPI_HCHAR, 
+	HPLJII_75PPI_VTIC, 
+	HPLJII_75PPI_HTIC, 
+	HPLJII_options,
+	HPLJII_init, 
+	HPLJII_reset, 
+	HPDJ_text, 
+	GnuPlot::NullScale,
+	HPDJ_graphics, 
+	b_move, 
+	b_vector, 
+	HPLJII_linetype,
+	b_put_text, 
+	b_text_angle, 
+	null_justify_text, 
+	line_and_point,
+	GnuPlot::DoArrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(hpdj_driver)
 
 #undef LAST_TERM
 #define LAST_TERM hpdj_driver

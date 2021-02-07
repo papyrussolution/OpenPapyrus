@@ -35,8 +35,7 @@
 /*
  * This file is included by ../term.c.
  *
- * This terminal driver supports:
- *  Fig graphics language
+ * This terminal driver supports: Fig graphics language
  *
  * AUTHORS
  *  Micah Beck, David Kotz
@@ -1138,44 +1137,58 @@ TERM_PUBLIC void FIG_layer(t_termlayer syncpoint)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(fig_driver)
-"fig", 
-"FIG graphics language V3.2 for XFIG graphics editor",
-FIG_XMAX, 
-FIG_YMAX, 
-static_cast<uint>(FIG_VCHAR), 
-static_cast<uint>(FIG_HCHAR),
-FIG_VTIC, 
-FIG_HTIC, 
-FIG_options, 
-FIG_init, 
-FIG_reset,
-FIG_text, 
-GnuPlot::NullScale, 
-FIG_graphics, 
-FIG_move, 
-FIG_vector,
-FIG_linetype, 
-FIG_put_text, 
-FIG_text_angle, 
-FIG_justify_text,
-FIG_lpoint, 
-FIG_arrow, 
-set_font_null, 
-FIG_pointsize,
-TERM_BINARY|TERM_CAN_DASH /*flags */,
-0 /*suspend */, 0 /*resume */,
-FIG_boxfill, 
-FIG_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0    /* no mouse support for the fig terminal */
-#endif
-, FIG_make_palette, 0 /*previous_palette*/, FIG_set_color, FIG_filled_polygon
-, 0
-, 0, 0, 0       /* no enhanced text support */
-, FIG_layer
-, NULL, 0.0, NULL       /* path, scale, hypertext */
-, NULL, NULL            /* boxed_text, modify_plots */
-, FIG_dashtype TERM_TABLE_END(fig_driver)
+	"fig", 
+	"FIG graphics language V3.2 for XFIG graphics editor",
+	FIG_XMAX, 
+	FIG_YMAX, 
+	static_cast<uint>(FIG_VCHAR), 
+	static_cast<uint>(FIG_HCHAR),
+	FIG_VTIC, 
+	FIG_HTIC, 
+	FIG_options, 
+	FIG_init, 
+	FIG_reset,
+	FIG_text, 
+	GnuPlot::NullScale, 
+	FIG_graphics, 
+	FIG_move, 
+	FIG_vector,
+	FIG_linetype, 
+	FIG_put_text, 
+	FIG_text_angle, 
+	FIG_justify_text,
+	FIG_lpoint, 
+	FIG_arrow, 
+	set_font_null, 
+	FIG_pointsize,
+	TERM_BINARY|TERM_CAN_DASH, /*flags */
+	0, /*suspend */ 
+	0, /*resume */
+	FIG_boxfill, 
+	FIG_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,    /* no mouse support for the fig terminal */
+	#endif
+	FIG_make_palette, 
+	0/*previous_palette*/, 
+	FIG_set_color, 
+	FIG_filled_polygon,
+	0,
+	0, 
+	0, 
+	0,       /* no enhanced text support */
+	FIG_layer,
+	NULL, 
+	0.0, 
+	NULL,       /* path, scale, hypertext */
+	NULL, 
+	NULL,            /* boxed_text, modify_plots */
+	FIG_dashtype 
+TERM_TABLE_END(fig_driver)
 
 #undef LAST_TERM
 #define LAST_TERM fig_driver

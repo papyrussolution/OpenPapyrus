@@ -850,7 +850,6 @@ TERM_PUBLIC void CACA_text()
 {
 	if(CACA_cv == NULL)
 		return;
-
 	if(CACA_dp != NULL)
 		CACA_refresh();
 #ifdef USE_MOUSE
@@ -858,15 +857,15 @@ TERM_PUBLIC void CACA_text()
 	if(!CACA_windowed && !CACA_processing_events && !CACA_exportonly && !CACA_nosuspend) {
 		/* Test for input redirection */
 		if(isatty(fileno(stdin))) {
-			/* NOTE: This is a hack to force a call to _graphics() before redrawing.
-			   The vgagl terminal uses the very same trick. */
-			term_graphics = FALSE;
+			// NOTE: This is a hack to force a call to _graphics() before redrawing.
+			// The vgagl terminal uses the very same trick. 
+			GPO.TermGraphics = false;
 			CACA_processing_events = TRUE;
 			while(CACA_process_events() == CACA_loop);
-			/* Clean up remaining console events, as e.g. KEYUP events: */
+			// Clean up remaining console events, as e.g. KEYUP events: 
 			CACA_discard_events();
 			CACA_processing_events = FALSE;
-			term_graphics = TRUE;
+			GPO.TermGraphics = true;
 		}
 		else {
 			getchar();

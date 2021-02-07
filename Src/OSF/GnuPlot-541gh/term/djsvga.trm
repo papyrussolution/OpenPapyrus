@@ -480,13 +480,13 @@ TERM_PUBLIC void DJSVGA_text()
 #if defined(USE_MOUSE)
 	GrMouseDisplayCursor();
 	if(!dj_processing_events) {
-		/* Hack to let the gnuplot kernel do new plots */
-		term_graphics = FALSE;
+		// Hack to let the gnuplot kernel do new plots 
+		GPO.TermGraphics = false;
 		dj_processing_events = TRUE;
 		while(dj_processing_events)
 			grx_check_event();
 		dj_processing_events = FALSE;
-		term_graphics = TRUE;
+		GPO.TermGraphics = true;
 		GrMouseEraseCursor();
 #ifdef HAVE_MGRX
 		GrEventUnInit();

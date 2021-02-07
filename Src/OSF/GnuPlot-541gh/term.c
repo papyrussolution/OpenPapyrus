@@ -15,29 +15,15 @@
  * Entry points : (see also term/README)
  *
  * term_set_output() : called when  set output  invoked
- *
- * term_initialise()  : optional. Prepare the terminal for first
- *                use. It protects itself against subsequent calls.
- *
- * term_start_plot() : called at start of graph output. Calls term_init
- *                     if necessary
- *
+ * term_initialise()  : optional. Prepare the terminal for first use. It protects itself against subsequent calls.
+ * term_start_plot() : called at start of graph output. Calls term_init if necessary
  * term_apply_lp_properties() : apply linewidth settings
- *
  * term_end_plot() : called at the end of a plot
- *
- * term_reset() : called during int_error handling, to shut
- *                terminal down cleanly
- *
+ * term_reset() : called during int_error handling, to shut terminal down cleanly
  * term_start_multiplot() : called by   set multiplot
- *
  * term_end_multiplot() : called by  set nomultiplot
- *
- * term_check_multiplot_okay() : called just before an interactive
- *                        prompt is issued while in multiplot mode,
- *                        to allow terminal to suspend if necessary,
- *                        Raises an error if interactive multiplot
- *                       is not supported.
+ * term_check_multiplot_okay() : called just before an interactive prompt is issued while in multiplot mode,
+ *   to allow terminal to suspend if necessary, Raises an error if interactive multiplot is not supported.
  */
 #include <gnuplot.h>
 #pragma hdrstop
@@ -69,7 +55,7 @@ FILE * gpoutfile;
 FILE * gppsfile = 0;
 char * PS_psdir = NULL;
 char * PS_fontpath = NULL;
-bool term_initialised; /* true if terminal has been initialized */
+//bool term_initialised; /* true if terminal has been initialized */
 // The qt and wxt terminals cannot be used in the same session. 
 // Whichever one is used first to plot, this locks out the other. 
 void * term_interlock = NULL;
@@ -119,16 +105,16 @@ double enhanced_fontscale = 1.0;
 char enhanced_escape_format[16] = "";
 double enhanced_max_height = 0.0, enhanced_min_height = 0.0;
 #define ENHANCED_TEXT_MAX (&enhanced_text[MAX_LINE_LEN])
-bool ignore_enhanced_text = FALSE; /* flag variable to disable enhanced output of filenames, mainly. */
+bool ignore_enhanced_text = false; // flag variable to disable enhanced output of filenames, mainly. 
 // Recycle count for user-defined linetypes 
 int linetype_recycle_count = 0;
 int mono_recycle_count = 0;
 
 // Internal variables 
-static bool term_graphics = FALSE; /* true if terminal is in graphics mode */
-static bool term_suspended = FALSE; /* we have suspended the driver, in multiplot mode */
-static bool opened_binary = FALSE; /* true if? */
-static bool term_force_init = FALSE; /* true if require terminal to be initialized */
+//static bool term_graphics   = false; // true if terminal is in graphics mode 
+//static bool term_suspended  = false; // we have suspended the driver, in multiplot mode 
+//static bool opened_binary   = false; // true if? 
+//static bool term_force_init = false; // true if require terminal to be initialized 
 //static double term_pointsize = 1.0; // internal pointsize for DoPoint 
 
 // Internal prototypes: 
@@ -194,7 +180,7 @@ static char * stylefont(const char * fontname, bool isbold, bool isitalic);
 static void term_close_output()
 {
 	FPRINTF((stderr, "term_close_output\n"));
-	opened_binary = FALSE;
+	GPO.TermOpenedBinary = false;
 	if(outstr) { // ie using stdout 
 	#if defined(PIPES)
 		if(output_pipe_open) {
@@ -228,9 +214,9 @@ void term_set_output(char * dest)
 		fputs("In multiplot mode you can't change the output\n", stderr);
 		return;
 	}
-	if(term && term_initialised) {
+	if(term && GPO.TermInitialised) {
 		(*term->reset)();
-		term_initialised = FALSE;
+		GPO.TermInitialised = false;
 		// switch off output to special postscript file (if used) 
 		gppsfile = NULL;
 	}
@@ -285,7 +271,7 @@ void term_set_output(char * dest)
 		term_close_output();
 		gpoutfile = f;
 		outstr = dest;
-		opened_binary = (term && (term->flags & TERM_BINARY));
+		GPO.TermOpenedBinary = (term && (term->flags & TERM_BINARY));
 	}
 }
 
@@ -304,7 +290,7 @@ void GnuPlot::TermInitialise(termentry * pTerm)
 			fprintf(stderr, "Closing %s\n", outstr);
 		term_close_output();
 	}
-	if(outstr && (((pTerm->flags & TERM_BINARY) && !opened_binary) || ((!(pTerm->flags & TERM_BINARY) && opened_binary)))) {
+	if(outstr && (((pTerm->flags & TERM_BINARY) && !TermOpenedBinary) || ((!(pTerm->flags & TERM_BINARY) && TermOpenedBinary)))) {
 		// this is nasty - we cannot just term_set_output(outstr)
 		// since term_set_output will first free outstr and we
 		// end up with an invalid pointer. I think I would
@@ -342,10 +328,10 @@ void GnuPlot::TermInitialise(termentry * pTerm)
 		_setmode(_fileno(stdout), O_BINARY);
 	}
 #endif
-	if(!term_initialised || term_force_init) {
+	if(!TermInitialised || TermForceInit) {
 		FPRINTF((stderr, "- calling term->init()\n"));
 		(pTerm->init)(term);
-		term_initialised = TRUE;
+		TermInitialised = true;
 #ifdef HAVE_LOCALE_H
 		// This is here only from an abundance of caution (a.k.a. paranoia).
 		// Some terminals (wxt qt caca) are known to change the locale when
@@ -360,19 +346,19 @@ void GnuPlot::TermInitialise(termentry * pTerm)
 void GnuPlot::TermStartPlot(termentry * pTerm)
 {
 	FPRINTF((stderr, "GnuPlot::TermStartPlot()\n"));
-	if(!term_initialised)
+	if(!TermInitialised)
 		TermInitialise(pTerm);
-	if(!term_graphics) {
+	if(!TermGraphics) {
 		FPRINTF((stderr, "- calling term->graphics()\n"));
 		(pTerm->graphics)();
-		term_graphics = true;
+		TermGraphics = true;
 	}
-	else if(multiplot && term_suspended) {
+	else if(multiplot && TermSuspended) {
 		if(pTerm->resume) {
 			FPRINTF((stderr, "- calling term->resume()\n"));
 			(pTerm->resume)();
 		}
-		term_suspended = false;
+		TermSuspended = false;
 	}
 	if(multiplot)
 		multiplot_count++;
@@ -392,13 +378,13 @@ void GnuPlot::TermStartPlot(termentry * pTerm)
 void GnuPlot::TermEndPlot(termentry * pTerm)
 {
 	FPRINTF((stderr, "term_end_plot()\n"));
-	if(term_initialised) {
+	if(TermInitialised) {
 		// Sync point for epslatex text positioning 
 		(pTerm->layer)(TERM_LAYER_END_TEXT);
 		if(!multiplot) {
 			FPRINTF((stderr, "- calling term->text()\n"));
 			(pTerm->text)();
-			term_graphics = FALSE;
+			TermGraphics = FALSE;
 		}
 		else {
 			MultiplotNext();
@@ -416,10 +402,10 @@ void GnuPlot::TermEndPlot(termentry * pTerm)
 static void term_suspend()
 {
 	FPRINTF((stderr, "term_suspend()\n"));
-	if(term_initialised && !term_suspended && term->suspend) {
+	if(GPO.TermInitialised && !GPO.TermSuspended && term->suspend) {
 		FPRINTF((stderr, "- calling term->suspend()\n"));
 		(*term->suspend)();
-		term_suspended = TRUE;
+		GPO.TermSuspended = true;
 	}
 }
 
@@ -433,21 +419,21 @@ void term_reset()
 	kill_pending_Pause_dialog();
 #endif
 #endif
-	if(term_initialised) {
-		if(term_suspended) {
+	if(GPO.TermInitialised) {
+		if(GPO.TermSuspended) {
 			if(term->resume) {
 				FPRINTF((stderr, "- calling term->resume()\n"));
 				(*term->resume)();
 			}
-			term_suspended = false;
+			GPO.TermSuspended = false;
 		}
-		if(term_graphics) {
+		if(GPO.TermGraphics) {
 			(*term->text)();
-			term_graphics = false;
+			GPO.TermGraphics = false;
 		}
-		if(term_initialised) {
+		if(GPO.TermInitialised) {
 			(*term->reset)();
-			term_initialised = false;
+			GPO.TermInitialised = false;
 			// switch off output to special postscript file (if used) 
 			gppsfile = NULL;
 		}
@@ -533,10 +519,10 @@ void GnuPlot::TermEndMultiplot(termentry * pTerm)
 {
 	FPRINTF((stderr, "term_end_multiplot()\n"));
 	if(multiplot) {
-		if(term_suspended) {
+		if(TermSuspended) {
 			if(pTerm->resume)
 				(pTerm->resume)();
-			term_suspended = FALSE;
+			TermSuspended = false;
 		}
 		MultiplotEnd();
 		TermEndPlot(pTerm);
@@ -550,7 +536,7 @@ void GnuPlot::TermEndMultiplot(termentry * pTerm)
 void GnuPlot::TermCheckMultiplotOkay(bool fInteractive)
 {
 	FPRINTF((stderr, "term_multiplot_okay(%d)\n", f_interactive));
-	if(term_initialised) { // they've not started yet 
+	if(TermInitialised) { // they've not started yet 
 		// make sure that it is safe to issue an interactive prompt
 		// it is safe if
 		//   it is not an interactive read, or
@@ -1071,6 +1057,7 @@ extern termentry canvas_driver;
 extern termentry cgm_driver;
 extern termentry svg_driver;
 extern termentry domterm_driver;
+extern termentry emf_driver;
 extern termentry ENHest;
 extern char * ENHest_plaintext; // terminal-estimate.c
 
@@ -1095,11 +1082,12 @@ static struct termentry term_tbl[] = {
 		LINETYPE_null, 
 		PUTTEXT_null
 	},
-	win_driver,    // @experimental
-	canvas_driver, // @experimental
-	cgm_driver,    // @experimental
-	svg_driver,    // @experimental
-	domterm_driver // @experimental
+	win_driver,     // @experimental
+	canvas_driver,  // @experimental
+	cgm_driver,     // @experimental
+	svg_driver,     // @experimental
+	domterm_driver, // @experimental
+	emf_driver      // @experimental
 #include "term.h"
 };
 
@@ -1229,7 +1217,7 @@ struct termentry * change_term(const char * origname, int length)
 		return (NULL);
 	// Success: set terminal type now 
 	term = t;
-	term_initialised = FALSE;
+	GPO.TermInitialised = false;
 	// check that optional fields are initialised to something 
 	SETIFZ(term->text_angle, null_text_angle);
 	SETIFZ(term->justify_text, null_justify_text);
@@ -2399,21 +2387,21 @@ int strlen_tex(const char * str)
 void check_for_mouse_events()
 {
 #ifdef USE_MOUSE
-	if(term_initialised && term->waitforinput) {
+	if(GPO.TermInitialised && term->waitforinput) {
 		term->waitforinput(TERM_ONLY_CHECK_MOUSING);
 	}
 #endif
 #ifdef _WIN32
-	/* Process windows GUI events (e.g. for text window, or wxt and windows terminals) */
+	// Process windows GUI events (e.g. for text window, or wxt and windows terminals) 
 	WinMessageLoop();
-	/* On Windows, Ctrl-C only sets this flag. */
-	/* The next block duplicates the behaviour of inter(). */
+	// On Windows, Ctrl-C only sets this flag. 
+	// The next block duplicates the behaviour of inter(). 
 	if(ctrlc_flag) {
 		ctrlc_flag = FALSE;
 		term_reset();
 		putc('\n', stderr);
 		fprintf(stderr, "Ctrl-C detected!\n");
-		bail_to_command_line(); /* return to prompt */
+		bail_to_command_line(); // return to prompt 
 	}
 #endif
 }

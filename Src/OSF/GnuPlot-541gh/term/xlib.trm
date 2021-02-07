@@ -29,18 +29,18 @@ TERM_PUBLIC void Xlib_reset();
 
 static FILE * X11_save_ipc = NULL;
 #ifndef PIPE_IPC
-int ipc_back_fd = IPC_BACK_UNUSABLE;
+	int ipc_back_fd = IPC_BACK_UNUSABLE;
 #endif
 
 TERM_PUBLIC void Xlib_init(termentry * pThis)
 {
-	/* x11.trm thinks it is writing to a private pipe, but here we */
-	/* set it to use the channel opened by 'set output <file>'     */
+	// x11.trm thinks it is writing to a private pipe, but here we 
+	// set it to use the channel opened by 'set output <file>'     
 	X11_save_ipc = X11_ipc;
 	X11_ipc = gpoutfile;
-	/* There is, of course, no mouse feedback */
+	// There is, of course, no mouse feedback 
 	ipc_back_fd = IPC_BACK_UNUSABLE;
-	term_initialised = TRUE;
+	GPO.TermInitialised = true;
 }
 
 TERM_PUBLIC void Xlib_text()

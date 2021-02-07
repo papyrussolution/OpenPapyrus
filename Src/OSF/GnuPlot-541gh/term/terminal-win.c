@@ -49,8 +49,8 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
-#include <win\wcommon.h>
 #include "driver.h"
+#include <win\wcommon.h>
 
 // @experimental {
 #define TERM_BODY

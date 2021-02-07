@@ -1,7 +1,5 @@
-/* Hey Emacs this is -*- C -*- */
-
-/* GNUPLOT - emf.trm */
-
+// Hey Emacs this is -*- C -*- 
+// GNUPLOT - emf.trm 
 /*[
  * Copyright 1998, 2004
  *
@@ -121,14 +119,23 @@
  *
  * send your comments or suggestions to (gnuplot-info@lists.sourceforge.net).
  */
-
+#include <gnuplot.h>
+#pragma hdrstop
 #include "driver.h"
 
+// @experimental {
+#define TERM_BODY
+#define TERM_PUBLIC static
+#define TERM_TABLE
+#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_END(x)   };
+// } @experimental
+
 #ifdef TERM_REGISTER
-register_term(emf)
+	register_term(emf)
 #endif
 
-#ifdef TERM_PROTO
+//#ifdef TERM_PROTO
 TERM_PUBLIC void EMF_options();
 TERM_PUBLIC void EMF_init(termentry * pThis);
 TERM_PUBLIC void EMF_reset();
@@ -157,24 +164,18 @@ TERM_PUBLIC void EMF_flush_dashtype();
 
 /* Enhanced text support */
 TERM_PUBLIC void ENHemf_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void ENHemf_OPEN(char * fontname, double fontsize,
-    double base, bool widthflag, bool showflag,
-    int overprint);
+TERM_PUBLIC void ENHemf_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void ENHemf_FLUSH();
 
 #undef RGB
-#define RGB(r, g, b) ((long)                                      \
-	(((uchar)(r)                        \
-	| ((short)((uchar)(g)) << 8))   \
-	| (((long)(uchar)(b)) << 16)))
+#define RGB(r, g, b) ((long)(((uchar)(r) | ((short)((uchar)(g)) << 8)) | (((long)(uchar)(b)) << 16)))
 
-#ifndef GPMIN
-#define MIN(a, b) (a < b ? a : b)
-#endif
-
-#ifndef GPMAX
-#define MAX(a, b) (a > b ? a : b)
-#endif
+//#ifndef GPMIN
+	//#define MIN(a, b) (a < b ? a : b)
+//#endif
+//#ifndef GPMAX
+	//#define MAX(a, b) (a > b ? a : b)
+//#endif
 
 #define EMF_PX2HM 26.37
 #define EMF_PT2HM 35.28
@@ -196,7 +197,6 @@ TERM_PUBLIC void ENHemf_FLUSH();
 #define EMF_HANDLE_FONT         2
 #define EMF_HANDLE_BRUSH        3
 #define EMF_HANDLE_MAX          4
-
 /*
    typedef  enum {
    EMF_PS_COSMETIC = 0x00000000,
@@ -335,8 +335,8 @@ TERM_PUBLIC void ENHemf_FLUSH();
 		EMF_write_long(nvert);                      \
 }
 
-/* shige */
-/* Write the EMR, the header, and a single-entry colormap */
+// shige 
+// Write the EMR, the header, and a single-entry colormap 
 #define EMF_CreateMonoBrush(handle) {   \
 		EMF_write_emr(93, 0x6c);    \
 		EMF_write_long(handle);     \
@@ -358,7 +358,7 @@ TERM_PUBLIC void ENHemf_FLUSH();
 		EMF_write_long(0); /* # color table entries used */ \
 }
 
-#endif /* TERM_PROTO */
+//#endif /* TERM_PROTO */
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
@@ -919,15 +919,13 @@ TERM_PUBLIC void EMF_text()
 	long pos;
 	EMF_flush_polyline();
 	emf_graphics = FALSE;
-
-	/* shige: 08/30 2012
-	 * FIXME:
-	 * The following command prevents export of a spurious rectangle
-	 * (not the bounding box) on some Windows systems.  Why? How?
-	 */
+	// shige: 08/30 2012
+	// FIXME:
+	// The following command prevents export of a spurious rectangle
+	// (not the bounding box) on some Windows systems.  Why? How?
 	EMF_MoveToEx(emf_polyline[0], term->MaxY - emf_polyline[1]);
 
-	/* writing end of metafile */
+	// writing end of metafile 
 	EMF_SelectObject(EMF_STOCK_OBJECT_DEFAULT_FONT);
 	EMF_DeleteObject(EMF_HANDLE_FONT);
 	EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
@@ -935,11 +933,10 @@ TERM_PUBLIC void EMF_text()
 	EMF_SelectObject(EMF_STOCK_OBJECT_WHITE_BRUSH);
 	EMF_DeleteObject(EMF_HANDLE_BRUSH);
 	EMF_EOF();
-
-	/* update the header */
+	// update the header 
 	pos = ftell(gpoutfile);
 	if(pos < 0) {
-		term_graphics = FALSE;
+		GPO.TermGraphics = false;
 		GPO.IntError(NO_CARET, "emf: cannot reset output file");
 	}
 	else {
@@ -947,11 +944,10 @@ TERM_PUBLIC void EMF_text()
 		EMF_write_long(pos);
 		EMF_write_long(emf_record_count);
 	}
-
-	/* Reset to start of output file.  If the user mistakenly tries to	*/
-	/* plot again into the same file, it will overwrite the original	*/
-	/* rather than corrupting it.					*/
-	/* FIXME:  An alternative would be to open a new output file.   */
+	// Reset to start of output file.  If the user mistakenly tries to	
+	// plot again into the same file, it will overwrite the original	
+	// rather than corrupting it.					
+	// FIXME:  An alternative would be to open a new output file.   
 	fseek(gpoutfile, 0L, SEEK_SET);
 }
 
@@ -1008,14 +1004,12 @@ TERM_PUBLIC void EMF_linecolor(int linecolor)
 		RGB(0, 255, 255), /* cyan */
 		RGB(255, 255, 0) /* yellow */
 	};
-
 	if(linecolor == LT_BACKGROUND)
 		emf_color = emf_background;
 	else {
 		linecolor = (linecolor < 0 || emf_monochrome) ? 7 : (linecolor % EMF_COLORS);
 		emf_color = color_table_data[linecolor];
 	}
-
 	EMF_flush_polyline();
 }
 
@@ -1138,19 +1132,16 @@ TERM_PUBLIC void EMF_flush_dashtype()
 		emf_dashtype_count = 0;
 	}
 }
-
-/*
- * Resets _both_ line color and dash type!
- */
+// 
+// Resets _both_ line color and dash type!
+// 
 TERM_PUBLIC void EMF_load_dashtype(int dashtype)
 {
 	int i, j;
 	double empirical_scale = 0.50;
-
-	/* Each group of 8 entries in dot_length[] defines a dash
-	   pattern.  Entries in each group are alternately length of
-	   line and length of whitespace, in units of 2/3 of the linewidth.
-	 */
+	// Each group of 8 entries in dot_length[] defines a dash
+	// pattern.  Entries in each group are alternately length of
+	// line and length of whitespace, in units of 2/3 of the linewidth.
 	static int dot_length[(EMF_LINE_TYPES+1) * 8] =
 	{                       /* 0 - solid             */
 		8, 5, 8, 5, 8, 5, 8, 5, /* 1 - dashes            */
@@ -1159,29 +1150,22 @@ TERM_PUBLIC void EMF_load_dashtype(int dashtype)
 		9, 4, 2, 4, 2, 0, 0, 4, /* 4 - dash-dot-dot      */
 		1, 1, 1, 1, 1, 1, 1, 1 /* Placeholder for custom pattern */
 	};
-
 	emf_dashtype = dashtype;
-
 	if(dashtype >= 0)
 		dashtype = dashtype % EMF_LINE_TYPES;
-
 	if(dashtype == LT_AXIS)
 		dashtype = 2;
-
 	if(dashtype == DASHTYPE_CUSTOM) {
 		dashtype = EMF_LINE_TYPES; /* Point to placeholder array */
 		for(i = 0; i < 8; i += 1)
-			dot_length[(EMF_LINE_TYPES-1)*8 + i] =
-			    emf_dashpattern[i] * ceil(emf_linewidth * empirical_scale/2.);
+			dot_length[(EMF_LINE_TYPES-1)*8 + i] = emf_dashpattern[i] * ceil(emf_linewidth * empirical_scale/2.);
 	}
-
 	if(dashtype == DASHTYPE_NODRAW) {
 		dashtype = EMF_LINE_TYPES; /* Point to placeholder array */
 		for(i = 0; i < 7; i++)
 			dot_length[(EMF_LINE_TYPES-1)*8 + i] = 0;
 		dot_length[(EMF_LINE_TYPES-1)*8 + 7] = 10;
 	}
-
 	if(dashtype < 1 || !emf_dashed) { /* solid mode */
 		EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
 		EMF_DeleteObject(EMF_HANDLE_PEN);
@@ -1190,21 +1174,18 @@ TERM_PUBLIC void EMF_load_dashtype(int dashtype)
 		term->vector = EMF_solid_vector;
 	}
 	else {
-		/* Since win32 dashed lines works only with 1 pixel linewith we must emulate */
+		// Since win32 dashed lines works only with 1 pixel linewith we must emulate 
 		EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
 		EMF_DeleteObject(EMF_HANDLE_PEN);
 		EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, emf_linewidth * EMF_PX2HM, emf_color);
 		EMF_SelectObject(EMF_HANDLE_PEN);
-
 		term->vector = EMF_dashed_vector;
-
-		/* set up dash dimensions */
+		// set up dash dimensions 
 		j = (dashtype - 1) * 8;
 		for(i = 0; i < 8; i++, j++) {
 			emf_step_sizes[i] = dot_length[j] * emf_dashlength * EMF_PX2HM * emf_linewidth * empirical_scale;
 		}
-
-		/* first thing drawn will be a line */
+		// first thing drawn will be a line 
 		emf_step = emf_step_sizes[0];
 		emf_step_index = 0;
 	}
@@ -1229,15 +1210,12 @@ TERM_PUBLIC void EMF_dashed_vector(uint ux, uint uy)
 	int dx, dy, adx, ady;
 	int dist; /* approximate distance in plot units from starting point to end point. */
 	long remain;/* approximate distance in plot units remaining to specified end point. */
-
 	if(ux >= term->MaxX || uy >= term->MaxY)
 		GPO.IntWarn(NO_CARET, "emf_dashed_vector: (%d,%d) out of range", ux, uy);
-
 	dx = (ux - emf_posx);
 	dy = (uy - emf_posy);
 	adx = abs(dx);
 	ady = abs(dy * 10);
-
 	/* using the approximation sqrt(x**2 + y**2)  ~  x + (5*x*x)/(12*y)   when x > y.
 	   Note ordering of calculations to avoid overflow on 16 bit architectures */
 	if(10 * adx < ady)

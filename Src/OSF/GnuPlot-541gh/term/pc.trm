@@ -686,8 +686,8 @@ TERM_PUBLIC void PC_text()
 	// signal that we are done 
 	exec_event(GE_plotdone, 0, 0, 0, 0, 0);
 	if(!pc_processing_events) {
-		/* Hack to let the gnuplot kernel do new plots */
-		term_graphics = FALSE;
+		// Hack to let the gnuplot kernel do new plots 
+		GPO.TermGraphics = false;
 		pc_processing_events = TRUE;
 		while(pc_processing_events) {
 			int key =  getch();
@@ -722,7 +722,7 @@ TERM_PUBLIC void PC_text()
 			}
 		}
 		pc_processing_events = FALSE;
-		term_graphics = TRUE;
+		GPO.TermGraphics = true;
 		PC_restore_text();
 	}
 #else /* !USE_MOUSE */
