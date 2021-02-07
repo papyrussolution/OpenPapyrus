@@ -61,7 +61,7 @@
 #ifdef TERM_PROTO
 
 TERM_PUBLIC void PICT2E_options();
-TERM_PUBLIC void PICT2E_init();
+TERM_PUBLIC void PICT2E_init(termentry * pThis);
 TERM_PUBLIC void PICT2E_graphics();
 TERM_PUBLIC void PICT2E_text();
 TERM_PUBLIC void PICT2E_reset();
@@ -259,8 +259,8 @@ TERM_PUBLIC void PICT2E_options()
 			    GPO.Pgm.Shift();
 			    pict2e_explicit_size = TRUE;
 			    pict2e_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
-			    term->xmax = xmax_t * PICT2E_DPI / 72;
-			    term->ymax = ymax_t * PICT2E_DPI / 72;
+			    term->MaxX = xmax_t * PICT2E_DPI / 72;
+			    term->MaxY = ymax_t * PICT2E_DPI / 72;
 			    break;
 		    }
 			case PICT2E_COLOR:
@@ -299,7 +299,7 @@ TERM_PUBLIC void PICT2E_options()
 			    break;
 			case PICT2E_LINEWIDTH:
 			    GPO.Pgm.Shift();
-			    pict2e_lw_scale = GPO.RealExpression();
+			    pict2e_lw_scale = GPO.FloatExpression();
 			    if(pict2e_lw_scale < 0.0)
 				    pict2e_lw_scale = 1.0;
 			    break;
@@ -329,9 +329,9 @@ TERM_PUBLIC void PICT2E_options()
 	sprintf(term_options, "font \"%s,%d\"", pict2e_font, pict2e_fontsize);
 	if(pict2e_explicit_size) {
 		if(pict2e_explicit_units == CM)
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ", 2.54 * (float)term->xmax / (PICT2E_DPI), 2.54 * (float)term->ymax / (PICT2E_DPI));
+			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ", 2.54 * (float)term->MaxX / (PICT2E_DPI), 2.54 * (float)term->MaxY / (PICT2E_DPI));
 		else
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ", (float)term->xmax / (PICT2E_DPI), (float)term->ymax / (PICT2E_DPI));
+			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ", (float)term->MaxX / (PICT2E_DPI), (float)term->MaxY / (PICT2E_DPI));
 	}
 	sprintf(&(term_options[strlen(term_options)]), pict2e_use_color ? " color" : " monochrome");
 	sprintf(&(term_options[strlen(term_options)]), " linewidth %.1f", pict2e_lw_scale);
@@ -340,7 +340,7 @@ TERM_PUBLIC void PICT2E_options()
 	sprintf(&(term_options[strlen(term_options)]), pict2e_arrows ? " texarrows" : " gparrows");
 }
 
-TERM_PUBLIC void PICT2E_init()
+TERM_PUBLIC void PICT2E_init(termentry * pThis)
 {
 	fprintf(gpoutfile,
 	    "%% GNUPLOT: LaTeX2e picture (pict2e)\n" \
@@ -365,12 +365,12 @@ TERM_PUBLIC void PICT2E_graphics()
 {
 	/* set size of canvas */
 	if(!pict2e_explicit_size) {
-		term->xmax = PICT2E_XMAX;
-		term->ymax = PICT2E_YMAX;
+		term->MaxX = PICT2E_XMAX;
+		term->MaxY = PICT2E_YMAX;
 	}
 
 	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(0,0)\n",
-	    term->xmax, term->ymax);
+	    term->MaxX, term->MaxY);
 
 	if(pict2e_font[0] != NUL) {
 		fprintf(gpoutfile, "\
@@ -412,7 +412,7 @@ static void PICT2E_linesize()
 	float size;
 	PICT2E_endline();
 	/* Find the new desired line thickness. */
-	size = pict2e_lw * 0.4;
+	size = pict2e_lw * 0.4f;
 	/* If different from current size, redefine \plotpoint */
 	if(size != pict2e_size) {
 		fprintf(gpoutfile, "\\sbox{\\plotpoint}{\\rule[%.3fpt]{%.3fpt}{%.3fpt}}%%\n", -size / 2, size, size);
@@ -599,7 +599,7 @@ TERM_PUBLIC void PICT2E_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 		// This mostly converts the parameters to signed.
 		PICT2E_do_arrow(sx, sy, ex, ey, head);
 	else
-		do_arrow(sx, sy, ex, ey, head);
+		GnuPlot::DoArrow(sx, sy, ex, ey, head);
 	pict2e_posx = ex;
 	pict2e_posy = ey;
 }
@@ -945,22 +945,42 @@ TERM_PUBLIC void PICT2E_filled_polygon(int points, gpiPoint * corners)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(pict2e_driver)
-"pict2e", "LaTeX2e picture environment",
-PICT2E_XMAX, PICT2E_YMAX, PICT2E_VCHAR, PICT2E_HCHAR,
-PICT2E_VTIC, PICT2E_HTIC, PICT2E_options, PICT2E_init, PICT2E_reset,
-PICT2E_text, null_scale, PICT2E_graphics, PICT2E_move, PICT2E_vector,
+"pict2e", 
+"LaTeX2e picture environment",
+PICT2E_XMAX, 
+PICT2E_YMAX, 
+PICT2E_VCHAR, 
+PICT2E_HCHAR,
+PICT2E_VTIC, 
+PICT2E_HTIC, 
+PICT2E_options, 
+PICT2E_init, 
+PICT2E_reset,
+PICT2E_text, 
+GnuPlot::NullScale, 
+PICT2E_graphics, 
+PICT2E_move, 
+PICT2E_vector,
 PICT2E_linetype,
 PICT2E_put_text,
 PICT2E_text_angle,
-PICT2E_justify_text, PICT2E_point, PICT2E_arrow, set_font_null,
+PICT2E_justify_text, 
+PICT2E_point, PICT2E_arrow, set_font_null,
 NULL,     /* pointsize */
 TERM_IS_LATEX | TERM_CAN_DASH | TERM_LINEWIDTH,     /* flags */
-NULL, NULL,     /* suspend, resume */
-PICT2E_fillbox, PICT2E_linewidth,
+NULL, 
+NULL,     /* suspend, resume */
+PICT2E_fillbox, 
+PICT2E_linewidth,
 #ifdef USE_MOUSE
-NULL, NULL, NULL, NULL, NULL,
+NULL, 
+NULL, 
+NULL, 
+NULL, 
+NULL,
 #endif
-PICT2E_make_palette, 0,
+PICT2E_make_palette, 
+0,
 PICT2E_set_color,
 PICT2E_filled_polygon,
 0,     /* image */

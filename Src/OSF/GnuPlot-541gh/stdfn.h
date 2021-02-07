@@ -61,29 +61,12 @@
 	int atoi();
 	long atol();
 	double strtod();
-	#ifndef VMS
-		#ifndef EXIT_FAILURE
-			#define EXIT_FAILURE (1)
-		#endif
-		#ifndef EXIT_SUCCESS
-			#define EXIT_SUCCESS (0)
-		#endif
-	#else /* VMS */
-		#ifdef VAXC            /* replacement values suppress some messages */
-			#ifdef  EXIT_FAILURE
-				#undef EXIT_FAILURE
-			#endif
-			#ifdef  EXIT_SUCCESS
-				#undef EXIT_SUCCESS
-			#endif
-		#endif /* VAXC */
-		#ifndef  EXIT_FAILURE
-			#define EXIT_FAILURE  0x10000002
-		#endif
-		#ifndef  EXIT_SUCCESS
-			#define EXIT_SUCCESS  1
-		#endif
-	#endif /* VMS */
+	#ifndef EXIT_FAILURE
+		#define EXIT_FAILURE (1)
+	#endif
+	#ifndef EXIT_SUCCESS
+		#define EXIT_SUCCESS (0)
+	#endif
 #endif /* HAVE_STDLIB_H */
 /* Deal with varargs functions */
 #if defined(HAVE_VFPRINTF) || defined(HAVE_DOPRNT)
@@ -199,10 +182,6 @@
 #endif
 #ifdef HAVE_SYS_TIME_H
 	#include <sys/time.h> /* for gettimeofday() */
-#endif
-#if defined(PIPES) && defined(VMS)
-	FILE * popen(char *, char *);
-	int pclose(FILE *);
 #endif
 #ifdef HAVE_FLOAT_H
 	#include <float.h>
@@ -438,11 +417,9 @@ void gp_rewinddir(GPDIR *);
 		#define PATH_MAX MAXPATHLEN
 	#endif
 #endif
-/* Concatenate a path name and a file name. The file name
- * may or may not end with a "directory separation" character.
- * Path must not be NULL, but can be empty
- */
-#ifndef VMS
+// Concatenate a path name and a file name. The file name
+// may or may not end with a "directory separation" character.
+// Path must not be NULL, but can be empty
 #define PATH_CONCAT(path, file) \
 	{ char * p = path; \
 	  p += strlen(path); \
@@ -452,9 +429,6 @@ void gp_rewinddir(GPDIR *);
 	  } \
 	  strcat(path, file); \
 	}
-#else
-	#define PATH_CONCAT(path, file) strcat(path, file)
-#endif
 #ifndef inrange
 	#define inrange(z, min, max) (((min)<(max)) ? (((z)>=(min)) && ((z)<=(max))) : (((z)>=(max)) && ((z)<=(min))))
 #endif
@@ -500,6 +474,6 @@ char * safe_strncpy(char *, const char *, size_t);
 	uint sleep(uint);
 #endif
 
-double not_a_number();
+// (replaced with fgetnan()) double not_a_number_Removed();
 
 #endif /* STDFN_H */

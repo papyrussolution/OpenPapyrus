@@ -642,9 +642,8 @@ void GraphClose(LPGW lpgw)
 	/* Pass it through mouse handling to check for "bind Close" */
 	Wnd_exec_event(lpgw, (LPARAM)0, GE_reset, 0);
 #endif
-	/* close window */
-	if(lpgw->hWndGraph)
-		DestroyWindow(lpgw->hWndGraph);
+	// close window 
+	::DestroyWindow(lpgw->hWndGraph);
 	WinMessageLoop();
 	lpgw->hWndGraph = NULL;
 	lpgw->hGraph = NULL;
@@ -653,7 +652,6 @@ void GraphClose(LPGW lpgw)
 #ifdef HAVE_D2D
 	d2dReleaseRenderTarget(lpgw);
 #endif
-
 	lpgw->locked = TRUE;
 	DestroyBlocks(lpgw);
 	lpgw->locked = FALSE;
@@ -817,21 +815,16 @@ static void MakePens(LPGW lpgw, HDC hdc)
 static void DestroyPens(LPGW lpgw)
 {
 #ifdef USE_WINGDI
-	int i;
-
 	DeleteObject(lpgw->hbrush);
 	DeleteObject(lpgw->hnull);
 	DeleteObject(lpgw->hapen);
 	DeleteObject(lpgw->hsolid);
-	for(i = 0; i < WGNUMPENS + 2; i++)
+	for(int i = 0; i < WGNUMPENS + 2; i++)
 		DeleteObject(lpgw->colorbrush[i]);
 	DeleteObject(lpgw->hnull);
-
 	/* delete brushes used for filled areas */
 	if(brushes_initialized) {
-		int i;
-
-		for(i = 0; i < pattern_num; i++) {
+		for(int i = 0; i < pattern_num; i++) {
 			DeleteObject(pattern_bitmap[i]);
 			DeleteObject(pattern_brush[i]);
 		}
@@ -861,7 +854,6 @@ static BOOL GetPlotRect(LPGW lpgw, LPRECT rect)
 #ifdef USE_WINGDI
 static void GetPlotRectInMM(LPGW lpgw, LPRECT rect, HDC hdc)
 {
-	int iWidthMM, iHeightMM, iWidthPels, iHeightPels;
 	GetPlotRect(lpgw, rect);
 	// Taken from http://msdn.microsoft.com/en-us/library/dd183519(VS.85).aspx
 	//
@@ -870,10 +862,10 @@ static void GetPlotRectInMM(LPGW lpgw, LPRECT rect, HDC hdc)
 	// iHeightMM is the display height in millimeters.
 	// iWidthPels is the display width in pixels.
 	// iHeightPels is the display height in pixels
-	iWidthMM = GetDeviceCaps(hdc, HORZSIZE);
-	iHeightMM = GetDeviceCaps(hdc, VERTSIZE);
-	iWidthPels = GetDeviceCaps(hdc, HORZRES);
-	iHeightPels = GetDeviceCaps(hdc, VERTRES);
+	int iWidthMM = GetDeviceCaps(hdc, HORZSIZE);
+	int iHeightMM = GetDeviceCaps(hdc, VERTSIZE);
+	int iWidthPels = GetDeviceCaps(hdc, HORZRES);
+	int iHeightPels = GetDeviceCaps(hdc, VERTRES);
 	// Convert client coordinates to .01-mm units.
 	// Use iWidthMM, iWidthPels, iHeightMM, and
 	// iHeightPels to determine the number of
@@ -998,9 +990,7 @@ static void MakeFonts(LPGW lpgw, LPRECT lprect, HDC hdc)
 				}
 			}
 			else {
-				fprintf(stderr,
-				    "Error:  font \"" TCHARFMT "\" not available, but don't know which font to substitute.\n",
-				    lpgw->fontname);
+				fprintf(stderr, "Error:  font \"" TCHARFMT "\" not available, but don't know which font to substitute.\n", lpgw->fontname);
 			}
 		}
 	}
@@ -1129,7 +1119,6 @@ static void LoadCursors(LPGW lpgw)
 	/* the other 2 are kept in the resource file: */
 	hptrScaling = LoadCursor(lpgw->hInstance, MAKEINTRESOURCE(IDC_SCALING));
 	hptrRotating = LoadCursor(lpgw->hInstance, MAKEINTRESOURCE(IDC_ROTATING));
-
 	hptrCurrent = hptrCrossHair;
 }
 
@@ -1148,7 +1137,6 @@ static void dot(HDC hdc, int xdash, int ydash)
 	MoveTo(hdc, xdash, ydash);
 	LineTo(hdc, xdash, ydash + 1);
 }
-
 #endif
 
 uint luma_from_color(uint red, uint green, uint blue)
@@ -1160,22 +1148,20 @@ uint luma_from_color(uint red, uint green, uint blue)
 #ifdef USE_WINGDI
 static uint GraphGetTextLength(LPGW lpgw, HDC hdc, LPCSTR text, bool escapes)
 {
-	SIZE size;
-	LPWSTR textw;
-	if(text == NULL)
+	if(!text)
 		return 0;
-	if(escapes)
-		textw = UnicodeTextWithEscapes(text, lpgw->encoding);
-	else
-		textw = UnicodeText(text, lpgw->encoding);
-	if(textw) {
-		GetTextExtentPoint32W(hdc, textw, wcslen(textw), &size);
-		SAlloc::F(textw);
-	}
 	else {
-		GetTextExtentPoint32A(hdc, text, strlen(text), &size);
+		SIZE size;
+		LPWSTR textw = escapes ? UnicodeTextWithEscapes(text, lpgw->encoding) : UnicodeText(text, lpgw->encoding);
+		if(textw) {
+			GetTextExtentPoint32W(hdc, textw, wcslen(textw), &size);
+			SAlloc::F(textw);
+		}
+		else {
+			GetTextExtentPoint32A(hdc, text, strlen(text), &size);
+		}
+		return size.cx;
 	}
-	return size.cx;
 }
 #endif
 
@@ -1231,7 +1217,6 @@ LPWSTR UnicodeTextWithEscapes(LPCSTR str, enum set_encoding_id encoding)
 		// make a copy of the string
 		LPWSTR w = (LPWSTR)malloc(wcslen(textw) * sizeof(WCHAR));
 		wcsncpy(w, textw, (p - textw));
-
 		// q points at end of new string
 		q = w + (p - textw);
 		// r is the remaining string to copy
@@ -1330,10 +1315,8 @@ void GraphEnhancedOpen(char * fontname, double fontsize, double base, bool width
 		}
 		enhstate.fontsize = fontsize;
 		enhstate.set_font();
-
-		/* Scale fractional font height to vertical units of display */
-		/* TODO: Proper use of OUTLINEFONTMETRICS would yield better
-		   results. */
+		// Scale fractional font height to vertical units of display 
+		// TODO: Proper use of OUTLINEFONTMETRICS would yield better results. 
 		enhstate.base = win_scale * base * enhstate.lpgw->fontscale * enhstate.res_scale;
 	}
 }
@@ -1357,10 +1340,8 @@ void GraphEnhancedFlush()
 			// do not take rotation into account 
 			int ypos = static_cast<int>(-enhstate.base);
 			enhstate.totalwidth += len;
-			if(enhstate.totalasc > (ypos + enhstate.shift - enhstate.lpgw->tmAscent))
-				enhstate.totalasc = ypos + enhstate.shift - enhstate.lpgw->tmAscent;
-			if(enhstate.totaldesc < (ypos + enhstate.shift + enhstate.lpgw->tmDescent))
-				enhstate.totaldesc = ypos + enhstate.shift + enhstate.lpgw->tmDescent;
+			SETMIN(enhstate.totalasc,  ypos + enhstate.shift - enhstate.lpgw->tmAscent);
+			SETMAX(enhstate.totaldesc, ypos + enhstate.shift + enhstate.lpgw->tmDescent);
 		}
 		// display string 
 		if(enhstate.show && !enhstate.sizeonly)
@@ -1451,7 +1432,6 @@ int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
 		tsave = term;
 		term = WIN_term;
 	}
-
 	for(pass = 1; pass <= num_passes; pass++) {
 		/* Set the recursion going. We say to keep going until a
 		 * closing brace, but we don't really expect to find one.
@@ -1466,7 +1446,7 @@ int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
 #else
 		char * save_fontname_a = save_fontname;
 #endif
-		while(*(str = enhanced_recursion(str, TRUE, save_fontname_a, save_fontsize, 0.0, TRUE, TRUE, 0))) {
+		while(*(str = enhanced_recursion(term, str, TRUE, save_fontname_a, save_fontsize, 0.0, TRUE, TRUE, 0))) {
 			GraphEnhancedFlush();
 			if(!*++str)
 				break; /* end of string */
@@ -1482,14 +1462,14 @@ int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
 			str = original_string;
 		}
 	}
-	/* restore terminal */
+	// restore terminal 
 	if(WIN_term) 
 		term = tsave;
-	/* restore font */
+	// restore font 
 	_tcscpy(enhstate.fontname, save_fontname);
 	enhstate.fontsize = save_fontsize;
 	enhstate.set_font();
-	/* clean-up */
+	// clean-up 
 	enhstate.cleanup();
 	return enhstate.totalwidth;
 }
@@ -1589,8 +1569,8 @@ void draw_update_keybox(LPGW lpgw, uint plotno, uint x, uint y)
 	if(plotno) {
 		if(plotno > lpgw->maxkeyboxes) {
 			lpgw->maxkeyboxes += 10;
-			lpgw->keyboxes = (LPRECT)realloc(lpgw->keyboxes, lpgw->maxkeyboxes * sizeof(RECT));
-			for(int i = plotno - 1; i < lpgw->maxkeyboxes; i++) {
+			lpgw->keyboxes = (LPRECT)SAlloc::R(lpgw->keyboxes, lpgw->maxkeyboxes * sizeof(RECT));
+			for(uint i = plotno - 1; i < lpgw->maxkeyboxes; i++) {
 				lpgw->keyboxes[i].left = INT_MAX;
 				lpgw->keyboxes[i].right = 0;
 				lpgw->keyboxes[i].bottom = INT_MAX;
@@ -1684,7 +1664,7 @@ static void draw_image(LPGW lpgw, HDC hdc, char * image, POINT corners[4], uint 
 		/* convert to grayscale? */
 		if(!lpgw->color) {
 			for(int y = 0; y < height; y++) {
-				for(int x = 0; x < width; x++) {
+				for(uint x = 0; x < width; x++) {
 					UINT32 * p = pvBits + y * width + x;
 					/* convert to gray */
 					uint luma = luma_from_color(GetRValue(*p), GetGValue(*p), GetBValue(*p));
@@ -1696,11 +1676,8 @@ static void draw_image(LPGW lpgw, HDC hdc, char * image, POINT corners[4], uint 
 		ftn.BlendFlags = 0;
 		ftn.AlphaFormat = AC_SRC_ALPHA; /* bitmap has an alpha channel */
 		ftn.SourceConstantAlpha = 0xff;
-		AlphaBlend(hdc,
-		    MIN(corners[0].x, corners[1].x), MIN(corners[0].y, corners[1].y),
-		    abs(corners[1].x - corners[0].x), abs(corners[1].y - corners[0].y),
-		    memdc, 0, 0, width, height, ftn);
-
+		AlphaBlend(hdc, MIN(corners[0].x, corners[1].x), MIN(corners[0].y, corners[1].y),
+		    abs(corners[1].x - corners[0].x), abs(corners[1].y - corners[0].y), memdc, 0, 0, width, height, ftn);
 		SelectObject(memdc, oldbmp);
 		DeleteObject(membmp);
 		DeleteDC(memdc);
@@ -1797,11 +1774,8 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 	 * Also note that querying the technology of a metafile dc does not work.
 	 * Query the type instead.
 	 */
-	isColor = (((GetDeviceCaps(hdc, PLANES) * GetDeviceCaps(hdc, BITSPIXEL)) > 2)
-	    || (GetObjectType(hdc) == OBJ_ENHMETADC)
-	    || (GetObjectType(hdc) == OBJ_METADC)
-	    || (GetDeviceCaps(hdc, TECHNOLOGY) == DT_PLOTTER)
-	    || (GetDeviceCaps(hdc, TECHNOLOGY) == DT_RASPRINTER));
+	isColor = (((GetDeviceCaps(hdc, PLANES) * GetDeviceCaps(hdc, BITSPIXEL)) > 2) || (GetObjectType(hdc) == OBJ_ENHMETADC) || 
+		(GetObjectType(hdc) == OBJ_METADC) || (GetDeviceCaps(hdc, TECHNOLOGY) == DT_PLOTTER) || (GetDeviceCaps(hdc, TECHNOLOGY) == DT_RASPRINTER));
 
 	if(isColor) {
 		SetBkColor(hdc, lpgw->background);
@@ -1810,9 +1784,7 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 	else {
 		FillRect(hdc, rect, (HBRUSH)GetStockObject(WHITE_BRUSH));
 	}
-
-	/* Need to scale line widths for raster printers so they are the same
-	   as on screen */
+	// Need to scale line widths for raster printers so they are the same as on screen 
 	if((GetDeviceCaps(hdc, TECHNOLOGY) == DT_RASPRINTER)) {
 		HDC hdc_screen = GetDC(NULL);
 		lw_scale = (double)GetDeviceCaps(hdc, LOGPIXELSX) / (double)GetDeviceCaps(hdc_screen, LOGPIXELSY);
@@ -1822,15 +1794,9 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 		shadedblendcaps = GetDeviceCaps(hdc, SHADEBLENDCAPS);
 		warn_no_transparent = ((shadedblendcaps & SB_CONST_ALPHA) == 0);
 	}
-
 	// only cache point symbols when drawing to a screen
-	ps_caching = !((GetObjectType(hdc) == OBJ_ENHMETADC)
-	    || (GetObjectType(hdc) == OBJ_METADC)
-	    || (GetDeviceCaps(hdc, TECHNOLOGY) == DT_PLOTTER)
-	    || (GetDeviceCaps(hdc, TECHNOLOGY) == DT_RASPRINTER));
-
+	ps_caching = !((GetObjectType(hdc) == OBJ_ENHMETADC) || (GetObjectType(hdc) == OBJ_METADC) || (GetDeviceCaps(hdc, TECHNOLOGY) == DT_PLOTTER) || (GetDeviceCaps(hdc, TECHNOLOGY) == DT_RASPRINTER));
 	ppt = (POINT*)LocalAllocPtr(LHND, (polymax+1) * sizeof(POINT));
-
 	rr = rect->right;
 	rl = rect->left;
 	rt = rect->top;
@@ -3022,17 +2988,13 @@ static void CopyClip(LPGW lpgw)
 		RECT mfrect;
 		/* make copy of window's main status struct for modification */
 		GW gwclip = *lpgw;
-
 		gwclip.hfonth = gwclip.hfontv = 0;
 		MakePens(&gwclip, hdc);
 		MakeFonts(&gwclip, &rect, hdc);
-
 		GetPlotRectInMM(lpgw, &mfrect, hdc);
-
 		hmf = CreateEnhMetaFile(hdc, NULL, &mfrect, NULL);
 		drawgraph(&gwclip, hmf, &rect);
 		hemf = CloseEnhMetaFile(hmf);
-
 		DestroyFonts(&gwclip);
 		DestroyPens(&gwclip);
 #endif
@@ -3226,7 +3188,6 @@ static void CopyPrint(LPGW lpgw)
 }
 
 #endif
-
 	if(!pr.bUserAbort) {
 		EnableWindow(hwnd, TRUE);
 		DestroyWindow(pr.hDlgPrint);
@@ -3237,9 +3198,7 @@ static void CopyPrint(LPGW lpgw)
 #endif
 	if(printer != NULL)
 		DeleteDC(printer);
-
 	PrintUnregister(&pr);
-
 cleanup:
 	GlobalUnlock(pd.hDevMode);
 	GlobalUnlock(pd.hDevNames);
@@ -4638,10 +4597,8 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    memrect.right = width;
 		    memrect.top = 0;
 		    memrect.bottom = height;
-
 		    if(!lpgw->buffervalid || (lpgw->hBitmap == NULL)) {
 			    BOOL save_aa;
-
 			    if(lpgw->hBitmap != NULL)
 				    DeleteObject(lpgw->hBitmap);
 			    lpgw->hBitmap = CreateCompatibleBitmap(hdc, memrect.right, memrect.bottom);
@@ -4682,11 +4639,8 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 #ifdef HAVE_GDIPLUS
 		    }
 #endif
-			    /* restore antialiasing */
-			    lpgw->antialiasing = save_aa;
-
-			    /* drawing by gnuplot still in progress... */
-			    lpgw->buffervalid = !lpgw->locked;
+			    lpgw->antialiasing = save_aa; // restore antialiasing 
+			    lpgw->buffervalid = !lpgw->locked; // drawing by gnuplot still in progress... 
 		    }
 		    else {
 			    oldbmp = (HBITMAP)SelectObject(memdc, lpgw->hBitmap);
@@ -4771,7 +4725,6 @@ static void GraphChangeFont(LPGW lpgw, LPCTSTR font, int fontsize, HDC hdc, RECT
 	int newfontsize;
 	bool remakefonts = FALSE;
 	bool font_is_not_empty = (font != NULL && *font != '\0');
-
 	newfontsize = (fontsize != 0) ? fontsize : lpgw->deffontsize;
 	if(font_is_not_empty) {
 		remakefonts = (_tcscmp(lpgw->fontname, font) != 0) || (newfontsize != lpgw->fontsize);
@@ -4780,11 +4733,9 @@ static void GraphChangeFont(LPGW lpgw, LPCTSTR font, int fontsize, HDC hdc, RECT
 		remakefonts = (_tcscmp(lpgw->fontname, lpgw->deffontname) != 0) || (newfontsize != lpgw->fontsize);
 	}
 	remakefonts |= (lpgw->hfonth == 0);
-
 	if(remakefonts) {
 		lpgw->fontsize = newfontsize;
 		_tcscpy(lpgw->fontname, font_is_not_empty ? font : lpgw->deffontname);
-
 		SelectObject(hdc, GetStockObject(SYSTEM_FONT));
 		DestroyFonts(lpgw);
 		MakeFonts(lpgw, &rect, hdc);
@@ -4836,11 +4787,9 @@ void Graph_set_cursor(LPGW lpgw, int c, int x, int y)
 		case -2: { /* move mouse to the given point */
 		    RECT rc;
 		    POINT pt;
-
 		    GetPlotRect(lpgw, &rc);
 		    pt.x = MulDiv(x, rc.right - rc.left, lpgw->xmax);
 		    pt.y = rc.bottom - MulDiv(y, rc.bottom - rc.top, lpgw->ymax);
-
 		    MapWindowPoints(lpgw->hGraph, HWND_DESKTOP, &pt, 1);
 		    SetCursorPos(pt.x, pt.y);
 		    break;
@@ -4991,29 +4940,28 @@ static void GetMousePosViewport(LPGW lpgw, int * mx, int * my)
  * text will be drawn */
 static void Draw_XOR_Text(LPGW lpgw, const char * text, size_t length, int x, int y)
 {
-	HDC hdc, tempDC;
-	HBITMAP bitmap;
-	int cx, cy;
-	if(!text || !text[0])
-		return; /* no text to be displayed */
-	hdc = GetDC(lpgw->hGraph);
-	/* Prepare background image buffer of the necessary size */
-	Wnd_GetTextSize(hdc, text, length, &cx, &cy);
-	bitmap = CreateCompatibleBitmap(hdc, cx, cy);
-	/* ... and a DeviceContext to access it by */
-	tempDC = CreateCompatibleDC(hdc);
-	DeleteObject(SelectObject(tempDC, bitmap));
-	// FIXME: Do we need to handle encodings here?
-	TextOutA(tempDC, 0, 0, text, length);
-	/* Copy printed string to the screen window using
-	   "target = target XOR (NOT source)" ROP, see "Ternary Raster Operations"
-	   http://msdn.microsoft.com/en-us/library/dd145130%28VS.85%29.aspx
-	 */
-	BitBlt(hdc, x, y - cy, cx, cy, tempDC, 0, 0, 0x00990066);
-	/* Clean up behind ourselves */
-	DeleteDC(tempDC);
-	DeleteObject(bitmap);
-	ReleaseDC(lpgw->hGraph, hdc);
+	if(!isempty(text)) {
+		HDC tempDC;
+		int cx, cy;
+		HDC hdc = GetDC(lpgw->hGraph);
+		// Prepare background image buffer of the necessary size 
+		Wnd_GetTextSize(hdc, text, length, &cx, &cy);
+		HBITMAP bitmap = CreateCompatibleBitmap(hdc, cx, cy);
+		// ... and a DeviceContext to access it by 
+		tempDC = CreateCompatibleDC(hdc);
+		DeleteObject(SelectObject(tempDC, bitmap));
+		// FIXME: Do we need to handle encodings here?
+		TextOutA(tempDC, 0, 0, text, length);
+		/* Copy printed string to the screen window using
+		   "target = target XOR (NOT source)" ROP, see "Ternary Raster Operations"
+		   http://msdn.microsoft.com/en-us/library/dd145130%28VS.85%29.aspx
+		 */
+		BitBlt(hdc, x, y - cy, cx, cy, tempDC, 0, 0, 0x00990066);
+		// Clean up behind ourselves 
+		DeleteDC(tempDC);
+		DeleteObject(bitmap);
+		ReleaseDC(lpgw->hGraph, hdc);
+	}
 }
 
 #endif
@@ -5160,44 +5108,40 @@ static void DrawRulerLineTo(LPGW lpgw)
  */
 static void DrawZoomBox(LPGW lpgw)
 {
-	HDC hdc;
-	long fx, fy, tx, ty, text_y;
-	int OldROP2;
-	RECT rc;
-	HPEN OldPen;
-	if(!zoombox.on)
-		return;
-	hdc = GetDC(lpgw->hGraph);
-	GetPlotRect(lpgw, &rc);
-	fx = MulDiv(zoombox.from.x, rc.right - rc.left, lpgw->xmax);
-	fy = rc.bottom - MulDiv(zoombox.from.y, rc.bottom - rc.top, lpgw->ymax);
-	tx = MulDiv(zoombox.to.x, rc.right - rc.left, lpgw->xmax);
-	ty = rc.bottom - MulDiv(zoombox.to.y, rc.bottom - rc.top, lpgw->ymax);
-	text_y = MulDiv(lpgw->vchar, rc.bottom - rc.top, lpgw->ymax);
-	OldROP2 = SetROP2(hdc, R2_NOTXORPEN);
-	OldPen = (HPEN)SelectObject(hdc, CreatePenIndirect((lpgw->color ? lpgw->colorpen : lpgw->monopen) + 1));
-	Rectangle(hdc, fx, fy, tx, ty);
-	DeleteObject(SelectObject(hdc, OldPen));
-	SetROP2(hdc, OldROP2);
-	ReleaseDC(lpgw->hGraph, hdc);
-	if(zoombox.text1) {
-		const char * separator = strchr(zoombox.text1, '\r');
-		if(separator) {
-			Draw_XOR_Text(lpgw, zoombox.text1, separator - zoombox.text1, fx, fy);
-			Draw_XOR_Text(lpgw, separator + 1, strlen(separator + 1), fx, fy + text_y);
+	if(zoombox.on) {
+		RECT rc;
+		HDC hdc = GetDC(lpgw->hGraph);
+		GetPlotRect(lpgw, &rc);
+		long fx = MulDiv(zoombox.from.x, rc.right - rc.left, lpgw->xmax);
+		long fy = rc.bottom - MulDiv(zoombox.from.y, rc.bottom - rc.top, lpgw->ymax);
+		long tx = MulDiv(zoombox.to.x, rc.right - rc.left, lpgw->xmax);
+		long ty = rc.bottom - MulDiv(zoombox.to.y, rc.bottom - rc.top, lpgw->ymax);
+		long text_y = MulDiv(lpgw->vchar, rc.bottom - rc.top, lpgw->ymax);
+		int OldROP2 = SetROP2(hdc, R2_NOTXORPEN);
+		HPEN OldPen = (HPEN)SelectObject(hdc, CreatePenIndirect((lpgw->color ? lpgw->colorpen : lpgw->monopen) + 1));
+		Rectangle(hdc, fx, fy, tx, ty);
+		DeleteObject(SelectObject(hdc, OldPen));
+		SetROP2(hdc, OldROP2);
+		ReleaseDC(lpgw->hGraph, hdc);
+		if(zoombox.text1) {
+			const char * separator = strchr(zoombox.text1, '\r');
+			if(separator) {
+				Draw_XOR_Text(lpgw, zoombox.text1, separator - zoombox.text1, fx, fy);
+				Draw_XOR_Text(lpgw, separator + 1, strlen(separator + 1), fx, fy + text_y);
+			}
+			else {
+				Draw_XOR_Text(lpgw, zoombox.text1, strlen(zoombox.text1), fx, fy + lpgw->vchar / 2);
+			}
 		}
-		else {
-			Draw_XOR_Text(lpgw, zoombox.text1, strlen(zoombox.text1), fx, fy + lpgw->vchar / 2);
-		}
-	}
-	if(zoombox.text2) {
-		const char * separator = strchr(zoombox.text2, '\r');
-		if(separator) {
-			Draw_XOR_Text(lpgw, zoombox.text2, separator - zoombox.text2, tx, ty);
-			Draw_XOR_Text(lpgw, separator + 1, strlen(separator + 1), tx, ty + text_y);
-		}
-		else {
-			Draw_XOR_Text(lpgw, zoombox.text2, strlen(zoombox.text2), tx, ty + lpgw->vchar / 2);
+		if(zoombox.text2) {
+			const char * separator = strchr(zoombox.text2, '\r');
+			if(separator) {
+				Draw_XOR_Text(lpgw, zoombox.text2, separator - zoombox.text2, tx, ty);
+				Draw_XOR_Text(lpgw, separator + 1, strlen(separator + 1), tx, ty + text_y);
+			}
+			else {
+				Draw_XOR_Text(lpgw, zoombox.text2, strlen(zoombox.text2), tx, ty + lpgw->vchar / 2);
+			}
 		}
 	}
 }
@@ -5205,10 +5149,9 @@ static void DrawZoomBox(LPGW lpgw)
 static void DrawFocusIndicator(LPGW lpgw)
 {
 	if(lpgw->bDocked) {
-		HDC hdc;
 		RECT rect;
 		GetPlotRect(lpgw, &rect);
-		hdc = GetDC(lpgw->hGraph);
+		HDC hdc = GetDC(lpgw->hGraph);
 		SelectObject(hdc, GetStockObject(DC_PEN));
 		SelectObject(hdc, GetStockObject(NULL_BRUSH));
 		SetDCPenColor(hdc, RGB(0, 0, 128));

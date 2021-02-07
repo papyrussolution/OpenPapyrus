@@ -162,14 +162,14 @@ TERM_PUBLIC void KTEK40Mlinetype(int linetype);
 TERM_PUBLIC void KTEK40reset();
 #endif
 #ifdef SELANAR
-TERM_PUBLIC void SEL_init();
+TERM_PUBLIC void SEL_init(termentry * pThis);
 TERM_PUBLIC void SEL_graphics();
 TERM_PUBLIC void SEL_text();
 TERM_PUBLIC void SEL_reset();
 #endif
 #ifdef SIXEL
 TERM_PUBLIC void SIXEL_options();
-TERM_PUBLIC void SIXEL_init();
+TERM_PUBLIC void SIXEL_init(termentry * pThis);
 TERM_PUBLIC void SIXEL_reset();
 TERM_PUBLIC void SIXEL_text();
 TERM_PUBLIC void SIXEL_graphics();
@@ -239,17 +239,11 @@ TERM_PUBLIC void TEK40graphics()
 
 TERM_PUBLIC void TEK40text()
 {
-#ifdef VMS
-	fflush(gpoutfile); /* finish the graphics */
-#endif
 	TEK40move(0, 12);
 	fputs("\037", gpoutfile);
 /*                   1
         1. into alphanumerics
  */
-#ifdef VMS
-	term_nopasthru();
-#endif /* VMS */
 }
 
 #if defined(SELANAR) || defined(BITGRAPH)
@@ -310,9 +304,6 @@ TERM_PUBLIC void TEK40reset()
 
 TERM_PUBLIC void BG_text()
 {
-#ifdef VMS
-	fflush(gpoutfile); /* finish the graphics */
-#endif
 	BG_move(0, BG_SCREEN_HEIGHT - 2 * BG_VCHAR);
 	fputs("\037", gpoutfile);
 /*                   1
@@ -337,10 +328,6 @@ TERM_PUBLIC void BG_put_text(uint x, uint y, const char str[])
 
 TERM_PUBLIC void KTEK40graphics()
 {
-#ifdef VMS
-	term_mode_tek();
-	term_pasthru();
-#endif /* VMS */
 	fputs("\033\014", gpoutfile);
 /*                   1
         1. clear screen
@@ -352,9 +339,6 @@ TERM_PUBLIC void KTEK40Ctext()
 {
 	TEK40text();
 	KTEK40Clinetype(0);     /* change to green */
-#ifdef VMS
-	term_nopasthru();
-#endif /* VMS */
 }
 
 /* special color linetypes for MS-DOS Kermit v2.31 tektronix emulator */
@@ -394,9 +378,6 @@ TERM_PUBLIC void KTEK40Mlinetype(int linetype)
 TERM_PUBLIC void KTEK40reset()
 {
 	fputs("\030\n", gpoutfile); /* turn off Tek emulation */
-#ifdef VMS
-	term_mode_native();
-#endif /* VMS */
 }
 
 #endif /* KERMIT */
@@ -406,7 +387,7 @@ TERM_PUBLIC void KTEK40reset()
 
 #ifdef SELANAR
 
-TERM_PUBLIC void SEL_init()
+TERM_PUBLIC void SEL_init(termentry * pThis)
 {
 	fputs("\033\062", gpoutfile);
 /*					1
@@ -422,24 +403,15 @@ TERM_PUBLIC void SEL_graphics()
         2. set to TEK mode
         3. clear screen
  */
-#ifdef VMS
-	term_pasthru();
-#endif /* VMS */
 }
 
 TERM_PUBLIC void SEL_text()
 {
-#ifdef VMS
-	fflush(gpoutfile); /* finish the graphics */
-#endif
 	TEK40move(0, 12);
 	fputs("\033\062", gpoutfile);
 /*                   1
         1. into ANSI mode
  */
-#ifdef VMS
-	term_nopasthru();
-#endif /* VMS */
 }
 
 TERM_PUBLIC void SEL_reset()
@@ -598,8 +570,8 @@ TERM_PUBLIC void SIXEL_options()
 			    GPO.Pgm.Shift();
 			    GPO.ParseTermSize(&width, &height, PIXELS);
 			    if(width > 0 && height > 0) {
-				    term->xmax = width - 1;
-				    term->ymax = height - 1;
+				    term->MaxX = width - 1;
+				    term->MaxY = height - 1;
 			    }
 			    break;
 		    }
@@ -609,7 +581,7 @@ TERM_PUBLIC void SIXEL_options()
 			    break;
 		}
 	}
-	term->TicV = (term->xmax < term->ymax) ? term->xmax/100 : term->ymax/100;
+	term->TicV = (term->MaxX < term->MaxY) ? term->MaxX/100 : term->MaxY/100;
 	if(term->TicV < 1)
 		term->TicV = 1;
 	term->TicH = term->TicV;
@@ -623,13 +595,13 @@ TERM_PUBLIC void SIXEL_options()
 		strcat(term_options, " monochrome");
 	else
 		sprintf(term_options + strlen(term_options), " colors %d", SIXEL_ncol);
-	sprintf(term_options + strlen(term_options), " size %d,%d", term->xmax + 1, term->ymax + 1);
+	sprintf(term_options + strlen(term_options), " size %d,%d", term->MaxX + 1, term->MaxY + 1);
 }
 
-TERM_PUBLIC void SIXEL_init()
+TERM_PUBLIC void SIXEL_init(termentry * pThis)
 {
-	unsigned int xpixels = term->xmax + 1;
-	unsigned int ypixels = term->ymax + 1;
+	unsigned int xpixels = term->MaxX + 1;
+	unsigned int ypixels = term->MaxY + 1;
 	// We count the numbers of planes where we reserve an additional slot to account for "empty" pixels. 
 	int nplanes = 1;
 	int c = SIXEL_ncol + 1;
@@ -724,13 +696,8 @@ TERM_PUBLIC void SIXEL_text()
 		}
 	}
 	SAlloc::F(map);
-
-	/* get out of Sixel mode */
-#ifndef VMS
+	// get out of Sixel mode 
 	fputs("\033\\\n", gpoutfile);
-#else
-	fputs("\033\\\n\n", gpoutfile);
-#endif
 	fflush(gpoutfile); /* finish the graphics */
 }
 
@@ -899,9 +866,6 @@ TERM_PUBLIC void VTTEK40init()
 	fflush(gpoutfile);
 	sleep(1);
 	/* sleep 1 second to allow screen time to clear on some terminals */
-#ifdef VMS
-	term_mode_tek();
-#endif /* VMS */
 }
 
 TERM_PUBLIC void VTTEK40reset()
@@ -910,9 +874,6 @@ TERM_PUBLIC void VTTEK40reset()
 	fflush(gpoutfile);
 	sleep(1);
 	/* sleep 1 second to allow screen time to clear on some terminals */
-#ifdef VMS
-	term_mode_native();
-#endif /* VMS */
 }
 
 /* linetypes for VT-type terminals in tektronix emulator mode */
@@ -1144,9 +1105,9 @@ TERM_TABLE_START(tek40_driver)
 "tek40xx", "Tektronix 4010 and others; most TEK emulators",
 TEK40XMAX, TEK40YMAX, TEK40VCHAR, TEK40HCHAR,
 TEK40VTIC, TEK40HTIC, options_null, TEK40init, TEK40reset,
-TEK40text, null_scale, TEK40graphics, CTEK_move, CTEK_vector,
+TEK40text, GnuPlot::NullScale, TEK40graphics, CTEK_move, CTEK_vector,
 CTEK_linetype, TEK40put_text, null_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(tek40_driver)
+null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(tek40_driver)
 #endif /* CTEK */
 
 #undef LAST_TERM
@@ -1157,9 +1118,9 @@ TERM_TABLE_START(vttek_driver)
 "vttek", "VT-like tek40xx terminal emulator",
 TEK40XMAX, TEK40YMAX, TEK40VCHAR, TEK40HCHAR,
 TEK40VTIC, TEK40HTIC, options_null, VTTEK40init, VTTEK40reset,
-TEK40text, null_scale, TEK40graphics, TEK40move, TEK40vector,
+TEK40text, GnuPlot::NullScale, TEK40graphics, TEK40move, TEK40vector,
 VTTEK40linetype, VTTEK40put_text, null_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(vttek_driver)
+null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(vttek_driver)
 
 #undef LAST_TERM
 #define LAST_TERM vttek_driver
@@ -1171,9 +1132,9 @@ TERM_TABLE_START(xterm_driver)
 "xterm", "Xterm Tektronix 4014 Mode",
 TEK40XMAX, TEK40YMAX, TEK40VCHAR, TEK40HCHAR,
 TEK40VTIC, TEK40HTIC, options_null, TEK40init, TEK40reset,
-XTERM_text, null_scale, XTERM_graphics, TEK40move, TEK40vector,
+XTERM_text, GnuPlot::NullScale, XTERM_graphics, TEK40move, TEK40vector,
 VTTEK40linetype, VTTEK40put_text, null_text_angle,
-null_justify_text, line_and_point, do_arrow, XTERM_set_font, 0,
+null_justify_text, line_and_point, GnuPlot::DoArrow, XTERM_set_font, 0,
 TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE, XTERM_text, XTERM_resume TERM_TABLE_END(xterm_driver)
 
 #undef LAST_TERM
@@ -1186,9 +1147,9 @@ TERM_TABLE_START(kc_tek40_driver)
 "kc_tek40xx", "MS-DOS Kermit Tek4010 terminal emulator - color",
 TEK40XMAX, TEK40YMAX, TEK40VCHAR, KTEK40HCHAR,
 TEK40VTIC, TEK40HTIC, options_null, TEK40init, KTEK40reset,
-KTEK40Ctext, null_scale, KTEK40graphics, TEK40move, TEK40vector,
+KTEK40Ctext, GnuPlot::NullScale, KTEK40graphics, TEK40move, TEK40vector,
 KTEK40Clinetype, TEK40put_text, null_text_angle,
-null_justify_text, do_point, do_arrow, set_font_null TERM_TABLE_END(kc_tek40_driver)
+null_justify_text, do_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(kc_tek40_driver)
 
 #undef LAST_TERM
 #define LAST_TERM kc_tek40_driver
@@ -1197,9 +1158,9 @@ TERM_TABLE_START(km_tek40_driver)
 "km_tek40xx", "MS-DOS Kermit Tek4010 terminal emulator - monochrome",
 TEK40XMAX, TEK40YMAX, TEK40VCHAR, KTEK40HCHAR,
 TEK40VTIC, TEK40HTIC, options_null, TEK40init, KTEK40reset,
-TEK40text, null_scale, KTEK40graphics, TEK40move, TEK40vector,
+TEK40text, GnuPlot::NullScale, KTEK40graphics, TEK40move, TEK40vector,
 KTEK40Mlinetype, TEK40put_text, null_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(km_tek40_driver)
+null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(km_tek40_driver)
 
 #undef LAST_TERM
 #define LAST_TERM km_tek40_driver
@@ -1208,12 +1169,30 @@ null_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(km_tek
 
 #ifdef SELANAR
 TERM_TABLE_START(selanar_driver)
-"selanar", "Selanar",
-TEK40XMAX, TEK40YMAX, TEK40VCHAR, TEK40HCHAR,
-TEK40VTIC, TEK40HTIC, options_null, SEL_init, SEL_reset,
-SEL_text, null_scale, SEL_graphics, TEK40move, TEK40vector,
-TEK40linetype, TEK40put_text, null_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(selanar_driver)
+	"selanar", 
+	"Selanar",
+	TEK40XMAX, 
+	TEK40YMAX, 
+	TEK40VCHAR, 
+	TEK40HCHAR,
+	TEK40VTIC, 
+	TEK40HTIC, 
+	options_null, 
+	SEL_init, 
+	SEL_reset,
+	SEL_text, 
+	GnuPlot::NullScale, 
+	SEL_graphics, 
+	TEK40move, 
+	TEK40vector,
+	TEK40linetype, 
+	TEK40put_text, 
+	null_text_angle,
+	null_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(selanar_driver)
 
 #undef LAST_TERM
 #define LAST_TERM selanar_driver
@@ -1222,27 +1201,58 @@ null_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(selana
 
 #ifdef SIXEL
 TERM_TABLE_START(sixel_driver)
-"sixeltek", "Sixel output using bitmap graphics",
-SIXEL_XMAX, SIXEL_YMAX, SIXEL_VCHAR, SIXEL_HCHAR,
-SIXEL_VTIC, SIXEL_HTIC, SIXEL_options, SIXEL_init, SIXEL_reset,
-SIXEL_text, null_scale, SIXEL_graphics, b_move, b_vector,
-SIXEL_linetype, b_put_text, b_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null,
-0, 0, 0, 0, SIXEL_fillbox, b_linewidth,
-#ifdef USE_MOUSE
-NULL, NULL, NULL, NULL, NULL,
-#endif
-SIXEL_make_palette, NULL, SIXEL_set_color,
-SIXEL_filled_polygon,
-NULL,     /* image */
-NULL, NULL, NULL,
-NULL,
-NULL,
-0.,
-NULL,
-NULL,
-NULL,
-SIXEL_dashtype TERM_TABLE_END(sixel_driver)
+	"sixeltek", 
+	"Sixel output using bitmap graphics",
+	SIXEL_XMAX, 
+	SIXEL_YMAX, 
+	SIXEL_VCHAR, 
+	SIXEL_HCHAR,
+	SIXEL_VTIC, 
+	SIXEL_HTIC, 
+	SIXEL_options, 
+	SIXEL_init, 
+	SIXEL_reset,
+	SIXEL_text, 
+	GnuPlot::NullScale, 
+	SIXEL_graphics, 
+	b_move, 
+	b_vector,
+	SIXEL_linetype, 
+	b_put_text, 
+	b_text_angle,
+	null_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null,
+	0, 
+	0, 
+	0, 
+	0, 
+	SIXEL_fillbox, 
+	b_linewidth,
+	#ifdef USE_MOUSE
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL,
+	#endif
+	SIXEL_make_palette, 
+	NULL, 
+	SIXEL_set_color,
+	SIXEL_filled_polygon,
+	NULL,     /* image */
+	NULL, 
+	NULL, 
+	NULL,
+	NULL,
+	NULL,
+	0.,
+	NULL,
+	NULL,
+	NULL,
+	SIXEL_dashtype 
+TERM_TABLE_END(sixel_driver)
 
 #undef LAST_TERM
 #define LAST_TERM sixel_driver
@@ -1254,9 +1264,9 @@ TERM_TABLE_START(bitgraph_driver)
 "bitgraph", "BBN Bitgraph Terminal",
 BG_XMAX, BG_YMAX, BG_VCHAR, BG_HCHAR,
 BG_VTIC, BG_HTIC, options_null, BG_init, BG_reset,
-BG_text, null_scale, BG_graphics, BG_move, BG_vector,
+BG_text, GnuPlot::NullScale, BG_graphics, BG_move, BG_vector,
 BG_linetype, BG_put_text, null_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(bitgraph_driver)
+null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(bitgraph_driver)
 
 #undef LAST_TERM
 #define LAST_TERM bitgraph_driver

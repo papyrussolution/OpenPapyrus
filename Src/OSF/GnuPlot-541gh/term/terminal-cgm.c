@@ -1,7 +1,5 @@
-/* Hey Emacs this is -*- C -*- */
-
-/* GNUPLOT - cgm.trm */
-
+// Hey Emacs this is -*- C -*- 
+// GNUPLOT - cgm.trm 
 /*[
  * Copyright 1998, 2004
  *
@@ -35,12 +33,10 @@
 /*
  * This file is included by ../term.c and ../docs/termdoc.c.
  *
- * This terminal driver supports:
- *   Computer Graphics Metafile
+ * This terminal driver supports: Computer Graphics Metafile
  *
  * TODO
- *   better control over plot size (never cutting off labels, correct font
- *   sizes)
+ *   better control over plot size (never cutting off labels, correct font sizes)
 
  * REFERENCES
  *
@@ -71,16 +67,25 @@
  * send your comments or suggestions to the author or
  * gnuplot-info@lists.sourceforge.net.
  */
-
+#include <gnuplot.h>
+#pragma hdrstop
 #include "driver.h"
 
+// @experimental {
+#define TERM_BODY
+#define TERM_PUBLIC static
+#define TERM_TABLE
+#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_END(x)   };
+// } @experimental
+
 #ifdef TERM_REGISTER
-register_term(cgm)
+	register_term(cgm)
 #endif
 
-#ifdef TERM_PROTO
+//#ifdef TERM_PROTO
 TERM_PUBLIC void CGM_options();
-TERM_PUBLIC void CGM_init();
+TERM_PUBLIC void CGM_init(termentry * pThis);
 TERM_PUBLIC void CGM_reset();
 TERM_PUBLIC void CGM_text();
 TERM_PUBLIC void CGM_graphics();
@@ -96,22 +101,17 @@ TERM_PUBLIC int CGM_text_angle(int ang);
 TERM_PUBLIC int CGM_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int CGM_set_font(const char * font);
 TERM_PUBLIC void CGM_point(uint x, uint y, int number);
-TERM_PUBLIC void CGM_fillbox(int style, uint x1, uint y1,
-    uint width, uint height);
+TERM_PUBLIC void CGM_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC int CGM_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void CGM_set_color(t_colorspec *);
-
 TERM_PUBLIC void CGM_filled_polygon(int points, gpiPoint * corner);
-
 TERM_PUBLIC void CGM_set_pointsize(double size);
-
 #define FATAL(msg) { fprintf(stderr, "%s\nFile %s line %d\n", msg, __FILE__, __LINE__); exit(EXIT_FAILURE); }
-
 #define CGM_LARGE 32767
 #define CGM_SMALL 32767/18*13   /* aspect ratio 1:.7222 */
 #define CGM_MARGIN (CGM_LARGE/180)
-/* convert from plot units to pt */
-#define CGM_PT ((term->xmax + CGM_MARGIN)/cgm_plotwidth)
+// convert from plot units to pt 
+#define CGM_PT ((term->MaxX + CGM_MARGIN)/cgm_plotwidth)
 #define CGM_LINE_TYPES 9        /* number of line types we support */
 #define CGM_COLORS 96           /* must not exceed size of pm3d_color_names_tbl[] */
 #define CGM_POINTS 13           /* number of markers we support */
@@ -120,7 +120,7 @@ TERM_PUBLIC void CGM_set_pointsize(double size);
 #define CGM_HCHAR (CGM_SMALL/360*12*5/9)
 #define CGM_VTIC (CGM_LARGE/80)
 #define CGM_HTIC (CGM_LARGE/80)
-#endif
+//#endif
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
@@ -128,7 +128,7 @@ TERM_PUBLIC void CGM_set_pointsize(double size);
 static int CGM_find_font(const char * name, int len, double * relwidth);
 static int CGM_find_nearest_color(t_colorspec * colorspec);
 
-#include <ctype.h>              /* for isspace() */
+//#include <ctype.h>              /* for isspace() */
 
 /* uncomment the following to enable assertions for this module only,
    regardless of compiler switches
@@ -154,19 +154,15 @@ static int cgm_coords = 0;      /* # polyline coordinates saved */
 static int cgm_doing_polygon = 0; /* nonzero if creating polygon, else
                                    * creating polyline */
 /* static enum JUSTIFY cgm_justify = LEFT; */ /* unused */
-static int cgm_step_sizes[8];   /* array of currently used dash
-                                   lengths in plot units */
+static int cgm_step_sizes[8];   /* array of currently used dash lengths in plot units */
 static int cgm_step_index = 0;  /* index into cgm_step_sizes[] */
-static int cgm_step = 0;        /* amount of current dash not yet
-                                   drawn, in plot units */
+static int cgm_step = 0;        /* amount of current dash not yet drawn, in plot units */
 static int cgm_tic, cgm_tic707, cgm_tic866, cgm_tic500, cgm_tic1241, cgm_tic1077, cgm_tic621;   /* marker dimensions */
 struct cgm_properties {
-	double angle;           /* angle of text baseline (radians
-	                           counter-clockwise from horizontal) */
+	double angle;           /* angle of text baseline (radians counter-clockwise from horizontal) */
 	int font_index;         /* font index */
 	int char_height;        /* character height in picture units */
 	enum JUSTIFY justify_mode; /* how text is justified */
-
 	int edge_visibility;    /* nonzero if edge is visible */
 	int edge_color;
 	int fill_color;
@@ -198,7 +194,7 @@ struct fontdata {
 };
 
 static struct fontdata cgm_basic_font_data[] = {
-	/* these are WebCGM recommended fonts */
+	// these are WebCGM recommended fonts 
 	{"Helvetica", 1.039},
 	{"Helvetica Oblique", 1.099},
 	{"Helvetica Bold", 1.083},
@@ -212,8 +208,7 @@ static struct fontdata cgm_basic_font_data[] = {
 	{"Courier Oblique", 1.218},
 	{"Courier Bold Oblique", 1.341},
 	{"Symbol", .897},
-
-	/* These are basic public domain fonts required by MIL-D-28003A */
+	// These are basic public domain fonts required by MIL-D-28003A 
 	{"Hershey/Cartographic_Roman", 1.2404},
 	{"Hershey/Cartographic_Greek", .9094},
 	{"Hershey/Simplex_Roman", 1.2369},
@@ -317,8 +312,8 @@ static struct gen_table CGM_opts[] =
 TERM_PUBLIC void CGM_options()
 {
 	char * string;
-	/* Annoying hack to handle the case of 'set termoption' after */
-	/* we have already initialized the terminal.                  */
+	// Annoying hack to handle the case of 'set termoption' after 
+	// we have already initialized the terminal.                  
 	if(!GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion"))
 		CGM_local_reset();
 	while(!GPO.Pgm.EndOfCommand()) {
@@ -464,12 +459,12 @@ TERM_PUBLIC void CGM_options()
 		}
 	}
 	if(cgm_portrait) {
-		term->xmax = CGM_SMALL - CGM_MARGIN;
-		term->ymax = CGM_LARGE - CGM_MARGIN;
+		term->MaxX = CGM_SMALL - CGM_MARGIN;
+		term->MaxY = CGM_LARGE - CGM_MARGIN;
 	}
 	else {
-		term->xmax = CGM_LARGE - CGM_MARGIN;
-		term->ymax = CGM_SMALL - CGM_MARGIN;
+		term->MaxX = CGM_LARGE - CGM_MARGIN;
+		term->MaxY = CGM_SMALL - CGM_MARGIN;
 	}
 	{ /* cgm_font, cgm_fontsize, and/or term->ChrV may have changed */
 		double w;
@@ -477,7 +472,6 @@ TERM_PUBLIC void CGM_options()
 		term->ChrV = (uint)(cgm_fontsize*CGM_PT);
 		term->ChrH = (uint)(cgm_fontsize*CGM_PT*.527*w);
 	}
-
 	sprintf(CGM_default_font, "%s,%d", cgm_font, cgm_fontsize);
 	/* CGM_default_font holds the font and size set at 'set term' */
 	sprintf(term_options, "%s %s %s %s %s width %d linewidth %d font \"%s, %d\"",
@@ -489,16 +483,12 @@ TERM_PUBLIC void CGM_options()
 	    cgm_plotwidth,
 	    cgm_linewidth_pt,
 	    cgm_font, cgm_fontsize);
-
 	if(cgm_user_color_count) {
-		int i, red, green, blue;
-		for(i = 0; i < cgm_user_color_count &&
-		    (strlen(term_options) + 9 < MAX_LINE_LEN); i++) {
-			red = cgm_user_color_table[1 + 3*i];
-			green = cgm_user_color_table[2 + 3*i];
-			blue = cgm_user_color_table[3 + 3*i];
-			sprintf(term_options + strlen(term_options),
-			    " x%02x%02x%02x", red, green, blue);
+		for(int i = 0; i < cgm_user_color_count && (strlen(term_options) + 9 < MAX_LINE_LEN); i++) {
+			int red = cgm_user_color_table[1 + 3*i];
+			int green = cgm_user_color_table[2 + 3*i];
+			int blue = cgm_user_color_table[3 + 3*i];
+			sprintf(term_options + strlen(term_options), " x%02x%02x%02x", red, green, blue);
 		}
 	}
 
@@ -539,7 +529,7 @@ static void CGM_local_reset()
 	cgm_user_color_count = 0;
 }
 
-TERM_PUBLIC void CGM_init()
+TERM_PUBLIC void CGM_init(termentry * pThis)
 {
 	cgm_posx = cgm_posy = 0;
 	cgm_linetype = 0;
@@ -642,11 +632,9 @@ TERM_PUBLIC void CGM_graphics()
 		6, 1,           /* Escape */
 		7, 2            /* Application Data */
 	};
-
 	if(!cgm_initialized)
 		GPO.IntError(NO_CARET, "cgm terminal initialization failed");
-
-	/* metafile description (_cls 1), including filename if available */
+	// metafile description (_cls 1), including filename if available 
 	if(!outstr)
 		CGM_write_char_record(0, 1, 1, outstr);
 	else
@@ -654,19 +642,12 @@ TERM_PUBLIC void CGM_graphics()
 	CGM_write_int_record(1, 1, 2, version_data);
 	{
 		char description_data[256];
-		sprintf(description_data,
-		    "\
-Gnuplot version %s patchlevel %s,\
- Computer Graphics Metafile version 1 per MIL-D-28003A/BASIC-1.%d",
-		    gnuplot_version,
-		    gnuplot_patchlevel,
-		    cgm_monochrome ? 0 : 2);
-		CGM_write_char_record(1, 2, strlen(description_data),
-		    description_data);
+		sprintf(description_data, "Gnuplot version %s patchlevel %s,Computer Graphics Metafile version 1 per MIL-D-28003A/BASIC-1.%d",
+		    gnuplot_version, gnuplot_patchlevel, cgm_monochrome ? 0 : 2);
+		CGM_write_char_record(1, 2, strlen(description_data), description_data);
 	}
 	elements_list_data[0] = (sizeof(elements_list_data) / CGM_ADJ - 2) / 4;
-	CGM_write_int_record(1, 11, sizeof(elements_list_data) / CGM_ADJ,
-	    elements_list_data);
+	CGM_write_int_record(1, 11, sizeof(elements_list_data) / CGM_ADJ, elements_list_data);
 	CGM_write_int_record(1, 3, 2, vdc_type_data);
 	CGM_write_int_record(1, 4, 2, integer_precision_data);
 	CGM_write_int_record(1, 5, 6, real_precision_data);
@@ -691,57 +672,42 @@ Gnuplot version %s patchlevel %s,\
 		CGM_write_byte_record(1, 13, lgh, buf);
 		SAlloc::F(buf);
 	}
-
-	/* picture description (classes 2 and 3) */
+	// picture description (classes 2 and 3) 
 	CGM_write_char_record(0, 3, 8, "PICTURE1");
 	CGM_write_int_record(2, 1, 6, scaling_mode_data);
 	CGM_write_int_record(2, 2, 2, color_selection_mode_data);
 	CGM_write_int_record(2, 3, 2, linewidth_specification_mode_data);
 	CGM_write_int_record(2, 4, 2, marker_size_specification_mode_data);
 	CGM_write_int_record(2, 5, 2, edge_width_specification_mode_data);
-	vdc_extent_data[2] = t->xmax + CGM_MARGIN;
-	vdc_extent_data[3] = t->ymax + CGM_MARGIN;
+	vdc_extent_data[2] = t->MaxX + CGM_MARGIN;
+	vdc_extent_data[3] = t->MaxY + CGM_MARGIN;
 	CGM_write_int_record(2, 6, 8, vdc_extent_data);
-
-	/* picture body (classes 4 and 5) */
+	// picture body (classes 4 and 5) 
 	CGM_write_int_record(0, 4, 0, NULL);
-
 #ifdef NEVER            /* no need for these, since we accept the defaults */
 	{
 		static int vdc_integer_precision_data[] = { 16 };
 		CGM_write_int_record(3, 1, 2, vdc_integer_precision_data);
 	}
 	{
-		static int transparency_data[] = { 1 }; /* text background:
-		                                           0=auxiliary color
-		                                           1=transparent */
-		CGM_write_int_record(3, 4, sizeof(transparency_data) / CGM_ADJ,
-		    transparency_data);
+		static int transparency_data[] = { 1 }; /* text background: 0=auxiliary color 1=transparent */
+		CGM_write_int_record(3, 4, sizeof(transparency_data) / CGM_ADJ, transparency_data);
 	}
 	{
 		static int clip_indicator_data[] = { 0 };
-		CGM_write_int_record(3, 6, sizeof(clip_indicator_data) / CGM_ADJ,
-		    clip_indicator_data);
+		CGM_write_int_record(3, 6, sizeof(clip_indicator_data) / CGM_ADJ, clip_indicator_data);
 	}
 #endif
 	if(!cgm_monochrome)
-		CGM_write_int_record(5, 34, (cgm_user_color_count*3+1)*
-		    sizeof(cgm_user_color_table[0])/CGM_ADJ,
-		    cgm_user_color_table);
-	CGM_write_int_record(5, 2, sizeof(line_type_data) / CGM_ADJ,
-	    line_type_data);              /* line type 1=SOLID */
+		CGM_write_int_record(5, 34, (cgm_user_color_count*3+1)* sizeof(cgm_user_color_table[0])/CGM_ADJ, cgm_user_color_table);
+	CGM_write_int_record(5, 2, sizeof(line_type_data) / CGM_ADJ, line_type_data); /* line type 1=SOLID */
 	cgm_linewidth = cgm_linewidth_pt * CGM_PT;
-	CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ,
-	    (int*)&cgm_linewidth);                /* line width */
-	CGM_write_int_record(5, 28, sizeof(cgm_linewidth) / CGM_ADJ,
-	    (int*)&cgm_linewidth);                /* edge width */
-	CGM_write_int_record(5, 27,  sizeof(line_type_data) / CGM_ADJ,
-	    line_type_data);              /* edge type 1=SOLID */
+	CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int*)&cgm_linewidth);                /* line width */
+	CGM_write_int_record(5, 28, sizeof(cgm_linewidth) / CGM_ADJ, (int*)&cgm_linewidth);                /* edge width */
+	CGM_write_int_record(5, 27,  sizeof(line_type_data) / CGM_ADJ, line_type_data);              /* edge type 1=SOLID */
 	CGM_linecolor(0);
-
 	cgm_current = cgm_reset;
 	cgm_next.char_height = t->ChrV;
-
 	CGM_write_int_record(5, 22, 2, interior_style_data);
 	CGM_write_int_record(5, 24, 2, hatch_index_data);
 	{
@@ -750,11 +716,10 @@ Gnuplot version %s patchlevel %s,\
 		CGM_set_font(buf);
 	}
 	CGM_set_pointsize(pointsize);
-
 	/* Fill with background color if user has specified one */
 	if(!cgm_monochrome && cgm_user_color_count > 0) {
 		CGM_linecolor(LT_BACKGROUND);
-		CGM_fillbox(FS_SOLID, 0, 0, t->xmax, t->ymax);
+		CGM_fillbox(FS_SOLID, 0, 0, t->MaxX, t->MaxY);
 	}
 }
 
@@ -767,13 +732,12 @@ static int CGM_find_font(const char * name, int numchar, double * relwidth)
 	int i;
 	*relwidth = 1.0;
 	for(i = 0; cgm_font_data[i].name; i++)
-		/* strncasecmp is not standard, but defined by stdfn.c if not available */
+		// strncasecmp is not standard, but defined by stdfn.c if not available 
 		if(strlen(cgm_font_data[i].name) == numchar &&
 		    strncasecmp(name, cgm_font_data[i].name, numchar) == 0) {
 			*relwidth = cgm_font_data[i].width;
 			return i+1;
 		}
-
 	return 0;
 }
 
@@ -784,28 +748,22 @@ TERM_PUBLIC int CGM_set_font(const char * font)
 	const char * comma = strchr(font, ',');
 	int len;
 	double width;
-
-	/* Allow null string to indicaute default font */
-	if(!font || !(*font))
+	// Allow null string to indicaute default font 
+	if(isempty(font))
 		font = CGM_default_font;
-
-	/* find font in font table, or use 1st font */
+	// find font in font table, or use 1st font 
 	if(comma)
 		len = comma - font;
 	else
 		len = strlen(font);
-
 	font_index = CGM_find_font(font, len, &width);
-	if(font_index == 0)
-		font_index = 1;
+	SETIFZ(font_index, 1);
 	cgm_next.font_index = font_index;
-
 	{
 		char * s = cgm_font_data[font_index-1].name;
 		safe_strncpy(cgm_font, s, sizeof(cgm_font));
 	}
-
-	/* set font size */
+	// set font size 
 	size = cgm_fontsize;
 	if(comma)
 		sscanf(comma + 1, "%d", &size);
@@ -813,9 +771,7 @@ TERM_PUBLIC int CGM_set_font(const char * font)
 		t->ChrV = size * CGM_PT;
 		t->ChrH = size * CGM_PT * .527 * width;
 	}
-
 	cgm_next.char_height = t->ChrV;
-
 	return TRUE;
 }
 
@@ -873,18 +829,14 @@ TERM_PUBLIC void CGM_linecolor(int linecolor)
 	CGM_write_int_record(5, 14, 2, (int*)&cgm_color); /* text color */
 }
 
-TERM_PUBLIC void CGM_fillbox(int style,
-    uint x1, uint y1,
-    uint width, uint height)
+TERM_PUBLIC void CGM_fillbox(int style, uint x1, uint y1, uint width, uint height)
 {
 	gpiPoint corner[5];
-
 	corner[0].x = x1;        corner[0].y = y1;
 	corner[1].x = x1+width;  corner[1].y = y1;
 	corner[2].x = x1+width;  corner[2].y = y1+height;
 	corner[3].x = x1;        corner[3].y = y1+height;
 	corner[4].x = x1;        corner[4].y = y1;
-
 	corner->style = style;
 	CGM_filled_polygon(5, corner);
 }
@@ -892,19 +844,14 @@ TERM_PUBLIC void CGM_fillbox(int style,
 TERM_PUBLIC void CGM_linewidth(double width)
 {
 	int new_linewidth;
-
 	if(width <= 0)
 		width = 0.5;
-
 	new_linewidth = width * cgm_linewidth_pt * CGM_PT;
 	if(new_linewidth == cgm_linewidth)
 		return;
-
 	CGM_flush_polyline();
-
 	cgm_linewidth = new_linewidth;
-	CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ,
-	    (int*)&cgm_linewidth);
+	CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int*)&cgm_linewidth);
 	CGM_dashtype(cgm_dashtype); /* have dash lengths recalculated */
 }
 
@@ -926,13 +873,10 @@ TERM_PUBLIC void CGM_dashtype(int dashtype)
 		4, 10, 4, 10, 4, 1, 0, 0, /* 7 - dash-dash-dot     */
 		4, 10, 4, 10, 4, 1, 4, 1
 	};                              /* 8 - dash-dash-dot-dot */
-
 	if(dashtype == cgm_dashtype)
 		return;
 	cgm_dashtype = dashtype;
-
 	CGM_flush_polyline();
-
 	if(dashtype >= CGM_LINE_TYPES)
 		dashtype = dashtype % CGM_LINE_TYPES;
 	if(dashtype < 1) {
@@ -940,8 +884,7 @@ TERM_PUBLIC void CGM_dashtype(int dashtype)
 		return;
 	}
 	term->vector = CGM_dashed_vector;
-
-	/* set up dash dimensions */
+	// set up dash dimensions 
 	j = (dashtype - 1) * 8;
 	for(i = 0; i < 8; i++, j++) {
 		if(dot_length[j])
@@ -949,17 +892,17 @@ TERM_PUBLIC void CGM_dashtype(int dashtype)
 		else
 			cgm_step_sizes[i] = 0;
 	}
-	/* first thing drawn will be a line */
+	// first thing drawn will be a line 
 	cgm_step = cgm_step_sizes[1];
 	cgm_step_index = 1;
 }
 
 TERM_PUBLIC void CGM_move(uint x, uint y)
 {
-	if(x >= term->xmax)
-		x = term->xmax;
-	if(y >= term->ymax)
-		y = term->ymax;
+	if(x >= term->MaxX)
+		x = term->MaxX;
+	if(y >= term->MaxY)
+		y = term->MaxY;
 	if(x == cgm_posx && y == cgm_posy)
 		return;
 	CGM_flush_polyline();
@@ -1000,24 +943,21 @@ TERM_PUBLIC void CGM_set_color(t_colorspec * colorspec)
 	}
 	else if(colorspec->type == TC_FRAC) {
 		double gray = colorspec->value;
-		/* map [0...1] to interval [0...cgm_smooth_colors-1], then add
-		   offset to get past the default colors */
+		// map [0...1] to interval [0...cgm_smooth_colors-1], then add offset to get past the default colors 
 		cgm_next.fill_color = (gray <= 0) ? 0 : (int)(gray * cgm_smooth_colors);
 		if(cgm_next.fill_color >= cgm_smooth_colors)
 			cgm_next.fill_color = cgm_smooth_colors - 1;
 		cgm_next.fill_color += CGM_COLORS;
 	}
 	else if(colorspec->type == TC_RGB) {
-		/* To truly support RGB we would have to write a new color table to the */
-		/* output file every time the RGB matched no previous color. That seems */
-		/* prohibitive, so instead we just look for the closest match.          */
+		// To truly support RGB we would have to write a new color table to the
+		// output file every time the RGB matched no previous color. That seems 
+		// prohibitive, so instead we just look for the closest match.          
 		cgm_next.fill_color = CGM_find_nearest_color(colorspec);
 	}
 	else
-		/* Should not happen! */
-		return;
-
-	/* EAM - force color immediately so that lines and text can use it */
+		return; // Should not happen! 
+	// EAM - force color immediately so that lines and text can use it 
 	if(cgm_color != cgm_next.fill_color) {
 		cgm_color = cgm_next.fill_color;
 		cgm_linetype = cgm_color;
@@ -1036,19 +976,16 @@ TERM_PUBLIC void CGM_filled_polygon(int points, gpiPoint * corner)
 	 * This allows an arbitrary amount of data in a record.  However,
 	 * we implement a big enough block that problems should be rare.
 	 */
-
 	/* We will use solid fill for patterns 0 and 3 */
 	int hatch_index[] = {0, 6, 5, 0, 4, 3};
 	int style = corner->style;
 	int pattern = (style >> 4) % 6;
 	int i;
-
 	switch(style & 0xf) {
 		case FS_SOLID:
 		case FS_TRANSPARENT_SOLID:
 		    cgm_next.interior_style = 1;
 		    break;
-
 		case FS_PATTERN:
 		case FS_TRANSPARENT_PATTERN:
 		    if(pattern == 0) {
@@ -1062,40 +999,32 @@ TERM_PUBLIC void CGM_filled_polygon(int points, gpiPoint * corner)
 			    cgm_next.interior_style = 1;
 			    break;
 		    }
-
 		    /* The rest of the patterns are hatch-filled */
 		    cgm_next.interior_style = 3; /* hatched */
 		    cgm_next.hatch_index = hatch_index[pattern];
 		    break;
-
 		default: /* style == 0 or unknown --> fill with background color */
 		    cgm_next.fill_color = 0;
 		    cgm_next.interior_style = 1; /* solid */
 		    break;
 	}
-
 	if(cgm_current.interior_style != cgm_next.interior_style) {
 		cgm_current.interior_style = cgm_next.interior_style;
 		CGM_write_int_record(5, 22, 2, &cgm_next.interior_style);
 	}
-
 	if(cgm_current.fill_color != cgm_next.fill_color) {
 		cgm_current.fill_color = cgm_next.fill_color;
 		CGM_write_int_record(5, 23, 2, &cgm_next.fill_color); /* fill color */
 	}
-
-	if(cgm_current.hatch_index != cgm_next.hatch_index &&
-	    cgm_next.interior_style == 3) {
+	if(cgm_current.hatch_index != cgm_next.hatch_index && cgm_next.interior_style == 3) {
 		cgm_current.hatch_index = cgm_next.hatch_index;
 		CGM_write_int_record(5, 24, 2, &cgm_next.hatch_index);
 	}
-
 	cgm_next.edge_visibility = 0;   /* We draw the borders elsewhere */
 	if(cgm_current.edge_visibility != cgm_next.edge_visibility) {
 		cgm_current.edge_visibility = cgm_next.edge_visibility;
 		CGM_write_int_record(5, 30, 2, &cgm_current.edge_visibility);
 	}
-
 	CGM_move(corner[0].x, corner[0].y);
 	cgm_doing_polygon = 1;
 	for(i = 1; i < points; i++)
@@ -1114,13 +1043,12 @@ static void CGM_flush_polyline()
 
 static void CGM_write_char_record(int _cls, int cgm_id, int numbytes, char * data)
 {
-	int i, pad, length;
+	int i;
 	static uchar flag = 0xff;
 	static uchar paddata = 0;
 	char short_len;
-
-	pad = 0;
-	length = numbytes + 1;
+	int pad = 0;
+	int length = numbytes + 1;
 	if(numbytes >= 255)
 		length += 2; /* long string */
 	if(length & 1)
@@ -1134,13 +1062,11 @@ static void CGM_write_char_record(int _cls, int cgm_id, int numbytes, char * dat
 		fwrite(&flag, 1, 1, gpoutfile);
 		CGM_write_int(numbytes);
 	}
-
 	if(data)
 		fwrite(data, 1, numbytes, gpoutfile);   /* write string */
 	else
 		for(i = 0; i<numbytes+pad; i++)
 			fputc('\0', gpoutfile);         /* write null bytes */
-
 	if(pad)
 		fwrite(&paddata, 1, 1, gpoutfile);
 }
@@ -1159,35 +1085,28 @@ static void CGM_write_byte_record(int _cls, int cgm_id, int numbytes, char * dat
 
 static void CGM_write_int_record(int _cls, int cgm_id, int numbytes, int * data)
 {
-	int i;
 	assert((numbytes & 1) == 0);
 	CGM_write_code(_cls, cgm_id, numbytes);
 	numbytes >>= 1;
-	for(i = 0; i < numbytes; i++)
+	for(int i = 0; i < numbytes; i++)
 		CGM_write_int(data[i]);
 }
 
-static void CGM_write_mixed_record(int _cls, int cgm_id,
-    int numint, int * int_data,
-    int numchar, const char * char_data)
+static void CGM_write_mixed_record(int _cls, int cgm_id, int numint, int * int_data, int numchar, const char * char_data)
 {
-	int i, pad, length;
+	int i;
 	static uchar paddata = 0;
 	static uchar flag = 0xff;
 	char short_len;
-
-	pad = 0;
-	length = numchar + 1;
+	int pad = 0;
+	int length = numchar + 1;
 	if(numchar >= 255)
 		length += 2; /* long string */
 	if(length & 1)
 		pad = 1; /* needs pad */
-
 	CGM_write_code(_cls, cgm_id, numint * 2 + length);
-
 	for(i = 0; i < numint; i++)
 		CGM_write_int(int_data[i]); /* write integers */
-
 	if(numchar < 255) {
 		short_len = (char)numchar;
 		fwrite(&short_len, 1, 1, gpoutfile); /* write string length */
@@ -1200,7 +1119,6 @@ static void CGM_write_mixed_record(int _cls, int cgm_id,
 	if(pad)
 		fwrite(&paddata, 1, 1, gpoutfile);
 }
-
 /*
    Write the code word that starts a CGM record.
    bits in code word are as follows...
@@ -1238,7 +1156,6 @@ static void CGM_write_int(int value)
 	assert(value <= 32767);
 	u.c[0] = (value >> 8) & 255;    /* convert to network order */
 	u.c[1] = value & 255;
-
 	fwrite(&u.s, 1, 2, gpoutfile);
 }
 
@@ -1250,22 +1167,16 @@ TERM_PUBLIC void CGM_dashed_vector(uint ux, uint uy)
 {
 	int xa, ya;
 	int dx, dy, adx, ady;
-	int dist;               /* approximate distance in plot units
-	                           from starting point to specified end
-	                           point. */
-	long remain;            /* approximate distance in plot units
-	                           remaining to specified end point. */
-
-	if(ux >= term->xmax)
-		ux = term->xmax;
-	if(uy >= term->ymax)
-		uy = term->ymax;
-
+	int dist;               /* approximate distance in plot units from starting point to specified end point. */
+	long remain;            /* approximate distance in plot units remaining to specified end point. */
+	if(ux >= term->MaxX)
+		ux = term->MaxX;
+	if(uy >= term->MaxY)
+		uy = term->MaxY;
 	dx = (ux - cgm_posx);
 	dy = (uy - cgm_posy);
 	adx = abs(dx);
 	ady = abs(dy * 10);
-
 	/* using the approximation
 	   sqrt(x**2 + y**2)  ~  x + (5*x*x)/(12*y)   when x > y.
 	   Note ordering of calculations to avoid overflow on 16 bit
@@ -1303,11 +1214,10 @@ TERM_PUBLIC void CGM_dashed_vector(uint ux, uint uy)
 
 TERM_PUBLIC void CGM_solid_vector(uint ux, uint uy)
 {
-	if(ux >= term->xmax)
-		ux = term->xmax;
-	if(uy >= term->ymax)
-		uy = term->ymax;
-
+	if(ux >= term->MaxX)
+		ux = term->MaxX;
+	if(uy >= term->MaxY)
+		uy = term->MaxY;
 	if(ux == cgm_posx && uy == cgm_posy)
 		return;
 	if(cgm_coords > CGM_MAX_SEGMENTS - 2) {
@@ -1330,24 +1240,17 @@ TERM_PUBLIC void CGM_solid_vector(uint ux, uint uy)
 
 TERM_PUBLIC void CGM_put_text(uint x, uint y, const char str[])
 {
-	static int where[3] = { 0, 0, 1 }; /* the final "1" signals that
-	                                      this is the last text in the
-	                                      string */
+	static int where[3] = { 0, 0, 1 }; // the final "1" signals that this is the last text in the string 
 	const char * s = str;
-
 	/* sanity check - labels are not clipped */
 	if((x > 32767) || (y > 32767))
 		return;
-
 	while(*s)
 		if(!isspace((uchar)*s++))
 			goto showit;
 	return;
-
 showit:
-
 	CGM_flush_polyline();
-
 	/* update the text characteristics if they have changed since the
 	   last text string was output */
 	if(cgm_current.font_index != cgm_next.font_index) {
@@ -1611,12 +1514,10 @@ static int CGM_find_nearest_color(t_colorspec * colorspec)
 		if(distance < CLOSE_ENOUGH)
 			break;
 	}
-
 	FPRINTF((stderr, "CGM_find_nearest_color:  asked for %d %d %d\n", red, green, blue));
 	FPRINTF((stderr, "         got index %3d             %d %d %d\n", closest,
 	    cgm_user_color_table[closest*3], cgm_user_color_table[closest*3+1],
 	    cgm_user_color_table[closest*3+2]));
-
 	return closest;
 }
 
@@ -1632,26 +1533,48 @@ static int CGM_find_nearest_color(t_colorspec * colorspec)
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(cgm_driver)
-"cgm", "Computer Graphics Metafile",
-CGM_LARGE - CGM_MARGIN, CGM_SMALL - CGM_MARGIN, CGM_VCHAR, CGM_HCHAR,
-CGM_VTIC, CGM_HTIC, CGM_options, CGM_init, CGM_reset,
-CGM_text, null_scale, CGM_graphics, CGM_move, CGM_solid_vector,
-CGM_linetype, CGM_put_text, CGM_text_angle,
-CGM_justify_text, CGM_point, do_arrow, CGM_set_font,
-CGM_set_pointsize,
-TERM_BINARY|TERM_CAN_DASH|TERM_LINEWIDTH,       /* various flags */
-NULL,                           /* after one plot of multiplot */
-NULL,                           /* before subsequent plot of multiplot */
-CGM_fillbox,
-CGM_linewidth
-#ifdef USE_MOUSE
-, NULL, NULL, NULL, NULL, NULL
-/*  , waitforinput, put_tmptext, set_ruler, set_cursor, set_clipboard */
-#endif
-, CGM_make_palette,
-NULL /* _previous_palette */,
-CGM_set_color,
-CGM_filled_polygon TERM_TABLE_END(cgm_driver)
+	"cgm", 
+	"Computer Graphics Metafile",
+	CGM_LARGE - CGM_MARGIN, 
+	CGM_SMALL - CGM_MARGIN, 
+	CGM_VCHAR, 
+	CGM_HCHAR,
+	CGM_VTIC, 
+	CGM_HTIC, 
+	CGM_options, 
+	CGM_init, 
+	CGM_reset,
+	CGM_text, 
+	GnuPlot::NullScale, 
+	CGM_graphics, 
+	CGM_move, 
+	CGM_solid_vector,
+	CGM_linetype, 
+	CGM_put_text, 
+	CGM_text_angle,
+	CGM_justify_text, 
+	CGM_point, 
+	GnuPlot::DoArrow, 
+	CGM_set_font,
+	CGM_set_pointsize,
+	TERM_BINARY|TERM_CAN_DASH|TERM_LINEWIDTH,       /* various flags */
+	NULL,                           /* after one plot of multiplot */
+	NULL,                           /* before subsequent plot of multiplot */
+	CGM_fillbox,
+	CGM_linewidth,
+	#ifdef USE_MOUSE
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL,
+	/* waitforinput, put_tmptext, set_ruler, set_cursor, set_clipboard */
+	#endif
+	CGM_make_palette,
+	NULL, /* _previous_palette */
+	CGM_set_color,
+	CGM_filled_polygon 
+TERM_TABLE_END(cgm_driver)
 
 #undef LAST_TERM
 #define LAST_TERM cgm_driver

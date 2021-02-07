@@ -216,6 +216,8 @@ int SlSession::ResetStopState()
 	return ok;
 }
 
+bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
+
 static void InitTest()
 {
 #ifndef NDEBUG // {
@@ -429,6 +431,20 @@ static void InitTest()
 	assert(isasciialpha('a'-1) == 0);
 	// } @v10.9.3 
 	assert(sizeof(LayoutFlexItem::Result) == 24); // @v11.0.0
+	{
+		//bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
+		assert(IsMadeOfEightDigitsFast(PTR8C("00000000")));
+		assert(!IsMadeOfEightDigitsFast(PTR8C("00000z00")));
+		/*{
+			uint8   random_buf[1024];
+			for(uint i = 0; i < SIZEOFARRAY(random_buf); i++) {
+			
+			}
+			for(uint offs = 0; offs < 800; offs++) {
+			
+			}
+		}*/
+	}
 	// @v11.0.0 {
 #if CXX_OS_WINDOWS != 0
 	{
@@ -438,7 +454,8 @@ static void InitTest()
 		// Это важно так как я стараюсь элиминировать лишние проверки аргументов перед вызовами функций
 		// (размер исходного кода морщим, знаете-ли).
 		//
-		assert(::CloseHandle(INVALID_HANDLE_VALUE) == 0);
+		// (Этот тест не работает на Win10, но работает на Win2012 server) assert(::CloseHandle(INVALID_HANDLE_VALUE) == 0);
+		assert(::DestroyWindow(0) == 0);
 		assert(::GlobalFree(0) == 0);
 		assert(::LocalFree(0) == 0);
 		assert(::RegCloseKey(0) != ERROR_SUCCESS);

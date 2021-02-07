@@ -88,7 +88,7 @@ register_term(pstricks)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void PSTRICKS_options();
-TERM_PUBLIC void PSTRICKS_init();
+TERM_PUBLIC void PSTRICKS_init(termentry * pThis);
 TERM_PUBLIC void PSTRICKS_graphics();
 TERM_PUBLIC void PSTRICKS_text();
 TERM_PUBLIC void PSTRICKS_linetype(int linetype);
@@ -303,8 +303,8 @@ TERM_PUBLIC void PSTRICKS_options()
 			    PST_unit_plot = TRUE;
 			    PSTRICKS_size_x = 5.0;
 			    PSTRICKS_size_y = 5.0;
-			    term->xmax = (uint)PSTRICKS_XMAX;
-			    term->ymax = (uint)PSTRICKS_YMAX;
+			    term->MaxX = (uint)PSTRICKS_XMAX;
+			    term->MaxY = (uint)PSTRICKS_YMAX;
 			    term->ChrV = (uint)(PSTRICKS_VCHAR * 5.0 / 3.0);
 			    term->TicV = (uint)(PSTRICKS_VTIC * 5.0 / 3.0);
 			    GPO.Pgm.Shift();
@@ -313,8 +313,8 @@ TERM_PUBLIC void PSTRICKS_options()
 			    PST_unit_plot = FALSE;
 			    PSTRICKS_size_x = 5.0;
 			    PSTRICKS_size_y = 3.0;
-			    term->xmax = (uint)(PSTRICKS_size_x * PSTRICKS_XMAX / 5.0);
-			    term->ymax = (uint)(PSTRICKS_size_y * PSTRICKS_YMAX / 5.0);
+			    term->MaxX = (uint)(PSTRICKS_size_x * PSTRICKS_XMAX / 5.0);
+			    term->MaxY = (uint)(PSTRICKS_size_y * PSTRICKS_YMAX / 5.0);
 			    term->ChrV = PSTRICKS_VCHAR;
 			    term->TicV = PSTRICKS_VTIC;
 			    GPO.Pgm.Shift();
@@ -326,8 +326,8 @@ TERM_PUBLIC void PSTRICKS_options()
 			    PSTRICKS_explicit_units = GPO.ParseTermSize(&width, &height, INCHES);
 			    PSTRICKS_size_x = width / gp_resolution;
 			    PSTRICKS_size_y = height / gp_resolution;
-			    term->xmax = (uint)(PSTRICKS_size_x * PSTRICKS_XMAX / 5.0);
-			    term->ymax = (uint)(PSTRICKS_size_y * PSTRICKS_YMAX / 5.0);
+			    term->MaxX = (uint)(PSTRICKS_size_x * PSTRICKS_XMAX / 5.0);
+			    term->MaxY = (uint)(PSTRICKS_size_y * PSTRICKS_YMAX / 5.0);
 			    term->ChrV = PSTRICKS_VCHAR;
 			    term->TicV = PSTRICKS_VTIC;
 			    break;
@@ -412,13 +412,11 @@ TERM_PUBLIC void PSTRICKS_options()
 	    PST_standalone ? "standalone" : "input");
 }
 
-TERM_PUBLIC void PSTRICKS_init()
+TERM_PUBLIC void PSTRICKS_init(termentry * pThis)
 {
 	fseek(gpoutfile, 0, SEEK_SET);
-
 	if(PST_standalone) {
 		const char * inputenc = latex_input_encoding(encoding);
-
 		/* multiple standalone graphs */
 		fputs("\\documentclass[a4paper]{article}\n"
 		    "\\usepackage[T1]{fontenc}\n"
@@ -669,7 +667,7 @@ TERM_PUBLIC void PSTRICKS_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 	PSTRICKS_endline();
 	PSTRICKS_apply_linecolor();
 	if(!PST_psarrows) {
-		do_arrow(sx, sy, ex, ey, head);
+		GnuPlot::DoArrow(sx, sy, ex, ey, head);
 		return;
 	}
 	if(curr_arrow_headlength <= 0) {
@@ -731,13 +729,8 @@ TERM_PUBLIC void PSTRICKS_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 		else if(head & BACKHEAD)
 			head_str = "{|-}";
 	}
-
-	fprintf(gpoutfile, "%s%s(%.4f,%.4f)(%.4f,%.4f)\n",
-	    PSTRICKS_lines[PSTRICKS_type + 2],
-	    head_str,
-	    PSTRICKS_map_x(sx), PSTRICKS_map_y(sy),
-	    PSTRICKS_map_x(ex), PSTRICKS_map_y(ey));
-
+	fprintf(gpoutfile, "%s%s(%.4f,%.4f)(%.4f,%.4f)\n", PSTRICKS_lines[PSTRICKS_type + 2], head_str,
+	    PSTRICKS_map_x(sx), PSTRICKS_map_y(sy), PSTRICKS_map_x(ex), PSTRICKS_map_y(ey));
 	PSTRICKS_posx = PSTRICKS_map_x(ex);
 	PSTRICKS_posy = PSTRICKS_map_y(ey);
 }
@@ -1142,12 +1135,30 @@ TERM_PUBLIC void PSTRICKS_boxed_text(uint x, uint y, int option)
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(pstricks_driver)
-"pstricks", "LaTeX picture environment with PSTricks macros",
-PSTRICKS_XMAX, PSTRICKS_YMAX * 3./5., PSTRICKS_VCHAR, PSTRICKS_HCHAR,
-PSTRICKS_VTIC, PSTRICKS_HTIC, PSTRICKS_options, PSTRICKS_init, PSTRICKS_reset,
-PSTRICKS_text, null_scale, PSTRICKS_graphics, PSTRICKS_move, PSTRICKS_vector,
-PSTRICKS_linetype, PSTRICKS_put_text, PSTRICKS_text_angle,
-PSTRICKS_justify_text, PSTRICKS_point, PSTRICKS_arrow, set_font_null, PSTRICKS_pointsize,
+"pstricks", 
+"LaTeX picture environment with PSTricks macros",
+PSTRICKS_XMAX, 
+PSTRICKS_YMAX * 3./5., 
+PSTRICKS_VCHAR, 
+PSTRICKS_HCHAR,
+PSTRICKS_VTIC, 
+PSTRICKS_HTIC, 
+PSTRICKS_options, 
+PSTRICKS_init, 
+PSTRICKS_reset,
+PSTRICKS_text, 
+GnuPlot::NullScale, 
+PSTRICKS_graphics, 
+PSTRICKS_move, 
+PSTRICKS_vector,
+PSTRICKS_linetype, 
+PSTRICKS_put_text, 
+PSTRICKS_text_angle,
+PSTRICKS_justify_text, 
+PSTRICKS_point, 
+PSTRICKS_arrow, 
+set_font_null, 
+PSTRICKS_pointsize,
 TERM_BINARY | TERM_IS_LATEX | TERM_CAN_DASH | TERM_ALPHA_CHANNEL |
 TERM_LINEWIDTH | TERM_POINTSCALE,
 0 /*suspend*/, 0 /*resume*/,

@@ -66,7 +66,7 @@ register_term(hppj)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void HPPJ_options();
-TERM_PUBLIC void HPPJ_init();
+TERM_PUBLIC void HPPJ_init(termentry * pThis);
 TERM_PUBLIC void HPPJ_reset();
 TERM_PUBLIC void HPPJ_graphics();
 TERM_PUBLIC void HPPJ_text();
@@ -123,10 +123,9 @@ TERM_PUBLIC void HPPJ_options()
 	}
 }
 
-TERM_PUBLIC void HPPJ_init()
+TERM_PUBLIC void HPPJ_init(termentry * pThis)
 {
-	/* HBB 980226: moved this here, from graphics(): only init() may
-	 * change fields of *term ! */
+	// HBB 980226: moved this here, from graphics(): only init() may change fields of *term ! 
 	switch(hppj_font) {
 		case FNT5X9:
 		    term->ChrV = FNT5X9_VCHAR;
@@ -270,13 +269,35 @@ TERM_PUBLIC void HPPJ_linetype(int linetype)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(hppj_driver)
-"hppj", "HP PaintJet and HP3630 [FNT5X9 FNT9X17 FNT13X25]",
-HPPJ_XMAX, HPPJ_YMAX,
-HPPJ_9x17_VCHAR, HPPJ_9x17_HCHAR, HPPJ_9x17_VTIC, HPPJ_9x17_HTIC,
-HPPJ_options, HPPJ_init, HPPJ_reset, HPPJ_text, null_scale, HPPJ_graphics,
-b_move, b_vector, HPPJ_linetype, b_put_text, b_text_angle,
-null_justify_text, do_point, do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(hppj_driver)
+	"hppj", 
+	"HP PaintJet and HP3630 [FNT5X9 FNT9X17 FNT13X25]",
+	HPPJ_XMAX, 
+	HPPJ_YMAX,
+	HPPJ_9x17_VCHAR, 
+	HPPJ_9x17_HCHAR, 
+	HPPJ_9x17_VTIC, 
+	HPPJ_9x17_HTIC,
+	HPPJ_options, 
+	HPPJ_init, 
+	HPPJ_reset, 
+	HPPJ_text, 
+	GnuPlot::NullScale, 
+	HPPJ_graphics,
+	b_move, 
+	b_vector, 
+	HPPJ_linetype, 
+	b_put_text, 
+	b_text_angle,
+	null_justify_text, 
+	do_point, 
+	GnuPlot::DoArrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(hppj_driver)
 
 #undef LAST_TERM
 #define LAST_TERM hppj_driver

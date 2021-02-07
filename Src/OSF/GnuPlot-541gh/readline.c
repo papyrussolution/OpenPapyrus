@@ -1309,20 +1309,19 @@ static int ansi_getc()
 
 #endif
 
-#if defined(MSDOS) || defined(_WIN32) || defined(OS2)
-
+#if defined(_WIN32)
 #ifdef WGP_CONSOLE
-static int win_getch()
-{
-	if(term && term->waitforinput)
-		return term->waitforinput(0);
-	else
-		return ConsoleGetch();
-}
-
+	static int win_getch()
+	{
+		if(term && term->waitforinput)
+			return term->waitforinput(0);
+		else
+			return ConsoleGetch();
+	}
 #else
-
-/* Convert Arrow keystrokes to Control characters: */
+//
+// Convert Arrow keystrokes to Control characters: 
+//
 static int msdos_getch()
 {
 	int c;

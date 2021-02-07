@@ -62,7 +62,7 @@ void vplot_points(surface_points * plot, double level)
 		plot->lp_properties.p_type = -1;
 	// Set whatever we can that applies to every point in the loop 
 	if(plot->lp_properties.pm3d_color.type == TC_RGB)
-		set_rgbcolor_const(plot->lp_properties.pm3d_color.lt);
+		GPO.SetRgbColorConst(term, plot->lp_properties.pm3d_color.lt);
 	for(ix = 0; ix < N; ix++) {
 		for(iy = 0; iy < N; iy++) {
 			for(iz = 0; iz < N; iz++) {

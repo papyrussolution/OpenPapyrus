@@ -70,6 +70,21 @@
     <ClCompile Include="..\OSF\GnuPlot-541gh\voxelgrid.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\vplot.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\xdg.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-win.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-estimate.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-canvas.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cgm.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-svg.c">
+      <Filter>Term</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\GnuPlot-541gh\gnuplot.h">
@@ -151,12 +166,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\cairo.trm">
       <Filter>Term</Filter>
     </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\canvas.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\cgm.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\context.trm">
       <Filter>Term</Filter>
     </None>
@@ -185,9 +194,6 @@
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\emxvga.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\estimate.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\epson.trm">
@@ -280,9 +286,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\qt.trm">
       <Filter>Term</Filter>
     </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\svg.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\t410x.trm">
       <Filter>Term</Filter>
     </None>
@@ -324,9 +327,6 @@
     </None>
     <None Include="..\OSF\GnuPlot-541gh\win\wgnuplot.mnu">
       <Filter>Resource</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\win.trm">
-      <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\block.trm">
       <Filter>Term</Filter>

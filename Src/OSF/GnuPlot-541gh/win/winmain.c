@@ -87,20 +87,21 @@ int Pause(LPSTR str)
 
 void kill_pending_Pause_dialog()
 {
-	if(!pausewin.bPause) /* no Pause dialog displayed */
-		return;
-	// Pause dialog displayed, thus kill it 
-	DestroyWindow(pausewin.hWndPause);
-	pausewin.bPause = FALSE;
+	if(pausewin.bPause) { // no Pause dialog displayed 
+		// Pause dialog displayed, thus kill it 
+		DestroyWindow(pausewin.hWndPause);
+		pausewin.bPause = FALSE;
+	}
 }
-
-/* atexit procedure */
+//
+// atexit procedure 
+//
 void WinExit()
 {
 	LPGW lpgw;
-	/* Last chance to close Windows help, call before anything else to avoid a crash. */
+	// Last chance to close Windows help, call before anything else to avoid a crash. 
 	WinCloseHelp();
-	/* clean-up call for printing system */
+	// clean-up call for printing system 
 	PrintingCleanup();
 	term_reset();
 	_fcloseall();
@@ -112,7 +113,7 @@ void WinExit()
 #ifndef WGP_CONSOLE
 	TextMessage(); /* process messages */
 #ifndef __WATCOMC__
-	/* revert C++ stream redirection */
+	// revert C++ stream redirection 
 	RedirectOutputStreams(FALSE);
 #endif
 #endif

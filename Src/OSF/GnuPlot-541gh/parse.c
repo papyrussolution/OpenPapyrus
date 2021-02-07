@@ -82,6 +82,14 @@ double GnuPlot::RealExpression()
 	return result;
 }
 
+float GnuPlot::FloatExpression()
+{
+	GpValue a;
+	double result = real(ConstExpress(&a));
+	a.Destroy();
+	return static_cast<float>(result);
+}
+
 void parse_reset_after_error()
 {
 	string_result_only = FALSE;
@@ -149,7 +157,7 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 	// for df_open() to use.  "@@" is a magic pseudo-filename passed to
 	// df_open() that tells it to use the stored pointer.
 	if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == ARRAY && !Pgm.EqualsNext("[")) {
-		df_array = add_udv(Pgm.GetCurTokenIdx());
+		df_array = AddUdv(Pgm.GetCurTokenIdx());
 		Pgm.Shift();
 		return array_placeholder;
 	}
@@ -358,7 +366,7 @@ int GnuPlot::ParseAssignmentExpression()
 		// push a dummy variable that would be the index if this were an array 
 		// FIXME: It would be nice to hide this from "show at" 
 		foo = add_action(PUSHC);
-		foo->v_arg.type = NOTDEFINED;
+		foo->v_arg.SetNotDefined();
 		// push the expression whose value it will get 
 		Pgm.Shift();
 		Pgm.Shift();
@@ -485,7 +493,7 @@ void GnuPlot::ParsePrimaryExpression()
 				IntError(Pgm.GetPrevTokenIdx(), "no such datablock");
 		}
 		else {
-			udv = add_udv(Pgm.GetCurTokenIdx());
+			udv = AddUdv(Pgm.GetCurTokenIdx());
 			Pgm.Shift();
 			if(udv->udv_value.type != ARRAY)
 				IntError(Pgm.GetPrevTokenIdx(), "not an array");
@@ -588,15 +596,15 @@ void GnuPlot::ParsePrimaryExpression()
 						break;
 					}
 				}
-				if(!param) { /* defined variable */
-					add_action(PUSH)->udv_arg = add_udv(Pgm.GetCurTokenIdx());
+				if(!param) { // defined variable 
+					add_action(PUSH)->udv_arg = AddUdv(Pgm.GetCurTokenIdx());
 					Pgm.Shift();
 				}
 			}
 			// its a variable, with no dummies active - div 
 		}
 		else {
-			add_action(PUSH)->udv_arg = add_udv(Pgm.GetCurTokenIdx());
+			add_action(PUSH)->udv_arg = AddUdv(Pgm.GetCurTokenIdx());
 			Pgm.Shift();
 		}
 	}
@@ -998,7 +1006,7 @@ void GnuPlot::ParseSumExpression()
 	// create a user defined variable and pass it to f_sum via PUSHC, since the
 	// argument of f_sum is already used by the udf 
 	Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
-	add_udv(Pgm.GetCurTokenIdx());
+	AddUdv(Pgm.GetCurTokenIdx());
 	arg = add_action(PUSHC);
 	Gstring(&(arg->v_arg), varname);
 	Pgm.Shift();
@@ -1039,13 +1047,14 @@ void GnuPlot::ParseSumExpression()
 //
 // find or add value and return pointer 
 //
-udvt_entry * add_udv(int t_num)                    
+//udvt_entry * add_udv(int t_num)
+udvt_entry * GnuPlot::AddUdv(int t_num)
 {
 	char varname[MAX_ID_LEN+1];
-	GPO.Pgm.CopyStr(varname, t_num, MAX_ID_LEN);
-	if(GPO.Pgm.P_Token[t_num].length > MAX_ID_LEN-1)
-		GPO.IntWarn(t_num, "truncating variable name that is too long");
-	return GPO.Ev.AddUdvByName(varname);
+	Pgm.CopyStr(varname, t_num, MAX_ID_LEN);
+	if(Pgm.P_Token[t_num].length > MAX_ID_LEN-1)
+		IntWarn(t_num, "truncating variable name that is too long");
+	return Ev.AddUdvByName(varname);
 }
 //
 // find or add function at index <t_num>, and return pointer 
@@ -1140,10 +1149,10 @@ GpIterator * GnuPlot::CheckForIteration()
 		Pgm.Shift();
 		if(!Pgm.EqualsCurShift("[") || !Pgm.IsLetter(Pgm.GetCurTokenIdx()))
 			IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
-		iteration_udv = add_udv(Pgm.GetCurTokenIdx());
+		iteration_udv = AddUdv(Pgm.GetCurTokenIdx());
 		Pgm.Shift();
 		original_udv_value = iteration_udv->udv_value;
-		iteration_udv->udv_value.type = NOTDEFINED;
+		iteration_udv->udv_value.SetNotDefined();
 		if(Pgm.EqualsCur("=")) {
 			Pgm.Shift();
 			if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) && Pgm.EqualsNext(":")) {

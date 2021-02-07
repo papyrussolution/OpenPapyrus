@@ -10,10 +10,6 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-static void mp_layout_size_and_offset();
-static void mp_layout_margins_and_spacing();
-static void mp_layout_set_margin_or_spacing(GpPosition *);
-
 enum set_multiplot_id {
 	S_MULTIPLOT_LAYOUT,
 	S_MULTIPLOT_COLUMNSFIRST, S_MULTIPLOT_ROWSFIRST, S_MULTIPLOT_SCALE,
@@ -61,120 +57,75 @@ static const struct gen_table set_multiplot_tbl[] =
 		DEFAULT_MARGIN_POSITION, /* prev_ margins */ \
 		EMPTY_LABELSTRUCT, 0.0 \
 }
-
-static struct MpLayout_ {
-	MpLayout_() : auto_layout(false), current_panel(0), num_rows(0), num_cols(0), row_major(false), downwards(true), act_row(0), act_col(0),
-		xscale(1.0), yscale(1.0), xoffset(0.0), yoffset(0.0), auto_layout_margins(false),
-		prev_xsize(0.0), prev_ysize(0.0), prev_xoffset(0.0), prev_yoffset(0.0), title_height(0.0)
-	{
-		lmargin.Set(screen, screen, screen, 0.1, -1.0, -1.0);
-		rmargin.Set(screen, screen, screen, 0.9, -1.0, -1.0);
-		bmargin.Set(screen, screen, screen, 0.1, -1.0, -1.0);
-		tmargin.Set(screen, screen, screen, 0.9, -1.0, -.01);
-		xspacing.Set(screen, screen, screen, 0.05, -1.0, -1.0);
-		yspacing.Set(screen, screen, screen, 0.05, -1.0, -1.0);
-		prev_lmargin.SetDefaultMargin();
-		prev_rmargin.SetDefaultMargin();
-		prev_tmargin.SetDefaultMargin();
-		prev_bmargin.SetDefaultMargin();
-		//EMPTY_LABELSTRUCT, 0.0
-	}
-	bool   auto_layout;   // automatic layout if true 
-	int    current_panel; // initialized to 0, incremented after each plot 
-	int    num_rows;      // number of rows in layout 
-	int    num_cols;      // number of columns in layout 
-	bool   row_major;     // row major mode if true, column major else 
-	bool   downwards;     // prefer downwards or upwards direction 
-	int    act_row;       // actual row in layout 
-	int    act_col;       // actual column in layout 
-	double xscale;        // factor for horizontal scaling 
-	double yscale;        // factor for vertical scaling 
-	double xoffset;       // horizontal shift 
-	double yoffset;       // horizontal shift 
-	bool   auto_layout_margins;
-	GpPosition lmargin;
-	GpPosition rmargin;
-	GpPosition bmargin;
-	GpPosition tmargin;
-	GpPosition xspacing;
-	GpPosition yspacing;
-	double prev_xsize;
-	double prev_ysize;
-	double prev_xoffset;
-	double prev_yoffset;
-	GpPosition prev_lmargin;
-	GpPosition prev_rmargin;
-	GpPosition prev_tmargin;
-	GpPosition prev_bmargin;
-	// values before 'set multiplot layout' 
-	text_label title;    // goes above complete set of plots 
-	double title_height; // fractional height reserved for title 
-} mp_layout;// = MP_LAYOUT_DEFAULT;
-
-/* Helper routines */
-void multiplot_next()
+//
+// Helper routines 
+//
+//void multiplot_next()
+void GnuPlot::MultiplotNext()
 {
-	mp_layout.current_panel++;
-	if(mp_layout.auto_layout) {
-		if(mp_layout.row_major) {
-			mp_layout.act_row++;
-			if(mp_layout.act_row == mp_layout.num_rows) {
-				mp_layout.act_row = 0;
-				mp_layout.act_col++;
-				if(mp_layout.act_col == mp_layout.num_cols) {
-					/* GPO.IntWarn(NO_CARET,"will overplot first plot"); */
-					mp_layout.act_col = 0;
+	MpLo.current_panel++;
+	if(MpLo.auto_layout) {
+		if(MpLo.row_major) {
+			MpLo.act_row++;
+			if(MpLo.act_row == MpLo.num_rows) {
+				MpLo.act_row = 0;
+				MpLo.act_col++;
+				if(MpLo.act_col == MpLo.num_cols) {
+					// IntWarn(NO_CARET,"will overplot first plot"); 
+					MpLo.act_col = 0;
 				}
 			}
 		}
-		else { /* column-major */
-			mp_layout.act_col++;
-			if(mp_layout.act_col == mp_layout.num_cols) {
-				mp_layout.act_col = 0;
-				mp_layout.act_row++;
-				if(mp_layout.act_row == mp_layout.num_rows) {
-					/* GPO.IntWarn(NO_CARET,"will overplot first plot"); */
-					mp_layout.act_row = 0;
+		else { // column-major 
+			MpLo.act_col++;
+			if(MpLo.act_col == MpLo.num_cols) {
+				MpLo.act_col = 0;
+				MpLo.act_row++;
+				if(MpLo.act_row == MpLo.num_rows) {
+					// IntWarn(NO_CARET,"will overplot first plot"); 
+					MpLo.act_row = 0;
 				}
 			}
 		}
-		multiplot_reset();
+		MultiplotReset();
 	}
 }
 
-void multiplot_previous()
+//void multiplot_previous()
+void GnuPlot::MultiplotPrevious()
 {
-	mp_layout.current_panel--;
-	if(mp_layout.auto_layout) {
-		if(mp_layout.row_major) {
-			mp_layout.act_row--;
-			if(mp_layout.act_row < 0) {
-				mp_layout.act_row = mp_layout.num_rows-1;
-				mp_layout.act_col--;
-				if(mp_layout.act_col < 0) {
-					/* GPO.IntWarn(NO_CARET,"will overplot first plot"); */
-					mp_layout.act_col = mp_layout.num_cols-1;
+	MpLo.current_panel--;
+	if(MpLo.auto_layout) {
+		if(MpLo.row_major) {
+			MpLo.act_row--;
+			if(MpLo.act_row < 0) {
+				MpLo.act_row = MpLo.num_rows-1;
+				MpLo.act_col--;
+				if(MpLo.act_col < 0) {
+					// IntWarn(NO_CARET,"will overplot first plot"); 
+					MpLo.act_col = MpLo.num_cols-1;
 				}
 			}
 		}
-		else { /* column-major */
-			mp_layout.act_col--;
-			if(mp_layout.act_col < 0) {
-				mp_layout.act_col = mp_layout.num_cols-1;
-				mp_layout.act_row--;
-				if(mp_layout.act_row < 0) {
-					/* GPO.IntWarn(NO_CARET,"will overplot first plot"); */
-					mp_layout.act_row = mp_layout.num_rows-1;
+		else { // column-major 
+			MpLo.act_col--;
+			if(MpLo.act_col < 0) {
+				MpLo.act_col = MpLo.num_cols-1;
+				MpLo.act_row--;
+				if(MpLo.act_row < 0) {
+					// IntWarn(NO_CARET,"will overplot first plot"); 
+					MpLo.act_row = MpLo.num_rows-1;
 				}
 			}
 		}
-		multiplot_reset();
+		MultiplotReset();
 	}
 }
 
-int multiplot_current_panel()
+//int multiplot_current_panel()
+int GnuPlot::GetMultiplotCurrentPanel() const
 {
-	return mp_layout.current_panel;
+	return MpLo.current_panel;
 }
 
 //void multiplot_start()
@@ -188,127 +139,127 @@ void GnuPlot::MultiplotStart()
 	if(multiplot) {
 		if(Pgm.EqualsCur("next")) {
 			Pgm.Shift();
-			if(!mp_layout.auto_layout)
+			if(!MpLo.auto_layout)
 				IntErrorCurToken("only valid inside an auto-layout multiplot");
-			multiplot_next();
+			MultiplotNext();
 			return;
 		}
 		else if(Pgm.AlmostEqualsCur("prev$ious")) {
 			Pgm.Shift();
-			if(!mp_layout.auto_layout)
+			if(!MpLo.auto_layout)
 				IntErrorCurToken("only valid inside an auto-layout multiplot");
-			multiplot_previous();
+			MultiplotPrevious();
 			return;
 		}
 		else {
-			term_end_multiplot();
+			TermEndMultiplot(term);
 		}
 	}
 	// FIXME: more options should be reset/initialized each time 
-	mp_layout.auto_layout = FALSE;
-	mp_layout.auto_layout_margins = FALSE;
-	mp_layout.current_panel = 0;
-	mp_layout.title.noenhanced = FALSE;
-	SAlloc::F(mp_layout.title.text);
-	mp_layout.title.text = NULL;
-	SAlloc::F(mp_layout.title.font);
-	mp_layout.title.font = NULL;
-	mp_layout.title.boxed = 0;
+	MpLo.auto_layout = FALSE;
+	MpLo.auto_layout_margins = FALSE;
+	MpLo.current_panel = 0;
+	MpLo.title.noenhanced = FALSE;
+	SAlloc::F(MpLo.title.text);
+	MpLo.title.text = NULL;
+	SAlloc::F(MpLo.title.font);
+	MpLo.title.font = NULL;
+	MpLo.title.boxed = 0;
 	// Parse options 
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("ti$tle")) {
 			Pgm.Shift();
-			ParseLabelOptions(&mp_layout.title, 2);
+			ParseLabelOptions(&MpLo.title, 2);
 			if(!Pgm.EndOfCommand())
-				mp_layout.title.text = TryToGetString();
-			ParseLabelOptions(&mp_layout.title, 2);
+				MpLo.title.text = TryToGetString();
+			ParseLabelOptions(&MpLo.title, 2);
 			continue;
 		}
 		if(Pgm.AlmostEqualsCur("lay$out")) {
-			if(mp_layout.auto_layout)
+			if(MpLo.auto_layout)
 				IntErrorCurToken("too many layout commands");
 			else
-				mp_layout.auto_layout = TRUE;
+				MpLo.auto_layout = TRUE;
 			Pgm.Shift();
 			if(Pgm.EndOfCommand())
 				IntErrorCurToken("expecting '<num_cols>,<num_rows>'");
 			// read row,col 
-			mp_layout.num_rows = IntExpression();
+			MpLo.num_rows = IntExpression();
 			if(Pgm.EndOfCommand() || !Pgm.EqualsCur(",") )
 				IntErrorCurToken("expecting ', <num_cols>'");
 			Pgm.Shift();
 			if(Pgm.EndOfCommand())
 				IntErrorCurToken("expecting <num_cols>");
-			mp_layout.num_cols = IntExpression();
+			MpLo.num_cols = IntExpression();
 			// remember current values of the plot size and the margins 
-			mp_layout.prev_xsize = V.XSize;
-			mp_layout.prev_ysize = V.YSize;
-			mp_layout.prev_xoffset = V.XOffset;
-			mp_layout.prev_yoffset = V.YOffset;
-			mp_layout.prev_lmargin = V.MarginL;
-			mp_layout.prev_rmargin = V.MarginR;
-			mp_layout.prev_bmargin = V.MarginB;
-			mp_layout.prev_tmargin = V.MarginT;
-			mp_layout.act_row = 0;
-			mp_layout.act_col = 0;
+			MpLo.prev_xsize = V.XSize;
+			MpLo.prev_ysize = V.YSize;
+			MpLo.prev_xoffset = V.XOffset;
+			MpLo.prev_yoffset = V.YOffset;
+			MpLo.prev_lmargin = V.MarginL;
+			MpLo.prev_rmargin = V.MarginR;
+			MpLo.prev_bmargin = V.MarginB;
+			MpLo.prev_tmargin = V.MarginT;
+			MpLo.act_row = 0;
+			MpLo.act_col = 0;
 			continue;
 		}
 		// The remaining options are only valid for auto-layout mode 
-		if(!mp_layout.auto_layout)
+		if(!MpLo.auto_layout)
 			IntErrorCurToken("only valid in the context of an auto-layout command");
 		switch(Pgm.LookupTableForCurrentToken(&set_multiplot_tbl[0])) {
 			case S_MULTIPLOT_COLUMNSFIRST:
-			    mp_layout.row_major = TRUE;
+			    MpLo.row_major = TRUE;
 			    Pgm.Shift();
 			    break;
 			case S_MULTIPLOT_ROWSFIRST:
-			    mp_layout.row_major = FALSE;
+			    MpLo.row_major = FALSE;
 			    Pgm.Shift();
 			    break;
 			case S_MULTIPLOT_DOWNWARDS:
-			    mp_layout.downwards = TRUE;
+			    MpLo.downwards = TRUE;
 			    Pgm.Shift();
 			    break;
 			case S_MULTIPLOT_UPWARDS:
-			    mp_layout.downwards = FALSE;
+			    MpLo.downwards = FALSE;
 			    Pgm.Shift();
 			    break;
 			case S_MULTIPLOT_SCALE:
 			    Pgm.Shift();
-			    mp_layout.xscale = RealExpression();
-			    mp_layout.yscale = mp_layout.xscale;
+			    MpLo.xscale = RealExpression();
+			    MpLo.yscale = MpLo.xscale;
 			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",") ) {
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand()) {
 					    IntErrorCurToken("expecting <yscale>");
 				    }
-				    mp_layout.yscale = RealExpression();
+				    MpLo.yscale = RealExpression();
 			    }
 			    break;
 			case S_MULTIPLOT_OFFSET:
 			    Pgm.Shift();
-			    mp_layout.xoffset = RealExpression();
-			    mp_layout.yoffset = mp_layout.xoffset;
+			    MpLo.xoffset = RealExpression();
+			    MpLo.yoffset = MpLo.xoffset;
 			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",") ) {
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand()) {
 					    IntErrorCurToken("expecting <yoffset>");
 				    }
-				    mp_layout.yoffset = RealExpression();
+				    MpLo.yoffset = RealExpression();
 			    }
 			    break;
 			case S_MULTIPLOT_MARGINS:
 			    Pgm.Shift();
 			    if(Pgm.EndOfCommand())
 				    IntErrorCurToken("expecting '<left>,<right>,<bottom>,<top>'");
-			    mp_layout.lmargin.scalex = screen;
-			    mp_layout_set_margin_or_spacing(&(mp_layout.lmargin));
+			    MpLo.lmargin.scalex = screen;
+			    MpLayoutSetMarginOrSpacing(&MpLo.lmargin);
 			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",") ) {
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand())
 					    IntErrorCurToken("expecting <right>");
-				    mp_layout.rmargin.scalex = mp_layout.lmargin.scalex;
-				    mp_layout_set_margin_or_spacing(&(mp_layout.rmargin));
+				    MpLo.rmargin.scalex = MpLo.lmargin.scalex;
+				    MpLayoutSetMarginOrSpacing(&MpLo.rmargin);
 			    }
 			    else {
 				    IntErrorCurToken("expecting <right>");
@@ -318,8 +269,8 @@ void GnuPlot::MultiplotStart()
 				    if(Pgm.EndOfCommand())
 					    IntErrorCurToken("expecting <top>");
 
-				    mp_layout.bmargin.scalex = mp_layout.rmargin.scalex;
-				    mp_layout_set_margin_or_spacing(&(mp_layout.bmargin));
+				    MpLo.bmargin.scalex = MpLo.rmargin.scalex;
+				    MpLayoutSetMarginOrSpacing(&MpLo.bmargin);
 			    }
 			    else {
 				    IntErrorCurToken("expecting <bottom>");
@@ -328,8 +279,8 @@ void GnuPlot::MultiplotStart()
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand())
 					    IntErrorCurToken("expecting <bottom>");
-				    mp_layout.tmargin.scalex = mp_layout.bmargin.scalex;
-				    mp_layout_set_margin_or_spacing(&(mp_layout.tmargin));
+				    MpLo.tmargin.scalex = MpLo.bmargin.scalex;
+				    MpLayoutSetMarginOrSpacing(&MpLo.tmargin);
 			    }
 			    else {
 				    IntErrorCurToken("expecting <top>");
@@ -340,14 +291,14 @@ void GnuPlot::MultiplotStart()
 			    Pgm.Shift();
 			    if(Pgm.EndOfCommand())
 				    IntErrorCurToken("expecting '<xspacing>,<yspacing>'");
-			    mp_layout.xspacing.scalex = screen;
-			    mp_layout_set_margin_or_spacing(&(mp_layout.xspacing));
-			    mp_layout.yspacing = mp_layout.xspacing;
+			    MpLo.xspacing.scalex = screen;
+			    MpLayoutSetMarginOrSpacing(&MpLo.xspacing);
+			    MpLo.yspacing = MpLo.xspacing;
 			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",")) {
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand())
 					    IntErrorCurToken("expecting <yspacing>");
-				    mp_layout_set_margin_or_spacing(&(mp_layout.yspacing));
+				    MpLayoutSetMarginOrSpacing(&MpLo.yspacing);
 			    }
 			    set_spacing = TRUE;
 			    break;
@@ -358,58 +309,58 @@ void GnuPlot::MultiplotStart()
 	}
 	if(set_spacing || set_margins) {
 		if(set_spacing && set_margins) {
-			if(mp_layout.lmargin.x >= 0 && mp_layout.rmargin.x >= 0 && mp_layout.tmargin.x >= 0 && mp_layout.bmargin.x >= 0 && mp_layout.xspacing.x >= 0 && mp_layout.yspacing.x >= 0)
-				mp_layout.auto_layout_margins = TRUE;
+			if(MpLo.lmargin.x >= 0 && MpLo.rmargin.x >= 0 && MpLo.tmargin.x >= 0 && MpLo.bmargin.x >= 0 && MpLo.xspacing.x >= 0 && MpLo.yspacing.x >= 0)
+				MpLo.auto_layout_margins = TRUE;
 			else
 				IntError(NO_CARET, "must give positive margin and spacing values");
 		}
 		else if(set_margins) {
-			mp_layout.auto_layout_margins = TRUE;
-			mp_layout.xspacing.scalex = screen;
-			mp_layout.xspacing.x = 0.05;
-			mp_layout.yspacing.scalex = screen;
-			mp_layout.yspacing.x = 0.05;
+			MpLo.auto_layout_margins = TRUE;
+			MpLo.xspacing.scalex = screen;
+			MpLo.xspacing.x = 0.05;
+			MpLo.yspacing.scalex = screen;
+			MpLo.yspacing.x = 0.05;
 		}
 		// Sanity check that screen tmargin is > screen bmargin 
-		if(mp_layout.bmargin.scalex == screen && mp_layout.tmargin.scalex == screen)
-			if(mp_layout.bmargin.x > mp_layout.tmargin.x) {
-				double tmp = mp_layout.bmargin.x;
-				mp_layout.bmargin.x = mp_layout.tmargin.x;
-				mp_layout.tmargin.x = tmp;
+		if(MpLo.bmargin.scalex == screen && MpLo.tmargin.scalex == screen)
+			if(MpLo.bmargin.x > MpLo.tmargin.x) {
+				double tmp = MpLo.bmargin.x;
+				MpLo.bmargin.x = MpLo.tmargin.x;
+				MpLo.tmargin.x = tmp;
 			}
 	}
 	// If we reach here, then the command has been successfully parsed.
 	// Aug 2013: call term_start_plot() before setting multiplot so that
 	// the wxt and qt terminals will reset the plot count to 0 before
 	// ignoring subsequent TERM_LAYER_RESET requests.
-	term_start_plot();
+	TermStartPlot(term);
 	multiplot = TRUE;
 	multiplot_count = 0;
 	Ev.FillGpValInteger("GPVAL_MULTIPLOT", 1);
 	// Place overall title before doing anything else 
-	if(mp_layout.title.text) {
-		char * p = mp_layout.title.text;
-		uint x = term->xmax  / 2;
-		uint y = term->ymax - term->ChrV;
-		write_label(term, x, y, &(mp_layout.title));
-		reset_textcolor(&(mp_layout.title.textcolor));
+	if(MpLo.title.text) {
+		char * p = MpLo.title.text;
+		uint x = term->MaxX  / 2;
+		uint y = term->MaxY - term->ChrV;
+		WriteLabel(term, x, y, &(MpLo.title));
+		reset_textcolor(&(MpLo.title.textcolor));
 		// Calculate fractional height of title compared to entire page 
 		// If it would fill the whole page, forget it! 
 		for(y = 1; *p; p++)
 			if(*p == '\n')
 				y++;
 		// Oct 2012 - ChrV depends on the font used 
-		if(mp_layout.title.font && *mp_layout.title.font)
-			term->set_font(mp_layout.title.font);
-		mp_layout.title_height = (double)(y * term->ChrV) / (double)term->ymax;
-		if(mp_layout.title.font && *mp_layout.title.font)
+		if(MpLo.title.font && *MpLo.title.font)
+			term->set_font(MpLo.title.font);
+		MpLo.title_height = (double)(y * term->ChrV) / (double)term->MaxY;
+		if(MpLo.title.font && *MpLo.title.font)
 			term->set_font("");
-		if(mp_layout.title_height > 0.9)
-			mp_layout.title_height = 0.05;
+		if(MpLo.title_height > 0.9)
+			MpLo.title_height = 0.05;
 	}
 	else
-		mp_layout.title_height = 0.0;
-	multiplot_reset();
+		MpLo.title_height = 0.0;
+	MultiplotReset();
 }
 
 //void multiplot_end()
@@ -417,139 +368,145 @@ void GnuPlot::MultiplotEnd()
 {
 	multiplot = FALSE;
 	multiplot_count = 0;
-	GPO.Ev.FillGpValInteger("GPVAL_MULTIPLOT", 0);
+	Ev.FillGpValInteger("GPVAL_MULTIPLOT", 0);
 	// reset plot size, origin and margins to values before 'set multiplot layout' 
-	if(mp_layout.auto_layout) {
-		V.XSize = mp_layout.prev_xsize;
-		V.YSize = mp_layout.prev_ysize;
-		V.XOffset = mp_layout.prev_xoffset;
-		V.YOffset = mp_layout.prev_yoffset;
-		V.MarginL = mp_layout.prev_lmargin;
-		V.MarginR = mp_layout.prev_rmargin;
-		V.MarginB = mp_layout.prev_bmargin;
-		V.MarginT = mp_layout.prev_tmargin;
+	if(MpLo.auto_layout) {
+		V.XSize   = static_cast<float>(MpLo.prev_xsize);
+		V.YSize   = static_cast<float>(MpLo.prev_ysize);
+		V.XOffset = static_cast<float>(MpLo.prev_xoffset);
+		V.YOffset = static_cast<float>(MpLo.prev_yoffset);
+		V.MarginL = MpLo.prev_lmargin;
+		V.MarginR = MpLo.prev_rmargin;
+		V.MarginB = MpLo.prev_bmargin;
+		V.MarginT = MpLo.prev_tmargin;
 	}
 	// reset automatic multiplot layout 
-	mp_layout.auto_layout = FALSE;
-	mp_layout.auto_layout_margins = FALSE;
-	mp_layout.xscale = mp_layout.yscale = 1.0;
-	mp_layout.xoffset = mp_layout.yoffset = 0.0;
-	mp_layout.lmargin.scalex = mp_layout.rmargin.scalex = screen;
-	mp_layout.bmargin.scalex = mp_layout.tmargin.scalex = screen;
-	mp_layout.lmargin.x = mp_layout.rmargin.x = mp_layout.bmargin.x = mp_layout.tmargin.x = -1;
-	mp_layout.xspacing.scalex = mp_layout.yspacing.scalex = screen;
-	mp_layout.xspacing.x = mp_layout.yspacing.x = -1;
-	ZFREE(mp_layout.title.text);
+	MpLo.auto_layout = FALSE;
+	MpLo.auto_layout_margins = FALSE;
+	MpLo.xscale = MpLo.yscale = 1.0;
+	MpLo.xoffset = MpLo.yoffset = 0.0;
+	MpLo.lmargin.scalex = MpLo.rmargin.scalex = screen;
+	MpLo.bmargin.scalex = MpLo.tmargin.scalex = screen;
+	MpLo.lmargin.x = MpLo.rmargin.x = MpLo.bmargin.x = MpLo.tmargin.x = -1;
+	MpLo.xspacing.scalex = MpLo.yspacing.scalex = screen;
+	MpLo.xspacing.x = MpLo.yspacing.x = -1;
+	ZFREE(MpLo.title.text);
 }
-
-/* Helper function for multiplot auto layout to issue size and offset cmds */
-void multiplot_reset()
+//
+// Helper function for multiplot auto layout to issue size and offset cmds 
+//
+//void multiplot_reset()
+void GnuPlot::MultiplotReset()
 {
-	if(mp_layout.auto_layout_margins)
-		mp_layout_margins_and_spacing();
+	if(MpLo.auto_layout_margins)
+		MpLayoutMarginsAndSpacing();
 	else
-		mp_layout_size_and_offset();
+		MpLayoutSizeAndOffset();
 }
 
-static void mp_layout_size_and_offset()
+//static void mp_layout_size_and_offset()
+void GnuPlot::MpLayoutSizeAndOffset()
 {
-	if(!mp_layout.auto_layout) 
+	if(!MpLo.auto_layout) 
 		return;
-	// fprintf(stderr,"col==%d row==%d\n",mp_layout.act_col,mp_layout.act_row); 
+	// fprintf(stderr,"col==%d row==%d\n",MpLo.act_col,MpLo.act_row); 
 	// the 'set size' command 
-	GPO.V.XSize = mp_layout.xscale / mp_layout.num_cols;
-	GPO.V.YSize = mp_layout.yscale / mp_layout.num_rows;
+	V.XSize = static_cast<float>(MpLo.xscale / MpLo.num_cols);
+	V.YSize = static_cast<float>(MpLo.yscale / MpLo.num_rows);
 	// the 'set origin' command 
-	GPO.V.XOffset = (double)(mp_layout.act_col) / mp_layout.num_cols;
-	if(mp_layout.downwards)
-		GPO.V.YOffset = 1.0 - (double)(mp_layout.act_row+1) / mp_layout.num_rows;
+	V.XOffset = static_cast<float>(static_cast<double>(MpLo.act_col) / MpLo.num_cols);
+	if(MpLo.downwards)
+		V.YOffset = static_cast<float>(1.0 - static_cast<double>(MpLo.act_row+1) / MpLo.num_rows);
 	else
-		GPO.V.YOffset = (double)(mp_layout.act_row) / mp_layout.num_rows;
+		V.YOffset = static_cast<float>(static_cast<double>(MpLo.act_row) / MpLo.num_rows);
 	// fprintf(stderr,"xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 	// Allow a little space at the top for a title 
-	if(mp_layout.title.text) {
-		GPO.V.YSize *= (1.0 - mp_layout.title_height);
-		GPO.V.YOffset *= (1.0 - mp_layout.title_height);
+	if(MpLo.title.text) {
+		V.YSize *= (1.0 - MpLo.title_height);
+		V.YOffset *= (1.0 - MpLo.title_height);
 	}
 	// corrected for x/y-scaling factors and user defined offsets 
-	GPO.V.XOffset -= (mp_layout.xscale-1)/(2*mp_layout.num_cols);
-	GPO.V.YOffset -= (mp_layout.yscale-1)/(2*mp_layout.num_rows);
+	V.XOffset -= (MpLo.xscale-1)/(2*MpLo.num_cols);
+	V.YOffset -= (MpLo.yscale-1)/(2*MpLo.num_rows);
 	// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
-	GPO.V.XOffset += mp_layout.xoffset;
-	GPO.V.YOffset += mp_layout.yoffset;
+	V.XOffset += MpLo.xoffset;
+	V.YOffset += MpLo.yoffset;
 	// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 }
-
-/* Helper function for multiplot auto layout to set the explicit plot margins,
-   if requested with 'margins' and 'spacing' options. */
-static void mp_layout_margins_and_spacing()
+// 
+// Helper function for multiplot auto layout to set the explicit plot margins,
+// if requested with 'margins' and 'spacing' options. 
+// 
+//static void mp_layout_margins_and_spacing()
+void GnuPlot::MpLayoutMarginsAndSpacing()
 {
-	/* width and height of a single sub plot. */
+	// width and height of a single sub plot. 
 	double tmp_width, tmp_height;
 	double leftmargin, rightmargin, topmargin, bottommargin, xspacing, yspacing;
-	if(!mp_layout.auto_layout_margins) 
+	if(!MpLo.auto_layout_margins) 
 		return;
-	if(mp_layout.lmargin.scalex == screen)
-		leftmargin = mp_layout.lmargin.x;
+	if(MpLo.lmargin.scalex == screen)
+		leftmargin = MpLo.lmargin.x;
 	else
-		leftmargin = (mp_layout.lmargin.x * term->ChrH) / term->xmax;
-	if(mp_layout.rmargin.scalex == screen)
-		rightmargin = mp_layout.rmargin.x;
+		leftmargin = (MpLo.lmargin.x * term->ChrH) / term->MaxX;
+	if(MpLo.rmargin.scalex == screen)
+		rightmargin = MpLo.rmargin.x;
 	else
-		rightmargin = 1 - (mp_layout.rmargin.x * term->ChrH) / term->xmax;
-	if(mp_layout.tmargin.scalex == screen)
-		topmargin = mp_layout.tmargin.x;
+		rightmargin = 1 - (MpLo.rmargin.x * term->ChrH) / term->MaxX;
+	if(MpLo.tmargin.scalex == screen)
+		topmargin = MpLo.tmargin.x;
 	else
-		topmargin = 1 - (mp_layout.tmargin.x * term->ChrV) / term->ymax;
-	if(mp_layout.bmargin.scalex == screen)
-		bottommargin = mp_layout.bmargin.x;
+		topmargin = 1 - (MpLo.tmargin.x * term->ChrV) / term->MaxY;
+	if(MpLo.bmargin.scalex == screen)
+		bottommargin = MpLo.bmargin.x;
 	else
-		bottommargin = (mp_layout.bmargin.x * term->ChrV) / term->ymax;
-	if(mp_layout.xspacing.scalex == screen)
-		xspacing = mp_layout.xspacing.x;
+		bottommargin = (MpLo.bmargin.x * term->ChrV) / term->MaxY;
+	if(MpLo.xspacing.scalex == screen)
+		xspacing = MpLo.xspacing.x;
 	else
-		xspacing = (mp_layout.xspacing.x * term->ChrH) / term->xmax;
-	if(mp_layout.yspacing.scalex == screen)
-		yspacing = mp_layout.yspacing.x;
+		xspacing = (MpLo.xspacing.x * term->ChrH) / term->MaxX;
+	if(MpLo.yspacing.scalex == screen)
+		yspacing = MpLo.yspacing.x;
 	else
-		yspacing = (mp_layout.yspacing.x * term->ChrV) / term->ymax;
-	tmp_width = (rightmargin - leftmargin - (mp_layout.num_cols - 1) * xspacing) / mp_layout.num_cols;
-	tmp_height = (topmargin - bottommargin - (mp_layout.num_rows - 1) * yspacing) / mp_layout.num_rows;
-	GPO.V.MarginL.x = leftmargin + mp_layout.act_col * (tmp_width + xspacing);
-	GPO.V.MarginL.scalex = screen;
-	GPO.V.MarginR.x = GPO.V.MarginL.x + tmp_width;
-	GPO.V.MarginR.scalex = screen;
-	if(mp_layout.downwards) {
-		GPO.V.MarginB.x = bottommargin + (mp_layout.num_rows - mp_layout.act_row - 1) * (tmp_height + yspacing);
+		yspacing = (MpLo.yspacing.x * term->ChrV) / term->MaxY;
+	tmp_width = (rightmargin - leftmargin - (MpLo.num_cols - 1) * xspacing) / MpLo.num_cols;
+	tmp_height = (topmargin - bottommargin - (MpLo.num_rows - 1) * yspacing) / MpLo.num_rows;
+	V.MarginL.x = leftmargin + MpLo.act_col * (tmp_width + xspacing);
+	V.MarginL.scalex = screen;
+	V.MarginR.x = V.MarginL.x + tmp_width;
+	V.MarginR.scalex = screen;
+	if(MpLo.downwards) {
+		V.MarginB.x = bottommargin + (MpLo.num_rows - MpLo.act_row - 1) * (tmp_height + yspacing);
 	}
 	else {
-		GPO.V.MarginB.x = bottommargin + mp_layout.act_row * (tmp_height + yspacing);
+		V.MarginB.x = bottommargin + MpLo.act_row * (tmp_height + yspacing);
 	}
-	GPO.V.MarginB.scalex = screen;
-	GPO.V.MarginT.x = GPO.V.MarginB.x + tmp_height;
-	GPO.V.MarginT.scalex = screen;
+	V.MarginB.scalex = screen;
+	V.MarginT.x = V.MarginB.x + tmp_height;
+	V.MarginT.scalex = screen;
 }
 
-static void mp_layout_set_margin_or_spacing(GpPosition * margin)
+//static void mp_layout_set_margin_or_spacing(GpPosition * pMargin)
+void GnuPlot::MpLayoutSetMarginOrSpacing(GpPosition * pMargin)
 {
-	margin->x = -1;
-	if(GPO.Pgm.EndOfCommand())
+	pMargin->x = -1;
+	if(Pgm.EndOfCommand())
 		return;
-	if(GPO.Pgm.AlmostEqualsCur("sc$reen")) {
-		margin->scalex = screen;
-		GPO.Pgm.Shift();
+	if(Pgm.AlmostEqualsCur("sc$reen")) {
+		pMargin->scalex = screen;
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("char$acter")) {
-		margin->scalex = character;
-		GPO.Pgm.Shift();
+	else if(Pgm.AlmostEqualsCur("char$acter")) {
+		pMargin->scalex = character;
+		Pgm.Shift();
 	}
-	margin->x = GPO.RealExpression();
-	if(margin->x < 0)
-		margin->x = -1;
-	if(margin->scalex == screen) {
-		if(margin->x < 0)
-			margin->x = 0;
-		if(margin->x > 1)
-			margin->x = 1;
+	pMargin->x = RealExpression();
+	if(pMargin->x < 0)
+		pMargin->x = -1;
+	if(pMargin->scalex == screen) {
+		if(pMargin->x < 0)
+			pMargin->x = 0;
+		if(pMargin->x > 1)
+			pMargin->x = 1;
 	}
 }

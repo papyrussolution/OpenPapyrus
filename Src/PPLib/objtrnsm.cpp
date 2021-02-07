@@ -1,5 +1,5 @@
 // OBJTRNSM.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -584,8 +584,7 @@ int PPObjectTransmit::UpdateInHeader(FILE * stream, const PPObjectTransmit::Head
 		int    mj, mn, r;
 		rHdr.MinDestVer.Get(&mj, &mn, &r);
 		THROW_PP_S(!cur_ver.IsLt(mj, mn, r), PPERR_RCVPACKETVER, temp_buf.Z().CatDotTriplet(mj, mn, r).Space().Cat(pFileName));
-		// @v9.8.11 __MinCompatVer.Get(&mj, &mn, &r);
-		DS.GetMinCompatVersion().Get(&mj, &mn, &r); // @v9.8.11
+		DS.GetMinCompatVersion().Get(&mj, &mn, &r);
 		THROW_PP_S(!rHdr.SwVer.IsLt(mj, mn, r), PPERR_RCVPACKETSRCVER, temp_buf.Z().CatDotTriplet(mj, mn, r).Space().Cat(pFileName));
 	}
 	CATCHZOK
@@ -2221,8 +2220,8 @@ BillTransmitParam::BillTransmitParam() : PPBaseFilt(PPFILT_BILLTRANSMITPARAM, 0,
 class BillTransDialog : public WLDialog {
 public:
 	enum {
-		ctlgroupBtranAr  = 1, // @v9.8.11 <--GRP_BTRAN_AR
-		ctlgroupBtranAr2 = 2  // @v9.8.11 <--GRP_BTRAN_AR2
+		ctlgroupBtranAr  = 1,
+		ctlgroupBtranAr2 = 2
 	};
 	BillTransDialog() : WLDialog(DLG_BTRAN, CTL_BTRAN_LABEL)
 	{
@@ -3049,7 +3048,9 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 			ot_ctrf |= PPObjectTransmit::ctrfSyncCmp;
 		if(param.Flags & ObjReceiveParam::fDisableLogWindow)
 			ot_ctrf |= PPObjectTransmit::ctrfDisableLogWindow;
-		PPWait(1);
+		if(!(param.Flags & ObjReceiveParam::fNonInteractive)) {
+			PPWait(1);
+		}
 		PPObjectTransmit ot(PPObjectTransmit::tmReading, ot_ctrf);
 		if(param.SsOnlyFileNames.getCount()) {
 			for(uint ssp = 0; param.SsOnlyFileNames.get(&ssp, temp_buf);) {
@@ -3128,13 +3129,16 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 			THROW(ot.CommitQueue(param.SenderDbDivList, BIN(param.Flags & ObjReceiveParam::fForceDestroyQueue)));
 			//FinishUserProfile(p_profile, PPFILNAM_USERPROFILE_LOG, "PPObjectTransmit", flagsval.Cat(param.Flags));
 		}
-		PPWait(0);
+		if(!(param.Flags & ObjReceiveParam::fNonInteractive)) {
+			PPWait(0);
+		}
 	}
 	else
 		ok = -1;
 	CATCH
-		if(param.Flags & param.fNonInteractive)
+		if(param.Flags & param.fNonInteractive) {
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR|LOGMSGF_DBINFO);
+		}
 		else
 			PPError();
 	ENDCATCH

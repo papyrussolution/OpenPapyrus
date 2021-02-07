@@ -44,7 +44,7 @@ register_term(caca)
 #define CACA_YMAX (25-1)
 
 TERM_PUBLIC void CACA_options();
-TERM_PUBLIC void CACA_init();
+TERM_PUBLIC void CACA_init(termentry * pThis);
 TERM_PUBLIC void CACA_graphics();
 TERM_PUBLIC void CACA_text();
 TERM_PUBLIC void CACA_reset();
@@ -171,7 +171,7 @@ typedef struct CACA_HYPERTEXT_S {
 /* Internal Variables */
 
 /* settings */
-static int CACA_xmax = CACA_XMAX; /* terminal size, same as term->xmax */
+static int CACA_xmax = CACA_XMAX; /* terminal size, same as term->MaxX */
 static int CACA_ymax = CACA_YMAX;
 static enum CACA_charset CACA_charset = CACA_BLOCKS;
 static bool CACA_truecolor = FALSE; /* does backend support truecolor? */
@@ -317,8 +317,8 @@ TERM_PUBLIC void CACA_options()
 			    ZFREE(CACA_title);
 			    CACA_background = CACA_WHITE;
 			    CACA_charset = CACA_BLOCKS;
-			    term->xmax = CACA_xmax = CACA_XMAX;
-			    term->ymax = CACA_ymax = CACA_YMAX;
+			    term->MaxX = CACA_xmax = CACA_XMAX;
+			    term->MaxY = CACA_ymax = CACA_YMAX;
 			    CACA_mono = FALSE;
 			    CACA_inverted = FALSE;
 			    break;
@@ -474,8 +474,8 @@ TERM_PUBLIC void CACA_options()
 			    float width, height;
 			    GPO.Pgm.Shift();
 			    GPO.ParseTermSize(&width, &height, PIXELS);
-			    term->xmax = CACA_xmax = width - 1;
-			    term->ymax = CACA_ymax = height - 1;
+			    term->MaxX = CACA_xmax = width - 1;
+			    term->MaxY = CACA_ymax = height - 1;
 			    break;
 		    }
 			case CACA_TITLE:
@@ -539,7 +539,7 @@ static void CACA_update_options()
 	}
 }
 
-TERM_PUBLIC void CACA_init()
+TERM_PUBLIC void CACA_init(termentry * pThis)
 {
 	CACA_init_display();
 	if(CACA_cv != NULL)
@@ -638,19 +638,19 @@ static void CACA_check_resize()
 		return;
 	if(caca_get_event(CACA_dp, CACA_EVENT_RESIZE, &ev, 100)) {
 		FPRINTF((stderr, "CACA: resize event detected in check_resize().\n"));
-		term->xmax = CACA_xmax = MAX(caca_get_event_resize_width(&ev) - 1, 1);
-		term->ymax = CACA_ymax = MAX(caca_get_event_resize_height(&ev) - 1 - CACA_status_height, 1);
-		caca_set_canvas_size(CACA_cv, term->xmax + 1, term->ymax + 1);
+		term->MaxX = CACA_xmax = MAX(caca_get_event_resize_width(&ev) - 1, 1);
+		term->MaxY = CACA_ymax = MAX(caca_get_event_resize_height(&ev) - 1 - CACA_status_height, 1);
+		caca_set_canvas_size(CACA_cv, term->MaxX + 1, term->MaxY + 1);
 		CACA_update_options();
 		CACA_refresh();
 	}
-	else if((caca_get_canvas_width(CACA_screen_cv) != term->xmax + 1) ||
-	    (caca_get_canvas_height(CACA_screen_cv) != term->ymax + 1 + CACA_status_height)) {
+	else if((caca_get_canvas_width(CACA_screen_cv) != term->MaxX + 1) ||
+	    (caca_get_canvas_height(CACA_screen_cv) != term->MaxY + 1 + CACA_status_height)) {
 		/* Did we miss a resize event? */
 		FPRINTF((stderr, "CACA: missed resize event in check_resize().\n"));
-		term->xmax = CACA_xmax = MAX(caca_get_canvas_width(CACA_screen_cv) - 1, 1);
-		term->ymax = CACA_ymax = MAX(caca_get_canvas_height(CACA_screen_cv) - 1 - CACA_status_height, 1);
-		caca_set_canvas_size(CACA_cv, term->xmax + 1, term->ymax + 1);
+		term->MaxX = CACA_xmax = MAX(caca_get_canvas_width(CACA_screen_cv) - 1, 1);
+		term->MaxY = CACA_ymax = MAX(caca_get_canvas_height(CACA_screen_cv) - 1 - CACA_status_height, 1);
+		caca_set_canvas_size(CACA_cv, term->MaxX + 1, term->MaxY + 1);
 		CACA_update_options();
 		CACA_refresh();
 	}
@@ -698,8 +698,8 @@ static void CACA_init_display()
 		caca_set_display_title(CACA_dp,
 		    (CACA_title != NULL) ? CACA_title : "gnuplot: caca terminal");
 		CACA_screen_cv = caca_get_canvas(CACA_dp);
-		term->xmax = CACA_xmax = MAX(caca_get_canvas_width(CACA_screen_cv) - 1, 1);
-		term->ymax = CACA_ymax = MAX(caca_get_canvas_height(CACA_screen_cv) - 1 - CACA_status_height, 1);
+		term->MaxX = CACA_xmax = MAX(caca_get_canvas_width(CACA_screen_cv) - 1, 1);
+		term->MaxY = CACA_ymax = MAX(caca_get_canvas_height(CACA_screen_cv) - 1 - CACA_status_height, 1);
 		if(CACA_xmax <= 1 || CACA_ymax <= 1)
 			GPO.IntError(NO_CARET, "caca:  canvas too small");
 		CACA_update_options();
@@ -759,7 +759,7 @@ static void CACA_init_display()
 	}
 	FPRINTF((stderr, "CACA_driver = %s, truecolor = %i\n", CACA_driver, CACA_truecolor));
 
-	CACA_cv = caca_create_canvas(term->xmax + 1, term->ymax + 1);
+	CACA_cv = caca_create_canvas(term->MaxX + 1, term->MaxY + 1);
 	if(CACA_cv != NULL) {
 		caca_set_color_ansi(CACA_cv, !CACA_inverted ? CACA_BLACK : CACA_WHITE, CACA_background);
 	}
@@ -791,9 +791,8 @@ static void CACA_init_aspect_ratio()
 TERM_PUBLIC void CACA_graphics()
 {
 	CACA_HYPERTEXT * hypertext;
-
 	if(CACA_dp == NULL) {
-		CACA_init();
+		CACA_init(term);
 		if(CACA_cv == NULL)
 			fprintf(stderr, "ERROR: Failed to setup up libcaca canvas!\n");
 	}
@@ -1405,7 +1404,6 @@ static char * CACA_encode_text(const char * str)
 		/* convert from utf8 to ascii */
 		char const * s = str;
 		size_t len = strlen_utf8(str);
-
 		text = (char*)malloc(len + 1);
 		i = 0;
 		while((*s != NUL) && (i < len)) {
@@ -1919,9 +1917,9 @@ CACA_result CACA_process_events()
 				    break;
 			    }
 				case CACA_EVENT_RESIZE: {
-				    term->xmax = CACA_xmax = MAX(caca_get_event_resize_width(&ev) - 1, 1);
-				    term->ymax = CACA_ymax = MAX(caca_get_event_resize_height(&ev) - 1 - CACA_status_height, 1);
-				    caca_set_canvas_size(CACA_cv, term->xmax + 1, term->ymax + 1);
+				    term->MaxX = CACA_xmax = MAX(caca_get_event_resize_width(&ev) - 1, 1);
+				    term->MaxY = CACA_ymax = MAX(caca_get_event_resize_height(&ev) - 1 - CACA_status_height, 1);
+				    caca_set_canvas_size(CACA_cv, term->MaxX + 1, term->MaxY + 1);
 				    CACA_update_options();
 				    CACA_zoom_or_replot = TRUE;
 				    exec_event(GE_replot, 0, 0, 0, 0, 0);
@@ -2485,7 +2483,7 @@ TERM_PUBLIC void CACA_enhanced_open(char * fontname,
 		/* widthflag FALSE means do not update text position after printing */
 		CACA_enhanced_widthflag = widthflag;
 		/* bold, italic */
-		if(fontname == NULL || *fontname == NUL) {
+		if(isempty(fontname)) {
 			CACA_next_text_attr = 0;
 		}
 		else {
@@ -2951,9 +2949,7 @@ static void CACA_draw_thin_line(caca_canvas_t * cv, int x1, int y1, int x2, int 
 static void CACA_draw_thin_polyline(caca_canvas_t * cv, int const x[], int const y[], int n)
 {
 	struct line s;
-	int i;
-
-	for(i = 0; i < n; i++) {
+	for(int i = 0; i < n; i++) {
 		s.x1 = x[i];
 		s.y1 = y[i];
 		s.x2 = x[i+1];
@@ -2962,25 +2958,21 @@ static void CACA_draw_thin_polyline(caca_canvas_t * cv, int const x[], int const
 	}
 }
 
-static int CACA_internal_draw_box(caca_canvas_t * cv, int x, int y, int w, int h,
-    uint32_t const * chars)
+static int CACA_internal_draw_box(caca_canvas_t * cv, int x, int y, int w, int h, uint32_t const * chars)
 {
-	int i, j, xmax, ymax;
-
+	int i;
+	int j;
+	int xmax;
+	int ymax;
 	int x2 = x + w - 1;
 	int y2 = y + h - 1;
-
 	uint32_t attr_bg = caca_get_attr(cv, x, y);
 	uint32_t attr_fg = caca_get_attr(cv, -1, -1);
-	caca_set_attr(cv,
-	    (attr_fg & 0x0003ffff) |       /* new foreground color (18 bits) */
-	    (attr_bg & 0xfffc0000));       /* keep current background color (14 bit) */
-
+	caca_set_attr(cv, (attr_fg & 0x0003ffff) | /* new foreground color (18 bits) */ (attr_bg & 0xfffc0000)); /* keep current background color (14 bit) */
 	if(x > x2) {
 		int tmp = x;
 		x = x2; x2 = tmp;
 	}
-
 	if(y > y2) {
 		int tmp = y;
 		y = y2; y2 = tmp;
@@ -3149,7 +3141,7 @@ TERM_TABLE_START(caca)
 "caca", "Colour ascii art using libcaca, the Colour AsCii Art library",
 CACA_XMAX, CACA_YMAX, 1, 1, 1, 2 /* aspect of character cell */,
 CACA_options, CACA_init, CACA_reset,
-CACA_text, null_scale, CACA_graphics,
+CACA_text, GnuPlot::NullScale, CACA_graphics,
 CACA_move, CACA_vector,
 CACA_linetype, CACA_enhanced_put_text, CACA_text_angle, null_justify_text,
 CACA_point, CACA_arrow, CACA_set_font, NULL /* pointsize */,

@@ -82,13 +82,14 @@ void f_voigtp(union argument * arg)
  * is equivalent to the previously implemented gnuplot routine voigt(x,y).
  * Use it in preference to the previous one.
  */
-void f_voigt(union argument * arg)
+//void f_voigt(union argument * arg)
+void GnuPlot::F_Voigt(union argument * /*arg*/)
 {
 	GpValue a;
-	double y = real(GPO.EvStk.Pop(&a));
-	double x = real(GPO.EvStk.Pop(&a));
+	double y = real(EvStk.Pop(&a));
+	double x = real(EvStk.Pop(&a));
 	double w = re_w_of_z(x, y);
-	GPO.EvStk.Push(Gcomplex(&a, w, 0.0));
+	EvStk.Push(Gcomplex(&a, w, 0.0));
 }
 
 /* erfi(z) = -i * erf(iz)
@@ -156,7 +157,7 @@ void f_VP_fwhm(union argument * arg)
 	fwhm = 2.*c;
 	/* I have never seen convergence worse than k = 15 */
 	if(k > 50)
-		fwhm = not_a_number();
+		fwhm = fgetnan();
 	GPO.EvStk.Push(Gcomplex(&par, fwhm, 0.0));
 }
 

@@ -84,11 +84,11 @@ char * GpProgram::ParseDatablockName()
 	return name;
 }
 
-char ** get_datablock(char * name)
+char ** get_datablock(const char * pName)
 {
-	udvt_entry * datablock = GPO.Ev.GetUdvByName(name);
-	if(!datablock || datablock->udv_value.type != DATABLOCK ||  datablock->udv_value.v.data_array == NULL)
-		GPO.IntError(NO_CARET, "no datablock named %s", name);
+	udvt_entry * datablock = GPO.Ev.GetUdvByName(pName);
+	if(!datablock || datablock->udv_value.type != DATABLOCK || datablock->udv_value.v.data_array == NULL)
+		GPO.IntError(NO_CARET, "no datablock named %s", pName);
 	return datablock->udv_value.v.data_array;
 }
 

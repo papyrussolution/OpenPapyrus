@@ -184,7 +184,7 @@ const char* GE_evt_name(int type)
 static void alert();
 static char * xy_format();
 static char * zoombox_format();
-static char * GetAnnotateString(char * s, double x, double y, int mode, char * fmt);
+//static char * GetAnnotateString(char * s, double x, double y, int mode, char * fmt);
 static char * xDateTimeFormat(double x, char * b, int mode);
 static void GetRulerString(char * p, double x, double y);
 //static void apply_zoom(struct t_zoom * z);
@@ -193,7 +193,7 @@ static void ZoomNext();
 static void ZoomPrevious();
 static void ZoomUnzoom();
 static void incr_mousemode(const int amount);
-static void UpdateStatuslineWithMouseSetting(mouse_setting_t * ms);
+//static void UpdateStatuslineWithMouseSetting(mouse_setting_t * ms);
 static bind_t * get_binding(struct gp_event_t * ge, bool current);
 static void event_keypress(struct gp_event_t * ge, bool current);
 static void ChangeView(int x, int z);
@@ -203,7 +203,7 @@ static void event_buttonrelease(struct gp_event_t * ge);
 static void event_motion(gp_event_t * ge);
 static void event_modifier(gp_event_t * ge);
 //static void do_save_3dplot(surface_points *, int, REPLOT_TYPE);
-static void load_mouse_variables(double, double, bool, int);
+//static void load_mouse_variables(double, double, bool, int);
 static void do_zoom_in_around_mouse();
 static void do_zoom_out_around_mouse();
 static void do_zoom_in_X();
@@ -265,7 +265,7 @@ static void bind_display(char * lhs);
 static void bind_all(char * lhs);
 static void bind_remove(bind_t * b);
 static void bind_append(char * lhs, char * rhs, char *(*builtin)(struct gp_event_t * ge));
-static void recalc_ruler_pos();
+//static void recalc_ruler_pos();
 static void turn_ruler_off();
 static int nearest_label_tag(int x, int y);
 static void remove_label(int x, int y);
@@ -299,23 +299,24 @@ static void alert()
 //
 // Transform mouse coordinates to graph coordinates
 //
-static void MousePosToGraphPosReal(int xx, int yy, double * x, double * y, double * x2, double * y2)
+//static void MousePosToGraphPosReal(int xx, int yy, double * x, double * y, double * x2, double * y2)
+void GnuPlot::MousePosToGraphPosReal(int xx, int yy, double * x, double * y, double * x2, double * y2)
 {
 	GpAxis * secondary;
 	if(is_3d_plot) {
-		/* for 3D plots, we treat the mouse position as if it is
-		 * in the bottom plane, i.e., the plane of the x and y axis */
-		/* note: at present, this projection is only correct if
-		 * surface_rot_z is a multiple of 90 degrees! */
-		/* HBB 20010522: added protection against division by zero
-		 * for cases like 'set view 90,0' */
+		// for 3D plots, we treat the mouse position as if it is
+		// in the bottom plane, i.e., the plane of the x and y axis 
+		// note: at present, this projection is only correct if
+		// surface_rot_z is a multiple of 90 degrees! 
+		// HBB 20010522: added protection against division by zero
+		// for cases like 'set view 90,0' 
 		xx -= axis3d_o_x;
 		yy -= axis3d_o_y;
 		if(abs(axis3d_x_dx) > abs(axis3d_x_dy)) {
-			*x = GPO.AxS[FIRST_X_AXIS].min + ((double)xx) / axis3d_x_dx * (GPO.AxS[FIRST_X_AXIS].max - GPO.AxS[FIRST_X_AXIS].min);
+			*x = AxS[FIRST_X_AXIS].min + ((double)xx) / axis3d_x_dx * (AxS[FIRST_X_AXIS].max - AxS[FIRST_X_AXIS].min);
 		}
 		else if(axis3d_x_dy != 0) {
-			*x = GPO.AxS[FIRST_X_AXIS].min + ((double)yy) / axis3d_x_dy * (GPO.AxS[FIRST_X_AXIS].max - GPO.AxS[FIRST_X_AXIS].min);
+			*x = AxS[FIRST_X_AXIS].min + ((double)yy) / axis3d_x_dy * (AxS[FIRST_X_AXIS].max - AxS[FIRST_X_AXIS].min);
 		}
 		else {
 			/* both diffs are zero (x axis points into the screen */
@@ -323,13 +324,13 @@ static void MousePosToGraphPosReal(int xx, int yy, double * x, double * y, doubl
 		}
 
 		if(abs(axis3d_y_dx) > abs(axis3d_y_dy)) {
-			*y = GPO.AxS[FIRST_Y_AXIS].min + ((double)xx) / axis3d_y_dx * (GPO.AxS[FIRST_Y_AXIS].max - GPO.AxS[FIRST_Y_AXIS].min);
+			*y = AxS[FIRST_Y_AXIS].min + ((double)xx) / axis3d_y_dx * (AxS[FIRST_Y_AXIS].max - AxS[FIRST_Y_AXIS].min);
 		}
 		else if(axis3d_y_dy != 0) {
 			if(splot_map)
-				*y = GPO.AxS[FIRST_Y_AXIS].max + ((double)yy) / axis3d_y_dy * (GPO.AxS[FIRST_Y_AXIS].min - GPO.AxS[FIRST_Y_AXIS].max);
+				*y = AxS[FIRST_Y_AXIS].max + ((double)yy) / axis3d_y_dy * (AxS[FIRST_Y_AXIS].min - AxS[FIRST_Y_AXIS].max);
 			else
-				*y = GPO.AxS[FIRST_Y_AXIS].min + ((double)yy) / axis3d_y_dy * (GPO.AxS[FIRST_Y_AXIS].max - GPO.AxS[FIRST_Y_AXIS].min);
+				*y = AxS[FIRST_Y_AXIS].min + ((double)yy) / axis3d_y_dy * (AxS[FIRST_Y_AXIS].max - AxS[FIRST_Y_AXIS].min);
 		}
 		else {
 			/* both diffs are zero (y axis points into the screen */
@@ -339,49 +340,48 @@ static void MousePosToGraphPosReal(int xx, int yy, double * x, double * y, doubl
 		return;
 	}
 	/* 2D plot */
-	if(GPO.V.BbPlot.xright == GPO.V.BbPlot.xleft)
+	if(V.BbPlot.xright == V.BbPlot.xleft)
 		*x = *x2 = VERYLARGE; /* protection */
 	else {
-		*x  = GPO.AxS[FIRST_X_AXIS].MapBack(xx);
-		*x2 = GPO.AxS[SECOND_X_AXIS].MapBack(xx);
+		*x  = AxS[FIRST_X_AXIS].MapBack(xx);
+		*x2 = AxS[SECOND_X_AXIS].MapBack(xx);
 	}
-	if(GPO.V.BbPlot.ytop == GPO.V.BbPlot.ybot)
+	if(V.BbPlot.ytop == V.BbPlot.ybot)
 		*y = *y2 = VERYLARGE; /* protection */
 	else {
-		*y  = GPO.AxS[FIRST_Y_AXIS].MapBack(yy);
-		*y2 = GPO.AxS[SECOND_Y_AXIS].MapBack(yy);
+		*y  = AxS[FIRST_Y_AXIS].MapBack(yy);
+		*y2 = AxS[SECOND_Y_AXIS].MapBack(yy);
 	}
 	FPRINTF((stderr, "POS: xx=%i, yy=%i  =>  x=%g  y=%g\n", xx, yy, *x, *y));
 
 	/* If x2 or y2 is linked to a primary axis via mapping function, apply it now */
 	/* FIXME:  this triggers on both linked x1/x2 and on nonlinear x2 */
-	secondary = &GPO.AxS[SECOND_X_AXIS];
-	if(nonlinear(secondary))
-		*x2 = GPO.EvalLinkFunction(secondary, *x);
-	secondary = &GPO.AxS[SECOND_Y_AXIS];
-	if(nonlinear(secondary))
-		*y2 = GPO.EvalLinkFunction(secondary, *y);
-
-	/* If x or y is linked to a (hidden) primary axis, it's a bit more complicated */
-	secondary = &GPO.AxS[FIRST_X_AXIS];
+	secondary = &AxS[SECOND_X_AXIS];
+	if(secondary->IsNonLinear())
+		*x2 = EvalLinkFunction(secondary, *x);
+	secondary = &AxS[SECOND_Y_AXIS];
+	if(secondary->IsNonLinear())
+		*y2 = EvalLinkFunction(secondary, *y);
+	// If x or y is linked to a (hidden) primary axis, it's a bit more complicated 
+	secondary = &AxS[FIRST_X_AXIS];
 	if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -FIRST_X_AXIS) {
 		*x = secondary->linked_to_primary->MapBack(xx);
-		*x = GPO.EvalLinkFunction(secondary, *x);
+		*x = EvalLinkFunction(secondary, *x);
 	}
-	secondary = &GPO.AxS[FIRST_Y_AXIS];
+	secondary = &AxS[FIRST_Y_AXIS];
 	if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -FIRST_Y_AXIS) {
 		*y = secondary->linked_to_primary->MapBack(yy);
-		*y = GPO.EvalLinkFunction(secondary, *y);
+		*y = EvalLinkFunction(secondary, *y);
 	}
-	secondary = &GPO.AxS[SECOND_X_AXIS];
+	secondary = &AxS[SECOND_X_AXIS];
 	if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -SECOND_X_AXIS) {
 		*x2 = secondary->linked_to_primary->MapBack(xx);
-		*x2 = GPO.EvalLinkFunction(secondary, *x2);
+		*x2 = EvalLinkFunction(secondary, *x2);
 	}
-	secondary = &GPO.AxS[SECOND_Y_AXIS];
+	secondary = &AxS[SECOND_Y_AXIS];
 	if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -SECOND_Y_AXIS) {
 		*y2 = secondary->linked_to_primary->MapBack(yy);
-		*y2 = GPO.EvalLinkFunction(secondary, *y2);
+		*y2 = EvalLinkFunction(secondary, *y2);
 	}
 }
 
@@ -407,18 +407,18 @@ static char * zoombox_format()
 //
 // formats the information for an annotation (middle mouse button clicked)
 //
-static char * GetAnnotateString(char * s, double x, double y, int mode, char * fmt)
+char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char * fmt)
 {
-	if(GPO.AxS[FIRST_X_AXIS].datatype == DT_DMS || GPO.AxS[FIRST_Y_AXIS].datatype == DT_DMS) {
+	if(AxS[FIRST_X_AXIS].datatype == DT_DMS || AxS[FIRST_Y_AXIS].datatype == DT_DMS) {
 		static char dms_format[16];
 		sprintf(dms_format, "%%D%s%%.2m'", degree_sign);
-		if(GPO.AxS[FIRST_X_AXIS].datatype == DT_DMS)
+		if(AxS[FIRST_X_AXIS].datatype == DT_DMS)
 			gstrdms(s, fmt ? fmt : dms_format, x);
 		else
 			sprintf(s, mouse_setting.fmt, x);
 		strcat(s, ", ");
 		s += strlen(s);
-		if(GPO.AxS[FIRST_Y_AXIS].datatype == DT_DMS)
+		if(AxS[FIRST_Y_AXIS].datatype == DT_DMS)
 			gstrdms(s, fmt ? fmt : dms_format, y);
 		else
 			sprintf(s, mouse_setting.fmt, y);
@@ -432,14 +432,14 @@ static char * GetAnnotateString(char * s, double x, double y, int mode, char * f
 		sprintf(s, format, xDateTimeFormat(x, buf, mode), y);
 	}
 	else if(mode == MOUSE_COORDINATES_FRACTIONAL) {
-		double xrange = GPO.AxS[FIRST_X_AXIS].max - GPO.AxS[FIRST_X_AXIS].min;
-		double yrange = GPO.AxS[FIRST_Y_AXIS].max - GPO.AxS[FIRST_Y_AXIS].min;
+		double xrange = AxS[FIRST_X_AXIS].max - AxS[FIRST_X_AXIS].min;
+		double yrange = AxS[FIRST_Y_AXIS].max - AxS[FIRST_Y_AXIS].min;
 		/* calculate fractional coordinates.
 		 * prevent division by zero */
 		if(xrange) {
 			char format[0xff] = "/";
 			strcat(format, mouse_setting.fmt);
-			sprintf(s, format, (x - GPO.AxS[FIRST_X_AXIS].min) / xrange);
+			sprintf(s, format, (x - AxS[FIRST_X_AXIS].min) / xrange);
 		}
 		else {
 			sprintf(s, "/(undefined)");
@@ -449,7 +449,7 @@ static char * GetAnnotateString(char * s, double x, double y, int mode, char * f
 			char format[0xff] = ", ";
 			strcat(format, mouse_setting.fmt);
 			strcat(format, "/");
-			sprintf(s, format, (y - GPO.AxS[FIRST_Y_AXIS].min) / yrange);
+			sprintf(s, format, (y - AxS[FIRST_Y_AXIS].min) / yrange);
 		}
 		else {
 			sprintf(s, ", (undefined)/");
@@ -461,15 +461,15 @@ static char * GetAnnotateString(char * s, double x, double y, int mode, char * f
 	else if((mode == MOUSE_COORDINATES_ALT) && polar) {
 		double r;
 		double phi = atan2(y, x);
-		double rmin = (GPO.AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : GPO.AxS.__R().set_min;
+		double rmin = (AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : AxS.__R().set_min;
 		double theta = phi / DEG2RAD;
 		/* Undo "set theta" */
 		theta = (theta - theta_origin) * theta_direction;
 		if(theta > 180.0)
 			theta = theta - 360.0;
-		if(nonlinear(&GPO.AxS.__R()))
-			r = GPO.EvalLinkFunction(&GPO.AxS.__R(), x/cos(phi) + GPO.AxS.__R().linked_to_primary->min);
-		else if(GPO.AxS.__R().log)
+		if(AxS.__R().IsNonLinear())
+			r = EvalLinkFunction(&AxS.__R(), x/cos(phi) + AxS.__R().linked_to_primary->min);
+		else if(AxS.__R().log)
 			r = rmin + x/cos(phi);
 		else if(inverted_raxis)
 			r = rmin - x/cos(phi);
@@ -487,18 +487,18 @@ static char * GetAnnotateString(char * s, double x, double y, int mode, char * f
 		/* EXPERIMENTAL !!! */
 		GpValue original_x, original_y;
 		GpValue readout;
-		udvt_entry * plot_x = GPO.Ev.AddUdvByName("x");
-		udvt_entry * plot_y = GPO.Ev.AddUdvByName("y");
+		udvt_entry * plot_x = Ev.AddUdvByName("x");
+		udvt_entry * plot_y = Ev.AddUdvByName("y");
 		original_x = plot_x->udv_value;
 		original_y = plot_y->udv_value;
 		Gcomplex(&(plot_x->udv_value), x, 0);
 		Gcomplex(&(plot_y->udv_value), y, 0);
-		readout.type = NOTDEFINED;
-		GPO.EvaluateAt(mouse_readout_function.at, &readout);
+		readout.SetNotDefined();
+		EvaluateAt(mouse_readout_function.at, &readout);
 		plot_x->udv_value = original_x;
 		plot_y->udv_value = original_y;
 		if(readout.type != STRING) {
-			GPO.IntWarn(NO_CARET, "mouseformat function did not return a string");
+			IntWarn(NO_CARET, "mouseformat function did not return a string");
 		}
 		else {
 			sprintf(s, "%s", readout.v.string_val);
@@ -657,15 +657,15 @@ void GnuPlot::ApplyZoom(t_zoom * z)
 	// Now we're committed. Notify the terminal the the next replot is a zoom 
 	(*term->layer)(TERM_LAYER_BEFORE_ZOOM);
 	// New range on primary axes 
-	set_explicit_range(&AxS[FIRST_X_AXIS], zoom_now->_Min.x, zoom_now->_Max.x);
-	set_explicit_range(&AxS[FIRST_Y_AXIS], zoom_now->_Min.y, zoom_now->_Max.y);
+	SetExplicitRange(&AxS[FIRST_X_AXIS], zoom_now->_Min.x, zoom_now->_Max.x);
+	SetExplicitRange(&AxS[FIRST_Y_AXIS], zoom_now->_Min.y, zoom_now->_Max.y);
 	// EAM Apr 2013 - The tests on VERYLARGE protect against trying to
 	// interpret the autoscaling initial state as an actual limit value. 
 	if(!is_3d_plot && (zoom_now->_2Min.x < VERYLARGE && zoom_now->_2Max.x > -VERYLARGE)) {
-		set_explicit_range(&AxS[SECOND_X_AXIS], zoom_now->_2Min.x, zoom_now->_2Max.x);
+		SetExplicitRange(&AxS[SECOND_X_AXIS], zoom_now->_2Min.x, zoom_now->_2Max.x);
 	}
 	if(!is_3d_plot && (zoom_now->_2Min.y < VERYLARGE && zoom_now->_2Max.y > -VERYLARGE)) {
-		set_explicit_range(&AxS[SECOND_Y_AXIS], zoom_now->_2Min.y, zoom_now->_2Max.y);
+		SetExplicitRange(&AxS[SECOND_Y_AXIS], zoom_now->_2Min.y, zoom_now->_2Max.y);
 	}
 	/* EAM Jun 2007 - The autoscale save/restore was too complicated, and broke
 	 * refresh. Just save/restore the complete axis state and have done with it.
@@ -686,11 +686,11 @@ void GnuPlot::ApplyZoom(t_zoom * z)
 		// The shadowed primary axis, if any, is not restored by the memcpy.
 		// We choose to recalculate the limits, but alternatively we could find
 		// some place to save/restore the unzoomed limits.
-		if(nonlinear(&AxS[FIRST_X_AXIS]))
+		if(AxS[FIRST_X_AXIS].IsNonLinear())
 			CloneLinkedAxes(&AxS[FIRST_X_AXIS], AxS[FIRST_X_AXIS].linked_to_primary);
-		if(nonlinear(&AxS[FIRST_Y_AXIS]))
+		if(AxS[FIRST_Y_AXIS].IsNonLinear())
 			CloneLinkedAxes(&AxS[FIRST_Y_AXIS], AxS[FIRST_Y_AXIS].linked_to_primary);
-		// Falling through to do_string_replot() does not work! 
+		// Falling through to GPO.DoStringReplot() does not work! 
 		if(volatile_data) {
 			if(refresh_ok == E_REFRESH_OK_2D) {
 				RefreshRequest();
@@ -704,7 +704,7 @@ void GnuPlot::ApplyZoom(t_zoom * z)
 	}
 	else
 		inside_zoom = TRUE;
-	do_string_replot("");
+	DoStringReplot("");
 	inside_zoom = FALSE;
 }
 // 
@@ -803,106 +803,102 @@ static void incr_mousemode(const int amount)
 		else
 			found_a_new_one = TRUE;
 	}
-	UpdateStatusline();
+	GPO.UpdateStatusLine();
 	if(display_ipc_commands())
 		fprintf(stderr, "switched mouse format from %ld to %ld\n", old, mouse_mode);
 }
 
 #define TICS_ON(ti) (((ti)&TICS_MASK)!=NO_TICS)
 
-void UpdateStatusline()
+//void UpdateStatusline()
+void GnuPlot::UpdateStatusLine()
 {
-	UpdateStatuslineWithMouseSetting(&mouse_setting);
+	UpdateStatusLineWithMouseSetting(term, &mouse_setting);
 }
 
-static void UpdateStatuslineWithMouseSetting(mouse_setting_t * ms)
+//static void UpdateStatuslineWithMouseSetting(mouse_setting_t * ms)
+void GnuPlot::UpdateStatusLineWithMouseSetting(termentry * pTerm, mouse_setting_t * ms)
 {
 	char s0[256], * sp;
 	s0[0] = 0;
-
-/* This suppresses mouse coordinate update after a ^C */
-	if(!term_initialised)
-		return;
-
-	if(!ms->on)
-		return;
-
-	if(!ALMOST2D) {
-		char format[0xff];
-		format[0] = '\0';
-		strcat(format, "view: ");
-		strcat(format, ms->fmt);
-		strcat(format, ", ");
-		strcat(format, ms->fmt);
-		strcat(format, "   scale: ");
-		strcat(format, ms->fmt);
-		strcat(format, ", ");
-		strcat(format, ms->fmt);
-		sprintf(s0, format, surface_rot_x, surface_rot_z, surface_scale, surface_zscale);
+	// This suppresses mouse coordinate update after a ^C 
+	if(term_initialised && ms->on) {
+		if(!ALMOST2D) {
+			char format[0xff];
+			format[0] = '\0';
+			strcat(format, "view: ");
+			strcat(format, ms->fmt);
+			strcat(format, ", ");
+			strcat(format, ms->fmt);
+			strcat(format, "   scale: ");
+			strcat(format, ms->fmt);
+			strcat(format, ", ");
+			strcat(format, ms->fmt);
+			sprintf(s0, format, surface_rot_x, surface_rot_z, surface_scale, surface_zscale);
+		}
+		else if(!TICS_ON(AxS[SECOND_X_AXIS].ticmode) && !TICS_ON(AxS[SECOND_Y_AXIS].ticmode)) {
+			// only first X and Y axis are in use 
+			sp = GetAnnotateString(s0, real_x, real_y, mouse_mode, mouse_alt_string);
+			if(ruler.on)
+				GetRulerString(sp, real_x, real_y);
+		}
+		else {
+			// X2 and/or Y2 are in use: use more verbose format 
+			sp = s0;
+			if(TICS_ON(AxS[FIRST_X_AXIS].ticmode)) {
+				sp = stpcpy(sp, "x=");
+				sp = mkstr(sp, real_x, FIRST_X_AXIS);
+				*sp++ = ' ';
+			}
+			if(TICS_ON(AxS[FIRST_Y_AXIS].ticmode)) {
+				sp = stpcpy(sp, "y=");
+				sp = mkstr(sp, real_y, FIRST_Y_AXIS);
+				*sp++ = ' ';
+			}
+			if(TICS_ON(AxS[SECOND_X_AXIS].ticmode)) {
+				sp = stpcpy(sp, "x2=");
+				sp = mkstr(sp, real_x2, SECOND_X_AXIS);
+				*sp++ = ' ';
+			}
+			if(TICS_ON(AxS[SECOND_Y_AXIS].ticmode)) {
+				sp = stpcpy(sp, "y2=");
+				sp = mkstr(sp, real_y2, SECOND_Y_AXIS);
+				*sp++ = ' ';
+			}
+			if(ruler.on) {
+				// ruler on? then also print distances to ruler 
+				if(TICS_ON(AxS[FIRST_X_AXIS].ticmode)) {
+					stpcpy(sp, "dx=");
+					sprintf(sp+3, mouse_setting.fmt, DIST(real_x, ruler.x, FIRST_X_AXIS));
+					sp += strlen(sp);
+				}
+				if(TICS_ON(AxS[FIRST_Y_AXIS].ticmode)) {
+					stpcpy(sp, "dy=");
+					sprintf(sp+3, mouse_setting.fmt, DIST(real_y, ruler.y, FIRST_Y_AXIS));
+					sp += strlen(sp);
+				}
+				if(TICS_ON(AxS[SECOND_X_AXIS].ticmode)) {
+					stpcpy(sp, "dx2=");
+					sprintf(sp+4, mouse_setting.fmt, DIST(real_x2, ruler.x2, SECOND_X_AXIS));
+					sp += strlen(sp);
+				}
+				if(TICS_ON(AxS[SECOND_Y_AXIS].ticmode)) {
+					stpcpy(sp, "dy2=");
+					sprintf(sp+4, mouse_setting.fmt, DIST(real_y2, ruler.y2, SECOND_Y_AXIS));
+					sp += strlen(sp);
+				}
+			}
+			*--sp = 0;      /* delete trailing space */
+		}
+		if(pTerm->put_tmptext && *s0)
+			(pTerm->put_tmptext)(0, s0);
 	}
-	else if(!TICS_ON(GPO.AxS[SECOND_X_AXIS].ticmode) && !TICS_ON(GPO.AxS[SECOND_Y_AXIS].ticmode)) {
-		/* only first X and Y axis are in use */
-		sp = GetAnnotateString(s0, real_x, real_y, mouse_mode, mouse_alt_string);
-		if(ruler.on)
-			GetRulerString(sp, real_x, real_y);
-	}
-	else {
-		/* X2 and/or Y2 are in use: use more verbose format */
-		sp = s0;
-		if(TICS_ON(GPO.AxS[FIRST_X_AXIS].ticmode)) {
-			sp = stpcpy(sp, "x=");
-			sp = mkstr(sp, real_x, FIRST_X_AXIS);
-			*sp++ = ' ';
-		}
-		if(TICS_ON(GPO.AxS[FIRST_Y_AXIS].ticmode)) {
-			sp = stpcpy(sp, "y=");
-			sp = mkstr(sp, real_y, FIRST_Y_AXIS);
-			*sp++ = ' ';
-		}
-		if(TICS_ON(GPO.AxS[SECOND_X_AXIS].ticmode)) {
-			sp = stpcpy(sp, "x2=");
-			sp = mkstr(sp, real_x2, SECOND_X_AXIS);
-			*sp++ = ' ';
-		}
-		if(TICS_ON(GPO.AxS[SECOND_Y_AXIS].ticmode)) {
-			sp = stpcpy(sp, "y2=");
-			sp = mkstr(sp, real_y2, SECOND_Y_AXIS);
-			*sp++ = ' ';
-		}
-		if(ruler.on) {
-			/* ruler on? then also print distances to ruler */
-			if(TICS_ON(GPO.AxS[FIRST_X_AXIS].ticmode)) {
-				stpcpy(sp, "dx=");
-				sprintf(sp+3, mouse_setting.fmt, DIST(real_x, ruler.x, FIRST_X_AXIS));
-				sp += strlen(sp);
-			}
-			if(TICS_ON(GPO.AxS[FIRST_Y_AXIS].ticmode)) {
-				stpcpy(sp, "dy=");
-				sprintf(sp+3, mouse_setting.fmt, DIST(real_y, ruler.y, FIRST_Y_AXIS));
-				sp += strlen(sp);
-			}
-			if(TICS_ON(GPO.AxS[SECOND_X_AXIS].ticmode)) {
-				stpcpy(sp, "dx2=");
-				sprintf(sp+4, mouse_setting.fmt, DIST(real_x2, ruler.x2, SECOND_X_AXIS));
-				sp += strlen(sp);
-			}
-			if(TICS_ON(GPO.AxS[SECOND_Y_AXIS].ticmode)) {
-				stpcpy(sp, "dy2=");
-				sprintf(sp+4, mouse_setting.fmt, DIST(real_y2, ruler.y2, SECOND_Y_AXIS));
-				sp += strlen(sp);
-			}
-		}
-		*--sp = 0;      /* delete trailing space */
-	}
-
-	if(term->put_tmptext && *s0)
-		(term->put_tmptext)(0, s0);
 }
 
 void recalc_statusline()
 {
-	MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
-	UpdateStatusline();
+	GPO.MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
+	GPO.UpdateStatusLine();
 }
 
 /****************** handlers for user's actions ******************/
@@ -912,7 +908,7 @@ static char * builtin_autoscale(struct gp_event_t * ge)
 	if(!ge) {
 		return "`builtin-autoscale` (set autoscale keepfix; replot)";
 	}
-	do_string_replot("set autoscale keepfix");
+	GPO.DoStringReplot("set autoscale keepfix");
 	return (char*)0;
 }
 
@@ -935,8 +931,7 @@ static char * builtin_toggle_border(struct gp_event_t * ge)
 		draw_border = 4095;
 	else
 		draw_border = 0;
-
-	do_string_replot("");
+	GPO.DoStringReplot("");
 	return (char*)0;
 }
 
@@ -945,7 +940,7 @@ static char * builtin_replot(struct gp_event_t * ge)
 	if(!ge) {
 		return "`builtin-replot`";
 	}
-	do_string_replot("");
+	GPO.DoStringReplot("");
 	return (char*)0;
 }
 
@@ -955,9 +950,9 @@ static char * builtin_toggle_grid(struct gp_event_t * ge)
 		return "`builtin-toggle-grid`";
 	}
 	if(!some_grid_selected())
-		do_string_replot("set grid");
+		GPO.DoStringReplot("set grid");
 	else
-		do_string_replot("unset grid");
+		GPO.DoStringReplot("unset grid");
 	return (char*)0;
 }
 
@@ -1009,11 +1004,11 @@ static char * builtin_toggle_log(struct gp_event_t * ge)
 	if(volatile_data)
 		GPO.IntWarn(NO_CARET, "Cannot toggle log scale for volatile data");
 	else if((color_box.bounds.xleft < mouse_x && mouse_x < color_box.bounds.xright) && (color_box.bounds.ybot  < mouse_y && mouse_y < color_box.bounds.ytop))
-		do_string_replot(GPO.AxS.__CB().log ? "unset log cb" : "set log cb");
+		GPO.DoStringReplot(GPO.AxS.__CB().log ? "unset log cb" : "set log cb");
 	else if(is_3d_plot && !splot_map)
-		do_string_replot(GPO.AxS.__Z().log ? "unset log z" : "set log z");
+		GPO.DoStringReplot(GPO.AxS.__Z().log ? "unset log z" : "set log z");
 	else
-		do_string_replot(GPO.AxS[FIRST_Y_AXIS].log ? "unset log y" : "set log y");
+		GPO.DoStringReplot(GPO.AxS[FIRST_Y_AXIS].log ? "unset log y" : "set log y");
 	return (char*)0;
 }
 
@@ -1022,10 +1017,10 @@ static char * builtin_nearest_log(struct gp_event_t * ge)
 	if(!ge)
 		return "`builtin-nearest-log` toggle logscale of axis nearest cursor";
 	if((color_box.bounds.xleft < mouse_x && mouse_x < color_box.bounds.xright) && (color_box.bounds.ybot  < mouse_y && mouse_y < color_box.bounds.ytop)) {
-		do_string_replot(GPO.AxS.__CB().log ? "unset log cb" : "set log cb");
+		GPO.DoStringReplot(GPO.AxS.__CB().log ? "unset log cb" : "set log cb");
 	}
 	else if(is_3d_plot && !splot_map) {
-		do_string_replot(GPO.AxS.__Z().log ? "unset log z" : "set log z");
+		GPO.DoStringReplot(GPO.AxS.__Z().log ? "unset log z" : "set log z");
 	}
 	else {
 		/* 2D-plot: figure out which axis/axes is/are
@@ -1054,9 +1049,9 @@ static char * builtin_nearest_log(struct gp_event_t * ge)
 		if(change_y2 && !splot_map)
 			do_string(GPO.AxS[SECOND_Y_AXIS].log ? "unset log y2" : "set log y2");
 		if(!change_x1 && !change_y1 && splot_map)
-			do_string_replot(GPO.AxS.__Z().log ? "unset log z" : "set log z");
+			GPO.DoStringReplot(GPO.AxS.__Z().log ? "unset log z" : "set log z");
 		if(change_x1 || change_y1 || change_x2 || change_y2)
-			do_string_replot("");
+			GPO.DoStringReplot("");
 	}
 	return (char*)0;
 }
@@ -1080,7 +1075,7 @@ static char * builtin_toggle_mouse(struct gp_event_t * ge)
 	}
 	if(term->set_cursor)
 		term->set_cursor(0, 0, 0);
-	UpdateStatusline();
+	GPO.UpdateStatusLine();
 	return (char*)0;
 }
 
@@ -1098,11 +1093,11 @@ static char * builtin_toggle_ruler(struct gp_event_t * ge)
 	}
 	else if(ALMOST2D) {
 		// only allow ruler, if the plot is 2d or a 3d `map' 
-		struct udvt_entry * u;
+		udvt_entry * u;
 		ruler.on = TRUE;
 		ruler.px = ge->mx;
 		ruler.py = ge->my;
-		MousePosToGraphPosReal(ruler.px, ruler.py, &ruler.x, &ruler.y, &ruler.x2, &ruler.y2);
+		GPO.MousePosToGraphPosReal(ruler.px, ruler.py, &ruler.x, &ruler.y, &ruler.x2, &ruler.y2);
 		(*term->set_ruler)(ruler.px, ruler.py);
 		if((u = GPO.Ev.AddUdvByName("MOUSE_RULER_X"))) {
 			Gcomplex(&u->udv_value, ruler.x, 0);
@@ -1114,7 +1109,7 @@ static char * builtin_toggle_ruler(struct gp_event_t * ge)
 			fprintf(stderr, "turning ruler on.\n");
 		}
 	}
-	UpdateStatusline();
+	GPO.UpdateStatusLine();
 	return (char*)0;
 }
 
@@ -1145,7 +1140,7 @@ static char * builtin_toggle_polardistance(struct gp_event_t * ge)
 		mouse_setting.polardistance = 0;
 	// values: 0 (no polar coordinates), 1 (polar coordinates), 2 (tangent instead of angle) 
 	term->set_cursor((mouse_setting.polardistance ? -3 : -4), ge->mx, ge->my); /* change cursor type */
-	UpdateStatusline();
+	GPO.UpdateStatusLine();
 	if(display_ipc_commands()) {
 		fprintf(stderr, "distance to ruler will %s be shown in polar coordinates.\n", mouse_setting.polardistance ? "" : "not");
 	}
@@ -1175,11 +1170,11 @@ static char * builtin_toggle_ratio(struct gp_event_t * ge)
 		return "`builtin-toggle-ratio`";
 	else {
 		if(GPO.V.AspectRatio == 0.0f)
-			do_string_replot("set size ratio -1");
+			GPO.DoStringReplot("set size ratio -1");
 		else if(GPO.V.AspectRatio == 1.0f)
-			do_string_replot("set size nosquare");
+			GPO.DoStringReplot("set size nosquare");
 		else
-			do_string_replot("set size square");
+			GPO.DoStringReplot("set size square");
 		return (char*)0;
 	}
 }
@@ -1374,7 +1369,7 @@ static void event_keypress(struct gp_event_t * ge, bool current)
 	 * which is a bad thing if you are in the  middle of a mousing operation.
 	 */
 	if((paused_for_mouse & PAUSE_KEYSTROKE) && (c > '\0') && current) {
-		load_mouse_variables(x, y, FALSE, c);
+		GPO.LoadMouseVariables(x, y, FALSE, c);
 		return;
 	}
 	if(!(ptr = get_binding(ge, current)))
@@ -1382,9 +1377,9 @@ static void event_keypress(struct gp_event_t * ge, bool current)
 	if((keywin = GPO.Ev.AddUdvByName("MOUSE_KEY_WINDOW")))
 		Ginteger(&keywin->udv_value, ge->winid);
 	if(current)
-		load_mouse_variables(x, y, FALSE, c);
+		GPO.LoadMouseVariables(x, y, FALSE, c);
 	else
-		load_mouse_variables(0, 0, FALSE, c);
+		GPO.LoadMouseVariables(0, 0, FALSE, c);
 	if(ptr->allwindows && ptr->command)
 		do_string(ptr->command);
 	else if((par2 & 1) == 0 && ptr->command)
@@ -1401,17 +1396,17 @@ static void ChangeView(int x, int z)
 	}
 	if(x) {
 		surface_rot_x += x;
-		if(surface_rot_x < 0)
-			surface_rot_x += 360;
-		if(surface_rot_x > 360)
-			surface_rot_x -= 360;
+		if(surface_rot_x < 0.0f)
+			surface_rot_x += 360.0f;
+		if(surface_rot_x > 360.0f)
+			surface_rot_x -= 360.0f;
 	}
 	if(z) {
 		surface_rot_z += z;
-		if(surface_rot_z < 0)
-			surface_rot_z += 360;
-		if(surface_rot_z > 360)
-			surface_rot_z -= 360;
+		if(surface_rot_z < 0.0f)
+			surface_rot_z += 360.0f;
+		if(surface_rot_z > 360.0f)
+			surface_rot_z -= 360.0f;
 	}
 	if(x || z) {
 		GPO.Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", surface_rot_x);
@@ -1471,30 +1466,32 @@ double GnuPlot::Rescale(int axIdx, double w1, double w2)
 	GpAxis * p_ax = &AxS[axIdx];
 	double axmin = p_ax->min;
 	double axmax = p_ax->max;
-	if(nonlinear(p_ax)) {
+	if(p_ax->IsNonLinear()) {
 		axmin = EvalLinkFunction(p_ax->linked_to_primary, axmin);
 		axmax = EvalLinkFunction(p_ax->linked_to_primary, axmax);
 	}
 	newlimit = w1*axmin + w2*axmax;
-	if(nonlinear(p_ax))
+	if(p_ax->IsNonLinear())
 		newlimit = EvalLinkFunction(p_ax->linked_to_primary->linked_to_secondary, newlimit);
 	return newlimit;
 }
 
 // Rescale axes and do zoom. 
-static void zoom_rescale_xyx2y2(double a0, double a1, double a2, double a3, double a4, double a5, double a6,
-    double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, char msg[])
+//static void zoom_rescale_xyx2y2(double a0, double a1, double a2, double a3, double a4, double a5, double a6,
+    //double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, char msg[])
+void GnuPlot::ZoomRescale_XYX2Y2(double a0, double a1, double a2, double a3, double a4, double a5, double a6,
+		double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, char msg[])
 {
-	double xmin  = GPO.Rescale(FIRST_X_AXIS,   a0, a1);
-	double ymin  = GPO.Rescale(FIRST_Y_AXIS,   a2, a3);
-	double x2min = GPO.Rescale(SECOND_X_AXIS,  a4, a5);
-	double y2min = GPO.Rescale(SECOND_Y_AXIS,  a6, a7);
-	double xmax  = GPO.Rescale(FIRST_X_AXIS,   a8, a9);
-	double ymax  = GPO.Rescale(FIRST_Y_AXIS,  a10, a11);
-	double x2max = GPO.Rescale(SECOND_X_AXIS, a12, a13);
-	double y2max = GPO.Rescale(SECOND_Y_AXIS, a14, a15);
+	double xmin  = Rescale(FIRST_X_AXIS,   a0, a1);
+	double ymin  = Rescale(FIRST_Y_AXIS,   a2, a3);
+	double x2min = Rescale(SECOND_X_AXIS,  a4, a5);
+	double y2min = Rescale(SECOND_Y_AXIS,  a6, a7);
+	double xmax  = Rescale(FIRST_X_AXIS,   a8, a9);
+	double ymax  = Rescale(FIRST_Y_AXIS,  a10, a11);
+	double x2max = Rescale(SECOND_X_AXIS, a12, a13);
+	double y2max = Rescale(SECOND_Y_AXIS, a14, a15);
 	retain_offsets = TRUE;
-	GPO.DoZoom(xmin, ymin, x2min, y2min, xmax, ymax, x2max, y2max);
+	DoZoom(xmin, ymin, x2min, y2min, xmax, ymax, x2max, y2max);
 	if(msg[0] && display_ipc_commands()) {
 		fputs(msg, stderr); fputs("\n", stderr);
 	}
@@ -1503,7 +1500,7 @@ static void zoom_rescale_xyx2y2(double a0, double a1, double a2, double a3, doub
 /* Scroll left. */
 static void do_zoom_scroll_left()
 {
-	zoom_rescale_xyx2y2(1.1, -0.1,
+	GPO.ZoomRescale_XYX2Y2(1.1, -0.1,
 	    1,   0,
 	    1.1, -0.1,
 	    1,   0,
@@ -1517,7 +1514,7 @@ static void do_zoom_scroll_left()
 /* Scroll right. */
 static void do_zoom_scroll_right()
 {
-	zoom_rescale_xyx2y2(0.9,  0.1,
+	GPO.ZoomRescale_XYX2Y2(0.9,  0.1,
 	    1,    0,
 	    0.9,  0.1,
 	    1,    0,
@@ -1531,7 +1528,7 @@ static void do_zoom_scroll_right()
 /* Scroll up. */
 static void do_zoom_scroll_up()
 {
-	zoom_rescale_xyx2y2(1,    0,
+	GPO.ZoomRescale_XYX2Y2(1,    0,
 	    0.9,  0.1,
 	    1,    0,
 	    0.9,  0.1,
@@ -1545,7 +1542,7 @@ static void do_zoom_scroll_up()
 /* Scroll down. */
 static void do_zoom_scroll_down()
 {
-	zoom_rescale_xyx2y2(1,   0,
+	GPO.ZoomRescale_XYX2Y2(1,   0,
 	    1.1, -0.1,
 	    1,   0,
 	    1.1, -0.1,
@@ -1566,14 +1563,14 @@ void GnuPlot::RescaleAroundMouse(double * pNewMin, double * pNewMax, int axIdx, 
 	GpAxis * p_ax_primary = p_ax->linked_to_primary;
 	double axmin = p_ax->min;
 	double axmax = p_ax->max;
-	if(nonlinear(p_ax)) {
+	if(p_ax->IsNonLinear()) {
 		axmin = EvalLinkFunction(p_ax_primary, axmin);
 		axmax = EvalLinkFunction(p_ax_primary, axmax);
 		mouse_pos = EvalLinkFunction(p_ax_primary, mouse_pos);
 	}
 	*pNewMin = mouse_pos + (axmin - mouse_pos) * scale;
 	*pNewMax = mouse_pos + (axmax - mouse_pos) * scale;
-	if(nonlinear(p_ax)) {
+	if(p_ax->IsNonLinear()) {
 		*pNewMin = EvalLinkFunction(p_ax_primary->linked_to_secondary, *pNewMin);
 		*pNewMax = EvalLinkFunction(p_ax_primary->linked_to_secondary, *pNewMax);
 	}
@@ -1581,30 +1578,31 @@ void GnuPlot::RescaleAroundMouse(double * pNewMin, double * pNewMax, int axIdx, 
 //
 // Zoom in/out within x-axis. 
 //
-static void zoom_in_X(int zoom_key)
+//static void zoom_in_X(int zoom_key)
+void GnuPlot::ZoomInX(int zoomKey)
 {
 	retain_offsets = TRUE;
 	if(is_mouse_outside_plot()) {
 		/* zoom in (X axis only) */
-		double w1 = (zoom_key=='+') ? 23./25. : 23./21.;
-		double w2 = (zoom_key=='+') ?  2./25. : -2./21.;
-		zoom_rescale_xyx2y2(w1, w2, 1, 0, w1, w2, 1, 0,  w2, w1, 0, 1, w2, w1, 0, 1, (zoom_key=='+' ? "zoom in X" : "zoom out X"));
+		double w1 = (zoomKey == '+') ? 23./25. : 23./21.;
+		double w2 = (zoomKey == '+') ?  2./25. : -2./21.;
+		ZoomRescale_XYX2Y2(w1, w2, 1, 0, w1, w2, 1, 0,  w2, w1, 0, 1, w2, w1, 0, 1, ((zoomKey == '+') ? "zoom in X" : "zoom out X"));
 	}
 	else {
 		double xmin, ymin, x2min, y2min, xmax, ymax, x2max, y2max;
-		double scale = (zoom_key=='+') ? 0.75 : 1.25;
-		GPO.RescaleAroundMouse(&xmin,  &xmax,  FIRST_X_AXIS,  real_x,  scale);
-		GPO.RescaleAroundMouse(&x2min, &x2max, SECOND_X_AXIS, real_x2, scale);
-		ymin  = GPO.Rescale(FIRST_Y_AXIS,  1, 0);
-		y2min = GPO.Rescale(SECOND_Y_AXIS, 1, 0);
-		ymax  = GPO.Rescale(FIRST_Y_AXIS,  0, 1);
-		y2max = GPO.Rescale(SECOND_Y_AXIS, 0, 1);
-		GPO.DoZoom(xmin, ymin, x2min, y2min, xmax, ymax, x2max, y2max);
+		double scale = (zoomKey == '+') ? 0.75 : 1.25;
+		RescaleAroundMouse(&xmin,  &xmax,  FIRST_X_AXIS,  real_x,  scale);
+		RescaleAroundMouse(&x2min, &x2max, SECOND_X_AXIS, real_x2, scale);
+		ymin  = Rescale(FIRST_Y_AXIS,  1, 0);
+		y2min = Rescale(SECOND_Y_AXIS, 1, 0);
+		ymax  = Rescale(FIRST_Y_AXIS,  0, 1);
+		y2max = Rescale(SECOND_Y_AXIS, 0, 1);
+		DoZoom(xmin, ymin, x2min, y2min, xmax, ymax, x2max, y2max);
 	}
 }
 
-static void do_zoom_in_X() { zoom_in_X('+'); }
-static void do_zoom_out_X() { zoom_in_X('-'); }
+static void do_zoom_in_X() { GPO.ZoomInX('+'); }
+static void do_zoom_out_X() { GPO.ZoomInX('-'); }
 
 /* Zoom around mouse cursor unless the cursor is outside the graph boundary,
    when it scales around the graph center.
@@ -1721,9 +1719,8 @@ static void event_buttonpress(gp_event_t * ge)
 	mouse_y = ge->my;
 	button |= (1 << b);
 	FPRINTF((stderr, "(event_buttonpress) mouse_x = %d\tmouse_y = %d\n", mouse_x, mouse_y));
-	MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
-	if((b == 4 || b == 6) && /* 4 - wheel up, 6 - wheel left */
-	    (!replot_disabled || (E_REFRESH_NOT_OK != refresh_ok)) /* Use refresh if available */
+	GPO.MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
+	if((b == 4 || b == 6) && /* 4 - wheel up, 6 - wheel left */ (!replot_disabled || (E_REFRESH_NOT_OK != refresh_ok)) /* Use refresh if available */
 	    && !(paused_for_mouse & PAUSE_BUTTON3)) {
 		/* Ctrl+Shift+wheel up or Squeeze (not implemented) */
 		if((modifier_mask & Mod_Ctrl) && (modifier_mask & Mod_Shift))
@@ -1756,25 +1753,23 @@ static void event_buttonpress(gp_event_t * ge)
 			do_zoom_scroll_down();
 	}
 	else if(ALMOST2D) {
-		/* "pause button1" or "pause any" takes precedence over key bindings */
+		// "pause button1" or "pause any" takes precedence over key bindings 
 		if(1 == b) {
 			if(paused_for_mouse & PAUSE_BUTTON1) {
-				load_mouse_variables(mouse_x, mouse_y, TRUE, b);
+				GPO.LoadMouseVariables(mouse_x, mouse_y, TRUE, b);
 				trap_release = TRUE; /* Don't trigger on release also */
 				return;
 			}
 		}
-		/* In 2D mouse buttons 1-3 are available for "bind" commands */
-		if(b == 1 || b == 2 || b == 3) {
+		// In 2D mouse buttons 1-3 are available for "bind" commands 
+		if(oneof3(b, 1, 2, 3)) {
 			if(get_binding(ge, TRUE)) {
 				event_keypress(ge, TRUE);
 				return;
 			}
 		}
 		if(!setting_zoom_region) {
-			if(3 == b &&
-			    (!replot_disabled || (E_REFRESH_NOT_OK != refresh_ok)) /* Use refresh if available */
-			    && !(paused_for_mouse & PAUSE_BUTTON3)) {
+			if(3 == b && (!replot_disabled || (E_REFRESH_NOT_OK != refresh_ok)) /* Use refresh if available */ && !(paused_for_mouse & PAUSE_BUTTON3)) {
 				/* start zoom; but ignore it when
 				 *   - replot is disabled, e.g. with inline data, or
 				 *   - during 'pause mouse'
@@ -1787,15 +1782,15 @@ static void event_buttonpress(gp_event_t * ge)
 					if(mouse_setting.annotate_zoom_box && term->put_tmptext) {
 						double real_x, real_y, real_x2, real_y2;
 						char s[64];
-						/* tell driver annotations */
-						MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
+						// tell driver annotations 
+						GPO.MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
 						sprintf(s, zoombox_format(), real_x, real_y);
 						term->put_tmptext(1, s);
 						term->put_tmptext(2, s);
 					}
 					/* displace mouse in order not to start with an empty zoom box */
-					mv_mouse_x = term->xmax / 20;
-					mv_mouse_y = (term->xmax == term->ymax) ? mv_mouse_x : (int)((mv_mouse_x * (double)term->ymax) / term->xmax);
+					mv_mouse_x = term->MaxX / 20;
+					mv_mouse_y = (term->MaxX == term->MaxY) ? mv_mouse_x : (int)((mv_mouse_x * (double)term->MaxY) / term->MaxX);
 					mv_mouse_x += mouse_x;
 					mv_mouse_y += mouse_y;
 					/* change cursor type */
@@ -1838,7 +1833,7 @@ static void event_buttonpress(gp_event_t * ge)
 			if(dist > 10 /* more ore less arbitrary */) {
 				double xmin, ymin, x2min, y2min;
 				double xmax, ymax, x2max, y2max;
-				MousePosToGraphPosReal(setting_zoom_x, setting_zoom_y, &xmin, &ymin, &x2min, &y2min);
+				GPO.MousePosToGraphPosReal(setting_zoom_x, setting_zoom_y, &xmin, &ymin, &x2min, &y2min);
 				xmax = real_x;
 				x2max = real_x2;
 				ymax = real_y;
@@ -1873,9 +1868,9 @@ static void event_buttonpress(gp_event_t * ge)
 	}
 	start_x = mouse_x;
 	start_y = mouse_y;
-	zero_rot_z = surface_rot_z + (360.0f * mouse_x) / term->xmax;
-	// zero_rot_x = surface_rot_x - 180.0 * mouse_y / term->ymax; 
-	zero_rot_x = surface_rot_x - (360.0f * mouse_y) / term->ymax;
+	zero_rot_z = surface_rot_z + (360.0f * mouse_x) / term->MaxX;
+	// zero_rot_x = surface_rot_x - 180.0 * mouse_y / term->MaxY; 
+	zero_rot_x = surface_rot_x - (360.0f * mouse_y) / term->MaxY;
 }
 
 static void event_buttonrelease(gp_event_t * ge)
@@ -1898,15 +1893,15 @@ static void event_buttonrelease(gp_event_t * ge)
 		if(get_binding(ge, TRUE))
 			return;
 	}
-	MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
+	GPO.MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
 	FPRINTF((stderr, "MOUSE.C: doublclick=%i, set=%i, motion=%i, ALMOST2D=%i\n", (int)doubleclick, (int)mouse_setting.doubleclick, (int)motion, (int)ALMOST2D));
 	if(ALMOST2D) {
 		char s0[256];
 		if(b == 1 && term->set_clipboard && ((doubleclick <= mouse_setting.doubleclick) || !mouse_setting.doubleclick)) {
-			/* put coordinates to clipboard. For 3d plots this takes
-			 * only place, if the user didn't drag (rotate) the plot */
+			// put coordinates to clipboard. For 3d plots this takes
+			// only place, if the user didn't drag (rotate) the plot 
 			if(!is_3d_plot || !motion) {
-				GetAnnotateString(s0, real_x, real_y, mouse_mode, mouse_alt_string);
+				GPO.GetAnnotateString(s0, real_x, real_y, mouse_mode, mouse_alt_string);
 				term->set_clipboard(s0);
 				if(display_ipc_commands()) {
 					fprintf(stderr, "put `%s' to clipboard.\n", s0);
@@ -1914,10 +1909,10 @@ static void event_buttonrelease(gp_event_t * ge)
 			}
 		}
 		if(b == 2) {
-			/* draw temporary annotation or label. For 3d plots this is
-			 * only done if the user didn't drag (scale) the plot */
+			// draw temporary annotation or label. For 3d plots this is
+			// only done if the user didn't drag (scale) the plot 
 			if(!is_3d_plot || !motion) {
-				GetAnnotateString(s0, real_x, real_y, mouse_mode, mouse_alt_string);
+				GPO.GetAnnotateString(s0, real_x, real_y, mouse_mode, mouse_alt_string);
 				if(mouse_setting.label) {
 					if(modifier_mask & Mod_Ctrl) {
 						remove_label(mouse_x, mouse_y);
@@ -1927,11 +1922,10 @@ static void event_buttonrelease(gp_event_t * ge)
 					}
 				}
 				else {
-					int dx, dy;
 					int x = mouse_x;
 					int y = mouse_y;
-					dx = term->TicH;
-					dy = term->TicV;
+					int dx = term->TicH;
+					int dy = term->TicV;
 					(term->linewidth)(border_lp.l_width);
 					(term->linetype)(border_lp.l_type);
 					(term->move)(x - dx, y);
@@ -1958,8 +1952,8 @@ static void event_buttonrelease(gp_event_t * ge)
 			term->set_cursor((button & (1 << 1)) ? 1 : (button & (1 << 2)) ? 2 : 0, 0, 0);
 	}
 	// Export current mouse coords to user-accessible variables also 
-	load_mouse_variables(mouse_x, mouse_y, TRUE, b);
-	UpdateStatusline();
+	GPO.LoadMouseVariables(mouse_x, mouse_y, TRUE, b);
+	GPO.UpdateStatusLine();
 }
 
 static void event_motion(gp_event_t * ge)
@@ -1971,13 +1965,13 @@ static void event_motion(gp_event_t * ge)
 		bool redraw = FALSE;
 		if(button & (1 << 1)) {
 			// dragging with button 1 -> rotate 
-			//surface_rot_x = floor(0.5 + zero_rot_x + 180.0 * mouse_y / term->ymax);
-			surface_rot_x = floor(0.5 + fmod(zero_rot_x + 360.0 * mouse_y / term->ymax, 360));
+			//surface_rot_x = floor(0.5 + zero_rot_x + 180.0 * mouse_y / term->MaxY);
+			surface_rot_x = floor(0.5 + fmod(zero_rot_x + 360.0 * mouse_y / term->MaxY, 360));
 			if(surface_rot_x < 0.0f)
 				surface_rot_x += 360.0f;
 			if(surface_rot_x > 360.0f)
 				surface_rot_x -= 360.0f;
-			surface_rot_z = floor(0.5 + fmod(zero_rot_z - 360.0 * mouse_x / term->xmax, 360));
+			surface_rot_z = floor(0.5 + fmod(zero_rot_z - 360.0 * mouse_x / term->MaxX, 360));
 			if(surface_rot_z < 0)
 				surface_rot_z += 360;
 			redraw = TRUE;
@@ -1989,11 +1983,11 @@ static void event_motion(gp_event_t * ge)
 			double relx = (double)abs(mouse_x - start_x) / (double)term->TicH;
 			double rely = (double)abs(mouse_y - start_y) / (double)term->TicV;
 			if(modifier_mask & Mod_Shift) {
-				xyplane.z += (1 + fabs(xyplane.z)) * (mouse_y - start_y) * 2.0 / term->ymax;
+				xyplane.z += (1 + fabs(xyplane.z)) * (mouse_y - start_y) * 2.0 / term->MaxY;
 			}
 			else {
 				if(relx > rely) {
-					surface_lscale += (mouse_x - start_x) * 2.0 / term->xmax;
+					surface_lscale += (mouse_x - start_x) * 2.0 / term->MaxX;
 					surface_scale = exp(surface_lscale);
 					if(surface_scale < 0)
 						surface_scale = 0;
@@ -2002,7 +1996,7 @@ static void event_motion(gp_event_t * ge)
 					if(disable_mouse_z && (mouse_y-start_y > 0))
 						;
 					else {
-						surface_zscale += (mouse_y - start_y) * 2.0 / term->ymax;
+						surface_zscale += (mouse_y - start_y) * 2.0 / term->MaxY;
 						disable_mouse_z = FALSE;
 					}
 					if(surface_zscale < 0)
@@ -2016,7 +2010,7 @@ static void event_motion(gp_event_t * ge)
 		}
 		else if(button & (1 << 3)) {
 			// dragging with button 3 -> change azimuth 
-			ChangeAzimuth( (mouse_x - start_x) * 90.0 / term->xmax);
+			ChangeAzimuth( (mouse_x - start_x) * 90.0 / term->MaxX);
 			start_x = mouse_x;
 			redraw = TRUE;
 		}
@@ -2046,12 +2040,12 @@ static void event_motion(gp_event_t * ge)
 		// statusline and possibly the zoombox annotation 
 		if(!term->put_tmptext)
 			return;
-		MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
-		UpdateStatusline();
+		GPO.MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
+		GPO.UpdateStatusLine();
 		if(setting_zoom_region && mouse_setting.annotate_zoom_box) {
 			double real_x, real_y, real_x2, real_y2;
 			char s[64];
-			MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
+			GPO.MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
 			sprintf(s, zoombox_format(), real_x, real_y);
 			term->put_tmptext(2, s);
 		}
@@ -2067,11 +2061,12 @@ static void event_modifier(struct gp_event_t * ge)
 	}
 }
 
-void event_plotdone()
+//void event_plotdone()
+void GnuPlot::EventPlotDone(termentry * pTerm)
 {
 	if(needreplot) {
 		needreplot = FALSE;
-		GPO.DoSave3DPlot(term, first_3dplot, plot3d_num, ((modifier_mask & Mod_Ctrl) != 0) ? AXIS_ONLY_ROTATE : NORMAL_REPLOT);
+		DoSave3DPlot(pTerm, first_3dplot, plot3d_num, ((modifier_mask & Mod_Ctrl) != 0) ? AXIS_ONLY_ROTATE : NORMAL_REPLOT);
 	}
 	else
 		allowmotion = TRUE;
@@ -2104,8 +2099,8 @@ void event_reset(struct gp_event_t * ge)
 		kill_pending_Pause_dialog();
 #endif
 	}
-	/* Dummy up a keystroke event so that we can conveniently check for a  */
-	/* binding to "Close". We only get these for the current window. */
+	// Dummy up a keystroke event so that we can conveniently check for a  
+	// binding to "Close". We only get these for the current window. 
 	if(ge != (void*)1) {
 		ge->par1 = GP_Cancel; /* Dummy keystroke */
 		ge->par2 = 0;   /* Not used; could pass window id here? */
@@ -2113,116 +2108,115 @@ void event_reset(struct gp_event_t * ge)
 	}
 }
 
-void do_event(gp_event_t * ge)
+//void do_event(gp_event_t * pGe)
+void GnuPlot::DoEvent(termentry * pTerm, gp_event_t * pGe)
 {
-	if(!term)
-		return;
-	// disable `replot` when some data were sent through stdin 
-	replot_disabled = plotted_data_from_stdin;
-	if(ge->type) {
-		FPRINTF((stderr, "(do_event) type       = %s\n", GE_evt_name(ge->type)));
-		FPRINTF((stderr, "           mx, my     = %d, %d\n", ge->mx, ge->my));
-		FPRINTF((stderr, "           par1, par2 = %d, %d\n", ge->par1, ge->par2));
+	if(pTerm) {
+		// disable `replot` when some data were sent through stdin 
+		replot_disabled = plotted_data_from_stdin;
+		if(pGe->type) {
+			FPRINTF((stderr, "(do_event) type       = %s\n", GE_evt_name(pGe->type)));
+			FPRINTF((stderr, "           mx, my     = %d, %d\n", pGe->mx, pGe->my));
+			FPRINTF((stderr, "           par1, par2 = %d, %d\n", pGe->par1, pGe->par2));
+		}
+		switch(pGe->type) {
+			case GE_plotdone:
+				EventPlotDone(pTerm);
+				if(pGe->winid) {
+					current_x11_windowid = pGe->winid;
+					UpdateGpvalVariables(6); // fill GPVAL_TERM_WINDOWID 
+				}
+				break;
+			case GE_keypress:
+				event_keypress(pGe, TRUE);
+				break;
+			case GE_keypress_old:
+				event_keypress(pGe, FALSE);
+				break;
+			case GE_modifier:
+				event_modifier(pGe);
+				break;
+			case GE_motion:
+				if(!mouse_setting.on)
+					break;
+				event_motion(pGe);
+				break;
+			case GE_buttonpress:
+				if(!mouse_setting.on)
+					break;
+				event_buttonpress(pGe);
+				break;
+			case GE_buttonrelease:
+				if(!mouse_setting.on)
+					break;
+				event_buttonrelease(pGe);
+				break;
+			case GE_replot:
+				// auto-generated replot (e.g. from replot-on-resize) 
+				// FIXME: more terminals should use this! 
+				if(replot_line == NULL || replot_line[0] == '\0')
+					break;
+				if(!strncmp(replot_line, "test", 4))
+					break;
+				if(multiplot)
+					break;
+				DoStringReplot("");
+				break;
+			case GE_reset:
+				event_reset(pGe);
+				break;
+			case GE_fontprops:
+	#ifdef X11
+				// EAM FIXME:  Despite the name, only X11 uses this to pass font info.	
+				// Everyone else passes just the plot height and width.			
+				if(!strcmp(pTerm->name, "x11")) {
+					/* These are declared in ../term/x11.trm */
+					extern int X11_hchar_saved, X11_vchar_saved;
+					extern double X11_ymax_saved;
+					/* Cached sizing values for the x11 terminal. Each time an X11 window is
+					   resized, these are updated with the new sizes. When a replot happens some
+					   time later, these saved values are used. The normal mechanism for doing this
+					   is sending a QG from inboard to outboard driver, then the outboard driver
+					   responds with the sizing info in a GE_fontprops event. The problem is that
+					   other than during plot initialization the communication is asynchronous.
+					 */
+					X11_hchar_saved = pGe->par1;
+					X11_vchar_saved = pGe->par2;
+					X11_ymax_saved = (double)pTerm->MaxX * (double)pGe->my / fabs((double)pGe->mx);
+					// If mx < 0, we simply save the values for future use, and move on 
+					if(pGe->mx < 0) {
+						break;
+					}
+					else {
+						// Otherwise we apply the changes right now 
+						pTerm->ChrH = X11_hchar_saved;
+						pTerm->ChrV = X11_vchar_saved;
+						// factor of 2.5 must match the use in x11.trm 
+						pTerm->TicH = pTerm->TicV = X11_vchar_saved / 2.5;
+						pTerm->MaxY  = X11_ymax_saved;
+					}
+				}
+				else
+				// Fall through to cover non-x11 case 
+	#endif
+				// Other terminals update aspect ratio based on current window size 
+				pTerm->TicV = pTerm->TicH * (double)pGe->mx / (double)pGe->my;
+				FPRINTF((stderr, "mouse do_event: window size %d X %d, font hchar %d vchar %d\n", pGe->mx, pGe->my, pGe->par1, pGe->par2));
+				break;
+			case GE_buttonpress_old:
+			case GE_buttonrelease_old:
+				// ignore 
+				break;
+			case GE_raise:
+				// FIXME: No generic routine implemented! 
+				// Individual terminal types must handle it themselves if they care 
+				break;
+			default:
+				fprintf(stderr, "%s:%d unrecognized event type %d\n", __FILE__, __LINE__, pGe->type);
+				break;
+		}
+		replot_disabled = FALSE; // enable replot again 
 	}
-	switch(ge->type) {
-		case GE_plotdone:
-		    event_plotdone();
-		    if(ge->winid) {
-			    current_x11_windowid = ge->winid;
-			    GPO.UpdateGpvalVariables(6); // fill GPVAL_TERM_WINDOWID 
-		    }
-		    break;
-		case GE_keypress:
-		    event_keypress(ge, TRUE);
-		    break;
-		case GE_keypress_old:
-		    event_keypress(ge, FALSE);
-		    break;
-		case GE_modifier:
-		    event_modifier(ge);
-		    break;
-		case GE_motion:
-		    if(!mouse_setting.on)
-			    break;
-		    event_motion(ge);
-		    break;
-		case GE_buttonpress:
-		    if(!mouse_setting.on)
-			    break;
-		    event_buttonpress(ge);
-		    break;
-		case GE_buttonrelease:
-		    if(!mouse_setting.on)
-			    break;
-		    event_buttonrelease(ge);
-		    break;
-		case GE_replot:
-		    /* auto-generated replot (e.g. from replot-on-resize) */
-		    /* FIXME: more terminals should use this! */
-		    if(replot_line == NULL || replot_line[0] == '\0')
-			    break;
-		    if(!strncmp(replot_line, "test", 4))
-			    break;
-		    if(multiplot)
-			    break;
-		    do_string_replot("");
-		    break;
-		case GE_reset:
-		    event_reset(ge);
-		    break;
-		case GE_fontprops:
-#ifdef X11
-		    /* EAM FIXME:  Despite the name, only X11 uses this to pass font info.	*/
-		    /* Everyone else passes just the plot height and width.			*/
-		    if(!strcmp(term->name, "x11")) {
-			    /* These are declared in ../term/x11.trm */
-			    extern int X11_hchar_saved, X11_vchar_saved;
-			    extern double X11_ymax_saved;
-
-			    /* Cached sizing values for the x11 terminal. Each time an X11 window is
-			       resized, these are updated with the new sizes. When a replot happens some
-			       time later, these saved values are used. The normal mechanism for doing this
-			       is sending a QG from inboard to outboard driver, then the outboard driver
-			       responds with the sizing info in a GE_fontprops event. The problem is that
-			       other than during plot initialization the communication is asynchronous.
-			     */
-			    X11_hchar_saved = ge->par1;
-			    X11_vchar_saved = ge->par2;
-			    X11_ymax_saved = (double)term->xmax * (double)ge->my / fabs((double)ge->mx);
-
-			    /* If mx < 0, we simply save the values for future use, and move on */
-			    if(ge->mx < 0) {
-				    break;
-			    }
-			    else {
-				    /* Otherwise we apply the changes right now */
-				    term->ChrH = X11_hchar_saved;
-				    term->ChrV = X11_vchar_saved;
-				    /* factor of 2.5 must match the use in x11.trm */
-				    term->TicH = term->TicV = X11_vchar_saved / 2.5;
-				    term->ymax  = X11_ymax_saved;
-			    }
-		    }
-		    else
-		    /* Fall through to cover non-x11 case */
-#endif
-		    // Other terminals update aspect ratio based on current window size 
-		    term->TicV = term->TicH * (double)ge->mx / (double)ge->my;
-		    FPRINTF((stderr, "mouse do_event: window size %d X %d, font hchar %d vchar %d\n", ge->mx, ge->my, ge->par1, ge->par2));
-		    break;
-		case GE_buttonpress_old:
-		case GE_buttonrelease_old:
-		    // ignore 
-		    break;
-		case GE_raise:
-		    // FIXME: No generic routine implemented! 
-		    // Individual terminal types must handle it themselves if they care 
-		    break;
-		default:
-		    fprintf(stderr, "%s:%d unrecognized event type %d\n", __FILE__, __LINE__, ge->type);
-		    break;
-	}
-	replot_disabled = FALSE; /* enable replot again */
 }
 // 
 // convenience wrapper for do_event();
@@ -2238,18 +2232,19 @@ bool exec_event(char type, int mx, int my, int par1, int par2, int winid)
 	ge.par1 = par1;
 	ge.par2 = par2;
 	ge.winid = winid;
-	do_event(&ge);
+	GPO.DoEvent(term, &ge);
 	// end pause mouse? 
 	if((type == GE_buttonrelease) && (paused_for_mouse & PAUSE_CLICK) && (((par1 == 1) && 
 		(paused_for_mouse & PAUSE_BUTTON1)) || ((par1 == 2) && (paused_for_mouse & PAUSE_BUTTON2)) || ((par1 == 3) && (paused_for_mouse & PAUSE_BUTTON3)))) {
 		paused_for_mouse = 0;
-		return TRUE;
+		return true;
 	}
-	if((type == GE_keypress) && (paused_for_mouse & PAUSE_KEYSTROKE) && (par1 != NUL)) {
+	else if(type == GE_keypress && (paused_for_mouse & PAUSE_KEYSTROKE) && (par1 != NUL)) {
 		paused_for_mouse = 0;
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	else
+		return false;
 }
 
 //static void do_save_3dplot(surface_points * plots, int pcount, REPLOT_TYPE quick)
@@ -2626,43 +2621,46 @@ void bind_remove_all()
 //
 // Ruler is on, thus recalc its (px,py) from (x,y) for the current zoom and log axes.
 //
-static void recalc_ruler_pos()
+//static void recalc_ruler_pos()
+void GnuPlot::RecalcRulerPos()
 {
 	double P, dummy;
 	if(is_3d_plot) {
 		// To be exact, it is 'set view map' splot. 
 		int ppx, ppy;
 		dummy = 1.0; // dummy value, but not 0.0 for the fear of log z-axis 
-		GPO.Map3D_XY(ruler.x, ruler.y, dummy, &ppx, &ppy);
+		Map3D_XY(ruler.x, ruler.y, dummy, &ppx, &ppy);
 		ruler.px = ppx;
 		ruler.py = ppy;
-		return;
 	}
-	// It is 2D plot. 
-	if(GPO.AxS[FIRST_X_AXIS].log && ruler.x < 0)
-		ruler.px = -1;
 	else {
-		P = ruler.x;
-		ruler.px = GPO.AxS[FIRST_X_AXIS].MapI(P);
+		// It is 2D plot. 
+		if(AxS[FIRST_X_AXIS].log && ruler.x < 0)
+			ruler.px = -1;
+		else {
+			P = ruler.x;
+			ruler.px = AxS[FIRST_X_AXIS].MapI(P);
+		}
+		if(AxS[FIRST_Y_AXIS].log && ruler.y < 0)
+			ruler.py = -1;
+		else {
+			P = ruler.y;
+			ruler.py = AxS[FIRST_Y_AXIS].MapI(P);
+		}
+		MousePosToGraphPosReal(ruler.px, ruler.py, &dummy, &dummy, &ruler.x2, &ruler.y2);
 	}
-	if(GPO.AxS[FIRST_Y_AXIS].log && ruler.y < 0)
-		ruler.py = -1;
-	else {
-		P = ruler.y;
-		ruler.py = GPO.AxS[FIRST_Y_AXIS].MapI(P);
-	}
-	MousePosToGraphPosReal(ruler.px, ruler.py, &dummy, &dummy, &ruler.x2, &ruler.y2);
 }
-
-/* Recalculate and replot the ruler after a '(re)plot'. Called from term.c.
- */
-void update_ruler()
+//
+// Recalculate and replot the ruler after a '(re)plot'. Called from term.c.
+//
+//void update_ruler()
+void GnuPlot::UpdateRuler(termentry * pTerm)
 {
-	if(!term->set_ruler || !ruler.on)
-		return;
-	(*term->set_ruler)(-1, -1);
-	recalc_ruler_pos();
-	(*term->set_ruler)(ruler.px, ruler.py);
+	if(pTerm->set_ruler && ruler.on) {
+		(pTerm->set_ruler)(-1, -1);
+		RecalcRulerPos();
+		(pTerm->set_ruler)(ruler.px, ruler.py);
+	}
 }
 
 /* Set ruler on/off, and set its position.
@@ -2713,9 +2711,9 @@ static void turn_ruler_off()
 			(*term->set_ruler)(-1, -1);
 		}
 		if((u = GPO.Ev.AddUdvByName("MOUSE_RULER_X")))
-			u->udv_value.type = NOTDEFINED;
+			u->udv_value.SetNotDefined();
 		if((u = GPO.Ev.AddUdvByName("MOUSE_RULER_Y")))
-			u->udv_value.type = NOTDEFINED;
+			u->udv_value.SetNotDefined();
 		if(display_ipc_commands()) {
 			fprintf(stderr, "turning ruler off.\n");
 		}
@@ -2763,7 +2761,7 @@ static void remove_label(int x, int y)
 	if(-1 != tag) {
 		char cmd[0x40];
 		sprintf(cmd, "unset label %d", tag);
-		do_string_replot(cmd);
+		GPO.DoStringReplot(cmd);
 	}
 }
 
@@ -2771,51 +2769,52 @@ static void put_label(char * label, double x, double y)
 {
 	char cmd[512];
 	sprintf(cmd, "set label \"%s\" at %g,%g %s", label, x, y, mouse_setting.labelopts ? mouse_setting.labelopts : "point pt 1");
-	do_string_replot(cmd);
+	GPO.DoStringReplot(cmd);
 }
 //
 // Save current mouse position to user-accessible variables.
 // Save the keypress or mouse button that triggered this in MOUSE_KEY,
 // and define MOUSE_BUTTON if it was a button click.
 //
-static void load_mouse_variables(double x, double y, bool button, int c)
+//static void load_mouse_variables(double x, double y, bool button, int c)
+void GnuPlot::LoadMouseVariables(double x, double y, bool button, int c)
 {
-	struct udvt_entry * current;
+	udvt_entry * current;
 	MousePosToGraphPosReal(x, y, &real_x, &real_y, &real_x2, &real_y2);
-	if((current = GPO.Ev.AddUdvByName("MOUSE_BUTTON"))) {
+	if((current = Ev.AddUdvByName("MOUSE_BUTTON"))) {
 		Ginteger(&current->udv_value, button ? c : -1);
 		if(!button)
-			current->udv_value.type = NOTDEFINED;
+			current->udv_value.SetNotDefined();
 	}
-	if((current = GPO.Ev.AddUdvByName("MOUSE_KEY"))) {
+	if((current = Ev.AddUdvByName("MOUSE_KEY"))) {
 		Ginteger(&current->udv_value, c);
 	}
-	if((current = GPO.Ev.AddUdvByName("MOUSE_CHAR"))) {
+	if((current = Ev.AddUdvByName("MOUSE_CHAR"))) {
 		char * keychar = (char *)gp_alloc(2, "key_char");
 		keychar[0] = c;
 		keychar[1] = '\0';
 		gpfree_string(&current->udv_value);
 		Gstring(&current->udv_value, keychar);
 	}
-	if((current = GPO.Ev.AddUdvByName("MOUSE_X"))) {
+	if((current = Ev.AddUdvByName("MOUSE_X"))) {
 		Gcomplex(&current->udv_value, real_x, 0);
 	}
-	if((current = GPO.Ev.AddUdvByName("MOUSE_Y"))) {
+	if((current = Ev.AddUdvByName("MOUSE_Y"))) {
 		Gcomplex(&current->udv_value, real_y, 0);
 	}
-	if((current = GPO.Ev.AddUdvByName("MOUSE_X2"))) {
+	if((current = Ev.AddUdvByName("MOUSE_X2"))) {
 		Gcomplex(&current->udv_value, real_x2, 0);
 	}
-	if((current = GPO.Ev.AddUdvByName("MOUSE_Y2"))) {
+	if((current = Ev.AddUdvByName("MOUSE_Y2"))) {
 		Gcomplex(&current->udv_value, real_y2, 0);
 	}
-	if((current = GPO.Ev.AddUdvByName("MOUSE_SHIFT"))) {
+	if((current = Ev.AddUdvByName("MOUSE_SHIFT"))) {
 		Ginteger(&current->udv_value, modifier_mask & Mod_Shift);
 	}
-	if((current = GPO.Ev.AddUdvByName("MOUSE_ALT"))) {
+	if((current = Ev.AddUdvByName("MOUSE_ALT"))) {
 		Ginteger(&current->udv_value, modifier_mask & Mod_Alt);
 	}
-	if((current = GPO.Ev.AddUdvByName("MOUSE_CTRL"))) {
+	if((current = Ev.AddUdvByName("MOUSE_CTRL"))) {
 		Ginteger(&current->udv_value, modifier_mask & Mod_Ctrl);
 	}
 }

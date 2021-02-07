@@ -126,8 +126,9 @@ bool MousableWindowOpened(void)
 
 	return result;
 }
-
-/* PauseBox */
+//
+// PauseBox 
+//
 int PauseBox(LPPW lppw)
 {
 	HDC hdc;
@@ -135,15 +136,13 @@ int PauseBox(LPPW lppw)
 	TEXTMETRIC tm;
 	RECT rect;
 	SIZE size;
-
 #ifndef WGP_CONSOLE
 	TextUpdateStatus(&textwin);
 #endif
 #ifdef USE_MOUSE
-	/* Do not try to wait for mouse events when there's no graph window open. */
+	// Do not try to wait for mouse events when there's no graph window open. 
 	if(paused_for_mouse && !MousableWindowOpened())
 		paused_for_mouse = 0;
-
 	if(!paused_for_mouse)
 #endif
 	{
@@ -154,7 +153,6 @@ int PauseBox(LPPW lppw)
 			lppw->Origin.x = (rect.right + rect.left) / 2;
 		if((lppw->Origin.y == CW_USEDEFAULT) || (lppw->Origin.y == 0))
 			lppw->Origin.y = (rect.bottom + rect.top) / 2;
-
 		hdc = GetDC(NULL);
 		SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
 		/* determine actual text size */
@@ -164,23 +162,16 @@ int PauseBox(LPPW lppw)
 		width = smin(width, rect.right - rect.left);
 		height = 8 * size.cy;
 		ReleaseDC(NULL, hdc);
-
-		lppw->hWndPause = CreateWindowExW(
-			WS_EX_DLGMODALFRAME | WS_EX_APPWINDOW,
-			szPauseClass, lppw->Title,
-			/* HBB 981202: WS_POPUPWINDOW would have WS_SYSMENU in it, but we don't
-			 * want, nor need, a System menu in our Pause windows. */
-			WS_POPUP | WS_BORDER | WS_CAPTION,
-			lppw->Origin.x - width/2, lppw->Origin.y - height/2,
-			width, height,
-			lppw->hWndParent, NULL, lppw->hInstance, lppw);
+		lppw->hWndPause = CreateWindowExW(WS_EX_DLGMODALFRAME | WS_EX_APPWINDOW, szPauseClass, lppw->Title,
+			/* HBB 981202: WS_POPUPWINDOW would have WS_SYSMENU in it, but we don't want, nor need, a System menu in our Pause windows. */
+			WS_POPUP | WS_BORDER | WS_CAPTION, lppw->Origin.x - width/2, lppw->Origin.y - height/2,
+			width, height, lppw->hWndParent, NULL, lppw->hInstance, lppw);
 		ShowWindow(lppw->hWndPause, SW_SHOWNORMAL);
 		BringWindowToTop(lppw->hWndPause);
 		UpdateWindow(lppw->hWndPause);
 
 		lppw->bPause = TRUE;
 		lppw->bPauseCancel = IDCANCEL;
-
 		while(lppw->bPause && !ctrlc_flag) {
 			if(term->waitforinput == NULL) {
 				/* Only handle message queue events */
@@ -195,7 +186,6 @@ int PauseBox(LPPW lppw)
 				win_sleep(50);
 			}
 		}
-
 		DestroyWindow(lppw->hWndPause);
 		return lppw->bPauseCancel;
 	}
@@ -206,7 +196,6 @@ int PauseBox(LPPW lppw)
 		        "gnuplot pausing (waiting for mouse click)"
 		    in the window status or title bar or somewhere else.
 		 */
-
 		while(paused_for_mouse && !ctrlc_flag) {
 			if(term->waitforinput == NULL) {
 				/* Only handle message queue events */

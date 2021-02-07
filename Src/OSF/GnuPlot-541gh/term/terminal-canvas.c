@@ -1,12 +1,9 @@
-/* Hello, Emacs, this is -*-C-*- */
-
-/* GNUPLOT - canvas.trm */
-
+// Hello, Emacs, this is -*-C-*- 
+// GNUPLOT - canvas.trm 
 /*
  * This file is included by ../term.c.
  *
- * This terminal driver supports:
- *   W3C HTML <canvas> tag
+ * This terminal driver supports: W3C HTML <canvas> tag
  *
  * AUTHOR
  *   Bruce Lueckenhoff, Aug 2008
@@ -46,38 +43,45 @@
  * send your comments or suggestions to (gnuplot-info@lists.sourceforge.net).
  *
  */
+#include <gnuplot.h>
+#pragma hdrstop
 #include "driver.h"
 
-#ifdef TERM_REGISTER
-register_term(canvas_driver)
-#endif
+// @experimental {
+#define TERM_BODY
+#define TERM_PUBLIC static
+#define TERM_TABLE
+#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_END(x)   };
+// } @experimental
 
-#ifdef TERM_PROTO
+#ifdef TERM_REGISTER
+	register_term(canvas_driver)
+#endif
+//#ifdef TERM_PROTO
 TERM_PUBLIC void CANVAS_options();
-TERM_PUBLIC void CANVAS_init();
+TERM_PUBLIC void CANVAS_init(termentry * pThis);
 TERM_PUBLIC void CANVAS_graphics();
-TERM_PUBLIC int CANVAS_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  CANVAS_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC void CANVAS_text();
 TERM_PUBLIC void CANVAS_reset();
 TERM_PUBLIC void CANVAS_linetype(int linetype);
 TERM_PUBLIC void CANVAS_dashtype(int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void CANVAS_fillbox(int style, uint x1, uint y1,
-    uint width, uint height);
+TERM_PUBLIC void CANVAS_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void CANVAS_linewidth(double linewidth);
 TERM_PUBLIC void CANVAS_move(uint x, uint y);
 TERM_PUBLIC void CANVAS_vector(uint x, uint y);
 TERM_PUBLIC void CANVAS_point(uint x, uint y, int number);
 TERM_PUBLIC void CANVAS_pointsize(double size);
 TERM_PUBLIC void CANVAS_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC int CANVAS_text_angle(int ang);
+TERM_PUBLIC int  CANVAS_text_angle(int ang);
 TERM_PUBLIC void CANVAS_filled_polygon(int, gpiPoint *);
 TERM_PUBLIC void CANVAS_set_color(t_colorspec * colorspec);
-TERM_PUBLIC int CANVAS_make_palette(t_sm_palette * palette);
+TERM_PUBLIC int  CANVAS_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void CANVAS_layer(t_termlayer);
 TERM_PUBLIC void CANVAS_path(int);
 TERM_PUBLIC void CANVAS_hypertext(int, const char *);
-TERM_PUBLIC int CANVAS_set_font(const char *);
-
+TERM_PUBLIC int  CANVAS_set_font(const char *);
 TERM_PUBLIC void ENHCANVAS_OPEN(char *, double, double, bool, bool, int);
 TERM_PUBLIC void ENHCANVAS_FLUSH();
 TERM_PUBLIC void ENHCANVAS_put_text(uint, uint, const char *);
@@ -89,16 +93,15 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint, uint, const char *);
 #define CANVASHTIC              (10  * CANVAS_OVERSAMPLE)
 #define CANVASVCHAR             (10  * CANVAS_OVERSAMPLE)
 #define CANVASHCHAR             (8   * CANVAS_OVERSAMPLE)
-
-#endif /* TERM_PROTO */
+//#endif // TERM_PROTO 
 
 #ifdef TERM_BODY
 
 #define CANVAS_AXIS_CONST '\1'
 #define CANVAS_BORDER_CONST '\2'
 
-static int canvas_x = -1;       /* current X position */
-static int canvas_y = -1;       /* current Y position */
+static int canvas_x = -1; // current X position 
+static int canvas_y = -1; // current Y position 
 static int canvas_xmax = static_cast<int>(CANVAS_XMAX);
 static int canvas_ymax = static_cast<int>(CANVAS_YMAX);
 static int canvas_line_type = LT_UNDEFINED;
@@ -123,11 +126,10 @@ static char * CANVAS_name = NULL;
 static char * CANVAS_scriptdir = NULL;
 static char * CANVAS_title = NULL;
 static char * CANVAS_hypertext_text = NULL;
-
-/*
- * Stuff for tracking images stored in separate files
- * to be referenced by canvas.drawImage();
- */
+// 
+// Stuff for tracking images stored in separate files
+// to be referenced by canvas.drawImage();
+// 
 static int CANVAS_imageno = 0;
 typedef struct canvas_imagefile {
 	int imageno;    /* Used to generate the internal name */
@@ -146,15 +148,29 @@ static struct {
 } canvas_state;
 
 enum CANVAS_case {
-	CANVAS_SIZE, CANVAS_FONT, CANVAS_FSIZE,
-	CANVAS_NAME, CANVAS_STANDALONE, CANVAS_TITLE,
-	CANVAS_LINEWIDTH, CANVAS_MOUSING, CANVAS_JSDIR, CANVAS_ENH, CANVAS_NOENH,
-	CANVAS_FONTSCALE, CANVAS_SOLID, CANVAS_DASHED, CANVAS_DASHLENGTH,
-	CANVAS_ROUNDED, CANVAS_BUTT, CANVAS_SQUARE, CANVAS_BACKGROUND, CANVAS_OTHER
+	CANVAS_SIZE, 
+	CANVAS_FONT, 
+	CANVAS_FSIZE,
+	CANVAS_NAME, 
+	CANVAS_STANDALONE, 
+	CANVAS_TITLE,
+	CANVAS_LINEWIDTH, 
+	CANVAS_MOUSING, 
+	CANVAS_JSDIR, 
+	CANVAS_ENH, 
+	CANVAS_NOENH,
+	CANVAS_FONTSCALE, 
+	CANVAS_SOLID, 
+	CANVAS_DASHED, 
+	CANVAS_DASHLENGTH,
+	CANVAS_ROUNDED, 
+	CANVAS_BUTT, 
+	CANVAS_SQUARE, 
+	CANVAS_BACKGROUND, 
+	CANVAS_OTHER
 };
 
-static struct gen_table CANVAS_opts[] =
-{
+static struct gen_table CANVAS_opts[] = {
 	{ "font", CANVAS_FONT },
 	{ "fsize", CANVAS_FSIZE },
 	{ "name", CANVAS_NAME },
@@ -180,7 +196,7 @@ static struct gen_table CANVAS_opts[] =
 	{ NULL, CANVAS_OTHER }
 };
 
-/* Fill patterns */
+// Fill patterns 
 #define PATTERN1 "tile.moveTo(0,0); tile.lineTo(32,32); tile.moveTo(0,16); tile.lineTo(16,32); tile.moveTo(16,0); tile.lineTo(32,16);"
 #define PATTERN2 "tile.moveTo(0,32); tile.lineTo(32,0); tile.moveTo(0,16); tile.lineTo(16,0); tile.moveTo(16,32); tile.lineTo(32,16);"
 #define PATTERN3 \
@@ -188,29 +204,29 @@ static struct gen_table CANVAS_opts[] =
 
 static void CANVAS_start(void)
 {
-	if(canvas_in_a_path)
-		return;
-	fprintf(gpoutfile, "ctx.beginPath();\n");
-	canvas_in_a_path = TRUE;
-	already_closed = FALSE;
+	if(!canvas_in_a_path) {
+		fprintf(gpoutfile, "ctx.beginPath();\n");
+		canvas_in_a_path = TRUE;
+		already_closed = FALSE;
+	}
 }
 
 static void CANVAS_finish(void)
 {
-	if(!canvas_in_a_path)
-		return;
-	fprintf(gpoutfile, "ctx.stroke();\n");
-	if(!already_closed)
-		fprintf(gpoutfile, "ctx.closePath();\n");
-	canvas_in_a_path = FALSE;
-	already_closed = TRUE;
+	if(canvas_in_a_path) {
+		fprintf(gpoutfile, "ctx.stroke();\n");
+		if(!already_closed)
+			fprintf(gpoutfile, "ctx.closePath();\n");
+		canvas_in_a_path = FALSE;
+		already_closed = TRUE;
+	}
 }
 
 TERM_PUBLIC void CANVAS_options()
 {
 	int canvas_background = 0;
 	if(!GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion")) {
-		/* Re-initialize a few things */
+		// Re-initialize a few things 
 		canvas_font_size = CANVAS_default_fsize = 10;
 		canvas_fontscale = 1.0;
 		CANVAS_standalone = TRUE;
@@ -246,8 +262,8 @@ TERM_PUBLIC void CANVAS_options()
 				    canvas_xmax = CANVAS_XMAX;
 			    if(canvas_ymax <= 0)
 				    canvas_ymax = CANVAS_YMAX;
-			    term->xmax = canvas_xmax;
-			    term->ymax = canvas_ymax;
+			    term->MaxX = canvas_xmax;
+			    term->MaxY = canvas_ymax;
 			    break;
 
 			case CANVAS_TITLE:
@@ -345,7 +361,7 @@ TERM_PUBLIC void CANVAS_options()
 	if(canvas_dashlength_factor != 1.0)
 		sprintf(term_options + strlen(term_options), " dashlength %3.1f", canvas_dashlength_factor);
 	sprintf(term_options + strlen(term_options), canvas_linecap == ROUNDED ? " rounded" : canvas_linecap == SQUARE ? " square" : " butt");
-	sprintf(term_options + strlen(term_options), " size %d,%d", (int)(term->xmax/CANVAS_OVERSAMPLE), (int)(term->ymax/CANVAS_OVERSAMPLE));
+	sprintf(term_options + strlen(term_options), " size %d,%d", (int)(term->MaxX/CANVAS_OVERSAMPLE), (int)(term->MaxY/CANVAS_OVERSAMPLE));
 	sprintf(term_options + strlen(term_options), "%s fsize %g lw %g", term->put_text == ENHCANVAS_put_text ? " enhanced" : "", canvas_font_size, canvas_linewidth);
 	sprintf(term_options + strlen(term_options), " fontscale %g", canvas_fontscale);
 	if(*CANVAS_background)
@@ -363,15 +379,14 @@ TERM_PUBLIC void CANVAS_options()
 		sprintf(term_options + strlen(term_options), " jsdir \"%s\"", CANVAS_scriptdir);
 }
 
-TERM_PUBLIC void CANVAS_init()
+TERM_PUBLIC void CANVAS_init(termentry * pThis)
 {
 }
 
 TERM_PUBLIC void CANVAS_graphics()
 {
 	int len;
-
-	/* Force initialization at the beginning of each plot */
+	// Force initialization at the beginning of each plot 
 	canvas_line_type = LT_UNDEFINED;
 	canvas_text_angle = 0;
 	canvas_in_a_path = FALSE;
@@ -380,7 +395,6 @@ TERM_PUBLIC void CANVAS_graphics()
 	canvas_state.previous_fill[0] = '\0';
 	strcpy(canvas_state.color, "rgba(000,000,000,0.00)");
 	canvas_state.plotno = 0;
-
 	/*
 	 * FIXME: This code could be shared with svg.trm
 	 *        Figure out where to find javascript support routines
@@ -472,7 +486,7 @@ TERM_PUBLIC void CANVAS_graphics()
 		    "  gnuplot.zoom_in_progress = false;\n",
 		    CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name);
 		fprintf(gpoutfile, "  gnuplot.polar_mode = %s;\n  gnuplot.polar_theta0 = %d;\n  gnuplot.polar_sense = %d;\n  ctx.clearRect(0,0,%d,%d);\n}\n",
-		    (polar) ? "true" : "false", (int)theta_origin, (int)theta_direction, (int)(term->xmax / CANVAS_OVERSAMPLE), (int)(term->ymax / CANVAS_OVERSAMPLE));
+		    (polar) ? "true" : "false", (int)theta_origin, (int)theta_direction, (int)(term->MaxX / CANVAS_OVERSAMPLE), (int)(term->MaxY / CANVAS_OVERSAMPLE));
 	}
 	fprintf(gpoutfile, "// Gnuplot version %s.%s\n", gnuplot_version, gnuplot_patchlevel);
 	fprintf(gpoutfile,
@@ -516,10 +530,9 @@ TERM_PUBLIC void CANVAS_graphics()
 		    "ctx.fillStyle = \"%s\";\n"
 		    "ctx.fillRect(0,0,%d,%d);\n",
 		    CANVAS_background,
-		    (int)(term->xmax / CANVAS_OVERSAMPLE),
-		    (int)(term->ymax / CANVAS_OVERSAMPLE));
+		    (int)(term->MaxX / CANVAS_OVERSAMPLE),
+		    (int)(term->MaxY / CANVAS_OVERSAMPLE));
 	}
-
 	fprintf(gpoutfile,
 	    "CanvasTextFunctions.enable(ctx);\n"
 	    "ctx.strokeStyle = \" rgb(215,215,215)\";\n"
@@ -552,12 +565,12 @@ TERM_PUBLIC void CANVAS_text()
 	/* they should be tied to the function name and hence private.            */
 	if(TRUE) {
 		fprintf(gpoutfile, "\n// plot boundaries and axis scaling information for mousing \n");
-		fprintf(gpoutfile, "gnuplot.plot_term_xmax = %d;\n", (int)(term->xmax / CANVAS_OVERSAMPLE));
-		fprintf(gpoutfile, "gnuplot.plot_term_ymax = %d;\n", (int)(term->ymax / CANVAS_OVERSAMPLE));
+		fprintf(gpoutfile, "gnuplot.plot_term_xmax = %d;\n", (int)(term->MaxX / CANVAS_OVERSAMPLE));
+		fprintf(gpoutfile, "gnuplot.plot_term_ymax = %d;\n", (int)(term->MaxY / CANVAS_OVERSAMPLE));
 		fprintf(gpoutfile, "gnuplot.plot_xmin = %.1f;\n", (double)GPO.V.BbPlot.xleft / CANVAS_OVERSAMPLE);
 		fprintf(gpoutfile, "gnuplot.plot_xmax = %.1f;\n", (double)GPO.V.BbPlot.xright / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ybot = %.1f;\n", (double)(term->ymax-GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ytop = %.1f;\n", (double)(term->ymax-GPO.V.BbPlot.ytop) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_ybot = %.1f;\n", (double)(term->MaxY-GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_ytop = %.1f;\n", (double)(term->MaxY-GPO.V.BbPlot.ytop) / CANVAS_OVERSAMPLE);
 		fprintf(gpoutfile, "gnuplot.plot_width = %.1f;\n", (double)(GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / CANVAS_OVERSAMPLE);
 		fprintf(gpoutfile, "gnuplot.plot_height = %.1f;\n", (double)(GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
 		// Get true axis ranges as used in the plot 
@@ -615,70 +628,44 @@ TERM_PUBLIC void CANVAS_text()
 		 *     "Time", "Date", and "DateTime".
 		 * FIXME: This all needs to be documented somewhere!
 		 */
-#       define is_nonlinear(axis) ((axis)->linked_to_primary != NULL \
-	&& (axis)->link_udf->at != NULL \
-	&& (axis)->index == -((axis)->linked_to_primary->index))
+		#define is_nonlinear(axis) ((axis)->linked_to_primary && (axis)->link_udf->at && (axis)->index == -((axis)->linked_to_primary->index))
 
 		this_axis = &GPO.AxS[FIRST_X_AXIS];
-		fprintf(gpoutfile, "gnuplot.plot_logaxis_x = %d;\n",
-		    this_axis->log ? 1
-		    : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1
-		    : 0);
+		fprintf(gpoutfile, "gnuplot.plot_logaxis_x = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
 		this_axis = &GPO.AxS[FIRST_Y_AXIS];
-		fprintf(gpoutfile, "gnuplot.plot_logaxis_y = %d;\n",
-		    this_axis->log ? 1
-		    : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1
-		    : 0);
+		fprintf(gpoutfile, "gnuplot.plot_logaxis_y = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
 		if(polar)
-			fprintf(gpoutfile, "gnuplot.plot_logaxis_r = %d;\n",
-			    GPO.AxS[POLAR_AXIS].log ? 1 : 0);
-
+			fprintf(gpoutfile, "gnuplot.plot_logaxis_r = %d;\n", GPO.AxS[POLAR_AXIS].log ? 1 : 0);
 		if(GPO.AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE) {
-			/* May need to reconstruct time to millisecond precision */
-			fprintf(gpoutfile, "gnuplot.plot_axis_xmin = %.3f;\n",
-			    GPO.AxS[FIRST_X_AXIS].min);
-			fprintf(gpoutfile, "gnuplot.plot_axis_xmax = %.3f;\n",
-			    GPO.AxS[FIRST_X_AXIS].max);
-			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"%s\";\n",
-			    (mouse_alt_string) ? mouse_alt_string
-			    : (mouse_mode == 4) ? "Date"
-			    : (mouse_mode == 5) ? "Time"
-			    : "DateTime"
-			    );
+			// May need to reconstruct time to millisecond precision 
+			fprintf(gpoutfile, "gnuplot.plot_axis_xmin = %.3f;\n", GPO.AxS[FIRST_X_AXIS].min);
+			fprintf(gpoutfile, "gnuplot.plot_axis_xmax = %.3f;\n", GPO.AxS[FIRST_X_AXIS].max);
+			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : (mouse_mode == 4) ? "Date" : (mouse_mode == 5) ? "Time" : "DateTime");
 		}
 		else if(GPO.AxS[FIRST_X_AXIS].datatype == DT_DMS) {
-			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"%s\";\n",
-			    (mouse_alt_string) ? mouse_alt_string : "DMS");
+			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : "DMS");
 		}
 		else
 			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"\";\n");
 		if(GPO.AxS[FIRST_Y_AXIS].datatype == DT_DMS) {
-			fprintf(gpoutfile, "gnuplot.plot_timeaxis_y = \"%s\";\n",
-			    (mouse_alt_string) ? mouse_alt_string : "DMS");
+			fprintf(gpoutfile, "gnuplot.plot_timeaxis_y = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : "DMS");
 		}
 		else
 			fprintf(gpoutfile, "gnuplot.plot_timeaxis_y = \"\";\n");
-
 		fprintf(gpoutfile, "gnuplot.plot_axis_width = gnuplot.plot_axis_xmax - gnuplot.plot_axis_xmin;\n");
 		fprintf(gpoutfile, "gnuplot.plot_axis_height = gnuplot.plot_axis_ymax - gnuplot.plot_axis_ymin;\n");
 	} /* End of section writing out variables for mousing */
-
-	/* This is the end of the javascript plot */
+	// This is the end of the javascript plot 
 	fprintf(gpoutfile, "}\n");
-
 #ifdef WRITE_PNG_IMAGE
-	/* Link internal image structures to external PNG files */
+	// Link internal image structures to external PNG files 
 	if(imagelist) {
 		canvas_imagefile * thisimage = imagelist;
 		char * base_name = CANVAS_name ? CANVAS_name : "gp";
-
 		while(thisimage != NULL) {
-			fprintf(stderr, " linking image %d to external file %s\n",
-			    thisimage->imageno, thisimage->filename);
-			fprintf(gpoutfile, "  var %s_image_%02d = new Image();",
-			    base_name, thisimage->imageno);
-			fprintf(gpoutfile, "  %s_image_%02d.src = \"%s\";\n",
-			    base_name, thisimage->imageno, thisimage->filename);
+			fprintf(stderr, " linking image %d to external file %s\n", thisimage->imageno, thisimage->filename);
+			fprintf(gpoutfile, "  var %s_image_%02d = new Image();", base_name, thisimage->imageno);
+			fprintf(gpoutfile, "  %s_image_%02d.src = \"%s\";\n", base_name, thisimage->imageno, thisimage->filename);
 			imagelist = thisimage->next;
 			SAlloc::F(thisimage->filename);
 			SAlloc::F(thisimage);
@@ -686,7 +673,6 @@ TERM_PUBLIC void CANVAS_text()
 		}
 	}
 #endif
-
 	if(CANVAS_standalone) {
 		fprintf(gpoutfile,
 		    "</script>\n"
@@ -696,18 +682,14 @@ TERM_PUBLIC void CANVAS_text()
 		    "<div class=\"gnuplot\">\n",
 		    CANVAS_scriptdir ? CANVAS_scriptdir : ""
 		    );
-		/* Pattern-fill requires having a canvas element to hold a template
-		 * pattern tile.  Define it here but try to hide it (may not work in IE?)
-		 */
-		fprintf(gpoutfile,
-		    "<canvas id=\"Tile\" width=\"32\" height=\"32\" hidden></canvas>\n");
-
-		/* The format of the plot box and in particular the mouse tracking box
-		 * are determined by the CSS specs in customizable file gnuplot_mouse.css
-		 * We could make this even more customizable by providing an external HTML
-		 * template, but in that case the user might as well just create a *.js
-		 * file and provide his own wrapping HTML document.
-		 */
+		// Pattern-fill requires having a canvas element to hold a template
+		// pattern tile.  Define it here but try to hide it (may not work in IE?)
+		fprintf(gpoutfile, "<canvas id=\"Tile\" width=\"32\" height=\"32\" hidden></canvas>\n");
+		// The format of the plot box and in particular the mouse tracking box
+		// are determined by the CSS specs in customizable file gnuplot_mouse.css
+		// We could make this even more customizable by providing an external HTML
+		// template, but in that case the user might as well just create a *.js
+		// file and provide his own wrapping HTML document.
 		if(CANVAS_mouseable) {
 			int i;
 			fprintf(gpoutfile,
@@ -742,12 +724,10 @@ TERM_PUBLIC void CANVAS_text()
 					fprintf(gpoutfile,
 					    "	  <td class=\"icon\" onclick=gnuplot.toggle_plot(\"gp_plot_%d\")>%d</td>\n", i, i);
 				else
-					fprintf(gpoutfile,
-					    "	  <td class=\"icon\" > </td>\n");
+					fprintf(gpoutfile, "	  <td class=\"icon\" > </td>\n");
 				if((i%6) == 0)
 					fprintf(gpoutfile, "	</tr>\n");
 			}
-
 			fprintf(gpoutfile,
 			    "      </table>\n"
 			    "  </td></tr>\n"
@@ -761,22 +741,12 @@ TERM_PUBLIC void CANVAS_text()
 			    );
 
 			if((GPO.AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS)
-				fprintf(gpoutfile,
-				    "<tr> <td class=\"mb0\">x2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_x2\">&nbsp;</span></td> </tr>\n");
+				fprintf(gpoutfile, "<tr> <td class=\"mb0\">x2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_x2\">&nbsp;</span></td> </tr>\n");
 			if((GPO.AxS[SECOND_Y_AXIS].ticmode & TICS_MASK) != NO_TICS)
-				fprintf(gpoutfile,
-				    "<tr> <td class=\"mb0\">y2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_y2\">&nbsp;</span></td> </tr>\n");
-
-			fprintf(gpoutfile,
-			    "</table></td></tr>\n"
-			    "</table>\n"
-			    );
-
-			fprintf(gpoutfile,
-			    "</td><td>\n"
-			    );
+				fprintf(gpoutfile, "<tr> <td class=\"mb0\">y2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_y2\">&nbsp;</span></td> </tr>\n");
+			fprintf(gpoutfile, "</table></td></tr>\n</table>\n");
+			fprintf(gpoutfile, "</td><td>\n");
 		} /* End if (CANVAS_mouseable) */
-
 		fprintf(gpoutfile,
 		    "<table class=\"plot\">\n"
 		    "<tr><td>\n"
@@ -785,22 +755,13 @@ TERM_PUBLIC void CANVAS_text()
 		    "    </canvas>\n"
 		    "</td></tr>\n"
 		    "</table>\n",
-		    (int)(term->xmax/CANVAS_OVERSAMPLE), (int)(term->ymax/CANVAS_OVERSAMPLE)
+		    (int)(term->MaxX/CANVAS_OVERSAMPLE), (int)(term->MaxY/CANVAS_OVERSAMPLE)
 		    );
-
 		if(CANVAS_mouseable) {
-			fprintf(gpoutfile,
-			    "</td></tr></table>\n"
-			    );
+			fprintf(gpoutfile, "</td></tr></table>\n");
 		}
-
-		fprintf(gpoutfile,
-		    "</div>\n\n"
-		    "</body>\n"
-		    "</html>\n"
-		    );
+		fprintf(gpoutfile, "</div>\n\n</body>\n</html>\n");
 	}
-
 	fflush(gpoutfile);
 }
 
@@ -832,12 +793,9 @@ TERM_PUBLIC void CANVAS_linetype(int linetype)
 		" rgb(214,000,120)", /* mulberry*/
 		" rgb(171,214,000)", /* green yellow*/
 	};
-
-	/* FIXME if (linetype == canvas_line_type) return; */
-
+	// FIXME if (linetype == canvas_line_type) return; 
 	canvas_line_type = linetype;
 	CANVAS_finish();
-
 	if(linetype >= 14)
 		linetype %= 14;
 	if(linetype <= LT_NODRAW) /* LT_NODRAW, LT_BACKGROUND, LT_UNDEFINED */
@@ -850,7 +808,6 @@ TERM_PUBLIC void CANVAS_linetype(int linetype)
 		fprintf(gpoutfile, "ctx.strokeStyle = \"%s\";\n", canvas_state.color);
 		strcpy(canvas_state.previous_color, canvas_state.color);
 	}
-
 	if(canvas_line_type == LT_NODRAW)
 		CANVAS_dashtype(DASHTYPE_NODRAW, NULL);
 }
@@ -859,30 +816,24 @@ TERM_PUBLIC void CANVAS_dashtype(int type, t_dashtype * custom_dash_type)
 {
 	if(canvas_line_type == LT_NODRAW)
 		type = DASHTYPE_NODRAW;
-
 	if(canvas_line_type == LT_AXIS)
 		type = DASHTYPE_AXIS;
-
 	switch(type) {
 		case DASHTYPE_AXIS:
 		    fprintf(gpoutfile, "DT(gnuplot.dashpattern3);\n");
 		    break;
-
 		case DASHTYPE_SOLID:
 		    if(canvas_dash_type != DASHTYPE_SOLID)
 			    fprintf(gpoutfile, "DT(gnuplot.solid);\n");
 		    break;
-
 		case DASHTYPE_NODRAW:
 		    fprintf(gpoutfile, "DT([0.0,1.0]);\n");
 		    break;
-
 		default:
 		    type = type % 5;
 		    if(canvas_dash_type != type)
 			    fprintf(gpoutfile, "DT(gnuplot.dashpattern%1d);\n", type + 1);
 		    break;
-
 		case DASHTYPE_CUSTOM:
 		    if(custom_dash_type) {
 			    double length = 0;
@@ -908,9 +859,7 @@ TERM_PUBLIC void CANVAS_move(uint arg_x, uint arg_y)
 		return;
 	}
 	CANVAS_start();
-	fprintf(gpoutfile,
-	    "M(%u,%u);\n",
-	    arg_x, canvas_ymax - arg_y);
+	fprintf(gpoutfile, "M(%u,%u);\n", arg_x, canvas_ymax - arg_y);
 	canvas_x = arg_x;
 	canvas_y = arg_y;
 }
@@ -968,7 +917,6 @@ TERM_PUBLIC void CANVAS_point(uint x, uint y, int number)
 		    fprintf(gpoutfile, "Pt(%d,%d,%d,%.1f);\n", pt, x, (canvas_ymax-y), width);
 		    break;
 	}
-
 	/* Hypertext support */
 	if(CANVAS_hypertext_text) {
 		/* EAM DEBUG: embedded \n produce illegal javascript output */
@@ -995,37 +943,29 @@ TERM_PUBLIC int CANVAS_text_angle(int ang)
 
 TERM_PUBLIC void CANVAS_put_text(uint x, uint y, const char * str)
 {
-	if(!str || !(*str))
-		return;
-
-	CANVAS_finish();
-
-	/* ctx.fillText uses fillStyle rather than strokeStyle */
-	if(strcmp(canvas_state.previous_fill, canvas_state.color)) {
-		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
-		strcpy(canvas_state.previous_fill, canvas_state.color);
+	if(!isempty(str)) {
+		CANVAS_finish();
+		// ctx.fillText uses fillStyle rather than strokeStyle 
+		if(strcmp(canvas_state.previous_fill, canvas_state.color)) {
+			fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
+			strcpy(canvas_state.previous_fill, canvas_state.color);
+		}
+		if(0 != canvas_text_angle) {
+			fprintf(gpoutfile, "TR(%d,%d,%d,%.1f,\"%s\",\"", x, (int)(canvas_ymax + 5*CANVAS_OVERSAMPLE - y),
+				canvas_text_angle, canvas_font_size * canvas_fontscale, canvas_justify);
+		}
+		else {
+			fprintf(gpoutfile, "T(%d,%d,%.1f,\"%s\",\"", x, (int)(canvas_ymax + 5*CANVAS_OVERSAMPLE - y),
+				canvas_font_size * canvas_fontscale, canvas_justify);
+		}
+		// Sanitize string by escaping quote characters 
+		do {
+			if(*str == '"' || *str == '\\')
+				fputc('\\', gpoutfile);
+			fputc(*str++, gpoutfile);
+		} while(*str);
+		fprintf(gpoutfile, "\");\n");
 	}
-
-	if(0 != canvas_text_angle) {
-		fprintf(gpoutfile,
-		    "TR(%d,%d,%d,%.1f,\"%s\",\"",
-		    x, (int)(canvas_ymax + 5*CANVAS_OVERSAMPLE - y),
-		    canvas_text_angle, canvas_font_size * canvas_fontscale, canvas_justify);
-	}
-	else {
-		fprintf(gpoutfile, "T(%d,%d,%.1f,\"%s\",\"",
-		    x, (int)(canvas_ymax + 5*CANVAS_OVERSAMPLE - y),
-		    canvas_font_size * canvas_fontscale, canvas_justify);
-	}
-
-	/* Sanitize string by escaping quote characters */
-	do {
-		if(*str == '"' || *str == '\\')
-			fputc('\\', gpoutfile);
-		fputc(*str++, gpoutfile);
-	} while(*str);
-
-	fprintf(gpoutfile, "\");\n");
 }
 
 TERM_PUBLIC void CANVAS_linewidth(double linewidth)
@@ -1263,15 +1203,13 @@ TERM_PUBLIC int CANVAS_set_font(const char * newfont)
 				canvas_font_size = CANVAS_default_fsize;
 		}
 	}
-
 	term->ChrV = canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE;
 	term->ChrH = canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE;
-
 	return 1;
 }
-
-/* Enhanced text mode support starts here */
-
+//
+// Enhanced text mode support starts here 
+//
 static double ENHCANVAS_base = 0.0;
 static double ENHCANVAS_fontsize = 0;
 static bool ENHCANVAS_opened_string = FALSE;
@@ -1280,29 +1218,22 @@ static bool ENHCANVAS_sizeonly = FALSE;
 static bool ENHCANVAS_widthflag = TRUE;
 static bool ENHCANVAS_overprint = FALSE;
 
-TERM_PUBLIC void ENHCANVAS_OPEN(char * fontname,
-    double fontsize, double base,
-    bool widthflag, bool showflag,
-    int overprint)
+TERM_PUBLIC void ENHCANVAS_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	static int save_x, save_y;
-	/* overprint = 1 means print the base text (leave position in center)
-	 * overprint = 2 means print the overlying text
-	 * overprint = 3 means save current position
-	 * overprint = 4 means restore saved position
-	 */
+	// overprint = 1 means print the base text (leave position in center)
+	// overprint = 2 means print the overlying text
+	// overprint = 3 means save current position
+	// overprint = 4 means restore saved position
 	if(overprint == 3) {
 		save_x = canvas_x;
 		save_y = canvas_y;
-		return;
 	}
-	if(overprint == 4) {
+	else if(overprint == 4) {
 		canvas_x = save_x;
 		canvas_y = save_y;
-		return;
 	}
-
-	if(!ENHCANVAS_opened_string) {
+	else if(!ENHCANVAS_opened_string) {
 		ENHCANVAS_opened_string = TRUE;
 		enhanced_cur_text = &enhanced_text[0];
 		ENHCANVAS_fontsize = fontsize;
@@ -1312,17 +1243,15 @@ TERM_PUBLIC void ENHCANVAS_OPEN(char * fontname,
 		ENHCANVAS_overprint = overprint;
 	}
 }
-
-/*
- * Since we only have the one font, and the character widths are known,
- * we can go to the trouble of actually counting character widths.
- * As it happens, the averages width of ascii characters is 20.
- */
+// 
+// Since we only have the one font, and the character widths are known,
+// we can go to the trouble of actually counting character widths.
+// As it happens, the averages width of ascii characters is 20.
+// 
 static int canvas_strwidth(char * s)
 {
 	int width = 0;
 	char * end = s + strlen(s);
-
 	while(*s) {
 		if((*s & 0x80) == 0) {
 			if(strchr("iIl|", *s)) width += 8;
@@ -1350,15 +1279,13 @@ static int canvas_strwidth(char * s)
 TERM_PUBLIC void ENHCANVAS_FLUSH()
 {
 	double save_fontsize;
-	int x, y;
-	double w;
 	if(ENHCANVAS_opened_string) {
 		ENHCANVAS_opened_string = FALSE;
 		*enhanced_cur_text = '\0';
 		save_fontsize = canvas_font_size;
-		x = canvas_x;
-		y = canvas_y;
-		w = canvas_strwidth(enhanced_text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.0;
+		int x = canvas_x;
+		int y = canvas_y;
+		double w = canvas_strwidth(enhanced_text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.0;
 		canvas_font_size = ENHCANVAS_fontsize;
 		x += sin((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
 		y += cos((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
@@ -1379,7 +1306,7 @@ TERM_PUBLIC void ENHCANVAS_FLUSH()
 TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 {
 	char * original_string = (char*)str;
-	/* Save starting font properties */
+	// Save starting font properties 
 	double fontsize = canvas_font_size;
 	char * fontname = "";
 	if(!strlen(str))
@@ -1388,29 +1315,29 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 		CANVAS_put_text(x, y, str);
 		return;
 	}
-	/* ctx.fillText uses fillStyle rather than strokeStyle */
+	// ctx.fillText uses fillStyle rather than strokeStyle 
 	if(strcmp(canvas_state.previous_fill, canvas_state.color)) {
 		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
 		strcpy(canvas_state.previous_fill, canvas_state.color);
 	}
 	CANVAS_move(x, y);
-	/* Set up global variables needed by enhanced_recursion() */
+	// Set up global variables needed by enhanced_recursion() 
 	enhanced_fontscale = 1.0;
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
 	ENHCANVAS_opened_string = FALSE;
 	ENHCANVAS_fontsize = canvas_font_size;
 	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center"))
 		ENHCANVAS_sizeonly = TRUE;
-	while(*(str = enhanced_recursion((char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(term, (char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		enh_err_check(str);
 		if(!*++str)
 			break; /* end of string */
 	}
-	/* We can do text justification by running the entire top level string */
-	/* through 2 times, with the ENHgd_sizeonly flag set the first time.   */
-	/* After seeing where the final position is, we then offset the start  */
-	/* point accordingly and run it again without the flag set.            */
+	// We can do text justification by running the entire top level string 
+	// through 2 times, with the ENHgd_sizeonly flag set the first time.   
+	// After seeing where the final position is, we then offset the start  
+	// point accordingly and run it again without the flag set.            
 	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center")) {
 		char * justification = canvas_justify;
 		int x_offset = canvas_x - x;
@@ -1425,7 +1352,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 		}
 		canvas_justify = justification;
 	}
-	/* Make sure we leave with the same font properties as on entry */
+	// Make sure we leave with the same font properties as on entry 
 	canvas_font_size = fontsize;
 	ENHCANVAS_base = 0;
 }
@@ -1457,57 +1384,57 @@ TERM_PUBLIC void CANVAS_image(unsigned m, unsigned n, coordval * image, gpiPoint
 
 #ifdef TERM_TABLE
 	TERM_TABLE_START(canvas_driver)
-	"canvas", 
-	"HTML Canvas object",
-	static_cast<uint>(CANVAS_XMAX),
-	static_cast<uint>(CANVAS_YMAX),
-	static_cast<uint>(CANVASVCHAR),
-	static_cast<uint>(CANVASHCHAR),
-	static_cast<uint>(CANVASVTIC), 
-	static_cast<uint>(CANVASHTIC), 
-	CANVAS_options, 
-	CANVAS_init, 
-	CANVAS_reset,
-	CANVAS_text, 
-	null_scale, 
-	CANVAS_graphics, 
-	CANVAS_move, 
-	CANVAS_vector,
-	CANVAS_linetype, 
-	CANVAS_put_text, 
-	CANVAS_text_angle,
-	CANVAS_justify_text, 
-	CANVAS_point, 
-	do_arrow,
-	CANVAS_set_font,
-	CANVAS_pointsize,
-	TERM_CAN_MULTIPLOT|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_CAN_DASH,
-	NULL, 
-	NULL, 
-	CANVAS_fillbox, 
-	CANVAS_linewidth
-	#ifdef USE_MOUSE
-	, NULL, NULL, NULL, NULL, NULL
-	#endif
-	, CANVAS_make_palette, 
-	NULL, 
-	CANVAS_set_color, 
-	CANVAS_filled_polygon
-	#ifdef WRITE_PNG_IMAGE
-	, CANVAS_image
-	#else
-	, NULL
-	#endif
-	, ENHCANVAS_OPEN, 
-	ENHCANVAS_FLUSH, 
-	do_enh_writec, 
-	CANVAS_layer
-	, CANVAS_path                   /* path */
-	, 1.0                           /* Should this be CANVAS_OVERSAMPLE? */
-	, CANVAS_hypertext
-	, NULL                          /* boxed text */
-	, NULL,                          /* modify_plots */
-	CANVAS_dashtype 
+		"canvas", 
+		"HTML Canvas object",
+		static_cast<uint>(CANVAS_XMAX),
+		static_cast<uint>(CANVAS_YMAX),
+		static_cast<uint>(CANVASVCHAR),
+		static_cast<uint>(CANVASHCHAR),
+		static_cast<uint>(CANVASVTIC), 
+		static_cast<uint>(CANVASHTIC), 
+		CANVAS_options, 
+		CANVAS_init, 
+		CANVAS_reset,
+		CANVAS_text, 
+		GnuPlot::NullScale, 
+		CANVAS_graphics, 
+		CANVAS_move, 
+		CANVAS_vector,
+		CANVAS_linetype, 
+		CANVAS_put_text, 
+		CANVAS_text_angle,
+		CANVAS_justify_text, 
+		CANVAS_point, 
+		GnuPlot::DoArrow,
+		CANVAS_set_font,
+		CANVAS_pointsize,
+		TERM_CAN_MULTIPLOT|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_CAN_DASH,
+		NULL, 
+		NULL, 
+		CANVAS_fillbox, 
+		CANVAS_linewidth,
+		#ifdef USE_MOUSE
+		NULL, NULL, NULL, NULL, NULL,
+		#endif
+		CANVAS_make_palette, 
+		NULL, 
+		CANVAS_set_color, 
+		CANVAS_filled_polygon,
+		#ifdef WRITE_PNG_IMAGE
+		CANVAS_image,
+		#else
+		NULL,
+		#endif
+		ENHCANVAS_OPEN, 
+		ENHCANVAS_FLUSH, 
+		do_enh_writec, 
+		CANVAS_layer,
+		CANVAS_path,                   /* path */
+		1.0,                           /* Should this be CANVAS_OVERSAMPLE? */
+		CANVAS_hypertext,
+		NULL,                          /* boxed text */
+		NULL,                          /* modify_plots */
+		CANVAS_dashtype 
 TERM_TABLE_END(canvas_driver)
 
 #undef LAST_TERM

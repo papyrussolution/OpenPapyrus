@@ -257,16 +257,16 @@ int TextInit(LPTW lptw)
 	TextMessage();
 	return 0;
 }
-
-/* close a text window */
+//
+// close a text window 
+//
 void TextClose(LPTW lptw)
 {
 	HGLOBAL hglobal;
-	/* close window */
-	if(lptw->hWndParent)
-		DestroyWindow(lptw->hWndParent);
+	// close window 
+	::DestroyWindow(lptw->hWndParent);
 	TextMessage();
-	/* free the screen buffer */
+	// free the screen buffer 
 	sb_free(&(lptw->ScreenBuffer));
 	hglobal = (HGLOBAL)GlobalHandle(lptw->KeyBuf);
 	if(hglobal) {

@@ -18,8 +18,7 @@
 static t_sm_palette prev_palette = { -1, (palette_color_mode)-1, -1, -1, -1, -1, -1, -1, (rgb_color*)0, -1 };
 
 /* Internal prototype declarations: */
-
-static void draw_inside_color_smooth_box_postscript();
+//static void draw_inside_color_smooth_box_postscript();
 static void cbtick_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
 
 /* *******************************************************************
@@ -127,22 +126,24 @@ void set_color(termentry * pTerm, double gray)
 	pTerm->set_color(&color);
 }
 
-void set_rgbcolor_var(uint rgbvalue)
+//void set_rgbcolor_var(uint rgbvalue)
+void GnuPlot::SetRgbColorVar(termentry * pTerm, uint rgbvalue)
 {
 	t_colorspec color(TC_RGB, static_cast<int>(rgbvalue), -1.0/* -1 flags that this came from "rgb variable" */);
 	//color.type = TC_RGB;
 	//*(uint*)(&color.lt) = rgbvalue;
 	//color.value = -1; /* -1 flags that this came from "rgb variable" */
-	GPO.ApplyPm3DColor(term, &color);
+	ApplyPm3DColor(pTerm, &color);
 }
 
-void set_rgbcolor_const(uint rgbvalue)
+//void set_rgbcolor_const(uint rgbvalue)
+void GnuPlot::SetRgbColorConst(termentry * pTerm, uint rgbvalue)
 {
 	t_colorspec color(TC_RGB, static_cast<int>(rgbvalue), 0.0/* 0 flags that this is a constant color */);
 	//color.type = TC_RGB;
 	//*(uint*)(&color.lt) = rgbvalue;
 	//color.value = 0; /* 0 flags that this is a constant color */
-	GPO.ApplyPm3DColor(term, &color);
+	ApplyPm3DColor(pTerm, &color);
 }
 // 
 // diagnose the palette gradient in three types.
@@ -187,24 +188,25 @@ void t_sm_palette::CheckGradientType()
    Firstly two helper routines for plotting inside of the box
    for postscript and for other terminals, finally the main routine
  */
-
-/* plot the colour smooth box for from terminal's integer coordinates
-   This routine is for postscript files --- actually, it writes a small
-   PS routine.
- */
-static void draw_inside_color_smooth_box_postscript()
+// 
+// plot the colour smooth box for from terminal's integer coordinates
+// This routine is for postscript files --- actually, it writes a small
+// PS routine.
+// 
+//static void draw_inside_color_smooth_box_postscript()
+void GnuPlot::DrawInsideColorSmoothBoxPostScript()
 {
 	int scale_x = (color_box.bounds.xright - color_box.bounds.xleft), scale_y = (color_box.bounds.ytop - color_box.bounds.ybot);
 	fputs("stroke gsave\t%% draw gray scale smooth box\nmaxcolors 0 gt {/imax maxcolors def} {/imax 1024 def} ifelse\n", gppsfile);
-	/* nb. of discrete steps (counted in the loop) */
+	// nb. of discrete steps (counted in the loop) 
 	fprintf(gppsfile, "%i %i translate %i %i scale 0 setlinewidth\n", color_box.bounds.xleft, color_box.bounds.ybot, scale_x, scale_y);
-	/* define left bottom corner and scale of the box so that all coordinates
-	   of the box are from [0,0] up to [1,1]. Further, this normalization
-	   makes it possible to pass y from [0,1] as parameter to setgray */
+	// define left bottom corner and scale of the box so that all coordinates
+	// of the box are from [0,0] up to [1,1]. Further, this normalization
+	// makes it possible to pass y from [0,1] as parameter to setgray 
 	fprintf(gppsfile, "/ystep 1 imax div def /y0 0 def /ii 0 def\n");
-	/* local variables; y-step, current y position and counter ii;  */
-	if(GPO.SmPltt.Positive == SMPAL_NEGATIVE) /* inverted gray for negative figure */
-		fputs("{ 0.99999 y0 sub g ", gppsfile); /* 1 > x > 1-1.0/1024 */
+	// local variables; y-step, current y position and counter ii;  
+	if(SmPltt.Positive == SMPAL_NEGATIVE) // inverted gray for negative figure 
+		fputs("{ 0.99999 y0 sub g ", gppsfile); // 1 > x > 1-1.0/1024 
 	else
 		fputs("{ y0 g ", gppsfile);
 	if(color_box.rotation == 'v')
@@ -218,18 +220,19 @@ static void draw_inside_color_smooth_box_postscript()
 // [x_from,y_from] to [x_to,y_to].
 // This routine is for non-postscript files and for the Mixed color gradient type
 // 
-static void draw_inside_colorbox_bitmap_mixed()
+//static void draw_inside_colorbox_bitmap_mixed()
+void GnuPlot::DrawInsideColorBoxBitmapMixed(termentry * pTerm)
 {
 	int i, j, xy, xy2, xy_from, xy_to;
 	int jmin = 0;
 	double xy_step, gray, range;
 	gpiPoint corners[4];
 	int steps = 128; // I think that nobody can distinguish more colours drawn in the palette
-	if(GPO.SmPltt.UseMaxColors != 0) {
-		steps = GPO.SmPltt.UseMaxColors;
+	if(SmPltt.UseMaxColors != 0) {
+		steps = SmPltt.UseMaxColors;
 	}
-	else if(GPO.SmPltt.GradientNum > 128) {
-		steps = GPO.SmPltt.GradientNum;
+	else if(SmPltt.GradientNum > 128) {
+		steps = SmPltt.GradientNum;
 	}
 	if(color_box.rotation == 'v') {
 		corners[0].x = corners[3].x = color_box.bounds.xleft;
@@ -247,21 +250,21 @@ static void draw_inside_colorbox_bitmap_mixed()
 	}
 	range = (xy_to - xy_from);
 	for(i = 0, xy2 = xy_from; i < steps; i++) {
-		/* Start from one pixel beyond the previous box */
+		// Start from one pixel beyond the previous box 
 		xy = xy2;
 		xy2 = xy_from + (int)(xy_step * (i + 1));
-		/* Set the colour for the next range increment */
-		/* FIXME - The "1 +" seems wrong, yet it improves the placement in gd */
+		// Set the colour for the next range increment 
+		// FIXME - The "1 +" seems wrong, yet it improves the placement in gd 
 		gray = (double)(1 + xy - xy_from) / range;
-		if(GPO.SmPltt.Positive == SMPAL_NEGATIVE)
+		if(SmPltt.Positive == SMPAL_NEGATIVE)
 			gray = 1 - gray;
-		set_color(term, gray);
-		/* If this is a defined palette, make sure that the range increment */
-		/* does not straddle a palette segment boundary. If it does, split  */
-		/* it into two parts.                                               */
-		if(GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_GRADIENT) {
-			for(j = jmin; j<GPO.SmPltt.GradientNum; j++) {
-				const int boundary = xy_from + (int)(GPO.SmPltt.P_Gradient[j].pos * range);
+		set_color(pTerm, gray);
+		// If this is a defined palette, make sure that the range increment 
+		// does not straddle a palette segment boundary. If it does, split  
+		// it into two parts.                                               
+		if(SmPltt.colorMode == SMPAL_COLOR_MODE_GRADIENT) {
+			for(j = jmin; j < SmPltt.GradientNum; j++) {
+				const int boundary = xy_from + (int)(SmPltt.P_Gradient[j].pos * range);
 				if(xy >= boundary) {
 					jmin = j;
 				}
@@ -287,7 +290,7 @@ static void draw_inside_colorbox_bitmap_mixed()
 			corners->style = FS_OPAQUE;
 		else
 			corners->style = style_from_fill(&default_fillstyle);
-		term->filled_polygon(4, corners);
+		pTerm->filled_polygon(4, corners);
 	}
 }
 // 
@@ -295,12 +298,13 @@ static void draw_inside_colorbox_bitmap_mixed()
 // [x_from,y_from] to [x_to,y_to].
 // This routine is for non-postscript files and for the Discrete color gradient type
 // 
-static void draw_inside_colorbox_bitmap_discrete()
+//static void draw_inside_colorbox_bitmap_discrete()
+void GnuPlot::DrawInsideColorBoxBitmapDiscrete(termentry * pTerm)
 {
 	int i, i0, i1, xy, xy2, xy_from, xy_to;
 	double gray, range;
 	gpiPoint corners[4];
-	int steps = GPO.SmPltt.GradientNum;
+	int steps = SmPltt.GradientNum;
 	if(color_box.rotation == 'v') {
 		corners[0].x = corners[3].x = color_box.bounds.xleft;
 		corners[1].x = corners[2].x = color_box.bounds.xright;
@@ -315,7 +319,7 @@ static void draw_inside_colorbox_bitmap_discrete()
 	}
 	range = (xy_to - xy_from);
 	for(i = 0; i < steps-1; i++) {
-		if(GPO.SmPltt.Positive == SMPAL_NEGATIVE) {
+		if(SmPltt.Positive == SMPAL_NEGATIVE) {
 			i0 = steps-1 - i;
 			i1 = i0 - 1;
 		}
@@ -323,13 +327,13 @@ static void draw_inside_colorbox_bitmap_discrete()
 			i0 = i;
 			i1 = i0 + 1;
 		}
-		xy  = xy_from + (int)(GPO.SmPltt.P_Gradient[i0].pos * range);
-		xy2 = xy_from + (int)(GPO.SmPltt.P_Gradient[i1].pos * range);
+		xy  = xy_from + (int)(SmPltt.P_Gradient[i0].pos * range);
+		xy2 = xy_from + (int)(SmPltt.P_Gradient[i1].pos * range);
 		if(xy2 - xy == 0) {
 			continue;
 		}
-		gray = GPO.SmPltt.P_Gradient[i1].pos;
-		set_color(term, gray);
+		gray = SmPltt.P_Gradient[i1].pos;
+		set_color(pTerm, gray);
 		if(color_box.rotation == 'v') {
 			corners[0].y = corners[1].y = xy;
 			corners[2].y = corners[3].y = MIN(xy_to, xy2+1);
@@ -343,24 +347,25 @@ static void draw_inside_colorbox_bitmap_discrete()
 			corners->style = FS_OPAQUE;
 		else
 			corners->style = style_from_fill(&default_fillstyle);
-		term->filled_polygon(4, corners);
+		pTerm->filled_polygon(4, corners);
 	}
 }
 // 
 // plot a colour smooth box bounded by the terminal's integer coordinates [x_from,y_from] to [x_to,y_to].
 // This routine is for non-postscript files and for the Smooth color gradient type
 // 
-static void draw_inside_colorbox_bitmap_smooth()
+//static void draw_inside_colorbox_bitmap_smooth()
+void GnuPlot::DrawInsideColorBoxBitmapSmooth(termentry * pTerm)
 {
 	int i, xy, xy2, xy_from, xy_to;
 	double xy_step, gray;
 	gpiPoint corners[4];
 	// Determins the steps for rectangles boxes from palette's color number specification. 
 	int steps = 128; /* I think that nobody can distinguish more colours drawn in the palette */
-	if(GPO.SmPltt.UseMaxColors != 0)
-		steps = GPO.SmPltt.UseMaxColors;
-	else if(GPO.SmPltt.GradientNum > 128)
-		steps = GPO.SmPltt.GradientNum;
+	if(SmPltt.UseMaxColors != 0)
+		steps = SmPltt.UseMaxColors;
+	else if(SmPltt.GradientNum > 128)
+		steps = SmPltt.GradientNum;
 	if(color_box.rotation == 'v') {
 		corners[0].x = corners[3].x = color_box.bounds.xleft;
 		corners[1].x = corners[2].x = color_box.bounds.xright;
@@ -379,12 +384,12 @@ static void draw_inside_colorbox_bitmap_smooth()
 		xy = xy2;
 		xy2 = xy_from + (int)(xy_step * (i + 1));
 		gray = i / (double)steps;
-		if(GPO.SmPltt.UseMaxColors != 0) {
-			gray = GPO.QuantizeGray(gray);
+		if(SmPltt.UseMaxColors != 0) {
+			gray = QuantizeGray(gray);
 		}
-		if(GPO.SmPltt.Positive == SMPAL_NEGATIVE)
+		if(SmPltt.Positive == SMPAL_NEGATIVE)
 			gray = 1 - gray;
-		set_color(term, gray);
+		set_color(pTerm, gray);
 		if(color_box.rotation == 'v') {
 			corners[0].y = corners[1].y = xy;
 			corners[2].y = corners[3].y = MIN(xy_to, xy2+1);
@@ -395,33 +400,33 @@ static void draw_inside_colorbox_bitmap_smooth()
 		}
 		// print the rectangle with the given colour 
 		corners->style = (default_fillstyle.fillstyle == FS_EMPTY) ? FS_OPAQUE : style_from_fill(&default_fillstyle);
-		term->filled_polygon(4, corners);
+		pTerm->filled_polygon(4, corners);
 	}
 }
 
-static void cbtick_callback(GpAxis * this_axis, double place, char * text, int ticlevel, struct lp_style_type grid/* linetype or -2 for no grid */, struct ticmark * userlabels)
+static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid/* linetype or -2 for no grid */, ticmark * userlabels)
 {
-	int len = tic_scale(ticlevel, this_axis) * (this_axis->tic_in ? -1 : 1) * (term->TicH);
+	int len = tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1) * (term->TicH);
 	uint x1, y1, x2, y2;
 	double cb_place;
 	// position of tic as a fraction of the full palette range 
-	if(this_axis->linked_to_primary) {
-		const GpAxis * primary = this_axis->linked_to_primary;
+	if(pAx->linked_to_primary) {
+		const GpAxis * primary = pAx->linked_to_primary;
 		place = GPO.EvalLinkFunction(primary, place);
 		cb_place = (place - primary->min) / (primary->max - primary->min);
 	}
 	else
-		cb_place = (place - this_axis->min) / (this_axis->max - this_axis->min);
+		cb_place = (place - pAx->min) / (pAx->max - pAx->min);
 	// calculate tic position 
 	if(color_box.rotation == 'h') {
-		x1 = x2 = color_box.bounds.xleft + cb_place * (color_box.bounds.xright - color_box.bounds.xleft);
+		x1 = x2 = static_cast<uint>(color_box.bounds.xleft + cb_place * (color_box.bounds.xright - color_box.bounds.xleft));
 		y1 = color_box.bounds.ybot;
 		y2 = color_box.bounds.ybot - len;
 	}
 	else {
 		x1 = color_box.bounds.xright;
 		x2 = color_box.bounds.xright + len;
-		y1 = y2 = color_box.bounds.ybot + cb_place * (color_box.bounds.ytop - color_box.bounds.ybot);
+		y1 = y2 = static_cast<uint>(color_box.bounds.ybot + cb_place * (color_box.bounds.ytop - color_box.bounds.ybot));
 	}
 	// draw grid line 
 	if(grid.l_type > LT_NODRAW) {
@@ -448,7 +453,7 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 		}
 		(*term->move)(x1, y1);
 		(*term->vector)(x2, y2);
-		if(this_axis->ticmode & TICS_MIRROR) {
+		if(pAx->ticmode & TICS_MIRROR) {
 			if(color_box.rotation == 'h') {
 				y1 = color_box.bounds.ytop;
 				y2 = color_box.bounds.ytop + len;
@@ -478,21 +483,21 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 		}
 #undef MINIMUM_SEPARATION
 		// get offset 
-		GPO.Map3DPositionR(&(this_axis->ticdef.offset), &offsetx, &offsety, "cbtics");
+		GPO.Map3DPositionR(&(pAx->ticdef.offset), &offsetx, &offsety, "cbtics");
 		// User-specified different color for the tics text 
-		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			GPO.ApplyPm3DColor(term, &(this_axis->ticdef.textcolor));
+		if(pAx->ticdef.textcolor.type != TC_DEFAULT)
+			GPO.ApplyPm3DColor(term, &(pAx->ticdef.textcolor));
 		if(color_box.rotation == 'h') {
 			int y3 = color_box.bounds.ybot - (term->ChrV);
 			int hrotate = 0;
-			if(this_axis->tic_rotate && (*term->text_angle)(this_axis->tic_rotate))
-				hrotate = this_axis->tic_rotate;
+			if(pAx->tic_rotate && (*term->text_angle)(pAx->tic_rotate))
+				hrotate = pAx->tic_rotate;
 			if(len > 0) y3 -= len; /* add outer tics len */
 			if(y3<0) y3 = 0;
 			just = hrotate ? LEFT : CENTRE;
-			if(this_axis->manual_justify)
-				just = this_axis->tic_pos;
-			write_multiline(term, x2+offsetx, y3+offsety, text, (JUSTIFY)just, JUST_CENTRE, hrotate, this_axis->ticdef.font);
+			if(pAx->manual_justify)
+				just = pAx->tic_pos;
+			write_multiline(term, x2+offsetx, y3+offsety, text, (JUSTIFY)just, JUST_CENTRE, hrotate, pAx->ticdef.font);
 			if(hrotate)
 				(*term->text_angle)(0);
 		}
@@ -501,9 +506,9 @@ static void cbtick_callback(GpAxis * this_axis, double place, char * text, int t
 			if(len > 0) 
 				x3 += len; // add outer tics len 
 			just = LEFT;
-			if(this_axis->manual_justify)
-				just = this_axis->tic_pos;
-			write_multiline(term, x3+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0.0, this_axis->ticdef.font);
+			if(pAx->manual_justify)
+				just = pAx->tic_pos;
+			write_multiline(term, x3+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0.0, pAx->ticdef.font);
 		}
 		GPO.TermApplyLpProperties(term, &border_lp); /* border linetype */
 	}
@@ -532,23 +537,23 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 			double xtemp, ytemp;
 			MapPosition(pTerm, &color_box.origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
 			MapPositionR(pTerm, &color_box.size, &xtemp, &ytemp, "cbox");
-			color_box.bounds.xright = xtemp;
-			color_box.bounds.ytop = ytemp;
+			color_box.bounds.xright = static_cast<int>(xtemp);
+			color_box.bounds.ytop = static_cast<int>(ytemp);
 		}
 		else if(splot_map && is_3d_plot) {
 			// In map view mode we allow any coordinate system for placement 
 			double xtemp, ytemp;
 			Map3DPositionDouble(&color_box.origin, &xtemp, &ytemp, "cbox");
-			color_box.bounds.xleft = xtemp;
-			color_box.bounds.ybot = ytemp;
+			color_box.bounds.xleft = static_cast<int>(xtemp);
+			color_box.bounds.ybot = static_cast<int>(ytemp);
 			Map3DPositionR(&color_box.size, &color_box.bounds.xright, &color_box.bounds.ytop, "cbox");
 		}
 		else {
 			// But in full 3D mode we only allow screen coordinates 
-			color_box.bounds.xleft = color_box.origin.x * (pTerm->xmax) + 0.5;
-			color_box.bounds.ybot = color_box.origin.y * (pTerm->ymax) + 0.5;
-			color_box.bounds.xright = color_box.size.x * (pTerm->xmax-1) + 0.5;
-			color_box.bounds.ytop = color_box.size.y * (pTerm->ymax-1) + 0.5;
+			color_box.bounds.xleft = static_cast<int>(color_box.origin.x * (pTerm->MaxX) + 0.5);
+			color_box.bounds.ybot = static_cast<int>(color_box.origin.y * (pTerm->MaxY) + 0.5);
+			color_box.bounds.xright = static_cast<int>(color_box.size.x * (pTerm->MaxX-1) + 0.5);
+			color_box.bounds.ytop = static_cast<int>(color_box.size.y * (pTerm->MaxY-1) + 0.5);
 		}
 		color_box.bounds.xright += color_box.bounds.xleft;
 		color_box.bounds.ytop += color_box.bounds.ybot;
@@ -556,10 +561,10 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 	else { // color_box.where == SMCOLOR_BOX_DEFAULT 
 		if(plotMode == MODE_SPLOT && !splot_map) {
 			// general 3D plot 
-			color_box.bounds.xleft = xmiddle + 0.709 * xscaler;
-			color_box.bounds.xright   = xmiddle + 0.778 * xscaler;
-			color_box.bounds.ybot = ymiddle - 0.147 * yscaler;
-			color_box.bounds.ytop   = ymiddle + 0.497 * yscaler;
+			color_box.bounds.xleft = static_cast<int>(xmiddle + 0.709 * xscaler);
+			color_box.bounds.xright = static_cast<int>(xmiddle + 0.778 * xscaler);
+			color_box.bounds.ybot = static_cast<int>(ymiddle - 0.147 * yscaler);
+			color_box.bounds.ytop = static_cast<int>(ymiddle + 0.497 * yscaler);
 		}
 		else {
 			// 2D plot (including splot map) 
@@ -569,13 +574,13 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 			MapPosition(pTerm, &default_origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
 			color_box.bounds.xleft += color_box.xoffset;
 			MapPositionR(pTerm, &default_size, &xtemp, &ytemp, "cbox");
-			color_box.bounds.xright = xtemp + color_box.bounds.xleft;
-			color_box.bounds.ytop = ytemp + color_box.bounds.ybot;
+			color_box.bounds.xright = static_cast<int>(xtemp + color_box.bounds.xleft);
+			color_box.bounds.ytop = static_cast<int>(ytemp + color_box.bounds.ybot);
 		}
 		// now corrections for outer tics 
 		if(color_box.rotation == 'v') {
-			int cblen = static_cast<int>((AxS.__CB().tic_in ? -1 : 1) * AxS.__CB().ticscale * (pTerm->TicH)); // positive for outer tics 
-			int ylen  = static_cast<int>((AxS.__Y().tic_in ? -1 : 1) * AxS.__Y().ticscale * (pTerm->TicH)); // positive for outer tics 
+			int cblen = static_cast<int>((AxS.__CB().TicIn ? -1 : 1) * AxS.__CB().ticscale * (pTerm->TicH)); // positive for outer tics 
+			int ylen  = static_cast<int>((AxS.__Y().TicIn ? -1 : 1) * AxS.__Y().ticscale * (pTerm->TicH)); // positive for outer tics 
 			if((cblen > 0) && (AxS.__CB().ticmode & TICS_MIRROR)) {
 				color_box.bounds.xleft += cblen;
 				color_box.bounds.xright += cblen;
@@ -589,24 +594,24 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 	if(color_box.bounds.ybot > color_box.bounds.ytop) {
 		double tmp = color_box.bounds.ytop;
 		color_box.bounds.ytop = color_box.bounds.ybot;
-		color_box.bounds.ybot = tmp;
+		color_box.bounds.ybot = static_cast<int>(tmp);
 	}
 	if(color_box.invert && color_box.rotation == 'v') {
 		double tmp = color_box.bounds.ytop;
 		color_box.bounds.ytop = color_box.bounds.ybot;
-		color_box.bounds.ybot = tmp;
+		color_box.bounds.ybot = static_cast<int>(tmp);
 	}
 	pTerm->layer(TERM_LAYER_BEGIN_COLORBOX);
 	// The PostScript terminal has an Optimized version 
-	if((pTerm->flags & TERM_IS_POSTSCRIPT) != 0)
-		draw_inside_color_smooth_box_postscript();
+	if(pTerm->flags & TERM_IS_POSTSCRIPT)
+		DrawInsideColorSmoothBoxPostScript();
 	else {
 		if(SmPltt.GradientType == SMPAL_GRADIENT_TYPE_SMOOTH)
-			draw_inside_colorbox_bitmap_smooth();
+			DrawInsideColorBoxBitmapSmooth(pTerm);
 		else if(SmPltt.GradientType == SMPAL_GRADIENT_TYPE_DISCRETE)
-			draw_inside_colorbox_bitmap_discrete();
+			DrawInsideColorBoxBitmapDiscrete(pTerm);
 		else
-			draw_inside_colorbox_bitmap_mixed();
+			DrawInsideColorBoxBitmapMixed(pTerm);
 	}
 	pTerm->layer(TERM_LAYER_END_COLORBOX);
 	if(color_box.border) {
@@ -632,7 +637,7 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 	// draw tics 
 	if(AxS[COLOR_AXIS].ticmode) {
 		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
-		gen_tics(&AxS[COLOR_AXIS], cbtick_callback);
+		GenTics(&AxS[COLOR_AXIS], cbtick_callback);
 	}
 	// write the colour box label 
 	if(AxS.__CB().label.text) {
@@ -641,28 +646,28 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 		int save_rotation = AxS.__CB().label.rotate;
 		ApplyPm3DColor(pTerm, &(AxS.__CB().label.textcolor));
 		if(color_box.rotation == 'h') {
-			len = AxS.__CB().ticscale * (AxS.__CB().tic_in ? 1 : -1) * (pTerm->TicV);
+			len = static_cast<int>(AxS.__CB().ticscale * (AxS.__CB().TicIn ? 1 : -1) * (pTerm->TicV));
 			x = (color_box.bounds.xleft + color_box.bounds.xright) / 2;
-			y = color_box.bounds.ybot - 2.7 * pTerm->ChrV;
+			y = static_cast<int>(color_box.bounds.ybot - 2.7 * pTerm->ChrV);
 			if(len < 0) 
 				y += len;
 			if(AxS.__CB().label.rotate == TEXT_VERTICAL)
 				AxS.__CB().label.rotate = 0;
 		}
 		else {
-			len = AxS.__CB().ticscale * (AxS.__CB().tic_in ? -1 : 1) * (pTerm->TicH);
+			len = static_cast<int>(AxS.__CB().ticscale * (AxS.__CB().TicIn ? -1 : 1) * (pTerm->TicH));
 			// calculate max length of cb-tics labels 
 			widest_tic_strlen = 0;
 			if(AxS.__CB().ticmode & TICS_ON_BORDER) /* Recalculate widest_tic_strlen */
-				gen_tics(&AxS[COLOR_AXIS], widest_tic_callback);
-			x = color_box.bounds.xright + (widest_tic_strlen + 1.5) * pTerm->ChrH;
+				GenTics(&AxS[COLOR_AXIS], widest_tic_callback);
+			x = static_cast<int>(color_box.bounds.xright + (widest_tic_strlen + 1.5) * pTerm->ChrH);
 			if(len > 0) 
 				x += len;
 			y = (color_box.bounds.ybot + color_box.bounds.ytop) / 2;
 		}
 		SETMAX(x, 0);
 		SETMAX(y, 0);
-		write_label(pTerm, x, y, &(AxS.__CB().label));
+		WriteLabel(pTerm, x, y, &(AxS.__CB().label));
 		reset_textcolor(&(AxS.__CB().label.textcolor));
 		AxS.__CB().label.rotate = save_rotation;
 	}
@@ -770,11 +775,12 @@ uint rgb_from_colormap(double gray, udvt_entry * colormap)
 	uint rgb = (gray <= 0.0) ? palette[1].v.int_val : (gray >= 1.0) ? palette[size].v.int_val : palette[ (int)(floor(size * gray)) + 1].v.int_val;
 	return rgb;
 }
-/*
- * Interpret the colorspec of a linetype to yield an RGB packed integer.
- * This is not guaranteed to handle colorspecs that were not part of a linetype.
- */
-uint rgb_from_colorspec(struct t_colorspec * tc)
+// 
+// Interpret the colorspec of a linetype to yield an RGB packed integer.
+// This is not guaranteed to handle colorspecs that were not part of a linetype.
+// 
+//uint rgb_from_colorspec(t_colorspec * tc)
+uint GnuPlot::RgbFromColorspec(t_colorspec * tc)
 {
 	double cbval;
 	rgb255_color color;
@@ -784,20 +790,20 @@ uint rgb_from_colorspec(struct t_colorspec * tc)
 		case TC_RGB:
 		    return tc->lt;
 		case TC_Z:
-		    cbval = GPO.Cb2Gray(tc->value);
+		    cbval = Cb2Gray(tc->value);
 		    break;
 		case TC_CB:
-		    cbval = (GPO.AxS.__CB().log && tc->value <= 0) ? GPO.AxS.__CB().min : tc->value;
-		    cbval = GPO.Cb2Gray(cbval);
+		    cbval = (AxS.__CB().log && tc->value <= 0) ? AxS.__CB().min : tc->value;
+		    cbval = Cb2Gray(cbval);
 		    break;
 		case TC_FRAC:
-		    cbval = (GPO.SmPltt.Positive == SMPAL_POSITIVE) ?  tc->value : 1-tc->value;
+		    cbval = (SmPltt.Positive == SMPAL_POSITIVE) ?  tc->value : 1-tc->value;
 		    break;
 		case TC_COLORMAP:
 		/* not handled but perhaps it should be? */
 		default:
 		    return 0; // cannot happen in a linetype 
 	}
-	GPO.Rgb255MaxColorsFromGray(cbval, &color);
+	Rgb255MaxColorsFromGray(cbval, &color);
 	return (uint)color.r << 16 | (uint)color.g << 8 | (uint)color.b;
 }

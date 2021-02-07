@@ -4727,6 +4727,7 @@ PPTXT_STYLOSCRIMP_NOGOODSBYMARKEAN  "Импорт StyloScanner: не найде�
 PPTXT_LAYOUTGRAVITYAREA             "1,Левый верхний угол;2,Правый верхний угол;3,Правый нижний угол;4,Левый нижний угол;5,Верхняя сторона;6,Правая сторона;7,Нижняя сторона;8,Левая сторона;9,Центр"
 PPTXT_LAYOUTALIGNMENT               "1,Растяжка;2,Центрирование;3,По начальной позиции;4,По конечной позиции;5,Пространство между элементами;6,Пространство вокруг элементов;7,Равномерное распределение"
 		//alignAuto,alignStretch,alignCenter,alignStart,alignEnd,alignSpaceBetween,alignSpaceAround,alignSpaceEvenly
+PPTXT_CCPACKSENTTOCHZN              "Кассовый чек %s успешно отправлен на сервер честный знак. Тикет: %s"
 //
 // LastText
 
@@ -10461,6 +10462,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goods_extendedstruc                      "Расширенная структура товара"
 @goods_tagl                               "@{listoftags}"
 @goods_taxgrp                             "@{taxgroup}"
+@goods_parenttaxgrp                       "В товарной группе @{forreference}:\n" // generic
 @goods_type                               "Тип товара"
 @goods_unit                               "@{munit_trade}"
 @goods_w                                  "@{width}"
@@ -10726,6 +10728,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodstax_symb                            "@{symbol}"
 @goodstax_tag                             "@{tag}"
 @goodstax_vat                             "@{vat}"
+@goodstaxlist                             "Параметры налогообложения"
 
 @goodstype_amtcost                        "@{sumcost}"
 @goodstype_amtcvat                        "Сумма НДС в ценах поступления"
@@ -13798,6 +13801,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_arlist                      "@{contractor}"
 @trfranlzfilt_agentlist                   "@{agent}"
 @trfranlzfilt_extval1                     "Дополнительный показатель"
+@trfranlzfilt_extfactor1                  "Дополнительный фактор"
 @trfranlzfilt_ord_bydate                  "@{sortby_date}"
 @trfranlzfilt_ord_bygoods                 "@{byware}"
 @trfranlzfilt_ord_byarticle               "По контрагенту"
@@ -15105,6 +15109,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @chznprcssrparam_ar                       "@{supplier}"
 @chznprcssrparam_afqueryticket            "Запрос тикета по документу"
 @chznprcssrparam_afquerykizinfo           "Запрос информации о марке"
+@chznprcssrparam_loc                      "@{warehouse}"
 
 @restorelostprjtperson                    "Восстановление утерянных персоналий для задач"
 @restorelostprjtperson_resolvecreator     "Восстановить создателя"
@@ -15855,6 +15860,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @geotrackingfilt_extoi                        "@{extobject}"
 @geotrackingfilt_flags                        "@{flags}"
 
+@geotrackingtotal                             "Итоги выборки гео-треков"
+@geotrackingtotal_count                       "Количество точек"
+@geotrackingtotal_objcount                    "Количество объектов"
+
 @gtajournalfilt                               "Фильтр тарифицируемых событий глобальных аккаунтов"
 @gtajournalfilt_period                        "@{daterange}"
 @gtajournalfilt_begtm                         ""
@@ -16065,6 +16074,27 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tdiscalcmethodparam_method_regress2          "Регрессивный с унификацией"
 @tdiscalcmethodparam_thresholddate            "Дата, начиная с которой использовать переключение"
 @tdiscalcmethodparam_prec                     "@{roundprec} [0..5]"
+
+@billtransmitparam                            "Передача документов в другой раздел"
+@billtransmitparam_ar                         "@{contractor}"
+@billtransmitparam_period                     "@{daterange}"
+@billtransmitparam_op                         "@{oprkind}"
+@billtransmitparam_toop                       "Преобразовать в..."
+@billtransmitparam_ar2                        "@{bill_object2}"
+@billtransmitparam_flags                      ""
+@billtransmitparam_flabelonly                 ""
+@billtransmitparam_trnsmflags                 ""
+@billtransmitparam_destdbdivlist              "@{dbdiv_pl}"
+
+@prcssrgoodssaldoparam                        "@{cmd_calcgoodssaldo}"
+@prcssrgoodssaldoparam_goodsgrp               "@{goodsgroup}"
+@prcssrgoodssaldoparam_goods                  "@{ware}"
+@prcssrgoodssaldoparam_ar                     "@{contractor}"
+@prcssrgoodssaldoparam_dt                     ""
+@prcssrgoodssaldoparam_calcperiod             "Период расчета"
+@prcssrgoodssaldoparam_fullcalc               "Полностью"
+@prcssrgoodssaldoparam_fromlastcal            "От последнего расчета" // generic !@prcssrgoodssaldoparam_fullcalc
+@prcssrgoodssaldoparam_lastcalcdate           "Последний  расчет"
 
 [121]
 1   "Вход"

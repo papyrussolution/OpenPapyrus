@@ -282,9 +282,8 @@ void TreeWindow::ShortcutsWindow::Destroy()
 {
 	if(Hwnd) {
 		TView::SetWindowUserData(Hwnd, 0);
-		if(HwndTT)
-			DestroyWindow(HwndTT);
-		DestroyWindow(Hwnd);
+		::DestroyWindow(HwndTT);
+		::DestroyWindow(Hwnd);
 	}
 	Hwnd   = 0;
 	HwndTT = 0;

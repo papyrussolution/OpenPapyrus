@@ -648,6 +648,17 @@ CCheckPacket::CCheckPacket() : UpdFlags(0), PctDis(0), Discount(0.0), _Cash(0.0)
 {
 }
 
+CCheckPacket::CCheckPacket(const CCheckPacket & rS) : P_DlvrAddr(0), P_Stirb(0)
+{
+	Copy(rS);
+}
+
+CCheckPacket & FASTCALL CCheckPacket::operator = (const CCheckPacket & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
 CCheckPacket::~CCheckPacket()
 {
 	ZDELETE(P_DlvrAddr);
@@ -672,6 +683,32 @@ CCheckPacket & CCheckPacket::Z()
 	P_Stirb = 0; // @v10.9.0
 	CcAl.clear();
 	return *this;
+}
+
+int CCheckPacket::Copy(const CCheckPacket & rS)
+{
+	int    ok = 1;
+	PPExtStrContainer::Copy(rS);
+	UpdFlags = rS.UpdFlags;
+	PctDis = rS.PctDis;
+	Discount = rS.Discount;
+	_Cash = rS._Cash;
+	_OrdPrepay = rS._OrdPrepay;
+	Ext = rS.Ext;
+	Rec = rS.Rec;
+	Items_ = rS.Items_;
+	ExtList = rS.ExtList;
+	CcAl = rS.CcAl;
+	LnTextList = rS.LnTextList;
+	if(rS.P_DlvrAddr) {
+		SETIFZ(P_DlvrAddr, new LocationTbl::Rec);
+		ASSIGN_PTR(P_DlvrAddr, *rS.P_DlvrAddr);
+	}
+	else {
+		ZDELETE(P_DlvrAddr);
+	}
+	P_Stirb = 0;
+	return ok;
 }
 
 int CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
@@ -834,7 +871,13 @@ int CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
 	return Items_.lsearch(&rbc, pPos, PTR_CMPFUNC(int16), offsetof(CCheckLineTbl::Rec, RByCheck));
 }
 
-static const int ccpack_textext_ident_list[] = { CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl, CCheckPacket::extssRemoteProcessingTa };
+static const int ccpack_textext_ident_list[] = { 
+	CCheckPacket::extssMemo, 
+	CCheckPacket::extssSign, 
+	CCheckPacket::extssEgaisUrl, 
+	CCheckPacket::extssRemoteProcessingTa,
+	CCheckPacket::extssChZnProcessingTag // @v11.0.1
+};
 
 int CCheckPacket::PackTextExt(SString & rResult) const
 {
@@ -912,13 +955,20 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 				}
 				ok = 1;
 			}
-			else if(oneof4(fld_id, CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl, CCheckPacket::extssRemoteProcessingTa)) {
+			else {
+				for(uint j = 0; j < SIZEOFARRAY(ccpack_textext_ident_list); j++) {
+					if(fld_id == ccpack_textext_ident_list[j]) {
+						CALLPTRMEMB(pSc, PutExtStrData(fld_id, temp_buf));
+						ok = 1;
+						break;
+					}
+				}
+			}
+			/*else if(oneof5(fld_id, CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl, 
+				CCheckPacket::extssRemoteProcessingTa, CCheckPacket::extssChZnProcessingTag)) {
 				CALLPTRMEMB(pSc, PutExtStrData(fld_id, temp_buf));
 				ok = 1;
-			}
-			else {
-				; // @error
-			}
+			}*/
 		}
 	}
 	return ok;

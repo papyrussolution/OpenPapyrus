@@ -62,7 +62,7 @@ register_term(texdraw)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void TEXDRAW_init();
+TERM_PUBLIC void TEXDRAW_init(termentry * pThis);
 TERM_PUBLIC void TEXDRAW_options();
 TERM_PUBLIC void TEXDRAW_graphics();
 TERM_PUBLIC void TEXDRAW_text();
@@ -263,8 +263,8 @@ TERM_PUBLIC void TEXDRAW_options()
 			    TEXDRAW_background = 1.0;
 			    TEXDRAW_size_x = 5;
 			    TEXDRAW_size_y = 3.0;
-			    term->xmax = TEXDRAW_size_x * DOTS_PER_INCH;
-			    term->ymax = TEXDRAW_size_y * DOTS_PER_INCH;
+			    term->MaxX = TEXDRAW_size_x * DOTS_PER_INCH;
+			    term->MaxY = TEXDRAW_size_y * DOTS_PER_INCH;
 			    term->ChrV = TEXDRAW_VCHAR;
 			    term->TicV = TEXDRAW_VTIC;
 			    break;
@@ -274,8 +274,8 @@ TERM_PUBLIC void TEXDRAW_options()
 			    TEXDRAW_explicit_units = GPO.ParseTermSize(&width, &height, INCHES);
 			    TEXDRAW_size_x = width / gp_resolution;
 			    TEXDRAW_size_y = height / gp_resolution;
-			    term->xmax = TEXDRAW_size_x * DOTS_PER_INCH;
-			    term->ymax = TEXDRAW_size_y * DOTS_PER_INCH;
+			    term->MaxX = TEXDRAW_size_x * DOTS_PER_INCH;
+			    term->MaxY = TEXDRAW_size_y * DOTS_PER_INCH;
 			    term->ChrV = TEXDRAW_VCHAR;
 			    term->TicV = TEXDRAW_VTIC;
 			    break;
@@ -369,7 +369,7 @@ TERM_PUBLIC void TEXDRAW_options()
 	    TEXDRAW_standalone ? "standalone" : "input");
 }
 
-TERM_PUBLIC void TEXDRAW_init()
+TERM_PUBLIC void TEXDRAW_init(termentry * pThis)
 {
 	fputs("%% GNUPLOT: LaTeX using TEXDRAW macros\n", gpoutfile);
 	if(TEXDRAW_standalone) {
@@ -410,11 +410,11 @@ TERM_PUBLIC void TEXDRAW_graphics()
 
 	if(TEXDRAW_background == 1.) {
 		/* enforce bounding box */
-		fprintf(gpoutfile, "\\move (0 0) \\rmove (%d %d)\n", term->xmax, term->ymax);
+		fprintf(gpoutfile, "\\move (0 0) \\rmove (%d %d)\n", term->MaxX, term->MaxY);
 	}
 	else {
 		fprintf(gpoutfile, "\\move (0 0) \\rlvec (%d 0) \\rlvec (0 %d) \\rlvec (%d 0) \\ifill f:%0.2f\n",
-		    term->xmax, term->ymax, -term->xmax, TEXDRAW_background);
+		    term->MaxX, term->MaxY, -term->MaxX, TEXDRAW_background);
 	}
 	TEXDRAW_last_type = 0;
 	TEXDRAW_type = 0;
@@ -514,7 +514,7 @@ TERM_PUBLIC void TEXDRAW_move(uint x, uint y)
 TERM_PUBLIC void TEXDRAW_pointsize(double size)
 {
 	// We can only scale gnuplot's native point types
-	term_pointsize = (size >= 0 ? size * TEXDRAW_ps : 1);
+	GPO.TermPointSize = (size >= 0 ? size * TEXDRAW_ps : 1);
 }
 
 TERM_PUBLIC void TEXDRAW_point(uint x, uint y, int number)
@@ -593,7 +593,7 @@ TERM_PUBLIC void TEXDRAW_arrow(unsigned int sx, unsigned int sy, unsigned int ex
 	int width = static_cast<int>((0.08 * 72 / TEXDRAW_scalefactor + 0.5));
 	// Texdraw cannot only draw vector heads, fall back to built-in code.
 	if(!TEXDRAW_psarrows || (head & HEADS_ONLY)) {
-		do_arrow(sx, sy, ex, ey, head);
+		GnuPlot::DoArrow(sx, sy, ex, ey, head);
 		return;
 	}
 	switch(curr_arrow_headfilled) {
@@ -772,11 +772,27 @@ TERM_PUBLIC void TEXDRAW_filled_polygon(int points, gpiPoint * corners)
 TERM_TABLE_START(texdraw_driver)
 "texdraw",
 "LaTeX texdraw environment",
-TEXDRAW_XMAX, TEXDRAW_YMAX, TEXDRAW_VCHAR, TEXDRAW_HCHAR,
-TEXDRAW_VTIC, TEXDRAW_HTIC, TEXDRAW_options, TEXDRAW_init, TEXDRAW_reset,
-TEXDRAW_text, null_scale, TEXDRAW_graphics, TEXDRAW_move, TEXDRAW_vector,
-TEXDRAW_linetype, TEXDRAW_put_text, TEXDRAW_text_angle,
-TEXDRAW_justify_text, TEXDRAW_point, TEXDRAW_arrow, set_font_null,
+TEXDRAW_XMAX, 
+TEXDRAW_YMAX, 
+TEXDRAW_VCHAR, 
+TEXDRAW_HCHAR,
+TEXDRAW_VTIC, 
+TEXDRAW_HTIC, 
+TEXDRAW_options, 
+TEXDRAW_init, 
+TEXDRAW_reset,
+TEXDRAW_text, 
+GnuPlot::NullScale, 
+TEXDRAW_graphics, 
+TEXDRAW_move, 
+TEXDRAW_vector,
+TEXDRAW_linetype, 
+TEXDRAW_put_text, 
+TEXDRAW_text_angle,
+TEXDRAW_justify_text, 
+TEXDRAW_point, 
+TEXDRAW_arrow, 
+set_font_null,
 TEXDRAW_pointsize,
 TERM_IS_LATEX | TERM_LINEWIDTH | TERM_POINTSCALE | TERM_MONOCHROME,
 0 /*suspend*/, 0 /*resume*/,

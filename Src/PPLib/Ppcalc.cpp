@@ -328,7 +328,8 @@ double CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pVatSum,
 {
 	GTaxVect gtv;
 	PPGoodsTaxEntry gte;
-	double tax_factor = 1.0, vat_rate = 0.0;
+	double tax_factor = 1.0;
+	double vat_rate = 0.0;
 	int    calc_taxes = 0;
 	Goods2Tbl::Rec goods_rec;
 	PPObjGoods goods_obj;

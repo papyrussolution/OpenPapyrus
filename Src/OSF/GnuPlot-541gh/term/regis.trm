@@ -51,9 +51,7 @@
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void REGIS_init();
-TERM_PUBLIC void REGIS_graphics();
-TERM_PUBLIC void REGIS_init();
+TERM_PUBLIC void REGIS_init(termentry * pThis);
 TERM_PUBLIC void REGIS_graphics();
 TERM_PUBLIC void REGIS_text();
 TERM_PUBLIC void REGIS_linetype(int linetype);
@@ -88,7 +86,7 @@ static int REGIS16color = FALSE;
 
 static int REGISang = 0;
 
-TERM_PUBLIC void REGIS_init()
+TERM_PUBLIC void REGIS_init(termentry * pThis)
 {
 	fputs("\033[r\033[24;1H", gpoutfile);
 	/*     1     2
@@ -216,12 +214,30 @@ TERM_PUBLIC void REGIS_options()
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(regis_driver)
-"regis", "REGIS graphics language",
-REGISXMAX, REGISYMAX, REGISVCHAR, REGISHCHAR,
-REGISVTIC, REGISHTIC, REGIS_options, REGIS_init, REGIS_reset,
-REGIS_text, null_scale, REGIS_graphics, REGIS_move, REGIS_vector,
-REGIS_linetype, REGIS_put_text, REGIS_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(regis_driver)
+	"regis", 
+	"REGIS graphics language",
+	REGISXMAX, 
+	REGISYMAX, 
+	REGISVCHAR, 
+	REGISHCHAR,
+	REGISVTIC, 
+	REGISHTIC, 
+	REGIS_options, 
+	REGIS_init, 
+	REGIS_reset,
+	REGIS_text, 
+	GnuPlot::NullScale, 
+	REGIS_graphics, 
+	REGIS_move, 
+	REGIS_vector,
+	REGIS_linetype, 
+	REGIS_put_text, 
+	REGIS_text_angle,
+	null_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(regis_driver)
 
 #undef LAST_TERM
 #define LAST_TERM regis_driver

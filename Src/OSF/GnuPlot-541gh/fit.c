@@ -282,25 +282,6 @@ static void ctrlc_setup()
 }
 
 /*****************************************************************
-    getch that handles also function keys etc.
-*****************************************************************/
-#if defined(MSDOS)
-
-int getchx();
-
-int getchx()
-{
-	int c = getch();
-	if(!c || c == 0xE0) {
-		c <<= 8;
-		c |= getch();
-	}
-	return c;
-}
-
-#endif
-
-/*****************************************************************
     in case of fatal errors
 *****************************************************************/
 void error_ex(int t_num, const char * str, ...)
@@ -613,11 +594,9 @@ static void calc_derivatives(const double * par, double * data, double ** deriv)
 	int i, j, k, m;
 	GpValue v;
 	double h;
-
 	/* set parameters first */
 	for(i = 0; i < num_params; i++)
 		Gcomplex(par_udv[i], par[i] * scale_params[i], 0.0);
-
 	for(i = 0; i < num_data; i++) { /* loop over data points */
 		for(j = 0, m = 0; j < num_indep; j++) { /* loop over indep. variables */
 			double tmp_high;
@@ -1939,7 +1918,7 @@ out_of_range:
 		via_f = NULL;
 	}
 	else {
-		/* not a string after via: it's a variable listing */
+		// not a string after via: it's a variable listing 
 		if(!fit_suppress_log)
 			fputs("fitted parameters initialized with current variable values\n\n", log_f);
 		do {
@@ -1948,10 +1927,8 @@ out_of_range:
 			if(num_params >= max_params)
 				Eex("too many fit parameters");
 			if(Pgm.EqualsNext("[")) {
-				/* Special case:  via Array[n]
-				 *	created variables will be of the form Array_n_*
-				 */
-				udvt_entry * udv = add_udv(Pgm.GetCurTokenIdx());
+				// Special case:  via Array[n] created variables will be of the form Array_n_*
+				udvt_entry * udv = AddUdv(Pgm.GetCurTokenIdx());
 				int index;
 				if(udv->udv_value.type != ARRAY)
 					Eexc(Pgm.GetCurTokenIdx(), "No such array");

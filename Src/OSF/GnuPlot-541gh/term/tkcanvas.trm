@@ -103,7 +103,7 @@ register_term(tkcanvas)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void TK_options();
-TERM_PUBLIC void TK_init();
+TERM_PUBLIC void TK_init(termentry * pThis);
 TERM_PUBLIC void TK_graphics();
 TERM_PUBLIC void TK_text();
 TERM_PUBLIC void TK_linetype(int linetype);
@@ -378,7 +378,7 @@ TERM_PUBLIC void TK_options()
 	    tk_width, tk_height);
 }
 
-TERM_PUBLIC void TK_init()
+TERM_PUBLIC void TK_init(termentry * pThis)
 {
 	tk_image_counter = 0;
 }
@@ -1518,7 +1518,7 @@ void TK_arrow(unsigned int usx, unsigned int usy, unsigned int uex, unsigned int
 		fprintf(gpoutfile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth,
 		    tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
 		if(curr_arrow_headlength > 0) {
-			/* This should exactly mimic the behaviour of do_arrow() */
+			/* This should exactly mimic the behaviour of GnuPlot::DoArrow() */
 			int width   = sin(curr_arrow_headangle * DEG2RAD) * curr_arrow_headlength;
 			int tiplen  = cos(curr_arrow_headangle * DEG2RAD) * curr_arrow_headlength;
 			int backlen = width / tan(curr_arrow_headbackangle * DEG2RAD);
@@ -1551,7 +1551,7 @@ void TK_arrow(unsigned int usx, unsigned int usy, unsigned int uex, unsigned int
 	}
 	else { /* AS_NOFILL, AS_EMPTY */
 		/* fall back to internal routine since we cannot do non-filled arrows */
-		do_arrow(sx, sy, ex, ey, head);
+		GnuPlot::DoArrow(sx, sy, ex, ey, head);
 	}
 }
 
@@ -2007,29 +2007,60 @@ TERM_PUBLIC void TK_boxed_text(uint x, uint y, int option)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(tkcanvas)
-"tkcanvas", "Tk canvas widget",
-TK_XMAX, TK_YMAX, TK_VCHAR, TK_HCHAR, TK_VTIC, TK_HTIC,
-TK_options, TK_init, TK_reset,
-TK_text, null_scale, TK_graphics, TK_move, TK_vector,
-TK_linetype, TK_put_text, null_text_angle,
-TK_justify_text, TK_point, do_arrow, TK_set_font,
-NULL /* set_pointsize */,
-TERM_CAN_MULTIPLOT |  TERM_ENHANCED_TEXT,
-/* FIXME: Options not yet implemented */
-/* TERM_CAN_DASH | TERM_LINEWIDTH | TERM_FONTSCALE, */
-NULL /* suspend */, NULL /* resume */,
-TK_fillbox, TK_linewidth,
-#ifdef USE_MOUSE
-NULL, NULL, NULL, NULL, NULL,
-#endif
-TK_make_palette, NULL, TK_color,
-TK_filled_polygon, NULL /* image */,
-TK_enhanced_open, TK_enhanced_flush, do_enh_writec,
-NULL /* layer */, TK_path,
-0.0,
-NULL /* hypertext */,
-TK_boxed_text,
-NULL, TK_dashtype TERM_TABLE_END(tkcanvas)
+	"tkcanvas", 
+	"Tk canvas widget",
+	TK_XMAX, 
+	TK_YMAX, 
+	TK_VCHAR, 
+	TK_HCHAR, 
+	TK_VTIC, 
+	TK_HTIC,
+	TK_options, 
+	TK_init, 
+	TK_reset,
+	TK_text, 
+	GnuPlot::NullScale, 
+	TK_graphics, 
+	TK_move, 
+	TK_vector,
+	TK_linetype, 
+	TK_put_text, 
+	null_text_angle,
+	TK_justify_text, 
+	TK_point, 
+	GnuPlot::DoArrow, 
+	TK_set_font,
+	NULL /* set_pointsize */,
+	TERM_CAN_MULTIPLOT |  TERM_ENHANCED_TEXT,
+	/* FIXME: Options not yet implemented */
+	/* TERM_CAN_DASH | TERM_LINEWIDTH | TERM_FONTSCALE, */
+	NULL /* suspend */, 
+	NULL /* resume */,
+	TK_fillbox, 
+	TK_linewidth,
+	#ifdef USE_MOUSE
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL,
+	#endif
+	TK_make_palette, 
+	NULL, 
+	TK_color,
+	TK_filled_polygon, 
+	NULL /* image */,
+	TK_enhanced_open, 
+	TK_enhanced_flush, 
+	do_enh_writec,
+	NULL /* layer */, 
+	TK_path,
+	0.0,
+	NULL /* hypertext */,
+	TK_boxed_text,
+	NULL, 
+	TK_dashtype 
+TERM_TABLE_END(tkcanvas)
 #undef LAST_TERM
 #define LAST_TERM tkcanvas
 

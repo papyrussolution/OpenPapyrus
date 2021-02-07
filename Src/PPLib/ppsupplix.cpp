@@ -6792,7 +6792,8 @@ int SupplInterchangeFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 
 SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplInterchangeFilt & rS)
 {
-	Copy(&rS, 0);
+	PPBaseFilt::Copy(&rS, 0);
+	PPExtStrContainer::Copy(rS);
 	return *this;
 }
 

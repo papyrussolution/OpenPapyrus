@@ -199,16 +199,16 @@ void GnuPlot::F_Sum(union argument * arg)
 		// keep an integer sum as well.			
 		llsum += f_i.v.int_val;
 		// Check for integer overflow 
-		if(GPO.Ev.OverflowHandling == INT64_OVERFLOW_IGNORE)
+		if(Ev.OverflowHandling == INT64_OVERFLOW_IGNORE)
 			continue;
 		if(sgn(result.v.cmplx_val.real) != sgn(llsum)) {
 			integer_terms = FALSE;
-			if(GPO.Ev.OverflowHandling == INT64_OVERFLOW_TO_FLOAT)
+			if(Ev.OverflowHandling == INT64_OVERFLOW_TO_FLOAT)
 				continue;
-			if(GPO.Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
-				GPO.Ev.IsUndefined_ = true;
-			if(GPO.Ev.OverflowHandling == INT64_OVERFLOW_NAN)
-				Gcomplex(&result, not_a_number(), 0.0);
+			if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
+				Ev.IsUndefined_ = true;
+			if(Ev.OverflowHandling == INT64_OVERFLOW_NAN)
+				Gcomplex(&result, fgetnan(), 0.0);
 			break;
 		}
 	}
@@ -275,7 +275,7 @@ void GnuPlot::F_BAnd(union argument * /*arg*/)
 // Make all the following internal routines perform autoconversion
 // from string to numeric value.
 // 
-#define __POP__(x) pop_or_convert_from_string(x)
+#define __POP__(x) PopOrConvertFromString(x)
 
 //void f_uminus(union argument * /*arg*/)
 void GnuPlot::F_UMinus(union argument * /*arg*/)
@@ -528,7 +528,7 @@ void GnuPlot::F_Plus(union argument * /*arg*/)
 						case INT64_OVERFLOW_UNDEFINED:
 						    Ev.IsUndefined_ = true;
 						case INT64_OVERFLOW_NAN:
-						    Gcomplex(&result, not_a_number(), 0.0);
+						    Gcomplex(&result, fgetnan(), 0.0);
 						    break;
 						default:
 						    break;
@@ -583,7 +583,7 @@ void GnuPlot::F_Minus(union argument * /*arg*/)
 						case INT64_OVERFLOW_UNDEFINED:
 						    Ev.IsUndefined_ = true;
 						case INT64_OVERFLOW_NAN:
-						    Gcomplex(&result, not_a_number(), 0.0);
+						    Gcomplex(&result, fgetnan(), 0.0);
 						    break;
 						default:
 						    break;
@@ -637,7 +637,7 @@ void GnuPlot::F_Mult(union argument * arg)
 					if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
 						Ev.IsUndefined_ = true;
 					if(Ev.OverflowHandling == INT64_OVERFLOW_NAN)
-						float_product = not_a_number();
+						float_product = fgetnan();
 					Gcomplex(&result, float_product, 0.0);
 					break;
 				}
@@ -808,7 +808,7 @@ void GnuPlot::F_Power(union argument * arg)
 integer_power_overflow:
 				if(Ev.OverflowHandling == INT64_OVERFLOW_NAN) {
 					// result of integer overflow is NaN 
-					Gcomplex(&result, not_a_number(), 0.0);
+					Gcomplex(&result, fgetnan(), 0.0);
 				}
 				else if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED) {
 					// result of integer overflow is undefined 
@@ -1561,25 +1561,26 @@ static enum DATA_TYPES sprintf_specifier(const char* format)
 //
 // execute a system call and return stream from STDOUT 
 //
-void f_system(union argument * arg)
+//void f_system(union argument * arg)
+void GnuPlot::F_System(union argument * arg)
 {
 	GpValue val, result;
 	char * output;
 	int output_len, ierr;
-	/* Retrieve parameters from top of stack */
-	GPO.EvStk.Pop(&val);
-	/* Make sure parameters are of the correct type */
+	// Retrieve parameters from top of stack 
+	EvStk.Pop(&val);
+	// Make sure parameters are of the correct type 
 	if(val.type != STRING)
-		GPO.IntError(NO_CARET, "non-string argument to system()");
+		IntError(NO_CARET, "non-string argument to system()");
 	FPRINTF((stderr, " f_system input = \"%s\"\n", val.v.string_val));
 	ierr = do_system_func(val.v.string_val, &output);
-	GPO.Ev.FillGpValInteger("GPVAL_ERRNO", ierr);
-	/* chomp result */
+	Ev.FillGpValInteger("GPVAL_ERRNO", ierr);
+	// chomp result 
 	output_len = strlen(output);
 	if(output_len > 0 && output[output_len-1] == '\n')
 		output[output_len-1] = NUL;
 	FPRINTF((stderr, " f_system result = \"%s\"\n", output));
-	GPO.EvStk.Push(Gstring(&result, output));
+	EvStk.Push(Gstring(&result, output));
 	gpfree_string(&result); /* free output */
 	gpfree_string(&val); /* free command string */
 }
@@ -1652,32 +1653,33 @@ void GnuPlot::F_Value(union argument * arg)
 	if(!p) {
 		// IntWarn(NO_CARET,"undefined variable name passed to value()"); 
 		result.type = CMPLX;
-		result.v.cmplx_val.real = not_a_number();
+		result.v.cmplx_val.real = fgetnan();
 		result.v.cmplx_val.imag = 0;
 	}
 	EvStk.Push(&result);
 }
-/*
- * remove leading and trailing whitespace from a string variable
- */
-void f_trim(union argument * arg)
+// 
+// remove leading and trailing whitespace from a string variable
+// 
+//void f_trim(union argument * arg)
+void GnuPlot::F_Trim(union argument * arg)
 {
 	GpValue a;
 	char * s;
 	char * trim;
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	if(a.type != STRING)
-		GPO.IntError(NO_CARET, nonstring_error);
-	/* Trim from front */
+		IntError(NO_CARET, nonstring_error);
+	// Trim from front 
 	s = a.v.string_val;
 	while(isspace(*s))
 		s++;
-	/* Trim from back */
+	// Trim from back 
 	trim = sstrdup(s);
 	s = &trim[strlen(trim)-1];
 	while((s > trim) && isspace(*s))
 		*(s--) = '\0';
 	SAlloc::F(a.v.string_val);
 	a.v.string_val = trim;
-	GPO.EvStk.Push(&a);
+	EvStk.Push(&a);
 }

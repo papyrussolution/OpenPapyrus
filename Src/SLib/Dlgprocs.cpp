@@ -141,9 +141,9 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 	if(temp_buf.NotEmpty()) {
 		SString subst;
 		if(SLS.SubstString(temp_buf, 1, subst) > 0) {
-			TView::SSetWindowText(hwnd, subst); // @v9.1.5 
+			TView::SSetWindowText(hwnd, subst);
 		}
-		else if(SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_OUTER) > 0) { // @v9.2.1 
+		else if(SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_OUTER) > 0) {
 			TView::SSetWindowText(hwnd, temp_buf);
 		}
 		// @v10.5.4 {

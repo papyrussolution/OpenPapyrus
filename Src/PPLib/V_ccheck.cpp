@@ -3406,6 +3406,46 @@ int PPViewCCheck::Recover()
 	return ok;
 }
 
+int PPViewCCheck::ExportToChZn() // @v11.0.1
+{
+	int    ok = -1;
+	SString temp_buf;
+	TSCollection <CCheckPacket> cc_list_for_export;
+	CCheckPacket * p_temp_cc_pack = 0;
+	CCheckViewItem item;
+	for(InitIteration(0); NextIteration(&item) > 0;) {
+		SETIFZ(p_temp_cc_pack, new CCheckPacket);
+		bool suitable = false;
+		if(P_CC->LoadPacket(item.ID, 0, p_temp_cc_pack) > 0) {
+			CCheckItem ccitem;
+			for(uint i = 0; !suitable && p_temp_cc_pack->EnumLines(&i, &ccitem) > 0;) {
+				if(p_temp_cc_pack->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+					GtinStruc gts;
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+					if(pczcr > 0)
+						suitable = true;
+				}
+			}
+		}
+		if(suitable) {
+			assert(p_temp_cc_pack);
+			cc_list_for_export.insert(p_temp_cc_pack);
+			p_temp_cc_pack = 0;
+		}
+	}
+	if(cc_list_for_export.getCount()) {
+		PPChZnPrcssr prcssr(0);
+		PPChZnPrcssr::Param param;
+		if(prcssr.EditParam(&param) > 0) {
+			PPWait(1);
+			prcssr.TransmitCcList(param, cc_list_for_export);
+			PPWait(0);
+		}
+	}
+	delete p_temp_cc_pack;
+	return ok;
+}
+
 int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int   ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
@@ -3494,6 +3534,9 @@ int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				break;
 			case PPVCMD_CHANGEFILT:
 				ok = ChangeFilt(pBrw);
+				break;
+			case PPVCMD_EXPORTCHZN:
+				ok = ExportToChZn();
 				break;
 		}
 	}

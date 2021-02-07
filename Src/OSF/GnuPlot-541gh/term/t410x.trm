@@ -68,7 +68,7 @@ register_term(tek410x)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void T410X_init();
+TERM_PUBLIC void T410X_init(termentry * pThis);
 TERM_PUBLIC void T410X_reset();
 TERM_PUBLIC void T410X_graphics();
 TERM_PUBLIC void T410X_text();
@@ -94,7 +94,7 @@ static void T410X_encode_int(int number);
 
 static int T410X_angle = 0;
 
-TERM_PUBLIC void T410X_init()
+TERM_PUBLIC void T410X_init(termentry * pThis)
 {
 	fputs("\033%%!0\033MN0\033MCB7C;\033MQ1\033MT1", gpoutfile);
 	fputs("\033MG1\033RK!\033SK!\033LZ\033%%!1", gpoutfile);
@@ -265,12 +265,30 @@ static void T410X_encode_int(int number)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(tek410x_driver)
-"tek410x", "Tektronix 4106, 4107, 4109 and 420X terminals",
-T410XXMAX, T410XYMAX, T410XVCHAR, T410XHCHAR,
-T410XVTIC, T410XHTIC, options_null, T410X_init, T410X_reset,
-T410X_text, null_scale, T410X_graphics, T410X_move, T410X_vector,
-T410X_linetype, T410X_put_text, T410X_text_angle,
-null_justify_text, T410X_point, do_arrow, set_font_null TERM_TABLE_END(tek410x_driver)
+	"tek410x", 
+	"Tektronix 4106, 4107, 4109 and 420X terminals",
+	T410XXMAX, 
+	T410XYMAX, 
+	T410XVCHAR, 
+	T410XHCHAR,
+	T410XVTIC, 
+	T410XHTIC, 
+	options_null, 
+	T410X_init, 
+	T410X_reset,
+	T410X_text, 
+	GnuPlot::NullScale, 
+	T410X_graphics, 
+	T410X_move, 
+	T410X_vector,
+	T410X_linetype, 
+	T410X_put_text, 
+	T410X_text_angle,
+	null_justify_text, 
+	T410X_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(tek410x_driver)
 
 #undef LAST_TERM
 #define LAST_TERM tek410x_driver

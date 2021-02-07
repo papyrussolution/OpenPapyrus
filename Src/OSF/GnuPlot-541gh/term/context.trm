@@ -109,7 +109,7 @@ register_term(context)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void CONTEXT_options();
-TERM_PUBLIC void CONTEXT_init();
+TERM_PUBLIC void CONTEXT_init(termentry * pThis);
 TERM_PUBLIC void CONTEXT_reset();
 TERM_PUBLIC void CONTEXT_text();
 TERM_PUBLIC void CONTEXT_graphics();
@@ -117,7 +117,6 @@ TERM_PUBLIC void CONTEXT_move(uint x, uint y);
 TERM_PUBLIC void CONTEXT_vector(uint x, uint y);
 TERM_PUBLIC void CONTEXT_linetype(int lt);
 TERM_PUBLIC void CONTEXT_put_text(uint x, uint y, const char * str);
-
 TERM_PUBLIC int CONTEXT_text_angle(int ang);
 TERM_PUBLIC int CONTEXT_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC void CONTEXT_point(uint x, uint y, int number);
@@ -595,7 +594,7 @@ TERM_PUBLIC void CONTEXT_options()
 	/* current font size in pt (to be used in CONTEXT_adjust_dimensions) */
 	CONTEXT_fontsize = CONTEXT_params.fontsize;
 
-	/* sets term->xmax, ymax, vchar, hchar */
+	/* sets term->MaxX, ymax, vchar, hchar */
 	CONTEXT_adjust_dimensions();
 
 	snprintf(term_options, sizeof(term_options),
@@ -696,27 +695,22 @@ TERM_PUBLIC void CONTEXT_options()
  * - PDF & binary terminals start a new file
  * - PS & TeX-based terminals continue
  */
-TERM_PUBLIC void CONTEXT_init()
+TERM_PUBLIC void CONTEXT_init(termentry * pThis)
 {
 	time_t now;
 	char timebuffer[100];
 #ifdef WRITE_PNG_IMAGE
 	int i;
 #endif
-
 	time(&now);
-
 	CONTEXT_posx = CONTEXT_posy = 0;
 	CONTEXT_path_count = 0;
 	CONTEXT_path_is_dot = 0;
-
 	CONTEXT_counter = 0;
-
 	/* setup bitmap images */
 	CONTEXT_image_counter = 0;
 	/* the default is to use inline images */
 	CONTEXT_images = CONTEXT_IMAGES_INLINE;
-
 	/* only if external images are both requested and supported, we switch to them (double paranoia) */
 	/* delete the stored filename first */
 	if(CONTEXT_image_filename) {
@@ -1244,7 +1238,7 @@ TERM_PUBLIC void CONTEXT_point(uint x, uint y, int number)
  */
 TERM_PUBLIC void CONTEXT_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 {
-	do_arrow(sx, sy, ex, ey, head);
+	GnuPlot::DoArrow(sx, sy, ex, ey, head);
 }
 
 /* ------------------------
@@ -1295,12 +1289,12 @@ static void CONTEXT_adjust_dimensions()
 
 	/* we might want to fix CONTEXT_DPI in case that the figure becomes too big */
 	if(CONTEXT_params.unit == INCHES) {
-		term->xmax = (uint)((double)CONTEXT_DPI  * CONTEXT_params.xsize + 0.5);
-		term->ymax = (uint)((double)CONTEXT_DPI  * CONTEXT_params.ysize + 0.5);
+		term->MaxX = (uint)((double)CONTEXT_DPI  * CONTEXT_params.xsize + 0.5);
+		term->MaxY = (uint)((double)CONTEXT_DPI  * CONTEXT_params.ysize + 0.5);
 	}
 	else {
-		term->xmax = (uint)((double)CONTEXT_DPCM * CONTEXT_params.xsize + 0.5);
-		term->ymax = (uint)((double)CONTEXT_DPCM * CONTEXT_params.ysize + 0.5);
+		term->MaxX = (uint)((double)CONTEXT_DPCM * CONTEXT_params.xsize + 0.5);
+		term->MaxY = (uint)((double)CONTEXT_DPCM * CONTEXT_params.ysize + 0.5);
 	}
 }
 
@@ -1832,7 +1826,6 @@ TERM_PUBLIC void CONTEXT_image(unsigned M, unsigned N, coordval * image, gpiPoin
 				}
 			}
 			fprintf(gpoutfile, "\";\n");
-
 			/* transparency mask */
 			if(color_mode == IC_RGBA) {
 				fprintf(gpoutfile, "ima := \"%%\n");
@@ -1842,13 +1835,11 @@ TERM_PUBLIC void CONTEXT_image(unsigned M, unsigned N, coordval * image, gpiPoin
 						line_length = 1;
 						fprintf(gpoutfile, "%%\n");
 					}
-					;
 					fprintf(gpoutfile, "%02x", (uchar)(image[i*components_per_color+3]*255));
 				}
 				fprintf(gpoutfile, "\";\n");
 			}
 		}
-
 		/* TODO: transparency handling is not yet supported in ConTeXt */
 		if(is_clipped)
 			fprintf(gpoutfile, "draw image(\n  ");
@@ -1885,31 +1876,47 @@ TERM_PUBLIC void CONTEXT_image(unsigned M, unsigned N, coordval * image, gpiPoin
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(context_driver)
-"context", "ConTeXt with MetaFun (for PDF documents)",
-CONTEXT_XMAX, CONTEXT_YMAX, CONTEXT_VCHAR, CONTEXT_HCHAR,
-CONTEXT_VTIC, CONTEXT_HTIC, CONTEXT_options, CONTEXT_init,
-CONTEXT_reset, CONTEXT_text, null_scale, CONTEXT_graphics,
-CONTEXT_move, CONTEXT_vector,
-CONTEXT_linetype, CONTEXT_put_text, CONTEXT_text_angle,
-CONTEXT_justify_text, CONTEXT_point, CONTEXT_arrow, CONTEXT_set_font,
-CONTEXT_pointsize,
-/* also add TERM_CAN_CLIP once you understand what it does */
-TERM_CAN_DASH | TERM_ALPHA_CHANNEL | TERM_LINEWIDTH | TERM_FONTSCALE | TERM_IS_LATEX /* flags */,
-0 /* suspend */, 0 /* resume*/,
-CONTEXT_fillbox, CONTEXT_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0         /* no mouse support */
-#endif /* USE_MOUSE */
-, CONTEXT_make_palette,
-0,         /* XXX: CONTEXT_previous_palette: not sure if we need it at all (PS does "grestore") */
-CONTEXT_set_color,
-CONTEXT_filled_polygon,
-CONTEXT_image,
-0, 0, 0,         /* No enhanced text mode because this is TeX */
-0,               /* layer (used to signal front/back text, used in canvas, PS, epslatex, ...); XXX: figure out what this
-                    has to do */
-0                /* path (Path control for end-joins of closed polygons on PostScript-like devices); TODO: implement it
-                    (CONTEXT_path) */
+	"context", 
+	"ConTeXt with MetaFun (for PDF documents)",
+	CONTEXT_XMAX, 
+	CONTEXT_YMAX, 
+	CONTEXT_VCHAR, 
+	CONTEXT_HCHAR,
+	CONTEXT_VTIC, 
+	CONTEXT_HTIC, 
+	CONTEXT_options, 
+	CONTEXT_init,
+	CONTEXT_reset, 
+	CONTEXT_text, 
+	GnuPlot::NullScale, 
+	CONTEXT_graphics,
+	CONTEXT_move, 
+	CONTEXT_vector,
+	CONTEXT_linetype, 
+	CONTEXT_put_text, 
+	CONTEXT_text_angle,
+	CONTEXT_justify_text, 
+	CONTEXT_point, 
+	CONTEXT_arrow, 
+	CONTEXT_set_font,
+	CONTEXT_pointsize,
+	/* also add TERM_CAN_CLIP once you understand what it does */
+	TERM_CAN_DASH | TERM_ALPHA_CHANNEL | TERM_LINEWIDTH | TERM_FONTSCALE | TERM_IS_LATEX /* flags */,
+	0 /* suspend */, 0 /* resume*/,
+	CONTEXT_fillbox, CONTEXT_linewidth
+	#ifdef USE_MOUSE
+	, 0, 0, 0, 0, 0         /* no mouse support */
+	#endif /* USE_MOUSE */
+	, CONTEXT_make_palette,
+	0,         /* XXX: CONTEXT_previous_palette: not sure if we need it at all (PS does "grestore") */
+	CONTEXT_set_color,
+	CONTEXT_filled_polygon,
+	CONTEXT_image,
+	0, 0, 0,         /* No enhanced text mode because this is TeX */
+	0,               /* layer (used to signal front/back text, used in canvas, PS, epslatex, ...); XXX: figure out what this
+						has to do */
+	0                /* path (Path control for end-joins of closed polygons on PostScript-like devices); TODO: implement it
+						(CONTEXT_path) */
 TERM_TABLE_END(context_driver)
 #undef LAST_TERM
 #define LAST_TERM context_driver

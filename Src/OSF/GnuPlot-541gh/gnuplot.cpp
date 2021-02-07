@@ -74,7 +74,7 @@ generic * gp_realloc(generic * p, size_t size, const char * message)
 	memzero(cp, sizeof(curve_points));
 	cp->p_max = (num >= 0 ? num : 0);
 	if(num > 0)
-		cp->points = (struct coordinate *)gp_alloc(num * sizeof(struct coordinate), "curve points");
+		cp->points = (GpCoordinate *)gp_alloc(num * sizeof(GpCoordinate), "curve points");
 	// Initialize various fields 
 	cp->lp_properties = default_lp_properties;
 	default_arrow_style(&(cp->arrow_properties));
@@ -178,4 +178,24 @@ void droplast_dynarray(dynarray * pThis)
 		GPO.IntError(NO_CARET, P_DynarrayInitFailureMsg);
 	if(pThis->end)
 		pThis->end--;
+}
+// 
+// This routine accounts for multi-byte characters in UTF-8.
+// NB:  It does not return the _number_ of characters in the string, but
+// rather their approximate _width_ in units of typical character width.
+// As with the ENHest_writec() routine, it approximates the width of characters
+// above unicode 0x3000 as being twice that of western alphabetic characters.
+// 
+size_t FASTCALL strwidth_utf8(const char * s) 
+{
+	int j = 0;
+	for(int i = 0; s[i];) {
+		if((s[i] & 0xc0) != 0x80) {
+			j++;
+			if((uchar)(s[i]) >= 0xe3)
+				j++;
+		}
+		i++;
+	}
+	return j;
 }

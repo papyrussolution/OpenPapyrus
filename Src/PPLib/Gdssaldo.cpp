@@ -1,5 +1,5 @@
 // GDSSALDO.CPP
-// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
 // @codepage windows-1251
 //
 // Расчет сальдо по товарам
@@ -144,14 +144,14 @@ int CalcSaldoList::Insert(const CalcSaldoEntry * pEntry, uint * p)
 	return ordInsert(pEntry, p, PTR_CMPFUNC(CalcSaldoEnKey)) ? 1 : PPSetErrorSLib();
 }
 //
-//   PrcssrGoodsSaldo
+// PrcssrGoodsSaldo
 //
 #define DEF_SALDO_PERIOD  7L
 
 struct GArSEntry { // @flat
 	PPID   GoodsID;
 	PPID   ArID;
-	PPID   DlvrLocID; // @v9.1.8
+	PPID   DlvrLocID;
 	LDATE  Dt;
 	double Qtty;
 	double Amt;
@@ -160,7 +160,7 @@ struct GArSEntry { // @flat
 struct GArSLastEntry {
 	PPID   GoodsID;
 	PPID   ArID;
-	PPID   DlvrLocID; // @v9.1.8
+	PPID   DlvrLocID;
 	uint   Pos;
 };
 
@@ -204,97 +204,86 @@ int PrcssrGoodsSaldo::InitParam(Param * pPar)
 	return 1;
 }
 //
-//   Implementation of GoodsSaldoParamDlg
-//
-#define GSGRP_GOODS 1
-
-class GoodsSaldoParamDlg : public TDialog {
-public:
-	GoodsSaldoParamDlg() : TDialog(DLG_GDSSALDO)
-	{
-		addGroup(GSGRP_GOODS, new GoodsCtrlGroup(CTLSEL_GDSSALDO_GGRP, CTLSEL_GDSSALDO_GOODS));
-	}
-	int    setDTS(const PrcssrGoodsSaldo::Param *);
-	int    getDTS(PrcssrGoodsSaldo::Param * pPar);
-private:
-	DECL_HANDLE_EVENT;
-	void   ReplySelection();
-
-	PrcssrGoodsSaldo::Param GSParam;
-	GoodsSaldoCore GSCore;
-};
-
-void GoodsSaldoParamDlg::ReplySelection()
-{
-	LDATE  dt;
-	char   last_calc_date[16];
-	GoodsCtrlGroup::Rec rec;
-	memzero(last_calc_date, sizeof(last_calc_date));
-	if(getGroupData(GSGRP_GOODS, &rec)) {
-		PPID   ar_id = getCtrlLong(CTLSEL_GDSSALDO_CNTRAGNT);
-		GSCore.GetLastCalcDate(rec.GrpID, rec.GoodsID, ar_id, 0 /*dlvrLocID*/, &dt);
-		datefmt(&dt, DATF_DMY, last_calc_date);
-		setCtrlData(CTL_GDSSALDO_LASTCALC, &last_calc_date);
-	}
-}
-
-IMPL_HANDLE_EVENT(GoodsSaldoParamDlg)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmCBSelected)) {
-		ReplySelection();
-		clearEvent(event);
-	}
-}
-
-int GoodsSaldoParamDlg::setDTS(const PrcssrGoodsSaldo::Param * pPar)
-{
-	ushort v;
-	GoodsCtrlGroup::Rec rec;
-	if(!RVALUEPTR(GSParam, pPar))
-		MEMSZERO(GSParam);
-	// @v10.6.4 MEMSZERO(rec);
-	rec.GrpID   = GSParam.GoodsGrpID;
-	rec.GoodsID = GSParam.GoodsID;
-	rec.Flags   = GoodsCtrlGroup::enableSelUpLevel;
-	setGroupData(GSGRP_GOODS, &rec);
-	{
-		const PPID acs_id = GetSellAccSheet();
-		SetupArCombo(this, CTLSEL_GDSSALDO_CNTRAGNT, GSParam.ArID, 0, acs_id, sacfDisableIfZeroSheet);
-		if(!acs_id && isCurrCtlID(CTLSEL_GDSSALDO_CNTRAGNT))
-			selectNext();
-	}
-	SetupSubstDateCombo(this, CTLSEL_GDSSALDO_PERIOD, GSParam.CalcPeriod);
-	ReplySelection();
-	v = GSParam.FullCalc;
-	setCtrlData(CTL_GDSSALDO_HOW, &v);
-	return 1;
-}
-
-int GoodsSaldoParamDlg::getDTS(PrcssrGoodsSaldo::Param * pPar)
-{
-	int    ok  = 1;
-	uint   sel = 0;
-	ushort v;
-	GoodsCtrlGroup::Rec rec;
-	THROW(getGroupData(GSGRP_GOODS, &rec));
-	GSParam.GoodsGrpID = rec.GrpID;
-	GSParam.GoodsID    = rec.GoodsID;
-	sel = CTL_GDSSALDO_GGRP;
-	THROW_PP_S(GSParam.GoodsGrpID, PPERR_GOODSGROUPNEEDED, GetGoodsName(rec.GoodsID, SLS.AcquireRvlStr())); // @v10.3.6 THROW_PP-->THROW_PP_S(..,GetGoodsName(rec.GoodsID))
-	getCtrlData(CTLSEL_GDSSALDO_CNTRAGNT, &GSParam.ArID);
-	getCtrlData(CTLSEL_GDSSALDO_PERIOD,   &GSParam.CalcPeriod);
-	getCtrlData(CTL_GDSSALDO_HOW, &v);
-	GSParam.FullCalc = v;
-	ASSIGN_PTR(pPar, GSParam);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-//
-//
+// Implementation of GoodsSaldoParamDlg
 //
 int PrcssrGoodsSaldo::EditParam(Param * pPar)
 {
+	class GoodsSaldoParamDlg : public TDialog {
+		DECL_DIALOG_DATA(PrcssrGoodsSaldo::Param);
+		enum {
+			ctlgroupGoods = 1
+		};
+	public:
+		GoodsSaldoParamDlg() : TDialog(DLG_GDSSALDO)
+		{
+			addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GDSSALDO_GGRP, CTLSEL_GDSSALDO_GOODS));
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			ushort v;
+			GoodsCtrlGroup::Rec rec;
+			if(!RVALUEPTR(Data, pData))
+				MEMSZERO(Data);
+			// @v10.6.4 MEMSZERO(rec);
+			rec.GrpID   = Data.GoodsGrpID;
+			rec.GoodsID = Data.GoodsID;
+			rec.Flags   = GoodsCtrlGroup::enableSelUpLevel;
+			setGroupData(ctlgroupGoods, &rec);
+			{
+				const PPID acs_id = GetSellAccSheet();
+				SetupArCombo(this, CTLSEL_GDSSALDO_CNTRAGNT, Data.ArID, 0, acs_id, sacfDisableIfZeroSheet);
+				if(!acs_id && isCurrCtlID(CTLSEL_GDSSALDO_CNTRAGNT))
+					selectNext();
+			}
+			SetupSubstDateCombo(this, CTLSEL_GDSSALDO_PERIOD, Data.CalcPeriod);
+			ReplySelection();
+			v = Data.FullCalc;
+			setCtrlData(CTL_GDSSALDO_HOW, &v);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok  = 1;
+			uint   sel = 0;
+			ushort v;
+			GoodsCtrlGroup::Rec rec;
+			THROW(getGroupData(ctlgroupGoods, &rec));
+			Data.GoodsGrpID = rec.GrpID;
+			Data.GoodsID    = rec.GoodsID;
+			sel = CTL_GDSSALDO_GGRP;
+			THROW_PP_S(Data.GoodsGrpID, PPERR_GOODSGROUPNEEDED, GetGoodsName(rec.GoodsID, SLS.AcquireRvlStr())); // @v10.3.6 THROW_PP-->THROW_PP_S(..,GetGoodsName(rec.GoodsID))
+			getCtrlData(CTLSEL_GDSSALDO_CNTRAGNT, &Data.ArID);
+			getCtrlData(CTLSEL_GDSSALDO_PERIOD,   &Data.CalcPeriod);
+			getCtrlData(CTL_GDSSALDO_HOW, &v);
+			Data.FullCalc = v;
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmCBSelected)) {
+				ReplySelection();
+				clearEvent(event);
+			}
+		}
+		void   ReplySelection()
+		{
+			LDATE  dt;
+			char   last_calc_date[16];
+			GoodsCtrlGroup::Rec rec;
+			memzero(last_calc_date, sizeof(last_calc_date));
+			if(getGroupData(ctlgroupGoods, &rec)) {
+				PPID   ar_id = getCtrlLong(CTLSEL_GDSSALDO_CNTRAGNT);
+				GSCore.GetLastCalcDate(rec.GrpID, rec.GoodsID, ar_id, 0 /*dlvrLocID*/, &dt);
+				datefmt(&dt, DATF_DMY, last_calc_date);
+				setCtrlData(CTL_GDSSALDO_LASTCALC, &last_calc_date);
+			}
+		}
+		GoodsSaldoCore GSCore;
+	};
 	int    ok = -1, valid_data;
 	GoodsSaldoParamDlg * dlg = 0;
 	THROW_INVARG(pPar);

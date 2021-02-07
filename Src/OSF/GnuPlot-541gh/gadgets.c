@@ -515,9 +515,10 @@ void clip_move(int x, int y)
 	move_pos_y = y;
 }
 
-void clip_vector(termentry * pTerm, int x, int y)
+//void clip_vector(termentry * pTerm, int x, int y)
+void GnuPlot::ClipVector(termentry * pTerm, int x, int y)
 {
-	GPO.DrawClipLine(pTerm, move_pos_x, move_pos_y, x, y);
+	DrawClipLine(pTerm, move_pos_x, move_pos_y, x, y);
 	move_pos_x = x;
 	move_pos_y = y;
 }
@@ -525,7 +526,8 @@ void clip_vector(termentry * pTerm, int x, int y)
 // draw_polar_clip_line() assumes that the endpoints have already
 // been categorized as INRANGE/OUTRANGE, and that "set clip radial" is in effect.
 // 
-void draw_polar_clip_line(termentry * pTerm, double xbeg, double ybeg, double xend, double yend)
+//void draw_polar_clip_line(termentry * pTerm, double xbeg, double ybeg, double xend, double yend)
+void GnuPlot::DrawPolarClipLine(termentry * pTerm, double xbeg, double ybeg, double xend, double yend)
 {
 	double R; // radius of limiting circle 
 	double a, b; // line expressed as y = a*x + b 
@@ -533,14 +535,14 @@ void draw_polar_clip_line(termentry * pTerm, double xbeg, double ybeg, double xe
 	double Q, Q2; // sqrt term of quadratic equation 
 	bool vertical = FALSE; // flag for degenerate case 
 	bool beg_inrange, end_inrange;
-	if(GPO.AxS.__R().set_max == -VERYLARGE)
+	if(AxS.__R().set_max == -VERYLARGE)
 		goto outside;
-	R = GPO.AxS.__R().set_max - GPO.AxS.__R().set_min;
+	R = AxS.__R().set_max - AxS.__R().set_min;
 	// If both endpoints are inside the limiting circle, draw_clip_line suffices 
 	beg_inrange = (xbeg*xbeg + ybeg*ybeg) <= R*R;
 	end_inrange = (xend*xend + yend*yend) <= R*R;
 	if(beg_inrange && end_inrange) {
-		GPO.DrawClipLine(pTerm, GPO.AxS.MapiX(xbeg), GPO.AxS.MapiY(ybeg), GPO.AxS.MapiX(xend), GPO.AxS.MapiY(yend));
+		DrawClipLine(pTerm, AxS.MapiX(xbeg), AxS.MapiY(ybeg), AxS.MapiX(xend), AxS.MapiY(yend));
 	}
 	else {
 		// FIXME:  logscale and other odd cases are not covered by this equation 
@@ -603,12 +605,12 @@ void draw_polar_clip_line(termentry * pTerm, double xbeg, double ybeg, double xe
 				goto outside;
 		}
 		// Draw the part of the line inside the bounding circle 
-		(pTerm->move)(GPO.AxS.MapiX(x1), GPO.AxS.MapiY(y1));
-		(pTerm->vector)(GPO.AxS.MapiX(x2), GPO.AxS.MapiY(y2));
+		(pTerm->move)(AxS.MapiX(x1), AxS.MapiY(y1));
+		(pTerm->vector)(AxS.MapiX(x2), AxS.MapiY(y2));
 		// fall through 
 outside:
 		// Leave current position at unclipped endpoint 
-		(pTerm->move)(GPO.AxS.MapiX(xend), GPO.AxS.MapiY(yend));
+		(pTerm->move)(AxS.MapiX(xend), AxS.MapiY(yend));
 	}
 }
 //
@@ -729,7 +731,7 @@ void free_labels(struct text_label * label)
 	}
 }
 
-void get_offsets(struct text_label * this_label, int * htic, int * vtic)
+void get_offsets(text_label * this_label, int * htic, int * vtic)
 {
 	if((this_label->lp_properties.flags & LP_SHOW_POINTS)) {
 		*htic = static_cast<int>(pointsize * term->TicH * 0.5);
@@ -756,77 +758,78 @@ void get_offsets(struct text_label * this_label, int * htic, int * vtic)
 // Write one label, with all the trimmings.
 // This routine is used for both 2D and 3D plots.
 // 
-void write_label(termentry * pTerm, int x, int y, struct text_label * this_label)
+//void write_label(termentry * pTerm, int x, int y, struct text_label * this_label)
+void GnuPlot::WriteLabel(termentry * pTerm, int x, int y, text_label * pLabel)
 {
 	int htic, vtic;
 	int justify = JUST_TOP; /* This was the 2D default; 3D had CENTRE */
 	textbox_style * textbox = NULL;
-	GPO.ApplyPm3DColor(pTerm, &(this_label->textcolor));
-	ignore_enhanced(this_label->noenhanced);
+	ApplyPm3DColor(pTerm, &(pLabel->textcolor));
+	ignore_enhanced(pLabel->noenhanced);
 	// The text itself 
-	if(this_label->hypertext) {
-		if(this_label->text && *(this_label->text)) {
+	if(pLabel->hypertext) {
+		if(pLabel->text && *pLabel->text) {
 			// Treat text as hypertext 
-			char * font = this_label->font;
+			char * font = pLabel->font;
 			if(font)
 				pTerm->set_font(font);
 			if(pTerm->hypertext)
-				pTerm->hypertext(TERM_HYPERTEXT_TOOLTIP, this_label->text);
+				pTerm->hypertext(TERM_HYPERTEXT_TOOLTIP, pLabel->text);
 			if(font)
 				pTerm->set_font("");
 		}
 	}
 	else{
 		// A normal label (always print text) 
-		get_offsets(this_label, &htic, &vtic);
-		if(this_label->boxed < 0)
+		get_offsets(pLabel, &htic, &vtic);
+		if(pLabel->boxed < 0)
 			textbox = &textbox_opts[0];
-		else if(this_label->boxed > 0)
-			textbox = &textbox_opts[this_label->boxed];
+		else if(pLabel->boxed > 0)
+			textbox = &textbox_opts[pLabel->boxed];
 		// Initialize the bounding box accounting 
 		if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder))
-			(*pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
-		if(this_label->rotate && (*pTerm->text_angle)(this_label->rotate)) {
-			write_multiline(pTerm, x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, this_label->rotate, this_label->font);
-			(*pTerm->text_angle)(0);
+			(pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
+		if(pLabel->rotate && (*pTerm->text_angle)(pLabel->rotate)) {
+			write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
+			(pTerm->text_angle)(0);
 		}
 		else {
-			write_multiline(pTerm, x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, 0, this_label->font);
+			write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
 		}
 	}
 	if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder)) {
 		// Adjust the bounding box margins 
-		(*pTerm->boxed_text)((int)(textbox->xmargin * 100.), (int)(textbox->ymargin * 100.0), TEXTBOX_MARGINS);
+		(pTerm->boxed_text)((int)(textbox->xmargin * 100.), (int)(textbox->ymargin * 100.0), TEXTBOX_MARGINS);
 		// Blank out the box and reprint the label 
 		if(textbox->opaque) {
-			GPO.ApplyPm3DColor(pTerm, &textbox->fillcolor);
+			ApplyPm3DColor(pTerm, &textbox->fillcolor);
 			(pTerm->boxed_text)(0, 0, TEXTBOX_BACKGROUNDFILL);
-			GPO.ApplyPm3DColor(pTerm, &(this_label->textcolor));
+			ApplyPm3DColor(pTerm, &(pLabel->textcolor));
 			// Init for each of fill and border 
 			if(!textbox->noborder)
 				(pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
-			if(this_label->rotate && (*pTerm->text_angle)(this_label->rotate)) {
-				write_multiline(pTerm, x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, this_label->rotate, this_label->font);
+			if(pLabel->rotate && (*pTerm->text_angle)(pLabel->rotate)) {
+				write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
 				(pTerm->text_angle)(0);
 			}
 			else
-				write_multiline(pTerm, x + htic, y + vtic, this_label->text, this_label->pos, (VERT_JUSTIFY)justify, 0, this_label->font);
+				write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
 		}
 		// Draw the bounding box 
 		if(!textbox->noborder) {
 			(pTerm->linewidth)(textbox->linewidth);
-			GPO.ApplyPm3DColor(pTerm, &textbox->border_color);
+			ApplyPm3DColor(pTerm, &textbox->border_color);
 			(pTerm->boxed_text)(0, 0, TEXTBOX_OUTLINE);
 		}
 		(pTerm->boxed_text)(0, 0, TEXTBOX_FINISH);
 	}
 	// The associated point, if any 
 	// write_multiline() clips text to on_page; do the same for any point 
-	if((this_label->lp_properties.flags & LP_SHOW_POINTS) && on_page(x, y)) {
-		GPO.TermApplyLpProperties(pTerm, &this_label->lp_properties);
-		(pTerm->point)(x, y, this_label->lp_properties.p_type);
+	if((pLabel->lp_properties.flags & LP_SHOW_POINTS) && on_page(x, y)) {
+		TermApplyLpProperties(pTerm, &pLabel->lp_properties);
+		(pTerm->point)(x, y, pLabel->lp_properties.p_type);
 		// the default label color is that of border 
-		GPO.TermApplyLpProperties(pTerm, &border_lp);
+		TermApplyLpProperties(pTerm, &border_lp);
 	}
 	ignore_enhanced(FALSE);
 }
@@ -877,7 +880,7 @@ void do_timelabel(int x, int y)
 	time(&now);
 	strftime(str, MAX_LINE_LEN, timelabel.text, localtime(&now));
 	temp.text = str;
-	write_label(term, x, y, &temp);
+	GPO.WriteLabel(term, x, y, &temp);
 }
 
 void init_gadgets()
@@ -938,7 +941,7 @@ void place_title(int title_x, int title_y)
 {
 	if(title.text) {
 		// NB: write_label applies text color but does not reset it 
-		write_label(term, title_x, title_y, &title);
+		GPO.WriteLabel(term, title_x, title_y, &title);
 		reset_textcolor(&(title.textcolor));
 	}
 }

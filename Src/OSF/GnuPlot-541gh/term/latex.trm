@@ -89,7 +89,7 @@ register_term(emtex)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void LATEX_options();
-TERM_PUBLIC void LATEX_init();
+TERM_PUBLIC void LATEX_init(termentry * pThis);
 TERM_PUBLIC void LATEX_graphics();
 TERM_PUBLIC void LATEX_text();
 TERM_PUBLIC void LATEX_put_text(uint x, uint y, const char str[]);
@@ -107,7 +107,7 @@ TERM_PUBLIC int LATEX_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void LATEX_set_color(t_colorspec * colorspec);
 
 #ifdef EMTEX
-TERM_PUBLIC void EMTEX_init();
+TERM_PUBLIC void EMTEX_init(termentry * pThis);
 TERM_PUBLIC void EMTEX_reset();
 TERM_PUBLIC void EMTEX_text();
 #endif
@@ -288,8 +288,8 @@ TERM_PUBLIC void LATEX_options()
 			    GPO.Pgm.Shift();
 			    latex_explicit_size = TRUE;
 			    latex_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
-			    term->xmax = xmax_t * DOTS_PER_INCH/72;
-			    term->ymax = ymax_t * DOTS_PER_INCH/72;
+			    term->MaxX = xmax_t * DOTS_PER_INCH/72;
+			    term->MaxY = ymax_t * DOTS_PER_INCH/72;
 			    break;
 		    }
 			case LATEX_ROTATE:
@@ -335,12 +335,12 @@ TERM_PUBLIC void LATEX_options()
 	if(latex_explicit_size) {
 		if(latex_explicit_units == CM)
 			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ",
-			    2.54*(float)term->xmax/(DOTS_PER_INCH),
-			    2.54*(float)term->ymax/(DOTS_PER_INCH));
+			    2.54*(float)term->MaxX/(DOTS_PER_INCH),
+			    2.54*(float)term->MaxY/(DOTS_PER_INCH));
 		else
 			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ",
-			    (float)term->xmax/(DOTS_PER_INCH),
-			    (float)term->ymax/(DOTS_PER_INCH));
+			    (float)term->MaxX/(DOTS_PER_INCH),
+			    (float)term->MaxY/(DOTS_PER_INCH));
 	}
 
 	if(latex_rotate) {
@@ -358,7 +358,7 @@ TERM_PUBLIC void LATEX_options()
 	}
 }
 
-TERM_PUBLIC void LATEX_init()
+TERM_PUBLIC void LATEX_init(termentry * pThis)
 {
 #ifdef EMTEX
 	emtex = FALSE;
@@ -382,13 +382,13 @@ TERM_PUBLIC void LATEX_graphics()
 
 	/* set size of canvas */
 	if(!latex_explicit_size) {
-		term->xmax = LATEX_XMAX;
-		term->ymax = LATEX_YMAX;
+		term->MaxX = LATEX_XMAX;
+		term->MaxY = LATEX_YMAX;
 	}
 
 	/* bounding box */
-	xscale = xsize * term->xmax;
-	yscale = ysize * term->ymax;
+	xscale = xsize * term->MaxX;
+	yscale = ysize * term->MaxY;
 
 	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(0,0)\n", xscale, yscale);
 	if(strcmp(LATEX_font, "doc") != 0) {
@@ -1009,7 +1009,7 @@ TERM_PUBLIC void LATEX_set_color(t_colorspec * colorspec)
 
 #ifdef EMTEX
 
-TERM_PUBLIC void EMTEX_init()
+TERM_PUBLIC void EMTEX_init(termentry * pThis)
 {
 	emtex = TRUE;
 	LATEX_posx = LATEX_posy = 0;
@@ -1053,42 +1053,91 @@ static void EMTEX_solid_line(int x1, int x2, int y1, int y2)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(latex_driver)
-"latex", "LaTeX picture environment",
-LATEX_XMAX, LATEX_YMAX, LATEX_VCHAR, LATEX_HCHAR,
-LATEX_VTIC, LATEX_HTIC, LATEX_options, LATEX_init, LATEX_reset,
-LATEX_text, null_scale, LATEX_graphics, LATEX_move, LATEX_vector,
-LATEX_linetype, LATEX_put_text, LATEX_text_angle,
-LATEX_justify_text, LATEX_point, LATEX_arrow, set_font_null,
-NULL,     /* pointsize */
-TERM_IS_LATEX | TERM_MONOCHROME,     /* flags */
-NULL, NULL,     /* suspend, resume */
-LATEX_fillbox, LATEX_linewidth,
-#ifdef USE_MOUSE
-NULL, NULL, NULL, NULL, NULL,
-#endif
-LATEX_make_palette, 0,
-LATEX_set_color TERM_TABLE_END(latex_driver)
+	"latex", 
+	"LaTeX picture environment",
+	LATEX_XMAX, 
+	LATEX_YMAX, 
+	LATEX_VCHAR, 
+	LATEX_HCHAR,
+	LATEX_VTIC, 
+	LATEX_HTIC, 
+	LATEX_options, 
+	LATEX_init, 
+	LATEX_reset,
+	LATEX_text, 
+	GnuPlot::NullScale, 
+	LATEX_graphics, 
+	LATEX_move, 
+	LATEX_vector,
+	LATEX_linetype, 
+	LATEX_put_text, 
+	LATEX_text_angle,
+	LATEX_justify_text, 
+	LATEX_point, 
+	LATEX_arrow, 
+	set_font_null,
+	NULL,     /* pointsize */
+	TERM_IS_LATEX | TERM_MONOCHROME,     /* flags */
+	NULL, 
+	NULL,     /* suspend, resume */
+	LATEX_fillbox, 
+	LATEX_linewidth,
+	#ifdef USE_MOUSE
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL,
+	#endif
+	LATEX_make_palette, 0,
+	LATEX_set_color 
+TERM_TABLE_END(latex_driver)
 
 #undef LAST_TERM
 #define LAST_TERM latex_driver
 
 #ifdef EMTEX
 TERM_TABLE_START(emtex_driver)
-"emtex", "LaTeX picture environment with emTeX specials",
-LATEX_XMAX, LATEX_YMAX, LATEX_VCHAR, LATEX_HCHAR,
-LATEX_VTIC, LATEX_HTIC, LATEX_options, EMTEX_init, EMTEX_reset,
-EMTEX_text, null_scale, LATEX_graphics, LATEX_move, LATEX_vector,
-LATEX_linetype, LATEX_put_text, LATEX_text_angle,
-LATEX_justify_text, LATEX_point, LATEX_arrow, set_font_null,
-NULL,     /* pointsize */
-TERM_IS_LATEX | TERM_MONOCHROME,     /* flags */
-NULL, NULL,     /* suspend, resume */
-LATEX_fillbox, LATEX_linewidth,
-#ifdef USE_MOUSE
-NULL, NULL, NULL, NULL, NULL,
-#endif
-LATEX_make_palette, 0,
-LATEX_set_color TERM_TABLE_END(emtex_driver)
+	"emtex", 
+	"LaTeX picture environment with emTeX specials",
+	LATEX_XMAX, 
+	LATEX_YMAX, 
+	LATEX_VCHAR, 
+	LATEX_HCHAR,
+	LATEX_VTIC, 
+	LATEX_HTIC, 
+	LATEX_options, 
+	EMTEX_init, 
+	EMTEX_reset,
+	EMTEX_text, 
+	GnuPlot::NullScale, 
+	LATEX_graphics, 
+	LATEX_move, 
+	LATEX_vector,
+	LATEX_linetype, 
+	LATEX_put_text, 
+	LATEX_text_angle,
+	LATEX_justify_text, 
+	LATEX_point, 
+	LATEX_arrow, 
+	set_font_null,
+	NULL,     /* pointsize */
+	TERM_IS_LATEX | TERM_MONOCHROME,     /* flags */
+	NULL, 
+	NULL,     /* suspend, resume */
+	LATEX_fillbox, 
+	LATEX_linewidth,
+	#ifdef USE_MOUSE
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL,
+	#endif
+	LATEX_make_palette, 
+	0,
+	LATEX_set_color 
+TERM_TABLE_END(emtex_driver)
 
 #undef LAST_TERM
 #define LAST_TERM emtex_driver

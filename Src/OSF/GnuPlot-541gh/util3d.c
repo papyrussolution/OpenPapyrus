@@ -87,7 +87,7 @@ void mat_mult(transform_matrix mat_res, transform_matrix mat1, transform_matrix 
 // by the two points.
 // 
 //void edge3d_intersect(coordinate * p1, coordinate * p2, double * ex, double * ey, double * ez) /* the point where it crosses an edge */
-void GnuPlot::Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, double * ey, double * ez/* the point where it crosses an edge */)
+void GnuPlot::Edge3DIntersect(GpCoordinate * p1, GpCoordinate * p2, double * ex, double * ey, double * ez/* the point where it crosses an edge */)
 {
 	int count;
 	double ix = p1->x;
@@ -270,7 +270,7 @@ void GnuPlot::Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, dou
  * not distinguish it - we draw it anyway).
  */
 //bool /* any intersection? */ two_edge3d_intersect(coordinate * p0, coordinate * p1, double * lx, double * ly, double * lz) /* lx[2], ly[2], lz[2]: points where it crosses edges */
-bool GnuPlot::TwoEdge3DIntersect(coordinate * p0, coordinate * p1, double * lx, double * ly, double * lz/* lx[2], ly[2], lz[2]: points where it crosses edges */)
+bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * lx, double * ly, double * lz/* lx[2], ly[2], lz[2]: points where it crosses edges */)
 {
 	int count;
 	// global AxS[FIRST_{X,Y,Z}_AXIS].{min,max} 
@@ -807,24 +807,26 @@ void GnuPlot::Draw3DLineUnconditional(termentry * pTerm, const GpVertex * pV1, c
 	}
 }
 
-void draw3d_line(GpVertex * v1, GpVertex * v2, lp_style_type * lp)
+//void draw3d_line(GpVertex * v1, GpVertex * v2, lp_style_type * lp)
+void GnuPlot::Draw3DLine(termentry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp)
 {
 	// hidden3d routine can't work if no surface was drawn at all 
 	if(hidden3d && draw_surface)
-		draw_line_hidden(v1, v2, lp);
+		DrawLineHidden(pTerm, v1, v2, lp);
 	else
-		GPO.Draw3DLineUnconditional(term, v1, v2, lp, lp->pm3d_color);
+		Draw3DLineUnconditional(pTerm, v1, v2, lp, lp->pm3d_color);
 }
 //
 // HBB 20000621: new routine, to allow for hiding point symbols behind the surface 
 //
-void draw3d_point(GpVertex * v, lp_style_type * lp)
+//void draw3d_point(GpVertex * v, lp_style_type * lp)
+void GnuPlot::Draw3DPoint(termentry * pTerm, GpVertex * v, lp_style_type * lp)
 {
 	// hidden3d routine can't work if no surface was drawn at all 
 	if(hidden3d && draw_surface)
-		draw_line_hidden(v, NULL, lp); // Draw vertex as a zero-length edge 
+		DrawLineHidden(pTerm, v, NULL, lp); // Draw vertex as a zero-length edge 
 	else
-		GPO.Draw3DPointUnconditional(term, v, lp);
+		Draw3DPointUnconditional(pTerm, v, lp);
 }
 
 /* HBB NEW 20031218: tools for drawing polylines in 3D with a semantic
@@ -832,26 +834,28 @@ void draw3d_point(GpVertex * v, lp_style_type * lp)
 
 static GpVertex polyline3d_previous_vertex; /* Previous points 3D position */
 
-void polyline3d_start(GpVertex * v1)
+//void polyline3d_start(GpVertex * v1)
+void GnuPlot::Polyline3DStart(termentry * pTerm, GpVertex * v1)
 {
 	int x1, y1;
 	polyline3d_previous_vertex = *v1;
 	if(hidden3d && draw_surface)
 		return;
-	/* EAM - This may now be unneeded. But I'm not sure. */
-	/*       Perhaps the hidden3d code needs the move.   */
+	// EAM - This may now be unneeded. But I'm not sure. */
+	//       Perhaps the hidden3d code needs the move.   */
 	TERMCOORD(v1, x1, y1);
-	term->move(x1, y1);
+	pTerm->move(x1, y1);
 }
 
-void polyline3d_next(GpVertex * v2, lp_style_type * lp)
+//void polyline3d_next(GpVertex * v2, lp_style_type * lp)
+void GnuPlot::Polyline3DNext(termentry * pTerm, GpVertex * v2, lp_style_type * lp)
 {
 	// v5: Indicate that line properties are already set so that draw3d_*
 	//     routines do not mess up dash patterns by resetting them
 	t_colorspec nochange = DEFAULT_COLORSPEC;
 	if(hidden3d && draw_surface)
-		draw_line_hidden(&polyline3d_previous_vertex, v2, lp);
+		DrawLineHidden(pTerm, &polyline3d_previous_vertex, v2, lp);
 	else
-		GPO.Draw3DLineUnconditional(term, &polyline3d_previous_vertex, v2, lp, nochange);
+		GPO.Draw3DLineUnconditional(pTerm, &polyline3d_previous_vertex, v2, lp, nochange);
 	polyline3d_previous_vertex = *v2;
 }

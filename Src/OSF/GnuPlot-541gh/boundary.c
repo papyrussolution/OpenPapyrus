@@ -35,8 +35,13 @@
 #define ERRORBARTIC(terminalPtr) MAX(((terminalPtr)->TicH/2), 1)
 
 /*{{{  local variables */
-static int xlablin, x2lablin, ylablin, y2lablin, titlelin, xticlin, x2ticlin;
-
+static int xlablin;
+static int x2lablin;
+static int ylablin;
+static int y2lablin;
+static int titlelin;
+static int xticlin;
+static int x2ticlin;
 /*{{{  local and global variables */
 static int key_sample_width;    /* width of line sample */
 static int key_sample_height;   /* sample itself; does not scale with "set key spacing" */
@@ -49,29 +54,35 @@ static int key_size_right;      /* size of right part of key (including padding)
 static int key_xleft;           /* Amount of space on the left required by the key */
 static int max_ptitl_len = 0;   /* max length of plot-titles (keys) */
 static int ptitl_cnt;           /* count keys with len > 0  */
-
 static int key_width;           /* calculate once, then everyone uses it */
 static int key_height;          /* ditto */
 static int key_title_height;    /* nominal number of lines * character height */
 static int key_title_extra;     /* allow room for subscript/superscript */
 static int key_title_ypos;      /* offset from key->bounds.ytop */
 static int time_y, time_x;
-
-int title_x, title_y;           /* Used by boundary and by 2D graphics */
-
+int title_x; /* Used by boundary and by 2D graphics */
+int title_y; 
 /*
  * These quantities are needed in do_plot() e.g. for histogtram title layout
  */
 int key_entry_height;           /* bigger of t->ChrV, t->TicV */
 int key_point_offset;           /* offset from x for point sample */
-int ylabel_x, y2label_x, xlabel_y, x2label_y;
+int ylabel_x;
+int y2label_x;
+int xlabel_y;
+int x2label_y;
 int x2label_yoffset;
-int ylabel_y, y2label_y, xtic_y, x2tic_y, ytic_x, y2tic_x;
+int ylabel_y;
+int y2label_y;
+int xtic_y;
+int x2tic_y;
+int ytic_x;
+int y2tic_x;
 int key_rows;
 int key_cols;
 int key_count;
-
-static int key_col_wth, yl_ref;
+static int key_col_wth;
+static int yl_ref;
 static int xl, yl;
 
 /*{{{  boundary() */
@@ -113,7 +124,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	int    timelabel_textheight = 0; /* height of timestamp */
 	int    ytic_textwidth = 0; /* width of ytic labels */
 	int    y2tic_textwidth = 0; /* width of y2tic labels */
-	int    x2tic_height = 0;   /* 0 for tic_in or no x2tics, ticscale*TicV otherwise */
+	int    x2tic_height = 0;   /* 0 for TicIn or no x2tics, ticscale*TicV otherwise */
 	int    xtic_textwidth = 0; /* amount by which the xtic label protrude to the right */
 	int    xtic_height = 0;
 	int    ytic_width = 0;
@@ -127,7 +138,12 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	const int vertical_ytics  = can_rotate ? AxS[FIRST_Y_AXIS].tic_rotate : 0;
 	const int vertical_y2tics = can_rotate ? AxS[SECOND_Y_AXIS].tic_rotate : 0;
 	bool shift_labels_to_border = FALSE;
-	xticlin = ylablin = y2lablin = xlablin = x2lablin = titlelin = 0;
+	xticlin = 0;
+	ylablin = 0;
+	y2lablin = 0;
+	xlablin = 0;
+	x2lablin = 0;
+	titlelin = 0;
 	/*{{{  count lines in labels and tics */
 	if(title.text)
 		label_width(title.text, &titlelin);
@@ -206,7 +222,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	// tics 
 	if(AxS[SECOND_X_AXIS].ticmode & TICS_ON_BORDER) {
 		x2tic_height = pTerm->TicV * AxS[SECOND_X_AXIS].ticscale;
-		if(AxS[SECOND_X_AXIS].tic_in)
+		if(AxS[SECOND_X_AXIS].TicIn)
 			x2tic_height = -x2tic_height;
 	}
 	else
@@ -259,7 +275,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 		}
 	}
 	// compute V.BbPlot.ytop from the various components unless tmargin is explicitly specified
-	V.BbPlot.ytop = (int)(0.5 + (V.YSize + V.YOffset) * (pTerm->ymax-1));
+	V.BbPlot.ytop = (int)(0.5 + (V.YSize + V.YOffset) * (pTerm->MaxY-1));
 	// Sanity check top and bottom margins, in case the user got confused 
 	if(V.MarginB.scalex == screen && V.MarginT.scalex == screen) {
 		if(V.MarginB.x > V.MarginT.x) {
@@ -269,7 +285,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 		}
 	}
 	if(V.MarginT.scalex == screen) {
-		V.BbPlot.ytop = (V.MarginT.x) * (float)(pTerm->ymax-1); // Specified as absolute position on the canvas 
+		V.BbPlot.ytop = (V.MarginT.x) * (float)(pTerm->MaxY-1); // Specified as absolute position on the canvas 
 	}
 	else if(V.MarginT.x >=0) {
 		V.BbPlot.ytop -= (int)(V.MarginT.x * (float)pTerm->ChrV + 0.5); // Specified in terms of character height 
@@ -287,22 +303,22 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 			top_margin += x2tic_height;
 		top_margin += ttic_textheight;
 		V.BbPlot.ytop -= top_margin;
-		if(V.BbPlot.ytop == (int)(0.5 + (V.YSize + V.YOffset) * (pTerm->ymax-1))) {
+		if(V.BbPlot.ytop == (int)(0.5 + (V.YSize + V.YOffset) * (pTerm->MaxY-1))) {
 			V.BbPlot.ytop -= (int)(pTerm->ChrH * 2); // make room for the end of rotated ytics or y2tics 
 		}
 	}
 	// end of preliminary V.BbPlot.ytop calculation }}} 
 	// {{{  preliminary V.BbPlot.xleft, needed for "under" 
 	if(V.MarginL.scalex == screen)
-		V.BbPlot.xleft = V.MarginL.x * (float)pTerm->xmax;
+		V.BbPlot.xleft = V.MarginL.x * (float)pTerm->MaxX;
 	else
-		V.BbPlot.xleft = V.XOffset * pTerm->xmax + pTerm->ChrH * (V.MarginL.x >= 0 ? V.MarginL.x : 1);
+		V.BbPlot.xleft = V.XOffset * pTerm->MaxX + pTerm->ChrH * (V.MarginL.x >= 0 ? V.MarginL.x : 1);
 	// }}} 
 	// {{{  tentative V.BbPlot.xright, needed for "under" 
 	if(V.MarginR.scalex == screen)
-		V.BbPlot.xright = V.MarginR.x * (float)(pTerm->xmax - 1);
+		V.BbPlot.xright = V.MarginR.x * (float)(pTerm->MaxX - 1);
 	else
-		V.BbPlot.xright = (V.XSize + V.XOffset) * (pTerm->xmax - 1) - pTerm->ChrH * (V.MarginR.x >= 0 ? V.MarginR.x : 2);
+		V.BbPlot.xright = (V.XSize + V.XOffset) * (pTerm->MaxX - 1) - pTerm->ChrH * (V.MarginR.x >= 0 ? V.MarginR.x : 2);
 	// }}} 
 	// {{{  preliminary V.BbPlot.ybot calculation first compute heights of labels and tics 
 	// tic labels 
@@ -321,7 +337,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	else
 		xtic_textheight =  0;
 	// tics 
-	if(!AxS[FIRST_X_AXIS].tic_in && ((AxS[FIRST_X_AXIS].ticmode & TICS_ON_BORDER) || 
+	if(!AxS[FIRST_X_AXIS].TicIn && ((AxS[FIRST_X_AXIS].ticmode & TICS_ON_BORDER) || 
 		((AxS[SECOND_X_AXIS].ticmode & TICS_MIRROR) && (AxS[SECOND_X_AXIS].ticmode & TICS_ON_BORDER))))
 		xtic_height = (int)(pTerm->TicV * AxS[FIRST_X_AXIS].ticscale);
 	else
@@ -339,10 +355,10 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	else
 		xlabel_textheight = 0;
 	// compute V.BbPlot.ybot from the various components unless bmargin is explicitly specified  
-	V.BbPlot.ybot = V.YOffset * (float)pTerm->ymax;
+	V.BbPlot.ybot = V.YOffset * (float)pTerm->MaxY;
 	if(V.MarginB.scalex == screen) {
 		// Absolute position for bottom of plot 
-		V.BbPlot.ybot = V.MarginB.x * (float)pTerm->ymax;
+		V.BbPlot.ybot = V.MarginB.x * (float)pTerm->MaxY;
 	}
 	else if(V.MarginB.x >= 0) {
 		// Position based on specified character height 
@@ -354,7 +370,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 			V.BbPlot.ybot += xlabel_textheight;
 		if(!vertical_timelabel && timelabel_bottom && timelabel_textheight > 0)
 			V.BbPlot.ybot += timelabel_textheight;
-		if(V.BbPlot.ybot == (int)(pTerm->ymax * V.YOffset)) {
+		if(V.BbPlot.ybot == (int)(pTerm->MaxY * V.YOffset)) {
 			// make room for the end of rotated ytics or y2tics 
 			V.BbPlot.ybot += (int)(pTerm->ChrH * 2);
 		}
@@ -375,9 +391,9 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 		DoKeyLayout(pTerm, key);
 	}
 	// Adjust range of dependent axes y and y2 
-	if(nonlinear(&AxS[FIRST_Y_AXIS]))
+	if(AxS[FIRST_Y_AXIS].IsNonLinear())
 		ExtendPrimaryTicRange(&AxS[FIRST_Y_AXIS]);
-	if(nonlinear(&AxS[SECOND_Y_AXIS]))
+	if(AxS[SECOND_Y_AXIS].IsNonLinear())
 		ExtendPrimaryTicRange(&AxS[SECOND_Y_AXIS]);
 	setup_tics(&AxS[FIRST_Y_AXIS], 20);
 	setup_tics(&AxS[SECOND_Y_AXIS], 20);
@@ -412,7 +428,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 			 * the latter sets widest_tic_strlen to the length of the widest
 			 * one ought to consider tics on axis if axis near border...
 			 */
-			gen_tics(&AxS[FIRST_Y_AXIS], widest_tic_callback);
+			GenTics(&AxS[FIRST_Y_AXIS], widest_tic_callback);
 			ytic_textwidth = (int)(pTerm->ChrH * (widest_tic_strlen + 2));
 		}
 	}
@@ -423,8 +439,8 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	else {
 		ytic_textwidth = 0;
 	}
-	/* tics */
-	if(!AxS[FIRST_Y_AXIS].tic_in && ((AxS[FIRST_Y_AXIS].ticmode & TICS_ON_BORDER) || 
+	// tics 
+	if(!AxS[FIRST_Y_AXIS].TicIn && ((AxS[FIRST_Y_AXIS].ticmode & TICS_ON_BORDER) || 
 		((AxS[SECOND_Y_AXIS].ticmode & TICS_MIRROR) && (AxS[SECOND_Y_AXIS].ticmode & TICS_ON_BORDER))))
 		ytic_width = (int)(pTerm->TicH * AxS[FIRST_Y_AXIS].ticscale);
 	else
@@ -436,12 +452,12 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 			space_to_left = timelabel_textwidth;
 		if(space_to_left < ylabel_textwidth)
 			space_to_left = ylabel_textwidth;
-		V.BbPlot.xleft = V.XOffset * pTerm->xmax;
+		V.BbPlot.xleft = V.XOffset * pTerm->MaxX;
 		V.BbPlot.xleft += space_to_left;
 		V.BbPlot.xleft += ytic_width + ytic_textwidth;
 		if(V.BbPlot.xleft - ytic_width - ytic_textwidth < 0)
 			V.BbPlot.xleft = ytic_width + ytic_textwidth;
-		if(V.BbPlot.xleft == pTerm->xmax * V.XOffset)
+		if(V.BbPlot.xleft == pTerm->MaxX * V.XOffset)
 			V.BbPlot.xleft += pTerm->ChrH * 2;
 		// DBT 12-3-98  extra margin just in case 
 		V.BbPlot.xleft += 0.5 * pTerm->ChrH;
@@ -461,7 +477,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 			 * the latter sets widest_tic_strlen to the length of the widest
 			 * one ought to consider tics on axis if axis near border...
 			 */
-			gen_tics(&AxS[SECOND_Y_AXIS], widest_tic_callback);
+			GenTics(&AxS[SECOND_Y_AXIS], widest_tic_callback);
 			y2tic_textwidth = (int)(pTerm->ChrH * (widest_tic_strlen + 2));
 		}
 	}
@@ -492,13 +508,13 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 			tic = tic->next;
 		}
 		xtic_textwidth = maxrightlabel - V.BbPlot.xright;
-		if(xtic_textwidth > pTerm->xmax/4) {
-			xtic_textwidth = pTerm->xmax/4;
+		if(xtic_textwidth > pTerm->MaxX/4) {
+			xtic_textwidth = pTerm->MaxX/4;
 			IntWarn(NO_CARET, "difficulty making room for xtic labels");
 		}
 	}
 	// tics 
-	if(!AxS[SECOND_Y_AXIS].tic_in && ((AxS[SECOND_Y_AXIS].ticmode & TICS_ON_BORDER) || 
+	if(!AxS[SECOND_Y_AXIS].TicIn && ((AxS[SECOND_Y_AXIS].ticmode & TICS_ON_BORDER) || 
 		((AxS[FIRST_Y_AXIS].ticmode & TICS_MIRROR) && (AxS[FIRST_Y_AXIS].ticmode & TICS_ON_BORDER))))
 		y2tic_width = (int)(pTerm->TicH * AxS[SECOND_Y_AXIS].ticscale);
 	else
@@ -519,12 +535,12 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 			V.BbPlot.xright -= y2tic_width + y2tic_textwidth;
 			if(y2label_textwidth > 0)
 				V.BbPlot.xright -= y2label_textwidth;
-			if(V.BbPlot.xright > (V.XSize+V.XOffset)*(pTerm->xmax-1) - (pTerm->ChrH * 2))
-				V.BbPlot.xright = (V.XSize+V.XOffset)*(pTerm->xmax-1) - (pTerm->ChrH * 2);
+			if(V.BbPlot.xright > (V.XSize+V.XOffset)*(pTerm->MaxX-1) - (pTerm->ChrH * 2))
+				V.BbPlot.xright = (V.XSize+V.XOffset)*(pTerm->MaxX-1) - (pTerm->ChrH * 2);
 			color_box.xoffset -= V.BbPlot.xright;
 			// EAM 2009 - protruding xtic labels 
-			if((static_cast<int>(pTerm->xmax) - V.BbPlot.xright) < xtic_textwidth)
-				V.BbPlot.xright = pTerm->xmax - xtic_textwidth;
+			if((static_cast<int>(pTerm->MaxX) - V.BbPlot.xright) < xtic_textwidth)
+				V.BbPlot.xright = pTerm->MaxX - xtic_textwidth;
 			// DBT 12-3-98  extra margin just in case 
 			V.BbPlot.xright -= 1.0 * pTerm->ChrH;
 		}
@@ -543,7 +559,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 	// the rtics match up with the primary x tics.                    
 	if(AxS.__R().ticmode && (polar || raxis)) {
 		if(AxS.__R().BadRange() || (!polar && AxS.__R().min != 0)) {
-			set_explicit_range(&AxS.__R(), 0.0, AxS.__X().max);
+			SetExplicitRange(&AxS.__R(), 0.0, AxS.__X().max);
 			AxS.__R().min = 0;
 			AxS.__R().max = AxS[FIRST_X_AXIS].max;
 			IntWarn(NO_CARET, "resetting rrange");
@@ -604,7 +620,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 		else if(AxS[SECOND_X_AXIS].tic_pos == CENTRE)
 			projection = 0.5*fabs(projection);
 		widest_tic_strlen = 0;  /* reset the global variable ... */
-		gen_tics(&AxS[SECOND_X_AXIS], widest_tic_callback);
+		GenTics(&AxS[SECOND_X_AXIS], widest_tic_callback);
 		if(V.MarginT.x < 0) /* Undo original estimate */
 			V.BbPlot.ytop += x2tic_textheight;
 		// Adjust spacing for rotation 
@@ -627,7 +643,7 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 		if(AxS[FIRST_X_AXIS].tic_pos == RIGHT)
 			projection *= -1;
 		widest_tic_strlen = 0;  /* reset the global variable ... */
-		gen_tics(&AxS[FIRST_X_AXIS], widest_tic_callback);
+		GenTics(&AxS[FIRST_X_AXIS], widest_tic_callback);
 		if(V.MarginB.x < 0)
 			V.BbPlot.ybot -= xtic_textheight;
 		if(projection > 0.0)
@@ -681,14 +697,14 @@ void GnuPlot::Boundary(termentry * pTerm, curve_points * plots, int count)
 		if(timelabel_bottom)
 			time_y = pTerm->ChrV;
 		else
-			time_y = pTerm->ymax - pTerm->ChrV;
+			time_y = pTerm->MaxY - pTerm->ChrV;
 	}
 	else {
 		time_x = 1.0 * pTerm->ChrH;
 		if(timelabel_bottom)
 			time_y = timelabel_textheight - 0.5 * pTerm->ChrV;
 		else
-			time_y = pTerm->ymax;
+			time_y = pTerm->MaxY;
 	}
 	xtic_y = V.BbPlot.ybot - xtic_height - (int)(vertical_xtics ? pTerm->ChrH : pTerm->ChrV);
 	x2tic_y = V.BbPlot.ytop + (x2tic_height > 0 ? x2tic_height : 0) + (vertical_x2tics ? (int)pTerm->ChrH : pTerm->ChrV);
@@ -748,12 +764,12 @@ void GnuPlot::DoKeyBounds(termentry * pTerm, legend_key * pKey)
 		// Vertical alignment 
 		if(pKey->margin == GPKEY_TMARGIN) {
 			// align top first since tmargin may be manual 
-			pKey->bounds.ytop = (V.YSize + V.YOffset) * pTerm->ymax - pTerm->TicV;
+			pKey->bounds.ytop = (V.YSize + V.YOffset) * pTerm->MaxY - pTerm->TicV;
 			pKey->bounds.ybot = pKey->bounds.ytop - key_height;
 		}
 		else if(pKey->margin == GPKEY_BMARGIN) {
 			// align bottom first since bmargin may be manual 
-			pKey->bounds.ybot = V.YOffset * pTerm->ymax + pTerm->TicV;
+			pKey->bounds.ybot = V.YOffset * pTerm->MaxY + pTerm->TicV;
 			if(timelabel.rotate == 0 && timelabel_bottom && timelabel.place.y > 0)
 				pKey->bounds.ybot += (int)(timelabel.place.y);
 			pKey->bounds.ytop = pKey->bounds.ybot + key_height;
@@ -777,12 +793,12 @@ void GnuPlot::DoKeyBounds(termentry * pTerm, legend_key * pKey)
 		// Horizontal alignment 
 		if(pKey->margin == GPKEY_LMARGIN) {
 			// align left first since lmargin may be manual 
-			pKey->bounds.xleft = V.XOffset * pTerm->xmax + pTerm->ChrH;
+			pKey->bounds.xleft = V.XOffset * pTerm->MaxX + pTerm->ChrH;
 			pKey->bounds.xright = pKey->bounds.xleft + key_width;
 		}
 		else if(pKey->margin == GPKEY_RMARGIN) {
 			// align right first since rmargin may be manual 
-			pKey->bounds.xright = (V.XSize + V.XOffset) * (pTerm->xmax-1) - pTerm->ChrH;
+			pKey->bounds.xright = (V.XSize + V.XOffset) * (pTerm->MaxX-1) - pTerm->ChrH;
 			pKey->bounds.xleft = pKey->bounds.xright - key_width;
 		}
 		else {
@@ -1026,73 +1042,74 @@ int find_maxl_keys(curve_points * plots, int count, int * kcnt)
 // Make the key sample code a subroutine so that it can eventually be
 // shared by the 3d code also. As of now the two code sections are not very parallel.  EAM Nov 2003
 //
-void do_key_sample(termentry * pTerm, const curve_points * this_plot, legend_key * key, char * title, coordval var_color)
+//void do_key_sample(termentry * pTerm, const curve_points * pPlot, legend_key * pKey, char * title, coordval var_color)
+void GnuPlot::DoKeySample(termentry * pTerm, const curve_points * pPlot, legend_key * pKey, char * title, coordval var_color)
 {
 	//struct termentry * t = term;
 	int xl_save = xl;
 	int yl_save = yl;
 	// Clip key box against canvas 
-	BoundingBox * clip_save = GPO.V.P_ClipArea;
-	GPO.V.P_ClipArea = (term->flags & TERM_CAN_CLIP) ? NULL : &GPO.V.BbCanvas;
+	BoundingBox * clip_save = V.P_ClipArea;
+	V.P_ClipArea = (term->flags & TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
 	// If the plot this title belongs to specified a non-standard place 
 	// for the key sample to appear, use that to override xl, yl.       
-	if(this_plot->title_position && this_plot->title_position->scalex != character) {
-		GPO.MapPosition(pTerm, this_plot->title_position, &xl, &yl, "key sample");
-		xl -=  (key->just == GPKEY_LEFT) ? key_text_left : key_text_right;
+	if(pPlot->title_position && pPlot->title_position->scalex != character) {
+		MapPosition(pTerm, pPlot->title_position, &xl, &yl, "key sample");
+		xl -=  (pKey->just == GPKEY_LEFT) ? key_text_left : key_text_right;
 	}
 	(pTerm->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
-	if(key->textcolor.type == TC_VARIABLE)
+	if(pKey->textcolor.type == TC_VARIABLE)
 		; /* Draw key text in same color as plot */
-	else if(key->textcolor.type != TC_DEFAULT)
-		GPO.ApplyPm3DColor(pTerm, &key->textcolor); /* Draw key text in same color as key title */
+	else if(pKey->textcolor.type != TC_DEFAULT)
+		ApplyPm3DColor(pTerm, &pKey->textcolor); /* Draw key text in same color as key title */
 	else
-		(pTerm->linetype)(LT_BLACK); /* Draw key text in black */
-	if(this_plot->title_is_automated && (pTerm->flags & TERM_IS_LATEX)) {
-		title = texify_title(title, this_plot->plot_type);
+		(pTerm->linetype)(LT_BLACK); // Draw key text in black 
+	if(pPlot->title_is_automated && (pTerm->flags & TERM_IS_LATEX)) {
+		title = texify_title(title, pPlot->plot_type);
 	}
-	if(key->just == GPKEY_LEFT) {
-		write_multiline(pTerm, xl + key_text_left, yl, title, LEFT, JUST_CENTRE, 0, key->font);
+	if(pKey->just == GPKEY_LEFT) {
+		write_multiline(pTerm, xl + key_text_left, yl, title, LEFT, JUST_CENTRE, 0, pKey->font);
 	}
 	else {
 		if((pTerm->justify_text)(RIGHT)) {
-			write_multiline(pTerm, xl + key_text_right, yl, title, RIGHT, JUST_CENTRE, 0, key->font);
+			write_multiline(pTerm, xl + key_text_right, yl, title, RIGHT, JUST_CENTRE, 0, pKey->font);
 		}
 		else {
 			int x = xl + key_text_right - pTerm->ChrH * estimate_strlen(title, NULL);
-			if(oneof2(key->region, GPKEY_AUTO_EXTERIOR_LRTBC, GPKEY_AUTO_EXTERIOR_MARGIN) || inrange((x), (GPO.V.BbPlot.xleft), (GPO.V.BbPlot.xright)))
-				write_multiline(pTerm, x, yl, title, LEFT, JUST_CENTRE, 0, key->font);
+			if(oneof2(pKey->region, GPKEY_AUTO_EXTERIOR_LRTBC, GPKEY_AUTO_EXTERIOR_MARGIN) || inrange((x), (V.BbPlot.xleft), (V.BbPlot.xright)))
+				write_multiline(pTerm, x, yl, title, LEFT, JUST_CENTRE, 0, pKey->font);
 		}
 	}
 	// Draw sample in same style and color as the corresponding plot  
 	// The variable color case uses the color of the first data point 
-	if(!check_for_variable_color(this_plot, &var_color))
-		GPO.TermApplyLpProperties(pTerm, &this_plot->lp_properties);
+	if(!check_for_variable_color(pPlot, &var_color))
+		TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 	// draw sample depending on bits set in plot_style 
-	if(this_plot->plot_style & PLOT_STYLE_HAS_FILL && pTerm->fillbox) {
-		const fill_style_type * fs = &this_plot->fill_properties;
+	if(pPlot->plot_style & PLOT_STYLE_HAS_FILL && pTerm->fillbox) {
+		const fill_style_type * fs = &pPlot->fill_properties;
 		int style = style_from_fill(fs);
 		int x = xl + key_sample_left;
 		int y = yl - key_sample_height/4;
 		int w = key_sample_right - key_sample_left;
 		int h = key_sample_height/2;
-		if(this_plot->plot_style == CIRCLES && w > 0) {
-			do_arc(xl + key_point_offset, yl, key_sample_height/4, 0., 360., style, FALSE);
+		if(pPlot->plot_style == CIRCLES && w > 0) {
+			DoArc(pTerm, xl + key_point_offset, yl, key_sample_height/4, 0., 360., style, FALSE);
 			// Retrace the border if the style requests it 
 			if(need_fill_border(fs))
-				do_arc(xl + key_point_offset, yl, key_sample_height/4, 0., 360., 0, FALSE);
+				DoArc(pTerm, xl + key_point_offset, yl, key_sample_height/4, 0., 360., 0, FALSE);
 		}
-		else if(this_plot->plot_style == ELLIPSES && w > 0) {
-			t_ellipse * key_ellipse = (t_ellipse*)gp_alloc(sizeof(t_ellipse), "cute little ellipse for the key sample");
+		else if(pPlot->plot_style == ELLIPSES && w > 0) {
+			t_ellipse * key_ellipse = (t_ellipse *)gp_alloc(sizeof(t_ellipse), "cute little ellipse for the key sample");
 			key_ellipse->center.x = xl + key_point_offset;
 			key_ellipse->center.y = yl;
 			key_ellipse->extent.x = w * 2/3;
 			key_ellipse->extent.y = h;
 			key_ellipse->orientation = 0.0;
 			// already in term coords, no need to map 
-			do_ellipse(2, key_ellipse, style, FALSE);
+			do_ellipse(pTerm, 2, key_ellipse, style, FALSE);
 			// Retrace the border if the style requests it 
 			if(need_fill_border(fs)) {
-				do_ellipse(2, key_ellipse, 0, FALSE);
+				do_ellipse(pTerm, 2, key_ellipse, 0, FALSE);
 			}
 			SAlloc::F(key_ellipse);
 		}
@@ -1100,47 +1117,47 @@ void do_key_sample(termentry * pTerm, const curve_points * this_plot, legend_key
 			if(style != FS_EMPTY)
 				(pTerm->fillbox)(style, x, y, w, h);
 			// need_fill_border will set the border linetype, but candlesticks don't want it 
-			if((this_plot->plot_style == CANDLESTICKS && fs->border_color.type == TC_LT && fs->border_color.lt == LT_NODRAW) || style == FS_EMPTY || need_fill_border(fs)) {
+			if((pPlot->plot_style == CANDLESTICKS && fs->border_color.type == TC_LT && fs->border_color.lt == LT_NODRAW) || style == FS_EMPTY || need_fill_border(fs)) {
 				newpath(pTerm);
-				GPO.DrawClipLine(pTerm, xl + key_sample_left,  yl - key_sample_height/4, xl + key_sample_right, yl - key_sample_height/4);
-				GPO.DrawClipLine(pTerm, xl + key_sample_right, yl - key_sample_height/4, xl + key_sample_right, yl + key_sample_height/4);
-				GPO.DrawClipLine(pTerm, xl + key_sample_right, yl + key_sample_height/4, xl + key_sample_left,  yl + key_sample_height/4);
-				GPO.DrawClipLine(pTerm, xl + key_sample_left,  yl + key_sample_height/4, xl + key_sample_left,  yl - key_sample_height/4);
+				DrawClipLine(pTerm, xl + key_sample_left,  yl - key_sample_height/4, xl + key_sample_right, yl - key_sample_height/4);
+				DrawClipLine(pTerm, xl + key_sample_right, yl - key_sample_height/4, xl + key_sample_right, yl + key_sample_height/4);
+				DrawClipLine(pTerm, xl + key_sample_right, yl + key_sample_height/4, xl + key_sample_left,  yl + key_sample_height/4);
+				DrawClipLine(pTerm, xl + key_sample_left,  yl + key_sample_height/4, xl + key_sample_left,  yl - key_sample_height/4);
 				closepath(pTerm);
 			}
 			if(fs->fillstyle != FS_EMPTY && fs->fillstyle != FS_DEFAULT && !(fs->border_color.type == TC_LT && fs->border_color.lt == LT_NODRAW)) {
 				// need_fill_border() might have changed our original linetype 
-				GPO.TermApplyLpProperties(pTerm, &this_plot->lp_properties);
+				TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 			}
 		}
 	}
-	else if((this_plot->plot_style & PLOT_STYLE_HAS_VECTOR) && pTerm->arrow) {
+	else if((pPlot->plot_style & PLOT_STYLE_HAS_VECTOR) && pTerm->arrow) {
 		double x1 = xl + key_sample_left;
 		double y1 = yl;
 		double x2 = xl + key_sample_right;
 		double y2 = yl;
-		apply_head_properties(&(this_plot->arrow_properties));
-		GPO.DrawClipArrow(pTerm, x1, y1, x2, y2, this_plot->arrow_properties.head);
+		apply_head_properties(&(pPlot->arrow_properties));
+		DrawClipArrow(pTerm, x1, y1, x2, y2, pPlot->arrow_properties.head);
 	}
-	else if(this_plot->lp_properties.l_type == LT_NODRAW) {
+	else if(pPlot->lp_properties.l_type == LT_NODRAW) {
 		;
 	}
-	else if((this_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && this_plot->plot_type != FUNC) {
+	else if((pPlot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && pPlot->plot_type != FUNC) {
 		// errors for data plots only 
 		if((bar_lp.flags & LP_ERRORBAR_SET) != 0)
-			GPO.TermApplyLpProperties(pTerm, &bar_lp);
-		GPO.DrawClipLine(pTerm, xl + key_sample_left, yl, xl + key_sample_right, yl);
+			TermApplyLpProperties(pTerm, &bar_lp);
+		DrawClipLine(pTerm, xl + key_sample_left, yl, xl + key_sample_right, yl);
 		// Even if error bars are dotted, the end lines are always solid 
 		if((bar_lp.flags & LP_ERRORBAR_SET) != 0)
 			pTerm->dashtype(DASHTYPE_SOLID, NULL);
 	}
-	else if((this_plot->plot_style & PLOT_STYLE_HAS_LINE)) {
-		GPO.DrawClipLine(pTerm, xl + key_sample_left, yl, xl + key_sample_right, yl);
+	else if((pPlot->plot_style & PLOT_STYLE_HAS_LINE)) {
+		DrawClipLine(pTerm, xl + key_sample_left, yl, xl + key_sample_right, yl);
 	}
-	if((this_plot->plot_type == DATA || this_plot->plot_type == KEYENTRY) && (this_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && (this_plot->plot_style != CANDLESTICKS) && (bar_size > 0.0)) {
+	if((pPlot->plot_type == DATA || pPlot->plot_type == KEYENTRY) && (pPlot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && (pPlot->plot_style != CANDLESTICKS) && (bar_size > 0.0)) {
 		const uint error_bar_tic = ERRORBARTIC(pTerm);
-		GPO.DrawClipLine(pTerm, xl + key_sample_left, yl + error_bar_tic, xl + key_sample_left, yl - error_bar_tic);
-		GPO.DrawClipLine(pTerm, xl + key_sample_right, yl + error_bar_tic, xl + key_sample_right, yl - error_bar_tic);
+		DrawClipLine(pTerm, xl + key_sample_left, yl + error_bar_tic, xl + key_sample_left, yl - error_bar_tic);
+		DrawClipLine(pTerm, xl + key_sample_right, yl + error_bar_tic, xl + key_sample_right, yl - error_bar_tic);
 	}
 	/* oops - doing the point sample now would break the postscript
 	 * terminal for example, which changes current line style
@@ -1149,118 +1166,120 @@ void do_key_sample(termentry * pTerm, const curve_points * this_plot, legend_key
 	 */
 	(pTerm->layer)(TERM_LAYER_END_KEYSAMPLE);
 	// Restore original linetype for the main plot if we changed it 
-	if(this_plot->plot_type != FUNC && (this_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && (bar_lp.flags & LP_ERRORBAR_SET) != 0) {
-		GPO.TermApplyLpProperties(pTerm, &this_plot->lp_properties);
+	if(pPlot->plot_type != FUNC && (pPlot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && (bar_lp.flags & LP_ERRORBAR_SET) != 0) {
+		TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 	}
 	// Restore previous clipping area 
-	GPO.V.P_ClipArea = clip_save;
+	V.P_ClipArea = clip_save;
 	xl = xl_save;
 	yl = yl_save;
 }
 
-void do_key_sample_point(curve_points * this_plot, legend_key * key)
+//void do_key_sample_point(curve_points * this_plot, legend_key * key)
+void GnuPlot::DoKeySamplePoint(termentry * pTerm, curve_points * pPlot, legend_key * pKey)
 {
-	struct termentry * t = term;
+	//struct termentry * t = term;
 	int xl_save = xl;
 	int yl_save = yl;
-	/* If the plot this title belongs to specified a non-standard place
-	 * for the key sample to appear, use that to override xl, yl.
-	 * For "at end|beg" do nothing at all.
-	 */
-	if(this_plot->title_position) {
-		if(this_plot->title_position->scalex == character)
+	// If the plot this title belongs to specified a non-standard place
+	// for the key sample to appear, use that to override xl, yl.
+	// For "at end|beg" do nothing at all.
+	if(pPlot->title_position) {
+		if(pPlot->title_position->scalex == character)
 			return;
-		GPO.MapPosition(t, this_plot->title_position, &xl, &yl, "key sample");
-		xl -=  (key->just == GPKEY_LEFT) ? key_text_left : key_text_right;
+		MapPosition(pTerm, pPlot->title_position, &xl, &yl, "key sample");
+		xl -=  (pKey->just == GPKEY_LEFT) ? key_text_left : key_text_right;
 	}
-	(t->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
-	if(this_plot->plot_style == LINESPOINTS &&  this_plot->lp_properties.p_interval < 0) {
+	(pTerm->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
+	if(pPlot->plot_style == LINESPOINTS &&  pPlot->lp_properties.p_interval < 0) {
 		t_colorspec background_fill = BACKGROUND_COLORSPEC;
-		(*t->set_color)(&background_fill);
-		(*t->pointsize)(pointsize * pointintervalbox);
-		(*t->point)(xl + key_point_offset, yl, 6);
-		GPO.TermApplyLpProperties(t, &this_plot->lp_properties);
+		(pTerm->set_color)(&background_fill);
+		(pTerm->pointsize)(pointsize * pointintervalbox);
+		(pTerm->point)(xl + key_point_offset, yl, 6);
+		TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 	}
-	if(this_plot->plot_style == BOXPLOT) {
+	if(pPlot->plot_style == BOXPLOT) {
 		; /* Don't draw a sample point in the key */
 	}
-	else if(this_plot->plot_style == DOTS) {
+	else if(pPlot->plot_style == DOTS) {
 		if(on_page(xl + key_point_offset, yl))
-			(*t->point)(xl + key_point_offset, yl, -1);
+			(pTerm->point)(xl + key_point_offset, yl, -1);
 	}
-	else if(this_plot->plot_style & PLOT_STYLE_HAS_POINT) {
-		if(this_plot->lp_properties.p_size == PTSZ_VARIABLE)
-			(*t->pointsize)(pointsize);
+	else if(pPlot->plot_style & PLOT_STYLE_HAS_POINT) {
+		if(pPlot->lp_properties.p_size == PTSZ_VARIABLE)
+			(pTerm->pointsize)(pointsize);
 		if(on_page(xl + key_point_offset, yl)) {
-			if(this_plot->lp_properties.p_type == PT_CHARACTER) {
-				if(this_plot->labels->textcolor.type != TC_DEFAULT)
-					GPO.ApplyPm3DColor(t, &(this_plot->labels->textcolor));
-				(*t->put_text)(xl + key_point_offset, yl, this_plot->lp_properties.p_char);
-				GPO.ApplyPm3DColor(t, &(this_plot->lp_properties.pm3d_color));
+			if(pPlot->lp_properties.p_type == PT_CHARACTER) {
+				if(pPlot->labels->textcolor.type != TC_DEFAULT)
+					ApplyPm3DColor(pTerm, &(pPlot->labels->textcolor));
+				(pTerm->put_text)(xl + key_point_offset, yl, pPlot->lp_properties.p_char);
+				ApplyPm3DColor(pTerm, &(pPlot->lp_properties.pm3d_color));
 			}
 			else {
-				(*t->point)(xl + key_point_offset, yl, this_plot->lp_properties.p_type);
+				(pTerm->point)(xl + key_point_offset, yl, pPlot->lp_properties.p_type);
 			}
 		}
 	}
-	else if(this_plot->plot_style == LABELPOINTS) {
-		text_label * label = this_plot->labels;
+	else if(pPlot->plot_style == LABELPOINTS) {
+		text_label * label = pPlot->labels;
 		if(label->lp_properties.flags & LP_SHOW_POINTS) {
-			GPO.TermApplyLpProperties(t, &label->lp_properties);
-			(*t->point)(xl + key_point_offset, yl, label->lp_properties.p_type);
+			TermApplyLpProperties(pTerm, &label->lp_properties);
+			(pTerm->point)(xl + key_point_offset, yl, label->lp_properties.p_type);
 		}
 	}
 	xl = xl_save;
 	yl = yl_save;
-	(t->layer)(TERM_LAYER_END_KEYSAMPLE);
+	(pTerm->layer)(TERM_LAYER_END_KEYSAMPLE);
 }
-
-/* Graph legend is now optionally done in two passes. The first pass calculates	*/
-/* and reserves the necessary space.  Next the individual plots in the graph    */
-/* are drawn. Then the reserved space for the legend is blanked out, and        */
-/* finally the second pass through this code draws the legend.			*/
-void draw_key(legend_key * key, bool key_pass)
+// 
+// Graph legend is now optionally done in two passes. The first pass calculates
+// and reserves the necessary space.  Next the individual plots in the graph
+// are drawn. Then the reserved space for the legend is blanked out, and 
+// finally the second pass through this code draws the legend.			
+// 
+//void draw_key(legend_key * key, bool key_pass)
+void GnuPlot::DrawKey(termentry * pTerm, legend_key * pKey, bool keyPass)
 {
-	struct termentry * t = term;
-	(t->layer)(TERM_LAYER_KEYBOX);
-	/* In two-pass mode (set key opaque) we blank out the key box after	*/
-	/* the graph is drawn and then redo the key in the blank area.	*/
-	if(key_pass && t->fillbox && !(t->flags & TERM_NULL_SET_COLOR)) {
-		(*t->set_color)(&key->fillcolor);
-		(*t->fillbox)(FS_OPAQUE, key->bounds.xleft, key->bounds.ybot, key_width, key_height);
+	//struct termentry * t = term;
+	(pTerm->layer)(TERM_LAYER_KEYBOX);
+	// In two-pass mode (set key opaque) we blank out the key box after	
+	// the graph is drawn and then redo the key in the blank area.	
+	if(keyPass && pTerm->fillbox && !(pTerm->flags & TERM_NULL_SET_COLOR)) {
+		(pTerm->set_color)(&pKey->fillcolor);
+		(pTerm->fillbox)(FS_OPAQUE, pKey->bounds.xleft, pKey->bounds.ybot, key_width, key_height);
 	}
-	if(key->title.text) {
+	if(pKey->title.text) {
 		int title_anchor;
-		if(key->title.pos == CENTRE)
-			title_anchor = (key->bounds.xleft + key->bounds.xright) / 2;
-		else if(key->title.pos == RIGHT)
-			title_anchor = key->bounds.xright - t->ChrH;
+		if(pKey->title.pos == CENTRE)
+			title_anchor = (pKey->bounds.xleft + pKey->bounds.xright) / 2;
+		else if(pKey->title.pos == RIGHT)
+			title_anchor = pKey->bounds.xright - pTerm->ChrH;
 		else
-			title_anchor = key->bounds.xleft + t->ChrH;
+			title_anchor = pKey->bounds.xleft + pTerm->ChrH;
 		// Only draw the title once 
-		if(key_pass || !key->front) {
-			write_label(t, title_anchor, key->bounds.ytop - key_title_ypos, &key->title);
-			(*t->linetype)(LT_BLACK);
+		if(keyPass || !pKey->front) {
+			WriteLabel(pTerm, title_anchor, pKey->bounds.ytop - key_title_ypos, &pKey->title);
+			(pTerm->linetype)(LT_BLACK);
 		}
 	}
-	if(key->box.l_type > LT_NODRAW) {
-		BoundingBox * clip_save = GPO.V.P_ClipArea;
-		GPO.V.P_ClipArea = (t->flags & TERM_CAN_CLIP) ? NULL : &GPO.V.BbCanvas;
-		GPO.TermApplyLpProperties(t, &key->box);
-		newpath(t);
-		GPO.DrawClipLine(t, key->bounds.xleft, key->bounds.ybot, key->bounds.xleft, key->bounds.ytop);
-		GPO.DrawClipLine(t, key->bounds.xleft, key->bounds.ytop, key->bounds.xright, key->bounds.ytop);
-		GPO.DrawClipLine(t, key->bounds.xright, key->bounds.ytop, key->bounds.xright, key->bounds.ybot);
-		GPO.DrawClipLine(t, key->bounds.xright, key->bounds.ybot, key->bounds.xleft, key->bounds.ybot);
-		closepath(t);
+	if(pKey->box.l_type > LT_NODRAW) {
+		BoundingBox * clip_save = V.P_ClipArea;
+		V.P_ClipArea = (pTerm->flags & TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
+		TermApplyLpProperties(pTerm, &pKey->box);
+		newpath(pTerm);
+		DrawClipLine(pTerm, pKey->bounds.xleft, pKey->bounds.ybot, pKey->bounds.xleft, pKey->bounds.ytop);
+		DrawClipLine(pTerm, pKey->bounds.xleft, pKey->bounds.ytop, pKey->bounds.xright, pKey->bounds.ytop);
+		DrawClipLine(pTerm, pKey->bounds.xright, pKey->bounds.ytop, pKey->bounds.xright, pKey->bounds.ybot);
+		DrawClipLine(pTerm, pKey->bounds.xright, pKey->bounds.ybot, pKey->bounds.xleft, pKey->bounds.ybot);
+		closepath(pTerm);
 		// draw a horizontal line between key title and first entry 
-		if(key->title.text)
-			GPO.DrawClipLine(t, key->bounds.xleft, key->bounds.ytop - (key_title_height + key_title_extra), key->bounds.xright, key->bounds.ytop - (key_title_height + key_title_extra));
-		GPO.V.P_ClipArea = clip_save;
+		if(pKey->title.text)
+			DrawClipLine(pTerm, pKey->bounds.xleft, pKey->bounds.ytop - (key_title_height + key_title_extra), pKey->bounds.xright, pKey->bounds.ytop - (key_title_height + key_title_extra));
+		V.P_ClipArea = clip_save;
 	}
-	yl_ref = key->bounds.ytop - (key_title_height + key_title_extra);
-	yl_ref -= ((key->height_fix + 1) * key_entry_height) / 2;
-	xl = key->bounds.xleft + key_size_left;
+	yl_ref = pKey->bounds.ytop - (key_title_height + key_title_extra);
+	yl_ref -= ((pKey->height_fix + 1) * key_entry_height) / 2;
+	xl = pKey->bounds.xleft + key_size_left;
 	yl = yl_ref;
 }
 // 
@@ -1276,14 +1295,14 @@ void GnuPlot::DrawTitles(termentry * pTerm)
 		int y = (V.BbPlot.ytop + V.BbPlot.ybot) / 2;
 		// There has been much argument about the optimal ylabel position 
 		x += pTerm->ChrH / 4.0;
-		write_label(pTerm, x, y, &(AxS[FIRST_Y_AXIS].label));
+		WriteLabel(pTerm, x, y, &(AxS[FIRST_Y_AXIS].label));
 		reset_textcolor(&(AxS[FIRST_Y_AXIS].label.textcolor));
 	}
 	// Y2LABEL 
 	if(AxS[SECOND_Y_AXIS].label.text) {
 		int x = y2label_x;
 		int y = (V.BbPlot.ytop + V.BbPlot.ybot) / 2;
-		write_label(pTerm, x, y, &(AxS[SECOND_Y_AXIS].label));
+		WriteLabel(pTerm, x, y, &(AxS[SECOND_Y_AXIS].label));
 		reset_textcolor(&(AxS[SECOND_Y_AXIS].label.textcolor));
 	}
 	// XLABEL 
@@ -1294,7 +1313,7 @@ void GnuPlot::DrawTitles(termentry * pTerm)
 		int x = (V.BbPlot.xright + V.BbPlot.xleft) / 2;
 		int y = xlabel_y - pTerm->ChrV / 2;
 		y -= tmpy; // xlabel_y already contained tmpy 
-		write_label(pTerm, x, y, label);
+		WriteLabel(pTerm, x, y, label);
 		reset_textcolor(&(label->textcolor));
 	}
 	// X2LABEL 
@@ -1302,7 +1321,7 @@ void GnuPlot::DrawTitles(termentry * pTerm)
 		// we worked out y-coordinate in boundary() 
 		int x = (V.BbPlot.xright + V.BbPlot.xleft) / 2;
 		int y = x2label_y - pTerm->ChrV / 2;
-		write_label(pTerm, x, y, &(AxS[SECOND_X_AXIS].label));
+		WriteLabel(pTerm, x, y, &(AxS[SECOND_X_AXIS].label));
 		reset_textcolor(&(AxS[SECOND_X_AXIS].label.textcolor));
 	}
 	// RLABEL 
@@ -1310,7 +1329,7 @@ void GnuPlot::DrawTitles(termentry * pTerm)
 		// This assumes we always have a horizontal R axis 
 		int x = AxS.MapiX(PolarRadius(AxS.__R().max) / 2.0);
 		int y = AxS.MapiY(0.0) + pTerm->ChrV;
-		write_label(pTerm, x, y, &(AxS[POLAR_AXIS].label));
+		WriteLabel(pTerm, x, y, &(AxS[POLAR_AXIS].label));
 		reset_textcolor(&(AxS[POLAR_AXIS].label.textcolor));
 	}
 	// PLACE TIMELABEL 

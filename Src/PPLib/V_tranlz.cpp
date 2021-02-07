@@ -34,7 +34,7 @@ void TrfrAnlzTotal::destroy()
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 3) // @v7.9.11 ver 2-->3
+IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 4) // @v7.9.11 ver 2-->3 // @v11.0.1 ver 3-->4
 {
 	SetFlatChunk(offsetof(TrfrAnlzFilt, ReserveStart),
 		offsetof(TrfrAnlzFilt, BillList)-offsetof(TrfrAnlzFilt, ReserveStart));
@@ -59,7 +59,91 @@ int TrfrAnlzFilt::HasBillGrouping() const
 int TrfrAnlzFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
-	if(ver == 2) {
+	if(ver == 3) {
+		class TrfrAnlzFilt_v3 : public PPBaseFilt {
+		public:
+			TrfrAnlzFilt_v3::TrfrAnlzFilt_v3() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 3)
+			{
+				SetFlatChunk(offsetof(TrfrAnlzFilt, ReserveStart),
+					offsetof(TrfrAnlzFilt, BillList)-offsetof(TrfrAnlzFilt, ReserveStart));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, BillList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, RcptBillList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, LocList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, CtValList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, ArList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, AgentList));
+				Init(1, 0);
+			}
+			uint8  ReserveStart[4];
+			DateRange DueDatePeriod;
+			long   ExtValueParam[2];
+			long   RestAddendumValue;
+			PPID   AcsID;
+			PPID   SupplAgentID;
+			DateRange Period;
+			DateRange LotsPeriod;
+			PPID   OpID;
+			PPID   SupplID;
+			PPID   ArID_;
+			PPID   DlvrAddrID;
+			PPID   AgentID_;
+			PPID   PsnCatID;
+			PPID   CityID;
+			PPID   GoodsGrpID;
+			PPID   GoodsID;
+			long   Flags;
+			int    InitOrd;
+			long   CtKind;
+			PPID   BrandID;
+			Grouping Grp;
+			SubstGrpGoods   Sgg;
+			SubstGrpPerson  Sgp;
+			SubstGrpDate    Sgd;
+			ObjIdListFilt   BillList;
+			ObjIdListFilt   RcptBillList;
+			ObjIdListFilt   LocList;
+			ObjIdListFilt   CtValList;
+			ObjIdListFilt   ArList;
+			ObjIdListFilt   AgentList;
+		};
+		TrfrAnlzFilt_v3 fv3;
+		THROW(fv3.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+#define CPYFLD(f) f = fv3.f
+			CPYFLD(DueDatePeriod);
+			CPYFLD(ExtValueParam[0]);
+			CPYFLD(ExtValueParam[1]);
+			CPYFLD(RestAddendumValue);
+			CPYFLD(AcsID);
+			CPYFLD(SupplAgentID);
+			CPYFLD(Period);
+			CPYFLD(LotsPeriod);
+			CPYFLD(OpID);
+			CPYFLD(SupplID);
+			//CPYFLD(ArID_);
+			CPYFLD(DlvrAddrID);
+			//CPYFLD(AgentID_);
+			CPYFLD(PsnCatID);
+			CPYFLD(CityID);
+			CPYFLD(GoodsGrpID);
+			CPYFLD(GoodsID);
+			CPYFLD(Flags);
+			CPYFLD(InitOrd);
+			CPYFLD(CtKind);
+			CPYFLD(BrandID);
+			CPYFLD(Grp);
+			CPYFLD(Sgg);
+			CPYFLD(Sgp);
+			CPYFLD(Sgd);
+			CPYFLD(BillList);
+			CPYFLD(RcptBillList);
+			CPYFLD(LocList);
+			CPYFLD(CtValList);
+			CPYFLD(ArList);
+			CPYFLD(AgentList);
+#undef CPYFLD
+	}
+	else if(ver == 2) {
 		class TrfrAnlzFilt_v2 : public PPBaseFilt {
 		public:
 			TrfrAnlzFilt_v2() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 2)
@@ -108,9 +192,9 @@ int TrfrAnlzFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		CPYFLD(LotsPeriod);
 		CPYFLD(OpID);
 		CPYFLD(SupplID);
-		CPYFLD(ArID_);
+		//CPYFLD(ArID_);
 		CPYFLD(DlvrAddrID);
-		CPYFLD(AgentID_);
+		//CPYFLD(AgentID_);
 		CPYFLD(PsnCatID);
 		CPYFLD(CityID);
 		CPYFLD(GoodsGrpID);
@@ -129,6 +213,8 @@ int TrfrAnlzFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		CPYFLD(LocList);
 		CPYFLD(CtValList);
 #undef CPYFLD
+		ArList.Add(fv2.ArID_);
+		AgentList.Add(fv2.AgentID_);
 		ok = 1;
 	}
 	CATCHZOK
@@ -154,12 +240,10 @@ int TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 		return 0;
 	if(NEQ_FLD(SupplID))
 		return 0;
-	if(NEQ_FLD(ArID_))
-		return 0;
+	// @v11.0.1 if(NEQ_FLD(ArID_)) return 0;
 	if(NEQ_FLD(DlvrAddrID))
 		return 0;
-	if(NEQ_FLD(AgentID_))
-		return 0;
+	// @v11.0.1 if(NEQ_FLD(AgentID_)) return 0;
 	if(NEQ_FLD(SupplAgentID))
 		return 0;
 	if(NEQ_FLD(PsnCatID))
@@ -647,9 +731,9 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			gct_filt.AgentList = Filt.AgentList;
 			gct_filt.OpID    = Filt.OpID;
 			gct_filt.SupplID = Filt.SupplID;
-			gct_filt.ArID_   = Filt.ArID_;
+			// @v11.0.1 gct_filt.ArID_   = Filt.ArID_;
 			gct_filt.DlvrAddrID = Filt.DlvrAddrID;
-			gct_filt.AgentID_   = Filt.AgentID_;
+			// @v11.0.1 gct_filt.AgentID_   = Filt.AgentID_;
 			gct_filt.GoodsGrpID = Filt.GoodsGrpID;
 			gct_filt.GoodsID    = Filt.GoodsID;
 			gct_filt.BrandID    = Filt.BrandID;
@@ -2251,12 +2335,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbe_trnovr.push(dbconst(NZOR(Filt.Period.upp, getcurdate_())));
 				dbe_trnovr.push(dbconst((const void *)&GctRestList));
 				dbe_trnovr.push(tgt->Qtty);
-				/* @v9.3.4 if(Filt.RestAddendumValue & TrfrAnlzFilt::ravPrice)
-					dbe_trnovr.push(tgt->Price);
-				else if(Filt.RestAddendumValue & TrfrAnlzFilt::ravCost)
-					dbe_trnovr.push(tgt->Cost);
-				else */
-					dbe_trnovr.push(dbconst(0.0));
+				dbe_trnovr.push(dbconst(0.0));
 				dbe_trnovr.push(static_cast<DBFunc>(DynFuncGetTrnovr));
 				q->addField(dbe_trnovr);     // #25 @stub // @v9.3.5 #20-->21 // @v9.4.10 #21-->#24 // @v10.3.5 #24-->25
 			}
@@ -2843,7 +2922,7 @@ void FASTCALL PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 		pItem->OpID       = r_rec.OpID;
 		pItem->GoodsID    = r_rec.GoodsID;
 		pItem->LotID      = r_rec.LotID;
-		pItem->LinkBillID = r_rec.LinkBillID; // @v9.6.8
+		pItem->LinkBillID = r_rec.LinkBillID;
 		pItem->DlvrLocID  = r_rec.DlvrLocID;
 
 		GObj.GetSubstText(r_rec.GoodsID, Filt.Sgg, &Gsl, pItem->GoodsText_);
@@ -2858,11 +2937,11 @@ void FASTCALL PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 		pItem->Price     = r_rec.Price;
 		pItem->Discount  = r_rec.Discount;
 		pItem->PVat      = r_rec.PVat;
-		pItem->Brutto    = r_rec.Brutto;    // @v9.6.8
-		pItem->LinkQtty  = r_rec.LinkQtty;  // @v9.6.8
-		pItem->LinkCost  = r_rec.LinkCost;  // @v9.6.8
-		pItem->LinkPrice = r_rec.LinkPrice; // @v9.6.8
-		pItem->ExtValue[0] = r_rec.ExtVal1; // @v9.3.5
+		pItem->Brutto    = r_rec.Brutto;
+		pItem->LinkQtty  = r_rec.LinkQtty;
+		pItem->LinkCost  = r_rec.LinkCost;
+		pItem->LinkPrice = r_rec.LinkPrice;
+		pItem->ExtValue[0] = r_rec.ExtVal1;
 		if((Flags & fAsGoodsCard) || (Filt.Flags & TrfrAnlzFilt::fGetRest)) { // AHTOXA
 			pItem->Rest   = r_rec.PhQtty;
 			pItem->Amount = r_rec.Discount;
@@ -2895,16 +2974,16 @@ void FASTCALL PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 		pItem->Price     = r_tg_rec.Price;
 		pItem->Discount  = r_tg_rec.Discount;
 		pItem->PVat      = r_tg_rec.PVat;
-		pItem->Brutto    = r_tg_rec.Brutto;    // @v9.6.8
-		pItem->LinkQtty  = r_tg_rec.LinkQtty;  // @v9.6.8
-		pItem->LinkCost  = r_tg_rec.LinkCost;  // @v9.6.8
-		pItem->LinkPrice = r_tg_rec.LinkPrice; // @v9.6.8
-		pItem->ExtValue[0] = r_tg_rec.ExtVal1; // @v9.3.5
+		pItem->Brutto    = r_tg_rec.Brutto;
+		pItem->LinkQtty  = r_tg_rec.LinkQtty;
+		pItem->LinkCost  = r_tg_rec.LinkCost;
+		pItem->LinkPrice = r_tg_rec.LinkPrice;
+		pItem->ExtValue[0] = r_tg_rec.ExtVal1;
 		pItem->SaldoQtty = r_tg_rec.SaldoQtty;
 		pItem->SaldoAmt  = r_tg_rec.SaldoAmt;
 		pItem->LocCount  = r_tg_rec.LocCount;
 	}
-	ASSIGN_PTR(P_InnerIterItem, *pItem); // @v9.3.5
+	ASSIGN_PTR(P_InnerIterItem, *pItem);
 }
 //
 //
@@ -2931,7 +3010,6 @@ public:
 	int    getDTS(TrfrAnlzFilt * pData);
 private:
 	DECL_HANDLE_EVENT;
-	// @v9.2.5 (@unused) void   setupAccSheet(PPID accSheetID);
 	void   SetSaldoInfo();
 	void   SetupCtrls();
 
@@ -2945,13 +3023,11 @@ void TrfrAnlzFiltDialog::SetupCtrls()
 	//
 	const ushort v = getCtrlUInt16(CTL_GTO_GRPDATE);
 	disableCtrl(CTL_GTO_ORDER, v);
-	// @v9.4.10 {
 	const PPID op_id = getCtrlLong(CTLSEL_GTO_OPR);
 	const long op_anz = op_id ? GCTIterator::AnalyzeOp(op_id, 0) : 0;
 	const int  enable_cmp_wroff = BIN(op_id && (op_anz & (GCTIterator::aorfThereAreDrafts|GCTIterator::aorfThereAreOrders)));
 	DisableClusterItem(CTL_GTO_FLAGS, 4, !enable_cmp_wroff);
-	// } @v9.4.10
-	DisableClusterItem(CTL_GTO_FLAGS, 5, (!enable_cmp_wroff || !(Data.Flags & TrfrAnlzFilt::fCmpWrOff))); // @v9.5.8
+	DisableClusterItem(CTL_GTO_FLAGS, 5, (!enable_cmp_wroff || !(Data.Flags & TrfrAnlzFilt::fCmpWrOff)));
 	DisableClusterItem(CTL_GTO_FLAGS, 6, !(op_anz & GCTIterator::aorfThereAreDrafts)); // @v10.1.10
 	if(v) {
 		setCtrlUInt16(CTL_GTO_ORDER, 0);
@@ -3053,8 +3129,8 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 	AddClusterAssoc(CTL_GTO_FLAGS, 1, TrfrAnlzFilt::fCWoVat);
 	AddClusterAssoc(CTL_GTO_FLAGS, 2, TrfrAnlzFilt::fShowGoodsCode);
 	AddClusterAssoc(CTL_GTO_FLAGS, 3, TrfrAnlzFilt::fShowSerial);
-	AddClusterAssoc(CTL_GTO_FLAGS, 4, TrfrAnlzFilt::fCmpWrOff); // @v9.4.10
-	AddClusterAssoc(CTL_GTO_FLAGS, 5, TrfrAnlzFilt::fCmpWrOff_DiffOnly); // @v9.5.8
+	AddClusterAssoc(CTL_GTO_FLAGS, 4, TrfrAnlzFilt::fCmpWrOff);
+	AddClusterAssoc(CTL_GTO_FLAGS, 5, TrfrAnlzFilt::fCmpWrOff_DiffOnly);
 	AddClusterAssoc(CTL_GTO_FLAGS, 6, TrfrAnlzFilt::fUnclosedDraftsOnly); // @v10.1.10
 	AddClusterAssoc(CTL_GTO_FLAGS, 7, TrfrAnlzFilt::fShowCargo); // @v10.3.4
 	SetClusterData(CTL_GTO_FLAGS, Data.Flags);
@@ -3144,17 +3220,85 @@ void TrfrAnlzFiltDialog::SetSaldoInfo()
 //
 //
 class TrfrAnlzGrpngDialog : public TDialog {
+	DECL_DIALOG_DATA(TrfrAnlzFilt);
 public:
 	TrfrAnlzGrpngDialog() : TDialog(DLG_TAGRPNG)
 	{
 	}
-	int    setDTS(const TrfrAnlzFilt * pData);
-	int    getDTS(TrfrAnlzFilt * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		disableCtrls(BIN(Data.Flags & TrfrAnlzFilt::fDiffByDlvrAddr), CTLSEL_TAGRPNG_CNTRAGENT, CTL_TAGRPNG_SUBSTRADDR, 0);
+		ushort v = 0;
+		setCtrlOption(CTL_TAGRPNG_FRAME, ofFramed, 1);
+		AddClusterAssoc(CTL_TAGRPNG_DIFFDLVRADDR, 0, TrfrAnlzFilt::fDiffByDlvrAddr);
+		SetClusterData(CTL_TAGRPNG_DIFFDLVRADDR, Data.Flags);
+		SetupStringCombo(this, CTLSEL_TAGRPNG_GGRPNG, PPTXT_GOODSGRPNGLIST, (long)Data.Grp);
+		SetupSubstGoodsCombo(this, CTLSEL_TAGRPNG_GOODS, Data.Sgg);
+		SetupSubstPersonCombo(this, CTLSEL_TAGRPNG_CNTRAGENT, Data.Sgp);
+		SetupSubstDateCombo(this, CTLSEL_TAGRPNG_DATE, Data.Sgd);
+		if(Data.Flags & TrfrAnlzFilt::fSubstPersonRAddr)
+			v = 1;
+		else if(Data.Flags & TrfrAnlzFilt::fSubstDlvrAddr)
+			v = 2;
+		else
+			v = 0;
+		setCtrlData(CTL_TAGRPNG_SUBSTRADDR, &v);
+		{
+			long   calc_rest_param = 0;
+			if(Data.Flags & TrfrAnlzFilt::fCalcRest)
+				calc_rest_param |= 0x01;
+			if(Data.Flags & TrfrAnlzFilt::fCalcAvgRest)
+				calc_rest_param |= 0x02;
+			AddClusterAssoc(CTL_TAGRPNG_CALCREST, 0, 0);
+			AddClusterAssoc(CTL_TAGRPNG_CALCREST, 1, 0x01);
+			AddClusterAssoc(CTL_TAGRPNG_CALCREST, 2, 0x01|0x02);
+			SetClusterData(CTL_TAGRPNG_CALCREST, calc_rest_param);
+		}
+		{
+			AddClusterAssoc(CTL_TAGRPNG_TURNOVER, 0, TrfrAnlzFilt::ravTurnoverRate);
+			SetClusterData(CTL_TAGRPNG_TURNOVER, Data.RestAddendumValue);
+		}
+		{
+			StrAssocArray qk_list_addendum;
+			PPObjQuotKind qk_obj;
+			PPQuotKind qk_rec;
+			for(SEnum en = qk_obj.Enum(0); en.Next(&qk_rec) > 0;) {
+				qk_list_addendum.AddFast(qk_rec.ID + TrfrAnlzFilt::extvQuotBias, qk_rec.Name);
+			}
+			qk_list_addendum.SortByText();
+			//
+			SetupStringComboWithAddendum(this, CTLSEL_TAGRPNG_EXTVAL1, "trfranlz_enum_extval", &qk_list_addendum, Data.ExtValueParam[0]);
+		}
+		SetupCtrls();
+		return 1;
+	}
+	int    getDTS(TrfrAnlzFilt * pData)
+	{
+		ushort v;
+		getCtrlData(CTLSEL_TAGRPNG_GGRPNG,    &Data.Grp);
+		getCtrlData(CTLSEL_TAGRPNG_GOODS,     &Data.Sgg);
+		getCtrlData(CTLSEL_TAGRPNG_CNTRAGENT, &Data.Sgp);
+		getCtrlData(CTLSEL_TAGRPNG_DATE,      &Data.Sgd);
+		getCtrlData(CTL_TAGRPNG_SUBSTRADDR, &(v = 0));
+		Data.Flags &= ~(TrfrAnlzFilt::fSubstPersonRAddr | TrfrAnlzFilt::fSubstDlvrAddr);
+		if(v == 1)
+			Data.Flags |= TrfrAnlzFilt::fSubstPersonRAddr;
+		else if(v == 2)
+			Data.Flags |= TrfrAnlzFilt::fSubstDlvrAddr;
+		GetClusterData(CTL_TAGRPNG_DIFFDLVRADDR, &Data.Flags);
+		if(Data.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)
+			Data.Sgp = sgpNone;
+		GetRestParams();
+		GetClusterData(CTL_TAGRPNG_TURNOVER, &Data.RestAddendumValue);
+		getCtrlData(CTLSEL_TAGRPNG_EXTVAL1, &Data.ExtValueParam[0]);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
 	void   GetRestParams();
-	TrfrAnlzFilt Data;
 };
 
 #define SHOW_CTVAL 0x00000001L
@@ -3291,59 +3435,6 @@ IMPL_HANDLE_EVENT(TrfrAnlzGrpngDialog)
 	clearEvent(event);
 }
 
-int TrfrAnlzGrpngDialog::setDTS(const TrfrAnlzFilt * pData)
-{
-	Data = *pData;
-	disableCtrls(BIN(Data.Flags & TrfrAnlzFilt::fDiffByDlvrAddr), CTLSEL_TAGRPNG_CNTRAGENT, CTL_TAGRPNG_SUBSTRADDR, 0);
-	ushort v = 0;
-	setCtrlOption(CTL_TAGRPNG_FRAME, ofFramed, 1);
-	AddClusterAssoc(CTL_TAGRPNG_DIFFDLVRADDR, 0, TrfrAnlzFilt::fDiffByDlvrAddr);
-	SetClusterData(CTL_TAGRPNG_DIFFDLVRADDR, Data.Flags);
-	SetupStringCombo(this, CTLSEL_TAGRPNG_GGRPNG, PPTXT_GOODSGRPNGLIST, (long)Data.Grp);
-	SetupSubstGoodsCombo(this, CTLSEL_TAGRPNG_GOODS, Data.Sgg);
-	SetupSubstPersonCombo(this, CTLSEL_TAGRPNG_CNTRAGENT, Data.Sgp);
-	SetupSubstDateCombo(this, CTLSEL_TAGRPNG_DATE, Data.Sgd);
-	if(Data.Flags & TrfrAnlzFilt::fSubstPersonRAddr)
-		v = 1;
-	else if(Data.Flags & TrfrAnlzFilt::fSubstDlvrAddr)
-		v = 2;
-	else
-		v = 0;
-	setCtrlData(CTL_TAGRPNG_SUBSTRADDR, &v);
-	// @v9.1.3 {
-	{
-		long   calc_rest_param = 0;
-		if(Data.Flags & TrfrAnlzFilt::fCalcRest)
-			calc_rest_param |= 0x01;
-		if(Data.Flags & TrfrAnlzFilt::fCalcAvgRest)
-			calc_rest_param |= 0x02;
-		AddClusterAssoc(CTL_TAGRPNG_CALCREST, 0, 0);
-		AddClusterAssoc(CTL_TAGRPNG_CALCREST, 1, 0x01);
-		AddClusterAssoc(CTL_TAGRPNG_CALCREST, 2, 0x01|0x02);
-		SetClusterData(CTL_TAGRPNG_CALCREST, calc_rest_param);
-	}
-	// } @v9.1.3
-	// @v9.1.5 {
-	{
-		AddClusterAssoc(CTL_TAGRPNG_TURNOVER, 0, TrfrAnlzFilt::ravTurnoverRate);
-		SetClusterData(CTL_TAGRPNG_TURNOVER, Data.RestAddendumValue);
-	}
-	{
-		StrAssocArray qk_list_addendum;
-		PPObjQuotKind qk_obj;
-		PPQuotKind qk_rec;
-        for(SEnum en = qk_obj.Enum(0); en.Next(&qk_rec) > 0;) {
-			qk_list_addendum.AddFast(qk_rec.ID + TrfrAnlzFilt::extvQuotBias, qk_rec.Name);
-        }
-		qk_list_addendum.SortByText();
-		//
-		SetupStringComboWithAddendum(this, CTLSEL_TAGRPNG_EXTVAL1, "trfranlz_enum_extval", &qk_list_addendum, Data.ExtValueParam[0]);
-	}
-	// } @v9.1.5
-	SetupCtrls();
-	return 1;
-}
-
 void TrfrAnlzGrpngDialog::GetRestParams()
 {
 	long   calc_rest_param = 0;
@@ -3360,29 +3451,6 @@ void TrfrAnlzGrpngDialog::GetRestParams()
 	}
 }
 
-int TrfrAnlzGrpngDialog::getDTS(TrfrAnlzFilt * pData)
-{
-	ushort v;
-	getCtrlData(CTLSEL_TAGRPNG_GGRPNG,    &Data.Grp);
-	getCtrlData(CTLSEL_TAGRPNG_GOODS,     &Data.Sgg);
-	getCtrlData(CTLSEL_TAGRPNG_CNTRAGENT, &Data.Sgp);
-	getCtrlData(CTLSEL_TAGRPNG_DATE,      &Data.Sgd);
-	getCtrlData(CTL_TAGRPNG_SUBSTRADDR, &(v = 0));
-	Data.Flags &= ~(TrfrAnlzFilt::fSubstPersonRAddr | TrfrAnlzFilt::fSubstDlvrAddr);
-	if(v == 1)
-		Data.Flags |= TrfrAnlzFilt::fSubstPersonRAddr;
-	else if(v == 2)
-		Data.Flags |= TrfrAnlzFilt::fSubstDlvrAddr;
-	GetClusterData(CTL_TAGRPNG_DIFFDLVRADDR, &Data.Flags);
-	if(Data.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)
-		Data.Sgp = sgpNone;
-	GetRestParams();
-	GetClusterData(CTL_TAGRPNG_TURNOVER, &Data.RestAddendumValue); // @v9.1.5
-	getCtrlData(CTLSEL_TAGRPNG_EXTVAL1, &Data.ExtValueParam[0]); // @v9.1.5
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-
 IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 {
 	WLDialog::handleEvent(event);
@@ -3392,10 +3460,8 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 	}
 	else if(event.isCmd(cmCBSelected)) {
 		SetSaldoInfo();
-		// @v9.4.10 {
 		if(event.isCtlEvent(CTLSEL_GTO_OPR))
 			SetupCtrls();
-		// } @v9.4.10
 	}
 	else if(event.isClusterClk(CTL_GTO_GRPDATE)) {
 		SetupCtrls();
@@ -3403,12 +3469,10 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 	}
 	else if(event.isClusterClk(CTL_GTO_SHOWALL))
 		SetupCtrls();
-	// @v9.5.8 {
 	else if(event.isClusterClk(CTL_GTO_FLAGS)) {
 		GetClusterData(CTL_GTO_FLAGS, &Data.Flags);
 		SetupCtrls();
 	}
-	// } @v9.5.8
 	else
 		return;
 	clearEvent(event);

@@ -1,7 +1,5 @@
-/* Hello, Emacs, this is -*-C-*- */
-
-/* GNUPLOT - win.trm */
-
+// Hello, Emacs, this is -*-C-*- 
+// GNUPLOT - win.trm 
 /*[
  * Copyright 1992 - 1993, 1998, 2004
  *
@@ -31,19 +29,13 @@
  * This software is provided "as is" without express or implied warranty
  * to the extent permitted by applicable law.
    ]*/
-
 /*
  *
  * AUTHORS
  *
- *   Gnuplot for Windows:
- *       Maurice Castro, Russell Lang
- *
- *   Current maintainer:
- *       Bastian Maerkisch
- *
+ *   Gnuplot for Windows: Maurice Castro, Russell Lang
+ *   Current maintainer: Bastian Maerkisch
  */
-
 /* This file implements the terminal and printer display for gnuplot  */
 /* under Microsoft Windows.                                           */
 /*                                                                    */
@@ -51,22 +43,29 @@
 /* by Maurice Castro (maurice@bruce.cs.monash.edu.au)                 */
 /* and Russell Lang (rjl@monu1.cc.monash.edu.au)         19 Nov 1992  */
 /*                                                                    */
-
-/* Edit this file with tabstop=4 (vi :se ts=4)                        */
-
-/*
- * adapted to the new terminal layout by Stefan Bodewig (Dec. 1995)
- */
-
+// Edit this file with tabstop=4 (vi :se ts=4)                        */
+//
+// adapted to the new terminal layout by Stefan Bodewig (Dec. 1995)
+//
+#include <gnuplot.h>
+#pragma hdrstop
+#include <win\wcommon.h>
 #include "driver.h"
 
-#ifdef TERM_REGISTER
-register_term(windows)
-#endif
+// @experimental {
+#define TERM_BODY
+#define TERM_PUBLIC static
+#define TERM_TABLE
+#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_END(x)   };
+// } @experimental
 
-#ifdef TERM_PROTO
+#ifdef TERM_REGISTER
+	register_term(windows)
+#endif
+// @experimental #ifdef TERM_PROTO
 TERM_PUBLIC void WIN_options();
-TERM_PUBLIC void WIN_init();
+TERM_PUBLIC void WIN_init(termentry * pThis);
 TERM_PUBLIC void WIN_reset();
 TERM_PUBLIC void WIN_text();
 TERM_PUBLIC void WIN_graphics();
@@ -82,53 +81,68 @@ TERM_PUBLIC void WIN_resume();
 TERM_PUBLIC void WIN_set_pointsize(double);
 TERM_PUBLIC void WIN_linewidth(double linewidth);
 #ifdef USE_MOUSE
-TERM_PUBLIC void WIN_set_ruler(int, int);
-TERM_PUBLIC void WIN_set_cursor(int, int, int);
-TERM_PUBLIC void WIN_put_tmptext(int, const char str[]);
-TERM_PUBLIC void WIN_set_clipboard(const char[]);
-#ifdef WGP_CONSOLE
-TERM_PUBLIC int WIN_waitforinput(int);
-#endif
+	TERM_PUBLIC void WIN_set_ruler(int, int);
+	TERM_PUBLIC void WIN_set_cursor(int, int, int);
+	TERM_PUBLIC void WIN_put_tmptext(int, const char str[]);
+	TERM_PUBLIC void WIN_set_clipboard(const char[]);
+	#ifdef WGP_CONSOLE
+		TERM_PUBLIC int WIN_waitforinput(int);
+	#endif
 #endif
 TERM_PUBLIC int WIN_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void WIN_set_color(t_colorspec *);
 TERM_PUBLIC void WIN_filled_polygon(int points, gpiPoint * corners);
 TERM_PUBLIC void WIN_boxfill(int, uint, uint, uint, uint);
 TERM_PUBLIC int WIN_set_font(const char * font);
-TERM_PUBLIC void WIN_enhanced_open(char * fontname, double fontsize,
-    double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void WIN_enhanced_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void WIN_enhanced_flush();
 TERM_PUBLIC void WIN_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
 TERM_PUBLIC void WIN_layer(t_termlayer syncpoint);
 TERM_PUBLIC void WIN_hypertext(int type, const char * text);
 TERM_PUBLIC void WIN_modify_plots(uint operations, int plotno);
-
-/* Initialization values - guess now, scale later */
+// Initialization values - guess now, scale later 
 #define WIN_XMAX (24000)
 #define WIN_YMAX (18000)
 #define WIN_HCHAR (WIN_XMAX/75)
 #define WIN_VCHAR (WIN_YMAX/25)
 #define WIN_HTIC (WIN_XMAX/160)
 #define WIN_VTIC WIN_HTIC
-#endif /* TERM_PROTO */
+// @experimental #endif /* TERM_PROTO */
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
 
 #include "win/winmain.h"
 
-/* Interface routines - create list of actions for Windows */
+// Interface routines - create list of actions for Windows 
 
-enum WIN_id { WIN_DEFAULT, WIN_MONOCHROME, WIN_COLOR, WIN_GTITLE,
-	      WIN_ENHANCED, WIN_NOENHANCED, WIN_FONT, WIN_SIZE, WIN_WSIZE,
-	      WIN_POSITION, WIN_CLOSE, WIN_BACKGROUND,
-	      WIN_FONTSCALE, WIN_LINEWIDTH, WIN_POINTSCALE,
-	      WIN_SOLID, WIN_DASHED, WIN_ROUND, WIN_BUTT,
-	      WIN_DOCKED, WIN_STANDALONE, WIN_LAYOUT,
-	      WIN_OTHER };
+enum WIN_id { 
+	WIN_DEFAULT, 
+	WIN_MONOCHROME, 
+	WIN_COLOR, 
+	WIN_GTITLE, 
+	WIN_ENHANCED, 
+	WIN_NOENHANCED, 
+	WIN_FONT, 
+	WIN_SIZE, 
+	WIN_WSIZE, 
+	WIN_POSITION, 
+	WIN_CLOSE, 
+	WIN_BACKGROUND, 
+	WIN_FONTSCALE, 
+	WIN_LINEWIDTH, 
+	WIN_POINTSCALE, 
+	WIN_SOLID, 
+	WIN_DASHED, 
+	WIN_ROUND, 
+	WIN_BUTT, 
+	WIN_DOCKED, 
+	WIN_STANDALONE, 
+	WIN_LAYOUT, 
+	WIN_OTHER 
+};
 
-static struct gen_table WIN_opts[] =
-{
+static struct gen_table WIN_opts[] = {
 	{ "d$efault", WIN_DEFAULT },
 	{ "c$olor", WIN_COLOR },
 	{ "c$olour", WIN_COLOR },
@@ -158,8 +172,8 @@ static struct gen_table WIN_opts[] =
 };
 
 typedef struct {
-	unsigned n;
-	unsigned max;
+	uint n;
+	uint max;
 	POINT * point;
 } path_points;
 
@@ -174,12 +188,12 @@ static bool WIN_docked = FALSE;  /* docked window option is "sticky" */
 
 static void WIN_add_path_point(path_points * poly, int x, int y)
 {
-	/* Enlarge size of array of polygon points */
+	// Enlarge size of array of polygon points 
 	if(poly->n >= poly->max) {
 		poly->max += 10;
 		poly->point = (POINT*)gp_realloc(poly->point, poly->max * sizeof(POINT), "points");
 	}
-	/* Store point */
+	// Store point 
 	poly->point[poly->n].x = x;
 	poly->point[poly->n].y = y;
 	poly->n++;
@@ -468,21 +482,19 @@ TERM_PUBLIC void WIN_options()
 			lpgw->bDocked = WIN_docked; /* "sticky" default */
 		}
 #ifdef USE_MOUSE
-		/* set status line of previous graph window */
+		// set status line of previous graph window 
 		sprintf(status, "(inactive, window number %i)", graphwin->Id);
 		Graph_put_tmptext(graphwin, 0, status);
-		/* reset status text */
+		// reset status text 
 		Graph_put_tmptext(lpgw, 0, "");
 #endif
 		graphwin = lpgw;
 	}
-
-	/* apply settings */
+	// apply settings 
 	GraphInitStruct(graphwin);
 	if(set_color) {
 		graphwin->color = color;
-		/* Note: We no longer set TERM_MONOCHROME here, since colors
-		   and grayscale conversion are fully handled by drawgraph() */
+		// Note: We no longer set TERM_MONOCHROME here, since colors and grayscale conversion are fully handled by drawgraph() 
 		if(!set_dashed)
 			graphwin->dashed = !color;
 	}
@@ -554,23 +566,19 @@ TERM_PUBLIC void WIN_options()
 		strcpy(graphwin->deffontname, fontname);
 #endif
 	}
-	/* font initialization */
+	// font initialization 
 	WIN_set_font(NULL);
-
 	WIN_update_options();
-
 	if(set_close) {
 		win_close_terminal_window(graphwin);
 		return;
 	}
-
 #ifndef WGP_CONSOLE
-	/* update text window */
+	// update text window 
 	if(set_layout) {
 		DockedUpdateLayout(&textwin);
 	}
 #endif
-
 	/* update graph window */
 	if((set_position || set_size || set_wsize) && GraphHasWindow(graphwin))
 		GraphUpdateWindowPosSize(graphwin);
@@ -609,16 +617,12 @@ void WIN_update_options()
 	if(graphwin->background != RGB(255, 255, 255))
 		sprintf(&(term_options[strlen(term_options)]), " background \"#%0x%0x%0x\"", GetRValue(graphwin->background),
 		    GetGValue(graphwin->background), GetBValue(graphwin->background));
-
 	if(graphwin->fontscale != 1)
 		sprintf(&(term_options[strlen(term_options)]), " fontscale %.1f", graphwin->fontscale);
-
 	if(graphwin->linewidth != 1)
 		sprintf(&(term_options[strlen(term_options)]), " linewidth %.1f", graphwin->linewidth);
-
 	if(graphwin->pointscale != 1)
 		sprintf(&(term_options[strlen(term_options)]), " pointscale %.1f", graphwin->pointscale);
-
 	if(!graphwin->bDocked) {
 		if(graphwin->Canvas.x != 0)
 			sprintf(&(term_options[strlen(term_options)]), " size %li,%li", graphwin->Canvas.x, graphwin->Canvas.y);
@@ -627,7 +631,7 @@ void WIN_update_options()
 	}
 }
 
-TERM_PUBLIC void WIN_init()
+TERM_PUBLIC void WIN_init(termentry * pThis)
 {
 	if(!graphwin->hWndGraph) {
 		graphwin->xmax = WIN_XMAX;
@@ -637,7 +641,7 @@ TERM_PUBLIC void WIN_init()
 		GraphInit(graphwin);
 	}
 	WIN_last_linetype = LT_NODRAW;  /* HBB 20000813: linetype caching */
-	WIN_term = term;
+	WIN_term = pThis;
 }
 
 TERM_PUBLIC void WIN_reset()
@@ -659,17 +663,14 @@ TERM_PUBLIC void WIN_graphics()
 	term->TicH = graphwin->htic;
 	term->TicV = graphwin->vtic;
 	WIN_last_linetype = LT_NODRAW;          /* HBB 20000813: linetype caching */
-
 	/* Save current text encoding */
 	GraphOp(graphwin, W_text_encoding, encoding, 0, NULL);
 }
 
 TERM_PUBLIC void WIN_move(uint x, uint y)
 {
-	/* terminate current path only if we move to a disconnected position */
-	if((WIN_poly.n > 0) &&
-	    ((WIN_poly.point[WIN_poly.n - 1].x != x) ||
-	    (WIN_poly.point[WIN_poly.n - 1].y != y))) {
+	// terminate current path only if we move to a disconnected position 
+	if((WIN_poly.n > 0) && ((WIN_poly.point[WIN_poly.n - 1].x != x) || (WIN_poly.point[WIN_poly.n - 1].y != y))) {
 		WIN_flush_line(&WIN_poly);
 	}
 	WIN_add_path_point(&WIN_poly, x, y);
@@ -677,9 +678,7 @@ TERM_PUBLIC void WIN_move(uint x, uint y)
 
 TERM_PUBLIC void WIN_vector(uint x, uint y)
 {
-	if((WIN_poly.n == 0) ||
-	    (WIN_poly.point[WIN_poly.n - 1].x != x) ||
-	    (WIN_poly.point[WIN_poly.n - 1].y != y)) {
+	if((WIN_poly.n == 0) || (WIN_poly.point[WIN_poly.n - 1].x != x) || (WIN_poly.point[WIN_poly.n - 1].y != y)) {
 		if(WIN_poly.n == 0) {
 			/* vector command without preceding move: e.g. in "with line lc variable" */
 			/* Coordinates were saved with last flush already. */
@@ -693,7 +692,6 @@ TERM_PUBLIC void WIN_linetype(int lt)
 {
 	if(lt != WIN_last_linetype) {
 		WIN_flush_line(&WIN_poly);
-
 		GraphOp(graphwin, W_line_type, lt, 0, NULL);
 		WIN_last_linetype = lt;
 	}
@@ -708,14 +706,14 @@ TERM_PUBLIC void WIN_dashtype(int dt, t_dashtype * custom_dash_pattern)
 TERM_PUBLIC void WIN_put_text(uint x, uint y, const char * str)
 {
 	WIN_flush_line(&WIN_poly);
-	if((str == NULL) || !strlen(str))
-		return;
-	/* If no enhanced text processing is needed, we can use the plain  */
-	/* vanilla put_text() routine instead of this fancy recursive one. */
-	if(!(term->flags & TERM_ENHANCED_TEXT) || ignore_enhanced_text || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str)))
-		GraphOp(graphwin, W_put_text, x, y, str);
-	else
-		GraphOp(graphwin, W_enhanced_text, x, y, str);
+	if(!isempty(str)) {
+		// If no enhanced text processing is needed, we can use the plain  
+		// vanilla put_text() routine instead of this fancy recursive one. 
+		if(!(term->flags & TERM_ENHANCED_TEXT) || ignore_enhanced_text || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str)))
+			GraphOp(graphwin, W_put_text, x, y, str);
+		else
+			GraphOp(graphwin, W_enhanced_text, x, y, str);
+	}
 }
 
 TERM_PUBLIC int WIN_justify_text(enum JUSTIFY mode)
@@ -793,10 +791,8 @@ TERM_PUBLIC void WIN_set_clipboard(const char s[])
 #ifdef WGP_CONSOLE
 	TERM_PUBLIC int WIN_waitforinput(int options)
 	{
-		/* Not required: message handling already done elsewhere. */
-		if(options == TERM_ONLY_CHECK_MOUSING)
-			return NUL;
-		return ConsoleGetch();
+		// Not required: message handling already done elsewhere. 
+		return (options == TERM_ONLY_CHECK_MOUSING) ? NUL : ConsoleGetch();
 	}
 #endif /* WGP_CONSOLE */
 #endif /* USE_MOUSE */
@@ -830,11 +826,10 @@ TERM_PUBLIC void WIN_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 	}
 	rgb_image = (PBYTE)gp_alloc(image_size, "WIN RGB image");
 	if(color_mode == IC_PALETTE) {
-		uint x, y;
 		rgb_image += N * (3 * M + pad_bytes);
-		for(y = 0; y<N; y++) {
+		for(uint y = 0; y < N; y++) {
 			rgb_image -= 3 * M + pad_bytes;
-			for(x = 0; x<M; x++) {
+			for(uint x = 0; x < M; x++) {
 				rgb255_color rgb255;
 				GPO.Rgb255MaxColorsFromGray(*image++, &rgb255);
 				*(rgb_image++) = rgb255.b;
@@ -845,11 +840,10 @@ TERM_PUBLIC void WIN_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 		}
 	}
 	else if(color_mode == IC_RGB) {
-		uint x, y;
 		rgb_image += N * (3 * M + pad_bytes);
-		for(y = 0; y<N; y++) {
+		for(uint y = 0; y<N; y++) {
 			rgb_image -= 3 * M + pad_bytes;
-			for(x = 0; x<M; x++) {
+			for(uint x = 0; x<M; x++) {
 				rgb255_color rgb255;
 				rgb255.r = (BYTE)(*image++ *255 + 0.5);
 				rgb255.g = (BYTE)(*image++ *255 + 0.5);
@@ -862,11 +856,10 @@ TERM_PUBLIC void WIN_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 		}
 	}
 	else if(color_mode == IC_RGBA) {
-		uint x, y;
 		rgb_image += M * N * 4;
-		for(y = 0; y<N; y++) {
+		for(uint y = 0; y<N; y++) {
 			rgb_image -= 4 * M;
-			for(x = 0; x<M; x++) {
+			for(uint x = 0; x<M; x++) {
 				coordval red, green, blue, alpha;
 				red   = *image++; /* RGB is [0:1] */
 				green = *image++;
@@ -880,16 +873,14 @@ TERM_PUBLIC void WIN_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 			rgb_image -= 4 * M;
 		}
 	}
-
-	/* squeeze all the information into the buffer */
-	if((color_mode == IC_PALETTE) || (color_mode == IC_RGB) || (color_mode == IC_RGBA)) {
+	// squeeze all the information into the buffer 
+	if(oneof3(color_mode, IC_PALETTE, IC_RGB, IC_RGBA)) {
 		GraphOp(graphwin, W_image, color_mode,  0, NULL);
 		GraphOp(graphwin, W_image, corner[0].x, corner[0].y, NULL);
 		GraphOp(graphwin, W_image, corner[1].x, corner[1].y, NULL);
 		GraphOp(graphwin, W_image, corner[2].x, corner[2].y, NULL);
 		GraphOp(graphwin, W_image, corner[3].x, corner[3].y, NULL);
-		/* GraphOp() cannot be used here since the image might
-		   contain char(0), so use  GraphOpSize() instead */
+		// GraphOp() cannot be used here since the image might contain char(0), so use  GraphOpSize() instead 
 		GraphOpSize(graphwin, W_image, M, N, (LPCSTR)rgb_image, image_size);
 	}
 	SAlloc::F(rgb_image);
@@ -934,14 +925,10 @@ TERM_PUBLIC void WIN_set_color(t_colorspec * colorspec)
 TERM_PUBLIC void WIN_filled_polygon(int points, gpiPoint * corners)
 {
 	int i;
-
 	GraphOp(graphwin, W_fillstyle, corners->style, 0, NULL);
-
-	/* Eliminate duplicate polygon points. */
-	if((corners[0].x == corners[points - 1].x) &&
-	    (corners[0].y == corners[points - 1].y))
+	// Eliminate duplicate polygon points. 
+	if((corners[0].x == corners[points - 1].x) && (corners[0].y == corners[points - 1].y))
 		points--;
-
 	for(i = 0; i < points; i++)
 		GraphOp(graphwin, W_filled_polygon_pt, corners[i].x, corners[i].y, NULL);
 	GraphOp(graphwin, W_filled_polygon_draw, points, 0, NULL);
@@ -950,7 +937,7 @@ TERM_PUBLIC void WIN_filled_polygon(int points, gpiPoint * corners)
 TERM_PUBLIC void WIN_boxfill(int style, uint xleft, uint ybottom, uint width, uint height)
 {
 	WIN_flush_line(&WIN_poly);
-	/* split into multiple commands to squeeze through all the necessary info */
+	// split into multiple commands to squeeze through all the necessary info 
 	GraphOp(graphwin, W_fillstyle, style, 0, NULL);
 	GraphOp(graphwin, W_move, xleft, ybottom, NULL);
 	GraphOp(graphwin, W_boxfill, xleft + width, ybottom + height, NULL);
@@ -958,26 +945,23 @@ TERM_PUBLIC void WIN_boxfill(int style, uint xleft, uint ybottom, uint width, ui
 
 TERM_PUBLIC int WIN_set_font(const char * font)
 {
-	/* Note: defer the determination of default font name and default
-	   font size until drawgraph() is executed. */
-	if((font == NULL) || (font[0] == '\0')) {
-		/* select default font */
-		GraphOp(graphwin, W_font, 0, 0, NULL);
+	// Note: defer the determination of default font name and default font size until drawgraph() is executed. 
+	if(isempty(font)) {
+		GraphOp(graphwin, W_font, 0, 0, NULL); // select default font 
 	}
 	else {
 		int fontsize;
 		const char * size = strrchr(font, ',');
 		if(size == NULL) {
-			/* only font name given */
-			GraphOp(graphwin, W_font, 0, 0, font);
+			GraphOp(graphwin, W_font, 0, 0, font); // only font name given 
 		}
 		else if(size == font) {
-			/* only font size given */
+			// only font size given 
 			sscanf(size + 1, "%i", &fontsize);
 			GraphOp(graphwin, W_font, fontsize, 0, NULL);
 		}
 		else {
-			/* full font information supplied */
+			// full font information supplied 
 			char fontname[MAXFONTNAME];
 			memcpy(fontname, font, size - font);
 			fontname[size-font] = '\0';
@@ -1031,7 +1015,6 @@ TERM_PUBLIC void WIN_modify_plots(uint operations, int plotno)
 #endif /* TERM_BODY */
 
 #ifdef TERM_TABLE
-
 TERM_TABLE_START(win_driver)
 	"windows", 
 	"Microsoft Windows",
@@ -1045,7 +1028,7 @@ TERM_TABLE_START(win_driver)
 	WIN_init, 
 	WIN_reset,
 	WIN_text, 
-	null_scale, 
+	GnuPlot::NullScale, 
 	WIN_graphics, 
 	WIN_move, 
 	WIN_vector,
@@ -1054,7 +1037,7 @@ TERM_TABLE_START(win_driver)
 	WIN_text_angle,
 	WIN_justify_text, 
 	WIN_point, 
-	do_arrow, 
+	GnuPlot::DoArrow, 
 	WIN_set_font,
 	WIN_set_pointsize,
 	TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE|TERM_ALPHA_CHANNEL|TERM_CAN_DASH|TERM_LINEWIDTH|TERM_FONTSCALE|TERM_POINTSCALE|TERM_ENHANCED_TEXT,

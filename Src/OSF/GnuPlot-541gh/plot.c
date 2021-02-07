@@ -3,18 +3,6 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
-
-#ifdef VMS
-	#ifndef __GNUC__
-		#include <unixio.h>
-	#endif
-	#include <smgdef.h>
-	#include <ssdef.h>
-	extern int vms_vkid;
-	extern smg$create_virtual_keyboard();
-	extern int vms_ktid;
-	extern smg$create_key_table();
-#endif
 #ifdef _WIN32
 	#include "win/winmain.h"
 	#include "win/wcommon.h"
@@ -73,18 +61,16 @@ static int exit_status = EXIT_SUCCESS;
 bool ctrlc_flag = FALSE; // Flag for asynchronous handling of Ctrl-C. Used by fit.c and Windows 
 bool terminate_flag = FALSE; // Flag for (asynchronous) term signal on Windows. 
 
-static RETSIGTYPE inter(int anint)
+static RETSIGTYPE inter(int /*anint*/)
 {
-	(void)anint;            /* avoid -Wunused warning */
-	(void)signal(SIGINT, (sigfunc)inter);
-	(void)signal(SIGFPE, SIG_DFL);  /* turn off FPE trapping */
+	signal(SIGINT, (sigfunc)inter);
+	signal(SIGFPE, SIG_DFL);  /* turn off FPE trapping */
 #if defined(WGP_CONSOLE)
-	/* The Windows console Ctrl-C handler runs in another thread. So a
-	   longjmp() would result in crash. Instead, we handle these
-	   events asynchronously.
-	 */
+	// The Windows console Ctrl-C handler runs in another thread. So a
+	// longjmp() would result in crash. Instead, we handle these
+	// events asynchronously.
 	ctrlc_flag = TRUE;
-	/* Interrupt ConsoleGetch. */
+	// Interrupt ConsoleGetch. 
 	SendMessage(graphwin->hWndGraph, WM_NULL, 0, 0);
 	SendMessage(GetConsoleWindow(), WM_CHAR, 0x20, 0);
 #else
@@ -274,16 +260,6 @@ int main(int argc_orig, char ** argv)
 	else
 		show_version(NULL); // Only load GPVAL_COMPILE_OPTIONS 
 	GPO.UpdateGpvalVariables(3); // update GPVAL_ variables available to user 
-#ifdef VMS
-	/* initialise screen management routines for command recall */
-	{
-		uint ierror;
-		if(ierror = smg$create_virtual_keyboard(&vms_vkid) != SS$_NORMAL)
-			done(ierror);
-		if(ierror = smg$create_key_table(&vms_ktid) != SS$_NORMAL)
-			done(ierror);
-	}
-#endif /* VMS */
 	if(!SETJMP(command_line_env, 1)) {
 		/* first time */
 		interrupt_setup();
@@ -351,27 +327,12 @@ int main(int argc_orig, char ** argv)
 #endif
 		load_file_error(); /* if we were in load_file(), cleanup */
 		SET_CURSOR_ARROW;
-#ifdef VMS
-		/* after catching interrupt */
-		/* VAX stuffs up stdout on SIGINT while writing to stdout, so reopen stdout. */
-		if(gpoutfile == stdout) {
-			if((stdout = freopen("SYS$OUTPUT", "w", stdout)) == NULL) {
-				/* couldn't reopen it so try opening it instead */
-				if((stdout = fopen("SYS$OUTPUT", "w")) == NULL) {
-					/* don't use int_error here - causes infinite loop! */
-					fputs("Error opening SYS$OUTPUT as stdout\n", stderr);
-				}
-			}
-			gpoutfile = stdout;
-		}
-#endif /* VMS */
-
-		/* Why a goto?  Because we exited the loop below via int_error */
-		/* using LONGJMP.  The compiler was not expecting this, and    */
-		/* "optimized" the handling of argc and argv such that simply  */
-		/* entering the loop again from the top finds them messed up.  */
-		/* If we reenter the loop via a goto then there is some hope   */
-		/* that code reordering does not hurt us.                      */
+		// Why a goto?  Because we exited the loop below via int_error 
+		// using LONGJMP.  The compiler was not expecting this, and    
+		// "optimized" the handling of argc and argv such that simply  
+		// entering the loop again from the top finds them messed up.  
+		// If we reenter the loop via a goto then there is some hope   
+		// that code reordering does not hurt us.                      
 		if(reading_from_dash && interactive)
 			goto RECOVER_FROM_ERROR_IN_DASH;
 		reading_from_dash = FALSE;
@@ -400,7 +361,7 @@ int main(int argc_orig, char ** argv)
 #endif
 RECOVER_FROM_ERROR_IN_DASH:
 			reading_from_dash = TRUE;
-			while(!com_line())
+			while(!GPO.ComLine())
 				;
 			reading_from_dash = FALSE;
 			interactive = FALSE;
@@ -453,9 +414,9 @@ RECOVER_FROM_ERROR_IN_DASH:
 			GPO.Pgm.LoadFile(loadpath_fopen(*argv, "r"), gp_strdup(*argv), 4);
 		}
 	}
-	/* take commands from stdin */
+	// take commands from stdin 
 	if(noinputfiles) {
-		while(!com_line())
+		while(!GPO.ComLine())
 			ctrlc_flag = FALSE; /* reset asynchronous Ctrl-C flag */
 	}
 #ifdef _WIN32
@@ -473,7 +434,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 #endif
 			{
 				interactive = TRUE;
-				while(!com_line())
+				while(!GPO.ComLine())
 					ctrlc_flag = FALSE; /* reset asynchronous Ctrl-C flag */
 				interactive = FALSE;
 			}
@@ -512,7 +473,7 @@ void GpEval::InitConstants()
 {
 	Gcomplex(&UdvPi.udv_value, M_PI, 0.0);
 	P_UdvNaN = GetUdvByName("NaN");
-	Gcomplex(&(P_UdvNaN->udv_value), not_a_number(), 0.0);
+	Gcomplex(&(P_UdvNaN->udv_value), fgetnan(), 0.0);
 	P_UdvI = GetUdvByName("I");
 	Gcomplex(&P_UdvI->udv_value, 0.0, 1.0);
 }

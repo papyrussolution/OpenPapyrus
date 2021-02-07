@@ -89,7 +89,7 @@ register_term(mf)
 #define MF_HCHAR (MF_DPI*53/10/72)
 #define MF_VCHAR (MF_DPI*11/72)
 
-TERM_PUBLIC void MF_init();
+TERM_PUBLIC void MF_init(termentry * pThis);
 TERM_PUBLIC void MF_graphics();
 TERM_PUBLIC void MF_text();
 TERM_PUBLIC int MF_justify_text(enum JUSTIFY mode);
@@ -167,7 +167,7 @@ static struct {
 	/* dash: line,     gap,      line,     gap      */
 };
 
-TERM_PUBLIC void MF_init()
+TERM_PUBLIC void MF_init(termentry * pThis)
 {
 	MF_char_code = 0;
 	MF_ang = 0;
@@ -332,7 +332,7 @@ TERM_PUBLIC void MF_graphics()
 	struct termentry * t = term;
 	fprintf(gpoutfile, "\n\nbeginchar(%d,%gin#,%gin#,0);\n", MF_char_code, MF_xsize, MF_ysize);
 	MF_char_code++;
-	fprintf(gpoutfile, "a:=w/%d;b:=h/%d;\n", t->xmax, t->ymax);
+	fprintf(gpoutfile, "a:=w/%d;b:=h/%d;\n", t->MaxX, t->MaxY);
 	MF_picked_up_pen = 0;
 }
 
@@ -480,12 +480,30 @@ TERM_PUBLIC void MF_reset()
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(mf_driver)
-"mf", "Metafont plotting standard",
-MF_XMAX, MF_YMAX, MF_VCHAR, MF_HCHAR,
-MF_VTIC, MF_HTIC, options_null, MF_init, MF_reset,
-MF_text, null_scale, MF_graphics, MF_move, MF_vector,
-MF_linetype, MF_put_text, MF_text_angle,
-MF_justify_text, line_and_point, MF_arrow, set_font_null TERM_TABLE_END(mf_driver)
+	"mf", 
+	"Metafont plotting standard",
+	MF_XMAX, 
+	MF_YMAX, 
+	MF_VCHAR, 
+	MF_HCHAR,
+	MF_VTIC, 
+	MF_HTIC, 
+	options_null, 
+	MF_init, 
+	MF_reset,
+	MF_text, 
+	GnuPlot::NullScale, 
+	MF_graphics, 
+	MF_move, 
+	MF_vector,
+	MF_linetype, 
+	MF_put_text, 
+	MF_text_angle,
+	MF_justify_text, 
+	line_and_point, 
+	MF_arrow, 
+	set_font_null 
+TERM_TABLE_END(mf_driver)
 
 #undef LAST_TERM
 #define LAST_TERM mf_driver

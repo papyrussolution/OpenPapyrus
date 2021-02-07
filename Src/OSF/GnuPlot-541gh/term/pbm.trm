@@ -65,7 +65,7 @@ register_term(pbm_driver)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void PBM_options();
-TERM_PUBLIC void PBM_init();
+TERM_PUBLIC void PBM_init(termentry * pThis);
 TERM_PUBLIC void PBM_reset();
 TERM_PUBLIC void PBM_setfont();
 TERM_PUBLIC void PBM_graphics();
@@ -158,8 +158,8 @@ TERM_PUBLIC void PBM_options()
 			case PBM_SIZE:
 			    GPO.Pgm.Shift();
 			    if(GPO.Pgm.EndOfCommand()) {
-				    term->xmax = PBM_XMAX;
-				    term->ymax = PBM_YMAX;
+				    term->MaxX = PBM_XMAX;
+				    term->MaxY = PBM_YMAX;
 				    PBM_explicit_size = FALSE;
 			    }
 			    else {
@@ -171,9 +171,9 @@ TERM_PUBLIC void PBM_options()
 				    PBM_explicit_size = TRUE;
 			    }
 			    if(xpixels > 0)
-				    term->xmax = xpixels;
+				    term->MaxX = xpixels;
 			    if(ypixels > 0)
-				    term->ymax = ypixels;
+				    term->MaxY = ypixels;
 			    break;
 			case PBM_OTHER:
 			default:
@@ -185,7 +185,7 @@ TERM_PUBLIC void PBM_options()
 		}
 	}
 
-	term->TicV = (term->xmax < term->ymax) ? term->xmax/100 : term->ymax/100;
+	term->TicV = (term->MaxX < term->MaxY) ? term->MaxX/100 : term->MaxY/100;
 	if(term->TicV < 1)
 		term->TicV = 1;
 	term->TicH = term->TicV;
@@ -202,10 +202,10 @@ TERM_PUBLIC void PBM_options()
 		case 2: strcat(term_options, " color"); break;
 	}
 	if(PBM_explicit_size)
-		sprintf(term_options + strlen(term_options), " size %d,%d", term->xmax, term->ymax);
+		sprintf(term_options + strlen(term_options), " size %d,%d", term->MaxX, term->MaxY);
 }
 
-TERM_PUBLIC void PBM_init()
+TERM_PUBLIC void PBM_init(termentry * pThis)
 {
 	PBM_setfont();          /* HBB 980226: call it here! */
 }
@@ -239,8 +239,8 @@ TERM_PUBLIC void PBM_setfont()
 TERM_PUBLIC void PBM_graphics()
 {
 	int numplanes = 1;
-	uint xpixels = term->xmax;
-	uint ypixels = term->ymax;
+	uint xpixels = term->MaxX;
+	uint ypixels = term->MaxY;
 	/* 'set size' should not affect the size of the canvas in pixels,
 	 * but versions prior to 4.2 did not have a separate 'set term size'
 	 */
@@ -413,22 +413,45 @@ TERM_PUBLIC void PBM_point(uint x, uint y, int point)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(pbm_driver)
-"pbm", "Portable bitmap [small medium large] [monochrome gray color]",
-PBM_XMAX, PBM_YMAX, PBM_VCHAR,
-PBM_HCHAR, PBM_VTIC, PBM_HTIC, PBM_options,
-PBM_init, PBM_reset, PBM_text, null_scale,
-PBM_graphics, b_move, b_vector, PBM_linetype,
-b_put_text, b_text_angle, null_justify_text, PBM_point,
-do_arrow, set_font_null,
-0,                              /* pointsize */
-TERM_CAN_MULTIPLOT | TERM_BINARY,
-0, 0, b_boxfill,
-b_linewidth,
-#ifdef USE_MOUSE
-NULL, NULL, NULL, NULL, NULL,
-#endif
-NULL /* make_palette */, NULL, NULL /* set_color */,
-b_filled_polygon TERM_TABLE_END(pbm_driver)
+	"pbm", 
+	"Portable bitmap [small medium large] [monochrome gray color]",
+	PBM_XMAX, 
+	PBM_YMAX, 
+	PBM_VCHAR,
+	PBM_HCHAR, 
+	PBM_VTIC, 
+	PBM_HTIC, 
+	PBM_options,
+	PBM_init, 
+	PBM_reset, 
+	PBM_text, 
+	GnuPlot::NullScale,
+	PBM_graphics, 
+	b_move, 
+	b_vector, 
+	PBM_linetype,
+	b_put_text, 
+	b_text_angle, 
+	null_justify_text, 
+	PBM_point,
+	GnuPlot::DoArrow, 
+	set_font_null,
+	0,                              /* pointsize */
+	TERM_CAN_MULTIPLOT | TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill,
+	b_linewidth,
+	#ifdef USE_MOUSE
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL,
+	#endif
+	NULL /* make_palette */, NULL, NULL /* set_color */,
+	b_filled_polygon 
+TERM_TABLE_END(pbm_driver)
 
 #undef LAST_TERM
 #define LAST_TERM pbm_driver

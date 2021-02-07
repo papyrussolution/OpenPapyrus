@@ -71,7 +71,7 @@ register_term(hpdj)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void HPLJII_options();
-TERM_PUBLIC void HPLJII_init();
+TERM_PUBLIC void HPLJII_init(termentry * pThis);
 TERM_PUBLIC void HPLJII_graphics();
 TERM_PUBLIC void HPLJII_text();
 TERM_PUBLIC void HPLJII_linetype(int linetype);
@@ -159,8 +159,8 @@ TERM_PUBLIC void HPLJII_options()
 			GPO.Pgm.Shift();
 		}
 	}
-	term->xmax = HPLJII_XMAX;
-	term->ymax = HPLJII_YMAX;
+	term->MaxX = HPLJII_XMAX;
+	term->MaxY = HPLJII_YMAX;
 	switch(hplj_dpp) {
 		case 1:
 		    strcpy(term_options, "300");
@@ -188,10 +188,10 @@ TERM_PUBLIC void HPLJII_options()
 		GPO.IntErrorCurToken("expecting dots per inch size 75, 100, 150 or 300");
 }
 
-TERM_PUBLIC void HPLJII_init()
+TERM_PUBLIC void HPLJII_init(termentry * pThis)
 {
-	term->ChrV = HPLJII_VCHAR;
-	term->ChrH = HPLJII_HCHAR;
+	pThis->ChrV = HPLJII_VCHAR;
+	pThis->ChrH = HPLJII_HCHAR;
 }
 
 TERM_PUBLIC void HPLJII_graphics()
@@ -341,14 +341,35 @@ TERM_PUBLIC void HPDJ_text()
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(hpljii_driver)
-"hpljii", "HP Laserjet series II, [75 100 150 300]",
-HPLJII_75PPI_XMAX, HPLJII_75PPI_YMAX, HPLJII_75PPI_VCHAR,
-HPLJII_75PPI_HCHAR, HPLJII_75PPI_VTIC, HPLJII_75PPI_HTIC, HPLJII_options,
-HPLJII_init, HPLJII_reset, HPLJII_text, null_scale,
-HPLJII_graphics, b_move, b_vector, HPLJII_linetype,
-HPLJII_put_text, b_text_angle, null_justify_text, line_and_point,
-do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(hpljii_driver)
+	"hpljii", 
+	"HP Laserjet series II, [75 100 150 300]",
+	HPLJII_75PPI_XMAX, 
+	HPLJII_75PPI_YMAX, 
+	HPLJII_75PPI_VCHAR,
+	HPLJII_75PPI_HCHAR, 
+	HPLJII_75PPI_VTIC, 
+	HPLJII_75PPI_HTIC, 
+	HPLJII_options,
+	HPLJII_init, 
+	HPLJII_reset, 
+	HPLJII_text, 
+	GnuPlot::NullScale,
+	HPLJII_graphics, 
+	b_move, 
+	b_vector, 
+	HPLJII_linetype,
+	HPLJII_put_text, 
+	b_text_angle, 
+	null_justify_text, 
+	line_and_point,
+	GnuPlot::DoArrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(hpljii_driver)
 
 #undef LAST_TERM
 #define LAST_TERM hpljii_driver
@@ -357,10 +378,10 @@ TERM_TABLE_START(hpdj_driver)
 "hpdj", "HP DeskJet 500, [75 100 150 300]",
 HPLJII_75PPI_XMAX, HPLJII_75PPI_YMAX, HPLJII_75PPI_VCHAR,
 HPLJII_75PPI_HCHAR, HPLJII_75PPI_VTIC, HPLJII_75PPI_HTIC, HPLJII_options,
-HPLJII_init, HPLJII_reset, HPDJ_text, null_scale,
+HPLJII_init, HPLJII_reset, HPDJ_text, GnuPlot::NullScale,
 HPDJ_graphics, b_move, b_vector, HPLJII_linetype,
 b_put_text, b_text_angle, null_justify_text, line_and_point,
-do_arrow, set_font_null, 0, TERM_BINARY,
+GnuPlot::DoArrow, set_font_null, 0, TERM_BINARY,
 0, 0, b_boxfill TERM_TABLE_END(hpdj_driver)
 
 #undef LAST_TERM

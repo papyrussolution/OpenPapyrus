@@ -13243,6 +13243,7 @@ public:
 	{
 	}
 	void   Lock() { Cs.Enter(); }
+	int    TryLock() { return Cs.TryEnter(); }
 	void   Unlock() { Cs.Leave(); }
 private:
 	SCriticalSection::Data Cs;

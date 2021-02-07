@@ -48,8 +48,7 @@ TToolbar::~TToolbar()
 	}
 	TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, PrevToolProc);
 	DestroyMenu(H_Menu);
-	if(H_Wnd)
-		DestroyWindow(H_Wnd);
+	::DestroyWindow(H_Wnd);
 }
 
 // AHTOXA {
@@ -849,6 +848,7 @@ INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wPar
 		case WM_INITDIALOG:
 			p_param = new TuneToolsDialog(hWnd, reinterpret_cast<TToolbar *>(lParam));
 			TView::SetWindowProp(hWnd, GWLP_USERDATA, p_param);
+			SetupCtrlTextProc(hWnd, 0); // @v11.0.1
 			EnumChildWindows(hWnd, SetupCtrlTextProc, 0);
 			return 1;
 		case WM_COMMAND:

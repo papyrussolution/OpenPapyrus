@@ -245,7 +245,7 @@ int ACS_PAPYRUS_APN::ImportSession(int sessN)
 											}
 											// } @v10.1.10
 											THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, cc_dtm, cc_amount, cc_discount));
-											if(ccr > 0) { // @v9.9.12
+											if(ccr > 0) {
 												for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
 													const PPPosProtocol::ObjBlockRef & r_cl_ref = p_ib->RefList.at(cl_refi);
 													int    cl_type = 0;

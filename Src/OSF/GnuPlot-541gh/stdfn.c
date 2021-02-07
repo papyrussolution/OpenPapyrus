@@ -276,11 +276,12 @@ int ms_snprintf(char * str, size_t size, const char * format, ...)
 }
 
 #endif
-
-/* Implement portable generation of a NaN value. */
-/* NB: Supposedly DJGPP V2.04 can use atof("NaN"), but... */
-
-double not_a_number()
+#if 0 // (replaced with fgetnan())
+// 
+// Implement portable generation of a NaN value. 
+// NB: Supposedly DJGPP V2.04 can use atof("NaN"), but... 
+// 
+double not_a_number_Removed()
 {
 #if defined (_MSC_VER) || defined (DJGPP) || defined(__DJGPP__) || defined(__MINGW32__)
 	ulong lnan[2] = {0xffffffff, 0x7fffffff};
@@ -289,6 +290,7 @@ double not_a_number()
 	return atof("NaN");
 #endif
 }
+#endif 
 
 #ifdef NEED_CEXP
 double _Complex cexp(double _Complex z)

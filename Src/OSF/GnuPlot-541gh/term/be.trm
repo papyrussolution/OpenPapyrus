@@ -49,7 +49,7 @@ register_term(be)
 #ifdef TERM_PROTO
 int BE_args(int argc, char * argv[]);
 TERM_PUBLIC void BE_options();
-TERM_PUBLIC void BE_init();
+TERM_PUBLIC void BE_init(termentry * pThis);
 TERM_PUBLIC void BE_graphics();
 TERM_PUBLIC void BE_text();
 TERM_PUBLIC void BE_reset();
@@ -206,7 +206,7 @@ static void BE_atexit()
 	}
 }
 
-TERM_PUBLIC void BE_init()
+TERM_PUBLIC void BE_init(termentry * pThis)
 {
 	if(!BE_ipc) {
 		/* first time through or after a reset */
@@ -338,7 +338,7 @@ TERM_TABLE_START(be_driver)
 	BE_init, 
 	BE_reset,
 	BE_text, 
-	null_scale, 
+	GnuPlot::NullScale, 
 	BE_graphics, 
 	BE_move, 
 	BE_vector,
@@ -347,7 +347,7 @@ TERM_TABLE_START(be_driver)
 	null_text_angle,
 	BE_justify_text, 
 	BE_point, 
-	do_arrow, 
+	GnuPlot::DoArrow, 
 	set_font_null,
 	BE_pointsize, 
 	TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE,
@@ -363,9 +363,9 @@ TERM_TABLE_START(BE_driver)
 "BE", "BE Window System (identical to be)",
 BE_XMAX, BE_YMAX, BE_VCHAR, BE_HCHAR,
 BE_VTIC, BE_HTIC, BE_options, BE_init, BE_reset,
-BE_text, null_scale, BE_graphics, BE_move, BE_vector,
+BE_text, GnuPlot::NullScale, BE_graphics, BE_move, BE_vector,
 BE_linetype, BE_put_text, null_text_angle,
-BE_justify_text, BE_point, do_arrow, set_font_null,
+BE_justify_text, BE_point, GnuPlot::DoArrow, set_font_null,
 BE_pointsize, TERM_CAN_MULTIPLOT,
 BE_text /* suspend can use same routine */, 0 /* resume */,
 BE_fillbox, BE_linewidth TERM_TABLE_END(BE_driver)

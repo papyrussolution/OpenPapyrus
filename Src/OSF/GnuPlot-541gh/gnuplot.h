@@ -20,6 +20,7 @@
 //#define HAVE_LUA
 //#define HAVE_CAIROPDF
 //#define HAVE_AMOS
+//#define HAVE_COMPLEX_FUNCS
 #define HAVE_EXTERNAL_FUNCTIONS
 #define STDC_HEADERS
 #define HAVE_STDBOOL_H 1
@@ -188,6 +189,7 @@ struct TERMENTRY;
 		}
 		void   Destroy();
 		int    IntCheck() const;
+		void   SetNotDefined() { type = NOTDEFINED; }
 		enum DATA_TYPES type;
 		union {
 			intgr_t int_val;
@@ -210,12 +212,12 @@ struct TERMENTRY;
 								/* e.g. in polar mode and outside of trange[tmin:tmax] */
 	};
 	// 
-	// These are aliases of fields in 'struct coordinate' used to hold
+	// These are aliases of fields in 'GpCoordinate' used to hold
 	// extra properties of 3D data points (i.e. anything other than x/y/z)
 	// or of specific plot types.
 	// The aliases are needed because the total number of data slots is limited
 	// to 7: x y z xlow ylow xhigh yhigh
-	// At some point we may need to expand struct coordinate.
+	// At some point we may need to expand GpCoordinate.
 	// 
 	#define CRD_R yhigh        /* Used by splot styles RGBIMAGE and RGBA_IMAGE */
 	#define CRD_G xlow         /* Used by splot styles RGBIMAGE and RGBA_IMAGE */
@@ -233,7 +235,7 @@ struct TERMENTRY;
 	#define CRD_PATH xhigh     /* Used by 3D spline code to hold path coordinate */
 	#define PATHCOORD 6        /*    must match sequence order of field CRD_PATH */
 
-	struct coordinate {
+	struct GpCoordinate {
 		enum coord_type type;   /* see above */
 		coordval x;
 		coordval y;
@@ -522,14 +524,6 @@ struct TERMENTRY;
 	// 
 	// (replaced with _FuncTab2) {extern const ft_entry _FuncTab[]; // The table of builtin functions 
 	extern const GpFuncEntry _FuncTab2[];
-	//extern udft_entry * first_udf; // user-def'd functions 
-	//extern udvt_entry * first_udv; // user-def'd variables 
-	//extern udvt_entry udv_pi; // 'pi' variable 
-	//extern udvt_entry * udv_I; // 'I' (sqrt(-1)) 
-	//extern udvt_entry * udv_NaN; // 'NaN' variable 
-	//extern udvt_entry ** udv_user_head; // first udv that can be deleted 
-	//extern enum int64_overflow overflow_handling;
-	//extern bool __IsUndefined_Removed;
 
 	class GpEval {
 	public:
@@ -568,39 +562,11 @@ struct TERMENTRY;
 	GpValue * Gcomplex(GpValue *, double, double);
 	GpValue * FASTCALL Ginteger(GpValue *, intgr_t);
 	GpValue * FASTCALL Gstring(GpValue *, char *);
-	GpValue * FASTCALL pop_or_convert_from_string(GpValue *);
+	//GpValue * FASTCALL pop_or_convert_from_string(GpValue *);
 	// (replaced with GpValue::Destroy) void FASTCALL free_value(GpValue * a);
 	void FASTCALL gpfree_string(GpValue * a);
 	void gpfree_array(GpValue * a);
-	//void reset_stack();
-	//void check_stack();
-	//bool more_on_stack();
-	//GpValue * FASTCALL pop_Removed(GpValue * x);
-	//void FASTCALL push_Removed(GpValue * x);
-	//void FASTCALL int_check(const GpValue * v);
-	void f_bool(union argument * x);
-	void f_jump(union argument * x);
-	void f_jumpz(union argument * x);
-	void f_jumpnz(union argument * x);
-	void f_jtern(union argument * x);
-	//void execute_at(at_type * at_ptr);
-	//void evaluate_at(at_type * at_ptr, GpValue * val_ptr);
 	void FASTCALL real_free_at(at_type * at_ptr);
-	//udvt_entry * add_udv_by_name(const char * key);
-	//udvt_entry * get_udv_by_name(const char * key);
-	//void del_udv_by_name(char * key, bool isWildcard);
-	//void clear_udf_list();
-	/* update GPVAL_ variables available to user */
-	//void update_gpval_variables(int from_plot_command);
-	/* note: the routines below work for any variable name, not just those beginning GPVAL_ */
-	//void FASTCALL fill_gpval_string(const char * var, const char * value);
-	//void FASTCALL fill_gpval_integer(const char * var, intgr_t value);
-	//void fill_gpval_float(const char * var, double value);
-	//void fill_gpval_complex(const char * var, double areal, double aimag);
-	// C-callable versions of internal gnuplot functions word() and words() 
-	//char * gp_word(char * string, int i);
-	//int gp_words(char * string);
-
 	// Wrap real_free_at in a macro 
 	#define free_at(at_ptr) do { real_free_at(at_ptr); at_ptr = NULL; } while(0)
 //
@@ -639,7 +605,7 @@ struct TERMENTRY;
 	at_type * perm_at();
 	at_type * create_call_column_at(char *);
 	at_type * create_call_columnhead();
-	udvt_entry * add_udv(int t_num);
+	//udvt_entry * add_udv(int t_num);
 	udft_entry * add_udf(int t_num);
 	void   cleanup_udvlist();
 	//int    is_function(int t_num);
@@ -697,22 +663,7 @@ struct TERMENTRY;
 	// Functions exported by util.c: 
 	//
 	// Command parsing helpers: 
-	//int    FASTCALL GPO.Pgm.Equals(int, const char *);
-	//int    almost_equals(int, const char *);
-	//char * token_to_string(int);
-	//int    FASTCALL isstring(int);
-	//int    isanumber(int);
-	//int    isletter(int);
-	//int    is_definition(int);
-	//bool   might_be_numeric(int);
-	//void   copy_str(char *, int, int);
-	// (replaced wiht GpProgram::TokenLen()) size_t token_len_Removed(int);
-	//void   capture(char *, int, int, int);
-	//void   m_capture(char **, int, int);
-	//void   m_quote_capture(char **, int, int);
-	//char * try_to_get_string();
 	void   parse_esc(char *);
-	//int    FASTCALL type_udv(int);
 	char * gp_stradd(const char *, const char *);
 	//#define isstringvalue(__c_token) (isstring(__c_token) || GPO.Pgm.TypeUdv(__c_token)==STRING)
 		// HBB 20010726: IMHO this one belongs into alloc.c: 
@@ -1002,8 +953,8 @@ enum t_fillstyle {
 	// Send current colour to the terminal
 	// 
 	void   set_color(termentry * pTerm, double gray);
-	void   set_rgbcolor_var(uint rgbvalue);
-	void   set_rgbcolor_const(uint rgbvalue);
+	//void   set_rgbcolor_var(uint rgbvalue);
+	//void   set_rgbcolor_const(uint rgbvalue);
 	// 
 	// Draw colour smooth box
 	// 
@@ -1017,7 +968,7 @@ enum t_fillstyle {
 	// 
 	// miscellaneous color conversions
 	// 
-	uint   rgb_from_colorspec(struct t_colorspec * tc);
+	//uint   rgb_from_colorspec(struct t_colorspec * tc);
 	// 
 	// Support for colormaps (named palettes)
 	// 
@@ -1655,14 +1606,14 @@ enum t_fillstyle {
 	struct TERMENTRY {
 		const char * name;
 		const char * description;
-		uint  xmax;
-		uint  ymax;
+		uint  MaxX/*xmax*/;
+		uint  MaxY/*ymax*/;
 		uint  ChrV;
 		uint  ChrH;
 		uint  TicV;
 		uint  TicH;
 		void  (*options)();
-		void  (*init)();
+		void  (*init)(TERMENTRY * pThis);
 		void  (*reset)();
 		void  (*text)();
 		int   (*scale)(double, double);
@@ -1691,51 +1642,42 @@ enum t_fillstyle {
 		void  (*set_clipboard)(const char[]); /* write text into cut&paste buffer (clipboard) */
 	#endif
 		int   (*make_palette)(t_sm_palette *palette);
-		/* 1. if palette==NULL, then return nice/suitable
-		   maximal number of colours supported by this terminal.
-		   Returns 0 if it can make colours without palette (like
-		   postscript).
-		   2. if palette!=NULL, then allocate its own palette
-		   return value is undefined
-		   3. available: some negative values of max_colors for whatever
-		   can be useful
-		 */
+		// 
+		// 1. if palette==NULL, then return nice/suitable
+		// maximal number of colours supported by this terminal.
+		// Returns 0 if it can make colours without palette (like postscript).
+		// 2. if palette!=NULL, then allocate its own palette return value is undefined
+		// 3. available: some negative values of max_colors for whatever can be useful
+		// 
 		void  (*previous_palette)();
-		/* release the palette that the above routine allocated and get
-		   back the palette that was active before.
-		   Some terminals, like displays, may draw parts of the figure
-		   using their own palette. Those terminals that possess only
-		   one palette for the whole plot don't need this routine.
-		 */
+		// 
+		// release the palette that the above routine allocated and get
+		// back the palette that was active before.
+		// Some terminals, like displays, may draw parts of the figure
+		// using their own palette. Those terminals that possess only
+		// one palette for the whole plot don't need this routine.
+		// 
 		void  (*set_color)(t_colorspec *);
-		/* EAM November 2004 - revised to take a pointer to struct rgb_color,
-		   so that a palette gray value is not the only option for
-		   specifying color.
-		 */
+		// EAM November 2004 - revised to take a pointer to struct rgb_color,
+		// so that a palette gray value is not the only option for specifying color.
 		void  (*filled_polygon)(int points, gpiPoint *corners);
 		void  (*image)(uint, uint, coordval *, gpiPoint *, t_imagecolor);
 		// Enhanced text mode driver call-backs 
 		void  (*enhanced_open)(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 		void  (*enhanced_flush)();
 		void  (*enhanced_writec)(int c);
-
-	/* Driver-specific synchronization or other layering commands.
-	 * Introduced as an alternative to the ugly sight of
-	 * driver-specific code strewn about in the core routines.
-	 * As of this point (July 2005) used only by pslatex.trm
-	 */
+		// Driver-specific synchronization or other layering commands.
+		// Introduced as an alternative to the ugly sight of
+		// driver-specific code strewn about in the core routines.
+		// As of this point (July 2005) used only by pslatex.trm
 		void (*layer)(t_termlayer);
-
-	/* Begin/End path control.
-	 * Needed by PostScript-like devices in order to join the endpoints of
-	 * a polygon cleanly.
-	 */
+		// Begin/End path control.
+		// Needed by PostScript-like devices in order to join the endpoints of a polygon cleanly.
 		void (*path)(int p);
-	/* Scale factor for converting terminal coordinates to output
-	 * pixel coordinates.  Used to provide data for external mousing code.
-	 */
+		// Scale factor for converting terminal coordinates to output
+		// pixel coordinates.  Used to provide data for external mousing code.
 		double tscale;
-	/* Pass hypertext for inclusion in the output plot */
+		// Pass hypertext for inclusion in the output plot 
 		void (*hypertext)(int type, const char * text);
 		void (*boxed_text)(uint, uint, int);
 		void (*modify_plots)(uint operations, int plotno);
@@ -1812,7 +1754,7 @@ enum t_fillstyle {
 	/* Whichever one is used first to plot, this locks out the other. */
 	extern void * term_interlock;
 	// Support for enhanced text mode. 
-	extern char enhanced_text[];
+	extern char   enhanced_text[MAX_LINE_LEN+1];
 	extern char * enhanced_cur_text;
 	extern double enhanced_fontscale;
 	// give array size to allow the use of sizeof 
@@ -1822,15 +1764,7 @@ enum t_fillstyle {
 	// Prototypes of functions exported by term.c 
 	//
 	void term_set_output(char *);
-	void term_initialise();
-	void term_start_plot();
-	void term_end_plot();
-	void term_start_multiplot();
-	void term_end_multiplot();
-	/* void term_suspend(); */
 	void term_reset();
-	//void term_apply_lp_properties(termentry * pTerm, const lp_style_type * lp);
-	void term_check_multiplot_okay(bool);
 	void init_monochrome();
 	struct termentry * change_term(const char * name, int length);
 
@@ -1839,12 +1773,12 @@ enum t_fillstyle {
 	char * estimate_plaintext(char *);
 	void list_terms();
 	char * get_terminals_names();
-	struct termentry * set_term();
+	//struct termentry * set_term();
 	void init_terminal();
 	//void test_term(termentry * pTerm);
 
-	/* Support for enhanced text mode. */
-	const char * enhanced_recursion(const char * p, bool brace, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+	// Support for enhanced text mode. 
+	const char * enhanced_recursion(termentry * pTerm, const char * p, bool brace, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 	void enh_err_check(const char * str);
 	/* note: c is char, but must be declared int due to K&R compatibility. */
 	void do_enh_writec(int c);
@@ -1860,7 +1794,7 @@ enum t_fillstyle {
 	//
 	// Terminal-independent routine to draw a circle or arc 
 	//
-	void do_arc(int cx, int cy, double radius, double arc_start, double arc_end, int style, bool wedge);
+	//void do_arc(termentry * pTerm, int cx, int cy, double radius, double arc_start, double arc_end, int style, bool wedge);
 	int  load_dashtype(t_dashtype * dt, int tag);
 	void lp_use_properties(lp_style_type * lp, int tag);
 	void load_linetype(termentry * pTerm, lp_style_type * lp, int tag);
@@ -2534,25 +2468,6 @@ enum t_fillstyle {
 		GpPosition MarginT;
 	};
 
-	//extern BoundingBox plot_bounds_Removed; // Plot Boundary 
-	//extern BoundingBox page_bounds_Removed; // 3D boundary prior to view transformation 
-	//extern BoundingBox canvas_Removed;      // Writable area on terminal 
-	//extern BoundingBox * clip_area_Removed; // Current clipping box 
-	//extern float  xsize;   // x scale factor for size 
-	//extern float  ysize;   // y scale factor for size 
-	//extern float  zsize;   // z scale factor for size 
-	//extern float  xoffset_Removed; // x origin setting 
-	//extern float  yoffset_Removed; // y origin setting 
-	//extern float  aspect_ratio;      /* 1.0 for square */
-	//extern int    aspect_ratio_3D;     /* 2 for equal scaling of x and y; 3 for z also */
-	//extern double boxwidth;
-	//extern bool   boxwidth_is_absolute;
-
-	// plot border autosizing overrides, in characters (-1: autosize) 
-	//extern GpPosition lmargin_Removed;
-	//extern GpPosition bmargin_Removed;
-	//extern GpPosition rmargin_Removed;
-	//extern GpPosition tmargin_Removed;
 	#define DEFAULT_MARGIN_POSITION {character, character, character, -1, -1, -1}
 
 	extern custom_dashtype_def * first_custom_dashtype;
@@ -2640,8 +2555,8 @@ enum t_fillstyle {
 	//int  FASTCALL clip_point(int, int);
 	// moved here from graph3d: 
 	void clip_move(int x, int y);
-	void clip_vector(termentry * pTerm, int x, int y);
-	void draw_polar_clip_line(termentry * pTerm, double, double, double, double);
+	//void clip_vector(termentry * pTerm, int x, int y);
+	//void draw_polar_clip_line(termentry * pTerm, double, double, double, double);
 	// Common routines for setting line or text color from t_colorspec 
 	//void apply_pm3dcolor(termentry * pTerm, t_colorspec * tc);
 	void reset_textcolor(const struct t_colorspec * tc);
@@ -2724,14 +2639,14 @@ enum t_fillstyle {
 	void   apply_head_properties(const arrow_style_type * arrow_properties);
 	void   free_labels(text_label * tl);
 	void   get_offsets(text_label * this_label, int * htic, int * vtic);
-	void   write_label(termentry * pTerm, int x, int y, text_label * label);
+	//void   write_label(termentry * pTerm, int x, int y, text_label * label);
 	int    label_width(const char *, int *);
 	bool   pm3d_objects();
 	void   place_title(int title_x, int title_y);
 //
 //#include <axis.h>
 	// Aug 2017 - unconditional support for nonlinear axes 
-	#define nonlinear(axis) ((axis)->linked_to_primary != NULL && (axis)->link_udf->at != NULL)
+	//#define nonlinear(axis) ((axis)->linked_to_primary != NULL && (axis)->link_udf->at != NULL)
 	#define invalid_coordinate(x, y) ((uint)(x)==intNaN || (uint)(y)==intNaN)
 	// 
 	// give some names to some array elements used in command.c and grap*.c
@@ -2893,7 +2808,7 @@ enum t_fillstyle {
 			term_lower(0), term_upper(0), term_scale(0.0), term_zero(0), log(false), base(0.0), log_base(0.0),
 			linked_to_primary(0), linked_to_secondary(0), link_udf(0), ticmode(NO_TICS), /*ticdef @ctr*/tic_rotate(0), tic_pos(CENTRE),
 			gridmajor(false), gridminor(false), minitics(MINI_DEFAULT), mtic_freq(10.0),
-			ticscale(1.0), miniticscale(0.5), ticstep(0.0), tic_in(true), datatype(DT_NORMAL), tictype(DT_NORMAL),
+			ticscale(1.0), miniticscale(0.5), ticstep(0.0), TicIn(true), datatype(DT_NORMAL), tictype(DT_NORMAL),
 			formatstring(0), ticfmt(0), timelevel((t_timelevel)(0)), index(0), manual_justify(false), zeroaxis(0), paxis_x(0.0)
 		{
 		}
@@ -2901,7 +2816,10 @@ enum t_fillstyle {
 		//#define axis_map_toint(x) static_cast<int>((x) + 0.5)
 		static int MapRealToInt(double x) { return static_cast<int>((x) + 0.5); }
 		void   Destroy();
+		void   UnsetTics();
 		void   FASTCALL AutoscaleOnePoint(double x);
+		//#define nonlinear(axis) ((axis)->linked_to_primary != NULL && (axis)->link_udf->at != NULL)
+		bool   IsNonLinear() const { return (linked_to_primary && link_udf->at); }
 		bool   BadRange() const;
 		//#define axis_map_double(axis, variable) ((axis)->term_lower + ((variable) - (axis)->min) * (axis)->term_scale)
 		double Map(double var) const { return (term_lower + (var - min) * term_scale); }
@@ -2958,7 +2876,7 @@ enum t_fillstyle {
 		double ticscale;        /* scale factor for tic marks (was (0..1])*/
 		double miniticscale;    /* and for minitics */
 		double ticstep;         /* increment used to generate tic placement */
-		bool   tic_in;          /* tics to be drawn inward?  */
+		bool   TicIn;          /* tics to be drawn inward?  */
 		// time/date axis control 
 		td_type datatype;       /* {DT_NORMAL|DT_TIMEDATE} controls _input_ */
 		td_type tictype;        /* {DT_NORMAL|DT_TIMEDATE|DT_DMS} controls _output_ */
@@ -2999,7 +2917,7 @@ enum t_fillstyle {
 		0, CENTRE,      /* tic_rotate, horizontal justification */  \
 		FALSE, FALSE,   /* grid{major,minor} */                     \
 		MINI_DEFAULT, 10., /* minitics, mtic_freq */                   \
-		1.0, 0.5, 0.0, TRUE, /* ticscale, miniticscale, ticstep, tic_in */ \
+		1.0, 0.5, 0.0, TRUE, /* ticscale, miniticscale, ticstep, TicIn */ \
 		DT_NORMAL, DT_NORMAL, /* datatype for input, output */            \
 		NULL, NULL,     /* output format, another output format */  \
 		0,              /* timelevel */                             \
@@ -3165,62 +3083,32 @@ enum t_fillstyle {
 	#define CheckZero(x, tic) (fabs(x) < ((tic) * SIGNIF) ? 0.0 : (x))
 
 	/* Function pointer type for callback functions to generate ticmarks */
-	typedef void (* tic_callback) (GpAxis *, double, char *, int, struct lp_style_type, struct ticmark *);
+	typedef void (* tic_callback)(GpAxis *, double, char *, int, lp_style_type, ticmark *);
 
 	/* ------------ functions exported by axis.c */
 	coord_type store_and_update_range(double * store, double curval, coord_type * type, GpAxis * axis, bool noautoscale);
-	//void   FASTCALL autoscale_one_point(GpAxis * axis, double x);
-	//t_autoscale load_range(GpAxis *, double *, double *, t_autoscale);
 	void   check_log_limits(const GpAxis *, double, double);
 	void   axis_invert_if_requested(GpAxis *);
-	//void   FASTCALL axis_check_range(AXIS_INDEX);
 	void   FASTCALL axis_init(GpAxis * this_axis, bool infinite);
-	void   set_explicit_range(GpAxis * axis, double newmin, double newmax);
-	//double axis_log_value_checked(AXIS_INDEX, double, const char *);
-	//void   FASTCALL axis_checked_extend_empty_range(AXIS_INDEX, const char * mesg);
+	//void   set_explicit_range(GpAxis * axis, double newmin, double newmax);
 	void   FASTCALL axis_check_empty_nonlinear(const GpAxis * this_axis);
 	char * copy_or_invent_formatstring(GpAxis *);
 	double quantize_normal_tics(double, int);
 	void   setup_tics(GpAxis *, int);
-	void   gen_tics(GpAxis *, tic_callback);
-	void   axis_output_tics(termentry * pTerm, AXIS_INDEX, int *, AXIS_INDEX, tic_callback);
 	void   axis_set_scale_and_range(GpAxis * axis, int lower, int upper);
-	//void   axis_draw_2d_zeroaxis(termentry * pTerm, AXIS_INDEX, AXIS_INDEX);
 	bool   some_grid_selected();
 	void   add_tic_user(GpAxis *, char *, double, int);
 	double FASTCALL get_num_or_time(const GpAxis *);
-	//bool   FASTCALL bad_axis_range(const GpAxis * axis);
-	//void   save_writeback_all_axes();
-	//int    parse_range(AXIS_INDEX axis);
-	//void   parse_skip_range();
 	void   check_axis_reversed(AXIS_INDEX axis);
 
 	/* set widest_tic_label: length of the longest tics label */
 	void   widest_tic_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark *);
-	//void   get_position(struct GpPosition * pos);
-	//void   get_position_default(struct GpPosition * pos, enum position_type default_type, int ndim);
 	void   gstrdms(char * label, char * format, double value);
-	//void   clone_linked_axes(GpAxis * axis1, GpAxis * axis2);
-	//GpAxis * get_shadow_axis(GpAxis * axis);
-	//void   extend_primary_ticrange(GpAxis * axis);
-	//void   update_primary_axis_range(GpAxis * secondary);
-	//void   update_secondary_axis_range(GpAxis * primary);
-	void   reconcile_linked_axes(GpAxis * primary, GpAxis * secondary);
-	//int    map_x(double value);
-	//int    map_y(double value);
-	//double map_x_double(double value);
-	//double map_y_double(double value);
-	//coord_type polar_to_xy(double theta, double r, double * x, double * y, bool update);
-	//double polar_radius(double r);
-	//void   set_cbminmax();
 	void   save_autoscaled_ranges(const GpAxis *, const GpAxis *);
 	void   restore_autoscaled_ranges(GpAxis *, GpAxis *);
 	char * FASTCALL axis_name(AXIS_INDEX);
 	//void   init_sample_range(const GpAxis * axis, enum PLOT_TYPE plot_type);
 	void   init_parallel_axis(GpAxis *, AXIS_INDEX);
-	//void   extend_parallel_axis(int);
-	// Evaluate the function linking a secondary axis to its primary axis 
-	//double eval_link_function(const GpAxis *, double);
 	// For debugging 
 	void   dump_axis_range(GpAxis * axis);
 
@@ -3326,22 +3214,22 @@ enum t_fillstyle {
 		void   ContinueCommand();
 		void   BindCommand();
 		void   UndefineCommand();
-		void   ArrayCommand();
+		//void   ArrayCommand();
 		int    IsLetter(int t_num) const;
-		bool   IsArrayAssignment();
-		void   IfElseCommand(ifstate if_state);
+		//bool   IsArrayAssignment();
+		//void   IfElseCommand(ifstate if_state);
 		void   OldIfCommand(at_type * expr);
-		void   WhileCommand();
-		void   PrintCommand();
+		//void   WhileCommand();
+		//void   PrintCommand();
 		void   HelpCommand();
 		void   DatablockCommand();
 		int    Scanner(char ** ppExpression, size_t * pExpressionLen);
 		void   ExtendTokenTable();
 		int    ReadLine(const char * pPrompt, int start);
 		int    DoLine();
-		void   DoCommand();
+		//void   DoCommand();
 		void   LoadFile(FILE * fp, char * pName, int calltype);
-		void   Define();
+		//void   Define();
 		void   ReplotRequest();
 		void   LfPush(FILE * fp, char * name, char * cmdline);
 		bool   LfPop();
@@ -3350,8 +3238,8 @@ enum t_fillstyle {
 		void   MCapture(char ** ppStr, int start, int end);
 		void   MQuoteCapture(char ** ppStr, int start, int end);
 		char * TokenToString(int tokN) const;
-		void   SetTermOptions();
-
+		//void   SetTermOptions();
+		int    FindClause(int * pClauseStart, int * pClauseEnd);
 		int    Shift() { return CToken++; }
 		int    Rollback() { return CToken--; }
 		int    CToken;
@@ -3360,7 +3248,6 @@ enum t_fillstyle {
 		lexical_unit * P_Token;
 	private:
 		int    FASTCALL GetNum(char pStr[]);
-		int    FindClause(int * pClauseStart, int * pClauseEnd);
 		//void   Command();
 	};
 
@@ -3403,8 +3290,8 @@ enum t_fillstyle {
 	//void help_command();
 	//void history_command();
 	//void do_command();
-	void if_command();
-	void else_command();
+	//void if_command();
+	//void else_command();
 	//void import_command();
 	void invalid_command();
 	//void link_command();
@@ -3420,11 +3307,11 @@ enum t_fillstyle {
 	void pwd_command();
 	//void refresh_request();
 	//void refresh_command();
-	void replot_command();
+	//void replot_command();
 	void reread_command();
-	void save_command();
+	//void save_command();
 	void screendump_command();
-	void splot_command();
+	//void splot_command();
 	void stats_command();
 	void system_command();
 	void test_command();
@@ -3438,7 +3325,7 @@ enum t_fillstyle {
 	//
 	void extend_input_line();
 	//void extend_token_table();
-	int  com_line();
+	//int  com_line();
 	//int  do_line();
 	void do_string(const char* s);
 	//void do_string_and_free(char * s);
@@ -3446,10 +3333,7 @@ enum t_fillstyle {
 	#ifdef USE_MOUSE
 		void toggle_display_of_ipc_commands();
 		int  display_ipc_commands();
-		void do_string_replot(const char* s);
-	#endif
-	#ifdef VMS                     /* HBB 990829: used only on VMS */
-		void done(int status);
+		//void do_string_replot(const char* s);
 	#endif
 	//void   define();
 	//void   replotrequest(); /* used in command.c & mouse.c */
@@ -3626,7 +3510,7 @@ enum t_fillstyle {
 		int current_plotno; // Only used by "pn" option of linespoints 
 		AXIS_INDEX AxIdx_P;/*p_axis*/;  // Only used for parallel axis plots 
 		double * varcolor;  // Only used if plot has variable color 
-		struct coordinate * points;
+		GpCoordinate * points;
 	};
 	//
 	// externally visible variables of graphics.h 
@@ -3663,9 +3547,9 @@ enum t_fillstyle {
 	//void   process_image(termentry * pTerm, const void * plot, t_procimg_action action);
 	bool   check_for_variable_color(const curve_points * plot, const double * colorvalue);
 	//void   autoscale_boxplot(termentry * pTerm, curve_points * plot);
-	void   place_objects(struct GpObject *listhead, int layer, int dimensions);
-	void   do_ellipse(int dimensions, t_ellipse *e, int style, bool do_own_mapping );
-	void   place_pixmaps(int layer, int dimensions);
+	//void   place_objects(struct GpObject *listhead, int layer, int dimensions);
+	void   do_ellipse(termentry * pTerm, int dimensions, t_ellipse *e, int style, bool do_own_mapping );
+	//void   place_pixmaps(int layer, int dimensions);
 	int    filter_boxplot(curve_points *);
 	void   attach_title_to_plot(curve_points *this_plot, legend_key *key);
 //
@@ -3674,10 +3558,10 @@ enum t_fillstyle {
 	//void do_key_bounds(termentry * pTerm, legend_key *key);
 	//void do_key_layout(termentry * pTerm, legend_key *key);
 	int find_maxl_keys(curve_points *plots, int count, int *kcnt);
-	void do_key_sample(termentry * pTerm, const curve_points * pPlot, legend_key *key, char *title, coordval var_color);
-	void do_key_sample_point(curve_points *this_plot, legend_key *key);
+	//void do_key_sample(termentry * pTerm, const curve_points * pPlot, legend_key *key, char *title, coordval var_color);
+	//void do_key_sample_point(curve_points *this_plot, legend_key *key);
 	//void draw_titles();
-	void draw_key(legend_key *key, bool key_pass);
+	//void draw_key(legend_key *key, bool key_pass);
 	void advance_key(bool only_invert);
 	bool at_left_of_key();
 	//
@@ -3786,7 +3670,7 @@ enum t_fillstyle {
 	//void refresh_bounds(curve_points *first_plot, int nplots);
 	// internal and external variables 
 	void cp_extend(curve_points *cp, int num);
-	text_label * store_label(text_label *, struct coordinate *, int i, char * string, double colorval);
+	text_label * store_label(text_label *, GpCoordinate *, int i, char * string, double colorval);
 	//void parse_plot_title(curve_points *this_plot, char *xtitle, char *ytitle, bool *set_title);
 	void reevaluate_plot_title(curve_points * this_plot);
 //
@@ -3818,7 +3702,7 @@ enum t_fillstyle {
 	// prototypes from plot3d.c 
 	//
 	//void plot3drequest();
-	void refresh_3dbounds(struct surface_points * pFirstPlot, int nplots);
+	//void refresh_3dbounds(termentry * pTerm, surface_points * pFirstPlot, int nplots);
 	void sp_free(struct surface_points *sp);
 //
 //#include <graph3d.h>
@@ -3849,7 +3733,7 @@ enum t_fillstyle {
 
 	struct gnuplot_contours {
 		gnuplot_contours * next;
-		struct coordinate * coords;
+		GpCoordinate * coords;
 		char isNewLevel;
 		char label[32];
 		int num_pts;
@@ -3858,9 +3742,9 @@ enum t_fillstyle {
 
 	struct iso_curve {
 		iso_curve * next;
-		int p_max;              /* how many points are allocated */
-		int p_count;                    /* count of points in points */
-		coordinate * points;
+		int    p_max;      // how many points are allocated 
+		int    p_count;    // count of points in points 
+		GpCoordinate * points;
 	};
 
 	struct surface_points {
@@ -3960,14 +3844,6 @@ enum t_fillstyle {
 		NORMAL_REFRESH, /* e.g. "refresh" command */
 		QUICK_REFRESH   /* auto-generated refresh during 3D rotation */
 	};
-	//
-	// Prototypes from file "graph3d.c" 
-	//
-	//void do_3dplot(termentry * pTerm, surface_points * plots, int pcount, REPLOT_TYPE quick);
-	//void map3d_position(GpPosition * pos, int * x, int * y, const char * what);
-	//void map3d_position_double(GpPosition * pos, double * x, double * y, const char * what);
-	//void map3d_position_r(GpPosition * pos, int * x, int * y, const char * what);
-	//void map3d_position_r_double(GpPosition * pos, double * x, double * y, const char * what);
 //
 //#include <pm3d.h>
 	#ifndef TERM_HELP
@@ -4079,18 +3955,18 @@ enum t_fillstyle {
 		// 
 		// Declaration of routines
 		// 
-		int    get_pm3d_at_option(char * pm3d_where);
+		//int    get_pm3d_at_option(char * pm3d_where);
 		void   pm3d_depth_queue_clear();
-		void   pm3d_depth_queue_flush();
+		//void   pm3d_depth_queue_flush();
 		void   pm3d_reset();
-		void   pm3d_draw_one(struct surface_points* plots);
+		//void   pm3d_draw_one(struct surface_points* plots);
 		void   pm3d_add_quadrangle(struct surface_points* plot, gpdPoint * corners);
 		void   pm3d_add_polygon(struct surface_points* plot, gpdPoint * corners, int vertices);
 		void   pm3d_init_lighting_model();
-		int    pm3d_side(struct coordinate * p0, struct coordinate * p1, struct coordinate * p2);
+		int    pm3d_side(GpCoordinate * p0, GpCoordinate * p1, GpCoordinate * p2);
 		//double cb2gray(double cb);
 		void   pm3d_rearrange_scan_array(surface_points* this_plot, iso_curve*** first_ptr, int* first_n, int* first_invert, iso_curve*** second_ptr, int* second_n, int* second_invert);
-		void   set_plot_with_palette(int plot_num, int plot_mode);
+		//void   set_plot_with_palette(int plot_num, int plot_mode);
 		void   pm3d_reset_after_error();
 		bool   is_plot_with_palette();
 		bool   is_plot_with_colorbox();
@@ -4128,9 +4004,9 @@ enum t_fillstyle {
 	long lookup_color_name(char * string);
 	long parse_color_name();
 	bool FASTCALL need_fill_border(const fill_style_type * fillstyle);
-	udvt_entry * get_colormap(int token);
-	void pixmap_from_colormap(t_pixmap * pixmap);
-	void get_image_options(t_image * image);
+	//udvt_entry * get_colormap(int token);
+	//void pixmap_from_colormap(t_pixmap * pixmap);
+	//void get_image_options(t_image * image);
 	//int  parse_dashtype(t_dashtype * dt);
 	// 
 	// State information for load_file(), to recover from errors
@@ -4167,11 +4043,11 @@ enum t_fillstyle {
 	// All the necessary information about one vertex.
 	//
 	struct GpVertex {
-		coordval x, y, z;       /* vertex coordinates */
-		lp_style_type * lp_style; /* where to find point symbol type (if any) */
-		coordval real_z;        /* mostly used to track variable color */
+		coordval x, y, z;         // vertex coordinates 
+		lp_style_type * lp_style; // where to find point symbol type (if any) 
+		coordval real_z;          // mostly used to track variable color 
 		text_label * label;
-		coordinate * original;/* original coordinates of this point used for variable pointsize, pointtype */
+		GpCoordinate * original; // original coordinates of this point used for variable pointsize, pointtype 
 	};
 
 	//typedef GpVertex * p_vertex;
@@ -4197,21 +4073,10 @@ enum t_fillstyle {
 	//
 	// Prototypes of functions exported by "util3d.c" 
 	//
-	//void edge3d_intersect(coordinate *, coordinate *, double *, double *, double *);
-	//bool two_edge3d_intersect(coordinate *, coordinate *, double *, double *, double *);
 	void mat_scale(double sx, double sy, double sz, double mat[4][4]);
 	void mat_rot_x(double teta, double mat[4][4]);
 	void mat_rot_z(double teta, double mat[4][4]);
 	void mat_mult(double mat_res[4][4], double mat1[4][4], double mat2[4][4]);
-	//void map3d_xyz(double x, double y, double z, GpVertex * out);
-	//void map3d_xy(double x, double y, double z, int * xt, int * yt);
-	//void map3d_xy_double(double x, double y, double z, double * xt, double * yt);
-	void draw3d_line(GpVertex *, GpVertex *, struct lp_style_type *);
-	//void draw3d_line_unconditional(termentry * pTerm, GpVertex *, GpVertex *, struct lp_style_type *, t_colorspec);
-	void draw3d_point(GpVertex * v, struct lp_style_type * lp);
-	// HBB NEW 20031218: 3D polyline support 
-	void polyline3d_start(GpVertex * v1);
-	void polyline3d_next(GpVertex * v2, struct lp_style_type * lp);
 //
 //#include <datafile.h>
 	//
@@ -4309,12 +4174,6 @@ enum t_fillstyle {
 	void require_value(const char column);
 	char * df_retrieve_columnhead(int column);
 	void df_reset_after_error();
-	//void f_dollars(union argument * x);
-	//void f_column(union argument * x);
-	//void f_columnhead(union argument * x);
-	void f_valid(union argument * x);
-	void f_timecolumn(union argument * x);
-	//void f_stringcolumn(union argument * x);
 
 	struct use_spec_s {
 		int column;
@@ -4445,7 +4304,7 @@ enum t_fillstyle {
 
 	extern df_binary_file_record_struct * df_bin_record;
 	extern int df_num_bin_records;
-	extern coordinate blank_data_line;
+	extern GpCoordinate blank_data_line;
 	extern use_spec_s use_spec[];
 	//
 	// Prototypes of functions exported by datafile.c 
@@ -4453,7 +4312,7 @@ enum t_fillstyle {
 	void df_show_binary(FILE * fp);
 	void df_show_datasizes(FILE * fp);
 	void df_show_filetypes(FILE * fp);
-	void df_set_datafile_binary();
+	//void df_set_datafile_binary();
 	void df_unset_datafile_binary();
 	void df_add_binary_records(int, df_records_type);
 	void df_extend_binary_columns(int);
@@ -4467,7 +4326,7 @@ enum t_fillstyle {
 //
 //#include <datablock.h>
 	//void datablock_command();
-	char **get_datablock(char *name);
+	char **get_datablock(const char *name);
 	//char *parse_datablock_name();
 	void gpfree_datablock(GpValue *datablock_value);
 	void append_to_datablock(GpValue *datablock_value, const char * line);
@@ -4689,58 +4548,6 @@ enum t_fillstyle {
 //#include <internal.h>
 	// Prototypes from file "internal.c" 
 	void eval_reset_after_error();
-	// the basic operators of our stack machine for function evaluation: 
-	//void f_push(union argument *x);
-	//void f_pushc(union argument *x);
-	//void f_pushd1(union argument *x);
-	//void f_pushd2(union argument *x);
-	//void f_pushd(union argument *x);
-	//void f_pop(union argument *x);
-	//void f_call(union argument *x);
-	//void f_calln(union argument *x);
-	//void f_sum(union argument *x);
-	//void f_lnot(union argument *x);
-	//void f_bnot(union argument *x);
-	//void f_lor(union argument *x);
-	//void f_land(union argument *x);
-	//void f_bor(union argument *x);
-	//void f_xor(union argument *x);
-	//void f_band(union argument *x);
-	//void f_uminus(union argument *x);
-	//void f_eq(union argument *x);
-	//void f_ne(union argument *x);
-	//void f_gt(union argument *x);
-	//void f_lt(union argument *x);
-	//void f_ge(union argument *x);
-	//void f_le(union argument *x);
-	//void f_leftshift(union argument *x);
-	//void f_rightshift(union argument *x);
-	//void f_plus(union argument *x);
-	//void f_minus(union argument *x);
-	//void f_mult(union argument *x);
-	//void f_div(union argument *x);
-	//void f_mod(union argument *x);
-	//void f_power(union argument *x);
-	//void f_factorial(union argument *x);
-	//void f_concatenate(union argument *x);
-	//void f_eqs(union argument *x);
-	//void f_nes(union argument *x);
-	//void f_gprintf(union argument *x);
-	//void f_range(union argument *x);
-	//void f_index(union argument *x);
-	//void f_cardinality(union argument *x);
-	//void f_sprintf(union argument *x);
-	//void f_word(union argument *x);
-	//void f_words(union argument *x);
-	//void f_strftime(union argument *x);
-	//void f_strptime(union argument *x);
-	//void f_time(union argument *x);	
-	//void f_strlen(union argument *x);
-	//void f_strstrt(union argument *x);
-	void f_system(union argument *x);
-	//void f_assign(union argument *x);
-	//void f_value(union argument *x);
-	void f_trim(union argument *x);
 //
 //#include <tabulate.h>
 	//
@@ -4868,7 +4675,7 @@ enum t_fillstyle {
 	void   f_cdawson(union argument *z);
 	void   f_faddeeva(union argument *z);
 	void   f_voigtp(union argument *z);
-	void   f_voigt(union argument *z);
+	//void   f_voigt(union argument *z);
 	void   f_erfi(union argument *z);
 	void   f_VP_fwhm(union argument *z);
 	void   f_FresnelC(union argument *z);
@@ -4878,84 +4685,13 @@ enum t_fillstyle {
 	//
 	// These are the more 'special' functions built into the stack machine.
 	//
-	void f_erf(union argument * x);
-	void f_erfc(union argument * x);
-	void f_ibeta(union argument * x);
-	void f_gamma(union argument * x);
-	void f_lgamma(union argument * x);
-	void f_rand(union argument * x);
-	void f_normal(union argument * x);
-	void f_inverse_normal(union argument * x);
-	void f_inverse_erf(union argument * x);
-	void f_inverse_igamma(union argument * x);
-	void f_inverse_ibeta(union argument * x);
-	void f_lambertw(union argument * x);
-	void f_airy(union argument * x);
-	void f_expint(union argument * x);
-	//void f_besin(union argument * x);
-	#ifndef HAVE_COMPLEX_FUNCS
-		void f_igamma(union argument * x);
-	#endif
 	double chisq_cdf(int dof, double chisqr);
 	#ifndef HAVE_LIBCERF
-		void f_voigt(union argument * x);
+		//void f_voigt(union argument * x);
 	#endif
-	void f_SynchrotronF(union argument * x);
 //
 //#include <standard.h>
-	//
-	// Prototypes of functions exported by standard.c
-	//
-	// These are the more 'usual' functions built into the stack machine 
-	//void f_real(union argument *x);
-	//void f_imag(union argument *x);
-	//void f_int(union argument *x);
-	//void f_round(union argument *x);
-	//void f_arg(union argument *x);
-	//void f_conjg(union argument *x);
-	//void f_sin(union argument *x);
-	//void f_cos(union argument *x);
-	//void f_tan(union argument *x);
-	//void f_asin(union argument *x);
-	//void f_acos(union argument *x);
-	//void f_atan(union argument *x);
-	//void f_atan2(union argument *x);
-	//void f_sinh(union argument *x);
-	//void f_cosh(union argument *x);
-	//void f_tanh(union argument *x);
-	//void f_asinh(union argument *x);
-	//void f_acosh(union argument *x);
-	//void f_atanh(union argument *x);
-	//void f_ellip_first(union argument *x);
-	//void f_ellip_second(union argument *x);
-	//void f_ellip_third(union argument *x);
 	void f_void(union argument *x);
-	//void f_abs(union argument *x);
-	//void f_sgn(union argument *x);
-	//void f_sqrt(union argument *x);
-	//void f_exp(union argument *x);
-	//void f_log10(union argument *x);
-	//void f_log(union argument *x);
-	//void f_floor(union argument *x);
-	//void f_ceil(union argument *x);
-	//void f_besi0(union argument *x);
-	//void f_besi1(union argument *x);
-	//void f_besj0(union argument *x);
-	//void f_besj1(union argument *x);
-	//void f_besjn(union argument *x);
-	//void f_besy0(union argument *x);
-	//void f_besy1(union argument *x);
-	//void f_besyn(union argument *x);
-	//void f_exists(union argument *x);   /* exists("foo") */
-	//void f_tmsec(union argument *x);
-	//void f_tmmin(union argument *x);
-	//void f_tmhour(union argument *x);
-	//void f_tmmday(union argument *x);
-	//void f_tmmon(union argument *x);
-	//void f_tmyear(union argument *x);
-	//void f_tmwday(union argument *x);
-	//void f_tmyday(union argument *x);
-	//void f_tmweek(union argument *x);
 //
 //#include <version.h>
 	extern const char gnuplot_version[];
@@ -5047,9 +4783,9 @@ enum t_fillstyle {
 	void init_hidden_line_removal();
 	void reset_hidden_line_removal();
 	void term_hidden_line_removal();
-	void plot3d_hidden(surface_points *plots, int pcount);
-	void draw_line_hidden(GpVertex *, GpVertex *, lp_style_type *);
-	void draw_label_hidden(GpVertex *, lp_style_type *, int, int);
+	//void plot3d_hidden(termentry * pTerm, surface_points *plots, int pcount);
+	//void draw_line_hidden(GpVertex *, GpVertex *, lp_style_type *);
+	//void draw_label_hidden(GpVertex *, lp_style_type *, int, int);
 //
 //#include <vplot.h>
 	// 
@@ -5102,7 +4838,7 @@ enum t_fillstyle {
 
 	extern t_jitter jitter;
 
-	extern void jitter_points(curve_points * plot);
+	//extern void jitter_points(curve_points * plot);
 	//extern void set_jitter();
 	extern void show_jitter();
 	extern void unset_jitter();
@@ -5134,7 +4870,7 @@ enum t_fillstyle {
 	void mcs_interp(curve_points *plot);
 	void sort_points(curve_points *plot);
 	void zsort_points(curve_points *plot);
-	void cp_implode(curve_points *cp);
+	//void cp_implode(curve_points *cp);
 	void make_bins(curve_points *plot, int nbins, double binlow, double binhigh, double binwidth);
 	void gen_3d_splines(struct surface_points *plot);
 	void gen_2d_path_splines(curve_points *plot);
@@ -5142,9 +4878,9 @@ enum t_fillstyle {
 //#include <multiplot.h>
 	//void   multiplot_start();
 	//void   multiplot_end();
-	void   multiplot_next();
-	void   multiplot_reset();
-	int    multiplot_current_panel();
+	//void   multiplot_next();
+	//void   multiplot_reset();
+	//int    multiplot_current_panel();
 //
 #include <mousecmn.h>
 #if defined(USE_MOUSE) || defined(WIN_IPC)
@@ -5205,12 +4941,12 @@ enum t_fillstyle {
 			MOUSE_COORDINATES_FUNCTION = 8 /* value needed in term.c even if no USE_MOUSE */
 		};
 
-		void event_plotdone();
+		//void event_plotdone();
 		void recalc_statusline();
-		void update_ruler();
+		//void update_ruler();
 		void set_ruler(bool on, int mx, int my);
-		void UpdateStatusline();
-		void do_event(struct gp_event_t * ge);
+		//void UpdateStatusline();
+		//void do_event(struct gp_event_t * ge);
 		bool exec_event(char type, int mx, int my, int par1, int par2, int winid); /* wrapper for do_event() */
 		int plot_mode(int mode);
 		void event_reset(struct gp_event_t * ge);
@@ -5309,9 +5045,84 @@ enum WHICHGRID {
 	BORDERONLY 
 };
 
+struct MpLayout_ {
+	MpLayout_() : auto_layout(false), current_panel(0), num_rows(0), num_cols(0), row_major(false), downwards(true), act_row(0), act_col(0),
+		xscale(1.0), yscale(1.0), xoffset(0.0), yoffset(0.0), auto_layout_margins(false),
+		prev_xsize(0.0), prev_ysize(0.0), prev_xoffset(0.0), prev_yoffset(0.0), title_height(0.0)
+	{
+		lmargin.Set(screen, screen, screen, 0.1, -1.0, -1.0);
+		rmargin.Set(screen, screen, screen, 0.9, -1.0, -1.0);
+		bmargin.Set(screen, screen, screen, 0.1, -1.0, -1.0);
+		tmargin.Set(screen, screen, screen, 0.9, -1.0, -.01);
+		xspacing.Set(screen, screen, screen, 0.05, -1.0, -1.0);
+		yspacing.Set(screen, screen, screen, 0.05, -1.0, -1.0);
+		prev_lmargin.SetDefaultMargin();
+		prev_rmargin.SetDefaultMargin();
+		prev_tmargin.SetDefaultMargin();
+		prev_bmargin.SetDefaultMargin();
+		//EMPTY_LABELSTRUCT, 0.0
+	}
+	bool   auto_layout;   // automatic layout if true 
+	int    current_panel; // initialized to 0, incremented after each plot 
+	int    num_rows;      // number of rows in layout 
+	int    num_cols;      // number of columns in layout 
+	bool   row_major;     // row major mode if true, column major else 
+	bool   downwards;     // prefer downwards or upwards direction 
+	int    act_row;       // actual row in layout 
+	int    act_col;       // actual column in layout 
+	double xscale;        // factor for horizontal scaling 
+	double yscale;        // factor for vertical scaling 
+	double xoffset;       // horizontal shift 
+	double yoffset;       // horizontal shift 
+	bool   auto_layout_margins;
+	GpPosition lmargin;
+	GpPosition rmargin;
+	GpPosition bmargin;
+	GpPosition tmargin;
+	GpPosition xspacing;
+	GpPosition yspacing;
+	double prev_xsize;
+	double prev_ysize;
+	double prev_xoffset;
+	double prev_yoffset;
+	GpPosition prev_lmargin;
+	GpPosition prev_rmargin;
+	GpPosition prev_tmargin;
+	GpPosition prev_bmargin;
+	// values before 'set multiplot layout' 
+	text_label title;    // goes above complete set of plots 
+	double title_height; // fractional height reserved for title 
+}; 
+
+struct Quadrangle {
+	double gray;
+	double z; // z value after rotation to graph coordinates for depth sorting 
+	union {
+		gpdPoint corners[4]; // The normal case. vertices stored right here 
+		int array_index;     // Stored elsewhere if there are more than 4 
+	} vertex;
+	union { // Only used by depthorder processing 
+		t_colorspec * colorspec;
+		uint rgb_color;
+	} qcolor;
+	short fillstyle; // from plot->fill_properties 
+	short type;      // QUAD_TYPE_NORMAL or QUAD_TYPE_4SIDES etc 
+};
+//
+// Descr: One edge of the mesh. The edges are (currently) organized into a
+//   linked list as a method of traversing them back-to-front. 
+//
+struct GpEdge {
+	long   v1;
+	long   v2;          // the vertices at either end 
+	int    style;       // linetype index 
+	lp_style_type * lp; // line/point style attributes 
+	long   next;        // index of next edge in z-sorted list 
+};
+
 class GnuPlot {
 public:
-	GnuPlot()
+	GnuPlot() : TermPointSize(1.0)
 	{
 	}
 	void   PlotRequest();
@@ -5321,14 +5132,25 @@ public:
 	// Descr: releases any memory which was previously malloc()'d to hold curve points (and recursively down the linked list).
 	// 
 	static void CpFree(curve_points * cp);
+	static void DoArrow(uint usx, uint usy/* start point */, uint uex, uint uey/* end point (point of arrowhead) */, int headstyle);
+	static void DoPointSize(double size);
+	//
+	// Deprecated terminal function (pre-version 3)
+	//
+	static int NullScale(double x, double y);
 	void   InitSession();
 	void   EvalPlots();
-	void   Eval3DPlots();
+	void   Eval3DPlots(termentry * pTerm);
+	int    ComLine();
 	void   DoPlot(termentry * pTerm, curve_points * plots, int pcount);
 	void   Do3DPlot(termentry * pTerm, surface_points * plots, int pcount/* count of plots in linked list */, REPLOT_TYPE replot_mode/* replot/refresh/axes-only/quick-refresh */);
 	void   DoSave3DPlot(termentry * pTerm, surface_points * pPlots, int pcount, REPLOT_TYPE quick);
 	void   DoStringAndFree(char * cmdline);
 	void   DoZoom(double xmin, double ymin, double x2min, double y2min, double xmax, double ymax, double x2max, double y2max);
+	void   ZoomRescale_XYX2Y2(double a0, double a1, double a2, double a3, double a4, double a5, double a6,
+		double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, char msg[]);
+	void   ZoomInX(int zoomKey);
+	void   DoEvent(termentry * pTerm, gp_event_t * pGe);
 	//
 	// Return a new upper or lower axis limit that is a linear
 	// combination of the current limits.
@@ -5343,14 +5165,24 @@ public:
 	double EvalLinkFunction(const GpAxis * pAx, double raw_coord);
 	void   MultiplotStart();
 	void   MultiplotEnd();
+	GpValue * FASTCALL PopOrConvertFromString(GpValue * v);
 	GpValue * FASTCALL ConstExpress(GpValue * pVal);
 	double RealExpression();
+	float  FloatExpression();
 	intgr_t IntExpression();
 	void   IntError(int t_num, const char * pStr, ...);
 	void   IntErrorCurToken(const char * pStr, ...);
 	void   IntWarn(int t_num, const char * pStr, ...);
 	void   IntWarnCurToken(const char * pStr, ...);
 	void   Command();
+	void   Define();
+	void   WhileCommand();
+	void   DoCommand();
+	void   IfElseCommand(ifstate if_state);
+	void   IfCommand();
+	void   ElseCommand();
+	void   ArrayCommand();
+	void   PrintCommand();
 	void   SetCommand();
 	void   ResetCommand();
 	void   UnsetCommand();
@@ -5365,7 +5197,10 @@ public:
 	void   HistoryCommand();
 	void   PauseCommand();
 	void   PlotCommand();
+	void   SPlotCommand();
+	void   ReplotCommand();
 	void   ClearCommand();
+	void   SaveCommand();
 	void   PrintLineWithError(int t_num);
 	void   PlotOptionEvery();
 	void   PlotOptionUsing(int max_using);
@@ -5380,6 +5215,8 @@ public:
 	double AxisLogValueChecked(AXIS_INDEX axis, double coord, const char * pWhat);
 	void   AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg);
 	void   CloneLinkedAxes(GpAxis * pAx1, GpAxis * pAx2);
+	void   SetRgbColorVar(termentry * pTerm, uint rgbvalue);
+	void   SetRgbColorConst(termentry * pTerm, uint rgbvalue);
 	void   MapPositionR(const termentry * pTerm, GpPosition * pos, double * x, double * y, const char * what);
 	void   MapPositionDouble(const termentry * pTerm, GpPosition * pos, double * x, double * y, const char * what);
 	void   MapPosition(const termentry * pTerm, GpPosition * pos, int * x, int * y, const char * what);
@@ -5391,6 +5228,7 @@ public:
 	void   Map3DPositionDouble(GpPosition * pos, double * x, double * y, const char * what);
 	void   Map3DPosition(GpPosition * pos, int * x, int * y, const char * what);
 	void   Map3DPositionR(GpPosition * pPos, int * x, int * y, const char * what);
+	void   ClipVector(termentry * pTerm, int x, int y);
 	coord_type PolarToXY(double theta, double r, double * x, double * y, bool update);
 	double PolarRadius(double r);
 	double Cb2Gray(double cb);
@@ -5403,16 +5241,18 @@ public:
 	void   DrawClipArrow(termentry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head);
 	void   Draw3DPointUnconditional(termentry * pTerm, const GpVertex * pV, lp_style_type * pLp);
 	void   Draw3DLineUnconditional(termentry * pTerm, const GpVertex * pV1, const GpVertex * pV2, lp_style_type * lp, t_colorspec color);
+	void   Draw3DLine(termentry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp);
 	void   DrawPolarCircle(termentry * pTerm, double place);
 	void   GetPositionDefault(GpPosition * pos, enum position_type default_type, int ndim);
 	void   GetPosition(GpPosition * pos);
 	void   Store2DPoint(curve_points * pPlot, int i/* point number */, double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width/* BOXES widths: -1 -> autocalc, 0 ->  use xlow/xhigh */);
-	void   Edge3DIntersect(coordinate * p1, coordinate * p2, double * ex, double * ey, double * ez/* the point where it crosses an edge */);
-	bool   TwoEdge3DIntersect(coordinate * p0, coordinate * p1, double * lx, double * ly, double * lz/* lx[2], ly[2], lz[2]: points where it crosses edges */);
+	void   Edge3DIntersect(GpCoordinate * p1, GpCoordinate * p2, double * ex, double * ey, double * ez/* the point where it crosses an edge */);
+	bool   TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * lx, double * ly, double * lz/* lx[2], ly[2], lz[2]: points where it crosses edges */);
 	void   ProcessImage(termentry * pTerm, const void * plot, t_procimg_action action);
 	void   ApplyZoom(t_zoom * z);
 	void   ApplyPm3DColor(termentry * pTerm, t_colorspec * tc);
 	void   TermApplyLpProperties(termentry * pTerm, const lp_style_type * lp);
+	void   WriteLabel(termentry * pTerm, int x, int y, text_label * pLabel);
 	void   ParseUnaryExpression();
 	void   ParseMultiplicativeExpression();
 	void   ParseAdditiveExpression();
@@ -5466,6 +5306,18 @@ public:
 	// C-callable versions of internal gnuplot functions word() and words() 
 	char * Gp_Word(char * string, int i);
 	int    Gp_Words(char * string);
+	char * GetAnnotateString(char * s, double x, double y, int mode, char * fmt);
+	udvt_entry * AddUdv(int t_num);
+	udvt_entry * GetColorMap(int token);
+	void   PixMapFromColorMap(t_pixmap * pPixmap);
+	int    GetMultiplotCurrentPanel() const;
+	void   OutputNumber(double coord, int axIdx, char * pBuffer);
+	void   LoadMouseVariables(double x, double y, bool button, int c);
+	void   MousePosToGraphPosReal(int xx, int yy, double * x, double * y, double * x2, double * y2);
+	void   RecalcRulerPos();
+	void   UpdateStatusLine();
+	void   DoStringReplot(const char * pS);
+	void   IlluminateOneQuadrangle(Quadrangle * q);
 	
 	GpStack EvStk;
 	GpEval Ev;
@@ -5473,7 +5325,17 @@ public:
 	GpProgram Pgm;
 	t_sm_palette SmPltt;
 	GpView V;
+	MpLayout_ MpLo;// = MP_LAYOUT_DEFAULT;
+	double TermPointSize;
 private:
+	termentry * SetTerm();
+	void   TermInitialise(termentry * pTerm);
+	void   TermStartPlot(termentry * pTerm);
+	void   TermEndPlot(termentry * pTerm);
+	void   TermStartMultiplot(termentry * pTerm);
+	void   TermEndMultiplot(termentry * pTerm);
+	void   TermCheckMultiplotOkay(bool fInteractive);
+	uint   RgbFromColorspec(t_colorspec * tc);
 	void   Boundary(termentry * pTerm, curve_points * plots, int count);
 	void   Boundary3D(termentry * pTerm, const surface_points * plots, int count);
 	void   DoKeyBounds(termentry * pTerm, legend_key * pKey);
@@ -5481,6 +5343,12 @@ private:
 	void   BoxPlotRangeFiddling(curve_points * pPlot);
 	void   PlotBorder(termentry * pTerm);
 	void   PlotSteps(termentry * pTerm, curve_points * plot);
+	void   PlotFSteps(termentry * pTerm, curve_points * pPlot);
+	void   PlotHiSteps(termentry * pTerm, curve_points * pPlot);
+	void   PlotLines(termentry * pTerm, curve_points * pPlot);
+	void   PlotFilledCurves(termentry * pTerm, curve_points * pPlot);
+	void   PlotCBars(termentry * pTerm, curve_points * pPlot);
+	void   PlotFBars(termentry * pTerm, curve_points * pPlot);
 	void   PlotBars(termentry * pTerm, curve_points * plot);
 	void   PlotBetweenCurves(termentry * pTerm, curve_points * plot);
 	void   PlotBoxes(termentry * pTerm, curve_points * plot, int xaxis_y);
@@ -5488,14 +5356,66 @@ private:
 	void   PlotVectors(termentry * pTerm, curve_points * plot);
 	void   PlaceGrid(termentry * pTerm, int layer);
 	void   PlaceLabels(termentry * pTerm, text_label * pListHead, int layer, bool clip);
+	void   PlaceRAxis(termentry * pTerm);
+	void   PlaceParallelAxes(termentry * pTerm, curve_points * pFirstPlot, int layer);
+	void   PlaceObjects(termentry * pTerm, GpObject * pListHead, int layer, int dimensions);
 	void   Plot3DBoxErrorBars(termentry * pTerm, surface_points * plot);
 	void   PlotOptionMultiValued(df_multivalue_type type, int arg);
 	void   PlotOptionArray();
 	void   PlotTicLabelUsing(int axis);
 	void   PlotBoxPlot(termentry * pTerm, curve_points * pPlot, bool onlyAutoscale);
-	int    Get3DData(surface_points * pPlot);
+	void   PlotSpiderPlot(termentry * pTerm, curve_points * pPlot);
+	void   Plot3DVectors(termentry * pTerm, surface_points * pPlot);
+	void   Plot3DBoxes(surface_points * pPlot);
+	void   PlacePixmaps(termentry * pTerm, int layer, int dimensions);
+	void   PlotEllipses(termentry * pTerm, curve_points * pPlot);
+	void   PlotParallel(termentry * pTerm, curve_points * pPlot);
+	void   PlotCircles(termentry * pTerm, curve_points * pPlot);
+	void   DoArc(termentry * pTerm, int cx, int cy/* Center */, double radius, double arc_start, double arc_end/* Limits of arc in degrees */, int style, bool wedge);
+	void   KeySampleFill(termentry * pTerm, int xl, int yl, struct surface_points * pPlot);
+	void   DrawVertex(termentry * pTerm, GpVertex * pV);
+	void   DrawEdge(termentry * pTerm, GpEdge * e, GpVertex * v1, GpVertex * v2);
+	void   JitterPoints(const termentry * pTerm, curve_points * pPlot);
+	void   PlotImpulses(termentry * pTerm, curve_points * pPlot, int yaxis_x, int xaxis_y);
+	void   CpImplode(curve_points * pCp);
+	void   FilledPolygon(termentry * pTerm, gpdPoint * corners, int fillstyle, int nv);
+	void   Pm3DDepthQueueFlush(termentry * pTerm);
+	void   Pm3DPlot(termentry * pTerm, surface_points * pPlot, int at_which_z);
+	void   Pm3DDrawOne(termentry * pTerm, surface_points * pPlot);
+	void   Plot3DZErrorFill(termentry * pTerm, surface_points * pPlot);
+	void   Plot3DPolygons(termentry * pTerm, surface_points * pPlot);
+	void   Plot3DLines(termentry * pTerm, surface_points * pPlot);
+	void   Plot3DImpulses(termentry * pTerm, surface_points * pPlot);
+	void   Plot3DHidden(termentry * pTerm, surface_points * plots, int pcount);
+	void   Check3DForVariableColor(termentry * pTerm, surface_points * pPlot, GpCoordinate * pPoint);
+	void   Cntr3DLabels(termentry * pTerm, gnuplot_contours * cntr, char * pLevelText, text_label * pLabel);
+	void   Ñntr3DImpulses(termentry * pTerm, gnuplot_contours * cntr, lp_style_type * lp);
+	void   Cntr3DPoints(termentry * pTerm, gnuplot_contours * cntr, lp_style_type * lp);
+	void   Ñntr3DLines(termentry * pTerm, gnuplot_contours * cntr, struct lp_style_type * lp);
+	void   Polyline3DStart(termentry * pTerm, GpVertex * v1);
+	void   Polyline3DNext(termentry * pTerm, GpVertex * v2, lp_style_type * lp);
+	void   DrawKey(termentry * pTerm, legend_key * pKey, bool keyPass);
+	void   DoKeySample(termentry * pTerm, const curve_points * pPlot, legend_key * pKey, char * title, coordval var_color);
+	void   DoKeySamplePoint(termentry * pTerm, curve_points * pPlot, legend_key * pKey);
+	void   Draw3DPoint(termentry * pTerm, GpVertex * v, lp_style_type * lp);
+	void   DrawLabelHidden(termentry * pTerm, GpVertex * v, lp_style_type * lp, int x, int y);
+	void   DrawInsideColorBoxBitmapMixed(termentry * pTerm);
+	void   DrawInsideColorBoxBitmapDiscrete(termentry * pTerm);
+	void   DrawInsideColorBoxBitmapSmooth(termentry * pTerm);
+	void   DrawInsideColorSmoothBoxPostScript();
+	void   DrawPolarClipLine(termentry * pTerm, double xbeg, double ybeg, double xend, double yend);
+	void   DrawLineHidden(termentry * pTerm, GpVertex * v1, GpVertex * v2/* pointers to the end vertices */, lp_style_type * lp/* line and point style to draw in */);
+	void   FinishFilledCurve(termentry * pTerm, int points, gpiPoint * pCorners, curve_points * pPlot);
+	void   AxisOutputTics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dealing with */, int * ticlabel_position/* 'non-running' coordinate */,
+		AXIS_INDEX zeroaxis_basis/* axis to base 'non-running' position of * zeroaxis on */, tic_callback callback/* tic-drawing callback function */);
+	void   GenTics(GpAxis * pThis, tic_callback callback);
+	void   AdjustOffsets();
+	void   AdjustNonlinearOffset(GpAxis * pAxSecondary);
+	void   CheckCornerHeight(GpCoordinate * p, double height[2][2], double depth[2][2]);
+	int    Get3DData(termentry * pTerm, surface_points * pPlot);
 	void   CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curve ** ppThisIso, AXIS_INDEX iso_axis,
 		double isoMin, double isoStep, int numIsoToUse, AXIS_INDEX samAxIdx, double samMin, double samStep, int numSamToUse);
+	void   Setup3DBoxCorners();
 	void   PlaceSpiderPlotAxes(termentry * pTerm, curve_points * pFirstPlot, int layer);
 	void   AutoscaleBoxPlot(termentry * pTerm, curve_points * pPlot);
 	void   AxisDraw2DZeroAxis(termentry * pTerm, AXIS_INDEX axis, AXIS_INDEX crossaxis);
@@ -5517,6 +5437,7 @@ private:
 	void   SetTimeStamp();
 	void   SetArrowStyle();
 	void   SetDataFile();
+	void   DfSetDataFileBinary();
 	void   SetTimeData(GpAxis * pAx);
 	void   SetRange(GpAxis * pAx);
 	void   SetCbMinMax();
@@ -5529,10 +5450,13 @@ private:
 	void   SetContour();
 	void   SetBoxPlot();
 	void   ResetLogScale(GpAxis * pAx);
+	void   EventPlotDone(termentry * pTerm);
 	void   UpdateSecondaryAxisRange(GpAxis * pAxPrimary);
+	void   ReconcileLinkedAxes(GpAxis * pAxPrimary, GpAxis * pAxSecondary);
 	double MapX3D(double x);
 	double MapY3D(double y);
 	double MapZ3D(double z);
+	void   UpdateRuler(termentry * pTerm);
 	int    GetData(curve_points * pPlot);
 	void   RefreshBounds(curve_points * pFirstPlot, int nplots);
 	void   SpiderPlotRangeFiddling(curve_points * plot);
@@ -5543,6 +5467,8 @@ private:
 	int    ParseDashType(t_dashtype * dt);
 	void   ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitle, bool * pSetTitle);
 	void   ParseFillStyle(fill_style_type * fs);
+	void   ParseHistogramStyle(histogram_style * pHs, t_histogram_type defType, int defGap);
+	void   ParseKDensityOptions(curve_points * pPlot);
 	void   GetPositionType(enum position_type * type, AXIS_INDEX * axes);
 	void   InitColor();
 	void   SetTerminal();
@@ -5574,6 +5500,17 @@ private:
 	void   SetWall();
 	void   SetStyleSpiderPlot();
 	void   SetStyleParallel();
+	void   SetLineStyle(linestyle_def ** ppHead, lp_class destinationClass);
+	void   SetSize();
+	bool   SetAutoscaleAxis(GpAxis * pThis);
+	void   SetBars();
+	void   SetPixMap();
+	void   SetIsoSamples();
+	void   SetSpiderPlot();
+	void   SetSurface();
+	void   SetTermOptions();
+	void   SetMapping();
+	void   SetPlotWithPalette(int plotNum, int plotMode);
 	bool   GridMatch(AXIS_INDEX axis, const char * pString);
 	void   CheckPaletteGrayscale();
 	void   UpdatePlotBounds(termentry * pTerm);
@@ -5583,6 +5520,15 @@ private:
 	void   UnsetAutoScale();
 	void   UnsetSize();
 	void   UnsetClip();
+	void   UnsetFit();
+	void   UnsetTerminal();
+	void   UnsetParametric();
+	void   UnsetDummy();
+	void   UnsetSpiderPlot();
+	void   UnsetAllZeroAxes();
+	void   UnsetZeroAxis(AXIS_INDEX axis);
+	void   UnsetRange(AXIS_INDEX axis);
+	void   UnsetArrow();
 	void   NewColorMap();
 	void   RRangeToXY();
 	void   ShowAll();
@@ -5600,6 +5546,8 @@ private:
 	void   ShowPalette_Palette();
 	void   ShowPalette_Gradient();
 	void   ShowLink();
+	void   ShowGrid();
+	void   ShowFit();
 	void   InitializePlotStyle(curve_points * pPlot);
 	void   DfDetermineMatrix_info(FILE * fin);
 	void   AdjustBinaryUseSpec(curve_points * pPlot);
@@ -5613,11 +5561,38 @@ private:
 	void   UpdatePrimaryAxisRange(GpAxis * pAxSecondary);
 	void   ExtendPrimaryTicRange(GpAxis * pAx);
 	void   CheckGridRanges();
+	void   RecheckRanges(curve_points * pPlot);
 	void   LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, t_autoscale which);
 	t_autoscale LoadRange(GpAxis * pAx, double * pA, double * pB, t_autoscale autoscale);
 	//
 	void   CmplxDivide(double a, double b, double c, double d, GpValue * result);
+	bool   IsArrayAssignment();
+	void   MultiplotNext();
+	void   MultiplotPrevious();
+	void   MultiplotReset();
+	void   MpLayoutSizeAndOffset();
+	void   MpLayoutMarginsAndSpacing();
+	void   MpLayoutSetMarginOrSpacing(GpPosition * pMargin);
+	double JDist(const GpCoordinate * pi, const GpCoordinate * pj) const;
+	void   UpdateStatusLineWithMouseSetting(termentry * pTerm, mouse_setting_t * ms);
+	void   SetExplicitRange(GpAxis * pAx, double newmin, double newmax);
+	void   GetImageOptions(t_image * image);
+	int    GetPm3DAtOption(char * pm3d_where);
+	void   Pm3DOptionAtError();
+	void   ParametricFixup(curve_points * pStartPlot, int * pPlotNum);
+	void   BoxRangeFiddling(const curve_points * pPlot);
+	void   ImpulseRangeFiddling(const curve_points * pPlot);
+	void   HistogramRangeFiddling(curve_points * pPlot);
+	void   ParallelRangeFiddling(const curve_points * pPlot);
+	void   PolarRangeFiddling(const curve_points * pPlot);
+	void   Refresh3DBounds(termentry * pTerm, surface_points * pFirstPlot, int nplots);
+	int    InFront(termentry * pTerm, long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */);
 	//
+	void   F_Bool(union argument * x);
+	void   F_Jump(union argument * x);
+	void   F_Jumpz(union argument * x);
+	void   F_Jumpnz(union argument * x);
+	void   F_Jtern(union argument * x);
 	void   F_Push(union argument *x);
 	void   F_Pushc(union argument *x);
 	void   F_Pushd1(union argument *x);
@@ -5721,12 +5696,43 @@ private:
 	void   F_StrFTime(union argument *x);
 	void   F_StrPTime(union argument *x);
 	void   F_Time(union argument *x);	
+	void   F_System(union argument * arg);
+	void   F_Trim(union argument * arg);
+	void   F_Erf(union argument * x);
+	void   F_Erfc(union argument * x);
+	void   F_IBeta(union argument * x);
+	void   F_Gamma(union argument * x);
+#ifndef HAVE_COMPLEX_FUNCS
+	void   F_IGamma(union argument * x);
+#endif
+	void   F_LGamma(union argument * x);
+	void   F_Rand(union argument * x);
+	void   F_Normal(union argument * x);
+	void   F_InverseIBeta(union argument * arg);
+	void   F_InverseIGamma(union argument * /*arg*/);
+	void   F_InverseNormal(union argument * /*arg*/);
+	void   F_InverseErf(union argument * /*arg*/);
+	void   F_SynchrotronF(union argument * x);
+	void   F_Airy(union argument * arg);
+	void   F_Lambertw(union argument * /*arg*/);
+	void   F_ExpInt(union argument * /*arg*/);
 	// 
 	// Support for user-callable routines
 	// 
 	void   F_Hsv2Rgb(union argument *);
 	void   F_RgbColor(union argument *);
 	void   F_Palette(union argument *);
+	void   F_TimeColumn(union argument * arg);
+	void   F_Valid(union argument * arg);
+	void   F_Voigt(union argument * /*arg*/);
 };
 
 extern GnuPlot GPO; // @global
+// 
+// Unicode escape sequences (\U+hhhh) are handling by the enhanced text code.
+// Various terminals check every string to see whether it needs enhanced text
+// rocessing. This macro allows them to include a check for the presence of
+// unicode escapes.
+// 
+#define contains_unicode(S) strstr(S, "\\U+") // moved from term.h
+size_t FASTCALL strwidth_utf8(const char * s);

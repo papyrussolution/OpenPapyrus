@@ -56,7 +56,7 @@ register_term(qms)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void QMS_init();
+TERM_PUBLIC void QMS_init(termentry * pThis);
 TERM_PUBLIC void QMS_graphics();
 TERM_PUBLIC void QMS_text();
 TERM_PUBLIC void QMS_linetype(int linetype);
@@ -81,7 +81,7 @@ TERM_PUBLIC void QMS_reset();
 #ifdef TERM_BODY
 static int qms_line = 0;        /* to remember current line type */
 
-TERM_PUBLIC void QMS_init()
+TERM_PUBLIC void QMS_init(termentry * pThis)
 {
 	/* This was just ^IOL, but at Rutgers at least we need some more stuff */
 	fputs("^PY^-\n^IOL\n^ISYNTAX00000^F^IB11000^IJ00000^IT00000\n", gpoutfile);
@@ -190,12 +190,30 @@ TERM_PUBLIC void QMS_reset()
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(qms_driver)
-"qms", "QMS/QUIC Laser printer (also Talaris 1200 and others)",
-QMS_XMAX, QMS_YMAX, QMS_VCHAR, QMS_HCHAR,
-QMS_VTIC, QMS_HTIC, options_null, QMS_init, QMS_reset,
-QMS_text, null_scale, QMS_graphics, QMS_move, QMS_vector,
-QMS_linetype, QMS_put_text, null_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(qms_driver)
+	"qms", 
+	"QMS/QUIC Laser printer (also Talaris 1200 and others)",
+	QMS_XMAX, 
+	QMS_YMAX, 
+	QMS_VCHAR, 
+	QMS_HCHAR,
+	QMS_VTIC, 
+	QMS_HTIC, 
+	options_null, 
+	QMS_init, 
+	QMS_reset,
+	QMS_text, 
+	GnuPlot::NullScale, 
+	QMS_graphics, 
+	QMS_move, 
+	QMS_vector,
+	QMS_linetype, 
+	QMS_put_text, 
+	null_text_angle,
+	null_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(qms_driver)
 
 #undef LAST_TERM
 #define LAST_TERM qms_driver

@@ -37,7 +37,7 @@ register_term(block)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void BLOCK_options();
-TERM_PUBLIC void BLOCK_init();
+TERM_PUBLIC void BLOCK_init(termentry * pThis);
 TERM_PUBLIC void BLOCK_reset();
 TERM_PUBLIC void BLOCK_text();
 TERM_PUBLIC void BLOCK_graphics();
@@ -204,8 +204,8 @@ TERM_PUBLIC void BLOCK_options()
 		}
 	}
 	// initialize terminal canvas size
-	term->xmax = BLOCK_modeinfo[BLOCK_mode].cellx * BLOCK_xchars - 1;
-	term->ymax = BLOCK_modeinfo[BLOCK_mode].celly * BLOCK_ychars - 1;
+	term->MaxX = BLOCK_modeinfo[BLOCK_mode].cellx * BLOCK_xchars - 1;
+	term->MaxY = BLOCK_modeinfo[BLOCK_mode].celly * BLOCK_ychars - 1;
 	// init options string
 	{
 		const char * mode_strings[] = { "dot", "half", "halfh", "quadrants", "sextants", "braille" };
@@ -216,18 +216,18 @@ TERM_PUBLIC void BLOCK_options()
 	}
 }
 
-TERM_PUBLIC void BLOCK_init()
+TERM_PUBLIC void BLOCK_init(termentry * pThis)
 {
 	/* LSB is "opacity" */
 	switch(dumb_colormode) {
 		case 0:
-		    b_makebitmap(term->xmax + 1, term->ymax + 1, 1);
+		    b_makebitmap(pThis->MaxX + 1, term->MaxY + 1, 1);
 		    break;
 		case DUMB_ANSI:
-		    b_makebitmap(term->xmax + 1, term->ymax + 1, 5);
+		    b_makebitmap(pThis->MaxX + 1, term->MaxY + 1, 5);
 		    break;
 		case DUMB_ANSI256:
-		    b_makebitmap(term->xmax + 1, term->ymax + 1, 9);
+		    b_makebitmap(pThis->MaxX + 1, term->MaxY + 1, 9);
 #ifdef BLOCK_DEBUG_256
 		    for(int i = 16; i <= 255; i++) {
 			    rgb255_color c;
@@ -240,16 +240,15 @@ TERM_PUBLIC void BLOCK_init()
 #endif
 		    break;
 		case DUMB_ANSIRGB:
-		    b_makebitmap(term->xmax + 1, term->ymax + 1, 25);
+		    b_makebitmap(pThis->MaxX + 1, pThis->MaxY + 1, 25);
 		    break;
 	}
-
-	term->ChrH = BLOCK_modeinfo[BLOCK_mode].cellx;
-	term->ChrV = BLOCK_modeinfo[BLOCK_mode].celly;
+	pThis->ChrH = BLOCK_modeinfo[BLOCK_mode].cellx;
+	pThis->ChrV = BLOCK_modeinfo[BLOCK_mode].celly;
 	// FIXME: is this correct or should the -1 go?
 	dumb_xmax = BLOCK_xchars - 1;
 	dumb_ymax = BLOCK_ychars - 1;
-	DUMB_init();
+	DUMB_init(pThis);
 }
 
 TERM_PUBLIC void BLOCK_reset()
@@ -461,12 +460,12 @@ TERM_PUBLIC void BLOCK_text()
 	// convert bitmap Unicode characters
 	// printf("vvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
 	// FIXME: last row and column not handled properly!
-	bufsiz = (term->xmax + 1) * 8;
+	bufsiz = (term->MaxX + 1) * 8;
 	line = (char*)gp_alloc(bufsiz, "line buffer");
-	for(y = term->ymax - celly + 1; y >= 0; y -= celly) {
+	for(y = term->MaxY - celly + 1; y >= 0; y -= celly) {
 		int yd = y / celly; // character cell coordinate
 		s = (unsigned char*)line;
-		for(x = 0; x <= term->xmax; x += cellx) {
+		for(x = 0; x <= term->MaxX; x += cellx) {
 			int xd = x / cellx; // character cell coordinate
 			int i = 0; // index to character map
 			bool resetbg = FALSE;
@@ -476,7 +475,7 @@ TERM_PUBLIC void BLOCK_text()
 			// increase buffer size if necessary
 			if(((char*)s - line) > (bufsiz - 50)) {
 				char * l;
-				bufsiz += (term->xmax + 1) * 8;
+				bufsiz += (term->MaxX + 1) * 8;
 				l = (char *)realloc(line, bufsiz);
 				s = (unsigned char*)(l + ((char*)s - line));
 				line = l;
@@ -693,7 +692,7 @@ TERM_PUBLIC void BLOCK_text()
 
 TERM_PUBLIC void BLOCK_graphics()
 {
-	b_boxfill(FS_EMPTY, 0, 0, term->xmax, term->ymax);
+	b_boxfill(FS_EMPTY, 0, 0, term->MaxX, term->MaxY);
 	DUMB_graphics();
 	/* kludge: fix keybox size */
 	if(keyT.width_fix == 0) keyT.width_fix = 1;
@@ -854,15 +853,30 @@ TERM_PUBLIC void BLOCK_set_color(t_colorspec * color)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(block_driver)
-"block", "Pseudo-graphics using Unicode blocks or Braille characters",
-BLOCK_XMAX, BLOCK_YMAX,
-BLOCK_VCHAR, BLOCK_HCHAR,
-BLOCK_VTIC, BLOCK_HTIC,
-BLOCK_options, BLOCK_init, BLOCK_reset,
-BLOCK_text, null_scale, BLOCK_graphics,
-b_move, b_vector, BLOCK_linetype,
-BLOCK_put_text, null_text_angle, null_justify_text,
-BLOCK_point, do_arrow, set_font_null, 0,
+"block", 
+"Pseudo-graphics using Unicode blocks or Braille characters",
+BLOCK_XMAX, 
+BLOCK_YMAX,
+BLOCK_VCHAR, 
+BLOCK_HCHAR,
+BLOCK_VTIC, 
+BLOCK_HTIC,
+BLOCK_options, 
+BLOCK_init, 
+BLOCK_reset,
+BLOCK_text, 
+GnuPlot::NullScale, 
+BLOCK_graphics,
+b_move, 
+b_vector, 
+BLOCK_linetype,
+BLOCK_put_text, 
+null_text_angle, 
+null_justify_text,
+BLOCK_point, 
+GnuPlot::DoArrow, 
+set_font_null, 
+0,
 #ifndef NO_DUMB_ENHANCED_SUPPORT
 TERM_MONOCHROME | TERM_ENHANCED_TEXT,
 #else

@@ -39,15 +39,15 @@
 #define handle_underflow(who, var) GPO.IntError(NO_CARET, "%s: errno = %d", who, errno);
 #endif
 
-/* internal prototypes */
-static complex double lnGamma(complex double z);
-static complex double Igamma(complex double a, complex double z);
-static double complex Igamma_GL(double complex a, double complex z);
-static double complex Igamma_negative_z(double a, double complex z);
+// internal prototypes 
+static _Dcomplex lnGamma(_Dcomplex z);
+static _Dcomplex Igamma(_Dcomplex a, _Dcomplex z);
+static _Dcomplex Igamma_GL(_Dcomplex a, _Dcomplex z);
+static _Dcomplex Igamma_negative_z(double a, _Dcomplex z);
 
 #undef IGAMMA_POINCARE
 #ifdef IGAMMA_POINCARE
-static double complex Igamma_Poincare(double a, double complex z);
+static _Dcomplex Igamma_Poincare(double a, _Dcomplex z);
 #endif
 
 /* wrapper for Igamma so that when it replaces igamma
@@ -56,9 +56,8 @@ static double complex Igamma_Poincare(double a, double complex z);
  */
 double igamma(double a, double z)
 {
-	return creal(Igamma( (complex double)a, (complex double)z) );
+	return creal(Igamma((_Dcomplex)a, (_Dcomplex)z));
 }
-
 /*
  * Complex Sign function
  * Sign(z) = z/|z| for z non-zero
@@ -67,7 +66,7 @@ void f_Sign(union argument * arg)
 {
 	GpValue result;
 	GpValue a;
-	complex double z;
+	_Dcomplex z;
 	GPO.EvStk.Pop(&a); /* Complex argument z */
 	if(a.type == INTGR) {
 		GPO.EvStk.Push(Gcomplex(&result, sgn(a.v.int_val), 0.0));
@@ -99,8 +98,8 @@ void f_Sign(union argument * arg)
  */
 
 /* Internal Prototypes */
-complex double lambert_initial(complex double z, int k);
-complex double LambertW(complex double z, int k);
+_Dcomplex lambert_initial(_Dcomplex z, int k);
+_Dcomplex LambertW(_Dcomplex z, int k);
 
 void f_LambertW(union argument * arg)
 {
@@ -108,7 +107,7 @@ void f_LambertW(union argument * arg)
 	GpValue a;
 	struct cmplx z; /* gnuplot complex parameter z */
 	int k;          /* gnuplot integer parameter k */
-	complex double w; /* C99 _Complex representation */
+	_Dcomplex w; /* C99 _Complex representation */
 	GPO.EvStk.Pop(&a);        /* Integer argument k */
 	if(a.type != INTGR)
 		GPO.IntError(NO_CARET, "k must be integer");
@@ -138,13 +137,12 @@ void f_LambertW(union argument * arg)
  *      I adjusted them empirically but I have no justification for
  *      the specific window sizes or thresholds.
  */
-complex double lambert_initial(complex double z, int k)
+_Dcomplex lambert_initial(_Dcomplex z, int k)
 {
-	complex double e = 2.71828182845904523536;
-	complex double branch = 2 * M_PI * I * k;
-	complex double ip;
+	_Dcomplex e = 2.71828182845904523536;
+	_Dcomplex branch = 2 * M_PI * I * k;
+	_Dcomplex ip;
 	double close;
-
 	double case1_window = 1.2; /* see note above, was 1.0 */
 	double case2_window = 0.9; /* see note above, was 1.0 */
 	double case3_window = 0.5; /* see note above, was 0.5 */
@@ -155,11 +153,10 @@ complex double lambert_initial(complex double z, int k)
 	/* Close to a branch point use (4.22) from Corless et al */
 	close = cabs(z - (-1/e));
 	if(close <= case1_window) {
-		complex double p = csqrt(2. * (e * z + 1.) );
-
+		_Dcomplex p = csqrt(2. * (e * z + 1.) );
 		if(k == 0) {
 			if(creal(z) > 0 || close < case2_window)
-				ip = -1. + p - (1./3.) * p*p + (11./72.) * p*p*p;
+				ip = -1.0 + p - (1.0/3.0) * p*p + (11.0/72.0) * p*p*p;
 		}
 #if (0)
 		/* This treatment empirically causes more glitches than it removes */
@@ -192,22 +189,18 @@ complex double lambert_initial(complex double z, int k)
 	return ip;
 }
 
-complex double LambertW(complex double z, int k)
+_Dcomplex LambertW(_Dcomplex z, int k)
 {
 #define LAMBERT_MAXITER 300
 #define LAMBERT_CONVERGENCE 1.E-13
-
 	int i;          /* iteration variable */
 	double residual; /* target for convergence */
-
-	complex double w;
-
+	_Dcomplex w;
 	/* Special cases */
 	if(z == 0) {
-		return (k == 0) ? 0.0 : not_a_number();
+		return (k == 0) ? 0.0 : fgetnan();
 	}
-	if((k == 0 || k == -1)
-	    && (fabs(creal(z) + exp(-1.0)) < LAMBERT_CONVERGENCE) && cimag(z) == 0) {
+	if((k == 0 || k == -1) && (fabs(creal(z) + exp(-1.0)) < LAMBERT_CONVERGENCE) && cimag(z) == 0) {
 		return -1.0;
 	}
 	if((k == 0) && (fabs(creal(z) - exp(1.0)) < LAMBERT_CONVERGENCE) && cimag(z) == 0) {
@@ -216,8 +209,8 @@ complex double LambertW(complex double z, int k)
 	/* Halley's method requires a good starting point */
 	w = lambert_initial(z, k);
 	for(i = 0; i < LAMBERT_MAXITER; i++) {
-		complex double wprev = w;
-		complex double delta = w * cexp(w) - z;
+		_Dcomplex wprev = w;
+		_Dcomplex delta = w * cexp(w) - z;
 		w -=    2. * (delta * dzexpz(w)) / (2. * dzexpz(w) * dzexpz(w) - delta * ddzexpz(w));
 		residual = cabs(w - wprev);
 		if(residual < LAMBERT_CONVERGENCE)
@@ -253,7 +246,7 @@ void f_lnGamma(union argument * arg)
 	GpValue result;
 	GpValue a;
 	struct cmplx z; /* gnuplot complex parameter z */
-	complex double w; /* C99 _Complex representation of z */
+	_Dcomplex w; /* C99 _Complex representation of z */
 	GPO.EvStk.Pop(&a);
 	if(a.type != CMPLX)
 		GPO.IntError(NO_CARET, "z must be real or complex");
@@ -270,10 +263,9 @@ void f_lnGamma(union argument * arg)
 	 * to reframe the request in terms of a "reflected" z.
 	 */
 	if(z.real < 0.5) {
-		complex double lnpi  = 1.14472988584940017414342735;
-		complex double t1;
+		_Dcomplex lnpi  = 1.14472988584940017414342735;
+		_Dcomplex t1;
 		double treal, timag;
-
 		w = (1.0 - z.real) + I*(-z.imag);
 		w = lnGamma(w);
 		t1 = clog(csin(M_PI*z.real + I*M_PI*z.imag));
@@ -292,7 +284,7 @@ void f_lnGamma(union argument * arg)
 	}
 }
 
-static complex double lnGamma(complex double z)
+static _Dcomplex lnGamma(_Dcomplex z)
 {
 	static double coef[15] = {
 		0.99999999999999709182,
@@ -304,10 +296,10 @@ static complex double lnGamma(complex double z)
 		-0.16431810653676389022e-3, 0.84418223983852743293e-4,
 		-0.26190838401581408670e-4, 0.36899182659531622704e-5
 	};
-	complex double sqrt2pi = 2.5066282746310005;
-	complex double g = 671.0/128.0;
-	complex double sum, temp;
-	complex double f;
+	_Dcomplex sqrt2pi = 2.5066282746310005;
+	_Dcomplex g = 671.0/128.0;
+	_Dcomplex sum, temp;
+	_Dcomplex f;
 	int k;
 	// 15 term Lanczos approximation 
 	sum = coef[0];
@@ -333,9 +325,9 @@ void f_Igamma(union argument * arg)
 {
 	GpValue result;
 	GpValue tmp;
-	struct cmplx a; /* gnuplot complex parameter a */
-	struct cmplx z; /* gnuplot complex parameter z */
-	complex double w; /* C99 _Complex representation */
+	struct cmplx a; // gnuplot complex parameter a 
+	struct cmplx z; // gnuplot complex parameter z 
+	_Dcomplex w; // C99 _Complex representation 
 	GPO.EvStk.Pop(&tmp);              /* Complex argument z */
 	if(tmp.type == CMPLX)
 		z = tmp.v.cmplx_val;
@@ -350,10 +342,10 @@ void f_Igamma(union argument * arg)
 		a.real = real(&tmp);
 		a.imag = 0;
 	}
-	w = Igamma(a.real + I*a.imag, z.real + I*z.imag);
+	w = Igamma(a.real + I * a.imag, z.real + I * z.imag);
 	if(w == -1) {
 		/* Failed to converge or other error */
-		GPO.EvStk.Push(Gcomplex(&result, not_a_number(), 0));
+		GPO.EvStk.Push(Gcomplex(&result, fgetnan(), 0));
 		return;
 	}
 	GPO.EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
@@ -382,15 +374,13 @@ void f_Igamma(union argument * arg)
  *   Press et al, Numerical Recipes (3rd Ed.) Section 6.2
  *
  */
-
-static complex double Igamma(complex double a, complex double z)
+static _Dcomplex Igamma(_Dcomplex a, _Dcomplex z)
 {
-	complex double arg, ga1;
-	complex double aa;
-	complex double an;
-	complex double b;
+	_Dcomplex arg, ga1;
+	_Dcomplex aa;
+	_Dcomplex an;
+	_Dcomplex b;
 	int i;
-
 	/* Check that we have valid values for a and z */
 	if(creal(a) <= 0.0)
 		return -1.0;
@@ -449,10 +439,9 @@ static complex double Igamma(complex double a, complex double z)
 		/* Case 2:
 		 * Use a continued fraction expansion
 		 */
-		complex double pn1, pn2, pn3, pn4, pn5, pn6;
-		complex double rn;
-		complex double rnold;
-
+		_Dcomplex pn1, pn2, pn3, pn4, pn5, pn6;
+		_Dcomplex rn;
+		_Dcomplex rnold;
 		if(debug == 2) return NAN;
 
 		aa = 1.0 - a;
@@ -503,10 +492,8 @@ static complex double Igamma(complex double a, complex double z)
 		/* Case 4:
 		 * Use Pearson's series expansion.
 		 */
-		complex double retval;
-
+		_Dcomplex retval;
 		if(debug == 4) return NAN;
-
 		for(i = 0, aa = a, an = b = 1.0; i <= 1000; i++) {
 			aa += 1.0;
 			an *= z / aa;
@@ -527,7 +514,7 @@ static complex double Igamma(complex double a, complex double z)
 /* icomplete gamma function evaluated by Gauss-Legendre quadrature
  * as recommended for large values of a by Numerical Recipes (Sec 6.2).
  */
-static double complex Igamma_GL(double complex a, double complex z)
+static _Dcomplex Igamma_GL(_Dcomplex a, _Dcomplex z)
 {
 	static const double y[18] = {
 		0.0021695375159141994,
@@ -538,7 +525,6 @@ static double complex Igamma_GL(double complex a, double complex z)
 		0.62232745288031077, 0.70331500465597174, 0.78649910768313447,
 		0.87126389619061517, 0.95698180152629142
 	};
-
 	static const double w[18] = {
 		0.0055657196642445571,
 		0.012915947284065419, 0.020181515297735382, 0.027298621498568734,
@@ -548,14 +534,12 @@ static double complex Igamma_GL(double complex a, double complex z)
 		0.079687828912071670, 0.082187266704339706, 0.084078218979661945,
 		0.085346685739338721, 0.085983275670394821
 	};
-
-	double complex xu, t, ans;
-	double complex a1 = a - 1.0;
-	double complex lna1 = clog(a1);
-	double complex sqrta1 = csqrt(a1);
-	double complex sum = 0.0;
+	_Dcomplex xu, t, ans;
+	_Dcomplex a1 = a - 1.0;
+	_Dcomplex lna1 = clog(a1);
+	_Dcomplex sqrta1 = csqrt(a1);
+	_Dcomplex sum = 0.0;
 	int j;
-
 	if(cabs(z) > cabs(a1))
 		xu = MAX(cabs(a1 + 11.5 * sqrta1),  cabs(z + 6.0 * sqrta1) );
 	else
@@ -586,10 +570,10 @@ static double complex Igamma_GL(double complex a, double complex z)
  *
  * Abramowitz & Stegun (6.5.29) = Paris (8.7.1)
  */
-static double complex Igamma_negative_z(double a, double complex z)
+static _Dcomplex Igamma_negative_z(double a, _Dcomplex z)
 {
-	double complex t = 1/a;
-	double complex v = t;
+	_Dcomplex t = 1/a;
+	_Dcomplex v = t;
 	double p;
 	int k;
 	for(k = 0; k<1000; k++) {
@@ -623,10 +607,10 @@ static double complex Igamma_negative_z(double a, double complex z)
  * ACM TOMS 43, 3, Article 26  DOI: http://dx.doi.org/10.1145/2972951
  * Eq (29)
  */
-static double complex Igamma_Poincare(double a, double complex z)
+static _Dcomplex Igamma_Poincare(double a, _Dcomplex z)
 {
-	double complex t = 1.0;
-	double complex v = t;
+	_Dcomplex t = 1.0;
+	_Dcomplex v = t;
 	double p;
 	int k;
 	for(k = 0; k<1000; k++) {

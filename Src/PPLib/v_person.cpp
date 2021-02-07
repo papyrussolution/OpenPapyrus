@@ -1863,8 +1863,8 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			if(PsnObj.GetConfig().NewClientDetectionList.getCount()) {
 				disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, 0);
 				SetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
-				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, PersonFilt::fNewClientsOnly); // @v9.4.5
-				SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.Flags); // @v9.4.5
+				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, PersonFilt::fNewClientsOnly);
+				SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.Flags);
 				disableCtrl(CTL_PSNFLT_NEWCLIONLY, Data.NewCliPeriod.IsZero());
 			}
 			else {

@@ -176,14 +176,8 @@ typedef struct axis_scale_t {
 #include <X11/Xlibint.h>
 #endif
 
-#ifdef VMS
-#ifdef __DECC
-#include <starlet.h>
-#endif
-#define EXIT(status) sys$delprc(0, 0)   /* VMS does not drop itself */
-#else /* !VMS */
 #ifdef PIPE_IPC
-#define EXIT(status)                         \
+	#define EXIT(status)                         \
 	do {                                       \
 		gp_exec_event(GE_pending, 0, 0, 0, 0, 0); \
 		close(1);                              \
@@ -191,9 +185,8 @@ typedef struct axis_scale_t {
 		exit(status);                          \
 	} while(0)
 #else
-#define EXIT(status) exit(status)
+	#define EXIT(status) exit(status)
 #endif  /* PIPE_IPC */
-#endif /* !VMS */
 
 #define Ncolors 13
 
@@ -965,88 +958,15 @@ static void mainloop()
 		}
 	}
 }
-
-#elif defined(VMS)
-/*-----------------------------------------------------------------------------
- *    VMS mainloop - Yehavi Bourvine - YEHAVI@VMS.HUJI.AC.IL
- *---------------------------------------------------------------------------*/
-
-/*  In VMS there is no decent Select(). hence, we have to loop inside
- *  XGetNextEvent for getting the next X window event. In order to get input
- *  from the master we assign a channel to SYS$INPUT and use AST's in order to
- *  receive data. In order to exit the mainloop, we need to somehow make
- *  XNextEvent return from within the ast. We do this with a XSendEvent() to
- *  ourselves !
- *  This needs a window to send the message to, so we create an unmapped window
- *  for this purpose. Event type XClientMessage is perfect for this, but it
- *  appears that such messages come from elsewhere (motif window manager,
- *  perhaps ?) So we need to check fairly carefully that it is the ast event
- *  that has been received.
- */
-
-#include <iodef.h>
-char STDIIN[] = "SYS$INPUT:";
-short STDIINchannel, STDIINiosb[4];
-struct {
-	short size, type;
-	char * address;
-} STDIINdesc;
-
-char STDIINbuffer[64];
-int status;
-
-ast()
-{
-	int status = sys$qio(0, STDIINchannel, IO$_READVBLK, STDIINiosb, record,
-		0, STDIINbuffer, sizeof(STDIINbuffer) - 1, 0, 0, 0, 0);
-	if((status & 0x1) == 0)
-		EXIT(status);
-}
-
-Window message_window;
-
-static void mainloop()
-{
-	/* dummy unmapped window for receiving internally-generated terminate
-	 * messages
-	 */
-	message_window = XCreateSimpleWindow(dpy, root, 0, 0, 1, 1, 1, 0, 0);
-
-	STDIINdesc.size = strlen(STDIIN);
-	STDIINdesc.type = 0;
-	STDIINdesc.address = STDIIN;
-	status = sys$assign(&STDIINdesc, &STDIINchannel, 0, 0, 0);
-	if((status & 0x1) == 0)
-		EXIT(status);
-	ast();
-
-	for(;;) {
-		XEvent xe;
-		XNextEvent(dpy, &xe);
-		if(xe.type == ClientMessage && xe.xclient.window == message_window) {
-			if(xe.xclient.message_type == None && xe.xclient.format == 8 && strcmp(xe.xclient.data.b, "die gnuplot die") == 0) {
-				FPRINTF((stderr, "quit message from ast\n"));
-				return;
-			}
-			else {
-				FPRINTF((stderr, "Bogus XClientMessage event from window manager ?\n"));
-			}
-		}
-		process_event(&xe);
-	}
-}
-
 #else /* !(DEFAULT_X11 || CRIPPLED_SELECT || VMS */
-#error You lose. No mainloop.
+	#error You lose. No mainloop.
 #endif                          /* !(DEFAULT_X11 || CRIPPLED_SELECT || VMS */
 
-/* delete a window / plot */
+// delete a window / plot 
 static void delete_plot(plot_struct * plot)
 {
 	int i;
-
 	FPRINTF((stderr, "Delete plot %d\n", plot->plot_number));
-
 	for(i = 0; i < plot->ncommands; ++i) {
 		SAlloc::F(plot->commands[i]);
 		plot->commands[i] = NULL;
@@ -1193,10 +1113,8 @@ static int read_input()
 	static int buf_offset;
 	static int partial_read = 0;
 	int fd = fileno(X11_ipc);
-
 	if(!partial_read)
 		buf_offset = 0;
-
 	if(!buffered_input_available) {
 		total_chars = read(fd, rdbuf, rdbuf_size);
 		buffered_input_available = 1;
@@ -1230,7 +1148,6 @@ static int read_input()
 		if(buf[buf_offset - 1] != '\n')
 			partial_read = 1;
 	}
-
 	return partial_read;
 }
 
@@ -3686,9 +3603,7 @@ static int GetVisual(int class, Visual ** visual, int * depth)
 	vinfo.class = class;
 	*depth = 0;
 	*visual = 0;
-
 	visualsavailable = XGetVisualInfo(dpy, vinfo_mask, &vinfo, &nvisuals);
-
 	if(visualsavailable && nvisuals > 0) {
 		int i;
 		for(i = 0; i < nvisuals; i++) {
@@ -3713,7 +3628,6 @@ static void PaletteMake(t_sm_palette * tpal)
 #ifdef TITLE_BAR_DRAWING_MSG
 	char * save_title = (char*)0;
 #endif
-
 	/* The information retained in a linked list is the cmap_t structure.
 	 * That colormap structure doesn't contain the palette specifications
 	 * t_sm_palette used to generate the colormap.  Therefore, the making
@@ -3723,9 +3637,7 @@ static void PaletteMake(t_sm_palette * tpal)
 	 * Rather than create and initialize a colormap outside of the list, we'll
 	 * just put a new one in the list, and if it isn't unique remove it later.
 	 */
-
 	cmap_t * new_cmap = Add_CMap_To_Linked_List();
-
 	/* Continue until valid palette is built.  May require multiple passes. */
 	while(1) {
 		if(tpal) {
@@ -5112,12 +5024,7 @@ static void preset(int argc, char * argv[])
 {
 	int Argc = argc;
 	char ** Argv = argv;
-
-#ifdef VMS
-	char * ldisplay = (char*)0;
-#else
 	char * ldisplay = getenv("DISPLAY");
-#endif
 	char * home = getenv("HOME");
 	char * server_defaults, * env, buffer[256];
 #if 0
@@ -5204,26 +5111,10 @@ gnuplot: X11 aborted.\n", ldisplay);
 	default_cmap.colormap = DefaultColormap(dpy, scr);
 	current_cmap = &default_cmap;
 	max_request_size = XMaxRequestSize(dpy) / 2;
-
 /**** atoms we will need later ****/
-
 	WM_PROTOCOLS = XInternAtom(dpy, "WM_PROTOCOLS", False);
 	WM_DELETE_WINDOW = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-
 /*---get application defaults--(subset of Xt processing)------------------*/
-
-#ifdef VMS
-	strcpy(buffer, "DECW$USER_DEFAULTS:GNUPLOT_X11.INI");
-#elif defined OS2
-/* for XFree86 ... */
-	{
-		char appdefdir[MAXPATHLEN];
-		strncpy(appdefdir,
-		    __XOS2RedirRoot("/XFree86/lib/X11/app-defaults"),
-		    sizeof(appdefdir));
-		sprintf(buffer, "%s/%s", appdefdir, "Gnuplot");
-	}
-#else /* !OS/2 */
 	{
 		char * appdefdir;
 		if((appdefdir = getenv("XAPPLRESDIR")) == NULL) {
@@ -5241,8 +5132,6 @@ gnuplot: X11 aborted.\n", ldisplay);
 			strcat(buffer, "Gnuplot");
 		}
 	}
-#endif /* !VMS */
-
 	dbApp = XrmGetFileDatabase(buffer);
 	XrmMergeDatabases(dbApp, &db);
 
@@ -5251,12 +5140,8 @@ gnuplot: X11 aborted.\n", ldisplay);
 	if(server_defaults)
 		dbDef = XrmGetStringDatabase(server_defaults);
 	else {
-#ifdef VMS
-		strcpy(buffer, "DECW$USER_DEFAULTS:DECW$XDEFAULTS.DAT");
-#else
 		strcpy(buffer, home);
 		strcat(buffer, "/.Xdefaults");
-#endif
 		dbDef = XrmGetFileDatabase(buffer);
 	}
 	XrmMergeDatabases(dbDef, &db);
@@ -5949,8 +5834,7 @@ char * fontname;
 			fontencoding = "*-*";
 #ifdef USE_X11_MULTIBYTE
 		else if(usemultibyte)
-			fontencoding = (
-				encoding == S_ENC_UTF8      ? "iso10646-1" :
+			fontencoding = (encoding == S_ENC_UTF8 ? "iso10646-1" :
 				"*-*" ); /* EAM 2011 - This used to work but, alas, no longer. */
 #endif
 		else

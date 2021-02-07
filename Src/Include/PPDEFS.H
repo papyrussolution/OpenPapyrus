@@ -5205,6 +5205,8 @@
 	#define CTL_TAGRPNG_TURNOVER         (13 + WINDOWS_ID_BIAS)
 	#define CTL_TAGRPNG_EXTVAL1          (14 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TAGRPNG_EXTVAL1       (15 + WINDOWS_ID_BIAS)
+	#define CTL_TAGRPNG_EXTF1            (16 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TAGRPNG_EXTF1         (17 + WINDOWS_ID_BIAS)
 #define DLG_FIXSTAFF              477 // Директор и гл бух организации
 	#define CTL_FIXSTAFF_ORGNAME         (1 + WINDOWS_ID_BIAS)
 	#define CTL_FIXSTAFF_DIRECTOR        (2 + WINDOWS_ID_BIAS)
@@ -7038,12 +7040,12 @@
 	#define CTL_ARTICLEFLT_FTCLOSED      (4 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLEFLT_FTSTOP        (5 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLEFLT_FLAGS         (6 + WINDOWS_ID_BIAS)
-/* @v10.9.11 @unused 
+/* @v10.9.11 @unused
 #define DLG_PSAGGRVAL             715
 	#define CTL_PSAGGRVAL_AVG            (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSAGGRVAL_DSP            (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSAGGRVAL_NUMVALS        (3 + WINDOWS_ID_BIAS)
-	#define CTL_PSAGGRVAL_TQTTY          (4 + WINDOWS_ID_BIAS) 
+	#define CTL_PSAGGRVAL_TQTTY          (4 + WINDOWS_ID_BIAS)
 */
 #define DLG_EXPIRYREG             716
 	#define CTL_EXPIRYREG_LIST           (1 + WINDOWS_ID_BIAS)
@@ -11064,6 +11066,12 @@
 	#define CTLSEL_WOLAYC_ALGNC       (9 + WINDOWS_ID_BIAS)
 	#define CTL_WOLAYC_ALGNI          (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_WOLAYC_ALGNI       (11 + WINDOWS_ID_BIAS)
+#define DLG_CHZNPARAM             1398
+	#define CTL_CHZNPARAM_GUA            (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CHZNPARAM_GUA         (2 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNPARAM_LOC            (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CHZNPARAM_LOC         (4 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNPARAM_LOGO           (5 + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

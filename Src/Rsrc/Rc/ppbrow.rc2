@@ -3719,6 +3719,7 @@ browser CCHECK north(100), 1, 1, "@{poscheck_pl}", OWNER|GRID, 0
 		ADDITEM     : kbIns,    PPDV_ADDFILE02,         "@{add}\tInsert"
 		ADDBYSAMPLE : kbF2,     PPDV_CREATEBYEXAMPLE01, "Создать драфт-документ по чеку\tF2"
 		ADDTOBASKET : kbCtrlF4, PPDV_SHOPPINGCART01,    "Положить в корзину товары из чека\tCtrl-F4"
+		EXPORTCHZN  : kbAltF8,  PPDV_LOGOCHZN,          "Отправить чеки в честный знак\tAlt-F8"
 		separator
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,      "@{delete}\tDelete"
 		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,       "Удалить все чеки с неопределенной сессией\tCtrl-F8"
@@ -4789,7 +4790,7 @@ browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 		separator
 		TOGGLE            : kbF8,     TBBM_TOGGLESHIPMTAG, "Переключить признак отгрузки\tF8"
 		separator
-		EXPORT            : kbCtrlR,   PPDV_EXPORT01,   "@{exportbills}\tCtrl-R"
+		EXPORT            : kbCtrlR,   PPDV_EXPORT01,    "@{exportbills}\tCtrl-R"
 		TOTAL             : kbF9,      PPDV_SIGMA02,     "@{totals}\tF9"
 		separator
 		PRINT             : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
@@ -5533,7 +5534,7 @@ browser GOODSTOOBJASSC north(100), 3, 1, "Ассоциации товар-%s", OWNER|GRID, 0
 //
 // @ModuleDef(PPViewDvcLoadingStat)
 //
-browser DLSTAT north(100), 2, 1, "Статистика по загрузке устройств%s", OWNER|GRID, 0
+browser DLSTAT north(100), 2, 1, "Статистика по загрузке устройств %s", OWNER|GRID, 0
 {
 	"@id",                   0, notype, 0,       10
 	"@date",                 3, notype, DATF_DMY, 8

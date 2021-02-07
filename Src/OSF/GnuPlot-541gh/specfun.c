@@ -571,30 +571,33 @@ loverf:
 // Make all the following internal routines f_whatever() perform
 // autoconversion from string to numeric value.
 // 
-#define __POP__(x) pop_or_convert_from_string(x)
+#define __POP__(x) PopOrConvertFromString(x)
 
-void f_erf(union argument * arg)
+//void f_erf(union argument * arg)
+void GnuPlot::F_Erf(union argument * arg)
 {
 	GpValue a;
 	double x = real(__POP__(&a));
 	x = erf(x);
-	GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
+	EvStk.Push(Gcomplex(&a, x, 0.0));
 }
 
-void f_erfc(union argument * arg)
+//void f_erfc(union argument * arg)
+void GnuPlot::F_Erfc(union argument * arg)
 {
 	GpValue a;
 	double x;
 	x = real(__POP__(&a));
 	x = erfc(x);
-	GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
+	EvStk.Push(Gcomplex(&a, x, 0.0));
 }
 
 #ifdef IBETA    /* Original gnuplot ibeta() by Jos van der Woude */
 
 static double confrac(double a, double b, double x);
 
-void f_ibeta(union argument * arg)
+//void f_ibeta(union argument * arg)
+void GnuPlot::F_IBeta(union argument * arg)
 {
 	GpValue a;
 	double x;
@@ -606,89 +609,96 @@ void f_ibeta(union argument * arg)
 	x = ibeta(arg1, arg2, x);
 	if(x == -1.0) {
 		undefined = true;
-		GPO.EvStk.Push(Ginteger(&a, 0));
+		EvStk.Push(Ginteger(&a, 0));
 	}
 	else
-		GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
+		EvStk.Push(Gcomplex(&a, x, 0.0));
 }
 
 #endif /* IBETA */
 
 #ifndef HAVE_COMPLEX_FUNCS
-/*
- * igamma( a, x )
- */
-void f_igamma(union argument * arg)
+// 
+// igamma( a, x )
+// 
+//void f_igamma(union argument * arg)
+void GnuPlot::F_IGamma(union argument * arg)
 {
 	GpValue a;
 	double x;
 	double arg1;
 	__POP__(&a);
 	if(a.type == CMPLX && a.v.cmplx_val.imag != 0)
-		GPO.IntError(NO_CARET, "this copy of gnuplot does not support complex arguments to igamma");
+		IntError(NO_CARET, "this copy of gnuplot does not support complex arguments to igamma");
 	else
 		x = real(&a);
 	__POP__(&a);
 	if(a.type == CMPLX && a.v.cmplx_val.imag != 0)
-		GPO.IntError(NO_CARET, "this copy of gnuplot does not support complex arguments to igamma");
+		IntError(NO_CARET, "this copy of gnuplot does not support complex arguments to igamma");
 	else
 		arg1 = real(&a);
 	x = igamma(arg1, x);
 	if(x == -1.0) {
-		GPO.Ev.IsUndefined_ = true;
-		GPO.EvStk.Push(Ginteger(&a, 0));
+		Ev.IsUndefined_ = true;
+		EvStk.Push(Ginteger(&a, 0));
 	}
 	else
-		GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
+		EvStk.Push(Gcomplex(&a, x, 0.0));
 }
 
 #endif /* no HAVE_COMPLEX_FUNCS */
 
-void f_gamma(union argument * arg)
+//void f_gamma(union argument * arg)
+void GnuPlot::F_Gamma(union argument * arg)
 {
 	GpValue a;
 	double y = TGAMMA(real(__POP__(&a)));
-	/* FIXME check for overflow via math_error if HAVE_TGAMMA */
-	GPO.EvStk.Push(Gcomplex(&a, y, 0.0));
+	// FIXME check for overflow via math_error if HAVE_TGAMMA 
+	EvStk.Push(Gcomplex(&a, y, 0.0));
 }
 
-void f_lgamma(union argument * arg)
+//void f_lgamma(union argument * arg)
+void GnuPlot::F_LGamma(union argument * arg)
 {
 	GpValue a;
-	GPO.EvStk.Push(Gcomplex(&a, LGAMMA(real(__POP__(&a))), 0.0));
+	EvStk.Push(Gcomplex(&a, LGAMMA(real(__POP__(&a))), 0.0));
 }
 
 #ifndef BADRAND
-	void f_rand(union argument * /*arg*/)
+	//void f_rand(union argument * /*arg*/)
+	void GnuPlot::F_Rand(union argument * /*arg*/)
 	{
 		GpValue a;
-		GPO.EvStk.Push(Gcomplex(&a, ranf(__POP__(&a)), 0.0));
+		EvStk.Push(Gcomplex(&a, ranf(__POP__(&a)), 0.0));
 	}
-#else /* BADRAND */
-
-/* Use only to observe the effect of a "bad" random number generator. */
-void f_rand(union argument * /*arg*/)
-{
-	GpValue a;
-	static uint y = 0;
-	uint maxran = 1000;
-	real(__POP__(&a));
-	y = (781 * y + 387) % maxran;
-	GPO.EvStk.Push(Gcomplex(&a, (double)y / maxran, 0.0));
-}
-#endif /* BADRAND */
+#else
+	//
+	// Use only to observe the effect of a "bad" random number generator. 
+	//
+	//void f_rand(union argument * /*arg*/)
+	void GnuPlot::F_Rand(union argument * /*arg*/)
+	{
+		GpValue a;
+		static uint y = 0;
+		uint maxran = 1000;
+		real(__POP__(&a));
+		y = (781 * y + 387) % maxran;
+		EvStk.Push(Gcomplex(&a, (double)y / maxran, 0.0));
+	}
+#endif
 /*
  * Fallback implementation of the Faddeeva/Voigt function
  *	w(z) = exp(*-z^2) * erfc(-i*z)
  * if not available from libcerf or some other library
  */
 #ifndef HAVE_LIBCERF
-void f_voigt(union argument * /*arg*/)
+//void f_voigt(union argument * /*arg*/)
+void GnuPlot::F_Voigt(union argument * /*arg*/)
 {
 	GpValue a;
 	double y = real(__POP__(&a));
 	double x = real(__POP__(&a));
-	GPO.EvStk.Push(Gcomplex(&a, humlik(x, y), 0.0));
+	EvStk.Push(Gcomplex(&a, humlik(x, y), 0.0));
 }
 /*
  * Calculate the Voigt/Faddeeva function with relative error less than 10^(-4).
@@ -745,7 +755,6 @@ static double humlik(double x, double y)
 		}
 		return rrtpi / (d0 + xq * (d2 + xq)) * y * (a0 + xq);
 	}
-
 	else if(abx > xlim2) {          /* Humlicek W4 Region 2 */
 		if(rg2) {               /* First point in Region 2 */
 			rg2 = false;
@@ -758,10 +767,8 @@ static double humlik(double x, double y)
 			e2 = yq * (yq * 3. + 1.) + 5.25;
 			e4 = h6 * 0.75;
 		}
-		return rrtpi / (h0 + xq * (h2 + xq * (h4 + xq * (h6 + xq))))
-		       * y * (e0 + xq * (e2 + xq * (e4 + xq)));
+		return rrtpi / (h0 + xq * (h2 + xq * (h4 + xq * (h6 + xq)))) * y * (e0 + xq * (e2 + xq * (e4 + xq)));
 	}
-
 	else if(abx < xlim3) {          /* Humlicek W4 Region 3 */
 		if(rg3) {               /* First point in Region 3 */
 			rg3 = false;
@@ -1127,7 +1134,7 @@ static double igamma_GL(double a, double x)
 double chisq_cdf(int dof, double chisqr)
 {
 	if(dof <= 0)
-		return not_a_number();
+		return fgetnan();
 	if(chisqr <= 0.)
 		return 0;
 	return igamma(0.5 * dof, 0.5 * chisqr);
@@ -1212,8 +1219,9 @@ static double ranf(GpValue * init)
    on 28 OCT 1992.
    ---------------------------------------------------------------- */
 
-void f_normal(union argument * /*arg*/)
-{                               /* Normal or Gaussian Probability Function */
+//void f_normal(union argument * /*arg*/)
+void GnuPlot::F_Normal(union argument * /*arg*/)
+{ // Normal or Gaussian Probability Function 
 	GpValue a;
 	double x;
 	/* ref. Abramowitz and Stegun 1964, "Handbook of Mathematical
@@ -1221,7 +1229,7 @@ void f_normal(union argument * /*arg*/)
 	   Chapter 26, page 934, Eqn. 26.2.29 and Jos van der Woude
 	   code found above */
 	x = real(__POP__(&a));
-	/* using erfc instead of erf produces accurate values for -38 < arg < -8 */
+	// using erfc instead of erf produces accurate values for -38 < arg < -8 
 	if(x > -38) {
 		x = 0.5 * SQRT_TWO * x;
 		x = 0.5 * erfc(-x);
@@ -1229,32 +1237,34 @@ void f_normal(union argument * /*arg*/)
 	else {
 		x = 0.0;
 	}
-	GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
+	EvStk.Push(Gcomplex(&a, x, 0.0));
 }
 
-void f_inverse_normal(union argument * /*arg*/)
-{                               /* Inverse normal distribution function */
+//void f_inverse_normal(union argument * /*arg*/)
+void GnuPlot::F_InverseNormal(union argument * /*arg*/)
+{ // Inverse normal distribution function 
 	GpValue a;
 	double x = real(__POP__(&a));
 	if(x <= 0.0 || x >= 1.0) {
-		GPO.Ev.IsUndefined_ = true;
-		GPO.EvStk.Push(Gcomplex(&a, 0.0, 0.0));
+		Ev.IsUndefined_ = true;
+		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 	}
 	else {
-		GPO.EvStk.Push(Gcomplex(&a, inverse_normal_func(x), 0.0));
+		EvStk.Push(Gcomplex(&a, inverse_normal_func(x), 0.0));
 	}
 }
 
-void f_inverse_erf(union argument * /*arg*/)
-{                               /* Inverse error function */
+//void f_inverse_erf(union argument * /*arg*/)
+void GnuPlot::F_InverseErf(union argument * /*arg*/)
+{ // Inverse error function 
 	GpValue a;
 	double x = real(__POP__(&a));
 	if(fabs(x) >= 1.0) {
-		GPO.Ev.IsUndefined_ = true;
-		GPO.EvStk.Push(Gcomplex(&a, 0.0, 0.0));
+		Ev.IsUndefined_ = true;
+		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 	}
 	else {
-		GPO.EvStk.Push(Gcomplex(&a, inverse_error_func(x), 0.0));
+		EvStk.Push(Gcomplex(&a, inverse_error_func(x), 0.0));
 	}
 }
 /*                                                      ndtri.c
@@ -2085,37 +2095,37 @@ static double inverse_error_func(double y)
 
 	return (x);
 }
-
-/*
- *   invgamma(a, p) returns z such that igamma(a, z) = p
- */
-void f_inverse_igamma(union argument * /*arg*/)
+// 
+// invgamma(a, p) returns z such that igamma(a, z) = p
+// 
+//void f_inverse_igamma(union argument * /*arg*/)
+void GnuPlot::F_InverseIGamma(union argument * /*arg*/)
 {
 	GpValue ret;
 	double z;
 	double p = real(__POP__(&ret));
 	double a = real(__POP__(&ret));
 	if(a <= 0) {
-		GPO.Ev.IsUndefined_ = true;
-		GPO.EvStk.Push(Gcomplex(&ret, not_a_number(), 0.0));
-		GPO.IntWarn(NO_CARET, "invigamma: a<=0 invalid");
+		Ev.IsUndefined_ = true;
+		EvStk.Push(Gcomplex(&ret, fgetnan(), 0.0));
+		IntWarn(NO_CARET, "invigamma: a<=0 invalid");
 	}
 	else if(p < 0 || p > 1) {
-		GPO.Ev.IsUndefined_ = true;
-		GPO.EvStk.Push(Gcomplex(&ret, not_a_number(), 0.0));
-		GPO.IntWarn(NO_CARET, "invigamma: p invalid");
+		Ev.IsUndefined_ = true;
+		EvStk.Push(Gcomplex(&ret, fgetnan(), 0.0));
+		IntWarn(NO_CARET, "invigamma: p invalid");
 	}
 	else if(p == 1.) {
 		z = MAX(100., a + 100.*sqrt(a) );
-		GPO.EvStk.Push(Gcomplex(&ret, z, 0.0));
+		EvStk.Push(Gcomplex(&ret, z, 0.0));
 	}
 	else if(p == 0) {
-		GPO.EvStk.Push(Gcomplex(&ret, 0.0, 0.0));
-		/* The normal case */
+		EvStk.Push(Gcomplex(&ret, 0.0, 0.0));
+		// The normal case 
 	}
 	else {
 		z = inverse_incomplete_gamma(a, p);
-		GPO.EvStk.Push(Gcomplex(&ret, z, 0.0));
+		EvStk.Push(Gcomplex(&ret, z, 0.0));
 	}
 }
 
@@ -2165,7 +2175,7 @@ static double inverse_incomplete_gamma(double a, double p)
 		// FIXME: underflow OK? 
 		if(errno) {
 			GPO.IntWarn(NO_CARET, "inverse_incomplete_gamma: %s\nt = %g u = %g z = %g\n", strerror(errno), t, u, z);
-			z = not_a_number();
+			z = fgetnan();
 			break;
 		}
 		z -= t;
@@ -2177,11 +2187,12 @@ static double inverse_incomplete_gamma(double a, double p)
 
 	return z;
 }
-/*
- *   invibeta(a, b, p) returns z such that ibeta(a, b, z) = p
- *   a, b > 0    0 <= p <= 1
- */
-void f_inverse_ibeta(union argument * arg)
+// 
+// invibeta(a, b, p) returns z such that ibeta(a, b, z) = p
+// a, b > 0    0 <= p <= 1
+// 
+//void f_inverse_ibeta(union argument * arg)
+void GnuPlot::F_InverseIBeta(union argument * arg)
 {
 	GpValue ret;
 	double z;
@@ -2189,21 +2200,21 @@ void f_inverse_ibeta(union argument * arg)
 	double b = real(__POP__(&ret));
 	double a = real(__POP__(&ret));
 	if(p < 0.0 || p > 1.0)
-		GPO.IntWarn(NO_CARET, "f_inverse_ibeta: p %g not in domain", p);
+		IntWarn(NO_CARET, "f_inverse_ibeta: p %g not in domain", p);
 
 	if(a <= 0.0 || b <= 0.0) {
-		GPO.EvStk.Push(Gcomplex(&ret, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&ret, fgetnan(), 0.0));
 	}
 	else if(p <= 0) {
-		GPO.EvStk.Push(Gcomplex(&ret, 0.0, 0.0));
+		EvStk.Push(Gcomplex(&ret, 0.0, 0.0));
 	}
 	else if(fabs(1. - p) < IGAMMA_PRECISION) {
-		GPO.EvStk.Push(Gcomplex(&ret, 1.0, 0.0));
-		/* The normal case */
+		EvStk.Push(Gcomplex(&ret, 1.0, 0.0));
+		// The normal case 
 	}
 	else {
 		z = inverse_incomplete_beta(a, b, p);
-		GPO.EvStk.Push(Gcomplex(&ret, z, 0.0));
+		EvStk.Push(Gcomplex(&ret, z, 0.0));
 	}
 }
 
@@ -2218,22 +2229,20 @@ static double inverse_incomplete_beta(double a, double b, double p)
 	double err, t, u, w, z;
 	int j;
 	double afac = LGAMMA(a+b) - LGAMMA(a) - LGAMMA(b);
-	/* Initial guess from Abramowitz & Stegun 26.2.22, 26.5.22 */
+	// Initial guess from Abramowitz & Stegun 26.2.22, 26.5.22 
 	if(a >= 1. && b >= 1.) {
 		double lambda, h;
 		double pp = (p < 0.5) ? p : (1.-p);
-		/* Abramowitz & Stegun 26.2.22 */
+		// Abramowitz & Stegun 26.2.22 
 		t = sqrt(-2.*log(pp));
 		z = t - (2.30753 + 0.27061*t) / (1. + 0.99229*t + 0.04481*t*t);
 		if(p < 0.5) z = -z;
-		/* Abramowitz & Stegun 26.5.22 */
+		// Abramowitz & Stegun 26.5.22 
 		lambda = (sqrt(z) - 3.) / 6.;
 		h = 2. / ( 1./(2.*a-1.) + 1./(2.*b-1) );
-		w = (z * sqrt(h + lambda) / h)
-		    - (1./(2.*b-1.) - 1./(2.*a-1.)) * (lambda + 5./6. - 2./(3.*h));
+		w = (z * sqrt(h + lambda) / h) - (1./(2.*b-1.) - 1./(2.*a-1.)) * (lambda + 5./6. - 2./(3.*h));
 		z = a / (a + b * exp(2.*w));
-
-		/* Initial guess based on NR 6.4.8 */
+		// Initial guess based on NR 6.4.8 
 	}
 	else {
 		double lna = log(a / (a+b) );
@@ -2246,13 +2255,13 @@ static double inverse_incomplete_beta(double a, double b, double p)
 		else
 			z = 1. - pow(b*w*(1.-p), 1./b);
 	}
-	/* underflow above yields z ~ 1, which is OK, but errno is set */
+	// underflow above yields z ~ 1, which is OK, but errno is set 
 	if(fabs(1.-z) < IGAMMA_PRECISION)
 		errno = 0;
-	/* Not sure this can ever happen */
+	// Not sure this can ever happen 
 	if(isnan(z) || errno)
-		return not_a_number();
-	/* Halley's method */
+		return fgetnan();
+	// Halley's method 
 	for(j = 0; j<12; j++) {
 		if(z == 0. || z == 1.)
 			return z;
@@ -2268,7 +2277,6 @@ static double inverse_incomplete_beta(double a, double b, double p)
 		if(fabs(t) <= MACHEP && j > 1)
 			break;
 	}
-
 	return z;
 }
 
@@ -2311,14 +2319,15 @@ static double lambertw(double x)
 	return -1;             /* error: iteration didn't converge */
 }
 
-void f_lambertw(union argument * /*arg*/)
+//void f_lambertw(union argument * /*arg*/)
+void GnuPlot::F_Lambertw(union argument * /*arg*/)
 {
 	GpValue a;
 	double x = real(__POP__(&a));
 	x = lambertw(x);
 	if(x <= -1)
-		GPO.Ev.IsUndefined_ = true; // Error return from lambertw --> flag 'undefined' 
-	GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
+		Ev.IsUndefined_ = true; // Error return from lambertw --> flag 'undefined' 
+	EvStk.Push(Gcomplex(&a, x, 0.0));
 }
 /*							airy.c
  *
@@ -3252,13 +3261,14 @@ int airy(double x, double * ai, double * aip, double * bi, double * bip)
 	return 0;
 }
 
-void f_airy(union argument * arg)
+//void f_airy(union argument * arg)
+void GnuPlot::F_Airy(union argument * arg)
 {
 	GpValue a;
 	double ai, aip, bi, bip;
 	double x = real(__POP__(&a));
 	airy(x, &ai, &aip, &bi, &bip);
-	GPO.EvStk.Push(Gcomplex(&a, ai, 0.0));
+	EvStk.Push(Gcomplex(&a, ai, 0.0));
 }
 /* ** expint.c
  *
@@ -3365,26 +3375,26 @@ double expint(double n, double z)
 	return y;
 }
 
-void f_expint(union argument * /*arg*/)
+//void f_expint(union argument * /*arg*/)
+void GnuPlot::F_ExpInt(union argument * /*arg*/)
 {
 	GpValue a;
 	double n, x;
 	// Domain limited to real x >= 0 
 	__POP__(&a);
 	if(a.type == CMPLX && a.v.cmplx_val.imag != 0.0)
-		GPO.IntError(NO_CARET, "this copy of gnuplot does not support complex expint");
+		IntError(NO_CARET, "this copy of gnuplot does not support complex expint");
 	x = real(&a);
 	// n must be nonnegative integer 
 	__POP__(&a);
 	if(a.type != INTGR)
-		GPO.IntError(NO_CARET, "order of expint must be nonnegative integer");
+		IntError(NO_CARET, "order of expint must be nonnegative integer");
 	n = a.v.int_val;
 	x = expint(n, x);
 	if(x <= -1)
-		GPO.Ev.IsUndefined_ = true; // Error return from expint --> flag 'undefined' 
-	GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
+		Ev.IsUndefined_ = true; // Error return from expint --> flag 'undefined' 
+	EvStk.Push(Gcomplex(&a, x, 0.0));
 }
-
 /*
  * ===================== BESIN =====================
  * Start implementation of besin(n,x), the modified
@@ -3414,7 +3424,7 @@ void GnuPlot::F_Besin(union argument * arg)
 	// The underlying function iv(v,x) accepts fractional v but the 
 	// valid range is complicated. We only support integral values. 
 	if(a.type != INTGR) {
-		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 		GPO.Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besin(int,real)");
 	}
@@ -3497,7 +3507,7 @@ static double iv(double v, double x)
 	if(x < 0.0) {
 		if(t != v) {
 			mtherr("besin", MTHERR_DOMAIN);
-			return (not_a_number());
+			return (fgetnan());
 		}
 		if(v != 2.0 * floor(v / 2.0)) {
 			sign = -1;
@@ -3923,8 +3933,8 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 	n = static_cast<uint>(floor(v + 0.5)); // round non-negative number 
 	u = v - n; // -1/2 <= u < 1/2 
 	if(x < 0) {
-		ASSIGN_PTR(Iv_p, not_a_number());
-		ASSIGN_PTR(Kv_p, not_a_number());
+		ASSIGN_PTR(Iv_p, fgetnan());
+		ASSIGN_PTR(Kv_p, fgetnan());
 		mtherr("ikv_temme", MTHERR_DOMAIN);
 		return;
 	}
@@ -3935,7 +3945,7 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 			Kv = INFINITY;
 		}
 		else {
-			Kv = not_a_number(); /* any value will do */
+			Kv = fgetnan(); /* any value will do */
 		}
 		if(reflect && (kind & need_i)) {
 			double z = (u + n % 2);
@@ -3986,7 +3996,7 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 		}
 	}
 	else {
-		Iv = not_a_number();    /* any value will do */
+		Iv = fgetnan();    /* any value will do */
 	}
 	if(reflect) {
 		double z = (u + n % 2);
@@ -4029,7 +4039,8 @@ static double incbd(double a, double b, double x);
 static double incbcf(double a, double b, double x);
 static double pseries(double a, double b, double x);
 
-void f_ibeta(union argument * /*arg*/)
+//void f_ibeta(union argument * /*arg*/)
+void GnuPlot::F_IBeta(union argument * /*arg*/)
 {
 	GpValue a;
 	double x = real(__POP__(&a));
@@ -4037,11 +4048,11 @@ void f_ibeta(union argument * /*arg*/)
 	double arg1 = real(__POP__(&a));
 	x = incbet(arg1, arg2, x);
 	if(x == -1.0) {
-		GPO.Ev.IsUndefined_ = true;
-		GPO.EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		Ev.IsUndefined_ = true;
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 	}
 	else
-		GPO.EvStk.Push(Gcomplex(&a, x, 0.0));
+		EvStk.Push(Gcomplex(&a, x, 0.0));
 }
 /*
  *	Incomplete beta integral
@@ -4486,14 +4497,15 @@ static double expand_cheby(double t, double * coef, int n)
 	return (u0 - u2) / 2.0;
 }
 
-void f_SynchrotronF(union argument * arg)
+//void f_SynchrotronF(union argument * arg)
+void GnuPlot::F_SynchrotronF(union argument * arg)
 {
 	GpValue a;
 	double t, F;
 	double x = real(__POP__(&a));
 	// Domain error 
 	if(x < 0) {
-		F = not_a_number();
+		F = fgetnan();
 	}
 	else if(x > 745.) {
 		F = 0.0; // Calculation will underflow 
@@ -4512,5 +4524,5 @@ void f_SynchrotronF(union argument * arg)
 		t = 2197./(256.*x) - 1.0;
 		F = sqrt(M_PI*x/2.) * exp(-x) * expand_cheby(t, f4_c, 23);
 	}
-	GPO.EvStk.Push(Gcomplex(&a, F, 0.0));
+	EvStk.Push(Gcomplex(&a, F, 0.0));
 }

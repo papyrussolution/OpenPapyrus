@@ -91,9 +91,9 @@ register_term(webp)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void WEBP_options(int);
-TERM_PUBLIC void WEBP_init(void);
-TERM_PUBLIC void WEBP_text(void);
-TERM_PUBLIC void WEBP_reset(void);
+TERM_PUBLIC void WEBP_init(termentry * pThis);
+TERM_PUBLIC void WEBP_text();
+TERM_PUBLIC void WEBP_reset();
 #endif /* TERM_PROTO */
 
 #ifdef TERM_BODY
@@ -161,10 +161,9 @@ void WEBP_options(int show)
 	}
 }
 
-void WEBP_init()
+void WEBP_init(termentry * pThis)
 {
 	cairo_surface_t * surface = NULL;
-
 	if(plot.cr)
 		cairo_destroy(plot.cr);
 	gp_cairo_initialize_plot(&plot);
@@ -337,30 +336,59 @@ TERM_PUBLIC void WEBP_reset()
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(webp_driver)
-"webp", "single frame or animation using cairo, pango, and libwebp",
-/* the following values are overridden by cairotrm_graphics */
-1 /* xmax */, 1 /* ymax */, 1 /* vchar */, 1 /* hchar */,
-1 /* vtic */, 1 /* htic */,
-cairotrm_options,
-WEBP_init, WEBP_reset, WEBP_text,
-null_scale, cairotrm_graphics,
-cairotrm_move, cairotrm_vector, cairotrm_linetype, cairotrm_put_text,
-cairotrm_text_angle, cairotrm_justify_text,
-cairotrm_point, do_arrow, cairotrm_set_font,
-cairotrm_pointsize,
-TERM_BINARY|TERM_CAN_DASH|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_FONTSCALE|TERM_POINTSCALE,
-0 /* suspend */, 0 /* resume */, cairotrm_fillbox, cairotrm_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0
-#endif
-, cairotrm_make_palette, 0 /* cairotrm_previous_palette */, cairotrm_set_color, cairotrm_filled_polygon
-, cairotrm_image
-, cairotrm_enhanced_open, cairotrm_enhanced_flush, cairotrm_enhanced_writec
-, 0, 0, 1.0
-, NULL     /* hypertext */
-, cairotrm_boxed_text
-, NULL     /* modify_plots */
-, cairotrm_dashtype TERM_TABLE_END(webp_driver)
+	"webp", 
+	"single frame or animation using cairo, pango, and libwebp",
+	/* the following values are overridden by cairotrm_graphics */
+	1 /* xmax */, 
+	1 /* ymax */, 
+	1 /* vchar */, 
+	1 /* hchar */,
+	1 /* vtic */, 
+	1 /* htic */,
+	cairotrm_options,
+	WEBP_init, 
+	WEBP_reset, 
+	WEBP_text,
+	GnuPlot::NullScale, 
+	cairotrm_graphics,
+	cairotrm_move, 
+	cairotrm_vector, 
+	cairotrm_linetype, 
+	cairotrm_put_text,
+	cairotrm_text_angle, 
+	cairotrm_justify_text,
+	cairotrm_point, 
+	GnuPlot::DoArrow, 
+	cairotrm_set_font,
+	cairotrm_pointsize,
+	TERM_BINARY|TERM_CAN_DASH|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_FONTSCALE|TERM_POINTSCALE,
+	0 /* suspend */, 
+	0 /* resume */, 
+	cairotrm_fillbox, 
+	cairotrm_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,
+	#endif
+	cairotrm_make_palette, 
+	0/* cairotrm_previous_palette */, 
+	cairotrm_set_color, 
+	cairotrm_filled_polygon,
+	cairotrm_image,
+	cairotrm_enhanced_open, 
+	cairotrm_enhanced_flush, 
+	cairotrm_enhanced_writec,
+	0, 
+	0, 
+	1.0,
+	NULL,/* hypertext */
+	cairotrm_boxed_text,
+	NULL, /* modify_plots */
+	cairotrm_dashtype 
+TERM_TABLE_END(webp_driver)
 
 #undef LAST_TERM
 #define LAST_TERM webp_driver

@@ -65,7 +65,7 @@ register_term(imagen)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void IMAGEN_init();
+TERM_PUBLIC void IMAGEN_init(termentry * pThis);
 TERM_PUBLIC void IMAGEN_graphics();
 TERM_PUBLIC void IMAGEN_options();
 TERM_PUBLIC void IMAGEN_text();
@@ -237,17 +237,17 @@ TERM_PUBLIC void IMAGEN_options()
 	    "landscape", IM_win_horiz, IM_win_verti);
 }
 
-TERM_PUBLIC void IMAGEN_init()
+TERM_PUBLIC void IMAGEN_init(termentry * pThis)
 {
-	struct termentry * t = term;
+	struct termentry * t = /*term*/pThis;
 	/* char font[10];   */  /* font name */
 	IMAGEN_posx = IMAGEN_posy = 0;
 	IMAGEN_orgX = (IMAGEN_page_w - IMAGEN_Xmax) / 2;
 	IMAGEN_orgY = (IMAGEN_page_h - IMAGEN_Ymax) / 2;
 	IMAGEN_xmax = IMAGEN_winx = (int)(IMAGEN_Xmax / IM_win_horiz);
 	IMAGEN_ymax = IMAGEN_winy = (int)(IMAGEN_Ymax / IM_win_verti);
-	t->xmax = (uint)(IMAGEN_xmax);
-	t->ymax = (uint)(IMAGEN_ymax);
+	t->MaxX = (uint)(IMAGEN_xmax);
+	t->MaxY = (uint)(IMAGEN_ymax);
 	fputs("@document(language impress, paper a4)", gpoutfile);
 	if(IMAGEN_portrait) {
 		putc(imP_SET_ABS_V, gpoutfile);
@@ -821,12 +821,30 @@ static void IMAGEN_createmap(int name, ushort * map)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(imagen_driver)
-"imagen", "Imagen laser printer",
-IMAGEN_XMAX, IMAGEN_YMAX, IMAGEN_VCHAR, IMAGEN_HCHAR,
-IMAGEN_VTIC, IMAGEN_HTIC, IMAGEN_options, IMAGEN_init, IMAGEN_reset,
-IMAGEN_text, null_scale, IMAGEN_graphics, IMAGEN_move,
-IMAGEN_vector, IMAGEN_linetype, IMAGEN_put_text, IMAGEN_text_angle,
-IMAGEN_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(imagen_driver)
+	"imagen", 
+	"Imagen laser printer",
+	IMAGEN_XMAX, 
+	IMAGEN_YMAX, 
+	IMAGEN_VCHAR, 
+	IMAGEN_HCHAR,
+	IMAGEN_VTIC, 
+	IMAGEN_HTIC, 
+	IMAGEN_options, 
+	IMAGEN_init, 
+	IMAGEN_reset,
+	IMAGEN_text, 
+	GnuPlot::NullScale, 
+	IMAGEN_graphics, 
+	IMAGEN_move,
+	IMAGEN_vector, 
+	IMAGEN_linetype, 
+	IMAGEN_put_text, 
+	IMAGEN_text_angle,
+	IMAGEN_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(imagen_driver)
 
 #undef LAST_TERM
 #define LAST_TERM imagen_driver

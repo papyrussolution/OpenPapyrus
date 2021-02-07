@@ -36,7 +36,7 @@ static void show_styles(const char * name, enum PLOT_STYLE style);
 static void show_style_rectangle();
 static void show_style_circle();
 static void show_style_ellipse();
-static void show_grid();
+//static void show_grid();
 static void show_raxis();
 //static void show_paxis();
 //static void show_zeroaxis(AXIS_INDEX);
@@ -62,7 +62,7 @@ static void show_pointintervalbox();
 static void show_rgbmax();
 static void show_encoding();
 static void show_decimalsign();
-static void show_fit();
+//static void show_fit();
 static void show_polar();
 static void show_print();
 static void show_psdir();
@@ -184,9 +184,7 @@ void GnuPlot::ShowCommand()
 		case S_FUNCTIONS:
 		    show_functions();
 		    break;
-		case S_GRID:
-		    show_grid();
-		    break;
+		case S_GRID: ShowGrid(); break;
 		case S_RAXIS:
 		    show_raxis();
 		    break;
@@ -304,9 +302,7 @@ void GnuPlot::ShowCommand()
 		case S_ENCODING:
 		    show_encoding();
 		    break;
-		case S_FIT:
-		    show_fit();
-		    break;
+		case S_FIT: ShowFit(); break;
 		case S_FONTPATH:
 		    show_fontpath();
 		    break;
@@ -688,7 +684,7 @@ void GnuPlot::ShowAll()
 	show_dummy();
 	ShowFormat();
 	ShowStyle();
-	show_grid();
+	ShowGrid();
 	show_raxis();
 	ShowZeroAxis(FIRST_X_AXIS);
 	ShowZeroAxis(FIRST_Y_AXIS);
@@ -712,7 +708,7 @@ void GnuPlot::ShowAll()
 	show_rgbmax();
 	show_encoding();
 	show_decimalsign();
-	show_fit();
+	ShowFit();
 	show_polar();
 	show_angles();
 	save_object(stderr, 0);
@@ -1418,7 +1414,6 @@ static void show_style_ellipse()
 	fprintf(stderr, "\tEllipse style has default size ");
 	show_position(&default_ellipse.o.ellipse.extent, 2);
 	fprintf(stderr, ", default angle is %.1f degrees", default_ellipse.o.ellipse.orientation);
-
 	switch(default_ellipse.o.ellipse.type) {
 		case ELLIPSEAXES_XY:
 		    fputs(", diameters are in different units (major: x axis, minor: y axis)\n", stderr);
@@ -1456,41 +1451,43 @@ static void show_functions()
 //
 // process 'show grid' command 
 //
-static void show_grid()
+//static void show_grid()
+void GnuPlot::ShowGrid()
 {
 	SHOW_ALL_NL;
 	if(!some_grid_selected()) {
 		fputs("\tgrid is OFF\n", stderr);
-		return;
 	}
-	/* HBB 20010806: new storage method for grid options: */
-	fprintf(stderr, "\t%s grid drawn at", (polar_grid_angle != 0) ? "Polar" : "Rectangular");
-#define SHOW_GRID(axis)                                         \
-	if(GPO.AxS[axis].gridmajor)                             \
-		fprintf(stderr, " %s", axis_name(axis));        \
-	if(GPO.AxS[axis].gridminor)                             \
-		fprintf(stderr, " m%s", axis_name(axis));
-	SHOW_GRID(FIRST_X_AXIS);
-	SHOW_GRID(FIRST_Y_AXIS);
-	SHOW_GRID(SECOND_X_AXIS);
-	SHOW_GRID(SECOND_Y_AXIS);
-	SHOW_GRID(FIRST_Z_AXIS);
-	SHOW_GRID(COLOR_AXIS);
-	SHOW_GRID(POLAR_AXIS);
-#undef SHOW_GRID
-	fputs(" tics\n", stderr);
-	fprintf(stderr, "\tMajor grid drawn with");
-	save_linetype(stderr, &(grid_lp), FALSE);
-	fprintf(stderr, "\n\tMinor grid drawn with");
-	save_linetype(stderr, &(mgrid_lp), FALSE);
-	fputc('\n', stderr);
-	if(grid_vertical_lines)
-		fprintf(stderr, "\tVertical grid lines in 3D plots\n");
-	if(polar_grid_angle)
-		fprintf(stderr, "\tGrid radii drawn every %f %s\n", polar_grid_angle / ang2rad, (ang2rad == 1.0) ? "radians" : "degrees");
-	if(grid_spiderweb)
-		fprintf(stderr, "\tGrid shown in spiderplots\n");
-	fprintf(stderr, "\tGrid drawn at %s\n", (grid_layer==-1) ? "default layer" : ((grid_layer==0) ? "back" : "front"));
+	else {
+		// HBB 20010806: new storage method for grid options: 
+		fprintf(stderr, "\t%s grid drawn at", (polar_grid_angle != 0) ? "Polar" : "Rectangular");
+	#define SHOW_GRID(axis)                                         \
+		if(AxS[axis].gridmajor)                             \
+			fprintf(stderr, " %s", axis_name(axis));        \
+		if(AxS[axis].gridminor)                             \
+			fprintf(stderr, " m%s", axis_name(axis));
+		SHOW_GRID(FIRST_X_AXIS);
+		SHOW_GRID(FIRST_Y_AXIS);
+		SHOW_GRID(SECOND_X_AXIS);
+		SHOW_GRID(SECOND_Y_AXIS);
+		SHOW_GRID(FIRST_Z_AXIS);
+		SHOW_GRID(COLOR_AXIS);
+		SHOW_GRID(POLAR_AXIS);
+	#undef SHOW_GRID
+		fputs(" tics\n", stderr);
+		fprintf(stderr, "\tMajor grid drawn with");
+		save_linetype(stderr, &(grid_lp), FALSE);
+		fprintf(stderr, "\n\tMinor grid drawn with");
+		save_linetype(stderr, &(mgrid_lp), FALSE);
+		fputc('\n', stderr);
+		if(grid_vertical_lines)
+			fprintf(stderr, "\tVertical grid lines in 3D plots\n");
+		if(polar_grid_angle)
+			fprintf(stderr, "\tGrid radii drawn every %f %s\n", polar_grid_angle / ang2rad, (ang2rad == 1.0) ? "radians" : "degrees");
+		if(grid_spiderweb)
+			fprintf(stderr, "\tGrid shown in spiderplots\n");
+		fprintf(stderr, "\tGrid drawn at %s\n", (grid_layer==-1) ? "default layer" : ((grid_layer==0) ? "back" : "front"));
+	}
 }
 
 static void show_raxis()
@@ -1502,7 +1499,7 @@ static void show_raxis()
 void GnuPlot::ShowPAxis()
 {
 	GpAxis * paxis;
-	int p = IntExpression();
+	const int p = IntExpression();
 	if(p <= 0 || p > AxS.GetParallelAxisCount())
 		IntErrorCurToken("no such parallel axis is active");
 	paxis = &AxS.Parallel(p-1);
@@ -2330,16 +2327,13 @@ static void show_encoding()
 static void show_decimalsign()
 {
 	SHOW_ALL_NL;
-
 	set_numeric_locale();
 	fprintf(stderr, "\tdecimalsign for input is  %s \n", get_decimal_locale());
 	reset_numeric_locale();
-
 	if(decimalsign!=NULL)
 		fprintf(stderr, "\tdecimalsign for output is %s \n", decimalsign);
 	else
 		fprintf(stderr, "\tdecimalsign for output has default value (normally '.')\n");
-
 	fprintf(stderr, "\tdegree sign for output is %s \n", degree_sign);
 }
 //
@@ -2364,7 +2358,8 @@ static void show_minus_sign()
 //
 // process 'show fit' command 
 //
-static void show_fit()
+//static void show_fit()
+void GnuPlot::ShowFit()
 {
 	udvt_entry * v = NULL;
 	double d;
@@ -2393,7 +2388,7 @@ static void show_fit()
 	if(fit_suppress_log) {
 		fprintf(stderr, "\tfit will not create a log file\n");
 	}
-	else if(fitlogfile != NULL) {
+	else if(fitlogfile) {
 		fprintf(stderr, "\tlog-file for fits was set by the user to \n\t'%s'\n", fitlogfile);
 	}
 	else {
@@ -2403,22 +2398,22 @@ static void show_fit()
 			SAlloc::F(logfile);
 		}
 	}
-	v = GPO.Ev.GetUdvByName((char*)FITLIMIT);
+	v = Ev.GetUdvByName((char*)FITLIMIT);
 	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	fprintf(stderr, "\tfits will be considered to have converged if  delta chisq < chisq * %g", ((d > 0.) && (d < 1.)) ? d : DEF_FIT_LIMIT);
 	if(epsilon_abs > 0.)
 		fprintf(stderr, " + %g", epsilon_abs);
 	fprintf(stderr, "\n");
-	v = GPO.Ev.GetUdvByName((char*)FITMAXITER);
+	v = Ev.GetUdvByName((char*)FITMAXITER);
 	if(v  && (v->udv_value.type != NOTDEFINED) && (real(&(v->udv_value)) > 0))
 		fprintf(stderr, "\tfit will stop after a maximum of %i iterations\n", (int)real(&(v->udv_value)));
 	else
 		fprintf(stderr, "\tfit has no limit in the number of iterations\n");
-	v = GPO.Ev.GetUdvByName((char*)FITSTARTLAMBDA);
+	v = Ev.GetUdvByName((char*)FITSTARTLAMBDA);
 	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will start with lambda = %g\n", d);
-	v = GPO.Ev.GetUdvByName((char*)FITLAMBDAFACTOR);
+	v = Ev.GetUdvByName((char*)FITLAMBDAFACTOR);
 	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will change lambda by a factor of %g\n", d);
@@ -2427,7 +2422,7 @@ static void show_fit()
 	else
 		fprintf(stderr, "\tfit will default to `unitweights` if no `error`keyword is given on the command line.\n");
 	fprintf(stderr, "\tfit can run the following command when interrupted:\n\t\t'%s'\n", getfitscript());
-	v = GPO.Ev.GetUdvByName("GPVAL_LAST_FIT");
+	v = Ev.GetUdvByName("GPVAL_LAST_FIT");
 	if(v && v->udv_value.type != NOTDEFINED)
 		fprintf(stderr, "\tlast fit command was: %s\n", v->udv_value.v.string_val);
 }
@@ -3014,7 +3009,7 @@ static void show_ticdefp(const GpAxis * pAx)
 	struct ticmark * t;
 	const char * ticfmt = conv_text(pAx->formatstring);
 	fprintf(stderr, "\t%s-axis tics are %s, \tmajor ticscale is %g and minor ticscale is %g\n",
-	    axis_name((AXIS_INDEX)pAx->index), (pAx->tic_in ? "IN" : "OUT"), pAx->ticscale, pAx->miniticscale);
+	    axis_name((AXIS_INDEX)pAx->index), (pAx->TicIn ? "IN" : "OUT"), pAx->ticscale, pAx->miniticscale);
 	fprintf(stderr, "\t%s-axis tics:\t", axis_name((AXIS_INDEX)pAx->index));
 	switch(pAx->ticmode & TICS_MASK) {
 		case NO_TICS:
@@ -3023,7 +3018,7 @@ static void show_ticdefp(const GpAxis * pAx)
 		case TICS_ON_AXIS:
 		    fputs("on axis", stderr);
 		    if(pAx->ticmode & TICS_MIRROR)
-			    fprintf(stderr, " and mirrored %s", (pAx->tic_in ? "OUT" : "IN"));
+			    fprintf(stderr, " and mirrored %s", (pAx->TicIn ? "OUT" : "IN"));
 		    break;
 		case TICS_ON_BORDER:
 		    fputs("on border", stderr);

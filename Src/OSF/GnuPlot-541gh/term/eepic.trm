@@ -79,7 +79,7 @@ register_term(eepic)
 
 #include <ctype.h>
 
-TERM_PUBLIC void EEPIC_init();
+TERM_PUBLIC void EEPIC_init(termentry * pThis);
 TERM_PUBLIC void EEPIC_graphics();
 TERM_PUBLIC void EEPIC_text();
 TERM_PUBLIC void EEPIC_linetype(int linetype);
@@ -205,7 +205,7 @@ static int EEPIC_linecount = 0; /* number of points in line so far */
 /* figure out the best arrow */
 static void best_latex_arrow(int sx, int sy, int ex, int ey, int who, int head);
 
-TERM_PUBLIC void EEPIC_init()
+TERM_PUBLIC void EEPIC_init(termentry * pThis)
 {
 	EEPIC_posx = EEPIC_posy = 0;
 	EEPIC_type = 0;
@@ -223,7 +223,7 @@ TERM_PUBLIC void EEPIC_graphics()
 	struct termentry * t = term;
 	/* HBB 20001027: respect 'size' and 'offset' settings to modify
 	 * picture box size and position */
-	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(%d,%d)\n", (int)(t->xmax * xsize), (int)(t->ymax * ysize), (int)(t->xmax * xoffset), (int)(t->ymax * xoffset));
+	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(%d,%d)\n", (int)(t->MaxX * xsize), (int)(t->MaxY * ysize), (int)(t->MaxX * xoffset), (int)(t->MaxY * xoffset));
 	if(eepic_fontsize_set) {
 		float x = t->ChrV * EEPIC_UNIT + 0.5;
 		fprintf(gpoutfile, "\\fontsize{%d}{%g}\\selectfont\n", (int)x,  1.2 * x);
@@ -402,8 +402,8 @@ TERM_PUBLIC void EEPIC_options()
 			eepic_lineset = 0;
 			eepic_pointsize = 0;
 			eepic_explicit_units = INCHES;
-			term->xmax = EEPIC_XMAX;
-			term->ymax = EEPIC_YMAX;
+			term->MaxX = EEPIC_XMAX;
+			term->MaxY = EEPIC_YMAX;
 			size_set = FALSE;
 			GPO.Pgm.Shift();
 		}
@@ -430,8 +430,8 @@ TERM_PUBLIC void EEPIC_options()
 		else if(GPO.Pgm.EqualsCur("size")) {
 			GPO.Pgm.Shift();
 			eepic_explicit_units = GPO.ParseTermSize(&eepic_xsize, &eepic_ysize, INCHES);
-			term->xmax = eepic_xsize / EEPIC_UNIT;
-			term->ymax = eepic_ysize / EEPIC_UNIT;
+			term->MaxX = eepic_xsize / EEPIC_UNIT;
+			term->MaxY = eepic_ysize / EEPIC_UNIT;
 			size_set = TRUE;
 		}
 		else if(GPO.Pgm.AlmostEqualsCur("s$mall")) {
@@ -475,10 +475,10 @@ TERM_PUBLIC void EEPIC_options()
 	if(size_set) {
 		if(eepic_explicit_units == CM)
 			sprintf(term_options+strlen(term_options), " size %.2fcm, %.2fcm ",
-			    2.54*(float)term->xmax/(EEPIC_DOTS_PER_INCH), 2.54*(float)term->ymax/(EEPIC_DOTS_PER_INCH));
+			    2.54*(float)term->MaxX/(EEPIC_DOTS_PER_INCH), 2.54*(float)term->MaxY/(EEPIC_DOTS_PER_INCH));
 		else
 			sprintf(term_options+strlen(term_options), " size %.2fin, %.2fin ",
-			    (float)term->xmax/(EEPIC_DOTS_PER_INCH), (float)term->ymax/(EEPIC_DOTS_PER_INCH));
+			    (float)term->MaxX/(EEPIC_DOTS_PER_INCH), (float)term->MaxY/(EEPIC_DOTS_PER_INCH));
 	}
 }
 
@@ -490,7 +490,7 @@ TERM_TABLE_START(eepic_driver)
 "eepic", "EEPIC -- extended LaTeX picture environment",
 EEPIC_XMAX, EEPIC_YMAX, EEPIC_VCHAR, EEPIC_HCHAR,
 EEPIC_VTIC, EEPIC_HTIC, EEPIC_options, EEPIC_init, EEPIC_reset,
-EEPIC_text, null_scale, EEPIC_graphics, EEPIC_move, EEPIC_vector,
+EEPIC_text, GnuPlot::NullScale, EEPIC_graphics, EEPIC_move, EEPIC_vector,
 EEPIC_linetype, EEPIC_put_text, EEPIC_text_angle,
 EEPIC_justify_text, EEPIC_point, EEPIC_arrow, set_font_null,
 0,     /* pointsize */

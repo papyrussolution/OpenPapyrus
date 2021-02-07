@@ -521,17 +521,6 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 		IdleCmdMqb(long refreshPeriod, PPID notifyID) : IdleCommand(refreshPeriod), NotifyID(notifyID)
 		{
 		}
-		int FASTCALL SetupMbqEvent(PPNotifyEvent & rN, const PPAdviseEvent & rSrc)
-		{
-			int    ok = 0;
-			rN.Clear();
-			rN.Action = rSrc.Action;
-			rN.P_MqbEnv = new PPMqbClient::Envelope;
-			if(rN.P_MqbEnv && rSrc.ConvertToMqbEnvelope(EvqList, *rN.P_MqbEnv) > 0) {
-				ok = 1;
-			}
-			return ok;
-		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
 			int    ok = -1;
@@ -547,12 +536,15 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 					PPThreadLocalArea & r_tla = DS.GetTLA();
 					PPAdviseBlock adv_blk;
 					PPNotifyEvent ev;
-					for(uint i = 0; i < evqc; i++) {
+					for(uint i = 0; i < EvqList.getCount(); i++) {
 						const PPAdviseEvent & r_ev = EvqList.at(i);
 						if(r_ev.Action == PPEVNT_MQB_MESSAGE) {
 							for(uint j = 0; adv_list.Enum(&j, &adv_blk);) {
 								if(adv_blk.Proc) {
-									if(SetupMbqEvent(ev, r_ev) > 0) {
+									ev.Clear();
+									ev.Action = r_ev.Action;
+									ev.P_MqbEnv = new PPMqbClient::Envelope;
+									if(ev.P_MqbEnv && r_ev.ConvertToMqbEnvelope(EvqList, *ev.P_MqbEnv) > 0) {
 										ev.ExtDtm  = rPrevRunTime;
 										adv_blk.Proc(PPAdviseBlock::evMqbMessage, &ev, adv_blk.ProcExtPtr);
 										adv_blk.Proc(PPAdviseBlock::evMqbMessage, &ev.Finalize(rPrevRunTime, 0), adv_blk.ProcExtPtr); // finalize
@@ -566,6 +558,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 			}
 			return ok;
 		}
+	private:
 		PPID   NotifyID;
 	};
 	class IdleCmdPhoneSvc : public IdleCommand, private PPAdviseEventQueue::Client {
@@ -1036,7 +1029,14 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdQuartz(PPAdviseBlock::evQuartz));
 	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0));
 	IdleCmdList.insert(new IdleCmdConfigUpdated(60, 0, PPAdviseBlock::evConfigChanged)); // @v10.3.1
-	IdleCmdList.insert(new IdleCmdMqb(1, PPAdviseBlock::evMqbMessage)); // @v10.5.7
+	{
+#ifdef NDEBUG
+		const long mqb_refresh_period = 73;
+#else
+		const long mqb_refresh_period = 17;
+#endif
+		IdleCmdList.insert(new IdleCmdMqb(mqb_refresh_period, PPAdviseBlock::evMqbMessage)); // @v10.5.7
+	}
 	IdleCmdList.insert(new IdleCmdEventCreation(83)); // @v10.9.0
 // @v10.4.8 #if USE_ADVEVQUEUE==2
 	if(_PPConst.UseAdvEvQueue == 2) { // @v10.4.8
@@ -4002,7 +4002,7 @@ const SrSyntaxRuleSet * PPSession::GetSrSyntaxRuleSet()
 int    PPSession::SetDbCacheDeferredState(long dbPathID, int set) { return CMng.SetDeferredState(dbPathID, set); }
 int    FASTCALL PPSession::IsDbCacheDeferredState(long dbPathID) { return CMng.IsDeferredState(dbPathID); }
 
-int PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAdviseEventQueue::Client * pCli)
+int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 {
 	int    ok = 1;
 	if(dbPathID && DBS.IsConsistent()) {
@@ -5263,8 +5263,8 @@ int PPAdviseEventVector::Pack()
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ChannelP));
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.CallerIdP));
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ConnectedLineNumP));
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.ContextP)); // @v9.9.12
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.ExtenP)); // @v9.9.12
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.ContextP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.ExtenP));
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.BridgeP)); // @v10.0.02
 
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbConsumerTagP));   // @v10.5.7

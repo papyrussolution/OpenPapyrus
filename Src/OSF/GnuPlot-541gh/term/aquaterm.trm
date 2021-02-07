@@ -38,7 +38,7 @@ register_term(aqua)
 #ifdef TERM_PROTO
 /* Required entries */
 TERM_PUBLIC void AQUA_options();
-TERM_PUBLIC void AQUA_init();
+TERM_PUBLIC void AQUA_init(termentry * pThis);
 TERM_PUBLIC void AQUA_reset();
 TERM_PUBLIC void AQUA_text();
 TERM_PUBLIC void AQUA_graphics();
@@ -366,11 +366,10 @@ static void set_font_size(double size)
 	term->ChrV = (int)(size * 1.5 * AQUA_RESOLUTION);
 }
 
-TERM_PUBLIC void AQUA_init()
+TERM_PUBLIC void AQUA_init(termentry * pThis)
 {
 	float fontSize, fontWHRatio;
 	NSString * title;
-
 	LOG(@ "Aqua Init (open plot)");
 	if(arpool == NULL) {
 		/* FIXME: This should be removed when pools are handled in gnuplot proper */
@@ -390,8 +389,8 @@ TERM_PUBLIC void AQUA_init()
 	AQUA_hasAlphaSupport = [AQTAdapter instancesRespondToSelector:@selector(setColorRed:green:blue:alpha:)];
 
 	/* set xmax, ymax*/
-	term->xmax = AQUA_xSize;
-	term->ymax = AQUA_ySize;
+	term->MaxX = AQUA_xSize;
+	term->MaxY = AQUA_ySize;
 	/* set current font*/
 	[adapter setFontname: AQUA_convert_using_encoding(AQUA_fontNameCur)];
 	set_font_size(AQUA_fontSizeCur); /* this also sets ChrV and ChrH */
@@ -680,7 +679,7 @@ TERM_PUBLIC void AQUA_linewidth(double linewidth)
 TERM_PUBLIC void AQUA_pointsize(double pointsize)
 {
 	LOG(@ "AQUA_pointsize(%f)", pointsize);
-	term_pointsize = pointsize;
+	GPO.TermPointSize = pointsize;
 }
 
 TERM_PUBLIC int AQUA_make_palette(t_sm_palette * palette)
@@ -948,11 +947,11 @@ TERM_TABLE_START(aqua_driver)
 0 /* xmax */, 0 /* ymax */, 0 /* vchar */, 0 /* hchar */,
 0 /* vtic */, 0 /* htic */,
 AQUA_options, AQUA_init, AQUA_reset,
-AQUA_text, null_scale, AQUA_graphics, AQUA_move, AQUA_vector,
+AQUA_text, GnuPlot::NullScale, AQUA_graphics, AQUA_move, AQUA_vector,
 AQUA_linetype, AQUA_put_text,
 /* optionals */
 AQUA_text_angle,
-AQUA_justify_text, AQUA_point, do_arrow, AQUA_set_font,
+AQUA_justify_text, AQUA_point, GnuPlot::DoArrow, AQUA_set_font,
 AQUA_pointsize,
 TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE|TERM_CAN_DASH|TERM_POLYGON_PIXELS|TERM_LINEWIDTH,
 AQUA_suspend, AQUA_resume,

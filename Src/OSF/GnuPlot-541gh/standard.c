@@ -393,7 +393,7 @@ static double cheb_i1_B[] =
 // Make all the following internal routines perform autoconversion
 // from string to numeric value.
 // 
-#define __POP__(x) pop_or_convert_from_string(x)
+#define __POP__(x) PopOrConvertFromString(x)
 
 //void f_real(union argument * /*arg*/)
 void GnuPlot::F_Real(union argument * /*arg*/)
@@ -587,10 +587,9 @@ void GnuPlot::F_Tanh(union argument * /*arg*/)
 {
 	GpValue a;
 	double den;
-	double real_2arg, imag_2arg;
 	__POP__(&a);
-	real_2arg = 2. * real(&a);
-	imag_2arg = 2. * imag(&a);
+	double real_2arg = 2.0 * real(&a);
+	double imag_2arg = 2.0 * imag(&a);
 #ifdef E_MINEXP
 	if(-fabs(real_2arg) < E_MINEXP) {
 		EvStk.Push(Gcomplex(&a, real_2arg < 0 ? -1.0 : 1.0, 0.0));
@@ -777,7 +776,7 @@ void GnuPlot::F_Int(union argument * /*arg*/)
 	GpValue a;
 	double foo = real(__POP__(&a));
 	if(a.type == NOTDEFINED || isnan(foo)) {
-		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 		GPO.Ev.IsUndefined_ = true;
 	}
 	else if(a.type == INTGR) {
@@ -787,11 +786,11 @@ void GnuPlot::F_Int(union argument * /*arg*/)
 	else if(fabs(foo) >= LARGEST_GUARANTEED_NONOVERFLOW) {
 		if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
 			Ev.IsUndefined_ = true;
-		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 #else
 	}
 	else if(fabs(foo) > LARGEST_GUARANTEED_NONOVERFLOW) {
-		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 #endif
 	}
 	else
@@ -809,7 +808,7 @@ void GnuPlot::F_Round(union argument * /*arg*/)
 	GpValue a;
 	double foo = real(__POP__(&a));
 	if(a.type == NOTDEFINED || isnan(foo)) {
-		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 		GPO.Ev.IsUndefined_ = true;
 	}
 	else if(a.type == INTGR) {
@@ -819,11 +818,11 @@ void GnuPlot::F_Round(union argument * /*arg*/)
 	else if(fabs(foo) >= LARGEST_EXACT_INT/2.) {
 		if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
 			Ev.IsUndefined_ = true;
-		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 #else
 	}
 	else if(fabs(foo) >= LARGEST_GUARANTEED_NONOVERFLOW) {
-		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 #endif
 	}
 	else
@@ -940,10 +939,10 @@ void GnuPlot::F_Floor(union argument * /*arg*/)
 		    if(!(fabs(foo) < LARGEST_EXACT_INT/2.)) {
 			    if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
 				    Ev.IsUndefined_ = true;
-			    EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+			    EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 #else
 		    if(fabs(foo) >= LARGEST_GUARANTEED_NONOVERFLOW) {
-			    EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+			    EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 #endif
 		    }
 		    else {
@@ -975,10 +974,10 @@ void GnuPlot::F_Ceil(union argument * /*arg*/)
 		    if(!(fabs(foo) < LARGEST_EXACT_INT/2.)) {
 			    if(Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED)
 				    Ev.IsUndefined_ = true;
-			    EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+			    EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 #else
 		    if(fabs(foo) >= LARGEST_GUARANTEED_NONOVERFLOW) {
-			    EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+			    EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 #endif
 		    }
 		    else {
@@ -1179,8 +1178,8 @@ static double ry1(double x)
 		return (sqrt(TWO_ON_PI / x) * (pone(x) * sin(x - THREE_PI_ON_FOUR) + (8.0 / x) * qone(x) * cos(x - THREE_PI_ON_FOUR)));
 }
 
-#define jn(n, x) not_a_number()
-#define yn(n, x) not_a_number()
+#define jn(n, x) fgetnan()
+#define yn(n, x) fgetnan()
 
 #endif  /* hard-coded Bessel approximations if not HAVE_LIBM */
 

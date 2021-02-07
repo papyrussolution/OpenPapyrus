@@ -837,5 +837,6 @@
 	// @variant: #define ftello(s)	(static_cast<long>(ftell((s))))
 	#define strcasecmp  _stricmp
 	#define strncasecmp _strnicmp
+	#define ftruncate   _chsize_s // @v11.0.1
 #endif
 #endif // } __SLPORT_H

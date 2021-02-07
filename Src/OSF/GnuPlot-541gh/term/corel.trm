@@ -34,7 +34,7 @@ register_term(corel)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void COREL_options();
-TERM_PUBLIC void COREL_init();
+TERM_PUBLIC void COREL_init(termentry * pThis);
 TERM_PUBLIC void COREL_graphics();
 TERM_PUBLIC void COREL_text();
 TERM_PUBLIC void COREL_reset();
@@ -135,8 +135,8 @@ TERM_PUBLIC void COREL_options()
 			corel_ymax = (uint)(real(const_express(&a)) * 720);
 			GPO.Pgm.Shift();
 		}
-		term->xmax = corel_xmax;
-		term->ymax = corel_ymax;
+		term->MaxX = corel_xmax;
+		term->MaxY = corel_ymax;
 		term->TicV = corel_ymax / 80;
 		term->TicH = corel_ymax / 80;
 	}
@@ -150,7 +150,7 @@ TERM_PUBLIC void COREL_options()
 	    corel_lw / COREL_SC);
 }
 
-TERM_PUBLIC void COREL_init()
+TERM_PUBLIC void COREL_init(termentry * pThis)
 {
 	fprintf(gpoutfile,
 	    "\
@@ -423,7 +423,7 @@ TERM_TABLE_START(corel_driver)
 	COREL_init, 
 	COREL_reset,
 	COREL_text, 
-	null_scale, 
+	GnuPlot::NullScale, 
 	COREL_graphics, 
 	COREL_move, 
 	COREL_vector,
@@ -432,7 +432,7 @@ TERM_TABLE_START(corel_driver)
 	COREL_text_angle,
 	COREL_justify_text, 
 	do_point, 
-	do_arrow, 
+	GnuPlot::DoArrow, 
 	set_font_null 
 TERM_TABLE_END(corel_driver)
 

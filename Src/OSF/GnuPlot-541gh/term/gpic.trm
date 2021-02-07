@@ -59,7 +59,7 @@ register_term(gpic)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void GPIC_options();
-TERM_PUBLIC void GPIC_init();
+TERM_PUBLIC void GPIC_init(termentry * pThis);
 TERM_PUBLIC void GPIC_graphics();
 TERM_PUBLIC void GPIC_text();
 TERM_PUBLIC void GPIC_linetype(int linetype);
@@ -133,7 +133,7 @@ TERM_PUBLIC void GPIC_options()
 	sprintf(term_options, "Origin is at (%f,%f)", GPIC_x, GPIC_y);
 }
 
-TERM_PUBLIC void GPIC_init()
+TERM_PUBLIC void GPIC_init(termentry * pThis)
 {
 	GPIC_linetype(-1);
 	fputs(".\\\"GNUPLOT: GROFF picture using the gpic preprocessor\n", gpoutfile);
@@ -142,7 +142,7 @@ TERM_PUBLIC void GPIC_init()
 TERM_PUBLIC void GPIC_graphics()
 {
 	struct termentry * t = term;
-	fprintf(gpoutfile, ".PS %f %f\n", GPIC_coord(t->xmax), GPIC_coord(t->ymax));
+	fprintf(gpoutfile, ".PS %f %f\n", GPIC_coord(t->MaxX), GPIC_coord(t->MaxY));
 	fprintf(gpoutfile, "x=%f; y=%f\n", GPIC_x, GPIC_y);
 }
 
@@ -241,7 +241,7 @@ TERM_TABLE_START(gpic_driver)
 "gpic", "GPIC -- Produce graphs in groff using the gpic preprocessor",
 GPIC_XMAX, GPIC_YMAX, GPIC_VCHAR, GPIC_HCHAR,
 GPIC_VTIC, GPIC_HTIC, GPIC_options, GPIC_init, GPIC_reset,
-GPIC_text, null_scale, GPIC_graphics, GPIC_move, GPIC_vector,
+GPIC_text, GnuPlot::NullScale, GPIC_graphics, GPIC_move, GPIC_vector,
 GPIC_linetype, GPIC_put_text, GPIC_text_angle,
 GPIC_justify_text, line_and_point, GPIC_arrow, set_font_null TERM_TABLE_END(gpic_driver)
 #undef LAST_TERM

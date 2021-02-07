@@ -33,7 +33,7 @@ register_term(pdf)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void PDF_options();
-TERM_PUBLIC void PDF_init();
+TERM_PUBLIC void PDF_init(termentry * pThis);
 TERM_PUBLIC void PDF_graphics();
 TERM_PUBLIC void PDF_text();
 TERM_PUBLIC void PDF_linetype(int linetype);
@@ -407,8 +407,8 @@ TERM_PUBLIC void PDF_options()
 			GPO.Pgm.Shift();
 			pdf_explicit_size = TRUE;
 			pdf_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
-			term->xmax = xmax_t*PDF_RESOLUTION*72./gp_resolution;
-			term->ymax = ymax_t*PDF_RESOLUTION*72./gp_resolution;
+			term->MaxX = xmax_t*PDF_RESOLUTION*72./gp_resolution;
+			term->MaxY = ymax_t*PDF_RESOLUTION*72./gp_resolution;
 			continue;
 		}
 		if(GPO.Pgm.EqualsCur("fontscale")) {
@@ -429,16 +429,16 @@ TERM_PUBLIC void PDF_options()
 	if(pdf_explicit_size) {
 		if(pdf_explicit_units == CM)
 			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ",
-			    2.54*(float)term->xmax/(72.*PDF_RESOLUTION),
-			    2.54*(float)term->ymax/(72.*PDF_RESOLUTION));
+			    2.54*(float)term->MaxX/(72.*PDF_RESOLUTION),
+			    2.54*(float)term->MaxY/(72.*PDF_RESOLUTION));
 		else
 			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ",
-			    (float)term->xmax/(72.*PDF_RESOLUTION),
-			    (float)term->ymax/(72.*PDF_RESOLUTION));
+			    (float)term->MaxX/(72.*PDF_RESOLUTION),
+			    (float)term->MaxY/(72.*PDF_RESOLUTION));
 	}
 }
 
-TERM_PUBLIC void PDF_init()
+TERM_PUBLIC void PDF_init(termentry * pThis)
 {
 	static bool PDFlib_booted = FALSE;
 	char * gpversionstring;
@@ -486,14 +486,14 @@ TERM_PUBLIC void PDF_init()
 #endif
 	// Have to start the first page now, in order to know the actual size of the selected font 
 	PDF_graphics();
-	/* set ChrH, ChrV*/
+	// set ChrH, ChrV
 	term->ChrH = PDF_fontAvWidth;
 	term->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
-	/* set TicH, TicV*/
+	// set TicH, TicV
 	term->TicH = term->TicV = 3 * PDF_RESOLUTION;
-	/* initialize terminal's pointsize from "set pointsize" value */
-	term_pointsize = pointsize;
-	/* Initialize other default settings */
+	// initialize terminal's pointsize from "set pointsize" value 
+	GPO.TermPointSize = pointsize;
+	// Initialize other default settings 
 	PDF_setlinecap(myPDF, PDF_LineCap);
 	PDF_setlinejoin(myPDF, PDF_LineCap);    /* round+round or butt+mitre */
 }
@@ -508,12 +508,12 @@ TERM_PUBLIC void PDF_graphics()
 
 	/* set size of canvas */
 	if(!pdf_explicit_size) {
-		term->xmax = PDF_XMAX;
-		term->ymax = PDF_YMAX;
+		term->MaxX = PDF_XMAX;
+		term->MaxY = PDF_YMAX;
 	}
 
-	PDF_begin_page(myPDF, (double)term->xmax / PDF_RESOLUTION,
-	    (double)term->ymax / PDF_RESOLUTION);
+	PDF_begin_page(myPDF, (double)term->MaxX / PDF_RESOLUTION,
+	    (double)term->MaxY / PDF_RESOLUTION);
 	PDF_scale(myPDF, 1.0/PDF_RESOLUTION, 1.0/PDF_RESOLUTION);
 	if(title.text && title.text[0])
 		/* a title has been set --> use it as the bookmark name, too */
@@ -630,26 +630,21 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 {
 	PDF_PathClose();
 	PDF_save(myPDF);
-
-	if(number < 0 || term_pointsize <= 0) {
-		/* Treat all negative point sizes as  dots */
+	if(number < 0 || GPO.TermPointSize <= 0.0) {
+		// Treat all negative point sizes as  dots 
 		PDF_dot(x, y);
 	}
 	else {
-		/* Change coordinate system so the point symbols themselves
-		 * can be drawn without depending on position or size (-->
-		 * better compression and less coding for gnuplot) */
-		/* NB: I use the do_pointsize() default implementation, which
-		 * just stores the last set pointsize into `term_pointsize',
-		 * to avoid introducing another static driver-local variable
-		 * */
+		// Change coordinate system so the point symbols themselves
+		// can be drawn without depending on position or size (--> better compression and less coding for gnuplot) 
+		// NB: I use the do_pointsize() default implementation, which
+		// just stores the last set pointsize into `term_pointsize',
+		// to avoid introducing another static driver-local variable
 		PDF_translate(myPDF, x, y);
-		PDF_scale(myPDF, term->TicH / 2.0 * term_pointsize,
-		    term->TicV / 2.0 * term_pointsize);
-		/* Correct linewidth to counter the scaling effect --- assume
-		* TicH is usable, to avoid having to average h_ and TicV */
-		PDF_setlinewidth(myPDF,
-		    PDF_LineWidth / (term->TicH / 2.0 * term_pointsize));
+		PDF_scale(myPDF, term->TicH / 2.0 * GPO.TermPointSize, term->TicV / 2.0 * GPO.TermPointSize);
+		// Correct linewidth to counter the scaling effect --- assume
+		// TicH is usable, to avoid having to average h_ and TicV 
+		PDF_setlinewidth(myPDF, PDF_LineWidth / (term->TicH / 2.0 * GPO.TermPointSize));
 		switch(number %= PDF_NUM_POINTTYPES) {
 			case 0: /* Plus */
 			    PDF_moveto(myPDF, -1, 0);
@@ -716,7 +711,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			case 3+2*2: /* TriangleUp */
 			    PDF_moveto(myPDF, 0, 1.12);
 			    PDF_lineto(myPDF, -1, -0.5);
-			    PDF_lineto(myPDF, 1, -0.5);
+			    PDF_lineto(myPDF,  1, -0.5);
 			    PDF_closepath_stroke(myPDF);
 			    if(number == 7) PDF_dot(0, 0);
 			    break;
@@ -724,17 +719,17 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			    PDF_setgray_fill(myPDF, 1);
 			/* FALLTHROUGH */
 			case 4+2*2:     /* TriangleUpFilled */
-			    PDF_moveto(myPDF, 0, 1.12);
+			    PDF_moveto(myPDF,  0, 1.12);
 			    PDF_lineto(myPDF, -1, -0.5);
-			    PDF_lineto(myPDF, 1, -0.5);
+			    PDF_lineto(myPDF,  1, -0.5);
 			    PDF_closepath_fill_stroke(myPDF);
 			    break;
 
 			case 63+3: /* TriangleDownEmpty */
 			case 3+2*3: /* TriangleDown */
-			    PDF_moveto(myPDF, 0, -1.12);
+			    PDF_moveto(myPDF,  0, -1.12);
 			    PDF_lineto(myPDF, -1, 0.5);
-			    PDF_lineto(myPDF, 1, 0.5);
+			    PDF_lineto(myPDF,  1, 0.5);
 			    PDF_closepath_stroke(myPDF);
 			    if(number == 9) PDF_dot(0, 0);
 			    break;
@@ -742,17 +737,17 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			    PDF_setgray_fill(myPDF, 1);
 			/* FALLTHROUGH */
 			case 4+2*3: /* TriangleDownFilled */
-			    PDF_moveto(myPDF, 0, -1.12);
+			    PDF_moveto(myPDF,  0, -1.12);
 			    PDF_lineto(myPDF, -1, 0.5);
-			    PDF_lineto(myPDF, 1, 0.5);
+			    PDF_lineto(myPDF,  1, 0.5);
 			    PDF_closepath_fill_stroke(myPDF);
 			    break;
 
 			case 63+4: /* DiamondEmpty */
 			case 3+2*4: /* Diamond */
-			    PDF_moveto(myPDF, 0, -1);
-			    PDF_lineto(myPDF, 1, 0);
-			    PDF_lineto(myPDF, 0, 1);
+			    PDF_moveto(myPDF,  0, -1);
+			    PDF_lineto(myPDF,  1, 0);
+			    PDF_lineto(myPDF,  0, 1);
 			    PDF_lineto(myPDF, -1, 0);
 			    PDF_closepath_stroke(myPDF);
 			    if(number == 11) PDF_dot(0, 0);
@@ -1480,23 +1475,51 @@ TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(pdf_driver)
-"pdf", "PDF (Portable Document File) file driver",
-0 /* xmax */, 0 /* ymax */, 0 /* vchar */, 0 /* hchar */,
-0 /* vtic */, 0 /* htic */,
-PDF_options, PDF_init, PDF_reset, PDF_text, null_scale, PDF_graphics,
-PDF_move, PDF_vector, PDF_linetype, PDF_put_text, PDF_text_angle,
-PDF_justify_text, PDF_point, do_arrow, PDF_set_font, do_pointsize,
-TERM_BINARY|TERM_CAN_DASH|TERM_LINEWIDTH|TERM_FONTSCALE,
-0 /* suspend */, 0 /* resume */, PDF_boxfill, PDF_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0    /* no mouse support for pdf */
-#endif
-, PDF_make_palette,
-PDF_previous_palette,
-PDF_set_color,
-PDF_filled_polygon
-, PDF_image
-, ENHPDF_OPEN, ENHPDF_FLUSH, do_enh_writec TERM_TABLE_END(pdf_driver)
+	"pdf", 
+	"PDF (Portable Document File) file driver",
+	0 /* xmax */, 
+	0 /* ymax */, 
+	0 /* vchar */, 
+	0 /* hchar */,
+	0 /* vtic */, 
+	0 /* htic */,
+	PDF_options, 
+	PDF_init, 
+	PDF_reset, 
+	PDF_text, 
+	GnuPlot::NullScale, 
+	PDF_graphics,
+	PDF_move, 
+	PDF_vector, 
+	PDF_linetype, 
+	PDF_put_text, 
+	PDF_text_angle,
+	PDF_justify_text, 
+	PDF_point, 
+	GnuPlot::DoArrow, 
+	PDF_set_font, 
+	GnuPlot::DoPointSize,
+	TERM_BINARY|TERM_CAN_DASH|TERM_LINEWIDTH|TERM_FONTSCALE,
+	0 /* suspend */, 
+	0 /* resume */, 
+	PDF_boxfill, 
+	PDF_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,    /* no mouse support for pdf */
+	#endif
+	PDF_make_palette,
+	PDF_previous_palette,
+	PDF_set_color,
+	PDF_filled_polygon,
+	PDF_image,
+	ENHPDF_OPEN, 
+	ENHPDF_FLUSH, 
+	do_enh_writec 
+TERM_TABLE_END(pdf_driver)
 #undef LAST_TERM
 #define LAST_TERM pdf_driver
 #endif /* TERM_TABLE */

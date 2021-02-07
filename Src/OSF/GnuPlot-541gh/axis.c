@@ -542,7 +542,7 @@ char * copy_or_invent_formatstring(GpAxis * this_axis)
 	struct tm t_min, t_max;
 	char tempfmt[MAX_ID_LEN+1];
 	memzero(tempfmt, sizeof(tempfmt));
-	if(this_axis->tictype != DT_TIMEDATE ||  !looks_like_numeric(this_axis->formatstring)) {
+	if(this_axis->tictype != DT_TIMEDATE || !looks_like_numeric(this_axis->formatstring)) {
 		/* The simple case: formatstring is usable, so use it! */
 		strncpy(tempfmt, this_axis->formatstring, MAX_ID_LEN);
 		/* Ensure enough precision to distinguish tics */
@@ -823,10 +823,10 @@ void setup_tics(GpAxis * pThis, int max)
 	t_ticdef * ticdef = &(pThis->ticdef);
 	// Do we or do we not extend the axis range to the	
 	// next integer multiple of the ticstep?		
-	bool autoextend_min = (pThis->autoscale & AUTOSCALE_MIN) && !(pThis->autoscale & AUTOSCALE_FIXMIN);
-	bool autoextend_max = (pThis->autoscale & AUTOSCALE_MAX) && !(pThis->autoscale & AUTOSCALE_FIXMAX);
+	bool autoextend_min = LOGIC((pThis->autoscale & AUTOSCALE_MIN) && !(pThis->autoscale & AUTOSCALE_FIXMIN));
+	bool autoextend_max = LOGIC((pThis->autoscale & AUTOSCALE_MAX) && !(pThis->autoscale & AUTOSCALE_FIXMAX));
 	if(pThis->linked_to_primary || pThis->linked_to_secondary)
-		autoextend_min = autoextend_max = FALSE;
+		autoextend_min = autoextend_max = false;
 	// Apply constraints on autoscaled axis if requested:
 	// The range is _expanded_ here only.  Limiting the range is done
 	// in the macro STORE_AND_UPDATE_RANGE() of axis.h
@@ -887,7 +887,8 @@ void setup_tics(GpAxis * pThis, int max)
 /*
  * Mar 2015: Modified to take an axis pointer rather than an index into GPO.AxS[].
  */
-void gen_tics(GpAxis * pThis, tic_callback callback)
+//void gen_tics(GpAxis * pThis, tic_callback callback)
+void GnuPlot::GenTics(GpAxis * pThis, tic_callback callback)
 {
 	t_ticdef * def = &pThis->ticdef;
 	t_minitics_status minitics = pThis->minitics; /* off/default/auto/explicit */
@@ -902,33 +903,35 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 		lgrd.l_type = LT_NODRAW;
 	if(!pThis->gridminor)
 		mgrd.l_type = LT_NODRAW;
-
-	/* EAM FIXME - This really shouldn't happen, but it triggers for instance */
-	/* if x2tics or y2tics are autoscaled but there is no corresponding data. */
+	// EAM FIXME - This really shouldn't happen, but it triggers for instance 
+	// if x2tics or y2tics are autoscaled but there is no corresponding data. 
 	if(pThis->min >= VERYLARGE || pThis->max <= -VERYLARGE)
 		return;
-	/* user-defined tic entries
-	 * We place them exactly where requested.
-	 * Note: No minitics in pThis case
-	 */
+	// user-defined tic entries
+	// We place them exactly where requested.
+	// Note: No minitics in pThis case
 	if(def->def.user) {
 		ticmark * mark = def->def.user;
 		double uncertain = (pThis->max - pThis->min) / 10;
-		double internal_min = pThis->min - SIGNIF * uncertain;
-		double internal_max = pThis->max + SIGNIF * uncertain;
+		//double internal_min = pThis->min - SIGNIF * uncertain;
+		//double internal_max = pThis->max + SIGNIF * uncertain;
+		RealRange internal_range;
+		internal_range.Set(pThis->min - SIGNIF * uncertain, pThis->max + SIGNIF * uncertain);
 		// polar labels always +ve, and if rmin has been set, they are relative to rmin.
 		if(polar && pThis->index == POLAR_AXIS) {
-			internal_min = GPO.AxS.__X().min - SIGNIF * uncertain;
-			internal_max = GPO.AxS.__X().max + SIGNIF * uncertain;
+			//internal_min = AxS.__X().min - SIGNIF * uncertain;
+			//internal_max = AxS.__X().max + SIGNIF * uncertain;
+			internal_range.Set(AxS.__X().min - SIGNIF * uncertain, AxS.__X().max + SIGNIF * uncertain);
 		}
 		for(mark = def->def.user; mark; mark = mark->next) {
 			char label[MAX_ID_LEN]; /* Scratch space to construct a label */
-			char * ticlabel; /* Points either to ^^ or to some existing text */
+			char * ticlabel = 0; // Points either to ^^ or to some existing text 
 			// This condition is only possible if we are in polar mode 
-			const double internal = (pThis->index == POLAR_AXIS) ? GPO.PolarRadius(mark->position) : mark->position;
+			const double internal = (pThis->index == POLAR_AXIS) ? PolarRadius(mark->position) : mark->position;
 			if(pThis->index == THETA_index)
 				; // No harm done if the angular placement wraps at 2pi 
-			else if(!inrange(internal, internal_min, internal_max))
+			//else if(!inrange(internal, internal_min, internal_max))
+			else if(!internal_range.CheckX(internal))
 				continue;
 			if(mark->level < 0) {
 				ticlabel = mark->label; // label read from data file 
@@ -981,9 +984,13 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 		double user;    /* in user co-ords */
 		double start, step, end;
 		int nsteps;
-		double internal_min, internal_max; /* to allow for rounding errors */
-		double ministart = 0, ministep = 1, miniend = 1; /* internal or user - depends on step */
-		double lmin = pThis->min, lmax = pThis->max;
+		//double internal_min, internal_max; // to allow for rounding errors 
+		RealRange internal_range; // to allow for rounding errors 
+		double ministart = 0.0; // internal or user - depends on step 
+		double ministep  = 1.0; //
+		double miniend   = 1.0; //
+		double lmin = pThis->min;
+		double lmax = pThis->max;
 		reorder_if_necessary(lmin, lmax);
 		/* {{{  choose start, step and end */
 		switch(def->type) {
@@ -993,28 +1000,20 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 				    if(def->def.series.end <= 0 || def->def.series.incr <= 0)
 					    return; /* just quietly ignore */
 				    step = def->def.series.incr;
-				    if(def->def.series.start <= 0) /* includes case 'undefined, i.e. -VERYLARGE */
-					    start = step * floor(lmin / step);
-				    else
-					    start = def->def.series.start;
-				    if(def->def.series.end == VERYLARGE)
-					    end = step * ceil(lmax / step);
-				    else
-					    end = def->def.series.end;
+				    start = (def->def.series.start <= 0) ? (step * floor(lmin / step)) : def->def.series.start; // includes case 'undefined, i.e. -VERYLARGE 
+				    end = (def->def.series.end == VERYLARGE) ? (step * ceil(lmax / step)) : def->def.series.end;
 				    if(def->logscaling) {
-					    /* This tries to emulate earlier gnuplot versions in handling
-					     *     set log y; set ytics 10
-					     */
+					    // This tries to emulate earlier gnuplot versions in handling set log y; set ytics 10
 					    if(start <= 0) {
 						    start = step;
 						    while(start > pThis->linked_to_primary->min)
 							    start -= step;
 					    }
 					    else {
-						    start = GPO.EvalLinkFunction(pThis->linked_to_primary, start);
+						    start = EvalLinkFunction(pThis->linked_to_primary, start);
 					    }
-					    step  = GPO.EvalLinkFunction(pThis->linked_to_primary, step);
-					    end   = GPO.EvalLinkFunction(pThis->linked_to_primary, end);
+					    step  = EvalLinkFunction(pThis->linked_to_primary, step);
+					    end   = EvalLinkFunction(pThis->linked_to_primary, end);
 					    lmin = pThis->linked_to_primary->min;
 					    lmax = pThis->linked_to_primary->max;
 				    }
@@ -1030,7 +1029,7 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 			    }
 			    break;
 			case TIC_COMPUTED:
-			    if(nonlinear(pThis)) {
+			    if(pThis->IsNonLinear()) {
 				    lmin = pThis->linked_to_primary->min;
 				    lmax = pThis->linked_to_primary->max;
 				    reorder_if_necessary(lmin, lmax);
@@ -1059,7 +1058,7 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 				    step = 1;
 			    break;
 			default:
-			    GPO.IntError(NO_CARET, "Internal error : unknown tic type");
+			    IntError(NO_CARET, "Internal error : unknown tic type");
 			    return; /* avoid gcc -Wall warning about start */
 		}
 		/* }}} */
@@ -1073,8 +1072,8 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 				if(pThis->mtic_freq <= 0) {
 					minitics = MINI_OFF;
 				}
-				else if(nonlinear(pThis)) {
-					/* NB: In the case of TIC_COMPUTED pThis is wrong but we'll fix it later */
+				else if(pThis->IsNonLinear()) {
+					// NB: In the case of TIC_COMPUTED pThis is wrong but we'll fix it later 
 					double nsteps = pThis->mtic_freq;
 					if(pThis->log && nsteps == pThis->base)
 						nsteps -= 1;
@@ -1086,8 +1085,8 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 					miniend = step;
 				}
 			}
-			else if(nonlinear(pThis) && pThis->ticdef.logscaling) {
-				/* FIXME: Not sure pThis works for all values of step */
+			else if(pThis->IsNonLinear() && pThis->ticdef.logscaling) {
+				// FIXME: Not sure pThis works for all values of step 
 				ministart = ministep = step / (pThis->base - 1);
 				miniend = step;
 			}
@@ -1114,92 +1113,96 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 		 * some oversmart user used a ticstep (much) larger than the
 		 * yrange itself */
 		if(step < (fabs(lmax) + fabs(lmin))) {
-			internal_max = lmax + step * SIGNIF;
-			internal_min = lmin - step * SIGNIF;
+			//internal_max = lmax + step * SIGNIF;
+			//internal_min = lmin - step * SIGNIF;
+			internal_range.Set(lmin - step * SIGNIF, lmax + step * SIGNIF);
 		}
 		else {
-			internal_max = lmax;
-			internal_min = lmin;
+			//internal_max = lmax;
+			//internal_min = lmin;
+			internal_range.Set(lmin, lmax);
 		}
 		if(step == 0)
 			return; /* just quietly ignore them ! */
 		/* }}} */
 
-		/* This protects against user error, not precision errors */
-		if((internal_max-internal_min)/step > term->xmax) {
-			GPO.IntWarn(NO_CARET, "Too many axis ticks requested (>%.0g)", (internal_max-internal_min)/step);
-			return;
+		// This protects against user error, not precision errors 
+		{
+			//if((internal_max-internal_min)/step > term->MaxX) {
+			const double _sñ = internal_range.GetDistance()/step;
+			if(_sñ > term->MaxX) {
+				IntWarn(NO_CARET, "Too many axis ticks requested (>%.0g)", _sñ);
+				return;
+			}
 		}
-		/* This protects against infinite loops if the separation between       */
-		/* two ticks is less than the precision of the control variables.       */
-		/* The for(...) loop here must exactly describe the true loop below.    */
-		/* Furthermore, compiler optimization can muck up pThis test, so we	*/
-		/* tell the compiler that the control variables are volatile.           */
+		// This protects against infinite loops if the separation between       
+		// two ticks is less than the precision of the control variables.       
+		// The for(...) loop here must exactly describe the true loop below.    
+		// Furthermore, compiler optimization can muck up pThis test, so we	
+		// tell the compiler that the control variables are volatile.           
 		nsteps = 0;
 		vol_previous_tic = start-step;
 		for(vol_this_tic = start; vol_this_tic <= end; vol_this_tic += step) {
 			if(fabs(vol_this_tic - vol_previous_tic) < (step/4.)) {
 				step = end - start;
 				nsteps = 2;
-				GPO.IntWarn(NO_CARET, "tick interval too small for machine precision");
+				IntWarn(NO_CARET, "tick interval too small for machine precision");
 				break;
 			}
 			vol_previous_tic = vol_this_tic;
 			nsteps++;
 		}
-		/* Special case.  I hate it. */
+		// Special case.  I hate it. 
 		if(pThis->index == THETA_index) {
 			if(start == 0 && end > 360)
 				nsteps--;
 		}
 		for(tic = start; nsteps > 0; tic += step, nsteps--) {
-			/* {{{  calc internal and user co-ords */
+			// {{{  calc internal and user co-ords 
 			if(pThis->index == POLAR_AXIS) {
-				/* Defer polar conversion until after limit check */
+				// Defer polar conversion until after limit check 
 				internal = tic;
 				user = tic;
 			}
-			else if(nonlinear(pThis)) {
+			else if(pThis->IsNonLinear()) {
 				if(def->type == TIC_SERIES && def->logscaling)
-					user = GPO.EvalLinkFunction(pThis, tic);
+					user = EvalLinkFunction(pThis, tic);
 				else if(def->type == TIC_COMPUTED)
-					user = GPO.EvalLinkFunction(pThis, tic);
+					user = EvalLinkFunction(pThis, tic);
 				else
 					user = tic;
 				internal = tic; /* It isn't really, but pThis makes the range checks work */
 			}
 			else {
-				/* Normal case (no log, no link) */
+				// Normal case (no log, no link) 
 				internal = (pThis->tictype == DT_TIMEDATE) ? time_tic_just(pThis->timelevel, tic) : tic;
 				user = CheckZero(internal, step);
 			}
 			/* }}} */
 			/* Allows placement of theta tics outside the range [0:360] */
 			if(pThis->index == THETA_index) {
-				if(internal > internal_max)
+				if(internal > /*internal_max*/internal_range.upp)
 					internal -= 360.0;
-				if(internal < internal_min)
+				if(internal < /*internal_min*/internal_range.low)
 					internal += 360.0;
 			}
-			if(internal > internal_max)
-				break; /* gone too far - end of series = VERYLARGE perhaps */
-			if(internal >= internal_min) {
-				/* {{{  draw tick via callback */
+			if(internal > /*internal_max*/internal_range.upp)
+				break; // gone too far - end of series = VERYLARGE perhaps 
+			if(internal >= /*internal_min*/internal_range.low) {
+				// {{{  draw tick via callback 
 				switch(def->type) {
 					case TIC_DAY: {
-					    int d = (long)floor(user + 0.5) % 7;
+					    int d = ffloori(user + 0.5) % 7;
 					    if(d < 0)
 						    d += 7;
-					    (*callback)(pThis, internal, abbrev_day_names[d], 0, lgrd,
-						def->def.user);
+					    (*callback)(pThis, internal, abbrev_day_names[d], 0, lgrd, def->def.user);
 					    break;
 				    }
 					case TIC_MONTH: {
 					    int m = (long)floor(user - 1) % 12;
 					    if(m < 0)
 						    m += 12;
-					    (*callback)(pThis, internal, abbrev_month_names[m], 0, lgrd,
-						def->def.user);
+					    (*callback)(pThis, internal, abbrev_month_names[m], 0, lgrd, def->def.user);
 					    break;
 				    }
 					default: { // comp or series 
@@ -1214,21 +1217,20 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 					    }
 					    else if(pThis->index == POLAR_AXIS) {
 						    user = internal;
-						    internal = GPO.PolarRadius(user);
+						    internal = PolarRadius(user);
 						    gprintf(label, sizeof(label), pThis->ticfmt, log10_base, tic);
 					    }
 					    else if(pThis->index >= PARALLEL_AXES) {
 						    // FIXME: needed because ticfmt is not maintained for parallel axes
-						    gprintf(label, sizeof(label), pThis->formatstring,
-							log10_base, user);
+						    gprintf(label, sizeof(label), pThis->formatstring, log10_base, user);
 					    }
 					    else {
 						    gprintf(label, sizeof(label), pThis->ticfmt, log10_base, user);
 					    }
 					    // This is where we finally decided to put the tic mark 
-					    if(nonlinear(pThis) && (def->type == TIC_SERIES && def->logscaling))
+					    if(pThis->IsNonLinear() && def->type == TIC_SERIES && def->logscaling)
 						    position = user;
-					    else if(nonlinear(pThis) && (def->type == TIC_COMPUTED))
+					    else if(pThis->IsNonLinear() && (def->type == TIC_COMPUTED))
 						    position = user;
 					    else
 						    position = internal;
@@ -1256,16 +1258,16 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 						mtic_user = time_tic_just((t_timelevel)(pThis->timelevel - 1), internal + mplace);
 						mtic_internal = mtic_user;
 					}
-					else if((nonlinear(pThis) && (def->type == TIC_COMPUTED)) || (nonlinear(pThis) && (def->type == TIC_SERIES && def->logscaling))) {
-						/* Make up for bad calculation of ministart/ministep/miniend */
-						double this_major = GPO.EvalLinkFunction(pThis, internal);
-						double next_major = GPO.EvalLinkFunction(pThis, internal+step);
+					else if((pThis->IsNonLinear() && (def->type == TIC_COMPUTED)) || (pThis->IsNonLinear() && (def->type == TIC_SERIES && def->logscaling))) {
+						// Make up for bad calculation of ministart/ministep/miniend 
+						double this_major = EvalLinkFunction(pThis, internal);
+						double next_major = EvalLinkFunction(pThis, internal+step);
 						mtic_user = this_major + mplace/miniend * (next_major - this_major);
-						mtic_internal = GPO.EvalLinkFunction(pThis->linked_to_primary, mtic_user);
+						mtic_internal = EvalLinkFunction(pThis->linked_to_primary, mtic_user);
 					}
-					else if(nonlinear(pThis) && pThis->log) {
+					else if(pThis->IsNonLinear() && pThis->log) {
 						mtic_user = internal + mplace;
-						mtic_internal = GPO.EvalLinkFunction(pThis->linked_to_primary, mtic_user);
+						mtic_internal = EvalLinkFunction(pThis->linked_to_primary, mtic_user);
 					}
 					else {
 						mtic_user = internal + mplace;
@@ -1275,14 +1277,15 @@ void gen_tics(GpAxis * pThis, tic_callback callback)
 						// FIXME: is pThis really the only case where	
 						// mtic_internal is the correct position?	
 						mtic_user = user + mplace;
-						mtic_internal = GPO.PolarRadius(mtic_user);
+						mtic_internal = PolarRadius(mtic_user);
 						(*callback)(pThis, mtic_internal, NULL, 1, mgrd, NULL);
 						continue;
 					}
 					// Range-limited tic placement 
-					if(def->rangelimited &&  !inrange(mtic_user, pThis->data_min, pThis->data_max))
+					if(def->rangelimited && !inrange(mtic_user, pThis->data_min, pThis->data_max))
 						continue;
-					if(inrange(mtic_internal, internal_min, internal_max) &&  inrange(mtic_internal, start - step * SIGNIF, end + step * SIGNIF))
+					//if(inrange(mtic_internal, internal_min, internal_max) && inrange(mtic_internal, start - step * SIGNIF, end + step * SIGNIF))
+					if(internal_range.CheckX(mtic_internal) && inrange(mtic_internal, start - step * SIGNIF, end + step * SIGNIF))
 						(*callback)(pThis, mtic_user, NULL, 1, mgrd, NULL);
 				}
 				/* }}} */
@@ -1344,23 +1347,25 @@ static double time_tic_just(t_timelevel level, double ticplace)
  * directions, here. One is the direction of the axis itself (the one
  * it's "running" along). I refer to the one orthogonal to it as
  * "non-running", below. */
-void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dealing with */, int * ticlabel_position/* 'non-running' coordinate */,
-    AXIS_INDEX zeroaxis_basis/* axis to base 'non-running' position of * zeroaxis on */, tic_callback callback/* tic-drawing callback function */)
+//void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dealing with */, int * ticlabel_position/* 'non-running' coordinate */,
+    //AXIS_INDEX zeroaxis_basis/* axis to base 'non-running' position of * zeroaxis on */, tic_callback callback/* tic-drawing callback function */)
+void GnuPlot::AxisOutputTics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dealing with */, int * ticlabel_position/* 'non-running' coordinate */,
+		AXIS_INDEX zeroaxis_basis/* axis to base 'non-running' position of * zeroaxis on */, tic_callback callback/* tic-drawing callback function */)
 {
 	//struct termentry * t = term;
-	GpAxis * this_axis = &GPO.AxS[axis];
+	GpAxis * this_axis = &AxS[axis];
 	bool axis_is_vertical = ((axis == FIRST_Y_AXIS) || (axis == SECOND_Y_AXIS));
 	bool axis_is_second = ((axis == SECOND_X_AXIS) || (axis == SECOND_Y_AXIS));
 	int axis_position;      /* 'non-running' coordinate */
 	int mirror_position;    /* 'non-running' coordinate, 'other' side */
 	double axis_coord = 0.0; /* coordinate of this axis along non-running axis */
 	if(oneof2(zeroaxis_basis, SECOND_X_AXIS, SECOND_Y_AXIS)) {
-		axis_position = GPO.AxS[zeroaxis_basis].term_upper;
-		mirror_position = GPO.AxS[zeroaxis_basis].term_lower;
+		axis_position = AxS[zeroaxis_basis].term_upper;
+		mirror_position = AxS[zeroaxis_basis].term_lower;
 	}
 	else {
-		axis_position = GPO.AxS[zeroaxis_basis].term_lower;
-		mirror_position = GPO.AxS[zeroaxis_basis].term_upper;
+		axis_position = AxS[zeroaxis_basis].term_lower;
+		mirror_position = AxS[zeroaxis_basis].term_upper;
 	}
 	if(axis >= PARALLEL_AXES)
 		axis_coord = axis - PARALLEL_AXES + 1;
@@ -1403,10 +1408,10 @@ void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dea
 			tic_mirror = mirror_position;
 		else
 			tic_mirror = -1; /* no thank you */
-		if((this_axis->ticmode & TICS_ON_AXIS) && !GPO.AxS[zeroaxis_basis].log && inrange(axis_coord, GPO.AxS[zeroaxis_basis].min, GPO.AxS[zeroaxis_basis].max)) {
-			tic_start = GPO.AxS[zeroaxis_basis].MapI(axis_coord);
+		if((this_axis->ticmode & TICS_ON_AXIS) && !AxS[zeroaxis_basis].log && inrange(axis_coord, AxS[zeroaxis_basis].min, AxS[zeroaxis_basis].max)) {
+			tic_start = AxS[zeroaxis_basis].MapI(axis_coord);
 			tic_direction = axis_is_second ? 1 : -1;
-			if(GPO.AxS[axis].ticmode & TICS_MIRROR)
+			if(AxS[axis].ticmode & TICS_MIRROR)
 				tic_mirror = tic_start;
 			/* put text at boundary if axis is close to boundary and the
 			 * corresponding boundary is switched on */
@@ -1430,11 +1435,11 @@ void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dea
 		else {
 			// tics not on axis --> on border 
 			tic_start = axis_position;
-			tic_direction = (this_axis->tic_in ? 1 : -1) * (axis_is_second ? -1 : 1);
+			tic_direction = (this_axis->TicIn ? 1 : -1) * (axis_is_second ? -1 : 1);
 			tic_text = (*ticlabel_position);
 		}
 		// go for it 
-		gen_tics(&GPO.AxS[axis], callback);
+		GenTics(&AxS[axis], callback);
 		(pTerm->text_angle)(0); // reset rotation angle 
 	}
 }
@@ -1502,7 +1507,8 @@ void GnuPlot::AxisDraw2DZeroAxis(termentry * pTerm, AXIS_INDEX axis, AXIS_INDEX 
 // This routine replaces the interpreted string with a direct update of the
 // axis min/max.   Called from mouse.c (apply_zoom)
 // 
-void set_explicit_range(GpAxis * pAx, double newmin, double newmax)
+//void set_explicit_range(GpAxis * pAx, double newmin, double newmax)
+void GnuPlot::SetExplicitRange(GpAxis * pAx, double newmin, double newmax)
 {
 	pAx->set_min = newmin;
 	pAx->set_autoscale &= ~AUTOSCALE_MIN;
@@ -1513,9 +1519,9 @@ void set_explicit_range(GpAxis * pAx, double newmin, double newmax)
 	// If this is one end of a linked axis pair, replicate the new range to the
 	// linked axis, possibly via a mapping function.
 	if(pAx->linked_to_secondary)
-		GPO.CloneLinkedAxes(pAx, pAx->linked_to_secondary);
+		CloneLinkedAxes(pAx, pAx->linked_to_secondary);
 	else if(pAx->linked_to_primary)
-		GPO.CloneLinkedAxes(pAx, pAx->linked_to_primary);
+		CloneLinkedAxes(pAx, pAx->linked_to_primary);
 }
 
 double FASTCALL get_num_or_time(const GpAxis * axis)
@@ -2170,7 +2176,7 @@ double GnuPlot::EvalLinkFunction(const GpAxis * pAx, double raw_coord)
 	if(pAx->log) {
 		if(pAx->linked_to_secondary) {
 			if(raw_coord <= 0.0)
-				return not_a_number();
+				return fgetnan();
 			else
 				return log(raw_coord) / pAx->log_base;
 		}
@@ -2297,20 +2303,21 @@ void GnuPlot::UpdateSecondaryAxisRange(GpAxis * pAxPrimary)
 // However if x1 and x2 are linked to each other we must reconcile
 // their data limits before plotting.
 // 
-void reconcile_linked_axes(GpAxis * primary, GpAxis * secondary)
+//void reconcile_linked_axes(GpAxis * pAxPrimary, GpAxis * pAxSecondary)
+void GnuPlot::ReconcileLinkedAxes(GpAxis * pAxPrimary, GpAxis * pAxSecondary)
 {
 	double dummy;
 	coord_type inrange = INRANGE;
-	if((primary->autoscale & AUTOSCALE_BOTH) != AUTOSCALE_NONE &&  primary->linked_to_secondary) {
-		double min_2_into_1 = GPO.EvalLinkFunction(primary, secondary->data_min);
-		double max_2_into_1 = GPO.EvalLinkFunction(primary, secondary->data_max);
-		// Merge secondary min/max into primary data range 
-		store_and_update_range(&dummy, min_2_into_1, &inrange, primary, FALSE);
-		store_and_update_range(&dummy, max_2_into_1, &inrange, primary, FALSE);
+	if((pAxPrimary->autoscale & AUTOSCALE_BOTH) != AUTOSCALE_NONE && pAxPrimary->linked_to_secondary) {
+		double min_2_into_1 = EvalLinkFunction(pAxPrimary, pAxSecondary->data_min);
+		double max_2_into_1 = EvalLinkFunction(pAxPrimary, pAxSecondary->data_max);
+		// Merge pAxSecondary min/max into pAxPrimary data range 
+		store_and_update_range(&dummy, min_2_into_1, &inrange, pAxPrimary, FALSE);
+		store_and_update_range(&dummy, max_2_into_1, &inrange, pAxPrimary, FALSE);
 		(void)dummy; // Otherwise the compiler complains about an unused variable 
-		// Take the result back the other way to update secondary 
-		secondary->min = GPO.EvalLinkFunction(secondary, primary->min);
-		secondary->max = GPO.EvalLinkFunction(secondary, primary->max);
+		// Take the result back the other way to update pAxSecondary 
+		pAxSecondary->min = EvalLinkFunction(pAxSecondary, pAxPrimary->min);
+		pAxSecondary->max = EvalLinkFunction(pAxSecondary, pAxPrimary->max);
 	}
 }
 // 
@@ -2326,7 +2333,7 @@ double GpAxisSet::MapX(double value) const
 		GpAxis * primary = AxArray[Idx_X].linked_to_primary;
 		if(primary->link_udf->at) {
 			value = GPO.EvalLinkFunction(primary, value);
-			return GPO.Ev.IsUndefined_ ? not_a_number() : primary->Map(value);
+			return GPO.Ev.IsUndefined_ ? fgetnan() : primary->Map(value);
 		}
 	}
 	return AxArray[Idx_X].Map(value);
@@ -2346,7 +2353,7 @@ double GpAxisSet::MapY(double value) const
 		GpAxis * primary = AxArray[Idx_Y].linked_to_primary;
 		if(primary->link_udf->at) {
 			value = GPO.EvalLinkFunction(primary, value);
-			return GPO.Ev.IsUndefined_ ? not_a_number() : primary->Map(value);
+			return GPO.Ev.IsUndefined_ ? fgetnan() : primary->Map(value);
 		}
 	}
 	return AxArray[Idx_Y].Map(value);
@@ -2398,10 +2405,10 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 			}
 		}
 	}
-	if(nonlinear(&AxS.__R())) {
+	if(AxS.__R().IsNonLinear()) {
 		GpAxis * shadow = AxS.__R().linked_to_primary;
 		if(AxS.__R().log && r <= 0)
-			r = not_a_number();
+			r = fgetnan();
 		else
 			r = EvalLinkFunction(shadow, r) - shadow->min;
 	}
@@ -2421,8 +2428,8 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 		r = r + AxS.__R().min;
 	}
 	else {
-		*x = not_a_number();
-		*y = not_a_number();
+		*x = fgetnan();
+		*y = fgetnan();
 		return OUTRANGE;
 	}
 	// Correct for theta=0 position and handedness 

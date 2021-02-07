@@ -44,7 +44,7 @@ struct poly_struct;
 
 struct edge_struct {
 	poly_struct * poly[2]; /* Each edge belongs to up to 2 polygons */
-	struct coordinate * vertex[2]; /* The two extreme points of this edge. */
+	GpCoordinate * vertex[2]; /* The two extreme points of this edge. */
 	edge_struct * next; /* To chain lists */
 	bool is_active;     /* is edge is 'active' at certain Z level? */
 	t_edge_position position; /* position of edge in mesh */
@@ -82,7 +82,7 @@ static int fuzzy_equal(cntr_struct * p_cntr1, cntr_struct * p_cntr2);
 static void gen_triangle(int num_isolines, struct iso_curve * iso_lines, poly_struct ** p_polys, edge_struct ** p_edges);
 static void calc_min_max(int num_isolines, struct iso_curve * iso_lines, double * xx_min, double * yy_min, double * zz_min,
     double * xx_max, double * yy_max, double * zz_max);
-static edge_struct * add_edge(struct coordinate * point0, struct coordinate * point1, edge_struct ** p_edge, edge_struct ** pe_tail);
+static edge_struct * add_edge(GpCoordinate * point0, GpCoordinate * point1, edge_struct ** p_edge, edge_struct ** pe_tail);
 static poly_struct * add_poly(edge_struct * edge0, edge_struct * edge1, edge_struct * edge2, poly_struct ** p_poly, poly_struct ** pp_tail);
 static void put_contour(cntr_struct * p_cntr, double xx_min, double xx_max, double yy_min, double yy_max, bool contr_isclosed);
 static void put_contour_nothing(cntr_struct * p_cntr);
@@ -115,21 +115,18 @@ static int reverse_sort(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines)                           
 {
 	int i;
-	int num_of_z_levels;    /* # Z contour levels. */
 	double * zlist;
 	poly_struct * p_polys, * p_poly;
 	edge_struct * p_edges, * p_edge;
 	double z = 0;
 	double z0 = 0;
 	double dz = 0;
-	struct gnuplot_contours * save_contour_list;
-
+	gnuplot_contours * save_contour_list;
 	/* HBB FIXME 20050804: The number of contour_levels as set by 'set
 	 * cnrparam lev inc a,b,c' is almost certainly wrong if z axis is
 	 * logarithmic */
-	num_of_z_levels = contour_levels;
+	int num_of_z_levels = contour_levels; // # Z contour levels. 
 	interp_kind = contour_kind;
-
 	contour_list = NULL;
 	/*
 	 * Calculate min/max values :
@@ -141,7 +138,7 @@ struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines
 	gen_triangle(num_isolines, iso_lines, &p_polys, &p_edges);
 	crnt_cntr_pt_index = 0;
 	if(contour_levels_kind == LEVELS_AUTO) {
-		if(nonlinear(&GPO.AxS.__Z())) {
+		if(GPO.AxS.__Z().IsNonLinear()) {
 			z_max = GPO.EvalLinkFunction(GPO.AxS.__Z().linked_to_primary, z_max);
 			z_min = GPO.EvalLinkFunction(GPO.AxS.__Z().linked_to_primary, z_min);
 		}
@@ -157,7 +154,6 @@ struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines
 		if(num_of_z_levels <= 0)
 			return NULL;
 	}
-
 	/* Build a list of contour levels */
 	zlist = (double *)gp_alloc(num_of_z_levels * sizeof(double), NULL);
 	for(i = 0; i < num_of_z_levels; i++) {
@@ -165,7 +161,7 @@ struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines
 			case LEVELS_AUTO:
 			    z = z0 + (i+1) * dz;
 			    z = CheckZero(z, dz);
-			    if(nonlinear(&GPO.AxS.__Z()))
+			    if(GPO.AxS.__Z().IsNonLinear())
 				    z = GPO.EvalLinkFunction((&GPO.AxS.__Z()), z);
 			    break;
 			case LEVELS_INCREMENTAL:
@@ -183,7 +179,6 @@ struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines
 	/* Sort the list high-to-low if requested */
 	if(contour_sortlevels)
 		qsort(zlist, num_of_z_levels, sizeof(double), reverse_sort);
-
 	/* Create contour line for each z value in the list */
 	for(i = 0; i < num_of_z_levels; i++) {
 		z = zlist[i];
@@ -193,12 +188,10 @@ struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines
 		if(contour_list != save_contour_list) {
 			contour_list->isNewLevel = 1;
 			/* Nov-2011 Use gprintf rather than sprintf so that LC_NUMERIC is used */
-			gprintf(contour_list->label, sizeof(contour_list->label),
-			    contour_format, 1.0, z);
+			gprintf(contour_list->label, sizeof(contour_list->label), contour_format, 1.0, z);
 			contour_list->z = z;
 		}
 	}
-
 	/* Free all contouring related temporary data. */
 	SAlloc::F(zlist);
 	while(p_polys) {
@@ -211,17 +204,14 @@ struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines
 		SAlloc::F(p_edges);
 		p_edges = p_edge;
 	}
-
 	return contour_list;
 }
-
 /*
  * Adds another point to the currently build contour.
  */
 static void add_cntr_point(double x, double y)
 {
 	int index;
-
 	if(crnt_cntr_pt_index >= MAX_POINTS_PER_CNTR - 1) {
 		index = crnt_cntr_pt_index - 1;
 		end_crnt_cntr();
@@ -240,8 +230,8 @@ static void add_cntr_point(double x, double y)
 static void end_crnt_cntr()
 {
 	int i;
-	struct gnuplot_contours * cntr = (gnuplot_contours *)gp_alloc(sizeof(struct gnuplot_contours), "gnuplot_contour");
-	cntr->coords = (coordinate *)gp_alloc(sizeof(struct coordinate) * crnt_cntr_pt_index, "contour coords");
+	gnuplot_contours * cntr = (gnuplot_contours *)gp_alloc(sizeof(gnuplot_contours), "gnuplot_contour");
+	cntr->coords = (GpCoordinate *)gp_alloc(sizeof(GpCoordinate) * crnt_cntr_pt_index, "contour coords");
 	for(i = 0; i < crnt_cntr_pt_index; i++) {
 		cntr->coords[i].x = crnt_cntr[i * 2];
 		cntr->coords[i].y = crnt_cntr[i * 2 + 1];
@@ -458,7 +448,8 @@ static void gen_triangle(int num_isolines/* number of iso-lines input */, iso_cu
 	int i, j, grid_x_max = iso_lines->p_count;
 	edge_struct * p_edge1, * p_edge2, * edge0, * edge1, * edge2, * pe_tail, * pe_tail2, * pe_temp;
 	poly_struct * pp_tail;
-	coordinate * p_vrtx1, * p_vrtx2;
+	GpCoordinate * p_vrtx1;
+	GpCoordinate * p_vrtx2;
 	(*p_polys) = pp_tail = NULL;    /* clear lists */
 	(*p_edges) = pe_tail = NULL;
 	p_vrtx1 = iso_lines->points;    /* first row of vertices */
@@ -590,7 +581,7 @@ static void calc_min_max(int num_isolines/* number of iso-lines input */, iso_cu
     double * xx_min, double * yy_min, double * zz_min, double * xx_max, double * yy_max, double * zz_max) /* min/max values in/out */
 {
 	int i, j, grid_x_max;
-	struct coordinate * vertex;
+	GpCoordinate * vertex;
 	grid_x_max = iso_lines->p_count; /* number of vertices per iso_line */
 	(*xx_min) = (*yy_min) = (*zz_min) = VERYLARGE;  /* clear min/max values */
 	(*xx_max) = (*yy_max) = (*zz_max) = -VERYLARGE;
@@ -626,7 +617,7 @@ static void calc_min_max(int num_isolines/* number of iso-lines input */, iso_cu
  * first edge and pe_tail on last one).
  * Note, the list may be empty (pe_edge==pe_tail==NULL) on entry and exit.
  */
-static edge_struct * add_edge(struct coordinate * point0,  /* 2 vertices input */ struct coordinate * point1,
+static edge_struct * add_edge(GpCoordinate * point0,  /* 2 vertices input */ GpCoordinate * point1,
     edge_struct ** p_edge/* pointers to edge list in/out */, edge_struct ** pe_tail)
 {
 	edge_struct * pe_temp = NULL;
@@ -1146,8 +1137,7 @@ static void gen_bspline_approx(cntr_struct * p_cntr, int num_of_points, int orde
 			knot_index++;
 			next_t += 1.0;
 		}
-		eval_bspline(t, pc_temp, num_of_points, order, knot_index,
-		    contr_isclosed, &x, &y);    /* Next pt. */
+		eval_bspline(t, pc_temp, num_of_points, order, knot_index, contr_isclosed, &x, &y);    /* Next pt. */
 		add_cntr_point(x, y);
 		pts_count++;
 		/* As we might have some real number round off problems we do      */

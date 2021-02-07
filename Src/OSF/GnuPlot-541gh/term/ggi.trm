@@ -82,7 +82,7 @@ static bool GGI_use_whm = 0;
 static void GGI_line_colors();
 TERM_PUBLIC void GGI_graphics();
 TERM_PUBLIC void GGI_set_size();
-TERM_PUBLIC void GGI_init();
+TERM_PUBLIC void GGI_init(termentry * pThis);
 TERM_PUBLIC void GGI_linetype(int);
 TERM_PUBLIC void GGI_move(uint, uint);
 TERM_PUBLIC void GGI_options();
@@ -192,7 +192,7 @@ static t_sm_palette GGI_save_pal = {
  * GGImap is for initializing colors.
  * GGIx,GGIy are the current coordinates.
  * GGIwidth, GGIheight are the extensions in the visual.
- * GGIymax = term->ymax
+ * GGIymax = term->MaxY
  */
 static ggi_visual_t GGIvisual = (ggi_visual_t)0;
 static ggi_pixel GGIborderColor;
@@ -328,15 +328,15 @@ TERM_PUBLIC void GGI_set_size()
 	GGIwidth  = mode.virt.x;
 	GGIheight = mode.virt.y;
 
-	term->xmax = mode.virt.x - 1;
+	term->MaxX = mode.virt.x - 1;
 
 #ifdef USE_MOUSE
 	GGIcanvas_height = mode.virt.y - (GGI_use_mouse ? GGI_font_height : 0);
-	term->ymax = GGIcanvas_height - 1;
+	term->MaxY = GGIcanvas_height - 1;
 #else
-	term->ymax = mode.virt.y - 1;
+	term->MaxY = mode.virt.y - 1;
 #endif
-	GGIymax = term->ymax;
+	GGIymax = term->MaxY;
 }
 
 /*
@@ -345,21 +345,18 @@ TERM_PUBLIC void GGI_set_size()
  * Called only once, when the terminal is initialized. We have to open the visual here because it
  * is during 'init' that we have to change the terminal dimensions (xmax, ymax).
  */
-TERM_PUBLIC void GGI_init()
+TERM_PUBLIC void GGI_init(termentry * pThis)
 {
 	int success = 0;
 	ggi_mode mode;
-
 #if 0
 	if(0 != giiInit()) {
 		ggiPanic("*** giiInit() failed *** \n");
 	}
 #endif
-
 	if(0 != ggiInit()) {
 		ggiPanic("*** ggiInit() failed *** \n");
 	}
-
 	if(NULL == (GGIvisual = ggiOpen(NULL))) {
 		/* TODO: abort a bit more gracefully */
 		ggiPanic("(GGI_init() unable to open default\n");
@@ -815,7 +812,6 @@ TERM_PUBLIC int GGI_eventually_update_modifiers(const ggi_event* event, const in
 {
 	int mod = 0;
 	int old_modifiers = GGI_modifiers;
-
 	switch(event->key.sym) {
 		case GIIK_Shift:
 		    mod = Mod_Shift;
@@ -837,20 +833,16 @@ TERM_PUBLIC int GGI_eventually_update_modifiers(const ggi_event* event, const in
 	else {
 		GGI_modifiers &= ~mod;
 	}
-
 	if(GGI_modifiers != old_modifiers) {
 		struct gp_event_t gp_ev;
-
 		gp_ev.type = GE_modifier;
 		gp_ev.mx   = GGI_mouse_x;
 		gp_ev.my   = GGI_y(GGI_mouse_y);
 		gp_ev.par1 = 0;
 		gp_ev.par2 = 0;
 		gp_ev.par1 = GGI_modifiers;
-
-		do_event(&gp_ev);
+		GPO.DoEvent(term, &gp_ev);
 	}
-
 	return 1;
 }
 
@@ -932,9 +924,9 @@ TERM_PUBLIC int GGI_dispatch_event(const ggi_event * event)
 		    /* fprintf(stderr, "(GGI_dispatch_event) unhandled event\n"); */
 		    break;
 	}
-	do_event(&gp_ev);
+	GPO.DoEvent(term, &gp_ev);
 	gp_ev.type = GE_plotdone;
-	do_event(&gp_ev);
+	GPO.DoEvent(term, &gp_ev);
 	return 0;
 }
 
@@ -982,8 +974,7 @@ TERM_PUBLIC void GGI_replot()
 		GE_replot,
 		0, 0, 0, 0
 	};
-
-	do_event(&ev);
+	GPO.DoEvent(term, &ev);
 }
 
 TERM_PUBLIC void GGI_clear(const GGI_vertex_t* v, const int tag)
@@ -1426,7 +1417,7 @@ TERM_TABLE_START(ggi_driver)
 "ggi", "GGI target",
 GGI_XMAX, GGI_YMAX, GGI_VCHAR, GGI_HCHAR, GGI_VTIC, GGI_HTIC,
 GGI_options, GGI_init, GGI_reset, GGI_text,
-null_scale, GGI_graphics, GGI_move, GGI_vector,
+GnuPlot::NullScale, GGI_graphics, GGI_move, GGI_vector,
 GGI_linetype, GGI_put_text,
 0,     /* angle */
 0,     /* justify text */

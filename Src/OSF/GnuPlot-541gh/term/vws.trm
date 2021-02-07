@@ -55,7 +55,7 @@ register_term(vws)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void VWS_init();
+TERM_PUBLIC void VWS_init(termentry * pThis);
 TERM_PUBLIC void VWS_reset();
 TERM_PUBLIC void VWS_graphics();
 TERM_PUBLIC void VWS_text();
@@ -114,7 +114,7 @@ void VWS_resize_ast()
 }
 
 /****************************************************************************/
-TERM_PUBLIC void VWS_init()
+TERM_PUBLIC void VWS_init(termentry * pThis)
 {
 	int i;
 	int cattr;
@@ -432,7 +432,7 @@ TERM_PUBLIC void VWS_arrow(unsigned int sx, unsigned int sy,
     unsigned int ex, unsigned int ey,
     int head)
 {
-	do_arrow(sx, sy, ex, ey, head);
+	GnuPlot::DoArrow(sx, sy, ex, ey, head);
 }
 
 #endif /* TERM_BODY */
@@ -440,12 +440,30 @@ TERM_PUBLIC void VWS_arrow(unsigned int sx, unsigned int sy,
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(vws_driver)
-"VWS", "VAX Windowing System (UIS)",
-VWS_XMAX, VWS_YMAX, VWS_VCHAR, VWS_HCHAR,
-VWS_VTIC, VWS_HTIC, options_null, VWS_init, VWS_reset,
-VWS_text, null_scale, VWS_graphics, VWS_move, VWS_vector,
-VWS_linetype, VWS_put_text, VWS_text_angle,
-VWS_justify_text, do_point, do_arrow, set_font_null TERM_TABLE_END(vws_driver)
+	"VWS", 
+	"VAX Windowing System (UIS)",
+	VWS_XMAX, 
+	VWS_YMAX, 
+	VWS_VCHAR, 
+	VWS_HCHAR,
+	VWS_VTIC, 
+	VWS_HTIC, 
+	options_null, 
+	VWS_init, 
+	VWS_reset,
+	VWS_text, 
+	GnuPlot::NullScale, 
+	VWS_graphics, 
+	VWS_move, 
+	VWS_vector,
+	VWS_linetype, 
+	VWS_put_text, 
+	VWS_text_angle,
+	VWS_justify_text, 
+	do_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(vws_driver)
 
 #undef LAST_TERM
 #define LAST_TERM vws_driver

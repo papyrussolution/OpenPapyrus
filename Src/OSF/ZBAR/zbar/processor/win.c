@@ -226,7 +226,7 @@ int _zbar_processor_open(zbar_processor_t * proc, char * title, uint width, uint
 
 int _zbar_processor_close(zbar_processor_t * proc)
 {
-	if(proc->display) {
+	if(proc) {
 		::DestroyWindow((HWND)proc->display);
 		proc->display = NULL;
 	}

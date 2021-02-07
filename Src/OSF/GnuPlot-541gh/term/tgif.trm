@@ -80,7 +80,7 @@ register_term(tgif)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void TGIF_options();
-TERM_PUBLIC void TGIF_init();
+TERM_PUBLIC void TGIF_init(termentry * pThis);
 TERM_PUBLIC void TGIF_reset();
 TERM_PUBLIC void TGIF_text();
 TERM_PUBLIC void TGIF_graphics();
@@ -412,7 +412,7 @@ TERM_PUBLIC void TGIF_options()
 
 /*}}}  */
 /***************************************************************************/
-TERM_PUBLIC void TGIF_init()
+TERM_PUBLIC void TGIF_init(termentry * pThis)
 {
 	if(multiplot) {
 		/* uActResolution= TgifPortrait ? (uint)100 : (uint)145 ; */
@@ -454,8 +454,8 @@ TERM_PUBLIC void TGIF_graphics()
 	TGIF_flush_poly();
 
 	if(multiplot) {
-		term->xmax = (TgifPortrait) ? TGIF_XTOT : TGIF_YTOT;
-		term->ymax = (TgifPortrait) ? TGIF_YTOT : TGIF_XTOT;
+		term->MaxX = (TgifPortrait) ? TGIF_XTOT : TGIF_YTOT;
+		term->MaxY = (TgifPortrait) ? TGIF_YTOT : TGIF_XTOT;
 		uLastTgifX = (TgifPortrait) ? TGIF_XOFF : TGIF_YOFF;
 		uLastTgifY = (TgifPortrait) ? TGIF_YTOT + TGIF_YOFF : TGIF_XTOT + TGIF_XOFF;
 
@@ -1852,22 +1852,47 @@ TERM_PUBLIC void TGIF_filled_polygon(int points, gpiPoint * corners)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(tgif_driver)
-"tgif",
-"TGIF X11 [mode] [x,y] [dashed] [\042font\042 [fontsize]]",
-TGIF_XMAX, TGIF_YMAX, TGIF_VCHAR, TGIF_HCHAR,
-TGIF_VTIC, TGIF_HTIC, TGIF_options, TGIF_init, TGIF_reset,
-TGIF_text, null_scale, TGIF_graphics, TGIF_move, TGIF_vector,
-TGIF_linetype, TGIF_put_text, TGIF_text_angle,
-TGIF_justify_text, TGIF_point, do_arrow, TGIF_set_font,
-TGIF_set_pointsize,
-TERM_CAN_MULTIPLOT|TERM_CAN_DASH|TERM_LINEWIDTH,
-0, 0, TGIF_fillbox,
-TGIF_set_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0    /* no mouse support for the tgif terminal */
-#endif
-, TGIF_make_palette, TGIF_previous_palette, TGIF_set_color,
-TGIF_filled_polygon TERM_TABLE_END(tgif_driver)
+	"tgif",
+	"TGIF X11 [mode] [x,y] [dashed] [\042font\042 [fontsize]]",
+	TGIF_XMAX, 
+	TGIF_YMAX, 
+	TGIF_VCHAR, 
+	TGIF_HCHAR,
+	TGIF_VTIC, 
+	TGIF_HTIC, 
+	TGIF_options, 
+	TGIF_init, 
+	TGIF_reset,
+	TGIF_text, 
+	GnuPlot::NullScale, 
+	TGIF_graphics, 
+	TGIF_move, 
+	TGIF_vector,
+	TGIF_linetype, 
+	TGIF_put_text, 
+	TGIF_text_angle,
+	TGIF_justify_text, 
+	TGIF_point, 
+	GnuPlot::DoArrow, 
+	TGIF_set_font,
+	TGIF_set_pointsize,
+	TERM_CAN_MULTIPLOT|TERM_CAN_DASH|TERM_LINEWIDTH,
+	0, 
+	0, 
+	TGIF_fillbox,
+	TGIF_set_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,    /* no mouse support for the tgif terminal */
+	#endif
+	TGIF_make_palette, 
+	TGIF_previous_palette, 
+	TGIF_set_color,
+	TGIF_filled_polygon 
+TERM_TABLE_END(tgif_driver)
 
 #undef LAST_TERM
 #define LAST_TERM tgif_driver

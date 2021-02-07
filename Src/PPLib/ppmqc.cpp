@@ -855,7 +855,7 @@ int MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd) const
 										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_SECRET, password) <= 0) {
 											Reference::Decrypt(Reference::crymRef2, gua_pack.Rec.Password, sizeof(gua_pack.Rec.Password), password);
 										}
-										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, login)<=0) {
+										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, login) <= 0) {
 											if(gua_pack.Rec.Name != "")
 												login = gua_pack.Rec.Name;
 										}

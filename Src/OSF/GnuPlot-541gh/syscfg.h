@@ -96,11 +96,7 @@
 	#define OS "non-recognized OS"
 #endif
 #ifndef HELPFILE
-	#ifndef VMS
-		#define HELPFILE "docs/gnuplot.gih"
-	#else
-		#define HELPFILE "sys$login:gnuplot.gih"
-	#endif
+	#define HELPFILE "docs/gnuplot.gih"
 #endif
 #ifndef HOME
 	#define HOME "HOME"
@@ -201,15 +197,8 @@ typedef double coordval;
  * fixed-size storage for long variable name strings that will never be used.
  */
 #define MAX_NUM_VAR	12
-#ifdef VMS
-	#define DEFAULT_COMMENTS_CHARS "#!"
-	#define is_system(c) ((c) == '$')
-	/* maybe configure could check this? */
-	#define BACKUP_FILESYSTEM 1
-#else /* not VMS */
-	#define DEFAULT_COMMENTS_CHARS "#"
-	#define is_system(c) ((c) == '!')
-#endif /* not VMS */
+#define DEFAULT_COMMENTS_CHARS "#"
+#define is_system(c) ((c) == '!')
 // HBB NOTE 2014-12-16: no longer defined by autoconf; hardwired here instead 
 #ifndef RETSIGTYPE
 	#define RETSIGTYPE void

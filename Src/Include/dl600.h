@@ -1,5 +1,5 @@
 // DL600.H
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021
 // @codepage UTF-8
 //
 #ifndef __DL600_H
@@ -221,7 +221,7 @@ public:
 	int    Test_Cmp(const CtmConstList &) const;
 private:
 	int    SearchAnalog(const void * pBuf, size_t len, size_t * pPos) const;
-	uint32 DataLen; // @v9.8.6 size_t-->uint32
+	uint32 DataLen;
 };
 
 typedef TSCollection <DlScope> DlScopeList;
@@ -387,7 +387,7 @@ public:
 		cuifLayoutOrder,          // @v10.9.12 int32  Порядковый номер элемента в линейном ряду потомков одного родителя //
 		cuifLayoutNominalBB,      // @v10.9.12 FRect  Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
 		cuifLayoutPadding,        // @v10.9.12 FRect Внешние поля элемента
-		cuifLayoutMargin,         // @v10.9.12 FRect Внутренние поля контейнера
+		cuifLayoutMargin,         // @v10.9.12 FRect Внутренние поля 
 		cuifLayoutGrowFactor,     // @v10.9.12 float Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
 		cuifLayoutShrinkFactor,   // @v10.9.12 float
 		cuifLayoutBasis,          // @v10.9.12 float

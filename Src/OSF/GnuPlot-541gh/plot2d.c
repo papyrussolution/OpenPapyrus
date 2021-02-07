@@ -9,16 +9,16 @@
 //static int get_data(curve_points *);
 //static void store2d_point(curve_points *, int i, double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width);
 //static void eval_plots();
-static void parametric_fixup(curve_points * start_plot, int * plot_num);
-static void box_range_fiddling(curve_points * plot);
+//static void parametric_fixup(curve_points * start_plot, int * plot_num);
+//static void box_range_fiddling(const curve_points * pPlot);
 //static void boxplot_range_fiddling(curve_points * plot);
 //static void spiderplot_range_fiddling(curve_points * plot);
-static void histogram_range_fiddling(curve_points * plot);
-static void impulse_range_fiddling(const curve_points * plot);
-static void parallel_range_fiddling(curve_points * plot);
+//static void histogram_range_fiddling(curve_points * plot);
+//static void impulse_range_fiddling(const curve_points * plot);
+//static void parallel_range_fiddling(curve_points * plot);
 static int check_or_add_boxplot_factor(curve_points * plot, char* string, double x);
 static void add_tics_boxplot_factors(curve_points * plot);
-static void parse_kdensity_options(curve_points * this_plot);
+//static void parse_kdensity_options(curve_points * this_plot);
 
 /* internal and external variables */
 
@@ -28,7 +28,7 @@ static udft_entry plot_func;
 static double histogram_rightmost = 0.0; // Highest x-coord of histogram so far 
 static text_label histogram_title;       // Subtitle for this histogram 
 static int stack_count = 0; // counter for stackheight 
-static struct coordinate * stackheight = NULL; // Scratch space for y autoscale 
+static GpCoordinate * stackheight = NULL; // Scratch space for y autoscale 
 static int paxis_start;   // PARALLELPLOT bookkeeping 
 static int paxis_end;     // PARALLELPLOT bookkeeping 
 static int paxis_current; // PARALLELPLOT bookkeeping 
@@ -50,7 +50,7 @@ void cp_extend(curve_points * cp, int num)
 	if(num == cp->p_max)
 		return;
 	if(num > 0) {
-		cp->points = (coordinate *)gp_realloc(cp->points, num * sizeof(cp->points[0]), "expanding 2D points");
+		cp->points = (GpCoordinate *)gp_realloc(cp->points, num * sizeof(cp->points[0]), "expanding 2D points");
 		if(cp->varcolor)
 			cp->varcolor = (double *)gp_realloc(cp->varcolor, num * sizeof(double), "expanding curve variable colors");
 		cp->p_max = num;
@@ -177,7 +177,7 @@ void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 			continue;
 		}
 		for(i = 0; i < this_plot->p_count; i++) {
-			struct coordinate * point = &this_plot->points[i];
+			GpCoordinate * point = &this_plot->points[i];
 			if(point->type == UNDEFINED)
 				continue;
 			else
@@ -203,7 +203,7 @@ void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 			}
 		}
 		if(oneof2(this_plot->plot_style, BOXES, IMPULSES))
-			impulse_range_fiddling(this_plot);
+			ImpulseRangeFiddling(this_plot);
 	}
 	this_plot = pFirstPlot;
 	for(iplot = 0; iplot < nplots; iplot++, this_plot = this_plot->next) {
@@ -225,7 +225,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 	int i /* num. points ! */, j;
 	int ngood;
 	int max_cols, min_cols; /* allowed range of column numbers */
-	struct coordinate * cp;
+	GpCoordinate * cp;
 	double v[MAXDATACOLS];
 	memzero(v, sizeof(v));
 	if(pPlot->varcolor == NULL) {
@@ -303,7 +303,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		    /* 4 cols, boxwidth!=-2 --> (x,y,dy,dx) */
 		    /* 5 cols --> (x,y,ylow,yhigh,dx) */
 		    /* In each case an additional column may hold variable color */
-		    if((df_no_use_specs == 4 && GPO.V.BoxWidth == -2.0) || df_no_use_specs >= 5)
+		    if((df_no_use_specs == 4 && V.BoxWidth == -2.0) || df_no_use_specs >= 5)
 			    /* HBB 20060427: signal 3rd and 4th column are absolute y
 			     * data --- needed so time/date parsing works */
 			    df_axis[2] = df_axis[3] = df_axis[1];
@@ -752,16 +752,16 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    }
 			    else if(j == 4) {
 				    if(v[3] <= 0)
-					    v[3] = GPO.V.BoxWidth;
-				    xlow  = (GPO.V.BoxWidth == -2.0) ? v[0] : v[0] - v[3]/2.;
-				    xhigh = (GPO.V.BoxWidth == -2.0) ? v[0] : v[0] + v[3]/2.;
-				    ylow  = (GPO.V.BoxWidth == -2.0) ? v[2] : v[1] - v[2];
-				    yhigh = (GPO.V.BoxWidth == -2.0) ? v[3] : v[1] + v[2];
-				    width = (GPO.V.BoxWidth == -2.0) ? -1.0 : 0.0;
+					    v[3] = V.BoxWidth;
+				    xlow  = (V.BoxWidth == -2.0) ? v[0] : v[0] - v[3]/2.;
+				    xhigh = (V.BoxWidth == -2.0) ? v[0] : v[0] + v[3]/2.;
+				    ylow  = (V.BoxWidth == -2.0) ? v[2] : v[1] - v[2];
+				    yhigh = (V.BoxWidth == -2.0) ? v[3] : v[1] + v[2];
+				    width = (V.BoxWidth == -2.0) ? -1.0 : 0.0;
 			    }
 			    else {
 				    if(v[4] <= 0)
-					    v[4] = GPO.V.BoxWidth;
+					    v[4] = V.BoxWidth;
 				    xlow  = v[0] - v[4]/2.;
 				    xhigh = v[0] + v[4]/2.;
 				    ylow  = v[2];
@@ -1044,7 +1044,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */, 
 	double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width/* BOXES widths: -1 -> autocalc, 0 ->  use xlow/xhigh */)
 {
-	struct coordinate * cp = &(pPlot->points[i]);
+	GpCoordinate * cp = &(pPlot->points[i]);
 	GpAxis * x_axis_ptr, * y_axis_ptr;
 	coord_type * y_type_ptr;
 	coord_type dummy_type = INRANGE; /* sometimes we dont care about outranging */
@@ -1251,28 +1251,30 @@ static void add_tics_boxplot_factors(curve_points * plot)
 // Autoscaling of box plots cuts off half of the box on each end. 
 // Add a half-boxwidth to the range in this case.  EAM Aug 2007   
 //
-static void box_range_fiddling(curve_points * plot)
+//static void box_range_fiddling(const curve_points * pPlot)
+void GnuPlot::BoxRangeFiddling(const curve_points * pPlot)
 {
-	double xlow, xhigh;
-	int i = plot->p_count - 1;
-	if(i <= 0)
-		return;
-	if(GPO.AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MIN) {
-		if(plot->points[0].type != UNDEFINED && plot->points[1].type != UNDEFINED) {
-			if(GPO.V.BoxWidthIsAbsolute)
-				xlow = plot->points[0].x - GPO.V.BoxWidth;
-			else
-				xlow = plot->points[0].x - (plot->points[1].x - plot->points[0].x) / 2.0;
-			SETMIN(GPO.AxS[plot->AxIdx_X].min, xlow);
+	const int i = pPlot->p_count - 1;
+	if(i > 0) {
+		if(AxS[pPlot->AxIdx_X].autoscale & AUTOSCALE_MIN) {
+			if(pPlot->points[0].type != UNDEFINED && pPlot->points[1].type != UNDEFINED) {
+				double xlow;
+				if(V.BoxWidthIsAbsolute)
+					xlow = pPlot->points[0].x - V.BoxWidth;
+				else
+					xlow = pPlot->points[0].x - (pPlot->points[1].x - pPlot->points[0].x) / 2.0;
+				SETMIN(AxS[pPlot->AxIdx_X].min, xlow);
+			}
 		}
-	}
-	if(GPO.AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MAX) {
-		if(plot->points[i].type != UNDEFINED && plot->points[i-1].type != UNDEFINED) {
-			if(GPO.V.BoxWidthIsAbsolute)
-				xhigh = plot->points[i].x + GPO.V.BoxWidth;
-			else
-				xhigh = plot->points[i].x + (plot->points[i].x - plot->points[i-1].x) / 2.0;
-			SETMAX(GPO.AxS[plot->AxIdx_X].max, xhigh);
+		if(AxS[pPlot->AxIdx_X].autoscale & AUTOSCALE_MAX) {
+			if(pPlot->points[i].type != UNDEFINED && pPlot->points[i-1].type != UNDEFINED) {
+				double xhigh;
+				if(V.BoxWidthIsAbsolute)
+					xhigh = pPlot->points[i].x + V.BoxWidth;
+				else
+					xhigh = pPlot->points[i].x + (pPlot->points[i].x - pPlot->points[i-1].x) / 2.0;
+				SETMAX(AxS[pPlot->AxIdx_X].max, xhigh);
+			}
 		}
 	}
 }
@@ -1328,97 +1330,98 @@ void GnuPlot::BoxPlotRangeFiddling(curve_points * pPlot)
 // to the eventual x coordinates, we need to modify the x axis range bounds. 
 // Also the two stacked histogram modes need adjustment of the y axis bounds.
 //
-static void histogram_range_fiddling(curve_points * plot)
+//static void histogram_range_fiddling(curve_points * pPlot)
+void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 {
 	double xlow, xhigh;
 	int i;
-	/*
-	 * EAM FIXME - HT_STACKED_IN_TOWERS forcibly resets xmin, which is only
-	 *   correct if no other plot came first.
-	 */
+	//
+	// EAM FIXME - HT_STACKED_IN_TOWERS forcibly resets xmin, which is only
+	// correct if no other plot came first.
+	//
 	switch(histogram_opts.type) {
 		case HT_STACKED_IN_LAYERS:
-		    if(GPO.AxS[plot->AxIdx_Y].autoscale & AUTOSCALE_MAX) {
-			    if(plot->histogram_sequence == 0) {
+		    if(AxS[pPlot->AxIdx_Y].autoscale & AUTOSCALE_MAX) {
+			    if(pPlot->histogram_sequence == 0) {
 				    SAlloc::F(stackheight);
-				    stackheight = (coordinate *)gp_alloc(plot->p_count * sizeof(struct coordinate), "stackheight array");
-				    for(stack_count = 0; stack_count < plot->p_count; stack_count++) {
+				    stackheight = (GpCoordinate *)gp_alloc(pPlot->p_count * sizeof(GpCoordinate), "stackheight array");
+				    for(stack_count = 0; stack_count < pPlot->p_count; stack_count++) {
 					    stackheight[stack_count].yhigh = 0;
 					    stackheight[stack_count].ylow = 0;
 				    }
 			    }
-			    else if(plot->p_count > stack_count) {
-				    stackheight = (coordinate *)gp_realloc(stackheight, plot->p_count * sizeof(struct coordinate), "stackheight array");
-				    for(; stack_count < plot->p_count; stack_count++) {
+			    else if(pPlot->p_count > stack_count) {
+				    stackheight = (GpCoordinate *)gp_realloc(stackheight, pPlot->p_count * sizeof(GpCoordinate), "stackheight array");
+				    for(; stack_count < pPlot->p_count; stack_count++) {
 					    stackheight[stack_count].yhigh = 0;
 					    stackheight[stack_count].ylow = 0;
 				    }
 			    }
 			    for(i = 0; i<stack_count; i++) {
-				    if(plot->points[i].type == UNDEFINED)
+				    if(pPlot->points[i].type == UNDEFINED)
 					    continue;
-				    if(plot->points[i].y >= 0)
-					    stackheight[i].yhigh += plot->points[i].y;
+				    if(pPlot->points[i].y >= 0)
+					    stackheight[i].yhigh += pPlot->points[i].y;
 				    else
-					    stackheight[i].ylow += plot->points[i].y;
-				    if(GPO.AxS[plot->AxIdx_Y].max < stackheight[i].yhigh)
-					    GPO.AxS[plot->AxIdx_Y].max = stackheight[i].yhigh;
-				    if(GPO.AxS[plot->AxIdx_Y].min > stackheight[i].ylow)
-					    GPO.AxS[plot->AxIdx_Y].min = stackheight[i].ylow;
+					    stackheight[i].ylow += pPlot->points[i].y;
+				    if(AxS[pPlot->AxIdx_Y].max < stackheight[i].yhigh)
+					    AxS[pPlot->AxIdx_Y].max = stackheight[i].yhigh;
+				    if(AxS[pPlot->AxIdx_Y].min > stackheight[i].ylow)
+					    AxS[pPlot->AxIdx_Y].min = stackheight[i].ylow;
 			    }
 		    }
 		// fall through to checks on x range 
 		case HT_CLUSTERED:
 		case HT_ERRORBARS:
-		    if(!GPO.AxS[FIRST_X_AXIS].autoscale)
+		    if(!AxS[FIRST_X_AXIS].autoscale)
 			    break;
-		    if(GPO.AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MIN) {
-			    xlow = plot->histogram->start - 1.0;
-			    if(GPO.AxS[FIRST_X_AXIS].min > xlow)
-				    GPO.AxS[FIRST_X_AXIS].min = xlow;
+		    if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MIN) {
+			    xlow = pPlot->histogram->start - 1.0;
+			    if(AxS[FIRST_X_AXIS].min > xlow)
+				    AxS[FIRST_X_AXIS].min = xlow;
 		    }
-		    if(GPO.AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MAX) {
-			    /* FIXME - why did we increment p_count on UNDEFINED points? */
-			    while(plot->points[plot->p_count-1].type == UNDEFINED) {
-				    plot->p_count--;
-				    if(!plot->p_count)
-					    GPO.IntError(NO_CARET, "All points in histogram UNDEFINED");
+		    if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MAX) {
+			    // FIXME - why did we increment p_count on UNDEFINED points? 
+			    while(pPlot->points[pPlot->p_count-1].type == UNDEFINED) {
+				    pPlot->p_count--;
+				    if(!pPlot->p_count)
+					    IntError(NO_CARET, "All points in histogram UNDEFINED");
 			    }
-			    xhigh = plot->points[plot->p_count-1].x;
-			    xhigh += plot->histogram->start + 1.0;
-			    if(GPO.AxS[FIRST_X_AXIS].max < xhigh)
-				    GPO.AxS[FIRST_X_AXIS].max = xhigh;
+			    xhigh = pPlot->points[pPlot->p_count-1].x;
+			    xhigh += pPlot->histogram->start + 1.0;
+			    if(AxS[FIRST_X_AXIS].max < xhigh)
+				    AxS[FIRST_X_AXIS].max = xhigh;
 		    }
 		    break;
 		case HT_STACKED_IN_TOWERS:
-		    /* FIXME: Rather than trying to reproduce the layout along X */
-		    /* we should just track the actual xmin/xmax as we go.       */
-		    if(GPO.AxS[FIRST_X_AXIS].set_autoscale) {
-			    if((GPO.AxS[FIRST_X_AXIS].set_autoscale & AUTOSCALE_MIN)) {
+		    // FIXME: Rather than trying to reproduce the layout along X 
+		    // we should just track the actual xmin/xmax as we go.       
+		    if(AxS[FIRST_X_AXIS].set_autoscale) {
+			    if((AxS[FIRST_X_AXIS].set_autoscale & AUTOSCALE_MIN)) {
 				    xlow = -1.0;
-				    if(GPO.AxS[FIRST_X_AXIS].min > xlow)
-					    GPO.AxS[FIRST_X_AXIS].min = xlow;
+				    if(AxS[FIRST_X_AXIS].min > xlow)
+					    AxS[FIRST_X_AXIS].min = xlow;
 			    }
-			    xhigh = plot->histogram_sequence;
-			    xhigh += plot->histogram->start + 1.0;
-			    if(GPO.AxS[FIRST_X_AXIS].max != xhigh)
-				    GPO.AxS[FIRST_X_AXIS].max  = xhigh;
+			    xhigh = pPlot->histogram_sequence;
+			    xhigh += pPlot->histogram->start + 1.0;
+			    if(AxS[FIRST_X_AXIS].max != xhigh)
+				    AxS[FIRST_X_AXIS].max  = xhigh;
 		    }
-		    if(GPO.AxS[FIRST_Y_AXIS].set_autoscale) {
+		    if(AxS[FIRST_Y_AXIS].set_autoscale) {
 			    double ylow, yhigh;
-			    for(i = 0, yhigh = ylow = 0.0; i<plot->p_count; i++)
-				    if(plot->points[i].type != UNDEFINED) {
-					    if(plot->points[i].y >= 0)
-						    yhigh += plot->points[i].y;
+			    for(i = 0, yhigh = ylow = 0.0; i < pPlot->p_count; i++)
+				    if(pPlot->points[i].type != UNDEFINED) {
+					    if(pPlot->points[i].y >= 0)
+						    yhigh += pPlot->points[i].y;
 					    else
-						    ylow += plot->points[i].y;
+						    ylow += pPlot->points[i].y;
 				    }
-			    if(GPO.AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_MAX)
-				    if(GPO.AxS[plot->AxIdx_Y].max < yhigh)
-					    GPO.AxS[plot->AxIdx_Y].max = yhigh;
-			    if(GPO.AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_MIN)
-				    if(GPO.AxS[plot->AxIdx_Y].min > ylow)
-					    GPO.AxS[plot->AxIdx_Y].min = ylow;
+			    if(AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_MAX)
+				    if(AxS[pPlot->AxIdx_Y].max < yhigh)
+					    AxS[pPlot->AxIdx_Y].max = yhigh;
+			    if(AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_MIN)
+				    if(AxS[pPlot->AxIdx_Y].min > ylow)
+					    AxS[pPlot->AxIdx_Y].min = ylow;
 		    }
 		    break;
 	}
@@ -1429,60 +1432,63 @@ static void histogram_range_fiddling(curve_points * plot)
 // Otherwise the autoscaling will be done separately for x and y and the
 // resulting plot will not be centered at the origin.
 // 
-void polar_range_fiddling(curve_points * plot)
+//void polar_range_fiddling(const curve_points * pPlot)
+void GnuPlot::PolarRangeFiddling(const curve_points * pPlot)
 {
-	if(GPO.AxS[POLAR_AXIS].set_autoscale & AUTOSCALE_MAX) {
-		const double plotmax_x = MAX(GPO.AxS[plot->AxIdx_X].max, -GPO.AxS[plot->AxIdx_X].min);
-		const double plotmax_y = MAX(GPO.AxS[plot->AxIdx_Y].max, -GPO.AxS[plot->AxIdx_Y].min);
+	if(AxS[POLAR_AXIS].set_autoscale & AUTOSCALE_MAX) {
+		const double plotmax_x = MAX(AxS[pPlot->AxIdx_X].max, -AxS[pPlot->AxIdx_X].min);
+		const double plotmax_y = MAX(AxS[pPlot->AxIdx_Y].max, -AxS[pPlot->AxIdx_Y].min);
 		const double plotmax = MAX(plotmax_x, plotmax_y);
-		if((GPO.AxS[plot->AxIdx_X].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) {
-			GPO.AxS[plot->AxIdx_X].max = plotmax;
-			GPO.AxS[plot->AxIdx_X].min = -plotmax;
+		if((AxS[pPlot->AxIdx_X].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) {
+			AxS[pPlot->AxIdx_X].max = plotmax;
+			AxS[pPlot->AxIdx_X].min = -plotmax;
 		}
-		if((GPO.AxS[plot->AxIdx_Y].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) {
-			GPO.AxS[plot->AxIdx_Y].max = plotmax;
-			GPO.AxS[plot->AxIdx_Y].min = -plotmax;
+		if((AxS[pPlot->AxIdx_Y].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) {
+			AxS[pPlot->AxIdx_Y].max = plotmax;
+			AxS[pPlot->AxIdx_Y].min = -plotmax;
 		}
 	}
 }
 //
 // Extend auto-scaling of y-axis to include zero 
 //
-static void impulse_range_fiddling(const curve_points * plot)
+//static void impulse_range_fiddling(const curve_points * pPlot)
+void GnuPlot::ImpulseRangeFiddling(const curve_points * pPlot)
 {
-	if(GPO.AxS[plot->AxIdx_Y].log)
+	if(AxS[pPlot->AxIdx_Y].log)
 		return;
-	if(GPO.AxS[plot->AxIdx_Y].autoscale & AUTOSCALE_MIN) {
-		if(GPO.AxS[plot->AxIdx_Y].min > 0)
-			GPO.AxS[plot->AxIdx_Y].min = 0;
+	if(AxS[pPlot->AxIdx_Y].autoscale & AUTOSCALE_MIN) {
+		if(AxS[pPlot->AxIdx_Y].min > 0)
+			AxS[pPlot->AxIdx_Y].min = 0;
 	}
-	if(GPO.AxS[plot->AxIdx_Y].autoscale & AUTOSCALE_MAX) {
-		if(GPO.AxS[plot->AxIdx_Y].max < 0)
-			GPO.AxS[plot->AxIdx_Y].max = 0;
+	if(AxS[pPlot->AxIdx_Y].autoscale & AUTOSCALE_MAX) {
+		if(AxS[pPlot->AxIdx_Y].max < 0)
+			AxS[pPlot->AxIdx_Y].max = 0;
 	}
 }
 //
 // Clean up x and y axis bounds for parallel plots 
 //
-static void parallel_range_fiddling(curve_points * plot)
+//static void parallel_range_fiddling(const curve_points * pPlot)
+void GnuPlot::ParallelRangeFiddling(const curve_points * pPlot)
 {
 	int num_parallelplots = 0;
-	while(plot) {
-		if(plot->plot_style == PARALLELPLOT) {
-			const double x = GPO.AxS.Parallel(plot->AxIdx_P-1).paxis_x;
-			GPO.AxS[plot->AxIdx_X].AutoscaleOnePoint(x-1.0);
-			GPO.AxS[plot->AxIdx_X].AutoscaleOnePoint(x+1.0);
+	while(pPlot) {
+		if(pPlot->plot_style == PARALLELPLOT) {
+			const double x = AxS.Parallel(pPlot->AxIdx_P-1).paxis_x;
+			AxS[pPlot->AxIdx_X].AutoscaleOnePoint(x-1.0);
+			AxS[pPlot->AxIdx_X].AutoscaleOnePoint(x+1.0);
 			num_parallelplots++;
 		}
-		plot = plot->next;
+		pPlot = pPlot->next;
 	}
 	// The normal y axis is not used by parallel plots, so if no 
 	// range is established then we get lots of warning messages 
 	if(num_parallelplots > 0) {
-		if(GPO.AxS[FIRST_Y_AXIS].min == VERYLARGE)
-			GPO.AxS[FIRST_Y_AXIS].min = 0.0;
-		if(GPO.AxS[FIRST_Y_AXIS].max == -VERYLARGE)
-			GPO.AxS[FIRST_Y_AXIS].max = 1.0;
+		if(AxS[FIRST_Y_AXIS].min == VERYLARGE)
+			AxS[FIRST_Y_AXIS].min = 0.0;
+		if(AxS[FIRST_Y_AXIS].max == -VERYLARGE)
+			AxS[FIRST_Y_AXIS].max = 1.0;
 	}
 }
 //
@@ -1512,7 +1518,7 @@ void GnuPlot::SpiderPlotRangeFiddling(curve_points * plot)
 // store_label() is called by get_data for each point 
 // This routine is exported so it can be shared by plot3d 
 //
-text_label * store_label(text_label * listhead, struct coordinate * cp, int i/* point number */, char * string/* start of label string */, 
+text_label * store_label(text_label * listhead, GpCoordinate * cp, int i/* point number */, char * string/* start of label string */, 
 	double colorval/* used if text color derived from palette */)
 {           
 	static text_label * tl = NULL;
@@ -1617,7 +1623,7 @@ text_label * store_label(text_label * listhead, struct coordinate * cp, int i/* 
 void GnuPlot::EvalPlots()
 {
 	int    i;
-	curve_points * this_plot = NULL;
+	curve_points * p_plot = NULL;
 	curve_points ** tp_ptr;
 	/*t_uses_axis*/int uses_axis[AXIS_ARRAY_SIZE];
 	bool   some_functions = false;
@@ -1679,7 +1685,7 @@ void GnuPlot::EvalPlots()
 				IntErrorCurToken("function to plot expected");
 			break;
 		}
-		this_plot = NULL;
+		p_plot = NULL;
 		if(!in_parametric && !was_definition)
 			start_token = Pgm.GetCurTokenIdx();
 		if(Pgm.AlmostEqualsCur("newhist$ogram")) {
@@ -1731,7 +1737,7 @@ void GnuPlot::EvalPlots()
 				IntErrorCurToken("syntax error (missing comma)");
 		}
 		else if(IsDefinition(Pgm.GetCurTokenIdx())) {
-			Pgm.Define();
+			Define();
 			if(Pgm.EqualsCur(","))
 				Pgm.Shift();
 			was_definition = TRUE;
@@ -1794,50 +1800,50 @@ void GnuPlot::EvalPlots()
 				if(*name_str == '$' && !get_datablock(name_str))
 					IntError(Pgm.GetPrevTokenIdx(), "cannot plot voxel data");
 				if(*tp_ptr)
-					this_plot = *tp_ptr;
+					p_plot = *tp_ptr;
 				else { // no memory malloc()'d there yet 
-					this_plot = GnuPlot::CpAlloc(MIN_CRV_POINTS);
-					*tp_ptr = this_plot;
+					p_plot = GnuPlot::CpAlloc(MIN_CRV_POINTS);
+					*tp_ptr = p_plot;
 				}
-				this_plot->plot_type = DATA;
-				this_plot->plot_style = data_style;
-				this_plot->plot_smooth = SMOOTH_NONE;
-				this_plot->filledcurves_options = filledcurves_opts_data;
+				p_plot->plot_type = DATA;
+				p_plot->plot_style = data_style;
+				p_plot->plot_smooth = SMOOTH_NONE;
+				p_plot->filledcurves_options = filledcurves_opts_data;
 				// Only relevant to "with table" 
 				free_at(table_filter_at);
 				table_filter_at = NULL;
 				free_at(df_plot_title_at); // Mechanism for deferred evaluation of plot title 
 				// up to MAXDATACOLS cols 
 				df_set_plot_mode(MODE_PLOT); // Needed for binary datafiles 
-				specs = DfOpen(name_str, MAXDATACOLS, this_plot);
+				specs = DfOpen(name_str, MAXDATACOLS, p_plot);
 				// Store a pointer to the named variable used for sampling 
 				if(sample_range_token > 0)
-					this_plot->sample_var = add_udv(sample_range_token);
+					p_plot->sample_var = AddUdv(sample_range_token);
 				else
-					this_plot->sample_var = Ev.AddUdvByName(c_dummy_var[0]);
+					p_plot->sample_var = Ev.AddUdvByName(c_dummy_var[0]);
 				if(v_range_token > 0)
-					this_plot->sample_var2 = add_udv(v_range_token);
+					p_plot->sample_var2 = AddUdv(v_range_token);
 				else
-					this_plot->sample_var2 = Ev.AddUdvByName(c_dummy_var[1]);
+					p_plot->sample_var2 = Ev.AddUdvByName(c_dummy_var[1]);
 				// Save prior value of sample variables so we can restore them later 
-				original_value_sample_var = this_plot->sample_var->udv_value;
-				original_value_sample_var2 = this_plot->sample_var2->udv_value;
-				this_plot->sample_var->udv_value.type = NOTDEFINED;
-				this_plot->sample_var2->udv_value.type = NOTDEFINED;
-				Gcomplex(&(this_plot->sample_var->udv_value), 0.0, 0.0); /* Not sure this is necessary */
-				this_plot->token = end_token = Pgm.GetPrevTokenIdx(); /* include modifiers in default title */
+				original_value_sample_var = p_plot->sample_var->udv_value;
+				original_value_sample_var2 = p_plot->sample_var2->udv_value;
+				p_plot->sample_var->udv_value.SetNotDefined();
+				p_plot->sample_var2->udv_value.SetNotDefined();
+				Gcomplex(&(p_plot->sample_var->udv_value), 0.0, 0.0); /* Not sure this is necessary */
+				p_plot->token = end_token = Pgm.GetPrevTokenIdx(); /* include modifiers in default title */
 			}
 			else if(Pgm.EqualsCur("keyentry")) {
 				Pgm.Shift();
 				if(*tp_ptr)
-					this_plot = *tp_ptr;
+					p_plot = *tp_ptr;
 				else { // no memory malloc()'d there yet 
-					this_plot = GnuPlot::CpAlloc(MIN_CRV_POINTS);
-					*tp_ptr = this_plot;
+					p_plot = GnuPlot::CpAlloc(MIN_CRV_POINTS);
+					*tp_ptr = p_plot;
 				}
-				this_plot->plot_type = KEYENTRY;
-				this_plot->plot_style = LABELPOINTS;
-				this_plot->token = end_token = Pgm.GetPrevTokenIdx();
+				p_plot->plot_type = KEYENTRY;
+				p_plot->plot_style = LABELPOINTS;
+				p_plot->token = end_token = Pgm.GetPrevTokenIdx();
 			}
 			else { // function to plot 
 				some_functions = TRUE;
@@ -1846,23 +1852,23 @@ void GnuPlot::EvalPlots()
 				if(spiderplot)
 					IntError(NO_CARET, "spiderplot is not possible for functions");
 				if(*tp_ptr) {
-					this_plot = *tp_ptr;
-					cp_extend(this_plot, samples_1 + 1);
+					p_plot = *tp_ptr;
+					cp_extend(p_plot, samples_1 + 1);
 				}
 				else { // no memory malloc()'d there yet
-					this_plot = GnuPlot::CpAlloc(samples_1 + 1);
-					*tp_ptr = this_plot;
+					p_plot = GnuPlot::CpAlloc(samples_1 + 1);
+					*tp_ptr = p_plot;
 				}
-				this_plot->plot_type = FUNC;
-				this_plot->plot_style = func_style;
-				this_plot->filledcurves_options = filledcurves_opts_func;
+				p_plot->plot_type = FUNC;
+				p_plot->plot_style = func_style;
+				p_plot->filledcurves_options = filledcurves_opts_func;
 				end_token = Pgm.GetPrevTokenIdx();
 			} /* end of IS THIS A FILE OR A FUNC block */
 			// axis defaults 
 			AxS.Idx_X = FIRST_X_AXIS;
 			AxS.Idx_Y = FIRST_Y_AXIS;
 			// Set this before parsing any modifying options 
-			this_plot->base_linetype = line_num;
+			p_plot->base_linetype = line_num;
 			// pm 25.11.2001 allow any order of options 
 			while(!Pgm.EndOfCommand()) {
 				int save_token = Pgm.GetCurTokenIdx();
@@ -1873,7 +1879,7 @@ void GnuPlot::EvalPlots()
 						break;
 					}
 					Pgm.Shift();
-					this_plot->plot_smooth = SMOOTH_BINS;
+					p_plot->plot_smooth = SMOOTH_BINS;
 					nbins = samples_1;
 					if(Pgm.EqualsCur("=")) {
 						Pgm.Shift();
@@ -1917,10 +1923,10 @@ void GnuPlot::EvalPlots()
 						case SMOOTH_UNWRAP:
 						case SMOOTH_FREQUENCY:
 						case SMOOTH_FREQUENCY_NORMALISED:
-						    this_plot->plot_smooth = (PLOT_SMOOTH)found_token;
+						    p_plot->plot_smooth = (PLOT_SMOOTH)found_token;
 						    break;
 						case SMOOTH_KDENSITY:
-						    parse_kdensity_options(this_plot);
+						    ParseKDensityOptions(p_plot);
 						/* Fall through */
 						case SMOOTH_ACSPLINES:
 						case SMOOTH_BEZIER:
@@ -1931,12 +1937,12 @@ void GnuPlot::EvalPlots()
 						case SMOOTH_CUMULATIVE_NORMALISED:
 						case SMOOTH_MONOTONE_CSPLINE:
 						case SMOOTH_PATH:
-						    this_plot->plot_smooth = (PLOT_SMOOTH)found_token;
-						    this_plot->plot_style = LINES; /* can override later */
+						    p_plot->plot_smooth = (PLOT_SMOOTH)found_token;
+						    p_plot->plot_style = LINES; /* can override later */
 						    break;
 						case SMOOTH_ZSORT:
-						    this_plot->plot_smooth = SMOOTH_ZSORT;
-						    this_plot->plot_style = POINTSTYLE;
+						    p_plot->plot_smooth = SMOOTH_ZSORT;
+						    p_plot->plot_style = POINTSTYLE;
 						    break;
 						case SMOOTH_NONE:
 						default:
@@ -1987,11 +1993,11 @@ void GnuPlot::EvalPlots()
 				// Allow this plot not to affect autoscaling 
 				if(Pgm.AlmostEqualsCur("noauto$scale")) {
 					Pgm.Shift();
-					this_plot->noautoscale = TRUE;
+					p_plot->noautoscale = TRUE;
 					continue;
 				}
 				// deal with title 
-				ParsePlotTitle(this_plot, xtitle, NULL, &set_title);
+				ParsePlotTitle(p_plot, xtitle, NULL, &set_title);
 				if(save_token != Pgm.GetCurTokenIdx())
 					continue;
 				// deal with style 
@@ -2002,26 +2008,26 @@ void GnuPlot::EvalPlots()
 					}
 					if(parametric && in_parametric)
 						IntErrorCurToken("\"with\" allowed only after parametric function fully specified");
-					this_plot->plot_style = get_style();
-					if(this_plot->plot_style == FILLEDCURVES) {
+					p_plot->plot_style = get_style();
+					if(p_plot->plot_style == FILLEDCURVES) {
 						// read a possible option for 'with filledcurves' 
-						get_filledcurves_style_options(&this_plot->filledcurves_options);
+						get_filledcurves_style_options(&p_plot->filledcurves_options);
 					}
-					if(oneof3(this_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
-						if(this_plot->plot_type != DATA)
+					if(oneof3(p_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
+						if(p_plot->plot_type != DATA)
 							IntErrorCurToken("This plot style is only for data files");
 						else
-							get_image_options(&this_plot->image_properties);
+							GetImageOptions(&p_plot->image_properties);
 					}
-					if((this_plot->plot_type == FUNC) && ((this_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR) || 
-						oneof3(this_plot->plot_style, LABELPOINTS, PARALLELPLOT, SPIDERPLOT))) {
+					if((p_plot->plot_type == FUNC) && ((p_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR) || 
+						oneof3(p_plot->plot_style, LABELPOINTS, PARALLELPLOT, SPIDERPLOT))) {
 						IntWarnCurToken("This plot style is only for datafiles, reverting to \"points\"");
-						this_plot->plot_style = POINTSTYLE;
+						p_plot->plot_style = POINTSTYLE;
 					}
 					set_with = TRUE;
 					continue;
 				}
-				if(this_plot->plot_style == TABLESTYLE) {
+				if(p_plot->plot_style == TABLESTYLE) {
 					if(Pgm.EqualsCur("if")) {
 						if(table_filter_at) {
 							duplication = TRUE;
@@ -2036,31 +2042,31 @@ void GnuPlot::EvalPlots()
 				 * - point spec allowed if style uses points, ie style&2 != 0
 				 * - keywords for lt and pt are optional
 				 */
-				if(this_plot->plot_style == CANDLESTICKS) {
+				if(p_plot->plot_style == CANDLESTICKS) {
 					if(Pgm.AlmostEqualsCur("whisker$bars")) {
-						this_plot->arrow_properties.head = BOTH_HEADS;
+						p_plot->arrow_properties.head = BOTH_HEADS;
 						Pgm.Shift();
 						if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) || Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == INTGR || Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == CMPLX)
-							this_plot->arrow_properties.head_length = RealExpression();
+							p_plot->arrow_properties.head_length = RealExpression();
 					}
 				}
-				if(this_plot->plot_style == PARALLELPLOT) {
+				if(p_plot->plot_style == PARALLELPLOT) {
 					if(Pgm.EqualsCur("at")) {
 						Pgm.Shift();
 						paxis_x = RealExpression();
 						continue;
 					}
 				}
-				if(this_plot->plot_style & PLOT_STYLE_HAS_VECTOR) {
+				if(p_plot->plot_style & PLOT_STYLE_HAS_VECTOR) {
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(!set_lpstyle) {
-						default_arrow_style(&(this_plot->arrow_properties));
+						default_arrow_style(&(p_plot->arrow_properties));
 						if(prefer_line_styles)
-							lp_use_properties(&(this_plot->arrow_properties.lp_properties), line_num+1);
+							lp_use_properties(&(p_plot->arrow_properties.lp_properties), line_num+1);
 						else
-							load_linetype(term, &(this_plot->arrow_properties.lp_properties), line_num+1);
+							load_linetype(term, &(p_plot->arrow_properties.lp_properties), line_num+1);
 					}
-					ArrowParse(&(this_plot->arrow_properties), TRUE);
+					ArrowParse(&(p_plot->arrow_properties), TRUE);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
 						if(set_lpstyle) {
 							duplication = TRUE;
@@ -2072,21 +2078,21 @@ void GnuPlot::EvalPlots()
 						}
 					}
 				}
-				/* pick up the special 'units' keyword the 'ellipses' style allows */
-				if(this_plot->plot_style == ELLIPSES) {
+				// pick up the special 'units' keyword the 'ellipses' style allows 
+				if(p_plot->plot_style == ELLIPSES) {
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(!set_ellipseaxes_units)
-						this_plot->ellipseaxes_units = default_ellipse.o.ellipse.type;
+						p_plot->ellipseaxes_units = default_ellipse.o.ellipse.type;
 					if(Pgm.AlmostEqualsCur("unit$s")) {
 						Pgm.Shift();
 						if(Pgm.EqualsCur("xy")) {
-							this_plot->ellipseaxes_units = ELLIPSEAXES_XY;
+							p_plot->ellipseaxes_units = ELLIPSEAXES_XY;
 						}
 						else if(Pgm.EqualsCur("xx")) {
-							this_plot->ellipseaxes_units = ELLIPSEAXES_XX;
+							p_plot->ellipseaxes_units = ELLIPSEAXES_XX;
 						}
 						else if(Pgm.EqualsCur("yy")) {
-							this_plot->ellipseaxes_units = ELLIPSEAXES_YY;
+							p_plot->ellipseaxes_units = ELLIPSEAXES_YY;
 						}
 						else {
 							IntErrorCurToken("expecting 'xy', 'xx' or 'yy'");
@@ -2104,9 +2110,9 @@ void GnuPlot::EvalPlots()
 						}
 					}
 				}
-				/* Most plot styles accept line and point properties */
-				/* but do not want font or text properties           */
-				if(this_plot->plot_style != LABELPOINTS) {
+				// Most plot styles accept line and point properties 
+				// but do not want font or text properties           
+				if(p_plot->plot_style != LABELPOINTS) {
 					int stored_token = Pgm.GetCurTokenIdx();
 					lp_style_type lp(lp_style_type::defCommon); //= DEFAULT_LP_STYLE_TYPE;
 					int new_lt = 0;
@@ -2118,26 +2124,26 @@ void GnuPlot::EvalPlots()
 						lp_use_properties(&lp, line_num+1);
 					else
 						load_linetype(term, &lp, line_num+1);
-					if(this_plot->plot_style == BOXPLOT) {
+					if(p_plot->plot_style == BOXPLOT) {
 						lp.p_type = boxplot_opts.pointtype;
 						lp.p_size = PTSZ_DEFAULT;
 						if(!boxplot_opts.outliers)
-							this_plot->noautoscale = TRUE;
+							p_plot->noautoscale = TRUE;
 					}
-					if(this_plot->plot_style == SPIDERPLOT) {
+					if(p_plot->plot_style == SPIDERPLOT) {
 						lp = spiderplot_style.lp_properties;
 					}
-					new_lt = LpParse(&lp, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
+					new_lt = LpParse(&lp, LP_ADHOC, p_plot->plot_style & PLOT_STYLE_HAS_POINT);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
 						if(set_lpstyle) {
 							duplication = TRUE;
 							break;
 						}
 						else {
-							this_plot->lp_properties = lp;
+							p_plot->lp_properties = lp;
 							set_lpstyle = TRUE;
 							if(new_lt)
-								this_plot->base_linetype = new_lt - 1;
+								p_plot->base_linetype = new_lt - 1;
 							continue;
 						}
 					}
@@ -2145,18 +2151,18 @@ void GnuPlot::EvalPlots()
 				// Labels can have font and text property info as plot options
 				// In any case we must allocate one instance of the text style
 				// that all labels in the plot will share.                     
-				if((this_plot->plot_style == LABELPOINTS) ||  (this_plot->plot_style & PLOT_STYLE_HAS_POINT && this_plot->lp_properties.p_type == PT_CHARACTER)) {
+				if((p_plot->plot_style == LABELPOINTS) ||  (p_plot->plot_style & PLOT_STYLE_HAS_POINT && p_plot->lp_properties.p_type == PT_CHARACTER)) {
 					int stored_token = Pgm.GetCurTokenIdx();
-					if(this_plot->labels == NULL) {
-						this_plot->labels = new_text_label(-1);
-						this_plot->labels->pos = CENTRE;
-						this_plot->labels->layer = LAYER_PLOTLABELS;
+					if(p_plot->labels == NULL) {
+						p_plot->labels = new_text_label(-1);
+						p_plot->labels->pos = CENTRE;
+						p_plot->labels->layer = LAYER_PLOTLABELS;
 					}
-					if((this_plot->plot_style & PLOT_STYLE_HAS_POINT) && (this_plot->lp_properties.p_type == PT_CHARACTER)) {
+					if((p_plot->plot_style & PLOT_STYLE_HAS_POINT) && (p_plot->lp_properties.p_type == PT_CHARACTER)) {
 						if(!set_labelstyle)
-							this_plot->labels->textcolor.type = TC_DEFAULT;
+							p_plot->labels->textcolor.type = TC_DEFAULT;
 					}
-					ParseLabelOptions(this_plot->labels, 2);
+					ParseLabelOptions(p_plot->labels, 2);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
 						if(set_labelstyle) {
 							duplication = TRUE;
@@ -2169,17 +2175,17 @@ void GnuPlot::EvalPlots()
 					}
 				}
 				// Some plots have a fill style as well 
-				if(this_plot->plot_style & PLOT_STYLE_HAS_FILL) {
+				if(p_plot->plot_style & PLOT_STYLE_HAS_FILL) {
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(Pgm.EqualsCur("fs") || Pgm.AlmostEqualsCur("fill$style")) {
-						if(this_plot->plot_style == SPIDERPLOT)
-							this_plot->fill_properties = spiderplot_style.fillstyle;
+						if(p_plot->plot_style == SPIDERPLOT)
+							p_plot->fill_properties = spiderplot_style.fillstyle;
 						else
-							this_plot->fill_properties = default_fillstyle;
-						this_plot->fill_properties.fillpattern = pattern_num;
-						ParseFillStyle(&this_plot->fill_properties);
-						if(this_plot->plot_style == FILLEDCURVES && this_plot->fill_properties.fillstyle == FS_EMPTY)
-							this_plot->fill_properties.fillstyle = FS_SOLID;
+							p_plot->fill_properties = default_fillstyle;
+						p_plot->fill_properties.fillpattern = pattern_num;
+						ParseFillStyle(&p_plot->fill_properties);
+						if(p_plot->plot_style == FILLEDCURVES && p_plot->fill_properties.fillstyle == FS_EMPTY)
+							p_plot->fill_properties.fillstyle = FS_SOLID;
 						set_fillstyle = TRUE;
 					}
 					if(Pgm.EqualsCur("fc") || Pgm.AlmostEqualsCur("fillc$olor")) {
@@ -2193,89 +2199,88 @@ void GnuPlot::EvalPlots()
 			} /* while (!Pgm.EndOfCommand()) */
 			if(duplication)
 				IntErrorCurToken("duplicated or contradicting arguments in plot options");
-			if(this_plot->plot_style == TABLESTYLE) {
+			if(p_plot->plot_style == TABLESTYLE) {
 				if(!table_mode)
 					IntError(NO_CARET, "'with table' requires a previous 'set table'");
 				expect_string(-1);
 				some_tables = TRUE;
 			}
 
-			if(this_plot->plot_style == SPIDERPLOT && !spiderplot)
+			if(p_plot->plot_style == SPIDERPLOT && !spiderplot)
 				IntError(NO_CARET, "'with spiderplot' requires a previous 'set spiderplot'");
 #if (0)
-			if(spiderplot && this_plot->plot_style != SPIDERPLOT)
+			if(spiderplot && p_plot->plot_style != SPIDERPLOT)
 				IntError(NO_CARET, "only plots 'with spiderplot' are possible in spiderplot mode");
 #endif
 			// set default values for title if this has not been specified 
-			this_plot->title_is_automated = FALSE;
+			p_plot->title_is_automated = FALSE;
 			if(!set_title) {
-				this_plot->title_no_enhanced = TRUE; /* filename or function cannot be enhanced */
+				p_plot->title_no_enhanced = TRUE; /* filename or function cannot be enhanced */
 				if(key->auto_titles == FILENAME_KEYTITLES) {
-					Pgm.MCapture(&(this_plot->title), start_token, end_token);
+					Pgm.MCapture(&(p_plot->title), start_token, end_token);
 					if(in_parametric)
-						xtitle = this_plot->title;
-					this_plot->title_is_automated = TRUE;
+						xtitle = p_plot->title;
+					p_plot->title_is_automated = TRUE;
 				}
 				else if(xtitle)
 					xtitle[0] = '\0';
 			}
 			// Vectors will be drawn using linetype from arrow style, so we
 			// copy this to overall plot linetype so that the key sample matches 
-			if(this_plot->plot_style & PLOT_STYLE_HAS_VECTOR) {
+			if(p_plot->plot_style & PLOT_STYLE_HAS_VECTOR) {
 				if(!set_lpstyle) {
 					if(prefer_line_styles)
-						lp_use_properties(&(this_plot->arrow_properties.lp_properties), line_num+1);
+						lp_use_properties(&(p_plot->arrow_properties.lp_properties), line_num+1);
 					else
-						load_linetype(term, &(this_plot->arrow_properties.lp_properties), line_num+1);
-					ArrowParse(&this_plot->arrow_properties, TRUE);
+						load_linetype(term, &(p_plot->arrow_properties.lp_properties), line_num+1);
+					ArrowParse(&p_plot->arrow_properties, TRUE);
 				}
-				this_plot->lp_properties = this_plot->arrow_properties.lp_properties;
+				p_plot->lp_properties = p_plot->arrow_properties.lp_properties;
 				set_lpstyle = TRUE;
 			}
-			/* No line/point style given. As lp_parse also supplies
-			 * the defaults for linewidth and pointsize, call it now
-			 * to define them. */
+			// No line/point style given. As lp_parse also supplies
+			// the defaults for linewidth and pointsize, call it now
+			// to define them. 
 			if(!set_lpstyle) {
-				this_plot->lp_properties.l_type = line_num;
-				this_plot->lp_properties.l_width = 1.0;
-				this_plot->lp_properties.p_type = line_num;
-				this_plot->lp_properties.d_type = line_num;
-				this_plot->lp_properties.p_size = pointsize;
+				p_plot->lp_properties.l_type = line_num;
+				p_plot->lp_properties.l_width = 1.0;
+				p_plot->lp_properties.p_type = line_num;
+				p_plot->lp_properties.d_type = line_num;
+				p_plot->lp_properties.p_size = pointsize;
 				// user may prefer explicit line styles 
 				if(prefer_line_styles)
-					lp_use_properties(&this_plot->lp_properties, line_num+1);
+					lp_use_properties(&p_plot->lp_properties, line_num+1);
 				else
-					load_linetype(term, &this_plot->lp_properties, line_num+1);
-				if(this_plot->plot_style == BOXPLOT) {
-					this_plot->lp_properties.p_type = boxplot_opts.pointtype;
-					this_plot->lp_properties.p_size = PTSZ_DEFAULT;
+					load_linetype(term, &p_plot->lp_properties, line_num+1);
+				if(p_plot->plot_style == BOXPLOT) {
+					p_plot->lp_properties.p_type = boxplot_opts.pointtype;
+					p_plot->lp_properties.p_size = PTSZ_DEFAULT;
 				}
-				if(this_plot->plot_style == SPIDERPLOT) {
-					this_plot->lp_properties.p_type = spiderplot_style.lp_properties.p_type;
-					this_plot->lp_properties.p_size = spiderplot_style.lp_properties.p_size;
-					this_plot->lp_properties.l_width = spiderplot_style.lp_properties.l_width;
-					this_plot->lp_properties.pm3d_color.type = TC_DEFAULT;
+				if(p_plot->plot_style == SPIDERPLOT) {
+					p_plot->lp_properties.p_type = spiderplot_style.lp_properties.p_type;
+					p_plot->lp_properties.p_size = spiderplot_style.lp_properties.p_size;
+					p_plot->lp_properties.l_width = spiderplot_style.lp_properties.l_width;
+					p_plot->lp_properties.pm3d_color.type = TC_DEFAULT;
 				}
-				LpParse(&this_plot->lp_properties, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
+				LpParse(&p_plot->lp_properties, LP_ADHOC, p_plot->plot_style & PLOT_STYLE_HAS_POINT);
 			}
-
-			/* If this plot style uses a fillstyle and we saw an explicit */
-			/* fill color, save it in lp_properties now.		  */
-			if(this_plot->plot_style & PLOT_STYLE_HAS_FILL) {
+			// If this plot style uses a fillstyle and we saw an explicit 
+			// fill color, save it in lp_properties now.		  
+			if(p_plot->plot_style & PLOT_STYLE_HAS_FILL) {
 				if(set_fillcolor)
-					this_plot->lp_properties.pm3d_color = fillcolor;
+					p_plot->lp_properties.pm3d_color = fillcolor;
 			}
-			/* Some low-level routines expect to find the pointflag attribute */
-			/* in lp_properties (they don't have access to the full header.   */
-			if(this_plot->plot_style & PLOT_STYLE_HAS_POINT)
-				this_plot->lp_properties.flags |= LP_SHOW_POINTS;
-			/* Rule out incompatible line/point/style options */
-			if(this_plot->plot_type == FUNC) {
-				if((this_plot->plot_style & PLOT_STYLE_HAS_POINT) && (this_plot->lp_properties.p_size == PTSZ_VARIABLE))
-					this_plot->lp_properties.p_size = 1;
+			// Some low-level routines expect to find the pointflag attribute 
+			// in lp_properties (they don't have access to the full header.   
+			if(p_plot->plot_style & PLOT_STYLE_HAS_POINT)
+				p_plot->lp_properties.flags |= LP_SHOW_POINTS;
+			// Rule out incompatible line/point/style options 
+			if(p_plot->plot_type == FUNC) {
+				if((p_plot->plot_style & PLOT_STYLE_HAS_POINT) && (p_plot->lp_properties.p_size == PTSZ_VARIABLE))
+					p_plot->lp_properties.p_size = 1;
 			}
 			if(polar) 
-				switch(this_plot->plot_style) {
+				switch(p_plot->plot_style) {
 					case LINES:
 					case POINTSTYLE:
 					case IMPULSES:
@@ -2292,95 +2297,94 @@ void GnuPlot::EvalPlots()
 					    IntError(NO_CARET, "This plot style is not available in polar mode");
 				}
 			// If we got this far without initializing the fill style, do it now 
-			if(this_plot->plot_style & PLOT_STYLE_HAS_FILL) {
+			if(p_plot->plot_style & PLOT_STYLE_HAS_FILL) {
 				if(!set_fillstyle) {
-					if(this_plot->plot_style == SPIDERPLOT)
-						this_plot->fill_properties = spiderplot_style.fillstyle;
+					if(p_plot->plot_style == SPIDERPLOT)
+						p_plot->fill_properties = spiderplot_style.fillstyle;
 					else
-						this_plot->fill_properties = default_fillstyle;
-					this_plot->fill_properties.fillpattern = pattern_num;
-					ParseFillStyle(&this_plot->fill_properties);
+						p_plot->fill_properties = default_fillstyle;
+					p_plot->fill_properties.fillpattern = pattern_num;
+					ParseFillStyle(&p_plot->fill_properties);
 				}
-				if((this_plot->fill_properties.fillstyle == FS_PATTERN) ||(this_plot->fill_properties.fillstyle == FS_TRANSPARENT_PATTERN))
-					pattern_num = this_plot->fill_properties.fillpattern + 1;
-				if(this_plot->plot_style == FILLEDCURVES && this_plot->fill_properties.fillstyle == FS_EMPTY)
-					this_plot->fill_properties.fillstyle = FS_SOLID;
+				if((p_plot->fill_properties.fillstyle == FS_PATTERN) ||(p_plot->fill_properties.fillstyle == FS_TRANSPARENT_PATTERN))
+					pattern_num = p_plot->fill_properties.fillpattern + 1;
+				if(p_plot->plot_style == FILLEDCURVES && p_plot->fill_properties.fillstyle == FS_EMPTY)
+					p_plot->fill_properties.fillstyle = FS_SOLID;
 			}
-			this_plot->AxIdx_X = AxS.Idx_X;
-			this_plot->AxIdx_Y = AxS.Idx_Y;
+			p_plot->AxIdx_X = AxS.Idx_X;
+			p_plot->AxIdx_Y = AxS.Idx_Y;
 			// If we got this far without initializing the character font, do it now 
-			if(this_plot->plot_style & PLOT_STYLE_HAS_POINT && this_plot->lp_properties.p_type == PT_CHARACTER) {
-				if(this_plot->labels == NULL) {
-					this_plot->labels = new_text_label(-1);
-					this_plot->labels->pos = CENTRE;
-					ParseLabelOptions(this_plot->labels, 2);
+			if(p_plot->plot_style & PLOT_STYLE_HAS_POINT && p_plot->lp_properties.p_type == PT_CHARACTER) {
+				if(p_plot->labels == NULL) {
+					p_plot->labels = new_text_label(-1);
+					p_plot->labels->pos = CENTRE;
+					ParseLabelOptions(p_plot->labels, 2);
 				}
 			}
 			// If we got this far without initializing the label list, do it now 
-			if(this_plot->plot_style == LABELPOINTS) {
-				if(this_plot->labels == NULL) {
-					this_plot->labels = new_text_label(-1);
-					this_plot->labels->pos = CENTRE;
-					this_plot->labels->layer = LAYER_PLOTLABELS;
+			if(p_plot->plot_style == LABELPOINTS) {
+				if(p_plot->labels == NULL) {
+					p_plot->labels = new_text_label(-1);
+					p_plot->labels->pos = CENTRE;
+					p_plot->labels->layer = LAYER_PLOTLABELS;
 				}
-				this_plot->labels->place.scalex = (AxS.Idx_X == SECOND_X_AXIS) ? second_axes : first_axes;
-				this_plot->labels->place.scaley = (AxS.Idx_Y == SECOND_Y_AXIS) ? second_axes : first_axes;
-				/* Needed for variable color - June 2010 */
-				this_plot->lp_properties.pm3d_color = this_plot->labels->textcolor;
-				if(this_plot->labels->textcolor.type == TC_VARIABLE)
-					this_plot->lp_properties.l_type = LT_COLORFROMCOLUMN;
-				/* We want to trigger the variable color mechanism even if
-				 * there was no 'textcolor variable/palette/rgb var' ,
-				 * but there was a 'point linecolor variable/palette/rgb var'. */
-				if((this_plot->labels->lp_properties.flags & LP_SHOW_POINTS) && this_plot->labels->textcolor.type != TC_Z && 
-					this_plot->labels->textcolor.type != TC_VARIABLE && (this_plot->labels->textcolor.type != TC_RGB || 
-					this_plot->labels->textcolor.value >= 0)) {
-					if((this_plot->labels->lp_properties.pm3d_color.type == TC_RGB) && (this_plot->labels->lp_properties.pm3d_color.value < 0)) {
-						this_plot->lp_properties.pm3d_color = this_plot->labels->lp_properties.pm3d_color;
+				p_plot->labels->place.scalex = (AxS.Idx_X == SECOND_X_AXIS) ? second_axes : first_axes;
+				p_plot->labels->place.scaley = (AxS.Idx_Y == SECOND_Y_AXIS) ? second_axes : first_axes;
+				// Needed for variable color - June 2010 
+				p_plot->lp_properties.pm3d_color = p_plot->labels->textcolor;
+				if(p_plot->labels->textcolor.type == TC_VARIABLE)
+					p_plot->lp_properties.l_type = LT_COLORFROMCOLUMN;
+				// We want to trigger the variable color mechanism even if
+				// there was no 'textcolor variable/palette/rgb var' ,
+				// but there was a 'point linecolor variable/palette/rgb var'. 
+				if((p_plot->labels->lp_properties.flags & LP_SHOW_POINTS) && p_plot->labels->textcolor.type != TC_Z && 
+					p_plot->labels->textcolor.type != TC_VARIABLE && (p_plot->labels->textcolor.type != TC_RGB || 
+					p_plot->labels->textcolor.value >= 0)) {
+					if((p_plot->labels->lp_properties.pm3d_color.type == TC_RGB) && (p_plot->labels->lp_properties.pm3d_color.value < 0)) {
+						p_plot->lp_properties.pm3d_color = p_plot->labels->lp_properties.pm3d_color;
 					}
-					if(this_plot->labels->lp_properties.pm3d_color.type == TC_Z)
-						this_plot->lp_properties.pm3d_color.type = TC_Z;
-					if(this_plot->labels->lp_properties.l_type == LT_COLORFROMCOLUMN)
-						this_plot->lp_properties.l_type = LT_COLORFROMCOLUMN;
+					if(p_plot->labels->lp_properties.pm3d_color.type == TC_Z)
+						p_plot->lp_properties.pm3d_color.type = TC_Z;
+					if(p_plot->labels->lp_properties.l_type == LT_COLORFROMCOLUMN)
+						p_plot->lp_properties.l_type = LT_COLORFROMCOLUMN;
 				}
 			}
-			/* We can skip a lot of stuff if this is not a real plot */
-			if(this_plot->plot_type == KEYENTRY)
+			// We can skip a lot of stuff if this is not a real plot 
+			if(p_plot->plot_type == KEYENTRY)
 				goto SKIPPED_EMPTY_FILE;
-			/* Initialize the label list in case the BOXPLOT style needs it to store factors */
-			if(this_plot->plot_style == BOXPLOT) {
-				if(this_plot->labels == NULL)
-					this_plot->labels = new_text_label(-1);
-				/* We only use the list to store strings, so this is all we need here. */
+			// Initialize the label list in case the BOXPLOT style needs it to store factors 
+			if(p_plot->plot_style == BOXPLOT) {
+				SETIFZ(p_plot->labels, new_text_label(-1));
+				// We only use the list to store strings, so this is all we need here. 
 			}
 			// Initialize histogram data structure 
-			if(this_plot->plot_style == HISTOGRAMS) {
+			if(p_plot->plot_style == HISTOGRAMS) {
 				if(AxS[AxS.Idx_X].log)
 					IntErrorCurToken("Log scale on X is incompatible with histogram plots\n");
 				if((histogram_opts.type == HT_STACKED_IN_LAYERS || histogram_opts.type == HT_STACKED_IN_TOWERS) && AxS[AxS.Idx_Y].log)
 					IntErrorCurToken("Log scale on Y is incompatible with stacked histogram plot\n");
-				this_plot->histogram_sequence = ++histogram_sequence;
+				p_plot->histogram_sequence = ++histogram_sequence;
 				// Current histogram always goes at the front of the list 
-				if(this_plot->histogram_sequence == 0) {
-					this_plot->histogram = (histogram_style *)gp_alloc(sizeof(histogram_style), "New histogram");
-					init_histogram(this_plot->histogram, &histogram_title);
-					this_plot->histogram->start = newhist_start;
-					this_plot->histogram->startcolor = newhist_color;
-					this_plot->histogram->startpattern = newhist_pattern;
+				if(p_plot->histogram_sequence == 0) {
+					p_plot->histogram = (histogram_style *)gp_alloc(sizeof(histogram_style), "New histogram");
+					init_histogram(p_plot->histogram, &histogram_title);
+					p_plot->histogram->start = newhist_start;
+					p_plot->histogram->startcolor = newhist_color;
+					p_plot->histogram->startpattern = newhist_pattern;
 				}
 				else {
-					this_plot->histogram = histogram_opts.next;
-					this_plot->histogram->clustersize++;
+					p_plot->histogram = histogram_opts.next;
+					p_plot->histogram->clustersize++;
 				}
 				// Normally each histogram gets a new set of colors, but in 
 				// 'newhistogram' you can force a starting color instead.   
-				if(!set_lpstyle && this_plot->histogram->startcolor != LT_UNDEFINED)
-					load_linetype(term, &this_plot->lp_properties, this_plot->histogram_sequence + this_plot->histogram->startcolor);
-				if(this_plot->histogram->startpattern != LT_UNDEFINED)
-					this_plot->fill_properties.fillpattern = this_plot->histogram_sequence + this_plot->histogram->startpattern;
+				if(!set_lpstyle && p_plot->histogram->startcolor != LT_UNDEFINED)
+					load_linetype(term, &p_plot->lp_properties, p_plot->histogram_sequence + p_plot->histogram->startcolor);
+				if(p_plot->histogram->startpattern != LT_UNDEFINED)
+					p_plot->fill_properties.fillpattern = p_plot->histogram_sequence + p_plot->histogram->startpattern;
 			}
 			// Parallel plot data bookkeeping 
-			if((this_plot->plot_style == PARALLELPLOT) ||  (this_plot->plot_style == SPIDERPLOT)) {
+			if(oneof2(p_plot->plot_style, PARALLELPLOT, SPIDERPLOT)) {
 				if(paxis_start < 0) {
 					paxis_start = 1;
 					paxis_current = 0;
@@ -2389,26 +2393,26 @@ void GnuPlot::EvalPlots()
 				paxis_end = paxis_current;
 				if(paxis_current > AxS.GetParallelAxisCount())
 					AxS.ExtendParallelAxis(paxis_current);
-				this_plot->AxIdx_P = (AXIS_INDEX)paxis_current;
+				p_plot->AxIdx_P = (AXIS_INDEX)paxis_current;
 				axis_init(&AxS.Parallel(paxis_current-1), TRUE);
 				AxS.Parallel(paxis_current-1).paxis_x = (paxis_x > -VERYLARGE) ? paxis_x : (double)paxis_current;
 			}
-			/* Currently polygons are just treated as filled curves */
-			if(this_plot->plot_style == POLYGONS) {
-				this_plot->filledcurves_options.closeto = FILLEDCURVES_CLOSED;
+			// Currently polygons are just treated as filled curves 
+			if(p_plot->plot_style == POLYGONS) {
+				p_plot->filledcurves_options.closeto = FILLEDCURVES_CLOSED;
 			}
-			/* Styles that use palette */
-			/* we can now do some checks that we deferred earlier */
-			if(this_plot->plot_type == DATA) {
+			// Styles that use palette 
+			// we can now do some checks that we deferred earlier 
+			if(p_plot->plot_type == DATA) {
 				if(specs < 0) {
 					// Error check to handle missing or unreadable file 
 					++line_num;
-					this_plot->plot_type = NODATA;
+					p_plot->plot_type = NODATA;
 					goto SKIPPED_EMPTY_FILE;
 				}
 				// Reset flags to auto-scale X axis to contents of data set 
 				if(!(uses_axis[AxS.Idx_X] & USES_AXIS_FOR_DATA) && AxS.__X().autoscale) {
-					GpAxis * scaling_axis = &AxS[this_plot->AxIdx_X];
+					GpAxis * scaling_axis = &AxS[p_plot->AxIdx_X];
 					if(scaling_axis->autoscale & AUTOSCALE_MIN)
 						scaling_axis->min = VERYLARGE;
 					if(scaling_axis->autoscale & AUTOSCALE_MAX)
@@ -2436,68 +2440,68 @@ void GnuPlot::EvalPlots()
 				uses_axis[AxS.Idx_Y] |= USES_AXIS_FOR_FUNC;
 			}
 			// These plot styles are not differentiated by line/point properties 
-			if(!in_parametric && this_plot->plot_style != IMAGE && this_plot->plot_style != RGBIMAGE && this_plot->plot_style != RGBA_IMAGE) {
+			if(!in_parametric && p_plot->plot_style != IMAGE && p_plot->plot_style != RGBIMAGE && p_plot->plot_style != RGBA_IMAGE) {
 				++line_num;
 			}
 			// Image plots require 2 input dimensions 
-			if(oneof3(this_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
+			if(oneof3(p_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
 				if(!df_filename || !strcmp(df_filename, "+"))
 					IntError(NO_CARET, "image plots need more than 1 coordinate dimension ");
 			}
-			if(this_plot->plot_type == DATA) {
-				/* get_data() will update the ranges of autoscaled axes, but some */
-				/* plot modes, e.g. 'smooth cnorm' and 'boxplot' with nooutliers, */
-				/* do not want all the points included in autoscaling.  Save the  */
-				/* current autoscaled ranges here so we can restore them later.   */
-				save_autoscaled_ranges(&AxS[this_plot->AxIdx_X], &AxS[this_plot->AxIdx_Y]);
+			if(p_plot->plot_type == DATA) {
+				// get_data() will update the ranges of autoscaled axes, but some 
+				// plot modes, e.g. 'smooth cnorm' and 'boxplot' with nooutliers, 
+				// do not want all the points included in autoscaling.  Save the  
+				// current autoscaled ranges here so we can restore them later.   
+				save_autoscaled_ranges(&AxS[p_plot->AxIdx_X], &AxS[p_plot->AxIdx_Y]);
 				// actually get the data now 
-				if(GetData(this_plot) == 0) {
+				if(GetData(p_plot) == 0) {
 					if(!forever_iteration(plot_iterator))
 						IntWarn(NO_CARET, "Skipping data file with no valid points");
-					this_plot->plot_type = NODATA;
+					p_plot->plot_type = NODATA;
 					goto SKIPPED_EMPTY_FILE;
 				}
 				// Sep 2017 - Check for all points bad or out of range  
 				// (normally harmless but must not cause infinite loop) 
 				if(forever_iteration(plot_iterator)) {
 					int ninrange = 0;
-					for(int n = 0; n < this_plot->p_count; n++)
-						if(this_plot->points[n].type == INRANGE)
+					for(int n = 0; n < p_plot->p_count; n++)
+						if(p_plot->points[n].type == INRANGE)
 							ninrange++;
 					if(ninrange == 0) {
-						this_plot->plot_type = NODATA;
+						p_plot->plot_type = NODATA;
 						goto SKIPPED_EMPTY_FILE;
 					}
 				}
 				// If we are to bin the data, do that first 
-				if(this_plot->plot_smooth == SMOOTH_BINS) {
-					make_bins(this_plot, nbins, binlow, binhigh, binwidth);
+				if(p_plot->plot_smooth == SMOOTH_BINS) {
+					make_bins(p_plot, nbins, binlow, binhigh, binwidth);
 				}
 				// Restore auto-scaling prior to smoothing operation 
-				switch(this_plot->plot_smooth) {
+				switch(p_plot->plot_smooth) {
 					case SMOOTH_FREQUENCY:
 					case SMOOTH_FREQUENCY_NORMALISED:
 					case SMOOTH_CUMULATIVE:
 					case SMOOTH_CUMULATIVE_NORMALISED:
-					    restore_autoscaled_ranges(&AxS[this_plot->AxIdx_X], &AxS[this_plot->AxIdx_Y]);
+					    restore_autoscaled_ranges(&AxS[p_plot->AxIdx_X], &AxS[p_plot->AxIdx_Y]);
 					    break;
 					default:
 					    break;
 				}
 				// Fiddle the auto-scaling data for specific plot styles 
-				if(this_plot->plot_style == HISTOGRAMS)
-					histogram_range_fiddling(this_plot);
-				if(this_plot->plot_style == BOXES)
-					box_range_fiddling(this_plot);
-				if(this_plot->plot_style == BOXPLOT)
-					BoxPlotRangeFiddling(this_plot);
-				if(this_plot->plot_style == IMPULSES)
-					impulse_range_fiddling(this_plot);
+				if(p_plot->plot_style == HISTOGRAMS)
+					HistogramRangeFiddling(p_plot);
+				if(p_plot->plot_style == BOXES)
+					BoxRangeFiddling(p_plot);
+				if(p_plot->plot_style == BOXPLOT)
+					BoxPlotRangeFiddling(p_plot);
+				if(p_plot->plot_style == IMPULSES)
+					ImpulseRangeFiddling(p_plot);
 				if(polar)
-					polar_range_fiddling(this_plot);
-				/* sort */
-				switch(this_plot->plot_smooth) {
-					/* sort and average, if the style requires */
+					PolarRangeFiddling(p_plot);
+				// sort 
+				switch(p_plot->plot_smooth) {
+					// sort and average, if the style requires 
 					case SMOOTH_UNIQUE:
 					case SMOOTH_FREQUENCY:
 					case SMOOTH_FREQUENCY_NORMALISED:
@@ -2507,11 +2511,11 @@ void GnuPlot::EvalPlots()
 					case SMOOTH_ACSPLINES:
 					case SMOOTH_SBEZIER:
 					case SMOOTH_MONOTONE_CSPLINE:
-					    sort_points(this_plot);
-					    cp_implode(this_plot);
+					    sort_points(p_plot);
+					    CpImplode(p_plot);
 					    break;
 					case SMOOTH_ZSORT:
-					    zsort_points(this_plot);
+					    zsort_points(p_plot);
 					    break;
 					case SMOOTH_NONE:
 					case SMOOTH_PATH:
@@ -2520,10 +2524,10 @@ void GnuPlot::EvalPlots()
 					default:
 					    break;
 				}
-				switch(this_plot->plot_smooth) {
+				switch(p_plot->plot_smooth) {
 					// create new data set by evaluation of interpolation routines 
 					case SMOOTH_UNWRAP:
-					    gen_interp_unwrap(this_plot);
+					    gen_interp_unwrap(p_plot);
 					    break;
 					case SMOOTH_FREQUENCY:
 					case SMOOTH_FREQUENCY_NORMALISED:
@@ -2531,26 +2535,26 @@ void GnuPlot::EvalPlots()
 					case SMOOTH_CUMULATIVE_NORMALISED:
 					    // These commands all replace the original data  
 					    // so we must reevaluate min/max for autoscaling 
-					    gen_interp_frequency(this_plot);
-					    RefreshBounds(this_plot, 1);
+					    gen_interp_frequency(p_plot);
+					    RefreshBounds(p_plot, 1);
 					    break;
 					case SMOOTH_CSPLINES:
 					case SMOOTH_ACSPLINES:
 					case SMOOTH_BEZIER:
 					case SMOOTH_SBEZIER:
-					    gen_interp(this_plot);
-					    RefreshBounds(this_plot, 1);
+					    gen_interp(p_plot);
+					    RefreshBounds(p_plot, 1);
 					    break;
 					case SMOOTH_KDENSITY:
-					    gen_interp(this_plot);
+					    gen_interp(p_plot);
 					    Ev.FillGpValFoat("GPVAL_KDENSITY_BANDWIDTH",
-						fabs(this_plot->smooth_parameter));
+						fabs(p_plot->smooth_parameter));
 					    break;
 					case SMOOTH_MONOTONE_CSPLINE:
-					    mcs_interp(this_plot);
+					    mcs_interp(p_plot);
 					    break;
 					case SMOOTH_PATH:
-					    gen_2d_path_splines(this_plot);
+					    gen_2d_path_splines(p_plot);
 					    break;
 					case SMOOTH_NONE:
 					case SMOOTH_UNIQUE:
@@ -2561,19 +2565,19 @@ void GnuPlot::EvalPlots()
 				 * Compensate for extent of the image so `set autoscale fix`
 				 * uses outer edges of outer pixels in axes adjustment.
 				 */
-				if(oneof3(this_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
-					this_plot->image_properties.type = IC_PALETTE;
-					ProcessImage(term, this_plot, IMG_UPDATE_AXES);
+				if(oneof3(p_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
+					p_plot->image_properties.type = IC_PALETTE;
+					ProcessImage(term, p_plot, IMG_UPDATE_AXES);
 				}
 			}
 SKIPPED_EMPTY_FILE:
-			/* Note position in command line for second pass */
-			this_plot->token = Pgm.GetCurTokenIdx();
-			tp_ptr = &(this_plot->next);
-			/* restore original value of sample variables */
+			// Note position in command line for second pass 
+			p_plot->token = Pgm.GetCurTokenIdx();
+			tp_ptr = &(p_plot->next);
+			// restore original value of sample variables 
 			if(name_str) {
-				this_plot->sample_var->udv_value = original_value_sample_var;
-				this_plot->sample_var2->udv_value = original_value_sample_var2;
+				p_plot->sample_var->udv_value = original_value_sample_var;
+				p_plot->sample_var2->udv_value = original_value_sample_var2;
 			}
 		} /* !is_defn */
 		if(in_parametric) {
@@ -2584,17 +2588,17 @@ SKIPPED_EMPTY_FILE:
 			else
 				break;
 		}
-		/* Iterate-over-plot mechanism */
-		if(empty_iteration(plot_iterator) && this_plot)
-			this_plot->plot_type = NODATA;
-		if(forever_iteration(plot_iterator) && !this_plot)
+		// Iterate-over-plot mechanism 
+		if(empty_iteration(plot_iterator) && p_plot)
+			p_plot->plot_type = NODATA;
+		if(forever_iteration(plot_iterator) && !p_plot)
 			IntError(NO_CARET, "unbounded iteration in something other than a data plot");
-		else if(forever_iteration(plot_iterator) && (this_plot->plot_type == NODATA)) {
+		else if(forever_iteration(plot_iterator) && (p_plot->plot_type == NODATA)) {
 			FPRINTF((stderr, "Ending * iteration at %d\n", plot_iterator->iteration));
 			/* Clearing the plot title ensures that it will not appear in the key */
-			ZFREE(this_plot->title);
+			ZFREE(p_plot->title);
 		}
-		else if(forever_iteration(plot_iterator) && (this_plot->plot_type != DATA)) {
+		else if(forever_iteration(plot_iterator) && (p_plot->plot_type != DATA)) {
 			IntError(NO_CARET, "unbounded iteration in something other than a data plot");
 		}
 		else if(next_iteration(plot_iterator)) {
@@ -2677,7 +2681,7 @@ SKIPPED_EMPTY_FILE:
 		// else we'll do it on each plot (see below) 
 		tp_ptr = &P_FirstPlot;
 		plot_num = 0;
-		this_plot = P_FirstPlot;
+		p_plot = P_FirstPlot;
 		Pgm.SetTokenIdx(begin_token); // start over 
 		plot_iterator = CheckForIteration();
 		// Read through functions 
@@ -2685,7 +2689,7 @@ SKIPPED_EMPTY_FILE:
 			if(!in_parametric && !was_definition)
 				start_token = Pgm.GetCurTokenIdx();
 			if(IsDefinition(Pgm.GetCurTokenIdx())) {
-				Pgm.Define();
+				Define();
 				if(Pgm.EqualsCur(","))
 					Pgm.Shift();
 				was_definition = TRUE;
@@ -2697,13 +2701,13 @@ SKIPPED_EMPTY_FILE:
 				int sample_range_token;
 				was_definition = FALSE;
 				// Forgive trailing comma on a multi-element plot command 
-				if(Pgm.EndOfCommand() || this_plot == NULL) {
+				if(Pgm.EndOfCommand() || p_plot == NULL) {
 					IntWarnCurToken("ignoring trailing comma in plot command");
 					break;
 				}
 				// HBB 20000820: now globals in 'axis.c' 
-				AxS.Idx_X = this_plot->AxIdx_X;
-				AxS.Idx_Y = this_plot->AxIdx_Y;
+				AxS.Idx_X = p_plot->AxIdx_X;
+				AxS.Idx_Y = p_plot->AxIdx_Y;
 				plot_num++;
 				// Check for a sampling range. 
 				// Only relevant to function plots, and only needed in second pass. 
@@ -2735,7 +2739,7 @@ SKIPPED_EMPTY_FILE:
 					if(parametric) { /* toggle parametric axes */
 						in_parametric = !in_parametric;
 					}
-					if(this_plot->plot_style == TABLESTYLE)
+					if(p_plot->plot_style == TABLESTYLE)
 						IntWarn(NO_CARET, "'with table' requires a data source not a pure function");
 					plot_func.at = at_ptr;
 					if(!parametric && !polar) {
@@ -2774,63 +2778,62 @@ SKIPPED_EMPTY_FILE:
 						x = t;
 						Gcomplex(&plot_func.dummy_values[0], x, 0.0);
 						EvaluateAt(plot_func.at, &a);
-						if(GPO.Ev.IsUndefined_) {
-							this_plot->points[i].type = UNDEFINED;
+						if(Ev.IsUndefined_) {
+							p_plot->points[i].type = UNDEFINED;
 							continue;
 						}
 						// Imaginary values are treated as UNDEFINED 
 						if(fabs(imag(&a)) > zero && !isnan(real(&a))) {
-							this_plot->points[i].type = UNDEFINED;
+							p_plot->points[i].type = UNDEFINED;
 							n_complex_values++;
 							continue;
 						}
 						// Jan 2010 - initialize all fields! 
-						memzero(&this_plot->points[i], sizeof(struct coordinate));
+						memzero(&p_plot->points[i], sizeof(GpCoordinate));
 						temp = real(&a);
 						// width of box not specified 
-						this_plot->points[i].z = -1.0;
+						p_plot->points[i].z = -1.0;
 						// for the moment 
-						this_plot->points[i].type = INRANGE;
+						p_plot->points[i].type = INRANGE;
 						if(parametric) {
-							/* The syntax is plot x, y XnYnaxes
-							 * so we do not know the actual plot axes until
-							 * the y plot and cannot do range-checking now.
-							 */
-							this_plot->points[i].x = t;
-							this_plot->points[i].y = temp;
+							// The syntax is plot x, y XnYnaxes
+							// so we do not know the actual plot axes until
+							// the y plot and cannot do range-checking now.
+							p_plot->points[i].x = t;
+							p_plot->points[i].y = temp;
 							if(V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute)
-								this_plot->points[i].z = 0.0;
+								p_plot->points[i].z = 0.0;
 						}
 						else if(polar) {
 							double y;
 							double theta = x;
 							// Convert from polar to cartesian coordinates and check ranges
 							if(PolarToXY(theta, temp, &x, &y, TRUE) == OUTRANGE)
-								this_plot->points[i].type = OUTRANGE; ;
-							if((this_plot->plot_style == FILLEDCURVES) && (this_plot->filledcurves_options.closeto == FILLEDCURVES_ATR)) {
+								p_plot->points[i].type = OUTRANGE; ;
+							if((p_plot->plot_style == FILLEDCURVES) && (p_plot->filledcurves_options.closeto == FILLEDCURVES_ATR)) {
 								double xhigh, yhigh;
-								PolarToXY(theta, this_plot->filledcurves_options.at, &xhigh, &yhigh, TRUE);
-								STORE_AND_UPDATE_RANGE(this_plot->points[i].xhigh, xhigh, this_plot->points[i].type, AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
-								STORE_AND_UPDATE_RANGE(this_plot->points[i].yhigh, yhigh, this_plot->points[i].type, AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
+								PolarToXY(theta, p_plot->filledcurves_options.at, &xhigh, &yhigh, TRUE);
+								STORE_AND_UPDATE_RANGE(p_plot->points[i].xhigh, xhigh, p_plot->points[i].type, AxS.Idx_X, p_plot->noautoscale, goto come_here_if_undefined);
+								STORE_AND_UPDATE_RANGE(p_plot->points[i].yhigh, yhigh, p_plot->points[i].type, AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
 							}
-							STORE_AND_UPDATE_RANGE(this_plot->points[i].x, x, this_plot->points[i].type, AxS.Idx_X, this_plot->noautoscale, goto come_here_if_undefined);
-							STORE_AND_UPDATE_RANGE(this_plot->points[i].y, y, this_plot->points[i].type, AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
+							STORE_AND_UPDATE_RANGE(p_plot->points[i].x, x, p_plot->points[i].type, AxS.Idx_X, p_plot->noautoscale, goto come_here_if_undefined);
+							STORE_AND_UPDATE_RANGE(p_plot->points[i].y, y, p_plot->points[i].type, AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
 						}
 						else { // neither parametric or polar 
-							this_plot->points[i].x = t;
+							p_plot->points[i].x = t;
 							// A sampled function can only be OUTRANGE if it has a private range 
 							if(sample_range_token != 0) {
 								double xx = t;
-								if(!inrange(xx, AxS[this_plot->AxIdx_X].min, AxS[this_plot->AxIdx_X].max))
-									this_plot->points[i].type = OUTRANGE;
+								if(!inrange(xx, AxS[p_plot->AxIdx_X].min, AxS[p_plot->AxIdx_X].max))
+									p_plot->points[i].type = OUTRANGE;
 							}
 							// For boxes [only] check use of boxwidth 
-							if((this_plot->plot_style == BOXES) && (V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute)) {
+							if((p_plot->plot_style == BOXES) && (V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute)) {
 								double xlow, xhigh;
 								coord_type dmy_type = INRANGE;
-								this_plot->points[i].z = 0;
-								if(AxS[this_plot->AxIdx_X].log) {
-									double base = AxS[this_plot->AxIdx_X].base;
+								p_plot->points[i].z = 0;
+								if(AxS[p_plot->AxIdx_X].log) {
+									double base = AxS[p_plot->AxIdx_X].base;
 									xlow = x * pow(base, -V.BoxWidth/2.0);
 									xhigh = x * pow(base, V.BoxWidth/2.0);
 								}
@@ -2838,36 +2841,36 @@ SKIPPED_EMPTY_FILE:
 									xlow = x - V.BoxWidth/2.0;
 									xhigh = x + V.BoxWidth/2.0;
 								}
-								STORE_AND_UPDATE_RANGE(this_plot->points[i].xlow, xlow, dmy_type, AxS.Idx_X, this_plot->noautoscale, NOOP);
+								STORE_AND_UPDATE_RANGE(p_plot->points[i].xlow, xlow, dmy_type, AxS.Idx_X, p_plot->noautoscale, NOOP);
 								dmy_type = INRANGE;
-								STORE_AND_UPDATE_RANGE(this_plot->points[i].xhigh, xhigh, dmy_type, AxS.Idx_X, this_plot->noautoscale, NOOP);
+								STORE_AND_UPDATE_RANGE(p_plot->points[i].xhigh, xhigh, dmy_type, AxS.Idx_X, p_plot->noautoscale, NOOP);
 							}
-							if(this_plot->plot_style == FILLEDCURVES) {
-								this_plot->points[i].xhigh = this_plot->points[i].x;
-								STORE_AND_UPDATE_RANGE(this_plot->points[i].yhigh, this_plot->filledcurves_options.at, this_plot->points[i].type, AxS.Idx_Y, TRUE, NOOP);
+							if(p_plot->plot_style == FILLEDCURVES) {
+								p_plot->points[i].xhigh = p_plot->points[i].x;
+								STORE_AND_UPDATE_RANGE(p_plot->points[i].yhigh, p_plot->filledcurves_options.at, p_plot->points[i].type, AxS.Idx_Y, TRUE, NOOP);
 							}
-							/* Fill in additional fields needed to draw a circle */
-							if(this_plot->plot_style == CIRCLES) {
-								this_plot->points[i].z = DEFAULT_RADIUS;
-								this_plot->points[i].ylow = 0;
-								this_plot->points[i].xhigh = 360;
+							// Fill in additional fields needed to draw a circle 
+							if(p_plot->plot_style == CIRCLES) {
+								p_plot->points[i].z = DEFAULT_RADIUS;
+								p_plot->points[i].ylow = 0;
+								p_plot->points[i].xhigh = 360;
 							}
-							else if(this_plot->plot_style == ELLIPSES) {
-								this_plot->points[i].z = DEFAULT_RADIUS;
-								this_plot->points[i].ylow = default_ellipse.o.ellipse.orientation;
+							else if(p_plot->plot_style == ELLIPSES) {
+								p_plot->points[i].z = DEFAULT_RADIUS;
+								p_plot->points[i].ylow = default_ellipse.o.ellipse.orientation;
 							}
-							STORE_AND_UPDATE_RANGE(this_plot->points[i].y, temp, this_plot->points[i].type, in_parametric ? AxS.Idx_X : AxS.Idx_Y, this_plot->noautoscale, goto come_here_if_undefined);
+							STORE_AND_UPDATE_RANGE(p_plot->points[i].y, temp, p_plot->points[i].type, in_parametric ? AxS.Idx_X : AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
 							/* could not use a continue in this case */
 come_here_if_undefined:
 							; /* ansi requires a statement after a label */
 						}
 					} /* loop over samples_1 */
-					this_plot->p_count = i; /* samples_1 */
+					p_plot->p_count = i; /* samples_1 */
 				}
-				Pgm.SetTokenIdx(this_plot->token); // skip all modifiers func / whole of data plots 
+				Pgm.SetTokenIdx(p_plot->token); // skip all modifiers func / whole of data plots 
 				// used below 
-				tp_ptr = &(this_plot->next);
-				this_plot = this_plot->next;
+				tp_ptr = &(p_plot->next);
+				p_plot = p_plot->next;
 			}
 			if(in_parametric) {
 				if(Pgm.EqualsCur(",")) {
@@ -2876,7 +2879,7 @@ come_here_if_undefined:
 				}
 			}
 			/* Iterate-over-plot mechanism */
-			if(forever_iteration(plot_iterator) && this_plot->plot_type == NODATA) {
+			if(forever_iteration(plot_iterator) && p_plot->plot_type == NODATA) {
 				plot_iterator = cleanup_iteration(plot_iterator);
 				Pgm.SetTokenIdx(start_token);
 				continue;
@@ -2898,7 +2901,7 @@ come_here_if_undefined:
 		if(parametric) {
 			// Now actually fix the plot pairs to be single plots
 			// also fixes up polar&&parametric fn plots 
-			parametric_fixup(P_FirstPlot, &plot_num);
+			ParametricFixup(P_FirstPlot, &plot_num);
 			// we omitted earlier check for range too small 
 			AxisCheckedExtendEmptyRange(FIRST_X_AXIS, NULL);
 			if(uses_axis[SECOND_X_AXIS]) {
@@ -2907,7 +2910,7 @@ come_here_if_undefined:
 		}
 		// This is the earliest that polar autoscaling can be done for function plots 
 		if(polar)
-			polar_range_fiddling(P_FirstPlot);
+			PolarRangeFiddling(P_FirstPlot);
 	}
 	// if P_FirstPlot is NULL, we have no functions or data at all. This can
 	// happen if you type "plot x=5", since x=5 is a variable assignment.
@@ -2924,7 +2927,7 @@ come_here_if_undefined:
 	 * are present yrange may still be undefined. We fix that now.
 	 * In the absence of parallelaxis plots this call does nothing.
 	 */
-	parallel_range_fiddling(P_FirstPlot);
+	ParallelRangeFiddling(P_FirstPlot);
 	/* The x/y values stored during data entry for spider plots are not
 	 * true x/y values.  Reset x/y ranges to [-1:+1].
 	 */
@@ -2939,12 +2942,12 @@ come_here_if_undefined:
 	if(uses_axis[FIRST_X_AXIS] && uses_axis[SECOND_X_AXIS]) {
 		GpAxis * primary   = &AxS[FIRST_X_AXIS];
 		GpAxis * secondary = &AxS[SECOND_X_AXIS];
-		reconcile_linked_axes(primary, secondary);
+		ReconcileLinkedAxes(primary, secondary);
 	}
 	if(uses_axis[FIRST_Y_AXIS] && uses_axis[SECOND_Y_AXIS]) {
 		GpAxis * primary   = &AxS[FIRST_Y_AXIS];
 		GpAxis * secondary = &AxS[SECOND_Y_AXIS];
-		reconcile_linked_axes(primary, secondary);
+		ReconcileLinkedAxes(primary, secondary);
 	}
 	if(uses_axis[FIRST_X_AXIS]) {
 		if(AxS[FIRST_X_AXIS].max == -VERYLARGE || AxS[FIRST_X_AXIS].min == VERYLARGE)
@@ -2967,13 +2970,13 @@ come_here_if_undefined:
 	// Now we use them to update the corresponding shadow (nonlinear) ones. 
 	UpdatePrimaryAxisRange(&AxS[FIRST_X_AXIS]);
 	UpdatePrimaryAxisRange(&AxS[SECOND_X_AXIS]);
-	if(this_plot && this_plot->plot_style == TABLESTYLE) {
+	if(p_plot && p_plot->plot_style == TABLESTYLE) {
 		; // the y axis range has no meaning in this case 
 	}
-	else if(this_plot && this_plot->plot_style == PARALLELPLOT) {
+	else if(p_plot && p_plot->plot_style == PARALLELPLOT) {
 		; // we should maybe check one of the parallel axes?
 	}
-	else if(uses_axis[FIRST_Y_AXIS] && nonlinear(&AxS[FIRST_Y_AXIS])) {
+	else if(uses_axis[FIRST_Y_AXIS] && AxS[FIRST_Y_AXIS].IsNonLinear()) {
 		AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "all points y value undefined!");
 		UpdatePrimaryAxisRange(&AxS[FIRST_Y_AXIS]);
 	}
@@ -2995,7 +2998,7 @@ come_here_if_undefined:
 	// This call cannot be in boundary(), called from do_plot(), because
 	// it would cause logscaling problems if do_plot() itself was called for
 	// refresh rather than for plot/replot.
-	set_plot_with_palette(0, MODE_PLOT);
+	SetPlotWithPalette(0, MODE_PLOT);
 	if(is_plot_with_palette())
 		SetCbMinMax();
 	// if we get here, all went well, so record this line for replot 
@@ -3021,16 +3024,16 @@ come_here_if_undefined:
 	}
 	UpdateGpvalVariables(1); // update GPVAL_ variables available to user 
 }
-/*
- * The hardest part of this routine is collapsing the FUNC plot types in the
- * list (which are guaranteed to occur in (x,y) pairs while preserving the
- * non-FUNC type plots intact.  This means we have to work our way through
- * various lists.  Examples (hand checked): start_plot:F1->F2->NULL ==>
- * F2->NULL start_plot:F1->F2->F3->F4->F5->F6->NULL ==> F2->F4->F6->NULL
- * start_plot:F1->F2->D1->D2->F3->F4->D3->NULL ==> F2->D1->D2->F4->D3->NULL
- *
- */
-static void parametric_fixup(curve_points * start_plot, int * plot_num)
+// 
+// The hardest part of this routine is collapsing the FUNC plot types in the
+// list (which are guaranteed to occur in (x,y) pairs while preserving the
+// non-FUNC type plots intact.  This means we have to work our way through
+// various lists.  Examples (hand checked): start_plot:F1->F2->NULL ==>
+// F2->NULL start_plot:F1->F2->F3->F4->F5->F6->NULL ==> F2->F4->F6->NULL
+// start_plot:F1->F2->D1->D2->F3->F4->D3->NULL ==> F2->D1->D2->F4->D3->NULL
+// 
+//static void parametric_fixup(curve_points * pStartPlot, int * pPlotNum)
+void GnuPlot::ParametricFixup(curve_points * pStartPlot, int * pPlotNum)
 {
 	curve_points * xp = 0;
 	curve_points * new_list = NULL;
@@ -3038,29 +3041,27 @@ static void parametric_fixup(curve_points * start_plot, int * plot_num)
 	curve_points ** last_pointer = &new_list;
 	int i;
 	int curve = 0;
-	/*
-	 * Ok, go through all the plots and move FUNC types together.  Note: this
-	 * originally was written to look for a NULL next pointer, but gnuplot
-	 * wants to be sticky in grabbing memory and the right number of items in
-	 * the plot list is controlled by the plot_num variable.
-	 *
-	 * Since gnuplot wants to do this sticky business, a free_list of
-	 * curve_points is kept and then tagged onto the end of the plot list as
-	 * this seems more in the spirit of the original memory behavior than
-	 * simply freeing the memory.  I'm personally not convinced this sort of
-	 * concern is worth it since the time spent computing points seems to
-	 * dominate any garbage collecting that might be saved here...
-	 */
-	new_list = xp = start_plot;
-	while(++curve <= *plot_num) {
+	// 
+	// Ok, go through all the plots and move FUNC types together.  Note: this
+	// originally was written to look for a NULL next pointer, but gnuplot
+	// wants to be sticky in grabbing memory and the right number of items in
+	// the plot list is controlled by the plot_num variable.
+	// 
+	// Since gnuplot wants to do this sticky business, a free_list of
+	// curve_points is kept and then tagged onto the end of the plot list as
+	// this seems more in the spirit of the original memory behavior than
+	// simply freeing the memory.  I'm personally not convinced this sort of
+	// concern is worth it since the time spent computing points seems to
+	// dominate any garbage collecting that might be saved here...
+	// 
+	new_list = xp = pStartPlot;
+	while(++curve <= *pPlotNum) {
 		if(xp->plot_type == FUNC) {
-			/* Here's a FUNC parametric function defined as two parts. */
+			// Here's a FUNC parametric function defined as two parts. 
 			curve_points * yp = xp->next;
-			--(*plot_num);
+			--(*pPlotNum);
 			assert(xp->p_count == yp->p_count);
-			/* IMPORTANT: because syntax is   plot x(t), y(t) XnYnaxes ..., only
-			 * the y function axes are correct
-			 */
+			// IMPORTANT: because syntax is   plot x(t), y(t) XnYnaxes ..., only the y function axes are correct
 			//
 			// Go through all the points assigning the y's from xp to be
 			// the x's for yp. In polar mode, we need to check max's and
@@ -3074,18 +3075,18 @@ static void parametric_fixup(curve_points * start_plot, int * plot_num)
 					// Convert from polar to cartesian coordinate and check ranges */
 					// Note: The old in-line conversion checked AxS.__R().max against fabs(r).
 					// That's not what PolarToXY() is currently doing.
-					if(GPO.PolarToXY(t, r, &x, &y, TRUE) == OUTRANGE)
+					if(PolarToXY(t, r, &x, &y, TRUE) == OUTRANGE)
 						yp->points[i].type = OUTRANGE;
 				}
 				else {
 					x = xp->points[i].y;
 					y = yp->points[i].y;
 				}
-				if(GPO.V.BoxWidth >= 0.0 && GPO.V.BoxWidthIsAbsolute) {
+				if(V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute) {
 					coord_type dmy_type = INRANGE;
-					STORE_AND_UPDATE_RANGE(yp->points[i].xlow, x - GPO.V.BoxWidth/2.0, dmy_type, yp->AxIdx_X, xp->noautoscale, NOOP);
+					STORE_AND_UPDATE_RANGE(yp->points[i].xlow, x - V.BoxWidth/2.0, dmy_type, yp->AxIdx_X, xp->noautoscale, NOOP);
 					dmy_type = INRANGE;
-					STORE_AND_UPDATE_RANGE(yp->points[i].xhigh, x + GPO.V.BoxWidth/2.0, dmy_type, yp->AxIdx_X, xp->noautoscale, NOOP);
+					STORE_AND_UPDATE_RANGE(yp->points[i].xhigh, x + V.BoxWidth/2.0, dmy_type, yp->AxIdx_X, xp->noautoscale, NOOP);
 				}
 				STORE_AND_UPDATE_RANGE(yp->points[i].x, x, yp->points[i].type, yp->AxIdx_X, xp->noautoscale, NOOP);
 				STORE_AND_UPDATE_RANGE(yp->points[i].y, y, yp->points[i].type, yp->AxIdx_Y, xp->noautoscale, NOOP);
@@ -3108,22 +3109,23 @@ static void parametric_fixup(curve_points * start_plot, int * plot_num)
 	// Ok, stick the free list at the end of the curve_points plot list. 
 	*last_pointer = free_list;
 }
-/*
- * handle keyword options for "smooth kdensity {bandwidth <val>} {period <val>}
- */
-static void parse_kdensity_options(curve_points * this_plot)
+// 
+// handle keyword options for "smooth kdensity {bandwidth <val>} {period <val>}
+// 
+//static void parse_kdensity_options(curve_points * pPlot)
+void GnuPlot::ParseKDensityOptions(curve_points * pPlot)
 {
 	bool done = FALSE;
-	this_plot->smooth_parameter = -1; /* Default */
-	this_plot->smooth_period = 0;
+	pPlot->smooth_parameter = -1; /* Default */
+	pPlot->smooth_period = 0;
 	while(!done) {
-		if(GPO.Pgm.AlmostEqualsCur("band$width")) {
-			GPO.Pgm.Shift();
-			this_plot->smooth_parameter = GPO.RealExpression();
+		if(Pgm.AlmostEqualsCur("band$width")) {
+			Pgm.Shift();
+			pPlot->smooth_parameter = RealExpression();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("period")) {
-			GPO.Pgm.Shift();
-			this_plot->smooth_period = GPO.RealExpression();
+		else if(Pgm.AlmostEqualsCur("period")) {
+			Pgm.Shift();
+			pPlot->smooth_period = RealExpression();
 		}
 		else
 			done = TRUE;

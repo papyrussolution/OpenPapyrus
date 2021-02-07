@@ -5,7 +5,7 @@
 #pragma hdrstop
 
 static void unset_angles();
-static void unset_arrow();
+//static void unset_arrow();
 static void unset_arrowstyles();
 static void free_arrowstyle(struct arrowstyle_def *);
 static void delete_arrow(struct arrow_def *, struct arrow_def *);
@@ -22,10 +22,10 @@ static void unset_cntrlabel();
 static void unset_contour();
 static void unset_dashtype();
 static void unset_dgrid3d();
-static void unset_dummy();
+//static void unset_dummy();
 static void unset_encoding();
 static void unset_decimalsign();
-static void unset_fit();
+//static void unset_fit();
 static void unset_grid();
 static void unset_hidden3d();
 static void unset_histogram();
@@ -62,7 +62,7 @@ static void unset_minitics(GpAxis *);
 static void unset_offsets();
 static void unset_origin();
 static void unset_output();
-static void unset_parametric();
+//static void unset_parametric();
 static void unset_pm3d();
 static void unset_palette();
 static void reset_colorbox();
@@ -75,20 +75,20 @@ static void unset_psdir();
 static void unset_samples();
 //static void unset_size();
 //static void unset_style();
-static void unset_spiderplot();
+//static void unset_spiderplot();
 static void unset_surface();
 static void unset_table();
-static void unset_terminal();
-static void unset_tics(GpAxis *);
+//static void unset_terminal();
+//static void unset_tics(GpAxis *);
 static void unset_ticslevel();
 static void unset_timefmt();
 static void unset_timestamp();
 static void unset_view();
 static void unset_zero();
 //static void unset_timedata(AXIS_INDEX);
-static void unset_range(AXIS_INDEX);
-static void unset_zeroaxis(AXIS_INDEX);
-static void unset_all_zeroaxes();
+//static void unset_range(AXIS_INDEX);
+//static void unset_zeroaxis(AXIS_INDEX);
+//static void unset_all_zeroaxes();
 //static void unset_axislabel_or_title(text_label *);
 //static void unset_axislabel(AXIS_INDEX);
 static void reset_mouse();
@@ -123,7 +123,7 @@ void GnuPlot::UnsetCommand()
 ITERATE:
 	switch(found_token) {
 		case S_ANGLES: unset_angles(); break;
-		case S_ARROW:  unset_arrow(); break;
+		case S_ARROW:  UnsetArrow(); break;
 		case S_AUTOSCALE: UnsetAutoScale(); break;
 		case S_BARS: unset_bars(); break;
 		case S_BORDER: unset_border(); break;
@@ -138,10 +138,10 @@ ITERATE:
 		case S_DASHTYPE: unset_dashtype(); break;
 		case S_DGRID3D: unset_dgrid3d(); break;
 		case S_DEBUG: debug = 0; break;
-		case S_DUMMY: unset_dummy(); break;
+		case S_DUMMY: UnsetDummy(); break;
 		case S_ENCODING: unset_encoding(); break;
 		case S_DECIMALSIGN: unset_decimalsign(); break;
-		case S_FIT: unset_fit(); break;
+		case S_FIT: UnsetFit(); break;
 		case S_FORMAT:
 		    Pgm.Rollback();
 		    SetFormat();
@@ -232,12 +232,12 @@ ITERATE:
 		case S_MINUS_SIGN: unset_minus_sign(); break;
 		case S_MONOCHROME: unset_monochrome(); break;
 		case S_MOUSE: unset_mouse(); break;
-		case S_MULTIPLOT: term_end_multiplot(); break;
+		case S_MULTIPLOT: TermEndMultiplot(term); break;
 		case S_OFFSETS: unset_offsets(); break;
 		case S_ORIGIN: unset_origin(); break;
 		case SET_OUTPUT: unset_output(); break;
 		case S_OVERFLOW: Ev.OverflowHandling = INT64_OVERFLOW_IGNORE; break;
-		case S_PARAMETRIC: unset_parametric(); break;
+		case S_PARAMETRIC: UnsetParametric(); break;
 		case S_PM3D: unset_pm3d(); break;
 		case S_PALETTE: unset_palette(); break;
 		case S_COLORBOX: unset_colorbox(); break;
@@ -251,24 +251,24 @@ ITERATE:
 		    for(i = 0; i < 5; i++)
 			    unset_wall(i);
 		    break;
-		case S_RTICS: unset_tics(&AxS[POLAR_AXIS]); break;
-		case S_TTICS: unset_tics(&AxS.Theta()); break;
+		case S_RTICS: AxS[POLAR_AXIS].UnsetTics(); break;
+		case S_TTICS: AxS.Theta().UnsetTics(); break;
 		case S_PAXIS:
 		    i = IntExpression();
 		    if(Pgm.AlmostEqualsCur("tic$s")) {
 			    if(i > 0 && i <= AxS.GetParallelAxisCount())
-				    unset_tics(&AxS.Parallel(i-1));
+				    AxS.Parallel(i-1).UnsetTics();
 			    Pgm.Shift();
 		    }
 		    break;
 		case S_RGBMAX: rgbmax = 255; break;
 		case S_SAMPLES: unset_samples(); break;
 		case S_SIZE: UnsetSize(); break;
-		case S_SPIDERPLOT: unset_spiderplot(); break;
+		case S_SPIDERPLOT: UnsetSpiderPlot(); break;
 		case S_STYLE: UnsetStyle(); break;
 		case S_SURFACE: unset_surface(); break;
 		case S_TABLE: unset_table(); break;
-		case S_TERMINAL: unset_terminal(); break;
+		case S_TERMINAL: UnsetTerminal(); break;
 		case S_TICS: unset_all_tics(); break;
 		case S_TICSCALE: IntWarnCurToken("Deprecated syntax - use 'set tics scale default'"); break;
 		case S_TICSLEVEL: 
@@ -281,27 +281,27 @@ ITERATE:
 		case S_ZERO: unset_zero(); break;
 		/* FIXME - are the tics correct? */
 		case S_MXTICS: unset_minitics(&AxS[FIRST_X_AXIS]); break;
-		case S_XTICS: unset_tics(&AxS[FIRST_X_AXIS]); break;
+		case S_XTICS: AxS[FIRST_X_AXIS].UnsetTics(); break;
 		case S_XDTICS:
 		case S_XMTICS: unset_month_day_tics(FIRST_X_AXIS); break;
 		case S_MYTICS: unset_minitics(&AxS[FIRST_Y_AXIS]); break;
-		case S_YTICS: unset_tics(&AxS[FIRST_Y_AXIS]); break;
+		case S_YTICS: AxS[FIRST_Y_AXIS].UnsetTics(); break;
 		case S_YDTICS:
 		case S_YMTICS: unset_month_day_tics(FIRST_X_AXIS); break;
 		case S_MX2TICS: unset_minitics(&AxS[SECOND_X_AXIS]); break;
-		case S_X2TICS: unset_tics(&AxS[SECOND_X_AXIS]); break;
+		case S_X2TICS: AxS[SECOND_X_AXIS].UnsetTics(); break;
 		case S_X2DTICS:
 		case S_X2MTICS: unset_month_day_tics(FIRST_X_AXIS); break;
 		case S_MY2TICS: unset_minitics(&AxS[SECOND_Y_AXIS]); break;
-		case S_Y2TICS: unset_tics(&AxS[SECOND_Y_AXIS]); break;
+		case S_Y2TICS: AxS[SECOND_Y_AXIS].UnsetTics(); break;
 		case S_Y2DTICS:
 		case S_Y2MTICS: unset_month_day_tics(SECOND_Y_AXIS); break;
 		case S_MZTICS: unset_minitics(&AxS[FIRST_Z_AXIS]); break;
-		case S_ZTICS: unset_tics(&AxS[FIRST_Z_AXIS]); break;
+		case S_ZTICS: AxS[FIRST_Z_AXIS].UnsetTics(); break;
 		case S_ZDTICS:
 		case S_ZMTICS: unset_month_day_tics(FIRST_X_AXIS); break;
 		case S_MCBTICS: unset_minitics(&AxS[COLOR_AXIS]); break;
-		case S_CBTICS: unset_tics(&AxS[COLOR_AXIS]); break;
+		case S_CBTICS: AxS[COLOR_AXIS].UnsetTics(); break;
 		case S_CBDTICS:
 		case S_CBMTICS: unset_month_day_tics(FIRST_X_AXIS); break;
 		case S_MRTICS: unset_minitics(&AxS[POLAR_AXIS]); break;
@@ -319,26 +319,26 @@ ITERATE:
 		case S_RLABEL: UnsetAxisLabel(POLAR_AXIS); break;
 		case S_X2LABEL: UnsetAxisLabel(SECOND_X_AXIS); break;
 		case S_Y2LABEL: UnsetAxisLabel(SECOND_Y_AXIS); break;
-		case S_XRANGE: unset_range(FIRST_X_AXIS); break;
-		case S_X2RANGE: unset_range(SECOND_X_AXIS); break;
-		case S_YRANGE: unset_range(FIRST_Y_AXIS); break;
-		case S_Y2RANGE: unset_range(SECOND_Y_AXIS); break;
-		case S_ZRANGE: unset_range(FIRST_Z_AXIS); break;
-		case S_CBRANGE: unset_range(COLOR_AXIS); break;
-		case S_RRANGE: unset_range(POLAR_AXIS); break;
-		case S_TRANGE: unset_range(T_AXIS); break;
-		case S_URANGE: unset_range(U_AXIS); break;
-		case S_VRANGE: unset_range(V_AXIS); break;
+		case S_XRANGE: UnsetRange(FIRST_X_AXIS); break;
+		case S_X2RANGE: UnsetRange(SECOND_X_AXIS); break;
+		case S_YRANGE: UnsetRange(FIRST_Y_AXIS); break;
+		case S_Y2RANGE: UnsetRange(SECOND_Y_AXIS); break;
+		case S_ZRANGE: UnsetRange(FIRST_Z_AXIS); break;
+		case S_CBRANGE: UnsetRange(COLOR_AXIS); break;
+		case S_RRANGE: UnsetRange(POLAR_AXIS); break;
+		case S_TRANGE: UnsetRange(T_AXIS); break;
+		case S_URANGE: UnsetRange(U_AXIS); break;
+		case S_VRANGE: UnsetRange(V_AXIS); break;
 		case S_RAXIS:
 		    raxis = FALSE;
 		    Pgm.Shift();
 		    break;
-		case S_XZEROAXIS: unset_zeroaxis(FIRST_X_AXIS); break;
-		case S_YZEROAXIS: unset_zeroaxis(FIRST_Y_AXIS); break;
-		case S_ZZEROAXIS: unset_zeroaxis(FIRST_Z_AXIS); break;
-		case S_X2ZEROAXIS: unset_zeroaxis(SECOND_X_AXIS); break;
-		case S_Y2ZEROAXIS: unset_zeroaxis(SECOND_Y_AXIS); break;
-		case S_ZEROAXIS: unset_all_zeroaxes(); break;
+		case S_XZEROAXIS: UnsetZeroAxis(FIRST_X_AXIS); break;
+		case S_YZEROAXIS: UnsetZeroAxis(FIRST_Y_AXIS); break;
+		case S_ZZEROAXIS: UnsetZeroAxis(FIRST_Z_AXIS); break;
+		case S_X2ZEROAXIS: UnsetZeroAxis(SECOND_X_AXIS); break;
+		case S_Y2ZEROAXIS: UnsetZeroAxis(SECOND_Y_AXIS); break;
+		case S_ZEROAXIS: UnsetAllZeroAxes(); break;
 		case S_INVALID:
 		default: IntErrorCurToken("Unrecognized option.  See 'help unset'."); break;
 	}
@@ -359,20 +359,21 @@ static void unset_angles()
 //
 // process 'unset arrow' command 
 //
-static void unset_arrow()
+//static void unset_arrow()
+void GnuPlot::UnsetArrow()
 {
 	arrow_def * this_arrow;
 	arrow_def * prev_arrow;
-	if(GPO.Pgm.EndOfCommand()) {
+	if(Pgm.EndOfCommand()) {
 		// delete all arrows 
 		while(first_arrow)
 			delete_arrow((arrow_def *)NULL, first_arrow);
 	}
 	else {
 		// get tag 
-		int tag = GPO.IntExpression();
-		if(!GPO.Pgm.EndOfCommand())
-			GPO.IntErrorCurToken("extraneous arguments to unset arrow");
+		int tag = IntExpression();
+		if(!Pgm.EndOfCommand())
+			IntErrorCurToken("extraneous arguments to unset arrow");
 		for(this_arrow = first_arrow, prev_arrow = NULL; this_arrow != NULL; prev_arrow = this_arrow, this_arrow = this_arrow->next) {
 			if(this_arrow->tag == tag) {
 				delete_arrow(prev_arrow, this_arrow);
@@ -381,19 +382,19 @@ static void unset_arrow()
 		}
 	}
 }
-
-/* delete arrow from linked list started by first_arrow.
- * called with pointers to the previous arrow (prev) and the
- * arrow to delete (pThis).
- * If there is no previous arrow (the arrow to delete is
- * first_arrow) then call with prev = NULL.
- */
+// 
+// delete arrow from linked list started by first_arrow.
+// called with pointers to the previous arrow (prev) and the
+// arrow to delete (pThis).
+// If there is no previous arrow (the arrow to delete is
+// first_arrow) then call with prev = NULL.
+// 
 static void delete_arrow(struct arrow_def * prev, struct arrow_def * pThis)
 {
-	if(pThis != NULL) {      /* there really is something to delete */
-		if(prev != NULL) /* there is a previous arrow */
+	if(pThis) { // there really is something to delete 
+		if(prev) // there is a previous arrow 
 			prev->next = pThis->next;
-		else            /* pThis = first_arrow so change first_arrow */
+		else // pThis = first_arrow so change first_arrow 
 			first_arrow = pThis->next;
 		SAlloc::F(pThis);
 	}
@@ -616,8 +617,9 @@ static void unset_dashtype()
 		}
 	}
 }
-
-/* process 'unset dgrid3d' command */
+//
+// process 'unset dgrid3d' command 
+//
 static void unset_dgrid3d()
 {
 	dgrid3d_row_fineness = 10;
@@ -628,9 +630,11 @@ static void unset_dgrid3d()
 	dgrid3d_y_scale = 1.0;
 	dgrid3d = FALSE;
 }
-
-/* process 'unset dummy' command */
-static void unset_dummy()
+//
+// process 'unset dummy' command 
+//
+//static void unset_dummy()
+void GnuPlot::UnsetDummy()
 {
 	strcpy(set_dummy_var[0], "x");
 	strcpy(set_dummy_var[1], "y");
@@ -653,7 +657,8 @@ static void unset_decimalsign()
 //
 // process 'unset fit' command 
 //
-static void unset_fit()
+//static void unset_fit()
+void GnuPlot::UnsetFit()
 {
 	ZFREE(fitlogfile);
 	fit_errorvariables = TRUE;
@@ -661,11 +666,11 @@ static void unset_fit()
 	fit_errorscaling = TRUE;
 	fit_prescale = TRUE;
 	fit_verbosity = BRIEF;
-	GPO.Ev.DelUdvByName(FITLIMIT, FALSE);
+	Ev.DelUdvByName(FITLIMIT, FALSE);
 	epsilon_abs = 0.;
-	GPO.Ev.DelUdvByName(FITMAXITER, FALSE);
-	GPO.Ev.DelUdvByName(FITSTARTLAMBDA, FALSE);
-	GPO.Ev.DelUdvByName(FITLAMBDAFACTOR, FALSE);
+	Ev.DelUdvByName(FITMAXITER, FALSE);
+	Ev.DelUdvByName(FITSTARTLAMBDA, FALSE);
+	Ev.DelUdvByName(FITLAMBDAFACTOR, FALSE);
 	ZFREE(fit_script);
 	fit_wrap = 0;
 	// do not reset fit_v4compatible 
@@ -968,7 +973,7 @@ static void unset_mouse()
 {
 #ifdef USE_MOUSE
 	mouse_setting.on = 0;
-	UpdateStatusline(); /* wipe status line */
+	GPO.UpdateStatusLine(); // wipe status line 
 #endif
 }
 //
@@ -985,29 +990,30 @@ static void unset_minitics(GpAxis * pAx)
 void unset_all_tics()
 {
 	for(int i = 0; i < NUMBER_OF_MAIN_VISIBLE_AXES; i++)
-		unset_tics(&GPO.AxS[i]);
+		GPO.AxS[i].UnsetTics();
 }
 
-static void unset_tics(GpAxis * this_axis)
+//static void unset_tics(GpAxis * this_axis)
+void GpAxis::UnsetTics()
 {
 	GpPosition tics_nooffset = { character, character, character, 0., 0., 0.};
-	this_axis->ticmode = NO_TICS;
-	ZFREE(this_axis->ticdef.font);
-	this_axis->ticdef.textcolor.type = TC_DEFAULT;
-	this_axis->ticdef.textcolor.lt = 0;
-	this_axis->ticdef.textcolor.value = 0;
-	this_axis->ticdef.offset = tics_nooffset;
-	this_axis->ticdef.rangelimited = FALSE;
-	this_axis->ticdef.enhanced = TRUE;
-	this_axis->tic_rotate = 0;
-	this_axis->ticscale = 1.0;
-	this_axis->miniticscale = 0.5;
-	this_axis->tic_in = TRUE;
-	this_axis->manual_justify = FALSE;
-	free_marklist(this_axis->ticdef.def.user);
-	this_axis->ticdef.def.user = NULL;
-	if(this_axis->index >= PARALLEL_AXES)
-		this_axis->ticdef.rangelimited = TRUE;
+	ticmode = NO_TICS;
+	ZFREE(ticdef.font);
+	ticdef.textcolor.type = TC_DEFAULT;
+	ticdef.textcolor.lt = 0;
+	ticdef.textcolor.value = 0;
+	ticdef.offset = tics_nooffset;
+	ticdef.rangelimited = FALSE;
+	ticdef.enhanced = TRUE;
+	tic_rotate = 0;
+	ticscale = 1.0;
+	miniticscale = 0.5;
+	TicIn = TRUE;
+	manual_justify = FALSE;
+	free_marklist(ticdef.def.user);
+	ticdef.def.user = NULL;
+	if(index >= PARALLEL_AXES)
+		ticdef.rangelimited = TRUE;
 }
 
 static void unset_month_day_tics(AXIS_INDEX axis)
@@ -1066,21 +1072,24 @@ static void unset_psdir()
 {
 	ZFREE(PS_psdir);
 }
-
-/* process 'unset parametric' command */
-static void unset_parametric()
+//
+// process 'unset parametric' command 
+//
+//static void unset_parametric()
+void GnuPlot::UnsetParametric()
 {
 	if(parametric) {
 		parametric = FALSE;
-		if(!polar) { /* keep t for polar */
-			unset_dummy();
+		if(!polar) { // keep t for polar 
+			UnsetDummy();
 			if(interactive)
-				(void)fprintf(stderr, "\n\tdummy variable is x for curves, x/y for surfaces\n");
+				fprintf(stderr, "\n\tdummy variable is x for curves, x/y for surfaces\n");
 		}
 	}
 }
-
-/* process 'unset palette' command */
+//
+// process 'unset palette' command 
+//
 static void unset_palette()
 {
 	GPO.Pgm.Shift();
@@ -1149,7 +1158,7 @@ void GnuPlot::UnsetPolar()
 	theta_origin = 0.0;
 	theta_direction = 1.0;
 	// Clear and reinitialize THETA axis structure 
-	unset_tics(&AxS.Theta());
+	AxS.Theta().UnsetTics();
 	unset_minitics(&AxS.Theta());
 	AxS.Theta().min = 0.;
 	AxS.Theta().max = 360.;
@@ -1159,7 +1168,7 @@ void GnuPlot::UnsetPolar()
 	AxS.Theta().formatstring = gp_strdup(DEF_FORMAT);
 	AxS.Theta().ticscale = 1.0;
 	AxS.Theta().miniticscale = 0.5;
-	AxS.Theta().tic_in = TRUE;
+	AxS.Theta().TicIn = TRUE;
 	AxS.Theta().tic_rotate = 0;
 }
 //
@@ -1270,12 +1279,13 @@ void GnuPlot::UnsetStyle()
 	}
 }
 
-static void unset_spiderplot()
+//static void unset_spiderplot()
+void GnuPlot::UnsetSpiderPlot()
 {
 	if(spiderplot) {
 		spiderplot = FALSE;
 		data_style = POINTSTYLE;
-		GPO.V.AspectRatio = 0.0f;
+		V.AspectRatio = 0.0f;
 	}
 }
 
@@ -1303,13 +1313,14 @@ static void unset_table()
 // process 'unset terminal' command 
 // Aug 2012:  restore original terminal type 
 //
-static void unset_terminal()
+//static void unset_terminal()
+void GnuPlot::UnsetTerminal()
 {
-	udvt_entry * original_terminal = GPO.Ev.GetUdvByName("GNUTERM");
+	udvt_entry * original_terminal = Ev.GetUdvByName("GNUTERM");
 	if(multiplot)
-		term_end_multiplot();
+		TermEndMultiplot(term);
 	term_reset();
-	/* FIXME: change is correct but reported result is truncated */
+	// FIXME: change is correct but reported result is truncated 
 	if(original_terminal && original_terminal->udv_value.type != NOTDEFINED) {
 		char * termname = gp_strdup(original_terminal->udv_value.v.string_val);
 		if(strchr(termname, ' '))
@@ -1376,33 +1387,38 @@ void GnuPlot::UnsetTimeData(AXIS_INDEX axis)
 	AxS[axis].datatype = DT_NORMAL;
 	AxS[axis].tictype = DT_NORMAL;
 }
-
-/* process 'unset {x|y|z|x2|y2|t|u|v|r}range' command */
-static void unset_range(AXIS_INDEX axis)
+//
+// process 'unset {x|y|z|x2|y2|t|u|v|r}range' command 
+//
+//static void unset_range(AXIS_INDEX axis)
+void GnuPlot::UnsetRange(AXIS_INDEX axIdx)
 {
-	GpAxis * this_axis = &GPO.AxS[axis];
-	this_axis->writeback_min = this_axis->set_min = axis_defaults[axis].min;
-	this_axis->writeback_max = this_axis->set_max = axis_defaults[axis].max;
-	this_axis->set_autoscale = AUTOSCALE_BOTH;
-	this_axis->min_constraint = CONSTRAINT_NONE;
-	this_axis->max_constraint = CONSTRAINT_NONE;
-	this_axis->range_flags = 0;
+	GpAxis * p_ax = &AxS[axIdx];
+	p_ax->writeback_min = p_ax->set_min = axis_defaults[axIdx].min;
+	p_ax->writeback_max = p_ax->set_max = axis_defaults[axIdx].max;
+	p_ax->set_autoscale = AUTOSCALE_BOTH;
+	p_ax->min_constraint = CONSTRAINT_NONE;
+	p_ax->max_constraint = CONSTRAINT_NONE;
+	p_ax->range_flags = 0;
 }
 //
 // process 'unset {x|y|x2|y2|z}zeroaxis' command 
 //
-static void unset_zeroaxis(AXIS_INDEX axis)
+//static void unset_zeroaxis(AXIS_INDEX axis)
+void GnuPlot::UnsetZeroAxis(AXIS_INDEX axIdx)
 {
-	if(GPO.AxS[axis].zeroaxis != &default_axis_zeroaxis)
-		SAlloc::F(GPO.AxS[axis].zeroaxis);
-	GPO.AxS[axis].zeroaxis = NULL;
+	if(AxS[axIdx].zeroaxis != &default_axis_zeroaxis)
+		SAlloc::F(AxS[axIdx].zeroaxis);
+	AxS[axIdx].zeroaxis = NULL;
 }
-
+//
 // process 'unset zeroaxis' command 
-static void unset_all_zeroaxes()
+//
+//static void unset_all_zeroaxes()
+void GnuPlot::UnsetAllZeroAxes()
 {
 	for(/*AXIS_INDEX*/int axis = (AXIS_INDEX)0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++)
-		unset_zeroaxis((AXIS_INDEX)axis);
+		UnsetZeroAxis((AXIS_INDEX)axis);
 }
 
 // process 'unset [xyz]{2}label command 
@@ -1502,9 +1518,9 @@ void GnuPlot::ResetCommand()
 			unset_pixmaps(); // delete pixmaps 
 			// 'polar', 'parametric' and 'dummy' are interdependent, so be sure to keep the order intact 
 			UnsetPolar();
-			unset_parametric();
-			unset_dummy();
-			unset_spiderplot();
+			UnsetParametric();
+			UnsetDummy();
+			UnsetSpiderPlot();
 			unset_style_spiderplot();
 			GpAxis::UnsetLabelOrTitle(&title);
 			reset_key();
@@ -1518,9 +1534,9 @@ void GnuPlot::ResetCommand()
 				this_axis->formatstring = gp_strdup(DEF_FORMAT);
 				this_axis->index = axis;
 				UnsetAxisLabel((AXIS_INDEX)axis); // sets vertical label for y/y2/cb 
-				unset_range((AXIS_INDEX)axis); // copies min/max from axis_defaults 
+				UnsetRange((AXIS_INDEX)axis); // copies min/max from axis_defaults 
 				// 'tics' default is on for some, off for the other axes: 
-				unset_tics(this_axis);
+				this_axis->UnsetTics();
 				unset_minitics(this_axis);
 				this_axis->ticdef = default_axis_ticdef;
 				this_axis->minitics = MINI_DEFAULT;
@@ -1602,7 +1618,7 @@ void GnuPlot::ResetCommand()
 		#endif
 			// restore previous multiplot offset and margins 
 			if(multiplot)
-				multiplot_reset();
+				MultiplotReset();
 			unset_missing();
 			ZFREE(df_separators);
 			SAlloc::F(df_commentschars);
@@ -1611,7 +1627,7 @@ void GnuPlot::ResetCommand()
 			{ // Preserve some settings for `reset`, but not for `unset fit` 
 				verbosity_level save_verbosity = fit_verbosity;
 				bool save_errorscaling = fit_errorscaling;
-				unset_fit();
+				UnsetFit();
 				fit_verbosity = save_verbosity;
 				fit_errorscaling = save_errorscaling;
 			}

@@ -394,8 +394,7 @@ void SmartListBox::MoveScrollBar(int autoHeight)
 void SmartListBox::CreateScrollBar(int create)
 {
 	HWND h_wnd = GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
-	if(h_wnd)
-		DestroyWindow(h_wnd);
+	::DestroyWindow(h_wnd);
 	if(create) {
 		int    tabbed = TView::GetWindowStyle(Parent) & WS_CHILD;
 		const  HWND h_lb = getHandle();

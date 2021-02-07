@@ -508,12 +508,9 @@ TDialog::~TDialog()
 		ZDELETE(P_FontsAry);
 	}
 	ZDELETE(P_SymbList);
-	if(ToolTipsWnd)
-		::DestroyWindow(ToolTipsWnd);
-	if(H()) {
-		::DestroyWindow(H());
-		HW = 0;
-	}
+	::DestroyWindow(ToolTipsWnd);
+	::DestroyWindow(H());
+	HW = 0;
 	delete P_PrevData;
 	if(PP_Groups) {
 		for(uint i = 0; i < GrpCount; i++)

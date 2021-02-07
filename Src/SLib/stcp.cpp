@@ -2268,7 +2268,7 @@ static const SIntToSymbTabEntry HttpHeaderTitles[] = {
 	for(uint i = 0; i < rFldList.getCount(); i++) {
 		StrStrAssocArray::Item item = rFldList.at(i);
 		if(!isempty(item.Key)) {
-			rBuf.CatDivIfNotEmpty('\n', 0);
+			rBuf.CatDivIfNotEmpty('\n', 0); //if(rBuf.NotEmpty()) rBuf.Cat("\xD\xA");
 			rBuf.Cat(item.Key);
 			if(!isempty(item.Val))
 				rBuf.CatDiv(':', 2).Cat(item.Val);

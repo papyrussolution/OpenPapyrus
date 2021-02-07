@@ -632,7 +632,7 @@ double FASTCALL real(const GpValue * val)
 		case INTGR: return static_cast<double>(val->v.int_val);
 		case CMPLX: return (val->v.cmplx_val.real);
 		case STRING: return satof(val->v.string_val); // is this ever used? 
-		case NOTDEFINED: return not_a_number();
+		case NOTDEFINED: return fgetnan();
 		default: GPO.IntError(NO_CARET, "unknown type in real()");
 	}
 	return 0.0; // NOTREACHED 
@@ -650,7 +650,7 @@ double FASTCALL imag(const GpValue * val)
 		    //     x = 2;  plot sprintf(format,x)         
 		    GPO.IntWarn(NO_CARET, "encountered a string when expecting a number");
 		    GPO.IntError(NO_CARET, "Did you try to generate a file name using dummy variable x or y?");
-		case NOTDEFINED: return not_a_number();
+		case NOTDEFINED: return fgetnan();
 		default: GPO.IntError(NO_CARET, "unknown type in imag()");
 	}
 	return 0.0; // NOTREACHED 
@@ -830,12 +830,13 @@ GpValue * FASTCALL pop_Removed(GpValue * x)
 // Allow autoconversion of string variables to floats if they
 // are dereferenced in a numeric context.
 // 
-GpValue * FASTCALL pop_or_convert_from_string(GpValue * v) 
+//GpValue * FASTCALL pop_or_convert_from_string(GpValue * v) 
+GpValue * FASTCALL GnuPlot::PopOrConvertFromString(GpValue * v)
 {
-	GPO.EvStk.Pop(v);
+	EvStk.Pop(v);
 	// FIXME: Test for INVALID_VALUE? Other corner cases? 
 	if(v->type == INVALID_NAME)
-		GPO.IntError(NO_CARET, "invalid dummy variable name");
+		IntError(NO_CARET, "invalid dummy variable name");
 	if(v->type == STRING) {
 		char * eov;
 		if(*(v->v.string_val) &&  strspn(v->v.string_val, "0123456789 ") == strlen(v->v.string_val)) {
@@ -847,7 +848,7 @@ GpValue * FASTCALL pop_or_convert_from_string(GpValue * v)
 			double d = strtod(v->v.string_val, &eov);
 			if(v->v.string_val == eov) {
 				gpfree_string(v);
-				GPO.IntError(NO_CARET, "Non-numeric string found where a numeric expression was expected");
+				IntError(NO_CARET, "Non-numeric string found where a numeric expression was expected");
 				// Note: This also catches syntax errors like "set term ''*0 " 
 			}
 			gpfree_string(v);
@@ -855,7 +856,7 @@ GpValue * FASTCALL pop_or_convert_from_string(GpValue * v)
 			FPRINTF((stderr, "converted string to CMPLX value %g\n", real(v)));
 		}
 	}
-	return(v);
+	return v;
 }
 
 #if 0 // {
@@ -876,43 +877,48 @@ void FASTCALL push_Removed(GpValue * x)
 // by any user-visible operator, or using private status variables directly 
 //
 // converts top-of-stack to boolean 
-void f_bool(union argument * /*x*/)
+//void f_bool(union argument * /*x*/)
+void GnuPlot::F_Bool(union argument * /*x*/)
 {
-	GPO.EvStk.Top().IntCheck();
-	GPO.EvStk.Top().v.int_val = !!GPO.EvStk.Top().v.int_val;
+	EvStk.Top().IntCheck();
+	EvStk.Top().v.int_val = !!EvStk.Top().v.int_val;
 }
 
-void f_jump(union argument * x)
+//void f_jump(union argument * x)
+void GnuPlot::F_Jump(union argument * x)
 {
 	jump_offset = x->j_arg;
 }
 
-void f_jumpz(union argument * x)
+//void f_jumpz(union argument * x)
+void GnuPlot::F_Jumpz(union argument * x)
 {
 	GpValue a;
-	GPO.EvStk.Top().IntCheck();
-	if(GPO.EvStk.Top().v.int_val) {    /* non-zero --> no jump*/
-		GPO.EvStk.Pop(&a);
+	EvStk.Top().IntCheck();
+	if(EvStk.Top().v.int_val) {    /* non-zero --> no jump*/
+		EvStk.Pop(&a);
 	}
 	else
 		jump_offset = x->j_arg; /* leave the argument on TOS */
 }
 
-void f_jumpnz(union argument * x)
+//void f_jumpnz(union argument * x)
+void GnuPlot::F_Jumpnz(union argument * x)
 {
 	GpValue a;
-	GPO.EvStk.Top().IntCheck();
-	if(GPO.EvStk.Top().v.int_val) /* non-zero */
+	EvStk.Top().IntCheck();
+	if(EvStk.Top().v.int_val) /* non-zero */
 		jump_offset = x->j_arg; /* leave the argument on TOS */
 	else {
-		GPO.EvStk.Pop(&a);
+		EvStk.Pop(&a);
 	}
 }
 
-void f_jtern(union argument * x)
+//void f_jtern(union argument * x)
+void GnuPlot::F_Jtern(union argument * x)
 {
 	GpValue a;
-	GPO.EvStk.Pop(&a)->IntCheck();
+	EvStk.Pop(&a)->IntCheck();
 	if(!a.v.int_val)
 		jump_offset = x->j_arg; /* go jump to FALSE code */
 }
@@ -986,7 +992,7 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_MOD:			 F_Mod(p_arg); break;
 			case gpfunc_POWER:			 F_Power(p_arg); break;
 			case gpfunc_FACTORIAL:		 F_Factorial(p_arg); break;
-			case gpfunc_BOOL:			 f_bool(p_arg); break;
+			case gpfunc_BOOL:			 F_Bool(p_arg); break;
 			case gpfunc_DOLLARS:       	 F_Dollars(p_arg); break;       
 			case gpfunc_CONCATENATE:   	 F_Concatenate(p_arg); break;   
 			case gpfunc_EQS:           	 F_Eqs(p_arg); break;           
@@ -995,18 +1001,18 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_INDEX:         	 F_Index(p_arg); break;         
 			case gpfunc_CARDINALITY:   	 F_Cardinality(p_arg); break;   
 			case gpfunc_ASSIGN:        	 F_Assign(p_arg); break;        
-			case gpfunc_JUMP:			 f_jump(p_arg); break;
-			case gpfunc_JUMPZ:			 f_jumpz(p_arg); break;
-			case gpfunc_JUMPNZ:			 f_jumpnz(p_arg); break;
-			case gpfunc_JTERN:			 f_jtern(p_arg); break;
+			case gpfunc_JUMP:			 F_Jump(p_arg); break;
+			case gpfunc_JUMPZ:			 F_Jumpz(p_arg); break;
+			case gpfunc_JUMPNZ:			 F_Jumpnz(p_arg); break;
+			case gpfunc_JTERN:			 F_Jtern(p_arg); break;
 #ifdef HAVE_EXTERNAL_FUNCTIONS
 			case gpfunc_CALLE:			 f_calle(p_arg); break;
 #endif
 			case gpfunc_COLUMN:			 F_Column(p_arg); break;
 			case gpfunc_STRINGCOLUMN: 	 F_StringColumn(p_arg); break; 
 			case gpfunc_COLUMNHEAD:		 F_Columnhead(p_arg); break;
-			case gpfunc_VALID:			 f_valid(p_arg); break;
-			case gpfunc_TIMECOLUMN:		 f_timecolumn(p_arg); break;
+			case gpfunc_VALID:			 F_Valid(p_arg); break;
+			case gpfunc_TIMECOLUMN:		 F_TimeColumn(p_arg); break;
 			case gpfunc_REAL:			 F_Real(p_arg); break;
 			case gpfunc_IMAG:			 F_Imag(p_arg); break;
 			case gpfunc_ARG:			 F_Arg(p_arg); break;
@@ -1041,25 +1047,25 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_BESY0:			 F_Besy0(p_arg); break;
 			case gpfunc_BESY1:			 F_Besy1(p_arg); break;
 			case gpfunc_BESYN:			 F_Besyn(p_arg); break;
-			case gpfunc_ERF:			 f_erf(p_arg); break;
-			case gpfunc_ERFC:			 f_erfc(p_arg); break;
-			case gpfunc_GAMMA:			 f_gamma(p_arg); break;
-			case gpfunc_LGAMMA:			 f_lgamma(p_arg); break;
-			case gpfunc_IBETA:			 f_ibeta(p_arg); break;
-			case gpfunc_VOIGT:			 f_voigt(p_arg); break;
-			case gpfunc_RAND:			 f_rand(p_arg); break;
+			case gpfunc_ERF:			 F_Erf(p_arg); break;
+			case gpfunc_ERFC:			 F_Erfc(p_arg); break;
+			case gpfunc_GAMMA:			 F_Gamma(p_arg); break;
+			case gpfunc_LGAMMA:			 F_LGamma(p_arg); break;
+			case gpfunc_IBETA:			 F_IBeta(p_arg); break;
+			case gpfunc_VOIGT:			 F_Voigt(p_arg); break;
+			case gpfunc_RAND:			 F_Rand(p_arg); break;
 			case gpfunc_FLOOR:			 F_Floor(p_arg); break;
 			case gpfunc_CEIL:			 F_Ceil(p_arg); break;
-			case gpfunc_NORMAL:			 f_normal(p_arg); break;
-			case gpfunc_INVERSE_ERF:	 f_inverse_erf(p_arg); break;
-			case gpfunc_INVERSE_NORMAL:	 f_inverse_normal(p_arg); break;
-			case gpfunc_INVERSE_IGAMMA:	 f_inverse_igamma(p_arg); break;
-			case gpfunc_INVERSE_IBETA:	 f_inverse_ibeta(p_arg); break;
+			case gpfunc_NORMAL:			 F_Normal(p_arg); break;
+			case gpfunc_INVERSE_ERF:	 F_InverseErf(p_arg); break;
+			case gpfunc_INVERSE_NORMAL:	 F_InverseNormal(p_arg); break;
+			case gpfunc_INVERSE_IGAMMA:	 F_InverseIGamma(p_arg); break;
+			case gpfunc_INVERSE_IBETA:	 F_InverseIBeta(p_arg); break;
 			case gpfunc_ASINH:			 F_ASinh(p_arg); break;
 			case gpfunc_ACOSH:			 F_ACosh(p_arg); break;
 			case gpfunc_ATANH:			 F_ATanh(p_arg); break;
-			case gpfunc_LAMBERTW:     	 f_lambertw(p_arg); break;
-			case gpfunc_AIRY:         	 f_airy(p_arg); break;
+			case gpfunc_LAMBERTW:     	 F_Lambertw(p_arg); break;
+			case gpfunc_AIRY:         	 F_Airy(p_arg); break;
 #ifdef HAVE_AMOS
 			case gpfunc_AMOS_AI:      	 f_amos_ai(p_arg); break;      
 			case gpfunc_AMOS_BI:      	 f_amos_bi(p_arg); break;      
@@ -1073,7 +1079,7 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 #ifdef HAVE_CEXINT
 			case gpfunc_AMOS_CEXINT:  	 f_amos_cexint(p_arg); break;  
 #else
-			case gpfunc_EXPINT:       	 f_expint(p_arg); break;       
+			case gpfunc_EXPINT:       	 F_ExpInt(p_arg); break;       
 #endif
 #ifdef HAVE_COMPLEX_FUNCS
 			case gpfunc_IGAMMA:       	 f_Igamma(p_arg); break;       
@@ -1081,7 +1087,7 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_LNGAMMA:      	 f_lnGamma(p_arg); break;      
 			case gpfunc_SIGN:         	 f_Sign(p_arg); break;         
 #else
-			case gpfunc_IGAMMA:          f_igamma(p_arg); break;
+			case gpfunc_IGAMMA:          F_IGamma(p_arg); break;
 #endif
 #ifdef HAVE_LIBCERF
 			case gpfunc_CERF:         	 f_cerf(p_arg); break;         
@@ -1093,7 +1099,7 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_FRESNELC:     	 f_fresnelc(p_arg); break;     
 			case gpfunc_FRESNELS:     	 f_fresnels(p_arg); break;     
 #endif
-			case gpfunc_SYNCHROTRONF: 	 f_SynchrotronF(p_arg); break; 
+			case gpfunc_SYNCHROTRONF: 	 F_SynchrotronF(p_arg); break; 
 			case gpfunc_TMSEC:        	 F_TmSec(p_arg); break;        
 			case gpfunc_TMMIN:   	   	 F_TmMin(p_arg); break;   	   
 			case gpfunc_TMHOUR:  	   	 F_TmHour(p_arg); break;  	   
@@ -1107,13 +1113,13 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_GPRINTF: 	   	 F_GPrintf(p_arg); break; 	   
 			case gpfunc_STRLEN:  	   	 F_Strlen(p_arg); break;  	   
 			case gpfunc_STRSTRT: 	   	 F_Strstrt(p_arg); break; 	   
-			case gpfunc_TRIM:         	 f_trim(p_arg); break;         
+			case gpfunc_TRIM:         	 F_Trim(p_arg); break;         
 			case gpfunc_WORD:         	 F_Word(p_arg); break;         
 			case gpfunc_WORDS:        	 F_Words(p_arg); break;        
 			case gpfunc_STRFTIME:     	 F_StrFTime(p_arg); break;     
 			case gpfunc_STRPTIME:     	 F_StrPTime(p_arg); break;     
 			case gpfunc_TIME:         	 F_Time(p_arg); break;         
-			case gpfunc_SYSTEM:       	 f_system(p_arg); break;       
+			case gpfunc_SYSTEM:       	 F_System(p_arg); break;       
 			case gpfunc_EXISTS:       	 F_Exists(p_arg); break;       
 			case gpfunc_VALUE:        	 F_Value(p_arg); break;
 			case gpfunc_HSV2RGB:      	 F_Hsv2Rgb(p_arg); break;
@@ -1138,7 +1144,7 @@ void GnuPlot::EvaluateAt(at_type * pAt, GpValue * pVal)
 	// A test for if (undefined) is allowed only immediately following
 	// evalute_at() or eval_link_function().  Both must clear it on entry
 	// so that the value on return reflects what really happened.
-	GPO.Ev.IsUndefined_ = false;
+	Ev.IsUndefined_ = false;
 	errno = 0;
 	//reset_stack();
 	EvStk.Reset();
@@ -1151,13 +1157,13 @@ void GnuPlot::EvaluateAt(at_type * pAt, GpValue * pVal)
 	if(!evaluate_inside_using || !df_nofpe_trap)
 		signal(SIGFPE, SIG_DFL);
 	if(oneof2(errno, EDOM, ERANGE))
-		GPO.Ev.IsUndefined_ = true;
-	else if(!GPO.Ev.IsUndefined_) {
+		Ev.IsUndefined_ = true;
+	else if(!Ev.IsUndefined_) {
 		EvStk.Pop(pVal);
 		//check_stack();
 		EvStk.Check();
 	}
-	if(!GPO.Ev.IsUndefined_ && pVal->type == ARRAY) {
+	if(!Ev.IsUndefined_ && pVal->type == ARRAY) {
 		// Aug 2016: error rather than warning because too many places
 		// cannot deal with UNDEFINED or NaN where they were expecting a number
 		// E.g. load_one_range()
@@ -1207,7 +1213,7 @@ udvt_entry * GpEval::AddUdvByName(const char * pKey)
 	*udv_ptr = (udvt_entry *)gp_alloc(sizeof(udvt_entry), "value");
 	(*udv_ptr)->next_udv = NULL;
 	(*udv_ptr)->udv_name = gp_strdup(pKey);
-	(*udv_ptr)->udv_value.type = NOTDEFINED;
+	(*udv_ptr)->udv_value.SetNotDefined();
 	return (*udv_ptr);
 }
 
@@ -1239,14 +1245,14 @@ void GpEval::DelUdvByName(const char * pKey, bool wildcard)
 		else if(!wildcard && sstreq(pKey, udv_ptr->udv_name)) {
 			gpfree_vgrid(udv_ptr);
 			udv_ptr->udv_value.Destroy();
-			udv_ptr->udv_value.type = NOTDEFINED;
+			udv_ptr->udv_value.SetNotDefined();
 			break;
 		}
 		// wildcard match: prefix matches 
 		else if(wildcard && !strncmp(pKey, udv_ptr->udv_name, strlen(pKey)) ) {
 			gpfree_vgrid(udv_ptr);
 			udv_ptr->udv_value.Destroy();
-			udv_ptr->udv_value.type = NOTDEFINED;
+			udv_ptr->udv_value.SetNotDefined();
 			// no break - keep looking! 
 		}
 		udv_ptr = udv_ptr->next_udv;
@@ -1444,7 +1450,7 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[encoding]);
 		// Permanent copy of user-clobberable variables pi and NaN 
 		Ev.FillGpValFoat("GPVAL_pi", M_PI);
-		Ev.FillGpValFoat("GPVAL_NaN", not_a_number());
+		Ev.FillGpValFoat("GPVAL_NaN", fgetnan());
 		fill_gpval_sysinfo(); // System information 
 	}
 	if(oneof2(context, 3, 4)) {

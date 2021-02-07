@@ -95,7 +95,7 @@ register_term(mif)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void MIF_init();
+TERM_PUBLIC void MIF_init(termentry * pThis);
 TERM_PUBLIC void MIF_graphics();
 TERM_PUBLIC void MIF_text();
 TERM_PUBLIC void MIF_linetype(int linetype);
@@ -454,7 +454,7 @@ TERM_PUBLIC void MIF_point(uint x, uint y, int number)
 }
 
 /* Set up a MIF output file */
-TERM_PUBLIC void MIF_init()
+TERM_PUBLIC void MIF_init(termentry * pThis)
 {
 	int i;
 	/* Process if not inside a MIF file and Frame */
@@ -864,24 +864,46 @@ static int proc_group_id(int group_id)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(mif_driver)
-"mif", "Frame maker MIF 3.00 format",
-MIF_XMAX, MIF_YMAX, MIF_VCHAR, MIF_HCHAR,
-MIF_VTIC, MIF_HTIC, MIF_options, MIF_init, MIF_reset,
-MIF_text, null_scale, MIF_graphics, MIF_move, MIF_vector,
-MIF_linetype, MIF_put_text, MIF_text_angle,
-MIF_justify_text, MIF_point, do_arrow, set_font_null,
-0,     /* pointsize */
-0,     /* flags */
-0, 0,     /* suspend, resume */
-MIF_boxfill,
-0      /* linewidth */
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0
-#endif
-, 0    /* make_palette */
-, 0    /* previous_palette */
-, 0    /* set_color */
-, MIF_filled_polygon    /* filled_polygon */
+	"mif", 
+	"Frame maker MIF 3.00 format",
+	MIF_XMAX, 
+	MIF_YMAX, 
+	MIF_VCHAR, 
+	MIF_HCHAR,
+	MIF_VTIC, 
+	MIF_HTIC, 
+	MIF_options, 
+	MIF_init, 
+	MIF_reset,
+	MIF_text, 
+	GnuPlot::NullScale, 
+	MIF_graphics, 
+	MIF_move, 
+	MIF_vector,
+	MIF_linetype, 
+	MIF_put_text, 
+	MIF_text_angle,
+	MIF_justify_text, 
+	MIF_point, 
+	GnuPlot::DoArrow, 
+	set_font_null,
+	0,     /* pointsize */
+	0,     /* flags */
+	0, 
+	0,     /* suspend, resume */
+	MIF_boxfill,
+	0,     /* linewidth */
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,
+	#endif
+	0,    /* make_palette */
+	0,    /* previous_palette */
+	0,    /* set_color */
+	MIF_filled_polygon    /* filled_polygon */
 TERM_TABLE_END(mif_driver)
 
 #undef LAST_TERM

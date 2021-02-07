@@ -7759,6 +7759,14 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 			P_ChkPack->GetExtStrData(CCheckPacket::extssSign, temp_buf);
 			if(temp_buf.NotEmptyS())
 				buf.CatDivIfNotEmpty(' ', 0).Cat("UTM");
+			// @v11.0.1 {
+			P_ChkPack->GetExtStrData(CCheckPacket::extssChZnProcessingTag, temp_buf);
+			if(temp_buf.NotEmptyS())
+				buf.CatDivIfNotEmpty(' ', 0).Cat("CHZN");
+			P_ChkPack->GetExtStrData(CCheckPacket::extssRemoteProcessingTa, temp_buf);
+			if(temp_buf.NotEmptyS())
+				buf.CatDivIfNotEmpty(' ', 0).Cat("RPTA");
+			// } @v11.0.1 
 		}
 	}
 	// } @v10.3.9

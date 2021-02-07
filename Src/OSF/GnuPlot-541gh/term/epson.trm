@@ -87,7 +87,7 @@ register_term(dpu414)
 TERM_PUBLIC void EPSON_reset();
 
 #if defined(EPS180) || defined(EPS60) || defined(EPSONP) || defined(TANDY60) || defined(OKIDATA)
-TERM_PUBLIC void EPSON_init();
+TERM_PUBLIC void EPSON_init(termentry * pThis);
 
 #if defined(EPS60) || defined(EPSONP) || defined(TANDY60) || defined(OKIDATA)
 #define EPSONVCHAR              FNT5X9_VCHAR
@@ -134,7 +134,7 @@ TERM_PUBLIC void EPS60_text();
 
 #ifdef NEC
 TERM_PUBLIC void NEC_options();
-TERM_PUBLIC void NEC_init();
+TERM_PUBLIC void NEC_init(termentry * pThis);
 TERM_PUBLIC void NEC_graphics();
 TERM_PUBLIC void NEC_text();
 TERM_PUBLIC void NEC_linetype(int linetype);
@@ -147,7 +147,7 @@ TERM_PUBLIC void NEC_linetype(int linetype);
 #endif /* NEC */
 
 #ifdef STARC
-TERM_PUBLIC void STARC_init();
+TERM_PUBLIC void STARC_init(termentry * pThis);
 TERM_PUBLIC void STARC_graphics();
 TERM_PUBLIC void STARC_text();
 TERM_PUBLIC void STARC_linetype(int linetype);
@@ -161,7 +161,7 @@ TERM_PUBLIC void STARC_linetype(int linetype);
 
 #ifdef DPU414
 TERM_PUBLIC void DPU414_options();
-TERM_PUBLIC void DPU414_init();
+TERM_PUBLIC void DPU414_init(termentry * pThis);
 TERM_PUBLIC void DPU414_graphics();
 TERM_PUBLIC void DPU414_text();
 TERM_PUBLIC void DPU414_setfont();
@@ -196,7 +196,7 @@ static void epson_dump();
 #define EPSONXLAST (EPSONXMAX - 1)
 #define EPSONYLAST (EPSONYMAX - 1)
 
-TERM_PUBLIC void EPSON_init()
+TERM_PUBLIC void EPSON_init(termentry * pThis)
 {
 }
 
@@ -302,7 +302,7 @@ TERM_PUBLIC void NEC_options()
 	}
 }
 
-TERM_PUBLIC void NEC_init()
+TERM_PUBLIC void NEC_init(termentry * pThis)
 {
 }
 
@@ -459,7 +459,7 @@ static void STARC_dump();
 static uint STARCcolor[] = { 1, 8, 4, 2, 10, 12, 6, 14 };
 static uint STARCpcolor[] = { 0, 2, 1, 4 };
 
-TERM_PUBLIC void STARC_init()
+TERM_PUBLIC void STARC_init(termentry * pThis)
 {
 }
 
@@ -767,39 +767,31 @@ TERM_PUBLIC void DPU414_options()
 			    break;
 		}
 	}
-
-	term->TicV = (term->xmax < term->ymax) ? term->xmax/100 : term->ymax/100;
+	term->TicV = (term->MaxX < term->MaxY) ? term->MaxX/100 : term->MaxY/100;
 	if(term->TicV < 1)
 		term->TicV = 1;
 	term->TicH = term->TicV;
-
-	/* setup options string */
+	// setup options string 
 	switch(DPU414_font) {
-		case 1:
-		    strcat(term_options, "small");
-		    break;
-		case 2:
-		    strcat(term_options, "medium");
-		    break;
-		case 3:
-		    strcat(term_options, "large");
-		    break;
+		case 1: strcat(term_options, "small"); break;
+		case 2: strcat(term_options, "medium"); break;
+		case 3: strcat(term_options, "large"); break;
 	}
 	switch(DPU414_quality) {
 		case 1:
 		    strcat(term_options, " normal");
-		    term->xmax = DPU414XMAX;
-		    term->ymax = DPU414YMAX;
+		    term->MaxX = DPU414XMAX;
+		    term->MaxY = DPU414YMAX;
 		    break;
 		case 2:
 		    strcat(term_options, " draft");
-		    term->xmax = DPU414XMAX / 2;
-		    term->ymax = DPU414YMAX / 2;
+		    term->MaxX = DPU414XMAX / 2;
+		    term->MaxY = DPU414YMAX / 2;
 		    break;
 	}
 }
 
-TERM_PUBLIC void DPU414_init()
+TERM_PUBLIC void DPU414_init(termentry * pThis)
 {
 	DPU414_setfont();
 }
@@ -832,8 +824,8 @@ TERM_PUBLIC void DPU414_graphics()
 		    b_makebitmap((uint)(DPU414XMAX * GPO.V.XSize), (uint)(DPU414YMAX * GPO.V.YSize), 1);
 		    break;
 		case 2:
-		    term->xmax = DPU414XMAX / 2;
-		    term->ymax = DPU414YMAX / 2;
+		    term->MaxX = DPU414XMAX / 2;
+		    term->MaxY = DPU414YMAX / 2;
 		    b_makebitmap((uint)(DPU414XMAX / 2 * GPO.V.XSize), (uint)(DPU414YMAX / 2 * GPO.V.YSize), 1);
 		    break;
 	}
@@ -849,11 +841,9 @@ static void DPU414_dump()
 {
 	uint x;
 	int j;
-
 	fputs("\r", gpoutfile); /* carriage return */
 	fprintf(gpoutfile, "\033%c", 'U');      /* unidirectional printing */
 	fputc((char)0, gpoutfile);
-
 	switch(DPU414_quality) {
 		case 1:
 		    for(j = (b_ysize / 8) - 1; j >= 0; j -= 2) {
@@ -909,7 +899,7 @@ TERM_TABLE_START(epson180_driver)
 	EPSON_init, 
 	EPSON_reset,
 	EPS180_text, 
-	null_scale, 
+	GnuPlot::NullScale, 
 	EPS180_graphics, 
 	b_move, 
 	b_vector,
@@ -918,7 +908,7 @@ TERM_TABLE_START(epson180_driver)
 	b_text_angle,
 	null_justify_text, 
 	do_point, 
-	do_arrow, 
+	GnuPlot::DoArrow, 
 	set_font_null, 
 	0, 
 	TERM_BINARY,
@@ -945,7 +935,7 @@ options_null,
 EPSON_init, 
 EPSON_reset,
 EPS60_text, 
-null_scale, 
+GnuPlot::NullScale, 
 EPS60_graphics, 
 b_move, 
 b_vector,
@@ -954,7 +944,7 @@ b_put_text,
 b_text_angle,
 null_justify_text, 
 do_point, 
-do_arrow, 
+GnuPlot::DoArrow, 
 set_font_null, 
 0, 
 TERM_BINARY,
@@ -969,13 +959,35 @@ TERM_TABLE_END(epson60_driver)
 
 #ifdef EPSONP
 TERM_TABLE_START(epsonlx_driver)
-"epson_lx800", "Epson LX-800, Star NL-10, NX-1000, PROPRINTER ...",
-EPSONXMAX, EPSONYMAX, EPSONVCHAR, EPSONHCHAR,
-EPSONVTIC, EPSONHTIC, options_null, EPSON_init, EPSON_reset,
-EPSON_text, null_scale, EPSON_graphics, b_move, b_vector,
-b_setlinetype, b_put_text, b_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(epsonlx_driver)
+	"epson_lx800", 
+	"Epson LX-800, Star NL-10, NX-1000, PROPRINTER ...",
+	EPSONXMAX, 
+	EPSONYMAX, 
+	EPSONVCHAR, 
+	EPSONHCHAR,
+	EPSONVTIC, 
+	EPSONHTIC, 
+	options_null, 
+	EPSON_init, 
+	EPSON_reset,
+	EPSON_text, 
+	GnuPlot::NullScale, 
+	EPSON_graphics, 
+	b_move, 
+	b_vector,
+	b_setlinetype, 
+	b_put_text, 
+	b_text_angle,
+	null_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(epsonlx_driver)
 
 #undef LAST_TERM
 #define LAST_TERM epsonlx_driver
@@ -983,13 +995,35 @@ null_justify_text, line_and_point, do_arrow, set_font_null, 0, TERM_BINARY,
 
 #ifdef NEC
 TERM_TABLE_START(nec_driver)
-"nec_cp6", "NEC printer CP6, Epson LQ-800 [monochrome color draft]",
-NECXMAX, NECYMAX, NECVCHAR, NECHCHAR,
-NECVTIC, NECHTIC, NEC_options, NEC_init, EPSON_reset,
-NEC_text, null_scale, NEC_graphics, b_move, b_vector,
-NEC_linetype, b_put_text, b_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(nec_driver)
+	"nec_cp6", 
+	"NEC printer CP6, Epson LQ-800 [monochrome color draft]",
+	NECXMAX, 
+	NECYMAX, 
+	NECVCHAR, 
+	NECHCHAR,
+	NECVTIC, 
+	NECHTIC, 
+	NEC_options, 
+	NEC_init, 
+	EPSON_reset,
+	NEC_text, 
+	GnuPlot::NullScale, 
+	NEC_graphics, 
+	b_move, 
+	b_vector,
+	NEC_linetype, 
+	b_put_text, 
+	b_text_angle,
+	null_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0,
+	0, 
+	b_boxfill 
+TERM_TABLE_END(nec_driver)
 
 #undef LAST_TERM
 #define LAST_TERM nec_driver
@@ -1009,7 +1043,7 @@ TERM_TABLE_START(okidata_driver)
 	EPSON_init, 
 	EPSON_reset,
 	OKIDATA_text, 
-	null_scale, 
+	GnuPlot::NullScale, 
 	EPS60_graphics, 
 	b_move, 
 	b_vector,
@@ -1018,7 +1052,7 @@ TERM_TABLE_START(okidata_driver)
 	b_text_angle,
 	null_justify_text, 
 	do_point, 
-	do_arrow, 
+	GnuPlot::DoArrow, 
 	set_font_null, 
 	0, 
 	TERM_BINARY,
@@ -1033,13 +1067,35 @@ TERM_TABLE_END(okidata_driver)
 
 #ifdef STARC
 TERM_TABLE_START(starc_driver)
-"starc", "Star Color Printer",
-STARCXMAX, STARCYMAX, STARCVCHAR, STARCHCHAR,
-STARCVTIC, STARCHTIC, options_null, STARC_init, EPSON_reset,
-STARC_text, null_scale, STARC_graphics, b_move, b_vector,
-STARC_linetype, b_put_text, b_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(starc_driver)
+	"starc", 
+	"Star Color Printer",
+	STARCXMAX, 
+	STARCYMAX, 
+	STARCVCHAR, 
+	STARCHCHAR,
+	STARCVTIC, 
+	STARCHTIC, 
+	options_null, 
+	STARC_init, 
+	EPSON_reset,
+	STARC_text, 
+	GnuPlot::NullScale, 
+	STARC_graphics, 
+	b_move, 
+	b_vector,
+	STARC_linetype, 
+	b_put_text, 
+	b_text_angle,
+	null_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(starc_driver)
 
 #undef LAST_TERM
 #define LAST_TERM starc_driver
@@ -1059,7 +1115,7 @@ TERM_TABLE_START(tandy60_driver)
 	EPSON_init, 
 	EPSON_reset,
 	TANDY60_text, 
-	null_scale, 
+	GnuPlot::NullScale, 
 	EPS60_graphics, 
 	b_move, 
 	b_vector,
@@ -1068,7 +1124,7 @@ TERM_TABLE_START(tandy60_driver)
 	b_text_angle,
 	null_justify_text, 
 	do_point, 
-	do_arrow, 
+	GnuPlot::DoArrow, 
 	set_font_null, 
 	0, 
 	TERM_BINARY,
@@ -1083,13 +1139,35 @@ TERM_TABLE_END(tandy60_driver)
 
 #ifdef DPU414
 TERM_TABLE_START(dpu414_driver)
-"dpu414", "Seiko DPU-414 thermal printer [small medium large]",
-DPU414XMAX, DPU414YMAX, DPU414VCHAR, DPU414HCHAR,
-DPU414VTIC, DPU414HTIC, DPU414_options, DPU414_init, EPSON_reset,
-DPU414_text, null_scale, DPU414_graphics, b_move, b_vector,
-b_setlinetype, b_put_text, b_text_angle,
-null_justify_text, line_and_point, do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(dpu414_driver)
+	"dpu414", 
+	"Seiko DPU-414 thermal printer [small medium large]",
+	DPU414XMAX, 
+	DPU414YMAX, 
+	DPU414VCHAR, 
+	DPU414HCHAR,
+	DPU414VTIC, 
+	DPU414HTIC, 
+	DPU414_options, 
+	DPU414_init, 
+	EPSON_reset,
+	DPU414_text, 
+	GnuPlot::NullScale, 
+	DPU414_graphics, 
+	b_move, 
+	b_vector,
+	b_setlinetype, 
+	b_put_text, 
+	b_text_angle,
+	null_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(dpu414_driver)
 
 #undef LAST_TERM
 #define LAST_TERM dpu414_driver

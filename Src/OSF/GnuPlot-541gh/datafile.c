@@ -193,7 +193,7 @@ static uint df_xpixels;
 static uint df_ypixels;
 static bool df_transpose;
 // parsing stuff 
-struct use_spec_s use_spec[MAXDATACOLS];
+use_spec_s use_spec[MAXDATACOLS];
 static char * df_format = NULL;
 static char * df_binary_format = NULL;
 bool evaluate_inside_using = FALSE;
@@ -340,7 +340,7 @@ int df_max_num_bin_records = 0, df_num_bin_records, df_bin_record_count;
 int df_max_num_bin_records_default = 0, df_num_bin_records_default;
 
 /* Used to mark the location of a blank line in the original data input file */
-struct coordinate blank_data_line = {UNDEFINED, -999, -999, -999, -999, -999, -999, -999};
+GpCoordinate blank_data_line = {UNDEFINED, -999, -999, -999, -999, -999, -999, -999};
 
 static void gpbin_filetype_function();
 static void raw_filetype_function();
@@ -597,7 +597,7 @@ static int df_tokenise(char * s)
 		}
 		else if(check_missing(s)) {
 			df_column[df_no_cols].good = DF_MISSING;
-			df_column[df_no_cols].datum = not_a_number();
+			df_column[df_no_cols].datum = fgetnan();
 			df_column[df_no_cols].position = NULL;
 		}
 		else {
@@ -681,7 +681,7 @@ static int df_tokenise(char * s)
 				++s;
 			if((*s == '\0') || (*s == '\n')) { /* Last field is empty */
 				df_column[df_no_cols].good = DF_MISSING;
-				df_column[df_no_cols].datum = not_a_number();
+				df_column[df_no_cols].datum = fgetnan();
 				++df_no_cols;
 				break;
 			}
@@ -1144,9 +1144,9 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		data_fd = strtol(df_filename + 2, &substr, 10);
 		if(*substr != '\0' || data_fd < 0 || substr == df_filename+2)
 			IntError(name_token, "invalid file descriptor integer");
-		else if(data_fd == fileno(stdin) || data_fd == fileno(stdout) || data_fd == fileno(stderr))
+		else if(data_fd == _fileno(stdin) || data_fd == _fileno(stdout) || data_fd == _fileno(stderr))
 			IntError(name_token, "cannot plot from stdin/stdout/stderr");
-		else if((data_fp = fdopen(data_fd, "r")) == (FILE*)NULL)
+		else if((data_fp = _fdopen(data_fd, "r")) == (FILE*)NULL)
 			IntError(name_token, "cannot open file descriptor for reading data");
 		// if this stream isn't seekable, set it to volatile 
 		if(fseek(data_fp, 0, SEEK_CUR) < 0)
@@ -1859,12 +1859,12 @@ int df_readascii(double v[], int max)
 					if(use_spec[output].depends_on_column > 0) {
 						if((use_spec[output].depends_on_column > df_no_cols) ||  df_column[use_spec[output].depends_on_column-1].good == DF_MISSING) {
 							FPRINTF((stderr, "df_readascii: skipping evaluation that uses missing value in $%d\n", use_spec[output].depends_on_column));
-							v[output] = not_a_number();
+							v[output] = fgetnan();
 							return_value = DF_MISSING;
 							continue;
 						}
 					}
-					a.type = NOTDEFINED;
+					a.SetNotDefined();
 					evaluate_inside_using = TRUE;
 					GPO.EvaluateAt(use_spec[output].at, &a);
 					evaluate_inside_using = FALSE;
@@ -1873,19 +1873,19 @@ int df_readascii(double v[], int max)
 					// Here we check for indirect references like 'using "header_of_N"'.
 					if((a.type == CMPLX) && isnan(a.v.cmplx_val.real) && (a.v.cmplx_val.imag == DF_MISSING)) {
 						return_value = DF_MISSING;
-						v[output] = not_a_number();
+						v[output] = fgetnan();
 						continue;
 					}
 					// June 2018: CHANGE.  For consistency with function plots,	
 					// treat imaginary result as UNDEFINED.			
 					if(a.type == CMPLX && (fabs(imag(&a)) > zero) && !isnan(real(&a))) {
 						return_value = DF_COMPLEX_VALUE;
-						v[output] = not_a_number();
+						v[output] = fgetnan();
 						continue;
 					}
 					if(GPO.Ev.IsUndefined_) {
 						return_value = DF_UNDEFINED;
-						v[output] = not_a_number();
+						v[output] = fgetnan();
 						continue;
 					}
 					if((df_axis[output] != NO_AXIS) && GPO.AxS[df_axis[output]].datatype == DT_TIMEDATE)
@@ -1902,7 +1902,7 @@ int df_readascii(double v[], int max)
 						a.v.string_val = timestring;
 					}
 					if(a.type == STRING) {
-						v[output] = not_a_number(); /* found a string, not a number */
+						v[output] = fgetnan(); /* found a string, not a number */
 						if(df_tabulate_strings) {
 							/* Save for TABLESTYLE */
 							df_strings[output].type = STRING;
@@ -1969,7 +1969,7 @@ int df_readascii(double v[], int max)
 						if(df_no_use_specs) {
 							line_okay = FALSE;
 							if(df_bad_returns_NaN) {
-								v[output] = not_a_number();
+								v[output] = fgetnan();
 								return DF_UNDEFINED;
 							}
 						}
@@ -1999,11 +1999,11 @@ int df_readascii(double v[], int max)
 						/* This catches cases where the plot style cannot tolerate
 						 * silently missed points (e.g. stacked histograms)
 						 */
-						v[output] = not_a_number();
+						v[output] = fgetnan();
 						return DF_UNDEFINED;
 					}
 					else if((column <= df_no_cols) && (df_column[column - 1].good == DF_MISSING)) {
-						v[output] = not_a_number();
+						v[output] = fgetnan();
 						if(missing_val && df_current_plot->plot_style == TABLESTYLE) {
 							df_strings[output].type = STRING;
 							df_strings[output].v.string_val = gp_strdup(missing_val);
@@ -2019,13 +2019,13 @@ int df_readascii(double v[], int max)
 						 *         polygon vertices after the first one. The test is not
 						 *         quite correct since we don't track the vertex number.
 						 */
-						v[output] = not_a_number();
+						v[output] = fgetnan();
 					}
 					else {
 						/* line bad only if user explicitly asked for this column */
 						if(df_no_use_specs) {
 							if(df_bad_returns_NaN) {
-								v[output] = not_a_number();
+								v[output] = fgetnan();
 								return_value = DF_UNDEFINED;
 							}
 							else {
@@ -2310,15 +2310,15 @@ void GnuPlot::F_Column(union argument * arg)
 		GPO.Ev.IsUndefined_ = true;
 		// Nov 2014: This is needed in case the value is referenced 
 		// in an expression inside a 'using' clause.		    
-		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 	}
 	else if(df_column[column-1].good == DF_MISSING) {
 		// Doesn't set undefined to TRUE although perhaps it should 
-		EvStk.Push(Gcomplex(&a, not_a_number(), (double)DF_MISSING));
+		EvStk.Push(Gcomplex(&a, fgetnan(), (double)DF_MISSING));
 	}
 	else if(df_column[column-1].good != DF_GOOD) {
 		GPO.Ev.IsUndefined_ = true;
-		EvStk.Push(Gcomplex(&a, not_a_number(), 0.0));
+		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 	}
 	else
 		EvStk.Push(Gcomplex(&a, df_column[column - 1].datum, 0.0));
@@ -2435,24 +2435,25 @@ void GnuPlot::F_Columnhead(union argument * /*arg*/)
 }
 
 /*{{{  void f_valid() */
-void f_valid(union argument * arg)
+//void f_valid(union argument * arg)
+void GnuPlot::F_Valid(union argument * arg)
 {
 	GpValue a;
-	int column, good;
-	GPO.EvStk.Pop(&a);
-	column = (int)magnitude(&a) - 1;
-	good = column >= 0 && column < df_no_cols && df_column[column].good == DF_GOOD;
-	GPO.EvStk.Push(Ginteger(&a, good));
+	EvStk.Pop(&a);
+	int column = (int)magnitude(&a) - 1;
+	int good = column >= 0 && column < df_no_cols && df_column[column].good == DF_GOOD;
+	EvStk.Push(Ginteger(&a, good));
 }
 
 /*}}} */
-
-/*{{{  void f_timecolumn() */
-/* Version 5 - replace the old and very broken timecolumn(N) with
- * a 2-parameter version that requires an explicit time format
- * timecolumn(N, "format").
- */
-void f_timecolumn(union argument * arg)
+// 
+// {{{  void f_timecolumn() 
+// Version 5 - replace the old and very broken timecolumn(N) with
+// a 2-parameter version that requires an explicit time format
+// timecolumn(N, "format").
+// 
+//void f_timecolumn(union argument * arg)
+void GnuPlot::F_TimeColumn(union argument * arg)
 {
 	GpValue a;
 	GpValue b;
@@ -2460,12 +2461,12 @@ void f_timecolumn(union argument * arg)
 	int num_param;
 	int column;
 	double usec = 0.0;
-	GPO.EvStk.Pop(&b);          /* this is the number of parameters */
+	EvStk.Pop(&b);          /* this is the number of parameters */
 	num_param = b.v.int_val;
-	GPO.EvStk.Pop(&b);          /* this is the time format string */
+	EvStk.Pop(&b);          /* this is the time format string */
 	switch(num_param) {
 		case 2:
-		    column = (int)magnitude(GPO.EvStk.Pop(&a));
+		    column = (int)magnitude(EvStk.Pop(&a));
 		    break;
 		case 1:
 		    /* No format parameter passed (v4-style call) */
@@ -2475,15 +2476,15 @@ void f_timecolumn(union argument * arg)
 		    b.type = STRING;
 		    break;
 		default:
-		    GPO.IntError(NO_CARET, "wrong number of parameters to timecolumn");
+		    IntError(NO_CARET, "wrong number of parameters to timecolumn");
 	}
 	if(!evaluate_inside_using)
-		GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "timecolumn() called from invalid context");
+		IntError(Pgm.GetPrevTokenIdx(), "timecolumn() called from invalid context");
 	if(b.type != STRING)
-		GPO.IntError(NO_CARET, "non-string passed as a format to timecolumn");
+		IntError(NO_CARET, "non-string passed as a format to timecolumn");
 	if(column < 1 || column > df_no_cols || !df_column[column - 1].position) {
-		GPO.Ev.IsUndefined_ = true;
-		GPO.EvStk.Push(&a);
+		Ev.IsUndefined_ = true;
+		EvStk.Push(&a);
 	}
 	else {
 		double reltime;
@@ -2493,8 +2494,8 @@ void f_timecolumn(union argument * arg)
 		else if(status == DT_DMS)
 			Gcomplex(&a, reltime, 0.0);
 		else
-			GPO.Ev.IsUndefined_ = true;
-		GPO.EvStk.Push(&a);
+			Ev.IsUndefined_ = true;
+		EvStk.Push(&a);
 	}
 	gpfree_string(&b);
 }
@@ -2732,8 +2733,7 @@ static void add_key_entry(char * temp_string, int df_datum)
 /* return - TRUE means a translation is required. */
 bool rotation_matrix_2D(double R[][2], double alpha)
 {
-	static double I[2][2] = {{1, 0},
-				 {0, 1}};
+	static double I[2][2] = {{1, 0}, {0, 1}};
 #define ANGLE_TOLERANCE 0.001
 	if(fabs(alpha) < ANGLE_TOLERANCE) {
 		/* Zero angle.  Unity rotation. */
@@ -2755,9 +2755,7 @@ bool rotation_matrix_2D(double R[][2], double alpha)
 /* return - TRUE means a translation is required. */
 bool rotation_matrix_3D(double P[][3], double * p)
 {
-	static double I[3][3] = {{1, 0, 0},
-				 {0, 1, 0},
-				 {0, 0, 1}};
+	static double I[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 	double scale, C1, C2;
 #define x p[0]
 #define y p[1]
@@ -2804,11 +2802,12 @@ void df_unset_datafile_binary()
 	df_bin_file_endianess_default = DF_BIN_FILE_ENDIANESS_RESET;
 }
 
-void df_set_datafile_binary()
+//void df_set_datafile_binary()
+void GnuPlot::DfSetDataFileBinary()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand())
-		GPO.IntErrorCurToken("option expected");
+	Pgm.Shift();
+	if(Pgm.EndOfCommand())
+		IntErrorCurToken("option expected");
 	clear_binary_records(DF_CURRENT_RECORDS);
 	// Set current records to default in order to retain current default settings. 
 	if(df_bin_record_default) {
@@ -2824,7 +2823,7 @@ void df_set_datafile_binary()
 	}
 	// Process the binary tokens. 
 	df_set_plot_mode(MODE_QUERY);
-	GPO.PlotOptionBinary(FALSE, TRUE);
+	PlotOptionBinary(FALSE, TRUE);
 	// Copy the modified settings as the new default settings. 
 	df_bin_filetype_default = df_bin_filetype;
 	df_bin_file_endianess_default = df_bin_file_endianess;
@@ -4607,11 +4606,11 @@ int df_readbinary(double v[], int max)
 					GPO.EvaluateAt(use_spec[output].at, &a);
 					evaluate_inside_using = FALSE;
 					if(GPO.Ev.IsUndefined_) {
-						v[output] = not_a_number();
+						v[output] = fgetnan();
 						return DF_UNDEFINED;
 					}
 					if(a.type == STRING) {
-						v[output] = not_a_number(); /* found a string, not a number */
+						v[output] = fgetnan(); /* found a string, not a number */
 						if(use_spec[output].expected_type == CT_STRING) {
 							char * s = (char *)gp_alloc(strlen(a.v.string_val)+3, "quote");
 							*s = '"';
@@ -4633,7 +4632,7 @@ int df_readbinary(double v[], int max)
 					else if(a.type == CMPLX && (fabs(imag(&a)) > zero)) {
 						/* June 2018: CHANGE. For consistency with function plots, */
 						/* imaginary results are treated as UNDEFINED.		   */
-						v[output] = not_a_number();
+						v[output] = fgetnan();
 						return DF_UNDEFINED;
 					}
 					else {
@@ -4817,7 +4816,7 @@ char * GnuPlot::DfGeneratePseudodata()
 			// This is the usual case 
 			if(df_pseudorecord >= samples_1)
 				return NULL;
-			if(nonlinear(&AxS.__X())) {
+			if(AxS.__X().IsNonLinear()) {
 				const GpAxis * visible = AxS.__X().linked_to_primary->linked_to_secondary;
 				t = EvalLinkFunction(visible, t);
 			}
@@ -4855,7 +4854,7 @@ char * GnuPlot::DfGeneratePseudodata()
 			else {
 				AxisCheckedExtendEmptyRange(u_axis, "u range is invalid");
 				AxisCheckedExtendEmptyRange(v_axis, "v range is invalid");
-				if(nonlinear(&(AxS[u_axis]))) {
+				if(AxS[u_axis].IsNonLinear()) {
 					u_min = AxS[u_axis].linked_to_primary->min;
 					u_max = AxS[u_axis].linked_to_primary->max;
 				}
@@ -4863,7 +4862,7 @@ char * GnuPlot::DfGeneratePseudodata()
 					u_min = AxS[u_axis].min;
 					u_max = AxS[u_axis].max;
 				}
-				if(nonlinear(&AxS[v_axis])) {
+				if(AxS[v_axis].IsNonLinear()) {
 					v_min = AxS[v_axis].linked_to_primary->min;
 					v_max = AxS[v_axis].linked_to_primary->max;
 				}
@@ -4914,11 +4913,11 @@ char * GnuPlot::DfGeneratePseudodata()
 			df_pseudovalue_1 = v;
 		}
 		else {
-			if(nonlinear(&AxS[u_axis]))
+			if(AxS[u_axis].IsNonLinear())
 				df_pseudovalue_0 = EvalLinkFunction(&AxS[u_axis], u);
 			else
 				df_pseudovalue_0 = u;
-			if(nonlinear(&AxS[v_axis]))
+			if(AxS[v_axis].IsNonLinear())
 				df_pseudovalue_1 = EvalLinkFunction(&AxS[v_axis], v);
 			else
 				df_pseudovalue_1 = v;

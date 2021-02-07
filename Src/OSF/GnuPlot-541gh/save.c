@@ -670,10 +670,10 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	save_link(fp, &AxS[SECOND_Y_AXIS]);
 	save_jitter(fp);
 	fprintf(fp, "set zero %g\n", zero);
-	fprintf(fp, "set lmargin %s %g\n", GPO.V.MarginL.scalex == screen ? "at screen" : "", GPO.V.MarginL.x);
-	fprintf(fp, "set bmargin %s %g\n", GPO.V.MarginB.scalex == screen ? "at screen" : "", GPO.V.MarginB.x);
-	fprintf(fp, "set rmargin %s %g\n", GPO.V.MarginR.scalex == screen ? "at screen" : "", GPO.V.MarginR.x);
-	fprintf(fp, "set tmargin %s %g\n", GPO.V.MarginT.scalex == screen ? "at screen" : "", GPO.V.MarginT.x);
+	fprintf(fp, "set lmargin %s %g\n", V.MarginL.scalex == screen ? "at screen" : "", V.MarginL.x);
+	fprintf(fp, "set bmargin %s %g\n", V.MarginB.scalex == screen ? "at screen" : "", V.MarginB.x);
+	fprintf(fp, "set rmargin %s %g\n", V.MarginR.scalex == screen ? "at screen" : "", V.MarginR.x);
+	fprintf(fp, "set tmargin %s %g\n", V.MarginT.scalex == screen ? "at screen" : "", V.MarginT.x);
 	fprintf(fp, "set locale \"%s\"\n", get_time_locale());
 	/* pm3d options */
 	fputs("set pm3d ", fp);
@@ -866,7 +866,7 @@ static void save_tics(FILE * fp, const GpAxis * pAx)
 	}
 	fprintf(fp, "set %stics %s %s scale %g,%g %smirror %s ", axis_name((AXIS_INDEX)pAx->index), 
 		((pAx->ticmode & TICS_MASK) == TICS_ON_AXIS) ? "axis" : "border",
-	    (pAx->tic_in) ? "in" : "out",
+	    (pAx->TicIn) ? "in" : "out",
 	    pAx->ticscale, pAx->miniticscale,
 	    (pAx->ticmode & TICS_MIRROR) ? "" : "no",
 	    pAx->tic_rotate ? "rotate" : "norotate");

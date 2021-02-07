@@ -117,7 +117,7 @@ register_term(png)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void PNG_options();
-TERM_PUBLIC void PNG_init();
+TERM_PUBLIC void PNG_init(termentry * pThis);
 TERM_PUBLIC void PNG_graphics();
 TERM_PUBLIC void PNG_text();
 TERM_PUBLIC void PNG_linetype(int linetype);
@@ -843,8 +843,8 @@ TERM_PUBLIC void PNG_options()
 				    if(PNG_YMAX <= 0)
 					    PNG_YMAX = GREG_YMAX;
 			    }
-			    term->ymax = PNG_YMAX;
-			    term->xmax = PNG_XMAX;
+			    term->MaxY = PNG_YMAX;
+			    term->MaxX = PNG_XMAX;
 			    /* EAM Apr 2003 - same tic size on both x and y axes */
 			    term->TicV = (PNG_XMAX < PNG_YMAX) ? PNG_XMAX/100 : PNG_YMAX/100;
 			    if(term->TicV < 1)
@@ -1116,13 +1116,11 @@ TERM_PUBLIC void PNG_options()
  * should set up things that only need to be set once, like handshaking and
  * character sets etc...
  */
-TERM_PUBLIC void PNG_init()
+TERM_PUBLIC void PNG_init(termentry * pThis)
 {
 	int i;
-
 	png_state.linetype = 0;
 	png_state.linewidth = 1;
-
 	/* Clear brush array, then initialize a few small ones */
 	for(i = 2; i<=MAXLINEWIDTH; i++)
 		PNG_brush[i] = NULL;
@@ -1902,15 +1900,12 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 		err = gdImageStringFT(NULL, &brect[0], 0, png_state.ttffont, size*png_state.fontscale, 0.0, 0, 0, "f00000000g");
 		/* If that didn't work, try again using fontconfig mechanism */
 		if(err && gdUseFontConfig(1)) {
-			FPRINTF((stderr, "gd.trm:%d gdUseFontConfig(1) (%s)\n",
-			    __LINE__, png_state.ttffont));
-			err = gdImageStringFT(NULL, &brect[0], 0,
-				png_state.ttffont, size*png_state.fontscale,
-				0.0, 0, 0, "f00000000g");
+			FPRINTF((stderr, "gd.trm:%d gdUseFontConfig(1) (%s)\n", __LINE__, png_state.ttffont));
+			err = gdImageStringFT(NULL, &brect[0], 0, png_state.ttffont, size*png_state.fontscale, 0.0, 0, 0, "f00000000g");
 		}
 		if(!err) {
-			term->ChrH = .11 * (double)(brect[2] - brect[0]) + 0.5;
-			term->ChrV = 1.1 * (double)(brect[1] - brect[7]) + 0.5;
+			term->ChrH = 0.11 * (double)(brect[2] - brect[0]) + 0.5;
+			term->ChrV = 1.1  * (double)(brect[1] - brect[7]) + 0.5;
 		}
 	}
 #endif
@@ -2365,7 +2360,7 @@ PNG_options,
 PNG_init, 
 PNG_reset,
 PNG_text, 
-null_scale, 
+GnuPlot::NullScale, 
 PNG_graphics, 
 PNG_move, 
 PNG_vector,
@@ -2374,7 +2369,7 @@ PNG_put_text,
 PNG_text_angle,
 PNG_justify_text, 
 PNG_point, 
-do_arrow, 
+GnuPlot::DoArrow, 
 PNG_set_font,
 PNG_pointsize,
 TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_LINEWIDTH|TERM_FONTSCALE,     /* TERM_ALPHA_CHANNEL only if truecolor */
@@ -2536,9 +2531,9 @@ TERM_TABLE_START(jpeg_driver)
 "jpeg", "JPEG images using libgd and TrueType fonts",
 GREG_XMAX, GREG_YMAX, PNG_VCHAR, PNG_HCHAR,
 PNG_TICSIZE, PNG_TICSIZE, PNG_options, PNG_init, PNG_reset,
-JPEG_text, null_scale, PNG_graphics, PNG_move, PNG_vector,
+JPEG_text, GnuPlot::NullScale, PNG_graphics, PNG_move, PNG_vector,
 PNG_linetype, PNG_put_text, PNG_text_angle,
-PNG_justify_text, PNG_point, do_arrow, PNG_set_font,
+PNG_justify_text, PNG_point, GnuPlot::DoArrow, PNG_set_font,
 PNG_pointsize,
 TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_FONTSCALE,
 0 /*suspend*/, 0 /*resume*/,
@@ -2687,9 +2682,9 @@ TERM_TABLE_START(gif_driver)
 "gif", "GIF images using libgd and TrueType fonts",
 GREG_XMAX, GREG_YMAX, PNG_VCHAR, PNG_HCHAR,
 PNG_TICSIZE, PNG_TICSIZE, PNG_options, PNG_init, PNG_reset,
-GIF_text, null_scale, PNG_graphics, PNG_move, PNG_vector,
+GIF_text, GnuPlot::NullScale, PNG_graphics, PNG_move, PNG_vector,
 PNG_linetype, PNG_put_text, PNG_text_angle,
-PNG_justify_text, PNG_point, do_arrow, PNG_set_font,
+PNG_justify_text, PNG_point, GnuPlot::DoArrow, PNG_set_font,
 PNG_pointsize,
 TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_LINEWIDTH|TERM_FONTSCALE,
 0 /*suspend*/, 0 /*resume*/,
@@ -2883,9 +2878,9 @@ TERM_TABLE_START(sixelgd_driver)
 "sixelgd", "sixel using libgd and TrueType fonts",
 GREG_XMAX, GREG_YMAX, PNG_VCHAR, PNG_HCHAR,
 PNG_TICSIZE, PNG_TICSIZE, PNG_options, PNG_init, PNG_reset,
-SIXELGD_text, null_scale, PNG_graphics, PNG_move, PNG_vector,
+SIXELGD_text, GnuPlot::NullScale, PNG_graphics, PNG_move, PNG_vector,
 PNG_linetype, PNG_put_text, PNG_text_angle,
-PNG_justify_text, PNG_point, do_arrow, PNG_set_font,
+PNG_justify_text, PNG_point, GnuPlot::DoArrow, PNG_set_font,
 PNG_pointsize,
 TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_FONTSCALE,
 0 /*suspend*/, 0 /*resume*/,

@@ -7796,6 +7796,17 @@ int PPVetisInterface::ResolveDiscrepancy(PPID docEntityID, TSVector <VetisEntity
 	return ok;
 }
 
+static LDATE GetFinalExpiryData(const VetisGoodsDate & rD)
+{
+	LDATE final_expiry_date = ZERODATE;
+	LDATETIME expiry_dtm = ZERODATETIME;
+	if(!!rD.SecondDate && rD.SecondDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
+		final_expiry_date = expiry_dtm.d;
+	else if(!!rD.FirstDate && rD.FirstDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
+		final_expiry_date = expiry_dtm.d;
+	return final_expiry_date;
+}
+
 int PPVetisInterface::InitOutgoingEntry(PPID docEntityID, OutcomingList & rList)
 {
 	int    ok = 1;
@@ -7810,13 +7821,7 @@ int PPVetisInterface::InitOutgoingEntry(PPID docEntityID, OutcomingList & rList)
 	THROW_PP_S(vd_rec.OrgDocEntityID, PPERR_VETISDOCRECDONTREFORGDOC, msg_buf);
 	THROW(PeC.Get(vd_rec.OrgDocEntityID, org_doc_entity) > 0);
 	{
-		const VetisGoodsDate & r_expiry = org_doc_entity.CertifiedConsignment.Batch.ExpiryDate;
-		LDATE final_expiry_date = ZERODATE;
-		LDATETIME expiry_dtm = ZERODATETIME;
-		if(!!r_expiry.SecondDate && r_expiry.SecondDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
-			final_expiry_date = expiry_dtm.d;
-		else if(!!r_expiry.FirstDate && r_expiry.FirstDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
-			final_expiry_date = expiry_dtm.d;
+		const LDATE final_expiry_date = GetFinalExpiryData(org_doc_entity.CertifiedConsignment.Batch.ExpiryDate);
 		if(final_expiry_date) {
 			temp_buf.Z().Cat(final_expiry_date, DATF_MDY).Space().Cat(msg_buf);
 			THROW_PP_S(final_expiry_date > getcurdate_(), PPERR_VETISORGDOCEXPIRY, temp_buf);
@@ -7990,6 +7995,7 @@ int PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVec
 	VetisApplicationBlock blk(2, &app_data); // @v10.8.9 ver 1-->2
 	VetisEntityCore::Entity sub_entity;
 	SString temp_buf;
+	SString msg_buf;
 	THROW(PeC.SearchDocument(rEntry.PrepEntityID, &app_data.VdRec) > 0);
 	temp_buf.Z().Cat(app_data.VdRec.WayBillNumber).CatDiv('-', 0).Cat(app_data.VdRec.WayBillDate).CatDiv('-', 0).Cat(app_data.VdRec.LinkBillRow);
 	THROW_PP_S(app_data.VdRec.VetisDocStatus == vetisdocstOUTGOING_PREPARING, PPERR_VETISVETDOCOUTPREPEXP, rEntry.PrepEntityID);
@@ -8002,6 +8008,21 @@ int PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVec
 	if(GetVetDocumentByUuid(org_doc_entity.Uuid, org_doc_reply) > 0 && org_doc_reply.VetDocList.getCount() == 1) {
 		rReply.Clear();
 		app_data.OrgDoc = *org_doc_reply.VetDocList.at(0);
+		// @v11.0.1 {
+		{
+			//
+			// Выше была проверка на срок годности, но там этот срок брался из внутренней базы данных.
+			// Иногда что-то идет не так и проскакивают истекшие сроки годности, потому еще раз сверимся с 
+			// сертификатом, только что полученным с сервера.
+			//
+			const LDATE final_expiry_date = GetFinalExpiryData(app_data.OrgDoc.CertifiedConsignment.Batch.ExpiryDate);
+			if(final_expiry_date) {
+				msg_buf.Z().Cat(app_data.VdRec.WayBillNumber).CatDiv('-', 0).Cat(app_data.VdRec.WayBillDate).CatDiv('-', 0).Cat(app_data.VdRec.LinkBillRow);
+				temp_buf.Z().Cat(final_expiry_date, DATF_MDY).Space().Cat(msg_buf);
+				THROW_PP_S(final_expiry_date > getcurdate_(), PPERR_VETISORGDOCEXPIRY, temp_buf);
+			}
+		}
+		// } @v11.0.1
 		{
 			THROW_PP(app_data.VdRec.FromEntityID, PPERR_VETISFROMBUSENTUNDEF);
 			PeC.GetEntity(app_data.VdRec.FromEntityID, sub_entity);
@@ -8123,13 +8144,7 @@ int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVector <Vet
 	THROW_PP_S(app_data.VdRec.OrgDocEntityID, PPERR_VETISDOCRECDONTREFORGDOC, msg_buf);
 	THROW(PeC.Get(app_data.VdRec.OrgDocEntityID, org_doc_entity) > 0);
 	{
-		const VetisGoodsDate & r_expiry = org_doc_entity.CertifiedConsignment.Batch.ExpiryDate;
-		LDATE final_expiry_date = ZERODATE;
-		LDATETIME expiry_dtm = ZERODATETIME;
-		if(!!r_expiry.SecondDate && r_expiry.SecondDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
-			final_expiry_date = expiry_dtm.d;
-		else if(!!r_expiry.FirstDate && r_expiry.FirstDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
-			final_expiry_date = expiry_dtm.d;
+		const LDATE final_expiry_date = GetFinalExpiryData(org_doc_entity.CertifiedConsignment.Batch.ExpiryDate);
 		if(final_expiry_date) {
 			temp_buf.Z().Cat(final_expiry_date, DATF_MDY).Space().Cat(msg_buf);
 			THROW_PP_S(final_expiry_date > getcurdate_(), PPERR_VETISORGDOCEXPIRY, temp_buf);
@@ -8143,6 +8158,20 @@ int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVector <Vet
 	if(GetVetDocumentByUuid(org_doc_entity.Uuid, org_doc_reply) > 0 && org_doc_reply.VetDocList.getCount() == 1) {
 		rReply.Clear();
 		app_data.OrgDoc = *org_doc_reply.VetDocList.at(0);
+		// @v11.0.1 {
+		{
+			//
+			// Выше была проверка на срок годности, но там этот срок брался из внутренней базы данных.
+			// Иногда что-то идет не так и проскакивают истекшие сроки годности, потому еще раз сверимся с 
+			// сертификатом, только что полученным с сервера.
+			//
+			const LDATE final_expiry_date = GetFinalExpiryData(app_data.OrgDoc.CertifiedConsignment.Batch.ExpiryDate);
+			if(final_expiry_date) {
+				temp_buf.Z().Cat(final_expiry_date, DATF_MDY).Space().Cat(msg_buf);
+				THROW_PP_S(final_expiry_date > getcurdate_(), PPERR_VETISORGDOCEXPIRY, temp_buf);
+			}
+		}
+		// } @v11.0.1
 		{
 			THROW_PP(app_data.VdRec.FromEntityID, PPERR_VETISFROMBUSENTUNDEF);
 			PeC.GetEntity(app_data.VdRec.FromEntityID, sub_entity);
@@ -10897,8 +10926,6 @@ int PPViewVetisDocument::InitIteration()
 		VetisDocumentTbl::Key2 k2;
 		VetisDocumentTbl::Key3 k3;
 	} k, k_;
-	//VetisDocumentTbl::Key0 k0, k0_;
-	//MEMSZERO(k0);
 	MEMSZERO(k);
 	BExtQuery::ZDelete(&P_IterQuery);
 	if(checkdate(Filt.Period.low)) {
@@ -10920,7 +10947,6 @@ int PPViewVetisDocument::InitIteration()
 	dbq = ppcheckfiltidlist(dbq, p_t->FromEntityID, &FromEntityIdList); // @v10.9.10
 	dbq = ppcheckfiltid(dbq, p_t->ToEntityID, ToEntityID); // @v10.4.1
 	P_IterQuery->where(*dbq);
-	//k0_ = k0;
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
 	P_IterQuery->initIteration(0, &k, spGe);
@@ -11649,12 +11675,10 @@ static int FASTCALL SetupSurveyPeriod(const VetisDocumentTbl::Rec & rRec, DateRa
 	PPAlbatrossConfig acfg;
 	const  int delay_days = (DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0) ? acfg.Hdr.VetisCertDelay : 3;
 	if(checkdate(rRec.WayBillDate)) {
-		// @v10.5.1 rPeriod.Set(rRec.WayBillDate, plusdate(rRec.WayBillDate, delay_days));
-		rPeriod.Set(plusdate(rRec.WayBillDate, -delay_days), plusdate(rRec.WayBillDate, delay_days)); // @v10.5.1
+		rPeriod.Set(plusdate(rRec.WayBillDate, -delay_days), plusdate(rRec.WayBillDate, delay_days));
 	}
 	else if(checkdate(rRec.IssueDate)) {
-		// @v10.5.1 rPeriod.Set(rRec.IssueDate, plusdate(rRec.WayBillDate, delay_days+2));
-		rPeriod.Set(plusdate(rRec.IssueDate, -delay_days-2), plusdate(rRec.IssueDate, delay_days+2)); // @v10.5.1
+		rPeriod.Set(plusdate(rRec.IssueDate, -delay_days-2), plusdate(rRec.IssueDate, delay_days+2));
 	}
 	else {
 		rPeriod.SetDate(getcurdate_());

@@ -161,6 +161,13 @@ int ChZnCodeStruc::Parse(const char * pRawCode)
 		{
 			temp_buf = pCode;
 			temp_buf.ShiftLeftChr('\xE8'); // @v10.9.9 Специальный символ. Может присутствовать в начале кода 
+			// "]C1"
+			// @v11.0.1 {
+			if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
+				temp_buf.ShiftLeft(3);
+				temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
+			}
+			// } @v11.0.1 
 			if(!temp_buf.IsAscii()) {
 				// Попытка транслировать латинский символ из локальной раскладки клавиатуры
 				SStringU temp_buf_u;
@@ -375,6 +382,7 @@ static const SIntToSymbTabEntry CzDocType_SymbTab[] = {
 	{ 415, "move_order" }, // @v10.9.2
 	{ 416, "receive_order" },
 	{ 431, "move_place" }, // @v10.8.7 doctypMovePlace
+	{ 511, "retail_sale" }, // @v11.0.1 
 	{ 602, "receive_order_notification" },
 	{ 701, "accept" },
 	{ 702, "posting" }, // @v10.9.7
@@ -556,11 +564,6 @@ public:
 		SString Body;
 		SString Content;
 	};
-
-
-	enum {
-	};
-
 	//
 	// Для идентификации типов кодов используются константы, определенные в slib.h
 	//   SNTOK_CHZN_GS1_GTIN SNTOK_CHZN_SIGN_SGTIN SNTOK_CHZN_SSCC
@@ -574,6 +577,7 @@ public:
 		doctypMdlpMoveOrder                		 = 415, // @v10.9.2
 		doctypMdlpReceiveOrder             		 = 416,
 		doctypMdlpMovePlace                		 = 431, // @v10.8.7 
+		doctypMdlpRetailSale                     = 511, // @v11.0.1
 		doctypMdlpReceiveOrderNotification 		 = 602,
 		doctypMdlpAccept                         = 701,
 		doctypMdlpPosting                        = 702, // @v10.9.7
@@ -641,6 +645,9 @@ public:
 				case doctGisMt_LpShipReceipt: // @v10.9.10
 					P_Data = new PPBillPacket; 
 					break; 
+				case doctypMdlpRetailSale: // @v11.0.1
+					P_Data = new CCheckPacket;
+					break;
 			}
 		}
 		~Packet()
@@ -656,7 +663,10 @@ public:
 				case doctGisMt_LkReceipt: // @v10.9.10
 				case doctGisMt_LpShipReceipt: // @v10.9.10
 					delete static_cast<PPBillPacket *>(P_Data); 
-					break; 
+					break;
+				case doctypMdlpRetailSale: // @v11.0.1
+					delete static_cast<CCheckPacket *>(P_Data);
+					break;					
 			}
 		}
 		const  int DocType;
@@ -960,6 +970,22 @@ int ChZnInterface::Document::GetTransactionPartyCode(PPID psnID, PPID locID, SSt
 	return ok;
 }
 
+static void _PutOperationDate(SXml::WNode & rN, SString & rTempBuf)
+{
+	rTempBuf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
+	TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, rTempBuf);
+	rN.PutInner("operation_date", rTempBuf);
+}
+
+static void _PutDocDateAndNum(const BillTbl::Rec & rBillRec, SXml::WNode & rN, SString & rTempBuf)
+{
+	rTempBuf = rBillRec.Code;
+	BillCore::GetCode(rTempBuf);
+	rTempBuf.Transf(CTRANSF_INNER_TO_UTF8);
+	rN.PutInner("doc_num", rTempBuf);
+	rN.PutInner("doc_date", rTempBuf.Z().Cat(rBillRec.Dt, DATF_GERMAN|DATF_CENTURY));
+}
+
 int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack)
 {
 	int    ok = 1;
@@ -972,6 +998,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 	PPLotExtCodeContainer::MarkSet lotxcode_set;
 	GtinStruc gts;
 	PPObjPerson psn_obj;
+	PPObjGoods goods_obj;
 	PPID   main_org_id = 0;
 	GetMainOrgID(&main_org_id);
 	if(pPack->DocType == doctGisMt_LkReceipt) {
@@ -1169,14 +1196,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
 					wd.PutInner("subject_id", subj_ident);
 					wd.PutInner("receiver_id", receiver_ident);
-					temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
-					TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, temp_buf);
-					wd.PutInner("operation_date", temp_buf);
-					temp_buf = p_bp->Rec.Code;
-					BillCore::GetCode(temp_buf);
-					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-					wd.PutInner("doc_num", temp_buf);
-					wd.PutInner("doc_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+					_PutOperationDate(wd, temp_buf);
+					_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
 					{
 						SXml::WNode dtl(rX, "order_details");
 						for(uint i = 0; i < p_bp->GetTCount(); i++) {
@@ -1200,6 +1221,85 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					}
 				}
 			}
+			else if(pPack->DocType == doctypMdlpRetailSale) { // @v11.0.1
+				const CCheckPacket * p_ccp = static_cast<const CCheckPacket *>(pPack->P_Data);
+				if(p_ccp) {
+					/*
+						<documents session_ui="4Aa246a6-D7e2-2465-a056-0234554369a3" version="1.34">
+							<retail_sale action_id="511">
+								<subject_id>19527400000042</subject_id>
+								<operation_date>2017-04-09T15:08:00+05:00</operation_date>
+								<sales>
+									<union>
+										<detail>
+											<sgtin>11670012610151BBM13L07G86DQ</sgtin>
+											<cost>17.0</cost>
+											<vat_value>300.0</vat_value>
+										</detail>
+										<sale_docs>
+											<doc_type>1</doc_type>
+											<doc_name>cheque</doc_name>
+											<doc_number>1</doc_number>
+											<doc_date>04.04.2017</doc_date>
+										</sale_docs>
+									</union>
+								</sales>
+							</retail_sale>
+						</documents>
+					*/
+					PPObjCashNode cnobj;
+					PPCashNode cn_rec;
+					if(cnobj.Fetch(p_ccp->Rec.CashID, &cn_rec) > 0 && cn_rec.LocID) {
+						//p_ccp->Rec.CashID
+						const PPID   subj_loc_id = cn_rec.LocID;
+						PPID  subj_psn_id = main_org_id;
+						GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
+						wd.PutInner("subject_id", subj_ident);
+						_PutOperationDate(wd, temp_buf);
+						{
+							SXml::WNode sn(rX, "sales");
+							CCheckItem ccitem;
+							for(uint i = 0; p_ccp->EnumLines(&i, &ccitem) > 0;) {
+								p_ccp->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf);
+								if(temp_buf.NotEmptyS()) {
+									const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+									if(pczcr > 0) {
+										mark_buf.Z();
+										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+											mark_buf.Cat(temp_buf);
+											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+												mark_buf.Cat(temp_buf);
+												double cost = R2(ccitem.Price - ccitem.Discount);
+												double vat_in_cost = 0.0;
+												PPGoodsTaxEntry gtx;
+												if(goods_obj.FetchTax(ccitem.GoodsID, p_ccp->Rec.Dt, 0, &gtx) > 0) {
+													GTaxVect vect;
+													vect.Calc_(&gtx, cost, 1.0, GTAXVF_BEFORETAXES, 0);
+													vat_in_cost = vect.GetValue(GTAXVF_VAT);
+												}
+												SXml::WNode un(rX, "union");
+												{
+													SXml::WNode dn(rX, "detail");
+													dn.PutInner("sgtin", mark_buf);
+													dn.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
+													dn.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+												}
+												{
+													SXml::WNode sdn(rX, "sale_docs");
+													sdn.PutInner("doc_type", "1");
+													sdn.PutInner("doc_name", "cheque");
+													sdn.PutInner("doc_number", temp_buf.Z().Cat(p_ccp->Rec.Code));
+													sdn.PutInner("doc_date", temp_buf.Z().Cat(p_ccp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 			else if(pPack->DocType == doctypMdlpMoveOrder) { // @v10.9.2
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
@@ -1213,14 +1313,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
 					wd.PutInner("subject_id", subj_ident);
 					wd.PutInner("receiver_id", receiver_ident);
-					temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
-					TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, temp_buf);
-					wd.PutInner("operation_date", temp_buf);
-					temp_buf = p_bp->Rec.Code;
-					BillCore::GetCode(temp_buf);
-					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-					wd.PutInner("doc_num", temp_buf);
-					wd.PutInner("doc_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+					_PutOperationDate(wd, temp_buf);
+					_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
 					wd.PutInner("turnover_type", temp_buf.Z().Cat(2L));
 					wd.PutInner("source", temp_buf.Z().Cat(1L));
 					wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
@@ -1280,14 +1374,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 						psn_obj.GetRegNumber(dlvr_psn_id, PPREGT_KPP, temp_buf);
 						si.PutInner("kpp", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // @todo
 					}
-					temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
-					TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, temp_buf);
-					wd.PutInner("operation_date", temp_buf);
-					temp_buf = p_bp->Rec.Code;
-					BillCore::GetCode(temp_buf);
-					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-					wd.PutInner("doc_num", temp_buf);
-					wd.PutInner("doc_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+					_PutOperationDate(wd, temp_buf);
+					_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
 					if(pPack->DocType == doctypMdlpReceiveOrder) {
 						wd.PutInner("receive_type", temp_buf.Z().Cat(1L));
 						wd.PutInner("source", temp_buf.Z().Cat(1L));
@@ -1343,9 +1431,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
 					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
 					wd.PutInner("subject_id", subj_ident);
-					temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
-					TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, temp_buf);
-					wd.PutInner("operation_date", temp_buf);
+					_PutOperationDate(wd, temp_buf);
 					wd.PutInner("shipper_id", shipper_ident);
 					if(!isempty(p_bp->Rec.Memo)) {
 						(temp_buf = p_bp->Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8);
@@ -2217,25 +2303,46 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 					THROW(MakeDocumentRequest(rIb, rPack, data_buf.cptr(), data_buf.Len(), req_id, req_buf));
 					Lth.Log("req", url_buf, req_buf);
 					if(rIb.ProtocolId == rIb.protidMdlp) {
-						int    wininet_err = 0;
-						WinInternetHandleStack hstk;
-						HINTERNET h_inet_sess = 0;
-						HINTERNET h_connection = 0;
-						HINTERNET h_req = 0;
-						THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_PRECONFIG, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
-						THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
-						{
-							THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
+						const  int mdlp_use_curl = 0; // не работает mdlp через curl: ебаное гост-шифрование. желаю всем авторам честного знака и всему фсб сдохнуть!
+						if(mdlp_use_curl) {
+							ScURL c;
 							MakeHeaderFields(rIb.Token, 0, &hdr_flds, temp_buf);
-							if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
-								SString wi_msg;
-								uint  wi_code = GetLastWinInternetResponse(wi_msg);
-								ReadReply(h_req, reply_buf);
+							SBuffer ack_buf;
+							SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+							THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
+							{
+								SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+								if(p_ack_buf)
+									reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 							}
-							else {
-								wininet_err = GetLastError();
-								SLS.SetError(SLERR_WINDOWS);
-								PPSetErrorSLib();
+						}
+						else {
+							int    wininet_err = 0;
+							WinInternetHandleStack hstk;
+							HINTERNET h_inet_sess = 0;
+							HINTERNET h_connection = 0;
+							HINTERNET h_req = 0;
+							THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), /*INTERNET_OPEN_TYPE_PRECONFIG*/INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+							THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
+							{
+								const size_t req_len = req_buf.Len();
+								SStringU hdr_flds_u;
+								STempBuffer temp_req_buf(req_len + 1024);
+								THROW_SL(temp_req_buf.IsValid());
+								memcpy(temp_req_buf, req_buf.cptr(), req_len+1);
+								THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
+								MakeHeaderFields(rIb.Token, 0, &hdr_flds, temp_buf);
+								hdr_flds_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
+								if(HttpSendRequest(h_req, hdr_flds_u, hdr_flds_u.Len(), temp_req_buf, req_len)) {
+									SString wi_msg;
+									uint  wi_code = GetLastWinInternetResponse(wi_msg);
+									ReadReply(h_req, reply_buf);
+								}
+								else {
+									wininet_err = GetLastError();
+									SLS.SetError(SLERR_WINDOWS);
+									PPSetErrorSLib();
+								}
 							}
 						}
 					}
@@ -2878,19 +2985,21 @@ int PPChZnPrcssr::EditParam(Param * pParam)
 	class ChZnPrcssrParamDialog : public TDialog {
 		DECL_DIALOG_DATA(PPChZnPrcssr::Param);
 	public:
-		ChZnPrcssrParamDialog() : TDialog(DLG_CHZNIX)
+		ChZnPrcssrParamDialog() : TDialog(DLG_CHZNPARAM)
 		{
 		}
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			SetupPPObjCombo(this, CTLSEL_CHZNIX_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, 0);
+			SetupPPObjCombo(this, CTLSEL_CHZNPARAM_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, 0);
+			SetupLocationCombo(this, CTLSEL_CHZNPARAM_LOC, Data.LocID, 0, LOCTYP_WAREHOUSE, 0);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
-			getCtrlData(CTLSEL_CHZNIX_GUA, &Data.GuaID);
+			getCtrlData(CTLSEL_CHZNPARAM_GUA, &Data.GuaID);
+			getCtrlData(CTLSEL_CHZNPARAM_LOC, &Data.LocID);
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -2990,6 +3099,65 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 		}
 	}
 	return suited ? 1 : -1;
+}
+
+int PPChZnPrcssr::TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList)
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	ChZnInterface::Packet * p_pack = 0;
+	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
+	SString result_doc_ident;
+	SString edi_ident;
+	CCheckCore cc_core;
+	TSCollection <ChZnInterface::Packet> pack_list;
+	ChZnInterface ifc;
+	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
+	p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
+	THROW(ifc.SetupInitBlock(rP.GuaID, 0, *p_ib));
+	{
+		for(uint i = 0; i < rList.getCount(); i++) {
+			const CCheckPacket * p_src_cc_pack = rList.at(i);
+			if(p_src_cc_pack) {
+				p_pack = new ChZnInterface::Packet(ChZnInterface::doctypMdlpRetailSale);
+				if(p_pack->P_Data) {
+					*static_cast<CCheckPacket *>(p_pack->P_Data) = *p_src_cc_pack;
+					pack_list.insert(p_pack);
+					p_pack = 0;
+				}
+				else
+					ZDELETE(p_pack);
+			}
+		}
+	}
+	if(ifc.Connect(*p_ib) > 0) {
+		for(uint bpidx = 0; bpidx < pack_list.getCount(); bpidx++) {
+			const ChZnInterface::Packet * p_inner_pack = pack_list.at(bpidx);
+			const CCheckPacket * p_cc_pack = static_cast<const CCheckPacket *>(p_inner_pack->P_Data);
+			int tdr = ifc.TransmitDocument2(*p_ib, *p_inner_pack, result_doc_ident);
+			if(tdr > 0) {
+				if(result_doc_ident.NotEmpty()) {
+					cc_core.UpdateExtText(p_cc_pack->Rec.ID, CCheckPacket::extssChZnProcessingTag, result_doc_ident, 1);
+				}
+				//
+				CCheckCore::MakeCodeString(&p_cc_pack->Rec, temp_buf);
+				//p_cc_pack
+				//PPTXT_CCPACKSENTTOCHZN              "Кассовый чек %s успешно отправлен на сервер честный знак. Тикет: %s" 
+				PPLoadText(PPTXT_CCPACKSENTTOCHZN, fmt_buf);
+				msg_buf.Printf(fmt_buf, temp_buf.cptr(), result_doc_ident.cptr());
+				Log(msg_buf);
+			}
+			else if(tdr == 0)
+				LogLastError();
+		}
+	}
+	CATCH
+		LogLastError();
+		ok = 0;
+	ENDCATCH
+	return ok;
 }
 
 int PPChZnPrcssr::Run(const Param & rP)

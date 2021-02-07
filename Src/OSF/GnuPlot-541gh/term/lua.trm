@@ -37,6 +37,7 @@
 #include "driver.h"
 
 #define LUA_TERM_REVISION "$Rev: Jun 2020$"
+#define GNUPLOT_LUA_DIR   "share/lua" // @sobolev
 
 #ifdef TERM_REGISTER
 register_term(lua)
@@ -44,7 +45,7 @@ register_term(lua)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void LUA_options();
-TERM_PUBLIC void LUA_init();
+TERM_PUBLIC void LUA_init(termentry * pThis);
 TERM_PUBLIC void LUA_reset();
 TERM_PUBLIC void LUA_text();
 /* scale */
@@ -468,11 +469,11 @@ static void LUA_get_term_vars(void) {
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "xmax");
-	term->xmax = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_XMAX;
+	term->MaxX = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_XMAX;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "ymax");
-	term->ymax = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_YMAX;
+	term->MaxY = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_YMAX;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "ChrV");
@@ -796,7 +797,7 @@ TERM_PUBLIC void LUA_options()
 	}
 }
 
-TERM_PUBLIC void LUA_init()
+TERM_PUBLIC void LUA_init(termentry * pThis)
 {
 	if(gpoutfile != stdout) {
 		fseek(gpoutfile, 0, SEEK_SET);
@@ -941,7 +942,7 @@ TERM_PUBLIC void LUA_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 		lua_pop(L, 1);
 	}
 
-	if(!lua_term_result) do_arrow(sx, sy, ex, ey, head);
+	if(!lua_term_result) GnuPlot::DoArrow(sx, sy, ex, ey, head);
 }
 
 TERM_PUBLIC void LUA_put_text(uint x, uint y, const char str[])
@@ -1280,7 +1281,7 @@ TERM_TABLE_START(lua_driver)
 "lua", LUA_TERM_DESCRIPTION,
 LUA_XMAX, LUA_YMAX, LUA_VCHAR, LUA_HCHAR,
 LUA_VTIC, LUA_HTIC, LUA_options, LUA_init, LUA_reset,
-LUA_text, null_scale, LUA_graphics, LUA_move, LUA_vector,
+LUA_text, GnuPlot::NullScale, LUA_graphics, LUA_move, LUA_vector,
 LUA_linetype, LUA_put_text, LUA_text_angle,
 LUA_justify_text, LUA_point, LUA_arrow, LUA_set_font, LUA_pointsize,
 TERM_BINARY /*flags*/, 0 /*suspend*/, 0 /*resume*/,
@@ -1307,7 +1308,7 @@ TERM_TABLE_START(tikz_driver)
 "tikz", "TeX TikZ graphics macros via the lua script driver",
 LUA_XMAX, LUA_YMAX, LUA_VCHAR, LUA_HCHAR,
 LUA_VTIC, LUA_HTIC, LUA_options, LUA_init, LUA_reset,
-LUA_text, null_scale, LUA_graphics, LUA_move, LUA_vector,
+LUA_text, GnuPlot::NullScale, LUA_graphics, LUA_move, LUA_vector,
 LUA_linetype, LUA_put_text, LUA_text_angle,
 LUA_justify_text, LUA_point, LUA_arrow, LUA_set_font, LUA_pointsize,
 TERM_BINARY /*flags*/, 0 /*suspend*/, 0 /*resume*/,

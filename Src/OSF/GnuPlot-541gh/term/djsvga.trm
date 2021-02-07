@@ -65,7 +65,7 @@ register_term(djsvga)           /* no ; */
 #define DJSVGA_VTIC 4
 #define DJSVGA_HTIC 4
 
-TERM_PUBLIC void DJSVGA_init();
+TERM_PUBLIC void DJSVGA_init(termentry * pThis);
 TERM_PUBLIC void DJSVGA_graphics();
 TERM_PUBLIC void DJSVGA_text();
 TERM_PUBLIC void DJSVGA_reset();
@@ -356,7 +356,7 @@ static GP_INLINE GrFont * grx_default_font()
 #endif
 }
 
-TERM_PUBLIC void DJSVGA_init()
+TERM_PUBLIC void DJSVGA_init(termentry * pThis)
 {
 	int i, on, r, g, b, medium = 170, low = 85;
 
@@ -383,9 +383,9 @@ TERM_PUBLIC void DJSVGA_init()
 	}
 	/* Get the screen size: */
 	dj_xlast = GrMaxX();
-	term->xmax = dj_xlast + 1;
+	term->MaxX = dj_xlast + 1;
 	dj_ylast = GrMaxY();
-	term->ymax = dj_ylast + 1;
+	term->MaxY = dj_ylast + 1;
 
 #ifdef DJSVGA_SAVE_COLORS
 	if(DJSVGA_colorbuf == NULL)
@@ -1423,7 +1423,7 @@ TERM_PUBLIC void DJSVGA_linewidth(double linewidth)
 TERM_PUBLIC void DJSVGA_pointsize(double size)
 {
 	DJSVGA_flush_line();
-	term_pointsize = (size >= 0 ? dj_pointscale * size : 1.);
+	GPO.TermPointSize = (size >= 0 ? dj_pointscale * size : 1.);
 }
 
 TERM_PUBLIC void DJSVGA_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
@@ -2100,10 +2100,10 @@ DJSVGA_XMAX, DJSVGA_YMAX, DJSVGA_VCHAR, DJSVGA_HCHAR,
 DJSVGA_VTIC, DJSVGA_HTIC,
 DJSVGA_options,
 DJSVGA_init, DJSVGA_reset, DJSVGA_text,
-null_scale, DJSVGA_graphics, DJSVGA_move, DJSVGA_vector,
+GnuPlot::NullScale, DJSVGA_graphics, DJSVGA_move, DJSVGA_vector,
 DJSVGA_linetype, DJSVGA_enhanced_put_text,
 DJSVGA_angle, DJSVGA_justify_text,
-do_point, do_arrow, DJSVGA_set_font,
+do_point, GnuPlot::DoArrow, DJSVGA_set_font,
 DJSVGA_pointsize,
 TERM_CAN_MULTIPLOT | TERM_NO_OUTPUTFILE | TERM_ENHANCED_TEXT |
 TERM_LINEWIDTH | TERM_POINTSCALE | TERM_FONTSCALE | TERM_CAN_DASH,

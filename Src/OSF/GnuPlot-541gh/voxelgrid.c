@@ -133,12 +133,12 @@ void set_vgrid()
 		grid->udv_value.Destroy();
 		current_vgrid = (vgrid *)gp_alloc(sizeof(vgrid), "new vgrid");
 		memzero(current_vgrid, sizeof(vgrid));
-		current_vgrid->vxmin = not_a_number();
-		current_vgrid->vxmax = not_a_number();
-		current_vgrid->vymin = not_a_number();
-		current_vgrid->vymax = not_a_number();
-		current_vgrid->vzmin = not_a_number();
-		current_vgrid->vzmax = not_a_number();
+		current_vgrid->vxmin = fgetnan();
+		current_vgrid->vxmax = fgetnan();
+		current_vgrid->vymin = fgetnan();
+		current_vgrid->vymax = fgetnan();
+		current_vgrid->vzmin = fgetnan();
+		current_vgrid->vzmax = fgetnan();
 		grid->udv_value.v.vgrid = current_vgrid;
 		grid->udv_value.type = VOXELGRID;
 	}
@@ -258,7 +258,7 @@ void vgrid_stats(vgrid * vgrid)
 	vgrid->nzero = nzero;
 	vgrid->sum = sum;
 	if(num < 2) {
-		vgrid->mean_value = vgrid->stddev = not_a_number();
+		vgrid->mean_value = vgrid->stddev = fgetnan();
 	}
 	else {
 		vgrid->mean_value = sum / (double)(N*N*N - nzero);
@@ -306,7 +306,7 @@ void gpfree_vgrid(struct udvt_entry * grid)
 		if(grid->udv_value.v.vgrid == current_vgrid)
 			current_vgrid = NULL;
 		grid->udv_value.v.vgrid = NULL;
-		grid->udv_value.type = NOTDEFINED;
+		grid->udv_value.SetNotDefined();
 	}
 }
 /*
@@ -406,9 +406,9 @@ void GnuPlot::VoxelCommand()
 t_voxel voxel(double vx, double vy, double vz)
 {
 	if(!current_vgrid)
-		return static_cast<t_voxel>(not_a_number());
+		return static_cast<t_voxel>(fgetnan());
 	if(vx < current_vgrid->vxmin || vx > current_vgrid->vxmax || vy < current_vgrid->vymin || vy > current_vgrid->vymax || vz < current_vgrid->vzmin || vz > current_vgrid->vzmax)
-		return static_cast<t_voxel>(not_a_number());
+		return static_cast<t_voxel>(fgetnan());
 	int ivx = fceili((vx - current_vgrid->vxmin) / current_vgrid->vxdelta);
 	int ivy = fceili((vy - current_vgrid->vymin) / current_vgrid->vydelta);
 	int ivz = fceili((vz - current_vgrid->vzmin) / current_vgrid->vzdelta);
@@ -517,7 +517,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 		// Save prior value of sample variables so we can restore them later 
 		this_plot->sample_var = Ev.AddUdvByName(c_dummy_var[0]);
 		original_value_sample_var = this_plot->sample_var->udv_value;
-		this_plot->sample_var->udv_value.type = NOTDEFINED;
+		this_plot->sample_var->udv_value.SetNotDefined();
 		// We don't support any further options 
 		if(Pgm.AlmostEqualsCur("w$ith"))
 			IntErrorCurToken("vfill does not support 'with' options");

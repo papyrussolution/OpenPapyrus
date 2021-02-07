@@ -512,6 +512,7 @@ class PPExtStrContainer {
 public:
 	PPExtStrContainer();
 	PPExtStrContainer & Z();
+	int    FASTCALL Copy(const PPExtStrContainer & rS);
 	//
 	// Descr: Определяет эквивалентность объекта this объекту rS по множеству подстрок,
 	//   размером fldCount и с идентификаторами переданными в pFldList.
@@ -14373,7 +14374,8 @@ public:
 		extssMemo               = 1, // @reserved Примечание
 		extssSign               = 2, // Строка подписи чека (ЕГАИС)
 		extssEgaisUrl           = 3, // Текст URL информации о чеке ЕГАИС
-		extssRemoteProcessingTa = 4  // @v10.9.0 Символ транзакции удаленной обработки чека
+		extssRemoteProcessingTa = 4, // @v10.9.0 Символ транзакции удаленной обработки чека
+		extssChZnProcessingTag  = 5  // @v11.0.1 Символ признака передачи чека на сервер честный знак
 	};
 	//
 	// Descr: Идентификаторы текстовых расширений строк чека
@@ -14407,9 +14409,12 @@ public:
 	static int Helper_GetLineTextExt(int pos /*[1..]*/, int lnextId, const StrAssocArray & rList, SString & rBuf);
 
 	CCheckPacket();
+	CCheckPacket(const CCheckPacket & rS);
 	~CCheckPacket();
+	CCheckPacket & FASTCALL operator = (const CCheckPacket & rS);
 	CCheckPacket & Z();
 	int    IsEqual(const CCheckPacket & rS, long options) const;
+	int    Copy(const CCheckPacket & rS);
 	//
 	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
 	//
@@ -34041,9 +34046,9 @@ public:
 	DateRange ShipmentPeriod;     // Период отгрузки
 	PPID   OpID;                  //
 	PPID   SupplID;               //
-	PPID   ArID_;                 //
+	// @v11.0.1 PPID   ArID_;                 //
 	PPID   DlvrAddrID;            // Адрес доставки. Если ArID == 0, то не используется //
-	PPID   AgentID_;              // Агент по документам
+	// @v11.0.1 PPID   AgentID_;              // Агент по документам
 	PPID   GoodsGrpID;            //
 	PPID   GoodsID;               //
 	PPID   ExtGoodsTypeID;        // Used only if (!GoodsGrpID && !GoodsID && !SupplID)
@@ -36975,10 +36980,10 @@ private:
 #define DBDXF_DESTROYQUEUEBYDEF    0x00020000L // По умолчанию, при приеме данных устанавливать признак "Разрушать очередь после акцепта"
 #define DBDXF_DONTLOGOBJUPD        0x00040000L // Не показывать в журнале информацию об изменении объектов
 #define DBDXF_SUBSTDEFICITGOODS    0x00100000L // подставлять дефицитные товары
-#define DBDXF_CHARRY_GIDASARCODE   0x00200000L // При приеме документов по CHARRY идентификатор товара
-	// трактовать как код товара по контрагенту.
-#define DBDXF_SENDTAGATTCHM        0x00400000L // @9.2.6 Передавать файлы, прикрепленные к тегам
+#define DBDXF_CHARRY_GIDASARCODE   0x00200000L // При приеме документов по CHARRY идентификатор товара трактовать как код товара по контрагенту.
+#define DBDXF_SENDTAGATTCHM        0x00400000L // Передавать файлы, прикрепленные к тегам
 #define DBDXF_SYNCUSRANDGRPS       0x00800000L // @v10.1.5 Синхронизировать пользователей и группы
+#define DBDXF_USEMQB               0x01000000L // @v11.0.1 Использовать брокер сообщений для обмена
 
 struct PPDBXchgConfig { // @transient (Для сохранения транслируется в __PPDBXchgConfig)
 	PPID   OneRcvLocID;        // Единственная локация, на которую должны приниматься все документы, независимо от того, какой локации они принадлежали в разделе-отправителе
@@ -37124,7 +37129,7 @@ struct ObjReceiveParam {
 		fForceDestroyQueue = 0x0040,  // Насильно разрушать очередь после акцепта (даже если не все объекты приняты)
 		fCheckMqb          = 0x0080,  // @v10.6.8 Проверять очередь обмена сообщениями. Если
 			// этот флаг не установлен, то даже при наличии флага DBDIVF_MQBEXCHANGE в текущем разделе базы данных
-			// очередь обмена сообщениями провяться не будет.
+			// очередь обмена сообщениями проверяться не будет.
 		fDisableLogWindow  = 0x0100,  // @v10.6.8 При обработке данных не выводить окно с сообщениями
 	};
 	PPIDArray SenderDbDivList;
@@ -42460,6 +42465,7 @@ private:
 	int    ToggleDlvrTag(PPID checkID);
 	int    GetReportId() const;
 	int    Recover();
+	int    ExportToChZn();
 
 	static int DynFuncPosText; // @v10.1.9
 
@@ -42697,8 +42703,16 @@ public:
 	enum {
 		extvNone                = 0,
 		extvLinkOrderDiscount   = 1, // Величина скидки в связанном со строкой продажи заказе
-		extvLinkOrderPriceAbove = 2, // @v9.7.5 Превышение цены в связанном заказе над итоговой ценой продажи
+		extvLinkOrderPriceAbove = 2, // Превышение цены в связанном заказе над итоговой ценой продажи
 		extvQuotBias            = 1000 // Смещение, обозначающее вид котировки, применяемой для вычисления дополнительного показателя
+	};
+	//
+	// Descr: Варианты отображения дополнительных факторов отчета
+	//
+	enum {
+		extfNone                = 0, // 
+		extfPersonTag           = 1, // Тег персоналии
+		extfPersonRegister      = 2  // Регистр персоналии
 	};
 	//
 	//
@@ -42721,24 +42735,24 @@ public:
 		ravRest         = 0x0001, // Простой остаток
 		ravAvgRest      = 0x0002, // Среднедневной остаток
 		ravTurnoverRate = 0x0004, // Коэффициент оборачиваемости (движение / остаток)
-		// @v9.3.4 ravCost         = 0x0008, // Суммовое значение показателя в терминах цен поступления
-		// @v9.3.4 ravPrice        = 0x0010  // Суммовое значение показателя в терминах цен реализации
 	};
 
-	uint8  ReserveStart[4];   // @anchor // @v10.0.04 [12]-->[4]
-	DateRange DueDatePeriod;  // @v10.0.04 Период даты исполнения документов
-	long   ExtValueParam[2];  // @v9.3.4 Параметры, определяющие вычисление дополнительных показателей отчета
-	long   RestAddendumValue; // @v9.1.3 Параметр, определяющий варинат отображения значений, базирующихся на остатках
-	PPID   AcsID;             // Таблица статей для выбора контрагента (если не выбран вид операции)
-	PPID   SupplAgentID;      // Агент поставщика
+	uint8  ReserveStart[32];     // @anchor // @v10.0.04 [12]-->[4] // @v11.0.1 [4]-->[32]
+	DateRange DueDatePeriod;     // @v10.0.04 Период даты исполнения документов
+	long   ExtValueParam[2];     // Параметры, определяющие вычисление дополнительных показателей отчета
+	long   RestAddendumValue;    // Параметр, определяющий варинат отображения значений, базирующихся на остатках
+	long   ExtFactorParam[3];    // @v11.0.1
+	long   ExtFactorAddendum[3]; // @v11.0.1
+	PPID   AcsID;                // Таблица статей для выбора контрагента (если не выбран вид операции)
+	PPID   SupplAgentID;         // Агент поставщика
 	DateRange Period;
 	DateRange LotsPeriod;
 	PPID   OpID;
 	PPID   SupplID;      //
-	PPID   ArID_;        // Если !0, то перебираются только те документы, у которых ObjectID == ArID
+	// @v11.0.1 PPID   ArID_;        // Если !0, то перебираются только те документы, у которых ObjectID == ArID
 	PPID   DlvrAddrID;   // Адрес доставки. Если ArID == 0, то не используется //
 		// Если Flags & fByZeroDlvrAddr, то перебираются только документы, в которых адрес доставки не указан
-	PPID   AgentID_;     // Если !0, то перебираются только те документы, в которых установлен этот агент
+	// @v11.0.1 PPID   AgentID_;     // Если !0, то перебираются только те документы, в которых установлен этот агент
 		// Если Flags & fByZeroAgent, то перебираются только те документы, в которых не установлен агент
 	PPID   PsnCatID;     // Категория персоналии
 	PPID   CityID;       // Город контрагентов, по которым перебираются операции
@@ -42750,7 +42764,6 @@ public:
 	long   CtKind;       // TrfrAnlzFilt::ctXXX  Вид кросстабулированного отчета
 	PPID   BrandID;      //
 	Grouping Grp;        // Параметр группировки
-
 	SubstGrpGoods   Sgg; // Подстановка товара
 	SubstGrpPerson  Sgp; // Подстановка персоналии
 	SubstGrpDate    Sgd; // Подстановка даты
@@ -47543,6 +47556,7 @@ public:
 		enum {
 			_afQueryTicket       = 0x0001,
 			_afQueryKizInfo      = 0x0002,
+			_afSendCc            = 0x0004  // @v11.0.1 Отправка кассовых чеков
 		};
 		long   DocType;
 		long   Flags;
@@ -47572,6 +47586,7 @@ public:
 	int    EditQueryParam(PPChZnPrcssr::QueryParam * pData);
 	int    InteractiveQuery();
 	int    Run(const Param & rP);
+	int    TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList);
 	static int Test();
 private:
 	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);

@@ -169,26 +169,15 @@ char * loadpath_handler(int action, char * path)
  * These used to be defined in national.h but internationalization via locale
  * is now a bit more common than it was last century.
  */
-char full_month_names[12][32] = {
-	"January", "February", "March", "April", "May", "June",
-	"July", "August", "September", "October", "November", "December"
-};
-char abbrev_month_names[12][8] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
-char full_day_names[7][32] = {
-	"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
-};
-char abbrev_day_names[7][8] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
-};
+char full_month_names[12][32] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+char abbrev_month_names[12][8] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+char full_day_names[7][32] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+char abbrev_day_names[7][8] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
 char * locale_handler(int action, char * newlocale)
 {
 	struct tm tm;
 	int i;
-
 	switch(action) {
 		case ACTION_CLEAR:
 		case ACTION_INIT:
@@ -246,6 +235,5 @@ char * locale_handler(int action, char * newlocale)
 		default:
 		    break;
 	}
-
 	return time_locale;
 }

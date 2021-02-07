@@ -1807,8 +1807,7 @@ Window::~Window()
 
 void Window::Destroy()
 {
-	if(wid)
-		::DestroyWindow(static_cast<HWND>(wid));
+	::DestroyWindow(static_cast<HWND>(wid));
 	wid = 0;
 }
 

@@ -1,29 +1,12 @@
-/* Hello, Emacs, this is -*-C-*- */
-
-/*------------------------------------------------------------------------------------------------------------------------------------
-        GNUPLOT - svg.trm
-
-        This file is included by ../term.c.
-
-        This terminal driver supports:
-                W3C Scalable Vector Graphics
-
-        AUTHOR
-
-                Amedeo Farello
-                afarello@libero.it
-
-        HEAVILY MODIFIED by
-
-                Hans-Bernhard Br"oker
-                broeker@physik.rwth-aachen.de
-
-        DomTerm support
-
-                Per Bothner  <per@bothner.com>
-
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-
+// Hello, Emacs, this is -*-C-*- 
+// GNUPLOT - svg.trm
+// 
+// This file is included by ../term.c.
+// This terminal driver supports: W3C Scalable Vector Graphics
+// AUTHOR: Amedeo Farello afarello@libero.it
+// HEAVILY MODIFIED by: Hans-Bernhard Br"oker  broeker@physik.rwth-aachen.de
+// DomTerm support: Per Bothner  <per@bothner.com>
+// 
 /* PM3D support by Johannes Zellner <johannes@zellner.org>, May-16-2002 */
 /* set_color fixes by Petr Mikulik <mikulik@physics.muni.cz>, June-10-2002 */
 /* ISO-Latin encoding, Font selection fixes, option "fixed|dynamic" by
@@ -63,23 +46,31 @@
  *   remove DTD
  *   remove option "fontfile" and references to SVG fonts
  */
-
 /*
  * Code for gnuplot version 4.5
  *   Bold -> font-weight:bold
  *   Italic -> font-style:italic
  * Rich Seymour <rseymour@usc.edu>
  */
-
+#include <gnuplot.h>
+#pragma hdrstop
 #include "driver.h"
 
+// @experimental {
+#define TERM_BODY
+#define TERM_PUBLIC static
+#define TERM_TABLE
+#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_END(x)   };
+// } @experimental
+
 #ifdef TERM_REGISTER
-register_term(svg)
+	register_term(svg)
 #endif
 
-#ifdef TERM_PROTO
+//#ifdef TERM_PROTO
 TERM_PUBLIC void SVG_options();
-TERM_PUBLIC void SVG_init();
+TERM_PUBLIC void SVG_init(termentry * pThis);
 TERM_PUBLIC void SVG_graphics();
 TERM_PUBLIC void SVG_text();
 TERM_PUBLIC void SVG_linetype(int linetype);
@@ -92,7 +83,7 @@ TERM_PUBLIC int SVG_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int SVG_text_angle(int ang);
 TERM_PUBLIC void SVG_point(uint x, uint y, int pointstyle);
 TERM_PUBLIC int SVG_set_font(const char * font);
-/* TERM_PUBLIC void SVG_pointsize(double pointsize); */
+// TERM_PUBLIC void SVG_pointsize(double pointsize); 
 TERM_PUBLIC void SVG_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void SVG_linewidth(double linewidth);
 TERM_PUBLIC int SVG_make_palette(t_sm_palette *);
@@ -100,29 +91,23 @@ TERM_PUBLIC void SVG_previous_palette();
 TERM_PUBLIC void SVG_set_color(t_colorspec *);
 TERM_PUBLIC void SVG_filled_polygon(int, gpiPoint *);
 TERM_PUBLIC void SVG_layer(t_termlayer syncpoint);
-
 TERM_PUBLIC void ENHsvg_OPEN(char *, double, double, bool, bool, int);
 TERM_PUBLIC void ENHsvg_FLUSH();
 TERM_PUBLIC void ENHsvg_put_text(uint, uint, const char *);
 TERM_PUBLIC void ENHsvg_writec(int);
-
 TERM_PUBLIC void SVG_path(int p);
 TERM_PUBLIC void SVG_hypertext(int, const char *);
-
 #ifdef WRITE_PNG_IMAGE
-TERM_PUBLIC void SVG_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
-static int SVG_imageno = 0;
+	TERM_PUBLIC void SVG_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
+	static int SVG_imageno = 0;
 #endif
-
 #define SVG_SCALE       100.    /* Coordinate accuracy is 1/SVG_SCALE pixel */
 #define PREC            2       /* Decimal places needed for SVG_SCALEd values */
-#define Y(y) ((float)((int)term->ymax - (int)y) / SVG_SCALE)
+#define Y(y) ((float)((int)term->MaxY - (int)y) / SVG_SCALE)
 #define X(x) ((float)(x) / SVG_SCALE)
-
 #define SVG_XMAX        (600 * SVG_SCALE)
 #define SVG_YMAX        (480 * SVG_SCALE)
-
-#endif /* TERM_PROTO */
+//#endif // TERM_PROTO 
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
@@ -231,13 +216,10 @@ static double SVG_hypertext_fontSize = 0;
 static char * SVG_hypertext_fontName = NULL;
 static char * SVG_hypertext_fontStyle = NULL;
 static char * SVG_hypertext_fontWeight = NULL;
-
-/* Support for embedded hypertext */
-static char * SVG_hypertext_text = NULL;
-
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_Pen_RealID
-   ------------------------------------------------------------------------------------------------------------------------------------*/
+static char * SVG_hypertext_text = NULL; // Support for embedded hypertext 
+// 
+// SVG_Pen_RealID
+// 
 static short SVG_Pen_RealID(int inPenCode)
 {
 	if(inPenCode >= 13)
@@ -245,13 +227,12 @@ static short SVG_Pen_RealID(int inPenCode)
 	inPenCode += 3;
 	if(inPenCode < 0)
 		inPenCode = 0;  /* LT_BACKGROUND should use background color */
-
 	return (inPenCode);
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_GroupOpen
-   ------------------------------------------------------------------------------------------------------------------------------------*/
+// 
+// SVG_GroupOpen
+// 
 static void SVG_GroupOpen()
 {
 	SVG_GroupFilledClose();
@@ -277,10 +258,9 @@ static void SVG_GroupOpen()
 		SVG_groupIsOpen = TRUE;
 	}
 }
-
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_GroupClose
-   ------------------------------------------------------------------------------------------------------------------------------------*/
+// 
+// SVG_GroupClose
+// 
 static void SVG_GroupClose()
 {
 	SVG_GroupFilledClose();
@@ -290,17 +270,14 @@ static void SVG_GroupClose()
 		SVG_fillPattern = -1;
 	}
 }
-
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_PathOpen
-   ------------------------------------------------------------------------------------------------------------------------------------*/
+// 
+// SVG_PathOpen
+// 
 static void SVG_PathOpen()
 {
 	if(!SVG_pathIsOpen) {
 		SVG_GroupFilledClose();
-
 		fputs("\t<path ", gpoutfile);
-
 		/* Line color */
 		if(SVG_LineType == LT_NODRAW)
 			fprintf(gpoutfile, "stroke='none' ");
@@ -366,28 +343,24 @@ static void SVG_SetFont(const char * name, double size)
 		SVG_fontNameCur = gp_strdup(name);
 	}
 	SVG_fontSizeCur = size;
-
-/* since we cannot interrogate SVG about text properties and according
- * to SVG 1.0 W3C Candidate Recommendation 2 August 2000 the
- * "line-height" of the 'text' element is defined to be equal to the
- * 'font-size' (!), we have to to define font properties in a less
- * than optimal way */
-
+	// since we cannot interrogate SVG about text properties and according
+	// to SVG 1.0 W3C Candidate Recommendation 2 August 2000 the
+	// "line-height" of the 'text' element is defined to be equal to the
+	// 'font-size' (!), we have to to define font properties in a less
+	// than optimal way 
 	SVG_fontAscent  = (SVG_fontSizeCur * 0.90 * SVG_SCALE);
 	SVG_fontDescent = (SVG_fontSizeCur * 0.25 * SVG_SCALE);
 	SVG_fontLeading = (SVG_fontSizeCur * 0.35 * SVG_SCALE);
 	SVG_fontAvWidth = (SVG_fontSizeCur * 0.70 * SVG_SCALE);
-
-	term->ChrH = SVG_fontAvWidth;
-	term->ChrV = (SVG_fontAscent + SVG_fontDescent + SVG_fontLeading);
+	term->ChrH = static_cast<uint>(SVG_fontAvWidth);
+	term->ChrV = static_cast<uint>((SVG_fontAscent + SVG_fontDescent + SVG_fontLeading));
 }
 
 static void SVG_GroupFilledOpen()
 {
 	if(!SVG_groupFilledIsOpen) {
 		SVG_PathClose();
-		fputs("\t<g stroke='none' shape-rendering='crispEdges'>\n",
-		    gpoutfile);
+		fputs("\t<g stroke='none' shape-rendering='crispEdges'>\n", gpoutfile);
 		SVG_groupFilledIsOpen = TRUE;
 	}
 }
@@ -419,17 +392,12 @@ static void SVG_DefineFillPattern(int fillpat)
 {
 	char * path;
 	char * style = "stroke";
-
 	fillpat %= 8;
 	if(fillpat != SVG_fillPattern) {
 		SVG_fillPattern = fillpat;
 		SVG_PathClose();
 		SVG_fillPatternIndex++;
-
-		fprintf(gpoutfile,
-		    "\t<defs>\n"
-		    "\t\t<pattern id='gpPat%d' patternUnits='userSpaceOnUse' x='0' y='0' width='8' height='8'>\n",
-		    SVG_fillPatternIndex);
+		fprintf(gpoutfile, "\t<defs>\n\t\t<pattern id='gpPat%d' patternUnits='userSpaceOnUse' x='0' y='0' width='8' height='8'>\n", SVG_fillPatternIndex);
 		switch(fillpat) {
 			default:
 			case 0:
@@ -460,16 +428,14 @@ static void SVG_DefineFillPattern(int fillpat)
 		}
 		if(*path) {
 			char * figure = "fill:none;";
-			if(!strcmp(style, "fill")) figure = "stroke:none;";
+			if(!strcmp(style, "fill")) 
+				figure = "stroke:none;";
 			if(SVG_color_mode == TC_RGB)
-				fprintf(gpoutfile, "\t\t\t<path style='%s %s:rgb(%d,%d,%d)' d='%s'/>\n",
-				    figure, style, SVG_red, SVG_green, SVG_blue, path);
+				fprintf(gpoutfile, "\t\t\t<path style='%s %s:rgb(%d,%d,%d)' d='%s'/>\n", figure, style, SVG_red, SVG_green, SVG_blue, path);
 			else if(SVG_color_mode == TC_LT)
-				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:%s' d= '%s'/>\n",
-				    figure, style, SVG_linecolor, path);
+				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:%s' d= '%s'/>\n", figure, style, SVG_linecolor, path);
 			else
-				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:currentColor' d='%s'/>\n",
-				    figure, style, path);
+				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:currentColor' d='%s'/>\n", figure, style, path);
 		}
 		fputs("\t\t</pattern>\n" "\t</defs>\n", gpoutfile);
 	}
@@ -479,25 +445,20 @@ static void SVG_MoveForced(uint x, uint y)
 {
 	if(SVG_path_count > 512)
 		SVG_PathClose();
-
 	SVG_PathOpen();
-
 	fprintf(gpoutfile, "M%.*f,%.*f", PREC, X(x), PREC, Y(y));
 	SVG_path_count++;
-
 	SVG_AddSpaceOrNewline();
-
 	SVG_xLast = x;
 	SVG_yLast = y;
 }
-
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_options
-   ------------------------------------------------------------------------------------------------------------------------------------*/
+// 
+// SVG_options
+// 
 TERM_PUBLIC void SVG_options()
 {
-	/* Annoying hack to handle the case of 'set termoption' after */
-	/* we have already initialized the terminal settings.         */
+	// Annoying hack to handle the case of 'set termoption' after 
+	// we have already initialized the terminal settings.         
 	if(!GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion"))
 		SVG_local_reset();
 	if(strcmp(term->name, "domterm") == 0) {
@@ -508,7 +469,7 @@ TERM_PUBLIC void SVG_options()
 		SVG_emit_doctype = TRUE;
 		SVG_domterm = FALSE;
 	}
-	/* Minimal initialization in case we error out of options parsing */
+	// Minimal initialization in case we error out of options parsing 
 	SVG_set_font("");
 	while(!GPO.Pgm.EndOfCommand()) {
 		if(GPO.Pgm.AlmostEqualsCur("s$ize")) {
@@ -519,8 +480,7 @@ TERM_PUBLIC void SVG_options()
 			value = GPO.RealExpression();
 			if(value < 2)
 				GPO.IntErrorCurToken("x size out of range");
-			SVG_xSize = value * SVG_SCALE;
-
+			SVG_xSize = static_cast<uint>(value * SVG_SCALE);
 			if(GPO.Pgm.EqualsCur(","))
 				GPO.Pgm.Shift();
 			if(GPO.Pgm.EndOfCommand())
@@ -528,10 +488,9 @@ TERM_PUBLIC void SVG_options()
 			value = GPO.RealExpression();
 			if(value < 2)
 				GPO.IntErrorCurToken("y size out of range");
-			SVG_ySize = value * SVG_SCALE;
+			SVG_ySize = static_cast<uint>(value * SVG_SCALE);
 			continue;
 		}
-
 		if(GPO.Pgm.EqualsCur("mouse") || GPO.Pgm.AlmostEqualsCur("mous$ing")) {
 			GPO.Pgm.Shift();
 			SVG_mouseable = TRUE;
@@ -561,13 +520,11 @@ TERM_PUBLIC void SVG_options()
 			SVG_fixed_size = FALSE;
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("fi$xed")) {
 			GPO.Pgm.Shift();
 			SVG_fixed_size = TRUE;
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("enh$anced")) {
 			GPO.Pgm.Shift();
 			term->put_text = ENHsvg_put_text;
@@ -629,7 +586,6 @@ TERM_PUBLIC void SVG_options()
 				SVG_linewidth_factor = 1.0;
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("dashl$ength") || GPO.Pgm.EqualsCur("dl")) {
 			GPO.Pgm.Shift();
 			SVG_dashlength = GPO.RealExpression();
@@ -647,97 +603,71 @@ TERM_PUBLIC void SVG_options()
 			SVG_linecap = SQUARE;
 			continue;
 		}
-
 		if(GPO.Pgm.EqualsCur("butt")) {
 			GPO.Pgm.Shift();
 			SVG_linecap = BUTT;
 			continue;
 		}
-
-		/* Not used in version 5 */
+		// Not used in version 5 
 		if(GPO.Pgm.EqualsCur("solid") || GPO.Pgm.AlmostEqualsCur("dash$ed")) {
 			GPO.Pgm.Shift();
 			continue;
 		}
-
 		if(GPO.Pgm.AlmostEqualsCur("backg$round")) {
 			GPO.Pgm.Shift();
 			SVG_background = parse_color_name();
 			continue;
 		}
-
 		if(SVG_domterm && GPO.Pgm.AlmostEqualsCur("anim$ate")) {
 			GPO.Pgm.Shift();
 			SVG_animate = TRUE;
 			continue;
 		}
-
 		GPO.IntErrorCurToken("unrecognized terminal option");
 	}
-
-	/* I don't think any error checks on font name are possible; just set it */
+	// I don't think any error checks on font name are possible; just set it 
 	SVG_set_font("");
-
-	/* Save options back into options string in normalized format */
-	sprintf(term_options, "size %d,%d%s %s font '%s,%g' ",
-	    (int)(SVG_xSize/SVG_SCALE), (int)(SVG_ySize/SVG_SCALE),
-	    SVG_fixed_size ? " fixed" : " dynamic",
-	    term->put_text == ENHsvg_put_text ? "enhanced" : "",
-	    SVG_fontNameCur, SVG_fontSizeCur);
-
+	// Save options back into options string in normalized format 
+	sprintf(term_options, "size %d,%d%s %s font '%s,%g' ", (int)(SVG_xSize/SVG_SCALE), (int)(SVG_ySize/SVG_SCALE),
+	    SVG_fixed_size ? " fixed" : " dynamic", term->put_text == ENHsvg_put_text ? "enhanced" : "", SVG_fontNameCur, SVG_fontSizeCur);
 	if(SVG_mouseable) {
-		sprintf(term_options + strlen(term_options),
-		    "mousing ");
+		sprintf(term_options + strlen(term_options), "mousing ");
 	}
-
 	if(SVG_standalone) {
-		sprintf(term_options + strlen(term_options),
-		    "standalone ");
+		sprintf(term_options + strlen(term_options), "standalone ");
 	}
-
 	if(SVG_name) {
-		sprintf(term_options + strlen(term_options),
-		    "name \"%s\" ", SVG_name);
+		sprintf(term_options + strlen(term_options), "name \"%s\" ", SVG_name);
 	}
-
-	sprintf(term_options + strlen(term_options),
-	    SVG_linecap == ROUNDED ? "rounded " : SVG_linecap == SQUARE ? "square " : "butt ");
-
-	sprintf(term_options + strlen(term_options),
-	    "dashlength %.1f ", SVG_dashlength);
-
+	sprintf(term_options + strlen(term_options), SVG_linecap == ROUNDED ? "rounded " : SVG_linecap == SQUARE ? "square " : "butt ");
+	sprintf(term_options + strlen(term_options), "dashlength %.1f ", SVG_dashlength);
 	if(SVG_linewidth_factor != 1.0) {
-		sprintf(term_options + strlen(term_options),
-		    "linewidth %3.1f ", SVG_linewidth_factor);
+		sprintf(term_options + strlen(term_options), "linewidth %3.1f ", SVG_linewidth_factor);
 	}
-
 	if(SVG_background >= 0) {
-		sprintf(term_options + strlen(term_options),
-		    "background \"#%06x\" ", SVG_background);
+		sprintf(term_options + strlen(term_options), "background \"#%06x\" ", SVG_background);
 	}
-
 	if(SVG_animate) {
-		sprintf(term_options + strlen(term_options),
-		    "animate ");
+		sprintf(term_options + strlen(term_options), "animate ");
 	}
 }
 
 static void SVG_local_reset()
 {
-	SVG_xSize      = SVG_XMAX;
-	SVG_ySize      = SVG_YMAX;
-	SVG_fixed_size = TRUE;
+	SVG_xSize = static_cast<uint>(SVG_XMAX);
+	SVG_ySize = static_cast<uint>(SVG_YMAX);
+	SVG_fixed_size = true;
 	SAlloc::F(SVG_fontNameDef);
 	SVG_fontNameDef = gp_strdup("Arial");
 	SVG_fontSizeDef  = 12;
-	SVG_mouseable = FALSE;
-	SVG_standalone = FALSE;
+	SVG_mouseable = false;
+	SVG_standalone = false;
 	ZFREE(SVG_name);
 	ZFREE(SVG_scriptdir);
-	SVG_gridline = FALSE;
-	SVG_hasgrid = FALSE;
-	SVG_animate = FALSE;
-	/* Default to enhanced text */
+	SVG_gridline = false;
+	SVG_hasgrid = false;
+	SVG_animate = false;
+	// Default to enhanced text 
 	term->put_text = ENHsvg_put_text;
 	term->flags |= TERM_ENHANCED_TEXT;
 }
@@ -745,7 +675,7 @@ static void SVG_local_reset()
 /*------------------------------------------------------------------------------------------------------------------------------------
         SVG_init
    ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_init()
+TERM_PUBLIC void SVG_init(termentry * pThis)
 {
 	/* setup pens*/
 	SVG_pens[0].width = SVG_LineWidth;
@@ -791,8 +721,8 @@ TERM_PUBLIC void SVG_init()
 
 /* set xmax, ymax*/
 
-	term->xmax = SVG_xSize;
-	term->ymax = SVG_ySize;
+	term->MaxX = SVG_xSize;
+	term->MaxY = SVG_ySize;
 
 /* set current font, including ChrH and ChrV */
 
@@ -849,12 +779,12 @@ static void SVG_write_preamble()
 
 	if(SVG_fixed_size)
 		fprintf(gpoutfile, "\n width=\"%u\" height=\"%u\"",
-		    (uint)(term->xmax / SVG_SCALE),
-		    (uint)(term->ymax / SVG_SCALE));
+		    (uint)(term->MaxX / SVG_SCALE),
+		    (uint)(term->MaxY / SVG_SCALE));
 
 	fprintf(gpoutfile, "\n viewBox=\"0 0 %u %u\"\n",
-	    (uint)(term->xmax / SVG_SCALE),
-	    (uint)(term->ymax / SVG_SCALE));
+	    (uint)(term->MaxX / SVG_SCALE),
+	    (uint)(term->MaxY / SVG_SCALE));
 	fprintf(gpoutfile, " xmlns=\"http://www.w3.org/2000/svg\"\n");
 	fprintf(gpoutfile, " xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n");
 #if (0)
@@ -931,7 +861,7 @@ static void SVG_write_preamble()
 		/* This is extra code to support tracking the mouse coordinates */
 		fprintf(gpoutfile, "\n<!-- Tie mousing to entire bounding box of the plot -->\n");
 		fprintf(gpoutfile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"",
-		    0, 0, (int)(term->xmax/SVG_SCALE), (int)(term->ymax/SVG_SCALE));
+		    0, 0, (int)(term->MaxX/SVG_SCALE), (int)(term->MaxY/SVG_SCALE));
 		fprintf(gpoutfile, " fill=\"#%06x\" stroke=\"black\" stroke-width=\"1\"\n",
 		    SVG_background >= 0 ? SVG_background : 0xffffff);
 		fprintf(gpoutfile, "onclick=\"gnuplot_svg.toggleCoordBox(evt)\"  onmousemove=\"gnuplot_svg.moveCoordBox(evt)\"/>\n");
@@ -942,7 +872,7 @@ static void SVG_write_preamble()
 	else {
 		fprintf(gpoutfile, "<g id=\"gnuplot_canvas\">\n\n");
 		fprintf(gpoutfile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"",
-		    0, 0, (int)(term->xmax/SVG_SCALE), (int)(term->ymax/SVG_SCALE));
+		    0, 0, (int)(term->MaxX/SVG_SCALE), (int)(term->MaxY/SVG_SCALE));
 		if(SVG_background >= 0)
 			fprintf(gpoutfile, " fill=\"#%06x\"", SVG_background);
 		else
@@ -1077,12 +1007,12 @@ TERM_PUBLIC void SVG_text()
 		GpAxis * this_axis;
 		fprintf(gpoutfile, "\n<script type=\"text/javascript\"><![CDATA[\n");
 		fprintf(gpoutfile, "// plot boundaries and axis scaling information for mousing \n");
-		fprintf(gpoutfile, "gnuplot_svg.plot_term_xmax = %d;\n", (int)(term->xmax / SVG_SCALE));
-		fprintf(gpoutfile, "gnuplot_svg.plot_term_ymax = %d;\n", (int)(term->ymax / SVG_SCALE));
+		fprintf(gpoutfile, "gnuplot_svg.plot_term_xmax = %d;\n", (int)(term->MaxX / SVG_SCALE));
+		fprintf(gpoutfile, "gnuplot_svg.plot_term_ymax = %d;\n", (int)(term->MaxY / SVG_SCALE));
 		fprintf(gpoutfile, "gnuplot_svg.plot_xmin = %.1f;\n", (double)GPO.V.BbPlot.xleft / SVG_SCALE);
 		fprintf(gpoutfile, "gnuplot_svg.plot_xmax = %.1f;\n", (double)GPO.V.BbPlot.xright / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_ybot = %.1f;\n", (double)(term->ymax-GPO.V.BbPlot.ybot) / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_ytop = %.1f;\n", (double)(term->ymax-GPO.V.BbPlot.ytop) / SVG_SCALE);
+		fprintf(gpoutfile, "gnuplot_svg.plot_ybot = %.1f;\n", (double)(term->MaxY-GPO.V.BbPlot.ybot) / SVG_SCALE);
+		fprintf(gpoutfile, "gnuplot_svg.plot_ytop = %.1f;\n", (double)(term->MaxY-GPO.V.BbPlot.ytop) / SVG_SCALE);
 		fprintf(gpoutfile, "gnuplot_svg.plot_width = %.1f;\n", (double)(GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / SVG_SCALE);
 		fprintf(gpoutfile, "gnuplot_svg.plot_height = %.1f;\n", (double)(GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / SVG_SCALE);
 		// Get true axis ranges as used in the plot 
@@ -1212,7 +1142,7 @@ TERM_PUBLIC void SVG_text()
 	/* If there were any grid lines in this plot, add a button to toggle them */
 	if(SVG_mouseable && SVG_hasgrid) {
 		fprintf(gpoutfile, "\n  <image x='10' y='%d' width='16' height='16' ",
-		    (int)(term->ymax/SVG_SCALE)-26);
+		    (int)(term->MaxY/SVG_SCALE)-26);
 		fprintf(gpoutfile,
 		    "\n    xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAABmJLR0QA/wD/AP+gvaeTAAAAM0lEQVQokWP8//8/AymACc5iZGQkyEDRQCwgyUn///9nhGtgZISy8TBGnTSCnMRIavIGAGPTWfVV7DcfAAAAAElFTkSuQmCC'");
 		fprintf(gpoutfile, "\n    onclick='gnuplot_svg.toggleGrid();'/>\n");
@@ -1372,16 +1302,14 @@ TERM_PUBLIC void SVG_vector(uint x, uint y)
 		SVG_yLast = y;
 	}
 }
-
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_point
-   ------------------------------------------------------------------------------------------------------------------------------------*/
+// 
+// SVG_point
+// 
 TERM_PUBLIC void SVG_point(uint x, uint y, int number)
 {
 	char color_spec[0x40];
 	if(SVG_color_mode == TC_RGB) {
-		sprintf(color_spec, " color='rgb(%3d, %3d, %3d)'",
-		    SVG_red, SVG_green, SVG_blue);
+		sprintf(color_spec, " color='rgb(%3d, %3d, %3d)'", SVG_red, SVG_green, SVG_blue);
 		if(SVG_alpha != 0.0)
 			sprintf(&color_spec[27], " opacity='%4.2f'", 1.0 - SVG_alpha);
 	}
@@ -1389,28 +1317,17 @@ TERM_PUBLIC void SVG_point(uint x, uint y, int number)
 		sprintf(color_spec, " color='%s'", SVG_linecolor);
 	else
 		*color_spec = '\0';
-
 	SVG_PathClose();
-
 	if(SVG_hypertext_text) {
-		fprintf(gpoutfile,
-		    "\
-\t<g onmousemove=\"gnuplot_svg.showHypertext(evt,'%s')\" \
-onmouseout=\"gnuplot_svg.hideHypertext()\"><title> </title>\n",
+		fprintf(gpoutfile, "\t<g onmousemove=\"gnuplot_svg.showHypertext(evt,'%s')\" onmouseout=\"gnuplot_svg.hideHypertext()\"><title> </title>\n",
 		    SVG_hypertext_text);
 	}
-
 	if(number < 0) {        /* do dot */
-		fprintf(gpoutfile, "\
-\t<use xlink:href='#gpDot' x='%.*f' y='%.*f'%s/>\n",
-		    PREC, X(x), PREC, Y(y), color_spec);
+		fprintf(gpoutfile, "\t<use xlink:href='#gpDot' x='%.*f' y='%.*f'%s/>\n", PREC, X(x), PREC, Y(y), color_spec);
 	}
 	else {                  /* draw a point symbol */
-		fprintf(gpoutfile, "\
-\t<use xlink:href='#gpPt%u' transform='translate(%.*f,%.*f) scale(%.2f)'%s/>",
-		    number % 15, PREC, X(x), PREC, Y(y),
-		    term_pointsize * term->TicH / (2 * SVG_SCALE),
-		    color_spec);
+		fprintf(gpoutfile, "\t<use xlink:href='#gpPt%u' transform='translate(%.*f,%.*f) scale(%.2f)'%s/>",
+		    number % 15, PREC, X(x), PREC, Y(y), GPO.TermPointSize * term->TicH / (2 * SVG_SCALE), color_spec);
 	}
 	SVG_xLast = x;
 	SVG_yLast = y;
@@ -1703,20 +1620,17 @@ TERM_PUBLIC void SVG_layer(t_termlayer syncpoint)
 {
 	char * name = NULL;
 	char panel[2] = {'\0', '\0'};
-
-	/* We must ignore all syncpoints that we don't recognize */
+	// We must ignore all syncpoints that we don't recognize 
 	switch(syncpoint) {
 		default:
 		    break;
-
 		case TERM_LAYER_BEFORE_PLOT:
 		    SVG_PathClose();
 		    SVG_GroupClose();
 		    ++SVG_plotno;
 		    name = (SVG_name) ? SVG_name : "gnuplot";
-		    if(multiplot && multiplot_current_panel() < 26)
-			    panel[0] = 'a' + multiplot_current_panel();
-
+		    if(multiplot && GPO.GetMultiplotCurrentPanel() < 26)
+			    panel[0] = 'a' + GPO.GetMultiplotCurrentPanel();
 		    fprintf(gpoutfile, "\t<g id=\"%s_plot_%d%s\" ", name, SVG_plotno, panel);
 		    if(SVG_hypertext_text && *SVG_hypertext_text)
 			    fprintf(gpoutfile, "><title>%s</title>\n", SVG_hypertext_text);
@@ -1744,18 +1658,13 @@ TERM_PUBLIC void SVG_layer(t_termlayer syncpoint)
 			    SVG_PathClose();
 			    SVG_GroupFilledClose();
 			    name = (SVG_name) ? SVG_name : "gnuplot";
-			    if(multiplot && multiplot_current_panel() < 26)
-				    panel[0] = 'a' + multiplot_current_panel();
-
-			    fprintf(gpoutfile, "\t<g id=\"%s_plot_%d%s_keyentry\" visibility=\"visible\" ",
-				name, SVG_plotno, panel);
-			    fprintf(gpoutfile,
-				"onclick=\"gnuplot_svg.toggleVisibility(evt,'%s_plot_%d%s')\"",
-				name, SVG_plotno, panel);
+			    if(multiplot && GPO.GetMultiplotCurrentPanel() < 26)
+				    panel[0] = 'a' + GPO.GetMultiplotCurrentPanel();
+			    fprintf(gpoutfile, "\t<g id=\"%s_plot_%d%s_keyentry\" visibility=\"visible\" ", name, SVG_plotno, panel);
+			    fprintf(gpoutfile, "onclick=\"gnuplot_svg.toggleVisibility(evt,'%s_plot_%d%s')\"", name, SVG_plotno, panel);
 			    fprintf(gpoutfile, ">\n");
 		    }
 		    break;
-
 		case TERM_LAYER_END_KEYSAMPLE:
 		    if(SVG_mouseable) {
 			    SVG_PathClose();
@@ -1763,7 +1672,6 @@ TERM_PUBLIC void SVG_layer(t_termlayer syncpoint)
 			    fprintf(gpoutfile, "\t</g>\n");
 		    }
 		    break;
-
 		case TERM_LAYER_RESET:
 		case TERM_LAYER_RESET_PLOTNO:
 		    SVG_plotno = 0;
@@ -1965,7 +1873,7 @@ TERM_PUBLIC void ENHsvg_put_text(uint x, uint y, const char * str)
 	ENHsvg_charcount = 0;
 	enhanced_fontscale = 1.0;
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-	while(*(str = enhanced_recursion((char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(term, (char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		enh_err_check(str);
 		if(!*++str)
@@ -1988,9 +1896,9 @@ TERM_PUBLIC void ENHsvg_put_text(uint x, uint y, const char * str)
 
 TERM_PUBLIC void ENHsvg_writec(int c)
 {
-	/* Kludge for phantom box accounting */
+	// Kludge for phantom box accounting 
 	ENHsvg_charcount++;
-	/* Escape SVG reserved characters. Are there any besides '<' and '&' ? */
+	// Escape SVG reserved characters. Are there any besides '<' and '&' ? 
 	switch(c) {
 		case '<':
 		    *enhanced_cur_text++ = '&';
@@ -2010,7 +1918,7 @@ TERM_PUBLIC void ENHsvg_writec(int c)
 		    *enhanced_cur_text++ = 'n';
 		    break;
 		case '\376':
-		    /* This is an illegal UTF-8 byte; we use it to escape the reserved '&' */
+		    // This is an illegal UTF-8 byte; we use it to escape the reserved '&' 
 		    if(encoding == S_ENC_DEFAULT) {
 			    *enhanced_cur_text++ = '&';
 			    break;
@@ -2019,8 +1927,7 @@ TERM_PUBLIC void ENHsvg_writec(int c)
 		    *enhanced_cur_text++ = c;
 		    break;
 	}
-
-	/* Never overflow the output buffer */
+	// Never overflow the output buffer 
 	if((enhanced_cur_text - enhanced_text) >= sizeof(enhanced_text)-1)
 		ENHsvg_FLUSH();
 }
@@ -2124,7 +2031,7 @@ TERM_TABLE_START(svg_driver)
 	SVG_init, 
 	SVG_reset, 
 	SVG_text, 
-	null_scale, 
+	GnuPlot::NullScale, 
 	SVG_graphics,
 	SVG_move, 
 	SVG_vector, 
@@ -2133,27 +2040,31 @@ TERM_TABLE_START(svg_driver)
 	SVG_text_angle,
 	SVG_justify_text, 
 	SVG_point, 
-	do_arrow, 
+	GnuPlot::DoArrow, 
 	SVG_set_font, 
-	do_pointsize,
+	GnuPlot::DoPointSize,
 	TERM_CAN_DASH | TERM_ALPHA_CHANNEL|TERM_LINEWIDTH,
-	0 /* suspend */, 
-	0 /* resume */, 
+	0, /* suspend */
+	0, /* resume */
 	SVG_fillbox, 
-	SVG_linewidth
+	SVG_linewidth,
 	#ifdef USE_MOUSE
-	, 0, 0, 0, 0, 0    /* no mouse support for svg */
+	0, 
+	0, 
+	0, 
+	0, 
+	0, /* no mouse support for svg */
 	#endif
-	, SVG_make_palette,
+	SVG_make_palette,
 	SVG_previous_palette,
 	SVG_set_color,
-	SVG_filled_polygon
+	SVG_filled_polygon,
 	#ifdef WRITE_PNG_IMAGE
-	, SVG_image
+	SVG_image,
 	#else
-	, NULL          /* image */
+	NULL, /* image */
 	#endif
-	, ENHsvg_OPEN, 
+	ENHsvg_OPEN, 
 	ENHsvg_FLUSH, 
 	ENHsvg_writec, 
 	SVG_layer,     /* layer */
@@ -2169,34 +2080,61 @@ TERM_TABLE_END(svg_driver)
 #define LAST_TERM svg_driver
 
 TERM_TABLE_START(domterm_driver)
-"domterm", "DomTerm terminal emulator with embedded SVG",
-0 /* xmax */, 0 /* ymax */, 0 /* vchar */, 0 /* hchar */,
-0 /* vtic */, 0 /* htic */,
-SVG_options, SVG_init, SVG_reset, SVG_text, null_scale, SVG_graphics,
-SVG_move, SVG_vector, SVG_linetype, SVG_put_text, SVG_text_angle,
-SVG_justify_text, SVG_point, do_arrow, SVG_set_font, do_pointsize,
-TERM_CAN_DASH | TERM_ALPHA_CHANNEL|TERM_LINEWIDTH,
-0 /* suspend */, 0 /* resume */, SVG_fillbox, SVG_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0    /* no mouse support for svg */
-#endif
-, SVG_make_palette,
-SVG_previous_palette,
-SVG_set_color,
-SVG_filled_polygon
-#ifdef WRITE_PNG_IMAGE
-, SVG_image
-#else
-, NULL          /* image */
-#endif
-, ENHsvg_OPEN, ENHsvg_FLUSH, ENHsvg_writec
-, SVG_layer     /* layer */
-, SVG_path      /* path */
-, SVG_SCALE     /* pixel oversampling scale */
-, SVG_hypertext         /* hypertext support */
-, SVG_boxed_text        /* boxed text labels */
-, NULL                  /* modify_plots */
-, SVG_dashtype          /* Version 5 dashtype support */
+	"domterm", 
+	"DomTerm terminal emulator with embedded SVG",
+	0 /* xmax */, 
+	0 /* ymax */, 
+	0 /* vchar */, 
+	0 /* hchar */,
+	0 /* vtic */, 
+	0 /* htic */,
+	SVG_options, 
+	SVG_init, 
+	SVG_reset, 
+	SVG_text, 
+	GnuPlot::NullScale, 
+	SVG_graphics,
+	SVG_move, 
+	SVG_vector, 
+	SVG_linetype, 
+	SVG_put_text, 
+	SVG_text_angle,
+	SVG_justify_text, 
+	SVG_point, 
+	GnuPlot::DoArrow, 
+	SVG_set_font, 
+	GnuPlot::DoPointSize,
+	TERM_CAN_DASH | TERM_ALPHA_CHANNEL|TERM_LINEWIDTH,
+	0, /* suspend */
+	0, /* resume */
+	SVG_fillbox, 
+	SVG_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,    /* no mouse support for svg */
+	#endif
+	SVG_make_palette,
+	SVG_previous_palette,
+	SVG_set_color,
+	SVG_filled_polygon,
+	#ifdef WRITE_PNG_IMAGE
+		SVG_image,
+	#else
+		NULL,          /* image */
+	#endif
+	ENHsvg_OPEN, 
+	ENHsvg_FLUSH, 
+	ENHsvg_writec, 
+	SVG_layer, /* layer */
+	SVG_path,  /* path */
+	SVG_SCALE, /* pixel oversampling scale */
+	SVG_hypertext, /* hypertext support */
+	SVG_boxed_text, /* boxed text labels */
+	NULL, /* modify_plots */
+	SVG_dashtype          /* Version 5 dashtype support */
 TERM_TABLE_END(domterm_driver)
 
 #undef LAST_TERM

@@ -92,7 +92,7 @@ register_term(post)
 #ifdef TERM_PROTO
 TERM_PUBLIC void PS_options();
 TERM_PUBLIC void PS_common_init(bool uses_fonts, uint xoff, uint yoff, uint bb_xmin, uint bb_ymin, uint bb_xmax, uint bb_ymax, const char ** dict);
-TERM_PUBLIC void PS_init();
+TERM_PUBLIC void PS_init(termentry * pThis);
 TERM_PUBLIC void PS_graphics();
 TERM_PUBLIC void PS_text();
 TERM_PUBLIC void PS_reset();
@@ -850,7 +850,7 @@ TERM_PUBLIC void PS_options()
 				    goto PS_options_error;
 			    set_dashlen = TRUE;
 			    GPO.Pgm.Shift();
-			    ps_params->dash_length = GPO.RealExpression();
+			    ps_params->dash_length = GPO.FloatExpression();
 			    if(ps_params->dash_length <= 0.0)
 				    ps_params->dash_length = 1.0;
 			    break;
@@ -859,7 +859,7 @@ TERM_PUBLIC void PS_options()
 				    goto PS_options_error;
 			    set_linewidth = TRUE;
 			    GPO.Pgm.Shift();
-			    ps_params->linewidth_factor = GPO.RealExpression();
+			    ps_params->linewidth_factor = GPO.FloatExpression();
 			    if(ps_params->linewidth_factor <= 0.0)
 				    ps_params->linewidth_factor = 1.0;
 			    break;
@@ -868,7 +868,7 @@ TERM_PUBLIC void PS_options()
 				    goto PS_options_error;
 			    set_pointscale = TRUE;
 			    GPO.Pgm.Shift();
-			    ps_params->pointscale_factor = GPO.RealExpression();
+			    ps_params->pointscale_factor = GPO.FloatExpression();
 			    if(ps_params->pointscale_factor <= 0.0)
 				    ps_params->pointscale_factor = 1.0;
 			    break;
@@ -928,7 +928,7 @@ TERM_PUBLIC void PS_options()
 				    goto PS_options_error;
 			    set_fontscale = TRUE;
 			    GPO.Pgm.Shift();
-			    ps_params->fontscale = GPO.Pgm.EndOfCommand() ? -1 : GPO.RealExpression();
+			    ps_params->fontscale = GPO.Pgm.EndOfCommand() ? -1.0f : GPO.FloatExpression();
 			    if(ps_params->fontscale <= 0)
 				    ps_params->fontscale = 1.0;
 			    break;
@@ -1070,10 +1070,10 @@ TERM_PUBLIC void PS_options()
 			    ps_explicit_size = TRUE;
 			    ps_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
 			    // PostScript *always* works in pts, not locally defined dpi 
-			    term->xmax = xmax_t * PS_SC * 72./gp_resolution;
-			    term->ymax = ymax_t * PS_SC * 72./gp_resolution;
-			    eps_explicit_x = 2 * term->xmax;
-			    eps_explicit_y = 2 * term->ymax;
+			    term->MaxX = xmax_t * PS_SC * 72./gp_resolution;
+			    term->MaxY = ymax_t * PS_SC * 72./gp_resolution;
+			    eps_explicit_x = 2 * term->MaxX;
+			    eps_explicit_y = 2 * term->MaxY;
 			    break;
 		    }
 			case PS_FONT:
@@ -1111,8 +1111,8 @@ TERM_PUBLIC void PS_options()
 				    if(set_fontsize)
 					    goto PS_options_error;
 				    set_fontsize = TRUE;
-				    /* We have font size specified */
-				    ps_params->fontsize = GPO.RealExpression();
+				    // We have font size specified 
+				    ps_params->fontsize = GPO.FloatExpression();
 				    if(ps_params->fontsize <= 0)
 					    ps_params->fontsize = 14;
 			    }
@@ -1237,10 +1237,10 @@ TERM_PUBLIC void PS_options()
 	if(ps_explicit_size) {
 		if(ps_explicit_units == CM)
 			sprintf(tmp_term_options, "size %.2fcm, %.2fcm ",
-			    2.54*(float)term->xmax/(72.*PS_SC), 2.54*(float)term->ymax/(72.*PS_SC));
+			    2.54*(float)term->MaxX/(72.*PS_SC), 2.54*(float)term->MaxY/(72.*PS_SC));
 		else
 			sprintf(tmp_term_options, "size %.2fin, %.2fin ",
-			    (float)term->xmax/(72.*PS_SC), (float)term->ymax/(72.*PS_SC));
+			    (float)term->MaxX/(72.*PS_SC), (float)term->MaxY/(72.*PS_SC));
 		strcat(term_options, tmp_term_options);
 	}
 
@@ -1586,18 +1586,10 @@ end\n\
 
 	if(outstr)
 		fprintf(gppsfile, "%%%%Title: %s\n", outstr); /*  JFi  */
-	fprintf(gppsfile, psi1, gnuplot_version, gnuplot_patchlevel,
-	    timedate, uses_fonts ? "(atend)" : "");
-
-	fprintf(gppsfile, "%%%%BoundingBox: %d %d %d %d\n",
-	    xoff + bb_xmin, yoff + bb_ymin, xoff + bb_xmax, yoff + bb_ymax);
-
-	if((ps_params->terminal == PSTERM_POSTSCRIPT) &&
-	    (ps_params->psformat != PSTERM_EPS))
-		fprintf(gppsfile, "%%%%Orientation: %s\n",
-		    ps_params->psformat == PSTERM_LANDSCAPE ?
-		    "Landscape" : "Portrait");
-
+	fprintf(gppsfile, psi1, gnuplot_version, gnuplot_patchlevel, timedate, uses_fonts ? "(atend)" : "");
+	fprintf(gppsfile, "%%%%BoundingBox: %d %d %d %d\n", xoff + bb_xmin, yoff + bb_ymin, xoff + bb_xmax, yoff + bb_ymax);
+	if((ps_params->terminal == PSTERM_POSTSCRIPT) && (ps_params->psformat != PSTERM_EPS))
+		fprintf(gppsfile, "%%%%Orientation: %s\n", ps_params->psformat == PSTERM_LANDSCAPE ? "Landscape" : "Portrait");
 	if(ps_params->psformat != PSTERM_EPS)
 		fputs("%%Pages: (atend)\n", gppsfile);
 	fprintf(gppsfile, psi2,
@@ -1710,64 +1702,60 @@ end\n\
 	/* HH: print pdf information interpreted by ghostscript/acrobat */
 	{
 		char * outstr2 = PS_escape_string(outstr, "()\\");
-		fprintf(gppsfile, psi3,
-		    outstr2 ? outstr2 : "",
-		    gnuplot_version, gnuplot_patchlevel,
-		    timedate);
+		fprintf(gppsfile, psi3, outstr2 ? outstr2 : "", gnuplot_version, gnuplot_patchlevel, timedate);
 		if(outstr2)
 			SAlloc::F(outstr2);
 	}
-
 	/* Define macros supporting boxed text */
 	fprintf(gppsfile, psi4);
-
 	fputs("end\n", gppsfile);
 	fputs("%%EndProlog\n", gppsfile);
 }
-
-/* the init fn for the postscript driver */
-TERM_PUBLIC void PS_init()
+//
+// the init fn for the postscript driver 
+//
+TERM_PUBLIC void PS_init(termentry * pThis)
 {
 	uint xmin_t = 0, ymin_t = 0, xmax_t = 0, ymax_t = 0;
 	switch(ps_params->psformat) {
 		case PSTERM_EPS:
 		    if(ps_explicit_size) {
-			    term->xmax = eps_explicit_x;
-			    term->ymax = eps_explicit_y;
+			    term->MaxX = eps_explicit_x;
+			    term->MaxY = eps_explicit_y;
 		    }
 		    else {
-			    term->xmax = PS_XMAX;
+			    term->MaxX = PS_XMAX;
 			    if(ps_params->oldstyle)
-				    term->ymax = PS_YMAX_OLDSTYLE;
+				    term->MaxY = PS_YMAX_OLDSTYLE;
 			    else
-				    term->ymax = PS_YMAX;
+				    term->MaxY = PS_YMAX;
 		    }
-		    xmin_t = term->xmax * GPO.V.XOffset / (2*PS_SC);
-		    xmax_t = term->xmax * (GPO.V.XSize + GPO.V.XOffset) / (2*PS_SC);
-		    ymin_t = term->ymax * GPO.V.YOffset / (2*PS_SC);
-		    ymax_t = term->ymax * (GPO.V.YSize + GPO.V.YOffset) / (2*PS_SC);
+		    xmin_t = term->MaxX * GPO.V.XOffset / (2*PS_SC);
+		    xmax_t = term->MaxX * (GPO.V.XSize + GPO.V.XOffset) / (2*PS_SC);
+		    ymin_t = term->MaxY * GPO.V.YOffset / (2*PS_SC);
+		    ymax_t = term->MaxY * (GPO.V.YSize + GPO.V.YOffset) / (2*PS_SC);
 		    term->tscale = PS_SC * 2;
 		    break;
 		case PSTERM_PORTRAIT:
 		    if(!ps_explicit_size) {
-			    term->xmax = PS_YMAX;
-			    term->ymax = PS_XMAX;
+			    term->MaxX = PS_YMAX;
+			    term->MaxY = PS_XMAX;
 		    }
-		    xmin_t = term->xmax * GPO.V.XOffset / PS_SC;
-		    xmax_t = term->xmax * (GPO.V.XSize + GPO.V.XOffset) / PS_SC;
-		    ymin_t = term->ymax * GPO.V.YOffset / PS_SC;
-		    ymax_t = term->ymax * (GPO.V.YSize + GPO.V.YOffset) / PS_SC;
+		    xmin_t = term->MaxX * GPO.V.XOffset / PS_SC;
+		    xmax_t = term->MaxX * (GPO.V.XSize + GPO.V.XOffset) / PS_SC;
+		    ymin_t = term->MaxY * GPO.V.YOffset / PS_SC;
+		    ymax_t = term->MaxY * (GPO.V.YSize + GPO.V.YOffset) / PS_SC;
 		    term->tscale = PS_SC;
 		    break;
 		case PSTERM_LANDSCAPE:
 		    if(!ps_explicit_size) {
-			    term->xmax = PS_XMAX;
-			    term->ymax = PS_YMAX;
+			    term->MaxX = PS_XMAX;
+			    term->MaxY = PS_YMAX;
 		    }
-		    ymin_t = term->xmax * GPO.V.XOffset / PS_SC;
-		    ymax_t = term->xmax * (GPO.V.XSize+GPO.V.XOffset) / PS_SC;
-		    xmin_t = term->ymax * (1-GPO.V.YSize-GPO.V.YOffset) / PS_SC;
-		    xmax_t = term->ymax * (1-GPO.V.YOffset) / PS_SC;
+		    ymin_t = term->MaxX * GPO.V.XOffset / PS_SC;
+		    ymax_t = term->MaxX * (GPO.V.XSize+GPO.V.XOffset) / PS_SC;
+		    xmin_t = term->MaxY * (1-GPO.V.YSize-GPO.V.YOffset) / PS_SC;
+		    xmax_t = term->MaxY * (1-GPO.V.YOffset) / PS_SC;
 		    term->tscale = PS_SC;
 		    break;
 		default:
@@ -1829,7 +1817,7 @@ doclip\n\
 	    (ps_params->psformat == PSTERM_EPS ? 0.5 : 1.0)/PS_SC,
 	    (ps_params->psformat == PSTERM_EPS ? 0.5 : 1.0)/PS_SC);
 	if(ps_params->psformat == PSTERM_LANDSCAPE)
-		fprintf(gppsfile, "90 rotate\n0 %d translate\n", -(int)(term->ymax));
+		fprintf(gppsfile, "90 rotate\n0 %d translate\n", -(int)(term->MaxY));
 	fprintf(gppsfile, "0 setgray\nnewpath\n");
 	if(ps_common_uses_fonts)
 		fprintf(gppsfile, "(%s) findfont %d scalefont setfont\n",
@@ -1847,7 +1835,7 @@ doclip\n\
 		fputs("BackgroundColor 0 lt 3 1 roll 0 lt exch 0 lt or or not {", gppsfile);
 		if(ps_params->psformat == PSTERM_EPS) {
 			/* for eps files set the color only for the graphics area */
-			fprintf(gppsfile, "BackgroundColor C 1.000 0 0 %.2f %.2f BoxColFill", term->xmax * GPO.V.XSize, term->ymax * GPO.V.YSize);
+			fprintf(gppsfile, "BackgroundColor C 1.000 0 0 %.2f %.2f BoxColFill", term->MaxX * GPO.V.XSize, term->MaxY * GPO.V.YSize);
 		}
 		else {
 			/* otherwise set the page background color, the code is taken from the
@@ -2477,15 +2465,12 @@ static char * ENHps_opensequence = NULL;
 /*
  * open a postscript string
  */
-TERM_PUBLIC void ENHPS_OPEN(char * fontname,
-    double fontsize, double base,
-    bool widthflag, bool showflag,
-    int overprint)
+TERM_PUBLIC void ENHPS_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
-	/* overprint 3 means save current position; 4 means restore saved position */
-	/* EAM FIXME - I couldn't figure out how to use less than the 7 parameters */
-	/* that the normal case macro wants. Somebody more familiar with PostScript*/
-	/* than I am please clean it up!                                           */
+	// overprint 3 means save current position; 4 means restore saved position
+	// EAM FIXME - I couldn't figure out how to use less than the 7 parameters
+	// that the normal case macro wants. Somebody more familiar with PostScript
+	// than I am please clean it up!
 	if(overprint == 3) {
 		fputs("XYsave\n", gppsfile);
 		return;
@@ -2494,26 +2479,21 @@ TERM_PUBLIC void ENHPS_OPEN(char * fontname,
 		fputs("XYrestore\n", gppsfile);
 		return;
 	}
-
 	if(!ENHps_opened_string) {
 		int safelen = strlen(fontname) + 40;
 		bool show_this = showflag && (PS_in_textbox >= 0);
 		SAlloc::F(ENHps_opensequence);
 		ENHps_opensequence = (char *)gp_alloc(safelen, "ENHPS_opensequence");
-		if(!fontname || !*fontname)
+		if(isempty(fontname))
 			fontname = ps_enh_font;
 		else
 			PS_RememberFont(fontname);
-		snprintf(ENHps_opensequence, safelen, "[(%s) %.1f %.1f %s %s %d ",
-		    fontname, fontsize, base,
-		    widthflag ? "true" : "false",
-		    show_this ? "true" : "false",
-		    overprint);
+		snprintf(ENHps_opensequence, safelen, "[(%s) %.1f %.1f %s %s %d ", fontname, fontsize, base, widthflag ? "true" : "false",
+		    show_this ? "true" : "false", overprint);
 		fprintf(gppsfile, "%s(", ENHps_opensequence);
 		ENHps_opened_string = TRUE;
 	}
 }
-
 /*
  * Write one character from inside enhanced text processing.
  * This is trivial except in the case of multi-byte encoding.
@@ -2523,14 +2503,10 @@ TERM_PUBLIC void ENHPS_WRITEC(int c)
 	static int in_utf8 = 0; /* nonzero means we are inside a multibyte sequence */
 	static char utf8[6]; /* holds the multibyte sequence being accumulated   */
 	static int nbytes = 0; /* number of bytes expected in the sequence */
-
-	/* UTF-8 Encoding */
+	// UTF-8 Encoding 
 	if(encoding == S_ENC_UTF8 && (c & 0x80) != 0) {
 		if(in_utf8 == 0) {
-			nbytes = (c & 0xE0) == 0xC0 ? 2
-			    : (c & 0xF0) == 0xE0 ? 3
-			    : (c & 0xF8) == 0xF0 ? 4
-			    : 0;
+			nbytes = (c & 0xE0) == 0xC0 ? 2 : (c & 0xF0) == 0xE0 ? 3 : (c & 0xF8) == 0xF0 ? 4 : 0;
 			if(!nbytes) /* Illegal UTF8 char; hope it's printable  */
 				fputc(c, gppsfile);
 			else
@@ -2545,16 +2521,13 @@ TERM_PUBLIC void ENHPS_WRITEC(int c)
 				utf8[nbytes] = '\0';
 				in_utf8 = 0;
 				utf8toulong(&wch, &str);
-
 				if(wch < 0x100) { /* Single byte ISO8859-1 character */
 					fputc(wch, gppsfile);
 					return;
 				}
-
-				/* Finish off previous partial string, if any */
+				// Finish off previous partial string, if any 
 				ENHPS_FLUSH();
-
-				/* Write a new partial string for this glyph */
+				// Write a new partial string for this glyph 
 				fprintf(gppsfile, "%s/", ENHps_opensequence);
 #if (ADOBE_ENCODING_NAMES)
 				for(i = 0; i < psglyphs; i++) {
@@ -2572,17 +2545,14 @@ TERM_PUBLIC void ENHPS_WRITEC(int c)
 						fprintf(gppsfile, (wch > 0xffff) ? "u%lX" : "uni%04lX", wch);
 				}
 				fprintf(gppsfile, "]\n");
-
-				/* Mark string closed */
+				// Mark string closed 
 				ENHps_opened_string = FALSE;
 			}
 		}
-
 		/* shige jan 2011 */
 	}
 	else if(encoding == S_ENC_SJIS) {
 		static bool in_sjis = FALSE;
-
 		fputc(c, gppsfile);
 		if(in_sjis || (c & 0x80)) {
 			/* shige: This may remain original string instead octal bytes. */
@@ -2597,16 +2567,13 @@ TERM_PUBLIC void ENHPS_WRITEC(int c)
 		}
 	}
 	else
-
-		/* Single byte character */
-		fputc(c, gppsfile);
+		fputc(c, gppsfile); // Single byte character 
 }
-
-/* In enhanced text mode the font name_size are stored for
- * use in the recursive text processing rather than being written
- * to the output stream immediately.
- */
-
+// 
+// In enhanced text mode the font name_size are stored for
+// use in the recursive text processing rather than being written
+// to the output stream immediately.
+// 
 TERM_PUBLIC int ENHPS_set_font(const char * font)
 {
 	return PS_common_set_font(font, ENHPS_set_font);
@@ -2618,14 +2585,10 @@ TERM_PUBLIC void ENHPS_put_text(uint x, uint y, const char * str)
 		PS_put_text(x, y, str);
 		return;
 	}
-
 	/* flush any pending graphics (all the XShow routines do this...) */
-
 	if(!strlen(str))
 		return;
-
 	PS_FLUSH_PATH;
-
 	if(PS_in_textbox > 0) {
 		int save_ang = ps_ang;
 		PS_in_textbox = -1;
@@ -2655,14 +2618,11 @@ TERM_PUBLIC void ENHPS_put_text(uint x, uint y, const char * str)
 
 	if(PS_in_textbox >= 0)
 		PS_move(x, y);
-
 	if(ps_ang != 0)
 		fprintf(gppsfile, "currentpoint gsave translate %d rotate 0 0 moveto\n", ps_ang);
 	else if(PS_in_textbox > 0)
 		fprintf(gppsfile, "gsave currentpoint translate\n");
-
 	fputs("[ ", gppsfile);
-
 	/* set up the global variables needed by enhanced_recursion() */
 	enhanced_max_height = -1000;
 	enhanced_min_height = 1000;
@@ -2683,7 +2643,7 @@ TERM_PUBLIC void ENHPS_put_text(uint x, uint y, const char * str)
 	 * "font,size". That is to say, ps_params->font is used only
 	 * at startup and by ENHPS_set_font
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE, ps_enh_font, (double)(ps_enh_fontsize*PS_SCF), 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(term, (char*)str, TRUE, ps_enh_font, (double)(ps_enh_fontsize*PS_SCF), 0.0, TRUE, TRUE, 0))) {
 		ENHPS_FLUSH();
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
@@ -3073,7 +3033,7 @@ TERM_PUBLIC void PS_filled_polygon(int points, gpiPoint * corners)
 		switch(style) {
 			case FS_SOLID:
 			case FS_TRANSPARENT_SOLID:
-			    filldens = (fillpar) / 100.0;
+			    filldens = fillpar / 100.0f;
 			    if(filldens < 0.0)
 				    filldens = 0.0;
 			    if(filldens >= 1.0)
@@ -4115,13 +4075,33 @@ static char * fontpath_fullname(const char * name, const char * dir)
 TERM_TABLE_START(post_driver)
 "postscript",
 "PostScript graphics, including EPSF embedded files (*.eps)",
-PS_XMAX, PS_YMAX, PS_VCHAR, PS_HCHAR,
-PS_VTIC, PS_HTIC, PS_options, PS_init, PS_reset,
-PS_text, null_scale, PS_graphics, PS_move, PS_vector,
-PS_linetype, PS_put_text, PS_text_angle,
-PS_justify_text, PS_point, do_arrow, PS_set_font, PS_pointsize,
+PS_XMAX, 
+PS_YMAX, 
+PS_VCHAR, 
+PS_HCHAR,
+PS_VTIC, 
+PS_HTIC, 
+PS_options, 
+PS_init, 
+PS_reset,
+PS_text, 
+GnuPlot::NullScale, 
+PS_graphics, 
+PS_move, 
+PS_vector,
+PS_linetype, 
+PS_put_text, 
+PS_text_angle,
+PS_justify_text, 
+PS_point, 
+GnuPlot::DoArrow, 
+PS_set_font, 
+PS_pointsize,
 TERM_BINARY|TERM_IS_POSTSCRIPT|TERM_CAN_CLIP|TERM_CAN_DASH|TERM_MONOCHROME|TERM_LINEWIDTH|TERM_FONTSCALE|TERM_POINTSCALE,
-0 /*suspend*/, 0 /*resume*/, PS_fillbox, PS_linewidth
+0 /*suspend*/, 
+0 /*resume*/, 
+PS_fillbox, 
+PS_linewidth
 #ifdef USE_MOUSE
 , 0, 0, 0, 0, 0     /* no mouse support for postscript */
 #endif

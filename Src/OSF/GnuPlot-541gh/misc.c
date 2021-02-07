@@ -31,7 +31,7 @@ void GnuPlot::PrepareCall(int calltype)
 	// Later we will fill ARGV[] from one or the other.
 	GpValue argval[9];
 	for(argindex = 0; argindex < 9; argindex++)
-		argval[argindex].type = NOTDEFINED;
+		argval[argindex].SetNotDefined();
 	if(calltype == 2) {
 		call_argc = 0;
 		while(!Pgm.EndOfCommand() && call_argc < 9) {
@@ -40,7 +40,7 @@ void GnuPlot::PrepareCall(int calltype)
 				int save_token = Pgm.GetCurTokenIdx();
 				// This catches call "file" STRINGVAR (expression) 
 				if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == STRING) {
-					call_args[call_argc] = gp_strdup(add_udv(Pgm.GetCurTokenIdx())->udv_value.v.string_val);
+					call_args[call_argc] = gp_strdup(AddUdv(Pgm.GetCurTokenIdx())->udv_value.v.string_val);
 					Pgm.Shift();
 					// Evaluate a parenthesized expression or a bare numeric user variable and store the result in a string
 				}
@@ -109,7 +109,7 @@ void GnuPlot::PrepareCall(int calltype)
 	udv->udv_value.type = ARRAY;
 	ARGV = udv->udv_value.v.value_array = (GpValue *)gp_alloc((argv_size + 1) * sizeof(GpValue), "array state");
 	ARGV[0].v.int_val = argv_size;
-	ARGV[0].type = NOTDEFINED;
+	ARGV[0].SetNotDefined();
 	for(argindex = 1; argindex <= 9; argindex++) {
 		char * argstring = call_args[argindex-1];
 		udv = Ev.AddUdvByName(argname[argindex]);
@@ -153,7 +153,7 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 	if(fp == stdin) {
 		// DBT 10-6-98  go interactive if "-" named as load file 
 		interactive = TRUE;
-		while(!com_line())
+		while(!GPO.ComLine())
 			;
 		LfPop();
 		return;
@@ -308,7 +308,7 @@ bool GpProgram::LfPop()
 				if((udv = GPO.Ev.GetUdvByName(argname[argindex]))) {
 					gpfree_string(&(udv->udv_value));
 					if(!call_args[argindex-1])
-						udv->udv_value.type = NOTDEFINED;
+						udv->udv_value.SetNotDefined();
 					else
 						Gstring(&(udv->udv_value), gp_strdup(call_args[argindex-1]));
 				}
@@ -379,7 +379,7 @@ void GpProgram::LfPush(FILE * fp, char * pName, char * pCmdLine)
 		}
 		// Save ARGV[] 
 		lf->argv[0].v.int_val = 0;
-		lf->argv[0].type = NOTDEFINED;
+		lf->argv[0].SetNotDefined();
 		if((udv = GPO.Ev.GetUdvByName("ARGV")) && udv->udv_value.type == ARRAY) {
 			for(argindex = 0; argindex <= call_argc; argindex++) {
 				lf->argv[argindex] = udv->udv_value.v.value_array[argindex];
@@ -632,10 +632,10 @@ int GnuPlot::ParseDashType(t_dashtype * pDashTyp)
 			if(j >= DASHPATTERN_LENGTH) {
 				IntErrorCurToken("too many pattern elements");
 			}
-			pDashTyp->pattern[j++] = RealExpression(); // The solid portion 
+			pDashTyp->pattern[j++] = FloatExpression(); // The solid portion 
 			if(!Pgm.EqualsCurShift(","))
 				IntErrorCurToken("expecting comma");
-			pDashTyp->pattern[j++] = RealExpression(); // The empty portion 
+			pDashTyp->pattern[j++] = FloatExpression(); // The empty portion 
 			if(Pgm.EqualsCur(")"))
 				break;
 			if(!Pgm.EqualsCurShift(","))
@@ -807,7 +807,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				/* The next word could be any of {z|cb|frac|<colormap-name>}.
 				 * Check first for a colormap name.
 				 */
-				udvt_entry * colormap = get_colormap(Pgm.GetCurTokenIdx()+1);
+				udvt_entry * colormap = GetColorMap(Pgm.GetCurTokenIdx()+1);
 				if(colormap) {
 					newlp.pm3d_color.type = TC_COLORMAP;
 					newlp.P_Colormap = colormap;
@@ -1427,53 +1427,56 @@ void GnuPlot::ArrowParse(arrow_style_type * arrow, bool allow_as)
 		IntErrorCurToken("duplicated arguments in style specification");
 }
 
-void get_image_options(t_image * image)
+//void get_image_options(t_image * image)
+void GnuPlot::GetImageOptions(t_image * image)
 {
-	if(GPO.Pgm.AlmostEqualsCur("pix$els") || GPO.Pgm.EqualsCur("failsafe")) {
-		GPO.Pgm.Shift();
+	if(Pgm.AlmostEqualsCur("pix$els") || Pgm.EqualsCur("failsafe")) {
+		Pgm.Shift();
 		image->fallback = TRUE;
 	}
 }
-/*
- * Try to interpret the next token in a command line as the name of a colormap.
- * If it seems to belong to a valid colormap, return a pointer.
- * Otherwise return NULL.  The caller is responsible for reporting an error.
- */
-struct udvt_entry * get_colormap(int token)                    
+// 
+// Try to interpret the next token in a command line as the name of a colormap.
+// If it seems to belong to a valid colormap, return a pointer.
+// Otherwise return NULL.  The caller is responsible for reporting an error.
+// 
+//udvt_entry * get_colormap(int token)
+udvt_entry * GnuPlot::GetColorMap(int token)
 {
 	udvt_entry * colormap = NULL;
-	if(GPO.Pgm.TypeUdv(token) == ARRAY) {
-		udvt_entry * udv = add_udv(token);
+	if(Pgm.TypeUdv(token) == ARRAY) {
+		udvt_entry * udv = AddUdv(token);
 		if((udv->udv_value.v.value_array[0].type == COLORMAP_ARRAY) && (udv->udv_value.v.value_array[0].v.int_val >= 2))
 			colormap = udv;
 	}
 	return colormap;
 }
-/*
- * Create a pixmap containing an existing colormap palette.
- * This can be used to produce a colorbox for a named palette
- * separate from the automatic colorbox generated for the main palette.
- */
-void pixmap_from_colormap(t_pixmap * pixmap)
+// 
+// Create a pixmap containing an existing colormap palette.
+// This can be used to produce a colorbox for a named palette
+// separate from the automatic colorbox generated for the main palette.
+// 
+//void pixmap_from_colormap(t_pixmap * pixmap)
+void GnuPlot::PixMapFromColorMap(t_pixmap * pPixmap)
 {
-	udvt_entry * colormap = get_colormap(GPO.Pgm.GetCurTokenIdx());
+	udvt_entry * colormap = GetColorMap(Pgm.GetCurTokenIdx());
 	uint rgb;
 	int size, i, ip;
 	if(!colormap)
-		GPO.IntErrorCurToken("not a colormap");
-	GPO.Pgm.Shift();
-	SAlloc::F(pixmap->colormapname);
-	pixmap->colormapname = gp_strdup(colormap->udv_name);
+		IntErrorCurToken("not a colormap");
+	Pgm.Shift();
+	SAlloc::F(pPixmap->colormapname);
+	pPixmap->colormapname = gp_strdup(colormap->udv_name);
 	size = colormap->udv_value.v.value_array[0].v.int_val;
-	pixmap->image_data = (coordval *)gp_realloc(pixmap->image_data, size * 4. * sizeof(coordval), "pixmap");
-	/* Unpack ARGB colormap entry into 4 separate values R G B A */
+	pPixmap->image_data = (coordval *)gp_realloc(pPixmap->image_data, size * 4. * sizeof(coordval), "pixmap");
+	// Unpack ARGB colormap entry into 4 separate values R G B A 
 	for(i = 1, ip = 0; i <= size; i++) {
 		rgb = colormap->udv_value.v.value_array[i].v.int_val;
-		pixmap->image_data[ip++] = ((rgb >> 16) & 0xff) / 255.;
-		pixmap->image_data[ip++] = ((rgb >> 8) & 0xff) / 255.;
-		pixmap->image_data[ip++] = ((rgb) & 0xff) / 255.;
-		pixmap->image_data[ip++] = 255-((rgb >> 24) & 0xff);
+		pPixmap->image_data[ip++] = ((rgb >> 16) & 0xff) / 255.;
+		pPixmap->image_data[ip++] = ((rgb >> 8) & 0xff) / 255.;
+		pPixmap->image_data[ip++] = ((rgb) & 0xff) / 255.;
+		pPixmap->image_data[ip++] = 255-((rgb >> 24) & 0xff);
 	}
-	pixmap->ncols = 1;
-	pixmap->nrows = size;
+	pPixmap->ncols = 1;
+	pPixmap->nrows = size;
 }

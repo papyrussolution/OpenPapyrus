@@ -64,7 +64,7 @@ register_term(dospc)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void PC_options();
-TERM_PUBLIC void PC_init();
+TERM_PUBLIC void PC_init(termentry * pThis);
 TERM_PUBLIC void PC_graphics();
 TERM_PUBLIC void PC_text();
 TERM_PUBLIC void PC_reset();
@@ -75,8 +75,7 @@ TERM_PUBLIC void PC_move(uint x, uint y);
 TERM_PUBLIC void PC_vector(uint x, uint y);
 TERM_PUBLIC void PC_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC void PC_enhanced_put_text(uint x, uint y, const char str[]);
-TERM_PUBLIC void PC_enhanced_open(char * fontname, double fontsize,
-    double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void PC_enhanced_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void PC_enhanced_flush();
 TERM_PUBLIC int PC_text_angle(int ang);
 TERM_PUBLIC int PC_set_font(const char * font);
@@ -385,7 +384,7 @@ static void PC_setup()
 	}
 }
 
-TERM_PUBLIC void PC_init()
+TERM_PUBLIC void PC_init(termentry * pThis)
 {
 	struct _fontinfo fi;
 	if(!pc_graphics)
@@ -396,8 +395,8 @@ TERM_PUBLIC void PC_init()
 		return;
 	}
 	// init terminal: fixed size... 
-	term->xmax = pc_lastx + 1;
-	term->ymax = pc_lasty + 1;
+	term->MaxX = pc_lastx + 1;
+	term->MaxY = pc_lasty + 1;
 }
 
 TERM_PUBLIC void PC_graphics()
@@ -1104,7 +1103,7 @@ TERM_PUBLIC int PC_set_font(const char * font)
 
 TERM_PUBLIC void PC_pointsize(double size)
 {
-	term_pointsize = pc_pointscale * (size >= 0 ? size : 1);
+	GPO.TermPointSize = pc_pointscale * (size >= 0 ? size : 1);
 }
 
 static GP_INLINE int PC_color_dist(int r1, int g1, int b1, int r2, int g2, int b2)
@@ -1433,32 +1432,58 @@ TERM_PUBLIC void PC_dashtype(int type, t_dashtype * custom_dash_pattern)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(dospc_driver)
-"dospc", "IBM PC/Clone running DOS",
-PC_XMAX, PC_YMAX, PC_VCHAR, PC_HCHAR,
-PC_VTIC, PC_HTIC, PC_options, PC_init, PC_reset,
-PC_text, null_scale, PC_graphics, PC_move, PC_vector,
-PC_linetype, PC_enhanced_put_text, PC_text_angle,
-PC_justify_text, do_point, do_arrow, PC_set_font,
-PC_pointsize,
-TERM_NO_OUTPUTFILE | TERM_CAN_MULTIPLOT | TERM_CAN_DASH | TERM_ENHANCED_TEXT |
-TERM_LINEWIDTH | TERM_FONTSCALE | TERM_POINTSCALE,
-PC_suspend, PC_resume,
-PC_fillbox,
-PC_linewidth,     /* linewidth */
-#ifdef USE_MOUSE
-NULL, NULL, NULL, NULL, NULL,
-#endif
-PC_make_palette, NULL,     /* palette */
-PC_set_color,
-PC_filled_polygon,
-NULL,     /* image */
-PC_enhanced_open, PC_enhanced_flush, do_enh_writec,
-NULL, NULL,     /* layer , path */
-0,
-NULL,
-PC_boxed_text,
-NULL,
-PC_dashtype TERM_TABLE_END(dospc_driver)
+	"dospc", 
+	"IBM PC/Clone running DOS",
+	PC_XMAX, 
+	PC_YMAX, 
+	PC_VCHAR, 
+	PC_HCHAR,
+	PC_VTIC, 
+	PC_HTIC, 
+	PC_options, 
+	PC_init, 
+	PC_reset,
+	PC_text, 
+	GnuPlot::NullScale, 
+	PC_graphics, 
+	PC_move, 
+	PC_vector,
+	PC_linetype, 
+	PC_enhanced_put_text, 
+	PC_text_angle,
+	PC_justify_text, 
+	do_point, 
+	GnuPlot::DoArrow, 
+	PC_set_font,
+	PC_pointsize,
+	TERM_NO_OUTPUTFILE | TERM_CAN_MULTIPLOT | TERM_CAN_DASH | TERM_ENHANCED_TEXT |TERM_LINEWIDTH | TERM_FONTSCALE | TERM_POINTSCALE,
+	PC_suspend, 
+	PC_resume,
+	PC_fillbox,
+	PC_linewidth,     /* linewidth */
+	#ifdef USE_MOUSE
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL,
+	#endif
+	PC_make_palette, 
+	NULL,     /* palette */
+	PC_set_color,
+	PC_filled_polygon,
+	NULL,     /* image */
+	PC_enhanced_open, 
+	PC_enhanced_flush, 
+	do_enh_writec,
+	NULL, 
+	NULL,     /* layer , path */
+	0,
+	NULL,
+	PC_boxed_text,
+	NULL,
+	PC_dashtype 
+TERM_TABLE_END(dospc_driver)
 
 #undef LAST_TERM
 #define LAST_TERM dospc_driver

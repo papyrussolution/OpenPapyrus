@@ -139,6 +139,16 @@ int SMathResult::SetUnderflow()
 // }
 //
 static double _fdiv(double x, double y) { return x / y; }
+/* один из вариантов реализации NAN (GNUPLOT)
+double not_a_number_()
+{
+#if defined (_MSC_VER) || defined (DJGPP) || defined(__DJGPP__) || defined(__MINGW32__)
+	ulong lnan[2] = {0xffffffff, 0x7fffffff};
+	return *(double*)lnan;
+#else
+	return atof("NaN");
+#endif
+} */
 double fgetnan()    { return _fdiv(0.0, 0.0); }
 float  fgetnanf()   { return ((float)(INFINITY * 0.0f)); }
 double fgetposinf() { return _fdiv(+1.0, 0.0); }

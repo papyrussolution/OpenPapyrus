@@ -1812,8 +1812,7 @@ TToolTip::TToolTip(HWND hParent, uint maxWidthPix) : H(0), MaxWidthPix(maxWidthP
 
 TToolTip::~TToolTip()
 {
-	if(H)
-		::DestroyWindow(H);
+	::DestroyWindow(H);
 }
 
 int TToolTip::Create(HWND hParent)

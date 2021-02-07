@@ -68,7 +68,7 @@ register_term(x11)
 int X11_args(int argc, char * argv[]);
 
 TERM_PUBLIC void X11_options();
-TERM_PUBLIC void X11_init();
+TERM_PUBLIC void X11_init(termentry * pThis);
 TERM_PUBLIC void X11_graphics();
 TERM_PUBLIC void X11_text();
 TERM_PUBLIC int  X11_set_font(const char * fontname);
@@ -868,10 +868,8 @@ TERM_PUBLIC int X11_waitforinput(int options)
 	struct timeval one_msec;
 	int n;
 
-	bool blocking_loop_reading_ipc_back_fd =
-	    paused_for_mouse || (options & TERM_WAIT_FOR_FONTPROPS);
+	bool blocking_loop_reading_ipc_back_fd = paused_for_mouse || (options & TERM_WAIT_FOR_FONTPROPS);
 	bool have_any_ipc_back_fd_data = false;
-
 	if(ipc_back_fd < 0) {
 		if(paused_for_mouse) {
 			// We're waiting for a command from the back-channel IPC, but this pipe
@@ -913,13 +911,11 @@ TERM_PUBLIC int X11_waitforinput(int options)
 		}
 		else if(!blocking_loop_reading_ipc_back_fd)
 			FD_SET(fileno(stdin), &fds);
-
 		ierr = select(ipc_back_fd + 1, SELECT_TYPE_ARG234 &fds, 0, 0, timeout);
 		if(ierr < 0 && errno == EINTR) {
 			wrap_readline_signal_handler();
 			continue;
 		}
-
 		if(!FD_ISSET(ipc_back_fd, &fds)) {
 			// no ipc_back_fd data available. I can move on
 			if(options & TERM_ONLY_CHECK_MOUSING)
@@ -933,18 +929,15 @@ TERM_PUBLIC int X11_waitforinput(int options)
 
 			break;
 		}
-
-		// got some ipc_back_fd data. Process all of it before moving on to
-		// stdin
+		// got some ipc_back_fd data. Process all of it before moving on to stdin
 		have_any_ipc_back_fd_data = true;
-
 		n = read(ipc_back_fd, (void*)(l + (char*)&ge), sizeof(ge) - l);
 		if(n == 0) {
 			close(ipc_back_fd);
 			ipc_back_fd = -1;
-			/* don't close X11_ipc, otherwise later writes
-			 * to it will cause a segfault
-			 * outboard driver has stopped */
+			// don't close X11_ipc, otherwise later writes
+			// to it will cause a segfault
+			// outboard driver has stopped 
 			paused_for_mouse = 0;
 			if(options & (TERM_WAIT_FOR_FONTPROPS | TERM_ONLY_CHECK_MOUSING) )
 				return 0;
@@ -952,11 +945,9 @@ TERM_PUBLIC int X11_waitforinput(int options)
 		}
 		l += n;
 		if(l == sizeof(ge)) {
-			/* note: do_event() may not return (if an
-			 * error occurs), so need to reset l first */
+			// note: do_event() may not return (if an error occurs), so need to reset l first 
 			l = 0;
-			do_event(&ge);
-
+			GPO.DoEvent(term, &ge);
 			/* I react only to the first GE_fontprops event. Subsequent
 			   GE_fontprops events only save the sizing information for
 			   later. We also can't use the main pipe at that point. The
@@ -964,7 +955,6 @@ TERM_PUBLIC int X11_waitforinput(int options)
 			if(ge.type == GE_fontprops && !default_font_size_known &&
 			    (options & TERM_WAIT_FOR_FONTPROPS))
 				return GE_fontprops;
-
 			if(ge.type == GE_buttonrelease && (paused_for_mouse & PAUSE_CLICK)) {
 				int button = ge.par1;
 				if(button == 1 && (paused_for_mouse & PAUSE_BUTTON1))
@@ -998,7 +988,7 @@ TERM_PUBLIC int X11_waitforinput(int options)
 
 #endif /* USE_MOUSE */
 
-TERM_PUBLIC void X11_init()
+TERM_PUBLIC void X11_init(termentry * pThis)
 {
 	static int been_here = 0;
 	if(!X11_ipc) {
@@ -1119,7 +1109,7 @@ TERM_PUBLIC void X11_reset()
 static char X11_tmp[32], X11_tmp0[32], X11_shutdown[32];
 static int X11_pid;
 
-TERM_PUBLIC void X11_init()
+TERM_PUBLIC void X11_init(termentry * pThis)
 {
 	if(!(X11_pid = fork())) {
 		execvp(X11_full_command_path, optvec);
@@ -1185,7 +1175,7 @@ struct iosb {
 	ulong info;
 };
 
-TERM_PUBLIC void X11_init()
+TERM_PUBLIC void X11_init(termentry * pThis)
 {
 	struct iosb iosb;
 	static char devnam_string[64];
@@ -1340,7 +1330,7 @@ TERM_PUBLIC void X11_graphics()
 	if(ipc_back_fd == IPC_BACK_CLOSED) {
 		fclose(X11_ipc);
 		X11_ipc = NULL;
-		X11_init();
+		X11_init(term);
 	}
 #endif
 	// send also XID of gnuplot window (<space> then raises it up) 
@@ -1405,7 +1395,7 @@ TERM_PUBLIC void X11_graphics()
 			term->ChrH = X11_hchar_saved;
 			term->ChrV = X11_vchar_saved;
 			term->TicH = term->TicV = X11_vchar_saved / 2.5;
-			term->ymax = X11_ymax_saved;
+			term->MaxY = X11_ymax_saved;
 		}
 	}
 #endif
@@ -2177,28 +2167,58 @@ TERM_PUBLIC void X11_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(x11_driver)
-"x11", "X11 Window System interactive terminal",
-X11_XMAX, X11_YMAX, X11_VCHAR, X11_HCHAR,
-X11_VTIC, X11_HTIC, X11_options, X11_init, X11_reset,
-X11_text, null_scale, X11_graphics, X11_move, X11_vector,
-X11_linetype, ENHX11_put_text, X11_text_angle,
-X11_justify_text, X11_point, do_arrow, X11_set_font,
-X11_pointsize,
-TERM_CAN_MULTIPLOT|TERM_INIT_ON_REPLOT|TERM_NO_OUTPUTFILE|TERM_CAN_DASH|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_ENHANCED_TEXT,
-X11_text /* suspend can use same routine */, 0 /* resume */,
-X11_fillbox, X11_linewidth
-#ifdef USE_MOUSE
-, X11_waitforinput, X11_put_tmptext, X11_set_ruler, X11_set_cursor, X11_set_clipboard
-#endif
-, X11_make_palette, 0 /* X11_previous_palette */,
-X11_set_color, X11_filled_polygon
-, X11_image
-, ENHX11_OPEN, ENHX11_FLUSH, do_enh_writec
-, X11_layer
-, NULL, 0.0, NULL     /* path, tscale, hypertext */
-, ENHX11_boxed_text
-, X11_modify_plots
-, X11_dashtype TERM_TABLE_END(x11_driver)
+	"x11", 
+	"X11 Window System interactive terminal",
+	X11_XMAX, 
+	X11_YMAX, 
+	X11_VCHAR, 
+	X11_HCHAR,
+	X11_VTIC, 
+	X11_HTIC, 
+	X11_options, 
+	X11_init, 
+	X11_reset,
+	X11_text, 
+	GnuPlot::NullScale, 
+	X11_graphics, 
+	X11_move, 
+	X11_vector,
+	X11_linetype, 
+	ENHX11_put_text, 
+	X11_text_angle,
+	X11_justify_text, 
+	X11_point, 
+	GnuPlot::DoArrow, 
+	X11_set_font,
+	X11_pointsize,
+	TERM_CAN_MULTIPLOT|TERM_INIT_ON_REPLOT|TERM_NO_OUTPUTFILE|TERM_CAN_DASH|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_ENHANCED_TEXT,
+	X11_text /* suspend can use same routine */, 
+	0 /* resume */,
+	X11_fillbox, 
+	X11_linewidth,
+	#ifdef USE_MOUSE
+	X11_waitforinput, 
+	X11_put_tmptext, 
+	X11_set_ruler, 
+	X11_set_cursor, 
+	X11_set_clipboard,
+	#endif
+	X11_make_palette, 
+	0 /* X11_previous_palette */,
+	X11_set_color, 
+	X11_filled_polygon,
+	X11_image,
+	ENHX11_OPEN, 
+	ENHX11_FLUSH, 
+	do_enh_writec,
+	X11_layer,
+	NULL, 
+	0.0, 
+	NULL,     /* path, tscale, hypertext */
+	ENHX11_boxed_text,
+	X11_modify_plots,
+	X11_dashtype 
+TERM_TABLE_END(x11_driver)
 
 #undef LAST_TERM
 #define LAST_TERM x11_driver

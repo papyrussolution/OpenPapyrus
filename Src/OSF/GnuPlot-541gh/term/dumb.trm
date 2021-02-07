@@ -63,7 +63,7 @@ register_term(dumb_driver)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void DUMB_options();
-TERM_PUBLIC void DUMB_init();
+TERM_PUBLIC void DUMB_init(termentry * pThis);
 TERM_PUBLIC void DUMB_graphics();
 TERM_PUBLIC void DUMB_text();
 TERM_PUBLIC void DUMB_reset();
@@ -225,8 +225,8 @@ TERM_PUBLIC void DUMB_options()
 				    y = GPO.IntExpression();
 				    if(y <= 0 || y > 1024)
 					    y = DUMB_YMAX;
-				    dumb_xmax = term->xmax = x;
-				    dumb_ymax = term->ymax = y;
+				    dumb_xmax = term->MaxX = x;
+				    dumb_ymax = term->MaxY = y;
 			    }
 			    set_size = TRUE;
 			    break;
@@ -254,7 +254,7 @@ static void dumb_set_pixel(int x, int y, int v)
 	}
 }
 
-TERM_PUBLIC void DUMB_init()
+TERM_PUBLIC void DUMB_init(termentry * pThis)
 {
 	int size = (dumb_xmax+1) * (dumb_ymax+1);
 	dumb_matrix = (charcell *)gp_realloc(dumb_matrix, size*sizeof(charcell), "dumb terminal");
@@ -780,7 +780,7 @@ TERM_PUBLIC void ENHdumb_put_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE, ENHdumb_font, ENHdumb_fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(term, (char*)str, TRUE, ENHdumb_font, ENHdumb_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
@@ -848,10 +848,8 @@ TERM_PUBLIC void dumb_filled_polygon(int points, gpiPoint * corners)
 			if(corners[i].y < ymin) ymin = corners[i].y;
 			if(corners[i].y > ymax) ymax = corners[i].y;
 		}
-
 		/* Dynamically allocate node list. */
 		nodeX = (float*)gp_alloc(sizeof(*nodeX) * points, "nodeX");
-
 		/* Loop through the rows of the image. */
 		for(pixelY = ymin; pixelY <= ymax + 1; pixelY++) {
 			/* Build a sorted list of nodes. */
@@ -860,16 +858,12 @@ TERM_PUBLIC void dumb_filled_polygon(int points, gpiPoint * corners)
 			for(i = 0; i < points; i++) {
 				if(((corners[i].y < pixelY) && (corners[j].y >= pixelY)) ||
 				    ((corners[j].y < pixelY) && (corners[i].y >= pixelY))) {
-					nodeX[nodes++] = (corners[i].x +
-					    +(double)(pixelY - corners[i].y)
-					    / (double)(corners[j].y - corners[i].y)
-					    * (double)(corners[j].x - corners[i].x));
+					nodeX[nodes++] = (corners[i].x + +(double)(pixelY - corners[i].y) / (double)(corners[j].y - corners[i].y) * (double)(corners[j].x - corners[i].x));
 				}
 				j = i;
 			}
 			qsort(nodeX, nodes, sizeof(float), dumb_float_compare);
-
-			/* Fill the pixels between node pairs. */
+			// Fill the pixels between node pairs. 
 			for(i = 0; i < nodes; i += 2) {
 				if(nodeX[i] > xmax)
 					break;
@@ -901,18 +895,41 @@ TERM_PUBLIC void dumb_filled_polygon(int points, gpiPoint * corners)
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(dumb_driver)
-"dumb", "ascii art for anything that prints text",
-DUMB_XMAX, DUMB_YMAX, 1, 1,
-1, 2,     /* account for typical aspect ratio of characters */
-DUMB_options, DUMB_init, DUMB_reset,
-DUMB_text, null_scale, DUMB_graphics, DUMB_move, DUMB_vector,
-DUMB_linetype, DUMB_put_text, null_text_angle,
-null_justify_text, DUMB_point, DUMB_arrow, set_font_null,
+"dumb", 
+"ascii art for anything that prints text",
+DUMB_XMAX, 
+DUMB_YMAX, 
+1, 
+1,
+1, 
+2,     /* account for typical aspect ratio of characters */
+DUMB_options, 
+DUMB_init, 
+DUMB_reset,
+DUMB_text, 
+GnuPlot::NullScale, 
+DUMB_graphics, 
+DUMB_move, 
+DUMB_vector,
+DUMB_linetype, 
+DUMB_put_text, 
+null_text_angle,
+null_justify_text, 
+DUMB_point, 
+DUMB_arrow, 
+set_font_null,
 0,                              /* pointsize */
 TERM_CAN_MULTIPLOT,
-NULL, NULL, NULL, NULL,
+NULL, 
+NULL, 
+NULL, 
+NULL,
 #ifdef USE_MOUSE
-NULL, NULL, NULL, NULL, NULL,
+NULL, 
+NULL, 
+NULL, 
+NULL, 
+NULL,
 #endif
 NULL,           /* Color support sets this to DUMB_make_palette */
 NULL,           /* previous_palette */

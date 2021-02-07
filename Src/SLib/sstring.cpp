@@ -2873,6 +2873,23 @@ uint32 FASTCALL _texttohex32(const wchar_t * pT, uint len)
 	}
 	return result;
 }
+//
+// Descr: check quickly whether the next 8 chars are made of digits at a glance, it looks better than Mula's
+// http://0x80.pl/articles/swar-digits-validate.html
+//
+bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS) 
+{
+	uint64 val;
+	// this can read up to 7 bytes beyond the buffer size, but we require
+	// SIMDJSON_PADDING of padding
+	//static_assert(7 <= SIMDJSON_PADDING, "SIMDJSON_PADDING must be bigger than 7");
+	memcpy(&val, pS, 8);
+	// a branchy method might be faster:
+	// return (( val & 0xF0F0F0F0F0F0F0F0 ) == 0x3030303030303030)
+	//  && (( (val + 0x0606060606060606) & 0xF0F0F0F0F0F0F0F0 ) ==
+	//  0x3030303030303030);
+	return (((val & 0xF0F0F0F0F0F0F0F0) | (((val + 0x0606060606060606) & 0xF0F0F0F0F0F0F0F0) >> 4)) == 0x3333333333333333);
+}
 
 int FASTCALL satoi(const char * pT)
 {

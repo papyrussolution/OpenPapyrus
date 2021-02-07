@@ -25,8 +25,7 @@ int STooltip::Init(HWND parent)
 
 void STooltip::Destroy()
 {
-	if(HwndTT)
-		::DestroyWindow(HwndTT);
+	::DestroyWindow(HwndTT);
 	HwndTT = 0;
 	Parent = 0;
 }

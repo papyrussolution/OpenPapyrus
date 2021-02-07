@@ -432,30 +432,55 @@ TERM_PUBLIC void wxt_text_wrapper()
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(wxt_driver)
-"wxt", "wxWidgets cross-platform interactive terminal",
-/* the following values are overridden by wxt_graphics */
-1 /* xmax */, 1 /* ymax */, 1 /* vchar */, 1 /* hchar */,
-1 /* vtic */, 1 /* htic */,
-wxt_options, wxt_init, wxt_reset, wxt_text_wrapper, null_scale, wxt_graphics,
-wxt_move, wxt_vector, wxt_linetype, wxt_put_text,
-wxt_text_angle, wxt_justify_text,
-wxt_point, do_arrow, wxt_set_font,
-wxt_pointsize,
-TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE|TERM_ALPHA_CHANNEL|TERM_CAN_DASH|TERM_FONTSCALE|TERM_ENHANCED_TEXT|TERM_LINEWIDTH,
-wxt_text /* suspend */, 0 /* resume */, wxt_fillbox, wxt_linewidth
-#ifdef USE_MOUSE
-, wxt_waitforinput, wxt_put_tmptext, wxt_set_ruler, wxt_set_cursor, wxt_set_clipboard
-#endif
-, wxt_make_palette, 0 /* wxt_previous_palette */, wxt_set_color, wxt_filled_polygon
-, wxt_image
-, wxt_enhanced_open, wxt_enhanced_flush, wxt_enhanced_writec
-, wxt_layer
-, NULL     /* no term->path */
-, 0.0     /* Scale (unused) */
-, wxt_hypertext
-, wxt_boxed_text
-, wxt_modify_plots
-, wxt_dashtype TERM_TABLE_END(wxt_driver)
+	"wxt", 
+	"wxWidgets cross-platform interactive terminal",
+	/* the following values are overridden by wxt_graphics */
+	1 /* xmax */, 1 /* ymax */, 1 /* vchar */, 1 /* hchar */,
+	1 /* vtic */, 1 /* htic */,
+	wxt_options, 
+	wxt_init, 
+	wxt_reset, 
+	wxt_text_wrapper, 
+	GnuPlot::NullScale, 
+	wxt_graphics,
+	wxt_move, 
+	wxt_vector, 
+	wxt_linetype, 
+	wxt_put_text,
+	wxt_text_angle, 
+	wxt_justify_text,
+	wxt_point, 
+	GnuPlot::DoArrow, 
+	wxt_set_font,
+	wxt_pointsize,
+	TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE|TERM_ALPHA_CHANNEL|TERM_CAN_DASH|TERM_FONTSCALE|TERM_ENHANCED_TEXT|TERM_LINEWIDTH,
+	wxt_text /* suspend */, 
+	0 /* resume */, 
+	wxt_fillbox, 
+	wxt_linewidth,
+	#ifdef USE_MOUSE
+	wxt_waitforinput, 
+	wxt_put_tmptext, 
+	wxt_set_ruler, 
+	wxt_set_cursor, 
+	wxt_set_clipboard,
+	#endif
+	wxt_make_palette, 
+	0 /* wxt_previous_palette */, 
+	wxt_set_color, 
+	wxt_filled_polygon, 
+	wxt_image, 
+	wxt_enhanced_open, 
+	wxt_enhanced_flush, 
+	wxt_enhanced_writec, 
+	wxt_layer, 
+	NULL,     /* no term->path */
+	0.0,     /* Scale (unused) */
+	wxt_hypertext,
+	wxt_boxed_text,
+	wxt_modify_plots,
+	wxt_dashtype 
+TERM_TABLE_END(wxt_driver)
 
 #undef LAST_TERM
 #define LAST_TERM wxt_driver

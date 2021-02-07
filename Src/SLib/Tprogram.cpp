@@ -719,7 +719,7 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				//if(hb == h_close_wnd) hb = GetNextWindow(hb, GW_HWNDNEXT);
 				while(hb && oneof2(hb, h_close_wnd, h_tree_wnd))
 					hb = GetNextWindow(hb, GW_HWNDNEXT);
-				if(hb && !is_desktop)
+				if(!is_desktop)
 					DestroyWindow(hb);
 			}
 			break;
@@ -937,14 +937,11 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 			break;
 		case WM_DESTROY:
 			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
-			if(p_pgm->H_FrameWnd) {
-				::DestroyWindow(p_pgm->H_FrameWnd);
-				p_pgm->H_FrameWnd = 0;
-			}
+			::DestroyWindow(p_pgm->H_FrameWnd);
+			p_pgm->H_FrameWnd = 0;
 			if(p_pgm->H_ShortcutsWnd) {
 				HWND hwnd_tt = TabCtrl_GetToolTips(GetDlgItem(p_pgm->H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS));
-				if(hwnd_tt)
-					::DestroyWindow(hwnd_tt);
+				::DestroyWindow(hwnd_tt);
 				::DestroyWindow(p_pgm->H_ShortcutsWnd);
 				p_pgm->H_ShortcutsWnd = 0;
 			}

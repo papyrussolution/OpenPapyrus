@@ -60,7 +60,7 @@ register_term(mp)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void MP_options();
-TERM_PUBLIC void MP_init();
+TERM_PUBLIC void MP_init(termentry * pThis);
 TERM_PUBLIC void MP_graphics();
 TERM_PUBLIC void MP_text();
 TERM_PUBLIC void MP_linetype(int linetype);
@@ -363,7 +363,7 @@ TERM_PUBLIC void MP_options()
 	};
 }
 
-TERM_PUBLIC void MP_init()
+TERM_PUBLIC void MP_init(termentry * pThis)
 {
 	time_t now;
 	time(&now);
@@ -572,12 +572,12 @@ TERM_PUBLIC void MP_graphics()
 	fprintf(gpoutfile, "\nbeginfig(%d);\nw:=%.3fin;h:=%.3fin;\n",
 	    MP_char_code, MP_xsize, MP_ysize);
 	/* MetaPost can only handle numbers up to 4096. When MP_DPI
-	 * is larger than 819, this is exceeded by (term->xmax). So we
+	 * is larger than 819, this is exceeded by (term->MaxX). So we
 	 * scale it and all coordinates down by factor of 10.0. And
 	 * compensate by scaling a and b up.
 	 */
 	fprintf(gpoutfile, "a:=w/%.1f;b:=h/%.1f;\n",
-	    (term->xmax) / 10.0, (term->ymax) / 10.0);
+	    (term->MaxX) / 10.0, (term->MaxY) / 10.0);
 	fprintf(gpoutfile, "scalepen 1; ptsize %.3f;linetype -2;\n", pointsize);
 	MP_char_code++;
 	/* reset MP_color_changed */
@@ -992,22 +992,48 @@ TERM_PUBLIC void MP_previous_palette()
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(mp_driver)
-"mp", "MetaPost plotting standard",
-MP_XMAX, MP_YMAX, MP_VCHAR, MP_HCHAR,
-MP_VTIC, MP_HTIC, MP_options, MP_init, MP_reset,
-MP_text, null_scale, MP_graphics, MP_move, MP_vector,
-MP_linetype, MP_put_text, MP_text_angle,
-MP_justify_text, MP_point, MP_arrow, MP_set_font, MP_pointsize,
-TERM_BINARY|TERM_CAN_CLIP|TERM_CAN_DASH|TERM_IS_LATEX,          /*flags*/
-0, 0, MP_boxfill, MP_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0                 /* no mouse support for metapost */
-#endif
-, MP_make_palette,
-MP_previous_palette,            /* write grestore */
-MP_set_color,
-MP_filled_polygon,
-.dashtype = MP_dashtype TERM_TABLE_END(mp_driver)
+	"mp", 
+	"MetaPost plotting standard",
+	MP_XMAX, 
+	MP_YMAX, 
+	MP_VCHAR, 
+	MP_HCHAR,
+	MP_VTIC, 
+	MP_HTIC, 
+	MP_options, 
+	MP_init, 
+	MP_reset,
+	MP_text, 
+	GnuPlot::NullScale, 
+	MP_graphics, 
+	MP_move, 
+	MP_vector,
+	MP_linetype, 
+	MP_put_text, 
+	MP_text_angle,
+	MP_justify_text, 
+	MP_point, 
+	MP_arrow, 
+	MP_set_font, 
+	MP_pointsize,
+	TERM_BINARY|TERM_CAN_CLIP|TERM_CAN_DASH|TERM_IS_LATEX,          /*flags*/
+	0, 
+	0, 
+	MP_boxfill, 
+	MP_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,                /* no mouse support for metapost */
+	#endif
+	MP_make_palette,
+	MP_previous_palette,            /* write grestore */
+	MP_set_color,
+	MP_filled_polygon,
+	.dashtype = MP_dashtype 
+TERM_TABLE_END(mp_driver)
 #undef LAST_TERM
 #define LAST_TERM mp_driver
 

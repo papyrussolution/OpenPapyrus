@@ -1449,13 +1449,18 @@ int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 	assert(pHandler);
 	THROW(pHandler);
 	if(rwFlag == PPCommandMngr::fRWByXml){
-		if(DbSymb.NotEmpty()) {
+		SString db_symb = DbSymb;
+		if(db_symb.NotEmpty() || Type == cmdgrpcMenu) { // @v11.0.1 (Type == cmdgrpcMenu)
+			// @v11.0.1 {
+			if(db_symb.IsEmpty())
+				db_symb = "undefined";
+			// } @v11.0.1 
 			SString path, guid_str;
 			xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
 			THROW(Uuid.ToStr(S_GUID::fmtIDL, guid_str));
 			THROW(p_xml_writer);
 			SXml::WNode command_group_node(p_xml_writer, "CommandGroup");
-			if(DbSymb.NotEmpty()) {
+			{
 				{
 					const char * p_type = 0;
 					if(Type == cmdgrpcDesktop)
@@ -1467,7 +1472,7 @@ int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 					if(p_type)
 						command_group_node.PutInner("Type", p_type);
 				}
-				XMLReplaceSpecSymb(temp_buf.Z().Cat(DbSymb), "&<>\'");
+				XMLReplaceSpecSymb(temp_buf.Z().Cat(db_symb), "&<>\'");
 				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 				command_group_node.PutInner("DbSymb", temp_buf);
 				command_group_node.PutInner("Uuid", guid_str); // @v10.9.3 Начиная с этой версии поле в xml-файле называется Uuid вместо DeskGuid
@@ -1746,7 +1751,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 	assert(pCmdGrp);
 	THROW(pCmdGrp);
 	if(rwFlag == PPCommandMngr::fRWByXml) {
-		if(pCmdGrp->DbSymb.NotEmpty()) {
+		if(pCmdGrp->DbSymb.NotEmpty() || pCmdGrp->Type == cmdgrpcMenu) { // @v11.0.1 (pCmdGrp->Type == cmdgrpcMenu)
 			if(pCmdGrp->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
 				path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).Dot().Cat("xml");
 				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA

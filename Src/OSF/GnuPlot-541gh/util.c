@@ -376,7 +376,6 @@ static void mant_exp(double log10_base, double x, bool scientific/* round to pow
 		double actual_base = (scientific ? 1000 : pow(10.0, log10_base));
 		int precision = 0;
 		double tolerance;
-
 		format = strchr(format, '.');
 		if(format != NULL)
 			/* a decimal point was found in the format, so use that
@@ -477,8 +476,7 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 			    t[1] = 'l';
 			    t[2] = *format;
 			    t[3] = '\0';
-			    snprintf(dest, remaining_space, temp,
-				v->type == INTGR ? v->v.int_val : (intgr_t)real(v));
+			    snprintf(dest, remaining_space, temp, v->type == INTGR ? v->v.int_val : (intgr_t)real(v));
 			    break;
 			/*}}} */
 			/*{{{  e, f and g */
@@ -1197,12 +1195,7 @@ char * getusername()
 
 size_t gp_strlen(const char * s)
 {
-	if(encoding == S_ENC_UTF8)
-		return strlen_utf8(s);
-	else if(encoding == S_ENC_SJIS)
-		return strlen_sjis(s);
-	else
-		return strlen(s);
+	return (encoding == S_ENC_UTF8) ? strlen_utf8(s) : ((encoding == S_ENC_SJIS) ? strlen_sjis(s) : strlen(s));
 }
 /*
  * Returns a pointer to the Nth character of s

@@ -57,7 +57,7 @@ register_term(debug)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void DEBUG_init();
+TERM_PUBLIC void DEBUG_init(termentry * pThis);
 TERM_PUBLIC void DEBUG_graphics();
 TERM_PUBLIC void DEBUG_text();
 TERM_PUBLIC void DEBUG_linetype(int linetype);
@@ -101,7 +101,7 @@ int DEBUG_linetype_last;
 int DEBUG_xlast;
 int DEBUG_ylast;
 
-TERM_PUBLIC void DEBUG_init()
+TERM_PUBLIC void DEBUG_init(termentry * pThis)
 {
 	fputs("init\n", gpoutfile);
 	DEBUG_linetype_last = LT_NODRAW;
@@ -298,7 +298,7 @@ TERM_TABLE_START(debug_driver)
 "debug", "debugging driver",
 DEBUG_XMAX, DEBUG_YMAX, DEBUG_VCHAR, DEBUG_HCHAR,
 DEBUG_VTIC, DEBUG_HTIC, options_null, DEBUG_init, DEBUG_reset,
-DEBUG_text, null_scale, DEBUG_graphics, DEBUG_move, DEBUG_vector,
+DEBUG_text, GnuPlot::NullScale, DEBUG_graphics, DEBUG_move, DEBUG_vector,
 DEBUG_linetype, DEBUG_put_text, DEBUG_text_angle,
 DEBUG_justify_text, DEBUG_point, DEBUG_arrow, DEBUG_set_font,
 DEBUG_pointsize,

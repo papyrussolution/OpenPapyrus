@@ -56,7 +56,7 @@ register_term(dxf)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void DXF_init();
+TERM_PUBLIC void DXF_init(termentry * pThis);
 TERM_PUBLIC void DXF_graphics();
 TERM_PUBLIC void DXF_text();
 TERM_PUBLIC void DXF_linetype(int linetype);
@@ -138,7 +138,7 @@ static const char * layer_lines[] = {
 
 static bool vector_was_last = FALSE;
 
-TERM_PUBLIC void DXF_init()
+TERM_PUBLIC void DXF_init(termentry * pThis)
 {
 	DXF_posx = DXF_posy = 0;
 	dxf_linetype = 0;
@@ -202,7 +202,7 @@ TERM_PUBLIC void DXF_graphics()
  49\n0.0\n 49\n-0.25\n\
   0\nENDTAB\n";
 
-	fprintf(gpoutfile, dxfi1, t->xmax / DXF_UNIT, t->ymax / DXF_UNIT, t->xmax / DXF_UNIT, t->ymax / DXF_UNIT,
+	fprintf(gpoutfile, dxfi1, t->MaxX / DXF_UNIT, t->MaxY / DXF_UNIT, t->MaxX / DXF_UNIT, t->MaxY / DXF_UNIT,
 	    text_style, DXF_TEXTHEIGHT / DXF_UNIT, LINEWIDTH, (double)LT_SCALE, layer_colour[0]);
 	/* the linetype table */
 	fprintf(gpoutfile, dxfi2, DXF_LINE_TYPES);
@@ -347,7 +347,7 @@ TERM_PUBLIC void DXF_put_text(uint x, uint y, const char str[])
 
 TERM_PUBLIC int DXF_text_angle(int ang)
 {
-	dxf_angle = (ang ? 90.0 : 0.0);
+	dxf_angle = (ang ? 90.0f : 0.0f);
 	return (TRUE);
 }
 
@@ -366,29 +366,29 @@ TERM_PUBLIC void DXF_reset()
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(dxf_driver)
-"dxf", 
-"dxf-file for AutoCad (default size 120x80)",
-(uint)DXF_XMAX, 
-(uint)DXF_YMAX, 
-(uint)DXF_VCHAR, 
-(uint)DXF_HCHAR,
-(uint)DXF_VTIC, 
-(uint)DXF_HTIC, 
-options_null, 
-DXF_init, 
-DXF_reset,
-DXF_text, 
-null_scale, 
-DXF_graphics, 
-DXF_move, 
-DXF_vector,
-DXF_linetype, 
-DXF_put_text, 
-DXF_text_angle,
-DXF_justify_text, 
-do_point, 
-do_arrow, 
-set_font_null 
+	"dxf", 
+	"dxf-file for AutoCad (default size 120x80)",
+	(uint)DXF_XMAX, 
+	(uint)DXF_YMAX, 
+	(uint)DXF_VCHAR, 
+	(uint)DXF_HCHAR,
+	(uint)DXF_VTIC, 
+	(uint)DXF_HTIC, 
+	options_null, 
+	DXF_init, 
+	DXF_reset,
+	DXF_text, 
+	GnuPlot::NullScale, 
+	DXF_graphics, 
+	DXF_move, 
+	DXF_vector,
+	DXF_linetype, 
+	DXF_put_text, 
+	DXF_text_angle,
+	DXF_justify_text, 
+	do_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
 TERM_TABLE_END(dxf_driver)
 
 #undef LAST_TERM

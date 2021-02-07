@@ -172,7 +172,7 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 		res.kurtosis = d4 / (n * var * var);
 	}
 	else {
-		res.skewness = res.kurtosis = not_a_number();
+		res.skewness = res.kurtosis = fgetnan();
 	}
 	res.mean_err = res.stddev / sqrt((double)n);
 	res.stddev_err = res.stddev / sqrt(2.0 * n);
@@ -233,12 +233,12 @@ static two_column_stats analyze_two_columns(double * x, double * y, sgl_column_s
 	if(ssxx != 0.0)
 		res.slope = ssxy / ssxx;
 	else
-		res.slope = not_a_number();
+		res.slope = fgetnan();
 	res.intercept = res_y.mean - res.slope * res_x.mean;
 	if(res_y.stddev != 0.0)
 		res.correlation = res.slope * res_x.stddev / res_y.stddev;
 	else
-		res.correlation = not_a_number();
+		res.correlation = fgetnan();
 	if(n > 2) {
 		double ss = (ssyy - res.slope * ssxy) / (n - 2);
 		if(ssxx != 0.0) {
@@ -246,7 +246,7 @@ static two_column_stats analyze_two_columns(double * x, double * y, sgl_column_s
 			res.intercept_err = sqrt(ss * (1./n + res_x.sum * res_x.sum / (n * n * ssxx)));
 		}
 		else {
-			res.slope_err = res.intercept_err = not_a_number();
+			res.slope_err = res.intercept_err = fgetnan();
 		}
 	}
 	else if(n == 2) {
@@ -255,7 +255,7 @@ static two_column_stats analyze_two_columns(double * x, double * y, sgl_column_s
 	}
 	else {
 		fprintf(stderr, "Warning:  Can't compute errors of slope and intercept. Not enough data points.\n");
-		res.slope_err = res.intercept_err = not_a_number();
+		res.slope_err = res.intercept_err = fgetnan();
 	}
 	res.pos_min_y = x[res_y.min.index];
 	res.pos_max_y = x[res_y.max.index];

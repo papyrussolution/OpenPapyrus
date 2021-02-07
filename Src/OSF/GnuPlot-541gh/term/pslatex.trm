@@ -243,13 +243,11 @@ TERM_PUBLIC void PSTEX_reopen_output()
 
 TERM_PUBLIC void PSTEX_common_init()
 {
-	PSLATEX_pagesize_x = term->xmax * GPO.V.XSize;
-	PSLATEX_pagesize_y = term->ymax * GPO.V.YSize;
+	PSLATEX_pagesize_x = term->MaxX * GPO.V.XSize;
+	PSLATEX_pagesize_y = term->MaxY * GPO.V.YSize;
 	switch(ps_params->terminal) {
 		case PSTERM_PSLATEX:
-		    fprintf(gpoutfile,
-			"\
-%% GNUPLOT: LaTeX picture with Postscript\n\
+		    fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n\
 \\begingroup%%\n\
 \\makeatletter%%\n\
 \\newcommand{\\GNUPLOTspecial}{%%\n\
@@ -345,56 +343,37 @@ TERM_PUBLIC void PSTEX_put_text(uint x, uint y, const char * str)
 TERM_PUBLIC void PSTEX_text()
 {
 	struct pstex_text_command * tc;
-
 	PS_text();
 	if(gppsfile == gpoutfile)
 		fputs("  }}%\n", gpoutfile);
-
 	if(ps_params->fontsize) {
 		if(ps_params->terminal == PSTERM_PSLATEX)
-			fprintf(gpoutfile, "\\fontsize{%g}{\\baselineskip}\\selectfont\n",
-			    ps_params->fontsize);
+			fprintf(gpoutfile, "\\fontsize{%g}{\\baselineskip}\\selectfont\n", ps_params->fontsize);
 		/* Should have an else clause here to handle pstex equivalent */
 	}
-
-	for(tc = pstex_labels;
-	    tc != (struct pstex_text_command *)NULL;
-	    tc = tc->next) {
+	for(tc = pstex_labels; tc != (struct pstex_text_command *)NULL; tc = tc->next) {
 		fprintf(gpoutfile, "  \\put(%d,%d){", tc->x, tc->y);
 		if((ps_params->rotate) && (tc->angle != 0))
-			fprintf(gpoutfile,
-			    "\
-%%\n  \\special{ps: gsave currentpoint currentpoint translate\n\
-%d rotate neg exch neg exch translate}%%\n  ",
-			    360 - tc->angle);
-		if((ps_params->terminal == PSTERM_PSLATEX) &&
-		    ((tc->label[0] == '{') || (tc->label[0] == '['))) {
+			fprintf(gpoutfile, "%%\n  \\special{ps: gsave currentpoint currentpoint translate\n%d rotate neg exch neg exch translate}%%\n  ", 360 - tc->angle);
+		if((ps_params->terminal == PSTERM_PSLATEX) && ((tc->label[0] == '{') || (tc->label[0] == '['))) {
 			fprintf(gpoutfile, "\\makebox(0,0)%s", tc->label);
 		}
 		else
 			switch(tc->justify) {
-				case LEFT:
-				    fprintf(gpoutfile, (ps_params->terminal == PSTERM_PSLATEX
-					? "\\makebox(0,0)[l]{\\strut{}%s}"
-					: "\\ljust{\\strut{}%s}"), tc->label);
+				case LEFT: 
+					fprintf(gpoutfile, (ps_params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[l]{\\strut{}%s}" : "\\ljust{\\strut{}%s}"), tc->label);
 				    break;
 				case CENTRE:
-				    fprintf(gpoutfile, (ps_params->terminal == PSTERM_PSLATEX
-					? "\\makebox(0,0){\\strut{}%s}"
-					: "\\cjust{\\strut{}%s}"), tc->label);
+				    fprintf(gpoutfile, (ps_params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0){\\strut{}%s}" : "\\cjust{\\strut{}%s}"), tc->label);
 				    break;
 				case RIGHT:
-				    fprintf(gpoutfile, (ps_params->terminal == PSTERM_PSLATEX
-					? "\\makebox(0,0)[r]{\\strut{}%s}"
-					: "\\rjust{\\strut{}%s}"), tc->label);
+				    fprintf(gpoutfile, (ps_params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[r]{\\strut{}%s}" : "\\rjust{\\strut{}%s}"), tc->label);
 				    break;
 			}
 		if((ps_params->rotate) && (tc->angle != 0))
-			fputs("%\n  \\special{ps: currentpoint grestore moveto}%\n  ",
-			    gpoutfile);
+			fputs("%\n  \\special{ps: currentpoint grestore moveto}%\n  ", gpoutfile);
 		fputs("}%\n", gpoutfile);
 	}
-
 	while(pstex_labels) {
 		tc = pstex_labels->next;
 		SAlloc::F(pstex_labels->label);
@@ -412,8 +391,8 @@ TERM_PUBLIC void EPSLATEX_common_init()
 	char * fontfamily = NULL;
 	char * fontseries = NULL;
 	char * fontshape = NULL;
-	PSLATEX_pagesize_x = term->xmax * GPO.V.XSize;
-	PSLATEX_pagesize_y = term->ymax * GPO.V.YSize;
+	PSLATEX_pagesize_x = term->MaxX * GPO.V.XSize;
+	PSLATEX_pagesize_y = term->MaxY * GPO.V.YSize;
 	/* cairo terminals use a different convention for xmax/ymax */
 	if(!strcmp(term->name, "cairolatex")) {
 		PSLATEX_pagesize_x += 2*PS_SC * GPO.V.XSize;
@@ -1008,9 +987,9 @@ TERM_TABLE_START(epslatex_driver)
 "epslatex", "LaTeX picture environment using graphicx package",
 PS_XMAX, PS_YMAX, EPSLATEX_VCHAR, EPSLATEX_HCHAR,
 PS_VTIC, PS_HTIC, PS_options, PS_init, PSLATEX_reset,
-PS_text, null_scale, PS_graphics, PS_move,
+PS_text, GnuPlot::NullScale, PS_graphics, PS_move,
 PS_vector, EPSLATEX_linetype, EPSLATEX_put_text, PS_text_angle,
-PS_justify_text, PS_point, do_arrow, PS_set_font,
+PS_justify_text, PS_point, GnuPlot::DoArrow, PS_set_font,
 PS_pointsize, TERM_BINARY|TERM_IS_POSTSCRIPT|TERM_CAN_CLIP|TERM_IS_LATEX /*flags */,
 0 /*suspend */, 0 /*resume */,
 PS_fillbox, PS_linewidth,
@@ -1035,9 +1014,9 @@ TERM_TABLE_START(pslatex_driver)
 "pslatex", "LaTeX picture environment with PostScript \\specials",
 PS_XMAX, PS_YMAX, PSTEX_VCHAR, PSTEX_HCHAR,
 PS_VTIC, PS_HTIC, PS_options, PS_init, PSLATEX_reset,
-PSTEX_text, null_scale, PS_graphics, PS_move,
+PSTEX_text, GnuPlot::NullScale, PS_graphics, PS_move,
 PS_vector, PS_linetype, PSTEX_put_text, PS_text_angle,
-PS_justify_text, PS_point, do_arrow, set_font_null,
+PS_justify_text, PS_point, GnuPlot::DoArrow, set_font_null,
 PS_pointsize, TERM_CAN_CLIP|TERM_IS_LATEX /*flags */, 0      /*suspend */
 , 0 /*resume */,
 PS_fillbox, PS_linewidth
@@ -1056,12 +1035,21 @@ PS_filled_polygon
 #define LAST_TERM pslatex_driver
 
 TERM_TABLE_START(pstex_driver)
-"pstex", "plain TeX with PostScript \\specials",
-PS_XMAX, PS_YMAX, PSTEX_VCHAR, PSTEX_HCHAR,
-PS_VTIC, PS_HTIC, PS_options, PS_init, PSLATEX_reset,
-PSTEX_text, null_scale, PS_graphics, PS_move,
+"pstex", 
+"plain TeX with PostScript \\specials",
+PS_XMAX, 
+PS_YMAX, 
+PSTEX_VCHAR, 
+PSTEX_HCHAR,
+PS_VTIC, 
+PS_HTIC, 
+PS_options, 
+PS_init, 
+PSLATEX_reset,
+PSTEX_text, 
+GnuPlot::NullScale, PS_graphics, PS_move,
 PS_vector, PS_linetype, PSTEX_put_text, PS_text_angle,
-PS_justify_text, PS_point, do_arrow, set_font_null,
+PS_justify_text, PS_point, GnuPlot::DoArrow, set_font_null,
 PS_pointsize, TERM_CAN_CLIP|TERM_IS_LATEX /*flags */, 0      /*suspend */
 , 0 /*resume */,
 PS_fillbox, PS_linewidth

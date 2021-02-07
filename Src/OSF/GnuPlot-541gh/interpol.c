@@ -84,19 +84,19 @@ typedef double five_diag[5];
 static int next_curve(curve_points * plot, int * curve_start);
 static int num_curves(curve_points * plot);
 static double eval_kdensity(curve_points * cp, int first_point, int num_points, double x);
-static void do_kdensity(curve_points * cp, int first_point, int num_points, struct coordinate * dest);
+static void do_kdensity(curve_points * cp, int first_point, int num_points, GpCoordinate * dest);
 static double * cp_binomial(int points);
 static void eval_bezier(curve_points * cp, int first_point, int num_points, double sr, coordval * px,
     coordval * py, coordval * py2, double * c);
-static void do_bezier(curve_points * cp, double * bc, int first_point, int num_points, struct coordinate * dest);
+static void do_bezier(curve_points * cp, double * bc, int first_point, int num_points, GpCoordinate * dest);
 static int solve_tri_diag(tri_diag m[], double r[], double x[], int n);
 static int solve_five_diag(five_diag m[], double r[], double x[], int n);
-static spline_coeff * cp_approx_spline(struct coordinate * first_point, int num_points, int path_dim, int spline_dim, int w_dim);
-static spline_coeff * cp_tridiag(struct coordinate * first_point, int num_points, int path_dim, int spline_dim);
+static spline_coeff * cp_approx_spline(GpCoordinate * first_point, int num_points, int path_dim, int spline_dim, int w_dim);
+static spline_coeff * cp_tridiag(GpCoordinate * first_point, int num_points, int path_dim, int spline_dim);
 static void do_cubic(curve_points * plot, spline_coeff * sc, spline_coeff * sc2,
-    int first_point, int num_points, struct coordinate * dest);
+    int first_point, int num_points, GpCoordinate * dest);
 static void do_freq(curve_points * plot,  int first_point, int num_points);
-static int do_curve_cleanup(struct coordinate * point, int npoints);
+static int do_curve_cleanup(GpCoordinate * point, int npoints);
 static int compare_points(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static int compare_z(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 
@@ -111,20 +111,15 @@ static int compare_z(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static int next_curve(curve_points * plot, int * curve_start)
 {
 	int curve_length;
-
-	/* Skip undefined points */
-	while(*curve_start < plot->p_count
-	    && plot->points[*curve_start].type == UNDEFINED) {
+	// Skip undefined points 
+	while(*curve_start < plot->p_count && plot->points[*curve_start].type == UNDEFINED) {
 		(*curve_start)++;
 	}
-	;
 	curve_length = 0;
-	/* curve_length is first used as an offset, then the correct # points */
-	while((*curve_start) + curve_length < plot->p_count
-	    && plot->points[(*curve_start) + curve_length].type != UNDEFINED) {
+	// curve_length is first used as an offset, then the correct # points 
+	while((*curve_start) + curve_length < plot->p_count && plot->points[(*curve_start) + curve_length].type != UNDEFINED) {
 		curve_length++;
 	}
-	;
 	return (curve_length);
 }
 
@@ -135,12 +130,9 @@ static int next_curve(curve_points * plot, int * curve_start)
 
 static int num_curves(curve_points * plot)
 {
-	int curves;
-	int first_point;
 	int num_points;
-
-	first_point = 0;
-	curves = 0;
+	int first_point = 0;
+	int curves = 0;
 	while((num_points = next_curve(plot, &first_point)) > 0) {
 		curves++;
 		first_point += num_points;
@@ -162,21 +154,17 @@ static void stats_kdensity(curve_points * cp,
     int first_point,    /* where to start in plot->points (to find x-range) */
     int num_points      /* to determine end in plot->points */
     ) {
-	struct coordinate * this_points = (cp->points) + first_point;
-	double kdensity_avg = 0;
-	double kdensity_sigma = 0;
+	GpCoordinate * this_points = (cp->points) + first_point;
 	double default_bandwidth;
 	int i;
-
-	kdensity_avg = 0.0;
-	kdensity_sigma = 0.0;
+	double kdensity_avg = 0.0;
+	double kdensity_sigma = 0.0;
 	for(i = 0; i < num_points; i++) {
 		kdensity_avg   += this_points[i].x;
 		kdensity_sigma += this_points[i].x * this_points[i].x;
 	}
 	kdensity_avg /= (double)num_points;
 	kdensity_sigma = sqrt(kdensity_sigma/(double)num_points - kdensity_avg*kdensity_avg);
-
 	/* This is the optimal bandwidth if the point distribution is Gaussian.
 	   (Applied Smoothing Techniques for Data Analysis
 	   by Adrian W, Bowman & Adelchi Azzalini (1997)) */
@@ -189,14 +177,13 @@ static void stats_kdensity(curve_points * cp,
 	else
 		kdensity_bandwidth = cp->smooth_parameter;
 }
-
-/* eval_kdensity is a modification of eval_bezier */
-static double eval_kdensity(curve_points * cp,
-    int first_point,    /* where to start in plot->points (to find x-range) */
-    int num_points,     /* to determine end in plot->points */
-    double x            /* x value at which to calculate y */
-    ) {
-	struct coordinate * this_points = (cp->points) + first_point;
+//
+// eval_kdensity is a modification of eval_bezier 
+//
+static double eval_kdensity(curve_points * cp, int first_point/* where to start in plot->points (to find x-range) */,
+    int num_points/* to determine end in plot->points */, double x/* x value at which to calculate y */) 
+{
+	GpCoordinate * this_points = (cp->points) + first_point;
 	double period = cp->smooth_period;
 	uint i;
 	double Z;
@@ -216,7 +203,7 @@ static double eval_kdensity(curve_points * cp,
 // EAM Feb 2015: Don't touch xrange, but recalculate y limits  
 //
 static void do_kdensity(curve_points * cp, int first_point/* where to start in plot->points */, int num_points/* to determine end in plot->points */,
-    struct coordinate * dest/* where to put the interpolated data */)
+    GpCoordinate * dest/* where to put the interpolated data */)
 {
 	int i;
 	double x, y;
@@ -293,7 +280,7 @@ static void eval_bezier(curve_points * cp,
     double * c)                  /* Bezier coefficient array */
 {
 	uint n = num_points - 1;
-	struct coordinate * this_points = (cp->points) + first_point;
+	GpCoordinate * this_points = (cp->points) + first_point;
 	if(sr == 0.0) {
 		*px = this_points[0].x;
 		*py = this_points[0].y;
@@ -324,13 +311,13 @@ static void eval_bezier(curve_points * cp,
 		*py2 = ly2;
 	}
 }
-/*
- * Generate a new set of coordinates representing the bezier curve.
- * Note that these are sampled evenly across the x range (from "set samples N")
- * rather than corresponding to x values of the original data points.
- */
+// 
+// Generate a new set of coordinates representing the bezier curve.
+// Note that these are sampled evenly across the x range (from "set samples N")
+// rather than corresponding to x values of the original data points.
+// 
 static void do_bezier(curve_points * cp, double * bc/* Bezier coefficient array */, int first_point/* where to start in plot->points */,
-    int num_points/* to determine end in plot->points */, struct coordinate * dest/* where to put the interpolated data */)
+    int num_points/* to determine end in plot->points */, GpCoordinate * dest/* where to put the interpolated data */)
 {
 	coordval x, y, yhigh;
 	GPO.AxS.Idx_X = cp->AxIdx_X;
@@ -419,17 +406,14 @@ static int solve_five_diag(five_diag m[], double r[], double x[], int n)
  *                given control variable indexed by path_dim
  *                weights indexed by w_dim
  */
-static spline_coeff * cp_approx_spline(struct coordinate * points, int num_points,
-    int path_dim, int spline_dim, int w_dim)
+static spline_coeff * cp_approx_spline(GpCoordinate * points, int num_points, int path_dim, int spline_dim, int w_dim)
 {
 	spline_coeff * sc;
 	five_diag * m;
 	double * r, * x, * h, * xp, * yp;
 	int i;
-
-	/* Define an overlay onto struct coordinate that lets us select whichever
-	 * of x,y,z,... is needed by specifying an index 0-6
-	 */
+	// Define an overlay onto GpCoordinate that lets us select whichever
+	// of x,y,z,... is needed by specifying an index 0-6
 	struct gen_coord {
 		enum coord_type type;
 		coordval dimension[7];
@@ -448,7 +432,6 @@ static spline_coeff * cp_approx_spline(struct coordinate * points, int num_point
 	h = (double *)gp_alloc((num_points - 1) * sizeof(double), "spline help vector");
 	xp = (double *)gp_alloc((num_points) * sizeof(double), "x pos");
 	yp = (double *)gp_alloc((num_points) * sizeof(double), "y pos");
-
 	xp[0] = this_point[0].dimension[path_dim];
 	yp[0] = this_point[0].dimension[spline_dim];
 	for(i = 1; i < num_points; i++) {
@@ -512,17 +495,14 @@ static spline_coeff * cp_approx_spline(struct coordinate * points, int num_point
 		sc[i][1] = (sc[i + 1][0] - sc[i][0]) / h[i] - h[i] / 3 * (sc[i + 1][2] + 2 * sc[i][2]);
 		sc[i][3] = (sc[i + 1][2] - sc[i][2]) / 3 / h[i];
 	}
-
 	SAlloc::F(h);
 	SAlloc::F(x);
 	SAlloc::F(r);
 	SAlloc::F(m);
 	SAlloc::F(xp);
 	SAlloc::F(yp);
-
 	return (sc);
 }
-
 /*
  * Calculation of cubic splines
  * This can be treated as a special case of approximation cubic splines, with
@@ -543,15 +523,13 @@ static spline_coeff * cp_approx_spline(struct coordinate * points, int num_point
  *      cp_tridiag(points, n, PATHCOORD, 0)
  *
  */
-static spline_coeff * cp_tridiag(struct coordinate * points, int num_points,
-    int path_dim, int spline_dim)
+static spline_coeff * cp_tridiag(GpCoordinate * points, int num_points, int path_dim, int spline_dim)
 {
 	spline_coeff * sc;
 	tri_diag * m;
 	double * r, * x, * h, * xp, * yp;
 	int i;
-
-	/* Define an overlay onto struct coordinate that lets us select whichever
+	/* Define an overlay onto GpCoordinate that lets us select whichever
 	 * of x,y,z,... is needed by specifying an index 0-6
 	 */
 	struct gen_coord {
@@ -681,12 +659,12 @@ void gen_interp_unwrap(curve_points * plot)
 static void do_cubic(curve_points * plot/* still contains old plot->points */,
     spline_coeff * sc/* generated by cp_tridiag */, spline_coeff * sc2/* optional spline for yhigh */,
     int first_point/* where to start in plot->points */, int num_points/* to determine end in plot->points */,
-    struct coordinate * dest/* where to put the interpolated data */)
+    GpCoordinate * dest/* where to put the interpolated data */)
 {
 	double xdiff, temp, x, y;
 	double xstart, xend;    /* Endpoints of the sampled x range */
 	int i, l;
-	struct coordinate * this_points;
+	GpCoordinate * this_points;
 	GPO.AxS.Idx_X = plot->AxIdx_X;
 	GPO.AxS.Idx_Y = plot->AxIdx_Y;
 	this_points = (plot->points) + first_point;
@@ -738,7 +716,7 @@ static void do_freq(curve_points * plot/* still contains old plot->points */, in
 {
 	int x_axis = plot->AxIdx_X;
 	int y_axis = plot->AxIdx_Y;
-	struct coordinate * p_this = (plot->points) + first_point;
+	GpCoordinate * p_this = (plot->points) + first_point;
 	for(int i = 0; i < num_points; i++) {
 		const double x = p_this[i].x;
 		const double y = p_this[i].y;
@@ -833,13 +811,13 @@ void gen_interp(curve_points * plot)
 	int i;
 	int num_points;
 	int curves = num_curves(plot);
-	struct coordinate * new_points = (struct coordinate *)gp_alloc((samples_1 + 1) * curves * sizeof(struct coordinate), "interpolation table");
+	GpCoordinate * new_points = (GpCoordinate *)gp_alloc((samples_1 + 1) * curves * sizeof(GpCoordinate), "interpolation table");
 	int first_point = 0;
 	for(i = 0; i < curves; i++) {
 		num_points = next_curve(plot, &first_point);
 		switch(plot->plot_smooth) {
 			case SMOOTH_CSPLINES:
-			    /* 0 and 1 signify x and y, the first two dimensions in struct coordinate */
+			    /* 0 and 1 signify x and y, the first two dimensions in GpCoordinate */
 			    /* for FILLEDCURVES_BETWEEN we do it again for x and yhigh */
 			    sc = cp_tridiag(&plot->points[first_point], num_points, 0, 1);
 			    if(plot->plot_style == FILLEDCURVES && oneof3(plot->filledcurves_options.closeto, FILLEDCURVES_BETWEEN, FILLEDCURVES_ABOVE, FILLEDCURVES_BELOW))
@@ -888,8 +866,8 @@ void gen_interp(curve_points * plot)
 
 static int compare_points(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
-	struct coordinate const * p1 = (struct coordinate const *)arg1;
-	struct coordinate const * p2 = (struct coordinate const *)arg2;
+	GpCoordinate const * p1 = (GpCoordinate const *)arg1;
+	GpCoordinate const * p2 = (GpCoordinate const *)arg2;
 	if(p1->x > p2->x)
 		return (1);
 	if(p1->x < p2->x)
@@ -899,8 +877,8 @@ static int compare_points(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 
 static int compare_z(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
-	struct coordinate const * p1 = (struct coordinate const *)arg1;
-	struct coordinate const * p2 = (struct coordinate const *)arg2;
+	GpCoordinate const * p1 = (GpCoordinate const *)arg1;
+	GpCoordinate const * p2 = (GpCoordinate const *)arg2;
 	if(p1->z > p2->z)
 		return (1);
 	if(p1->z < p2->z)
@@ -916,7 +894,7 @@ void sort_points(curve_points * plot)
 	while((num_points = next_curve(plot, &first_point)) > 0) {
 		/* Sort this set of points, does qsort handle 1 point correctly? */
 		qsort(plot->points + first_point, num_points,
-		    sizeof(struct coordinate), compare_points);
+		    sizeof(GpCoordinate), compare_points);
 		first_point += num_points;
 	}
 	return;
@@ -930,7 +908,7 @@ void zsort_points(curve_points * plot)
 {
 	int i, first_point, num_points;
 
-	/* save variable color into struct coordinate */
+	/* save variable color into GpCoordinate */
 	if(plot->varcolor) {
 		for(i = 0; i < plot->p_count; i++)
 			plot->points[i].CRD_COLOR = plot->varcolor[i];
@@ -939,7 +917,7 @@ void zsort_points(curve_points * plot)
 	first_point = 0;
 	while((num_points = next_curve(plot, &first_point)) > 0) {
 		qsort(plot->points + first_point, num_points,
-		    sizeof(struct coordinate), compare_z);
+		    sizeof(GpCoordinate), compare_z);
 		first_point += num_points;
 	}
 
@@ -950,24 +928,29 @@ void zsort_points(curve_points * plot)
 	}
 	return;
 }
-/*
- * cp_implode() if averaging is selected this function computes the new
- *              entries and shortens the whole thing to the necessary
- *              size
- * MGR Addendum
- */
-void cp_implode(curve_points * cp)
+// 
+// cp_implode() if averaging is selected this function computes the new
+//   entries and shortens the whole thing to the necessary size
+// MGR Addendum
+// 
+//void cp_implode(curve_points * cp)
+void GnuPlot::CpImplode(curve_points * pCp)
 {
 	int first_point, num_points;
 	int i, j, k;
-	double x = 0., y = 0., sux = 0., slx = 0., suy = 0., sly = 0.;
+	double x = 0.0;
+	double y = 0.0;
+	double sux = 0.0;
+	double slx = 0.0;
+	double suy = 0.0;
+	double sly = 0.0;
 	double weight = 1.0; /* used for acsplines */
 	bool all_inrange = FALSE;
-	GPO.AxS.Idx_X = cp->AxIdx_X;
-	GPO.AxS.Idx_Y = cp->AxIdx_Y;
+	AxS.Idx_X = pCp->AxIdx_X;
+	AxS.Idx_Y = pCp->AxIdx_Y;
 	j = 0;
 	first_point = 0;
-	while((num_points = next_curve(cp, &first_point)) > 0) {
+	while((num_points = next_curve(pCp, &first_point)) > 0) {
 		bool last_point = FALSE;
 		k = 0;
 		for(i = first_point; i <= first_point + num_points; i++) {
@@ -976,132 +959,118 @@ void cp_implode(curve_points * cp)
 					break;
 				last_point = TRUE;
 			}
-			if(!last_point && cp->points[i].type == UNDEFINED)
+			if(!last_point && pCp->points[i].type == UNDEFINED)
 				continue;
 			if(k == 0) {
-				x = cp->points[i].x;
-				y = cp->points[i].y;
-				sux = cp->points[i].xhigh;
-				slx = cp->points[i].xlow;
-				suy = cp->points[i].yhigh;
-				sly = cp->points[i].ylow;
-				weight = cp->points[i].z;
-				all_inrange = (cp->points[i].type == INRANGE);
+				x = pCp->points[i].x;
+				y = pCp->points[i].y;
+				sux = pCp->points[i].xhigh;
+				slx = pCp->points[i].xlow;
+				suy = pCp->points[i].yhigh;
+				sly = pCp->points[i].ylow;
+				weight = pCp->points[i].z;
+				all_inrange = (pCp->points[i].type == INRANGE);
 				k = 1;
 			}
-			else if(!last_point && cp->points[i].x == x) {
-				y += cp->points[i].y;
-				sux += cp->points[i].xhigh;
-				slx += cp->points[i].xlow;
-				suy += cp->points[i].yhigh;
-				sly += cp->points[i].ylow;
-				weight += cp->points[i].z;
-				if(cp->points[i].type != INRANGE)
+			else if(!last_point && pCp->points[i].x == x) {
+				y += pCp->points[i].y;
+				sux += pCp->points[i].xhigh;
+				slx += pCp->points[i].xlow;
+				suy += pCp->points[i].yhigh;
+				sly += pCp->points[i].ylow;
+				weight += pCp->points[i].z;
+				if(pCp->points[i].type != INRANGE)
 					all_inrange = FALSE;
 				k++;
 			}
 			else {
-				cp->points[j].x = x;
-				if(cp->plot_smooth == SMOOTH_FREQUENCY ||
-				    cp->plot_smooth == SMOOTH_FREQUENCY_NORMALISED ||
-				    cp->plot_smooth == SMOOTH_CUMULATIVE ||
-				    cp->plot_smooth == SMOOTH_CUMULATIVE_NORMALISED)
+				pCp->points[j].x = x;
+				if(oneof4(pCp->plot_smooth, SMOOTH_FREQUENCY, SMOOTH_FREQUENCY_NORMALISED, SMOOTH_CUMULATIVE, SMOOTH_CUMULATIVE_NORMALISED))
 					k = 1;
-				cp->points[j].y = y /= (double)k;
-				cp->points[j].xhigh = sux / (double)k;
-				cp->points[j].xlow = slx / (double)k;
-				cp->points[j].yhigh = suy / (double)k;
-				cp->points[j].ylow = sly / (double)k;
-				cp->points[j].z = weight / (double)k;
-				/* HBB 20000405: I wanted to use STORE_AND_FIXUP_RANGE here,
-				 * but won't: it assumes we want to modify the range, and
-				 * that the range is given in 'input' coordinates.
-				 */
-				cp->points[j].type = INRANGE;
+				pCp->points[j].y = y /= (double)k;
+				pCp->points[j].xhigh = sux / (double)k;
+				pCp->points[j].xlow = slx / (double)k;
+				pCp->points[j].yhigh = suy / (double)k;
+				pCp->points[j].ylow = sly / (double)k;
+				pCp->points[j].z = weight / (double)k;
+				// HBB 20000405: I wanted to use STORE_AND_FIXUP_RANGE here,
+				// but won't: it assumes we want to modify the range, and
+				// that the range is given in 'input' coordinates.
+				pCp->points[j].type = INRANGE;
 				if(!all_inrange) {
-					if(((x < GPO.AxS.__X().min) && !(GPO.AxS.__X().autoscale & AUTOSCALE_MIN))
-					    ||  ((x > GPO.AxS.__X().max) && !(GPO.AxS.__X().autoscale & AUTOSCALE_MAX))
-					    ||  ((y < GPO.AxS.__Y().min) && !(GPO.AxS.__Y().autoscale & AUTOSCALE_MIN))
-					    ||  ((y > GPO.AxS.__Y().max) && !(GPO.AxS.__Y().autoscale & AUTOSCALE_MAX)))
-						cp->points[j].type = OUTRANGE;
+					if(((x < AxS.__X().min) && !(AxS.__X().autoscale & AUTOSCALE_MIN))
+					    || ((x > AxS.__X().max) && !(AxS.__X().autoscale & AUTOSCALE_MAX))
+					    || ((y < AxS.__Y().min) && !(AxS.__Y().autoscale & AUTOSCALE_MIN))
+					    || ((y > AxS.__Y().max) && !(AxS.__Y().autoscale & AUTOSCALE_MAX)))
+						pCp->points[j].type = OUTRANGE;
 				} /* if (! all inrange) */
-
 				j++; /* next valid entry */
 				k = 0; /* to read */
 				i--; /* from this (-> last after for(;;)) entry */
 			} /* else (same x position) */
 		} /* for(points in curve) */
-
-		/* FIXME: Monotonic cubic splines support only a single curve per data set */
-		if(j < cp->p_count && cp->plot_smooth == SMOOTH_MONOTONE_CSPLINE)
+		// FIXME: Monotonic cubic splines support only a single curve per data set 
+		if(j < pCp->p_count && pCp->plot_smooth == SMOOTH_MONOTONE_CSPLINE)
 			break;
-
-		/* insert invalid point to separate curves */
-		if(j < cp->p_count) {
-			cp->points[j].type = UNDEFINED;
+		// insert invalid point to separate curves 
+		if(j < pCp->p_count) {
+			pCp->points[j].type = UNDEFINED;
 			j++;
 		}
 		first_point += num_points;
 	}                       /* end while */
-	cp->p_count = j;
-	cp_extend(cp, j);
+	pCp->p_count = j;
+	cp_extend(pCp, j);
 }
-
-/*
- * EAM December 2013
- * monotonic cubic spline using the Fritsch-Carlson algorithm
- * FN Fritsch & RE Carlson (1980). "Monotone Piecewise Cubic Interpolation".
- * SIAM Journal on Numerical Analysis (SIAM) 17 (2): 238–246. doi:10.1137/0717021.
- */
-
-void mcs_interp(curve_points * plot)
+// 
+// EAM December 2013
+// monotonic cubic spline using the Fritsch-Carlson algorithm
+// FN Fritsch & RE Carlson (1980). "Monotone Piecewise Cubic Interpolation".
+// SIAM Journal on Numerical Analysis (SIAM) 17 (2): 238–246. doi:10.1137/0717021.
+// 
+void mcs_interp(curve_points * pPlot)
 {
-	/* These track the original (pre-sorted) data points */
-	int N = plot->p_count;
-	struct coordinate * p = (struct coordinate *)gp_realloc(plot->points, (N+1) * sizeof(coordinate), "mcs");
+	// These track the original (pre-sorted) data points 
+	int N = pPlot->p_count;
+	GpCoordinate * p = (GpCoordinate *)gp_realloc(pPlot->points, (N+1) * sizeof(GpCoordinate), "mcs");
 	int i;
-	/* These will track the resulting smoothed curve (>= 3X original count) */
-	/* Larger number of samples gives smoother curve (no surprise!) */
+	// These will track the resulting smoothed curve (>= 3X original count) 
+	// Larger number of samples gives smoother curve (no surprise!) 
 	int Nsamp = (samples_1 > 2*N) ? samples_1 : 2*N;
 	int Ntot = N + Nsamp;
-	struct coordinate * new_points = (struct coordinate *)gp_alloc((Ntot) * sizeof(coordinate), "mcs");
+	GpCoordinate * new_points = (GpCoordinate *)gp_alloc((Ntot) * sizeof(GpCoordinate), "mcs");
 	double xstart = MAX(p[0].x, GPO.AxS.__X().min);
 	double xend = MIN(p[N-1].x, GPO.AxS.__X().max);
 	double xstep = (xend - xstart) / (Nsamp - 1);
-	/* Load output x coords for sampling */
+	// Load output x coords for sampling 
 	for(i = 0; i<N; i++)
 		new_points[i].x = p[i].x;
 	for(; i<Ntot; i++)
 		new_points[i].x = xstart + (i-N)*xstep;
-	/* Sort output x coords */
-	qsort(new_points, Ntot, sizeof(struct coordinate), compare_points);
-	/* Displace any collisions */
+	// Sort output x coords 
+	qsort(new_points, Ntot, sizeof(GpCoordinate), compare_points);
+	// Displace any collisions 
 	for(i = 1; i<Ntot-1; i++) {
 		double delta = new_points[i].x - new_points[i-1].x;
 		if(new_points[i+1].x - new_points[i].x < delta/1000.)
 			new_points[i].x -= delta/2.;
 	}
-
-	/* Calculate spline coefficients */
+	// Calculate spline coefficients 
 #define DX      xlow
 #define SLOPE   xhigh
 #define C1      ylow
 #define C2      yhigh
 #define C3      z
-
 	for(i = 0; i < N-1; i++) {
 		p[i].DX = p[i+1].x - p[i].x;
 		p[i].SLOPE = (p[i+1].y - p[i].y) / p[i].DX;
 	}
-
-	/* The SIAM paper only mentions setting the final slope to zero if the
-	 * calculation is otherwise ill-behaved (how would one detect that?).
-	 * Retaining the data-derived slope makes the handling at the two ends
-	 * of the data range consistent. See Bug #2055
-	 */
-	/* p[N-1].SLOPE = 0; */
+	// The SIAM paper only mentions setting the final slope to zero if the
+	// calculation is otherwise ill-behaved (how would one detect that?).
+	// Retaining the data-derived slope makes the handling at the two ends
+	// of the data range consistent. See Bug #2055
+	// p[N-1].SLOPE = 0; 
 	p[N-1].SLOPE = p[N-2].SLOPE;
-
 	p[0].C1 = p[0].SLOPE;
 	for(i = 0; i < N-1; i++) {
 		if(p[i].SLOPE * p[i+1].SLOPE <= 0) {
@@ -1109,24 +1078,20 @@ void mcs_interp(curve_points * plot)
 		}
 		else {
 			double sum = p[i].DX + p[i+1].DX;
-			p[i+1].C1 = (3. * sum)
-			    / ((sum + p[i+1].DX) /  p[i].SLOPE + (sum + p[i].DX) /  p[i+1].SLOPE);
+			p[i+1].C1 = (3.0 * sum) / ((sum + p[i+1].DX) /  p[i].SLOPE + (sum + p[i].DX) /  p[i+1].SLOPE);
 		}
 	}
 	p[N].C1 = p[N-1].SLOPE;
-
 	for(i = 0; i < N; i++) {
 		double temp = p[i].C1 + p[i+1].C1 - 2*p[i].SLOPE;
 		p[i].C2 = (p[i].SLOPE - p[i].C1 -temp) / p[i].DX;
 		p[i].C3 = temp / (p[i].DX * p[i].DX);
 	}
-
-	/* Use the coefficients C1, C2, C3 to interpolate over the requested range */
+	// Use the coefficients C1, C2, C3 to interpolate over the requested range 
 	for(i = 0; i < Ntot; i++) {
 		double x = new_points[i].x;
 		double y;
 		bool exact = FALSE;
-
 		if(x == p[N-1].x) { /* Exact value for right-most point of original data */
 			y = p[N-1].y;
 			exact = TRUE;
@@ -1153,7 +1118,6 @@ void mcs_interp(curve_points * plot)
 				y = p[j].y + p[j].C1 * diff + p[j].C2 * diff * diff + p[j].C3 * diff * diff * diff;
 			}
 		}
-
 		xstart = GPO.AxS.__X().min;
 		xend = GPO.AxS.__X().max;
 		if(inrange(x, xstart, xend))
@@ -1161,14 +1125,14 @@ void mcs_interp(curve_points * plot)
 		else
 			new_points[i].type = OUTRANGE;
 		// FIXME:  simpler test for outrange would be sufficient 
-		GPO.AxS.Idx_Y = plot->AxIdx_Y;
-		store_and_update_range(&new_points[i].y, y, &new_points[i].type, &GPO.AxS.__Y(), plot->noautoscale);
+		GPO.AxS.Idx_Y = pPlot->AxIdx_Y;
+		store_and_update_range(&new_points[i].y, y, &new_points[i].type, &GPO.AxS.__Y(), pPlot->noautoscale);
 	}
 	// Replace original data with the interpolated curve 
 	SAlloc::F(p);
-	plot->points = new_points;
-	plot->p_count = Ntot;
-	plot->p_max = Ntot + 1;
+	pPlot->points = new_points;
+	pPlot->p_count = Ntot;
+	pPlot->p_max = Ntot + 1;
 #undef DX
 #undef SLOPE
 #undef C1
@@ -1262,7 +1226,7 @@ void make_bins(curve_points * plot, int nbins, double binlow, double binhigh, do
 	 * new y = number of points in the bin
 	 */
 	plot->p_count = nbins;
-	plot->points = (struct coordinate *)gp_realloc(plot->points, nbins * sizeof(struct coordinate), "curve_points");
+	plot->points = (GpCoordinate *)gp_realloc(plot->points, nbins * sizeof(GpCoordinate), "curve_points");
 	for(i = 0; i<nbins; i++) {
 		double bincent = bottom + (0.5 + (double)i) * binwidth;
 		plot->points[i].type = INRANGE;
@@ -1316,7 +1280,7 @@ static void do_3d_cubic(struct iso_curve * curve, enum PLOT_SMOOTH smooth_option
 {
 	int i, l;
 	int nseg = samples_1;
-	struct coordinate * new_points;
+	GpCoordinate * new_points;
 	double xrange, yrange, zrange;
 	double dx, dy, dz;
 	double maxdx, maxdy, maxdz;
@@ -1324,7 +1288,7 @@ static void do_3d_cubic(struct iso_curve * curve, enum PLOT_SMOOTH smooth_option
 	spline_coeff * sc_x = NULL;
 	spline_coeff * sc_y = NULL;
 	spline_coeff * sc_z = NULL;
-	struct coordinate * old_points = curve->points;
+	GpCoordinate * old_points = curve->points;
 	/*
 	 * Sanity check axis ranges.
 	 * This catches curves that lie in a plane of constant x or y.
@@ -1360,8 +1324,8 @@ static void do_3d_cubic(struct iso_curve * curve, enum PLOT_SMOOTH smooth_option
 		old_points[i].CRD_PATH /= tsum;
 	tstep = old_points[curve->p_count-1].CRD_PATH / (double)(nseg - 1);
 	/* Create new list to hold interpolated points */
-	new_points = (struct coordinate *)gp_alloc((nseg+1) * sizeof(struct coordinate), "3D spline");
-	memzero(new_points, (nseg+1) * sizeof(struct coordinate));
+	new_points = (GpCoordinate *)gp_alloc((nseg+1) * sizeof(GpCoordinate), "3D spline");
+	memzero(new_points, (nseg+1) * sizeof(GpCoordinate));
 	/*
 	 * If the curve being fitted lies entirely in one plane,
 	 * we can do better by fitting a 2D spline rather than a 3D spline.
@@ -1489,16 +1453,16 @@ void gen_2d_path_splines(curve_points * plot)
 	int i;
 	int ic, first_point;    /* indexes for original data */
 	int is = 0;             /* index for new (splined) data */
-	struct coordinate * old_points = NULL;
-	struct coordinate * splined_points;
+	GpCoordinate * old_points = NULL;
+	GpCoordinate * splined_points;
 	spline_coeff * sc_x = NULL;
 	spline_coeff * sc_y = NULL;
 	const double xrange = fabs(GPO.AxS[plot->AxIdx_X].max - GPO.AxS[plot->AxIdx_X].min);
 	const double yrange = fabs(GPO.AxS[plot->AxIdx_Y].max - GPO.AxS[plot->AxIdx_Y].min);
 	const int curves = num_curves(plot);
 	/* Allocate space to hold the interpolated points */
-	splined_points = (struct coordinate *)gp_alloc( (samples_1 * curves) * sizeof(struct coordinate), NULL);
-	memzero(splined_points, (samples_1 * curves) * sizeof(struct coordinate));
+	splined_points = (GpCoordinate *)gp_alloc( (samples_1 * curves) * sizeof(GpCoordinate), NULL);
+	memzero(splined_points, (samples_1 * curves) * sizeof(GpCoordinate));
 	first_point = 0;
 	for(ic = 0; ic < curves; ic++) {
 		double t, tstep, tsum;
@@ -1510,8 +1474,8 @@ void gen_2d_path_splines(curve_points * plot)
 		/* Make a copy of the original points so that we don't corrupt the
 		 * list by adding up to three new ones.
 		 */
-		old_points = (struct coordinate *)gp_realloc(old_points, (num_points + 3) * sizeof(struct coordinate), "spline points");
-		memcpy(&old_points[1], &plot->points[first_point], num_points * sizeof(struct coordinate));
+		old_points = (GpCoordinate *)gp_realloc(old_points, (num_points + 3) * sizeof(GpCoordinate), "spline points");
+		memcpy(&old_points[1], &plot->points[first_point], num_points * sizeof(GpCoordinate));
 		/* Remove any unusable points (NaN, missing, duplicates) before fitting a spline.
 		 * If that leaves fewer than 3 points, skip it.
 		 */
@@ -1568,11 +1532,9 @@ void gen_2d_path_splines(curve_points * plot)
 
 		/* First output point is the same as the original first point */
 		splined_points[is++] = old_points[1];
-
 		/* Skip the points in the overlap region */
 		for(i = 0; i * tstep < old_points[1].CRD_PATH; i++)
 			;
-
 		/* Use spline coefficients to generate a new point at each sample interval. */
 		for(l = 0; i < samples_1; i++) {
 			double temp;
@@ -1609,38 +1571,29 @@ void gen_2d_path_splines(curve_points * plot)
  */
 void gen_3d_splines(struct surface_points * plot)
 {
-	iso_curve * curve = plot->iso_crvs;
-	while(curve) {
-		/* Remove any unusable points before fitting a spline */
+	for(iso_curve * curve = plot->iso_crvs; curve; curve = curve->next) {
+		// Remove any unusable points before fitting a spline 
 		curve->p_count = do_curve_cleanup(curve->points, curve->p_count);
 		if(curve->p_count > 3)
 			do_3d_cubic(curve, plot->plot_smooth);
-		curve = curve->next;
 	}
 }
 
-static int do_curve_cleanup(struct coordinate * point, int npoints)
+static int do_curve_cleanup(GpCoordinate * point, int npoints)
 {
-	int i, keep;
-
-	/* Step through points in curve keeping only the usable ones.
-	 * Discard duplicates
-	 */
-	keep = 0;
-	for(i = 0; i < npoints; i++) {
+	// Step through points in curve keeping only the usable ones. Discard duplicates
+	int keep = 0;
+	for(int i = 0; i < npoints; i++) {
 		if(point[i].type == UNDEFINED)
 			continue;
 		if(isnan(point[i].x) || isnan(point[i].y) || isnan(point[i].z))
 			continue;
 		if(i != keep)
 			point[keep] = point[i];
-		/* FIXME: should probably check fabs(this-prev) < EPS */
-		if((keep > 0)  && (point[keep].x == point[keep-1].x)
-		    && (point[keep].y == point[keep-1].y)
-		    && (point[keep].z == point[keep-1].z))
+		// FIXME: should probably check fabs(this-prev) < EPS 
+		if((keep > 0)  && (point[keep].x == point[keep-1].x) && (point[keep].y == point[keep-1].y) && (point[keep].z == point[keep-1].z))
 			continue;
 		keep++;
 	}
-
 	return keep;
 }

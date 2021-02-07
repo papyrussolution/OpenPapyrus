@@ -46,8 +46,8 @@ register_term(kyo)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PRE_init();
-TERM_PUBLIC void KYO_init();
+TERM_PUBLIC void PRE_init(termentry * pThis);
+TERM_PUBLIC void KYO_init(termentry * pThis);
 TERM_PUBLIC void PRE_graphics();
 TERM_PUBLIC void PRE_text();
 TERM_PUBLIC void PRE_linetype(int linetype);
@@ -78,7 +78,7 @@ TERM_PUBLIC void PRE_reset();
 
 enum JUSTIFY pre_justify = LEFT;        /* text is flush left */
 
-TERM_PUBLIC void PRE_init()
+TERM_PUBLIC void PRE_init(termentry * pThis)
 {
 	fputs("!R! RES;\n", gpoutfile);
 	/* UNIT: units are dots, 300 dots = 1 in = 72 pt */
@@ -89,7 +89,7 @@ TERM_PUBLIC void PRE_init()
 	fputs("FTMD 15; FONT 29; SCPI 9;\n", gpoutfile);
 }
 
-TERM_PUBLIC void KYO_init()
+TERM_PUBLIC void KYO_init(termentry * pThis)
 {
 	fputs("!R! RES;\n", gpoutfile);
 	/* UNIT: units are dots, 300 dots = 1 in = 72 pt */
@@ -162,23 +162,59 @@ TERM_PUBLIC void PRE_reset()
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(prescribe_driver)
-"prescribe", "Prescribe - for the Kyocera Laser Printer",
-PRE_XMAX, PRE_YMAX, PRE_VCHAR, PRE_HCHAR,
-PRE_VTIC, PRE_HTIC, options_null, PRE_init, PRE_reset,
-PRE_text, null_scale, PRE_graphics, PRE_move, PRE_vector,
-PRE_linetype, PRE_put_text, null_text_angle,
-PRE_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(prescribe_driver)
+	"prescribe", 
+	"Prescribe - for the Kyocera Laser Printer",
+	PRE_XMAX, 
+	PRE_YMAX, 
+	PRE_VCHAR, 
+	PRE_HCHAR,
+	PRE_VTIC, 
+	PRE_HTIC, 
+	options_null, 
+	PRE_init, 
+	PRE_reset,
+	PRE_text, 
+	GnuPlot::NullScale, 
+	PRE_graphics, 
+	PRE_move, 
+	PRE_vector,
+	PRE_linetype, 
+	PRE_put_text, 
+	null_text_angle,
+	PRE_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(prescribe_driver)
 
 #undef LAST_TERM
 #define LAST_TERM prescribe_driver
 
 TERM_TABLE_START(kyo_driver)
-"kyo", "Kyocera Laser Printer with Courier font",
-PRE_XMAX, PRE_YMAX, KYO_VCHAR, KYO_HCHAR,
-PRE_VTIC, PRE_HTIC, options_null, KYO_init, PRE_reset,
-PRE_text, null_scale, PRE_graphics, PRE_move, PRE_vector,
-PRE_linetype, PRE_put_text, null_text_angle,
-PRE_justify_text, line_and_point, do_arrow, set_font_null TERM_TABLE_END(kyo_driver)
+	"kyo", 
+	"Kyocera Laser Printer with Courier font",
+	PRE_XMAX, 
+	PRE_YMAX, 
+	KYO_VCHAR, 
+	KYO_HCHAR,
+	PRE_VTIC, 
+	PRE_HTIC, 
+	options_null, 
+	KYO_init, 
+	PRE_reset,
+	PRE_text, 
+	GnuPlot::NullScale, 
+	PRE_graphics, 
+	PRE_move, 
+	PRE_vector,
+	PRE_linetype, 
+	PRE_put_text, 
+	null_text_angle,
+	PRE_justify_text, 
+	line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(kyo_driver)
 
 #undef LAST_TERM
 #define LAST_TERM kyo_driver

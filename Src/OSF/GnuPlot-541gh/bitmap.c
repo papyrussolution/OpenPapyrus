@@ -1124,23 +1124,20 @@ void b_move(uint x, uint y)
 	b_currx = x;
 	b_curry = y;
 }
-
-/*
- * draw to (x,y) with color b_value
- */
+//
+// draw to (x,y) with color b_value
+//
 void b_vector(uint x, uint y)
 {
-	/* We can't clip properly, but we can refuse to draw out of bounds */
-	if(x < term->xmax && y < term->ymax
-	    &&  b_currx < term->xmax && b_curry < term->ymax)
+	// We can't clip properly, but we can refuse to draw out of bounds 
+	if(x < term->MaxX && y < term->MaxY && b_currx < term->MaxX && b_curry < term->MaxY)
 		b_wline(b_currx, b_curry, x, y);
 	b_currx = x;
 	b_curry = y;
 }
-
-/*
- * put text str at (x,y) with color b_value and rotation b_angle
- */
+//
+// put text str at (x,y) with color b_value and rotation b_angle
+//
 void b_put_text(uint x, uint y, const char * str)
 {
 	if(b_angle == 1)

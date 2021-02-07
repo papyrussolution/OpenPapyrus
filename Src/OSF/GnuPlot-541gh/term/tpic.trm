@@ -84,7 +84,7 @@ register_term(tpic)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void TPIC_options();                /* get size options */
-TERM_PUBLIC void TPIC_init();
+TERM_PUBLIC void TPIC_init(termentry * pThis);
 TERM_PUBLIC void TPIC_reset();
 TERM_PUBLIC void TPIC_text();
 TERM_PUBLIC void TPIC_graphics();
@@ -286,7 +286,7 @@ static uint tpic_posy;
 static int tpic_point_types;
 static int tpic_numlines;
 
-TERM_PUBLIC void TPIC_init()
+TERM_PUBLIC void TPIC_init(termentry * pThis)
 {
 	static char tpic1[] =
 	    "\
@@ -327,24 +327,24 @@ TERM_PUBLIC void TPIC_graphics()
 	struct termentry * t = term;
 	int left, right, top, bottom;   /* margins */
 	static char begin[] = "%s\\begin{picture}(%d,%d)(%d,%d)%% %s\n";
-	fprintf(gpoutfile, begin, "", t->xmax, t->ymax, 0, 0, "");
+	fprintf(gpoutfile, begin, "", t->MaxX, t->MaxY, 0, 0, "");
 
 	/* the following is dependent on boundary() function in graphics.c */
 	left = TPIC_HCHAR * 12;
 	right = TPIC_HCHAR * 2 + TPIC_HTIC;
 	bottom = TPIC_VCHAR * 7 / 2 + 1;
 	top = TPIC_VCHAR * 5 / 2 - 1;
-	fprintf(gpoutfile, begin, "%% ", t->xmax - left, t->ymax, left, 0,
+	fprintf(gpoutfile, begin, "%% ", t->MaxX - left, t->MaxY, left, 0,
 	    "trim left margin");
-	fprintf(gpoutfile, begin, "%% ", t->xmax - right, t->ymax, 0, 0,
+	fprintf(gpoutfile, begin, "%% ", t->MaxX - right, t->MaxY, 0, 0,
 	    "trim right margin");
-	fprintf(gpoutfile, begin, "%% ", t->xmax - left - right, t->ymax, left, 0,
+	fprintf(gpoutfile, begin, "%% ", t->MaxX - left - right, t->MaxY, left, 0,
 	    "trim left & right margins");
-	fprintf(gpoutfile, begin, "%% ", t->xmax, t->ymax - top, 0, 0,
+	fprintf(gpoutfile, begin, "%% ", t->MaxX, t->MaxY - top, 0, 0,
 	    "trim top margin");
-	fprintf(gpoutfile, begin, "%% ", t->xmax, t->ymax - bottom, 0, bottom,
+	fprintf(gpoutfile, begin, "%% ", t->MaxX, t->MaxY - bottom, 0, bottom,
 	    "trim bottom margin");
-	fprintf(gpoutfile, begin, "%% ", t->xmax, t->ymax - top - bottom, 0, bottom,
+	fprintf(gpoutfile, begin, "%% ", t->MaxX, t->MaxY - top - bottom, 0, bottom,
 	    "trim top & bottom margins");
 
 	fputs("\\footnotesize%\n", gpoutfile);
@@ -861,12 +861,30 @@ static void tpic_dashedflush(double interval)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(tpic_driver)
-"tpic", "TPIC -- LaTeX picture environment with tpic \\specials",
-TPIC_XMAX, TPIC_YMAX, TPIC_VCHAR, TPIC_HCHAR,
-TPIC_VTIC, TPIC_HTIC, TPIC_options, TPIC_init, TPIC_reset,
-TPIC_text, null_scale, TPIC_graphics, TPIC_move, TPIC_vector,
-TPIC_linetype, TPIC_put_text, TPIC_text_angle,
-TPIC_justify_text, TPIC_point, TPIC_arrow, set_font_null TERM_TABLE_END(tpic_driver)
+	"tpic", 
+	"TPIC -- LaTeX picture environment with tpic \\specials",
+	TPIC_XMAX, 
+	TPIC_YMAX, 
+	TPIC_VCHAR, 
+	TPIC_HCHAR,
+	TPIC_VTIC, 
+	TPIC_HTIC, 
+	TPIC_options, 
+	TPIC_init, 
+	TPIC_reset,
+	TPIC_text, 
+	GnuPlot::NullScale, 
+	TPIC_graphics, 
+	TPIC_move, 
+	TPIC_vector,
+	TPIC_linetype, 
+	TPIC_put_text, 
+	TPIC_text_angle,
+	TPIC_justify_text, 
+	TPIC_point, 
+	TPIC_arrow, 
+	set_font_null 
+TERM_TABLE_END(tpic_driver)
 
 #undef LAST_TERM
 #define LAST_TERM tpic_driver

@@ -71,7 +71,7 @@ register_term(hp500c)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void HP500C_options();
-TERM_PUBLIC void HP500C_init();
+TERM_PUBLIC void HP500C_init(termentry * pThis);
 TERM_PUBLIC void HP500C_reset();
 TERM_PUBLIC void HP500C_linetype(int linetype);
 TERM_PUBLIC void HP500C_graphics();
@@ -163,8 +163,8 @@ TERM_PUBLIC void HP500C_options()
 		}
 		GPO.Pgm.Shift();
 	}
-	term->xmax = HP500C_XMAX;
-	term->ymax = HP500C_YMAX;
+	term->MaxX = HP500C_XMAX;
+	term->MaxY = HP500C_YMAX;
 	switch(hpdj_dpp) {
 		case 1:
 		    strcpy(term_options, "300");
@@ -203,7 +203,7 @@ TERM_PUBLIC void HP500C_options()
 	}
 }
 
-TERM_PUBLIC void HP500C_init()
+TERM_PUBLIC void HP500C_init(termentry * pThis)
 {
 	/* HBB 980226: all changes to term-> fields *must* happen here, not
 	 * in graphics() !*/
@@ -327,14 +327,11 @@ static int HP_compress_to_TIFF(uchar * op,          /* original pointer */
 {
 	uchar * countposition;
 	uchar * ce = cp;
-
 	while(op < oe) {
 		uchar prevchar;
 		uchar count;
-
 		prevchar = *op; /* gelesenes Zeichen aufbewaren */
 		count = 1;      /* bisher wurde es einmal gelesen */
-
 		while(++op < oe && *op == prevchar && count < 128) {
 			count++;
 		}
@@ -472,14 +469,35 @@ TERM_PUBLIC void HP500C_text()
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(hp500c_driver)
-"hp500c", "HP DeskJet 500c, [75 100 150 300] [rle tiff]",
-HP500C_75PPI_XMAX, HP500C_75PPI_YMAX, HP500C_75PPI_VCHAR,
-HP500C_75PPI_HCHAR, HP500C_75PPI_VTIC, HP500C_75PPI_HTIC, HP500C_options,
-HP500C_init, HP500C_reset, HP500C_text, null_scale,
-HP500C_graphics, b_move, b_vector, HP500C_linetype,
-b_put_text, b_text_angle, null_justify_text, do_point,
-do_arrow, set_font_null, 0, TERM_BINARY,
-0, 0, b_boxfill TERM_TABLE_END(hp500c_driver)
+	"hp500c", 
+	"HP DeskJet 500c, [75 100 150 300] [rle tiff]",
+	HP500C_75PPI_XMAX, 
+	HP500C_75PPI_YMAX, 
+	HP500C_75PPI_VCHAR,
+	HP500C_75PPI_HCHAR, 
+	HP500C_75PPI_VTIC, 
+	HP500C_75PPI_HTIC, 
+	HP500C_options,
+	HP500C_init, 
+	HP500C_reset, 
+	HP500C_text, 
+	GnuPlot::NullScale,
+	HP500C_graphics, 
+	b_move, 
+	b_vector, 
+	HP500C_linetype,
+	b_put_text, 
+	b_text_angle, 
+	null_justify_text, 
+	do_point,
+	GnuPlot::DoArrow, 
+	set_font_null, 
+	0, 
+	TERM_BINARY,
+	0, 
+	0, 
+	b_boxfill 
+TERM_TABLE_END(hp500c_driver)
 
 #undef LAST_TERM
 #define LAST_TERM hp500c_driver

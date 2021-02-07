@@ -25,87 +25,70 @@
 #define GP_ENH_EST 1            /* estimate string length of enhanced text */
 #define POSTSCRIPT_DRIVER 1     /* include post.trm */
 #define PSLATEX_DRIVER 1        /* include pslatex.trm */
-
 #if defined(PSLATEX_DRIVER) && !defined(POSTSCRIPT_DRIVER)
-#define POSTSCRIPT_DRIVER
+	#define POSTSCRIPT_DRIVER
 #endif
-
 #ifdef GP_ENH_EST
-#include "estimate.trm" /* used for enhanced text processing */
+	//#include "estimate.trm" /* used for enhanced text processing */
 #endif
-
-/* Unicode escape sequences (\U+hhhh) are handling by the enhanced text code.
- * Various terminals check every string to see whether it needs enhanced text
- * processing. This macro allows them to include a check for the presence of
- * unicode escapes.
- */
-#define contains_unicode(S) strstr(S, "\\U+")
-
-/* Define SHORT_TERMLIST to select a few terminals. It is easier
- * to define the macro and list desired terminals in this section.
- * Sample configuration for a Unix workstation
- */
+// 
+// Define SHORT_TERMLIST to select a few terminals. It is easier
+// to define the macro and list desired terminals in this section.
+// Sample configuration for a Unix workstation
+// 
 #ifdef SHORT_TERMLIST
-#include "dumb.trm"             /* dumb terminal */
-
-#ifdef POSTSCRIPT_DRIVER
-#ifdef  PSLATEX_DRIVER
-	#undef PSLATEX_DRIVER
-#endif
-	#include "post.trm"             /* postscript */
-#endif
-#ifdef X11
-	#include "x11.trm"              /* X Window system */
-#endif                          /* X11 */
-#ifdef _WIN32
-	#include "win.trm"              /* MS-Windows */
-#endif
-#else /* include all applicable terminals not commented out */
-
-/****************************************************************************/
-/* Platform dependent part                                                  */
-/****************************************************************************/
-
-/* BeOS */
+	#include "dumb.trm"             /* dumb terminal */
+	#ifdef POSTSCRIPT_DRIVER
+	#ifdef  PSLATEX_DRIVER
+		#undef PSLATEX_DRIVER
+	#endif
+		#include "post.trm"             /* postscript */
+	#endif
+	#ifdef X11
+		#include "x11.trm"              /* X Window system */
+	#endif                          /* X11 */
+	#ifdef _WIN32
+		// @experimental #include "win.trm"              /* MS-Windows */
+	#endif
+#else // include all applicable terminals not commented out 
+//
+// Platform dependent part
+//
 #ifdef __BEOS__
 	#include "be.trm"
 #endif
-/* MSDOS with djgpp compiler or _WIN32/Mingw or X11 */
+// MSDOS with djgpp compiler or _WIN32/Mingw or X11 
 #if (defined(DJGPP) && (!defined(DJSVGA) || (DJSVGA != 0))) || defined(HAVE_GRX)
 	#include "djsvga.trm"
 #endif
 /****************************************************************************/
 /* Windows */
 #ifdef _WIN32
-	#include "win.trm" // Windows GDI/GDI+/Direct2D 
+	// @experimental #include "win.trm" // Windows GDI/GDI+/Direct2D 
 #endif
 /* Apple Mac OS X */
 #ifdef HAVE_FRAMEWORK_AQUATERM
 	#include "aquaterm.trm" // support for AquaTerm.app 
 #endif
-/***************************************************************************/
-/* Terminals for various Unix platforms                                    */
-/***************************************************************************/
+//
+// Terminals for various Unix platforms
+//
 #ifdef UIS
-	#include "vws.trm" /* VAX Windowing System requires UIS libraries */
+	#include "vws.trm" // VAX Windowing System requires UIS libraries 
 #endif
 /****************************************************************************/
 /* Terminals not relevant for MSDOS, MS-Windows */
 #if !(defined(MSDOS) || defined(_WIN32))
 #include "linux-vgagl.trm" /* This is not really a terminal, it generates a help section for  using the linux console. */
 #ifdef HAVE_GPIC
-	#include "gpic.trm" /* gpic for groff */
+	#include "gpic.trm" // gpic for groff 
 #endif
 #if defined(HAVE_REGIS)
-	#include "regis.trm" /* REGIS graphics language */
+	#include "regis.trm" // REGIS graphics language 
 #endif
-
 #ifdef WITH_TEKTRONIX
-/* Tektronix 4106, 4107, 4109 and 420x terminals */
-#   include "t410x.trm"
-
-/* a Tek 4010 and others including VT-style */
-#   include "tek.trm"
+	#include "t410x.trm" // Tektronix 4106, 4107, 4109 and 420x terminals 
+	#include "tek.trm" // a Tek 4010 and others including VT-style 
 #endif
 #endif /* !MSDOS && !_WIN32 */
 /****************************************************************************/
@@ -120,18 +103,18 @@
 #if (defined(HAVE_GD_PNG) || defined(HAVE_CAIROPDF))
 	#include "write_png_image.c" /* HTML Canvas terminal */
 #endif
-#include "canvas.trm"
-#include "cgm.trm" /* Computer Graphics Metafile (eg ms office) */
-/* #include "corel.trm"  */ /* CorelDraw! eps format */
+//#include "canvas.trm"
+//#include "cgm.trm" /* Computer Graphics Metafile (eg ms office) */
+// #include "corel.trm" // CorelDraw! eps format 
 #ifdef DEBUG
 	#include "debug.trm" /* debugging terminal */
 #endif
-#include "dumb.trm" /* dumb terminal */
+#include "dumb.trm" // dumb terminal 
 #ifdef HAVE_LIBCACA
 	#include "caca.trm" /* caca: color ascii art terminal using libcaca */
 #endif
 #ifndef NO_BITMAP_SUPPORT
-	#include "block.trm" /* pseudo-graphics using block or Braille characters */
+	#include "block.trm" // pseudo-graphics using block or Braille characters 
 #endif
 /* Legacy terminal for export to AutoCad (Release 10.x)
  * DWGR10 format (1988)
@@ -140,37 +123,35 @@
  * http://images.autodesk.com/adsk/files/autocad_2012_pdf_dxf-reference_enu.pdf
  */
 #include "dxf.trm"
-#include "emf.trm" /* Enhanced Metafile Format driver */
-/* #include "dxy.trm" */ /* Roland DXY800A plotter */
-/* #include "excl.trm" */ /* QMS/EXCL laserprinter (Talaris 1590 and others) */
-#include "fig.trm" /* fig graphics */
-/* #include "grass.trm" */ /* geographical info system */
-/* #include "hp26.trm" */ /* HP2623A "ET head" 1980 era graphics terminal */
-/* #include "hp2648.trm" */ /* HP2647 and 2648 */
+#include "emf.trm" // Enhanced Metafile Format driver 
+// #include "dxy.trm"  // Roland DXY800A plotter 
+// #include "excl.trm" // QMS/EXCL laserprinter (Talaris 1590 and others) 
+#include "fig.trm" // fig graphics 
+// #include "grass.trm" // geographical info system */
+// #include "hp26.trm" // HP2623A "ET head" 1980 era graphics terminal */
+// #include "hp2648.trm" // HP2647 and 2648 */
 #include "hpgl.trm" /* HP7475, HP7220 plotters, and (hopefully) lots of others */
 #ifndef NO_BITMAP_SUPPORT
 	#include "hp500c.trm" /* HP DeskJet 500 C */
 	#include "hpljii.trm" /* HP Laserjet II */
 	#include "hppj.trm" /* HP PrintJet */
 #endif /* NO_BITMAP_SUPPORT */
-/* #include "imagen.trm" */ /* Imagen laser printers */
-/* #include "kyo.trm" */ /* Kyocera Prescribe printer */
+// #include "imagen.trm" // Imagen laser printers 
+// #include "kyo.trm" // Kyocera Prescribe printer 
 #ifdef HAVE_MIF
 	#include "mif.trm" /* Frame Maker MIF 3.00 format driver */
 #endif
 // DEPRECATED since 5.0.6
 // PDF terminal based on non-free library PDFlib or PDFlib-lite from GmbH.
 // #include "pdf.trm" 
-
 #if defined(HAVE_GD_PNG) || defined(HAVE_GD_JPEG) || defined(HAVE_GD_GIF)
 	#include "gd.trm"
 #endif
 #ifdef POSTSCRIPT_DRIVER
-	#include "post.trm" /* postscript */
+	#include "post.trm" // postscript 
 #endif
-/* QMS laser printers */
-/* #include "qms.trm" */
-#include "svg.trm" /* W3C Scalable Vector Graphics file */
+//#include "qms.trm"  // QMS laser printers 
+//#include "svg.trm" // W3C Scalable Vector Graphics file 
 #ifdef HAVE_TGIF
 	#include "tgif.trm" // x11 tgif tool 
 #endif

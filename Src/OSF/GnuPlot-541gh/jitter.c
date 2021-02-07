@@ -12,8 +12,8 @@ t_jitter jitter = {{first_axes, first_axes, first_axes, 0.0, 0.0, 0.0}, 0.0, 0.0
 
 static int compare_xypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
-	struct coordinate const * p1 = (struct coordinate const*)arg1;
-	struct coordinate const * p2 = (struct coordinate const*)arg2;
+	GpCoordinate const * p1 = (GpCoordinate const*)arg1;
+	GpCoordinate const * p2 = (GpCoordinate const*)arg2;
 	/* Primary sort is on x */
 	/* FIXME: I'd like to treat x coords within jitter.x as equal, */
 	/*        but the coordinate system mismatch makes this hard.  */
@@ -32,14 +32,16 @@ static int compare_xypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 // displaces overlapping points in a point plot.
 // The jittering algorithm is inspired by the beeswarm plot variant in R.
 // 
-static double jdist(coordinate * pi, coordinate * pj)
+//static double jdist(const GpCoordinate * pi, const GpCoordinate * pj)
+double GnuPlot::JDist(const GpCoordinate * pi, const GpCoordinate * pj) const
 {
-	int delx = GPO.AxS.MapiX(pi->x) - GPO.AxS.MapiX(pj->x);
-	int dely = GPO.AxS.MapiY(pi->y) - GPO.AxS.MapiY(pj->y);
+	int delx = AxS.MapiX(pi->x) - AxS.MapiX(pj->x);
+	int dely = AxS.MapiY(pi->y) - AxS.MapiY(pj->y);
 	return sqrt(delx*delx + dely*dely);
 }
 
-void jitter_points(curve_points * plot)
+//void jitter_points(const termentry * pTerm, curve_points * pPlot)
+void GnuPlot::JitterPoints(const termentry * pTerm, curve_points * pPlot)
 {
 	int i, j;
 	// The "x" and "xscale" stored in jitter are really along y 
@@ -48,46 +50,46 @@ void jitter_points(curve_points * plot)
 	yoverlap.x = 0;
 	yoverlap.y = jitter.overlap.x;
 	yoverlap.scaley = jitter.overlap.scalex;
-	GPO.MapPositionR(term, &yoverlap, &xjit, &ygap, "jitter");
+	MapPositionR(pTerm, &yoverlap, &xjit, &ygap, "jitter");
 	// Clear data slots where we will later store the jitter offsets.
 	// Store variable color temporarily in z so it is not lost by sorting.
-	for(i = 0; i < plot->p_count; i++) {
-		if(plot->varcolor)
-			plot->points[i].z = plot->varcolor[i];
-		plot->points[i].CRD_XJITTER = 0.0;
-		plot->points[i].CRD_YJITTER = 0.0;
+	for(i = 0; i < pPlot->p_count; i++) {
+		if(pPlot->varcolor)
+			pPlot->points[i].z = pPlot->varcolor[i];
+		pPlot->points[i].CRD_XJITTER = 0.0;
+		pPlot->points[i].CRD_YJITTER = 0.0;
 	}
 	// Sort points 
-	qsort(plot->points, plot->p_count, sizeof(struct coordinate), compare_xypoints);
+	qsort(pPlot->points, pPlot->p_count, sizeof(GpCoordinate), compare_xypoints);
 	// For each point, check whether subsequent points would overlap it. 
 	// If so, displace them in a fixed pattern 
 	i = 0;
-	while(i < plot->p_count - 1) {
-		for(j = 1; i+j < plot->p_count; j++) {
-			if(jdist(&plot->points[i], &plot->points[i+j]) >= ygap)
+	while(i < pPlot->p_count - 1) {
+		for(j = 1; i+j < pPlot->p_count; j++) {
+			if(JDist(&pPlot->points[i], &pPlot->points[i+j]) >= ygap)
 				break;
 			// Displace point purely on x 
-			xjit  = (j+1)/2 * jitter.spread * plot->lp_properties.p_size;
+			xjit  = (j+1)/2 * jitter.spread * pPlot->lp_properties.p_size;
 			if(jitter.limit > 0)
 				while(xjit > jitter.limit)
 					xjit -= jitter.limit;
 			if((j & 01) != 0)
 				xjit = -xjit;
-			plot->points[i+j].CRD_XJITTER = xjit;
+			pPlot->points[i+j].CRD_XJITTER = xjit;
 			if(jitter.style == JITTER_SQUARE)
-				plot->points[i+j].CRD_YJITTER = plot->points[i].y - plot->points[i+j].y;
+				pPlot->points[i+j].CRD_YJITTER = pPlot->points[i].y - pPlot->points[i+j].y;
 			// Displace points on y instead of x 
 			if(jitter.style == JITTER_ON_Y) {
-				plot->points[i+j].CRD_YJITTER = xjit;
-				plot->points[i+j].CRD_XJITTER = 0;
+				pPlot->points[i+j].CRD_YJITTER = xjit;
+				pPlot->points[i+j].CRD_XJITTER = 0;
 			}
 		}
 		i += j;
 	}
 	// Copy variable colors back to where the plotting code expects to find them 
-	if(plot->varcolor) {
-		for(i = 0; i < plot->p_count; i++)
-			plot->varcolor[i] = plot->points[i].z;
+	if(pPlot->varcolor) {
+		for(i = 0; i < pPlot->p_count; i++)
+			pPlot->varcolor[i] = pPlot->points[i].z;
 	}
 }
 //

@@ -32,36 +32,36 @@ static double spoke_dx, spoke_dy;
 /*}}} */
 
 /* Status information for stacked histogram plots */
-static struct coordinate * stackheight = NULL;   /* top of previous row */
+static GpCoordinate * stackheight = NULL;   /* top of previous row */
 static int stack_count;                         /* points actually used */
 static void place_histogram_titles();
 /*{{{  static fns and local macros */
-static void   adjust_offsets(); 
-static void   adjust_nonlinear_offset(GpAxis * axis);
-static void   recheck_ranges(curve_points * plot);
+//static void   adjust_offsets(); 
+//static void   adjust_nonlinear_offset(GpAxis * axis);
+//static void   recheck_ranges(curve_points * plot);
 //static void   plot_border(termentry * pTerm);
-static void   plot_impulses(curve_points * plot, int yaxis_x, int xaxis_y);
-static void   plot_lines(termentry * pTerm, curve_points * plot);
+//static void   plot_impulses(curve_points * plot, int yaxis_x, int xaxis_y);
+//static void   plot_lines(termentry * pTerm, curve_points * plot);
 //static void   plot_points(termentry * pTerm, curve_points * plot);
 static void   plot_dots(termentry * pTerm, curve_points * plot);
 //static void   plot_bars(termentry * pTerm, curve_points * plot);
 //static void   plot_boxes(termentry * pTerm, curve_points * plot, int xaxis_y);
-static void   plot_filledcurves(termentry * pTerm, curve_points * plot);
-static void   finish_filled_curve(int, gpiPoint *, curve_points *);
+//static void   plot_filledcurves(termentry * pTerm, curve_points * plot);
+//static void   finish_filled_curve(termentry * pTerm, int, gpiPoint *, curve_points *);
 //static void   plot_betweencurves(termentry * pTerm, curve_points * plot);
 //static void   plot_vectors(termentry * pTerm, curve_points * plot);
-static void   plot_f_bars(termentry * pTerm, curve_points * plot);
-static void   plot_c_bars(termentry * pTerm, curve_points * plot);
+//static void   plot_f_bars(termentry * pTerm, curve_points * plot);
+//static void   plot_c_bars(termentry * pTerm, curve_points * plot);
 static int    compare_ypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2);
 //static void   plot_boxplot(termentry * pTerm, curve_points * plot, bool only_autoscale);
 //static void   place_labels(termentry * pTerm, text_label * listhead, int layer, bool clip);
 static void   place_arrows(int layer);
-static void   place_raxis();
-static void   place_parallel_axes(termentry * pTerm, curve_points * plots, int layer);
+//static void   place_raxis();
+//static void   place_parallel_axes(termentry * pTerm, curve_points * plots, int layer);
 //static void   place_spiderplot_axes(termentry * pTerm, curve_points * plots, int layer);
 //static void   plot_steps(termentry * pTerm, curve_points * plot);     /* JG */
-static void   plot_fsteps(termentry * pTerm, curve_points * plot);    /* HOE */
-static void   plot_histeps(curve_points * plot);   /* CAC */
+//static void   plot_fsteps(termentry * pTerm, curve_points * plot);    /* HOE */
+//static void   plot_histeps(curve_points * plot);   /* CAC */
 static void   ytick2d_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
 static void   xtick2d_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
 static void   ttick_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
@@ -69,14 +69,14 @@ static void   spidertick_callback(GpAxis *, double place, char * text, int ticle
 static int    histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static void   get_arrow(arrow_def * arrow, double* sx, double* sy, double* ex, double* ey);
 //static void   map_position_double(const termentry * pTerm, GpPosition * pos, double* x, double* y, const char* what);
-static void   plot_circles(curve_points * plot);
-static void   plot_ellipses(curve_points * plot);
-static void   do_rectangle(int dimensions, t_object * this_object, const fill_style_type * fillstyle);
+//static void   plot_circles(termentry * pTerm, curve_points * plot);
+//static void   plot_ellipses(termentry * pTerm, curve_points * plot);
+static void   do_rectangle(termentry * pTerm, int dimensions, t_object * this_object, const fill_style_type * fillstyle);
 static void   do_polygon(int dimensions, t_object * this_object, int style, int facing);
 static double rgbscale(double rawvalue);
 //static void   draw_polar_circle(double place);
-static void   plot_parallel(curve_points * plot);
-static void   plot_spiderplot(curve_points * plot);
+//static void   plot_parallel(termentry * pTerm, curve_points * plot);
+//static void   plot_spiderplot(curve_points * plot);
 // 
 // for plotting error bars half the width of error bar tic mark
 // 
@@ -143,13 +143,13 @@ void GnuPlot::PlaceGrid(termentry * pTerm, int layer)
 		// select first mapping 
 		AxS.Idx_X = FIRST_X_AXIS;
 		AxS.Idx_Y = FIRST_Y_AXIS;
-		axis_output_tics(pTerm, FIRST_Y_AXIS, &ytic_x, FIRST_X_AXIS, ytick2d_callback); // label first y axis tics 
-		axis_output_tics(pTerm, FIRST_X_AXIS, &xtic_y, FIRST_Y_AXIS, xtick2d_callback); // label first x axis tics 
+		AxisOutputTics(pTerm, FIRST_Y_AXIS, &ytic_x, FIRST_X_AXIS, ytick2d_callback); // label first y axis tics 
+		AxisOutputTics(pTerm, FIRST_X_AXIS, &xtic_y, FIRST_Y_AXIS, xtick2d_callback); // label first x axis tics 
 		// select second mapping 
 		AxS.Idx_X = SECOND_X_AXIS;
 		AxS.Idx_Y = SECOND_Y_AXIS;
-		axis_output_tics(pTerm, SECOND_Y_AXIS, &y2tic_x, SECOND_X_AXIS, ytick2d_callback);
-		axis_output_tics(pTerm, SECOND_X_AXIS, &x2tic_y, SECOND_Y_AXIS, xtick2d_callback);
+		AxisOutputTics(pTerm, SECOND_Y_AXIS, &y2tic_x, SECOND_X_AXIS, ytick2d_callback);
+		AxisOutputTics(pTerm, SECOND_X_AXIS, &x2tic_y, SECOND_Y_AXIS, xtick2d_callback);
 	}
 	// select first mapping 
 	AxS.Idx_X = FIRST_X_AXIS;
@@ -171,7 +171,7 @@ void GnuPlot::PlaceGrid(termentry * pTerm, int layer)
 		if(AxS.__R().manual_justify)
 			tic_hjust = AxS.__R().tic_pos;
 		tic_direction = 1;
-		gen_tics(&AxS[POLAR_AXIS], xtick2d_callback);
+		GenTics(&AxS[POLAR_AXIS], xtick2d_callback);
 		(pTerm->text_angle)(0);
 	}
 	// POLAR GRID radial lines 
@@ -196,7 +196,7 @@ void GnuPlot::PlaceGrid(termentry * pTerm, int layer)
 		if(largest_polar_circle <= 0)
 			largest_polar_circle = PolarRadius(AxS.__R().max);
 		copy_or_invent_formatstring(&AxS.Theta());
-		gen_tics(&AxS.Theta(), ttick_callback);
+		GenTics(&AxS.Theta(), ttick_callback);
 		pTerm->text_angle(0);
 	}
 	// Restore the grid line types if we had turned them off to draw labels only 
@@ -229,12 +229,13 @@ static void place_arrows(int layer)
 // place_pixmaps() handles both 2D and 3D pixmaps
 // NOTE: implemented via term->image(), not individual pixels
 // 
-void place_pixmaps(int layer, int dimensions)
+//void place_pixmaps(int layer, int dimensions)
+void GnuPlot::PlacePixmaps(termentry * pTerm, int layer, int dimensions)
 {
 	t_pixmap * pixmap;
 	gpiPoint corner[4];
 	int x, y, dx, dy;
-	if(!term->image)
+	if(!pTerm->image)
 		return;
 	for(pixmap = pixmap_listhead; pixmap; pixmap = pixmap->next) {
 		if(layer != pixmap->layer)
@@ -246,16 +247,16 @@ void place_pixmaps(int layer, int dimensions)
 		if(layer == LAYER_BEHIND && multiplot_count > 1)
 			continue;
 		if(dimensions == 3)
-			GPO.Map3DPosition(&pixmap->pin, &x, &y, "pixmap");
+			Map3DPosition(&pixmap->pin, &x, &y, "pixmap");
 		else
-			GPO.MapPosition(term, &pixmap->pin, &x, &y, "pixmap");
+			MapPosition(pTerm, &pixmap->pin, &x, &y, "pixmap");
 		// dx = dy = 0 means 1-to-1 representation of pixels 
 		if(pixmap->extent.x == 0 && pixmap->extent.y == 0) {
-			dx = static_cast<int>(pixmap->ncols * term->tscale);
-			dy = static_cast<int>(pixmap->ncols * term->tscale);
+			dx = static_cast<int>(pixmap->ncols * pTerm->tscale);
+			dy = static_cast<int>(pixmap->ncols * pTerm->tscale);
 		}
 		else if(dimensions == 3) {
-			GPO.Map3DPositionR(&pixmap->extent, &dx, &dy, "pixmap");
+			Map3DPositionR(&pixmap->extent, &dx, &dy, "pixmap");
 			if(pixmap->extent.scalex == first_axes)
 				dx = static_cast<int>(pixmap->extent.x * radius_scaler);
 			if(pixmap->extent.scaley == first_axes)
@@ -263,7 +264,7 @@ void place_pixmaps(int layer, int dimensions)
 		}
 		else {
 			double Dx, Dy;
-			GPO.MapPositionR(term, &pixmap->extent, &Dx, &Dy, "pixmap");
+			MapPositionR(pTerm, &pixmap->extent, &Dx, &Dy, "pixmap");
 			dx = static_cast<int>(fabs(Dx));
 			dy = static_cast<int>(fabs(Dy));
 		}
@@ -281,14 +282,14 @@ void place_pixmaps(int layer, int dimensions)
 		corner[1].x = x + dx;
 		corner[1].y = y;
 		corner[2].x = 0;        /* no clipping */
-		corner[2].y = term->ymax;
-		corner[3].x = term->xmax;
+		corner[2].y = pTerm->MaxY;
+		corner[3].x = pTerm->MaxX;
 		corner[3].y = 0;
 		// Check for horizontal named palette colorbox 
 		if(!pixmap->filename && dx > dy*2)
-			term->image(pixmap->nrows, pixmap->ncols, pixmap->image_data, corner, IC_RGBA);
+			pTerm->image(pixmap->nrows, pixmap->ncols, pixmap->image_data, corner, IC_RGBA);
 		else
-			term->image(pixmap->ncols, pixmap->nrows, pixmap->image_data, corner, IC_RGBA);
+			pTerm->image(pixmap->ncols, pixmap->nrows, pixmap->image_data, corner, IC_RGBA);
 	}
 }
 //
@@ -329,16 +330,17 @@ void GnuPlot::PlaceLabels(termentry * pTerm, text_label * pListHead, int layer, 
 					if(!(inrange(this_label->place.y, AxS[SECOND_Y_AXIS].min, AxS[SECOND_Y_AXIS].max)))
 						continue;
 			}
-			write_label(pTerm, x, y, this_label);
+			WriteLabel(pTerm, x, y, this_label);
 		}
 	}
 }
 
-void place_objects(GpObject * listhead, int layer, int dimensions)
+//void place_objects(GpObject * listhead, int layer, int dimensions)
+void GnuPlot::PlaceObjects(termentry * pTerm, GpObject * pListHead, int layer, int dimensions)
 {
 	double x1, y1;
 	int style;
-	for(t_object * this_object = listhead; this_object != NULL; this_object = this_object->next) {
+	for(t_object * this_object = pListHead; this_object != NULL; this_object = this_object->next) {
 		lp_style_type lpstyle;
 		fill_style_type * fillstyle;
 		if(this_object->layer != layer && this_object->layer != LAYER_FRONTBACK)
@@ -350,28 +352,28 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 		else
 			fillstyle = &this_object->fillstyle;
 		style = style_from_fill(fillstyle);
-		GPO.TermApplyLpProperties(term, &lpstyle);
+		TermApplyLpProperties(pTerm, &lpstyle);
 		switch(this_object->object_type) {
 			case OBJ_CIRCLE:
 		    {
 			    t_circle * e = &this_object->o.circle;
 			    double radius;
-			    BoundingBox * clip_save = GPO.V.P_ClipArea;
+			    BoundingBox * clip_save = V.P_ClipArea;
 			    if(dimensions == 2) {
-				    GPO.MapPositionDouble(term, &e->center, &x1, &y1, "object");
-				    GPO.MapPositionR(term, &e->extent, &radius, NULL, "object");
+				    MapPositionDouble(pTerm, &e->center, &x1, &y1, "object");
+				    MapPositionR(pTerm, &e->extent, &radius, NULL, "object");
 			    }
 			    else if(splot_map) {
 				    int junkw, junkh;
-				    GPO.Map3DPositionDouble(&e->center, &x1, &y1, "object");
-				    GPO.Map3DPositionR(&e->extent, &junkw, &junkh, "object");
+				    Map3DPositionDouble(&e->center, &x1, &y1, "object");
+				    Map3DPositionR(&e->extent, &junkw, &junkh, "object");
 				    radius = junkw;
 			    }
 			    else { // General 3D splot 
 				    if(e->center.scalex == screen)
-					    GPO.MapPositionDouble(term, &e->center, &x1, &y1, "object");
+					    MapPositionDouble(pTerm, &e->center, &x1, &y1, "object");
 				    else if(e->center.scalex == first_axes || e->center.scalex == polar_axes)
-					    GPO.Map3DPositionDouble(&e->center, &x1, &y1, "object");
+					    Map3DPositionDouble(&e->center, &x1, &y1, "object");
 				    else
 					    break;
 				    // radius must not change with rotation 
@@ -379,39 +381,36 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 					    radius = e->extent.x * radius_scaler;
 				    }
 				    else {
-					    GPO.MapPositionR(term, &e->extent, &radius, NULL, "object");
+					    MapPositionR(pTerm, &e->extent, &radius, NULL, "object");
 				    }
 			    }
 			    if((e->center.scalex == screen || e->center.scaley == screen) || (this_object->clip == OBJ_NOCLIP))
-				    GPO.V.P_ClipArea = &GPO.V.BbCanvas;
-			    do_arc((int)x1, (int)y1, radius, e->arc_begin, e->arc_end, style, FALSE);
+				    V.P_ClipArea = &V.BbCanvas;
+			    DoArc(pTerm, (int)x1, (int)y1, radius, e->arc_begin, e->arc_end, style, FALSE);
 			    // Retrace the border if the style requests it 
 			    if(need_fill_border(fillstyle))
-				    do_arc((int)x1, (int)y1, radius, e->arc_begin, e->arc_end, 0, e->wedge);
-			    GPO.V.P_ClipArea = clip_save;
+				    DoArc(pTerm, (int)x1, (int)y1, radius, e->arc_begin, e->arc_end, 0, e->wedge);
+			    V.P_ClipArea = clip_save;
 			    break;
 		    }
 			case OBJ_ELLIPSE:
 		    {
 			    t_ellipse * e = &this_object->o.ellipse;
-			    BoundingBox * clip_save = GPO.V.P_ClipArea;
+			    BoundingBox * clip_save = V.P_ClipArea;
 			    if((e->center.scalex == screen || e->center.scaley == screen) || (this_object->clip == OBJ_NOCLIP))
-				    GPO.V.P_ClipArea = &GPO.V.BbCanvas;
+				    V.P_ClipArea = &V.BbCanvas;
 			    if(dimensions == 2)
-				    do_ellipse(2, e, style, TRUE);
+				    do_ellipse(pTerm, 2, e, style, TRUE);
 			    else if(splot_map)
-				    do_ellipse(3, e, style, TRUE);
+				    do_ellipse(pTerm, 3, e, style, TRUE);
 			    else
 				    break;
-
-			    /* Retrace the border if the style requests it */
+			    // Retrace the border if the style requests it 
 			    if(need_fill_border(fillstyle))
-				    do_ellipse(dimensions, e, 0, TRUE);
-
-			    GPO.V.P_ClipArea = clip_save;
+				    do_ellipse(pTerm, dimensions, e, 0, TRUE);
+			    V.P_ClipArea = clip_save;
 			    break;
 		    }
-
 			case OBJ_POLYGON:
 		    {
 			    /* Polygons have an extra option LAYER_FRONTBACK that matches
@@ -419,7 +418,7 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 			     */
 			    int facing = LAYER_BEHIND; /* This will be ignored */
 			    if(this_object->layer == LAYER_FRONTBACK) {
-				    if((layer == LAYER_FRONT) || (layer == LAYER_BACK))
+				    if(oneof2(layer, LAYER_FRONT, LAYER_BACK))
 					    facing = layer;
 				    else
 					    break;
@@ -434,7 +433,7 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 		    }
 			case OBJ_RECTANGLE:
 		    {
-			    do_rectangle(dimensions, this_object, fillstyle);
+			    do_rectangle(pTerm, dimensions, this_object, fillstyle);
 			    break;
 		    }
 			default:
@@ -445,53 +444,54 @@ void place_objects(GpObject * listhead, int layer, int dimensions)
 // 
 // Apply axis range expansions from "set offsets" command
 // 
-static void adjust_offsets(void)
+//static void adjust_offsets(void)
+void GnuPlot::AdjustOffsets()
 {
-	double b = boff.scaley == graph ? fabs(GPO.AxS.__Y().max - GPO.AxS.__Y().min)*boff.y : boff.y;
-	double t = toff.scaley == graph ? fabs(GPO.AxS.__Y().max - GPO.AxS.__Y().min)*toff.y : toff.y;
-	double l = loff.scalex == graph ? fabs(GPO.AxS.__X().max - GPO.AxS.__X().min)*loff.x : loff.x;
-	double r = roff.scalex == graph ? fabs(GPO.AxS.__X().max - GPO.AxS.__X().min)*roff.x : roff.x;
+	const double b = boff.scaley == graph ? fabs(AxS.__Y().max - AxS.__Y().min)*boff.y : boff.y;
+	const double t = toff.scaley == graph ? fabs(AxS.__Y().max - AxS.__Y().min)*toff.y : toff.y;
+	const double l = loff.scalex == graph ? fabs(AxS.__X().max - AxS.__X().min)*loff.x : loff.x;
+	const double r = roff.scalex == graph ? fabs(AxS.__X().max - AxS.__X().min)*roff.x : roff.x;
 	if(retain_offsets)
 		retain_offsets = false;
 	else {
-		if((GPO.AxS.__Y().autoscale & AUTOSCALE_BOTH) != AUTOSCALE_NONE) {
-			if(nonlinear(&GPO.AxS.__Y())) {
-				adjust_nonlinear_offset(&GPO.AxS.__Y());
+		if((AxS.__Y().autoscale & AUTOSCALE_BOTH) != AUTOSCALE_NONE) {
+			if(AxS.__Y().IsNonLinear()) {
+				AdjustNonlinearOffset(&AxS.__Y());
 			}
 			else {
-				if(GPO.AxS.__Y().min < GPO.AxS.__Y().max) {
-					GPO.AxS.__Y().min -= b;
-					GPO.AxS.__Y().max += t;
+				if(AxS.__Y().min < AxS.__Y().max) {
+					AxS.__Y().min -= b;
+					AxS.__Y().max += t;
 				}
 				else {
-					GPO.AxS.__Y().max -= b;
-					GPO.AxS.__Y().min += t;
+					AxS.__Y().max -= b;
+					AxS.__Y().min += t;
 				}
 			}
 		}
-		if((GPO.AxS.__X().autoscale & AUTOSCALE_BOTH) != AUTOSCALE_NONE) {
-			if(nonlinear(&GPO.AxS.__X())) {
-				adjust_nonlinear_offset(&GPO.AxS.__X());
+		if((AxS.__X().autoscale & AUTOSCALE_BOTH) != AUTOSCALE_NONE) {
+			if(AxS.__X().IsNonLinear()) {
+				AdjustNonlinearOffset(&AxS.__X());
 			}
 			else {
-				if(GPO.AxS.__X().min < GPO.AxS.__X().max) {
-					GPO.AxS.__X().min -= l;
-					GPO.AxS.__X().max += r;
+				if(AxS.__X().min < AxS.__X().max) {
+					AxS.__X().min -= l;
+					AxS.__X().max += r;
 				}
 				else {
-					GPO.AxS.__X().max -= l;
-					GPO.AxS.__X().min += r;
+					AxS.__X().max -= l;
+					AxS.__X().min += r;
 				}
 			}
 		}
-		if(GPO.AxS.__X().min == GPO.AxS.__X().max)
-			GPO.IntError(NO_CARET, "x_min should not equal x_max!");
-		if(GPO.AxS.__Y().min == GPO.AxS.__Y().max)
-			GPO.IntError(NO_CARET, "y_min should not equal y_max!");
-		if(GPO.AxS[FIRST_X_AXIS].linked_to_secondary)
-			GPO.CloneLinkedAxes(&GPO.AxS[FIRST_X_AXIS], &GPO.AxS[SECOND_X_AXIS]);
-		if(GPO.AxS[FIRST_Y_AXIS].linked_to_secondary)
-			GPO.CloneLinkedAxes(&GPO.AxS[FIRST_Y_AXIS], &GPO.AxS[SECOND_Y_AXIS]);
+		if(AxS.__X().min == AxS.__X().max)
+			IntError(NO_CARET, "x_min should not equal x_max!");
+		if(AxS.__Y().min == AxS.__Y().max)
+			IntError(NO_CARET, "y_min should not equal y_max!");
+		if(AxS[FIRST_X_AXIS].linked_to_secondary)
+			CloneLinkedAxes(&AxS[FIRST_X_AXIS], &AxS[SECOND_X_AXIS]);
+		if(AxS[FIRST_Y_AXIS].linked_to_secondary)
+			CloneLinkedAxes(&AxS[FIRST_Y_AXIS], &AxS[SECOND_Y_AXIS]);
 	}
 }
 //
@@ -499,27 +499,28 @@ static void adjust_offsets(void)
 // nonlinear X or nonlinear Y.  We apply the offsets to the primary (linear)
 // end of the linkage and then transform back to the axis itself (seconary).
 //
-static void adjust_nonlinear_offset(GpAxis * secondary)
+//static void adjust_nonlinear_offset(GpAxis * pAxSecondary)
+void GnuPlot::AdjustNonlinearOffset(GpAxis * pAxSecondary)
 {
-	GpAxis * primary = secondary->linked_to_primary;
-	double range = fabs(primary->max - primary->min);
+	GpAxis * p_ax_primary = pAxSecondary->linked_to_primary;
+	double range = fabs(p_ax_primary->max - p_ax_primary->min);
 	double offset1, offset2;
-	if(secondary->index == FIRST_X_AXIS) {
+	if(pAxSecondary->index == FIRST_X_AXIS) {
 		if((loff.scalex != graph && loff.x != 0) || (roff.scalex != graph && roff.x != 0))
-			GPO.IntError(NO_CARET, "nonlinear axis offsets must be in graph units");
+			IntError(NO_CARET, "nonlinear axis offsets must be in graph units");
 		offset1 = loff.x;
 		offset2 = roff.x;
 	}
 	else {
 		if((boff.scaley != graph && boff.y != 0) ||  (toff.scaley != graph && toff.y != 0))
-			GPO.IntError(NO_CARET, "nonlinear axis offsets must be in graph units");
+			IntError(NO_CARET, "nonlinear axis offsets must be in graph units");
 		offset1 = boff.y;
 		offset2 = toff.y;
 	}
-	primary->min -= range * offset1;
-	primary->max += range * offset2;
-	secondary->min = GPO.EvalLinkFunction(secondary, primary->min);
-	secondary->max = GPO.EvalLinkFunction(secondary, primary->max);
+	p_ax_primary->min -= range * offset1;
+	p_ax_primary->max += range * offset2;
+	pAxSecondary->min = EvalLinkFunction(pAxSecondary, p_ax_primary->min);
+	pAxSecondary->max = EvalLinkFunction(pAxSecondary, p_ax_primary->max);
 }
 
 //void do_plot(termentry * pTerm, curve_points * plots, int pcount)
@@ -533,26 +534,26 @@ void GnuPlot::DoPlot(termentry * pTerm, curve_points * plots, int pcount)
 	int previous_plot_style;
 	AxS.Idx_X = FIRST_X_AXIS;
 	AxS.Idx_Y = FIRST_Y_AXIS;
-	adjust_offsets();
+	AdjustOffsets();
 	// EAM June 2003 - Although the comment below implies that font dimensions
 	// are known after term_initialise(), this is not true at least for the X11
 	// driver.  X11 fonts are not set until an actual display window is
 	// opened, and that happens in term->graphics(), which is called from term_start_plot().
-	term_initialise(); // may set xmax/ymax 
-	term_start_plot();
+	TermInitialise(pTerm); // may set xmax/ymax 
+	TermStartPlot(pTerm);
 	// Figure out if we need a colorbox for this plot 
-	set_plot_with_palette(0, MODE_PLOT); /* EAM FIXME - 1st parameter is a dummy */
-	// compute boundary for plot (GPO.V.BbPlot.xleft, GPO.V.BbPlot.xright, GPO.V.BbPlot.ytop, GPO.V.BbPlot.ybot)
-	// also calculates tics, since xtics depend on GPO.V.BbPlot.xleft
-	// but GPO.V.BbPlot.xleft depends on ytics. Boundary calculations depend
+	SetPlotWithPalette(0, MODE_PLOT); /* EAM FIXME - 1st parameter is a dummy */
+	// compute boundary for plot (V.BbPlot.xleft, V.BbPlot.xright, V.BbPlot.ytop, V.BbPlot.ybot)
+	// also calculates tics, since xtics depend on V.BbPlot.xleft
+	// but V.BbPlot.xleft depends on ytics. Boundary calculations depend
 	// on term->ChrV etc, so terminal must be initialised first.
 	Boundary(pTerm, plots, pcount);
 	// Make palette 
 	if(is_plot_with_palette())
 		MakePalette();
 	// Give a chance for background items to be behind everything else 
-	place_pixmaps(LAYER_BEHIND, 2);
-	place_objects(first_object, LAYER_BEHIND, 2);
+	PlacePixmaps(pTerm, LAYER_BEHIND, 2);
+	PlaceObjects(pTerm, first_object, LAYER_BEHIND, 2);
 	screen_ok = FALSE;
 	(pTerm->layer)(TERM_LAYER_BACKTEXT); // Sync point for epslatex text positioning 
 	// DRAW TICS AND GRID 
@@ -563,7 +564,7 @@ void GnuPlot::DoPlot(termentry * pTerm, curve_points * plots, int pcount)
 	AxisDraw2DZeroAxis(pTerm, FIRST_Y_AXIS, FIRST_X_AXIS);
 	AxisDraw2DZeroAxis(pTerm, SECOND_X_AXIS, SECOND_Y_AXIS);
 	AxisDraw2DZeroAxis(pTerm, SECOND_Y_AXIS, SECOND_X_AXIS);
-	place_parallel_axes(pTerm, plots, LAYER_BACK); // DRAW VERTICAL AXES OF PARALLEL AXIS PLOTS 
+	PlaceParallelAxes(pTerm, plots, LAYER_BACK); // DRAW VERTICAL AXES OF PARALLEL AXIS PLOTS 
 	PlaceSpiderPlotAxes(pTerm, plots, LAYER_BACK); // DRAW RADIAL AXES OF SPIDERPLOTS 
 	// DRAW PLOT BORDER 
 	if(draw_border)
@@ -571,8 +572,8 @@ void GnuPlot::DoPlot(termentry * pTerm, curve_points * plots, int pcount)
 	// Add back colorbox if appropriate 
 	if(is_plot_with_colorbox() && color_box.layer == LAYER_BACK)
 		DrawColorSmoothBox(pTerm, MODE_PLOT);
-	place_pixmaps(LAYER_BACK, 2); // Pixmaps before objects 
-	place_objects(first_object, LAYER_BACK, 2); // Fixed objects 
+	PlacePixmaps(pTerm, LAYER_BACK, 2); // Pixmaps before objects 
+	PlaceObjects(pTerm, first_object, LAYER_BACK, 2); // Fixed objects 
 	PlaceLabels(pTerm, first_label, LAYER_BACK, FALSE); // PLACE LABELS 
 	place_arrows(LAYER_BACK); // PLACE ARROWS 
 	(pTerm->layer)(TERM_LAYER_FRONTTEXT); // Sync point for epslatex text positioning 
@@ -581,7 +582,7 @@ void GnuPlot::DoPlot(termentry * pTerm, curve_points * plots, int pcount)
 	DrawTitles(pTerm);
 	// Draw the key, or at least reserve space for it (pass 1) 
 	if(key->visible)
-		draw_key(key, key_pass);
+		DrawKey(pTerm, key, key_pass);
 SECOND_KEY_PASS:
 	// This tells the canvas, qt, and svg terminals to restart the plot   
 	// count so that key titles are in sync with the plots they describe. 
@@ -630,7 +631,7 @@ SECOND_KEY_PASS:
 							lp_use_properties(&this_plot->lp_properties, histogram_linetype);
 						else
 							load_linetype(pTerm, &this_plot->lp_properties, histogram_linetype);
-						do_key_sample(pTerm, this_plot, key, key_entry->text, 0.0);
+						DoKeySample(pTerm, this_plot, key, key_entry->text, 0.0);
 					}
 					key_count++;
 					advance_key(0);
@@ -661,7 +662,7 @@ SECOND_KEY_PASS:
 					key_count++;
 					advance_key(TRUE); /* invert only */
 					var_color = (this_plot->varcolor) ? this_plot->varcolor[0] : 0.0;
-					do_key_sample(pTerm, this_plot, key, this_plot->title, var_color);
+					DoKeySample(pTerm, this_plot, key, this_plot->title, var_color);
 				}
 			}
 			ignore_enhanced(FALSE);
@@ -669,28 +670,28 @@ SECOND_KEY_PASS:
 		// If any plots have opted out of autoscaling, we need to recheck 
 		// whether their points are INRANGE or not.                       
 		if(this_plot->noautoscale  &&  !key_pass)
-			recheck_ranges(this_plot);
+			RecheckRanges(this_plot);
 		// and now the curves, plus any special key requirements 
 		// be sure to draw all lines before drawing any points 
 		// Skip missing/empty curves 
 		if(this_plot->plot_type != NODATA  &&  !key_pass) {
 			switch(this_plot->plot_style) {
-				case IMPULSES: plot_impulses(this_plot, GPO.AxS.__X().term_zero, GPO.AxS.__Y().term_zero); break;
-				case LINES: plot_lines(pTerm, this_plot); break;
+				case IMPULSES: PlotImpulses(pTerm, this_plot, AxS.__X().term_zero, AxS.__Y().term_zero); break;
+				case LINES: PlotLines(pTerm, this_plot); break;
 				case STEPS: 
 				case FILLSTEPS: PlotSteps(pTerm, this_plot); break;
-				case FSTEPS: plot_fsteps(pTerm, this_plot); break;
-				case HISTEPS: plot_histeps(this_plot); break;
+				case FSTEPS: PlotFSteps(pTerm, this_plot); break;
+				case HISTEPS: PlotHiSteps(pTerm, this_plot); break;
 				case POINTSTYLE: PlotPoints(pTerm, this_plot); break;
 				case LINESPOINTS:
-				    plot_lines(pTerm, this_plot);
+				    PlotLines(pTerm, this_plot);
 				    PlotPoints(pTerm, this_plot);
 				    break;
 				case DOTS: plot_dots(pTerm, this_plot); break;
 				case YERRORLINES:
 				case XERRORLINES:
 				case XYERRORLINES:
-				    plot_lines(pTerm, this_plot);
+				    PlotLines(pTerm, this_plot);
 				    PlotBars(pTerm, this_plot);
 				    PlotPoints(pTerm, this_plot);
 				    break;
@@ -701,10 +702,10 @@ SECOND_KEY_PASS:
 				    PlotPoints(pTerm, this_plot);
 				    break;
 				case BOXXYERROR:
-				case BOXES: PlotBoxes(pTerm, this_plot, GPO.AxS.__Y().term_zero); break;
+				case BOXES: PlotBoxes(pTerm, this_plot, AxS.__Y().term_zero); break;
 				case HISTOGRAMS:
 				    if(bar_layer == LAYER_FRONT)
-					    PlotBoxes(pTerm, this_plot, GPO.AxS.__Y().term_zero);
+					    PlotBoxes(pTerm, this_plot, AxS.__Y().term_zero);
 				    // Draw the bars first, so that the box will cover the bottom half 
 				    if(histogram_opts.type == HT_ERRORBARS) {
 					    // Note that the bar linewidth may not match the border or plot linewidth 
@@ -715,12 +716,12 @@ SECOND_KEY_PASS:
 					    TermApplyLpProperties(pTerm, &(this_plot->lp_properties));
 				    }
 				    if(bar_layer != LAYER_FRONT)
-					    PlotBoxes(pTerm, this_plot, GPO.AxS.__Y().term_zero);
+					    PlotBoxes(pTerm, this_plot, AxS.__Y().term_zero);
 				    break;
 				case BOXERROR:
 				    if(bar_layer != LAYER_FRONT)
 					    PlotBars(pTerm, this_plot);
-				    PlotBoxes(pTerm, this_plot, GPO.AxS.__Y().term_zero);
+				    PlotBoxes(pTerm, this_plot, AxS.__Y().term_zero);
 				    if(bar_layer == LAYER_FRONT)
 					    PlotBars(pTerm, this_plot);
 				    break;
@@ -745,12 +746,12 @@ SECOND_KEY_PASS:
 					    PlotBetweenCurves(pTerm, this_plot);
 				    }
 				    else
-					    plot_filledcurves(pTerm, this_plot);
+					    PlotFilledCurves(pTerm, this_plot);
 				    break;
 				case VECTOR:
 				case ARROWS: PlotVectors(pTerm, this_plot); break;
-				case FINANCEBARS: plot_f_bars(pTerm, this_plot); break;
-				case CANDLESTICKS: plot_c_bars(pTerm, this_plot); break;
+				case FINANCEBARS: PlotFBars(pTerm, this_plot); break;
+				case CANDLESTICKS: PlotCBars(pTerm, this_plot); break;
 				case BOXPLOT: PlotBoxPlot(pTerm, this_plot, FALSE); break;
 				case PM3DSURFACE:
 				case SURFACEGRID: IntWarn(NO_CARET, "Can't use pm3d or surface for 2d plots"); break;
@@ -767,10 +768,10 @@ SECOND_KEY_PASS:
 				    this_plot->image_properties.type = IC_RGBA;
 				    ProcessImage(pTerm, this_plot, IMG_PLOT);
 				    break;
-				case CIRCLES: plot_circles(this_plot); break;
-				case ELLIPSES: plot_ellipses(this_plot); break;
-				case PARALLELPLOT: plot_parallel(this_plot); break;
-				case SPIDERPLOT: plot_spiderplot(this_plot); break;
+				case CIRCLES: PlotCircles(pTerm, this_plot); break;
+				case ELLIPSES: PlotEllipses(pTerm, this_plot); break;
+				case PARALLELPLOT: PlotParallel(pTerm, this_plot); break;
+				case SPIDERPLOT: PlotSpiderPlot(pTerm, this_plot); break;
 				default: IntError(NO_CARET, "unknown plot style");
 			}
 		}
@@ -781,11 +782,11 @@ SECOND_KEY_PASS:
 		else if(localkey && this_plot->title && !this_plot->title_is_suppressed) {
 			// we deferred point sample until now */
 			if(this_plot->plot_style & PLOT_STYLE_HAS_POINT)
-				do_key_sample_point(this_plot, key);
+				DoKeySamplePoint(pTerm, this_plot, key);
 			if(this_plot->plot_style == LABELPOINTS)
-				do_key_sample_point(this_plot, key);
+				DoKeySamplePoint(pTerm, this_plot, key);
 			if(this_plot->plot_style == DOTS)
-				do_key_sample_point(this_plot, key);
+				DoKeySamplePoint(pTerm, this_plot, key);
 			if(!this_plot->title_position)
 				advance_key(0);
 		}
@@ -799,14 +800,14 @@ SECOND_KEY_PASS:
 	// Go back and draw the legend in a separate pass if necessary 
 	if(key->visible && key->front && !key_pass) {
 		key_pass = TRUE;
-		draw_key(key, key_pass);
+		DrawKey(pTerm, key, key_pass);
 		goto SECOND_KEY_PASS;
 	}
 	// DRAW TICS AND GRID 
 	if(grid_layer == LAYER_FRONT)
 		PlaceGrid(pTerm, grid_layer);
 	if(raxis)
-		place_raxis();
+		PlaceRAxis(pTerm);
 	// Redraw the axis tic labels and tic marks if "set tics front" 
 	if(grid_tics_in_front)
 		PlaceGrid(pTerm, LAYER_FOREGROUND);
@@ -820,7 +821,7 @@ SECOND_KEY_PASS:
 	}
 	// DRAW VERTICAL AXES OF PARALLEL AXIS PLOTS 
 	if(parallel_axis_style.layer == LAYER_FRONT)
-		place_parallel_axes(pTerm, plots, LAYER_FRONT);
+		PlaceParallelAxes(pTerm, plots, LAYER_FRONT);
 	// DRAW RADIAL AXES OF SPIDERPLOTS 
 	if(parallel_axis_style.layer == LAYER_FRONT)
 		PlaceSpiderPlotAxes(pTerm, plots, LAYER_FRONT);
@@ -830,8 +831,8 @@ SECOND_KEY_PASS:
 	// Add front colorbox if appropriate 
 	if(is_plot_with_colorbox() && color_box.layer == LAYER_FRONT)
 		DrawColorSmoothBox(pTerm, MODE_PLOT);
-	place_pixmaps(LAYER_FRONT, 2); // pixmaps in behind rectangles to enable rectangle as border 
-	place_objects(first_object, LAYER_FRONT, 2); // And rectangles 
+	PlacePixmaps(pTerm, LAYER_FRONT, 2); // pixmaps in behind rectangles to enable rectangle as border 
+	PlaceObjects(pTerm, first_object, LAYER_FRONT, 2); // And rectangles 
 	PlaceLabels(pTerm, first_label, LAYER_FRONT, FALSE); // PLACE LABELS 
 	place_histogram_titles(); // PLACE HISTOGRAM TITLES 
 	place_arrows(LAYER_FRONT); // PLACE ARROWS 
@@ -839,20 +840,21 @@ SECOND_KEY_PASS:
 	// Release the palette if we have used one (PostScript only?) 
 	if(is_plot_with_palette() && pTerm->previous_palette)
 		pTerm->previous_palette();
-	term_end_plot();
+	TermEndPlot(pTerm);
 }
 //
 // Plots marked "noautoscale" do not yet have INRANGE/OUTRANGE flags set.
 //
-static void recheck_ranges(curve_points * plot)
+//static void recheck_ranges(curve_points * pPlot)
+void GnuPlot::RecheckRanges(curve_points * pPlot)
 {
-	for(int i = 0; i < plot->p_count; i++) {
-		if(plot->noautoscale && plot->points[i].type != UNDEFINED) {
-			plot->points[i].type = INRANGE;
-			if(!inrange(plot->points[i].x, GPO.AxS[plot->AxIdx_X].min, GPO.AxS[plot->AxIdx_X].max))
-				plot->points[i].type = OUTRANGE;
-			if(!inrange(plot->points[i].y, GPO.AxS[plot->AxIdx_Y].min, GPO.AxS[plot->AxIdx_Y].max))
-				plot->points[i].type = OUTRANGE;
+	for(int i = 0; i < pPlot->p_count; i++) {
+		if(pPlot->noautoscale && pPlot->points[i].type != UNDEFINED) {
+			pPlot->points[i].type = INRANGE;
+			if(!inrange(pPlot->points[i].x, AxS[pPlot->AxIdx_X].min, AxS[pPlot->AxIdx_X].max))
+				pPlot->points[i].type = OUTRANGE;
+			if(!inrange(pPlot->points[i].y, AxS[pPlot->AxIdx_Y].min, AxS[pPlot->AxIdx_Y].max))
+				pPlot->points[i].type = OUTRANGE;
 		}
 	}
 }
@@ -861,61 +863,63 @@ static void recheck_ranges(curve_points * plot)
 // Plot the curves in IMPULSES style
 // Mar 2017 - Apply "set jitter" to x coordinate of impulses
 //
-static void plot_impulses(curve_points * plot, int yaxis_x, int xaxis_y)
+//static void plot_impulses(termentry * pTerm, curve_points * pPlot, int yaxis_x, int xaxis_y)
+void GnuPlot::PlotImpulses(termentry * pTerm, curve_points * pPlot, int yaxis_x, int xaxis_y)
 {
 	int x, y;
 	// Displace overlapping impulses if "set jitter" is in effect.
 	// This operation loads jitter offsets into xhigh and yhigh.
 	if(jitter.spread > 0)
-		jitter_points(plot);
-	for(int i = 0; i < plot->p_count; i++) {
-		if(plot->points[i].type == UNDEFINED)
+		JitterPoints(pTerm, pPlot);
+	for(int i = 0; i < pPlot->p_count; i++) {
+		if(pPlot->points[i].type == UNDEFINED)
 			continue;
-		if(!polar && !inrange(plot->points[i].x, GPO.AxS.__X().min, GPO.AxS.__X().max))
+		if(!polar && !inrange(pPlot->points[i].x, AxS.__X().min, AxS.__X().max))
 			continue;
 		// This catches points that are outside trange[theta_min:theta_max] 
-		if(polar && (plot->points[i].type == EXCLUDEDRANGE))
+		if(polar && (pPlot->points[i].type == EXCLUDEDRANGE))
 			continue;
-		x = GPO.AxS.MapiX(plot->points[i].x);
-		y = GPO.AxS.MapiY(plot->points[i].y);
+		x = AxS.MapiX(pPlot->points[i].x);
+		y = AxS.MapiY(pPlot->points[i].y);
 		// The jitter x offset is a scaled multiple of character width. 
 		if(!polar && jitter.spread > 0)
-			x += plot->points[i].CRD_XJITTER * 0.3 * term->ChrH;
+			x += pPlot->points[i].CRD_XJITTER * 0.3 * pTerm->ChrH;
 		if(invalid_coordinate(x, y))
 			continue;
-		check_for_variable_color(plot, &plot->varcolor[i]);
+		check_for_variable_color(pPlot, &pPlot->varcolor[i]);
 		if(polar)
-			GPO.DrawClipLine(term, yaxis_x, xaxis_y, x, y);
+			DrawClipLine(pTerm, yaxis_x, xaxis_y, x, y);
 		else
-			GPO.DrawClipLine(term, x, xaxis_y, x, y);
+			DrawClipLine(pTerm, x, xaxis_y, x, y);
 	}
 }
 // 
 // plot_lines:
 // Plot the curves in LINES style
 // 
-static void plot_lines(termentry * pTerm, curve_points * plot)
+//static void plot_lines(termentry * pTerm, curve_points * plot)
+void GnuPlot::PlotLines(termentry * pTerm, curve_points * pPlot)
 {
-	if(plot->lp_properties.l_type != LT_NODRAW) { // If all the lines are invisible, don't bother to draw them 
+	if(pPlot->lp_properties.l_type != LT_NODRAW) { // If all the lines are invisible, don't bother to draw them 
 		//struct termentry * t = term;
 		int x = 0, y = 0; // current point in terminal coordinates 
 		enum coord_type prev = UNDEFINED; // type of previous point 
 		double xprev = 0.0;
 		double yprev = 0.0;
-		for(int i = 0; i < plot->p_count; i++) {
-			double xnow = plot->points[i].x;
-			double ynow = plot->points[i].y;
-			check_for_variable_color(plot, &plot->varcolor[i]); // rgb variable  -  color read from data column 
-			// Only map and plot the point if it is well-behaved (not UNDEFINED).
+		for(int i = 0; i < pPlot->p_count; i++) {
+			double xnow = pPlot->points[i].x;
+			double ynow = pPlot->points[i].y;
+			check_for_variable_color(pPlot, &pPlot->varcolor[i]); // rgb variable  -  color read from data column 
+			// Only map and pPlot the point if it is well-behaved (not UNDEFINED).
 			// Note that map_x or map_y can hit NaN during eval_link_function(),
 			// in which case the coordinate value is garbage so we set UNDEFINED.
-			if(plot->points[i].type != UNDEFINED) {
-				x = GPO.AxS.MapiX(xnow);
-				y = GPO.AxS.MapiY(ynow);
+			if(pPlot->points[i].type != UNDEFINED) {
+				x = AxS.MapiX(xnow);
+				y = AxS.MapiY(ynow);
 				if(invalid_coordinate(x, y))
-					plot->points[i].type = UNDEFINED;
+					pPlot->points[i].type = UNDEFINED;
 			}
-			switch(plot->points[i].type) {
+			switch(pPlot->points[i].type) {
 				case INRANGE:
 					if(prev == INRANGE) {
 						(pTerm->vector)(x, y);
@@ -926,10 +930,10 @@ static void plot_lines(termentry * pTerm, curve_points * plot)
 							(pTerm->move)(x, y);
 						}
 						else if(polar && clip_radial) {
-							draw_polar_clip_line(pTerm, xprev, yprev, xnow, ynow);
+							DrawPolarClipLine(pTerm, xprev, yprev, xnow, ynow);
 						}
 						else {
-							if(!GPO.DrawClipLine(pTerm, GPO.AxS.MapiX(xprev), GPO.AxS.MapiY(yprev), x, y))
+							if(!DrawClipLine(pTerm, AxS.MapiX(xprev), AxS.MapiY(yprev), x, y))
 								// This is needed if clip_line() doesn't agree that
 								// the current point is INRANGE, i.e. it is on the
 								//  border or just outside depending on rounding
@@ -946,18 +950,18 @@ static void plot_lines(termentry * pTerm, curve_points * plot)
 						// from inrange to outrange 
 						if(clip_lines1) {
 							if(polar && clip_radial)
-								draw_polar_clip_line(pTerm, xprev, yprev, xnow, ynow);
+								DrawPolarClipLine(pTerm, xprev, yprev, xnow, ynow);
 							else
-								GPO.DrawClipLine(pTerm, GPO.AxS.MapiX(xprev), GPO.AxS.MapiY(yprev), x, y);
+								DrawClipLine(pTerm, AxS.MapiX(xprev), AxS.MapiY(yprev), x, y);
 						}
 					}
 					else if(prev == OUTRANGE) {
 						// from outrange to outrange 
 						if(clip_lines2) {
 							if(polar && clip_radial)
-								draw_polar_clip_line(pTerm, xprev, yprev, xnow, ynow);
+								DrawPolarClipLine(pTerm, xprev, yprev, xnow, ynow);
 							else
-								GPO.DrawClipLine(pTerm, GPO.AxS.MapiX(xprev), GPO.AxS.MapiY(yprev), x, y);
+								DrawClipLine(pTerm, AxS.MapiX(xprev), AxS.MapiY(yprev), x, y);
 						}
 					}
 					break;
@@ -965,7 +969,7 @@ static void plot_lines(termentry * pTerm, curve_points * plot)
 				default: // just a safety 
 					break;
 			}
-			prev = plot->points[i].type;
+			prev = pPlot->points[i].type;
 			xprev = xnow;
 			yprev = ynow;
 		}
@@ -975,13 +979,15 @@ static void plot_lines(termentry * pTerm, curve_points * plot)
 /* plot_filledcurves:
  *        {closed | {above | below} {x1 | x2 | y1 | y2 | r}[=<a>] | xy=<x>,<y>}
  */
-
-/* finalize and draw the filled curve */
-static void finish_filled_curve(int points, gpiPoint * corners, curve_points * plot)
+//
+// finalize and draw the filled curve 
+//
+//static void finish_filled_curve(termentry * pTerm, int points, gpiPoint * pCorners, curve_points * pPlot)
+void GnuPlot::FinishFilledCurve(termentry * pTerm, int points, gpiPoint * pCorners, curve_points * pPlot)
 {
 	static gpiPoint * clipcorners = NULL;
 	int clippoints;
-	filledcurves_opts * filledcurves_options = &plot->filledcurves_options;
+	filledcurves_opts * filledcurves_options = &pPlot->filledcurves_options;
 	long side = 0;
 	if(points > 0) {
 		// add side (closing) points 
@@ -989,71 +995,71 @@ static void finish_filled_curve(int points, gpiPoint * corners, curve_points * p
 			case FILLEDCURVES_CLOSED:
 				break;
 			case FILLEDCURVES_X1:
-				corners[points].x   = corners[points-1].x;
-				corners[points+1].x = corners[0].x;
-				corners[points].y   = corners[points+1].y = GPO.AxS[FIRST_Y_AXIS].term_lower;
+				pCorners[points].x   = pCorners[points-1].x;
+				pCorners[points+1].x = pCorners[0].x;
+				pCorners[points].y   = pCorners[points+1].y = AxS[FIRST_Y_AXIS].term_lower;
 				points += 2;
 				break;
 			case FILLEDCURVES_X2:
-				corners[points].x   = corners[points-1].x;
-				corners[points+1].x = corners[0].x;
-				corners[points].y   = corners[points+1].y = GPO.AxS[FIRST_Y_AXIS].term_upper;
+				pCorners[points].x   = pCorners[points-1].x;
+				pCorners[points+1].x = pCorners[0].x;
+				pCorners[points].y   = pCorners[points+1].y = AxS[FIRST_Y_AXIS].term_upper;
 				points += 2;
 				break;
 			case FILLEDCURVES_Y1:
-				corners[points].y   = corners[points-1].y;
-				corners[points+1].y = corners[0].y;
-				corners[points].x   = corners[points+1].x = GPO.AxS[FIRST_X_AXIS].term_lower;
+				pCorners[points].y   = pCorners[points-1].y;
+				pCorners[points+1].y = pCorners[0].y;
+				pCorners[points].x   = pCorners[points+1].x = AxS[FIRST_X_AXIS].term_lower;
 				points += 2;
 				break;
 			case FILLEDCURVES_Y2:
-				corners[points].y   = corners[points-1].y;
-				corners[points+1].y = corners[0].y;
-				corners[points].x   = corners[points+1].x = GPO.AxS[FIRST_X_AXIS].term_upper;
+				pCorners[points].y   = pCorners[points-1].y;
+				pCorners[points+1].y = pCorners[0].y;
+				pCorners[points].x   = pCorners[points+1].x = AxS[FIRST_X_AXIS].term_upper;
 				points += 2;
 				break;
 			case FILLEDCURVES_ATX1:
 			case FILLEDCURVES_ATX2:
 				{
-					corners[points].x   = corners[points+1].x = GPO.AxS.MapiX(filledcurves_options->at);
-					/* should be mapping real x1/x2axis/graph/screen => screen */
-					corners[points].y   = corners[points-1].y;
-					corners[points+1].y = corners[0].y;
+					pCorners[points].x   = pCorners[points+1].x = AxS.MapiX(filledcurves_options->at);
+					// should be mapping real x1/x2axis/graph/screen => screen 
+					pCorners[points].y   = pCorners[points-1].y;
+					pCorners[points+1].y = pCorners[0].y;
 					for(int i = 0; i < points; i++)
-						side += corners[i].x - corners[points].x;
+						side += pCorners[i].x - pCorners[points].x;
 					points += 2;
 				}
 				break;
 			case FILLEDCURVES_ATXY:
-				corners[points].x = GPO.AxS.MapiX(filledcurves_options->at);
+				pCorners[points].x = AxS.MapiX(filledcurves_options->at);
 				// should be mapping real x1axis/graph/screen => screen 
-				corners[points].y = GPO.AxS.MapiY(filledcurves_options->aty);
+				pCorners[points].y = AxS.MapiY(filledcurves_options->aty);
 				// should be mapping real y1axis/graph/screen => screen 
 				points++;
 				break;
 			case FILLEDCURVES_ATY1:
 			case FILLEDCURVES_ATY2:
-				corners[points].y = GPO.AxS.MapiY(filledcurves_options->at);
-				corners[points+1].y = corners[points].y;
-				corners[points].x = corners[points-1].x;
-				corners[points+1].x = corners[0].x;
+				pCorners[points].y = AxS.MapiY(filledcurves_options->at);
+				pCorners[points+1].y = pCorners[points].y;
+				pCorners[points].x = pCorners[points-1].x;
+				pCorners[points+1].x = pCorners[0].x;
 				points += 2;
-			/* Fall through */
+			// Fall through 
 			case FILLEDCURVES_BETWEEN:
-				/* fill_between() allocated an extra point for the above/below flag */
+				// fill_between() allocated an extra point for the above/below flag 
 				if(filledcurves_options->closeto == FILLEDCURVES_BETWEEN)
-					side = (corners[points].x > 0) ? 1 : -1;
-			/* Fall through */
+					side = (pCorners[points].x > 0) ? 1 : -1;
+			// Fall through 
 			case FILLEDCURVES_ATR:
-				/* Prevent 1-pixel overlap of component rectangles, which */
-				/* causes vertical stripe artifacts for transparent fill  */
-				if(plot->fill_properties.fillstyle == FS_TRANSPARENT_SOLID) {
-					int direction = (corners[2].x < corners[0].x) ? -1 : 1;
-					if(points >= 4 && corners[2].x == corners[3].x) {
-						corners[2].x -= direction, corners[3].x -= direction;
+				// Prevent 1-pixel overlap of component rectangles, which 
+				// causes vertical stripe artifacts for transparent fill  
+				if(pPlot->fill_properties.fillstyle == FS_TRANSPARENT_SOLID) {
+					int direction = (pCorners[2].x < pCorners[0].x) ? -1 : 1;
+					if(points >= 4 && pCorners[2].x == pCorners[3].x) {
+						pCorners[2].x -= direction, pCorners[3].x -= direction;
 					}
-					else if(points >= 5 && corners[3].x == corners[4].x) {
-						corners[3].x -= direction, corners[4].x -= direction;
+					else if(points >= 5 && pCorners[3].x == pCorners[4].x) {
+						pCorners[3].x -= direction, pCorners[4].x -= direction;
 					}
 				}
 				break;
@@ -1067,14 +1073,15 @@ static void finish_filled_curve(int points, gpiPoint * corners, curve_points * p
 			return;
 		// EAM Apr 2013 - Use new polygon clipping code 
 		clipcorners = (gpiPoint *)gp_realloc(clipcorners, 2*points*sizeof(gpiPoint), "filledcurve verticess");
-		GPO.V.ClipPolygon(corners, clipcorners, points, &clippoints);
-		clipcorners->style = style_from_fill(&plot->fill_properties);
+		V.ClipPolygon(pCorners, clipcorners, points, &clippoints);
+		clipcorners->style = style_from_fill(&pPlot->fill_properties);
 		if(clippoints > 0)
-			term->filled_polygon(clippoints, clipcorners);
+			pTerm->filled_polygon(clippoints, clipcorners);
 	}
 }
 
-static void plot_filledcurves(termentry * pTerm, curve_points * plot)
+//static void plot_filledcurves(termentry * pTerm, curve_points * plot)
+void GnuPlot::PlotFilledCurves(termentry * pTerm, curve_points * pPlot)
 {
 	int x, y;               /* point in terminal coordinates */
 	//struct termentry * t = term;
@@ -1083,42 +1090,42 @@ static void plot_filledcurves(termentry * pTerm, curve_points * plot)
 	static gpiPoint * corners = 0;  /* array of corners */
 	static int corners_allocated = 0; /* how many allocated */
 	if(!pTerm->filled_polygon) { // filled polygons are not available 
-		plot_lines(pTerm, plot);
+		PlotLines(pTerm, pPlot);
 	}
 	else {
 		// clip the "at" coordinate to the drawing area 
-		switch(plot->filledcurves_options.closeto) {
+		switch(pPlot->filledcurves_options.closeto) {
 			case FILLEDCURVES_ATX1:
-				cliptorange(plot->filledcurves_options.at, GPO.AxS[FIRST_X_AXIS].min, GPO.AxS[FIRST_X_AXIS].max);
+				cliptorange(pPlot->filledcurves_options.at, AxS[FIRST_X_AXIS].min, AxS[FIRST_X_AXIS].max);
 				break;
 			case FILLEDCURVES_ATX2:
-				cliptorange(plot->filledcurves_options.at, GPO.AxS[SECOND_X_AXIS].min, GPO.AxS[SECOND_X_AXIS].max);
+				cliptorange(pPlot->filledcurves_options.at, AxS[SECOND_X_AXIS].min, AxS[SECOND_X_AXIS].max);
 				break;
 			case FILLEDCURVES_ATY1:
 			case FILLEDCURVES_ATY2:
-				cliptorange(plot->filledcurves_options.at, GPO.AxS[plot->AxIdx_Y].min, GPO.AxS[plot->AxIdx_Y].max);
+				cliptorange(pPlot->filledcurves_options.at, AxS[pPlot->AxIdx_Y].min, AxS[pPlot->AxIdx_Y].max);
 				break;
 			case FILLEDCURVES_ATXY:
-				cliptorange(plot->filledcurves_options.at, GPO.AxS[FIRST_X_AXIS].min, GPO.AxS[FIRST_X_AXIS].max);
-				cliptorange(plot->filledcurves_options.aty, GPO.AxS[FIRST_Y_AXIS].min, GPO.AxS[FIRST_Y_AXIS].max);
+				cliptorange(pPlot->filledcurves_options.at, AxS[FIRST_X_AXIS].min, AxS[FIRST_X_AXIS].max);
+				cliptorange(pPlot->filledcurves_options.aty, AxS[FIRST_Y_AXIS].min, AxS[FIRST_Y_AXIS].max);
 				break;
 			default:
 				break;
 		}
-		for(int i = 0; i < plot->p_count; i++) {
+		for(int i = 0; i < pPlot->p_count; i++) {
 			if(points+2 >= corners_allocated) { /* there are 2 side points */
 				corners_allocated += 128; /* reallocate more corners */
 				corners = (gpiPoint *)gp_realloc(corners, corners_allocated*sizeof(gpiPoint), "filledcurve vertices");
 			}
-			switch(plot->points[i].type) {
+			switch(pPlot->points[i].type) {
 				case INRANGE:
 				case OUTRANGE:
-					x = GPO.AxS.MapiX(plot->points[i].x);
-					y = GPO.AxS.MapiY(plot->points[i].y);
+					x = AxS.MapiX(pPlot->points[i].x);
+					y = AxS.MapiY(pPlot->points[i].y);
 					corners[points].x = x;
 					corners[points].y = y;
 					if(points == 0)
-						check_for_variable_color(plot, &plot->varcolor[i]);
+						check_for_variable_color(pPlot, &pPlot->varcolor[i]);
 					points++;
 					break;
 				case UNDEFINED:
@@ -1126,20 +1133,20 @@ static void plot_filledcurves(termentry * pTerm, curve_points * plot)
 					// Unfortunately, it can also mean that the point was undefined.
 					// Is there a clean way to detect or handle the latter case?
 					if(prev != UNDEFINED) {
-						finish_filled_curve(points, corners, plot);
+						FinishFilledCurve(pTerm, points, corners, pPlot);
 						points = 0;
 					}
 					break;
 				default: /* just a safety */
 					break;
 			}
-			prev = plot->points[i].type;
+			prev = pPlot->points[i].type;
 		}
-		finish_filled_curve(points, corners, plot);
+		FinishFilledCurve(pTerm, points, corners, pPlot);
 		// If the fill style has a border and this is a closed curve then	
 		// retrace the boundary.  Otherwise ignore "border" property.	
-		if(plot->filledcurves_options.closeto == FILLEDCURVES_CLOSED &&  need_fill_border(&plot->fill_properties)) {
-			plot_lines(pTerm, plot);
+		if(pPlot->filledcurves_options.closeto == FILLEDCURVES_CLOSED &&  need_fill_border(&pPlot->fill_properties)) {
+			PlotLines(pTerm, pPlot);
 		}
 	}
 }
@@ -1256,7 +1263,7 @@ void GnuPlot::PlotBetweenCurves(termentry * pTerm, curve_points * plot)
 					points++;
 				}
 				corners[points].x = (dy < 0) ? 1 : 0;
-				finish_filled_curve(points, corners, plot);
+				FinishFilledCurve(pTerm, points, corners, plot);
 				points = 0;
 			}
 		}
@@ -1283,16 +1290,16 @@ void GnuPlot::PlotSteps(termentry * pTerm, curve_points * plot)
 	if((plot->plot_style & PLOT_STYLE_HAS_FILL) && pTerm->fillbox) {
 		double ey = 0;
 		style = style_from_fill(&plot->fill_properties);
-		if(GPO.AxS.__Y().log)
-			ey = GPO.AxS.__Y().min;
+		if(AxS.__Y().log)
+			ey = AxS.__Y().min;
 		else
-			cliptorange(ey, GPO.AxS.__Y().min, GPO.AxS.__Y().max);
+			cliptorange(ey, AxS.__Y().min, AxS.__Y().max);
 		y0 = AxS.MapiY(ey);
 	}
-	xleft  = AxS.MapiX(GPO.AxS.__X().min);
-	xright = AxS.MapiX(GPO.AxS.__X().max);
-	ybot   = AxS.MapiY(GPO.AxS.__Y().min);
-	ytop   = AxS.MapiY(GPO.AxS.__Y().max);
+	xleft  = AxS.MapiX(AxS.__X().min);
+	xright = AxS.MapiX(AxS.__X().max);
+	ybot   = AxS.MapiY(AxS.__Y().min);
+	ytop   = AxS.MapiY(AxS.__Y().max);
 	for(i = 0; i < plot->p_count; i++) {
 		xprev = x; yprev = y;
 		switch(plot->points[i].type) {
@@ -1337,34 +1344,35 @@ void GnuPlot::PlotSteps(termentry * pTerm, curve_points * plot)
 // Each new value is reached by tracing up/down to the new y value
 // and then horizontally to the new x value.
 //
-static void plot_fsteps(termentry * pTerm, curve_points * plot)
+//static void plot_fsteps(termentry * pTerm, curve_points * plot)
+void GnuPlot::PlotFSteps(termentry * pTerm, curve_points * pPlot)
 {
 	int x = 0, y = 0; // point in terminal coordinates 
 	enum coord_type prev = UNDEFINED; /* type of previous point */
-	for(int i = 0; i < plot->p_count; i++) {
+	for(int i = 0; i < pPlot->p_count; i++) {
 		const int xprev = x; // previous point coordinates 
 		const int yprev = y;
-		switch(plot->points[i].type) {
+		switch(pPlot->points[i].type) {
 			case INRANGE:
 			case OUTRANGE:
-			    x = GPO.AxS.MapiX(plot->points[i].x);
-			    y = GPO.AxS.MapiY(plot->points[i].y);
+			    x = AxS.MapiX(pPlot->points[i].x);
+			    y = AxS.MapiY(pPlot->points[i].y);
 			    if(prev == UNDEFINED || invalid_coordinate(x, y))
 				    break;
 			    if(prev == INRANGE) {
-				    GPO.DrawClipLine(pTerm, xprev, yprev, xprev, y);
-				    GPO.DrawClipLine(pTerm, xprev, y, x, y);
+				    DrawClipLine(pTerm, xprev, yprev, xprev, y);
+				    DrawClipLine(pTerm, xprev, y, x, y);
 			    }
 			    else if(prev == OUTRANGE) {
-				    GPO.DrawClipLine(pTerm, xprev, yprev, xprev, y);
-				    GPO.DrawClipLine(pTerm, xprev, y, x, y);
+				    DrawClipLine(pTerm, xprev, yprev, xprev, y);
+				    DrawClipLine(pTerm, xprev, y, x, y);
 			    }
 			    break;
-			default: /* just a safety */
+			default: // just a safety 
 			case UNDEFINED:
 			    break;
 		}
-		prev = plot->points[i].type;
+		prev = pPlot->points[i].type;
 	}
 }
 
@@ -1382,12 +1390,13 @@ static int histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 	else
 		return (x1 > x2);
 }
-
-/* CAC  */
-/* plot_histeps:
- * Plot the curves in HISTEPS style
- */
-static void plot_histeps(curve_points * plot)
+// 
+// CAC  
+// plot_histeps:
+// Plot the curves in HISTEPS style
+// 
+//static void plot_histeps(curve_points * plot)
+void GnuPlot::PlotHiSteps(termentry * pTerm, curve_points * pPlot)
 {
 	int i;                  /* point index */
 	int x1m, y1m, x2m, y2m; /* mapped coordinates */
@@ -1396,56 +1405,56 @@ static void plot_histeps(curve_points * plot)
 	int * gl, goodcount;    /* array to hold list of valid points */
 	// preliminary count of points inside array 
 	goodcount = 0;
-	for(i = 0; i < plot->p_count; i++)
-		if(plot->points[i].type == INRANGE || plot->points[i].type == OUTRANGE)
+	for(i = 0; i < pPlot->p_count; i++)
+		if(pPlot->points[i].type == INRANGE || pPlot->points[i].type == OUTRANGE)
 			++goodcount;
 	if(goodcount < 2)
-		return;         /* cannot plot less than 2 points */
+		return;         /* cannot pPlot less than 2 points */
 	gl = (int *)gp_alloc(goodcount * sizeof(int), "histeps valid point mapping");
 	// fill gl array with indexes of valid (non-undefined) points.  
 	goodcount = 0;
-	for(i = 0; i < plot->p_count; i++)
-		if(plot->points[i].type == INRANGE || plot->points[i].type == OUTRANGE) {
+	for(i = 0; i < pPlot->p_count; i++)
+		if(pPlot->points[i].type == INRANGE || pPlot->points[i].type == OUTRANGE) {
 			gl[goodcount] = i;
 			++goodcount;
 		}
-	// sort the data --- tell histeps_compare about the plot
+	// sort the data --- tell histeps_compare about the pPlot
 	// datastructure to look at, then call qsort() 
-	histeps_current_plot = plot;
+	histeps_current_plot = pPlot;
 	qsort(gl, goodcount, sizeof(*gl), histeps_compare);
 	// play it safe: invalidate the static pointer after usage 
 	histeps_current_plot = NULL;
 	// HBB 20010625: log y axis must treat 0.0 as -infinity.
 	// Define the correct y position for the histogram's baseline.
-	if(GPO.AxS.__Y().log)
-		y_null = MIN(GPO.AxS.__Y().min, GPO.AxS.__Y().max);
+	if(AxS.__Y().log)
+		y_null = MIN(AxS.__Y().min, AxS.__Y().max);
 	else
 		y_null = 0.0;
-	x = (3.0 * plot->points[gl[0]].x - plot->points[gl[1]].x) / 2.0;
+	x = (3.0 * pPlot->points[gl[0]].x - pPlot->points[gl[1]].x) / 2.0;
 	y = y_null;
 	for(i = 0; i < goodcount - 1; i++) {    /* loop over all points except last  */
-		yn = plot->points[gl[i]].y;
-		if((GPO.AxS.__Y().log) && yn < y_null)
+		yn = pPlot->points[gl[i]].y;
+		if((AxS.__Y().log) && yn < y_null)
 			yn = y_null;
-		xn = (plot->points[gl[i]].x + plot->points[gl[i + 1]].x) / 2.0;
-		x1m = GPO.AxS.MapiX(x);
-		x2m = GPO.AxS.MapiX(xn);
-		y1m = GPO.AxS.MapiY(y);
-		y2m = GPO.AxS.MapiY(yn);
-		GPO.DrawClipLine(term, x1m, y1m, x1m, y2m);
-		GPO.DrawClipLine(term, x1m, y2m, x2m, y2m);
+		xn = (pPlot->points[gl[i]].x + pPlot->points[gl[i + 1]].x) / 2.0;
+		x1m = AxS.MapiX(x);
+		x2m = AxS.MapiX(xn);
+		y1m = AxS.MapiY(y);
+		y2m = AxS.MapiY(yn);
+		DrawClipLine(pTerm, x1m, y1m, x1m, y2m);
+		DrawClipLine(pTerm, x1m, y2m, x2m, y2m);
 		x = xn;
 		y = yn;
 	}
-	yn = plot->points[gl[i]].y;
-	xn = (3.0 * plot->points[gl[i]].x - plot->points[gl[i - 1]].x) / 2.0;
-	x1m = GPO.AxS.MapiX(x);
-	x2m = GPO.AxS.MapiX(xn);
-	y1m = GPO.AxS.MapiY(y);
-	y2m = GPO.AxS.MapiY(yn);
-	GPO.DrawClipLine(term, x1m, y1m, x1m, y2m);
-	GPO.DrawClipLine(term, x1m, y2m, x2m, y2m);
-	GPO.DrawClipLine(term, x2m, y2m, x2m, GPO.AxS.MapiY(y_null));
+	yn = pPlot->points[gl[i]].y;
+	xn = (3.0 * pPlot->points[gl[i]].x - pPlot->points[gl[i - 1]].x) / 2.0;
+	x1m = AxS.MapiX(x);
+	x2m = AxS.MapiX(xn);
+	y1m = AxS.MapiY(y);
+	y2m = AxS.MapiY(yn);
+	DrawClipLine(pTerm, x1m, y1m, x1m, y2m);
+	DrawClipLine(pTerm, x1m, y2m, x2m, y2m);
+	DrawClipLine(pTerm, x2m, y2m, x2m, AxS.MapiY(y_null));
 	SAlloc::F(gl);
 }
 // 
@@ -1633,7 +1642,7 @@ void GnuPlot::PlotBoxes(termentry * pTerm, curve_points * plot, int xaxis_y)
 		if(histogram_opts.type == HT_STACKED_IN_LAYERS && plot->histogram_sequence == 0)
 			stack_count = 0;
 		if(!stackheight) {
-			stackheight = (struct coordinate *)gp_alloc(newsize * sizeof(struct coordinate), "stackheight array");
+			stackheight = (GpCoordinate *)gp_alloc(newsize * sizeof(GpCoordinate), "stackheight array");
 			for(i = 0; i < newsize; i++) {
 				stackheight[i].yhigh = 0;
 				stackheight[i].ylow = 0;
@@ -1641,7 +1650,7 @@ void GnuPlot::PlotBoxes(termentry * pTerm, curve_points * plot, int xaxis_y)
 			stack_count = newsize;
 		}
 		else if(stack_count < newsize) {
-			stackheight = (struct coordinate *)gp_realloc(stackheight, newsize * sizeof(struct coordinate), "stackheight array");
+			stackheight = (GpCoordinate *)gp_realloc(stackheight, newsize * sizeof(GpCoordinate), "stackheight array");
 			for(i = stack_count; i < newsize; i++) {
 				stackheight[i].yhigh = 0;
 				stackheight[i].ylow = 0;
@@ -1871,7 +1880,7 @@ void GnuPlot::PlotPoints(termentry * pTerm, curve_points * plot)
 	// This operation leaves x and y untouched, but loads the	
 	// jitter offsets into xhigh and yhigh.			
 	if(jitter.spread > 0)
-		jitter_points(plot);
+		JitterPoints(pTerm, plot);
 	for(i = 0; i < plot->p_count; i++) {
 		// Only print 1 point per interval 
 		if((plot->plot_style == LINESPOINTS) && (interval) && ((i-offset) % interval))
@@ -1959,115 +1968,116 @@ void GnuPlot::PlotPoints(termentry * pTerm, curve_points * plot)
 // plot_circles:
 // Plot the curves in CIRCLES style
 // 
-static void plot_circles(curve_points * plot)
+//static void plot_circles(termentry * pTerm, curve_points * pPlot)
+void GnuPlot::PlotCircles(termentry * pTerm, curve_points * pPlot)
 {
 	int i;
 	int x, y;
 	double radius, arc_begin, arc_end;
-	fill_style_type * fillstyle = &plot->fill_properties;
+	fill_style_type * fillstyle = &pPlot->fill_properties;
 	int style = style_from_fill(fillstyle);
 	bool withborder = FALSE;
-	BoundingBox * clip_save = GPO.V.P_ClipArea;
+	BoundingBox * clip_save = V.P_ClipArea;
 	if(default_circle.clip == OBJ_NOCLIP)
-		GPO.V.P_ClipArea = &GPO.V.BbCanvas;
+		V.P_ClipArea = &V.BbCanvas;
 	if(fillstyle->border_color.type != TC_LT || fillstyle->border_color.lt != LT_NODRAW)
 		withborder = TRUE;
-	for(i = 0; i < plot->p_count; i++) {
-		if(plot->points[i].type == INRANGE) {
-			x = GPO.AxS.MapiX(plot->points[i].x);
-			y = GPO.AxS.MapiY(plot->points[i].y);
+	for(i = 0; i < pPlot->p_count; i++) {
+		if(pPlot->points[i].type == INRANGE) {
+			x = AxS.MapiX(pPlot->points[i].x);
+			y = AxS.MapiY(pPlot->points[i].y);
 			if(invalid_coordinate(x, y))
 				continue;
-			radius = x - GPO.AxS.MapiX(plot->points[i].xlow);
-			if(plot->points[i].z == DEFAULT_RADIUS)
-				GPO.MapPositionR(term, &default_circle.o.circle.extent, &radius, NULL, "radius");
-			arc_begin = plot->points[i].ylow;
-			arc_end = plot->points[i].xhigh;
+			radius = x - AxS.MapiX(pPlot->points[i].xlow);
+			if(pPlot->points[i].z == DEFAULT_RADIUS)
+				MapPositionR(pTerm, &default_circle.o.circle.extent, &radius, NULL, "radius");
+			arc_begin = pPlot->points[i].ylow;
+			arc_end = pPlot->points[i].xhigh;
 			// rgb variable  -  color read from data column 
-			if(!check_for_variable_color(plot, &plot->varcolor[i]) && withborder)
-				GPO.TermApplyLpProperties(term, &plot->lp_properties);
-			do_arc(x, y, radius, arc_begin, arc_end, style, FALSE);
+			if(!check_for_variable_color(pPlot, &pPlot->varcolor[i]) && withborder)
+				TermApplyLpProperties(pTerm, &pPlot->lp_properties);
+			DoArc(pTerm, x, y, radius, arc_begin, arc_end, style, FALSE);
 			if(withborder) {
-				need_fill_border(&plot->fill_properties);
-				do_arc(x, y, radius, arc_begin, arc_end, 0, default_circle.o.circle.wedge);
+				need_fill_border(&pPlot->fill_properties);
+				DoArc(pTerm, x, y, radius, arc_begin, arc_end, 0, default_circle.o.circle.wedge);
 			}
 		}
 	}
-	GPO.V.P_ClipArea = clip_save;
+	V.P_ClipArea = clip_save;
 }
 // 
 // plot_ellipses:
 // Plot the curves in ELLIPSES style
 // 
-static void plot_ellipses(curve_points * plot)
+//static void plot_ellipses(termentry * pTerm, curve_points * pPlot)
+void GnuPlot::PlotEllipses(termentry * pTerm, curve_points * pPlot)
 {
 	int i;
-	t_ellipse * e = (t_ellipse*)gp_alloc(sizeof(t_ellipse), "ellipse plot");
+	t_ellipse * e = (t_ellipse *)gp_alloc(sizeof(t_ellipse), "ellipse plot");
 	double tempx, tempy, tempfoo;
-	fill_style_type * fillstyle = &plot->fill_properties;
+	fill_style_type * fillstyle = &pPlot->fill_properties;
 	int style = style_from_fill(fillstyle);
 	bool withborder = FALSE;
-	BoundingBox * clip_save = GPO.V.P_ClipArea;
+	BoundingBox * clip_save = V.P_ClipArea;
 	if(default_ellipse.clip == OBJ_NOCLIP)
-		GPO.V.P_ClipArea = &GPO.V.BbCanvas;
+		V.P_ClipArea = &V.BbCanvas;
 	if(fillstyle->border_color.type != TC_LT || fillstyle->border_color.lt != LT_NODRAW)
 		withborder = TRUE;
-	e->extent.scalex = (plot->AxIdx_X == SECOND_X_AXIS) ? second_axes : first_axes;
-	e->extent.scaley = (plot->AxIdx_Y == SECOND_Y_AXIS) ? second_axes : first_axes;
-	e->type = plot->ellipseaxes_units;
-	for(i = 0; i < plot->p_count; i++) {
-		if(plot->points[i].type == INRANGE) {
-			e->center.x = GPO.AxS.MapiX(plot->points[i].x);
-			e->center.y = GPO.AxS.MapiY(plot->points[i].y);
+	e->extent.scalex = (pPlot->AxIdx_X == SECOND_X_AXIS) ? second_axes : first_axes;
+	e->extent.scaley = (pPlot->AxIdx_Y == SECOND_Y_AXIS) ? second_axes : first_axes;
+	e->type = pPlot->ellipseaxes_units;
+	for(i = 0; i < pPlot->p_count; i++) {
+		if(pPlot->points[i].type == INRANGE) {
+			e->center.x = AxS.MapiX(pPlot->points[i].x);
+			e->center.y = AxS.MapiY(pPlot->points[i].y);
 			if(invalid_coordinate(e->center.x, e->center.y))
 				continue;
-			e->orientation = plot->points[i].ylow;
-			if(plot->points[i].z <= DEFAULT_RADIUS) {
-				GPO.MapPositionR(term, &default_ellipse.o.ellipse.extent, &e->extent.x, &e->extent.y, "ellipse");
+			e->orientation = pPlot->points[i].ylow;
+			if(pPlot->points[i].z <= DEFAULT_RADIUS) {
+				MapPositionR(pTerm, &default_ellipse.o.ellipse.extent, &e->extent.x, &e->extent.y, "ellipse");
 			}
 			else {
-				e->extent.x = plot->points[i].xlow; /* major axis */
-				e->extent.y = plot->points[i].xhigh; /* minor axis */
-				/* the mapping can be set by the
-				 * "set ellipseaxes" setting
-				 * both x units, mixed, both y units */
-				/* clumsy solution */
+				e->extent.x = pPlot->points[i].xlow; /* major axis */
+				e->extent.y = pPlot->points[i].xhigh; /* minor axis */
+				// the mapping can be set by the "set ellipseaxes" setting
+				// both x units, mixed, both y units 
+				// clumsy solution 
 				switch(e->type) {
 					case ELLIPSEAXES_XY:
-					    GPO.MapPositionR(term, &e->extent, &tempx, &tempy, "ellipse");
+					    MapPositionR(pTerm, &e->extent, &tempx, &tempy, "ellipse");
 					    e->extent.x = tempx;
 					    e->extent.y = tempy;
 					    break;
 					case ELLIPSEAXES_XX:
-					    GPO.MapPositionR(term, &e->extent, &tempx, &tempy, "ellipse");
+					    MapPositionR(pTerm, &e->extent, &tempx, &tempy, "ellipse");
 					    tempfoo = tempx;
 					    e->extent.x = e->extent.y;
-					    GPO.MapPositionR(term, &e->extent, &tempy, &tempx, "ellipse");
+					    MapPositionR(pTerm, &e->extent, &tempy, &tempx, "ellipse");
 					    e->extent.x = tempfoo;
 					    e->extent.y = tempy;
 					    break;
 					case ELLIPSEAXES_YY:
-					    GPO.MapPositionR(term, &e->extent, &tempx, &tempy, "ellipse");
+					    MapPositionR(pTerm, &e->extent, &tempx, &tempy, "ellipse");
 					    tempfoo = tempy;
 					    e->extent.y = e->extent.x;
-					    GPO.MapPositionR(term, &e->extent, &tempy, &tempx, "ellipse");
+					    MapPositionR(pTerm, &e->extent, &tempy, &tempx, "ellipse");
 					    e->extent.x = tempx;
 					    e->extent.y = tempfoo;
 					    break;
 				}
 			}
 			// rgb variable  -  color read from data column 
-			if(!check_for_variable_color(plot, &plot->varcolor[i]) && withborder)
-				GPO.TermApplyLpProperties(term, &plot->lp_properties);
-			do_ellipse(2, e, style, FALSE);
+			if(!check_for_variable_color(pPlot, &pPlot->varcolor[i]) && withborder)
+				TermApplyLpProperties(pTerm, &pPlot->lp_properties);
+			do_ellipse(pTerm, 2, e, style, FALSE);
 			if(withborder) {
-				need_fill_border(&plot->fill_properties);
-				do_ellipse(2, e, 0, FALSE);
+				need_fill_border(&pPlot->fill_properties);
+				do_ellipse(pTerm, 2, e, 0, FALSE);
 			}
 		}
 	}
 	SAlloc::F(e);
-	GPO.V.P_ClipArea = clip_save;
+	V.P_ClipArea = clip_save;
 }
 //
 // plot_dots:
@@ -2105,7 +2115,7 @@ void GnuPlot::PlotVectors(termentry * pTerm, curve_points * plot)
 	V.P_ClipArea = &V.BbPlot;
 	for(int i = 0; i < plot->p_count; i++) {
 		double x0, y0, x1, y1;
-		struct coordinate * tail = &(plot->points[i]);
+		GpCoordinate * tail = &(plot->points[i]);
 		if(tail->type != UNDEFINED) {
 			// The only difference between "with vectors" and "with arrows"
 			// is that vectors already have the head coordinates in xhigh, yhigh
@@ -2153,7 +2163,8 @@ void GnuPlot::PlotVectors(termentry * pTerm, curve_points * plot)
 // Plot the curves in FINANCEBARS style
 // EAM Feg 2010	- This routine is also used for BOXPLOT, which loads a median value into xhigh
 //
-static void plot_f_bars(termentry * pTerm, curve_points * plot)
+//static void plot_f_bars(termentry * pTerm, curve_points * pPlot)
+void GnuPlot::PlotFBars(termentry * pTerm, curve_points * pPlot)
 {
 	int i;                  /* point index */
 	//struct termentry * t = term;
@@ -2164,52 +2175,52 @@ static void plot_f_bars(termentry * pTerm, curve_points * plot)
 	int yopenM, ycloseM, ymedianM;
 	bool low_inrange, high_inrange;
 	int tic = MAX(ERRORBARTIC(pTerm)/2, 1);
-	for(i = 0; i < plot->p_count; i++) {
+	for(i = 0; i < pPlot->p_count; i++) {
 		// undefined points don't count 
-		if(plot->points[i].type == UNDEFINED)
+		if(pPlot->points[i].type == UNDEFINED)
 			continue;
 		// check to see if in xrange 
-		x = plot->points[i].x;
-		if(!inrange(x, GPO.AxS.__X().min, GPO.AxS.__X().max))
+		x = pPlot->points[i].x;
+		if(!inrange(x, AxS.__X().min, AxS.__X().max))
 			continue;
-		xM = GPO.AxS.MapiX(x);
+		xM = AxS.MapiX(x);
 		// find low and high points of bar, and check yrange 
-		yhigh = plot->points[i].yhigh;
-		ylow = plot->points[i].ylow;
-		yclose = plot->points[i].z;
-		yopen = plot->points[i].y;
-		ymedian = plot->points[i].xhigh;
-		high_inrange = inrange(yhigh, GPO.AxS.__Y().min, GPO.AxS.__Y().max);
-		low_inrange = inrange(ylow, GPO.AxS.__Y().min, GPO.AxS.__Y().max);
+		yhigh = pPlot->points[i].yhigh;
+		ylow = pPlot->points[i].ylow;
+		yclose = pPlot->points[i].z;
+		yopen = pPlot->points[i].y;
+		ymedian = pPlot->points[i].xhigh;
+		high_inrange = inrange(yhigh, AxS.__Y().min, AxS.__Y().max);
+		low_inrange = inrange(ylow, AxS.__Y().min, AxS.__Y().max);
 		// compute the plot position of yhigh 
 		if(high_inrange)
-			yhighM = GPO.AxS.MapiY(yhigh);
-		else if(samesign(yhigh - GPO.AxS.__Y().max, GPO.AxS.__Y().max - GPO.AxS.__Y().min))
-			yhighM = GPO.AxS.MapiY(GPO.AxS.__Y().max);
+			yhighM = AxS.MapiY(yhigh);
+		else if(samesign(yhigh - AxS.__Y().max, AxS.__Y().max - AxS.__Y().min))
+			yhighM = AxS.MapiY(AxS.__Y().max);
 		else
-			yhighM = GPO.AxS.MapiY(GPO.AxS.__Y().min);
+			yhighM = AxS.MapiY(AxS.__Y().min);
 		// compute the plot position of ylow 
 		if(low_inrange)
-			ylowM = GPO.AxS.MapiY(ylow);
-		else if(samesign(ylow - GPO.AxS.__Y().max, GPO.AxS.__Y().max - GPO.AxS.__Y().min))
-			ylowM = GPO.AxS.MapiY(GPO.AxS.__Y().max);
+			ylowM = AxS.MapiY(ylow);
+		else if(samesign(ylow - AxS.__Y().max, AxS.__Y().max - AxS.__Y().min))
+			ylowM = AxS.MapiY(AxS.__Y().max);
 		else
-			ylowM = GPO.AxS.MapiY(GPO.AxS.__Y().min);
+			ylowM = AxS.MapiY(AxS.__Y().min);
 		if(!high_inrange && !low_inrange && ylowM == yhighM)
 			// both out of range on the same side 
 			continue;
 		// variable color read from extra data column. June 2010 
-		check_for_variable_color(plot, &plot->varcolor[i]);
-		yopenM = GPO.AxS.MapiY(yopen);
-		ycloseM = GPO.AxS.MapiY(yclose);
-		ymedianM = GPO.AxS.MapiY(ymedian);
+		check_for_variable_color(pPlot, &pPlot->varcolor[i]);
+		yopenM = AxS.MapiY(yopen);
+		ycloseM = AxS.MapiY(yclose);
+		ymedianM = AxS.MapiY(ymedian);
 		// draw the main bar, open tic, close tic 
-		GPO.DrawClipLine(pTerm, xM, ylowM, xM, yhighM);
-		GPO.DrawClipLine(pTerm, xM - bar_size * tic, yopenM, xM, yopenM);
-		GPO.DrawClipLine(pTerm, xM + bar_size * tic, ycloseM, xM, ycloseM);
+		DrawClipLine(pTerm, xM, ylowM, xM, yhighM);
+		DrawClipLine(pTerm, xM - bar_size * tic, yopenM, xM, yopenM);
+		DrawClipLine(pTerm, xM + bar_size * tic, ycloseM, xM, ycloseM);
 		// Draw a bar at the median 
-		if(plot->plot_style == BOXPLOT)
-			GPO.DrawClipLine(pTerm, xM - bar_size * tic, ymedianM, xM + bar_size * tic, ymedianM);
+		if(pPlot->plot_style == BOXPLOT)
+			DrawClipLine(pTerm, xM - bar_size * tic, ymedianM, xM + bar_size * tic, ymedianM);
 	}
 }
 // 
@@ -2221,7 +2232,8 @@ static void plot_f_bars(termentry * pTerm, curve_points * plot)
 //   This routine is also used for BOXPLOT, which
 //   loads a median value into xhigh
 // 
-static void plot_c_bars(termentry * pTerm, curve_points * plot)
+//static void plot_c_bars(termentry * pTerm, curve_points * plot)
+void GnuPlot::PlotCBars(termentry * pTerm, curve_points * pPlot)
 {
 	//struct termentry * t = term;
 	int i;
@@ -2233,22 +2245,22 @@ static void plot_c_bars(termentry * pTerm, curve_points * plot)
 	bool low_inrange, high_inrange;
 	bool open_inrange, close_inrange;
 	int tic = MAX(ERRORBARTIC(pTerm)/2, 1);
-	for(i = 0; i < plot->p_count; i++) {
+	for(i = 0; i < pPlot->p_count; i++) {
 		bool skip_box = FALSE;
 		// undefined points don't count 
-		if(plot->points[i].type == UNDEFINED)
+		if(pPlot->points[i].type == UNDEFINED)
 			continue;
 		// check to see if in xrange 
-		x = plot->points[i].x;
-		if(!inrange(x, GPO.AxS.__X().min, GPO.AxS.__X().max))
+		x = pPlot->points[i].x;
+		if(!inrange(x, AxS.__X().min, AxS.__X().max))
 			continue;
-		xM = GPO.AxS.MapiX(x);
+		xM = AxS.MapiX(x);
 		// find low and high points of bar, and check yrange 
-		yhigh = plot->points[i].yhigh;
-		ylow = plot->points[i].ylow;
-		yclose = plot->points[i].z;
-		yopen = plot->points[i].y;
-		ymed = plot->points[i].xhigh;
+		yhigh = pPlot->points[i].yhigh;
+		ylow = pPlot->points[i].ylow;
+		yclose = pPlot->points[i].z;
+		yopen = pPlot->points[i].y;
+		ymed = pPlot->points[i].xhigh;
 		// HBB 20010928: To make code match the documentation, ensure
 		// yhigh is actually higher than ylow 
 		if(yhigh < ylow) {
@@ -2256,65 +2268,65 @@ static void plot_c_bars(termentry * pTerm, curve_points * plot)
 			ylow = yhigh;
 			yhigh = temp;
 		}
-		high_inrange = inrange(yhigh, GPO.AxS[GPO.AxS.Idx_Y].min, GPO.AxS[GPO.AxS.Idx_Y].max);
-		low_inrange = inrange(ylow, GPO.AxS[GPO.AxS.Idx_Y].min, GPO.AxS[GPO.AxS.Idx_Y].max);
-		// compute the plot position of yhigh 
+		high_inrange = inrange(yhigh, AxS[AxS.Idx_Y].min, AxS[AxS.Idx_Y].max);
+		low_inrange = inrange(ylow, AxS[AxS.Idx_Y].min, AxS[AxS.Idx_Y].max);
+		// compute the pPlot position of yhigh 
 		if(high_inrange)
-			yhighM = GPO.AxS.MapiY(yhigh);
-		else if(samesign(yhigh - GPO.AxS[GPO.AxS.Idx_Y].max, GPO.AxS[GPO.AxS.Idx_Y].max - GPO.AxS[GPO.AxS.Idx_Y].min))
-			yhighM = GPO.AxS.MapiY(GPO.AxS[GPO.AxS.Idx_Y].max);
+			yhighM = AxS.MapiY(yhigh);
+		else if(samesign(yhigh - AxS[AxS.Idx_Y].max, AxS[AxS.Idx_Y].max - AxS[AxS.Idx_Y].min))
+			yhighM = AxS.MapiY(AxS[AxS.Idx_Y].max);
 		else
-			yhighM = GPO.AxS.MapiY(GPO.AxS[GPO.AxS.Idx_Y].min);
-		// compute the plot position of ylow 
+			yhighM = AxS.MapiY(AxS[AxS.Idx_Y].min);
+		// compute the pPlot position of ylow 
 		if(low_inrange)
-			ylowM = GPO.AxS.MapiY(ylow);
-		else if(samesign(ylow - GPO.AxS[GPO.AxS.Idx_Y].max, GPO.AxS[GPO.AxS.Idx_Y].max - GPO.AxS[GPO.AxS.Idx_Y].min))
-			ylowM = GPO.AxS.MapiY(GPO.AxS[GPO.AxS.Idx_Y].max);
+			ylowM = AxS.MapiY(ylow);
+		else if(samesign(ylow - AxS[AxS.Idx_Y].max, AxS[AxS.Idx_Y].max - AxS[AxS.Idx_Y].min))
+			ylowM = AxS.MapiY(AxS[AxS.Idx_Y].max);
 		else
-			ylowM = GPO.AxS.MapiY(GPO.AxS[GPO.AxS.Idx_Y].min);
+			ylowM = AxS.MapiY(AxS[AxS.Idx_Y].min);
 		if(!high_inrange && !low_inrange && ylowM == yhighM)
 			// both out of range on the same side 
 			continue;
-		if(plot->points[i].xlow != plot->points[i].x) {
-			dxl = plot->points[i].xlow;
+		if(pPlot->points[i].xlow != pPlot->points[i].x) {
+			dxl = pPlot->points[i].xlow;
 			dxr = 2 * x - dxl;
-			cliptorange(dxr, GPO.AxS.__X().min, GPO.AxS.__X().max);
-			cliptorange(dxl, GPO.AxS.__X().min, GPO.AxS.__X().max);
-			xlowM = GPO.AxS.MapiX(dxl);
-			xhighM = GPO.AxS.MapiX(dxr);
+			cliptorange(dxr, AxS.__X().min, AxS.__X().max);
+			cliptorange(dxl, AxS.__X().min, AxS.__X().max);
+			xlowM = AxS.MapiX(dxl);
+			xhighM = AxS.MapiX(dxr);
 		}
-		else if(plot->plot_style == BOXPLOT) {
-			dxr = (GPO.V.BoxWidthIsAbsolute && GPO.V.BoxWidth > 0.0) ? (GPO.V.BoxWidth/2.0) : 0.25;
-			xlowM = GPO.AxS.MapiX(x-dxr);
-			xhighM = GPO.AxS.MapiX(x+dxr);
+		else if(pPlot->plot_style == BOXPLOT) {
+			dxr = (V.BoxWidthIsAbsolute && V.BoxWidth > 0.0) ? (V.BoxWidth/2.0) : 0.25;
+			xlowM = AxS.MapiX(x-dxr);
+			xhighM = AxS.MapiX(x+dxr);
 		}
-		else if(GPO.V.BoxWidth < 0.0) {
-			xlowM = xM - bar_size * tic;
-			xhighM = xM + bar_size * tic;
+		else if(V.BoxWidth < 0.0) {
+			xlowM  = static_cast<int>(xM - bar_size * tic);
+			xhighM = static_cast<int>(xM + bar_size * tic);
 		}
 		else {
-			dxl = -GPO.V.BoxWidth / 2.0;
+			dxl = -V.BoxWidth / 2.0;
 			if(prev != UNDEFINED)
-				if(!GPO.V.BoxWidthIsAbsolute)
-					dxl = (plot->points[i-1].x - plot->points[i].x) * GPO.V.BoxWidth / 2.0;
+				if(!V.BoxWidthIsAbsolute)
+					dxl = (pPlot->points[i-1].x - pPlot->points[i].x) * V.BoxWidth / 2.0;
 
 			dxr = -dxl;
-			if(i < plot->p_count - 1) {
-				if(plot->points[i + 1].type != UNDEFINED) {
-					if(!GPO.V.BoxWidthIsAbsolute)
-						dxr = (plot->points[i+1].x - plot->points[i].x) * GPO.V.BoxWidth / 2.0;
+			if(i < pPlot->p_count - 1) {
+				if(pPlot->points[i + 1].type != UNDEFINED) {
+					if(!V.BoxWidthIsAbsolute)
+						dxr = (pPlot->points[i+1].x - pPlot->points[i].x) * V.BoxWidth / 2.0;
 					else
-						dxr = GPO.V.BoxWidth / 2.0;
+						dxr = V.BoxWidth / 2.0;
 				}
 			}
 			if(prev == UNDEFINED)
 				dxl = -dxr;
 			dxl = x + dxl;
 			dxr = x + dxr;
-			cliptorange(dxr, GPO.AxS.__X().min, GPO.AxS.__X().max);
-			cliptorange(dxl, GPO.AxS.__X().min, GPO.AxS.__X().max);
-			xlowM = GPO.AxS.MapiX(dxl);
-			xhighM = GPO.AxS.MapiX(dxr);
+			cliptorange(dxr, AxS.__X().min, AxS.__X().max);
+			cliptorange(dxl, AxS.__X().min, AxS.__X().max);
+			xlowM = AxS.MapiX(dxl);
+			xhighM = AxS.MapiX(dxr);
 		}
 		// EAM Feb 2007 Force width to be an odd number of pixels
 		// so that the center bar can be centered perfectly.	  
@@ -2326,62 +2338,62 @@ static void plot_c_bars(termentry * pTerm, curve_points * plot)
 				xM++;
 		}
 		// EAM Feb 2006 Clip to plot vertical extent 
-		open_inrange  = inrange(yopen, GPO.AxS[GPO.AxS.Idx_Y].min, GPO.AxS[GPO.AxS.Idx_Y].max);
-		close_inrange = inrange(yclose, GPO.AxS[GPO.AxS.Idx_Y].min, GPO.AxS[GPO.AxS.Idx_Y].max);
-		cliptorange(yopen, GPO.AxS.__Y().min, GPO.AxS.__Y().max);
-		cliptorange(yclose, GPO.AxS.__Y().min, GPO.AxS.__Y().max);
-		if(GPO.AxS.MapiY(yopen) < GPO.AxS.MapiY(yclose)) {
-			ymin = GPO.AxS.MapiY(yopen); 
-			ymax = GPO.AxS.MapiY(yclose);
+		open_inrange  = inrange(yopen, AxS[AxS.Idx_Y].min, AxS[AxS.Idx_Y].max);
+		close_inrange = inrange(yclose, AxS[AxS.Idx_Y].min, AxS[AxS.Idx_Y].max);
+		cliptorange(yopen, AxS.__Y().min, AxS.__Y().max);
+		cliptorange(yclose, AxS.__Y().min, AxS.__Y().max);
+		if(AxS.MapiY(yopen) < AxS.MapiY(yclose)) {
+			ymin = AxS.MapiY(yopen); 
+			ymax = AxS.MapiY(yclose);
 		}
 		else {
-			ymax = GPO.AxS.MapiY(yopen); 
-			ymin = GPO.AxS.MapiY(yclose);
+			ymax = AxS.MapiY(yopen); 
+			ymin = AxS.MapiY(yclose);
 		}
 		if(!open_inrange && !close_inrange && ymin == ymax)
 			skip_box = TRUE;
 		// Reset to original color, if we changed it for the border 
-		if(plot->fill_properties.border_color.type != TC_DEFAULT && !(plot->fill_properties.border_color.type == TC_LT && plot->fill_properties.border_color.lt == LT_NODRAW)) {
-			GPO.TermApplyLpProperties(pTerm, &plot->lp_properties);
+		if(pPlot->fill_properties.border_color.type != TC_DEFAULT && !(pPlot->fill_properties.border_color.type == TC_LT && pPlot->fill_properties.border_color.lt == LT_NODRAW)) {
+			TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 		}
 		// Reset also if we changed it for the errorbars 
 		else if((bar_lp.flags & LP_ERRORBAR_SET) != 0) {
-			GPO.TermApplyLpProperties(pTerm, &plot->lp_properties);
+			TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 		}
 		// variable color read from extra data column. June 2010 
-		check_for_variable_color(plot, &plot->varcolor[i]);
+		check_for_variable_color(pPlot, &pPlot->varcolor[i]);
 		// Boxes are always filled if an explicit non-empty fillstyle is set. 
 		// If the fillstyle is FS_EMPTY, fill to indicate (open > close).     
 		if(pTerm->fillbox && !skip_box) {
-			int style = style_from_fill(&plot->fill_properties);
+			int style = style_from_fill(&pPlot->fill_properties);
 			if((style != FS_EMPTY) || (yopen > yclose)) {
 				int x = xlowM;
 				int y = ymin;
 				int w = (xhighM-xlowM);
 				int h = (ymax-ymin);
-				if(style == FS_EMPTY && plot->plot_style != BOXPLOT)
+				if(style == FS_EMPTY && pPlot->plot_style != BOXPLOT)
 					style = FS_OPAQUE;
 				(pTerm->fillbox)(style, x, y, w, h);
-				if(style_from_fill(&plot->fill_properties) != FS_EMPTY)
-					need_fill_border(&plot->fill_properties);
+				if(style_from_fill(&pPlot->fill_properties) != FS_EMPTY)
+					need_fill_border(&pPlot->fill_properties);
 			}
 		}
 		// Draw open box 
 		if(!skip_box) {
 			newpath(pTerm);
-			(pTerm->move)(xlowM, GPO.AxS.MapiY(yopen));
-			(pTerm->vector)(xhighM, GPO.AxS.MapiY(yopen));
-			(pTerm->vector)(xhighM, GPO.AxS.MapiY(yclose));
-			(pTerm->vector)(xlowM, GPO.AxS.MapiY(yclose));
-			(pTerm->vector)(xlowM, GPO.AxS.MapiY(yopen));
+			(pTerm->move)(xlowM, AxS.MapiY(yopen));
+			(pTerm->vector)(xhighM, AxS.MapiY(yopen));
+			(pTerm->vector)(xhighM, AxS.MapiY(yclose));
+			(pTerm->vector)(xlowM, AxS.MapiY(yclose));
+			(pTerm->vector)(xlowM, AxS.MapiY(yopen));
 			closepath(pTerm);
 		}
 		// BOXPLOT wants a median line also, which is stored in xhigh.
 		// If no special style has been assigned for the median line   
 		// draw it now, otherwise wait until later.                    
-		if(plot->plot_style == BOXPLOT && boxplot_opts.median_linewidth < 0) {
-			int ymedianM = GPO.AxS.MapiY(ymed);
-			GPO.DrawClipLine(pTerm, xlowM,  ymedianM, xhighM, ymedianM);
+		if(pPlot->plot_style == BOXPLOT && boxplot_opts.median_linewidth < 0) {
+			int ymedianM = AxS.MapiY(ymed);
+			DrawClipLine(pTerm, xlowM,  ymedianM, xhighM, ymedianM);
 		}
 		// Through 4.2 gnuplot would indicate (open > close) by drawing     
 		// three vertical bars.  Now we use solid fill.  But if the current 
@@ -2396,57 +2408,58 @@ static void plot_c_bars(termentry * pTerm, curve_points * plot)
 		}
 		// Error bars can now have their own line style 
 		if((bar_lp.flags & LP_ERRORBAR_SET) != 0) {
-			GPO.TermApplyLpProperties(pTerm, &bar_lp);
+			TermApplyLpProperties(pTerm, &bar_lp);
 		}
 		// Draw whiskers 
-		GPO.DrawClipLine(pTerm, xM, ylowM, xM, ymin);
-		GPO.DrawClipLine(pTerm, xM, ymax, xM, yhighM);
+		DrawClipLine(pTerm, xM, ylowM, xM, ymin);
+		DrawClipLine(pTerm, xM, ymax, xM, yhighM);
 		// Some users prefer bars at the end of the whiskers 
-		if(plot->plot_style == BOXPLOT || plot->arrow_properties.head == BOTH_HEADS) {
+		if(pPlot->plot_style == BOXPLOT || pPlot->arrow_properties.head == BOTH_HEADS) {
 			int d;
-			if(plot->plot_style == BOXPLOT) {
+			if(pPlot->plot_style == BOXPLOT) {
 				if(bar_size < 0)
 					d = 0;
 				else
-					d = (xhighM-xlowM)/2. - (bar_size * pTerm->TicH);
+					d = static_cast<int>((xhighM-xlowM)/2.0 - (bar_size * pTerm->TicH));
 			}
 			else {
-				double frac = plot->arrow_properties.head_length;
-				d = (frac <= 0) ? 0 : (xhighM-xlowM)*(1.0-frac)/2.0;
+				double frac = pPlot->arrow_properties.head_length;
+				d = static_cast<int>((frac <= 0.0) ? 0 : (xhighM-xlowM)*(1.0-frac)/2.0);
 			}
-			GPO.DrawClipLine(pTerm, xlowM+d, yhighM, xhighM-d, yhighM);
-			GPO.DrawClipLine(pTerm, xlowM+d, ylowM, xhighM-d, ylowM);
+			DrawClipLine(pTerm, xlowM+d, yhighM, xhighM-d, yhighM);
+			DrawClipLine(pTerm, xlowM+d, ylowM, xhighM-d, ylowM);
 		}
-		/* BOXPLOT wants a median line also, which is stored in xhigh. */
-		/* If a special linewidth has been assigned draw it now.       */
-		if(plot->plot_style == BOXPLOT && boxplot_opts.median_linewidth > 0) {
-			int ymedianM = GPO.AxS.MapiY(ymed);
+		// BOXPLOT wants a median line also, which is stored in xhigh. 
+		// If a special linewidth has been assigned draw it now.       
+		if(pPlot->plot_style == BOXPLOT && boxplot_opts.median_linewidth > 0) {
+			int ymedianM = AxS.MapiY(ymed);
 			(pTerm->linewidth)(boxplot_opts.median_linewidth);
-			GPO.DrawClipLine(pTerm, xlowM,  ymedianM, xhighM, ymedianM);
-			(pTerm->linewidth)(plot->lp_properties.l_width);
+			DrawClipLine(pTerm, xlowM,  ymedianM, xhighM, ymedianM);
+			(pTerm->linewidth)(pPlot->lp_properties.l_width);
 		}
-		prev = plot->points[i].type;
+		prev = pPlot->points[i].type;
 	}
 }
 
-static void plot_parallel(curve_points * plot)
+//static void plot_parallel(termentry * pTerm, curve_points * pPlot)
+void GnuPlot::PlotParallel(termentry * pTerm, curve_points * pPlot)
 {
 	int i;
 	int x0, y0, x1, y1;
 	curve_points * thisplot;
 	// The parallel axis data is stored in successive plot structures. 
 	// We will draw it all at once when we see the first one and ignore the rest. 
-	if(plot->AxIdx_P != 1)
+	if(pPlot->AxIdx_P != 1)
 		return;
-	for(i = 0; i < plot->p_count; i++) {
-		GpAxis * this_axis = &GPO.AxS.Parallel(plot->AxIdx_P-1);
+	for(i = 0; i < pPlot->p_count; i++) {
+		GpAxis * this_axis = &AxS.Parallel(pPlot->AxIdx_P-1);
 		bool prev_NaN = FALSE;
 		// rgb variable  -  color read from data column 
-		check_for_variable_color(plot, &plot->varcolor[i]);
-		x0 = GPO.AxS.MapiX(plot->points[i].x);
-		y0 = this_axis->MapI(plot->points[i].y);
-		prev_NaN = isnan(plot->points[i].y);
-		thisplot = plot;
+		check_for_variable_color(pPlot, &pPlot->varcolor[i]);
+		x0 = AxS.MapiX(pPlot->points[i].x);
+		y0 = this_axis->MapI(pPlot->points[i].y);
+		prev_NaN = isnan(pPlot->points[i].y);
+		thisplot = pPlot;
 		while((thisplot = thisplot->next)) {
 			if(thisplot->plot_style != PARALLELPLOT)
 				continue;
@@ -2454,45 +2467,45 @@ static void plot_parallel(curve_points * plot)
 				prev_NaN = TRUE;
 				continue;
 			}
-			this_axis = &GPO.AxS.Parallel(thisplot->AxIdx_P-1);
-			x1 = GPO.AxS.MapiX(thisplot->points[i].x);
+			this_axis = &AxS.Parallel(thisplot->AxIdx_P-1);
+			x1 = AxS.MapiX(thisplot->points[i].x);
 			y1 = this_axis->MapI(thisplot->points[i].y);
 			if(prev_NaN)
 				prev_NaN = isnan(thisplot->points[i].y);
 			else if(!(prev_NaN = isnan(thisplot->points[i].y)))
-				GPO.DrawClipLine(term, x0, y0, x1, y1);
+				DrawClipLine(pTerm, x0, y0, x1, y1);
 			x0 = x1;
 			y0 = y1;
 		}
 	}
 }
-/*
- * Spiderplots, also known as radar charts, are a form of parallel-axis plot
- * in which the axes are arranged radially.  Each sequential clause in a
- * "plot ... with spiderplot" command provides values along a single one of
- * these axes.  Line, point, and fill properties are taken from the first
- * clause of the plot command.  Line properties have already been applied
- * prior to calling this routine.
- */
-static void plot_spiderplot(curve_points * plot)
+// 
+// Spiderplots, also known as radar charts, are a form of parallel-axis plot
+// in which the axes are arranged radially.  Each sequential clause in a
+// "plot ... with spiderplot" command provides values along a single one of
+// these axes.  Line, point, and fill properties are taken from the first
+// clause of the plot command.  Line properties have already been applied
+// prior to calling this routine.
+// 
+//static void plot_spiderplot(curve_points * plot)
+void GnuPlot::PlotSpiderPlot(termentry * pTerm, curve_points * pPlot)
 {
 	int i, j;
 	curve_points * thisplot;
 	static gpiPoint * corners = NULL;
 	static gpiPoint * clpcorn = NULL;
-	BoundingBox * clip_save = GPO.V.P_ClipArea;
+	BoundingBox * clip_save = V.P_ClipArea;
 	int n_spokes = 0;
-	/* The parallel axis data is stored in successive plot structures.
-	 * We will draw it all at once when we see the first one and ignore the rest.
-	 */
-	if(plot->AxIdx_P != 1)
+	// The parallel axis data is stored in successive plot structures.
+	// We will draw it all at once when we see the first one and ignore the rest.
+	if(pPlot->AxIdx_P != 1)
 		return;
-	/* This loop counts the number of radial axes */
-	for(thisplot = plot; thisplot; thisplot = thisplot->next) {
+	// This loop counts the number of radial axes 
+	for(thisplot = pPlot; thisplot; thisplot = thisplot->next) {
 		if(thisplot->plot_type == KEYENTRY)
 			continue;
 		if(thisplot->plot_style != SPIDERPLOT) {
-			GPO.IntWarn(NO_CARET, "plot %d is not a spiderplot component", n_spokes);
+			IntWarn(NO_CARET, "plot %d is not a spiderplot component", n_spokes);
 			continue;
 		}
 		// Triggers when there is more than one spiderplot in the 'plot' command 
@@ -2501,23 +2514,23 @@ static void plot_spiderplot(curve_points * plot)
 		n_spokes++;
 		// Use plot title to label the corresponding radial axis 
 		if(thisplot->title) {
-			SAlloc::F(GPO.AxS.Parallel(thisplot->AxIdx_P-1).label.text);
-			GPO.AxS.Parallel(thisplot->AxIdx_P-1).label.text = sstrdup(thisplot->title);
+			SAlloc::F(AxS.Parallel(thisplot->AxIdx_P-1).label.text);
+			AxS.Parallel(thisplot->AxIdx_P-1).label.text = sstrdup(thisplot->title);
 		}
 	}
 	if(n_spokes < 3)
-		GPO.IntError(NO_CARET, "at least 3 axes are needed for a spiderplot");
+		IntError(NO_CARET, "at least 3 axes are needed for a spiderplot");
 	// Allocate data structures for one polygon 
 	corners = (gpiPoint *)gp_realloc(corners, (n_spokes+1) * sizeof(gpiPoint), "polygon");
 	clpcorn = (gpiPoint *)gp_realloc(clpcorn, (2*n_spokes+1) * sizeof(gpiPoint), "polygon");
-	GPO.V.P_ClipArea = &GPO.V.BbCanvas;
-	/*
-	 * Each row of data (NB: *not* each column) describes a vertex of a polygon.
-	 * There is one vertex for each comma-separated clause within the overall 2D
-	 * "plot" command.  Thus p_count rows of data produce p_count polygons.
-	 * If any row contains NaN or a missing value, no polygon is produced.
-	 */
-	for(i = 0; i < plot->p_count; i++) {
+	V.P_ClipArea = &V.BbCanvas;
+	// 
+	// Each row of data (NB: *not* each column) describes a vertex of a polygon.
+	// There is one vertex for each comma-separated clause within the overall 2D
+	// "plot" command.  Thus p_count rows of data produce p_count polygons.
+	// If any row contains NaN or a missing value, no polygon is produced.
+	// 
+	for(i = 0; i < pPlot->p_count; i++) {
 		bool bad_data = FALSE;
 		GpAxis * this_axis;
 		double r, theta;
@@ -2525,8 +2538,8 @@ static void plot_spiderplot(curve_points * plot)
 		int out_length;
 		int p_type;
 		bool already_did_one = FALSE;
-		for(thisplot = plot; thisplot != NULL; thisplot = thisplot->next) {
-			/* Ignore other stuff, e.g. KEYENTRY */
+		for(thisplot = pPlot; thisplot; thisplot = thisplot->next) {
+			// Ignore other stuff, e.g. KEYENTRY 
 			if(thisplot->plot_style != SPIDERPLOT || thisplot->plot_type != DATA)
 				continue;
 			// If any point is missing or NaN, skip the whole polygon 
@@ -2541,72 +2554,72 @@ static void plot_spiderplot(curve_points * plot)
 			else
 				already_did_one = TRUE;
 			// stored values are axis number, unscaled R 
-			this_axis = &GPO.AxS.Parallel(thisplot->AxIdx_P-1);
+			this_axis = &AxS.Parallel(thisplot->AxIdx_P-1);
 			theta = M_PI_2 - (thisplot->points[i].x - 1) * 2*M_PI / n_spokes;
 			r = (thisplot->points[i].y - this_axis->min) / (this_axis->max - this_axis->min);
-			GPO.PolarToXY(theta, r, &x, &y, FALSE);
-			corners[thisplot->AxIdx_P-1].x = GPO.AxS.MapiX(x);
-			corners[thisplot->AxIdx_P-1].y = GPO.AxS.MapiY(y);
+			PolarToXY(theta, r, &x, &y, FALSE);
+			corners[thisplot->AxIdx_P-1].x = AxS.MapiX(x);
+			corners[thisplot->AxIdx_P-1].y = AxS.MapiY(y);
 		}
 		/* Spider plots are unusual in that each row starts a new plot
 		 * In order to associate the key entry with the correct plot we
 		 * must do it inside the loop over rows
 		 */
 		if(i > 0) {
-			term->layer(TERM_LAYER_AFTER_PLOT);
-			term->layer(TERM_LAYER_BEFORE_PLOT);
+			pTerm->layer(TERM_LAYER_AFTER_PLOT);
+			pTerm->layer(TERM_LAYER_BEFORE_PLOT);
 		}
-		if(plot->labels) {
+		if(pPlot->labels) {
 			bool default_color;
 			text_label * key_entry;
-			for(key_entry = plot->labels->next; key_entry; key_entry = key_entry->next) {
+			for(key_entry = pPlot->labels->next; key_entry; key_entry = key_entry->next) {
 				if(key_entry->tag != i)
 					continue;
-				default_color = (plot->lp_properties.pm3d_color.type == TC_DEFAULT);
+				default_color = (pPlot->lp_properties.pm3d_color.type == TC_DEFAULT);
 				if(default_color)
-					load_linetype(term, &plot->lp_properties, key_entry->tag + 1);
+					load_linetype(pTerm, &pPlot->lp_properties, key_entry->tag + 1);
 				advance_key(TRUE);
-				do_key_sample(term, plot, &keyT, key_entry->text, plot->points[i].CRD_COLOR);
+				DoKeySample(pTerm, pPlot, &keyT, key_entry->text, pPlot->points[i].CRD_COLOR);
 				if(default_color)
-					plot->lp_properties.pm3d_color.type = TC_DEFAULT;
+					pPlot->lp_properties.pm3d_color.type = TC_DEFAULT;
 				key_count++;
 				advance_key(0);
 			}
 		}
 		// Do not draw anything if one or more of the values was bad 
 		if(bad_data) {
-			GPO.IntWarn(NO_CARET, "Skipping spiderplot with bad data");
+			IntWarn(NO_CARET, "Skipping spiderplot with bad data");
 			continue;
 		}
 		corners[n_spokes].x = corners[0].x;
 		corners[n_spokes].y = corners[0].y;
-		GPO.V.ClipPolygon(corners, clpcorn, n_spokes, &out_length);
-		clpcorn[0].style = style_from_fill(&plot->fill_properties);
+		V.ClipPolygon(corners, clpcorn, n_spokes, &out_length);
+		clpcorn[0].style = style_from_fill(&pPlot->fill_properties);
 		// rgb variable  -  color read from data column 
-		if(!check_for_variable_color(plot, &plot->varcolor[i]) && plot->lp_properties.pm3d_color.type == TC_DEFAULT) {
+		if(!check_for_variable_color(pPlot, &pPlot->varcolor[i]) && pPlot->lp_properties.pm3d_color.type == TC_DEFAULT) {
 			lp_style_type lptmp;
-			load_linetype(term, &lptmp, i+1);
-			GPO.ApplyPm3DColor(term, &(lptmp.pm3d_color));
+			load_linetype(pTerm, &lptmp, i+1);
+			ApplyPm3DColor(pTerm, &(lptmp.pm3d_color));
 		}
 		// variable point type 
-		p_type = static_cast<int>(plot->points[i].CRD_PTTYPE-1);
+		p_type = static_cast<int>(pPlot->points[i].CRD_PTTYPE-1);
 		// Draw filled area 
-		if(out_length > 1 && plot->fill_properties.fillstyle != FS_EMPTY) {
-			if(term->filled_polygon)
-				term->filled_polygon(out_length, clpcorn);
+		if(out_length > 1 && pPlot->fill_properties.fillstyle != FS_EMPTY) {
+			if(pTerm->filled_polygon)
+				pTerm->filled_polygon(out_length, clpcorn);
 		}
 		// Draw perimeter 
-		if(need_fill_border(&plot->fill_properties)) {
+		if(need_fill_border(&pPlot->fill_properties)) {
 			for(j = 0; j < n_spokes; j++)
-				GPO.DrawClipLine(term, corners[j].x, corners[j].y, corners[j+1].x, corners[j+1].y);
+				DrawClipLine(pTerm, corners[j].x, corners[j].y, corners[j+1].x, corners[j+1].y);
 		}
 		// Points 
 		if(p_type) {
 			for(j = 0; j < n_spokes; j++)
-				term->point(corners[j].x, corners[j].y, p_type);
+				pTerm->point(corners[j].x, corners[j].y, p_type);
 		}
-	} /* End of loop over rows, each a separate polygon */
-	GPO.V.P_ClipArea = clip_save;
+	} // End of loop over rows, each a separate polygon 
+	V.P_ClipArea = clip_save;
 }
 /*
  * Plot the curves in BOXPLOT style
@@ -2614,8 +2627,8 @@ static void plot_spiderplot(curve_points * plot)
  */
 static int compare_ypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
-	struct coordinate const * p1 = (struct coordinate const *)arg1;
-	struct coordinate const * p2 = (struct coordinate const *)arg2;
+	GpCoordinate const * p1 = (GpCoordinate const *)arg1;
+	GpCoordinate const * p2 = (GpCoordinate const *)arg2;
 	if(boxplot_factor_sort_required) {
 		/* Primary sort key is the "factor" */
 		if(p1->z > p2->z)
@@ -2641,7 +2654,7 @@ int filter_boxplot(curve_points * plot)
 	/* Sort the points to find median and quartiles */
 	if(plot->boxplot_factors > 1)
 		boxplot_factor_sort_required = TRUE;
-	qsort(plot->points, N, sizeof(struct coordinate), compare_ypoints);
+	qsort(plot->points, N, sizeof(GpCoordinate), compare_ypoints);
 	/* Return a count of well-defined points with this index */
 	while(plot->points[N-1].type == UNDEFINED)
 		N--;
@@ -2660,10 +2673,10 @@ void GnuPlot::AutoscaleBoxPlot(termentry * pTerm, curve_points * pPlot)
 void GnuPlot::PlotBoxPlot(termentry * pTerm, curve_points * pPlot, bool onlyAutoscale)
 {
 	int N;
-	struct coordinate * subset_points;
+	GpCoordinate * subset_points;
 	int subset_count, true_count;
 	text_label * subset_label = pPlot->labels;
-	struct coordinate candle;
+	GpCoordinate candle;
 	double median, quartile1, quartile3;
 	double whisker_top = 0, whisker_bot = 0;
 	int level;
@@ -2788,14 +2801,14 @@ void GnuPlot::PlotBoxPlot(termentry * pTerm, curve_points * pPlot, bool onlyAuto
 			pPlot->varcolor[0] = pPlot->base_linetype + level + 1;
 		// Use the current plot structure to plot the boxplot as a candlestick 
 		{
-			struct coordinate save_point = pPlot->points[0];
+			GpCoordinate save_point = pPlot->points[0];
 			int save_count = pPlot->p_count;
 			pPlot->points[0] = candle;
 			pPlot->p_count = 1;
 			if(boxplot_opts.plotstyle == FINANCEBARS)
-				plot_f_bars(pTerm, pPlot);
+				PlotFBars(pTerm, pPlot);
 			else
-				plot_c_bars(pTerm, pPlot);
+				PlotCBars(pTerm, pPlot);
 			pPlot->points[0] = save_point;
 			pPlot->p_count = save_count;
 		}
@@ -2827,12 +2840,12 @@ outliers:
 // display a x-axis ticmark - called by gen_ticks 
 // also uses global tic_start, tic_direction, tic_text and tic_just 
 //
-static void xtick2d_callback(GpAxis * this_axis, double place, char * text, int ticlevel,
+static void xtick2d_callback(GpAxis * pAx, double place, char * text, int ticlevel,
     lp_style_type grid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	struct termentry * t = term;
 	// minitick if text is NULL - beware - TicH is unsigned 
-	int ticsize = static_cast<int>(tic_direction * (int)t->TicV * tic_scale(ticlevel, this_axis));
+	int ticsize = static_cast<int>(tic_direction * (int)t->TicV * tic_scale(ticlevel, pAx));
 	int x = GPO.AxS.MapiX(place);
 	// Skip label if we've already written a user-specified one here 
 #define MINIMUM_SEPARATION 2
@@ -2848,7 +2861,7 @@ static void xtick2d_callback(GpAxis * this_axis, double place, char * text, int 
 	if(grid.l_type > LT_NODRAW) {
 		(t->layer)(TERM_LAYER_BEGIN_GRID);
 		GPO.TermApplyLpProperties(t, &grid);
-		if(this_axis->index == POLAR_AXIS) {
+		if(pAx->index == POLAR_AXIS) {
 			if(fabs(place) > largest_polar_circle)
 				largest_polar_circle = fabs(place);
 			GPO.DrawPolarCircle(t, place);
@@ -2885,12 +2898,12 @@ static void xtick2d_callback(GpAxis * this_axis, double place, char * text, int 
 	if(text) {
 		/* get offset */
 		double offsetx_d, offsety_d;
-		GPO.MapPositionR(t, &(this_axis->ticdef.offset), &offsetx_d, &offsety_d, "xtics");
+		GPO.MapPositionR(t, &(pAx->ticdef.offset), &offsetx_d, &offsety_d, "xtics");
 		/* User-specified different color for the tics text */
-		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			GPO.ApplyPm3DColor(t, &(this_axis->ticdef.textcolor));
-		ignore_enhanced(!this_axis->ticdef.enhanced);
-		write_multiline(t, x+(int)offsetx_d, tic_text+(int)offsety_d, text, (JUSTIFY)tic_hjust, (VERT_JUSTIFY)tic_vjust, rotate_tics, this_axis->ticdef.font);
+		if(pAx->ticdef.textcolor.type != TC_DEFAULT)
+			GPO.ApplyPm3DColor(t, &(pAx->ticdef.textcolor));
+		ignore_enhanced(!pAx->ticdef.enhanced);
+		write_multiline(t, x+(int)offsetx_d, tic_text+(int)offsety_d, text, (JUSTIFY)tic_hjust, (VERT_JUSTIFY)tic_vjust, rotate_tics, pAx->ticdef.font);
 		ignore_enhanced(FALSE);
 		GPO.TermApplyLpProperties(t, &border_lp); /* reset to border linetype */
 	}
@@ -2899,15 +2912,15 @@ static void xtick2d_callback(GpAxis * this_axis, double place, char * text, int 
 // display a y-axis ticmark - called by gen_ticks 
 // also uses global tic_start, tic_direction, tic_text and tic_just 
 //
-static void ytick2d_callback(GpAxis * this_axis, double place, char * text, int ticlevel,
+static void ytick2d_callback(GpAxis * pAx, double place, char * text, int ticlevel,
     lp_style_type grid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	struct termentry * t = term;
 	// minitick if text is NULL - TicV is unsigned 
-	int ticsize = tic_direction * (int)t->TicH * tic_scale(ticlevel, this_axis);
+	int ticsize = tic_direction * (int)t->TicH * tic_scale(ticlevel, pAx);
 	int y;
-	if(this_axis->index >= PARALLEL_AXES)
-		y = this_axis->MapI(place);
+	if(pAx->index >= PARALLEL_AXES)
+		y = pAx->MapI(place);
 	else
 		y = GPO.AxS.MapiY(place);
 	// Skip label if we've already written a user-specified one here 
@@ -2953,26 +2966,27 @@ static void ytick2d_callback(GpAxis * this_axis, double place, char * text, int 
 	if(text) {
 		// get offset 
 		double offsetx_d, offsety_d;
-		GPO.MapPositionR(t, &(this_axis->ticdef.offset), &offsetx_d, &offsety_d, "ytics");
+		GPO.MapPositionR(t, &(pAx->ticdef.offset), &offsetx_d, &offsety_d, "ytics");
 		// User-specified different color for the tics text 
-		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			GPO.ApplyPm3DColor(t, &(this_axis->ticdef.textcolor));
-		ignore_enhanced(!this_axis->ticdef.enhanced);
-		write_multiline(t, tic_text+(int)offsetx_d, y+(int)offsety_d, text, (JUSTIFY)tic_hjust, (VERT_JUSTIFY)tic_vjust, rotate_tics, this_axis->ticdef.font);
+		if(pAx->ticdef.textcolor.type != TC_DEFAULT)
+			GPO.ApplyPm3DColor(t, &(pAx->ticdef.textcolor));
+		ignore_enhanced(!pAx->ticdef.enhanced);
+		write_multiline(t, tic_text+(int)offsetx_d, y+(int)offsety_d, text, (JUSTIFY)tic_hjust, (VERT_JUSTIFY)tic_vjust, rotate_tics, pAx->ticdef.font);
 		ignore_enhanced(FALSE);
 		GPO.TermApplyLpProperties(t, &border_lp); /* reset to border linetype */
 	}
 }
-
-/* called by gen_ticks to place ticmarks on perimeter of polar grid circle */
-/* also uses global tic_start, tic_direction, tic_text and tic_just */
-static void ttick_callback(GpAxis * this_axis, double place, char * text, int ticlevel,
+// 
+// called by gen_ticks to place ticmarks on perimeter of polar grid circle 
+// also uses global tic_start, tic_direction, tic_text and tic_just 
+// 
+static void ttick_callback(GpAxis * pAx, double place, char * text, int ticlevel,
     lp_style_type grid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
-	int xl, yl; /* Inner limit of ticmark */
-	int xu, yu; /* Outer limit of ticmark */
+	int xl, yl; // Inner limit of ticmark 
+	int xu, yu; // Outer limit of ticmark 
 	int text_x, text_y;
-	double delta = 0.05 * tic_scale(ticlevel, this_axis) * (this_axis->tic_in ? -1 : 1);
+	double delta = 0.05 * tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1);
 	double theta = (place * theta_direction + theta_origin) * DEG2RAD;
 	double cos_t = largest_polar_circle * cos(theta);
 	double sin_t = largest_polar_circle * sin(theta);
@@ -2991,22 +3005,22 @@ static void ttick_callback(GpAxis * this_axis, double place, char * text, int ti
 	yu = GPO.AxS.MapiY(sin_t);
 	// The normal meaning of "offset" as x/y displacement doesn't work well 
 	// for theta tic labels. Use it as a radial offset instead 
-	text_x = xu + (xu-xl) * (2.0 + this_axis->ticdef.offset.x);
-	text_y = yu + (yu-yl) * (2.0 + this_axis->ticdef.offset.x);
+	text_x = static_cast<int>(xu + (xu-xl) * (2.0 + pAx->ticdef.offset.x));
+	text_y = static_cast<int>(yu + (yu-yl) * (2.0 + pAx->ticdef.offset.x));
 	xl = GPO.AxS.MapiX((1.0+delta) * cos_t);
 	yl = GPO.AxS.MapiY((1.0+delta) * sin_t);
-	if(this_axis->ticmode & TICS_MIRROR) {
+	if(pAx->ticmode & TICS_MIRROR) {
 		xu = GPO.AxS.MapiX( (1.-delta) * cos_t);
 		yu = GPO.AxS.MapiY( (1.-delta) * sin_t);
 	}
 	GPO.DrawClipLine(term, xl, yl, xu, yu);
 	if(text && !GPO.V.ClipPoint(xu, yu)) {
-		if(this_axis->ticdef.textcolor.type != TC_DEFAULT)
-			GPO.ApplyPm3DColor(term, &(this_axis->ticdef.textcolor));
+		if(pAx->ticdef.textcolor.type != TC_DEFAULT)
+			GPO.ApplyPm3DColor(term, &(pAx->ticdef.textcolor));
 		// The only rotation angle that makes sense is the angle being labeled 
-		if(this_axis->tic_rotate != 0.0)
+		if(pAx->tic_rotate != 0.0)
 			term->text_angle(place * theta_direction + theta_origin - 90.0);
-		write_multiline(term, text_x, text_y, text, (JUSTIFY)tic_hjust, (VERT_JUSTIFY)tic_vjust, 0.0/* FIXME: these are not correct */, this_axis->ticdef.font);
+		write_multiline(term, text_x, text_y, text, (JUSTIFY)tic_hjust, (VERT_JUSTIFY)tic_vjust, 0.0/* FIXME: these are not correct */, pAx->ticdef.font);
 		GPO.TermApplyLpProperties(term, &border_lp);
 	}
 }
@@ -3044,12 +3058,10 @@ void GnuPlot::MapPositionDouble(const termentry * pTerm, GpPosition * pos, doubl
 		    break;
 	    }
 		case graph:
-	    {
-		    *x = GPO.V.BbPlot.xleft + pos->x * (GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft);
+		    *x = V.BbPlot.xleft + pos->x * (V.BbPlot.xright - V.BbPlot.xleft);
 		    break;
-	    }
 		case screen:
-		    *x = pos->x * (pTerm->xmax - 1);
+		    *x = pos->x * (pTerm->MaxX - 1);
 		    break;
 		case character:
 		    *x = pos->x * pTerm->ChrH;
@@ -3081,10 +3093,10 @@ void GnuPlot::MapPositionDouble(const termentry * pTerm, GpPosition * pos, doubl
 		    break;
 	    }
 		case graph:
-		    *y = GPO.V.BbPlot.ybot + pos->y * (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot);
+		    *y = V.BbPlot.ybot + pos->y * (V.BbPlot.ytop - V.BbPlot.ybot);
 		    break;
 		case screen:
-		    *y = pos->y * (pTerm->ymax -1);
+		    *y = pos->y * (pTerm->MaxY -1);
 		    break;
 		case character:
 		    *y = pos->y * pTerm->ChrV;
@@ -3123,7 +3135,7 @@ void GnuPlot::MapPositionR(const termentry * pTerm, GpPosition * pos, double * x
 			    *x = pos->x * (GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft);
 			    break;
 			case screen:
-			    *x = pos->x * (pTerm->xmax - 1);
+			    *x = pos->x * (pTerm->MaxX - 1);
 			    break;
 			case character:
 			    *x = pos->x * pTerm->ChrH;
@@ -3155,7 +3167,7 @@ void GnuPlot::MapPositionR(const termentry * pTerm, GpPosition * pos, double * x
 					*y = pos->y * (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot);
 					return;
 				case screen:
-					*y = pos->y * (pTerm->ymax -1);
+					*y = pos->y * (pTerm->MaxY -1);
 					return;
 				case character:
 					*y = pos->y * pTerm->ChrV;
@@ -3293,7 +3305,7 @@ static void place_histogram_titles()
 			// NB: offset in "newhistogram" is additive with that in "set style hist" 
 			x += (int)xoffset_d;
 			y += (int)yoffset_d + 0.25 * term->ChrV;
-			write_label(term, x, y, &(hist->title));
+			GPO.WriteLabel(term, x, y, &(hist->title));
 			reset_textcolor(&hist->title.textcolor);
 		}
 	}
@@ -3303,7 +3315,8 @@ static void place_histogram_titles()
 // If the center of the polar plot is not at zero (rmin != 0)
 // indicate this by drawing an open circle.
 // 
-static void place_raxis()
+//static void place_raxis()
+void GnuPlot::PlaceRAxis(termentry * pTerm)
 {
 	#if 0 // 
 	t_object raxis_circle = {
@@ -3318,23 +3331,24 @@ static void place_raxis()
 	raxis_circle.tag = 1;
 	int x0, y0, xend, yend;
 	if(inverted_raxis) {
-		xend = GPO.AxS.MapiX(GPO.PolarRadius(GPO.AxS.__R().set_min));
-		x0   = GPO.AxS.MapiX(GPO.PolarRadius(GPO.AxS.__R().set_max));
+		xend = AxS.MapiX(PolarRadius(AxS.__R().set_min));
+		x0   = AxS.MapiX(PolarRadius(AxS.__R().set_max));
 	}
 	else {
-		double rightend = (GPO.AxS.__R().autoscale & AUTOSCALE_MAX) ? GPO.AxS.__R().max : GPO.AxS.__R().set_max;
-		xend = GPO.AxS.MapiX(rightend - GPO.AxS.__R().set_min);
-		x0 = GPO.AxS.MapiX(0);
+		double rightend = (AxS.__R().autoscale & AUTOSCALE_MAX) ? AxS.__R().max : AxS.__R().set_max;
+		xend = AxS.MapiX(rightend - AxS.__R().set_min);
+		x0 = AxS.MapiX(0);
 	}
-	yend = y0 = GPO.AxS.MapiY(0);
-	GPO.TermApplyLpProperties(term, &border_lp);
-	GPO.DrawClipLine(term, x0, y0, xend, yend);
+	yend = y0 = AxS.MapiY(0);
+	TermApplyLpProperties(pTerm, &border_lp);
+	DrawClipLine(pTerm, x0, y0, xend, yend);
 	if(!inverted_raxis)
-		if(!(GPO.AxS.__R().autoscale & AUTOSCALE_MIN) && GPO.AxS.__R().set_min != 0)
-			place_objects(&raxis_circle, LAYER_FRONT, 2);
+		if(!(AxS.__R().autoscale & AUTOSCALE_MIN) && AxS.__R().set_min != 0)
+			PlaceObjects(pTerm, &raxis_circle, LAYER_FRONT, 2);
 }
 
-static void place_parallel_axes(termentry * pTerm, curve_points * pFirstPlot, int layer)
+//static void place_parallel_axes(termentry * pTerm, curve_points * pFirstPlot, int layer)
+void GnuPlot::PlaceParallelAxes(termentry * pTerm, curve_points * pFirstPlot, int layer)
 {
 	curve_points * plot = pFirstPlot;
 	GpAxis * this_axis;
@@ -3343,28 +3357,28 @@ static void place_parallel_axes(termentry * pTerm, curve_points * pFirstPlot, in
 	for(plot = pFirstPlot; plot; plot = plot->next) {
 		if(plot->plot_style == PARALLELPLOT && plot->p_count > 0) {
 			axes_in_use = plot->AxIdx_P;
-			this_axis = &GPO.AxS.Parallel(plot->AxIdx_P - 1);
+			this_axis = &AxS.Parallel(plot->AxIdx_P - 1);
 			axis_invert_if_requested(this_axis);
-			this_axis->term_lower = GPO.V.BbPlot.ybot;
-			this_axis->term_scale = (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / (this_axis->max - this_axis->min);
+			this_axis->term_lower = V.BbPlot.ybot;
+			this_axis->term_scale = (V.BbPlot.ytop - V.BbPlot.ybot) / (this_axis->max - this_axis->min);
 			setup_tics(this_axis, 20);
 		}
 	}
 	if(parallel_axis_style.layer == LAYER_FRONT && layer == LAYER_BACK)
 		return;
 	// Draw the axis lines 
-	GPO.TermApplyLpProperties(pTerm, &parallel_axis_style.lp_properties);
+	TermApplyLpProperties(pTerm, &parallel_axis_style.lp_properties);
 	for(j = 1; j <= axes_in_use; j++) {
-		GpAxis * this_axis = &GPO.AxS.Parallel(j-1);
+		GpAxis * this_axis = &AxS.Parallel(j-1);
 		int max = this_axis->MapI(this_axis->data_max);
 		int min = this_axis->MapI(this_axis->data_min);
-		int axis_x = GPO.AxS.MapiX(this_axis->paxis_x);
-		GPO.DrawClipLine(pTerm, axis_x, min, axis_x, max);
+		int axis_x = AxS.MapiX(this_axis->paxis_x);
+		DrawClipLine(pTerm, axis_x, min, axis_x, max);
 	}
 	/* Draw the axis tickmarks and labels.  Piggyback on ytick2d_callback */
 	/* but avoid a call to the full axis_output_tics().               */
 	for(j = 1; j <= axes_in_use; j++) {
-		GpAxis * this_axis = &GPO.AxS.Parallel(j-1);
+		GpAxis * this_axis = &AxS.Parallel(j-1);
 		double axis_coord = this_axis->paxis_x;
 		if((this_axis->ticmode & TICS_MASK) == NO_TICS)
 			continue;
@@ -3378,12 +3392,12 @@ static void place_parallel_axes(termentry * pTerm, curve_points * pFirstPlot, in
 		}
 		if(this_axis->manual_justify)
 			tic_hjust = this_axis->tic_pos;
-		tic_start = GPO.AxS[FIRST_X_AXIS].MapI(axis_coord);
+		tic_start = AxS[FIRST_X_AXIS].MapI(axis_coord);
 		tic_mirror = tic_start; /* tic extends on both sides of axis */
 		tic_direction = -1;
-		tic_text = tic_start - this_axis->ticscale * pTerm->TicV;
+		tic_text = static_cast<int>(tic_start - this_axis->ticscale * pTerm->TicV);
 		tic_text -= pTerm->ChrV;
-		gen_tics(this_axis, ytick2d_callback);
+		GenTics(this_axis, ytick2d_callback);
 		pTerm->text_angle(0);
 	}
 }
@@ -3395,7 +3409,7 @@ static void place_parallel_axes(termentry * pTerm, curve_points * pFirstPlot, in
  */
 void attach_title_to_plot(curve_points * this_plot, legend_key * key)
 {
-	struct coordinate * points;
+	GpCoordinate * points;
 	char * title;
 	int npoints;
 	int index, x, y;
@@ -3445,7 +3459,7 @@ void attach_title_to_plot(curve_points * this_plot, legend_key * key)
 	write_multiline(term, x, y, title, (JUSTIFY)(int)(this_plot->title_position->y), JUST_TOP, 0, key->font);
 }
 
-void do_rectangle(int dimensions, t_object * this_object, const fill_style_type * fillstyle)
+void do_rectangle(termentry * pTerm, int dimensions, t_object * this_object, const fill_style_type * fillstyle)
 {
 	double x1, y1, x2, y2;
 	int x, y;
@@ -3457,8 +3471,8 @@ void do_rectangle(int dimensions, t_object * this_object, const fill_style_type 
 	if(this_rect->type == 1) {      /* specified as center + size */
 		double width, height;
 		if(dimensions == 2 || this_rect->center.scalex == screen) {
-			GPO.MapPositionDouble(term, &this_rect->center, &x1, &y1, "rect");
-			GPO.MapPositionR(term, &this_rect->extent, &width, &height, "rect");
+			GPO.MapPositionDouble(pTerm, &this_rect->center, &x1, &y1, "rect");
+			GPO.MapPositionR(pTerm, &this_rect->extent, &width, &height, "rect");
 		}
 		else if(splot_map || xz_projection || yz_projection) {
 			int junkw, junkh;
@@ -3473,8 +3487,8 @@ void do_rectangle(int dimensions, t_object * this_object, const fill_style_type 
 		y1 -= height/2;
 		x2 = x1 + width;
 		y2 = y1 + height;
-		w = width;
-		h = height;
+		w = static_cast<uint>(width);
+		h = static_cast<uint>(height);
 		if(this_object->clip == OBJ_CLIP) {
 			if(this_rect->extent.scalex == first_axes || this_rect->extent.scalex == second_axes)
 				clip_x = TRUE;
@@ -3484,8 +3498,8 @@ void do_rectangle(int dimensions, t_object * this_object, const fill_style_type 
 	}
 	else {
 		if((dimensions == 2) || (this_rect->bl.scalex == screen && this_rect->tr.scalex == screen)) {
-			GPO.MapPositionDouble(term, &this_rect->bl, &x1, &y1, "rect");
-			GPO.MapPositionDouble(term, &this_rect->tr, &x2, &y2, "rect");
+			GPO.MapPositionDouble(pTerm, &this_rect->bl, &x1, &y1, "rect");
+			GPO.MapPositionDouble(pTerm, &this_rect->tr, &x2, &y2, "rect");
 		}
 		else if(splot_map || xz_projection || yz_projection) {
 			GPO.Map3DPositionDouble(&this_rect->bl, &x1, &y1, "rect");
@@ -3522,28 +3536,28 @@ void do_rectangle(int dimensions, t_object * this_object, const fill_style_type 
 		}
 		GPO.V.P_ClipArea = clip_save;
 	}
-	w = x2 - x1;
-	h = y2 - y1;
+	w = static_cast<uint>(x2 - x1);
+	h = static_cast<uint>(y2 - y1);
 	x = static_cast<int>(x1);
 	y = static_cast<int>(y1);
 	if(w && h) {
 		style = style_from_fill(fillstyle);
-		if(style != FS_EMPTY && term->fillbox)
-			(*term->fillbox)(style, x, y, w, h);
+		if(style != FS_EMPTY && pTerm->fillbox)
+			(pTerm->fillbox)(style, x, y, w, h);
 		// Now the border 
 		if(need_fill_border(fillstyle)) {
-			newpath(term);
-			(*term->move)(x, y);
-			(*term->vector)(x, y+h);
-			(*term->vector)(x+w, y+h);
-			(*term->vector)(x+w, y);
-			(*term->vector)(x, y);
-			closepath(term);
+			newpath(pTerm);
+			(pTerm->move)(x, y);
+			(pTerm->vector)(x, y+h);
+			(pTerm->vector)(x+w, y+h);
+			(pTerm->vector)(x+w, y);
+			(pTerm->vector)(x, y);
+			closepath(pTerm);
 		}
 	}
 }
 
-void do_ellipse(int dimensions, t_ellipse * e, int style, bool do_own_mapping)
+void do_ellipse(termentry * pTerm, int dimensions, t_ellipse * e, int style, bool do_own_mapping)
 {
 	gpiPoint vertex[120];
 	int i, in;
@@ -3708,7 +3722,7 @@ void do_polygon(int dimensions, t_object * this_object, int style, int facing)
 			quad[0].c = this_object->lp_properties.pm3d_color.lt;
 			if(this_object->lp_properties.pm3d_color.type == TC_LINESTYLE) {
 				int base_color = this_object->lp_properties.pm3d_color.lt;
-				struct coordinate triangle[3];
+				GpCoordinate triangle[3];
 				lp_style_type face;
 				int side;
 				int t;
@@ -3745,7 +3759,7 @@ bool check_for_variable_color(const curve_points * plot, const double * colorval
 	if(!plot->varcolor)
 		return FALSE;
 	if((plot->lp_properties.pm3d_color.value < 0.0) && (plot->lp_properties.pm3d_color.type == TC_RGB)) {
-		set_rgbcolor_var(*colorvalue);
+		GPO.SetRgbColorVar(term, *colorvalue);
 		return TRUE;
 	}
 	else if(plot->lp_properties.pm3d_color.type == TC_Z) {
@@ -3754,7 +3768,7 @@ bool check_for_variable_color(const curve_points * plot, const double * colorval
 	}
 	else if(plot->lp_properties.pm3d_color.type == TC_COLORMAP) {
 		double gray = map2gray(*colorvalue, plot->lp_properties.P_Colormap);
-		set_rgbcolor_var(rgb_from_colormap(gray, plot->lp_properties.P_Colormap));
+		GPO.SetRgbColorVar(term, rgb_from_colormap(gray, plot->lp_properties.P_Colormap));
 		return TRUE;
 	}
 	else if(plot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
@@ -3802,7 +3816,7 @@ static double rgbscale(double component)
 //void process_image(termentry * pTerm, const void * plot, t_procimg_action action)
 void GnuPlot::ProcessImage(termentry * pTerm, const void * plot, t_procimg_action action)
 {
-	struct coordinate * points;
+	GpCoordinate * points;
 	int    p_count;
 	int    i;
 	double p_start_corner[2], p_end_corner[2]; /* Points used for computing hyperplane. */
@@ -4291,7 +4305,7 @@ void GnuPlot::ProcessImage(termentry * pTerm, const void * plot, t_procimg_actio
 							}
 							if(private_colormap) {
 								double gray = map2gray(points[i_image].CRD_COLOR, private_colormap);
-								set_rgbcolor_var(rgb_from_colormap(gray, private_colormap));
+								SetRgbColorVar(pTerm, rgb_from_colormap(gray, private_colormap));
 							}
 							else
 								set_color(pTerm, Cb2Gray(points[i_image].CRD_COLOR) );
@@ -4301,7 +4315,7 @@ void GnuPlot::ProcessImage(termentry * pTerm, const void * plot, t_procimg_actio
 							const int g = static_cast<int>(rgbscale(points[i_image].CRD_G));
 							const int b = static_cast<int>(rgbscale(points[i_image].CRD_B));
 							const int rgblt = (r << 16) + (g << 8) + b;
-							set_rgbcolor_var(rgblt);
+							SetRgbColorVar(pTerm, rgblt);
 						}
 						if(pixel_planes == IC_RGBA) {
 							int alpha = static_cast<int>(rgbscale(points[i_image].CRD_A) * 100.0/255.0);
@@ -4340,7 +4354,7 @@ void GnuPlot::DrawPolarCircle(termentry * pTerm, double place)
 	double y = 0.0;
 	int ogx = AxS.MapiX(x);
 	int ogy = AxS.MapiY(y);
-	for(double angle = step; angle <= 360.; angle += step) {
+	for(double angle = step; angle <= 360.0; angle += step) {
 		x = place * cos(angle*DEG2RAD);
 		y = place * sin(angle*DEG2RAD);
 		int gx = AxS.MapiX(x);
@@ -4388,7 +4402,7 @@ void GnuPlot::PlaceSpiderPlotAxes(termentry * pTerm, curve_points * pFirstPlot, 
 				// copy n_spokes somewhere that spidertick_callback can see it 
 				this_axis->term_zero = n_spokes;
 				this_axis->ticdef.rangelimited = FALSE;
-				gen_tics(this_axis, spidertick_callback);
+				GenTics(this_axis, spidertick_callback);
 				this_axis->gridmajor = FALSE;
 			}
 			if(parallel_axis_style.layer == LAYER_FRONT && layer == LAYER_BACK)
@@ -4407,19 +4421,19 @@ void GnuPlot::PlaceSpiderPlotAxes(termentry * pTerm, curve_points * pFirstPlot, 
 				DrawClipLine(pTerm, AxS.MapiX(spoke_x0), AxS.MapiY(spoke_y0), AxS.MapiX(spoke_x1), AxS.MapiY(spoke_y1) );
 				// Draw the tickmarks and labels 
 				if(this_axis->ticmode) {
-					spoke_dx = (spoke_y0 - spoke_y1) * .02;
-					spoke_dy = (spoke_x1 - spoke_x0) * .02;
+					spoke_dx = (spoke_y0 - spoke_y1) * 0.02;
+					spoke_dy = (spoke_x1 - spoke_x0) * 0.02;
 					// FIXME: separate control of tic linewidth? 
 					TermApplyLpProperties(pTerm, &border_lp);
 					this_axis->ticdef.rangelimited = FALSE;
-					gen_tics(this_axis, spidertick_callback);
+					GenTics(this_axis, spidertick_callback);
 				}
 				// Draw the axis label 
 				// Interpret any requested offset as a radial offset 
 				if(this_axis->label.text) {
 					double radial_offset = this_axis->label.offset.x;
 					this_axis->label.offset.x = 0.0;
-					write_label(pTerm, AxS.MapiX(spoke_x1 + (1. + radial_offset) * 0.12 * (spoke_x1-spoke_x0)),
+					WriteLabel(pTerm, AxS.MapiX(spoke_x1 + (1.0 + radial_offset) * 0.12 * (spoke_x1-spoke_x0)),
 						AxS.MapiY(spoke_y1 + (1. + radial_offset) * 0.12 * (spoke_y1-spoke_y0)), &this_axis->label);
 					this_axis->label.offset.x = radial_offset;
 				}

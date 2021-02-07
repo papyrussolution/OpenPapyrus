@@ -96,9 +96,9 @@ register_term(pcl5)
 #ifdef TERM_PROTO
 TERM_PUBLIC void HPGL_options();
 TERM_PUBLIC void PCL_options();
-TERM_PUBLIC void HPGL_init();
+TERM_PUBLIC void HPGL_init(termentry * pThis);
 /* TERM_PUBLIC void HPGL2_init(); */
-TERM_PUBLIC void PCL_init();
+TERM_PUBLIC void PCL_init(termentry * pThis);
 TERM_PUBLIC void HPGL_graphics();
 TERM_PUBLIC void HPGL2_graphics();
 TERM_PUBLIC void PCL_graphics();
@@ -833,20 +833,20 @@ TERM_PUBLIC void PCL_options()
 			    break;
 			case HPGL2_LINEWIDTH:
 			    GPO.Pgm.Shift();
-			    HPGL2_linewidth_scale =  GPO.RealExpression();
+			    HPGL2_linewidth_scale = GPO.FloatExpression();
 			    if(HPGL2_linewidth_scale <= 0)
 				    HPGL2_linewidth_scale = 1.0;
 			    break;
 			    break;
 			case HPGL2_POINTSIZE:
 			    GPO.Pgm.Shift();
-			    HPGL2_pointscale =  GPO.RealExpression();
+			    HPGL2_pointscale =  GPO.FloatExpression();
 			    if(HPGL2_pointscale <= 0)
 				    HPGL2_pointscale = 1.0;
 			    break;
 			case HPGL2_FONTSCALE:
 			    GPO.Pgm.Shift();
-			    HPGL2_fontscale =  GPO.RealExpression();
+			    HPGL2_fontscale =  GPO.FloatExpression();
 			    if(HPGL2_fontscale <= 0)
 				    HPGL2_fontscale = 1.0;
 			    break;
@@ -963,7 +963,7 @@ TERM_PUBLIC void PCL_options()
 	    );
 }
 
-TERM_PUBLIC void HPGL_init()
+TERM_PUBLIC void HPGL_init(termentry * pThis)
 {
 }
 
@@ -971,22 +971,22 @@ TERM_PUBLIC void HPGL_init()
    {
    } */
 
-TERM_PUBLIC void PCL_init()
+TERM_PUBLIC void PCL_init(termentry * pThis)
 {
-	struct termentry * t = term;
+	struct termentry * t = /*term*/pThis;
 /*
  * Reset printer, set to one copy, orientation of user's choice.
  * Make the change to the new orientation all at once.
  */
 	if(PCL_landscape) {
 		fprintf(gpoutfile, "\033E\033&l1X%s\n", PCL_mode_table[0].command);
-		t->xmax = PCL_mode.xmax;
-		t->ymax = PCL_mode.ymax;
+		t->MaxX = PCL_mode.xmax;
+		t->MaxY = PCL_mode.ymax;
 	}
 	else {
 		fprintf(gpoutfile, "\033E\033&l1X%s\n", PCL_mode_table[1].command);
-		t->xmax = PCL_mode.ymax;
-		t->ymax = PCL_mode.xmax;
+		t->MaxX = PCL_mode.ymax;
+		t->MaxY = PCL_mode.xmax;
 	}
 	if(encoding == S_ENC_UTF8)
 		fputs("\033&t83P\n", gpoutfile);
@@ -1509,7 +1509,6 @@ TERM_PUBLIC int HPGL_text_angle(int ang)
 		HPGL_ang = -1;
 	else
 		HPGL_ang = (ang ? 1 : 0);
-
 	if(HPGL_ang == 0)               /* Horizontal */
 		fputs("DI1,0;\n", gpoutfile);
 	else if(HPGL_ang == -1)         /* Vertical Down */
@@ -1529,28 +1528,14 @@ TERM_PUBLIC int HPGL2_text_angle(int ang)
 	ang %= 360;
 	HPGL_ang = ang;
 	switch(ang) {
-		case 0:         /* Horizontal */
-		    fputs("DI1,0", gpoutfile);
-		    break;
-		case 45:
-		    fputs("DI1,1", gpoutfile);
-		    break;
-		case 90:        /* Vertical Up */
-		    fputs("DI0,1", gpoutfile);
-		    break;
-		case 180:
-		    fputs("DI-1,0", gpoutfile);
-		    break;
-		case 270:       /* Vertical Down */
-		    fputs("DI0,-1", gpoutfile);
-		    break;
-		case 315:
-		    fputs("DI1,-1", gpoutfile);
-		    break;
+		case 0: fputs("DI1,0", gpoutfile); break; /* Horizontal */
+		case 45: fputs("DI1,1", gpoutfile); break;
+		case 90: fputs("DI0,1", gpoutfile); break; /* Vertical Up */
+		case 180: fputs("DI-1,0", gpoutfile); break;
+		case 270: fputs("DI0,-1", gpoutfile); break; /* Vertical Down */
+		case 315: fputs("DI1,-1", gpoutfile); break;
 		default:
-		    fprintf(gpoutfile, "DI%d,%d",
-			(int)(100 * cos(ang * M_PI / 180.) + 0.5),
-			(int)(100 * sin(ang * M_PI / 180.) + 0.5));
+		    fprintf(gpoutfile, "DI%d,%d", (int)(100 * cos(ang * M_PI / 180.0) + 0.5), (int)(100 * sin(ang * M_PI / 180.0) + 0.5));
 	}
 	return TRUE;
 }
@@ -3043,7 +3028,7 @@ TERM_PUBLIC void HPGL2_enh_put_text(uint x, uint y, const char str[])
 		 * closing brace in the string. We increment past it (else
 		 * we get stuck in an infinite loop) and try again.
 		 */
-		while(*(str = enhanced_recursion(str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+		while(*(str = enhanced_recursion(term, str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 			term->enhanced_flush();
 			if(!*++str)
 				break; /* end of string */
@@ -3106,28 +3091,22 @@ TERM_PUBLIC void HPGL2_enh_open(char * fontname, double fontsize, double base, b
 		/* widthflag FALSE means do not update text position after printing */
 		/* Note: Currently, this is only set by overprinting, which handled already. */
 		HPGL2_widthflag = widthflag;
-
 		/* Select font */
-		if((fontname != NULL) && (strlen(fontname) > 0))
+		if(!isempty(fontname))
 			HPGL2_set_font_size(fontname, fontsize);
-
 		/* base is distance above initial baseline.  Scale change in base to
 		   printer units, so we can do relative moves. */
 		base_shift = (base - HPGL2_base) * scale;
-		fprintf(gpoutfile, "PR%d,%d",
-		    (int)(-sin(HPGL_ang * M_PI / 180.) * base_shift),
-		    (int)( cos(HPGL_ang * M_PI / 180.) * base_shift));
+		fprintf(gpoutfile, "PR%d,%d", (int)(-sin(HPGL_ang * M_PI / 180.) * base_shift), (int)( cos(HPGL_ang * M_PI / 180.) * base_shift));
 		HPGL2_base = base;
 	}
 }
 
-TERM_PUBLIC
-void HPGL2_enh_flush(void)
+TERM_PUBLIC void HPGL2_enh_flush(void)
 {
 	if(!HPGL2_opened_string)
 		return;
 	*enhanced_cur_text = '\0';
-
 	/* print the string fragment, perhaps invisibly */
 	if(!HPGL2_show && !HPGL2_sizeonly) {
 		fputs("SP0TRCF2;\n", gpoutfile); /* draw invisibly */
@@ -3137,27 +3116,23 @@ void HPGL2_enh_flush(void)
 	else {
 		HPGL2_put_text_here(enhanced_text, FALSE);
 	}
-
 	if(HPGL2_sizeonly) {
 		/* nothing more to do */
 	}
 	else if(HPGL2_overprint == 1) {
-		/* Overprinting without knowing font metrics requires
-		   some tricks.
+		/* Overprinting without knowing font metrics requires some tricks.
 		   Note: does currently not work for UTF-8 text.
 		 */
 		double fontsize = HPGL2_point_size;
 		const char * name = HPGL2_font->name;
-
 		/* Save current position after the "underprinted" text */
 		fputs("\033%1A\033&f0S\033%1B\n", gpoutfile);
-		/* locate center of the first string by moving the cursor
-		   using half font size in the opposite direction */
+		// locate center of the first string by moving the cursor using half font size in the opposite direction 
 		HPGL2_enh_fontscale *= 0.5;
 		HPGL2_point_size_current = -1;
 		HPGL2_set_font_size(name, fontsize);
 		HPGL2_text_angle(HPGL_ang + 180);
-		/* Print text, switch to center alignment */
+		// Print text, switch to center alignment 
 		fprintf(gpoutfile, "SP0CF2LB%s\003SP%dCFLO5", enhanced_text, HPGL2_pen);
 		HPGL2_text_angle(HPGL_ang + 180);
 		HPGL2_enh_fontscale *= 2;
@@ -3165,8 +3140,7 @@ void HPGL2_enh_flush(void)
 		HPGL2_set_font_size(name, fontsize);
 	}
 	else if(HPGL2_overprint == 2) {
-		/* restore position to the end of the first string,
-		   set left justification */
+		// restore position to the end of the first string, set left justification 
 		fputs("\033%1A\033&f1S\033%1B\nLO1", gpoutfile);
 	}
 	HPGL2_opened_string = FALSE;
@@ -3176,40 +3150,82 @@ void HPGL2_enh_flush(void)
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(hpgl_driver)
-"hpgl", "HP7475 and relatives [number of pens] [eject]",
-HPGL_XMAX, HPGL_YMAX, HPGL_VCHAR, HPGL_HCHAR,
-HPGL_VTIC, HPGL_HTIC, HPGL_options, HPGL_init, HPGL_reset,
-HPGL_text, null_scale, HPGL_graphics, HPGL_move, HPGL_vector,
-HPGL_linetype, HPGL_put_text, HPGL_text_angle, null_justify_text, do_point, do_arrow, set_font_null TERM_TABLE_END(hpgl_driver)
+	"hpgl", 
+	"HP7475 and relatives [number of pens] [eject]",
+	HPGL_XMAX, 
+	HPGL_YMAX, 
+	HPGL_VCHAR, 
+	HPGL_HCHAR,
+	HPGL_VTIC, 
+	HPGL_HTIC, 
+	HPGL_options, 
+	HPGL_init, 
+	HPGL_reset,
+	HPGL_text, 
+	GnuPlot::NullScale, 
+	HPGL_graphics, 
+	HPGL_move, 
+	HPGL_vector,
+	HPGL_linetype, 
+	HPGL_put_text, 
+	HPGL_text_angle, 
+	null_justify_text, 
+	do_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(hpgl_driver)
 #undef LAST_TERM
 #define LAST_TERM hpgl_driver
 
 TERM_TABLE_START(pcl5_driver)
-"pcl5", "PCL5e/PCL5c printers using HP-GL/2",
-PCL_XMAX, PCL_YMAX, HPGL2_VCHAR, HPGL2_HCHAR,
-PCL_VTIC, PCL_HTIC, PCL_options, PCL_init, PCL_reset,
-PCL_text, null_scale, PCL_graphics, HPGL2_move, HPGL2_vector,
-HPGL2_linetype, HPGL2_enh_put_text, HPGL2_text_angle,
-HPGL2_justify_text, HPGL2_point, do_arrow, HPGL2_set_font, HPGL2_pointsize,
-TERM_CAN_DASH | TERM_LINEWIDTH | TERM_POINTSCALE |
-TERM_FONTSCALE | TERM_ENHANCED_TEXT,
-NULL, NULL,     /* suspend/resume */
-HPGL2_fillbox,
-HPGL2_linewidth,
-#ifdef USE_MOUSE
-0, 0, 0, 0, 0,
-#endif
-HPGL2_make_palette, 0,     /* previous_palette */
-HPGL2_set_color,
-HPGL2_filled_polygon,
-NULL,     /* image */
-HPGL2_enh_open, HPGL2_enh_flush, do_enh_writec,
-NULL, NULL,     /* layer, path */
-0.,
-NULL,     /* hypertext */
-NULL,     /* boxed text */
-NULL,     /* modify_plots */
-HPGL2_dashtype TERM_TABLE_END(pcl5_driver)
+	"pcl5", 
+	"PCL5e/PCL5c printers using HP-GL/2",
+	PCL_XMAX, 
+	PCL_YMAX, 
+	HPGL2_VCHAR, 
+	HPGL2_HCHAR,
+	PCL_VTIC, 
+	PCL_HTIC, 
+	PCL_options, 
+	PCL_init, 
+	PCL_reset,
+	PCL_text, 
+	GnuPlot::NullScale, 
+	PCL_graphics, 
+	HPGL2_move, 
+	HPGL2_vector,
+	HPGL2_linetype, 
+	HPGL2_enh_put_text, 
+	HPGL2_text_angle,
+	HPGL2_justify_text, 
+	HPGL2_point, 
+	GnuPlot::DoArrow, 
+	HPGL2_set_font, 
+	HPGL2_pointsize,
+	TERM_CAN_DASH | TERM_LINEWIDTH | TERM_POINTSCALE | TERM_FONTSCALE | TERM_ENHANCED_TEXT,
+	NULL, 
+	NULL,     /* suspend/resume */
+	HPGL2_fillbox,
+	HPGL2_linewidth,
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,
+	#endif
+	HPGL2_make_palette, 0,     /* previous_palette */
+	HPGL2_set_color,
+	HPGL2_filled_polygon,
+	NULL,     /* image */
+	HPGL2_enh_open, HPGL2_enh_flush, do_enh_writec,
+	NULL, NULL,     /* layer, path */
+	0.,
+	NULL,     /* hypertext */
+	NULL,     /* boxed text */
+	NULL,     /* modify_plots */
+	HPGL2_dashtype 
+TERM_TABLE_END(pcl5_driver)
 #undef LAST_TERM
 #define LAST_TERM pcl5_driver
 #endif /* TERM_TABLE */

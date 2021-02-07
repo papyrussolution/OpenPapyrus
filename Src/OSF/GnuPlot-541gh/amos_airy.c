@@ -75,7 +75,7 @@ void f_amos_Ai(union argument * arg)
 	if(underflow != 0 || ierr != 0) {
 		FPRINTF((stderr, "zairy( {%.3f, %.3f} ): underflow = %d   ierr = %d\n", z.real, z.imag, underflow, ierr));
 		GPO.Ev.IsUndefined_ = true;
-		Gcomplex(&a, not_a_number(), 0.0);
+		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, ai.real, ai.imag);
@@ -104,7 +104,7 @@ void f_amos_Bi(union argument * arg)
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbiry( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
 		GPO.Ev.IsUndefined_ = true;
-		Gcomplex(&a, not_a_number(), 0.0);
+		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, bi.real, bi.imag);
@@ -144,7 +144,7 @@ void f_amos_BesselK(union argument * arg)
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesk( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
 		GPO.Ev.IsUndefined_ = true;
-		Gcomplex(&a, not_a_number(), 0.0);
+		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, Bk[0].real, Bk[0].imag);
@@ -185,7 +185,7 @@ void f_amos_Hankel(int k, union argument * arg)
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesh( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
 		GPO.Ev.IsUndefined_ = true;
-		Gcomplex(&a, not_a_number(), 0.0);
+		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, H[0].real, H[0].imag);
@@ -228,7 +228,7 @@ void f_amos_BesselI(union argument * arg)
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesi( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
 		GPO.Ev.IsUndefined_ = true;
-		Gcomplex(&a, not_a_number(), 0.0);
+		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, Bi[0].real, Bi[0].imag);
@@ -268,7 +268,7 @@ void f_amos_BesselJ(union argument * arg)
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesj( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
 		GPO.Ev.IsUndefined_ = true;
-		Gcomplex(&a, not_a_number(), 0.0);
+		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, Bj[0].real, Bj[0].imag);
@@ -309,7 +309,7 @@ void f_amos_BesselY(union argument * arg)
 	if(ierr != 0) {
 		fprintf(stderr, "zbesy( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr);
 		GPO.Ev.IsUndefined_ = true;
-		Gcomplex(&a, not_a_number(), 0.0);
+		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, By[0].real, By[0].imag);
@@ -357,7 +357,7 @@ void f_amos_cexint(union argument * arg)
 	if(ierr == 1 || ierr > 2) {
 		FPRINTF((stderr, "f_amos_cexint( %d, {%g, %g} ): ierr = %d\n", norder, creal(z), cimag(z), ierr));
 		undefined = true;
-		Gcomplex(&a, not_a_number(), 0.0);
+		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, creal(cy), cimag(cy));

@@ -15,47 +15,63 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-/* File or datablock for output during 'set table' mode */
+// File or datablock for output during 'set table' mode 
 FILE * table_outfile = NULL;
 udvt_entry * table_var = NULL;
 bool table_mode = FALSE;
 char * table_sep = NULL;
 struct at_type * table_filter_at = NULL;
-static char * expand_newline(const char * in);
-static bool imploded(curve_points * this_plot);
 static FILE * outfile;
 
-#define OUTPUT_NUMBER(x, y) { output_number(x, y, buffer); len = strappend(&line, &size, len, buffer); }
+#define OUTPUT_NUMBER(x, y) { GPO.OutputNumber(x, y, buffer); len = strappend(&line, &size, len, buffer); }
 #define BUFFERSIZE 128
 
-static void output_number(double coord, int axis, char * buffer) 
+static char * expand_newline(const char * in)
+{
+	char * tmpstr = (char *)gp_alloc(2 * strlen(in) + 1, "enl");
+	const char * s = in;
+	char * t = tmpstr;
+	do {
+		if(*s == '\n') {
+			*t++ = '\\';
+			*t++ = 'n';
+		}
+		else
+			*t++ = *s;
+	} while(*s++);
+	return tmpstr;
+}
+
+//static void output_number(double coord, int axIdx, char * pBuffer) 
+void GnuPlot::OutputNumber(double coord, int axIdx, char * pBuffer)
 {
 	if(isnan(coord)) {
-		sprintf(buffer, " NaN");
-		/* treat timedata and "%s" output format as a special case:
-		 * return a number.
-		 * "%s" in combination with any other character is treated
-		 * like a normal time format specifier and handled in time.c
-		 */
+		sprintf(pBuffer, " NaN");
+		// treat timedata and "%s" output format as a special case:
+		// return a number.
+		// "%s" in combination with any other character is treated
+		// like a normal time format specifier and handled in time.c
 	}
-	else if(GPO.AxS[axis].tictype == DT_TIMEDATE &&
-	    strcmp(GPO.AxS[axis].formatstring, "%s") == 0) {
-		gprintf(buffer, BUFFERSIZE, "%.0f", 1.0, coord);
-	}
-	else if(GPO.AxS[axis].tictype == DT_TIMEDATE) {
-		buffer[0] = '"';
-		if(!strcmp(GPO.AxS[axis].formatstring, DEF_FORMAT))
-			gstrftime(buffer+1, BUFFERSIZE-1, P_TimeFormat, coord);
-		else
-			gstrftime(buffer+1, BUFFERSIZE-1, GPO.AxS[axis].formatstring, coord);
-		while(strchr(buffer, '\n')) {
-			*(strchr(buffer, '\n')) = ' ';
+	else {
+		GpAxis & r_ax = AxS[axIdx];
+		if(r_ax.tictype == DT_TIMEDATE && strcmp(r_ax.formatstring, "%s") == 0) {
+			gprintf(pBuffer, BUFFERSIZE, "%.0f", 1.0, coord);
 		}
-		strcat(buffer, "\"");
+		else if(r_ax.tictype == DT_TIMEDATE) {
+			pBuffer[0] = '"';
+			if(!strcmp(r_ax.formatstring, DEF_FORMAT))
+				gstrftime(pBuffer+1, BUFFERSIZE-1, P_TimeFormat, coord);
+			else
+				gstrftime(pBuffer+1, BUFFERSIZE-1, r_ax.formatstring, coord);
+			while(strchr(pBuffer, '\n')) {
+				*(strchr(pBuffer, '\n')) = ' ';
+			}
+			strcat(pBuffer, "\"");
+		}
+		else
+			gprintf(pBuffer, BUFFERSIZE, r_ax.formatstring, 1.0, coord);
 	}
-	else
-		gprintf(buffer, BUFFERSIZE, GPO.AxS[axis].formatstring, 1.0, coord);
-	strcat(buffer, " ");
+	strcat(pBuffer, " ");
 }
 
 static void print_line(const char * str)
@@ -69,31 +85,55 @@ static void print_line(const char * str)
 	}
 }
 
-void print_table(curve_points * current_plot, int plot_num)
+static bool imploded(const curve_points * pPlot)
 {
-	int i, curve;
+	switch(pPlot->plot_smooth) {
+		// These smooth styles called cp_implode() 
+		case SMOOTH_UNIQUE:
+		case SMOOTH_FREQUENCY:
+		case SMOOTH_FREQUENCY_NORMALISED:
+		case SMOOTH_CUMULATIVE:
+		case SMOOTH_CUMULATIVE_NORMALISED:
+		case SMOOTH_CSPLINES:
+		case SMOOTH_ACSPLINES:
+		case SMOOTH_SBEZIER:
+		case SMOOTH_MONOTONE_CSPLINE:
+		    return TRUE;
+		// These ones did not 
+		case SMOOTH_NONE:
+		case SMOOTH_BEZIER:
+		case SMOOTH_KDENSITY:
+		default:
+		    break;
+	}
+	return FALSE;
+}
+
+void print_table(curve_points * pPlot, int plot_num)
+{
+	int i;
 	char * buffer = (char*)gp_alloc(BUFFERSIZE, "print_table: output buffer");
 	size_t size = 2*BUFFERSIZE;
 	char * line = (char*)gp_alloc(size, "print_table: line buffer");
 	size_t len = 0;
-	outfile = (table_outfile) ? table_outfile : gpoutfile;
-	for(curve = 0; curve < plot_num; curve++, current_plot = current_plot->next) {
-		struct coordinate * point = NULL;
-		/* "with table" already wrote the output */
-		if(current_plot->plot_style == TABLESTYLE)
+	outfile = table_outfile ? table_outfile : gpoutfile;
+	for(int curve = 0; curve < plot_num; curve++, pPlot = pPlot->next) {
+		GpCoordinate * point = NULL;
+		// "with table" already wrote the output 
+		if(pPlot->plot_style == TABLESTYLE)
 			continue;
-		/* two blank lines between tabulated plots by prepending an empty line here */
+		// two blank lines between tabulated plots by prepending an empty line here 
 		print_line("");
-		snprintf(line, size, "# Curve %d of %d, %d points", curve, plot_num, current_plot->p_count);
+		snprintf(line, size, "# Curve %d of %d, %d points", curve, plot_num, pPlot->p_count);
 		print_line(line);
-		if((current_plot->title) && (*current_plot->title)) {
-			char * title = expand_newline(current_plot->title);
+		if((pPlot->title) && (*pPlot->title)) {
+			char * title = expand_newline(pPlot->title);
 			snprintf(line, size, "# Curve title: \"%s\"", title);
 			print_line(line);
 			SAlloc::F(title);
 		}
 		len = snprintf(line, size, "# x y");
-		switch(current_plot->plot_style) {
+		switch(pPlot->plot_style) {
 			case BOXES:
 			case XERRORBARS:
 			    len = strappend(&line, &size, len, " xlow xhigh");
@@ -140,23 +180,21 @@ void print_table(curve_points * current_plot, int plot_num)
 
 			default:
 			    if(interactive)
-				    fprintf(stderr, "Tabular output of %s plot style not fully implemented\n", current_plot->plot_style == HISTOGRAMS ? "histograms" : "this");
+				    fprintf(stderr, "Tabular output of %s plot style not fully implemented\n", pPlot->plot_style == HISTOGRAMS ? "histograms" : "this");
 			    break;
 		}
-		if(current_plot->varcolor)
+		if(pPlot->varcolor)
 			len = strappend(&line, &size, len, "  color");
 		strappend(&line, &size, len, " type");
 		print_line(line);
-		if(current_plot->plot_style == LABELPOINTS) {
+		if(pPlot->plot_style == LABELPOINTS) {
 			text_label * this_label;
-			for(this_label = current_plot->labels->next;
-			    this_label != NULL;
-			    this_label = this_label->next) {
+			for(this_label = pPlot->labels->next; this_label; this_label = this_label->next) {
 				char * label = expand_newline(this_label->text);
 				line[0] = NUL;
 				len = 0;
-				OUTPUT_NUMBER(this_label->place.x, current_plot->AxIdx_X);
-				OUTPUT_NUMBER(this_label->place.y, current_plot->AxIdx_Y);
+				OUTPUT_NUMBER(this_label->place.x, pPlot->AxIdx_X);
+				OUTPUT_NUMBER(this_label->place.y, pPlot->AxIdx_Y);
 				len = strappend(&line, &size, len, "\"");
 				len = strappend(&line, &size, len, label);
 				len = strappend(&line, &size, len, "\"");
@@ -165,38 +203,38 @@ void print_table(curve_points * current_plot, int plot_num)
 			}
 		}
 		else {
-			int plotstyle = current_plot->plot_style;
+			int plotstyle = pPlot->plot_style;
 			int type;
-			bool replace_undefined_with_blank = imploded(current_plot);
-			if(plotstyle == HISTOGRAMS && current_plot->histogram->type == HT_ERRORBARS)
+			bool replace_undefined_with_blank = imploded(pPlot);
+			if(plotstyle == HISTOGRAMS && pPlot->histogram->type == HT_ERRORBARS)
 				plotstyle = YERRORBARS;
-			for(i = 0, point = current_plot->points; i < current_plot->p_count; i++, point++) {
+			for(i = 0, point = pPlot->points; i < pPlot->p_count; i++, point++) {
 				// Reproduce blank lines read from original input file, if any 
-				if(!memcmp(point, &blank_data_line, sizeof(struct coordinate))) {
+				if(!memcmp(point, &blank_data_line, sizeof(GpCoordinate))) {
 					print_line("");
 					continue;
 				}
 				// FIXME HBB 20020405: had better use the real x/x2 axes of this plot 
 				line[0] = NUL;
 				len = 0;
-				OUTPUT_NUMBER(point->x, current_plot->AxIdx_X);
-				OUTPUT_NUMBER(point->y, current_plot->AxIdx_Y);
+				OUTPUT_NUMBER(point->x, pPlot->AxIdx_X);
+				OUTPUT_NUMBER(point->y, pPlot->AxIdx_Y);
 				switch(plotstyle) {
 					case BOXES:
 					case XERRORBARS:
-					    OUTPUT_NUMBER(point->xlow, current_plot->AxIdx_X);
-					    OUTPUT_NUMBER(point->xhigh, current_plot->AxIdx_X);
+					    OUTPUT_NUMBER(point->xlow, pPlot->AxIdx_X);
+					    OUTPUT_NUMBER(point->xhigh, pPlot->AxIdx_X);
 					    // Hmmm... shouldn't this write out width field of box plots, too, if stored? 
 					    break;
 					case BOXXYERROR:
 					case XYERRORBARS:
-					    OUTPUT_NUMBER(point->xlow, current_plot->AxIdx_X);
-					    OUTPUT_NUMBER(point->xhigh, current_plot->AxIdx_X);
+					    OUTPUT_NUMBER(point->xlow, pPlot->AxIdx_X);
+					    OUTPUT_NUMBER(point->xhigh, pPlot->AxIdx_X);
 					/* FALLTHROUGH */
 					case BOXERROR:
 					case YERRORBARS:
-					    OUTPUT_NUMBER(point->ylow, current_plot->AxIdx_Y);
-					    OUTPUT_NUMBER(point->yhigh, current_plot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->ylow, pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->yhigh, pPlot->AxIdx_Y);
 					    break;
 					case IMAGE:
 					    snprintf(buffer, BUFFERSIZE, "%g ", point->z);
@@ -210,22 +248,22 @@ void print_table(curve_points * current_plot, int plot_num)
 					    len = strappend(&line, &size, len, buffer);
 					    break;
 					case FILLEDCURVES:
-					    OUTPUT_NUMBER(point->yhigh, current_plot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->yhigh, pPlot->AxIdx_Y);
 					    break;
 					case FINANCEBARS:
-					    OUTPUT_NUMBER(point->ylow, current_plot->AxIdx_Y);
-					    OUTPUT_NUMBER(point->yhigh, current_plot->AxIdx_Y);
-					    OUTPUT_NUMBER(point->z, current_plot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->ylow, pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->yhigh, pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->z, pPlot->AxIdx_Y);
 					    break;
 					case CANDLESTICKS:
-					    OUTPUT_NUMBER(point->ylow, current_plot->AxIdx_Y);
-					    OUTPUT_NUMBER(point->yhigh, current_plot->AxIdx_Y);
-					    OUTPUT_NUMBER(point->z, current_plot->AxIdx_Y);
-					    OUTPUT_NUMBER(2. * (point->x - point->xlow), current_plot->AxIdx_X);
+					    OUTPUT_NUMBER(point->ylow, pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->yhigh, pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->z, pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER(2. * (point->x - point->xlow), pPlot->AxIdx_X);
 					    break;
 					case VECTOR:
-					    OUTPUT_NUMBER((point->xhigh - point->x), current_plot->AxIdx_X);
-					    OUTPUT_NUMBER((point->yhigh - point->y), current_plot->AxIdx_Y);
+					    OUTPUT_NUMBER((point->xhigh - point->x), pPlot->AxIdx_X);
+					    OUTPUT_NUMBER((point->yhigh - point->y), pPlot->AxIdx_Y);
 					    break;
 					case LINES:
 					case POINTSTYLE:
@@ -240,21 +278,20 @@ void print_table(curve_points * current_plot, int plot_num)
 					    /* ? */
 					    break;
 				} /* switch(plot type) */
-
-				if(current_plot->varcolor) {
-					double colorval = current_plot->varcolor[i];
-					if((current_plot->lp_properties.pm3d_color.value < 0.0) && (current_plot->lp_properties.pm3d_color.type == TC_RGB)) {
+				if(pPlot->varcolor) {
+					double colorval = pPlot->varcolor[i];
+					if((pPlot->lp_properties.pm3d_color.value < 0.0) && (pPlot->lp_properties.pm3d_color.type == TC_RGB)) {
 						snprintf(buffer, BUFFERSIZE, "0x%06x", (uint)(colorval));
 						len = strappend(&line, &size, len, buffer);
 					}
-					else if(current_plot->lp_properties.pm3d_color.type == TC_Z) {
+					else if(pPlot->lp_properties.pm3d_color.type == TC_Z) {
 						OUTPUT_NUMBER(colorval, COLOR_AXIS);
 					}
-					else if(current_plot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
+					else if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 						OUTPUT_NUMBER(colorval, COLOR_AXIS);
 					}
 				}
-				type = current_plot->points[i].type;
+				type = pPlot->points[i].type;
 				snprintf(buffer, BUFFERSIZE, " %c", type == INRANGE ? 'i' : type == OUTRANGE ? 'o' : 'u');
 				strappend(&line, &size, len, buffer);
 				// cp_implode() inserts dummy undefined point between curves 
@@ -277,8 +314,8 @@ void print_3dtable(int pcount)
 {
 	surface_points * this_plot;
 	int i, surface;
-	struct coordinate * point;
-	struct coordinate * tail;
+	GpCoordinate * point;
+	GpCoordinate * tail;
 	char * buffer = (char*)gp_alloc(BUFFERSIZE, "print_3dtable: output buffer");
 	size_t size = 2*BUFFERSIZE;
 	char * line = (char*)gp_alloc(size, "print_3dtable: line buffer");
@@ -331,7 +368,7 @@ void print_3dtable(int pcount)
 		if(draw_surface) {
 			iso_curve * icrvs;
 			int curve;
-			/* only the curves in one direction */
+			// only the curves in one direction 
 			for(curve = 0, icrvs = this_plot->iso_crvs; icrvs && curve < this_plot->num_iso_read; icrvs = icrvs->next, curve++) {
 				print_line("");
 				snprintf(line, size, "# IsoCurve %d, %d points", curve, icrvs->p_count);
@@ -355,9 +392,7 @@ void print_3dtable(int pcount)
 				}
 				strappend(&line, &size, len, " type");
 				print_line(line);
-				for(i = 0, point = icrvs->points;
-				    i < icrvs->p_count;
-				    i++, point++) {
+				for(i = 0, point = icrvs->points; i < icrvs->p_count; i++, point++) {
 					line[0] = NUL;
 					len = 0;
 					OUTPUT_NUMBER(point->x, FIRST_X_AXIS);
@@ -373,17 +408,11 @@ void print_3dtable(int pcount)
 						snprintf(buffer, BUFFERSIZE, "%g ", point->CRD_COLOR);
 						len = strappend(&line, &size, len, buffer);
 					}
-					else if(this_plot->plot_style == RGBIMAGE
-					    ||  this_plot->plot_style == RGBA_IMAGE) {
-						snprintf(buffer, BUFFERSIZE, "%4d %4d %4d %4d ",
-						    (int)point->CRD_R, (int)point->CRD_G,
-						    (int)point->CRD_B, (int)point->CRD_A);
+					else if(oneof2(this_plot->plot_style, RGBIMAGE, RGBA_IMAGE)) {
+						snprintf(buffer, BUFFERSIZE, "%4d %4d %4d %4d ", (int)point->CRD_R, (int)point->CRD_G, (int)point->CRD_B, (int)point->CRD_A);
 						len = strappend(&line, &size, len, buffer);
 					}
-					snprintf(buffer, BUFFERSIZE, "%c",
-					    point->type == INRANGE
-					    ? 'i' : point->type == OUTRANGE
-					    ? 'o' : 'u');
+					snprintf(buffer, BUFFERSIZE, "%c", point->type == INRANGE ? 'i' : point->type == OUTRANGE ? 'o' : 'u');
 					strappend(&line, &size, len, buffer);
 					print_line(line);
 				} /* for (point) */
@@ -395,14 +424,13 @@ void print_3dtable(int pcount)
 			gnuplot_contours * c = this_plot->contours;
 			while(c) {
 				int count = c->num_pts;
-				struct coordinate * point = c->coords;
+				GpCoordinate * point = c->coords;
 				if(c->isNewLevel) {
 					/* don't display count - contour split across chunks */
 					/* put # in case user wants to use it for a plot */
 					/* double blank line to allow plot ... index ... */
 					print_line("");
-					snprintf(line, size, "# Contour %d, label: %s",
-					    number++, c->label);
+					snprintf(line, size, "# Contour %d, label: %s", number++, c->label);
 					print_line(line);
 				}
 
@@ -414,7 +442,6 @@ void print_3dtable(int pcount)
 					OUTPUT_NUMBER(point->z, FIRST_Z_AXIS);
 					print_line(line);
 				}
-
 				/* blank line between segments of same contour */
 				print_line("");
 				c = c->next;
@@ -425,46 +452,6 @@ void print_3dtable(int pcount)
 		fflush(outfile);
 	SAlloc::F(buffer);
 	SAlloc::F(line);
-}
-
-static char * expand_newline(const char * in)
-{
-	char * tmpstr = (char*)gp_alloc(2 * strlen(in) + 1, "enl");
-	const char * s = in;
-	char * t = tmpstr;
-	do {
-		if(*s == '\n') {
-			*t++ = '\\';
-			*t++ = 'n';
-		}
-		else
-			*t++ = *s;
-	} while(*s++);
-	return tmpstr;
-}
-
-static bool imploded(curve_points * this_plot)
-{
-	switch(this_plot->plot_smooth) {
-		/* These smooth styles called cp_implode() */
-		case SMOOTH_UNIQUE:
-		case SMOOTH_FREQUENCY:
-		case SMOOTH_FREQUENCY_NORMALISED:
-		case SMOOTH_CUMULATIVE:
-		case SMOOTH_CUMULATIVE_NORMALISED:
-		case SMOOTH_CSPLINES:
-		case SMOOTH_ACSPLINES:
-		case SMOOTH_SBEZIER:
-		case SMOOTH_MONOTONE_CSPLINE:
-		    return TRUE;
-		/* These ones did not */
-		case SMOOTH_NONE:
-		case SMOOTH_BEZIER:
-		case SMOOTH_KDENSITY:
-		default:
-		    break;
-	}
-	return FALSE;
 }
 //
 // Called from plot2d.c (get_data) for "plot with table"
