@@ -653,12 +653,30 @@ static void HP26_do_point(uint x, uint y, int number)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(hp2623a_driver)
-"hp2623A", "HP2623A and maybe others",
-HP26_XMAX, HP26_YMAX, HP26_VCHAR, HP26_HCHAR,
-HP26_VTIC, HP26_HTIC, options_null, HP26_init, HP26_reset,
-HP26_text, GnuPlot::NullScale, HP26_graphics, HP26_move, HP26_vector,
-HP26_linetype, HP26_put_text, HP26_text_angle,
-null_justify_text, HP26_line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(hp2623a_driver)
+	"hp2623A", 
+	"HP2623A and maybe others",
+	HP26_XMAX, 
+	HP26_YMAX, 
+	HP26_VCHAR, 
+	HP26_HCHAR,
+	HP26_VTIC, 
+	HP26_HTIC, 
+	GnuPlot::OptionsNull, 
+	HP26_init, 
+	HP26_reset,
+	HP26_text, 
+	GnuPlot::NullScale, 
+	HP26_graphics, 
+	HP26_move, 
+	HP26_vector,
+	HP26_linetype, 
+	HP26_put_text, 
+	HP26_text_angle,
+	GnuPlot::NullJustifyText, 
+	HP26_line_and_point, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(hp2623a_driver)
 
 #undef LAST_TERM
 #define LAST_TERM hp2623a_driver

@@ -11,34 +11,22 @@
 static palette_color_mode pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE;
 
 static int  assign_arrow_tag();
-static void set_border();
-static void set_boxdepth();
-static void set_boxwidth();
-static void set_clip();
 static void set_contour();
 static void set_cornerpoles();
-static void set_dgrid3d();
 static void set_decimalsign();
-static void set_dummy();
-static void set_encoding();
-static void set_label();
 static int  assign_label_tag();
 static void set_loadpath();
 static void set_fontpath();
 static void set_locale();
-//static void set_mapping();
 static void set_minus_sign();
 static void set_micro();
-static void set_missing();
-static void set_output();
+//static void set_output();
 static void set_parametric();
 static void set_pointsize();
 static void set_pointintervalbox();
-static void set_print();
 static void set_psdir();
 static void set_rgbmax();
 static void set_samples();
-//static void set_surface();
 static void set_timefmt();
 static void set_zero();
 static void set_raxis();
@@ -47,13 +35,9 @@ static void set_ticslevel();
 
 /******** Local functions ********/
 
-static void set_xyzlabel(text_label * label);
-static void load_tics(GpAxis * axis);
-static void load_tic_user(GpAxis * axis);
 static void load_tic_series(GpAxis * axis);
 static int assign_arrowstyle_tag();
 static void set_mttics(GpAxis * this_axis);
-//static void set_spiderplot();
 
 static const GpPosition default_position = {first_axes, first_axes, first_axes, 0., 0., 0.};
 static const GpPosition default_offset = {character, character, character, 0., 0., 0.};
@@ -96,12 +80,12 @@ ITERATE:
 			case S_ARROW: SetArrow(); break;
 			case S_AUTOSCALE: SetAutoscale(); break;
 			case S_BARS: SetBars(); break;
-			case S_BORDER: set_border(); break;
-			case S_BOXDEPTH: set_boxdepth(); break;
-			case S_BOXWIDTH: set_boxwidth(); break;
-			case S_CLIP: set_clip(); break;
+			case S_BORDER: SetBorder(); break;
+			case S_BOXDEPTH: SetBoxDepth(); break;
+			case S_BOXWIDTH: SetBoxWidth(); break;
+			case S_CLIP: SetClip(); break;
 			case S_COLOR: 
-				unset_monochrome();
+				UnsetMonochrome();
 			    Pgm.Shift();
 			    break;
 			case S_COLORMAP: SetColorMap(); break;
@@ -111,22 +95,18 @@ ITERATE:
 			case S_CONTOUR: SetContour(); break;
 			case S_CORNERPOLES: set_cornerpoles(); break;
 			case S_DASHTYPE: SetDashType(); break;
-			case S_DGRID3D: set_dgrid3d(); break;
+			case S_DGRID3D: SetDGrid3D(); break;
 			case S_DEBUG:
-			    /* Developer-only option (not in user documentation) */
-			    /* Does nothing in normal use */
+			    // Developer-only option (not in user documentation) 
+			    // Does nothing in normal use 
 			    Pgm.Shift();
 			    debug = IntExpression();
 			    break;
 			case S_DECIMALSIGN:
 			    set_decimalsign();
 			    break;
-			case S_DUMMY:
-			    set_dummy();
-			    break;
-			case S_ENCODING:
-			    set_encoding();
-			    break;
+			case S_DUMMY: SetDummy(); break;
+			case S_ENCODING: SetEncoding(); break;
 			case S_FIT: SetFit(); break;
 			case S_FONTPATH:
 			    set_fontpath();
@@ -141,7 +121,7 @@ ITERATE:
 			case S_ISOSURFACE: SetIsoSurface(); break;
 			case S_JITTER: SetJitter(); break;
 			case S_KEY: SetKey(); break;
-			case S_LINESTYLE: SetLineStyle(&first_linestyle, LP_STYLE); break;
+			case S_LINESTYLE: SetLineStyle(&Gg.P_FirstLineStyle, LP_STYLE); break;
 			case S_LINETYPE:
 			    if(Pgm.EqualsNext("cycle")) {
 					Pgm.Shift();
@@ -149,11 +129,9 @@ ITERATE:
 				    linetype_recycle_count = IntExpression();
 			    }
 			    else
-				    SetLineStyle(&first_perm_linestyle, LP_TYPE);
+				    SetLineStyle(&Gg.P_FirstPermLineStyle, LP_TYPE);
 			    break;
-			case S_LABEL:
-			    set_label();
-			    break;
+			case S_LABEL: SetLabel(); break;
 			case S_LINK:
 			case S_NONLINEAR: LinkCommand(); break;
 			case S_LOADPATH:
@@ -202,21 +180,19 @@ ITERATE:
 				{
 					Pgm.Shift();
 					if(Pgm.EndOfCommand()) {
-						V.XOffset = 0.0f;
-						V.YOffset = 0.0f;
+						V.Offset.X = 0.0f;
+						V.Offset.Y = 0.0f;
 					}
 					else {
-						V.XOffset = static_cast<float>(RealExpression());
+						V.Offset.X = static_cast<float>(RealExpression());
 						if(!Pgm.EqualsCur(","))
 							IntErrorCurToken("',' expected");
 						Pgm.Shift();
-						V.YOffset = static_cast<float>(RealExpression());
+						V.Offset.Y = static_cast<float>(RealExpression());
 					}
 				}
 			    break;
-			case SET_OUTPUT:
-			    set_output();
-			    break;
+			case SET_OUTPUT: SetOutput(); break;
 			case S_OVERFLOW: SetOverflow(); break;
 			case S_PARAMETRIC:
 			    set_parametric();
@@ -231,9 +207,7 @@ ITERATE:
 			    set_pointsize();
 			    break;
 			case S_POLAR: SetPolar(); break;
-			case S_PRINT:
-			    set_print();
-			    break;
+			case S_PRINT: SetPrint(); break;
 			case S_PSDIR:
 			    set_psdir();
 			    break;
@@ -251,7 +225,7 @@ ITERATE:
 			case S_SURFACE: SetSurface(); break;
 			case S_TABLE: SetTable(); break;
 			case S_TERMINAL: SetTerminal(); break;
-			case S_TERMOPTIONS: SetTermOptions(); break;
+			case S_TERMOPTIONS: SetTermOptions(term); break;
 			case S_THETA: SetTheta(); break;
 			case S_TICS: SetTics(); break;
 			case S_TICSCALE: SetTicScale(); break;
@@ -260,13 +234,11 @@ ITERATE:
 			    break;
 			case S_TIMESTAMP: SetTimeStamp(); break;
 			case S_TITLE:
-			    set_xyzlabel(&title);
+			    SetXYZLabel(&title);
 			    title.rotate = 0;
 			    break;
 			case S_VIEW: SetView(); break;
-			case S_VGRID:
-			    set_vgrid();
-			    break;
+			case S_VGRID: SetVGrid(); break;
 			case S_VXRANGE:
 			case S_VYRANGE:
 			case S_VZRANGE: SetVGridRange(); break;
@@ -347,27 +319,13 @@ ITERATE:
 			case S_Y2DATA:
 			    SetTimeData(&AxS[SECOND_Y_AXIS]);
 			    break;
-			case S_XLABEL:
-			    set_xyzlabel(&AxS[FIRST_X_AXIS].label);
-			    break;
-			case S_YLABEL:
-			    set_xyzlabel(&AxS[FIRST_Y_AXIS].label);
-			    break;
-			case S_ZLABEL:
-			    set_xyzlabel(&AxS[FIRST_Z_AXIS].label);
-			    break;
-			case S_CBLABEL:
-			    set_xyzlabel(&AxS[COLOR_AXIS].label);
-			    break;
-			case S_RLABEL:
-			    set_xyzlabel(&AxS[POLAR_AXIS].label);
-			    break;
-			case S_X2LABEL:
-			    set_xyzlabel(&AxS[SECOND_X_AXIS].label);
-			    break;
-			case S_Y2LABEL:
-			    set_xyzlabel(&AxS[SECOND_Y_AXIS].label);
-			    break;
+			case S_XLABEL: SetXYZLabel(&AxS[FIRST_X_AXIS].label); break;
+			case S_YLABEL: SetXYZLabel(&AxS[FIRST_Y_AXIS].label); break;
+			case S_ZLABEL: SetXYZLabel(&AxS[FIRST_Z_AXIS].label); break;
+			case S_CBLABEL: SetXYZLabel(&AxS[COLOR_AXIS].label); break;
+			case S_RLABEL:  SetXYZLabel(&AxS[POLAR_AXIS].label); break;
+			case S_X2LABEL: SetXYZLabel(&AxS[SECOND_X_AXIS].label); break;
+			case S_Y2LABEL: SetXYZLabel(&AxS[SECOND_Y_AXIS].label); break;
 			case S_XRANGE:
 			    SetRange(&AxS[FIRST_X_AXIS]);
 			    break;
@@ -420,7 +378,7 @@ ITERATE:
 			    IntErrorCurToken("unrecognized option - see 'help set'.");
 			    break;
 		}
-		if(next_iteration(set_iterator)) {
+		if(NextIteration(set_iterator)) {
 			Pgm.SetTokenIdx(save_token);
 			goto ITERATE;
 		}
@@ -488,8 +446,8 @@ void GnuPlot::SetArrow()
 	if(tag <= 0)
 		IntErrorCurToken("tag must be > 0");
 	// OK! add arrow 
-	if(first_arrow) { // skip to last arrow 
-		for(p_this_arrow = first_arrow; p_this_arrow; p_prev_arrow = p_this_arrow, p_this_arrow = p_this_arrow->next)
+	if(Gg.P_FirstArrow) { // skip to last arrow 
+		for(p_this_arrow = Gg.P_FirstArrow; p_this_arrow; p_prev_arrow = p_this_arrow, p_this_arrow = p_this_arrow->next)
 			// is pThis the arrow we want? 
 			if(tag <= p_this_arrow->tag)
 				break;
@@ -497,7 +455,7 @@ void GnuPlot::SetArrow()
 	if(!p_this_arrow || tag != p_this_arrow->tag) {
 		p_new_arrow = (arrow_def *)gp_alloc(sizeof(arrow_def), "arrow");
 		if(p_prev_arrow == NULL)
-			first_arrow = p_new_arrow;
+			Gg.P_FirstArrow = p_new_arrow;
 		else
 			p_prev_arrow->next = p_new_arrow;
 		p_new_arrow->tag = tag;
@@ -577,13 +535,12 @@ void GnuPlot::SetArrow()
 static int assign_arrow_tag()
 {
 	arrow_def * this_arrow;
-	int last = 0;           /* previous tag value */
-	for(this_arrow = first_arrow; this_arrow != NULL; this_arrow = this_arrow->next)
+	int last = 0; // previous tag value 
+	for(this_arrow = GPO.Gg.P_FirstArrow; this_arrow != NULL; this_arrow = this_arrow->next)
 		if(this_arrow->tag == last + 1)
 			last++;
 		else
 			break;
-
 	return (last + 1);
 }
 //
@@ -751,44 +708,46 @@ void GnuPlot::SetBars()
 			bar_size = RealExpression();
 	}
 }
-
-/* process 'set border' command */
-static void set_border()
+//
+// process 'set border' command 
+//
+//static void set_border()
+void GnuPlot::SetBorder()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
 		draw_border = 31;
 		border_layer = LAYER_FRONT;
 		border_lp = default_border_lp;
 	}
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.EqualsCur("front")) {
+	while(!Pgm.EndOfCommand()) {
+		if(Pgm.EqualsCur("front")) {
 			border_layer = LAYER_FRONT;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("back")) {
+		else if(Pgm.EqualsCur("back")) {
 			border_layer = LAYER_BACK;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("behind")) {
+		else if(Pgm.EqualsCur("behind")) {
 			border_layer = LAYER_BEHIND;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("polar")) {
+		else if(Pgm.EqualsCur("polar")) {
 			draw_border |= 0x1000;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
 		else {
-			int save_token = GPO.Pgm.GetCurTokenIdx();
-			GPO.LpParse(&border_lp, LP_ADHOC, FALSE);
-			if(save_token != GPO.Pgm.GetCurTokenIdx())
+			int save_token = Pgm.GetCurTokenIdx();
+			LpParse(&border_lp, LP_ADHOC, FALSE);
+			if(save_token != Pgm.GetCurTokenIdx())
 				continue;
-			draw_border = GPO.IntExpression();
+			draw_border = IntExpression();
 		}
 	}
-	/* This is the only place the user can change the border	*/
-	/* so remember what he set.  If draw_border is later changed*/
-	/* internally, we can still recover the user's preference.	*/
+	// This is the only place the user can change the border	
+	// so remember what he set.  If draw_border is later changed
+	// internally, we can still recover the user's preference.	
 	user_border = draw_border;
 }
 //
@@ -878,69 +837,72 @@ void GnuPlot::SetBoxPlot()
 //
 // process 'set boxdepth' command (used by splot with boxes) 
 //
-static void set_boxdepth()
+//static void set_boxdepth()
+void GnuPlot::SetBoxDepth()
 {
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	boxdepth = 0.0;
-	if(GPO.Pgm.EqualsCur("square")) {
-		GPO.Pgm.Shift();
+	if(Pgm.EqualsCur("square")) {
+		Pgm.Shift();
 		boxdepth = -1;
 	}
-	else if(!GPO.Pgm.EndOfCommand())
-		boxdepth = GPO.RealExpression();
+	else if(!Pgm.EndOfCommand())
+		boxdepth = RealExpression();
 }
 //
 // process 'set boxwidth' command 
 //
-static void set_boxwidth()
+//static void set_boxwidth()
+void GnuPlot::SetBoxWidth()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
-		GPO.V.BoxWidth = -1.0;
-		GPO.V.BoxWidthIsAbsolute = true;
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
+		V.BoxWidth = -1.0;
+		V.BoxWidthIsAbsolute = true;
 	}
 	else {
-		GPO.V.BoxWidth = GPO.RealExpression();
+		V.BoxWidth = RealExpression();
 	}
-	if(GPO.Pgm.EndOfCommand())
+	if(Pgm.EndOfCommand())
 		return;
 	else {
-		if(GPO.Pgm.AlmostEqualsCur("a$bsolute"))
-			GPO.V.BoxWidthIsAbsolute = true;
-		else if(GPO.Pgm.AlmostEqualsCur("r$elative"))
-			GPO.V.BoxWidthIsAbsolute = false;
+		if(Pgm.AlmostEqualsCur("a$bsolute"))
+			V.BoxWidthIsAbsolute = true;
+		else if(Pgm.AlmostEqualsCur("r$elative"))
+			V.BoxWidthIsAbsolute = false;
 		else
-			GPO.IntErrorCurToken("expecting 'absolute' or 'relative' ");
+			IntErrorCurToken("expecting 'absolute' or 'relative' ");
 	}
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 }
 //
 // process 'set clip' command 
 //
-static void set_clip()
+//static void set_clip()
+void GnuPlot::SetClip()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
 		clip_points = TRUE; // assuming same as points 
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("r$adial") || GPO.Pgm.EqualsCur("polar")) {
+	else if(Pgm.AlmostEqualsCur("r$adial") || Pgm.EqualsCur("polar")) {
 		clip_radial = TRUE;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("p$oints")) {
+	else if(Pgm.AlmostEqualsCur("p$oints")) {
 		clip_points = TRUE;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("o$ne")) {
+	else if(Pgm.AlmostEqualsCur("o$ne")) {
 		clip_lines1 = TRUE;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 	}
-	else if(GPO.Pgm.AlmostEqualsCur("t$wo")) {
+	else if(Pgm.AlmostEqualsCur("t$wo")) {
 		clip_lines2 = TRUE;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 	}
 	else
-		GPO.IntErrorCurToken("expecting 'points', 'one', or 'two'");
+		IntErrorCurToken("expecting 'points', 'one', or 'two'");
 }
 //
 // process 'set cntrparam' command 
@@ -1156,7 +1118,7 @@ void GnuPlot::SetColorSequence(int option)
 		}
 	}
 	else if(option == 3) {
-		for(linestyle_def * p_this = first_perm_linestyle; p_this; p_this = p_this->next) {
+		for(linestyle_def * p_this = Gg.P_FirstPermLineStyle; p_this; p_this = p_this->next) {
 			p_this->lp_properties.pm3d_color.type = TC_LT;
 			p_this->lp_properties.pm3d_color.lt = p_this->tag-1;
 		}
@@ -1188,7 +1150,7 @@ void GnuPlot::SetDashType()
 	if(Pgm.EndOfCommand() || ((tag = IntExpression()) <= 0))
 		IntErrorCurToken("tag must be > zero");
 	// Check if dashtype is already defined 
-	for(this_dashtype = first_custom_dashtype; this_dashtype != NULL; prev_dashtype = this_dashtype, this_dashtype = this_dashtype->next)
+	for(this_dashtype = Gg.P_FirstCustomDashtype; this_dashtype; prev_dashtype = this_dashtype, this_dashtype = this_dashtype->next)
 		if(tag <= this_dashtype->tag)
 			break;
 	if(this_dashtype == NULL || tag != this_dashtype->tag) {
@@ -1197,7 +1159,7 @@ void GnuPlot::SetDashType()
 		if(prev_dashtype)
 			prev_dashtype->next = new_dashtype; /* add it to end of list */
 		else
-			first_custom_dashtype = new_dashtype; /* make it start of list */
+			Gg.P_FirstCustomDashtype = new_dashtype; /* make it start of list */
 		new_dashtype->tag = tag;
 		new_dashtype->d_type = DASHTYPE_SOLID;
 		new_dashtype->next = this_dashtype;
@@ -1226,19 +1188,21 @@ void GnuPlot::SetDashType()
  */
 void delete_dashtype(struct custom_dashtype_def * prev, struct custom_dashtype_def * pThis)
 {
-	if(pThis != NULL) {      /* there really is something to delete */
-		if(pThis == first_custom_dashtype)
-			first_custom_dashtype = pThis->next;
+	if(pThis) {      /* there really is something to delete */
+		if(pThis == GPO.Gg.P_FirstCustomDashtype)
+			GPO.Gg.P_FirstCustomDashtype = pThis->next;
 		else
 			prev->next = pThis->next;
 		SAlloc::F(pThis);
 	}
 }
-
-/* process 'set dgrid3d' command */
-static void set_dgrid3d()
+//
+// process 'set dgrid3d' command 
+//
+//static void set_dgrid3d()
+void GnuPlot::SetDGrid3D()
 {
-	int token_cnt = 0; /* Number of comma-separated values read in */
+	int token_cnt = 0; // Number of comma-separated values read in 
 	int gridx     = dgrid3d_row_fineness;
 	int gridy     = dgrid3d_col_fineness;
 	int normval   = dgrid3d_norm_value;
@@ -1247,16 +1211,16 @@ static void set_dgrid3d()
 	// dgrid3d has two different syntax alternatives: classic and new. If there is a "mode" keyword, the syntax is new, otherwise it is classic.
 	dgrid3d_mode  = DGRID3D_DEFAULT;
 	dgrid3d_kdensity = FALSE;
-	GPO.Pgm.Shift();
-	while(!(GPO.Pgm.EndOfCommand()) ) {
-		int tmp_mode = GPO.Pgm.LookupTableForCurrentToken(&dgrid3d_mode_tbl[0]);
+	Pgm.Shift();
+	while(!(Pgm.EndOfCommand()) ) {
+		int tmp_mode = Pgm.LookupTableForCurrentToken(&dgrid3d_mode_tbl[0]);
 		if(tmp_mode != DGRID3D_OTHER) {
 			dgrid3d_mode = tmp_mode;
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
 		switch(tmp_mode) {
 			case DGRID3D_QNORM:
-			    if(!(GPO.Pgm.EndOfCommand())) normval = GPO.IntExpression();
+			    if(!(Pgm.EndOfCommand())) normval = IntExpression();
 			    break;
 			case DGRID3D_SPLINES:
 			    break;
@@ -1265,49 +1229,47 @@ static void set_dgrid3d()
 			case DGRID3D_EXP:
 			case DGRID3D_BOX:
 			case DGRID3D_HANN:
-			    if(!(GPO.Pgm.EndOfCommand()) && GPO.Pgm.AlmostEqualsCur("kdens$ity2d")) {
+			    if(!(Pgm.EndOfCommand()) && Pgm.AlmostEqualsCur("kdens$ity2d")) {
 				    dgrid3d_kdensity = TRUE;
-				    GPO.Pgm.Shift();
+				    Pgm.Shift();
 			    }
-			    if(!(GPO.Pgm.EndOfCommand())) {
-				    scalex = GPO.RealExpression();
+			    if(!(Pgm.EndOfCommand())) {
+				    scalex = RealExpression();
 				    scaley = scalex;
-				    if(GPO.Pgm.EqualsCur(",")) {
-					    GPO.Pgm.Shift();
-					    scaley = GPO.RealExpression();
+				    if(Pgm.EqualsCur(",")) {
+					    Pgm.Shift();
+					    scaley = RealExpression();
 				    }
 			    }
 			    break;
-
 			default: /* {rows}{,cols{,norm}}} */
-
-			    if(GPO.Pgm.EqualsCur(",")) {
-				    GPO.Pgm.Shift();
+			    if(Pgm.EqualsCur(",")) {
+				    Pgm.Shift();
 				    token_cnt++;
 			    }
 			    else if(token_cnt == 0) {
-				    gridx = GPO.IntExpression();
+				    gridx = IntExpression();
 				    gridy = gridx; /* gridy defaults to gridx, unless overridden below */
 			    }
 			    else if(token_cnt == 1) {
-				    gridy = GPO.IntExpression();
+				    gridy = IntExpression();
 			    }
 			    else if(token_cnt == 2) {
-				    normval = GPO.IntExpression();
+				    normval = IntExpression();
 			    }
 			    else
-				    GPO.IntErrorCurToken("Unrecognized keyword or unexpected value");
+				    IntErrorCurToken("Unrecognized keyword or unexpected value");
 			    break;
 		}
 	}
 	// we could warn here about floating point values being truncated... 
 	if(gridx < 2 || gridx > 1000 || gridy < 2 || gridy > 1000)
-		GPO.IntError(NO_CARET, "Number of grid points must be in [2:1000] - not changed!");
+		IntError(NO_CARET, "Number of grid points must be in [2:1000] - not changed!");
 	// no mode token found: classic format 
 	if(dgrid3d_mode == DGRID3D_DEFAULT)
 		dgrid3d_mode = DGRID3D_QNORM;
 	if(scalex < 0.0 || scaley < 0.0)
-		GPO.IntError(NO_CARET, "Scale factors must be greater than zero - not changed!");
+		IntError(NO_CARET, "Scale factors must be greater than zero - not changed!");
 	dgrid3d_row_fineness = gridx;
 	dgrid3d_col_fineness = gridy;
 	dgrid3d_norm_value = normval;
@@ -1350,62 +1312,65 @@ static void set_decimalsign()
 //
 // process 'set dummy' command 
 //
-static void set_dummy()
+//static void set_dummy()
+void GnuPlot::SetDummy()
 {
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	for(int i = 0; i<MAX_NUM_VAR; i++) {
-		if(GPO.Pgm.EndOfCommand())
+		if(Pgm.EndOfCommand())
 			return;
-		if(isalpha((uchar)gp_input_line[GPO.Pgm.GetCurTokenStartIndex()])) {
-			GPO.Pgm.CopyStr(set_dummy_var[i], GPO.Pgm.GetCurTokenIdx(), MAX_ID_LEN);
-			GPO.Pgm.Shift();
+		if(isalpha((uchar)gp_input_line[Pgm.GetCurTokenStartIndex()])) {
+			Pgm.CopyStr(set_dummy_var[i], Pgm.GetCurTokenIdx(), MAX_ID_LEN);
+			Pgm.Shift();
 		}
-		if(GPO.Pgm.EqualsCur(","))
-			GPO.Pgm.Shift();
+		if(Pgm.EqualsCur(","))
+			Pgm.Shift();
 		else
 			break;
 	}
-	if(!GPO.Pgm.EndOfCommand())
-		GPO.IntErrorCurToken("unrecognized syntax");
+	if(!Pgm.EndOfCommand())
+		IntErrorCurToken("unrecognized syntax");
 }
-
-/* process 'set encoding' command */
-static void set_encoding()
+//
+// process 'set encoding' command 
+//
+//static void set_encoding()
+void GnuPlot::SetEncoding()
 {
 	char * l = NULL;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
 		encoding = S_ENC_DEFAULT;
 #ifdef HAVE_LOCALE_H
 	}
-	else if(GPO.Pgm.EqualsCur("locale")) {
+	else if(Pgm.EqualsCur("locale")) {
 		enum set_encoding_id newenc = encoding_from_locale();
 
 		l = setlocale(LC_CTYPE, "");
 		if(newenc == S_ENC_DEFAULT)
-			GPO.IntWarn(NO_CARET, "Locale not supported by gnuplot: %s", l);
+			IntWarn(NO_CARET, "Locale not supported by gnuplot: %s", l);
 		if(newenc == S_ENC_INVALID)
-			GPO.IntWarn(NO_CARET, "Error converting locale \"%s\" to codepage number", l);
+			IntWarn(NO_CARET, "Error converting locale \"%s\" to codepage number", l);
 		else
 			encoding = newenc;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 #endif
 	}
 	else {
-		int temp = GPO.Pgm.LookupTableForCurrentToken(&set_encoding_tbl[0]);
+		int temp = Pgm.LookupTableForCurrentToken(&set_encoding_tbl[0]);
 		char * senc;
 		// allow string variables as parameter 
-		if((temp == S_ENC_INVALID) && GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (senc = GPO.TryToGetString())) {
+		if((temp == S_ENC_INVALID) && Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (senc = TryToGetString())) {
 			for(int i = 0; encoding_names[i] != NULL; i++)
 				if(strcmp(encoding_names[i], senc) == 0)
 					temp = i;
 			SAlloc::F(senc);
 		}
 		else {
-			GPO.Pgm.Shift();
+			Pgm.Shift();
 		}
 		if(temp == S_ENC_INVALID)
-			GPO.IntErrorCurToken("unrecognized encoding specification; see 'help encoding'.");
+			IntErrorCurToken("unrecognized encoding specification; see 'help encoding'.");
 		encoding = (set_encoding_id)temp;
 	}
 	init_special_chars();
@@ -1840,14 +1805,13 @@ void GnuPlot::SetPixMap()
 	tag = IntExpression();
 	if(tag <= 0)
 		IntErrorCurToken("tag must be > 0");
-	for(this_pixmap = pixmap_listhead; this_pixmap != NULL;
-	    prev_pixmap = this_pixmap, this_pixmap = this_pixmap->next)
+	for(this_pixmap = Gg.P_PixmapListHead; this_pixmap != NULL; prev_pixmap = this_pixmap, this_pixmap = this_pixmap->next)
 		if(tag <= this_pixmap->tag)
 			break;
 	if(this_pixmap == NULL || tag != this_pixmap->tag) {
 		new_pixmap = (t_pixmap *)gp_alloc(sizeof(t_pixmap), "pixmap");
 		if(prev_pixmap == NULL)
-			pixmap_listhead = new_pixmap;
+			Gg.P_PixmapListHead = new_pixmap;
 		else
 			prev_pixmap->next = new_pixmap;
 		memzero(new_pixmap, sizeof(t_pixmap));
@@ -2149,24 +2113,24 @@ void GnuPlot::SetKey()
 			    break;
 			case S_KEY_SAMPLEN:
 			    Pgm.Shift();
-			    key->swidth = GPO.RealExpression();
+			    key->swidth = RealExpression();
 			    Pgm.Rollback(); // it is incremented after loop 
 			    break;
 			case S_KEY_SPACING:
 			    Pgm.Shift();
-			    key->vert_factor = GPO.RealExpression();
+			    key->vert_factor = RealExpression();
 			    if(key->vert_factor < 0.0)
 				    key->vert_factor = 0.0;
 			    Pgm.Rollback(); // it is incremented after loop 
 			    break;
 			case S_KEY_WIDTH:
 			    Pgm.Shift();
-			    key->width_fix = GPO.RealExpression();
+			    key->width_fix = RealExpression();
 			    Pgm.Rollback(); // it is incremented after loop 
 			    break;
 			case S_KEY_HEIGHT:
 			    Pgm.Shift();
-			    key->height_fix = GPO.RealExpression();
+			    key->height_fix = RealExpression();
 			    Pgm.Rollback(); // it is incremented after loop 
 			    break;
 			case S_KEY_AUTOTITLES:
@@ -2184,7 +2148,7 @@ void GnuPlot::SetKey()
 			case S_KEY_TITLE:
 S_KEYTITLE:
 			    key->title.pos = CENTRE;
-			    set_xyzlabel(&key->title);
+			    SetXYZLabel(&key->title);
 			    Pgm.Rollback();
 			    break;
 			case S_KEY_NOTITLE:
@@ -2267,11 +2231,13 @@ S_KEYTITLE:
 			IntWarn(NO_CARET, "ignoring left/center/right; incompatible with lmargin/tmargin.");
 	}
 }
-
-/* process 'set label' command */
-/* set label {tag} {"label_text"{,<value>{,...}}} {<label options>} */
-/* EAM Mar 2003 - option parsing broken out into separate routine */
-static void set_label()
+// 
+// process 'set label' command 
+// set label {tag} {"label_text"{,<value>{,...}}} {<label options>} 
+// EAM Mar 2003 - option parsing broken out into separate routine 
+// 
+//static void set_label()
+void GnuPlot::SetLabel()
 {
 	text_label * this_label = NULL;
 	text_label * new_label = NULL;
@@ -2279,18 +2245,18 @@ static void set_label()
 	GpValue a;
 	int save_token;
 	int tag = -1;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand())
+	Pgm.Shift();
+	if(Pgm.EndOfCommand())
 		return;
 	// The first item must be either a tag or the label text 
-	save_token = GPO.Pgm.GetCurTokenIdx();
-	if(GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()) && GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) == 0) {
+	save_token = Pgm.GetCurTokenIdx();
+	if(Pgm.IsLetter(Pgm.GetCurTokenIdx()) && Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == 0) {
 		tag = assign_label_tag();
 	}
 	else {
-		GPO.ConstExpress(&a);
+		ConstExpress(&a);
 		if(a.type == STRING) {
-			GPO.Pgm.SetTokenIdx(save_token);
+			Pgm.SetTokenIdx(save_token);
 			tag = assign_label_tag();
 		}
 		else {
@@ -2299,10 +2265,9 @@ static void set_label()
 		a.Destroy();
 	}
 	if(tag <= 0)
-		GPO.IntErrorCurToken("tag must be > zero");
-	if(first_label) { // skip to last label 
-		for(this_label = first_label; this_label != NULL;
-		    prev_label = this_label, this_label = this_label->next)
+		IntErrorCurToken("tag must be > zero");
+	if(Gg.P_FirstLabel) { // skip to last label 
+		for(this_label = Gg.P_FirstLabel; this_label; prev_label = this_label, this_label = this_label->next)
 			// is pThis the label we want? 
 			if(tag <= this_label->tag)
 				break;
@@ -2312,25 +2277,24 @@ static void set_label()
 		new_label = new_text_label(tag);
 		new_label->offset = default_offset;
 		if(prev_label == NULL)
-			first_label = new_label;
+			Gg.P_FirstLabel = new_label;
 		else
 			prev_label->next = new_label;
 		new_label->next = this_label;
 		this_label = new_label;
 	}
-	if(!GPO.Pgm.EndOfCommand()) {
+	if(!Pgm.EndOfCommand()) {
 		char * text;
-		GPO.ParseLabelOptions(this_label, 0);
-		text = GPO.TryToGetString();
+		ParseLabelOptions(this_label, 0);
+		text = TryToGetString();
 		if(text) {
 			SAlloc::F(this_label->text);
 			this_label->text = text;
 		}
 	}
 	// Now parse the label format and style options 
-	GPO.ParseLabelOptions(this_label, 0);
+	ParseLabelOptions(this_label, 0);
 }
-
 /* assign a new label tag
  * labels are kept sorted by tag number, so pThis is easy
  * returns the lowest unassigned tag number
@@ -2338,7 +2302,7 @@ static void set_label()
 static int assign_label_tag()
 {
 	int last = 0;           /* previous tag value */
-	for(text_label * this_label = first_label; this_label != NULL; this_label = this_label->next)
+	for(text_label * this_label = GPO.Gg.P_FirstLabel; this_label; this_label = this_label->next)
 		if(this_label->tag == last + 1)
 			last++;
 		else
@@ -2433,7 +2397,7 @@ void GnuPlot::SetLogScale()
 		}
 		Pgm.Shift();
 		if(!Pgm.EndOfCommand()) {
-			newbase = fabs(GPO.RealExpression());
+			newbase = fabs(RealExpression());
 			if(newbase <= 1.0)
 				IntErrorCurToken("log base must be > 1.0; logscale unchanged");
 		}
@@ -2513,7 +2477,7 @@ void GnuPlot::SetMargin(GpPosition * pMargin)
 			pMargin->scalex = screen;
 			Pgm.Shift();
 		}
-		pMargin->x = GPO.RealExpression();
+		pMargin->x = RealExpression();
 		if(pMargin->x < 0)
 			pMargin->x = -1;
 		if(pMargin->scalex == screen) {
@@ -2581,20 +2545,22 @@ void GnuPlot::SetDataFileCommentsChars()
 	else // Leave it the way it was 
 		IntErrorCurToken("expected string with comments chars");
 }
-
-/* process 'set datafile missing' command */
-static void set_missing()
+//
+// process 'set datafile missing' command 
+//
+//static void set_missing()
+void GnuPlot::SetMissing()
 {
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	ZFREE(missing_val);
-	if(GPO.Pgm.EndOfCommand())
+	if(Pgm.EndOfCommand())
 		return;
-	if(GPO.Pgm.EqualsCur("NaN") || GPO.Pgm.EqualsCur("nan")) {
+	if(Pgm.EqualsCur("NaN") || Pgm.EqualsCur("nan")) {
 		missing_val = sstrdup("NaN");
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 	}
-	else if(!(missing_val = GPO.TryToGetString()))
-		GPO.IntErrorCurToken("expected missing-value string");
+	else if(!(missing_val = TryToGetString()))
+		IntErrorCurToken("expected missing-value string");
 }
 //
 // (version 5) 'set monochrome' command 
@@ -2607,8 +2573,8 @@ void GnuPlot::SetMonochrome()
 		Pgm.Shift();
 	if(Pgm.AlmostEqualsCur("def$ault")) {
 		Pgm.Shift();
-		while(first_mono_linestyle)
-			delete_linestyle(&first_mono_linestyle, first_mono_linestyle, first_mono_linestyle);
+		while(Gg.P_FirstMonoLineStyle)
+			delete_linestyle(&Gg.P_FirstMonoLineStyle, Gg.P_FirstMonoLineStyle, Gg.P_FirstMonoLineStyle);
 	}
 	init_monochrome();
 	if(Pgm.AlmostEqualsCur("linet$ype") || Pgm.EqualsCur("lt")) {
@@ -2619,7 +2585,7 @@ void GnuPlot::SetMonochrome()
 			mono_recycle_count = IntExpression();
 		}
 		else
-			SetLineStyle(&first_mono_linestyle, LP_TYPE);
+			SetLineStyle(&Gg.P_FirstMonoLineStyle, LP_TYPE);
 	}
 	if(!Pgm.EndOfCommand())
 		IntErrorCurToken("unrecognized option");
@@ -2712,7 +2678,7 @@ void GnuPlot::SetMouse()
 				int start_token = Pgm.GetCurTokenIdx()/*++c_token*/;
 				if(!Pgm.EndOfCommand() || !mouse_readout_function.at) {
 					free_at(mouse_readout_function.at);
-					mouse_readout_function.at = perm_at();
+					mouse_readout_function.at = PermAt();
 					Pgm.MCapture(&mouse_readout_function.definition, start_token, Pgm.GetPrevTokenIdx());
 				}
 				// FIXME:  wants sanity check that pThis is a string-valued  function with parameters x and y 
@@ -2839,68 +2805,70 @@ void GnuPlot::SetOffsets()
 //
 // process 'set output' command 
 //
-static void set_output()
+//static void set_output()
+void GnuPlot::SetOutput()
 {
-	char * testfile;
-	GPO.Pgm.Shift();
+	char * testfile = 0;
+	Pgm.Shift();
 	if(multiplot)
-		GPO.IntErrorCurToken("you can't change the output in multiplot mode");
-	if(GPO.Pgm.EndOfCommand()) {    /* no file specified */
-		term_set_output(NULL);
+		IntErrorCurToken("you can't change the output in multiplot mode");
+	if(Pgm.EndOfCommand()) {    /* no file specified */
+		TermSetOutput(term, NULL);
 		ZFREE(outstr); // means STDOUT 
 	}
-	else if((testfile = GPO.TryToGetString())) {
+	else if((testfile = TryToGetString())) {
 		gp_expand_tilde(&testfile);
-		term_set_output(testfile);
+		TermSetOutput(term, testfile);
 		if(testfile != outstr) {
 			SAlloc::F(testfile);
 			testfile = outstr;
 		}
-		/* if we get here then it worked, and outstr now = testfile */
+		// if we get here then it worked, and outstr now = testfile 
 	}
 	else
-		GPO.IntErrorCurToken("expecting filename");
+		IntErrorCurToken("expecting filename");
 	invalidate_palette(); // Invalidate previous palette 
 }
 //
 // process 'set print' command 
 //
-static void set_print()
+//static void set_print()
+void GnuPlot::SetPrint()
 {
 	bool append_p = FALSE;
 	char * testfile = NULL;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) { // no file specified 
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) { // no file specified 
 		print_set_output(NULL, FALSE, append_p);
 	}
-	else if(GPO.Pgm.EqualsCur("$") && GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()+1)) { /* datablock */
-		// NB: has to come first because GPO.TryToGetString will choke on the datablock name 
-		char * datablock_name = sstrdup(GPO.Pgm.ParseDatablockName());
-		if(!GPO.Pgm.EndOfCommand()) {
-			if(GPO.Pgm.EqualsCur("append")) {
+	else if(Pgm.EqualsCur("$") && Pgm.IsLetter(Pgm.GetCurTokenIdx()+1)) { /* datablock */
+		// NB: has to come first because TryToGetString will choke on the datablock name 
+		char * datablock_name = sstrdup(Pgm.ParseDatablockName());
+		if(!Pgm.EndOfCommand()) {
+			if(Pgm.EqualsCur("append")) {
 				append_p = TRUE;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 			}
 			else {
-				GPO.IntErrorCurToken("expecting keyword \'append\'");
+				IntErrorCurToken("expecting keyword \'append\'");
 			}
 		}
 		print_set_output(datablock_name, TRUE, append_p);
 	}
-	else if((testfile = GPO.TryToGetString())) { /* file name */
+	else if((testfile = TryToGetString())) { /* file name */
 		gp_expand_tilde(&testfile);
-		if(!GPO.Pgm.EndOfCommand()) {
-			if(GPO.Pgm.EqualsCur("append")) {
+		if(!Pgm.EndOfCommand()) {
+			if(Pgm.EqualsCur("append")) {
 				append_p = TRUE;
-				GPO.Pgm.Shift();
+				Pgm.Shift();
 			}
 			else
-				GPO.IntErrorCurToken("expecting keyword \'append\'");
+				IntErrorCurToken("expecting keyword \'append\'");
 		}
 		print_set_output(testfile, FALSE, append_p);
 	}
 	else
-		GPO.IntErrorCurToken("expecting filename or datablock");
+		IntErrorCurToken("expecting filename or datablock");
 }
 //
 // process 'set psdir' command 
@@ -3124,7 +3092,7 @@ void GnuPlot::SetPaletteFile()
 	SmPltt.P_Gradient = (gradient_struct *)gp_alloc(actual_size*sizeof(gradient_struct), "gradient");
 	i = 0;
 	// values are clipped to [0,1] without notice 
-	while((j = df_readline(v, 4)) != DF_EOF) {
+	while((j = DfReadLine(v, 4)) != DF_EOF) {
 		if(i >= actual_size) {
 			actual_size += 10;
 			SmPltt.P_Gradient = (gradient_struct *)gp_realloc(SmPltt.P_Gradient, actual_size*sizeof(gradient_struct), "pm3d gradient");
@@ -3177,7 +3145,7 @@ void GnuPlot::SetPaletteFunction()
 		SmPltt.Afunc.at = NULL;
 	}
 	dummy_func = &SmPltt.Afunc;
-	SmPltt.Afunc.at = perm_at();
+	SmPltt.Afunc.at = PermAt();
 	if(!SmPltt.Afunc.at)
 		IntError(start_token, "not enough memory for function");
 	Pgm.MCapture(&(SmPltt.Afunc.definition), start_token, Pgm.GetPrevTokenIdx());
@@ -3192,7 +3160,7 @@ void GnuPlot::SetPaletteFunction()
 		SmPltt.Bfunc.at = NULL;
 	}
 	dummy_func = &SmPltt.Bfunc;
-	SmPltt.Bfunc.at = perm_at();
+	SmPltt.Bfunc.at = PermAt();
 	if(!SmPltt.Bfunc.at)
 		IntError(start_token, "not enough memory for function");
 	Pgm.MCapture(&(SmPltt.Bfunc.definition), start_token, Pgm.GetPrevTokenIdx());
@@ -3207,7 +3175,7 @@ void GnuPlot::SetPaletteFunction()
 		SmPltt.Cfunc.at = NULL;
 	}
 	dummy_func = &SmPltt.Cfunc;
-	SmPltt.Cfunc.at = perm_at();
+	SmPltt.Cfunc.at = PermAt();
 	if(!SmPltt.Cfunc.at)
 		IntError(start_token, "not enough memory for function");
 	Pgm.MCapture(&(SmPltt.Cfunc.definition), start_token, Pgm.GetPrevTokenIdx());
@@ -3887,7 +3855,7 @@ void GnuPlot::SetObject()
 	}
 	else if(tag > 0) {
 		// Look for existing object with pThis tag 
-		t_object * this_object = first_object;
+		t_object * this_object = Gg.P_FirstObject;
 		for(; this_object != NULL; this_object = this_object->next)
 			if(tag == this_object->tag)
 				break;
@@ -3902,7 +3870,8 @@ void GnuPlot::SetObject()
 		IntErrorCurToken("unrecognized object type");
 }
 
-static t_object * new_object(int tag, int object_type, t_object * pNew)
+//static t_object * new_object(int tag, int object_type, t_object * pNew)
+t_object * GnuPlot::NewObject(int tag, int objectType, t_object * pNew)
 {
 	t_object def_rect(t_object::defRectangle); // = DEFAULT_RECTANGLE_STYLE;
 	t_object def_ellipse(t_object::defEllipse); // = DEFAULT_ELLIPSE_STYLE;
@@ -3912,21 +3881,21 @@ static t_object * new_object(int tag, int object_type, t_object * pNew)
 		pNew = (t_object *)gp_alloc(sizeof(GpObject), "object");
 	else if(pNew->object_type == OBJ_POLYGON)
 		SAlloc::F(pNew->o.polygon.vertex);
-	if(object_type == OBJ_RECTANGLE) {
+	if(objectType == OBJ_RECTANGLE) {
 		*pNew = def_rect;
 		pNew->lp_properties.l_type = LT_DEFAULT; /* Use default rectangle color */
 		pNew->fillstyle.fillstyle = FS_DEFAULT; /* and default fill style */
 	}
-	else if(object_type == OBJ_ELLIPSE)
+	else if(objectType == OBJ_ELLIPSE)
 		*pNew = def_ellipse;
-	else if(object_type == OBJ_CIRCLE)
+	else if(objectType == OBJ_CIRCLE)
 		*pNew = def_circle;
-	else if(object_type == OBJ_POLYGON)
+	else if(objectType == OBJ_POLYGON)
 		*pNew = def_polygon;
 	else
 		GPO.IntError(NO_CARET, "object initialization failure");
 	pNew->tag = tag;
-	pNew->object_type = object_type;
+	pNew->object_type = objectType;
 	return pNew;
 }
 
@@ -3959,16 +3928,16 @@ void GnuPlot::SetObj(int tag, int objType)
 	}
 	else {
 		// Look for existing object with pThis tag 
-		for(this_object = first_object; this_object; prev_object = this_object, this_object = this_object->next)
+		for(this_object = Gg.P_FirstObject; this_object; prev_object = this_object, this_object = this_object->next)
 			if(0 < tag && tag <= this_object->tag) // is pThis the one we want? 
 				break;
 		// Insert pThis rect into the list if it is a new one 
 		if(this_object == NULL || tag != this_object->tag) {
 			if(tag == -1)
 				tag = (prev_object) ? prev_object->tag+1 : 1;
-			new_obj = new_object(tag, objType, NULL);
+			new_obj = NewObject(tag, objType, NULL);
 			if(prev_object == NULL)
-				first_object = new_obj;
+				Gg.P_FirstObject = new_obj;
 			else
 				prev_object->next = new_obj;
 			new_obj->next = this_object;
@@ -3982,7 +3951,7 @@ void GnuPlot::SetObj(int tag, int objType)
 		// Over-write old object if the type has changed 
 		else if(this_object->object_type != objType) {
 			t_object * save_link = this_object->next;
-			new_obj = new_object(tag, objType, this_object);
+			new_obj = NewObject(tag, objType, this_object);
 			this_object->next = save_link;
 		}
 		this_rect = &this_object->o.rectangle;
@@ -4355,8 +4324,8 @@ void GnuPlot::SetSize()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		V.XSize = 1.0f;
-		V.YSize = 1.0f;
+		V.Size.x = 1.0f;
+		V.Size.y = 1.0f;
 	}
 	else {
 		if(Pgm.AlmostEqualsCur("sq$uare")) {
@@ -4372,17 +4341,17 @@ void GnuPlot::SetSize()
 			Pgm.Shift();
 		}
 		if(!Pgm.EndOfCommand()) {
-			V.XSize = static_cast<float>(RealExpression());
+			V.Size.x = static_cast<float>(RealExpression());
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
-				V.YSize = static_cast<float>(RealExpression());
+				V.Size.y = static_cast<float>(RealExpression());
 			}
 			else
-				V.YSize = V.XSize;
+				V.Size.y = V.Size.x;
 		}
 	}
-	if(V.XSize <= 0.0f || V.YSize <=0.0f) {
-		V.XSize = V.YSize = 1.0f;
+	if(V.Size.x <= 0.0f || V.Size.y <=0.0f) {
+		V.Size.x = V.Size.y = 1.0f;
 		IntError(NO_CARET, "Illegal value for size");
 	}
 }
@@ -4416,7 +4385,7 @@ void GnuPlot::SetStyle()
 		    }
 		    break;
 	    }
-		case SHOW_STYLE_LINE: SetLineStyle(&first_linestyle, LP_STYLE); break;
+		case SHOW_STYLE_LINE: SetLineStyle(&Gg.P_FirstLineStyle, LP_STYLE); break;
 		case SHOW_STYLE_FILLING: ParseFillStyle(&default_fillstyle); break;
 		case SHOW_STYLE_ARROW: SetArrowStyle(); break;
 		case SHOW_STYLE_RECTANGLE:
@@ -4609,21 +4578,21 @@ void GnuPlot::SetTable()
 	Pgm.Shift();
 	int filename_token = Pgm.GetCurTokenIdx();
 	bool append = FALSE;
-	SFile::ZClose(&table_outfile);
-	table_var = NULL;
+	SFile::ZClose(&Tab.P_TabOutFile);
+	Tab.P_Var = NULL;
 	if(Pgm.EqualsCur("$") && Pgm.IsLetter(Pgm.GetCurTokenIdx()+1)) { /* datablock */
 		// NB: has to come first because TryToGetString will choke on the datablock name 
-		table_var = Ev.AddUdvByName(Pgm.ParseDatablockName());
-		if(table_var == NULL)
+		Tab.P_Var = Ev.AddUdvByName(Pgm.ParseDatablockName());
+		if(Tab.P_Var == NULL)
 			IntErrorCurToken("Error allocating datablock");
 		if(Pgm.EqualsCur("append")) {
 			Pgm.Shift();
 			append = TRUE;
 		}
-		if(!append || table_var->udv_value.type != DATABLOCK) {
-			table_var->udv_value.Destroy();
-			table_var->udv_value.type = DATABLOCK;
-			table_var->udv_value.v.data_array = NULL;
+		if(!append || Tab.P_Var->udv_value.type != DATABLOCK) {
+			Tab.P_Var->udv_value.Destroy();
+			Tab.P_Var->udv_value.type = DATABLOCK;
+			Tab.P_Var->udv_value.v.data_array = NULL;
 		}
 	}
 	else if((tablefile = TryToGetString())) { /* file name */
@@ -4634,14 +4603,14 @@ void GnuPlot::SetTable()
 			Pgm.Shift();
 			append = TRUE;
 		}
-		if(!(table_outfile = fopen(tablefile, (append ? "a" : "w"))))
+		if(!(Tab.P_TabOutFile = fopen(tablefile, (append ? "a" : "w"))))
 			os_error(filename_token, "cannot open table output file");
 		SAlloc::F(tablefile);
 	}
 	if(Pgm.AlmostEqualsCur("sep$arator")) {
-		SetSeparator(&table_sep);
+		SetSeparator(&Tab.P_Sep);
 	}
-	table_mode = TRUE;
+	Tab.Mode = TRUE;
 }
 //
 // process 'set terminal' command 
@@ -4666,7 +4635,7 @@ void GnuPlot::SetTerminal()
 #ifdef USE_MOUSE
 	event_reset(reinterpret_cast<gp_event_t *>(1)); /* cancel zoombox etc. */
 #endif
-	term_reset();
+	TermReset(term);
 	// `set term pop' 
 	if(Pgm.EqualsCur("pop")) {
 		pop_terminal();
@@ -4680,7 +4649,7 @@ void GnuPlot::SetTerminal()
 	// not all drivers reset the option string before
 	// strcat-ing to it, so we reset it for them
 	*term_options = 0;
-	term->options();
+	term->options(term, this);
 	if(interactive && *term_options)
 		fprintf(stderr, "Options are '%s'\n", term_options);
 	if((term->flags & TERM_MONOCHROME))
@@ -4705,74 +4674,74 @@ void GnuPlot::SetTerminal()
 // from here because in pThis case almost_equals(c_token-1, "termopt$ion");
 // 
 //static void set_termoptions()
-void GnuPlot::SetTermOptions()
+void GnuPlot::SetTermOptions(termentry * pTerm)
 {
 	bool  ok_to_call_terminal = FALSE;
 	const int save_end_of_line = Pgm.NumTokens;
 	Pgm.Shift();
-	if(Pgm.EndOfCommand() || !term)
-		return;
-	if(Pgm.AlmostEqualsCur("enh$anced") || Pgm.AlmostEqualsCur("noenh$anced")) {
-		Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+1);
-		if(term->enhanced_open)
-			ok_to_call_terminal = TRUE;
-		else
-			Pgm.Shift();
-	}
-	else if(Pgm.EqualsCur("font") || Pgm.EqualsCur("fname")) {
-		Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
-		ok_to_call_terminal = TRUE;
-	}
-	else if(Pgm.EqualsCur("fontscale")) {
-		Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
-		if(term->flags & TERM_FONTSCALE)
-			ok_to_call_terminal = TRUE;
-		else {
-			Pgm.Shift();
-			RealExpression(); /* Silently ignore the request */
+	if(!Pgm.EndOfCommand() && pTerm) {
+		if(Pgm.AlmostEqualsCur("enh$anced") || Pgm.AlmostEqualsCur("noenh$anced")) {
+			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+1);
+			if(pTerm->enhanced_open)
+				ok_to_call_terminal = TRUE;
+			else
+				Pgm.Shift();
 		}
-	}
-	else if(Pgm.EqualsCur("pointscale") || Pgm.EqualsCur("ps")) {
-		Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
-		if(term->flags & TERM_POINTSCALE)
+		else if(Pgm.EqualsCur("font") || Pgm.EqualsCur("fname")) {
+			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
 			ok_to_call_terminal = TRUE;
-		else {
-			Pgm.Shift();
-			RealExpression(); /* Silently ignore the request */
 		}
-	}
-	else if(Pgm.EqualsCur("lw") || Pgm.AlmostEqualsCur("linew$idth")) {
-		Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
-		if(term->flags & TERM_LINEWIDTH)
+		else if(Pgm.EqualsCur("fontscale")) {
+			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
+			if(pTerm->flags & TERM_FONTSCALE)
+				ok_to_call_terminal = TRUE;
+			else {
+				Pgm.Shift();
+				RealExpression(); /* Silently ignore the request */
+			}
+		}
+		else if(Pgm.EqualsCur("pointscale") || Pgm.EqualsCur("ps")) {
+			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
+			if(pTerm->flags & TERM_POINTSCALE)
+				ok_to_call_terminal = TRUE;
+			else {
+				Pgm.Shift();
+				RealExpression(); /* Silently ignore the request */
+			}
+		}
+		else if(Pgm.EqualsCur("lw") || Pgm.AlmostEqualsCur("linew$idth")) {
+			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
+			if(pTerm->flags & TERM_LINEWIDTH)
+				ok_to_call_terminal = TRUE;
+			else {
+				Pgm.Shift();
+				RealExpression(); /* Silently ignore the request */
+			}
+		}
+		else if(Pgm.AlmostEqualsCur("dash$ed") || Pgm.EqualsCur("solid")) {
+			Pgm.NumTokens = MIN(Pgm.NumTokens, ++Pgm.CToken); // Silently ignore the request 
+		}
+		else if(Pgm.AlmostEqualsCur("dashl$ength") || Pgm.EqualsCur("dl")) {
+			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
+			if(pTerm->flags & TERM_CAN_DASH)
+				ok_to_call_terminal = TRUE;
+			else {
+				Pgm.Shift();
+				Pgm.Shift();
+			}
+		}
+		else if(!strcmp(pTerm->name, "gif") && Pgm.EqualsCur("delay") && Pgm.NumTokens == 4) {
 			ok_to_call_terminal = TRUE;
-		else {
-			Pgm.Shift();
-			RealExpression(); /* Silently ignore the request */
 		}
-	}
-	else if(Pgm.AlmostEqualsCur("dash$ed") || Pgm.EqualsCur("solid")) {
-		Pgm.NumTokens = MIN(Pgm.NumTokens, ++Pgm.CToken); // Silently ignore the request 
-	}
-	else if(Pgm.AlmostEqualsCur("dashl$ength") || Pgm.EqualsCur("dl")) {
-		Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
-		if(term->flags & TERM_CAN_DASH)
-			ok_to_call_terminal = TRUE;
 		else {
-			Pgm.Shift();
-			Pgm.Shift();
+			IntErrorCurToken("This option cannot be changed using 'set termoption'");
 		}
+		if(ok_to_call_terminal) {
+			*term_options = 0;
+			(pTerm->options)(pTerm, this);
+		}
+		Pgm.NumTokens = save_end_of_line;
 	}
-	else if(!strcmp(term->name, "gif") && Pgm.EqualsCur("delay") && Pgm.NumTokens == 4) {
-		ok_to_call_terminal = TRUE;
-	}
-	else {
-		IntErrorCurToken("This option cannot be changed using 'set termoption'");
-	}
-	if(ok_to_call_terminal) {
-		*term_options = 0;
-		(term->options)();
-	}
-	Pgm.NumTokens = save_end_of_line;
 }
 //
 // Various properties of the theta axis in polar mode 
@@ -5199,7 +5168,7 @@ void GnuPlot::SetPAxis()
 		else if(Pgm.AlmostEqualsCur("tic$s"))
 			SetTicProp(&AxS.Parallel(p-1));
 		else if(Pgm.EqualsCur("label"))
-			set_xyzlabel(&AxS.Parallel(p-1).label);
+			SetXYZLabel(&AxS.Parallel(p-1).label);
 		else {
 			int save_token = Pgm.GetCurTokenIdx();
 			lp_style_type axis_line(lp_style_type::defCommon);// = DEFAULT_LP_STYLE_TYPE;
@@ -5449,7 +5418,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 				Pgm.Shift();
 			}
 			else if(!Pgm.EndOfCommand()) {
-				load_tics(pThisAxis);
+				LoadTics(pThisAxis);
 			}
 		} while(!Pgm.EndOfCommand());
 		// "set tics" will take care of restoring proper defaults 
@@ -5553,25 +5522,27 @@ static void set_mttics(GpAxis * this_axis)
 		}
 	}
 }
-
-/* process a 'set {x/y/z}label command */
-/* set {x/y/z}label {label_text} {offset {x}{,y}} {<fontspec>} {<textcolor>} */
-static void set_xyzlabel(text_label * label)
+//
+// process a 'set {x/y/z}label command 
+// set {x/y/z}label {label_text} {offset {x}{,y}} {<fontspec>} {<textcolor>} 
+//
+//static void set_xyzlabel(text_label * pLabel)
+void GnuPlot::SetXYZLabel(text_label * pLabel)
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) { // no label specified 
-		ZFREE(label->text);
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) { // no label specified 
+		ZFREE(pLabel->text);
 	}
 	else {
-		GPO.ParseLabelOptions(label, 0);
-		if(!GPO.Pgm.EndOfCommand()) {
-			char * text = GPO.TryToGetString();
+		ParseLabelOptions(pLabel, 0);
+		if(!Pgm.EndOfCommand()) {
+			char * text = TryToGetString();
 			if(text) {
-				SAlloc::F(label->text);
-				label->text = text;
+				SAlloc::F(pLabel->text);
+				pLabel->text = text;
 			}
 		}
-		GPO.ParseLabelOptions(label, 0);
+		ParseLabelOptions(pLabel, 0);
 	}
 }
 // 
@@ -5621,7 +5592,7 @@ void GnuPlot::SetLineStyle(linestyle_def ** ppHead, lp_class destinationClass)
 	else
 		LpParse(&this_linestyle->lp_properties, destinationClass, TRUE); // pick up a line spec; dont allow ls, do allow point type 
 	if(!Pgm.EndOfCommand())
-		IntErrorCurToken("Extraneous arguments to set %s", ppHead == &first_perm_linestyle ? "linetype" : "style line");
+		IntErrorCurToken("Extraneous arguments to set %s", ppHead == &Gg.P_FirstPermLineStyle ? "linetype" : "style line");
 }
 
 /*
@@ -5665,8 +5636,8 @@ void GnuPlot::SetArrowStyle()
 	else
 		tag = assign_arrowstyle_tag(); // default next tag 
 	// search for arrowstyle 
-	if(first_arrowstyle) { // skip to last arrowstyle 
-		for(this_arrowstyle = first_arrowstyle; this_arrowstyle; prev_arrowstyle = this_arrowstyle, this_arrowstyle = this_arrowstyle->next)
+	if(Gg.P_FirstArrowStyle) { // skip to last arrowstyle 
+		for(this_arrowstyle = Gg.P_FirstArrowStyle; this_arrowstyle; prev_arrowstyle = this_arrowstyle, this_arrowstyle = this_arrowstyle->next)
 			if(tag <= this_arrowstyle->tag) // is pThis the arrowstyle we want? 
 				break;
 	}
@@ -5677,7 +5648,7 @@ void GnuPlot::SetArrowStyle()
 		if(prev_arrowstyle != NULL)
 			prev_arrowstyle->next = new_arrowstyle; /* add it to end of list */
 		else
-			first_arrowstyle = new_arrowstyle; /* make it start of list */
+			Gg.P_FirstArrowStyle = new_arrowstyle; /* make it start of list */
 		new_arrowstyle->arrow_properties.tag = tag;
 		new_arrowstyle->tag = tag;
 		new_arrowstyle->next = this_arrowstyle;
@@ -5702,45 +5673,48 @@ void GnuPlot::SetArrowStyle()
 static int assign_arrowstyle_tag()
 {
 	int last = 0; // previous tag value 
-	for(arrowstyle_def * p_this = first_arrowstyle; p_this; p_this = p_this->next)
+	for(arrowstyle_def * p_this = GPO.Gg.P_FirstArrowStyle; p_this; p_this = p_this->next)
 		if(p_this->tag == last + 1)
 			last++;
 		else
 			break;
 	return (last + 1);
 }
-
-/* For set [xy]tics... command */
-static void load_tics(GpAxis * this_axis)
+//
+// For set [xy]tics... command 
+//
+//static void load_tics(GpAxis * pAx)
+void GnuPlot::LoadTics(GpAxis * pAx)
 {
-	if(GPO.Pgm.EqualsCur("(")) { /* set : TIC_USER */
-		GPO.Pgm.Shift();
-		load_tic_user(this_axis);
+	if(Pgm.EqualsCur("(")) { /* set : TIC_USER */
+		Pgm.Shift();
+		LoadTicUser(pAx);
 	}
 	else {                  /* series : TIC_SERIES */
-		load_tic_series(this_axis);
+		load_tic_series(pAx);
 	}
 }
-
-/* load TIC_USER definition */
-/* (tic[,tic]...)
- * where tic is ["string"] value [level]
- * Left paren is already scanned off before entry.
- */
-static void load_tic_user(GpAxis * this_axis)
+// 
+// load TIC_USER definition 
+// (tic[,tic]...)
+// where tic is ["string"] value [level]
+// Left paren is already scanned off before entry.
+// 
+//static void load_tic_user(GpAxis * this_axis)
+void GnuPlot::LoadTicUser(GpAxis * pAx)
 {
 	char * ticlabel;
 	double ticposition;
-	/* Free any old tic labels */
-	if(!this_axis->ticdef.def.mix && !(set_iterator && set_iterator->iteration)) {
-		free_marklist(this_axis->ticdef.def.user);
-		this_axis->ticdef.def.user = NULL;
+	// Free any old tic labels 
+	if(!pAx->ticdef.def.mix && !(set_iterator && set_iterator->iteration)) {
+		free_marklist(pAx->ticdef.def.user);
+		pAx->ticdef.def.user = NULL;
 	}
-	/* Mark pThis axis as user-generated ticmarks only, unless the */
-	/* mix flag indicates that both user- and auto- tics are OK.  */
-	if(!this_axis->ticdef.def.mix)
-		this_axis->ticdef.type = TIC_USER;
-	while(!GPO.Pgm.EndOfCommand() && !GPO.Pgm.EqualsCur(")")) {
+	// Mark pThis axis as user-generated ticmarks only, unless the 
+	// mix flag indicates that both user- and auto- tics are OK.  
+	if(!pAx->ticdef.def.mix)
+		pAx->ticdef.type = TIC_USER;
+	while(!Pgm.EndOfCommand() && !Pgm.EqualsCur(")")) {
 		int ticlevel = 0;
 		int save_token;
 		/* syntax is  (  {'format'} value {level} {, ...} )
@@ -5748,32 +5722,32 @@ static void load_tic_user(GpAxis * this_axis)
 		 * complicates things somewhat
 		 */
 		/* has a string with it? */
-		save_token = GPO.Pgm.GetCurTokenIdx();
-		ticlabel = GPO.TryToGetString();
-		if(ticlabel && this_axis->datatype == DT_TIMEDATE && (GPO.Pgm.EqualsCur(",") || GPO.Pgm.EqualsCur(")"))) {
-			GPO.Pgm.SetTokenIdx(save_token);
+		save_token = Pgm.GetCurTokenIdx();
+		ticlabel = TryToGetString();
+		if(ticlabel && pAx->datatype == DT_TIMEDATE && (Pgm.EqualsCur(",") || Pgm.EqualsCur(")"))) {
+			Pgm.SetTokenIdx(save_token);
 			ZFREE(ticlabel);
 		}
 		/* in any case get the value */
-		ticposition = get_num_or_time(this_axis);
-		if(!GPO.Pgm.EndOfCommand() && !GPO.Pgm.EqualsCur(",") && !GPO.Pgm.EqualsCur(")")) {
-			ticlevel = GPO.IntExpression(); /* tic level */
+		ticposition = get_num_or_time(pAx);
+		if(!Pgm.EndOfCommand() && !Pgm.EqualsCur(",") && !Pgm.EqualsCur(")")) {
+			ticlevel = IntExpression(); /* tic level */
 		}
 		/* add to list */
-		add_tic_user(this_axis, ticlabel, ticposition, ticlevel);
+		add_tic_user(pAx, ticlabel, ticposition, ticlevel);
 		SAlloc::F(ticlabel);
 		/* expect "," or ")" here */
-		if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(","))
-			GPO.Pgm.Shift(); /* loop again */
+		if(!Pgm.EndOfCommand() && Pgm.EqualsCur(","))
+			Pgm.Shift(); /* loop again */
 		else
 			break;  /* hopefully ")" */
 	}
-	if(GPO.Pgm.EndOfCommand() || !GPO.Pgm.EqualsCur(")")) {
-		free_marklist(this_axis->ticdef.def.user);
-		this_axis->ticdef.def.user = NULL;
-		GPO.IntErrorCurToken("expecting right parenthesis )");
+	if(Pgm.EndOfCommand() || !Pgm.EqualsCur(")")) {
+		free_marklist(pAx->ticdef.def.user);
+		pAx->ticdef.def.user = NULL;
+		IntErrorCurToken("expecting right parenthesis )");
 	}
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 }
 
 void free_marklist(ticmark * list)
@@ -6146,7 +6120,7 @@ void GnuPlot::ParseHistogramStyle(histogram_style * pHs, t_histogram_type defTyp
 		}
 		else if(Pgm.AlmostEqualsCur("ti$tle")) {
 			title_specs.offset = pHs->title.offset;
-			set_xyzlabel(&title_specs);
+			SetXYZLabel(&title_specs);
 			ZFREE(title_specs.text);
 			ZFREE(pHs->title.font);
 			pHs->title = title_specs;
@@ -6289,7 +6263,7 @@ void GnuPlot::SetDataFile()
 	Pgm.Shift();
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("miss$ing"))
-			set_missing();
+			SetMissing();
 		else if(Pgm.AlmostEqualsCur("sep$arators"))
 			SetSeparator(&df_separators);
 		else if(Pgm.AlmostEqualsCur("com$mentschars"))

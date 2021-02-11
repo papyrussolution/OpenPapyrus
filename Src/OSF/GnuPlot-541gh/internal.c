@@ -1043,26 +1043,22 @@ void GnuPlot::F_Range(union argument * /*arg*/)
 	if(beg.type == INTGR)
 		ibeg = beg.v.int_val;
 	else if(beg.type == CMPLX)
-		ibeg = floor(beg.v.cmplx_val.real);
+		ibeg = ffloori(beg.v.cmplx_val.real);
 	else
 		IntError(NO_CARET, "internal error: non-numeric substring range specifier");
 	if(end.type == INTGR)
 		iend = end.v.int_val;
 	else if(end.type == CMPLX)
-		iend = floor(end.v.cmplx_val.real);
+		iend = ffloori(end.v.cmplx_val.real);
 	else
 		IntError(NO_CARET, "internal error: non-numeric substring range specifier");
-
 	if(full.type != STRING)
 		IntError(NO_CARET, "internal error: substring range operator applied to non-STRING type");
-
 	FPRINTF((stderr, "f_range( \"%s\", %d, %d)\n", full.v.string_val, beg.v.int_val, end.v.int_val));
-
 	if(iend > gp_strlen(full.v.string_val))
 		iend = gp_strlen(full.v.string_val);
 	if(ibeg < 1)
 		ibeg = 1;
-
 	if(ibeg > iend) {
 		EvStk.Push(Gstring(&substr, ""));
 	}
@@ -1087,7 +1083,7 @@ void GnuPlot::F_Index(union argument * arg)
 	if(index.type == INTGR)
 		i = index.v.int_val;
 	else if(index.type == CMPLX)
-		i = floor(index.v.cmplx_val.real);
+		i = ffloori(index.v.cmplx_val.real);
 	if(array.type == ARRAY) {
 		if(i <= 0 || i > array.v.value_array[0].v.int_val)
 			IntError(NO_CARET, "array index out of range");
@@ -1401,7 +1397,7 @@ void GnuPlot::F_GPrintf(union argument * arg)
 	length = 80 + strlen(fmt.v.string_val);
 	buffer = (char *)gp_alloc(length, "f_gprintf");
 	// Call the old internal routine 
-	gprintf_value(buffer, length, fmt.v.string_val, base, &val);
+	PrintfValue(buffer, length, fmt.v.string_val, base, &val);
 	FPRINTF((stderr, " gprintf result = \"%s\"\n", buffer));
 	EvStk.Push(Gstring(&result, buffer));
 	gpfree_string(&fmt);
@@ -1608,7 +1604,7 @@ void GnuPlot::F_Assign(union argument * arg)
 		if(index.type == INTGR)
 			i = index.v.int_val;
 		else if(index.type == CMPLX)
-			i = floor(index.v.cmplx_val.real);
+			i = ffloori(index.v.cmplx_val.real);
 		else
 			IntError(NO_CARET, "non-numeric array index");
 		if(i <= 0 || i > udv->udv_value.v.value_array[0].v.int_val)

@@ -222,10 +222,10 @@ static void CANVAS_finish(void)
 	}
 }
 
-TERM_PUBLIC void CANVAS_options()
+TERM_PUBLIC void CANVAS_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	int canvas_background = 0;
-	if(!GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion")) {
+	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion")) {
 		// Re-initialize a few things 
 		canvas_font_size = CANVAS_default_fsize = 10;
 		canvas_fontscale = 1.0;
@@ -242,56 +242,55 @@ TERM_PUBLIC void CANVAS_options()
 		term->put_text = ENHCANVAS_put_text;
 		term->flags |= TERM_ENHANCED_TEXT;
 	}
-	while(!GPO.Pgm.EndOfCommand()) {
-		const int _option = GPO.Pgm.LookupTableForCurrentToken(&CANVAS_opts[0]);
-		GPO.Pgm.Shift();
+	while(!pGp->Pgm.EndOfCommand()) {
+		const int _option = pGp->Pgm.LookupTableForCurrentToken(&CANVAS_opts[0]);
+		pGp->Pgm.Shift();
 		switch(_option) {
 			case CANVAS_SIZE:
-			    if(GPO.Pgm.EndOfCommand()) {
-				    canvas_xmax = CANVAS_XMAX;
-				    canvas_ymax = CANVAS_YMAX;
+			    if(pGp->Pgm.EndOfCommand()) {
+				    canvas_xmax = static_cast<int>(CANVAS_XMAX);
+				    canvas_ymax = static_cast<int>(CANVAS_YMAX);
 			    }
 			    else {
-				    canvas_xmax = GPO.IntExpression() * CANVAS_OVERSAMPLE;
-				    if(GPO.Pgm.EqualsCur(",")) {
-					    GPO.Pgm.Shift();
-					    canvas_ymax = GPO.IntExpression() * CANVAS_OVERSAMPLE;
+				    canvas_xmax = static_cast<int>(pGp->IntExpression() * CANVAS_OVERSAMPLE);
+				    if(pGp->Pgm.EqualsCur(",")) {
+					    pGp->Pgm.Shift();
+					    canvas_ymax = static_cast<int>(pGp->IntExpression() * CANVAS_OVERSAMPLE);
 				    }
 			    }
 			    if(canvas_xmax <= 0)
-				    canvas_xmax = CANVAS_XMAX;
+				    canvas_xmax = static_cast<int>(CANVAS_XMAX);
 			    if(canvas_ymax <= 0)
-				    canvas_ymax = CANVAS_YMAX;
+				    canvas_ymax = static_cast<int>(CANVAS_YMAX);
 			    term->MaxX = canvas_xmax;
 			    term->MaxY = canvas_ymax;
 			    break;
 
 			case CANVAS_TITLE:
-			    CANVAS_title = GPO.TryToGetString();
+			    CANVAS_title = pGp->TryToGetString();
 			    if(!CANVAS_title)
-				    GPO.IntErrorCurToken("expecting an HTML title string");
+				    pGp->IntErrorCurToken("expecting an HTML title string");
 			    break;
 			case CANVAS_NAME:
-			    CANVAS_name = GPO.TryToGetString();
+			    CANVAS_name = pGp->TryToGetString();
 			    if(!CANVAS_name)
-				    GPO.IntErrorCurToken("expecting a javascript function name");
+				    pGp->IntErrorCurToken("expecting a javascript function name");
 			    if(CANVAS_name[strspn(CANVAS_name, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890")])
-				    GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "illegal javascript function name");
+				    pGp->IntError(pGp->Pgm.GetPrevTokenIdx(), "illegal javascript function name");
 			    CANVAS_standalone = FALSE;
 			    break;
-
 			case CANVAS_STANDALONE:
 			    CANVAS_standalone = TRUE;
 			    break;
 			case CANVAS_FONT:
 			    /* FIXME: See note at CANVAS_set_font() */
 			    SAlloc::F(canvas_font_name);
-			    if(!(canvas_font_name = GPO.TryToGetString()))
-				    GPO.IntErrorCurToken("font: expecting string");
+			    if(!(canvas_font_name = pGp->TryToGetString()))
+				    pGp->IntErrorCurToken("font: expecting string");
 			    CANVAS_set_font(canvas_font_name);
 			    break;
 			case CANVAS_FSIZE:
-			    CANVAS_default_fsize = GPO.RealExpression();
+			    CANVAS_default_fsize = pGp->RealExpression();
 			    if(CANVAS_default_fsize <= 0)
 				    CANVAS_default_fsize = 10;
 			    canvas_font_size = CANVAS_default_fsize;
@@ -300,7 +299,7 @@ TERM_PUBLIC void CANVAS_options()
 			    CANVAS_mouseable = TRUE;
 			    break;
 			case CANVAS_JSDIR:
-			    CANVAS_scriptdir = GPO.TryToGetString();
+			    CANVAS_scriptdir = pGp->TryToGetString();
 			    break;
 			case CANVAS_ENH:
 			    term->put_text = ENHCANVAS_put_text;
@@ -311,36 +310,28 @@ TERM_PUBLIC void CANVAS_options()
 			    term->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case CANVAS_LINEWIDTH:
-			    canvas_linewidth = GPO.RealExpression();
+			    canvas_linewidth = pGp->RealExpression();
 			    if(canvas_linewidth <= 0)
 				    canvas_linewidth = 1.0;
 			    break;
-
 			case CANVAS_FONTSCALE:
-			    canvas_fontscale = GPO.RealExpression();
+			    canvas_fontscale = pGp->RealExpression();
 			    if(canvas_fontscale <= 0)
 				    canvas_fontscale = 1.0;
 			    break;
-
 			case CANVAS_SOLID:
 			case CANVAS_DASHED:
 			    /* Version 5 always allows dashes */
 			    canvas_dashed = TRUE;
 			    break;
 			case CANVAS_DASHLENGTH:
-			    canvas_dashlength_factor = GPO.RealExpression();
+			    canvas_dashlength_factor = pGp->RealExpression();
 			    if(canvas_dashlength_factor <= 0.2)
 				    canvas_dashlength_factor = 1.0;
 			    break;
-			case CANVAS_ROUNDED:
-			    canvas_linecap = ROUNDED;
-			    break;
-			case CANVAS_BUTT:
-			    canvas_linecap = BUTT;
-			    break;
-			case CANVAS_SQUARE:
-			    canvas_linecap = SQUARE;
-			    break;
+			case CANVAS_ROUNDED: canvas_linecap = ROUNDED; break;
+			case CANVAS_BUTT:    canvas_linecap = BUTT; break;
+			case CANVAS_SQUARE:  canvas_linecap = SQUARE; break;
 			case CANVAS_BACKGROUND:
 			    canvas_background = parse_color_name();
 			    sprintf(CANVAS_background, " rgb(%03d,%03d,%03d)",
@@ -348,16 +339,13 @@ TERM_PUBLIC void CANVAS_options()
 				(canvas_background >> 8) & 0xff,
 				canvas_background & 0xff);
 			    break;
-
 			default:
-			    GPO.IntWarn(GPO.Pgm.GetPrevTokenIdx(), "unrecognized terminal option");
+			    pGp->IntWarn(pGp->Pgm.GetPrevTokenIdx(), "unrecognized terminal option");
 			    break;
 		}
 	}
-
-	term->ChrV = canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE;
-	term->ChrH = canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE;
-
+	term->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
+	term->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
 	if(canvas_dashlength_factor != 1.0)
 		sprintf(term_options + strlen(term_options), " dashlength %3.1f", canvas_dashlength_factor);
 	sprintf(term_options + strlen(term_options), canvas_linecap == ROUNDED ? " rounded" : canvas_linecap == SQUARE ? " square" : " butt");
@@ -434,10 +422,7 @@ TERM_PUBLIC void CANVAS_graphics()
 		fprintf(gpoutfile,
 		    "<!--[if IE]><script type=\"text/javascript\" src=\"excanvas.js\"></script><![endif]-->\n"
 		    "<script src=\"%s%s.js\"></script>\n"
-		    "<script src=\"%sgnuplot_common.js\"></script>\n"
-		    , CANVAS_scriptdir
-		    , (encoding == S_ENC_UTF8) ? "canvasmath" : "canvastext"
-		    , CANVAS_scriptdir);
+		    "<script src=\"%sgnuplot_common.js\"></script>\n", CANVAS_scriptdir, (encoding == S_ENC_UTF8) ? "canvasmath" : "canvastext", CANVAS_scriptdir);
 		if(canvas_dashed)
 			fprintf(gpoutfile, "<script src=\"%sgnuplot_dashedlines.js\"></script>\n", CANVAS_scriptdir);
 		if(CANVAS_mouseable) {
@@ -514,11 +499,7 @@ TERM_PUBLIC void CANVAS_graphics()
 	    "    gnuplot.hypertext_list.push(newtext);\n"
 	    "}\n"
 	    );
-	fprintf(gpoutfile,
-	    "gnuplot.dashlength = %d;\n",
-	    (int)(400 * canvas_dashlength_factor)
-	    );
-
+	fprintf(gpoutfile, "gnuplot.dashlength = %d;\n", (int)(400 * canvas_dashlength_factor));
 	fprintf(gpoutfile,
 	    "ctx.lineCap = \"%s\"; ctx.lineJoin = \"%s\";\n",
 	    canvas_linecap == ROUNDED ? "round" : canvas_linecap == SQUARE ? "square" : "butt",
@@ -560,9 +541,9 @@ TERM_PUBLIC void CANVAS_text()
 {
 	GpAxis * this_axis;
 	CANVAS_finish();
-	/* FIXME: I am not sure whether these variable names should always be the */
-	/* same, so that they are re-used by all plots in a document, or whether  */
-	/* they should be tied to the function name and hence private.            */
+	// FIXME: I am not sure whether these variable names should always be the 
+	// same, so that they are re-used by all plots in a document, or whether  
+	// they should be tied to the function name and hence private.            
 	if(TRUE) {
 		fprintf(gpoutfile, "\n// plot boundaries and axis scaling information for mousing \n");
 		fprintf(gpoutfile, "gnuplot.plot_term_xmax = %d;\n", (int)(term->MaxX / CANVAS_OVERSAMPLE));
@@ -973,7 +954,7 @@ TERM_PUBLIC void CANVAS_linewidth(double linewidth)
 	CANVAS_finish();
 	if(canvas_state.previous_linewidth != linewidth) {
 		fprintf(gpoutfile, "ctx.lineWidth = %g;\n", linewidth * canvas_linewidth);
-		canvas_state.previous_linewidth = linewidth;
+		canvas_state.previous_linewidth = static_cast<int>(linewidth);
 	}
 }
 
@@ -1063,9 +1044,9 @@ static char * CANVAS_fillstyle(int style)
 			    int r = atoi(&canvas_state.color[5]);
 			    int g = atoi(&canvas_state.color[9]);
 			    int b = atoi(&canvas_state.color[13]);
-			    r = (float)r*density + 255.*(1.-density);
-			    g = (float)g*density + 255.*(1.-density);
-			    b = (float)b*density + 255.*(1.-density);
+			    r = static_cast<int>((float)r*density + 255.0*(1.0-density));
+			    g = static_cast<int>((float)g*density + 255.0*(1.0-density));
+			    b = static_cast<int>((float)b*density + 255.0*(1.0-density));
 			    sprintf(fillcolor, " rgb(%3d,%3d,%3d)%c", r, g, b, '\0');
 		    }
 		    break;
@@ -1203,8 +1184,8 @@ TERM_PUBLIC int CANVAS_set_font(const char * newfont)
 				canvas_font_size = CANVAS_default_fsize;
 		}
 	}
-	term->ChrV = canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE;
-	term->ChrH = canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE;
+	term->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
+	term->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
 	return 1;
 }
 //
@@ -1235,7 +1216,7 @@ TERM_PUBLIC void ENHCANVAS_OPEN(char * fontname, double fontsize, double base, b
 	}
 	else if(!ENHCANVAS_opened_string) {
 		ENHCANVAS_opened_string = TRUE;
-		enhanced_cur_text = &enhanced_text[0];
+		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		ENHCANVAS_fontsize = fontsize;
 		ENHCANVAS_base = base * CANVAS_OVERSAMPLE;
 		ENHCANVAS_show = showflag;
@@ -1281,16 +1262,16 @@ TERM_PUBLIC void ENHCANVAS_FLUSH()
 	double save_fontsize;
 	if(ENHCANVAS_opened_string) {
 		ENHCANVAS_opened_string = FALSE;
-		*enhanced_cur_text = '\0';
+		*GPO.Enht.P_CurText = '\0';
 		save_fontsize = canvas_font_size;
 		int x = canvas_x;
 		int y = canvas_y;
-		double w = canvas_strwidth(enhanced_text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.0;
+		double w = canvas_strwidth(GPO.Enht.Text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.0;
 		canvas_font_size = ENHCANVAS_fontsize;
 		x += sin((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
 		y += cos((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
 		if(ENHCANVAS_show && !ENHCANVAS_sizeonly)
-			CANVAS_put_text(x, y, enhanced_text);
+			CANVAS_put_text(x, y, GPO.Enht.Text);
 		if(ENHCANVAS_overprint == 1) {
 			canvas_x += w * cos((double)canvas_text_angle * M_PI_2/90.0)/2;
 			canvas_y -= w * sin((double)canvas_text_angle * M_PI_2/90.0)/2;
@@ -1311,7 +1292,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 	char * fontname = "";
 	if(!strlen(str))
 		return;
-	if(ignore_enhanced_text || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
+	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		CANVAS_put_text(x, y, str);
 		return;
 	}
@@ -1322,8 +1303,8 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 	}
 	CANVAS_move(x, y);
 	// Set up global variables needed by enhanced_recursion() 
-	enhanced_fontscale = 1.0;
-	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
+	GPO.Enht.FontScale = 1.0;
+	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	ENHCANVAS_opened_string = FALSE;
 	ENHCANVAS_fontsize = canvas_font_size;
 	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center"))

@@ -6441,6 +6441,38 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 								break;
 							case VetisApplicationData::signGetVetDocumentByUuid:
 								{
+									/*
+										<SOAP-ENV:Envelope 
+											xmlns:dt="http://api.vetrf.ru/schema/cdm/dictionary/v2" 
+											xmlns:bs="http://api.vetrf.ru/schema/cdm/base" 
+											xmlns:merc="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2" 
+											xmlns:apldef="http://api.vetrf.ru/schema/cdm/application/ws-definitions" 
+											xmlns:apl="http://api.vetrf.ru/schema/cdm/application" 
+											xmlns:vd="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2" 
+											xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+										  <SOAP-ENV:Header/>
+										  <SOAP-ENV:Body>
+											<apldef:submitApplicationRequest>
+											  <apldef:apiKey>apikey</apldef:apiKey>
+											  <apl:application>
+												<apl:serviceId>mercury-g2b.service:2.0</apl:serviceId>
+												<apl:issuerId>issuerId</apl:issuerId>
+												<apl:issueDate>2017-09-29T16:58:20</apl:issueDate>
+												<apl:data>
+												  <merc:getVetDocumentByUuidRequest>
+													<merc:localTransactionId>a10003</merc:localTransactionId>
+													<merc:initiator>
+													  <vd:login>user_login</vd:login>
+													</merc:initiator>
+													<bs:uuid>4405c9e5-2fd6-47bc-959c-ed31267d8d4f</bs:uuid>
+													<dt:enterpriseGuid>ac264dc6-a3eb-4b0f-a86a-9c9577209d6f</dt:enterpriseGuid>
+												  </merc:getVetDocumentByUuidRequest>
+												</apl:data>
+											  </apl:application>
+											</apldef:submitApplicationRequest>
+										  </SOAP-ENV:Body>
+										</SOAP-ENV:Envelope>
+									*/
 									const VetisGetVetDocumentByUuidRequest * p_req = static_cast<const VetisGetVetDocumentByUuidRequest *>(rAppBlk.P_AppParam);
 									SXml::WNode n_req(srb, "getVetDocumentByUuidRequest");
 									n_req.PutAttrib(SXml::nst("xmlns", "sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
@@ -11225,6 +11257,36 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	return ok;
 }
 
+int PPViewVetisDocument::RerequestDocument(PPID entityID)
+{
+	int    ok = -1;
+	VetisVetDocument item;
+	if(EC.Get(entityID, item) > 0) {
+		if(!item.Uuid.IsZero()) {
+			PPVetisInterface::Param param(0, Filt.LocID, 0);
+			THROW(PPVetisInterface::SetupParam(param));
+			{
+				PPLogger logger;
+				VetisApplicationBlock reply;
+				PPVetisInterface ifc(&logger);
+				THROW(ifc.Init(param));
+				//int r = ifc.WriteOffIncomeCert(entityID, &ure_list, reply);
+				{
+					VetisApplicationBlock org_doc_reply;
+					if(ifc.GetVetDocumentByUuid(item.Uuid, org_doc_reply) > 0) {
+						ok = 1;
+					}
+				}
+				//THROW(r);
+				//if(r > 0) do_update = 1;
+				logger.Save(PPFILNAM_VETISINFO_LOG, 0);
+			}
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 int PPViewVetisDocument::Helper_ProcessIncoming(const S_GUID & rVetDocUuid, const void * pIfcParam, PPVetisInterface & rIfc, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList)
 {
 	int    ok = -1;
@@ -12309,6 +12371,12 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 					}
 					if(obj_to_match && EC.SearchDocument(id, &rec) > 0)
 						ok = MatchObject(rec, obj_to_match);
+				}
+				break;
+			case PPVCMD_REREQUESTDOC: // Отладочная функция
+				ok = -1;
+				if(id) {
+					RerequestDocument(id);
 				}
 				break;
 			case PPVCMD_SPCFUNC:

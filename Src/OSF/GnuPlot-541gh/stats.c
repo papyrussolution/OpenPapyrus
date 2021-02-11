@@ -7,88 +7,19 @@
 #define INITIAL_DATA_SIZE (4096)   /* initial size of data arrays */
 
 static int comparator(const void * a, const void * b);
-static struct file_stats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers);
-static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nr);
-static struct two_column_stats analyze_two_columns(double * x, double * y, struct sgl_column_stats res_x, struct sgl_column_stats res_y, long n);
+static GpFileStats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers);
+static struct SglColumnStats analyze_sgl_column(double * data, long n, long nr);
+static struct TwoColumnStats analyze_two_columns(double * x, double * y, struct SglColumnStats res_x, struct SglColumnStats res_y, long n);
 static void ensure_output();
 static char* fmt(char * buf, double val);
-static void sgl_column_output_nonformat(struct sgl_column_stats s, char * x);
-static void file_output(struct file_stats s);
-static void sgl_column_output(struct sgl_column_stats s, long n);
-static void two_column_output(struct sgl_column_stats x, struct sgl_column_stats y, struct two_column_stats xy, long n);
-static void clear_one_var(char * prefix, char * base);
-static void clear_stats_variables(char * prefix);
-static void create_and_set_var(double val, char * prefix, char * base, char * suffix);
-static void create_and_set_int_var(int ival, char * prefix, char * base, char * suffix);
-static void create_and_store_var(const GpValue * data, char * prefix, char * base, char * suffix);
-static void sgl_column_variables(struct sgl_column_stats res, char * prefix, char * postfix);
-//static bool validate_data(double v, AXIS_INDEX ax);
+static void sgl_column_output_nonformat(struct SglColumnStats s, char * x);
+static void file_output(GpFileStats s);
+static void sgl_column_output(struct SglColumnStats s, long n);
+static void two_column_output(struct SglColumnStats x, struct SglColumnStats y, struct TwoColumnStats xy, long n);
 
 /* =================================================================
    Data Structures
    ================================================================= */
-
-/* Keeps info on a value and its index in the file */
-struct pair {
-	double val;
-	long index;
-};
-
-/* Collect results from analysis */
-struct file_stats {
-	long records;
-	long blanks;
-	long invalid;
-	long outofrange;
-	long blocks; /* blocks are separated by double blank lines */
-	long header_records;
-	int columns;
-};
-
-struct sgl_column_stats {
-	/* Matrix dimensions */
-	int sx;
-	int sy;
-
-	double mean;
-	double adev;
-	double stddev;
-	double ssd;     /* sample standard deviation */
-	double skewness;
-	double kurtosis;
-
-	double mean_err;
-	double stddev_err;
-	double skewness_err;
-	double kurtosis_err;
-
-	double sum;      /* sum x    */
-	double sum_sq;   /* sum x**2 */
-
-	struct pair min;
-	struct pair max;
-
-	double median;
-	double lower_quartile;
-	double upper_quartile;
-
-	double cog_x; /* centre of gravity */
-	double cog_y;
-
-	/* info on data points out of bounds? */
-};
-
-struct two_column_stats {
-	double sum_xy;
-	double slope;    /* linear regression */
-	double intercept;
-	double slope_err;
-	double intercept_err;
-	double correlation;
-	double pos_min_y; /* x coordinate of min y */
-	double pos_max_y; /* x coordinate of max y */
-};
-
 /* =================================================================
    Analysis and Output
    ================================================================= */
@@ -99,16 +30,16 @@ struct two_column_stats {
 /* guaranteed to be unique.                                               */
 static int comparator(const void * a, const void * b)
 {
-	struct pair * x = (struct pair *)a;
-	struct pair * y = (struct pair *)b;
+	const GpPair * x = (const GpPair *)a;
+	const GpPair * y = (const GpPair *)b;
 	if(x->val < y->val) return -1;
 	if(x->val > y->val) return 1;
 	return 0;
 }
 
-static struct file_stats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers) 
+static GpFileStats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers) 
 {
-	struct file_stats res;
+	GpFileStats res;
 	res.records = n;
 	res.invalid = invalid;
 	res.blanks  = blank;
@@ -119,9 +50,9 @@ static struct file_stats analyze_file(long n, int outofrange, int invalid, int b
 	return res;
 }
 
-static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc) 
+static struct SglColumnStats analyze_sgl_column(double * data, long n, long nc) 
 {
-	struct sgl_column_stats res;
+	SglColumnStats res;
 	long i;
 	double s  = 0.0;
 	double s2 = 0.0;
@@ -133,7 +64,7 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 	double cx = 0.0;
 	double cy = 0.0;
 	double var;
-	struct pair * tmp = (struct pair *)gp_alloc(n*sizeof(struct pair), "analyze_sgl_column");
+	GpPair * tmp = (GpPair *)gp_alloc(n*sizeof(GpPair), "analyze_sgl_column");
 	if(nc > 0) {
 		res.sx = nc;
 		res.sy = n / nc;
@@ -184,7 +115,7 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 		tmp[i].val = data[i];
 		tmp[i].index = i;
 	}
-	qsort(tmp, n, sizeof(struct pair), comparator);
+	qsort(tmp, n, sizeof(GpPair), comparator);
 	res.min = tmp[0];
 	res.max = tmp[n-1];
 	/*
@@ -215,9 +146,9 @@ static struct sgl_column_stats analyze_sgl_column(double * data, long n, long nc
 	return res;
 }
 
-static two_column_stats analyze_two_columns(double * x, double * y, sgl_column_stats res_x, sgl_column_stats res_y, long n)
+static TwoColumnStats analyze_two_columns(double * x, double * y, SglColumnStats res_x, SglColumnStats res_y, long n)
 {
-	two_column_stats res;
+	TwoColumnStats res;
 	long i;
 	double s = 0;
 	double ssyy, ssxx, ssxy;
@@ -287,7 +218,7 @@ static char* fmt(char * buf, double val)
 	return buf;
 }
 
-static void file_output(struct file_stats s)
+static void file_output(GpFileStats s)
 {
 	int width = 3;
 	/* Assuming that records is the largest number of the four... */
@@ -316,7 +247,7 @@ static void file_output(struct file_stats s)
 	fprintf(print_out, "  Data Blocks:       %*ld\n", width, s.blocks);
 }
 
-static void sgl_column_output_nonformat(struct sgl_column_stats s, char * x)
+static void sgl_column_output_nonformat(struct SglColumnStats s, char * x)
 {
 	fprintf(print_out, "%s%s\t%f\n", "mean",     x, s.mean);
 	fprintf(print_out, "%s%s\t%f\n", "stddev",   x, s.stddev);
@@ -352,7 +283,7 @@ static void sgl_column_output_nonformat(struct sgl_column_stats s, char * x)
 	}
 }
 
-static void sgl_column_output(struct sgl_column_stats s, long n)
+static void sgl_column_output(struct SglColumnStats s, long n)
 {
 	int width = 1;
 	char buf[32];
@@ -408,7 +339,7 @@ static void sgl_column_output(struct sgl_column_stats s, long n)
 	}
 }
 
-static void two_column_output(struct sgl_column_stats x, struct sgl_column_stats y, struct two_column_stats xy, long n)
+static void two_column_output(SglColumnStats x, SglColumnStats y, TwoColumnStats xy, long n)
 {
 	int width = 1;
 	char bfx[32];
@@ -481,107 +412,113 @@ static void two_column_output(struct sgl_column_stats x, struct sgl_column_stats
    Variable Handling
    ================================================================= */
 
-static void clear_one_var(char * prefix, char * base)
+//static void clear_one_var(const char * pPrefix, const char * pBase)
+void GnuPlot::ClearOneVar(const char * pPrefix, const char * pBase)
 {
-	int len = strlen(prefix) + strlen(base) + 2;
+	int len = strlen(pPrefix) + strlen(pBase) + 2;
 	char * varname = (char*)gp_alloc(len, "create_and_set_var");
-	sprintf(varname, "%s_%s", prefix, base);
-	GPO.Ev.DelUdvByName(varname, TRUE);
+	sprintf(varname, "%s_%s", pPrefix, pBase);
+	Ev.DelUdvByName(varname, TRUE);
 	SAlloc::F(varname);
 }
 
-static void clear_stats_variables(char * prefix)
+//static void clear_stats_variables(const char * pPrefix)
+void GnuPlot::ClearStatsVariables(const char * pPrefix)
 {
-	/* file variables */
-	clear_one_var(prefix, "records");
-	clear_one_var(prefix, "invalid");
-	clear_one_var(prefix, "headers");
-	clear_one_var(prefix, "blank");
-	clear_one_var(prefix, "blocks");
-	clear_one_var(prefix, "outofrange");
-	clear_one_var(prefix, "columns");
+	// file variables 
+	ClearOneVar(pPrefix, "records");
+	ClearOneVar(pPrefix, "invalid");
+	ClearOneVar(pPrefix, "headers");
+	ClearOneVar(pPrefix, "blank");
+	ClearOneVar(pPrefix, "blocks");
+	ClearOneVar(pPrefix, "outofrange");
+	ClearOneVar(pPrefix, "columns");
 
 	/* one column variables */
-	clear_one_var(prefix, "mean");
-	clear_one_var(prefix, "stddev");
-	clear_one_var(prefix, "ssd");
-	clear_one_var(prefix, "skewness");
-	clear_one_var(prefix, "kurtosis");
-	clear_one_var(prefix, "adev");
-	clear_one_var(prefix, "mean_err");
-	clear_one_var(prefix, "stddev_err");
-	clear_one_var(prefix, "skewness_err");
-	clear_one_var(prefix, "kurtosis_err");
-	clear_one_var(prefix, "sum");
-	clear_one_var(prefix, "sumsq");
-	clear_one_var(prefix, "min");
-	clear_one_var(prefix, "max");
-	clear_one_var(prefix, "median");
-	clear_one_var(prefix, "lo_quartile");
-	clear_one_var(prefix, "up_quartile");
-	clear_one_var(prefix, "index_min");
-	clear_one_var(prefix, "index_max");
+	ClearOneVar(pPrefix, "mean");
+	ClearOneVar(pPrefix, "stddev");
+	ClearOneVar(pPrefix, "ssd");
+	ClearOneVar(pPrefix, "skewness");
+	ClearOneVar(pPrefix, "kurtosis");
+	ClearOneVar(pPrefix, "adev");
+	ClearOneVar(pPrefix, "mean_err");
+	ClearOneVar(pPrefix, "stddev_err");
+	ClearOneVar(pPrefix, "skewness_err");
+	ClearOneVar(pPrefix, "kurtosis_err");
+	ClearOneVar(pPrefix, "sum");
+	ClearOneVar(pPrefix, "sumsq");
+	ClearOneVar(pPrefix, "min");
+	ClearOneVar(pPrefix, "max");
+	ClearOneVar(pPrefix, "median");
+	ClearOneVar(pPrefix, "lo_quartile");
+	ClearOneVar(pPrefix, "up_quartile");
+	ClearOneVar(pPrefix, "index_min");
+	ClearOneVar(pPrefix, "index_max");
 	// matrix variables 
-	clear_one_var(prefix, "index_min_x");
-	clear_one_var(prefix, "index_min_y");
-	clear_one_var(prefix, "index_max_x");
-	clear_one_var(prefix, "index_max_y");
-	clear_one_var(prefix, "size_x");
-	clear_one_var(prefix, "size_y");
+	ClearOneVar(pPrefix, "index_min_x");
+	ClearOneVar(pPrefix, "index_min_y");
+	ClearOneVar(pPrefix, "index_max_x");
+	ClearOneVar(pPrefix, "index_max_y");
+	ClearOneVar(pPrefix, "size_x");
+	ClearOneVar(pPrefix, "size_y");
 	// two column variables 
-	clear_one_var(prefix, "slope");
-	clear_one_var(prefix, "intercept");
-	clear_one_var(prefix, "slope_err");
-	clear_one_var(prefix, "intercept_err");
-	clear_one_var(prefix, "correlation");
-	clear_one_var(prefix, "sumxy");
-	clear_one_var(prefix, "pos_min_y");
-	clear_one_var(prefix, "pos_max_y");
+	ClearOneVar(pPrefix, "slope");
+	ClearOneVar(pPrefix, "intercept");
+	ClearOneVar(pPrefix, "slope_err");
+	ClearOneVar(pPrefix, "intercept_err");
+	ClearOneVar(pPrefix, "correlation");
+	ClearOneVar(pPrefix, "sumxy");
+	ClearOneVar(pPrefix, "pos_min_y");
+	ClearOneVar(pPrefix, "pos_max_y");
 	// column headers 
-	clear_one_var(prefix, "column_header");
+	ClearOneVar(pPrefix, "column_header");
 }
 
-static void create_and_set_var(double val, char * prefix, char * base, char * suffix)
+//static void create_and_set_var(double val, const char * pPrefix, const char * pBase, const char * pSuffix)
+void GnuPlot::CreateAndSetVar(double val, const char * pPrefix, const char * pBase, const char * pSuffix)
 {
 	GpValue data;
 	Gcomplex(&data, val, 0.0); /* data is complex, real=val, imag=0.0 */
-	create_and_store_var(&data, prefix, base, suffix);
+	CreateAndStoreVar(&data, pPrefix, pBase, pSuffix);
 }
 
-static void create_and_set_int_var(int ival, char * prefix, char * base, char * suffix)
+//static void create_and_set_int_var(int ival, const char * pPrefix, const char * pBase, const char * pSuffix)
+void GnuPlot::CreateAndSetIntVar(int ival, const char * pPrefix, const char * pBase, const char * pSuffix)
 {
 	GpValue data;
 	Ginteger(&data, ival);
-	create_and_store_var(&data, prefix, base, suffix);
+	CreateAndStoreVar(&data, pPrefix, pBase, pSuffix);
 }
 
-static void create_and_store_var(const GpValue * data, char * prefix, char * base, char * suffix)
+//static void create_and_store_var(const GpValue * pData, const char * pPrefix, const char * pBase, const char * pSuffix)
+void GnuPlot::CreateAndStoreVar(const GpValue * pData, const char * pPrefix, const char * pBase, const char * pSuffix)
 {
 	// In case prefix (or suffix) is NULL - make them empty strings 
-	SETIFZ(prefix, "");
-	SETIFZ(suffix, "");
-	int len = strlen(prefix) + strlen(base) + strlen(suffix) + 1;
+	SETIFZ(pPrefix, "");
+	SETIFZ(pSuffix, "");
+	int len = strlen(pPrefix) + strlen(pBase) + strlen(pSuffix) + 1;
 	char * varname = (char*)gp_alloc(len, "create_and_set_var");
-	sprintf(varname, "%s%s%s", prefix, base, suffix);
+	sprintf(varname, "%s%s%s", pPrefix, pBase, pSuffix);
 	// Note that add_udv_by_name() checks if the name already exists, and
 	// returns the existing ptr if found. It also allocates memory for
 	// its own copy of the varname.
-	udvt_entry * udv_ptr = GPO.Ev.AddUdvByName(varname);
-	udv_ptr->udv_value = *data;
+	udvt_entry * udv_ptr = Ev.AddUdvByName(varname);
+	udv_ptr->udv_value = *pData;
 	SAlloc::F(varname);
 }
 
-static void file_variables(struct file_stats s, char * prefix)
+//static void file_variables(struct file_stats s, const char * pPrefix)
+void GnuPlot::FileVariables(GpFileStats s, const char * pPrefix)
 {
-	/* Suffix does not make sense here! */
-	create_and_set_int_var(s.records, prefix, "records", "");
-	create_and_set_int_var(s.invalid, prefix, "invalid", "");
-	create_and_set_int_var(s.header_records, prefix, "headers", "");
-	create_and_set_int_var(s.blanks,  prefix, "blank",   "");
-	create_and_set_int_var(s.blocks,  prefix, "blocks",  "");
-	create_and_set_int_var(s.outofrange, prefix, "outofrange", "");
-	create_and_set_int_var(s.columns, prefix, "columns", "");
-	/* copy column headers to an array */
+	// Suffix does not make sense here! 
+	CreateAndSetIntVar(s.records, pPrefix, "records", "");
+	CreateAndSetIntVar(s.invalid, pPrefix, "invalid", "");
+	CreateAndSetIntVar(s.header_records, pPrefix, "headers", "");
+	CreateAndSetIntVar(s.blanks,  pPrefix, "blank",   "");
+	CreateAndSetIntVar(s.blocks,  pPrefix, "blocks",  "");
+	CreateAndSetIntVar(s.outofrange, pPrefix, "outofrange", "");
+	CreateAndSetIntVar(s.columns, pPrefix, "columns", "");
+	// copy column headers to an array 
 	if(df_columnheaders) {
 		GpValue headers;
 		GpValue * A = (GpValue *)gp_alloc((s.columns+1) * sizeof(GpValue), "column_headers");
@@ -590,61 +527,59 @@ static void file_variables(struct file_stats s, char * prefix)
 			Gstring(&A[i], gp_strdup(df_retrieve_columnhead(i)));
 		headers.type = ARRAY;
 		headers.v.value_array = A;
-		create_and_store_var(&headers, prefix, "column_header", "");
+		CreateAndStoreVar(&headers, pPrefix, "column_header", "");
 	}
 }
 
-static void sgl_column_variables(struct sgl_column_stats s, char * prefix, char * suffix)
+//static void sgl_column_variables(SglColumnStats s, const char * prefix, const char * suffix)
+void GnuPlot::SglColumnVariables(SglColumnStats s, const char * pPrefix, const char * pSuffix)
 {
-	create_and_set_var(s.mean,     prefix, "mean",     suffix);
-	create_and_set_var(s.stddev,   prefix, "stddev",   suffix);
-	create_and_set_var(s.ssd,      prefix, "ssd",      suffix);
-	create_and_set_var(s.skewness, prefix, "skewness", suffix);
-	create_and_set_var(s.kurtosis, prefix, "kurtosis", suffix);
-	create_and_set_var(s.adev,     prefix, "adev",     suffix);
+	CreateAndSetVar(s.mean,     pPrefix, "mean",     pSuffix);
+	CreateAndSetVar(s.stddev,   pPrefix, "stddev",   pSuffix);
+	CreateAndSetVar(s.ssd,      pPrefix, "ssd",      pSuffix);
+	CreateAndSetVar(s.skewness, pPrefix, "skewness", pSuffix);
+	CreateAndSetVar(s.kurtosis, pPrefix, "kurtosis", pSuffix);
+	CreateAndSetVar(s.adev,     pPrefix, "adev",     pSuffix);
 
-	create_and_set_var(s.mean_err,     prefix, "mean_err",     suffix);
-	create_and_set_var(s.stddev_err,   prefix, "stddev_err",   suffix);
-	create_and_set_var(s.skewness_err, prefix, "skewness_err", suffix);
-	create_and_set_var(s.kurtosis_err, prefix, "kurtosis_err", suffix);
-
-	create_and_set_var(s.sum,    prefix, "sum",   suffix);
-	create_and_set_var(s.sum_sq, prefix, "sumsq", suffix);
-
-	create_and_set_var(s.min.val, prefix, "min", suffix);
-	create_and_set_var(s.max.val, prefix, "max", suffix);
-
-	/* If data set is matrix */
+	CreateAndSetVar(s.mean_err,     pPrefix, "mean_err",     pSuffix);
+	CreateAndSetVar(s.stddev_err,   pPrefix, "stddev_err",   pSuffix);
+	CreateAndSetVar(s.skewness_err, pPrefix, "skewness_err", pSuffix);
+	CreateAndSetVar(s.kurtosis_err, pPrefix, "kurtosis_err", pSuffix);
+	CreateAndSetVar(s.sum,    pPrefix, "sum",   pSuffix);
+	CreateAndSetVar(s.sum_sq, pPrefix, "sumsq", pSuffix);
+	CreateAndSetVar(s.min.val, pPrefix, "min", pSuffix);
+	CreateAndSetVar(s.max.val, pPrefix, "max", pSuffix);
+	// If data set is matrix 
 	if(s.sx > 0) {
-		create_and_set_int_var( (s.min.index) % s.sx, prefix, "index_min_x", suffix);
-		create_and_set_int_var( (s.min.index) / s.sx, prefix, "index_min_y", suffix);
-		create_and_set_int_var( (s.max.index) % s.sx, prefix, "index_max_x", suffix);
-		create_and_set_int_var( (s.max.index) / s.sx, prefix, "index_max_y", suffix);
-		create_and_set_int_var(s.sx, prefix, "size_x", suffix);
-		create_and_set_int_var(s.sy, prefix, "size_y", suffix);
+		CreateAndSetIntVar( (s.min.index) % s.sx, pPrefix, "index_min_x", pSuffix);
+		CreateAndSetIntVar( (s.min.index) / s.sx, pPrefix, "index_min_y", pSuffix);
+		CreateAndSetIntVar( (s.max.index) % s.sx, pPrefix, "index_max_x", pSuffix);
+		CreateAndSetIntVar( (s.max.index) / s.sx, pPrefix, "index_max_y", pSuffix);
+		CreateAndSetIntVar(s.sx, pPrefix, "size_x", pSuffix);
+		CreateAndSetIntVar(s.sy, pPrefix, "size_y", pSuffix);
 	}
 	else {
-		create_and_set_var(s.median,         prefix, "median",      suffix);
-		create_and_set_var(s.lower_quartile, prefix, "lo_quartile", suffix);
-		create_and_set_var(s.upper_quartile, prefix, "up_quartile", suffix);
-		create_and_set_int_var(s.min.index, prefix, "index_min", suffix);
-		create_and_set_int_var(s.max.index, prefix, "index_max", suffix);
+		CreateAndSetVar(s.median,         pPrefix, "median",      pSuffix);
+		CreateAndSetVar(s.lower_quartile, pPrefix, "lo_quartile", pSuffix);
+		CreateAndSetVar(s.upper_quartile, pPrefix, "up_quartile", pSuffix);
+		CreateAndSetIntVar(s.min.index, pPrefix, "index_min", pSuffix);
+		CreateAndSetIntVar(s.max.index, pPrefix, "index_max", pSuffix);
 	}
 }
 
-static void two_column_variables(struct two_column_stats s, char * prefix, long n)
+//static void two_column_variables(TwoColumnStats s, const char * prefix, long n)
+void GnuPlot::TwoColumnVariables(TwoColumnStats s, const char * pPrefix, long n)
 {
-	/* Suffix does not make sense here! */
-	create_and_set_var(s.slope,         prefix, "slope",         "");
-	create_and_set_var(s.intercept,     prefix, "intercept",     "");
-	/* The errors can only calculated for n > 2, but we set them (to zero) anyway. */
-	create_and_set_var(s.slope_err,     prefix, "slope_err",     "");
-	create_and_set_var(s.intercept_err, prefix, "intercept_err", "");
-	create_and_set_var(s.correlation,   prefix, "correlation",   "");
-	create_and_set_var(s.sum_xy,        prefix, "sumxy",         "");
-
-	create_and_set_var(s.pos_min_y,     prefix, "pos_min_y",     "");
-	create_and_set_var(s.pos_max_y,     prefix, "pos_max_y",     "");
+	// Suffix does not make sense here! 
+	CreateAndSetVar(s.slope,         pPrefix, "slope",         "");
+	CreateAndSetVar(s.intercept,     pPrefix, "intercept",     "");
+	// The errors can only calculated for n > 2, but we set them (to zero) anyway. 
+	CreateAndSetVar(s.slope_err,     pPrefix, "slope_err",     "");
+	CreateAndSetVar(s.intercept_err, pPrefix, "intercept_err", "");
+	CreateAndSetVar(s.correlation,   pPrefix, "correlation",   "");
+	CreateAndSetVar(s.sum_xy,        pPrefix, "sumxy",         "");
+	CreateAndSetVar(s.pos_min_y,     pPrefix, "pos_min_y",     "");
+	CreateAndSetVar(s.pos_max_y,     pPrefix, "pos_max_y",     "");
 }
 
 /* =================================================================
@@ -693,9 +628,9 @@ void GnuPlot::StatsRequest()
 	long doubleblanks; /* number of repeated blank lines */
 	long header_records; /* number of records treated as headers rather than data */
 	long out_of_range; /* number pts rejected, because out of range */
-	file_stats res_file;
-	sgl_column_stats res_x = {0}, res_y = {0};
-	two_column_stats res_xy = {0};
+	GpFileStats res_file;
+	SglColumnStats res_x = {0}, res_y = {0};
+	TwoColumnStats res_xy = {0};
 	// Vars for variable handling 
 	static char * prefix = NULL; // prefix for user-defined vars names 
 	bool prefix_from_columnhead = FALSE;
@@ -780,7 +715,7 @@ void GnuPlot::StatsRequest()
 			else if(Pgm.AlmostEqualsCur("pre$fix") || Pgm.EqualsCur("name")) {
 				Pgm.Shift();
 				if(Pgm.AlmostEqualsCur("col$umnheader")) {
-					df_set_key_title_columnhead(NULL);
+					DfSetKeyTitleColumnHead(NULL);
 					prefix_from_columnhead = TRUE;
 					continue;
 				}
@@ -794,7 +729,7 @@ void GnuPlot::StatsRequest()
 		}
 		// Clear any previous variables STATS_* so that if we exit early 
 		// they cannot be mistaken as resulting from the current analysis. 
-		clear_stats_variables(prefix ? prefix : "STATS");
+		ClearStatsVariables(prefix ? prefix : "STATS");
 		// Special case for voxel grid stats: "stats $vgrid {name <prefix>} 
 		if(df_voxelgrid) {
 			vgrid * vgrid = get_vgrid_by_name(file_name)->udv_value.v.vgrid;
@@ -803,12 +738,12 @@ void GnuPlot::StatsRequest()
 			N = vgrid->size;
 			nonzero = N*N*N - vgrid->nzero;
 			SETIFZ(prefix, gp_strdup("STATS"));
-			create_and_set_var(vgrid->mean_value, prefix, "_mean",   "");
-			create_and_set_var(vgrid->stddev, prefix, "_stddev", "");
-			create_and_set_var(vgrid->sum, prefix, "_sum", "");
-			create_and_set_var(vgrid->min_value, prefix, "_min", "");
-			create_and_set_var(vgrid->max_value, prefix, "_max", "");
-			create_and_set_var(nonzero, prefix, "_nonzero", "");
+			CreateAndSetVar(vgrid->mean_value, prefix, "_mean",   "");
+			CreateAndSetVar(vgrid->stddev, prefix, "_stddev", "");
+			CreateAndSetVar(vgrid->sum, prefix, "_sum", "");
+			CreateAndSetVar(vgrid->min_value, prefix, "_min", "");
+			CreateAndSetVar(vgrid->max_value, prefix, "_max", "");
+			CreateAndSetVar(nonzero, prefix, "_nonzero", "");
 			goto stats_cleanup;
 		}
 		// If the user has set an explicit locale for numeric input, apply it 
@@ -823,7 +758,7 @@ void GnuPlot::StatsRequest()
 		   - no using  = first two columns if both are present on the first line of data
 		               else first column only
 		 */
-		while((i = df_readline(v, 2)) != DF_EOF) {
+		while((i = DfReadLine(v, 2)) != DF_EOF) {
 			if(n >= max_n) {
 				max_n = (max_n * 3) / 2; // increase max_n by factor of 1.5 
 				// Some of the reallocations went bad: 
@@ -936,14 +871,14 @@ void GnuPlot::StatsRequest()
 	// Store results in user-accessible variables 
 	// Clear out any previous use of these variables 
 	Ev.DelUdvByName(prefix, TRUE);
-	file_variables(res_file, prefix);
+	FileVariables(res_file, prefix);
 	if(columns == 1) {
-		sgl_column_variables(res_y, prefix, "");
+		SglColumnVariables(res_y, prefix, "");
 	}
 	if(columns == 2) {
-		sgl_column_variables(res_x, prefix, "_x");
-		sgl_column_variables(res_y, prefix, "_y");
-		two_column_variables(res_xy, prefix, n);
+		SglColumnVariables(res_x, prefix, "_x");
+		SglColumnVariables(res_y, prefix, "_y");
+		TwoColumnVariables(res_xy, prefix, n);
 	}
 	// Output 
 	if(do_output) {

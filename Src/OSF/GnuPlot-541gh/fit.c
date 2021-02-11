@@ -1436,7 +1436,7 @@ void GnuPlot::FitCommand()
 		fit_dummy_udvs[i] = Ev.AddUdvByName(c_dummy_var[i]);
 	}
 	memzero(fit_dummy_var, sizeof(fit_dummy_var));
-	func.at = perm_at();    /* parse expression and save action table */
+	func.at = PermAt();    /* parse expression and save action table */
 	dummy_func = NULL;
 	token2 = Pgm.GetCurTokenIdx();
 	// get filename 
@@ -1677,7 +1677,7 @@ void GnuPlot::FitCommand()
 	/* If the user has set an explicit locale for numeric input, apply it */
 	/* here so that it affects data fields read from the input file.      */
 	set_numeric_locale();
-	while((i = df_readline(v, num_indep + num_errors + 1)) != DF_EOF) {
+	while((i = DfReadLine(v, num_indep + num_errors + 1)) != DF_EOF) {
 		if(num_data >= max_data) {
 			max_data *= 2;
 			if(!redim_vec(&fit_x, max_data * num_indep) || !redim_vec(&fit_z, max_data) || !redim_vec(&err_data, max_data * MAX(num_errors, 1))) {

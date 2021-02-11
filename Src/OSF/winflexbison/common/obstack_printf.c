@@ -63,12 +63,10 @@ int obstack_vprintf(struct obstack * obs, const char * format, va_list args)
 		return -1;
 	}
 	if(str == base && str != buf)
-		/* The output was already computed in place, but we need to
-		   account for its size.  */
+		// The output was already computed in place, but we need to account for its size.  
 		obstack_blank_fast(obs, len);
 	else {
-		/* The output exceeded available obstack space or we used buf;
-		   copy the resulting string.  */
+		// The output exceeded available obstack space or we used buf; copy the resulting string. 
 		obstack_grow(obs, str, len);
 		if(str != buf)
 			SAlloc::F(str);

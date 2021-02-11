@@ -401,11 +401,12 @@ static void mant_exp(double log10_base, double x, bool scientific/* round to pow
 // 
 // Wrapper for gprintf_value() 
 // 
-void gprintf(char * outstring, size_t count, char * format, double log10_base, double x)
+//void gprintf(char * pOutString, size_t count, const char * pFormat, double log10_base, double x)
+void GnuPlot::GPrintf(char * pOutString, size_t count, const char * pFormat, double log10_base, double x)
 {
 	GpValue v;
 	Gcomplex(&v, x, 0.0);
-	gprintf_value(outstring, count, format, log10_base, &v);
+	PrintfValue(pOutString, count, pFormat, log10_base, &v);
 }
 // 
 // Analogous to snprintf() but uses gnuplot's private format specs */
@@ -416,9 +417,10 @@ void gprintf(char * outstring, size_t count, char * format, double log10_base, d
 // only, with logscaled axes, in combination with the occasional
 // round-off error. 
 // 
-void gprintf_value(char * outstring, size_t count, char * format, double log10_base, GpValue * v)
+//void gprintf_value(char * pOutString, size_t count, const char * pFormat, double log10_base, const GpValue * pV)
+void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat, double log10_base, const GpValue * pV)
 {
-	double x = real(v);
+	double x = real(pV);
 	char tempdest[MAX_LINE_LEN + 1];
 	char temp[MAX_LINE_LEN + 1];
 	char * t;
@@ -435,38 +437,38 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 	if(!evaluate_inside_using)
 		set_numeric_locale();
 	// Should never happen but fuzzer managed to hit it 
-	SETIFZ(format, DEF_FORMAT);
+	SETIFZ(pFormat, DEF_FORMAT);
 	// By default we wrap numbers output to latex terminals in $...$ 
-	if(!strcmp(format, DEF_FORMAT)  && !table_mode && ((term->flags & TERM_IS_LATEX)))
-		format = DEF_FORMAT_LATEX;
+	if(!strcmp(pFormat, DEF_FORMAT)  && !Tab.Mode && ((term->flags & TERM_IS_LATEX)))
+		pFormat = DEF_FORMAT_LATEX;
 	for(;;) {
 		//{{{  copy to dest until % 
-		while(*format != '%')
-			if(!(*dest++ = *format++) || (remaining_space == 0)) {
+		while(*pFormat != '%')
+			if(!(*dest++ = *pFormat++) || (remaining_space == 0)) {
 				goto done;
 			}
 		//}}} 
 		//{{{  check for %% 
-		if(format[1] == '%') {
+		if(pFormat[1] == '%') {
 			*dest++ = '%';
-			format += 2;
+			pFormat += 2;
 			continue;
 		}
 		//}}} 
 		//{{{  copy format part to temp, excluding conversion character 
 		t = temp;
 		*t++ = '%';
-		if(format[1] == '#') {
+		if(pFormat[1] == '#') {
 			*t++ = '#';
-			format++;
+			pFormat++;
 			got_hash = TRUE;
 		}
 		// dont put isdigit first since side effect in macro is bad 
-		while(*++format == '.' || isdigit((uchar)*format) || oneof4(*format, '-', '+', ' ', '\''))
-			*t++ = *format;
+		while(*++pFormat == '.' || isdigit((uchar)*pFormat) || oneof4(*pFormat, '-', '+', ' ', '\''))
+			*t++ = *pFormat;
 		//}}} 
 		//{{{  convert conversion character 
-		switch(*format) {
+		switch(*pFormat) {
 			/*{{{  x and o can handle 64bit unsigned integers */
 			case 'x':
 			case 'X':
@@ -474,9 +476,9 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 			case 'O':
 			    t[0] = 'l';
 			    t[1] = 'l';
-			    t[2] = *format;
+			    t[2] = *pFormat;
 			    t[3] = '\0';
-			    snprintf(dest, remaining_space, temp, v->type == INTGR ? v->v.int_val : (intgr_t)real(v));
+			    snprintf(dest, remaining_space, temp, (pV->type == INTGR) ? pV->v.int_val : (intgr_t)real(pV));
 			    break;
 			/*}}} */
 			/*{{{  e, f and g */
@@ -486,19 +488,19 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 			case 'F':
 			case 'g':
 			case 'G':
-			    t[0] = *format;
+			    t[0] = *pFormat;
 			    t[1] = 0;
 			    snprintf(dest, remaining_space, temp, x);
 			    break;
 			case 'h':
 			case 'H':
 			    /* g/G with enhanced formatting (if applicable) */
-			    t[0] = (*format == 'h') ? 'g' : 'G';
+			    t[0] = (*pFormat == 'h') ? 'g' : 'G';
 			    t[1] = 0;
 			    if((term->flags & (TERM_ENHANCED_TEXT | TERM_IS_LATEX)) == 0) {
 				    snprintf(dest, remaining_space, temp, x); // Not enhanced, not latex, just print it 
 			    }
-			    else if(table_mode) {
+			    else if(Tab.Mode) {
 				    snprintf(dest, remaining_space, temp, x); // Tabular output should contain no markup 
 			    }
 			    else {
@@ -512,7 +514,7 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 				    for(i = j = 0; tmp[i] && (i < LOCAL_BUFFER_SIZE); i++) {
 					    if(tmp[i]=='E' || tmp[i]=='e') {
 						    if((term->flags & TERM_IS_LATEX)) {
-							    if(*format == 'h') {
+							    if(*pFormat == 'h') {
 								    strcpy(&tmp2[j], "\\times");
 								    j += 6;
 							    }
@@ -528,16 +530,16 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 										j += 2;
 										break;
 								    case S_ENC_CP1252:
-										tmp2[j++] = (*format=='h') ? 0xd7 : 0xb7;
+										tmp2[j++] = (*pFormat=='h') ? 0xd7 : 0xb7;
 										break;
 								    case S_ENC_ISO8859_1:
 								    case S_ENC_ISO8859_2:
 								    case S_ENC_ISO8859_9:
 								    case S_ENC_ISO8859_15:
-										tmp2[j++] = (*format=='h') ? 0xd7 : '*';
+										tmp2[j++] = (*pFormat=='h') ? 0xd7 : '*';
 										break;
 								    default:
-										tmp2[j++] = (*format=='h') ? 'x' : '*';
+										tmp2[j++] = (*pFormat=='h') ? 'x' : '*';
 										break;
 							    }
 							}
@@ -632,7 +634,7 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GPO.IntError(NO_CARET, "Format character mismatch: %%L is only valid with %%l");
+					    IntError(NO_CARET, "Format character mismatch: %%L is only valid with %%l");
 				    }
 			    }
 			    else {
@@ -654,7 +656,7 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GPO.IntError(NO_CARET, "Format character mismatch: %%T is only valid with %%t");
+					    IntError(NO_CARET, "Format character mismatch: %%T is only valid with %%t");
 				    }
 			    }
 			    else {
@@ -675,7 +677,7 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GPO.IntError(NO_CARET, "Format character mismatch: %%S is only valid with %%s");
+					    IntError(NO_CARET, "Format character mismatch: %%S is only valid with %%s");
 				    }
 			    }
 			    else {
@@ -697,7 +699,7 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GPO.IntError(NO_CARET, "Format character mismatch: %%c is only valid with %%s");
+					    IntError(NO_CARET, "Format character mismatch: %%c is only valid with %%s");
 				    }
 			    }
 			    else {
@@ -743,7 +745,7 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GPO.IntError(NO_CARET, "Format character mismatch: %%B is only valid with %%b");
+					    IntError(NO_CARET, "Format character mismatch: %%B is only valid with %%b");
 				    }
 			    }
 			    else {
@@ -787,15 +789,14 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 		    }
 			/*}}} */
 			default:
-			    GPO.IntError(NO_CARET, "Bad format character");
+			    IntError(NO_CARET, "Bad format character");
 		} /* switch */
 		  /*}}} */
 
-		if(got_hash && (format != strpbrk(format, "oeEfFgG")))
-			GPO.IntError(NO_CARET, "Bad format character");
-
-		/* change decimal '.' to the actual entry in decimalsign */
-		if(decimalsign != NULL) {
+		if(got_hash && (pFormat != strpbrk(pFormat, "oeEfFgG")))
+			IntError(NO_CARET, "Bad format character");
+		// change decimal '.' to the actual entry in decimalsign 
+		if(decimalsign) {
 			char * dotpos1 = dest;
 			char * dotpos2;
 			size_t newlength = strlen(decimalsign);
@@ -811,16 +812,14 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 					size_t taillength = strlen(dotpos2);
 					dotpos1 = dotpos2 + newlength;
 					if(dotpos1 + taillength > limit)
-						GPO.IntError(NO_CARET,
-						    "format too long due to decimalsign string");
-					/* move tail end of string out of the way */
+						IntError(NO_CARET, "format too long due to decimalsign string");
+					// move tail end of string out of the way 
 					memmove(dotpos1, dotpos2 + 1, taillength);
-					/* insert decimalsign */
+					// insert decimalsign 
 					memcpy(dotpos2, decimalsign, newlength);
 				}
 			}
 		}
-
 		/* Some people prefer a "real" minus sign to the hyphen that standard
 		 * formatted input and output both use.  Unlike decimal signs, there is
 		 * no internationalization mechanism to specify this preference.
@@ -829,9 +828,9 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 		 * Use at your own risk.  Should be OK for graphical output, but text output
 		 * will not be readable by standard formatted input routines.
 		 */
-		if(use_minus_sign       /* set minussign */
-		    && minus_sign       /* current encoding provides one */
-		    && !table_mode      /* not used inside "set table" */
+		if(use_minus_sign /* set minussign */
+		    && minus_sign /* current encoding provides one */
+		    && !Tab.Mode /* not used inside "set table" */
 		    && !(term->flags & TERM_IS_LATEX) /* but LaTeX doesn't want it */
 		    ) {
 			char * dotpos1 = dest;
@@ -851,10 +850,10 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 					size_t taillength = strlen(dotpos2);
 					dotpos1 = dotpos2 + newlength;
 					if(dotpos1 + taillength > limit)
-						GPO.IntError(NO_CARET, "format too long due to minus_sign string");
-					/* move tail end of string out of the way */
+						IntError(NO_CARET, "format too long due to minus_sign string");
+					// move tail end of string out of the way 
 					memmove(dotpos1, dotpos2 + 1, taillength);
-					/* insert minus_sign */
+					// insert minus_sign 
 					memcpy(dotpos2, minus_sign, newlength);
 				}
 			}
@@ -862,12 +861,11 @@ void gprintf_value(char * outstring, size_t count, char * format, double log10_b
 
 		/* this was at the end of every single case, before: */
 		dest += strlen(dest);
-		++format;
+		++pFormat;
 	} /* for ever */
-
 done:
-	/* Copy as much as fits */
-	safe_strncpy(outstring, tempdest, count);
+	// Copy as much as fits 
+	safe_strncpy(pOutString, tempdest, count);
 	if(!evaluate_inside_using)
 		reset_numeric_locale();
 }
@@ -1208,7 +1206,8 @@ static char * utf8_strchrn(const char * s, int N)
 		return (char*)s;
 	while(s[i]) {
 		if((s[i] & 0xc0) != 0x80) {
-			if(j++ == N) return (char*)&s[i];
+			if(j++ == N) 
+				return (char*)&s[i];
 		}
 		i++;
 	}
@@ -1239,11 +1238,11 @@ bool streq(const char * a, const char * b)
 		endb--;
 	return (enda == endb) ? !strncmp(a, b, ++enda) : FALSE;
 }
-
-/* append string src to dest
-   re-allocates memory if necessary, (re-)determines the length of the
-   destination string only if len==0
- */
+// 
+// append string src to dest
+// re-allocates memory if necessary, (re-)determines the length of the
+// destination string only if len==0
+// 
 size_t strappend(char ** dest, size_t * size, size_t len, const char * src)
 {
 	size_t destlen = (len != 0) ? len : strlen(*dest);

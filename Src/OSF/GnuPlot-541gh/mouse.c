@@ -972,9 +972,11 @@ static char * builtin_set_plots_visible(struct gp_event_t * ge)
 	if(!ge) {
 		return "`builtin-set-plots-visible`";
 	}
-	if(term->modify_plots)
-		term->modify_plots(MODPLOTS_SET_VISIBLE, -1);
-	return (char*)0;
+	else {
+		if(term->modify_plots)
+			term->modify_plots(MODPLOTS_SET_VISIBLE, -1);
+		return (char*)0;
+	}
 }
 
 static char * builtin_set_plots_invisible(struct gp_event_t * ge)
@@ -982,9 +984,11 @@ static char * builtin_set_plots_invisible(struct gp_event_t * ge)
 	if(!ge) {
 		return "`builtin-set-plots-invisible`";
 	}
-	if(term->modify_plots)
-		term->modify_plots(MODPLOTS_SET_INVISIBLE, -1);
-	return (char*)0;
+	else {
+		if(term->modify_plots)
+			term->modify_plots(MODPLOTS_SET_INVISIBLE, -1);
+		return (char*)0;
+	}
 }
 
 static char * builtin_invert_plot_visibilities(struct gp_event_t * ge)
@@ -992,9 +996,11 @@ static char * builtin_invert_plot_visibilities(struct gp_event_t * ge)
 	if(!ge) {
 		return "`builtin-invert-plot-visibilities`";
 	}
-	if(term->modify_plots)
-		term->modify_plots(MODPLOTS_INVERT_VISIBILITIES, -1);
-	return (char*)0;
+	else {
+		if(term->modify_plots)
+			term->modify_plots(MODPLOTS_INVERT_VISIBILITIES, -1);
+		return (char*)0;
+	}
 }
 
 static char * builtin_toggle_log(struct gp_event_t * ge)
@@ -1966,12 +1972,12 @@ static void event_motion(gp_event_t * ge)
 		if(button & (1 << 1)) {
 			// dragging with button 1 -> rotate 
 			//surface_rot_x = floor(0.5 + zero_rot_x + 180.0 * mouse_y / term->MaxY);
-			surface_rot_x = floor(0.5 + fmod(zero_rot_x + 360.0 * mouse_y / term->MaxY, 360));
+			surface_rot_x = floorf(0.5f + fmodf(zero_rot_x + 360.0f * mouse_y / term->MaxY, 360));
 			if(surface_rot_x < 0.0f)
 				surface_rot_x += 360.0f;
 			if(surface_rot_x > 360.0f)
 				surface_rot_x -= 360.0f;
-			surface_rot_z = floor(0.5 + fmod(zero_rot_z - 360.0 * mouse_x / term->MaxX, 360));
+			surface_rot_z = floorf(0.5f + fmodf(zero_rot_z - 360.0f * mouse_x / term->MaxX, 360));
 			if(surface_rot_z < 0)
 				surface_rot_z += 360;
 			redraw = TRUE;
@@ -1988,7 +1994,7 @@ static void event_motion(gp_event_t * ge)
 			else {
 				if(relx > rely) {
 					surface_lscale += (mouse_x - start_x) * 2.0 / term->MaxX;
-					surface_scale = exp(surface_lscale);
+					surface_scale = static_cast<float>(exp(surface_lscale));
 					if(surface_scale < 0)
 						surface_scale = 0;
 				}
@@ -2010,7 +2016,7 @@ static void event_motion(gp_event_t * ge)
 		}
 		else if(button & (1 << 3)) {
 			// dragging with button 3 -> change azimuth 
-			ChangeAzimuth( (mouse_x - start_x) * 90.0 / term->MaxX);
+			ChangeAzimuth(static_cast<int>((mouse_x - start_x) * 90.0 / term->MaxX));
 			start_x = mouse_x;
 			redraw = TRUE;
 		}
@@ -2199,7 +2205,7 @@ void GnuPlot::DoEvent(termentry * pTerm, gp_event_t * pGe)
 				// Fall through to cover non-x11 case 
 	#endif
 				// Other terminals update aspect ratio based on current window size 
-				pTerm->TicV = pTerm->TicH * (double)pGe->mx / (double)pGe->my;
+				pTerm->TicV = static_cast<uint>(pTerm->TicH * (double)pGe->mx / (double)pGe->my);
 				FPRINTF((stderr, "mouse do_event: window size %d X %d, font hchar %d vchar %d\n", pGe->mx, pGe->my, pGe->par1, pGe->par2));
 				break;
 			case GE_buttonpress_old:
@@ -2254,7 +2260,7 @@ void GnuPlot::DoSave3DPlot(termentry * pTerm, surface_points * pPlots, int pcoun
 		// (reported by Franz Bakan).
 		// !refresh_ok can happen for example if log scaling is reset (EAM).
 		// replotrequest() should set up everything again in either case.
-		Pgm.ReplotRequest();
+		ReplotRequest(pTerm);
 	}
 	else
 		Do3DPlot(pTerm, pPlots, pcount, quick);
@@ -2537,45 +2543,45 @@ static void bind_append(char * lhs, char * rhs, char *(*builtin)(struct gp_event
 	bind_t * p_new = (bind_t*)gp_alloc(sizeof(bind_t), "bind_append->p_new");
 	if(!bind_scan_lhs(p_new, lhs)) {
 		SAlloc::F(p_new);
-		return;
-	}
-	if(!bindings) {
-		bindings = p_new; // first binding 
 	}
 	else {
-		for(bind_t * ptr = bindings; ptr; ptr = ptr->next) {
-			if(bind_matches(p_new, ptr)) {
-				/* overwriting existing binding */
-				if(!rhs) {
-					ptr->builtin = builtin;
+		if(!bindings)
+			bindings = p_new; // first binding 
+		else {
+			for(bind_t * ptr = bindings; ptr; ptr = ptr->next) {
+				if(bind_matches(p_new, ptr)) {
+					/* overwriting existing binding */
+					if(!rhs) {
+						ptr->builtin = builtin;
+					}
+					else if(*rhs) {
+						ZFREE(ptr->command);
+						ptr->command = rhs;
+					}
+					else { /* rhs is an empty string, so remove the binding */
+						bind_remove(ptr);
+					}
+					SAlloc::F(p_new); /* don't need it any more */
+					return;
 				}
-				else if(*rhs) {
-					ZFREE(ptr->command);
-					ptr->command = rhs;
-				}
-				else { /* rhs is an empty string, so remove the binding */
-					bind_remove(ptr);
-				}
-				SAlloc::F(p_new); /* don't need it any more */
-				return;
 			}
+			/* if we're here, the binding does not exist yet */
+			/* append binding ... */
+			bindings->prev->next = p_new;
+			p_new->prev = bindings->prev;
 		}
-		/* if we're here, the binding does not exist yet */
-		/* append binding ... */
-		bindings->prev->next = p_new;
-		p_new->prev = bindings->prev;
-	}
-	bindings->prev = p_new;
-	p_new->next = (struct bind_t *)0;
-	p_new->allwindows = FALSE; /* Can be explicitly set later */
-	if(!rhs) {
-		p_new->builtin = builtin;
-	}
-	else if(*rhs) {
-		p_new->command = rhs; /* was allocated in command.c */
-	}
-	else {
-		bind_remove(p_new);
+		bindings->prev = p_new;
+		p_new->next = (struct bind_t *)0;
+		p_new->allwindows = FALSE; /* Can be explicitly set later */
+		if(!rhs) {
+			p_new->builtin = builtin;
+		}
+		else if(*rhs) {
+			p_new->command = rhs; /* was allocated in command.c */
+		}
+		else {
+			bind_remove(p_new);
+		}
 	}
 }
 
@@ -2597,13 +2603,12 @@ void bind_process(char * lhs, char * rhs, bool allwindows)
 
 void bind_all(char * lhs)
 {
-	bind_t * ptr;
 	bind_t keypress;
-	if(!bind_scan_lhs(&keypress, lhs))
-		return;
-	for(ptr = bindings; ptr; ptr = ptr->next) {
-		if(bind_matches(&keypress, ptr))
-			ptr->allwindows = TRUE;
+	if(bind_scan_lhs(&keypress, lhs)) {
+		for(bind_t * ptr = bindings; ptr; ptr = ptr->next) {
+			if(bind_matches(&keypress, ptr))
+				ptr->allwindows = TRUE;
+		}
 	}
 }
 
@@ -2727,7 +2732,7 @@ static int nearest_label_tag(int xref, int yref)
 	int x, y;
 	int xd;
 	int yd;
-	for(text_label * this_label = first_label; this_label != NULL; this_label = this_label->next) {
+	for(text_label * this_label = GPO.Gg.P_FirstLabel; this_label; this_label = this_label->next) {
 		if(is_3d_plot) {
 			GPO.Map3DPosition(&this_label->place, &xd, &yd, "label");
 			xd -= xref;
@@ -2779,7 +2784,7 @@ static void put_label(char * label, double x, double y)
 void GnuPlot::LoadMouseVariables(double x, double y, bool button, int c)
 {
 	udvt_entry * current;
-	MousePosToGraphPosReal(x, y, &real_x, &real_y, &real_x2, &real_y2);
+	MousePosToGraphPosReal(static_cast<int>(x), static_cast<int>(y), &real_x, &real_y, &real_x2, &real_y2);
 	if((current = Ev.AddUdvByName("MOUSE_BUTTON"))) {
 		Ginteger(&current->udv_value, button ? c : -1);
 		if(!button)

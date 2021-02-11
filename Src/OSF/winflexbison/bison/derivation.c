@@ -52,9 +52,7 @@ void derivation_list_prepend(derivation_list dl, derivation * d)
 void derivation_list_free(derivation_list dl)
 {
 	derivation * d = NULL;
-	for(gl_list_iterator_t it = gl_list_iterator(dl);
-	    derivation_list_next(&it, &d);
-	    )
+	for(gl_list_iterator_t it = gl_list_iterator(dl); derivation_list_next(&it, &d);)
 		if(d != &d_dot)
 			derivation_free(d);
 	gl_list_free(dl);
@@ -77,26 +75,24 @@ void derivation_retain(derivation * d)
 
 void derivation_free(derivation * d)
 {
-	if(!d)
-		return;
-	derivation_list free_queue = gl_list_create(GL_LINKED_LIST, NULL, NULL, NULL, true, 1, (const void**)&d);
-	while(gl_list_size(free_queue) > 0) {
-		derivation * deriv = (derivation*)gl_list_get_at(free_queue, 0);
-		if(--deriv->reference_count == 0) {
-			if(deriv->children) {
-				derivation * child = NULL;
-				for(gl_list_iterator_t it = gl_list_iterator(deriv->children);
-				    derivation_list_next(&it, &child);
-				    )
-					if(child != &d_dot)
-						gl_list_add_last(free_queue, child);
-				gl_list_free(deriv->children);
+	if(d) {
+		derivation_list free_queue = gl_list_create(GL_LINKED_LIST, NULL, NULL, NULL, true, 1, (const void**)&d);
+		while(gl_list_size(free_queue) > 0) {
+			derivation * deriv = (derivation*)gl_list_get_at(free_queue, 0);
+			if(--deriv->reference_count == 0) {
+				if(deriv->children) {
+					derivation * child = NULL;
+					for(gl_list_iterator_t it = gl_list_iterator(deriv->children); derivation_list_next(&it, &child);)
+						if(child != &d_dot)
+							gl_list_add_last(free_queue, child);
+					gl_list_free(deriv->children);
+				}
+				SAlloc::F(deriv);
 			}
-			SAlloc::F(deriv);
+			gl_list_remove_at(free_queue, 0);
 		}
-		gl_list_remove_at(free_queue, 0);
+		gl_list_free(free_queue);
 	}
-	gl_list_free(free_queue);
 }
 
 size_t derivation_size(const derivation * deriv)
@@ -105,9 +101,7 @@ size_t derivation_size(const derivation * deriv)
 		return 1;
 	int size = 1;
 	derivation * child = NULL;
-	for(gl_list_iterator_t it = gl_list_iterator(deriv->children);
-	    derivation_list_next(&it, &child);
-	    )
+	for(gl_list_iterator_t it = gl_list_iterator(deriv->children); derivation_list_next(&it, &child);)
 		size += derivation_size(child);
 	return size;
 }
@@ -120,9 +114,7 @@ static int derivation_depth(const derivation * deriv)
 		// (the case of a derivation with an empty RHS).
 		int res = 1;
 		derivation * child;
-		for(gl_list_iterator_t it = gl_list_iterator(deriv->children);
-		    derivation_list_next(&it, &child);
-		    )
+		for(gl_list_iterator_t it = gl_list_iterator(deriv->children); derivation_list_next(&it, &child);)
 			res = max_int(res, derivation_depth(child));
 		return res + 1;
 	}
@@ -175,27 +167,22 @@ static int fputs_if(bool cond, FILE * out, int * padding, const char * s)
 	}
 	return res;
 }
-
-// The width taken to report this derivation recursively down to its
-// leaves.
+//
+// The width taken to report this derivation recursively down to its leaves.
+//
 static int derivation_width(const derivation * deriv)
 {
 	if(deriv->children) {
 		const Symbol * sym = symbols[deriv->sym];
 		int self_width = mbswidth(sym->tag, 0);
-
 		// Arrow and space.
 		int children_width = down_arrow_width;
 		if(gl_list_size(deriv->children) == 0)
-			// Empty rhs.
-			children_width += empty_width;
+			children_width += empty_width; // Empty rhs.
 		else {
 			derivation * child;
-			for(gl_list_iterator_t it = gl_list_iterator(deriv->children);
-			    derivation_list_next(&it, &child);
-			    )
-				children_width
-					+= derivation_separator_width + derivation_width(child);
+			for(gl_list_iterator_t it = gl_list_iterator(deriv->children); derivation_list_next(&it, &child);)
+				children_width += derivation_separator_width + derivation_width(child);
 			// No separator at the beginning.
 			children_width -= derivation_separator_width;
 		}
@@ -224,13 +211,11 @@ static int derivation_width(const derivation * deriv)
 static int derivation_print_tree_impl(const derivation * deriv, FILE * out, int depth, int * padding)
 {
 	const int width = derivation_width(deriv);
-
 	int res = 0;
 	if(deriv->children) {
 		const Symbol * sym = symbols[deriv->sym];
 		char style[20];
 		snprintf(style, 20, "cex-%d", deriv->color);
-
 		if(depth == 0 || depth == 1) {
 			begin_use_class(style, out);
 			begin_use_class("cex-step", out);
@@ -246,9 +231,7 @@ static int derivation_print_tree_impl(const derivation * deriv, FILE * out, int 
 			else {
 				bool first = true;
 				derivation * child;
-				for(gl_list_iterator_t it = gl_list_iterator(deriv->children);
-				    derivation_list_next(&it, &child);
-				    ) {
+				for(gl_list_iterator_t it = gl_list_iterator(deriv->children); derivation_list_next(&it, &child);) {
 					if(!first)
 						res += fputs_if(depth == 1, out, padding, derivation_separator);
 					res += derivation_print_tree_impl(child, out, depth - 1, padding);
@@ -304,7 +287,6 @@ static bool derivation_print_flat_impl(derivation * deriv, FILE * out, bool leav
 		char style[20];
 		snprintf(style, 20, "cex-%d", deriv->color);
 		begin_use_class(style, out);
-
 		if(!leaves_only) {
 			fputs(prefix, out);
 			begin_use_class("cex-step", out);
@@ -314,11 +296,8 @@ static bool derivation_print_flat_impl(derivation * deriv, FILE * out, bool leav
 		}
 		bool res = false;
 		derivation * child;
-		for(gl_list_iterator_t it = gl_list_iterator(deriv->children);
-		    derivation_list_next(&it, &child);
-		    ) {
-			if(derivation_print_flat_impl(child, out,
-			    leaves_only, counter, prefix)) {
+		for(gl_list_iterator_t it = gl_list_iterator(deriv->children); derivation_list_next(&it, &child);) {
+			if(derivation_print_flat_impl(child, out, leaves_only, counter, prefix)) {
 				prefix = " ";
 				res = true;
 			}
@@ -327,10 +306,7 @@ static bool derivation_print_flat_impl(derivation * deriv, FILE * out, bool leav
 		}
 		if(!leaves_only) {
 			begin_use_class("cex-step", out);
-			if(res)
-				fputs(" ]", out);
-			else
-				fputs("]", out);
+			fputs(res ? " ]" : "]", out);
 			end_use_class("cex-step", out);
 		}
 		end_use_class(style, out);

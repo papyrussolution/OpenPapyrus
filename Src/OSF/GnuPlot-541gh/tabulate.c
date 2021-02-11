@@ -16,14 +16,14 @@
 #pragma hdrstop
 
 // File or datablock for output during 'set table' mode 
-FILE * table_outfile = NULL;
-udvt_entry * table_var = NULL;
-bool table_mode = FALSE;
-char * table_sep = NULL;
-struct at_type * table_filter_at = NULL;
-static FILE * outfile;
+//FILE * table_outfile = NULL;
+//udvt_entry * GPO.Tab.P_Var = NULL;
+//bool   table_mode = FALSE;
+//char * GPO.Tab.P_Sep = NULL;
+//at_type * GPO.Tab.P_FilterAt = NULL;
+//static FILE * GPO.Tab.P_OutFile;
 
-#define OUTPUT_NUMBER(x, y) { GPO.OutputNumber(x, y, buffer); len = strappend(&line, &size, len, buffer); }
+#define OUTPUT_NUMBER(x, y) { /*GPO.*/OutputNumber(x, y, buffer); len = strappend(&line, &size, len, buffer); }
 #define BUFFERSIZE 128
 
 static char * expand_newline(const char * in)
@@ -55,7 +55,7 @@ void GnuPlot::OutputNumber(double coord, int axIdx, char * pBuffer)
 	else {
 		GpAxis & r_ax = AxS[axIdx];
 		if(r_ax.tictype == DT_TIMEDATE && strcmp(r_ax.formatstring, "%s") == 0) {
-			gprintf(pBuffer, BUFFERSIZE, "%.0f", 1.0, coord);
+			GPrintf(pBuffer, BUFFERSIZE, "%.0f", 1.0, coord);
 		}
 		else if(r_ax.tictype == DT_TIMEDATE) {
 			pBuffer[0] = '"';
@@ -69,19 +69,19 @@ void GnuPlot::OutputNumber(double coord, int axIdx, char * pBuffer)
 			strcat(pBuffer, "\"");
 		}
 		else
-			gprintf(pBuffer, BUFFERSIZE, r_ax.formatstring, 1.0, coord);
+			GPrintf(pBuffer, BUFFERSIZE, r_ax.formatstring, 1.0, coord);
 	}
 	strcat(pBuffer, " ");
 }
 
 static void print_line(const char * str)
 {
-	if(table_var == NULL) {
-		fputs(str, outfile);
-		fputc('\n', outfile);
+	if(!GPO.Tab.P_Var) {
+		fputs(str, GPO.Tab.P_OutFile);
+		fputc('\n', GPO.Tab.P_OutFile);
 	}
 	else {
-		append_to_datablock(&table_var->udv_value, sstrdup(str));
+		append_to_datablock(&GPO.Tab.P_Var->udv_value, sstrdup(str));
 	}
 }
 
@@ -109,22 +109,23 @@ static bool imploded(const curve_points * pPlot)
 	return FALSE;
 }
 
-void print_table(curve_points * pPlot, int plot_num)
+//void print_table(curve_points * pPlot, int plot_num)
+void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 {
 	int i;
 	char * buffer = (char*)gp_alloc(BUFFERSIZE, "print_table: output buffer");
 	size_t size = 2*BUFFERSIZE;
 	char * line = (char*)gp_alloc(size, "print_table: line buffer");
 	size_t len = 0;
-	outfile = table_outfile ? table_outfile : gpoutfile;
-	for(int curve = 0; curve < plot_num; curve++, pPlot = pPlot->next) {
+	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
+	for(int curve = 0; curve < plotNum; curve++, pPlot = pPlot->next) {
 		GpCoordinate * point = NULL;
 		// "with table" already wrote the output 
 		if(pPlot->plot_style == TABLESTYLE)
 			continue;
 		// two blank lines between tabulated plots by prepending an empty line here 
 		print_line("");
-		snprintf(line, size, "# Curve %d of %d, %d points", curve, plot_num, pPlot->p_count);
+		snprintf(line, size, "# Curve %d of %d, %d points", curve, plotNum, pPlot->p_count);
 		print_line(line);
 		if((pPlot->title) && (*pPlot->title)) {
 			char * title = expand_newline(pPlot->title);
@@ -304,13 +305,14 @@ void print_table(curve_points * pPlot, int plot_num)
 		}
 		print_line("");
 	} /* for(curve) */
-	if(outfile)
-		fflush(outfile);
+	if(Tab.P_OutFile)
+		fflush(Tab.P_OutFile);
 	SAlloc::F(buffer);
 	SAlloc::F(line);
 }
 
-void print_3dtable(int pcount)
+//void print_3dtable(int pcount)
+void GnuPlot::Print3DTable(int pcount)
 {
 	surface_points * this_plot;
 	int i, surface;
@@ -320,7 +322,7 @@ void print_3dtable(int pcount)
 	size_t size = 2*BUFFERSIZE;
 	char * line = (char*)gp_alloc(size, "print_3dtable: line buffer");
 	size_t len = 0;
-	outfile = (table_outfile) ? table_outfile : gpoutfile;
+	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
 	for(surface = 0, this_plot = first_3dplot; surface < pcount; this_plot = this_plot->next_sp, surface++) {
 		print_line("");
 		snprintf(line, size, "# Surface %d of %d surfaces", surface, pcount);
@@ -433,7 +435,6 @@ void print_3dtable(int pcount)
 					snprintf(line, size, "# Contour %d, label: %s", number++, c->label);
 					print_line(line);
 				}
-
 				for(; --count >= 0; ++point) {
 					line[0] = NUL;
 					len = 0;
@@ -448,41 +449,42 @@ void print_3dtable(int pcount)
 			} /* while (contour) */
 		} /* if (draw_contour) */
 	} /* for(surface) */
-	if(outfile)
-		fflush(outfile);
+	if(Tab.P_OutFile)
+		fflush(Tab.P_OutFile);
 	SAlloc::F(buffer);
 	SAlloc::F(line);
 }
 //
 // Called from plot2d.c (get_data) for "plot with table"
 //
-bool tabulate_one_line(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], int ncols)
+//bool tabulate_one_line(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], int ncols)
+bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], int ncols)
 {
 	int col;
-	FILE * outfile = (table_outfile) ? table_outfile : gpoutfile;
+	FILE * f_out = NZOR(Tab.P_TabOutFile, gpoutfile);
 	GpValue keep;
-	if(table_filter_at) {
+	if(Tab.P_FilterAt) {
 		evaluate_inside_using = TRUE;
-		GPO.EvaluateAt(table_filter_at, &keep);
+		EvaluateAt(Tab.P_FilterAt, &keep);
 		evaluate_inside_using = FALSE;
-		if(GPO.Ev.IsUndefined_ || isnan(real(&keep)) || real(&keep) == 0)
+		if(Ev.IsUndefined_ || isnan(real(&keep)) || real(&keep) == 0)
 			return FALSE;
 	}
-	if(table_var == NULL) {
-		char sep = (table_sep && *table_sep) ? *table_sep : '\t';
+	if(Tab.P_Var == NULL) {
+		char sep = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';
 		for(col = 0; col < ncols; col++) {
 			if(str[col].type == STRING)
-				fprintf(outfile, " %s", str[col].v.string_val);
+				fprintf(f_out, " %s", str[col].v.string_val);
 			else
-				fprintf(outfile, " %g", v[col]);
+				fprintf(f_out, " %g", v[col]);
 			if(col < ncols-1)
-				fprintf(outfile, "%c", sep);
+				fprintf(f_out, "%c", sep);
 		}
-		fprintf(outfile, "\n");
+		fprintf(f_out, "\n");
 	}
 	else {
 		char buf[64]; /* buffer large enough to hold %g + 2 extra chars */
-		char sep = (table_sep && *table_sep) ? *table_sep : '\t';
+		char sep = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';
 		size_t size = sizeof(buf);
 		char * line = (char*)gp_alloc(size, "");
 		size_t len = 0;
@@ -500,7 +502,7 @@ bool tabulate_one_line(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], int ncol
 				len = strappend(&line, &size, len, buf);
 			}
 		}
-		append_to_datablock(&table_var->udv_value, line);
+		append_to_datablock(&Tab.P_Var->udv_value, line);
 	}
 	return TRUE;
 }

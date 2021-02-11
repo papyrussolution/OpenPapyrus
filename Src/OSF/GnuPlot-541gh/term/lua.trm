@@ -44,7 +44,7 @@ register_term(lua)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void LUA_options();
+TERM_PUBLIC void LUA_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void LUA_init(termentry * pThis);
 TERM_PUBLIC void LUA_reset();
 TERM_PUBLIC void LUA_text();
@@ -715,39 +715,38 @@ static const char* LUA_get_fillstyle(int style)
 /*
  * Handle options
  */
-
-TERM_PUBLIC void LUA_options()
+TERM_PUBLIC void LUA_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	char * opt_str = NULL;
 	char * s;
-	int tc_off = GPO.Pgm.GetCurTokenIdx()+1; // token counter offset 
+	int tc_off = pGp->Pgm.GetCurTokenIdx()+1; // token counter offset 
 	int need_init = 1;
 	/* 'set term tikz' is short for 'set term lua tikz' */
-	GPO.Pgm.Rollback(); /* see how we got here */
-	if(!GPO.Pgm.EqualsCur("tikz")) {
-		if(GPO.Pgm.AlmostEqualsCur("termop$tions")) {
+	pGp->Pgm.Rollback(); /* see how we got here */
+	if(!pGp->Pgm.EqualsCur("tikz")) {
+		if(pGp->Pgm.AlmostEqualsCur("termop$tions")) {
 			if(!LUA_script) {
-				GPO.IntError(NO_CARET, "No Lua context for setting terminal options!");
+				pGp->IntError(NO_CARET, "No Lua context for setting terminal options!");
 				return;
 			}
 			need_init = 0;
 		}
 		/*  else should always be lua, so just count up ... */
-		GPO.Pgm.Shift();
+		pGp->Pgm.Shift();
 	}
-	opt_str = gp_input_line + GPO.Pgm.GetCurTokenStartIndex();
+	opt_str = gp_input_line + pGp->Pgm.GetCurTokenStartIndex();
 	if(need_init) {
-		if(!GPO.Pgm.EndOfCommand()) {
+		if(!pGp->Pgm.EndOfCommand()) {
 			if(*opt_str == '"' || *opt_str == '\'') {
-				s = GPO.TryToGetString();
+				s = pGp->TryToGetString();
 				gp_expand_tilde(&s);
 			}
 			else {
-				s = (char *)gp_alloc(GPO.Pgm.CurTokenLen()+strlen("gnuplot-.lua")+1, "LUA_script");
+				s = (char *)gp_alloc(pGp->Pgm.CurTokenLen()+strlen("gnuplot-.lua")+1, "LUA_script");
 				memcpy(s, "gnuplot-", 8);
-				memcpy(s+8, opt_str, GPO.Pgm.CurTokenLen());
-				memcpy(s+8+GPO.Pgm.CurTokenLen(), ".lua\0", 5);
-				GPO.Pgm.Shift();
+				memcpy(s+8, opt_str, pGp->Pgm.CurTokenLen());
+				memcpy(s+8+pGp->Pgm.CurTokenLen(), ".lua\0", 5);
+				pGp->Pgm.Shift();
 			}
 			if(LUA_script) {
 				if(strcmp(LUA_script, s)) {
@@ -763,11 +762,11 @@ TERM_PUBLIC void LUA_options()
 			else {
 				LUA_script = s;
 			}
-			opt_str = gp_input_line + GPO.Pgm.GetCurTokenStartIndex();
+			opt_str = gp_input_line + pGp->Pgm.GetCurTokenStartIndex();
 		}
 		else {
 			LUA_close();
-			GPO.IntError(NO_CARET, "No Lua driver name or file name given!");
+			pGp->IntError(NO_CARET, "No Lua driver name or file name given!");
 		}
 		/* init lua when opening the terminal or on script change */
 		if(!LUA_init_lua()) {
@@ -775,8 +774,8 @@ TERM_PUBLIC void LUA_options()
 		}
 	}
 	/* since options are tokenized again in the script we always "finish" this here */
-	while(!GPO.Pgm.EndOfCommand())
-		GPO.Pgm.Shift();
+	while(!pGp->Pgm.EndOfCommand())
+		pGp->Pgm.Shift();
 	if(LUA_init_luaterm_function("options")) {
 		/* isolate the "set term ...;" part of the command line */
 		opt_str = gp_strdup(opt_str);
@@ -880,7 +879,6 @@ TERM_PUBLIC void LUA_move(uint x, uint y)
 TERM_PUBLIC void LUA_point(uint x, uint y, int number)
 {
 	lua_term_result = 0;
-
 	if(LUA_init_luaterm_function("point")) {
 		lua_pushinteger(L, (int)x);
 		lua_pushinteger(L, (int)y);
@@ -889,8 +887,8 @@ TERM_PUBLIC void LUA_point(uint x, uint y, int number)
 		lua_term_result = (int)lua_tonumber(L, -1);
 		lua_pop(L, 1);
 	}
-
-	if(!lua_term_result) do_point(x, y, number);
+	if(!lua_term_result) 
+		GnuPlot::DoPoint(x, y, number);
 }
 
 TERM_PUBLIC void LUA_pointsize(double ptsize)

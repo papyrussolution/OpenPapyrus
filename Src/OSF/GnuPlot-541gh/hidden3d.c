@@ -108,7 +108,7 @@ typedef coordval t_plane[4];
 #define POLY_NVERT 3
 struct mesh_triangle {
 	long vertex[POLY_NVERT]; /* The vertices (indices on vlist) */
-	/* min/max in all three directions */
+	// min/max in all three directions 
 	coordval xmin;
 	coordval xmax;
 	coordval ymin;
@@ -177,7 +177,7 @@ struct qtreelist {
 	long p;                 /* the polygon */
 	long next;              /* next element in this chain */
 };
-typedef qtreelist * p_qtreelist;
+//typedef qtreelist * p_qtreelist;
 // 
 // The quadtree algorithm sorts the objects into lists indexed by x/y.
 // The number of cells in x and y direction has a huge effect on run time. 
@@ -202,9 +202,9 @@ static int coord_to_treecell(coordval x)
 	return index;
 }
 
-/* the dynarray to actually store all that stuff in: */
+// the dynarray to actually store all that stuff in: 
 static dynarray qtree;
-#define qlist ((p_qtreelist)qtree.v)
+#define qlist ((qtreelist *)qtree.v)
 
 /* Prototypes for internal functions of this module. */
 static long int store_vertex(GpCoordinate * point, lp_style_type * lp_style, bool color_from_column);
@@ -299,21 +299,18 @@ void show_hidden3doptions()
 	fprintf(stderr, "\t  Will %suse other diagonal if it gives a less jaggy outline\n\t  Will %sdraw diagonal visibly if quadrangle is 'bent over'\n",
 	    hiddenShowAlternativeDiagonal ? "" : "not ", hiddenHandleBentoverQuadrangles ? "" : "not ");
 }
-
-/* Implements proper 'save'ing of the new hidden3d options... */
+//
+// Implements proper 'save'ing of the new hidden3d options... 
+//
 void save_hidden3doptions(FILE * fp)
 {
-	if(!hidden3d) {
+	if(!hidden3d)
 		fputs("unset hidden3d\n", fp);
-		return;
+	else {
+		fprintf(fp, "set hidden3d %s offset %d trianglepattern %ld undefined %d %saltdiagonal %sbentover\n",
+			hidden3d_layer == LAYER_BACK ? "back" : "front", hiddenBacksideLinetypeOffset, hiddenTriangleLinesdrawnPattern,
+			hiddenHandleUndefinedPoints, hiddenShowAlternativeDiagonal ? "" : "no", hiddenHandleBentoverQuadrangles ? "" : "no");
 	}
-	fprintf(fp, "set hidden3d %s offset %d trianglepattern %ld undefined %d %saltdiagonal %sbentover\n",
-	    hidden3d_layer == LAYER_BACK ? "back" : "front",
-	    hiddenBacksideLinetypeOffset,
-	    hiddenTriangleLinesdrawnPattern,
-	    hiddenHandleUndefinedPoints,
-	    hiddenShowAlternativeDiagonal ? "" : "no",
-	    hiddenHandleBentoverQuadrangles ? "" : "no");
 }
 
 /* Initialize the necessary steps for hidden line removal and
@@ -739,9 +736,7 @@ static void color_edges(long new_edge/* index of 'new', conflictless edge */,
 			case 1:
 			    /* new front-, old one backfacing, or */
 			    /* new back-, old one frontfacing */
-			    if(((new_edge == old_edge)
-				&& hiddenHandleBentoverQuadrangles) /* a diagonal edge! */
-				|| (elist[old_edge].style != LT_NODRAW)) {
+			    if(((new_edge == old_edge) && hiddenHandleBentoverQuadrangles) /* a diagonal edge! */ || (elist[old_edge].style != LT_NODRAW)) {
 				    /* conflict has occurred: two polygons meet here, with opposige
 				     * sides being shown. What's to do?
 				     * 1) find a vertex of one polygon outside this common
@@ -1158,14 +1153,10 @@ static void build_networks(surface_points * plots, int pcount)
 						     * is valid: check the other three of this
 						     * cell, by trying to set up the edges from
 						     * this one to there */
-						    these_edges[i*3] = e1
-								= store_edge(thisvertex, edir_west, crvlen, lp, above);
-
+						    these_edges[i*3] = e1 = store_edge(thisvertex, edir_west, crvlen, lp, above);
 						    if(crv > 0) { /* vertices to the north exist */
-							    these_edges[i*3 + 1] = e2
-									= store_edge(thisvertex, edir_north, crvlen, lp, above);
-							    these_edges[i*3 + 2] = e3
-									= store_edge(thisvertex, edir_NW, crvlen, lp, above);
+							    these_edges[i*3 + 1] = e2 = store_edge(thisvertex, edir_north, crvlen, lp, above);
+							    these_edges[i*3 + 2] = e3 = store_edge(thisvertex, edir_NW, crvlen, lp, above);
 							    if(e3 > -2) {
 								    /* diagonal edge of this cell is OK,
 								     * so try to build both the polygons:
@@ -1174,33 +1165,26 @@ static void build_networks(surface_points * plots, int pcount)
 									    /* one pair of edges is valid: put
 									     * first polygon, which points
 									     * towards the southwest */
-									    these_polygons[2*i] = pnum
-											= store_polygon(thisvertex, pdir_SW, crvlen);
-									    color_edges(e1, these_edges[3*(i-1)+1],
-										pnum, these_polygons[2*(i-1)+ 1], above, below);
+									    these_polygons[2*i] = pnum = store_polygon(thisvertex, pdir_SW, crvlen);
+									    color_edges(e1, these_edges[3*(i-1)+1], pnum, these_polygons[2*(i-1)+ 1], above, below);
 								    }
 								    if(e2 > -2) {
 									    /* other pair of two is fine, put
 									     * the northeast polygon: */
-									    these_polygons[2*i + 1] = pnum
-											= store_polygon(thisvertex, pdir_NE, crvlen);
-									    color_edges(e2, north_edges[3*i],
-										pnum, north_polygons[2*i], above, below);
+									    these_polygons[2*i + 1] = pnum = store_polygon(thisvertex, pdir_NE, crvlen);
+									    color_edges(e2, north_edges[3*i], pnum, north_polygons[2*i], above, below);
 								    }
 								    /* In case these two new polygons
 								     * differ in orientation, find good
 								     * coloring of the diagonal */
-								    color_edges(e3, e3, these_polygons[2*i],
-									these_polygons[2*i+1], above, below);
+								    color_edges(e3, e3, these_polygons[2*i], these_polygons[2*i+1], above, below);
 							    } /* if e3 valid */
-							    else if((e1 > -2) && (e2 > -2)
-								&& hiddenShowAlternativeDiagonal) {
+							    else if((e1 > -2) && (e2 > -2) && hiddenShowAlternativeDiagonal) {
 								    /* looks like all but the north-west
 								     * vertex are usable, so we set up the
 								     * southeast-pointing triangle, using
 								     * the 'wrong' diagonal: */
-								    these_edges[3*i + 2] = e3
-										= store_edge(thisvertex, edir_NE, crvlen, lp, above);
+								    these_edges[3*i + 2] = e3 = store_edge(thisvertex, edir_NE, crvlen, lp, above);
 								    if(e3 > -2) {
 									    /* fill this polygon into *both*
 									     * polygon places for this
@@ -1208,31 +1192,26 @@ static void build_networks(surface_points * plots, int pcount)
 									     * coincides with both edges that
 									     * will be used by later polygons
 									     * */
-									    these_polygons[2*i] = these_polygons[2*i+1] = pnum
-											    = store_polygon(thisvertex, pdir_SE, crvlen);
+									    these_polygons[2*i] = these_polygons[2*i+1] = pnum = store_polygon(thisvertex, pdir_SE, crvlen);
 									    /* This case is somewhat special:
 									     * all edges are new, so there is
 									     * no other polygon orientation to
 									     * consider */
 									    if(pnum > -2) {
 										    if(!plist[pnum].frontfacing)
-											    elist[e1].style = elist[e2].style
-													= elist[e3].style = below;
+											    elist[e1].style = elist[e2].style = elist[e3].style = below;
 									    }
 								    }
 							    }
 						    }
 					    }
-					    else if((crv > 0)
-						&& (thisvertex >= 0)) {
+					    else if((crv > 0) && (thisvertex >= 0)) {
 						    /* We're at the west border of the grid, but
 						     * not on the north one: put vertical end-wall
 						     * edge:*/
-						    these_edges[3*i + 1] =
-							store_edge(thisvertex, edir_north, crvlen, lp, above);
+						    these_edges[3*i + 1] = store_edge(thisvertex, edir_north, crvlen, lp, above);
 					    }
 					    break;
-
 					case BOXES:
 					case FILLEDCURVES:
 					case IMPULSES:
@@ -1248,7 +1227,6 @@ static void build_networks(surface_points * plots, int pcount)
 					    if(basevertex > 0)
 						    store_edge(basevertex, edir_impulse, 0, lp, above);
 					    break;
-
 					case POINTSTYLE:
 					default: /* treat all the others like 'points' */
 					    if(thisvertex < 0) /* Ignore invalid vertex */
@@ -1343,7 +1321,7 @@ static void sort_polys_by_z()
 				int grid_y_high = coord_to_treecell(p_this->ymax);
 				for(grid_x = grid_x_low; grid_x <= grid_x_high; grid_x++) {
 					for(grid_y = grid_y_low; grid_y <= grid_y_high; grid_y++) {
-						p_qtreelist newhead = (p_qtreelist)nextfrom_dynarray(&qtree);
+						qtreelist * newhead = (qtreelist *)nextfrom_dynarray(&qtree);
 						newhead->next = quadtree[grid_x][grid_y];
 						newhead->p = sortarray[i];
 						quadtree[grid_x][grid_y] = newhead - qlist;
@@ -1898,7 +1876,7 @@ void GnuPlot::Plot3DHidden(termentry * pTerm, surface_points * plots, int pcount
 		IntError(NO_CARET, "*All* edges undefined or out of range, thus no plot.");
 	}
 	if(!polygons.end) {
-		/* No polygons anything could be hidden behind... */
+		// No polygons anything could be hidden behind... 
 		sort_edges_by_z();
 		while(efirst >= 0) {
 			DrawEdge(pTerm, elist+efirst, vlist + elist[efirst].v1, vlist + elist[efirst].v2);

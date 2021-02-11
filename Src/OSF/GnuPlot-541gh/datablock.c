@@ -117,40 +117,41 @@ int datablock_size(GpValue * datablock_value)
 	}
 	return nlines;
 }
-
-/* resize or allocate a datablock; allocate memory in chunks */
+//
+// resize or allocate a datablock; allocate memory in chunks 
+//
 static int enlarge_datablock(GpValue * datablock_value, int extra)
 {
 	const int blocksize = 512;
 	int nlines = datablock_size(datablock_value);
-	/* reserve space in multiples of blocksize */
+	// reserve space in multiples of blocksize 
 	int osize = ((nlines+1 + blocksize-1) / blocksize) * blocksize;
 	int nsize = ((nlines+1 + extra + blocksize-1) / blocksize) * blocksize;
-	/* only resize if necessary */
-	if((osize != nsize) || (extra == 0) || (nlines == 0)) {
+	// only resize if necessary 
+	if(osize != nsize || !extra || !nlines) {
 		datablock_value->v.data_array = (char**)gp_realloc(datablock_value->v.data_array,  nsize * sizeof(char *), "resize_datablock");
 		datablock_value->v.data_array[nlines] = NULL;
 	}
 	return nlines;
 }
-
-/* append a single line to a datablock */
+//
+// append a single line to a datablock 
+//
 void append_to_datablock(GpValue * datablock_value, const char * line)
 {
 	int nlines = enlarge_datablock(datablock_value, 1);
 	datablock_value->v.data_array[nlines] = (char*)line;
 	datablock_value->v.data_array[nlines + 1] = NULL;
 }
-
-/* append multiple lines which are separated by linebreaks to a datablock */
+//
+// append multiple lines which are separated by linebreaks to a datablock 
+//
 void append_multiline_to_datablock(GpValue * datablock_value, const char * lines)
 {
 	char * l = (char*)lines;
 	bool inquote = FALSE;
 	bool escaped = FALSE;
-	/* handle lines with line-breaks, one at a time;
-	   take care of quoted strings
-	 */
+	// handle lines with line-breaks, one at a time; take care of quoted strings
 	char * p = l;
 	while(*p != NUL) {
 		if(*p == '\'' && !escaped)
@@ -167,13 +168,13 @@ void append_multiline_to_datablock(GpValue * datablock_value, const char * lines
 		p++;
 	}
 	if(l == lines) {
-		/* no line-breaks, just a single line */
+		// no line-breaks, just a single line 
 		append_to_datablock(datablock_value, l);
 	}
 	else {
 		if(strlen(l) > 0) /* remainder after last line-break */
 			append_to_datablock(datablock_value, sstrdup(l));
-		/* we allocated new sub-strings, free the original */
+		// we allocated new sub-strings, free the original 
 		SAlloc::F((char*)lines);
 	}
 }

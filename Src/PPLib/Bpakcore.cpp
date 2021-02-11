@@ -4394,21 +4394,33 @@ int PPBillPacket::SearchLot(PPID lotID, uint * pPos) const
 int PPBillPacket::SearchShLot(PPID lotID, uint * pPos) const
 	{ return P_ShLots ? P_ShLots->lsearch(&lotID, pPos, CMPF_LONG, offsetof(PPTransferItem, LotID)) : 0; }
 
-int PPBillPacket::AdjustLotQtty(PPID lotID, const PPTransferItem * pItem, int pos, double * pQtty) const
+void PPBillPacket::AdjustLotQtty(PPID lotID, const PPTransferItem * pItem, int pos, double * pQtty) const
 {
+	// @fixme Есть сомнения насчет корректности работы блока при pItem != 0 в части проверок !pItem->IsRecomplete() и pItem->IsCorrectionExp()
 	if(pQtty) {
-		if((Rec.Flags & (BILLF_GEXPEND|BILLF_GRECEIPT)) || (OpTypeID == PPOPT_GOODSMODIF && !(pItem && pItem->IsRecomplete())) || pItem->IsCorrectionExp()) {
-			P_BObj->trfr->SubtractBillQtty(Rec.ID, lotID, pQtty);
-			for(uint i = 0; SearchLot(lotID, &i); i++) {
-				if((int)i != pos) {
-					*pQtty += ConstTI(i).SQtty(Rec.OpID);
+		if(pItem) {
+			if((Rec.Flags & (BILLF_GEXPEND|BILLF_GRECEIPT)) || (OpTypeID == PPOPT_GOODSMODIF && !pItem->IsRecomplete()) || pItem->IsCorrectionExp()) {
+				P_BObj->trfr->SubtractBillQtty(Rec.ID, lotID, pQtty);
+				for(uint i = 0; SearchLot(lotID, &i); i++) {
+					if(static_cast<int>(i) != pos) {
+						*pQtty += ConstTI(i).SQtty(Rec.OpID);
+					}
+				}
+				if(pItem->LotID == lotID)
+					*pQtty += pItem->SQtty(Rec.OpID);
+			}
+		}
+		else {
+			if((Rec.Flags & (BILLF_GEXPEND|BILLF_GRECEIPT)) || OpTypeID == PPOPT_GOODSMODIF) {
+				P_BObj->trfr->SubtractBillQtty(Rec.ID, lotID, pQtty);
+				for(uint i = 0; SearchLot(lotID, &i); i++) {
+					if(static_cast<int>(i) != pos) {
+						*pQtty += ConstTI(i).SQtty(Rec.OpID);
+					}
 				}
 			}
-			if(pItem && pItem->LotID == lotID)
-				*pQtty += pItem->SQtty(Rec.OpID);
 		}
 	}
-	return 1;
 }
 
 int PPBillPacket::RestByLot(PPID lotID, const PPTransferItem * pTi, int pos, double * pRest) const
@@ -4686,8 +4698,6 @@ int PPBillPacket::GetMainOrgID_(PPID * pID) const
 		ArticleTbl::Rec ar_rec;
 		if(ar_obj.Fetch(Rec.Object2, &ar_rec) > 0 && ar_rec.ObjID) {
 			PPObjAccSheet acs_obj;
-			//PPAccSheet acs_rec;
-			//if(acs_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN) {
 			if(acs_obj.IsLinkedToMainOrg(ar_rec.AccSheetID)) {
 				main_org_id = ar_rec.ObjID;
 			}

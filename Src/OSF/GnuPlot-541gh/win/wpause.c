@@ -97,11 +97,10 @@ static void CreatePauseClass(LPPW lppw)
 bool MousableWindowOpened(void)
 {
 	bool result = FALSE;
-
 #ifdef USE_MOUSE
-	/* only pause-for-mouse when a window is open */
-	/* FIXME: we might want to have a terminal entry for that */
-	if(term != NULL) {
+	// only pause-for-mouse when a window is open 
+	// FIXME: we might want to have a terminal entry for that 
+	if(term) {
 		if((strcmp(term->name, "windows") == 0) && GraphHasWindow(graphwin))
 			result = TRUE;
 #ifdef WXWIDGETS
@@ -123,7 +122,6 @@ bool MousableWindowOpened(void)
 #endif
 	}
 #endif
-
 	return result;
 }
 //

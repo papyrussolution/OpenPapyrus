@@ -42,8 +42,8 @@ register_term(wxt)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void wxt_options();
-TERM_PUBLIC void wxt_text_wrapper();
+	TERM_PUBLIC void wxt_options(TERMENTRY * pThis, GnuPlot * pGp);
+	TERM_PUBLIC void wxt_text_wrapper();
 #endif /* TERM_PROTO */
 
 #ifndef TERM_PROTO_ONLY
@@ -144,8 +144,8 @@ static struct gen_table wxt_opts[] = {
 /* "Called when terminal type is selected. This procedure should parse options on the command line.
  * A list of the currently selected options should be stored in term_options[],
  * in a form suitable for use with the set term command.
- * term_options[] is used by the save command.  Use options_null() if no options are available." */
-TERM_PUBLIC void wxt_options()
+ * term_options[] is used by the save command.  Use GnuPlot::OptionsNull() if no options are available." */
+TERM_PUBLIC void wxt_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	char * s = NULL;
 	char * font_setting = NULL;
@@ -156,20 +156,19 @@ TERM_PUBLIC void wxt_options()
 	bool set_title = FALSE, set_close = FALSE;
 	bool set_capjoin = FALSE, set_size = FALSE;
 	bool set_position = FALSE;
-
 #ifndef _WIN32
 	if(term_interlock != NULL && term_interlock != (void*)wxt_init) {
 		term = NULL;
-		GPO.IntError(NO_CARET, "The wxt terminal cannot be used in a qt session");
+		pGp->IntError(NO_CARET, "The wxt terminal cannot be used in a qt session");
 	}
 #endif
-	while(!GPO.Pgm.EndOfCommand()) {
-		const int _option = GPO.Pgm.LookupTableForCurrentToken(&wxt_opts[0]);
-		GPO.Pgm.Shift();
+	while(!pGp->Pgm.EndOfCommand()) {
+		const int _option = pGp->Pgm.LookupTableForCurrentToken(&wxt_opts[0]);
+		pGp->Pgm.Shift();
 		switch(_option) {
 			case WXT_FONT:
-			    if(!(s = GPO.TryToGetString()))
-				    GPO.IntErrorCurToken("font: expecting string");
+			    if(!(s = pGp->TryToGetString()))
+				    pGp->IntErrorCurToken("font: expecting string");
 			    font_setting = gp_strdup(s);
 			    if(*s) {
 				    char * sep = strchr(s, ',');
@@ -185,7 +184,7 @@ TERM_PUBLIC void wxt_options()
 			    set_font = TRUE;
 			    break;
 			case WXT_FONTSCALE:
-			    wxt_set_fontscale = GPO.Pgm.EndOfCommand() ? -1 : GPO.RealExpression();
+			    wxt_set_fontscale = pGp->Pgm.EndOfCommand() ? -1 : pGp->RealExpression();
 			    if(wxt_set_fontscale <= 0)
 				    wxt_set_fontscale = 1.0;
 			    break;
@@ -200,29 +199,29 @@ TERM_PUBLIC void wxt_options()
 			case WXT_SIZE:
 		    {
 			    double insize; /* shige 2019-02-27 for size 0 */
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("size requires 'width,height'");
-			    if((insize = GPO.RealExpression()) >= 1)
+			    if(pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("size requires 'width,height'");
+			    if((insize = pGp->RealExpression()) >= 1)
 				    wxt_width = insize;
 			    else
-				    GPO.IntErrorCurToken("size is out of range");
-			    if(!GPO.Pgm.EqualsCurShift(","))
-				    GPO.IntErrorCurToken("size requires 'width,height'");
-			    if((insize = GPO.RealExpression()) >= 1)
+				    pGp->IntErrorCurToken("size is out of range");
+			    if(!pGp->Pgm.EqualsCurShift(","))
+				    pGp->IntErrorCurToken("size requires 'width,height'");
+			    if((insize = pGp->RealExpression()) >= 1)
 				    wxt_height = insize;
 			    else
-				    GPO.IntErrorCurToken("size is out of range");
+				    pGp->IntErrorCurToken("size is out of range");
 			    if(set_size) duplication = TRUE;
 			    set_size = TRUE;
 			    break;
 		    }
 			case WXT_POSITION:
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("position requires 'x,y'");
-			    wxt_posx = GPO.RealExpression();
-			    if(!GPO.Pgm.EqualsCurShift(","))
-				    GPO.IntErrorCurToken("position requires 'x,y'");
-			    wxt_posy = GPO.RealExpression();
+			    if(pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("position requires 'x,y'");
+			    wxt_posx = pGp->RealExpression();
+			    if(!pGp->Pgm.EqualsCurShift(","))
+				    pGp->IntErrorCurToken("position requires 'x,y'");
+			    wxt_posy = pGp->RealExpression();
 			    if(set_position) duplication = TRUE;
 			    set_position = TRUE;
 			    break;
@@ -263,8 +262,8 @@ TERM_PUBLIC void wxt_options()
 			    set_ctrl = TRUE;
 			    break;
 			case WXT_TITLE:
-			    if(!(s = GPO.TryToGetString()))
-				    GPO.IntErrorCurToken("title: expecting string");
+			    if(!(s = pGp->TryToGetString()))
+				    pGp->IntErrorCurToken("title: expecting string");
 			    if(*s)
 				    safe_strncpy(wxt_title, s, sizeof(wxt_title));
 			    SAlloc::F(s);
@@ -296,12 +295,12 @@ TERM_PUBLIC void wxt_options()
 			    wxt_dashed = TRUE;
 			    break;
 			case WXT_DASHLENGTH:
-			    wxt_dashlength = GPO.RealExpression();
+			    wxt_dashlength = pGp->RealExpression();
 			    if(wxt_dashlength <= 0)
 				    wxt_dashlength = 1.0;
 			    break;
 			case WXT_LINEWIDTH:
-			    wxt_lw = GPO.RealExpression();
+			    wxt_lw = pGp->RealExpression();
 			    if(wxt_lw <= 0)
 				    wxt_lw = 1.0;
 			    break;
@@ -319,21 +318,21 @@ TERM_PUBLIC void wxt_options()
 			    break;
 			case WXT_OTHER:
 			default:
-			    GPO.Pgm.Rollback();
-			    if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()) || GPO.Pgm.TypeUdv(GPO.Pgm.GetCurTokenIdx()) == INTGR) {
-				    wxt_window_number = GPO.IntExpression();
+			    pGp->Pgm.Rollback();
+			    if(pGp->Pgm.IsANumber(pGp->Pgm.GetCurTokenIdx()) || pGp->Pgm.TypeUdv(pGp->Pgm.GetCurTokenIdx()) == INTGR) {
+				    wxt_window_number = pGp->IntExpression();
 				    if(set_number) 
 						duplication = TRUE;
 				    set_number = TRUE;
 			    }
 			    else {
-				    GPO.IntWarn(GPO.Pgm.GetCurTokenIdx(), "unrecognized terminal option");
-					GPO.Pgm.Shift();
+				    pGp->IntWarn(pGp->Pgm.GetCurTokenIdx(), "unrecognized terminal option");
+					pGp->Pgm.Shift();
 			    }
 			    break;
 		}
 		if(duplication) {
-			GPO.IntWarn(GPO.Pgm.GetPrevTokenIdx(), "Duplicated or contradicting arguments in wxt term options.");
+			pGp->IntWarn(pGp->Pgm.GetPrevTokenIdx(), "Duplicated or contradicting arguments in wxt term options.");
 			duplication = FALSE;
 		}
 	}
@@ -370,7 +369,6 @@ TERM_PUBLIC void wxt_options()
 		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
 		wxt_update_size(wxt_window_number);
 	}
-
 	if(set_position) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " position %d, %d", wxt_posx, wxt_posy);
@@ -378,7 +376,6 @@ TERM_PUBLIC void wxt_options()
 		wxt_update_position(wxt_window_number);
 	}
 	strncat(term_options, wxt_enhanced_enabled ? " enhanced" : " noenhanced", sizeof(term_options)-strlen(term_options)-1);
-
 	if(set_font) {
 		strncat(term_options, " font \"", sizeof(term_options)-strlen(term_options)-1);
 		strncat(term_options, font_setting, sizeof(term_options)-strlen(term_options)-1);

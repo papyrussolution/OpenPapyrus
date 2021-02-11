@@ -23,7 +23,7 @@ double boxdepth = 0.0;
     //AXIS_INDEX iso_axis, double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use);
 //static int get_3ddata(struct surface_points * this_plot);
 //static void eval_3dplots();
-static void grid_nongrid_data(struct surface_points * this_plot);
+//static void grid_nongrid_data(struct surface_points * this_plot);
 static void parametric_3dfixup(struct surface_points * start_plot, int * plot_num);
 static struct surface_points * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
 static void sp_replace(struct surface_points * sp, int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
@@ -216,7 +216,7 @@ void iso_free(struct iso_curve * ip)
 }
 
 //void plot3drequest()
-void GnuPlot::Plot3DRequest()
+void GnuPlot::Plot3DRequest(termentry * pTerm)
 {
 	// 
 	// in the parametric case we would say splot [u= -Pi:Pi] [v= 0:2*Pi] [-1:1]
@@ -262,7 +262,7 @@ void GnuPlot::Plot3DRequest()
 			axis_init(primary, 1);
 		}
 	}
-	if(!term)               /* unknown */
+	if(!pTerm)               /* unknown */
 		IntErrorCurToken("use 'set term' to set terminal type first");
 	/* Range limits for the entire plot are optional but must be given	*/
 	/* in a fixed order. The keyword 'sample' terminates range parsing.	*/
@@ -303,7 +303,7 @@ void GnuPlot::Plot3DRequest()
 		if((AxS[SECOND_X_AXIS].ticmode && !AxS[SECOND_X_AXIS].linked_to_primary) || (AxS[SECOND_Y_AXIS].ticmode && !AxS[SECOND_Y_AXIS].linked_to_primary))
 			IntError(NO_CARET, "Secondary axis must be linked to primary axis in order to draw tics");
 	}
-	Eval3DPlots(term);
+	Eval3DPlots(pTerm);
 }
 // 
 // Helper function for refresh command.  Reexamine each data point and update the
@@ -354,14 +354,14 @@ void GnuPlot::Refresh3DBounds(termentry * pTerm, surface_points * pFirstPlot, in
 					x_axis->AutoscaleOnePoint(point->x);
 					y_axis->AutoscaleOnePoint(point->y);
 				}
-				if(!inrange(point->x, x_axis->min, x_axis->max) || !inrange(point->y, y_axis->min, y_axis->max)) {
+				if(!x_axis->InRange(point->x) || !y_axis->InRange(point->y)) {
 					point->type = OUTRANGE;
 					continue;
 				}
 				if(!this_plot->noautoscale) {
 					z_axis->AutoscaleOnePoint(point->z);
 				}
-				if(!inrange(point->z, z_axis->min, z_axis->max)) {
+				if(!z_axis->InRange(point->z)) {
 					point->type = OUTRANGE;
 					continue;
 				}
@@ -386,14 +386,13 @@ static double splines_kernel(double h)
    This function has been hived off out of the original grid_nongrid_data().
    No changes have been made, but variables only needed locally have moved
    out of grid_nongrid_data() into this function. */
-static void thin_plate_splines_setup(struct iso_curve * old_iso_crvs,
-    double ** p_xx, int * p_numpoints)
+static void thin_plate_splines_setup(struct iso_curve * old_iso_crvs, double ** p_xx, int * p_numpoints)
 {
 	int i, j, k;
 	double * xx, * yy, * zz, * b, ** K, d;
-	int numpoints, * indx;
-	struct iso_curve * oicrv;
-	numpoints = 0;
+	int * indx;
+	iso_curve * oicrv;
+	int numpoints = 0;
 	for(oicrv = old_iso_crvs; oicrv != NULL; oicrv = oicrv->next) {
 		numpoints += oicrv->p_count;
 	}
@@ -518,21 +517,22 @@ static double pythag(double dx, double dy)
 	return y*sqrt(1.0 + (x*x)/(y*y));
 }
 
-static void grid_nongrid_data(struct surface_points * this_plot)
+//static void grid_nongrid_data(surface_points * pPlot)
+void GnuPlot::GridNonGridData(surface_points * pPlot)
 {
 	int i, j, k;
 	double x, y, z, w, dx, dy, xmin, xmax, ymin, ymax;
 	double c;
 	coord_type dummy_type;
-	iso_curve * old_iso_crvs = this_plot->iso_crvs;
+	iso_curve * old_iso_crvs = pPlot->iso_crvs;
 	iso_curve * icrv, * oicrv, * oicrvs;
 	// these are only needed for thin_plate_splines 
 	double * xx = NULL, * yy = NULL, * zz = NULL, * b = NULL;
 	int numpoints = 0;
 	// Version 5.3 - allow gridding of separate color column so long as
 	// we don't need to generate splines for it
-	if(this_plot->pm3d_color_from_column && dgrid3d_mode == DGRID3D_SPLINES)
-		GPO.IntError(NO_CARET, "Spline gridding of a separate color column is not implemented");
+	if(pPlot->pm3d_color_from_column && dgrid3d_mode == DGRID3D_SPLINES)
+		IntError(NO_CARET, "Spline gridding of a separate color column is not implemented");
 	/* Compute XY bounding box on the original data. */
 	/* FIXME HBB 20010424: Does this make any sense? Shouldn't we just
 	 * use whatever the x and y ranges have been found to be, and
@@ -544,9 +544,8 @@ static void grid_nongrid_data(struct surface_points * this_plot)
 	ymin = ymax = old_iso_crvs->points[0].y;
 	for(icrv = old_iso_crvs; icrv != NULL; icrv = icrv->next) {
 		GpCoordinate * points = icrv->points;
-
 		for(i = 0; i < icrv->p_count; i++, points++) {
-			/* HBB 20010424: avoid crashing for undefined input */
+			// HBB 20010424: avoid crashing for undefined input 
 			if(points->type == UNDEFINED)
 				continue;
 			if(xmin > points->x)
@@ -562,9 +561,9 @@ static void grid_nongrid_data(struct surface_points * this_plot)
 	dx = (xmax - xmin) / (dgrid3d_col_fineness - 1);
 	dy = (ymax - ymin) / (dgrid3d_row_fineness - 1);
 	// Create the new grid structure, and compute the low pass filtering from non grid to grid structure.
-	this_plot->iso_crvs = NULL;
-	this_plot->num_iso_read = dgrid3d_col_fineness;
-	this_plot->has_grid_topology = TRUE;
+	pPlot->iso_crvs = NULL;
+	pPlot->num_iso_read = dgrid3d_col_fineness;
+	pPlot->has_grid_topology = TRUE;
 	if(dgrid3d_mode == DGRID3D_SPLINES) {
 		thin_plate_splines_setup(old_iso_crvs, &xx, &numpoints);
 		yy = xx + numpoints;
@@ -575,8 +574,8 @@ static void grid_nongrid_data(struct surface_points * this_plot)
 		GpCoordinate * points;
 		icrv = iso_alloc(dgrid3d_row_fineness + 1);
 		icrv->p_count = dgrid3d_row_fineness;
-		icrv->next = this_plot->iso_crvs;
-		this_plot->iso_crvs = icrv;
+		icrv->next = pPlot->iso_crvs;
+		pPlot->iso_crvs = icrv;
 		points = icrv->points;
 		for(j = 0, y = ymin; j<dgrid3d_row_fineness; j++, y += dy, points++) {
 			z = w = 0.0;
@@ -596,10 +595,7 @@ static void grid_nongrid_data(struct surface_points * this_plot)
 					GpCoordinate * opoints = oicrv->points;
 					for(k = 0; k < oicrv->p_count; k++, opoints++) {
 						if(dgrid3d_mode == DGRID3D_QNORM) {
-							double dist = qnorm(fabs(opoints->x - x),
-								fabs(opoints->y - y),
-								dgrid3d_norm_value);
-
+							double dist = qnorm(fabs(opoints->x - x), fabs(opoints->y - y), dgrid3d_norm_value);
 							if(dist == 0.0) {
 								/* HBB 981209:  flag the first undefined z and return */
 								points->type = UNDEFINED;
@@ -652,25 +648,25 @@ static void grid_nongrid_data(struct surface_points * this_plot)
 			/* Honor requested x and y limits */
 			/* Historical note: This code was not in 4.0 or 4.2. It imperfectly */
 			/* restores the clipping behaviour of version 3.7 and earlier. */
-			if((x < GPO.AxS[GPO.AxS.Idx_X].min && !(GPO.AxS[GPO.AxS.Idx_X].autoscale & AUTOSCALE_MIN))
-			    || (x > GPO.AxS[GPO.AxS.Idx_X].max && !(GPO.AxS[GPO.AxS.Idx_X].autoscale & AUTOSCALE_MAX))
-			    || (y < GPO.AxS[GPO.AxS.Idx_Y].min && !(GPO.AxS[GPO.AxS.Idx_Y].autoscale & AUTOSCALE_MIN))
-			    || (y > GPO.AxS[GPO.AxS.Idx_Y].max && !(GPO.AxS[GPO.AxS.Idx_Y].autoscale & AUTOSCALE_MAX)))
+			if((x < AxS[AxS.Idx_X].min && !(AxS[AxS.Idx_X].autoscale & AUTOSCALE_MIN))
+			    || (x > AxS[AxS.Idx_X].max && !(AxS[AxS.Idx_X].autoscale & AUTOSCALE_MAX))
+			    || (y < AxS[AxS.Idx_Y].min && !(AxS[AxS.Idx_Y].autoscale & AUTOSCALE_MIN))
+			    || (y > AxS[AxS.Idx_Y].max && !(AxS[AxS.Idx_Y].autoscale & AUTOSCALE_MAX)))
 				points->type = OUTRANGE;
 
 			if(dgrid3d_mode != DGRID3D_SPLINES && !dgrid3d_kdensity) {
 				z = z / w;
 				c = c / w;
 			}
-			STORE_AND_UPDATE_RANGE(points->z, z, points->type, GPO.AxS.Idx_Z, this_plot->noautoscale, continue);
-			if(!this_plot->pm3d_color_from_column)
+			STORE_AND_UPDATE_RANGE(points->z, z, points->type, AxS.Idx_Z, pPlot->noautoscale, continue);
+			if(!pPlot->pm3d_color_from_column)
 				c = z;
 			dummy_type = points->type;
-			STORE_AND_UPDATE_RANGE(points->CRD_COLOR, c, dummy_type, COLOR_AXIS, this_plot->noautoscale, continue);
+			STORE_AND_UPDATE_RANGE(points->CRD_COLOR, c, dummy_type, COLOR_AXIS, pPlot->noautoscale, continue);
 		}
 	}
-	SAlloc::F(xx); /* safe to call free on NULL pointer if splines not used */
-	/* Delete the old non grid data. */
+	SAlloc::F(xx); // safe to call free on NULL pointer if splines not used 
+	// Delete the old non grid data. 
 	for(oicrvs = old_iso_crvs; oicrvs != NULL;) {
 		oicrv = oicrvs;
 		oicrvs = oicrvs->next;
@@ -755,7 +751,7 @@ int GnuPlot::Get3DData(termentry * pTerm, surface_points * pPlot)
 		/* here so that it affects data fields read from the input file.      */
 		set_numeric_locale();
 		df_warn_on_missing_columnheader = TRUE; // Initial state 
-		while((retval = df_readline(v, MAXDATACOLS)) != DF_EOF) {
+		while((retval = DfReadLine(v, MAXDATACOLS)) != DF_EOF) {
 			j = retval;
 			if(j == 0) /* not blank line, but df_readline couldn't parse it */
 				IntWarn(NO_CARET, "Bad data on line %d of file %s", df_line_number, df_filename ? df_filename : "");
@@ -1221,7 +1217,7 @@ come_here_if_undefined:
 		/*}}} */
 	}
 	if(dgrid3d && pPlot->num_iso_read > 0)
-		grid_nongrid_data(pPlot);
+		GridNonGridData(pPlot);
 	if(pPlot->num_iso_read <= 1)
 		pPlot->has_grid_topology = FALSE;
 	if(pPlot->has_grid_topology && !hidden3d && (implicit_surface || pPlot->plot_style == SURFACEGRID)) {
@@ -1538,7 +1534,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 				    }
 				    this_plot->plot_type = KEYENTRY;
 				    this_plot->plot_style = LABELPOINTS;
-				    this_plot->token = end_token = GPO.Pgm.GetPrevTokenIdx();
+				    this_plot->token = end_token = Pgm.GetPrevTokenIdx();
 				    break;
 				case SP_FUNCTION:
 				    plot_num++;
@@ -1571,7 +1567,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 				    this_plot->title_is_suppressed = FALSE;
 				    /* ignore it for now */
 				    some_functions = TRUE;
-				    end_token = GPO.Pgm.GetPrevTokenIdx();
+				    end_token = Pgm.GetPrevTokenIdx();
 				    break;
 				case SP_VOXELGRID:
 				    plot_num++;
@@ -1585,10 +1581,10 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 				    this_plot->vgrid = get_vgrid_by_name(name_str)->udv_value.v.vgrid;
 				    this_plot->plot_type = VOXELDATA;
 				    this_plot->opt_out_of_hidden3d = TRUE;
-				    this_plot->token = end_token = GPO.Pgm.GetPrevTokenIdx();
+				    this_plot->token = end_token = Pgm.GetPrevTokenIdx();
 				    break;
 				default:
-				    IntError(GPO.Pgm.GetPrevTokenIdx(), "unrecognized data source");
+				    IntError(Pgm.GetPrevTokenIdx(), "unrecognized data source");
 				    break;
 			} /* End of switch(this_component) */
 			ZFREE(this_plot->title); // clear current title, if it exists 
@@ -1640,13 +1636,13 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 					this_plot->plot_style = get_style();
 					if((this_plot->plot_type == FUNC3D) && ((this_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR) || 
 						(this_plot->plot_style == LABELPOINTS && !draw_contour) || (this_plot->plot_style == VECTOR))) {
-						IntWarn(GPO.Pgm.GetPrevTokenIdx(), "This style cannot be used to plot a surface defined by a function");
+						IntWarn(Pgm.GetPrevTokenIdx(), "This style cannot be used to plot a surface defined by a function");
 						this_plot->plot_style = POINTSTYLE;
 						this_plot->plot_type = NODATA;
 					}
 					if(oneof3(this_plot->plot_style, IMAGE, RGBA_IMAGE, RGBIMAGE)) {
 						if(this_plot->plot_type == FUNC3D)
-							IntError(GPO.Pgm.GetPrevTokenIdx(), "a function cannot be plotted as an image");
+							IntError(Pgm.GetPrevTokenIdx(), "a function cannot be plotted as an image");
 						else
 							GetImageOptions(&this_plot->image_properties);
 					}
@@ -1662,14 +1658,14 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 						this_plot->iso_level = 0.0;
 						if(Pgm.EqualsCur("above")) {
 							Pgm.Shift();
-							this_plot->iso_level = GPO.RealExpression();
+							this_plot->iso_level = RealExpression();
 						}
 					}
 					if(this_plot->plot_style == ISOSURFACE) {
 						if(this_plot->plot_type == VOXELDATA) {
 							if(Pgm.EqualsCur("level")) {
 								Pgm.Shift();
-								this_plot->iso_level = GPO.RealExpression();
+								this_plot->iso_level = RealExpression();
 							}
 							else
 								IntErrorCurToken("isosurface requires a level");
@@ -2023,7 +2019,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 				IntError(NO_CARET, "unexpected plot_type %d at plot3d:%d\n", this_plot->plot_type, __LINE__);
 			}
 			if(this_plot->plot_type == DATA3D && this_plot->plot_style == LINES && this_plot->plot_smooth != SMOOTH_NONE) {
-				gen_3d_splines(this_plot);
+				Gen3DSplines(this_plot);
 				Refresh3DBounds(pTerm, this_plot, 1);
 			}
 SKIPPED_EMPTY_FILE:
@@ -2059,7 +2055,7 @@ SKIPPED_EMPTY_FILE:
 			FPRINTF((stderr, "    last_iteration_in_first_pass %d\n", last_iteration_in_first_pass));
 			eof_during_iteration = FALSE;
 		}
-		else if(next_iteration(plot_iterator)) {
+		else if(NextIteration(plot_iterator)) {
 			Pgm.SetTokenIdx(start_token);
 			continue;
 		}
@@ -2217,7 +2213,7 @@ SKIPPED_EMPTY_FILE:
 				} while(this_plot && this_plot->token == Pgm.GetCurTokenIdx() && this_plot->iteration == i);
 			} // !IsDefinition 
 			// Iterate-over-plot mechanism 
-			if(crnt_param == 0 && next_iteration(plot_iterator)) {
+			if(crnt_param == 0 && NextIteration(plot_iterator)) {
 				Pgm.SetTokenIdx(start_token);
 				continue;
 			}
@@ -2317,9 +2313,9 @@ SKIPPED_EMPTY_FILE:
 			if(!this_plot->has_grid_topology)
 				IntWarn(NO_CARET, "Cannot contour non grid data. Please use \"set dgrid3d\".");
 			else if(this_plot->plot_type == DATA3D)
-				this_plot->contours = contour(this_plot->num_iso_read, this_plot->iso_crvs);
+				this_plot->contours = Contour(this_plot->num_iso_read, this_plot->iso_crvs);
 			else
-				this_plot->contours = contour(iso_samples_2, this_plot->iso_crvs);
+				this_plot->contours = Contour(iso_samples_2, this_plot->iso_crvs);
 		}
 	} // draw_contour 
 	// Images don't fit the grid model.  (The image data correspond
@@ -2365,8 +2361,8 @@ SKIPPED_EMPTY_FILE:
 	// record that all went well 
 	plot3d_num = plot_num;
 	// perform the plot 
-	if(table_mode) {
-		print_3dtable(plot_num);
+	if(Tab.Mode) {
+		Print3DTable(plot_num);
 	}
 	else {
 		Do3DPlot(pTerm, first_3dplot, plot_num, NORMAL_REPLOT);
@@ -2395,10 +2391,9 @@ SKIPPED_EMPTY_FILE:
  */
 static void parametric_3dfixup(struct surface_points * start_plot, int * plot_num)
 {
-	struct surface_points * xp, * new_list, * free_list = NULL;
-	struct surface_points ** last_pointer = &new_list;
+	surface_points * xp, * new_list, * free_list = NULL;
+	surface_points ** last_pointer = &new_list;
 	int i, surface;
-
 	/*
 	 * Ok, go through all the plots and move FUNC3D types together.  Note:
 	 * this originally was written to look for a NULL next pointer, but
@@ -2415,26 +2410,21 @@ static void parametric_3dfixup(struct surface_points * start_plot, int * plot_nu
 	new_list = xp = start_plot;
 	for(surface = 0; surface < *plot_num; surface++) {
 		if(xp->plot_type == FUNC3D) {
-			struct surface_points * yp = xp->next_sp;
-			struct surface_points * zp = yp->next_sp;
-
+			surface_points * yp = xp->next_sp;
+			surface_points * zp = yp->next_sp;
 			/* Here's a FUNC3D parametric function defined as three parts.
 			 * Go through all the points and assign the x's and y's from xp and
 			 * yp to zp. min/max already done
 			 */
-			struct iso_curve * xicrvs = xp->iso_crvs;
-			struct iso_curve * yicrvs = yp->iso_crvs;
-			struct iso_curve * zicrvs = zp->iso_crvs;
-
+			iso_curve * xicrvs = xp->iso_crvs;
+			iso_curve * yicrvs = yp->iso_crvs;
+			iso_curve * zicrvs = zp->iso_crvs;
 			(*plot_num) -= 2;
-
 			assert(INRANGE < OUTRANGE && OUTRANGE < UNDEFINED);
-
 			while(zicrvs) {
 				GpCoordinate * xpoints = xicrvs->points;
 				GpCoordinate * ypoints = yicrvs->points;
 				GpCoordinate * zpoints = zicrvs->points;
-
 				for(i = 0; i < zicrvs->p_count; ++i) {
 					zpoints[i].x = xpoints[i].z;
 					zpoints[i].y = ypoints[i].z;
@@ -2447,7 +2437,6 @@ static void parametric_3dfixup(struct surface_points * start_plot, int * plot_nu
 				yicrvs = yicrvs->next;
 				zicrvs = zicrvs->next;
 			}
-
 			/* add xp and yp to head of free list */
 			assert(xp->next_sp == yp);
 			yp->next_sp = free_list;

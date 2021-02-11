@@ -663,9 +663,35 @@ bool AbstractLayoutBlock::IsPositionAbsoluteY() const
 //
 //
 //
-LayoutFlexItem::Result::Result() : Flags(0)
+LayoutFlexItem::Result::Result() : Flags(0), P_Scrlr(0)
 {
 	memzero(Frame, sizeof(Frame));
+}
+
+LayoutFlexItem::Result::Result(const Result & rS) : Flags(rS.Flags), P_Scrlr(0)
+{
+	memcpy(Frame, rS.Frame, sizeof(Frame));
+	if(rS.P_Scrlr) {
+		P_Scrlr = new SScroller(*rS.P_Scrlr);
+	}
+}
+
+LayoutFlexItem::Result::~Result()
+{
+	delete P_Scrlr;
+}
+
+LayoutFlexItem::Result & FASTCALL LayoutFlexItem::Result::operator = (const Result & rS)
+{
+	memcpy(Frame, rS.Frame, sizeof(Frame));
+	Flags = rS.Flags;
+	if(rS.P_Scrlr) {
+		P_Scrlr = new SScroller(*rS.P_Scrlr);
+	}
+	else {
+		ZDELETE(P_Scrlr);
+	}
+	return *this;
 }
 
 LayoutFlexItem::Result::operator FRect() const
@@ -680,6 +706,12 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 	Frame[2] = rS.Frame[2];
 	Frame[3] = rS.Frame[3];
 	Flags = rS.Flags;
+	if(rS.P_Scrlr) {
+		P_Scrlr = new SScroller(*rS.P_Scrlr);
+	}
+	else {
+		ZDELETE(P_Scrlr);
+	}
 	return *this;
 }
 
@@ -1428,7 +1460,7 @@ void LayoutFlexItem::DoLayout(const Param & rP, PagingResult * pPgR) const
 {
 	const uint _cc = GetChildrenCount();
 	PagingResult pr;
-	PagingResult nonlines_pr;
+	//PagingResult nonlines_pr;
 	pr.PageCount = 1;
 	const int  _direction = ALB.GetContainerDirection();
 	const int  _cross_direction = AbstractLayoutBlock::GetCrossDirection(_direction);
@@ -1511,7 +1543,7 @@ void LayoutFlexItem::DoLayout(const Param & rP, PagingResult * pPgR) const
 			}
 		}
 		// Layout remaining items in wrap mode, or everything otherwise.
-		DoLayoutChildren(last_layout_child, _cc, relative_children_count, &layout_s, layout_s.Lines.getCount() ? 0 : &nonlines_pr);
+		DoLayoutChildren(last_layout_child, _cc, relative_children_count, &layout_s, layout_s.Lines.getCount() ? 0 : &pr);
 		//
 		// In wrap mode we may need to tweak the position of each line according to
 		// the align_content property as well as the cross-axis size of items that haven't been set yet.
@@ -1579,9 +1611,6 @@ void LayoutFlexItem::DoLayout(const Param & rP, PagingResult * pPgR) const
 				}
 			}
 			pr.PageCount = pr.PageCount; // @debug
-		}
-		else {
-			pr = nonlines_pr;
 		}
 		{
 			ZFREE(layout_s.ordered_indices);

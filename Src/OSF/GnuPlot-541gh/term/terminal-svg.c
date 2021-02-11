@@ -69,7 +69,7 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void SVG_options();
+TERM_PUBLIC void SVG_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void SVG_init(termentry * pThis);
 TERM_PUBLIC void SVG_graphics();
 TERM_PUBLIC void SVG_text();
@@ -455,11 +455,11 @@ static void SVG_MoveForced(uint x, uint y)
 // 
 // SVG_options
 // 
-TERM_PUBLIC void SVG_options()
+TERM_PUBLIC void SVG_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	// Annoying hack to handle the case of 'set termoption' after 
 	// we have already initialized the terminal settings.         
-	if(!GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion"))
+	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion"))
 		SVG_local_reset();
 	if(strcmp(term->name, "domterm") == 0) {
 		SVG_emit_doctype = FALSE;
@@ -471,77 +471,77 @@ TERM_PUBLIC void SVG_options()
 	}
 	// Minimal initialization in case we error out of options parsing 
 	SVG_set_font("");
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("s$ize")) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		if(pGp->Pgm.AlmostEqualsCur("s$ize")) {
 			double value;
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting x size");
-			value = GPO.RealExpression();
+			pGp->Pgm.Shift();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("expecting x size");
+			value = pGp->RealExpression();
 			if(value < 2)
-				GPO.IntErrorCurToken("x size out of range");
+				pGp->IntErrorCurToken("x size out of range");
 			SVG_xSize = static_cast<uint>(value * SVG_SCALE);
-			if(GPO.Pgm.EqualsCur(","))
-				GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting y size");
-			value = GPO.RealExpression();
+			if(pGp->Pgm.EqualsCur(","))
+				pGp->Pgm.Shift();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("expecting y size");
+			value = pGp->RealExpression();
 			if(value < 2)
-				GPO.IntErrorCurToken("y size out of range");
+				pGp->IntErrorCurToken("y size out of range");
 			SVG_ySize = static_cast<uint>(value * SVG_SCALE);
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("mouse") || GPO.Pgm.AlmostEqualsCur("mous$ing")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.EqualsCur("mouse") || pGp->Pgm.AlmostEqualsCur("mous$ing")) {
+			pGp->Pgm.Shift();
 			SVG_mouseable = TRUE;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("stand$alone")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("stand$alone")) {
+			pGp->Pgm.Shift();
 			SVG_standalone = TRUE;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("name")) {
-			GPO.Pgm.Shift();
-			SVG_name = GPO.TryToGetString();
+		if(pGp->Pgm.EqualsCur("name")) {
+			pGp->Pgm.Shift();
+			SVG_name = pGp->TryToGetString();
 			if(!SVG_name)
-				GPO.IntErrorCurToken("expecting a plot name");
+				pGp->IntErrorCurToken("expecting a plot name");
 			if(SVG_name[strspn(SVG_name, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890")])
-				GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "name must contain only alphanumerics or _");
+				pGp->IntError(pGp->Pgm.GetPrevTokenIdx(), "name must contain only alphanumerics or _");
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("jsdir")) {
-			GPO.Pgm.Shift();
-			SVG_scriptdir = GPO.TryToGetString();
+		if(pGp->Pgm.EqualsCur("jsdir")) {
+			pGp->Pgm.Shift();
+			SVG_scriptdir = pGp->TryToGetString();
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("d$ynamic")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("d$ynamic")) {
+			pGp->Pgm.Shift();
 			SVG_fixed_size = FALSE;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("fi$xed")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("fi$xed")) {
+			pGp->Pgm.Shift();
 			SVG_fixed_size = TRUE;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("enh$anced")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("enh$anced")) {
+			pGp->Pgm.Shift();
 			term->put_text = ENHsvg_put_text;
 			term->flags |= TERM_ENHANCED_TEXT;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("noenh$anced")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("noenh$anced")) {
+			pGp->Pgm.Shift();
 			term->put_text = SVG_put_text;
 			term->flags &= ~TERM_ENHANCED_TEXT;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("fn$ame") || GPO.Pgm.AlmostEqualsCur("font")) {
+		if(pGp->Pgm.AlmostEqualsCur("fn$ame") || pGp->Pgm.AlmostEqualsCur("font")) {
 			char * s, * comma;
-			GPO.Pgm.Shift();
-			if(!(s = GPO.TryToGetString()))
-				GPO.IntErrorCurToken("expecting font name");
+			pGp->Pgm.Shift();
+			if(!(s = pGp->TryToGetString()))
+				pGp->IntErrorCurToken("expecting font name");
 			comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma + 1, "%lf", &SVG_fontSizeDef)))
 				*comma = '\0';
@@ -572,58 +572,58 @@ TERM_PUBLIC void SVG_options()
 				SAlloc::F(s);
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("fontscale")) {
-			GPO.Pgm.Shift();
-			SVG_fontscale = GPO.RealExpression();
+		if(pGp->Pgm.EqualsCur("fontscale")) {
+			pGp->Pgm.Shift();
+			SVG_fontscale = pGp->RealExpression();
 			if(SVG_fontscale <= 0)
 				SVG_fontscale = 1.0;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("linew$idth") || GPO.Pgm.EqualsCur("lw")) {
-			GPO.Pgm.Shift();
-			SVG_linewidth_factor = GPO.RealExpression();
+		if(pGp->Pgm.AlmostEqualsCur("linew$idth") || pGp->Pgm.EqualsCur("lw")) {
+			pGp->Pgm.Shift();
+			SVG_linewidth_factor = pGp->RealExpression();
 			if(SVG_linewidth_factor <= 0.0)
 				SVG_linewidth_factor = 1.0;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("dashl$ength") || GPO.Pgm.EqualsCur("dl")) {
-			GPO.Pgm.Shift();
-			SVG_dashlength = GPO.RealExpression();
+		if(pGp->Pgm.AlmostEqualsCur("dashl$ength") || pGp->Pgm.EqualsCur("dl")) {
+			pGp->Pgm.Shift();
+			SVG_dashlength = pGp->RealExpression();
 			if(SVG_dashlength < 0.5)
 				SVG_dashlength = 1.0;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("round$ed")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("round$ed")) {
+			pGp->Pgm.Shift();
 			SVG_linecap = ROUNDED;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("square")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.EqualsCur("square")) {
+			pGp->Pgm.Shift();
 			SVG_linecap = SQUARE;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("butt")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.EqualsCur("butt")) {
+			pGp->Pgm.Shift();
 			SVG_linecap = BUTT;
 			continue;
 		}
 		// Not used in version 5 
-		if(GPO.Pgm.EqualsCur("solid") || GPO.Pgm.AlmostEqualsCur("dash$ed")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.EqualsCur("solid") || pGp->Pgm.AlmostEqualsCur("dash$ed")) {
+			pGp->Pgm.Shift();
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("backg$round")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("backg$round")) {
+			pGp->Pgm.Shift();
 			SVG_background = parse_color_name();
 			continue;
 		}
-		if(SVG_domterm && GPO.Pgm.AlmostEqualsCur("anim$ate")) {
-			GPO.Pgm.Shift();
+		if(SVG_domterm && pGp->Pgm.AlmostEqualsCur("anim$ate")) {
+			pGp->Pgm.Shift();
 			SVG_animate = TRUE;
 			continue;
 		}
-		GPO.IntErrorCurToken("unrecognized terminal option");
+		pGp->IntErrorCurToken("unrecognized terminal option");
 	}
 	// I don't think any error checks on font name are possible; just set it 
 	SVG_set_font("");
@@ -712,26 +712,16 @@ TERM_PUBLIC void SVG_init(termentry * pThis)
 	sprintf(SVG_pens[15].color, "#%2.2X%2.2X%2.2X", 171, 214, 0); /* green yellow*/
 
 	if(SVG_background >= 0)
-		sprintf(SVG_pens[0].color, "#%2.2X%2.2X%2.2X",
-		    (SVG_background >> 16)&0xff,
-		    (SVG_background >> 8)&0xff,
-		    (SVG_background)&0xff);
-
+		sprintf(SVG_pens[0].color, "#%2.2X%2.2X%2.2X", (SVG_background >> 16)&0xff, (SVG_background >> 8)&0xff, (SVG_background)&0xff);
 	SVG_LineType = LT_NODRAW;
-
-/* set xmax, ymax*/
-
-	term->MaxX = SVG_xSize;
-	term->MaxY = SVG_ySize;
-
-/* set current font, including ChrH and ChrV */
-
+	/* set xmax, ymax*/
+	pThis->MaxX = SVG_xSize;
+	pThis->MaxY = SVG_ySize;
+	/* set current font, including ChrH and ChrV */
 	SVG_SetFont(SVG_fontNameCur, SVG_fontSizeCur);
-
-/* set TicH, TicV*/
-
-	term->TicH = term->ChrV / 2;
-	term->TicV = term->ChrV / 2;
+	/* set TicH, TicV*/
+	pThis->TicH = pThis->ChrV / 2;
+	pThis->TicV = pThis->ChrV / 2;
 }
 
 /* write file header*/
@@ -740,7 +730,6 @@ static void SVG_write_preamble()
 	int len;
 	double stroke_width;
 	char * svg_encoding = "";
-
 	switch(encoding) {
 		case S_ENC_ISO8859_1:   svg_encoding = "encoding=\"iso-8859-1\" "; break;
 		case S_ENC_ISO8859_2:   svg_encoding = "encoding=\"iso-8859-2\" "; break;
@@ -1413,14 +1402,11 @@ TERM_PUBLIC void SVG_put_text(uint x, uint y, const char * str)
 	if(SVG_inTextBox)
 		fprintf(gpoutfile, " style='filter:url(#textbox)'");
 	fprintf(gpoutfile, ">\n");
-
-/* output text (unless the enhanced_text processing is in action) */
-
+	// output text (unless the enhanced_text processing is in action) 
 	if(strstr(str, "  "))
 		fputs("\t\t<text xml:space=\"preserve\">", gpoutfile);
 	else
 		fputs("\t\t<text>", gpoutfile);
-
 	if(!ENHsvg_string_state) {
 		while(*str) {
 			/* Escape SVG reserved characters */
@@ -1738,7 +1724,7 @@ TERM_PUBLIC void ENHsvg_OPEN(char * fontname, double fontsize, double base, bool
 		    fprintf(gpoutfile, "<tspan dx=\"-%.1fem\" dy=\"%.1fpx\">", 0.5 * ENHsvg_charcount, ENHsvg_base-base);
 		    ENHsvg_base = base;
 		    ENHsvg_x_offset = 0.0;
-		    enhanced_cur_text = enhanced_text;
+		    GPO.Enht.P_CurText = GPO.Enht.Text;
 		    ENHsvg_charcount = 0;
 		    ENHsvg_opened_string = TRUE;
 		    break;
@@ -1756,8 +1742,8 @@ TERM_PUBLIC void ENHsvg_OPEN(char * fontname, double fontsize, double base, bool
 	}
 	if(!ENHsvg_opened_string) {
 		ENHsvg_opened_string = TRUE;
-		enhanced_cur_text = enhanced_text;
-		/* Start a new textspan fragment */
+		GPO.Enht.P_CurText = GPO.Enht.Text;
+		// Start a new textspan fragment 
 		fputs("<tspan", gpoutfile);
 		if(!fontname)
 			fprintf(stderr, "ENHsvg_OPEN: null fontname\n");
@@ -1803,16 +1789,13 @@ TERM_PUBLIC void ENHsvg_OPEN(char * fontname, double fontsize, double base, bool
 
 TERM_PUBLIC void ENHsvg_FLUSH()
 {
-	char * s = enhanced_text;
+	char * s = GPO.Enht.Text;
 	int i;
-
 	if(!ENHsvg_opened_string)
 		return;
-
 	ENHsvg_opened_string = FALSE;
-	*enhanced_cur_text = '\0';
-	enhanced_cur_text = enhanced_text;
-
+	*GPO.Enht.P_CurText = '\0';
+	GPO.Enht.P_CurText = GPO.Enht.Text;
 	/* DEBUG - expand unicode escape sequences \U+ABCD into &#xABCD;
 	 * Triggers in two cases that I know of
 	 * 1) encoding is not UTF-8  (probably should not happen for svg)
@@ -1823,9 +1806,9 @@ TERM_PUBLIC void ENHsvg_FLUSH()
 	 * immediately follows a 4-char hex unicode entry point
 	 * (e.g. the ab ligature in the unicode.dem).
 	 */
-	while((s = strstr(enhanced_cur_text, "\\U+")) != NULL) {
+	while((s = strstr(GPO.Enht.P_CurText, "\\U+")) != NULL) {
 		*s = '\0';
-		fputs(enhanced_cur_text, gpoutfile); /* everything up to the escape */
+		fputs(GPO.Enht.P_CurText, gpoutfile); /* everything up to the escape */
 		fputs("&#x", gpoutfile);        /* xml escape sequence */
 		s += 3;                         /* start of hex codepoint */
 		for(i = 0; i<5; i++, s++) {     /* copy up to 5 hex characters */
@@ -1835,24 +1818,23 @@ TERM_PUBLIC void ENHsvg_FLUSH()
 				break;
 		}
 		fputs(";", gpoutfile);          /* end of xml escape sequence */
-		enhanced_cur_text = s;
+		GPO.Enht.P_CurText = s;
 	}
-
-	fputs(enhanced_cur_text, gpoutfile);    /* everything after the escape[s] */
+	fputs(GPO.Enht.P_CurText, gpoutfile);    /* everything after the escape[s] */
 	fputs("</tspan>", gpoutfile);
 }
 
 TERM_PUBLIC void ENHsvg_put_text(uint x, uint y, const char * str)
 {
-	/* We need local copies of the starting font properties */
+	// We need local copies of the starting font properties 
 	double fontsize = SVG_fontSizeCur;
 	static char * fontname = NULL;
 	SAlloc::F(fontname);
 	fontname = gp_strdup(SVG_fontNameCur);
-	/* We need the full set of tags for text, just as normal. But in */
-	/* the case of enhanced text ENHsvg_string_state == 1 tells the  */
-	/* SVG_put_text() to return without actually putting the text.   */
-	if(ignore_enhanced_text) {
+	// We need the full set of tags for text, just as normal. But in 
+	// the case of enhanced text ENHsvg_string_state == 1 tells the  
+	// SVG_put_text() to return without actually putting the text.   
+	if(GPO.Enht.Ignore) {
 		ENHsvg_string_state = 0;
 		SVG_put_text(x, y, str);
 		return;
@@ -1871,8 +1853,8 @@ TERM_PUBLIC void ENHsvg_put_text(uint x, uint y, const char * str)
 		ENHsvg_preserve_spaces = TRUE;
 	/* Set up global variables needed by enhanced_recursion() */
 	ENHsvg_charcount = 0;
-	enhanced_fontscale = 1.0;
-	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
+	GPO.Enht.FontScale = 1.0;
+	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	while(*(str = enhanced_recursion(term, (char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		enh_err_check(str);
@@ -1901,34 +1883,34 @@ TERM_PUBLIC void ENHsvg_writec(int c)
 	// Escape SVG reserved characters. Are there any besides '<' and '&' ? 
 	switch(c) {
 		case '<':
-		    *enhanced_cur_text++ = '&';
-		    *enhanced_cur_text++ = 'l';
-		    *enhanced_cur_text++ = 't';
-		    *enhanced_cur_text++ = ';';
+		    *GPO.Enht.P_CurText++ = '&';
+		    *GPO.Enht.P_CurText++ = 'l';
+		    *GPO.Enht.P_CurText++ = 't';
+		    *GPO.Enht.P_CurText++ = ';';
 		    break;
 		case '&':
-		    *enhanced_cur_text++ = '&';
-		    *enhanced_cur_text++ = 'a';
-		    *enhanced_cur_text++ = 'm';
-		    *enhanced_cur_text++ = 'p';
-		    *enhanced_cur_text++ = ';';
+		    *GPO.Enht.P_CurText++ = '&';
+		    *GPO.Enht.P_CurText++ = 'a';
+		    *GPO.Enht.P_CurText++ = 'm';
+		    *GPO.Enht.P_CurText++ = 'p';
+		    *GPO.Enht.P_CurText++ = ';';
 		    break;
 		case '\n':
-		    *enhanced_cur_text++ = '\\';
-		    *enhanced_cur_text++ = 'n';
+		    *GPO.Enht.P_CurText++ = '\\';
+		    *GPO.Enht.P_CurText++ = 'n';
 		    break;
 		case '\376':
 		    // This is an illegal UTF-8 byte; we use it to escape the reserved '&' 
 		    if(encoding == S_ENC_DEFAULT) {
-			    *enhanced_cur_text++ = '&';
+			    *GPO.Enht.P_CurText++ = '&';
 			    break;
 		    } /* else fall through */
 		default:
-		    *enhanced_cur_text++ = c;
+		    *GPO.Enht.P_CurText++ = c;
 		    break;
 	}
 	// Never overflow the output buffer 
-	if((enhanced_cur_text - enhanced_text) >= sizeof(enhanced_text)-1)
+	if((GPO.Enht.P_CurText - GPO.Enht.Text) >= sizeof(GPO.Enht.Text)-1)
 		ENHsvg_FLUSH();
 }
 
@@ -1952,12 +1934,12 @@ TERM_PUBLIC void SVG_hypertext(int type, const char * text)
 		    SAlloc::F(SVG_hypertext_text);
 		    if(text) {
 			    char * buffer = (char*)gp_alloc(2+5*strlen(text), "escape");
-			    enhanced_cur_text = buffer;
+			    GPO.Enht.P_CurText = buffer;
 			    do {
 				    ENHsvg_writec(*text);
 			    } while(*text++);
 			    SVG_hypertext_text = gp_strdup(buffer);
-			    enhanced_cur_text = NULL;
+			    GPO.Enht.P_CurText = NULL;
 			    SAlloc::F(buffer);
 		    }
 		    else {

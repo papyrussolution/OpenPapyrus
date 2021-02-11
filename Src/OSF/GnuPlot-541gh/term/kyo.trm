@@ -170,7 +170,7 @@ TERM_TABLE_START(prescribe_driver)
 	PRE_HCHAR,
 	PRE_VTIC, 
 	PRE_HTIC, 
-	options_null, 
+	GnuPlot::OptionsNull, 
 	PRE_init, 
 	PRE_reset,
 	PRE_text, 
@@ -180,9 +180,9 @@ TERM_TABLE_START(prescribe_driver)
 	PRE_vector,
 	PRE_linetype, 
 	PRE_put_text, 
-	null_text_angle,
+	GnuPlot::NullTextAngle,
 	PRE_justify_text, 
-	line_and_point, 
+	GnuPlot::LineAndPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null 
 TERM_TABLE_END(prescribe_driver)
@@ -199,7 +199,7 @@ TERM_TABLE_START(kyo_driver)
 	KYO_HCHAR,
 	PRE_VTIC, 
 	PRE_HTIC, 
-	options_null, 
+	GnuPlot::OptionsNull, 
 	KYO_init, 
 	PRE_reset,
 	PRE_text, 
@@ -209,9 +209,9 @@ TERM_TABLE_START(kyo_driver)
 	PRE_vector,
 	PRE_linetype, 
 	PRE_put_text, 
-	null_text_angle,
+	GnuPlot::NullTextAngle,
 	PRE_justify_text, 
-	line_and_point, 
+	GnuPlot::LineAndPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null 
 TERM_TABLE_END(kyo_driver)

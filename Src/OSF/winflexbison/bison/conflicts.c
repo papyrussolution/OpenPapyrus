@@ -94,17 +94,11 @@ static inline void log_resolution(rule * r, symbol_number token, enum conflict_r
 	/* XML report */
 	if(xml_flag) {
 		/* The description of the resolution. */
-		switch(resolution)
-		{
+		switch(resolution) {
 			case shift_resolution:
 			case right_resolution:
-			    obstack_printf(&solved_conflicts_xml_obstack,
-				"        <resolution rule=\"%d\" symbol=\"%s\""
-				" type=\"shift\">",
-				r->number,
-				xml_escape(symbols[token]->tag));
+			    obstack_printf(&solved_conflicts_xml_obstack, "        <resolution rule=\"%d\" symbol=\"%s\" type=\"shift\">", r->number, xml_escape(symbols[token]->tag));
 			    break;
-
 			case reduce_resolution:
 			case left_resolution:
 			    obstack_printf(&solved_conflicts_xml_obstack, "        <resolution rule=\"%d\" symbol=\"%s\" type=\"reduce\">", r->number, xml_escape(symbols[token]->tag));

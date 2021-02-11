@@ -311,7 +311,7 @@ void GnuPlot::Pm3DDepthQueueFlush(termentry * pTerm)
 			double zmean = 0;
 			if(qp->type == QUAD_TYPE_LARGEPOLYGON) {
 				gpdPtr = &polygonlist[qp->vertex.array_index];
-				nv = gpdPtr[2].c;
+				nv = static_cast<int>(gpdPtr[2].c);
 			}
 			else {
 				gpdPtr = qp->vertex.corners;
@@ -1044,7 +1044,7 @@ void pm3d_add_polygon(surface_points * plot, gpdPoint corners[4], int vertices)
 			q->gray = PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY;
 		}
 		else {
-			q->qcolor.rgb_color = corners[0].c;
+			q->qcolor.rgb_color = static_cast<uint>(corners[0].c);
 			q->gray = PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY;
 		}
 		q->fillstyle = corners[1].c;
@@ -1148,7 +1148,7 @@ void GnuPlot::SetPlotWithPalette(int plotNum, int plotMode)
 	surface_points * this_3dplot = first_3dplot;
 	curve_points * this_2dplot = P_FirstPlot;
 	int surface = 0;
-	text_label * this_label = first_label;
+	text_label * this_label = Gg.P_FirstLabel;
 	GpObject * this_object;
 	plot_has_palette = TRUE;
 	// diagnose palette gradient type 
@@ -1208,7 +1208,7 @@ void GnuPlot::SetPlotWithPalette(int plotNum, int plotMode)
 			return;
 	if(TC_USES_PALETTE(AxS[COLOR_AXIS].label.textcolor.type)) 
 		return;
-	for(this_object = first_object; this_object != NULL; this_object = this_object->next) {
+	for(this_object = Gg.P_FirstObject; this_object != NULL; this_object = this_object->next) {
 		if(TC_USES_PALETTE(this_object->lp_properties.pm3d_color.type))
 			return;
 	}
@@ -1275,10 +1275,10 @@ int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2
 	double r, g, b, tmp_r, tmp_g, tmp_b;
 	double dot_prod, shade_fact, spec_fact;
 	if(gray_is_rgb) {
-		rgb = gray;
-		r = (double)((rgb >> 16) & 0xFF) / 255.;
-		g = (double)((rgb >>  8) & 0xFF) / 255.;
-		b = (double)((rgb      ) & 0xFF) / 255.;
+		rgb = static_cast<uint>(gray);
+		r = (double)((rgb >> 16) & 0xFF) / 255.0;
+		g = (double)((rgb >>  8) & 0xFF) / 255.0;
+		b = (double)((rgb      ) & 0xFF) / 255.0;
 		alpha = rgb & 0xff000000;
 	}
 	else {
@@ -1289,9 +1289,9 @@ int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2
 	}
 	psi = -DEG2RAD*(surface_rot_z);
 	phi = -DEG2RAD*(surface_rot_x);
-	normal[0] = (v1->y-v0->y)*(v2->z-v0->z)*yscale3d*zscale3d - (v1->z-v0->z)*(v2->y-v0->y)*yscale3d*zscale3d;
-	normal[1] = (v1->z-v0->z)*(v2->x-v0->x)*xscale3d*zscale3d - (v1->x-v0->x)*(v2->z-v0->z)*xscale3d*zscale3d;
-	normal[2] = (v1->x-v0->x)*(v2->y-v0->y)*xscale3d*yscale3d - (v1->y-v0->y)*(v2->x-v0->x)*xscale3d*yscale3d;
+	normal[0] = (v1->y-v0->y)*(v2->z-v0->z)*Scale3D.y*Scale3D.z - (v1->z-v0->z)*(v2->y-v0->y)*Scale3D.y*Scale3D.z;
+	normal[1] = (v1->z-v0->z)*(v2->x-v0->x)*Scale3D.x*Scale3D.z - (v1->x-v0->x)*(v2->z-v0->z)*Scale3D.x*Scale3D.z;
+	normal[2] = (v1->x-v0->x)*(v2->y-v0->y)*Scale3D.x*Scale3D.y - (v1->y-v0->y)*(v2->x-v0->x)*Scale3D.x*Scale3D.y;
 	t = sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
 	/* Trap and handle degenerate case of two identical vertices.
 	 * Aug 2020
@@ -1396,8 +1396,8 @@ void GnuPlot::FilledPolygon(termentry * pTerm, gpdPoint * corners, int fillstyle
 	}
 	for(i = 0; i < nv; i++) {
 		Map3D_XY_double(corners[i].x, corners[i].y, corners[i].z, &x, &y);
-		icorners[i].x = x;
-		icorners[i].y = y;
+		icorners[i].x = static_cast<int>(x);
+		icorners[i].y = static_cast<int>(y);
 	}
 	// Clip to x/y only in 2D projection. 
 	if(splot_map && (pm3d.clip == PM3D_CLIP_Z)) {

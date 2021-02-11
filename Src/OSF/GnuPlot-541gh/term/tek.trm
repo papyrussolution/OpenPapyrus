@@ -730,7 +730,7 @@ TERM_PUBLIC void SIXEL_graphics()
 		struct linestyle_def * this;
 		SIXEL_palette[i].state = SIXEL_COL_UNDEFINED;
 		SIXEL_palette[i].rgbval = 0;
-		for(this = first_perm_linestyle; this != NULL; this = this->next) {
+		for(this = GPO.Gg.P_FirstPermLineStyle; this != NULL; this = this->next) {
 			if(i == this->tag-1) {
 				/* Load color into SIXEL_palette[i] */
 				if(this->lp_properties.pm3d_color.type == TC_RGB) {
@@ -1102,12 +1102,30 @@ TERM_PUBLIC void CTEK_vector(uint x, uint y)
 
 #ifdef CTEK
 TERM_TABLE_START(tek40_driver)
-"tek40xx", "Tektronix 4010 and others; most TEK emulators",
-TEK40XMAX, TEK40YMAX, TEK40VCHAR, TEK40HCHAR,
-TEK40VTIC, TEK40HTIC, options_null, TEK40init, TEK40reset,
-TEK40text, GnuPlot::NullScale, TEK40graphics, CTEK_move, CTEK_vector,
-CTEK_linetype, TEK40put_text, null_text_angle,
-null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(tek40_driver)
+	"tek40xx", 
+	"Tektronix 4010 and others; most TEK emulators",
+	TEK40XMAX, 
+	TEK40YMAX, 
+	TEK40VCHAR, 
+	TEK40HCHAR,
+	TEK40VTIC, 
+	TEK40HTIC, 
+	GnuPlot::OptionsNull, 
+	TEK40init, 
+	TEK40reset,
+	TEK40text, 
+	GnuPlot::NullScale, 
+	TEK40graphics, 
+	CTEK_move, 
+	CTEK_vector,
+	CTEK_linetype, 
+	TEK40put_text, 
+	GnuPlot::NullTextAngle,
+	GnuPlot::NullJustifyText, 
+	GnuPlot::LineAndPoint, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(tek40_driver)
 #endif /* CTEK */
 
 #undef LAST_TERM
@@ -1115,12 +1133,30 @@ null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_EN
 
 #ifdef VTTEK
 TERM_TABLE_START(vttek_driver)
-"vttek", "VT-like tek40xx terminal emulator",
-TEK40XMAX, TEK40YMAX, TEK40VCHAR, TEK40HCHAR,
-TEK40VTIC, TEK40HTIC, options_null, VTTEK40init, VTTEK40reset,
-TEK40text, GnuPlot::NullScale, TEK40graphics, TEK40move, TEK40vector,
-VTTEK40linetype, VTTEK40put_text, null_text_angle,
-null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(vttek_driver)
+	"vttek", 
+	"VT-like tek40xx terminal emulator",
+	TEK40XMAX, 
+	TEK40YMAX, 
+	TEK40VCHAR, 
+	TEK40HCHAR,
+	TEK40VTIC, 
+	TEK40HTIC, 
+	GnuPlot::OptionsNull, 
+	VTTEK40init, 
+	VTTEK40reset,
+	TEK40text, 
+	GnuPlot::NullScale, 
+	TEK40graphics, 
+	TEK40move, 
+	TEK40vector,
+	VTTEK40linetype, 
+	VTTEK40put_text, 
+	GnuPlot::NullTextAngle,
+	GnuPlot::NullJustifyText, 
+	GnuPlot::LineAndPoint, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(vttek_driver)
 
 #undef LAST_TERM
 #define LAST_TERM vttek_driver
@@ -1129,13 +1165,34 @@ null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_EN
 
 #ifdef XTERM
 TERM_TABLE_START(xterm_driver)
-"xterm", "Xterm Tektronix 4014 Mode",
-TEK40XMAX, TEK40YMAX, TEK40VCHAR, TEK40HCHAR,
-TEK40VTIC, TEK40HTIC, options_null, TEK40init, TEK40reset,
-XTERM_text, GnuPlot::NullScale, XTERM_graphics, TEK40move, TEK40vector,
-VTTEK40linetype, VTTEK40put_text, null_text_angle,
-null_justify_text, line_and_point, GnuPlot::DoArrow, XTERM_set_font, 0,
-TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE, XTERM_text, XTERM_resume TERM_TABLE_END(xterm_driver)
+	"xterm", 
+	"Xterm Tektronix 4014 Mode",
+	TEK40XMAX, 
+	TEK40YMAX, 
+	TEK40VCHAR, 
+	TEK40HCHAR,
+	TEK40VTIC, 
+	TEK40HTIC, 
+	GnuPlot::OptionsNull, 
+	TEK40init, 
+	TEK40reset,
+	XTERM_text, 
+	GnuPlot::NullScale, 
+	XTERM_graphics, 
+	TEK40move, 
+	TEK40vector,
+	VTTEK40linetype, 
+	VTTEK40put_text, 
+	GnuPlot::NullTextAngle,
+	GnuPlot::NullJustifyText, 
+	GnuPlot::LineAndPoint, 
+	GnuPlot::DoArrow, 
+	XTERM_set_font, 
+	0,
+	TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE, 
+	XTERM_text, 
+	XTERM_resume 
+TERM_TABLE_END(xterm_driver)
 
 #undef LAST_TERM
 #define LAST_TERM xterm_driver
@@ -1144,23 +1201,59 @@ TERM_CAN_MULTIPLOT|TERM_NO_OUTPUTFILE, XTERM_text, XTERM_resume TERM_TABLE_END(x
 
 #ifdef KERMIT
 TERM_TABLE_START(kc_tek40_driver)
-"kc_tek40xx", "MS-DOS Kermit Tek4010 terminal emulator - color",
-TEK40XMAX, TEK40YMAX, TEK40VCHAR, KTEK40HCHAR,
-TEK40VTIC, TEK40HTIC, options_null, TEK40init, KTEK40reset,
-KTEK40Ctext, GnuPlot::NullScale, KTEK40graphics, TEK40move, TEK40vector,
-KTEK40Clinetype, TEK40put_text, null_text_angle,
-null_justify_text, do_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(kc_tek40_driver)
+	"kc_tek40xx", 
+	"MS-DOS Kermit Tek4010 terminal emulator - color",
+	TEK40XMAX, 
+	TEK40YMAX, 
+	TEK40VCHAR, 
+	KTEK40HCHAR,
+	TEK40VTIC, 
+	TEK40HTIC, 
+	GnuPlot::OptionsNull, 
+	TEK40init, 
+	KTEK40reset,
+	KTEK40Ctext, 
+	GnuPlot::NullScale, 
+	KTEK40graphics, 
+	TEK40move, 
+	TEK40vector,
+	KTEK40Clinetype, 
+	TEK40put_text, 
+	GnuPlot::NullTextAngle,
+	GnuPlot::NullJustifyText, 
+	GnuPlot::DoPoint, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(kc_tek40_driver)
 
 #undef LAST_TERM
 #define LAST_TERM kc_tek40_driver
 
 TERM_TABLE_START(km_tek40_driver)
-"km_tek40xx", "MS-DOS Kermit Tek4010 terminal emulator - monochrome",
-TEK40XMAX, TEK40YMAX, TEK40VCHAR, KTEK40HCHAR,
-TEK40VTIC, TEK40HTIC, options_null, TEK40init, KTEK40reset,
-TEK40text, GnuPlot::NullScale, KTEK40graphics, TEK40move, TEK40vector,
-KTEK40Mlinetype, TEK40put_text, null_text_angle,
-null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(km_tek40_driver)
+	"km_tek40xx", 
+	"MS-DOS Kermit Tek4010 terminal emulator - monochrome",
+	TEK40XMAX, 
+	TEK40YMAX, 
+	TEK40VCHAR, 
+	KTEK40HCHAR,
+	TEK40VTIC, 
+	TEK40HTIC, 
+	GnuPlot::OptionsNull, 
+	TEK40init, 
+	KTEK40reset,
+	TEK40text, 
+	GnuPlot::NullScale, 
+	KTEK40graphics, 
+	TEK40move, 
+	TEK40vector,
+	KTEK40Mlinetype, 
+	TEK40put_text, 
+	GnuPlot::NullTextAngle,
+	GnuPlot::NullJustifyText, 
+	GnuPlot::LineAndPoint, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(km_tek40_driver)
 
 #undef LAST_TERM
 #define LAST_TERM km_tek40_driver
@@ -1177,7 +1270,7 @@ TERM_TABLE_START(selanar_driver)
 	TEK40HCHAR,
 	TEK40VTIC, 
 	TEK40HTIC, 
-	options_null, 
+	GnuPlot::OptionsNull, 
 	SEL_init, 
 	SEL_reset,
 	SEL_text, 
@@ -1187,9 +1280,9 @@ TERM_TABLE_START(selanar_driver)
 	TEK40vector,
 	TEK40linetype, 
 	TEK40put_text, 
-	null_text_angle,
-	null_justify_text, 
-	line_and_point, 
+	GnuPlot::NullTextAngle,
+	GnuPlot::NullJustifyText, 
+	GnuPlot::LineAndPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null 
 TERM_TABLE_END(selanar_driver)
@@ -1220,8 +1313,8 @@ TERM_TABLE_START(sixel_driver)
 	SIXEL_linetype, 
 	b_put_text, 
 	b_text_angle,
-	null_justify_text, 
-	line_and_point, 
+	GnuPlot::NullJustifyText, 
+	GnuPlot::LineAndPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null,
 	0, 
@@ -1261,12 +1354,30 @@ TERM_TABLE_END(sixel_driver)
 
 #ifdef BITGRAPH
 TERM_TABLE_START(bitgraph_driver)
-"bitgraph", "BBN Bitgraph Terminal",
-BG_XMAX, BG_YMAX, BG_VCHAR, BG_HCHAR,
-BG_VTIC, BG_HTIC, options_null, BG_init, BG_reset,
-BG_text, GnuPlot::NullScale, BG_graphics, BG_move, BG_vector,
-BG_linetype, BG_put_text, null_text_angle,
-null_justify_text, line_and_point, GnuPlot::DoArrow, set_font_null TERM_TABLE_END(bitgraph_driver)
+	"bitgraph", 
+	"BBN Bitgraph Terminal",
+	BG_XMAX, 
+	BG_YMAX, 
+	BG_VCHAR, 
+	BG_HCHAR,
+	BG_VTIC, 
+	BG_HTIC, 
+	GnuPlot::OptionsNull, 
+	BG_init, 
+	BG_reset,
+	BG_text, 
+	GnuPlot::NullScale, 
+	BG_graphics, 
+	BG_move, 
+	BG_vector,
+	BG_linetype, 
+	BG_put_text, 
+	GnuPlot::NullTextAngle,
+	GnuPlot::NullJustifyText, 
+	GnuPlot::LineAndPoint, 
+	GnuPlot::DoArrow, 
+	set_font_null 
+TERM_TABLE_END(bitgraph_driver)
 
 #undef LAST_TERM
 #define LAST_TERM bitgraph_driver

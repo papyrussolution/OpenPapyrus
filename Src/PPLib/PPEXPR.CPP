@@ -1,5 +1,5 @@
 // PPEXPR.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 // Трансляция формул
@@ -635,6 +635,8 @@ int PPExprParser::GetToken()
 			else if(sstreqi_ascii(buf, "sin"))   { Func = funcSin; }
 			else if(sstreqi_ascii(buf, "cos"))   { Func = funcCos; }
 			else if(sstreqi_ascii(buf, "tan"))   { Func = funcTan; }
+			else if(sstreqi_ascii(buf, "log"))   { Func = funcLog; } // @v11.0.2
+			else if(sstreqi_ascii(buf, "log10")) { Func = funcLog10; } // @v11.0.2
 			else if(sstreqi_ascii(buf, "round")) { Func = funcRound; }
 			else if(sstreqi_ascii(buf, "roundup")) { Func = funcRoundUp; }
 			else if(sstreqi_ascii(buf, "rounddown")) { Func = funcRoundDown; }
@@ -786,6 +788,8 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 					case funcCos:   *pResult = cos(first_arg);  break;
 					case funcTan:   *pResult = tan(first_arg);  break;
 					case funcPow:   *pResult = pow(first_arg, (arg_count > 1) ? fc.ArgList.at(1) : 1.0); break;
+					case funcLog:   *pResult = log(first_arg);  break; // @v11.0.2
+					case funcLog10: *pResult = log10(first_arg);  break; // @v11.0.2
 					case funcRound:
 						*pResult = round(first_arg, (arg_count > 1) ? static_cast<int>(fc.ArgList.at(1)) : 0);
 						break;

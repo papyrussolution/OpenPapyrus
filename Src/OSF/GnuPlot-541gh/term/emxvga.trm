@@ -442,8 +442,8 @@ TERM_TABLE_START(vesa_driver)
 	EMXVGA_linetype, 
 	EMXVGA_put_text, 
 	EMXVGA_text_angle,
-	null_justify_text, 
-	do_point, 
+	GnuPlot::NullJustifyText, 
+	GnuPlot::DoPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null 
 TERM_TABLE_END(vesa_driver)
@@ -462,7 +462,7 @@ TERM_TABLE_START(emxvga_driver)
 	EMXVGA_HCHAR,
 	EMXVGA_VTIC, 
 	EMXVGA_HTIC, 
-	options_null, 
+	GnuPlot::OptionsNull, 
 	EMXVGA_init, 
 	EMXVGA_reset,
 	EMXVGA_text, 
@@ -473,8 +473,8 @@ TERM_TABLE_START(emxvga_driver)
 	EMXVGA_linetype, 
 	EMXVGA_put_text, 
 	EMXVGA_text_angle,
-	null_justify_text, 
-	do_point, 
+	GnuPlot::NullJustifyText, 
+	GnuPlot::DoPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null,
 	0,                              /* pointsize */

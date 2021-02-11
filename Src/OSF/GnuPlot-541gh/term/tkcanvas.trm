@@ -277,7 +277,7 @@ TERM_PUBLIC void TK_options()
 			    GPO.Pgm.Shift();
 			    break;
 			case TK_NOROTTEXT:
-			    term->text_angle = null_text_angle;
+			    term->text_angle = GnuPlot::NullTextAngle;
 			    GPO.Pgm.Shift();
 			    break;
 			case TK_ROTTEXT:
@@ -373,7 +373,7 @@ TERM_PUBLIC void TK_options()
 	    (tk_background[0] == NUL) ? "nobackground " : "background ",
 	    (tk_background[0] == NUL) ? "" : tk_background_opt,
 	    tk_rounded ? "rounded" : "butt",
-	    term->text_angle == null_text_angle ? "norottext" : "rottext",
+	    term->text_angle == GnuPlot::NullTextAngle ? "norottext" : "rottext",
 	    term->image == NULL ? "pixels" : "externalimages",
 	    tk_width, tk_height);
 }
@@ -1249,8 +1249,7 @@ TERM_PUBLIC int TK_set_font(const char * font)
 	return TRUE;
 }
 
-TERM_PUBLIC void TK_enhanced_open(char * fontname, double fontsize, double base,
-    bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void TK_enhanced_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	if(overprint == 3) { /* save current position */
 		fprintf(gpoutfile, "set xenh_save $xenh; set yenh_save $yenh;\n");
@@ -1260,14 +1259,12 @@ TERM_PUBLIC void TK_enhanced_open(char * fontname, double fontsize, double base,
 		fprintf(gpoutfile, "set xenh $xenh_save; set yenh $yenh_save;\n");
 		return;
 	}
-
 	if(!tk_enhanced_opened_string) {
 		bool isbold, isitalic;
 		char * family, * sep;
-
 		tk_enhanced_opened_string = TRUE;
 		/* Start new text fragment */
-		enhanced_cur_text = &enhanced_text[0];
+		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		/* Scale fractional font height to vertical units of display */
 		tk_enhanced_base = base * TK_HCHAR;
 		/* Keep track of whether we are supposed to show this string */
@@ -1335,10 +1332,10 @@ static char * tk_enhanced_text_end[TK_LANG_MAX] = {
 
 TERM_PUBLIC void TK_enhanced_flush()
 {
-	char * str = enhanced_text; /* The fragment to print */
+	char * str = GPO.Enht.Text; /* The fragment to print */
 	if(!tk_enhanced_opened_string)
 		return;
-	*enhanced_cur_text = NUL;
+	*GPO.Enht.P_CurText = NUL;
 	/* print the string fragment in any case */
 	/* NB: base expresses offset from current y pos */
 	fprintf(gpoutfile, "set yenh [expr int($yenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * cos(tk_angle * DEG2RAD)));
@@ -1381,9 +1378,9 @@ TERM_PUBLIC void TK_enhanced_flush()
 
 static void TK_put_enhanced_text(uint x, uint y, const char * str)
 {
-	/* Set up global variables needed by enhanced_recursion() */
-	enhanced_fontscale = 1.0;
-	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
+	// Set up global variables needed by enhanced_recursion() 
+	GPO.Enht.FontScale = 1.0;
+	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	tk_enhanced_opened_string = FALSE;
 	tk_lastx = x;
 	tk_lasty = TK_YMAX - y;
@@ -1416,11 +1413,10 @@ static void TK_put_enhanced_text(uint x, uint y, const char * str)
 TERM_PUBLIC void TK_put_text(uint x, uint y, const char * str)
 {
 	if((str == NULL) || !strlen(str)) return;
-
-	/* If no enhanced text processing is needed, we can use the plain  */
-	/* vanilla put_text() routine instead of the fancy recursive one. */
-	/* FIXME: enhanced text only implemented for Tcl */
-	if(!(term->flags & TERM_ENHANCED_TEXT) || ignore_enhanced_text || !strpbrk(str, "{}^_@&~") ||
+	// If no enhanced text processing is needed, we can use the plain  
+	// vanilla put_text() routine instead of the fancy recursive one. 
+	// FIXME: enhanced text only implemented for Tcl 
+	if(!(term->flags & TERM_ENHANCED_TEXT) || GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~") ||
 	    (tk_script_language != TK_LANG_TCL))
 		TK_put_noenhanced_text(x, y, str);
 	else
@@ -1430,7 +1426,6 @@ TERM_PUBLIC void TK_put_text(uint x, uint y, const char * str)
 TERM_PUBLIC int TK_justify_text(enum JUSTIFY anchor)
 {
 	int return_value;
-
 	switch(anchor) {
 		case RIGHT:
 		    strcpy(tk_anchor, "e");
@@ -1455,9 +1450,8 @@ TERM_PUBLIC int TK_justify_text(enum JUSTIFY anchor)
 TERM_PUBLIC void TK_point(uint x, uint y, int point)
 {
 	TK_flush_line();
-
 	if(point >= 0) {
-		do_point(x, y, point);
+		GnuPlot::DoPoint(x, y, point);
 	}
 	else {
 		/* Emulate dots by a line of length 1 */
@@ -2025,7 +2019,7 @@ TERM_TABLE_START(tkcanvas)
 	TK_vector,
 	TK_linetype, 
 	TK_put_text, 
-	null_text_angle,
+	GnuPlot::NullTextAngle,
 	TK_justify_text, 
 	TK_point, 
 	GnuPlot::DoArrow, 

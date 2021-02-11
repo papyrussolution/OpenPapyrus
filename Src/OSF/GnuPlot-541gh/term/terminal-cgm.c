@@ -309,79 +309,79 @@ static struct gen_table CGM_opts[] =
 	{ NULL, CGM_OTHER }
 };
 
-TERM_PUBLIC void CGM_options()
+TERM_PUBLIC void CGM_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	char * string;
 	// Annoying hack to handle the case of 'set termoption' after 
 	// we have already initialized the terminal.                  
-	if(!GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion"))
+	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion"))
 		CGM_local_reset();
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&CGM_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&CGM_opts[0])) {
 			case CGM_PORTRAIT:
 			    cgm_portrait = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_LANDSCAPE:
 			    cgm_portrait = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_DEFAULT:
 			    CGM_local_reset();
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_NOFONTLIST:
 			    cgm_nofontlist_mode = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_MONOCHROME:
 			    cgm_monochrome = TRUE;
 			    term->flags |= TERM_MONOCHROME;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_COLOR:
 			    cgm_monochrome = FALSE;
 			    term->flags &= ~TERM_MONOCHROME;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_ROTATE:
 			    cgm_rotate = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_NOROTATE:
 			    cgm_rotate = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_DASHED:
 			    cgm_dashed = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_SOLID:
 			    cgm_dashed = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CGM_LINEWIDTH:
-			    GPO.Pgm.Shift();
-			    if(!GPO.Pgm.EndOfCommand()) {
-				    cgm_linewidth_pt = GPO.IntExpression();
+			    pGp->Pgm.Shift();
+			    if(!pGp->Pgm.EndOfCommand()) {
+				    cgm_linewidth_pt = pGp->IntExpression();
 				    if(cgm_linewidth_pt == 0 || cgm_linewidth_pt > 10000) {
-					    GPO.IntWarnCurToken("linewidth out of range");
+					    pGp->IntWarnCurToken("linewidth out of range");
 					    cgm_linewidth_pt = 1;
 				    }
 			    }
 			    break;
 			case CGM_WIDTH:
-			    GPO.Pgm.Shift();
-			    if(!GPO.Pgm.EndOfCommand()) {
-				    cgm_plotwidth = GPO.IntExpression();
+			    pGp->Pgm.Shift();
+			    if(!pGp->Pgm.EndOfCommand()) {
+				    cgm_plotwidth = pGp->IntExpression();
 				    if(cgm_plotwidth < 0 || cgm_plotwidth > 10000) {
-					    GPO.IntWarnCurToken("width out of range");
+					    pGp->IntWarnCurToken("width out of range");
 					    cgm_plotwidth = 6 * 72;
 				    }
 			    }
 			    break;
 			case CGM_BACKGROUND:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    cgm_background = parse_color_name();
 			    if(cgm_user_color_count == 0) {
 				    cgm_user_color_count = 1;
@@ -394,17 +394,17 @@ TERM_PUBLIC void CGM_options()
 			    break;
 			case CGM_OTHER:
 			default:
-			    string = gp_input_line + GPO.Pgm.GetCurTokenStartIndex();
+			    string = gp_input_line + pGp->Pgm.GetCurTokenStartIndex();
 			    /* Silently ignore these, as they are not yet implemented */
-			    if(GPO.Pgm.EqualsCur("dl") || GPO.Pgm.AlmostEqualsCur("dashl$ength")) {
-				    GPO.Pgm.Shift();
-				    GPO.RealExpression();
+			    if(pGp->Pgm.EqualsCur("dl") || pGp->Pgm.AlmostEqualsCur("dashl$ength")) {
+				    pGp->Pgm.Shift();
+				    pGp->RealExpression();
 				    break;
 			    }
 			    if(string[0] == 'x') { /* set color */
 				    ushort red, green, blue;
 				    if(sscanf(string, "x%2hx%2hx%2hx", &red, &green, &blue) != 3)
-					    GPO.IntErrorCurToken("invalid color spec, must be xRRGGBB");
+					    pGp->IntErrorCurToken("invalid color spec, must be xRRGGBB");
 				    if(cgm_user_color_count >= cgm_user_color_max) {
 					    cgm_user_color_max = cgm_user_color_max*2 + 4;
 					    cgm_user_color_table = (int *)gp_realloc(cgm_user_color_table, (cgm_user_color_max*3+1)*sizeof(int), "CGM color table");
@@ -415,13 +415,13 @@ TERM_PUBLIC void CGM_options()
 				    cgm_user_color_table[2 + 3*cgm_user_color_count] = green;
 				    cgm_user_color_table[3 + 3*cgm_user_color_count] = blue;
 				    cgm_user_color_count++;
-				    GPO.Pgm.Shift();
+				    pGp->Pgm.Shift();
 			    }
 			    else {
 				    char * s = NULL;
-				    if(GPO.Pgm.EqualsCur("font"))
-					    GPO.Pgm.Shift();
-				    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = GPO.TryToGetString())) {
+				    if(pGp->Pgm.EqualsCur("font"))
+					    pGp->Pgm.Shift();
+				    if(pGp->Pgm.IsStringValue(pGp->Pgm.GetCurTokenIdx()) && (s = pGp->TryToGetString())) {
 					    double relwidth;
 					    int font_index;
 					    char * comma = strchr(s, ',');
@@ -439,7 +439,7 @@ TERM_PUBLIC void CGM_options()
 							    ;
 						    new_font_data = (fontdata *)gp_alloc((n + 2)*sizeof(struct fontdata), "CGM font list");
 						    new_font_data->name = s;
-						    /* punt, since we don't know the real font width */
+						    // punt, since we don't know the real font width 
 						    new_font_data->width = 1.0;
 						    for(i = 0; i <= n; i++)
 							    new_font_data[i+1] = cgm_font_data[i];
@@ -451,8 +451,7 @@ TERM_PUBLIC void CGM_options()
 					    safe_strncpy(cgm_font, cgm_font_data[font_index-1].name, sizeof(cgm_font));
 				    }
 				    else {
-					    /* the user is specifying the font size */
-					    cgm_fontsize = GPO.IntExpression();
+					    cgm_fontsize = pGp->IntExpression(); // the user is specifying the font size 
 				    }
 				    break;
 			    }
@@ -491,15 +490,13 @@ TERM_PUBLIC void CGM_options()
 			sprintf(term_options + strlen(term_options), " x%02x%02x%02x", red, green, blue);
 		}
 	}
-
 	if(cgm_user_color_count < CGM_COLORS) {
 		int i, j;
 		/* fill in colors not set by the user with the default colors */
 		/* 1st table entry is the minimum color index value */
 		cgm_user_color_table = (int *)gp_realloc(cgm_user_color_table, (CGM_COLORS * 3 + 1) * sizeof(int), "CGM color table");
 		cgm_user_color_table[0] = 0;
-		for(i = cgm_user_color_count, j = cgm_user_color_count * 3;
-		    i < CGM_COLORS; i++, j += 3) {
+		for(i = cgm_user_color_count, j = cgm_user_color_count * 3; i < CGM_COLORS; i++, j += 3) {
 			cgm_user_color_table[j+1] = (pm3d_color_names_tbl[i].value >> 16) & 0xff;
 			cgm_user_color_table[j+2] = (pm3d_color_names_tbl[i].value >>  8) & 0xff;
 			cgm_user_color_table[j+3] = (pm3d_color_names_tbl[i].value      ) & 0xff;
@@ -769,7 +766,7 @@ TERM_PUBLIC int CGM_set_font(const char * font)
 		sscanf(comma + 1, "%d", &size);
 	if(size > 0) {
 		t->ChrV = size * CGM_PT;
-		t->ChrH = size * CGM_PT * .527 * width;
+		t->ChrH = static_cast<uint>(size * CGM_PT * 0.527 * width);
 	}
 	cgm_next.char_height = t->ChrV;
 	return TRUE;
@@ -784,13 +781,10 @@ TERM_PUBLIC void CGM_text()
 
 TERM_PUBLIC void CGM_linetype(int linetype)
 {
-	if(linetype < LT_NODRAW)
-		linetype = LT_NODRAW;
-
+	SETMAX(linetype, LT_NODRAW);
 	if(linetype == cgm_linetype)
 		return;
 	cgm_linetype = linetype;
-
 	CGM_linecolor(linetype);
 	if(cgm_dashed) {
 		CGM_dashtype(linetype); /* DBT 10-8-98    use dashes */
@@ -815,7 +809,6 @@ TERM_PUBLIC void CGM_linecolor(int linecolor)
 	}
 	else if(linecolor <= LT_NODRAW)
 		return;
-
 	linecolor += 3;
 	if(cgm_monochrome)
 		cgm_color = linecolor = 1;
@@ -823,7 +816,6 @@ TERM_PUBLIC void CGM_linecolor(int linecolor)
 		return;
 	cgm_color = linecolor;
 	cgm_next.fill_color = linecolor;
-
 	CGM_flush_polyline();
 	CGM_write_int_record(5,  4, 2, (int*)&cgm_color);/* line color */
 	CGM_write_int_record(5, 14, 2, (int*)&cgm_color); /* text color */
@@ -843,16 +835,15 @@ TERM_PUBLIC void CGM_fillbox(int style, uint x1, uint y1, uint width, uint heigh
 
 TERM_PUBLIC void CGM_linewidth(double width)
 {
-	int new_linewidth;
 	if(width <= 0)
 		width = 0.5;
-	new_linewidth = width * cgm_linewidth_pt * CGM_PT;
-	if(new_linewidth == cgm_linewidth)
-		return;
-	CGM_flush_polyline();
-	cgm_linewidth = new_linewidth;
-	CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int*)&cgm_linewidth);
-	CGM_dashtype(cgm_dashtype); /* have dash lengths recalculated */
+	int new_linewidth = static_cast<int>(width * cgm_linewidth_pt * CGM_PT);
+	if(new_linewidth != cgm_linewidth) {
+		CGM_flush_polyline();
+		cgm_linewidth = new_linewidth;
+		CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int*)&cgm_linewidth);
+		CGM_dashtype(cgm_dashtype); /* have dash lengths recalculated */
+	}
 }
 
 TERM_PUBLIC void CGM_dashtype(int dashtype)
@@ -921,9 +912,9 @@ TERM_PUBLIC int CGM_make_palette(t_sm_palette * palette)
 		}
 		k = 1 + (CGM_COLORS)*3;
 		for(i = 0; i < cgm_smooth_colors; i++) {
-			cgm_user_color_table[k++] = palette->P_Color[i].r*255.9;
-			cgm_user_color_table[k++] = palette->P_Color[i].g*255.9;
-			cgm_user_color_table[k++] = palette->P_Color[i].b*255.9;
+			cgm_user_color_table[k++] = static_cast<int>(palette->P_Color[i].r*255.9);
+			cgm_user_color_table[k++] = static_cast<int>(palette->P_Color[i].g*255.9);
+			cgm_user_color_table[k++] = static_cast<int>(palette->P_Color[i].b*255.9);
 		}
 		cgm_user_color_count = CGM_COLORS + cgm_smooth_colors;
 		CGM_write_int_record(5, 34, (cgm_user_color_count*3+1)* sizeof(cgm_user_color_table[0])/CGM_ADJ, cgm_user_color_table);
@@ -1260,7 +1251,6 @@ showit:
 	if(cgm_current.justify_mode != cgm_next.justify_mode) {
 		static int data[6] = { 1, 3, 0, 0, 0, 0 };
 		cgm_current.justify_mode = cgm_next.justify_mode;
-
 		switch(cgm_current.justify_mode) {
 			case LEFT: data[0] = 1; break;
 			case CENTRE: data[0] = 2; break;
@@ -1279,7 +1269,6 @@ showit:
 		                   characters. */
 		CGM_write_int_record(5, 15, 2, &h);
 	}
-
 	/* "angle" is the angle of the text baseline (counter-clockwise in
 	   radians from horizontal).  This is a bit more general than
 	   gnuplot needs right now. */
@@ -1291,18 +1280,15 @@ showit:
 		   distance in plot units. */
 		static int orient[4];
 		cgm_current.angle = cgm_next.angle;
-
-		orient[0] = (int)cgm_next.char_height*cos(cgm_next.angle+M_PI_2);
-		orient[1] = (int)cgm_next.char_height*sin(cgm_next.angle+M_PI_2);
-		orient[2] = (int)cgm_next.char_height*cos(cgm_next.angle);
-		orient[3] = (int)cgm_next.char_height*sin(cgm_next.angle);
+		orient[0] = static_cast<int>(cgm_next.char_height*cos(cgm_next.angle+M_PI_2));
+		orient[1] = static_cast<int>(cgm_next.char_height*sin(cgm_next.angle+M_PI_2));
+		orient[2] = static_cast<int>(cgm_next.char_height*cos(cgm_next.angle));
+		orient[3] = static_cast<int>(cgm_next.char_height*sin(cgm_next.angle));
 		CGM_write_int_record(5, 16, 8, orient);
 	}
-
 	where[0] = x;
 	where[1] = y + CGM_MARGIN;
 	CGM_write_mixed_record(4, 4, 3, where, strlen(str), str);
-
 	cgm_posx = cgm_posy = -2000;
 }
 
@@ -1312,7 +1298,8 @@ TERM_PUBLIC int CGM_text_angle(int ang)
 		cgm_next.angle = ang * M_PI_2 / 90.0;
 		return TRUE;
 	}
-	return ang ? FALSE : TRUE;
+	else
+		return ang ? FALSE : TRUE;
 }
 
 TERM_PUBLIC int CGM_justify_text(enum JUSTIFY mode)
@@ -1336,14 +1323,12 @@ TERM_PUBLIC void CGM_point(uint x, uint y, int number)
 		return;
 	}
 	number %= CGM_POINTS;
-
 	CGM_flush_polyline();
 	old_dashtype = cgm_dashtype;
 	CGM_dashtype(0);
 	if(number >= 3)         /* using a polygon */
 		cgm_next.interior_style = 1; /* solid */
-	if(number == 4 || number == 6 || number == 8
-	    || number == 10 || number == 12) {
+	if(oneof5(number, 4, 6, 8, 10, 12)) {
 		/* filled */
 		cgm_next.edge_visibility = 0;
 		cgm_next.fill_color = cgm_color;
@@ -1354,7 +1339,6 @@ TERM_PUBLIC void CGM_point(uint x, uint y, int number)
 		cgm_next.interior_style = 0; /* empty */
 		cgm_next.edge_color = cgm_color;
 	}
-
 	if(cgm_current.interior_style != cgm_next.interior_style) {
 		cgm_current.interior_style = cgm_next.interior_style;
 		CGM_write_int_record(5, 22, 2, &cgm_next.interior_style);
@@ -1469,7 +1453,7 @@ TERM_PUBLIC void CGM_set_pointsize(double size)
 	   continued fractions. */
 	if(size < 0)
 		size = 1;
-	cgm_tic = (size * term->TicH / 2);
+	cgm_tic = static_cast<int>(size * term->TicH / 2);
 	cgm_tic707 = cgm_tic * 12 / 17;
 	cgm_tic866 = cgm_tic * 13 / 15;
 	cgm_tic500 = cgm_tic / 2;
@@ -1480,12 +1464,11 @@ TERM_PUBLIC void CGM_set_pointsize(double size)
 
 static void CGM_flush_polygon()
 {
-	if(cgm_coords == 0)
-		return;
-	CGM_write_int_record(4, 7, cgm_coords * 2, cgm_polyline);
-	cgm_coords = 0;
+	if(cgm_coords) {
+		CGM_write_int_record(4, 7, cgm_coords * 2, cgm_polyline);
+		cgm_coords = 0;
+	}
 }
-
 /*
  * This terminal driver does not support true RGB color,
  * but we can at least try to find some reasonable approximation.
@@ -1501,7 +1484,6 @@ static int CGM_find_nearest_color(t_colorspec * colorspec)
 	int i = 0;
 	int k;
 	int dr, dg, db, distance;
-
 	for(k = 0; k<cgm_user_color_count; k++) {
 		dr = cgm_user_color_table[++i] - red;
 		dg = cgm_user_color_table[++i] - green;
@@ -1516,8 +1498,7 @@ static int CGM_find_nearest_color(t_colorspec * colorspec)
 	}
 	FPRINTF((stderr, "CGM_find_nearest_color:  asked for %d %d %d\n", red, green, blue));
 	FPRINTF((stderr, "         got index %3d             %d %d %d\n", closest,
-	    cgm_user_color_table[closest*3], cgm_user_color_table[closest*3+1],
-	    cgm_user_color_table[closest*3+2]));
+	    cgm_user_color_table[closest*3], cgm_user_color_table[closest*3+1], cgm_user_color_table[closest*3+2]));
 	return closest;
 }
 

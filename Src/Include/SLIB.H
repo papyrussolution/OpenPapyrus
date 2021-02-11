@@ -7027,7 +7027,7 @@ public:
 //
 //
 //
-class LongArray : public /*TSArray*/TSVector <long> {
+class LongArray : public TSVector <long> {
 public:
 	LongArray();
 	LongArray(const LongArray & s);
@@ -11986,6 +11986,12 @@ public:
 
 class SPoint3R {
 public:
+	SPoint3R() : x(0.0), y(0.0), z(0.0)
+	{
+	}
+	SPoint3R(double _x, double _y, double _z) : x(_x), y(_y), z(_z)
+	{
+	}
 	SPoint3R & Set(double _x, double _y, double _z);
 	friend SPoint3R & FASTCALL operator - (const SPoint3R & one, const SPoint3R & two);
 	friend SPoint3R & FASTCALL operator + (const SPoint3R & one, const SPoint3R & two);
@@ -11995,6 +12001,25 @@ public:
 	double x;
 	double y;
 	double z;
+};
+
+class SPoint3F {
+public:
+	SPoint3F() : x(0.0f), y(0.0f), z(0.0f)
+	{
+	}
+	SPoint3F(float _v) : x(_v), y(_v), z(_v)
+	{
+	}
+	SPoint3F & Set(float _x, float _y, float _z);
+	SPoint3F & Set(float _v)
+	{
+		x = y = z = _v;
+		return *this;
+	}
+	float  x;
+	float  y;
+	float  z;
 };
 //
 //

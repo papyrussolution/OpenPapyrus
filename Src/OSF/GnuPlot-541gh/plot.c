@@ -75,7 +75,7 @@ static RETSIGTYPE inter(int /*anint*/)
 	SendMessage(GetConsoleWindow(), WM_CHAR, 0x20, 0);
 #else
 	{
-		term_reset();
+		GPO.TermReset(term);
 		putc('\n', stderr);
 		bail_to_command_line(); /* return to prompt */
 	}
@@ -100,44 +100,42 @@ int main(int argc_orig, char ** argv)
 #endif
 {
 	int i;
-	/* We want the current value of argc to persist across a LONGJMP from GPO.IntError().
-	 * Without this the compiler may put it on the stack, which LONGJMP clobbers.
-	 * Here we try make it a volatile variable that optimization will not affect.
-	 * Why do we not have to do the same for argv?   I don't know.
-	 * But the test cases that broke with generic argc seem fine with generic argv.
-	 */
+	// We want the current value of argc to persist across a LONGJMP from GPO.IntError().
+	// Without this the compiler may put it on the stack, which LONGJMP clobbers.
+	// Here we try make it a volatile variable that optimization will not affect.
+	// Why do we not have to do the same for argv?   I don't know.
+	// But the test cases that broke with generic argc seem fine with generic argv.
 	static volatile int argc;
 	argc = argc_orig;
-/* make sure that we really have revoked root access, this might happen if
-   gnuplot is compiled without vga support but is installed suid by mistake */
+	// make sure that we really have revoked root access, this might happen if
+	// gnuplot is compiled without vga support but is installed suid by mistake 
 #ifdef __linux__
 	if(setuid(getuid()) != 0) {
 		fprintf(stderr, "gnuplot: refusing to run at elevated privilege\n");
 		exit(EXIT_FAILURE);
 	}
 #endif
-
-/* HBB: Seems this isn't needed any more for DJGPP V2? */
-/* HBB: disable all floating point exceptions, just keep running... */
+	// HBB: Seems this isn't needed any more for DJGPP V2? 
+	// HBB: disable all floating point exceptions, just keep running...
 #if defined(DJGPP) && (DJGPP!=2)
 	_control87(MCW_EM, MCW_EM);
 #endif
-// malloc large blocks, otherwise problems with fragmented mem 
+	// malloc large blocks, otherwise problems with fragmented mem 
 #ifdef MALLOCDEBUG
 	malloc_debug(7);
 #endif
-// init progpath and get helpfile from executable directory 
+	// init progpath and get helpfile from executable directory 
 #if (defined(PIPE_IPC) || defined(_WIN32)) && (defined(HAVE_LIBREADLINE) || (defined(HAVE_LIBEDITLINE) && defined(X11)))
-	/* Editline needs this to be set before the very first call to readline(). */
-	/* Support for rl_getc_function is broken for utf-8 in editline. Since it is only
-	   really required for X11, disable this section when building without X11. */
+	// Editline needs this to be set before the very first call to readline(). 
+	// Support for rl_getc_function is broken for utf-8 in editline. Since it is only
+	// really required for X11, disable this section when building without X11. 
 	rl_getc_function = getc_wrapper;
 #endif
 #if defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
-	/* T.Walter 1999-06-24: 'rl_readline_name' must be this fix name.
-	 * It is used to parse a 'gnuplot' specific section in '~/.inputrc'
-	 * or gnuplot specific commands in '.editrc' (when using editline
-	 * instead of readline) */
+	// T.Walter 1999-06-24: 'rl_readline_name' must be this fix name.
+	// It is used to parse a 'gnuplot' specific section in '~/.inputrc'
+	// or gnuplot specific commands in '.editrc' (when using editline
+	// instead of readline) 
 	rl_readline_name = "Gnuplot";
 	rl_terminal_name = getenv("TERM");
 #if defined(HAVE_LIBREADLINE)
@@ -193,13 +191,11 @@ int main(int argc_orig, char ** argv)
 			slow_font_startup = TRUE;
 		}
 		else if(!strncmp(argv[i], "-d", 2) || !strcmp(argv[i], "--default-settings")) {
-			/* Skip local customization read from ~/.gnuplot */
-			skip_gnuplotrc = TRUE;
+			skip_gnuplotrc = TRUE; // Skip local customization read from ~/.gnuplot 
 		}
 	}
-
 #ifdef X11
-	/* the X11 terminal removes tokens that it recognizes from argv. */
+	// the X11 terminal removes tokens that it recognizes from argv. 
 	{
 		int n = X11_args(argc, argv);
 		argv += n;
@@ -208,18 +204,16 @@ int main(int argc_orig, char ** argv)
 #endif
 	setbuf(stderr, (char*)NULL);
 #ifdef HAVE_SETVBUF
-	/* This was once setlinebuf(). Docs say this is
-	 * identical to setvbuf(,NULL,_IOLBF,0), but MS C
-	 * faults this (size out of range), so we try with
-	 * size of 1024 instead. [SAS/C does that, too. -lh]
-	 */
+	// This was once setlinebuf(). Docs say this is
+	// identical to setvbuf(,NULL,_IOLBF,0), but MS C
+	// faults this (size out of range), so we try with
+	// size of 1024 instead. [SAS/C does that, too. -lh]
 	if(setvbuf(stdout, (char*)NULL, _IOLBF, (size_t)1024) != 0)
 		fputs("Could not linebuffer stdout\n", stderr);
-	/* Switching to unbuffered mode causes all characters in the input
-	 * buffer to be lost. So the only safe time to do it is on program entry.
-	 * Do any non-X platforms suffer from this problem?
-	 * EAM - Jan 2013 YES.
-	 */
+	// Switching to unbuffered mode causes all characters in the input
+	// buffer to be lost. So the only safe time to do it is on program entry.
+	// Do any non-X platforms suffer from this problem?
+	// EAM - Jan 2013 YES.
 	setvbuf(stdin, (char*)NULL, _IONBF, 0);
 #endif
 	gpoutfile = stdout;
@@ -261,7 +255,7 @@ int main(int argc_orig, char ** argv)
 		show_version(NULL); // Only load GPVAL_COMPILE_OPTIONS 
 	GPO.UpdateGpvalVariables(3); // update GPVAL_ variables available to user 
 	if(!SETJMP(command_line_env, 1)) {
-		/* first time */
+		// first time 
 		interrupt_setup();
 		get_user_env();
 		init_loadpath();
@@ -269,22 +263,23 @@ int main(int argc_orig, char ** argv)
 		memzero(&GPO.SmPltt, sizeof(GPO.SmPltt));
 		init_fit();     /* Initialization of fitting module */
 #ifdef READLINE
-		/* When using the built-in readline, we set the initial
-		   encoding according to the locale as this is required
-		   to properly handle keyboard input. */
+		// When using the built-in readline, we set the initial
+		// encoding according to the locale as this is required
+		// to properly handle keyboard input. 
 		init_encoding();
 #endif
 		init_gadgets();
-		/* April 2017: Now that error handling is in place, it is safe parse
-		 * GNUTERM during terminal initialization.
-		 * atexit processing is done in reverse order. We want
-		 * the generic terminal shutdown in term_reset to be executed before
-		 * any terminal specific cleanup requested by individual terminals.
-		 */
+		// April 2017: Now that error handling is in place, it is safe parse
+		// GNUTERM during terminal initialization.
+		// atexit processing is done in reverse order. We want
+		// the generic terminal shutdown in term_reset to be executed before
+		// any terminal specific cleanup requested by individual terminals.
 		init_terminal();
 		push_terminal(0); /* remember the initial terminal */
-		gp_atexit(term_reset);
-		/* Execute commands in ~/.gnuplot */
+		/* @sobolev term_reset заменена на GnuPlot::TermReset(termentry *) потому использовать ее здесь уже нельзя.
+			gp_atexit(term_reset); 
+		*/
+		// Execute commands in ~/.gnuplot 
 		GPO.InitSession();
 		if(interactive && term != 0) {  /* not unknown */
 #ifdef GNUPLOT_HISTORY
@@ -295,13 +290,11 @@ int main(int argc_orig, char ** argv)
 			gp_expand_tilde(&expanded_history_filename);
 #endif
 			read_history(expanded_history_filename);
-
-			/*
-			 * It is safe to ignore the return values of 'atexit()' and
-			 * 'on_exit()'. In the worst case, there is no history of your
-			 * current session and you have to type all again in your next
-			 * session.
-			 */
+			// 
+			// It is safe to ignore the return values of 'atexit()' and
+			// 'on_exit()'. In the worst case, there is no history of your
+			// current session and you have to type all again in your next session.
+			// 
 			gp_atexit(wrapper_for_write_history);
 #endif /* GNUPLOT_HISTORY */
 
@@ -311,9 +304,9 @@ int main(int argc_orig, char ** argv)
 		}               /* if (interactive && term != 0) */
 	}
 	else {
-		/* come back here from GPO.IntError() */
+		// come back here from GPO.IntError() 
 		if(!successful_initialization) {
-			/* Only print the warning once */
+			// Only print the warning once 
 			successful_initialization = TRUE;
 			fprintf(stderr, "WARNING: Error during initialization\n\n");
 		}
@@ -337,7 +330,7 @@ int main(int argc_orig, char ** argv)
 			goto RECOVER_FROM_ERROR_IN_DASH;
 		reading_from_dash = FALSE;
 		if(!interactive && !noinputfiles) {
-			term_reset();
+			GPO.TermReset(term);
 			gp_exit(EXIT_FAILURE); /* exit on non-interactive error */
 		}
 	}
@@ -383,13 +376,12 @@ RECOVER_FROM_ERROR_IN_DASH:
 			slow_font_startup = TRUE;
 		}
 		else if(!strncmp(*argv, "-d", 2) || !strcmp(*argv, "--default-settings")) {
-			/* Ignore this; it already had its effect */
+			// Ignore this; it already had its effect 
 			FPRINTF((stderr, "ignoring -d\n"));
 		}
 		else if(strcmp(*argv, "-c") == 0) {
-			/* Pass command line arguments to the gnuplot script in the next
-			 * argument. This consumes the remainder of the command line
-			 */
+			// Pass command line arguments to the gnuplot script in the next
+			// argument. This consumes the remainder of the command line
 			interactive = FALSE;
 			noinputfiles = FALSE;
 			--argc; ++argv;
@@ -420,13 +412,13 @@ RECOVER_FROM_ERROR_IN_DASH:
 			ctrlc_flag = FALSE; /* reset asynchronous Ctrl-C flag */
 	}
 #ifdef _WIN32
-	/* On Windows, handle 'persist' by keeping the main input loop running (windows/wxt), */
-	/* but only if there are any windows open. Note that qt handles this properly. */
+	// On Windows, handle 'persist' by keeping the main input loop running (windows/wxt), 
+	// but only if there are any windows open. Note that qt handles this properly. 
 	if(persist_cl) {
 		if(WinAnyWindowOpen()) {
 #ifdef WGP_CONSOLE
 			if(!interactive) {
-				/* no further input from pipe */
+				// no further input from pipe 
 				while(WinAnyWindowOpen())
 					win_sleep(100);
 			}
@@ -443,7 +435,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 #endif
 #if (defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)) && defined(GNUPLOT_HISTORY)
 #if !defined(HAVE_ATEXIT) && !defined(HAVE_ON_EXIT)
-	/* You should be here if you neither have 'atexit()' nor 'on_exit()' */
+	// You should be here if you neither have 'atexit()' nor 'on_exit()' 
 	wrapper_for_write_history();
 #endif /* !HAVE_ATEXIT && !HAVE_ON_EXIT */
 #endif /* (HAVE_LIBREADLINE || HAVE_LIBEDITLINE) && GNUPLOT_HISTORY */
@@ -561,13 +553,11 @@ void get_user_env()
 {
 	if(user_homedir == NULL) {
 		const char * env_home = 0;
-		if((env_home = getenv(HOME))
+		if((env_home = getenv(HOME)) ||
 #ifdef _WIN32
-		    || (env_home = appdata_directory())
-		    || (env_home = getenv("USERPROFILE"))
+		    (env_home = appdata_directory()) || (env_home = getenv("USERPROFILE")) ||
 #endif
-		    || (env_home = getenv("HOME"))
-		    )
+		    (env_home = getenv("HOME")))
 			user_homedir = (const char*)gp_strdup(env_home);
 		else if(interactive)
 			GPO.IntWarn(NO_CARET, "no HOME found");
@@ -623,39 +613,34 @@ void cancel_history()
 }
 
 #if defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
-
-static void wrapper_for_write_history()
-{
-	if(!expanded_history_filename)
-		return;
-	if(history_is_stifled())
-		unstifle_history();
-	if(gnuplot_history_size >= 0)
-		stifle_history(gnuplot_history_size);
-
-	/* returns 0 on success */
-	if(write_history(expanded_history_filename))
-		fprintf(stderr, "Warning:  Could not write history file!!!\n");
-
-	unstifle_history();
-}
-
+	static void wrapper_for_write_history()
+	{
+		if(expanded_history_filename) {
+			if(history_is_stifled())
+				unstifle_history();
+			if(gnuplot_history_size >= 0)
+				stifle_history(gnuplot_history_size);
+			// returns 0 on success 
+			if(write_history(expanded_history_filename))
+				fprintf(stderr, "Warning:  Could not write history file!!!\n");
+			unstifle_history();
+		}
+	}
 #else /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */
-
-/* version for gnuplot's own write_history */
-static void wrapper_for_write_history()
-{
-	/* What we really want to do is truncate(expanded_history_filename),
-	   but this is only available on BSD compatible systems */
-	if(!expanded_history_filename)
-		return;
-	remove(expanded_history_filename);
-	if(gnuplot_history_size < 0)
-		write_history(expanded_history_filename);
-	else
-		write_history_n(gnuplot_history_size, expanded_history_filename, "w");
-}
-
+	//
+	// version for gnuplot's own write_history 
+	//
+	static void wrapper_for_write_history()
+	{
+		// What we really want to do is truncate(expanded_history_filename), but this is only available on BSD compatible systems 
+		if(!expanded_history_filename)
+			return;
+		remove(expanded_history_filename);
+		if(gnuplot_history_size < 0)
+			write_history(expanded_history_filename);
+		else
+			write_history_n(gnuplot_history_size, expanded_history_filename, "w");
+	}
 #endif /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */
 #endif /* GNUPLOT_HISTORY */
 

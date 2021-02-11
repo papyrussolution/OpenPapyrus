@@ -121,8 +121,8 @@ int tic_start;
 int tic_direction;
 int tic_text;
 int rotate_tics;
-int tic_hjust;
-int tic_vjust;
+/*int*/JUSTIFY tic_hjust;
+/*int*/VERT_JUSTIFY tic_vjust;
 int tic_mirror;
 
 /* These are declare volatile in order to fool the compiler into not */
@@ -888,7 +888,7 @@ void setup_tics(GpAxis * pThis, int max)
  * Mar 2015: Modified to take an axis pointer rather than an index into GPO.AxS[].
  */
 //void gen_tics(GpAxis * pThis, tic_callback callback)
-void GnuPlot::GenTics(GpAxis * pThis, tic_callback callback)
+void GnuPlot::GenTics(GpAxis * pThis, GpTicCallback cbFunc)
 {
 	t_ticdef * def = &pThis->ticdef;
 	t_minitics_status minitics = pThis->minitics; /* off/default/auto/explicit */
@@ -941,7 +941,7 @@ void GnuPlot::GenTics(GpAxis * pThis, tic_callback callback)
 			}
 			else if(pThis->index >= PARALLEL_AXES) {
 				// FIXME: needed because axis->ticfmt is not maintained for parallel axes 
-				gprintf(label, sizeof(label), mark->label ? mark->label : pThis->formatstring, log10_base, mark->position);
+				GPrintf(label, sizeof(label), mark->label ? mark->label : pThis->formatstring, log10_base, mark->position);
 				ticlabel = label;
 			}
 			else if(pThis->tictype == DT_TIMEDATE) {
@@ -953,16 +953,16 @@ void GnuPlot::GenTics(GpAxis * pThis, tic_callback callback)
 				ticlabel = label;
 			}
 			else {
-				gprintf(label, sizeof(label), mark->label ? mark->label : pThis->ticfmt, log10_base, mark->position);
+				GPrintf(label, sizeof(label), mark->label ? mark->label : pThis->ticfmt, log10_base, mark->position);
 				ticlabel = label;
 			}
 			// use NULL instead of label for minor tics with level 1, however, allow labels for minor tics with levels > 1 
-			(*callback)(pThis, internal, (mark->level==1) ? NULL : ticlabel, mark->level, (mark->level>0) ? mgrd : lgrd, NULL);
+			(this->*cbFunc)(pThis, internal, (mark->level==1) ? NULL : ticlabel, mark->level, (mark->level>0) ? mgrd : lgrd, NULL);
 			// Polar axis tics are mirrored across the origin 
 			if(pThis->index == POLAR_AXIS && (pThis->ticmode & TICS_MIRROR)) {
 				int save_gridline = lgrd.l_type;
 				lgrd.l_type = LT_NODRAW;
-				(*callback)(pThis, -internal, (mark->level==1) ? NULL : ticlabel, mark->level, (mark->level>0) ? mgrd : lgrd, NULL);
+				(this->*cbFunc)(pThis, -internal, (mark->level==1) ? NULL : ticlabel, mark->level, (mark->level>0) ? mgrd : lgrd, NULL);
 				lgrd.l_type = save_gridline;
 			}
 		}
@@ -1195,14 +1195,14 @@ void GnuPlot::GenTics(GpAxis * pThis, tic_callback callback)
 					    int d = ffloori(user + 0.5) % 7;
 					    if(d < 0)
 						    d += 7;
-					    (*callback)(pThis, internal, abbrev_day_names[d], 0, lgrd, def->def.user);
+					    (this->*cbFunc)(pThis, internal, abbrev_day_names[d], 0, lgrd, def->def.user);
 					    break;
 				    }
 					case TIC_MONTH: {
-					    int m = (long)floor(user - 1) % 12;
+					    int m = ffloori(user - 1) % 12;
 					    if(m < 0)
 						    m += 12;
-					    (*callback)(pThis, internal, abbrev_month_names[m], 0, lgrd, def->def.user);
+					    (this->*cbFunc)(pThis, internal, abbrev_month_names[m], 0, lgrd, def->def.user);
 					    break;
 				    }
 					default: { // comp or series 
@@ -1218,14 +1218,14 @@ void GnuPlot::GenTics(GpAxis * pThis, tic_callback callback)
 					    else if(pThis->index == POLAR_AXIS) {
 						    user = internal;
 						    internal = PolarRadius(user);
-						    gprintf(label, sizeof(label), pThis->ticfmt, log10_base, tic);
+						    GPrintf(label, sizeof(label), pThis->ticfmt, log10_base, tic);
 					    }
 					    else if(pThis->index >= PARALLEL_AXES) {
 						    // FIXME: needed because ticfmt is not maintained for parallel axes
-						    gprintf(label, sizeof(label), pThis->formatstring, log10_base, user);
+						    GPrintf(label, sizeof(label), pThis->formatstring, log10_base, user);
 					    }
 					    else {
-						    gprintf(label, sizeof(label), pThis->ticfmt, log10_base, user);
+						    GPrintf(label, sizeof(label), pThis->ticfmt, log10_base, user);
 					    }
 					    // This is where we finally decided to put the tic mark 
 					    if(pThis->IsNonLinear() && def->type == TIC_SERIES && def->logscaling)
@@ -1238,12 +1238,12 @@ void GnuPlot::GenTics(GpAxis * pThis, tic_callback callback)
 					    if(def->rangelimited && !inrange(position, pThis->data_min, pThis->data_max))
 						    continue;
 					    // This writes the tic mark and label 
-					    (*callback)(pThis, position, label, 0, lgrd, def->def.user);
+					    (this->*cbFunc)(pThis, position, label, 0, lgrd, def->def.user);
 					    // Polar axis tics are mirrored across the origin 
 					    if(pThis->index == POLAR_AXIS && (pThis->ticmode & TICS_MIRROR)) {
 						    const int save_gridline = lgrd.l_type;
 						    lgrd.l_type = LT_NODRAW;
-						    (*callback)(pThis, -position, label, 0, lgrd, def->def.user);
+						    (this->*cbFunc)(pThis, -position, label, 0, lgrd, def->def.user);
 						    lgrd.l_type = save_gridline;
 					    }
 				    }
@@ -1278,7 +1278,7 @@ void GnuPlot::GenTics(GpAxis * pThis, tic_callback callback)
 						// mtic_internal is the correct position?	
 						mtic_user = user + mplace;
 						mtic_internal = PolarRadius(mtic_user);
-						(*callback)(pThis, mtic_internal, NULL, 1, mgrd, NULL);
+						(this->*cbFunc)(pThis, mtic_internal, NULL, 1, mgrd, NULL);
 						continue;
 					}
 					// Range-limited tic placement 
@@ -1286,7 +1286,7 @@ void GnuPlot::GenTics(GpAxis * pThis, tic_callback callback)
 						continue;
 					//if(inrange(mtic_internal, internal_min, internal_max) && inrange(mtic_internal, start - step * SIGNIF, end + step * SIGNIF))
 					if(internal_range.CheckX(mtic_internal) && inrange(mtic_internal, start - step * SIGNIF, end + step * SIGNIF))
-						(*callback)(pThis, mtic_user, NULL, 1, mgrd, NULL);
+						(this->*cbFunc)(pThis, mtic_user, NULL, 1, mgrd, NULL);
 				}
 				/* }}} */
 			}
@@ -1304,38 +1304,40 @@ static double time_tic_just(t_timelevel level, double ticplace)
 	if(level <= TIMELEVEL_SECONDS) {
 		return (ticplace);
 	}
-	ggmtime(&tm, ticplace);
-	if(level >= TIMELEVEL_MINUTES) { /* units of minutes */
-		if(tm.tm_sec > 55)
-			tm.tm_min++;
-		tm.tm_sec = 0;
-	}
-	if(level >= TIMELEVEL_HOURS) { /* units of hours */
-		if(tm.tm_min > 55)
-			tm.tm_hour++;
-		tm.tm_min = 0;
-	}
-	if(level >= TIMELEVEL_DAYS) { /* units of days */
-		if(tm.tm_hour > 22) {
-			tm.tm_hour = 0;
-			tm.tm_mday = 0;
-			tm.tm_yday++;
-			ggmtime(&tm, gtimegm(&tm));
+	else {
+		ggmtime(&tm, ticplace);
+		if(level >= TIMELEVEL_MINUTES) { /* units of minutes */
+			if(tm.tm_sec > 55)
+				tm.tm_min++;
+			tm.tm_sec = 0;
 		}
-	}
-	// skip it, I have not bothered with weekday so far 
-	if(level >= TIMELEVEL_MONTHS) {/* units of month */
-		if(tm.tm_mday > 25) {
-			tm.tm_mon++;
-			if(tm.tm_mon > 11) {
-				tm.tm_year++;
-				tm.tm_mon = 0;
+		if(level >= TIMELEVEL_HOURS) { /* units of hours */
+			if(tm.tm_min > 55)
+				tm.tm_hour++;
+			tm.tm_min = 0;
+		}
+		if(level >= TIMELEVEL_DAYS) { /* units of days */
+			if(tm.tm_hour > 22) {
+				tm.tm_hour = 0;
+				tm.tm_mday = 0;
+				tm.tm_yday++;
+				ggmtime(&tm, gtimegm(&tm));
 			}
 		}
-		tm.tm_mday = 1;
+		// skip it, I have not bothered with weekday so far 
+		if(level >= TIMELEVEL_MONTHS) {/* units of month */
+			if(tm.tm_mday > 25) {
+				tm.tm_mon++;
+				if(tm.tm_mon > 11) {
+					tm.tm_year++;
+					tm.tm_mon = 0;
+				}
+			}
+			tm.tm_mday = 1;
+		}
+		ticplace = gtimegm(&tm);
+		return (ticplace);
 	}
-	ticplace = gtimegm(&tm);
-	return (ticplace);
 }
 
 /* }}} */
@@ -1350,12 +1352,11 @@ static double time_tic_just(t_timelevel level, double ticplace)
 //void axis_output_tics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dealing with */, int * ticlabel_position/* 'non-running' coordinate */,
     //AXIS_INDEX zeroaxis_basis/* axis to base 'non-running' position of * zeroaxis on */, tic_callback callback/* tic-drawing callback function */)
 void GnuPlot::AxisOutputTics(termentry * pTerm, AXIS_INDEX axis/* axis number we're dealing with */, int * ticlabel_position/* 'non-running' coordinate */,
-		AXIS_INDEX zeroaxis_basis/* axis to base 'non-running' position of * zeroaxis on */, tic_callback callback/* tic-drawing callback function */)
+		AXIS_INDEX zeroaxis_basis/* axis to base 'non-running' position of * zeroaxis on */, GpTicCallback callback/* tic-drawing callback function */)
 {
-	//struct termentry * t = term;
 	GpAxis * this_axis = &AxS[axis];
-	bool axis_is_vertical = ((axis == FIRST_Y_AXIS) || (axis == SECOND_Y_AXIS));
-	bool axis_is_second = ((axis == SECOND_X_AXIS) || (axis == SECOND_Y_AXIS));
+	const bool axis_is_vertical = oneof2(axis, FIRST_Y_AXIS, SECOND_Y_AXIS);
+	const bool axis_is_second   = oneof2(axis, SECOND_X_AXIS, SECOND_Y_AXIS);
 	int axis_position;      /* 'non-running' coordinate */
 	int mirror_position;    /* 'non-running' coordinate, 'other' side */
 	double axis_coord = 0.0; /* coordinate of this axis along non-running axis */
@@ -1403,18 +1404,15 @@ void GnuPlot::AxisOutputTics(termentry * pTerm, AXIS_INDEX axis/* axis number we
 		if(this_axis->manual_justify)
 			tic_hjust = this_axis->tic_pos;
 		else
-			this_axis->tic_pos = (JUSTIFY)tic_hjust;
-		if(this_axis->ticmode & TICS_MIRROR)
-			tic_mirror = mirror_position;
-		else
-			tic_mirror = -1; /* no thank you */
-		if((this_axis->ticmode & TICS_ON_AXIS) && !AxS[zeroaxis_basis].log && inrange(axis_coord, AxS[zeroaxis_basis].min, AxS[zeroaxis_basis].max)) {
+			this_axis->tic_pos = tic_hjust;
+		tic_mirror = (this_axis->ticmode & TICS_MIRROR) ? mirror_position : -1/* no thank you */;
+		if(this_axis->ticmode & TICS_ON_AXIS && !AxS[zeroaxis_basis].log && AxS[zeroaxis_basis].InRange(axis_coord)) {
 			tic_start = AxS[zeroaxis_basis].MapI(axis_coord);
 			tic_direction = axis_is_second ? 1 : -1;
 			if(AxS[axis].ticmode & TICS_MIRROR)
 				tic_mirror = tic_start;
-			/* put text at boundary if axis is close to boundary and the
-			 * corresponding boundary is switched on */
+			// put text at boundary if axis is close to boundary and the
+			// corresponding boundary is switched on 
 			if(axis_is_vertical) {
 				if(((axis_is_second ? -1 : 1) * (tic_start - axis_position) > (3 * pTerm->ChrH)) || 
 					(!axis_is_second && (!(draw_border & 2))) || (axis_is_second && (!(draw_border & 8))))
@@ -1707,7 +1705,8 @@ t_autoscale GnuPlot::LoadRange(GpAxis * pAx, double * pA, double * pB, t_autosca
  * call this routine with every label
  */
 
-void widest_tic_callback(GpAxis * this_axis, double place, char * text, int ticlevel, lp_style_type grid, ticmark * userlabels)
+//void widest_tic_callback(GpAxis * this_axis, double place, char * text, int ticlevel, lp_style_type grid, ticmark * userlabels)
+void GnuPlot::WidestTicCallback(GpAxis * this_axis, double place, char * text, int ticlevel, lp_style_type grid, ticmark * userlabels) // callback
 {
 	// historically, minitics used to have no text,
 	// but now they can, except at ticlevel 1 (and this restriction is there only for compatibility reasons) */
@@ -2193,7 +2192,7 @@ double GnuPlot::EvalLinkFunction(const GpAxis * pAx, double raw_coord)
 		Gcomplex(&link_udf->dummy_values[dummy_var], raw_coord, 0.0);
 		EvaluateAt(link_udf->at, &a);
 		if(Ev.IsUndefined_ || a.type != CMPLX) {
-			FPRINTF((stderr, "eval_link_function(%g) returned %s\n", raw_coord, undefined ? "undefined" : "unexpected type"));
+			FPRINTF((stderr, "eval_link_function(%g) returned %s\n", raw_coord, Ev.IsUndefined_ ? "undefined" : "unexpected type"));
 			a = Ev.P_UdvNaN->udv_value;
 		}
 		if(isnan(a.v.cmplx_val.real))

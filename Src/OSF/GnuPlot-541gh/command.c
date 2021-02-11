@@ -70,7 +70,7 @@ static void test_palette_subcommand();
 //static int find_clause(int *, int *);
 //static void if_else_command(ifstate if_state);
 //static void old_if_command(at_type * expr);
-static int report_error(int ierr);
+//static int report_error(int ierr);
 static int expand_1level_macros();
 char * gp_input_line;
 size_t gp_input_line_len;
@@ -269,7 +269,7 @@ void GnuPlot::DoStringAndFree(char * cmdline)
 	if(display_ipc_commands())
 		fprintf(stderr, "%s\n", cmdline);
 #endif
-	Pgm.LfPush(NULL, NULL, cmdline); /* save state for errors and recursion */
+	LfPush(NULL, NULL, cmdline); /* save state for errors and recursion */
 	while(gp_input_line_len < strlen(cmdline) + 1)
 		extend_input_line();
 	strcpy(gp_input_line, cmdline);
@@ -283,11 +283,11 @@ void GnuPlot::DoStringAndFree(char * cmdline)
 	if(command_exit_requested) {
 		while(lf_head && !lf_head->name) {
 			FPRINTF((stderr, "pop one level of non-file LFS\n"));
-			Pgm.LfPop();
+			LfPop();
 		}
 	}
 	else
-		Pgm.LfPop();
+		LfPop();
 }
 
 #ifdef USE_MOUSE
@@ -304,7 +304,7 @@ void GnuPlot::DoStringReplot(const char * pS)
 		RefreshRequest();
 	}
 	else if(!replot_disabled)
-		Pgm.ReplotRequest();
+		ReplotRequest(term);
 	else
 		IntWarn(NO_CARET, "refresh not possible and replot is disabled");
 }
@@ -357,9 +357,9 @@ void GnuPlot::Define()
 		//
 		if(Pgm.EndOfCommand())
 			IntErrorCurToken("function definition expected");
-		udf = dummy_func = add_udf(start_token);
+		udf = dummy_func = AddUdf(start_token);
 		udf->dummy_num = dummy_num;
-		if((at_tmp = perm_at()) == (struct at_type *)NULL)
+		if((at_tmp = PermAt()) == (struct at_type *)NULL)
 			IntError(start_token, "not enough memory for function");
 		if(udf->at)     /* already a dynamic a.t. there */
 			free_at(udf->at); /* so free it first */
@@ -906,10 +906,10 @@ void GnuPlot::ClearCommand()
 {
 	TermStartPlot(term);
 	if(multiplot && term->fillbox) {
-		int xx1 = static_cast<int>(V.XOffset * term->MaxX);
-		int yy1 = static_cast<int>(V.YOffset * term->MaxY);
-		uint width  = static_cast<uint>(V.XSize * term->MaxX);
-		uint height = static_cast<uint>(V.YSize * term->MaxY);
+		int xx1 = static_cast<int>(V.Offset.X * term->MaxX);
+		int yy1 = static_cast<int>(V.Offset.Y * term->MaxY);
+		uint width  = static_cast<uint>(V.Size.x * term->MaxX);
+		uint height = static_cast<uint>(V.Size.y * term->MaxY);
 		(*term->fillbox)(0, xx1, yy1, width, height);
 	}
 	TermEndPlot(term);
@@ -1204,7 +1204,7 @@ void GnuPlot::DoCommand()
 	// limits for all levels of nesting. In this case we need to advance
 	// through the iteration to find the first good set of indices.
 	// If we don't find one, forget the whole thing.
-	if(empty_iteration(do_iterator) && !next_iteration(do_iterator)) {
+	if(empty_iteration(do_iterator) && !NextIteration(do_iterator)) {
 		strcpy(clause, ";");
 	}
 	do {
@@ -1214,7 +1214,7 @@ void GnuPlot::DoCommand()
 			requested_break = TRUE;
 		if(requested_break)
 			break;
-	} while(next_iteration(do_iterator));
+	} while(NextIteration(do_iterator));
 	iteration_depth--;
 	SAlloc::F(clause);
 	end_clause();
@@ -1352,9 +1352,9 @@ void GnuPlot::LinkCommand()
 		memzero(secondary_axis->link_udf, sizeof(udft_entry));
 	}
 	if(Pgm.EqualsCur("via")) {
-		parse_link_via(secondary_axis->link_udf);
+		ParseLinkVia(secondary_axis->link_udf);
 		if(Pgm.AlmostEqualsCur("inv$erse")) {
-			parse_link_via(primary_axis->link_udf);
+			ParseLinkVia(primary_axis->link_udf);
 		}
 		else {
 			IntWarnCurToken("inverse mapping function required");
@@ -1651,7 +1651,7 @@ void GnuPlot::PlotCommand()
 	Ev.AddUdvByName("MOUSE_ALT")->udv_value.SetNotDefined();
 	Ev.AddUdvByName("MOUSE_CTRL")->udv_value.SetNotDefined();
 #endif
-	PlotRequest();
+	PlotRequest(term);
 	// Clear "hidden" flag for any plots that may have been toggled off 
 	if(term->modify_plots)
 		term->modify_plots(MODPLOTS_SET_VISIBLE, -1);
@@ -1719,11 +1719,12 @@ char * print_show_output()
 {
 	if(print_out_name)
 		return print_out_name;
-	if(print_out == stdout)
+	else if(print_out == stdout)
 		return "<stdout>";
-	if(!print_out || print_out == stderr || !print_out_name)
+	else if(!print_out || print_out == stderr || !print_out_name)
 		return "<stderr>";
-	return print_out_name;
+	else
+		return print_out_name;
 }
 //
 // 'printerr' is the same as 'print' except that output is always to stderr 
@@ -1840,42 +1841,43 @@ void GnuPlot::RefreshRequest()
 		IntError(NO_CARET, "no active plot; cannot refresh");
 	if(refresh_ok == E_REFRESH_NOT_OK) {
 		IntWarn(NO_CARET, "cannot refresh from this state. trying full replot");
-		Pgm.ReplotRequest();
-		return;
+		ReplotRequest(term);
 	}
-	// The margins from "set offset" were already applied; don't reapply them here
-	retain_offsets = TRUE;
-	// Restore the axis range/scaling state from original plot.
-	// Dima Kogan April 2018
-	for(axis = (AXIS_INDEX)0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
-		GpAxis * this_axis = &AxS[axis];
-		if((this_axis->set_autoscale & AUTOSCALE_MIN) && (this_axis->writeback_min < VERYLARGE))
-			this_axis->set_min = this_axis->writeback_min;
-		else
-			this_axis->min = this_axis->set_min;
-		if((this_axis->set_autoscale & AUTOSCALE_MAX) && (this_axis->writeback_max > -VERYLARGE))
-			this_axis->set_max = this_axis->writeback_max;
-		else
-			this_axis->max = this_axis->set_max;
-		if(this_axis->linked_to_secondary)
-			CloneLinkedAxes(this_axis, this_axis->linked_to_secondary);
-		else if(this_axis->linked_to_primary) {
-			if(this_axis->linked_to_primary->autoscale != AUTOSCALE_BOTH)
-				CloneLinkedAxes(this_axis, this_axis->linked_to_primary);
+	else {
+		// The margins from "set offset" were already applied; don't reapply them here
+		retain_offsets = TRUE;
+		// Restore the axis range/scaling state from original plot.
+		// Dima Kogan April 2018
+		for(axis = (AXIS_INDEX)0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
+			GpAxis * this_axis = &AxS[axis];
+			if((this_axis->set_autoscale & AUTOSCALE_MIN) && (this_axis->writeback_min < VERYLARGE))
+				this_axis->set_min = this_axis->writeback_min;
+			else
+				this_axis->min = this_axis->set_min;
+			if((this_axis->set_autoscale & AUTOSCALE_MAX) && (this_axis->writeback_max > -VERYLARGE))
+				this_axis->set_max = this_axis->writeback_max;
+			else
+				this_axis->max = this_axis->set_max;
+			if(this_axis->linked_to_secondary)
+				CloneLinkedAxes(this_axis, this_axis->linked_to_secondary);
+			else if(this_axis->linked_to_primary) {
+				if(this_axis->linked_to_primary->autoscale != AUTOSCALE_BOTH)
+					CloneLinkedAxes(this_axis, this_axis->linked_to_primary);
+			}
 		}
+		if(refresh_ok == E_REFRESH_OK_2D) {
+			RefreshBounds(P_FirstPlot, refresh_nplots);
+			DoPlot(term, P_FirstPlot, refresh_nplots);
+			UpdateGpvalVariables(1);
+		}
+		else if(refresh_ok == E_REFRESH_OK_3D) {
+			Refresh3DBounds(term, first_3dplot, refresh_nplots);
+			Do3DPlot(term, first_3dplot, refresh_nplots, /*0*/NORMAL_REPLOT);
+			UpdateGpvalVariables(1);
+		}
+		else
+			IntError(NO_CARET, "Internal error - refresh of unknown plot type");
 	}
-	if(refresh_ok == E_REFRESH_OK_2D) {
-		RefreshBounds(P_FirstPlot, refresh_nplots);
-		DoPlot(term, P_FirstPlot, refresh_nplots);
-		UpdateGpvalVariables(1);
-	}
-	else if(refresh_ok == E_REFRESH_OK_3D) {
-		Refresh3DBounds(term, first_3dplot, refresh_nplots);
-		Do3DPlot(term, first_3dplot, refresh_nplots, /*0*/NORMAL_REPLOT);
-		UpdateGpvalVariables(1);
-	}
-	else
-		IntError(NO_CARET, "Internal error - refresh of unknown plot type");
 }
 //
 // process the 'replot' command 
@@ -1903,7 +1905,7 @@ void GnuPlot::ReplotCommand()
 		SET_CURSOR_WAIT;
 		if(term->flags & TERM_INIT_ON_REPLOT)
 			term->init(term);
-		Pgm.ReplotRequest();
+		ReplotRequest(term);
 		SET_CURSOR_ARROW;
 	}
 }
@@ -2019,7 +2021,7 @@ void GnuPlot::SPlotCommand()
 	Ev.AddUdvByName("MOUSE_Y2")->udv_value.SetNotDefined();
 	Ev.AddUdvByName("MOUSE_BUTTON")->udv_value.SetNotDefined();
 #endif
-	Plot3DRequest();
+	Plot3DRequest(term);
 	// Clear "hidden" flag for any plots that may have been toggled off 
 	if(term->modify_plots)
 		term->modify_plots(MODPLOTS_SET_VISIBLE, -1);
@@ -2247,7 +2249,7 @@ void GnuPlot::ImportCommand()
 	if(!Pgm.EqualsCur("from"))
 		IntErrorCurToken("Expecting 'from <sharedobj>'");
 	Pgm.Shift();
-	udf = dummy_func = add_udf(start_token+1);
+	udf = dummy_func = AddUdf(start_token+1);
 	udf->dummy_num = dummy_num;
 	free_at(udf->at); /* In case there was a previous function by this name */
 	udf->at = external_at(udf->udf_name);
@@ -2296,15 +2298,15 @@ static int changedir(char * path)
 // used by ReplotCommand() 
 //
 //void replotrequest()
-void GpProgram::ReplotRequest()
+void GnuPlot::ReplotRequest(termentry * pTerm)
 {
 	// do not store directly into the replot_line string until the
 	// new plot line has been successfully plotted. This way,
 	// if user makes a typo in a replot line, they do not have
 	// to start from scratch. The replot_line will be committed
 	// after do_plot has returned, whence we know all is well
-	if(EndOfCommand()) {
-		char * rest_args = &gp_input_line[P_Token[CToken].start_index];
+	if(Pgm.EndOfCommand()) {
+		char * rest_args = &gp_input_line[Pgm.P_Token[Pgm.CToken].start_index];
 		size_t replot_len = strlen(replot_line);
 		size_t rest_len = strlen(rest_args);
 		/* preserve commands following 'replot ;' */
@@ -2321,10 +2323,10 @@ void GpProgram::ReplotRequest()
 	}
 	else {
 		char * replot_args = NULL; /* else m_capture will free it */
-		int last_token = NumTokens - 1;
+		int last_token = Pgm.NumTokens - 1;
 		// length = length of old part + length of new part + ", " + \0 
-		size_t newlen = strlen(replot_line) + P_Token[last_token].start_index + P_Token[last_token].length - P_Token[CToken].start_index + 3;
-		MCapture(&replot_args, GetCurTokenIdx(), last_token); /* might be empty */
+		size_t newlen = strlen(replot_line) + Pgm.P_Token[last_token].start_index + Pgm.P_Token[last_token].length - Pgm.P_Token[Pgm.CToken].start_index + 3;
+		Pgm.MCapture(&replot_args, Pgm.GetCurTokenIdx(), last_token); /* might be empty */
 		while(gp_input_line_len < newlen)
 			extend_input_line();
 		strcpy(gp_input_line, replot_line);
@@ -2335,16 +2337,16 @@ void GpProgram::ReplotRequest()
 	plot_token = 0;         /* whole line to be saved as replot line */
 	SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);            /* start of replot will destroy existing data */
 	screen_ok = FALSE;
-	NumTokens = Scanner(&gp_input_line, &gp_input_line_len);
-	SetTokenIdx(1); // Skip the "plot" token 
-	if(AlmostEquals(0, "test")) {
-		SetTokenIdx(0);
+	Pgm.NumTokens = Pgm.Scanner(&gp_input_line, &gp_input_line_len);
+	Pgm.SetTokenIdx(1); // Skip the "plot" token 
+	if(Pgm.AlmostEquals(0, "test")) {
+		Pgm.SetTokenIdx(0);
 		test_command();
 	}
-	else if(AlmostEquals(0, "s$plot"))
-		GPO.Plot3DRequest();
+	else if(Pgm.AlmostEquals(0, "s$plot"))
+		Plot3DRequest(pTerm);
 	else
-		GPO.PlotRequest();
+		PlotRequest(pTerm);
 }
 //
 // Support for input, shell, and help for various systems 
@@ -2551,31 +2553,27 @@ void GpProgram::HelpCommand()
 
 static void do_system(const char * cmd)
 {
-	int ierr;
-
-/* (am, 19980929)
- * OS/2 related note: cmd.exe returns 255 if called w/o argument.
- * i.e. calling a shell by "!" will always end with an error message.
- * A workaround has to include checking for EMX,OS/2, two environment
- *  variables,...
- */
-	if(!cmd)
-		return;
-	restrict_popen();
+	// (am, 19980929)
+ 	// OS/2 related note: cmd.exe returns 255 if called w/o argument.
+	// i.e. calling a shell by "!" will always end with an error message.
+	// A workaround has to include checking for EMX,OS/2, two environment variables,...
+	if(cmd) {
+		int ierr;
+		restrict_popen();
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	/* Open a console so we can see the command's output */
-	WinOpenConsole();
+		WinOpenConsole(); // Open a console so we can see the command's output 
 #endif
 #if defined(_WIN32) && !defined(HAVE_BROKEN_WSYSTEM)
-	{
-		LPWSTR wcmd = UnicodeText(cmd, encoding);
-		ierr = _wsystem(wcmd);
-		SAlloc::F(wcmd);
-	}
+		{
+			LPWSTR wcmd = UnicodeText(cmd, encoding);
+			ierr = _wsystem(wcmd);
+			SAlloc::F(wcmd);
+		}
 #else
-	ierr = system(cmd);
+		ierr = system(cmd);
 #endif
-	report_error(ierr);
+		GPO.ReportError(ierr);
+	}
 }
 // 
 // is_history_command:
@@ -2968,9 +2966,9 @@ int do_system_func(const char * cmd, char ** output)
 		}
 	}
 	result[result_pos] = NUL;
-	/* close stream */
+	// close stream 
 	ierr = pclose(f);
-	ierr = report_error(ierr);
+	ierr = GPO.ReportError(ierr);
 	result = gp_realloc(result, strlen(result)+1, "do_system_func");
 	*output = result;
 	return ierr;
@@ -2981,7 +2979,8 @@ int do_system_func(const char * cmd, char ** output)
 #endif /* VMS || PIPES */
 }
 
-static int report_error(int ierr)
+//static int report_error(int ierr)
+int GnuPlot::ReportError(int ierr)
 {
 	int reported_error;
 	// FIXME:  This does not seem to report all reasonable errors correctly 
@@ -2989,10 +2988,10 @@ static int report_error(int ierr)
 		reported_error = errno;
 	else
 		reported_error = WEXITSTATUS(ierr);
-	GPO.Ev.FillGpValInteger("GPVAL_SYSTEM_ERRNO", reported_error);
+	Ev.FillGpValInteger("GPVAL_SYSTEM_ERRNO", reported_error);
 	if(reported_error == 127)
-		GPO.Ev.FillGpValString("GPVAL_SYSTEM_ERRMSG", "command not found or shell failed");
+		Ev.FillGpValString("GPVAL_SYSTEM_ERRMSG", "command not found or shell failed");
 	else
-		GPO.Ev.FillGpValString("GPVAL_SYSTEM_ERRMSG", strerror(reported_error));
+		Ev.FillGpValString("GPVAL_SYSTEM_ERRMSG", strerror(reported_error));
 	return reported_error;
 }

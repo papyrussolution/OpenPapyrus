@@ -6463,6 +6463,7 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 		separator
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9" // @v10.1.12
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
+		REREQUESTDOC     : kbCtrlQ,    PPDV_NOICON, hidden, "@{rerequest}\tCtrl-Q" // @v11.0.2
 		SPCFUNC          : kbCtrlX,    PPDV_NOICON, hidden, "@{specialfunction}\tCtrl-X" // @v10.9.10
 	}
 }

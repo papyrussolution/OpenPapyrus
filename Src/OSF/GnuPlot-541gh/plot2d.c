@@ -72,11 +72,11 @@ void cp_extend(curve_points * cp, int num)
 // while in the non-parametric case we would say only plot [b= -2:2] [-1:1] sin(b)
 // 
 //void plotrequest()
-void GnuPlot::PlotRequest()
+void GnuPlot::PlotRequest(termentry * pTerm)
 {
 	int dummy_token = 0;
 	/*AXIS_INDEX*/int axis;
-	if(!term) // unknown 
+	if(!pTerm) // unknown 
 		IntErrorCurToken("use 'set term' to set terminal type first");
 	is_3d_plot = FALSE;
 	if(parametric && strcmp(set_dummy_var[0], "u") == 0)
@@ -152,7 +152,7 @@ void GnuPlot::PlotRequest()
 		Pgm.CopyStr(c_dummy_var[0], dummy_token, MAX_ID_LEN);
 	else
 		strcpy(c_dummy_var[0], set_dummy_var[0]);
-	EvalPlots();
+	EvalPlots(pTerm);
 }
 // 
 // Helper function for refresh command.  Reexamine each data point and update the
@@ -188,7 +188,7 @@ void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 				if(this_plot->plot_style & PLOT_STYLE_HAS_VECTOR)
 					x_axis->AutoscaleOnePoint(point->xhigh);
 			}
-			if(!inrange(point->x, x_axis->min, x_axis->max)) {
+			if(!x_axis->InRange(point->x)) {
 				point->type = OUTRANGE;
 				continue;
 			}
@@ -197,7 +197,7 @@ void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 				if(this_plot->plot_style == VECTOR)
 					y_axis->AutoscaleOnePoint(point->yhigh);
 			}
-			if(!inrange(point->y, y_axis->min, y_axis->max)) {
+			if(!y_axis->InRange(point->y)) {
 				point->type = OUTRANGE;
 				continue;
 			}
@@ -452,12 +452,12 @@ int GnuPlot::GetData(curve_points * pPlot)
 	if(df_no_use_specs > 0 && df_no_use_specs < min_cols)
 		IntError(NO_CARET, "Not enough columns for this style");
 	i = 0; ngood = 0;
-	/* If the user has set an explicit locale for numeric input, apply it */
-	/* here so that it affects data fields read from the input file.      */
+	// If the user has set an explicit locale for numeric input, apply it 
+	// here so that it affects data fields read from the input file.      
 	set_numeric_locale();
-	/* Initial state */
+	// Initial state 
 	df_warn_on_missing_columnheader = TRUE;
-	while((j = df_readline(v, max_cols)) != DF_EOF) {
+	while((j = DfReadLine(v, max_cols)) != DF_EOF) {
 		if(i >= pPlot->p_max) {
 			/* overflow about to occur. Extend size of points[]
 			 * array. Double the size, and add 1000 points, to avoid
@@ -541,11 +541,11 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    }
 			    break; /* Not continue!! */
 		}
-		/* We now know that j > 0, i.e. there is some data on this input line */
+		// We now know that j > 0, i.e. there is some data on this input line 
 		ngood++;
-		/* "plot ... with table" bypasses all the column interpretation */
+		// "plot ... with table" bypasses all the column interpretation 
 		if(pPlot->plot_style == TABLESTYLE) {
-			tabulate_one_line(v, df_strings, j);
+			TabulateOneLine(v, df_strings, j);
 			continue;
 		}
 		/* June 2010 - New mechanism for variable color                  */
@@ -1620,7 +1620,7 @@ text_label * store_label(text_label * listhead, GpCoordinate * cp, int i/* point
 // Definitions are processed twice, but that won't hurt.
 // 
 //static void eval_plots()
-void GnuPlot::EvalPlots()
+void GnuPlot::EvalPlots(termentry * pTerm)
 {
 	int    i;
 	curve_points * p_plot = NULL;
@@ -1810,21 +1810,15 @@ void GnuPlot::EvalPlots()
 				p_plot->plot_smooth = SMOOTH_NONE;
 				p_plot->filledcurves_options = filledcurves_opts_data;
 				// Only relevant to "with table" 
-				free_at(table_filter_at);
-				table_filter_at = NULL;
+				free_at(Tab.P_FilterAt);
+				Tab.P_FilterAt = NULL;
 				free_at(df_plot_title_at); // Mechanism for deferred evaluation of plot title 
 				// up to MAXDATACOLS cols 
 				df_set_plot_mode(MODE_PLOT); // Needed for binary datafiles 
 				specs = DfOpen(name_str, MAXDATACOLS, p_plot);
 				// Store a pointer to the named variable used for sampling 
-				if(sample_range_token > 0)
-					p_plot->sample_var = AddUdv(sample_range_token);
-				else
-					p_plot->sample_var = Ev.AddUdvByName(c_dummy_var[0]);
-				if(v_range_token > 0)
-					p_plot->sample_var2 = AddUdv(v_range_token);
-				else
-					p_plot->sample_var2 = Ev.AddUdvByName(c_dummy_var[1]);
+				p_plot->sample_var  = (sample_range_token > 0) ? AddUdv(sample_range_token) : Ev.AddUdvByName(c_dummy_var[0]);
+				p_plot->sample_var2 = (v_range_token > 0) ? AddUdv(v_range_token) : Ev.AddUdvByName(c_dummy_var[1]);
 				// Save prior value of sample variables so we can restore them later 
 				original_value_sample_var = p_plot->sample_var->udv_value;
 				original_value_sample_var2 = p_plot->sample_var2->udv_value;
@@ -2029,12 +2023,12 @@ void GnuPlot::EvalPlots()
 				}
 				if(p_plot->plot_style == TABLESTYLE) {
 					if(Pgm.EqualsCur("if")) {
-						if(table_filter_at) {
+						if(Tab.P_FilterAt) {
 							duplication = TRUE;
 							break;
 						}
 						Pgm.Shift();
-						table_filter_at = perm_at();
+						Tab.P_FilterAt = PermAt();
 						continue;
 					}
 				}
@@ -2064,7 +2058,7 @@ void GnuPlot::EvalPlots()
 						if(prefer_line_styles)
 							lp_use_properties(&(p_plot->arrow_properties.lp_properties), line_num+1);
 						else
-							load_linetype(term, &(p_plot->arrow_properties.lp_properties), line_num+1);
+							load_linetype(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 					}
 					ArrowParse(&(p_plot->arrow_properties), TRUE);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
@@ -2123,7 +2117,7 @@ void GnuPlot::EvalPlots()
 					if(prefer_line_styles)
 						lp_use_properties(&lp, line_num+1);
 					else
-						load_linetype(term, &lp, line_num+1);
+						load_linetype(pTerm, &lp, line_num+1);
 					if(p_plot->plot_style == BOXPLOT) {
 						lp.p_type = boxplot_opts.pointtype;
 						lp.p_size = PTSZ_DEFAULT;
@@ -2200,7 +2194,7 @@ void GnuPlot::EvalPlots()
 			if(duplication)
 				IntErrorCurToken("duplicated or contradicting arguments in plot options");
 			if(p_plot->plot_style == TABLESTYLE) {
-				if(!table_mode)
+				if(!Tab.Mode)
 					IntError(NO_CARET, "'with table' requires a previous 'set table'");
 				expect_string(-1);
 				some_tables = TRUE;
@@ -2232,7 +2226,7 @@ void GnuPlot::EvalPlots()
 					if(prefer_line_styles)
 						lp_use_properties(&(p_plot->arrow_properties.lp_properties), line_num+1);
 					else
-						load_linetype(term, &(p_plot->arrow_properties.lp_properties), line_num+1);
+						load_linetype(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 					ArrowParse(&p_plot->arrow_properties, TRUE);
 				}
 				p_plot->lp_properties = p_plot->arrow_properties.lp_properties;
@@ -2251,7 +2245,7 @@ void GnuPlot::EvalPlots()
 				if(prefer_line_styles)
 					lp_use_properties(&p_plot->lp_properties, line_num+1);
 				else
-					load_linetype(term, &p_plot->lp_properties, line_num+1);
+					load_linetype(pTerm, &p_plot->lp_properties, line_num+1);
 				if(p_plot->plot_style == BOXPLOT) {
 					p_plot->lp_properties.p_type = boxplot_opts.pointtype;
 					p_plot->lp_properties.p_size = PTSZ_DEFAULT;
@@ -2379,7 +2373,7 @@ void GnuPlot::EvalPlots()
 				// Normally each histogram gets a new set of colors, but in 
 				// 'newhistogram' you can force a starting color instead.   
 				if(!set_lpstyle && p_plot->histogram->startcolor != LT_UNDEFINED)
-					load_linetype(term, &p_plot->lp_properties, p_plot->histogram_sequence + p_plot->histogram->startcolor);
+					load_linetype(pTerm, &p_plot->lp_properties, p_plot->histogram_sequence + p_plot->histogram->startcolor);
 				if(p_plot->histogram->startpattern != LT_UNDEFINED)
 					p_plot->fill_properties.fillpattern = p_plot->histogram_sequence + p_plot->histogram->startpattern;
 			}
@@ -2475,7 +2469,7 @@ void GnuPlot::EvalPlots()
 				}
 				// If we are to bin the data, do that first 
 				if(p_plot->plot_smooth == SMOOTH_BINS) {
-					make_bins(p_plot, nbins, binlow, binhigh, binwidth);
+					MakeBins(p_plot, nbins, binlow, binhigh, binwidth);
 				}
 				// Restore auto-scaling prior to smoothing operation 
 				switch(p_plot->plot_smooth) {
@@ -2542,16 +2536,16 @@ void GnuPlot::EvalPlots()
 					case SMOOTH_ACSPLINES:
 					case SMOOTH_BEZIER:
 					case SMOOTH_SBEZIER:
-					    gen_interp(p_plot);
+					    GenInterp(p_plot);
 					    RefreshBounds(p_plot, 1);
 					    break;
 					case SMOOTH_KDENSITY:
-					    gen_interp(p_plot);
+					    GenInterp(p_plot);
 					    Ev.FillGpValFoat("GPVAL_KDENSITY_BANDWIDTH",
 						fabs(p_plot->smooth_parameter));
 					    break;
 					case SMOOTH_MONOTONE_CSPLINE:
-					    mcs_interp(p_plot);
+					    McsInterp(p_plot);
 					    break;
 					case SMOOTH_PATH:
 					    gen_2d_path_splines(p_plot);
@@ -2567,7 +2561,7 @@ void GnuPlot::EvalPlots()
 				 */
 				if(oneof3(p_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
 					p_plot->image_properties.type = IC_PALETTE;
-					ProcessImage(term, p_plot, IMG_UPDATE_AXES);
+					ProcessImage(pTerm, p_plot, IMG_UPDATE_AXES);
 				}
 			}
 SKIPPED_EMPTY_FILE:
@@ -2601,7 +2595,7 @@ SKIPPED_EMPTY_FILE:
 		else if(forever_iteration(plot_iterator) && (p_plot->plot_type != DATA)) {
 			IntError(NO_CARET, "unbounded iteration in something other than a data plot");
 		}
-		else if(next_iteration(plot_iterator)) {
+		else if(NextIteration(plot_iterator)) {
 			Pgm.SetTokenIdx(start_token);
 			continue;
 		}
@@ -2824,21 +2818,21 @@ SKIPPED_EMPTY_FILE:
 							// A sampled function can only be OUTRANGE if it has a private range 
 							if(sample_range_token != 0) {
 								double xx = t;
-								if(!inrange(xx, AxS[p_plot->AxIdx_X].min, AxS[p_plot->AxIdx_X].max))
+								if(!AxS[p_plot->AxIdx_X].InRange(xx))
 									p_plot->points[i].type = OUTRANGE;
 							}
 							// For boxes [only] check use of boxwidth 
-							if((p_plot->plot_style == BOXES) && (V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute)) {
+							if(p_plot->plot_style == BOXES && V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute) {
 								double xlow, xhigh;
 								coord_type dmy_type = INRANGE;
 								p_plot->points[i].z = 0;
 								if(AxS[p_plot->AxIdx_X].log) {
 									double base = AxS[p_plot->AxIdx_X].base;
-									xlow = x * pow(base, -V.BoxWidth/2.0);
+									xlow  = x * pow(base, -V.BoxWidth/2.0);
 									xhigh = x * pow(base, V.BoxWidth/2.0);
 								}
 								else {
-									xlow = x - V.BoxWidth/2.0;
+									xlow  = x - V.BoxWidth/2.0;
 									xhigh = x + V.BoxWidth/2.0;
 								}
 								STORE_AND_UPDATE_RANGE(p_plot->points[i].xlow, xlow, dmy_type, AxS.Idx_X, p_plot->noautoscale, NOOP);
@@ -2884,7 +2878,7 @@ come_here_if_undefined:
 				Pgm.SetTokenIdx(start_token);
 				continue;
 			}
-			if(next_iteration(plot_iterator)) {
+			if(NextIteration(plot_iterator)) {
 				Pgm.SetTokenIdx(start_token);
 				continue;
 			}
@@ -3008,11 +3002,11 @@ come_here_if_undefined:
 		plot_token = -1;
 		Ev.FillGpValString("GPVAL_LAST_PLOT", replot_line);
 	}
-	if(table_mode) {
-		print_table(P_FirstPlot, plot_num);
+	if(Tab.Mode) {
+		PrintTable(P_FirstPlot, plot_num);
 	}
 	else {
-		DoPlot(term, P_FirstPlot, plot_num);
+		DoPlot(pTerm, P_FirstPlot, plot_num);
 		/* after do_plot(), AxS[].min and .max
 		 * contain the plotting range actually used (rounded
 		 * to tic marks, not only the min/max data values)
@@ -3162,7 +3156,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 		// This ugliness is because columnheader can be either a keyword 
 		// or a function name.  Yes, the design could have been better. 
 		if(Pgm.AlmostEqualsCur("col$umnheader") && !(Pgm.AlmostEqualsCur("columnhead$er") && Pgm.EqualsNext("(")) ) {
-			df_set_key_title_columnhead(pPlot);
+			DfSetKeyTitleColumnHead(pPlot);
 		}
 		else if(Pgm.EqualsCur("at")) {
 			*pSetTitle = false;
@@ -3187,7 +3181,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 			}
 			else {
 				free_at(df_plot_title_at);
-				df_plot_title_at = perm_at();
+				df_plot_title_at = PermAt();
 				// We can evaluate the title for a function plot immediately 
 				// FIXME: or this code could go into eval_plots() so that    
 				//        function and data plots are treated the same way.  
@@ -3254,7 +3248,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 // a separate key entry for each data set.  We can short-circuit this by
 // clearing the saved string expression after generating the first title.
 // 
-void reevaluate_plot_title(curve_points * this_plot)
+void reevaluate_plot_title(curve_points * pPlot)
 {
 	GpValue a;
 	if(df_plot_title_at) {
@@ -3262,12 +3256,12 @@ void reevaluate_plot_title(curve_points * this_plot)
 		GPO.EvaluateAt(df_plot_title_at, &a);
 		evaluate_inside_using = FALSE;
 		if(!GPO.Ev.IsUndefined_ && a.type == STRING) {
-			SAlloc::F(this_plot->title);
-			this_plot->title = a.v.string_val;
+			SAlloc::F(pPlot->title);
+			pPlot->title = a.v.string_val;
 			// Special case where the "title" is used as a tic label 
-			if(this_plot->plot_style == HISTOGRAMS &&  histogram_opts.type == HT_STACKED_IN_TOWERS) {
-				double xpos = this_plot->histogram_sequence + this_plot->histogram->start;
-				add_tic_user(&GPO.AxS[FIRST_X_AXIS], this_plot->title, xpos, -1);
+			if(pPlot->plot_style == HISTOGRAMS &&  histogram_opts.type == HT_STACKED_IN_TOWERS) {
+				double xpos = pPlot->histogram_sequence + pPlot->histogram->start;
+				add_tic_user(&GPO.AxS[FIRST_X_AXIS], pPlot->title, xpos, -1);
 			}
 			// FIXME: good or bad to suppress all but the first generated title for a file containing multiple data sets?
 			else {
@@ -3276,8 +3270,8 @@ void reevaluate_plot_title(curve_points * this_plot)
 			}
 		}
 	}
-	if(this_plot->plot_style == PARALLELPLOT && !this_plot->title_is_automated) {
-		const double xpos = GPO.AxS.Parallel(this_plot->AxIdx_P-1).paxis_x;
-		add_tic_user(&GPO.AxS[FIRST_X_AXIS], this_plot->title, xpos, -1);
+	if(pPlot->plot_style == PARALLELPLOT && !pPlot->title_is_automated) {
+		const double xpos = GPO.AxS.Parallel(pPlot->AxIdx_P-1).paxis_x;
+		add_tic_user(&GPO.AxS[FIRST_X_AXIS], pPlot->title, xpos, -1);
 	}
 }

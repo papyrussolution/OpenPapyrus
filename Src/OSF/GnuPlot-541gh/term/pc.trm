@@ -912,11 +912,10 @@ TERM_PUBLIC void PC_enhanced_open(char * fontname,
 		pc_y = pc_enhanced_ysave;
 		return;
 	}
-
 	if(!pc_enhanced_opened_string) {
 		pc_enhanced_opened_string = TRUE;
-		/* Start new text fragment */
-		enhanced_cur_text = &enhanced_text[0];
+		// Start new text fragment 
+		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		/* Keep track of whether we are supposed to show this string */
 		pc_enhanced_show = showflag;
 		/* 0/1/2  no overprint / 1st pass / 2nd pass */
@@ -935,7 +934,7 @@ TERM_PUBLIC void PC_enhanced_open(char * fontname,
 
 TERM_PUBLIC void PC_enhanced_flush()
 {
-	char * str = enhanced_text; /* The fragment to print */
+	char * str = GPO.Enht.Text; /* The fragment to print */
 	int len;
 	int width = 0;
 	int height = 0;
@@ -943,8 +942,8 @@ TERM_PUBLIC void PC_enhanced_flush()
 	struct xycoord extent[4];
 	if(!pc_enhanced_opened_string)
 		return;
-	*enhanced_cur_text = NUL;
-	/* calculate length of string first */
+	*GPO.Enht.P_CurText = NUL;
+	// calculate length of string first 
 	_settextang(0);
 	_gettextextent(pc_x, pc_lasty - pc_y, str, &concat, extent);
 	len = concat.xcoord - pc_x;
@@ -1008,14 +1007,14 @@ TERM_PUBLIC void PC_enhanced_put_text(uint x, uint y, const char * str)
 	int shift_x, shift_y;
 	// If no enhanced text processing is needed, we can use the plain  
 	// vanilla put_text() routine instead of this fancy recursive one. 
-	if(ignore_enhanced_text || !strpbrk(str, "{}^_@&~")) {
+	if(GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~")) {
 		PC_put_text(x, y, str);
 		return;
 	}
 	// Set up global variables needed by enhanced_recursion() 
-	enhanced_fontscale = 1.0;
+	GPO.Enht.FontScale = 1.0;
 	pc_enhanced_opened_string = FALSE;
-	safe_strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
+	safe_strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	// save sin/cos of text angle
 	pc_text_sin = sin(DEG2RAD * pc_text_dir);
 	pc_text_cos = cos(DEG2RAD * pc_text_dir);
@@ -1452,7 +1451,7 @@ TERM_TABLE_START(dospc_driver)
 	PC_enhanced_put_text, 
 	PC_text_angle,
 	PC_justify_text, 
-	do_point, 
+	GnuPlot::DoPoint, 
 	GnuPlot::DoArrow, 
 	PC_set_font,
 	PC_pointsize,

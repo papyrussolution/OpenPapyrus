@@ -19,7 +19,129 @@ static t_sm_palette prev_palette = { -1, (palette_color_mode)-1, -1, -1, -1, -1,
 
 /* Internal prototype declarations: */
 //static void draw_inside_color_smooth_box_postscript();
-static void cbtick_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
+//static void cbtick_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
+
+/*static*/const uint rgb255_color::AnsiTab16[16] = {
+	0xf000, 0xf00a, 0xf0a0, 0xf0aa, 0xfa00, 0xfa0a, 0xfa50, 0xfaaa,
+	0xf555, 0xf55f, 0xf5f5, 0xf5ff, 0xff55, 0xff5f, 0xfff5, 0xffff,
+};
+
+//static uint nearest_ansi(rgb255_color rgb255)
+uint rgb255_color::NearestAnsi() const
+{
+	uint best = 0;
+	uint dist = 0x3fff;
+	for(uint i = 0; i < 16; i++) {
+		uint d = 0;
+		int a = (AnsiTab16[i] >> 0) & 0xf;
+		int b = (r >> 4) & 0xf;
+		d += (a - b) * (a - b);
+
+		a = (AnsiTab16[i] >> 4) & 0xf;
+		b = (g >> 4) & 0xf;
+		d += (a - b) * (a - b);
+
+		a = (AnsiTab16[i] >> 8) & 0xf;
+		b = (b >> 4) & 0xf;
+		d += (a - b) * (a - b);
+
+		if(d < dist) {
+			dist = d;
+			best = i;
+		}
+	}
+	return best;
+}
+
+uint rgb255_color::ToAnsi256() const
+{
+	if((r - 8) / 10 == (b - 8) / 10 && (r - 8) / 10 == (g - 8) / 10) {
+		// gray scale
+		if(g < 8) // black
+			return 16;
+		if(g >= 238) // white
+			return 231;
+		return (g - 8) / 10 + 232; // like XTerm, Mintty
+	}
+	else {
+		// 6x6x6 color cube
+#define RMAPCUBE6(n) ((n >= 55) ? ((n) - 35) / 40 : 0)
+		return (((uint)RMAPCUBE6(r) * 36) + ((uint)RMAPCUBE6(g) *  6) + ((uint)RMAPCUBE6(b))) + 16;
+	}
+}
+//
+// code snippet adopted from libcaca:  WTFPL license 
+// RGB colours for the ANSI palette. There is no real standard, so we
+// use the same values as gnome-terminal. The 7th colour (brown) is a bit
+// special: 0xfa50 instead of 0xfaa0. 
+// end of libcaca code 
+//
+//static uint to_ansi256(const rgb255_color * pColor)
+//static void dumb_rgb_color(rgb255_color rgb255, char * pColorString)
+void TermDumbBlock::DumbRgbColor(rgb255_color rgb255, char * pColorString)
+{
+	switch(ColorMode) {
+		case DUMB_ANSI: 
+			{
+				uint color = rgb255.NearestAnsi();
+				sprintf(pColorString, "\033[%i;%im", color >= 8 ? 22 : 1, 30 + (color % 8));
+			}
+			break;
+		case DUMB_ANSI256:
+		    sprintf(pColorString, "\033[38;5;%im", rgb255.ToAnsi256());
+		    break;
+		case DUMB_ANSIRGB:
+		    sprintf(pColorString, "\033[38;2;%i;%i;%im", rgb255.r, rgb255.g, rgb255.b);
+		    break;
+	}
+}
+
+//const char * ansi_colorstring(const t_colorspec * pColor, const t_colorspec * pPrevColor)
+const char * GnuPlot::AnsiColorString(const t_colorspec * pColor, const t_colorspec * pPrevColor)
+{
+	static char colorstring[256];
+	colorstring[0] = NUL;
+	switch(pColor->type) {
+		case TC_LT: {
+		    int n;
+		    if(TDumbB.ColorMode < DUMB_ANSI)
+			    break;
+		    if(pPrevColor && pPrevColor->type == TC_LT && pPrevColor->lt == pColor->lt)
+			    break;
+		    n = pColor->lt + 1;
+		    // map line type to colors 
+		    if(n <= 0) {
+			    sprintf(colorstring, "\033[0;39m"); /* normal foreground color */
+		    }
+		    else {
+			    if(n > 15) n = ((n - 1) % 15) + 1;
+			    sprintf(colorstring, "\033[%i;%im", n > 8 ? 22 : 1, 30 + (n % 8));
+		    }
+		    break;
+	    }
+		case TC_FRAC: {
+		    rgb255_color rgb255;
+		    if(pPrevColor && pPrevColor->type == TC_FRAC && pPrevColor->value == pColor->value)
+			    break;
+		    Rgb255MaxColorsFromGray(pColor->value, &rgb255);
+		    TDumbB.DumbRgbColor(rgb255, colorstring);
+		    break;
+	    }
+		case TC_RGB: {
+		    rgb255_color rgb255;
+		    if(pPrevColor && pPrevColor->type == TC_RGB && pPrevColor->lt == pColor->lt)
+			    break;
+		    rgb255.r = (pColor->lt >> 16) & 0xff;
+		    rgb255.g = (pColor->lt >>  8) & 0xff;
+		    rgb255.b = (pColor->lt >>  0) & 0xff;
+		    TDumbB.DumbRgbColor(rgb255, colorstring);
+		    break;
+	    }
+		default:
+		    break;
+	}
+	return colorstring;
+}
 
 /* *******************************************************************
    ROUTINES
@@ -51,20 +173,20 @@ void GnuPlot::InitColor()
 // Put number of allocated colours into GPO.SmPltt.colors
 // 
 //int make_palette()
-int GnuPlot::MakePalette()
+int GnuPlot::MakePalette(termentry * pTerm)
 {
-	if(!term->make_palette)
+	if(!pTerm->make_palette)
 		return 1;
 	else {
 		// ask for suitable number of colours in the palette 
-		int i = term->make_palette(NULL);
+		int i = pTerm->make_palette(NULL);
 		SmPltt.Colors = i;
 		if(i == 0) {
 			// terminal with its own mapping (PostScript, for instance)
 			// It will not change palette passed below, but non-NULL has to be
 			// passed there to create the header or force its initialization
 			if(memcmp(&prev_palette, &SmPltt, sizeof(t_sm_palette))) {
-				term->make_palette(&SmPltt);
+				pTerm->make_palette(&SmPltt);
 				prev_palette = SmPltt;
 				FPRINTF((stderr, "make_palette: calling term->make_palette for term with ncolors == 0\n"));
 			}
@@ -87,7 +209,7 @@ int GnuPlot::MakePalette()
 				SmPltt.Positive != prev_palette.Positive || SmPltt.Colors != prev_palette.Colors) {
 				// print the message only if colors have changed 
 				if(interactive)
-					fprintf(stderr, "smooth palette in %s: using %i of %i available color positions\n", term->name, SmPltt.Colors, i);
+					fprintf(stderr, "smooth palette in %s: using %i of %i available color positions\n", pTerm->name, SmPltt.Colors, i);
 			}
 			prev_palette = SmPltt;
 			ZFREE(SmPltt.P_Color);
@@ -98,7 +220,7 @@ int GnuPlot::MakePalette()
 				Rgb1FromGray(gray, &(SmPltt.P_Color[i]) );
 			}
 			// let the terminal make the palette from the supplied RGB triplets 
-			term->make_palette(&SmPltt);
+			pTerm->make_palette(&SmPltt);
 			return 0;
 		}
 	}
@@ -404,7 +526,8 @@ void GnuPlot::DrawInsideColorBoxBitmapSmooth(termentry * pTerm)
 	}
 }
 
-static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid/* linetype or -2 for no grid */, ticmark * userlabels)
+//static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid/* linetype or -2 for no grid */, ticmark * userlabels)
+void GnuPlot::CbTickCallback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid/* linetype or -2 for no grid */, ticmark * userlabels)
 {
 	int len = tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1) * (term->TicH);
 	uint x1, y1, x2, y2;
@@ -412,7 +535,7 @@ static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticleve
 	// position of tic as a fraction of the full palette range 
 	if(pAx->linked_to_primary) {
 		const GpAxis * primary = pAx->linked_to_primary;
-		place = GPO.EvalLinkFunction(primary, place);
+		place = EvalLinkFunction(primary, place);
 		cb_place = (place - primary->min) / (primary->max - primary->min);
 	}
 	else
@@ -430,7 +553,7 @@ static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticleve
 	}
 	// draw grid line 
 	if(grid.l_type > LT_NODRAW) {
-		GPO.TermApplyLpProperties(term, &grid); /* grid linetype */
+		TermApplyLpProperties(term, &grid); /* grid linetype */
 		if(color_box.rotation == 'h') {
 			(*term->move)(x1, color_box.bounds.ybot);
 			(*term->vector)(x1, color_box.bounds.ytop);
@@ -439,7 +562,7 @@ static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticleve
 			(*term->move)(color_box.bounds.xleft, y1);
 			(*term->vector)(color_box.bounds.xright, y1);
 		}
-		GPO.TermApplyLpProperties(term, &border_lp); /* border linetype */
+		TermApplyLpProperties(term, &border_lp); /* border linetype */
 	}
 	// draw tic 
 	if(len != 0) {
@@ -449,7 +572,7 @@ static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticleve
 		if(lt > 0) {
 			lp_style_type lp = border_lp;
 			lp_use_properties(&lp, lt);
-			GPO.TermApplyLpProperties(term, &lp);
+			TermApplyLpProperties(term, &lp);
 		}
 		(*term->move)(x1, y1);
 		(*term->vector)(x2, y2);
@@ -466,7 +589,7 @@ static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticleve
 			(*term->vector)(x2, y2);
 		}
 		if(lt != 0)
-			GPO.TermApplyLpProperties(term, &border_lp);
+			TermApplyLpProperties(term, &border_lp);
 	}
 	// draw label 
 	if(text) {
@@ -475,7 +598,7 @@ static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticleve
 		// Skip label if we've already written a user-specified one here 
 #define MINIMUM_SEPARATION 0.001
 		while(userlabels) {
-			if(fabs((place - userlabels->position) / (GPO.AxS.__CB().max - GPO.AxS.__CB().min)) <= MINIMUM_SEPARATION) {
+			if(fabs((place - userlabels->position) / (AxS.__CB().max - AxS.__CB().min)) <= MINIMUM_SEPARATION) {
 				text = NULL;
 				break;
 			}
@@ -483,10 +606,10 @@ static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticleve
 		}
 #undef MINIMUM_SEPARATION
 		// get offset 
-		GPO.Map3DPositionR(&(pAx->ticdef.offset), &offsetx, &offsety, "cbtics");
+		Map3DPositionR(&(pAx->ticdef.offset), &offsetx, &offsety, "cbtics");
 		// User-specified different color for the tics text 
 		if(pAx->ticdef.textcolor.type != TC_DEFAULT)
-			GPO.ApplyPm3DColor(term, &(pAx->ticdef.textcolor));
+			ApplyPm3DColor(term, &(pAx->ticdef.textcolor));
 		if(color_box.rotation == 'h') {
 			int y3 = color_box.bounds.ybot - (term->ChrV);
 			int hrotate = 0;
@@ -510,7 +633,7 @@ static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticleve
 				just = pAx->tic_pos;
 			write_multiline(term, x3+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0.0, pAx->ticdef.font);
 		}
-		GPO.TermApplyLpProperties(term, &border_lp); /* border linetype */
+		TermApplyLpProperties(term, &border_lp); /* border linetype */
 	}
 }
 // 
@@ -637,7 +760,7 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 	// draw tics 
 	if(AxS[COLOR_AXIS].ticmode) {
 		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
-		GenTics(&AxS[COLOR_AXIS], cbtick_callback);
+		GenTics(&AxS[COLOR_AXIS], &GnuPlot::CbTickCallback);
 	}
 	// write the colour box label 
 	if(AxS.__CB().label.text) {
@@ -659,7 +782,7 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 			// calculate max length of cb-tics labels 
 			widest_tic_strlen = 0;
 			if(AxS.__CB().ticmode & TICS_ON_BORDER) /* Recalculate widest_tic_strlen */
-				GenTics(&AxS[COLOR_AXIS], widest_tic_callback);
+				GenTics(&AxS[COLOR_AXIS], &GnuPlot::WidestTicCallback);
 			x = static_cast<int>(color_box.bounds.xright + (widest_tic_strlen + 1.5) * pTerm->ChrH);
 			if(len > 0) 
 				x += len;
@@ -668,7 +791,7 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 		SETMAX(x, 0);
 		SETMAX(y, 0);
 		WriteLabel(pTerm, x, y, &(AxS.__CB().label));
-		reset_textcolor(&(AxS.__CB().label.textcolor));
+		ResetTextColor(pTerm, &(AxS.__CB().label.textcolor));
 		AxS.__CB().label.rotate = save_rotation;
 	}
 }

@@ -103,10 +103,10 @@ void WinExit()
 	WinCloseHelp();
 	// clean-up call for printing system 
 	PrintingCleanup();
-	term_reset();
+	GPO.TermReset(term);
 	_fcloseall();
-	/* Close all graph windows */
-	for(lpgw = listgraphs; lpgw != NULL; lpgw = lpgw->next) {
+	// Close all graph windows 
+	for(lpgw = listgraphs; lpgw; lpgw = lpgw->next) {
 		if(GraphHasWindow(lpgw))
 			GraphClose(lpgw);
 	}

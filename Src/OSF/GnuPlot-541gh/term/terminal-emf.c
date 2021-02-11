@@ -648,113 +648,110 @@ static void EMF_write_float(double value)
 	c[2] = (u.l >> 16) & 0xFFL;
 	c[1] = (u.l >> 8) & 0xFFL;
 	c[0] = u.l & 0xFFL;
-
 	fwrite(c, 1, 4, gpoutfile);
 }
 
-TERM_PUBLIC void EMF_options()
+TERM_PUBLIC void EMF_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	char * s;
 	int emf_bgnd_rgb = 0;
 	float new_defaultfontsize = emf_defaultfontsize;
-	/* Annoying hack to handle the case of 'set termoption' after */
-	/* we have already initialized the terminal.                  */
-	if(!GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion")) {
-		term->MaxX = EMF_XMAX;
-		term->MaxY = EMF_YMAX;
+	// Annoying hack to handle the case of 'set termoption' after 
+	// we have already initialized the terminal.                  
+	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion")) {
+		term->MaxX = static_cast<uint>(EMF_XMAX);
+		term->MaxY = static_cast<uint>(EMF_YMAX);
 		emf_monochrome = FALSE;
 		emf_background = 0xffffff;
 		emf_tweak = TRUE;
-		/* Default to enhanced text */
+		// Default to enhanced text 
 		term->put_text = ENHemf_put_text;
 		term->flags |= TERM_ENHANCED_TEXT;
 	}
-
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("de$fault")) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		if(pGp->Pgm.AlmostEqualsCur("de$fault")) {
 			strcpy(emf_defaultfontname, EMF_FONTNAME);
 			emf_defaultfontsize = EMF_FONTSIZE;
 			emf_monochrome = FALSE;
 			term->flags &= ~TERM_MONOCHROME;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("m$onochrome")) {
+		if(pGp->Pgm.AlmostEqualsCur("m$onochrome")) {
 			emf_monochrome = TRUE;
 			term->flags |= TERM_MONOCHROME;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("c$olor") || GPO.Pgm.AlmostEqualsCur("c$olour")) {
+		if(pGp->Pgm.AlmostEqualsCur("c$olor") || pGp->Pgm.AlmostEqualsCur("c$olour")) {
 			emf_monochrome = FALSE;
 			term->flags &= ~TERM_MONOCHROME;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("da$shed") || GPO.Pgm.AlmostEqualsCur("s$olid")) {
+		if(pGp->Pgm.AlmostEqualsCur("da$shed") || pGp->Pgm.AlmostEqualsCur("s$olid")) {
 			/* dashed lines always enabled in version 5 */
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("round$ed")) {
+		if(pGp->Pgm.AlmostEqualsCur("round$ed")) {
 			emf_pentype = 0x0;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("butt")) {
+		if(pGp->Pgm.AlmostEqualsCur("butt")) {
 			emf_pentype = 0x2200;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("dl") || GPO.Pgm.AlmostEqualsCur("dashl$ength")) {
-			GPO.Pgm.Shift();
-			emf_dashlength = GPO.RealExpression();
+		if(pGp->Pgm.EqualsCur("dl") || pGp->Pgm.AlmostEqualsCur("dashl$ength")) {
+			pGp->Pgm.Shift();
+			emf_dashlength = pGp->RealExpression();
 			if(emf_dashlength < 0.5)
 				emf_dashlength = 1.0;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("lw") || GPO.Pgm.AlmostEqualsCur("linew$idth")) {
-			GPO.Pgm.Shift();
-			emf_linewidth_factor = GPO.RealExpression();
+		if(pGp->Pgm.EqualsCur("lw") || pGp->Pgm.AlmostEqualsCur("linew$idth")) {
+			pGp->Pgm.Shift();
+			emf_linewidth_factor = pGp->RealExpression();
 			if(emf_linewidth_factor < 0.1)
 				emf_linewidth_factor = 1.0;
 			continue;
 		}
 
-		if(GPO.Pgm.AlmostEqualsCur("enh$anced")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("enh$anced")) {
+			pGp->Pgm.Shift();
 			term->put_text = ENHemf_put_text;
 			term->flags |= TERM_ENHANCED_TEXT;
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("noenh$anced")) {
-			GPO.Pgm.Shift();
+		else if(pGp->Pgm.AlmostEqualsCur("noenh$anced")) {
+			pGp->Pgm.Shift();
 			term->put_text = EMF_put_text;
 			term->flags &= ~TERM_ENHANCED_TEXT;
 		}
 
-		if(GPO.Pgm.AlmostEqualsCur("back$ground")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("back$ground")) {
+			pGp->Pgm.Shift();
 			emf_bgnd_rgb = parse_color_name();
 			emf_background = RGB((emf_bgnd_rgb>>16)&0xFF,
 				(emf_bgnd_rgb>>8)&0xFF,
 				emf_bgnd_rgb&0xFF);
 		}
 
-		if(GPO.Pgm.AlmostEqualsCur("nopro$portional")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("nopro$portional")) {
+			pGp->Pgm.Shift();
 			emf_tweak = FALSE;
 		}
-
-		if(GPO.Pgm.AlmostEqualsCur("si$ze")) {
+		if(pGp->Pgm.AlmostEqualsCur("si$ze")) {
 			int tempxmax = 1024;
 			int tempymax = 768;
-			GPO.Pgm.Shift();
-			if(!GPO.Pgm.EndOfCommand()) {
-				tempxmax = GPO.RealExpression();
-				if(GPO.Pgm.EqualsCur(",")) {
-					GPO.Pgm.Shift();
-					tempymax = GPO.RealExpression();
+			pGp->Pgm.Shift();
+			if(!pGp->Pgm.EndOfCommand()) {
+				tempxmax = static_cast<int>(pGp->RealExpression());
+				if(pGp->Pgm.EqualsCur(",")) {
+					pGp->Pgm.Shift();
+					tempymax = static_cast<int>(pGp->RealExpression());
 				}
 			}
 			if(tempxmax > 0)
@@ -765,17 +762,17 @@ TERM_PUBLIC void EMF_options()
 			term->TicV = term->TicH;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("fontscale")) {
-			GPO.Pgm.Shift();
-			emf_fontscale = GPO.Pgm.EndOfCommand() ? -1 : GPO.RealExpression();
+		if(pGp->Pgm.EqualsCur("fontscale")) {
+			pGp->Pgm.Shift();
+			emf_fontscale = pGp->Pgm.EndOfCommand() ? -1 : pGp->RealExpression();
 			if(emf_fontscale <= 0)
 				emf_fontscale = 1.0;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("font"))
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.EqualsCur("font"))
+			pGp->Pgm.Shift();
 		// Fall through to old-style bare font name 
-		if((s = GPO.TryToGetString())) {
+		if((s = pGp->TryToGetString())) {
 			char * comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma+1, "%f", &new_defaultfontsize))) {
 				*comma = '\0';
@@ -783,15 +780,15 @@ TERM_PUBLIC void EMF_options()
 			if(*s)
 				safe_strncpy(emf_defaultfontname, s, sizeof(emf_defaultfontname));
 			SAlloc::F(s);
-			if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx()))
-				new_defaultfontsize = GPO.FloatExpression();
+			if(pGp->Pgm.IsANumber(pGp->Pgm.GetCurTokenIdx()))
+				new_defaultfontsize = pGp->FloatExpression();
 			continue;
 		}
 		break;
 	} /* while(!end of command) */
-	if(!GPO.Pgm.EndOfCommand()) {
+	if(!pGp->Pgm.EndOfCommand()) {
 		/* We have old-style bare font size specified */
-		new_defaultfontsize = GPO.FloatExpression();
+		new_defaultfontsize = pGp->FloatExpression();
 	}
 	if(new_defaultfontsize > 0)
 		emf_defaultfontsize = new_defaultfontsize;
@@ -799,20 +796,15 @@ TERM_PUBLIC void EMF_options()
 	if(term->flags & TERM_ENHANCED_TEXT)
 		strcat(term_options, " enhanced ");
 	if(emf_fontscale != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " fontscale %.1f",
-		    emf_fontscale);
+		sprintf(&(term_options[strlen(term_options)]), " fontscale %.1f", emf_fontscale);
 	if(term->MaxX != (int)EMF_XMAX || term->MaxY != (int)EMF_YMAX)
-		sprintf(&(term_options[strlen(term_options)]), " size %d,%d ",
-		    (int)(0.5+term->MaxX/EMF_PX2HM), (int)(0.5+term->MaxY/EMF_PX2HM));
+		sprintf(&(term_options[strlen(term_options)]), " size %d,%d ", (int)(0.5+term->MaxX/EMF_PX2HM), (int)(0.5+term->MaxY/EMF_PX2HM));
 	if(emf_linewidth_factor != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " lw %.1f",
-		    emf_linewidth_factor);
+		sprintf(&(term_options[strlen(term_options)]), " lw %.1f", emf_linewidth_factor);
 	if(emf_dashlength != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " dashlength %.1f",
-		    emf_dashlength);
+		sprintf(&(term_options[strlen(term_options)]), " dashlength %.1f", emf_dashlength);
 	if(emf_bgnd_rgb)
-		sprintf(&(term_options[strlen(term_options)]), " background \"#%06x\"",
-		    emf_bgnd_rgb);
+		sprintf(&(term_options[strlen(term_options)]), " background \"#%06x\"", emf_bgnd_rgb);
 }
 
 TERM_PUBLIC void EMF_init(termentry * pThis)
@@ -898,7 +890,7 @@ TERM_PUBLIC int EMF_set_font(const char * font)
 		strcpy(emf_fontname, emf_defaultfontname);
 		emf_fontsize = emf_defaultfontsize;
 	}
-	/* Skip redundant requests for the same font */
+	// Skip redundant requests for the same font 
 	if(emf_last_fontname && !strcmp(emf_last_fontname, emf_fontname) &&  emf_last_fontsize == emf_fontsize) {
 		return TRUE;
 	}
@@ -907,9 +899,8 @@ TERM_PUBLIC int EMF_set_font(const char * font)
 		emf_last_fontname = gp_strdup(emf_fontname);
 		emf_last_fontsize = emf_fontsize;
 	}
-
-	term->ChrH = 0.6 * (emf_fontsize * EMF_PT2HM * emf_fontscale);
-	term->ChrV = 1.3 * (emf_fontsize * EMF_PT2HM * emf_fontscale);
+	term->ChrH = static_cast<uint>(0.6 * (emf_fontsize * EMF_PT2HM * emf_fontscale));
+	term->ChrV = static_cast<uint>(1.3 * (emf_fontsize * EMF_PT2HM * emf_fontscale));
 	EMF_setfont();
 	return TRUE;
 }
@@ -934,7 +925,7 @@ TERM_PUBLIC void EMF_text()
 	EMF_DeleteObject(EMF_HANDLE_BRUSH);
 	EMF_EOF();
 	// update the header 
-	pos = ftell(gpoutfile);
+	pos = static_cast<long>(ftell(gpoutfile));
 	if(pos < 0) {
 		GPO.TermGraphics = false;
 		GPO.IntError(NO_CARET, "emf: cannot reset output file");
@@ -974,10 +965,9 @@ TERM_PUBLIC void EMF_dashtype(int type, t_dashtype * custom_dash_type)
 		    break;
 		case DASHTYPE_CUSTOM:
 		    for(i = 0; i < 8; i++)
-			    emf_dashpattern[i] = custom_dash_type->pattern[i];
+			    emf_dashpattern[i] = static_cast<int>(custom_dash_type->pattern[i]);
 		    EMF_load_dashtype(DASHTYPE_CUSTOM);
 		    break;
-
 		default:
 		    EMF_load_dashtype(type);
 		    break;
@@ -1158,7 +1148,7 @@ TERM_PUBLIC void EMF_load_dashtype(int dashtype)
 	if(dashtype == DASHTYPE_CUSTOM) {
 		dashtype = EMF_LINE_TYPES; /* Point to placeholder array */
 		for(i = 0; i < 8; i += 1)
-			dot_length[(EMF_LINE_TYPES-1)*8 + i] = emf_dashpattern[i] * ceil(emf_linewidth * empirical_scale/2.);
+			dot_length[(EMF_LINE_TYPES-1)*8 + i] = emf_dashpattern[i] * fceili(emf_linewidth * empirical_scale/2.0);
 	}
 	if(dashtype == DASHTYPE_NODRAW) {
 		dashtype = EMF_LINE_TYPES; /* Point to placeholder array */
@@ -1183,7 +1173,7 @@ TERM_PUBLIC void EMF_load_dashtype(int dashtype)
 		// set up dash dimensions 
 		j = (dashtype - 1) * 8;
 		for(i = 0; i < 8; i++, j++) {
-			emf_step_sizes[i] = dot_length[j] * emf_dashlength * EMF_PX2HM * emf_linewidth * empirical_scale;
+			emf_step_sizes[i] = static_cast<int>(dot_length[j] * emf_dashlength * EMF_PX2HM * emf_linewidth * empirical_scale);
 		}
 		// first thing drawn will be a line 
 		emf_step = emf_step_sizes[0];
@@ -1566,20 +1556,18 @@ TERM_PUBLIC void EMF_set_pointsize(double size)
 {
 	if(size < 0)
 		size = 1;
-	emf_tic = (size * term->TicH);
-	emf_tic707 = floor((double)emf_tic * 0.707 + 0.5);
+	emf_tic = static_cast<int>(size * term->TicH);
+	emf_tic707 = ffloori((double)emf_tic * 0.707 + 0.5);
 	emf_tic866 = emf_tic * 13 / 15;
 	emf_tic500 = emf_tic / 2;
 	emf_tic1241 = emf_tic * 36 / 29;
 	emf_tic1077 = emf_tic * 14 / 13;
-	emf_tic9511 = emf_tic * 0.9511;
-	emf_tic5878 = emf_tic * 0.5878;
-	emf_tic8090 = emf_tic * 0.8090;
-	emf_tic3090 = emf_tic * 0.3090;
-
+	emf_tic9511 = static_cast<int>(emf_tic * 0.9511);
+	emf_tic5878 = static_cast<int>(emf_tic * 0.5878);
+	emf_tic8090 = static_cast<int>(emf_tic * 0.8090);
+	emf_tic3090 = static_cast<int>(emf_tic * 0.3090);
 	emf_tic621 = emf_tic * 18 / 29;
 }
-
 /*
  * Ethan A Merritt September 2008
  *	- Support for enhanced text mode
@@ -1634,7 +1622,7 @@ TERM_PUBLIC void ENHemf_OPEN(char * fontname, double fontsize, double base, bool
 	if(!ENHemf_opened_string) {
 		int i;
 		ENHemf_opened_string = TRUE;
-		enhanced_cur_text = &enhanced_text[0];
+		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		SAlloc::F(ENHemf_font);
 		ENHemf_font = gp_strdup(fontname);
 		for(i = 0; ENHemf_font[i]; i++)
@@ -1656,7 +1644,7 @@ TERM_PUBLIC void ENHemf_FLUSH()
 	int incr_x;
 	double strl;
 	if(ENHemf_opened_string) {
-		*enhanced_cur_text = '\0';
+		*GPO.Enht.P_CurText = '\0';
 		ENHemf_opened_string = FALSE;
 		x = emf_posx;
 		y = emf_posy;
@@ -1665,19 +1653,15 @@ TERM_PUBLIC void ENHemf_FLUSH()
 			float save_fontsize = emf_fontsize;
 			strcpy(save_font, emf_fontname);
 			emf_fontsize = ENHemf_fontsize;
-
 			EMF_set_font(ENHemf_font);
-
 			emf_fontsize = save_fontsize;
 			strcpy(emf_fontname, save_font);
 		}
-
-		str = enhanced_text;
-
+		str = GPO.Enht.Text;
 #ifndef GP_TA_UPDATEPC_MODE
-		/* We are especially bad at guessing the width of whitespace. */
-		/* Best is to pile up all our errors on top of leading space. */
-		i = strspn(enhanced_text, " ");
+		// We are especially bad at guessing the width of whitespace. 
+		// Best is to pile up all our errors on top of leading space. 
+		i = strspn(GPO.Enht.Text, " ");
 		if(i > 0) {
 			double blank = i * term->ChrH * EMF_AVG_WID;
 			x += cos(emf_vert_text * EMF_10THDEG2RAD) * blank;
@@ -1687,8 +1671,8 @@ TERM_PUBLIC void ENHemf_FLUSH()
 			str += i;
 		}
 #endif
-		x_offset = sin(emf_vert_text * EMF_10THDEG2RAD) * ENHemf_base * EMF_PX2HM;
-		y_offset = cos(emf_vert_text * EMF_10THDEG2RAD) * ENHemf_base * EMF_PX2HM;
+		x_offset = static_cast<int>(sin(emf_vert_text * EMF_10THDEG2RAD) * ENHemf_base * EMF_PX2HM);
+		y_offset = static_cast<int>(cos(emf_vert_text * EMF_10THDEG2RAD) * ENHemf_base * EMF_PX2HM);
 		if(ENHemf_show && !ENHemf_sizeonly)
 			EMF_put_text(x-x_offset, y+y_offset, str);
 		if(encoding == S_ENC_UTF8) {
@@ -1721,10 +1705,10 @@ TERM_PUBLIC void ENHemf_FLUSH()
 			strl += 0.30 * wide;
 			strl -= 0.15 * thin;
 		}
-		incr_x = strl * EMF_AVG_WID * term->ChrH;
+		incr_x = static_cast<int>(strl * EMF_AVG_WID * term->ChrH);
 		// Attempt to handle slanted text. Not entirely successful 
-		emf_posx = x + incr_x * cos(emf_vert_text * EMF_10THDEG2RAD);
-		emf_posy = y + incr_x * sin(emf_vert_text * EMF_10THDEG2RAD);
+		emf_posx = static_cast<int>(x + incr_x * cos(emf_vert_text * EMF_10THDEG2RAD));
+		emf_posy = static_cast<int>(y + incr_x * sin(emf_vert_text * EMF_10THDEG2RAD));
 		FPRINTF((stderr, "fontwidth = %d text box: %d x %d\n",
 		    (int)(EMF_AVG_WID * term->ChrH),
 		    (int)(incr_x * cos(emf_vert_text * EMF_10THDEG2RAD)),
@@ -1745,8 +1729,8 @@ TERM_PUBLIC void ENHemf_put_text(uint x, uint y, const char * str)
 	 * punt the string to EMF_put_text()
 	 */
 	if(!strstr(str, "\\U+"))
-		if(ignore_enhanced_text || !strpbrk(str, "{}^_@&~")) {
-			/* FIXME: do something to ensure default font is selected */
+		if(GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~")) {
+			// FIXME: do something to ensure default font is selected 
 			EMF_put_text(x, y, str);
 			return;
 		}
@@ -1755,9 +1739,9 @@ TERM_PUBLIC void ENHemf_put_text(uint x, uint y, const char * str)
 		EMF_SetTextColor(emf_color);
 		emf_textcolor = emf_color;
 	}
-	/* set up the global variables needed by enhanced_recursion() */
-	enhanced_fontscale = 1.0;
-	safe_strncpy(enhanced_escape_format, "&#x%2.2x;", sizeof(enhanced_escape_format));
+	// set up the global variables needed by enhanced_recursion() 
+	GPO.Enht.FontScale = 1.0;
+	safe_strncpy(GPO.Enht.EscapeFormat, "&#x%2.2x;", sizeof(GPO.Enht.EscapeFormat));
 	ENHemf_opened_string = FALSE;
 	ENHemf_overprint = 0;
 	ENHemf_fontsize = emf_fontsize;

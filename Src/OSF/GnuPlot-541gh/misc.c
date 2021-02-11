@@ -149,13 +149,13 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 	// Provide a user-visible copy of the current line number in the input file 
 	gpval_lineno = GPO.Ev.AddUdvByName("GPVAL_LINENO");
 	Ginteger(&gpval_lineno->udv_value, 0);
-	LfPush(fp, pName, NULL); // save state for errors and recursion 
+	GPO.LfPush(fp, pName, NULL); // save state for errors and recursion 
 	if(fp == stdin) {
 		// DBT 10-6-98  go interactive if "-" named as load file 
 		interactive = TRUE;
 		while(!GPO.ComLine())
 			;
-		LfPop();
+		GPO.LfPop();
 		return;
 	}
 	else {
@@ -265,7 +265,7 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 			}
 		}
 		// pop state 
-		LfPop(); // also closes file fp 
+		GPO.LfPop(); // also closes file fp 
 	}
 }
 // 
@@ -273,7 +273,7 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 // called by load_file and load_file_error 
 //
 //bool lf_pop()
-bool GpProgram::LfPop()
+bool GnuPlot::LfPop()
 {
 	if(lf_head == NULL)
 		return false;
@@ -297,15 +297,15 @@ bool GpProgram::LfPop()
 			}
 			call_argc = lf->call_argc;
 			// Restore ARGC and ARG0 ... ARG9 
-			if((udv = GPO.Ev.GetUdvByName("ARGC"))) {
+			if((udv = Ev.GetUdvByName("ARGC"))) {
 				Ginteger(&(udv->udv_value), call_argc);
 			}
-			if((udv = GPO.Ev.GetUdvByName("ARG0"))) {
+			if((udv = Ev.GetUdvByName("ARG0"))) {
 				gpfree_string(&(udv->udv_value));
 				Gstring(&(udv->udv_value), (lf->prev && lf->prev->name) ? gp_strdup(lf->prev->name) : gp_strdup(""));
 			}
 			for(argindex = 1; argindex <= 9; argindex++) {
-				if((udv = GPO.Ev.GetUdvByName(argname[argindex]))) {
+				if((udv = Ev.GetUdvByName(argname[argindex]))) {
 					gpfree_string(&(udv->udv_value));
 					if(!call_args[argindex-1])
 						udv->udv_value.SetNotDefined();
@@ -313,7 +313,7 @@ bool GpProgram::LfPop()
 						Gstring(&(udv->udv_value), gp_strdup(call_args[argindex-1]));
 				}
 			}
-			if((udv = GPO.Ev.GetUdvByName("ARGV")) && udv->udv_value.type == ARRAY) {
+			if((udv = Ev.GetUdvByName("ARGV")) && udv->udv_value.type == ARRAY) {
 				GpValue * ARGV;
 				int argv_size = lf->argv[0].v.int_val;
 				gpfree_array(&(udv->udv_value));
@@ -325,14 +325,14 @@ bool GpProgram::LfPop()
 		}
 		interactive = lf->interactive;
 		inline_num = lf->inline_num;
-		GPO.Ev.AddUdvByName("GPVAL_LINENO")->udv_value.v.int_val = inline_num;
+		Ev.AddUdvByName("GPVAL_LINENO")->udv_value.v.int_val = inline_num;
 		if_open_for_else = lf->if_open_for_else;
 		// Restore saved input state and free the copy 
 		if(lf->P_Tokens) {
-			NumTokens = lf->_NumTokens;
-			SetTokenIdx(lf->_CToken);
-			assert(TokenTableSize >= lf->_NumTokens+1);
-			memcpy(P_Token, lf->P_Tokens, (lf->_NumTokens+1) * sizeof(lexical_unit));
+			Pgm.NumTokens = lf->_NumTokens;
+			Pgm.SetTokenIdx(lf->_CToken);
+			assert(Pgm.TokenTableSize >= lf->_NumTokens+1);
+			memcpy(Pgm.P_Token, lf->P_Tokens, (lf->_NumTokens+1) * sizeof(lexical_unit));
 			SAlloc::F(lf->P_Tokens);
 		}
 		if(lf->input_line) {
@@ -355,13 +355,13 @@ bool GpProgram::LfPop()
 // or from the passed command line.
 // 
 //void lf_push(FILE * fp, char * name, char * cmdline)
-void GpProgram::LfPush(FILE * fp, char * pName, char * pCmdLine)
+void GnuPlot::LfPush(FILE * fp, char * pName, char * pCmdLine)
 {
 	int    argindex;
 	LFS  * lf = (LFS *)gp_alloc(sizeof(LFS), (char*)NULL);
 	if(!lf) {
 		SFile::ZClose(&fp); // it won't be otherwise 
-		GPO.IntErrorCurToken("not enough memory to load file");
+		IntErrorCurToken("not enough memory to load file");
 	}
 	lf->fp = fp;            /* save this file pointer */
 	lf->name = pName;
@@ -380,7 +380,7 @@ void GpProgram::LfPush(FILE * fp, char * pName, char * pCmdLine)
 		// Save ARGV[] 
 		lf->argv[0].v.int_val = 0;
 		lf->argv[0].SetNotDefined();
-		if((udv = GPO.Ev.GetUdvByName("ARGV")) && udv->udv_value.type == ARRAY) {
+		if((udv = Ev.GetUdvByName("ARGV")) && udv->udv_value.type == ARRAY) {
 			for(argindex = 0; argindex <= call_argc; argindex++) {
 				lf->argv[argindex] = udv->udv_value.v.value_array[argindex];
 				if(lf->argv[argindex].type == STRING)
@@ -390,12 +390,12 @@ void GpProgram::LfPush(FILE * fp, char * pName, char * pCmdLine)
 	}
 	lf->depth = lf_head ? lf_head->depth+1 : 0; /* recursion depth */
 	if(lf->depth > STACK_DEPTH)
-		GPO.IntError(NO_CARET, "load/eval nested too deeply");
+		IntError(NO_CARET, "load/eval nested too deeply");
 	lf->if_open_for_else = if_open_for_else;
-	lf->_CToken = GetCurTokenIdx();
-	lf->_NumTokens = NumTokens;
-	lf->P_Tokens = (lexical_unit *)gp_alloc((NumTokens+1) * sizeof(lexical_unit), "lf tokens");
-	memcpy(lf->P_Tokens, P_Token, (NumTokens+1) * sizeof(lexical_unit));
+	lf->_CToken = Pgm.GetCurTokenIdx();
+	lf->_NumTokens = Pgm.NumTokens;
+	lf->P_Tokens = (lexical_unit *)gp_alloc((Pgm.NumTokens+1) * sizeof(lexical_unit), "lf tokens");
+	memcpy(lf->P_Tokens, Pgm.P_Token, (Pgm.NumTokens+1) * sizeof(lexical_unit));
 	lf->input_line = gp_strdup(gp_input_line);
 	lf->prev = lf_head; // link to stack 
 	lf_head = lf;
@@ -414,7 +414,7 @@ void load_file_error()
 {
 	// clean up from error in load_file 
 	// pop off everything on stack 
-	while(GPO.Pgm.LfPop())
+	while(GPO.LfPop())
 		;
 }
 
@@ -567,10 +567,9 @@ void get_filledcurves_style_options(filledcurves_opts * fco)
 		fco->aty = GPO.RealExpression();
 	}
 }
-
-/* Print filledcurves style options to a file (used by 'show' and 'save'
- * commands).
- */
+//
+// Print filledcurves style options to a file (used by 'show' and 'save' commands).
+//
 void filledcurves_options_tofile(filledcurves_opts * fco, FILE * fp)
 {
 	if(fco->closeto == FILLEDCURVES_DEFAULT)
@@ -1273,7 +1272,7 @@ void arrow_use_properties(struct arrow_style_type * arrow, int tag)
 	struct t_colorspec save_colorspec = arrow->lp_properties.pm3d_color;
 	/* Default if requested style is not found */
 	default_arrow_style(arrow);
-	p_this = first_arrowstyle;
+	p_this = GPO.Gg.P_FirstArrowStyle; 
 	while(p_this != NULL) {
 		if(p_this->tag == tag) {
 			*arrow = p_this->arrow_properties;
@@ -1468,7 +1467,7 @@ void GnuPlot::PixMapFromColorMap(t_pixmap * pPixmap)
 	SAlloc::F(pPixmap->colormapname);
 	pPixmap->colormapname = gp_strdup(colormap->udv_name);
 	size = colormap->udv_value.v.value_array[0].v.int_val;
-	pPixmap->image_data = (coordval *)gp_realloc(pPixmap->image_data, size * 4. * sizeof(coordval), "pixmap");
+	pPixmap->image_data = (coordval *)gp_realloc(pPixmap->image_data, static_cast<size_t>(size * 4.0 * sizeof(coordval)), "pixmap");
 	// Unpack ARGB colormap entry into 4 separate values R G B A 
 	for(i = 1, ip = 0; i <= size; i++) {
 		rgb = colormap->udv_value.v.value_array[i].v.int_val;

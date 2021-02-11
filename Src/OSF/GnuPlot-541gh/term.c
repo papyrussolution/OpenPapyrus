@@ -69,46 +69,48 @@ const char * encoding_names[] = {
 	"cp437", "cp850", "cp852", "cp950", "cp1250", "cp1251", "cp1252", "cp1254", "koi8r", "koi8u", "sjis", "utf8", NULL
 };
 // 'set encoding' options 
-const struct gen_table set_encoding_tbl[] =
-{
-	{ "def$ault", S_ENC_DEFAULT },
-	{ "utf$8", S_ENC_UTF8 },
+const struct gen_table set_encoding_tbl[] = {
+	{ "def$ault",    S_ENC_DEFAULT },
+	{ "utf$8",       S_ENC_UTF8 },
 	{ "iso$_8859_1", S_ENC_ISO8859_1 },
-	{ "iso_8859_2", S_ENC_ISO8859_2 },
-	{ "iso_8859_9", S_ENC_ISO8859_9 },
+	{ "iso_8859_2",  S_ENC_ISO8859_2 },
+	{ "iso_8859_9",  S_ENC_ISO8859_9 },
 	{ "iso_8859_15", S_ENC_ISO8859_15 },
-	{ "cp4$37", S_ENC_CP437 },
-	{ "cp850", S_ENC_CP850 },
-	{ "cp852", S_ENC_CP852 },
-	{ "cp950", S_ENC_CP950 },
-	{ "cp1250", S_ENC_CP1250 },
-	{ "cp1251", S_ENC_CP1251 },
-	{ "cp1252", S_ENC_CP1252 },
-	{ "cp1254", S_ENC_CP1254 },
-	{ "koi8$r", S_ENC_KOI8_R },
-	{ "koi8$u", S_ENC_KOI8_U },
-	{ "sj$is", S_ENC_SJIS },
-	{ NULL, S_ENC_INVALID }
+	{ "cp4$37",      S_ENC_CP437 },
+	{ "cp850",       S_ENC_CP850 },
+	{ "cp852",       S_ENC_CP852 },
+	{ "cp950",       S_ENC_CP950 },
+	{ "cp1250",      S_ENC_CP1250 },
+	{ "cp1251",      S_ENC_CP1251 },
+	{ "cp1252",      S_ENC_CP1252 },
+	{ "cp1254",      S_ENC_CP1254 },
+	{ "koi8$r",      S_ENC_KOI8_R },
+	{ "koi8$u",      S_ENC_KOI8_U },
+	{ "sj$is",       S_ENC_SJIS },
+	{ NULL,          S_ENC_INVALID }
 };
 
 const char * arrow_head_names[4] = {"nohead", "head", "backhead", "heads"};
 
 enum { IPC_BACK_UNUSABLE = -2, IPC_BACK_CLOSED = -1 };
 
-int gp_resolution = 72; /* resolution in dpi for converting pixels to size units */
+//int    gp_resolution = 72; // resolution in dpi for converting pixels to size units 
 //
 // Support for enhanced text mode. Declared extern in term_api.h 
 //
-char enhanced_text[MAX_LINE_LEN+1] = "";
-char * enhanced_cur_text = NULL;
-double enhanced_fontscale = 1.0;
-char enhanced_escape_format[16] = "";
-double enhanced_max_height = 0.0, enhanced_min_height = 0.0;
-#define ENHANCED_TEXT_MAX (&enhanced_text[MAX_LINE_LEN])
-bool ignore_enhanced_text = false; // flag variable to disable enhanced output of filenames, mainly. 
+//#define ENHANCED_TEXT_MAX (&enhanced_text[MAX_LINE_LEN])
+
+//char   enhanced_text[MAX_LINE_LEN+1] = "";
+//char * enhanced_cur_text = NULL;
+//double enhanced_fontscale = 1.0;
+//char   enhanced_escape_format[16] = "";
+//double enhanced_max_height = 0.0;
+//double enhanced_min_height = 0.0;
+//#define ENHANCED_TEXT_MAX (&enhanced_text[MAX_LINE_LEN])
+//bool   ignore_enhanced_text = false; // flag variable to disable enhanced output of filenames, mainly. 
 // Recycle count for user-defined linetypes 
-int linetype_recycle_count = 0;
-int mono_recycle_count = 0;
+int    linetype_recycle_count = 0;
+int    mono_recycle_count = 0;
 
 // Internal variables 
 //static bool term_graphics   = false; // true if terminal is in graphics mode 
@@ -121,29 +123,28 @@ int mono_recycle_count = 0;
 static void term_suspend();
 static void term_close_output();
 static void null_linewidth(double);
-static void do_point(uint x, uint y, int number);
+//static void do_point(uint x, uint y, int number);
 //static void do_pointsize(double size);
-static void line_and_point(uint x, uint y, int number);
+//static void line_and_point(uint x, uint y, int number);
 //static void GnuPlot::DoArrow(uint sx, uint sy, uint ex, uint ey, int headstyle);
 static void null_dashtype(int type, t_dashtype * custom_dash_pattern);
-static int  null_text_angle(int ang);
-static int  null_justify_text(enum JUSTIFY just);
+//static int  null_text_angle(int ang);
+//static int  null_justify_text(enum JUSTIFY just);
 //static int  null_scale(double x, double y);
 static void null_layer(t_termlayer layer);
 static int  null_set_font(const char * font);
-static void null_set_color(struct t_colorspec * colorspec);
-static void options_null();
+//static void null_set_color(t_colorspec * colorspec);
+//static void options_null();
 static void graphics_null();
 static void UNKNOWN_null();
 static void MOVE_null(uint, uint);
 static void LINETYPE_null(int);
 static void PUTTEXT_null(uint, uint, const char *);
 static int strlen_tex(const char *);
-static char * stylefont(const char * fontname, bool isbold, bool isitalic);
+//static char * stylefont(const char * fontname, bool isbold, bool isitalic);
 //static GpSizeUnits parse_term_size(float * xsize, float * ysize, GpSizeUnits def_units);
 
 #define FOPEN_BINARY(file) fopen(file, "wb")
-#define fflush_binary()
 #if defined(MSDOS) || defined(_WIN32)
 	#if defined(__DJGPP__)
 	#include <io.h>
@@ -205,73 +206,73 @@ static void term_close_output()
 // assigns dest to outstr, so it must be allocated or NULL
 // and it must not be outstr itself !
 // 
-void term_set_output(char * dest)
+//void term_set_output(char * dest)
+void GnuPlot::TermSetOutput(termentry * pTerm, char * pDest)
 {
 	FILE * f = NULL;
 	FPRINTF((stderr, "term_set_output\n"));
-	assert(dest == NULL || dest != outstr);
+	assert(pDest == NULL || pDest != outstr);
 	if(multiplot) {
 		fputs("In multiplot mode you can't change the output\n", stderr);
 		return;
 	}
-	if(term && GPO.TermInitialised) {
-		(*term->reset)();
-		GPO.TermInitialised = false;
+	if(pTerm && TermInitialised) {
+		(pTerm->reset)();
+		TermInitialised = false;
 		// switch off output to special postscript file (if used) 
 		gppsfile = NULL;
 	}
-	if(dest == NULL) {      /* stdout */
+	if(pDest == NULL) {      /* stdout */
 		term_close_output();
 	}
 	else {
 #if defined(PIPES)
-		if(*dest == '|') {
+		if(*pDest == '|') {
 			restrict_popen();
 #if defined(_WIN32 ) || defined(MSDOS)
-			if(term && (term->flags & TERM_BINARY))
-				f = popen(dest + 1, "wb");
+			if(pTerm && (pTerm->flags & TERM_BINARY))
+				f = popen(pDest + 1, "wb");
 			else
-				f = popen(dest + 1, "w");
+				f = popen(pDest + 1, "w");
 #else
-			f = popen(dest + 1, "w");
+			f = popen(pDest + 1, "w");
 #endif
 			if(f == (FILE*)NULL)
-				os_error(GPO.Pgm.GetCurTokenIdx(), "cannot create pipe; output not changed");
+				os_error(Pgm.GetCurTokenIdx(), "cannot create pipe; output not changed");
 			else
 				output_pipe_open = TRUE;
 		}
 		else {
 #endif /* PIPES */
-
 #ifdef _WIN32
 		if(outstr && sstreqi_ascii(outstr, "PRN")) {
-			/* we can't call open_printer() while printer is open, so */
+			// we can't call open_printer() while printer is open, so 
 			close_printer(gpoutfile); /* close printer immediately if open */
 			gpoutfile = stdout; /* and reset output to stdout */
 			SAlloc::F(outstr);
 			outstr = NULL;
 		}
-		if(sstreqi_ascii(dest, "PRN")) {
+		if(sstreqi_ascii(pDest, "PRN")) {
 			if((f = open_printer()) == (FILE*)NULL)
-				os_error(GPO.Pgm.GetCurTokenIdx(), "cannot open printer temporary file; output may have changed");
+				os_error(Pgm.GetCurTokenIdx(), "cannot open printer temporary file; output may have changed");
 		}
 		else
 #endif
 		{
-			if(term && (term->flags & TERM_BINARY))
-				f = FOPEN_BINARY(dest);
+			if(pTerm && (pTerm->flags & TERM_BINARY))
+				f = FOPEN_BINARY(pDest);
 			else
-				f = fopen(dest, "w");
+				f = fopen(pDest, "w");
 			if(!f)
-				os_error(GPO.Pgm.GetCurTokenIdx(), "cannot open file; output not changed");
+				os_error(Pgm.GetCurTokenIdx(), "cannot open file; output not changed");
 		}
 #if defined(PIPES)
 	}
 #endif
 		term_close_output();
 		gpoutfile = f;
-		outstr = dest;
-		GPO.TermOpenedBinary = (term && (term->flags & TERM_BINARY));
+		outstr = pDest;
+		TermOpenedBinary = (pTerm && (pTerm->flags & TERM_BINARY));
 	}
 }
 
@@ -299,7 +300,7 @@ void GnuPlot::TermInitialise(termentry * pTerm)
 		if(temp) {
 			FPRINTF((stderr, "term_initialise: reopening \"%s\" as %s\n", outstr, pTerm->flags & TERM_BINARY ? "binary" : "text"));
 			strcpy(temp, outstr);
-			term_set_output(temp); /* will free outstr */
+			TermSetOutput(pTerm, temp); /* will free outstr */
 			if(temp != outstr) {
 				SAlloc::F(temp);
 				temp = outstr;
@@ -409,7 +410,8 @@ static void term_suspend()
 	}
 }
 
-void term_reset()
+//void term_reset()
+void GnuPlot::TermReset(termentry * pTerm)
 {
 	FPRINTF((stderr, "term_reset()\n"));
 #ifdef USE_MOUSE
@@ -419,21 +421,21 @@ void term_reset()
 	kill_pending_Pause_dialog();
 #endif
 #endif
-	if(GPO.TermInitialised) {
-		if(GPO.TermSuspended) {
-			if(term->resume) {
+	if(TermInitialised) {
+		if(TermSuspended) {
+			if(pTerm->resume) {
 				FPRINTF((stderr, "- calling term->resume()\n"));
-				(*term->resume)();
+				(pTerm->resume)();
 			}
-			GPO.TermSuspended = false;
+			TermSuspended = false;
 		}
-		if(GPO.TermGraphics) {
-			(*term->text)();
-			GPO.TermGraphics = false;
+		if(TermGraphics) {
+			(pTerm->text)();
+			TermGraphics = false;
 		}
-		if(GPO.TermInitialised) {
-			(*term->reset)();
-			GPO.TermInitialised = false;
+		if(TermInitialised) {
+			(pTerm->reset)();
+			TermInitialised = false;
 			// switch off output to special postscript file (if used) 
 			gppsfile = NULL;
 		}
@@ -476,7 +478,7 @@ void GnuPlot::TermApplyLpProperties(termentry * pTerm, const lp_style_type * lp)
 	// and a dash pattern.  Now we have separate mechanisms for those. 
 	if(LT_COLORFROMCOLUMN < lt && lt < 0)
 		(pTerm->linetype)(lt);
-	else if(pTerm->set_color == null_set_color) {
+	else if(pTerm->set_color == GnuPlot::NullSetColor) {
 		(pTerm->linetype)(lt-1);
 		return;
 	}
@@ -535,7 +537,7 @@ void GnuPlot::TermEndMultiplot(termentry * pTerm)
 //void term_check_multiplot_okay(bool f_interactive)
 void GnuPlot::TermCheckMultiplotOkay(bool fInteractive)
 {
-	FPRINTF((stderr, "term_multiplot_okay(%d)\n", f_interactive));
+	FPRINTF((stderr, "term_multiplot_okay(%d)\n", fInteractive));
 	if(TermInitialised) { // they've not started yet 
 		// make sure that it is safe to issue an interactive prompt
 		// it is safe if
@@ -565,7 +567,6 @@ void write_multiline(termentry * pTerm, int x, int y, char * text, JUSTIFY hor/*
     VERT_JUSTIFY vert/* ... and vertical just - text in hor direction despite angle */, int angle/* assume term has already been set for this */,
     const char * pFont/* NULL or "" means use default */)
 {
-	//struct termentry * t = term;
 	char * p = text;
 	if(p) {
 		// EAM 9-Feb-2003 - Set font before calculating sizes 
@@ -624,9 +625,9 @@ void write_multiline(termentry * pTerm, int x, int y, char * text, JUSTIFY hor/*
 	}
 }
 
-static void do_point(uint x, uint y, int number)
+//static void do_point(uint x, uint y, int number)
+/*static*/void GnuPlot::DoPoint(uint x, uint y, int number)
 {
-	int htic, vtic;
 	struct termentry * t = term;
 	// use solid lines for point symbols 
 	if(t->dashtype != null_dashtype)
@@ -638,8 +639,8 @@ static void do_point(uint x, uint y, int number)
 	else {
 		number %= POINT_TYPES;
 		// should be in term_tbl[] in later version 
-		htic = (GPO.TermPointSize * t->TicH / 2);
-		vtic = (GPO.TermPointSize * t->TicV / 2);
+		const int htic = static_cast<int>(GPO.TermPointSize * t->TicH / 2);
+		const int vtic = static_cast<int>(GPO.TermPointSize * t->TicV / 2);
 		// point types 1..4 are same as in postscript, png and x11
 		// point types 5..6 are "similar"
 		// (note that (number) equals (pointtype-1)
@@ -713,11 +714,12 @@ static void do_point(uint x, uint y, int number)
 // 
 // general point routine
 // 
-static void line_and_point(uint x, uint y, int number)
+//static void line_and_point(uint x, uint y, int number)
+/*static*/void GnuPlot::LineAndPoint(uint x, uint y, int number)
 {
-	/* temporary(?) kludge to allow terminals with bad linetypes to make nice marks */
+	// temporary(?) kludge to allow terminals with bad linetypes to make nice marks 
 	(*term->linetype)(NICE_LINE);
-	do_point(x, y, number);
+	GnuPlot::DoPoint(x, y, number);
 }
 
 /*
@@ -904,18 +906,18 @@ void GnuPlot::DoArc(termentry * pTerm, int cx, int cy/* Center */, double radius
 		arc_end += 360.0;
 	// Choose how finely to divide this arc into segments 
 	// Note: INC=2 caused problems for gnuplot_x11 
-#define INC 3.
-	segments = (arc_end - arc_start) / INC;
+#define INC 3.0
+	segments = static_cast<int>((arc_end - arc_start) / INC);
 	SETMAX(segments, 1);
 	// Calculate the vertices 
 	aspect = (double)pTerm->TicV / (double)pTerm->TicH;
 	for(i = 0; i < segments; i++) {
-		vertex[i].x = cx + cos(DEG2RAD * (arc_start + i*INC)) * radius;
-		vertex[i].y = cy + sin(DEG2RAD * (arc_start + i*INC)) * radius * aspect;
+		vertex[i].x = static_cast<int>(cx + cos(DEG2RAD * (arc_start + i*INC)) * radius);
+		vertex[i].y = static_cast<int>(cy + sin(DEG2RAD * (arc_start + i*INC)) * radius * aspect);
 	}
 #undef INC
-	vertex[segments].x = cx + cos(DEG2RAD * arc_end) * radius;
-	vertex[segments].y = cy + sin(DEG2RAD * arc_end) * radius * aspect;
+	vertex[segments].x = static_cast<int>(cx + cos(DEG2RAD * arc_end) * radius);
+	vertex[segments].y = static_cast<int>(cy + sin(DEG2RAD * arc_end) * radius * aspect);
 	if(fabs(arc_end - arc_start) > 0.1 &&  fabs(arc_end - arc_start) < 359.9) {
 		vertex[++segments].x = cx;
 		vertex[segments].y = cy;
@@ -955,19 +957,21 @@ void GnuPlot::DoArc(termentry * pTerm, int cx, int cy/* Center */, double radius
  * where param is passed as a param. Client can first pass it here,
  * and only if it fails do they have to see what was trying to be done
  */
-
-/* change angle of text.  0 is horizontal left to right.
- * 1 is vertical bottom to top (90 deg rotate)
- */
-static int null_text_angle(int ang)
+//
+// change angle of text.  0 is horizontal left to right.
+// 1 is vertical bottom to top (90 deg rotate)
+//
+//static int null_text_angle(int ang)
+/*static*/int GnuPlot::NullTextAngle(int ang)
 {
 	return (ang == 0);
 }
-
-/* change justification of text.
- * modes are LEFT (flush left), CENTRE (centred), RIGHT (flush right)
- */
-static int null_justify_text(enum JUSTIFY just)
+//
+// change justification of text.
+// modes are LEFT (flush left), CENTRE (centred), RIGHT (flush right)
+//
+//static int null_justify_text(enum JUSTIFY just)
+/*static*/int GnuPlot::NullJustifyText(enum JUSTIFY just)
 {
 	return (just == LEFT);
 }
@@ -984,7 +988,8 @@ static void null_layer(t_termlayer layer)
 {
 }
 
-static void options_null()
+//static void options_null()
+/*static*/void GnuPlot::OptionsNull(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	term_options[0] = '\0'; /* we have no options */
 }
@@ -1023,10 +1028,11 @@ static int null_set_font(const char * font)
 	return FALSE; /* Never used!! */
 }
 
-static void null_set_color(struct t_colorspec * colorspec)
+//static void null_set_color(t_colorspec * pColorSpec)
+/*static*/void GnuPlot::NullSetColor(t_colorspec * pColorSpec)
 {
-	if(colorspec->type == TC_LT)
-		term->linetype(colorspec->lt);
+	if(pColorSpec->type == TC_LT)
+		term->linetype(pColorSpec->lt);
 }
 
 static void null_dashtype(int type, t_dashtype * custom_dash_pattern)
@@ -1058,6 +1064,36 @@ extern termentry cgm_driver;
 extern termentry svg_driver;
 extern termentry domterm_driver;
 extern termentry emf_driver;
+extern termentry dumb_driver;
+extern termentry block_driver;
+extern termentry post_driver;
+extern termentry epslatex_driver;
+extern termentry pslatex_driver;
+extern termentry pstex_driver;
+extern termentry dxf_driver;
+extern termentry fig_driver;
+extern termentry hpgl_driver;
+extern termentry pcl5_driver;
+extern termentry debug_driver;
+extern termentry pbm_driver;
+extern termentry epson180_driver;
+extern termentry epson60_driver;
+extern termentry epsonlx_driver;
+extern termentry nec_driver;
+extern termentry okidata_driver;
+extern termentry starc_driver;
+extern termentry tandy60_driver;
+extern termentry dpu414_driver;
+extern termentry pict2e_driver;
+extern termentry hp500c_driver;
+extern termentry hpljii_driver;
+extern termentry hpdj_driver;
+extern termentry hppj_driver;
+extern termentry pstricks_driver;
+extern termentry texdraw_driver;
+extern termentry mf_driver;
+extern termentry context_driver;
+extern termentry mp_driver;
 extern termentry ENHest;
 extern char * ENHest_plaintext; // terminal-estimate.c
 
@@ -1071,7 +1107,7 @@ static struct termentry term_tbl[] = {
 		1,
 		1, 
 		1, 
-		options_null, 
+		GnuPlot::OptionsNull, 
 		/*UNKNOWN_null*/Func_Init_Null, 
 		UNKNOWN_null,
 		UNKNOWN_null, 
@@ -1087,7 +1123,37 @@ static struct termentry term_tbl[] = {
 	cgm_driver,     // @experimental
 	svg_driver,     // @experimental
 	domterm_driver, // @experimental
-	emf_driver      // @experimental
+	emf_driver,     // @experimental
+	dumb_driver,    // @experimental
+	post_driver,    // @experimental
+	epslatex_driver, // @experimental
+	pslatex_driver,  // @experimental
+	pstex_driver,    // @experimental
+	dxf_driver,      // @experimental 
+	fig_driver,      // @experimental 
+	hpgl_driver,     // @experimental 
+	pcl5_driver,     // @experimental 
+	debug_driver,    // @experimental 
+	pbm_driver,      // @experimental 
+	epson180_driver, // @experimental 
+	epson60_driver,  // @experimental 
+	epsonlx_driver,  // @experimental 
+	nec_driver,      // @experimental 
+	okidata_driver,  // @experimental 
+	starc_driver,    // @experimental 
+	tandy60_driver,  // @experimental 
+	dpu414_driver,   // @experimental 
+	pict2e_driver,   // @experimental 
+	hp500c_driver,   // @experimental 
+	hpljii_driver,   // @experimental 
+	hpdj_driver,     // @experimental  
+	hppj_driver,     // @experimental  
+	pstricks_driver, // @experimental  
+	texdraw_driver,  // @experimental  
+	mf_driver,       // @experimental  
+	context_driver,  // @experimental  
+	mp_driver,       // @experimental  
+	block_driver     // @experimental 
 #include "term.h"
 };
 
@@ -1114,10 +1180,10 @@ void list_terms()
 	EndOutput();
 	SAlloc::F(line_buffer);
 }
-
-/* Return string with all terminal names.
-   Note: caller must free the returned names after use.
- */
+// 
+// Return string with all terminal names.
+// Note: caller must free the returned names after use.
+// 
 char* get_terminals_names()
 {
 	int i;
@@ -1171,11 +1237,11 @@ termentry * GnuPlot::SetTerm()
 	}
 	return p_term; // otherwise the type was changed 
 }
-/* change_term: get terminal number from name and set terminal type
- *
- * returns NULL for unknown or ambiguous, otherwise is terminal
- * driver pointer
- */
+// 
+// change_term: get terminal number from name and set terminal type
+// 
+// returns NULL for unknown or ambiguous, otherwise is terminal driver pointer
+// 
 struct termentry * change_term(const char * origname, int length)                    
 {
 	int i;
@@ -1214,30 +1280,32 @@ struct termentry * change_term(const char * origname, int length)
 		}
 	}
 	if(!t || ambiguous)
-		return (NULL);
-	// Success: set terminal type now 
-	term = t;
-	GPO.TermInitialised = false;
-	// check that optional fields are initialised to something 
-	SETIFZ(term->text_angle, null_text_angle);
-	SETIFZ(term->justify_text, null_justify_text);
-	SETIFZ(term->point, do_point);
-	SETIFZ(term->arrow, GnuPlot::DoArrow);
-	SETIFZ(term->pointsize, GnuPlot::DoPointSize);
-	SETIFZ(term->linewidth, null_linewidth);
-	SETIFZ(term->layer, null_layer);
-	if(term->tscale <= 0)
-		term->tscale = 1.0;
-	SETIFZ(term->set_font, null_set_font);
-	if(term->set_color == 0) {
-		term->set_color = null_set_color;
-		term->flags |= TERM_NULL_SET_COLOR;
+		return NULL;
+	else {
+		// Success: set terminal type now 
+		term = t;
+		GPO.TermInitialised = false;
+		// check that optional fields are initialised to something 
+		SETIFZ(term->text_angle, GnuPlot::NullTextAngle);
+		SETIFZ(term->justify_text, GnuPlot::NullJustifyText);
+		SETIFZ(term->point, GnuPlot::DoPoint);
+		SETIFZ(term->arrow, GnuPlot::DoArrow);
+		SETIFZ(term->pointsize, GnuPlot::DoPointSize);
+		SETIFZ(term->linewidth, null_linewidth);
+		SETIFZ(term->layer, null_layer);
+		if(term->tscale <= 0)
+			term->tscale = 1.0;
+		SETIFZ(term->set_font, null_set_font);
+		if(term->set_color == 0) {
+			term->set_color = GnuPlot::NullSetColor;
+			term->flags |= TERM_NULL_SET_COLOR;
+		}
+		SETIFZ(term->dashtype, null_dashtype);
+		if(interactive)
+			fprintf(stderr, "\nTerminal type is now '%s'\n", term->name);
+		invalidate_palette(); /* Invalidate any terminal-specific structures that may be active */
+		return t;
 	}
-	SETIFZ(term->dashtype, null_dashtype);
-	if(interactive)
-		fprintf(stderr, "\nTerminal type is now '%s'\n", term->name);
-	invalidate_palette(); /* Invalidate any terminal-specific structures that may be active */
-	return (t);
 }
 /*
  * Find an appropriate initial terminal type.
@@ -1267,7 +1335,7 @@ void init_terminal()
 		strcat(set_term_command, gnuterm);
 		do_string(set_term_command);
 		SAlloc::F(set_term_command);
-		/* replicate environmental variable GNUTERM for internal use */
+		// replicate environmental variable GNUTERM for internal use 
 		Gstring(&(GPO.Ev.AddUdvByName("GNUTERM")->udv_value), gp_strdup(gnuterm));
 		return;
 	}
@@ -1310,21 +1378,21 @@ void init_terminal()
 #endif
 	}
 	// We have a name, try to set term type 
-	if(term_name != NULL && *term_name != '\0') {
+	if(!isempty(term_name)) {
 		int namelength = strlen(term_name);
 		udvt_entry * name = GPO.Ev.AddUdvByName("GNUTERM");
 		Gstring(&name->udv_value, gp_strdup(term_name));
 		if(strchr(term_name, ' '))
 			namelength = strchr(term_name, ' ') - term_name;
-		/* Force the terminal to initialize default fonts, etc.	This prevents */
-		/* segfaults and other strangeness if you set GNUTERM to "post" or    */
-		/* "png" for example. However, calling X11_options() is expensive due */
-		/* to the fork+execute of gnuplot_x11 and x11 can tolerate not being  */
-		/* initialized until later.                                           */
-		/* Note that gp_input_line[] is blank at this point.	              */
+		// Force the terminal to initialize default fonts, etc.	This prevents 
+		// segfaults and other strangeness if you set GNUTERM to "post" or    
+		// "png" for example. However, calling X11_options() is expensive due 
+		// to the fork+execute of gnuplot_x11 and x11 can tolerate not being  
+		// initialized until later.                                           
+		// Note that gp_input_line[] is blank at this point.	              
 		if(change_term(term_name, namelength)) {
 			if(strcmp(term->name, "x11"))
-				term->options();
+				term->options(term, &GPO);
 			return;
 		}
 		fprintf(stderr, "Unknown or ambiguous terminal name '%s'\n", term_name);
@@ -1351,14 +1419,13 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 		do_string("set termopt enh");
 	TermStartPlot(pTerm);
 	screen_ok = FALSE;
-	xmax_t = (pTerm->MaxX * V.XSize);
-	ymax_t = (pTerm->MaxY * V.YSize);
-	x0 = (V.XOffset * pTerm->MaxX);
-	y0 = (V.YOffset * pTerm->MaxY);
-	p_width = pointsize * pTerm->TicH;
-	key_entry_height = pointsize * pTerm->TicV * 1.25;
-	if(key_entry_height < pTerm->ChrV)
-		key_entry_height = pTerm->ChrV;
+	xmax_t = static_cast<int>(pTerm->MaxX * V.Size.x);
+	ymax_t = static_cast<int>(pTerm->MaxY * V.Size.y);
+	x0 = static_cast<int>(V.Offset.X * pTerm->MaxX);
+	y0 = static_cast<int>(V.Offset.Y * pTerm->MaxY);
+	p_width = static_cast<int>(pointsize * pTerm->TicH);
+	key_entry_height = static_cast<int>(pointsize * pTerm->TicV * 1.25);
+	SETMAX(key_entry_height, pTerm->ChrV);
 	// Sync point for epslatex text positioning 
 	(pTerm->layer)(TERM_LAYER_FRONTTEXT);
 	// border linetype 
@@ -1409,7 +1476,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 		textbox_opts[0] = save_opts;
 		sample.boxed = 0;
 		sample.text = "true vs. estimated text dimensions";
-		WriteLabel(pTerm, xmax_t/2, ymax_t/2 + 1.5 * pTerm->ChrV, &sample);
+		WriteLabel(pTerm, xmax_t/2, static_cast<int>(ymax_t/2 + 1.5 * pTerm->ChrV), &sample);
 		newpath(pTerm);
 		(pTerm->move)(x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
 		(pTerm->vector)(x0 + xmax_t / 2 + pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
@@ -1423,13 +1490,13 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	if(pTerm->flags & TERM_ENHANCED_TEXT) {
 		const char * tmptext1 =   "Enhanced text:   {x@_{0}^{n+1}}";
 		const char * tmptext2 = "&{Enhanced text:  }{/:Bold Bold}{/:Italic  Italic}";
-		(pTerm->put_text)(x0 + xmax_t * 0.5, y0 + ymax_t * 0.40, tmptext1);
-		(pTerm->put_text)(x0 + xmax_t * 0.5, y0 + ymax_t * 0.35, tmptext2);
+		(pTerm->put_text)(static_cast<uint>(x0 + xmax_t * 0.5), static_cast<uint>(y0 + ymax_t * 0.40), tmptext1);
+		(pTerm->put_text)(static_cast<uint>(x0 + xmax_t * 0.5), static_cast<uint>(y0 + ymax_t * 0.35), tmptext2);
 		(pTerm->set_font)("");
 		if(!already_in_enhanced_text_mode)
 			do_string("set termopt noenh");
 	}
-	/* test justification */
+	// test justification 
 	(pTerm->justify_text)(LEFT);
 	(pTerm->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 6, "left justified");
 	str = "centre+d text";
@@ -1554,7 +1621,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	(pTerm->linewidth)(1.0);
 	(pTerm->linetype)(LT_BLACK);
 	(pTerm->justify_text)(CENTRE);
-	(pTerm->put_text)(x+xl*7, y + yl+pTerm->ChrV*1.5, "pattern fill");
+	(pTerm->put_text)(x+xl*7, static_cast<uint>(y + yl+pTerm->ChrV*1.5), "pattern fill");
 	for(i = 0; i < 9; i++) {
 		const int style = ((i<<4) + FS_PATTERN);
 		if(pTerm->fillbox)
@@ -1567,7 +1634,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 		(pTerm->vector)(x, y);
 		closepath(pTerm);
 		sprintf(label, "%2d", i);
-		(pTerm->put_text)(x+xl/2, y+yl+pTerm->ChrV*0.5, label);
+		(pTerm->put_text)(x+xl/2, static_cast<uint>(y+yl+pTerm->ChrV*0.5), label);
 		x += xl * 1.5;
 	}
 	{
@@ -1585,8 +1652,8 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 				int ix = cen_x + j*radius;
 				int iy = cen_y - j*radius/2;
 				for(i = 0; i < n; i++) {
-					corners[i].x = ix + radius * cos(2*M_PI*i/n);
-					corners[i].y = iy + radius * sin(2*M_PI*i/n);
+					corners[i].x = static_cast<int>(ix + radius * cos(2*M_PI*i/n));
+					corners[i].y = static_cast<int>(iy + radius * sin(2*M_PI*i/n));
 				}
 				corners[n].x = corners[0].x;
 				corners[n].y = corners[0].y;
@@ -1647,11 +1714,11 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 void do_enh_writec(int c)
 {
 	// Guard against buffer overflow 
-	if(enhanced_cur_text >= ENHANCED_TEXT_MAX)
+	if(GPO.Enht.P_CurText >= /*ENHANCED_TEXT_MAX*/&(GPO.Enht.Text[sizeof(GPO.Enht.Text)]))
 		return;
 	// note: c is meant to hold a char, but is actually an int, for
 	// the same reasons applying to putc() and friends 
-	*enhanced_cur_text++ = c;
+	*GPO.Enht.P_CurText++ = c;
 }
 // 
 // Process a bit of string, and return the last character used.
@@ -1674,13 +1741,13 @@ const char * enhanced_recursion(termentry * pTerm, const char * p, bool brace, c
 	FPRINTF((stderr, "RECURSE WITH \"%s\", %d %s %.1f %.1f %d %d %d", p, brace, fontname, fontsize, base, widthflag, showflag, overprint));
 	// Start each recursion with a clean string 
 	(pTerm->enhanced_flush)();
-	if(base + fontsize > enhanced_max_height) {
-		enhanced_max_height = base + fontsize;
-		ENH_DEBUG(("Setting max height to %.1f\n", enhanced_max_height));
+	if(base + fontsize > GPO.Enht.MaxHeight) {
+		GPO.Enht.MaxHeight = base + fontsize;
+		ENH_DEBUG(("Setting max height to %.1f\n", GPO.Enht.MaxHeight));
 	}
-	if(base < enhanced_min_height) {
-		enhanced_min_height = base;
-		ENH_DEBUG(("Setting min height to %.1f\n", enhanced_min_height));
+	if(base < GPO.Enht.MinHeight) {
+		GPO.Enht.MinHeight = base;
+		ENH_DEBUG(("Setting min height to %.1f\n", GPO.Enht.MinHeight));
 	}
 	while(*p) {
 		double shift;
@@ -1796,7 +1863,7 @@ const char * enhanced_recursion(termentry * pTerm, const char * p, bool brace, c
 							    if(f == 0)
 								    f = fontsize;
 							    else
-								    f *= enhanced_fontscale; /* remember the scaling */
+								    f *= GPO.Enht.FontScale; /* remember the scaling */
 							    ENH_DEBUG(("Font size %.1f\n", f));
 						    }
 						    else if(ch == '*') {
@@ -1847,7 +1914,7 @@ const char * enhanced_recursion(termentry * pTerm, const char * p, bool brace, c
 				    /* Collect cumulative style markup before passing it in the font name */
 				    isitalic = (wasitalic || isitalic) && !isnormal;
 				    isbold = (wasbold || isbold) && !isnormal;
-				    styledfontname = stylefont(localfontname ? localfontname : fontname, isbold, isitalic);
+				    styledfontname = GnuPlot::_StyleFont(localfontname ? localfontname : fontname, isbold, isitalic);
 				    p = enhanced_recursion(pTerm, p, TRUE, styledfontname, f, base, widthflag, showflag, overprint);
 				    (pTerm->enhanced_flush)();
 				    SAlloc::F(styledfontname);
@@ -1951,7 +2018,7 @@ const char * enhanced_recursion(termentry * pTerm, const char * p, bool brace, c
 						    if(p[1] >= '0' && p[1] <= '7')
 							    octal[2] = *(++p);
 					    }
-					    sprintf(escape, enhanced_escape_format, strtol(octal, NULL, 8));
+					    sprintf(escape, GPO.Enht.EscapeFormat, strtol(octal, NULL, 8));
 					    for(e = escape; *e; e++) {
 						    (pTerm->enhanced_writec)(*e);
 					    }
@@ -2006,27 +2073,29 @@ const char * enhanced_recursion(termentry * pTerm, const char * p, bool brace, c
 	(pTerm->enhanced_flush)();
 	return p;
 }
-
-/* Strip off anything trailing the requested font name,
- * then add back markup requests.
- */
-char * stylefont(const char * fontname, bool isbold, bool isitalic)
+//
+// Strip off anything trailing the requested font name,
+// then add back markup requests.
+//
+//char * stylefont(const char * pFontName, bool isBold, bool isItalic)
+/*static*/char * GnuPlot::_StyleFont(const char * pFontName, bool isBold, bool isItalic)
 {
-	int div;
-	char * markup = (char*)gp_alloc(strlen(fontname) + 16, "font markup");
-	strcpy(markup, fontname);
-	/* base font name can be followed by ,<size> or :Variant */
+	int    div;
+	char * markup = (char*)gp_alloc(strlen(pFontName) + 16, "font markup");
+	strcpy(markup, pFontName);
+	// base font name can be followed by ,<size> or :Variant 
 	if((div = strcspn(markup, ",:")))
 		markup[div] = '\0';
-	if(isbold)
+	if(isBold)
 		strcat(markup, ":Bold");
-	if(isitalic)
+	if(isItalic)
 		strcat(markup, ":Italic");
-	FPRINTF((stderr, "MARKUP FONT: %s -> %s\n", fontname, markup));
+	FPRINTF((stderr, "MARKUP FONT: %s -> %s\n", pFontName, markup));
 	return markup;
 }
-
-/* Called after the end of recursion to check for errors */
+//
+// Called after the end of recursion to check for errors 
+//
 void enh_err_check(const char * str)
 {
 	if(*str == '}')
@@ -2095,7 +2164,7 @@ char * estimate_plaintext(char * enhancedtext)
 
 void ignore_enhanced(bool flag)
 {
-	ignore_enhanced_text = flag;
+	GPO.Enht.Ignore = flag;
 }
 // 
 // Simple-minded test for whether the point (x,y) is in bounds for the current terminal.
@@ -2130,8 +2199,8 @@ GpSizeUnits GnuPlot::ParseTermSize(float * pXSize, float * pYSize, GpSizeUnits d
 		units = CM;
 	}
 	switch(units) {
-		case INCHES: *pXSize *= gp_resolution; break;
-		case CM:     *pXSize *= (float)gp_resolution / 2.54f; break;
+		case INCHES: *pXSize *= GpResolution; break;
+		case CM:     *pXSize *= (float)GpResolution / 2.54f; break;
 		case PIXELS:
 		default:     break;
 	}
@@ -2147,8 +2216,8 @@ GpSizeUnits GnuPlot::ParseTermSize(float * pXSize, float * pYSize, GpSizeUnits d
 		units = CM;
 	}
 	switch(units) {
-		case INCHES: *pYSize *= gp_resolution; break;
-		case CM:     *pYSize *= (float)gp_resolution / 2.54f; break;
+		case INCHES: *pYSize *= GpResolution; break;
+		case CM:     *pYSize *= (float)GpResolution / 2.54f; break;
 		case PIXELS:
 		default:     break;
 	}
@@ -2205,7 +2274,7 @@ int style_from_fill(const fill_style_type * fs)
 int load_dashtype(t_dashtype * dt, int tag)
 {
 	t_dashtype loc_dt = DEFAULT_DASHPATTERN;
-	for(custom_dashtype_def * p_this = first_custom_dashtype; p_this;) {
+	for(custom_dashtype_def * p_this = GPO.Gg.P_FirstCustomDashtype; p_this;) {
 		if(p_this->tag == tag) {
 			*dt = p_this->dashtype;
 			memcpy(dt->dstring, p_this->dashtype.dstring, sizeof(dt->dstring));
@@ -2223,7 +2292,7 @@ void lp_use_properties(lp_style_type * lp, int tag)
 {
 	// This function looks for a linestyle defined by 'tag' and copies its data into the structure 'lp'.
 	int save_flags = lp->flags;
-	for(linestyle_def * p_this = first_linestyle; p_this;) {
+	for(linestyle_def * p_this = GPO.Gg.P_FirstLineStyle; p_this;) {
 		if(p_this->tag == tag) {
 			*lp = p_this->lp_properties;
 			lp->flags = save_flags;
@@ -2243,7 +2312,7 @@ void load_linetype(termentry * pTerm, lp_style_type * lp, int tag)
 	bool recycled = false;
 recycle:
 	if((tag > 0) && (monochrome || (pTerm && (pTerm->flags & TERM_MONOCHROME)))) {
-		for(p_this = first_mono_linestyle; p_this; p_this = p_this->next) {
+		for(p_this = GPO.Gg.P_FirstMonoLineStyle; p_this; p_this = p_this->next) {
 			if(tag == p_this->tag) {
 				*lp = p_this->lp_properties;
 				return;
@@ -2257,10 +2326,10 @@ recycle:
 		}
 		return;
 	}
-	p_this = first_perm_linestyle;
-	while(p_this != NULL) {
+	p_this = GPO.Gg.P_FirstPermLineStyle;
+	while(p_this) {
 		if(p_this->tag == tag) {
-			/* Always load color, width, and dash properties */
+			// Always load color, width, and dash properties 
 			lp->l_type = p_this->lp_properties.l_type;
 			lp->l_width = p_this->lp_properties.l_width;
 			lp->pm3d_color = p_this->lp_properties.pm3d_color;
@@ -2268,7 +2337,7 @@ recycle:
 			lp->custom_dash_pattern = p_this->lp_properties.custom_dash_pattern;
 			// Needed in version 5.0 to handle old terminals (pbm hpgl ...) 
 			// with no support for user-specified colors 
-			if(pTerm && pTerm->set_color == null_set_color)
+			if(pTerm && pTerm->set_color == GnuPlot::NullSetColor)
 				lp->l_type = tag;
 			// Do not recycle point properties. 
 			// FIXME: there should be a separate command "set pointtype cycle N" 
@@ -2319,15 +2388,15 @@ void init_monochrome()
 	mono_default[5].d_type = DASHTYPE_CUSTOM;
 	mono_default[5].l_width = 1.2;
 	mono_default[5].custom_dash_pattern.SetPattern(16.f, 8.0f, 2.0f, 5.0f, 2.0f, 5.0f, 2.0f, 8.0f);
-	if(first_mono_linestyle == NULL) {
+	if(GPO.Gg.P_FirstMonoLineStyle == NULL) {
 		int n = sizeof(mono_default) / sizeof(struct lp_style_type);
 		// copy default list into active list 
 		for(int i = n; i > 0; i--) {
 			linestyle_def * p_new = (linestyle_def *)gp_alloc(sizeof(linestyle_def), NULL);
-			p_new->next = first_mono_linestyle;
+			p_new->next = GPO.Gg.P_FirstMonoLineStyle;
 			p_new->lp_properties = mono_default[i-1];
 			p_new->tag = i;
-			first_mono_linestyle = p_new;
+			GPO.Gg.P_FirstMonoLineStyle = p_new;
 		}
 	}
 }
@@ -2398,7 +2467,7 @@ void check_for_mouse_events()
 	// The next block duplicates the behaviour of inter(). 
 	if(ctrlc_flag) {
 		ctrlc_flag = FALSE;
-		term_reset();
+		GPO.TermReset(term);
 		putc('\n', stderr);
 		fprintf(stderr, "Ctrl-C detected!\n");
 		bail_to_command_line(); // return to prompt 

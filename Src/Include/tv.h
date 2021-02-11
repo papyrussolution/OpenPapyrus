@@ -1939,6 +1939,65 @@ private:
 //
 //
 //
+//
+// @construction {
+// Универсальный (очень на это надеюсь) механизм управления скроллированием в одном измерении
+//
+// Будем рассматривать следующие режимы перемещения:
+// по-страничный
+//   при этом режиме фрейм перемещается так, что первый невидимый элемент, который предшествовал крайнему элементу страницы,
+//   становится крайним элементом.
+// по-строчный
+// 
+//
+class SScroller {
+public:
+	DECL_INVARIANT_C();
+
+	SScroller();
+	SScroller(const SScroller & rS);
+	~SScroller();
+	SScroller & FASTCALL operator = (const SScroller & rS);
+	SScroller & FASTCALL Copy(const SScroller & rS);
+	int    LineDown(uint ic, bool moveCursor);
+	int    LineUp(uint ic, bool moveCursor);
+	int    PageDown(uint pc);
+	int    PageUp(uint pc);
+	int    Top();
+	int    Bottom();
+	uint   GetPageBottomIndex(uint topIdx) const;
+	uint   GetPageTopIndex(uint bottomIdx) const;
+	//
+	// Элементы скроллируемого списка индексируются номерами [0..(ItemCount-1)]
+	//
+	enum {
+		fDisabled            = 0x0001,
+		fUsePaging           = 0x0002,
+		fReverse             = 0x0004,
+		fUseCursor           = 0x0008,  // Если установлен, то применяется понятие текущего элемента (ItemIdxCurrent).
+			// Текущий элемент может перемещаться в пределах страницы без сдвига фрейма.
+			// При отсутствии текущего элемента любое движение вызывает смещение фрейма.
+		fFirstPageMoveToEdge = 0x0010   // При по-страничном перемещении (PageDown, PageUp) первое перемещение
+			// осуществлять до соответствующей границы текущей страницы.
+	};
+private:
+	uint   AdjustTopIdx(uint idx) const;
+
+	uint   Flags;
+	uint   ItemCount;
+	uint   PageCount;
+	uint   PageCurrent;
+	float  ViewSize;
+	float  FixedItemSize;
+	uint   ItemIdxPageTop;
+	uint   ItemIdxCurrent;
+	FloatArray * P_ItemSizeList; // Используется если размеры элементов отличаются один от другого
+	TSCollection <LongArray> * P_LineContent; // Список якорных идентификаторов, ассоциированных с элементами
+		// assert(!P_LineContent || P_LineContent->getCount() == ItemCount)
+	TSCollection <LongArray> * P_PageContent; // Список якорных идентификаторов, ассоциированных со страницами
+		// assert(!P_PageContent || P_PageContent->getCount() == PageCount)
+};
+
 struct AbstractLayoutBlock { // @persistent
 	enum {
 		fContainerRow             = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
@@ -1993,7 +2052,13 @@ struct AbstractLayoutBlock { // @persistent
 		szUndef       =  0, // Размер никак не определен. Должен быть определен во время пересчета (если возможно)
 		szFixed       =  1, // assert(Size.x > 0.0f)
 		szByContent   =  2, // Размер определяется содержимым
-		szByContainer =  3  // Размер определяется по размеру контейнера
+		szByContainer =  3, // Размер определяется по размеру контейнера
+		szContinuous  =  4, // @v11.0.2 Протяженная размерность. Предоплагается, что расчет layout'а должен
+			// разместить все элементы вдоль оси с этим типом и расчитать опции скроллирования.
+			// Этот вариант автоматически использует выравнивание alignStart вдоль оси.
+			// Только одна координата может иметь размер этого типа.
+			// Абсолютное значение размера в Size задает величину страницы промотра (видимой области).
+			// Если эта величина не задана (<=0) то клиент сам разбирается с этим
 	};
 	//
 	// Descr: Возвращает специальную 4-байтную сигнатуру, идентифицирующую объект в потоках сериализации.
@@ -2146,11 +2211,15 @@ public:
 			fDegradedHeight = 0x0004  // Высота элемента деградировала (меньше или равна 0)
 		};
 		Result();
+		Result(const Result & rS);
+		~Result();
+		Result & FASTCALL operator = (const Result & rS);
 		operator FRect() const;
 		Result & CopyWithOffset(const Result & rS, float offsX, float offsY);
 		float  Frame[4];
 		uint32 Flags;
 		uint32 Reserve;
+		SScroller * P_Scrlr;
 	};
 	struct IndexEntry {
 		IndexEntry();

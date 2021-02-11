@@ -55,23 +55,8 @@ char * memcpy(char * dest, char * src, size_t len)
 	#endif                          /* !HAVE_INDEX */
 #endif /* HAVE_STRCHR */
 
-/* memset ()
- *
- * Since we want to use memset, we have to map a possibly nonzero fill byte
- * to the bzero function. The following defined might seem a bit odd, but I
- * think this is the only possible way.
- */
-#ifndef HAVE_MEMSET
-	#ifdef HAVE_BZERO
-		#define memset(s, b, l) do { assert((b)==0); bzero((s), (l)); } while(0)
-	#else
-		#define memset NO_MEMSET_OR_BZERO
-	#endif /* HAVE_BZERO */
-#endif
-
-/* strerror() */
+// strerror() 
 #ifndef HAVE_STRERROR
-
 char * strerror(int no)
 {
 	static char res_str[30];
@@ -83,34 +68,10 @@ char * strerror(int no)
 		return sys_errlist[no];
 	}
 }
-
-#endif /* HAVE_STRERROR */
-
-/* strstr() */
-#ifndef HAVE_STRSTR
-
-char * strstr(const char * cs, const char * ct)
-{
-	size_t len;
-	if(!cs || !ct)
-		return NULL;
-	if(!*ct)
-		return (char*)cs;
-	len = strlen(ct);
-	while(*cs) {
-		if(strncmp(cs, ct, len) == 0)
-			return (char*)cs;
-		cs++;
-	}
-	return NULL;
-}
-
-#endif /* HAVE_STRSTR */
-
-/*
- * POSIX functions
- */
-
+#endif
+// 
+// POSIX functions
+//
 #ifndef HAVE_SLEEP
 /* The implementation below does not even come close
  * to what is required by POSIX.1, but I suppose
@@ -142,7 +103,6 @@ uint sleep(uint delay)
 int gp_stricmp(const char * s1, const char * s2)
 {
 	uchar c1, c2;
-
 	do {
 		c1 = *s1++;
 		if(islower(c1))
@@ -172,10 +132,8 @@ int gp_stricmp(const char * s1, const char * s2)
 int gp_strnicmp(const char * s1, const char * s2, size_t n)
 {
 	uchar c1, c2;
-
 	if(n == 0)
 		return 0;
-
 	do {
 		c1 = *s1++;
 		if(islower(c1))
@@ -220,12 +178,9 @@ char * strndup(const char * str, size_t n)
  */
 char * safe_strncpy(char * d, const char * s, size_t n)
 {
-	char * ret;
-
-	ret = strncpy(d, s, n);
+	char * ret = strncpy(d, s, n);
 	if(strlen(s) >= n)
 		d[n > 0 ? n - 1 : 0] = NUL;
-
 	return ret;
 }
 
@@ -353,7 +308,7 @@ void gp_exit_cleanup()
 	 * atexit-handlers, before any global destructors are run.
 	 */
 	while(exit_handlers) {
-		struct EXIT_HANDLER* handler = exit_handlers;
+		struct EXIT_HANDLER * handler = exit_handlers;
 		(*handler->function)();
 		/* note: assumes that function above has not called gp_atexit() */
 		exit_handlers = handler->next;
@@ -375,13 +330,12 @@ static void debug_exit_handler()
 //
 void gp_atexit(void (*function)())
 {
-	/* Register new handler */
+	// Register new handler 
 	static bool debug_exit_handler_registered = false;
-	struct EXIT_HANDLER* new_handler = (struct EXIT_HANDLER*)malloc(sizeof(struct EXIT_HANDLER));
+	EXIT_HANDLER * new_handler = (EXIT_HANDLER *)malloc(sizeof(EXIT_HANDLER));
 	new_handler->function = function;
 	new_handler->next = exit_handlers;
 	exit_handlers = new_handler;
-
 	if(!debug_exit_handler_registered) {
 		GP_ATEXIT(debug_exit_handler);
 		debug_exit_handler_registered = true;
@@ -466,14 +420,12 @@ DIR * gp_opendir(const char * name)
 	else {
 		errno = EINVAL;
 	}
-
 	return dir;
 }
 
 int gp_closedir(DIR * dir)
 {
 	int result = -1;
-
 	if(dir) {
 		if(dir->handle != -1) {
 			result = _findclose(dir->handle);
@@ -481,31 +433,26 @@ int gp_closedir(DIR * dir)
 		SAlloc::F(dir->name);
 		SAlloc::F(dir);
 	}
-
 	if(result == -1) { /* map all errors to EBADF */
 		errno = EBADF;
 	}
-
 	return result;
 }
 
-struct gp_dirent * gp_readdir(DIR * dir)                    {
+struct gp_dirent * gp_readdir(DIR * dir)                    
+{
 	struct gp_dirent * result = 0;
-
 	if(dir && dir->handle != -1) {
 		if(!dir->result.d_name || _wfindnext(dir->handle, &dir->info) != -1) {
 			result         = &dir->result;
-			WideCharToMultiByte(WinGetCodepage(encoding), 0,
-			    dir->info.name, sizeof(dir->info.name) / sizeof(wchar_t),
-			    dir->info_mbname, sizeof(dir->info_mbname) / sizeof(char),
-			    NULL, 0);
+			WideCharToMultiByte(WinGetCodepage(encoding), 0, dir->info.name, sizeof(dir->info.name) / sizeof(wchar_t),
+			    dir->info_mbname, sizeof(dir->info_mbname) / sizeof(char), NULL, 0);
 			result->d_name = dir->info_mbname;
 		}
 	}
 	else {
 		errno = EBADF;
 	}
-
 	return result;
 }
 
@@ -520,7 +467,6 @@ void gp_rewinddir(DIR * dir)
 		errno = EBADF;
 	}
 }
-
 /*
 
     Copyright Kevlin Henney, 1997, 2003. All rights reserved.

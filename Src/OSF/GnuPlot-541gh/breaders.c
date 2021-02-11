@@ -1,51 +1,17 @@
-/* GNUPLOT - breaders.c */
-
-/*[
- * Copyright 2004  Petr Mikulik
- *
- * As part of the program Gnuplot, which is
- *
- * Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
-/* AUTHOR : Petr Mikulik */
-
+// GNUPLOT - breaders.c 
+// Copyright 2004  Petr Mikulik
+// Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
+//
+// AUTHOR : Petr Mikulik 
 /*
  * Readers to set up binary data file information for particular formats.
  */
 #include <gnuplot.h>
 #pragma hdrstop
-/*
- * Reader for the ESRF Header File format files (EDF / EHF).
- */
-
-/* Inside datafile.c, but kept hidden. */
+//
+// Reader for the ESRF Header File format files (EDF / EHF).
+//
+// Inside datafile.c, but kept hidden. 
 extern int df_no_bin_cols;      /* cols to read */
 extern df_endianess_type df_bin_file_endianess;
 extern bool df_matrix_file, df_binary_file;
@@ -120,12 +86,12 @@ static const struct gen_table edf_rasteraxes_table[] =
 static const char * edf_findInHeader(const char * header, const char * key)
 {
 	const char * value_ptr = strstr(header, key);
-	if(!value_ptr)
-		return NULL;
-	// an edf line is "key     = value ;" 
-	value_ptr = 1 + strchr(value_ptr + strlen(key), '=');
-	while(isspace((uchar)*value_ptr))
-		value_ptr++;
+	if(value_ptr) {
+		// an edf line is "key     = value ;" 
+		value_ptr = 1 + strchr(value_ptr + strlen(key), '=');
+		while(isspace((uchar)*value_ptr))
+			value_ptr++;
+	}
 	return value_ptr;
 }
 
@@ -344,7 +310,6 @@ int df_libgd_get_pixel(int i, int j, int component)
 {
 	static int pixel;
 	int alpha;
-
 	switch(component) {
 		case 0:     pixel = gdImageGetTrueColorPixel(im, i, j);
 		    return gdTrueColorGetRed(pixel);

@@ -44,7 +44,7 @@
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void cairotrm_options();
+TERM_PUBLIC void cairotrm_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void cairotrm_init(termentry * pThis);
 TERM_PUBLIC void cairotrm_graphics();
 TERM_PUBLIC void cairotrm_text();
@@ -350,12 +350,13 @@ static struct gen_table cairotrm_opts[] = {
 	{"resolution", CAIROLATEX_PNG_RESOLUTION},
 	{NULL, CAIROTRM_OTHER}
 };
-
-/* "Called when terminal type is selected. This procedure should parse options on the command line.
- * A list of the currently selected options should be stored in term_options[],
- * in a form suitable for use with the set term command.
- * term_options[] is used by the save command.  Use options_null() if no options are available." */
-TERM_PUBLIC void cairotrm_options()
+//
+// "Called when terminal type is selected. This procedure should parse options on the command line.
+// A list of the currently selected options should be stored in term_options[],
+// in a form suitable for use with the set term command.
+// term_options[] is used by the save command.  Use options_null() if no options are available." */
+//
+TERM_PUBLIC void cairotrm_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	char * s = NULL;
 	char * font_setting = NULL;
@@ -391,17 +392,17 @@ TERM_PUBLIC void cairotrm_options()
 		cairo_params_default = &cairopdf_params_default;
 	}
 	/* Default to enhanced text mode */
-	if(!GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion") && !ISCAIROLATEX) {
+	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion") && !ISCAIROLATEX) {
 		cairo_params->enhanced = TRUE;
 		term->flags |= TERM_ENHANCED_TEXT;
 	}
-	while(!GPO.Pgm.EndOfCommand()) {
+	while(!pGp->Pgm.EndOfCommand()) {
 		FPRINTF((stderr, "processing token\n"));
-		switch(GPO.Pgm.LookupTableForCurrentToken(&cairotrm_opts[0])) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&cairotrm_opts[0])) {
 			case CAIROTRM_FONT:
-			    GPO.Pgm.Shift();
-			    if(!(s = GPO.TryToGetString()))
-				    GPO.IntErrorCurToken("font: expecting string");
+			    pGp->Pgm.Shift();
+			    if(!(s = pGp->TryToGetString()))
+				    pGp->IntErrorCurToken("font: expecting string");
 			    font_setting = gp_strdup(s);
 			    if(*s) {
 				    char * sep = strchr(s, ',');
@@ -419,112 +420,112 @@ TERM_PUBLIC void cairotrm_options()
 			    break;
 			case CAIROTRM_ENHANCED:
 			    if(ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
-			    GPO.Pgm.Shift();
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+			    pGp->Pgm.Shift();
 			    cairo_params->enhanced = TRUE;
 			    term->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case CAIROTRM_NOENHANCED:
 			    if(ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
-			    GPO.Pgm.Shift();
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+			    pGp->Pgm.Shift();
 			    cairo_params->enhanced = FALSE;
 			    term->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case CAIROTRM_SIZE:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(!strcmp(term->name, "pngcairo"))
-				    cairo_params->explicit_units = GPO.ParseTermSize(&cairo_params->width, &cairo_params->height, PIXELS);
+				    cairo_params->explicit_units = pGp->ParseTermSize(&cairo_params->width, &cairo_params->height, PIXELS);
 #ifdef HAVE_WEBP
 			    else if(!strcmp(term->name, "webp"))
-				    cairo_params->explicit_units = GPO.ParseTermSize(&cairo_params->width, &cairo_params->height, PIXELS);
+				    cairo_params->explicit_units = pGp->ParseTermSize(&cairo_params->width, &cairo_params->height, PIXELS);
 #endif
 			    else
-				    cairo_params->explicit_units = GPO.ParseTermSize(&cairo_params->width, &cairo_params->height, INCHES);
+				    cairo_params->explicit_units = pGp->ParseTermSize(&cairo_params->width, &cairo_params->height, INCHES);
 			    if(set_size) duplication = TRUE;
 			    set_size = TRUE;
 			    break;
 			case CAIROTRM_ROUNDED:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_capjoin) duplication = TRUE;
 			    cairo_params->linecap = ROUNDED;
 			    set_capjoin = TRUE;
 			    break;
 			case CAIROTRM_BUTT:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_capjoin) duplication = TRUE;
 			    cairo_params->linecap = BUTT;
 			    set_capjoin = TRUE;
 			    break;
 			case CAIROTRM_SQUARE:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_capjoin) duplication = TRUE;
 			    cairo_params->linecap = SQUARE;
 			    set_capjoin = TRUE;
 			    break;
 			case CAIROTRM_LINEWIDTH:
-			    GPO.Pgm.Shift();
-			    cairo_params->lw = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    cairo_params->lw = pGp->RealExpression();
 			    if(cairo_params->lw < 0.0)
 				    cairo_params->lw = cairo_params_default->lw;
 			    break;
 			case CAIROTRM_POINTSCALE:
-			    GPO.Pgm.Shift();
-			    cairo_params->ps = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    cairo_params->ps = pGp->RealExpression();
 			    if(cairo_params->ps < 0.0)
 				    cairo_params->ps = 1.0;
 			    break;
 			case CAIROTRM_DASHED:
 			case CAIROTRM_SOLID:
 			    /* dashes always enabled in version 5 */
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    cairo_params->dashed = TRUE;
 			    break;
 			case CAIROTRM_MONO:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    cairo_params->mono = TRUE;
 			    term->flags |= TERM_MONOCHROME;
 			    break;
 			case CAIROTRM_COLOR:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    cairo_params->mono = FALSE;
 			    term->flags &= ~TERM_MONOCHROME;
 			    break;
 			case CAIROTRM_DASHLENGTH:
-			    GPO.Pgm.Shift();
-			    cairo_params->dash_length = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    cairo_params->dash_length = pGp->RealExpression();
 			    if(cairo_params->dash_length < 0.0)
 				    cairo_params->dash_length = cairo_params_default->dash_length;
 			    break;
 			case CAIROTRM_FONTSCALE:
-			    GPO.Pgm.Shift();
-			    cairo_params->fontscale = GPO.Pgm.EndOfCommand() ? -1 : GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    cairo_params->fontscale = pGp->Pgm.EndOfCommand() ? -1 : pGp->RealExpression();
 			    if(cairo_params->fontscale <= 0.0)
 				    cairo_params->fontscale = cairo_params_default->fontscale;
 			    /* set_fontscale = TRUE; */
 			    break;
 			case CAIROTRM_TRANSPARENT:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    cairo_params->transparent = TRUE;
 			    break;
 			case CAIROTRM_NOTRANSPARENT:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    cairo_params->transparent = FALSE;
 			    break;
 			case CAIROTRM_CROP:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if((cairo_params->terminal == CAIROTERM_PNG) || (cairo_params->terminal == CAIROTERM_EPS))
 				    cairo_params->crop = TRUE;
 			    break;
 			case CAIROTRM_NOCROP:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if((cairo_params->terminal == CAIROTERM_PNG) || (cairo_params->terminal == CAIROTERM_EPS))
 				    cairo_params->crop = FALSE;
 			    break;
 			case CAIROTRM_BACKGROUND:
 		    {
 			    int wxt_background;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    wxt_background = parse_color_name();
 			    cairo_params->background.r = (double)((wxt_background >> 16) & 0xff) / 255.0;
 			    cairo_params->background.g = (double)((wxt_background >>  8) & 0xff) / 255.0;
@@ -535,106 +536,106 @@ TERM_PUBLIC void cairotrm_options()
 #ifdef PSLATEX_DRIVER
 			case CAIROLATEX_STANDALONE:
 			    if(!ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    ps_params->epslatex_standalone = TRUE;
-				GPO.Pgm.Shift();
+				pGp->Pgm.Shift();
 			    if(set_standalone) 
 					duplication = TRUE;
 			    set_standalone = TRUE;
 			    break;
 			case CAIROLATEX_INPUT:
 			    if(!ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    ps_params->epslatex_standalone = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_standalone) duplication = TRUE;
 			    set_standalone = TRUE;
 			    break;
 			case CAIROLATEX_HEADER:
 			    if(!ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
-			    GPO.Pgm.Shift();
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+			    pGp->Pgm.Shift();
 			    SAlloc::F(epslatex_header);
-			    /* Protect against GPO.IntError() bail from GPO.TryToGetString() */
+			    /* Protect against pGp->IntError() bail from pGp->TryToGetString() */
 			    epslatex_header = NULL;
-			    epslatex_header = GPO.TryToGetString();
+			    epslatex_header = pGp->TryToGetString();
 			    if(!epslatex_header)
-				    GPO.IntErrorCurToken("String containing header information expected");
+				    pGp->IntErrorCurToken("String containing header information expected");
 			    if(set_header) duplication = TRUE;
 			    set_header = TRUE;
 			    break;
 			case CAIROLATEX_NOHEADER:
 			    if(!ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    ZFREE(epslatex_header);
 			    if(set_header) 
 					duplication = TRUE;
 			    set_header = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CAIROLATEX_BLACKTEXT:
 			    if(!ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    ps_params->blacktext = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CAIROLATEX_COLORTEXT:
 			    if(!ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    ps_params->blacktext = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CAIROLATEX_EPS:
 			    if(!ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 #ifdef HAVE_CAIROEPS
 			    cairo_params->output = CAIROLATEX_EPS;
 #else
-			    GPO.IntErrorCurToken("eps output not supported");
+			    pGp->IntErrorCurToken("eps output not supported");
 #endif
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CAIROLATEX_PDF:
 			    if(!ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    cairo_params->output = CAIROLATEX_PDF;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CAIROLATEX_PNG:
 			    if(!ISCAIROLATEX)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    cairo_params->output = CAIROLATEX_PNG;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case CAIROLATEX_PNG_RESOLUTION:
 			    if(cairo_params->output != CAIROLATEX_PNG)
-				    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
-			    GPO.Pgm.Shift();
-			    cairo_params->resolution = GPO.IntExpression();
+				    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+			    pGp->Pgm.Shift();
+			    cairo_params->resolution = pGp->IntExpression();
 			    if(cairo_params->resolution <= 0)
 				    cairo_params->resolution = 300;
 			    break;
 #endif /* PSLATEX_DRIVER */
 			case CAIROTRM_OTHER:
 			    /* Ignore irrelevant keywords used by other png/pdf drivers */
-			    if(GPO.Pgm.AlmostEqualsCur("true$color") || GPO.Pgm.AlmostEqualsCur("inter$lace") || GPO.Pgm.AlmostEqualsCur("nointer$lace")) {
-				    GPO.Pgm.Shift();
+			    if(pGp->Pgm.AlmostEqualsCur("true$color") || pGp->Pgm.AlmostEqualsCur("inter$lace") || pGp->Pgm.AlmostEqualsCur("nointer$lace")) {
+				    pGp->Pgm.Shift();
 				    break;
 			    }
 #ifdef HAVE_WEBP
 			    if(strcmp(term->name, "webp") == 0) {
-				    int save_token = GPO.Pgm.GetCurTokenIdx();
+				    int save_token = pGp->Pgm.GetCurTokenIdx();
 				    WEBP_options(0);
-				    if(save_token != GPO.Pgm.GetCurTokenIdx())
+				    if(save_token != pGp->Pgm.GetCurTokenIdx())
 					    break;
 			    }
 #endif
 			default:
-			    GPO.IntErrorCurToken("unrecognized terminal option");
+			    pGp->IntErrorCurToken("unrecognized terminal option");
 			    break;
 		}
 		if(duplication)
-			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "Duplicated or contradicting arguments in cairo terminal options.");
+			pGp->IntError(pGp->Pgm.GetPrevTokenIdx(), "Duplicated or contradicting arguments in cairo terminal options.");
 	}
 #if 0
 	/* Copy terminal-dependent values to the generic equivalent */
@@ -647,18 +648,11 @@ TERM_PUBLIC void cairotrm_options()
 		const char * output = "";
 		switch(cairo_params->output) {
 			default:
-			case CAIROLATEX_PDF:
-			    output = "pdf";
-			    break;
-			case CAIROLATEX_EPS:
-			    output = "eps";
-			    break;
-			case CAIROLATEX_PNG:
-			    output = "png";
-			    break;
+			case CAIROLATEX_PDF: output = "pdf"; break;
+			case CAIROLATEX_EPS: output = "eps"; break;
+			case CAIROLATEX_PNG: output = "png"; break;
 		}
-		sprintf(tmp_term_options, " %s %s", output,
-		    ps_params->epslatex_standalone ? "standalone" : "input");
+		sprintf(tmp_term_options, " %s %s", output, ps_params->epslatex_standalone ? "standalone" : "input");
 		strcat(term_options, tmp_term_options);
 		if(epslatex_header)
 			sprintf(tmp_term_options, " header \"%s\"", epslatex_header);
@@ -669,11 +663,9 @@ TERM_PUBLIC void cairotrm_options()
 		strcat(term_options, tmp_term_options);
 	}
 #endif
-
-	/* Save options back into options string in normalized format */
+	// Save options back into options string in normalized format 
 	if(cairo_params->transparent)
-		strncat(term_options, ISCAIROLATEX ? " nobackground" : " transparent",
-		    sizeof(term_options) - strlen(term_options)-1);
+		strncat(term_options, ISCAIROLATEX ? " nobackground" : " transparent", sizeof(term_options) - strlen(term_options)-1);
 	else {
 		sprintf(tmp_term_options, " background \"#%02x%02x%02x\"",
 		    (int)(255 * cairo_params->background.r),
@@ -1126,7 +1118,7 @@ void cairotrm_put_text(uint x, uint y, const char * string)
 	if(!isempty(string)) {
 		// if ignore_enhanced_text is set, draw with the normal routine.
 		// This is meant to avoid enhanced syntax when the enhanced mode is on 
-		if(ignore_enhanced_text || !cairo_params->enhanced) {
+		if(GPO.Enht.Ignore || !cairo_params->enhanced) {
 			gp_cairo_draw_text(&plot, x, term->MaxY - y, string, NULL, NULL);
 			return;
 		}
@@ -1141,9 +1133,9 @@ void cairotrm_put_text(uint x, uint y, const char * string)
 		 * and finally _enhanced_flush() to draw the buffer with the correct justification.
 		 */
 		gp_cairo_enhanced_init(&plot, strlen(string));
-		/* set up the global variables needed by enhanced_recursion() */
-		enhanced_fontscale = cairo_params->fontscale;
-		strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
+		// set up the global variables needed by enhanced_recursion() 
+		GPO.Enht.FontScale = cairo_params->fontscale;
+		strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 		/* Set the recursion going. We say to keep going until a closing brace,
 		 * but we don't really expect to find one. If the return value is not
 		 * the nul-terminator of the string, that can only mean that we did find

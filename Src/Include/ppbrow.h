@@ -1133,8 +1133,9 @@
 #define PPVCMD_SENDOUTGOING                           282
 #define PPVCMD_VETISWAREHOUSE                         283
 #define PPVCMD_VETISPRODUCT                           284
-#define PPVCMD_EDITLINKQR                             285
-#define PPVCMD_CREATELINKQR                           286
+#define PPVCMD_REREQUESTDOC                           285
+#define PPVCMD_EDITLINKQR                             286
+#define PPVCMD_CREATELINKQR                           287
 //
 // PPCMD definitions
 //

@@ -1020,8 +1020,8 @@ TERM_PUBLIC void DJSVGA_enhanced_open(char * fontname,
 
 	if(!dj_enhanced_opened_string) {
 		dj_enhanced_opened_string = TRUE;
-		/* Start new text fragment */
-		enhanced_cur_text = &enhanced_text[0];
+		// Start new text fragment 
+		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		/* Scale fractional font height to vertical units of display */
 		dj_enhanced_base = base * term->ChrV;
 		/* Keep track of whether we are supposed to show this string */
@@ -1080,16 +1080,14 @@ TERM_PUBLIC void DJSVGA_enhanced_open(char * fontname,
 
 TERM_PUBLIC void DJSVGA_enhanced_flush()
 {
-	char * str = enhanced_text; /* The fragment to print */
+	char * str = GPO.Enht.Text; /* The fragment to print */
 	int len;
 	int width = 0;
 	int height = 0;
-
 	if(!dj_enhanced_opened_string)
 		return;
-	*enhanced_cur_text = NUL;
-
-	/* calculate length of string first */
+	*GPO.Enht.P_CurText = NUL;
+	// calculate length of string first 
 	len = GrFontStringWidth(DJSVGA_TextOption.txo_font, str, strlen(str), DJSVGA_TextOption.txo_chrtype);
 	switch(DJSVGA_TextOption.txo_direct) {
 		case GR_TEXT_RIGHT:
@@ -1192,15 +1190,15 @@ TERM_PUBLIC void DJSVGA_enhanced_put_text(uint x, uint y, const char * str)
 	uint pass, num_passes;
 	/* If no enhanced text processing is needed, we can use the plain  */
 	/* vanilla put_text() routine instead of this fancy recursive one. */
-	if(ignore_enhanced_text || !strpbrk(str, "{}^_@&~")) {
+	if(GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~")) {
 		DJSVGA_put_text(x, y, str);
 		return;
 	}
 	DJSVGA_flush_line();
-	/* Set up global variables needed by enhanced_recursion() */
-	enhanced_fontscale = 1.0;
+	// Set up global variables needed by enhanced_recursion() 
+	GPO.Enht.FontScale = 1.0;
 	dj_enhanced_opened_string = FALSE;
-	safe_strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
+	safe_strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	dj_x = x;
 	dj_y = y;
 	/* Text justification requires two passes. During the first pass we */
@@ -2095,37 +2093,66 @@ TERM_PUBLIC void DJSVGA_set_cursor(int action, int x, int y)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(djsvga_driver)
-"svga", "IBM PC/Clone with Super VGA graphics card",
-DJSVGA_XMAX, DJSVGA_YMAX, DJSVGA_VCHAR, DJSVGA_HCHAR,
-DJSVGA_VTIC, DJSVGA_HTIC,
-DJSVGA_options,
-DJSVGA_init, DJSVGA_reset, DJSVGA_text,
-GnuPlot::NullScale, DJSVGA_graphics, DJSVGA_move, DJSVGA_vector,
-DJSVGA_linetype, DJSVGA_enhanced_put_text,
-DJSVGA_angle, DJSVGA_justify_text,
-do_point, GnuPlot::DoArrow, DJSVGA_set_font,
-DJSVGA_pointsize,
-TERM_CAN_MULTIPLOT | TERM_NO_OUTPUTFILE | TERM_ENHANCED_TEXT |
-TERM_LINEWIDTH | TERM_POINTSCALE | TERM_FONTSCALE | TERM_CAN_DASH,
-DJSVGA_suspend, DJSVGA_resume,
-DJSVGA_fillbox, DJSVGA_linewidth,
-#ifdef USE_MOUSE
-#if defined(MGRX_XWIN) || defined(_WIN32)
-DJSVGA_waitforinput, DJSVGA_put_tmptext, DJSVGA_set_ruler, DJSVGA_set_cursor, 0,
-#else
-0, DJSVGA_put_tmptext, DJSVGA_set_ruler, DJSVGA_set_cursor, 0,
-#endif
-#endif
-DJSVGA_make_palette, 0, DJSVGA_color,
-DJSVGA_filled_polygon,
-DJSVGA_image,
-DJSVGA_enhanced_open, DJSVGA_enhanced_flush, do_enh_writec,
-0 /* layer */, DJSVGA_path,
-0.0,
-0 /* hypertext */,
-0,
-0,
-DJSVGA_dashtype TERM_TABLE_END(djsvga_driver)
+	"svga", 
+	"IBM PC/Clone with Super VGA graphics card",
+	DJSVGA_XMAX, 
+	DJSVGA_YMAX, 
+	DJSVGA_VCHAR, 
+	DJSVGA_HCHAR,
+	DJSVGA_VTIC, 
+	DJSVGA_HTIC,
+	DJSVGA_options,
+	DJSVGA_init, 
+	DJSVGA_reset, 
+	DJSVGA_text,
+	GnuPlot::NullScale, 
+	DJSVGA_graphics, 
+	DJSVGA_move, 
+	DJSVGA_vector,
+	DJSVGA_linetype, 
+	DJSVGA_enhanced_put_text,
+	DJSVGA_angle, 
+	DJSVGA_justify_text,
+	GnuPlot::DoPoint, 
+	GnuPlot::DoArrow, 
+	DJSVGA_set_font,
+	DJSVGA_pointsize,
+	TERM_CAN_MULTIPLOT | TERM_NO_OUTPUTFILE | TERM_ENHANCED_TEXT | TERM_LINEWIDTH | TERM_POINTSCALE | TERM_FONTSCALE | TERM_CAN_DASH,
+	DJSVGA_suspend, 
+	DJSVGA_resume,
+	DJSVGA_fillbox, 
+	DJSVGA_linewidth,
+	#ifdef USE_MOUSE
+		#if defined(MGRX_XWIN) || defined(_WIN32)
+			DJSVGA_waitforinput, 
+			DJSVGA_put_tmptext, 
+			DJSVGA_set_ruler, 
+			DJSVGA_set_cursor, 
+			0,
+		#else
+			0, 
+			DJSVGA_put_tmptext, 
+			DJSVGA_set_ruler, 
+			DJSVGA_set_cursor, 
+			0,
+		#endif
+	#endif
+	DJSVGA_make_palette, 
+	0, 
+	DJSVGA_color,
+	DJSVGA_filled_polygon,
+	DJSVGA_image,
+	DJSVGA_enhanced_open, 
+	DJSVGA_enhanced_flush, 
+	do_enh_writec,
+	0 /* layer */, 
+	DJSVGA_path,
+	0.0,
+	0 /* hypertext */,
+	0,
+	0,
+	DJSVGA_dashtype 
+TERM_TABLE_END(djsvga_driver)
 
 #undef LAST_TERM
 #define LAST_TERM djsvga_driver

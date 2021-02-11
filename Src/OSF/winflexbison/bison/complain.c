@@ -337,10 +337,7 @@ static severity warning_severity(warnings flags)
 				/* If the diagnostic is enabled, and -Werror is enabled,
 				   and -Wno-error=foo was not explicitly requested, this
 				   is an error. */
-				if(res == severity_warning
-				    && (errority_flag[b] == errority_enabled
-				    || (warnings_are_errors
-				    && errority_flag[b] != errority_disabled)))
+				if(res == severity_warning && (errority_flag[b] == errority_enabled || (warnings_are_errors && errority_flag[b] != errority_disabled)))
 					res = severity_error;
 			}
 		return res;
@@ -409,20 +406,17 @@ static void error_message(const Location * loc, warnings flags, severity sever, 
 	else
 		fprintf(stderr, "%s", grammar_file ? grammar_file : get_program_name());
 	fprintf(stderr, ": ");
-
 	if(sever != severity_disabled) {
 		begin_use_class(style, stderr);
 		fprintf(stderr, "%s:", flags & note ? _("note") : severity_prefix(sever));
 		end_use_class(style, stderr);
 		fputc(' ', stderr);
 	}
-
 	vfprintf(stderr, message, args);
 	/* Print the type of warning, only if this is not a sub message
 	   (in which case the prefix is null).  */
 	if(!(flags & silent) && sever != severity_disabled)
 		warnings_print_categories(flags, stderr);
-
 	size_t l = strlen(message);
 	if(l < 2 || message[l - 2] != ':' || message[l - 1] != ' ') {
 		putc('\n', stderr);
@@ -511,12 +505,10 @@ void duplicate_rule_directive(char const * directive, Location first, Location s
 
 void syntax_error(Location loc, int argc, const char* argv[])
 {
-	if(complaint_status < status_complaint)
-		complaint_status = status_complaint;
+	SETMAX(complaint_status, status_complaint);
 	assert(argc <= 5);
 	const char * format = NULL;
-	switch(argc)
-	{
+	switch(argc) {
 #define CASE(N, S)                          \
 	case N:                               \
 	    format = S;                         \

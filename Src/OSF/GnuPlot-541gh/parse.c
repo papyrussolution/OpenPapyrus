@@ -26,36 +26,10 @@ GpIterator * set_iterator = NULL;
 //
 static void extend_at();
 static union argument * add_action(enum operators sf_index);
-//static void parse_expression();
-//static void accept_logical_OR_expression();
-//static void accept_logical_AND_expression();
-//static void accept_inclusive_OR_expression();
-//static void accept_exclusive_OR_expression();
-//static void accept_AND_expression();
-//static void accept_equality_expression();
-//static void accept_relational_expression();
-//static void accept_bitshift_expression();
-//static void accept_additive_expression();
-//static void accept_multiplicative_expression();
-//static void parse_conditional_expression();
-//static void parse_logical_OR_expression();
-//static void parse_logical_AND_expression();
-//static void parse_inclusive_OR_expression();
-//static void parse_exclusive_OR_expression();
-//static void parse_AND_expression();
-//static void parse_equality_expression();
-//static void parse_relational_expression();
-//static void parse_bitshift_expression();
-//static void parse_additive_expression();
-//static void parse_multiplicative_expression();
-//static void parse_unary_expression();
-//static void parse_sum_expression();
-//static int  parse_assignment_expression();
-//static int  parse_array_assignment_expression();
 static void set_up_columnheader_parsing(struct at_entry * previous);
 static bool no_iteration(GpIterator *);
-static void reevaluate_iteration_limits(GpIterator * iter);
-static void reset_iteration(GpIterator * iter);
+//static void reevaluate_iteration_limits(GpIterator * iter);
+//static void reset_iteration(GpIterator * iter);
 //
 // Internal variables: 
 //
@@ -176,7 +150,7 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 		// no dummy variables: evaluate expression 
 		GpValue val;
 		EvaluateAt(P_At, &val);
-		if(!GPO.Ev.IsUndefined_ && val.type == STRING) {
+		if(!Ev.IsUndefined_ && val.type == STRING) {
 			// prevent empty string variable from treated as special file '' or "" 
 			if(*val.v.string_val == '\0') {
 				SAlloc::F(val.v.string_val);
@@ -209,9 +183,10 @@ at_type * GnuPlot::TempAt()
 //
 // build an action table, put it in dynamic memory, and return its pointer 
 //
-at_type * perm_at()                 
+//at_type * perm_at()
+at_type * GnuPlot::PermAt()
 {
-	GPO.TempAt();
+	TempAt();
 	size_t len = sizeof(at_type) + (P_At->a_count - MAX_AT_LEN) * sizeof(struct at_entry);
 	at_type * at_ptr = (at_type *)gp_realloc(P_At, len, "perm_at");
 	P_At = NULL; // invalidate at pointer 
@@ -563,7 +538,7 @@ void GnuPlot::ParsePrimaryExpression()
 				if(!Pgm.EqualsCur(")"))
 					IntErrorCurToken("')' expected");
 				Pgm.Shift();
-				add_action(call_type)->udf_arg = add_udf(tok);
+				add_action(call_type)->udf_arg = AddUdf(tok);
 			}
 		}
 		else if(Pgm.EqualsCur("sum") && Pgm.EqualsNext("[")) {
@@ -953,26 +928,27 @@ void GnuPlot::ParseUnaryExpression()
 	else
 		ParsePrimaryExpression();
 }
-/*
- * Syntax: set link {x2|y2} {via <expression1> inverse <expression2>}
- * Create action code tables for the functions linking primary and secondary axes.
- * expression1 maps primary coordinates into the secondary coordinate space.
- * expression2 maps secondary coordinates into the primary coordinate space.
- */
-void parse_link_via(struct udft_entry * udf)
+// 
+// Syntax: set link {x2|y2} {via <expression1> inverse <expression2>}
+// Create action code tables for the functions linking primary and secondary axes.
+// expression1 maps primary coordinates into the secondary coordinate space.
+// expression2 maps secondary coordinates into the primary coordinate space.
+// 
+//void parse_link_via(struct udft_entry * udf)
+void GnuPlot::ParseLinkVia(udft_entry * pUdf)
 {
 	// Caller left us pointing at "via" or "inverse" 
-	GPO.Pgm.Shift();
-	int start_token = GPO.Pgm.GetCurTokenIdx();
-	if(GPO.Pgm.EndOfCommand())
-		GPO.IntErrorCurToken("Missing expression");
+	Pgm.Shift();
+	int start_token = Pgm.GetCurTokenIdx();
+	if(Pgm.EndOfCommand())
+		IntErrorCurToken("Missing expression");
 	// Save action table for the linkage mapping 
-	dummy_func = udf;
-	free_at(udf->at);
-	udf->at = perm_at();
+	dummy_func = pUdf;
+	free_at(pUdf->at);
+	pUdf->at = PermAt();
 	dummy_func = NULL;
 	// Save the mapping expression itself 
-	GPO.Pgm.MCapture(&(udf->definition), start_token, GPO.Pgm.GetPrevTokenIdx());
+	Pgm.MCapture(&(pUdf->definition), start_token, Pgm.GetPrevTokenIdx());
 }
 //
 // create action code for 'sum' expressions 
@@ -1033,7 +1009,7 @@ void GnuPlot::ParseSumExpression()
 	udf = (udft_entry *)gp_alloc(sizeof(struct udft_entry), "sum");
 	udf->next_udf = (udft_entry *)NULL;
 	udf->udf_name = NULL; /* TODO maybe add a name and definition */
-	udf->at = perm_at();
+	udf->at = PermAt();
 	udf->definition = NULL;
 	udf->dummy_num = 0;
 	for(i = 0; i < MAX_NUM_VAR; i++)
@@ -1059,25 +1035,26 @@ udvt_entry * GnuPlot::AddUdv(int t_num)
 //
 // find or add function at index <t_num>, and return pointer 
 //
-udft_entry * add_udf(int t_num)                    
+//udft_entry * add_udf(int t_num)
+udft_entry * GnuPlot::AddUdf(int t_num)
 {
-	udft_entry ** udf_ptr = &GPO.Ev.P_FirstUdf;
+	udft_entry ** udf_ptr = &Ev.P_FirstUdf;
 	int i;
 	while(*udf_ptr) {
-		if(GPO.Pgm.Equals(t_num, (*udf_ptr)->udf_name))
+		if(Pgm.Equals(t_num, (*udf_ptr)->udf_name))
 			return (*udf_ptr);
 		udf_ptr = &((*udf_ptr)->next_udf);
 	}
 	// get here => not found. udf_ptr points at first_udf or next_udf field of last udf
-	if(GPO.IsBuiltinFunction(t_num))
-		GPO.IntWarn(t_num, "Warning : udf shadowed by built-in function of the same name");
+	if(IsBuiltinFunction(t_num))
+		IntWarn(t_num, "Warning : udf shadowed by built-in function of the same name");
 	// create and return a new udf slot 
 	*udf_ptr = (udft_entry *)gp_alloc(sizeof(udft_entry), "function");
 	(*udf_ptr)->next_udf = 0;
 	(*udf_ptr)->definition = NULL;
 	(*udf_ptr)->at = NULL;
-	(*udf_ptr)->udf_name = (char *)gp_alloc(GPO.Pgm.TokenLen(t_num)+1, "user func");
-	GPO.Pgm.CopyStr((*udf_ptr)->udf_name, t_num, GPO.Pgm.TokenLen(t_num)+1);
+	(*udf_ptr)->udf_name = (char *)gp_alloc(Pgm.TokenLen(t_num)+1, "user func");
+	Pgm.CopyStr((*udf_ptr)->udf_name, t_num, Pgm.TokenLen(t_num)+1);
 	for(i = 0; i < MAX_NUM_VAR; i++)
 		Ginteger(&((*udf_ptr)->dummy_values[i]), 0);
 	return (*udf_ptr);
@@ -1162,7 +1139,7 @@ GpIterator * GnuPlot::CheckForIteration()
 			else {
 				// Save the expression as well as the value 
 				GpValue v;
-				iteration_start_at = perm_at();
+				iteration_start_at = PermAt();
 				if(no_parent) {
 					iteration_start = 0;
 				}
@@ -1184,7 +1161,7 @@ GpIterator * GnuPlot::CheckForIteration()
 			else {
 				// Save the expression as well as the value 
 				GpValue v;
-				iteration_end_at = perm_at();
+				iteration_end_at = PermAt();
 				if(no_parent) {
 					iteration_end = 0;
 				}
@@ -1208,7 +1185,7 @@ GpIterator * GnuPlot::CheckForIteration()
 			// Assume this is a string-valued expression. 
 			// It might be worth treating a string constant as a special case 
 			GpValue v;
-			iteration_start_at = perm_at();
+			iteration_start_at = PermAt();
 			EvaluateAt(iteration_start_at, &v);
 			if(v.type != STRING)
 				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
@@ -1258,49 +1235,51 @@ GpIterator * GnuPlot::CheckForIteration()
 // (in case they are functions whose parameters have taken
 // on a new value)
 // 
-static void reevaluate_iteration_limits(GpIterator * iter)
+//static void reevaluate_iteration_limits(GpIterator * iter)
+void GnuPlot::ReevaluateIterationLimits(GpIterator * iter)
 {
 	if(iter->start_at) {
 		GpValue v;
-		GPO.EvaluateAt(iter->start_at, &v);
+		EvaluateAt(iter->start_at, &v);
 		if(iter->iteration_string) {
 			// unnecessary if iteration string is a constant 
 			SAlloc::F(iter->iteration_string);
 			if(v.type != STRING)
-				GPO.IntError(NO_CARET, "corrupt iteration string");
+				IntError(NO_CARET, "corrupt iteration string");
 			iter->iteration_string = v.v.string_val;
 			iter->iteration_start = 1;
-			iter->iteration_end = GPO.Gp_Words(iter->iteration_string);
+			iter->iteration_end = Gp_Words(iter->iteration_string);
 		}
 		else
 			iter->iteration_start = static_cast<int>(real(&v));
 	}
 	if(iter->end_at) {
 		GpValue v;
-		GPO.EvaluateAt(iter->end_at, &v);
+		EvaluateAt(iter->end_at, &v);
 		iter->iteration_end = static_cast<int>(real(&v));
 	}
 }
-/*
- * Reset iteration at this level to start value.
- * Any iteration levels underneath are reset also.
- */
-static void reset_iteration(GpIterator * iter)
+//
+// Reset iteration at this level to start value.
+// Any iteration levels underneath are reset also.
+// 
+//static void reset_iteration(GpIterator * iter)
+void GnuPlot::ResetIteration(GpIterator * iter)
 {
 	if(iter) {
-		reevaluate_iteration_limits(iter);
+		ReevaluateIterationLimits(iter);
 		iter->iteration = -1;
 		iter->iteration_current = iter->iteration_start;
 		if(iter->iteration_string) {
 			gpfree_string(&(iter->iteration_udv->udv_value));
-			Gstring(&(iter->iteration_udv->udv_value), GPO.Gp_Word(iter->iteration_string, iter->iteration_current));
+			Gstring(&(iter->iteration_udv->udv_value), Gp_Word(iter->iteration_string, iter->iteration_current));
 		}
 		else {
 			// This traps fatal user error of reassigning iteration variable to a string 
 			gpfree_string(&(iter->iteration_udv->udv_value));
 			Ginteger(&(iter->iteration_udv->udv_value), iter->iteration_current);
 		}
-		reset_iteration(iter->next);
+		ResetIteration(iter->next); // @recursion
 	}
 }
 // 
@@ -1308,13 +1287,14 @@ static void reset_iteration(GpIterator * iter)
 // returns TRUE if the iteration is still in range
 // returns FALSE if the incement put it past the end limit
 // 
-bool next_iteration(GpIterator * iter)
+//bool next_iteration(GpIterator * iter)
+bool GnuPlot::NextIteration(GpIterator * iter)
 {
 	// Once it goes out of range it will stay that way until reset 
 	if(!iter || no_iteration(iter))
 		return FALSE;
 	// Give sub-iterations a chance to advance 
-	if(next_iteration(iter->next)) {
+	if(NextIteration(iter->next)) {
 		if(iter->iteration < 0)
 			iter->iteration = 0;
 		return TRUE;
@@ -1347,9 +1327,9 @@ bool next_iteration(GpIterator * iter)
 	if(iter->next == NULL)
 		return TRUE;
 	// Reset sub-iterations, if any 
-	reset_iteration(iter->next);
+	ResetIteration(iter->next);
 	// Go back to top or call self recursively 
-	return next_iteration(iter);
+	return NextIteration(iter);
 }
 /*
  * Returns TRUE if

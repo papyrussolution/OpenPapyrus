@@ -841,7 +841,7 @@ TERM_TABLE_START(imagen_driver)
 	IMAGEN_put_text, 
 	IMAGEN_text_angle,
 	IMAGEN_justify_text, 
-	line_and_point, 
+	GnuPlot::LineAndPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null 
 TERM_TABLE_END(imagen_driver)

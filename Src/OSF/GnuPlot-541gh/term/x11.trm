@@ -67,7 +67,7 @@ register_term(x11)
 #ifdef TERM_PROTO
 int X11_args(int argc, char * argv[]);
 
-TERM_PUBLIC void X11_options();
+TERM_PUBLIC void X11_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void X11_init(termentry * pThis);
 TERM_PUBLIC void X11_graphics();
 TERM_PUBLIC void X11_text();
@@ -397,10 +397,9 @@ static struct gen_table X11_opts[] = {
 	{NULL, X11_OTHER}
 };
 
-TERM_PUBLIC void X11_options()
+TERM_PUBLIC void X11_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 #define NOT_PROCESS_IF_DUPLICATION 1
-
 	int c_title_token = 0;
 	int new_term_number = 0;
 	int background;
@@ -423,153 +422,152 @@ TERM_PUBLIC void X11_options()
 	    || (x11_persist > 0);       /* or previously set here */
 	strcpy(x11_userbkg, "#RRGGBB");
 
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&X11_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&X11_opts[0])) {
 			case X11_RESET:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_reset) duplication = TRUE;
 			    set_reset = TRUE;
 			    break;
 			case X11_CLOSE:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_close) duplication = TRUE;
 			    set_close = TRUE;
 			    break;
 			case X11_PERSIST:
 			    x11_persist = yes;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_persist) duplication = TRUE;
 			    set_persist = TRUE;
 			    break;
 			case X11_NOPERSIST:
 			    x11_persist = no;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_persist) duplication = TRUE;
 			    set_persist = TRUE;
 			    break;
 			case X11_CTRLQ:
 			    ctrlq = yes;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_ctrlq) duplication = TRUE;
 			    set_ctrlq = TRUE;
 			    break;
 			case X11_NOCTRLQ:
 			    ctrlq = no;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_ctrlq) duplication = TRUE;
 			    set_ctrlq = TRUE;
 			    break;
 			case X11_SOLID:
 			case X11_DASHED:
 			    /* Dashes always allowed in version 5 */
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case X11_LINEWIDTH:
-			    GPO.Pgm.Shift();
-			    X11_linewidth_multiplier = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    X11_linewidth_multiplier = pGp->RealExpression();
 			    if(X11_linewidth_multiplier <= 0)
 				    X11_linewidth_multiplier = 1.0;
 			    break;
 			case X11_RAISE:
 			    do_raise = yes;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_raise) duplication = TRUE;
 			    set_raise = TRUE;
 			    break;
 			case X11_NORAISE:
 			    do_raise = no;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_raise) duplication = TRUE;
 			    set_raise = TRUE;
 			    break;
 			case X11_REPLOTONRESIZE:
 			    replot_on_resize = yes;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_replotonresize) duplication = TRUE;
 			    set_replotonresize = TRUE;
 			    break;
 			case X11_NOREPLOTONRESIZE:
 			    replot_on_resize = no;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_replotonresize) duplication = TRUE;
 			    set_replotonresize = TRUE;
 			    break;
 			case X11_FONT:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("expecting font name");
-			    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = GPO.TryToGetString())) {
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("expecting font name");
+			    if(pGp->Pgm.IsStringValue(pGp->Pgm.GetCurTokenIdx()) && (s = pGp->TryToGetString())) {
 				    strncpy(X11_default_font, s, sizeof(X11_default_font)-1);
 				    SAlloc::F(s);
 			    }
 			    else {
-				    GPO.Pgm.CopyStr(X11_default_font, c_token, sizeof(X11_default_font));
-				    GPO.Pgm.Shift();
+				    pGp->Pgm.CopyStr(X11_default_font, c_token, sizeof(X11_default_font));
+				    pGp->Pgm.Shift();
 			    }
 			    if(strchr(X11_default_font, ','))
-				    sscanf(strchr(X11_default_font, ',')+1, "%d",
-					&X11_default_fontsize);
+				    sscanf(strchr(X11_default_font, ',')+1, "%d", &X11_default_fontsize);
 			    if(set_font) duplication = TRUE;
 			    set_font = TRUE;
 			    break;
 			case X11_TITLE:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("expecting title text");
-			    c_title_token = GPO.Pgm.GetCurTokenIdx();
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("expecting title text");
+			    c_title_token = pGp->Pgm.GetCurTokenIdx();
+			    pGp->Pgm.Shift();
 			    if(set_title) duplication = TRUE;
 			    set_title = TRUE;
 			    break;
 			case X11_ENHANCED:
 			    term->put_text = ENHX11_put_text;
 			    term->flags |= TERM_ENHANCED_TEXT;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case X11_NOENHANCED:
 			    term->put_text = X11_put_text;
 			    term->flags &= ~TERM_ENHANCED_TEXT;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case X11_SIZE:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand()) {
-				    GPO.IntErrorCurToken("expecting X[,Y]");
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand()) {
+				    pGp->IntErrorCurToken("expecting X[,Y]");
 			    }
 			    else {
 				    int x_in, y_in;
-				    x_in = GPO.IntExpression();
+				    x_in = pGp->IntExpression();
 				    if(x_in > 0)
 					    X11_SIZE_X = x_in;
 				    else
-					    GPO.IntErrorCurToken("X size must be > 0");
-				    if(GPO.Pgm.EqualsCur(",")) {
-					    GPO.Pgm.Shift();
-					    y_in = GPO.IntExpression();
+					    pGp->IntErrorCurToken("X size must be > 0");
+				    if(pGp->Pgm.EqualsCur(",")) {
+					    pGp->Pgm.Shift();
+					    y_in = pGp->IntExpression();
 					    if(y_in > 0)
 						    X11_SIZE_Y = y_in;
 					    else
-						    GPO.IntErrorCurToken("Y size must be > 0");
+						    pGp->IntErrorCurToken("Y size must be > 0");
 				    }
 				    set_size = yes;
 			    }
 			    break;
 			case X11_POSITION:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand()) {
-				    GPO.IntErrorCurToken("expecting X[,Y]");
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand()) {
+				    pGp->IntErrorCurToken("expecting X[,Y]");
 			    }
 			    else {
-				    X11_POSITION_X = GPO.IntExpression();
-				    if(GPO.Pgm.EqualsCur(",")) {
-					    GPO.Pgm.Shift();
-					    X11_POSITION_Y = GPO.IntExpression();
+				    X11_POSITION_X = pGp->IntExpression();
+				    if(pGp->Pgm.EqualsCur(",")) {
+					    pGp->Pgm.Shift();
+					    X11_POSITION_Y = pGp->IntExpression();
 				    }
 				    set_position = yes;
 			    }
 			    break;
 			case X11_BACKGROUND:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    background = parse_color_name();
 			    sprintf(x11_userbkg, "#%06x", background);
 			    break;
@@ -578,13 +576,13 @@ TERM_PUBLIC void X11_options()
 			case X11_WINDOW:
 		    {
 			    char * windowid;
-			    GPO.Pgm.Shift();
-			    if(!(windowid = GPO.TryToGetString()))
-				    GPO.IntErrorCurToken("expecting X window ID as string in hex");
+			    pGp->Pgm.Shift();
+			    if(!(windowid = pGp->TryToGetString()))
+				    pGp->IntErrorCurToken("expecting X window ID as string in hex");
 			    sscanf(windowid, "%lx", &existing_X11_window_id);
 			    SAlloc::F(windowid);
 			    if(!existing_X11_window_id)
-				    GPO.IntErrorCurToken("expecting X window ID as string in hex");
+				    pGp->IntErrorCurToken("expecting X window ID as string in hex");
 			    if(set_window) duplication = TRUE;
 			    set_window = TRUE;
 			    break;
@@ -593,30 +591,28 @@ TERM_PUBLIC void X11_options()
 			case X11_OTHER:
 			default:
 			    /* Silently ignore these, as they are not yet implemented */
-			    if(GPO.Pgm.EqualsCur("dl") || GPO.Pgm.AlmostEqualsCur("dashl$ength")) {
-				    GPO.Pgm.Shift();
-				    GPO.RealExpression();
+			    if(pGp->Pgm.EqualsCur("dl") || pGp->Pgm.AlmostEqualsCur("dashl$ength")) {
+				    pGp->Pgm.Shift();
+				    pGp->RealExpression();
 				    break;
 			    }
 			    if(set_number) 
 					duplication = TRUE;
 			    // let gnuplot_x11 check range 
-			    new_term_number = GPO.IntExpression();
+			    new_term_number = pGp->IntExpression();
 			    if(new_term_number < 0)
-				    GPO.IntErrorCurToken("plot number must be non-negative");
+				    pGp->IntErrorCurToken("plot number must be non-negative");
 			    set_number = TRUE;
 			    break;
 		}
-
 		if(duplication) {
-			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "duplicated or contradicting arguments in X11 term options");
+			pGp->IntError(pGp->Pgm.GetPrevTokenIdx(), "duplicated or contradicting arguments in X11 term options");
 		}
 	}
 	/* Call own init routine; this might be xlib rather than x11 */
 	term->init();
 	if(set_reset)
 		X11_atexit(); /* tell gnuplot_x11 to shut down */
-
 	/* Leave the current window unchanged when closing an old window */
 	if(X11_ipc) {
 		if(set_close) {
@@ -631,7 +627,7 @@ TERM_PUBLIC void X11_options()
 		else if(set_number) {
 #ifdef EXTERNAL_X11_WINDOW
 			if(set_window)
-				GPO.IntError(NO_CARET, "an existing X11 window cannot be assigned to a plot number");
+				pGp->IntError(NO_CARET, "an existing X11 window cannot be assigned to a plot number");
 #endif
 			fprintf(X11_ipc, "N%d\n", new_term_number);
 			fflush(X11_ipc);
@@ -669,8 +665,7 @@ TERM_PUBLIC void X11_options()
 		strcat(term_options, " enhanced");
 	}
 	if(X11_linewidth_multiplier != 1.0) {
-		sprintf(term_options + strlen(term_options),
-		    " linewidth %.2g", X11_linewidth_multiplier);
+		sprintf(term_options + strlen(term_options), " linewidth %.2g", X11_linewidth_multiplier);
 	}
 	if(*X11_default_font) {
 		strcat(term_options, " font \"");
@@ -679,16 +674,16 @@ TERM_PUBLIC void X11_options()
 	}
 	if(set_title) {
 		char * title;
-		int save_token = GPO.Pgm.GetCurTokenIdx();
-		GPO.Pgm.SetTokenIdx(c_title_token);
+		int save_token = pGp->Pgm.GetCurTokenIdx();
+		pGp->Pgm.SetTokenIdx(c_title_token);
 		strncat(term_options, " title \"", sizeof(term_options)-strlen(term_options)-1);
 		title = term_options + strlen(term_options);
-		if(GPO.Pgm.IsStringValue(c_title_token) && (s = GPO.TryToGetString())) {
+		if(pGp->Pgm.IsStringValue(c_title_token) && (s = pGp->TryToGetString())) {
 			strncat(term_options, s, sizeof(term_options)-strlen(term_options)-1);
 			SAlloc::F(s);
 		}
 		else
-			GPO.Pgm.CopyStr(term_options+strlen(term_options), c_title_token, MAX_LINE_LEN-strlen(term_options));
+			pGp->Pgm.CopyStr(term_options+strlen(term_options), c_title_token, MAX_LINE_LEN-strlen(term_options));
 		if(X11_ipc) {
 			/* Send up to maximum buffer length minus three characters of
 			 * title string to account for required 'n', '\0', '\n'.
@@ -702,16 +697,12 @@ TERM_PUBLIC void X11_options()
 			fflush(X11_ipc);
 		}
 		strncat(term_options, "\"", sizeof(term_options)-strlen(term_options)-1);
-		GPO.Pgm.SetTokenIdx(save_token);
+		pGp->Pgm.SetTokenIdx(save_token);
 	}
 	if(set_size != UNSET)
-		sprintf(term_options + strlen(term_options),
-		    " size %d,%d ", X11_SIZE_X, X11_SIZE_Y);
-
+		sprintf(term_options + strlen(term_options), " size %d,%d ", X11_SIZE_X, X11_SIZE_Y);
 	if(set_position != UNSET)
-		sprintf(term_options + strlen(term_options),
-		    " position %d,%d ", X11_POSITION_X, X11_POSITION_Y);
-
+		sprintf(term_options + strlen(term_options), " position %d,%d ", X11_POSITION_X, X11_POSITION_Y);
 	X11_update_opts();
 }
 
@@ -1864,10 +1855,7 @@ static double ENHx11_base;
 static double ENHx11_fontsize;
 static char  * ENHx11_font;
 
-TERM_PUBLIC void ENHX11_OPEN(char * fontname,
-    double fontsize, double base,
-    bool widthflag, bool showflag,
-    int overprint)
+TERM_PUBLIC void ENHX11_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	/* If the overprint code requests a save or request, that's all we do */
 	if(overprint == 3) {
@@ -1878,10 +1866,9 @@ TERM_PUBLIC void ENHX11_OPEN(char * fontname,
 		PRINT2("Tr%d %d\n", 0, 0);
 		return;
 	}
-
 	if(!ENHx11_opened_string) {
 		ENHx11_opened_string = TRUE;
-		enhanced_cur_text = &enhanced_text[0];
+		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		ENHx11_font = fontname;
 		ENHx11_fontsize = fontsize;
 		ENHx11_base = base * 10; /* FIXME - should this be ChrV? TicV? */
@@ -1890,31 +1877,28 @@ TERM_PUBLIC void ENHX11_OPEN(char * fontname,
 		ENHx11_widthflag = widthflag;
 	}
 }
-
 /*
  * Write a string fragment and update current position.
  * We leave the real work up to gnuplot_x11!
  */
 TERM_PUBLIC void ENHX11_FLUSH()
 {
-	/* Send a command to print this string at current position */
+	// Send a command to print this string at current position 
 	if(ENHx11_opened_string) {
 		char tmpfont[128]; /* FIXME - there must be a better way! */
-		*enhanced_cur_text = '\0';
+		*GPO.Enht.P_CurText = '\0';
 		snprintf(tmpfont, 127, "%s,%.1f", ENHx11_font, ENHx11_fontsize);
 		tmpfont[127] = '\0';
 		PRINT1("QF%s\n", tmpfont);
 		*X11_last_font_used = '\01';
-
 		if(!ENHx11_show || ENHx11_sizeonly)
-			PRINT3("Ts%d %d %s\n", 0, (int)ENHx11_base, enhanced_text);
+			PRINT3("Ts%d %d %s\n", 0, (int)ENHx11_base, GPO.Enht.Text);
 		else if(ENHx11_overprint == 1)
-			PRINT3("Tc%d %d %s\n", 0, (int)ENHx11_base, enhanced_text);
+			PRINT3("Tc%d %d %s\n", 0, (int)ENHx11_base, GPO.Enht.Text);
 		else if(!ENHx11_widthflag && ENHx11_overprint != 0)
-			PRINT3("To%d %d %s\n", 0, (int)ENHx11_base, enhanced_text);
+			PRINT3("To%d %d %s\n", 0, (int)ENHx11_base, GPO.Enht.Text);
 		else
-			PRINT3("Tu%d %d %s\n", 0, (int)ENHx11_base, enhanced_text);
-
+			PRINT3("Tu%d %d %s\n", 0, (int)ENHx11_base, GPO.Enht.Text);
 		ENHx11_opened_string = FALSE;
 	}
 }
@@ -1925,29 +1909,23 @@ TERM_PUBLIC void ENHX11_put_text(uint x, uint y, const char * str)
 	static char * initial_font = NULL;
 	double firstpass_fontsize = X11_default_fontsize;
 	int pass = 1;
-
-	if(ignore_enhanced_text) {
+	if(GPO.Enht.Ignore) {
 		X11_put_text(x, y, str);
 		return;
 	}
-
 	if(!strlen(str))
 		return;
-
-	/* if there are no magic characters, we should just be able
-	 * punt the string to X11_put_text()
-	 */
+	// if there are no magic characters, we should just be able
+	// punt the string to X11_put_text()
 	if(!strpbrk(str, "{}^_@&~")) {
 		X11_put_text(x, y, str);
 		return;
 	}
-
-	/* set up the global variables needed by enhanced_recursion() */
-	enhanced_fontscale = 1.25;
+	// set up the global variables needed by enhanced_recursion() 
+	GPO.Enht.FontScale = 1.25;
 	ENHx11_opened_string = FALSE;
-	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-
-	/* Tell gnuplot_x11 to set the current position to (x,y) */
+	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	// Tell gnuplot_x11 to set the current position to (x,y) 
 	PRINT2("Tl%d %d\n", x, y);
 
 	/* Text justification requires two passes. During the first pass we */

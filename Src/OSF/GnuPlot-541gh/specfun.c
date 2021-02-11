@@ -3425,7 +3425,7 @@ void GnuPlot::F_Besin(union argument * arg)
 	// valid range is complicated. We only support integral values. 
 	if(a.type != INTGR) {
 		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besin(int,real)");
 	}
 	else

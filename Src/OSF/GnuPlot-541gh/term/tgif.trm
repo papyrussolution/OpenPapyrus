@@ -79,7 +79,7 @@ register_term(tgif)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void TGIF_options();
+TERM_PUBLIC void TGIF_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void TGIF_init(termentry * pThis);
 TERM_PUBLIC void TGIF_reset();
 TERM_PUBLIC void TGIF_text();
@@ -261,14 +261,13 @@ static struct gen_table TGIF_opts[] =
 	{NULL, TGIF_OTHER}
 };
 
-TERM_PUBLIC void TGIF_options()
+TERM_PUBLIC void TGIF_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	GpValue a, b;
 	double dscaleH, dscaleV;
 	int option;
-
-	while(!GPO.Pgm.EndOfCommand()) {
-		option = GPO.Pgm.LookupTableForCurrentToken(&TGIF_opts[0]);
+	while(!pGp->Pgm.EndOfCommand()) {
+		option = pGp->Pgm.LookupTableForCurrentToken(&TGIF_opts[0]);
 		switch(option) {
 			case TGIF_DEFAULT:
 			    strcpy(sActFont, "Helvetica");
@@ -290,75 +289,75 @@ TERM_PUBLIC void TGIF_options()
 			    uActResolution = 100;
 			    dActThick_factor = 1.0;
 			    dActThick_default = 1.0;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_MONOCHROME:
 			    TgifUseColor = FALSE;
 			    term->flags |= TERM_MONOCHROME;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_COLOR:
 			    TgifUseColor = TRUE;
 			    term->flags &= ~TERM_MONOCHROME;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_LINEWIDTH:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand()) {
-				    GPO.IntErrorCurToken("linewidth: width is not specified.");
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand()) {
+				    pGp->IntErrorCurToken("linewidth: width is not specified.");
 			    }
 			    else {
 				    if((dActThick_default = real(const_express(&a)))<=0.0) {
-					    GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "linewidth: out of range");
+					    pGp->IntError(pGp->Pgm.GetPrevTokenIdx(), "linewidth: out of range");
 					    dActThick_default = 1.0;
 				    }
 			    }
 			    break;
 			case TGIF_PORTRAIT:
 			    TgifPortrait = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_LANDSCAPE:
 			    TgifPortrait = FALSE;
 			    /* uActResolution = 140;
 			     */
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_GRAPHS:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand()) {
-				    GPO.IntErrorCurToken("no. windows: [horizontal,vertical] expected");
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand()) {
+				    pGp->IntErrorCurToken("no. windows: [horizontal,vertical] expected");
 			    }
-			    else if(!GPO.Pgm.EqualsCur(",")) {
+			    else if(!pGp->Pgm.EqualsCur(",")) {
 				    uTgif_win_horiz = (int)real(const_express(&a));
 			    }
-			    if(!GPO.Pgm.EqualsCur(","))
-				    GPO.IntErrorCurToken("',' expected");
-			    GPO.Pgm.Shift();
-			    if(!GPO.Pgm.EqualsCur("]")) {
+			    if(!pGp->Pgm.EqualsCur(","))
+				    pGp->IntErrorCurToken("',' expected");
+			    pGp->Pgm.Shift();
+			    if(!pGp->Pgm.EqualsCur("]")) {
 				    uTgif_win_verti = (int)real(const_express(&a));
 			    }
-			    if(!GPO.Pgm.EqualsCur("]"))
-				    GPO.IntErrorCurToken("expecting ']'");
-			    GPO.Pgm.Shift();
+			    if(!pGp->Pgm.EqualsCur("]"))
+				    pGp->IntErrorCurToken("expecting ']'");
+			    pGp->Pgm.Shift();
 			    uTgifPlotsPerPage = uTgif_win_verti * uTgif_win_horiz;
 			    break;
 			case TGIF_SOLID:
 			    TgifSolid = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_DASHED:
 			    TgifSolid = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_FONT:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			/* Fall through */
 			case TGIF_OTHER:
 			default:
 		    {
 			    char * s;
-			    if((s = GPO.TryToGetString())) {
+			    if((s = pGp->TryToGetString())) {
 				    double fontsize;
 				    int sep = strcspn(s, ",");
 				    if(s[sep] == ',' && (1 == sscanf(&s[sep+1], "%lf", &fontsize)))
@@ -371,7 +370,7 @@ TERM_PUBLIC void TGIF_options()
 				    SAlloc::F(s);
 			    }
 			    else if(option == TGIF_FONT) {
-				    GPO.IntErrorCurToken("Expecting font name ");
+				    pGp->IntErrorCurToken("Expecting font name ");
 			    }
 			    else {
 				    /* We have font size specified */

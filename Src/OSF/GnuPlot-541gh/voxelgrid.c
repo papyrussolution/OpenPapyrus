@@ -105,24 +105,25 @@ void GnuPlot::CheckGridRanges()
 	current_vgrid->vydelta = (current_vgrid->vymax - current_vgrid->vymin) / (current_vgrid->size - 1);
 	current_vgrid->vzdelta = (current_vgrid->vzmax - current_vgrid->vzmin) / (current_vgrid->size - 1);
 }
-/*
- * Initialize vgrid array
- * set vgrid <name> {size <N>}
- * - retrieve existing voxel grid or create a new one
- * - initialize to N (defaults to N=100 for a new grid)
- * - set current_vgrid to this grid.
- */
-void set_vgrid()
+// 
+// Initialize vgrid array
+// set vgrid <name> {size <N>}
+//   - retrieve existing voxel grid or create a new one
+//   - initialize to N (defaults to N=100 for a new grid)
+//   - set current_vgrid to this grid.
+// 
+//void set_vgrid()
+void GnuPlot::SetVGrid()
 {
 	udvt_entry * grid = NULL;
 	int new_size = 100; // default size 
 	char * name;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand() || !GPO.Pgm.IsLetter(GPO.Pgm.GetCurTokenIdx()+1))
-		GPO.IntErrorCurToken("syntax: set vgrid $<gridname> {size N}");
+	Pgm.Shift();
+	if(Pgm.EndOfCommand() || !Pgm.IsLetter(Pgm.GetCurTokenIdx()+1))
+		IntErrorCurToken("syntax: set vgrid $<gridname> {size N}");
 	// Create or recycle a datablock with the requested name 
-	name = GPO.Pgm.ParseDatablockName();
-	grid = GPO.Ev.AddUdvByName(name);
+	name = Pgm.ParseDatablockName();
+	grid = Ev.AddUdvByName(name);
 	if(grid->udv_value.type == VOXELGRID) {
 		// Keep size of existing grid 
 		new_size = grid->udv_value.v.vgrid->size;
@@ -142,13 +143,13 @@ void set_vgrid()
 		grid->udv_value.v.vgrid = current_vgrid;
 		grid->udv_value.type = VOXELGRID;
 	}
-	if(GPO.Pgm.EqualsCur("size")) {
-		GPO.Pgm.Shift();
-		new_size = GPO.IntExpression();
+	if(Pgm.EqualsCur("size")) {
+		Pgm.Shift();
+		new_size = IntExpression();
 	}
 	/* FIXME: arbitrary limit to reduce chance of memory exhaustion */
 	if(new_size < 10 || new_size > 256)
-		GPO.IntError(NO_CARET, "vgrid size must be an integer between 10 and 256");
+		IntError(NO_CARET, "vgrid size must be an integer between 10 and 256");
 	/* Initialize storage for new voxel grid */
 	if(current_vgrid->size != new_size) {
 		current_vgrid->size = new_size;
@@ -536,7 +537,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 			set_numeric_locale();
 			// Initial state 
 			df_warn_on_missing_columnheader = TRUE;
-			while((j = df_readline(v, 5)) != DF_EOF) {
+			while((j = DfReadLine(v, 5)) != DF_EOF) {
 				switch(j) {
 					case 0:
 					    df_close();
@@ -598,7 +599,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 		if(forever_iteration(plot_iterator) && (this_plot->plot_type == NODATA)) {
 			; // nothing to do here 
 		}
-		else if(next_iteration(plot_iterator)) {
+		else if(NextIteration(plot_iterator)) {
 			Pgm.SetTokenIdx(start_token);
 			continue;
 		}
@@ -723,7 +724,8 @@ static void modify_voxels(t_voxel * grid, double x, double y, double z, double r
 #define NO_SUPPORT GPO.IntError(NO_CARET, "this gnuplot does not support voxel grids")
 //void check_grid_ranges()  { NO_SUPPORT; }
 void GnuPlot::CheckGridRanges() { NO_SUPPORT; }
-void set_vgrid()          { NO_SUPPORT; }
+//void set_vgrid()          { NO_SUPPORT; }
+void GnuPlot::SetVGrid() { NO_SUPPORT; }
 //void set_vgrid_range()    { NO_SUPPORT; }
 void GnuPlot::SetVGridRange() { NO_SUPPORT; }
 void show_vgrid()         { NO_SUPPORT; }

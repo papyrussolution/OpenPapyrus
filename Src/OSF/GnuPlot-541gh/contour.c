@@ -109,10 +109,11 @@ static int reverse_sort(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 		return -1;
 	return 0;
 }
-/*
- * Entry routine to this whole set of contouring module.
- */
-struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines)                           
+// 
+// Entry routine to this whole set of contouring module.
+// 
+//gnuplot_contours * contour(int numIsoLines, iso_curve * pIsoLines)
+gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 {
 	int i;
 	double * zlist;
@@ -131,16 +132,16 @@ struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines
 	/*
 	 * Calculate min/max values :
 	 */
-	calc_min_max(num_isolines, iso_lines, &x_min, &y_min, &z_min, &x_max, &y_max, &z_max);
+	calc_min_max(numIsoLines, pIsoLines, &x_min, &y_min, &z_min, &x_max, &y_max, &z_max);
 	/*
 	 * Generate list of edges (p_edges) and list of triangles (p_polys):
 	 */
-	gen_triangle(num_isolines, iso_lines, &p_polys, &p_edges);
+	gen_triangle(numIsoLines, pIsoLines, &p_polys, &p_edges);
 	crnt_cntr_pt_index = 0;
 	if(contour_levels_kind == LEVELS_AUTO) {
-		if(GPO.AxS.__Z().IsNonLinear()) {
-			z_max = GPO.EvalLinkFunction(GPO.AxS.__Z().linked_to_primary, z_max);
-			z_min = GPO.EvalLinkFunction(GPO.AxS.__Z().linked_to_primary, z_min);
+		if(AxS.__Z().IsNonLinear()) {
+			z_max = EvalLinkFunction(AxS.__Z().linked_to_primary, z_max);
+			z_min = EvalLinkFunction(AxS.__Z().linked_to_primary, z_min);
 		}
 		dz = fabs(z_max - z_min);
 		if(dz == 0)
@@ -161,11 +162,11 @@ struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines
 			case LEVELS_AUTO:
 			    z = z0 + (i+1) * dz;
 			    z = CheckZero(z, dz);
-			    if(GPO.AxS.__Z().IsNonLinear())
-				    z = GPO.EvalLinkFunction((&GPO.AxS.__Z()), z);
+			    if(AxS.__Z().IsNonLinear())
+				    z = EvalLinkFunction((&AxS.__Z()), z);
 			    break;
 			case LEVELS_INCREMENTAL:
-			    if(GPO.AxS.__Z().log)
+			    if(AxS.__Z().log)
 				    z = contour_levels_list[0] * pow(contour_levels_list[1], (double)i);
 			    else
 				    z = contour_levels_list[0] + i * contour_levels_list[1];
@@ -187,8 +188,8 @@ struct gnuplot_contours * contour(int num_isolines, struct iso_curve * iso_lines
 		gen_contours(p_edges, z, x_min, x_max, y_min, y_max);
 		if(contour_list != save_contour_list) {
 			contour_list->isNewLevel = 1;
-			/* Nov-2011 Use gprintf rather than sprintf so that LC_NUMERIC is used */
-			gprintf(contour_list->label, sizeof(contour_list->label), contour_format, 1.0, z);
+			// Nov-2011 Use gprintf rather than sprintf so that LC_NUMERIC is used 
+			GPrintf(contour_list->label, sizeof(contour_list->label), contour_format, 1.0, z);
 			contour_list->z = z;
 		}
 	}
@@ -246,23 +247,16 @@ static void end_crnt_cntr()
 
 	crnt_cntr_pt_index = 0;
 }
-
 /*
  * Generates all contours by tracing the intersecting triangles.
  */
-static void gen_contours(edge_struct * p_edges,
-    double z_level,
-    double xx_min, double xx_max,
-    double yy_min, double yy_max)
+static void gen_contours(edge_struct * p_edges, double z_level, double xx_min, double xx_max, double yy_min, double yy_max)
 {
 	int num_active;         /* Number of edges marked ACTIVE. */
 	bool contr_isclosed; /* Is this contour a closed line? */
 	cntr_struct * p_cntr;
-
 	num_active = update_all_edges(p_edges, z_level); /* Do pass 1. */
-
 	contr_isclosed = FALSE; /* Start to look for contour on boundaries. */
-
 	while(num_active > 0) { /* Do Pass 2. */
 		/* Generate One contour (and update NumActive as needed): */
 		p_cntr = gen_one_contour(p_edges, z_level, &contr_isclosed, &num_active);

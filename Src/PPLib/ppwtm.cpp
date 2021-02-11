@@ -2837,7 +2837,6 @@ TWhatmanBrowser::~TWhatmanBrowser()
 
 void TWhatmanBrowser::InitLayout()
 {
-	//SRectLayout::Item li;
 	AbstractLayoutBlock alb;
 	P_Lfc = new LayoutFlexItem();
 	alb.SetContainerDirection(DIREC_HORZ);

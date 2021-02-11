@@ -17,9 +17,7 @@ legend_key keyT;// = DEFAULT_KEY_PROPS;
 //
 color_box_struct color_box; // initialized in init_color() 
 color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_FRONT, 0,
-	{screen, screen, screen, 0.90, 0.2, 0.0},
-	{screen, screen, screen, 0.05, 0.6, 0.0}, FALSE,
-	{0, 0, 0, 0} };
+	{screen, screen, screen, 0.90, 0.2, 0.0}, {screen, screen, screen, 0.05, 0.6, 0.0}, FALSE, {0, 0, 0, 0} };
 
 //BoundingBox plot_bounds_Removed; // The graph box (terminal coordinates) calculated by boundary() or boundary3d() 
 //BoundingBox page_bounds_Removed; // The bounding box for 3D plots prior to applying view transformations 
@@ -40,18 +38,18 @@ color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_
 //GpPosition bmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between bottom and GPO.V.BbPlot.ybot in chars (-1: computed) */
 //GpPosition rmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between right edge and GPO.V.BbPlot.xright in chars (-1: computed) */
 //GpPosition tmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between top edge and GPO.V.BbPlot.ytop in chars (-1: computed) */
-custom_dashtype_def * first_custom_dashtype = NULL; /* Pointer to first 'set dashtype' definition in linked list */
-text_label * first_label = NULL; /* Pointer to the start of the linked list of 'set label' definitions */
+//custom_dashtype_def * first_custom_dashtype = NULL; /* Pointer to first 'set dashtype' definition in linked list */
+//text_label * first_label = NULL; /* Pointer to the start of the linked list of 'set label' definitions */
 // Pointer to first 'set linestyle' definition in linked list 
-linestyle_def * first_linestyle = NULL;
-linestyle_def * first_perm_linestyle = NULL;
-linestyle_def * first_mono_linestyle = NULL;
-arrowstyle_def * first_arrowstyle = NULL; /* Pointer to first 'set style arrow' definition in linked list */
-t_pixmap * pixmap_listhead = NULL; /* Listhead for pixmaps */
+//linestyle_def * first_linestyle = NULL;
+//linestyle_def * first_perm_linestyle = NULL;
+//linestyle_def * first_mono_linestyle = NULL;
+//arrowstyle_def * first_arrowstyle = NULL; /* Pointer to first 'set style arrow' definition in linked list */
+//t_pixmap * pixmap_listhead = NULL; /* Listhead for pixmaps */
+//arrow_def * first_arrow = NULL; /* set arrow */
+//GpObject  * first_object = NULL; /* Pointer to first object instance in linked list */
 pa_style   parallel_axis_style; // = DEFAULT_PARALLEL_AXIS_STYLE; /* Holds the properties from 'set style parallelaxis' */
 spider_web spiderplot_style; // = DEFAULT_SPIDERPLOT_STYLE; /* Holds properties for 'set style spiderplot' */
-arrow_def * first_arrow = NULL; /* set arrow */
-GpObject  * first_object = NULL; /* Pointer to first object instance in linked list */
 GpObject    grid_wall[5];// = {WALL_Y0, WALL_X0, WALL_Y1, WALL_X1, WALL_Z0}; /* Pointer to array of grid walls */
 text_label title; // = EMPTY_LABELSTRUCT; /* 'set title' status */
 // 'set timelabel' status 
@@ -61,7 +59,7 @@ int    timelabel_bottom = TRUE;
 bool   polar = FALSE;
 bool   inverted_raxis = FALSE;
 bool   spiderplot = FALSE; /* toggle spiderplot mode on/off */
-double zero = ZERO; /* zero threshold, may _not_ be 0! */
+double zero = ZERO; // zero threshold, may _not_ be 0! 
 // Status of 'set pointsize' and 'set pointintervalbox' commands 
 double pointsize = 1.0;
 double pointintervalbox = 1.0;
@@ -107,7 +105,6 @@ GpObject default_ellipse(t_object::defEllipse);// = DEFAULT_ELLIPSE_STYLE;
 filledcurves_opts filledcurves_opts_data = EMPTY_FILLEDCURVES_OPTS;
 filledcurves_opts filledcurves_opts_func = EMPTY_FILLEDCURVES_OPTS;
 bool   prefer_line_styles = false; /* Prefer line styles over plain line types */
-#define monochrome_terminal(__pTerm) (((__pTerm)->flags & TERM_MONOCHROME) != 0) // If current terminal claims to be monochrome, don't try to send it colors 
 histogram_style histogram_opts; // = DEFAULT_HISTOGRAM_STYLE;
 boxplot_style boxplot_opts = DEFAULT_BOXPLOT_STYLE;
 int current_x11_windowid = 0; /* WINDOWID to be filled by terminals running on X11 (x11, wxt, qt, ...) */
@@ -644,7 +641,7 @@ void GnuPlot::ApplyPm3DColor(termentry * pTerm, t_colorspec * tc)
 		// (2) Choose any color you want so long as it is black
 		// (3) Convert colors to gray scale (NTSC?)
 		// Monochrome terminals are still allowed to display rgb variable colors 
-		if(monochrome_terminal(pTerm) && tc->value >= 0)
+		if(pTerm->flags & TERM_MONOCHROME && tc->value >= 0)
 			pTerm->set_color(&black);
 		else
 			pTerm->set_color(tc);
@@ -677,10 +674,11 @@ void GnuPlot::ApplyPm3DColor(termentry * pTerm, t_colorspec * tc)
 	}
 }
 
-void reset_textcolor(const t_colorspec * tc)
+//void reset_textcolor(const t_colorspec * tc)
+void GnuPlot::ResetTextColor(termentry * pTerm, const t_colorspec * tc)
 {
 	if(tc->type != TC_DEFAULT)
-		term->linetype(LT_BLACK);
+		pTerm->linetype(LT_BLACK);
 }
 
 void default_arrow_style(struct arrow_style_type * arrow)
@@ -698,20 +696,20 @@ void default_arrow_style(struct arrow_style_type * arrow)
 	arrow->head_fixedsize = FALSE;
 }
 
-void apply_head_properties(const arrow_style_type * arrow_properties)
+void apply_head_properties(const arrow_style_type * pArrowProperties)
 {
-	curr_arrow_headfilled = arrow_properties->headfill;
-	curr_arrow_headfixedsize = arrow_properties->head_fixedsize;
+	curr_arrow_headfilled = pArrowProperties->headfill;
+	curr_arrow_headfixedsize = pArrowProperties->head_fixedsize;
 	curr_arrow_headlength = 0;
-	if(arrow_properties->head_length > 0) {
+	if(pArrowProperties->head_length > 0) {
 		// set head length+angle for term->arrow 
 		double xtmp, ytmp;
 		GpPosition headsize = {first_axes, graph, graph, 0., 0., 0.};
-		headsize.x = arrow_properties->head_length;
-		headsize.scalex = (position_type)arrow_properties->head_lengthunit;
+		headsize.x = pArrowProperties->head_length;
+		headsize.scalex = (position_type)pArrowProperties->head_lengthunit;
 		GPO.MapPositionR(term, &headsize, &xtmp, &ytmp, "arrow");
-		curr_arrow_headangle = arrow_properties->head_angle;
-		curr_arrow_headbackangle = arrow_properties->head_backangle;
+		curr_arrow_headangle = pArrowProperties->head_angle;
+		curr_arrow_headbackangle = pArrowProperties->head_backangle;
 		curr_arrow_headlength = static_cast<int>(xtmp);
 	}
 }
@@ -799,7 +797,7 @@ void GnuPlot::WriteLabel(termentry * pTerm, int x, int y, text_label * pLabel)
 	}
 	if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder)) {
 		// Adjust the bounding box margins 
-		(pTerm->boxed_text)((int)(textbox->xmargin * 100.), (int)(textbox->ymargin * 100.0), TEXTBOX_MARGINS);
+		(pTerm->boxed_text)((int)(textbox->xmargin * 100.0), (int)(textbox->ymargin * 100.0), TEXTBOX_MARGINS);
 		// Blank out the box and reprint the label 
 		if(textbox->opaque) {
 			ApplyPm3DColor(pTerm, &textbox->fillcolor);
@@ -920,13 +918,12 @@ void init_gadgets()
 	grid_wall[WALL_X1_TAG].lp_properties.pm3d_color.lt = WALL_X_COLOR;
 	grid_wall[WALL_Z0_TAG].lp_properties.pm3d_color.lt = WALL_Z_COLOR;
 }
-
-/*
- * walk through the list of objects to see if any require pm3d processing
- */
+//
+// walk through the list of objects to see if any require pm3d processing
+//
 bool pm3d_objects(void)
 {
-	GpObject * obj = first_object;
+	GpObject * obj = GPO.Gg.P_FirstObject;
 	while(obj) {
 		if(obj->layer == LAYER_DEPTHORDER)
 			return TRUE;
@@ -937,11 +934,12 @@ bool pm3d_objects(void)
 // 
 // Place overall title on the canvas (shared by plot and splot).
 // 
-void place_title(int title_x, int title_y)
+//void place_title(int title_x, int title_y)
+void GnuPlot::PlaceTitle(termentry * pTerm, int titleX, int titleY)
 {
 	if(title.text) {
 		// NB: write_label applies text color but does not reset it 
-		GPO.WriteLabel(term, title_x, title_y, &title);
-		reset_textcolor(&(title.textcolor));
+		WriteLabel(pTerm, titleX, titleY, &title);
+		ResetTextColor(pTerm, &title.textcolor);
 	}
 }

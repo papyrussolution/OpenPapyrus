@@ -79,7 +79,7 @@ void mat_mult(transform_matrix mat_res, transform_matrix mat1, transform_matrix 
 			mat_res[i][j] = mat_res_temp[i][j];
 }
 
-#define IN_AXIS_RANGE(val, axis) inrange((val), AxS[axis].min, AxS[axis].max)
+#define IN_AXIS_RANGE(val, axis) AxS[axis].InRange(val)
 // 
 // single edge intersection algorithm */
 // Given two points, one inside and one outside the plot, return
@@ -669,13 +669,11 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 	}
 	return (FALSE);
 }
-
 /*
 	double GnuPlot::MapX3D(double x);
 	double GnuPlot::MapY3D(double y);
 	double GnuPlot::MapZ3D(double z);
 */
-
 double GnuPlot::MapX3D(double x)
 {
 	const GpAxis * xaxis = &AxS[FIRST_X_AXIS];
@@ -683,7 +681,7 @@ double GnuPlot::MapX3D(double x)
 		xaxis = xaxis->linked_to_primary;
 		x = EvalLinkFunction(xaxis, x);
 	}
-	return ((x - xaxis->min)*xscale3d + xcenter3d - 1.0);
+	return ((x - xaxis->min)*Scale3D.x + Center3D.x - 1.0);
 }
 
 double GnuPlot::MapY3D(double y)
@@ -693,7 +691,7 @@ double GnuPlot::MapY3D(double y)
 		yaxis = yaxis->linked_to_primary;
 		y = EvalLinkFunction(yaxis, y);
 	}
-	return ((y - yaxis->min)*yscale3d + ycenter3d - 1.0);
+	return ((y - yaxis->min) * Scale3D.y + Center3D.y - 1.0);
 }
 
 double GnuPlot::MapZ3D(double z)
@@ -703,7 +701,7 @@ double GnuPlot::MapZ3D(double z)
 		zaxis = zaxis->linked_to_primary;
 		z = EvalLinkFunction(zaxis, z);
 	}
-	return ((z - floor_z1)*zscale3d + zcenter3d - 1.0);
+	return ((z - floor_z1) * Scale3D.z + Center3D.z - 1.0);
 }
 // 
 // Performs transformation from 'user coordinates' to a normalized

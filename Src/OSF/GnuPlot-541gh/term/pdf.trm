@@ -407,8 +407,8 @@ TERM_PUBLIC void PDF_options()
 			GPO.Pgm.Shift();
 			pdf_explicit_size = TRUE;
 			pdf_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
-			term->MaxX = xmax_t*PDF_RESOLUTION*72./gp_resolution;
-			term->MaxY = ymax_t*PDF_RESOLUTION*72./gp_resolution;
+			term->MaxX = xmax_t*PDF_RESOLUTION*72.0/GpResolution;
+			term->MaxY = ymax_t*PDF_RESOLUTION*72.0/GpResolution;
 			continue;
 		}
 		if(GPO.Pgm.EqualsCur("fontscale")) {
@@ -1325,11 +1325,12 @@ static bool ENHpdf_show = TRUE;
 static int ENHpdf_overprint = 0;
 static bool ENHpdf_widthflag = FALSE;
 static uint ENHpdf_xsave, ENHpdf_ysave;
-
-/* Start a new string fragment */
+//
+// Start a new string fragment 
+//
 TERM_PUBLIC void ENHPDF_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
-	/* If the overprint code requests a save or request, that's all we do */
+	// If the overprint code requests a save or request, that's all we do 
 	if(overprint == 3) {
 		ENHpdf_xsave = PDF_xLast;
 		ENHpdf_ysave = PDF_yLast;
@@ -1341,7 +1342,7 @@ TERM_PUBLIC void ENHPDF_OPEN(char * fontname, double fontsize, double base, bool
 	}
 	if(!ENHpdf_opened_string) {
 		ENHpdf_opened_string = TRUE;
-		enhanced_cur_text = &enhanced_text[0];
+		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		ENHpdf_font = fontname;
 		ENHpdf_fontsize = fontsize;
 		ENHpdf_base = base * PDF_RESOLUTION;
@@ -1358,7 +1359,7 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 	float stringlength;
 	if(ENHpdf_opened_string) {
 		ENHpdf_opened_string = FALSE;
-		*enhanced_cur_text = '\0';
+		*GPO.Enht.P_CurText = '\0';
 		x = PDF_xLast;
 		y = PDF_yLast;
 		x -= sin((double)PDF_TextAngle * M_PI_2/90.) * ENHpdf_base;
@@ -1376,12 +1377,12 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 			PDF_fontSizeCur = save_fontsize;
 		}
 		/* Find length of string in current font */
-		stringlength = PDF_stringwidth(myPDF, enhanced_text, PDF_currentFontHandle, ENHpdf_fontsize);
+		stringlength = PDF_stringwidth(myPDF, GPO.Enht.Text, PDF_currentFontHandle, ENHpdf_fontsize);
 		stringlength *= PDF_RESOLUTION;
 		if(ENHpdf_show && !ENHpdf_sizeonly) {
 			if(PDF_TextAngle == 0) {
-				/* PDF_show(myPDF, enhanced_text); */
-				PDF_show_boxed(myPDF, enhanced_text, x, y, 0, 0, "left", NULL);
+				// PDF_show(myPDF, GPO.Enht.Text); 
+				PDF_show_boxed(myPDF, GPO.Enht.Text, x, y, 0, 0, "left", NULL);
 			}
 			else {
 				PDF_save(myPDF);
@@ -1389,7 +1390,7 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 				PDF_rotate(myPDF, PDF_TextAngle);
 				/* vertical justification*/
 				PDF_translate(myPDF, 0, -(PDF_fontAscent-PDF_fontDescent)/2);
-				PDF_show_boxed(myPDF, enhanced_text, 0, 0, 0, 0, "left", NULL);
+				PDF_show_boxed(myPDF, GPO.Enht.Text, 0, 0, 0, 0, "left", NULL);
 				PDF_restore(myPDF);
 			}
 		}
@@ -1407,7 +1408,7 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 {
 	char * original_string = (char*)str;
-	if(ignore_enhanced_text) {
+	if(GPO.Enht.Ignore) {
 		PDF_put_text(x, y, str);
 		return;
 	}
@@ -1426,9 +1427,9 @@ TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 	   if (PDF_TextAngle != 0)
 	    ENHPDF_DEBUG(("currentpoint gsave translate %d rotate 0 0 moveto\n", PDF_TextAngle));
 	 */
-	/* set up the global variables needed by enhanced_recursion() */
-	enhanced_fontscale = PDF_fontscale;
-	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
+	// set up the global variables needed by enhanced_recursion() 
+	GPO.Enht.FontScale = PDF_fontscale;
+	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	ENHpdf_opened_string = FALSE;
 	/* EAM - Software text justification requires two passes */
 	if(oneof2(PDF_TextJust, RIGHT, CENTRE))

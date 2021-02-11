@@ -274,7 +274,7 @@ char * gp_getcwd(char * path, size_t len);
 	#define GP_SLEEP(delay) sleep((uint)(delay+0.5))
 #endif
 // Gnuplot replacement for atexit(3) 
-void gp_atexit(void (* function)(void));
+void gp_atexit(void (* function)());
 
 /* Gnuplot replacement for exit(3). Calls the functions registered using
  * gp_atexit(). Always use this function instead of exit(3)!

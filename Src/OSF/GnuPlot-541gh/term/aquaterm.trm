@@ -37,7 +37,7 @@ register_term(aqua)
 
 #ifdef TERM_PROTO
 /* Required entries */
-TERM_PUBLIC void AQUA_options();
+TERM_PUBLIC void AQUA_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void AQUA_init(termentry * pThis);
 TERM_PUBLIC void AQUA_reset();
 TERM_PUBLIC void AQUA_text();
@@ -159,51 +159,51 @@ static void set_font_size(double size);
  *   Current options are:
  *   <n> title "theTitle" size <x> <y> fname "fontface" fsize <fontsize>
  */
-TERM_PUBLIC void AQUA_options()
+TERM_PUBLIC void AQUA_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	char * s;
 	bool set_number = FALSE;
 	AQUA_title[0] = '\0'; /* Force re-interpretation of title string */
 	/* Default to enhanced text mode */
-	if(!almost_equals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion")) {
+	if(!almost_equals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion")) {
 		term->put_text = ENHAQUA_put_text;
 		term->flags |= TERM_ENHANCED_TEXT;
 	}
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("ti$tle")) {
-			GPO.Pgm.Shift();
-			if(!(s = GPO.TryToGetString()))
-				GPO.IntErrorCurToken("fname: expecting plot title");
+	while(!pGp->Pgm.EndOfCommand()) {
+		if(pGp->Pgm.AlmostEqualsCur("ti$tle")) {
+			pGp->Pgm.Shift();
+			if(!(s = pGp->TryToGetString()))
+				pGp->IntErrorCurToken("fname: expecting plot title");
 			strncpy(AQUA_title, s, sizeof(AQUA_title));
 			SAlloc::F(s);
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("s$ize")) {
+		if(pGp->Pgm.AlmostEqualsCur("s$ize")) {
 			double value;
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting x size");
-			value = GPO.RealExpression();
+			pGp->Pgm.Shift();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("expecting x size");
+			value = pGp->RealExpression();
 			if(value < 2 || value > 2048)
-				GPO.IntErrorCurToken("x size out of range");
+				pGp->IntErrorCurToken("x size out of range");
 			AQUA_xSize = (uint)value * AQUA_RESOLUTION;
 
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting y size");
-			if(GPO.Pgm.EqualsCur(","))
-				GPO.Pgm.Shift();
-			value = GPO.RealExpression();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("expecting y size");
+			if(pGp->Pgm.EqualsCur(","))
+				pGp->Pgm.Shift();
+			value = pGp->RealExpression();
 			if(value < 2 || value > 2048)
-				GPO.IntErrorCurToken("y size out of range");
+				pGp->IntErrorCurToken("y size out of range");
 			AQUA_ySize = (uint)value * AQUA_RESOLUTION;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("fn$ame") || GPO.Pgm.AlmostEqualsCur("font")) {
+		if(pGp->Pgm.AlmostEqualsCur("fn$ame") || pGp->Pgm.AlmostEqualsCur("font")) {
 			char * name;
 			double size;
-			GPO.Pgm.Shift();
-			if(!(s = GPO.TryToGetString()))
-				GPO.IntErrorCurToken("expecting font specifier");
+			pGp->Pgm.Shift();
+			if(!(s = pGp->TryToGetString()))
+				pGp->IntErrorCurToken("expecting font specifier");
 			get_font_name_and_size(s, &name, &size);
 			SAlloc::F(s);
 			if(name)
@@ -217,66 +217,65 @@ TERM_PUBLIC void AQUA_options()
 
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("fs$ize")) {
+		if(pGp->Pgm.AlmostEqualsCur("fs$ize")) {
 			double size;
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting font size");
-			if((size = GPO.RealExpression()) > 0)
+			pGp->Pgm.Shift();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("expecting font size");
+			if((size = pGp->RealExpression()) > 0)
 				AQUA_fontSizeDef = size;
 			AQUA_fontSizeCur = AQUA_fontSizeDef;
 			set_font_size(AQUA_fontSizeCur);
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("solid")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.EqualsCur("solid")) {
+			pGp->Pgm.Shift();
 			AQUA_dashedlines = FALSE;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("dash$ed")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("dash$ed")) {
+			pGp->Pgm.Shift();
 			AQUA_dashedlines = TRUE;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("lw") || GPO.Pgm.AlmostEqualsCur("linew$idth")) {
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting line width");
-			AQUA_LineWidth = GPO.RealExpression();
+		if(pGp->Pgm.EqualsCur("lw") || pGp->Pgm.AlmostEqualsCur("linew$idth")) {
+			pGp->Pgm.Shift();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("expecting line width");
+			AQUA_LineWidth = pGp->RealExpression();
 			if(AQUA_LineWidth < 0.0)
 				AQUA_LineWidth = 1.0;
 			continue;
 		}
 
-		if(GPO.Pgm.EqualsCur("dl") || GPO.Pgm.AlmostEqualsCur("dashl$ength")) {
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting dashlength multiplier");
-			AQUA_dashlength_factor = GPO.RealExpression();
+		if(pGp->Pgm.EqualsCur("dl") || pGp->Pgm.AlmostEqualsCur("dashl$ength")) {
+			pGp->Pgm.Shift();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("expecting dashlength multiplier");
+			AQUA_dashlength_factor = pGp->RealExpression();
 			if(AQUA_dashlength_factor < 0.0)
 				AQUA_dashlength_factor = AQUA_DEFAULT_DASHLENGTH_FACTOR;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("enh$anced")) {
+		if(pGp->Pgm.AlmostEqualsCur("enh$anced")) {
 			term->put_text = ENHAQUA_put_text;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			term->flags |= TERM_ENHANCED_TEXT;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("noenh$anced")) {
+		if(pGp->Pgm.AlmostEqualsCur("noenh$anced")) {
 			term->put_text = AQUA_put_text;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			term->flags &= ~TERM_ENHANCED_TEXT;
 			continue;
 		}
 		if(!set_number) { /* plot ref number*/
-			AQUA_plotRef = GPO.IntExpression();
+			AQUA_plotRef = pGp->IntExpression();
 			set_number = TRUE;
 			continue;
 		}
-		GPO.IntErrorCurToken("unexpected text at end of command");
+		pGp->IntErrorCurToken("unexpected text at end of command");
 	}
-
 	if(AQUA_title[0]=='\0') /* always set title */
 		sprintf(AQUA_title, "Figure %d", AQUA_plotRef);
 	/* Save options back into options string in normalized format */
@@ -584,9 +583,9 @@ TERM_PUBLIC void AQUA_point(uint x, uint y, int number)
 	[adapter moveToPoint: NSMakePoint(x/AQUA_RESOLUTION-0.005, y/AQUA_RESOLUTION)];
 	[adapter addLineToPoint: NSMakePoint(x/AQUA_RESOLUTION+0.005, y/AQUA_RESOLUTION)];
 	[adapter moveToPoint: NSMakePoint(0, 0)]; /* Force a path end  to work around a bug in AquaTerm 1.0.0 */
-	/* Round caps results in nicer symbols too */
+	// Round caps results in nicer symbols too 
 	if(number>=0) {
-		do_point(x, y, number);
+		GnuPlot::DoPoint(x, y, number);
 	}
 	[adapter moveToPoint: NSMakePoint(0, 0)]; /* Force a path end to work around a bug in AquaTerm 1.0.0 */
 	[adapter setLineCapStyle: AQTButtLineCapStyle]; /* Reset line capstyle */
@@ -846,17 +845,14 @@ TERM_PUBLIC void ENHAQUA_put_text(uint x, uint y, const char str[])
 {
 	if(!strlen(str))
 		return;
-
-	if(ignore_enhanced_text || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
+	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		AQUA_put_text(x, y, str);
 		return;
 	}
-
-	/* set up the global variables needed by enhanced_recursion() */
-	enhanced_fontscale = 1;
-	strncpy(enhanced_escape_format, "\\%o", sizeof(enhanced_escape_format));
-
-	/* Clear the attributed string */
+	// set up the global variables needed by enhanced_recursion() 
+	GPO.Enht.FontScale = 1.0;
+	strncpy(GPO.Enht.EscapeFormat, "\\%o", sizeof(GPO.Enht.EscapeFormat));
+	// Clear the attributed string 
 	[enhString release];
 	enhString = [[NSMutableAttributedString alloc] init];
 	[enhString setAttributedString:[[NSAttributedString alloc] initWithString: @ ""]];

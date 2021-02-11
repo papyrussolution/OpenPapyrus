@@ -945,15 +945,13 @@ static void MakeFonts(LPGW lpgw, LPRECT lprect, HDC hdc)
 	lpgw->rotate = FALSE;
 	memzero(&(lpgw->lf), sizeof(LOGFONT));
 	_tcsncpy(lpgw->lf.lfFaceName, lpgw->fontname, LF_FACESIZE);
-	lpgw->lf.lfHeight = -MulDiv(lpgw->fontsize * lpgw->fontscale, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+	lpgw->lf.lfHeight = -MulDiv(static_cast<int>(lpgw->fontsize * lpgw->fontscale), GetDeviceCaps(hdc, LOGPIXELSY), 72);
 	lpgw->lf.lfCharSet = DEFAULT_CHARSET;
-	if(((p = _tcsstr(lpgw->fontname, TEXT(" Italic"))) != NULL) ||
-	    ((p = _tcsstr(lpgw->fontname, TEXT(":Italic"))) != NULL)) {
+	if(((p = _tcsstr(lpgw->fontname, TEXT(" Italic"))) != NULL) || ((p = _tcsstr(lpgw->fontname, TEXT(":Italic"))) != NULL)) {
 		lpgw->lf.lfFaceName[(uint)(p - lpgw->fontname)] = NUL;
 		lpgw->lf.lfItalic = TRUE;
 	}
-	if(((p = _tcsstr(lpgw->fontname, TEXT(" Bold"))) != NULL) ||
-	    ((p = _tcsstr(lpgw->fontname, TEXT(":Bold"))) != NULL)) {
+	if(((p = _tcsstr(lpgw->fontname, TEXT(" Bold"))) != NULL) || ((p = _tcsstr(lpgw->fontname, TEXT(":Bold"))) != NULL)) {
 		lpgw->lf.lfFaceName[(uint)(p - lpgw->fontname)] = NUL;
 		lpgw->lf.lfWeight = FW_BOLD;
 	}
@@ -1170,7 +1168,7 @@ static uint GraphGetTextLength(LPGW lpgw, HDC hdc, LPCSTR text, bool escapes)
 
 static void EnhancedSetFont()
 {
-	GraphChangeFont(enhstate.lpgw, enhstate.fontname, enhstate.fontsize, enhstate_gdi.hdc, *(enhstate.rect));
+	GraphChangeFont(enhstate.lpgw, enhstate.fontname, static_cast<int>(enhstate.fontsize), enhstate_gdi.hdc, *(enhstate.rect));
 	SetFont(enhstate.lpgw, enhstate_gdi.hdc);
 }
 
@@ -1293,16 +1291,16 @@ void GraphEnhancedOpen(char * fontname, double fontsize, double base, bool width
 		return;
 	}
 	if(!enhstate.opened_string) {
-		/* Start new text fragment */
+		// Start new text fragment 
 		enhstate.opened_string = TRUE;
-		enhanced_cur_text = enhanced_text;
-		/* Keep track of whether we are supposed to show this string */
+		GPO.Enht.P_CurText = GPO.Enht.Text;
+		// Keep track of whether we are supposed to show this string 
 		enhstate.show = showflag;
-		/* 0/1/2  no overprint / 1st pass / 2nd pass */
+		// 0/1/2  no overprint / 1st pass / 2nd pass 
 		enhstate.overprint = overprint;
-		/* widthflag FALSE means do not update text position after printing */
+		// widthflag FALSE means do not update text position after printing 
 		enhstate.widthflag = widthflag;
-		/* Select font */
+		// Select font 
 		if((fontname != NULL) && (strlen(fontname) > 0)) {
 #ifdef UNICODE
 			MultiByteToWideChar(CP_ACP, 0, fontname, -1, enhstate.fontname, MAXFONTNAME);
@@ -1327,15 +1325,15 @@ void GraphEnhancedFlush()
 	uint x, y, len;
 	double angle = M_PI/180.0 * enhstate.lpgw->angle;
 	if(enhstate.opened_string) {
-		*enhanced_cur_text = '\0';
+		*GPO.Enht.P_CurText = '\0';
 		// print the string fragment, perhaps invisibly 
 		// NB: base expresses offset from current y pos 
-		x = enhstate.x - enhstate.base * sin(angle);
-		y = enhstate.y - enhstate.base * cos(angle);
+		x = static_cast<uint>(enhstate.x - enhstate.base * sin(angle));
+		y = static_cast<uint>(enhstate.y - enhstate.base * cos(angle));
 		// calculate length of string first 
-		len = enhstate.text_length(enhanced_text);
-		width = cos(angle) * len;
-		height = -sin(angle) * len;
+		len = enhstate.text_length(GPO.Enht.Text);
+		width  = static_cast<int>(cos(angle) * len);
+		height = static_cast<int>(-sin(angle) * len);
 		if(enhstate.widthflag && !enhstate.sizeonly && !enhstate.overprint) {
 			// do not take rotation into account 
 			int ypos = static_cast<int>(-enhstate.base);
@@ -1345,7 +1343,7 @@ void GraphEnhancedFlush()
 		}
 		// display string 
 		if(enhstate.show && !enhstate.sizeonly)
-			enhstate.put_text(x, y, enhanced_text);
+			enhstate.put_text(x, y, GPO.Enht.Text);
 		// update drawing position according to text length 
 		if(!enhstate.widthflag) {
 			width = 0;
@@ -1410,11 +1408,11 @@ int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
 	_tcscpy(save_fontname, lpgw->fontname);
 	save_fontsize = lpgw->fontsize;
 	// Set up global variables needed by enhanced_recursion() 
-	enhanced_fontscale = 1.0;
-	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-	/* Text justification requires two passes. During the first pass we */
-	/* don't draw anything, we just measure the space it will take.     */
-	/* Without justification one pass is enough                         */
+	GPO.Enht.FontScale = 1.0;
+	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	// Text justification requires two passes. During the first pass we 
+	// don't draw anything, we just measure the space it will take.     
+	// Without justification one pass is enough                         
 	if(enhstate.lpgw->justify == LEFT) {
 		num_passes = 1;
 	}
@@ -1422,8 +1420,8 @@ int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
 		num_passes = 2;
 		enhstate.sizeonly = TRUE;
 	}
-	/* We actually print everything left to right. */
-	/* Adjust baseline position: */
+	// We actually print everything left to right. 
+	// Adjust baseline position: 
 	enhstate.shift = lpgw->tmHeight/2 - lpgw->tmDescent;
 	enhstate.x += sin(lpgw->angle * M_PI/180) * enhstate.shift;
 	enhstate.y += cos(lpgw->angle * M_PI/180) * enhstate.shift;
@@ -1578,10 +1576,12 @@ void draw_update_keybox(LPGW lpgw, uint plotno, uint x, uint y)
 			}
 		}
 		LPRECT bb = lpgw->keyboxes + plotno - 1;
-		if(x < bb->left) bb->left = x;
-		if(x > bb->right) bb->right = x;
-		if(y < bb->bottom) bb->bottom = y;
-		if(y > bb->top) bb->top = y;
+		// @v11.0.1 SETMIN/SETMAX {
+		SETMIN(bb->left, x);
+		SETMAX(bb->right, x);
+		SETMIN(bb->bottom, y);
+		SETMAX(bb->top, y);
+		// } @v11.0.1 SETMIN/SETMAX
 	}
 }
 
@@ -1801,21 +1801,18 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 	rl = rect->left;
 	rt = rect->top;
 	rb = rect->bottom;
-
-	htic = MulDiv(lpgw->org_pointsize * lpgw->htic, rr - rl, lpgw->xmax) + 1;
-	vtic = MulDiv(lpgw->org_pointsize * lpgw->vtic, rb - rt, lpgw->ymax) + 1;
-
-	/* (re-)init GDI fonts */
+	htic = MulDiv(static_cast<int>(lpgw->org_pointsize * lpgw->htic), rr - rl, lpgw->xmax) + 1;
+	vtic = MulDiv(static_cast<int>(lpgw->org_pointsize * lpgw->vtic), rb - rt, lpgw->ymax) + 1;
+	// (re-)init GDI fonts 
 	GraphChangeFont(lpgw, lpgw->deffontname, lpgw->deffontsize, hdc, *rect);
 	lpgw->angle = 0;
 	SetFont(lpgw, hdc);
 	lpgw->justify = LEFT;
 	SetTextAlign(hdc, TA_LEFT | TA_TOP);
-	/* calculate text shift for horizontal text */
+	// calculate text shift for horizontal text 
 	hshift = 0;
 	vshift = -lpgw->tmHeight / 2;   /* centered */
-
-	/* init layer variables */
+	// init layer variables 
 	lpgw->numplots = 0;
 	lpgw->hasgrid = FALSE;
 	for(i = 0; i < lpgw->maxkeyboxes; i++) {
@@ -2063,7 +2060,6 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 				    LocalUnlock(curptr->htext);
 				    break;
 			    }
-
 				case W_enhanced_text: {
 				    char * str = (char*)LocalLock(curptr->htext);
 				    if(str) {
@@ -2415,8 +2411,8 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 				case W_pointsize:
 				    if(curptr->x > 0) {
 					    double pointsize = curptr->x / 100.0;
-					    htic = MulDiv(pointsize * lpgw->pointscale * lpgw->htic, rr - rl, lpgw->xmax) + 1;
-					    vtic = MulDiv(pointsize * lpgw->pointscale * lpgw->vtic, rb - rt, lpgw->ymax) + 1;
+					    htic = MulDiv(static_cast<int>(pointsize * lpgw->pointscale * lpgw->htic), rr - rl, lpgw->xmax) + 1;
+					    vtic = MulDiv(static_cast<int>(pointsize * lpgw->pointscale * lpgw->vtic), rb - rt, lpgw->ymax) + 1;
 				    }
 				    else {
 					    htic = vtic = 0;
@@ -2746,32 +2742,29 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 							{ 0, 1, 0.95106f, 0.30902f, 0.58779f, -0.80902f,
 							  -0.58779f, -0.80902f, -0.95106f, 0.30902f} /* pentagon */
 						};
-
-						/* This should never happen since all other codes should be
-						   handled in the switch statement. */
+						// This should never happen since all other codes should be
+						// handled in the switch statement. 
 						if((symbol < W_box) || (symbol > W_last_pointtype))
 							break;
-
-						/* Calculate index, instead of an ugly long switch statement;
-						   Depends on definition of commands in wgnuplib.h.
-						 */
+						// Calculate index, instead of an ugly long switch statement;
+						// Depends on definition of commands in wgnuplib.h.
 						index = symbol - W_box;
 						shape = index / 2;
 						filled = (index % 2) > 0;
 						for(i = 0; i < 5; ++i) {
 							if(pointshapes[shape][i * 2 + 1] == 0 && pointshapes[shape][i * 2] == 0)
 								break;
-							p[i].x = xofs + htic * pointshapes[shape][i * 2] + 0.5;
-							p[i].y = yofs + vtic * pointshapes[shape][i * 2 + 1] + 0.5;
+							p[i].x = static_cast<LONG>(xofs + htic * pointshapes[shape][i * 2] + 0.5);
+							p[i].y = static_cast<LONG>(yofs + vtic * pointshapes[shape][i * 2 + 1] + 0.5);
 						}
 						if(filled) {
-							/* Filled polygon */
+							// Filled polygon 
 							SelectObject(dc, lpgw->hsolid);
 							Polygon(dc, p, i);
 							SelectObject(dc, lpgw->hapen);
 						}
 						else {
-							/* Outline polygon */
+							// Outline polygon 
 							p[i].x = p[0].x;
 							p[i].y = p[0].y;
 							SelectObject(dc, lpgw->hsolid);
@@ -3017,8 +3010,9 @@ static void CopyClip(LPGW lpgw)
 	CloseClipboard();
 	DeleteEnhMetaFile(hemf);
 }
-
-/* copy graph window to printer */
+//
+// copy graph window to printer
+//
 static void CopyPrint(LPGW lpgw)
 {
 	DOCINFO docInfo;
@@ -3044,7 +3038,6 @@ static void CopyPrint(LPGW lpgw)
 	pr.psize.x = -1; /* will be initialised to paper size whenever the printer driver changes */
 	pr.psize.y = -1;
 	ReleaseDC(hwnd, hdc);
-
 	psp.dwSize      = sizeof(PROPSHEETPAGE);
 	psp.dwFlags     = PSP_USETITLE;
 	psp.hInstance   = lpgw->hInstance;
@@ -3055,7 +3048,6 @@ static void CopyPrint(LPGW lpgw)
 	psp.lParam      = (LPARAM)&pr;
 	psp.pfnCallback = NULL;
 	hpsp = CreatePropertySheetPage(&psp);
-
 	memzero(&pd, sizeof(pd));
 	pd.lStructSize = sizeof(pd);
 	pd.hwndOwner = hwnd;
@@ -3067,11 +3059,10 @@ static void CopyPrint(LPGW lpgw)
 	pd.lphPropertyPages = &hpsp;
 	pd.nStartPage = START_PAGE_GENERAL;
 	pd.lpCallback = (LPUNKNOWN)PrintingCallbackCreate(&pr);
-	/* remove the lower part of the "general" property sheet */
+	// remove the lower part of the "general" property sheet 
 	pd.lpPrintTemplateName = TEXT("PrintDlgExEmpty");
 	pd.hInstance = graphwin->hInstance;
 	pd.Flags |= PD_ENABLEPRINTTEMPLATE;
-
 	if(PrintDlgEx(&pd) != S_OK) {
 		DWORD error = CommDlgExtendedError();
 		if(error != 0)
@@ -3082,21 +3073,18 @@ static void CopyPrint(LPGW lpgw)
 	PrintingCallbackFree(pd.lpCallback);
 	if(pd.dwResultAction != PD_RESULT_PRINT)
 		return;
-
-	/* Print Size Dialog results */
+	// Print Size Dialog results 
 	if(pr.psize.x < 0) {
-		/* apply default values */
+		// apply default values 
 		pr.psize.x = pr.pdef.x;
 		pr.psize.y = pr.pdef.y;
 	}
-
-	/* See http://support.microsoft.com/kb/240082 */
+	// See http://support.microsoft.com/kb/240082 
 	pDevNames = (DEVNAMES*)GlobalLock(pd.hDevNames);
 	pDevMode = (DEVMODE*)GlobalLock(pd.hDevMode);
 	szDriver = (LPCTSTR)pDevNames + pDevNames->wDriverOffset;
 	szDevice = (LPCTSTR)pDevNames + pDevNames->wDeviceOffset;
 	szOutput = (LPCTSTR)pDevNames + pDevNames->wOutputOffset;
-
 #if defined(HAVE_D2D11) && !defined(DCRENDERER)
 	if(lpgw->d2d) {
 		dpiX = dpiY = 96;  // DIPS
@@ -3110,15 +3098,12 @@ static void CopyPrint(LPGW lpgw)
 		dpiX = GetDeviceCaps(printer, LOGPIXELSX);
 		dpiY = GetDeviceCaps(printer, LOGPIXELSY);
 	}
-
 	rect.left = MulDiv(pr.poff.x * 10, dpiX, 254);
 	rect.top = MulDiv(pr.poff.y * 10, dpiY, 254);
 	rect.right = rect.left + MulDiv(pr.psize.x * 10, dpiX, 254);
 	rect.bottom = rect.top + MulDiv(pr.psize.y * 10, dpiY, 254);
-
 	pr.hdcPrn = printer;
 	PrintRegister(&pr);
-
 	EnableWindow(hwnd, FALSE);
 	pr.bUserAbort = FALSE;
 	pr.szTitle = lpgw->Title;
@@ -3144,7 +3129,6 @@ static void CopyPrint(LPGW lpgw)
 	memzero(&docInfo, sizeof(DOCINFO));
 	docInfo.cbSize = sizeof(DOCINFO);
 	docInfo.lpszDocName = lpgw->Title;
-
 	if(StartDoc(printer, &docInfo) > 0 && StartPage(printer) > 0) {
 #ifdef HAVE_GDIPLUS
 #ifndef HAVE_D2D11
@@ -3152,7 +3136,7 @@ static void CopyPrint(LPGW lpgw)
 #else
 		if(lpgw->gdiplus) {
 #endif
-			/* Print using GDI+ */
+			// Print using GDI+ 
 			print_gdiplus(lpgw, printer, printerHandle, &rect);
 		}
 		else

@@ -64,7 +64,7 @@ static bool glyph_set(glyph_buffer_t * glyph, int * width, uint code, const char
 	return res;
 }
 
-void glyphs_init(void)
+void glyphs_init()
 {
 	glyph_set(&arrow,      &arrow_width,      0x2192, "->");
 	glyph_set(&dot,        &dot_width,        0x2022, ".");

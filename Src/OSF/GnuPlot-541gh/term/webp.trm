@@ -170,22 +170,15 @@ void WEBP_init(termentry * pThis)
 	plot.device_xmax = (double)cairo_params->width;
 	plot.device_ymax = (double)cairo_params->height;
 	plot.dashlength = cairo_params->dash_length;
-
-	surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-		plot.device_xmax, plot.device_ymax);
+	surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, plot.device_xmax, plot.device_ymax);
 	plot.hinting = 100;
 	plot.polygons_saturate = TRUE;
-
 	plot.cr = cairo_create(surface);
 	cairo_surface_destroy(surface);
-
-	webp_params.background = (int)(255 * cairo_params->background.r) << 16
-		| (int)(255 * cairo_params->background.g) << 8
-		| (int)(255 * cairo_params->background.b);
+	webp_params.background = (int)(255 * cairo_params->background.r) << 16 | (int)(255 * cairo_params->background.g) << 8 | (int)(255 * cairo_params->background.b);
 }
 
-static int WEBP_writer(const uint8_t* data, size_t data_size,
-    const WebPPicture* const pic)
+static int WEBP_writer(const uint8_t* data, size_t data_size, const WebPPicture* const pic)
 {
 	if(data_size > 0)
 		return fwrite(data, data_size, 1, gpoutfile);

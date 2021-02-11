@@ -35,14 +35,13 @@ static float function(int p, double x, double y)
 		    t = static_cast<float>(1.0 / (x * x + y * y + 1.0));
 		    break;
 		case 1:
-		    t = static_cast<float>(sin(x * x + y * y) / (x * x + y * y));
-		    if(t > 1.0)
-			    t = 1.0;
+			t = static_cast<float>(sin(x * x + y * y) / (x * x + y * y));
+			SETMIN(t, 1.0);
 		    break;
 		case 2:
 		    t = static_cast<float>(sin(x * x + y * y) / (x * x + y * y));
 		    // sinc modulated sinc 
-		    t *= sin(4. * (x * x + y * y)) / (4. * (x * x + y * y));
+		    t *= sin(4.0 * (x * x + y * y)) / (4.0 * (x * x + y * y));
 		    if(t > 1.0)
 			    t = 1.0;
 		    break;
@@ -71,7 +70,7 @@ int fwrite_matrix(FILE * fout, float ** m, int xsize, int ysize, float * rt, flo
 	return (1);
 }
 
-#define ISOSAMPLES 5.0
+#define ISOSAMPLES 5.0f
 
 int main(void)
 {
@@ -84,10 +83,10 @@ int main(void)
 	int xsize, ysize;
 	char buf[256];
 	FILE * fout;
-	/*  Create a few standard test interfaces */
+	//  Create a few standard test interfaces 
 	for(plot = 0; plot < NUM_PLOTS; plot++) {
-		xsize = (TheRange[plot].xmax - TheRange[plot].xmin) * ISOSAMPLES + 1;
-		ysize = (TheRange[plot].ymax - TheRange[plot].ymin) * ISOSAMPLES + 1;
+		xsize = static_cast<int>((TheRange[plot].xmax - TheRange[plot].xmin) * ISOSAMPLES + 1);
+		ysize = static_cast<int>((TheRange[plot].ymax - TheRange[plot].ymin) * ISOSAMPLES + 1);
 		sprintf(buf, "binary%d", plot + 1);
 		if(!(fout = fopen(buf, "wb"))) {
 			fprintf(stderr, "Could not open output file\n");
@@ -99,12 +98,12 @@ int main(void)
 		for(im = 0; im < xsize; im++) {
 			m[im] = (float *)calloc(ysize, sizeof(m[0][0]));
 		}
-		for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0 / (double)ISOSAMPLES) {
+		for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0f / ISOSAMPLES) {
 			ct[j] = y;
 		}
-		for(x = TheRange[plot].xmin, i = 0; i < xsize; i++, x += 1.0 / (double)ISOSAMPLES) {
+		for(x = TheRange[plot].xmin, i = 0; i < xsize; i++, x += 1.0f / ISOSAMPLES) {
 			rt[i] = x;
-			for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0 / (double)ISOSAMPLES) {
+			for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0f / ISOSAMPLES) {
 				m[i][j] = function(plot, x, y);
 			}
 		}
@@ -115,28 +114,26 @@ int main(void)
 			SAlloc::F(m[im]);
 		SAlloc::F(m);
 	}
-
-	/* Show that it's ok to vary sampling rate, as long as x1<x2, y1<y2... */
-
+	// Show that it's ok to vary sampling rate, as long as x1<x2, y1<y2... 
 	sprintf(buf, "binary%d", plot + 1);
 	if(!(fout = fopen(buf, "wb"))) {
 		fprintf(stderr, "Could not open output file\n");
 		return EXIT_FAILURE;
 	}
-	xsize = (TheRange[plot].xmax - TheRange[plot].xmin) * ISOSAMPLES + 1;
-	ysize = (TheRange[plot].ymax - TheRange[plot].ymin) * ISOSAMPLES + 1;
+	xsize = static_cast<int>((TheRange[plot].xmax - TheRange[plot].xmin) * ISOSAMPLES + 1);
+	ysize = static_cast<int>((TheRange[plot].ymax - TheRange[plot].ymin) * ISOSAMPLES + 1);
 	rt = (float *)calloc(xsize, sizeof(float));
 	ct = (float *)calloc(ysize, sizeof(float));
 	m = (float **)calloc(xsize, sizeof(m[0]));
 	for(im = 0; im < xsize; im++) {
 		m[im] = (float *)calloc(ysize, sizeof(m[0][0]));
 	}
-	for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0 / (double)ISOSAMPLES) {
+	for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0f / ISOSAMPLES) {
 		ct[j] = y > 0 ? 2 * y : y;
 	}
-	for(x = TheRange[plot].xmin, i = 0; i < xsize; i++, x += 1.0 / (double)ISOSAMPLES) {
+	for(x = TheRange[plot].xmin, i = 0; i < xsize; i++, x += 1.0f / ISOSAMPLES) {
 		rt[i] = x > 0 ? 2 * x : x;
-		for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0 / (double)ISOSAMPLES) {
+		for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0f / ISOSAMPLES) {
 			m[i][j] = function(plot, x, y);
 		}
 	}

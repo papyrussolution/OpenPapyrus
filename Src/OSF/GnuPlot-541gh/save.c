@@ -18,8 +18,7 @@ const char * coord_msg[] = {"first ", "second ", "graph ", "screen ", "character
  */
 void save_functions(FILE * fp)
 {
-	/* I _love_ information written at the top and the end
-	 * of a human readable ASCII file. */
+	// I _love_ information written at the top and the end of a human readable ASCII file. 
 	show_version(fp);
 	save_functions__sub(fp);
 	fputs("#    EOF\n", fp);
@@ -77,7 +76,6 @@ void save_datablocks(FILE * fp)
 /*
  *  auxiliary functions
  */
-
 static void save_functions__sub(FILE * fp)
 {
 	udft_entry * udf = GPO.Ev.P_FirstUdf;
@@ -133,10 +131,9 @@ void save_colormaps(FILE * fp)
 
 void save_array_content(FILE * fp, GpValue * array)
 {
-	int i;
 	int size = array[0].v.int_val;
 	fprintf(fp, "[");
-	for(i = 1; i<=size; i++) {
+	for(int i = 1; i <= size; i++) {
 		if(array[0].type == COLORMAP_ARRAY)
 			fprintf(fp, "0x%08x", (uint)(array[i].v.int_val));
 		else if(array[i].type != NOTDEFINED)
@@ -406,7 +403,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	if(!(key->visible))
 		fputs("unset key\n", fp);
 	fputs("unset label\n", fp);
-	for(this_label = first_label; this_label != NULL; this_label = this_label->next) {
+	for(this_label = Gg.P_FirstLabel; this_label; this_label = this_label->next) {
 		fprintf(fp, "set label %d \"%s\" at ", this_label->tag, conv_text(this_label->text));
 		save_position(fp, &this_label->place, 3, FALSE);
 		if(this_label->hypertext)
@@ -437,7 +434,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fputc('\n', fp);
 	}
 	fputs("unset arrow\n", fp);
-	for(this_arrow = first_arrow; this_arrow; this_arrow = this_arrow->next) {
+	for(this_arrow = Gg.P_FirstArrow; this_arrow; this_arrow = this_arrow->next) {
 		fprintf(fp, "set arrow %d from ", this_arrow->tag);
 		save_position(fp, &this_arrow->start, 3, FALSE);
 		if(this_arrow->type == arrow_end_absolute) {
@@ -468,14 +465,13 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	if(prefer_line_styles)
 		fprintf(fp, "set style increment userstyles\n");
 	fputs("unset style line\n", fp);
-	for(this_linestyle = first_linestyle; this_linestyle != NULL;
-	    this_linestyle = this_linestyle->next) {
+	for(this_linestyle = Gg.P_FirstLineStyle; this_linestyle; this_linestyle = this_linestyle->next) {
 		fprintf(fp, "set style line %d ", this_linestyle->tag);
 		save_linetype(fp, &(this_linestyle->lp_properties), TRUE);
 		fprintf(fp, "\n");
 	}
 	fputs("unset style arrow\n", fp);
-	for(this_arrowstyle = first_arrowstyle; this_arrowstyle; this_arrowstyle = this_arrowstyle->next) {
+	for(this_arrowstyle = Gg.P_FirstArrowStyle; this_arrowstyle; this_arrowstyle = this_arrowstyle->next) {
 		fprintf(fp, "set style arrow %d", this_arrowstyle->tag);
 		fprintf(fp, " %s %s %s", arrow_head_names[this_arrowstyle->arrow_properties.head], (this_arrowstyle->arrow_properties.layer==0) ? "back" : "front",
 		    (this_arrowstyle->arrow_properties.headfill==AS_FILLED) ? "filled" : (this_arrowstyle->arrow_properties.headfill==AS_EMPTY) ? "empty" :
@@ -587,7 +583,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	}
 	fprintf(fp, "\nset cntrparam firstlinetype %d", contour_firstlinetype);
 	fprintf(fp, " %ssorted\n", contour_sortlevels ? "" : "un");
-	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", contour_pts, V.AspectRatio, V.XSize, V.YSize, V.XOffset, V.YOffset);
+	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", contour_pts, V.AspectRatio, V.Size.x, V.Size.y, V.Offset.X, V.Offset.Y);
 	fprintf(fp, "set style data ");
 	save_data_func_style(fp, "data", data_style);
 	fprintf(fp, "set style function ");
@@ -1358,7 +1354,7 @@ void save_histogram_opts(FILE * fp)
 
 void save_pixmaps(FILE * fp)
 {
-	for(t_pixmap * pixmap = pixmap_listhead; pixmap; pixmap = pixmap->next) {
+	for(t_pixmap * pixmap = GPO.Gg.P_PixmapListHead; pixmap; pixmap = pixmap->next) {
 		if(pixmap->filename)
 			fprintf(fp, "set pixmap %d '%s' # (%d x %d pixmap)\n", pixmap->tag, pixmap->filename, pixmap->ncols, pixmap->nrows);
 		if(pixmap->colormapname)
@@ -1379,7 +1375,7 @@ void save_object(FILE * fp, int tag)
 	t_circle * this_circle;
 	t_ellipse * this_ellipse;
 	bool showed = FALSE;
-	for(this_object = first_object; this_object != NULL; this_object = this_object->next) {
+	for(this_object = GPO.Gg.P_FirstObject; this_object != NULL; this_object = this_object->next) {
 		if((this_object->object_type == OBJ_RECTANGLE) && (tag == 0 || tag == this_object->tag)) {
 			this_rect = &this_object->o.rectangle;
 			showed = TRUE;

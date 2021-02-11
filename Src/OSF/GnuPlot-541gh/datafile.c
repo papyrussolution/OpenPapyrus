@@ -248,8 +248,8 @@ static bool df_nonuniform_matrix;
 static bool df_matrix_columnheaders, df_matrix_rowheaders;
 static int  df_plot_mode;
 
-static int  df_readascii(double [], int);
-static int  df_readbinary(double [], int);
+//static int  df_readascii(double [], int);
+//static int  df_readbinary(double [], int);
 static void initialize_use_spec();
 //static void initialize_plot_style(curve_points *);
 static void initialize_binary_vars();
@@ -336,11 +336,15 @@ df_binary_file_record_struct df_bin_record_reset = {
 	NULL       /* data_memory */
 };
 
-int df_max_num_bin_records = 0, df_num_bin_records, df_bin_record_count;
-int df_max_num_bin_records_default = 0, df_num_bin_records_default;
+int df_max_num_bin_records = 0;
+int df_num_bin_records;
+int df_bin_record_count;
+int df_max_num_bin_records_default = 0;
+int df_num_bin_records_default;
 
-/* Used to mark the location of a blank line in the original data input file */
-GpCoordinate blank_data_line = {UNDEFINED, -999, -999, -999, -999, -999, -999, -999};
+// Used to mark the location of a blank line in the original data input file 
+//GpCoordinate blank_data_line = {UNDEFINED, -999, -999, -999, -999, -999, -999, -999};
+const GpCoordinate blank_data_line(GpCoordinate::ctrBlank);
 
 static void gpbin_filetype_function();
 static void raw_filetype_function();
@@ -1126,13 +1130,13 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		if(set_every && df_xpixels && df_ypixels) {
 			pPlot->image_properties.ncols = 1 + ((int)(MIN(lastpoint, df_xpixels-1)) - firstpoint) / everypoint;
 			pPlot->image_properties.nrows = 1 + ((int)(MIN(lastline, df_ypixels-1)) - firstline) / everyline;
-			FPRINTF((stderr, "datafile.c:%d  adjusting to (%d, %d)\n", __LINE__, plot->image_properties.ncols, plot->image_properties.nrows));
+			FPRINTF((stderr, "datafile.c:%d  adjusting to (%d, %d)\n", __LINE__, pPlot->image_properties.ncols, pPlot->image_properties.nrows));
 		}
 		if(df_transpose) {
 			uint temp = pPlot->image_properties.ncols;
 			pPlot->image_properties.ncols = pPlot->image_properties.nrows;
 			pPlot->image_properties.nrows = temp;
-			FPRINTF((stderr, "datafile.c:%d  adjusting to (%d, %d)\n", __LINE__, plot->image_properties.ncols, plot->image_properties.nrows));
+			FPRINTF((stderr, "datafile.c:%d  adjusting to (%d, %d)\n", __LINE__, pPlot->image_properties.ncols, pPlot->image_properties.nrows));
 		}
 	}
 	// }}} 
@@ -1182,7 +1186,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		df_datablock = TRUE;
 		df_datablock_line = get_datablock(df_filename);
 		// Better safe than sorry. Check for inblock != outblock 
-		if(pPlot && table_var && table_var->udv_value.v.data_array == df_datablock_line)
+		if(pPlot && GPO.Tab.P_Var && GPO.Tab.P_Var->udv_value.v.data_array == df_datablock_line)
 			IntError(NO_CARET, "input and output datablock are the same");
 	}
 	else if(!strcmp(df_filename, "@@") && df_array) {
@@ -1279,7 +1283,7 @@ void df_close()
 		}
 		if(!mixed_data_fp && !df_datablock) {
 	#if defined(HAVE_FDOPEN)
-			if(data_fd == fileno(data_fp)) {
+			if(data_fd == _fileno(data_fp)) {
 				// This will allow replotting if this stream is backed by a file,
 				// and hopefully is harmless if it connects to a pipe.
 				// Leave it open in either case.
@@ -1440,7 +1444,7 @@ void GnuPlot::PlotOptionUsing(int max_using)
 				fast_columns = 0; /* corey@cac */
 				dummy_func = NULL; /* no dummy variables active */
 				at_highest_column_used = NO_COLUMN_HEADER;
-				spec->at = perm_at();
+				spec->at = PermAt();
 				if(no_cols < at_highest_column_used)
 					no_cols = at_highest_column_used;
 				/* Try to detect dependence on a particular column so that
@@ -1536,7 +1540,7 @@ void GnuPlot::PlotTicLabelUsing(int axis)
 		use_spec[df_no_use_specs+df_no_tic_specs].at = NULL;
 	}
 	else {
-		use_spec[df_no_use_specs+df_no_tic_specs].at = perm_at();
+		use_spec[df_no_use_specs+df_no_tic_specs].at = PermAt();
 		fast_columns = 0; // Force all columns to be evaluated 
 		col = 1; // Redundant because of the above 
 	}
@@ -1550,18 +1554,16 @@ void GnuPlot::PlotTicLabelUsing(int axis)
 	df_no_tic_specs++;
 }
 
-/*{{{  int df_readline(v, max) */
-int df_readline(double v[], int max)
+//int df_readline(double v[], int max)
+int GnuPlot::DfReadLine(double v[], int maxSize)
 {
 	if(!data_fp && !df_pseudodata && !df_datablock && !df_array)
 		return DF_EOF;
-	if(df_read_binary) // General binary, matrix binary or matrix ascii converted to binary 
-		return df_readbinary(v, max);
+	else if(df_read_binary) // General binary, matrix binary or matrix ascii converted to binary 
+		return DfReadBinary(v, maxSize);
 	else
-		return df_readascii(v, max);
+		return DfReadAscii(v, maxSize);
 }
-
-/*}}} */
 
 /* do the hard work... read lines from file,
  * - use blanks to get index number
@@ -1569,7 +1571,8 @@ int df_readline(double v[], int max)
  * - fill v[] based on using spec if given
  */
 
-int df_readascii(double v[], int max)
+//int df_readascii(double v[], int max)
+int GnuPlot::DfReadAscii(double v[], int maxSize)
 {
 	char * s;
 	int return_value = DF_GOOD;
@@ -1580,8 +1583,8 @@ int df_readascii(double v[], int max)
 	 * FIXME: it would be better to make this flag generic and set before entry.
 	 */
 	bool df_bad_returns_NaN = (df_current_plot && oneof2(df_current_plot->plot_style, PARALLELPLOT, TABLESTYLE));
-	assert(max <= MAXDATACOLS);
-	/* catch attempt to read past EOF on mixed-input */
+	assert(maxSize <= MAXDATACOLS);
+	// catch attempt to read past EOF on mixed-input 
 	if(df_eof)
 		return DF_EOF;
 #if (1)
@@ -1769,9 +1772,8 @@ int df_readascii(double v[], int max)
 				}
 			}
 			df_already_got_headers = TRUE;
-			/* Restrict the column number to possible values */
-			if(column_for_key_title > df_no_cols)
-				column_for_key_title = df_no_cols;
+			// Restrict the column number to possible values 
+			SETMIN(column_for_key_title, df_no_cols);
 			if(column_for_key_title == -3) /* last column in file */
 				column_for_key_title = df_no_cols;
 			if(column_for_key_title > 0) {
@@ -1791,13 +1793,13 @@ int df_readascii(double v[], int max)
 				return DF_COLUMN_HEADERS;
 			}
 		}
-		/* Used by stats to set STATS_columns */
+		// Used by stats to set STATS_columns 
 		if(df_datum == 0)
 			df_last_col = df_no_cols;
-		/*{{{  copy column[] to v[] via use[] */
+		//{{{  copy column[] to v[] via use[] 
 		{
 			int limit = (df_no_use_specs ? (df_no_use_specs + df_no_tic_specs) : MAXDATACOLS);
-			SETMIN(limit, max + df_no_tic_specs);
+			SETMIN(limit, maxSize + df_no_tic_specs);
 			// Used only by TABLESTYLE 
 			if(df_tabulate_strings)
 				for(output = 0; output < limit; ++output)
@@ -1833,16 +1835,16 @@ int df_readascii(double v[], int max)
 					if(use_spec[output].at) {
 						GpValue a;
 						evaluate_inside_using = TRUE;
-						GPO.EvaluateAt(use_spec[output].at, &a);
+						EvaluateAt(use_spec[output].at, &a);
 						evaluate_inside_using = FALSE;
 						if(a.type == STRING) {
-							add_tic_user(&GPO.AxS[axis], a.v.string_val, xpos, -1);
+							add_tic_user(&AxS[axis], a.v.string_val, xpos, -1);
 							gpfree_string(&a);
 						}
 					}
 					else {
 						char * temp_string = df_parse_string_field(df_tokens[output]);
-						add_tic_user(&GPO.AxS[axis], temp_string, xpos, -1);
+						add_tic_user(&AxS[axis], temp_string, xpos, -1);
 						SAlloc::F(temp_string);
 					}
 				}
@@ -1866,7 +1868,7 @@ int df_readascii(double v[], int max)
 					}
 					a.SetNotDefined();
 					evaluate_inside_using = TRUE;
-					GPO.EvaluateAt(use_spec[output].at, &a);
+					EvaluateAt(use_spec[output].at, &a);
 					evaluate_inside_using = FALSE;
 					// If column N contains the "missing" flag and is referenced by
 					// 'using N' or 'using (func($N)) then we caught it already.
@@ -1883,12 +1885,12 @@ int df_readascii(double v[], int max)
 						v[output] = fgetnan();
 						continue;
 					}
-					if(GPO.Ev.IsUndefined_) {
+					if(Ev.IsUndefined_) {
 						return_value = DF_UNDEFINED;
 						v[output] = fgetnan();
 						continue;
 					}
-					if((df_axis[output] != NO_AXIS) && GPO.AxS[df_axis[output]].datatype == DT_TIMEDATE)
+					if((df_axis[output] != NO_AXIS) && AxS[df_axis[output]].datatype == DT_TIMEDATE)
 						timefield = TRUE;
 					if(timefield && (a.type != STRING) && !strcmp(P_TimeFormat, "%s")) {
 						/* Handle the case of P_TimeFormat "%s" which expects a string */
@@ -1957,8 +1959,8 @@ int df_readascii(double v[], int max)
 					v[output] = df_datum; /* using 0 */
 				}
 				else if(column <= 0) /* really < -2, but */
-					GPO.IntError(NO_CARET, "internal error: column <= 0 in datafile.c");
-				else if((df_axis[output] != NO_AXIS) && (GPO.AxS[df_axis[output]].datatype == DT_TIMEDATE)) {
+					IntError(NO_CARET, "internal error: column <= 0 in datafile.c");
+				else if((df_axis[output] != NO_AXIS) && (AxS[df_axis[output]].datatype == DT_TIMEDATE)) {
 					struct tm tm;
 					double usec = 0.0;
 					double reltime;
@@ -2386,7 +2388,7 @@ void GnuPlot::F_StringColumn(union argument * /*arg*/)
 		EvStk.Push(Gstring(&a, temp_string));
 	}
 	else if(column < 1 || column > df_no_cols) {
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 		EvStk.Push(&a); // any objection to this ? 
 	}
 	else {
@@ -2461,17 +2463,17 @@ void GnuPlot::F_TimeColumn(union argument * arg)
 	int num_param;
 	int column;
 	double usec = 0.0;
-	EvStk.Pop(&b);          /* this is the number of parameters */
+	EvStk.Pop(&b); // this is the number of parameters 
 	num_param = b.v.int_val;
-	EvStk.Pop(&b);          /* this is the time format string */
+	EvStk.Pop(&b); // this is the time format string 
 	switch(num_param) {
 		case 2:
 		    column = (int)magnitude(EvStk.Pop(&a));
 		    break;
 		case 1:
-		    /* No format parameter passed (v4-style call) */
-		    /* Only needed for backward compatibility */
-		    column = magnitude(&b);
+		    // No format parameter passed (v4-style call) 
+		    // Only needed for backward compatibility 
+		    column = static_cast<int>(magnitude(&b));
 		    b.v.string_val = gp_strdup(P_TimeFormat);
 		    b.type = STRING;
 		    break;
@@ -2600,32 +2602,32 @@ void require_value(const char column)
 {
 	use_spec[column-1].expected_type = CT_MUST_HAVE;
 }
-/*
- * Load plot title used in key box from the string found earlier by df_readline.
- * Called from get_data().
- */
-void df_set_key_title(curve_points * plot)
+// 
+// Load plot title used in key box from the string found earlier by df_readline.
+// Called from get_data().
+// 
+void df_set_key_title(curve_points * pPlot)
 {
 	if(df_key_title) {
-		if(plot->plot_style == HISTOGRAMS &&  histogram_opts.type == HT_STACKED_IN_TOWERS) {
+		if(pPlot->plot_style == HISTOGRAMS &&  histogram_opts.type == HT_STACKED_IN_TOWERS) {
 			// In this case it makes no sense to treat key titles in the usual
 			// way, so we assume that it is supposed to be an xtic label.
 			// Only for "plot ... title columnhead" 
-			double xpos = plot->histogram_sequence + plot->histogram->start;
+			double xpos = pPlot->histogram_sequence + pPlot->histogram->start;
 			add_tic_user(&GPO.AxS[FIRST_X_AXIS], df_key_title, xpos, -1);
 			ZFREE(df_key_title);
 		}
 		else if(df_plot_title_at) { // What if there was already a title specified? 
-			reevaluate_plot_title(plot);
+			reevaluate_plot_title(pPlot);
 		}
-		else if(plot->title_is_suppressed) // "notitle <whatever-the-title-would-have-been>" 
+		else if(pPlot->title_is_suppressed) // "notitle <whatever-the-title-would-have-been>" 
 			;
 		else {
 			// Note: I think we can only get here for histogram labels 
-			SAlloc::F(plot->title);
-			plot->title = df_key_title;
+			SAlloc::F(pPlot->title);
+			pPlot->title = df_key_title;
 			df_key_title = NULL;
-			plot->title_no_enhanced = !keyT.enhanced;
+			pPlot->title_no_enhanced = !keyT.enhanced;
 		}
 	}
 }
@@ -2633,27 +2635,28 @@ void df_set_key_title(curve_points * plot)
 // Load plot title for key box from columnheader.
 // Called from eval_plots(), eval_3dplots() while parsing the plot title option
 //
-void df_set_key_title_columnhead(curve_points * plot)
+//void df_set_key_title_columnhead(const curve_points * plot)
+void GnuPlot::DfSetKeyTitleColumnHead(const curve_points * pPlot)
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EqualsCur("(")) {
-		GPO.Pgm.Shift();
-		column_for_key_title = GPO.IntExpression();
-		GPO.Pgm.Shift();
+	Pgm.Shift();
+	if(Pgm.EqualsCur("(")) {
+		Pgm.Shift();
+		column_for_key_title = IntExpression();
+		Pgm.Shift();
 	}
-	else if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
-		column_for_key_title = GPO.IntExpression();
+	else if(!Pgm.EndOfCommand() && Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
+		column_for_key_title = IntExpression();
 	}
 	else {
-		if(!plot) /* stats "name" option rather than plot title */
+		if(!pPlot) /* stats "name" option rather than plot title */
 			column_for_key_title = use_spec[0].column;
-		else if(plot->plot_style == HISTOGRAMS)
+		else if(pPlot->plot_style == HISTOGRAMS)
 			column_for_key_title = use_spec[0].column;
-		else if(plot->plot_style == PARALLELPLOT)
+		else if(pPlot->plot_style == PARALLELPLOT)
 			column_for_key_title = use_spec[0].column;
 		else if(df_no_use_specs == 1)
 			column_for_key_title = use_spec[0].column;
-		else if(plot->plot_type == DATA3D)
+		else if(pPlot->plot_type == DATA3D)
 			column_for_key_title = use_spec[2].column;
 		else
 			column_for_key_title = use_spec[1].column;
@@ -2671,37 +2674,36 @@ void df_set_key_title_columnhead(curve_points * plot)
 	parse_1st_row_as_headers = TRUE; // This may be redundant, but can't hurt 
 }
 
-char * df_parse_string_field(char * field)
+char * df_parse_string_field(const char * field)
 {
-	char * temp_string;
-	int length;
-	if(!field) {
-		return NULL;
-	}
-	else if(*field == '"') {
-		field++;
-		length = strcspn(field, "\"");
-	}
-	else if(df_separators != NULL) {
-		length = strcspn(field, df_separators);
-		if(length > strcspn(field, "\"")) /* Why? */
+	char * temp_string = 0;
+	if(field) {
+		int length = 0;
+		if(*field == '"') {
+			field++;
 			length = strcspn(field, "\"");
+		}
+		else if(df_separators != NULL) {
+			length = strcspn(field, df_separators);
+			if(length > strcspn(field, "\"")) /* Why? */
+				length = strcspn(field, "\"");
+		}
+		else {
+			length = strcspn(field, "\t ");
+		}
+		// If we are fed a file with unrecognized line termination then 
+		// memory use can become excessive. Truncate and report error.  
+		if(length > MAX_LINE_LEN) {
+			length = MAX_LINE_LEN;
+			GPO.IntWarn(NO_CARET, "input file contains very long line with no separators, truncating");
+			if(strcspn(field, "\r") < MAX_LINE_LEN)
+				GPO.IntError(NO_CARET, "      line contains embedded <CR>, wrong file format?");
+		}
+		temp_string = (char *)malloc(length+1);
+		strncpy(temp_string, field, length);
+		temp_string[length] = '\0';
+		parse_esc(temp_string);
 	}
-	else {
-		length = strcspn(field, "\t ");
-	}
-	// If we are fed a file with unrecognized line termination then 
-	// memory use can become excessive. Truncate and report error.  
-	if(length > MAX_LINE_LEN) {
-		length = MAX_LINE_LEN;
-		GPO.IntWarn(NO_CARET, "input file contains very long line with no separators, truncating");
-		if(strcspn(field, "\r") < MAX_LINE_LEN)
-			GPO.IntError(NO_CARET, "      line contains embedded <CR>, wrong file format?");
-	}
-	temp_string = (char *)malloc(length+1);
-	strncpy(temp_string, field, length);
-	temp_string[length] = '\0';
-	parse_esc(temp_string);
 	return temp_string;
 }
 
@@ -4168,9 +4170,10 @@ static int df_skip_bytes(off_t nbytes)
  * - fill v[] based on using spec if given
  */
 
-int df_readbinary(double v[], int max)
+//int df_readbinary(double v[], int max)
+int GnuPlot::DfReadBinary(double v[], int maxSize)
 {
-	/* For general column structured binary. */
+	// For general column structured binary. 
 	static int scan_size[3];
 	static double delta[3];  /* sampling periods */
 	static double o[3];      /* add after rotations */
@@ -4183,13 +4186,12 @@ int df_readbinary(double v[], int max)
 	static bool end_of_block;
 	static bool translation_required;
 	static char * memory_data;
-
 	/* For matrix data structure (i.e., gnuplot binary). */
 	static double first_matrix_column;
 	static double * scanned_matrix_row = 0;
 	static int first_matrix_row_col_count;
 	bool saved_first_matrix_column = FALSE;
-	assert(max <= MAXDATACOLS);
+	assert(maxSize <= MAXDATACOLS);
 	assert(df_max_bininfo_cols > df_no_bin_cols);
 	assert(df_no_bin_cols);
 	// catch attempt to read past EOF on mixed-input 
@@ -4224,7 +4226,7 @@ int df_readbinary(double v[], int max)
 				df_ypixels = scan_size[0];
 			}
 			if(scan_size[0] == 0)
-				GPO.IntError(NO_CARET, "Scan size of matrix is zero");
+				IntError(NO_CARET, "Scan size of matrix is zero");
 			// To accomplish flipping in this case, multiply the
 			// appropriate column of the rotation matrix by -1.  
 			for(i = 0; i < 2; i++) {
@@ -4346,7 +4348,7 @@ int df_readbinary(double v[], int max)
 			// Do the actual slurping 
 			fread_ret = fread(memory_data, 1, bytes_total, data_fp);
 			if(fread_ret != bytes_total) {
-				GPO.IntWarn(NO_CARET, "Couldn't slurp %ld bytes (return was %zd)\n", bytes_total, fread_ret);
+				IntWarn(NO_CARET, "Couldn't slurp %ld bytes (return was %zd)\n", bytes_total, fread_ret);
 				df_eof = 1;
 				return DF_EOF;
 			}
@@ -4405,92 +4407,54 @@ int df_readbinary(double v[], int max)
 		 * read, issue an error stating not enough columns were found.  */
 		for(i = 0;; i++) {
 			off_t skip_bytes = df_column_bininfo[i].skip_bytes;
-
 			if(skip_bytes) {
 				if(memory_data)
 					memory_data += skip_bytes;
 				else if(df_skip_bytes(skip_bytes))
 					return DF_EOF;
 			}
-
-			/* Last entry only has skip bytes, no data. */
+			// Last entry only has skip bytes, no data.
 			if(i == df_no_bin_cols)
 				break;
-
-			/* Read in a "column", i.e., a binary value of various types. */
+			// Read in a "column", i.e., a binary value of various types.
 			if(df_pixeldata) {
 				io_val.uc = df_libgd_get_pixel(df_M_count, df_N_count, i);
 			}
 			else if(memory_data) {
-				for(fread_ret = 0;
-				    fread_ret < df_column_bininfo[i].column.read_size;
-				    fread_ret++)
+				for(fread_ret = 0; fread_ret < df_column_bininfo[i].column.read_size; fread_ret++)
 					(&io_val.ch)[fread_ret] = *memory_data++;
 			}
 			else {
-				fread_ret = fread(&io_val.ch,
-					df_column_bininfo[i].column.read_size,
-					1, data_fp);
+				fread_ret = fread(&io_val.ch, df_column_bininfo[i].column.read_size, 1, data_fp);
 				if(fread_ret != 1) {
 					df_eof = 1;
 					return DF_EOF;
 				}
 			}
-
 			if(read_order != 0)
-				df_swap_bytes_by_endianess(&io_val.ch, read_order,
-				    df_column_bininfo[i].column.read_size);
-
+				df_swap_bytes_by_endianess(&io_val.ch, read_order, df_column_bininfo[i].column.read_size);
 			switch(df_column_bininfo[i].column.read_type) {
-				case DF_CHAR:
-				    df_column[i].datum = io_val.ch;
-				    break;
-				case DF_UCHAR:
-				    df_column[i].datum = io_val.uc;
-				    break;
-				case DF_SHORT:
-				    df_column[i].datum = io_val.sh;
-				    break;
-				case DF_USHORT:
-				    df_column[i].datum = io_val.us;
-				    break;
-				case DF_INT:
-				    df_column[i].datum = io_val.in;
-				    break;
-				case DF_UINT:
-				    df_column[i].datum = io_val.ui;
-				    break;
-				case DF_LONG:
-				    df_column[i].datum = io_val.lo;
-				    break;
-				case DF_ULONG:
-				    df_column[i].datum = io_val.ul;
-				    break;
-				case DF_LONGLONG:
-				    df_column[i].datum = io_val.llo;
-				    break;
-				case DF_ULONGLONG:
-				    df_column[i].datum = io_val.ull;
-				    break;
-				case DF_FLOAT:
-				    df_column[i].datum = io_val.fl;
-				    break;
-				case DF_DOUBLE:
-				    df_column[i].datum = io_val.db;
-				    break;
-				default:
-				    GPO.IntError(NO_CARET, "Binary data type unknown");
+				case DF_CHAR: df_column[i].datum = io_val.ch; break;
+				case DF_UCHAR: df_column[i].datum = io_val.uc; break;
+				case DF_SHORT: df_column[i].datum = io_val.sh; break;
+				case DF_USHORT: df_column[i].datum = io_val.us; break;
+				case DF_INT: df_column[i].datum = io_val.in; break;
+				case DF_UINT: df_column[i].datum = io_val.ui; break;
+				case DF_LONG: df_column[i].datum = io_val.lo; break;
+				case DF_ULONG: df_column[i].datum = io_val.ul; break;
+				case DF_LONGLONG: df_column[i].datum = io_val.llo; break;
+				case DF_ULONGLONG: df_column[i].datum = io_val.ull; break;
+				case DF_FLOAT: df_column[i].datum = io_val.fl; break;
+				case DF_DOUBLE: df_column[i].datum = io_val.db; break;
+				default: IntError(NO_CARET, "Binary data type unknown");
 			}
-
 			df_column[i].good = DF_GOOD;
 			df_column[i].position = NULL; /* cant get a time */
-
 			/* Matrix file data is a special case. After reading in just
 			 * one binary value, stop and decide on what to do with it. */
 			if(df_matrix_file)
 				break;
 		} /* for(i) */
-
 		if(df_matrix_file) {
 			if(df_nonuniform_matrix) {
 				/* Store just first column? */
@@ -4537,12 +4501,12 @@ int df_readbinary(double v[], int max)
 			if(i != df_no_bin_cols) {
 				if(feof(data_fp)) {
 					if(i != 0)
-						GPO.IntError(NO_CARET, "Last point in the binary file did not match the specified `using` columns");
+						IntError(NO_CARET, "Last point in the binary file did not match the specified `using` columns");
 					df_eof = 1;
 					return DF_EOF;
 				}
 				else {
-					GPO.IntError(NO_CARET, read_error_msg);
+					IntError(NO_CARET, read_error_msg);
 				}
 			}
 		}
@@ -4595,7 +4559,7 @@ int df_readbinary(double v[], int max)
 		/*{{{  copy column[] to v[] via use[] */
 		{
 			int limit = (df_no_use_specs ? df_no_use_specs : MAXDATACOLS);
-			SETMIN(limit, max);
+			SETMIN(limit, maxSize);
 			for(output = 0; output < limit; ++output) {
 				int column = use_spec[output].column;
 				/* if there was no using spec, column is output+1 and at=NULL */
@@ -4603,9 +4567,9 @@ int df_readbinary(double v[], int max)
 					GpValue a;
 					// no dummy values to set up prior to... 
 					evaluate_inside_using = TRUE;
-					GPO.EvaluateAt(use_spec[output].at, &a);
+					EvaluateAt(use_spec[output].at, &a);
 					evaluate_inside_using = FALSE;
-					if(GPO.Ev.IsUndefined_) {
+					if(Ev.IsUndefined_) {
 						v[output] = fgetnan();
 						return DF_UNDEFINED;
 					}
@@ -4670,8 +4634,7 @@ int df_readbinary(double v[], int max)
 					v[output] = df_datum;
 				}
 				else if(column <= 0) {
-					GPO.IntError(NO_CARET, "internal error: unknown column type");
-
+					IntError(NO_CARET, "internal error: unknown column type");
 					/* July 2010 - We used to have special code to handle time data. */
 					/* But time data in a binary file is just one more binary value, */
 					/* so let the general case code handle it.                       */
@@ -4725,16 +4688,15 @@ int df_readbinary(double v[], int max)
 		if(!line_okay)
 			continue;
 		for(i = df_no_use_specs; i<df_no_use_specs+df_no_tic_specs; i++) {
-			if(use_spec[i].expected_type >= CT_XTICLABEL
-			    &&  use_spec[i].at != NULL) {
+			if(use_spec[i].expected_type >= CT_XTICLABEL &&  use_spec[i].at != NULL) {
 				GpValue a;
 				int axis, axcol;
 				evaluate_inside_using = TRUE;
-				GPO.EvaluateAt(use_spec[i].at, &a);
+				EvaluateAt(use_spec[i].at, &a);
 				evaluate_inside_using = FALSE;
 				if(a.type == STRING) {
 					axcol = axcol_for_ticlabel((COLUMN_TYPE)use_spec[i].expected_type, &axis);
-					add_tic_user(&GPO.AxS[axis], a.v.string_val, v[axcol], -1);
+					add_tic_user(&AxS[axis], a.v.string_val, v[axcol], -1);
 					gpfree_string(&a);
 				}
 			}

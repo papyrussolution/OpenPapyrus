@@ -142,7 +142,7 @@ static void cont_abs(int x, int y)
 
 TERM_PUBLIC void GRASS_options()
 {
-	options_null();         /* no options to begin with */
+	GnuPlot::OptionsNull();         /* no options to begin with */
 }
 
 TERM_PUBLIC void GRASS_init(termentry * pThis)

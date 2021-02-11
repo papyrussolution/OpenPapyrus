@@ -1,34 +1,6 @@
-// Hello, Emacs, this is -*-C-*- 
 // GNUPLOT - win.trm 
-/*[
- * Copyright 1992 - 1993, 1998, 2004
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
+// Copyright 1992 - 1993, 1998, 2004
+//
 /*
  *
  * AUTHORS
@@ -215,7 +187,7 @@ static void FASTCALL WIN_flush_line(path_points * poly)
 	}
 }
 
-TERM_PUBLIC void WIN_options()
+TERM_PUBLIC void WIN_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	char * s;
 	bool set_font = FALSE, set_fontsize = FALSE;
@@ -243,8 +215,8 @@ TERM_PUBLIC void WIN_options()
 	char fontname[MAXFONTNAME];
 	int window_number;
 	uint dock_cols, dock_rows;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&WIN_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&WIN_opts[0])) {
 			case WIN_DEFAULT:
 			    color = TRUE;
 			    dashed = FALSE;
@@ -260,21 +232,21 @@ TERM_PUBLIC void WIN_options()
 			    set_font = set_fontsize = TRUE;
 			    set_fontscale = set_linewidth = set_pointscale = TRUE;
 			    set_rounded = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case WIN_COLOR:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    color = TRUE;
 			    set_color = TRUE;
 			    break;
 			case WIN_MONOCHROME:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    color = FALSE;
 			    set_color = TRUE;
 			    break;
 			case WIN_BACKGROUND: {
 			    int color;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    color = parse_color_name();
 			    /* TODO: save original background color and color string,
 			       add background color to status string
@@ -285,124 +257,124 @@ TERM_PUBLIC void WIN_options()
 			    break;
 		    }
 			case WIN_ENHANCED:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    term->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case WIN_NOENHANCED:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    term->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case WIN_FONTSCALE: {
-			    GPO.Pgm.Shift();
-			    fontscale = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    fontscale = pGp->RealExpression();
 			    if(fontscale <= 0) 
 					fontscale = 1.0;
 			    set_fontscale = TRUE;
 			    break;
 		    }
 			case WIN_LINEWIDTH: {
-			    GPO.Pgm.Shift();
-			    linewidth = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    linewidth = pGp->RealExpression();
 			    if(linewidth <= 0) 
 					linewidth = 1.0;
 			    set_linewidth = TRUE;
 			    break;
 		    }
 			case WIN_POINTSCALE:
-			    GPO.Pgm.Shift();
-			    pointscale = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    pointscale = pGp->RealExpression();
 			    if(pointscale <= 0.0) 
 					pointscale = 1.0;
 			    set_pointscale = TRUE;
 			    break;
 			case WIN_SOLID:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    dashed = FALSE;
 			    set_dashed = TRUE;
 			    break;
 			case WIN_DASHED:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    dashed = TRUE;
 			    set_dashed = TRUE;
 			    break;
 			case WIN_BUTT:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    rounded = FALSE;
 			    set_rounded = TRUE;
 			    break;
 			case WIN_ROUND:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    rounded = TRUE;
 			    set_rounded = TRUE;
 			    break;
 			case WIN_SIZE: {
 			    double insize; /* shige 2019-02-27 for size 0 */
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_wsize)
-				    GPO.IntErrorCurToken("conflicting size options");
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("size requires 'width,heigth'");
-			    if((insize = GPO.RealExpression()) >= 1)
-				    win_width = insize;
+				    pGp->IntErrorCurToken("conflicting size options");
+			    if(pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("size requires 'width,heigth'");
+			    if((insize = pGp->RealExpression()) >= 1)
+				    win_width = static_cast<int>(insize);
 			    else
-				    GPO.IntErrorCurToken("size is out of range");
-			    if(!GPO.Pgm.EqualsCurShift(","))
-				    GPO.IntErrorCurToken("size requires 'width,heigth'");
-			    if((insize = GPO.RealExpression()) >= 1)
-				    win_height = insize;
+				    pGp->IntErrorCurToken("size is out of range");
+			    if(!pGp->Pgm.EqualsCurShift(","))
+				    pGp->IntErrorCurToken("size requires 'width,heigth'");
+			    if((insize = pGp->RealExpression()) >= 1)
+				    win_height = static_cast<int>(insize);
 			    else
-				    GPO.IntErrorCurToken("size is out of range");
+				    pGp->IntErrorCurToken("size is out of range");
 			    set_size = TRUE;
 			    break;
 		    }
 			case WIN_WSIZE: {
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(set_size)
-				    GPO.IntErrorCurToken("conflicting size options");
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("windowsize requires 'width,heigth'");
-			    win_width = GPO.RealExpression();
-			    if(!GPO.Pgm.EqualsCurShift(","))
-				    GPO.IntErrorCurToken("windowsize requires 'width,heigth'");
-			    win_height = GPO.RealExpression();
+				    pGp->IntErrorCurToken("conflicting size options");
+			    if(pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("windowsize requires 'width,heigth'");
+			    win_width = static_cast<int>(pGp->RealExpression());
+			    if(!pGp->Pgm.EqualsCurShift(","))
+				    pGp->IntErrorCurToken("windowsize requires 'width,heigth'");
+			    win_height = static_cast<int>(pGp->RealExpression());
 			    if(win_width < 1 || win_height < 1)
-				    GPO.IntErrorCurToken("windowsize canvas size is out of range");
+				    pGp->IntErrorCurToken("windowsize canvas size is out of range");
 			    set_wsize = TRUE;
 			    break;
 		    }
 			case WIN_POSITION: {
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("position requires 'x,y'");
-			    win_x = GPO.RealExpression();
-			    if(!GPO.Pgm.EqualsCurShift(","))
-				    GPO.IntErrorCurToken("position requires 'x,y'");
-			    win_y = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("position requires 'x,y'");
+			    win_x = static_cast<int>(pGp->RealExpression());
+			    if(!pGp->Pgm.EqualsCurShift(","))
+				    pGp->IntErrorCurToken("position requires 'x,y'");
+			    win_y = static_cast<int>(pGp->RealExpression());
 			    if(win_x < 1 || win_y < 1)
-				    GPO.IntErrorCurToken("position is out of range");
+				    pGp->IntErrorCurToken("position is out of range");
 			    set_position = TRUE;
 			    break;
 		    }
 			case WIN_GTITLE:
-			    GPO.Pgm.Shift();
-			    title = GPO.TryToGetString();
+			    pGp->Pgm.Shift();
+			    title = pGp->TryToGetString();
 			    if(title == NULL)
-				    GPO.IntErrorCurToken("expecting string argument");
+				    pGp->IntErrorCurToken("expecting string argument");
 			    if(strcmp(title, "") == 0)
 				    title = NULL;
 			    set_title = TRUE;
 			    break;
 			case WIN_CLOSE:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    set_close = TRUE;
 			    break;
 			case WIN_FONT:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    // Code copied from ps.trm and modified for windows terminal 
-			    if((s = GPO.TryToGetString())) {
+			    if((s = pGp->TryToGetString())) {
 				    char * comma;
 				    if(set_font)
-					    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+					    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 				    comma = strrchr(s, ',');
 				    if(comma && (1 == sscanf(comma + 1, "%i", &fontsize))) {
 					    set_fontsize = TRUE;
@@ -416,15 +388,15 @@ TERM_PUBLIC void WIN_options()
 			    }
 			    else {
 				    if(set_fontsize)
-					    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+					    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 				    set_fontsize = TRUE;
-				    fontsize = GPO.IntExpression();
+				    fontsize = pGp->IntExpression();
 			    }
 			    break;
 			case WIN_DOCKED:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(!graphwin->bDocked && GraphHasWindow(graphwin))
-				    GPO.IntErrorCurToken("Cannot change the mode of an open window.");
+				    pGp->IntErrorCurToken("Cannot change the mode of an open window.");
 			    if(persist_cl) {
 				    fprintf(stderr, "Warning: cannot use docked graphs in persist mode\n");
 			    }
@@ -434,25 +406,25 @@ TERM_PUBLIC void WIN_options()
 			    }
 			    break;
 			case WIN_STANDALONE:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    if(graphwin->bDocked && GraphHasWindow(graphwin))
-				    GPO.IntErrorCurToken("Cannot change the mode of an open window.");
+				    pGp->IntErrorCurToken("Cannot change the mode of an open window.");
 			    set_docked = TRUE;
 			    WIN_docked = FALSE;
 			    break;
 			case WIN_LAYOUT:
-			    GPO.Pgm.Shift();
-			    dock_rows = GPO.IntExpression();
-			    if(GPO.Pgm.EndOfCommand() || !GPO.Pgm.EqualsCur(","))
-				    GPO.IntErrorCurToken("expecting ', <num_cols>'");
+			    pGp->Pgm.Shift();
+			    dock_rows = pGp->IntExpression();
+			    if(pGp->Pgm.EndOfCommand() || !pGp->Pgm.EqualsCur(","))
+				    pGp->IntErrorCurToken("expecting ', <num_cols>'");
 			    if(dock_rows == 0) {
 				    dock_rows = 1;
 				    fprintf(stderr, "Warning: layout requires at least one row.\n");
 			    }
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("expecting <num_cols>");
-			    dock_cols = GPO.IntExpression();
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("expecting <num_cols>");
+			    dock_cols = pGp->IntExpression();
 			    if(dock_cols == 0) {
 				    dock_cols = 1;
 				    fprintf(stderr, "Warning: layout requires at least one column.\n");
@@ -463,7 +435,7 @@ TERM_PUBLIC void WIN_options()
 			    break;
 			case WIN_OTHER:
 			default:
-			    window_number = GPO.IntExpression();
+			    window_number = pGp->IntExpression();
 			    set_number = TRUE;
 			    break;
 		}
@@ -579,7 +551,7 @@ TERM_PUBLIC void WIN_options()
 		DockedUpdateLayout(&textwin);
 	}
 #endif
-	/* update graph window */
+	// update graph window 
 	if((set_position || set_size || set_wsize) && GraphHasWindow(graphwin))
 		GraphUpdateWindowPosSize(graphwin);
 	if(GraphHasWindow(graphwin) && IsIconic(graphwin->hWndGraph))
@@ -709,7 +681,7 @@ TERM_PUBLIC void WIN_put_text(uint x, uint y, const char * str)
 	if(!isempty(str)) {
 		// If no enhanced text processing is needed, we can use the plain  
 		// vanilla put_text() routine instead of this fancy recursive one. 
-		if(!(term->flags & TERM_ENHANCED_TEXT) || ignore_enhanced_text || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str)))
+		if(!(term->flags & TERM_ENHANCED_TEXT) || GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str)))
 			GraphOp(graphwin, W_put_text, x, y, str);
 		else
 			GraphOp(graphwin, W_enhanced_text, x, y, str);

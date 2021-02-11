@@ -1279,7 +1279,7 @@ void GpEval::ClearUdfList()
 
 //static void update_plot_bounds();
 static void fill_gpval_axis(AXIS_INDEX axis);
-static void fill_gpval_sysinfo();
+//static void fill_gpval_sysinfo();
 
 static void set_gpval_axis_sth_double(const char * prefix, AXIS_INDEX axis, const char * suffix, double value)
 {
@@ -1451,7 +1451,7 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		// Permanent copy of user-clobberable variables pi and NaN 
 		Ev.FillGpValFoat("GPVAL_pi", M_PI);
 		Ev.FillGpValFoat("GPVAL_NaN", fgetnan());
-		fill_gpval_sysinfo(); // System information 
+		FillGpValSysInfo(); // System information 
 	}
 	if(oneof2(context, 3, 4)) {
 		Ev.FillGpValInteger("GPVAL_ERRNO", 0);
@@ -1481,16 +1481,17 @@ void GnuPlot::UpdateGpvalVariables(int context)
 	//#include <windows.h>
 #endif
 
-void fill_gpval_sysinfo()
+//void fill_gpval_sysinfo()
+void GnuPlot::FillGpValSysInfo()
 {
-/* For linux/posix systems with uname */
+// For linux/posix systems with uname 
 #ifdef HAVE_UNAME
 	struct utsname uts;
 	if(uname(&uts) < 0)
 		return;
-	GPO.Ev.FillGpValString("GPVAL_SYSNAME", uts.sysname);
-	GPO.Ev.FillGpValString("GPVAL_MACHINE", uts.machine);
-/* For Windows systems */
+	Ev.FillGpValString("GPVAL_SYSNAME", uts.sysname);
+	Ev.FillGpValString("GPVAL_MACHINE", uts.machine);
+// For Windows systems 
 #elif defined(_WIN32)
 	SYSTEM_INFO stInfo;
 	OSVERSIONINFO osvi;
@@ -1499,17 +1500,17 @@ void fill_gpval_sysinfo()
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&osvi);
 	snprintf(s, 30, "Windows_NT-%ld.%ld", osvi.dwMajorVersion, osvi.dwMinorVersion);
-	GPO.Ev.FillGpValString("GPVAL_SYSNAME", s);
+	Ev.FillGpValString("GPVAL_SYSNAME", s);
 	GetSystemInfo(&stInfo);
 	switch(stInfo.wProcessorArchitecture) {
-		case PROCESSOR_ARCHITECTURE_INTEL: GPO.Ev.FillGpValString("GPVAL_MACHINE", "x86"); break;
-		case PROCESSOR_ARCHITECTURE_IA64: GPO.Ev.FillGpValString("GPVAL_MACHINE", "ia64"); break;
-		case PROCESSOR_ARCHITECTURE_AMD64: GPO.Ev.FillGpValString("GPVAL_MACHINE", "x86_64"); break;
-		default: GPO.Ev.FillGpValString("GPVAL_MACHINE", "unknown");
+		case PROCESSOR_ARCHITECTURE_INTEL: Ev.FillGpValString("GPVAL_MACHINE", "x86"); break;
+		case PROCESSOR_ARCHITECTURE_IA64: Ev.FillGpValString("GPVAL_MACHINE", "ia64"); break;
+		case PROCESSOR_ARCHITECTURE_AMD64: Ev.FillGpValString("GPVAL_MACHINE", "x86_64"); break;
+		default: Ev.FillGpValString("GPVAL_MACHINE", "unknown");
 	}
 #endif
 	// For all systems 
-	GPO.Ev.FillGpValInteger("GPVAL_BITS", 8 * sizeof(void *));
+	Ev.FillGpValInteger("GPVAL_BITS", 8 * sizeof(void *));
 }
 //
 // Callable wrapper for the words() internal function 

@@ -192,10 +192,10 @@ void GnuPlot::MultiplotStart()
 				IntErrorCurToken("expecting <num_cols>");
 			MpLo.num_cols = IntExpression();
 			// remember current values of the plot size and the margins 
-			MpLo.prev_xsize = V.XSize;
-			MpLo.prev_ysize = V.YSize;
-			MpLo.prev_xoffset = V.XOffset;
-			MpLo.prev_yoffset = V.YOffset;
+			MpLo.prev_xsize = V.Size.x;
+			MpLo.prev_ysize = V.Size.y;
+			MpLo.prev_xoffset = V.Offset.X;
+			MpLo.prev_yoffset = V.Offset.Y;
 			MpLo.prev_lmargin = V.MarginL;
 			MpLo.prev_rmargin = V.MarginR;
 			MpLo.prev_bmargin = V.MarginB;
@@ -343,7 +343,7 @@ void GnuPlot::MultiplotStart()
 		uint x = term->MaxX  / 2;
 		uint y = term->MaxY - term->ChrV;
 		WriteLabel(term, x, y, &(MpLo.title));
-		reset_textcolor(&(MpLo.title.textcolor));
+		ResetTextColor(term, &(MpLo.title.textcolor));
 		// Calculate fractional height of title compared to entire page 
 		// If it would fill the whole page, forget it! 
 		for(y = 1; *p; p++)
@@ -371,10 +371,10 @@ void GnuPlot::MultiplotEnd()
 	Ev.FillGpValInteger("GPVAL_MULTIPLOT", 0);
 	// reset plot size, origin and margins to values before 'set multiplot layout' 
 	if(MpLo.auto_layout) {
-		V.XSize   = static_cast<float>(MpLo.prev_xsize);
-		V.YSize   = static_cast<float>(MpLo.prev_ysize);
-		V.XOffset = static_cast<float>(MpLo.prev_xoffset);
-		V.YOffset = static_cast<float>(MpLo.prev_yoffset);
+		V.Size.x   = static_cast<float>(MpLo.prev_xsize);
+		V.Size.y   = static_cast<float>(MpLo.prev_ysize);
+		V.Offset.X = static_cast<float>(MpLo.prev_xoffset);
+		V.Offset.Y = static_cast<float>(MpLo.prev_yoffset);
 		V.MarginL = MpLo.prev_lmargin;
 		V.MarginR = MpLo.prev_rmargin;
 		V.MarginB = MpLo.prev_bmargin;
@@ -411,26 +411,26 @@ void GnuPlot::MpLayoutSizeAndOffset()
 		return;
 	// fprintf(stderr,"col==%d row==%d\n",MpLo.act_col,MpLo.act_row); 
 	// the 'set size' command 
-	V.XSize = static_cast<float>(MpLo.xscale / MpLo.num_cols);
-	V.YSize = static_cast<float>(MpLo.yscale / MpLo.num_rows);
+	V.Size.x = static_cast<float>(MpLo.xscale / MpLo.num_cols);
+	V.Size.y = static_cast<float>(MpLo.yscale / MpLo.num_rows);
 	// the 'set origin' command 
-	V.XOffset = static_cast<float>(static_cast<double>(MpLo.act_col) / MpLo.num_cols);
+	V.Offset.X = static_cast<float>(static_cast<double>(MpLo.act_col) / MpLo.num_cols);
 	if(MpLo.downwards)
-		V.YOffset = static_cast<float>(1.0 - static_cast<double>(MpLo.act_row+1) / MpLo.num_rows);
+		V.Offset.Y = static_cast<float>(1.0 - static_cast<double>(MpLo.act_row+1) / MpLo.num_rows);
 	else
-		V.YOffset = static_cast<float>(static_cast<double>(MpLo.act_row) / MpLo.num_rows);
+		V.Offset.Y = static_cast<float>(static_cast<double>(MpLo.act_row) / MpLo.num_rows);
 	// fprintf(stderr,"xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 	// Allow a little space at the top for a title 
 	if(MpLo.title.text) {
-		V.YSize *= (1.0 - MpLo.title_height);
-		V.YOffset *= (1.0 - MpLo.title_height);
+		V.Size.y *= (1.0 - MpLo.title_height);
+		V.Offset.Y *= (1.0 - MpLo.title_height);
 	}
 	// corrected for x/y-scaling factors and user defined offsets 
-	V.XOffset -= (MpLo.xscale-1)/(2*MpLo.num_cols);
-	V.YOffset -= (MpLo.yscale-1)/(2*MpLo.num_rows);
+	V.Offset.X -= (MpLo.xscale-1)/(2*MpLo.num_cols);
+	V.Offset.Y -= (MpLo.yscale-1)/(2*MpLo.num_rows);
 	// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
-	V.XOffset += MpLo.xoffset;
-	V.YOffset += MpLo.yoffset;
+	V.Offset.X += MpLo.xoffset;
+	V.Offset.Y += MpLo.yoffset;
 	// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 }
 // 

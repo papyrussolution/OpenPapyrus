@@ -88,11 +88,9 @@ void lb_insert_str(LPLB lb, uint pos, LPCWSTR s, uint count)
 	assert(lb != NULL);
 	/* enlarge string buffer if necessary */
 	if(lb->size <= (pos + count)) {
-		LPWSTR newstr;
-		PBYTE newattr;
 		uint newsize = (((pos + count + 8) / 8) * 8 + 32);
-		newstr = (LPWSTR)realloc(lb->str, newsize * sizeof(WCHAR));
-		newattr = (PBYTE)realloc(lb->attr, newsize * sizeof(BYTE));
+		LPWSTR newstr = (LPWSTR)realloc(lb->str, newsize * sizeof(WCHAR));
+		PBYTE newattr = (PBYTE)realloc(lb->attr, newsize * sizeof(BYTE));
 		if(newstr && newattr) {
 			lb->str = newstr;
 			lb->attr = newattr;
@@ -106,8 +104,7 @@ void lb_insert_str(LPLB lb, uint pos, LPCWSTR s, uint count)
 				count = lb->size - pos - 1;
 		}
 	}
-
-	/* fill up with spaces */
+	// fill up with spaces 
 	if(pos > lb->len) {
 		wmemset(lb->str + lb->len, L' ', pos - lb->len);
 		memset(lb->attr + lb->len, lb->def_attr, pos - lb->len);
@@ -308,11 +305,8 @@ LPLB sb_get(LPSB sb, uint index)
  */
 LPLB sb_get_last(LPSB sb)
 {
-	uint last;
-
 	assert(sb != NULL);
-
-	last = sb_internal_length(sb) - 1;
+	uint last = sb_internal_length(sb) - 1;
 	return sb_internal_get(sb, last);
 }
 
@@ -325,10 +319,8 @@ int sb_append(LPSB sb, LPLB lb)
 {
 	uint idx;
 	int y_correction = 0;
-
 	assert(sb != NULL);
 	assert(lb != NULL);
-
 	idx = sb->tail;
 	sb->tail = (sb->tail + 1) % sb->size;
 	if(sb->tail == sb->head) {
@@ -337,7 +329,6 @@ int sb_append(LPSB sb, LPLB lb)
 		sb->head = (sb->head + 1) % sb->size;
 	}
 	lb_copy(&(sb->lb[idx]), lb);
-
 	sb->length += sb_lines(sb, lb) - y_correction;
 	return y_correction;
 }
@@ -349,12 +340,10 @@ uint sb_internal_length(LPSB sb)
 {
 	uint lines;
 	assert(sb != NULL);
-
 	if(sb->head <= sb->tail)
 		lines = sb->tail - sb->head;
 	else
 		lines = sb->size - 1;
-
 	return lines;
 }
 
@@ -416,10 +405,10 @@ void sb_resize(LPSB sb, uint size)
 	sb->head = 0;
 	sb->tail = count;
 }
-
-/*  sb_lines:
- *  return the number of (wrapped) text lines
- */
+//
+//  sb_lines:
+//  return the number of (wrapped) text lines
+//
 uint sb_lines(LPSB sb, LPLB lb)
 {
 	if(sb->wrap_at != 0)
@@ -427,24 +416,18 @@ uint sb_lines(LPSB sb, LPLB lb)
 	else
 		return 1;
 }
-
-/*  sb_max_line_length:
- *  determine maximum length of a single text line
- */
+//
+//  sb_max_line_length:
+//  determine maximum length of a single text line
+//
 uint sb_max_line_length(LPSB sb)
 {
-	uint idx;
-	uint len;
-	uint count;
-
-	len = 0;
-	count = sb_internal_length(sb);
-	for(idx = 0; idx < count; idx++)
+	uint len = 0;
+	uint count = sb_internal_length(sb);
+	for(uint idx = 0; idx < count; idx++)
 		len = MAX(lb_length(sb_internal_get(sb, idx)), len);
-
-	if((sb->wrap_at != 0) && (len > sb->wrap_at))
+	if(sb->wrap_at && len > sb->wrap_at)
 		len = sb->wrap_at;
-
 	return len;
 }
 
@@ -458,7 +441,6 @@ void sb_find_new_pos(LPSB sb, uint x, uint y, uint new_wrap_at, uint * new_x, ui
 	uint old_wrap_at;
 	uint idx, xofs;
 	uint i;
-
 	/* determine index of corresponding internal line */
 	internal_length = sb_internal_length(sb);
 	for(idx = line_count = 0; idx < internal_length; idx++) {
@@ -466,28 +448,22 @@ void sb_find_new_pos(LPSB sb, uint x, uint y, uint new_wrap_at, uint * new_x, ui
 		if(line_count + lines > y) break;
 		line_count += lines;
 	}
-
 	if(line_count == 0) {
 		*new_x = *new_y = 0;
 		return;
 	}
-
 	/* calculate x offset within this line */
 	xofs = x + (y - line_count) * sb->wrap_at;
-
 	if(new_wrap_at) {
 		/* temporarily switch wrapping */
 		old_wrap_at = sb->wrap_at;
 		sb->wrap_at = new_wrap_at;
-
 		/* count lines with new wrapping */
 		for(i = line_count = 0; i < idx; i++)
 			line_count += sb_lines(sb, sb_internal_get(sb, i));
-
 		/* determine new position */
 		*new_x = xofs % new_wrap_at;
 		*new_y = line_count + (xofs / new_wrap_at);
-
 		/* switch wrapping back */
 		sb->wrap_at = old_wrap_at;
 	}
@@ -500,11 +476,9 @@ void sb_find_new_pos(LPSB sb, uint x, uint y, uint new_wrap_at, uint * new_x, ui
 void sb_wrap(LPSB sb, uint wrap_at)
 {
 	sb->wrap_at = wrap_at;
-
 	/* invalidate line cache */
 	sb->last_line = 0;
 	sb->last_line_index = 0;
-
 	/* update length cache */
 	sb->length = sb_calc_length(sb);
 }
@@ -515,12 +489,9 @@ void sb_wrap(LPSB sb, uint wrap_at)
  */
 void sb_last_insert_str(LPSB sb, uint pos, LPCWSTR s, uint count)
 {
-	LPLB lb;
-	uint len;
-
-	lb = sb_get_last(sb);
-	len = sb_lines(sb, lb);
+	LPLB lb = sb_get_last(sb);
+	uint len = sb_lines(sb, lb);
 	lb_insert_str(lb, pos, s, count);
-	/* check if total length of sb has changed */
+	// check if total length of sb has changed 
 	sb->length += sb_lines(sb, lb) - len;
 }

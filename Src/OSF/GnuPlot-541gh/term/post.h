@@ -7,37 +7,35 @@
 // Needed by terminals which output postscript (post.trm and pslatex.trm)
 //
 #ifdef PSLATEX_DRIVER
-	TERM_PUBLIC void PSTEX_common_init();
-	TERM_PUBLIC void PSTEX_reopen_output();
-	TERM_PUBLIC void EPSLATEX_common_init();
-	TERM_PUBLIC void EPSLATEX_reopen_output(char *);
+	extern void PSTEX_common_init();
+	extern void PSTEX_reopen_output();
+	extern void EPSLATEX_common_init();
+	extern void EPSLATEX_reopen_output(char *);
 #endif
 
 #define PS_POINT_TYPES 8
 
-/* assumes landscape */
+// assumes landscape 
 #define PS_XMAX (10*720)
 #define PS_YMAX (7*720)
 #define PS_YMAX_OLDSTYLE (6*720)
-
-/* These seem to be unnecessary, thus commented out */
-/*
-#define PS_XLAST (PS_XMAX - 1)
-#define PS_YLAST (PS_YMAX - 1)
-*/
+//
+// These seem to be unnecessary, thus commented out 
+//#define PS_XLAST (PS_XMAX - 1)
+//#define PS_YLAST (PS_YMAX - 1)
 #define PS_VTIC (PS_YMAX/80)
 #define PS_HTIC (PS_YMAX/80)
 #define PS_SC 10 // scale is 1pt = 10 units 
-#define PS_SCF (PS_SC * ps_params->fontscale) // EAM March 2010 allow user to rescale fonts 
+#define PS_SCF (PS_SC * GPO.TPsB.P_Params->fontscale) // EAM March 2010 allow user to rescale fonts 
 #define PS_LW (0.5*PS_SC) // linewidth = 0.5 pts 
-/* character size defaults: */
-/* 14 pt for postscript */
+// character size defaults: 
+// 14 pt for postscript 
 #define PS_VCHAR (14*PS_SC)
 #define PS_HCHAR (14*PS_SC*6/10)
-/* 10 pt for ps(la)tex */
+// 10 pt for ps(la)tex 
 #define PSTEX_VCHAR (10*PS_SC)
 #define PSTEX_HCHAR (10*PS_SC*6/10)
-/* 11 pt for epslatex */
+// 11 pt for epslatex 
 #define EPSLATEX_VCHAR (11*PS_SC)
 #define EPSLATEX_HCHAR (11*PS_SC*6/10)
 #ifdef PSLATEX_DRIVER

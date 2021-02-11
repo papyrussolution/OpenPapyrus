@@ -1162,7 +1162,7 @@ int b_text_angle(int ang)
 	return TRUE;
 }
 
-/* New function by ULIG */
+// New function by ULIG 
 void b_boxfill(int style, uint x, uint y, uint w, uint h)
 {
 	uint ix, iy;
@@ -1207,7 +1207,6 @@ void b_boxfill(int style, uint x, uint y, uint w, uint h)
 		    fillbitmap = fill_halftone_bitmaps[0];
 		    pixcolor = 0;
 	}
-
 	/* this implements a primitive raster generator, which plots the */
 	/* bitmaps point by point calling b_setpixel(). Perhaps someone */
 	/* will implement a more efficient solution */

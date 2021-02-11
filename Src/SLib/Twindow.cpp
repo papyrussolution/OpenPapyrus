@@ -1741,57 +1741,87 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 //
-// @construction {
-// Универсальный (очень на это надеюсь) механизм управления скроллированием в одном измерении
 //
-class SScroller {
-public:
-	SScroller();
-	~SScroller();
-	int    LineDown(uint ic);
-	int    LineUp(uint ic);
-	int    PageDown(uint pc);
-	int    PageUp(uint pc);
-	int    Top();
-	int    Bottom();
-	int    CursonDown(uint ic);
-	int    CursorUp(uint ic);
-	uint   GetPageBottomIndex(uint topIdx) const;
-	uint   GetPageTopIndex(uint bottomIdx) const;
-	//
-	// Элементы скроллируемого списка индексируются номерами [0..(ItemCount-1)]
-	//
-	enum {
-		fDisabled            = 0x0001,
-		fUsePaging           = 0x0002,
-		fReverse             = 0x0004,
-		fUseCursor           = 0x0008,  // Если установлен, то применяется понятие текущего элемента (ItemIdxCurrent).
-			// Текущий элемент может перемещаться в пределах страницы без сдвига фрейма.
-			// При отсутствии текущего элемента любое движение вызывает смещение фрейма.
-		fFirstPageMoveToEdge = 0x0010   // При по-страничном перемещении (PageDown, PageUp) первое перемещение
-			// осуществлять до соответствующей границы текущей страницы.
-	};
-	uint   Flags;
-	uint   ItemCount;
-	uint   PageCount;
-	uint   PageCurrent;
-
-	float  ViewSize;
-	float  FixedItemSize;
-	uint   ItemIdxPageTop;
-	uint   ItemIdxCurrent;
-	FloatArray * P_ItemSizeList; // Используется если размеры элементов отличаются один от другого
-private:
-	uint   AdjustTopIdx(uint idx) const;
-};
-
-SScroller::SScroller() : P_ItemSizeList(0), Flags(0), ItemCount(0), PageCount(0), PageCurrent(0), ViewSize(0.0f), FixedItemSize(0.0f)
+//
+IMPL_INVARIANT_C(SScroller)
 {
+	S_INVARIANT_PROLOG(pInvP);
+	S_ASSERT_P(!P_LineContent || P_LineContent->getCount() == ItemCount, pInvP);
+	S_ASSERT_P(!P_PageContent || P_PageContent->getCount() == PageCount, pInvP);
+	S_ASSERT_P(!ItemCount || ItemIdxPageTop < ItemCount, pInvP);
+	S_ASSERT_P(ItemCount || ItemIdxPageTop == ItemCount, pInvP);
+	S_ASSERT_P(!ItemCount || ItemIdxCurrent < ItemCount, pInvP);
+	S_ASSERT_P(ItemCount || ItemIdxCurrent == ItemCount, pInvP);
+	S_INVARIANT_EPILOG(pInvP);
+}
+
+SScroller::SScroller() : P_ItemSizeList(0), Flags(0), ItemCount(0), PageCount(0), PageCurrent(0), ViewSize(0.0f), FixedItemSize(0.0f),
+	P_LineContent(0), P_PageContent(0)
+{
+}
+
+SScroller::SScroller(const SScroller & rS) :  P_ItemSizeList(0), P_LineContent(0), P_PageContent(0),
+	Flags(rS.Flags), ItemCount(rS.ItemCount), PageCount(rS.PageCount), PageCurrent(rS.PageCurrent), ViewSize(rS.ViewSize),
+	FixedItemSize(rS.FixedItemSize), ItemIdxPageTop(rS.ItemIdxPageTop), ItemIdxCurrent(rS.ItemIdxCurrent)
+{
+	if(rS.P_ItemSizeList) {
+		SETIFZ(P_ItemSizeList, new FloatArray(*rS.P_ItemSizeList));
+	}
+	if(rS.P_LineContent) {
+		if(SETIFZ(P_LineContent, new TSCollection <LongArray>))
+			TSCollection_Copy(*P_LineContent, *rS.P_LineContent);
+	}
+	if(rS.P_PageContent) {
+		if(SETIFZ(P_PageContent, new TSCollection <LongArray>)) {
+			TSCollection_Copy(*P_PageContent, *rS.P_PageContent);
+		}
+	}
 }
 
 SScroller::~SScroller()
 {
 	delete P_ItemSizeList;
+	delete P_LineContent;
+	delete P_PageContent;
+}
+
+SScroller & FASTCALL SScroller::operator = (const SScroller & rS)
+{
+	return Copy(rS);
+}
+
+SScroller & FASTCALL SScroller::Copy(const SScroller & rS)
+{
+	Flags = rS.Flags;
+	ItemCount = rS.ItemCount;
+	PageCount = rS.PageCount;
+	PageCurrent = rS.PageCurrent;
+	ViewSize = rS.ViewSize;
+	FixedItemSize = rS.FixedItemSize;
+	ItemIdxPageTop = rS.ItemIdxPageTop;
+	ItemIdxCurrent = rS.ItemIdxCurrent;
+	if(rS.P_ItemSizeList) {
+		SETIFZ(P_ItemSizeList, new FloatArray(*rS.P_ItemSizeList));
+	}
+	else {
+		ZDELETE(P_ItemSizeList);
+	}
+	if(rS.P_LineContent) {
+		if(SETIFZ(P_LineContent, new TSCollection <LongArray>))
+			TSCollection_Copy(*P_LineContent, *rS.P_LineContent);
+	}
+	else {
+		ZDELETE(P_LineContent);
+	}
+	if(rS.P_PageContent) {
+		if(SETIFZ(P_PageContent, new TSCollection <LongArray>)) {
+			TSCollection_Copy(*P_PageContent, *rS.P_PageContent);
+		}
+	}
+	else {
+		ZDELETE(P_PageContent);
+	}
+	return *this;
 }
 
 uint SScroller::GetPageBottomIndex(uint topIdx) const
@@ -1872,11 +1902,11 @@ uint SScroller::AdjustTopIdx(uint idx) const
 	return idx;
 }
 
-int SScroller::LineDown(uint ic)
+int SScroller::LineDown(uint ic, bool moveCursor)
 {
 	int    updated = 0;
 	if(ic && ItemCount) {
-		if(Flags & fUseCursor) {
+		if(moveCursor) {
 			uint   new_idx = MIN((ItemIdxCurrent + ic), (ItemCount-1));
 			if(new_idx != ItemIdxCurrent) {
 				const uint bottom_idx = GetPageBottomIndex(ItemIdxPageTop);
@@ -1906,11 +1936,11 @@ int SScroller::LineDown(uint ic)
 	return updated;
 }
 
-int SScroller::LineUp(uint ic)
+int SScroller::LineUp(uint ic, bool moveCursor)
 {
 	int    updated = 0;
 	if(ic && ItemCount) {
-		if(Flags & fUseCursor) {
+		if(moveCursor) {
 			uint   new_idx = (ItemIdxCurrent > ic) ? (ItemIdxCurrent - ic) : 0;
 			if(new_idx != ItemIdxCurrent) {
 				if(new_idx >= ItemIdxPageTop) {
@@ -1929,7 +1959,10 @@ int SScroller::LineUp(uint ic)
 			}
 		}
 		else {
-			uint    new_top_idx = (ItemIdxCurrent > ic) ? (ItemIdxCurrent - ic) : 0;
+			const uint cur_bottom_idx = GetPageBottomIndex(ItemIdxPageTop);
+			uint    new_bottom_idx = MIN(cur_bottom_idx+1, (ItemCount - 1));
+			uint    new_top_idx = GetPageTopIndex(new_bottom_idx);
+			//uint    new_top_idx = (ItemIdxCurrent > ic) ? (ItemIdxCurrent - ic) : 0;
 			if(new_top_idx != ItemIdxPageTop) {
 				ItemIdxPageTop = new_top_idx;
 				updated = 1;
@@ -2049,15 +2082,5 @@ int SScroller::Bottom()
 	else if(Flags & fUseCursor && ItemIdxCurrent != prev_cur_idx)
 		updated = 1;
 	return updated;
-}
-
-int SScroller::CursonDown(uint ic)
-{
-	return 0;
-}
-
-int SScroller::CursorUp(uint ic)
-{
-	return 0;
 }
 // } @construction

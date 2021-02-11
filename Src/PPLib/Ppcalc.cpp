@@ -1,5 +1,5 @@
 // PPCALC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -586,7 +586,7 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 				switch(TVCMD) {
 					case cmCalcEq:
 						{
-							calc();
+							Calc();
 							if(Err) {
 								TInputLine * il = static_cast<TInputLine *>(getCtrlView(CTL_CALC_RESULT));
 								if(il) {
@@ -595,7 +595,7 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 								}
 							}
 							else
-								setCtrlData(CTL_CALC_RESULT, &Result);
+								setCtrlString(CTL_CALC_RESULT, ResultText);
 						}
 						break;
 					case cmCalcMem:      memToInput();     break;
@@ -614,17 +614,39 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 				return;
 			clearEvent(event);
 		}
-		void   calc()
+		void   Calc()
 		{
+			ResultText.Z();
+			Result = 0.0;
+			Err = 0;
 			SString input;
 			getCtrlString(CTL_CALC_INPUT, input);
 			if(input.NotEmptyS()) {
-				/* @v9.6.0 // @v9.5.6*/ input.ReplaceChar(',', '.');
-				Err = !PPCalcExpression(input, &Result, &CFL);
-			}
-			else {
-				Err = 0;
-				Result = 0.0;
+				bool done = false;
+				// @v11.0.2 {
+				{
+					GtinStruc gts;
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(input, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
+					if(pczcr) {
+						SString temp_buf;
+						SString serial_buf;
+						gts.GetToken(GtinStruc::fldGTIN14, &temp_buf);
+						gts.GetToken(GtinStruc::fldSerial, &serial_buf);
+						if(temp_buf.NotEmpty() && serial_buf.NotEmpty()) {
+							(ResultText = temp_buf).Cat(serial_buf);
+							done = true;
+						}
+					}
+				}
+				// } @v11.0.2 
+				if(!done) {
+					input.ReplaceChar(',', '.');
+					Err = !PPCalcExpression(input, &Result, &CFL);
+					if(Err)
+						ResultText.Cat("ERROR");
+					else
+						ResultText.Cat(Result, MKSFMTD(0, 12, NMBF_NOTRAILZ|NMBF_OMITEPS));
+				}
 			}
 		}
 		void   memToInput()
@@ -646,13 +668,14 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 		void   memPlusResult(int minus)
 		{
 			double m = getCtrlReal(CTL_CALC_MEMVIEW);
-			calc();
+			Calc();
 			setCtrlReal(CTL_CALC_MEMVIEW, faddwsign(m, Result, minus ? -1 : +1));
 		}
 
 		int    Err;
 		int    Prec;
 		double Result;
+		SString ResultText;
 		PPCalcFuncList CFL;
 	};
 	MemLeakTracer mlt;

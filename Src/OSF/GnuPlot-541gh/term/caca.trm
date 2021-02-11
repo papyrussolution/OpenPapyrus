@@ -43,7 +43,7 @@ register_term(caca)
 #define CACA_XMAX (80-1)
 #define CACA_YMAX (25-1)
 
-TERM_PUBLIC void CACA_options();
+TERM_PUBLIC void CACA_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void CACA_init(termentry * pThis);
 TERM_PUBLIC void CACA_graphics();
 TERM_PUBLIC void CACA_text();
@@ -304,10 +304,10 @@ static struct gen_table CACA_opts[] =
 	{ NULL, CACA_OTHER }
 };
 
-TERM_PUBLIC void CACA_options()
+TERM_PUBLIC void CACA_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch((enum CACA_id)GPO.Pgm.LookupTableForCurrentToken(&CACA_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch((enum CACA_id)pGp->Pgm.LookupTableForCurrentToken(&CACA_opts[0])) {
 			case CACA_DEFAULTOPTIONS:
 			    term->put_text = CACA_enhanced_put_text;
 			    term->flags |= TERM_ENHANCED_TEXT;
@@ -323,35 +323,34 @@ TERM_PUBLIC void CACA_options()
 			    CACA_inverted = FALSE;
 			    break;
 			case CACA_ENH:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    term->put_text = CACA_enhanced_put_text;
 			    term->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case CACA_NOENH:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    term->put_text = CACA_put_text;
 			    term->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case CACA_CHARSET: {
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    /* Character set to use for fills, lines and points */
-			    if(GPO.Pgm.EqualsCur("ascii"))
+			    if(pGp->Pgm.EqualsCur("ascii"))
 				    CACA_charset = CACA_ASCII;
-			    else if(GPO.Pgm.EqualsCur("blocks"))
+			    else if(pGp->Pgm.EqualsCur("blocks"))
 				    CACA_charset = CACA_BLOCKS;
-			    else if(GPO.Pgm.EqualsCur("unicode"))
+			    else if(pGp->Pgm.EqualsCur("unicode"))
 				    CACA_charset = CACA_UNICODE;
-			    else if(!GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("Unknown character set.");
+			    else if(!pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("Unknown character set.");
 			    else
-				    GPO.IntErrorCurToken("Option `charset` requires an argument, see `help caca`.");
-			    GPO.Pgm.Shift();
+				    pGp->IntErrorCurToken("Option `charset` requires an argument, see `help caca`.");
+			    pGp->Pgm.Shift();
 			    break;
 		    }
 			case CACA_BACKGROUND: {
 			    uint32_t CACA_background_rgb;
-
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    CACA_background_rgb = parse_color_name();
 			    CACA_background = CACA_rgb_to_ansi(CACA_background_rgb);
 			    FPRINTF((stderr, "CACA: background color = %06x, bg = %0x name = %s\n",
@@ -362,15 +361,14 @@ TERM_PUBLIC void CACA_options()
 			case CACA_DRIVER: {
 			    char const * const * format_list;
 			    int i;
-
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EqualsCur("default")) {
-				    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EqualsCur("default")) {
+				    pGp->Pgm.Shift();
 				    CACA_close_display();
 				    ZFREE(CACA_driver);
 			    }
-			    else if(GPO.Pgm.EqualsCur("list")) {
-				    GPO.Pgm.Shift();
+			    else if(pGp->Pgm.EqualsCur("list")) {
+				    pGp->Pgm.Shift();
 				    fprintf(stderr, "caca drivers: ");
 				    format_list = caca_get_display_driver_list();
 				    for(i = 0; format_list[i] != NULL; i += 2) {
@@ -386,10 +384,10 @@ TERM_PUBLIC void CACA_options()
 				    return;
 			    }
 			    else {
-				    if(!GPO.Pgm.EndOfCommand()) {
+				    if(!pGp->Pgm.EndOfCommand()) {
 					    char * driver = NULL;
-					    GPO.Pgm.MCapture(&driver, c_token, c_token);
-					    GPO.Pgm.Shift();
+					    pGp->Pgm.MCapture(&driver, c_token, c_token);
+					    pGp->Pgm.Shift();
 					    /* Has driver changed? */
 					    if(CACA_driver && (strcmp(CACA_driver, driver) != 0))
 						    CACA_close_display();
@@ -397,7 +395,7 @@ TERM_PUBLIC void CACA_options()
 					    CACA_driver = driver;
 				    }
 				    else {
-					    GPO.IntErrorCurToken("Option `driver` requires an argument, see `help caca`.");
+					    pGp->IntErrorCurToken("Option `driver` requires an argument, see `help caca`.");
 				    }
 			    }
 
@@ -427,7 +425,7 @@ TERM_PUBLIC void CACA_options()
 				    }
 				    if(!found) {
 					    ZFREE(CACA_driver);
-					    GPO.IntErrorCurToken("Unknown driver or export format.");
+					    pGp->IntErrorCurToken("Unknown driver or export format.");
 				    }
 			    }
 			    /* raw and null drivers may not _suspend() */
@@ -443,62 +441,61 @@ TERM_PUBLIC void CACA_options()
 			    break;
 		    }
 			case CACA_COLOR:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    CACA_mono = FALSE;
 			    term->flags &= ~TERM_MONOCHROME;
 			    break;
 			case CACA_MONOCHROME:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    CACA_mono = TRUE;
 			    term->flags |= TERM_MONOCHROME;
 			    break;
 			case CACA_INVERTED:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    CACA_inverted = TRUE;
 			    CACA_background = CACA_BLACK;
 			    break;
 			case CACA_NOINVERTED:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    CACA_inverted = FALSE;
 			    CACA_background = CACA_WHITE;
 			    break;
 			case CACA_TRUECOLOR:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    CACA_force_truecolor = TRUE;
 			    break;
 			case CACA_NOTRUECOLOR:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    CACA_force_truecolor = FALSE;
 			    break;
 			case CACA_SIZE: {
 			    float width, height;
-			    GPO.Pgm.Shift();
-			    GPO.ParseTermSize(&width, &height, PIXELS);
+			    pGp->Pgm.Shift();
+			    pGp->ParseTermSize(&width, &height, PIXELS);
 			    term->MaxX = CACA_xmax = width - 1;
 			    term->MaxY = CACA_ymax = height - 1;
 			    break;
 		    }
 			case CACA_TITLE:
-			    GPO.Pgm.Shift();
-			    if(!GPO.Pgm.EndOfCommand()) {
+			    pGp->Pgm.Shift();
+			    if(!pGp->Pgm.EndOfCommand()) {
 				    SAlloc::F(CACA_title);
-				    CACA_title = sstrdup(GPO.TryToGetString());
+				    CACA_title = sstrdup(pGp->TryToGetString());
 			    }
 			    else {
-				    GPO.IntErrorCurToken("Option `title` requires an argument, see `help caca`.");
+				    pGp->IntErrorCurToken("Option `title` requires an argument, see `help caca`.");
 			    }
 			    break;
 			case CACA_OTHER:
 			default:
-			    GPO.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+			    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    break;
 		}
 	}
 	CACA_update_options();
 #ifdef DEBUG
 	{
-		int i;
-		for(i = 0; i < 16; i++) {
+		for(int i = 0; i < 16; i++) {
 			fprintf(stderr, "CACA: color #%i = %s\n", i, CACA_get_color_name(i));
 		}
 	}
@@ -2468,20 +2465,14 @@ TERM_PUBLIC void CACA_enhanced_open(char * fontname,
 		CACA_y = CACA_enhanced_ysave;
 		return;
 	}
-
 	if(!CACA_enhanced_opened_string) {
 		CACA_enhanced_opened_string = TRUE;
-		/* Start new text fragment */
-		enhanced_cur_text = &enhanced_text[0];
-		/* Scale fractional font height to vertical units of display */
-		CACA_enhanced_base = base * 2;
-		/* Keep track of whether we are supposed to show this string */
-		CACA_enhanced_show = showflag;
-		/* 0/1/2  no overprint / 1st pass / 2nd pass */
-		CACA_enhanced_overprint = overprint;
-		/* widthflag FALSE means do not update text position after printing */
-		CACA_enhanced_widthflag = widthflag;
-		/* bold, italic */
+		GPO.Enht.P_CurText = &GPO.Enht.Text[0]; // Start new text fragment 
+		CACA_enhanced_base = base * 2; // Scale fractional font height to vertical units of display 
+		CACA_enhanced_show = showflag; // Keep track of whether we are supposed to show this string 
+		CACA_enhanced_overprint = overprint; // 0/1/2  no overprint / 1st pass / 2nd pass 
+		CACA_enhanced_widthflag = widthflag; // widthflag FALSE means do not update text position after printing 
+		// bold, italic 
 		if(isempty(fontname)) {
 			CACA_next_text_attr = 0;
 		}
@@ -2495,20 +2486,17 @@ TERM_PUBLIC void CACA_enhanced_open(char * fontname,
 
 TERM_PUBLIC void CACA_enhanced_flush()
 {
-	char * str = enhanced_text;      /* The fragment to print */
+	char * str = GPO.Enht.Text;      /* The fragment to print */
 	int len;
-
 	if(!CACA_enhanced_opened_string)
 		return;
-
-	*enhanced_cur_text = NUL;
+	*GPO.Enht.P_CurText = NUL;
 	if(CACA_charset == CACA_ASCII)
 		len = strlen(str);
 	else
 		len = strlen_utf8(str);
-
-	/* print the string fragment, perhaps invisibly */
-	/* NB: base expresses offset from current y pos */
+	// print the string fragment, perhaps invisibly 
+	// NB: base expresses offset from current y pos 
 	if(CACA_enhanced_show) {
 		if(CACA_next_text_attr != 0)
 			caca_set_attr(CACA_cv, CACA_next_text_attr);
@@ -2551,25 +2539,20 @@ TERM_PUBLIC void CACA_enhanced_put_text(uint x, uint y, const char * str)
 {
 	if(CACA_cv == NULL)
 		return;
-
 	if(CACA_skipplot && !CACA_keysample)
 		return;
-
-	/* If no enhanced text processing is needed, we can use the plain  */
-	/* vanilla put_text() routine instead of this fancy recursive one. */
-	if(ignore_enhanced_text || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
+	// If no enhanced text processing is needed, we can use the plain  
+	// vanilla put_text() routine instead of this fancy recursive one. 
+	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		CACA_put_text(x, y, str);
 		return;
 	}
-
-	/* Set up global variables needed by enhanced_recursion() */
-	enhanced_fontscale = 1.0;
+	// Set up global variables needed by enhanced_recursion() 
+	GPO.Enht.FontScale = 1.0;
 	CACA_enhanced_opened_string = FALSE;
-	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
-
+	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	CACA_x = x;
 	CACA_y = y;
-
 	/* Set the recursion going. We say to keep going until a
 	 * closing brace, but we don't really expect to find one.
 	 * If the return value is not the nul-terminator of the
@@ -3051,28 +3034,22 @@ static char const * CACA_get_color_name(uint8_t color)
 	int dist = 0xfffffff;
 	int i, a, b;
 	char const * ret = "";
-	static const uint16_t ansitab16[16] = {
-		0xf000, 0xf00a, 0xf0a0, 0xf0aa, 0xfa00, 0xfa0a, 0xfa50, 0xfaaa,
-		0xf555, 0xf55f, 0xf5f5, 0xf5ff, 0xff55, 0xff5f, 0xfff5, 0xffff,
-	};
-
 	for(i = 0; i < num_predefined_colors; i++) {
 		if(CACA_rgb_to_ansi(pm3d_color_names_tbl[i].value) == color) {
 			int d = 0;
-
-			a = (ansitab16[color] >> 8) & 0xf;
+			a = (rgb255_color::AnsiTab16[color] >> 8) & 0xf;
 			b = (pm3d_color_names_tbl[i].value >> 16) & 0xff;
 			if(b < 0xf0) b += 0x07;
 			b >>= 4;
 			d += (a - b) * (a - b);
 
-			a = (ansitab16[color] >> 4) & 0xf;
+			a = (rgb255_color::AnsiTab16[color] >> 4) & 0xf;
 			b = (pm3d_color_names_tbl[i].value >>  8) & 0xff;
 			if(b < 0xf0) b += 0x07;
 			b >>= 4;
 			d += (a - b) * (a - b);
 
-			a = (ansitab16[color] >> 0) & 0xf;
+			a = (rgb255_color::AnsiTab16[color] >> 0) & 0xf;
 			b = (pm3d_color_names_tbl[i].value >>  0) & 0xff;
 			if(b < 0xf0) b += 0x07;
 			b >>= 4;
@@ -3137,24 +3114,57 @@ static int gp_kbhit()
 
 #ifdef TERM_TABLE
 TERM_TABLE_START(caca)
-"caca", "Colour ascii art using libcaca, the Colour AsCii Art library",
-CACA_XMAX, CACA_YMAX, 1, 1, 1, 2 /* aspect of character cell */,
-CACA_options, CACA_init, CACA_reset,
-CACA_text, GnuPlot::NullScale, CACA_graphics,
-CACA_move, CACA_vector,
-CACA_linetype, CACA_enhanced_put_text, CACA_text_angle, null_justify_text,
-CACA_point, CACA_arrow, CACA_set_font, NULL /* pointsize */,
-TERM_NO_OUTPUTFILE | TERM_CAN_MULTIPLOT | TERM_BINARY | TERM_ENHANCED_TEXT,
-CACA_suspend, CACA_resume, CACA_fillbox, NULL /* linewidth */,
-#ifdef USE_MOUSE
-CACA_waitforinput, CACA_put_tmptext, CACA_set_ruler, CACA_set_cursor, NULL,
-#endif
-CACA_make_palette, NULL /* previous_palette */, CACA_color, CACA_filled_polygon,
-CACA_image,
-CACA_enhanced_open, CACA_enhanced_flush, do_enh_writec,
-CACA_layer, CACA_path, 0.0 /* tscale */, CACA_hypertext,
-CACA_boxed_text,
-CACA_modify_plots TERM_TABLE_END(caca)
+	"caca", 
+	"Colour ascii art using libcaca, the Colour AsCii Art library",
+	CACA_XMAX, 
+	CACA_YMAX, 
+	1, 
+	1, 
+	1, 
+	2 /* aspect of character cell */,
+	CACA_options, 
+	CACA_init, 
+	CACA_reset,
+	CACA_text, 
+	GnuPlot::NullScale, 
+	CACA_graphics,
+	CACA_move, 
+	CACA_vector,
+	CACA_linetype, 
+	CACA_enhanced_put_text, 
+	CACA_text_angle, 
+	GnuPlot::NullJustifyText,
+	CACA_point, 
+	CACA_arrow, 
+	CACA_set_font, 
+	NULL /* pointsize */,
+	TERM_NO_OUTPUTFILE | TERM_CAN_MULTIPLOT | TERM_BINARY | TERM_ENHANCED_TEXT,
+	CACA_suspend, 
+	CACA_resume, 
+	CACA_fillbox, 
+	NULL /* linewidth */,
+	#ifdef USE_MOUSE
+	CACA_waitforinput, 
+	CACA_put_tmptext, 
+	CACA_set_ruler, 
+	CACA_set_cursor, 
+	NULL,
+	#endif
+	CACA_make_palette, 
+	NULL /* previous_palette */, 
+	CACA_color, 
+	CACA_filled_polygon,
+	CACA_image,
+	CACA_enhanced_open, 
+	CACA_enhanced_flush, 
+	do_enh_writec,
+	CACA_layer, 
+	CACA_path, 
+	0.0 /* tscale */, 
+	CACA_hypertext,
+	CACA_boxed_text,
+	CACA_modify_plots 
+TERM_TABLE_END(caca)
 
 #undef LAST_TERM
 #define LAST_TERM caca_driver

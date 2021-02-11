@@ -88,6 +88,63 @@
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-emf.c">
       <Filter>Term</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-dumb.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-block.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-post.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pslatex.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-dxf.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-fig.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hpgl.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-debug.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pbm.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-epson.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pict2e.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hp500c.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hpljii.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hppj.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pstricks.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-texdraw.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-metafont.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-context.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-metapost.c">
+      <Filter>Term</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\GnuPlot-541gh\gnuplot.h">
@@ -169,22 +226,10 @@
     <None Include="..\OSF\GnuPlot-541gh\term\cairo.trm">
       <Filter>Term</Filter>
     </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\context.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\corel.trm">
       <Filter>Term</Filter>
     </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\debug.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\djsvga.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\dumb.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\dxf.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\dxy.trm">
@@ -196,13 +241,7 @@
     <None Include="..\OSF\GnuPlot-541gh\term\emxvga.trm">
       <Filter>Term</Filter>
     </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\epson.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\excl.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\fig.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\gd.trm">
@@ -220,19 +259,7 @@
     <None Include="..\OSF\GnuPlot-541gh\term\hp26.trm">
       <Filter>Term</Filter>
     </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\hp500c.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\hp2648.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\hpgl.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\hpljii.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\hppj.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\imagen.trm">
@@ -250,28 +277,13 @@
     <None Include="..\OSF\GnuPlot-541gh\term\lua.trm">
       <Filter>Term</Filter>
     </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\metafont.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\metapost.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\pbm.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\pc.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\pdf.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\post.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\pslatex.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\pstricks.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\qms.trm">
@@ -290,9 +302,6 @@
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\tek.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\texdraw.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\tgif.trm">
@@ -328,13 +337,7 @@
     <None Include="..\OSF\GnuPlot-541gh\win\wgnuplot.mnu">
       <Filter>Resource</Filter>
     </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\block.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\linux-vgagl.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\pict2e.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\webp.trm">

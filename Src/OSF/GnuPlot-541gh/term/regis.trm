@@ -233,8 +233,8 @@ TERM_TABLE_START(regis_driver)
 	REGIS_linetype, 
 	REGIS_put_text, 
 	REGIS_text_angle,
-	null_justify_text, 
-	line_and_point, 
+	GnuPlot::NullJustifyText, 
+	GnuPlot::LineAndPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null 
 TERM_TABLE_END(regis_driver)

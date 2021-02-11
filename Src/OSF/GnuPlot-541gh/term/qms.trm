@@ -198,7 +198,7 @@ TERM_TABLE_START(qms_driver)
 	QMS_HCHAR,
 	QMS_VTIC, 
 	QMS_HTIC, 
-	options_null, 
+	GnuPlot::OptionsNull, 
 	QMS_init, 
 	QMS_reset,
 	QMS_text, 
@@ -208,9 +208,9 @@ TERM_TABLE_START(qms_driver)
 	QMS_vector,
 	QMS_linetype, 
 	QMS_put_text, 
-	null_text_angle,
-	null_justify_text, 
-	line_and_point, 
+	GnuPlot::NullTextAngle,
+	GnuPlot::NullJustifyText, 
+	GnuPlot::LineAndPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null 
 TERM_TABLE_END(qms_driver)

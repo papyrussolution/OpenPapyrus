@@ -273,7 +273,7 @@ TERM_TABLE_START(tek410x_driver)
 	T410XHCHAR,
 	T410XVTIC, 
 	T410XHTIC, 
-	options_null, 
+	GnuPlot::OptionsNull, 
 	T410X_init, 
 	T410X_reset,
 	T410X_text, 
@@ -284,7 +284,7 @@ TERM_TABLE_START(tek410x_driver)
 	T410X_linetype, 
 	T410X_put_text, 
 	T410X_text_angle,
-	null_justify_text, 
+	GnuPlot::NullJustifyText, 
 	T410X_point, 
 	GnuPlot::DoArrow, 
 	set_font_null 

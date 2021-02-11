@@ -431,7 +431,7 @@ TERM_TABLE_START(corel_driver)
 	COREL_put_text, 
 	COREL_text_angle,
 	COREL_justify_text, 
-	do_point, 
+	GnuPlot::DoPoint, 
 	GnuPlot::DoArrow, 
 	set_font_null 
 TERM_TABLE_END(corel_driver)

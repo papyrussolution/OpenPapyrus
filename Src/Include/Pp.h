@@ -1041,7 +1041,9 @@ private:
 		funcEq,        // eq(a, b)
 		funcNEq,       // neq(a, b)
 		funcRoundUp,   // roundup(x, prec) округление до верхней границы
-		funcRoundDown  // rounddown(x, prec) округление до нижней границы
+		funcRoundDown, // rounddown(x, prec) округление до нижней границы
+		funcLog,       // log(a) натуральный логарифм
+		funcLog10      // log10(a) десятичный логарифм
 	};
 	PPExprParser(const char *, const PPCalcFuncList *, ExprEvalContext *);
 	~PPExprParser();
@@ -11439,7 +11441,7 @@ public:
 private:
 	void   Helper_Init();
 	int    _CreateBlank(PPID oprKind, PPID linkBill, PPID locID, int dontInitCode, int use_ta);
-	int    AdjustLotQtty(PPID lot, const PPTransferItem *, int, double *) const; // @>>BillObj->trfr->SubtractBillQtty()
+	void   AdjustLotQtty(PPID lot, const PPTransferItem *, int, double *) const; // @>>BillObj->trfr->SubtractBillQtty()
 	int    MergeTI(PPTransferItem * pItem, int idx, long flags, LongArray & rTotalMergeList, LongArray * pMergePosList);
 	int    Helper_DistributeExtCost(double extCostSum, int alg);
 	int    DistributeExtCost();
@@ -47839,6 +47841,7 @@ private:
 	int    Helper_ProcessIncoming(const S_GUID & rVetDocUuid, const void * pIfcParam, PPVetisInterface & rIfc, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList);
 	int    ProcessIncoming(PPID entityID);
 	int    ProcessOutcoming(PPID entityID);
+	int    RerequestDocument(PPID id);
 	int    ViewWarehouse();
 	int    ViewGoods();
 	enum {

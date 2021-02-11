@@ -775,6 +775,7 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 						AbstractLayoutBlock alb_lo_fig;
 						alb_lo_fig.SetFixedSizeX(_item_width);
 						alb_lo_fig.SetFixedSizeY(_item_height);
+						alb_lo_fig.ShrinkFactor = 0.0f; // @v11.0.2
 						//alb_lo_fig.Size.X = _item_width;
 						//alb_lo_fig.Size.Y = _item_height;
 						p_lo_fig->SetLayoutBlock(alb_lo_fig);

@@ -116,7 +116,7 @@ register_term(png)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PNG_options();
+TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void PNG_init(termentry * pThis);
 TERM_PUBLIC void PNG_graphics();
 TERM_PUBLIC void PNG_text();
@@ -617,15 +617,14 @@ static void PNG_Diamond(uint x, uint y,
  * This procedure should parse options on the command line.  A list of the
  * currently selected options should be stored in term_options[] in a form
  * suitable for use with the set term command.  term_options[] is used by
- * the save command.  Use options_null() if no options are available.
+ * the save command.  Use GnuPlot::OptionsNull() if no options are available.
  */
-TERM_PUBLIC void PNG_options()
+TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	double tmp;
 	char * string;
 	unsigned long color;
 	bool gif_anim_option = FALSE; /* set to TRUE if an animated gif option given */
-
 	if(!PNG_initialized) {
 		PNG_initialized = TRUE;
 		term_options[0] = '\0';
@@ -671,7 +670,7 @@ TERM_PUBLIC void PNG_options()
 
 	/* Annoying hack to handle the case of 'set termoption' after */
 	/* we are already in animation mode.                          */
-	if(almost_equals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion"))
+	if(almost_equals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion"))
 		FPRINTF((stderr, "gif: Maintaining animation state\n"));
 	else {
 		/* Otherwise reset animation parameters */
@@ -690,31 +689,31 @@ TERM_PUBLIC void PNG_options()
 		term->flags |= TERM_ENHANCED_TEXT;
 		term->put_text = ENHGD_put_text;
 	}
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&PNG_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&PNG_opts[0])) {
 			case PNG_TRANSPARENT:
 			    png_state.flags |= PNG_USE_TRANSPARENT;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_NOTRANSPARENT:
 			    png_state.flags &= ~PNG_USE_TRANSPARENT;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_INTERLACE:
 			    png_state.flags |= PNG_USE_INTERLACE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_NOINTERLACE:
 			    png_state.flags &= ~PNG_USE_INTERLACE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_CROP:
 			    png_state.flags |= PNG_USE_CROP;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_NOCROP:
 			    png_state.flags &= ~PNG_USE_CROP;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 
 #ifdef HAVE_GD_TTF
@@ -731,42 +730,42 @@ TERM_PUBLIC void PNG_options()
 			    png_state.default_font = gdFontGetTiny();
 			    term->ChrV = png_state.default_font->h;
 			    term->ChrH = png_state.default_font->w;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_SMALL:
 			    png_state.default_font = gdFontGetSmall();
 			    term->ChrV = png_state.default_font->h;
 			    term->ChrH = png_state.default_font->w;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_MEDIUM:
 			    png_state.default_font = gdFontGetMediumBold();
 			    term->ChrV = png_state.default_font->h;
 			    term->ChrH = png_state.default_font->w;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_LARGE:
 			    png_state.default_font = gdFontGetLarge();
 			    term->ChrV = png_state.default_font->h;
 			    term->ChrH = png_state.default_font->w;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_GIANT:
 			    png_state.default_font = gdFontGetGiant();
 			    term->ChrV = png_state.default_font->h;
 			    term->ChrH = png_state.default_font->w;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 
 			case PNG_FONT:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 #ifdef HAVE_GD_TTF
-			    if(GPO.Pgm.EndOfCommand()) {
+			    if(pGp->Pgm.EndOfCommand()) {
 				    ZFREE(png_state.ttffont);
 				    png_state.default_ttfsize = 0;
 			    }
@@ -774,7 +773,7 @@ TERM_PUBLIC void PNG_options()
 				    int brect[8];
 				    char * err;
 				    char * s;
-				    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx()) && (s = GPO.TryToGetString())) {
+				    if(pGp->Pgm.IsStringValue(pGp->Pgm.GetCurTokenIdx()) && (s = pGp->TryToGetString())) {
 					    char * comma = strrchr(s, ',');
 					    double fontsize;
 					    if(comma && (1 == sscanf(comma+1, "%lf", &fontsize))) {
@@ -792,9 +791,9 @@ TERM_PUBLIC void PNG_options()
 				    }
 				    else {
 					    SAlloc::F(png_state.ttffont);
-					    png_state.ttffont = gp_alloc(GPO.Pgm.CurTokenLen()+1, "new font");
-					    GPO.Pgm.CopyStr(png_state.ttffont, c_token, GPO.Pgm.CurTokenLen()+1);
-					    GPO.Pgm.Shift();
+					    png_state.ttffont = gp_alloc(pGp->Pgm.CurTokenLen()+1, "new font");
+					    pGp->Pgm.CopyStr(png_state.ttffont, c_token, pGp->Pgm.CurTokenLen()+1);
+					    pGp->Pgm.Shift();
 				    }
 				    SAlloc::F(png_state.default_ttffont);
 				    png_state.default_ttffont = gp_strdup(png_state.ttffont);
@@ -814,29 +813,29 @@ TERM_PUBLIC void PNG_options()
 				    }
 			    }
 #else
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    fprintf(stderr, "No TTF font support, using internal non-scalable font\n");
 #endif
 			    break;
 #undef UNSET_TTF_FONT
 
 			case PNG_FONTSCALE:
-			    GPO.Pgm.Shift();
-			    png_state.fontscale = GPO.Pgm.EndOfCommand() ? 1 : GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    png_state.fontscale = pGp->Pgm.EndOfCommand() ? 1 : pGp->RealExpression();
 			    if(png_state.fontscale <= 0)
 				    png_state.fontscale = 1.0;
 			    break;
 			case PNG_SIZE:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand()) {
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand()) {
 				    PNG_XMAX = GREG_XMAX;
 				    PNG_YMAX = GREG_YMAX;
 			    }
 			    else {
-				    PNG_XMAX = GPO.RealExpression();
-				    if(GPO.Pgm.EqualsCur(",")) {
-					    GPO.Pgm.Shift();
-					    PNG_YMAX = GPO.RealExpression();
+				    PNG_XMAX = pGp->RealExpression();
+				    if(pGp->Pgm.EqualsCur(",")) {
+					    pGp->Pgm.Shift();
+					    PNG_YMAX = pGp->RealExpression();
 				    }
 				    if(PNG_XMAX <= 0)
 					    PNG_XMAX = GREG_XMAX;
@@ -854,32 +853,32 @@ TERM_PUBLIC void PNG_options()
 			case PNG_ENHANCED:
 			    term->flags |= TERM_ENHANCED_TEXT;
 			    term->put_text = ENHGD_put_text;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_NOENHANCED:
 			    term->flags &= ~TERM_ENHANCED_TEXT;
 			    term->put_text = PNG_put_text;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_TRUECOLOR:
 			    png_state.TrueColor = TRUE;
 			    term->flags |= TERM_ALPHA_CHANNEL;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_NOTRUECOLOR:
 			    png_state.TrueColor = FALSE;
 			    term->flags &= ~TERM_ALPHA_CHANNEL;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_LINEWIDTH:
-			    GPO.Pgm.Shift();
-			    PNG_linewidth_factor = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    PNG_linewidth_factor = pGp->RealExpression();
 			    if(PNG_linewidth_factor < 0)
 				    PNG_linewidth_factor = 1.0;
 			    break;
 			case PNG_DASHLENGTH:
-			    GPO.Pgm.Shift();
-			    PNG_dashlength_factor = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    PNG_dashlength_factor = pGp->RealExpression();
 			    if(PNG_dashlength_factor <= 0.2)
 				    PNG_dashlength_factor = 1.0;
 			    break;
@@ -888,8 +887,8 @@ TERM_PUBLIC void PNG_options()
 			    if(strncmp("gif", term->name, 3) == 0)
 				    gif_anim_option = 1;
 			    else if(strncmp("sixel", term->name, 5) != 0)
-				    GPO.IntErrorCurToken("This terminal does not support animation");
-			    GPO.Pgm.Shift();
+				    pGp->IntErrorCurToken("This terminal does not support animation");
+			    pGp->Pgm.Shift();
 			    png_state.animate = TRUE;
 			    png_state.frame_count = 0;
 			    png_state.frame_delay = 10;
@@ -897,68 +896,67 @@ TERM_PUBLIC void PNG_options()
 			    break;
 			case GIF_DELAY:
 			    if(strncmp("gif", term->name, 3))
-				    GPO.IntWarnCurToken("This terminal does not support animation");
-			    GPO.Pgm.Shift();
-			    png_state.frame_delay = GPO.IntExpression();
+				    pGp->IntWarnCurToken("This terminal does not support animation");
+			    pGp->Pgm.Shift();
+			    png_state.frame_delay = pGp->IntExpression();
 			    if(png_state.frame_delay <= 0)
 				    png_state.frame_delay = 10;
 			    gif_anim_option = 1;
 			    break;
 			case GIF_LOOP:
 			    if(strncmp("gif", term->name, 3))
-				    GPO.IntWarnCurToken("This terminal does not support animation");
-			    GPO.Pgm.Shift();
-			    png_state.loop_count = GPO.IntExpression();
+				    pGp->IntWarnCurToken("This terminal does not support animation");
+			    pGp->Pgm.Shift();
+			    png_state.loop_count = pGp->IntExpression();
 			    gif_anim_option = 1;
 			    break;
 			case GIF_NOOPT:
 			    if(strncmp("gif", term->name, 3))
-				    GPO.IntWarnCurToken("This terminal does not support animation");
-			    GPO.Pgm.Shift();
+				    pGp->IntWarnCurToken("This terminal does not support animation");
+			    pGp->Pgm.Shift();
 			    png_state.frame_optimization = FALSE;
 			    gif_anim_option = 1;
 			    break;
 			case GIF_OPT:
 			    if(strncmp("gif", term->name, 3))
-				    GPO.IntWarnCurToken("This terminal does not support animation");
-			    GPO.Pgm.Shift();
+				    pGp->IntWarnCurToken("This terminal does not support animation");
+			    pGp->Pgm.Shift();
 			    png_state.frame_optimization = TRUE;
 			    gif_anim_option = 1;
 			    break;
-
 			case PNG_BUTT:
 			    png_state.capbutt = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_ROUNDED:
 			    png_state.capbutt = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case PNG_BACKGROUND:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    png_state.rgb_table[0] = parse_color_name();
 			    png_state.n_colors = 1;
 			    break;
 			case PNG_OTHER:
 			default:
 			    /* not "size" */
-			    string = gp_input_line + GPO.Pgm.GetCurTokenStartIndex();
+			    string = gp_input_line + pGp->Pgm.GetCurTokenStartIndex();
 #ifdef HAVE_GD_TTF
 			    /* Check for explicit TTF font size */
 			    if(sscanf(string, "%lf", &tmp) == 1) {
 				    if(tmp > 0 && tmp < 999)
 					    png_state.default_ttfsize = tmp;
 				    else
-					    GPO.IntWarnCurToken("illegal font size");
-				    GPO.Pgm.Shift();
+					    pGp->IntWarnCurToken("illegal font size");
+				    pGp->Pgm.Shift();
 				    break;
 			    }
 #endif
 
 			    if(sscanf(string, "x%lx", &color) == 1)
-				    GPO.IntErrorCurToken("obsolete color option");
+				    pGp->IntErrorCurToken("obsolete color option");
 			    else
-				    GPO.IntErrorCurToken("unrecognized terminal option");
+				    pGp->IntErrorCurToken("unrecognized terminal option");
 			    break;
 		}
 	}
@@ -966,7 +964,7 @@ TERM_PUBLIC void PNG_options()
 	if(gif_anim_option) {
 #ifndef GIF_ANIMATION /* animated gifs not supported by the current GD library */
 		png_state.animate = FALSE;
-		GPO.IntWarn(NO_CARET, "gif animation options ignored (not compiled into this binary)");
+		pGp->IntWarn(NO_CARET, "gif animation options ignored (not compiled into this binary)");
 #endif
 	}
 
@@ -1009,22 +1007,17 @@ TERM_PUBLIC void PNG_options()
 	if(png_state.default_ttffont) {
 		int brect[8];
 		char * err;
-		err = gdImageStringFT(NULL, &brect[0], 0,
-			png_state.default_ttffont, png_state.default_ttfsize*png_state.fontscale,
-			0.0, 0, 0, "f00000000g");
+		err = gdImageStringFT(NULL, &brect[0], 0, png_state.default_ttffont, png_state.default_ttfsize*png_state.fontscale, 0.0, 0, 0, "f00000000g");
 		if(!err) {
 			term->ChrH = .11 * (double)(brect[2] - brect[0]) + 0.5;
 			term->ChrV = 1.1 * (double)(brect[1] - brect[7]) + 0.5;
 		}
 	}
 #endif
-
 	/* This code is shared by png, gif, and jpeg terminal types */
 	if(!strcmp(term->name, "jpeg"))
 		png_state.flags &= ~PNG_USE_TRANSPARENT;
-
 	/* now generate options string */
-
 	if(png_state.flags & PNG_USE_TRANSPARENT) {
 		strcat(term_options, "transparent ");
 	}
@@ -1043,24 +1036,16 @@ TERM_PUBLIC void PNG_options()
 		strcat(term_options, "no");
 	}
 	strcat(term_options, "crop ");
-
 	if(term->flags & TERM_ENHANCED_TEXT) {
 		strcat(term_options, "enhanced ");
 	}
-
 	if(PNG_linewidth_factor != 1.0)
-		sprintf(term_options + strlen(term_options),
-		    "linewidth %3.1f ", PNG_linewidth_factor);
-
+		sprintf(term_options + strlen(term_options), "linewidth %3.1f ", PNG_linewidth_factor);
 	if(PNG_dashlength_factor != 1.0)
-		sprintf(term_options + strlen(term_options),
-		    "dashlength %3.1f ", PNG_dashlength_factor);
-
+		sprintf(term_options + strlen(term_options), "dashlength %3.1f ", PNG_dashlength_factor);
 	if(png_state.capbutt) {
-		sprintf(term_options + strlen(term_options),
-		    "butt ");
+		sprintf(term_options + strlen(term_options), "butt ");
 	}
-
 	if(png_state.animate) {
 		if(strncmp("sixel", term->name, 5) == 0)
 			sprintf(term_options + strlen(term_options), "animate ");
@@ -1070,47 +1055,28 @@ TERM_PUBLIC void PNG_options()
 			    png_state.frame_delay, png_state.loop_count,
 			    png_state.frame_optimization ? "" : "no");
 	}
-
-	sprintf(term_options + strlen(term_options),
-	    "size %d,%d ", PNG_XMAX, PNG_YMAX);
-
+	sprintf(term_options + strlen(term_options), "size %d,%d ", PNG_XMAX, PNG_YMAX);
 	if(png_state.n_colors == 1)
-		sprintf(term_options + strlen(term_options),
-		    "background \"#%06x\" ", png_state.rgb_table[0]);
-
+		sprintf(term_options + strlen(term_options), "background \"#%06x\" ", png_state.rgb_table[0]);
 	if(png_state.ttffont) {
 		if(png_state.fontscale != 1.0)
-			sprintf(term_options + strlen(term_options),
-			    "fontscale %.1f ", png_state.fontscale);
+			sprintf(term_options + strlen(term_options), "fontscale %.1f ", png_state.fontscale);
 		if(strlen(term_options) + strlen(png_state.ttffont) < sizeof(term_options) - 32)
-			sprintf(term_options + strlen(term_options),
-			    "font \"%s,%.1f\" ", png_state.ttffont, png_state.ttfsize);
+			sprintf(term_options + strlen(term_options), "font \"%s,%.1f\" ", png_state.ttffont, png_state.ttfsize);
 	}
 	else switch(term->ChrH) {
-			case 5:
-			    strcat(term_options, "tiny ");
-			    break;
-			case 6:
-			    strcat(term_options, "small ");
-			    break;
+			case 5: strcat(term_options, "tiny "); break;
+			case 6: strcat(term_options, "small "); break;
 			case 7:
-			default:
-			    strcat(term_options, "medium ");
-			    break;
-			case 8:
-			    strcat(term_options, "large ");
-			    break;
-			case 9:
-			    strcat(term_options, "giant ");
-			    break;
+			default: strcat(term_options, "medium "); break;
+			case 8: strcat(term_options, "large "); break;
+			case 9: strcat(term_options, "giant "); break;
 		}
 	/* Oct 2020:  'animate optimize' is deprecated */
 	if(png_state.animate && png_state.frame_optimization) {
-		strcat(term_options,
-		    "\n\tWarning: the 'optimize' option to gif animation is deprecated");
+		strcat(term_options, "\n\tWarning: the 'optimize' option to gif animation is deprecated");
 	}
 }
-
 /*
  * _init()  Called once, when the device is first selected.  This procedure
  * should set up things that only need to be set once, like handshaking and
@@ -1774,7 +1740,7 @@ TERM_PUBLIC int PNG_justify_text(enum JUSTIFY mode)
 	png_state.justify = mode;
 	return TRUE;
 #else
-	return null_justify_text(mode);
+	return GnuPlot::NullJustifyText(mode);
 #endif
 }
 
@@ -1951,7 +1917,7 @@ static uint ENHgd_xsave, ENHgd_ysave;
 
 TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
-	/* If the overprint code requests a save or restore, that's all we do */
+	// If the overprint code requests a save or restore, that's all we do 
 	if(overprint == 3) {
 		ENHgd_xsave = png_state.x;
 		ENHgd_ysave = png_state.y;
@@ -1963,7 +1929,7 @@ TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool 
 	}
 	if(!ENHgd_opened_string) {
 		ENHgd_opened_string = TRUE;
-		enhanced_cur_text = &enhanced_text[0];
+		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		ENHgd_font = fontname;
 		ENHgd_fontsize = fontsize;
 		ENHgd_base = base;
@@ -1972,17 +1938,18 @@ TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool 
 		ENHgd_widthflag = widthflag;
 	}
 }
-
-/* Write a string fragment and update the current position */
+//
+// Write a string fragment and update the current position 
+//
 TERM_PUBLIC void ENHGD_FLUSH()
 {
 	int brect[8]; char * err;
 	uint x, y;
-	char * fragment = enhanced_text;
+	char * fragment = GPO.Enht.Text;
 	if(!ENHgd_opened_string)
 		return;
 	ENHgd_opened_string = FALSE;
-	*enhanced_cur_text = '\0';
+	*GPO.Enht.P_CurText = '\0';
 	/* Mar 2011 - added to handle SJIS/UTF8 conversion */
 	if(contains8bit(fragment)) {
 		gd_iconv(&fragment);
@@ -2037,9 +2004,7 @@ TERM_PUBLIC void ENHGD_FLUSH()
 	}
 #endif
 	if(err)
-		fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n",
-		    err, enhanced_text, ENHgd_font);
-
+		fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n", err, GPO.Enht.Text, ENHgd_font);
 	if(!ENHgd_sizeonly) {
 		int xmax = MAX(brect[2], brect[6]);
 		int xmin = MIN(brect[0], brect[4]);
@@ -2050,7 +2015,6 @@ TERM_PUBLIC void ENHGD_FLUSH()
 		if(ymin < bounding_box[1]) bounding_box[1] = ymin;
 		if(ymax > bounding_box[3]) bounding_box[3] = ymax;
 	}
-
 	if(ENHgd_overprint == 1) {
 		png_state.x += ((brect[2] - brect[0]))/2;
 		png_state.y -= (brect[3] - brect[1]);
@@ -2064,7 +2028,7 @@ TERM_PUBLIC void ENHGD_FLUSH()
 TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char * str)
 {
 	char * original_string = (char*)str;
-	if(ignore_enhanced_text || !png_state.ttffont) {
+	if(GPO.Enht.Ignore || !png_state.ttffont) {
 		PNG_put_text(x, y, str);
 		return;
 	}
@@ -2079,22 +2043,18 @@ TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char * str)
 		return;
 	}
 	PNG_move(x, y);
-	/* set up the global variables needed by enhanced_recursion() */
-	enhanced_fontscale = png_state.fontscale;
-	strncpy(enhanced_escape_format, "&#x%2.2x;", sizeof(enhanced_escape_format));
-
+	// set up the global variables needed by enhanced_recursion() 
+	GPO.Enht.FontScale = png_state.fontscale;
+	strncpy(GPO.Enht.EscapeFormat, "&#x%2.2x;", sizeof(GPO.Enht.EscapeFormat));
 	ENHgd_opened_string = FALSE;
 	ENHgd_show = TRUE;
 	ENHgd_overprint = 0;
-
-	/* EAM - post.trm wasn't doing this, but how else do they get initialized? */
+	// EAM - post.trm wasn't doing this, but how else do they get initialized? 
 	ENHgd_font = png_state.ttffont;
 	ENHgd_fontsize = png_state.ttfsize;
-
-	/* EAM - Software text justification requires two passes */
+	// EAM - Software text justification requires two passes 
 	if(png_state.justify == RIGHT || png_state.justify == CENTRE)
 		ENHgd_sizeonly = TRUE;
-
 	/* Set the recursion going. We say to keep going until a
 	 * closing brace, but we don't really expect to find one.
 	 * If the return value is not the nul-terminator of the

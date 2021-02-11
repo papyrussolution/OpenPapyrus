@@ -95,7 +95,7 @@ static void show_loadpath();
 static void show_fontpath();
 static void show_zero();
 //static void show_datafile();
-static void show_table();
+//static void show_table();
 static void show_micro();
 static void show_minus_sign();
 static void show_mouse();
@@ -226,7 +226,7 @@ void GnuPlot::ShowCommand()
 		    break;
 		case S_LINETYPE:
 		    CHECK_TAG_GT_ZERO;
-		    show_linetype(first_perm_linestyle, tag);
+		    show_linetype(Gg.P_FirstPermLineStyle, tag);
 		    break;
 		case S_MONOCHROME:
 		    fprintf(stderr, "monochrome mode is %s\n", monochrome ? "active" : "not active");
@@ -234,7 +234,7 @@ void GnuPlot::ShowCommand()
 			    Pgm.Shift();
 			    CHECK_TAG_GT_ZERO;
 		    }
-		    show_linetype(first_mono_linestyle, tag);
+		    show_linetype(Gg.P_FirstMonoLineStyle, tag);
 		    break;
 		case S_DASHTYPE:
 		    CHECK_TAG_GT_ZERO;
@@ -494,9 +494,7 @@ void GnuPlot::ShowCommand()
 		    show_zero();
 		    break;
 		case S_DATAFILE: ShowDataFile(); break;
-		case S_TABLE:
-		    show_table();
-		    break;
+		case S_TABLE: ShowTable(); break;
 		case S_MOUSE:
 		    show_mouse();
 		    break;
@@ -1212,7 +1210,7 @@ static void show_contour()
 static void show_dashtype(int tag)
 {
 	bool showed = FALSE;
-	for(custom_dashtype_def * this_dashtype = first_custom_dashtype; this_dashtype != NULL; this_dashtype = this_dashtype->next) {
+	for(custom_dashtype_def * this_dashtype = GPO.Gg.P_FirstCustomDashtype; this_dashtype; this_dashtype = this_dashtype->next) {
 		if(tag == 0 || tag == this_dashtype->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tdashtype %d, ", this_dashtype->tag);
@@ -1536,7 +1534,7 @@ void GnuPlot::ShowZeroAxis(AXIS_INDEX axis)
 static void show_label(int tag)
 {
 	bool showed = FALSE;
-	for(text_label * this_label = first_label; this_label != NULL; this_label = this_label->next) {
+	for(text_label * this_label = GPO.Gg.P_FirstLabel; this_label; this_label = this_label->next) {
 		if(tag == 0 || tag == this_label->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tlabel %d \"%s\" at ", this_label->tag, (this_label->text==NULL) ? "" : conv_text(this_label->text));
@@ -1585,7 +1583,7 @@ static void show_label(int tag)
 static void show_arrow(int tag)
 {
 	bool showed = FALSE;
-	for(arrow_def * this_arrow = first_arrow; this_arrow != NULL; this_arrow = this_arrow->next) {
+	for(arrow_def * this_arrow = GPO.Gg.P_FirstArrow; this_arrow != NULL; this_arrow = this_arrow->next) {
 		if(tag == 0 || tag == this_arrow->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tarrow %d, %s %s %s", this_arrow->tag,
@@ -2538,7 +2536,7 @@ static void show_history()
 static void show_size()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tsize is scaled by %g,%g\n", GPO.V.XSize, GPO.V.YSize);
+	fprintf(stderr, "\tsize is scaled by %g,%g\n", GPO.V.Size.x, GPO.V.Size.y);
 	if(GPO.V.AspectRatio > 0.0f)
 		fprintf(stderr, "\tTry to set aspect ratio to %g:1.0\n", GPO.V.AspectRatio);
 	else if(GPO.V.AspectRatio == 0.0f)
@@ -2552,7 +2550,7 @@ static void show_size()
 static void show_origin()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\torigin is set to %g,%g\n", GPO.V.XOffset, GPO.V.YOffset);
+	fprintf(stderr, "\torigin is set to %g,%g\n", GPO.V.Offset.X, GPO.V.Offset.Y);
 }
 //
 // process 'show term' command 
@@ -2800,12 +2798,13 @@ void GnuPlot::ShowDataFile()
 //
 // process 'show table' command 
 //
-static void show_table()
+//static void show_table()
+void GnuPlot::ShowTable()
 {
 	char foo[2] = {0, 0};
-	foo[0] = (table_sep && *table_sep) ? *table_sep : '\t';
+	foo[0] = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';
 	SHOW_ALL_NL;
-	if(table_mode)
+	if(Tab.Mode)
 		fprintf(stderr, "\ttable mode is on, field separator %s\n", foo[0] == '\t' ? "tab" : foo[0] == ',' ? "comma" : foo[0] == ' ' ? "space" : foo);
 	else
 		fprintf(stderr, "\ttable mode is off\n");
@@ -2925,7 +2924,7 @@ static void show_linestyle(int tag)
 {
 	linestyle_def * this_linestyle;
 	bool showed = FALSE;
-	for(this_linestyle = first_linestyle; this_linestyle != NULL; this_linestyle = this_linestyle->next) {
+	for(this_linestyle = GPO.Gg.P_FirstLineStyle; this_linestyle; this_linestyle = this_linestyle->next) {
 		if(tag == 0 || tag == this_linestyle->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tlinestyle %d, ", this_linestyle->tag);
@@ -2954,11 +2953,10 @@ static void show_linetype(linestyle_def * listhead, int tag)
 	}
 	if(tag > 0 && !showed)
 		GPO.IntErrorCurToken("linetype not found");
-	if(listhead == first_perm_linestyle)
+	if(listhead == GPO.Gg.P_FirstPermLineStyle)
 		recycle_count = linetype_recycle_count;
-	else if(listhead == first_mono_linestyle)
+	else if(listhead == GPO.Gg.P_FirstMonoLineStyle)
 		recycle_count = mono_recycle_count;
-
 	if(tag == 0 && recycle_count > 0)
 		fprintf(stderr, "\tLinetypes repeat every %d unless explicitly defined\n", recycle_count);
 }
@@ -2969,7 +2967,7 @@ static void show_arrowstyle(int tag)
 {
 	arrowstyle_def * this_arrowstyle;
 	bool showed = FALSE;
-	for(this_arrowstyle = first_arrowstyle; this_arrowstyle != NULL; this_arrowstyle = this_arrowstyle->next) {
+	for(this_arrowstyle = GPO.Gg.P_FirstArrowStyle; this_arrowstyle != NULL; this_arrowstyle = this_arrowstyle->next) {
 		if(tag == 0 || tag == this_arrowstyle->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tarrowstyle %d, ", this_arrowstyle->tag);

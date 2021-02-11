@@ -81,10 +81,10 @@
 #include "driver.h"
 
 #ifdef TERM_REGISTER
-register_term(latex)
-#ifdef EMTEX
-register_term(emtex)
-#endif
+	register_term(latex)
+	#ifdef EMTEX
+		register_term(emtex)
+	#endif
 #endif
 
 #ifdef TERM_PROTO
@@ -98,25 +98,21 @@ TERM_PUBLIC void LATEX_move(uint x, uint y);
 TERM_PUBLIC void LATEX_point(uint x, uint y, int number);
 TERM_PUBLIC void LATEX_vector(uint ux, uint uy);
 TERM_PUBLIC void LATEX_arrow(uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC int LATEX_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int LATEX_text_angle(int ang);
+TERM_PUBLIC int  LATEX_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  LATEX_text_angle(int ang);
 TERM_PUBLIC void LATEX_reset();
-TERM_PUBLIC void LATEX_fillbox(int style, uint x1, uint y1,
-    uint width, uint height);
-TERM_PUBLIC int LATEX_make_palette(t_sm_palette * palette);
+TERM_PUBLIC void LATEX_fillbox(int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC int  LATEX_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void LATEX_set_color(t_colorspec * colorspec);
-
 #ifdef EMTEX
-TERM_PUBLIC void EMTEX_init(termentry * pThis);
-TERM_PUBLIC void EMTEX_reset();
-TERM_PUBLIC void EMTEX_text();
+	TERM_PUBLIC void EMTEX_init(termentry * pThis);
+	TERM_PUBLIC void EMTEX_reset();
+	TERM_PUBLIC void EMTEX_text();
 #endif
-
 #ifdef EEPIC
-TERM_PUBLIC void EEPIC_move(uint x, uint y);
-TERM_PUBLIC void EEPIC_vector(uint ux, uint uy);
+	TERM_PUBLIC void EEPIC_move(uint x, uint y);
+	TERM_PUBLIC void EEPIC_vector(uint ux, uint uy);
 #endif
-
 #define TINY_STEP 0.5           /* tiny steps for high quality lines */
 
 #define LATEX_PTS_PER_INCH (72.27)
