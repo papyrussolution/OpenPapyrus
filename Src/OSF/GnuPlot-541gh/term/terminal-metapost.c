@@ -56,7 +56,7 @@ TERM_PUBLIC int MP_set_font(const char * font);
 TERM_PUBLIC void MP_boxfill(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC int MP_make_palette(t_sm_palette *);
 TERM_PUBLIC void MP_previous_palette();
-TERM_PUBLIC void MP_set_color(t_colorspec *);
+TERM_PUBLIC void MP_set_color(const t_colorspec *);
 TERM_PUBLIC void MP_filled_polygon(int, gpiPoint *);
 TERM_PUBLIC void MP_dashtype(int type, t_dashtype * custom_dash_type);
 
@@ -546,7 +546,7 @@ TERM_PUBLIC void MP_graphics()
 	/* initialize "remembered" drawing parameters */
 	MP_oldline = -2;
 	MP_oldpen = 1.0;
-	MP_oldptsize = pointsize;
+	MP_oldptsize = GPO.Gg.PointSize;
 	fprintf(gpoutfile, "\nbeginfig(%d);\nw:=%.3fin;h:=%.3fin;\n",
 	    MP_char_code, MP_xsize, MP_ysize);
 	/* MetaPost can only handle numbers up to 4096. When MP_DPI
@@ -554,9 +554,8 @@ TERM_PUBLIC void MP_graphics()
 	 * scale it and all coordinates down by factor of 10.0. And
 	 * compensate by scaling a and b up.
 	 */
-	fprintf(gpoutfile, "a:=w/%.1f;b:=h/%.1f;\n",
-	    (term->MaxX) / 10.0, (term->MaxY) / 10.0);
-	fprintf(gpoutfile, "scalepen 1; ptsize %.3f;linetype -2;\n", pointsize);
+	fprintf(gpoutfile, "a:=w/%.1f;b:=h/%.1f;\n", (term->MaxX) / 10.0, (term->MaxY) / 10.0);
+	fprintf(gpoutfile, "scalepen 1; ptsize %.3f;linetype -2;\n", GPO.Gg.PointSize);
 	MP_char_code++;
 	/* reset MP_color_changed */
 	MP_color_changed = 0;
@@ -839,7 +838,7 @@ TERM_PUBLIC int MP_make_palette(t_sm_palette * palette)
 	return 0; // metapost can do continuous number of colours 
 }
 
-TERM_PUBLIC void MP_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void MP_set_color(const t_colorspec * colorspec)
 {
 	double gray = colorspec->value;
 	rgb_color color;

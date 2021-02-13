@@ -698,9 +698,9 @@ void GnuPlot::StatsRequest()
 		// For all these below: we could save the state, switch off, then restore 
 		if(AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE || AxS[FIRST_Y_AXIS].datatype == DT_TIMEDATE)
 			IntError(NO_CARET, "Stats command not available in timedata mode");
-		if(polar)
+		if(Gg.Polar)
 			IntError(NO_CARET, "Stats command not available in polar mode");
-		if(parametric)
+		if(Gg.Parametric)
 			IntError(NO_CARET, "Stats command not available in parametric mode");
 		// Parse the remainder of the command line 
 		while(!(Pgm.EndOfCommand()) ) {

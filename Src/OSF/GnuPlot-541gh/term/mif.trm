@@ -104,11 +104,10 @@ TERM_PUBLIC void MIF_vector(uint x, uint y);
 TERM_PUBLIC void MIF_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC int MIF_text_angle(int ang);
 TERM_PUBLIC void MIF_reset();
-TERM_PUBLIC void MIF_options();
+TERM_PUBLIC void MIF_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC int MIF_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC void MIF_point(uint x, uint y, int number);
-TERM_PUBLIC void MIF_boxfill(int style, unsigned int x1, unsigned int y1,
-    uint width, uint height);
+TERM_PUBLIC void MIF_boxfill(int style, unsigned int x1, unsigned int y1, uint width, uint height);
 TERM_PUBLIC void MIF_filled_polygon(int points, gpiPoint* corners);
 
 /** Coordinates **/
@@ -258,27 +257,27 @@ static struct gen_table MIF_opts[] =
 /** Routine/s **/
 
 /* Called when this terminal type is set in order to parse options */
-TERM_PUBLIC void MIF_options()
+TERM_PUBLIC void MIF_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&MIF_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&MIF_opts[0])) {
 			/* Colour options */
 			case MIF_MONOCHROME:
 			    mif_colour = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case MIF_COLOR:
 			    mif_colour = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			/* Curve options */
 			case MIF_VECTORS:
 			    mif_polyline = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case MIF_POLYLINE:
 			    mif_polyline = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			/* Short help */
 			case MIF_HELP:
@@ -293,13 +292,11 @@ Usage: set terminal mif [options]\n\
 \t\tpolyline /      Draw lines as continuous curves\n\
 \t\tvectors         Draw lines as collections of vectors\n\n\
 \t\thelp / ?        Print short usage description on stderr\n");
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 		}
 	}
-	sprintf(term_options, "%s %s",
-	    (mif_colour == TRUE) ? "colour" : "monochrome",
-	    (mif_polyline == TRUE) ? "polyline" : "vectors");
+	sprintf(term_options, "%s %s", (mif_colour == TRUE) ? "colour" : "monochrome", (mif_polyline == TRUE) ? "polyline" : "vectors");
 }
 
 /* Deallocate the used line structure elements */

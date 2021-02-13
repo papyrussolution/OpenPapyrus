@@ -5,9 +5,9 @@
 #pragma hdrstop
 
 static void unset_angles();
-static void unset_arrowstyles();
+//static void unset_arrowstyles();
 static void free_arrowstyle(struct arrowstyle_def *);
-static void delete_arrow(struct arrow_def *, struct arrow_def *);
+//static void delete_arrow(struct arrow_def *, struct arrow_def *);
 static void unset_bars();
 static void unset_border();
 static void unset_boxplot();
@@ -17,7 +17,7 @@ static void unset_fillstyle();
 static void unset_cntrparam();
 static void unset_cntrlabel();
 static void unset_contour();
-static void unset_dashtype();
+//static void unset_dashtype();
 static void unset_dgrid3d();
 static void unset_encoding();
 static void unset_decimalsign();
@@ -26,13 +26,13 @@ static void unset_hidden3d();
 static void unset_histogram();
 static void unset_textbox_style();
 static void unset_historysize();
-static void unset_pixmaps();
-static void unset_pixmap(int);
+//static void unset_pixmaps();
+//static void unset_pixmap(int);
 static void unset_isosamples();
 static void unset_key();
 static void delete_label(struct text_label * prev, struct text_label * pThis);
 static void unset_linestyle(struct linestyle_def ** head);
-static void unset_object();
+//static void unset_object();
 static void delete_object(struct GpObject * prev, struct GpObject * pThis);
 static void unset_style_rectangle();
 static void unset_style_circle();
@@ -65,7 +65,7 @@ static void unset_surface();
 //static void unset_table();
 static void unset_ticslevel();
 static void unset_timefmt();
-static void unset_timestamp();
+//static void unset_timestamp();
 static void unset_view();
 static void unset_zero();
 static void reset_mouse();
@@ -111,8 +111,8 @@ ITERATE:
 		case S_CNTRLABEL: unset_cntrlabel(); break;
 		case S_CLABEL: clabel_onecolor = TRUE; break; /* deprecated command */
 		case S_CONTOUR: unset_contour(); break;
-		case S_CORNERPOLES: cornerpoles = FALSE; break;
-		case S_DASHTYPE: unset_dashtype(); break;
+		case S_CORNERPOLES: Gg.CornerPoles = FALSE; break;
+		case S_DASHTYPE: UnsetDashType(); break;
 		case S_DGRID3D: unset_dgrid3d(); break;
 		case S_DEBUG: debug = 0; break;
 		case S_DUMMY: UnsetDummy(); break;
@@ -129,10 +129,10 @@ ITERATE:
 		case S_HISTORYSIZE: unset_historysize(); break; /* Deprecated */
 		case S_PIXMAP:
 		    if(Pgm.EndOfCommand())
-			    unset_pixmaps();
+			    UnsetPixmaps();
 		    else {
 			    i = IntExpression();
-			    unset_pixmap(i);
+			    UnsetPixmap(i);
 		    }
 		    break;
 		case S_ISOSAMPLES: unset_isosamples(); break;
@@ -223,7 +223,7 @@ ITERATE:
 		case S_POLAR: UnsetPolar(); break;
 		case S_PRINT: unset_print(); break;
 		case S_PSDIR: unset_psdir(); break;
-		case S_OBJECT: unset_object(); break;
+		case S_OBJECT: UnsetObject(); break;
 		case S_WALL:
 		    for(i = 0; i < 5; i++)
 			    unset_wall(i);
@@ -251,8 +251,8 @@ ITERATE:
 		case S_TICSLEVEL: 
 		case S_XYPLANE: unset_ticslevel(); break;
 		case S_TIMEFMT: unset_timefmt(); break;
-		case S_TIMESTAMP: unset_timestamp(); break;
-		case S_TITLE: GpAxis::UnsetLabelOrTitle(&title); break;
+		case S_TIMESTAMP: UnsetTimeStamp(); break;
+		case S_TITLE: GpAxis::UnsetLabelOrTitle(&Gg.LblTitle); break;
 		case S_VIEW: unset_view(); break;
 		case S_VGRID: unset_vgrid(); break;
 		case S_ZERO: unset_zero(); break;
@@ -344,7 +344,7 @@ void GnuPlot::UnsetArrow()
 	if(Pgm.EndOfCommand()) {
 		// delete all arrows 
 		while(Gg.P_FirstArrow)
-			delete_arrow((arrow_def *)NULL, Gg.P_FirstArrow);
+			Gg.DeleteArrow((arrow_def *)NULL, Gg.P_FirstArrow);
 	}
 	else {
 		// get tag 
@@ -353,7 +353,7 @@ void GnuPlot::UnsetArrow()
 			IntErrorCurToken("extraneous arguments to unset arrow");
 		for(this_arrow = Gg.P_FirstArrow, prev_arrow = NULL; this_arrow != NULL; prev_arrow = this_arrow, this_arrow = this_arrow->next) {
 			if(this_arrow->tag == tag) {
-				delete_arrow(prev_arrow, this_arrow);
+				Gg.DeleteArrow(prev_arrow, this_arrow);
 				return; /* exit, our job is done */
 			}
 		}
@@ -366,23 +366,25 @@ void GnuPlot::UnsetArrow()
 // If there is no previous arrow (the arrow to delete is
 // first_arrow) then call with prev = NULL.
 // 
-static void delete_arrow(struct arrow_def * prev, struct arrow_def * pThis)
+//static void delete_arrow(arrow_def * pPrev, arrow_def * pThis)
+void GpGadgets::DeleteArrow(arrow_def * pPrev, arrow_def * pThis)
 {
 	if(pThis) { // there really is something to delete 
-		if(prev) // there is a previous arrow 
-			prev->next = pThis->next;
+		if(pPrev) // there is a previous arrow 
+			pPrev->next = pThis->next;
 		else // pThis = first_arrow so change first_arrow 
-			GPO.Gg.P_FirstArrow = pThis->next;
+			P_FirstArrow = pThis->next;
 		SAlloc::F(pThis);
 	}
 }
 //
 // delete the whole list of arrow styles 
 //
-static void unset_arrowstyles()
+//static void unset_arrowstyles()
+void GnuPlot::UnsetArrowStyles()
 {
-	free_arrowstyle(GPO.Gg.P_FirstArrowStyle);
-	GPO.Gg.P_FirstArrowStyle = NULL;
+	free_arrowstyle(Gg.P_FirstArrowStyle);
+	Gg.P_FirstArrowStyle = NULL;
 }
 
 static void free_arrowstyle(struct arrowstyle_def * arrowstyle)
@@ -392,31 +394,33 @@ static void free_arrowstyle(struct arrowstyle_def * arrowstyle)
 		SAlloc::F(arrowstyle);
 	}
 }
-/*
- * Deletes all pixmaps.
- */
-static void unset_pixmaps(void)
+//
+// Deletes all pixmaps.
+//
+//static void unset_pixmaps(void)
+void GnuPlot::UnsetPixmaps()
 {
 	t_pixmap * next;
-	for(t_pixmap * pixmap = GPO.Gg.P_PixmapListHead; pixmap; pixmap = next) {
+	for(t_pixmap * pixmap = Gg.P_PixmapListHead; pixmap; pixmap = next) {
 		SAlloc::F(pixmap->filename);
 		SAlloc::F(pixmap->colormapname);
 		SAlloc::F(pixmap->image_data);
 		next = pixmap->next;
 		SAlloc::F(pixmap);
 	}
-	GPO.Gg.P_PixmapListHead = NULL;
+	Gg.P_PixmapListHead = NULL;
 }
-/*
- * Deletes a single pixmap
- */
-static void unset_pixmap(int i)
+// 
+// Deletes a single pixmap
+// 
+//static void unset_pixmap(int i)
+void GnuPlot::UnsetPixmap(int i)
 {
-	t_pixmap * prev = GPO.Gg.P_PixmapListHead;
-	for(t_pixmap * pixmap = GPO.Gg.P_PixmapListHead; pixmap;) {
+	t_pixmap * prev = Gg.P_PixmapListHead;
+	for(t_pixmap * pixmap = Gg.P_PixmapListHead; pixmap;) {
 		if(pixmap->tag == i) {
-			if(pixmap == GPO.Gg.P_PixmapListHead)
-				prev = GPO.Gg.P_PixmapListHead = pixmap->next;
+			if(pixmap == Gg.P_PixmapListHead)
+				prev = Gg.P_PixmapListHead = pixmap->next;
 			else
 				prev->next = pixmap->next;
 			SAlloc::F(pixmap->filename);
@@ -527,19 +531,19 @@ void GnuPlot::UnsetClip()
 {
 	if(Pgm.EndOfCommand()) {
 		// same as all three 
-		clip_points = FALSE;
-		clip_lines1 = FALSE;
-		clip_lines2 = FALSE;
-		clip_radial = FALSE;
+		Gg.ClipPoints = false;
+		Gg.ClipLines1 = false;
+		Gg.ClipLines2 = false;
+		Gg.ClipRadial = false;
 	}
 	else if(Pgm.AlmostEqualsCur("r$adial") || Pgm.EqualsCur("polar"))
-		clip_radial = FALSE;
+		Gg.ClipRadial = false;
 	else if(Pgm.AlmostEqualsCur("p$oints"))
-		clip_points = FALSE;
+		Gg.ClipPoints = false;
 	else if(Pgm.AlmostEqualsCur("o$ne"))
-		clip_lines1 = FALSE;
+		Gg.ClipLines1 = false;
 	else if(Pgm.AlmostEqualsCur("t$wo"))
-		clip_lines2 = FALSE;
+		Gg.ClipLines2 = false;
 	else
 		IntErrorCurToken("expecting 'points', 'one', 'two', or 'radial'");
 	Pgm.Shift();
@@ -576,17 +580,17 @@ static void unset_contour()
 //
 // process 'unset dashtype' command 
 //
-static void unset_dashtype()
+//static void unset_dashtype()
+void GnuPlot::UnsetDashType()
 {
-	custom_dashtype_def * p_this, * prev;
-	if(GPO.Pgm.EndOfCommand()) {
+	if(Pgm.EndOfCommand()) {
 		// delete all 
-		while(GPO.Gg.P_FirstCustomDashtype)
-			delete_dashtype((custom_dashtype_def *)NULL, GPO.Gg.P_FirstCustomDashtype);
+		while(Gg.P_FirstCustomDashtype)
+			delete_dashtype((custom_dashtype_def *)NULL, Gg.P_FirstCustomDashtype);
 	}
 	else {
-		int tag = GPO.IntExpression();
-		for(p_this = GPO.Gg.P_FirstCustomDashtype, prev = NULL; p_this; prev = p_this, p_this = p_this->next) {
+		int tag = IntExpression();
+		for(custom_dashtype_def * p_this = Gg.P_FirstCustomDashtype, * prev = NULL; p_this; prev = p_this, p_this = p_this->next) {
 			if(p_this->tag == tag) {
 				delete_dashtype(prev, p_this);
 				break;
@@ -799,22 +803,20 @@ void GnuPlot::UnsetLineType()
 		unset_linestyle(&Gg.P_FirstPermLineStyle);
 }
 
-static void unset_object()
+//static void unset_object()
+void GnuPlot::UnsetObject()
 {
-	int tag;
-	if(GPO.Pgm.EndOfCommand()) {
+	if(Pgm.EndOfCommand()) {
 		// delete all objects 
-		while(GPO.Gg.P_FirstObject)
-			delete_object((GpObject *)NULL, GPO.Gg.P_FirstObject);
+		while(Gg.P_FirstObject)
+			delete_object((GpObject *)NULL, Gg.P_FirstObject);
 	}
 	else {
 		// get tag 
-		tag = GPO.IntExpression();
-		if(!GPO.Pgm.EndOfCommand())
-			GPO.IntErrorCurToken("extraneous arguments to unset rectangle");
-		GpObject * this_object;
-		GpObject * prev_object;
-		for(this_object = GPO.Gg.P_FirstObject, prev_object = NULL; this_object; prev_object = this_object, this_object = this_object->next) {
+		const int tag = IntExpression();
+		if(!Pgm.EndOfCommand())
+			IntErrorCurToken("extraneous arguments to unset rectangle");
+		for(GpObject * this_object = Gg.P_FirstObject, * prev_object = NULL; this_object; prev_object = this_object, this_object = this_object->next) {
 			if(this_object->tag == tag) {
 				delete_object(prev_object, this_object);
 				return; // exit, our job is done 
@@ -1024,8 +1026,7 @@ static void unset_offsets()
 //
 static void unset_origin()
 {
-	GPO.V.Offset.X = 0.0f;
-	GPO.V.Offset.Y = 0.0f;
+	GPO.V.Offset.SetZero();
 }
 //
 // process 'unset output' command 
@@ -1060,9 +1061,9 @@ static void unset_psdir()
 //static void unset_parametric()
 void GnuPlot::UnsetParametric()
 {
-	if(parametric) {
-		parametric = FALSE;
-		if(!polar) { // keep t for polar 
+	if(Gg.Parametric) {
+		Gg.Parametric = false;
+		if(!Gg.Polar) { // keep t for polar 
 			UnsetDummy();
 			if(interactive)
 				fprintf(stderr, "\n\tdummy variable is x for curves, x/y for surfaces\n");
@@ -1082,7 +1083,7 @@ static void unset_palette()
 //
 static void reset_colorbox()
 {
-	color_box = default_color_box;
+	GPO.Gg.ColorBox = default_color_box;
 }
 //
 // process 'unset colorbox' command: reset to default settings and then
@@ -1091,7 +1092,7 @@ static void reset_colorbox()
 static void unset_colorbox()
 {
 	reset_colorbox();
-	color_box.where = SMCOLOR_BOX_NO;
+	GPO.Gg.ColorBox.where = SMCOLOR_BOX_NO;
 }
 //
 // process 'unset pm3d' command 
@@ -1108,14 +1109,14 @@ static void unset_pm3d()
 //
 static void unset_pointintervalbox()
 {
-	pointintervalbox = 1.0;
+	GPO.Gg.PointIntervalBox = 1.0;
 }
 //
 // process 'unset pointsize' command 
 //
 static void unset_pointsize()
 {
-	pointsize = 1.0;
+	GPO.Gg.PointSize = 1.0;
 }
 //
 // process 'unset polar' command 
@@ -1123,14 +1124,14 @@ static void unset_pointsize()
 //static void unset_polar()
 void GnuPlot::UnsetPolar()
 {
-	if(polar) {
-		polar = FALSE;
-		if(parametric && AxS[T_AXIS].set_autoscale) {
+	if(Gg.Polar) {
+		Gg.Polar = false;
+		if(Gg.Parametric && AxS[T_AXIS].set_autoscale) {
 			// only if user has not set an explicit range 
 			AxS[T_AXIS].set_min = axis_defaults[T_AXIS].min;
 			AxS[T_AXIS].set_max = axis_defaults[T_AXIS].min;
 		}
-		if(!parametric) {
+		if(!Gg.Parametric) {
 			strcpy(set_dummy_var[0], "x");
 			if(interactive)
 				fprintf(stderr, "\n\tdummy variable is x for curves\n");
@@ -1223,7 +1224,7 @@ void GnuPlot::UnsetStyle()
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_ARROW:
-		    unset_arrowstyles();
+		    UnsetArrowStyles();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_RECTANGLE:
@@ -1262,8 +1263,8 @@ void GnuPlot::UnsetStyle()
 //static void unset_spiderplot()
 void GnuPlot::UnsetSpiderPlot()
 {
-	if(spiderplot) {
-		spiderplot = FALSE;
+	if(Gg.SpiderPlot) {
+		Gg.SpiderPlot = false;
 		data_style = POINTSTYLE;
 		V.AspectRatio = 0.0f;
 	}
@@ -1308,7 +1309,7 @@ void GnuPlot::UnsetTerminal()
 		if(strchr(termname, ' '))
 			*strchr(termname, ' ') = '\0';
 		*term_options = '\0';
-		term = change_term(termname, strlen(termname));
+		term = ChangeTerm(termname, strlen(termname));
 		SAlloc::F(termname);
 	}
 	screen_ok = FALSE;
@@ -1328,13 +1329,15 @@ static void unset_timefmt()
 	SAlloc::F(P_TimeFormat);
 	P_TimeFormat = gp_strdup(TIMEFMT);
 }
-
+//
 // process 'unset timestamp' command 
-static void unset_timestamp()
+//
+//static void unset_timestamp()
+void GnuPlot::UnsetTimeStamp()
 {
-	GpAxis::UnsetLabelOrTitle(&timelabel);
-	timelabel.rotate = 0;
-	timelabel_bottom = TRUE;
+	GpAxis::UnsetLabelOrTitle(&Gg.LblTime);
+	Gg.LblTime.rotate = 0;
+	Gg.TimeLabelBottom = TRUE;
 }
 //
 // process 'unset view' command 
@@ -1358,7 +1361,7 @@ static void unset_view()
 //
 static void unset_zero()
 {
-	zero = ZERO;
+	GPO.Gg.Zero = ZERO;
 }
 //
 // process 'unset {x|y|z|x2|y2}data' command 
@@ -1483,8 +1486,8 @@ void GnuPlot::ResetCommand()
 			unset_jitter();
 			// delete arrows 
 			while(Gg.P_FirstArrow)
-				delete_arrow((arrow_def *)NULL, Gg.P_FirstArrow);
-			unset_arrowstyles();
+				Gg.DeleteArrow(0, Gg.P_FirstArrow);
+			UnsetArrowStyles();
 			// delete labels 
 			while(Gg.P_FirstLabel)
 				delete_label((text_label *)NULL, Gg.P_FirstLabel);
@@ -1497,14 +1500,14 @@ void GnuPlot::ResetCommand()
 			unset_style_rectangle();
 			unset_style_circle();
 			unset_style_ellipse();
-			unset_pixmaps(); // delete pixmaps 
+			UnsetPixmaps(); // delete pixmaps 
 			// 'polar', 'parametric' and 'dummy' are interdependent, so be sure to keep the order intact 
 			UnsetPolar();
 			UnsetParametric();
 			UnsetDummy();
 			UnsetSpiderPlot();
 			unset_style_spiderplot();
-			GpAxis::UnsetLabelOrTitle(&title);
+			GpAxis::UnsetLabelOrTitle(&Gg.LblTitle);
 			reset_key();
 			unset_view();
 			for(axis = (AXIS_INDEX)0; axis<AXIS_ARRAY_SIZE; axis++) {
@@ -1540,16 +1543,16 @@ void GnuPlot::ResetCommand()
 			unset_boxplot();
 			unset_boxdepth();
 			unset_boxwidth();
-			clip_points = FALSE;
-			clip_lines1 = TRUE;
-			clip_lines2 = FALSE;
-			clip_radial = FALSE;
+			Gg.ClipPoints = false;
+			Gg.ClipLines1 = true;
+			Gg.ClipLines2 = false;
+			Gg.ClipRadial = false;
 			border_lp = default_border_lp;
 			border_layer = LAYER_FRONT;
 			draw_border = 31;
-			cornerpoles = TRUE;
-			draw_surface = TRUE;
-			implicit_surface = TRUE;
+			Gg.CornerPoles = true;
+			draw_surface = true;
+			implicit_surface = true;
 			data_style = POINTSTYLE;
 			func_style = LINES;
 			// Reset individual plot style options to the default 
@@ -1561,7 +1564,7 @@ void GnuPlot::ResetCommand()
 			polar_grid_angle = 0;
 			grid_layer = LAYER_BEHIND;
 			grid_tics_in_front = FALSE;
-			for(i = 0; i<5; i++)
+			for(i = 0; i < 5; i++)
 				unset_wall(i);
 			SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);
 			reset_hidden3doptions();
@@ -1573,7 +1576,7 @@ void GnuPlot::ResetCommand()
 			V.AspectRatio = 0.0f; // don't force it 
 			rgbmax = 255;
 			unset_origin();
-			unset_timestamp();
+			UnsetTimeStamp();
 			unset_offsets();
 			unset_contour();
 			unset_cntrparam();
@@ -1594,7 +1597,7 @@ void GnuPlot::ResetCommand()
 			unset_fillstyle();
 			unset_histogram();
 			unset_textbox_style();
-			prefer_line_styles = FALSE;
+			Gg.PreferLineStyles = false;
 		#ifdef USE_MOUSE
 			mouse_setting = default_mouse_setting;
 		#endif

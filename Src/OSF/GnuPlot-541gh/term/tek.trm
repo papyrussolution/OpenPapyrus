@@ -168,7 +168,7 @@ TERM_PUBLIC void SEL_text();
 TERM_PUBLIC void SEL_reset();
 #endif
 #ifdef SIXEL
-TERM_PUBLIC void SIXEL_options();
+TERM_PUBLIC void SIXEL_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void SIXEL_init(termentry * pThis);
 TERM_PUBLIC void SIXEL_reset();
 TERM_PUBLIC void SIXEL_text();
@@ -530,61 +530,62 @@ static struct gen_table SIXEL_opts[] =
 	{ NULL, SIXEL_OTHER }
 };
 
-TERM_PUBLIC void SIXEL_options()
+TERM_PUBLIC void SIXEL_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&SIXEL_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&SIXEL_opts[0])) {
 			case SIXEL_SMALL:
 			    SIXEL_font = 1;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case SIXEL_MEDIUM:
 			    SIXEL_font = 2;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case SIXEL_LARGE:
 			    SIXEL_font = 3;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case SIXEL_MONOCHROME:
 			    SIXEL_mode = 0;
-			    term->flags |= TERM_MONOCHROME;
-			    GPO.Pgm.Shift();
+			    pThis->flags |= TERM_MONOCHROME;
+			    pGp->Pgm.Shift();
 			    break;
 			case SIXEL_COLOR:
 			    SIXEL_mode = 1;
 			    // We do not change number of colors here.
-			    term->flags &= ~TERM_MONOCHROME;
-			    GPO.Pgm.Shift();
+			    pThis->flags &= ~TERM_MONOCHROME;
+			    pGp->Pgm.Shift();
 			    break;
 			case SIXEL_COLORS:
 			    SIXEL_mode = 1;
-			    term->flags &= ~TERM_MONOCHROME;
-			    GPO.Pgm.Shift();
-			    SIXEL_ncol = GPO.RealExpression();
+			    pThis->flags &= ~TERM_MONOCHROME;
+			    pGp->Pgm.Shift();
+			    SIXEL_ncol = pGp->RealExpression();
 			    if(SIXEL_ncol < 0) SIXEL_ncol = 16;
 			    if(SIXEL_ncol > 256) SIXEL_ncol = 256;
 			    break;
-			case SIXEL_SIZE: {
-			    float width, height;
-			    GPO.Pgm.Shift();
-			    GPO.ParseTermSize(&width, &height, PIXELS);
-			    if(width > 0 && height > 0) {
-				    term->MaxX = width - 1;
-				    term->MaxY = height - 1;
-			    }
-			    break;
-		    }
+			case SIXEL_SIZE: 
+				{
+					float width, height;
+					pGp->Pgm.Shift();
+					pGp->ParseTermSize(&width, &height, PIXELS);
+					if(width > 0 && height > 0) {
+						pThis->MaxX = width - 1;
+						pThis->MaxY = height - 1;
+					}
+				}
+				break;
 			case SIXEL_OTHER:
 			default:
-			    GPO.IntErrorCurToken("unknown option; expecting: {small, medium, large}, {monochrome, color}, or {size x,y}");
+			    pGp->IntErrorCurToken("unknown option; expecting: {small, medium, large}, {monochrome, color}, or {size x,y}");
 			    break;
 		}
 	}
-	term->TicV = (term->MaxX < term->MaxY) ? term->MaxX/100 : term->MaxY/100;
-	if(term->TicV < 1)
-		term->TicV = 1;
-	term->TicH = term->TicV;
+	pThis->TicV = (pThis->MaxX < pThis->MaxY) ? pThis->MaxX/100 : pThis->MaxY/100;
+	if(pThis->TicV < 1)
+		pThis->TicV = 1;
+	pThis->TicH = pThis->TicV;
 	/* setup options string */
 	switch(SIXEL_font) {
 		case 1: strcpy(term_options, "small"); break;
@@ -595,13 +596,13 @@ TERM_PUBLIC void SIXEL_options()
 		strcat(term_options, " monochrome");
 	else
 		sprintf(term_options + strlen(term_options), " colors %d", SIXEL_ncol);
-	sprintf(term_options + strlen(term_options), " size %d,%d", term->MaxX + 1, term->MaxY + 1);
+	sprintf(term_options + strlen(term_options), " size %d,%d", pThis->MaxX + 1, pThis->MaxY + 1);
 }
 
 TERM_PUBLIC void SIXEL_init(termentry * pThis)
 {
-	unsigned int xpixels = term->MaxX + 1;
-	unsigned int ypixels = term->MaxY + 1;
+	uint xpixels = pThis->MaxX + 1;
+	uint ypixels = pThis->MaxY + 1;
 	// We count the numbers of planes where we reserve an additional slot to account for "empty" pixels. 
 	int nplanes = 1;
 	int c = SIXEL_ncol + 1;

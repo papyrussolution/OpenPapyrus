@@ -5526,8 +5526,7 @@ cmsInt32Number CheckFloatLabTransforms(void)
 	       OneTrivialLab(cmsCreateLab2ProfileTHR(DbgThread(), NULL), cmsCreateLab4ProfileTHR(DbgThread(), NULL),  "Lab2/Lab4");
 }
 
-static
-cmsInt32Number CheckEncodedLabTransforms(void)
+static cmsInt32Number CheckEncodedLabTransforms(void)
 {
 	cmsHTRANSFORM xform;
 	cmsUInt16Number In[3];
@@ -5535,58 +5534,41 @@ cmsInt32Number CheckEncodedLabTransforms(void)
 	cmsCIELab White = { 100, 0, 0 };
 	cmsHPROFILE hLab1 = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
 	cmsHPROFILE hLab2 = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
-
 	xform = cmsCreateTransformTHR(DbgThread(), hLab1, TYPE_Lab_16, hLab2, TYPE_Lab_DBL, INTENT_RELATIVE_COLORIMETRIC, 0);
 	cmsCloseProfile(hLab1); cmsCloseProfile(hLab2);
-
 	In[0] = 0xFFFF;
 	In[1] = 0x8080;
 	In[2] = 0x8080;
-
 	cmsDoTransform(xform, In, &Lab, 1);
-
-	if(cmsDeltaE(&Lab, &White) > 0.0001) return 0;
+	if(cmsDeltaE(&Lab, &White) > 0.0001) 
+		return 0;
 	cmsDeleteTransform(xform);
-
 	hLab1 = cmsCreateLab2ProfileTHR(DbgThread(), NULL);
 	hLab2 = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
-
 	xform = cmsCreateTransformTHR(DbgThread(), hLab1, TYPE_LabV2_16, hLab2, TYPE_Lab_DBL, INTENT_RELATIVE_COLORIMETRIC, 0);
 	cmsCloseProfile(hLab1); cmsCloseProfile(hLab2);
-
 	In[0] = 0xFF00;
 	In[1] = 0x8000;
 	In[2] = 0x8000;
-
 	cmsDoTransform(xform, In, &Lab, 1);
-
-	if(cmsDeltaE(&Lab, &White) > 0.0001) return 0;
-
+	if(cmsDeltaE(&Lab, &White) > 0.0001) 
+		return 0;
 	cmsDeleteTransform(xform);
-
 	hLab2 = cmsCreateLab2ProfileTHR(DbgThread(), NULL);
 	hLab1 = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
-
 	xform = cmsCreateTransformTHR(DbgThread(), hLab1, TYPE_Lab_DBL, hLab2, TYPE_LabV2_16, INTENT_RELATIVE_COLORIMETRIC, 0);
 	cmsCloseProfile(hLab1); cmsCloseProfile(hLab2);
-
 	Lab.L = 100;
 	Lab.a = 0;
 	Lab.b = 0;
-
 	cmsDoTransform(xform, &Lab, In, 1);
-	if(In[0] != 0xFF00 ||
-	    In[1] != 0x8000 ||
-	    In[2] != 0x8000) return 0;
-
+	if(In[0] != 0xFF00 || In[1] != 0x8000 || In[2] != 0x8000) 
+		return 0;
 	cmsDeleteTransform(xform);
-
 	hLab1 = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
 	hLab2 = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
-
 	xform = cmsCreateTransformTHR(DbgThread(), hLab1, TYPE_Lab_DBL, hLab2, TYPE_Lab_16, INTENT_RELATIVE_COLORIMETRIC, 0);
 	cmsCloseProfile(hLab1); cmsCloseProfile(hLab2);
-
 	Lab.L = 100;
 	Lab.a = 0;
 	Lab.b = 0;
@@ -7813,24 +7795,18 @@ static void SpeedTest16bitsGray(const char * Title, cmsHPROFILE hlcmsProfileIn, 
 	cmsHTRANSFORM hlcmsxform;
 	cmsUInt16Number * In;
 	cmsUInt32Number Mb;
-
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
 		Die("Unable to open profiles");
-
-	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn,
-		TYPE_GRAY_16, hlcmsProfileOut, TYPE_GRAY_16, Intent, cmsFLAGS_NOCACHE);
+	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_GRAY_16, hlcmsProfileOut, TYPE_GRAY_16, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256 * sizeof(cmsUInt16Number);
-
 	In = (cmsUInt16Number*)malloc(Mb);
-
 	j = 0;
 	for(r = 0; r < 256; r++)
 		for(g = 0; g < 256; g++)
 			for(b = 0; b < 256; b++) {
 				In[j] = (cmsUInt16Number)((r + g + b) / 3);
-
 				j++;
 			}
 	TitlePerformance(Title);
@@ -7891,114 +7867,35 @@ static void SpeedTest(void)
 	printf("\n\nP E R F O R M A N C E   T E S T S\n");
 	printf("=================================\n\n");
 	fflush(stdout);
-
-	SpeedTest8bits("8 bits on CLUT profiles",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("test3.icc", "r"),
-	    INTENT_PERCEPTUAL);
-
-	SpeedTest16bits("16 bits on CLUT profiles",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("test3.icc", "r"), INTENT_PERCEPTUAL);
-
-	SpeedTest32bits("32 bits on CLUT profiles",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("test3.icc", "r"), INTENT_PERCEPTUAL);
-
+	SpeedTest8bits("8 bits on CLUT profiles", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("test3.icc", "r"), INTENT_PERCEPTUAL);
+	SpeedTest16bits("16 bits on CLUT profiles", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("test3.icc", "r"), INTENT_PERCEPTUAL);
+	SpeedTest32bits("32 bits on CLUT profiles", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("test3.icc", "r"), INTENT_PERCEPTUAL);
 	printf("\n");
-
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-	SpeedTest8bits("8 bits on Matrix-Shaper profiles",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    INTENT_PERCEPTUAL);
-
-	SpeedTest16bits("16 bits on Matrix-Shaper profiles",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    INTENT_PERCEPTUAL);
-
-	SpeedTest32bits("32 bits on Matrix-Shaper profiles",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    INTENT_PERCEPTUAL);
-
+	SpeedTest8bits("8 bits on Matrix-Shaper profiles", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), INTENT_PERCEPTUAL);
+	SpeedTest16bits("16 bits on Matrix-Shaper profiles", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), INTENT_PERCEPTUAL);
+	SpeedTest32bits("32 bits on Matrix-Shaper profiles", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), INTENT_PERCEPTUAL);
 	printf("\n");
-
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-	SpeedTest8bits("8 bits on SAME Matrix-Shaper profiles",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    INTENT_PERCEPTUAL);
-
-	SpeedTest16bits("16 bits on SAME Matrix-Shaper profiles",
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    INTENT_PERCEPTUAL);
-
-	SpeedTest32bits("32 bits on SAME Matrix-Shaper profiles",
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    INTENT_PERCEPTUAL);
-
+	SpeedTest8bits("8 bits on SAME Matrix-Shaper profiles", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("test5.icc", "r"), INTENT_PERCEPTUAL);
+	SpeedTest16bits("16 bits on SAME Matrix-Shaper profiles", cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), INTENT_PERCEPTUAL);
+	SpeedTest32bits("32 bits on SAME Matrix-Shaper profiles", cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), INTENT_PERCEPTUAL);
 	printf("\n");
-
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-	SpeedTest8bits("8 bits on Matrix-Shaper profiles (AbsCol)",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    INTENT_ABSOLUTE_COLORIMETRIC);
-
-	SpeedTest16bits("16 bits on Matrix-Shaper profiles (AbsCol)",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    INTENT_ABSOLUTE_COLORIMETRIC);
-
-	SpeedTest32bits("32 bits on Matrix-Shaper profiles (AbsCol)",
-	    cmsOpenProfileFromFile("test5.icc", "r"),
-	    cmsOpenProfileFromFile("aRGBlcms2.icc", "r"),
-	    INTENT_ABSOLUTE_COLORIMETRIC);
-
+	SpeedTest8bits("8 bits on Matrix-Shaper profiles (AbsCol)", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), INTENT_ABSOLUTE_COLORIMETRIC);
+	SpeedTest16bits("16 bits on Matrix-Shaper profiles (AbsCol)", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), INTENT_ABSOLUTE_COLORIMETRIC);
+	SpeedTest32bits("32 bits on Matrix-Shaper profiles (AbsCol)", cmsOpenProfileFromFile("test5.icc", "r"), cmsOpenProfileFromFile("aRGBlcms2.icc", "r"), INTENT_ABSOLUTE_COLORIMETRIC);
 	printf("\n");
-
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-	SpeedTest8bits("8 bits on curves",
-	    CreateCurves(),
-	    CreateCurves(),
-	    INTENT_PERCEPTUAL);
-
-	SpeedTest16bits("16 bits on curves",
-	    CreateCurves(),
-	    CreateCurves(),
-	    INTENT_PERCEPTUAL);
-
-	SpeedTest32bits("32 bits on curves",
-	    CreateCurves(),
-	    CreateCurves(),
-	    INTENT_PERCEPTUAL);
-
+	SpeedTest8bits("8 bits on curves", CreateCurves(), CreateCurves(), INTENT_PERCEPTUAL);
+	SpeedTest16bits("16 bits on curves", CreateCurves(), CreateCurves(), INTENT_PERCEPTUAL);
+	SpeedTest32bits("32 bits on curves", CreateCurves(), CreateCurves(), INTENT_PERCEPTUAL);
 	printf("\n");
-
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-	SpeedTest8bitsCMYK("8 bits on CMYK profiles",
-	    cmsOpenProfileFromFile("test1.icc", "r"),
-	    cmsOpenProfileFromFile("test2.icc", "r"));
-
-	SpeedTest16bitsCMYK("16 bits on CMYK profiles",
-	    cmsOpenProfileFromFile("test1.icc", "r"),
-	    cmsOpenProfileFromFile("test2.icc", "r"));
-
-	SpeedTest32bitsCMYK("32 bits on CMYK profiles",
-	    cmsOpenProfileFromFile("test1.icc", "r"),
-	    cmsOpenProfileFromFile("test2.icc", "r"));
-
+	SpeedTest8bitsCMYK("8 bits on CMYK profiles", cmsOpenProfileFromFile("test1.icc", "r"), cmsOpenProfileFromFile("test2.icc", "r"));
+	SpeedTest16bitsCMYK("16 bits on CMYK profiles", cmsOpenProfileFromFile("test1.icc", "r"), cmsOpenProfileFromFile("test2.icc", "r"));
+	SpeedTest32bitsCMYK("32 bits on CMYK profiles", cmsOpenProfileFromFile("test1.icc", "r"), cmsOpenProfileFromFile("test2.icc", "r"));
 	printf("\n");
-
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	SpeedTest8bitsGray("8 bits on gray-to gray",

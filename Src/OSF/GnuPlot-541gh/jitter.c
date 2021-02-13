@@ -69,7 +69,7 @@ void GnuPlot::JitterPoints(const termentry * pTerm, curve_points * pPlot)
 			if(JDist(&pPlot->points[i], &pPlot->points[i+j]) >= ygap)
 				break;
 			// Displace point purely on x 
-			xjit  = (j+1)/2 * jitter.spread * pPlot->lp_properties.p_size;
+			xjit  = (j+1)/2 * jitter.spread * pPlot->lp_properties.PtSize;
 			if(jitter.limit > 0)
 				while(xjit > jitter.limit)
 					xjit -= jitter.limit;

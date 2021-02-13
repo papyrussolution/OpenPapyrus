@@ -1,15 +1,8 @@
-/* Copyright (C) 2009-2018 Artifex Software, Inc.
-   All Rights Reserved.
-
-   This software is provided AS-IS with no warranty, either express or
-   implied.
-
-   This software is distributed under license and may not be copied, modified
-   or distributed except as expressly authorized under the terms of that
-   license. Refer to licensing information at http://www.artifex.com
-   or contact Artifex Software, Inc.,  1305 Grant Avenue - Suite 200,
-   Novato, CA 94945, U.S.A., +1(415)492-9861, for further information.
- */
+// MEMENTO.C
+// Copyright (C) 2009-2018 Artifex Software, Inc. All Rights Reserved.
+// Refer to licensing information at http://www.artifex.com or contact Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, 
+// Novato, CA 94945, U.S.A., +1(415)492-9861, for further information.
+//
 #include "jbig2dec-internal.h"
 #pragma hdrstop
 /* Inspired by Fortify by Simon P Bullen. */
@@ -17,22 +10,11 @@
 /* Set the following if you're only looking for leaks, not memory overwrites
  * to speed the operation */
 /* #define MEMENTO_LEAKONLY */
-
-/* Set the following to keep extra details about the history of blocks */
-#define MEMENTO_DETAILS
-
-/* Don't keep blocks around if they'd mean losing more than a quarter of
- * the freelist. */
-#define MEMENTO_FREELIST_MAX_SINGLE_BLOCK (MEMENTO_FREELIST_MAX/4)
-
+#define MEMENTO_DETAILS // Set the following to keep extra details about the history of blocks 
+#define MEMENTO_FREELIST_MAX_SINGLE_BLOCK (MEMENTO_FREELIST_MAX/4) // Don't keep blocks around if they'd mean losing more than a quarter of the freelist. 
 #define COMPILING_MEMENTO_C
-
-/* SHUT UP, MSVC. I KNOW WHAT I AM DOING. */
-#define _CRT_SECURE_NO_WARNINGS
-
-/* We have some GS specific tweaks; more for the GS build environment than
- * anything else. */
-/* #define MEMENTO_GS_HACKS */
+#define _CRT_SECURE_NO_WARNINGS // SHUT UP, MSVC. I KNOW WHAT I AM DOING. 
+// #define MEMENTO_GS_HACKS // We have some GS specific tweaks; more for the GS build environment than anything else. 
 
 #ifdef MEMENTO_GS_HACKS
 /* For GS we include malloc_.h. Anyone else would just include memento.h */
@@ -92,21 +74,17 @@ int atexit(void (*)(void));
 
 static char log_buffer[4096];
 static int log_fill = 0;
-
 static char log_buffer2[4096];
 
 static int android_fprintf(FILE * file, const char * fmt, ...)
 {
 	va_list args;
 	char * p, * q;
-
 	va_start(args, fmt);
 	vsnprintf(log_buffer2, sizeof(log_buffer2)-1, fmt, args);
 	va_end(args);
-
 	/* Ensure we are always null terminated */
 	log_buffer2[sizeof(log_buffer2)-1] = 0;
-
 	p = log_buffer2;
 	q = p;
 	do {
@@ -2773,10 +2751,7 @@ int Memento_find(void * a)
 	data.flags = 0;
 	Memento_appBlocks(&memento.free, Memento_containsAddr, &data);
 	if(data.blk != NULL) {
-		fprintf(stderr, "Address "FMTP " is in %sfreed block ",
-		    data.addr,
-		    (data.flags == 1 ? "" : (data.flags == 2 ?
-		    "preguard of " : "postguard of ")));
+		fprintf(stderr, "Address "FMTP " is in %sfreed block ", data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
 		s = showBlock(data.blk, ' ');
 		fprintf(stderr, "\n");
 		MEMENTO_UNLOCK();
@@ -2789,17 +2764,13 @@ int Memento_find(void * a)
 void Memento_breakOnFree(void * a)
 {
 	findBlkData data;
-
 	MEMENTO_LOCK();
 	data.addr  = a;
 	data.blk   = NULL;
 	data.flags = 0;
 	Memento_appBlocks(&memento.used, Memento_containsAddr, &data);
 	if(data.blk != NULL) {
-		fprintf(stderr, "Will stop when address "FMTP " (in %sallocated block ",
-		    data.addr,
-		    (data.flags == 1 ? "" : (data.flags == 2 ?
-		    "preguard of " : "postguard of ")));
+		fprintf(stderr, "Will stop when address "FMTP " (in %sallocated block ", data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
 		showBlock(data.blk, ' ');
 		fprintf(stderr, ") is freed\n");
 		VALGRIND_MAKE_MEM_DEFINED(data.blk, sizeof(Memento_BlkHeader));

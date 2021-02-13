@@ -2750,7 +2750,7 @@ int PS_make_palette(t_sm_palette * palette)
 	}
 }
 
-void PS_set_color(t_colorspec * colorspec)
+void PS_set_color(const t_colorspec * colorspec)
 {
 	double gray;
 	PS_linetype_last = LT_UNDEFINED; /* Force next call to linetype to be honored */
@@ -3902,16 +3902,18 @@ TERM_TABLE_START(post_driver)
 	, PS_make_palette,
 	PS_previous_palette,     /* write grestore */
 	PS_set_color,
-	PS_filled_polygon
-	, PS_image
-	, ENHPS_OPEN, ENHPS_FLUSH, ENHPS_WRITEC
-	, PS_layer              /* used only to insert comments */
-	, PS_path
-	, PS_SC                 /* terminal to pixel coord scale factor */
-	, NULL                  /* hypertext */
-	, ENHPS_boxed_text
-	, NULL                  /* modify_plots */
-	, PS_dashtype 
+	PS_filled_polygon,
+	PS_image,
+	ENHPS_OPEN, 
+	ENHPS_FLUSH, 
+	ENHPS_WRITEC,
+	PS_layer, // used only to insert comments 
+	PS_path,
+	PS_SC, // terminal to pixel coord scale factor 
+	NULL, // hypertext 
+	ENHPS_boxed_text,
+	NULL, // modify_plots 
+	PS_dashtype
 TERM_TABLE_END(post_driver)
 
 #undef LAST_TERM

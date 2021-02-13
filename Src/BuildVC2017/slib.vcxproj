@@ -6182,6 +6182,9 @@
     <ProjectReference Include="lz4.vcxproj">
       <Project>{6b7325a2-a019-4fc4-9585-1dba4cadefeb}</Project>
     </ProjectReference>
+    <ProjectReference Include="onig.vcxproj">
+      <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
+    </ProjectReference>
     <ProjectReference Include="pthreads4w.vcxproj">
       <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>
     </ProjectReference>

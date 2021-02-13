@@ -318,10 +318,10 @@ void t_sm_palette::CheckGradientType()
 //static void draw_inside_color_smooth_box_postscript()
 void GnuPlot::DrawInsideColorSmoothBoxPostScript()
 {
-	int scale_x = (color_box.bounds.xright - color_box.bounds.xleft), scale_y = (color_box.bounds.ytop - color_box.bounds.ybot);
+	int scale_x = (Gg.ColorBox.bounds.xright - Gg.ColorBox.bounds.xleft), scale_y = (Gg.ColorBox.bounds.ytop - Gg.ColorBox.bounds.ybot);
 	fputs("stroke gsave\t%% draw gray scale smooth box\nmaxcolors 0 gt {/imax maxcolors def} {/imax 1024 def} ifelse\n", gppsfile);
 	// nb. of discrete steps (counted in the loop) 
-	fprintf(gppsfile, "%i %i translate %i %i scale 0 setlinewidth\n", color_box.bounds.xleft, color_box.bounds.ybot, scale_x, scale_y);
+	fprintf(gppsfile, "%i %i translate %i %i scale 0 setlinewidth\n", Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot, scale_x, scale_y);
 	// define left bottom corner and scale of the box so that all coordinates
 	// of the box are from [0,0] up to [1,1]. Further, this normalization
 	// makes it possible to pass y from [0,1] as parameter to setgray 
@@ -331,7 +331,7 @@ void GnuPlot::DrawInsideColorSmoothBoxPostScript()
 		fputs("{ 0.99999 y0 sub g ", gppsfile); // 1 > x > 1-1.0/1024 
 	else
 		fputs("{ y0 g ", gppsfile);
-	if(color_box.rotation == 'v')
+	if(Gg.ColorBox.rotation == 'v')
 		fputs("0 y0 N 1 0 V 0 ystep V -1 0 f\n", gppsfile);
 	else
 		fputs("y0 0 N 0 1 V ystep 0 V 0 -1 f\n", gppsfile);
@@ -356,19 +356,19 @@ void GnuPlot::DrawInsideColorBoxBitmapMixed(termentry * pTerm)
 	else if(SmPltt.GradientNum > 128) {
 		steps = SmPltt.GradientNum;
 	}
-	if(color_box.rotation == 'v') {
-		corners[0].x = corners[3].x = color_box.bounds.xleft;
-		corners[1].x = corners[2].x = color_box.bounds.xright;
-		xy_from = color_box.bounds.ybot;
-		xy_to = color_box.bounds.ytop;
-		xy_step = (color_box.bounds.ytop - color_box.bounds.ybot) / (double)steps;
+	if(Gg.ColorBox.rotation == 'v') {
+		corners[0].x = corners[3].x = Gg.ColorBox.bounds.xleft;
+		corners[1].x = corners[2].x = Gg.ColorBox.bounds.xright;
+		xy_from = Gg.ColorBox.bounds.ybot;
+		xy_to = Gg.ColorBox.bounds.ytop;
+		xy_step = (Gg.ColorBox.bounds.ytop - Gg.ColorBox.bounds.ybot) / (double)steps;
 	}
 	else {
-		corners[0].y = corners[1].y = color_box.bounds.ybot;
-		corners[2].y = corners[3].y = color_box.bounds.ytop;
-		xy_from = color_box.bounds.xleft;
-		xy_to = color_box.bounds.xright;
-		xy_step = (color_box.bounds.xright - color_box.bounds.xleft) / (double)steps;
+		corners[0].y = corners[1].y = Gg.ColorBox.bounds.ybot;
+		corners[2].y = corners[3].y = Gg.ColorBox.bounds.ytop;
+		xy_from = Gg.ColorBox.bounds.xleft;
+		xy_to = Gg.ColorBox.bounds.xright;
+		xy_step = (Gg.ColorBox.bounds.xright - Gg.ColorBox.bounds.xleft) / (double)steps;
 	}
 	range = (xy_to - xy_from);
 	for(i = 0, xy2 = xy_from; i < steps; i++) {
@@ -399,7 +399,7 @@ void GnuPlot::DrawInsideColorBoxBitmapMixed(termentry * pTerm)
 					break;
 			}
 		}
-		if(color_box.rotation == 'v') {
+		if(Gg.ColorBox.rotation == 'v') {
 			corners[0].y = corners[1].y = xy;
 			corners[2].y = corners[3].y = MIN(xy_to, xy2+1);
 		}
@@ -427,17 +427,17 @@ void GnuPlot::DrawInsideColorBoxBitmapDiscrete(termentry * pTerm)
 	double gray, range;
 	gpiPoint corners[4];
 	int steps = SmPltt.GradientNum;
-	if(color_box.rotation == 'v') {
-		corners[0].x = corners[3].x = color_box.bounds.xleft;
-		corners[1].x = corners[2].x = color_box.bounds.xright;
-		xy_from = color_box.bounds.ybot;
-		xy_to = color_box.bounds.ytop;
+	if(Gg.ColorBox.rotation == 'v') {
+		corners[0].x = corners[3].x = Gg.ColorBox.bounds.xleft;
+		corners[1].x = corners[2].x = Gg.ColorBox.bounds.xright;
+		xy_from = Gg.ColorBox.bounds.ybot;
+		xy_to = Gg.ColorBox.bounds.ytop;
 	}
 	else {
-		corners[0].y = corners[1].y = color_box.bounds.ybot;
-		corners[2].y = corners[3].y = color_box.bounds.ytop;
-		xy_from = color_box.bounds.xleft;
-		xy_to = color_box.bounds.xright;
+		corners[0].y = corners[1].y = Gg.ColorBox.bounds.ybot;
+		corners[2].y = corners[3].y = Gg.ColorBox.bounds.ytop;
+		xy_from = Gg.ColorBox.bounds.xleft;
+		xy_to = Gg.ColorBox.bounds.xright;
 	}
 	range = (xy_to - xy_from);
 	for(i = 0; i < steps-1; i++) {
@@ -456,7 +456,7 @@ void GnuPlot::DrawInsideColorBoxBitmapDiscrete(termentry * pTerm)
 		}
 		gray = SmPltt.P_Gradient[i1].pos;
 		set_color(pTerm, gray);
-		if(color_box.rotation == 'v') {
+		if(Gg.ColorBox.rotation == 'v') {
 			corners[0].y = corners[1].y = xy;
 			corners[2].y = corners[3].y = MIN(xy_to, xy2+1);
 		}
@@ -488,19 +488,19 @@ void GnuPlot::DrawInsideColorBoxBitmapSmooth(termentry * pTerm)
 		steps = SmPltt.UseMaxColors;
 	else if(SmPltt.GradientNum > 128)
 		steps = SmPltt.GradientNum;
-	if(color_box.rotation == 'v') {
-		corners[0].x = corners[3].x = color_box.bounds.xleft;
-		corners[1].x = corners[2].x = color_box.bounds.xright;
-		xy_from = color_box.bounds.ybot;
-		xy_to = color_box.bounds.ytop;
-		xy_step = (color_box.bounds.ytop - color_box.bounds.ybot) / (double)steps;
+	if(Gg.ColorBox.rotation == 'v') {
+		corners[0].x = corners[3].x = Gg.ColorBox.bounds.xleft;
+		corners[1].x = corners[2].x = Gg.ColorBox.bounds.xright;
+		xy_from = Gg.ColorBox.bounds.ybot;
+		xy_to = Gg.ColorBox.bounds.ytop;
+		xy_step = (Gg.ColorBox.bounds.ytop - Gg.ColorBox.bounds.ybot) / (double)steps;
 	}
 	else {
-		corners[0].y = corners[1].y = color_box.bounds.ybot;
-		corners[2].y = corners[3].y = color_box.bounds.ytop;
-		xy_from = color_box.bounds.xleft;
-		xy_to = color_box.bounds.xright;
-		xy_step = (color_box.bounds.xright - color_box.bounds.xleft) / (double)steps;
+		corners[0].y = corners[1].y = Gg.ColorBox.bounds.ybot;
+		corners[2].y = corners[3].y = Gg.ColorBox.bounds.ytop;
+		xy_from = Gg.ColorBox.bounds.xleft;
+		xy_to = Gg.ColorBox.bounds.xright;
+		xy_step = (Gg.ColorBox.bounds.xright - Gg.ColorBox.bounds.xleft) / (double)steps;
 	}
 	for(i = 0, xy2 = xy_from; i < steps; i++) {
 		xy = xy2;
@@ -512,7 +512,7 @@ void GnuPlot::DrawInsideColorBoxBitmapSmooth(termentry * pTerm)
 		if(SmPltt.Positive == SMPAL_NEGATIVE)
 			gray = 1 - gray;
 		set_color(pTerm, gray);
-		if(color_box.rotation == 'v') {
+		if(Gg.ColorBox.rotation == 'v') {
 			corners[0].y = corners[1].y = xy;
 			corners[2].y = corners[3].y = MIN(xy_to, xy2+1);
 		}
@@ -527,9 +527,9 @@ void GnuPlot::DrawInsideColorBoxBitmapSmooth(termentry * pTerm)
 }
 
 //static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid/* linetype or -2 for no grid */, ticmark * userlabels)
-void GnuPlot::CbTickCallback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid/* linetype or -2 for no grid */, ticmark * userlabels)
+void GnuPlot::CbTickCallback(termentry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for no grid */, ticmark * userlabels)
 {
-	int len = tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1) * (term->TicH);
+	int len = tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1) * (pTerm->TicH);
 	uint x1, y1, x2, y2;
 	double cb_place;
 	// position of tic as a fraction of the full palette range 
@@ -541,55 +541,55 @@ void GnuPlot::CbTickCallback(GpAxis * pAx, double place, char * text, int ticlev
 	else
 		cb_place = (place - pAx->min) / (pAx->max - pAx->min);
 	// calculate tic position 
-	if(color_box.rotation == 'h') {
-		x1 = x2 = static_cast<uint>(color_box.bounds.xleft + cb_place * (color_box.bounds.xright - color_box.bounds.xleft));
-		y1 = color_box.bounds.ybot;
-		y2 = color_box.bounds.ybot - len;
+	if(Gg.ColorBox.rotation == 'h') {
+		x1 = x2 = static_cast<uint>(Gg.ColorBox.bounds.xleft + cb_place * (Gg.ColorBox.bounds.xright - Gg.ColorBox.bounds.xleft));
+		y1 = Gg.ColorBox.bounds.ybot;
+		y2 = Gg.ColorBox.bounds.ybot - len;
 	}
 	else {
-		x1 = color_box.bounds.xright;
-		x2 = color_box.bounds.xright + len;
-		y1 = y2 = static_cast<uint>(color_box.bounds.ybot + cb_place * (color_box.bounds.ytop - color_box.bounds.ybot));
+		x1 = Gg.ColorBox.bounds.xright;
+		x2 = Gg.ColorBox.bounds.xright + len;
+		y1 = y2 = static_cast<uint>(Gg.ColorBox.bounds.ybot + cb_place * (Gg.ColorBox.bounds.ytop - Gg.ColorBox.bounds.ybot));
 	}
 	// draw grid line 
-	if(grid.l_type > LT_NODRAW) {
-		TermApplyLpProperties(term, &grid); /* grid linetype */
-		if(color_box.rotation == 'h') {
-			(*term->move)(x1, color_box.bounds.ybot);
-			(*term->vector)(x1, color_box.bounds.ytop);
+	if(rGrid.l_type > LT_NODRAW) {
+		TermApplyLpProperties(pTerm, &rGrid); // grid linetype 
+		if(Gg.ColorBox.rotation == 'h') {
+			(pTerm->move)(x1, Gg.ColorBox.bounds.ybot);
+			(pTerm->vector)(x1, Gg.ColorBox.bounds.ytop);
 		}
 		else {
-			(*term->move)(color_box.bounds.xleft, y1);
-			(*term->vector)(color_box.bounds.xright, y1);
+			(pTerm->move)(Gg.ColorBox.bounds.xleft, y1);
+			(pTerm->vector)(Gg.ColorBox.bounds.xright, y1);
 		}
-		TermApplyLpProperties(term, &border_lp); /* border linetype */
+		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
 	}
 	// draw tic 
 	if(len != 0) {
-		int lt = color_box.cbtics_lt_tag;
+		int lt = Gg.ColorBox.cbtics_lt_tag;
 		if(lt <= 0)
-			lt = color_box.border_lt_tag;
+			lt = Gg.ColorBox.border_lt_tag;
 		if(lt > 0) {
 			lp_style_type lp = border_lp;
-			lp_use_properties(&lp, lt);
-			TermApplyLpProperties(term, &lp);
+			lp_use_properties(pTerm, &lp, lt);
+			TermApplyLpProperties(pTerm, &lp);
 		}
-		(*term->move)(x1, y1);
-		(*term->vector)(x2, y2);
+		(pTerm->move)(x1, y1);
+		(pTerm->vector)(x2, y2);
 		if(pAx->ticmode & TICS_MIRROR) {
-			if(color_box.rotation == 'h') {
-				y1 = color_box.bounds.ytop;
-				y2 = color_box.bounds.ytop + len;
+			if(Gg.ColorBox.rotation == 'h') {
+				y1 = Gg.ColorBox.bounds.ytop;
+				y2 = Gg.ColorBox.bounds.ytop + len;
 			}
 			else {
-				x1 = color_box.bounds.xleft;
-				x2 = color_box.bounds.xleft - len;
+				x1 = Gg.ColorBox.bounds.xleft;
+				x2 = Gg.ColorBox.bounds.xleft - len;
 			}
-			(*term->move)(x1, y1);
-			(*term->vector)(x2, y2);
+			(pTerm->move)(x1, y1);
+			(pTerm->vector)(x2, y2);
 		}
 		if(lt != 0)
-			TermApplyLpProperties(term, &border_lp);
+			TermApplyLpProperties(pTerm, &border_lp);
 	}
 	// draw label 
 	if(text) {
@@ -606,34 +606,34 @@ void GnuPlot::CbTickCallback(GpAxis * pAx, double place, char * text, int ticlev
 		}
 #undef MINIMUM_SEPARATION
 		// get offset 
-		Map3DPositionR(&(pAx->ticdef.offset), &offsetx, &offsety, "cbtics");
+		Map3DPositionR(pTerm, &pAx->ticdef.offset, &offsetx, &offsety, "cbtics");
 		// User-specified different color for the tics text 
 		if(pAx->ticdef.textcolor.type != TC_DEFAULT)
-			ApplyPm3DColor(term, &(pAx->ticdef.textcolor));
-		if(color_box.rotation == 'h') {
-			int y3 = color_box.bounds.ybot - (term->ChrV);
+			ApplyPm3DColor(pTerm, &(pAx->ticdef.textcolor));
+		if(Gg.ColorBox.rotation == 'h') {
+			int y3 = Gg.ColorBox.bounds.ybot - (pTerm->ChrV);
 			int hrotate = 0;
-			if(pAx->tic_rotate && (*term->text_angle)(pAx->tic_rotate))
+			if(pAx->tic_rotate && (pTerm->text_angle)(pAx->tic_rotate))
 				hrotate = pAx->tic_rotate;
 			if(len > 0) y3 -= len; /* add outer tics len */
 			if(y3<0) y3 = 0;
 			just = hrotate ? LEFT : CENTRE;
 			if(pAx->manual_justify)
 				just = pAx->tic_pos;
-			write_multiline(term, x2+offsetx, y3+offsety, text, (JUSTIFY)just, JUST_CENTRE, hrotate, pAx->ticdef.font);
+			write_multiline(pTerm, x2+offsetx, y3+offsety, text, (JUSTIFY)just, JUST_CENTRE, hrotate, pAx->ticdef.font);
 			if(hrotate)
-				(*term->text_angle)(0);
+				(pTerm->text_angle)(0);
 		}
 		else {
-			uint x3 = color_box.bounds.xright + (term->ChrH);
+			uint x3 = Gg.ColorBox.bounds.xright + (pTerm->ChrH);
 			if(len > 0) 
 				x3 += len; // add outer tics len 
 			just = LEFT;
 			if(pAx->manual_justify)
 				just = pAx->tic_pos;
-			write_multiline(term, x3+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0.0, pAx->ticdef.font);
+			write_multiline(pTerm, x3+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0.0, pAx->ticdef.font);
 		}
-		TermApplyLpProperties(term, &border_lp); /* border linetype */
+		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
 	}
 }
 // 
@@ -642,7 +642,7 @@ void GnuPlot::CbTickCallback(GpAxis * pAx, double place, char * text, int ticlev
 //void draw_color_smooth_box(termentry * pTerm, int plot_mode)
 void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 {
-	if(color_box.where == SMCOLOR_BOX_NO)
+	if(Gg.ColorBox.where == SMCOLOR_BOX_NO)
 		return;
 	if(!pTerm->filled_polygon)
 		return;
@@ -651,78 +651,78 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 	// 
 	// user's position like that (?):
 	// else {
-	// x_from = color_box.xlow;
-	// x_to   = color_box.xhigh;
+	// x_from = Gg.ColorBox.xlow;
+	// x_to   = Gg.ColorBox.xhigh;
 	// }
 	// 
-	if(color_box.where == SMCOLOR_BOX_USER) {
-		if(!is_3d_plot) {
+	if(Gg.ColorBox.where == SMCOLOR_BOX_USER) {
+		if(!Gg.Is3DPlot) {
 			double xtemp, ytemp;
-			MapPosition(pTerm, &color_box.origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
-			MapPositionR(pTerm, &color_box.size, &xtemp, &ytemp, "cbox");
-			color_box.bounds.xright = static_cast<int>(xtemp);
-			color_box.bounds.ytop = static_cast<int>(ytemp);
+			MapPosition(pTerm, &Gg.ColorBox.origin, &Gg.ColorBox.bounds.xleft, &Gg.ColorBox.bounds.ybot, "cbox");
+			MapPositionR(pTerm, &Gg.ColorBox.size, &xtemp, &ytemp, "cbox");
+			Gg.ColorBox.bounds.xright = static_cast<int>(xtemp);
+			Gg.ColorBox.bounds.ytop = static_cast<int>(ytemp);
 		}
-		else if(splot_map && is_3d_plot) {
+		else if(splot_map && Gg.Is3DPlot) {
 			// In map view mode we allow any coordinate system for placement 
 			double xtemp, ytemp;
-			Map3DPositionDouble(&color_box.origin, &xtemp, &ytemp, "cbox");
-			color_box.bounds.xleft = static_cast<int>(xtemp);
-			color_box.bounds.ybot = static_cast<int>(ytemp);
-			Map3DPositionR(&color_box.size, &color_box.bounds.xright, &color_box.bounds.ytop, "cbox");
+			Map3DPositionDouble(pTerm, &Gg.ColorBox.origin, &xtemp, &ytemp, "cbox");
+			Gg.ColorBox.bounds.xleft = static_cast<int>(xtemp);
+			Gg.ColorBox.bounds.ybot = static_cast<int>(ytemp);
+			Map3DPositionR(pTerm, &Gg.ColorBox.size, &Gg.ColorBox.bounds.xright, &Gg.ColorBox.bounds.ytop, "cbox");
 		}
 		else {
 			// But in full 3D mode we only allow screen coordinates 
-			color_box.bounds.xleft = static_cast<int>(color_box.origin.x * (pTerm->MaxX) + 0.5);
-			color_box.bounds.ybot = static_cast<int>(color_box.origin.y * (pTerm->MaxY) + 0.5);
-			color_box.bounds.xright = static_cast<int>(color_box.size.x * (pTerm->MaxX-1) + 0.5);
-			color_box.bounds.ytop = static_cast<int>(color_box.size.y * (pTerm->MaxY-1) + 0.5);
+			Gg.ColorBox.bounds.xleft = static_cast<int>(Gg.ColorBox.origin.x * (pTerm->MaxX) + 0.5);
+			Gg.ColorBox.bounds.ybot = static_cast<int>(Gg.ColorBox.origin.y * (pTerm->MaxY) + 0.5);
+			Gg.ColorBox.bounds.xright = static_cast<int>(Gg.ColorBox.size.x * (pTerm->MaxX-1) + 0.5);
+			Gg.ColorBox.bounds.ytop = static_cast<int>(Gg.ColorBox.size.y * (pTerm->MaxY-1) + 0.5);
 		}
-		color_box.bounds.xright += color_box.bounds.xleft;
-		color_box.bounds.ytop += color_box.bounds.ybot;
+		Gg.ColorBox.bounds.xright += Gg.ColorBox.bounds.xleft;
+		Gg.ColorBox.bounds.ytop += Gg.ColorBox.bounds.ybot;
 	}
-	else { // color_box.where == SMCOLOR_BOX_DEFAULT 
+	else { // Gg.ColorBox.where == SMCOLOR_BOX_DEFAULT 
 		if(plotMode == MODE_SPLOT && !splot_map) {
 			// general 3D plot 
-			color_box.bounds.xleft = static_cast<int>(xmiddle + 0.709 * xscaler);
-			color_box.bounds.xright = static_cast<int>(xmiddle + 0.778 * xscaler);
-			color_box.bounds.ybot = static_cast<int>(ymiddle - 0.147 * yscaler);
-			color_box.bounds.ytop = static_cast<int>(ymiddle + 0.497 * yscaler);
+			Gg.ColorBox.bounds.xleft = static_cast<int>(xmiddle + 0.709 * xscaler);
+			Gg.ColorBox.bounds.xright = static_cast<int>(xmiddle + 0.778 * xscaler);
+			Gg.ColorBox.bounds.ybot = static_cast<int>(ymiddle - 0.147 * yscaler);
+			Gg.ColorBox.bounds.ytop = static_cast<int>(ymiddle + 0.497 * yscaler);
 		}
 		else {
 			// 2D plot (including splot map) 
 			GpPosition default_origin = {graph, graph, graph, 1.025, 0, 0};
 			GpPosition default_size = {graph, graph, graph, 0.05, 1.0, 0};
 			double xtemp, ytemp;
-			MapPosition(pTerm, &default_origin, &color_box.bounds.xleft, &color_box.bounds.ybot, "cbox");
-			color_box.bounds.xleft += color_box.xoffset;
+			MapPosition(pTerm, &default_origin, &Gg.ColorBox.bounds.xleft, &Gg.ColorBox.bounds.ybot, "cbox");
+			Gg.ColorBox.bounds.xleft += Gg.ColorBox.xoffset;
 			MapPositionR(pTerm, &default_size, &xtemp, &ytemp, "cbox");
-			color_box.bounds.xright = static_cast<int>(xtemp + color_box.bounds.xleft);
-			color_box.bounds.ytop = static_cast<int>(ytemp + color_box.bounds.ybot);
+			Gg.ColorBox.bounds.xright = static_cast<int>(xtemp + Gg.ColorBox.bounds.xleft);
+			Gg.ColorBox.bounds.ytop = static_cast<int>(ytemp + Gg.ColorBox.bounds.ybot);
 		}
 		// now corrections for outer tics 
-		if(color_box.rotation == 'v') {
+		if(Gg.ColorBox.rotation == 'v') {
 			int cblen = static_cast<int>((AxS.__CB().TicIn ? -1 : 1) * AxS.__CB().ticscale * (pTerm->TicH)); // positive for outer tics 
 			int ylen  = static_cast<int>((AxS.__Y().TicIn ? -1 : 1) * AxS.__Y().ticscale * (pTerm->TicH)); // positive for outer tics 
 			if((cblen > 0) && (AxS.__CB().ticmode & TICS_MIRROR)) {
-				color_box.bounds.xleft += cblen;
-				color_box.bounds.xright += cblen;
+				Gg.ColorBox.bounds.xleft += cblen;
+				Gg.ColorBox.bounds.xright += cblen;
 			}
 			if((ylen > 0) && (AxS[FIRST_Y_AXIS].ticmode & TICS_MIRROR)) {
-				color_box.bounds.xleft += ylen;
-				color_box.bounds.xright += ylen;
+				Gg.ColorBox.bounds.xleft += ylen;
+				Gg.ColorBox.bounds.xright += ylen;
 			}
 		}
 	}
-	if(color_box.bounds.ybot > color_box.bounds.ytop) {
-		double tmp = color_box.bounds.ytop;
-		color_box.bounds.ytop = color_box.bounds.ybot;
-		color_box.bounds.ybot = static_cast<int>(tmp);
+	if(Gg.ColorBox.bounds.ybot > Gg.ColorBox.bounds.ytop) {
+		double tmp = Gg.ColorBox.bounds.ytop;
+		Gg.ColorBox.bounds.ytop = Gg.ColorBox.bounds.ybot;
+		Gg.ColorBox.bounds.ybot = static_cast<int>(tmp);
 	}
-	if(color_box.invert && color_box.rotation == 'v') {
-		double tmp = color_box.bounds.ytop;
-		color_box.bounds.ytop = color_box.bounds.ybot;
-		color_box.bounds.ybot = static_cast<int>(tmp);
+	if(Gg.ColorBox.invert && Gg.ColorBox.rotation == 'v') {
+		double tmp = Gg.ColorBox.bounds.ytop;
+		Gg.ColorBox.bounds.ytop = Gg.ColorBox.bounds.ybot;
+		Gg.ColorBox.bounds.ybot = static_cast<int>(tmp);
 	}
 	pTerm->layer(TERM_LAYER_BEGIN_COLORBOX);
 	// The PostScript terminal has an Optimized version 
@@ -737,22 +737,22 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 			DrawInsideColorBoxBitmapMixed(pTerm);
 	}
 	pTerm->layer(TERM_LAYER_END_COLORBOX);
-	if(color_box.border) {
+	if(Gg.ColorBox.border) {
 		// now make boundary around the colour box 
-		if(color_box.border_lt_tag >= 0) {
+		if(Gg.ColorBox.border_lt_tag >= 0) {
 			// user specified line type 
 			lp_style_type lp = border_lp;
-			lp_use_properties(&lp, color_box.border_lt_tag);
+			lp_use_properties(pTerm, &lp, Gg.ColorBox.border_lt_tag);
 			TermApplyLpProperties(pTerm, &lp);
 		}
 		else
 			TermApplyLpProperties(pTerm, &border_lp); // black solid colour should be chosen, so it's border linetype 
 		newpath(pTerm);
-		(pTerm->move)(color_box.bounds.xleft, color_box.bounds.ybot);
-		(pTerm->vector)(color_box.bounds.xright, color_box.bounds.ybot);
-		(pTerm->vector)(color_box.bounds.xright, color_box.bounds.ytop);
-		(pTerm->vector)(color_box.bounds.xleft, color_box.bounds.ytop);
-		(pTerm->vector)(color_box.bounds.xleft, color_box.bounds.ybot);
+		(pTerm->move)(Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
+		(pTerm->vector)(Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ybot);
+		(pTerm->vector)(Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ytop);
+		(pTerm->vector)(Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ytop);
+		(pTerm->vector)(Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
 		closepath(pTerm);
 		// Set line properties to some value, this also draws lines in postscript terminals. 
 		TermApplyLpProperties(pTerm, &border_lp);
@@ -768,10 +768,10 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 		int len;
 		int save_rotation = AxS.__CB().label.rotate;
 		ApplyPm3DColor(pTerm, &(AxS.__CB().label.textcolor));
-		if(color_box.rotation == 'h') {
+		if(Gg.ColorBox.rotation == 'h') {
 			len = static_cast<int>(AxS.__CB().ticscale * (AxS.__CB().TicIn ? 1 : -1) * (pTerm->TicV));
-			x = (color_box.bounds.xleft + color_box.bounds.xright) / 2;
-			y = static_cast<int>(color_box.bounds.ybot - 2.7 * pTerm->ChrV);
+			x = (Gg.ColorBox.bounds.xleft + Gg.ColorBox.bounds.xright) / 2;
+			y = static_cast<int>(Gg.ColorBox.bounds.ybot - 2.7 * pTerm->ChrV);
 			if(len < 0) 
 				y += len;
 			if(AxS.__CB().label.rotate == TEXT_VERTICAL)
@@ -781,12 +781,12 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 			len = static_cast<int>(AxS.__CB().ticscale * (AxS.__CB().TicIn ? -1 : 1) * (pTerm->TicH));
 			// calculate max length of cb-tics labels 
 			widest_tic_strlen = 0;
-			if(AxS.__CB().ticmode & TICS_ON_BORDER) /* Recalculate widest_tic_strlen */
+			if(AxS.__CB().ticmode & TICS_ON_BORDER) // Recalculate widest_tic_strlen 
 				GenTics(&AxS[COLOR_AXIS], &GnuPlot::WidestTicCallback);
-			x = static_cast<int>(color_box.bounds.xright + (widest_tic_strlen + 1.5) * pTerm->ChrH);
+			x = static_cast<int>(Gg.ColorBox.bounds.xright + (widest_tic_strlen + 1.5) * pTerm->ChrH);
 			if(len > 0) 
 				x += len;
-			y = (color_box.bounds.ybot + color_box.bounds.ytop) / 2;
+			y = (Gg.ColorBox.bounds.ybot + Gg.ColorBox.bounds.ytop) / 2;
 		}
 		SETMAX(x, 0);
 		SETMAX(y, 0);
@@ -870,11 +870,11 @@ void GnuPlot::F_RgbColor(union argument * arg)
 // A colormap can have specific min/max stored internally,
 // but otherwise we use the current cbrange
 //
-double map2gray(double z, udvt_entry * colormap)
+double map2gray(double z, const udvt_entry * pColorMap)
 {
 	double gray;
 	double cm_min, cm_max;
-	get_colormap_range(colormap, &cm_min, &cm_max);
+	get_colormap_range(pColorMap, &cm_min, &cm_max);
 	if(cm_min == cm_max)
 		gray = GPO.Cb2Gray(z);
 	else
@@ -882,20 +882,20 @@ double map2gray(double z, udvt_entry * colormap)
 	return gray;
 }
 
-void get_colormap_range(udvt_entry * colormap, double * cm_min, double * cm_max)
+void get_colormap_range(const udvt_entry * pColorMap, double * cm_min, double * cm_max)
 {
-	*cm_min = colormap->udv_value.v.value_array[1].v.cmplx_val.imag;
-	*cm_max = colormap->udv_value.v.value_array[2].v.cmplx_val.imag;
+	*cm_min = pColorMap->udv_value.v.value_array[1].v.cmplx_val.imag;
+	*cm_max = pColorMap->udv_value.v.value_array[2].v.cmplx_val.imag;
 }
 // 
 // gray is in the interval [0:1]
 // colormap is an ARRAY containing a palette of 32-bit ARGB values
 // 
-uint rgb_from_colormap(double gray, udvt_entry * colormap)
+uint rgb_from_colormap(double gray, const udvt_entry * pColorMap)
 {
-	GpValue * palette = colormap->udv_value.v.value_array;
+	const GpValue * palette = pColorMap->udv_value.v.value_array;
 	int size = palette[0].v.int_val;
-	uint rgb = (gray <= 0.0) ? palette[1].v.int_val : (gray >= 1.0) ? palette[size].v.int_val : palette[ (int)(floor(size * gray)) + 1].v.int_val;
+	uint rgb = (gray <= 0.0) ? palette[1].v.int_val : (gray >= 1.0) ? palette[size].v.int_val : palette[(int)(floor(size * gray)) + 1].v.int_val;
 	return rgb;
 }
 // 

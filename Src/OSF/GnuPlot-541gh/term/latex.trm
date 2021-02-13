@@ -88,7 +88,7 @@
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void LATEX_options();
+TERM_PUBLIC void LATEX_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void LATEX_init(termentry * pThis);
 TERM_PUBLIC void LATEX_graphics();
 TERM_PUBLIC void LATEX_text();
@@ -247,8 +247,7 @@ enum LATEX_id {
 	LATEX_OTHER
 };
 
-static struct gen_table LATEX_opts[] =
-{
+static struct gen_table LATEX_opts[] = {
 	{ "c$ourier", LATEX_COURIER },
 	{ "r$oman", LATEX_ROMAN },
 	{ "d$efault", LATEX_DEFAULT },
@@ -261,91 +260,83 @@ static struct gen_table LATEX_opts[] =
 	{ NULL, LATEX_OTHER }
 };
 
-TERM_PUBLIC void LATEX_options()
+TERM_PUBLIC void LATEX_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	latex_explicit_size = FALSE;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&LATEX_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&LATEX_opts[0])) {
 			case LATEX_COURIER:
 			    strcpy(LATEX_font, "cmtt");
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case LATEX_ROMAN:
 			    strcpy(LATEX_font, "cmr");
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case LATEX_DEFAULT:
 			    strcpy(LATEX_font, "doc");
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case LATEX_SIZE: {
 			    float xmax_t = 5.0f;
 				float ymax_t = 3.0f;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    latex_explicit_size = TRUE;
-			    latex_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
-			    term->MaxX = xmax_t * DOTS_PER_INCH/72;
-			    term->MaxY = ymax_t * DOTS_PER_INCH/72;
+			    latex_explicit_units = pGp->ParseTermSize(&xmax_t, &ymax_t, INCHES);
+			    pThis->MaxX = xmax_t * DOTS_PER_INCH/72;
+			    pThis->MaxY = ymax_t * DOTS_PER_INCH/72;
 			    break;
 		    }
 			case LATEX_ROTATE:
 			    latex_rotate = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case LATEX_NOROTATE:
 			    latex_rotate = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case LATEX_COLOR:
 			    LATEX_use_color = TRUE;
-			    term->flags &= ~TERM_MONOCHROME;
-			    GPO.Pgm.Shift();
+			    pThis->flags &= ~TERM_MONOCHROME;
+			    pGp->Pgm.Shift();
 			    break;
 			case LATEX_MONOCHROME:
 			    LATEX_use_color = FALSE;
-			    term->flags |= TERM_MONOCHROME;
-			    GPO.Pgm.Shift();
+			    pThis->flags |= TERM_MONOCHROME;
+			    pGp->Pgm.Shift();
 			    break;
 			case LATEX_OTHER:
 			default:
-			    if(GPO.Pgm.IsANumber(GPO.Pgm.GetCurTokenIdx())) {
-				    LATEX_fontsize = GPO.IntExpression();
+			    if(pGp->Pgm.IsANumber(pGp->Pgm.GetCurTokenIdx())) {
+				    LATEX_fontsize = pGp->IntExpression();
 				    if(LATEX_fontsize <= 1)
 					    LATEX_fontsize = 10;
 				    break;
 			    }
-			    GPO.IntErrorCurToken("unrecognized option");
+			    pGp->IntErrorCurToken("unrecognized option");
 		}
 	}
 	/* tell gnuplot core about char. sizes. Horizontal spacing
 	 * is about half the text pointsize
 	 */
-	term->ChrV = (uint)(LATEX_fontsize * DOTS_PER_INCH / 72);
-	term->ChrH = (uint)(LATEX_fontsize * DOTS_PER_INCH / 144);
+	pThis->ChrV = (uint)(LATEX_fontsize * DOTS_PER_INCH / 72);
+	pThis->ChrH = (uint)(LATEX_fontsize * DOTS_PER_INCH / 144);
 	if(strcmp(LATEX_font, "doc")==0)
 		sprintf(term_options, "(document specific font) %d", LATEX_fontsize);
 	else
-		sprintf(term_options, "%s %d",
-		    LATEX_font[2] == 't' ? "courier" : "roman", LATEX_fontsize);
-
+		sprintf(term_options, "%s %d", LATEX_font[2] == 't' ? "courier" : "roman", LATEX_fontsize);
 	if(latex_explicit_size) {
 		if(latex_explicit_units == CM)
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ",
-			    2.54*(float)term->MaxX/(DOTS_PER_INCH),
-			    2.54*(float)term->MaxY/(DOTS_PER_INCH));
+			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ", 2.54*(float)pThis->MaxX/(DOTS_PER_INCH), 2.54*(float)pThis->MaxY/(DOTS_PER_INCH));
 		else
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ",
-			    (float)term->MaxX/(DOTS_PER_INCH),
-			    (float)term->MaxY/(DOTS_PER_INCH));
+			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ", (float)pThis->MaxX/(DOTS_PER_INCH), (float)pThis->MaxY/(DOTS_PER_INCH));
 	}
-
 	if(latex_rotate) {
 		sprintf(&(term_options[strlen(term_options)]), " rotate");
 	}
 	else {
 		sprintf(&(term_options[strlen(term_options)]), " norotate");
 	}
-
 	if(LATEX_use_color) {
 		sprintf(&(term_options[strlen(term_options)]), " color");
 	}

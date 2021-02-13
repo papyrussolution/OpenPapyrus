@@ -216,7 +216,7 @@ static void analyze(double a[], double ** alpha, double beta[], double * chisq, 
 static void calculate(double * zfunc, double ** dzda, double a[]);
 static void calc_derivatives(const double * par, double * data, double ** deriv);
 static bool fit_interrupt();
-static bool regress(double a[]);
+//static bool regress(double a[]);
 static void regress_init();
 static void regress_finalize(int iter, double chisq, double last_chisq, double lambda, double ** covar);
 static void fit_show(int i, double chisq, double last_chisq, double * a, double lambda, FILE * device);
@@ -435,16 +435,12 @@ static marq_res_t marquardt(double a[], double ** C, double * chisq, double * la
 static double effective_error(double ** deriv, int i)
 {
 	double tot_err;
-	int j, k;
-
 	if(num_errors <= 1) /* z-errors or equal weights */
 		tot_err = err_data[i];
 	else {
-		/* "Effective variance" according to
-		 *  Jay Orear, Am. J. Phys., Vol. 50, No. 10, October 1982
-		 */
+		// "Effective variance" according to Jay Orear, Am. J. Phys., Vol. 50, No. 10, October 1982
 		tot_err = SQR(err_data[i * num_errors + (num_errors - 1)]);
-		for(j = 0, k = 0; j < num_indep; j++) {
+		for(int j = 0, k = 0; j < num_indep; j++) {
 			if(err_cols[j]) {
 				tot_err += SQR(deriv[k][i] * err_data[i * num_errors + k]);
 				k++;
@@ -452,7 +448,6 @@ static double effective_error(double ** deriv, int i)
 		}
 		tot_err = sqrt(tot_err);
 	}
-
 	return tot_err;
 }
 
@@ -465,17 +460,13 @@ static double effective_error(double ** deriv, int i)
 static void analyze(double a[], double ** C, double d[], double * chisq, double ** deriv)
 {
 	int i, j;
-
 	calculate(d, C, a);
-
-	/* derivatives in indep. variables are required for
-	   effective variance method */
+	// derivatives in indep. variables are required for effective variance method 
 	if(num_errors > 1)
 		calc_derivatives(a, d, deriv);
-
 	for(i = 0; i < num_data; i++) {
 		double err = effective_error(deriv, i);
-		/* note: order reversed, as used by Schwarz */
+		// note: order reversed, as used by Schwarz 
 		d[i] = (d[i] - fit_z[i]) / err;
 		for(j = 0; j < num_params; j++)
 			C[i][j] /= err;
@@ -497,7 +488,6 @@ static void calculate(double * zfunc, double ** dzda, double a[])
 #ifdef TWO_SIDE_DIFFERENTIATION
 	double * tmp_low;
 #endif
-
 	tmp_high = vec(num_data); /* numeric derivations */
 #ifdef TWO_SIDE_DIFFERENTIATION
 	tmp_low = vec(num_data);
@@ -531,10 +521,9 @@ static void calculate(double * zfunc, double ** dzda, double a[])
 	SAlloc::F(tmp_high);
 	SAlloc::F(tmp_pars);
 }
-
-/*****************************************************************
-    call internal gnuplot functions
-*****************************************************************/
+//
+// call internal gnuplot functions
+//
 void call_gnuplot(const double * par, double * data)
 {
 	int i, j;
@@ -684,10 +673,9 @@ const char * getfitscript()
 	else
 		return DEFAULT_CMD;
 }
-
-/*****************************************************************
-    initial setup for regress()
-*****************************************************************/
+//
+// initial setup for regress()
+//
 static void regress_init()
 {
 	// Reset flag describing fit result status 
@@ -698,10 +686,9 @@ static void regress_init()
 	// HBB 981118: initialize new variable 'user_break' 
 	user_stop = FALSE;
 }
-
-/*****************************************************************
-    finalize regression: print results and set user variables
-*****************************************************************/
+//
+// finalize regression: print results and set user variables
+//
 static void regress_finalize(int iter, double chisq, double last_chisq, double lambda, double ** covar)
 {
 	int i, j;
@@ -713,15 +700,11 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 	double * dpar;
 	double ** corel = NULL;
 	bool covar_invalid = FALSE;
-
-	/* restore original SIGINT function */
-	interrupt_setup();
-
-	/* tsm patchset 230: final progress report labels to console */
+	interrupt_setup(); // restore original SIGINT function 
+	// tsm patchset 230: final progress report labels to console 
 	if(fit_verbosity == BRIEF)
 		fit_show_brief(-2, chisq, chisq, a, lambda, STANDARD);
-
-	/* tsm patchset 230: final progress report to log file */
+	// tsm patchset 230: final progress report to log file 
 	if(!fit_suppress_log) {
 		if(fit_verbosity == VERBOSE)
 			fit_show(iter, chisq, last_chisq, a, lambda, log_f);
@@ -731,16 +714,15 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 	// test covariance matrix 
 	if(covar) {
 		for(i = 0; i < num_params; i++) {
-			/* diagonal elements must be larger than zero */
+			// diagonal elements must be larger than zero 
 			if(covar[i][i] <= 0.0) {
-				/* Not a fatal error, but prevent floating point exception later on */
+				// Not a fatal error, but prevent floating point exception later on 
 				Dblf2("Calculation error: non-positive diagonal element in covar. matrix of parameter '%s'.\n", par_name[i]);
 				covar_invalid = TRUE;
 			}
 		}
 	}
-
-	/* HBB 970304: the maxiter patch: */
+	// HBB 970304: the maxiter patch: 
 	if((maxiter > 0) && (iter > maxiter)) {
 		Dblf2("\nMaximum iteration count (%d) reached. Fit stopped.\n", maxiter);
 	}
@@ -880,19 +862,23 @@ static void internal_cleanup()
 //
 // frame routine for the marquardt-fit
 //
-static bool regress(double a[])
+//static bool regress(double a[])
+bool GnuPlot::Regress(double a[])
 {
-	double ** covar, ** C, chisq, last_chisq, lambda;
+	double ** covar;
+	double ** C;
+	double chisq;
+	double last_chisq;
+	double lambda;
 	int iter;
 	marq_res_t res;
 	regress_cleanup = &internal_cleanup;
 	chisq = last_chisq = INFINITY;
-	/* the global copy to is accessible to error_ex, too */
+	// the global copy to is accessible to error_ex, too 
 	regress_C = C = matr(num_data + num_params, num_params);
-	lambda = -1;            /* use sign as flag */
-	iter = 0;               /* iteration counter  */
-
-	/* Initialize internal variables and 1st chi-square check */
+	lambda = -1; // use sign as flag 
+	iter = 0;    // iteration counter  
+	// Initialize internal variables and 1st chi-square check 
 	if((res = marquardt(a, C, &chisq, &lambda)) == ML_ERROR)
 		Eex("FIT: error occurred during fit");
 	res = BETTER;
@@ -901,7 +887,7 @@ static bool regress(double a[])
 	if(!fit_suppress_log)
 		fit_progress(iter, chisq, chisq, a, lambda, log_f);
 	regress_init();
-	/* MAIN FIT LOOP: do the regression iteration */
+	// MAIN FIT LOOP: do the regression iteration 
 	do {
 		if(!regress_check_stop(iter, chisq, last_chisq, lambda))
 			break;
@@ -914,7 +900,7 @@ static bool regress(double a[])
 	} while((res != ML_ERROR) && (lambda < MAX_LAMBDA) && ((maxiter == 0) || (iter <= maxiter)) && (chisq != 0) && (res == WORSE ||
 	    /* tsm patchset 230: change to new convergence criterion */
 	    ((last_chisq - chisq) > (epsilon * chisq + epsilon_abs))));
-	/* fit done */
+	// fit done 
 	if(res == ML_ERROR)
 		Eex("FIT: error occurred during fit");
 	/* compute errors in the parameters */
@@ -922,11 +908,11 @@ static bool regress(double a[])
 	/* and errors in the parameters                     */
 	/* compute covar[][] directly from C */
 	Givens(C, 0, 0, num_data, num_params);
-	/* Use lower square of C for covar */
+	// Use lower square of C for covar 
 	covar = C + num_data;
 	Invert_RtR(C, covar, num_params);
 	regress_finalize(iter, chisq, last_chisq, lambda, covar);
-	/* call destructor for allocated vars */
+	// call destructor for allocated vars 
 	internal_cleanup();
 	regress_cleanup = NULL;
 	return TRUE;
@@ -1008,10 +994,9 @@ static void show_results(double chisq, double last_chisq, double * a, double * d
 		}
 	}
 }
-
-/*****************************************************************
-    display actual state of the fit
-*****************************************************************/
+//
+// display actual state of the fit
+//
 void fit_progress(int i, double chisq, double last_chisq, double* a, double lambda, FILE * device)
 {
 	if(fit_verbosity == VERBOSE)
@@ -1043,24 +1028,24 @@ static void fit_show(int i, double chisq, double last_chisq, double* a, double l
 	for(k = 0; k < num_params; k++)
 		fprintf(device, "%-15.15s = %g\n", par_name[k], a[k] * scale_params[k]);
 }
-
-/* If the exponent of a floating point number in scientific format (%e) has three
-   digits and the highest digit is zero, it will get removed by this routine. */
+//
+// If the exponent of a floating point number in scientific format (%e) has three
+// digits and the highest digit is zero, it will get removed by this routine. 
+//
 static char * pack_float(char * num)
 {
 	static int needs_packing = -1;
 	if(needs_packing < 0) {
-		/* perform the test only once */
+		// perform the test only once 
 		char buf[12];
 		snprintf(buf, sizeof(buf), "%.2e", 1.00); /* "1.00e+000" or "1.00e+00" */
 		needs_packing = (strlen(buf) == 9);
 	}
 	if(needs_packing) {
 		char * p = strchr(num, 'e');
-		if(p == NULL)
-			p = strchr(num, 'E');
-		if(p != NULL) {
-			p += 2; /* also skip sign of exponent */
+		SETIFZ(p, strchr(num, 'E'));
+		if(p) {
+			p += 2; // also skip sign of exponent 
 			if(*p == '0') {
 				do {
 					*p = *(p + 1);
@@ -1101,12 +1086,11 @@ static void fit_show_brief(int iter, double chisq, double last_chisq, double* pa
 	}
 
 	/* on iteration -2, don't print anything else */
-	if(iter == -2) return;
-
+	if(iter == -2) 
+		return;
 	/* new convergence test quantities */
 	delta = chisq - last_chisq;
 	lim = epsilon * chisq + epsilon_abs;
-
 	/* print values */
 	if(iter >= 0)
 		snprintf(buf, sizeof(buf), "%4i", iter);
@@ -1988,7 +1972,7 @@ out_of_range:
 	if(num_params == 0)
 		IntWarn(NO_CARET, "No fittable parameters!\n");
 	else
-		regress(a); /* fit */
+		Regress(a); /* fit */
 	SFile::ZClose(&log_f);
 	ZFREE(fit_x);
 	ZFREE(fit_z);

@@ -47,7 +47,7 @@ TERM_PUBLIC void DEBUG_resume();
 TERM_PUBLIC void DEBUG_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void DEBUG_linewidth(double linewidth);
 TERM_PUBLIC void DEBUG_filled_polygon(int, gpiPoint *);
-TERM_PUBLIC void DEBUG_set_color(t_colorspec *);
+TERM_PUBLIC void DEBUG_set_color(const t_colorspec *);
 TERM_PUBLIC void DEBUG_layer(t_termlayer syncpoint);
 TERM_PUBLIC void DEBUG_path(int p);
 TERM_PUBLIC void DEBUG_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
@@ -214,7 +214,7 @@ TERM_PUBLIC void DEBUG_filled_polygon(int points, gpiPoint * corners)
 	fprintf(gpoutfile, "polygon with %d vertices\n", points);
 }
 
-TERM_PUBLIC void DEBUG_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void DEBUG_set_color(const t_colorspec * colorspec)
 {
 	//extern void save_pm3dcolor();
 	fprintf(gpoutfile, "set_color:  ");

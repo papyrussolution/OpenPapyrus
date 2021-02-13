@@ -32,7 +32,7 @@ register_term(pdf)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PDF_options();
+TERM_PUBLIC void PDF_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void PDF_init(termentry * pThis);
 TERM_PUBLIC void PDF_graphics();
 TERM_PUBLIC void PDF_text();
@@ -315,34 +315,34 @@ static void PDF_DefinePatterns()
 
 /*------------------- the terminal entry functions --------------------*/
 
-TERM_PUBLIC void PDF_options()
+TERM_PUBLIC void PDF_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
-	/* Annoying hack to handle the case of 'set termoption' after */
-	/* we have already initialized the terminal.                  */
-	if(!almost_equals(GPO.Pgm.GetPrevTokenIdx(), "termopt$ion")) {
+	// Annoying hack to handle the case of 'set termoption' after 
+	// we have already initialized the terminal.                  
+	if(!almost_equals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion")) {
 		pdf_explicit_size = FALSE;
-		/* Default to enhanced text */
-		term->put_text = ENHPDF_put_text;
-		term->flags |= TERM_ENHANCED_TEXT;
+		// Default to enhanced text 
+		pThis->put_text = ENHPDF_put_text;
+		pThis->flags |= TERM_ENHANCED_TEXT;
 	}
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("enh$anced")) {
-			GPO.Pgm.Shift();
-			term->put_text = ENHPDF_put_text;
-			term->flags |= TERM_ENHANCED_TEXT;
+	while(!pGp->Pgm.EndOfCommand()) {
+		if(pGp->Pgm.AlmostEqualsCur("enh$anced")) {
+			pGp->Pgm.Shift();
+			pThis->put_text = ENHPDF_put_text;
+			pThis->flags |= TERM_ENHANCED_TEXT;
 			continue;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("noenh$anced")) {
-			GPO.Pgm.Shift();
-			term->put_text = PDF_put_text;
-			term->flags &= ~TERM_ENHANCED_TEXT;
+		else if(pGp->Pgm.AlmostEqualsCur("noenh$anced")) {
+			pGp->Pgm.Shift();
+			pThis->put_text = PDF_put_text;
+			pThis->flags &= ~TERM_ENHANCED_TEXT;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("fn$ame") || GPO.Pgm.AlmostEqualsCur("font")) {
+		if(pGp->Pgm.AlmostEqualsCur("fn$ame") || pGp->Pgm.AlmostEqualsCur("font")) {
 			char * s, * comma;
-			GPO.Pgm.Shift();
-			if(!(s = GPO.TryToGetString()))
-				GPO.IntErrorCurToken("fname: expecting font name");
+			pGp->Pgm.Shift();
+			if(!(s = pGp->TryToGetString()))
+				pGp->IntErrorCurToken("fname: expecting font name");
 			comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma+1, "%lf", &PDF_fontSizeDef)))
 				*comma = '\0';
@@ -351,90 +351,90 @@ TERM_PUBLIC void PDF_options()
 			SAlloc::F(s);
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("fs$ize")) {
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("fsize: expecting font size");
-			PDF_fontSizeDef = GPO.RealExpression();
+		if(pGp->Pgm.AlmostEqualsCur("fs$ize")) {
+			pGp->Pgm.Shift();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("fsize: expecting font size");
+			PDF_fontSizeDef = pGp->RealExpression();
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("lw") || GPO.Pgm.AlmostEqualsCur("linew$idth")) {
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting line width");
-			PDF_linewidth_factor = GPO.RealExpression();
+		if(pGp->Pgm.EqualsCur("lw") || pGp->Pgm.AlmostEqualsCur("linew$idth")) {
+			pGp->Pgm.Shift();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("expecting line width");
+			PDF_linewidth_factor = pGp->RealExpression();
 			if(PDF_linewidth_factor <= 0)
 				PDF_linewidth_factor = 0.1;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("rou$nded")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("rou$nded")) {
+			pGp->Pgm.Shift();
 			PDF_LineCap = 1;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("butt")) {
+		if(pGp->Pgm.EqualsCur("butt")) {
 			PDF_LineCap = 0;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("color") || GPO.Pgm.AlmostEqualsCur("col$our")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.EqualsCur("color") || pGp->Pgm.AlmostEqualsCur("col$our")) {
+			pGp->Pgm.Shift();
 			PDF_monochrome = FALSE;
-			term->flags &= ~TERM_MONOCHROME;
+			pThis->flags &= ~TERM_MONOCHROME;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("mono$chrome")) {
-			GPO.Pgm.Shift();
+		if(pGp->Pgm.AlmostEqualsCur("mono$chrome")) {
+			pGp->Pgm.Shift();
 			PDF_monochrome = TRUE;
-			term->flags |= TERM_MONOCHROME;
+			pThis->flags |= TERM_MONOCHROME;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("dl") || GPO.Pgm.AlmostEqualsCur("dashl$ength")) {
-			GPO.Pgm.Shift();
-			if(GPO.Pgm.EndOfCommand())
-				GPO.IntErrorCurToken("expecting dashlength multiplier");
-			PDF_dashlength_factor = GPO.RealExpression();
+		if(pGp->Pgm.EqualsCur("dl") || pGp->Pgm.AlmostEqualsCur("dashl$ength")) {
+			pGp->Pgm.Shift();
+			if(pGp->Pgm.EndOfCommand())
+				pGp->IntErrorCurToken("expecting dashlength multiplier");
+			PDF_dashlength_factor = pGp->RealExpression();
 			if(PDF_dashlength_factor < 0.0)
 				PDF_dashlength_factor = 1.0;
 			continue;
 		}
-		if(GPO.Pgm.AlmostEqualsCur("dash$ed") || GPO.Pgm.EqualsCur("solid")) {
+		if(pGp->Pgm.AlmostEqualsCur("dash$ed") || pGp->Pgm.EqualsCur("solid")) {
 			/* Version 5 always enables dashed lines */
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("size")) {
+		if(pGp->Pgm.EqualsCur("size")) {
 			float xmax_t, ymax_t;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 			pdf_explicit_size = TRUE;
-			pdf_explicit_units = GPO.ParseTermSize(&xmax_t, &ymax_t, INCHES);
-			term->MaxX = xmax_t*PDF_RESOLUTION*72.0/GpResolution;
-			term->MaxY = ymax_t*PDF_RESOLUTION*72.0/GpResolution;
+			pdf_explicit_units = pGp->ParseTermSize(&xmax_t, &ymax_t, INCHES);
+			pThis->MaxX = xmax_t*PDF_RESOLUTION*72.0/GpResolution;
+			pThis->MaxY = ymax_t*PDF_RESOLUTION*72.0/GpResolution;
 			continue;
 		}
-		if(GPO.Pgm.EqualsCur("fontscale")) {
-			GPO.Pgm.Shift();
-			PDF_fontscale = GPO.Pgm.EndOfCommand() ? -1 : GPO.RealExpression();
+		if(pGp->Pgm.EqualsCur("fontscale")) {
+			pGp->Pgm.Shift();
+			PDF_fontscale = pGp->Pgm.EndOfCommand() ? -1 : pGp->RealExpression();
 			if(PDF_fontscale < 0)
 				PDF_fontscale = 1.0;
 			continue;
 		}
-		GPO.IntErrorCurToken("unexpected text at end of command");
+		pGp->IntErrorCurToken("unexpected text at end of command");
 	}
 	/* Save options back into options string in normalized format */
 	sprintf(term_options, "%s%s fname '%s'  fsize %g fontscale %3.1f linewidth %3.1f %s ",
-	    PDF_monochrome ? "monochrome " : " ", term->put_text == ENHPDF_put_text ? "enhanced" : "noenhanced",
+	    PDF_monochrome ? "monochrome " : " ", pThis->put_text == ENHPDF_put_text ? "enhanced" : "noenhanced",
 	    PDF_fontNameDef, PDF_fontSizeDef, PDF_fontscale, PDF_linewidth_factor, PDF_LineCap == 1 ? "rounded" : "");
 	if(PDF_dashedlines)
 		sprintf(&(term_options[strlen(term_options)]), "dl %3.1f", PDF_dashlength_factor);
 	if(pdf_explicit_size) {
 		if(pdf_explicit_units == CM)
 			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ",
-			    2.54*(float)term->MaxX/(72.*PDF_RESOLUTION),
-			    2.54*(float)term->MaxY/(72.*PDF_RESOLUTION));
+			    2.54*(float)pThis->MaxX/(72.*PDF_RESOLUTION),
+			    2.54*(float)pThis->MaxY/(72.*PDF_RESOLUTION));
 		else
 			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ",
-			    (float)term->MaxX/(72.*PDF_RESOLUTION),
-			    (float)term->MaxY/(72.*PDF_RESOLUTION));
+			    (float)pThis->MaxX/(72.*PDF_RESOLUTION),
+			    (float)pThis->MaxY/(72.*PDF_RESOLUTION));
 	}
 }
 
@@ -502,24 +502,19 @@ TERM_PUBLIC void PDF_graphics()
 {
 	if(PDF_pageIsOpen)
 		return;         /* already open --> nothing to do */
-
 	PDF_pathIsOpen = FALSE;
 	PDF_xLast = PDF_yLast = UINT_MAX;
-
-	/* set size of canvas */
+	// set size of canvas 
 	if(!pdf_explicit_size) {
 		term->MaxX = PDF_XMAX;
 		term->MaxY = PDF_YMAX;
 	}
-
-	PDF_begin_page(myPDF, (double)term->MaxX / PDF_RESOLUTION,
-	    (double)term->MaxY / PDF_RESOLUTION);
+	PDF_begin_page(myPDF, (double)term->MaxX / PDF_RESOLUTION, (double)term->MaxY / PDF_RESOLUTION);
 	PDF_scale(myPDF, 1.0/PDF_RESOLUTION, 1.0/PDF_RESOLUTION);
 	if(title.text && title.text[0])
 		/* a title has been set --> use it as the bookmark name, too */
 		PDF_add_bookmark(myPDF, title.text, 0, 1);
 	PDF_pageIsOpen = TRUE;
-
 	PDF_SetFont();
 }
 

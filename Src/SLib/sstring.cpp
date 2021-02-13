@@ -54,7 +54,7 @@ SRegExpSet::~SRegExpSet()
 int SRegExpSet::RegisterRe(const char * pRe, long * pHandler)
 {
 	long   handler = 0;
-	CRegExp * p_re = new CRegExp(pRe);
+	SRegExp2 * p_re = new SRegExp2(pRe, cp1251, SRegExp2::syntaxDefault, 0);
 	if(p_re && p_re->IsValid()) {
 		ReList.insert(p_re);
 		handler = static_cast<long>(ReList.getCount());
@@ -68,7 +68,7 @@ int SRegExpSet::InitReNumber()
 	if(!P_ReNumber) {
 		// [0-9]+ означает, что число должно содержать как минимум одну цифру до возможной точки.
 		// То есть вариант ".02" не будет восприниматься как число
-		P_ReNumber = new CRegExp("^[+-]?[0-9]+([\\.][0-9]*)?([Ee][+-]?[0-9]+)?");
+		P_ReNumber = new SRegExp2("^[+-]?[0-9]+([\\.][0-9]*)?([Ee][+-]?[0-9]+)?", cp1251, SRegExp2::syntaxDefault, 0);
 	}
 	return P_ReNumber ? 1 : (SLibError = SLERR_NOMEM, 0);
 }
@@ -78,7 +78,7 @@ int SRegExpSet::InitReHex()
 	if(!P_ReHex) {
 		// [0-9]+ означает, что число должно содержать как минимум одну цифру до возможной точки.
 		// То есть вариан ".02" не будет восприниматься как число
-		P_ReHex = new CRegExp("^[+-]?0[xX][0-9a-fA-F]+");
+		P_ReHex = new SRegExp2("^[+-]?0[xX][0-9a-fA-F]+", cp1251, SRegExp2::syntaxDefault, 0);
 	}
 	return P_ReHex ? 1 : (SLibError = SLERR_NOMEM, 0);
 }
@@ -86,7 +86,8 @@ int SRegExpSet::InitReHex()
 int SRegExpSet::InitReEmail()
 {
 	if(!P_ReEMail) {
-		P_ReEMail = new CRegExp("^[-A-Za-z0-9!#$%&\'*+/=?^_`{|}~]+(\\.[-A-Za-z0-9!#$%&\'*+/=?^_`{|}~]+)*\\@([A-Za-z0-9][-A-Za-z0-9]*\\.)+[A-Za-z]+");
+		P_ReEMail = new SRegExp2("^[-A-Za-z0-9!#$%&\'*+/=?^_`{|}~]+(\\.[-A-Za-z0-9!#$%&\'*+/=?^_`{|}~]+)*\\@([A-Za-z0-9][-A-Za-z0-9]*\\.)+[A-Za-z]+",
+			cp1251, SRegExp2::syntaxDefault, 0);
 	}
 	return P_ReEMail ? 1 : (SLibError = SLERR_NOMEM, 0);
 }
@@ -137,7 +138,7 @@ int FASTCALL SStrScan::Pop(uint prevPos)
 int FASTCALL SStrScan::IsRe(long reHandler)
 {
 	if(reHandler > 0 && reHandler <= static_cast<long>(ReList.getCount())) {
-		CRegExp * p_re = ReList.at(reHandler-1);
+		SRegExp2 * p_re = ReList.at(reHandler-1);
 		if(p_re)
 			return BIN(p_re->Find(P_Buf+Offs));
 	}
@@ -147,8 +148,8 @@ int FASTCALL SStrScan::IsRe(long reHandler)
 int SStrScan::GetRe(long reHandler, SString & rBuf)
 {
 	if(reHandler > 0 && reHandler <= static_cast<long>(ReList.getCount())) {
-		CRegExp * p_re = ReList.at(reHandler-1);
-		if(p_re && p_re->Find(this)) {
+		SRegExp2 * p_re = ReList.at(reHandler-1);
+		if(p_re && p_re->Find(this, 0)) {
 			Get(rBuf);
 			IncrLen();
 			return 1;
@@ -230,8 +231,8 @@ SString & FASTCALL SStrScan::Get(SString & rBuf) const
 
 int FASTCALL SStrScan::GetQuotedString(SString & rBuf)
 {
-	SETIFZ(P_ReQuotedStr, new CRegExp("^\"[^\"]*\""));
-	if(P_ReQuotedStr->Find(this)) {
+	SETIFZ(P_ReQuotedStr, new SRegExp2("^\"[^\"]*\"", cp1251, SRegExp2::syntaxDefault, 0));
+	if(P_ReQuotedStr->Find(this, 0)) {
 		Offs++;   // "
 		Len -= 2; // ""
 		Get(rBuf);
@@ -322,8 +323,8 @@ int SStrScan::Get(const char * pPattern, SString & rBuf)
 int FASTCALL SStrScan::GetIdent(SString & rBuf)
 {
 	if(!P_ReIdent)
-		P_ReIdent = new CRegExp("^[_a-zA-Z][_0-9a-zA-Z]*");
-	if(P_ReIdent->Find(this)) {
+		P_ReIdent = new SRegExp2("^[_a-zA-Z][_0-9a-zA-Z]*", cp1251, SRegExp2::syntaxDefault, 0);
+	if(P_ReIdent->Find(this, 0)) {
 		Get(rBuf);
 		IncrLen();
 		return 1;
@@ -335,8 +336,8 @@ int FASTCALL SStrScan::GetIdent(SString & rBuf)
 int FASTCALL SStrScan::GetDigits(SString & rBuf)
 {
     int    ok = 0;
-    if(SETIFZ(P_ReDigits, new CRegExp("^[0-9]+"))) {
-        if(P_ReDigits->Find(this)) {
+    if(SETIFZ(P_ReDigits, new SRegExp2("^[0-9]+", cp1251, SRegExp2::syntaxDefault, 0))) {
+        if(P_ReDigits->Find(this, 0)) {
             Get(rBuf);
             IncrLen();
             ok = 1;
@@ -348,7 +349,7 @@ int FASTCALL SStrScan::GetDigits(SString & rBuf)
 int SStrScan::IsDigits()
 {
     int    ok = 0;
-    if(SETIFZ(P_ReDigits, new CRegExp("^[0-9]+"))) {
+    if(SETIFZ(P_ReDigits, new SRegExp2("^[0-9]+", cp1251, SRegExp2::syntaxDefault, 0))) {
         if(P_ReDigits->Find(P_Buf+Offs))
             ok = 1;
     }
@@ -428,7 +429,7 @@ int FASTCALL SStrScan::GetDotPrefixedNumber(SString & rBuf)
 
 int FASTCALL SStrScan::GetNumber(SString & rBuf)
 {
-	if(InitReNumber() && P_ReNumber->Find(this)) {
+	if(InitReNumber() && P_ReNumber->Find(this, 0)) {
 		Get(rBuf);
 		IncrLen();
 		return 1;
@@ -471,7 +472,7 @@ int FASTCALL SStrScan::GetEol(SEOLFormat eolf)
 
 int FASTCALL SStrScan::GetHex(SString & rBuf)
 {
-	if(InitReHex() && P_ReHex->Find(this)) {
+	if(InitReHex() && P_ReHex->Find(this, 0)) {
 		Get(rBuf);
 		IncrLen();
 		return 1;
@@ -485,8 +486,8 @@ int SStrScan::GetDate(long datefmt, LDATE & rDate)
 	rDate = ZERODATE;
 	int    ok = 0;
 	if(!P_ReDate)
-		P_ReDate = new CRegExp("^[0-9]+[\\./\\-][0-9]+[\\./\\-][0-9]+");
-	if(P_ReDate->Find(this)) {
+		P_ReDate = new SRegExp2("^[0-9]+[\\./\\-][0-9]+[\\./\\-][0-9]+", cp1251, SRegExp2::syntaxDefault, 0);
+	if(P_ReDate->Find(this, 0)) {
 		LDATE temp_date = ZERODATE;
 		SString temp_buf;
 		Get(temp_buf);
@@ -502,7 +503,7 @@ int SStrScan::GetDate(long datefmt, LDATE & rDate)
 
 int FASTCALL SStrScan::GetEMail(SString & rBuf)
 {
-	if(InitReEmail() && P_ReEMail->Find(this)) {
+	if(InitReEmail() && P_ReEMail->Find(this, 0)) {
 		Get(rBuf);
 		IncrLen();
 		return 1;
@@ -7297,11 +7298,18 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 			if(h & SNTOKSEQ_ASCII) {
 				uint   pos = 0;
 				long   val = 0;
-				if(chr_list.BSearch(static_cast<long>('@'), &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find(reinterpret_cast<const char *>(pToken))) {
-					size_t _offs = P_ReEMail->start();
-					size_t _len = P_ReEMail->end() - P_ReEMail->start();
-					if(_offs == 0 && _len == stat.Len)
-						rResultList.Add(SNTOK_EMAIL, 1.0f);
+				if(chr_list.BSearch(static_cast<long>('@'), &val, &pos) && val == 1 && InitReEmail()) {
+					SRegExp2::FindResult reresult;
+					if(P_ReEMail->Find(reinterpret_cast<const char *>(pToken), stat.Len, 0, &reresult)) {
+						assert(reresult.getCount());
+						if(reresult.getCount()) {
+							const uint f_pos = 0;
+							size_t _offs = reresult.at(f_pos).low;
+							size_t _len = reresult.at(f_pos).upp - reresult.at(f_pos).low;
+							if(_offs == 0 && _len == stat.Len)
+								rResultList.Add(SNTOK_EMAIL, 1.0f);
+						}
+					}
 				}
 				//
 				// Проверка на маркировки сигаретных пачек (SNTOK_CHZN_CIGITEM)

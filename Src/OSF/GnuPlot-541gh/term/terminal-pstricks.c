@@ -74,7 +74,7 @@ TERM_PUBLIC int PSTRICKS_text_angle(int ang);
 TERM_PUBLIC void PSTRICKS_reset();
 TERM_PUBLIC void PSTRICKS_linewidth(double linewidth);
 TERM_PUBLIC int PSTRICKS_make_palette(t_sm_palette *);
-TERM_PUBLIC void PSTRICKS_set_color(t_colorspec *);
+TERM_PUBLIC void PSTRICKS_set_color(const t_colorspec *);
 TERM_PUBLIC void PSTRICKS_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void PSTRICKS_filled_polygon(int, gpiPoint *);
 TERM_PUBLIC void PSTRICKS_dashtype(int type, t_dashtype * custom_dash_pattern);
@@ -832,7 +832,7 @@ static void PSTRICKS_apply_linecolor(void)
 	}
 }
 
-TERM_PUBLIC void PSTRICKS_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void PSTRICKS_set_color(const t_colorspec * colorspec)
 {
 	int new_color;
 	double gray = colorspec->value;

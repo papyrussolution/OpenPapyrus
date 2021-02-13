@@ -663,34 +663,34 @@ bool AbstractLayoutBlock::IsPositionAbsoluteY() const
 //
 //
 //
-LayoutFlexItem::Result::Result() : Flags(0), P_Scrlr(0)
+LayoutFlexItem::Result::Result() : Flags(0)/*, P_Scrlr(0)*/
 {
 	memzero(Frame, sizeof(Frame));
 }
 
-LayoutFlexItem::Result::Result(const Result & rS) : Flags(rS.Flags), P_Scrlr(0)
+LayoutFlexItem::Result::Result(const Result & rS) : Flags(rS.Flags)/*, P_Scrlr(0)*/
 {
 	memcpy(Frame, rS.Frame, sizeof(Frame));
-	if(rS.P_Scrlr) {
+	/*if(rS.P_Scrlr) {
 		P_Scrlr = new SScroller(*rS.P_Scrlr);
-	}
+	}*/
 }
 
 LayoutFlexItem::Result::~Result()
 {
-	delete P_Scrlr;
+	//delete P_Scrlr;
 }
 
 LayoutFlexItem::Result & FASTCALL LayoutFlexItem::Result::operator = (const Result & rS)
 {
 	memcpy(Frame, rS.Frame, sizeof(Frame));
 	Flags = rS.Flags;
-	if(rS.P_Scrlr) {
+	/*if(rS.P_Scrlr) {
 		P_Scrlr = new SScroller(*rS.P_Scrlr);
 	}
 	else {
 		ZDELETE(P_Scrlr);
-	}
+	}*/
 	return *this;
 }
 
@@ -706,12 +706,12 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 	Frame[2] = rS.Frame[2];
 	Frame[3] = rS.Frame[3];
 	Flags = rS.Flags;
-	if(rS.P_Scrlr) {
+	/*if(rS.P_Scrlr) {
 		P_Scrlr = new SScroller(*rS.P_Scrlr);
 	}
 	else {
 		ZDELETE(P_Scrlr);
-	}
+	}*/
 	return *this;
 }
 

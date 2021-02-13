@@ -67,7 +67,7 @@ register_term(imagen)
 #ifdef TERM_PROTO
 TERM_PUBLIC void IMAGEN_init(termentry * pThis);
 TERM_PUBLIC void IMAGEN_graphics();
-TERM_PUBLIC void IMAGEN_options();
+TERM_PUBLIC void IMAGEN_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void IMAGEN_text();
 TERM_PUBLIC void IMAGEN_linetype(int lt);
 TERM_PUBLIC void IMAGEN_move(uint x, uint y);
@@ -180,48 +180,48 @@ static struct gen_table IMAGEN_opts[] =
 	{ NULL, IMAGEN_OTHER }
 };
 
-TERM_PUBLIC void IMAGEN_options()
+TERM_PUBLIC void IMAGEN_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	GpValue a;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&IMAGEN_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&IMAGEN_opts[0])) {
 			case IMAGEN_PORTRAIT:
 			    IMAGEN_portrait = TRUE;
 			    IMAGEN_page_h = IMAGEN_A4_W;
 			    IMAGEN_page_w = IMAGEN_A4_H;
 			    IMAGEN_Xmax = IMAGEN_YMAX;
 			    IMAGEN_Ymax = IMAGEN_XMAX;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case IMAGEN_LANDSCAPE:
 			    IMAGEN_portrait = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case IMAGEN_OTHER:
 			default:
-			    if(GPO.Pgm.EqualsCur("[")) { /* windows specified */
-				    GPO.Pgm.Shift();
+			    if(pGp->Pgm.EqualsCur("[")) { /* windows specified */
+				    pGp->Pgm.Shift();
 				    /* if (IM_plot_nr>1) */
-				    if(GPO.Pgm.EqualsCur("]")) {
+				    if(pGp->Pgm.EqualsCur("]")) {
 					    IM_page();
-					    GPO.Pgm.Shift();
+					    pGp->Pgm.Shift();
 					    break;
 				    }
-				    if(GPO.Pgm.EndOfCommand()) {
-					    GPO.IntErrorCurToken("no. windows: [horizontal,vertical] expected");
+				    if(pGp->Pgm.EndOfCommand()) {
+					    pGp->IntErrorCurToken("no. windows: [horizontal,vertical] expected");
 				    }
-				    else if(!GPO.Pgm.EqualsCur(",")) {
+				    else if(!pGp->Pgm.EqualsCur(",")) {
 					    IM_win_horiz = (int)real(const_express(&a));
 				    }
-				    if(!GPO.Pgm.EqualsCur(","))
-					    GPO.IntErrorCurToken("',' expected");
-				    GPO.Pgm.Shift();
-				    if(!GPO.Pgm.EqualsCur("]")) {
+				    if(!pGp->Pgm.EqualsCur(","))
+					    pGp->IntErrorCurToken("',' expected");
+				    pGp->Pgm.Shift();
+				    if(!pGp->Pgm.EqualsCur("]")) {
 					    IM_win_verti = (int)real(const_express(&a));
 				    }
-				    if(!GPO.Pgm.EqualsCur("]"))
-					    GPO.IntErrorCurToken("expecting ']'");
-				    GPO.Pgm.Shift();
+				    if(!pGp->Pgm.EqualsCur("]"))
+					    pGp->IntErrorCurToken("expecting ']'");
+				    pGp->Pgm.Shift();
 			    }
 			    else {
 				    /* We have font size specified */
@@ -233,8 +233,7 @@ TERM_PUBLIC void IMAGEN_options()
 			    }
 		}
 	}
-	sprintf(term_options, "%d %s [%1d,%1d]", IMAGEN_fontsize, (IMAGEN_portrait) ? "portrait" :
-	    "landscape", IM_win_horiz, IM_win_verti);
+	sprintf(term_options, "%d %s [%1d,%1d]", IMAGEN_fontsize, (IMAGEN_portrait) ? "portrait" : "landscape", IM_win_horiz, IM_win_verti);
 }
 
 TERM_PUBLIC void IMAGEN_init(termentry * pThis)

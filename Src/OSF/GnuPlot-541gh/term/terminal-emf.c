@@ -136,7 +136,7 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void EMF_options();
+TERM_PUBLIC void EMF_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void EMF_init(termentry * pThis);
 TERM_PUBLIC void EMF_reset();
 TERM_PUBLIC void EMF_text();
@@ -157,7 +157,7 @@ TERM_PUBLIC void EMF_set_pointsize(double size);
 TERM_PUBLIC int EMF_set_font(const char *);
 TERM_PUBLIC int EMF_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void EMF_previous_palette();
-TERM_PUBLIC void EMF_set_color(t_colorspec * colorspec);
+TERM_PUBLIC void EMF_set_color(const t_colorspec * colorspec);
 TERM_PUBLIC void EMF_filled_polygon(int, gpiPoint *);
 TERM_PUBLIC void EMF_fillbox(int, uint, uint, uint, uint);
 TERM_PUBLIC void EMF_flush_dashtype();
@@ -1013,7 +1013,7 @@ TERM_PUBLIC void EMF_previous_palette()
 	/* do nothing */
 }
 
-TERM_PUBLIC void EMF_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void EMF_set_color(const t_colorspec * colorspec)
 {
 	rgb255_color rgb255;
 	EMF_flush_polyline();

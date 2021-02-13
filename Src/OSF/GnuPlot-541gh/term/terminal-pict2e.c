@@ -40,7 +40,7 @@ TERM_PUBLIC int PICT2E_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int PICT2E_text_angle(int ang);
 TERM_PUBLIC void PICT2E_put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC int PICT2E_make_palette(t_sm_palette * palette);
-TERM_PUBLIC void PICT2E_set_color(t_colorspec * colorspec);
+TERM_PUBLIC void PICT2E_set_color(const t_colorspec * colorspec);
 TERM_PUBLIC void PICT2E_linetype(int linetype);
 TERM_PUBLIC void PICT2E_dashtype(int dt, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void PICT2E_move(uint x, uint y);
@@ -229,18 +229,18 @@ TERM_PUBLIC void PICT2E_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    pict2e_explicit_size = TRUE;
 			    pict2e_explicit_units = pGp->ParseTermSize(&xmax_t, &ymax_t, INCHES);
-			    term->MaxX = static_cast<uint>(xmax_t * PICT2E_DPI / 72);
-			    term->MaxY = static_cast<uint>(ymax_t * PICT2E_DPI / 72);
+			    pThis->MaxX = static_cast<uint>(xmax_t * PICT2E_DPI / 72);
+			    pThis->MaxY = static_cast<uint>(ymax_t * PICT2E_DPI / 72);
 			    break;
 		    }
 			case PICT2E_COLOR:
 			    pict2e_use_color = TRUE;
-			    term->flags &= ~TERM_MONOCHROME;
+			    pThis->flags &= ~TERM_MONOCHROME;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_MONOCHROME:
 			    pict2e_use_color = FALSE;
-			    term->flags |= TERM_MONOCHROME;
+			    pThis->flags |= TERM_MONOCHROME;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_GPARROWS:
@@ -293,14 +293,14 @@ TERM_PUBLIC void PICT2E_options(TERMENTRY * pThis, GnuPlot * pGp)
 	}
 	// tell gnuplot core about char sizes. Horizontal spacing
 	// is about half the text pointsize
-	term->ChrV = (uint)(pict2e_fontsize * PICT2E_DPI / 72);
-	term->ChrH = (uint)(pict2e_fontsize * PICT2E_DPI / 144);
+	pThis->ChrV = (uint)(pict2e_fontsize * PICT2E_DPI / 72);
+	pThis->ChrH = (uint)(pict2e_fontsize * PICT2E_DPI / 144);
 	sprintf(term_options, "font \"%s,%d\"", pict2e_font, pict2e_fontsize);
 	if(pict2e_explicit_size) {
 		if(pict2e_explicit_units == CM)
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ", 2.54 * (float)term->MaxX / (PICT2E_DPI), 2.54 * (float)term->MaxY / (PICT2E_DPI));
+			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ", 2.54 * (float)pThis->MaxX / (PICT2E_DPI), 2.54 * (float)pThis->MaxY / (PICT2E_DPI));
 		else
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ", (float)term->MaxX / (PICT2E_DPI), (float)term->MaxY / (PICT2E_DPI));
+			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ", (float)pThis->MaxX / (PICT2E_DPI), (float)pThis->MaxY / (PICT2E_DPI));
 	}
 	sprintf(&(term_options[strlen(term_options)]), pict2e_use_color ? " color" : " monochrome");
 	sprintf(&(term_options[strlen(term_options)]), " linewidth %.1f", pict2e_lw_scale);
@@ -656,7 +656,7 @@ static void PICT2E_apply_opacity()
 #endif
 }
 
-TERM_PUBLIC void PICT2E_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void PICT2E_set_color(const t_colorspec * colorspec)
 {
 	if(!pict2e_use_color)
 		return;

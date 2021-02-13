@@ -330,7 +330,6 @@
     <ClInclude Include="..\OSF\GnuPlot-541gh\gnuplot.h" />
     <ClInclude Include="..\Osf\GnuPlot-541gh\gplt_x11.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\marching_cubes.h" />
-    <ClInclude Include="..\Osf\GnuPlot-541gh\mousecmn.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\qt_table.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\stdfn.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\syscfg.h" />

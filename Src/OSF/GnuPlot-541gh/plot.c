@@ -274,7 +274,7 @@ int main(int argc_orig, char ** argv)
 		// atexit processing is done in reverse order. We want
 		// the generic terminal shutdown in term_reset to be executed before
 		// any terminal specific cleanup requested by individual terminals.
-		init_terminal();
+		GPO.InitTerminal();
 		push_terminal(0); /* remember the initial terminal */
 		/* @sobolev term_reset заменена на GnuPlot::TermReset(termentry *) потому использовать ее здесь уже нельзя.
 			gp_atexit(term_reset); 

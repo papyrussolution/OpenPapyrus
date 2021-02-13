@@ -615,12 +615,12 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 		IterCounter cntr;
 		PPInitIterCounter(cntr, P_TmpCclTbl);
 		PPLoadText(PPTXT_FLASHTEMPCCLINES, wait_msg);
-
+		const int dbtidx = 2;
 		SBuffer sbuf; // @v10.7.3
 		PPExtStrContainer ext_strings; // @v10.7.3
 		BExtInsert bei(&CC.Lines);
 		TempCCheckLineTbl * t = P_TmpCclTbl;
-		BExtQuery q(t, 2, 64);
+		BExtQuery q(t, dbtidx, 64);
 		TempCCheckLineTbl::Key2 k2;
 		TSVector <CCheckLineExtTbl::Rec> ccext_items; // @v10.0.05 TSArray-->TSVector
 		TSCollection <CclExtTextItem> ccln_extt_list;
@@ -635,9 +635,13 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 			const  TempCCheckLineTbl::Rec & r_rec = t->data;
 			PPID   temp_chk_id = r_rec.CheckID;
 			CCheckLineExtTbl::Rec ext_rec;
+			DBRowId rec_pos;
+			q.getRecPosition(&rec_pos);
 			// @v10.6.4 MEMSZERO(ext_rec);
 			ext_strings.Z();
+			sbuf.Z(); // @v11.0.2 @fix
 			if(r_rec.ExtTextSize > 0) { // @v10.7.3
+				THROW_DB(t->getDirect(dbtidx, 0, rec_pos)); // @v11.0.2
 				t->readLobData(t->VT, sbuf);
 				t->destroyLobData(t->VT);
 				const size_t actual_size = sbuf.GetAvailableSize();

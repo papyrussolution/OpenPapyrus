@@ -91,7 +91,7 @@ TERM_PUBLIC void EEPIC_put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC int EEPIC_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int EEPIC_text_angle(int ang);
 TERM_PUBLIC void EEPIC_reset();
-TERM_PUBLIC void EEPIC_options();
+TERM_PUBLIC void EEPIC_options(TERMENTRY * pThis, GnuPlot * pGp);
 
 #define EEPIC_PTS_PER_INCH 72.
 /* resolution of printer we expect to use */
@@ -383,102 +383,90 @@ TERM_PUBLIC void EEPIC_reset()
 	EEPIC_posx = EEPIC_posy = 0;
 }
 
-TERM_PUBLIC void EEPIC_options()
+TERM_PUBLIC void EEPIC_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	float fontsize = 0;
-
 	int eepic_explicit_units = INCHES;
 	static bool size_set = FALSE;
-	eepic_color_on =
-	    eepic_true_rotate = FALSE;
+	eepic_color_on = eepic_true_rotate = FALSE;
 	eepic_lineset = 0;
 	eepic_pointsize = 0;
-
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("def$ault")) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		if(pGp->Pgm.AlmostEqualsCur("def$ault")) {
 			eepic_fontsize_set = FALSE;
 			eepic_color_on = FALSE;
 			eepic_true_rotate = FALSE;
 			eepic_lineset = 0;
 			eepic_pointsize = 0;
 			eepic_explicit_units = INCHES;
-			term->MaxX = EEPIC_XMAX;
-			term->MaxY = EEPIC_YMAX;
+			pThis->MaxX = EEPIC_XMAX;
+			pThis->MaxY = EEPIC_YMAX;
 			size_set = FALSE;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("c$olor") ||
-		    GPO.Pgm.AlmostEqualsCur("c$olour")) {
+		else if(pGp->Pgm.AlmostEqualsCur("c$olor") ||
+		    pGp->Pgm.AlmostEqualsCur("c$olour")) {
 			eepic_color_on = TRUE;
 			eepic_lineset = 2;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("mono$chrome")) {
+		else if(pGp->Pgm.AlmostEqualsCur("mono$chrome")) {
 			eepic_color_on = FALSE;
 			eepic_lineset = 0;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("da$shed")) {
+		else if(pGp->Pgm.AlmostEqualsCur("da$shed")) {
 			if(!eepic_color_on)
 				eepic_lineset = 1; /* ignore when color is on */
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("r$otate")) {
+		else if(pGp->Pgm.AlmostEqualsCur("r$otate")) {
 			eepic_true_rotate = TRUE;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 		}
-		else if(GPO.Pgm.EqualsCur("size")) {
-			GPO.Pgm.Shift();
-			eepic_explicit_units = GPO.ParseTermSize(&eepic_xsize, &eepic_ysize, INCHES);
-			term->MaxX = eepic_xsize / EEPIC_UNIT;
-			term->MaxY = eepic_ysize / EEPIC_UNIT;
+		else if(pGp->Pgm.EqualsCur("size")) {
+			pGp->Pgm.Shift();
+			eepic_explicit_units = pGp->ParseTermSize(&eepic_xsize, &eepic_ysize, INCHES);
+			pThis->MaxX = eepic_xsize / EEPIC_UNIT;
+			pThis->MaxY = eepic_ysize / EEPIC_UNIT;
 			size_set = TRUE;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("s$mall")) {
+		else if(pGp->Pgm.AlmostEqualsCur("s$mall")) {
 			eepic_pointsize = 1;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("t$iny")) {
+		else if(pGp->Pgm.AlmostEqualsCur("t$iny")) {
 			eepic_pointsize = 2;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 		}
 		else if(isdigit((uchar)
-		    gp_input_line[GPO.Pgm.GetCurTokenStartIndex()])) {
+		    gp_input_line[pGp->Pgm.GetCurTokenStartIndex()])) {
 			GpValue a;
 			fontsize = real(const_express(&a));
-
 			if(fontsize < 1 || fontsize > 100)
-				GPO.IntErrorCurToken("font size out of bounds [1..100]");
+				pGp->IntErrorCurToken("font size out of bounds [1..100]");
 			else {
 				eepic_fontsize_set = TRUE;
-				term->ChrV = (uint)(fontsize/EEPIC_UNIT);
-				term->ChrH = (uint)((fontsize/EEPIC_UNIT)/2);
+				pThis->ChrV = (uint)(fontsize/EEPIC_UNIT);
+				pThis->ChrH = (uint)((fontsize/EEPIC_UNIT)/2);
 			}
 		}
 		else
-			GPO.IntErrorCurToken("unrecognized option");
+			pGp->IntErrorCurToken("unrecognized option");
 	} /* while(command) */
-
 	if(eepic_color_on)
-		term->flags &= ~TERM_MONOCHROME;
+		pThis->flags &= ~TERM_MONOCHROME;
 	else
-		term->flags |= TERM_MONOCHROME;
-
-	sprintf(term_options, "%s%s%s%s",
-	    eepic_color_on ? " color" : "",
-	    eepic_lineset == 1 ? " dashed" : "",
-	    eepic_true_rotate ? " rotate" : "",
-	    eepic_pointsize == 1 ? " small"
-	    : eepic_pointsize == 2 ? " tiny" : "");
+		pThis->flags |= TERM_MONOCHROME;
+	sprintf(term_options, "%s%s%s%s", eepic_color_on ? " color" : "", eepic_lineset == 1 ? " dashed" : "", eepic_true_rotate ? " rotate" : "",
+	    eepic_pointsize == 1 ? " small" : eepic_pointsize == 2 ? " tiny" : "");
 	if(eepic_fontsize_set)
 		sprintf(term_options+strlen(term_options), " %d", (int)fontsize);
 	if(size_set) {
 		if(eepic_explicit_units == CM)
-			sprintf(term_options+strlen(term_options), " size %.2fcm, %.2fcm ",
-			    2.54*(float)term->MaxX/(EEPIC_DOTS_PER_INCH), 2.54*(float)term->MaxY/(EEPIC_DOTS_PER_INCH));
+			sprintf(term_options+strlen(term_options), " size %.2fcm, %.2fcm ", 2.54*(float)pThis->MaxX/(EEPIC_DOTS_PER_INCH), 2.54*(float)pThis->MaxY/(EEPIC_DOTS_PER_INCH));
 		else
-			sprintf(term_options+strlen(term_options), " size %.2fin, %.2fin ",
-			    (float)term->MaxX/(EEPIC_DOTS_PER_INCH), (float)term->MaxY/(EEPIC_DOTS_PER_INCH));
+			sprintf(term_options+strlen(term_options), " size %.2fin, %.2fin ", (float)pThis->MaxX/(EEPIC_DOTS_PER_INCH), (float)pThis->MaxY/(EEPIC_DOTS_PER_INCH));
 	}
 }
 
@@ -487,32 +475,57 @@ TERM_PUBLIC void EEPIC_options()
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(eepic_driver)
-"eepic", "EEPIC -- extended LaTeX picture environment",
-EEPIC_XMAX, EEPIC_YMAX, EEPIC_VCHAR, EEPIC_HCHAR,
-EEPIC_VTIC, EEPIC_HTIC, EEPIC_options, EEPIC_init, EEPIC_reset,
-EEPIC_text, GnuPlot::NullScale, EEPIC_graphics, EEPIC_move, EEPIC_vector,
-EEPIC_linetype, EEPIC_put_text, EEPIC_text_angle,
-EEPIC_justify_text, EEPIC_point, EEPIC_arrow, set_font_null,
-0,     /* pointsize */
-TERM_IS_LATEX,     /* flags */
-0, 0,     /* suspend, resume */
-0,     /* fillbox */
-0,      /* linewidth */
-#ifdef USE_MOUSE
-0, 0, 0, 0, 0,
-#endif
-LATEX_make_palette, 0,
-LATEX_set_color,
-0,
-0,     /* image */
-0, 0, 0,     /* enhanced text */
-0,     /* layer */
-0,     /* path */
-0.0,     /* scale (unused) */
-0,     /* hypertext */
-0,
-0,
-0     /* dashtype */
+	"eepic", 
+	"EEPIC -- extended LaTeX picture environment",
+	EEPIC_XMAX, 
+	EEPIC_YMAX, 
+	EEPIC_VCHAR, 
+	EEPIC_HCHAR,
+	EEPIC_VTIC, 
+	EEPIC_HTIC, 
+	EEPIC_options, 
+	EEPIC_init, 
+	EEPIC_reset,
+	EEPIC_text, 
+	GnuPlot::NullScale, 
+	EEPIC_graphics, 
+	EEPIC_move, 
+	EEPIC_vector,
+	EEPIC_linetype, 
+	EEPIC_put_text, 
+	EEPIC_text_angle,
+	EEPIC_justify_text, 
+	EEPIC_point, 
+	EEPIC_arrow, 
+	set_font_null,
+	0,     /* pointsize */
+	TERM_IS_LATEX,     /* flags */
+	0, 
+	0,     /* suspend, resume */
+	0,     /* fillbox */
+	0,      /* linewidth */
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,
+	#endif
+	LATEX_make_palette, 
+	0,
+	LATEX_set_color,
+	0,
+	0,     /* image */
+	0, 
+	0, 
+	0,     /* enhanced text */
+	0,     /* layer */
+	0,     /* path */
+	0.0,     /* scale (unused) */
+	0,     /* hypertext */
+	0,
+	0,
+	0     /* dashtype */
 TERM_TABLE_END(eepic_driver)
 
 #undef LAST_TERM

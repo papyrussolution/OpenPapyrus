@@ -102,7 +102,7 @@ register_term(tkcanvas)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void TK_options();
+TERM_PUBLIC void TK_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void TK_init(termentry * pThis);
 TERM_PUBLIC void TK_graphics();
 TERM_PUBLIC void TK_text();
@@ -249,12 +249,12 @@ static struct gen_table TK_opts[] =
 	{ NULL, TK_OTHER }
 };
 
-TERM_PUBLIC void TK_options()
+TERM_PUBLIC void TK_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	int cmd;
 	tk_interactive = FALSE;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(cmd = GPO.Pgm.LookupTableForCurrentToken(&TK_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(cmd = pGp->Pgm.LookupTableForCurrentToken(&TK_opts[0])) {
 			case TK_LANG_TCL:
 			case TK_LANG_PERL:
 			case TK_LANG_PERLTKX:
@@ -262,37 +262,37 @@ TERM_PUBLIC void TK_options()
 			case TK_LANG_PYTHON:
 			case TK_LANG_REXX:
 			    tk_script_language = cmd;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TK_INTERACTIVE:
 			    tk_interactive = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TK_INPUT:
 			    tk_standalone = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TK_STANDALONE:
 			    tk_standalone = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TK_NOROTTEXT:
-			    term->text_angle = GnuPlot::NullTextAngle;
-			    GPO.Pgm.Shift();
+			    pThis->text_angle = GnuPlot::NullTextAngle;
+			    pGp->Pgm.Shift();
 			    break;
 			case TK_ROTTEXT:
-			    term->text_angle = TK_text_angle;
-			    GPO.Pgm.Shift();
+			    pThis->text_angle = TK_text_angle;
+			    pGp->Pgm.Shift();
 			    break;
 			case TK_BACKGROUND: 
 				{
 					long rgb;
 					int red, green, blue;
-					GPO.Pgm.Shift();
+					pGp->Pgm.Shift();
 					rgb = parse_color_name();
 					SAlloc::F(tk_background_opt);
 					tk_background_opt = NULL;
-					GPO.Pgm.MCapture(&tk_background_opt, GPO.Pgm.GetPrevTokenIdx(), GPO.Pgm.GetCurTokenIdx());
+					pGp->Pgm.MCapture(&tk_background_opt, pGp->Pgm.GetPrevTokenIdx(), pGp->Pgm.GetCurTokenIdx());
 					red   = (rgb >> 16) & 0xff;
 					green = (rgb >>  8) & 0xff;
 					blue  = (rgb      ) & 0xff;
@@ -303,79 +303,70 @@ TERM_PUBLIC void TK_options()
 			    tk_background[0] = NUL;
 			    SAlloc::F(tk_background_opt);
 			    tk_background_opt = NULL;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TK_ROUNDED:
 			    tk_rounded = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TK_BUTT:
 			    tk_rounded = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case TK_SIZE: {
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand())
-				    GPO.IntErrorCurToken("size requires 'width,heigth'");
-			    tk_width = GPO.RealExpression();
-			    if(!GPO.Pgm.EqualsCurShift(","))
-				    GPO.IntErrorCurToken("size requires 'width,heigth'");
-			    tk_height = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand())
+				    pGp->IntErrorCurToken("size requires 'width,heigth'");
+			    tk_width = pGp->RealExpression();
+			    if(!pGp->Pgm.EqualsCurShift(","))
+				    pGp->IntErrorCurToken("size requires 'width,heigth'");
+			    tk_height = pGp->RealExpression();
 			    if(tk_width < 1 || tk_height < 1)
-				    GPO.IntErrorCurToken("size is out of range");
+				    pGp->IntErrorCurToken("size is out of range");
 			    break;
 		    }
 			case TK_ENHANCED:
-			    GPO.Pgm.Shift();
-			    term->flags |= TERM_ENHANCED_TEXT;
+			    pGp->Pgm.Shift();
+			    pThis->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case TK_NOENHANCED:
-			    GPO.Pgm.Shift();
-			    term->flags &= ~TERM_ENHANCED_TEXT;
+			    pGp->Pgm.Shift();
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case TK_PIXELS:
-			    GPO.Pgm.Shift();
-			    term->image = NULL;
+			    pGp->Pgm.Shift();
+			    pThis->image = NULL;
 			    break;
 			case TK_INLINEIMAGES:
 			case TK_EXTERNALIMAGES:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 #ifdef WRITE_PNG_IMAGE
-			    term->image = TK_image;
+			    pThis->image = TK_image;
 #endif
 			    break;
 			case TK_OTHER:
 			default:
-			    GPO.Pgm.Shift();
-			    GPO.IntErrorCurToken("unknown option");
+			    pGp->Pgm.Shift();
+			    pGp->IntErrorCurToken("unknown option");
 			    break;
 		}
 	}
-
 	/* calculate the proper tic sizes and character size */
-	term->ChrH = TK_HCHAR * TK_XMAX / (double)tk_width + 0.5;
-	term->TicH  = TK_HTIC  * TK_XMAX / (double)tk_width + 0.5;
-	term->ChrV = TK_VCHAR * TK_YMAX / (double)tk_height + 0.5;
-	term->TicV  = TK_VTIC  * TK_YMAX / (double)tk_height + 0.5;
-
-	/* FIXME: image support only available for Tcl */
-	if((term->image != NULL) && (tk_script_language != TK_LANG_TCL))
-		term->image = NULL;
-
-	/* FIXME: enhanced text only available for Tcl */
-	if((term->flags & TERM_ENHANCED_TEXT) && (tk_script_language != TK_LANG_TCL))
-		term->flags &= ~TERM_ENHANCED_TEXT;
-
-	sprintf(term_options, "%s%s %s %s%s %s %s %s size %d,%d",
-	    tk_script_languages[tk_script_language],
-	    tk_interactive ? " interactive" : "",
-	    tk_standalone ? "standalone" : "input",
-	    (tk_background[0] == NUL) ? "nobackground " : "background ",
-	    (tk_background[0] == NUL) ? "" : tk_background_opt,
-	    tk_rounded ? "rounded" : "butt",
-	    term->text_angle == GnuPlot::NullTextAngle ? "norottext" : "rottext",
-	    term->image == NULL ? "pixels" : "externalimages",
-	    tk_width, tk_height);
+	pThis->ChrH = TK_HCHAR * TK_XMAX / (double)tk_width + 0.5;
+	pThis->TicH  = TK_HTIC  * TK_XMAX / (double)tk_width + 0.5;
+	pThis->ChrV = TK_VCHAR * TK_YMAX / (double)tk_height + 0.5;
+	pThis->TicV  = TK_VTIC  * TK_YMAX / (double)tk_height + 0.5;
+	// FIXME: image support only available for Tcl 
+	if((pThis->image != NULL) && (tk_script_language != TK_LANG_TCL))
+		pThis->image = NULL;
+	// FIXME: enhanced text only available for Tcl 
+	if((pThis->flags & TERM_ENHANCED_TEXT) && (tk_script_language != TK_LANG_TCL))
+		pThis->flags &= ~TERM_ENHANCED_TEXT;
+	sprintf(term_options, "%s%s %s %s%s %s %s %s size %d,%d", tk_script_languages[tk_script_language],
+	    tk_interactive ? " interactive" : "", tk_standalone ? "standalone" : "input",
+	    (tk_background[0] == NUL) ? "nobackground " : "background ", (tk_background[0] == NUL) ? "" : tk_background_opt,
+	    tk_rounded ? "rounded" : "butt", pThis->text_angle == GnuPlot::NullTextAngle ? "norottext" : "rottext",
+	    pThis->image == NULL ? "pixels" : "externalimages", tk_width, tk_height);
 }
 
 TERM_PUBLIC void TK_init(termentry * pThis)
@@ -898,15 +889,12 @@ TERM_PUBLIC void TK_vector(uint x, uint y)
 static void TK_flush_line(void)
 {
 	int x, y, i;
-
 	if(tk_in_path)
 		tk_in_path = FALSE;
-
 	if(tk_polygon_points < 2) {
 		tk_polygon_points = 0;
 		return;
 	}
-
 	/*
 	 * this is the 1st part of the wrapper around the 'create line' command
 	 * used to bind some actions to a line segment:
@@ -915,10 +903,9 @@ static void TK_flush_line(void)
 	 *      } gnuplot_xy(some coordinates)
 	 */
 	/* prepare the binding mechanism */
-	if(tk_interactive && !is_3d_plot)
+	if(tk_interactive && !GPO.Gg.Is3DPlot)
 		fputs(tk_bind_init[tk_script_language], gpoutfile);
-
-	/* draw a line segment */
+	// draw a line segment 
 	fputs(tk_line_segment_start[tk_script_language], gpoutfile);
 	for(i = 0; i < tk_polygon_points; i++)
 		fprintf(gpoutfile, tk_poly_point[tk_script_language], tk_path_x[i], tk_path_y[i]);
@@ -934,7 +921,7 @@ static void TK_flush_line(void)
 	 */
 	x = tk_path_x[tk_polygon_points -1];
 	y = tk_path_y[tk_polygon_points -1];
-	if(tk_interactive && !is_3d_plot) {
+	if(tk_interactive && !GPO.Gg.Is3DPlot) {
 		fprintf(gpoutfile, tk_bind_main[tk_script_language],
 		    TK_REAL_VALUE(TK_X_VALUE(tk_lastx), FIRST_X_AXIS),
 		    TK_REAL_VALUE(TK_Y_VALUE(tk_lasty), FIRST_Y_AXIS),
@@ -1728,7 +1715,7 @@ TERM_PUBLIC void TK_text()
 	 */
 	TK_flush_line();
 	fputs(tk_endblock[tk_script_language], gpoutfile);
-	if(!is_3d_plot)
+	if(!GPO.Gg.Is3DPlot)
 		fprintf(gpoutfile, tk_info_procs[tk_script_language],
 		    GPO.V.BbPlot.xleft, GPO.V.BbPlot.xright, TK_YMAX - GPO.V.BbPlot.ytop, TK_YMAX - GPO.V.BbPlot.ybot,
 		    GPO.AxS[FIRST_X_AXIS].min,  GPO.AxS[FIRST_X_AXIS].max, GPO.AxS[FIRST_Y_AXIS].min,  GPO.AxS[FIRST_Y_AXIS].max,

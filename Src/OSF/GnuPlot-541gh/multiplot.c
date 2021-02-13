@@ -129,7 +129,7 @@ int GnuPlot::GetMultiplotCurrentPanel() const
 }
 
 //void multiplot_start()
-void GnuPlot::MultiplotStart()
+void GnuPlot::MultiplotStart(termentry * pTerm)
 {
 	bool set_spacing = FALSE;
 	bool set_margins = FALSE;
@@ -152,7 +152,7 @@ void GnuPlot::MultiplotStart()
 			return;
 		}
 		else {
-			TermEndMultiplot(term);
+			TermEndMultiplot(pTerm);
 		}
 	}
 	// FIXME: more options should be reset/initialized each time 
@@ -333,17 +333,17 @@ void GnuPlot::MultiplotStart()
 	// Aug 2013: call term_start_plot() before setting multiplot so that
 	// the wxt and qt terminals will reset the plot count to 0 before
 	// ignoring subsequent TERM_LAYER_RESET requests.
-	TermStartPlot(term);
+	TermStartPlot(pTerm);
 	multiplot = TRUE;
 	multiplot_count = 0;
 	Ev.FillGpValInteger("GPVAL_MULTIPLOT", 1);
 	// Place overall title before doing anything else 
 	if(MpLo.title.text) {
 		char * p = MpLo.title.text;
-		uint x = term->MaxX  / 2;
-		uint y = term->MaxY - term->ChrV;
-		WriteLabel(term, x, y, &(MpLo.title));
-		ResetTextColor(term, &(MpLo.title.textcolor));
+		uint x = pTerm->MaxX  / 2;
+		uint y = pTerm->MaxY - pTerm->ChrV;
+		WriteLabel(pTerm, x, y, &(MpLo.title));
+		ResetTextColor(pTerm, &(MpLo.title.textcolor));
 		// Calculate fractional height of title compared to entire page 
 		// If it would fill the whole page, forget it! 
 		for(y = 1; *p; p++)
@@ -351,10 +351,10 @@ void GnuPlot::MultiplotStart()
 				y++;
 		// Oct 2012 - ChrV depends on the font used 
 		if(MpLo.title.font && *MpLo.title.font)
-			term->set_font(MpLo.title.font);
-		MpLo.title_height = (double)(y * term->ChrV) / (double)term->MaxY;
+			pTerm->set_font(MpLo.title.font);
+		MpLo.title_height = (double)(y * pTerm->ChrV) / (double)pTerm->MaxY;
 		if(MpLo.title.font && *MpLo.title.font)
-			term->set_font("");
+			pTerm->set_font("");
 		if(MpLo.title_height > 0.9)
 			MpLo.title_height = 0.05;
 	}
@@ -399,7 +399,7 @@ void GnuPlot::MultiplotEnd()
 void GnuPlot::MultiplotReset()
 {
 	if(MpLo.auto_layout_margins)
-		MpLayoutMarginsAndSpacing();
+		MpLayoutMarginsAndSpacing(term);
 	else
 		MpLayoutSizeAndOffset();
 }
@@ -438,7 +438,7 @@ void GnuPlot::MpLayoutSizeAndOffset()
 // if requested with 'margins' and 'spacing' options. 
 // 
 //static void mp_layout_margins_and_spacing()
-void GnuPlot::MpLayoutMarginsAndSpacing()
+void GnuPlot::MpLayoutMarginsAndSpacing(termentry * pTerm)
 {
 	// width and height of a single sub plot. 
 	double tmp_width, tmp_height;
@@ -448,27 +448,27 @@ void GnuPlot::MpLayoutMarginsAndSpacing()
 	if(MpLo.lmargin.scalex == screen)
 		leftmargin = MpLo.lmargin.x;
 	else
-		leftmargin = (MpLo.lmargin.x * term->ChrH) / term->MaxX;
+		leftmargin = (MpLo.lmargin.x * pTerm->ChrH) / pTerm->MaxX;
 	if(MpLo.rmargin.scalex == screen)
 		rightmargin = MpLo.rmargin.x;
 	else
-		rightmargin = 1 - (MpLo.rmargin.x * term->ChrH) / term->MaxX;
+		rightmargin = 1 - (MpLo.rmargin.x * pTerm->ChrH) / pTerm->MaxX;
 	if(MpLo.tmargin.scalex == screen)
 		topmargin = MpLo.tmargin.x;
 	else
-		topmargin = 1 - (MpLo.tmargin.x * term->ChrV) / term->MaxY;
+		topmargin = 1 - (MpLo.tmargin.x * pTerm->ChrV) / pTerm->MaxY;
 	if(MpLo.bmargin.scalex == screen)
 		bottommargin = MpLo.bmargin.x;
 	else
-		bottommargin = (MpLo.bmargin.x * term->ChrV) / term->MaxY;
+		bottommargin = (MpLo.bmargin.x * pTerm->ChrV) / pTerm->MaxY;
 	if(MpLo.xspacing.scalex == screen)
 		xspacing = MpLo.xspacing.x;
 	else
-		xspacing = (MpLo.xspacing.x * term->ChrH) / term->MaxX;
+		xspacing = (MpLo.xspacing.x * pTerm->ChrH) / pTerm->MaxX;
 	if(MpLo.yspacing.scalex == screen)
 		yspacing = MpLo.yspacing.x;
 	else
-		yspacing = (MpLo.yspacing.x * term->ChrV) / term->MaxY;
+		yspacing = (MpLo.yspacing.x * pTerm->ChrV) / pTerm->MaxY;
 	tmp_width = (rightmargin - leftmargin - (MpLo.num_cols - 1) * xspacing) / MpLo.num_cols;
 	tmp_height = (topmargin - bottommargin - (MpLo.num_rows - 1) * yspacing) / MpLo.num_rows;
 	V.MarginL.x = leftmargin + MpLo.act_col * (tmp_width + xspacing);

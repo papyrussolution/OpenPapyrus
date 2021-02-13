@@ -303,6 +303,16 @@ bool GpAxis::BadRange() const
 	return (this->max == -VERYLARGE || this->min == VERYLARGE) ? true : false;
 }
 
+//static void flip_projection_axis(GpAxis * pAx)
+void GpAxis::FlipProjection()
+{
+	Exchange(&min, &max);
+	if(linked_to_primary) {
+		GpAxis * p_ax = linked_to_primary;
+		Exchange(&p_ax->min, &p_ax->max);
+	}
+}
+
 /* {{{ axis_checked_extend_empty_range() */
 /*
  * === SYNOPSIS ===
@@ -918,7 +928,7 @@ void GnuPlot::GenTics(GpAxis * pThis, GpTicCallback cbFunc)
 		RealRange internal_range;
 		internal_range.Set(pThis->min - SIGNIF * uncertain, pThis->max + SIGNIF * uncertain);
 		// polar labels always +ve, and if rmin has been set, they are relative to rmin.
-		if(polar && pThis->index == POLAR_AXIS) {
+		if(Gg.Polar && pThis->index == POLAR_AXIS) {
 			//internal_min = AxS.__X().min - SIGNIF * uncertain;
 			//internal_max = AxS.__X().max + SIGNIF * uncertain;
 			internal_range.Set(AxS.__X().min - SIGNIF * uncertain, AxS.__X().max + SIGNIF * uncertain);
@@ -957,12 +967,12 @@ void GnuPlot::GenTics(GpAxis * pThis, GpTicCallback cbFunc)
 				ticlabel = label;
 			}
 			// use NULL instead of label for minor tics with level 1, however, allow labels for minor tics with levels > 1 
-			(this->*cbFunc)(pThis, internal, (mark->level==1) ? NULL : ticlabel, mark->level, (mark->level>0) ? mgrd : lgrd, NULL);
+			(this->*cbFunc)(term, pThis, internal, (mark->level==1) ? NULL : ticlabel, mark->level, (mark->level>0) ? mgrd : lgrd, NULL);
 			// Polar axis tics are mirrored across the origin 
 			if(pThis->index == POLAR_AXIS && (pThis->ticmode & TICS_MIRROR)) {
 				int save_gridline = lgrd.l_type;
 				lgrd.l_type = LT_NODRAW;
-				(this->*cbFunc)(pThis, -internal, (mark->level==1) ? NULL : ticlabel, mark->level, (mark->level>0) ? mgrd : lgrd, NULL);
+				(this->*cbFunc)(term, pThis, -internal, (mark->level==1) ? NULL : ticlabel, mark->level, (mark->level>0) ? mgrd : lgrd, NULL);
 				lgrd.l_type = save_gridline;
 			}
 		}
@@ -1195,14 +1205,14 @@ void GnuPlot::GenTics(GpAxis * pThis, GpTicCallback cbFunc)
 					    int d = ffloori(user + 0.5) % 7;
 					    if(d < 0)
 						    d += 7;
-					    (this->*cbFunc)(pThis, internal, abbrev_day_names[d], 0, lgrd, def->def.user);
+					    (this->*cbFunc)(term, pThis, internal, abbrev_day_names[d], 0, lgrd, def->def.user);
 					    break;
 				    }
 					case TIC_MONTH: {
 					    int m = ffloori(user - 1) % 12;
 					    if(m < 0)
 						    m += 12;
-					    (this->*cbFunc)(pThis, internal, abbrev_month_names[m], 0, lgrd, def->def.user);
+					    (this->*cbFunc)(term, pThis, internal, abbrev_month_names[m], 0, lgrd, def->def.user);
 					    break;
 				    }
 					default: { // comp or series 
@@ -1238,12 +1248,12 @@ void GnuPlot::GenTics(GpAxis * pThis, GpTicCallback cbFunc)
 					    if(def->rangelimited && !inrange(position, pThis->data_min, pThis->data_max))
 						    continue;
 					    // This writes the tic mark and label 
-					    (this->*cbFunc)(pThis, position, label, 0, lgrd, def->def.user);
+					    (this->*cbFunc)(term, pThis, position, label, 0, lgrd, def->def.user);
 					    // Polar axis tics are mirrored across the origin 
 					    if(pThis->index == POLAR_AXIS && (pThis->ticmode & TICS_MIRROR)) {
 						    const int save_gridline = lgrd.l_type;
 						    lgrd.l_type = LT_NODRAW;
-						    (this->*cbFunc)(pThis, -position, label, 0, lgrd, def->def.user);
+						    (this->*cbFunc)(term, pThis, -position, label, 0, lgrd, def->def.user);
 						    lgrd.l_type = save_gridline;
 					    }
 				    }
@@ -1273,12 +1283,12 @@ void GnuPlot::GenTics(GpAxis * pThis, GpTicCallback cbFunc)
 						mtic_user = internal + mplace;
 						mtic_internal = mtic_user;
 					}
-					if(polar && pThis->index == POLAR_AXIS) {
+					if(Gg.Polar && pThis->index == POLAR_AXIS) {
 						// FIXME: is pThis really the only case where	
 						// mtic_internal is the correct position?	
 						mtic_user = user + mplace;
 						mtic_internal = PolarRadius(mtic_user);
-						(this->*cbFunc)(pThis, mtic_internal, NULL, 1, mgrd, NULL);
+						(this->*cbFunc)(term, pThis, mtic_internal, NULL, 1, mgrd, NULL);
 						continue;
 					}
 					// Range-limited tic placement 
@@ -1286,7 +1296,7 @@ void GnuPlot::GenTics(GpAxis * pThis, GpTicCallback cbFunc)
 						continue;
 					//if(inrange(mtic_internal, internal_min, internal_max) && inrange(mtic_internal, start - step * SIGNIF, end + step * SIGNIF))
 					if(internal_range.CheckX(mtic_internal) && inrange(mtic_internal, start - step * SIGNIF, end + step * SIGNIF))
-						(this->*cbFunc)(pThis, mtic_user, NULL, 1, mgrd, NULL);
+						(this->*cbFunc)(term, pThis, mtic_user, NULL, 1, mgrd, NULL);
 				}
 				/* }}} */
 			}
@@ -1706,7 +1716,7 @@ t_autoscale GnuPlot::LoadRange(GpAxis * pAx, double * pA, double * pB, t_autosca
  */
 
 //void widest_tic_callback(GpAxis * this_axis, double place, char * text, int ticlevel, lp_style_type grid, ticmark * userlabels)
-void GnuPlot::WidestTicCallback(GpAxis * this_axis, double place, char * text, int ticlevel, lp_style_type grid, ticmark * userlabels) // callback
+void GnuPlot::WidestTicCallback(termentry * pTerm, GpAxis * this_axis, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels) // callback
 {
 	// historically, minitics used to have no text,
 	// but now they can, except at ticlevel 1 (and this restriction is there only for compatibility reasons) */
@@ -1768,11 +1778,7 @@ void GnuPlot::SetCbMinMax()
 			r_cb_ax.max = AxS.__Z().max;
 	}
 	r_cb_ax.max = AxisLogValueChecked(COLOR_AXIS, r_cb_ax.max, "color axis");
-	if(r_cb_ax.min > r_cb_ax.max) {
-		double tmp = r_cb_ax.max;
-		r_cb_ax.max = r_cb_ax.min;
-		r_cb_ax.min = tmp;
-	}
+	ExchangeToOrder(&r_cb_ax.min, &r_cb_ax.max);
 	if(r_cb_ax.linked_to_primary)
 		CloneLinkedAxes(&r_cb_ax, r_cb_ax.linked_to_primary);
 }
@@ -2253,11 +2259,11 @@ void GnuPlot::ExtendPrimaryTicRange(GpAxis * pAx)
 		if(primary->min >= VERYLARGE || primary->max <= -VERYLARGE)
 			return;
 		// NB: "zero" is the minimum non-zero value from "set zero" 
-		if((primary->autoscale & AUTOSCALE_MIN) || fabs(primary->min - floor(primary->min)) < zero) {
+		if((primary->autoscale & AUTOSCALE_MIN) || fabs(primary->min - floor(primary->min)) < Gg.Zero) {
 			primary->min = floor(primary->min);
 			pAx->min = EvalLinkFunction(pAx, primary->min);
 		}
-		if((primary->autoscale & AUTOSCALE_MAX) || fabs(primary->max - ceil(primary->max)) < zero) {
+		if((primary->autoscale & AUTOSCALE_MAX) || fabs(primary->max - ceil(primary->max)) < Gg.Zero) {
 			primary->max = ceil(primary->max);
 			pAx->max = EvalLinkFunction(pAx, primary->max);
 		}
@@ -2377,7 +2383,7 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 	// One caller (parametric fixup) did GPO.AxS.__R().max range checks
 	// against fabs(r) rather than r.  Does that matter?  Did something break?
 	if(update) {
-		if(inverted_raxis) {
+		if(Gg.InvertedRaxis) {
 			if(!inrange(r, AxS.__R().set_min, AxS.__R().set_max))
 				status = OUTRANGE;
 		}
@@ -2411,7 +2417,7 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 		else
 			r = EvalLinkFunction(shadow, r) - shadow->min;
 	}
-	else if(inverted_raxis) {
+	else if(Gg.InvertedRaxis) {
 		r = AxS.__R().set_min - r;
 	}
 	else if((AxS.__R().autoscale & AUTOSCALE_MIN)) {

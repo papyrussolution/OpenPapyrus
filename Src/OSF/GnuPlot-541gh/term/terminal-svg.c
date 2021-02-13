@@ -88,7 +88,7 @@ TERM_PUBLIC void SVG_fillbox(int style, uint x1, uint y1, uint width, uint heigh
 TERM_PUBLIC void SVG_linewidth(double linewidth);
 TERM_PUBLIC int SVG_make_palette(t_sm_palette *);
 TERM_PUBLIC void SVG_previous_palette();
-TERM_PUBLIC void SVG_set_color(t_colorspec *);
+TERM_PUBLIC void SVG_set_color(const t_colorspec *);
 TERM_PUBLIC void SVG_filled_polygon(int, gpiPoint *);
 TERM_PUBLIC void SVG_layer(t_termlayer syncpoint);
 TERM_PUBLIC void ENHsvg_OPEN(char *, double, double, bool, bool, int);
@@ -1012,7 +1012,7 @@ TERM_PUBLIC void SVG_text()
 			MOUSE_PARAM("GPVAL_X_MAX", "plot_axis_xmax");
 		}
 		// FIXME: Should this inversion be done at a higher level? 
-		if(is_3d_plot && splot_map) {
+		if(GPO.Gg.Is3DPlot && splot_map) {
 			MOUSE_PARAM("GPVAL_Y_MAX", "plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MIN", "plot_axis_ymax");
 		}
@@ -1020,8 +1020,8 @@ TERM_PUBLIC void SVG_text()
 			MOUSE_PARAM("GPVAL_Y_MIN", "plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MAX", "plot_axis_ymax");
 		}
-		fprintf(gpoutfile, "gnuplot_svg.polar_mode = %s;\n", polar ? "true" : "false");
-		if(polar) {
+		fprintf(gpoutfile, "gnuplot_svg.polar_mode = %s;\n", GPO.Gg.Polar ? "true" : "false");
+		if(GPO.Gg.Polar) {
 			fprintf(gpoutfile, "gnuplot_svg.plot_axis_rmin = %g;\n", (GPO.AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : GPO.AxS.__R().set_min);
 			fprintf(gpoutfile, "gnuplot_svg.plot_axis_rmax = %g;\n", GPO.AxS.__R().set_max);
 			fprintf(gpoutfile, "gnuplot_svg.polar_theta0 = %d;\n", (int)theta_origin);
@@ -1062,7 +1062,7 @@ TERM_PUBLIC void SVG_text()
 		fprintf(gpoutfile, "gnuplot_svg.plot_logaxis_x = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
 		this_axis = &GPO.AxS[FIRST_Y_AXIS];
 		fprintf(gpoutfile, "gnuplot_svg.plot_logaxis_y = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
-		if(polar)
+		if(GPO.Gg.Polar)
 			fprintf(gpoutfile, "gnuplot_svg.plot_logaxis_r = %d;\n", GPO.AxS[POLAR_AXIS].log ? 1 : 0);
 		if(GPO.AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE) {
 			fprintf(gpoutfile, "gnuplot_svg.plot_axis_xmin = %.3f;\n", GPO.AxS[FIRST_X_AXIS].min);
@@ -1502,10 +1502,7 @@ TERM_PUBLIC int SVG_make_palette(t_sm_palette * palette)
 	return 0;
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_set_color
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void SVG_set_color(const t_colorspec * colorspec)
 {
 	rgb255_color rgb255;
 	SVG_alpha = 0.0;

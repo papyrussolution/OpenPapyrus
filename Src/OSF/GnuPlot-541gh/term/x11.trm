@@ -1423,17 +1423,13 @@ TERM_PUBLIC void X11_text()
 		PRINT2("S %2d %d\n", -2, ALMOST2D);
 		PRINT2("S %2d %d\n", -1, axis_mask);
 		PRINT5("S %2d %16.6g %14d %16.6g %16.6g\n", FIRST_X_AXIS,
-		    GPO.AxS[FIRST_X_AXIS].min, GPO.AxS[FIRST_X_AXIS].term_lower, GPO.AxS[FIRST_X_AXIS].term_scale,
-		    GPO.AxS[FIRST_X_AXIS].log ? GPO.AxS[FIRST_X_AXIS].log_base : 0);
+		    GPO.AxS[FIRST_X_AXIS].min, GPO.AxS[FIRST_X_AXIS].term_lower, GPO.AxS[FIRST_X_AXIS].term_scale, GPO.AxS[FIRST_X_AXIS].log ? GPO.AxS[FIRST_X_AXIS].log_base : 0);
 		PRINT5("S %2d %16.6g %14d %16.6g %16.6g\n", FIRST_Y_AXIS,
-		    GPO.AxS[FIRST_Y_AXIS].min, GPO.AxS[FIRST_Y_AXIS].term_lower, GPO.AxS[FIRST_Y_AXIS].term_scale,
-		    GPO.AxS[FIRST_Y_AXIS].log ? GPO.AxS[FIRST_Y_AXIS].log_base : 0);
+		    GPO.AxS[FIRST_Y_AXIS].min, GPO.AxS[FIRST_Y_AXIS].term_lower, GPO.AxS[FIRST_Y_AXIS].term_scale, GPO.AxS[FIRST_Y_AXIS].log ? GPO.AxS[FIRST_Y_AXIS].log_base : 0);
 		PRINT5("S %2d %16.6g %14d %16.6g %16.6g\n", SECOND_X_AXIS,
-		    GPO.AxS[SECOND_X_AXIS].min, GPO.AxS[SECOND_X_AXIS].term_lower, GPO.AxS[SECOND_X_AXIS].term_scale,
-		    GPO.AxS[SECOND_X_AXIS].log ? GPO.AxS[SECOND_X_AXIS].log_base : 0);
+		    GPO.AxS[SECOND_X_AXIS].min, GPO.AxS[SECOND_X_AXIS].term_lower, GPO.AxS[SECOND_X_AXIS].term_scale, GPO.AxS[SECOND_X_AXIS].log ? GPO.AxS[SECOND_X_AXIS].log_base : 0);
 		PRINT5("S %2d %16.6g %14d %16.6g %16.6g\n", SECOND_Y_AXIS,
-		    GPO.AxS[SECOND_Y_AXIS].min, GPO.AxS[SECOND_Y_AXIS].term_lower, GPO.AxS[SECOND_Y_AXIS].term_scale,
-		    GPO.AxS[SECOND_Y_AXIS].log ? GPO.AxS[SECOND_Y_AXIS].log_base : 0);
+		    GPO.AxS[SECOND_Y_AXIS].min, GPO.AxS[SECOND_Y_AXIS].term_lower, GPO.AxS[SECOND_Y_AXIS].term_scale, GPO.AxS[SECOND_Y_AXIS].log ? GPO.AxS[SECOND_Y_AXIS].log_base : 0);
 	}
 #endif
 	PRINT0("E\n");

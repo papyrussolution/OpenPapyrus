@@ -453,16 +453,16 @@ void GnuPlot::TermApplyLpProperties(termentry * pTerm, const lp_style_type * lp)
 	// 
 	int lt = lp->l_type;
 	int dt = lp->d_type;
-	t_dashtype custom_dash_pattern = lp->custom_dash_pattern;
+	t_dashtype custom_dash_pattern = lp->CustomDashPattern;
 	t_colorspec colorspec = lp->pm3d_color;
 	if((lp->flags & LP_SHOW_POINTS)) {
 		// change points, too
 		// Currently, there is no 'pointtype' function.  For points
 		// there is a special function also dealing with (x,y) co-ordinates.
-		if(lp->p_size < 0)
-			(pTerm->pointsize)(pointsize);
+		if(lp->PtSize < 0.0)
+			(pTerm->pointsize)(Gg.PointSize);
 		else
-			(pTerm->pointsize)(lp->p_size);
+			(pTerm->pointsize)(lp->PtSize);
 	}
 	//  _first_ set the line width, _then_ set the line type !
 	// The linetype might depend on the linewidth in some terminals.
@@ -510,7 +510,7 @@ void GnuPlot::TermApplyLpProperties(termentry * pTerm, const lp_style_type * lp)
 void GnuPlot::TermStartMultiplot(termentry * pTerm)
 {
 	FPRINTF((stderr, "term_start_multiplot()\n"));
-	MultiplotStart();
+	MultiplotStart(pTerm);
 #ifdef USE_MOUSE
 	UpdateStatusLine();
 #endif
@@ -1029,7 +1029,7 @@ static int null_set_font(const char * font)
 }
 
 //static void null_set_color(t_colorspec * pColorSpec)
-/*static*/void GnuPlot::NullSetColor(t_colorspec * pColorSpec)
+/*static*/void GnuPlot::NullSetColor(const t_colorspec * pColorSpec)
 {
 	if(pColorSpec->type == TC_LT)
 		term->linetype(pColorSpec->lt);
@@ -1221,18 +1221,18 @@ termentry * GnuPlot::SetTerm()
 	termentry * p_term = NULL;
 	if(!Pgm.EndOfCommand()) {
 		char * input_name = gp_input_line + Pgm.GetCurTokenStartIndex();
-		p_term = change_term(input_name, Pgm.GetCurTokenLength());
+		p_term = ChangeTerm(input_name, Pgm.GetCurTokenLength());
 		if(!p_term && Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (input_name = TryToGetString())) {
 			if(strchr(input_name, ' '))
 				*strchr(input_name, ' ') = '\0';
-			p_term = change_term(input_name, strlen(input_name));
+			p_term = ChangeTerm(input_name, strlen(input_name));
 			SAlloc::F(input_name);
 		}
 		else
 			Pgm.Shift();
 	}
 	if(!p_term) {
-		change_term("unknown", 7);
+		ChangeTerm("unknown", 7);
 		IntError(Pgm.GetPrevTokenIdx(), "unknown or ambiguous terminal type; type just 'set terminal' for a list");
 	}
 	return p_term; // otherwise the type was changed 
@@ -1242,36 +1242,37 @@ termentry * GnuPlot::SetTerm()
 // 
 // returns NULL for unknown or ambiguous, otherwise is terminal driver pointer
 // 
-struct termentry * change_term(const char * origname, int length)                    
+//termentry * change_term(const char * pOrigName, int length)
+termentry * GnuPlot::ChangeTerm(const char * pOrigName, int length)
 {
 	int i;
-	struct termentry * t = NULL;
+	termentry * p_new_term = NULL;
 	bool ambiguous = FALSE;
-	/* For backwards compatibility only */
-	char * name = (char*)origname;
-	if(!strncmp(origname, "X11", length)) {
+	// For backwards compatibility only 
+	char * name = (char *)pOrigName;
+	if(!strncmp(pOrigName, "X11", length)) {
 		name = "x11";
 		length = 3;
 	}
 #ifdef HAVE_CAIROPDF
 	// To allow "set term eps" as short for "set term epscairo" 
-	if(!strncmp(origname, "eps", length)) {
+	if(!strncmp(pOrigName, "eps", length)) {
 		name = "epscairo";
 		length = 8;
 	}
 #endif
 #ifdef HAVE_LIBGD
 	// To allow "set term sixel" as short for "set term sixelgd" 
-	if(!strncmp(origname, "sixel", length)) {
+	if(!strncmp(pOrigName, "sixel", length)) {
 		name = "sixelgd";
 		length = 7;
 	}
 #endif
 	for(i = 0; i < TERMCOUNT; i++) {
 		if(!strncmp(name, term_tbl[i].name, length)) {
-			if(t)
+			if(p_new_term)
 				ambiguous = TRUE;
-			t = term_tbl + i;
+			p_new_term = term_tbl + i;
 			// Exact match is always accepted 
 			if(length == strlen(term_tbl[i].name)) {
 				ambiguous = FALSE;
@@ -1279,32 +1280,32 @@ struct termentry * change_term(const char * origname, int length)
 			}
 		}
 	}
-	if(!t || ambiguous)
+	if(!p_new_term || ambiguous)
 		return NULL;
 	else {
 		// Success: set terminal type now 
-		term = t;
 		GPO.TermInitialised = false;
 		// check that optional fields are initialised to something 
-		SETIFZ(term->text_angle, GnuPlot::NullTextAngle);
-		SETIFZ(term->justify_text, GnuPlot::NullJustifyText);
-		SETIFZ(term->point, GnuPlot::DoPoint);
-		SETIFZ(term->arrow, GnuPlot::DoArrow);
-		SETIFZ(term->pointsize, GnuPlot::DoPointSize);
-		SETIFZ(term->linewidth, null_linewidth);
-		SETIFZ(term->layer, null_layer);
-		if(term->tscale <= 0)
-			term->tscale = 1.0;
-		SETIFZ(term->set_font, null_set_font);
-		if(term->set_color == 0) {
-			term->set_color = GnuPlot::NullSetColor;
-			term->flags |= TERM_NULL_SET_COLOR;
+		SETIFZ(p_new_term->text_angle, GnuPlot::NullTextAngle);
+		SETIFZ(p_new_term->justify_text, GnuPlot::NullJustifyText);
+		SETIFZ(p_new_term->point, GnuPlot::DoPoint);
+		SETIFZ(p_new_term->arrow, GnuPlot::DoArrow);
+		SETIFZ(p_new_term->pointsize, GnuPlot::DoPointSize);
+		SETIFZ(p_new_term->linewidth, null_linewidth);
+		SETIFZ(p_new_term->layer, null_layer);
+		if(p_new_term->tscale <= 0)
+			p_new_term->tscale = 1.0;
+		SETIFZ(p_new_term->set_font, null_set_font);
+		if(p_new_term->set_color == 0) {
+			p_new_term->set_color = GnuPlot::NullSetColor;
+			p_new_term->flags |= TERM_NULL_SET_COLOR;
 		}
-		SETIFZ(term->dashtype, null_dashtype);
+		SETIFZ(p_new_term->dashtype, null_dashtype);
 		if(interactive)
-			fprintf(stderr, "\nTerminal type is now '%s'\n", term->name);
-		invalidate_palette(); /* Invalidate any terminal-specific structures that may be active */
-		return t;
+			fprintf(stderr, "\nTerminal type is now '%s'\n", p_new_term->name);
+		invalidate_palette(); // Invalidate any terminal-specific structures that may be active 
+		term = p_new_term;
+		return p_new_term;
 	}
 }
 /*
@@ -1315,8 +1316,9 @@ struct termentry * change_term(const char * origname, int length)
  * A default can be set with -DDEFAULTTERM=myterm in the Makefile
  * or #define DEFAULTTERM myterm in term.h
  */
-/* thanks to osupyr!alden (Dave Alden) for the original GNUTERM code */
-void init_terminal()
+// thanks to osupyr!alden (Dave Alden) for the original GNUTERM code 
+//
+void GnuPlot::InitTerminal()
 {
 	char * term_name = DEFAULTTERM;
 #if defined(__BEOS__) || defined(X11)
@@ -1325,10 +1327,10 @@ void init_terminal()
 #ifdef X11
 	char * display = NULL;
 #endif
-	/* GNUTERM environment variable is primary */
+	// GNUTERM environment variable is primary 
 	char * gnuterm = getenv("GNUTERM");
 	if(gnuterm != (char*)NULL) {
-		/* April 2017 - allow GNUTERM to include terminal options */
+		// April 2017 - allow GNUTERM to include terminal options 
 		char * set_term = "set term ";
 		char * set_term_command = (char*)gp_alloc(strlen(set_term) + strlen(gnuterm) + 4, NULL);
 		strcpy(set_term_command, set_term);
@@ -1336,11 +1338,11 @@ void init_terminal()
 		do_string(set_term_command);
 		SAlloc::F(set_term_command);
 		// replicate environmental variable GNUTERM for internal use 
-		Gstring(&(GPO.Ev.AddUdvByName("GNUTERM")->udv_value), gp_strdup(gnuterm));
+		Gstring(&(Ev.AddUdvByName("GNUTERM")->udv_value), gp_strdup(gnuterm));
 		return;
 	}
 	else {
-		if(term_name == (char*)NULL && getenv("DOMTERM") != NULL)
+		if(!term_name && getenv("DOMTERM"))
 			term_name = "domterm";
 #ifdef __BEOS__
 		env_term = getenv("TERM");
@@ -1355,10 +1357,9 @@ void init_terminal()
 #endif
 #ifdef _WIN32
 		SETIFZ(term_name, "win");
-#endif /* _WIN32 */
+#endif
 #if defined(__APPLE__) && defined(__MACH__) && defined(HAVE_FRAMEWORK_AQUATERM)
-		/* Mac OS X with AquaTerm installed */
-		term_name = "aqua";
+		term_name = "aqua"; // Mac OS X with AquaTerm installed 
 #endif
 #ifdef X11
 		env_term = getenv("TERM"); /* try $TERM */
@@ -1369,7 +1370,7 @@ void init_terminal()
 			term_name = "x11";
 		if(X11_Display)
 			term_name = "x11";
-#endif /* x11 */
+#endif
 #ifdef DJGPP
 		term_name = "svga";
 #endif
@@ -1380,7 +1381,7 @@ void init_terminal()
 	// We have a name, try to set term type 
 	if(!isempty(term_name)) {
 		int namelength = strlen(term_name);
-		udvt_entry * name = GPO.Ev.AddUdvByName("GNUTERM");
+		udvt_entry * name = Ev.AddUdvByName("GNUTERM");
 		Gstring(&name->udv_value, gp_strdup(term_name));
 		if(strchr(term_name, ' '))
 			namelength = strchr(term_name, ' ') - term_name;
@@ -1390,14 +1391,15 @@ void init_terminal()
 		// to the fork+execute of gnuplot_x11 and x11 can tolerate not being  
 		// initialized until later.                                           
 		// Note that gp_input_line[] is blank at this point.	              
-		if(change_term(term_name, namelength)) {
+		if(ChangeTerm(term_name, namelength)) {
 			if(strcmp(term->name, "x11"))
 				term->options(term, &GPO);
 			return;
 		}
-		fprintf(stderr, "Unknown or ambiguous terminal name '%s'\n", term_name);
+		else
+			fprintf(stderr, "Unknown or ambiguous terminal name '%s'\n", term_name);
 	}
-	change_term("unknown", 7);
+	ChangeTerm("unknown", 7);
 }
 // 
 // test terminal by drawing border and text 
@@ -1423,8 +1425,8 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	ymax_t = static_cast<int>(pTerm->MaxY * V.Size.y);
 	x0 = static_cast<int>(V.Offset.X * pTerm->MaxX);
 	y0 = static_cast<int>(V.Offset.Y * pTerm->MaxY);
-	p_width = static_cast<int>(pointsize * pTerm->TicH);
-	key_entry_height = static_cast<int>(pointsize * pTerm->TicV * 1.25);
+	p_width = static_cast<int>(Gg.PointSize * pTerm->TicH);
+	key_entry_height = static_cast<int>(Gg.PointSize * pTerm->TicV * 1.25);
 	SETMAX(key_entry_height, pTerm->ChrV);
 	// Sync point for epslatex text positioning 
 	(pTerm->layer)(TERM_LAYER_FRONTTEXT);
@@ -1523,7 +1525,7 @@ void GnuPlot::TestTerminal(termentry * pTerm)
 	// test line and point types 
 	x = x0 + xmax_t - pTerm->ChrH * 7 - p_width;
 	y = y0 + ymax_t - key_entry_height;
-	(pTerm->pointsize)(pointsize);
+	(pTerm->pointsize)(Gg.PointSize);
 	for(i = -2; y > y0 + key_entry_height; i++) {
 		lp_style_type ls; // = DEFAULT_LP_STYLE_TYPE;
 		ls.l_width = 1;
@@ -2288,7 +2290,7 @@ int load_dashtype(t_dashtype * dt, int tag)
 	return tag - 1;
 }
 
-void lp_use_properties(lp_style_type * lp, int tag)
+void lp_use_properties(termentry * pTerm, lp_style_type * lp, int tag)
 {
 	// This function looks for a linestyle defined by 'tag' and copies its data into the structure 'lp'.
 	int save_flags = lp->flags;
@@ -2301,7 +2303,7 @@ void lp_use_properties(lp_style_type * lp, int tag)
 		else
 			p_this = p_this->next;
 	}
-	load_linetype(term, lp, tag); // No user-defined style with p_this tag; fall back to default line type. 
+	load_linetype(pTerm, lp, tag); // No user-defined style with p_this tag; fall back to default line type. 
 }
 // 
 // Load lp with the properties of a user-defined linetype
@@ -2334,7 +2336,7 @@ recycle:
 			lp->l_width = p_this->lp_properties.l_width;
 			lp->pm3d_color = p_this->lp_properties.pm3d_color;
 			lp->d_type = p_this->lp_properties.d_type;
-			lp->custom_dash_pattern = p_this->lp_properties.custom_dash_pattern;
+			lp->CustomDashPattern = p_this->lp_properties.CustomDashPattern;
 			// Needed in version 5.0 to handle old terminals (pbm hpgl ...) 
 			// with no support for user-specified colors 
 			if(pTerm && pTerm->set_color == GnuPlot::NullSetColor)
@@ -2342,9 +2344,9 @@ recycle:
 			// Do not recycle point properties. 
 			// FIXME: there should be a separate command "set pointtype cycle N" 
 			if(!recycled) {
-				lp->p_type = p_this->lp_properties.p_type;
+				lp->PtType = p_this->lp_properties.PtType;
 				lp->p_interval = p_this->lp_properties.p_interval;
-				lp->p_size = p_this->lp_properties.p_size;
+				lp->PtSize = p_this->lp_properties.PtSize;
 				memcpy(lp->p_char, p_this->lp_properties.p_char, sizeof(lp->p_char));
 			}
 			return;
@@ -2366,7 +2368,7 @@ recycle:
 	lp->pm3d_color.type = TC_LT;
 	lp->pm3d_color.lt = lp->l_type;
 	lp->d_type = DASHTYPE_SOLID;
-	lp->p_type = (tag <= 0) ? -1 : tag - 1;
+	lp->PtType = (tag <= 0) ? -1 : tag - 1;
 }
 // 
 // Version 5 maintains a parallel set of linetypes for "set monochrome" mode.
@@ -2387,7 +2389,7 @@ void init_monochrome()
 	mono_default[4].l_width = 2.0;
 	mono_default[5].d_type = DASHTYPE_CUSTOM;
 	mono_default[5].l_width = 1.2;
-	mono_default[5].custom_dash_pattern.SetPattern(16.f, 8.0f, 2.0f, 5.0f, 2.0f, 5.0f, 2.0f, 8.0f);
+	mono_default[5].CustomDashPattern.SetPattern(16.f, 8.0f, 2.0f, 5.0f, 2.0f, 5.0f, 2.0f, 8.0f);
 	if(GPO.Gg.P_FirstMonoLineStyle == NULL) {
 		int n = sizeof(mono_default) / sizeof(struct lp_style_type);
 		// copy default list into active list 

@@ -397,17 +397,17 @@ static long int make_edge(long vnum1, long vnum2, lp_style_type * lp, int style,
 	if(v1->z >= v2->z) {
 		thisedge->v1 = vnum1;
 		thisedge->v2 = vnum2;
-		if(lp->p_type == PT_ARROWHEAD) 
+		if(lp->PtType == PT_ARROWHEAD) 
 			thisedge->style = PT_ARROWHEAD;
-		if(lp->p_type == PT_BACKARROW) 
+		if(lp->PtType == PT_BACKARROW) 
 			thisedge->style = PT_BACKARROW;
 	}
 	else {
 		thisedge->v1 = vnum2;
 		thisedge->v2 = vnum1;
-		if(lp->p_type == PT_ARROWHEAD) 
+		if(lp->PtType == PT_ARROWHEAD) 
 			thisedge->style = PT_BACKARROW;
-		if(lp->p_type == PT_BACKARROW) 
+		if(lp->PtType == PT_BACKARROW) 
 			thisedge->style = PT_ARROWHEAD;
 	}
 	return thisedge - elist;
@@ -902,15 +902,15 @@ static void build_networks(surface_points * plots, int pcount)
 			    break;
 			case CIRCLES:
 			    this_plot->lp_properties.flags |= LP_SHOW_POINTS;
-			    this_plot->lp_properties.p_type = PT_CIRCLE;
-			    this_plot->lp_properties.p_size = PTSZ_VARIABLE;
+			    this_plot->lp_properties.PtType = PT_CIRCLE;
+			    this_plot->lp_properties.PtSize = PTSZ_VARIABLE;
 			    nv += nverts;
-			    ne += nverts; /* a 'phantom edge' per isolated point */
+			    ne += nverts; // a 'phantom edge' per isolated point 
 			    break;
 			case DOTS:
 			    this_plot->lp_properties.flags |= LP_SHOW_POINTS;
-			    this_plot->lp_properties.p_type = -1;
-			/* fall through */
+			    this_plot->lp_properties.PtType = -1;
+				// fall through 
 			case POINTSTYLE:
 			default:
 			    /* treat all remaining ones like 'points' */
@@ -972,9 +972,9 @@ static void build_networks(surface_points * plots, int pcount)
 		// calculate the point symbol type: 
 		// Assumes that upstream functions have made sure this is initialized sensibly --- thou hast been warned 
 		if(this_plot->plot_style == VECTOR) {
-			lp->p_type = PT_ARROWHEAD;
+			lp->PtType = PT_ARROWHEAD;
 			if(this_plot->arrow_properties.head == BACKHEAD)
-				lp->p_type = PT_BACKARROW;
+				lp->PtType = PT_BACKARROW;
 			if(this_plot->arrow_properties.head == NOHEAD) {
 				this_plot->arrow_properties.head_length = 1;
 				this_plot->arrow_properties.head_angle = 0;
@@ -1344,50 +1344,49 @@ static void sort_polys_by_z()
 void GnuPlot::DrawVertex(termentry * pTerm, GpVertex * pV)
 {
 	int x, y;
-	int p_type;
-	if(pV->lp_style == NULL)
-		return;
-	p_type = pV->lp_style->p_type;
-	TERMCOORD(pV, x, y);
-	if((p_type >= -1 || oneof3(p_type, PT_CHARACTER, PT_VARIABLE, PT_CIRCLE)) && !V.ClipPoint(x, y)) {
-		t_colorspec * tc = &(pV->lp_style->pm3d_color);
-		if(pV->label) {
-			WriteLabel(pTerm, x, y, pV->label);
+	if(pV->lp_style) {
+		const int p_type = pV->lp_style->PtType;
+		TERMCOORD(pV, x, y);
+		if((p_type >= -1 || oneof3(p_type, PT_CHARACTER, PT_VARIABLE, PT_CIRCLE)) && !V.ClipPoint(x, y)) {
+			const t_colorspec * tc = &(pV->lp_style->pm3d_color);
+			if(pV->label) {
+				WriteLabel(pTerm, x, y, pV->label);
+				pV->lp_style = NULL;
+				return;
+			}
+			if(tc->type == TC_LINESTYLE && tc->lt == LT_COLORFROMCOLUMN) {
+				lp_style_type style = *(pV->lp_style);
+				load_linetype(pTerm, &style, (int)pV->real_z);
+				tc = &style.pm3d_color;
+				ApplyPm3DColor(pTerm, tc);
+			}
+			else if(tc->type == TC_RGB && tc->lt == LT_COLORFROMCOLUMN)
+				SetRgbColorVar(pTerm, (uint)pV->real_z);
+			else if(tc->type == TC_RGB)
+				SetRgbColorConst(pTerm, tc->lt);
+			else if(tc->type == TC_CB)
+				set_color(pTerm, Cb2Gray(pV->real_z));
+			else if(tc->type == TC_Z)
+				set_color(pTerm, Cb2Gray(pV->real_z));
+			if(p_type == PT_CIRCLE) {
+				const double radius = pV->original->CRD_PTSIZE * radius_scaler;
+				DoArc(pTerm, x, y, radius, 0.0, 360.0, style_from_fill(&default_fillstyle), FALSE);
+				if(NeedFillBorder(pTerm, &default_fillstyle))
+					DoArc(pTerm, x, y, radius, 0.0, 360.0, 0, FALSE);
+				pV->lp_style = NULL;
+				return;
+			}
+			if(pV->lp_style->PtSize == PTSZ_VARIABLE)
+				(pTerm->pointsize)(Gg.PointSize * pV->original->CRD_PTSIZE);
+			if(p_type == PT_CHARACTER)
+				(pTerm->put_text)(x, y, pV->lp_style->p_char);
+			else if(p_type == PT_VARIABLE)
+				(pTerm->point)(x, y, (int)(pV->original->CRD_PTTYPE) - 1);
+			else
+				(pTerm->point)(x, y, p_type);
+			// vertex has been drawn --> flag it as done 
 			pV->lp_style = NULL;
-			return;
 		}
-		if(tc->type == TC_LINESTYLE && tc->lt == LT_COLORFROMCOLUMN) {
-			lp_style_type style = *(pV->lp_style);
-			load_linetype(pTerm, &style, (int)pV->real_z);
-			tc = &style.pm3d_color;
-			ApplyPm3DColor(pTerm, tc);
-		}
-		else if(tc->type == TC_RGB && tc->lt == LT_COLORFROMCOLUMN)
-			SetRgbColorVar(pTerm, (uint)pV->real_z);
-		else if(tc->type == TC_RGB)
-			SetRgbColorConst(pTerm, tc->lt);
-		else if(tc->type == TC_CB)
-			set_color(pTerm, Cb2Gray(pV->real_z));
-		else if(tc->type == TC_Z)
-			set_color(pTerm, Cb2Gray(pV->real_z));
-		if(p_type == PT_CIRCLE) {
-			const double radius = pV->original->CRD_PTSIZE * radius_scaler;
-			DoArc(pTerm, x, y, radius, 0., 360.0, style_from_fill(&default_fillstyle), FALSE);
-			if(need_fill_border(&default_fillstyle))
-				DoArc(pTerm, x, y, radius, 0., 360.0, 0, FALSE);
-			pV->lp_style = NULL;
-			return;
-		}
-		if(pV->lp_style->p_size == PTSZ_VARIABLE)
-			(pTerm->pointsize)(pointsize * pV->original->CRD_PTSIZE);
-		if(p_type == PT_CHARACTER)
-			(pTerm->put_text)(x, y, pV->lp_style->p_char);
-		else if(p_type == PT_VARIABLE)
-			(pTerm->point)(x, y, (int)(pV->original->CRD_PTTYPE) - 1);
-		else
-			(pTerm->point)(x, y, p_type);
-		// vertex has been drawn --> flag it as done 
-		pV->lp_style = NULL;
 	}
 }
 //
@@ -1402,7 +1401,7 @@ void GnuPlot::DrawEdge(termentry * pTerm, GpEdge * e, GpVertex * v1, GpVertex * 
 	t_colorspec color = e->lp->pm3d_color;
 	lp_style_type lptemp = *(e->lp);
 	bool recolor = FALSE;
-	bool arrow = (lptemp.p_type == PT_ARROWHEAD || lptemp.p_type == PT_BACKARROW);
+	bool arrow = oneof2(lptemp.PtType, PT_ARROWHEAD, PT_BACKARROW);
 	int varcolor;
 	if(arrow && (e->style == PT_BACKARROW))
 		varcolor = static_cast<int>(v2->real_z);
@@ -1424,7 +1423,7 @@ void GnuPlot::DrawEdge(termentry * pTerm, GpEdge * e, GpVertex * v1, GpVertex * 
 		load_linetype(pTerm, &lptemp, varcolor);
 	}
 	else if(arrow) { // This handles style VECTORS 
-		lptemp.p_type = e->style;
+		lptemp.PtType = e->style;
 	}
 	else if((hiddenBacksideLinetypeOffset != 0) && (e->lp->pm3d_color.type != TC_Z)) { // This is the default style: color top and bottom in successive colors 
 		recolor = TRUE;
@@ -1438,7 +1437,7 @@ void GnuPlot::DrawEdge(termentry * pTerm, GpEdge * e, GpVertex * v1, GpVertex * 
 		lptemp = *(e->lp);
 		lptemp.pm3d_color = color;
 		if(arrow)
-			lptemp.p_type = e->style;
+			lptemp.PtType = e->style;
 	}
 	// Only the original tip of an arrow should show an arrowhead 
 	// FIXME:  Arrowhead lines are not themselves subject to hidden line removal 
@@ -1449,22 +1448,22 @@ void GnuPlot::DrawEdge(termentry * pTerm, GpEdge * e, GpVertex * v1, GpVertex * 
 		arrow_style_type * as = (arrow_style_type*)(&lp[1]);
 		apply_head_properties(as);
 		if(as->head == BOTH_HEADS)
-			lptemp.p_type = PT_BOTHHEADS;
+			lptemp.PtType = PT_BOTHHEADS;
 		if(e->v2 != v2-vlist && e->v1 != v1-vlist)
-			lptemp.p_type = 0;
-		if(lptemp.p_type == PT_BACKARROW) {
+			lptemp.PtType = 0;
+		if(lptemp.PtType == PT_BACKARROW) {
 			if(e->v2 == v2-vlist && e->v1 != v1-vlist)
-				lptemp.p_type = 0;
+				lptemp.PtType = 0;
 		}
-		if(lptemp.p_type == PT_ARROWHEAD) {
+		if(lptemp.PtType == PT_ARROWHEAD) {
 			if(e->v1 == v1-vlist && e->v2 != v2-vlist)
-				lptemp.p_type = 0;
+				lptemp.PtType = 0;
 		}
-		if(lptemp.p_type == PT_BOTHHEADS) {
+		if(lptemp.PtType == PT_BOTHHEADS) {
 			if(e->v1 == v1-vlist && e->v2 != v2-vlist)
-				lptemp.p_type = PT_BACKARROW;
+				lptemp.PtType = PT_BACKARROW;
 			if(e->v2 == v2-vlist && e->v1 != v1-vlist)
-				lptemp.p_type = PT_ARROWHEAD;
+				lptemp.PtType = PT_ARROWHEAD;
 		}
 	}
 	Draw3DLineUnconditional(pTerm, v1, v2, &lptemp, color);
@@ -1473,14 +1472,10 @@ void GnuPlot::DrawEdge(termentry * pTerm, GpEdge * e, GpVertex * v1, GpVertex * 
 		DrawVertex(pTerm, v2);
 	}
 }
-
-/*************************************************************/
-/*************************************************************/
-/*******   The depth sort algorithm (in_front) and its  ******/
-/*******   whole lot of helper functions                ******/
-/*************************************************************/
-/*************************************************************/
-
+//
+// The depth sort algorithm (in_front) and its
+// whole lot of helper functions        
+//
 /* Split a given line segment into two at an inner point. The inner
  * point is specified as a fraction of the line-length (0 is V1, 1 is
  * V2) */

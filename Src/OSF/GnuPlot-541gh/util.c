@@ -1353,15 +1353,15 @@ static char * num_to_str(double r)
  * which probably looks better in math mode.
  * We could perhaps go further and texify syntax such as a**b -> a^b
  */
-char * texify_title(char * str, int plot_type)
+char * texify_title(const char * pTitle, int plot_type)
 {
 	static char * latex_title = NULL;
 	if(plot_type == DATA || plot_type == DATA3D) {
-		latex_title = escape_reserved_chars(str, "#$%^&_{}\\");
+		latex_title = escape_reserved_chars(pTitle, "#$%^&_{}\\");
 	}
 	else {
-		latex_title = (char *)gp_realloc(latex_title, strlen(str) + 4, NULL);
-		sprintf(latex_title, "$%s$", str);
+		latex_title = (char *)gp_realloc(latex_title, strlen(pTitle) + 4, NULL);
+		sprintf(latex_title, "$%s$", pTitle);
 	}
 	return latex_title;
 }

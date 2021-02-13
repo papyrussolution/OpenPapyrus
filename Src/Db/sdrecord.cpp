@@ -111,19 +111,19 @@ void SdbField::PutFieldDataToBuf(const SString & rTextData, void * pRecBuf, cons
 struct ReList {
 	ReList()
 	{
-		ReSize[0].Compile("^\\[[ \t]*[0-9]+(\\.[0-9]*)?[ \t]*\\]"); // [len.prec]
-		ReSize[1].Compile("^\\([ \t]*[0-9]+(\\.[0-9]*)?[ \t]*\\)"); // (len.prec)
-		ReSize[2].Compile("^[0-9]+[ \t]*(,[ \t]*[0-9]+)?");         // len, prec
+		ReSize[0].Compile("^\\[[ \t]*[0-9]+(\\.[0-9]*)?[ \t]*\\]", cpANSI, SRegExp2::syntaxDefault, 0); // [len.prec]
+		ReSize[1].Compile("^\\([ \t]*[0-9]+(\\.[0-9]*)?[ \t]*\\)", cpANSI, SRegExp2::syntaxDefault, 0); // (len.prec)
+		ReSize[2].Compile("^[0-9]+[ \t]*(,[ \t]*[0-9]+)?", cpANSI, SRegExp2::syntaxDefault, 0);         // len, prec
 		SString temp_buf("^[a-zA-Z_а-яёА-ЯЁ]+[0-9a-zA-Z_а-яёА-ЯЁ]*");
-		ReSymb.Compile(temp_buf.Transf(CTRANSF_UTF8_TO_OUTER));
+		ReSymb.Compile(temp_buf.Transf(CTRANSF_UTF8_TO_OUTER), cp1251, SRegExp2::syntaxDefault, 0);
 		temp_buf = "^\"[a-zA-Z_а-яёА-ЯЁ]+[0-9a-zA-Z_а-яёА-ЯЁ ]*\"";
-		ReQuotedSymb.Compile(temp_buf.Transf(CTRANSF_UTF8_TO_OUTER));
-		ReFormula.Compile("^(FORMULA|formula|Formula)[ \t]\\(.*\\)"); 
+		ReQuotedSymb.Compile(temp_buf.Transf(CTRANSF_UTF8_TO_OUTER), cp1251, SRegExp2::syntaxDefault, 0);
+		ReFormula.Compile("^(FORMULA|formula|Formula)[ \t]\\(.*\\)", cpANSI, SRegExp2::syntaxDefault, 0); 
 	}
-	CRegExp ReSize[3];
-	CRegExp ReSymb;
-	CRegExp ReQuotedSymb;  // @v10.9.1
-	CRegExp ReFormula;     // @v10.9.1   
+	SRegExp2 ReSize[3];
+	SRegExp2 ReSymb;
+	SRegExp2 ReQuotedSymb;  // @v10.9.1
+	SRegExp2 ReFormula;     // @v10.9.1   
 };
 
 static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & rBuf)

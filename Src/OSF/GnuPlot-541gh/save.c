@@ -187,7 +187,7 @@ void save_axis_label_or_title(FILE * fp, char * name, char * suffix, text_label 
 		fprintf(fp, " rotate by %d", label->rotate);
 	else
 		fprintf(fp, " norotate");
-	if(label == &title && label->boxed) {
+	if(label == &GPO.Gg.LblTitle && label->boxed) {
 		fprintf(fp, " boxed ");
 		if(label->boxed > 0)
 			fprintf(fp, "bs %d ", label->boxed);
@@ -223,8 +223,8 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fprintf(fp, "# set output '%s'\n", outstr);
 	else
 		fputs("# set output\n", fp);
-	fprintf(fp, "%sset clip points\n%sset clip one\n%sset clip two\n%sset clip radial\n", (clip_points) ? "" : "un", (clip_lines1) ? "" : "un",
-	    (clip_lines2) ? "" : "un", (clip_radial) ? "" : "un");
+	fprintf(fp, "%sset clip points\n%sset clip one\n%sset clip two\n%sset clip radial\n", (Gg.ClipPoints ? "" : "un"), (Gg.ClipLines1 ? "" : "un"),
+	    (Gg.ClipLines2 ? "" : "un"), (Gg.ClipRadial ? "" : "un"));
 	save_bars(fp);
 	if(draw_border) {
 		fprintf(fp, "set border %d %s", draw_border, border_layer == LAYER_BEHIND ? "behind" : border_layer == LAYER_BACK ? "back" : "front");
@@ -233,7 +233,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	}
 	else
 		fputs("unset border\n", fp);
-	fprintf(fp, "%s cornerpoles\n", cornerpoles ? "set" : "unset");
+	fprintf(fp, "%s cornerpoles\n", Gg.CornerPoles ? "set" : "unset");
 	for(axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
 		if(axis == SAMPLE_AXIS) continue;
 		if(axis == COLOR_AXIS) continue;
@@ -461,8 +461,8 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		}
 		fprintf(fp, "\n");
 	}
-	/* Mostly for backwards compatibility */
-	if(prefer_line_styles)
+	// Mostly for backwards compatibility 
+	if(Gg.PreferLineStyles)
 		fprintf(fp, "set style increment userstyles\n");
 	fputs("unset style line\n", fp);
 	for(this_linestyle = Gg.P_FirstLineStyle; this_linestyle; this_linestyle = this_linestyle->next) {
@@ -495,9 +495,9 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	save_walls(fp);
 	save_style_textbox(fp);
 	save_offsets(fp, "set offsets");
-	fprintf(fp, "set pointsize %g\nset pointintervalbox %g\nset encoding %s\n%sset polar\n%sset parametric\n", pointsize, pointintervalbox,
-	    encoding_names[encoding], (polar) ? "" : "un", (parametric) ? "" : "un");
-	if(spiderplot) {
+	fprintf(fp, "set pointsize %g\nset pointintervalbox %g\nset encoding %s\n%sset polar\n%sset parametric\n", Gg.PointSize, Gg.PointIntervalBox,
+	    encoding_names[encoding], (Gg.Polar ? "" : "un"), (Gg.Parametric ? "" : "un"));
+	if(Gg.SpiderPlot) {
 		fprintf(fp, "set spiderplot\n");
 		save_style_spider(fp);
 	}
@@ -620,9 +620,9 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	save_tics(fp, &AxS.Theta());
 	for(axis = 0; axis < AxS.GetParallelAxisCount(); axis++)
 		save_tics(fp, &AxS.Parallel(axis));
-	save_axis_label_or_title(fp, "", "title", &title, TRUE);
-	fprintf(fp, "set timestamp %s \n", timelabel_bottom ? "bottom" : "top");
-	save_axis_label_or_title(fp, "", "timestamp", &timelabel, FALSE);
+	save_axis_label_or_title(fp, "", "title", &Gg.LblTitle, TRUE);
+	fprintf(fp, "set timestamp %s \n", Gg.TimeLabelBottom ? "bottom" : "top");
+	save_axis_label_or_title(fp, "", "timestamp", &Gg.LblTime, FALSE);
 	save_prange(fp, &AxS[T_AXIS]);
 	save_prange(fp, &AxS[U_AXIS]);
 	save_prange(fp, &AxS[V_AXIS]);
@@ -665,7 +665,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	save_link(fp, &AxS[SECOND_X_AXIS]);
 	save_link(fp, &AxS[SECOND_Y_AXIS]);
 	save_jitter(fp);
-	fprintf(fp, "set zero %g\n", zero);
+	fprintf(fp, "set zero %g\n", Gg.Zero);
 	fprintf(fp, "set lmargin %s %g\n", V.MarginL.scalex == screen ? "at screen" : "", V.MarginL.x);
 	fprintf(fp, "set bmargin %s %g\n", V.MarginB.scalex == screen ? "at screen" : "", V.MarginB.x);
 	fprintf(fp, "set rmargin %s %g\n", V.MarginR.scalex == screen ? "at screen" : "", V.MarginR.x);
@@ -770,22 +770,23 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	/*
 	 *  Save colorbox info
 	 */
-	if(color_box.where != SMCOLOR_BOX_NO)
-		fprintf(fp, "set colorbox %s\n", color_box.where==SMCOLOR_BOX_DEFAULT ? "default" : "user");
-	fprintf(fp, "set colorbox %sal origin ", color_box.rotation ==  'v' ? "vertic" : "horizont");
-	save_position(fp, &color_box.origin, 2, FALSE);
+	if(Gg.ColorBox.where != SMCOLOR_BOX_NO)
+		fprintf(fp, "set colorbox %s\n", Gg.ColorBox.where==SMCOLOR_BOX_DEFAULT ? "default" : "user");
+	fprintf(fp, "set colorbox %sal origin ", Gg.ColorBox.rotation ==  'v' ? "vertic" : "horizont");
+	save_position(fp, &Gg.ColorBox.origin, 2, FALSE);
 	fputs(" size ", fp);
-	save_position(fp, &color_box.size, 2, FALSE);
-	fprintf(fp, " %s ", color_box.layer ==  LAYER_FRONT ? "front" : "back");
-	fprintf(fp, " %sinvert ", color_box.invert ? "" : "no");
-	if(color_box.border == 0)
+	save_position(fp, &Gg.ColorBox.size, 2, FALSE);
+	fprintf(fp, " %s ", Gg.ColorBox.layer ==  LAYER_FRONT ? "front" : "back");
+	fprintf(fp, " %sinvert ", Gg.ColorBox.invert ? "" : "no");
+	if(Gg.ColorBox.border == 0)
 		fputs("noborder", fp);
 	else
-		fprintf(fp, "border %d", color_box.border_lt_tag);
-	fprintf(fp, " cbtics %d", color_box.cbtics_lt_tag);
-	if(color_box.where == SMCOLOR_BOX_NO) fputs("\nunset colorbox\n", fp);
-	else fputs("\n", fp);
-
+		fprintf(fp, "border %d", Gg.ColorBox.border_lt_tag);
+	fprintf(fp, " cbtics %d", Gg.ColorBox.cbtics_lt_tag);
+	if(Gg.ColorBox.where == SMCOLOR_BOX_NO) 
+		fputs("\nunset colorbox\n", fp);
+	else 
+		fputs("\n", fp);
 	fprintf(fp, "set style boxplot %s %s %5.2f %soutliers pt %d separation %g labels %s %ssorted\n",
 	    boxplot_opts.plotstyle == FINANCEBARS ? "financebars" : "candles",
 	    boxplot_opts.limit_type == 1 ? "fraction" : "range",
@@ -1285,20 +1286,20 @@ void save_linetype(FILE * fp, lp_style_type * lp, bool show_point)
 			save_pm3dcolor(fp, &(lp->pm3d_color));
 	}
 	fprintf(fp, " linewidth %.3f", lp->l_width);
-	save_dashtype(fp, lp->d_type, &lp->custom_dash_pattern);
+	save_dashtype(fp, lp->d_type, &lp->CustomDashPattern);
 	if(show_point) {
-		if(lp->p_type == PT_CHARACTER)
+		if(lp->PtType == PT_CHARACTER)
 			fprintf(fp, " pointtype \"%s\"", lp->p_char);
-		else if(lp->p_type == PT_VARIABLE)
+		else if(lp->PtType == PT_VARIABLE)
 			fprintf(fp, " pointtype variable");
 		else
-			fprintf(fp, " pointtype %d", lp->p_type + 1);
-		if(lp->p_size == PTSZ_VARIABLE)
+			fprintf(fp, " pointtype %d", lp->PtType + 1);
+		if(lp->PtSize == PTSZ_VARIABLE)
 			fprintf(fp, " pointsize variable");
-		else if(lp->p_size == PTSZ_DEFAULT)
+		else if(lp->PtSize == PTSZ_DEFAULT)
 			fprintf(fp, " pointsize default");
 		else
-			fprintf(fp, " pointsize %.3f", lp->p_size);
+			fprintf(fp, " pointsize %.3f", lp->PtSize);
 		if(lp->p_interval != 0)
 			fprintf(fp, " pointinterval %d", lp->p_interval);
 		if(lp->p_number != 0)
@@ -1449,7 +1450,7 @@ void save_object(FILE * fp, int tag)
 			if(this_object->lp_properties.l_width)
 				fprintf(fp, "lw %.1f ", this_object->lp_properties.l_width);
 			if(this_object->lp_properties.d_type)
-				save_dashtype(fp, this_object->lp_properties.d_type, &this_object->lp_properties.custom_dash_pattern);
+				save_dashtype(fp, this_object->lp_properties.d_type, &this_object->lp_properties.CustomDashPattern);
 			fprintf(fp, " fc ");
 			if(this_object->lp_properties.l_type == LT_DEFAULT)
 				fprintf(fp, "default");

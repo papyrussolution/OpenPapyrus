@@ -1022,9 +1022,10 @@ static int ConsolePutCh(int ch)
 }
 
 #endif
-
-/* This is called by the system to signal various events.
-   Note that it is executed in a separate thread.  */
+//
+// This is called by the system to signal various events.
+// Note that it is executed in a separate thread.  
+//
 BOOL WINAPI ConsoleHandler(DWORD dwType)
 {
 	switch(dwType) {

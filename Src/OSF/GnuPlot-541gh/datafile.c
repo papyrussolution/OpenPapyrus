@@ -1088,7 +1088,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		// deal with volatile 
 		if(Pgm.AlmostEqualsCur("volatile")) {
 			Pgm.Shift();
-			volatile_data = TRUE;
+			Gg.VolatileData = TRUE;
 			continue;
 		}
 		// Allow this plot not to affect autoscaling 
@@ -1154,7 +1154,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 			IntError(name_token, "cannot open file descriptor for reading data");
 		// if this stream isn't seekable, set it to volatile 
 		if(fseek(data_fp, 0, SEEK_CUR) < 0)
-			volatile_data = TRUE;
+			Gg.VolatileData = true;
 	}
 	else
 #endif /* HAVE_FDOPEN */
@@ -1171,7 +1171,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	// Special filenames '-' '+' '++' '$DATABLOCK' 
 	if(*df_filename == '-' && strlen(df_filename) == 1) {
 		plotted_data_from_stdin = TRUE;
-		volatile_data = TRUE;
+		Gg.VolatileData = true;
 		data_fp = lf_top();
 		SETIFZ(data_fp, stdin);
 		mixed_data_fp = TRUE; /* don't close command file */
@@ -1596,7 +1596,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 	 * Work-around
 	 *    plot for [i=1:|ARRAY|] [t=1:1:1] '+' using (ARRAY[i]) with spiderplot
 	 */
-	if(spiderplot && df_array && df_datum >= 0)
+	if(Gg.SpiderPlot && df_array && df_datum >= 0)
 		return DF_EOF;
 #endif
 	/*{{{  process line */
@@ -1880,7 +1880,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					}
 					// June 2018: CHANGE.  For consistency with function plots,	
 					// treat imaginary result as UNDEFINED.			
-					if(a.type == CMPLX && (fabs(imag(&a)) > zero) && !isnan(real(&a))) {
+					if(a.type == CMPLX && (fabs(imag(&a)) > Gg.Zero) && !isnan(real(&a))) {
 						return_value = DF_COMPLEX_VALUE;
 						v[output] = fgetnan();
 						continue;
@@ -1936,7 +1936,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 						// Expecting a numerical type but got a string value 
 						else
 						// 'with points pt variable' is the only current user 
-						if(df_current_plot && (df_current_plot->lp_properties.p_type == PT_VARIABLE)) {
+						if(df_current_plot && (df_current_plot->lp_properties.PtType == PT_VARIABLE)) {
 							static char varchar[8];
 							safe_strncpy(varchar, a.v.string_val, 8);
 							df_tokens[output] = varchar;
@@ -4584,8 +4584,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 							df_tokens[output] = df_stringexpression[output] = s;
 						}
 						/* Expecting a numerical type but got a string value */
-						else if(df_current_plot
-						    && (df_current_plot->lp_properties.p_type == PT_VARIABLE)) {
+						else if(df_current_plot && (df_current_plot->lp_properties.PtType == PT_VARIABLE)) {
 							static char varchar[8];
 							safe_strncpy(varchar, a.v.string_val, 8);
 							df_tokens[output] = varchar;
@@ -4593,9 +4592,9 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 						gpfree_string(&a);
 						continue; /* otherwise isnan(v[output]) would terminate */
 					}
-					else if(a.type == CMPLX && (fabs(imag(&a)) > zero)) {
-						/* June 2018: CHANGE. For consistency with function plots, */
-						/* imaginary results are treated as UNDEFINED.		   */
+					else if(a.type == CMPLX && (fabs(imag(&a)) > Gg.Zero)) {
+						// June 2018: CHANGE. For consistency with function plots, 
+						// imaginary results are treated as UNDEFINED.		   
 						v[output] = fgetnan();
 						return DF_UNDEFINED;
 					}
@@ -4730,7 +4729,7 @@ char * GnuPlot::DfGeneratePseudodata()
 				t_max = AxS[SAMPLE_AXIS].max;
 				t_step = AxS[SAMPLE_AXIS].SAMPLE_INTERVAL;
 			}
-			else if(parametric || polar) {
+			else if(Gg.Parametric || Gg.Polar) {
 				t_min = AxS[T_AXIS].min;
 				t_max = AxS[T_AXIS].max;
 			}
@@ -4807,7 +4806,7 @@ char * GnuPlot::DfGeneratePseudodata()
 		if(df_pseudospan == 0 && df_pseudorecord == 0) {
 			if(samples_1 < 2 || samples_2 < 2 || iso_samples_1 < 2 || iso_samples_2 < 2)
 				IntError(NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
-			if(parametric) {
+			if(Gg.Parametric) {
 				u_min = AxS[U_AXIS].min;
 				u_max = AxS[U_AXIS].max;
 				v_min = AxS[V_AXIS].min;
@@ -4870,7 +4869,7 @@ char * GnuPlot::DfGeneratePseudodata()
 			u = u_max;
 		if(df_pseudospan == nvsteps-1)
 			v = v_min;
-		if(parametric) {
+		if(Gg.Parametric) {
 			df_pseudovalue_0 = u;
 			df_pseudovalue_1 = v;
 		}

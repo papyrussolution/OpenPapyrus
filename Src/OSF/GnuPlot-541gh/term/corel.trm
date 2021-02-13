@@ -33,7 +33,7 @@ register_term(corel)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void COREL_options();
+TERM_PUBLIC void COREL_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void COREL_init(termentry * pThis);
 TERM_PUBLIC void COREL_graphics();
 TERM_PUBLIC void COREL_text();
@@ -87,11 +87,11 @@ static struct gen_table COREL_opts[] =
 	{ NULL, COREL_OTHER }
 };
 
-TERM_PUBLIC void COREL_options()
+TERM_PUBLIC void COREL_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	GpValue a;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&COREL_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&COREL_opts[0])) {
 			case COREL_DEFAULT:
 			    corel_color = FALSE;
 			    strcpy(corel_font, DEFAULT_CORELFONT);
@@ -99,50 +99,50 @@ TERM_PUBLIC void COREL_options()
 			    corel_lw = CORELD_LW;
 			    corel_xmax = CORELD_XMAX;
 			    corel_ymax = CORELD_YMAX;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case COREL_MONOCHROME:
 			    corel_color = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case COREL_COLOR:
 			    corel_color = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case COREL_OTHER:
 			default:
 			    // font name 
-			    if(GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx())) {
-				    char * font = GPO.TryToGetString();
+			    if(pGp->Pgm.IsStringValue(pGp->Pgm.GetCurTokenIdx())) {
+				    char * font = pGp->TryToGetString();
 				    strncpy(corel_font, font, MAX_ID_LEN);
 			    }
 			    else {
 				    // We have font size specified 
 				    corel_fontsize = (int)real(const_express(&a));
-				    GPO.Pgm.Shift();
-				    term->ChrV = (uint)(corel_fontsize * COREL_SC);
-				    term->ChrH = (uint)(corel_fontsize * COREL_SC * 6 / 10);
+				    pGp->Pgm.Shift();
+				    pThis->ChrV = (uint)(corel_fontsize * COREL_SC);
+				    pThis->ChrH = (uint)(corel_fontsize * COREL_SC * 6 / 10);
 			    }
 			    break;
 		}
 	}
 
 	/* FIXME - argh. Stupid syntax alert here */
-	if(!GPO.Pgm.EndOfCommand()) {
+	if(!pGp->Pgm.EndOfCommand()) {
 		corel_xmax = (uint)(real(const_express(&a)) * 720);
-		GPO.Pgm.Shift();
-		if(!GPO.Pgm.EndOfCommand()) {
+		pGp->Pgm.Shift();
+		if(!pGp->Pgm.EndOfCommand()) {
 			corel_ymax = (uint)(real(const_express(&a)) * 720);
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 		}
-		term->MaxX = corel_xmax;
-		term->MaxY = corel_ymax;
-		term->TicV = corel_ymax / 80;
-		term->TicH = corel_ymax / 80;
+		pThis->MaxX = corel_xmax;
+		pThis->MaxY = corel_ymax;
+		pThis->TicV = corel_ymax / 80;
+		pThis->TicH = corel_ymax / 80;
 	}
-	if(!GPO.Pgm.EndOfCommand()) {
+	if(!pGp->Pgm.EndOfCommand()) {
 		corel_lw = real(const_express(&a)) * COREL_SC;
-		GPO.Pgm.Shift();
+		pGp->Pgm.Shift();
 	}
 	sprintf(term_options, "%s \"%s\" %d,%0.1f,%0.1f,%0.1f",
 	    corel_color ? "color" : "monochrome", corel_font,

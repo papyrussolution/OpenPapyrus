@@ -295,16 +295,16 @@ void toggle_display_of_ipc_commands() { mouse_setting.verbose = mouse_setting.ve
 int  display_ipc_commands() { return mouse_setting.verbose; }
 
 //void do_string_replot(const char * pS)
-void GnuPlot::DoStringReplot(const char * pS)
+void GnuPlot::DoStringReplot(termentry * pTerm, const char * pS)
 {
 	do_string(pS);
-	if(volatile_data && refresh_ok != E_REFRESH_NOT_OK) {
+	if(Gg.VolatileData && refresh_ok != E_REFRESH_NOT_OK) {
 		if(display_ipc_commands())
 			fprintf(stderr, "refresh\n");
 		RefreshRequest();
 	}
 	else if(!replot_disabled)
-		ReplotRequest(term);
+		ReplotRequest(pTerm);
 	else
 		IntWarn(NO_CARET, "refresh not possible and replot is disabled");
 }
@@ -457,9 +457,9 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "break"))
 				Pgm.BreakCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "ca$ll"))
-				call_command();
+				CallCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "cd"))
-				changedir_command();
+				ChangeDirCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "cl$ear"))
 				ClearCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "continue"))
@@ -870,32 +870,36 @@ bool iteration_early_exit()
 /*
  * Command parser functions
  */
-/* process the 'call' command */
-void call_command()
+//
+// process the 'call' command 
+//
+//void call_command()
+void GnuPlot::CallCommand()
 {
 	char * save_file = NULL;
-	GPO.Pgm.Shift();
-	save_file = GPO.TryToGetString();
+	Pgm.Shift();
+	save_file = TryToGetString();
 	if(!save_file)
-		GPO.IntErrorCurToken("expecting filename");
+		IntErrorCurToken("expecting filename");
 	gp_expand_tilde(&save_file);
 	// Argument list follows filename 
-	GPO.Pgm.LoadFile(loadpath_fopen(save_file, "r"), save_file, 2);
+	Pgm.LoadFile(loadpath_fopen(save_file, "r"), save_file, 2);
 }
 //
 // process the 'cd' command 
 //
-void changedir_command()
+//void changedir_command()
+void GnuPlot::ChangeDirCommand()
 {
-	GPO.Pgm.Shift();
-	char * save_file = GPO.TryToGetString();
+	Pgm.Shift();
+	char * save_file = TryToGetString();
 	if(!save_file)
-		GPO.IntErrorCurToken("expecting directory name");
+		IntErrorCurToken("expecting directory name");
 	gp_expand_tilde(&save_file);
 	if(changedir(save_file))
-		GPO.IntErrorCurToken("Can't change to this directory");
+		IntErrorCurToken("Can't change to this directory");
 	else
-		GPO.UpdateGpvalVariables(5);
+		UpdateGpvalVariables(5);
 	SAlloc::F(save_file);
 }
 //
@@ -1887,8 +1891,8 @@ void GnuPlot::ReplotCommand()
 {
 	if(!*replot_line)
 		IntErrorCurToken("no previous plot");
-	if(volatile_data && (refresh_ok != E_REFRESH_NOT_OK) && !replot_disabled) {
-		FPRINTF((stderr, "volatile_data %d refresh_ok %d plotted_data_from_stdin %d\n", volatile_data, refresh_ok, plotted_data_from_stdin));
+	if(Gg.VolatileData && (refresh_ok != E_REFRESH_NOT_OK) && !replot_disabled) {
+		FPRINTF((stderr, "volatile_data %d refresh_ok %d plotted_data_from_stdin %d\n", Gg.VolatileData, refresh_ok, plotted_data_from_stdin));
 		RefreshCommand();
 	}
 	else {
@@ -2132,7 +2136,7 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	// commands to setup the test palette plot 
 	enable_reset_palette = 0;
 	save_replot_line = gp_strdup(replot_line);
-	save_is_3d_plot = is_3d_plot;
+	save_is_3d_plot = GPO.Gg.Is3DPlot;
 	fputs(pre1, f);
 	fputs(pre2, f);
 	fputs(pre3, f);
@@ -2140,14 +2144,14 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	// for our temporary testing plot.
 	save_set(f);
 	save_pixmaps(f);
-	/* execute all commands from the temporary file */
+	// execute all commands from the temporary file 
 	rewind(f);
 	GPO.Pgm.LoadFile(f, NULL, 1); /* note: it does fclose(f) */
-	/* enable reset_palette() and restore replot line */
+	// enable reset_palette() and restore replot line 
 	enable_reset_palette = 1;
 	SAlloc::F(replot_line);
 	replot_line = save_replot_line;
-	is_3d_plot = save_is_3d_plot;
+	GPO.Gg.Is3DPlot = save_is_3d_plot;
 }
 //
 // process the 'test' command 

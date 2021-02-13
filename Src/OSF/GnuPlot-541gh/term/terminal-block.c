@@ -27,7 +27,7 @@ TERM_PUBLIC void BLOCK_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC void BLOCK_point(uint x, uint y, int point);
 TERM_PUBLIC void BLOCK_linetype(int linetype);
 TERM_PUBLIC void BLOCK_dashtype(int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void BLOCK_set_color(t_colorspec * color);
+TERM_PUBLIC void BLOCK_set_color(const t_colorspec * color);
 //#endif
 
 #ifndef TERM_PROTO_ONLY
@@ -206,13 +206,13 @@ TERM_PUBLIC void BLOCK_init(termentry * pThis)
 	/* LSB is "opacity" */
 	switch(GPO.TDumbB.ColorMode) {
 		case 0:
-		    b_makebitmap(pThis->MaxX + 1, term->MaxY + 1, 1);
+		    b_makebitmap(pThis->MaxX + 1, pThis->MaxY + 1, 1);
 		    break;
 		case DUMB_ANSI:
-		    b_makebitmap(pThis->MaxX + 1, term->MaxY + 1, 5);
+		    b_makebitmap(pThis->MaxX + 1, pThis->MaxY + 1, 5);
 		    break;
 		case DUMB_ANSI256:
-		    b_makebitmap(pThis->MaxX + 1, term->MaxY + 1, 9);
+		    b_makebitmap(pThis->MaxX + 1, pThis->MaxY + 1, 9);
 #ifdef BLOCK_DEBUG_256
 		    for(int i = 16; i <= 255; i++) {
 			    rgb255_color c;
@@ -731,7 +731,7 @@ TERM_PUBLIC void BLOCK_dashtype(int type, t_dashtype * custom_dash_type)
 	b_setlinetype(type);
 }
 
-TERM_PUBLIC void BLOCK_set_color(t_colorspec * color)
+TERM_PUBLIC void BLOCK_set_color(const t_colorspec * color)
 {
 	switch(color->type) {
 		case TC_LT: {
@@ -843,9 +843,15 @@ TERM_TABLE_START(block_driver)
 	#endif
 	0, 0, b_boxfill, b_linewidth,
 	#ifdef USE_MOUSE
-	NULL, NULL, NULL, NULL, NULL,
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL, 
+	NULL,
 	#endif
-	NULL, NULL, BLOCK_set_color,
+	NULL, 
+	NULL, 
+	BLOCK_set_color,
 	b_filled_polygon,
 	NULL,     /* image */
 	#ifndef NO_DUMB_ENHANCED_SUPPORT

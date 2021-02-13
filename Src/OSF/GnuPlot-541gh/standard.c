@@ -705,7 +705,7 @@ void GnuPlot::F_EllipFirst(union argument * arg)
 	GpValue a;
 	double ak, q;
 	__POP__(&a);
-	if(fabs(imag(&a)) > zero)
+	if(fabs(imag(&a)) > Gg.Zero)
 		IntError(NO_CARET, "can only do elliptic integrals of reals");
 	ak = real(&a);
 	q = (1.0-ak)*(1.0+ak);
@@ -723,7 +723,7 @@ void GnuPlot::F_EllipSecond(union argument * /*arg*/)
 	GpValue a;
 	double ak, q, e;
 	__POP__(&a);
-	if(fabs(imag(&a)) > zero)
+	if(fabs(imag(&a)) > Gg.Zero)
 		IntError(NO_CARET, "can only do elliptic integrals of reals");
 	ak = real(&a);
 	q = (1.0-ak)*(1.0+ak);
@@ -748,7 +748,7 @@ void GnuPlot::F_EllipThird(union argument * arg)
 	double ak, en, q;
 	__POP__(&a1);
 	__POP__(&a2);
-	if(fabs(imag(&a1)) > zero || fabs(imag(&a2)) > zero)
+	if(fabs(imag(&a1)) > Gg.Zero || fabs(imag(&a2)) > Gg.Zero)
 		IntError(NO_CARET, "can only do elliptic integrals of reals");
 	ak = real(&a1);
 	en = real(&a2);
@@ -777,7 +777,7 @@ void GnuPlot::F_Int(union argument * /*arg*/)
 	double foo = real(__POP__(&a));
 	if(a.type == NOTDEFINED || isnan(foo)) {
 		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 	}
 	else if(a.type == INTGR) {
 		EvStk.Push(&a);
@@ -809,7 +809,7 @@ void GnuPlot::F_Round(union argument * /*arg*/)
 	double foo = real(__POP__(&a));
 	if(a.type == NOTDEFINED || isnan(foo)) {
 		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 	}
 	else if(a.type == INTGR) {
 		EvStk.Push(&a);
@@ -829,8 +829,6 @@ void GnuPlot::F_Round(union argument * /*arg*/)
 		EvStk.Push(Ginteger(&a, (intgr_t)llround(foo)));
 }
 
-#define BAD_DEFAULT default: GPO.IntError(NO_CARET, "internal error : argument neither INT or CMPLX")
-
 //void f_abs(union argument * /*arg*/)
 void GnuPlot::F_Abs(union argument * /*arg*/)
 {
@@ -843,7 +841,7 @@ void GnuPlot::F_Abs(union argument * /*arg*/)
 		case CMPLX:
 		    EvStk.Push(Gcomplex(&a, magnitude(&a), 0.0));
 		    break;
-		    BAD_DEFAULT;
+		default: IntError(NO_CARET, "internal error : argument neither INT or CMPLX");
 	}
 }
 
@@ -859,7 +857,7 @@ void GnuPlot::F_Sgn(union argument * /*arg*/)
 		case CMPLX:
 		    EvStk.Push(Ginteger(&a, (a.v.cmplx_val.real > 0.0) ? 1 : (a.v.cmplx_val.real < 0.0) ? -1 : 0));
 		    break;
-		    BAD_DEFAULT;
+		default: IntError(NO_CARET, "internal error : argument neither INT or CMPLX");
 	}
 }
 
@@ -949,7 +947,7 @@ void GnuPlot::F_Floor(union argument * /*arg*/)
 			    EvStk.Push(Ginteger(&a, (intgr_t)floor(foo)));
 		    }
 		    break;
-		    BAD_DEFAULT;
+		default: IntError(NO_CARET, "internal error : argument neither INT or CMPLX");
 	}
 }
 // 
@@ -984,7 +982,7 @@ void GnuPlot::F_Ceil(union argument * /*arg*/)
 			    EvStk.Push(Ginteger(&a, (intgr_t)ceil(foo)));
 		    }
 		    break;
-		    BAD_DEFAULT;
+		default: IntError(NO_CARET, "internal error : argument neither INT or CMPLX");
 	}
 }
 
@@ -1238,7 +1236,7 @@ void GnuPlot::F_Besi0(union argument * /*arg*/)
 {
 	GpValue a;
 	EvStk.Pop(&a);
-	if(fabs(imag(&a)) > zero)
+	if(fabs(imag(&a)) > Gg.Zero)
 		IntError(NO_CARET, "can only do bessel functions of reals");
 	EvStk.Push(Gcomplex(&a, ri0(real(&a)), 0.0));
 }
@@ -1247,7 +1245,7 @@ void GnuPlot::F_Besi1(union argument * /*arg*/)
 {
 	GpValue a;
 	EvStk.Pop(&a);
-	if(fabs(imag(&a)) > zero)
+	if(fabs(imag(&a)) > Gg.Zero)
 		IntError(NO_CARET, "can only do bessel functions of reals");
 	EvStk.Push(Gcomplex(&a, ri1(real(&a)), 0.0));
 }
@@ -1256,7 +1254,7 @@ void GnuPlot::F_Besj0(union argument * /*arg*/)
 {
 	GpValue a;
 	EvStk.Pop(&a);
-	if(fabs(imag(&a)) > zero)
+	if(fabs(imag(&a)) > Gg.Zero)
 		IntError(NO_CARET, "can only do bessel functions of reals");
 	EvStk.Push(Gcomplex(&a, rj0(real(&a)), 0.0));
 }
@@ -1265,7 +1263,7 @@ void GnuPlot::F_Besj1(union argument * /*arg*/)
 {
 	GpValue a;
 	EvStk.Pop(&a);
-	if(fabs(imag(&a)) > zero)
+	if(fabs(imag(&a)) > Gg.Zero)
 		IntError(NO_CARET, "can only do bessel functions of reals");
 	EvStk.Push(Gcomplex(&a, rj1(real(&a)), 0.0));
 }
@@ -1274,7 +1272,7 @@ void GnuPlot::F_Besy0(union argument * /*arg*/)
 {
 	GpValue a;
 	EvStk.Pop(&a);
-	if(fabs(imag(&a)) > zero)
+	if(fabs(imag(&a)) > Gg.Zero)
 		IntError(NO_CARET, "can only do bessel functions of reals");
 	if(real(&a) > 0.0)
 		EvStk.Push(Gcomplex(&a, ry0(real(&a)), 0.0));
@@ -1288,7 +1286,7 @@ void GnuPlot::F_Besy1(union argument * /*arg*/)
 {
 	GpValue a;
 	EvStk.Pop(&a);
-	if(fabs(imag(&a)) > zero)
+	if(fabs(imag(&a)) > Gg.Zero)
 		IntError(NO_CARET, "can only do bessel functions of reals");
 	if(real(&a) > 0.0)
 		EvStk.Push(Gcomplex(&a, ry1(real(&a)), 0.0));
@@ -1303,7 +1301,7 @@ void GnuPlot::F_Besjn(union argument * /*arg*/)
 	GpValue a, n;
 	EvStk.Pop(&a);
 	EvStk.Pop(&n);
-	if((n.type != INTGR) || (fabs(imag(&a)) > zero)) {
+	if((n.type != INTGR) || (fabs(imag(&a)) > Gg.Zero)) {
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 		Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besjn(int,real)");
@@ -1318,7 +1316,7 @@ void GnuPlot::F_Besyn(union argument * /*arg*/)
 	GpValue a, n;
 	EvStk.Pop(&a);
 	EvStk.Pop(&n);
-	if((n.type != INTGR) || (fabs(imag(&a)) > zero)) {
+	if((n.type != INTGR) || (fabs(imag(&a)) > Gg.Zero)) {
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 		Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besyn(int,real)");

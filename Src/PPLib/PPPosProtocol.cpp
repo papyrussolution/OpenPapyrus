@@ -2442,7 +2442,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_CURRENT:
 				case PPHS_DATE: // log
 				case PPHS_COST: // lot
-				case PPHS_SERIAL: // lot
+				case PPHS_SERIAL: // lot ccline
 				case PPHS_TYPE:
 				case PPHS_PHYSICAL: // unit
 				case PPHS_BASE: // unit

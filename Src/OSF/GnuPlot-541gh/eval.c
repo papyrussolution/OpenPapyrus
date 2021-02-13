@@ -28,7 +28,7 @@ static RETSIGTYPE fpe(int an_int);
 //
 // The stack this operates on 
 //
-GpStack::GpStack() : Sp(-1)
+GpStack::GpStack() : Sp(-1), JumpOffset(0)
 {
 	memzero(St, sizeof(St));
 }
@@ -76,7 +76,7 @@ GpValue * FASTCALL GpStack::Pop(GpValue * x)
 //static GpValue stack[STACK_DEPTH];
 //static int s_p = -1; // stack pointer 
 //#define top_of_stack stack[s_p]
-static int jump_offset; // to be modified by 'jump' operators 
+//static int jump_offset; // to be modified by 'jump' operators 
 
 #if 0 // (replaced with _FuncTab2) {
 //
@@ -887,7 +887,7 @@ void GnuPlot::F_Bool(union argument * /*x*/)
 //void f_jump(union argument * x)
 void GnuPlot::F_Jump(union argument * x)
 {
-	jump_offset = x->j_arg;
+	EvStk.SetJumpOffset(x->j_arg);
 }
 
 //void f_jumpz(union argument * x)
@@ -895,11 +895,11 @@ void GnuPlot::F_Jumpz(union argument * x)
 {
 	GpValue a;
 	EvStk.Top().IntCheck();
-	if(EvStk.Top().v.int_val) {    /* non-zero --> no jump*/
+	if(EvStk.Top().v.int_val) { // non-zero --> no jump
 		EvStk.Pop(&a);
 	}
 	else
-		jump_offset = x->j_arg; /* leave the argument on TOS */
+		EvStk.SetJumpOffset(x->j_arg); // leave the argument on TOS 
 }
 
 //void f_jumpnz(union argument * x)
@@ -907,8 +907,8 @@ void GnuPlot::F_Jumpnz(union argument * x)
 {
 	GpValue a;
 	EvStk.Top().IntCheck();
-	if(EvStk.Top().v.int_val) /* non-zero */
-		jump_offset = x->j_arg; /* leave the argument on TOS */
+	if(EvStk.Top().v.int_val) // non-zero 
+		EvStk.SetJumpOffset(x->j_arg); // leave the argument on TOS 
 	else {
 		EvStk.Pop(&a);
 	}
@@ -920,7 +920,7 @@ void GnuPlot::F_Jtern(union argument * x)
 	GpValue a;
 	EvStk.Pop(&a)->IntCheck();
 	if(!a.v.int_val)
-		jump_offset = x->j_arg; /* go jump to FALSE code */
+		EvStk.SetJumpOffset(x->j_arg); // go jump to FALSE code 
 }
 // 
 // This is the heart of the expression evaluation module: the stack program execution loop.
@@ -935,29 +935,13 @@ void GnuPlot::F_Jtern(union argument * x)
 // so the iterated line executes the function indexed by the at_ptr
 // and passes the address of the argument which is pointed to by the arg_ptr
 // 
-#if 0 // (replaced with GnuPlot::_ExecuteAt2) {
-void execute_at(at_type * at_ptr)
-{
-	const int saved_jump_offset = jump_offset;
-	int count = at_ptr->a_count;
-	for(int instruction_index = 0; instruction_index < count;) {
-		const int op_ = (int)at_ptr->actions[instruction_index].index;
-		jump_offset = 1; // jump operators can modify this 
-		(_FuncTab[op_].Func_)(&(at_ptr->actions[instruction_index].arg));
-		assert(is_jump(op_) || (jump_offset == 1));
-		instruction_index += jump_offset;
-	}
-	jump_offset = saved_jump_offset;
-}
-#endif // } 0
-
 void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 {
-	const int saved_jump_offset = jump_offset;
+	const int saved_jump_offset = EvStk.GetJumpOffset();
 	int count = pAt->a_count;
 	for(int instruction_index = 0; instruction_index < count;) {
 		const int op_ = (int)pAt->actions[instruction_index].index;
-		jump_offset = 1; // jump operators can modify this 
+		EvStk.SetJumpOffset(1); // jump operators can modify this 
 		argument * p_arg = &pAt->actions[instruction_index].arg;
 		switch(_FuncTab2[op_].FuncId) {
 			case gpfunc_PUSH:            F_Push(p_arg); break; 
@@ -1129,10 +1113,10 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_VOXEL:        	 F_Voxel(p_arg); break;
 #endif
 		}
-		assert(is_jump(op_) || (jump_offset == 1));
-		instruction_index += jump_offset;
+		assert(is_jump(op_) || (EvStk.GetJumpOffset() == 1));
+		instruction_index += EvStk.GetJumpOffset();
 	}
-	jump_offset = saved_jump_offset;
+	EvStk.SetJumpOffset(saved_jump_offset);
 }
 //
 // As of May 2013 input of Inf/NaN values through evaluation is treated 
@@ -1394,8 +1378,8 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		Ev.FillGpValFoat("GPVAL_R_MAX", AxS.__R().max);
 		Ev.FillGpValFoat("GPVAL_R_LOG", AxS.__R().base);
 		UpdatePlotBounds(term);
-		Ev.FillGpValInteger("GPVAL_PLOT", is_3d_plot ? 0 : 1);
-		Ev.FillGpValInteger("GPVAL_SPLOT", is_3d_plot ? 1 : 0);
+		Ev.FillGpValInteger("GPVAL_PLOT", Gg.Is3DPlot ? 0 : 1);
+		Ev.FillGpValInteger("GPVAL_SPLOT", Gg.Is3DPlot ? 1 : 0);
 		Ev.FillGpValInteger("GPVAL_VIEW_MAP", splot_map ? 1 : 0);
 		Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", surface_rot_x);
 		Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", surface_rot_z);

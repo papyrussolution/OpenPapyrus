@@ -758,22 +758,32 @@ void GnuPlot::Map3D_XY_double(double x, double y, double z, double * xt, double 
 // to output a single point without any checks for hidden3d 
 //
 //void draw3d_point_unconditional(termentry * pTerm, GpVertex * v, lp_style_type * lp)
-void GnuPlot::Draw3DPointUnconditional(termentry * pTerm, const GpVertex * pV, lp_style_type * pLp)
+void GnuPlot::Draw3DPointUnconditional(termentry * pTerm, const GpVertex * pV, const lp_style_type * pLp)
 {
 	int x, y;
 	TERMCOORD(pV, x, y);
 	// Jul 2010 EAM - is it safe to overwrite like this? Make a copy instead? 
-	pLp->pm3d_color.value = pV->real_z;
-	TermApplyLpProperties(pTerm, pLp);
+	// @sobolev pLp->pm3d_color.value = pV->real_z;
+	// @sobolev TermApplyLpProperties(pTerm, pLp);
+	// @sobolev {
+	if(pLp->pm3d_color.value != pV->real_z) {
+		lp_style_type temp_lp = *pLp;
+		temp_lp.pm3d_color.value = pV->real_z;
+		TermApplyLpProperties(pTerm, &temp_lp);
+	}
+	else {
+		TermApplyLpProperties(pTerm, pLp);
+	}
+	// } @sobolev 
 	if(!V.ClipPoint(x, y))
-		(pTerm->point)(x, y, pLp->p_type);
+		(pTerm->point)(x, y, pLp->PtType);
 }
 // 
 // Moved this upward, to make optional inlining in draw3d_line easier for compilers 
 // HBB 20021128: removed GP_INLINE qualifier to avoid MSVC++ silliness 
 // 
 //void draw3d_line_unconditional(termentry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp, t_colorspec color)
-void GnuPlot::Draw3DLineUnconditional(termentry * pTerm, const GpVertex * pV1, const GpVertex * pV2, lp_style_type * lp, t_colorspec color)
+void GnuPlot::Draw3DLineUnconditional(termentry * pTerm, const GpVertex * pV1, const GpVertex * pV2, const lp_style_type * lp, t_colorspec color)
 {
 	// HBB 20020312: v2 can be NULL, if this call is coming from draw_line_hidden. --> redirect to point drawing routine 
 	if(!pV2) {
@@ -794,11 +804,11 @@ void GnuPlot::Draw3DLineUnconditional(termentry * pTerm, const GpVertex * pV1, c
 		if(color.type != TC_DEFAULT)
 			TermApplyLpProperties(pTerm, &ls);
 		// Support for hidden3d VECTOR mode with arrowheads 
-		if(lp->p_type == PT_ARROWHEAD)
+		if(lp->PtType == PT_ARROWHEAD)
 			DrawClipArrow(pTerm, x1, y1, x2, y2, END_HEAD);
-		else if(lp->p_type == PT_BACKARROW)
+		else if(lp->PtType == PT_BACKARROW)
 			DrawClipArrow(pTerm, x1, y1, x2, y2, BACKHEAD);
-		else if(lp->p_type == PT_BOTHHEADS)
+		else if(lp->PtType == PT_BOTHHEADS)
 			DrawClipArrow(pTerm, x1, y1, x2, y2, BOTH_HEADS);
 		else
 			DrawClipLine(pTerm, static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));

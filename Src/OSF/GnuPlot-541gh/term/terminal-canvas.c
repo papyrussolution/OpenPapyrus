@@ -76,7 +76,7 @@ TERM_PUBLIC void CANVAS_pointsize(double size);
 TERM_PUBLIC void CANVAS_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC int  CANVAS_text_angle(int ang);
 TERM_PUBLIC void CANVAS_filled_polygon(int, gpiPoint *);
-TERM_PUBLIC void CANVAS_set_color(t_colorspec * colorspec);
+TERM_PUBLIC void CANVAS_set_color(const t_colorspec * colorspec);
 TERM_PUBLIC int  CANVAS_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void CANVAS_layer(t_termlayer);
 TERM_PUBLIC void CANVAS_path(int);
@@ -471,7 +471,7 @@ TERM_PUBLIC void CANVAS_graphics()
 		    "  gnuplot.zoom_in_progress = false;\n",
 		    CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name);
 		fprintf(gpoutfile, "  gnuplot.polar_mode = %s;\n  gnuplot.polar_theta0 = %d;\n  gnuplot.polar_sense = %d;\n  ctx.clearRect(0,0,%d,%d);\n}\n",
-		    (polar) ? "true" : "false", (int)theta_origin, (int)theta_direction, (int)(term->MaxX / CANVAS_OVERSAMPLE), (int)(term->MaxY / CANVAS_OVERSAMPLE));
+		    (GPO.Gg.Polar ? "true" : "false"), (int)theta_origin, (int)theta_direction, (int)(term->MaxX / CANVAS_OVERSAMPLE), (int)(term->MaxY / CANVAS_OVERSAMPLE));
 	}
 	fprintf(gpoutfile, "// Gnuplot version %s.%s\n", gnuplot_version, gnuplot_patchlevel);
 	fprintf(gpoutfile,
@@ -562,7 +562,7 @@ TERM_PUBLIC void CANVAS_text()
 			MOUSE_PARAM("GPVAL_X_MAX", "gnuplot.plot_axis_xmax");
 		}
 		// FIXME: Should this inversion be done at a higher level? 
-		if(is_3d_plot && splot_map) {
+		if(GPO.Gg.Is3DPlot && splot_map) {
 			MOUSE_PARAM("GPVAL_Y_MAX", "gnuplot.plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MIN", "gnuplot.plot_axis_ymax");
 		}
@@ -570,7 +570,7 @@ TERM_PUBLIC void CANVAS_text()
 			MOUSE_PARAM("GPVAL_Y_MIN", "gnuplot.plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MAX", "gnuplot.plot_axis_ymax");
 		}
-		if(polar) {
+		if(GPO.Gg.Polar) {
 			fprintf(gpoutfile, "gnuplot.plot_axis_rmin = %g;\n", (GPO.AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : GPO.AxS.__R().set_min);
 			fprintf(gpoutfile, "gnuplot.plot_axis_rmax = %g;\n", GPO.AxS.__R().set_max);
 		}
@@ -615,7 +615,7 @@ TERM_PUBLIC void CANVAS_text()
 		fprintf(gpoutfile, "gnuplot.plot_logaxis_x = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
 		this_axis = &GPO.AxS[FIRST_Y_AXIS];
 		fprintf(gpoutfile, "gnuplot.plot_logaxis_y = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
-		if(polar)
+		if(GPO.Gg.Polar)
 			fprintf(gpoutfile, "gnuplot.plot_logaxis_r = %d;\n", GPO.AxS[POLAR_AXIS].log ? 1 : 0);
 		if(GPO.AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE) {
 			// May need to reconstruct time to millisecond precision 
@@ -958,7 +958,7 @@ TERM_PUBLIC void CANVAS_linewidth(double linewidth)
 	}
 }
 
-TERM_PUBLIC void CANVAS_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void CANVAS_set_color(const t_colorspec * colorspec)
 {
 	rgb255_color rgb255;
 	canvas_state.alpha = 0.0;

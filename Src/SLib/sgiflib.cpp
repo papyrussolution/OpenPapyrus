@@ -2287,12 +2287,12 @@ void FASTCALL GifFreeMapObject(ColorMapObject * Object)
 void DumpColorMap(ColorMapObject * Object, FILE * fp)
 {
 	if(Object) {
-		int i, j, Len = Object->ColorCount;
-		for(i = 0; i < Len; i += 4) {
-			for(j = 0; j < 4 && j < Len; j++) {
-				(void)fprintf(fp, "%3d: %02x %02x %02x   ", i + j, Object->Colors[i + j].Red, Object->Colors[i + j].Green, Object->Colors[i + j].Blue);
+		int Len = Object->ColorCount;
+		for(int i = 0; i < Len; i += 4) {
+			for(int j = 0; j < 4 && j < Len; j++) {
+				fprintf(fp, "%3d: %02x %02x %02x   ", i + j, Object->Colors[i + j].Red, Object->Colors[i + j].Green, Object->Colors[i + j].Blue);
 			}
-			(void)fprintf(fp, "\n");
+			fprintf(fp, "\n");
 		}
 	}
 }

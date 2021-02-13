@@ -234,8 +234,8 @@ ITERATE:
 			    break;
 			case S_TIMESTAMP: SetTimeStamp(); break;
 			case S_TITLE:
-			    SetXYZLabel(&title);
-			    title.rotate = 0;
+			    SetXYZLabel(&Gg.LblTitle);
+			    Gg.LblTitle.rotate = 0;
 			    break;
 			case S_VIEW: SetView(); break;
 			case S_VGRID: SetVGrid(); break;
@@ -346,7 +346,7 @@ ITERATE:
 			    break;
 			case S_RRANGE:
 			    SetRange(&AxS[POLAR_AXIS]);
-			    if(polar)
+			    if(Gg.Polar)
 				    RRangeToXY();
 			    break;
 			case S_TRANGE:
@@ -407,7 +407,7 @@ void GnuPlot::SetAngles()
 	}
 	else
 		IntErrorCurToken("expecting 'radians' or 'degrees'");
-	if(polar && AxS[T_AXIS].set_autoscale) {
+	if(Gg.Polar && AxS[T_AXIS].set_autoscale) {
 		// set trange if in polar mode and no explicit range */
 		AxS[T_AXIS].set_min = 0;
 		AxS[T_AXIS].set_max = 2 * M_PI / ang2rad;
@@ -883,22 +883,22 @@ void GnuPlot::SetClip()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		clip_points = TRUE; // assuming same as points 
+		Gg.ClipPoints = true; // assuming same as points 
 	}
 	else if(Pgm.AlmostEqualsCur("r$adial") || Pgm.EqualsCur("polar")) {
-		clip_radial = TRUE;
+		Gg.ClipRadial = true;
 		Pgm.Shift();
 	}
 	else if(Pgm.AlmostEqualsCur("p$oints")) {
-		clip_points = TRUE;
+		Gg.ClipPoints = true;
 		Pgm.Shift();
 	}
 	else if(Pgm.AlmostEqualsCur("o$ne")) {
-		clip_lines1 = TRUE;
+		Gg.ClipLines1 = true;
 		Pgm.Shift();
 	}
 	else if(Pgm.AlmostEqualsCur("t$wo")) {
-		clip_lines2 = TRUE;
+		Gg.ClipLines2 = true;
 		Pgm.Shift();
 	}
 	else
@@ -1133,7 +1133,7 @@ void GnuPlot::SetColorSequence(int option)
 static void set_cornerpoles()
 {
 	GPO.Pgm.Shift();
-	cornerpoles = TRUE;
+	GPO.Gg.CornerPoles = TRUE;
 }
 //
 // process 'set dashtype' command 
@@ -1721,11 +1721,11 @@ void GnuPlot::SetGrid()
 	}
 	if(!explicit_change && !some_grid_selected()) {
 		// no axis specified, thus select default grid 
-		if(polar) {
+		if(Gg.Polar) {
 			AxS[POLAR_AXIS].gridmajor = TRUE;
 			polar_grid_angle = 30.*DEG2RAD;
 		}
-		else if(spiderplot) {
+		else if(Gg.SpiderPlot) {
 			grid_spiderweb = TRUE;
 		}
 		else {
@@ -2909,9 +2909,9 @@ void GnuPlot::SetOverflow()
 static void set_parametric()
 {
 	GPO.Pgm.Shift();
-	if(!parametric) {
-		parametric = TRUE;
-		if(!polar) { /* already done for polar */
+	if(!GPO.Gg.Parametric) {
+		GPO.Gg.Parametric = true;
+		if(!GPO.Gg.Polar) { // already done for polar 
 			strcpy(set_dummy_var[0], "t");
 			strcpy(set_dummy_var[1], "y");
 			if(interactive)
@@ -3503,57 +3503,57 @@ void GnuPlot::SetColorBox()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) /* reset to default position */
-		color_box.where = SMCOLOR_BOX_DEFAULT;
+		Gg.ColorBox.where = SMCOLOR_BOX_DEFAULT;
 	else { /* go through all options of 'set colorbox' */
 		for(; !Pgm.EndOfCommand(); Pgm.Shift()) {
 			switch(Pgm.LookupTableForCurrentToken(&set_colorbox_tbl[0])) {
 				/* vertical or horizontal color gradient */
 				case S_COLORBOX_VERTICAL: /* "v$ertical" */
-				    color_box.rotation = 'v';
+				    Gg.ColorBox.rotation = 'v';
 				    continue;
 				case S_COLORBOX_HORIZONTAL: /* "h$orizontal" */
-				    color_box.rotation = 'h';
+				    Gg.ColorBox.rotation = 'h';
 				    continue;
 				/* color box where: default position */
 				case S_COLORBOX_DEFAULT: /* "def$ault" */
-				    color_box.where = SMCOLOR_BOX_DEFAULT;
+				    Gg.ColorBox.where = SMCOLOR_BOX_DEFAULT;
 				    continue;
 				/* color box where: position by user */
 				case S_COLORBOX_USER: /* "u$ser" */
-				    color_box.where = SMCOLOR_BOX_USER;
+				    Gg.ColorBox.where = SMCOLOR_BOX_USER;
 				    continue;
 				/* color box layer: front or back */
 				case S_COLORBOX_FRONT: /* "fr$ont" */
-				    color_box.layer = LAYER_FRONT;
+				    Gg.ColorBox.layer = LAYER_FRONT;
 				    continue;
 				case S_COLORBOX_BACK: /* "ba$ck" */
-				    color_box.layer = LAYER_BACK;
+				    Gg.ColorBox.layer = LAYER_BACK;
 				    continue;
 				/* border of the color box */
 				case S_COLORBOX_BORDER: /* "bo$rder" */
-				    color_box.border = 1;
+				    Gg.ColorBox.border = 1;
 				    Pgm.Shift();
 				    if(!Pgm.EndOfCommand()) {
 					    /* expecting a border line type */
-					    color_box.border_lt_tag = IntExpression();
-					    if(color_box.border_lt_tag <= 0)
-						    color_box.border_lt_tag = -1;
+					    Gg.ColorBox.border_lt_tag = IntExpression();
+					    if(Gg.ColorBox.border_lt_tag <= 0)
+						    Gg.ColorBox.border_lt_tag = -1;
 					    Pgm.Rollback();
 				    }
 				    continue;
 				case S_COLORBOX_CBTICS: /* "cbtics" */
 				    Pgm.Shift();
-				    color_box.cbtics_lt_tag = IntExpression();
-				    if(color_box.cbtics_lt_tag <= 0)
-					    color_box.cbtics_lt_tag = -1;
+				    Gg.ColorBox.cbtics_lt_tag = IntExpression();
+				    if(Gg.ColorBox.cbtics_lt_tag <= 0)
+					    Gg.ColorBox.cbtics_lt_tag = -1;
 				    Pgm.Rollback();
 				    continue;
 				case S_COLORBOX_BDEFAULT: /* "bd$efault" */
-				    color_box.border_lt_tag = -1; /* use default border */
-				    color_box.cbtics_lt_tag = 0; /* and cbtics */
+				    Gg.ColorBox.border_lt_tag = -1; /* use default border */
+				    Gg.ColorBox.cbtics_lt_tag = 0; /* and cbtics */
 				    continue;
 				case S_COLORBOX_NOBORDER: /* "nobo$rder" */
-				    color_box.border = 0;
+				    Gg.ColorBox.border = 0;
 				    continue;
 				// colorbox origin 
 				case S_COLORBOX_ORIGIN: /* "o$rigin" */
@@ -3563,7 +3563,7 @@ void GnuPlot::SetColorBox()
 				    }
 				    else {
 					    // FIXME: should be 2 but old save files may have 3 
-					    GetPositionDefault(&color_box.origin, screen, 3);
+					    GetPositionDefault(&Gg.ColorBox.origin, screen, 3);
 				    }
 				    Pgm.Rollback();
 				    continue;
@@ -3575,21 +3575,21 @@ void GnuPlot::SetColorBox()
 				    }
 				    else {
 					    // FIXME: should be 2 but old save files may have 3 
-					    GetPositionDefault(&color_box.size, screen, 3);
+					    GetPositionDefault(&Gg.ColorBox.size, screen, 3);
 				    }
 				    Pgm.Rollback();
 				    continue;
 				case S_COLORBOX_INVERT: // Flip direction of color gradient + cbaxis 
-				    color_box.invert = TRUE;
+				    Gg.ColorBox.invert = TRUE;
 				    continue;
 				case S_COLORBOX_NOINVERT: // Flip direction of color gradient + cbaxis 
-				    color_box.invert = FALSE;
+				    Gg.ColorBox.invert = FALSE;
 				    continue;
 			} /* switch over colorbox lookup table */
 			IntErrorCurToken("invalid colorbox option");
 		} /* end of while !end of command over colorbox options */
-		if(color_box.where == SMCOLOR_BOX_NO) /* default: draw at default position */
-			color_box.where = SMCOLOR_BOX_DEFAULT;
+		if(Gg.ColorBox.where == SMCOLOR_BOX_NO) /* default: draw at default position */
+			Gg.ColorBox.where = SMCOLOR_BOX_DEFAULT;
 	}
 }
 //
@@ -3777,11 +3777,11 @@ static void set_pointintervalbox()
 {
 	GPO.Pgm.Shift();
 	if(GPO.Pgm.EndOfCommand())
-		pointintervalbox = 1.0;
+		GPO.Gg.PointIntervalBox = 1.0;
 	else
-		pointintervalbox = GPO.RealExpression();
-	if(pointintervalbox <= 0)
-		pointintervalbox = 1.0;
+		GPO.Gg.PointIntervalBox = GPO.RealExpression();
+	if(GPO.Gg.PointIntervalBox <= 0.0)
+		GPO.Gg.PointIntervalBox = 1.0;
 }
 //
 // process 'set pointsize' command 
@@ -3790,11 +3790,11 @@ static void set_pointsize()
 {
 	GPO.Pgm.Shift();
 	if(GPO.Pgm.EndOfCommand())
-		pointsize = 1.0;
+		GPO.Gg.PointSize = 1.0;
 	else
-		pointsize = GPO.RealExpression();
-	if(pointsize <= 0)
-		pointsize = 1.0;
+		GPO.Gg.PointSize = GPO.RealExpression();
+	if(GPO.Gg.PointSize <= 0.0)
+		GPO.Gg.PointSize = 1.0;
 }
 //
 // process 'set polar' command 
@@ -3803,10 +3803,10 @@ static void set_pointsize()
 void GnuPlot::SetPolar()
 {
 	Pgm.Shift();
-	if(!polar) {
-		polar = true;
+	if(!Gg.Polar) {
+		Gg.Polar = true;
 		raxis = true;
-		if(!parametric) {
+		if(!Gg.Parametric) {
 			if(interactive)
 				(void)fprintf(stderr, "\n\tdummy variable is t for curves\n");
 			strcpy(set_dummy_var[0], "t");
@@ -4212,7 +4212,7 @@ polygon_error:
 			if(Pgm.GetCurTokenIdx() != save_token) {
 				this_object->lp_properties.l_width = lptmp.l_width;
 				this_object->lp_properties.d_type = lptmp.d_type;
-				this_object->lp_properties.custom_dash_pattern = lptmp.custom_dash_pattern;
+				this_object->lp_properties.CustomDashPattern = lptmp.CustomDashPattern;
 				got_lt = TRUE;
 				continue;
 			}
@@ -4277,7 +4277,7 @@ void GnuPlot::SetWall()
 		if(Pgm.GetCurTokenIdx() != save_token) {
 			p_object->lp_properties.l_width = lptmp.l_width;
 			p_object->lp_properties.d_type = lptmp.d_type;
-			p_object->lp_properties.custom_dash_pattern = lptmp.custom_dash_pattern;
+			p_object->lp_properties.CustomDashPattern = lptmp.CustomDashPattern;
 			continue;
 		}
 		if(Pgm.GetCurTokenIdx() == save_token)
@@ -4537,9 +4537,9 @@ void GnuPlot::SetStyle()
 		case SHOW_STYLE_INCREMENT:
 		    Pgm.Shift();
 		    if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("def$ault"))
-			    prefer_line_styles = FALSE;
+			    Gg.PreferLineStyles = false;
 		    else if(Pgm.AlmostEqualsCur("u$serstyles"))
-			    prefer_line_styles = TRUE;
+			    Gg.PreferLineStyles = true;
 		    else
 			    IntErrorCurToken("unrecognized option");
 		    Pgm.Shift();
@@ -4626,43 +4626,42 @@ void GnuPlot::SetTerminal()
 		screen_ok = FALSE;
 		return;
 	}
-	// `set term push' 
-	if(Pgm.EqualsCur("push")) {
+	if(Pgm.EqualsCur("push")) { // `set term push' 
 		push_terminal(interactive);
 		Pgm.Shift();
 		return;
-	} // set term push 
+	}
 #ifdef USE_MOUSE
 	event_reset(reinterpret_cast<gp_event_t *>(1)); /* cancel zoombox etc. */
 #endif
 	TermReset(term);
-	// `set term pop' 
-	if(Pgm.EqualsCur("pop")) {
+	if(Pgm.EqualsCur("pop")) { // `set term pop' 
 		pop_terminal();
 		Pgm.Shift();
-		return;
-	} /* set term pop */
-	// `set term <normal terminal>' 
-	// NB: if set_term() exits via IntError() then term will not be changed 
-	term = SetTerm();
-	// get optional mode parameters
-	// not all drivers reset the option string before
-	// strcat-ing to it, so we reset it for them
-	*term_options = 0;
-	term->options(term, this);
-	if(interactive && *term_options)
-		fprintf(stderr, "Options are '%s'\n", term_options);
-	if((term->flags & TERM_MONOCHROME))
-		init_monochrome();
-	// Sanity check:
-	// The most common failure mode found by fuzzing is a divide-by-zero
-	// caused by initializing the basic unit of the current terminal character
-	// size to zero.  I keep patching the individual terminals, but a generic
-	// sanity check may at least prevent a crash due to mistyping.
-	if(term->ChrH <= 0 || term->ChrV <= 0) {
-		IntWarn(NO_CARET, "invalid terminal font size");
-		term->ChrH = 10;
-		term->ChrV = 10;
+	}
+	else {
+		// `set term <normal terminal>' 
+		// NB: if set_term() exits via IntError() then term will not be changed 
+		term = SetTerm();
+		// get optional mode parameters
+		// not all drivers reset the option string before
+		// strcat-ing to it, so we reset it for them
+		*term_options = 0;
+		term->options(term, this);
+		if(interactive && *term_options)
+			fprintf(stderr, "Options are '%s'\n", term_options);
+		if(term->flags & TERM_MONOCHROME)
+			init_monochrome();
+		// Sanity check:
+		// The most common failure mode found by fuzzing is a divide-by-zero
+		// caused by initializing the basic unit of the current terminal character
+		// size to zero.  I keep patching the individual terminals, but a generic
+		// sanity check may at least prevent a crash due to mistyping.
+		if(term->ChrH <= 0 || term->ChrV <= 0) {
+			IntWarn(NO_CARET, "invalid terminal font size");
+			term->ChrH = 10;
+			term->ChrV = 10;
+		}
 	}
 }
 // 
@@ -4909,52 +4908,52 @@ void GnuPlot::SetTimeStamp()
 	Pgm.Shift();
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("t$op")) {
-			timelabel_bottom = FALSE;
+			Gg.TimeLabelBottom = FALSE;
 			Pgm.Shift();
 			continue;
 		}
 		else if(Pgm.AlmostEqualsCur("b$ottom")) {
-			timelabel_bottom = TRUE;
+			Gg.TimeLabelBottom = TRUE;
 			Pgm.Shift();
 			continue;
 		}
 		if(Pgm.AlmostEqualsCur("r$otate")) {
-			timelabel.rotate = TEXT_VERTICAL;
+			Gg.LblTime.rotate = TEXT_VERTICAL;
 			Pgm.Shift();
 			continue;
 		}
 		else if(Pgm.AlmostEqualsCur("n$orotate")) {
-			timelabel.rotate = 0;
+			Gg.LblTime.rotate = 0;
 			Pgm.Shift();
 			continue;
 		}
 		if(Pgm.AlmostEqualsCur("off$set")) {
 			Pgm.Shift();
-			GetPositionDefault(&(timelabel.offset), character, 3);
+			GetPositionDefault(&Gg.LblTime.offset, character, 3);
 			continue;
 		}
 		if(Pgm.EqualsCur("font")) {
 			Pgm.Shift();
 			p_new = TryToGetString();
-			SAlloc::F(timelabel.font);
-			timelabel.font = p_new;
+			SAlloc::F(Gg.LblTime.font);
+			Gg.LblTime.font = p_new;
 			continue;
 		}
 		if(Pgm.EqualsCur("tc") || Pgm.AlmostEqualsCur("text$color")) {
-			ParseColorSpec(&(timelabel.textcolor), TC_VARIABLE);
+			ParseColorSpec(&Gg.LblTime.textcolor, TC_VARIABLE);
 			continue;
 		}
 		if(!got_format && ((p_new = TryToGetString()))) {
 			// we have a format string 
-			SAlloc::F(timelabel.text);
-			timelabel.text = p_new;
+			SAlloc::F(Gg.LblTime.text);
+			Gg.LblTime.text = p_new;
 			got_format = TRUE;
 			continue;
 		}
 		IntErrorCurToken("unrecognized option");
 	}
-	SETIFZ(timelabel.text, gp_strdup(DEFAULT_TIMESTAMP_FORMAT));
-	timelabel.pos = (timelabel.rotate && !timelabel_bottom) ? RIGHT : LEFT;
+	SETIFZ(Gg.LblTime.text, gp_strdup(DEFAULT_TIMESTAMP_FORMAT));
+	Gg.LblTime.pos = (Gg.LblTime.rotate && !Gg.TimeLabelBottom) ? RIGHT : LEFT;
 }
 //
 // process 'set view' command 
@@ -5070,7 +5069,7 @@ void GnuPlot::SetView()
 static void set_zero()
 {
 	GPO.Pgm.Shift();
-	zero = GPO.RealExpression();
+	GPO.Gg.Zero = GPO.RealExpression();
 }
 //
 // process 'set {x|y|z|x2|y2}data' command 
@@ -5435,7 +5434,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 			}
 		}
 	}
-	/* The remaining command options cannot work for parametric or parallel axes */
+	// The remaining command options cannot work for parametric or parallel axes 
 	if(axis >= NUMBER_OF_MAIN_VISIBLE_AXES)
 		return;
 	if(Pgm.AlmostEqualsCur(nocmd)) {     /* NOSTRING */
@@ -5571,7 +5570,7 @@ void GnuPlot::SetLineStyle(linestyle_def ** ppHead, lp_class destinationClass)
 		// Default style is based on linetype with the same tag id 
 		lp_style_type loc_lp(lp_style_type::defCommon); // = DEFAULT_LP_STYLE_TYPE;
 		loc_lp.l_type = tag - 1;
-		loc_lp.p_type = tag - 1;
+		loc_lp.PtType = tag - 1;
 		loc_lp.d_type = DASHTYPE_SOLID;
 		loc_lp.pm3d_color.type = TC_LT;
 		loc_lp.pm3d_color.lt = tag - 1;
@@ -5846,9 +5845,9 @@ text_label * new_text_label(int tag)
 	p_new->place = default_position;
 	p_new->pos = LEFT;
 	p_new->textcolor.type = TC_DEFAULT;
-	p_new->lp_properties.p_type = 1;
+	p_new->lp_properties.PtType = 1;
 	p_new->offset = default_offset;
-	return(p_new);
+	return p_new;
 }
 // 
 // Parse the sub-options for label style and placement.
@@ -6204,10 +6203,10 @@ void GnuPlot::SetSpiderPlot()
 	draw_border = 0;
 	unset_all_tics();
 	V.AspectRatio = 1.0f;
-	polar = FALSE;
+	Gg.Polar = false;
 	keyT.auto_titles = NOAUTO_KEYTITLES;
 	data_style = SPIDERPLOT;
-	spiderplot = TRUE;
+	Gg.SpiderPlot = true;
 }
 
 //static void set_style_spiderplot()
@@ -6235,11 +6234,10 @@ void GnuPlot::RRangeToXY()
 	if(AxS.__R().set_min > AxS.__R().set_max) {
 		if(AxS.__R().IsNonLinear())
 			IntError(NO_CARET, "cannot invert nonlinear R axis");
-		inverted_raxis = true;
+		Gg.InvertedRaxis = true;
 	}
-	else {
-		inverted_raxis = false;
-	}
+	else
+		Gg.InvertedRaxis = false;
 	const double __min = (AxS.__R().set_autoscale & AUTOSCALE_MIN) ? 0.0 : AxS.__R().set_min;
 	if(AxS.__R().set_autoscale & AUTOSCALE_MAX) {
 		AxS.__X().set_autoscale = AUTOSCALE_BOTH;

@@ -134,7 +134,7 @@ TERM_PUBLIC void EPSON_reset();
 	#define STARCHTIC               6
 #endif /* STARC */
 #ifdef DPU414
-	TERM_PUBLIC void DPU414_options();
+	TERM_PUBLIC void DPU414_options(TERMENTRY * pThis, GnuPlot * pGp);
 	TERM_PUBLIC void DPU414_init(termentry * pThis);
 	TERM_PUBLIC void DPU414_graphics();
 	TERM_PUBLIC void DPU414_text();
@@ -706,41 +706,41 @@ TERM_PUBLIC void DPU414_options(TERMENTRY * pThis, GnuPlot * pGp)
 	DPU414_font = 2;
 	DPU414_quality = 1;
 	term_options[0] = NUL;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&DPU414_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&DPU414_opts[0])) {
 			case DPU414_SMALL:
 			    DPU414_font = 1;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case DPU414_MEDIUM:
 			    DPU414_font = 2;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case DPU414_LARGE:
 			    DPU414_font = 3;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case DPU414_NORMAL:
 			    DPU414_quality = 1;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case DPU414_DRAFT:
 			    DPU414_quality = 2;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case DPU414_OTHER:
 			default:
 			    /* reset to default, since term is already set */
 			    DPU414_font = 2;
 			    DPU414_quality = 1;
-			    GPO.IntErrorCurToken("expecting: {small, medium, large} {normal, draft}");
+			    pGp->IntErrorCurToken("expecting: {small, medium, large} {normal, draft}");
 			    break;
 		}
 	}
-	term->TicV = (term->MaxX < term->MaxY) ? term->MaxX/100 : term->MaxY/100;
-	if(term->TicV < 1)
-		term->TicV = 1;
-	term->TicH = term->TicV;
+	pThis->TicV = (pThis->MaxX < pThis->MaxY) ? pThis->MaxX/100 : pThis->MaxY/100;
+	if(pThis->TicV < 1)
+		pThis->TicV = 1;
+	pThis->TicH = pThis->TicV;
 	// setup options string 
 	switch(DPU414_font) {
 		case 1: strcat(term_options, "small"); break;
@@ -750,13 +750,13 @@ TERM_PUBLIC void DPU414_options(TERMENTRY * pThis, GnuPlot * pGp)
 	switch(DPU414_quality) {
 		case 1:
 		    strcat(term_options, " normal");
-		    term->MaxX = DPU414XMAX;
-		    term->MaxY = DPU414YMAX;
+		    pThis->MaxX = DPU414XMAX;
+		    pThis->MaxY = DPU414YMAX;
 		    break;
 		case 2:
 		    strcat(term_options, " draft");
-		    term->MaxX = DPU414XMAX / 2;
-		    term->MaxY = DPU414YMAX / 2;
+		    pThis->MaxX = DPU414XMAX / 2;
+		    pThis->MaxY = DPU414YMAX / 2;
 		    break;
 	}
 }

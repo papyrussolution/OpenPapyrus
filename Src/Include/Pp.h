@@ -7918,7 +7918,7 @@ public:
 	int    Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf);
 private:
 	int    Excise(SString & rLine, int fldID);
-	CRegExp Re;
+	SRegExp2 Re;
 };
 //
 // Descr: Извлекает из пула-хранилища строк rLine строку с идентификатором fldID и присваивает

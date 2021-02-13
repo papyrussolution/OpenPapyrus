@@ -1657,10 +1657,10 @@ static int callout_tag_table_clear(CalloutTagTable* t)
 	return 0;
 }
 
-extern int onig_callout_tag_table_free(void* table)
+extern int onig_callout_tag_table_free(void * table)
 {
-	CalloutTagTable* t = (CalloutTagTable*)table;
-	if(IS_NOT_NULL(t)) {
+	if(table) {
+		CalloutTagTable * t = (CalloutTagTable *)table;
 		int r = callout_tag_table_clear(t);
 		if(r != 0) return r;
 		onig_st_free_table(t);
@@ -3877,29 +3877,22 @@ static enum ReduceType ReduceTypeTable[6][6] = {
 
 extern int onig_reduce_nested_quantifier(Node* pnode)
 {
-	int pnum, cnum;
-	QuantNode * p, * c;
-	Node* cnode;
-
-	cnode = NODE_BODY(pnode);
-
-	p = QUANT_(pnode);
-	c = QUANT_(cnode);
-	pnum = quantifier_type_num(p);
-	cnum = quantifier_type_num(c);
+	Node * cnode = NODE_BODY(pnode);
+	QuantNode * p = QUANT_(pnode);
+	QuantNode * c = QUANT_(cnode);
+	int pnum = quantifier_type_num(p);
+	int cnum = quantifier_type_num(c);
 	if(pnum < 0 || cnum < 0) {
 		if(p->lower == p->upper && c->lower == c->upper) {
 			int n = onig_positive_int_multiply(p->lower, c->lower);
-			if(n < 0) return ONIGERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE;
-
+			if(n < 0) 
+				return ONIGERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE;
 			p->lower = p->upper = n;
 			NODE_BODY(pnode) = NODE_BODY(cnode);
 			goto remove_cnode;
 		}
-
 		return 0;
 	}
-
 	switch(ReduceTypeTable[cnum][pnum]) {
 		case RQ_DEL:
 		    *pnode = *cnode;
@@ -3907,34 +3900,44 @@ extern int onig_reduce_nested_quantifier(Node* pnode)
 		    break;
 		case RQ_A:
 		    NODE_BODY(pnode) = NODE_BODY(cnode);
-		    p->lower  = 0;  p->upper = INFINITE_REPEAT;  p->greedy = 1;
+		    p->lower  = 0;  
+			p->upper = INFINITE_REPEAT;  
+			p->greedy = 1;
 		    goto remove_cnode;
 		    break;
 		case RQ_P:
 		    NODE_BODY(pnode) = NODE_BODY(cnode);
-		    p->lower  = 1;  p->upper = INFINITE_REPEAT;  p->greedy = 1;
+		    p->lower  = 1;  
+			p->upper = INFINITE_REPEAT;  
+			p->greedy = 1;
 		    goto remove_cnode;
 		    break;
 		case RQ_AQ:
 		    NODE_BODY(pnode) = NODE_BODY(cnode);
-		    p->lower  = 0;  p->upper = INFINITE_REPEAT;  p->greedy = 0;
+		    p->lower  = 0;  
+			p->upper = INFINITE_REPEAT;  
+			p->greedy = 0;
 		    goto remove_cnode;
 		    break;
 		case RQ_QQ:
 		    NODE_BODY(pnode) = NODE_BODY(cnode);
-		    p->lower  = 0;  p->upper = 1;  p->greedy = 0;
+		    p->lower  = 0;  
+			p->upper = 1;  
+			p->greedy = 0;
 		    goto remove_cnode;
 		    break;
 		case RQ_P_QQ:
-		    p->lower  = 0;  p->upper = 1;  p->greedy = 0;
-		    c->lower  = 1;  c->upper = INFINITE_REPEAT;  c->greedy = 1;
+		    p->lower  = 0;  
+			p->upper = 1;  
+			p->greedy = 0;
+		    c->lower  = 1;  
+			c->upper = INFINITE_REPEAT;  
+			c->greedy = 1;
 		    break;
 		case RQ_ASIS:
 		    break;
 	}
-
 	return 0;
-
 remove_cnode:
 	NODE_BODY(cnode) = NULL_NODE;
 	onig_node_free(cnode);
@@ -5394,18 +5397,15 @@ skip_backref:
 					    int gnum;
 					    uchar * name_end;
 					    enum REF_NUM num_type;
-
 					    prev = p;
-					    r = fetch_name((OnigCodePoint)c, &p, end, &name_end, env,
-						    &gnum, &num_type, TRUE);
-					    if(r < 0) return r;
-
+					    r = fetch_name((OnigCodePoint)c, &p, end, &name_end, env, &gnum, &num_type, TRUE);
+					    if(r < 0) 
+							return r;
 					    if(num_type != IS_NOT_NUM) {
 						    if(num_type == IS_REL_NUM) {
 							    gnum = backref_rel_to_abs(gnum, env);
 							    if(gnum < 0) {
-								    onig_scan_env_set_error_string(env, ONIGERR_UNDEFINED_NAME_REFERENCE,
-									prev, name_end);
+								    onig_scan_env_set_error_string(env, ONIGERR_UNDEFINED_NAME_REFERENCE, prev, name_end);
 								    return ONIGERR_UNDEFINED_GROUP_REFERENCE;
 							    }
 						    }
@@ -5416,7 +5416,6 @@ skip_backref:
 						    tok->u.call.by_number = 0;
 						    tok->u.call.gnum      = 0;
 					    }
-
 					    tok->type = TK_CALL;
 					    tok->u.call.name     = prev;
 					    tok->u.call.name_end = name_end;
@@ -5426,23 +5425,18 @@ skip_backref:
 			    }
 			    break;
 #endif
-
 			case 'Q':
 			    if(IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_CAPITAL_Q_QUOTE)) {
 				    tok->type = TK_QUOTE_OPEN;
 			    }
 			    break;
-
 			case 'p':
 			case 'P':
-			    if(!PEND && PPEEK_IS('{') &&
-				IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_P_BRACE_CHAR_PROPERTY)) {
+			    if(!PEND && PPEEK_IS('{') && IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_P_BRACE_CHAR_PROPERTY)) {
 				    PINC;
 				    tok->type = TK_CHAR_PROPERTY;
 				    tok->u.prop.not = c == 'P';
-
-				    if(!PEND &&
-					IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_P_BRACE_CIRCUMFLEX_NOT)) {
+				    if(!PEND && IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_P_BRACE_CIRCUMFLEX_NOT)) {
 					    PFETCH(c);
 					    if(c == '^') {
 						    tok->u.prop.not = tok->u.prop.not == 0;
@@ -5456,7 +5450,6 @@ skip_backref:
 			default:
 		    {
 			    OnigCodePoint c2;
-
 			    PUNFETCH;
 			    r = fetch_escaped_value(&p, end, env, &c2);
 			    if(r < 0) return r;
@@ -5476,8 +5469,7 @@ skip_backref:
 		tok->escaped = 0;
 
 #ifdef USE_VARIABLE_META_CHARS
-		if((c != ONIG_INEFFECTIVE_META_CHAR) &&
-		    IS_SYNTAX_OP(syn, ONIG_SYN_OP_VARIABLE_META_CHARACTERS)) {
+		if((c != ONIG_INEFFECTIVE_META_CHAR) && IS_SYNTAX_OP(syn, ONIG_SYN_OP_VARIABLE_META_CHARACTERS)) {
 			if(c == MC_ANYCHAR(syn))
 				goto any_char;
 			else if(c == MC_ANYTIME(syn))
@@ -5603,24 +5595,23 @@ zero_or_one_time:
 								tok->u.call.gnum      = 0;
 								tok->u.call.name      = p;
 								PINC;
-								if(!PPEEK_IS(')')) return ONIGERR_UNDEFINED_GROUP_OPTION;
+								if(!PPEEK_IS(')')) 
+									return ONIGERR_UNDEFINED_GROUP_OPTION;
 								tok->u.call.name_end  = p;
 								break;
-
 							    case '-':
 							    case '+':
 								goto lparen_qmark_num;
 								break;
 							    default:
-								if(!ONIGENC_IS_CODE_DIGIT(enc, c)) goto lparen_qmark_end;
-
+								if(!ONIGENC_IS_CODE_DIGIT(enc, c)) 
+									goto lparen_qmark_end;
 lparen_qmark_num:
 								{
 									name = p;
-									r = fetch_name((OnigCodePoint)'(', &p, end, &name_end, env,
-										&gnum, &num_type, TRUE);
-									if(r < 0) return r;
-
+									r = fetch_name((OnigCodePoint)'(', &p, end, &name_end, env, &gnum, &num_type, TRUE);
+									if(r < 0) 
+										return r;
 									if(num_type == IS_NOT_NUM) {
 										return ONIGERR_INVALID_GROUP_NAME;
 									}
@@ -5628,17 +5619,13 @@ lparen_qmark_num:
 										if(num_type == IS_REL_NUM) {
 											gnum = backref_rel_to_abs(gnum, env);
 											if(gnum < 0) {
-												onig_scan_env_set_error_string(env,
-												    ONIGERR_UNDEFINED_NAME_REFERENCE,
-												    name,
-												    name_end);
+												onig_scan_env_set_error_string(env, ONIGERR_UNDEFINED_NAME_REFERENCE, name, name_end);
 												return ONIGERR_UNDEFINED_GROUP_REFERENCE;
 											}
 										}
 										tok->u.call.by_number = 1;
 										tok->u.call.gnum      = gnum;
 									}
-
 									tok->type = TK_CALL;
 									tok->u.call.name     = name;
 									tok->u.call.name_end = name_end;

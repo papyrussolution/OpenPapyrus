@@ -1273,7 +1273,7 @@ enum SCodepage {
 	cp866     =  866,  // 866 Russian MSDOS
 	cp932     =  932,  // 932 Japanese Windows
 	cp936     =  936,  // 936 Chinese Windows
-	cp950     =  950,  // 950 Chinese Windows
+	cp950     =  950,  // 950 Chinese Windows (BIG5)
 	cp1250    = 1250,  // 1250 Eastern European Windows
 	cp1251    = 1251,  // 1251 Russian Windows
 	cp1252    = 1252,  // 1252 Windows ANSI
@@ -10045,37 +10045,85 @@ public:
 
 class SRegExp2 { // @construction
 public:
+	enum {
+		syntaxDefault = 0,
+		syntaxAsis,
+		syntaxPosixBasic,
+		syntaxPosixExtended,
+		syntaxEmacs,
+		syntaxGrep,
+		syntaxGnuRegex,
+		syntaxJava,
+		syntaxPerl,
+		syntaxPerlNg,
+		syntaxRuby,
+		syntaxOniguruma
+	};
+	enum {
+		fIgnoreCase                         = 0x00000001,
+		fExtend           	   				= 0x00000002,
+		fMultiLine        	   				= 0x00000004,
+		fSingleLine       	   				= 0x00000008,
+		fFindLongest      	   				= 0x00000010,
+		fFindNotEmpty     	   				= 0x00000020,
+		fNegateSingleLine 	   				= 0x00000040,
+		fDontCaptureGroup 	   				= 0x00000080,
+		fCaptureGroup          				= 0x00000100,
+		// (search time) 
+		fNotBOL                				= 0x00000200,
+		fNotEOL                				= 0x00000400,
+		fPosixRegion           				= 0x00000800,
+		fCheckValidityOfString 				= 0x00001000,
+		fNotBeginString        				= 0x00002000,
+		fNotEndString          				= 0x00004000,
+		fNotBeginPosition      				= 0x00008000,
+		// (compile time)
+		fIgnoreCaseIsAscii     				= 0x00010000,
+		fWordIsAscii           				= 0x00020000,
+		fDigitIsAscii          				= 0x00040000,
+		fSpaceIsAscii          				= 0x00080000,
+		fPosixIsAscii          				= 0x00100000,
+		fTextSegmentExtendedGraphemeCluster = 0x00200000,
+		fTextSegmentWord                    = 0x00400000,
+	};
+	struct FindResult : public TSVector <IntRange> {
+		FindResult & Z();
+	};
+	struct Error {
+		Error();
+		Error & Z();
+		int    Code;
+		IntRange SrcTextR;
+	};
 	SRegExp2();
-	explicit SRegExp2(const char * s);
-	SRegExp2(const SRegExp2 &);
+	explicit SRegExp2(const char * pPattern, SCodepage cp, int syntax, uint flags);
 	~SRegExp2();
-	int    Compile(const char * pPattern); // Compiles char* --> regexp
-	int    Find(const char * pText);       // TRUE if regexp in char* arg
-	int    Find(SStrScan *);
-	int    GetLastErr() const;
+	SRegExp2 & Z();
+	int    Compile(const char * pPattern, SCodepage cp, int syntax, uint flags); // Compiles char* --> regexp
+	//
+	// Descr: Ищет предварительно скомпилированный паттерн в тексте pText длиной textLen.
+	// ARG(pText   IN): Указательн на строку, в которой необходимо найти скомпилированный образец
+	// ARG(textLen IN): Длина текста в символах (без завершающего нуля)
+	// ARG(flags   IN): Флаги поиска. Ноль или |-комбинация одного или нескольких флагов: fNotBOL, fNotEOL, fNotBeginString, 
+	//   fNotEndString, fNotBeginPosition.
+	//
+	int    Find(const char * pText, size_t textLen, uint flags, FindResult * pResult); // TRUE if regexp in char* arg
+	int    Find(const char * pText);
+	int    Find(SStrScan * pScan, uint flags);
+	int    Find(SStrScan * pScan);
+	Error  GetLastErr() const;
 	int    IsValid() const;
-	//
-	// Descr: Returns index into the searched string that corresponds to the  beginning pointer
-	//
-	long   Start() const;
-	//
-	// Descr: Returns index into the searched string that corresponds to the  end pointer
-	//
-	long   End() const;
-	int    FASTCALL operator == (const SRegExp2 & r) const;
-	int    FASTCALL operator != (const SRegExp2 & r) const { return (!(*this == r)); }
-	int    FASTCALL DeepEqual(const SRegExp2 & r) const; // Same regexp and state?
-	void   SetInvalid();
 private:
 	void * H;
+	Error LastErr;
 };
 
-class CRegExp {
+class CRegExp_Depricated {
 public:
-	CRegExp();
-	explicit CRegExp(const char * s);
-	CRegExp(const CRegExp &);
-	~CRegExp();
+	CRegExp_Depricated();
+	explicit CRegExp_Depricated(const char * s);
+	CRegExp_Depricated(const CRegExp_Depricated &);
+	~CRegExp_Depricated();
 	int    Compile(const char * pPattern);      // Compiles char* --> regexp
 	int    Find(const char * pText);            // TRUE if regexp in char* arg
 	int    Find(SStrScan *);
@@ -10089,9 +10137,9 @@ public:
 	// Descr: Returns index into the searched string that corresponds to the  end pointer
 	//
 	long   end() const { return static_cast<long>(endp[0] - P_Text); }
-	int    FASTCALL operator == (const CRegExp & r) const;
-	int    FASTCALL operator != (const CRegExp & r) const { return (!(*this == r)); }
-	int    FASTCALL deep_equal(const CRegExp & r) const; // Same regexp and state?
+	int    FASTCALL operator == (const CRegExp_Depricated & r) const;
+	int    FASTCALL operator != (const CRegExp_Depricated & r) const { return (!(*this == r)); }
+	int    FASTCALL deep_equal(const CRegExp_Depricated & r) const; // Same regexp and state?
 	void   set_invalid();
 private:
 	char * FASTCALL regatom(int * pFlag);   // @<<regpiece
@@ -10145,7 +10193,7 @@ protected:
 	int    InitReNumber();
 	int    InitReHex();
 	int    InitReEmail();
-
+	/*
 	CRegExp * P_ReQuotedStr;
 	CRegExp * P_ReNumber;
 	CRegExp * P_ReIdent;
@@ -10154,6 +10202,15 @@ protected:
 	CRegExp * P_ReEMail;
 	CRegExp * P_ReDate;
 	TSCollection <CRegExp> ReList; // Список регулярных выражений, регистрируемых вызывающим модулем.
+	*/
+	SRegExp2 * P_ReQuotedStr;
+	SRegExp2 * P_ReNumber;
+	SRegExp2 * P_ReIdent;
+	SRegExp2 * P_ReHex;
+	SRegExp2 * P_ReDigits;
+	SRegExp2 * P_ReEMail;
+	SRegExp2 * P_ReDate;
+	TSCollection <SRegExp2> ReList; // Список регулярных выражений, регистрируемых вызывающим модулем.
 };
 //
 // Descr: Структура, управляющая сканированным участком строки

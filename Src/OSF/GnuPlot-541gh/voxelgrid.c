@@ -64,8 +64,7 @@ void init_voxelsupport()
 	udv_GridDistance = GPO.Ev.AddUdvByName("GridDistance");
 	udv_GridDistance->udv_value.type = CMPLX;
 	Gcomplex(&udv_GridDistance->udv_value, 0.0, 0.0);
-
-	/* default state of other voxel-related structures */
+	// default state of other voxel-related structures 
 	isosurface_options.inside_offset = 1;   /* inside color = outside + 1 */
 	isosurface_options.tessellation = 0;            /* mixed triangles + quadrangles */
 }

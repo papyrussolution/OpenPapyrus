@@ -103,7 +103,7 @@ TERM_PUBLIC int CGM_set_font(const char * font);
 TERM_PUBLIC void CGM_point(uint x, uint y, int number);
 TERM_PUBLIC void CGM_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC int CGM_make_palette(t_sm_palette * palette);
-TERM_PUBLIC void CGM_set_color(t_colorspec *);
+TERM_PUBLIC void CGM_set_color(const t_colorspec *);
 TERM_PUBLIC void CGM_filled_polygon(int points, gpiPoint * corner);
 TERM_PUBLIC void CGM_set_pointsize(double size);
 #define FATAL(msg) { fprintf(stderr, "%s\nFile %s line %d\n", msg, __FILE__, __LINE__); exit(EXIT_FAILURE); }
@@ -126,7 +126,7 @@ TERM_PUBLIC void CGM_set_pointsize(double size);
 #ifdef TERM_BODY
 
 static int CGM_find_font(const char * name, int len, double * relwidth);
-static int CGM_find_nearest_color(t_colorspec * colorspec);
+static int CGM_find_nearest_color(const t_colorspec * colorspec);
 
 //#include <ctype.h>              /* for isspace() */
 
@@ -712,8 +712,8 @@ TERM_PUBLIC void CGM_graphics()
 		sprintf(buf, "%.31s,%d", cgm_font, cgm_fontsize);
 		CGM_set_font(buf);
 	}
-	CGM_set_pointsize(pointsize);
-	/* Fill with background color if user has specified one */
+	CGM_set_pointsize(GPO.Gg.PointSize);
+	// Fill with background color if user has specified one 
 	if(!cgm_monochrome && cgm_user_color_count > 0) {
 		CGM_linecolor(LT_BACKGROUND);
 		CGM_fillbox(FS_SOLID, 0, 0, t->MaxX, t->MaxY);
@@ -925,7 +925,7 @@ TERM_PUBLIC int CGM_make_palette(t_sm_palette * palette)
 	}
 }
 
-TERM_PUBLIC void CGM_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void CGM_set_color(const t_colorspec * colorspec)
 {
 	if(colorspec->type == TC_LT) {
 		CGM_linecolor(colorspec->lt);
@@ -1474,7 +1474,7 @@ static void CGM_flush_polygon()
  * but we can at least try to find some reasonable approximation.
  */
 #define CLOSE_ENOUGH 32         /* 0 would require a perfect match */
-static int CGM_find_nearest_color(t_colorspec * colorspec)
+static int CGM_find_nearest_color(const t_colorspec * colorspec)
 {
 	int red   = (colorspec->lt >> 16) & 0xff;
 	int green = (colorspec->lt >> 8) & 0xff;

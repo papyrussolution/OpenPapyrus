@@ -5210,7 +5210,6 @@ gnuplot: X11 aborted.\n", ldisplay);
 	}
 #endif
 	CmapClear(&default_cmap);
-
 	/* set default of maximal_possible_colors */
 	if(dep > 12) {
 		maximal_possible_colors = 0x200;
@@ -5267,7 +5266,6 @@ gnuplot: X11 aborted.\n", ldisplay);
 			fprintf(stderr, "\nunable to parse '%s' as integer\n", db_string);
 		}
 	}
-
 	pr_geometry(NULL);
 	pr_encoding();          /* check for global default encoding */
 	pr_font(NULL);          /* set current font to default font */
@@ -5293,13 +5291,11 @@ gnuplot: X11 aborted.\n", ldisplay);
 static char * pr_GetR(XrmDatabase xrdb, char * resource)
 {
 	char name[128], class[128], * rc;
-
 	strcpy(name, X_Name);
 	strcat(name, resource);
 	strcpy(class, X_Class);
 	strcat(class, resource);
-	rc = XrmGetResource(xrdb, name, class, type, &value)
-	    ? (char*)value.addr : (char*)0;
+	rc = XrmGetResource(xrdb, name, class, type, &value) ? (char*)value.addr : (char*)0;
 	return (rc);
 }
 
@@ -6448,36 +6444,28 @@ static void handle_selection_event(XEvent * event)
 
 #if defined(USE_MOUSE) && defined(MOUSE_ALL_WINDOWS)
 /* Convert X-window mouse coordinates to coordinate system of plot axes */
-static void mouse_to_coords(plot_struct * plot, XEvent * event,
-    double * x, double * y, double * x2, double * y2)
+static void mouse_to_coords(plot_struct * plot, XEvent * event, double * x, double * y, double * x2, double * y2)
 {
 	int xx = RevX(event->xbutton.x);
 	int yy = RevY(event->xbutton.y);
-
 	FPRINTF((stderr, "gnuplot_x11 %d: mouse at %d %d\t", __LINE__, xx, yy));
-
 	*x  = mouse_to_axis(xx, &(plot->axis_scale[FIRST_X_AXIS]));
 	*y  = mouse_to_axis(yy, &(plot->axis_scale[FIRST_Y_AXIS]));
 	*x2 = mouse_to_axis(xx, &(plot->axis_scale[SECOND_X_AXIS]));
 	*y2 = mouse_to_axis(yy, &(plot->axis_scale[SECOND_Y_AXIS]));
-
 	FPRINTF((stderr, "mouse x y %10g %10g x2 y2 %10g %10g\n", *x, *y, *x2, *y2 ));
 }
 
 static double mouse_to_axis(int mouse_coord, axis_scale_t * axis)
 {
 	double axis_coord;
-
 	if(axis->term_scale == 0.0)
 		return 0.;
-
 	axis_coord = ((double)(mouse_coord - axis->term_lower)) / axis->term_scale + axis->min;
 	if(axis->logbase > 0.0)
 		axis_coord = exp(axis_coord * axis->logbase);
-
 	return axis_coord;
 }
-
 #endif
 
 /*-----------------------------------------------------------------------------

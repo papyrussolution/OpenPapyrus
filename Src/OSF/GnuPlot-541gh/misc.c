@@ -243,7 +243,7 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 						if(curly_brace_count < 0)
 							GPO.IntError(NO_CARET, "Unexpected }");
 						if(curly_brace_count > 0) {
-							if((len + 4) > gp_input_line_len)
+							if((len + 4) > static_cast<int>(gp_input_line_len))
 								extend_input_line();
 							strcat(gp_input_line, ";\n");
 							start = strlen(gp_input_line);
@@ -594,19 +594,20 @@ void filledcurves_options_tofile(filledcurves_opts * fco, FILE * fp)
 	}
 }
 
-bool FASTCALL need_fill_border(const fill_style_type * fillstyle)
+//bool FASTCALL need_fill_border(const fill_style_type * pFillStyle)
+bool GnuPlot::NeedFillBorder(termentry * pTerm, const fill_style_type * pFillStyle)
 {
 	lp_style_type p;
-	p.pm3d_color = fillstyle->border_color;
+	p.pm3d_color = pFillStyle->border_color;
 	if(p.pm3d_color.type == TC_LT) {
 		// Doesn't want a border at all 
 		if(p.pm3d_color.lt == LT_NODRAW)
 			return FALSE;
-		load_linetype(term, &p, p.pm3d_color.lt+1);
+		load_linetype(pTerm, &p, p.pm3d_color.lt+1);
 	}
 	// Wants a border in a new color 
 	if(p.pm3d_color.type != TC_DEFAULT)
-		GPO.ApplyPm3DColor(term, &p.pm3d_color);
+		ApplyPm3DColor(pTerm, &p.pm3d_color);
 	return TRUE;
 }
 
@@ -726,7 +727,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 	lp_style_type newlp = *lp;
 	if((destination_class == LP_ADHOC) && (Pgm.AlmostEqualsCur("lines$tyle") || Pgm.EqualsCur("ls"))) {
 		Pgm.Shift();
-		lp_use_properties(lp, IntExpression());
+		lp_use_properties(term, lp, IntExpression());
 	}
 	while(!Pgm.EndOfCommand()) {
 		// This special case is to flag an attempt to "set object N lt <lt>",
@@ -747,7 +748,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				ParseColorSpec(&(newlp.pm3d_color), TC_RGB);
 			}
 			else
-			/* both syntaxes allowed: 'with lt pal' as well as 'with pal' */
+			// both syntaxes allowed: 'with lt pal' as well as 'with pal' 
 			if(Pgm.AlmostEqualsCur("pal$ette")) {
 				if(set_pal++)
 					break;
@@ -771,14 +772,13 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 				new_lt = IntExpression();
 				lp->l_type = new_lt - 1;
 				// user may prefer explicit line styles 
-				if(prefer_line_styles && (destination_class != LP_STYLE))
-					lp_use_properties(lp, new_lt);
+				if(Gg.PreferLineStyles && (destination_class != LP_STYLE))
+					lp_use_properties(term, lp, new_lt);
 				else
 					load_linetype(term, lp, new_lt);
 			}
 		} /* linetype, lt */
-
-		/* both syntaxes allowed: 'with lt pal' as well as 'with pal' */
+		// both syntaxes allowed: 'with lt pal' as well as 'with pal' 
 		if(Pgm.AlmostEqualsCur("pal$ette")) {
 			if(set_pal++)
 				break;
@@ -879,17 +879,17 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 					break;
 				Pgm.Shift();
 				if((symbol = TryToGetString())) {
-					newlp.p_type = PT_CHARACTER;
+					newlp.PtType = PT_CHARACTER;
 					truncate_to_one_utf8_char(symbol);
 					safe_strncpy(newlp.p_char, symbol, sizeof(newlp.p_char));
 					SAlloc::F(symbol);
 				}
 				else if(Pgm.AlmostEqualsCur("var$iable") && (destination_class == LP_ADHOC)) {
-					newlp.p_type = PT_VARIABLE;
+					newlp.PtType = PT_VARIABLE;
 					Pgm.Shift();
 				}
 				else
-					newlp.p_type = IntExpression() - 1;
+					newlp.PtType = IntExpression() - 1;
 			}
 			else {
 				IntWarnCurToken("No pointtype specifier allowed, here");
@@ -904,17 +904,16 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 					break;
 				Pgm.Shift();
 				if(Pgm.AlmostEqualsCur("var$iable")) {
-					newlp.p_size = PTSZ_VARIABLE;
+					newlp.PtSize = PTSZ_VARIABLE;
 					Pgm.Shift();
 				}
 				else if(Pgm.AlmostEqualsCur("def$ault")) {
-					newlp.p_size = PTSZ_DEFAULT;
+					newlp.PtSize = PTSZ_DEFAULT;
 					Pgm.Shift();
 				}
 				else {
-					newlp.p_size = GPO.RealExpression();
-					if(newlp.p_size < 0)
-						newlp.p_size = 0;
+					newlp.PtSize = GPO.RealExpression();
+					SETMAX(newlp.PtSize, 0.0);
 				}
 			}
 			else {
@@ -953,28 +952,24 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 			if(set_dt++)
 				break;
 			Pgm.Shift();
-			tmp = ParseDashType(&newlp.custom_dash_pattern);
-			/* Pull the dashtype from the list of already defined dashtypes, */
-			/* but only if it we didn't get an explicit one back from parse_dashtype */
+			tmp = ParseDashType(&newlp.CustomDashPattern);
+			// Pull the dashtype from the list of already defined dashtypes, 
+			// but only if it we didn't get an explicit one back from parse_dashtype 
 			if(tmp == DASHTYPE_AXIS)
 				lp->l_type = LT_AXIS;
 			if(tmp >= 0)
-				tmp = load_dashtype(&newlp.custom_dash_pattern, tmp + 1);
+				tmp = load_dashtype(&newlp.CustomDashPattern, tmp + 1);
 			newlp.d_type = tmp;
 			continue;
 		}
-
-		/* caught unknown option -> quit the while(1) loop */
+		// caught unknown option -> quit the while(1) loop 
 		break;
 	}
-
-	if(set_lt > 1 || set_pal > 1 || set_lw > 1 || set_pt > 1 || set_ps > 1 || set_dt > 1
-	    || (set_pi + set_pn > 1))
+	if(set_lt > 1 || set_pal > 1 || set_lw > 1 || set_pt > 1 || set_ps > 1 || set_dt > 1 || (set_pi + set_pn > 1))
 		IntErrorCurToken("duplicate or conflicting arguments in style specification");
-
 	if(set_pal) {
 		lp->pm3d_color = newlp.pm3d_color;
-		/* hidden3d uses this to decide that a single color surface is wanted */
+		// hidden3d uses this to decide that a single color surface is wanted 
 		lp->flags |= LP_EXPLICIT_COLOR;
 	}
 	else {
@@ -983,11 +978,11 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 	if(set_lw)
 		lp->l_width = newlp.l_width;
 	if(set_pt) {
-		lp->p_type = newlp.p_type;
+		lp->PtType = newlp.PtType;
 		memcpy(lp->p_char, newlp.p_char, sizeof(newlp.p_char));
 	}
 	if(set_ps)
-		lp->p_size = newlp.p_size;
+		lp->PtSize = newlp.PtSize;
 	if(set_pi) {
 		lp->p_interval = newlp.p_interval;
 		lp->p_number = 0;
@@ -1000,7 +995,7 @@ int GnuPlot::LpParse(lp_style_type * lp, lp_class destination_class, bool allow_
 		lp->l_type = LT_COLORFROMCOLUMN;
 	if(set_dt) {
 		lp->d_type = newlp.d_type;
-		lp->custom_dash_pattern = newlp.custom_dash_pattern;
+		lp->CustomDashPattern = newlp.CustomDashPattern;
 	}
 	if(set_colormap) {
 		lp->P_Colormap = newlp.P_Colormap;

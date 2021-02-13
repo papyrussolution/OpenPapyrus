@@ -228,8 +228,8 @@ void GnuPlot::Plot3DRequest(termentry * pTerm)
 	/*AXIS_INDEX*/int axis;
 	/*AXIS_INDEX*/int u_axis;
 	/*AXIS_INDEX*/int v_axis;
-	is_3d_plot = TRUE;
-	if(parametric && strcmp(set_dummy_var[0], "t") == 0) {
+	Gg.Is3DPlot = true;
+	if(Gg.Parametric && strcmp(set_dummy_var[0], "t") == 0) {
 		strcpy(set_dummy_var[0], "u");
 		strcpy(set_dummy_var[1], "v");
 	}
@@ -266,11 +266,11 @@ void GnuPlot::Plot3DRequest(termentry * pTerm)
 		IntErrorCurToken("use 'set term' to set terminal type first");
 	/* Range limits for the entire plot are optional but must be given	*/
 	/* in a fixed order. The keyword 'sample' terminates range parsing.	*/
-	u_axis = (parametric ? U_AXIS : FIRST_X_AXIS);
-	v_axis = (parametric ? V_AXIS : FIRST_Y_AXIS);
+	u_axis = (Gg.Parametric ? U_AXIS : FIRST_X_AXIS);
+	v_axis = (Gg.Parametric ? V_AXIS : FIRST_Y_AXIS);
 	dummy_token0 = ParseRange((AXIS_INDEX)u_axis);
 	dummy_token1 = ParseRange((AXIS_INDEX)v_axis);
-	if(parametric) {
+	if(Gg.Parametric) {
 		ParseRange(FIRST_X_AXIS);
 		ParseRange(FIRST_Y_AXIS);
 	}
@@ -917,9 +917,9 @@ int GnuPlot::Get3DData(termentry * pTerm, surface_points * pPlot)
 			if(( pPlot->plot_style == POINTSTYLE || pPlot->plot_style == LINESPOINTS)) {
 				int varcol = 3;
 				coordval var_char = 0;
-				if(pPlot->lp_properties.p_size == PTSZ_VARIABLE)
+				if(pPlot->lp_properties.PtSize == PTSZ_VARIABLE)
 					cp->CRD_PTSIZE = v[varcol++];
-				if(pPlot->lp_properties.p_type == PT_VARIABLE) {
+				if(pPlot->lp_properties.PtType == PT_VARIABLE) {
 					if(isnan(v[varcol]) && df_tokens[varcol]) {
 						safe_strncpy((char*)(&var_char), df_tokens[varcol], sizeof(coordval));
 						truncate_to_one_utf8_char((char*)(&var_char));
@@ -945,8 +945,8 @@ int GnuPlot::Get3DData(termentry * pTerm, surface_points * pPlot)
 				else {
 					int varcol = 4;
 					cp->CRD_ROTATE = pPlot->labels->rotate;
-					cp->CRD_PTSIZE = pPlot->labels->lp_properties.p_size;
-					cp->CRD_PTTYPE = pPlot->labels->lp_properties.p_type;
+					cp->CRD_PTSIZE = pPlot->labels->lp_properties.PtSize;
+					cp->CRD_PTTYPE = pPlot->labels->lp_properties.PtType;
 					if(cp->CRD_PTSIZE == PTSZ_VARIABLE)
 						cp->CRD_PTSIZE = v[varcol++];
 					if(cp->CRD_PTTYPE == PT_VARIABLE)
@@ -1259,7 +1259,7 @@ void GnuPlot::CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curv
 {
 	int i;
 	GpCoordinate * points = (*ppThisIso)->points;
-	int do_update_color = (!parametric || (parametric && valueAxIdx == FIRST_Z_AXIS));
+	int do_update_color = (!Gg.Parametric || (Gg.Parametric && valueAxIdx == FIRST_Z_AXIS));
 	for(int j = 0; j < numIsoToUse; j++) {
 		double iso = isoMin + j * isoStep;
 		double isotemp;
@@ -1289,7 +1289,7 @@ void GnuPlot::CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curv
 				points[i].type = UNDEFINED;
 				continue;
 			}
-			if(fabs(imag(&a)) > zero && !isnan(real(&a))) {
+			if(fabs(imag(&a)) > Gg.Zero && !isnan(real(&a))) {
 				points[i].type = UNDEFINED;
 				n_complex_values++;
 				continue;
@@ -1335,10 +1335,9 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 	char * ytitle;
 	legend_key * key = &keyT;
 	char orig_dummy_u_var[MAX_ID_LEN+1], orig_dummy_v_var[MAX_ID_LEN+1];
-	/* Free memory from previous splot.
-	 * If there is an error within this function, the memory is left allocated,
-	 * since we cannot call sp_free if the list is incomplete
-	 */
+	// Free memory from previous splot.
+	// If there is an error within this function, the memory is left allocated,
+	// since we cannot call sp_free if the list is incomplete
 	if(first_3dplot && plot3d_num>0)
 		sp_free(first_3dplot);
 	plot3d_num = 0;
@@ -1350,7 +1349,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 	plot_num = 0;
 	line_num = 0;           /* default line type */
 	// Assume that the input data can be re-read later 
-	volatile_data = FALSE;
+	Gg.VolatileData = false;
 	// Track complex values so that we can warn about trying to plot a complex-valued function directly.
 	n_complex_values = 0;
 	// Normally we only need to initialize pm3d quadrangles if pm3d mode is active
@@ -1401,7 +1400,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 			t_colorspec fillcolor = DEFAULT_COLORSPEC;
 			int u_sample_range_token, v_sample_range_token;
 			GpValue original_value_u, original_value_v;
-			if(!was_definition && (!parametric || crnt_param == 0))
+			if(!was_definition && (!Gg.Parametric || crnt_param == 0))
 				start_token = Pgm.GetCurTokenIdx();
 			was_definition = FALSE;
 			// Check for sampling range[s]
@@ -1458,8 +1457,8 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 			switch(this_component) {
 				case SP_DATAFILE:
 				case SP_DATABLOCK:
-				    /* data file or datablock to plot */
-				    if(parametric && crnt_param != 0)
+				    // data file or datablock to plot 
+				    if(Gg.Parametric && crnt_param != 0)
 					    IntErrorCurToken("previous parametric function not fully specified");
 				    if(!some_data_files) {
 					    if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MIN) {
@@ -1538,9 +1537,9 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 				    break;
 				case SP_FUNCTION:
 				    plot_num++;
-				    if(parametric) {
-					    /* Rotate between x/y/z axes */
-					    /* +2 same as -1, but beats -ve problem */
+				    if(Gg.Parametric) {
+					    // Rotate between x/y/z axes 
+					    // +2 same as -1, but beats -ve problem 
 					    crnt_param = (crnt_param + 2) % 3;
 				    }
 				    if(*tp_3d_ptr) {
@@ -1590,12 +1589,12 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 			ZFREE(this_plot->title); // clear current title, if it exists 
 			// default line and point types 
 			this_plot->lp_properties.l_type = line_num;
-			this_plot->lp_properties.p_type = line_num;
+			this_plot->lp_properties.PtType = line_num;
 			this_plot->lp_properties.d_type = line_num;
 			// user may prefer explicit line styles 
 			this_plot->hidden3d_top_linetype = line_num;
-			if(prefer_line_styles)
-				lp_use_properties(&this_plot->lp_properties, line_num+1);
+			if(Gg.PreferLineStyles)
+				lp_use_properties(pTerm, &this_plot->lp_properties, line_num+1);
 			else
 				load_linetype(pTerm, &this_plot->lp_properties, line_num+1);
 			// pm 25.11.2001 allow any order of options 
@@ -1736,11 +1735,11 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 					lp_style_type lp; // = DEFAULT_LP_STYLE_TYPE;
 					int new_lt = 0;
 					lp.l_type = line_num;
-					lp.p_type = line_num;
+					lp.PtType = line_num;
 					lp.d_type = line_num;
 					// user may prefer explicit line styles 
-					if(prefer_line_styles)
-						lp_use_properties(&lp, line_num+1);
+					if(Gg.PreferLineStyles)
+						lp_use_properties(pTerm, &lp, line_num+1);
 					else
 						load_linetype(pTerm, &lp, line_num+1);
 					new_lt = LpParse(&lp, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
@@ -1755,7 +1754,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 							set_lpstyle = TRUE;
 							if(new_lt)
 								this_plot->hidden3d_top_linetype = new_lt - 1;
-							if(this_plot->lp_properties.p_type != PT_CHARACTER)
+							if(this_plot->lp_properties.PtType != PT_CHARACTER)
 								continue;
 						}
 					}
@@ -1763,7 +1762,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 				// Labels can have font and text property info as plot options
 				// In any case we must allocate one instance of the text style
 				// that all labels in the plot will share.
-				if((this_plot->plot_style == LABELPOINTS) || (this_plot->plot_style & PLOT_STYLE_HAS_POINT && this_plot->lp_properties.p_type == PT_CHARACTER)) {
+				if((this_plot->plot_style == LABELPOINTS) || (this_plot->plot_style & PLOT_STYLE_HAS_POINT && this_plot->lp_properties.PtType == PT_CHARACTER)) {
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(this_plot->labels == NULL) {
 						this_plot->labels = new_text_label(-1);
@@ -1784,7 +1783,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 							continue;
 						}
 					}
-					else if(this_plot->lp_properties.p_type == PT_CHARACTER) {
+					else if(this_plot->lp_properties.PtType == PT_CHARACTER) {
 						if(Pgm.EqualsCur(","))
 							break;
 						else
@@ -1856,12 +1855,12 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 					int new_lt = 0;
 					this_plot->lp_properties.l_type = line_num;
 					this_plot->lp_properties.l_width = 1.0;
-					this_plot->lp_properties.p_type = line_num;
+					this_plot->lp_properties.PtType = line_num;
 					this_plot->lp_properties.d_type = line_num;
-					this_plot->lp_properties.p_size = pointsize;
+					this_plot->lp_properties.PtSize = Gg.PointSize;
 					// user may prefer explicit line styles 
-					if(prefer_line_styles)
-						lp_use_properties(&this_plot->lp_properties, line_num+1);
+					if(Gg.PreferLineStyles)
+						lp_use_properties(pTerm, &this_plot->lp_properties, line_num+1);
 					else
 						load_linetype(pTerm, &this_plot->lp_properties, line_num+1);
 					new_lt = LpParse(&this_plot->lp_properties, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
@@ -1890,8 +1889,8 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 				this_plot->lp_properties.flags |= LP_SHOW_POINTS;
 			// Rule out incompatible line/point/style options 
 			if(this_plot->plot_type == FUNC3D) {
-				if((this_plot->plot_style & PLOT_STYLE_HAS_POINT) && (this_plot->lp_properties.p_size == PTSZ_VARIABLE))
-					this_plot->lp_properties.p_size = 1;
+				if((this_plot->plot_style & PLOT_STYLE_HAS_POINT) && (this_plot->lp_properties.PtSize == PTSZ_VARIABLE))
+					this_plot->lp_properties.PtSize = 1.0;
 			}
 			// FIXME: Leaving an explicit font in the label style for contour 
 			// labels causes a double-free segfault.  Clear it preemptively.  
@@ -1978,7 +1977,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 					this_plot->lp_properties = first_dataset->lp_properties;
 					this_plot->fill_properties = first_dataset->fill_properties;
 					this_plot->arrow_properties = first_dataset->arrow_properties;
-					if((this_plot->plot_style == LABELPOINTS) || (this_plot->plot_style & PLOT_STYLE_HAS_POINT && this_plot->lp_properties.p_type == PT_CHARACTER)) {
+					if((this_plot->plot_style == LABELPOINTS) || (this_plot->plot_style & PLOT_STYLE_HAS_POINT && this_plot->lp_properties.PtType == PT_CHARACTER)) {
 						this_plot->labels = new_text_label(-1);
 						*(this_plot->labels) = *(first_dataset->labels);
 						this_plot->labels->next = NULL;
@@ -2070,7 +2069,7 @@ SKIPPED_EMPTY_FILE:
 		else
 			break;
 	} // while(TRUE), ie first pass 
-	if(parametric && crnt_param != 0)
+	if(Gg.Parametric && crnt_param != 0)
 		IntError(NO_CARET, "parametric function not fully specified");
 /*** Second Pass: Evaluate the functions ***/
 	//
@@ -2090,9 +2089,9 @@ SKIPPED_EMPTY_FILE:
 		surface_points * this_plot;
 		// Make these point out the right 'u' and 'v' axis. In
 		// non-parametric mode, x is used as u, and y as v 
-		u_axis = parametric ? U_AXIS : FIRST_X_AXIS;
-		v_axis = parametric ? V_AXIS : FIRST_Y_AXIS;
-		if(!parametric) {
+		u_axis = Gg.Parametric ? U_AXIS : FIRST_X_AXIS;
+		v_axis = Gg.Parametric ? V_AXIS : FIRST_Y_AXIS;
+		if(!Gg.Parametric) {
 			// Autoscaling tracked the visible axis coordinates.	
 			// For nonlinear axes we must transform the limits back to the primary axis 
 			UpdatePrimaryAxisRange(&AxS[FIRST_X_AXIS]);
@@ -2104,7 +2103,7 @@ SKIPPED_EMPTY_FILE:
 			AxisCheckedExtendEmptyRange(FIRST_X_AXIS, "x range is invalid");
 			AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "y range is invalid");
 		}
-		if(parametric && !some_data_files) {
+		if(Gg.Parametric && !some_data_files) {
 			// parametric fn can still change x/y range 
 			if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MIN)
 				AxS[FIRST_X_AXIS].min = VERYLARGE;
@@ -2183,17 +2182,14 @@ SKIPPED_EMPTY_FILE:
 					/*{{{  evaluate function */
 					struct iso_curve * this_iso = this_plot->iso_crvs;
 					int num_sam_to_use, num_iso_to_use;
-
-					/* crnt_param is used as the axis number.  As the
-					 * axis array indices are ordered z, y, x, we have
-					 * to count *backwards*, starting starting at 2,
-					 * to properly store away contents to x, y and
-					 * z. The following little gimmick does that. */
-					if(parametric)
+					// crnt_param is used as the axis number.  As the
+					// axis array indices are ordered z, y, x, we have
+					// to count *backwards*, starting starting at 2,
+					// to properly store away contents to x, y and
+					// z. The following little gimmick does that. 
+					if(Gg.Parametric)
 						crnt_param = (crnt_param + 2) % 3;
-
 					plot_func.at = at_ptr;
-
 					num_iso_to_use = iso_samples_2;
 					num_sam_to_use = hidden3d ? iso_samples_1 : samples_1;
 					CalculateSetOfIsoLines((AXIS_INDEX)crnt_param, FALSE, &this_iso, v_axis, v_min, v_isostep, num_iso_to_use, u_axis, u_min, u_step, num_sam_to_use);
@@ -2229,8 +2225,8 @@ SKIPPED_EMPTY_FILE:
 			else
 				break;
 		}               /* while(TRUE) */
-		if(parametric) {
-			/* Now actually fix the plot triplets to be single plots. */
+		if(Gg.Parametric) {
+			// Now actually fix the plot triplets to be single plots. 
 			parametric_3dfixup(first_3dplot, &plot_num);
 		}
 	}                       /* some functions */

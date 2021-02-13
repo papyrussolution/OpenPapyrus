@@ -82,78 +82,78 @@ TERM_PUBLIC void DUMB_options(TERMENTRY * pThis, GnuPlot * pGp)
 	int x, y;
 	int cmd;
 	bool set_size = FALSE;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch((cmd = GPO.Pgm.LookupTableForCurrentToken(&DUMB_opts[0]))) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch((cmd = pGp->Pgm.LookupTableForCurrentToken(&DUMB_opts[0]))) {
 			case DUMB_FEED:
-			    GPO.Pgm.Shift();
-			    GPO.TDumbB.Feed = TRUE;
+			    pGp->Pgm.Shift();
+			    pGp->TDumbB.Feed = TRUE;
 			    break;
 			case DUMB_NOFEED:
-			    GPO.Pgm.Shift();
-			    GPO.TDumbB.Feed = FALSE;
+			    pGp->Pgm.Shift();
+			    pGp->TDumbB.Feed = FALSE;
 			    break;
 #ifndef NO_DUMB_ENHANCED_SUPPORT
 			case DUMB_ENH:
-			    GPO.Pgm.Shift();
-			    term->put_text = ENHdumb_put_text;
-			    term->flags |= TERM_ENHANCED_TEXT;
+			    pGp->Pgm.Shift();
+			    pThis->put_text = ENHdumb_put_text;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case DUMB_NOENH:
-			    GPO.Pgm.Shift();
-			    term->put_text = DUMB_put_text;
-			    term->flags &= ~TERM_ENHANCED_TEXT;
+			    pGp->Pgm.Shift();
+			    pThis->put_text = DUMB_put_text;
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 #endif
 			case DUMB_ASPECT:
-			    GPO.Pgm.Shift();
-			    x = GPO.IntExpression();
+			    pGp->Pgm.Shift();
+			    x = pGp->IntExpression();
 			    y = 1;
-			    if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur(",")) {
-				    GPO.Pgm.Shift();
-				    y = GPO.IntExpression();
+			    if(!pGp->Pgm.EndOfCommand() && pGp->Pgm.EqualsCur(",")) {
+				    pGp->Pgm.Shift();
+				    y = pGp->IntExpression();
 			    }
 			    if(x <= 0) x = 1;
 			    if(y <= 0) y = 1;
-			    term->TicH = x;
-			    term->TicV = y;
+			    pThis->TicH = x;
+			    pThis->TicV = y;
 			    break;
 			case DUMB_ANSI:
 			case DUMB_ANSI256:
 			case DUMB_ANSIRGB:
-			    GPO.Pgm.Shift();
-			    GPO.TDumbB.ColorMode = cmd;
+			    pGp->Pgm.Shift();
+			    pGp->TDumbB.ColorMode = cmd;
 #ifndef NO_DUMB_COLOR_SUPPORT
-			    term->make_palette = DUMB_make_palette;
-			    term->set_color = DUMB_set_color;
+			    pThis->make_palette = DUMB_make_palette;
+			    pThis->set_color = DUMB_set_color;
 #endif
 			    break;
 			case DUMB_NOCOLOR:
-			    GPO.Pgm.Shift();
-			    GPO.TDumbB.ColorMode = 0;
-			    term->make_palette = NULL;
-			    term->set_color = GnuPlot::NullSetColor;
+			    pGp->Pgm.Shift();
+			    pGp->TDumbB.ColorMode = 0;
+			    pThis->make_palette = NULL;
+			    pThis->set_color = GnuPlot::NullSetColor;
 			    break;
 			case DUMB_SIZE:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			/* Fall through */
 			case DUMB_OTHER:
 			default:
 			    if(set_size) {
-				    GPO.IntWarn(GPO.Pgm.GetCurTokenIdx(), "unrecognized option");
-					GPO.Pgm.Shift();
+				    pGp->IntWarn(pGp->Pgm.GetCurTokenIdx(), "unrecognized option");
+					pGp->Pgm.Shift();
 				    break;
 			    }
-			    x = GPO.IntExpression();
+			    x = pGp->IntExpression();
 			    if(x <= 0 || x > 1024)
 				    x = DUMB_XMAX;
-			    if(!GPO.Pgm.EndOfCommand()) {
-				    if(GPO.Pgm.EqualsCur(","))
-					    GPO.Pgm.Shift();
-				    y = GPO.IntExpression();
+			    if(!pGp->Pgm.EndOfCommand()) {
+				    if(pGp->Pgm.EqualsCur(","))
+					    pGp->Pgm.Shift();
+				    y = pGp->IntExpression();
 				    if(y <= 0 || y > 1024)
 					    y = DUMB_YMAX;
-				    GPO.TDumbB.XMax = term->MaxX = x;
-				    GPO.TDumbB.YMax = term->MaxY = y;
+				    pGp->TDumbB.XMax = pThis->MaxX = x;
+				    pGp->TDumbB.YMax = pThis->MaxY = y;
 			    }
 			    set_size = TRUE;
 			    break;
@@ -161,9 +161,9 @@ TERM_PUBLIC void DUMB_options(TERMENTRY * pThis, GnuPlot * pGp)
 	}
 	{
 		const char * coloropts[] = {"mono", "ansi", "ansi256", "ansirgb"};
-		sprintf(term_options, "%sfeed %s size %d, %d aspect %i, %i %s", GPO.TDumbB.Feed ? "" : "no",
-		    term->put_text == ENHdumb_put_text ? "enhanced" : "", GPO.TDumbB.XMax, GPO.TDumbB.YMax,
-		    term->TicH, term->TicV, coloropts[GPO.TDumbB.ColorMode == 0 ? 0 : GPO.TDumbB.ColorMode - DUMB_ANSI + 1]);
+		sprintf(term_options, "%sfeed %s size %d, %d aspect %i, %i %s", pGp->TDumbB.Feed ? "" : "no",
+		    pThis->put_text == ENHdumb_put_text ? "enhanced" : "", pGp->TDumbB.XMax, pGp->TDumbB.YMax,
+		    pThis->TicH, pThis->TicV, coloropts[pGp->TDumbB.ColorMode == 0 ? 0 : pGp->TDumbB.ColorMode - DUMB_ANSI + 1]);
 	}
 }
 
@@ -563,7 +563,7 @@ void ENHdumb_put_text(uint x, uint y, const char * str)
 	{
 		return 0; // report continuous colors 
 	}
-	void DUMB_set_color(t_colorspec * colorspec)
+	void DUMB_set_color(const t_colorspec * colorspec)
 	{
 		memcpy(&GPO.TDumbB.Color, colorspec, sizeof(t_colorspec));
 	}
@@ -571,7 +571,7 @@ void ENHdumb_put_text(uint x, uint y, const char * str)
 
 static int dumb_float_compare(const void * elem1, const void * elem2)
 {
-	int val = *static_cast<const float *>(elem1) - *static_cast<const float *>(elem2);
+	int val = static_cast<int>(*static_cast<const float *>(elem1) - *static_cast<const float *>(elem2));
 	return (0 < val) - (val < 0);
 }
 
@@ -616,7 +616,7 @@ TERM_PUBLIC void dumb_filled_polygon(int points, gpiPoint * corners)
 			j = points - 1;
 			for(i = 0; i < points; i++) {
 				if(((corners[i].y < pixelY) && (corners[j].y >= pixelY)) || ((corners[j].y < pixelY) && (corners[i].y >= pixelY))) {
-					nodeX[nodes++] = (corners[i].x + +(double)(pixelY - corners[i].y) / (double)(corners[j].y - corners[i].y) * (double)(corners[j].x - corners[i].x));
+					nodeX[nodes++] = static_cast<float>(corners[i].x + +(double)(pixelY - corners[i].y) / (double)(corners[j].y - corners[i].y) * (double)(corners[j].x - corners[i].x));
 				}
 				j = i;
 			}
@@ -627,8 +627,8 @@ TERM_PUBLIC void dumb_filled_polygon(int points, gpiPoint * corners)
 					break;
 				if(nodeX[i + 1] >= 0) {
 					// TODO: Are these checks ever required? 
-					SETMAX(nodeX[i], xmin);
-					SETMIN(nodeX[i+1], xmax);
+					SETMAX(nodeX[i], static_cast<float>(xmin));
+					SETMIN(nodeX[i+1], static_cast<float>(xmax));
 					// skip lines with zero length 
 					if(nodeX[i + 1] - nodeX[i] < 0.5)
 						continue;

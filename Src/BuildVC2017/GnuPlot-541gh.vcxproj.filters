@@ -156,9 +156,6 @@
     <ClInclude Include="..\OSF\GnuPlot-541gh\term\impcodes.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\GnuPlot-541gh\mousecmn.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\GnuPlot-541gh\term\post.h">
       <Filter>Header</Filter>
     </ClInclude>

@@ -22,25 +22,25 @@
 
 #define MAGIC   0234
 
-CRegExp::CRegExp() : ErrCode(SLERR_RE_UNINIT), P_Program(0)
+CRegExp_Depricated::CRegExp_Depricated() : ErrCode(SLERR_RE_UNINIT), P_Program(0)
 {
 }
 
-CRegExp::CRegExp(const char * s) : ErrCode(SLERR_RE_UNINIT), P_Program(0)
+CRegExp_Depricated::CRegExp_Depricated(const char * s) : ErrCode(SLERR_RE_UNINIT), P_Program(0)
 {
 	Compile(s);
 }
 
-CRegExp::~CRegExp()
+CRegExp_Depricated::~CRegExp_Depricated()
 {
 	delete P_Program;
 }
 
-int  CRegExp::GetLastErr() const { return ErrCode; }
-int  CRegExp::IsValid() const { return (ErrCode == 0); }
-void CRegExp::set_invalid() { ZDELETE(P_Program); }
+int  CRegExp_Depricated::GetLastErr() const { return ErrCode; }
+int  CRegExp_Depricated::IsValid() const { return (ErrCode == 0); }
+void CRegExp_Depricated::set_invalid() { ZDELETE(P_Program); }
 
-int FASTCALL CRegExp::operator == (const CRegExp & rxp) const
+int FASTCALL CRegExp_Depricated::operator == (const CRegExp_Depricated & rxp) const
 {
 	return BIN(ProgSize == rxp.ProgSize && memcmp(P_Program, rxp.P_Program, ProgSize) == 0);
 }
@@ -52,7 +52,7 @@ int FASTCALL CRegExp::operator == (const CRegExp & rxp) const
 // Input: A reference to a CRegExp object. ;
 // Output: Boolean TRUE/FALSE
 //
-int FASTCALL CRegExp::deep_equal(const CRegExp & rxp) const
+int FASTCALL CRegExp_Depricated::deep_equal(const CRegExp_Depricated & rxp) const
 {
 	return BIN(ProgSize == rxp.ProgSize && memcmp(P_Program, rxp.P_Program, ProgSize) == 0 && 
 		(startp[0] == rxp.startp[0] && /* Else if same start/end ptrs, */ endp[0] == rxp.endp[0]));
@@ -179,7 +179,7 @@ int FASTCALL CRegExp::deep_equal(const CRegExp & rxp) const
 //    the optimization-preparation code in here knows about some of the structure of
 //    the compiled regexp.
 //
-int CRegExp::Compile(const char * pPattern)
+int CRegExp_Depricated::Compile(const char * pPattern)
 {
 	int    ok = 1;
 	const  char * scan;
@@ -262,7 +262,7 @@ int CRegExp::Compile(const char * pPattern)
 //
 // Descr: emit (if appropriate) a byte of code
 //
-void FASTCALL CRegExp::regc(char b)
+void FASTCALL CRegExp_Depricated::regc(char b)
 {
 	if(P_RegCode != &RegDummy)
 		*P_RegCode++ = b;
@@ -272,7 +272,7 @@ void FASTCALL CRegExp::regc(char b)
 //
 // Descr: emit a node Location.
 //
-char * FASTCALL CRegExp::regnode(char op)
+char * FASTCALL CRegExp_Depricated::regnode(char op)
 {
 	char * p_ret = P_RegCode;
 	if(p_ret == &RegDummy)
@@ -290,7 +290,7 @@ char * FASTCALL CRegExp::regnode(char op)
 // Descr: insert an operator in front of already-emitted operand Means
 //   relocating the operand.
 //
-void FASTCALL CRegExp::reginsert(char op, char * pOpnd)
+void FASTCALL CRegExp_Depricated::reginsert(char op, char * pOpnd)
 {
 	if(P_RegCode == &RegDummy)
 		RegSize += 3;
@@ -313,7 +313,7 @@ void FASTCALL CRegExp::reginsert(char op, char * pOpnd)
 //   becoming a separate node;
 //   the code is simpler that way and it's not worth fixing.
 //
-char * FASTCALL CRegExp::regatom(int * pFlag)
+char * FASTCALL CRegExp_Depricated::regatom(int * pFlag)
 {
 	char * p_ret = 0;
 	if(ErrCode == 0) {
@@ -424,7 +424,7 @@ char * FASTCALL CRegExp::regatom(int * pFlag)
 //
 // Descr: set the next-pointer at the end of a node chain
 //
-void FASTCALL CRegExp::regtail(char * p, const char * pVal)
+void FASTCALL CRegExp_Depricated::regtail(char * p, const char * pVal)
 {
 	if(p != &RegDummy) {
 		// Find last node.
@@ -441,7 +441,7 @@ void FASTCALL CRegExp::regtail(char * p, const char * pVal)
 // Descr: regtail on operand of first argument
 //   nop if operandless
 //
-void FASTCALL CRegExp::regoptail(char * p, const char * val)
+void FASTCALL CRegExp_Depricated::regoptail(char * p, const char * val)
 {
 	// "Operandless" and "op != BRANCH" are synonymous in practice.
 	if(p && p != &RegDummy && OP(p) == BRANCH)
@@ -454,7 +454,7 @@ void FASTCALL CRegExp::regoptail(char * p, const char * val)
 //    the body of the last branch. It might seem that this node could be dispensed
 //    with entirely, but the endmarker role is not redundant.
 //
-char * FASTCALL CRegExp::regpiece(int * pFlag)
+char * FASTCALL CRegExp_Depricated::regpiece(int * pFlag)
 {
 	char * p_ret = 0;
 	if(ErrCode == 0) {
@@ -515,7 +515,7 @@ char * FASTCALL CRegExp::regpiece(int * pFlag)
 //
 // Descr: one alternative of an | operator Implements the concatenation operator.
 //
-char * FASTCALL CRegExp::regbranch(int * pFlag)
+char * FASTCALL CRegExp_Depricated::regbranch(int * pFlag)
 {
 	*pFlag = WORST; // Tentatively
 	char * p_ret = regnode(BRANCH);
@@ -544,7 +544,7 @@ char * FASTCALL CRegExp::regbranch(int * pFlag)
 //   of regular expression is a trifle forced, but the need to tie the tails of the
 //   branches to what follows makes it hard to avoid.
 //
-char * CRegExp::reg(int paren, int * pFlag)
+char * CRegExp_Depricated::reg(int paren, int * pFlag)
 {
 	char * p_ret = 0;
 	char * p_ender;
@@ -627,7 +627,7 @@ static char * regprop();
 //
 // Descr: repeatedly match something simple, report how many
 //
-int FASTCALL CRegExp::regrepeat(const char * p)
+int FASTCALL CRegExp_Depricated::regrepeat(const char * p)
 {
 	int    count = 0;
 	const  char * scan = P_RegInput;
@@ -667,7 +667,7 @@ int FASTCALL CRegExp::regrepeat(const char * p)
 //   avoid recursion, in particular by going through "ordinary" nodes (that don't need to know whether the rest of the
 //   match failed) by a loop instead of by recursion. 0 failure, 1 success
 //
-int FASTCALL CRegExp::regmatch(const char * prog)
+int FASTCALL CRegExp_Depricated::regmatch(const char * prog)
 {
 	const char * scan = prog; // Current node.
 	while(scan) {
@@ -817,7 +817,7 @@ int FASTCALL CRegExp::regmatch(const char * prog)
 //
 // Descr: try match at specific point 0 failure, 1 success
 //
-int CRegExp::regtry(const char * string, const char ** start, const char ** end, const char * prog)
+int CRegExp_Depricated::regtry(const char * string, const char ** start, const char ** end, const char * prog)
 {
 	P_RegInput  = string;
 	PP_RegStart = start;
@@ -839,7 +839,7 @@ int CRegExp::regtry(const char * string, const char ** start, const char ** end,
 //
 // Descr: match a regexpr against a string
 //
-int CRegExp::Find(const char * pText)
+int CRegExp_Depricated::Find(const char * pText)
 {
 	if(pText) {
 		P_Text = pText;
@@ -884,7 +884,7 @@ int CRegExp::Find(const char * pText)
 		return 0;
 }
 
-int CRegExp::Find(SStrScan * pScan)
+int CRegExp_Depricated::Find(SStrScan * pScan)
 {
 	const char * p = pScan ? static_cast<const char *>(*pScan) : 0;
 	if(!isempty(p) && Find(p)) { // @v10.7.5 @fix !isempty(p)
@@ -900,7 +900,7 @@ int CRegExp::Find(SStrScan * pScan)
 //
 #define NEXT(p) (((*((p) + 1) & 0377) << 8) + (*((p) + 2) & 0377))
 
-const char * FASTCALL CRegExp::regnext(const char * p) const
+const char * FASTCALL CRegExp_Depricated::regnext(const char * p) const
 {
 	const char * n = 0;
 	if(p != &RegDummy) {
@@ -913,7 +913,7 @@ const char * FASTCALL CRegExp::regnext(const char * p) const
 //
 //
 //
-char * FASTCALL CRegExp::regnext(char * p) const
+char * FASTCALL CRegExp_Depricated::regnext(char * p) const
 {
 	char * n = 0;
 	if(p != &RegDummy) {
@@ -951,8 +951,8 @@ SLTEST_R(CRegExp)
 				ss.get(&ssp, temp_buf);
 				const long right_count = temp_buf.ToLong();
 				long   count = 0;
-				CRegExp re;
-				THROW(SLTEST_CHECK_NZ(re.Compile(re_buf)));
+				SRegExp2 re;
+				THROW(SLTEST_CHECK_NZ(re.Compile(re_buf, cp1251, SRegExp2::syntaxDefault, 0)));
 				{
 					const char * p = text_buf;
 					out_line.Z().Cat(re_buf).CatDiv(':', 2).Cat(text_buf);

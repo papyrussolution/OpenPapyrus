@@ -110,7 +110,7 @@ TERM_PUBLIC void CONTEXT_fill(int style);
 TERM_PUBLIC void CONTEXT_linewidth(double linewidth);
 TERM_PUBLIC int CONTEXT_make_palette(t_sm_palette * palette);
 /* TERM_PUBLIC void CONTEXT_previous_palette(); do we need it? */
-TERM_PUBLIC void CONTEXT_set_color(t_colorspec * colorspec);
+TERM_PUBLIC void CONTEXT_set_color(const t_colorspec * colorspec);
 TERM_PUBLIC void CONTEXT_filled_polygon(int points, gpiPoint * corners);
 TERM_PUBLIC void CONTEXT_image(unsigned, unsigned, coordval *, gpiPoint *, t_imagecolor);
 
@@ -1219,7 +1219,7 @@ static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int t
 		n = strlen(from_string);
 	}
 	*fontsize = tmp_fontsize;
-	if(n >= to_size)
+	if(static_cast<int>(n) >= to_size)
 		n = to_size - 1;
 	memcpy(to_string, from_string, n);
 	to_string[n] = NUL;
@@ -1564,7 +1564,7 @@ TERM_PUBLIC int CONTEXT_make_palette(t_sm_palette * palette)
  *    double value;   // used for TC_CB and TC_FRAC
  * } t_colorspec;
  */
-TERM_PUBLIC void CONTEXT_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void CONTEXT_set_color(const t_colorspec * colorspec)
 {
 	double gray, r, g, b;
 	/* ConTeXt doesn't offer full support for palettes yet

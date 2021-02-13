@@ -1347,7 +1347,7 @@ int FASTCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly /*=0*/)
 //
 //
 //
-PPExtStringStorage::PPExtStringStorage() : Re("<[0-9]+>")
+PPExtStringStorage::PPExtStringStorage() : Re("<[0-9]+>", cpANSI, SRegExp2::syntaxDefault, 0)
 {
 }
 
@@ -1357,11 +1357,11 @@ int PPExtStringStorage::Excise(SString & rLine, int fldID)
 	if(rLine.NotEmpty()) {
 		SStrScan scan(rLine);
 		SString temp_buf;
-		while(ok <= 0 && Re.Find(&scan)) {
+		while(ok <= 0 && Re.Find(&scan, 0)) {
 			scan.Get(temp_buf).TrimRight().ShiftLeft();
 			const size_t tag_offs = scan.IncrLen();
 			if(temp_buf.ToLong() == fldID) {
-				if(Re.Find(&scan))
+				if(Re.Find(&scan, 0))
 					rLine.Excise(tag_offs, scan.Offs - tag_offs);
 				else
 					rLine.Trim(tag_offs);
@@ -1404,13 +1404,13 @@ int PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
 	rBuf.Z();
 	if(rLine.NotEmpty()) {
 		SStrScan scan(rLine);
-		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
-		while(ok <= 0 && Re.Find(&scan)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		while(ok <= 0 && Re.Find(&scan, 0)) {
 			scan.Get(r_temp_buf).TrimRight().ShiftLeft();
 			size_t tag_offs = scan.IncrLen();
 			if(r_temp_buf.ToLong() == fldID) {
 				size_t start = scan.Offs;
-				if(Re.Find(&scan))
+				if(Re.Find(&scan, 0))
 					rBuf.CopyFromN(rLine+start, scan.Offs-start);
 				else
 					rBuf.CopyFrom(rLine+start);
@@ -1432,13 +1432,13 @@ int PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, S
     if(pos < rLine.Len()) {
 		SStrScan scan(rLine);
 		scan.Incr(pos);
-		if(Re.Find(&scan)) {
+		if(Re.Find(&scan, 0)) {
 			SString temp_buf;
 			scan.Get(temp_buf).TrimRight().ShiftLeft();
 			size_t tag_offs = scan.IncrLen();
 			fld_id = temp_buf.ToLong();
 			size_t start = scan.Offs;
-			if(Re.Find(&scan)) {
+			if(Re.Find(&scan, 0)) {
 				//pos = scan.Offs+scan.Len;
 				pos = (uint)scan.Offs;
 				rBuf.CopyFromN(rLine+start, scan.Offs-start);

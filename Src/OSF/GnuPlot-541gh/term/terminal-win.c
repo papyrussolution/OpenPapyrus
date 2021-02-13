@@ -62,7 +62,7 @@ TERM_PUBLIC void WIN_linewidth(double linewidth);
 	#endif
 #endif
 TERM_PUBLIC int WIN_make_palette(t_sm_palette * palette);
-TERM_PUBLIC void WIN_set_color(t_colorspec *);
+TERM_PUBLIC void WIN_set_color(const t_colorspec *);
 TERM_PUBLIC void WIN_filled_polygon(int points, gpiPoint * corners);
 TERM_PUBLIC void WIN_boxfill(int, uint, uint, uint, uint);
 TERM_PUBLIC int WIN_set_font(const char * font);
@@ -628,7 +628,7 @@ TERM_PUBLIC void WIN_text()
 
 TERM_PUBLIC void WIN_graphics()
 {
-	GraphStart(graphwin, pointsize);
+	GraphStart(graphwin, GPO.Gg.PointSize);
 	/* Fix up the text size if the user has resized the window. */
 	term->ChrH = graphwin->hchar;
 	term->ChrV = graphwin->vchar;
@@ -721,17 +721,18 @@ TERM_PUBLIC void WIN_resume()
 
 TERM_PUBLIC void WIN_set_pointsize(double s)
 {
-	if(s < 0) s = 1;
-	/* Pass the scale as a scaled-up integer. */
-	GraphOp(graphwin, W_pointsize, (int)100 * s, 0, NULL);
+	if(s < 0.0) 
+		s = 1.0;
+	// Pass the scale as a scaled-up integer. 
+	GraphOp(graphwin, W_pointsize, static_cast<UINT>(100 * s), 0, NULL);
 }
 
 TERM_PUBLIC void WIN_linewidth(double linewidth)
 {
 	// TODO: line width caching
 	WIN_flush_line(&WIN_poly);
-	WIN_last_linetype = LT_NODRAW;        /* invalidate cached linetype */
-	GraphOp(graphwin, W_line_width, (int)100 * linewidth, 0, NULL);
+	WIN_last_linetype = LT_NODRAW; // invalidate cached linetype 
+	GraphOp(graphwin, W_line_width, static_cast<UINT>(100 * linewidth), 0, NULL);
 }
 
 #ifdef USE_MOUSE
@@ -869,7 +870,7 @@ TERM_PUBLIC int WIN_make_palette(t_sm_palette * palette)
 	return WIN_PAL_COLORS;
 }
 
-TERM_PUBLIC void WIN_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void WIN_set_color(const t_colorspec * colorspec)
 {
 	// TODO: color caching
 	WIN_flush_line(&WIN_poly);

@@ -102,8 +102,8 @@ static void show_mouse();
 static void show_plot();
 static void show_variables();
 static void show_linestyle(int tag);
-static void show_linetype(struct linestyle_def * listhead, int tag);
-static void show_arrowstyle(int tag);
+//static void show_linetype(struct linestyle_def * listhead, int tag);
+//static void show_arrowstyle(int tag);
 static void show_arrow(int tag);
 static void show_ticdef(AXIS_INDEX);
 static void show_ticdefp(const GpAxis *);
@@ -226,7 +226,7 @@ void GnuPlot::ShowCommand()
 		    break;
 		case S_LINETYPE:
 		    CHECK_TAG_GT_ZERO;
-		    show_linetype(Gg.P_FirstPermLineStyle, tag);
+		    ShowLineType(Gg.P_FirstPermLineStyle, tag);
 		    break;
 		case S_MONOCHROME:
 		    fprintf(stderr, "monochrome mode is %s\n", monochrome ? "active" : "not active");
@@ -234,7 +234,7 @@ void GnuPlot::ShowCommand()
 			    Pgm.Shift();
 			    CHECK_TAG_GT_ZERO;
 		    }
-		    show_linetype(Gg.P_FirstMonoLineStyle, tag);
+		    ShowLineType(Gg.P_FirstMonoLineStyle, tag);
 		    break;
 		case S_DASHTYPE:
 		    CHECK_TAG_GT_ZERO;
@@ -725,9 +725,9 @@ void GnuPlot::ShowAll()
 	show_mtics(&AxS[FIRST_Z_AXIS]);
 	show_mtics(&AxS[SECOND_X_AXIS]);
 	show_mtics(&AxS[SECOND_Y_AXIS]);
-	show_xyzlabel("", "time", &timelabel);
-	if(parametric || polar) {
-		if(!is_3d_plot)
+	show_xyzlabel("", "time", &Gg.LblTime);
+	if(Gg.Parametric || Gg.Polar) {
+		if(!Gg.Is3DPlot)
 			show_range(T_AXIS);
 		else {
 			show_range(U_AXIS);
@@ -985,9 +985,7 @@ void show_version(FILE * fp)
 #ifdef X11
 		{
 			char * driverdir = getenv("GNUPLOT_DRIVER_DIR");
-
-			if(driverdir == NULL)
-				driverdir = X11_DRIVER_DIR;
+			SETIFZ(driverdir, X11_DRIVER_DIR);
 			fprintf(stderr, "GNUPLOT_DRIVER_DIR = \"%s\"\n", driverdir);
 		}
 #endif
@@ -1019,8 +1017,9 @@ void show_version(FILE * fp)
 #endif
 	} /* show version long */
 }
-
-/* process 'show autoscale' command */
+//
+// process 'show autoscale' command 
+//
 static void show_autoscale()
 {
 	SHOW_ALL_NL;
@@ -1033,16 +1032,14 @@ static void show_autoscale()
 		    (ascale & AUTOSCALE_FIXMAX) ? " (fixmax)" : ""); }
 
 	fputs("\tautoscaling is ", stderr);
-	if(parametric) {
+	if(GPO.Gg.Parametric) {
 		SHOW_AUTOSCALE(T_AXIS);
 		SHOW_AUTOSCALE(U_AXIS);
 		SHOW_AUTOSCALE(V_AXIS);
 	}
-
-	if(polar) {
+	if(GPO.Gg.Polar) {
 		SHOW_AUTOSCALE(POLAR_AXIS)
 	}
-
 	SHOW_AUTOSCALE(FIRST_X_AXIS);
 	SHOW_AUTOSCALE(FIRST_Y_AXIS);
 	fputs("\n\t               ", stderr);
@@ -1084,8 +1081,7 @@ static void show_boxwidth()
 /* process 'show boxplot' command */
 static void show_boxplot()
 {
-	fprintf(stderr, "\tboxplot representation is %s\n",
-	    boxplot_opts.plotstyle == FINANCEBARS ? "finance bar" : "box and whisker");
+	fprintf(stderr, "\tboxplot representation is %s\n", boxplot_opts.plotstyle == FINANCEBARS ? "finance bar" : "box and whisker");
 	fprintf(stderr, "\tboxplot range extends from the ");
 	if(boxplot_opts.limit_type == 1)
 		fprintf(stderr, "  median to include %5.2f of the points\n", boxplot_opts.limit_value);
@@ -1127,18 +1123,20 @@ static void show_fillstyle()
 		fprintf(stderr, "\n");
 	}
 }
-
-/* process 'show clip' command */
+//
+// process 'show clip' command 
+//
 static void show_clip()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tpoint clip is %s\n", (clip_points) ? "ON" : "OFF");
-	fprintf(stderr, "\t%s lines with one end out of range (clip one)\n", clip_lines1 ? "clipping" : "not drawing");
-	fprintf(stderr, "\t%s lines with both ends out of range (clip two)\n", clip_lines2 ? "clipping" : "not drawing");
-	fprintf(stderr, "\t%sclipping lines on polar plot at maximum radius\n", clip_radial ? "" : "not ");
+	fprintf(stderr, "\tpoint clip is %s\n", GPO.Gg.ClipPoints ? "ON" : "OFF");
+	fprintf(stderr, "\t%s lines with one end out of range (clip one)\n", GPO.Gg.ClipLines1 ? "clipping" : "not drawing");
+	fprintf(stderr, "\t%s lines with both ends out of range (clip two)\n", GPO.Gg.ClipLines2 ? "clipping" : "not drawing");
+	fprintf(stderr, "\t%sclipping lines on polar plot at maximum radius\n", GPO.Gg.ClipRadial ? "" : "not ");
 }
-
-/* process 'show cntrparam|cntrlabel|contour' commands */
+//
+// process 'show cntrparam|cntrlabel|contour' commands 
+//
 static void show_contour()
 {
 	SHOW_ALL_NL;
@@ -1346,7 +1344,7 @@ void GnuPlot::ShowStyle()
 		case SHOW_STYLE_ARROW:
 		    Pgm.Shift();
 		    CHECK_TAG_GT_ZERO;
-		    show_arrowstyle(tag);
+		    ShowArrowStyle(tag);
 		    break;
 		case SHOW_STYLE_BOXPLOT:
 		    show_boxplot();
@@ -1374,7 +1372,7 @@ void GnuPlot::ShowStyle()
 		    show_histogram();
 		    show_textbox();
 		    save_style_parallel(stderr);
-		    show_arrowstyle(0);
+		    ShowArrowStyle(0);
 		    show_boxplot();
 		    show_style_rectangle();
 		    show_style_circle();
@@ -1885,7 +1883,7 @@ static void show_overflow()
 static void show_parametric()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tparametric is %s\n", (parametric) ? "ON" : "OFF");
+	fprintf(stderr, "\tparametric is %s\n", (GPO.Gg.Parametric ? "ON" : "OFF"));
 }
 
 //static void show_palette_rgbformulae()
@@ -2177,26 +2175,28 @@ void GnuPlot::ShowPalette()
 static void show_colorbox()
 {
 	GPO.Pgm.Shift();
-	if(!color_box.border) {
+	if(!GPO.Gg.ColorBox.border) {
 		fprintf(stderr, "\tcolor box without border");
 	}
 	else {
 		fprintf(stderr, "\tcolor box with border lt");
-		if(color_box.border_lt_tag > 0)
-			fprintf(stderr, " %d", color_box.border_lt_tag);
+		if(GPO.Gg.ColorBox.border_lt_tag > 0)
+			fprintf(stderr, " %d", GPO.Gg.ColorBox.border_lt_tag);
 		else
 			fprintf(stderr, " default");
 		fprintf(stderr, " cbtics lt");
-		if(color_box.cbtics_lt_tag > 0)
-			fprintf(stderr, " %d ", color_box.cbtics_lt_tag);
+		if(GPO.Gg.ColorBox.cbtics_lt_tag > 0)
+			fprintf(stderr, " %d ", GPO.Gg.ColorBox.cbtics_lt_tag);
 		else
 			fprintf(stderr, " same ");
 	}
-	if(color_box.where != SMCOLOR_BOX_NO) {
-		if(color_box.layer == LAYER_FRONT) fputs("drawn front\n\t", stderr);
-		else fputs("drawn back\n\t", stderr);
+	if(GPO.Gg.ColorBox.where != SMCOLOR_BOX_NO) {
+		if(GPO.Gg.ColorBox.layer == LAYER_FRONT) 
+			fputs("drawn front\n\t", stderr);
+		else 
+			fputs("drawn back\n\t", stderr);
 	}
-	switch(color_box.where) {
+	switch(GPO.Gg.ColorBox.where) {
 		case SMCOLOR_BOX_NO:
 		    fputs("NOT drawn\n", stderr);
 		    break;
@@ -2205,17 +2205,16 @@ static void show_colorbox()
 		    break;
 		case SMCOLOR_BOX_USER:
 		    fputs("at USER origin: ", stderr);
-		    show_position(&color_box.origin, 2);
+		    show_position(&GPO.Gg.ColorBox.origin, 2);
 		    fputs("\n\t          size: ", stderr);
-		    show_position(&color_box.size, 2);
+		    show_position(&GPO.Gg.ColorBox.size, 2);
 		    fputs("\n", stderr);
 		    break;
 		default: /* should *never* happen */
 		    GPO.IntError(NO_CARET, "Argh!");
 	}
-	if(color_box.rotation == 'v')
-		fprintf(stderr, "\tcolor gradient is vertical %s\n",
-		    color_box.invert ? " (inverted)" : "");
+	if(GPO.Gg.ColorBox.rotation == 'v')
+		fprintf(stderr, "\tcolor gradient is vertical %s\n", GPO.Gg.ColorBox.invert ? " (inverted)" : "");
 	else
 		fprintf(stderr, "\tcolor gradient is horizontal\n");
 }
@@ -2289,19 +2288,21 @@ static void show_pm3d()
 		default: fprintf(stderr, "corner %i\n", pm3d.which_corner_color - PM3D_WHICHCORNER_C1 + 1);
 	}
 }
-
-/* process 'show pointsize' command */
+//
+// process 'show pointsize' command 
+//
 static void show_pointsize()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tpointsize is %g\n", pointsize);
+	fprintf(stderr, "\tpointsize is %g\n", GPO.Gg.PointSize);
 }
-
-/* process 'show pointintervalbox' command */
+//
+// process 'show pointintervalbox' command 
+//
 static void show_pointintervalbox()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tpointintervalbox is %g\n", pointintervalbox);
+	fprintf(stderr, "\tpointintervalbox is %g\n", GPO.Gg.PointIntervalBox);
 }
 
 /* process 'show rgbmax' command */
@@ -2430,7 +2431,7 @@ void GnuPlot::ShowFit()
 static void show_polar()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tpolar is %s\n", (polar) ? "ON" : "OFF");
+	fprintf(stderr, "\tpolar is %s\n", (GPO.Gg.Polar ? "ON" : "OFF"));
 }
 //
 // process 'show angles' command 
@@ -2504,7 +2505,7 @@ static void show_hidden3d()
 static void show_increment()
 {
 	fprintf(stderr, "\tPlot lines increment over ");
-	if(prefer_line_styles)
+	if(GPO.Gg.PreferLineStyles)
 		fprintf(stderr, "user-defined line styles rather than default line types\n");
 	else
 		fprintf(stderr, "default linetypes\n");
@@ -2624,9 +2625,8 @@ static void show_mtics(GpAxis * axis)
 static void show_timestamp()
 {
 	SHOW_ALL_NL;
-	show_xyzlabel("", "timestamp", &timelabel);
-	fprintf(stderr, "\twritten in %s corner\n",
-	    (timelabel_bottom ? "bottom" : "top"));
+	show_xyzlabel("", "timestamp", &GPO.Gg.LblTime);
+	fprintf(stderr, "\twritten in %s corner\n", (GPO.Gg.TimeLabelBottom ? "bottom" : "top"));
 }
 
 /* process 'show [xyzx2y2rtuv]range' commands */
@@ -2669,7 +2669,7 @@ static void show_xyzlabel(const char * name, const char * suffix, text_label * l
 static void show_title()
 {
 	SHOW_ALL_NL;
-	show_xyzlabel("", "title", &title);
+	show_xyzlabel("", "title", &GPO.Gg.LblTitle);
 }
 
 /* process 'show {x|y|z|x2|y2}label' command */
@@ -2736,12 +2736,13 @@ static void show_fontpath()
 	fprintf(stderr, "\tdirectory from 'set fontpath': %s\n", PS_fontpath ? PS_fontpath : "none");
 	fprintf(stderr, "\tenvironmental variable GNUPLOT_FONTPATH: %s\n", env_fontpath ? env_fontpath : "none");
 }
-
-/* process 'show zero' command */
+//
+// process 'show zero' command 
+//
 static void show_zero()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tzero is %g\n", zero);
+	fprintf(stderr, "\tzero is %g\n", GPO.Gg.Zero);
 }
 //
 // process 'show datafile' command 
@@ -2938,12 +2939,12 @@ static void show_linestyle(int tag)
 //
 // Show linetype number <tag> (0 means show all) 
 //
-static void show_linetype(linestyle_def * listhead, int tag)
+//static void show_linetype(linestyle_def * pListHead, int tag)
+void GnuPlot::ShowLineType(linestyle_def * pListHead, int tag)
 {
-	linestyle_def * this_linestyle;
 	bool showed = FALSE;
 	int recycle_count = 0;
-	for(this_linestyle = listhead; this_linestyle != NULL; this_linestyle = this_linestyle->next) {
+	for(linestyle_def * this_linestyle = pListHead; this_linestyle; this_linestyle = this_linestyle->next) {
 		if(tag == 0 || tag == this_linestyle->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tlinetype %d, ", this_linestyle->tag);
@@ -2952,10 +2953,10 @@ static void show_linetype(linestyle_def * listhead, int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		GPO.IntErrorCurToken("linetype not found");
-	if(listhead == GPO.Gg.P_FirstPermLineStyle)
+		IntErrorCurToken("linetype not found");
+	if(pListHead == Gg.P_FirstPermLineStyle)
 		recycle_count = linetype_recycle_count;
-	else if(listhead == GPO.Gg.P_FirstMonoLineStyle)
+	else if(pListHead == Gg.P_FirstMonoLineStyle)
 		recycle_count = mono_recycle_count;
 	if(tag == 0 && recycle_count > 0)
 		fprintf(stderr, "\tLinetypes repeat every %d unless explicitly defined\n", recycle_count);
@@ -2963,41 +2964,38 @@ static void show_linetype(linestyle_def * listhead, int tag)
 //
 // Show arrow style number <tag> (0 means show all) 
 //
-static void show_arrowstyle(int tag)
+//static void show_arrowstyle(int tag)
+void GnuPlot::ShowArrowStyle(int tag)
 {
-	arrowstyle_def * this_arrowstyle;
 	bool showed = FALSE;
-	for(this_arrowstyle = GPO.Gg.P_FirstArrowStyle; this_arrowstyle != NULL; this_arrowstyle = this_arrowstyle->next) {
-		if(tag == 0 || tag == this_arrowstyle->tag) {
+	for(arrowstyle_def * p_arrowstyle = Gg.P_FirstArrowStyle; p_arrowstyle; p_arrowstyle = p_arrowstyle->next) {
+		if(tag == 0 || tag == p_arrowstyle->tag) {
 			showed = TRUE;
-			fprintf(stderr, "\tarrowstyle %d, ", this_arrowstyle->tag);
+			fprintf(stderr, "\tarrowstyle %d, ", p_arrowstyle->tag);
 			fflush(stderr);
-			fprintf(stderr, "\t %s %s", arrow_head_names[this_arrowstyle->arrow_properties.head], this_arrowstyle->arrow_properties.layer ? "front" : "back");
-			save_linetype(stderr, &(this_arrowstyle->arrow_properties.lp_properties), FALSE);
+			fprintf(stderr, "\t %s %s", arrow_head_names[p_arrowstyle->arrow_properties.head], p_arrowstyle->arrow_properties.layer ? "front" : "back");
+			save_linetype(stderr, &(p_arrowstyle->arrow_properties.lp_properties), FALSE);
 			fputc('\n', stderr);
-			if(this_arrowstyle->arrow_properties.head > 0) {
-				fprintf(stderr, "\t  arrow heads: %s, ", (this_arrowstyle->arrow_properties.headfill==AS_FILLED) ? "filled" :
-				    (this_arrowstyle->arrow_properties.headfill==AS_EMPTY) ? "empty" : (this_arrowstyle->arrow_properties.headfill==AS_NOBORDER) ? "noborder" : "nofilled");
-				if(this_arrowstyle->arrow_properties.head_length > 0) {
+			if(p_arrowstyle->arrow_properties.head > 0) {
+				fprintf(stderr, "\t  arrow heads: %s, ", (p_arrowstyle->arrow_properties.headfill==AS_FILLED) ? "filled" :
+				    (p_arrowstyle->arrow_properties.headfill==AS_EMPTY) ? "empty" : (p_arrowstyle->arrow_properties.headfill==AS_NOBORDER) ? "noborder" : "nofilled");
+				if(p_arrowstyle->arrow_properties.head_length > 0) {
 					static char * msg[] = {"(first x axis) ", "(second x axis) ", "(graph units) ", "(screen units) ", "(character units) "};
 					fprintf(stderr, " length %s%g, angle %g deg",
-					    this_arrowstyle->arrow_properties.head_lengthunit ==
-					    first_axes ? "" : msg[this_arrowstyle->arrow_properties.head_lengthunit],
-					    this_arrowstyle->arrow_properties.head_length,
-					    this_arrowstyle->arrow_properties.head_angle);
-					if(this_arrowstyle->arrow_properties.headfill != AS_NOFILL)
-						fprintf(stderr, ", backangle %g deg",
-						    this_arrowstyle->arrow_properties.head_backangle);
+					    p_arrowstyle->arrow_properties.head_lengthunit == first_axes ? "" : msg[p_arrowstyle->arrow_properties.head_lengthunit],
+					    p_arrowstyle->arrow_properties.head_length, p_arrowstyle->arrow_properties.head_angle);
+					if(p_arrowstyle->arrow_properties.headfill != AS_NOFILL)
+						fprintf(stderr, ", backangle %g deg", p_arrowstyle->arrow_properties.head_backangle);
 				}
 				else {
 					fprintf(stderr, " (default length and angles)");
 				}
-				fprintf(stderr, (this_arrowstyle->arrow_properties.head_fixedsize) ? " fixed\n" : "\n");
+				fprintf(stderr, (p_arrowstyle->arrow_properties.head_fixedsize) ? " fixed\n" : "\n");
 			}
 		}
 	}
 	if(tag > 0 && !showed)
-		GPO.IntErrorCurToken("arrowstyle not found");
+		IntErrorCurToken("arrowstyle not found");
 }
 //
 // called by show_tics 
@@ -3024,7 +3022,7 @@ static void show_ticdefp(const GpAxis * pAx)
 			    fputs(" and mirrored on opposite border", stderr);
 		    break;
 	}
-	if(pAx->ticdef.rangelimited && !spiderplot)
+	if(pAx->ticdef.rangelimited && !GPO.Gg.SpiderPlot)
 		fprintf(stderr, "\n\t  tics are limited to data range");
 	fputs("\n\t  labels are ", stderr);
 	if(pAx->manual_justify) {

@@ -82,37 +82,32 @@ static double harmean4(double x1, double x2, double x3, double x4)
 	else
 		return 4 / ((1/x1) + (1/x2) + (1/x3) + (1/x4));
 }
-
-/* Median: sort values, and then: for N odd, it is the middle value; for N even,
- * it is mean of the two middle values.
- */
+//
+// Median: sort values, and then: for N odd, it is the middle value; for N even,
+// it is mean of the two middle values.
+//
 static double median4(double x1, double x2, double x3, double x4)
 {
-	double tmp;
-	/* sort them: x1 < x2 and x3 < x4 */
-	if(x1 > x2) {
-		tmp = x2; x2 = x1; x1 = tmp;
-	}
-	if(x3 > x4) {
-		tmp = x3; x3 = x4; x4 = tmp;
-	}
-	/* sum middle numbers */
-	tmp = (x1 < x3) ? x3 : x1;
+	// sort them: x1 < x2 and x3 < x4 
+	ExchangeToOrder(&x1, &x2);
+	ExchangeToOrder(&x3, &x4);
+	// sum middle numbers 
+	double tmp  = (x1 < x3) ? x3 : x1;
 	tmp += (x2 < x4) ? x2 : x4;
 	return tmp * 0.5;
 }
-
-/* Minimum of 4 numbers.
- */
+//
+// Minimum of 4 numbers.
+//
 static double minimum4(double x1, double x2, double x3, double x4)
 {
 	x1 = MIN(x1, x2);
 	x3 = MIN(x3, x4);
 	return MIN(x1, x3);
 }
-
-/* Maximum of 4 numbers.
- */
+//
+// Maximum of 4 numbers.
+//
 static double maximum4(double x1, double x2, double x3, double x4)
 {
 	x1 = MAX(x1, x2);
@@ -609,23 +604,22 @@ void GnuPlot::Pm3DPlot(termentry * pTerm, surface_points * pPlot, int at_which_z
 					   otherwise it is done for each interpolated quadrangle later.
 					 */
 					if(color_from_column) {
-						/* color is set in plot3d.c:get_3ddata() */
+						// color is set in plot3d.c:get_3ddata() 
 						cb1 = pointsA[i].CRD_COLOR;
 						cb2 = pointsA[i1].CRD_COLOR;
 						cb3 = pointsB[ii].CRD_COLOR;
 						cb4 = pointsB[ii1].CRD_COLOR;
 					}
 					else if(color_from_fillcolor) {
-						/* color is set by "fc <rgbvalue>" */
+						// color is set by "fc <rgbvalue>" 
 						cb1 = cb2 = cb3 = cb4 = pPlot->fill_properties.border_color.lt;
-						/* EXPERIMENTAL
-						 * pm3d fc linestyle N generates
-						 * top/bottom color difference as with hidden3d
-						 */
+						// EXPERIMENTAL
+						// pm3d fc linestyle N generates
+						// top/bottom color difference as with hidden3d
 						if(pPlot->fill_properties.border_color.type == TC_LINESTYLE) {
 							lp_style_type style;
 							int side = pm3d_side(&pointsA[i], &pointsA[i1], &pointsB[ii]);
-							lp_use_properties(&style, side < 0 ? cb1 + 1 : cb1);
+							lp_use_properties(pTerm, &style, side < 0 ? cb1 + 1 : cb1);
 							cb1 = cb2 = cb3 = cb4 = style.pm3d_color.lt;
 						}
 					}
@@ -822,16 +816,15 @@ void GnuPlot::Pm3DPlot(termentry * pTerm, surface_points * pPlot, int at_which_z
 							case PM3D_WHICHCORNER_C4: avgC = cb4; break;
 						}
 						if(color_from_fillcolor) {
-							/* color is set by "fc <rgbval>" */
+							// color is set by "fc <rgbval>" 
 							gray = pPlot->fill_properties.border_color.lt;
-							/* EXPERIMENTAL
-							 * pm3d fc linestyle N generates
-							 * top/bottom color difference as with hidden3d
-							 */
+							// EXPERIMENTAL
+							// pm3d fc linestyle N generates
+							// top/bottom color difference as with hidden3d
 							if(pPlot->fill_properties.border_color.type == TC_LINESTYLE) {
 								lp_style_type style;
 								int side = pm3d_side(&pointsA[i], &pointsB[ii], &pointsB[ii1]);
-								lp_use_properties(&style, side < 0 ? gray + 1 : gray);
+								lp_use_properties(pTerm, &style, side < 0 ? gray + 1 : gray);
 								gray = style.pm3d_color.lt;
 							}
 						}
@@ -949,9 +942,9 @@ void GnuPlot::Pm3DPlot(termentry * pTerm, surface_points * pPlot, int at_which_z
 	if(pm3d.direction != PM3D_DEPTH)
 		pTerm->layer(TERM_LAYER_END_PM3D_MAP);
 }
-/*
- * unset pm3d for the reset command
- */
+//
+// unset pm3d for the reset command
+//
 void pm3d_reset()
 {
 	strcpy(pm3d.where, "s");
@@ -992,39 +985,36 @@ void GnuPlot::Pm3DDrawOne(termentry * pTerm, surface_points * pPlot)
 		}
 	}
 }
-/*
- * Add one pm3d quadrangle to the mix.
- * Called by zerrorfill() and by plot3d_boxes().
- * Also called by vplot_isosurface().
- */
-void pm3d_add_quadrangle(surface_points * plot, gpdPoint corners[4])
+// 
+// Add one pm3d quadrangle to the mix.
+// Called by zerrorfill() and by plot3d_boxes().
+// Also called by vplot_isosurface().
+// 
+void pm3d_add_quadrangle(surface_points * pPlot, gpdPoint corners[4])
 {
-	pm3d_add_polygon(plot, corners, 4);
+	pm3d_add_polygon(pPlot, corners, 4);
 }
 // 
 // The general case.
 // (plot == NULL) if we were called from do_polygon().
 // 
-void pm3d_add_polygon(surface_points * plot, gpdPoint corners[4], int vertices)
+void pm3d_add_polygon(surface_points * pPlot, gpdPoint corners[4], int vertices)
 {
 	Quadrangle * q;
 	// FIXME: I have no idea how to estimate the number of facets for an isosurface 
-	if(!plot || (plot->plot_style == ISOSURFACE)) {
+	if(!pPlot || (pPlot->plot_style == ISOSURFACE)) {
 		if(allocated_quadrangles < current_quadrangle + 100) {
 			allocated_quadrangles += 1000.;
 			quadrangles = (Quadrangle *)gp_realloc(quadrangles, allocated_quadrangles * sizeof(Quadrangle), "pm3d_add_quadrangle");
 		}
 	}
-	else if(allocated_quadrangles < current_quadrangle + plot->iso_crvs->p_count) {
-		allocated_quadrangles += 2 * plot->iso_crvs->p_count;
+	else if(allocated_quadrangles < current_quadrangle + pPlot->iso_crvs->p_count) {
+		allocated_quadrangles += 2 * pPlot->iso_crvs->p_count;
 		quadrangles = (Quadrangle *)gp_realloc(quadrangles, allocated_quadrangles * sizeof(Quadrangle), "pm3d_add_quadrangle");
 	}
 	q = quadrangles + current_quadrangle++;
 	memcpy(q->vertex.corners, corners, 4*sizeof(gpdPoint));
-	if(plot)
-		q->fillstyle = style_from_fill(&plot->fill_properties);
-	else
-		q->fillstyle = 0;
+	q->fillstyle = pPlot ? style_from_fill(&pPlot->fill_properties) : 0;
 	// For triangles and normal quadrangles, the vertices are stored in
 	// q->vertex.corners.  For larger polygons we store them in external array
 	// polygonlist and keep only an index into the array q->vertex.array.
@@ -1038,7 +1028,7 @@ void pm3d_add_polygon(surface_points * plot, gpdPoint corners[4], int vertices)
 		memcpy(save_corners, corners, vertices * sizeof(gpdPoint));
 		save_corners[2].c = vertices;
 	}
-	if(!plot) {
+	if(!pPlot) {
 		// This quadrangle came from "set object polygon" rather than "splot with pm3d" 
 		if(corners[0].c == LT_BACKGROUND) {
 			q->gray = PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY;
@@ -1049,33 +1039,33 @@ void pm3d_add_polygon(surface_points * plot, gpdPoint corners[4], int vertices)
 		}
 		q->fillstyle = corners[1].c;
 	}
-	else if(plot->pm3d_color_from_column && !(plot->plot_style == POLYGONS)) {
+	else if(pPlot->pm3d_color_from_column && !(pPlot->plot_style == POLYGONS)) {
 		// FIXME: color_from_rgbvar need only be set once per plot 
 		// This is the usual path for 'splot with boxes' 
 		color_from_rgbvar = TRUE;
 		if(pm3d_shade.strength > 0) {
-			q->gray = plot->lp_properties.pm3d_color.lt;
+			q->gray = pPlot->lp_properties.pm3d_color.lt;
 			GPO.IlluminateOneQuadrangle(q);
 		}
 		else {
-			q->qcolor.rgb_color = plot->lp_properties.pm3d_color.lt;
+			q->qcolor.rgb_color = pPlot->lp_properties.pm3d_color.lt;
 			q->gray = PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY;
 		}
 	}
-	else if(plot->lp_properties.pm3d_color.type == TC_Z) {
+	else if(pPlot->lp_properties.pm3d_color.type == TC_Z) {
 		// This is a special case for 'splot with boxes lc palette z' 
 		q->gray = GPO.Cb2Gray(corners[1].z);
 		color_from_rgbvar = FALSE;
 		if(pm3d_shade.strength > 0)
 			GPO.IlluminateOneQuadrangle(q);
 	}
-	else if(oneof2(plot->plot_style, ISOSURFACE, POLYGONS)) {
+	else if(oneof2(pPlot->plot_style, ISOSURFACE, POLYGONS)) {
 		int rgb_color = static_cast<int>(corners[0].c);
 		if(corners[0].c == LT_BACKGROUND)
 			q->gray = PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY;
 		else
 			q->gray = PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY;
-		if(plot->plot_style == ISOSURFACE && isosurface_options.inside_offset > 0) {
+		if(pPlot->plot_style == ISOSURFACE && isosurface_options.inside_offset > 0) {
 			lp_style_type style;
 			GpCoordinate v[3];
 			int i;
@@ -1084,10 +1074,10 @@ void pm3d_add_polygon(surface_points * plot, gpdPoint corners[4], int vertices)
 				v[i].y = corners[i].y;
 				v[i].z = corners[i].z;
 			}
-			i = plot->hidden3d_top_linetype + 1;
+			i = pPlot->hidden3d_top_linetype + 1;
 			if(pm3d_side(&v[0], &v[1], &v[2]) < 0)
 				i += isosurface_options.inside_offset;
-			lp_use_properties(&style, i);
+			lp_use_properties(term, &style, i);
 			rgb_color = style.pm3d_color.lt;
 		}
 		q->qcolor.rgb_color = rgb_color;
@@ -1099,7 +1089,7 @@ void pm3d_add_polygon(surface_points * plot, gpdPoint corners[4], int vertices)
 	}
 	else {
 		// This is the usual [only?] path for 'splot with zerror' 
-		q->qcolor.colorspec = &plot->fill_properties.border_color;
+		q->qcolor.colorspec = &pPlot->fill_properties.border_color;
 		q->gray = PM3D_USE_COLORSPEC_INSTEAD_OF_GRAY;
 	}
 }
@@ -1198,7 +1188,7 @@ void GnuPlot::SetPlotWithPalette(int plotNum, int plotMode)
 			return;
 	}
 	// Any of title, xlabel, ylabel, zlabel, ... with 'textcolor palette'? 
-	if(TC_USES_PALETTE(title.textcolor.type)) return;
+	if(TC_USES_PALETTE(Gg.LblTitle.textcolor.type)) return;
 	if(TC_USES_PALETTE(AxS[FIRST_X_AXIS].label.textcolor.type)) return;
 	if(TC_USES_PALETTE(AxS[FIRST_Y_AXIS].label.textcolor.type)) return;
 	if(TC_USES_PALETTE(AxS[SECOND_X_AXIS].label.textcolor.type)) return;
@@ -1224,7 +1214,7 @@ bool is_plot_with_palette()
 
 bool is_plot_with_colorbox()
 {
-	return plot_has_palette && (color_box.where != SMCOLOR_BOX_NO);
+	return plot_has_palette && (GPO.Gg.ColorBox.where != SMCOLOR_BOX_NO);
 }
 
 /*
@@ -1481,7 +1471,7 @@ int clip_filled_polygon(gpdPoint * inpts, gpdPoint * outpts, int nv)
 				outpts[nvo].z = inpts[current].z >= zmax ? zmax : zmin;
 				nvo++;
 			}
-			else if(/* clip_lines2 && */ (outrange[current] * outrange[next] < 0)) {
+			else if(/* Gg.ClipLines2 && */ (outrange[current] * outrange[next] < 0)) {
 				// Current point and next point are out of range on opposite
 				// sides of the z range.  Clip both ends of the segment.
 				fraction = ((inpts[current].z >= zmax ? zmax : zmin) - inpts[next].z) / (inpts[current].z - inpts[next].z);

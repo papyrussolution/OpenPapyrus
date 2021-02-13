@@ -696,7 +696,7 @@ void EPSLATEX_reopen_output(char * ext)
 	}
 }
 
-TERM_PUBLIC void EPSLATEX_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void EPSLATEX_set_color(const t_colorspec * colorspec)
 {
 	double gray;
 #ifdef HAVE_CAIROPDF

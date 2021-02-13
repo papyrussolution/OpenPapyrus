@@ -585,15 +585,16 @@ typedef struct OnigCaptureTreeNodeStruct {
 	int num_childs;
 	struct OnigCaptureTreeNodeStruct** childs;
 } OnigCaptureTreeNode;
-
-/* match result region type */
+//
+// match result region type 
+//
 struct re_registers {
-	int allocated;
-	int num_regs;
-	int* beg;
-	int* end;
+	int    allocated;
+	int    num_regs;
+	int  * beg;
+	int  * end;
 	/* extended */
-	OnigCaptureTreeNode* history_root; /* capture history tree root */
+	OnigCaptureTreeNode * history_root; /* capture history tree root */
 };
 
 /* capture tree traverse */
@@ -606,8 +607,8 @@ typedef struct re_registers OnigRegion;
 
 typedef struct {
 	OnigEncoding enc;
-	uchar* par;
-	uchar* par_end;
+	uchar * par;
+	uchar * par_end;
 } OnigErrorInfo;
 
 typedef struct {
@@ -720,11 +721,9 @@ ONIG_EXTERN int ONIG_VARIADIC_FUNC_ATTR onig_error_code_to_str(uchar* s, int err
 ONIG_EXTERN int onig_is_error_code_needs_param(int code);
 ONIG_EXTERN void onig_set_warn_func(OnigWarnFunc f);
 ONIG_EXTERN void onig_set_verb_warn_func(OnigWarnFunc f);
-ONIG_EXTERN int onig_new(OnigRegex*, const uchar* pattern, const uchar* pattern_end, OnigOptionType option, OnigEncoding enc,
-    OnigSyntaxType* syntax, OnigErrorInfo* einfo);
+ONIG_EXTERN int onig_new(OnigRegex*, const uchar* pattern, const uchar* pattern_end, OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax, OnigErrorInfo* einfo);
 ONIG_EXTERN int onig_reg_init(OnigRegex reg, OnigOptionType option, OnigCaseFoldType case_fold_flag, OnigEncoding enc, OnigSyntaxType* syntax);
-int onig_new_without_alloc(OnigRegex, const uchar* pattern, const uchar* pattern_end, OnigOptionType option, OnigEncoding enc,
-    OnigSyntaxType* syntax, OnigErrorInfo* einfo);
+int onig_new_without_alloc(OnigRegex, const uchar* pattern, const uchar* pattern_end, OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax, OnigErrorInfo* einfo);
 ONIG_EXTERN int onig_new_deluxe(OnigRegex* reg, const uchar* pattern, const uchar* pattern_end, OnigCompileInfo* ci, OnigErrorInfo* einfo);
 ONIG_EXTERN void onig_free(OnigRegex);
 ONIG_EXTERN void onig_free_body(OnigRegex);

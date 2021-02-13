@@ -897,18 +897,19 @@ extern OnigRegion* onig_region_new(void)
 	return r;
 }
 
-extern void onig_region_free(OnigRegion* r, int free_self)
+extern void onig_region_free(OnigRegion * pRegion, int free_self)
 {
-	if(r != 0) {
-		if(r->allocated > 0) {
-			if(r->beg) SAlloc::F(r->beg);
-			if(r->end) SAlloc::F(r->end);
-			r->allocated = 0;
+	if(pRegion) {
+		if(pRegion->allocated > 0) {
+			SAlloc::F(pRegion->beg);
+			SAlloc::F(pRegion->end);
+			pRegion->allocated = 0;
 		}
 #ifdef USE_CAPTURE_HISTORY
-		history_root_free(r);
+		history_root_free(pRegion);
 #endif
-		if(free_self) SAlloc::F(r);
+		if(free_self) 
+			SAlloc::F(pRegion);
 	}
 }
 

@@ -56,9 +56,8 @@ TERM_PUBLIC void TEXDRAW_arrow(unsigned int sx, unsigned int sy,
 TERM_PUBLIC void TEXDRAW_put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC int TEXDRAW_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int TEXDRAW_text_angle(int ang);
-TERM_PUBLIC void TEXDRAW_set_color(t_colorspec * colorspec);
+TERM_PUBLIC void TEXDRAW_set_color(const t_colorspec * colorspec);
 TERM_PUBLIC int TEXDRAW_make_palette(t_sm_palette *);
-TERM_PUBLIC void TEXDRAW_set_color(t_colorspec *);
 TERM_PUBLIC void TEXDRAW_fillbox(int style,
     unsigned int x1, unsigned int y1,
     uint width, uint height);
@@ -638,7 +637,7 @@ TERM_PUBLIC int TEXDRAW_make_palette(t_sm_palette * palette)
 	return 0; /* claim continuous colors */
 }
 
-TERM_PUBLIC void TEXDRAW_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void TEXDRAW_set_color(const t_colorspec * colorspec)
 {
 	/* Users can choose any color as long as it is black.
 	   Enables dash patterns. */

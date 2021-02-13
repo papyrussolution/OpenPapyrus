@@ -69,7 +69,7 @@ TERM_PUBLIC void DJSVGA_init(termentry * pThis);
 TERM_PUBLIC void DJSVGA_graphics();
 TERM_PUBLIC void DJSVGA_text();
 TERM_PUBLIC void DJSVGA_reset();
-TERM_PUBLIC void DJSVGA_options();
+TERM_PUBLIC void DJSVGA_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void DJSVGA_linetype(int linetype);
 TERM_PUBLIC void DJSVGA_dashtype(int type, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void DJSVGA_move(uint x, uint y);
@@ -233,8 +233,7 @@ enum DJSVGA_id { DJSVGA_DEFAULTOPTIONS,
 		 DJSVGA_LINEWIDTH, DJSVGA_POINTSCALE,
 		 DJSVGA_OTHER };
 
-static struct gen_table DJSVGA_opts[] =
-{
+static struct gen_table DJSVGA_opts[] = {
 	{ "def$ault", DJSVGA_DEFAULTOPTIONS },
 	{ "font", DJSVGA_FONT },
 	{ "backg$round", DJSVGA_BACKGROUND },
@@ -249,67 +248,56 @@ static struct gen_table DJSVGA_opts[] =
 	{ NULL, DJSVGA_OTHER }
 };
 
-TERM_PUBLIC void DJSVGA_options()
+TERM_PUBLIC void DJSVGA_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	char * font = NULL;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch((enum DJSVGA_id)GPO.Pgm.LookupTableForCurrentToken(&DJSVGA_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch((enum DJSVGA_id)pGp->Pgm.LookupTableForCurrentToken(&DJSVGA_opts[0])) {
 			case DJSVGA_ENH:
-			    GPO.Pgm.Shift();
-			    term->put_text = DJSVGA_enhanced_put_text;
-			    term->flags |= TERM_ENHANCED_TEXT;
+			    pGp->Pgm.Shift();
+			    pThis->put_text = DJSVGA_enhanced_put_text;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case DJSVGA_NOENH:
-			    GPO.Pgm.Shift();
-			    term->put_text = DJSVGA_put_text;
-			    term->flags &= ~TERM_ENHANCED_TEXT;
+			    pGp->Pgm.Shift();
+			    pThis->put_text = DJSVGA_put_text;
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case DJSVGA_BACKGROUND:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    dj_background = parse_color_name();
 			    break;
 			case DJSVGA_LINEWIDTH:
-			    GPO.Pgm.Shift();
-			    dj_lwscale = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    dj_lwscale = pGp->RealExpression();
 			    if(dj_lwscale <= 0) 
 					dj_lwscale = 1.0;
 			    break;
 			case DJSVGA_POINTSCALE:
-			    GPO.Pgm.Shift();
-			    dj_pointscale = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    dj_pointscale = pGp->RealExpression();
 			    if(dj_pointscale <= 0.0) 
 					dj_pointscale = 1.0;
 			    break;
 			case DJSVGA_FONTSCALE:
-			    GPO.Pgm.Shift();
-			    dj_fontscale = GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    dj_fontscale = pGp->RealExpression();
 			    if(dj_fontscale <= 0.0) 
 					dj_fontscale = 1.0;
 			    break;
 			case DJSVGA_FONT:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			default:
-			    font = GPO.TryToGetString();
+			    font = pGp->TryToGetString();
 			    if(font)
 				    DJSVGA_trim_font_string(font, DJSVGA_default_fontname, sizeof(DJSVGA_default_fontname));
 			    else
-				    GPO.IntErrorCurToken("Expect font string");
+				    pGp->IntErrorCurToken("Expect font string");
 			    break;
 		}
 	}
-	sprintf(term_options,
-	    "font \"%s\" "
-	    "%senhanced "
-	    "background rgb \"#%06lx\" "
-	    "linewidth %.1f "
-	    "pointscale %.1f "
-	    "fontscale %.1f",
-	    DJSVGA_default_fontname,
-	    term->flags & TERM_ENHANCED_TEXT ? "" : "no",
-	    dj_background,
-	    dj_lwscale,
-	    dj_pointscale,
-	    dj_fontscale);
+	sprintf(term_options, "font \"%s\" %senhanced background rgb \"#%06lx\" linewidth %.1f pointscale %.1f fontscale %.1f",
+	    DJSVGA_default_fontname, pThis->flags & TERM_ENHANCED_TEXT ? "" : "no", dj_background, dj_lwscale, dj_pointscale, dj_fontscale);
 }
 
 #if defined(MGRX_VERSION_API) && (MGRX_VERSION_API >= 0x0110)

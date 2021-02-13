@@ -100,7 +100,7 @@ TERM_PUBLIC void HPGL2_pointsize(double size);
 TERM_PUBLIC void HPGL2_linewidth(double linewidth);
 TERM_PUBLIC void HPGL2_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void HPGL2_filled_polygon(int points, gpiPoint * corners);
-TERM_PUBLIC void HPGL2_set_color(t_colorspec * colorspec);
+TERM_PUBLIC void HPGL2_set_color(const t_colorspec * colorspec);
 TERM_PUBLIC int HPGL2_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void HPGL2_enh_put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC void HPGL2_enh_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
@@ -2836,7 +2836,7 @@ TERM_PUBLIC void HPGL2_filled_polygon(int points, gpiPoint * corners)
 	}
 }
 
-TERM_PUBLIC void HPGL2_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void HPGL2_set_color(const t_colorspec * colorspec)
 {
 	double gray = colorspec->value;
 	int linetype = colorspec->lt;

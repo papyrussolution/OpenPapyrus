@@ -78,8 +78,8 @@ void GnuPlot::PlotRequest(termentry * pTerm)
 	/*AXIS_INDEX*/int axis;
 	if(!pTerm) // unknown 
 		IntErrorCurToken("use 'set term' to set terminal type first");
-	is_3d_plot = FALSE;
-	if(parametric && strcmp(set_dummy_var[0], "u") == 0)
+	Gg.Is3DPlot = false;
+	if(Gg.Parametric && strcmp(set_dummy_var[0], "u") == 0)
 		strcpy(set_dummy_var[0], "t");
 	// initialize the arrays from the 'set' scalars 
 	axis_init(&AxS[FIRST_X_AXIS], FALSE);
@@ -120,7 +120,7 @@ void GnuPlot::PlotRequest(termentry * pTerm)
 	}
 	// Range limits for the entire plot are optional but must be given
 	// in a fixed order. The keyword 'sample' terminates range parsing.
-	if(parametric || polar) {
+	if(Gg.Parametric || Gg.Polar) {
 		dummy_token = ParseRange(T_AXIS);
 		ParseRange(FIRST_X_AXIS);
 	}
@@ -608,10 +608,9 @@ int GnuPlot::GetData(curve_points * pPlot)
 			pPlot->varcolor[i] = v[--j];
 		}
 		/* Unusual special cases */
-
-		/* In spiderplots the implicit "x coordinate" v[0] is really the axis number. */
-		/* Add this at the front and shift all other using specs to the right.        */
-		if(spiderplot) {
+		// In spiderplots the implicit "x coordinate" v[0] is really the axis number. 
+		// Add this at the front and shift all other using specs to the right.        
+		if(Gg.SpiderPlot) {
 			int is;
 			for(is = j++; is>0; is--)
 				v[is] = v[is-1];
@@ -647,8 +646,8 @@ int GnuPlot::GetData(curve_points * pPlot)
 			/* NB: assumes CRD_PTSIZE == xlow CRD_PTTYPE == xhigh CRD_PTCHAR == ylow */
 			    int var = 2; /* column number for next variable spec */
 			    coordval weight = (pPlot->plot_smooth == SMOOTH_ACSPLINES) ? v[2] : 1.0;
-			    coordval var_ps = pPlot->lp_properties.p_size;
-			    coordval var_pt = pPlot->lp_properties.p_type;
+			    coordval var_ps = pPlot->lp_properties.PtSize;
+			    coordval var_pt = pPlot->lp_properties.PtType;
 			    coordval var_char = 0;
 			    if(pPlot->plot_smooth == SMOOTH_ZSORT)
 				    weight = v[var++];
@@ -676,8 +675,8 @@ int GnuPlot::GetData(curve_points * pPlot)
 				 */
 			    int var = 3; /* column number for next variable spec */
 			    coordval var_rotation = pPlot->labels->rotate;
-			    coordval var_ps = pPlot->labels->lp_properties.p_size;
-			    coordval var_pt = pPlot->labels->lp_properties.p_type;
+			    coordval var_ps = pPlot->labels->lp_properties.PtSize;
+			    coordval var_pt = pPlot->labels->lp_properties.PtType;
 			    if(pPlot->labels->tag == VARIABLE_ROTATE_LABEL_TAG)
 				    var_rotation = v[var++];
 			    if(var_pt == PT_VARIABLE)
@@ -1005,7 +1004,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			case SPIDERPLOT:
 		    { // Spider plots are essentially parallelaxis plots in polar coordinates.
 			    coordval var_color = pPlot->varcolor ? pPlot->varcolor[i] : i;
-			    coordval var_pt = pPlot->lp_properties.p_type;
+			    coordval var_pt = pPlot->lp_properties.PtType;
 			    coordval theta = paxis_current;
 			    coordval r = v[1];
 			    var_pt = (var_pt == PT_VARIABLE) ? v[2] : var_pt + 1;
@@ -1051,10 +1050,10 @@ void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */,
 	bool excluded_range = FALSE;
 	// FIXME this destroys any UNDEFINED flag assigned during input 
 	cp->type = INRANGE;
-	if(polar) {
+	if(Gg.Polar) {
 		double theta = x;
 		GpAxis * theta_axis = &AxS[T_AXIS];
-		/* "x" is really the polar angle theta,	so check it against trange. */
+		// "x" is really the polar angle theta,	so check it against trange. 
 		if(theta < theta_axis->data_min)
 			theta_axis->data_min = theta;
 		if(theta > theta_axis->data_max)
@@ -1542,9 +1541,8 @@ text_label * store_label(text_label * listhead, GpCoordinate * cp, int i/* point
 
 	// optional variables from user spec 
 	tl->rotate = static_cast<int>(cp->CRD_ROTATE);
-	tl->lp_properties.p_type = static_cast<int>(cp->CRD_PTTYPE);
-	tl->lp_properties.p_size = cp->CRD_PTSIZE;
-
+	tl->lp_properties.PtType = static_cast<int>(cp->CRD_PTTYPE);
+	tl->lp_properties.PtSize = cp->CRD_PTSIZE;
 	// Check for optional (textcolor palette ...) 
 	if(tl->textcolor.type == TC_Z)
 		tl->textcolor.value = colorval;
@@ -1554,8 +1552,8 @@ text_label * store_label(text_label * listhead, GpCoordinate * cp, int i/* point
 	// Check for optional (textcolor variable) 
 	else if(listhead->textcolor.type == TC_VARIABLE) {
 		lp_style_type lptmp;
-		if(prefer_line_styles)
-			lp_use_properties(&lptmp, (int)colorval);
+		if(GPO.Gg.PreferLineStyles)
+			lp_use_properties(term, &lptmp, (int)colorval);
 		else
 			load_linetype(term, &lptmp, (int)colorval);
 		tl->textcolor = lptmp.pm3d_color;
@@ -1570,8 +1568,8 @@ text_label * store_label(text_label * listhead, GpCoordinate * cp, int i/* point
 		// Check for optional (point linecolor variable) 
 		else if(listhead->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 			lp_style_type lptmp;
-			if(prefer_line_styles)
-				lp_use_properties(&lptmp, (int)colorval);
+			if(GPO.Gg.PreferLineStyles)
+				lp_use_properties(term, &lptmp, (int)colorval);
 			else
 				load_linetype(term, &lptmp, (int)colorval);
 			tl->lp_properties.pm3d_color = lptmp.pm3d_color;
@@ -1668,10 +1666,10 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 	line_num = 0; // default line type 
 	pattern_num = default_fillstyle.fillpattern; // default fill pattern 
 	strcpy(orig_dummy_var, c_dummy_var[0]);
-	in_parametric = FALSE;
+	Gg.InParametric = false;
 	xtitle = NULL;
-	volatile_data = FALSE; /* Assume that the input data can be re-read later */
-	n_complex_values = 0; /* Track complex values so that we can warn about trying to plot them */
+	Gg.VolatileData = false; // Assume that the input data can be re-read later 
+	n_complex_values = 0; // Track complex values so that we can warn about trying to plot them 
 	/* ** First Pass: Read through data files ***
 	 * This pass serves to set the xrange and to parse the command, as well
 	 * as filling in every thing except the function data. That is done after
@@ -1686,7 +1684,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 			break;
 		}
 		p_plot = NULL;
-		if(!in_parametric && !was_definition)
+		if(!Gg.InParametric && !was_definition)
 			start_token = Pgm.GetCurTokenIdx();
 		if(Pgm.AlmostEqualsCur("newhist$ogram")) {
 			lp_style_type lp(lp_style_type::defCommon); //= DEFAULT_LP_STYLE_TYPE;
@@ -1793,7 +1791,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 			name_str = StringOrExpress(NULL);
 			dummy_func = NULL;
 			if(name_str) { // data file to plot 
-				if(parametric && in_parametric)
+				if(Gg.Parametric && Gg.InParametric)
 					IntErrorCurToken("previous parametric function not fully specified");
 				if(sample_range_token !=0 && *name_str != '+')
 					IntWarn(sample_range_token, "Ignoring sample range in non-sampled data plot");
@@ -1841,9 +1839,9 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 			}
 			else { // function to plot 
 				some_functions = TRUE;
-				if(parametric) // working on x parametric function 
-					in_parametric = !in_parametric;
-				if(spiderplot)
+				if(Gg.Parametric) // working on x parametric function 
+					Gg.InParametric = !Gg.InParametric;
+				if(Gg.SpiderPlot)
 					IntError(NO_CARET, "spiderplot is not possible for functions");
 				if(*tp_ptr) {
 					p_plot = *tp_ptr;
@@ -1952,7 +1950,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 						duplication = TRUE;
 						break;
 					}
-					if(parametric && in_parametric)
+					if(Gg.Parametric && Gg.InParametric)
 						IntErrorCurToken("previous parametric function not fully specified");
 					Pgm.Shift();
 					switch(Pgm.LookupTableForCurrentToken(&plot_axes_tbl[0])) {
@@ -2000,7 +1998,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 						duplication = TRUE;
 						break;
 					}
-					if(parametric && in_parametric)
+					if(Gg.Parametric && Gg.InParametric)
 						IntErrorCurToken("\"with\" allowed only after parametric function fully specified");
 					p_plot->plot_style = get_style();
 					if(p_plot->plot_style == FILLEDCURVES) {
@@ -2055,8 +2053,8 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(!set_lpstyle) {
 						default_arrow_style(&(p_plot->arrow_properties));
-						if(prefer_line_styles)
-							lp_use_properties(&(p_plot->arrow_properties.lp_properties), line_num+1);
+						if(Gg.PreferLineStyles)
+							lp_use_properties(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 						else
 							load_linetype(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 					}
@@ -2111,16 +2109,16 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 					lp_style_type lp(lp_style_type::defCommon); //= DEFAULT_LP_STYLE_TYPE;
 					int new_lt = 0;
 					lp.l_type = line_num;
-					lp.p_type = line_num;
+					lp.PtType = line_num;
 					lp.d_type = line_num;
 					// user may prefer explicit line styles 
-					if(prefer_line_styles)
-						lp_use_properties(&lp, line_num+1);
+					if(Gg.PreferLineStyles)
+						lp_use_properties(pTerm, &lp, line_num+1);
 					else
 						load_linetype(pTerm, &lp, line_num+1);
 					if(p_plot->plot_style == BOXPLOT) {
-						lp.p_type = boxplot_opts.pointtype;
-						lp.p_size = PTSZ_DEFAULT;
+						lp.PtType = boxplot_opts.pointtype;
+						lp.PtSize = PTSZ_DEFAULT;
 						if(!boxplot_opts.outliers)
 							p_plot->noautoscale = TRUE;
 					}
@@ -2145,14 +2143,14 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 				// Labels can have font and text property info as plot options
 				// In any case we must allocate one instance of the text style
 				// that all labels in the plot will share.                     
-				if((p_plot->plot_style == LABELPOINTS) ||  (p_plot->plot_style & PLOT_STYLE_HAS_POINT && p_plot->lp_properties.p_type == PT_CHARACTER)) {
+				if((p_plot->plot_style == LABELPOINTS) ||  (p_plot->plot_style & PLOT_STYLE_HAS_POINT && p_plot->lp_properties.PtType == PT_CHARACTER)) {
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(p_plot->labels == NULL) {
 						p_plot->labels = new_text_label(-1);
 						p_plot->labels->pos = CENTRE;
 						p_plot->labels->layer = LAYER_PLOTLABELS;
 					}
-					if((p_plot->plot_style & PLOT_STYLE_HAS_POINT) && (p_plot->lp_properties.p_type == PT_CHARACTER)) {
+					if((p_plot->plot_style & PLOT_STYLE_HAS_POINT) && p_plot->lp_properties.PtType == PT_CHARACTER) {
 						if(!set_labelstyle)
 							p_plot->labels->textcolor.type = TC_DEFAULT;
 					}
@@ -2200,10 +2198,10 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 				some_tables = TRUE;
 			}
 
-			if(p_plot->plot_style == SPIDERPLOT && !spiderplot)
+			if(p_plot->plot_style == SPIDERPLOT && !Gg.SpiderPlot)
 				IntError(NO_CARET, "'with spiderplot' requires a previous 'set spiderplot'");
 #if (0)
-			if(spiderplot && p_plot->plot_style != SPIDERPLOT)
+			if(Gg.SpiderPlot && p_plot->plot_style != SPIDERPLOT)
 				IntError(NO_CARET, "only plots 'with spiderplot' are possible in spiderplot mode");
 #endif
 			// set default values for title if this has not been specified 
@@ -2212,7 +2210,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 				p_plot->title_no_enhanced = TRUE; /* filename or function cannot be enhanced */
 				if(key->auto_titles == FILENAME_KEYTITLES) {
 					Pgm.MCapture(&(p_plot->title), start_token, end_token);
-					if(in_parametric)
+					if(Gg.InParametric)
 						xtitle = p_plot->title;
 					p_plot->title_is_automated = TRUE;
 				}
@@ -2223,8 +2221,8 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 			// copy this to overall plot linetype so that the key sample matches 
 			if(p_plot->plot_style & PLOT_STYLE_HAS_VECTOR) {
 				if(!set_lpstyle) {
-					if(prefer_line_styles)
-						lp_use_properties(&(p_plot->arrow_properties.lp_properties), line_num+1);
+					if(Gg.PreferLineStyles)
+						lp_use_properties(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 					else
 						load_linetype(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 					ArrowParse(&p_plot->arrow_properties, TRUE);
@@ -2238,21 +2236,21 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 			if(!set_lpstyle) {
 				p_plot->lp_properties.l_type = line_num;
 				p_plot->lp_properties.l_width = 1.0;
-				p_plot->lp_properties.p_type = line_num;
+				p_plot->lp_properties.PtType = line_num;
 				p_plot->lp_properties.d_type = line_num;
-				p_plot->lp_properties.p_size = pointsize;
+				p_plot->lp_properties.PtSize = Gg.PointSize;
 				// user may prefer explicit line styles 
-				if(prefer_line_styles)
-					lp_use_properties(&p_plot->lp_properties, line_num+1);
+				if(Gg.PreferLineStyles)
+					lp_use_properties(pTerm, &p_plot->lp_properties, line_num+1);
 				else
 					load_linetype(pTerm, &p_plot->lp_properties, line_num+1);
 				if(p_plot->plot_style == BOXPLOT) {
-					p_plot->lp_properties.p_type = boxplot_opts.pointtype;
-					p_plot->lp_properties.p_size = PTSZ_DEFAULT;
+					p_plot->lp_properties.PtType = boxplot_opts.pointtype;
+					p_plot->lp_properties.PtSize = PTSZ_DEFAULT;
 				}
 				if(p_plot->plot_style == SPIDERPLOT) {
-					p_plot->lp_properties.p_type = spiderplot_style.lp_properties.p_type;
-					p_plot->lp_properties.p_size = spiderplot_style.lp_properties.p_size;
+					p_plot->lp_properties.PtType = spiderplot_style.lp_properties.PtType;
+					p_plot->lp_properties.PtSize = spiderplot_style.lp_properties.PtSize;
 					p_plot->lp_properties.l_width = spiderplot_style.lp_properties.l_width;
 					p_plot->lp_properties.pm3d_color.type = TC_DEFAULT;
 				}
@@ -2270,10 +2268,10 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 				p_plot->lp_properties.flags |= LP_SHOW_POINTS;
 			// Rule out incompatible line/point/style options 
 			if(p_plot->plot_type == FUNC) {
-				if((p_plot->plot_style & PLOT_STYLE_HAS_POINT) && (p_plot->lp_properties.p_size == PTSZ_VARIABLE))
-					p_plot->lp_properties.p_size = 1;
+				if((p_plot->plot_style & PLOT_STYLE_HAS_POINT) && (p_plot->lp_properties.PtSize == PTSZ_VARIABLE))
+					p_plot->lp_properties.PtSize = 1.0;
 			}
-			if(polar) 
+			if(Gg.Polar) 
 				switch(p_plot->plot_style) {
 					case LINES:
 					case POINTSTYLE:
@@ -2308,7 +2306,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 			p_plot->AxIdx_X = AxS.Idx_X;
 			p_plot->AxIdx_Y = AxS.Idx_Y;
 			// If we got this far without initializing the character font, do it now 
-			if(p_plot->plot_style & PLOT_STYLE_HAS_POINT && p_plot->lp_properties.p_type == PT_CHARACTER) {
+			if(p_plot->plot_style & PLOT_STYLE_HAS_POINT && p_plot->lp_properties.PtType == PT_CHARACTER) {
 				if(p_plot->labels == NULL) {
 					p_plot->labels = new_text_label(-1);
 					p_plot->labels->pos = CENTRE;
@@ -2427,14 +2425,14 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 				uses_axis[AxS.Idx_X] |= USES_AXIS_FOR_DATA;
 				uses_axis[AxS.Idx_Y] |= USES_AXIS_FOR_DATA;
 			}
-			else if(!parametric || !in_parametric) {
+			else if(!Gg.Parametric || !Gg.InParametric) {
 				// for x part of a parametric function, axes are possibly wrong 
 				// separate record of data and func 
 				uses_axis[AxS.Idx_X] |= USES_AXIS_FOR_FUNC;
 				uses_axis[AxS.Idx_Y] |= USES_AXIS_FOR_FUNC;
 			}
 			// These plot styles are not differentiated by line/point properties 
-			if(!in_parametric && p_plot->plot_style != IMAGE && p_plot->plot_style != RGBIMAGE && p_plot->plot_style != RGBA_IMAGE) {
+			if(!Gg.InParametric && p_plot->plot_style != IMAGE && p_plot->plot_style != RGBIMAGE && p_plot->plot_style != RGBA_IMAGE) {
 				++line_num;
 			}
 			// Image plots require 2 input dimensions 
@@ -2491,7 +2489,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 					BoxPlotRangeFiddling(p_plot);
 				if(p_plot->plot_style == IMPULSES)
 					ImpulseRangeFiddling(p_plot);
-				if(polar)
+				if(Gg.Polar)
 					PolarRangeFiddling(p_plot);
 				// sort 
 				switch(p_plot->plot_smooth) {
@@ -2574,7 +2572,7 @@ SKIPPED_EMPTY_FILE:
 				p_plot->sample_var2->udv_value = original_value_sample_var2;
 			}
 		} /* !is_defn */
-		if(in_parametric) {
+		if(Gg.InParametric) {
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
 				continue;
@@ -2607,7 +2605,7 @@ SKIPPED_EMPTY_FILE:
 		else
 			break;
 	}
-	if(parametric && in_parametric)
+	if(Gg.Parametric && Gg.InParametric)
 		IntError(NO_CARET, "parametric function not fully specified");
 /*** Second Pass: Evaluate the functions ***/
 	/*
@@ -2617,8 +2615,8 @@ SKIPPED_EMPTY_FILE:
 	 * may still change.  we stored last token of each plot, so we
 	 * dont need to do everything again */
 
-	/* parametric or polar fns can still affect x ranges */
-	if(!parametric && !polar) {
+	// parametric or polar fns can still affect x ranges 
+	if(!Gg.Parametric && !Gg.Polar) {
 		/* If we were expecting to autoscale on X but found no usable
 		 * points in the data files, then the axis limits are still sitting
 		 * at +/- VERYLARGE.  The default range for bare functions is [-10:10].
@@ -2652,7 +2650,7 @@ SKIPPED_EMPTY_FILE:
 	if(some_functions) {
 		// call the controlled variable t, since x_min can also mean smallest x 
 		double t_min = 0., t_max = 0., t_step = 0.;
-		if(parametric || polar) {
+		if(Gg.Parametric || Gg.Polar) {
 			if(!(uses_axis[FIRST_X_AXIS] & USES_AXIS_FOR_DATA)) {
 				// these have not yet been set to full width 
 				if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MIN)
@@ -2667,7 +2665,7 @@ SKIPPED_EMPTY_FILE:
 					AxS[SECOND_X_AXIS].max = -VERYLARGE;
 			}
 		}
-		if(parametric || polar) {
+		if(Gg.Parametric || Gg.Polar) {
 			t_min = AxS[T_AXIS].min;
 			t_max = AxS[T_AXIS].max;
 			t_step = (t_max - t_min) / (samples_1 - 1);
@@ -2680,7 +2678,7 @@ SKIPPED_EMPTY_FILE:
 		plot_iterator = CheckForIteration();
 		// Read through functions 
 		while(TRUE) {
-			if(!in_parametric && !was_definition)
+			if(!Gg.InParametric && !was_definition)
 				start_token = Pgm.GetCurTokenIdx();
 			if(IsDefinition(Pgm.GetCurTokenIdx())) {
 				Define();
@@ -2705,7 +2703,7 @@ SKIPPED_EMPTY_FILE:
 				plot_num++;
 				// Check for a sampling range. 
 				// Only relevant to function plots, and only needed in second pass. 
-				if(!parametric && !polar)
+				if(!Gg.Parametric && !Gg.Polar)
 					AxS.InitSampleRange(&AxS[AxS.Idx_X], FUNC);
 				sample_range_token = ParseRange(SAMPLE_AXIS);
 				dummy_func = &plot_func;
@@ -2730,13 +2728,13 @@ SKIPPED_EMPTY_FILE:
 					name_str = StringOrExpress(&at_ptr);
 				}
 				if(!name_str) { /* function to plot */
-					if(parametric) { /* toggle parametric axes */
-						in_parametric = !in_parametric;
+					if(Gg.Parametric) { // toggle parametric axes 
+						Gg.InParametric = !Gg.InParametric;
 					}
 					if(p_plot->plot_style == TABLESTYLE)
 						IntWarn(NO_CARET, "'with table' requires a data source not a pure function");
 					plot_func.at = at_ptr;
-					if(!parametric && !polar) {
+					if(!Gg.Parametric && !Gg.Polar) {
 						t_min = AxS[SAMPLE_AXIS].min;
 						t_max = AxS[SAMPLE_AXIS].max;
 						if(AxS[SAMPLE_AXIS].linked_to_primary) {
@@ -2756,8 +2754,8 @@ SKIPPED_EMPTY_FILE:
 						double x, temp;
 						GpValue a;
 						double t = t_min + i * t_step;
-						if(parametric) {
-							/* SAMPLE_AXIS is not relevant in parametric mode */
+						if(Gg.Parametric) {
+							// SAMPLE_AXIS is not relevant in parametric mode 
 						}
 						else if(AxS[SAMPLE_AXIS].linked_to_primary) {
 							const GpAxis * vis = AxS[SAMPLE_AXIS].linked_to_primary->linked_to_secondary;
@@ -2777,7 +2775,7 @@ SKIPPED_EMPTY_FILE:
 							continue;
 						}
 						// Imaginary values are treated as UNDEFINED 
-						if(fabs(imag(&a)) > zero && !isnan(real(&a))) {
+						if(fabs(imag(&a)) > Gg.Zero && !isnan(real(&a))) {
 							p_plot->points[i].type = UNDEFINED;
 							n_complex_values++;
 							continue;
@@ -2789,7 +2787,7 @@ SKIPPED_EMPTY_FILE:
 						p_plot->points[i].z = -1.0;
 						// for the moment 
 						p_plot->points[i].type = INRANGE;
-						if(parametric) {
+						if(Gg.Parametric) {
 							// The syntax is plot x, y XnYnaxes
 							// so we do not know the actual plot axes until
 							// the y plot and cannot do range-checking now.
@@ -2798,7 +2796,7 @@ SKIPPED_EMPTY_FILE:
 							if(V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute)
 								p_plot->points[i].z = 0.0;
 						}
-						else if(polar) {
+						else if(Gg.Polar) {
 							double y;
 							double theta = x;
 							// Convert from polar to cartesian coordinates and check ranges
@@ -2853,7 +2851,7 @@ SKIPPED_EMPTY_FILE:
 								p_plot->points[i].z = DEFAULT_RADIUS;
 								p_plot->points[i].ylow = default_ellipse.o.ellipse.orientation;
 							}
-							STORE_AND_UPDATE_RANGE(p_plot->points[i].y, temp, p_plot->points[i].type, in_parametric ? AxS.Idx_X : AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
+							STORE_AND_UPDATE_RANGE(p_plot->points[i].y, temp, p_plot->points[i].type, Gg.InParametric ? AxS.Idx_X : AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
 							/* could not use a continue in this case */
 come_here_if_undefined:
 							; /* ansi requires a statement after a label */
@@ -2866,7 +2864,7 @@ come_here_if_undefined:
 				tp_ptr = &(p_plot->next);
 				p_plot = p_plot->next;
 			}
-			if(in_parametric) {
+			if(Gg.InParametric) {
 				if(Pgm.EqualsCur(",")) {
 					Pgm.Shift();
 					continue;
@@ -2892,7 +2890,7 @@ come_here_if_undefined:
 		}
 		// when step debugging, set breakpoint here to get through
 		// the 'read function' loop above quickly 
-		if(parametric) {
+		if(Gg.Parametric) {
 			// Now actually fix the plot pairs to be single plots
 			// also fixes up polar&&parametric fn plots 
 			ParametricFixup(P_FirstPlot, &plot_num);
@@ -2903,7 +2901,7 @@ come_here_if_undefined:
 			}
 		}
 		// This is the earliest that polar autoscaling can be done for function plots 
-		if(polar)
+		if(Gg.Polar)
 			PolarRangeFiddling(P_FirstPlot);
 	}
 	// if P_FirstPlot is NULL, we have no functions or data at all. This can
@@ -2925,7 +2923,7 @@ come_here_if_undefined:
 	/* The x/y values stored during data entry for spider plots are not
 	 * true x/y values.  Reset x/y ranges to [-1:+1].
 	 */
-	if(spiderplot)
+	if(Gg.SpiderPlot)
 		SpiderPlotRangeFiddling(P_FirstPlot);
 	/* gnuplot version 5.0 always used x1 to track autoscaled range
 	 * regardless of whether x1 or x2 was used to plot the data.
@@ -3063,7 +3061,7 @@ void GnuPlot::ParametricFixup(curve_points * pStartPlot, int * pPlotNum)
 			//
 			for(i = 0; i < yp->p_count; ++i) {
 				double x, y;
-				if(polar) {
+				if(Gg.Polar) {
 					const double r = yp->points[i].y;
 					const double t = xp->points[i].y;
 					// Convert from polar to cartesian coordinate and check ranges */
@@ -3140,8 +3138,8 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 		pPlot->title_no_enhanced = !key->enhanced;
 		if(Pgm.AlmostEquals(Pgm.CToken++, "not$itle"))
 			pPlot->title_is_suppressed = TRUE;
-		if(parametric || pPlot->title_is_suppressed) {
-			if(in_parametric)
+		if(Gg.Parametric || pPlot->title_is_suppressed) {
+			if(Gg.InParametric)
 				IntErrorCurToken("title allowed only after parametric function fully specified");
 			ASSIGN_PTR(pXTitle, 0); // Remove default title . 
 			ASSIGN_PTR(pYTitle, 0); // Remove default title . 

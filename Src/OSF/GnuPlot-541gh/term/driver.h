@@ -88,7 +88,7 @@ void DUMB_arrow(uint sx, uint sy, uint ex, uint ey, int head);
 #endif
 #ifndef NO_DUMB_COLOR_SUPPORT
 	int  DUMB_make_palette(t_sm_palette * palette);
-	void DUMB_set_color(t_colorspec *);
+	void DUMB_set_color(const t_colorspec *);
 #endif
 //#endif // TERM_PROTO 
 
@@ -112,7 +112,7 @@ void PS_linewidth(double linewidth); /* JFi [linewidth] */
 void PS_pointsize(double ptsize); /* JFi [pointsize] */
 int  PS_make_palette(t_sm_palette *);
 void PS_previous_palette();
-void PS_set_color(t_colorspec *);
+void PS_set_color(const t_colorspec *);
 void PS_filled_polygon(int, gpiPoint *);
 void PS_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
 // To support "set term post enhanced" 

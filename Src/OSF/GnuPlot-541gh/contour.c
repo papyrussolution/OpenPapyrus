@@ -765,15 +765,12 @@ static void put_contour_cubic(cntr_struct * p_cntr, double xx_min, double xx_max
 	delta_t = (double *)gp_alloc(num_pts * sizeof(double), "contour delta_t");
 	d2x = (double *)gp_alloc(num_pts * sizeof(double), "contour d2x");
 	d2y = (double *)gp_alloc(num_pts * sizeof(double), "contour d2y");
-
-	/* Width and height of the grid is used as a unit length (2d-norm) */
+	// Width and height of the grid is used as a unit length (2d-norm) 
 	unit_x = xx_max - xx_min;
 	unit_y = yy_max - yy_min;
-	/* FIXME HBB 20010121: 'zero' should not be used as an absolute
-	 * figure to compare to data */
-	unit_x = (unit_x > zero ? unit_x : zero); /* should not be zero */
-	unit_y = (unit_y > zero ? unit_y : zero);
-
+	// FIXME HBB 20010121: 'zero' should not be used as an absolute figure to compare to data 
+	unit_x = (unit_x > GPO.Gg.Zero ? unit_x : GPO.Gg.Zero); // should not be zero 
+	unit_y = (unit_y > GPO.Gg.Zero ? unit_y : GPO.Gg.Zero);
 	if(num_pts > 2) {
 		/*
 		 * Calculate second derivatives d2x[], d2y[] and interval lengths delta_t[]:

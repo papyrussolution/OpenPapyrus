@@ -15,8 +15,8 @@ legend_key keyT;// = DEFAULT_KEY_PROPS;
 //
 // Description of the color box associated with GPO.AxS.__CB() 
 //
-color_box_struct color_box; // initialized in init_color() 
-color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_FRONT, 0,
+//color_box_struct color_box; // initialized in init_color() 
+const color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_FRONT, 0,
 	{screen, screen, screen, 0.90, 0.2, 0.0}, {screen, screen, screen, 0.05, 0.6, 0.0}, FALSE, {0, 0, 0, 0} };
 
 //BoundingBox plot_bounds_Removed; // The graph box (terminal coordinates) calculated by boundary() or boundary3d() 
@@ -51,18 +51,14 @@ color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_
 pa_style   parallel_axis_style; // = DEFAULT_PARALLEL_AXIS_STYLE; /* Holds the properties from 'set style parallelaxis' */
 spider_web spiderplot_style; // = DEFAULT_SPIDERPLOT_STYLE; /* Holds properties for 'set style spiderplot' */
 GpObject    grid_wall[5];// = {WALL_Y0, WALL_X0, WALL_Y1, WALL_X1, WALL_Z0}; /* Pointer to array of grid walls */
-text_label title; // = EMPTY_LABELSTRUCT; /* 'set title' status */
+//text_label title; // = EMPTY_LABELSTRUCT; /* 'set title' status */
 // 'set timelabel' status 
-text_label timelabel; // = EMPTY_LABELSTRUCT;
-int    timelabel_bottom = TRUE;
-// flag for polar mode 
-bool   polar = FALSE;
-bool   inverted_raxis = FALSE;
-bool   spiderplot = FALSE; /* toggle spiderplot mode on/off */
-double zero = ZERO; // zero threshold, may _not_ be 0! 
+//text_label timelabel; // = EMPTY_LABELSTRUCT;
+//int    timelabel_bottom = TRUE;
+//double zero = ZERO; // zero threshold, may _not_ be 0! 
 // Status of 'set pointsize' and 'set pointintervalbox' commands 
-double pointsize = 1.0;
-double pointintervalbox = 1.0;
+//double pointsize = 1.0;
+//double pointintervalbox = 1.0;
 t_colorspec background_fill(TC_LT, LT_BACKGROUND, 0.0); // = BACKGROUND_COLORSPEC; /* used for filled points */
 //double boxwidth              = -1.0; /* box width (automatic) for plot style "with boxes" */
 //bool   boxwidth_is_absolute  = true; /* whether box width is absolute (default) or relative */
@@ -74,12 +70,20 @@ int    border_layer = LAYER_FRONT;
 lp_style_type border_lp(lp_style_type::defBorder); // = DEFAULT_BORDER_LP;
 const  lp_style_type default_border_lp(lp_style_type::defBorder); // = DEFAULT_BORDER_LP;
 const  lp_style_type background_lp(lp_style_type::defBkg); //= {0, LT_BACKGROUND, 0, DASHTYPE_SOLID, 0, 0, 1.0, 0.0, DEFAULT_P_CHAR, BACKGROUND_COLORSPEC, DEFAULT_DASHPATTERN};
-bool   cornerpoles = true;
+//bool   polar = false;
+//bool   inverted_raxis = false;
+//bool   spiderplot = false; // toggle spiderplot mode on/off 
+//bool   parametric = false;
+//bool   in_parametric = false;
+//bool   is_3d_plot = false; // If last plot was a 3d one. 
+//bool   volatile_data = false; // Flag to show that volatile input data is present 
+//bool   cornerpoles = true;
+//bool   prefer_line_styles = false; // Prefer line styles over plain line types 
 // set clip 
-bool   clip_lines1 = true;
-bool   clip_lines2 = false;
-bool   clip_points = false;
-bool   clip_radial = false;
+//bool   clip_lines1 = true;
+//bool   clip_lines2 = false;
+//bool   clip_points = false;
+//bool   clip_radial = false;
 
 //static int clip_line(int *, int *, int *, int *);
 
@@ -90,12 +94,8 @@ int    samples_2 = SAMPLES;
 double ang2rad = 1.0;           /* 1 or pi/180, tracking angles_format */
 enum PLOT_STYLE data_style = POINTSTYLE;
 enum PLOT_STYLE func_style = LINES;
-bool   parametric = false;
-bool   in_parametric = false;
-bool   is_3d_plot = false; /* If last plot was a 3d one. */
 TRefresh_Allowed refresh_ok = E_REFRESH_NOT_OK; /* Flag to signal that the existing data is valid for a quick refresh */
 int    refresh_nplots = 0; /* FIXME: do_plot should be able to figure this out on its own! */
-bool   volatile_data = false; /* Flag to show that volatile input data is present */
 fill_style_type default_fillstyle(FS_EMPTY, 100, 0); // = { FS_EMPTY, 100, 0, DEFAULT_COLORSPEC };
 // Default rectangle style - background fill, black border 
 GpObject default_rectangle(t_object::defRectangle);//= DEFAULT_RECTANGLE_STYLE;
@@ -104,7 +104,6 @@ GpObject default_ellipse(t_object::defEllipse);// = DEFAULT_ELLIPSE_STYLE;
 // filledcurves style options 
 filledcurves_opts filledcurves_opts_data = EMPTY_FILLEDCURVES_OPTS;
 filledcurves_opts filledcurves_opts_func = EMPTY_FILLEDCURVES_OPTS;
-bool   prefer_line_styles = false; /* Prefer line styles over plain line types */
 histogram_style histogram_opts; // = DEFAULT_HISTOGRAM_STYLE;
 boxplot_style boxplot_opts = DEFAULT_BOXPLOT_STYLE;
 int current_x11_windowid = 0; /* WINDOWID to be filled by terminals running on X11 (x11, wxt, qt, ...) */
@@ -148,11 +147,10 @@ int FASTCALL GpView::ClipPoint(int x, int y) const
 //int draw_clip_line(termentry * pTerm, int x1, int y1, int x2, int y2)
 int GnuPlot::DrawClipLine(termentry * pTerm, int x1, int y1, int x2, int y2)
 {
-	//struct termentry * t = term;
 	int state = V.ClipLine(&x1, &y1, &x2, &y2);
 	if(state != 0) {
-		(*pTerm->move)(x1, y1);
-		(*pTerm->vector)(x2, y2);
+		(pTerm->move)(x1, y1);
+		(pTerm->vector)(x2, y2);
 	}
 	return state;
 }
@@ -165,7 +163,6 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 	int i;
 	int x1, y1, x2, y2;
 	int pos1, pos2, clip_ret;
-	//struct termentry * t = term;
 	bool continuous = true;
 	if(points <= 1)
 		return;
@@ -175,7 +172,7 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 	y1 = p[0].y;
 	pos1 = GPO.V.ClipPoint(x1, y1);
 	if(!pos1) // move to first point if it is inside 
-		(*pTerm->move)(x1, y1);
+		(pTerm->move)(x1, y1);
 	newpath(pTerm);
 	for(i = 1; i < points; i++) {
 		x2 = p[i].x;
@@ -185,8 +182,8 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 		if(clip_ret) {
 			// there is a line to draw 
 			if(pos1) // first vertex was recalculated, move to new start point 
-				(*pTerm->move)(x1, y1);
-			(*pTerm->vector)(x2, y2);
+				(pTerm->move)(x1, y1);
+			(pTerm->vector)(x2, y2);
 		}
 		else {
 			continuous = false; // Path is not continuous; make sure closepath is not called 
@@ -212,7 +209,6 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 //void draw_clip_arrow(termentry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head)
 void GnuPlot::DrawClipArrow(termentry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head)
 {
-	//struct termentry * t = term;
 	int sx = GpAxis::MapRealToInt(dsx);
 	int sy = GpAxis::MapRealToInt(dsy);
 	int ex = GpAxis::MapRealToInt(dex);
@@ -614,9 +610,8 @@ outside:
 // Common routines for setting text or line color from t_colorspec 
 //
 //void apply_pm3dcolor(termentry * pTerm, t_colorspec * tc)
-void GnuPlot::ApplyPm3DColor(termentry * pTerm, t_colorspec * tc)
+void GnuPlot::ApplyPm3DColor(termentry * pTerm, const t_colorspec * tc)
 {
-	//struct termentry * t = term;
 	double cbval;
 	// V5 - term->linetype(LT_BLACK) would clobber the current	
 	// dashtype so instead we use term->set_color(black).	
@@ -624,7 +619,7 @@ void GnuPlot::ApplyPm3DColor(termentry * pTerm, t_colorspec * tc)
 	// Replace colorspec with that of the requested line style 
 	lp_style_type style;
 	if(tc->type == TC_LINESTYLE) {
-		lp_use_properties(&style, tc->lt);
+		lp_use_properties(pTerm, &style, tc->lt);
 		tc = &style.pm3d_color;
 	}
 	if(tc->type == TC_DEFAULT) {
@@ -729,27 +724,28 @@ void free_labels(struct text_label * label)
 	}
 }
 
-void get_offsets(text_label * this_label, int * htic, int * vtic)
+//void get_offsets(text_label * pLabel, int * pHTic, int * pVTic)
+void GnuPlot::GetOffsets(termentry * pTerm, text_label * pLabel, int * pHTic, int * pVTic)
 {
-	if((this_label->lp_properties.flags & LP_SHOW_POINTS)) {
-		*htic = static_cast<int>(pointsize * term->TicH * 0.5);
-		*vtic = static_cast<int>(pointsize * term->TicV * 0.5);
+	if((pLabel->lp_properties.flags & LP_SHOW_POINTS)) {
+		*pHTic = static_cast<int>(Gg.PointSize * pTerm->TicH * 0.5);
+		*pVTic = static_cast<int>(Gg.PointSize * pTerm->TicV * 0.5);
 	}
 	else {
-		*htic = 0;
-		*vtic = 0;
+		*pHTic = 0;
+		*pVTic = 0;
 	}
-	if(is_3d_plot) {
+	if(Gg.Is3DPlot) {
 		int htic2, vtic2;
-		GPO.Map3DPositionR(&(this_label->offset), &htic2, &vtic2, "get_offsets");
-		*htic += htic2;
-		*vtic += vtic2;
+		Map3DPositionR(pTerm, &pLabel->offset, &htic2, &vtic2, "get_offsets");
+		*pHTic += htic2;
+		*pVTic += vtic2;
 	}
 	else {
 		double htic2, vtic2;
-		GPO.MapPositionR(term, &(this_label->offset), &htic2, &vtic2, "get_offsets");
-		*htic += (int)htic2;
-		*vtic += (int)vtic2;
+		MapPositionR(pTerm, &(pLabel->offset), &htic2, &vtic2, "get_offsets");
+		*pHTic += (int)htic2;
+		*pVTic += (int)vtic2;
 	}
 }
 // 
@@ -779,7 +775,7 @@ void GnuPlot::WriteLabel(termentry * pTerm, int x, int y, text_label * pLabel)
 	}
 	else{
 		// A normal label (always print text) 
-		get_offsets(pLabel, &htic, &vtic);
+		GetOffsets(pTerm, pLabel, &htic, &vtic);
 		if(pLabel->boxed < 0)
 			textbox = &textbox_opts[0];
 		else if(pLabel->boxed > 0)
@@ -825,7 +821,7 @@ void GnuPlot::WriteLabel(termentry * pTerm, int x, int y, text_label * pLabel)
 	// write_multiline() clips text to on_page; do the same for any point 
 	if((pLabel->lp_properties.flags & LP_SHOW_POINTS) && on_page(x, y)) {
 		TermApplyLpProperties(pTerm, &pLabel->lp_properties);
-		(pTerm->point)(x, y, pLabel->lp_properties.p_type);
+		(pTerm->point)(x, y, pLabel->lp_properties.PtType);
 		// the default label color is that of border 
 		TermApplyLpProperties(pTerm, &border_lp);
 	}
@@ -865,18 +861,18 @@ int label_width(const char * str, int * lines)
 	}
 	return mlen;
 }
-/*
- * Here so that it can be shared by the 2D and 3D code
- */
+//
+// Here so that it can be shared by the 2D and 3D code
+//
 void do_timelabel(int x, int y)
 {
-	text_label temp = timelabel;
+	text_label temp = GPO.Gg.LblTime;
 	char str[MAX_LINE_LEN+1];
 	time_t now;
-	if(timelabel.rotate == 0 && !timelabel_bottom)
+	if(GPO.Gg.LblTime.rotate == 0 && !GPO.Gg.TimeLabelBottom)
 		y -= term->ChrV;
 	time(&now);
-	strftime(str, MAX_LINE_LEN, timelabel.text, localtime(&now));
+	strftime(str, MAX_LINE_LEN, GPO.Gg.LblTime.text, localtime(&now));
 	temp.text = str;
 	GPO.WriteLabel(term, x, y, &temp);
 }
@@ -937,9 +933,9 @@ bool pm3d_objects(void)
 //void place_title(int title_x, int title_y)
 void GnuPlot::PlaceTitle(termentry * pTerm, int titleX, int titleY)
 {
-	if(title.text) {
+	if(Gg.LblTitle.text) {
 		// NB: write_label applies text color but does not reset it 
-		WriteLabel(pTerm, titleX, titleY, &title);
-		ResetTextColor(pTerm, &title.textcolor);
+		WriteLabel(pTerm, titleX, titleY, &Gg.LblTitle);
+		ResetTextColor(pTerm, &Gg.LblTitle.textcolor);
 	}
 }

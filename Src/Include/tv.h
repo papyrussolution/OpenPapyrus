@@ -2219,7 +2219,7 @@ public:
 		float  Frame[4];
 		uint32 Flags;
 		uint32 Reserve;
-		SScroller * P_Scrlr;
+		//SScroller * P_Scrlr;
 	};
 	struct IndexEntry {
 		IndexEntry();

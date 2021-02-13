@@ -78,7 +78,7 @@
 #endif /* TERM_REGISTER */
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void FIG_options();
+TERM_PUBLIC void FIG_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void FIG_init(termentry * pThis);
 TERM_PUBLIC void FIG_graphics();
 TERM_PUBLIC void FIG_text();
@@ -96,7 +96,7 @@ TERM_PUBLIC void FIG_reset();
 TERM_PUBLIC void FIG_lpoint(uint x, uint y, int number);
 TERM_PUBLIC void FIG_boxfill(int style, uint x, uint y, uint w, uint h);
 TERM_PUBLIC int FIG_make_palette(t_sm_palette *);
-TERM_PUBLIC void FIG_set_color(t_colorspec *);
+TERM_PUBLIC void FIG_set_color(const t_colorspec *);
 TERM_PUBLIC void FIG_filled_polygon(int, gpiPoint *);
 TERM_PUBLIC void FIG_layer(t_termlayer syncpoint);
 //#endif // TERM_PROTO 
@@ -280,60 +280,60 @@ TERM_PUBLIC void FIG_options(TERMENTRY * pThis, GnuPlot * pGp)
 	float xsize_t = 0, ysize_t = 0;
 	char tmp_term_options[MAX_LINE_LEN+1] = "";
 	char text_flags[256]; /* for description only */
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&FIG_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&FIG_opts[0])) {
 			case FIG_MONOCHROME:
 			    FIG_use_color = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_SOLID:
 			case FIG_DASHED:
 			    // ignored 
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_COLOR:
 			    FIG_use_color = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_SMALL:
 			    FIG_width = 6000;
 			    FIG_height = 3600;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_BIG:
 			    FIG_width = 9600;
 			    FIG_height = 6000;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_NORMALTEXT:
 			    FIG_text_flags = FIG_TEXT_NORMAL;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_SPECIALTEXT:
 			    FIG_text_flags |= FIG_TEXT_SPECIAL;
 			    FIG_text_flags &= ~FIG_TEXT_POSTSCRIPT;
 			    FIG_font_id = 0;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_HIDDENTEXT:
 			    FIG_text_flags |= FIG_TEXT_HIDDEN;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_RIGIDTEXT:
 			    FIG_text_flags |= FIG_TEXT_RIGID;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_PORTRAIT:
 			    FIG_portrait = TRUE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_LANDSCAPE:
 			    FIG_portrait = FALSE;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    break;
 			case FIG_SIZE:
-			    GPO.Pgm.Shift();
-			    FIG_size_units = GPO.ParseTermSize(&xsize_t, &ysize_t, INCHES);
+			    pGp->Pgm.Shift();
+			    FIG_size_units = pGp->ParseTermSize(&xsize_t, &ysize_t, INCHES);
 			    FIG_width  = static_cast<int>(xsize_t * FIG_IRES/GpResolution);
 			    FIG_height = static_cast<int>(ysize_t * FIG_IRES/GpResolution);
 			    break;
@@ -341,9 +341,9 @@ TERM_PUBLIC void FIG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		    {
 			    char * fontname;
 			    int sep;
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand() || !((fontname = GPO.TryToGetString())))
-				    GPO.IntErrorCurToken("expecting font name");
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand() || !((fontname = pGp->TryToGetString())))
+				    pGp->IntErrorCurToken("expecting font name");
 			    sep = strcspn(fontname, ",");
 			    sscanf(&(fontname[sep+1]), "%d", &FIG_font_s);
 			    fontname[sep] = '\0';
@@ -354,32 +354,32 @@ TERM_PUBLIC void FIG_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    break;
 		    }
 			case FIG_FONTSIZE:
-			    GPO.Pgm.Shift();
-			    FIG_font_s = GPO.IntExpression();
+			    pGp->Pgm.Shift();
+			    FIG_font_s = pGp->IntExpression();
 			    break;
 			case FIG_THICKNESS:
-			    GPO.Pgm.Shift();
-			    if(GPO.Pgm.EndOfCommand()) {
-				    GPO.IntErrorCurToken("linewidth: number expected");
+			    pGp->Pgm.Shift();
+			    if(pGp->Pgm.EndOfCommand()) {
+				    pGp->IntErrorCurToken("linewidth: number expected");
 			    }
 			    else {
-				    FIG_linewidth_factor = GPO.RealExpression();
+				    FIG_linewidth_factor = pGp->RealExpression();
 				    if(!inrange(FIG_linewidth_factor, 0.1, 10.0)) {
-					    GPO.IntWarn(GPO.Pgm.GetPrevTokenIdx(), "linewidth out of range");
+					    pGp->IntWarn(pGp->Pgm.GetPrevTokenIdx(), "linewidth out of range");
 					    FIG_linewidth_factor = 1.0;
 				    }
 			    }
 			    break;
 			case FIG_DEPTH:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    // V5.3 - depth is now based on TERM_LAYER 
-			    GPO.IntExpression();
+			    pGp->IntExpression();
 			    break;
 			case FIG_OTHER:
 			default:
 			    parse_error = TRUE;
-			    GPO.IntWarn(GPO.Pgm.GetCurTokenIdx(), "unrecognized option");
-				GPO.Pgm.Shift();
+			    pGp->IntWarn(pGp->Pgm.GetCurTokenIdx(), "unrecognized option");
+				pGp->Pgm.Shift();
 			    break;
 		}
 	}
@@ -394,7 +394,7 @@ TERM_PUBLIC void FIG_options(TERMENTRY * pThis, GnuPlot * pGp)
 	    text_flags, "font", FIG_fonts[FIG_font_id].key, FIG_font_s, FIG_linewidth_factor);
 	/* Normalize and print size */
 	if(FIG_portrait && FIG_width > FIG_height) {
-		float tmp = FIG_width;
+		float tmp = static_cast<float>(FIG_width);
 		FIG_width = FIG_height;
 		FIG_height = static_cast<int>(tmp);
 	}
@@ -408,16 +408,16 @@ TERM_PUBLIC void FIG_options(TERMENTRY * pThis, GnuPlot * pGp)
 	else
 		sprintf(tmp_term_options, " size %.2fin, %.2fin ", (double)FIG_width/FIG_IRES, (double)FIG_height/FIG_IRES);
 	strncat(term_options, tmp_term_options, /*sizeof(term_options)*/(MAX_LINE_LEN+1)-strlen(term_options)-1);
-	term->MaxX = FIG_width;
-	term->MaxY = FIG_height;
-	term->TicV = FIG_VTIC;
-	term->TicH = FIG_HTIC;
+	pThis->MaxX = FIG_width;
+	pThis->MaxY = FIG_height;
+	pThis->TicV = FIG_VTIC;
+	pThis->TicH = FIG_HTIC;
 	// Empirical guess at font metrics 
-	term->ChrV = static_cast<uint>(FIG_font_s * FIG_IRES/72. * 0.75);
-	term->ChrH = static_cast<uint>(term->ChrV * 0.6);
+	pThis->ChrV = static_cast<uint>(FIG_font_s * FIG_IRES/72. * 0.75);
+	pThis->ChrH = static_cast<uint>(pThis->ChrV * 0.6);
 	FIG_thickness = static_cast<int>(FIG_linewidth_factor);
 	if(parse_error)
-		GPO.IntErrorCurToken("unrecognized option");
+		pGp->IntErrorCurToken("unrecognized option");
 }
 
 static void FIG_poly_clean(enum FIG_poly_stat fig_stat)
@@ -582,11 +582,11 @@ TERM_PUBLIC void FIG_linetype(int linetype)
 			    FIG_color = BLACK;
 		    break;
 		default:
-		    /* FIXME:  not sure when/if this is needed by the revised driver */
+		    // FIXME:  not sure when/if this is needed by the revised driver 
 		    if(FIG_use_color) {
 			    FIG_type = (linetype >= npscolors); /* dashed line */
 			    FIG_color = fig2pscolors[linetype % npscolors];
-			    FIG_spacing = (linetype / npscolors) * 3;
+			    FIG_spacing = static_cast<float>((linetype / npscolors) * 3);
 		    }
 		    else {      /* monochrome */
 			    FIG_dashtype(linetype, NULL);
@@ -932,7 +932,7 @@ TERM_PUBLIC int FIG_make_palette(t_sm_palette * palette)
 	return 0;
 }
 
-TERM_PUBLIC void FIG_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void FIG_set_color(const t_colorspec * colorspec)
 {
 	double gray = colorspec->value;
 	int new_color = FIG_color;

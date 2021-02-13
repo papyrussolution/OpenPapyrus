@@ -63,7 +63,7 @@ register_term(dospc)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PC_options();
+TERM_PUBLIC void PC_options(TERMENTRY * pThis, GnuPlot * pGp);
 TERM_PUBLIC void PC_init(termentry * pThis);
 TERM_PUBLIC void PC_graphics();
 TERM_PUBLIC void PC_text();
@@ -229,42 +229,42 @@ static struct gen_table pc_opts[] =
 	{ NULL, PC_INVALID }
 };
 
-TERM_PUBLIC void PC_options()
+TERM_PUBLIC void PC_options(TERMENTRY * pThis, GnuPlot * pGp)
 {
 	int i;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(pc_opts)) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(pc_opts)) {
 			case PC_ENH:
-			    GPO.Pgm.Shift();
-			    term->put_text = PC_enhanced_put_text;
-			    term->flags |= TERM_ENHANCED_TEXT;
+			    pGp->Pgm.Shift();
+			    pThis->put_text = PC_enhanced_put_text;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case PC_NOENH:
-			    GPO.Pgm.Shift();
-			    term->put_text = PC_put_text;
-			    term->flags &= ~TERM_ENHANCED_TEXT;
+			    pGp->Pgm.Shift();
+			    pThis->put_text = PC_put_text;
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case PC_LINEWIDTH:
-			    GPO.Pgm.Shift();
-			    pc_linewidth_scale =  GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    pc_linewidth_scale =  pGp->RealExpression();
 			    if(pc_linewidth_scale <= 0)
 				    pc_linewidth_scale = 1.0;
 			    break;
 			case PC_POINTSIZE:
-			    GPO.Pgm.Shift();
-			    pc_pointscale =  GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    pc_pointscale =  pGp->RealExpression();
 			    if(pc_pointscale <= 0)
 				    pc_pointscale = 1.0;
 			    break;
 			case PC_FONTSCALE:
-			    GPO.Pgm.Shift();
-			    pc_fontscale =  GPO.RealExpression();
+			    pGp->Pgm.Shift();
+			    pc_fontscale =  pGp->RealExpression();
 			    if(pc_fontscale <= 0)
 				    pc_fontscale = 1.0;
 			    break;
 			case PC_BACKGROUND: {
 			    long background;
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    background = parse_color_name();
 			    pc_background_rgb.r = (background >> 16) & 0xff;
 			    pc_background_rgb.g = (background >>  8) & 0xff;
@@ -272,12 +272,12 @@ TERM_PUBLIC void PC_options()
 			    break;
 		    }
 			default:
-			    GPO.IntErrorCurToken("unrecognized terminal option");
+			    pGp->IntErrorCurToken("unrecognized terminal option");
 			    break;
 		}
 	}
 	sprintf_s(term_options, sizeof(term_options), "%senhanced linewidth %.1f pointsize %.1f fontscale %.1f background \"#%02x%02x%02x\"",
-	    term->flags & TERM_ENHANCED_TEXT ? "" : "no", pc_linewidth_scale, pc_pointscale, pc_fontscale, pc_background_rgb.r, pc_background_rgb.g, pc_background_rgb.b);
+	    pThis->flags & TERM_ENHANCED_TEXT ? "" : "no", pc_linewidth_scale, pc_pointscale, pc_fontscale, pc_background_rgb.r, pc_background_rgb.g, pc_background_rgb.b);
 }
 
 static void PC_setup()

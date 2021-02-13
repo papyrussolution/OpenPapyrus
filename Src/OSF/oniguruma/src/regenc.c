@@ -62,7 +62,7 @@ static int enc_inited_entry(OnigEncoding enc)
 	return -1;
 }
 
-static int enc_is_inited(OnigEncoding enc)
+static int FASTCALL enc_is_inited(const OnigEncoding enc)
 {
 	for(int i = 0; i < InitedListNum; i++) {
 		if(InitedList[i].enc == enc) {
@@ -96,25 +96,21 @@ extern int onigenc_end(void)
 extern int onig_initialize_encoding(OnigEncoding enc)
 {
 	int r;
-
-	if(enc != ONIG_ENCODING_ASCII &&
-	    ONIGENC_IS_ASCII_COMPATIBLE_ENCODING(enc)) {
+	if(enc != ONIG_ENCODING_ASCII && ONIGENC_IS_ASCII_COMPATIBLE_ENCODING(enc)) {
 		OnigEncoding ascii = ONIG_ENCODING_ASCII;
 		if(ascii->init != 0 && enc_is_inited(ascii) == 0) {
 			r = ascii->init();
-			if(r != ONIG_NORMAL) return r;
+			if(r != ONIG_NORMAL) 
+				return r;
 			enc_inited_entry(ascii);
 		}
 	}
-
-	if(enc->init != 0 &&
-	    enc_is_inited(enc) == 0) {
+	if(enc->init != 0 && enc_is_inited(enc) == 0) {
 		r = (enc->init)();
 		if(r == ONIG_NORMAL)
 			enc_inited_entry(enc);
 		return r;
 	}
-
 	return 0;
 }
 
@@ -155,9 +151,9 @@ extern uchar * onigenc_get_right_adjust_char_head_with_prev(OnigEncoding enc,
     const uchar * start, const uchar * s, const uchar ** prev)
 {
 	uchar * p = ONIGENC_LEFT_ADJUST_CHAR_HEAD(enc, start, s);
-
 	if(p < s) {
-		if(prev) *prev = (const uchar *)p;
+		if(prev) 
+			*prev = (const uchar *)p;
 		p += enclen(enc, p);
 	}
 	else {
@@ -171,7 +167,6 @@ extern uchar * onigenc_get_prev_char_head(OnigEncoding enc, const uchar * start,
 {
 	if(s <= start)
 		return (uchar *)NULL;
-
 	return ONIGENC_LEFT_ADJUST_CHAR_HEAD(enc, start, s - 1);
 }
 
@@ -180,7 +175,6 @@ extern uchar * onigenc_step_back(OnigEncoding enc, const uchar * start, const uc
 	while(ONIG_IS_NOT_NULL(s) && n-- > 0) {
 		if(s <= start)
 			return (uchar *)NULL;
-
 		s = ONIGENC_LEFT_ADJUST_CHAR_HEAD(enc, start, s - 1);
 	}
 	return (uchar *)s;
@@ -198,8 +192,7 @@ extern uchar * onigenc_step(OnigEncoding enc, const uchar * p, const uchar * end
 extern int onigenc_strlen(OnigEncoding enc, const uchar * p, const uchar * end)
 {
 	int n = 0;
-	uchar * q = (uchar *)p;
-
+	const uchar * q = p;
 	while(q < end) {
 		q += ONIGENC_MBC_ENC_LEN(enc, q);
 		n++;

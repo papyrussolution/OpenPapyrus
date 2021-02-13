@@ -176,9 +176,7 @@ TERM_PUBLIC void AI_options()
 			    break;
 		}
 	}
-
-	sprintf(term_options, "%s \"%s\" %d",
-	    ai_color ? "color" : "monochrome", ai_font, ai_fontsize);
+	sprintf(term_options, "%s \"%s\" %d", ai_color ? "color" : "monochrome", ai_font, ai_fontsize);
 }
 
 TERM_PUBLIC

@@ -71,16 +71,6 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-/* in order to support multiple axes, and to simplify ranging in
- * parametric plots, we use arrays to store some things. For 2d plots,
- * elements are z=0,y1=1,x1=2,z2=4,y2=5,x2=6 these are given symbolic
- * names in plot.h
- */
-
-#define spline_coeff_size 4
-typedef double spline_coeff[spline_coeff_size];
-typedef double five_diag[5];
-
 static int next_curve(curve_points * plot, int * curve_start);
 static int num_curves(curve_points * plot);
 static double eval_kdensity(curve_points * cp, int first_point, int num_points, double x);
@@ -90,10 +80,10 @@ static void eval_bezier(curve_points * cp, int first_point, int num_points, doub
     coordval * py, coordval * py2, double * c);
 //static void do_bezier(curve_points * cp, double * bc, int first_point, int num_points, GpCoordinate * dest);
 static int solve_tri_diag(tri_diag m[], double r[], double x[], int n);
-static int solve_five_diag(five_diag m[], double r[], double x[], int n);
-static spline_coeff * cp_approx_spline(GpCoordinate * first_point, int num_points, int path_dim, int spline_dim, int w_dim);
-static spline_coeff * cp_tridiag(GpCoordinate * first_point, int num_points, int path_dim, int spline_dim);
-//static void do_cubic(curve_points * plot, spline_coeff * sc, spline_coeff * sc2,
+static int solve_five_diag(GpFiveDiag m[], double r[], double x[], int n);
+static GpSplineCoeff * cp_approx_spline(GpCoordinate * first_point, int num_points, int path_dim, int spline_dim, int w_dim);
+static GpSplineCoeff * cp_tridiag(GpCoordinate * first_point, int num_points, int path_dim, int spline_dim);
+//static void do_cubic(curve_points * plot, GpSplineCoeff * sc, GpSplineCoeff * sc2,
     //int first_point, int num_points, GpCoordinate * dest);
 static void do_freq(curve_points * plot,  int first_point, int num_points);
 static int do_curve_cleanup(GpCoordinate * point, int npoints);
@@ -351,10 +341,10 @@ void GnuPlot::DoBezier(curve_points * cp, double * bc/* Bezier coefficient array
  * \                           m(n-3)0 m(n-2)1 m(n-1)2 /   \x(n-1)/   \r(n-1)/
  *
  */
-static int solve_five_diag(five_diag m[], double r[], double x[], int n)
+static int solve_five_diag(GpFiveDiag m[], double r[], double x[], int n)
 {
 	int i;
-	five_diag * hv = (five_diag *)gp_alloc((n + 1) * sizeof(five_diag), "five_diag help vars");
+	GpFiveDiag * hv = (GpFiveDiag *)gp_alloc((n + 1) * sizeof(GpFiveDiag), "GpFiveDiag help vars");
 	hv[0][0] = m[0][2];
 	if(hv[0][0] == 0) {
 		SAlloc::F(hv);
@@ -408,10 +398,10 @@ static int solve_five_diag(five_diag m[], double r[], double x[], int n)
  *                given control variable indexed by path_dim
  *                weights indexed by w_dim
  */
-static spline_coeff * cp_approx_spline(GpCoordinate * points, int num_points, int path_dim, int spline_dim, int w_dim)
+static GpSplineCoeff * cp_approx_spline(GpCoordinate * points, int num_points, int path_dim, int spline_dim, int w_dim)
 {
-	spline_coeff * sc;
-	five_diag * m;
+	GpSplineCoeff * sc;
+	GpFiveDiag * m;
 	double * r, * x, * h, * xp, * yp;
 	int i;
 	// Define an overlay onto GpCoordinate that lets us select whichever
@@ -427,8 +417,8 @@ static spline_coeff * cp_approx_spline(GpCoordinate * points, int num_points, in
 	for(i = 0; i < num_points; i++)
 		if(this_point[i].dimension[w_dim] <= 0)
 			GPO.IntError(NO_CARET, "Can't calculate approximation splines, all weights have to be > 0");
-	sc = (spline_coeff *)gp_alloc((num_points) * sizeof(spline_coeff), "spline matrix");
-	m = (five_diag *)gp_alloc((num_points - 2) * sizeof(five_diag), "spline help matrix");
+	sc = (GpSplineCoeff *)gp_alloc((num_points) * sizeof(GpSplineCoeff), "spline matrix");
+	m = (GpFiveDiag *)gp_alloc((num_points - 2) * sizeof(GpFiveDiag), "spline help matrix");
 	r = (double *)gp_alloc((num_points - 2) * sizeof(double), "spline right side");
 	x = (double *)gp_alloc((num_points - 2) * sizeof(double), "spline solution vector");
 	h = (double *)gp_alloc((num_points - 1) * sizeof(double), "spline help vector");
@@ -525,9 +515,9 @@ static spline_coeff * cp_approx_spline(GpCoordinate * points, int num_points, in
  *      cp_tridiag(points, n, PATHCOORD, 0)
  *
  */
-static spline_coeff * cp_tridiag(GpCoordinate * points, int num_points, int path_dim, int spline_dim)
+static GpSplineCoeff * cp_tridiag(GpCoordinate * points, int num_points, int path_dim, int spline_dim)
 {
-	spline_coeff * sc;
+	GpSplineCoeff * sc;
 	tri_diag * m;
 	double * r, * x, * h, * xp, * yp;
 	int i;
@@ -542,7 +532,7 @@ static spline_coeff * cp_tridiag(GpCoordinate * points, int num_points, int path
 	if(num_points < 3)
 		GPO.IntError(NO_CARET, "Can't calculate splines, need at least 3 points");
 	this_point = (struct gen_coord *)(points);
-	sc = (spline_coeff *)gp_alloc((num_points) * sizeof(spline_coeff), "spline matrix");
+	sc = (GpSplineCoeff *)gp_alloc((num_points) * sizeof(GpSplineCoeff), "spline matrix");
 	m = (tri_diag *)gp_alloc((num_points - 2) * sizeof(tri_diag), "spline help matrix");
 	r = (double *)gp_alloc((num_points - 2) * sizeof(double), "spline right side");
 	x = (double *)gp_alloc((num_points - 2) * sizeof(double), "spline solution vector");
@@ -654,17 +644,21 @@ void gen_interp_unwrap(curve_points * plot)
 	}
 }
 
-static void do_cubic(curve_points * pPlot/* still contains old plot->points */,
-    spline_coeff * sc/* generated by cp_tridiag */, spline_coeff * sc2/* optional spline for yhigh */,
-    int first_point/* where to start in plot->points */, int num_points/* to determine end in plot->points */,
-    GpCoordinate * dest/* where to put the interpolated data */)
+//static void do_cubic(curve_points * pPlot/* still contains old plot->points */,
+    //GpSplineCoeff * sc/* generated by cp_tridiag */, GpSplineCoeff * sc2/* optional spline for yhigh */,
+    //int first_point/* where to start in plot->points */, int num_points/* to determine end in plot->points */,
+    //GpCoordinate * dest/* where to put the interpolated data */)
+void GnuPlot::DoCubic(curve_points * pPlot/* still contains old plot->points */,
+	GpSplineCoeff * sc/* generated by cp_tridiag */, GpSplineCoeff * sc2/* optional spline for yhigh */,
+	int first_point/* where to start in plot->points */, int num_points/* to determine end in plot->points */,
+	GpCoordinate * dest/* where to put the interpolated data */)
 {
 	double xdiff, temp, x, y;
 	double xstart, xend;    /* Endpoints of the sampled x range */
 	int i, l;
 	GpCoordinate * this_points;
-	GPO.AxS.Idx_X = pPlot->AxIdx_X;
-	GPO.AxS.Idx_Y = pPlot->AxIdx_Y;
+	AxS.Idx_X = pPlot->AxIdx_X;
+	AxS.Idx_Y = pPlot->AxIdx_Y;
 	this_points = (pPlot->points) + first_point;
 	l = 0;
 	// HBB 20010727: Sample only across the actual x range, not the full range of input data 
@@ -672,8 +666,8 @@ static void do_cubic(curve_points * pPlot/* still contains old plot->points */,
 	xstart = this_points[0].x;
 	xend = this_points[num_points - 1].x;
 #else
-	xstart = MAX(this_points[0].x, GPO.AxS.__X().min);
-	xend = MIN(this_points[num_points - 1].x, GPO.AxS.__X().max);
+	xstart = MAX(this_points[0].x, AxS.__X().min);
+	xend = MIN(this_points[num_points - 1].x, AxS.__X().max);
 	if(xstart >= xend) {
 		// This entire segment lies outside the current x range. 
 		for(i = 0; i < samples_1; i++)
@@ -691,8 +685,8 @@ static void do_cubic(curve_points * pPlot/* still contains old plot->points */,
 		// Evaluate cubic spline polynomial 
 		y = ((sc[l][3] * temp + sc[l][2]) * temp + sc[l][1]) * temp + sc[l][0];
 		dest[i].type = INRANGE;
-		store_and_update_range(&dest[i].x, x, &dest[i].type, &GPO.AxS.__X(), GPO.AxS.__X().autoscale);
-		store_and_update_range(&dest[i].y, y, &dest[i].type, &GPO.AxS.__Y(), GPO.AxS.__Y().autoscale);
+		store_and_update_range(&dest[i].x, x, &dest[i].type, &AxS.__X(), AxS.__X().autoscale);
+		store_and_update_range(&dest[i].y, y, &dest[i].type, &AxS.__Y(), AxS.__Y().autoscale);
 		dest[i].xlow = dest[i].xhigh = dest[i].x;
 		dest[i].ylow = dest[i].yhigh = dest[i].y;
 		dest[i].z = -1;
@@ -799,8 +793,8 @@ void gen_interp_frequency(curve_points * pPlot)
 //void gen_interp(curve_points * pPlot)
 void GnuPlot::GenInterp(curve_points * pPlot)
 {
-	spline_coeff * sc = NULL;
-	spline_coeff * sc2 = NULL;
+	GpSplineCoeff * sc = NULL;
+	GpSplineCoeff * sc2 = NULL;
 	double * bc;
 	int i;
 	int num_points;
@@ -816,7 +810,7 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 			    sc = cp_tridiag(&pPlot->points[first_point], num_points, 0, 1);
 			    if(pPlot->plot_style == FILLEDCURVES && oneof3(pPlot->filledcurves_options.closeto, FILLEDCURVES_BETWEEN, FILLEDCURVES_ABOVE, FILLEDCURVES_BELOW))
 				    sc2 = cp_tridiag(&pPlot->points[first_point], num_points, 0, 4);
-			    do_cubic(pPlot, sc, sc2, first_point, num_points,
+			    DoCubic(pPlot, sc, sc2, first_point, num_points,
 				new_points + i * (samples_1 + 1));
 			    SAlloc::F(sc);
 			    SAlloc::F(sc2);
@@ -826,7 +820,7 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 			    sc = cp_approx_spline(&pPlot->points[first_point], num_points, 0, 1, 2);
 			    if(pPlot->plot_style == FILLEDCURVES && oneof3(pPlot->filledcurves_options.closeto, FILLEDCURVES_BETWEEN, FILLEDCURVES_ABOVE, FILLEDCURVES_BELOW))
 				    sc2 = cp_approx_spline(&pPlot->points[first_point], num_points, 0, 4, 2);
-			    do_cubic(pPlot, sc, sc2, first_point, num_points,
+			    DoCubic(pPlot, sc, sc2, first_point, num_points,
 				new_points + i * (samples_1 + 1));
 			    SAlloc::F(sc);
 			    SAlloc::F(sc2);
@@ -1261,9 +1255,9 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 	double dx, dy, dz;
 	double maxdx, maxdy, maxdz;
 	double t, tsum, tstep;
-	spline_coeff * sc_x = NULL;
-	spline_coeff * sc_y = NULL;
-	spline_coeff * sc_z = NULL;
+	GpSplineCoeff * sc_x = NULL;
+	GpSplineCoeff * sc_y = NULL;
+	GpSplineCoeff * sc_z = NULL;
 	GpCoordinate * old_points = pCurve->points;
 	/*
 	 * Sanity check axis ranges.
@@ -1420,8 +1414,8 @@ void gen_2d_path_splines(curve_points * plot)
 	int is = 0;             /* index for new (splined) data */
 	GpCoordinate * old_points = NULL;
 	GpCoordinate * splined_points;
-	spline_coeff * sc_x = NULL;
-	spline_coeff * sc_y = NULL;
+	GpSplineCoeff * sc_x = NULL;
+	GpSplineCoeff * sc_y = NULL;
 	const double xrange = fabs(GPO.AxS[plot->AxIdx_X].max - GPO.AxS[plot->AxIdx_X].min);
 	const double yrange = fabs(GPO.AxS[plot->AxIdx_Y].max - GPO.AxS[plot->AxIdx_Y].min);
 	const int curves = num_curves(plot);

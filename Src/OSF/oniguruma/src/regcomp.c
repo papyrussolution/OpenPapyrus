@@ -175,12 +175,13 @@ static int ops_expand(regex_t* reg, int n)
 	return ONIG_NORMAL;
 }
 
-static int ops_new(regex_t* reg)
+static int FASTCALL ops_new(regex_t * reg)
 {
 	int r;
 	if(reg->ops_used >= reg->ops_alloc) {
 		r = ops_expand(reg, reg->ops_alloc);
-		if(r != ONIG_NORMAL) return r;
+		if(r != ONIG_NORMAL) 
+			return r;
 	}
 	reg->ops_curr = reg->ops + reg->ops_used;
 	reg->ops_used++;
@@ -410,7 +411,7 @@ static int node_list_len(Node* list)
 	return len;
 }
 
-static Node* node_list_add(Node* list, Node* x)
+static Node * node_list_add(Node * list, Node * x)
 {
 	Node * n = onig_node_new_list(x, NULL);
 	if(IS_NULL(n)) 
@@ -449,7 +450,7 @@ static void node_conv_to_str_node(Node* node, Node* ref_node)
 	STR_(node)->capacity = 0;
 }
 
-static OnigLen distance_add(OnigLen d1, OnigLen d2)
+static OnigLen FASTCALL distance_add(OnigLen d1, OnigLen d2)
 {
 	if(d1 == INFINITE_LEN || d2 == INFINITE_LEN)
 		return INFINITE_LEN;
@@ -459,7 +460,7 @@ static OnigLen distance_add(OnigLen d1, OnigLen d2)
 		return INFINITE_LEN;
 }
 
-static OnigLen distance_multiply(OnigLen d, int m)
+static OnigLen FASTCALL distance_multiply(OnigLen d, int m)
 {
 	if(m == 0) 
 		return 0;
@@ -469,7 +470,7 @@ static OnigLen distance_multiply(OnigLen d, int m)
 		return INFINITE_LEN;
 }
 
-static int bitset_is_empty(BitSetRef bs)
+static int FASTCALL bitset_is_empty(const BitSetRef bs)
 {
 	for(int i = 0; i < (int)BITSET_REAL_SIZE; i++) {
 		if(bs[i] != 0) 
@@ -490,7 +491,7 @@ static int unset_addr_list_init(UnsetAddrList* list, int size)
 	return 0;
 }
 
-static void unset_addr_list_end(UnsetAddrList* list)
+static void FASTCALL unset_addr_list_end(UnsetAddrList * list)
 {
 	if(IS_NOT_NULL(list->us))
 		SAlloc::F(list->us);
@@ -500,7 +501,6 @@ static int unset_addr_list_add(UnsetAddrList* list, int offset, struct _Node* no
 {
 	UnsetAddr* p;
 	int size;
-
 	if(list->num >= list->alloc) {
 		size = list->alloc * 2;
 		p = (UnsetAddr*)SAlloc::R(list->us, sizeof(UnsetAddr) * size);
@@ -508,7 +508,6 @@ static int unset_addr_list_add(UnsetAddrList* list, int offset, struct _Node* no
 		list->alloc = size;
 		list->us    = p;
 	}
-
 	list->us[list->num].offset = offset;
 	list->us[list->num].target = node;
 	list->num++;
@@ -522,12 +521,12 @@ enum CharLenReturnType {
 	CHAR_LEN_TOP_ALT_FIXED = 1
 };
 
-static int mmcl_fixed(MinMaxCharLen* c)
+static int FASTCALL mmcl_fixed(const MinMaxCharLen * c)
 {
 	return (c->min == c->max && c->min != INFINITE_LEN);
 }
 
-static void mmcl_set(MinMaxCharLen* l, OnigLen len)
+static void FASTCALL mmcl_set(MinMaxCharLen * l, OnigLen len)
 {
 	l->min = len;
 	l->max = len;
@@ -541,15 +540,14 @@ static void mmcl_set_min_max(MinMaxCharLen* l, OnigLen min, OnigLen max, int min
 	l->min_is_sure = min_is_sure;
 }
 
-static void mmcl_add(MinMaxCharLen* to, MinMaxCharLen* add)
+static void FASTCALL mmcl_add(MinMaxCharLen* to, const MinMaxCharLen* add)
 {
 	to->min = distance_add(to->min, add->min);
 	to->max = distance_add(to->max, add->max);
-
 	to->min_is_sure = add->min_is_sure != FALSE && to->min_is_sure != FALSE;
 }
 
-static void mmcl_multiply(MinMaxCharLen* to, int m)
+static void FASTCALL mmcl_multiply(MinMaxCharLen* to, int m)
 {
 	to->min = distance_multiply(to->min, m);
 	to->max = distance_multiply(to->max, m);
@@ -565,7 +563,7 @@ static void mmcl_repeat_range_multiply(MinMaxCharLen* to, int mlow, int mhigh)
 		to->max = distance_multiply(to->max, mhigh);
 }
 
-static void mmcl_alt_merge(MinMaxCharLen* to, MinMaxCharLen* alt)
+static void FASTCALL mmcl_alt_merge(MinMaxCharLen* to, const MinMaxCharLen * alt)
 {
 	if(to->min > alt->min) {
 		to->min         = alt->min;
@@ -575,11 +573,11 @@ static void mmcl_alt_merge(MinMaxCharLen* to, MinMaxCharLen* alt)
 		if(alt->min_is_sure != FALSE)
 			to->min_is_sure = TRUE;
 	}
-
-	if(to->max < alt->max) to->max = alt->max;
+	if(to->max < alt->max) 
+		to->max = alt->max;
 }
 
-static int mml_is_equal(MinMaxLen* a, MinMaxLen* b)
+static int FASTCALL mml_is_equal(const MinMaxLen * a, const MinMaxLen * b)
 {
 	return a->min == b->min && a->max == b->max;
 }
@@ -590,27 +588,29 @@ static void mml_set_min_max(MinMaxLen* l, OnigLen min, OnigLen max)
 	l->max = max;
 }
 
-static void mml_clear(MinMaxLen* l)
+static void FASTCALL mml_clear(MinMaxLen * l)
 {
 	l->min = l->max = 0;
 }
 
-static void mml_copy(MinMaxLen* to, MinMaxLen* from)
+static void FASTCALL mml_copy(MinMaxLen * to, const MinMaxLen * from)
 {
 	to->min = from->min;
 	to->max = from->max;
 }
 
-static void mml_add(MinMaxLen* to, MinMaxLen* add)
+static void FASTCALL mml_add(MinMaxLen* to, const MinMaxLen* add)
 {
 	to->min = distance_add(to->min, add->min);
 	to->max = distance_add(to->max, add->max);
 }
 
-static void mml_alt_merge(MinMaxLen* to, MinMaxLen* alt)
+static void FASTCALL mml_alt_merge(MinMaxLen * to, const MinMaxLen * alt)
 {
-	if(to->min > alt->min) to->min = alt->min;
-	if(to->max < alt->max) to->max = alt->max;
+	if(to->min > alt->min) 
+		to->min = alt->min;
+	if(to->max < alt->max) 
+		to->max = alt->max;
 }
 
 /* fixed size pattern node only */
@@ -639,29 +639,28 @@ static int node_char_len1(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* 
 		case NODE_ALT:
 	    {
 		    int fixed;
-
 		    r = node_char_len1(NODE_CAR(node), reg, ci, env, level);
-		    if(r < 0) break;
-
+		    if(r < 0) 
+				break;
 		    fixed = TRUE;
 		    while(IS_NOT_NULL(node = NODE_CDR(node))) {
 			    r = node_char_len1(NODE_CAR(node), reg, &tci, env, level);
-			    if(r < 0) break;
+			    if(r < 0) 
+					break;
 			    if(!mmcl_fixed(&tci))
 				    fixed = FALSE;
 			    mmcl_alt_merge(ci, &tci);
 		    }
-		    if(r < 0) break;
-
+		    if(r < 0) 
+				break;
 		    r = CHAR_LEN_NORMAL;
-		    if(mmcl_fixed(ci)) break;
-
+		    if(mmcl_fixed(ci)) 
+				break;
 		    if(fixed == TRUE && level == 1) {
 			    r = CHAR_LEN_TOP_ALT_FIXED;
 		    }
 	    }
 	    break;
-
 		case NODE_STRING:
 	    {
 		    OnigLen clen;
@@ -693,7 +692,8 @@ static int node_char_len1(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* 
 			    }
 			    else {
 				    r = node_char_len1(NODE_BODY(node), reg, ci, env, level);
-				    if(r < 0) break;
+				    if(r < 0) 
+						break;
 				    mmcl_multiply(ci, qn->lower);
 			    }
 		    }
@@ -833,10 +833,11 @@ static int node_char_len(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* e
 	return node_char_len1(node, reg, ci, env, 0);
 }
 
-static int add_op(regex_t* reg, int opcode)
+static int FASTCALL add_op(regex_t * reg, int opcode)
 {
 	int r = ops_new(reg);
-	if(r != ONIG_NORMAL) return r;
+	if(r != ONIG_NORMAL) 
+		return r;
 #ifdef USE_DIRECT_THREADED_CODE
 	*(reg->ocs + (reg->ops_curr - reg->ops)) = opcode;
 #else
@@ -845,8 +846,8 @@ static int add_op(regex_t* reg, int opcode)
 	return 0;
 }
 
-static int compile_length_tree(Node* node, regex_t* reg);
-static int compile_tree(Node* node, regex_t* reg, ScanEnv* env);
+static int FASTCALL compile_length_tree(Node * node, regex_t * reg);
+static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env);
 
 #define IS_NEED_STR_LEN_OP(op) ((op) == OP_STR_N    || (op) == OP_STR_MB2N || (op) == OP_STR_MB3N || (op) == OP_STR_MBN)
 
@@ -918,7 +919,8 @@ static int compile_quant_body_with_empty_check(QuantNode* qn, regex_t* reg, Scan
 		else if(emptiness == BODY_MAY_BE_EMPTY_MEM) {
 			if(NODE_IS_EMPTY_STATUS_CHECK(qn) != 0 && qn->empty_status_mem != 0) {
 				r = add_op(reg, OP_EMPTY_CHECK_END_MEMST);
-				if(r != 0) return r;
+				if(r != 0) 
+					return r;
 				COP(reg)->empty_check_end.empty_status_mem = qn->empty_status_mem;
 			}
 			else
@@ -927,11 +929,11 @@ static int compile_quant_body_with_empty_check(QuantNode* qn, regex_t* reg, Scan
 #ifdef USE_CALL
 		else if(emptiness == BODY_MAY_BE_EMPTY_REC) {
 			r = add_op(reg, OP_EMPTY_CHECK_END_MEMST_PUSH);
-			if(r != 0) return r;
+			if(r != 0) 
+				return r;
 			COP(reg)->empty_check_end.empty_status_mem = qn->empty_status_mem;
 		}
 #endif
-
 		if(r != 0) return r;
 		COP(reg)->empty_check_end.mem = saved_num_empty_check; /* NULL CHECK ID */
 	}
@@ -1105,7 +1107,7 @@ static int compile_cclass_node(CClassNode* cc, regex_t* reg)
 		xmemcpy(COP(reg)->cclass.bsp, cc->bs, SIZE_BITSET);
 	}
 	else {
-		void* p;
+		void * p;
 		if(ONIGENC_MBC_MINLEN(reg->enc) > 1 || bitset_is_empty(cc->bs)) {
 			r = add_op(reg, IS_NCCLASS_NOT(cc) ? OP_CCLASS_MB_NOT : OP_CCLASS_MB);
 			if(r != 0) 
@@ -2209,7 +2211,7 @@ static int compile_length_gimmick_node(GimmickNode* node, regex_t* reg)
 	return len;
 }
 
-static int compile_length_tree(Node* node, regex_t* reg)
+static int FASTCALL compile_length_tree(Node * node, regex_t * reg)
 {
 	int len, r;
 	switch(NODE_TYPE(node)) {
@@ -2255,7 +2257,7 @@ static int compile_length_tree(Node* node, regex_t* reg)
 	return r;
 }
 
-static int compile_tree(Node* node, regex_t* reg, ScanEnv* env)
+static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env)
 {
 	int n, len, pos, r = 0;
 	switch(NODE_TYPE(node)) {
@@ -2281,7 +2283,8 @@ static int compile_tree(Node* node, regex_t* reg, ScanEnv* env)
 			    if(IS_NOT_NULL(NODE_CDR(node))) {
 				    enum OpCode push = NODE_IS_SUPER(node) ? OP_PUSH_SUPER : OP_PUSH;
 				    r = add_op(reg, push);
-				    if(r != 0) break;
+				    if(r != 0) 
+						break;
 				    COP(reg)->push.addr = SIZE_INC + len + OPSIZE_JUMP;
 			    }
 			    r = compile_tree(NODE_CAR(node), reg, env);
@@ -2289,7 +2292,8 @@ static int compile_tree(Node* node, regex_t* reg, ScanEnv* env)
 			    if(IS_NOT_NULL(NODE_CDR(node))) {
 				    len = pos - (COP_CURR_OFFSET(reg) + 1);
 				    r = add_op(reg, OP_JUMP);
-				    if(r != 0) break;
+				    if(r != 0) 
+						break;
 				    COP(reg)->jump.addr = len;
 			    }
 		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
@@ -2333,7 +2337,8 @@ static int compile_tree(Node* node, regex_t* reg, ScanEnv* env)
 #ifdef USE_BACKREF_WITH_LEVEL
 			    if(NODE_IS_NEST_LEVEL(node)) {
 				    r = add_op(reg, OP_BACKREF_CHECK_WITH_LEVEL);
-				    if(r != 0) return r;
+				    if(r != 0) 
+						return r;
 				    COP(reg)->backref_general.nest_level = br->nest_level;
 			    }
 			    else
@@ -4835,45 +4840,34 @@ __inline
 #endif
 static int check_call_reference(CallNode* cn, ScanEnv* env, int state)
 {
-	MemEnv* mem_env = SCANENV_MEMENV(env);
-
+	MemEnv * mem_env = SCANENV_MEMENV(env);
 	if(cn->by_number != 0) {
 		int gnum = cn->called_gnum;
-
-		if(env->num_named > 0 &&
-		    IS_SYNTAX_BV(env->syntax, ONIG_SYN_CAPTURE_ONLY_NAMED_GROUP) &&
-		    !OPTON_CAPTURE_GROUP(env->options)) {
+		if(env->num_named > 0 && IS_SYNTAX_BV(env->syntax, ONIG_SYN_CAPTURE_ONLY_NAMED_GROUP) && !OPTON_CAPTURE_GROUP(env->options)) {
 			return ONIGERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED;
 		}
-
 		if(gnum > env->num_mem) {
-			onig_scan_env_set_error_string(env, ONIGERR_UNDEFINED_GROUP_REFERENCE,
-			    cn->name, cn->name_end);
+			onig_scan_env_set_error_string(env, ONIGERR_UNDEFINED_GROUP_REFERENCE, cn->name, cn->name_end);
 			return ONIGERR_UNDEFINED_GROUP_REFERENCE;
 		}
 
 set_call_attr:
 		NODE_CALL_BODY(cn) = mem_env[cn->called_gnum].mem_node;
 		if(IS_NULL(NODE_CALL_BODY(cn))) {
-			onig_scan_env_set_error_string(env, ONIGERR_UNDEFINED_NAME_REFERENCE,
-			    cn->name, cn->name_end);
+			onig_scan_env_set_error_string(env, ONIGERR_UNDEFINED_NAME_REFERENCE, cn->name, cn->name_end);
 			return ONIGERR_UNDEFINED_NAME_REFERENCE;
 		}
-
 		NODE_STATUS_ADD(NODE_CALL_BODY(cn), REFERENCED);
 	}
 	else {
 		int * refs;
-
 		int n = onig_name_to_group_numbers(env->reg, cn->name, cn->name_end, &refs);
 		if(n <= 0) {
-			onig_scan_env_set_error_string(env, ONIGERR_UNDEFINED_NAME_REFERENCE,
-			    cn->name, cn->name_end);
+			onig_scan_env_set_error_string(env, ONIGERR_UNDEFINED_NAME_REFERENCE, cn->name, cn->name_end);
 			return ONIGERR_UNDEFINED_NAME_REFERENCE;
 		}
 		else if(n > 1) {
-			onig_scan_env_set_error_string(env, ONIGERR_MULTIPLEX_DEFINITION_NAME_CALL,
-			    cn->name, cn->name_end);
+			onig_scan_env_set_error_string(env, ONIGERR_MULTIPLEX_DEFINITION_NAME_CALL, cn->name, cn->name_end);
 			return ONIGERR_MULTIPLEX_DEFINITION_NAME_CALL;
 		}
 		else {
@@ -4881,7 +4875,6 @@ set_call_attr:
 			goto set_call_attr;
 		}
 	}
-
 	return 0;
 }
 
@@ -4894,20 +4887,16 @@ static void tune_call2_call(Node* node)
 			    tune_call2_call(NODE_CAR(node));
 		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_QUANT:
 		    tune_call2_call(NODE_BODY(node));
 		    break;
-
 		case NODE_ANCHOR:
 		    if(ANCHOR_HAS_BODY(ANCHOR_(node)))
 			    tune_call2_call(NODE_BODY(node));
 		    break;
-
 		case NODE_BAG:
 	    {
 		    BagNode* en = BAG_(node);
-
 		    if(en->type == BAG_MEMORY) {
 			    if(!NODE_IS_MARK1(node)) {
 				    NODE_STATUS_ADD(node, MARK1);
@@ -4927,16 +4916,13 @@ static void tune_call2_call(Node* node)
 		    }
 	    }
 	    break;
-
 		case NODE_CALL:
 		    if(!NODE_IS_MARK1(node)) {
 			    NODE_STATUS_ADD(node, MARK1);
 			    {
 				    CallNode* cn = CALL_(node);
 				    Node* called = NODE_CALL_BODY(cn);
-
 				    cn->entry_count++;
-
 				    NODE_STATUS_ADD(called, CALLED);
 				    BAG_(called)->m.entry_count++;
 				    tune_call2_call(called);
@@ -5378,7 +5364,6 @@ static int tune_quant(Node* node, regex_t* reg, int state, ScanEnv* env)
 static int tune_tree(Node* node, regex_t* reg, int state, ScanEnv* env)
 {
 	int r = 0;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 	    {
@@ -5392,19 +5377,16 @@ static int tune_tree(Node* node, regex_t* reg, int state, ScanEnv* env)
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 	    }
 	    break;
-
 		case NODE_ALT:
 		    do {
 			    r = tune_tree(NODE_CAR(node), reg, (state | IN_ALT), env);
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_STRING:
 		    if(NODE_IS_REAL_IGNORECASE(node)) {
 			    r = unravel_case_fold_string(node, reg, state);
 		    }
 		    break;
-
 		case NODE_BACKREF:
 	    {
 		    int i;
@@ -5412,7 +5394,8 @@ static int tune_tree(Node* node, regex_t* reg, int state, ScanEnv* env)
 		    BackRefNode* br = BACKREF_(node);
 		    p = BACKREFS_P(br);
 		    for(i = 0; i < br->back_num; i++) {
-			    if(p[i] > env->num_mem) return ONIGERR_INVALID_BACKREF;
+			    if(p[i] > env->num_mem) 
+					return ONIGERR_INVALID_BACKREF;
 			    MEM_STATUS_ON(env->backrefed_mem, p[i]);
 #if 0
 #ifdef USE_BACKREF_WITH_LEVEL
@@ -5603,7 +5586,7 @@ typedef struct {
 	OptMap map; /* boundary */
 } OptNode;
 
-static int map_position_value(OnigEncoding enc, int i)
+static int FASTCALL map_position_value(OnigEncoding enc, int i)
 {
 	static const short int Vals[] = {
 		5,  1,  1,  1,  1,  1,  1,  1,  1, 10, 10,  1,  1, 10,  1,  1,
@@ -5625,7 +5608,7 @@ static int map_position_value(OnigEncoding enc, int i)
 		return 4; /* Take it easy. */
 }
 
-static int distance_value(MinMaxLen* mm)
+static int FASTCALL distance_value(const MinMaxLen * mm)
 {
 	/* 1000 / (min-max-dist + 1) */
 	static const short int dist_vals[] = {
@@ -5640,9 +5623,9 @@ static int distance_value(MinMaxLen* mm)
 		12,   12,   12,   12,   12,   12,   11,   11,   11,   11,
 		11,   11,   11,   11,   11,   10,   10,   10,   10,   10
 	};
-
 	OnigLen d;
-	if(mm->max == INFINITE_LEN) return 0;
+	if(mm->max == INFINITE_LEN) 
+		return 0;
 	d = mm->max - mm->min;
 	if(d < (OnigLen)(sizeof(dist_vals)/sizeof(dist_vals[0])))
 		/* return dist_vals[d] * 16 / (mm->min + 12); */
@@ -5651,7 +5634,7 @@ static int distance_value(MinMaxLen* mm)
 		return 1;
 }
 
-static int comp_distance_value(MinMaxLen* d1, MinMaxLen* d2, int v1, int v2)
+static int comp_distance_value(const MinMaxLen * d1, const MinMaxLen * d2, int v1, int v2)
 {
 	if(v2 <= 0) return -1;
 	if(v1 <= 0) return 1;
@@ -5667,23 +5650,23 @@ static int comp_distance_value(MinMaxLen* d1, MinMaxLen* d2, int v1, int v2)
 	return 0;
 }
 
-static void copy_opt_env(OptEnv* to, OptEnv* from)
+static void FASTCALL copy_opt_env(OptEnv* to, const OptEnv * from)
 {
 	*to = *from;
 }
 
-static void clear_opt_anc_info(OptAnc* a)
+static void clear_opt_anc_info(OptAnc * a)
 {
 	a->left  = 0;
 	a->right = 0;
 }
 
-static void copy_opt_anc_info(OptAnc* to, OptAnc* from)
+static void FASTCALL copy_opt_anc_info(OptAnc* to, const OptAnc * from)
 {
 	*to = *from;
 }
 
-static void concat_opt_anc_info(OptAnc* to, OptAnc* left, OptAnc* right, OnigLen left_len, OnigLen right_len)
+static void concat_opt_anc_info(OptAnc* to, OptAnc* left, const OptAnc* right, OnigLen left_len, OnigLen right_len)
 {
 	clear_opt_anc_info(to);
 	to->left = left->left;
@@ -5699,7 +5682,7 @@ static void concat_opt_anc_info(OptAnc* to, OptAnc* left, OptAnc* right, OnigLen
 	}
 }
 
-static int is_left(int a)
+static int FASTCALL is_left(int a)
 {
 	if(oneof5(a, ANCR_END_BUF, ANCR_SEMI_END_BUF, ANCR_END_LINE, ANCR_PREC_READ, ANCR_PREC_READ_NOT))
 		return 0;
@@ -5708,12 +5691,12 @@ static int is_left(int a)
 
 static int is_set_opt_anc_info(OptAnc* to, int anc)
 {
-	if((to->left & anc) != 0) return 1;
-
+	if((to->left & anc) != 0) 
+		return 1;
 	return ((to->right & anc) != 0 ? 1 : 0);
 }
 
-static void add_opt_anc_info(OptAnc* to, int anc)
+static void FASTCALL add_opt_anc_info(OptAnc * to, int anc)
 {
 	if(is_left(anc))
 		to->left |= anc;
@@ -5721,7 +5704,7 @@ static void add_opt_anc_info(OptAnc* to, int anc)
 		to->right |= anc;
 }
 
-static void remove_opt_anc_info(OptAnc* to, int anc)
+static void FASTCALL remove_opt_anc_info(OptAnc* to, int anc)
 {
 	if(is_left(anc))
 		to->left &= ~anc;
@@ -5729,18 +5712,18 @@ static void remove_opt_anc_info(OptAnc* to, int anc)
 		to->right &= ~anc;
 }
 
-static void alt_merge_opt_anc_info(OptAnc* to, OptAnc* add)
+static void FASTCALL alt_merge_opt_anc_info(OptAnc* to, const OptAnc* add)
 {
 	to->left  &= add->left;
 	to->right &= add->right;
 }
 
-static int is_full_opt_exact(OptStr* e)
+static int FASTCALL is_full_opt_exact(const OptStr * e)
 {
 	return e->len >= OPT_EXACT_MAXLEN;
 }
 
-static void clear_opt_exact(OptStr* e)
+static void FASTCALL clear_opt_exact(OptStr * e)
 {
 	mml_clear(&e->mm);
 	clear_opt_anc_info(&e->anc);
@@ -5749,18 +5732,18 @@ static void clear_opt_exact(OptStr* e)
 	e->s[0]      = '\0';
 }
 
-static void copy_opt_exact(OptStr* to, OptStr* from)
+static void FASTCALL copy_opt_exact(OptStr * to, const OptStr* from)
 {
 	*to = *from;
 }
 
-static int concat_opt_exact(OptStr* to, OptStr* add, OnigEncoding enc)
+static int concat_opt_exact(OptStr* to, const OptStr* add, OnigEncoding enc)
 {
 	int i, j, len;
 	OptAnc tanc;
 	int r = 0;
-	uchar * p = add->s;
-	uchar * end = p + add->len;
+	const uchar * p = add->s;
+	const uchar * end = p + add->len;
 	for(i = to->len; p < end;) {
 		len = enclen(enc, p);
 		if(i + len > OPT_EXACT_MAXLEN) {
@@ -5775,15 +5758,16 @@ static int concat_opt_exact(OptStr* to, OptStr* add, OnigEncoding enc)
 	to->len = i;
 	to->reach_end = (p == end ? add->reach_end : 0);
 	concat_opt_anc_info(&tanc, &to->anc, &add->anc, 1, 1);
-	if(!to->reach_end) tanc.right = 0;
+	if(!to->reach_end) 
+		tanc.right = 0;
 	copy_opt_anc_info(&to->anc, &tanc);
 	return r;
 }
 
-static void concat_opt_exact_str(OptStr* to, uchar * s, uchar * end, OnigEncoding enc)
+static void concat_opt_exact_str(OptStr* to, const uchar * s, const uchar * end, OnigEncoding enc)
 {
 	int i, j, len;
-	uchar * p;
+	const uchar * p;
 	for(i = to->len, p = s; p < end && i < OPT_EXACT_MAXLEN;) {
 		len = enclen(enc, p);
 		if(i + len > OPT_EXACT_MAXLEN) break;
@@ -5797,7 +5781,7 @@ static void concat_opt_exact_str(OptStr* to, uchar * s, uchar * end, OnigEncodin
 		to->reach_end = 1;
 }
 
-static void alt_merge_opt_exact(OptStr* to, OptStr* add, OptEnv* env)
+static void alt_merge_opt_exact(OptStr * to, const OptStr* add, const OptEnv * env)
 {
 	int i, j, len;
 	if(add->len == 0 || to->len == 0) {
@@ -5809,25 +5793,27 @@ static void alt_merge_opt_exact(OptStr* to, OptStr* add, OptEnv* env)
 		return;
 	}
 	for(i = 0; i < to->len && i < add->len;) {
-		if(to->s[i] != add->s[i]) break;
+		if(to->s[i] != add->s[i]) 
+			break;
 		len = enclen(env->enc, to->s + i);
 		for(j = 1; j < len; j++) {
-			if(to->s[i+j] != add->s[i+j]) break;
+			if(to->s[i+j] != add->s[i+j]) 
+				break;
 		}
-		if(j < len) break;
+		if(j < len) 
+			break;
 		i += len;
 	}
-
 	if(!add->reach_end || i < add->len || i < to->len) {
 		to->reach_end = 0;
 	}
 	to->len = i;
-
 	alt_merge_opt_anc_info(&to->anc, &add->anc);
-	if(!to->reach_end) to->anc.right = 0;
+	if(!to->reach_end) 
+		to->anc.right = 0;
 }
 
-static void select_opt_exact(OnigEncoding enc, OptStr* now, OptStr* alt)
+static void select_opt_exact(OnigEncoding enc, OptStr * now, const OptStr * alt)
 {
 	int vn = now->len;
 	int va = alt->len;
@@ -5842,8 +5828,10 @@ static void select_opt_exact(OnigEncoding enc, OptStr* now, OptStr* alt)
 		/* ByteValTable[x] is big value --> low price */
 		va = map_position_value(enc, now->s[0]);
 		vn = map_position_value(enc, alt->s[0]);
-		if(now->len > 1) vn += 5;
-		if(alt->len > 1) va += 5;
+		if(now->len > 1) 
+			vn += 5;
+		if(alt->len > 1) 
+			va += 5;
 	}
 	vn *= 2;
 	va *= 2;
@@ -5874,11 +5862,10 @@ static void clear_opt_map(OptMap* map)
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		}
 	};
-
 	xmemcpy(map, &clean_info, sizeof(OptMap));
 }
 
-static void copy_opt_map(OptMap* to, OptMap* from)
+static void FASTCALL copy_opt_map(OptMap * to, const OptMap * from)
 {
 	*to = *from;
 }
@@ -5891,7 +5878,7 @@ static void add_char_opt_map(OptMap* m, uchar c, OnigEncoding enc)
 	}
 }
 
-static void select_opt_map(OptMap* now, OptMap* alt)
+static void FASTCALL select_opt_map(OptMap* now, const OptMap* alt)
 {
 	static const int z = 1<<15; // 32768: something big value 
 	int vn, va;
@@ -5919,7 +5906,7 @@ static int comp_opt_exact_or_map(OptStr* e, OptMap* m)
 	}
 }
 
-static void alt_merge_opt_map(OnigEncoding enc, OptMap* to, OptMap* add)
+static void alt_merge_opt_map(OnigEncoding enc, OptMap* to, const OptMap* add)
 {
 	int i, val;
 	/* if (! mml_is_equal(&to->mm, &add->mm)) return ; */
@@ -5940,7 +5927,7 @@ static void alt_merge_opt_map(OnigEncoding enc, OptMap* to, OptMap* add)
 	alt_merge_opt_anc_info(&to->anc, &add->anc);
 }
 
-static void set_bound_node_opt_info(OptNode* opt, MinMaxLen* plen)
+static void FASTCALL set_bound_node_opt_info(OptNode* opt, const MinMaxLen* plen)
 {
 	mml_copy(&(opt->sb.mm),  plen);
 	mml_copy(&(opt->spr.mm), plen);
@@ -5957,7 +5944,7 @@ static void clear_node_opt_info(OptNode* opt)
 	clear_opt_map(&opt->map);
 }
 
-static void copy_node_opt_info(OptNode* to, OptNode* from)
+static void FASTCALL copy_node_opt_info(OptNode * to, const OptNode * from)
 {
 	*to = *from;
 }
@@ -5966,26 +5953,20 @@ static void concat_left_node_opt_info(OnigEncoding enc, OptNode* to, OptNode* ad
 {
 	int sb_reach, sm_reach;
 	OptAnc tanc;
-
 	concat_opt_anc_info(&tanc, &to->anc, &add->anc, to->len.max, add->len.max);
 	copy_opt_anc_info(&to->anc, &tanc);
-
 	if(add->sb.len > 0 && to->len.max == 0) {
 		concat_opt_anc_info(&tanc, &to->anc, &add->sb.anc, to->len.max, add->len.max);
 		copy_opt_anc_info(&add->sb.anc, &tanc);
 	}
-
 	if(add->map.value > 0 && to->len.max == 0) {
 		if(add->map.mm.max == 0)
 			add->map.anc.left |= to->anc.left;
 	}
-
 	sb_reach = to->sb.reach_end;
 	sm_reach = to->sm.reach_end;
-
 	if(add->len.max != 0)
 		to->sb.reach_end = to->sm.reach_end = 0;
-
 	if(add->sb.len > 0) {
 		if(sb_reach) {
 			concat_opt_exact(&to->sb, &add->sb, enc);
@@ -5998,7 +5979,6 @@ static void concat_left_node_opt_info(OnigEncoding enc, OptNode* to, OptNode* ad
 	}
 	select_opt_exact(enc, &to->sm, &add->sb);
 	select_opt_exact(enc, &to->sm, &add->sm);
-
 	if(to->spr.len > 0) {
 		if(add->len.max > 0) {
 			if(to->spr.mm.max == 0)
@@ -6010,42 +5990,35 @@ static void concat_left_node_opt_info(OnigEncoding enc, OptNode* to, OptNode* ad
 	else if(add->spr.len > 0) {
 		copy_opt_exact(&to->spr, &add->spr);
 	}
-
 	select_opt_map(&to->map, &add->map);
 	mml_add(&to->len, &add->len);
 }
 
-static void alt_merge_node_opt_info(OptNode* to, OptNode* add, OptEnv* env)
+static void alt_merge_node_opt_info(OptNode * to, const OptNode * add, const OptEnv * env)
 {
 	alt_merge_opt_anc_info(&to->anc, &add->anc);
 	alt_merge_opt_exact(&to->sb,  &add->sb, env);
 	alt_merge_opt_exact(&to->sm,  &add->sm, env);
 	alt_merge_opt_exact(&to->spr, &add->spr, env);
 	alt_merge_opt_map(env->enc, &to->map, &add->map);
-
 	mml_alt_merge(&to->len, &add->len);
 }
 
 #define MAX_NODE_OPT_INFO_REF_COUNT    5
 
-static int optimize_nodes(Node* node, OptNode* opt, OptEnv* env)
+static int optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
 {
 	int i;
-	int r;
 	OptNode xo;
-	OnigEncoding enc;
-
-	r = 0;
-	enc = env->enc;
+	int r = 0;
+	OnigEncoding enc = env->enc;
 	clear_node_opt_info(opt);
 	set_bound_node_opt_info(opt, &env->mm);
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 	    {
 		    OptEnv nenv;
 		    Node* nd = node;
-
 		    copy_opt_env(&nenv, env);
 		    do {
 			    r = optimize_nodes(NODE_CAR(nd), &xo, &nenv);
@@ -6060,17 +6033,17 @@ static int optimize_nodes(Node* node, OptNode* opt, OptEnv* env)
 		case NODE_ALT:
 	    {
 		    Node* nd = node;
-
 		    do {
 			    r = optimize_nodes(NODE_CAR(nd), &xo, env);
 			    if(r == 0) {
-				    if(nd == node) copy_node_opt_info(opt, &xo);
-				    else alt_merge_node_opt_info(opt, &xo, env);
+				    if(nd == node) 
+						copy_node_opt_info(opt, &xo);
+				    else 
+						alt_merge_node_opt_info(opt, &xo, env);
 			    }
 		    } while((r == 0) && IS_NOT_NULL(nd = NODE_CDR(nd)));
 	    }
 	    break;
-
 		case NODE_STRING:
 	    {
 		    StrNode* sn = STR_(node);
@@ -6225,10 +6198,9 @@ static int optimize_nodes(Node* node, OptNode* opt, OptEnv* env)
 			    mml_set_min_max(&opt->len, 0, 0);
 			    break;
 		    }
-
 		    r = optimize_nodes(NODE_BODY(node), &xo, env);
-		    if(r != 0) break;
-
+		    if(r != 0) 
+				break;
 		    if(qn->lower > 0) {
 			    copy_node_opt_info(opt, &xo);
 			    if(xo.sb.len > 0) {
@@ -6240,7 +6212,6 @@ static int optimize_nodes(Node* node, OptNode* opt, OptEnv* env)
 					    if(i < qn->lower) opt->sb.reach_end = 0;
 				    }
 			    }
-
 			    if(qn->lower != qn->upper) {
 				    opt->sb.reach_end = 0;
 				    opt->sm.reach_end = 0;
@@ -6248,22 +6219,18 @@ static int optimize_nodes(Node* node, OptNode* opt, OptEnv* env)
 			    if(qn->lower > 1)
 				    opt->sm.reach_end = 0;
 		    }
-
 		    if(IS_INFINITE_REPEAT(qn->upper)) {
-			    if(env->mm.max == 0 &&
-				NODE_IS_ANYCHAR(NODE_BODY(node)) && qn->greedy != 0) {
+			    if(env->mm.max == 0 && NODE_IS_ANYCHAR(NODE_BODY(node)) && qn->greedy != 0) {
 				    if(NODE_IS_MULTILINE(NODE_QUANT_BODY(qn)))
 					    add_opt_anc_info(&opt->anc, ANCR_ANYCHAR_INF_ML);
 				    else
 					    add_opt_anc_info(&opt->anc, ANCR_ANYCHAR_INF);
 			    }
-
 			    max = (xo.len.max > 0 ? INFINITE_LEN : 0);
 		    }
 		    else {
 			    max = distance_multiply(xo.len.max, qn->upper);
 		    }
-
 		    min = distance_multiply(xo.len.min, qn->lower);
 		    mml_set_min_max(&opt->len, min, max);
 	    }
@@ -6272,13 +6239,11 @@ static int optimize_nodes(Node* node, OptNode* opt, OptEnv* env)
 		case NODE_BAG:
 	    {
 		    BagNode* en = BAG_(node);
-
 		    switch(en->type) {
 			    case BAG_STOP_BACKTRACK:
 			    case BAG_OPTION:
 				r = optimize_nodes(NODE_BODY(node), opt, env);
 				break;
-
 			    case BAG_MEMORY:
 #ifdef USE_CALL
 				en->opt_count++;
@@ -6372,35 +6337,29 @@ static int set_optimize_exact(regex_t* reg, OptStr* e)
 	else {
 		reg->optimize = OPTIMIZE_STR;
 	}
-
 	reg->dist_min = e->mm.min;
 	reg->dist_max = e->mm.max;
-
 	if(reg->dist_min != INFINITE_LEN) {
 		int n = (int)(reg->exact_end - reg->exact);
 		reg->threshold_len = reg->dist_min + n;
 	}
-
 	return 0;
 }
 
 static void set_optimize_map(regex_t* reg, OptMap* m)
 {
 	int i;
-
 	for(i = 0; i < CHAR_MAP_SIZE; i++)
 		reg->map[i] = m->map[i];
-
 	reg->optimize   = OPTIMIZE_MAP;
 	reg->dist_min   = m->mm.min;
 	reg->dist_max   = m->mm.max;
-
 	if(reg->dist_min != INFINITE_LEN) {
 		reg->threshold_len = reg->dist_min + ONIGENC_MBC_MINLEN(reg->enc);
 	}
 }
 
-static void set_sub_anchor(regex_t* reg, OptAnc* anc)
+static void FASTCALL set_sub_anchor(regex_t* reg, const OptAnc* anc)
 {
 	reg->sub_anchor |= anc->left  & ANCR_BEGIN_LINE;
 	reg->sub_anchor |= anc->right & ANCR_END_LINE;
@@ -6415,30 +6374,21 @@ static int set_optimize_info_from_tree(Node* node, regex_t* reg, ScanEnv* scan_e
 	int r;
 	OptNode opt;
 	OptEnv env;
-
 	env.enc            = reg->enc;
 	env.case_fold_flag = reg->case_fold_flag;
 	env.scan_env       = scan_env;
 	mml_clear(&env.mm);
-
 	r = optimize_nodes(node, &opt, &env);
-	if(r != 0) return r;
-
-	reg->anchor = opt.anc.left & (ANCR_BEGIN_BUF |
-	    ANCR_BEGIN_POSITION | ANCR_ANYCHAR_INF | ANCR_ANYCHAR_INF_ML |
-	    ANCR_LOOK_BEHIND);
-
+	if(r != 0) 
+		return r;
+	reg->anchor = opt.anc.left & (ANCR_BEGIN_BUF|ANCR_BEGIN_POSITION|ANCR_ANYCHAR_INF|ANCR_ANYCHAR_INF_ML|ANCR_LOOK_BEHIND);
 	if((opt.anc.left & (ANCR_LOOK_BEHIND | ANCR_PREC_READ_NOT)) != 0)
 		reg->anchor &= ~ANCR_ANYCHAR_INF_ML;
-
-	reg->anchor |= opt.anc.right & (ANCR_END_BUF | ANCR_SEMI_END_BUF |
-	    ANCR_PREC_READ_NOT);
-
+	reg->anchor |= opt.anc.right & (ANCR_END_BUF|ANCR_SEMI_END_BUF|ANCR_PREC_READ_NOT);
 	if(reg->anchor & (ANCR_END_BUF | ANCR_SEMI_END_BUF)) {
 		reg->anc_dist_min = opt.len.min;
 		reg->anc_dist_max = opt.len.max;
 	}
-
 	if(opt.sb.len > 0 || opt.sm.len > 0) {
 		select_opt_exact(reg->enc, &opt.sb, &opt.sm);
 		if(opt.map.value > 0 && comp_opt_exact_or_map(&opt.sb, &opt.map) > 0) {
@@ -6459,7 +6409,6 @@ set_map:
 		if(opt.len.max == 0)
 			reg->sub_anchor |= opt.anc.right & ANCR_END_LINE;
 	}
-
 #if defined(ONIG_DEBUG_COMPILE) || defined(ONIG_DEBUG_MATCH)
 	print_optimize_info(DBGFP, reg);
 #endif
@@ -6668,15 +6617,14 @@ extern RegexExt* onig_get_regex_ext(regex_t* reg)
 	return reg->extp;
 }
 
-static void free_regex_ext(RegexExt* ext)
+static void free_regex_ext(RegexExt * ext)
 {
-	if(IS_NOT_NULL(ext)) {
-		if(IS_NOT_NULL(ext->pattern))
+	if(ext) {
+		if(ext->pattern)
 			SAlloc::F((void*)ext->pattern);
 #ifdef USE_CALLOUT
-		if(IS_NOT_NULL(ext->tag_table))
-			onig_callout_tag_table_free(ext->tag_table);
-		if(IS_NOT_NULL(ext->callout_list))
+		onig_callout_tag_table_free(ext->tag_table);
+		if(ext->callout_list)
 			onig_free_reg_callout_list(ext->callout_num, ext->callout_list);
 #endif
 		SAlloc::F(ext);
@@ -6697,15 +6645,15 @@ extern int onig_ext_set_pattern(regex_t* reg, const uchar * pattern, const uchar
 
 extern void onig_free_body(regex_t* reg)
 {
-	if(IS_NOT_NULL(reg)) {
+	if(reg) {
 		ops_free(reg);
-		if(IS_NOT_NULL(reg->string_pool)) {
+		if(reg->string_pool) {
 			SAlloc::F(reg->string_pool);
 			reg->string_pool_end = reg->string_pool = 0;
 		}
-		if(IS_NOT_NULL(reg->exact)) SAlloc::F(reg->exact);
-		if(IS_NOT_NULL(reg->repeat_range)) SAlloc::F(reg->repeat_range);
-		if(IS_NOT_NULL(reg->extp)) {
+		SAlloc::F(reg->exact);
+		SAlloc::F(reg->repeat_range);
+		if(reg->extp) {
 			free_regex_ext(reg->extp);
 			reg->extp = 0;
 		}
@@ -6715,7 +6663,7 @@ extern void onig_free_body(regex_t* reg)
 
 extern void onig_free(regex_t* reg)
 {
-	if(IS_NOT_NULL(reg)) {
+	if(reg) {
 		onig_free_body(reg);
 		SAlloc::F(reg);
 	}
@@ -6804,8 +6752,7 @@ err:
 		}
 	}
 	onig_node_free(root);
-	if(IS_NOT_NULL(scan_env->mem_env_dynamic))
-		SAlloc::F(scan_env->mem_env_dynamic);
+	SAlloc::F(scan_env->mem_env_dynamic);
 	*rroot = NULL_NODE;
 	return r;
 }
@@ -6826,7 +6773,6 @@ extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * patte
 	print_options(DBGFP, reg->options);
 	fprintf(DBGFP, "\n");
 #endif
-
 	if(reg->ops_alloc == 0) {
 		r = ops_init(reg, OPS_INIT_SIZE);
 		if(r != 0) {
@@ -6839,7 +6785,6 @@ extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * patte
 	}
 	else
 		reg->ops_used = 0;
-
 	r = parse_and_tune(reg, pattern, pattern_end, &scan_env, &root, einfo
 #ifdef USE_CALL
 		, &uslist
@@ -6862,15 +6807,13 @@ extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * patte
 		if(MEM_STATUS_IS_ALL_ON(reg->push_mem_start))
 			reg->push_mem_end = scan_env.backrefed_mem | scan_env.cap_history;
 		else
-			reg->push_mem_end = reg->push_mem_start &
-			    (scan_env.backrefed_mem | scan_env.cap_history);
+			reg->push_mem_end = reg->push_mem_start & (scan_env.backrefed_mem | scan_env.cap_history);
 	}
 #else
 	if(MEM_STATUS_IS_ALL_ON(reg->push_mem_start))
 		reg->push_mem_end = scan_env.backrefed_mem | scan_env.cap_history;
 	else
-		reg->push_mem_end = reg->push_mem_start &
-		    (scan_env.backrefed_mem | scan_env.cap_history);
+		reg->push_mem_end = reg->push_mem_start & (scan_env.backrefed_mem | scan_env.cap_history);
 #endif
 
 	clear_optimize_info(reg);
@@ -6889,35 +6832,31 @@ extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * patte
 		SAlloc::F(scan_env.mem_env_dynamic);
 		scan_env.mem_env_dynamic = (MemEnv*)NULL;
 	}
-
 	r = compile_tree(root, reg, &scan_env);
 	if(r == 0) {
 		if(scan_env.keep_num > 0) {
 			r = add_op(reg, OP_UPDATE_VAR);
-			if(r != 0) goto err;
-
+			if(r != 0) 
+				goto err;
 			COP(reg)->update_var.type = UPDATE_VAR_KEEP_FROM_STACK_LAST;
 			COP(reg)->update_var.id   = 0;/* not used */
 			COP(reg)->update_var.clear = FALSE;
 		}
-
 		r = add_op(reg, OP_END);
-		if(r != 0) goto err;
-
+		if(r != 0) 
+			goto err;
 #ifdef USE_CALL
 		if(scan_env.num_call > 0) {
 			r = fix_unset_addr_list(&uslist, reg);
 			unset_addr_list_end(&uslist);
-			if(r != 0) goto err;
+			if(r != 0) 
+				goto err;
 		}
 #endif
-
 		set_addr_in_repeat_range(reg);
-
 		if((reg->push_mem_end != 0)
 #ifdef USE_REPEAT_AND_EMPTY_CHECK_LOCAL_VAR
-		    || (reg->num_repeat      != 0)
-		    || (reg->num_empty_check != 0)
+		    || (reg->num_repeat      != 0) || (reg->num_empty_check != 0)
 #endif
 #ifdef USE_CALLOUT
 		    || (IS_NOT_NULL(reg->extp) && reg->extp->callout_num != 0)
@@ -6933,9 +6872,9 @@ extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * patte
 			else
 				reg->stack_pop_level = STACK_POP_LEVEL_FREE;
 		}
-
 		r = ops_make_string_pool(reg);
-		if(r != 0) goto err;
+		if(r != 0) 
+			goto err;
 	}
 #ifdef USE_CALL
 	else if(scan_env.num_call > 0) {
@@ -6943,12 +6882,10 @@ extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * patte
 	}
 #endif
 	onig_node_free(root);
-
 #ifdef ONIG_DEBUG_COMPILE
 	onig_print_names(DBGFP, reg);
 	onig_print_compiled_byte_code_list(DBGFP, reg);
 #endif
-
 #ifdef USE_DIRECT_THREADED_CODE
 	/* opcode -> opaddr */
 	onig_init_for_match_at(reg);
@@ -6962,8 +6899,7 @@ err:
 		}
 	}
 	onig_node_free(root);
-	if(IS_NOT_NULL(scan_env.mem_env_dynamic))
-		SAlloc::F(scan_env.mem_env_dynamic);
+	SAlloc::F(scan_env.mem_env_dynamic);
 	return r;
 }
 
@@ -7031,7 +6967,8 @@ extern int onig_new(regex_t** reg, const uchar * pattern, const uchar * pattern_
 {
 	int r;
 	*reg = (regex_t*)SAlloc::M(sizeof(regex_t));
-	if(IS_NULL(*reg)) return ONIGERR_MEMORY;
+	if(IS_NULL(*reg)) 
+		return ONIGERR_MEMORY;
 	r = onig_reg_init(*reg, option, ONIGENC_CASE_FOLD_DEFAULT, enc, syntax);
 	if(r != 0) {
 		SAlloc::F(*reg);
@@ -7185,9 +7122,7 @@ static int detect_can_be_slow(Node* node, SlowElementCount* ct, int ncall, int c
 			    if(ct->empty_check_nest_level > ct->max_empty_check_nest_level)
 				    ct->max_empty_check_nest_level = ct->empty_check_nest_level;
 		    }
-
 		    r = detect_can_be_slow(NODE_BODY(node), ct, ncall, calls);
-
 		    if(QUANT_(node)->emptiness != BODY_IS_NOT_EMPTY) {
 			    if(NODE_IS_INPEEK(node)) {
 				    if(ct->empty_check_nest_level > 2) {
@@ -7211,16 +7146,17 @@ static int detect_can_be_slow(Node* node, SlowElementCount* ct, int ncall, int c
 		    if(ANCHOR_HAS_BODY(ANCHOR_(node)))
 			    r = detect_can_be_slow(NODE_BODY(node), ct, ncall, calls);
 		    break;
-
 		case NODE_BAG:
 	    {
-		    BagNode* en = BAG_(node);
+		    BagNode * en = BAG_(node);
 		    r = detect_can_be_slow(NODE_BODY(node), ct, ncall, calls);
-		    if(r != 0) return r;
+		    if(r != 0) 
+				return r;
 		    if(en->type == BAG_IF_ELSE) {
 			    if(IS_NOT_NULL(en->te.Then)) {
 				    r = detect_can_be_slow(en->te.Then, ct, ncall, calls);
-				    if(r != 0) return r;
+				    if(r != 0) 
+						return r;
 			    }
 			    if(IS_NOT_NULL(en->te.Else)) {
 				    r = detect_can_be_slow(en->te.Else, ct, ncall, calls);
@@ -7272,16 +7208,12 @@ static int detect_can_be_slow(Node* node, SlowElementCount* ct, int ncall, int c
 		default:
 		    break;
 	}
-
 	return r;
 }
 
-extern int onig_detect_can_be_slow_pattern(const uchar * pattern,
-    const uchar * pattern_end, OnigOptionType option, OnigEncoding enc,
-    OnigSyntaxType* syntax)
+extern int onig_detect_can_be_slow_pattern(const uchar * pattern, const uchar * pattern_end, OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax)
 {
 	int r;
-	regex_t* reg;
 	Node* root;
 	ScanEnv scan_env;
 	SlowElementCount count;
@@ -7289,16 +7221,14 @@ extern int onig_detect_can_be_slow_pattern(const uchar * pattern,
 #ifdef USE_CALL
 	UnsetAddrList uslist = {0};
 #endif
-
-	reg = (regex_t*)SAlloc::M(sizeof(regex_t));
-	if(IS_NULL(reg)) return ONIGERR_MEMORY;
-
+	regex_t * reg = (regex_t*)SAlloc::M(sizeof(regex_t));
+	if(IS_NULL(reg)) 
+		return ONIGERR_MEMORY;
 	r = onig_reg_init(reg, option, ONIGENC_CASE_FOLD_DEFAULT, enc, syntax);
 	if(r != 0) {
 		SAlloc::F(reg);
 		return r;
 	}
-
 	r = parse_and_tune(reg, pattern, pattern_end, &scan_env, &root, NULL
 #ifdef USE_CALL
 		, &uslist
@@ -7325,8 +7255,7 @@ extern int onig_detect_can_be_slow_pattern(const uchar * pattern,
 			n += 10;
 		r = n;
 	}
-	if(IS_NOT_NULL(scan_env.mem_env_dynamic))
-		SAlloc::F(scan_env.mem_env_dynamic);
+	SAlloc::F(scan_env.mem_env_dynamic);
 err:
 	onig_node_free(root);
 	onig_free(reg);
