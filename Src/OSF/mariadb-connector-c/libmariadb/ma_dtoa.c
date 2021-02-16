@@ -555,9 +555,7 @@ typedef union { double d; ULong L[2]; } U;
 /* This is tested to be enough for dtoa */
 
 #define Kmax 15
-
-#define Bcopy(x, y) memcpy((char *)&(x)->sign, (char *)&(y)->sign,   \
-	    2*sizeof(int) + (y)->wds*sizeof(ULong))
+#define Bcopy(x, y) memcpy((char *)&(x)->sign, (char *)&(y)->sign, 2*sizeof(int) + (y)->wds*sizeof(ULong))
 
 /* Arbitrary-length integer */
 
@@ -602,18 +600,14 @@ static Bigint * Balloc(int k, Stack_alloc * alloc)
 		alloc->freelist[k] = rv->p.next;
 	}
 	else {
-		int x, len;
-
-		x = 1 << k;
-		len = MY_ALIGN(sizeof(Bigint) + x * sizeof(ULong), SIZEOF_CHARP);
-
+		int x = 1 << k;
+		int len = MY_ALIGN(sizeof(Bigint) + x * sizeof(ULong), SIZEOF_CHARP);
 		if(alloc->free + len <= alloc->end) {
 			rv = (Bigint*)alloc->free;
 			alloc->free += len;
 		}
 		else
 			rv = (Bigint*)SAlloc::M(len);
-
 		rv->k = k;
 		rv->maxwds = x;
 	}
@@ -822,12 +816,10 @@ static Bigint * mult(Bigint * a, Bigint * b, Stack_alloc * alloc)
 	c->wds = wc;
 	return c;
 }
-
 /*
    Precalculated array of powers of 5: tested to be enough for
    vasting majority of dtoa_r cases.
  */
-
 static ULong powers5[] =
 {
 	625UL,

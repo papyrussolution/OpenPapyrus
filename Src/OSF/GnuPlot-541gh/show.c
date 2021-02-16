@@ -24,7 +24,7 @@ static void show_border();
 static void show_boxwidth();
 static void show_boxplot();
 static void show_fillstyle();
-static void show_clip();
+//static void show_clip();
 static void show_contour();
 static void show_dashtype(int);
 static void show_dgrid3d();
@@ -44,7 +44,7 @@ static void show_label(int tag);
 static void show_keytitle();
 static void show_key();
 //static void show_logscale();
-static void show_offsets();
+//static void show_offsets();
 //static void show_margin();
 static void show_output();
 static void show_overflow();
@@ -56,7 +56,7 @@ static void show_pm3d();
 //static void show_palette_palette();
 //static void show_palette_gradient();
 static void show_palette_colornames();
-static void show_colorbox();
+//static void show_colorbox();
 static void show_pointsize();
 static void show_pointintervalbox();
 static void show_rgbmax();
@@ -100,7 +100,7 @@ static void show_micro();
 static void show_minus_sign();
 static void show_mouse();
 static void show_plot();
-static void show_variables();
+//static void show_variables();
 static void show_linestyle(int tag);
 //static void show_linetype(struct linestyle_def * listhead, int tag);
 //static void show_arrowstyle(int tag);
@@ -146,7 +146,7 @@ void GnuPlot::ShowCommand()
 		    while(!Pgm.EndOfCommand()) 
 				Pgm.Shift();
 		    Pgm.Rollback();
-			Pgm.BindCommand();
+			BindCommand();
 		    break;
 		case S_BORDER:
 		    show_border();
@@ -155,9 +155,7 @@ void GnuPlot::ShowCommand()
 		case S_BOXDEPTH:
 		    show_boxwidth();
 		    break;
-		case S_CLIP:
-		    show_clip();
-		    break;
+		case S_CLIP: ShowClip(); break;
 		case S_CLABEL:
 		// contour labels are shown with 'show contour' 
 		case S_CONTOUR:
@@ -254,9 +252,7 @@ void GnuPlot::ShowCommand()
 		case S_MINUS_SIGN:
 		    show_minus_sign();
 		    break;
-		case S_OFFSETS:
-		    show_offsets();
-		    break;
+		case S_OFFSETS: ShowOffsets(); break;
 		case S_LMARGIN: /* HBB 20010525: handle like 'show margin' */
 		case S_RMARGIN:
 		case S_TMARGIN:
@@ -275,9 +271,7 @@ void GnuPlot::ShowCommand()
 		    show_pm3d();
 		    break;
 		case S_PALETTE: ShowPalette(); break;
-		case S_COLORBOX:
-		    show_colorbox();
-		    break;
+		case S_COLORBOX: ShowColorBox(); break;
 		case S_COLORMAP:
 		    save_colormaps(stderr);
 		    Pgm.Shift();
@@ -509,9 +503,7 @@ void GnuPlot::ShowCommand()
 		    }
 #endif
 		    break;
-		case S_VARIABLES:
-		    show_variables();
-		    break;
+		case S_VARIABLES: ShowVariables(); break;
 /* FIXME: get rid of S_*DTICS, S_*MTICS cases */
 		case S_XTICS:
 		case S_XDTICS:
@@ -675,7 +667,7 @@ void GnuPlot::ShowAll()
 	save_bars(stderr);
 	show_border();
 	show_boxwidth();
-	show_clip();
+	ShowClip();
 	show_contour();
 	show_dgrid3d();
 	show_mapping();
@@ -691,7 +683,7 @@ void GnuPlot::ShowAll()
 	show_arrow(0);
 	show_key();
 	ShowLogScale();
-	show_offsets();
+	ShowOffsets();
 	ShowMargin();
 	show_micro();
 	show_minus_sign();
@@ -699,7 +691,7 @@ void GnuPlot::ShowAll()
 	show_print();
 	show_parametric();
 	ShowPalette();
-	show_colorbox();
+	ShowColorBox();
 	show_pm3d();
 	show_pointsize();
 	show_pointintervalbox();
@@ -762,7 +754,7 @@ void GnuPlot::ShowAll()
 	show_mouse();
 #endif
 	show_plot();
-	show_variables();
+	ShowVariables();
 	show_functions();
 	var_show_all = 0;
 }
@@ -1126,13 +1118,14 @@ static void show_fillstyle()
 //
 // process 'show clip' command 
 //
-static void show_clip()
+//static void show_clip()
+void GnuPlot::ShowClip()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tpoint clip is %s\n", GPO.Gg.ClipPoints ? "ON" : "OFF");
-	fprintf(stderr, "\t%s lines with one end out of range (clip one)\n", GPO.Gg.ClipLines1 ? "clipping" : "not drawing");
-	fprintf(stderr, "\t%s lines with both ends out of range (clip two)\n", GPO.Gg.ClipLines2 ? "clipping" : "not drawing");
-	fprintf(stderr, "\t%sclipping lines on polar plot at maximum radius\n", GPO.Gg.ClipRadial ? "" : "not ");
+	fprintf(stderr, "\tpoint clip is %s\n", Gg.ClipPoints ? "ON" : "OFF");
+	fprintf(stderr, "\t%s lines with one end out of range (clip one)\n", Gg.ClipLines1 ? "clipping" : "not drawing");
+	fprintf(stderr, "\t%s lines with both ends out of range (clip two)\n", Gg.ClipLines2 ? "clipping" : "not drawing");
+	fprintf(stderr, "\t%sclipping lines on polar plot at maximum radius\n", Gg.ClipRadial ? "" : "not ");
 }
 //
 // process 'show cntrparam|cntrlabel|contour' commands 
@@ -1386,9 +1379,7 @@ void GnuPlot::ShowStyle()
 static void show_style_rectangle()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tRectangle style is %s, fill color ",
-	    default_rectangle.layer > 0 ? "front" :
-	    default_rectangle.layer < 0 ? "behind" : "back");
+	fprintf(stderr, "\tRectangle style is %s, fill color ", default_rectangle.layer > 0 ? "front" : default_rectangle.layer < 0 ? "behind" : "back");
 	save_pm3dcolor(stderr, &default_rectangle.lp_properties.pm3d_color);
 	fprintf(stderr, ", lw %.1f ", default_rectangle.lp_properties.l_width);
 	fprintf(stderr, ", fillstyle");
@@ -1796,10 +1787,11 @@ void GnuPlot::ShowLogScale()
 //
 // process 'show offsets' command 
 //
-static void show_offsets()
+//static void show_offsets()
+void GnuPlot::ShowOffsets()
 {
 	SHOW_ALL_NL;
-	save_offsets(stderr, "\toffsets are");
+	SaveOffsets(stderr, "\toffsets are");
 }
 //
 // process 'show margin' command 
@@ -2172,31 +2164,32 @@ void GnuPlot::ShowPalette()
 	}
 }
 
-static void show_colorbox()
+//static void show_colorbox()
+void GnuPlot::ShowColorBox()
 {
-	GPO.Pgm.Shift();
-	if(!GPO.Gg.ColorBox.border) {
+	Pgm.Shift();
+	if(!Gg.ColorBox.border) {
 		fprintf(stderr, "\tcolor box without border");
 	}
 	else {
 		fprintf(stderr, "\tcolor box with border lt");
-		if(GPO.Gg.ColorBox.border_lt_tag > 0)
-			fprintf(stderr, " %d", GPO.Gg.ColorBox.border_lt_tag);
+		if(Gg.ColorBox.border_lt_tag > 0)
+			fprintf(stderr, " %d", Gg.ColorBox.border_lt_tag);
 		else
 			fprintf(stderr, " default");
 		fprintf(stderr, " cbtics lt");
-		if(GPO.Gg.ColorBox.cbtics_lt_tag > 0)
-			fprintf(stderr, " %d ", GPO.Gg.ColorBox.cbtics_lt_tag);
+		if(Gg.ColorBox.cbtics_lt_tag > 0)
+			fprintf(stderr, " %d ", Gg.ColorBox.cbtics_lt_tag);
 		else
 			fprintf(stderr, " same ");
 	}
-	if(GPO.Gg.ColorBox.where != SMCOLOR_BOX_NO) {
-		if(GPO.Gg.ColorBox.layer == LAYER_FRONT) 
+	if(Gg.ColorBox.where != SMCOLOR_BOX_NO) {
+		if(Gg.ColorBox.layer == LAYER_FRONT) 
 			fputs("drawn front\n\t", stderr);
 		else 
 			fputs("drawn back\n\t", stderr);
 	}
-	switch(GPO.Gg.ColorBox.where) {
+	switch(Gg.ColorBox.where) {
 		case SMCOLOR_BOX_NO:
 		    fputs("NOT drawn\n", stderr);
 		    break;
@@ -2205,16 +2198,16 @@ static void show_colorbox()
 		    break;
 		case SMCOLOR_BOX_USER:
 		    fputs("at USER origin: ", stderr);
-		    show_position(&GPO.Gg.ColorBox.origin, 2);
+		    show_position(&Gg.ColorBox.origin, 2);
 		    fputs("\n\t          size: ", stderr);
-		    show_position(&GPO.Gg.ColorBox.size, 2);
+		    show_position(&Gg.ColorBox.size, 2);
 		    fputs("\n", stderr);
 		    break;
 		default: /* should *never* happen */
-		    GPO.IntError(NO_CARET, "Argh!");
+		    IntError(NO_CARET, "Argh!");
 	}
-	if(GPO.Gg.ColorBox.rotation == 'v')
-		fprintf(stderr, "\tcolor gradient is vertical %s\n", GPO.Gg.ColorBox.invert ? " (inverted)" : "");
+	if(Gg.ColorBox.rotation == 'v')
+		fprintf(stderr, "\tcolor gradient is vertical %s\n", Gg.ColorBox.invert ? " (inverted)" : "");
 	else
 		fprintf(stderr, "\tcolor gradient is horizontal\n");
 }
@@ -2451,7 +2444,7 @@ static void show_angles()
 static void show_samples()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tsampling rate is %d, %d\n", samples_1, samples_2);
+	fprintf(stderr, "\tsampling rate is %d, %d\n", GPO.Gg.Samples1, GPO.Gg.Samples2);
 }
 //
 // process 'show isosamples' command
@@ -2459,7 +2452,7 @@ static void show_samples()
 static void show_isosamples()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tiso sampling rate is %d, %d\n", iso_samples_1, iso_samples_2);
+	fprintf(stderr, "\tiso sampling rate is %d, %d\n", GPO.Gg.IsoSamples1, GPO.Gg.IsoSamples2);
 }
 //
 // process 'show view' command 
@@ -2584,11 +2577,9 @@ static void show_tics(bool showx, bool showy, bool showz, bool showx2, bool show
 		show_ticdef(FIRST_Z_AXIS);
 	if(showcb)
 		show_ticdef(COLOR_AXIS);
-
 	fprintf(stderr, "\tScales for user tic levels 2-%d are: ", MAX_TICLEVEL-1);
 	for(i = 2; i<MAX_TICLEVEL; i++)
 		fprintf(stderr, " %g%c", ticscale[i], i<MAX_TICLEVEL-1 ? ',' : '\n');
-
 	screen_ok = FALSE;
 }
 
@@ -2871,18 +2862,19 @@ static void show_plot()
 //
 // process 'show variables' command 
 //
-static void show_variables()
+//static void show_variables()
+void GnuPlot::ShowVariables()
 {
-	udvt_entry * udv = GPO.Ev.P_FirstUdv;
+	udvt_entry * udv = Ev.P_FirstUdv;
 	int    len;
 	bool   show_all = FALSE;
 	char   leading_string[MAX_ID_LEN+1] = {'\0'};
-	if(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("all"))
+	if(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("all"))
 			show_all = TRUE;
 		else
-			GPO.Pgm.CopyStr(leading_string, GPO.Pgm.GetCurTokenIdx(), MAX_ID_LEN);
-		GPO.Pgm.Shift();
+			Pgm.CopyStr(leading_string, Pgm.GetCurTokenIdx(), MAX_ID_LEN);
+		Pgm.Shift();
 	}
 	if(show_all)
 		fputs("\n\tAll available variables:\n", stderr);
@@ -3096,8 +3088,9 @@ static void show_ticdefp(const GpAxis * pAx)
 		fprintf(stderr, "\t  font \"%s\"\n", pAx->ticdef.font);
 	}
 }
-
-/* called by show_tics */
+//
+// called by show_tics 
+//
 static void show_ticdef(AXIS_INDEX axis)
 {
 	show_ticdefp(&GPO.AxS[axis]);

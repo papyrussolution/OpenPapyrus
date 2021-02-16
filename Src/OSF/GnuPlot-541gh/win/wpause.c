@@ -59,7 +59,6 @@ void win_sleep(DWORD dwMilliSeconds)
 				CACA_process_events();
 #endif
 			WinMessageLoop();
-
 			/* calculate remaining time, detect overflow */
 			t1 = GetTickCount();
 			if(tstop > t0) {
@@ -94,7 +93,7 @@ static void CreatePauseClass(LPPW lppw)
 	RegisterClassW(&wndclass);
 }
 
-bool MousableWindowOpened(void)
+bool MousableWindowOpened()
 {
 	bool result = FALSE;
 #ifdef USE_MOUSE
@@ -104,7 +103,7 @@ bool MousableWindowOpened(void)
 		if((strcmp(term->name, "windows") == 0) && GraphHasWindow(graphwin))
 			result = TRUE;
 #ifdef WXWIDGETS
-		/* FIXME: this does not test if the current window is open */
+		// FIXME: this does not test if the current window is open 
 		else if((strcmp(term->name, "wxt") == 0) && wxt_active_window_opened())
 			result = TRUE;
 #endif
@@ -113,7 +112,7 @@ bool MousableWindowOpened(void)
 			result = TRUE;
 #endif
 #ifdef QTTERM
-#if 0 /* FIXME: qt_window_opened() not yet implemented */
+#if 0 // FIXME: qt_window_opened() not yet implemented 
 		if((strcmp(term->name, "qt") == 0) && !qt_active_window_opened())
 #else
 		if((strcmp(term->name, "qt") == 0))
@@ -153,7 +152,7 @@ int PauseBox(LPPW lppw)
 			lppw->Origin.y = (rect.bottom + rect.top) / 2;
 		hdc = GetDC(NULL);
 		SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
-		/* determine actual text size */
+		// determine actual text size 
 		GetTextExtentPoint32W(hdc, lppw->Message, wcslen(lppw->Message), &size);
 		GetTextMetrics(hdc, &tm);
 		width = smax(28 * tm.tmAveCharWidth, size.cx + 6 * tm.tmAveCharWidth);
@@ -219,12 +218,9 @@ LRESULT CALLBACK WndPauseProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	PAINTSTRUCT ps;
 	RECT rect;
 	TEXTMETRIC tm;
-	LPPW lppw;
 	int cxChar, cyChar, middle;
 	HFONT hfont;
-
-	lppw = (LPPW)GetWindowLongPtrW(hwnd, 0);
-
+	LPPW lppw = (LPPW)GetWindowLongPtrW(hwnd, 0);
 	switch(message) {
 		case WM_KEYDOWN:
 		    if(wParam == VK_RETURN)
@@ -271,19 +267,11 @@ LRESULT CALLBACK WndPauseProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    cyChar = tm.tmHeight + tm.tmExternalLeading;
 		    ReleaseDC(hwnd, hdc);
 		    middle = ((LPCREATESTRUCT)lParam)->cx / 2;
-		    lppw->hOK = CreateWindow(TEXT("button"), TEXT("OK"),
-			    ws_opts | BS_DEFPUSHBUTTON,
-			    middle - 13 * cxChar, 3 * cyChar,
-			    10 * cxChar, 7 * cyChar / 4,
-			    hwnd, (HMENU)IDOK,
-			    ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		    lppw->hOK = CreateWindow(TEXT("button"), TEXT("OK"), ws_opts | BS_DEFPUSHBUTTON, middle - 13 * cxChar, 3 * cyChar,
+			    10 * cxChar, 7 * cyChar / 4, hwnd, (HMENU)IDOK, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		    lppw->bDefOK = TRUE;
-		    lppw->hCancel = CreateWindow(TEXT("button"), TEXT("Cancel"),
-			    ws_opts | BS_PUSHBUTTON,
-			    middle - 1 * cxChar, 3 * cyChar,
-			    10 * cxChar, 7 * cyChar / 4,
-			    hwnd, (HMENU)IDCANCEL,
-			    ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		    lppw->hCancel = CreateWindow(TEXT("button"), TEXT("Cancel"), ws_opts | BS_PUSHBUTTON, middle - 1 * cxChar, 3 * cyChar,
+			    10 * cxChar, 7 * cyChar / 4, hwnd, (HMENU)IDCANCEL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		    lppw->lpfnOK = (WNDPROC)GetWindowLongPtr(lppw->hOK, GWLP_WNDPROC);
 		    SetWindowLongPtr(lppw->hOK, GWLP_WNDPROC, (LONG_PTR)PauseButtonProc);
 		    lppw->lpfnCancel = (WNDPROC)GetWindowLongPtr(lppw->hCancel, GWLP_WNDPROC);
@@ -308,9 +296,8 @@ LRESULT CALLBACK WndPauseProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 LRESULT CALLBACK PauseButtonProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	LPPW lppw;
 	LONG n = GetWindowLong(hwnd, GWL_ID);
-	lppw = (LPPW)GetWindowLongPtrW(GetParent(hwnd), 0);
+	LPPW lppw = (LPPW)GetWindowLongPtrW(GetParent(hwnd), 0);
 	switch(message) {
 		case WM_KEYDOWN:
 		    switch(wParam) {
@@ -337,6 +324,5 @@ LRESULT CALLBACK PauseButtonProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 		    }
 		    break;
 	}
-	return CallWindowProc(((n == IDOK) ? lppw->lpfnOK : lppw->lpfnCancel),
-		   hwnd, message, wParam, lParam);
+	return CallWindowProc(((n == IDOK) ? lppw->lpfnOK : lppw->lpfnCancel), hwnd, message, wParam, lParam);
 }

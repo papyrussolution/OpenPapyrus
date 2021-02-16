@@ -218,7 +218,7 @@ static void calc_derivatives(const double * par, double * data, double ** deriv)
 static bool fit_interrupt();
 //static bool regress(double a[]);
 static void regress_init();
-static void regress_finalize(int iter, double chisq, double last_chisq, double lambda, double ** covar);
+//static void regress_finalize(int iter, double chisq, double last_chisq, double lambda, double ** covar);
 static void fit_show(int i, double chisq, double last_chisq, double * a, double lambda, FILE * device);
 static void fit_show_brief(int iter, double chisq, double last_chisq, double * parms, double lambda, FILE * device);
 static void show_results(double chisq, double last_chisq, double* a, double* dpar, double** corel);
@@ -528,13 +528,12 @@ void call_gnuplot(const double * par, double * data)
 {
 	int i, j;
 	GpValue v;
-	/* set parameters first */
+	// set parameters first 
 	for(i = 0; i < num_params; i++)
 		Gcomplex(par_udv[i], par[i] * scale_params[i], 0.0);
 	for(i = 0; i < num_data; i++) {
-		/* calculate fit-function value */
-		/* initialize extra dummy variables from the corresponding
-		   actual variables, if any. */
+		// calculate fit-function value 
+		// initialize extra dummy variables from the corresponding actual variables, if any. 
 		for(j = 0; j < MAX_NUM_VAR; j++) {
 			double dummy_value;
 			udvt_entry * udv = fit_dummy_udvs[j];
@@ -546,12 +545,12 @@ void call_gnuplot(const double * par, double * data)
 				dummy_value = 0.0;
 			Gcomplex(&func.dummy_values[j], dummy_value, 0.0);
 		}
-		/* set actual dummy variables from file data */
+		// set actual dummy variables from file data 
 		for(j = 0; j < num_indep; j++)
 			Gcomplex(&func.dummy_values[j], fit_x[i * num_indep + j], 0.0);
 		GPO.EvaluateAt(func.at, &v);
 		if(GPO.Ev.IsUndefined_ || isnan(real(&v))) {
-			/* Print useful info on undefined-function error. */
+			// Print useful info on undefined-function error. 
 			Dblf("\nCurrent data point\n");
 			Dblf("=========================\n");
 			Dblf3("%-15s = %i out of %i\n", "#", i + 1, num_data);
@@ -653,7 +652,7 @@ static bool fit_interrupt()
 			    /* set parameters visible to gnuplot */
 			    for(i = 0; i < num_params; i++)
 				    Gcomplex(par_udv[i], a[i] * scale_params[i], 0.0);
-			    do_string(tmp);
+			    GPO.DoString(tmp);
 		    }
 		}
 	}
@@ -689,10 +688,11 @@ static void regress_init()
 //
 // finalize regression: print results and set user variables
 //
-static void regress_finalize(int iter, double chisq, double last_chisq, double lambda, double ** covar)
+//static void regress_finalize(int iter, double chisq, double last_chisq, double lambda, double ** covar)
+void GnuPlot::RegressFinalize(int iter, double chisq, double lastChisq, double lambda, double ** ppCovar)
 {
 	int i, j;
-	struct udvt_entry * v;  /* For exporting results to the user */
+	udvt_entry * v; // For exporting results to the user 
 	int ndf;
 	int niter;
 	double stdfit;
@@ -707,15 +707,15 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 	// tsm patchset 230: final progress report to log file 
 	if(!fit_suppress_log) {
 		if(fit_verbosity == VERBOSE)
-			fit_show(iter, chisq, last_chisq, a, lambda, log_f);
+			fit_show(iter, chisq, lastChisq, a, lambda, log_f);
 		else
-			fit_show_brief(iter, chisq, last_chisq, a, lambda, log_f);
+			fit_show_brief(iter, chisq, lastChisq, a, lambda, log_f);
 	}
 	// test covariance matrix 
-	if(covar) {
+	if(ppCovar) {
 		for(i = 0; i < num_params; i++) {
 			// diagonal elements must be larger than zero 
-			if(covar[i][i] <= 0.0) {
+			if(ppCovar[i][i] <= 0.0) {
 				// Not a fatal error, but prevent floating point exception later on 
 				Dblf2("Calculation error: non-positive diagonal element in covar. matrix of parameter '%s'.\n", par_name[i]);
 				covar_invalid = TRUE;
@@ -737,7 +737,7 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 	}
 	else {
 		Dblf2("\nAfter %d iterations the fit converged.\n", iter);
-		v = GPO.Ev.AddUdvByName("FIT_CONVERGED");
+		v = Ev.AddUdvByName("FIT_CONVERGED");
 		Ginteger(&v->udv_value, 1);
 	}
 	// fit results 
@@ -746,15 +746,15 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 	pvalue = 1. - chisq_cdf(ndf, chisq);
 	niter = iter;
 	// Export these to user-accessible variables 
-	v = GPO.Ev.AddUdvByName("FIT_NDF");
+	v = Ev.AddUdvByName("FIT_NDF");
 	Ginteger(&v->udv_value, ndf);
-	v = GPO.Ev.AddUdvByName("FIT_STDFIT");
+	v = Ev.AddUdvByName("FIT_STDFIT");
 	Gcomplex(&v->udv_value, stdfit, 0);
-	v = GPO.Ev.AddUdvByName("FIT_WSSR");
+	v = Ev.AddUdvByName("FIT_WSSR");
 	Gcomplex(&v->udv_value, chisq, 0);
-	v = GPO.Ev.AddUdvByName("FIT_P");
+	v = Ev.AddUdvByName("FIT_P");
 	Gcomplex(&v->udv_value, pvalue, 0);
-	v = GPO.Ev.AddUdvByName("FIT_NITER");
+	v = Ev.AddUdvByName("FIT_NITER");
 	Ginteger(&v->udv_value, niter);
 	// Save final parameters. Depending on the backend and
 	// its internal state, the last call_gnuplot may not have been
@@ -769,7 +769,7 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 	}
 	if(fit_covarvariables) {
 		// first, remove all previous covariance variables 
-		GPO.Ev.DelUdvByName("FIT_COV_*", TRUE);
+		Ev.DelUdvByName("FIT_COV_*", TRUE);
 		for(i = 0; i < num_params; i++) {
 			for(j = 0; j < i; j++) {
 				setvarcovar(par_name[i], par_name[j], 0.0);
@@ -780,17 +780,17 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 	}
 	// calculate unscaled parameter errors in dpar[]: 
 	dpar = vec(num_params);
-	if(covar && !covar_invalid) {
+	if(ppCovar && !covar_invalid) {
 		// calculate unscaled parameter errors in dpar[]: 
 		for(i = 0; i < num_params; i++) {
-			dpar[i] = sqrt(covar[i][i]);
+			dpar[i] = sqrt(ppCovar[i][i]);
 		}
 		// transform covariances into correlations 
 		corel = matr(num_params, num_params);
 		for(i = 0; i < num_params; i++) {
 			// only lower triangle needs to be handled 
 			for(j = 0; j < i; j++)
-				corel[i][j] = covar[i][j] / (dpar[i] * dpar[j]);
+				corel[i][j] = ppCovar[i][j] / (dpar[i] * dpar[j]);
 			corel[i][i] = 1.0;
 		}
 	}
@@ -811,18 +811,18 @@ static void regress_finalize(int iter, double chisq, double last_chisq, double l
 			setvarerr(par_name[i], dpar[i] * scale_params[i]);
 	}
 	// fill covariance variables if needed 
-	if(fit_covarvariables && covar && !covar_invalid) {
+	if(fit_covarvariables && ppCovar && !covar_invalid) {
 		double scale = (fit_errorscaling || (num_errors == 0)) ? (chisq / (num_data - num_params)) : 1.0;
 		for(i = 0; i < num_params; i++) {
 			// only lower triangle needs to be handled 
 			for(j = 0; j <= i; j++) {
 				double temp = scale * scale_params[i] * scale_params[j];
-				setvarcovar(par_name[i], par_name[j], covar[i][j] * temp);
-				setvarcovar(par_name[j], par_name[i], covar[i][j] * temp);
+				setvarcovar(par_name[i], par_name[j], ppCovar[i][j] * temp);
+				setvarcovar(par_name[j], par_name[i], ppCovar[i][j] * temp);
 			}
 		}
 	}
-	show_results(chisq, last_chisq, a, dpar, corel);
+	show_results(chisq, lastChisq, a, dpar, corel);
 	SAlloc::F(dpar);
 	free_matr(corel);
 }
@@ -841,7 +841,6 @@ bool regress_check_stop(int iter, double chisq, double last_chisq, double lambda
 			fit_show(iter, chisq, last_chisq, a, lambda, STANDARD);
 		else
 			fit_show_brief(iter, chisq, last_chisq, a, lambda, STANDARD);
-
 		ctrlc_flag = FALSE;
 		if(!fit_interrupt()) /* handle keys */
 			return FALSE;
@@ -911,7 +910,7 @@ bool GnuPlot::Regress(double a[])
 	// Use lower square of C for covar 
 	covar = C + num_data;
 	Invert_RtR(C, covar, num_params);
-	regress_finalize(iter, chisq, last_chisq, lambda, covar);
+	RegressFinalize(iter, chisq, last_chisq, lambda, covar);
 	// call destructor for allocated vars 
 	internal_cleanup();
 	regress_cleanup = NULL;
@@ -2045,54 +2044,48 @@ char * getfitlogfile()
 	char * logfile = NULL;
 	if(fitlogfile == NULL) {
 		char * tmp = getenv(GNUFITLOG); /* open logfile */
-		/* If GNUFITLOG is defined but null, do not write to log file */
-		if(tmp != NULL && *tmp == '\0') {
+		// If GNUFITLOG is defined but null, do not write to log file 
+		if(tmp && *tmp == '\0') {
 			fit_suppress_log = TRUE;
 			return NULL;
 		}
-		if(tmp != NULL && *tmp != '\0') {
+		if(!isempty(tmp)) {
 			char * tmp2 = tmp + (strlen(tmp) - 1);
-			/* if given log file name ends in path separator, treat it
-			 * as a directory to store the default "fit.log" in */
-			if(*tmp2 == '/' || *tmp2 == '\\') {
+			// if given log file name ends in path separator, treat it as a directory to store the default "fit.log" in 
+			if(oneof2(*tmp2, '/', '\\')) {
 				logfile = (char*)gp_alloc(strlen(tmp) + strlen(fitlogfile_default) + 1, "logfile");
 				strcpy(logfile, tmp);
 				strcat(logfile, fitlogfile_default);
 			}
-			else {
+			else
 				logfile = gp_strdup(tmp);
-			}
 		}
-		else {
+		else
 			logfile = gp_strdup(fitlogfile_default);
-		}
 	}
-	else {
+	else
 		logfile = gp_strdup(fitlogfile);
-	}
 	return logfile;
 }
-/*
- * replacement for "update", which is now deprecated.
- * write current value of parameters used in previous fit to a file.
- * That file can be used as an argument to 'via' in a subsequent fit command.
- */
-void save_fit(FILE * fp)
+// 
+// replacement for "update", which is now deprecated.
+// write current value of parameters used in previous fit to a file.
+// That file can be used as an argument to 'via' in a subsequent fit command.
+// 
+//void save_fit(FILE * fp)
+void GnuPlot::SaveFit(FILE * fp)
 {
-	udvt_entry * udv;
-	int k;
 	if(isempty(last_fit_command)) {
-		GPO.IntWarn(NO_CARET, "no previous fit command");
-		return;
+		IntWarn(NO_CARET, "no previous fit command");
 	}
 	else {
 		fputs("# ", fp);
 		fputs(last_fit_command, fp);
 		fputs("\n", fp);
-		udv = GPO.Ev.GetUdvByName("FIT_STDFIT");
+		udvt_entry * udv = Ev.GetUdvByName("FIT_STDFIT");
 		if(udv)
 			fprintf(fp, "# final sum of squares of residuals : %g\n", udv->udv_value.v.cmplx_val.real);
+		for(int k = 0; k < last_num_params; k++)
+			fprintf(fp, "%-15s = %-22s\n", last_par_name[k], value_to_str(par_udv[k], FALSE));
 	}
-	for(k = 0; k < last_num_params; k++)
-		fprintf(fp, "%-15s = %-22s\n", last_par_name[k], value_to_str(par_udv[k], FALSE));
 }

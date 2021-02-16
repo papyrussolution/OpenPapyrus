@@ -9087,6 +9087,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_egaismode_dontuse               "@{dontuse}"
 @cashnode_egaismode_testmode              "@{testmode}"
 @cashnode_egaismode_scanmarkonly          "Только сканировать марку"
+@cashnode_importparam                     "Параметры импорта" // cmd
 
 @cashnode_async_exppaths                  "Пути экспорта"
 @cashnode_async_impfiles                  "Файлы импорта"
@@ -14150,6 +14151,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billbysampleparam_acndraftrcpbyorder     "Сформировать драфт-приход"
 @billbysampleparam_acndraftexprestbyorder "Сформировать драфт-расход только по неотгруженным позициям"
 @billbysampleparam_acnshipmall            "Отгрузить весь оприходованный товар"
+@billbysampleparam_acndraftexpbydraftrcpt "Сформировать драфт-расход"
+@billbysampleparam_acndraftrcptbydraftexp "Сформировать драфт-приход"
 @billbysampleparam_op                     "@{oprkind}"
 @billbysampleparam_loc                    "@{warehouse}"
 @billbysampleparam_quotkind               "@{quotkind}"
@@ -16097,6 +16100,32 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prcssrgoodssaldoparam_fromlastcal            "От последнего расчета" // generic !@prcssrgoodssaldoparam_fullcalc
 @prcssrgoodssaldoparam_lastcalcdate           "Последний  расчет"
 
+@calcprice                                    "Вычисление цены реализации" // CalcPriceParam
+@calcprice_flags                              "@{flags}"
+@calcprice_fcostwovat                         ""
+@calcprice_fexcltaxes                         "Исключить налоги из цены"
+@calcprice_froundvat                          "@{byvat}"
+@calcprice_fvataboveaddition                  "НДС начислить на наценку"
+
+@updquotwarn                                  "@{admonition}"
+@updquotwarn_warehasabsquot                   "Уже содержит абсолютную котировку"
+@updquotwarn_itwillberepacedwithrelquot       "Она будет заменена на относительную"
+@updquotwarn_areyouagree                      "Вы согласны с этой заменой?"
+@updquotwarn_yesforall                        "@{yes} для всех"
+
+@makecrptdatafiles                            "Создание файлов для отчетов"
+@makecrptdatafiles_rptname                    "Наименование отчета (ALL - все отчеты)"
+@makecrptdatafiles_datapath                   "Каталог данных"
+
+@goodsbilltotal                               "Итоги по товарным строкам документа"
+@goodsbilltotal_qtty                          "Количество единиц"
+
+@cfgrounding                                  "Параметры округления"
+@cfgrounding_bound                            "Граница" // generic
+
+@printingerror                                "Ошибка печати"
+@printingerror_retry                          "Повторить" // cmd
+
 [121]
 1   "Вход"
 2	"@{session}"
@@ -16719,9 +16748,10 @@ PPHSC_RU_FOUNDATION            "Основание"
 PPHSC_RU_AREAOFAUTHORITY       "ОблПолн"
 PPHSC_RU_FOUNDATIONOFAUTHORITY "ОснПолн"
 PPHSC_RU_BASISFORWARETRANSFER  "ОснПер"
-PPHSC_RU_NAMEOFBASISFORWARETRANSFER  "НаимОсн"
-PPHSC_RU_NUMBOFBASISFORWARETRANSFER  "НомОсн"
-PPHSC_RU_DATEOFBASISFORWARETRANSFER  "ДатаОсн"
+PPHSC_RU_NAMEOFBASISFORWARETRANSFER     "НаимОсн"
+PPHSC_RU_NUMBOFBASISFORWARETRANSFER     "НомОсн"
+PPHSC_RU_DATEOFBASISFORWARETRANSFER     "ДатаОсн"
+PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER "ДопСвОсн" // @v11.0.2
 PPHSC_RU_NODOCOFBASISFORWARETRANSFER "Без документа-основания"
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.

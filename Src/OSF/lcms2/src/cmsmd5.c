@@ -27,8 +27,7 @@
 
 #ifdef CMS_USE_BIG_ENDIAN
 
-static
-void byteReverse(cmsUInt8Number * buf, cmsUInt32Number longs)
+static void byteReverse(cmsUInt8Number * buf, cmsUInt32Number longs)
 {
 	do {
 		cmsUInt32Number t = _cmsAdjustEndianess32(*(cmsUInt32Number*)buf);
@@ -53,11 +52,9 @@ typedef struct {
 #define F3(x, y, z) (x ^ y ^ z)
 #define F4(x, y, z) (y ^ (x | ~z))
 
-#define STEP(f, w, x, y, z, data, s) \
-	( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
+#define STEP(f, w, x, y, z, data, s)  ( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
 
-static
-void cmsMD5_Transform(cmsUInt32Number buf[4], cmsUInt32Number in[16])
+static void cmsMD5_Transform(cmsUInt32Number buf[4], cmsUInt32Number in[16])
 {
 	CMSREGISTER cmsUInt32Number a, b, c, d;
 

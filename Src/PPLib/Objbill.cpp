@@ -1631,7 +1631,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 	return ok ? res : 0;
 }
 
-int PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam)
+int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam)
 {
 	int    ok = 1;
 	int    r = 1;

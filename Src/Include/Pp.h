@@ -32638,8 +32638,7 @@ struct SelAddBySampleParam {
 		fNonInteractive = 0x0002,
 		fAll            = 0x0004, // @v10.0.02 Сформировать документы для всей выборки (только если выборка по
 			// одному виду операции). Автоматически предполагате fNonInteractive
-		fRcptAllOnShipm = 0x0008  // @v10.4.12 При формировании отгрузки по заказу весь заказанный товар
-			// безусловно оприходовать.
+		fRcptAllOnShipm = 0x0008  // @v10.4.12 При формировании отгрузки по заказу весь заказанный товар безусловно оприходовать.
 	};
 	enum {
 		acnUndef               = -1, // Не определено
@@ -32648,7 +32647,9 @@ struct SelAddBySampleParam {
 		acnDraftExpByOrder     =  2, // Драфт-расход по заказу
 		acnDraftRcpByOrder     =  3, // Драфт-приход по заказу
 		acnDraftExpRestByOrder =  4, // Драфт-расход по заказу (только не отгруженные позиции)
-		acnShipmAll            =  5  // Отгрузить весь оприходованный товар
+		acnShipmAll            =  5, // Отгрузить весь оприходованный товар
+		acnDraftExpByDraftRcpt =  6, // @v11.0.2 Драфт-расход по драфт-приходу
+		acnDraftRcptByDraftExp =  7, // @v11.0.2 Драфт-приход по драфт-расходу
 	};
 	long   Action;
 	PPID   OpID;
@@ -32901,7 +32902,7 @@ public:
 	int    AddGoodsBillByFilt(PPID * pBillID, const BillFilt *, PPID opID, PPID sCardID = 0, const CCheckTbl::Rec * pChkRec = 0);
 	int    AddExpendByReceipt(PPID *, PPID sampleBillID, const SelAddBySampleParam * pParam);
 	int    AddExpendByOrder(PPID *, PPID sampleBillID, const SelAddBySampleParam * pParam);
-	int    AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam);
+	int    AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam);
 	int    AddRetBill(PPID opID, long link, PPID locID);
 	int    AddRetBillByLot(PPID lotID);
 	void   DiagGoodsTurnError(const PPBillPacket *);
@@ -54260,7 +54261,7 @@ int    PPGoodsCalculator(PPID goodsID, PPID tsesID, int argIdx, double arg, doub
 //
 //
 //
-struct CalcPriceParam {
+struct CalcPriceParam { // @{calcprice}
 	CalcPriceParam();
 	int    Save() const; // VarPercent, RoundPrec, RoundDir, fRoundVat, fVatAboveAddition
 	int    Restore();

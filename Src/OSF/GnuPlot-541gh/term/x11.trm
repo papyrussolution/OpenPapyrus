@@ -67,8 +67,8 @@ register_term(x11)
 #ifdef TERM_PROTO
 int X11_args(int argc, char * argv[]);
 
-TERM_PUBLIC void X11_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void X11_init(termentry * pThis);
+TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void X11_init(GpTermEntry * pThis);
 TERM_PUBLIC void X11_graphics();
 TERM_PUBLIC void X11_text();
 TERM_PUBLIC int  X11_set_font(const char * fontname);
@@ -397,7 +397,7 @@ static struct gen_table X11_opts[] = {
 	{NULL, X11_OTHER}
 };
 
-TERM_PUBLIC void X11_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 #define NOT_PROCESS_IF_DUPLICATION 1
 	int c_title_token = 0;
@@ -409,7 +409,7 @@ TERM_PUBLIC void X11_options(TERMENTRY * pThis, GnuPlot * pGp)
 	bool set_ctrlq = FALSE;
 	bool set_title = FALSE, set_number = FALSE, set_close = FALSE;
 #ifdef EXTERNAL_X11_WINDOW
-	unsigned long existing_X11_window_id = 0;
+	ulong existing_X11_window_id = 0;
 	bool set_window = FALSE;
 #endif
 	char * s;
@@ -854,7 +854,7 @@ TERM_PUBLIC int X11_waitforinput(int options)
 
 	// normal path
 	fd_set fds;
-	static struct gp_event_t ge;
+	static GpEvent ge;
 	static int l = 0;
 	struct timeval one_msec;
 	int n;
@@ -979,7 +979,7 @@ TERM_PUBLIC int X11_waitforinput(int options)
 
 #endif /* USE_MOUSE */
 
-TERM_PUBLIC void X11_init(termentry * pThis)
+TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 {
 	static int been_here = 0;
 	if(!X11_ipc) {
@@ -1100,7 +1100,7 @@ TERM_PUBLIC void X11_reset()
 static char X11_tmp[32], X11_tmp0[32], X11_shutdown[32];
 static int X11_pid;
 
-TERM_PUBLIC void X11_init(termentry * pThis)
+TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 {
 	if(!(X11_pid = fork())) {
 		execvp(X11_full_command_path, optvec);
@@ -1166,7 +1166,7 @@ struct iosb {
 	ulong info;
 };
 
-TERM_PUBLIC void X11_init(termentry * pThis)
+TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 {
 	struct iosb iosb;
 	static char devnam_string[64];
@@ -1306,12 +1306,10 @@ double X11_ymax_saved = -1.0;
 TERM_PUBLIC void X11_graphics()
 {
 #ifdef USE_MOUSE
-	static unsigned long windowid = 0;
+	static ulong windowid = 0;
 #endif
 	static enum set_encoding_id last_encoding = S_ENC_DEFAULT;
-
 	BEFORE_GRAPHICS;        /* kludge for crippled select */
-
 #ifndef USE_MOUSE
 	/* for VMS sake, keep as separate prints */
 	PRINT0("G\n");

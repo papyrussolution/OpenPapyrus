@@ -84,7 +84,7 @@ static void expand_df_column(int);
 static void clear_df_column_headers();
 static char * df_gets();
 static int df_tokenise(char * s);
-static double * df_read_matrix(int * rows, int * columns);
+//static double * df_read_matrix(int * rows, int * columns);
 //static void plot_option_every();
 //static void plot_option_index();
 //static void plot_option_using(int);
@@ -710,7 +710,8 @@ static int df_tokenise(char * s)
  * but does not retain the pointer.  Maintenance of the memory is left to
  * the calling code.
  */
-static double * df_read_matrix(int * rows, int * cols)
+//static double * df_read_matrix(int * pRows, int * pCols)
+double * GnuPlot::DfReadMatrix(int * pRows, int * pCols)
 {
 	int    max_rows = 0;
 	int    c;
@@ -718,8 +719,8 @@ static double * df_read_matrix(int * rows, int * cols)
 	char * s;
 	int    index = 0;
 	df_bad_matrix_values = 0;
-	*rows = 0;
-	*cols = 0;
+	*pRows = 0;
+	*pCols = 0;
 	for(;;) {
 		if(!(s = df_gets())) {
 			df_eof = 1;
@@ -780,7 +781,7 @@ static double * df_read_matrix(int * rows, int * cols)
 		if(!c)
 			return linearized_matrix;
 		// If the first row of matrix data contains column headers 
-		if(!df_already_got_headers && df_matrix_columnheaders && *rows == 0) {
+		if(!df_already_got_headers && df_matrix_columnheaders && *pRows == 0) {
 			int i;
 			char * temp_string;
 			df_already_got_headers = TRUE;
@@ -791,26 +792,26 @@ static double * df_read_matrix(int * rows, int * cols)
 					df_column[0].datum = xpos;
 					df_column[0].good = DF_GOOD;
 					evaluate_inside_using = TRUE;
-					GPO.EvaluateAt(use_spec[0].at, &a);
+					EvaluateAt(use_spec[0].at, &a);
 					evaluate_inside_using = FALSE;
 					xpos = real(&a);
 				}
 				temp_string = df_parse_string_field(df_column[i].position);
-				add_tic_user(&GPO.AxS[FIRST_X_AXIS], temp_string, xpos, -1);
+				add_tic_user(&AxS[FIRST_X_AXIS], temp_string, xpos, -1);
 				SAlloc::F(temp_string);
 			}
 			continue;
 		}
-		if(*cols && c != *cols) {
+		if(*pCols && c != *pCols) {
 			// it's not regular 
 			SAlloc::F(linearized_matrix);
-			GPO.IntError(NO_CARET, "Matrix does not represent a grid");
+			IntError(NO_CARET, "Matrix does not represent a grid");
 		}
-		*cols = c;
-		++*rows;
-		if(*rows > max_rows) {
+		*pCols = c;
+		++*pRows;
+		if(*pRows > max_rows) {
 			max_rows = MAX(2*max_rows, 1);
-			linearized_matrix = (double *)gp_realloc(linearized_matrix, *cols * max_rows * sizeof(double), "df_matrix");
+			linearized_matrix = (double *)gp_realloc(linearized_matrix, *pCols * max_rows * sizeof(double), "df_matrix");
 		}
 		// store data 
 		{
@@ -818,20 +819,20 @@ static double * df_read_matrix(int * rows, int * cols)
 				// First column in "matrix rowheaders" is a ytic label 
 				if(df_matrix_rowheaders && i == 0) {
 					char * temp_string;
-					double ypos = *rows - 1;
+					double ypos = *pRows - 1;
 					if(use_spec[1].at) {
 						// The save/restore is to make sure 1:(f($2)):3 works 
 						GpValue a;
 						const double save = df_column[1].datum;
 						df_column[1].datum = ypos;
 						evaluate_inside_using = TRUE;
-						GPO.EvaluateAt(use_spec[1].at, &a);
+						EvaluateAt(use_spec[1].at, &a);
 						evaluate_inside_using = FALSE;
 						ypos = real(&a);
 						df_column[1].datum = save;
 					}
 					temp_string = df_parse_string_field(df_column[0].position);
-					add_tic_user(&GPO.AxS[FIRST_Y_AXIS], temp_string, ypos, -1);
+					add_tic_user(&AxS[FIRST_Y_AXIS], temp_string, ypos, -1);
 					SAlloc::F(temp_string);
 					continue;
 				}
@@ -845,7 +846,7 @@ static double * df_read_matrix(int * rows, int * cols)
 					if(df_nonuniform_matrix && index == 1)
 						; // This field is typically a label or comment 
 					else if(df_bad_matrix_values++ == 0)
-						GPO.IntWarn(NO_CARET, "matrix contains missing or undefined values");
+						IntWarn(NO_CARET, "matrix contains missing or undefined values");
 				}
 			}
 		}
@@ -876,7 +877,7 @@ void GnuPlot::InitializePlotStyle(curve_points * pPlot)
 		const int save_token = Pgm.GetCurTokenIdx();
 		for(; !Pgm.EndOfCommand(); /*c_token++*/Pgm.Shift()) {
 			if(Pgm.AlmostEqualsCur("w$ith")) {
-				pPlot->plot_style = get_style();
+				pPlot->plot_style = GetStyle();
 				break;
 			}
 		}
@@ -2199,7 +2200,7 @@ void GnuPlot::DfDetermineMatrix_info(FILE * fin)
 		}
 		// Keep reading matrices until file is empty. 
 		while(!df_eof) {
-			if((matrix = df_read_matrix(&nr, &nc)) != NULL) {
+			if((matrix = DfReadMatrix(&nr, &nc)) != NULL) {
 				int index = df_num_bin_records;
 				// Ascii matrix with explicit y in first row, x in first column 
 				if(df_nonuniform_matrix) {
@@ -3300,8 +3301,7 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			Pgm.Shift();
 			PlotOptionMultiValued(DF_DELTA, 1);
 			if(!set_dz) {
-				int i;
-				for(i = 0; i < df_num_bin_records; i++)
+				for(int i = 0; i < df_num_bin_records; i++)
 					df_bin_record[i].cart_delta[2] = df_bin_record[i].cart_delta[1];
 			}
 			set_dy = TRUE;
@@ -4762,9 +4762,9 @@ char * GnuPlot::DfGeneratePseudodata()
 					check_log_limits(&AxS.__X(), t_min, t_max);
 				}
 			}
-			if(t_step == 0) /* always true unless explicit sample interval was given */
-				t_step = (t_max - t_min) / (samples_1 - 1);
-			if(t_step == 0) /* prevent infinite loop on zero range */
+			if(t_step == 0) // always true unless explicit sample interval was given 
+				t_step = (t_max - t_min) / (Gg.Samples1 - 1);
+			if(t_step == 0) // prevent infinite loop on zero range 
 				t_step = 1;
 		}
 		t = t_min + df_pseudorecord * t_step;
@@ -4775,7 +4775,7 @@ char * GnuPlot::DfGeneratePseudodata()
 		}
 		else {
 			// This is the usual case 
-			if(df_pseudorecord >= samples_1)
+			if(df_pseudorecord >= Gg.Samples1)
 				return NULL;
 			if(AxS.__X().IsNonLinear()) {
 				const GpAxis * visible = AxS.__X().linked_to_primary->linked_to_secondary;
@@ -4804,7 +4804,7 @@ char * GnuPlot::DfGeneratePseudodata()
 		AXIS_INDEX v_axis = V_AXIS;
 		// Fill in the static variables only once per plot 
 		if(df_pseudospan == 0 && df_pseudorecord == 0) {
-			if(samples_1 < 2 || samples_2 < 2 || iso_samples_1 < 2 || iso_samples_2 < 2)
+			if(Gg.Samples1 < 2 || Gg.Samples2 < 2 || Gg.IsoSamples1 < 2 || Gg.IsoSamples2 < 2)
 				IntError(NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
 			if(Gg.Parametric) {
 				u_min = AxS[U_AXIS].min;
@@ -4837,20 +4837,20 @@ char * GnuPlot::DfGeneratePseudodata()
 				nusteps = ffloori((u_max - u_min) / u_step) + 1;
 			}
 			else if(hidden3d) {
-				u_step = (u_max - u_min) / (iso_samples_1 - 1);
-				nusteps = iso_samples_1;
+				u_step = (u_max - u_min) / (Gg.IsoSamples1 - 1);
+				nusteps = Gg.IsoSamples1;
 			}
 			else {
-				u_step = (u_max - u_min) / (samples_1 - 1);
-				nusteps = samples_1;
+				u_step = (u_max - u_min) / (Gg.Samples1 - 1);
+				nusteps = Gg.Samples1;
 			}
 			if((AxS[v_axis].range_flags & RANGE_SAMPLED) && (AxS[v_axis].SAMPLE_INTERVAL != 0)) {
 				v_isostep = AxS[v_axis].SAMPLE_INTERVAL;
 				nvsteps = ffloori((v_max - v_min) / v_isostep) + 1;
 			}
 			else {
-				v_isostep = (v_max - v_min) / (iso_samples_2 - 1);
-				nvsteps = iso_samples_2;
+				v_isostep = (v_max - v_min) / (Gg.IsoSamples2 - 1);
+				nvsteps = Gg.IsoSamples2;
 			}
 		}
 		// wrap at end of each line 

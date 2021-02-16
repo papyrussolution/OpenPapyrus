@@ -62,7 +62,7 @@ register_term(grass)
 #ifdef TERM_PROTO
 TERM_PUBLIC void GRASS_move(uint x, uint y);
 TERM_PUBLIC void GRASS_options();
-TERM_PUBLIC void GRASS_init(termentry * pThis);
+TERM_PUBLIC void GRASS_init(GpTermEntry * pThis);
 TERM_PUBLIC void GRASS_reset();
 TERM_PUBLIC void GRASS_graphics();
 TERM_PUBLIC void GRASS_text();
@@ -145,7 +145,7 @@ TERM_PUBLIC void GRASS_options()
 	GnuPlot::OptionsNull();         /* no options to begin with */
 }
 
-TERM_PUBLIC void GRASS_init(termentry * pThis)
+TERM_PUBLIC void GRASS_init(GpTermEntry * pThis)
 {
 	/* char buff[128]; */
 	char window_name[64];
@@ -154,8 +154,7 @@ TERM_PUBLIC void GRASS_init(termentry * pThis)
 	int dots_per_line;
 	int top, b, l, r;
 	/* int textcolor; */
-	struct termentry * t = term;
-
+	//GpTermEntry * t = term;
 	extern int G_gisinit();
 	extern int R_open_driver();
 	extern int D_setup();
@@ -171,54 +170,41 @@ TERM_PUBLIC void GRASS_init(termentry * pThis)
 	extern int D_erase_window();
 
 	G_gisinit("g.gnuplot");
-
 	R_open_driver();
-
 	D_setup(0);
-
 	if(D_get_cur_wind(window_name))
 		G_fatal_error("No current window");
-
 	if(D_set_cur_wind(window_name))
 		G_fatal_error("Current window not available");
-
-	/* Set up the screen, conversions, and graphics */
+	// Set up the screen, conversions, and graphics 
 	D_get_screen_window(&top, &b, &l, &r);
-	/* D_set_overlay_mode (1); */
-
-	/* Figure out where to put text */
-
+	// D_set_overlay_mode (1); 
+	// Figure out where to put text 
 	R_set_window(top, b, l, r);
-	t->MaxX = r-l;
-	t->MaxY = b-top;
+	pThis->MaxX = r-l;
+	pThis->MaxY = b-top;
 	grass_xoffset = l;
 	grass_yoffset = b;
-
-	dots_per_line = (int)(size / 100.0 * (float)(t->MaxY));
-	t->ChrV = t->ChrH = (int)(.8 * (float)dots_per_line);
-	R_text_size(t->ChrH, t->ChrV);
+	dots_per_line = (int)(size / 100.0 * (float)(pThis->MaxY));
+	pThis->ChrV = pThis->ChrH = (int)(0.8 * (float)dots_per_line);
+	R_text_size(pThis->ChrH, pThis->ChrV);
 	R_font("romans");
-
-	t->TicV = t->TicH = 4;
-
-	y_max = t->MaxY; /* kludge? */
-
+	pThis->TicV = pThis->TicH = 4;
+	y_max = pThis->MaxY; /* kludge? */
 	R__curx = R_screen_top();
 	R__cury = R_screen_bot() + grass_yoffset;
-
 	D_erase_window();
-
 	fprintf(stderr, "**********************************************\n");
 	fprintf(stderr, "DIAGNOSTIC TERMINAL SETUP\n");
 	fprintf(stderr, "top = %d\tb = %d\tl = %d\tr = %d\n", top, b, l, r);
-	fprintf(stderr, "name = %s\n", t->name);
-	fprintf(stderr, "description = %s\n", t->description);
-	fprintf(stderr, "xmax = %d\t", (int)t->MaxX);
-	fprintf(stderr, "ymax = %d\n", (int)t->MaxY);
-	fprintf(stderr, "ChrV = %d\t", (int)t->ChrV);
-	fprintf(stderr, "ChrH = %d\n", (int)t->ChrH);
-	fprintf(stderr, "TicV = %d\t", (int)t->TicV);
-	fprintf(stderr, "TicH = %d\n", (int)t->TicH);
+	fprintf(stderr, "name = %s\n", pThis->name);
+	fprintf(stderr, "description = %s\n", pThis->description);
+	fprintf(stderr, "xmax = %d\t", (int)pThis->MaxX);
+	fprintf(stderr, "ymax = %d\n", (int)pThis->MaxY);
+	fprintf(stderr, "ChrV = %d\t", (int)pThis->ChrV);
+	fprintf(stderr, "ChrH = %d\n", (int)pThis->ChrH);
+	fprintf(stderr, "TicV = %d\t", (int)pThis->TicV);
+	fprintf(stderr, "TicH = %d\n", (int)pThis->TicH);
 	fprintf(stderr, "**********************************************\n\n");
 }
 
@@ -339,7 +325,7 @@ TERM_PUBLIC int GRASS_justify_text(enum JUSTIFY mode)
 	return (FALSE);         /* don't mess with this now */
 }
 
-TERM_PUBLIC void GRASS_point(unsigned int x, unsigned y, int point)
+TERM_PUBLIC void GRASS_point(uint x, uint y, int point)
 {
 	switch(point) {
 		case TYPE_DOT:
@@ -523,24 +509,20 @@ TERM_PUBLIC int GRASS_set_font(const char * font)
 {
 	char name[32];
 	int size, sep, R_font();
-	struct termentry * t = term;
+	struct GpTermEntry * t = term;
 	int R_text_size(), dots_per_line;
-
-	/* G_warning(font); */
-
+	// G_warning(font); 
 	sep = strcspn(font, ",");
 	strncpy(name, font, sep); name[sep] = NUL;
 	sscanf(&(font[sep+1]), "%d", &size);
-
-	if(size==0)
+	if(size == 0)
 		size = 3;
 	dots_per_line = (int)(size / 100.0 * (float)(t->MaxY));
 	t->ChrV = t->ChrH = (int)(.8 * (float)dots_per_line);
 	R_text_size(t->ChrH, t->ChrV);
-/* cyrilc,gothgbt,gothgrt,gothitt,greekc,greekcs,greekp,
+	/* cyrilc,gothgbt,gothgrt,gothitt,greekc,greekcs,greekp,
    greeks,italicc,italiccs,italict,romanc,romancs,romand,
    romans,romant,scriptc,scripts */
-
 	if(strlen(name) > 5)
 		R_font(name);
 	else

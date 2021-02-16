@@ -23,7 +23,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -32,12 +32,12 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void HPPJ_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void HPPJ_init(termentry * pThis);
-TERM_PUBLIC void HPPJ_reset();
-TERM_PUBLIC void HPPJ_graphics();
-TERM_PUBLIC void HPPJ_text();
-TERM_PUBLIC void HPPJ_linetype(int linetype);
+TERM_PUBLIC void HPPJ_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void HPPJ_init(GpTermEntry * pThis);
+TERM_PUBLIC void HPPJ_reset(GpTermEntry * pThis);
+TERM_PUBLIC void HPPJ_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis);
+TERM_PUBLIC void HPPJ_linetype(GpTermEntry * pThis, int linetype);
 // We define 3 different font sizes: 5x9, 9x17, and 13x25 
 #define HPPJ_DPI 180            /* dots per inch */
 #define HPPJ_PLANES 3           /* color planes */
@@ -56,7 +56,7 @@ TERM_PUBLIC void HPPJ_linetype(int linetype);
 #ifdef TERM_BODY
 static int hppj_font = FNT9X17;
 
-TERM_PUBLIC void HPPJ_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void HPPJ_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char opt[10];
 #define HPPJERROR "expecting font size FNT5X9, FNT9X17, or FNT13X25"
@@ -86,44 +86,44 @@ TERM_PUBLIC void HPPJ_options(TERMENTRY * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void HPPJ_init(termentry * pThis)
+TERM_PUBLIC void HPPJ_init(GpTermEntry * pThis)
 {
 	// HBB 980226: moved this here, from graphics(): only init() may change fields of *term ! 
 	switch(hppj_font) {
 		case FNT5X9:
-		    term->ChrV = FNT5X9_VCHAR;
-		    term->ChrH = FNT5X9_HCHAR;
-		    term->TicV = FNT5X9_VCHAR / 2;
-		    term->TicH = FNT5X9_HCHAR / 2;
+		    pThis->ChrV = FNT5X9_VCHAR;
+		    pThis->ChrH = FNT5X9_HCHAR;
+		    pThis->TicV = FNT5X9_VCHAR / 2;
+		    pThis->TicH = FNT5X9_HCHAR / 2;
 		    break;
 		case FNT9X17:
-		    term->ChrV = FNT9X17_VCHAR;
-		    term->ChrH = FNT9X17_HCHAR;
-		    term->TicV = FNT9X17_VCHAR / 2;
-		    term->TicH = FNT9X17_HCHAR / 2;
+		    pThis->ChrV = FNT9X17_VCHAR;
+		    pThis->ChrH = FNT9X17_HCHAR;
+		    pThis->TicV = FNT9X17_VCHAR / 2;
+		    pThis->TicH = FNT9X17_HCHAR / 2;
 		    break;
 		case FNT13X25:
-		    term->ChrV = FNT13X25_VCHAR;
-		    term->ChrH = FNT13X25_HCHAR;
-		    term->TicV = FNT13X25_VCHAR / 2;
-		    term->TicH = FNT13X25_HCHAR / 2;
+		    pThis->ChrV = FNT13X25_VCHAR;
+		    pThis->ChrH = FNT13X25_HCHAR;
+		    pThis->TicV = FNT13X25_VCHAR / 2;
+		    pThis->TicH = FNT13X25_HCHAR / 2;
 		    break;
 	}
 }
 
-TERM_PUBLIC void HPPJ_reset()
+TERM_PUBLIC void HPPJ_reset(GpTermEntry * pThis)
 {
-	fflush_binary(); /* Only needed for VMS */
+	fflush_binary(); // Only needed for VMS 
 }
 
-TERM_PUBLIC void HPPJ_graphics()
+TERM_PUBLIC void HPPJ_graphics(GpTermEntry * pThis)
 {
-	/* HBB 980226: move a block of code from here to init() */
+	// HBB 980226: move a block of code from here to init() 
 	b_charsize(hppj_font);
 	b_makebitmap(HPPJ_XMAX, HPPJ_YMAX, HPPJ_PLANES);
 }
 
-TERM_PUBLIC void HPPJ_text()
+TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 {
 	int x, plane, y;        /* loop indexes */
 	int minRow, maxRow;     /* loop bounds */
@@ -176,14 +176,14 @@ TERM_PUBLIC void HPPJ_text()
 	b_freebitmap();
 }
 
-TERM_PUBLIC void HPPJ_linetype(int linetype)
+TERM_PUBLIC void HPPJ_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(linetype >= 0) {
-		b_setlinetype(0);
+		b_setlinetype(pThis, 0);
 		b_setvalue((linetype % (HPPJ_COLORS - 1)) + 1);
 	}
 	else {
-		b_setlinetype(linetype + 2);
+		b_setlinetype(pThis, linetype + 2);
 		b_setvalue(HPPJ_COLORS - 1);
 	}
 }

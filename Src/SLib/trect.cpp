@@ -67,6 +67,23 @@ void FASTCALL SInflateRect(RECT & rRect, int cx, int cy)
     rRect.bottom += cy;
 }
 //
+// SPoint2I
+//
+SPoint2I::operator POINT() const
+{
+	POINT p;
+	p.x = x;
+	p.y = y;
+	return p;
+}
+
+SPoint2I & SPoint2I::Z()
+{
+	x = 0;
+	y = 0;
+	return *this;
+}
+//
 // SPoint2S
 //
 uint32 SPoint2S::towparam() const

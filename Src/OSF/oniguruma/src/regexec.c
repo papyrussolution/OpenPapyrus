@@ -1,31 +1,6 @@
-/**********************************************************************
-   regexec.c -  Oniguruma (regular expression library)
-**********************************************************************/
-/*-
- * Copyright (c) 2002-2020  K.Kosako
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+// regexec.c -  Oniguruma (regular expression library)
+// Copyright (c) 2002-2020  K.Kosako All rights reserved.
+//
 #include "regint.h"
 #pragma hdrstop
 
@@ -36,24 +11,13 @@
 //#endif
 //#include "regint.h"
 
-#define IS_MBC_WORD_ASCII_MODE(enc, s, end, mode) \
-	((mode) == 0 ? ONIGENC_IS_MBC_WORD(enc, s, end) : ONIGENC_IS_MBC_WORD_ASCII(enc, s, end))
-
+#define IS_MBC_WORD_ASCII_MODE(enc, s, end, mode) ((mode) == 0 ? ONIGENC_IS_MBC_WORD(enc, s, end) : ONIGENC_IS_MBC_WORD_ASCII(enc, s, end))
 #ifdef USE_CRNL_AS_LINE_TERMINATOR
-#define ONIGENC_IS_MBC_CRNL(enc, p, end) \
-	(ONIGENC_MBC_TO_CODE(enc, p, end) == 13 && \
-	ONIGENC_IS_MBC_NEWLINE(enc, (p+enclen(enc, p)), end))
+	#define ONIGENC_IS_MBC_CRNL(enc, p, end) (ONIGENC_MBC_TO_CODE(enc, p, end) == 13 && ONIGENC_IS_MBC_NEWLINE(enc, (p+enclen(enc, p)), end))
 #endif
-
 #define CHECK_INTERRUPT_IN_MATCH
-
-#define STACK_MEM_START(reg, idx) \
-	(MEM_STATUS_AT((reg)->push_mem_start, (idx)) != 0 ? \
-	STACK_AT(mem_start_stk[idx].i)->u.mem.pstr : mem_start_stk[idx].s)
-
-#define STACK_MEM_END(reg, idx) \
-	(MEM_STATUS_AT((reg)->push_mem_end, (idx)) != 0 ? \
-	STACK_AT(mem_end_stk[idx].i)->u.mem.pstr : mem_end_stk[idx].s)
+#define STACK_MEM_START(reg, idx) (MEM_STATUS_AT((reg)->push_mem_start, (idx)) != 0 ? STACK_AT(mem_start_stk[idx].i)->u.mem.pstr : mem_start_stk[idx].s)
+#define STACK_MEM_END(reg, idx) (MEM_STATUS_AT((reg)->push_mem_end, (idx)) != 0 ? STACK_AT(mem_end_stk[idx].i)->u.mem.pstr : mem_end_stk[idx].s)
 
 static int forward_search(regex_t* reg, const uchar * str, const uchar * end, uchar * start, uchar * range, uchar ** low, uchar ** high);
 
@@ -317,7 +281,6 @@ static void p_string(FILE* f, int len, uchar * s)
 static void p_len_string(FILE* f, LengthType len, int mb_len, uchar * s)
 {
 	int x = len * mb_len;
-
 	fprintf(f, "len:%d ", len);
 	while(x-- > 0) {
 		fputc(*s++, f);
@@ -341,9 +304,8 @@ static void p_rel_addr(FILE* f, RelAddrType rel_addr, Operation* p, Operation* s
 
 static int bitset_on_num(BitSetRef bs)
 {
-	int i;
 	int n = 0;
-	for(i = 0; i < SINGLE_BYTE_SIZE; i++) {
+	for(int i = 0; i < SINGLE_BYTE_SIZE; i++) {
 		if(BITSET_AT(bs, i)) 
 			n++;
 	}
@@ -356,15 +318,9 @@ static int bitset_on_num(BitSetRef bs)
 #define GET_OPCODE(reg, index)  (reg)->ops[index].opcode
 #endif
 
-static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
-    Operation* start, OnigEncoding enc)
+static void print_compiled_byte_code(FILE* f, regex_t* reg, int index, Operation* start, OnigEncoding enc)
 {
-	static char* SaveTypeNames[] = {
-		"KEEP",
-		"S",
-		"RIGHT_RANGE"
-	};
-
+	static char* SaveTypeNames[] = { "KEEP", "S", "RIGHT_RANGE" };
 	static char* UpdateVarTypeNames[] = {
 		"KEEP_FROM_STACK_LAST",
 		"S_FROM_STACK",
@@ -373,7 +329,6 @@ static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
 		"RIGHT_RANGE_TO_S",
 		"RIGHT_RANGE_INIT"
 	};
-
 	int i, n;
 	RelAddrType addr;
 	LengthType len;
@@ -388,46 +343,29 @@ static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
 	fprintf(f, "%s", op2name(opcode));
 	p_after_op(f);
 	switch(opcode) {
-		case OP_STR_1:
-		    p_string(f, 1, p->exact.s); break;
-		case OP_STR_2:
-		    p_string(f, 2, p->exact.s); break;
-		case OP_STR_3:
-		    p_string(f, 3, p->exact.s); break;
-		case OP_STR_4:
-		    p_string(f, 4, p->exact.s); break;
-		case OP_STR_5:
-		    p_string(f, 5, p->exact.s); break;
-		case OP_STR_N:
-		    len = p->exact_n.n;
-		    p_string(f, len, p->exact_n.s); break;
-		case OP_STR_MB2N1:
-		    p_string(f, 2, p->exact.s); break;
-		case OP_STR_MB2N2:
-		    p_string(f, 4, p->exact.s); break;
-		case OP_STR_MB2N3:
-		    p_string(f, 3, p->exact.s); break;
-		case OP_STR_MB2N:
-		    len = p->exact_n.n;
-		    p_len_string(f, len, 2, p->exact_n.s); break;
-		case OP_STR_MB3N:
-		    len = p->exact_n.n;
-		    p_len_string(f, len, 3, p->exact_n.s); break;
+		case OP_STR_1: p_string(f, 1, p->exact.s); break;
+		case OP_STR_2: p_string(f, 2, p->exact.s); break;
+		case OP_STR_3: p_string(f, 3, p->exact.s); break;
+		case OP_STR_4: p_string(f, 4, p->exact.s); break;
+		case OP_STR_5: p_string(f, 5, p->exact.s); break;
+		case OP_STR_N: len = p->exact_n.n; p_string(f, len, p->exact_n.s); break;
+		case OP_STR_MB2N1: p_string(f, 2, p->exact.s); break;
+		case OP_STR_MB2N2: p_string(f, 4, p->exact.s); break;
+		case OP_STR_MB2N3: p_string(f, 3, p->exact.s); break;
+		case OP_STR_MB2N: len = p->exact_n.n; p_len_string(f, len, 2, p->exact_n.s); break;
+		case OP_STR_MB3N: len = p->exact_n.n; p_len_string(f, len, 3, p->exact_n.s); break;
 		case OP_STR_MBN:
-	    {
-		    int mb_len;
-
-		    mb_len = p->exact_len_n.len;
-		    len    = p->exact_len_n.n;
-		    q      = p->exact_len_n.s;
-		    fprintf(f, "mblen:%d len:%d ", mb_len, len);
-		    n = len * mb_len;
-		    while(n-- > 0) {
-			    fputc(*q++, f);
-		    }
-	    }
-	    break;
-
+			{
+				int mb_len = p->exact_len_n.len;
+				len    = p->exact_len_n.n;
+				q      = p->exact_len_n.s;
+				fprintf(f, "mblen:%d len:%d ", mb_len, len);
+				n = len * mb_len;
+				while(n-- > 0) {
+					fputc(*q++, f);
+				}
+			}
+			break;
 		case OP_CCLASS:
 		case OP_CCLASS_NOT:
 		    n = bitset_on_num(p->cclass.bsp);
@@ -435,38 +373,31 @@ static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
 		    break;
 		case OP_CCLASS_MB:
 		case OP_CCLASS_MB_NOT:
-	    {
-		    OnigCodePoint ncode;
-		    OnigCodePoint* codes;
-
-		    codes = (OnigCodePoint*)p->cclass_mb.mb;
-		    GET_CODE_POINT(ncode, codes);
-		    codes++;
-		    GET_CODE_POINT(code, codes);
-		    fprintf(f, "n:%d code:0x%x", ncode, code);
-	    }
-	    break;
+			{
+				OnigCodePoint ncode;
+				OnigCodePoint * codes = (OnigCodePoint*)p->cclass_mb.mb;
+				GET_CODE_POINT(ncode, codes);
+				codes++;
+				GET_CODE_POINT(code, codes);
+				fprintf(f, "n:%d code:0x%x", ncode, code);
+			}
+			break;
 		case OP_CCLASS_MIX:
 		case OP_CCLASS_MIX_NOT:
-	    {
-		    OnigCodePoint ncode;
-		    OnigCodePoint* codes;
-
-		    codes = (OnigCodePoint*)p->cclass_mix.mb;
-		    n = bitset_on_num(p->cclass_mix.bsp);
-
-		    GET_CODE_POINT(ncode, codes);
-		    codes++;
-		    GET_CODE_POINT(code, codes);
-		    fprintf(f, "nsg:%d code:%u nmb:%u", n, code, ncode);
-	    }
-	    break;
-
+			{
+				OnigCodePoint ncode;
+				OnigCodePoint * codes = (OnigCodePoint*)p->cclass_mix.mb;
+				n = bitset_on_num(p->cclass_mix.bsp);
+				GET_CODE_POINT(ncode, codes);
+				codes++;
+				GET_CODE_POINT(code, codes);
+				fprintf(f, "nsg:%d code:%u nmb:%u", n, code, ncode);
+			}
+			break;
 		case OP_ANYCHAR_STAR_PEEK_NEXT:
 		case OP_ANYCHAR_ML_STAR_PEEK_NEXT:
 		    p_string(f, 1, &(p->anychar_star_peek_next.c));
 		    break;
-
 		case OP_WORD_BOUNDARY:
 		case OP_NO_WORD_BOUNDARY:
 		case OP_WORD_BEGIN:
@@ -474,7 +405,6 @@ static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
 		    mode = p->word_boundary.mode;
 		    fprintf(f, "mode:%d", mode);
 		    break;
-
 		case OP_BACKREF_N:
 		case OP_BACKREF_N_IC:
 		    mem = p->backref_n.n1;
@@ -487,7 +417,8 @@ static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
 		    fprintf(f, "n:%d ", n);
 		    for(i = 0; i < n; i++) {
 			    mem = (n == 1) ? p->backref_general.n1 : p->backref_general.ns[i];
-			    if(i > 0) fputs(", ", f);
+			    if(i > 0) 
+					fputs(", ", f);
 			    fprintf(f, "%d", mem);
 		    }
 		    break;
@@ -495,9 +426,7 @@ static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
 		case OP_BACKREF_WITH_LEVEL_IC:
 		case OP_BACKREF_CHECK_WITH_LEVEL:
 	    {
-		    LengthType level;
-
-		    level = p->backref_general.nest_level;
+		    LengthType level = p->backref_general.nest_level;
 		    fprintf(f, "level:%d ", level);
 		    n = p->backref_general.num;
 		    for(i = 0; i < n; i++) {
@@ -653,9 +582,7 @@ static void print_compiled_byte_code(FILE* f, regex_t* reg, int index,
 
 		case OP_CALLOUT_NAME:
 	    {
-		    int id;
-
-		    id  = p->callout_name.id;
+		    int id  = p->callout_name.id;
 		    mem = p->callout_name.num;
 		    fprintf(f, "id:%d num:%d", id, mem);
 	    }
@@ -729,39 +656,40 @@ extern void onig_print_compiled_byte_code_list(FILE* f, regex_t* reg)
 #ifdef USE_CAPTURE_HISTORY
 static void history_tree_free(OnigCaptureTreeNode* node);
 
-static void history_tree_clear(OnigCaptureTreeNode* node)
+static void history_tree_clear(OnigCaptureTreeNode * node)
 {
 	int i;
-	if(IS_NULL(node)) 
-		return;
-	for(i = 0; i < node->num_childs; i++) {
-		if(IS_NOT_NULL(node->childs[i])) {
-			history_tree_free(node->childs[i]);
+	if(node) {
+		for(i = 0; i < node->num_childs; i++) {
+			if(IS_NOT_NULL(node->childs[i])) {
+				history_tree_free(node->childs[i]);
+			}
 		}
+		for(i = 0; i < node->allocated; i++) {
+			node->childs[i] = (OnigCaptureTreeNode*)0;
+		}
+		node->num_childs = 0;
+		node->beg = ONIG_REGION_NOTPOS;
+		node->end = ONIG_REGION_NOTPOS;
+		node->group = -1;
 	}
-	for(i = 0; i < node->allocated; i++) {
-		node->childs[i] = (OnigCaptureTreeNode*)0;
-	}
-	node->num_childs = 0;
-	node->beg = ONIG_REGION_NOTPOS;
-	node->end = ONIG_REGION_NOTPOS;
-	node->group = -1;
 }
 
 static void history_tree_free(OnigCaptureTreeNode* node)
 {
-	history_tree_clear(node);
-	if(IS_NOT_NULL(node->childs)) 
+	if(node) {
+		history_tree_clear(node);
 		SAlloc::F(node->childs);
-	SAlloc::F(node);
+		SAlloc::F(node);
+	}
 }
 
-static void history_root_free(OnigRegion* r)
+static void history_root_free(OnigRegion * r)
 {
-	if(IS_NULL(r->history_root)) 
-		return;
-	history_tree_free(r->history_root);
-	r->history_root = (OnigCaptureTreeNode*)0;
+	if(r->history_root) {
+		history_tree_free(r->history_root);
+		r->history_root = (OnigCaptureTreeNode*)0;
+	}
 }
 
 static OnigCaptureTreeNode* history_node_new(void)
@@ -930,9 +858,11 @@ extern void onig_region_copy(OnigRegion* to, OnigRegion* from)
 	}
 	else if(to->allocated < from->num_regs) {
 		to->beg = (int*)SAlloc::R(to->beg, RREGC_SIZE);
-		if(IS_NULL(to->beg)) return;
+		if(IS_NULL(to->beg)) 
+			return;
 		to->end = (int*)SAlloc::R(to->end, RREGC_SIZE);
-		if(IS_NULL(to->end)) return;
+		if(IS_NULL(to->end)) 
+			return;
 		to->allocated = from->num_regs;
 	}
 	for(i = 0; i < from->num_regs; i++) {
@@ -1382,14 +1312,12 @@ static int adjust_match_param(regex_t* reg, OnigMatchParam* mp)
 {
 	RegexExt* ext = reg->extp;
 	mp->match_at_call_counter = 0;
-	if(IS_NULL(ext) || ext->callout_num == 0) return ONIG_NORMAL;
+	if(IS_NULL(ext) || ext->callout_num == 0) 
+		return ONIG_NORMAL;
 	if(ext->callout_num > mp->callout_data_alloc_num) {
 		CalloutData* d;
 		size_t n = ext->callout_num * sizeof(*d);
-		if(IS_NOT_NULL(mp->callout_data))
-			d = (CalloutData*)SAlloc::R(mp->callout_data, n);
-		else
-			d = (CalloutData*)SAlloc::M(n);
+		d = mp->callout_data ? (CalloutData *)SAlloc::R(mp->callout_data, n) : (CalloutData *)SAlloc::M(n);
 		CHECK_NULL_RETURN_MEMERR(d);
 		mp->callout_data = d;
 		mp->callout_data_alloc_num = ext->callout_num;
@@ -2309,13 +2237,11 @@ static int string_cmp_ic(OnigEncoding enc, int case_fold_flag,
 #define INIT_RIGHT_RANGE    right_range = (uchar *)in_right_range
 
 #ifdef USE_CAPTURE_HISTORY
-static int make_capture_history_tree(OnigCaptureTreeNode* node, StackType** kp,
-    StackType* stk_top, uchar * str, regex_t* reg)
+static int make_capture_history_tree(OnigCaptureTreeNode* node, StackType** kp, StackType* stk_top, uchar * str, regex_t* reg)
 {
 	int n, r;
 	OnigCaptureTreeNode* child;
 	StackType* k = *kp;
-
 	while(k < stk_top) {
 		if(k->type == STK_MEM_START) {
 			n = k->zid;

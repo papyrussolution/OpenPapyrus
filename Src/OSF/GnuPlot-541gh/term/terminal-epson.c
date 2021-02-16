@@ -24,7 +24,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -66,9 +66,9 @@
 #endif /* TERM_REGISTER */
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void EPSON_reset();
+TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis);
 #if defined(EPS180) || defined(EPS60) || defined(EPSONP) || defined(TANDY60) || defined(OKIDATA)
-	TERM_PUBLIC void EPSON_init(termentry * pThis);
+	TERM_PUBLIC void EPSON_init(GpTermEntry * pThis);
 	#if defined(EPS60) || defined(EPSONP) || defined(TANDY60) || defined(OKIDATA)
 		#define EPSONVCHAR              FNT5X9_VCHAR
 		#define EPSONHCHAR              FNT5X9_HCHAR
@@ -77,14 +77,14 @@ TERM_PUBLIC void EPSON_reset();
 		#ifdef EPSONP
 			#define EPSONXMAX       512
 			#define EPSONYMAX       384
-			TERM_PUBLIC void EPSON_graphics();
-			TERM_PUBLIC void EPSON_text();
+			TERM_PUBLIC void EPSON_graphics(GpTermEntry * pThis);
+			TERM_PUBLIC void EPSON_text(GpTermEntry * pThis);
 		#endif /* EPSONP */
 	#endif /* four drivers */
 #endif /* all five */
 #ifdef EPS180
-	TERM_PUBLIC void EPS180_graphics();
-	TERM_PUBLIC void EPS180_text();
+	TERM_PUBLIC void EPS180_graphics(GpTermEntry * pThis);
+	TERM_PUBLIC void EPS180_text(GpTermEntry * pThis);
 	#define EPSON180VCHAR           FNT13X25_VCHAR
 	#define EPSON180HCHAR           FNT13X25_HCHAR
 	#define EPSON180VTIC            18
@@ -97,23 +97,23 @@ TERM_PUBLIC void EPSON_reset();
 	// make the total dimensions 8 inches by 5 inches 
 	#define EPS60XMAX       480
 	#define EPS60YMAX       360
-	TERM_PUBLIC void EPS60_graphics();
+	TERM_PUBLIC void EPS60_graphics(GpTermEntry * pThis);
 	#ifdef TANDY60
-		TERM_PUBLIC void TANDY60_text();
+		TERM_PUBLIC void TANDY60_text(GpTermEntry * pThis);
 	#endif /* TANDY60 */
 	#ifdef OKIDATA
-		TERM_PUBLIC void OKIDATA_text();
+		TERM_PUBLIC void OKIDATA_text(GpTermEntry * pThis);
 	#endif /* OKIDATA */
 	#ifdef EPS60
-		TERM_PUBLIC void EPS60_text();
+		TERM_PUBLIC void EPS60_text(GpTermEntry * pThis);
 	#endif /* EPS60 */
 #endif /* all three */
 #ifdef NEC
 	TERM_PUBLIC void NEC_options();
-	TERM_PUBLIC void NEC_init(termentry * pThis);
-	TERM_PUBLIC void NEC_graphics();
-	TERM_PUBLIC void NEC_text();
-	TERM_PUBLIC void NEC_linetype(int linetype);
+	TERM_PUBLIC void NEC_init(GpTermEntry * pThis);
+	TERM_PUBLIC void NEC_graphics(GpTermEntry * pThis);
+	TERM_PUBLIC void NEC_text(GpTermEntry * pThis);
+	TERM_PUBLIC void NEC_linetype(GpTermEntry * pThis, int linetype);
 	#define NECXMAX 400
 	#define NECYMAX 320
 	#define NECVCHAR                FNT5X9_VCHAR
@@ -122,10 +122,10 @@ TERM_PUBLIC void EPSON_reset();
 	#define NECHTIC         6
 #endif /* NEC */
 #ifdef STARC
-	TERM_PUBLIC void STARC_init(termentry * pThis);
-	TERM_PUBLIC void STARC_graphics();
-	TERM_PUBLIC void STARC_text();
-	TERM_PUBLIC void STARC_linetype(int linetype);
+	TERM_PUBLIC void STARC_init(GpTermEntry * pThis);
+	TERM_PUBLIC void STARC_graphics(GpTermEntry * pThis);
+	TERM_PUBLIC void STARC_text(GpTermEntry * pThis);
+	TERM_PUBLIC void STARC_linetype(GpTermEntry * pThis, int linetype);
 	#define STARCXMAX       512
 	#define STARCYMAX       384
 	#define STARCVCHAR              FNT5X9_VCHAR
@@ -134,11 +134,11 @@ TERM_PUBLIC void EPSON_reset();
 	#define STARCHTIC               6
 #endif /* STARC */
 #ifdef DPU414
-	TERM_PUBLIC void DPU414_options(TERMENTRY * pThis, GnuPlot * pGp);
-	TERM_PUBLIC void DPU414_init(termentry * pThis);
-	TERM_PUBLIC void DPU414_graphics();
-	TERM_PUBLIC void DPU414_text();
-	TERM_PUBLIC void DPU414_setfont();
+	TERM_PUBLIC void DPU414_options(GpTermEntry * pThis, GnuPlot * pGp);
+	TERM_PUBLIC void DPU414_init(GpTermEntry * pThis);
+	TERM_PUBLIC void DPU414_graphics(GpTermEntry * pThis);
+	TERM_PUBLIC void DPU414_text(GpTermEntry * pThis);
+	TERM_PUBLIC void DPU414_setfont(GpTermEntry * pThis);
 	#define DPU414XMAX      (640)
 	#define DPU414YMAX      (480)
 	#define DPU414VCHAR     FNT5X9_VCHAR
@@ -151,7 +151,7 @@ TERM_PUBLIC void EPSON_reset();
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
 
-TERM_PUBLIC void EPSON_reset()
+TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis)
 {
 	fflush_binary(); /* Only needed for VMS */
 }
@@ -169,17 +169,17 @@ static void epson_dump();
 #define EPSONXLAST (EPSONXMAX - 1)
 #define EPSONYLAST (EPSONYMAX - 1)
 
-TERM_PUBLIC void EPSON_init(termentry * pThis)
+TERM_PUBLIC void EPSON_init(GpTermEntry * pThis)
 {
 }
 
-TERM_PUBLIC void EPSON_graphics()
+TERM_PUBLIC void EPSON_graphics(GpTermEntry * pThis)
 {
 	b_charsize(FNT5X9);
 	b_makebitmap((uint)(EPSONXMAX * GPO.V.Size.x), (uint)(EPSONYMAX * GPO.V.Size.y), 1);
 }
 
-TERM_PUBLIC void EPSON_text()
+TERM_PUBLIC void EPSON_text(GpTermEntry * pThis)
 {
 	epson_dump();
 	b_freebitmap();
@@ -237,7 +237,7 @@ static struct gen_table NEC_opts[] =
 	{ NULL, NEC_OTHER }
 };
 
-TERM_PUBLIC void NEC_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void NEC_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	// default 
 	if(GPO.Pgm.EndOfCommand()) {
@@ -273,17 +273,17 @@ TERM_PUBLIC void NEC_options(TERMENTRY * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void NEC_init(termentry * pThis)
+TERM_PUBLIC void NEC_init(GpTermEntry * pThis)
 {
 }
 
-TERM_PUBLIC void NEC_graphics()
+TERM_PUBLIC void NEC_graphics(GpTermEntry * pThis)
 {
 	b_charsize(FNT5X9);
 	b_makebitmap((uint)(NECXMAX * GPO.V.Size.x), (uint)(NECYMAX * GPO.V.Size.y), (NECmode == 'c' ? 4 : 1));
 }
 
-TERM_PUBLIC void NEC_text()
+TERM_PUBLIC void NEC_text(GpTermEntry * pThis)
 {
 	if(NECmode == 'd') {
 		nec_draft_dump();
@@ -294,7 +294,7 @@ TERM_PUBLIC void NEC_text()
 	b_freebitmap();
 }
 
-TERM_PUBLIC void NEC_linetype(int linetype)
+TERM_PUBLIC void NEC_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(NECmode == 'c') {
 		if(linetype >= 6)
@@ -302,7 +302,7 @@ TERM_PUBLIC void NEC_linetype(int linetype)
 		b_setvalue(neccolor[linetype + 2]);
 	}
 	else {
-		b_setlinetype(linetype);
+		b_setlinetype(pThis, linetype);
 	}
 }
 
@@ -430,23 +430,23 @@ static void STARC_dump();
 static uint STARCcolor[] = { 1, 8, 4, 2, 10, 12, 6, 14 };
 static uint STARCpcolor[] = { 0, 2, 1, 4 };
 
-TERM_PUBLIC void STARC_init(termentry * pThis)
+TERM_PUBLIC void STARC_init(GpTermEntry * pThis)
 {
 }
 
-TERM_PUBLIC void STARC_graphics()
+TERM_PUBLIC void STARC_graphics(GpTermEntry * pThis)
 {
 	b_charsize(FNT5X9);
 	b_makebitmap((uint)(STARCXMAX * GPO.V.Size.x), (uint)(STARCYMAX * GPO.V.Size.y), 4);
 }
 
-TERM_PUBLIC void STARC_text()
+TERM_PUBLIC void STARC_text(GpTermEntry * pThis)
 {
 	STARC_dump();
 	b_freebitmap();
 }
 
-TERM_PUBLIC void STARC_linetype(int linetype)
+TERM_PUBLIC void STARC_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(linetype >= 6)
 		linetype %= 6;
@@ -495,13 +495,13 @@ static void eps180_dump();
 #define EPS180XLAST (EPS180XMAX - 1)
 #define EPS180YLAST (EPS180YMAX - 1)
 
-TERM_PUBLIC void EPS180_graphics()
+TERM_PUBLIC void EPS180_graphics(GpTermEntry * pThis)
 {
 	b_charsize(FNT13X25);
 	b_makebitmap((uint)(EPS180XMAX * GPO.V.Size.x), (uint)(EPS180YMAX * GPO.V.Size.y), 1);
 }
 
-TERM_PUBLIC void EPS180_text()
+TERM_PUBLIC void EPS180_text(GpTermEntry * pThis)
 {
 	eps180_dump();
 	b_freebitmap();
@@ -541,13 +541,13 @@ static void eps60_dump();
 #define EPS60XLAST (EPS60XMAX - 1)
 #define EPS60YLAST (EPS60YMAX - 1)
 
-TERM_PUBLIC void EPS60_graphics()
+TERM_PUBLIC void EPS60_graphics(GpTermEntry * pThis)
 {
 	b_charsize(FNT5X9);
 	b_makebitmap((uint)(EPS60XMAX * GPO.V.Size.x), (uint)(EPS60YMAX * GPO.V.Size.y), 1);
 }
 
-TERM_PUBLIC void EPS60_text()
+TERM_PUBLIC void EPS60_text(GpTermEntry * pThis)
 {
 	eps60_dump();
 	b_freebitmap();
@@ -582,7 +582,7 @@ static void eps60_dump()
    of codes to swap the Tandy printer into IBM mode and back
    into Tandy mode.  For a Tandy already in IBM mode, use EPS60. */
 
-TERM_PUBLIC void TANDY60_text()
+TERM_PUBLIC void TANDY60_text(GpTermEntry * pThis)
 {
 #ifdef PC
 	fputs("Inserting Tandy/IBM mode conversion codes\n", stderr);
@@ -604,7 +604,7 @@ TERM_PUBLIC void TANDY60_text()
 
 static void okidata_dump();
 
-TERM_PUBLIC void OKIDATA_text()
+TERM_PUBLIC void OKIDATA_text(GpTermEntry * pThis)
 {
 	okidata_dump();
 	b_freebitmap();
@@ -701,7 +701,7 @@ static struct gen_table DPU414_opts[] =
 	{ NULL, DPU414_OTHER }
 };
 
-TERM_PUBLIC void DPU414_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void DPU414_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	DPU414_font = 2;
 	DPU414_quality = 1;
@@ -761,47 +761,47 @@ TERM_PUBLIC void DPU414_options(TERMENTRY * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void DPU414_init(termentry * pThis)
+TERM_PUBLIC void DPU414_init(GpTermEntry * pThis)
 {
-	DPU414_setfont();
+	DPU414_setfont(pThis);
 }
 
-TERM_PUBLIC void DPU414_setfont()
+TERM_PUBLIC void DPU414_setfont(GpTermEntry * pThis)
 {
 	switch(DPU414_font) {
 		case 1:
 		    b_charsize(FNT5X9);
-		    term->ChrV = FNT5X9_VCHAR;
-		    term->ChrH = FNT5X9_HCHAR;
+		    pThis->ChrV = FNT5X9_VCHAR;
+		    pThis->ChrH = FNT5X9_HCHAR;
 		    break;
 		case 2:
 		    b_charsize(FNT9X17);
-		    term->ChrV = FNT9X17_VCHAR;
-		    term->ChrH = FNT9X17_HCHAR;
+		    pThis->ChrV = FNT9X17_VCHAR;
+		    pThis->ChrH = FNT9X17_HCHAR;
 		    break;
 		case 3:
 		    b_charsize(FNT13X25);
-		    term->ChrV = FNT13X25_VCHAR;
-		    term->ChrH = FNT13X25_HCHAR;
+		    pThis->ChrV = FNT13X25_VCHAR;
+		    pThis->ChrH = FNT13X25_HCHAR;
 		    break;
 	}
 }
 
-TERM_PUBLIC void DPU414_graphics()
+TERM_PUBLIC void DPU414_graphics(GpTermEntry * pThis)
 {
 	switch(DPU414_quality) {
 		case 1:
 		    b_makebitmap((uint)(DPU414XMAX * GPO.V.Size.x), (uint)(DPU414YMAX * GPO.V.Size.y), 1);
 		    break;
 		case 2:
-		    term->MaxX = DPU414XMAX / 2;
-		    term->MaxY = DPU414YMAX / 2;
+		    pThis->MaxX = DPU414XMAX / 2;
+		    pThis->MaxY = DPU414YMAX / 2;
 		    b_makebitmap((uint)(DPU414XMAX / 2 * GPO.V.Size.x), (uint)(DPU414YMAX / 2 * GPO.V.Size.y), 1);
 		    break;
 	}
 }
 
-TERM_PUBLIC void DPU414_text()
+TERM_PUBLIC void DPU414_text(GpTermEntry * pThis)
 {
 	DPU414_dump();
 	b_freebitmap();

@@ -116,8 +116,8 @@ register_term(png)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void PNG_init(termentry * pThis);
+TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void PNG_init(GpTermEntry * pThis);
 TERM_PUBLIC void PNG_graphics();
 TERM_PUBLIC void PNG_text();
 TERM_PUBLIC void PNG_linetype(int linetype);
@@ -619,16 +619,16 @@ static void PNG_Diamond(uint x, uint y,
  * suitable for use with the set term command.  term_options[] is used by
  * the save command.  Use GnuPlot::OptionsNull() if no options are available.
  */
-TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	double tmp;
 	char * string;
-	unsigned long color;
+	ulong color;
 	bool gif_anim_option = FALSE; /* set to TRUE if an animated gif option given */
 	if(!PNG_initialized) {
 		PNG_initialized = TRUE;
 		term_options[0] = '\0';
-		term->ChrH = PNG_HCHAR; /* Default to medium font */
+		pThis->ChrH = PNG_HCHAR; /* Default to medium font */
 		png_state.default_font = gdfont;
 		png_state.n_colors = 0;
 		png_state.flags = 0;
@@ -681,13 +681,13 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		png_state.frame_optimization = FALSE;
 		png_state.loop_count = 0;
 		/* And default font size */
-		term->ChrH = PNG_HCHAR;
+		pThis->ChrH = PNG_HCHAR;
 		png_state.default_ttfsize = 0;
 		PNG_linewidth_factor = 1.0;
 		PNG_dashlength_factor = 1.0;
 		/* Default to enhanced text */
-		term->flags |= TERM_ENHANCED_TEXT;
-		term->put_text = ENHGD_put_text;
+		pThis->flags |= TERM_ENHANCED_TEXT;
+		pThis->put_text = ENHGD_put_text;
 	}
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&PNG_opts[0])) {
@@ -719,7 +719,7 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 #ifdef HAVE_GD_TTF
 #define UNSET_TTF_FONT \
 	ZFREE(png_state.ttffont); \
-	png_state.default_ttfsize = 2 * term->ChrH - 2; \
+	png_state.default_ttfsize = 2 * pThis->ChrH - 2; \
 	png_state.use_builtin = TRUE;
 #else
 #define UNSET_TTF_FONT \
@@ -728,36 +728,36 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 
 			case PNG_TINY:
 			    png_state.default_font = gdFontGetTiny();
-			    term->ChrV = png_state.default_font->h;
-			    term->ChrH = png_state.default_font->w;
+			    pThis->ChrV = png_state.default_font->h;
+			    pThis->ChrH = png_state.default_font->w;
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_SMALL:
 			    png_state.default_font = gdFontGetSmall();
-			    term->ChrV = png_state.default_font->h;
-			    term->ChrH = png_state.default_font->w;
+			    pThis->ChrV = png_state.default_font->h;
+			    pThis->ChrH = png_state.default_font->w;
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_MEDIUM:
 			    png_state.default_font = gdFontGetMediumBold();
-			    term->ChrV = png_state.default_font->h;
-			    term->ChrH = png_state.default_font->w;
+			    pThis->ChrV = png_state.default_font->h;
+			    pThis->ChrH = png_state.default_font->w;
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_LARGE:
 			    png_state.default_font = gdFontGetLarge();
-			    term->ChrV = png_state.default_font->h;
-			    term->ChrH = png_state.default_font->w;
+			    pThis->ChrV = png_state.default_font->h;
+			    pThis->ChrH = png_state.default_font->w;
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_GIANT:
 			    png_state.default_font = gdFontGetGiant();
-			    term->ChrV = png_state.default_font->h;
-			    term->ChrH = png_state.default_font->w;
+			    pThis->ChrV = png_state.default_font->h;
+			    pThis->ChrH = png_state.default_font->w;
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
@@ -842,32 +842,32 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 				    if(PNG_YMAX <= 0)
 					    PNG_YMAX = GREG_YMAX;
 			    }
-			    term->MaxY = PNG_YMAX;
-			    term->MaxX = PNG_XMAX;
+			    pThis->MaxY = PNG_YMAX;
+			    pThis->MaxX = PNG_XMAX;
 			    /* EAM Apr 2003 - same tic size on both x and y axes */
-			    term->TicV = (PNG_XMAX < PNG_YMAX) ? PNG_XMAX/100 : PNG_YMAX/100;
-			    if(term->TicV < 1)
-				    term->TicV = 1;
-			    term->TicH = term->TicV;
+			    pThis->TicV = (PNG_XMAX < PNG_YMAX) ? PNG_XMAX/100 : PNG_YMAX/100;
+			    if(pThis->TicV < 1)
+				    pThis->TicV = 1;
+			    pThis->TicH = pThis->TicV;
 			    break;
 			case PNG_ENHANCED:
-			    term->flags |= TERM_ENHANCED_TEXT;
-			    term->put_text = ENHGD_put_text;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->put_text = ENHGD_put_text;
 			    pGp->Pgm.Shift();
 			    break;
 			case PNG_NOENHANCED:
-			    term->flags &= ~TERM_ENHANCED_TEXT;
-			    term->put_text = PNG_put_text;
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->put_text = PNG_put_text;
 			    pGp->Pgm.Shift();
 			    break;
 			case PNG_TRUECOLOR:
 			    png_state.TrueColor = TRUE;
-			    term->flags |= TERM_ALPHA_CHANNEL;
+			    pThis->flags |= TERM_ALPHA_CHANNEL;
 			    pGp->Pgm.Shift();
 			    break;
 			case PNG_NOTRUECOLOR:
 			    png_state.TrueColor = FALSE;
-			    term->flags &= ~TERM_ALPHA_CHANNEL;
+			    pThis->flags &= ~TERM_ALPHA_CHANNEL;
 			    pGp->Pgm.Shift();
 			    break;
 			case PNG_LINEWIDTH:
@@ -882,11 +882,11 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    if(PNG_dashlength_factor <= 0.2)
 				    PNG_dashlength_factor = 1.0;
 			    break;
-			/* parse gif animation options */
+			// parse gif animation options 
 			case GIF_ANIMATE:
-			    if(strncmp("gif", term->name, 3) == 0)
+			    if(strncmp("gif", pThis->name, 3) == 0)
 				    gif_anim_option = 1;
-			    else if(strncmp("sixel", term->name, 5) != 0)
+			    else if(strncmp("sixel", pThis->name, 5) != 0)
 				    pGp->IntErrorCurToken("This terminal does not support animation");
 			    pGp->Pgm.Shift();
 			    png_state.animate = TRUE;
@@ -895,7 +895,7 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    png_state.frame_optimization = FALSE;
 			    break;
 			case GIF_DELAY:
-			    if(strncmp("gif", term->name, 3))
+			    if(strncmp("gif", pThis->name, 3))
 				    pGp->IntWarnCurToken("This terminal does not support animation");
 			    pGp->Pgm.Shift();
 			    png_state.frame_delay = pGp->IntExpression();
@@ -904,21 +904,21 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    gif_anim_option = 1;
 			    break;
 			case GIF_LOOP:
-			    if(strncmp("gif", term->name, 3))
+			    if(strncmp("gif", pThis->name, 3))
 				    pGp->IntWarnCurToken("This terminal does not support animation");
 			    pGp->Pgm.Shift();
 			    png_state.loop_count = pGp->IntExpression();
 			    gif_anim_option = 1;
 			    break;
 			case GIF_NOOPT:
-			    if(strncmp("gif", term->name, 3))
+			    if(strncmp("gif", pThis->name, 3))
 				    pGp->IntWarnCurToken("This terminal does not support animation");
 			    pGp->Pgm.Shift();
 			    png_state.frame_optimization = FALSE;
 			    gif_anim_option = 1;
 			    break;
 			case GIF_OPT:
-			    if(strncmp("gif", term->name, 3))
+			    if(strncmp("gif", pThis->name, 3))
 				    pGp->IntWarnCurToken("This terminal does not support animation");
 			    pGp->Pgm.Shift();
 			    png_state.frame_optimization = TRUE;
@@ -952,7 +952,6 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 				    break;
 			    }
 #endif
-
 			    if(sscanf(string, "x%lx", &color) == 1)
 				    pGp->IntErrorCurToken("obsolete color option");
 			    else
@@ -960,14 +959,12 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-
 	if(gif_anim_option) {
 #ifndef GIF_ANIMATION /* animated gifs not supported by the current GD library */
 		png_state.animate = FALSE;
 		pGp->IntWarn(NO_CARET, "gif animation options ignored (not compiled into this binary)");
 #endif
 	}
-
 #ifdef HAVE_GD_TTF
 	/* If no font has been chosen but there is a default, use it */
 	if(!png_state.ttffont && !png_state.use_builtin) {
@@ -981,7 +978,7 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		SAlloc::F(png_state.default_ttffont);
 		png_state.default_ttffont = gp_strdup(png_state.ttffont);
 		if(png_state.default_ttfsize == 0)
-			png_state.default_ttfsize = 2 * term->ChrH - 2;
+			png_state.default_ttfsize = 2 * pThis->ChrH - 2;
 
 		/* First try the old GDFONTPATH mechanism for locating fonts */
 		gdUseFontConfig(0);
@@ -997,11 +994,10 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 			ZFREE(png_state.default_ttffont);
 		}
 	}
-	/* If no explicit TTF font size found, generate default */
+	// If no explicit TTF font size found, generate default 
 	if(!(png_state.default_ttfsize > 0))
-		png_state.default_ttfsize = 2 * term->ChrH - 2;
+		png_state.default_ttfsize = 2 * pThis->ChrH - 2;
 	png_state.ttfsize = png_state.default_ttfsize;
-
 	/* Find approximate character width of selected TTF font   */
 	/* This is needed in order to set appropriate border width */
 	if(png_state.default_ttffont) {
@@ -1009,13 +1005,13 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		char * err;
 		err = gdImageStringFT(NULL, &brect[0], 0, png_state.default_ttffont, png_state.default_ttfsize*png_state.fontscale, 0.0, 0, 0, "f00000000g");
 		if(!err) {
-			term->ChrH = .11 * (double)(brect[2] - brect[0]) + 0.5;
-			term->ChrV = 1.1 * (double)(brect[1] - brect[7]) + 0.5;
+			pThis->ChrH = .11 * (double)(brect[2] - brect[0]) + 0.5;
+			pThis->ChrV = 1.1 * (double)(brect[1] - brect[7]) + 0.5;
 		}
 	}
 #endif
 	/* This code is shared by png, gif, and jpeg terminal types */
-	if(!strcmp(term->name, "jpeg"))
+	if(!strcmp(pThis->name, "jpeg"))
 		png_state.flags &= ~PNG_USE_TRANSPARENT;
 	/* now generate options string */
 	if(png_state.flags & PNG_USE_TRANSPARENT) {
@@ -1025,9 +1021,9 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		strcat(term_options, "interlace ");
 	}
 	/* JPEG files are always 24-bit color */
-	if(strcmp(term->name, "jpeg") == 0) {
+	if(strcmp(pThis->name, "jpeg") == 0) {
 		png_state.TrueColor = TRUE;
-		term->flags |= TERM_ALPHA_CHANNEL;
+		pThis->flags |= TERM_ALPHA_CHANNEL;
 	}
 	else if(png_state.TrueColor) {
 		strcat(term_options, "truecolor ");
@@ -1036,7 +1032,7 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		strcat(term_options, "no");
 	}
 	strcat(term_options, "crop ");
-	if(term->flags & TERM_ENHANCED_TEXT) {
+	if(pThis->flags & TERM_ENHANCED_TEXT) {
 		strcat(term_options, "enhanced ");
 	}
 	if(PNG_linewidth_factor != 1.0)
@@ -1047,13 +1043,11 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		sprintf(term_options + strlen(term_options), "butt ");
 	}
 	if(png_state.animate) {
-		if(strncmp("sixel", term->name, 5) == 0)
+		if(strncmp("sixel", pThis->name, 5) == 0)
 			sprintf(term_options + strlen(term_options), "animate ");
 		else
-			sprintf(term_options + strlen(term_options),
-			    "animate delay %d loop %d %soptimize ",
-			    png_state.frame_delay, png_state.loop_count,
-			    png_state.frame_optimization ? "" : "no");
+			sprintf(term_options + strlen(term_options), "animate delay %d loop %d %soptimize ",
+			    png_state.frame_delay, png_state.loop_count, png_state.frame_optimization ? "" : "no");
 	}
 	sprintf(term_options + strlen(term_options), "size %d,%d ", PNG_XMAX, PNG_YMAX);
 	if(png_state.n_colors == 1)
@@ -1064,7 +1058,8 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		if(strlen(term_options) + strlen(png_state.ttffont) < sizeof(term_options) - 32)
 			sprintf(term_options + strlen(term_options), "font \"%s,%.1f\" ", png_state.ttffont, png_state.ttfsize);
 	}
-	else switch(term->ChrH) {
+	else 
+		switch(pThis->ChrH) {
 			case 5: strcat(term_options, "tiny "); break;
 			case 6: strcat(term_options, "small "); break;
 			case 7:
@@ -1072,7 +1067,7 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
 			case 8: strcat(term_options, "large "); break;
 			case 9: strcat(term_options, "giant "); break;
 		}
-	/* Oct 2020:  'animate optimize' is deprecated */
+	// Oct 2020:  'animate optimize' is deprecated 
 	if(png_state.animate && png_state.frame_optimization) {
 		strcat(term_options, "\n\tWarning: the 'optimize' option to gif animation is deprecated");
 	}
@@ -1082,7 +1077,7 @@ TERM_PUBLIC void PNG_options(TERMENTRY * pThis, GnuPlot * pGp)
  * should set up things that only need to be set once, like handshaking and
  * character sets etc...
  */
-TERM_PUBLIC void PNG_init(termentry * pThis)
+TERM_PUBLIC void PNG_init(GpTermEntry * pThis)
 {
 	int i;
 	png_state.linetype = 0;
@@ -2658,8 +2653,10 @@ PNG_linewidth     /*EAM - linewidth*/
 PNG_set_color,
 PNG_filled_polygon
 , PNG_image
-, ENHGD_OPEN, ENHGD_FLUSH, do_enh_writec
-, NULL                  /* layering */
+, ENHGD_OPEN, 
+ENHGD_FLUSH, 
+do_enh_writec,
+NULL,                  /* layering */
 , NULL                  /* path */
 , 0.0                   /* tscale */
 , NULL                  /* hypertext */
@@ -2854,7 +2851,9 @@ PNG_make_palette,
 PNG_set_color,
 PNG_filled_polygon,
 PNG_image,
-ENHGD_OPEN, ENHGD_FLUSH, do_enh_writec,
+ENHGD_OPEN, 
+ENHGD_FLUSH, 
+do_enh_writec,
 NULL,                   /* layering */
 NULL,                   /* path */
 0.0,                    /* tscale */

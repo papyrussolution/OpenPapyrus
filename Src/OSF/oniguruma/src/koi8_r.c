@@ -1,31 +1,6 @@
-/**********************************************************************
-   koi8_r.c -  Oniguruma (regular expression library)
-**********************************************************************/
-/*-
- * Copyright (c) 2002-2020  K.Kosako
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+// koi8_r.c -  Oniguruma (regular expression library)
+// Copyright (c) 2002-2020  K.Kosako  All rights reserved.
+//
 #include "regint.h"
 #pragma hdrstop
 
@@ -102,8 +77,7 @@ static const ushort EncKOI8_R_CtypeTable[256] = {
 	0x34a2, 0x34a2, 0x34a2, 0x34a2, 0x34a2, 0x34a2, 0x34a2, 0x34a2
 };
 
-static int koi8_r_mbc_case_fold(OnigCaseFoldType flag ARG_UNUSED,
-    const uchar ** pp, const uchar * end ARG_UNUSED, uchar * lower)
+static int koi8_r_mbc_case_fold(OnigCaseFoldType flag ARG_UNUSED, const uchar ** pp, const uchar * end ARG_UNUSED, uchar * lower)
 {
 	const uchar * p = *pp;
 	if(CASE_FOLD_IS_NOT_ASCII_ONLY(flag) || ONIGENC_IS_ASCII_CODE(*p))
@@ -160,20 +134,14 @@ static const OnigPairCaseFoldCodes CaseFoldMap[] = {
 	{ 0xdf, 0xff }
 };
 
-static int koi8_r_apply_all_case_fold(OnigCaseFoldType flag,
-    OnigApplyAllCaseFoldFunc f, void* arg)
+static int koi8_r_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg)
 {
-	return onigenc_apply_all_case_fold_with_map(
-		sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 0,
-		flag, f, arg);
+	return onigenc_apply_all_case_fold_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 0, flag, f, arg);
 }
 
-static int koi8_r_get_case_fold_codes_by_str(OnigCaseFoldType flag,
-    const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[])
+static int koi8_r_get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[])
 {
-	return onigenc_get_case_fold_codes_by_str_with_map(
-		sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 0,
-		flag, p, end, items);
+	return onigenc_get_case_fold_codes_by_str_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 0, flag, p, end, items);
 }
 
 OnigEncodingType OnigEncodingKOI8_R = {

@@ -26,7 +26,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -35,17 +35,17 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void PBM_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void PBM_init(termentry * pThis);
-TERM_PUBLIC void PBM_reset();
-TERM_PUBLIC void PBM_setfont();
-TERM_PUBLIC void PBM_graphics();
+TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void PBM_init(GpTermEntry * pThis);
+TERM_PUBLIC void PBM_reset(GpTermEntry * pThis);
+TERM_PUBLIC void PBM_setfont(GpTermEntry * pThis);
+TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void PBM_monotext();
 TERM_PUBLIC void PBM_graytext();
 TERM_PUBLIC void PBM_colortext();
-TERM_PUBLIC void PBM_text();
-TERM_PUBLIC void PBM_linetype(int linetype);
-TERM_PUBLIC void PBM_point(uint x, uint y, int point);
+TERM_PUBLIC void PBM_text(GpTermEntry * pThis);
+TERM_PUBLIC void PBM_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void PBM_point(GpTermEntry * pThis, uint x, uint y, int point);
 //#endif /* TERM_PROTO */
 
 /* make XMAX and YMAX a multiple of 8 */
@@ -90,7 +90,7 @@ static struct gen_table PBM_opts[] =
 	{ NULL, PBM_OTHER }
 };
 
-TERM_PUBLIC void PBM_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	int xpixels = PBM_XMAX;
 	int ypixels = PBM_YMAX;
@@ -114,7 +114,7 @@ TERM_PUBLIC void PBM_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    break;
 			case PBM_MONOCHROME:
 			    pbm_mode = 0;
-			    term->flags |= TERM_MONOCHROME;
+			    pThis->flags |= TERM_MONOCHROME;
 			    pGp->Pgm.Shift();
 			    break;
 			case PBM_GRAY:
@@ -123,14 +123,14 @@ TERM_PUBLIC void PBM_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    break;
 			case PBM_COLOR:
 			    pbm_mode = 2;
-			    term->flags &= ~TERM_MONOCHROME;
+			    pThis->flags &= ~TERM_MONOCHROME;
 			    pGp->Pgm.Shift();
 			    break;
 			case PBM_SIZE:
 			    pGp->Pgm.Shift();
 			    if(pGp->Pgm.EndOfCommand()) {
-				    term->MaxX = PBM_XMAX;
-				    term->MaxY = PBM_YMAX;
+				    pThis->MaxX = PBM_XMAX;
+				    pThis->MaxY = PBM_YMAX;
 				    PBM_explicit_size = FALSE;
 			    }
 			    else {
@@ -142,22 +142,22 @@ TERM_PUBLIC void PBM_options(TERMENTRY * pThis, GnuPlot * pGp)
 				    PBM_explicit_size = TRUE;
 			    }
 			    if(xpixels > 0)
-				    term->MaxX = xpixels;
+				    pThis->MaxX = xpixels;
 			    if(ypixels > 0)
-				    term->MaxY = ypixels;
+				    pThis->MaxY = ypixels;
 			    break;
 			case PBM_OTHER:
 			default:
-			    /* reset to default, since term is already set */
+			    // reset to default, since term is already set 
 			    pbm_font = 1;
 			    pbm_mode = 0;
 			    pGp->IntErrorCurToken("expecting: {small, medium, large} and {monochrome, gray, color}");
 			    break;
 		}
 	}
-	term->TicV = (term->MaxX < term->MaxY) ? term->MaxX/100 : term->MaxY/100;
-	SETMAX(term->TicV, 1);
-	term->TicH = term->TicV;
+	pThis->TicV = (pThis->MaxX < pThis->MaxY) ? pThis->MaxX/100 : pThis->MaxY/100;
+	SETMAX(pThis->TicV, 1);
+	pThis->TicH = pThis->TicV;
 	// setup options string 
 	switch(pbm_font) {
 		case 1: strcat(term_options, "small"); break;
@@ -170,45 +170,45 @@ TERM_PUBLIC void PBM_options(TERMENTRY * pThis, GnuPlot * pGp)
 		case 2: strcat(term_options, " color"); break;
 	}
 	if(PBM_explicit_size)
-		sprintf(term_options + strlen(term_options), " size %d,%d", term->MaxX, term->MaxY);
+		sprintf(term_options + strlen(term_options), " size %d,%d", pThis->MaxX, pThis->MaxY);
 }
 
-TERM_PUBLIC void PBM_init(termentry * pThis)
+TERM_PUBLIC void PBM_init(GpTermEntry * pThis)
 {
-	PBM_setfont();          /* HBB 980226: call it here! */
+	PBM_setfont(pThis); // HBB 980226: call it here! 
 }
 
-TERM_PUBLIC void PBM_reset()
+TERM_PUBLIC void PBM_reset(GpTermEntry * pThis)
 {
 	fflush_binary(); // Only needed for VMS 
 }
 
-TERM_PUBLIC void PBM_setfont()
+TERM_PUBLIC void PBM_setfont(GpTermEntry * pThis)
 {
 	switch(pbm_font) {
 		case 1:
 		    b_charsize(FNT5X9);
-		    term->ChrV = FNT5X9_VCHAR;
-		    term->ChrH = FNT5X9_HCHAR;
+		    pThis->ChrV = FNT5X9_VCHAR;
+		    pThis->ChrH = FNT5X9_HCHAR;
 		    break;
 		case 2:
 		    b_charsize(FNT9X17);
-		    term->ChrV = FNT9X17_VCHAR;
-		    term->ChrH = FNT9X17_HCHAR;
+		    pThis->ChrV = FNT9X17_VCHAR;
+		    pThis->ChrH = FNT9X17_HCHAR;
 		    break;
 		case 3:
 		    b_charsize(FNT13X25);
-		    term->ChrV = FNT13X25_VCHAR;
-		    term->ChrH = FNT13X25_HCHAR;
+		    pThis->ChrV = FNT13X25_VCHAR;
+		    pThis->ChrH = FNT13X25_HCHAR;
 		    break;
 	}
 }
 
-TERM_PUBLIC void PBM_graphics()
+TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis)
 {
 	int numplanes = 1;
-	uint xpixels = term->MaxX;
-	uint ypixels = term->MaxY;
+	uint xpixels = pThis->MaxX;
+	uint ypixels = pThis->MaxY;
 	/* 'set size' should not affect the size of the canvas in pixels,
 	 * but versions prior to 4.2 did not have a separate 'set term size'
 	 */
@@ -229,7 +229,7 @@ TERM_PUBLIC void PBM_graphics()
 	b_makebitmap(ypixels, xpixels, numplanes);
 	b_rastermode = TRUE;
 	if(pbm_mode != 0)
-		b_setlinetype(0); /* solid lines */
+		b_setlinetype(pThis, 0); // solid lines 
 }
 
 static void PBM_monotext()
@@ -311,7 +311,7 @@ static void PBM_colortext()
 	b_freebitmap();
 }
 
-TERM_PUBLIC void PBM_text()
+TERM_PUBLIC void PBM_text(GpTermEntry * pThis)
 {
 	switch(pbm_mode) {
 		case 0: PBM_monotext(); break;
@@ -320,13 +320,13 @@ TERM_PUBLIC void PBM_text()
 	}
 }
 
-TERM_PUBLIC void PBM_linetype(int linetype)
+TERM_PUBLIC void PBM_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(linetype < -2)
 		linetype = LT_BLACK;
 	switch(pbm_mode) {
 		case 0:
-		    b_setlinetype(linetype);
+		    b_setlinetype(pThis, linetype);
 		    break;
 		case 1:
 		    if(linetype >= 7)
@@ -341,12 +341,12 @@ TERM_PUBLIC void PBM_linetype(int linetype)
 	}
 }
 
-TERM_PUBLIC void PBM_point(uint x, uint y, int point)
+TERM_PUBLIC void PBM_point(GpTermEntry * pThis, uint x, uint y, int point)
 {
 	if(pbm_mode == 0)
-		GnuPlot::LineAndPoint(x, y, point);
+		GnuPlot::LineAndPoint(pThis, x, y, point);
 	else
-		GnuPlot::DoPoint(x, y, point);
+		GnuPlot::DoPoint(pThis, x, y, point);
 }
 
 #endif /* TERM_BODY */

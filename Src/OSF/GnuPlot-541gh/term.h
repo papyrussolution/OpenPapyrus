@@ -73,9 +73,9 @@
 //
 // Terminals for various Unix platforms
 //
-#ifdef UIS
-	#include "vws.trm" // VAX Windowing System requires UIS libraries 
-#endif
+//#ifdef UIS
+	//#include "vws.trm" // VAX Windowing System requires UIS libraries 
+//#endif
 // Terminals not relevant for MSDOS, MS-Windows 
 #if !defined(_WIN32)
 	#include "linux-vgagl.trm" /* This is not really a terminal, it generates a help section for  using the linux console. */
@@ -98,11 +98,11 @@
 #endif
 // #include "ai.trm" // Adobe Illustrator Format. obsolete: use 'set term postscript level1 
 #if (defined(HAVE_GD_PNG) || defined(HAVE_CAIROPDF))
-	#include "write_png_image.c" /* HTML Canvas terminal */
+	#include "write_png_image.c" // HTML Canvas terminal 
 #endif
 //#include "canvas.trm"
 //#include "cgm.trm" /* Computer Graphics Metafile (eg ms office) */
-// #include "corel.trm" // CorelDraw! eps format 
+//#include "corel.trm" // CorelDraw! eps format 
 //#ifdef DEBUG
 	//#include "debug.trm" // debugging terminal 
 //#endif
@@ -246,13 +246,13 @@
 	#include "wxt.trm" /* WXWIDGETS */
 #endif
 #ifdef HAVE_CAIROPDF
-	#include "cairo.trm"
+	//#include "cairo.trm"
 #endif
 #ifdef HAVE_WEBP
 	#include "webp.trm" /* webp must come after cairo */
 #endif
 #ifdef HAVE_LUA
-	#include "lua.trm"
+	//#include "lua.trm"
 #endif
 #ifdef QTTERM
 	#include "qt.trm"

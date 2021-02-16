@@ -38,10 +38,11 @@ void save_set(FILE * fp)
 	fputs("#    EOF\n", fp);
 }
 
-void save_all(FILE * fp)
+//void save_all(FILE * fp)
+void GnuPlot::SaveAll(FILE * fp)
 {
 	show_version(fp);
-	GPO.SaveSetAll(fp);
+	SaveSetAll(fp);
 	save_functions__sub(fp);
 	save_variables__sub(fp);
 	save_colormaps(fp);
@@ -494,7 +495,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, "unset walls\n");
 	save_walls(fp);
 	save_style_textbox(fp);
-	save_offsets(fp, "set offsets");
+	SaveOffsets(fp, "set offsets");
 	fprintf(fp, "set pointsize %g\nset pointintervalbox %g\nset encoding %s\n%sset polar\n%sset parametric\n", Gg.PointSize, Gg.PointIntervalBox,
 	    encoding_names[encoding], (Gg.Polar ? "" : "un"), (Gg.Parametric ? "" : "un"));
 	if(Gg.SpiderPlot) {
@@ -525,7 +526,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	if(V.AspectRatio3D)
 		fprintf(fp, "\nset view  %s", (V.AspectRatio3D == 2) ? "equal xy" : ((V.AspectRatio3D == 3) ? "equal xyz" : ""));
 	fprintf(fp, "\nset rgbmax %g", rgbmax);
-	fprintf(fp, "\nset samples %d, %d\nset isosamples %d, %d\n%sset surface %s", samples_1, samples_2, iso_samples_1, iso_samples_2,
+	fprintf(fp, "\nset samples %d, %d\nset isosamples %d, %d\n%sset surface %s", Gg.Samples1, Gg.Samples2, Gg.IsoSamples1, Gg.IsoSamples2,
 	    (draw_surface) ? "" : "un", (implicit_surface) ? "" : "explicit");
 	fprintf(fp, "\n%sset contour", (draw_contour) ? "" : "un");
 	switch(draw_contour) {
@@ -958,17 +959,17 @@ void save_style_parallel(FILE * fp)
 {
 	if(fp == stderr)
 		fputs("\t", fp);
-	fprintf(fp, "set style parallel %s ", parallel_axis_style.layer == LAYER_BACK ? "back" : "front");
-	save_linetype(fp, &(parallel_axis_style.lp_properties), FALSE);
+	fprintf(fp, "set style parallel %s ", GPO.Gg.ParallelAxisStyle.layer == LAYER_BACK ? "back" : "front");
+	save_linetype(fp, &(GPO.Gg.ParallelAxisStyle.lp_properties), FALSE);
 	fprintf(fp, "\n");
 }
 
 void save_style_spider(FILE * fp)
 {
 	fprintf(fp, "set style spiderplot ");
-	save_linetype(fp, &(spiderplot_style.lp_properties), TRUE);
+	save_linetype(fp, &GPO.Gg.SpiderPlotStyle.lp_properties, TRUE);
 	fprintf(fp, "\nset style spiderplot fillstyle ");
-	save_fillstyle(fp, &spiderplot_style.fillstyle);
+	save_fillstyle(fp, &GPO.Gg.SpiderPlotStyle.fillstyle);
 }
 
 void save_style_textbox(FILE * fp)
@@ -1183,7 +1184,7 @@ void save_textcolor(FILE * fp, const struct t_colorspec * tc)
 	}
 }
 
-void save_pm3dcolor(FILE * fp, const struct t_colorspec * tc)
+void save_pm3dcolor(FILE * fp, const t_colorspec * tc)
 {
 	if(tc->type) {
 		switch(tc->type) {
@@ -1307,13 +1308,14 @@ void save_linetype(FILE * fp, lp_style_type * lp, bool show_point)
 	}
 }
 
-void save_offsets(FILE * fp, char * lead)
+//void save_offsets(FILE * fp, char * lead)
+void GnuPlot::SaveOffsets(FILE * fp, char * lead)
 {
 	fprintf(fp, "%s %s%g, %s%g, %s%g, %s%g\n", lead,
-	    loff.scalex == graph ? "graph " : "", loff.x,
-	    roff.scalex == graph ? "graph " : "", roff.x,
-	    toff.scaley == graph ? "graph " : "", toff.y,
-	    boff.scaley == graph ? "graph " : "", boff.y);
+	    Gr.LOff.scalex == graph ? "graph " : "", Gr.LOff.x,
+	    Gr.ROff.scalex == graph ? "graph " : "", Gr.ROff.x,
+	    Gr.TOff.scaley == graph ? "graph " : "", Gr.TOff.y,
+	    Gr.BOff.scaley == graph ? "graph " : "", Gr.BOff.y);
 }
 
 void save_bars(FILE * fp)

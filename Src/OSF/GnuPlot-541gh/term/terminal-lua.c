@@ -1,77 +1,54 @@
-/*
- *  GNUPLOT - lua.trm
- */
-
-/*[
- *
- * Copyright 2008   Peter Hedwig <peter@affenbande.org>
- *
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - lua.trm
+// Copyright 2008   Peter Hedwig <peter@affenbande.org>
+//
+#include <gnuplot.h>
+#pragma hdrstop
 #include "driver.h"
+
+// @experimental {
+#define TERM_BODY
+#define TERM_PUBLIC static
+#define TERM_TABLE
+#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_END(x)   };
+// } @experimental
 
 #define LUA_TERM_REVISION "$Rev: Jun 2020$"
 #define GNUPLOT_LUA_DIR   "share/lua" // @sobolev
 
 #ifdef TERM_REGISTER
-register_term(lua)
+	register_term(lua)
 #endif
 
-#ifdef TERM_PROTO
-TERM_PUBLIC void LUA_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void LUA_init(termentry * pThis);
-TERM_PUBLIC void LUA_reset();
-TERM_PUBLIC void LUA_text();
-/* scale */
-TERM_PUBLIC void LUA_graphics();
-TERM_PUBLIC void LUA_move(uint x, uint y);
-TERM_PUBLIC void LUA_vector(uint ux, uint uy);
-TERM_PUBLIC void LUA_linetype(int linetype);
-TERM_PUBLIC void LUA_dashtype(int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void LUA_put_text(uint x, uint y, const char str[]);
+//#ifdef TERM_PROTO
+TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void LUA_init(GpTermEntry * pThis);
+TERM_PUBLIC void LUA_reset(GpTermEntry * pThis);
+TERM_PUBLIC void LUA_text(GpTermEntry * pThis);
+// scale 
+TERM_PUBLIC void LUA_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void LUA_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void LUA_vector(GpTermEntry * pThis, uint ux, uint uy);
+TERM_PUBLIC void LUA_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void LUA_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
+TERM_PUBLIC void LUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC int  LUA_text_angle(int ang);
 TERM_PUBLIC int  LUA_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC void LUA_point(uint x, uint y, int number);
-TERM_PUBLIC void LUA_arrow(uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC int  LUA_set_font(const char * font);
+TERM_PUBLIC void LUA_point(GpTermEntry * pThis, uint x, uint y, int number);
+TERM_PUBLIC void LUA_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC int  LUA_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void LUA_pointsize(double ptsize);
-TERM_PUBLIC void LUA_boxfill(int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void LUA_linewidth(double width);
+TERM_PUBLIC void LUA_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void LUA_linewidth(GpTermEntry * pThis, double width);
 TERM_PUBLIC int  LUA_make_palette(t_sm_palette *);
 TERM_PUBLIC void LUA_previous_palette();
-TERM_PUBLIC void LUA_set_color(t_colorspec *);
-TERM_PUBLIC void LUA_filled_polygon(int, gpiPoint *);
-TERM_PUBLIC void LUA_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec *);
+TERM_PUBLIC void LUA_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
+TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
 TERM_PUBLIC void LUA_path(int p);
 TERM_PUBLIC void LUA_boxed_text(uint, uint, int);
 
-/* defaults */
+// defaults 
 #define LUA_XMAX 10000.0
 #define LUA_YMAX 10000.0
 
@@ -81,10 +58,9 @@ TERM_PUBLIC void LUA_boxed_text(uint, uint, int);
 #define LUA_VCHAR       420
 #define LUA_TERM_DESCRIPTION "Lua generic terminal driver"
 
-/* gnuplot 4.3, term->tscale */
+// gnuplot 4.3, term->tscale 
 #define LUA_TSCALE   1.0
-
-#endif /* TERM_PROTO */
+//#endif /* TERM_PROTO */
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
@@ -176,7 +152,8 @@ static int LUA_GP_get_boundingbox(lua_State * L) {
 }
 
 /* gp.term_options(char *str) */
-static int LUA_GP_term_options(lua_State * L) {
+static int LUA_GP_term_options(lua_State * L) 
+{
 	int n = lua_gettop(L); /* Number of arguments */
 	const char * opt_str;
 	if(n != 1)
@@ -227,7 +204,7 @@ static int LUA_GP_int_error(lua_State * L)
 		    msg = luaL_checkstring(L, 1);
 		    break;
 		case 2:
-		    t_num = luaL_checkinteger(L, 1);
+		    t_num = static_cast<int>(luaL_checkinteger(L, 1));
 		    msg  = luaL_checkstring(L, 2);
 		    break;
 		default:
@@ -240,23 +217,22 @@ static int LUA_GP_int_error(lua_State * L)
 	GPO.IntError(t_num, last_error_msg);
 	return 0;
 }
-
 /*
    gp.GPO.IntWarn(int t_num, char *errmsg)
    gp.GPO.IntWarn(char *errmsg)
 
  */
-static int LUA_GP_int_warn(lua_State * L) {
+static int LUA_GP_int_warn(lua_State * L) 
+{
 	int t_num = NO_CARET;
 	const char * msg = "";
-
 	int n = lua_gettop(L); /* Number of arguments */
 	switch(n) {
 		case 1:
 		    msg = luaL_checkstring(L, 1);
 		    break;
 		case 2:
-		    t_num = luaL_checkinteger(L, 1);
+		    t_num = static_cast<int>(luaL_checkinteger(L, 1));
 		    msg = luaL_checkstring(L, 2);
 		    break;
 		default:
@@ -315,10 +291,8 @@ static int LUA_GP_term_out(lua_State * L)
 	}
 	if(*last)
 		fputs(last, stderr);
-
 	return 0;
 }
-
 /*
    gp.is_multiplot()
 
@@ -402,7 +376,6 @@ static int LUA_GP_get_all_variables(lua_State * L)
 	}
 	return(1);
 }
-
 /*
  * based on the parse_color_name() function in misc.c
  * returns rgb triplet based on color name or hex values
@@ -414,7 +387,7 @@ static int LUA_GP_parse_color_name(lua_State * L)
 	const char * opt_str;
 	if(n != 2)
 		return luaL_error(L, "Got %d arguments expected 2", n);
-	token_cnt = luaL_checkinteger(L, 1);
+	token_cnt = static_cast<int>(luaL_checkinteger(L, 1));
 	opt_str = luaL_checkstring(L, 2);
 
 	color = lookup_table_nth(pm3d_color_names_tbl, opt_str);
@@ -459,45 +432,45 @@ static void LUA_register_gp_fnc(void)
 	luaL_register(L, LUA_GP_FNC, gp_methods);
 #endif
 }
-
-/*
-   read variables from script
- */
-static void LUA_get_term_vars(void) {
+//
+// read variables from script
+//
+static void LUA_get_term_vars(GpTermEntry * pTerm)
+{
 	lua_getfield(L, luaterm, "description");
-	term->description = (lua_isstring(L, -1)) ? lua_tostring(L, -1) : LUA_TERM_DESCRIPTION;
+	pTerm->description = (lua_isstring(L, -1)) ? lua_tostring(L, -1) : LUA_TERM_DESCRIPTION;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "xmax");
-	term->MaxX = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_XMAX;
+	pTerm->MaxX = static_cast<uint>((lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_XMAX);
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "ymax");
-	term->MaxY = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_YMAX;
+	pTerm->MaxY = static_cast<uint>((lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_YMAX);
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "ChrV");
-	term->ChrV = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VCHAR;
+	pTerm->ChrV = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VCHAR;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "ChrH");
-	term->ChrH = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HCHAR;
+	pTerm->ChrH = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HCHAR;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "TicV");
-	term->TicV = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VTIC;
+	pTerm->TicV = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VTIC;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "TicH");
-	term->TicH = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HTIC;
+	pTerm->TicH = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HTIC;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "flags");
-	term->flags = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : TERM_BINARY;
+	pTerm->flags = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : TERM_BINARY;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "tscale");
-	term->tscale = (lua_isnumber(L, -1)) ? (double)lua_tonumber(L, -1) : LUA_TSCALE;
+	pTerm->tscale = (lua_isnumber(L, -1)) ? (double)lua_tonumber(L, -1) : LUA_TSCALE;
 	lua_pop(L, 1);
 
 	lua_getfield(L, luaterm, "external_images");
@@ -584,6 +557,10 @@ static int LUA_call_report(int status)
 	return status;
 }
 
+#if defined(_WIN32)
+	extern LPSTR RelativePathToGnuplot(const char * path);
+#endif
+
 static int LUA_init_lua(void)
 {
 	int sf; /* Lua script "function" */
@@ -593,9 +570,9 @@ static int LUA_init_lua(void)
 #if defined(_WIN32)
 	char * free_lua_dir = NULL;
 #endif
-	/*
-	 * Close old Lua context and open a new one.
-	 */
+	// 
+	// Close old Lua context and open a new one.
+	// 
 	if(L)
 		lua_close(L);
 #if LUA_VERSION_NUM > 500
@@ -609,7 +586,7 @@ static int LUA_init_lua(void)
 #if defined(_WIN32)
 	if(!gp_lua_dir)
 		gp_lua_dir = free_lua_dir = RelativePathToGnuplot(GNUPLOT_LUA_DIR);
-#else /* not _WIN32 */
+#else
 	SETIFZ(gp_lua_dir, GNUPLOT_LUA_DIR);
 #endif
 	if(stat(LUA_script, &stat_buf) || !S_ISREG(stat_buf.st_mode)) {
@@ -715,7 +692,7 @@ static const char* LUA_get_fillstyle(int style)
 /*
  * Handle options
  */
-TERM_PUBLIC void LUA_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char * opt_str = NULL;
 	char * s;
@@ -788,7 +765,7 @@ TERM_PUBLIC void LUA_options(TERMENTRY * pThis, GnuPlot * pGp)
 		lua_pop(L, 1);
 		SAlloc::F(opt_str);
 	}
-	LUA_get_term_vars();
+	LUA_get_term_vars(pThis);
 	// Treat "set term tikz mono" as "set term tikz; set mono" 
 	if(strstr(term_options, "monochrome")) {
 		monochrome = TRUE;
@@ -796,16 +773,16 @@ TERM_PUBLIC void LUA_options(TERMENTRY * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void LUA_init(termentry * pThis)
+TERM_PUBLIC void LUA_init(GpTermEntry * pThis)
 {
 	if(gpoutfile != stdout) {
 		fseek(gpoutfile, 0, SEEK_SET);
 		// ignore compiler warnings here, because `gpoutfile' is already open 
-		if(fflush(gpoutfile) || ftruncate(fileno(gpoutfile), 0))
+		if(fflush(gpoutfile) || ftruncate(_fileno(gpoutfile), 0))
 			GPO.IntWarn(NO_CARET, "Error re-writing output file: %s", strerror(errno));
 	}
-	image_cnt = 0; /* reset image counter */
-	LUA_linetype(-1);
+	image_cnt = 0; // reset image counter 
+	LUA_linetype(pThis, -1);
 	if(LUA_init_luaterm_function("init")) {
 		LUA_call_report(lua_pcall(L, 0, 1, tb));
 		lua_term_result = (int)lua_tonumber(L, -1);
@@ -813,7 +790,7 @@ TERM_PUBLIC void LUA_init(termentry * pThis)
 	}
 }
 
-TERM_PUBLIC void LUA_graphics()
+TERM_PUBLIC void LUA_graphics(GpTermEntry * pThis)
 {
 	if(LUA_init_luaterm_function("graphics")) {
 		LUA_call_report(lua_pcall(L, 0, 1, tb));
@@ -822,7 +799,7 @@ TERM_PUBLIC void LUA_graphics()
 	}
 }
 
-TERM_PUBLIC void LUA_text()
+TERM_PUBLIC void LUA_text(GpTermEntry * pThis)
 {
 	if(LUA_init_luaterm_function("text")) {
 		LUA_call_report(lua_pcall(L, 0, 1, tb));
@@ -831,7 +808,7 @@ TERM_PUBLIC void LUA_text()
 	}
 }
 
-TERM_PUBLIC void LUA_linetype(int linetype)
+TERM_PUBLIC void LUA_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(LUA_init_luaterm_function("linetype")) {
 		lua_pushinteger(L, linetype);
@@ -841,10 +818,9 @@ TERM_PUBLIC void LUA_linetype(int linetype)
 	}
 }
 
-TERM_PUBLIC void LUA_dashtype(int type, t_dashtype * custom_dash_type)
+TERM_PUBLIC void LUA_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
 {
 	int i = 0;
-
 	if(LUA_init_luaterm_function("dashtype")) {
 		lua_pushinteger(L, type);
 		lua_newtable(L);
@@ -865,7 +841,7 @@ TERM_PUBLIC void LUA_dashtype(int type, t_dashtype * custom_dash_type)
 	}
 }
 
-TERM_PUBLIC void LUA_move(uint x, uint y)
+TERM_PUBLIC void LUA_move(GpTermEntry * pThis, uint x, uint y)
 {
 	if(LUA_init_luaterm_function("move")) {
 		lua_pushinteger(L, (int)x);
@@ -876,7 +852,7 @@ TERM_PUBLIC void LUA_move(uint x, uint y)
 	}
 }
 
-TERM_PUBLIC void LUA_point(uint x, uint y, int number)
+TERM_PUBLIC void LUA_point(GpTermEntry * pThis, uint x, uint y, int number)
 {
 	lua_term_result = 0;
 	if(LUA_init_luaterm_function("point")) {
@@ -888,7 +864,7 @@ TERM_PUBLIC void LUA_point(uint x, uint y, int number)
 		lua_pop(L, 1);
 	}
 	if(!lua_term_result) 
-		GnuPlot::DoPoint(x, y, number);
+		GnuPlot::DoPoint(pThis, x, y, number);
 }
 
 TERM_PUBLIC void LUA_pointsize(double ptsize)
@@ -901,7 +877,7 @@ TERM_PUBLIC void LUA_pointsize(double ptsize)
 	}
 }
 
-TERM_PUBLIC void LUA_vector(uint ux, uint uy)
+TERM_PUBLIC void LUA_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
 	if(LUA_init_luaterm_function("vector")) {
 		lua_pushinteger(L, (int)ux);
@@ -912,7 +888,7 @@ TERM_PUBLIC void LUA_vector(uint ux, uint uy)
 	}
 }
 
-TERM_PUBLIC void LUA_arrow(uint sx, uint sy, uint ex, uint ey, int head)
+TERM_PUBLIC void LUA_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	/*
 	   if the script does not provide an `arrow' functions
@@ -940,10 +916,11 @@ TERM_PUBLIC void LUA_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 		lua_pop(L, 1);
 	}
 
-	if(!lua_term_result) GnuPlot::DoArrow(sx, sy, ex, ey, head);
+	if(!lua_term_result) 
+		GnuPlot::DoArrow(pThis, sx, sy, ex, ey, head);
 }
 
-TERM_PUBLIC void LUA_put_text(uint x, uint y, const char str[])
+TERM_PUBLIC void LUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
 	if(LUA_init_luaterm_function("put_text")) {
 		lua_pushinteger(L, (int)x);
@@ -992,7 +969,7 @@ TERM_PUBLIC int LUA_text_angle(int ang)
 	return((ang ? FALSE : TRUE)); /* return TRUE if called with ang==0 */
 }
 
-TERM_PUBLIC int LUA_set_font(const char * font)
+TERM_PUBLIC int LUA_set_font(GpTermEntry * pThis, const char * font)
 {
 	if(LUA_init_luaterm_function("set_font")) {
 		lua_pushstring(L, font);
@@ -1001,10 +978,10 @@ TERM_PUBLIC int LUA_set_font(const char * font)
 		lua_pop(L, 1);
 		if(lua_term_result) {
 			lua_getfield(L, luaterm, "ChrV");
-			term->ChrV = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VCHAR;
+			pThis->ChrV = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_VCHAR;
 			lua_pop(L, 1);
 			lua_getfield(L, luaterm, "ChrH");
-			term->ChrH = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HCHAR;
+			pThis->ChrH = (lua_isnumber(L, -1)) ? (uint)lua_tonumber(L, -1) : LUA_HCHAR;
 			lua_pop(L, 1);
 			return TRUE;
 		}
@@ -1012,7 +989,7 @@ TERM_PUBLIC int LUA_set_font(const char * font)
 	return(FALSE);
 }
 
-TERM_PUBLIC void LUA_boxfill(int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void LUA_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	if(LUA_init_luaterm_function("boxfill")) {
 		lua_pushstring(L, LUA_get_fillstyle(style));
@@ -1027,7 +1004,7 @@ TERM_PUBLIC void LUA_boxfill(int style, uint x1, uint y1, uint width, uint heigh
 	}
 }
 
-TERM_PUBLIC void LUA_linewidth(double width)
+TERM_PUBLIC void LUA_linewidth(GpTermEntry * pThis, double width)
 {
 	if(LUA_init_luaterm_function("linewidth")) {
 		lua_pushnumber(L, width);
@@ -1046,7 +1023,7 @@ TERM_PUBLIC void LUA_previous_palette(void)
 	}
 }
 
-TERM_PUBLIC void LUA_reset(void)
+TERM_PUBLIC void LUA_reset(GpTermEntry * pThis)
 {
 	if(LUA_init_luaterm_function("reset")) {
 		LUA_call_report(lua_pcall(L, 0, 1, tb));
@@ -1066,7 +1043,7 @@ TERM_PUBLIC int LUA_make_palette(t_sm_palette * palette)
 	return 0; /* continuous number of colours */
 }
 
-TERM_PUBLIC void LUA_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
 	double gray = colorspec->value;
 	rgb_color color = {0., 0., 0.};
@@ -1099,7 +1076,7 @@ TERM_PUBLIC void LUA_set_color(t_colorspec * colorspec)
 	}
 }
 
-TERM_PUBLIC void LUA_filled_polygon(int points, gpiPoint * corners)
+TERM_PUBLIC void LUA_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	if(LUA_init_luaterm_function("filled_polygon")) {
 		int i;
@@ -1121,7 +1098,7 @@ TERM_PUBLIC void LUA_filled_polygon(int points, gpiPoint * corners)
 	}
 }
 
-TERM_PUBLIC void LUA_layer(t_termlayer syncpoint)
+TERM_PUBLIC void LUA_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 {
 	if(LUA_init_luaterm_function("layer")) {
 		const char * m;
@@ -1174,7 +1151,7 @@ TERM_PUBLIC void LUA_path(int path)
    Lua table structure for the image pixel:
    pixel = {{r, g, b, [, a]}, {r, g, b [, a]}, ... , {r, g, b [, a]}}
  */
-TERM_PUBLIC void LUA_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode) 
+TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode) 
 {
 	if(LUA_init_luaterm_function("image")) {
 		int i;
@@ -1182,23 +1159,22 @@ TERM_PUBLIC void LUA_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 		coordval alpha = 0;
 		char * image_file = NULL;
 #ifdef LUA_EXTERNAL_IMAGES
-		/* "externalize" if transparent images are used or on user request */
+		// "externalize" if transparent images are used or on user request 
 		if(outstr && ((color_mode == IC_RGBA) || image_extern)) {
 			char * idx;
-			/* cairo based png images with alpha channel */
+			// cairo based png images with alpha channel 
 			if((idx = strrchr(outstr, '.')) == NULL)
 				idx = strchr(outstr, '\0');
 			image_file = (char*)gp_alloc((idx-outstr)+10, "LUA_image");
 			strncpy(image_file, outstr, (idx-outstr) + 1);
 			snprintf(image_file+(idx-outstr), 9, ".%03d.png", (uchar)(++image_cnt));
-
 			write_png_image(m, n, image, color_mode, image_file);
 		}
 #endif
 		lua_pushinteger(L, m);
 		lua_pushinteger(L, n);
 		lua_newtable(L); /* pixel table */
-		for(i = 0; i < m*n; i++) {
+		for(i = 0; i < static_cast<int>(m*n); i++) {
 			if(color_mode == IC_PALETTE) {
 				// FIXME: Is this correct? Needs a testcase. Would be nice to map it correctly to RGB.
 				GPO.Rgb1MaxColorsFromGray(*image++, &rgb1);
@@ -1223,8 +1199,7 @@ TERM_PUBLIC void LUA_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 			}
 			lua_rawseti(L, -2, i+1); /* add "pixel" */
 		}
-
-		lua_newtable(L); /* "corner" table */
+		lua_newtable(L); // "corner" table 
 		for(i = 0; i < 4; i++) {
 			lua_newtable(L);
 			lua_pushinteger(L, (int)corner[i].x);
@@ -1276,55 +1251,115 @@ TERM_PUBLIC void LUA_boxed_text(uint x, uint y, int option)
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(lua_driver)
-"lua", LUA_TERM_DESCRIPTION,
-LUA_XMAX, LUA_YMAX, LUA_VCHAR, LUA_HCHAR,
-LUA_VTIC, LUA_HTIC, LUA_options, LUA_init, LUA_reset,
-LUA_text, GnuPlot::NullScale, LUA_graphics, LUA_move, LUA_vector,
-LUA_linetype, LUA_put_text, LUA_text_angle,
-LUA_justify_text, LUA_point, LUA_arrow, LUA_set_font, LUA_pointsize,
-TERM_BINARY /*flags*/, 0 /*suspend*/, 0 /*resume*/,
-LUA_boxfill, LUA_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0
-#endif
-, LUA_make_palette, LUA_previous_palette,  LUA_set_color
-, LUA_filled_polygon
-, LUA_image
-, 0, 0, 0
-, LUA_layer
-, LUA_path
-, LUA_TSCALE
-, NULL     /* hypertext */
-, LUA_boxed_text
-, NULL     /* modify plots */
-, LUA_dashtype TERM_TABLE_END(lua_driver)
+	"lua", 
+	LUA_TERM_DESCRIPTION,
+	static_cast<uint>(LUA_XMAX),
+	static_cast<uint>(LUA_YMAX),
+	LUA_VCHAR, 
+	LUA_HCHAR,
+	LUA_VTIC, 
+	LUA_HTIC, 
+	LUA_options, 
+	LUA_init, 
+	LUA_reset,
+	LUA_text, 
+	GnuPlot::NullScale, 
+	LUA_graphics, 
+	LUA_move, 
+	LUA_vector,
+	LUA_linetype, 
+	LUA_put_text, 
+	LUA_text_angle,
+	LUA_justify_text, 
+	LUA_point, 
+	LUA_arrow, 
+	LUA_set_font, 
+	LUA_pointsize,
+	TERM_BINARY /*flags*/, 
+	0 /*suspend*/, 
+	0 /*resume*/,
+	LUA_boxfill, 
+	LUA_linewidth,
+	#ifdef USE_MOUSE
+		0, 
+		0, 
+		0, 
+		0, 
+		0,
+	#endif
+	LUA_make_palette, 
+	LUA_previous_palette,  
+	LUA_set_color,
+	LUA_filled_polygon,
+	LUA_image,
+	0, 
+	0, 
+	0,
+	LUA_layer,
+	LUA_path,
+	LUA_TSCALE,
+	NULL,     /* hypertext */
+	LUA_boxed_text,
+	NULL,     /* modify plots */
+	LUA_dashtype 
+TERM_TABLE_END(lua_driver)
 
 #undef LAST_TERM
 #define LAST_TERM lua_driver
 
 TERM_TABLE_START(tikz_driver)
-"tikz", "TeX TikZ graphics macros via the lua script driver",
-LUA_XMAX, LUA_YMAX, LUA_VCHAR, LUA_HCHAR,
-LUA_VTIC, LUA_HTIC, LUA_options, LUA_init, LUA_reset,
-LUA_text, GnuPlot::NullScale, LUA_graphics, LUA_move, LUA_vector,
-LUA_linetype, LUA_put_text, LUA_text_angle,
-LUA_justify_text, LUA_point, LUA_arrow, LUA_set_font, LUA_pointsize,
-TERM_BINARY /*flags*/, 0 /*suspend*/, 0 /*resume*/,
-LUA_boxfill, LUA_linewidth
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0
-#endif
-, LUA_make_palette, LUA_previous_palette,  LUA_set_color
-, LUA_filled_polygon
-, LUA_image
-, 0, 0, 0
-, LUA_layer
-, LUA_path
-, LUA_TSCALE
-, NULL     /* hypertext */
-, LUA_boxed_text
-, NULL     /* modify plots */
-, LUA_dashtype TERM_TABLE_END(tikz_driver)
+	"tikz", 
+	"TeX TikZ graphics macros via the lua script driver",
+	static_cast<uint>(LUA_XMAX),
+	static_cast<uint>(LUA_YMAX),
+	LUA_VCHAR, 
+	LUA_HCHAR,
+	LUA_VTIC, 
+	LUA_HTIC, 
+	LUA_options, 
+	LUA_init, 
+	LUA_reset,
+	LUA_text, 
+	GnuPlot::NullScale, 
+	LUA_graphics, 
+	LUA_move, 
+	LUA_vector,
+	LUA_linetype, 
+	LUA_put_text, 
+	LUA_text_angle,
+	LUA_justify_text, 
+	LUA_point, 
+	LUA_arrow, 
+	LUA_set_font, 
+	LUA_pointsize,
+	TERM_BINARY /*flags*/, 
+	0 /*suspend*/, 
+	0 /*resume*/,
+	LUA_boxfill, 
+	LUA_linewidth,
+	#ifdef USE_MOUSE
+		0, 
+		0, 
+		0, 
+		0, 
+		0,
+	#endif
+	LUA_make_palette, 
+	LUA_previous_palette,  
+	LUA_set_color,
+	LUA_filled_polygon,
+	LUA_image,
+	0, 
+	0, 
+	0,
+	LUA_layer,
+	LUA_path,
+	LUA_TSCALE,
+	NULL,     /* hypertext */
+	LUA_boxed_text,
+	NULL, /* modify plots */
+	LUA_dashtype 
+TERM_TABLE_END(tikz_driver)
 
 #undef LAST_TERM
 #define LAST_TERM tikz_driver

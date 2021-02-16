@@ -20,7 +20,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -32,23 +32,23 @@
 
 //#ifdef TERM_PROTO
 TERM_PUBLIC void PICT2E_options();
-TERM_PUBLIC void PICT2E_init(termentry * pThis);
-TERM_PUBLIC void PICT2E_graphics();
-TERM_PUBLIC void PICT2E_text();
-TERM_PUBLIC void PICT2E_reset();
+TERM_PUBLIC void PICT2E_init(GpTermEntry * pThis);
+TERM_PUBLIC void PICT2E_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void PICT2E_text(GpTermEntry * pThis);
+TERM_PUBLIC void PICT2E_reset(GpTermEntry * pThis);
 TERM_PUBLIC int PICT2E_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int PICT2E_text_angle(int ang);
-TERM_PUBLIC void PICT2E_put_text(uint x, uint y, const char str[]);
+TERM_PUBLIC void PICT2E_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC int PICT2E_make_palette(t_sm_palette * palette);
-TERM_PUBLIC void PICT2E_set_color(const t_colorspec * colorspec);
-TERM_PUBLIC void PICT2E_linetype(int linetype);
-TERM_PUBLIC void PICT2E_dashtype(int dt, t_dashtype * custom_dash_pattern);
-TERM_PUBLIC void PICT2E_move(uint x, uint y);
-TERM_PUBLIC void PICT2E_point(uint x, uint y, int number);
-TERM_PUBLIC void PICT2E_vector(uint ux, uint uy);
-TERM_PUBLIC void PICT2E_arrow(uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC void PICT2E_fillbox(int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void PICT2E_filled_polygon(int points, gpiPoint * corners);
+TERM_PUBLIC void PICT2E_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
+TERM_PUBLIC void PICT2E_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void PICT2E_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern);
+TERM_PUBLIC void PICT2E_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void PICT2E_point(GpTermEntry * pThis, uint x, uint y, int number);
+TERM_PUBLIC void PICT2E_vector(GpTermEntry * pThis, uint ux, uint uy);
+TERM_PUBLIC void PICT2E_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC void PICT2E_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void PICT2E_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
 
 #define PICT2E_PTS_PER_INCH (72.27)
 #define PICT2E_DPI (600)        /* resolution of printer we expect to use */
@@ -196,7 +196,7 @@ static struct gen_table PICT2E_opts[] =
 	{ NULL, PICT2E_OTHER }
 };
 
-TERM_PUBLIC void PICT2E_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char * s;
 	pict2e_explicit_size = FALSE;
@@ -309,7 +309,7 @@ TERM_PUBLIC void PICT2E_options(TERMENTRY * pThis, GnuPlot * pGp)
 	sprintf(&(term_options[strlen(term_options)]), pict2e_arrows ? " texarrows" : " gparrows");
 }
 
-TERM_PUBLIC void PICT2E_init(termentry * pThis)
+TERM_PUBLIC void PICT2E_init(GpTermEntry * pThis)
 {
 	fprintf(gpoutfile,
 	    "%% GNUPLOT: LaTeX2e picture (pict2e)\n" \
@@ -330,9 +330,9 @@ TERM_PUBLIC void PICT2E_init(termentry * pThis)
 #endif
 }
 
-TERM_PUBLIC void PICT2E_graphics()
+TERM_PUBLIC void PICT2E_graphics(GpTermEntry * pThis)
 {
-	/* set size of canvas */
+	// set size of canvas 
 	if(!pict2e_explicit_size) {
 		term->MaxX = PICT2E_XMAX;
 		term->MaxY = PICT2E_YMAX;
@@ -351,13 +351,13 @@ TERM_PUBLIC void PICT2E_graphics()
 	pict2e_lw = pict2e_lw_scale;
 	pict2e_size = 0;
 	pict2e_color[0] = 0;
-	PICT2E_linetype(LT_AXIS);
+	PICT2E_linetype(pThis, LT_AXIS);
 	pict2e_inline = FALSE;
 	pict2e_linecount = 0;
 	pict2e_posx = pict2e_posy = 0;
 }
 
-TERM_PUBLIC void PICT2E_text()
+TERM_PUBLIC void PICT2E_text(GpTermEntry * pThis)
 {
 	PICT2E_endline();
 	fputs("\\end{picture}\n", gpoutfile);
@@ -365,7 +365,7 @@ TERM_PUBLIC void PICT2E_text()
 	pict2e_moved = TRUE;            /* pen is up after move */
 }
 
-TERM_PUBLIC void PICT2E_reset()
+TERM_PUBLIC void PICT2E_reset(GpTermEntry * pThis)
 {
 	pict2e_posx = pict2e_posy = 0;  /* current position */
 	pict2e_moved = TRUE;            /* pen is up after move */
@@ -387,14 +387,14 @@ static void PICT2E_linesize()
 	pict2e_moved = TRUE;            /* reset */
 }
 
-TERM_PUBLIC void PICT2E_linetype(int linetype)
+TERM_PUBLIC void PICT2E_linetype(GpTermEntry * pThis, int linetype)
 {
 	t_colorspec colorspec;
 	PICT2E_endline();
 	// save values for set_color 
 	colorspec.type = TC_LT;
 	colorspec.lt = linetype;
-	PICT2E_set_color(&colorspec);
+	PICT2E_set_color(pThis, &colorspec);
 	// all but axis lines are solid by default 
 	if(linetype == LT_AXIS)
 		pict2e_dotspace = PICT2E_DOT_SPACE;
@@ -402,7 +402,7 @@ TERM_PUBLIC void PICT2E_linetype(int linetype)
 		pict2e_dotspace = 0.0;
 }
 
-TERM_PUBLIC void PICT2E_dashtype(int dt, t_dashtype * custom_dash_pattern)
+TERM_PUBLIC void PICT2E_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern)
 {
 	if(dt >= 0) {
 		int linetype = dt % 3;
@@ -419,12 +419,12 @@ TERM_PUBLIC void PICT2E_dashtype(int dt, t_dashtype * custom_dash_pattern)
 	}
 }
 
-TERM_PUBLIC void PICT2E_linewidth(double linewidth)
+TERM_PUBLIC void PICT2E_linewidth(GpTermEntry * pThis, double linewidth)
 {
 	pict2e_lw = static_cast<float>(linewidth * pict2e_lw_scale);
 }
 
-TERM_PUBLIC void PICT2E_move(uint x, uint y)
+TERM_PUBLIC void PICT2E_move(GpTermEntry * pThis, uint x, uint y)
 {
 	PICT2E_endline();
 	pict2e_posx = x;
@@ -432,22 +432,21 @@ TERM_PUBLIC void PICT2E_move(uint x, uint y)
 	pict2e_moved = TRUE;            /* reset */
 }
 
-TERM_PUBLIC void PICT2E_point(uint x, uint y, int number)
+TERM_PUBLIC void PICT2E_point(GpTermEntry * pThis, uint x, uint y, int number)
 {
 	const char * size[] = { "", "\\scriptstyle", "\\scriptscriptstyle" };
 	char point[80];
 	PICT2E_apply_color();
 	PICT2E_apply_opacity();
 	if(pict2e_points) {
-		PICT2E_move(x, y);
-		/* Print the character defined by 'number'; number < 0 means
-		   to use a dot, otherwise one of the defined points. */
+		PICT2E_move(pThis, x, y);
+		// Print the character defined by 'number'; number < 0 means to use a dot, otherwise one of the defined points. 
 		if(number >= 0)
 			snprintf(point, sizeof(point), pict2e_point_type[number % PICT2E_POINT_TYPES], size[pict2e_pointsize]);
 		fprintf(gpoutfile, "\\put(%d,%d){%s}\n", x, y, (number < 0 ? PICT2E_TINY_DOT : point));
 	}
 	else {
-		GnuPlot::DoPoint(x, y, number);
+		GnuPlot::DoPoint(pThis, x, y, number);
 	}
 }
 
@@ -466,7 +465,7 @@ static void PICT2E_pushpath(uint x, uint y)
 	}
 }
 
-TERM_PUBLIC void PICT2E_vector(uint ux, uint uy)
+TERM_PUBLIC void PICT2E_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
 	if(!pict2e_inline) {
 		PICT2E_apply_color();
@@ -544,7 +543,7 @@ static void PICT2E_flushdot()
 	pict2e_needsdot = FALSE;
 }
 
-TERM_PUBLIC void PICT2E_arrow(uint sx, uint sy, uint ex, uint ey, int head)
+TERM_PUBLIC void PICT2E_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	PICT2E_apply_color();
 	PICT2E_apply_opacity();
@@ -553,7 +552,7 @@ TERM_PUBLIC void PICT2E_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 		// This mostly converts the parameters to signed.
 		PICT2E_do_arrow(sx, sy, ex, ey, head);
 	else
-		GnuPlot::DoArrow(sx, sy, ex, ey, head);
+		GnuPlot::DoArrow(pThis, sx, sy, ex, ey, head);
 	pict2e_posx = ex;
 	pict2e_posy = ey;
 }
@@ -591,10 +590,10 @@ static void PICT2E_do_arrow(int sx, int sy, int ex, int ey/* start and end point
 	}
 }
 
-TERM_PUBLIC void PICT2E_put_text(uint x, uint y, const char str[])
+TERM_PUBLIC void PICT2E_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
 	static const char * justify[] = { "[l]", "", "[r]" };
-	/* ignore empty strings */
+	// ignore empty strings 
 	if(str[0] == NUL)
 		return;
 	PICT2E_endline();
@@ -656,7 +655,7 @@ static void PICT2E_apply_opacity()
 #endif
 }
 
-TERM_PUBLIC void PICT2E_set_color(const t_colorspec * colorspec)
+TERM_PUBLIC void PICT2E_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
 	if(!pict2e_use_color)
 		return;
@@ -818,10 +817,10 @@ static int PICT2E_fill(int style)
 	return fill;
 }
 
-TERM_PUBLIC void PICT2E_fillbox(int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void PICT2E_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	int ret;
-	PICT2E_move(x1, y1);
+	PICT2E_move(pThis, x1, y1);
 	PICT2E_apply_color();
 	// determine fill color
 	if((ret = PICT2E_fill(style)) == pict2e_no_fill)
@@ -834,10 +833,10 @@ TERM_PUBLIC void PICT2E_fillbox(int style, uint x1, uint y1, uint width, uint he
 #endif
 }
 
-TERM_PUBLIC void PICT2E_filled_polygon(int points, gpiPoint * corners)
+TERM_PUBLIC void PICT2E_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	int i, ret;
-	PICT2E_move(corners[0].x, corners[0].y);
+	PICT2E_move(pThis, corners[0].x, corners[0].y);
 	PICT2E_apply_color();
 	// determine fill color
 	if((ret = PICT2E_fill(corners->style)) == pict2e_no_fill)

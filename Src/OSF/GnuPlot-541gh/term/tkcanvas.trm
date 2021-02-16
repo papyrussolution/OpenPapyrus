@@ -102,8 +102,8 @@ register_term(tkcanvas)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void TK_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void TK_init(termentry * pThis);
+TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void TK_init(GpTermEntry * pThis);
 TERM_PUBLIC void TK_graphics();
 TERM_PUBLIC void TK_text();
 TERM_PUBLIC void TK_linetype(int linetype);
@@ -124,10 +124,10 @@ TERM_PUBLIC void TK_enhanced_flush();
 TERM_PUBLIC void TK_linewidth(double linewidth);
 TERM_PUBLIC int  TK_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void TK_color(t_colorspec * colorspec);
-TERM_PUBLIC void TK_fillbox(int style, uint x, uint y, unsigned int w, unsigned int h);
+TERM_PUBLIC void TK_fillbox(int style, uint x, uint y, uint w, uint h);
 TERM_PUBLIC void TK_filled_polygon(int points, gpiPoint * corners);
 #ifdef WRITE_PNG_IMAGE
-TERM_PUBLIC void TK_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
+	TERM_PUBLIC void TK_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 #endif
 TERM_PUBLIC void TK_dashtype(int dt, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void TK_boxed_text(uint x, uint y, int option);
@@ -249,7 +249,7 @@ static struct gen_table TK_opts[] =
 	{ NULL, TK_OTHER }
 };
 
-TERM_PUBLIC void TK_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	int cmd;
 	tk_interactive = FALSE;
@@ -369,7 +369,7 @@ TERM_PUBLIC void TK_options(TERMENTRY * pThis, GnuPlot * pGp)
 	    pThis->image == NULL ? "pixels" : "externalimages", tk_width, tk_height);
 }
 
-TERM_PUBLIC void TK_init(termentry * pThis)
+TERM_PUBLIC void TK_init(GpTermEntry * pThis)
 {
 	tk_image_counter = 0;
 }
@@ -1756,18 +1756,15 @@ static char * tk_rectangle[TK_LANG_MAX] = {
 
 static void TK_rectangle(int x1, int y1, int x2, int y2, char * color, char * stipple)
 {
-	if(color == NULL) color = "";
-	if(stipple == NULL) stipple = "";
-
-	fprintf(gpoutfile, tk_rectangle[tk_script_language],
-	    x1, y1, x2, y2, color, stipple);
+	SETIFZ(color, "");
+	SETIFZ(stipple, "");
+	fprintf(gpoutfile, tk_rectangle[tk_script_language], x1, y1, x2, y2, color, stipple);
 }
 
-TERM_PUBLIC void TK_fillbox(int style, uint x, uint y, unsigned int w, unsigned int h)
+TERM_PUBLIC void TK_fillbox(int style, uint x, uint y, uint w, uint h)
 {
 	char * stipple = "";
 	char * color = tk_color;
-
 	TK_flush_line();
 	switch(style & 0x0f) {
 		case FS_SOLID:
@@ -1889,7 +1886,7 @@ static void TK_add_path_point(int x, int y)
 }
 
 #ifdef WRITE_PNG_IMAGE
-TERM_PUBLIC void TK_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void TK_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	int width  = ABS(corner[0].x - corner[1].x);
 	int height = ABS(corner[0].y - corner[1].y);

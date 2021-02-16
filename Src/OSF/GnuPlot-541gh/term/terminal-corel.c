@@ -1,8 +1,6 @@
-/* Hello, Emacs, this is -*-C-*- */
-
+// corel.trm
+//
 /*
-   corel.trm
-
    A modified ai.trm for CorelDraw import filters
    by Chris Parks, parks@physics.purdue.edu
    Import from CorelDraw with the CorelTrace filter
@@ -18,30 +16,38 @@
            linewidth = width of lines in points  (default=1.2pt)
 
  */
-
 /*
  * adapted to the new terminal layout by Stefan Bodewig (Dec. 1995)
  */
 /*
  * 2017: removed from default build and marked "legacy"
  */
-
+#include <gnuplot.h>
+#pragma hdrstop
 #include "driver.h"
 
+// @experimental {
+#define TERM_BODY
+#define TERM_PUBLIC static
+#define TERM_TABLE
+#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_END(x)   };
+// } @experimental
+
 #ifdef TERM_REGISTER
-register_term(corel)
+	register_term(corel)
 #endif
 
-#ifdef TERM_PROTO
-TERM_PUBLIC void COREL_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void COREL_init(termentry * pThis);
-TERM_PUBLIC void COREL_graphics();
-TERM_PUBLIC void COREL_text();
-TERM_PUBLIC void COREL_reset();
-TERM_PUBLIC void COREL_linetype(int linetype);
-TERM_PUBLIC void COREL_move(uint x, uint y);
-TERM_PUBLIC void COREL_vector(uint x, uint y);
-TERM_PUBLIC void COREL_put_text(uint x, uint y, const char * str);
+//#ifdef TERM_PROTO
+TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void COREL_init(GpTermEntry * pThis);
+TERM_PUBLIC void COREL_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void COREL_text(GpTermEntry * pThis);
+TERM_PUBLIC void COREL_reset(GpTermEntry * pThis);
+TERM_PUBLIC void COREL_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void COREL_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void COREL_vector(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void COREL_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
 TERM_PUBLIC int COREL_text_angle(int ang);
 TERM_PUBLIC int COREL_justify_text(enum JUSTIFY mode);
 #define CORELD_XMAX  5960       /* 8.2 inches wide */
@@ -50,14 +56,14 @@ TERM_PUBLIC int COREL_justify_text(enum JUSTIFY mode);
 #define CORELD_HTIC  (CORELD_YMAX/80)
 #define CORELD_VCHAR (22*COREL_SC)      /* default is 22 point characters */
 #define CORELD_HCHAR (22*COREL_SC*6/10)
-#endif
+//#endif
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
 
 #define DEFAULT_CORELFONT "SwitzerlandLight"
 
-/* plots for publication should be sans-serif (don't use TimesRoman) */
+// plots for publication should be sans-serif (don't use TimesRoman) 
 static char corel_font[MAX_ID_LEN + 1] = DEFAULT_CORELFONT;     /* name of font */
 static int corel_fontsize = 22; /* size of font in pts */
 static bool corel_color = FALSE;
@@ -87,7 +93,7 @@ static struct gen_table COREL_opts[] =
 	{ NULL, COREL_OTHER }
 };
 
-TERM_PUBLIC void COREL_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	GpValue a;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -118,7 +124,7 @@ TERM_PUBLIC void COREL_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    }
 			    else {
 				    // We have font size specified 
-				    corel_fontsize = (int)real(const_express(&a));
+				    corel_fontsize = (int)real(pGp->ConstExpress(&a));
 				    pGp->Pgm.Shift();
 				    pThis->ChrV = (uint)(corel_fontsize * COREL_SC);
 				    pThis->ChrH = (uint)(corel_fontsize * COREL_SC * 6 / 10);
@@ -126,13 +132,12 @@ TERM_PUBLIC void COREL_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-
-	/* FIXME - argh. Stupid syntax alert here */
+	// FIXME - argh. Stupid syntax alert here 
 	if(!pGp->Pgm.EndOfCommand()) {
-		corel_xmax = (uint)(real(const_express(&a)) * 720);
+		corel_xmax = (uint)(real(pGp->ConstExpress(&a)) * 720);
 		pGp->Pgm.Shift();
 		if(!pGp->Pgm.EndOfCommand()) {
-			corel_ymax = (uint)(real(const_express(&a)) * 720);
+			corel_ymax = (uint)(real(pGp->ConstExpress(&a)) * 720);
 			pGp->Pgm.Shift();
 		}
 		pThis->MaxX = corel_xmax;
@@ -141,16 +146,14 @@ TERM_PUBLIC void COREL_options(TERMENTRY * pThis, GnuPlot * pGp)
 		pThis->TicH = corel_ymax / 80;
 	}
 	if(!pGp->Pgm.EndOfCommand()) {
-		corel_lw = real(const_express(&a)) * COREL_SC;
+		corel_lw = static_cast<float>(real(pGp->ConstExpress(&a)) * COREL_SC);
 		pGp->Pgm.Shift();
 	}
-	sprintf(term_options, "%s \"%s\" %d,%0.1f,%0.1f,%0.1f",
-	    corel_color ? "color" : "monochrome", corel_font,
-	    corel_fontsize, corel_xmax / 720.0, corel_ymax / 720.0,
-	    corel_lw / COREL_SC);
+	sprintf(term_options, "%s \"%s\" %d,%0.1f,%0.1f,%0.1f", corel_color ? "color" : "monochrome", corel_font,
+	    corel_fontsize, corel_xmax / 720.0, corel_ymax / 720.0, corel_lw / COREL_SC);
 }
 
-TERM_PUBLIC void COREL_init(termentry * pThis)
+TERM_PUBLIC void COREL_init(GpTermEntry * pThis)
 {
 	fprintf(gpoutfile,
 	    "\
@@ -170,13 +173,13 @@ TERM_PUBLIC void COREL_init(termentry * pThis)
 	    (int)((corel_ymax) / COREL_SC + 0.5 + CORELD_YOFF));
 }
 
-TERM_PUBLIC void COREL_graphics()
+TERM_PUBLIC void COREL_graphics(GpTermEntry * pThis)
 {
 	corel_path_count = 0;
 	corel_stroke = FALSE;
 }
 
-TERM_PUBLIC void COREL_text()
+TERM_PUBLIC void COREL_text(GpTermEntry * pThis)
 {
 	if(corel_stroke) {
 		fputs("S\n", gpoutfile);
@@ -185,12 +188,12 @@ TERM_PUBLIC void COREL_text()
 	corel_path_count = 0;
 }
 
-TERM_PUBLIC void COREL_reset()
+TERM_PUBLIC void COREL_reset(GpTermEntry * pThis)
 {
 	fputs("%%Trailer\n", gpoutfile);
 }
 
-TERM_PUBLIC void COREL_linetype(int linetype)
+TERM_PUBLIC void COREL_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(corel_stroke) {
 		fputs("S\n", gpoutfile);
@@ -332,7 +335,7 @@ TERM_PUBLIC void COREL_linetype(int linetype)
 	corel_path_count = 0;
 }
 
-TERM_PUBLIC void COREL_move(uint x, uint y)
+TERM_PUBLIC void COREL_move(GpTermEntry * pThis, uint x, uint y)
 {
 	if(corel_stroke)
 		fputs("S\n", gpoutfile);
@@ -341,7 +344,7 @@ TERM_PUBLIC void COREL_move(uint x, uint y)
 	corel_stroke = TRUE;
 }
 
-TERM_PUBLIC void COREL_vector(uint x, uint y)
+TERM_PUBLIC void COREL_vector(GpTermEntry * pThis, uint x, uint y)
 {
 	fprintf(gpoutfile, "%.2f %.2f l\n", x / COREL_SC, y / COREL_SC);
 	corel_path_count += 1;
@@ -352,7 +355,7 @@ TERM_PUBLIC void COREL_vector(uint x, uint y)
 	}
 }
 
-TERM_PUBLIC void COREL_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void COREL_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	char ch;
 	if(corel_stroke) {
@@ -374,14 +377,11 @@ TERM_PUBLIC void COREL_put_text(uint x, uint y, const char * str)
 		    break;
 	}
 	if(corel_ang == 0) {
-		fprintf(gpoutfile, "[1 0 0 1 %.2f %.2f]e\n0 g\n",
-		    x / COREL_SC, y / COREL_SC - corel_fontsize / 3.0);
+		fprintf(gpoutfile, "[1 0 0 1 %.2f %.2f]e\n0 g\n", x / COREL_SC, y / COREL_SC - corel_fontsize / 3.0);
 	}
 	else {
-		fprintf(gpoutfile, "[0 1 -1 0 %.2f %.2f]e\n0 g\n",
-		    x / COREL_SC - corel_fontsize / 3.0, y / COREL_SC);
+		fprintf(gpoutfile, "[0 1 -1 0 %.2f %.2f]e\n0 g\n", x / COREL_SC - corel_fontsize / 3.0, y / COREL_SC);
 	}
-
 	putc('(', gpoutfile);
 	ch = *str++;
 	while(ch != NUL) {
@@ -405,7 +405,6 @@ TERM_PUBLIC int COREL_justify_text(enum JUSTIFY mode)
 	corel_justify = mode;
 	return TRUE;
 }
-
 #endif /* TERM_BODY */
 
 #ifdef TERM_TABLE
@@ -415,8 +414,8 @@ TERM_TABLE_START(corel_driver)
 	"EPS format for CorelDRAW",
 	CORELD_XMAX, 
 	CORELD_YMAX, 
-	CORELD_VCHAR, 
-	CORELD_HCHAR,
+	static_cast<uint>(CORELD_VCHAR),
+	static_cast<uint>(CORELD_HCHAR),
 	CORELD_VTIC, 
 	CORELD_HTIC, 
 	COREL_options, 

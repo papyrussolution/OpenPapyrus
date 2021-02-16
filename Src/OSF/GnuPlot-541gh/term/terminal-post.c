@@ -46,7 +46,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -113,7 +113,7 @@ static const ps_params_t pslatex_params_default(PSTERM_PSLATEX); //= PSLATEX_PAR
 static ps_params_t pstex_params(PSTERM_PSTEX);// = PSTEX_PARAMS_DEFAULT;
 static const ps_params_t pstex_params_default(PSTERM_PSTEX);// = PSTEX_PARAMS_DEFAULT;
 
-//static ps_params_t * ps_params = &post_params;
+ps_params_t * ps_params = &post_params;
 
 GpPostscriptBlock::GpPostscriptBlock() : FontSize(14.0f), FontSizePrevious(-1.0f), Page(0), PathCount(0), Ang(0), Justify(LEFT), EnhFontSize(0.0f),
 	EnsPsInitialized(0), P_Params(&post_params), PsLatexAuxname(0)
@@ -151,7 +151,7 @@ static void PS_skip_image(int bytes, int x0, int y0, int dx, int dy);
 static void delete_ps_fontfile(struct ps_fontfile_def *, struct ps_fontfile_def *);
 
 TERM_PUBLIC void PS_load_fontfile(struct ps_fontfile_def *, bool);
-TERM_PUBLIC void PS_load_fontfiles(bool);
+TERM_PUBLIC void PS_load_fontfiles(GpTermEntry * pThis, bool);
 static char * fontpath_fullname(const char * name, const char * dir);
 
 static bool ps_explicit_size = FALSE;
@@ -297,8 +297,7 @@ static char PS_default_font[2*MAX_ID_LEN] = {'H', 'e', 'l', 'v', 'e', 't', 'i', 
  * if so, return NULL. If not, reencode it if allowed to, otherwise
  * return an appropriate re-encode string
  */
-
-static void PS_RememberFont(char * fname)
+static void PS_RememberFont(GpTermEntry * pThis, char * fname)
 {
 	struct PS_FontName * fnp;
 	char * recode = NULL;
@@ -344,7 +343,7 @@ static void PS_RememberFont(char * fname)
 	}
 	if(recode) {
 		if(ENHps_opened_string)
-			ENHPS_FLUSH();
+			ENHPS_FLUSH(pThis);
 		fprintf(gppsfile, "/%s %s", fnp->name, recode);
 	}
 }
@@ -446,7 +445,7 @@ static struct gen_table PS_opts[] =
 	{ NULL, PS_OTHER }
 };
 
-void PS_options(TERMENTRY * pThis, GnuPlot * pGp)
+void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char * s;
 	char * ps_fontfile_char = NULL;
@@ -1023,9 +1022,7 @@ void PS_options(TERMENTRY * pThis, GnuPlot * pGp)
 	 * loadable output' rule */
 	if(pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT)
 		sprintf(term_options, "%s %s %s \\\n",
-		    pGp->TPsB.P_Params->psformat==PSTERM_EPS ? "eps" :
-		    (pGp->TPsB.P_Params->psformat==PSTERM_PORTRAIT ?
-		    "portrait" : "landscape"),
+		    pGp->TPsB.P_Params->psformat==PSTERM_EPS ? "eps" : (pGp->TPsB.P_Params->psformat==PSTERM_PORTRAIT ? "portrait" : "landscape"),
 		    pThis->put_text == ENHPS_put_text ? "enhanced" : "noenhanced",
 		    pGp->TPsB.P_Params->duplex_option ? (pGp->TPsB.P_Params->duplex_state ?
 		    "duplex" : "simplex")
@@ -1312,21 +1309,19 @@ TERM_PUBLIC void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, 
 	}
 }
 
-TERM_PUBLIC void PS_load_fontfiles(bool doload)
+TERM_PUBLIC void PS_load_fontfiles(GpTermEntry * pThis, bool doload)
 {
 	struct ps_fontfile_def * current_ps_fontfile = GPO.TPsB.P_Params->first_fontfile;
 	while(current_ps_fontfile) {
 		PS_load_fontfile(current_ps_fontfile, doload);
 		if(current_ps_fontfile->fontname)
-			PS_RememberFont(current_ps_fontfile->fontname);
+			PS_RememberFont(pThis, current_ps_fontfile->fontname);
 		current_ps_fontfile = current_ps_fontfile->next;
 	}
 }
 
-TERM_PUBLIC void PS_common_init(bool uses_fonts,            /* FALSE for (e)ps(la)tex */
-    uint xoff, uint yoff, /* how much to translate by */
-    uint bb_xmin, uint bb_ymin, uint bb_xmax, uint bb_ymax, /* bounding box */
-    const char ** dict) /* extra entries for the dictionary */
+TERM_PUBLIC void PS_common_init(GpTermEntry * pThis, bool uses_fonts/* FALSE for (e)ps(la)tex */, uint xoff, uint yoff/* how much to translate by */,
+    uint bb_xmin, uint bb_ymin, uint bb_xmax, uint bb_ymax/* bounding box */, const char ** dict/* extra entries for the dictionary */)
 {
 	static const char psi1[] = "\
 %%%%Creator: gnuplot %s patchlevel %s\n\
@@ -1390,12 +1385,10 @@ SDict begin [\n\
   /DOCINFO pdfmark\n\
 end\n\
 } ifelse\n";
-
-	struct termentry * t = term;
+	//struct GpTermEntry * t = term;
 	int i;
 	time_t now;
 	char * timedate;
-
 	ps_common_uses_fonts = uses_fonts;
 	ps_common_xoff = xoff;
 	ps_common_yoff = yoff;
@@ -1405,24 +1398,22 @@ end\n\
 	timedate[strlen(timedate)-1] = '\0';
 
 #ifdef PSLATEX_DRIVER
-	/* Set files for (e)ps(la)tex terminals */
+	// Set files for (e)ps(la)tex terminals 
 	switch(GPO.TPsB.P_Params->terminal) {
 		case PSTERM_EPSLATEX:
-		    EPSLATEX_common_init();
+		    EPSLATEX_common_init(pThis);
 		    break;
 		case PSTERM_PSLATEX:
 		case PSTERM_PSTEX:
-		    PSTEX_common_init();
+		    PSTEX_common_init(pThis);
 		    break;
-		default:; /* do nothing, just avoid a compiler warning */
+		default:; // do nothing, just avoid a compiler warning 
 	}
 #endif
-
 	if(GPO.TPsB.P_Params->psformat == PSTERM_EPS)
 		fputs("%!PS-Adobe-2.0 EPSF-2.0\n", gppsfile);
 	else
 		fputs("%!PS-Adobe-2.0\n", gppsfile);
-
 	if(outstr)
 		fprintf(gppsfile, "%%%%Title: %s\n", outstr); /*  JFi  */
 	fprintf(gppsfile, psi1, gnuplot_version, gnuplot_patchlevel, timedate, uses_fonts ? "(atend)" : "");
@@ -1445,7 +1436,7 @@ end\n\
 	    GPO.TPsB.P_Params->background.r,
 	    GPO.TPsB.P_Params->background.g,
 	    GPO.TPsB.P_Params->background.b, /* background color, used only if all components >= 0 */
-	    (int)(t->ChrV)/(-3),      /* shift for vertical centring */
+	    (int)(pThis->ChrV)/(-3),      /* shift for vertical centring */
 	    PS_SC*1.0,  /* dash length */
 	    PS_SC*1.0,  /* dash length */
 	    PS_HTIC/2.0,                /* half point width */
@@ -1516,21 +1507,17 @@ end\n\
 
 	if(GPO.TPsB.P_Params->duplex_option) {
 		if(GPO.TPsB.P_Params->level1)
-			fprintf(gppsfile, "statusdict begin %s setduplexmode end\n",
-			    GPO.TPsB.P_Params->duplex_state ? "true" : "false");
+			fprintf(gppsfile, "statusdict begin %s setduplexmode end\n", GPO.TPsB.P_Params->duplex_state ? "true" : "false");
 		else if(!GPO.TPsB.P_Params->duplex_state) fprintf(gppsfile,
 			    "%%%%BeginFeature: *Duplex Simplex\n << /Duplex false >> setpagedevice\n%%%%EndFeature\n");
 	}
-
 	if(dict)
 		while(*dict)
 			fputs(*(dict++), gppsfile);
-
 	if(uses_fonts) {
-		PS_load_fontfiles(TRUE);
-		PS_RememberFont(GPO.TPsB.P_Params->font);
+		PS_load_fontfiles(pThis, TRUE);
+		PS_RememberFont(pThis, GPO.TPsB.P_Params->font);
 	}
-
 	/* This pdfmark has triggered many complaints and bug reports */
 	/* because it causes epslatex (but not pdflatex) to overwrite */
 	/* the actual TeX document title.  We can argue that that is  */
@@ -1553,7 +1540,7 @@ end\n\
 //
 // the init fn for the postscript driver 
 //
-void PS_init(termentry * pThis)
+void PS_init(GpTermEntry * pThis)
 {
 	uint xmin_t = 0, ymin_t = 0, xmax_t = 0, ymax_t = 0;
 	switch(GPO.TPsB.P_Params->psformat) {
@@ -1569,10 +1556,10 @@ void PS_init(termentry * pThis)
 			    else
 				    pThis->MaxY = PS_YMAX;
 		    }
-		    xmin_t = pThis->MaxX * GPO.V.Offset.X / (2*PS_SC);
-		    xmax_t = pThis->MaxX * (GPO.V.Size.x + GPO.V.Offset.X) / (2*PS_SC);
-		    ymin_t = pThis->MaxY * GPO.V.Offset.Y / (2*PS_SC);
-		    ymax_t = pThis->MaxY * (GPO.V.Size.y + GPO.V.Offset.Y) / (2*PS_SC);
+		    xmin_t = static_cast<uint>(pThis->MaxX * GPO.V.Offset.X / (2*PS_SC));
+		    xmax_t = static_cast<uint>(pThis->MaxX * (GPO.V.Size.x + GPO.V.Offset.X) / (2*PS_SC));
+		    ymin_t = static_cast<uint>(pThis->MaxY * GPO.V.Offset.Y / (2*PS_SC));
+		    ymax_t = static_cast<uint>(pThis->MaxY * (GPO.V.Size.y + GPO.V.Offset.Y) / (2*PS_SC));
 		    pThis->tscale = PS_SC * 2;
 		    break;
 		case PSTERM_PORTRAIT:
@@ -1580,10 +1567,10 @@ void PS_init(termentry * pThis)
 			    pThis->MaxX = PS_YMAX;
 			    pThis->MaxY = PS_XMAX;
 		    }
-		    xmin_t = pThis->MaxX * GPO.V.Offset.X / PS_SC;
-		    xmax_t = pThis->MaxX * (GPO.V.Size.x + GPO.V.Offset.X) / PS_SC;
-		    ymin_t = pThis->MaxY * GPO.V.Offset.Y / PS_SC;
-		    ymax_t = pThis->MaxY * (GPO.V.Size.y + GPO.V.Offset.Y) / PS_SC;
+		    xmin_t = static_cast<uint>(pThis->MaxX * GPO.V.Offset.X / PS_SC);
+		    xmax_t = static_cast<uint>(pThis->MaxX * (GPO.V.Size.x + GPO.V.Offset.X) / PS_SC);
+		    ymin_t = static_cast<uint>(pThis->MaxY * GPO.V.Offset.Y / PS_SC);
+		    ymax_t = static_cast<uint>(pThis->MaxY * (GPO.V.Size.y + GPO.V.Offset.Y) / PS_SC);
 		    pThis->tscale = PS_SC;
 		    break;
 		case PSTERM_LANDSCAPE:
@@ -1591,10 +1578,10 @@ void PS_init(termentry * pThis)
 			    pThis->MaxX = PS_XMAX;
 			    pThis->MaxY = PS_YMAX;
 		    }
-		    ymin_t = pThis->MaxX * GPO.V.Offset.X / PS_SC;
-		    ymax_t = pThis->MaxX * (GPO.V.Size.x+GPO.V.Offset.X) / PS_SC;
-		    xmin_t = pThis->MaxY * (1-GPO.V.Size.y-GPO.V.Offset.Y) / PS_SC;
-		    xmax_t = pThis->MaxY * (1-GPO.V.Offset.Y) / PS_SC;
+		    ymin_t = static_cast<uint>(pThis->MaxX * GPO.V.Offset.X / PS_SC);
+		    ymax_t = static_cast<uint>(pThis->MaxX * (GPO.V.Size.x+GPO.V.Offset.X) / PS_SC);
+		    xmin_t = static_cast<uint>(pThis->MaxY * (1-GPO.V.Size.y-GPO.V.Offset.Y) / PS_SC);
+		    xmax_t = static_cast<uint>(pThis->MaxY * (1-GPO.V.Offset.Y) / PS_SC);
 		    pThis->tscale = PS_SC;
 		    break;
 		default:
@@ -1617,15 +1604,15 @@ void PS_init(termentry * pThis)
 #endif
 		    break;
 	}
-	PS_common_init(GPO.TPsB.P_Params->terminal == PSTERM_POSTSCRIPT, GPO.TPsB.P_Params->xoff, GPO.TPsB.P_Params->yoff,
+	PS_common_init(pThis, GPO.TPsB.P_Params->terminal == PSTERM_POSTSCRIPT, GPO.TPsB.P_Params->xoff, GPO.TPsB.P_Params->yoff,
 	    xmin_t, ymin_t, xmax_t, ymax_t, (pThis->put_text == ENHPS_put_text) ? ENHPS_header : NULL);
 	// Keep track of whether we have written the enhanced text dictionary yet 
 	GPO.TPsB.EnsPsInitialized = (pThis->put_text == ENHPS_put_text) ? 2 : 1;
 }
 
-void PS_graphics()
+void PS_graphics(GpTermEntry * pThis)
 {
-	struct termentry * t = term;
+	struct GpTermEntry * t = term;
 	GPO.TPsB.Page++;
 	// if (GPO.TPsB.P_Params->psformat != PSTERM_EPS) 
 	fprintf(gppsfile, "%%%%Page: %d %d\n", GPO.TPsB.Page, GPO.TPsB.Page);
@@ -1675,7 +1662,7 @@ doclip\n\
 	}
 }
 
-void PS_text()
+void PS_text(GpTermEntry * pThis)
 {
 	GPO.TPsB.PathCount = 0;
 	fputs("stroke\ngrestore\nend\nshowpage\n", gppsfile);
@@ -1685,7 +1672,7 @@ void PS_text()
 	 * absolute one */
 }
 
-void PS_reset()
+void PS_reset(GpTermEntry * pThis)
 {
 	fputs("%%Trailer\n", gppsfile);
 	if(ps_common_uses_fonts) {
@@ -1703,22 +1690,20 @@ void PS_reset()
 		fprintf(gppsfile, "%%%%Pages: %d\n", GPO.TPsB.Page);
 }
 
-void PS_linetype(int linetype)
+void PS_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(linetype == LT_NODRAW)
-		PS_dashtype(DASHTYPE_NODRAW, NULL);
+		PS_dashtype(pThis, DASHTYPE_NODRAW, NULL);
 	if((GPO.TPsB.P_Params->terminal == PSTERM_EPSLATEX) && GPO.TPsB.P_Params->oldstyle)
 		linetype = (linetype % 4) + 3;
 	else
 		linetype = (linetype % 9) + 3;
 	if(linetype < 0) /* LT_NODRAW, LT_BACKGROUND, LT_UNDEFINED */
 		linetype = 0;
-
-	if(PS_linetype_last == linetype) return;
-
+	if(PS_linetype_last == linetype) 
+		return;
 	PS_relative_ok = FALSE;
 	PS_FLUSH_PATH;
-
 	PS_linetype_last = linetype;
 	PS_linewidth_last = PS_linewidth_current;
 	if(PS_border && linetype == 1)
@@ -1728,7 +1713,7 @@ void PS_linetype(int linetype)
 	GPO.TPsB.PathCount = 0;
 }
 
-void PS_dashtype(int type, t_dashtype * custom_dash_type)
+void PS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
 {
 	int i;
 	double empirical_scale = 0.50;
@@ -1756,12 +1741,12 @@ void PS_dashtype(int type, t_dashtype * custom_dash_type)
 		    break;
 		default:
 		    if(type > 0)
-			    PS_linetype(type);
+			    PS_linetype(pThis, type);
 		    break;
 	}
 }
 
-void PS_linewidth(double linewidth)
+void PS_linewidth(GpTermEntry * pThis, double linewidth)
 {
 	// HBB NEW 20031219: don't do anything if nothing changed 
 	if(GPO.TPsB.PathCount != 0 && PS_linewidth_last == linewidth)
@@ -1821,7 +1806,7 @@ void PS_pointsize(double ptsize)
 	 */
 }
 
-void PS_move(uint x, uint y)
+void PS_move(GpTermEntry * pThis, uint x, uint y)
 {
 	// Make this semi-dynamic and independent of architecture 
 	char abso[5+2*INT_STR_LEN], rel[5+2*INT_STR_LEN];
@@ -1848,7 +1833,7 @@ void PS_move(uint x, uint y)
 	PS_pen_y = y;
 }
 
-void PS_vector(uint x, uint y)
+void PS_vector(GpTermEntry * pThis, uint x, uint y)
 {
 	char abso[5+2*INT_STR_LEN], rel[5+2*INT_STR_LEN];
 	int dx = x - PS_pen_x;
@@ -1861,7 +1846,7 @@ void PS_vector(uint x, uint y)
 	// has been reached below: then PS_FLUSH_PATH has been called which has not
 	// moved to currentpoint after the stroke. 
 	if(!PS_relative_ok)
-		PS_move(PS_pen_x, PS_pen_y);
+		PS_move(pThis, PS_pen_x, PS_pen_y);
 	if(strlen(rel) < strlen(abso)) {
 		fputs(rel, gppsfile);
 		PS_taken++;     /* only used for debug info */
@@ -1891,7 +1876,7 @@ void PS_vector(uint x, uint y)
 	PS_pen_y = y;
 }
 
-TERM_PUBLIC void PS_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void PS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 #define PS_NONE 0
 #define PS_TEXT 1
@@ -1902,17 +1887,17 @@ TERM_PUBLIC void PS_put_text(uint x, uint y, const char * str)
 	if(PS_in_textbox > 0) {
 		int save_ang = GPO.TPsB.Ang;
 		PS_in_textbox = -1;
-		/* Write once with no rotation and no actual "show" command */
+		// Write once with no rotation and no actual "show" command 
 		GPO.TPsB.Ang = 0;
-		PS_put_text(0, 0, str);
-		/* Now restore the angle and the "show" command and fall through */
+		PS_put_text(pThis, 0, 0, str);
+		// Now restore the angle and the "show" command and fall through 
 		fprintf(gppsfile, "/Boxing false def\n");
 		fprintf(gppsfile, "grestore\n");
 		GPO.TPsB.Ang = save_ang;
 		PS_in_textbox = 1;
 	}
 	if(PS_in_textbox >= 0)
-		PS_move(x, y);
+		PS_move(pThis, x, y);
 	if(GPO.TPsB.Ang != 0)
 		fprintf(gppsfile, "currentpoint gsave translate %d rotate 0 0 M\n", GPO.TPsB.Ang);
 	else if(PS_in_textbox > 0)
@@ -2053,7 +2038,7 @@ int PS_justify_text(enum JUSTIFY mode)
 	return TRUE;
 }
 
-static int PS_common_set_font(const char * font, int caller(const char * font) )
+static int PS_common_set_font(GpTermEntry * pThis, const char * font, int caller(GpTermEntry * pThis, const char * font) )
 {
 	char * name;
 	char * styledfontname = NULL;
@@ -2094,7 +2079,7 @@ static int PS_common_set_font(const char * font, int caller(const char * font) )
 	if(caller == ENHPS_set_font && !GPO.Enht.Ignore) {
 		GPO.TPsB.EnhFontSize = size;
 		strcpy(GPO.TPsB.EnhFont, name);
-		PS_RememberFont(name);
+		PS_RememberFont(pThis, name);
 		size *= GPO.TPsB.P_Params->fontscale;
 	}
 	else {
@@ -2102,7 +2087,7 @@ static int PS_common_set_font(const char * font, int caller(const char * font) )
 		// Unless TeX is doing the font handling, we will write the
 		// new font info directly into the postscript output stream
 		if(GPO.TPsB.P_Params->terminal == PSTERM_POSTSCRIPT) {
-			PS_RememberFont(name);
+			PS_RememberFont(pThis, name);
 			fprintf(gppsfile, "/%s findfont %g scalefont setfont\n", name, size*PS_SCF);
 			if(size != GPO.TPsB.FontSizePrevious)
 				fprintf(gppsfile, "/vshift %d def\n", -(int)((size*PS_SCF)/3.));
@@ -2115,14 +2100,14 @@ static int PS_common_set_font(const char * font, int caller(const char * font) )
 	return TRUE;
 }
 
-int PS_set_font(const char * font)
+int PS_set_font(GpTermEntry * pThis, const char * font)
 {
-	return PS_common_set_font(font, PS_set_font);
+	return PS_common_set_font(pThis, font, PS_set_font);
 }
 //
 // postscript point routines 
 //
-void PS_point(uint x, uint y, int number)
+void PS_point(GpTermEntry * pThis, uint x, uint y, int number)
 {
 	static const char * pointFNS[] = {
 		"Pnt",  "Pls",   "Crs",    "Star",
@@ -2170,7 +2155,7 @@ void PS_point(uint x, uint y, int number)
 	PS_linetype_last = LT_UNDEFINED; /* force next linetype change */
 }
 
-void PS_fillbox(int style, uint x1, uint y1, uint width, uint height)
+void PS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	double filldens;
 	int pattern;
@@ -2250,7 +2235,7 @@ void PS_fillbox(int style, uint x1, uint y1, uint width, uint height)
 /*
  * close a postscript string if it has been opened
  */
-TERM_PUBLIC void ENHPS_FLUSH()
+TERM_PUBLIC void ENHPS_FLUSH(GpTermEntry * pThis)
 {
 	if(ENHps_opened_string) {
 		fputs(")]\n", gppsfile);
@@ -2259,11 +2244,10 @@ TERM_PUBLIC void ENHPS_FLUSH()
 }
 
 static char * ENHps_opensequence = NULL;
-
-/*
- * open a postscript string
- */
-TERM_PUBLIC void ENHPS_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+//
+// open a postscript string
+//
+TERM_PUBLIC void ENHPS_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	// overprint 3 means save current position; 4 means restore saved position
 	// EAM FIXME - I couldn't figure out how to use less than the 7 parameters
@@ -2285,7 +2269,7 @@ TERM_PUBLIC void ENHPS_OPEN(char * fontname, double fontsize, double base, bool 
 		if(isempty(fontname))
 			fontname = GPO.TPsB.EnhFont;
 		else
-			PS_RememberFont(fontname);
+			PS_RememberFont(pThis, fontname);
 		snprintf(ENHps_opensequence, safelen, "[(%s) %.1f %.1f %s %s %d ", fontname, fontsize, base, widthflag ? "true" : "false",
 		    show_this ? "true" : "false", overprint);
 		fprintf(gppsfile, "%s(", ENHps_opensequence);
@@ -2296,7 +2280,7 @@ TERM_PUBLIC void ENHPS_OPEN(char * fontname, double fontsize, double base, bool 
  * Write one character from inside enhanced text processing.
  * This is trivial except in the case of multi-byte encoding.
  */
-TERM_PUBLIC void ENHPS_WRITEC(int c)
+TERM_PUBLIC void ENHPS_WRITEC(GpTermEntry * pThis, int c)
 {
 	static int in_utf8 = 0; /* nonzero means we are inside a multibyte sequence */
 	static char utf8[6]; /* holds the multibyte sequence being accumulated   */
@@ -2324,7 +2308,7 @@ TERM_PUBLIC void ENHPS_WRITEC(int c)
 					return;
 				}
 				// Finish off previous partial string, if any 
-				ENHPS_FLUSH();
+				ENHPS_FLUSH(pThis);
 				// Write a new partial string for this glyph 
 				fprintf(gppsfile, "%s/", ENHps_opensequence);
 #if (ADOBE_ENCODING_NAMES)
@@ -2372,34 +2356,33 @@ TERM_PUBLIC void ENHPS_WRITEC(int c)
 // use in the recursive text processing rather than being written
 // to the output stream immediately.
 // 
-TERM_PUBLIC int ENHPS_set_font(const char * font)
+TERM_PUBLIC int ENHPS_set_font(GpTermEntry * pThis, const char * font)
 {
-	return PS_common_set_font(font, ENHPS_set_font);
+	return PS_common_set_font(pThis, font, ENHPS_set_font);
 }
 
-TERM_PUBLIC void ENHPS_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	if(GPO.Enht.Ignore) {
-		PS_put_text(x, y, str);
+		PS_put_text(pThis, x, y, str);
 		return;
 	}
-	/* flush any pending graphics (all the XShow routines do this...) */
+	// flush any pending graphics (all the XShow routines do this...) 
 	if(!strlen(str))
 		return;
 	PS_FLUSH_PATH;
 	if(PS_in_textbox > 0) {
 		int save_ang = GPO.TPsB.Ang;
 		PS_in_textbox = -1;
-		/* Write once with no rotation and no actual "show" command */
+		// Write once with no rotation and no actual "show" command 
 		GPO.TPsB.Ang = 0;
-		ENHPS_put_text(0, 0, str);
-		/* Now restore the angle and the "show" command and fall through */
+		ENHPS_put_text(pThis, 0, 0, str);
+		// Now restore the angle and the "show" command and fall through 
 		GPO.TPsB.Ang = save_ang;
 		fprintf(gppsfile, "/Boxing false def\n");
 		fprintf(gppsfile, "grestore\n");
 		PS_in_textbox = 1;
 	}
-
 	/* FIXME: if there are no magic characters, we should just be able
 	 * punt the string to PS_put_text(), which will give shorter
 	 * ps output [eg tics and stuff rarely need extra processing],
@@ -2415,7 +2398,7 @@ TERM_PUBLIC void ENHPS_put_text(uint x, uint y, const char * str)
 	 */
 
 	if(PS_in_textbox >= 0)
-		PS_move(x, y);
+		PS_move(pThis, x, y);
 	if(GPO.TPsB.Ang != 0)
 		fprintf(gppsfile, "currentpoint gsave translate %d rotate 0 0 moveto\n", GPO.TPsB.Ang);
 	else if(PS_in_textbox > 0)
@@ -2440,7 +2423,7 @@ TERM_PUBLIC void ENHPS_put_text(uint x, uint y, const char * str)
 	 * at startup and by ENHPS_set_font
 	 */
 	while(*(str = enhanced_recursion(term, (char*)str, TRUE, GPO.TPsB.EnhFont, (double)(GPO.TPsB.EnhFontSize*PS_SCF), 0.0, TRUE, TRUE, 0))) {
-		ENHPS_FLUSH();
+		ENHPS_FLUSH(pThis);
 		// I think we can only get here if *str == '}' 
 		enh_err_check(str);
 		if(!*++str)
@@ -2464,7 +2447,7 @@ TERM_PUBLIC void ENHPS_put_text(uint x, uint y, const char * str)
 	 * introduces other side effects and has no benefit (I think!) for
 	 * other terminals.  Try doing it here instead.
 	 */
-	PS_set_font("");
+	PS_set_font(pThis, "");
 }
 
 static void make_palette_formulae()
@@ -2750,7 +2733,7 @@ int PS_make_palette(t_sm_palette * palette)
 	}
 }
 
-void PS_set_color(const t_colorspec * colorspec)
+void PS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
 	double gray;
 	PS_linetype_last = LT_UNDEFINED; /* Force next call to linetype to be honored */
@@ -2791,7 +2774,7 @@ void PS_set_color(const t_colorspec * colorspec)
 	PS_relative_ok = FALSE; /* "M" required because "g" forces stroke (??) */
 }
 
-void PS_filled_polygon(int points, gpiPoint * corners)
+void PS_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	int i;
 	float filldens = 1.0f;
@@ -3458,7 +3441,7 @@ static void print_five_operand_image(uint M, uint N, gpiPoint * corner, t_imagec
 		fprintf(gppsfile, "%simage\n", space);
 }
 
-void PS_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	char * encoded_image;
 	int num_encoded_bytes;
@@ -3477,32 +3460,26 @@ void PS_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor 
 		bits_per_component++;
 		i_tmp <<= 1;
 	}
-
 	if(bits_per_component < 1 || bits_per_component > 12) {
 		fprintf(stderr, "GNUPLOT (post.trm):  Component bits (%d) out of range.\n", bits_per_component);
 		return;
 	}
-
 	if(bits_per_component > 8)
 		bits_per_component = 12;
 	else if(bits_per_component > 4)
 		bits_per_component = 8;
 	else if(bits_per_component > 2)
 		bits_per_component = 4;
-
 	if(GPO.TPsB.P_Params->level3 && bits_per_component > 8) {
-		/* Postscript would support 12 bits, but PNG does not */
+		// Postscript would support 12 bits, but PNG does not 
 		fprintf(stderr, "GNUPLOT (post.trm): Component bits (%d) out of range for level3 deflate filter.\n", bits_per_component);
 		return;
 	}
-
-	/* Color and gray scale images do not need a palette and can use
-	 * the 5 operand form of the image routine.
-	 */
+	// Color and gray scale images do not need a palette and can use
+	// the 5 operand form of the image routine.
 #if 0
-	/* 18.1.2009 It was decided to use the custom palette (i.e. colours) also
-	   for the monochrome postscript output.
-	 */
+	// 18.1.2009 It was decided to use the custom palette (i.e. colours) also
+	// for the monochrome postscript output.
 	if((color_mode == IC_RGB) || (GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) || !GPO.TPsB.P_Params->color)
 #else
 	if((color_mode == IC_RGB) || (GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_RGB && !GPO.TPsB.P_Params->color) || (GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY))
@@ -3510,11 +3487,10 @@ void PS_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor 
 		five_operand_image = TRUE;
 	else
 		five_operand_image = FALSE;
-	/* The five operand image doesn't have a palette and the values are
-	 * such that 0 maps to 0.0 and 2^bits_per_component - 1 maps to 1.0
-	 * in the PostScript driver.  Without any other knowledge, we scale
-	 * things so that our max colors corresponds to 1.0.
-	 */
+	// The five operand image doesn't have a palette and the values are
+	// such that 0 maps to 0.0 and 2^bits_per_component - 1 maps to 1.0
+	// in the PostScript driver.  Without any other knowledge, we scale
+	// things so that our max colors corresponds to 1.0.
 	if(five_operand_image)
 		cscale =  (float)((1 << bits_per_component)-1) / (float)(max_colors-1);
 	else
@@ -3655,15 +3631,15 @@ static FILE * PS_open_prologue_file(char * name)
 	char * ps_prologue_dir = 0;
 	char * ps_prologue_env = 0;
 	FILE * prologue_fd = 0;
-	/* Allocate and load default directory into ps_prologue_dir.  */
-	/* FIXME:  Why should we have to recalculate this every time? */
+	// Allocate and load default directory into ps_prologue_dir.  
+	// FIXME:  Why should we have to recalculate this every time? 
 #ifdef GNUPLOT_PS_DIR
 #if defined(_WIN32)
 	ps_prologue_dir = RelativePathToGnuplot(GNUPLOT_PS_DIR);
 #else
 	ps_prologue_dir = gp_strdup(GNUPLOT_PS_DIR); // use hardcoded _absolute_ path 
 #endif
-#endif /* system-dependent ps_prologue_dir */
+#endif // system-dependent ps_prologue_dir 
 	// First try current setting of "set psdir" 
 	if(PS_psdir) {
 		fullname = (char *)gp_alloc(strlen(PS_psdir) + strlen(name) + 4, "Prolog name");
@@ -3815,7 +3791,7 @@ void PS_path(int p)
 	}
 }
 
-TERM_PUBLIC void PS_layer(t_termlayer syncpoint)
+TERM_PUBLIC void PS_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 {
 	static int plotno = 0;
 	// We must ignore all syncpoints that we don't recognize 

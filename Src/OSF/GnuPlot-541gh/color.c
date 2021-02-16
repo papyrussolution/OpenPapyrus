@@ -173,7 +173,7 @@ void GnuPlot::InitColor()
 // Put number of allocated colours into GPO.SmPltt.colors
 // 
 //int make_palette()
-int GnuPlot::MakePalette(termentry * pTerm)
+int GnuPlot::MakePalette(GpTermEntry * pTerm)
 {
 	if(!pTerm->make_palette)
 		return 1;
@@ -239,17 +239,17 @@ void invalidate_palette()
 // so there is not much to do here.
 // FIXME: NaN could alternatively map to LT_NODRAW or TC_RGB full transparency
 // 
-void set_color(termentry * pTerm, double gray)
+void set_color(GpTermEntry * pTerm, double gray)
 {
 	t_colorspec color(isnan(gray) ? TC_LT : TC_FRAC, LT_BACKGROUND, gray);
 	//color.value = gray;
 	//color.lt = LT_BACKGROUND;
 	//color.type = (isnan(gray)) ? TC_LT : TC_FRAC;
-	pTerm->set_color(&color);
+	pTerm->set_color(pTerm, &color);
 }
 
 //void set_rgbcolor_var(uint rgbvalue)
-void GnuPlot::SetRgbColorVar(termentry * pTerm, uint rgbvalue)
+void GnuPlot::SetRgbColorVar(GpTermEntry * pTerm, uint rgbvalue)
 {
 	t_colorspec color(TC_RGB, static_cast<int>(rgbvalue), -1.0/* -1 flags that this came from "rgb variable" */);
 	//color.type = TC_RGB;
@@ -259,7 +259,7 @@ void GnuPlot::SetRgbColorVar(termentry * pTerm, uint rgbvalue)
 }
 
 //void set_rgbcolor_const(uint rgbvalue)
-void GnuPlot::SetRgbColorConst(termentry * pTerm, uint rgbvalue)
+void GnuPlot::SetRgbColorConst(GpTermEntry * pTerm, uint rgbvalue)
 {
 	t_colorspec color(TC_RGB, static_cast<int>(rgbvalue), 0.0/* 0 flags that this is a constant color */);
 	//color.type = TC_RGB;
@@ -343,7 +343,7 @@ void GnuPlot::DrawInsideColorSmoothBoxPostScript()
 // This routine is for non-postscript files and for the Mixed color gradient type
 // 
 //static void draw_inside_colorbox_bitmap_mixed()
-void GnuPlot::DrawInsideColorBoxBitmapMixed(termentry * pTerm)
+void GnuPlot::DrawInsideColorBoxBitmapMixed(GpTermEntry * pTerm)
 {
 	int i, j, xy, xy2, xy_from, xy_to;
 	int jmin = 0;
@@ -412,7 +412,7 @@ void GnuPlot::DrawInsideColorBoxBitmapMixed(termentry * pTerm)
 			corners->style = FS_OPAQUE;
 		else
 			corners->style = style_from_fill(&default_fillstyle);
-		pTerm->filled_polygon(4, corners);
+		pTerm->filled_polygon(pTerm, 4, corners);
 	}
 }
 // 
@@ -421,7 +421,7 @@ void GnuPlot::DrawInsideColorBoxBitmapMixed(termentry * pTerm)
 // This routine is for non-postscript files and for the Discrete color gradient type
 // 
 //static void draw_inside_colorbox_bitmap_discrete()
-void GnuPlot::DrawInsideColorBoxBitmapDiscrete(termentry * pTerm)
+void GnuPlot::DrawInsideColorBoxBitmapDiscrete(GpTermEntry * pTerm)
 {
 	int i, i0, i1, xy, xy2, xy_from, xy_to;
 	double gray, range;
@@ -469,7 +469,7 @@ void GnuPlot::DrawInsideColorBoxBitmapDiscrete(termentry * pTerm)
 			corners->style = FS_OPAQUE;
 		else
 			corners->style = style_from_fill(&default_fillstyle);
-		pTerm->filled_polygon(4, corners);
+		pTerm->filled_polygon(pTerm, 4, corners);
 	}
 }
 // 
@@ -477,7 +477,7 @@ void GnuPlot::DrawInsideColorBoxBitmapDiscrete(termentry * pTerm)
 // This routine is for non-postscript files and for the Smooth color gradient type
 // 
 //static void draw_inside_colorbox_bitmap_smooth()
-void GnuPlot::DrawInsideColorBoxBitmapSmooth(termentry * pTerm)
+void GnuPlot::DrawInsideColorBoxBitmapSmooth(GpTermEntry * pTerm)
 {
 	int i, xy, xy2, xy_from, xy_to;
 	double xy_step, gray;
@@ -522,12 +522,12 @@ void GnuPlot::DrawInsideColorBoxBitmapSmooth(termentry * pTerm)
 		}
 		// print the rectangle with the given colour 
 		corners->style = (default_fillstyle.fillstyle == FS_EMPTY) ? FS_OPAQUE : style_from_fill(&default_fillstyle);
-		pTerm->filled_polygon(4, corners);
+		pTerm->filled_polygon(pTerm, 4, corners);
 	}
 }
 
 //static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid/* linetype or -2 for no grid */, ticmark * userlabels)
-void GnuPlot::CbTickCallback(termentry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for no grid */, ticmark * userlabels)
+void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for no grid */, ticmark * userlabels)
 {
 	int len = tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1) * (pTerm->TicH);
 	uint x1, y1, x2, y2;
@@ -555,12 +555,12 @@ void GnuPlot::CbTickCallback(termentry * pTerm, GpAxis * pAx, double place, char
 	if(rGrid.l_type > LT_NODRAW) {
 		TermApplyLpProperties(pTerm, &rGrid); // grid linetype 
 		if(Gg.ColorBox.rotation == 'h') {
-			(pTerm->move)(x1, Gg.ColorBox.bounds.ybot);
-			(pTerm->vector)(x1, Gg.ColorBox.bounds.ytop);
+			(pTerm->move)(pTerm, x1, Gg.ColorBox.bounds.ybot);
+			(pTerm->vector)(pTerm, x1, Gg.ColorBox.bounds.ytop);
 		}
 		else {
-			(pTerm->move)(Gg.ColorBox.bounds.xleft, y1);
-			(pTerm->vector)(Gg.ColorBox.bounds.xright, y1);
+			(pTerm->move)(pTerm, Gg.ColorBox.bounds.xleft, y1);
+			(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xright, y1);
 		}
 		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
 	}
@@ -574,8 +574,8 @@ void GnuPlot::CbTickCallback(termentry * pTerm, GpAxis * pAx, double place, char
 			lp_use_properties(pTerm, &lp, lt);
 			TermApplyLpProperties(pTerm, &lp);
 		}
-		(pTerm->move)(x1, y1);
-		(pTerm->vector)(x2, y2);
+		(pTerm->move)(pTerm, x1, y1);
+		(pTerm->vector)(pTerm, x2, y2);
 		if(pAx->ticmode & TICS_MIRROR) {
 			if(Gg.ColorBox.rotation == 'h') {
 				y1 = Gg.ColorBox.bounds.ytop;
@@ -585,8 +585,8 @@ void GnuPlot::CbTickCallback(termentry * pTerm, GpAxis * pAx, double place, char
 				x1 = Gg.ColorBox.bounds.xleft;
 				x2 = Gg.ColorBox.bounds.xleft - len;
 			}
-			(pTerm->move)(x1, y1);
-			(pTerm->vector)(x2, y2);
+			(pTerm->move)(pTerm, x1, y1);
+			(pTerm->vector)(pTerm, x2, y2);
 		}
 		if(lt != 0)
 			TermApplyLpProperties(pTerm, &border_lp);
@@ -639,8 +639,8 @@ void GnuPlot::CbTickCallback(termentry * pTerm, GpAxis * pAx, double place, char
 // 
 // Finally the main colour smooth box drawing routine
 // 
-//void draw_color_smooth_box(termentry * pTerm, int plot_mode)
-void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
+//void draw_color_smooth_box(GpTermEntry * pTerm, int plot_mode)
+void GnuPlot::DrawColorSmoothBox(GpTermEntry * pTerm, int plotMode)
 {
 	if(Gg.ColorBox.where == SMCOLOR_BOX_NO)
 		return;
@@ -714,17 +714,10 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 			}
 		}
 	}
-	if(Gg.ColorBox.bounds.ybot > Gg.ColorBox.bounds.ytop) {
-		double tmp = Gg.ColorBox.bounds.ytop;
-		Gg.ColorBox.bounds.ytop = Gg.ColorBox.bounds.ybot;
-		Gg.ColorBox.bounds.ybot = static_cast<int>(tmp);
-	}
-	if(Gg.ColorBox.invert && Gg.ColorBox.rotation == 'v') {
-		double tmp = Gg.ColorBox.bounds.ytop;
-		Gg.ColorBox.bounds.ytop = Gg.ColorBox.bounds.ybot;
-		Gg.ColorBox.bounds.ybot = static_cast<int>(tmp);
-	}
-	pTerm->layer(TERM_LAYER_BEGIN_COLORBOX);
+	ExchangeToOrder(&Gg.ColorBox.bounds.ybot, &Gg.ColorBox.bounds.ytop);
+	if(Gg.ColorBox.invert && Gg.ColorBox.rotation == 'v')
+		Exchange(&Gg.ColorBox.bounds.ytop, &Gg.ColorBox.bounds.ybot);
+	pTerm->layer(pTerm, TERM_LAYER_BEGIN_COLORBOX);
 	// The PostScript terminal has an Optimized version 
 	if(pTerm->flags & TERM_IS_POSTSCRIPT)
 		DrawInsideColorSmoothBoxPostScript();
@@ -736,7 +729,7 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 		else
 			DrawInsideColorBoxBitmapMixed(pTerm);
 	}
-	pTerm->layer(TERM_LAYER_END_COLORBOX);
+	pTerm->layer(pTerm, TERM_LAYER_END_COLORBOX);
 	if(Gg.ColorBox.border) {
 		// now make boundary around the colour box 
 		if(Gg.ColorBox.border_lt_tag >= 0) {
@@ -748,11 +741,11 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 		else
 			TermApplyLpProperties(pTerm, &border_lp); // black solid colour should be chosen, so it's border linetype 
 		newpath(pTerm);
-		(pTerm->move)(Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
-		(pTerm->vector)(Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ybot);
-		(pTerm->vector)(Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ytop);
-		(pTerm->vector)(Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ytop);
-		(pTerm->vector)(Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
+		(pTerm->move)(pTerm, Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
+		(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ybot);
+		(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ytop);
+		(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ytop);
+		(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
 		closepath(pTerm);
 		// Set line properties to some value, this also draws lines in postscript terminals. 
 		TermApplyLpProperties(pTerm, &border_lp);
@@ -760,7 +753,7 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 	// draw tics 
 	if(AxS[COLOR_AXIS].ticmode) {
 		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
-		GenTics(&AxS[COLOR_AXIS], &GnuPlot::CbTickCallback);
+		GenTics(pTerm, &AxS[COLOR_AXIS], &GnuPlot::CbTickCallback);
 	}
 	// write the colour box label 
 	if(AxS.__CB().label.text) {
@@ -782,7 +775,7 @@ void GnuPlot::DrawColorSmoothBox(termentry * pTerm, int plotMode)
 			// calculate max length of cb-tics labels 
 			widest_tic_strlen = 0;
 			if(AxS.__CB().ticmode & TICS_ON_BORDER) // Recalculate widest_tic_strlen 
-				GenTics(&AxS[COLOR_AXIS], &GnuPlot::WidestTicCallback);
+				GenTics(pTerm, &AxS[COLOR_AXIS], &GnuPlot::WidestTicCallback);
 			x = static_cast<int>(Gg.ColorBox.bounds.xright + (widest_tic_strlen + 1.5) * pTerm->ChrH);
 			if(len > 0) 
 				x += len;

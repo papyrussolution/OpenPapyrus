@@ -65,11 +65,11 @@ register_term(djsvga)           /* no ; */
 #define DJSVGA_VTIC 4
 #define DJSVGA_HTIC 4
 
-TERM_PUBLIC void DJSVGA_init(termentry * pThis);
+TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis);
 TERM_PUBLIC void DJSVGA_graphics();
 TERM_PUBLIC void DJSVGA_text();
 TERM_PUBLIC void DJSVGA_reset();
-TERM_PUBLIC void DJSVGA_options(TERMENTRY * pThis, GnuPlot * pGp);
+TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void DJSVGA_linetype(int linetype);
 TERM_PUBLIC void DJSVGA_dashtype(int type, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void DJSVGA_move(uint x, uint y);
@@ -248,7 +248,7 @@ static struct gen_table DJSVGA_opts[] = {
 	{ NULL, DJSVGA_OTHER }
 };
 
-TERM_PUBLIC void DJSVGA_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char * font = NULL;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -344,7 +344,7 @@ static GP_INLINE GrFont * grx_default_font()
 #endif
 }
 
-TERM_PUBLIC void DJSVGA_init(termentry * pThis)
+TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis)
 {
 	int i, on, r, g, b, medium = 170, low = 85;
 
@@ -1443,16 +1443,14 @@ TERM_PUBLIC void DJSVGA_image(uint M, uint N, coordval * image, gpiPoint * corne
 	    }
 		case IC_RGB:
 		case IC_RGBA: {
-		    unsigned m, n;
+		    uint m, n;
 		    GrColor * line; /* scan line buffer */
 		    rgb_color rgb1;
 		    rgb255_color rgb255;
 		    GrColor color;
 		    GrContext grc;
-
 		    FPRINTF((stderr, "svga: rgb / rgba image\n"));
-
-		    /* create and fill context */
+		    // create and fill context 
 		    GrCreateContext(M, N, NULL, &ctxt);
 		    GrSaveContext(&grc);
 		    GrSetContext(&ctxt);

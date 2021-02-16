@@ -79,7 +79,7 @@ register_term(eepic)
 
 #include <ctype.h>
 
-TERM_PUBLIC void EEPIC_init(termentry * pThis);
+TERM_PUBLIC void EEPIC_init(GpTermEntry * pThis);
 TERM_PUBLIC void EEPIC_graphics();
 TERM_PUBLIC void EEPIC_text();
 TERM_PUBLIC void EEPIC_linetype(int linetype);
@@ -91,7 +91,7 @@ TERM_PUBLIC void EEPIC_put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC int EEPIC_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int EEPIC_text_angle(int ang);
 TERM_PUBLIC void EEPIC_reset();
-TERM_PUBLIC void EEPIC_options(TERMENTRY * pThis, GnuPlot * pGp);
+TERM_PUBLIC void EEPIC_options(GpTermEntry * pThis, GnuPlot * pGp);
 
 #define EEPIC_PTS_PER_INCH 72.
 /* resolution of printer we expect to use */
@@ -205,7 +205,7 @@ static int EEPIC_linecount = 0; /* number of points in line so far */
 /* figure out the best arrow */
 static void best_latex_arrow(int sx, int sy, int ex, int ey, int who, int head);
 
-TERM_PUBLIC void EEPIC_init(termentry * pThis)
+TERM_PUBLIC void EEPIC_init(GpTermEntry * pThis)
 {
 	EEPIC_posx = EEPIC_posy = 0;
 	EEPIC_type = 0;
@@ -220,9 +220,8 @@ TERM_PUBLIC void EEPIC_init(termentry * pThis)
 
 TERM_PUBLIC void EEPIC_graphics()
 {
-	struct termentry * t = term;
-	/* HBB 20001027: respect 'size' and 'offset' settings to modify
-	 * picture box size and position */
+	GpTermEntry * t = term;
+	// HBB 20001027: respect 'size' and 'offset' settings to modify picture box size and position 
 	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(%d,%d)\n", (int)(t->MaxX * xsize), (int)(t->MaxY * ysize), (int)(t->MaxX * xoffset), (int)(t->MaxY * xoffset));
 	if(eepic_fontsize_set) {
 		float x = t->ChrV * EEPIC_UNIT + 0.5;
@@ -383,7 +382,7 @@ TERM_PUBLIC void EEPIC_reset()
 	EEPIC_posx = EEPIC_posy = 0;
 }
 
-TERM_PUBLIC void EEPIC_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void EEPIC_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	float fontsize = 0;
 	int eepic_explicit_units = INCHES;

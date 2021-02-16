@@ -65,7 +65,7 @@ register_term(aifm)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void AI_init(termentry * pThis);
+TERM_PUBLIC void AI_init(GpTermEntry * pThis);
 TERM_PUBLIC void AI_graphics();
 TERM_PUBLIC void AI_text();
 TERM_PUBLIC void AI_linetype(int linetype);
@@ -180,7 +180,7 @@ TERM_PUBLIC void AI_options()
 }
 
 TERM_PUBLIC
-void AI_init(termentry * pThis)
+void AI_init(GpTermEntry * pThis)
 {
 	ai_page = 0;
 	fprintf(gpoutfile,

@@ -1,31 +1,6 @@
-/**********************************************************************
-   regparse.c -  Oniguruma (regular expression library)
-**********************************************************************/
-/*-
- * Copyright (c) 2002-2020  K.Kosako
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+// regparse.c -  Oniguruma (regular expression library)
+// Copyright (c) 2002-2020  K.Kosako  All rights reserved.
+//
 #include "regint.h"
 #pragma hdrstop
 
@@ -38,26 +13,17 @@
 #include "st.h"
 
 #define INIT_TAG_NAMES_ALLOC_NUM   5
-
 #define WARN_BUFSIZE    256
-
 #define CASE_FOLD_IS_APPLIED_INSIDE_NEGATIVE_CCLASS
-
-#define IS_ALLOWED_CODE_IN_CALLOUT_NAME(c) \
-	((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' /* || c == '!' */)
-#define IS_ALLOWED_CODE_IN_CALLOUT_TAG_NAME(c) \
-	((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')
-
+#define IS_ALLOWED_CODE_IN_CALLOUT_NAME(c)     ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' /* || c == '!' */)
+#define IS_ALLOWED_CODE_IN_CALLOUT_TAG_NAME(c) ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')
 #define OPTON_SINGLELINE(option)     ((option) & ONIG_OPTION_SINGLELINE)
 #define OPTON_MULTILINE(option)      ((option) & ONIG_OPTION_MULTILINE)
 #define OPTON_IGNORECASE(option)     ((option) & ONIG_OPTION_IGNORECASE)
 #define OPTON_EXTEND(option)         ((option) & ONIG_OPTION_EXTEND)
-#define OPTON_WORD_ASCII(option) \
-	((option) & (ONIG_OPTION_WORD_IS_ASCII | ONIG_OPTION_POSIX_IS_ASCII))
-#define OPTON_DIGIT_ASCII(option) \
-	((option) & (ONIG_OPTION_DIGIT_IS_ASCII | ONIG_OPTION_POSIX_IS_ASCII))
-#define OPTON_SPACE_ASCII(option) \
-	((option) & (ONIG_OPTION_SPACE_IS_ASCII | ONIG_OPTION_POSIX_IS_ASCII))
+#define OPTON_WORD_ASCII(option)     ((option) & (ONIG_OPTION_WORD_IS_ASCII | ONIG_OPTION_POSIX_IS_ASCII))
+#define OPTON_DIGIT_ASCII(option)    ((option) & (ONIG_OPTION_DIGIT_IS_ASCII | ONIG_OPTION_POSIX_IS_ASCII))
+#define OPTON_SPACE_ASCII(option)    ((option) & (ONIG_OPTION_SPACE_IS_ASCII | ONIG_OPTION_POSIX_IS_ASCII))
 #define OPTON_POSIX_ASCII(option)    ((option) & ONIG_OPTION_POSIX_IS_ASCII)
 #define OPTON_TEXT_SEGMENT_WORD(option)  ((option) & ONIG_OPTION_TEXT_SEGMENT_WORD)
 

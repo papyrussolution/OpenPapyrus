@@ -3543,14 +3543,15 @@ static double iv(double v, double x)
 	res *= sign;
 	return res;
 }
-/*
- * Compute Iv from (AMS5 9.7.1), asymptotic expansion for large |z|
- * Iv ~ exp(x)/sqrt(2 pi x) ( 1 + (4*v*v-1)/8x + (4*v*v-1)(4*v*v-9)/8x/2! + ...)
- */
+//
+// Compute Iv from (AMS5 9.7.1), asymptotic expansion for large |z|
+// Iv ~ exp(x)/sqrt(2 pi x) ( 1 + (4*v*v-1)/8x + (4*v*v-1)(4*v*v-9)/8x/2! + ...)
+//
 static double iv_asymptotic(double v, double x)
 {
 	double mu;
-	double sum, term, factor;
+	double sum, factor;
+	double term__;
 	int k;
 	double prefactor = exp(x) / sqrt(2 * M_PI * x);
 	if(isinf(prefactor)) {
@@ -3558,19 +3559,19 @@ static double iv_asymptotic(double v, double x)
 	}
 	mu = 4 * v * v;
 	sum = 1.0;
-	term = 1.0;
+	term__ = 1.0;
 	k = 1;
 	do {
 		factor = (mu - (2 * k - 1) * (2 * k - 1)) / (8 * x) / k;
 		if(k > 100) {
-			/* didn't converge */
+			// didn't converge 
 			mtherr("iv(iv_asymptotic)", MTHERR_TLPREC);
 			break;
 		}
-		term *= -factor;
-		sum += term;
+		term__ *= -factor;
+		sum += term__;
 		++k;
-	} while(fabs(term) > MACHEP * fabs(sum));
+	} while(fabs(term__) > MACHEP * fabs(sum));
 	return sum * prefactor;
 }
 /*
@@ -3640,25 +3641,22 @@ static const double asymptotic_ufactors[N_UFACTORS][N_UFACTOR_TERMS] = {
 	 -13886.089753717039, 0.0, 110.01714026924674, 0.0, 0.0, 0.0, 0.0, 0.0,
 	 0.0, 0.0, 0.0, 0.0, 0.0}
 };
-
-/*
- * Compute Iv, Kv from (AMS5 9.7.7 + 9.7.8), asymptotic expansion for large v
- */
-static void ikv_asymptotic_uniform(double v, double x,
-    double * i_value, double * k_value)
+//
+// Compute Iv, Kv from (AMS5 9.7.7 + 9.7.8), asymptotic expansion for large v
+//
+static void ikv_asymptotic_uniform(double v, double x, double * i_value, double * k_value)
 {
 	double i_prefactor, k_prefactor;
 	double t, t2, eta, z;
-	double i_sum, k_sum, term, divisor;
+	double i_sum, k_sum, divisor;
+	double term__;
 	int k, n;
 	int sign = 1;
-
 	if(v < 0) {
-		/* Negative v; compute I_{-v} and K_{-v} and use (AMS 9.6.2) */
+		// Negative v; compute I_{-v} and K_{-v} and use (AMS 9.6.2) 
 		sign = -1;
 		v = -v;
 	}
-
 	z = x / v;
 	t = 1 / sqrt(1 + z * z);
 	t2 = t * t;
@@ -3672,40 +3670,37 @@ static void ikv_asymptotic_uniform(double v, double x,
 
 	divisor = v;
 	for(n = 1; n < N_UFACTORS; ++n) {
-		/*
-		 * Evaluate u_k(t) with Horner's scheme;
-		 * (using the knowledge about which coefficients are zero)
-		 */
-		term = 0;
+		//
+		// Evaluate u_k(t) with Horner's scheme;
+		// (using the knowledge about which coefficients are zero)
+		//
+		term__ = 0.0;
 		for(k = N_UFACTOR_TERMS - 1 - 3 * n;
 		    k < N_UFACTOR_TERMS - n; k += 2) {
-			term *= t2;
-			term += asymptotic_ufactors[n][k];
+			term__ *= t2;
+			term__ += asymptotic_ufactors[n][k];
 		}
 		for(k = 1; k < n; k += 2) {
-			term *= t2;
+			term__ *= t2;
 		}
 		if(n % 2 == 1) {
-			term *= t;
+			term__ *= t;
 		}
-
-		/* Sum terms */
-		term /= divisor;
-		i_sum += term;
-		k_sum += (n % 2 == 0) ? term : -term;
-
-		/* Check convergence */
-		if(fabs(term) < MACHEP) {
+		// Sum terms 
+		term__ /= divisor;
+		i_sum += term__;
+		k_sum += (n % 2 == 0) ? term__ : -term__;
+		// Check convergence 
+		if(fabs(term__) < MACHEP) {
 			break;
 		}
-
 		divisor *= v;
 	}
-	if(fabs(term) > 1e-3 * fabs(i_sum)) {
+	if(fabs(term__) > 1e-3 * fabs(i_sum)) {
 		// Didn't converge 
 		mtherr("ikv_asymptotic_uniform", MTHERR_TLPREC);
 	}
-	if(fabs(term) > MACHEP * fabs(i_sum)) {
+	if(fabs(term__) > MACHEP * fabs(i_sum)) {
 		// Some precision lost 
 		mtherr("ikv_asymptotic_uniform", MTHERR_PLPREC);
 	}

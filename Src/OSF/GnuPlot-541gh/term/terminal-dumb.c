@@ -25,7 +25,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -77,7 +77,7 @@ static struct gen_table DUMB_opts[] = {
 	{ NULL, DUMB_OTHER }
 };
 
-TERM_PUBLIC void DUMB_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void DUMB_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	int x, y;
 	int cmd;
@@ -181,7 +181,7 @@ static void dumb_set_pixel(int x, int y, int v)
 	}
 }
 
-void DUMB_init(termentry * pThis)
+void DUMB_init(GpTermEntry * pThis)
 {
 	int size = (GPO.TDumbB.XMax+1) * (GPO.TDumbB.YMax+1);
 	GPO.TDumbB.P_Matrix = (charcell *)gp_realloc(GPO.TDumbB.P_Matrix, size*sizeof(charcell), "dumb terminal");
@@ -190,7 +190,7 @@ void DUMB_init(termentry * pThis)
 #endif
 }
 
-void DUMB_graphics()
+void DUMB_graphics(GpTermEntry * pThis)
 {
 	int size = (GPO.TDumbB.XMax+1) * (GPO.TDumbB.YMax+1);
 	charcell * pm = GPO.TDumbB.P_Matrix;
@@ -204,7 +204,7 @@ void DUMB_graphics()
 	}
 }
 
-void DUMB_text()
+void DUMB_text(GpTermEntry * pThis)
 {
 	int x, y, i;
 	putc('\f', gpoutfile);
@@ -242,7 +242,7 @@ void DUMB_text()
 	fflush(gpoutfile);
 }
 
-void DUMB_reset()
+void DUMB_reset(GpTermEntry * pThis)
 {
 	SAlloc::F(GPO.TDumbB.P_Matrix);
 	GPO.TDumbB.P_Matrix = NULL;
@@ -252,7 +252,7 @@ void DUMB_reset()
 #endif
 }
 
-void DUMB_linetype(int linetype)
+void DUMB_linetype(GpTermEntry * pThis, int linetype)
 {
 	static char pen_type[7] = { '*', '#', '$', '%', '@', '&', '=' };
 	if(linetype == LT_BLACK)
@@ -273,25 +273,25 @@ void DUMB_linetype(int linetype)
 #endif
 }
 
-void DUMB_move(uint x, uint y)
+void DUMB_move(GpTermEntry * pThis, uint x, uint y)
 {
 	GPO.TDumbB.X = x;
 	GPO.TDumbB.Y = y;
 }
 
-void DUMB_point(uint x, uint y, int point)
+void DUMB_point(GpTermEntry * pThis, uint x, uint y, int point)
 {
 	dumb_set_pixel(x, y, point == -1 ? '.' : point % 26 + 'A');
 }
 
-void DUMB_vector(uint arg_x, uint arg_y)
+void DUMB_vector(GpTermEntry * pThis, uint arg_x, uint arg_y)
 {
 	int x = arg_x; // we need signed int, since unsigned-signed=unsigned and 
 	int y = arg_y; // abs and cast to double wouldn't work 
 	char pen, pen1;
 	int delta;
 	if(GPO.TDumbB.Pen == DUMB_NODRAW_CONST) {
-		DUMB_move(x, y);
+		DUMB_move(pThis, x, y);
 		return;
 	}
 	if(ABS(y - GPO.TDumbB.Y) > ABS(x - GPO.TDumbB.X)) {
@@ -388,23 +388,22 @@ static void utf8_copy_one(char * dest, const char * orig)
 	}
 }
 
-void DUMB_put_text(uint x, uint y, const char * str)
+void DUMB_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
-	int i, length;
-	if(y > GPO.TDumbB.YMax)
-		return;
-	length = gp_strlen(str);
-	if(x + length > GPO.TDumbB.XMax)
-		x = MAX(0, GPO.TDumbB.XMax - length);
-	for(i = 0; i < length && x < GPO.TDumbB.XMax; i++, x++) {
-		utf8_copy_one(reinterpret_cast<char *>(&GPO.TDumbB.Pixel(x, y)), gp_strchrn(str, i));
-#ifndef NO_DUMB_COLOR_SUPPORT
-		memcpy(&GPO.TDumbB.P_Colors[GPO.TDumbB.XMax * y + x], &GPO.TDumbB.Color, sizeof(t_colorspec));
-#endif
+	if(y <= GPO.TDumbB.YMax) {
+		const int length = gp_strlen(str);
+		if(x + length > GPO.TDumbB.XMax)
+			x = MAX(0, GPO.TDumbB.XMax - length);
+		for(int i = 0; i < length && x < GPO.TDumbB.XMax; i++, x++) {
+			utf8_copy_one(reinterpret_cast<char *>(&GPO.TDumbB.Pixel(x, y)), gp_strchrn(str, i));
+	#ifndef NO_DUMB_COLOR_SUPPORT
+			memcpy(&GPO.TDumbB.P_Colors[GPO.TDumbB.XMax * y + x], &GPO.TDumbB.Color, sizeof(t_colorspec));
+	#endif
+		}
 	}
 }
 
-TERM_PUBLIC void DUMB_arrow(uint usx, uint usy, uint uex, uint uey, int head)  /* mostly ignored */
+TERM_PUBLIC void DUMB_arrow(GpTermEntry * pThis, uint usx, uint usy, uint uex, uint uey, int head)  /* mostly ignored */
 {
 	// we have GOT to ditch this unsigned coord madness! 
 	int sx = (int)(usx);
@@ -421,9 +420,9 @@ TERM_PUBLIC void DUMB_arrow(uint usx, uint usy, uint uex, uint uey, int head)  /
 	GPO.TDumbB.X = sx;
 	GPO.TDumbB.Y = sy;
 	if(!(head & HEADS_ONLY))
-		DUMB_vector(ex, ey);
-	/* Arrow tail */
-	if((head & BACKHEAD)) {
+		DUMB_vector(pThis, ex, ey);
+	// Arrow tail 
+	if(head & BACKHEAD) {
 		char tailsym;
 		if(ex > sx) tailsym = '<';
 		else if(ex < sx) tailsym = '>';
@@ -431,9 +430,8 @@ TERM_PUBLIC void DUMB_arrow(uint usx, uint usy, uint uex, uint uey, int head)  /
 		else tailsym = '^';
 		dumb_set_pixel(sx, sy, tailsym);
 	}
-
-	/* Arrow head */
-	if((head & END_HEAD)) {
+	// Arrow head 
+	if(head & END_HEAD) {
 		char headsym;
 		if(ex > sx) headsym = '>';
 		else if(ex < sx) headsym = '<';
@@ -461,7 +459,7 @@ static uint ENHdumb_xsave, ENHdumb_ysave;
 #define ENHdumb_font ""
 static double ENHdumb_base;
 
-void ENHdumb_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+void ENHdumb_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	// There are two special cases:
 	// overprint = 3 means save current position
@@ -472,7 +470,7 @@ void ENHdumb_OPEN(char * fontname, double fontsize, double base, bool widthflag,
 		return;
 	}
 	else if(overprint == 4) {
-		DUMB_move(ENHdumb_xsave, ENHdumb_ysave);
+		DUMB_move(pThis, ENHdumb_xsave, ENHdumb_ysave);
 		return;
 	}
 	if(!ENHdumb_opened_string) {
@@ -492,7 +490,7 @@ void ENHdumb_OPEN(char * fontname, double fontsize, double base, bool widthflag,
 	}
 }
 
-void ENHdumb_FLUSH()
+void ENHdumb_FLUSH(GpTermEntry * pThis)
 {
 	char * str = GPO.Enht.Text; /* The fragment to print */
 	int x = GPO.TDumbB.X;         /* The current position  */
@@ -521,13 +519,13 @@ void ENHdumb_FLUSH()
 	}
 }
 
-void ENHdumb_put_text(uint x, uint y, const char * str)
+void ENHdumb_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	int length;
 	// If no enhanced text processing is needed, we can use the plain  
 	// vanilla put_text() routine instead of this fancy recursive one. 
 	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
-		DUMB_put_text(x, y, str);
+		DUMB_put_text(pThis, x, y, str);
 		return;
 	}
 	length = estimate_strlen(str, NULL);
@@ -539,7 +537,7 @@ void ENHdumb_put_text(uint x, uint y, const char * str)
 	GPO.Enht.FontScale = 1.0;
 	ENHdumb_opened_string = FALSE;
 	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
-	DUMB_move(x, y);
+	DUMB_move(pThis, x, y);
 	/* Set the recursion going. We say to keep going until a
 	 * closing brace, but we don't really expect to find one.
 	 * If the return value is not the nul-terminator of the
@@ -548,12 +546,12 @@ void ENHdumb_put_text(uint x, uint y, const char * str)
 	 * we get stuck in an infinite loop) and try again.
 	 */
 	while(*(str = enhanced_recursion(term, (char*)str, TRUE, ENHdumb_font, ENHdumb_fontsize, 0.0, TRUE, TRUE, 0))) {
-		(term->enhanced_flush)();
-		/* I think we can only get here if *str == '}' */
+		(term->enhanced_flush)(pThis);
+		// I think we can only get here if *str == '}' 
 		enh_err_check(str);
 		if(!*++str)
 			break; /* end of string */
-		/* else carry on and process the rest of the string */
+		// else carry on and process the rest of the string 
 	}
 }
 #endif /* NO_DUMB_ENHANCED_SUPPORT */
@@ -563,7 +561,7 @@ void ENHdumb_put_text(uint x, uint y, const char * str)
 	{
 		return 0; // report continuous colors 
 	}
-	void DUMB_set_color(const t_colorspec * colorspec)
+	void DUMB_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 	{
 		memcpy(&GPO.TDumbB.Color, colorspec, sizeof(t_colorspec));
 	}
@@ -574,18 +572,19 @@ static int dumb_float_compare(const void * elem1, const void * elem2)
 	int val = static_cast<int>(*static_cast<const float *>(elem1) - *static_cast<const float *>(elem2));
 	return (0 < val) - (val < 0);
 }
-
-/* adopted copy from caca.trm */
-TERM_PUBLIC void dumb_filled_polygon(int points, gpiPoint * corners)
+//
+// adopted copy from caca.trm 
+//
+TERM_PUBLIC void dumb_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	char save_pen;
-	/* Eliminate duplicate polygon points. */
+	// Eliminate duplicate polygon points. 
 	if((corners[0].x == corners[points - 1].x) && (corners[0].y == corners[points - 1].y))
 		points--;
-	/* Need at least three remaining points */
+	// Need at least three remaining points 
 	if(points < 3)
 		return;
-	/* temporarily change pen */
+	// temporarily change pen 
 	save_pen = GPO.TDumbB.Pen;
 	GPO.TDumbB.Pen = DUMB_FILL_CONST;
 	{
@@ -632,8 +631,8 @@ TERM_PUBLIC void dumb_filled_polygon(int points, gpiPoint * corners)
 					// skip lines with zero length 
 					if(nodeX[i + 1] - nodeX[i] < 0.5)
 						continue;
-					DUMB_move((int)(nodeX[i] + 0.5), pixelY);
-					DUMB_vector((int)(nodeX[i + 1]), pixelY);
+					DUMB_move(pThis, (int)(nodeX[i] + 0.5), pixelY);
+					DUMB_vector(pThis, (int)(nodeX[i + 1]), pixelY);
 				}
 			}
 		}
@@ -691,7 +690,9 @@ TERM_TABLE_START(dumb_driver)
 	dumb_filled_polygon,     /* filled_polygon */
 	NULL,     /* image */
 	#ifndef NO_DUMB_ENHANCED_SUPPORT
-	ENHdumb_OPEN, ENHdumb_FLUSH, do_enh_writec
+	ENHdumb_OPEN, 
+	ENHdumb_FLUSH, 
+	do_enh_writec
 	#endif /* NO_DUMB_ENHANCED_SUPPORT */
 TERM_TABLE_END(dumb_driver)
 

@@ -29,7 +29,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -38,30 +38,26 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void TEXDRAW_init(termentry * pThis);
+TERM_PUBLIC void TEXDRAW_init(GpTermEntry * pThis);
 TERM_PUBLIC void TEXDRAW_options();
-TERM_PUBLIC void TEXDRAW_graphics();
-TERM_PUBLIC void TEXDRAW_text();
-TERM_PUBLIC void TEXDRAW_reset();
-TERM_PUBLIC void TEXDRAW_linetype(int linetype);
-TERM_PUBLIC void TEXDRAW_dashtype(int dt, t_dashtype * custom_dash_pattern);
-TERM_PUBLIC void TEXDRAW_linewidth(double linewidth);
-TERM_PUBLIC void TEXDRAW_move(uint x, uint y);
+TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void TEXDRAW_text(GpTermEntry * pThis);
+TERM_PUBLIC void TEXDRAW_reset(GpTermEntry * pThis);
+TERM_PUBLIC void TEXDRAW_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern);
+TERM_PUBLIC void TEXDRAW_linewidth(GpTermEntry * pThis, double linewidth);
+TERM_PUBLIC void TEXDRAW_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void TEXDRAW_pointsize(double size);
-TERM_PUBLIC void TEXDRAW_point(uint x, uint y, int number);
-TERM_PUBLIC void TEXDRAW_vector(uint ux, uint uy);
-TERM_PUBLIC void TEXDRAW_arrow(unsigned int sx, unsigned int sy,
-    unsigned int ex, unsigned int ey,
-    int head);
-TERM_PUBLIC void TEXDRAW_put_text(uint x, uint y, const char str[]);
+TERM_PUBLIC void TEXDRAW_point(GpTermEntry * pThis, uint x, uint y, int number);
+TERM_PUBLIC void TEXDRAW_vector(GpTermEntry * pThis, uint ux, uint uy);
+TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC int TEXDRAW_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int TEXDRAW_text_angle(int ang);
-TERM_PUBLIC void TEXDRAW_set_color(const t_colorspec * colorspec);
+TERM_PUBLIC void TEXDRAW_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC int TEXDRAW_make_palette(t_sm_palette *);
-TERM_PUBLIC void TEXDRAW_fillbox(int style,
-    unsigned int x1, unsigned int y1,
-    uint width, uint height);
-TERM_PUBLIC void TEXDRAW_filled_polygon(int points, gpiPoint * corners);
+TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
 
 #define TEXDRAW_PTS_PER_INCH (72.27)
 /* resolution of printer we expect to use */
@@ -215,7 +211,7 @@ static struct gen_table TEXDRAW_opts[] =
 	{ NULL, TEXDRAW_OTHER }
 };
 
-TERM_PUBLIC void TEXDRAW_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void TEXDRAW_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char size_str[80] = "";
 	int bg;
@@ -333,7 +329,7 @@ TERM_PUBLIC void TEXDRAW_options(TERMENTRY * pThis, GnuPlot * pGp)
 	    TEXDRAW_standalone ? "standalone" : "input");
 }
 
-TERM_PUBLIC void TEXDRAW_init(termentry * pThis)
+TERM_PUBLIC void TEXDRAW_init(GpTermEntry * pThis)
 {
 	fputs("%% GNUPLOT: LaTeX using TEXDRAW macros\n", gpoutfile);
 	if(TEXDRAW_standalone) {
@@ -348,7 +344,7 @@ TERM_PUBLIC void TEXDRAW_init(termentry * pThis)
 	}
 }
 
-TERM_PUBLIC void TEXDRAW_graphics()
+TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry * pThis)
 {
 	static char tdg1[] =
 	    "\
@@ -385,7 +381,7 @@ TERM_PUBLIC void TEXDRAW_graphics()
 	TEXDRAW_justify = TEXDRAW_last_justify = LEFT;
 }
 
-TERM_PUBLIC void TEXDRAW_text()
+TERM_PUBLIC void TEXDRAW_text(GpTermEntry * pThis)
 {
 	TEXDRAW_endline();
 	// fputs("\\drawbb\n", gpoutfile);
@@ -394,7 +390,7 @@ TERM_PUBLIC void TEXDRAW_text()
 		fputs("\\end{figure}\n\n", gpoutfile);
 }
 
-TERM_PUBLIC void TEXDRAW_reset()
+TERM_PUBLIC void TEXDRAW_reset(GpTermEntry * pThis)
 {
 	TEXDRAW_endline();
 	TEXDRAW_posx = TEXDRAW_posy = 0;
@@ -402,19 +398,19 @@ TERM_PUBLIC void TEXDRAW_reset()
 		fputs("\\end{document}\n", gpoutfile);
 }
 
-TERM_PUBLIC void TEXDRAW_linetype(int linetype)
+TERM_PUBLIC void TEXDRAW_linetype(GpTermEntry * pThis, int linetype)
 {
 	TEXDRAW_endline();
 	if(linetype >= TEXDRAW_NUMLINES - 2)
 		linetype %= (TEXDRAW_NUMLINES - 2);
 	TEXDRAW_type = linetype > -2 ? linetype : LT_BLACK;
 	if(linetype == LT_AXIS)
-		TEXDRAW_dashtype(DASHTYPE_AXIS, NULL);
+		TEXDRAW_dashtype(pThis, DASHTYPE_AXIS, NULL);
 	else
-		TEXDRAW_dashtype(DASHTYPE_SOLID, NULL);
+		TEXDRAW_dashtype(pThis, DASHTYPE_SOLID, NULL);
 }
 
-TERM_PUBLIC void TEXDRAW_dashtype(int dt, t_dashtype * custom_dash_pattern)
+TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern)
 {
 	TEXDRAW_endline();
 	if(dt == DASHTYPE_SOLID) {
@@ -448,12 +444,12 @@ TERM_PUBLIC void TEXDRAW_dashtype(int dt, t_dashtype * custom_dash_pattern)
 	}
 }
 
-TERM_PUBLIC void TEXDRAW_linewidth(double linewidth)
+TERM_PUBLIC void TEXDRAW_linewidth(GpTermEntry * pThis, double linewidth)
 {
 	TEXDRAW_lw = linewidth * TEXDRAW_lw_scale;
 }
 
-TERM_PUBLIC void TEXDRAW_move(uint x, uint y)
+TERM_PUBLIC void TEXDRAW_move(GpTermEntry * pThis, uint x, uint y)
 {
 	TEXDRAW_endline();
 	TEXDRAW_posx = x;
@@ -466,12 +462,12 @@ TERM_PUBLIC void TEXDRAW_pointsize(double size)
 	GPO.TermPointSize = (size >= 0 ? size * TEXDRAW_ps : 1);
 }
 
-TERM_PUBLIC void TEXDRAW_point(uint x, uint y, int number)
+TERM_PUBLIC void TEXDRAW_point(GpTermEntry * pThis, uint x, uint y, int number)
 {
 	char colorstr[80] = "";
-	TEXDRAW_move(x, y);
+	TEXDRAW_move(pThis, x, y);
 	if(!TEXDRAW_texpoints) {
-		GnuPlot::DoPoint(x, y, number);
+		GnuPlot::DoPoint(pThis, x, y, number);
 		return;
 	}
 	/* Print the character defined by 'number'; number < 0 means
@@ -492,11 +488,11 @@ TERM_PUBLIC void TEXDRAW_point(uint x, uint y, int number)
 	}
 }
 
-TERM_PUBLIC void TEXDRAW_vector(uint ux, uint uy)
+TERM_PUBLIC void TEXDRAW_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
 	if(!TEXDRAW_inline) {
 		TEXDRAW_inline = TRUE;
-		/* Start a new line. This depends on line type */
+		// Start a new line. This depends on line type 
 		if((TEXDRAW_type != TEXDRAW_last_type) || (TEXDRAW_last_lw != TEXDRAW_lw)) {
 			if(TEXDRAW_lines[TEXDRAW_type + 2] * TEXDRAW_lw != TEXDRAW_lines[TEXDRAW_last_type + 2] * TEXDRAW_last_lw)
 				fprintf(gpoutfile, "\\linewd %d\n", (int)(TEXDRAW_lines[TEXDRAW_type + 2] * TEXDRAW_lw + 0.5));
@@ -533,7 +529,7 @@ static void TEXDRAW_endline()
 	}
 }
 
-TERM_PUBLIC void TEXDRAW_arrow(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey, int head)
+TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	char text;
 	char type = 'T'; // empty triangle
@@ -542,7 +538,7 @@ TERM_PUBLIC void TEXDRAW_arrow(unsigned int sx, unsigned int sy, unsigned int ex
 	int width = static_cast<int>((0.08 * 72 / TEXDRAW_scalefactor + 0.5));
 	// Texdraw cannot only draw vector heads, fall back to built-in code.
 	if(!TEXDRAW_psarrows || (head & HEADS_ONLY)) {
-		GnuPlot::DoArrow(sx, sy, ex, ey, head);
+		GnuPlot::DoArrow(pThis, sx, sy, ex, ey, head);
 		return;
 	}
 	switch(curr_arrow_headfilled) {
@@ -592,7 +588,7 @@ TERM_PUBLIC void TEXDRAW_arrow(unsigned int sx, unsigned int sy, unsigned int ex
 	TEXDRAW_posy = ey;
 }
 
-TERM_PUBLIC void TEXDRAW_put_text(uint x, uint y, const char str[])
+TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
 	char colorstr[80] = "";
 	TEXDRAW_endline();
@@ -637,10 +633,9 @@ TERM_PUBLIC int TEXDRAW_make_palette(t_sm_palette * palette)
 	return 0; /* claim continuous colors */
 }
 
-TERM_PUBLIC void TEXDRAW_set_color(const t_colorspec * colorspec)
+TERM_PUBLIC void TEXDRAW_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
-	/* Users can choose any color as long as it is black.
-	   Enables dash patterns. */
+	// Users can choose any color as long as it is black. Enables dash patterns. 
 	switch(colorspec->type) {
 		case TC_FRAC:
 		    TEXDRAW_gray = colorspec->value;
@@ -687,7 +682,7 @@ static double TEXDRAW_fill_gray(int style)
 	return gray;
 }
 
-TERM_PUBLIC void TEXDRAW_fillbox(int style, unsigned int x1, unsigned int y1, uint width, uint height)
+TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	double gray;
 	TEXDRAW_endline();
@@ -701,7 +696,7 @@ TERM_PUBLIC void TEXDRAW_fillbox(int style, unsigned int x1, unsigned int y1, ui
 	fprintf(gpoutfile, "\\ifill f:%0.2f\n", gray);
 }
 
-TERM_PUBLIC void TEXDRAW_filled_polygon(int points, gpiPoint * corners)
+TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	double gray;
 	int i;

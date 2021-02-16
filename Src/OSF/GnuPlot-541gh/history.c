@@ -338,20 +338,22 @@ void write_history_list(const int num, const char * const filename, const char *
 	if(istart < 0 || istart > history_length)
 		istart = 0;
 	for(i = istart; (list_entry = history_get(i + history_base)); i++) {
-		/* don't add line numbers when writing to file to make file loadable */
+		// don't add line numbers when writing to file to make file loadable 
 		if(!is_file && !is_quiet)
 			fprintf(out, "%5i   %s\n", i + history_base, list_entry->line);
 		else
 			fprintf(out, "%s\n", list_entry->line);
 	}
 #ifdef PIPES
-	if(is_pipe) pclose(out);
+	if(is_pipe) 
+		pclose(out);
 #endif
 	if(is_file) 
 		fclose(out);
 }
-
-/* This is the function getting called in command.c */
+//
+// This is the function getting called in command.c 
+//
 void write_history_n(const int n, const char * filename, const char * mode)
 {
 	write_history_list(n, filename, mode);

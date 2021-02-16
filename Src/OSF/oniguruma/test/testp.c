@@ -9,12 +9,6 @@
 
 static OnigTestBlock OnigTB;
 
-//static int nsucc  = 0;
-//static int nfail  = 0;
-//static int nerror = 0;
-//static FILE * out_file; // @sobolev
-//static FILE * err_file;
-
 static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 {
 	regex_t reg;

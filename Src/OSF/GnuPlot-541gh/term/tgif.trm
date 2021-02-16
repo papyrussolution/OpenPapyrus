@@ -79,18 +79,18 @@ register_term(tgif)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void TGIF_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void TGIF_init(termentry * pThis);
+TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void TGIF_init(GpTermEntry * pThis);
 TERM_PUBLIC void TGIF_reset();
 TERM_PUBLIC void TGIF_text();
 TERM_PUBLIC void TGIF_graphics();
 TERM_PUBLIC void TGIF_move(uint ux, uint uy);
 TERM_PUBLIC void TGIF_vector(uint ux, uint uy);
 TERM_PUBLIC void TGIF_linetype(int linetype);
-TERM_PUBLIC void TGIF_put_text(unsigned int ux, unsigned int uy, const char * str);      /* ref point and text */
+TERM_PUBLIC void TGIF_put_text(uint ux, uint uy, const char * str);      /* ref point and text */
 TERM_PUBLIC int TGIF_text_angle(int ang);
 TERM_PUBLIC int TGIF_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC void TGIF_point(unsigned int ux, unsigned int uy, int number);
+TERM_PUBLIC void TGIF_point(uint ux, uint uy, int number);
 TERM_PUBLIC int TGIF_set_font(const char * font);
 TERM_PUBLIC void TGIF_set_pointsize(double size);
 TERM_PUBLIC void TGIF_set_linewidth(double size);
@@ -261,7 +261,7 @@ static struct gen_table TGIF_opts[] =
 	{NULL, TGIF_OTHER}
 };
 
-TERM_PUBLIC void TGIF_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	GpValue a, b;
 	double dscaleH, dscaleV;
@@ -274,12 +274,12 @@ TERM_PUBLIC void TGIF_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    strcpy(sDefaultFont, "Helvetica");
 			    uActFontSize = 18;
 			    uDefaultFontSize = 18;
-			    term->ChrV = (uint)(uActFontSize);
-			    term->ChrH = (uint)(uActFontSize * 6 / 10);
+			    pThis->ChrV = (uint)(uActFontSize);
+			    pThis->ChrH = (uint)(uActFontSize * 6 / 10);
 
 			    TgifPortrait = TRUE;
 			    TgifUseColor = TRUE;
-			    term->flags &= ~TERM_MONOCHROME;
+			    pThis->flags &= ~TERM_MONOCHROME;
 			    TgifSolid = FALSE;
 			    uTgifPlotsPerPage = 1;
 			    uTgifPlotRow = 1;
@@ -293,12 +293,12 @@ TERM_PUBLIC void TGIF_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    break;
 			case TGIF_MONOCHROME:
 			    TgifUseColor = FALSE;
-			    term->flags |= TERM_MONOCHROME;
+			    pThis->flags |= TERM_MONOCHROME;
 			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_COLOR:
 			    TgifUseColor = TRUE;
-			    term->flags &= ~TERM_MONOCHROME;
+			    pThis->flags &= ~TERM_MONOCHROME;
 			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_LINEWIDTH:
@@ -376,8 +376,8 @@ TERM_PUBLIC void TGIF_options(TERMENTRY * pThis, GnuPlot * pGp)
 				    /* We have font size specified */
 				    uActFontSize = (uint)real(const_express(&b));
 				    uDefaultFontSize = uActFontSize;
-				    term->ChrV = (uint)(uActFontSize);
-				    term->ChrH = (uint)(uActFontSize * 6 / 10);
+				    pThis->ChrV = (uint)(uActFontSize);
+				    pThis->ChrH = (uint)(uActFontSize * 6 / 10);
 			    }
 			    break;
 		    }
@@ -411,7 +411,7 @@ TERM_PUBLIC void TGIF_options(TERMENTRY * pThis, GnuPlot * pGp)
 
 /*}}}  */
 /***************************************************************************/
-TERM_PUBLIC void TGIF_init(termentry * pThis)
+TERM_PUBLIC void TGIF_init(GpTermEntry * pThis)
 {
 	if(multiplot) {
 		/* uActResolution= TgifPortrait ? (uint)100 : (uint)145 ; */
@@ -586,19 +586,15 @@ TERM_PUBLIC void TGIF_vector(uint ux, uint uy)
 
 /*}}}  */
 /***************************************************************************/
-TERM_PUBLIC void TGIF_put_text(unsigned int ux, unsigned int uy, const char * str)
+TERM_PUBLIC void TGIF_put_text(uint ux, uint uy, const char * str)
 {
-	unsigned int x, y;
-	struct termentry * t = term;
-
+	uint x, y;
+	GpTermEntry * t = term;
 	TGIF_flush_poly();
-
 	x = ux + uXshift;
 	y = uYshift - uy - t->ChrV / 2;
-
 	if(strlen(str) == 0)
 		return;
-
 	fprintf(gpoutfile, "\
 text('%s',%u,%u,'%s',0,%u,1,%u,%u,1,55,119,%u,0,15,4,0,0,0,0,[\n\t\"%s\"]).\n",
 	    sActColor, x, y, sActFont, uActFontSize,
@@ -634,21 +630,16 @@ TERM_PUBLIC int TGIF_justify_text(enum JUSTIFY mode)
 
 /*}}}  */
 /***************************************************************************/
-TERM_PUBLIC void TGIF_point(unsigned int ux, unsigned int uy, int number)
+TERM_PUBLIC void TGIF_point(uint ux, uint uy, int number)
 {
 	double p;       /* all pointtypes fit in a (x +/-p)x(y +/-p) box */
-
 	double x, y;
-
 	x = (double)(ux + uXshift);
 	y = (double)(uYshift - uy);
-
 	p = 4.0 * uActPointSize;
 	if(p == (double)0.0)
 		p = 0.1;
-
 	TGIF_flush_poly();
-
 	if(number != -1)
 		number = number % 63;
 	switch(number) {

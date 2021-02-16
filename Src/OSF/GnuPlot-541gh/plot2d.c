@@ -62,8 +62,7 @@ void cp_extend(curve_points * cp, int num)
 		ZFREE(cp->points);
 		cp->p_max = 0;
 		ZFREE(cp->varcolor);
-		if(cp->labels)
-			free_labels(cp->labels);
+		free_labels(cp->labels);
 		cp->labels = NULL;
 	}
 }
@@ -72,7 +71,7 @@ void cp_extend(curve_points * cp, int num)
 // while in the non-parametric case we would say only plot [b= -2:2] [-1:1] sin(b)
 // 
 //void plotrequest()
-void GnuPlot::PlotRequest(termentry * pTerm)
+void GnuPlot::PlotRequest(GpTermEntry * pTerm)
 {
 	int dummy_token = 0;
 	/*AXIS_INDEX*/int axis;
@@ -689,7 +688,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 				var_ps, var_pt, var_rotation, v[1], 0.0);
 			    // Allocate and fill in a text_label structure to match it 
 			    if(pPlot->points[i].type != UNDEFINED) {
-				    store_label(pPlot->labels, &(pPlot->points[i]), i, df_tokens[2], pPlot->varcolor ? pPlot->varcolor[i] : 0.0);
+				    StoreLabel(term, pPlot->labels, &(pPlot->points[i]), i, df_tokens[2], pPlot->varcolor ? pPlot->varcolor[i] : 0.0);
 			    }
 			    i++;
 			    break;
@@ -1135,7 +1134,7 @@ void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */,
 		    STORE_AND_UPDATE_RANGE(cp->xhigh, xhigh, dummy_type, pPlot->AxIdx_X, pPlot->noautoscale, cp->xhigh = -VERYLARGE);
 		    cp->ylow = ylow; /* arc begin */
 		    cp->xhigh = yhigh; /* arc end */
-		    if(fabs(ylow) > 1000. || fabs(yhigh) > 1000.) /* safety check for insane arc angles */
+		    if(fabs(ylow) > 1000.0 || fabs(yhigh) > 1000.0) /* safety check for insane arc angles */
 			    cp->type = UNDEFINED;
 		    break;
 		case ELLIPSES:
@@ -1517,19 +1516,21 @@ void GnuPlot::SpiderPlotRangeFiddling(curve_points * plot)
 // store_label() is called by get_data for each point 
 // This routine is exported so it can be shared by plot3d 
 //
-text_label * store_label(text_label * listhead, GpCoordinate * cp, int i/* point number */, char * string/* start of label string */, 
+//text_label * store_label(text_label * pListHead, GpCoordinate * cp, int i/* point number */, char * string/* start of label string */, 
+	//double colorval/* used if text color derived from palette */)
+text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, GpCoordinate * cp, int i/* point number */, char * string/* start of label string */, 
 	double colorval/* used if text color derived from palette */)
 {           
 	static text_label * tl = NULL;
 	int textlen;
-	if(!listhead)
-		GPO.IntError(NO_CARET, "text_label list was not initialized");
-	/* If listhead->next is NULL, the list is currently empty and we will */
-	/* insert this label at the head.  Otherwise tl already points to the */
-	/* tail (previous insertion) and we will add the new label there.     */
-	if(listhead->next == NULL)
-		tl = listhead;
-	/* Allocate a new label structure and fill it in */
+	if(!pListHead)
+		IntError(NO_CARET, "text_label list was not initialized");
+	// If listhead->next is NULL, the list is currently empty and we will 
+	// insert this label at the head.  Otherwise tl already points to the 
+	// tail (previous insertion) and we will add the new label there.     
+	if(pListHead->next == NULL)
+		tl = pListHead;
+	// Allocate a new label structure and fill it in 
 	tl->next = (text_label *)gp_alloc(sizeof(text_label), "labelpoint label");
 	memcpy(tl->next, tl, sizeof(text_label));
 	tl = tl->next;
@@ -1538,7 +1539,6 @@ text_label * store_label(text_label * listhead, GpCoordinate * cp, int i/* point
 	tl->place.x = cp->x;
 	tl->place.y = cp->y;
 	tl->place.z = cp->z;
-
 	// optional variables from user spec 
 	tl->rotate = static_cast<int>(cp->CRD_ROTATE);
 	tl->lp_properties.PtType = static_cast<int>(cp->CRD_PTTYPE);
@@ -1547,31 +1547,31 @@ text_label * store_label(text_label * listhead, GpCoordinate * cp, int i/* point
 	if(tl->textcolor.type == TC_Z)
 		tl->textcolor.value = colorval;
 	// Check for optional (textcolor rgb variable) 
-	else if(listhead->textcolor.type == TC_RGB && listhead->textcolor.value < 0)
+	else if(pListHead->textcolor.type == TC_RGB && pListHead->textcolor.value < 0)
 		tl->textcolor.lt = static_cast<int>(colorval);
 	// Check for optional (textcolor variable) 
-	else if(listhead->textcolor.type == TC_VARIABLE) {
+	else if(pListHead->textcolor.type == TC_VARIABLE) {
 		lp_style_type lptmp;
-		if(GPO.Gg.PreferLineStyles)
-			lp_use_properties(term, &lptmp, (int)colorval);
+		if(Gg.PreferLineStyles)
+			lp_use_properties(pTerm, &lptmp, (int)colorval);
 		else
-			load_linetype(term, &lptmp, (int)colorval);
+			load_linetype(pTerm, &lptmp, (int)colorval);
 		tl->textcolor = lptmp.pm3d_color;
 	}
-	if((listhead->lp_properties.flags & LP_SHOW_POINTS)) {
+	if(pListHead->lp_properties.flags & LP_SHOW_POINTS) {
 		// Check for optional (point linecolor palette ...) 
 		if(tl->lp_properties.pm3d_color.type == TC_Z)
 			tl->lp_properties.pm3d_color.value = colorval;
 		// Check for optional (point linecolor rgb variable) 
-		else if(listhead->lp_properties.pm3d_color.type == TC_RGB && listhead->lp_properties.pm3d_color.value < 0)
+		else if(pListHead->lp_properties.pm3d_color.type == TC_RGB && pListHead->lp_properties.pm3d_color.value < 0)
 			tl->lp_properties.pm3d_color.lt = static_cast<int>(colorval);
 		// Check for optional (point linecolor variable) 
-		else if(listhead->lp_properties.l_type == LT_COLORFROMCOLUMN) {
+		else if(pListHead->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 			lp_style_type lptmp;
-			if(GPO.Gg.PreferLineStyles)
-				lp_use_properties(term, &lptmp, (int)colorval);
+			if(Gg.PreferLineStyles)
+				lp_use_properties(pTerm, &lptmp, (int)colorval);
 			else
-				load_linetype(term, &lptmp, (int)colorval);
+				load_linetype(pTerm, &lptmp, (int)colorval);
 			tl->lp_properties.pm3d_color = lptmp.pm3d_color;
 		}
 	}
@@ -1618,7 +1618,7 @@ text_label * store_label(text_label * listhead, GpCoordinate * cp, int i/* point
 // Definitions are processed twice, but that won't hurt.
 // 
 //static void eval_plots()
-void GnuPlot::EvalPlots(termentry * pTerm)
+void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 {
 	int    i;
 	curve_points * p_plot = NULL;
@@ -1845,10 +1845,10 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 					IntError(NO_CARET, "spiderplot is not possible for functions");
 				if(*tp_ptr) {
 					p_plot = *tp_ptr;
-					cp_extend(p_plot, samples_1 + 1);
+					cp_extend(p_plot, Gg.Samples1 + 1);
 				}
 				else { // no memory malloc()'d there yet
-					p_plot = GnuPlot::CpAlloc(samples_1 + 1);
+					p_plot = GnuPlot::CpAlloc(Gg.Samples1 + 1);
 					*tp_ptr = p_plot;
 				}
 				p_plot->plot_type = FUNC;
@@ -1872,12 +1872,12 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 					}
 					Pgm.Shift();
 					p_plot->plot_smooth = SMOOTH_BINS;
-					nbins = samples_1;
+					nbins = Gg.Samples1;
 					if(Pgm.EqualsCur("=")) {
 						Pgm.Shift();
 						nbins = IntExpression();
 						if(nbins <= 0)
-							nbins = samples_1;
+							nbins = Gg.Samples1;
 					}
 					binlow = binhigh = 0.0;
 					if(Pgm.EqualsCur("binrange")) {
@@ -2000,7 +2000,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 					}
 					if(Gg.Parametric && Gg.InParametric)
 						IntErrorCurToken("\"with\" allowed only after parametric function fully specified");
-					p_plot->plot_style = get_style();
+					p_plot->plot_style = GetStyle();
 					if(p_plot->plot_style == FILLEDCURVES) {
 						// read a possible option for 'with filledcurves' 
 						get_filledcurves_style_options(&p_plot->filledcurves_options);
@@ -2123,7 +2123,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 							p_plot->noautoscale = TRUE;
 					}
 					if(p_plot->plot_style == SPIDERPLOT) {
-						lp = spiderplot_style.lp_properties;
+						lp = Gg.SpiderPlotStyle.lp_properties;
 					}
 					new_lt = LpParse(&lp, LP_ADHOC, p_plot->plot_style & PLOT_STYLE_HAS_POINT);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
@@ -2171,7 +2171,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(Pgm.EqualsCur("fs") || Pgm.AlmostEqualsCur("fill$style")) {
 						if(p_plot->plot_style == SPIDERPLOT)
-							p_plot->fill_properties = spiderplot_style.fillstyle;
+							p_plot->fill_properties = Gg.SpiderPlotStyle.fillstyle;
 						else
 							p_plot->fill_properties = default_fillstyle;
 						p_plot->fill_properties.fillpattern = pattern_num;
@@ -2249,9 +2249,9 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 					p_plot->lp_properties.PtSize = PTSZ_DEFAULT;
 				}
 				if(p_plot->plot_style == SPIDERPLOT) {
-					p_plot->lp_properties.PtType = spiderplot_style.lp_properties.PtType;
-					p_plot->lp_properties.PtSize = spiderplot_style.lp_properties.PtSize;
-					p_plot->lp_properties.l_width = spiderplot_style.lp_properties.l_width;
+					p_plot->lp_properties.PtType = Gg.SpiderPlotStyle.lp_properties.PtType;
+					p_plot->lp_properties.PtSize = Gg.SpiderPlotStyle.lp_properties.PtSize;
+					p_plot->lp_properties.l_width = Gg.SpiderPlotStyle.lp_properties.l_width;
 					p_plot->lp_properties.pm3d_color.type = TC_DEFAULT;
 				}
 				LpParse(&p_plot->lp_properties, LP_ADHOC, p_plot->plot_style & PLOT_STYLE_HAS_POINT);
@@ -2292,7 +2292,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 			if(p_plot->plot_style & PLOT_STYLE_HAS_FILL) {
 				if(!set_fillstyle) {
 					if(p_plot->plot_style == SPIDERPLOT)
-						p_plot->fill_properties = spiderplot_style.fillstyle;
+						p_plot->fill_properties = Gg.SpiderPlotStyle.fillstyle;
 					else
 						p_plot->fill_properties = default_fillstyle;
 					p_plot->fill_properties.fillpattern = pattern_num;
@@ -2519,7 +2519,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 				switch(p_plot->plot_smooth) {
 					// create new data set by evaluation of interpolation routines 
 					case SMOOTH_UNWRAP:
-					    gen_interp_unwrap(p_plot);
+					    GenInterpUnwrap(p_plot);
 					    break;
 					case SMOOTH_FREQUENCY:
 					case SMOOTH_FREQUENCY_NORMALISED:
@@ -2527,7 +2527,7 @@ void GnuPlot::EvalPlots(termentry * pTerm)
 					case SMOOTH_CUMULATIVE_NORMALISED:
 					    // These commands all replace the original data  
 					    // so we must reevaluate min/max for autoscaling 
-					    gen_interp_frequency(p_plot);
+					    GenInterpFrequency(p_plot);
 					    RefreshBounds(p_plot, 1);
 					    break;
 					case SMOOTH_CSPLINES:
@@ -2668,7 +2668,7 @@ SKIPPED_EMPTY_FILE:
 		if(Gg.Parametric || Gg.Polar) {
 			t_min = AxS[T_AXIS].min;
 			t_max = AxS[T_AXIS].max;
-			t_step = (t_max - t_min) / (samples_1 - 1);
+			t_step = (t_max - t_min) / (Gg.Samples1 - 1);
 		}
 		// else we'll do it on each plot (see below) 
 		tp_ptr = &P_FirstPlot;
@@ -2748,9 +2748,9 @@ SKIPPED_EMPTY_FILE:
 						else {
 							check_log_limits(&AxS.__X(), t_min, t_max);
 						}
-						t_step = (t_max - t_min) / (samples_1 - 1);
+						t_step = (t_max - t_min) / (Gg.Samples1 - 1);
 					}
-					for(i = 0; i < samples_1; i++) {
+					for(i = 0; i < Gg.Samples1; i++) {
 						double x, temp;
 						GpValue a;
 						double t = t_min + i * t_step;
@@ -2856,8 +2856,8 @@ SKIPPED_EMPTY_FILE:
 come_here_if_undefined:
 							; /* ansi requires a statement after a label */
 						}
-					} /* loop over samples_1 */
-					p_plot->p_count = i; /* samples_1 */
+					} /* loop over Gg.Samples1 */
+					p_plot->p_count = i; /* Gg.Samples1 */
 				}
 				Pgm.SetTokenIdx(p_plot->token); // skip all modifiers func / whole of data plots 
 				// used below 

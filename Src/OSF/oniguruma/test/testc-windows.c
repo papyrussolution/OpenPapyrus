@@ -16,15 +16,6 @@ static OnigTestBlock OnigTB;
 
 #define SLEN(s)  strlen(s)
 
-//static int nsucc  = 0;
-//static int nfail  = 0;
-//static int nerror = 0;
-//static FILE * out_file; // @sobolev
-//static FILE * err_file;
-//#ifndef POSIX_TEST
-	//static OnigRegion * region;
-//#endif
-
 static void xx(char* pattern, char* str, int from, int to, int mem, int not)
 {
 	int r;

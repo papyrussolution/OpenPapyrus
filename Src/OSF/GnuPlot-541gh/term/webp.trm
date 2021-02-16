@@ -91,7 +91,7 @@ register_term(webp)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void WEBP_options(int);
-TERM_PUBLIC void WEBP_init(termentry * pThis);
+TERM_PUBLIC void WEBP_init(GpTermEntry * pThis);
 TERM_PUBLIC void WEBP_text();
 TERM_PUBLIC void WEBP_reset();
 #endif /* TERM_PROTO */
@@ -161,7 +161,7 @@ void WEBP_options(int show)
 	}
 }
 
-void WEBP_init(termentry * pThis)
+void WEBP_init(GpTermEntry * pThis)
 {
 	cairo_surface_t * surface = NULL;
 	if(plot.cr)
@@ -199,13 +199,11 @@ void WEBP_text()
 	int height = cairo_image_surface_get_height(surface);
 	int stride = cairo_image_surface_get_stride(surface);
 	cairo_format_t format = cairo_image_surface_get_format(surface);
-	unsigned char* data = cairo_image_surface_get_data(surface);
-
+	uchar * data = cairo_image_surface_get_data(surface);
 	/* close any open paths and [maybe?] "emit" the current page */
 	gp_cairo_stroke(&plot);
 	gp_cairo_end_polygon(&plot);
 	cairo_show_page(plot.cr); /* FIXME: correct? necessary? */
-
 	/* Tune webp compression parameters */
 	WebPConfigInit(&wpconfig);
 	wpconfig.quality = webp_params.quality;

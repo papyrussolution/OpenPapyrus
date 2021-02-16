@@ -33,12 +33,11 @@
 #ifndef GNUPLOT_WTEXT_H
 #define GNUPLOT_WTEXT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
-/* redefine functions that can talk to tty devices, to use
- * implementation in winmain.c */
+// redefine functions that can talk to tty devices, to use implementation in winmain.c 
 #ifndef WGP_CONSOLE
 #define kbhit()  MyKBHit()
 #define getche() MyGetChE()
@@ -93,13 +92,13 @@ extern "C" {
 #define cscanf dontuse_cscanf
 #define ungetch dontuse_ungetch
 
-/* Windows pipe emulation by using temporary files */
+// Windows pipe emulation by using temporary files 
 #ifdef USE_FAKEPIPES
-/* Mingw64 might define these already. */
-#undef popen
-#undef pclose
-#define popen fake_popen
-#define pclose fake_pclose
+	// Mingw64 might define these already. 
+	#undef popen
+	#undef pclose
+	#define popen fake_popen
+	#define pclose fake_pclose
 #endif
 
 /* now for the prototypes */
@@ -143,8 +142,8 @@ int ConsoleGetch();
 	#define vsnprintf ms_vsnprintf
 #endif
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* GNUPLOT_WTEXT_H */

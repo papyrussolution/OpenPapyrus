@@ -59,15 +59,13 @@ register_term(gpic)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void GPIC_options();
-TERM_PUBLIC void GPIC_init(termentry * pThis);
-TERM_PUBLIC void GPIC_graphics();
+TERM_PUBLIC void GPIC_init(GpTermEntry * pThis);
+TERM_PUBLIC void GPIC_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void GPIC_text();
 TERM_PUBLIC void GPIC_linetype(int linetype);
 TERM_PUBLIC void GPIC_move(uint x, uint y);
 TERM_PUBLIC void GPIC_vector(uint ux, uint uy);
-TERM_PUBLIC void GPIC_arrow(unsigned int sx, unsigned int sy,
-    unsigned int ex, unsigned int ey,
-    int head);
+TERM_PUBLIC void GPIC_arrow(uint sx, uint sy, uint ex, uint ey, int head);
 TERM_PUBLIC void GPIC_put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC int GPIC_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int GPIC_text_angle(int ang);
@@ -94,7 +92,7 @@ TERM_PUBLIC void GPIC_reset();
 
 static void GPIC_close_line();
 static float GPIC_x, GPIC_y;
-static unsigned int GPIC_ltype;
+static uint GPIC_ltype;
 static enum JUSTIFY GPIC_justify = LEFT;
 
 /* for DOTS point style */
@@ -133,16 +131,15 @@ TERM_PUBLIC void GPIC_options()
 	sprintf(term_options, "Origin is at (%f,%f)", GPIC_x, GPIC_y);
 }
 
-TERM_PUBLIC void GPIC_init(termentry * pThis)
+TERM_PUBLIC void GPIC_init(GpTermEntry * pThis)
 {
 	GPIC_linetype(-1);
 	fputs(".\\\"GNUPLOT: GROFF picture using the gpic preprocessor\n", gpoutfile);
 }
 
-TERM_PUBLIC void GPIC_graphics()
+TERM_PUBLIC void GPIC_graphics(GpTermEntry * pThis)
 {
-	struct termentry * t = term;
-	fprintf(gpoutfile, ".PS %f %f\n", GPIC_coord(t->MaxX), GPIC_coord(t->MaxY));
+	fprintf(gpoutfile, ".PS %f %f\n", GPIC_coord(pThis->MaxX), GPIC_coord(pThis->MaxY));
 	fprintf(gpoutfile, "x=%f; y=%f\n", GPIC_x, GPIC_y);
 }
 
@@ -192,7 +189,7 @@ TERM_PUBLIC void GPIC_vector(uint ux, uint uy)
 	GPIC_linecount++;
 }
 
-TERM_PUBLIC void GPIC_arrow(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey, int head)
+TERM_PUBLIC void GPIC_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 {
 	GPIC_close_line();
 	if(head) {

@@ -49,7 +49,7 @@ register_term(be)
 #ifdef TERM_PROTO
 int BE_args(int argc, char * argv[]);
 TERM_PUBLIC void BE_options();
-TERM_PUBLIC void BE_init(termentry * pThis);
+TERM_PUBLIC void BE_init(GpTermEntry * pThis);
 TERM_PUBLIC void BE_graphics();
 TERM_PUBLIC void BE_text();
 TERM_PUBLIC void BE_reset();
@@ -206,7 +206,7 @@ static void BE_atexit()
 	}
 }
 
-TERM_PUBLIC void BE_init(termentry * pThis)
+TERM_PUBLIC void BE_init(GpTermEntry * pThis)
 {
 	if(!BE_ipc) {
 		/* first time through or after a reset */

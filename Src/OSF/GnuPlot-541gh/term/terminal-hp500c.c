@@ -35,7 +35,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -45,11 +45,11 @@
 
 //#ifdef TERM_PROTO
 TERM_PUBLIC void HP500C_options();
-TERM_PUBLIC void HP500C_init(termentry * pThis);
-TERM_PUBLIC void HP500C_reset();
-TERM_PUBLIC void HP500C_linetype(int linetype);
-TERM_PUBLIC void HP500C_graphics();
-TERM_PUBLIC void HP500C_text();
+TERM_PUBLIC void HP500C_init(GpTermEntry * pThis);
+TERM_PUBLIC void HP500C_reset(GpTermEntry * pThis);
+TERM_PUBLIC void HP500C_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void HP500C_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void HP500C_text(GpTermEntry * pThis);
 /* default values for term_tbl */
 #define HP500C_75PPI_XMAX (1920/4)
 #define HP500C_75PPI_YMAX (1920/4)
@@ -89,22 +89,22 @@ static int HP_COMP_MODE = 0;
 /* bm_pattern not appropriate for 300ppi graphics */
 #ifndef GOT_300_PATTERN
 #define GOT_300_PATTERN
-static unsigned int b_300ppi_pattern[] =
+static uint b_300ppi_pattern[] =
 {
 	0xffff, 0x1111,
 	0xffff, 0x3333, 0x0f0f, 0x3f3f, 0x0fff, 0x00ff, 0x33ff
 };
 #endif
 
-TERM_PUBLIC void HP500C_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void HP500C_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char opt[6];
 #define HPDJCERROR "expecting dots per inch size 75, 100, 150 or 300 and/or compression method"
-	while(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.GetCurTokenLength() > 4)
-			GPO.IntErrorCurToken(HPDJCERROR);
+	while(!pGp->Pgm.EndOfCommand()) {
+		if(pGp->Pgm.GetCurTokenLength() > 4)
+			pGp->IntErrorCurToken(HPDJCERROR);
 		/* almost_equals() won't accept numbers - use strcmp() instead */
-		GPO.Pgm.Capture(opt, GPO.Pgm.GetCurTokenIdx(), GPO.Pgm.GetCurTokenIdx(), 6);
+		pGp->Pgm.Capture(opt, pGp->Pgm.GetCurTokenIdx(), pGp->Pgm.GetCurTokenIdx(), 6);
 		if(!strcmp(opt, "75")) {
 			hpdj_dpp = 4;
 			HP_COMP_MODE = 0;
@@ -127,30 +127,30 @@ TERM_PUBLIC void HP500C_options(TERMENTRY * pThis, GnuPlot * pGp)
 		else if(!strcmp(opt, "tiff")) {
 			HP_COMP_MODE = 2;
 		}
-		GPO.Pgm.Shift();
+		pGp->Pgm.Shift();
 	}
-	term->MaxX = HP500C_XMAX;
-	term->MaxY = HP500C_YMAX;
+	pThis->MaxX = HP500C_XMAX;
+	pThis->MaxY = HP500C_YMAX;
 	switch(hpdj_dpp) {
 		case 1:
 		    strcpy(term_options, "300");
-		    term->TicV = 15;
-		    term->TicH = 15;
+		    pThis->TicV = 15;
+		    pThis->TicH = 15;
 		    break;
 		case 2:
 		    strcpy(term_options, "150");
-		    term->TicV = 8;
-		    term->TicH = 8;
+		    pThis->TicV = 8;
+		    pThis->TicH = 8;
 		    break;
 		case 3:
 		    strcpy(term_options, "100");
-		    term->TicV = 6;
-		    term->TicH = 6;
+		    pThis->TicV = 6;
+		    pThis->TicH = 6;
 		    break;
 		case 4:
 		    strcpy(term_options, "75");
-		    term->TicV = 5;
-		    term->TicH = 5;
+		    pThis->TicV = 5;
+		    pThis->TicH = 5;
 		    break;
 	}
 	switch(HP_COMP_MODE) {
@@ -169,7 +169,7 @@ TERM_PUBLIC void HP500C_options(TERMENTRY * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void HP500C_init(termentry * pThis)
+TERM_PUBLIC void HP500C_init(GpTermEntry * pThis)
 {
 	// HBB 980226: all changes to pThis-> fields *must* happen here, not in graphics() !
 	switch(hpdj_dpp) {
@@ -196,14 +196,13 @@ TERM_PUBLIC void HP500C_init(termentry * pThis)
 	}
 }
 
-TERM_PUBLIC void HP500C_reset()
+TERM_PUBLIC void HP500C_reset(GpTermEntry * pThis)
 {
 	fflush_binary(); /* Only needed for VMS */
 }
 
 /* HP DeskJet 500c routines */
-
-TERM_PUBLIC void HP500C_linetype(int linetype)
+TERM_PUBLIC void HP500C_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(linetype < 0)
 		linetype = 7;
@@ -230,7 +229,7 @@ TERM_PUBLIC void HP500C_linetype(int linetype)
 	}
 #endif
 
-TERM_PUBLIC void HP500C_graphics()
+TERM_PUBLIC void HP500C_graphics(GpTermEntry * pThis)
 {
 	// HBB 980226: moved block of code from here to init() 
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
@@ -315,7 +314,7 @@ static int HP_nocompress(uchar * op, uchar * oe, uchar * cp)
 /* 0 compression raster bitmap dump. Compatible with HP DeskJet 500
    hopefully compatible with other HP Deskjet printers */
 
-TERM_PUBLIC void HP500C_text()
+TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 {
 	register int x, j, row, count = 0;
 	uchar * obuf, * oe, * cbuf, * ce;
@@ -323,7 +322,6 @@ TERM_PUBLIC void HP500C_text()
 		puts("FATAL!-- couldn't get enough memory for obuf");
 	if((cbuf = (uchar*)malloc(400 * b_psize)) == 0)
 		puts("FATAL!-- couldn't get enough memory for cbuf");
-
 	oe = obuf;
 
 	fprintf(gpoutfile, "\

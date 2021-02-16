@@ -51,7 +51,7 @@
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void REGIS_init(termentry * pThis);
+TERM_PUBLIC void REGIS_init(GpTermEntry * pThis);
 TERM_PUBLIC void REGIS_graphics();
 TERM_PUBLIC void REGIS_text();
 TERM_PUBLIC void REGIS_linetype(int linetype);
@@ -86,7 +86,7 @@ static int REGIS16color = FALSE;
 
 static int REGISang = 0;
 
-TERM_PUBLIC void REGIS_init(termentry * pThis)
+TERM_PUBLIC void REGIS_init(GpTermEntry * pThis)
 {
 	fputs("\033[r\033[24;1H", gpoutfile);
 	/*     1     2

@@ -6,18 +6,15 @@
 
 //static void prepare_call(int calltype);
 
-/* State information for load_file(), to recover from errors
- * and properly handle recursive load_file calls
- */
-LFS * lf_head = NULL;            /* NULL if not in load_file */
+// State information for load_file(), to recover from errors
+// and properly handle recursive load_file calls
+LFS  * lf_head = NULL; // NULL if not in load_file 
 
-/* these are global so that plot.c can load them for the -c option */
-int call_argc;
+// these are global so that plot.c can load them for the -c option 
+int    call_argc;
 char * call_args[10] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+char * loadpath_fontname = NULL; // Used by postscript terminal if a font file is found by loadpath_fopen() 
 static const char * argname[] = {"ARG0", "ARG1", "ARG2", "ARG3", "ARG4", "ARG5", "ARG6", "ARG7", "ARG8", "ARG9"};
-
-/* Used by postscript terminal if a font file is found by loadpath_fopen() */
-char * loadpath_fontname = NULL;
 
 //static void prepare_call(int calltype)
 void GnuPlot::PrepareCall(int calltype)
@@ -133,7 +130,7 @@ void GnuPlot::PrepareCall(int calltype)
  * (6) "load $datablock"
  */
 //void load_file(FILE * fp, char * name, int calltype)
-void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
+void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 {
 	int len;
 	int start, left;
@@ -145,22 +142,22 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 	if(calltype == 6)
 		datablock_input_line = get_datablock(pName);
 	if(!fp && !datablock_input_line)
-		GPO.IntError(NO_CARET, "Cannot load input from '%s'", pName);
+		IntError(NO_CARET, "Cannot load input from '%s'", pName);
 	// Provide a user-visible copy of the current line number in the input file 
-	gpval_lineno = GPO.Ev.AddUdvByName("GPVAL_LINENO");
+	gpval_lineno = Ev.AddUdvByName("GPVAL_LINENO");
 	Ginteger(&gpval_lineno->udv_value, 0);
-	GPO.LfPush(fp, pName, NULL); // save state for errors and recursion 
+	LfPush(fp, pName, NULL); // save state for errors and recursion 
 	if(fp == stdin) {
 		// DBT 10-6-98  go interactive if "-" named as load file 
 		interactive = TRUE;
-		while(!GPO.ComLine())
+		while(!ComLine())
 			;
-		GPO.LfPop();
+		LfPop();
 		return;
 	}
 	else {
 		// We actually will read from a file 
-		GPO.PrepareCall(calltype);
+		PrepareCall(calltype);
 		// things to do after lf_push 
 		inline_num = 0;
 		// go into non-interactive mode during load 
@@ -231,17 +228,15 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 						/* only expanded once even if the clause is replayed */
 						string_expand_macros();
 						// Strip off trailing comment and count curly braces 
-						NumTokens = Scanner(&gp_input_line, &gp_input_line_len);
-						if(gp_input_line[P_Token[NumTokens].start_index] == '#') {
-							gp_input_line[P_Token[NumTokens].start_index] = NUL;
-							start = P_Token[NumTokens].start_index;
+						Pgm.NumTokens = Pgm.Scanner(&gp_input_line, &gp_input_line_len);
+						if(gp_input_line[Pgm.P_Token[Pgm.NumTokens].start_index] == '#') {
+							gp_input_line[Pgm.P_Token[Pgm.NumTokens].start_index] = NUL;
+							start = Pgm.P_Token[Pgm.NumTokens].start_index;
 							left = gp_input_line_len - start;
 						}
-						/* Read additional lines if necessary to complete a
-						 * bracketed clause {...}
-						 */
+						// Read additional lines if necessary to complete a bracketed clause {...}
 						if(curly_brace_count < 0)
-							GPO.IntError(NO_CARET, "Unexpected }");
+							IntError(NO_CARET, "Unexpected }");
 						if(curly_brace_count > 0) {
 							if((len + 4) > static_cast<int>(gp_input_line_len))
 								extend_input_line();
@@ -265,7 +260,7 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 			}
 		}
 		// pop state 
-		GPO.LfPop(); // also closes file fp 
+		LfPop(); // also closes file fp 
 	}
 }
 // 
@@ -275,7 +270,7 @@ void GpProgram::LoadFile(FILE * fp, char * pName, int calltype)
 //bool lf_pop()
 bool GnuPlot::LfPop()
 {
-	if(lf_head == NULL)
+	if(!lf_head)
 		return false;
 	else {
 		int argindex;
@@ -519,15 +514,16 @@ void pop_terminal()
 // 
 // Parse a plot style. Used by 'set style {data|function}' and by (s)plot.  
 // 
-enum PLOT_STYLE get_style()                
+//enum PLOT_STYLE get_style()
+enum PLOT_STYLE GnuPlot::GetStyle()
 {
-	/* defined in plot.h */
+	// defined in plot.h 
 	enum PLOT_STYLE ps;
-	GPO.Pgm.Shift();
-	ps = (enum PLOT_STYLE)GPO.Pgm.LookupTableForCurrentToken(&plotstyle_tbl[0]);
-	GPO.Pgm.Shift();
+	Pgm.Shift();
+	ps = (enum PLOT_STYLE)Pgm.LookupTableForCurrentToken(&plotstyle_tbl[0]);
+	Pgm.Shift();
 	if(ps == PLOT_STYLE_NONE)
-		GPO.IntErrorCurToken("unrecognized plot type");
+		IntErrorCurToken("unrecognized plot type");
 	return ps;
 }
 // 
@@ -595,7 +591,7 @@ void filledcurves_options_tofile(filledcurves_opts * fco, FILE * fp)
 }
 
 //bool FASTCALL need_fill_border(const fill_style_type * pFillStyle)
-bool GnuPlot::NeedFillBorder(termentry * pTerm, const fill_style_type * pFillStyle)
+bool GnuPlot::NeedFillBorder(GpTermEntry * pTerm, const fill_style_type * pFillStyle)
 {
 	lp_style_type p;
 	p.pm3d_color = pFillStyle->border_color;

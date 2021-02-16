@@ -757,8 +757,8 @@ void GnuPlot::Map3D_XY_double(double x, double y, double z, double * xt, double 
 // HBB 20020313: New routine, broken out of draw3d_point, to be used
 // to output a single point without any checks for hidden3d 
 //
-//void draw3d_point_unconditional(termentry * pTerm, GpVertex * v, lp_style_type * lp)
-void GnuPlot::Draw3DPointUnconditional(termentry * pTerm, const GpVertex * pV, const lp_style_type * pLp)
+//void draw3d_point_unconditional(GpTermEntry * pTerm, GpVertex * v, lp_style_type * lp)
+void GnuPlot::Draw3DPointUnconditional(GpTermEntry * pTerm, const GpVertex * pV, const lp_style_type * pLp)
 {
 	int x, y;
 	TERMCOORD(pV, x, y);
@@ -776,14 +776,14 @@ void GnuPlot::Draw3DPointUnconditional(termentry * pTerm, const GpVertex * pV, c
 	}
 	// } @sobolev 
 	if(!V.ClipPoint(x, y))
-		(pTerm->point)(x, y, pLp->PtType);
+		(pTerm->point)(pTerm, x, y, pLp->PtType);
 }
 // 
 // Moved this upward, to make optional inlining in draw3d_line easier for compilers 
 // HBB 20021128: removed GP_INLINE qualifier to avoid MSVC++ silliness 
 // 
-//void draw3d_line_unconditional(termentry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp, t_colorspec color)
-void GnuPlot::Draw3DLineUnconditional(termentry * pTerm, const GpVertex * pV1, const GpVertex * pV2, const lp_style_type * lp, t_colorspec color)
+//void draw3d_line_unconditional(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp, t_colorspec color)
+void GnuPlot::Draw3DLineUnconditional(GpTermEntry * pTerm, const GpVertex * pV1, const GpVertex * pV2, const lp_style_type * lp, t_colorspec color)
 {
 	// HBB 20020312: v2 can be NULL, if this call is coming from draw_line_hidden. --> redirect to point drawing routine 
 	if(!pV2) {
@@ -816,7 +816,7 @@ void GnuPlot::Draw3DLineUnconditional(termentry * pTerm, const GpVertex * pV1, c
 }
 
 //void draw3d_line(GpVertex * v1, GpVertex * v2, lp_style_type * lp)
-void GnuPlot::Draw3DLine(termentry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp)
+void GnuPlot::Draw3DLine(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp)
 {
 	// hidden3d routine can't work if no surface was drawn at all 
 	if(hidden3d && draw_surface)
@@ -828,7 +828,7 @@ void GnuPlot::Draw3DLine(termentry * pTerm, GpVertex * v1, GpVertex * v2, lp_sty
 // HBB 20000621: new routine, to allow for hiding point symbols behind the surface 
 //
 //void draw3d_point(GpVertex * v, lp_style_type * lp)
-void GnuPlot::Draw3DPoint(termentry * pTerm, GpVertex * v, lp_style_type * lp)
+void GnuPlot::Draw3DPoint(GpTermEntry * pTerm, GpVertex * v, lp_style_type * lp)
 {
 	// hidden3d routine can't work if no surface was drawn at all 
 	if(hidden3d && draw_surface)
@@ -843,7 +843,7 @@ void GnuPlot::Draw3DPoint(termentry * pTerm, GpVertex * v, lp_style_type * lp)
 static GpVertex polyline3d_previous_vertex; /* Previous points 3D position */
 
 //void polyline3d_start(GpVertex * v1)
-void GnuPlot::Polyline3DStart(termentry * pTerm, GpVertex * v1)
+void GnuPlot::Polyline3DStart(GpTermEntry * pTerm, GpVertex * v1)
 {
 	int x1, y1;
 	polyline3d_previous_vertex = *v1;
@@ -852,11 +852,11 @@ void GnuPlot::Polyline3DStart(termentry * pTerm, GpVertex * v1)
 	// EAM - This may now be unneeded. But I'm not sure. */
 	//       Perhaps the hidden3d code needs the move.   */
 	TERMCOORD(v1, x1, y1);
-	pTerm->move(x1, y1);
+	pTerm->move(pTerm, x1, y1);
 }
 
 //void polyline3d_next(GpVertex * v2, lp_style_type * lp)
-void GnuPlot::Polyline3DNext(termentry * pTerm, GpVertex * v2, lp_style_type * lp)
+void GnuPlot::Polyline3DNext(GpTermEntry * pTerm, GpVertex * v2, lp_style_type * lp)
 {
 	// v5: Indicate that line properties are already set so that draw3d_*
 	//     routines do not mess up dash patterns by resetting them
@@ -864,6 +864,6 @@ void GnuPlot::Polyline3DNext(termentry * pTerm, GpVertex * v2, lp_style_type * l
 	if(hidden3d && draw_surface)
 		DrawLineHidden(pTerm, &polyline3d_previous_vertex, v2, lp);
 	else
-		GPO.Draw3DLineUnconditional(pTerm, &polyline3d_previous_vertex, v2, lp, nochange);
+		Draw3DLineUnconditional(pTerm, &polyline3d_previous_vertex, v2, lp, nochange);
 	polyline3d_previous_vertex = *v2;
 }

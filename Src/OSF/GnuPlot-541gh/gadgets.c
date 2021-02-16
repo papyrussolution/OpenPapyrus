@@ -48,8 +48,8 @@ const color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, 
 //t_pixmap * pixmap_listhead = NULL; /* Listhead for pixmaps */
 //arrow_def * first_arrow = NULL; /* set arrow */
 //GpObject  * first_object = NULL; /* Pointer to first object instance in linked list */
-pa_style   parallel_axis_style; // = DEFAULT_PARALLEL_AXIS_STYLE; /* Holds the properties from 'set style parallelaxis' */
-spider_web spiderplot_style; // = DEFAULT_SPIDERPLOT_STYLE; /* Holds properties for 'set style spiderplot' */
+//pa_style   parallel_axis_style; // = DEFAULT_PARALLEL_AXIS_STYLE; // Holds the properties from 'set style parallelaxis' 
+//spider_web spiderplot_style; // = DEFAULT_SPIDERPLOT_STYLE; // Holds properties for 'set style spiderplot' 
 GpObject    grid_wall[5];// = {WALL_Y0, WALL_X0, WALL_Y1, WALL_X1, WALL_Z0}; /* Pointer to array of grid walls */
 //text_label title; // = EMPTY_LABELSTRUCT; /* 'set title' status */
 // 'set timelabel' status 
@@ -59,7 +59,6 @@ GpObject    grid_wall[5];// = {WALL_Y0, WALL_X0, WALL_Y1, WALL_X1, WALL_Z0}; /* 
 // Status of 'set pointsize' and 'set pointintervalbox' commands 
 //double pointsize = 1.0;
 //double pointintervalbox = 1.0;
-t_colorspec background_fill(TC_LT, LT_BACKGROUND, 0.0); // = BACKGROUND_COLORSPEC; /* used for filled points */
 //double boxwidth              = -1.0; /* box width (automatic) for plot style "with boxes" */
 //bool   boxwidth_is_absolute  = true; /* whether box width is absolute (default) or relative */
 // set border 
@@ -68,6 +67,7 @@ int    user_border = 31; // What the user last set explicitly
 int    border_layer = LAYER_FRONT;
 #define DEFAULT_BORDER_LP { 0, LT_BLACK, 0, DASHTYPE_SOLID, 0, 0, 1.0, 1.0, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN }
 lp_style_type border_lp(lp_style_type::defBorder); // = DEFAULT_BORDER_LP;
+const  t_colorspec background_fill(TC_LT, LT_BACKGROUND, 0.0); // = BACKGROUND_COLORSPEC; /* used for filled points */
 const  lp_style_type default_border_lp(lp_style_type::defBorder); // = DEFAULT_BORDER_LP;
 const  lp_style_type background_lp(lp_style_type::defBkg); //= {0, LT_BACKGROUND, 0, DASHTYPE_SOLID, 0, 0, 1.0, 0.0, DEFAULT_P_CHAR, BACKGROUND_COLORSPEC, DEFAULT_DASHPATTERN};
 //bool   polar = false;
@@ -88,8 +88,8 @@ const  lp_style_type background_lp(lp_style_type::defBkg); //= {0, LT_BACKGROUND
 //static int clip_line(int *, int *, int *, int *);
 
 // set samples 
-int    samples_1 = SAMPLES;
-int    samples_2 = SAMPLES;
+//int    samples_1 = SAMPLES;
+//int    samples_2 = SAMPLES;
 // set angles 
 double ang2rad = 1.0;           /* 1 or pi/180, tracking angles_format */
 enum PLOT_STYLE data_style = POINTSTYLE;
@@ -144,13 +144,13 @@ int FASTCALL GpView::ClipPoint(int x, int y) const
 //   This routine uses the cohen & sutherland bit mapping for fast clipping -
 // see "Principles of Interactive Computer Graphics" Newman & Sproull page 65.
 // 
-//int draw_clip_line(termentry * pTerm, int x1, int y1, int x2, int y2)
-int GnuPlot::DrawClipLine(termentry * pTerm, int x1, int y1, int x2, int y2)
+//int draw_clip_line(GpTermEntry * pTerm, int x1, int y1, int x2, int y2)
+int GnuPlot::DrawClipLine(GpTermEntry * pTerm, int x1, int y1, int x2, int y2)
 {
 	int state = V.ClipLine(&x1, &y1, &x2, &y2);
 	if(state != 0) {
-		(pTerm->move)(x1, y1);
-		(pTerm->vector)(x2, y2);
+		(pTerm->move)(pTerm, x1, y1);
+		(pTerm->vector)(pTerm, x2, y2);
 	}
 	return state;
 }
@@ -158,7 +158,7 @@ int GnuPlot::DrawClipLine(termentry * pTerm, int x1, int y1, int x2, int y2)
 // Draw a contiguous line path which may be clipped. Compared to
 // draw_clip_line(), this routine moves to a coordinate only when necessary.
 // 
-void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
+void draw_clip_polygon(GpTermEntry * pTerm, int points, gpiPoint * p)
 {
 	int i;
 	int x1, y1, x2, y2;
@@ -172,7 +172,7 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 	y1 = p[0].y;
 	pos1 = GPO.V.ClipPoint(x1, y1);
 	if(!pos1) // move to first point if it is inside 
-		(pTerm->move)(x1, y1);
+		(pTerm->move)(pTerm, x1, y1);
 	newpath(pTerm);
 	for(i = 1; i < points; i++) {
 		x2 = p[i].x;
@@ -182,8 +182,8 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 		if(clip_ret) {
 			// there is a line to draw 
 			if(pos1) // first vertex was recalculated, move to new start point 
-				(pTerm->move)(x1, y1);
-			(pTerm->vector)(x2, y2);
+				(pTerm->move)(pTerm, x1, y1);
+			(pTerm->vector)(pTerm, x2, y2);
 		}
 		else {
 			continuous = false; // Path is not continuous; make sure closepath is not called 
@@ -206,8 +206,8 @@ void draw_clip_polygon(termentry * pTerm, int points, gpiPoint * p)
 // but we use double rather than int so that the precision is sufficient
 // to orient and draw the arrow head correctly even for very short vectors.
 // 
-//void draw_clip_arrow(termentry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head)
-void GnuPlot::DrawClipArrow(termentry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head)
+//void draw_clip_arrow(GpTermEntry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head)
+void GnuPlot::DrawClipArrow(GpTermEntry * pTerm, double dsx, double dsy, double dex, double dey, t_arrow_head head)
 {
 	int sx = GpAxis::MapRealToInt(dsx);
 	int sy = GpAxis::MapRealToInt(dsy);
@@ -233,7 +233,7 @@ void GnuPlot::DrawClipArrow(termentry * pTerm, double dsx, double dsy, double de
 		// draw the body of the vector (rounding errors are a problem) 
 		if(dx > 1 || dy > 1)
 			if(!((pTerm->flags & TERM_IS_LATEX)))
-				(*pTerm->arrow)(sx, sy, ex, ey, SHAFT_ONLY | head);
+				(pTerm->arrow)(pTerm, sx, sy, ex, ey, SHAFT_ONLY | head);
 		// if we're not supposed to be drawing any heads, we're done 
 		if((head & BOTH_HEADS) == NOHEAD)
 			return;
@@ -251,15 +251,15 @@ void GnuPlot::DrawClipArrow(termentry * pTerm, double dsx, double dsy, double de
 			int newlenx = static_cast<int>((dex - dsx) * rescale);
 			int newleny = static_cast<int>((dey - dsy) * rescale);
 			if(head & END_HEAD)
-				(*pTerm->arrow)(ex - newlenx, ey - newleny, ex, ey, END_HEAD|HEADS_ONLY);
+				(pTerm->arrow)(pTerm, ex - newlenx, ey - newleny, ex, ey, END_HEAD|HEADS_ONLY);
 			if(head & BACKHEAD)
-				(*pTerm->arrow)(sx, sy, sx + newlenx, sy + newleny, BACKHEAD|HEADS_ONLY);
+				(pTerm->arrow)(pTerm, sx, sy, sx + newlenx, sy + newleny, BACKHEAD|HEADS_ONLY);
 		}
 		else
-			(*pTerm->arrow)(sx, sy, ex, ey, head|HEADS_ONLY);
+			(pTerm->arrow)(pTerm, sx, sy, ex, ey, head|HEADS_ONLY);
 	}
 	else
-		(*pTerm->arrow)(sx, sy, ex, ey, head); // The normal case, draw the whole thing at once */
+		(pTerm->arrow)(pTerm, sx, sy, ex, ey, head); // The normal case, draw the whole thing at once */
 }
 
 /* Clip the given line to drawing coords defined by BoundingBox.
@@ -508,8 +508,8 @@ void clip_move(int x, int y)
 	move_pos_y = y;
 }
 
-//void clip_vector(termentry * pTerm, int x, int y)
-void GnuPlot::ClipVector(termentry * pTerm, int x, int y)
+//void clip_vector(GpTermEntry * pTerm, int x, int y)
+void GnuPlot::ClipVector(GpTermEntry * pTerm, int x, int y)
 {
 	DrawClipLine(pTerm, move_pos_x, move_pos_y, x, y);
 	move_pos_x = x;
@@ -519,8 +519,8 @@ void GnuPlot::ClipVector(termentry * pTerm, int x, int y)
 // draw_polar_clip_line() assumes that the endpoints have already
 // been categorized as INRANGE/OUTRANGE, and that "set clip radial" is in effect.
 // 
-//void draw_polar_clip_line(termentry * pTerm, double xbeg, double ybeg, double xend, double yend)
-void GnuPlot::DrawPolarClipLine(termentry * pTerm, double xbeg, double ybeg, double xend, double yend)
+//void draw_polar_clip_line(GpTermEntry * pTerm, double xbeg, double ybeg, double xend, double yend)
+void GnuPlot::DrawPolarClipLine(GpTermEntry * pTerm, double xbeg, double ybeg, double xend, double yend)
 {
 	double R; // radius of limiting circle 
 	double a, b; // line expressed as y = a*x + b 
@@ -598,19 +598,19 @@ void GnuPlot::DrawPolarClipLine(termentry * pTerm, double xbeg, double ybeg, dou
 				goto outside;
 		}
 		// Draw the part of the line inside the bounding circle 
-		(pTerm->move)(AxS.MapiX(x1), AxS.MapiY(y1));
-		(pTerm->vector)(AxS.MapiX(x2), AxS.MapiY(y2));
+		(pTerm->move)(pTerm, AxS.MapiX(x1), AxS.MapiY(y1));
+		(pTerm->vector)(pTerm, AxS.MapiX(x2), AxS.MapiY(y2));
 		// fall through 
 outside:
 		// Leave current position at unclipped endpoint 
-		(pTerm->move)(AxS.MapiX(xend), AxS.MapiY(yend));
+		(pTerm->move)(pTerm, AxS.MapiX(xend), AxS.MapiY(yend));
 	}
 }
 //
 // Common routines for setting text or line color from t_colorspec 
 //
-//void apply_pm3dcolor(termentry * pTerm, t_colorspec * tc)
-void GnuPlot::ApplyPm3DColor(termentry * pTerm, const t_colorspec * tc)
+//void apply_pm3dcolor(GpTermEntry * pTerm, t_colorspec * tc)
+void GnuPlot::ApplyPm3DColor(GpTermEntry * pTerm, const t_colorspec * tc)
 {
 	double cbval;
 	// V5 - term->linetype(LT_BLACK) would clobber the current	
@@ -623,11 +623,11 @@ void GnuPlot::ApplyPm3DColor(termentry * pTerm, const t_colorspec * tc)
 		tc = &style.pm3d_color;
 	}
 	if(tc->type == TC_DEFAULT) {
-		pTerm->set_color(&black);
+		pTerm->set_color(pTerm, &black);
 		return;
 	}
 	else if(tc->type == TC_LT) {
-		pTerm->set_color(tc);
+		pTerm->set_color(pTerm, tc);
 		return;
 	}
 	else if(tc->type == TC_RGB) {
@@ -637,15 +637,15 @@ void GnuPlot::ApplyPm3DColor(termentry * pTerm, const t_colorspec * tc)
 		// (3) Convert colors to gray scale (NTSC?)
 		// Monochrome terminals are still allowed to display rgb variable colors 
 		if(pTerm->flags & TERM_MONOCHROME && tc->value >= 0)
-			pTerm->set_color(&black);
+			pTerm->set_color(pTerm, &black);
 		else
-			pTerm->set_color(tc);
+			pTerm->set_color(pTerm, tc);
 		return;
 	}
 	else if(tc->type == TC_VARIABLE) // Leave unchanged. (used only by "set errorbars"??) 
 		return;
 	else if(!is_plot_with_palette()) {
-		pTerm->set_color(&black);
+		pTerm->set_color(pTerm, &black);
 		return;
 	}
 	else {
@@ -670,10 +670,10 @@ void GnuPlot::ApplyPm3DColor(termentry * pTerm, const t_colorspec * tc)
 }
 
 //void reset_textcolor(const t_colorspec * tc)
-void GnuPlot::ResetTextColor(termentry * pTerm, const t_colorspec * tc)
+void GnuPlot::ResetTextColor(GpTermEntry * pTerm, const t_colorspec * tc)
 {
 	if(tc->type != TC_DEFAULT)
-		pTerm->linetype(LT_BLACK);
+		pTerm->linetype(pTerm, LT_BLACK);
 }
 
 void default_arrow_style(struct arrow_style_type * arrow)
@@ -709,23 +709,25 @@ void apply_head_properties(const arrow_style_type * pArrowProperties)
 	}
 }
 
-void free_labels(struct text_label * label)
+void free_labels(text_label * pLabel)
 {
-	char * master_font = label->font;
-	// Labels generated by 'plot with labels' all use the same font 
-	SAlloc::F(master_font);
-	while(label) {
-		SAlloc::F(label->text);
-		if(label->font && label->font != master_font)
-			SAlloc::F(label->font);
-		text_label * temp = label->next;
-		SAlloc::F(label);
-		label = temp;
+	if(pLabel) {
+		char * master_font = pLabel->font;
+		// Labels generated by 'plot with labels' all use the same font 
+		SAlloc::F(master_font);
+		while(pLabel) {
+			SAlloc::F(pLabel->text);
+			if(pLabel->font && pLabel->font != master_font)
+				SAlloc::F(pLabel->font);
+			text_label * temp = pLabel->next;
+			SAlloc::F(pLabel);
+			pLabel = temp;
+		}
 	}
 }
 
 //void get_offsets(text_label * pLabel, int * pHTic, int * pVTic)
-void GnuPlot::GetOffsets(termentry * pTerm, text_label * pLabel, int * pHTic, int * pVTic)
+void GnuPlot::GetOffsets(GpTermEntry * pTerm, text_label * pLabel, int * pHTic, int * pVTic)
 {
 	if((pLabel->lp_properties.flags & LP_SHOW_POINTS)) {
 		*pHTic = static_cast<int>(Gg.PointSize * pTerm->TicH * 0.5);
@@ -752,8 +754,8 @@ void GnuPlot::GetOffsets(termentry * pTerm, text_label * pLabel, int * pHTic, in
 // Write one label, with all the trimmings.
 // This routine is used for both 2D and 3D plots.
 // 
-//void write_label(termentry * pTerm, int x, int y, struct text_label * this_label)
-void GnuPlot::WriteLabel(termentry * pTerm, int x, int y, text_label * pLabel)
+//void write_label(GpTermEntry * pTerm, int x, int y, struct text_label * this_label)
+void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 {
 	int htic, vtic;
 	int justify = JUST_TOP; /* This was the 2D default; 3D had CENTRE */
@@ -766,11 +768,11 @@ void GnuPlot::WriteLabel(termentry * pTerm, int x, int y, text_label * pLabel)
 			// Treat text as hypertext 
 			char * font = pLabel->font;
 			if(font)
-				pTerm->set_font(font);
+				pTerm->set_font(pTerm, font);
 			if(pTerm->hypertext)
-				pTerm->hypertext(TERM_HYPERTEXT_TOOLTIP, pLabel->text);
+				pTerm->hypertext(pTerm, TERM_HYPERTEXT_TOOLTIP, pLabel->text);
 			if(font)
-				pTerm->set_font("");
+				pTerm->set_font(pTerm, "");
 		}
 	}
 	else{
@@ -811,7 +813,7 @@ void GnuPlot::WriteLabel(termentry * pTerm, int x, int y, text_label * pLabel)
 		}
 		// Draw the bounding box 
 		if(!textbox->noborder) {
-			(pTerm->linewidth)(textbox->linewidth);
+			(pTerm->linewidth)(pTerm, textbox->linewidth);
 			ApplyPm3DColor(pTerm, &textbox->border_color);
 			(pTerm->boxed_text)(0, 0, TEXTBOX_OUTLINE);
 		}
@@ -819,9 +821,9 @@ void GnuPlot::WriteLabel(termentry * pTerm, int x, int y, text_label * pLabel)
 	}
 	// The associated point, if any 
 	// write_multiline() clips text to on_page; do the same for any point 
-	if((pLabel->lp_properties.flags & LP_SHOW_POINTS) && on_page(x, y)) {
+	if((pLabel->lp_properties.flags & LP_SHOW_POINTS) && on_page(pTerm, x, y)) {
 		TermApplyLpProperties(pTerm, &pLabel->lp_properties);
-		(pTerm->point)(x, y, pLabel->lp_properties.PtType);
+		(pTerm->point)(pTerm, x, y, pLabel->lp_properties.PtType);
 		// the default label color is that of border 
 		TermApplyLpProperties(pTerm, &border_lp);
 	}
@@ -931,7 +933,7 @@ bool pm3d_objects(void)
 // Place overall title on the canvas (shared by plot and splot).
 // 
 //void place_title(int title_x, int title_y)
-void GnuPlot::PlaceTitle(termentry * pTerm, int titleX, int titleY)
+void GnuPlot::PlaceTitle(GpTermEntry * pTerm, int titleX, int titleY)
 {
 	if(Gg.LblTitle.text) {
 		// NB: write_label applies text color but does not reset it 

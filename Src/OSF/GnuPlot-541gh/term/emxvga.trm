@@ -61,7 +61,7 @@ register_term(emxvga)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void EMXVGA_init(termentry * pThis);
+TERM_PUBLIC void EMXVGA_init(GpTermEntry * pThis);
 TERM_PUBLIC void EMXVGA_reset();
 TERM_PUBLIC void EMXVGA_text();
 TERM_PUBLIC void EMXVGA_graphics();
@@ -78,7 +78,7 @@ TERM_PUBLIC void EMXVGA_put_text(uint, uint, const char *);
 #define EMXVGA_YMAX 0           /* The actual values will be filled in init. */
 #ifdef EMXVESA
 TERM_PUBLIC void EMXVESA_options();
-TERM_PUBLIC void EMXVESA_init(termentry * pThis);
+TERM_PUBLIC void EMXVESA_init(GpTermEntry * pThis);
 TERM_PUBLIC void EMXVESA_graphics();
 TERM_PUBLIC void EMXVESA_text();
 TERM_PUBLIC void EMXVESA_reset();
@@ -290,14 +290,14 @@ void g_string(int x0, int y0, int color, int angle, char * s)
 
 /* end of gstring.c */
 
-TERM_PUBLIC void EMXVGA_init(termentry * pThis)
+TERM_PUBLIC void EMXVGA_init(GpTermEntry * pThis)
 {
 	if(!g_mode(EMXVGA_vmode)) {
 		fputs("Unable to initiate graphics.\n", stderr);
 		return;
 	}
-	term->MaxX = g_xsize;
-	term->MaxY = g_ysize;
+	pThis->MaxX = g_xsize;
+	pThis->MaxY = g_ysize;
 	lasty = g_ysize - 1;
 }
 
@@ -388,7 +388,7 @@ TERM_PUBLIC void EMXVESA_options()
 	sprintf(term_options, "%d", emx_vesamode);
 }
 
-TERM_PUBLIC void EMXVESA_init(termentry * pThis)
+TERM_PUBLIC void EMXVESA_init(GpTermEntry * pThis)
 {
 	if(!g_mode(emx_vesamode))
 		GPO.IntError(NO_CARET, "Couldn't select graphics mode");

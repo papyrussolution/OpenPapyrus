@@ -658,7 +658,7 @@ static cairo_status_t _cairo_win32_printing_surface_paint_image_pattern(cairo_wi
 	else {
 		opaque_image = image;
 	}
-	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	INITWINBITMAPINFO(bi);
 	bi.bmiHeader.biWidth = use_mime ? mime_info.width : opaque_image->width;
 	bi.bmiHeader.biHeight = use_mime ? -mime_info.height : -opaque_image->height;
 	bi.bmiHeader.biSizeImage = use_mime ? mime_size : 0;

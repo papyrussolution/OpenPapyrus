@@ -43,8 +43,8 @@ register_term(caca)
 #define CACA_XMAX (80-1)
 #define CACA_YMAX (25-1)
 
-TERM_PUBLIC void CACA_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void CACA_init(termentry * pThis);
+TERM_PUBLIC void CACA_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void CACA_init(GpTermEntry * pThis);
 TERM_PUBLIC void CACA_graphics();
 TERM_PUBLIC void CACA_text();
 TERM_PUBLIC void CACA_reset();
@@ -304,7 +304,7 @@ static struct gen_table CACA_opts[] =
 	{ NULL, CACA_OTHER }
 };
 
-TERM_PUBLIC void CACA_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void CACA_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch((enum CACA_id)pGp->Pgm.LookupTableForCurrentToken(&CACA_opts[0])) {
@@ -536,7 +536,7 @@ static void CACA_update_options()
 	}
 }
 
-TERM_PUBLIC void CACA_init(termentry * pThis)
+TERM_PUBLIC void CACA_init(GpTermEntry * pThis)
 {
 	CACA_init_display();
 	if(CACA_cv != NULL)
@@ -669,7 +669,6 @@ static void CACA_init_display()
 		else if(!CACA_exportonly)
 			CACA_dp = caca_create_display_with_driver(NULL, CACA_driver);
 	}
-
 	if(CACA_dp != NULL) {
 		if(CACA_driver == NULL)
 			CACA_driver = sstrdup(caca_get_display_driver(CACA_dp));

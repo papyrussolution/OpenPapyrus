@@ -1,7 +1,7 @@
-/* This is a public domain general purpose hash table package written by Peter Moore @ UCB. */
-
-/* @(#) st.h 5.1 89/12/14 */
-
+// This is a public domain general purpose hash table package written by Peter Moore @ UCB. 
+//
+// @(#) st.h 5.1 89/12/14 
+//
 #ifndef ST_INCLUDED
 #define ST_INCLUDED
 

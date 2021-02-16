@@ -6,11 +6,6 @@
 
 static OnigTestBlock OnigTB;
 
-//static int nsucc  = 0;
-//static int nfail  = 0;
-//static int nerror = 0;
-//static FILE * out_file; // @sobolev
-
 static int make_regset(int line_no, int n, char* pat[], OnigRegSet** rset, int error_no)
 {
 	int r;

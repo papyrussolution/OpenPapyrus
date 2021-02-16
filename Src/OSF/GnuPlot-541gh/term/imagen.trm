@@ -65,9 +65,9 @@ register_term(imagen)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void IMAGEN_init(termentry * pThis);
+TERM_PUBLIC void IMAGEN_init(GpTermEntry * pThis);
 TERM_PUBLIC void IMAGEN_graphics();
-TERM_PUBLIC void IMAGEN_options(TERMENTRY * pThis, GnuPlot * pGp);
+TERM_PUBLIC void IMAGEN_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void IMAGEN_text();
 TERM_PUBLIC void IMAGEN_linetype(int lt);
 TERM_PUBLIC void IMAGEN_move(uint x, uint y);
@@ -180,7 +180,7 @@ static struct gen_table IMAGEN_opts[] =
 	{ NULL, IMAGEN_OTHER }
 };
 
-TERM_PUBLIC void IMAGEN_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void IMAGEN_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	GpValue a;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -236,9 +236,9 @@ TERM_PUBLIC void IMAGEN_options(TERMENTRY * pThis, GnuPlot * pGp)
 	sprintf(term_options, "%d %s [%1d,%1d]", IMAGEN_fontsize, (IMAGEN_portrait) ? "portrait" : "landscape", IM_win_horiz, IM_win_verti);
 }
 
-TERM_PUBLIC void IMAGEN_init(termentry * pThis)
+TERM_PUBLIC void IMAGEN_init(GpTermEntry * pThis)
 {
-	struct termentry * t = /*term*/pThis;
+	struct GpTermEntry * t = /*term*/pThis;
 	/* char font[10];   */  /* font name */
 	IMAGEN_posx = IMAGEN_posy = 0;
 	IMAGEN_orgX = (IMAGEN_page_w - IMAGEN_Xmax) / 2;

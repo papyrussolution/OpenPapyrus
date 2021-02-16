@@ -88,8 +88,8 @@
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void LATEX_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void LATEX_init(termentry * pThis);
+TERM_PUBLIC void LATEX_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void LATEX_init(GpTermEntry * pThis);
 TERM_PUBLIC void LATEX_graphics();
 TERM_PUBLIC void LATEX_text();
 TERM_PUBLIC void LATEX_put_text(uint x, uint y, const char str[]);
@@ -105,7 +105,7 @@ TERM_PUBLIC void LATEX_fillbox(int style, uint x1, uint y1, uint width, uint hei
 TERM_PUBLIC int  LATEX_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void LATEX_set_color(t_colorspec * colorspec);
 #ifdef EMTEX
-	TERM_PUBLIC void EMTEX_init(termentry * pThis);
+	TERM_PUBLIC void EMTEX_init(GpTermEntry * pThis);
 	TERM_PUBLIC void EMTEX_reset();
 	TERM_PUBLIC void EMTEX_text();
 #endif
@@ -260,7 +260,7 @@ static struct gen_table LATEX_opts[] = {
 	{ NULL, LATEX_OTHER }
 };
 
-TERM_PUBLIC void LATEX_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void LATEX_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	latex_explicit_size = FALSE;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -345,7 +345,7 @@ TERM_PUBLIC void LATEX_options(TERMENTRY * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void LATEX_init(termentry * pThis)
+TERM_PUBLIC void LATEX_init(GpTermEntry * pThis)
 {
 #ifdef EMTEX
 	emtex = FALSE;
@@ -996,7 +996,7 @@ TERM_PUBLIC void LATEX_set_color(t_colorspec * colorspec)
 
 #ifdef EMTEX
 
-TERM_PUBLIC void EMTEX_init(termentry * pThis)
+TERM_PUBLIC void EMTEX_init(GpTermEntry * pThis)
 {
 	emtex = TRUE;
 	LATEX_posx = LATEX_posy = 0;

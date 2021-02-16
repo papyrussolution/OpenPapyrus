@@ -40,8 +40,8 @@ double GnuPlot::JDist(const GpCoordinate * pi, const GpCoordinate * pj) const
 	return sqrt(delx*delx + dely*dely);
 }
 
-//void jitter_points(const termentry * pTerm, curve_points * pPlot)
-void GnuPlot::JitterPoints(const termentry * pTerm, curve_points * pPlot)
+//void jitter_points(const GpTermEntry * pTerm, curve_points * pPlot)
+void GnuPlot::JitterPoints(const GpTermEntry * pTerm, curve_points * pPlot)
 {
 	int i, j;
 	// The "x" and "xscale" stored in jitter are really along y 

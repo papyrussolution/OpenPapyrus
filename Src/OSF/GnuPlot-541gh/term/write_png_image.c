@@ -78,7 +78,7 @@ static int piecemeal_write_base64_data(const unsigned char * data, unsigned int 
 #include "wxterminal/gp_cairo_helpers.h"
 
 // cairo PNG code 
-static int write_png_image(unsigned m, unsigned n, coordval * image, t_imagecolor color_mode, const char * filename) 
+static int write_png_image(uint m, uint n, coordval * image, t_imagecolor color_mode, const char * filename) 
 {
 	cairo_surface_t * image_surface;
 	cairo_status_t cairo_stat;

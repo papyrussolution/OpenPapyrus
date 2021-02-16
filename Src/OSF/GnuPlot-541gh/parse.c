@@ -93,7 +93,7 @@ GpValue * FASTCALL GnuPlot::ConstExpress(GpValue * pVal)
 	// div - no dummy variables in a constant expression 
 	dummy_func = NULL;
 	EvaluateAt(TempAt(), pVal); // run it and send answer back 
-	if(GPO.Ev.IsUndefined_)
+	if(Ev.IsUndefined_)
 		IntError(tkn, "undefined value");
 	return pVal;
 }
@@ -1312,7 +1312,7 @@ bool GnuPlot::NextIteration(GpIterator * iter)
 	}
 	if(iter->iteration_string) {
 		gpfree_string(&(iter->iteration_udv->udv_value));
-		Gstring(&(iter->iteration_udv->udv_value), GPO.Gp_Word(iter->iteration_string, iter->iteration_current));
+		Gstring(&(iter->iteration_udv->udv_value), Gp_Word(iter->iteration_string, iter->iteration_current));
 	}
 	else {
 		// This traps fatal user error of reassigning iteration variable to a string 

@@ -279,9 +279,11 @@
     <ClCompile Include="..\Osf\GnuPlot-541gh\tabulate.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\term.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-block.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cairo.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-canvas.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cgm.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-context.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-corel.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-debug.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-dumb.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-dxf.c" />
@@ -293,6 +295,7 @@
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hpgl.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hpljii.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hppj.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-lua.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-metafont.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-metapost.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pbm.c" />
@@ -334,6 +337,7 @@
     <ClInclude Include="..\OSF\GnuPlot-541gh\stdfn.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\syscfg.h" />
     <ClInclude Include="..\Osf\GnuPlot-541gh\term.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\term\driver.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\term\impcodes.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\term\post.h" />
     <ClInclude Include="..\OSF\GnuPlot-541gh\win\screenbuf.h" />
@@ -350,8 +354,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\aquaterm.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\be.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\caca.trm" />
-    <None Include="..\OSF\GnuPlot-541gh\term\cairo.trm" />
-    <None Include="..\OSF\GnuPlot-541gh\term\corel.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\djsvga.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\dxy.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\eepic.trm" />
@@ -368,7 +370,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\latex.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\linux-vgagl.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\linux.trm" />
-    <None Include="..\OSF\GnuPlot-541gh\term\lua.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\metapost.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\mif.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\pc.trm" />
@@ -401,6 +402,9 @@
   <ItemGroup>
     <ProjectReference Include="cairo-1.16.0.vcxproj">
       <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
+    </ProjectReference>
+    <ProjectReference Include="lualib.vcxproj">
+      <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>
     </ProjectReference>
     <ProjectReference Include="openssl-111-crypto.vcxproj">
       <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>

@@ -47,17 +47,17 @@ static void unset_missing();
 static void unset_micro();
 static void unset_minus_sign();
 static void unset_mouse();
-static void unset_month_day_tics(AXIS_INDEX);
+//static void unset_month_day_tics(AXIS_INDEX);
 static void unset_minitics(GpAxis *);
-static void unset_offsets();
-static void unset_origin();
+//static void unset_offsets();
+//static void unset_origin();
 //static void unset_output();
 static void unset_pm3d();
-static void unset_palette();
-static void reset_colorbox();
-static void unset_colorbox();
-static void unset_pointsize();
-static void unset_pointintervalbox();
+//static void unset_palette();
+//static void reset_colorbox();
+//static void unset_colorbox();
+//static void unset_pointsize();
+//static void unset_pointintervalbox();
 static void unset_print();
 static void unset_psdir();
 static void unset_samples();
@@ -210,16 +210,16 @@ ITERATE:
 		case S_MONOCHROME: UnsetMonochrome(); break;
 		case S_MOUSE: unset_mouse(); break;
 		case S_MULTIPLOT: TermEndMultiplot(term); break;
-		case S_OFFSETS: unset_offsets(); break;
-		case S_ORIGIN: unset_origin(); break;
+		case S_OFFSETS: UnsetOffsets(); break;
+		case S_ORIGIN: UnsetOrigin(); break;
 		case SET_OUTPUT: UnsetOutput(); break;
 		case S_OVERFLOW: Ev.OverflowHandling = INT64_OVERFLOW_IGNORE; break;
 		case S_PARAMETRIC: UnsetParametric(); break;
 		case S_PM3D: unset_pm3d(); break;
-		case S_PALETTE: unset_palette(); break;
-		case S_COLORBOX: unset_colorbox(); break;
-		case S_POINTINTERVALBOX: unset_pointintervalbox(); break;
-		case S_POINTSIZE: unset_pointsize(); break;
+		case S_PALETTE: UnsetPalette(); break;
+		case S_COLORBOX: UnsetColorBox(); break;
+		case S_POINTINTERVALBOX: UnsetPointIntervalBox(); break;
+		case S_POINTSIZE: UnsetPointSize(); break;
 		case S_POLAR: UnsetPolar(); break;
 		case S_PRINT: unset_print(); break;
 		case S_PSDIR: unset_psdir(); break;
@@ -246,7 +246,7 @@ ITERATE:
 		case S_SURFACE: unset_surface(); break;
 		case S_TABLE: UnsetTable(); break;
 		case S_TERMINAL: UnsetTerminal(); break;
-		case S_TICS: unset_all_tics(); break;
+		case S_TICS: UnsetAllTics(); break;
 		case S_TICSCALE: IntWarnCurToken("Deprecated syntax - use 'set tics scale default'"); break;
 		case S_TICSLEVEL: 
 		case S_XYPLANE: unset_ticslevel(); break;
@@ -254,33 +254,33 @@ ITERATE:
 		case S_TIMESTAMP: UnsetTimeStamp(); break;
 		case S_TITLE: GpAxis::UnsetLabelOrTitle(&Gg.LblTitle); break;
 		case S_VIEW: unset_view(); break;
-		case S_VGRID: unset_vgrid(); break;
+		case S_VGRID: UnsetVGrid(); break;
 		case S_ZERO: unset_zero(); break;
 		/* FIXME - are the tics correct? */
 		case S_MXTICS: unset_minitics(&AxS[FIRST_X_AXIS]); break;
 		case S_XTICS: AxS[FIRST_X_AXIS].UnsetTics(); break;
 		case S_XDTICS:
-		case S_XMTICS: unset_month_day_tics(FIRST_X_AXIS); break;
+		case S_XMTICS: UnsetMonthDayTics(FIRST_X_AXIS); break;
 		case S_MYTICS: unset_minitics(&AxS[FIRST_Y_AXIS]); break;
 		case S_YTICS: AxS[FIRST_Y_AXIS].UnsetTics(); break;
 		case S_YDTICS:
-		case S_YMTICS: unset_month_day_tics(FIRST_X_AXIS); break;
+		case S_YMTICS: UnsetMonthDayTics(FIRST_X_AXIS); break;
 		case S_MX2TICS: unset_minitics(&AxS[SECOND_X_AXIS]); break;
 		case S_X2TICS: AxS[SECOND_X_AXIS].UnsetTics(); break;
 		case S_X2DTICS:
-		case S_X2MTICS: unset_month_day_tics(FIRST_X_AXIS); break;
+		case S_X2MTICS: UnsetMonthDayTics(FIRST_X_AXIS); break;
 		case S_MY2TICS: unset_minitics(&AxS[SECOND_Y_AXIS]); break;
 		case S_Y2TICS: AxS[SECOND_Y_AXIS].UnsetTics(); break;
 		case S_Y2DTICS:
-		case S_Y2MTICS: unset_month_day_tics(SECOND_Y_AXIS); break;
+		case S_Y2MTICS: UnsetMonthDayTics(SECOND_Y_AXIS); break;
 		case S_MZTICS: unset_minitics(&AxS[FIRST_Z_AXIS]); break;
 		case S_ZTICS: AxS[FIRST_Z_AXIS].UnsetTics(); break;
 		case S_ZDTICS:
-		case S_ZMTICS: unset_month_day_tics(FIRST_X_AXIS); break;
+		case S_ZMTICS: UnsetMonthDayTics(FIRST_X_AXIS); break;
 		case S_MCBTICS: unset_minitics(&AxS[COLOR_AXIS]); break;
 		case S_CBTICS: AxS[COLOR_AXIS].UnsetTics(); break;
 		case S_CBDTICS:
-		case S_CBMTICS: unset_month_day_tics(FIRST_X_AXIS); break;
+		case S_CBMTICS: UnsetMonthDayTics(FIRST_X_AXIS); break;
 		case S_MRTICS: unset_minitics(&AxS[POLAR_AXIS]); break;
 		case S_MTTICS: unset_minitics(&AxS.Theta()); break;
 		case S_XDATA: UnsetTimeData(FIRST_X_AXIS); break;
@@ -714,8 +714,8 @@ static void unset_isosamples()
 	// isosamples are only used by 3D plots. 
 	sp_free(first_3dplot);
 	first_3dplot = NULL;
-	iso_samples_1 = ISO_SAMPLES;
-	iso_samples_2 = ISO_SAMPLES;
+	GPO.Gg.IsoSamples1 = ISO_SAMPLES;
+	GPO.Gg.IsoSamples2 = ISO_SAMPLES;
 }
 
 void reset_key()
@@ -902,7 +902,7 @@ void GnuPlot::UnsetLogScale()
 				continue;
 			if(AxS[axis].log) {
 				sprintf(command, "unset nonlinear %s", axis_name((AXIS_INDEX)axis));
-				do_string(command);
+				DoString(command);
 				AxS[axis].log = FALSE;
 			}
 			AxS[axis].ticdef.logscaling = FALSE;
@@ -968,10 +968,11 @@ static void unset_minitics(GpAxis * pAx)
 //
 // process 'unset {x|y|x2|y2|z}tics' command 
 //
-void unset_all_tics()
+//void unset_all_tics()
+void GnuPlot::UnsetAllTics()
 {
 	for(int i = 0; i < NUMBER_OF_MAIN_VISIBLE_AXES; i++)
-		GPO.AxS[i].UnsetTics();
+		AxS[i].UnsetTics();
 }
 
 //static void unset_tics(GpAxis * this_axis)
@@ -997,9 +998,10 @@ void GpAxis::UnsetTics()
 		ticdef.rangelimited = TRUE;
 }
 
-static void unset_month_day_tics(AXIS_INDEX axis)
+//static void unset_month_day_tics(AXIS_INDEX axis)
+void GnuPlot::UnsetMonthDayTics(AXIS_INDEX axIdx)
 {
-	GPO.AxS[axis].ticdef.type = TIC_COMPUTED;
+	AxS[axIdx].ticdef.type = TIC_COMPUTED;
 }
 
 //void unset_monochrome()
@@ -1016,17 +1018,19 @@ void GnuPlot::UnsetMonochrome()
 //
 // process 'unset offsets' command 
 //
-static void unset_offsets()
+//static void unset_offsets()
+void GnuPlot::UnsetOffsets()
 {
-	loff.x = roff.x = 0.0;
-	toff.y = boff.y = 0.0;
+	Gr.LOff.x = Gr.ROff.x = 0.0;
+	Gr.TOff.y = Gr.BOff.y = 0.0;
 }
 //
 // process 'unset origin' command 
 //
-static void unset_origin()
+//static void unset_origin()
+void GnuPlot::UnsetOrigin()
 {
-	GPO.V.Offset.SetZero();
+	V.Offset.SetZero();
 }
 //
 // process 'unset output' command 
@@ -1073,25 +1077,28 @@ void GnuPlot::UnsetParametric()
 //
 // process 'unset palette' command 
 //
-static void unset_palette()
+//static void unset_palette()
+void GnuPlot::UnsetPalette()
 {
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	fprintf(stderr, "you can't unset the palette.\n");
 }
 //
 // reset colorbox to default settings 
 //
-static void reset_colorbox()
+//static void reset_colorbox()
+void GnuPlot::ResetColorBox()
 {
-	GPO.Gg.ColorBox = default_color_box;
+	Gg.ColorBox = default_color_box;
 }
 //
 // process 'unset colorbox' command: reset to default settings and then
 // switch it off 
 //
-static void unset_colorbox()
+//static void unset_colorbox()
+void GnuPlot::UnsetColorBox()
 {
-	reset_colorbox();
+	ResetColorBox();
 	GPO.Gg.ColorBox.where = SMCOLOR_BOX_NO;
 }
 //
@@ -1107,16 +1114,18 @@ static void unset_pm3d()
 //
 // process 'unset pointintervalbox' command 
 //
-static void unset_pointintervalbox()
+//static void unset_pointintervalbox()
+void GnuPlot::UnsetPointIntervalBox()
 {
-	GPO.Gg.PointIntervalBox = 1.0;
+	Gg.PointIntervalBox = 1.0;
 }
 //
 // process 'unset pointsize' command 
 //
-static void unset_pointsize()
+//static void unset_pointsize()
+void GnuPlot::UnsetPointSize()
 {
-	GPO.Gg.PointSize = 1.0;
+	Gg.PointSize = 1.0;
 }
 //
 // process 'unset polar' command 
@@ -1164,8 +1173,8 @@ static void unset_samples()
 	P_FirstPlot = NULL;
 	sp_free(first_3dplot);
 	first_3dplot = NULL;
-	samples_1 = SAMPLES;
-	samples_2 = SAMPLES;
+	GPO.Gg.Samples1 = SAMPLES;
+	GPO.Gg.Samples2 = SAMPLES;
 }
 //
 // process 'unset size' command 
@@ -1273,14 +1282,14 @@ void GnuPlot::UnsetSpiderPlot()
 static void unset_style_spiderplot()
 {
 	spider_web spiderweb; // = DEFAULT_SPIDERPLOT_STYLE;
-	spiderplot_style = spiderweb;
+	GPO.Gg.SpiderPlotStyle = spiderweb;
 }
 //
 // process 'unset surface' command 
 //
 static void unset_surface()
 {
-	draw_surface = FALSE;
+	draw_surface = false;
 }
 //
 // process 'unset table' command 
@@ -1471,9 +1480,9 @@ void GnuPlot::ResetCommand()
 			if(successful_initialization) {
 				FILE * fp = fopen("/tmp/gnuplot_debug.sav", "w+");
 				replot_line[0] = '\0';
-				save_all(fp);
+				SaveAll(fp);
 				rewind(fp);
-				Pgm.LoadFile(fp, gp_strdup("/tmp/gnuplot_debug.sav"), 1);
+				LoadFile(fp, gp_strdup("/tmp/gnuplot_debug.sav"), 1);
 				// load_file closes fp 
 			}
 		#endif
@@ -1575,9 +1584,9 @@ void GnuPlot::ResetCommand()
 			UnsetSize();
 			V.AspectRatio = 0.0f; // don't force it 
 			rgbmax = 255;
-			unset_origin();
+			UnsetOrigin();
 			UnsetTimeStamp();
-			unset_offsets();
+			UnsetOffsets();
 			unset_contour();
 			unset_cntrparam();
 			unset_cntrlabel();
@@ -1588,10 +1597,10 @@ void GnuPlot::ResetCommand()
 			V.MarginL.UnsetMargin();
 			V.MarginR.UnsetMargin();
 			V.MarginT.UnsetMargin();
-			unset_pointsize();
-			unset_pointintervalbox();
+			UnsetPointSize();
+			UnsetPointIntervalBox();
 			pm3d_reset();
-			reset_colorbox();
+			ResetColorBox();
 			ResetPalette();
 			df_unset_datafile_binary();
 			unset_fillstyle();
@@ -1625,26 +1634,29 @@ void GnuPlot::ResetCommand()
 
 static void unset_style_rectangle()
 {
-	GpObject foo(GpObject::defRectangle);// = DEFAULT_RECTANGLE_STYLE;
-	default_rectangle = foo;
+	//GpObject foo(GpObject::defRectangle);// = DEFAULT_RECTANGLE_STYLE;
+	//default_rectangle = foo;
+	default_rectangle.SetDefaultRectangleStyle();
 }
 
 static void unset_style_circle()
 {
-	GpObject foo(GpObject::defCircle);// = DEFAULT_CIRCLE_STYLE;
-	default_circle = foo;
+	//GpObject foo(GpObject::defCircle);// = DEFAULT_CIRCLE_STYLE;
+	//default_circle = foo;
+	default_circle.SetDefaultCircleStyle();
 }
 
 static void unset_style_ellipse()
 {
-	GpObject foo(GpObject::defEllipse);// = DEFAULT_ELLIPSE_STYLE;
-	default_ellipse = foo;
+	//GpObject foo(GpObject::defEllipse);// = DEFAULT_ELLIPSE_STYLE;
+	//default_ellipse = foo;
+	default_ellipse.SetDefaultEllipseStyle();
 }
 
 static void unset_style_parallel()
 {
 	pa_style parallel_axis_default; // = DEFAULT_PARALLEL_AXIS_STYLE;
-	parallel_axis_style = parallel_axis_default;
+	GPO.Gg.ParallelAxisStyle = parallel_axis_default;
 }
 
 static void unset_wall(int which)

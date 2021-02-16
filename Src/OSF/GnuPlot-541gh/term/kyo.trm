@@ -46,8 +46,8 @@ register_term(kyo)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PRE_init(termentry * pThis);
-TERM_PUBLIC void KYO_init(termentry * pThis);
+TERM_PUBLIC void PRE_init(GpTermEntry * pThis);
+TERM_PUBLIC void KYO_init(GpTermEntry * pThis);
 TERM_PUBLIC void PRE_graphics();
 TERM_PUBLIC void PRE_text();
 TERM_PUBLIC void PRE_linetype(int linetype);
@@ -78,7 +78,7 @@ TERM_PUBLIC void PRE_reset();
 
 enum JUSTIFY pre_justify = LEFT;        /* text is flush left */
 
-TERM_PUBLIC void PRE_init(termentry * pThis)
+TERM_PUBLIC void PRE_init(GpTermEntry * pThis)
 {
 	fputs("!R! RES;\n", gpoutfile);
 	/* UNIT: units are dots, 300 dots = 1 in = 72 pt */
@@ -89,7 +89,7 @@ TERM_PUBLIC void PRE_init(termentry * pThis)
 	fputs("FTMD 15; FONT 29; SCPI 9;\n", gpoutfile);
 }
 
-TERM_PUBLIC void KYO_init(termentry * pThis)
+TERM_PUBLIC void KYO_init(GpTermEntry * pThis)
 {
 	fputs("!R! RES;\n", gpoutfile);
 	/* UNIT: units are dots, 300 dots = 1 in = 72 pt */

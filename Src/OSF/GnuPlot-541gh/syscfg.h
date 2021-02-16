@@ -173,7 +173,7 @@
 	#define LARGEST_EXACT_INT 9007199254740992.	/* IEEE 754 double 53-bit mantissa  2^53 */
 #else
 	typedef int intgr_t; // no C99 types available 
-	typedef unsigned int uintgr_t; // no C99 types available 
+	typedef uint uintgr_t; // no C99 types available 
 	#define PLD "%d"
 	#define INTGR_MAX INT_MAX
 	#define INTGR_MIN INT_MIN

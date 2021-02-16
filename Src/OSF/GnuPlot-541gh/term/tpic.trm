@@ -84,7 +84,7 @@ register_term(tpic)
 
 #ifdef TERM_PROTO
 TERM_PUBLIC void TPIC_options();                /* get size options */
-TERM_PUBLIC void TPIC_init(termentry * pThis);
+TERM_PUBLIC void TPIC_init(GpTermEntry * pThis);
 TERM_PUBLIC void TPIC_reset();
 TERM_PUBLIC void TPIC_text();
 TERM_PUBLIC void TPIC_graphics();
@@ -286,7 +286,7 @@ static uint tpic_posy;
 static int tpic_point_types;
 static int tpic_numlines;
 
-TERM_PUBLIC void TPIC_init(termentry * pThis)
+TERM_PUBLIC void TPIC_init(GpTermEntry * pThis)
 {
 	static char tpic1[] =
 	    "\
@@ -324,7 +324,7 @@ TERM_PUBLIC void TPIC_text()
 
 TERM_PUBLIC void TPIC_graphics()
 {
-	struct termentry * t = term;
+	struct GpTermEntry * t = term;
 	int left, right, top, bottom;   /* margins */
 	static char begin[] = "%s\\begin{picture}(%d,%d)(%d,%d)%% %s\n";
 	fprintf(gpoutfile, begin, "", t->MaxX, t->MaxY, 0, 0, "");

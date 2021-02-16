@@ -2714,6 +2714,74 @@ static int SelectAddByRcptAction(SelAddBySampleParam * pData)
 	return ok;
 }
 
+static int SelectAddByDraftAction(SelAddBySampleParam * pData, const BillTbl::Rec & rSrcBillRec) // @v11.0.2
+{
+	class SelAddByDraftDialog : public TDialog {
+		DECL_DIALOG_DATA(SelAddBySampleParam);
+	public:
+		SelAddByDraftDialog(const BillTbl::Rec & rSrcBillRec) : TDialog(DLG_SELDBSMPL), R_SrcBillRec(rSrcBillRec)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 0, SelAddBySampleParam::acnStd);
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 1, SelAddBySampleParam::acnDraftExpByDraftRcpt);
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 2, SelAddBySampleParam::acnDraftRcptByDraftExp);
+			SetClusterData(CTL_SELBBSMPL_WHAT, Data.Action);
+			DisableClusterItem(CTL_SELBBSMPL_WHAT, 1, GetOpType(R_SrcBillRec.OpID) == PPOPT_DRAFTEXPEND);
+			DisableClusterItem(CTL_SELBBSMPL_WHAT, 2, GetOpType(R_SrcBillRec.OpID) == PPOPT_DRAFTRECEIPT);
+			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
+			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0);
+			SetupOpCombo();
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			GetClusterData(CTL_SELBBSMPL_WHAT, &Data.Action);
+			getCtrlData(CTLSEL_SELBBSMPL_LOC, &Data.LocID);
+			getCtrlData(CTLSEL_SELBBSMPL_OP, &Data.OpID);
+			if(oneof2(Data.Action, SelAddBySampleParam::acnDraftExpByDraftRcpt, SelAddBySampleParam::acnDraftRcptByDraftExp)) {
+				if(Data.OpID == 0)
+					ok = PPErrorByDialog(this, CTLSEL_SELBBSMPL_OP, PPERR_OPRKINDNEEDED);
+				else if(Data.LocID == 0)
+					ok = PPErrorByDialog(this, CTLSEL_SELBBSMPL_LOC, PPERR_LOCNEEDED);
+			}
+			if(ok) {
+				ASSIGN_PTR(pData, Data);
+			}
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_SELBBSMPL_WHAT)) {
+				SetupOpCombo();
+				clearEvent(event);
+			}
+		}
+		void   SetupOpCombo()
+		{
+			GetClusterData(CTL_SELBBSMPL_WHAT, &Data.Action);
+			PPIDArray op_list;
+			PPOprKind op_rec;
+			if(Data.Action == Data.acnDraftExpByDraftRcpt) {
+				for(PPID id = 0; EnumOperations(PPOPT_DRAFTEXPEND, &id, &op_rec) > 0;)
+					op_list.add(id);
+			}
+			else if(Data.Action == Data.acnDraftRcptByDraftExp) {
+				for(PPID id = 0; EnumOperations(PPOPT_DRAFTRECEIPT, &id, &op_rec) > 0;)
+					op_list.add(id);
+			}
+			SetupOprKindCombo(this, CTLSEL_SELBBSMPL_OP, op_list.getSingle(), 0, &op_list, OPKLF_OPLIST);
+		}
+		const BillTbl::Rec & R_SrcBillRec;
+	};
+	DIALOG_PROC_BODY_P1(SelAddByDraftDialog, rSrcBillRec, pData);
+}
+
 static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode)
 {
 	static const char * WrParam_StoreFlags = "SelectAddBillBySampleFlags";
@@ -2742,7 +2810,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0); // @v10.0.02
 			setCtrlDate(CTL_SELBBSMPL_DT, Data.Dt); // @v10.0.02
-			setupOpCombo();
+			SetupOpCombo();
 			restoreFlags();
 			return 1;
 		}
@@ -2774,7 +2842,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			TDialog::handleEvent(event);
 			int    process_reg = 0;
 			if(event.isClusterClk(CTL_SELBBSMPL_WHAT)) {
-				setupOpCombo();
+				SetupOpCombo();
 				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 2, !AllowBulkMode || Data.Action == SelAddBySampleParam::acnStd); // @v10.0.02
 				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 3, !(Data.Action == SelAddBySampleParam::acnShipmByOrder)); // @v10.4.12
 				process_reg = 1;
@@ -2823,7 +2891,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			}
 			SetClusterData(CTL_SELBBSMPL_SAMECODE, flags);
 		}
-		void   setupOpCombo()
+		void   SetupOpCombo()
 		{
 			GetClusterData(CTL_SELBBSMPL_WHAT, &Data.Action);
 			PPIDArray op_list;
@@ -2874,6 +2942,11 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 			}
 			else if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
 				SelectAddByRcptAction(&param);
+			// @v11.0.2 {
+			else if(oneof2(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT)) {
+				SelectAddByDraftAction(&param, bill_rec);
+			}
+			// } @v11.0.2 
 			else
 				param.Action = SelAddBySampleParam::acnStd;
 			switch(param.Action) {
@@ -2882,6 +2955,20 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 						PPObjBill::AddBlock ab;
 						ab.SampleBillID = sampleBillID;
 						ok = P_BObj->AddGoodsBill(&bill_id, &ab);
+					}
+					break;
+				case SelAddBySampleParam::acnDraftExpByDraftRcpt: // @v11.0.2
+					{
+						assert(op_type_id == PPOPT_DRAFTRECEIPT);
+						if(op_type_id == PPOPT_DRAFTRECEIPT) {
+						}
+					}
+					break;
+				case SelAddBySampleParam::acnDraftRcptByDraftExp: // @v11.0.2
+					{
+						assert(op_type_id == PPOPT_DRAFTEXPEND);
+						if(op_type_id == PPOPT_DRAFTEXPEND) {
+						}
 					}
 					break;
 				case SelAddBySampleParam::acnShipmByOrder:
@@ -2933,7 +3020,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 								PPWait(1);
 								for(uint i = 0; i < bill_id_list.getCount(); i++) {
 									const PPID sample_bill_id = bill_id_list.get(i);
-									const int  local_result = P_BObj->AddDraftByOrder(&bill_id, sample_bill_id, &param);
+									const int  local_result = P_BObj->AddDraftBySample(&bill_id, sample_bill_id, &param);
 									if(!local_result)
 										logger.LogLastError();
 									else if(local_result == cmOK) {
@@ -2948,7 +3035,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 								ok = cmCancel;
 						}
 						else {
-							ok = P_BObj->AddDraftByOrder(&bill_id, sampleBillID, &param);
+							ok = P_BObj->AddDraftBySample(&bill_id, sampleBillID, &param);
 						}
 					}
 					else

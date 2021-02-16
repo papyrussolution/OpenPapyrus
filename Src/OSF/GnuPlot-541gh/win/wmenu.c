@@ -747,7 +747,6 @@ void LoadMacros(LPTW lptw)
 #ifdef HAVE_GDIPLUS
 			char * fname;
 			LPWSTR wfname;
-
 #ifdef GNUPLOT_SHARE_DIR
 			fname = RelativePathToGnuplot(GNUPLOT_SHARE_DIR "\\images");
 #else
@@ -766,8 +765,7 @@ void LoadMacros(LPTW lptw)
 #else
 			static bool warn_once = TRUE;
 			if(warn_once)
-				fprintf(stderr,
-				    "Error:  This version of gnuplot cannot load icon bitmaps as it does not include support for GDI+.\n");
+				fprintf(stderr, "Error:  This version of gnuplot cannot load icon bitmaps as it does not include support for GDI+.\n");
 			warn_once = FALSE;
 #endif
 		}

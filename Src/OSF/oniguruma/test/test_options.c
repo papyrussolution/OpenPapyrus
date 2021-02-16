@@ -11,16 +11,6 @@ static OnigTestBlock OnigTB;
 
 #define SLEN(s)  strlen(s)
 
-//static int nsucc  = 0;
-//static int nfail  = 0;
-//static int nerror = 0;
-//#ifdef __TRUSTINSOFT_ANALYZER__
-	//static int nall = 0;
-//#endif
-//static FILE * out_file; // @sobolev
-//static FILE * err_file;
-//static OnigRegion * region;
-
 static void xx(OnigOptionType options, char* pattern, char* str, int from, int to, int mem, int not, int error_no, int line_no)
 {
 #ifdef __TRUSTINSOFT_ANALYZER__
@@ -33,8 +23,7 @@ static void xx(OnigOptionType options, char* pattern, char* str, int from, int t
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		if(error_no == 0) {
 			onig_error_code_to_str((uchar *)s, r, &einfo);
-			slfprintf(OnigTB.err_file, "ERROR: %s  /%s/  #%d\n", s, pattern, line_no);
-			OnigTB.nerror++;
+			OnigTB.OutputError(s, pattern, line_no);
 		}
 		else if(r == error_no) {
 			slfprintf(OnigTB.out_file, "OK(ERROR): /%s/ %d  #%d\n", pattern, r, line_no);
@@ -51,8 +40,7 @@ static void xx(OnigOptionType options, char* pattern, char* str, int from, int t
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 		if(error_no == 0) {
 			onig_error_code_to_str((uchar *)s, r);
-			slfprintf(OnigTB.err_file, "ERROR: %s  /%s/  #%d\n", s, pattern, line_no);
-			OnigTB.nerror++;
+			OnigTB.OutputError(s, pattern, line_no);
 		}
 		else if(r == error_no) {
 			slfprintf(OnigTB.out_file, "OK(ERROR): /%s/ '%s', %d  #%d\n", pattern, str, r, line_no);

@@ -63,8 +63,8 @@ register_term(dospc)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PC_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void PC_init(termentry * pThis);
+TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void PC_init(GpTermEntry * pThis);
 TERM_PUBLIC void PC_graphics();
 TERM_PUBLIC void PC_text();
 TERM_PUBLIC void PC_reset();
@@ -229,7 +229,7 @@ static struct gen_table pc_opts[] =
 	{ NULL, PC_INVALID }
 };
 
-TERM_PUBLIC void PC_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	int i;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -384,7 +384,7 @@ static void PC_setup()
 	}
 }
 
-TERM_PUBLIC void PC_init(termentry * pThis)
+TERM_PUBLIC void PC_init(GpTermEntry * pThis)
 {
 	struct _fontinfo fi;
 	if(!pc_graphics)

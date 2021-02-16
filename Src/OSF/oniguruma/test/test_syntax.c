@@ -11,17 +11,6 @@
 
 static OnigTestBlock OnigTB;
 
-//static int nsucc  = 0;
-//static int nfail  = 0;
-//static int nerror = 0;
-//#ifdef __TRUSTINSOFT_ANALYZER__
-	//static int nall = 0;
-//#endif
-//static FILE * out_file; // @sobolev
-//static FILE * err_file;
-//static OnigRegion * region;
-//static OnigSyntaxType * Syntax;
-
 static void xx(char* pattern, char* str, int from, int to, int mem, int not, int error_no)
 {
 #ifdef __TRUSTINSOFT_ANALYZER__

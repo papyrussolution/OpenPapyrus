@@ -19,7 +19,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -28,29 +28,29 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void DEBUG_init(termentry * pThis);
-TERM_PUBLIC void DEBUG_graphics();
-TERM_PUBLIC void DEBUG_text();
-TERM_PUBLIC void DEBUG_linetype(int linetype);
-TERM_PUBLIC void DEBUG_move(uint x, uint y);
-TERM_PUBLIC void DEBUG_vector(uint x, uint y);
-TERM_PUBLIC void DEBUG_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void DEBUG_reset();
+TERM_PUBLIC void DEBUG_init(GpTermEntry * pThis);
+TERM_PUBLIC void DEBUG_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void DEBUG_text(GpTermEntry * pThis);
+TERM_PUBLIC void DEBUG_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void DEBUG_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void DEBUG_vector(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void DEBUG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void DEBUG_reset(GpTermEntry * pThis);
 TERM_PUBLIC int DEBUG_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int DEBUG_text_angle(int ang);
-TERM_PUBLIC void DEBUG_point(uint x, uint y, int pointstyle);
-TERM_PUBLIC void DEBUG_arrow(uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC int DEBUG_set_font(const char * font);
+TERM_PUBLIC void DEBUG_point(GpTermEntry * pThis, uint x, uint y, int pointstyle);
+TERM_PUBLIC void DEBUG_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC int DEBUG_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void DEBUG_pointsize(double pointsize);
-TERM_PUBLIC void DEBUG_suspend();
-TERM_PUBLIC void DEBUG_resume();
-TERM_PUBLIC void DEBUG_fillbox(int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void DEBUG_linewidth(double linewidth);
-TERM_PUBLIC void DEBUG_filled_polygon(int, gpiPoint *);
-TERM_PUBLIC void DEBUG_set_color(const t_colorspec *);
-TERM_PUBLIC void DEBUG_layer(t_termlayer syncpoint);
+TERM_PUBLIC void DEBUG_suspend(GpTermEntry * pThis);
+TERM_PUBLIC void DEBUG_resume(GpTermEntry * pThis);
+TERM_PUBLIC void DEBUG_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void DEBUG_linewidth(GpTermEntry * pThis, double linewidth);
+TERM_PUBLIC void DEBUG_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
+TERM_PUBLIC void DEBUG_set_color(GpTermEntry * pThis, const t_colorspec *);
+TERM_PUBLIC void DEBUG_layer(GpTermEntry * pThis, t_termlayer syncpoint);
 TERM_PUBLIC void DEBUG_path(int p);
-TERM_PUBLIC void DEBUG_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
+TERM_PUBLIC void DEBUG_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 
 #define DEBUG_XMAX 512
 #define DEBUG_YMAX 390
@@ -72,24 +72,24 @@ int DEBUG_linetype_last;
 int DEBUG_xlast;
 int DEBUG_ylast;
 
-TERM_PUBLIC void DEBUG_init(termentry * pThis)
+TERM_PUBLIC void DEBUG_init(GpTermEntry * pThis)
 {
 	fputs("init\n", gpoutfile);
 	DEBUG_linetype_last = LT_NODRAW;
 }
 
-TERM_PUBLIC void DEBUG_graphics()
+TERM_PUBLIC void DEBUG_graphics(GpTermEntry * pThis)
 {
 	DEBUG_xlast = DEBUG_ylast = 0;
 	fputs("graphics\n", gpoutfile);
 }
 
-TERM_PUBLIC void DEBUG_text()
+TERM_PUBLIC void DEBUG_text(GpTermEntry * pThis)
 {
 	fputs("text\n", gpoutfile);
 }
 
-TERM_PUBLIC void DEBUG_linetype(int linetype)
+TERM_PUBLIC void DEBUG_linetype(GpTermEntry * pThis, int linetype)
 {
 	/*
 	   if (linetype != DEBUG_linetype_last){
@@ -100,7 +100,7 @@ TERM_PUBLIC void DEBUG_linetype(int linetype)
 	fprintf(gpoutfile, "line %d\n", linetype);
 }
 
-TERM_PUBLIC void DEBUG_move(uint x, uint y)
+TERM_PUBLIC void DEBUG_move(GpTermEntry * pThis, uint x, uint y)
 {
 	/*
 	   if (x != DEBUG_xlast || y != DEBUG_ylast){
@@ -114,7 +114,7 @@ TERM_PUBLIC void DEBUG_move(uint x, uint y)
 	DEBUG_ylast = y;
 }
 
-TERM_PUBLIC void DEBUG_vector(uint x, uint y)
+TERM_PUBLIC void DEBUG_vector(GpTermEntry * pThis, uint x, uint y)
 {
 	/*
 	   if (x != DEBUG_xlast || y != DEBUG_ylast){
@@ -128,18 +128,18 @@ TERM_PUBLIC void DEBUG_vector(uint x, uint y)
 	DEBUG_ylast = y;
 }
 
-TERM_PUBLIC void DEBUG_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void DEBUG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	/*
 	   DEBUG_move(x,y);
 	   fprintf(gpoutfile,"tx%s\r",str);
 	 */
 	fputs("put_text calls:", gpoutfile);
-	DEBUG_move(x, y);
+	DEBUG_move(pThis, x, y);
 	fprintf(gpoutfile, "put_text '%s'\n", str);
 }
 
-TERM_PUBLIC void DEBUG_reset()
+TERM_PUBLIC void DEBUG_reset(GpTermEntry * pThis)
 {
 	fputs("reset", gpoutfile);
 }
@@ -168,17 +168,17 @@ TERM_PUBLIC int DEBUG_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC void DEBUG_point(uint x, uint y, int pointstyle)
+TERM_PUBLIC void DEBUG_point(GpTermEntry * pThis, uint x, uint y, int pointstyle)
 {
 	fprintf(gpoutfile, "point at (%ud,%ud), pointstyle %d\n", x, y, pointstyle);
 }
 
-TERM_PUBLIC void DEBUG_arrow(uint sx, uint sy, uint ex, uint ey, int head)
+TERM_PUBLIC void DEBUG_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	fprintf(gpoutfile, "arrow from (%ud,%ud) to (%ud,%ud), %s head\n", sx, sy, ex, ey, head ? "with" : "without");
 }
 
-TERM_PUBLIC int DEBUG_set_font(const char * font)
+TERM_PUBLIC int DEBUG_set_font(GpTermEntry * pThis, const char * font)
 {
 	fprintf(gpoutfile, "set font to \"%s\"\n", font ? (*font ? font : "\aempty string!") : "\aNULL string!");
 	return TRUE;
@@ -189,32 +189,32 @@ TERM_PUBLIC void DEBUG_pointsize(double pointsize)
 	fprintf(gpoutfile, "set pointsize to %lf\n", pointsize);
 }
 
-TERM_PUBLIC void DEBUG_suspend()
+TERM_PUBLIC void DEBUG_suspend(GpTermEntry * pThis)
 {
 	fputs("suspended terminal driver\n", gpoutfile);
 }
 
-TERM_PUBLIC void DEBUG_resume()
+TERM_PUBLIC void DEBUG_resume(GpTermEntry * pThis)
 {
 	fputs("resumed terminal driver\n", gpoutfile);
 }
 
-TERM_PUBLIC void DEBUG_fillbox(int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void DEBUG_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	fprintf(gpoutfile, "fillbox/clear at (%ud,%ud), area (%ud,%ud), style %d)\n", x1, y1, width, height, style);
 }
 
-TERM_PUBLIC void DEBUG_linewidth(double linewidth)
+TERM_PUBLIC void DEBUG_linewidth(GpTermEntry * pThis, double linewidth)
 {
 	fprintf(gpoutfile, "set linewidth %lf\n", linewidth);
 }
 
-TERM_PUBLIC void DEBUG_filled_polygon(int points, gpiPoint * corners)
+TERM_PUBLIC void DEBUG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	fprintf(gpoutfile, "polygon with %d vertices\n", points);
 }
 
-TERM_PUBLIC void DEBUG_set_color(const t_colorspec * colorspec)
+TERM_PUBLIC void DEBUG_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
 	//extern void save_pm3dcolor();
 	fprintf(gpoutfile, "set_color:  ");
@@ -222,7 +222,7 @@ TERM_PUBLIC void DEBUG_set_color(const t_colorspec * colorspec)
 	fprintf(gpoutfile, "\n");
 }
 
-TERM_PUBLIC void DEBUG_layer(t_termlayer syncpoint)
+TERM_PUBLIC void DEBUG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 {
 	char * l = "";
 	switch(syncpoint) {
@@ -250,7 +250,7 @@ TERM_PUBLIC void DEBUG_path(int p)
 	fprintf(gpoutfile, "path %d\n", p);
 }
 
-TERM_PUBLIC void DEBUG_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void DEBUG_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	fprintf(gpoutfile, "image size = %d x %d\n", m, n);
 }
@@ -286,7 +286,9 @@ TERM_TABLE_START(debug_driver)
 	DEBUG_pointsize,
 	TERM_CAN_MULTIPLOT,
 	DEBUG_suspend, 
-	DEBUG_resume, DEBUG_fillbox, DEBUG_linewidth,
+	DEBUG_resume, 
+	DEBUG_fillbox, 
+	DEBUG_linewidth,
 	#ifdef USE_MOUSE
 		0, 
 		0, 

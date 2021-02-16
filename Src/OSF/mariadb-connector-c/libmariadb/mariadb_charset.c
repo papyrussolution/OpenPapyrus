@@ -43,8 +43,10 @@ bool set_default_charset(uint cs, myf flags __attribute__((unused)))
 	if(!new_charset) {
 		return(TRUE); /* error */
 	}
-	ma_default_charset_info = new_charset;
-	return(FALSE);
+	else {
+		ma_default_charset_info = new_charset;
+		return(FALSE);
+	}
 }
 
 MARIADB_CHARSET_INFO * STDCALL mysql_get_charset_by_name(const char * cs_name)

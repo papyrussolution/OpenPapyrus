@@ -7,9 +7,9 @@
 // Needed by terminals which output postscript (post.trm and pslatex.trm)
 //
 #ifdef PSLATEX_DRIVER
-	extern void PSTEX_common_init();
+	extern void PSTEX_common_init(GpTermEntry * pThis);
 	extern void PSTEX_reopen_output();
-	extern void EPSLATEX_common_init();
+	extern void EPSLATEX_common_init(GpTermEntry * pThis);
 	extern void EPSLATEX_reopen_output(char *);
 #endif
 
@@ -39,7 +39,7 @@
 #define EPSLATEX_VCHAR (11*PS_SC)
 #define EPSLATEX_HCHAR (11*PS_SC*6/10)
 #ifdef PSLATEX_DRIVER
-	TERM_PUBLIC char * epslatex_header; // additional LaTeX header information for epslatex terminal 
+	/*TERM_PUBLIC*/extern char * epslatex_header; // additional LaTeX header information for epslatex terminal 
 #endif
 
 #endif /* TERM_POST_H */

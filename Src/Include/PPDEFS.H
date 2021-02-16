@@ -6269,8 +6269,8 @@
 	#define CTL_BU_BACKUP_SCEN           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BU_BACKUP_SCEN        (2 + WINDOWS_ID_BIAS)
 	#define CTL_BU_BACKUP_LIST           (3 + WINDOWS_ID_BIAS)
-#define DLG_MAIN_CONFIG           605 // Конфигурирование баз данных
-	#define CTLSLC_CONFIG                (1 + WINDOWS_ID_BIAS)
+// @v11.0.2 #define DLG_MAIN_CONFIG           605 // Конфигурирование баз данных
+	// @v11.0.2 #define CTLSLC_CONFIG                (1 + WINDOWS_ID_BIAS)
 #define DLG_MAKEDB_CONFIG         606 // Создание базы данных
 	#define CTLSLC_CONFIG                (1 + WINDOWS_ID_BIAS)
 	#define CTL_MAKEDB_DBNAME            (2 + WINDOWS_ID_BIAS)
@@ -11072,6 +11072,8 @@
 	#define CTL_CHZNPARAM_LOC            (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CHZNPARAM_LOC         (4 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNPARAM_LOGO           (5 + WINDOWS_ID_BIAS)
+#define DLG_SELDBSMPL             1399 // Выбор способа создания документа по образцу драфт-документа
+	// Ctrls same as for DLG_SELBBSMPL
 
 // Win32 Dialog Identifiers
 //

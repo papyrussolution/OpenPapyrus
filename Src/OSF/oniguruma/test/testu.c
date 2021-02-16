@@ -9,19 +9,6 @@
 
 static OnigTestBlock OnigTB;
 
-//static int nsucc  = 0;
-//static int nfail  = 0;
-//static int nerror = 0;
-//#ifdef __TRUSTINSOFT_ANALYZER__
-	//static int nall = 0;
-//#endif
-//static FILE * out_file; // @sobolev
-//static FILE * err_file;
-//#ifndef POSIX_TEST
-	//static OnigRegion * region;
-	//static OnigEncoding ENC;
-//#endif
-
 #define ulen(p) onigenc_str_bytelen_null(OnigTB.ENC, (uchar *)p)
 
 static void uconv(char* from, char* to, int len)

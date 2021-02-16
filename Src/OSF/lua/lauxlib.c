@@ -313,8 +313,8 @@ LUALIB_API void * luaL_checkudata(lua_State * L, int ud, const char * tname) {
 ** =======================================================
 */
 
-LUALIB_API int luaL_checkoption(lua_State * L, int arg, const char * def,
-    const char * const lst[]) {
+LUALIB_API int luaL_checkoption(lua_State * L, int arg, const char * def, const char * const lst[]) 
+{
 	const char * name = (def) ? luaL_optstring(L, arg, def) :
 	    luaL_checkstring(L, arg);
 	int i;

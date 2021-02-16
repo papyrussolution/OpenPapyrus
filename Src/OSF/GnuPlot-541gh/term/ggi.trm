@@ -82,10 +82,10 @@ static bool GGI_use_whm = 0;
 static void GGI_line_colors();
 TERM_PUBLIC void GGI_graphics();
 TERM_PUBLIC void GGI_set_size();
-TERM_PUBLIC void GGI_init(termentry * pThis);
+TERM_PUBLIC void GGI_init(GpTermEntry * pThis);
 TERM_PUBLIC void GGI_linetype(int);
 TERM_PUBLIC void GGI_move(uint, uint);
-TERM_PUBLIC void GGI_options(TERMENTRY * pThis, GnuPlot * pGp);
+TERM_PUBLIC void GGI_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void GGI_put_text(uint, uint, const char*);
 TERM_PUBLIC void GGI_suspend();
 TERM_PUBLIC void GGI_resume();
@@ -345,7 +345,7 @@ TERM_PUBLIC void GGI_set_size()
  * Called only once, when the terminal is initialized. We have to open the visual here because it
  * is during 'init' that we have to change the terminal dimensions (xmax, ymax).
  */
-TERM_PUBLIC void GGI_init(termentry * pThis)
+TERM_PUBLIC void GGI_init(GpTermEntry * pThis)
 {
 	int success = 0;
 	ggi_mode mode;
@@ -492,7 +492,7 @@ TERM_PUBLIC void GGI_move(uint x, uint y)
 	GGIy = GGI_y(y);
 }
 
-TERM_PUBLIC void GGI_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void GGI_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&GGI_opts[0])) {
@@ -832,7 +832,7 @@ TERM_PUBLIC int GGI_eventually_update_modifiers(const ggi_event* event, const in
 		GGI_modifiers &= ~mod;
 	}
 	if(GGI_modifiers != old_modifiers) {
-		struct gp_event_t gp_ev;
+		GpEvent gp_ev;
 		gp_ev.type = GE_modifier;
 		gp_ev.mx   = GGI_mouse_x;
 		gp_ev.my   = GGI_y(GGI_mouse_y);
@@ -846,7 +846,7 @@ TERM_PUBLIC int GGI_eventually_update_modifiers(const ggi_event* event, const in
 
 TERM_PUBLIC int GGI_dispatch_event(const ggi_event * event)
 {
-	gp_event_t gp_ev;
+	GpEvent gp_ev;
 	gp_ev.type = 0;
 	gp_ev.mx   = GGI_mouse_x;
 	gp_ev.my   = GGI_y(GGI_mouse_y);
@@ -968,7 +968,7 @@ TERM_PUBLIC void GGI_save_frame_stl()
 
 TERM_PUBLIC void GGI_replot()
 {
-	struct gp_event_t ev = {
+	GpEvent ev = {
 		GE_replot,
 		0, 0, 0, 0
 	};

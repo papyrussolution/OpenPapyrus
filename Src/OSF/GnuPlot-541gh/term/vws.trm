@@ -55,7 +55,7 @@ register_term(vws)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void VWS_init(termentry * pThis);
+TERM_PUBLIC void VWS_init(GpTermEntry * pThis);
 TERM_PUBLIC void VWS_reset();
 TERM_PUBLIC void VWS_graphics();
 TERM_PUBLIC void VWS_text();
@@ -66,7 +66,7 @@ TERM_PUBLIC void VWS_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC int VWS_text_angle(int ang);
 TERM_PUBLIC int VWS_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC void VWS_point(uint x, uint y, int point);
-TERM_PUBLIC void VWS_arrow(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey, int head);
+TERM_PUBLIC void VWS_arrow(uint sx, uint sy, uint ex, uint ey, int head);
 
 #define VWS_XMAX 1024
 #define VWS_YMAX 780            /* VAXstation 2000 is 864 */
@@ -114,7 +114,7 @@ void VWS_resize_ast()
 }
 
 /****************************************************************************/
-TERM_PUBLIC void VWS_init(termentry * pThis)
+TERM_PUBLIC void VWS_init(GpTermEntry * pThis)
 {
 	int i;
 	int cattr;
@@ -428,9 +428,7 @@ TERM_PUBLIC void VWS_point(uint x, uint y, int point)
 }
 
 /****************************************************************************/
-TERM_PUBLIC void VWS_arrow(unsigned int sx, unsigned int sy,
-    unsigned int ex, unsigned int ey,
-    int head)
+TERM_PUBLIC void VWS_arrow(unsigned int sx, unsigned int sy, uint ex, uint ey, int head)
 {
 	GnuPlot::DoArrow(sx, sy, ex, ey, head);
 }

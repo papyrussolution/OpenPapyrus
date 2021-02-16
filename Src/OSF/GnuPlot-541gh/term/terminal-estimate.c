@@ -22,14 +22,14 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
 #ifdef TERM_PROTO
-	TERM_PUBLIC void ENHest_put_text(uint x, uint y, const char str[]);
-	TERM_PUBLIC void ENHest_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-	TERM_PUBLIC void ENHest_FLUSH();
+	TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
+	TERM_PUBLIC void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+	TERM_PUBLIC void ENHest_FLUSH(GpTermEntry * pThis);
 #endif
 #ifdef TERM_BODY
 static double ENHest_x, ENHest_y;
@@ -56,7 +56,7 @@ static double ENHest_base;
 // 
 #define ENHest_ORIG_FONTSIZE 12.
 
-TERM_PUBLIC void ENHest_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	// There are two special cases:
 	// overprint = 3 means save current position
@@ -89,7 +89,7 @@ TERM_PUBLIC void ENHest_OPEN(char * fontname, double fontsize, double base, bool
 	}
 }
 
-TERM_PUBLIC void ENHest_FLUSH()
+TERM_PUBLIC void ENHest_FLUSH(GpTermEntry * pThis)
 {
 	double len = ENHest_fragment_width;
 	if(ENHest_opened_string) {
@@ -105,7 +105,7 @@ TERM_PUBLIC void ENHest_FLUSH()
 	}
 }
 
-TERM_PUBLIC void ENHest_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	// Set up global variables needed by enhanced_recursion() 
 	ENHest_fontsize  = ENHest_ORIG_FONTSIZE;
@@ -131,7 +131,7 @@ TERM_PUBLIC void ENHest_put_text(uint x, uint y, const char * str)
 		ENHest_x = x;
 		ENHest_y = y;
 		while(*(str = enhanced_recursion(term, (char*)str, TRUE, ENHest_font, ENHest_fontsize, 0.0, TRUE, TRUE, 0))) {
-			(term->enhanced_flush)();
+			(term->enhanced_flush)(pThis);
 			enh_err_check(str);
 			if(!*++str)
 				break; // end of string 
@@ -144,10 +144,10 @@ TERM_PUBLIC void ENHest_put_text(uint x, uint y, const char * str)
 	}
 }
 
-TERM_PUBLIC void ENHest_writec(int c)
+TERM_PUBLIC void ENHest_writec(GpTermEntry * pThis, int c)
 {
 	if(c == '\n') {
-		ENHest_FLUSH();
+		ENHest_FLUSH(pThis);
 		ENHest_opened_string = TRUE;
 		ENHest_min_height -= 1.0 * ENHest_fontsize;
 		ENHest_base -= 1.0 * ENHest_fontsize;
@@ -168,7 +168,7 @@ TERM_PUBLIC void ENHest_writec(int c)
 	ENHest_plaintext[ENHest_plaintext_pos++] = c;
 }
 
-termentry ENHest = {
+GpTermEntry ENHest = {
 	"estimate", 
 	NULL,
 	1, 

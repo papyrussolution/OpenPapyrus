@@ -93,8 +93,7 @@ generic * gp_realloc(generic * p, size_t size, const char * message)
 		ZFREE(cp->title_position);
 		ZFREE(cp->points);
 		ZFREE(cp->varcolor);
-		if(cp->labels)
-			free_labels(cp->labels);
+		free_labels(cp->labels);
 		cp->labels = NULL;
 		SAlloc::F(cp);
 		cp = next;

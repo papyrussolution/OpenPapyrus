@@ -145,6 +145,15 @@
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-metapost.c">
       <Filter>Term</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-lua.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-corel.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cairo.c">
+      <Filter>Term</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\GnuPlot-541gh\gnuplot.h">
@@ -198,6 +207,9 @@
     <ClInclude Include="..\OSF\GnuPlot-541gh\syscfg.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\term\driver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\OSF\GnuPlot-541gh\win\grpicon.ico">
@@ -218,12 +230,6 @@
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\caca.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\cairo.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\corel.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\djsvga.trm">
@@ -269,9 +275,6 @@
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\linux.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\lua.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\metapost.trm">

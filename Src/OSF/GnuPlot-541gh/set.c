@@ -16,17 +16,15 @@ static void set_cornerpoles();
 static void set_decimalsign();
 static int  assign_label_tag();
 static void set_loadpath();
-static void set_fontpath();
 static void set_locale();
 static void set_minus_sign();
 static void set_micro();
-//static void set_output();
-static void set_parametric();
-static void set_pointsize();
-static void set_pointintervalbox();
+//static void set_parametric();
+//static void set_pointsize();
+//static void set_pointintervalbox();
 static void set_psdir();
-static void set_rgbmax();
-static void set_samples();
+//static void set_rgbmax();
+//static void set_samples();
 static void set_timefmt();
 static void set_zero();
 static void set_raxis();
@@ -35,7 +33,7 @@ static void set_ticslevel();
 
 /******** Local functions ********/
 
-static void load_tic_series(GpAxis * axis);
+//static void load_tic_series(GpAxis * axis);
 static int assign_arrowstyle_tag();
 static void set_mttics(GpAxis * this_axis);
 
@@ -108,9 +106,7 @@ ITERATE:
 			case S_DUMMY: SetDummy(); break;
 			case S_ENCODING: SetEncoding(); break;
 			case S_FIT: SetFit(); break;
-			case S_FONTPATH:
-			    set_fontpath();
-			    break;
+			case S_FONTPATH: SetFontPath(); break;
 			case S_FORMAT: SetFormat(); break;
 			case S_GRID: SetGrid(); break;
 			case S_HIDDEN3D: SetHidden3D(); break;
@@ -194,18 +190,12 @@ ITERATE:
 			    break;
 			case SET_OUTPUT: SetOutput(); break;
 			case S_OVERFLOW: SetOverflow(); break;
-			case S_PARAMETRIC:
-			    set_parametric();
-			    break;
+			case S_PARAMETRIC: SetParametric(); break;
 			case S_PM3D: SetPm3D(); break;
 			case S_PALETTE: SetPalette(); break;
 			case S_COLORBOX: SetColorBox(); break;
-			case S_POINTINTERVALBOX:
-			    set_pointintervalbox();
-			    break;
-			case S_POINTSIZE:
-			    set_pointsize();
-			    break;
+			case S_POINTINTERVALBOX: SetPointIntervalBox(); break;
+			case S_POINTSIZE: SetPointSize(); break;
 			case S_POLAR: SetPolar(); break;
 			case S_PRINT: SetPrint(); break;
 			case S_PSDIR:
@@ -213,12 +203,8 @@ ITERATE:
 			    break;
 			case S_OBJECT: SetObject(); break;
 			case S_WALL:   SetWall(); break;
-			case S_SAMPLES:
-			    set_samples();
-			    break;
-			case S_RGBMAX:
-			    set_rgbmax();
-			    break;
+			case S_SAMPLES: SetSamples(); break;
+			case S_RGBMAX: SetRgbMax(); break;
 			case S_SIZE: SetSize(); break;
 			case S_SPIDERPLOT: SetSpiderPlot(); break;
 			case S_STYLE: SetStyle(); break;
@@ -1908,13 +1894,13 @@ void GnuPlot::SetIsoSamples()
 		IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
 	else {
 		curve_points * f_p = P_FirstPlot;
-		surface_points * f_3dp = first_3dplot;
+		GpSurfacePoints * f_3dp = first_3dplot;
 		P_FirstPlot = NULL;
 		first_3dplot = NULL;
 		GnuPlot::CpFree(f_p);
 		sp_free(f_3dp);
-		iso_samples_1 = tsamp1;
-		iso_samples_2 = tsamp2;
+		Gg.IsoSamples1 = tsamp1;
+		Gg.IsoSamples2 = tsamp2;
 	}
 }
 /* When plotting an external key, the margin and l/r/t/b/c are
@@ -2344,14 +2330,16 @@ static void set_loadpath()
 		SAlloc::F(collect);
 	}
 }
-
-/* process 'set fontpath' command */
-/* Apr 2018 (V5.3) simplify pThis to a single directory */
-static void set_fontpath()
+//
+// process 'set fontpath' command 
+// Apr 2018 (V5.3) simplify pThis to a single directory 
+//
+//static void set_fontpath()
+void GnuPlot::SetFontPath()
 {
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	SAlloc::F(PS_fontpath);
-	PS_fontpath = GPO.TryToGetString();
+	PS_fontpath = TryToGetString();
 }
 //
 // process 'set locale' command 
@@ -2430,7 +2418,7 @@ void GnuPlot::SetLogScale()
 			else {
 				sprintf(command, "set nonlinear %s via log(%s)/log(%g) inv (%g)**%s", axis_name((AXIS_INDEX)axis), dummy, newbase, newbase, dummy);
 			}
-			do_string(command);
+			DoString(command);
 			AxS[axis].ticdef.logscaling = TRUE;
 			AxS[axis].base = newbase;
 			AxS[axis].log_base = log(newbase);
@@ -2764,39 +2752,39 @@ void GnuPlot::SetOffsets()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		loff.x = roff.x = toff.y = boff.y = 0.0;
+		Gr.LOff.x = Gr.ROff.x = Gr.TOff.y = Gr.BOff.y = 0.0;
 	}
 	else {
-		loff.scalex = first_axes;
+		Gr.LOff.scalex = first_axes;
 		if(Pgm.AlmostEqualsCur("gr$aph")) {
-			loff.scalex = graph;
+			Gr.LOff.scalex = graph;
 			Pgm.Shift();
 		}
-		loff.x = RealExpression();
+		Gr.LOff.x = RealExpression();
 		if(Pgm.EqualsCur(",")) {
-			roff.scalex = first_axes;
+			Gr.ROff.scalex = first_axes;
 			Pgm.Shift();
 			if(Pgm.AlmostEqualsCur("gr$aph")) {
-				roff.scalex = graph;
+				Gr.ROff.scalex = graph;
 				Pgm.Shift();
 			}
-			roff.x = RealExpression();
+			Gr.ROff.x = RealExpression();
 			if(Pgm.EqualsCur(",")) {
-				toff.scaley = first_axes;
+				Gr.TOff.scaley = first_axes;
 				Pgm.Shift();
 				if(Pgm.AlmostEqualsCur("gr$aph")) {
-					toff.scaley = graph;
+					Gr.TOff.scaley = graph;
 					Pgm.Shift();
 				}
-				toff.y = RealExpression();
+				Gr.TOff.y = RealExpression();
 				if(Pgm.EqualsCur(",")) {
-					boff.scaley = first_axes;
+					Gr.BOff.scaley = first_axes;
 					Pgm.Shift();
 					if(Pgm.AlmostEqualsCur("gr$aph")) {
-						boff.scaley = graph;
+						Gr.BOff.scaley = graph;
 						Pgm.Shift();
 					}
-					boff.y = RealExpression();
+					Gr.BOff.y = RealExpression();
 				}
 			}
 		}
@@ -2906,12 +2894,13 @@ void GnuPlot::SetOverflow()
 //
 // process 'set parametric' command 
 //
-static void set_parametric()
+//static void set_parametric()
+void GnuPlot::SetParametric()
 {
-	GPO.Pgm.Shift();
-	if(!GPO.Gg.Parametric) {
-		GPO.Gg.Parametric = true;
-		if(!GPO.Gg.Polar) { // already done for polar 
+	Pgm.Shift();
+	if(!Gg.Parametric) {
+		Gg.Parametric = true;
+		if(!Gg.Polar) { // already done for polar 
 			strcpy(set_dummy_var[0], "t");
 			strcpy(set_dummy_var[1], "y");
 			if(interactive)
@@ -3773,28 +3762,30 @@ void GnuPlot::SetPm3D()
 //
 // process 'set pointintervalbox' command 
 //
-static void set_pointintervalbox()
+//static void set_pointintervalbox()
+void GnuPlot::SetPointIntervalBox()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand())
-		GPO.Gg.PointIntervalBox = 1.0;
+	Pgm.Shift();
+	if(Pgm.EndOfCommand())
+		Gg.PointIntervalBox = 1.0;
 	else
-		GPO.Gg.PointIntervalBox = GPO.RealExpression();
-	if(GPO.Gg.PointIntervalBox <= 0.0)
-		GPO.Gg.PointIntervalBox = 1.0;
+		Gg.PointIntervalBox = RealExpression();
+	if(Gg.PointIntervalBox <= 0.0)
+		Gg.PointIntervalBox = 1.0;
 }
 //
 // process 'set pointsize' command 
 //
-static void set_pointsize()
+//static void set_pointsize()
+void GnuPlot::SetPointSize()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand())
-		GPO.Gg.PointSize = 1.0;
+	Pgm.Shift();
+	if(Pgm.EndOfCommand())
+		Gg.PointSize = 1.0;
 	else
-		GPO.Gg.PointSize = GPO.RealExpression();
-	if(GPO.Gg.PointSize <= 0.0)
-		GPO.Gg.PointSize = 1.0;
+		Gg.PointSize = RealExpression();
+	if(Gg.PointSize <= 0.0)
+		Gg.PointSize = 1.0;
 }
 //
 // process 'set polar' command 
@@ -4285,35 +4276,37 @@ void GnuPlot::SetWall()
 	}
 }
 
-static void set_rgbmax()
+//static void set_rgbmax()
+void GnuPlot::SetRgbMax()
 {
-	GPO.Pgm.Shift();
-	rgbmax = GPO.Pgm.EndOfCommand() ? 255 : GPO.RealExpression();
+	Pgm.Shift();
+	rgbmax = Pgm.EndOfCommand() ? 255 : RealExpression();
 	if(rgbmax <= 0)
 		rgbmax = 255;
 }
-
-/* process 'set samples' command */
-static void set_samples()
+//
+// process 'set samples' command 
+//
+//static void set_samples()
+void GnuPlot::SetSamples()
 {
-	int tsamp1, tsamp2;
-	GPO.Pgm.Shift();
-	tsamp1 = GPO.IntExpression();
-	tsamp2 = tsamp1;
-	if(!GPO.Pgm.EndOfCommand()) {
-		if(!GPO.Pgm.EqualsCur(","))
-			GPO.IntErrorCurToken("',' expected");
-		GPO.Pgm.Shift();
-		tsamp2 = GPO.IntExpression();
+	Pgm.Shift();
+	int tsamp1 = IntExpression();
+	int tsamp2 = tsamp1;
+	if(!Pgm.EndOfCommand()) {
+		if(!Pgm.EqualsCur(","))
+			IntErrorCurToken("',' expected");
+		Pgm.Shift();
+		tsamp2 = IntExpression();
 	}
 	if(tsamp1 < 2 || tsamp2 < 2)
-		GPO.IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
+		IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
 	else {
-		surface_points * f_3dp = first_3dplot;
+		GpSurfacePoints * f_3dp = first_3dplot;
 		first_3dplot = NULL;
 		sp_free(f_3dp);
-		samples_1 = tsamp1;
-		samples_2 = tsamp2;
+		Gg.Samples1 = tsamp1;
+		Gg.Samples2 = tsamp2;
 	}
 }
 //
@@ -4364,7 +4357,7 @@ void GnuPlot::SetStyle()
 	Pgm.Shift();
 	switch(Pgm.LookupTableForCurrentToken(&show_style_tbl[0])) {
 		case SHOW_STYLE_DATA:
-		    data_style = get_style();
+		    data_style = GetStyle();
 		    if(data_style == FILLEDCURVES) {
 			    get_filledcurves_style_options(&filledcurves_opts_data);
 			    if(filledcurves_opts_func.closeto == FILLEDCURVES_DEFAULT)
@@ -4373,7 +4366,7 @@ void GnuPlot::SetStyle()
 		    break;
 		case SHOW_STYLE_FUNCTION:
 	    {
-		    enum PLOT_STYLE temp_style = get_style();
+		    enum PLOT_STYLE temp_style = GetStyle();
 		    if((temp_style & PLOT_STYLE_HAS_ERRORBAR) || oneof6(temp_style, LABELPOINTS, HISTOGRAMS, IMAGE, RGBIMAGE, RGBA_IMAGE, PARALLELPLOT))
 			    IntErrorCurToken("style not usable for function plots, left unchanged");
 		    else
@@ -4434,7 +4427,7 @@ void GnuPlot::SetStyle()
 			    else if(Pgm.AlmostEqualsCur("ang$le")) {
 				    Pgm.Shift();
 				    if(MightBeNumeric(Pgm.GetCurTokenIdx())) {
-					    default_ellipse.o.ellipse.orientation = GPO.RealExpression();
+					    default_ellipse.o.ellipse.orientation = RealExpression();
 					    Pgm.Rollback();
 				    }
 			    }
@@ -4484,12 +4477,12 @@ void GnuPlot::SetStyle()
 					    textbox->ymargin = 1.;
 					    break;
 				    }
-				    textbox->xmargin = GPO.RealExpression();
+				    textbox->xmargin = RealExpression();
 					SETMAX(textbox->xmargin, 0.0);
 				    textbox->ymargin = textbox->xmargin;
 				    if(Pgm.EqualsCur(",")) {
 					    Pgm.Shift();
-					    textbox->ymargin = GPO.RealExpression();
+					    textbox->ymargin = RealExpression();
 						SETMAX(textbox->ymargin, 0.0);
 				    }
 			    }
@@ -4632,7 +4625,7 @@ void GnuPlot::SetTerminal()
 		return;
 	}
 #ifdef USE_MOUSE
-	event_reset(reinterpret_cast<gp_event_t *>(1)); /* cancel zoombox etc. */
+	event_reset(reinterpret_cast<GpEvent *>(1)); /* cancel zoombox etc. */
 #endif
 	TermReset(term);
 	if(Pgm.EqualsCur("pop")) { // `set term pop' 
@@ -4673,7 +4666,7 @@ void GnuPlot::SetTerminal()
 // from here because in pThis case almost_equals(c_token-1, "termopt$ion");
 // 
 //static void set_termoptions()
-void GnuPlot::SetTermOptions(termentry * pTerm)
+void GnuPlot::SetTermOptions(GpTermEntry * pTerm)
 {
 	bool  ok_to_call_terminal = FALSE;
 	const int save_end_of_line = Pgm.NumTokens;
@@ -5284,10 +5277,10 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 					Pgm.Shift();
 				}
 				else {
-					pThisAxis->ticscale = GPO.RealExpression();
+					pThisAxis->ticscale = RealExpression();
 					if(Pgm.EqualsCur(",")) {
 						Pgm.Shift();
-						pThisAxis->miniticscale = GPO.RealExpression();
+						pThisAxis->miniticscale = RealExpression();
 					}
 					else
 						pThisAxis->miniticscale = 0.5 * pThisAxis->ticscale;
@@ -5295,7 +5288,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 					if(all_axes) {
 						while(Pgm.EqualsCur(",")) {
 							Pgm.Shift();
-							GPO.RealExpression();
+							RealExpression();
 						}
 					}
 				}
@@ -5690,7 +5683,7 @@ void GnuPlot::LoadTics(GpAxis * pAx)
 		LoadTicUser(pAx);
 	}
 	else {                  /* series : TIC_SERIES */
-		load_tic_series(pAx);
+		LoadTicSeries(pAx);
 	}
 }
 // 
@@ -5787,44 +5780,45 @@ ticmark * prune_dataticks(struct ticmark * list)
 // load TIC_SERIES definition 
 // [start,]incr[,end] 
 //
-static void load_tic_series(GpAxis * this_axis)
+//static void load_tic_series(GpAxis * this_axis)
+void GnuPlot::LoadTicSeries(GpAxis * pAx)
 {
 	double incr, end;
 	int incr_token;
-	t_ticdef * tdef = &(this_axis->ticdef);
-	double start = get_num_or_time(this_axis);
-	if(!GPO.Pgm.EqualsCur(",")) {
-		/* only step specified */
-		incr_token = GPO.Pgm.GetCurTokenIdx();
+	t_ticdef * tdef = &(pAx->ticdef);
+	double start = get_num_or_time(pAx);
+	if(!Pgm.EqualsCur(",")) {
+		// only step specified 
+		incr_token = Pgm.GetCurTokenIdx();
 		incr = start;
 		start = -VERYLARGE;
 		end = VERYLARGE;
 	}
 	else {
-		GPO.Pgm.Shift();
-		incr_token = GPO.Pgm.GetCurTokenIdx();
-		incr = get_num_or_time(this_axis);
-		if(!GPO.Pgm.EqualsCur(",")) {
-			/* only step and increment specified */
+		Pgm.Shift();
+		incr_token = Pgm.GetCurTokenIdx();
+		incr = get_num_or_time(pAx);
+		if(!Pgm.EqualsCur(",")) {
+			// only step and increment specified 
 			end = VERYLARGE;
 		}
 		else {
-			GPO.Pgm.Shift();
-			end = get_num_or_time(this_axis);
+			Pgm.Shift();
+			end = get_num_or_time(pAx);
 		}
 	}
 	if(start < end && incr <= 0)
-		GPO.IntError(incr_token, "increment must be positive");
+		IntError(incr_token, "increment must be positive");
 	if(start > end && incr >= 0)
-		GPO.IntError(incr_token, "increment must be negative");
+		IntError(incr_token, "increment must be negative");
 	if(start > end) {
-		/* put in order */
+		// put in order 
 		double numtics = floor((end * (1 + SIGNIF) - start) / incr);
 		end = start;
 		start = end + numtics * incr;
 		incr = -incr;
 	}
-	if(!tdef->def.mix) { /* remove old list */
+	if(!tdef->def.mix) { // remove old list 
 		free_marklist(tdef->def.user);
 		tdef->def.user = NULL;
 	}
@@ -6183,13 +6177,13 @@ void GnuPlot::SetStyleParallel()
 	Pgm.Shift();
 	while(!Pgm.EndOfCommand()) {
 		const int save_token = Pgm.GetCurTokenIdx();
-		LpParse(&parallel_axis_style.lp_properties, LP_ADHOC, FALSE);
+		LpParse(&Gg.ParallelAxisStyle.lp_properties, LP_ADHOC, FALSE);
 		if(save_token != Pgm.GetCurTokenIdx())
 			continue;
 		if(Pgm.EqualsCur("front"))
-			parallel_axis_style.layer = LAYER_FRONT;
+			Gg.ParallelAxisStyle.layer = LAYER_FRONT;
 		else if(Pgm.EqualsCur("back"))
-			parallel_axis_style.layer = LAYER_BACK;
+			Gg.ParallelAxisStyle.layer = LAYER_BACK;
 		else
 			IntErrorCurToken("unrecognized option");
 		Pgm.Shift();
@@ -6201,7 +6195,7 @@ void GnuPlot::SetSpiderPlot()
 {
 	Pgm.Shift();
 	draw_border = 0;
-	unset_all_tics();
+	UnsetAllTics();
 	V.AspectRatio = 1.0f;
 	Gg.Polar = false;
 	keyT.auto_titles = NOAUTO_KEYTITLES;
@@ -6215,8 +6209,8 @@ void GnuPlot::SetStyleSpiderPlot()
 	Pgm.Shift();
 	while(!Pgm.EndOfCommand()) {
 		const int save_token = Pgm.GetCurTokenIdx();
-		ParseFillStyle(&spiderplot_style.fillstyle);
-		LpParse(&spiderplot_style.lp_properties,  LP_ADHOC, TRUE);
+		ParseFillStyle(&Gg.SpiderPlotStyle.fillstyle);
+		LpParse(&Gg.SpiderPlotStyle.lp_properties,  LP_ADHOC, TRUE);
 		if(save_token == Pgm.GetCurTokenIdx())
 			break;
 	}

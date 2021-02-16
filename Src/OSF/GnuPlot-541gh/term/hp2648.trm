@@ -56,7 +56,7 @@ register_term(hp2648)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void HP2648init(termentry * pThis);
+TERM_PUBLIC void HP2648init(GpTermEntry * pThis);
 TERM_PUBLIC void HP2648graphics();
 TERM_PUBLIC void HP2648text();
 TERM_PUBLIC void HP2648linetype(int linetype);
@@ -82,7 +82,7 @@ TERM_PUBLIC void HP2648reset();
 
 
 TERM_PUBLIC void
-HP2648init(termentry * pThis)
+HP2648init(GpTermEntry * pThis)
 {
     fprintf(gpoutfile, "\033*m1m1n136,1cZ");
 /*                   1     2 3     4

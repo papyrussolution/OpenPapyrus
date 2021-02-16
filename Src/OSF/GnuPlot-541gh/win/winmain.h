@@ -45,7 +45,7 @@
 #include "wgnuplib.h"
 
 #ifdef __cplusplus
-extern "C" {
+// @sobolev extern "C" {
 #endif
 
 extern TW textwin;
@@ -58,7 +58,7 @@ extern HWND help_window;
 extern LPTSTR winhelpname;
 extern LPTSTR szMenuName;
 
-int Pause (LPSTR str);
+int Pause(LPSTR str);
 void screen_dump();
 void kill_pending_Pause_dialog();
 void win_sleep(DWORD dwMilliSeconds);
@@ -73,13 +73,11 @@ LPWSTR UnicodeText(LPCSTR str, enum set_encoding_id encoding);
 LPSTR AnsiText(LPCWSTR strw,  enum set_encoding_id encoding);
 void MultiByteAccumulate(BYTE ch, LPWSTR wstr, int * count);
 LPSTR RelativePathToGnuplot(const char * path);
-
 int ConsoleReadCh();
-
 UINT GetDPI();
 
 #ifdef __cplusplus
-}
+// @sobolev }
 #endif
 
 #endif /* GNUPLOT_WINMAIN_H */

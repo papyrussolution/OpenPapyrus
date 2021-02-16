@@ -15,8 +15,8 @@
 #endif /* PIPE_IPC */
 #if defined(PIPE_IPC) /* || defined(WIN_IPC) */
 	static gpe_fifo_t * gpe_init();
-	static void gpe_push(gpe_fifo_t ** base, struct gp_event_t * ge);
-	static struct gp_event_t * gpe_front(gpe_fifo_t ** base);
+	static void gpe_push(gpe_fifo_t ** base, GpEvent * ge);
+	static GpEvent * gpe_front(gpe_fifo_t ** base);
 	static int gpe_pop(gpe_fifo_t ** base);
 #endif /* PIPE_IPC || WIN_IPC */
 /*
@@ -36,7 +36,7 @@ static gpe_fifo_t * gpe_init()
 	return base;
 }
 
-static void gpe_push(gpe_fifo_t ** base, struct gp_event_t * ge)
+static void gpe_push(gpe_fifo_t ** base, GpEvent * ge)
 {
 	buffered_output_pending++;
 	if((*base)->prev) {
@@ -56,7 +56,7 @@ static void gpe_push(gpe_fifo_t ** base, struct gp_event_t * ge)
 	(*base)->prev->ge = *ge;
 }
 
-static struct gp_event_t * gpe_front(gpe_fifo_t ** base)                           
+static GpEvent * gpe_front(gpe_fifo_t ** base)                           
 {
 	return &((*base)->ge);
 }
@@ -91,7 +91,7 @@ static int gpe_pop(gpe_fifo_t ** base)
 
 void gp_exec_event(char type, int mx, int my, int par1, int par2, int winid)
 {
-	struct gp_event_t ge;
+	GpEvent ge;
 #if defined(PIPE_IPC) /* || defined(WIN_IPC) */
 	static struct gpe_fifo_t * base = (gpe_fifo_t*)0;
 #endif

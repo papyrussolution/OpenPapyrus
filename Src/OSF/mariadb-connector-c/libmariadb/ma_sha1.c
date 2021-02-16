@@ -31,8 +31,7 @@ static void ma_SHA1Transform(uint32[5], const unsigned char[64]);
 static void ma_SHA1Encode(unsigned char *, uint32 *, unsigned int);
 static void ma_SHA1Decode(uint32 *, const unsigned char *, unsigned int);
 
-static unsigned char PADDING[64] =
-{
+static uchar PADDING[64] = {
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

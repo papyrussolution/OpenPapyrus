@@ -17,7 +17,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -26,16 +26,16 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void DXF_init(termentry * pThis);
-TERM_PUBLIC void DXF_graphics();
-TERM_PUBLIC void DXF_text();
-TERM_PUBLIC void DXF_linetype(int linetype);
-TERM_PUBLIC void DXF_move(uint x, uint y);
-TERM_PUBLIC void DXF_vector(uint ux, uint uy);
-TERM_PUBLIC void DXF_put_text(uint x, uint y, const char str[]);
+TERM_PUBLIC void DXF_init(GpTermEntry * pThis);
+TERM_PUBLIC void DXF_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void DXF_text(GpTermEntry * pThis);
+TERM_PUBLIC void DXF_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void DXF_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void DXF_vector(GpTermEntry * pThis, uint ux, uint uy);
+TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC int DXF_text_angle(int ang);
 TERM_PUBLIC int DXF_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC void DXF_reset();
+TERM_PUBLIC void DXF_reset(GpTermEntry * pThis);
 
 #define DXF_XMAX (120.0 * DXF_UNIT)
 #define DXF_YMAX (80.0 * DXF_UNIT)
@@ -98,7 +98,7 @@ static const char * layer_lines[] = {
 
 static bool vector_was_last = FALSE;
 
-TERM_PUBLIC void DXF_init(termentry * pThis)
+TERM_PUBLIC void DXF_init(GpTermEntry * pThis)
 {
 	DXF_posx = DXF_posy = 0;
 	dxf_linetype = 0;
@@ -106,9 +106,9 @@ TERM_PUBLIC void DXF_init(termentry * pThis)
 	vector_was_last = FALSE;
 }
 
-TERM_PUBLIC void DXF_graphics()
+TERM_PUBLIC void DXF_graphics(GpTermEntry * pThis)
 {
-	struct termentry * t = term;
+	struct GpTermEntry * t = term;
 	int i;
 	static char dxfi1[] =
 	    "\
@@ -180,21 +180,21 @@ TERM_PUBLIC void DXF_graphics()
 	    gpoutfile);
 }
 
-TERM_PUBLIC void DXF_text()
+TERM_PUBLIC void DXF_text(GpTermEntry * pThis)
 {
 	if(vector_was_last)
 		fputs("  0\nSEQEND\n", gpoutfile);
 	fputs("  0\nENDSEC\n  0\nEOF\n", gpoutfile);
 }
 
-TERM_PUBLIC void DXF_linetype(int linetype)
+TERM_PUBLIC void DXF_linetype(GpTermEntry * pThis, int linetype)
 {
 	linetype = ABS(linetype);
 	linetype = linetype % DXF_LINE_TYPES;
 	dxf_linetype = linetype;
 }
 
-TERM_PUBLIC void DXF_move(uint x, uint y)
+TERM_PUBLIC void DXF_move(GpTermEntry * pThis, uint x, uint y)
 {
 	DXF_posx = x;
 	DXF_posy = y;
@@ -216,7 +216,7 @@ TERM_PUBLIC void DXF_move(uint x, uint y)
 	    DXF_posy / DXF_UNIT);
 }
 
-TERM_PUBLIC void DXF_vector(uint ux, uint uy)
+TERM_PUBLIC void DXF_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
 	DXF_posx = ux;
 	DXF_posy = uy;
@@ -227,13 +227,13 @@ TERM_PUBLIC void DXF_vector(uint ux, uint uy)
   10\n%-6.3f\n  20\n%-6.3f\n  30\n0.000\n", layer_name[dxf_linetype], layer_lines[dxf_linetype], DXF_posx / DXF_UNIT, DXF_posy / DXF_UNIT);
 }
 
-TERM_PUBLIC void DXF_put_text(uint x, uint y, const char str[])
+TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
 	int stl;
 	float xleftpos, yleftpos, xrightpos, yrightpos;
-	/* shut up gcc warnings  - SB */
+	// shut up gcc warnings  - SB 
 	xleftpos = yleftpos = xrightpos = yrightpos = 1.0; /* dummy */
-	/* ignore empty strings */
+	// ignore empty strings 
 	if(str[0] == NUL)
 		return;
 	stl = 0;
@@ -316,7 +316,7 @@ TERM_PUBLIC int DXF_justify_text(enum JUSTIFY mode)
 	return (TRUE);
 }
 
-TERM_PUBLIC void DXF_reset()
+TERM_PUBLIC void DXF_reset(GpTermEntry * pThis)
 {
 	DXF_posx = DXF_posy = 0;
 }

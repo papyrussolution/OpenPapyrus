@@ -18,7 +18,7 @@ register_term(xlib)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void Xlib_init(termentry * pThis);
+TERM_PUBLIC void Xlib_init(GpTermEntry * pThis);
 TERM_PUBLIC void Xlib_text();
 TERM_PUBLIC void Xlib_reset();
 #define GOT_XLIB_PROTO
@@ -32,7 +32,7 @@ static FILE * X11_save_ipc = NULL;
 	int ipc_back_fd = IPC_BACK_UNUSABLE;
 #endif
 
-TERM_PUBLIC void Xlib_init(termentry * pThis)
+TERM_PUBLIC void Xlib_init(GpTermEntry * pThis)
 {
 	// x11.trm thinks it is writing to a private pipe, but here we 
 	// set it to use the channel opened by 'set output <file>'     

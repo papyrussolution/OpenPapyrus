@@ -60,7 +60,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -69,36 +69,36 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void SVG_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void SVG_init(termentry * pThis);
-TERM_PUBLIC void SVG_graphics();
-TERM_PUBLIC void SVG_text();
-TERM_PUBLIC void SVG_linetype(int linetype);
-TERM_PUBLIC void SVG_dashtype(int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void SVG_move(uint x, uint y);
-TERM_PUBLIC void SVG_vector(uint x, uint y);
-TERM_PUBLIC void SVG_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void SVG_reset();
+TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void SVG_init(GpTermEntry * pThis);
+TERM_PUBLIC void SVG_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void SVG_text(GpTermEntry * pThis);
+TERM_PUBLIC void SVG_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void SVG_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
+TERM_PUBLIC void SVG_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void SVG_vector(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void SVG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void SVG_reset(GpTermEntry * pThis);
 TERM_PUBLIC int SVG_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int SVG_text_angle(int ang);
-TERM_PUBLIC void SVG_point(uint x, uint y, int pointstyle);
-TERM_PUBLIC int SVG_set_font(const char * font);
+TERM_PUBLIC void SVG_point(GpTermEntry * pThis, uint x, uint y, int pointstyle);
+TERM_PUBLIC int SVG_set_font(GpTermEntry * pThis, const char * font);
 // TERM_PUBLIC void SVG_pointsize(double pointsize); 
-TERM_PUBLIC void SVG_fillbox(int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void SVG_linewidth(double linewidth);
+TERM_PUBLIC void SVG_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void SVG_linewidth(GpTermEntry * pThis, double linewidth);
 TERM_PUBLIC int SVG_make_palette(t_sm_palette *);
 TERM_PUBLIC void SVG_previous_palette();
-TERM_PUBLIC void SVG_set_color(const t_colorspec *);
-TERM_PUBLIC void SVG_filled_polygon(int, gpiPoint *);
-TERM_PUBLIC void SVG_layer(t_termlayer syncpoint);
-TERM_PUBLIC void ENHsvg_OPEN(char *, double, double, bool, bool, int);
-TERM_PUBLIC void ENHsvg_FLUSH();
-TERM_PUBLIC void ENHsvg_put_text(uint, uint, const char *);
-TERM_PUBLIC void ENHsvg_writec(int);
+TERM_PUBLIC void SVG_set_color(GpTermEntry * pThis, const t_colorspec *);
+TERM_PUBLIC void SVG_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
+TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint);
+TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char *, double, double, bool, bool, int);
+TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis);
+TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint, uint, const char *);
+TERM_PUBLIC void ENHsvg_writec(GpTermEntry * pThis, int);
 TERM_PUBLIC void SVG_path(int p);
-TERM_PUBLIC void SVG_hypertext(int, const char *);
+TERM_PUBLIC void SVG_hypertext(GpTermEntry * pThis, int, const char *);
 #ifdef WRITE_PNG_IMAGE
-	TERM_PUBLIC void SVG_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
+	TERM_PUBLIC void SVG_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 	static int SVG_imageno = 0;
 #endif
 #define SVG_SCALE       100.    /* Coordinate accuracy is 1/SVG_SCALE pixel */
@@ -455,13 +455,13 @@ static void SVG_MoveForced(uint x, uint y)
 // 
 // SVG_options
 // 
-TERM_PUBLIC void SVG_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	// Annoying hack to handle the case of 'set termoption' after 
 	// we have already initialized the terminal settings.         
 	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion"))
 		SVG_local_reset();
-	if(strcmp(term->name, "domterm") == 0) {
+	if(strcmp(pThis->name, "domterm") == 0) {
 		SVG_emit_doctype = FALSE;
 		SVG_domterm = TRUE;
 	}
@@ -470,7 +470,7 @@ TERM_PUBLIC void SVG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		SVG_domterm = FALSE;
 	}
 	// Minimal initialization in case we error out of options parsing 
-	SVG_set_font("");
+	SVG_set_font(pThis, "");
 	while(!pGp->Pgm.EndOfCommand()) {
 		if(pGp->Pgm.AlmostEqualsCur("s$ize")) {
 			double value;
@@ -527,14 +527,14 @@ TERM_PUBLIC void SVG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		}
 		if(pGp->Pgm.AlmostEqualsCur("enh$anced")) {
 			pGp->Pgm.Shift();
-			term->put_text = ENHsvg_put_text;
-			term->flags |= TERM_ENHANCED_TEXT;
+			pThis->put_text = ENHsvg_put_text;
+			pThis->flags |= TERM_ENHANCED_TEXT;
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("noenh$anced")) {
 			pGp->Pgm.Shift();
-			term->put_text = SVG_put_text;
-			term->flags &= ~TERM_ENHANCED_TEXT;
+			pThis->put_text = SVG_put_text;
+			pThis->flags &= ~TERM_ENHANCED_TEXT;
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("fn$ame") || pGp->Pgm.AlmostEqualsCur("font")) {
@@ -626,10 +626,10 @@ TERM_PUBLIC void SVG_options(TERMENTRY * pThis, GnuPlot * pGp)
 		pGp->IntErrorCurToken("unrecognized terminal option");
 	}
 	// I don't think any error checks on font name are possible; just set it 
-	SVG_set_font("");
+	SVG_set_font(pThis, "");
 	// Save options back into options string in normalized format 
 	sprintf(term_options, "size %d,%d%s %s font '%s,%g' ", (int)(SVG_xSize/SVG_SCALE), (int)(SVG_ySize/SVG_SCALE),
-	    SVG_fixed_size ? " fixed" : " dynamic", term->put_text == ENHsvg_put_text ? "enhanced" : "", SVG_fontNameCur, SVG_fontSizeCur);
+	    SVG_fixed_size ? " fixed" : " dynamic", pThis->put_text == ENHsvg_put_text ? "enhanced" : "", SVG_fontNameCur, SVG_fontSizeCur);
 	if(SVG_mouseable) {
 		sprintf(term_options + strlen(term_options), "mousing ");
 	}
@@ -675,7 +675,7 @@ static void SVG_local_reset()
 /*------------------------------------------------------------------------------------------------------------------------------------
         SVG_init
    ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_init(termentry * pThis)
+TERM_PUBLIC void SVG_init(GpTermEntry * pThis)
 {
 	/* setup pens*/
 	SVG_pens[0].width = SVG_LineWidth;
@@ -749,31 +749,20 @@ static void SVG_write_preamble()
 		    svg_encoding = "encoding=\"utf-8\" ";
 		    break;
 	}
-
 	if(SVG_domterm) {
 		/* Erase all off-screen lines in terminal buffer */
 		if(SVG_animate)
 			fprintf(gpoutfile, "\033[3J");
 		fprintf(gpoutfile, "\033]72;");
 	}
-
 	if(SVG_emit_doctype)
-		fprintf(gpoutfile,
-		    "<?xml version=\"1.0\" %s standalone=\"no\"?>\n",
-		    svg_encoding);
+		fprintf(gpoutfile, "<?xml version=\"1.0\" %s standalone=\"no\"?>\n", svg_encoding);
 	fprintf(gpoutfile, "<svg ");
-
 	if(SVG_mouseable)
 		fprintf(gpoutfile, " onload=\"if (typeof(gnuplot_svg)!='undefined') gnuplot_svg.Init(evt)\" ");
-
 	if(SVG_fixed_size)
-		fprintf(gpoutfile, "\n width=\"%u\" height=\"%u\"",
-		    (uint)(term->MaxX / SVG_SCALE),
-		    (uint)(term->MaxY / SVG_SCALE));
-
-	fprintf(gpoutfile, "\n viewBox=\"0 0 %u %u\"\n",
-	    (uint)(term->MaxX / SVG_SCALE),
-	    (uint)(term->MaxY / SVG_SCALE));
+		fprintf(gpoutfile, "\n width=\"%u\" height=\"%u\"", (uint)(term->MaxX / SVG_SCALE), (uint)(term->MaxY / SVG_SCALE));
+	fprintf(gpoutfile, "\n viewBox=\"0 0 %u %u\"\n", (uint)(term->MaxX / SVG_SCALE), (uint)(term->MaxY / SVG_SCALE));
 	fprintf(gpoutfile, " xmlns=\"http://www.w3.org/2000/svg\"\n");
 	fprintf(gpoutfile, " xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n");
 #if (0)
@@ -781,12 +770,9 @@ static void SVG_write_preamble()
 	fprintf(gpoutfile, " xml:space=\"preserve\"\n");
 #endif
 	fprintf(gpoutfile, ">\n\n");
-
 	/* TODO: It would be nice to print the actual plot title here */
 	fprintf(gpoutfile, "<title>%s</title>\n", SVG_name ? SVG_name : "Gnuplot");
-	fprintf(gpoutfile,
-	    "<desc>Produced by GNUPLOT %s patchlevel %s </desc>\n\n",
-	    gnuplot_version, gnuplot_patchlevel);
+	fprintf(gpoutfile, "<desc>Produced by GNUPLOT %s patchlevel %s </desc>\n\n", gnuplot_version, gnuplot_patchlevel);
 
 /*
  * FIXME: This code could be shared with canvas.trm
@@ -845,23 +831,18 @@ static void SVG_write_preamble()
 			SAlloc::F(fullname);
 		}
 	}
-
 	if(SVG_mouseable) { /* FIXME: Should only do this for 2D plots */
 		/* This is extra code to support tracking the mouse coordinates */
 		fprintf(gpoutfile, "\n<!-- Tie mousing to entire bounding box of the plot -->\n");
-		fprintf(gpoutfile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"",
-		    0, 0, (int)(term->MaxX/SVG_SCALE), (int)(term->MaxY/SVG_SCALE));
-		fprintf(gpoutfile, " fill=\"#%06x\" stroke=\"black\" stroke-width=\"1\"\n",
-		    SVG_background >= 0 ? SVG_background : 0xffffff);
+		fprintf(gpoutfile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"", 0, 0, (int)(term->MaxX/SVG_SCALE), (int)(term->MaxY/SVG_SCALE));
+		fprintf(gpoutfile, " fill=\"#%06x\" stroke=\"black\" stroke-width=\"1\"\n", SVG_background >= 0 ? SVG_background : 0xffffff);
 		fprintf(gpoutfile, "onclick=\"gnuplot_svg.toggleCoordBox(evt)\"  onmousemove=\"gnuplot_svg.moveCoordBox(evt)\"/>\n");
 		fprintf(gpoutfile, "\n<!-- Also track mouse when it is on a plot element -->\n");
-		fprintf(gpoutfile,
-		    "<g id=\"gnuplot_canvas\" onclick=\"gnuplot_svg.toggleCoordBox(evt)\" onmousemove=\"gnuplot_svg.moveCoordBox(evt)\">\n\n");
+		fprintf(gpoutfile, "<g id=\"gnuplot_canvas\" onclick=\"gnuplot_svg.toggleCoordBox(evt)\" onmousemove=\"gnuplot_svg.moveCoordBox(evt)\">\n\n");
 	}
 	else {
 		fprintf(gpoutfile, "<g id=\"gnuplot_canvas\">\n\n");
-		fprintf(gpoutfile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"",
-		    0, 0, (int)(term->MaxX/SVG_SCALE), (int)(term->MaxY/SVG_SCALE));
+		fprintf(gpoutfile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"", 0, 0, (int)(term->MaxX/SVG_SCALE), (int)(term->MaxY/SVG_SCALE));
 		if(SVG_background >= 0)
 			fprintf(gpoutfile, " fill=\"#%06x\"", SVG_background);
 		else
@@ -929,50 +910,27 @@ static void SVG_write_preamble()
 	    "\t  <feComposite in='SourceGraphic' in2='grey' operator='atop'/>\n"
 	    "\t</filter>\n"
 
-	    "</defs>\n"
-	    ,
-	    stroke_width
-	    ,
-	    stroke_width
-	    ,
-	    stroke_width
-	    ,
-	    stroke_width
-	    ,
-	    stroke_width
-	    ,
-	    stroke_width
-	    ,
-	    stroke_width
-	    ,
-	    stroke_width
-	    ,
-	    SVG_pens[0].color
-	    );
+	    "</defs>\n", stroke_width, stroke_width, stroke_width, stroke_width, stroke_width, stroke_width, stroke_width, stroke_width, SVG_pens[0].color);
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_graphics
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_graphics()
+TERM_PUBLIC void SVG_graphics(GpTermEntry * pThis)
 {
 	SVG_write_preamble();
-
-	/* We must force a new group with fill:none in order for multiple */
-	/* plots per page to work. Otherwise new plots are black-filled   */
+	// We must force a new group with fill:none in order for multiple 
+	// plots per page to work. Otherwise new plots are black-filled   
 	SVG_GroupOpen();
 	SVG_fillPattern = -1;
 	SVG_fillPatternIndex = 0;
 	SVG_groupFilledIsOpen = FALSE;
 	SVG_color_mode = TC_DEFAULT;
 	SVG_pathIsOpen = FALSE;
-/* reset position*/
+	// reset position
 	SVG_xLast = SVG_yLast = UINT_MAX;
 }
 
 static void svg_mouse_param(char * gp_name, const char * js_name)
 {
-	struct udvt_entry * udv;
+	udvt_entry * udv;
 	if((udv = GPO.Ev.AddUdvByName(gp_name))) {
 		if(udv->udv_value.type == INTGR) {
 			fprintf(gpoutfile, "gnuplot_svg.%s = ", js_name);
@@ -985,10 +943,7 @@ static void svg_mouse_param(char * gp_name, const char * js_name)
 	}
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_text
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_text()
+TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 {
 	SVG_PathClose();
 	SVG_GroupClose();
@@ -996,12 +951,12 @@ TERM_PUBLIC void SVG_text()
 		GpAxis * this_axis;
 		fprintf(gpoutfile, "\n<script type=\"text/javascript\"><![CDATA[\n");
 		fprintf(gpoutfile, "// plot boundaries and axis scaling information for mousing \n");
-		fprintf(gpoutfile, "gnuplot_svg.plot_term_xmax = %d;\n", (int)(term->MaxX / SVG_SCALE));
-		fprintf(gpoutfile, "gnuplot_svg.plot_term_ymax = %d;\n", (int)(term->MaxY / SVG_SCALE));
+		fprintf(gpoutfile, "gnuplot_svg.plot_term_xmax = %d;\n", (int)(pThis->MaxX / SVG_SCALE));
+		fprintf(gpoutfile, "gnuplot_svg.plot_term_ymax = %d;\n", (int)(pThis->MaxY / SVG_SCALE));
 		fprintf(gpoutfile, "gnuplot_svg.plot_xmin = %.1f;\n", (double)GPO.V.BbPlot.xleft / SVG_SCALE);
 		fprintf(gpoutfile, "gnuplot_svg.plot_xmax = %.1f;\n", (double)GPO.V.BbPlot.xright / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_ybot = %.1f;\n", (double)(term->MaxY-GPO.V.BbPlot.ybot) / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_ytop = %.1f;\n", (double)(term->MaxY-GPO.V.BbPlot.ytop) / SVG_SCALE);
+		fprintf(gpoutfile, "gnuplot_svg.plot_ybot = %.1f;\n", (double)(pThis->MaxY-GPO.V.BbPlot.ybot) / SVG_SCALE);
+		fprintf(gpoutfile, "gnuplot_svg.plot_ytop = %.1f;\n", (double)(pThis->MaxY-GPO.V.BbPlot.ytop) / SVG_SCALE);
 		fprintf(gpoutfile, "gnuplot_svg.plot_width = %.1f;\n", (double)(GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / SVG_SCALE);
 		fprintf(gpoutfile, "gnuplot_svg.plot_height = %.1f;\n", (double)(GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / SVG_SCALE);
 		// Get true axis ranges as used in the plot 
@@ -1130,8 +1085,7 @@ TERM_PUBLIC void SVG_text()
 
 	/* If there were any grid lines in this plot, add a button to toggle them */
 	if(SVG_mouseable && SVG_hasgrid) {
-		fprintf(gpoutfile, "\n  <image x='10' y='%d' width='16' height='16' ",
-		    (int)(term->MaxY/SVG_SCALE)-26);
+		fprintf(gpoutfile, "\n  <image x='10' y='%d' width='16' height='16' ", (int)(pThis->MaxY/SVG_SCALE)-26);
 		fprintf(gpoutfile,
 		    "\n    xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAABmJLR0QA/wD/AP+gvaeTAAAAM0lEQVQokWP8//8/AymACc5iZGQkyEDRQCwgyUn///9nhGtgZISy8TBGnTSCnMRIavIGAGPTWfVV7DcfAAAAAElFTkSuQmCC'");
 		fprintf(gpoutfile, "\n    onclick='gnuplot_svg.toggleGrid();'/>\n");
@@ -1145,17 +1099,11 @@ TERM_PUBLIC void SVG_text()
 	}
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_reset
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_reset()
+TERM_PUBLIC void SVG_reset(GpTermEntry * pThis)
 {
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_linetype
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_linetype(int linetype)
+TERM_PUBLIC void SVG_linetype(GpTermEntry * pThis, int linetype)
 {
 	SVG_color_mode = TC_DEFAULT;
 	if(TRUE || linetype != SVG_LineType) {
@@ -1170,26 +1118,19 @@ TERM_PUBLIC void SVG_linetype(int linetype)
 		SVG_dashpattern = NULL;
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_dashtype
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_dashtype(int type, t_dashtype * custom_dash_type)
+TERM_PUBLIC void SVG_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
 {
 	int d, j;
 	double empirical_scale = 0.50;
-	/* The dash pattern should depend on the `linewidth` and the terminal options `dashlength` and `linewidth`. */
+	// The dash pattern should depend on the `linewidth` and the terminal options `dashlength` and `linewidth`. 
 	double dash_scale = SVG_pens[SVG_Pen_RealID(SVG_LineType)].width * SVG_linewidth_factor * SVG_dashlength * empirical_scale;
-
 	SVG_dashpattern = NULL; /* Assume solid line */
-
 	switch(type) {
 		case DASHTYPE_SOLID:
 		    break;
-
 		case DASHTYPE_AXIS:
-		    /* Currently handled elsewhere via LT_AXIS */
+		    // Currently handled elsewhere via LT_AXIS 
 		    break;
-
 		case DASHTYPE_CUSTOM:
 		    if(custom_dash_type) {
 			    SVG_dashpattern = SVG_custom_dash_pattern;
@@ -1229,64 +1170,47 @@ TERM_PUBLIC void SVG_dashtype(int type, t_dashtype * custom_dash_type)
 	}
 }
 
-TERM_PUBLIC void SVG_fillbox(int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void SVG_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	gpiPoint corner[4];
-
 	corner[0].x = x1;        corner[0].y = y1;
 	corner[1].x = x1+width;  corner[1].y = y1;
 	corner[2].x = x1+width;  corner[2].y = y1+height;
 	corner[3].x = x1;        corner[3].y = y1+height;
 	corner->style = style;
-
-	SVG_filled_polygon(4, corner);
+	SVG_filled_polygon(pThis, 4, corner);
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_linewidth - verificare
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_linewidth(double linewidth)
+TERM_PUBLIC void SVG_linewidth(GpTermEntry * pThis, double linewidth)
 {
 	if(linewidth != SVG_LineWidth) {
 		short k;
-
 		SVG_LineWidth = linewidth;
-
 		for(k = 0; k < 16; k++)
 			SVG_pens[k].width = SVG_LineWidth;
-
 		SVG_PathClose();
 		SVG_GroupClose();
 		SVG_GroupOpen();
 	}
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_move
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_move(uint x, uint y)
+TERM_PUBLIC void SVG_move(GpTermEntry * pThis, uint x, uint y)
 {
 	if(x != SVG_xLast || y != SVG_yLast) {
 		SVG_MoveForced(x, y);
 	}
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_vector
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_vector(uint x, uint y)
+TERM_PUBLIC void SVG_vector(GpTermEntry * pThis, uint x, uint y)
 {
 	if(x != SVG_xLast || y != SVG_yLast) {
 		if(!SVG_pathIsOpen) {
-			/* The SVG 'path' MUST have a 'moveto' as first command. */
+			// The SVG 'path' MUST have a 'moveto' as first command. 
 			SVG_MoveForced(SVG_xLast, SVG_yLast);
 		}
-
 		fprintf(gpoutfile, "L%.*f,%.*f", PREC, X(x), PREC, Y(y));
 		SVG_path_count++;
-
 		SVG_AddSpaceOrNewline();
-
 		SVG_xLast = x;
 		SVG_yLast = y;
 	}
@@ -1294,7 +1218,7 @@ TERM_PUBLIC void SVG_vector(uint x, uint y)
 // 
 // SVG_point
 // 
-TERM_PUBLIC void SVG_point(uint x, uint y, int number)
+TERM_PUBLIC void SVG_point(GpTermEntry * pThis, uint x, uint y, int number)
 {
 	char color_spec[0x40];
 	if(SVG_color_mode == TC_RGB) {
@@ -1316,7 +1240,7 @@ TERM_PUBLIC void SVG_point(uint x, uint y, int number)
 	}
 	else {                  /* draw a point symbol */
 		fprintf(gpoutfile, "\t<use xlink:href='#gpPt%u' transform='translate(%.*f,%.*f) scale(%.2f)'%s/>",
-		    number % 15, PREC, X(x), PREC, Y(y), GPO.TermPointSize * term->TicH / (2 * SVG_SCALE), color_spec);
+		    number % 15, PREC, X(x), PREC, Y(y), GPO.TermPointSize * pThis->TicH / (2 * SVG_SCALE), color_spec);
 	}
 	SVG_xLast = x;
 	SVG_yLast = y;
@@ -1343,38 +1267,27 @@ TERM_PUBLIC int SVG_justify_text(enum JUSTIFY mode)
    ------------------------------------------------------------------------------------------------------------------------------------*/
 TERM_PUBLIC int SVG_text_angle(int ang)
 {
-	/* Can only do pure horizontal or vertical */
+	// Can only do pure horizontal or vertical 
 	SVG_TextAngle = ang;
 	return (TRUE);
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_put_text
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void SVG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	char * alignment;
 	double vertical_offset;
 	int h = x, v = y;
-
 	SVG_PathClose();
-
-/* horizontal justification*/
-
+	// horizontal justification
 	switch(SVG_TextJust) {
-		case LEFT:
-		    alignment = "start";
-		    break;
-		case CENTRE:
-		    alignment = "middle";
-		    break;
+		case LEFT: alignment = "start"; break;
+		case CENTRE: alignment = "middle"; break;
 		case RIGHT:
-		default: /* can't happen, just to make gcc happy */
+		default: // can't happen, just to make gcc happy 
 		    alignment = "end";
 		    break;
 	}
-
-/* vertical justification*/
+	// vertical justification
 	vertical_offset = (SVG_fontAscent - SVG_fontDescent) / 2.0;
 	h += vertical_offset * sin(SVG_TextAngle * DEG2RAD);
 	v -= vertical_offset * cos(SVG_TextAngle * DEG2RAD);
@@ -1431,10 +1344,7 @@ TERM_PUBLIC void SVG_put_text(uint x, uint y, const char * str)
 	}
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_set_font
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC int SVG_set_font(const char * font)
+TERM_PUBLIC int SVG_set_font(GpTermEntry * pThis, const char * font)
 {
 	if(!font || !(*font)) {
 		SAlloc::F(SVG_fontNameCur);
@@ -1502,7 +1412,7 @@ TERM_PUBLIC int SVG_make_palette(t_sm_palette * palette)
 	return 0;
 }
 
-TERM_PUBLIC void SVG_set_color(const t_colorspec * colorspec)
+TERM_PUBLIC void SVG_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
 	rgb255_color rgb255;
 	SVG_alpha = 0.0;
@@ -1539,23 +1449,16 @@ TERM_PUBLIC void SVG_set_color(const t_colorspec * colorspec)
 	return;
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_previous_palette
-   ------------------------------------------------------------------------------------------------------------------------------------*/
 TERM_PUBLIC void SVG_previous_palette()
 {
 	SVG_GroupFilledClose();
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_filled_polygon
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_filled_polygon(int points, gpiPoint* corners)
+TERM_PUBLIC void SVG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint* corners)
 {
 	int i;
 	int fillpar = corners->style >> 4;
 	int style = corners->style &= 0xf;
-
 	if(style == FS_PATTERN || style == FS_TRANSPARENT_PATTERN) {
 		/* make sure the pattern is defined (with the current stroke color)
 		 * must be defined AFTER the current group is opened with the color
@@ -1587,19 +1490,13 @@ TERM_PUBLIC void SVG_filled_polygon(int points, gpiPoint* corners)
 		    SVG_StyleFillColor();
 		    break;
 	}
-
 	fputs(" points = '", gpoutfile);
 	for(i = 0; i < points; i++)
-		fprintf(gpoutfile, "%.*f,%.*f%s",
-		    PREC, X(corners[i].x), PREC, Y(corners[i].y),
-		    i % 16 == 15 ? "\n" : " ");
+		fprintf(gpoutfile, "%.*f,%.*f%s", PREC, X(corners[i].x), PREC, Y(corners[i].y), i % 16 == 15 ? "\n" : " ");
 	fputs("'/>\n", gpoutfile);
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_layer
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC void SVG_layer(t_termlayer syncpoint)
+TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 {
 	char * name = NULL;
 	char panel[2] = {'\0', '\0'};
@@ -1702,7 +1599,7 @@ static double ENHsvg_base = 0.0;
 static bool ENHsvg_opened_string = FALSE;
 static int ENHsvg_charcount = 0;
 
-TERM_PUBLIC void ENHsvg_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	/* overprint = 1 means print the base text (leave position in center)
 	 * overprint = 2 means print the overlying text
@@ -1717,7 +1614,7 @@ TERM_PUBLIC void ENHsvg_OPEN(char * fontname, double fontsize, double base, bool
 		    /* FIXME: If there are multiple overprint characters,
 		     *        they all get piled on top of one another.
 		     */
-		    ENHsvg_FLUSH();
+		    ENHsvg_FLUSH(pThis);
 		    fprintf(gpoutfile, "<tspan dx=\"-%.1fem\" dy=\"%.1fpx\">", 0.5 * ENHsvg_charcount, ENHsvg_base-base);
 		    ENHsvg_base = base;
 		    ENHsvg_x_offset = 0.0;
@@ -1784,7 +1681,7 @@ TERM_PUBLIC void ENHsvg_OPEN(char * fontname, double fontsize, double base, bool
 	}
 }
 
-TERM_PUBLIC void ENHsvg_FLUSH()
+TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis)
 {
 	char * s = GPO.Enht.Text;
 	int i;
@@ -1821,7 +1718,7 @@ TERM_PUBLIC void ENHsvg_FLUSH()
 	fputs("</tspan>", gpoutfile);
 }
 
-TERM_PUBLIC void ENHsvg_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	// We need local copies of the starting font properties 
 	double fontsize = SVG_fontSizeCur;
@@ -1833,12 +1730,12 @@ TERM_PUBLIC void ENHsvg_put_text(uint x, uint y, const char * str)
 	// SVG_put_text() to return without actually putting the text.   
 	if(GPO.Enht.Ignore) {
 		ENHsvg_string_state = 0;
-		SVG_put_text(x, y, str);
+		SVG_put_text(pThis, x, y, str);
 		return;
 	}
 	else {
 		ENHsvg_string_state = 1;
-		SVG_put_text(x, y, str);
+		SVG_put_text(pThis, x, y, str);
 		ENHsvg_string_state = 0;
 	}
 
@@ -1853,7 +1750,7 @@ TERM_PUBLIC void ENHsvg_put_text(uint x, uint y, const char * str)
 	GPO.Enht.FontScale = 1.0;
 	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	while(*(str = enhanced_recursion(term, (char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
-		(term->enhanced_flush)();
+		(pThis->enhanced_flush)(pThis);
 		enh_err_check(str);
 		if(!*++str)
 			break; /* end of string */
@@ -1873,7 +1770,7 @@ TERM_PUBLIC void ENHsvg_put_text(uint x, uint y, const char * str)
 	return;
 }
 
-TERM_PUBLIC void ENHsvg_writec(int c)
+TERM_PUBLIC void ENHsvg_writec(GpTermEntry * pThis, int c)
 {
 	// Kludge for phantom box accounting 
 	ENHsvg_charcount++;
@@ -1908,7 +1805,7 @@ TERM_PUBLIC void ENHsvg_writec(int c)
 	}
 	// Never overflow the output buffer 
 	if((GPO.Enht.P_CurText - GPO.Enht.Text) >= sizeof(GPO.Enht.Text)-1)
-		ENHsvg_FLUSH();
+		ENHsvg_FLUSH(pThis);
 }
 
 TERM_PUBLIC void SVG_path(int p)
@@ -1923,7 +1820,7 @@ TERM_PUBLIC void SVG_path(int p)
 	}
 }
 
-TERM_PUBLIC void SVG_hypertext(int type, const char * text)
+TERM_PUBLIC void SVG_hypertext(GpTermEntry * pThis, int type, const char * text)
 {
 	switch(type) {
 		case TERM_HYPERTEXT_TOOLTIP:
@@ -1933,7 +1830,7 @@ TERM_PUBLIC void SVG_hypertext(int type, const char * text)
 			    char * buffer = (char*)gp_alloc(2+5*strlen(text), "escape");
 			    GPO.Enht.P_CurText = buffer;
 			    do {
-				    ENHsvg_writec(*text);
+				    ENHsvg_writec(pThis, *text);
 			    } while(*text++);
 			    SVG_hypertext_text = gp_strdup(buffer);
 			    GPO.Enht.P_CurText = NULL;

@@ -95,7 +95,6 @@ FT_EXPORT_DEF(FT_Error) FT_Get_MM_Var(FT_Face face, FT_MM_Var*  *amaster)
 		if(service->get_mm_var)
 			error = service->get_mm_var(face, amaster);
 	}
-
 	return error;
 }
 
@@ -126,13 +125,11 @@ FT_EXPORT_DEF(FT_Error) FT_Set_MM_Design_Coordinates(FT_Face face, FT_UInt num_c
 		if(service->set_mm_design)
 			error = service->set_mm_design(face, num_coords, coords);
 	}
-
 	/* enforce recomputation of auto-hinting data */
 	if(!error && face->autohint.finalizer) {
 		face->autohint.finalizer(face->autohint.data);
 		face->autohint.data = NULL;
 	}
-
 	return error;
 }
 
@@ -377,8 +374,7 @@ FT_EXPORT_DEF(FT_Error) FT_Set_Named_Instance(FT_Face face, FT_UInt instance_ind
 		face->autohint.data = NULL;
 	}
 	if(!error) {
-		face->face_index  = ( instance_index << 16 )        |
-		    ( face->face_index & 0xFFFFL );
+		face->face_index  = (instance_index << 16)|(face->face_index & 0xFFFFL);
 		face->face_flags &= ~FT_FACE_FLAG_VARIATION;
 	}
 	return error;

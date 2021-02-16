@@ -59,7 +59,7 @@ register_term(hp2623a)
 #ifdef TERM_PROTO
 TERM_PUBLIC void HP26_vector(uint x, uint y);
 TERM_PUBLIC void HP26_move(uint x, uint y);
-TERM_PUBLIC void HP26_init(termentry * pThis);
+TERM_PUBLIC void HP26_init(GpTermEntry * pThis);
 TERM_PUBLIC void HP26_graphics();
 TERM_PUBLIC void HP26_text();
 TERM_PUBLIC void HP26_reset();
@@ -393,7 +393,7 @@ TERM_PUBLIC void HP26_move(uint x, uint y)
 	return;
 }
 
-TERM_PUBLIC void HP26_init(termentry * pThis)
+TERM_PUBLIC void HP26_init(GpTermEntry * pThis)
 {
 	HP26_gnu_map[-2 + 2] = BN_create(0, 2048, DOTS); /* border */
 	HP26_gnu_map[-1 + 2] = HP26_gnu_map[-2 + 2];    /* axes */

@@ -51,7 +51,7 @@
 	register_term(dxy800a)
 #endif
 #ifdef TERM_PROTO
-TERM_PUBLIC void DXY_init(termentry * pThis);
+TERM_PUBLIC void DXY_init(GpTermEntry * pThis);
 TERM_PUBLIC void DXY_graphics();
 TERM_PUBLIC void DXY_text();
 TERM_PUBLIC void DXY_linetype(int linetype);
@@ -78,7 +78,7 @@ TERM_PUBLIC void DXY_reset();
 
 int dxy_angle = 0;
 
-TERM_PUBLIC void DXY_init(termentry * pThis)
+TERM_PUBLIC void DXY_init(GpTermEntry * pThis)
 {
 	/* No initialisation sequences for DXY 800A */
 }

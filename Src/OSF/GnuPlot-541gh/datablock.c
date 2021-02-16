@@ -43,7 +43,7 @@ void GpProgram::DatablockCommand()
 	CopyStr(&eod[0], CToken, P_Token[CToken].length+2);
 	Shift();
 	// Read in and store data lines until EOD 
-	fin = (lf_head == NULL) ? stdin : lf_head->fp;
+	fin = lf_head ? lf_head->fp : stdin;
 	if(!fin)
 		GPO.IntError(NO_CARET, "attempt to define data block from invalid context");
 	for(nlines = 0; (dataline = df_fgets(fin)); nlines++) {

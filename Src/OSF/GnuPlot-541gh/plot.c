@@ -53,7 +53,7 @@ bool successful_initialization = FALSE; // not static because unset.c refers to 
 
 // patch to get home dir, see command.c 
 static JMP_BUF command_line_env; // a longjmp buffer to get back to the command line 
-static void load_rcfile(int where);
+//static void load_rcfile(int where);
 static RETSIGTYPE inter(int anint);
 static void init_memory();
 
@@ -93,11 +93,12 @@ void bail_to_command_line()
 	LONGJMP(command_line_env, TRUE);
 }
 
-#if defined(_WIN32)
-int gnu_main(int argc_orig, char ** argv)
-#else
-int main(int argc_orig, char ** argv)
-#endif
+//#if defined(_WIN32)
+//int gnu_main(int argc_orig, char ** argv)
+//#else
+//int main(int argc_orig, char ** argv)
+//#endif
+int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 {
 	int i;
 	// We want the current value of argc to persist across a LONGJMP from GPO.IntError().
@@ -219,11 +220,11 @@ int main(int argc_orig, char ** argv)
 	gpoutfile = stdout;
 	// Initialize pre-loaded user variables 
 	// "pi" is hard-wired as the first variable 
-	GPO.Ev.AddUdvByName("GNUTERM");
-	GPO.Ev.AddUdvByName("I");
-	GPO.Ev.AddUdvByName("NaN");
-	GPO.Ev.InitConstants();
-	GPO.Ev.PP_UdvUserHead = &(GPO.Ev.P_UdvNaN->next_udv);
+	Ev.AddUdvByName("GNUTERM");
+	Ev.AddUdvByName("I");
+	Ev.AddUdvByName("NaN");
+	Ev.InitConstants();
+	Ev.PP_UdvUserHead = &(Ev.P_UdvNaN->next_udv);
 	init_memory();
 	interactive = FALSE;
 	// April 2017:  We used to call init_terminal() here, but now   
@@ -253,14 +254,14 @@ int main(int argc_orig, char ** argv)
 		show_version(stderr);
 	else
 		show_version(NULL); // Only load GPVAL_COMPILE_OPTIONS 
-	GPO.UpdateGpvalVariables(3); // update GPVAL_ variables available to user 
+	UpdateGpvalVariables(3); // update GPVAL_ variables available to user 
 	if(!SETJMP(command_line_env, 1)) {
 		// first time 
 		interrupt_setup();
 		get_user_env();
 		init_loadpath();
 		init_locale();
-		memzero(&GPO.SmPltt, sizeof(GPO.SmPltt));
+		memzero(&SmPltt, sizeof(SmPltt));
 		init_fit();     /* Initialization of fitting module */
 #ifdef READLINE
 		// When using the built-in readline, we set the initial
@@ -274,13 +275,13 @@ int main(int argc_orig, char ** argv)
 		// atexit processing is done in reverse order. We want
 		// the generic terminal shutdown in term_reset to be executed before
 		// any terminal specific cleanup requested by individual terminals.
-		GPO.InitTerminal();
+		InitTerminal();
 		push_terminal(0); /* remember the initial terminal */
-		/* @sobolev term_reset заменена на GnuPlot::TermReset(termentry *) потому использовать ее здесь уже нельзя.
+		/* @sobolev term_reset заменена на GnuPlot::TermReset(GpTermEntry *) потому использовать ее здесь уже нельзя.
 			gp_atexit(term_reset); 
 		*/
 		// Execute commands in ~/.gnuplot 
-		GPO.InitSession();
+		InitSession();
 		if(interactive && term != 0) {  /* not unknown */
 #ifdef GNUPLOT_HISTORY
 #if (defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)) && !defined(_WIN32)
@@ -304,7 +305,7 @@ int main(int argc_orig, char ** argv)
 		}               /* if (interactive && term != 0) */
 	}
 	else {
-		// come back here from GPO.IntError() 
+		// come back here from IntError() 
 		if(!successful_initialization) {
 			// Only print the warning once 
 			successful_initialization = TRUE;
@@ -330,14 +331,14 @@ int main(int argc_orig, char ** argv)
 			goto RECOVER_FROM_ERROR_IN_DASH;
 		reading_from_dash = FALSE;
 		if(!interactive && !noinputfiles) {
-			GPO.TermReset(term);
+			TermReset(term);
 			gp_exit(EXIT_FAILURE); /* exit on non-interactive error */
 		}
 	}
 	// load filenames given as arguments 
 	while(--argc > 0) {
 		++argv;
-		GPO.Pgm.CToken = 0;
+		Pgm.CToken = 0;
 		if(!strncmp(*argv, "-persist", 2) || !strcmp(*argv, "--persist")
 #ifdef _WIN32
 		    || sstreqi_ascii(*argv, "-noend") || sstreqi_ascii(*argv, "/noend")
@@ -354,7 +355,7 @@ int main(int argc_orig, char ** argv)
 #endif
 RECOVER_FROM_ERROR_IN_DASH:
 			reading_from_dash = TRUE;
-			while(!GPO.ComLine())
+			while(!ComLine())
 				;
 			reading_from_dash = FALSE;
 			interactive = FALSE;
@@ -369,7 +370,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 			}
 			interactive = FALSE;
 			noinputfiles = FALSE;
-			do_string(*argv);
+			DoString(*argv);
 			interactive = save_state;
 		}
 		else if(!strncmp(*argv, "-slow", 2) || !strcmp(*argv, "--slow")) {
@@ -391,10 +392,9 @@ RECOVER_FROM_ERROR_IN_DASH:
 			}
 			call_argc = MIN(9, argc - 1);
 			for(i = 0; i<=call_argc; i++) {
-				/* Need to stash argv[i] somewhere visible to load_file() */
-				call_args[i] = gp_strdup(argv[i+1]);
+				call_args[i] = gp_strdup(argv[i+1]); // Need to stash argv[i] somewhere visible to load_file() 
 			}
-			GPO.Pgm.LoadFile(loadpath_fopen(*argv, "r"), gp_strdup(*argv), 5);
+			LoadFile(loadpath_fopen(*argv, "r"), gp_strdup(*argv), 5);
 			gp_exit(EXIT_SUCCESS);
 		}
 		else if(*argv[0] == '-') {
@@ -403,12 +403,12 @@ RECOVER_FROM_ERROR_IN_DASH:
 		else {
 			interactive = FALSE;
 			noinputfiles = FALSE;
-			GPO.Pgm.LoadFile(loadpath_fopen(*argv, "r"), gp_strdup(*argv), 4);
+			LoadFile(loadpath_fopen(*argv, "r"), gp_strdup(*argv), 4);
 		}
 	}
 	// take commands from stdin 
 	if(noinputfiles) {
-		while(!GPO.ComLine())
+		while(!ComLine())
 			ctrlc_flag = FALSE; /* reset asynchronous Ctrl-C flag */
 	}
 #ifdef _WIN32
@@ -426,7 +426,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 #endif
 			{
 				interactive = TRUE;
-				while(!GPO.ComLine())
+				while(!ComLine())
 					ctrlc_flag = FALSE; /* reset asynchronous Ctrl-C flag */
 				interactive = FALSE;
 			}
@@ -480,23 +480,24 @@ void GnuPlot::InitSession()
 	Ev.DelUdvByName("", TRUE); /* Undefine any previously-used variables */
 	SetColorSequence(1); /* Restore default colors before loading local preferences */
 	Ev.OverflowHandling = INT64_OVERFLOW_TO_FLOAT; /* Reset program variables not handled by 'reset' */
-	init_voxelsupport(); /* Reset voxel data structures if supported */
+	InitVoxelSupport(); /* Reset voxel data structures if supported */
 	// Make sure all variables start in the same state 'reset' would set them to. 
 	ResetCommand();        /* FIXME: this does c_token++ */
-	load_rcfile(0);         /* System-wide gnuplotrc if configured */
-	load_rcfile(1);         /* ./.gnuplot if configured */
+	LoadRcFile(0);         /* System-wide gnuplotrc if configured */
+	LoadRcFile(1);         /* ./.gnuplot if configured */
 	// After this point we allow pipes and system commands 
 	successful_initialization = TRUE;
-	load_rcfile(2);         /* ~/.gnuplot */
-	load_rcfile(3);         /* ~/.config/gnuplot/gnuplotrc */
+	LoadRcFile(2);         /* ~/.gnuplot */
+	LoadRcFile(3);         /* ~/.config/gnuplot/gnuplotrc */
 }
-/*
- * Read commands from an initialization file.
- * where = 0: look for gnuplotrc in system shared directory
- * where = 1: look for .gnuplot in current directory
- * where = 2: look for .gnuplot in home directory
- */
-static void load_rcfile(int where)
+// 
+// Read commands from an initialization file.
+// where = 0: look for gnuplotrc in system shared directory
+// where = 1: look for .gnuplot in current directory
+// where = 2: look for .gnuplot in home directory
+// 
+//static void load_rcfile(int where)
+void GnuPlot::LoadRcFile(int where)
 {
 	FILE * plotrc = NULL;
 	char * rcfile = NULL;
@@ -516,14 +517,14 @@ static void load_rcfile(int where)
 	}
 	else if(where == 1) {
 #ifdef USE_CWDRC
-		/* Allow check for a .gnuplot init file in the current directory */
-		/* This is a security risk, as someone might leave a malicious   */
-		/* init file in a shared directory.                              */
+		// Allow check for a .gnuplot init file in the current directory 
+		// This is a security risk, as someone might leave a malicious   
+		// init file in a shared directory.                              
 		plotrc = fopen(PLOTRC, "r");
-#endif /* !USE_CWDRC */
+#endif
 	}
 	else if(where == 2 && user_homedir) {
-		/* length of homedir + directory separator + length of file name + \0 */
+		// length of homedir + directory separator + length of file name + \0 
 		int len = (user_homedir ? strlen(user_homedir) : 0) + 1 + strlen(PLOTRC) + 1;
 		rcfile = (char*)gp_alloc(len, "rcfile");
 		strcpy(rcfile, user_homedir);
@@ -543,7 +544,7 @@ static void load_rcfile(int where)
 	}
 	if(plotrc) {
 		char * rc = gp_strdup(rcfile ? rcfile : PLOTRC);
-		GPO.Pgm.LoadFile(plotrc, rc, 3);
+		LoadFile(plotrc, rc, 3);
 		push_terminal(0); /* needed if terminal or its options were changed */
 	}
 	SAlloc::F(rcfile);

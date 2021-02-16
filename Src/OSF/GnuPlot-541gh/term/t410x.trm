@@ -68,7 +68,7 @@ register_term(tek410x)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void T410X_init(termentry * pThis);
+TERM_PUBLIC void T410X_init(GpTermEntry * pThis);
 TERM_PUBLIC void T410X_reset();
 TERM_PUBLIC void T410X_graphics();
 TERM_PUBLIC void T410X_text();
@@ -94,7 +94,7 @@ static void T410X_encode_int(int number);
 
 static int T410X_angle = 0;
 
-TERM_PUBLIC void T410X_init(termentry * pThis)
+TERM_PUBLIC void T410X_init(GpTermEntry * pThis)
 {
 	fputs("\033%%!0\033MN0\033MCB7C;\033MQ1\033MT1", gpoutfile);
 	fputs("\033MG1\033RK!\033SK!\033LZ\033%%!1", gpoutfile);

@@ -314,7 +314,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 //void print_3dtable(int pcount)
 void GnuPlot::Print3DTable(int pcount)
 {
-	surface_points * this_plot;
+	GpSurfacePoints * this_plot;
 	int i, surface;
 	GpCoordinate * point;
 	GpCoordinate * tail;

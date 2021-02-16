@@ -51,7 +51,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -60,31 +60,31 @@
 #endif
 //#ifdef TERM_PROTO
 TERM_PUBLIC void CANVAS_options();
-TERM_PUBLIC void CANVAS_init(termentry * pThis);
-TERM_PUBLIC void CANVAS_graphics();
+TERM_PUBLIC void CANVAS_init(GpTermEntry * pThis);
+TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis);
 TERM_PUBLIC int  CANVAS_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC void CANVAS_text();
-TERM_PUBLIC void CANVAS_reset();
-TERM_PUBLIC void CANVAS_linetype(int linetype);
-TERM_PUBLIC void CANVAS_dashtype(int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void CANVAS_fillbox(int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void CANVAS_linewidth(double linewidth);
-TERM_PUBLIC void CANVAS_move(uint x, uint y);
-TERM_PUBLIC void CANVAS_vector(uint x, uint y);
-TERM_PUBLIC void CANVAS_point(uint x, uint y, int number);
+TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis);
+TERM_PUBLIC void CANVAS_reset(GpTermEntry * pThis);
+TERM_PUBLIC void CANVAS_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void CANVAS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
+TERM_PUBLIC void CANVAS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void CANVAS_linewidth(GpTermEntry * pThis, double linewidth);
+TERM_PUBLIC void CANVAS_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void CANVAS_vector(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void CANVAS_pointsize(double size);
-TERM_PUBLIC void CANVAS_put_text(uint x, uint y, const char * str);
+TERM_PUBLIC void CANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
 TERM_PUBLIC int  CANVAS_text_angle(int ang);
-TERM_PUBLIC void CANVAS_filled_polygon(int, gpiPoint *);
-TERM_PUBLIC void CANVAS_set_color(const t_colorspec * colorspec);
+TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
+TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC int  CANVAS_make_palette(t_sm_palette * palette);
-TERM_PUBLIC void CANVAS_layer(t_termlayer);
+TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer);
 TERM_PUBLIC void CANVAS_path(int);
-TERM_PUBLIC void CANVAS_hypertext(int, const char *);
-TERM_PUBLIC int  CANVAS_set_font(const char *);
-TERM_PUBLIC void ENHCANVAS_OPEN(char *, double, double, bool, bool, int);
-TERM_PUBLIC void ENHCANVAS_FLUSH();
-TERM_PUBLIC void ENHCANVAS_put_text(uint, uint, const char *);
+TERM_PUBLIC void CANVAS_hypertext(GpTermEntry * pThis, int, const char *);
+TERM_PUBLIC int  CANVAS_set_font(GpTermEntry * pThis, const char *);
+TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry * pThis, char *, double, double, bool, bool, int);
+TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry * pThis);
+TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint, uint, const char *);
 
 #define CANVAS_OVERSAMPLE       10.
 #define CANVAS_XMAX             (600 * CANVAS_OVERSAMPLE)
@@ -222,7 +222,7 @@ static void CANVAS_finish(void)
 	}
 }
 
-TERM_PUBLIC void CANVAS_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	int canvas_background = 0;
 	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion")) {
@@ -239,8 +239,8 @@ TERM_PUBLIC void CANVAS_options(TERMENTRY * pThis, GnuPlot * pGp)
 		canvas_dashlength_factor = 1.0;
 		CANVAS_background[0] = '\0';
 		/* Default to enhanced text mode */
-		term->put_text = ENHCANVAS_put_text;
-		term->flags |= TERM_ENHANCED_TEXT;
+		pThis->put_text = ENHCANVAS_put_text;
+		pThis->flags |= TERM_ENHANCED_TEXT;
 	}
 	while(!pGp->Pgm.EndOfCommand()) {
 		const int _option = pGp->Pgm.LookupTableForCurrentToken(&CANVAS_opts[0]);
@@ -262,8 +262,8 @@ TERM_PUBLIC void CANVAS_options(TERMENTRY * pThis, GnuPlot * pGp)
 				    canvas_xmax = static_cast<int>(CANVAS_XMAX);
 			    if(canvas_ymax <= 0)
 				    canvas_ymax = static_cast<int>(CANVAS_YMAX);
-			    term->MaxX = canvas_xmax;
-			    term->MaxY = canvas_ymax;
+			    pThis->MaxX = canvas_xmax;
+			    pThis->MaxY = canvas_ymax;
 			    break;
 
 			case CANVAS_TITLE:
@@ -287,7 +287,7 @@ TERM_PUBLIC void CANVAS_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    SAlloc::F(canvas_font_name);
 			    if(!(canvas_font_name = pGp->TryToGetString()))
 				    pGp->IntErrorCurToken("font: expecting string");
-			    CANVAS_set_font(canvas_font_name);
+			    CANVAS_set_font(pThis, canvas_font_name);
 			    break;
 			case CANVAS_FSIZE:
 			    CANVAS_default_fsize = pGp->RealExpression();
@@ -302,12 +302,12 @@ TERM_PUBLIC void CANVAS_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    CANVAS_scriptdir = pGp->TryToGetString();
 			    break;
 			case CANVAS_ENH:
-			    term->put_text = ENHCANVAS_put_text;
-			    term->flags |= TERM_ENHANCED_TEXT;
+			    pThis->put_text = ENHCANVAS_put_text;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case CANVAS_NOENH:
-			    term->put_text = CANVAS_put_text;
-			    term->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->put_text = CANVAS_put_text;
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case CANVAS_LINEWIDTH:
 			    canvas_linewidth = pGp->RealExpression();
@@ -344,13 +344,13 @@ TERM_PUBLIC void CANVAS_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-	term->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
-	term->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
+	pThis->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
+	pThis->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
 	if(canvas_dashlength_factor != 1.0)
 		sprintf(term_options + strlen(term_options), " dashlength %3.1f", canvas_dashlength_factor);
 	sprintf(term_options + strlen(term_options), canvas_linecap == ROUNDED ? " rounded" : canvas_linecap == SQUARE ? " square" : " butt");
-	sprintf(term_options + strlen(term_options), " size %d,%d", (int)(term->MaxX/CANVAS_OVERSAMPLE), (int)(term->MaxY/CANVAS_OVERSAMPLE));
-	sprintf(term_options + strlen(term_options), "%s fsize %g lw %g", term->put_text == ENHCANVAS_put_text ? " enhanced" : "", canvas_font_size, canvas_linewidth);
+	sprintf(term_options + strlen(term_options), " size %d,%d", (int)(pThis->MaxX/CANVAS_OVERSAMPLE), (int)(pThis->MaxY/CANVAS_OVERSAMPLE));
+	sprintf(term_options + strlen(term_options), "%s fsize %g lw %g", pThis->put_text == ENHCANVAS_put_text ? " enhanced" : "", canvas_font_size, canvas_linewidth);
 	sprintf(term_options + strlen(term_options), " fontscale %g", canvas_fontscale);
 	if(*CANVAS_background)
 		sprintf(term_options + strlen(term_options), " background \"#%06x\"", canvas_background);
@@ -367,11 +367,11 @@ TERM_PUBLIC void CANVAS_options(TERMENTRY * pThis, GnuPlot * pGp)
 		sprintf(term_options + strlen(term_options), " jsdir \"%s\"", CANVAS_scriptdir);
 }
 
-TERM_PUBLIC void CANVAS_init(termentry * pThis)
+TERM_PUBLIC void CANVAS_init(GpTermEntry * pThis)
 {
 }
 
-TERM_PUBLIC void CANVAS_graphics()
+TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 {
 	int len;
 	// Force initialization at the beginning of each plot 
@@ -471,7 +471,7 @@ TERM_PUBLIC void CANVAS_graphics()
 		    "  gnuplot.zoom_in_progress = false;\n",
 		    CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name);
 		fprintf(gpoutfile, "  gnuplot.polar_mode = %s;\n  gnuplot.polar_theta0 = %d;\n  gnuplot.polar_sense = %d;\n  ctx.clearRect(0,0,%d,%d);\n}\n",
-		    (GPO.Gg.Polar ? "true" : "false"), (int)theta_origin, (int)theta_direction, (int)(term->MaxX / CANVAS_OVERSAMPLE), (int)(term->MaxY / CANVAS_OVERSAMPLE));
+		    (GPO.Gg.Polar ? "true" : "false"), (int)theta_origin, (int)theta_direction, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
 	}
 	fprintf(gpoutfile, "// Gnuplot version %s.%s\n", gnuplot_version, gnuplot_patchlevel);
 	fprintf(gpoutfile,
@@ -507,19 +507,10 @@ TERM_PUBLIC void CANVAS_graphics()
 	    );
 
 	if(*CANVAS_background) {
-		fprintf(gpoutfile,
-		    "ctx.fillStyle = \"%s\";\n"
-		    "ctx.fillRect(0,0,%d,%d);\n",
-		    CANVAS_background,
-		    (int)(term->MaxX / CANVAS_OVERSAMPLE),
-		    (int)(term->MaxY / CANVAS_OVERSAMPLE));
+		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\nctx.fillRect(0,0,%d,%d);\n",
+		    CANVAS_background, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
 	}
-	fprintf(gpoutfile,
-	    "CanvasTextFunctions.enable(ctx);\n"
-	    "ctx.strokeStyle = \" rgb(215,215,215)\";\n"
-	    "ctx.lineWidth = %.1g;\n\n",
-	    canvas_linewidth
-	    );
+	fprintf(gpoutfile, "CanvasTextFunctions.enable(ctx);\nctx.strokeStyle = \" rgb(215,215,215)\";\nctx.lineWidth = %.1g;\n\n", canvas_linewidth);
 }
 
 static void CANVAS_mouse_param(char * gp_name, const char * js_name)
@@ -537,7 +528,7 @@ static void CANVAS_mouse_param(char * gp_name, const char * js_name)
 	}
 }
 
-TERM_PUBLIC void CANVAS_text()
+TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 {
 	GpAxis * this_axis;
 	CANVAS_finish();
@@ -546,12 +537,12 @@ TERM_PUBLIC void CANVAS_text()
 	// they should be tied to the function name and hence private.            
 	if(TRUE) {
 		fprintf(gpoutfile, "\n// plot boundaries and axis scaling information for mousing \n");
-		fprintf(gpoutfile, "gnuplot.plot_term_xmax = %d;\n", (int)(term->MaxX / CANVAS_OVERSAMPLE));
-		fprintf(gpoutfile, "gnuplot.plot_term_ymax = %d;\n", (int)(term->MaxY / CANVAS_OVERSAMPLE));
+		fprintf(gpoutfile, "gnuplot.plot_term_xmax = %d;\n", (int)(pThis->MaxX / CANVAS_OVERSAMPLE));
+		fprintf(gpoutfile, "gnuplot.plot_term_ymax = %d;\n", (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
 		fprintf(gpoutfile, "gnuplot.plot_xmin = %.1f;\n", (double)GPO.V.BbPlot.xleft / CANVAS_OVERSAMPLE);
 		fprintf(gpoutfile, "gnuplot.plot_xmax = %.1f;\n", (double)GPO.V.BbPlot.xright / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ybot = %.1f;\n", (double)(term->MaxY-GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ytop = %.1f;\n", (double)(term->MaxY-GPO.V.BbPlot.ytop) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_ybot = %.1f;\n", (double)(pThis->MaxY-GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_ytop = %.1f;\n", (double)(pThis->MaxY-GPO.V.BbPlot.ytop) / CANVAS_OVERSAMPLE);
 		fprintf(gpoutfile, "gnuplot.plot_width = %.1f;\n", (double)(GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / CANVAS_OVERSAMPLE);
 		fprintf(gpoutfile, "gnuplot.plot_height = %.1f;\n", (double)(GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
 		// Get true axis ranges as used in the plot 
@@ -736,7 +727,7 @@ TERM_PUBLIC void CANVAS_text()
 		    "    </canvas>\n"
 		    "</td></tr>\n"
 		    "</table>\n",
-		    (int)(term->MaxX/CANVAS_OVERSAMPLE), (int)(term->MaxY/CANVAS_OVERSAMPLE)
+		    (int)(pThis->MaxX/CANVAS_OVERSAMPLE), (int)(pThis->MaxY/CANVAS_OVERSAMPLE)
 		    );
 		if(CANVAS_mouseable) {
 			fprintf(gpoutfile, "</td></tr></table>\n");
@@ -746,12 +737,12 @@ TERM_PUBLIC void CANVAS_text()
 	fflush(gpoutfile);
 }
 
-TERM_PUBLIC void CANVAS_reset()
+TERM_PUBLIC void CANVAS_reset(GpTermEntry * pThis)
 {
 	;
 }
 
-TERM_PUBLIC void CANVAS_linetype(int linetype)
+TERM_PUBLIC void CANVAS_linetype(GpTermEntry * pThis, int linetype)
 {
 	/* NB: These values are manipulated as numbers; */
 	/* it does not work to give only the color name */
@@ -790,10 +781,10 @@ TERM_PUBLIC void CANVAS_linetype(int linetype)
 		strcpy(canvas_state.previous_color, canvas_state.color);
 	}
 	if(canvas_line_type == LT_NODRAW)
-		CANVAS_dashtype(DASHTYPE_NODRAW, NULL);
+		CANVAS_dashtype(pThis, DASHTYPE_NODRAW, NULL);
 }
 
-TERM_PUBLIC void CANVAS_dashtype(int type, t_dashtype * custom_dash_type)
+TERM_PUBLIC void CANVAS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
 {
 	if(canvas_line_type == LT_NODRAW)
 		type = DASHTYPE_NODRAW;
@@ -834,7 +825,7 @@ TERM_PUBLIC void CANVAS_dashtype(int type, t_dashtype * custom_dash_type)
 	canvas_dash_type = type;
 }
 
-TERM_PUBLIC void CANVAS_move(uint arg_x, uint arg_y)
+TERM_PUBLIC void CANVAS_move(GpTermEntry * pThis, uint arg_x, uint arg_y)
 {
 	if(canvas_in_a_path && (canvas_x == arg_x) && (canvas_y == arg_y)) {
 		return;
@@ -845,13 +836,13 @@ TERM_PUBLIC void CANVAS_move(uint arg_x, uint arg_y)
 	canvas_y = arg_y;
 }
 
-TERM_PUBLIC void CANVAS_vector(uint arg_x, uint arg_y)
+TERM_PUBLIC void CANVAS_vector(GpTermEntry * pThis, uint arg_x, uint arg_y)
 {
 	if((canvas_x == arg_x) && (canvas_y == arg_y))
 		return;
 	if(!canvas_in_a_path) {
-		/* Force a new path */
-		CANVAS_move(canvas_x, canvas_y);
+		// Force a new path 
+		CANVAS_move(pThis, canvas_x, canvas_y);
 	}
 	fprintf(gpoutfile, "L(%u,%u);\n", arg_x, canvas_ymax - arg_y);
 	canvas_x = arg_x;
@@ -869,11 +860,11 @@ TERM_PUBLIC int CANVAS_justify_text(enum JUSTIFY mode)
 	return (TRUE);
 }
 
-TERM_PUBLIC void CANVAS_point(uint x, uint y, int number)
+TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number)
 {
 	double width  = CANVAS_ps * 0.6 * CANVASHTIC;
 	int pt = number % 9;
-	/* Skip size 0 points;  the alternative would be to draw a Dot instead */
+	// Skip size 0 points;  the alternative would be to draw a Dot instead 
 	if(width <= 0 && pt >= 0)
 		return;
 	CANVAS_finish();
@@ -922,7 +913,7 @@ TERM_PUBLIC int CANVAS_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC void CANVAS_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void CANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	if(!isempty(str)) {
 		CANVAS_finish();
@@ -949,7 +940,7 @@ TERM_PUBLIC void CANVAS_put_text(uint x, uint y, const char * str)
 	}
 }
 
-TERM_PUBLIC void CANVAS_linewidth(double linewidth)
+TERM_PUBLIC void CANVAS_linewidth(GpTermEntry * pThis, double linewidth)
 {
 	CANVAS_finish();
 	if(canvas_state.previous_linewidth != linewidth) {
@@ -958,12 +949,12 @@ TERM_PUBLIC void CANVAS_linewidth(double linewidth)
 	}
 }
 
-TERM_PUBLIC void CANVAS_set_color(const t_colorspec * colorspec)
+TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
 	rgb255_color rgb255;
 	canvas_state.alpha = 0.0;
 	if(colorspec->type == TC_LT) {
-		CANVAS_linetype(colorspec->lt);
+		CANVAS_linetype(pThis, colorspec->lt);
 		return;
 	}
 	else if(colorspec->type == TC_RGB) {
@@ -1056,12 +1047,11 @@ static char * CANVAS_fillstyle(int style)
 	return fillcolor;
 }
 
-TERM_PUBLIC void CANVAS_filled_polygon(int points, gpiPoint * corners)
+TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	int i;
 	CANVAS_finish();
-	/* FIXME: I do not understand why this is necessary, but without it */
-	/*        a dashed line followed by a filled area fails to fill.    */
+	// FIXME: I do not understand why this is necessary, but without it  a dashed line followed by a filled area fails to fill.
 	if(canvas_dashed) {
 		fprintf(gpoutfile, "DT(gnuplot.solid);\n");
 		canvas_line_type = LT_UNDEFINED;
@@ -1084,11 +1074,10 @@ TERM_PUBLIC void CANVAS_filled_polygon(int points, gpiPoint * corners)
 		fprintf(gpoutfile, "cfsp();\n"); // Fill with stroke color 
 }
 
-TERM_PUBLIC void CANVAS_fillbox(int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void CANVAS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	char * fillcolor = CANVAS_fillstyle(style);
-	/* FIXME: I do not understand why this is necessary, but without it */
-	/*        a dashed line followed by a filled area fails to fill.    */
+	// FIXME: I do not understand why this is necessary, but without it a dashed line followed by a filled area fails to fill. 
 	if(canvas_dashed) {
 		fprintf(gpoutfile, "DT(gnuplot.solid);\n");
 		canvas_line_type = LT_UNDEFINED;
@@ -1103,7 +1092,7 @@ TERM_PUBLIC void CANVAS_fillbox(int style, uint x1, uint y1, uint width, uint he
 	fprintf(gpoutfile, "R(%d,%d,%d,%d);\n", x1, canvas_ymax - (y1+height), width, height);
 }
 
-TERM_PUBLIC void CANVAS_layer(t_termlayer layer)
+TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer layer)
 {
 	char * basename = (CANVAS_name) ? CANVAS_name : "gp";
 	switch(layer) {
@@ -1150,7 +1139,7 @@ TERM_PUBLIC void CANVAS_path(int p)
 	}
 }
 
-TERM_PUBLIC void CANVAS_hypertext(int type, const char * hypertext)
+TERM_PUBLIC void CANVAS_hypertext(GpTermEntry * pThis, int type, const char * hypertext)
 {
 	if(type != TERM_HYPERTEXT_TOOLTIP)
 		return;
@@ -1171,7 +1160,7 @@ TERM_PUBLIC void CANVAS_hypertext(int type, const char * hypertext)
 /*	ctx.textAlign = "center";					*/
 /*	ctx.fillText( "Oh goody, text support.", x, y );		*/
 /*									*/
-TERM_PUBLIC int CANVAS_set_font(const char * newfont)
+TERM_PUBLIC int CANVAS_set_font(GpTermEntry * pThis, const char * newfont)
 {
 	int sep;
 	if(!newfont || !(*newfont))
@@ -1184,8 +1173,8 @@ TERM_PUBLIC int CANVAS_set_font(const char * newfont)
 				canvas_font_size = CANVAS_default_fsize;
 		}
 	}
-	term->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
-	term->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
+	pThis->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
+	pThis->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
 	return 1;
 }
 //
@@ -1199,7 +1188,7 @@ static bool ENHCANVAS_sizeonly = FALSE;
 static bool ENHCANVAS_widthflag = TRUE;
 static bool ENHCANVAS_overprint = FALSE;
 
-TERM_PUBLIC void ENHCANVAS_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	static int save_x, save_y;
 	// overprint = 1 means print the base text (leave position in center)
@@ -1257,7 +1246,7 @@ static int canvas_strwidth(char * s)
 	return (width);
 }
 
-TERM_PUBLIC void ENHCANVAS_FLUSH()
+TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry * pThis)
 {
 	double save_fontsize;
 	if(ENHCANVAS_opened_string) {
@@ -1271,7 +1260,7 @@ TERM_PUBLIC void ENHCANVAS_FLUSH()
 		x += sin((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
 		y += cos((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
 		if(ENHCANVAS_show && !ENHCANVAS_sizeonly)
-			CANVAS_put_text(x, y, GPO.Enht.Text);
+			CANVAS_put_text(pThis, x, y, GPO.Enht.Text);
 		if(ENHCANVAS_overprint == 1) {
 			canvas_x += w * cos((double)canvas_text_angle * M_PI_2/90.0)/2;
 			canvas_y -= w * sin((double)canvas_text_angle * M_PI_2/90.0)/2;
@@ -1284,7 +1273,7 @@ TERM_PUBLIC void ENHCANVAS_FLUSH()
 	}
 }
 
-TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	char * original_string = (char*)str;
 	// Save starting font properties 
@@ -1293,7 +1282,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 	if(!strlen(str))
 		return;
 	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
-		CANVAS_put_text(x, y, str);
+		CANVAS_put_text(pThis, x, y, str);
 		return;
 	}
 	// ctx.fillText uses fillStyle rather than strokeStyle 
@@ -1301,7 +1290,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
 		strcpy(canvas_state.previous_fill, canvas_state.color);
 	}
-	CANVAS_move(x, y);
+	CANVAS_move(pThis, x, y);
 	// Set up global variables needed by enhanced_recursion() 
 	GPO.Enht.FontScale = 1.0;
 	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
@@ -1310,7 +1299,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center"))
 		ENHCANVAS_sizeonly = TRUE;
 	while(*(str = enhanced_recursion(term, (char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
-		(term->enhanced_flush)();
+		(pThis->enhanced_flush)(pThis);
 		enh_err_check(str);
 		if(!*++str)
 			break; /* end of string */
@@ -1326,10 +1315,10 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 		canvas_justify = "";
 		ENHCANVAS_sizeonly = FALSE;
 		if(!strcmp(justification, "Right")) {
-			ENHCANVAS_put_text(x - x_offset, y - y_offset, original_string);
+			ENHCANVAS_put_text(pThis, x - x_offset, y - y_offset, original_string);
 		}
 		else if(!strcmp(justification, "Center")) {
-			ENHCANVAS_put_text(x - x_offset/2, y - y_offset/2, original_string);
+			ENHCANVAS_put_text(pThis, x - x_offset/2, y - y_offset/2, original_string);
 		}
 		canvas_justify = justification;
 	}
@@ -1339,7 +1328,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(uint x, uint y, const char * str)
 }
 
 #ifdef WRITE_PNG_IMAGE
-TERM_PUBLIC void CANVAS_image(unsigned m, unsigned n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void CANVAS_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	char * base_name = CANVAS_name ? CANVAS_name : "gp";
 	canvas_imagefile * thisimage = NULL;
@@ -1395,7 +1384,11 @@ TERM_PUBLIC void CANVAS_image(unsigned m, unsigned n, coordval * image, gpiPoint
 		CANVAS_fillbox, 
 		CANVAS_linewidth,
 		#ifdef USE_MOUSE
-		NULL, NULL, NULL, NULL, NULL,
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL,
 		#endif
 		CANVAS_make_palette, 
 		NULL, 

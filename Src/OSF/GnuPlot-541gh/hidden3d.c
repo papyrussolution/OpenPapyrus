@@ -216,7 +216,7 @@ static double intersect_line_line(const GpVertex * v1, const GpVertex * v2, cons
 static int cover_point_poly(GpVertex * v1, GpVertex * v2, double u, p_polygon poly);
 static long int store_polygon(long int vnum1, polygon_direction direction, long int crvlen);
 static void color_edges(long int new_edge, long int old_edge, long int new_poly, long int old_poly, int style_above, int style_below);
-static void build_networks(surface_points * plots, int pcount);
+static void build_networks(GpSurfacePoints * plots, int pcount);
 static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static void sort_edges_by_z();
@@ -361,7 +361,7 @@ void term_hidden_line_removal()
 	} while(0)
 #endif /* UNUSED */
 
-static long int store_vertex(GpCoordinate * point, lp_style_type * lp_style, bool color_from_column)
+static long store_vertex(GpCoordinate * point, lp_style_type * lp_style, bool color_from_column)
 {
 	GpVertex * thisvert = (GpVertex *)nextfrom_dynarray(&vertices);
 	thisvert->lp_style = lp_style;
@@ -812,10 +812,10 @@ static void color_edges(long new_edge/* index of 'new', conflictless edge */,
 /* NEW FEATURE HBB 20000715: allow non-grid datasets too, by storing
  * only vertices and 'direct' edges, but no polygons or 'cross' edges
  * */
-static void build_networks(surface_points * plots, int pcount)
+static void build_networks(GpSurfacePoints * plots, int pcount)
 {
 	long int i;
-	surface_points * this_plot;
+	GpSurfacePoints * this_plot;
 	int surface;            /* count the surfaces (i.e. sub-plots) */
 	long crv, ncrvs;    /* count isolines */
 	long nverts;        /* count vertices */
@@ -1089,20 +1089,12 @@ static void build_networks(surface_points * plots, int pcount)
 		for(crv = 0, icrvs = this_plot->iso_crvs; icrvs; crv++, icrvs = icrvs->next) {
 			GpCoordinate * points = icrvs->points;
 			for(i = 0; i < icrvs->p_count; i++) {
-				long int thisvertex, basevertex;
-				long int e1, e2, e3;
-				long int pnum;
-
-				thisvertex = store_vertex(points + i, lp,
-					color_from_column);
-
-				/* Preset the pointers to the polygons and edges
-				 * belonging to this isoline */
-				these_polygons[2 * i] = these_polygons[2 * i + 1]
-					    = these_edges[3 * i] = these_edges[3 * i + 1]
-						    = these_edges[3 * i + 2]
-							= -3;
-
+				long basevertex;
+				long e1, e2, e3;
+				long pnum;
+				long thisvertex = store_vertex(points + i, lp, color_from_column);
+				// Preset the pointers to the polygons and edges belonging to this isoline 
+				these_polygons[2 * i] = these_polygons[2 * i + 1] = these_edges[3 * i] = these_edges[3 * i + 1] = these_edges[3 * i + 2] = -3;
 				switch(this_plot->plot_style) {
 					case PM3DSURFACE:
 					case LINESPOINTS:
@@ -1115,35 +1107,27 @@ static void build_networks(surface_points * plots, int pcount)
 						    /* not first point, so we might want to set up
 						     * the edge(s) to the left of this vertex */
 						    if(thisvertex < 0) {
-							    if((crv > 0)
-								&& (hiddenShowAlternativeDiagonal)
-								) {
+							    if((crv > 0) && (hiddenShowAlternativeDiagonal)) {
 								    /* this vertex is invalid, but the
 								     * other three might still form a
 								     * valid triangle, facing northwest to
 								     * do that, we'll need the 'wrong'
 								     * diagonal, which goes from SW to NE:
 								     * */
-								    these_edges[i*3+2] = e3
-										= store_edge(vertices.end - 1, edir_NE, crvlen,
-										lp, above);
+								    these_edges[i*3+2] = e3 = store_edge(vertices.end - 1, edir_NE, crvlen, lp, above);
 								    if(e3 > -2) {
 									    /* don't store this polygon for
 									     * later: it doesn't share edges
 									     * with any others to the south or
 									     * east, so there's need to */
-									    pnum
-										    = store_polygon(vertices.end - 1, pdir_NW, crvlen);
+									    pnum = store_polygon(vertices.end - 1, pdir_NW, crvlen);
 									    /* The other two edges of this
 									     * polygon need to be checked
 									     * against the neighboring
 									     * polygons' orientations, before
 									     * being coloured */
-									    color_edges(e3, these_edges[3*(i-1) +1],
-										pnum, these_polygons[2*(i-1) + 1],
-										above, below);
-									    color_edges(e3, north_edges[3*i],
-										pnum, north_polygons[2*i], above, below);
+									    color_edges(e3, these_edges[3*(i-1) +1], pnum, these_polygons[2*(i-1) + 1], above, below);
+									    color_edges(e3, north_edges[3*i], pnum, north_polygons[2*i], above, below);
 								    }
 							    }
 							    break; /* nothing else to do for invalid vertex */
@@ -1240,7 +1224,7 @@ static void build_networks(surface_points * plots, int pcount)
 			 * 'these' ones, which have been filled in the pass
 			 * through this isocurve */
 			{
-				long int * temp = north_polygons;
+				long * temp = north_polygons;
 				north_polygons = these_polygons;
 				these_polygons = temp;
 				temp = north_edges;
@@ -1340,8 +1324,8 @@ static void sort_polys_by_z()
 // draw a single vertex as a point symbol, if requested by the chosen
 // plot style (linespoints, points, or dots...) 
 //
-//static void draw_vertex(termentry * pTerm, GpVertex * v)
-void GnuPlot::DrawVertex(termentry * pTerm, GpVertex * pV)
+//static void draw_vertex(GpTermEntry * pTerm, GpVertex * v)
+void GnuPlot::DrawVertex(GpTermEntry * pTerm, GpVertex * pV)
 {
 	int x, y;
 	if(pV->lp_style) {
@@ -1379,11 +1363,11 @@ void GnuPlot::DrawVertex(termentry * pTerm, GpVertex * pV)
 			if(pV->lp_style->PtSize == PTSZ_VARIABLE)
 				(pTerm->pointsize)(Gg.PointSize * pV->original->CRD_PTSIZE);
 			if(p_type == PT_CHARACTER)
-				(pTerm->put_text)(x, y, pV->lp_style->p_char);
+				(pTerm->put_text)(pTerm, x, y, pV->lp_style->p_char);
 			else if(p_type == PT_VARIABLE)
-				(pTerm->point)(x, y, (int)(pV->original->CRD_PTTYPE) - 1);
+				(pTerm->point)(pTerm, x, y, (int)(pV->original->CRD_PTTYPE) - 1);
 			else
-				(pTerm->point)(x, y, p_type);
+				(pTerm->point)(pTerm, x, y, p_type);
 			// vertex has been drawn --> flag it as done 
 			pV->lp_style = NULL;
 		}
@@ -1392,8 +1376,8 @@ void GnuPlot::DrawVertex(termentry * pTerm, GpVertex * pV)
 //
 // The function that actually draws the visible portions of lines 
 //
-//static void draw_edge(termentry * pTerm, p_edge e, GpVertex * v1, GpVertex * v2)
-void GnuPlot::DrawEdge(termentry * pTerm, GpEdge * e, GpVertex * v1, GpVertex * v2)
+//static void draw_edge(GpTermEntry * pTerm, p_edge e, GpVertex * v1, GpVertex * v2)
+void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex * v2)
 {
 	// It used to be that e contained style as a integer linetype.
 	// This destroyed any style attributes set in the splot command.
@@ -1535,8 +1519,8 @@ static GP_INLINE double area2D(GpVertex * v1, GpVertex * v2, GpVertex * v3)
  * the edge, so Test 2 will catch on even after the subject edge has
  * been split up before one of its two polygons is tested against it. */
 
-//static int in_front(termentry * pTerm, long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */)
-int GnuPlot::InFront(termentry * pTerm, long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */)
+//static int in_front(GpTermEntry * pTerm, long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */)
+int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */)
 {
 	p_polygon p;            /* pointer to current testing polygon */
 	long polynum;       /* ... and its index in the plist */
@@ -1791,7 +1775,7 @@ int GnuPlot::InFront(termentry * pTerm, long edgenum/* number of the edge in eli
 // before they're used, because of the nextfrom_dynarray() call. 
 // 
 //void draw_line_hidden(GpVertex * v1, GpVertex * v2/* pointers to the end vertices */, lp_style_type * lp/* line and point style to draw in */)
-void GnuPlot::DrawLineHidden(termentry * pTerm, GpVertex * v1, GpVertex * v2/* pointers to the end vertices */, lp_style_type * lp/* line and point style to draw in */)
+void GnuPlot::DrawLineHidden(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2/* pointers to the end vertices */, lp_style_type * lp/* line and point style to draw in */)
 {
 	long vstore1, vstore2;
 	long edgenum;
@@ -1837,7 +1821,7 @@ void GnuPlot::DrawLineHidden(termentry * pTerm, GpVertex * v1, GpVertex * v2/* p
 // visible occluding surfaces. 
 //
 //void draw_label_hidden(GpVertex * v, struct lp_style_type * lp, int x, int y)
-void GnuPlot::DrawLabelHidden(termentry * pTerm, GpVertex * v, lp_style_type * lp, int x, int y)
+void GnuPlot::DrawLabelHidden(GpTermEntry * pTerm, GpVertex * v, lp_style_type * lp, int x, int y)
 {
 	long thisvertex, edgenum, temp_pfirst;
 	// If there is no surface to hide behind, just draw the label 
@@ -1860,8 +1844,8 @@ void GnuPlot::DrawLabelHidden(termentry * pTerm, GpVertex * v, lp_style_type * l
 //
 // and, finally, the 'mother function' that uses all these lots of tools
 // 
-//void plot3d_hidden(termentry * pTerm, surface_points * plots, int pcount)
-void GnuPlot::Plot3DHidden(termentry * pTerm, surface_points * plots, int pcount)
+//void plot3d_hidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount)
+void GnuPlot::Plot3DHidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount)
 {
 	// make vertices, edges and polygons out of all the plots 
 	build_networks(plots, pcount);

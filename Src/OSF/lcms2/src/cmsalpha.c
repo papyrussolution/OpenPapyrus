@@ -59,40 +59,34 @@ typedef void (* cmsFormatterAlphaFn)(void* dst, const void* src);
 
 // From 8
 
-static
-void copy8(void* dst, const void* src)
+static void copy8(void* dst, const void* src)
 {
 	memmove(dst, src, 1);
 }
 
-static
-void from8to16(void* dst, const void* src)
+static void from8to16(void* dst, const void* src)
 {
 	cmsUInt8Number n = *(cmsUInt8Number*)src;
 	*(cmsUInt16Number*)dst = FROM_8_TO_16(n);
 }
 
-static
-void from8to16SE(void* dst, const void* src)
+static void from8to16SE(void* dst, const void* src)
 {
 	cmsUInt8Number n = *(cmsUInt8Number*)src;
 	*(cmsUInt16Number*)dst = CHANGE_ENDIAN(FROM_8_TO_16(n));
 }
 
-static
-void from8toFLT(void* dst, const void* src)
+static void from8toFLT(void* dst, const void* src)
 {
 	*(cmsFloat32Number*)dst = (*(cmsUInt8Number*)src) / 255.0f;
 }
 
-static
-void from8toDBL(void* dst, const void* src)
+static void from8toDBL(void* dst, const void* src)
 {
 	*(cmsFloat64Number*)dst = (*(cmsUInt8Number*)src) / 255.0;
 }
 
-static
-void from8toHLF(void* dst, const void* src)
+static void from8toHLF(void* dst, const void* src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
 	cmsFloat32Number n = (*(cmsUInt8Number*)src) / 255.0f;
@@ -104,60 +98,50 @@ void from8toHLF(void* dst, const void* src)
 }
 
 // From 16
-
-static
-void from16to8(void* dst, const void* src)
+static void from16to8(void* dst, const void* src)
 {
 	cmsUInt16Number n = *(cmsUInt16Number*)src;
 	*(cmsUInt8Number*)dst = FROM_16_TO_8(n);
 }
 
-static
-void from16SEto8(void* dst, const void* src)
+static void from16SEto8(void* dst, const void* src)
 {
 	cmsUInt16Number n = *(cmsUInt16Number*)src;
 	*(cmsUInt8Number*)dst = FROM_16_TO_8(CHANGE_ENDIAN(n));
 }
 
-static
-void copy16(void* dst, const void* src)
+static void copy16(void* dst, const void* src)
 {
 	memmove(dst, src, 2);
 }
 
-static
-void from16to16(void* dst, const void* src)
+static void from16to16(void* dst, const void* src)
 {
 	cmsUInt16Number n = *(cmsUInt16Number*)src;
 	*(cmsUInt16Number*)dst = CHANGE_ENDIAN(n);
 }
 
-static
-void from16toFLT(void* dst, const void* src)
+static void from16toFLT(void* dst, const void* src)
 {
 	*(cmsFloat32Number*)dst = (*(cmsUInt16Number*)src) / 65535.0f;
 }
 
-static
-void from16SEtoFLT(void* dst, const void* src)
+static void from16SEtoFLT(void* dst, const void* src)
 {
 	*(cmsFloat32Number*)dst = (CHANGE_ENDIAN(*(cmsUInt16Number*)src)) / 65535.0f;
 }
 
-static
-void from16toDBL(void* dst, const void* src)
+static void from16toDBL(void* dst, const void* src)
 {
 	*(cmsFloat64Number*)dst = (*(cmsUInt16Number*)src) / 65535.0f;
 }
 
-static
-void from16SEtoDBL(void* dst, const void* src)
+static void from16SEtoDBL(void* dst, const void* src)
 {
 	*(cmsFloat64Number*)dst = (CHANGE_ENDIAN(*(cmsUInt16Number*)src)) / 65535.0f;
 }
 
-static
-void from16toHLF(void* dst, const void* src)
+static void from16toHLF(void* dst, const void* src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
 	cmsFloat32Number n = (*(cmsUInt16Number*)src) / 65535.0f;
@@ -168,8 +152,7 @@ void from16toHLF(void* dst, const void* src)
 #endif
 }
 
-static
-void from16SEtoHLF(void* dst, const void* src)
+static void from16SEtoHLF(void* dst, const void* src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
 	cmsFloat32Number n = (CHANGE_ENDIAN(*(cmsUInt16Number*)src)) / 65535.0f;
@@ -181,45 +164,37 @@ void from16SEtoHLF(void* dst, const void* src)
 }
 
 // From Float
-
-static
-void fromFLTto8(void* dst, const void* src)
+static void fromFLTto8(void* dst, const void* src)
 {
 	cmsFloat32Number n = *(cmsFloat32Number*)src;
 	*(cmsUInt8Number*)dst = _cmsQuickSaturateByte(n * 255.0f);
 }
 
-static
-void fromFLTto16(void* dst, const void* src)
+static void fromFLTto16(void* dst, const void* src)
 {
 	cmsFloat32Number n = *(cmsFloat32Number*)src;
 	*(cmsUInt16Number*)dst = _cmsQuickSaturateWord(n * 65535.0f);
 }
 
-static
-void fromFLTto16SE(void* dst, const void* src)
+static void fromFLTto16SE(void* dst, const void* src)
 {
 	cmsFloat32Number n = *(cmsFloat32Number*)src;
 	cmsUInt16Number i = _cmsQuickSaturateWord(n * 65535.0f);
-
 	*(cmsUInt16Number*)dst = CHANGE_ENDIAN(i);
 }
 
-static
-void copy32(void* dst, const void* src)
+static void copy32(void* dst, const void* src)
 {
 	memmove(dst, src, sizeof(cmsFloat32Number));
 }
 
-static
-void fromFLTtoDBL(void* dst, const void* src)
+static void fromFLTtoDBL(void* dst, const void* src)
 {
 	cmsFloat32Number n = *(cmsFloat32Number*)src;
 	*(cmsFloat64Number*)dst = (cmsFloat64Number)n;
 }
 
-static
-void fromFLTtoHLF(void* dst, const void* src)
+static void fromFLTtoHLF(void* dst, const void* src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
 	cmsFloat32Number n = *(cmsFloat32Number*)src;
@@ -231,9 +206,7 @@ void fromFLTtoHLF(void* dst, const void* src)
 }
 
 // From HALF
-
-static
-void fromHLFto8(void* dst, const void* src)
+static void fromHLFto8(void* dst, const void* src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
 	cmsFloat32Number n = _cmsHalf2Float(*(cmsUInt16Number*)src);
@@ -244,8 +217,7 @@ void fromHLFto8(void* dst, const void* src)
 #endif
 }
 
-static
-void fromHLFto16(void* dst, const void* src)
+static void fromHLFto16(void* dst, const void* src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
 	cmsFloat32Number n = _cmsHalf2Float(*(cmsUInt16Number*)src);
@@ -256,8 +228,7 @@ void fromHLFto16(void* dst, const void* src)
 #endif
 }
 
-static
-void fromHLFto16SE(void* dst, const void* src)
+static void fromHLFto16SE(void* dst, const void* src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
 	cmsFloat32Number n = _cmsHalf2Float(*(cmsUInt16Number*)src);
@@ -269,8 +240,7 @@ void fromHLFto16SE(void* dst, const void* src)
 #endif
 }
 
-static
-void fromHLFtoFLT(void* dst, const void* src)
+static void fromHLFtoFLT(void* dst, const void* src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
 	*(cmsFloat32Number*)dst = _cmsHalf2Float(*(cmsUInt16Number*)src);
@@ -280,8 +250,7 @@ void fromHLFtoFLT(void* dst, const void* src)
 #endif
 }
 
-static
-void fromHLFtoDBL(void* dst, const void* src)
+static void fromHLFtoDBL(void* dst, const void* src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
 	*(cmsFloat64Number*)dst = (cmsFloat64Number)_cmsHalf2Float(*(cmsUInt16Number*)src);
@@ -292,22 +261,19 @@ void fromHLFtoDBL(void* dst, const void* src)
 }
 
 // From double
-static
-void fromDBLto8(void* dst, const void* src)
+static void fromDBLto8(void* dst, const void* src)
 {
 	cmsFloat64Number n = *(cmsFloat64Number*)src;
 	*(cmsUInt8Number*)dst = _cmsQuickSaturateByte(n * 255.0);
 }
 
-static
-void fromDBLto16(void* dst, const void* src)
+static void fromDBLto16(void* dst, const void* src)
 {
 	cmsFloat64Number n = *(cmsFloat64Number*)src;
 	*(cmsUInt16Number*)dst = _cmsQuickSaturateWord(n * 65535.0f);
 }
 
-static
-void fromDBLto16SE(void* dst, const void* src)
+static void fromDBLto16SE(void* dst, const void* src)
 {
 	cmsFloat64Number n = *(cmsFloat64Number*)src;
 	cmsUInt16Number i = _cmsQuickSaturateWord(n * 65535.0f);

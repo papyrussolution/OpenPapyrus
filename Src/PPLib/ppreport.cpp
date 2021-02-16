@@ -2345,11 +2345,7 @@ int MakeCRptDataFiles(int verifyAll /*=0*/)
 	if(CheckDialogPtrErr(&dlg)) {
 		SString rpt_name, rpt_path, fname;
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_MKRPTFLS_RPTPATH, CTL_MKRPTFLS_RPTPATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
-		/* @v9.8.9 PPIniFile ini_file;
-		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, rpt_path);
-		if(rpt_path.Empty())
-			PPGetPath(PPPATH_TEMP, rpt_path); */
-		PPGetPath(PPPATH_REPORTDATA, rpt_path); // @v9.8.9
+		PPGetPath(PPPATH_REPORTDATA, rpt_path);
 		if(verifyAll == 1) {
 			rpt_name = "ALL";
 			dlg->disableCtrl(CTL_MKRPTFLS_RPTNAME, 1);

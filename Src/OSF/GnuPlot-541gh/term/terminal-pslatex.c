@@ -46,7 +46,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -58,22 +58,18 @@
 //#ifdef TERM_PROTO
 // Common functions for epslatex and ps(la)tex 
 // All these routines begin with PSLATEX_ 
-TERM_PUBLIC void PSLATEX_reset();
+extern void PSLATEX_reset(GpTermEntry * pThis);
 // Functions for ps(la)tex 
 // All these routines begin with PSTEX_ 
 //TERM_PUBLIC void PSTEX_reopen_output();
 //TERM_PUBLIC void PSTEX_common_init();
-TERM_PUBLIC void PSTEX_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void PSTEX_text();
+TERM_PUBLIC void PSTEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void PSTEX_text(GpTermEntry * pThis);
 // Functions for epslatex 
 // All these routines begin with EPSLATEX_ 
 // void EPSLATEX_reopen_output(char *);
 //TERM_PUBLIC void EPSLATEX_common_init();
-TERM_PUBLIC void EPSLATEX_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void EPSLATEX_linetype(int linetype);
-TERM_PUBLIC void EPSLATEX_layer(t_termlayer syncpoint);
-TERM_PUBLIC void EPSLATEX_boxed_text(uint, uint, int);
-// @sobolev TERM_PUBLIC char * epslatex_header = NULL; // additional LaTeX header information for epslatex terminal 
+char * epslatex_header = NULL; // additional LaTeX header information for epslatex terminal 
 //#endif /* TERM_PROTO */
 
 #ifndef TERM_PROTO_ONLY
@@ -102,8 +98,8 @@ static bool tex_color_synced = FALSE;
 // support for cairolatex 
 #ifdef HAVE_CAIROPDF
 	#define ISCAIROTERMINAL ((strcmp(term->name, "cairolatex") == 0))
-	TERM_PUBLIC void cairotrm_set_color(t_colorspec * colorspec);
-	TERM_PUBLIC void cairotrm_linetype(int lt);
+	//extern void cairotrm_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
+	//TERM_PUBLIC void cairotrm_linetype(int lt);
 #else
 	#define ISCAIROTERMINAL (FALSE)
 #endif
@@ -115,7 +111,7 @@ static bool PSLATEX_saved = FALSE;
 static int PSLATEX_xbox, PSLATEX_ybox;
 static double PSLATEX_xmargin = 1.0;
 static double PSLATEX_ymargin = 1.0;
-static double PSLATEX_opacity = 1.0;
+double PSLATEX_opacity = 1.0;
 //
 // Fix for "set size" different at the time terminal is opened/closed 
 //
@@ -124,12 +120,12 @@ static double PSLATEX_pagesize_y;
 //
 // Common functions for epslatex and ps(la)tex 
 //
-TERM_PUBLIC void PSLATEX_reset()
+void PSLATEX_reset(GpTermEntry * pThis)
 {
 	switch(GPO.TPsB.P_Params->terminal) {
 		case PSTERM_EPSLATEX:
 		    if(!ISCAIROTERMINAL)
-			    PS_reset();
+			    PS_reset(pThis);
 		    if(gpoutfile) {
 			    fprintf(gpoutfile,
 				"\
@@ -210,10 +206,10 @@ void PSTEX_reopen_output()
 	}
 }
 
-void PSTEX_common_init()
+void PSTEX_common_init(GpTermEntry * pThis)
 {
-	PSLATEX_pagesize_x = term->MaxX * GPO.V.Size.x;
-	PSLATEX_pagesize_y = term->MaxY * GPO.V.Size.y;
+	PSLATEX_pagesize_x = pThis->MaxX * GPO.V.Size.x;
+	PSLATEX_pagesize_y = pThis->MaxY * GPO.V.Size.y;
 	switch(GPO.TPsB.P_Params->terminal) {
 		case PSTERM_PSLATEX:
 		    fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n\
@@ -280,17 +276,17 @@ void PSTEX_common_init()
 	pstex_labels = (struct pstex_text_command *)NULL;
 }
 
-TERM_PUBLIC void PSTEX_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void PSTEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	struct pstex_text_command * tc;
 	// ignore empty strings 
 	if(str[0] == NUL)
 		return;
 	// Save the text for later printing after the core graphics 
-	tc = (struct pstex_text_command *)gp_alloc(sizeof(struct pstex_text_command), term->name);
+	tc = (struct pstex_text_command *)gp_alloc(sizeof(struct pstex_text_command), pThis->name);
 	tc->x = x;
 	tc->y = y;
-	tc->label = (char*)gp_alloc(strlen(str) + 1, term->name);
+	tc->label = (char*)gp_alloc(strlen(str) + 1, pThis->name);
 	strcpy(tc->label, str);
 	tc->justify = GPO.TPsB.Justify;
 	tc->angle = GPO.TPsB.Ang;
@@ -298,16 +294,16 @@ TERM_PUBLIC void PSTEX_put_text(uint x, uint y, const char * str)
 	pstex_labels = tc;
 }
 
-TERM_PUBLIC void PSTEX_text()
+TERM_PUBLIC void PSTEX_text(GpTermEntry * pThis)
 {
 	struct pstex_text_command * tc;
-	PS_text();
+	PS_text(pThis);
 	if(gppsfile == gpoutfile)
 		fputs("  }}%\n", gpoutfile);
 	if(GPO.TPsB.P_Params->fontsize) {
 		if(GPO.TPsB.P_Params->terminal == PSTERM_PSLATEX)
 			fprintf(gpoutfile, "\\fontsize{%g}{\\baselineskip}\\selectfont\n", GPO.TPsB.P_Params->fontsize);
-		/* Should have an else clause here to handle pstex equivalent */
+		// Should have an else clause here to handle pstex equivalent 
 	}
 	for(tc = pstex_labels; tc != (struct pstex_text_command *)NULL; tc = tc->next) {
 		fprintf(gpoutfile, "  \\put(%d,%d){", tc->x, tc->y);
@@ -345,15 +341,15 @@ TERM_PUBLIC void PSTEX_text()
 // the common init function for the epslatex driver 
 // used by pslatex epslatex cairolatex 
 //
-void EPSLATEX_common_init()
+void EPSLATEX_common_init(GpTermEntry * pThis)
 {
 	char * fontfamily = NULL;
 	char * fontseries = NULL;
 	char * fontshape = NULL;
-	PSLATEX_pagesize_x = term->MaxX * GPO.V.Size.x;
-	PSLATEX_pagesize_y = term->MaxY * GPO.V.Size.y;
+	PSLATEX_pagesize_x = pThis->MaxX * GPO.V.Size.x;
+	PSLATEX_pagesize_y = pThis->MaxY * GPO.V.Size.y;
 	// cairo terminals use a different convention for xmax/ymax 
-	if(!strcmp(term->name, "cairolatex")) {
+	if(!strcmp(pThis->name, "cairolatex")) {
 		PSLATEX_pagesize_x += 2*PS_SC * GPO.V.Size.x;
 		PSLATEX_pagesize_y += 2*PS_SC * GPO.V.Size.y;
 	}
@@ -361,7 +357,7 @@ void EPSLATEX_common_init()
 		char * temp = (char *)gp_alloc(strlen(outstr) + 1, "temp file string");
 		if(temp) {
 			strcpy(temp, outstr);
-			GPO.TermSetOutput(term, temp); /* will free outstr */
+			GPO.TermSetOutput(pThis, temp); /* will free outstr */
 			if(temp != outstr) {
 				SAlloc::F(temp);
 				temp = outstr;
@@ -376,7 +372,7 @@ void EPSLATEX_common_init()
 		const char * inputenc = latex_input_encoding(encoding);
 		fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n");
 		tex_previous_colorspec.type = (colortype)-1; // Clear previous state 
-		EPSLATEX_layer(TERM_LAYER_RESET); // Clear any leftover text-layering state 
+		EPSLATEX_layer(pThis, TERM_LAYER_RESET); // Clear any leftover text-layering state 
 		// Analyse LaTeX font name 'family,series,shape' 
 		if((strlen(GPO.TPsB.P_Params->font) > 0) && (strcmp(GPO.TPsB.P_Params->font, "default") != 0)) {
 			char * comma = NULL;
@@ -610,7 +606,7 @@ void EPSLATEX_common_init()
 	SAlloc::F(fontshape);
 }
 
-TERM_PUBLIC void EPSLATEX_put_text(uint x, uint y, const char * str)
+void EPSLATEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	if(gpoutfile) {
 		if(!tex_color_synced) {
@@ -649,15 +645,15 @@ TERM_PUBLIC void EPSLATEX_put_text(uint x, uint y, const char * str)
 		}
 	}
 }
-
-/* assigns dest to outstr, so it must be allocated or NULL
- * and it must not be outstr itself !
- */
+//
+// assigns dest to outstr, so it must be allocated or NULL
+// and it must not be outstr itself !
+//
 void EPSLATEX_reopen_output(char * ext)
 {
 	char * psoutstr = NULL;
 	if(outstr) {
-		unsigned int outstrlen = strlen(outstr);
+		uint outstrlen = strlen(outstr);
 		if(strrchr(outstr, '.') != &outstr[outstrlen-4]) {
 			GPO.IntError(NO_CARET, "epslatex output file name must be of the form filename.xxx");
 		}
@@ -684,7 +680,7 @@ void EPSLATEX_reopen_output(char * ext)
 				sprintf(suffix, ".%s", ext);
 			psoutstr[outstrlen-4] = '\0';
 			strcat(psoutstr, suffix);
-			/* BM: Need binary output for PDF files. Does this have negative side effects for EPS? */
+			// BM: Need binary output for PDF files. Does this have negative side effects for EPS? 
 			gppsfile = fopen(psoutstr, "wb");
 		}
 		if(!gppsfile)
@@ -696,13 +692,13 @@ void EPSLATEX_reopen_output(char * ext)
 	}
 }
 
-TERM_PUBLIC void EPSLATEX_set_color(const t_colorspec * colorspec)
+void EPSLATEX_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
 	double gray;
 #ifdef HAVE_CAIROPDF
 	// Fancy footwork to deal with mono/grayscale plots 
 	if(ISCAIROTERMINAL) {
-		cairotrm_set_color(colorspec);
+		cairotrm_set_color(pThis, colorspec);
 	}
 	else
 #endif
@@ -712,7 +708,7 @@ TERM_PUBLIC void EPSLATEX_set_color(const t_colorspec * colorspec)
 			return;
 		else
 			memcpy(&tex_previous_colorspec, colorspec, sizeof(t_colorspec));
-		PS_set_color(colorspec);
+		PS_set_color(pThis, colorspec);
 	}
 	// Many [most? all?] of the set_color commands only affect the *.eps
 	// output stream.  So rather than printing them all to the *.tex stream,
@@ -757,25 +753,24 @@ TERM_PUBLIC void EPSLATEX_set_color(const t_colorspec * colorspec)
 	}
 }
 
-TERM_PUBLIC void EPSLATEX_linetype(int linetype)
+void EPSLATEX_linetype(GpTermEntry * pThis, int linetype)
 {
 	t_colorspec tempcol = {TC_LT, 0, 0.0};
 	tempcol.lt = linetype;
 #ifdef HAVE_CAIROPDF
 	if(ISCAIROTERMINAL)
-		cairotrm_linetype(linetype);
+		cairotrm_linetype(pThis, linetype);
 	else
 #endif
-	PS_linetype(linetype);
-	/* This leads to redundant *.eps output */
-	EPSLATEX_set_color(&tempcol);
+	PS_linetype(pThis, linetype);
+	// This leads to redundant *.eps output 
+	EPSLATEX_set_color(pThis, &tempcol);
 }
-
-/*
- * The TERM_LAYER mechanism is used here to signal a difference between
- * "front" text and "back" text.
- */
-TERM_PUBLIC void EPSLATEX_layer(t_termlayer syncpoint)
+//
+// The TERM_LAYER mechanism is used here to signal a difference between
+// "front" text and "back" text.
+//
+void EPSLATEX_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 {
 	static int plotno = 0;
 	switch(syncpoint) {
@@ -784,16 +779,14 @@ TERM_PUBLIC void EPSLATEX_layer(t_termlayer syncpoint)
 			    fprintf(gppsfile, "%% Begin plot #%d\n", ++plotno);
 		    break;
 		case TERM_LAYER_AFTER_PLOT:
-		    PS_linetype(LT_UNDEFINED); /* Forces a stroke and resets linetype */
+		    PS_linetype(pThis, LT_UNDEFINED); /* Forces a stroke and resets linetype */
 		    if(!ISCAIROTERMINAL)
 			    fprintf(gppsfile, "%% End plot #%d\n", plotno);
 		    break;
-
 		case TERM_LAYER_RESET: /* Start of plot; reset flag */
 		    epslatex_text_layer = 0;
 		    plotno = 0;
 		    break;
-
 		case TERM_LAYER_BACKTEXT: /* Start of "back" text layer */
 		    if(epslatex_text_layer == 1)
 			    break;
@@ -803,7 +796,6 @@ TERM_PUBLIC void EPSLATEX_layer(t_termlayer syncpoint)
 		    fputs("    \\gplgaddtomacro\\gplbacktext{%\n", gpoutfile);
 		    tex_color_synced = FALSE;
 		    break;
-
 		case TERM_LAYER_FRONTTEXT:/* Start of "front" text layer */
 		    if(epslatex_text_layer == 2)
 			    break;
@@ -837,7 +829,7 @@ TERM_PUBLIC void EPSLATEX_layer(t_termlayer syncpoint)
 	}
 }
 
-TERM_PUBLIC void EPSLATEX_boxed_text(uint x, uint y, int option)
+void EPSLATEX_boxed_text(uint x, uint y, int option)
 {
 	if(gpoutfile) {
 		switch(option) {

@@ -40,7 +40,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -65,17 +65,17 @@
 #define MF_HCHAR (MF_DPI*53/10/72)
 #define MF_VCHAR (MF_DPI*11/72)
 
-TERM_PUBLIC void MF_init(termentry * pThis);
-TERM_PUBLIC void MF_graphics();
-TERM_PUBLIC void MF_text();
+TERM_PUBLIC void MF_init(GpTermEntry * pThis);
+TERM_PUBLIC void MF_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void MF_text(GpTermEntry * pThis);
 TERM_PUBLIC int MF_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int MF_text_angle(int ang);
-TERM_PUBLIC void MF_linetype(int linetype);
-TERM_PUBLIC void MF_move(uint x, uint y);
-TERM_PUBLIC void MF_vector(uint x, uint y);
-TERM_PUBLIC void MF_arrow(uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC void MF_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void MF_reset();
+TERM_PUBLIC void MF_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void MF_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void MF_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC void MF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void MF_reset(GpTermEntry * pThis);
 
 #define GOT_MF_PROTO
 //#endif /* TERM_PROTO */
@@ -142,7 +142,7 @@ static struct {
 	/* dash: line,     gap,      line,     gap      */
 };
 
-TERM_PUBLIC void MF_init(termentry * pThis)
+TERM_PUBLIC void MF_init(GpTermEntry * pThis)
 {
 	MF_char_code = 0;
 	MF_ang = 0;
@@ -302,16 +302,16 @@ arrowhead = (-7pt,-2pt){dir30}..(-6pt,0pt)..\
 	    gpoutfile);
 }
 
-TERM_PUBLIC void MF_graphics()
+TERM_PUBLIC void MF_graphics(GpTermEntry * pThis)
 {
-	struct termentry * t = term;
+	struct GpTermEntry * t = term;
 	fprintf(gpoutfile, "\n\nbeginchar(%d,%gin#,%gin#,0);\n", MF_char_code, MF_xsize, MF_ysize);
 	MF_char_code++;
 	fprintf(gpoutfile, "a:=w/%d;b:=h/%d;\n", t->MaxX, t->MaxY);
 	MF_picked_up_pen = 0;
 }
 
-TERM_PUBLIC void MF_text()
+TERM_PUBLIC void MF_text(GpTermEntry * pThis)
 {
 	fputs("endchar;\n", gpoutfile);
 }
@@ -328,7 +328,7 @@ TERM_PUBLIC int MF_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC void MF_linetype(int linetype)
+TERM_PUBLIC void MF_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(linetype >= 8)
 		linetype %= 8;
@@ -348,7 +348,7 @@ TERM_PUBLIC void MF_linetype(int linetype)
 	MF_is_solid = MF_lines[MF_line_type].solid;
 }
 
-TERM_PUBLIC void MF_move(uint x, uint y)
+TERM_PUBLIC void MF_move(GpTermEntry * pThis, uint x, uint y)
 {
 	MF_last_x = x;
 	MF_last_y = y;
@@ -356,7 +356,7 @@ TERM_PUBLIC void MF_move(uint x, uint y)
 	MF_dist_left = MF_lines[MF_line_type].dashlen[MF_dash_index];
 }
 
-TERM_PUBLIC void MF_vector(uint x, uint y)
+TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y)
 {
 	if(MF_is_solid) {
 		if(x == MF_last_x && y == MF_last_y)
@@ -403,8 +403,7 @@ TERM_PUBLIC void MF_vector(uint x, uint y)
 				if(x == MF_last_x && y == MF_last_y)
 					fprintf(gpoutfile, "drawdot (%da,%db);\n", x, y);
 				else
-					fprintf(gpoutfile, "draw (%da,%db)--(%da,%db);\n",
-					    MF_last_x, MF_last_y, x, y);
+					fprintf(gpoutfile, "draw (%da,%db)--(%da,%db);\n", MF_last_x, MF_last_y, x, y);
 			}
 		}
 	}
@@ -412,11 +411,11 @@ TERM_PUBLIC void MF_vector(uint x, uint y)
 	MF_last_y = y;
 }
 
-TERM_PUBLIC void MF_arrow(uint sx, uint sy, uint ex, uint ey, int head)
+TERM_PUBLIC void MF_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	int delta_x, delta_y;
-	MF_move(sx, sy);
-	MF_vector(ex, ey);
+	MF_move(pThis, sx, sy);
+	MF_vector(pThis, ex, ey);
 	if(head) {
 		delta_x = ex - sx;
 		delta_y = ey - sy;
@@ -424,14 +423,14 @@ TERM_PUBLIC void MF_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 	}
 }
 
-TERM_PUBLIC void MF_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void MF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	int i, j = 0;
 	char * text;
-	/* ignore empty strings */
+	// ignore empty strings 
 	if(!str || !*str)
 		return;
-	/* F***. why do drivers need to modify string args? */
+	// F***. why do drivers need to modify string args? 
 	text = gp_strdup(str);
 	for(i = 0; i < strlen(text); i++)
 		if(text[i] == '"')
@@ -445,7 +444,7 @@ TERM_PUBLIC void MF_put_text(uint x, uint y, const char * str)
 	SAlloc::F(text);
 }
 
-TERM_PUBLIC void MF_reset()
+TERM_PUBLIC void MF_reset(GpTermEntry * pThis)
 {
 	fputs("end.\n", gpoutfile);
 }

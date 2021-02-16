@@ -29,48 +29,43 @@
 #include "marching_cubes.h"
 #include "qt_table.h"
 
-/* local copy of vertex offsets from voxel corner, scaled by downsampling */
-static int scaled_offset[8][3];
-
-/* the fractional index intersection along each of the cubes's 12 edges */
-static double intersection[12][3];
-
-/* working copy of the corner values for the current cube */
-static t_voxel cornervalue[8];
-
-/* local prototypes */
-static void vertex_interp(int edge_no, int start, int end, t_voxel isolevel);
-static void tessellate_one_cube(struct surface_points * plot, int ix, int iy, int iz);
-/*
- * splot $vgrid with {dots|points} {above <value>}
- */
-void vplot_points(surface_points * plot, double level)
+//static int    scaled_offset[8][3]; // local copy of vertex offsets from voxel corner, scaled by downsampling 
+//static double intersection[12][3]; // the fractional index intersection along each of the cubes's 12 edges 
+//static t_voxel cornervalue[8]; // working copy of the corner values for the current cube 
+//
+// local prototypes 
+//
+//static void vertex_interp(int edge_no, int start, int end, t_voxel isolevel);
+//static void tessellate_one_cube(GpSurfacePoints * plot, int ix, int iy, int iz);
+//
+// splot $vgrid with {dots|points} {above <value>}
+//
+//void vplot_points(GpSurfacePoints * pPlot, double level)
+void GnuPlot::VPlotPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot, double level)
 {
 	int ix, iy, iz;
 	double vx, vy, vz;
-	vgrid * vgrid = plot->vgrid;
-	struct termentry * t = term;
-	int N = vgrid->size;
-	t_voxel * voxel;
-	int index;
+	const vgrid * vgrid = pPlot->vgrid;
+	//GpTermEntry * t = term;
+	const int N = vgrid->size;
 	int x, y;
-	int downsample = plot->lp_properties.p_interval;
+	const int downsample = pPlot->lp_properties.p_interval;
 	// dots or points only 
-	if(plot->lp_properties.PtType == PT_CHARACTER)
-		plot->lp_properties.PtType = -1;
-	if(plot->lp_properties.PtType == PT_VARIABLE)
-		plot->lp_properties.PtType = -1;
+	if(pPlot->lp_properties.PtType == PT_CHARACTER)
+		pPlot->lp_properties.PtType = -1;
+	if(pPlot->lp_properties.PtType == PT_VARIABLE)
+		pPlot->lp_properties.PtType = -1;
 	// Set whatever we can that applies to every point in the loop 
-	if(plot->lp_properties.pm3d_color.type == TC_RGB)
-		GPO.SetRgbColorConst(term, plot->lp_properties.pm3d_color.lt);
+	if(pPlot->lp_properties.pm3d_color.type == TC_RGB)
+		SetRgbColorConst(term, pPlot->lp_properties.pm3d_color.lt);
 	for(ix = 0; ix < N; ix++) {
 		for(iy = 0; iy < N; iy++) {
 			for(iz = 0; iz < N; iz++) {
 				// The pointinterval property can be used to downsample 
 				if((downsample > 0) && (ix % downsample || iy % downsample || iz % downsample))
 					continue;
-				index = ix + iy * N + iz * N*N;
-				voxel = &vgrid->vdata[index];
+				const int index = ix + iy * N + iz * N*N;
+				const t_voxel * voxel = &vgrid->vdata[index];
 				if(*voxel <= level)
 					continue;
 				// vx, vy, vz are the true coordinates of this voxel 
@@ -83,17 +78,17 @@ void vplot_points(surface_points * plot, double level)
 					vy += jitter.spread * vgrid->vydelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
 					vz += jitter.spread * vgrid->vzdelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
 				}
-				GPO.Map3D_XY(vx, vy, vz, &x, &y);
+				Map3D_XY(vx, vy, vz, &x, &y);
 				// the usual variable color array cannot be used for voxel data 
 				// but we can use the voxel value itself as a palette index     
-				if(plot->lp_properties.pm3d_color.type == TC_Z)
-					set_color(t, GPO.Cb2Gray(*voxel));
+				if(pPlot->lp_properties.pm3d_color.type == TC_Z)
+					set_color(pTerm, Cb2Gray(*voxel));
 				// This code is also used for "splot ... with dots" 
-				if(plot->plot_style == DOTS)
-					(*t->point)(x, y, -1);
+				if(pPlot->plot_style == DOTS)
+					(pTerm->point)(pTerm, x, y, -1);
 				// The normal case 
-				else if(plot->lp_properties.PtType >= 0)
-					(*t->point)(x, y, plot->lp_properties.PtType);
+				else if(pPlot->lp_properties.PtType >= 0)
+					(pTerm->point)(pTerm, x, y, pPlot->lp_properties.PtType);
 			}
 		}
 	}
@@ -101,7 +96,8 @@ void vplot_points(surface_points * plot, double level)
 // 
 // splot $vgrid with isosurface level <value>
 //
-void vplot_isosurface(surface_points * pPlot, int downsample)
+//void vplot_isosurface(GpSurfacePoints * pPlot, int downsample)
+void GnuPlot::VPlotIsoSurface(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int downsample)
 {
 	int i, j, k;
 	int N = pPlot->vgrid->size;
@@ -111,7 +107,7 @@ void vplot_isosurface(surface_points * pPlot, int downsample)
 	SETMAX(downsample, 1);
 	for(i = 0; i < 8; i++) {
 		for(j = 0; j < 3; j++)
-			scaled_offset[i][j] = downsample * vertex_offset[i][j];
+			_VP.ScaledOffset[i][j] = downsample * vertex_offset[i][j];
 	}
 	// These initializations are normally done in pm3d_plot()
 	// isosurfaces do not use that code path.
@@ -120,7 +116,7 @@ void vplot_isosurface(surface_points * pPlot, int downsample)
 	for(i = 0; i < N - downsample; i += downsample) {
 		for(j = 0; j < N - downsample; j += downsample) {
 			for(k = 0; k < N - downsample; k += downsample) {
-				tessellate_one_cube(pPlot, i, j, k);
+				TessellateOneCube(pTerm, pPlot, i, j, k);
 			}
 		}
 	}
@@ -132,7 +128,8 @@ void vplot_isosurface(surface_points * pPlot, int downsample)
 // when we have found the triangles (if any) that result from intersections
 // of the isosurface with this voxel.
 // 
-static void tessellate_one_cube(surface_points * pPlot, int ix, int iy, int iz)
+//static void tessellate_one_cube(GpSurfacePoints * pPlot, int ix, int iy, int iz)
+void GnuPlot::TessellateOneCube(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int ix, int iy, int iz)
 {
 	struct vgrid * vgrid = pPlot->vgrid;
 	t_voxel isolevel = static_cast<t_voxel>(pPlot->iso_level);
@@ -142,21 +139,21 @@ static void tessellate_one_cube(surface_points * pPlot, int ix, int iy, int iz)
 	int edge_flags;                 /* bit field */
 	// Make a local copy of the values at the cube corners 
 	for(ivertex = 0; ivertex < 8; ivertex++) {
-		int cx = ix + scaled_offset[ivertex][0];
-		int cy = iy + scaled_offset[ivertex][1];
-		int cz = iz + scaled_offset[ivertex][2];
-		cornervalue[ivertex] = vgrid->vdata[cx + cy*N + cz*N*N];
+		int cx = ix + _VP.ScaledOffset[ivertex][0];
+		int cy = iy + _VP.ScaledOffset[ivertex][1];
+		int cz = iz + _VP.ScaledOffset[ivertex][2];
+		_VP.CornerValue[ivertex] = vgrid->vdata[cx + cy*N + cz*N*N];
 	}
 	// Flag which vertices are inside the surface and which are outside 
 	corner_flags = 0;
-	if(cornervalue[0] < isolevel) corner_flags |= 1;
-	if(cornervalue[1] < isolevel) corner_flags |= 2;
-	if(cornervalue[2] < isolevel) corner_flags |= 4;
-	if(cornervalue[3] < isolevel) corner_flags |= 8;
-	if(cornervalue[4] < isolevel) corner_flags |= 16;
-	if(cornervalue[5] < isolevel) corner_flags |= 32;
-	if(cornervalue[6] < isolevel) corner_flags |= 64;
-	if(cornervalue[7] < isolevel) corner_flags |= 128;
+	if(_VP.CornerValue[0] < isolevel) corner_flags |= 1;
+	if(_VP.CornerValue[1] < isolevel) corner_flags |= 2;
+	if(_VP.CornerValue[2] < isolevel) corner_flags |= 4;
+	if(_VP.CornerValue[3] < isolevel) corner_flags |= 8;
+	if(_VP.CornerValue[4] < isolevel) corner_flags |= 16;
+	if(_VP.CornerValue[5] < isolevel) corner_flags |= 32;
+	if(_VP.CornerValue[6] < isolevel) corner_flags |= 64;
+	if(_VP.CornerValue[7] < isolevel) corner_flags |= 128;
 	// Look up which edges are affected by this corner pattern 
 	edge_flags = cube_edge_flags[corner_flags];
 	// If no edges are affected (surface does not intersect voxel) we're done 
@@ -167,61 +164,60 @@ static void tessellate_one_cube(surface_points * pPlot, int ix, int iy, int iz)
 	 * Store in intersection[edge_no][i] as fractional (non-integral) indices.
 	 * vertex_interp( edge_no, start_corner, end_corner, isolevel )
 	 */
-	if((edge_flags &    1) != 0) vertex_interp(0, 0, 1, isolevel);
-	if((edge_flags &    2) != 0) vertex_interp(1, 1, 2, isolevel);
-	if((edge_flags &    4) != 0) vertex_interp(2, 2, 3, isolevel);
-	if((edge_flags &    8) != 0) vertex_interp(3, 3, 0, isolevel);
-	if((edge_flags &   16) != 0) vertex_interp(4, 4, 5, isolevel);
-	if((edge_flags &   32) != 0) vertex_interp(5, 5, 6, isolevel);
-	if((edge_flags &   64) != 0) vertex_interp(6, 6, 7, isolevel);
-	if((edge_flags &  128) != 0) vertex_interp(7, 7, 4, isolevel);
-	if((edge_flags &  256) != 0) vertex_interp(8, 0, 4, isolevel);
-	if((edge_flags &  512) != 0) vertex_interp(9, 1, 5, isolevel);
-	if((edge_flags & 1024) != 0) vertex_interp(10, 2, 6, isolevel);
-	if((edge_flags & 2048) != 0) vertex_interp(11, 3, 7, isolevel);
-	/*
-	 * Convert the content of intersection[][] from fractional indices
-	 * to plot coordinates
-	 */
+	if(edge_flags &    1) VertexInterp( 0, 0, 1, isolevel);
+	if(edge_flags &    2) VertexInterp( 1, 1, 2, isolevel);
+	if(edge_flags &    4) VertexInterp( 2, 2, 3, isolevel);
+	if(edge_flags &    8) VertexInterp( 3, 3, 0, isolevel);
+	if(edge_flags &   16) VertexInterp( 4, 4, 5, isolevel);
+	if(edge_flags &   32) VertexInterp( 5, 5, 6, isolevel);
+	if(edge_flags &   64) VertexInterp( 6, 6, 7, isolevel);
+	if(edge_flags &  128) VertexInterp( 7, 7, 4, isolevel);
+	if(edge_flags &  256) VertexInterp( 8, 0, 4, isolevel);
+	if(edge_flags &  512) VertexInterp( 9, 1, 5, isolevel);
+	if(edge_flags & 1024) VertexInterp(10, 2, 6, isolevel);
+	if(edge_flags & 2048) VertexInterp(11, 3, 7, isolevel);
+	//
+	// Convert the content of intersection[][] from fractional indices to plot coordinates
+	//
 	for(iedge = 0; iedge < 12; iedge++) {
-		intersection[iedge][0] = vgrid->vxmin + ((double)ix + intersection[iedge][0]) * vgrid->vxdelta;
-		intersection[iedge][1] = vgrid->vymin + ((double)iy + intersection[iedge][1]) * vgrid->vydelta;
-		intersection[iedge][2] = vgrid->vzmin + ((double)iz + intersection[iedge][2]) * vgrid->vzdelta;
+		_VP.Intersection[iedge][0] = vgrid->vxmin + ((double)ix + _VP.Intersection[iedge][0]) * vgrid->vxdelta;
+		_VP.Intersection[iedge][1] = vgrid->vymin + ((double)iy + _VP.Intersection[iedge][1]) * vgrid->vydelta;
+		_VP.Intersection[iedge][2] = vgrid->vzmin + ((double)iz + _VP.Intersection[iedge][2]) * vgrid->vzdelta;
 	}
 	if(isosurface_options.tessellation == 0) {
-		/*
-		 * Draw a mixture of quadrangles and triangles
-		 */
+		//
+		// Draw a mixture of quadrangles and triangles
+		//
 		for(it = 0; it < 3; it++) {
 			gpdPoint quad[4]; /* The structure expected by gnuplot's pm3d */
 			if(qt_table[corner_flags][4*it] < 0)
 				break;
 			ivertex = qt_table[corner_flags][4*it]; /* first vertex */
-			quad[0].x = intersection[ivertex][0];
-			quad[0].y = intersection[ivertex][1];
-			quad[0].z = intersection[ivertex][2];
+			quad[0].x = _VP.Intersection[ivertex][0];
+			quad[0].y = _VP.Intersection[ivertex][1];
+			quad[0].z = _VP.Intersection[ivertex][2];
 			ivertex = qt_table[corner_flags][4*it+1]; /* second */
-			quad[1].x = intersection[ivertex][0];
-			quad[1].y = intersection[ivertex][1];
-			quad[1].z = intersection[ivertex][2];
+			quad[1].x = _VP.Intersection[ivertex][0];
+			quad[1].y = _VP.Intersection[ivertex][1];
+			quad[1].z = _VP.Intersection[ivertex][2];
 			ivertex = qt_table[corner_flags][4*it+2]; /* third */
-			quad[2].x = intersection[ivertex][0];
-			quad[2].y = intersection[ivertex][1];
-			quad[2].z = intersection[ivertex][2];
-			/* 4th vertex == -1 indicates a triangle */
-			/* repeat the 3rd vertex to treat it as a degenerate quadrangle */
+			quad[2].x = _VP.Intersection[ivertex][0];
+			quad[2].y = _VP.Intersection[ivertex][1];
+			quad[2].z = _VP.Intersection[ivertex][2];
+			// 4th vertex == -1 indicates a triangle 
+			// repeat the 3rd vertex to treat it as a degenerate quadrangle 
 			if(qt_table[corner_flags][4*it+3] >= 0)
 				ivertex = qt_table[corner_flags][4*it+3]; /* fourth */
-			quad[3].x = intersection[ivertex][0];
-			quad[3].y = intersection[ivertex][1];
-			quad[3].z = intersection[ivertex][2];
+			quad[3].x = _VP.Intersection[ivertex][0];
+			quad[3].y = _VP.Intersection[ivertex][1];
+			quad[3].z = _VP.Intersection[ivertex][2];
 			// Color choice 
 			quad[0].c = pPlot->lp_properties.pm3d_color.lt;
 			// Debugging aid: light up all facets of the same class 
 			if(debug > 0 && debug == corner_flags)
 				quad[0].c = 6+it;
 			// Hand off this facet to the pm3d code 
-			pm3d_add_quadrangle(pPlot, quad);
+			Pm3DAddQuadrangle(pTerm, pPlot, quad);
 		}
 	}
 	else {
@@ -234,44 +230,49 @@ static void tessellate_one_cube(surface_points * pPlot, int ix, int iy, int iz)
 			if(triangle_table[corner_flags][3*it] < 0)
 				break;
 			ivertex = triangle_table[corner_flags][3*it]; /* first vertex */
-			quad[0].x = intersection[ivertex][0];
-			quad[0].y = intersection[ivertex][1];
-			quad[0].z = intersection[ivertex][2];
+			quad[0].x = _VP.Intersection[ivertex][0];
+			quad[0].y = _VP.Intersection[ivertex][1];
+			quad[0].z = _VP.Intersection[ivertex][2];
 			ivertex = triangle_table[corner_flags][3*it+1]; /* second */
-			quad[1].x = intersection[ivertex][0];
-			quad[1].y = intersection[ivertex][1];
-			quad[1].z = intersection[ivertex][2];
+			quad[1].x = _VP.Intersection[ivertex][0];
+			quad[1].y = _VP.Intersection[ivertex][1];
+			quad[1].z = _VP.Intersection[ivertex][2];
 			ivertex = triangle_table[corner_flags][3*it+2]; /* third */
-			quad[2].x = intersection[ivertex][0];
-			quad[2].y = intersection[ivertex][1];
-			quad[2].z = intersection[ivertex][2];
+			quad[2].x = _VP.Intersection[ivertex][0];
+			quad[2].y = _VP.Intersection[ivertex][1];
+			quad[2].z = _VP.Intersection[ivertex][2];
 			// pm3d always wants a quadrangle, so repeat the 3rd vertex 
 			quad[3] = quad[2];
 			// Color choice 
 			quad[0].c = pPlot->lp_properties.pm3d_color.lt;
 			// Hand off this triangle to the pm3d code 
-			pm3d_add_quadrangle(pPlot, quad);
+			Pm3DAddQuadrangle(pTerm, pPlot, quad);
 		}
 	}
 }
 
-static void vertex_interp(int edge_no, int start, int end, t_voxel isolevel)
+//static void vertex_interp(int edge_no, int start, int end, t_voxel isolevel)
+void GnuPlot::VertexInterp(int edgeNo, int start, int end, t_voxel isolevel)
 {
 	double fracindex;
 	for(int i = 0; i < 3; i++) {
 		if(vertex_offset[end][i] == vertex_offset[start][i])
-			fracindex = 0;
+			fracindex = 0.0;
 		else
-			fracindex = (scaled_offset[end][i] - scaled_offset[start][i]) * (isolevel - cornervalue[start]) / (cornervalue[end] - cornervalue[start]);
-		intersection[edge_no][i] = scaled_offset[start][i] + fracindex;
+			fracindex = (_VP.ScaledOffset[end][i] - _VP.ScaledOffset[start][i]) * (isolevel - _VP.CornerValue[start]) / (_VP.CornerValue[end] - _VP.CornerValue[start]);
+		_VP.Intersection[edgeNo][i] = _VP.ScaledOffset[start][i] + fracindex;
 	}
 }
 
 #endif /* VOXEL_GRID_SUPPORT */
 
 #ifndef VOXEL_GRID_SUPPORT
-void vplot_points(struct surface_points * plot, double level) {
-};
-void vplot_isosurface(struct surface_points * plot, int downsample) {
-};
+//void vplot_points(GpSurfacePoints * plot, double level) 
+void GnuPlot::VPlotPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot, double level)
+{
+}
+//void vplot_isosurface(GpSurfacePoints * plot, int downsample) 
+void GnuPlot::VPlotIsoSurface(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int downsample)
+{
+}
 #endif

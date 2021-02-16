@@ -37,8 +37,8 @@ register_term(aqua)
 
 #ifdef TERM_PROTO
 /* Required entries */
-TERM_PUBLIC void AQUA_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void AQUA_init(termentry * pThis);
+TERM_PUBLIC void AQUA_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void AQUA_init(GpTermEntry * pThis);
 TERM_PUBLIC void AQUA_reset();
 TERM_PUBLIC void AQUA_text();
 TERM_PUBLIC void AQUA_graphics();
@@ -63,7 +63,7 @@ TERM_PUBLIC int AQUA_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void AQUA_previous_palette();
 TERM_PUBLIC void AQUA_set_color(t_colorspec *);
 TERM_PUBLIC void AQUA_filled_polygon(int points, gpiPoint * corners);
-TERM_PUBLIC void AQUA_image(unsigned, unsigned, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void AQUA_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
 TERM_PUBLIC void ENHAQUA_put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC void ENHAQUA_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void ENHAQUA_flush();
@@ -159,7 +159,7 @@ static void set_font_size(double size);
  *   Current options are:
  *   <n> title "theTitle" size <x> <y> fname "fontface" fsize <fontsize>
  */
-TERM_PUBLIC void AQUA_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void AQUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char * s;
 	bool set_number = FALSE;
@@ -365,7 +365,7 @@ static void set_font_size(double size)
 	term->ChrV = (int)(size * 1.5 * AQUA_RESOLUTION);
 }
 
-TERM_PUBLIC void AQUA_init(termentry * pThis)
+TERM_PUBLIC void AQUA_init(GpTermEntry * pThis)
 {
 	float fontSize, fontWHRatio;
 	NSString * title;

@@ -1239,7 +1239,7 @@ int    FASTCALL GetLinguaCode(int ident, SString & rCode);
 //
 // Descr: Возвращает Windows код языка по идентификатору ident.
 //
-uint32 FASTCALL GetLinguaWinIdent(int ident);
+uint32 FASTCALL GetLinguadent(int ident);
 void   FASTCALL GetLinguaList(LongArray & rList);
 //
 // Descr: Возвращает идентификатор натурального скрипта по английскому наименованию pSymb.
@@ -5352,7 +5352,8 @@ int    FASTCALL ismemzero(const void * p, size_t s);
 //
 // Descr: Shortcut for the initializing Windows API structures
 //
-#define INITWINAPISTRUCT(p) { MEMSZERO(p); p.cbSize = sizeof(p); } // @v10.9.12
+#define INITWINAPISTRUCT(p)  { MEMSZERO(p); p.cbSize = sizeof(p); } // @v10.9.12
+#define INITWINBITMAPINFO(p) { MEMSZERO(p); p.bmiHeader.biSize = sizeof(p.bmiHeader); } // @v11.0.2
 //
 // Descr: Меняет порядок байтов двухбайтового слова
 //
@@ -11884,6 +11885,16 @@ private:
 	int32  Flags;
 	float  P[12];
 	FloatArray * P_List;
+};
+//
+//
+//
+class SPoint2I { 
+public:
+	operator POINT() const;
+	SPoint2I & Z();
+	int    x;
+	int    y;
 };
 //
 //

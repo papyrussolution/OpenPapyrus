@@ -9,7 +9,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -19,15 +19,15 @@
 
 //#ifdef TERM_PROTO
 TERM_PUBLIC void BLOCK_options();
-TERM_PUBLIC void BLOCK_init(termentry * pThis);
-TERM_PUBLIC void BLOCK_reset();
-TERM_PUBLIC void BLOCK_text();
-TERM_PUBLIC void BLOCK_graphics();
-TERM_PUBLIC void BLOCK_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void BLOCK_point(uint x, uint y, int point);
-TERM_PUBLIC void BLOCK_linetype(int linetype);
-TERM_PUBLIC void BLOCK_dashtype(int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void BLOCK_set_color(const t_colorspec * color);
+TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis);
+TERM_PUBLIC void BLOCK_reset(GpTermEntry * pThis);
+TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis);
+TERM_PUBLIC void BLOCK_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void BLOCK_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void BLOCK_point(GpTermEntry * pThis, uint x, uint y, int point);
+TERM_PUBLIC void BLOCK_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void BLOCK_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
+TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color);
 //#endif
 
 #ifndef TERM_PROTO_ONLY
@@ -114,7 +114,7 @@ static struct gen_table BLOCK_opts[] = {
 	{ NULL, BLOCK_OTHER }
 };
 
-TERM_PUBLIC void BLOCK_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	int cmd;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -122,11 +122,11 @@ TERM_PUBLIC void BLOCK_options(TERMENTRY * pThis, GnuPlot * pGp)
 #ifndef NO_DUMB_ENHANCED_SUPPORT
 			case BLOCK_ENH:
 			    pGp->Pgm.Shift();
-			    term->flags |= TERM_ENHANCED_TEXT;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case BLOCK_NOENH:
 			    pGp->Pgm.Shift();
-			    term->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 #endif
 			case BLOCK_DOT:
@@ -149,15 +149,15 @@ TERM_PUBLIC void BLOCK_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    else
 				    pGp->TDumbB.ColorMode = DUMB_ANSIRGB;
 #ifndef NO_DUMB_COLOR_SUPPORT
-			    term->make_palette = DUMB_make_palette;
-			    term->flags &= ~TERM_MONOCHROME;
+			    pThis->make_palette = DUMB_make_palette;
+			    pThis->flags &= ~TERM_MONOCHROME;
 #endif
 			    break;
 			case BLOCK_NOCOLOR:
 			    pGp->Pgm.Shift();
 			    pGp->TDumbB.ColorMode = 0;
-			    term->make_palette = NULL;
-			    term->flags |= TERM_MONOCHROME;
+			    pThis->make_palette = NULL;
+			    pThis->flags |= TERM_MONOCHROME;
 			    break;
 			case BLOCK_OPTIMIZE:
 			    pGp->Pgm.Shift();
@@ -179,8 +179,8 @@ TERM_PUBLIC void BLOCK_options(TERMENTRY * pThis, GnuPlot * pGp)
 			    float width, height;
 			    pGp->Pgm.Shift();
 			    pGp->ParseTermSize(&width, &height, PIXELS);
-			    BLOCK_xchars = width;
-			    BLOCK_ychars = height;
+			    BLOCK_xchars = static_cast<int>(width);
+			    BLOCK_ychars = static_cast<int>(height);
 			    break;
 		    }
 			case BLOCK_OTHER:
@@ -189,19 +189,19 @@ TERM_PUBLIC void BLOCK_options(TERMENTRY * pThis, GnuPlot * pGp)
 		}
 	}
 	// initialize terminal canvas size
-	term->MaxX = BLOCK_modeinfo[BLOCK_mode].cellx * BLOCK_xchars - 1;
-	term->MaxY = BLOCK_modeinfo[BLOCK_mode].celly * BLOCK_ychars - 1;
+	pThis->MaxX = BLOCK_modeinfo[BLOCK_mode].cellx * BLOCK_xchars - 1;
+	pThis->MaxY = BLOCK_modeinfo[BLOCK_mode].celly * BLOCK_ychars - 1;
 	// init options string
 	{
 		const char * mode_strings[] = { "dot", "half", "halfh", "quadrants", "sextants", "braille" };
 		const char * color_strings[] = {"mono", "ansi", "ansi256", "ansirgb"};
 		sprintf(term_options, "%s %s %soptimize %senhanced size %d,%d", mode_strings[BLOCK_mode],
 		    color_strings[pGp->TDumbB.ColorMode == 0 ? 0 : pGp->TDumbB.ColorMode - DUMB_ANSI + 1],
-		    (BLOCK_optimize ? "" : "no"), (term->flags & TERM_ENHANCED_TEXT) ? "" : "no", BLOCK_xchars, BLOCK_ychars);
+		    (BLOCK_optimize ? "" : "no"), (pThis->flags & TERM_ENHANCED_TEXT) ? "" : "no", BLOCK_xchars, BLOCK_ychars);
 	}
 }
 
-TERM_PUBLIC void BLOCK_init(termentry * pThis)
+TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
 {
 	/* LSB is "opacity" */
 	switch(GPO.TDumbB.ColorMode) {
@@ -236,10 +236,10 @@ TERM_PUBLIC void BLOCK_init(termentry * pThis)
 	DUMB_init(pThis);
 }
 
-TERM_PUBLIC void BLOCK_reset()
+TERM_PUBLIC void BLOCK_reset(GpTermEntry * pThis)
 {
 	b_freebitmap();
-	DUMB_reset();
+	DUMB_reset(pThis);
 }
 /*
    Halfblocks, vertical:
@@ -387,10 +387,10 @@ static const char * ansi_bg_colorstring(t_colorspec * color)
 
 #endif
 
-TERM_PUBLIC void BLOCK_text()
+TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 {
 	char * line;
-	unsigned char * s;
+	uchar * s;
 	int x, y;
 	uint32_t v;
 	int cellx, celly; // number of pseudo-pixels per cell
@@ -439,12 +439,12 @@ TERM_PUBLIC void BLOCK_text()
 	// convert bitmap Unicode characters
 	// printf("vvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
 	// FIXME: last row and column not handled properly!
-	bufsiz = (term->MaxX + 1) * 8;
+	bufsiz = (pThis->MaxX + 1) * 8;
 	line = (char*)gp_alloc(bufsiz, "line buffer");
-	for(y = term->MaxY - celly + 1; y >= 0; y -= celly) {
+	for(y = pThis->MaxY - celly + 1; y >= 0; y -= celly) {
 		int yd = y / celly; // character cell coordinate
 		s = (uchar *)line;
-		for(x = 0; x <= term->MaxX; x += cellx) {
+		for(x = 0; x <= pThis->MaxX; x += cellx) {
 			int xd = x / cellx; // character cell coordinate
 			int i = 0; // index to character map
 			bool resetbg = FALSE;
@@ -453,9 +453,9 @@ TERM_PUBLIC void BLOCK_text()
 			// increase buffer size if necessary
 			if(((char*)s - line) > (bufsiz - 50)) {
 				char * l;
-				bufsiz += (term->MaxX + 1) * 8;
+				bufsiz += (pThis->MaxX + 1) * 8;
 				l = (char *)realloc(line, bufsiz);
-				s = (unsigned char*)(l + ((char*)s - line));
+				s = (uchar*)(l + ((char*)s - line));
 				line = l;
 			}
 			if(*reinterpret_cast<const char *>(&GPO.TDumbB.Pixel(xd, yd)) != ' ') {
@@ -483,7 +483,7 @@ TERM_PUBLIC void BLOCK_text()
 				//
 				int k;
 				int n = 0; // number of set pixels in charcell
-				unsigned cell[8]; // array of all pixels in charcell
+				uint cell[8]; // array of all pixels in charcell
 #ifndef NO_DUMB_COLOR_SUPPORT
 				int r = 0, g = 0, b = 0; // color components
 				rgb255_color col[8];
@@ -650,29 +650,28 @@ TERM_PUBLIC void BLOCK_text()
 	fflush(gpoutfile); /* finish the graphics */
 }
 
-TERM_PUBLIC void BLOCK_graphics()
+TERM_PUBLIC void BLOCK_graphics(GpTermEntry * pThis)
 {
-	b_boxfill(FS_EMPTY, 0, 0, term->MaxX, term->MaxY);
-	DUMB_graphics();
+	b_boxfill(pThis, FS_EMPTY, 0, 0, pThis->MaxX, pThis->MaxY);
+	DUMB_graphics(pThis);
 	// kludge: fix keybox size 
 	if(keyT.width_fix == 0) keyT.width_fix = 1;
 	if(keyT.height_fix == 0) keyT.height_fix = 1;
 }
 
-TERM_PUBLIC void BLOCK_put_text(unsigned int x, unsigned int y, const char * str)
+TERM_PUBLIC void BLOCK_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	int xd = x / BLOCK_modeinfo[BLOCK_mode].cellx;
 	int yd = y / BLOCK_modeinfo[BLOCK_mode].celly;
-
 #ifndef NO_DUMB_ENHANCED_SUPPORT
-	if(term->flags & TERM_ENHANCED_TEXT)
-		ENHdumb_put_text(xd, yd, str);
+	if(pThis->flags & TERM_ENHANCED_TEXT)
+		ENHdumb_put_text(pThis, xd, yd, str);
 	else
 #endif
-	DUMB_put_text(xd, yd, str);
+	DUMB_put_text(pThis, xd, yd, str);
 }
 
-TERM_PUBLIC void BLOCK_point(uint x, uint y, int point)
+TERM_PUBLIC void BLOCK_point(GpTermEntry * pThis, uint x, uint y, int point)
 {
 	int xd = x / BLOCK_modeinfo[BLOCK_mode].cellx;
 	int yd = y / BLOCK_modeinfo[BLOCK_mode].celly;
@@ -686,7 +685,7 @@ TERM_PUBLIC void BLOCK_point(uint x, uint y, int point)
 		0x2b20, 0x2b1f, /* empty/full pentagon */
 	};
 	if(!BLOCK_charpoints) {
-		GnuPlot::DoPoint(x, y, point);
+		GnuPlot::DoPoint(pThis, x, y, point);
 		return;
 	}
 	if((signed)x < 0 || (signed)y < 0)
@@ -699,28 +698,28 @@ TERM_PUBLIC void BLOCK_point(uint x, uint y, int point)
 #endif
 	}
 	else {
-		b_move(x, y);
-		b_vector(x + 1, y);
+		b_move(pThis, x, y);
+		b_vector(pThis, x + 1, y);
 	}
 }
 
-TERM_PUBLIC void BLOCK_linetype(int linetype)
+TERM_PUBLIC void BLOCK_linetype(GpTermEntry * pThis, int linetype)
 {
 	t_colorspec color;
 	// set dash pattern
 	if(linetype != LT_AXIS)
-		b_setlinetype(LT_SOLID); // always solid
+		b_setlinetype(pThis, LT_SOLID); // always solid
 	else
-		b_setlinetype(LT_AXIS);
+		b_setlinetype(pThis, LT_AXIS);
 	// set line color
 	color.type = TC_LT;
 	color.lt = linetype;
-	BLOCK_set_color(&color);
+	BLOCK_set_color(pThis, &color);
 	// set text color
-	DUMB_linetype(linetype);
+	DUMB_linetype(pThis, linetype);
 }
 
-TERM_PUBLIC void BLOCK_dashtype(int type, t_dashtype * custom_dash_type)
+TERM_PUBLIC void BLOCK_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
 {
 	if(type >= 0)
 		;
@@ -728,10 +727,10 @@ TERM_PUBLIC void BLOCK_dashtype(int type, t_dashtype * custom_dash_type)
 		type = LT_AXIS;
 	else
 		type = LT_SOLID; /* solid, also for custom dash types */
-	b_setlinetype(type);
+	b_setlinetype(pThis, type);
 }
 
-TERM_PUBLIC void BLOCK_set_color(const t_colorspec * color)
+TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 {
 	switch(color->type) {
 		case TC_LT: {
@@ -785,9 +784,7 @@ TERM_PUBLIC void BLOCK_set_color(const t_colorspec * color)
 		    rgb255_color rgb255;
 		    GPO.Rgb255MaxColorsFromGray(color->value, &rgb255);
 		    if(GPO.TDumbB.ColorMode == DUMB_ANSIRGB) {
-			    unsigned color = (((uint)rgb255.r) << 16) |
-				(((uint)rgb255.g) <<  8) |
-				((uint)rgb255.b);
+			    uint color = (((uint)rgb255.r) << 16) | (((uint)rgb255.g) <<  8) | ((uint)rgb255.b);
 			    b_setvalue(((color & 0xffffff) << 1) + 1);
 		    }
 		    else if(GPO.TDumbB.ColorMode == DUMB_ANSI256)
@@ -803,7 +800,7 @@ TERM_PUBLIC void BLOCK_set_color(const t_colorspec * color)
 	}
 #ifndef NO_DUMB_COLOR_SUPPORT
 	if(GPO.TDumbB.ColorMode > 0)
-		DUMB_set_color(color);
+		DUMB_set_color(pThis, color);
 #endif
 }
 
@@ -841,7 +838,10 @@ TERM_TABLE_START(block_driver)
 	#else
 	TERM_MONOCHROME,
 	#endif
-	0, 0, b_boxfill, b_linewidth,
+	0, 
+	0, 
+	b_boxfill, 
+	b_linewidth,
 	#ifdef USE_MOUSE
 	NULL, 
 	NULL, 

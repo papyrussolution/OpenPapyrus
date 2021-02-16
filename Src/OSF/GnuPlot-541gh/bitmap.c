@@ -76,28 +76,30 @@
 */
 #include <gnuplot.h>
 #pragma hdrstop
-
-/* global variables */
+//
+// global variables 
+//
 bitmap * b_p = (bitmap*)NULL;   /* global pointer to bitmap */
-uint b_xsize, b_ysize;  /* the size of the bitmap */
-uint b_planes;          /* number of color planes */
-uint b_psize;           /* size of each plane */
-uint b_rastermode;      /* raster mode rotates -90deg */
-uint b_linemask = 0xffff; /* 16 bit mask for dotted lines */
-uint b_angle;           /* rotation of text */
-int b_maskcount = 0;
-
-/* Local prototypes */
+uint   b_xsize, b_ysize;  /* the size of the bitmap */
+uint   b_planes;          /* number of color planes */
+uint   b_psize;           /* size of each plane */
+uint   b_rastermode;      /* raster mode rotates -90deg */
+uint   b_linemask = 0xffff; /* 16 bit mask for dotted lines */
+uint   b_angle;           /* rotation of text */
+int    b_maskcount = 0;
+//
+// Local prototypes 
+//
 static void b_putc(uint, uint, int, uint);
 static GP_INLINE void b_setpixel(uint x, uint y, uint value);
 static GP_INLINE void b_setmaskpixel(uint x, uint y, uint value);
 static void b_line(uint x1, uint y1, uint x2, uint y2);
 static void b_wline(uint x1, uint y1, uint x2, uint y2);
-
-/* file-scope variables */
-
+//
+// file-scope variables 
+//
 static uint b_value = 1; /* colour of lines */
-static double b_lw = 1;         /* line width */
+static double b_lw = 1.0;         /* line width */
 static uint b_currx, b_curry; /* the current coordinates */
 static uint b_hchar;    /* width of characters */
 static uint b_hbits;    /* actual bits in char horizontally */
@@ -819,10 +821,9 @@ uint b_getpixel(uint x, uint y)
 		return 0;
 	}
 }
-
-/*
- * allocate the bitmap
- */
+//
+// allocate the bitmap
+//
 void b_makebitmap(uint x, uint y, uint planes)
 {
 	uint j;
@@ -1086,29 +1087,25 @@ static void b_putc(uint x, uint y, int c, uint c_angle)
 		}
 	}
 }
-
 /*
  * set b_linemask to b_pattern[linetype]
  */
-void b_setlinetype(int linetype)
+void b_setlinetype(GpTermEntry * pThis, int linetype)
 {
 	if(linetype >= 7)
 		linetype %= 7;
 	if(linetype < LT_SOLID)
 		linetype = LT_SOLID;
-
 	b_linemask = b_pattern[linetype + 2];
 	b_maskcount = 0;
 }
-
 /*
  * set l_lw to linewidth
  */
-void b_linewidth(double linewidth)
+void b_linewidth(GpTermEntry * pThis, double linewidth)
 {
 	b_lw = linewidth;
 }
-
 /*
  * set b_value to value
  */
@@ -1119,7 +1116,7 @@ void b_setvalue(uint value)
 /*
  * move to (x,y)
  */
-void b_move(uint x, uint y)
+void b_move(GpTermEntry * pThis, uint x, uint y)
 {
 	b_currx = x;
 	b_curry = y;
@@ -1127,7 +1124,7 @@ void b_move(uint x, uint y)
 //
 // draw to (x,y) with color b_value
 //
-void b_vector(uint x, uint y)
+void b_vector(GpTermEntry * pThis, uint x, uint y)
 {
 	// We can't clip properly, but we can refuse to draw out of bounds 
 	if(x < term->MaxX && y < term->MaxY && b_currx < term->MaxX && b_curry < term->MaxY)
@@ -1138,7 +1135,7 @@ void b_vector(uint x, uint y)
 //
 // put text str at (x,y) with color b_value and rotation b_angle
 //
-void b_put_text(uint x, uint y, const char * str)
+void b_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	if(b_angle == 1)
 		x += b_vchar / 2;
@@ -1163,7 +1160,7 @@ int b_text_angle(int ang)
 }
 
 // New function by ULIG 
-void b_boxfill(int style, uint x, uint y, uint w, uint h)
+void b_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
 {
 	uint ix, iy;
 	int pixcolor, pat, mask, idx, bitoffs;
@@ -1223,9 +1220,10 @@ void b_boxfill(int style, uint x, uint y, uint w, uint h)
 		}
 	}
 }
-
-/* code from sixeltek terminal by Erik Olofsen */
-void b_filled_polygon(int points, gpiPoint * corners)
+//
+// code from sixeltek terminal by Erik Olofsen 
+//
+void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	int nodes, * nodex, px, py, i, j, swap;
 	int style = corners->style;

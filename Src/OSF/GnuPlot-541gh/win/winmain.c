@@ -202,8 +202,9 @@ char * appdata_directory()
 	}
 	return NULL;
 }
-
-/* retrieve path relative to gnuplot executable */
+//
+// retrieve path relative to gnuplot executable 
+//
 LPSTR RelativePathToGnuplot(const char * path)
 {
 #ifdef UNICODE
@@ -217,17 +218,16 @@ LPSTR RelativePathToGnuplot(const char * path)
 	char * rel_path = (char*)gp_alloc(strlen(szPackageDir) + strlen(path) + 1, "RelativePathToGnuplot");
 	strcpy(rel_path, szPackageDir);
 #endif
-	/* szPackageDir is guaranteed to have a trailing backslash */
+	// szPackageDir is guaranteed to have a trailing backslash 
 	strcat(rel_path, path);
 	return rel_path;
 }
 
 static void WinCloseHelp()
 {
-	/* Due to a known bug in the HTML help system we have to
-	 * call this as soon as possible before the end of the program.
-	 * See e.g. http://helpware.net/FAR/far_faq.htm#HH_CLOSE_ALL
-	 */
+	// Due to a known bug in the HTML help system we have to
+	// call this as soon as possible before the end of the program.
+	// See e.g. http://helpware.net/FAR/far_faq.htm#HH_CLOSE_ALL
 	if(IsWindow(help_window))
 		SendMessage(help_window, WM_CLOSE, 0, 0);
 	Sleep(0);
@@ -274,7 +274,6 @@ static void ReadMainIni(LPTSTR file, LPTSTR section)
 	TCHAR profile[81] = TEXT("");
 	const TCHAR hlpext[] = TEXT(".chm");
 	const TCHAR name[] = TEXT("wgnuplot-");
-
 	/* Language code override */
 	GetPrivateProfileString(section, TEXT("Language"), TEXT(""), profile, 80, file);
 	if(profile[0] != NUL)
@@ -295,7 +294,6 @@ static void ReadMainIni(LPTSTR file, LPTSTR section)
 		/* default name is "wgnuplot-LL.chm" */
 		winhelpname = LocalisedFile(name, hlpext, TEXT(HELPFILE));
 	}
-
 	/* menu file name */
 	GetPrivateProfileString(section, TEXT("MenuFile"), TEXT(""), profile, 80, file);
 	if(profile[0] != NUL) {
@@ -328,26 +326,26 @@ int _tmain(int argc, TCHAR ** argv)
 #endif
 
 #ifndef _UNICODE
-#ifndef WGP_CONSOLE
-#if defined(__MINGW32__) && !defined(_W64)
-#define argc _argc
-#define argv _argv
-#else /* MSVC, WATCOM, MINGW-W64 */
-#define argc __argc
-#define argv __argv
-#endif
-#endif /* WGP_CONSOLE */
+	#ifndef WGP_CONSOLE
+		#if defined(__MINGW32__) && !defined(_W64)
+			#define argc _argc
+			#define argv _argv
+		#else /* MSVC, WATCOM, MINGW-W64 */
+			#define argc __argc
+			#define argv __argv
+		#endif
+	#endif /* WGP_CONSOLE */
 #else
-#define argc __argc
-#define argv argv_u8
-	/* create an UTF-8 encoded copy of all arguments */
+	#define argc __argc
+	#define argv argv_u8
+	// create an UTF-8 encoded copy of all arguments 
 	char ** argv_u8 = (char **)calloc(__argc, sizeof(char *));
 	for(i = 0; i < __argc; i++)
 		argv_u8[i] = AnsiText(__wargv[i], S_ENC_UTF8);
 #endif
 	szModuleName = (LPTSTR)malloc((MAXSTR + 1) * sizeof(TCHAR));
 	CheckMemory(szModuleName);
-	/* get path to gnuplot executable  */
+	// get path to gnuplot executable  
 	GetModuleFileName(hInstance, szModuleName, MAXSTR);
 	if((tail = _tcsrchr(szModuleName, '\\')) != NULL) {
 		tail++;
@@ -494,7 +492,8 @@ int _tmain(int argc, TCHAR ** argv)
 	gp_atexit(WinExit);
 	if(!_isatty(_fileno(stdin)))
 		_setmode(_fileno(stdin), O_BINARY);
-	gnu_main(argc, argv);
+	//gnu_main(argc, argv);
+	GPO.ImplementMain(argc, argv);
 	// First chance to close help system for console gnuplot, second for wgnuplot 
 	WinCloseHelp();
 	gp_exit_cleanup();

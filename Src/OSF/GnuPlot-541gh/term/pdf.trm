@@ -32,8 +32,8 @@ register_term(pdf)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PDF_options(TERMENTRY * pThis, GnuPlot * pGp);
-TERM_PUBLIC void PDF_init(termentry * pThis);
+TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void PDF_init(GpTermEntry * pThis);
 TERM_PUBLIC void PDF_graphics();
 TERM_PUBLIC void PDF_text();
 TERM_PUBLIC void PDF_linetype(int linetype);
@@ -315,7 +315,7 @@ static void PDF_DefinePatterns()
 
 /*------------------- the terminal entry functions --------------------*/
 
-TERM_PUBLIC void PDF_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	// Annoying hack to handle the case of 'set termoption' after 
 	// we have already initialized the terminal.                  
@@ -438,7 +438,7 @@ TERM_PUBLIC void PDF_options(TERMENTRY * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void PDF_init(termentry * pThis)
+TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 {
 	static bool PDFlib_booted = FALSE;
 	char * gpversionstring;

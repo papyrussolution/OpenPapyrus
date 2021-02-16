@@ -382,22 +382,17 @@ cmsBool isfirstidchar(int c)
 }
 
 // Guess whether the supplied path looks like an absolute path
-static
-cmsBool isabsolutepath(const char * path)
+static cmsBool isabsolutepath(const char * path)
 {
 	char ThreeChars[4];
-
 	if(path == NULL)
 		return FALSE;
 	if(path[0] == 0)
 		return FALSE;
-
 	strncpy(ThreeChars, path, 3);
 	ThreeChars[3] = 0;
-
 	if(ThreeChars[0] == DIR_CHAR)
 		return TRUE;
-
 #ifdef  CMS_IS_WINDOWS_
 	if(isalpha((int)ThreeChars[0]) && ThreeChars[1] == ':')
 		return TRUE;
@@ -407,52 +402,43 @@ cmsBool isabsolutepath(const char * path)
 
 // Makes a file path based on a given reference path
 // NOTE: this function doesn't check if the path exists or even if it's legal
-static
-cmsBool BuildAbsolutePath(const char * relPath, const char * basePath, char * buffer, cmsUInt32Number MaxLen)
+static cmsBool BuildAbsolutePath(const char * relPath, const char * basePath, char * buffer, cmsUInt32Number MaxLen)
 {
 	char * tail;
 	cmsUInt32Number len;
-
 	// Already absolute?
 	if(isabsolutepath(relPath)) {
 		strncpy(buffer, relPath, MaxLen);
 		buffer[MaxLen-1] = 0;
 		return TRUE;
 	}
-
 	// No, search for last
 	strncpy(buffer, basePath, MaxLen);
 	buffer[MaxLen-1] = 0;
-
 	tail = strrchr(buffer, DIR_CHAR);
-	if(tail == NULL) return FALSE; // Is not absolute and has no separators??
-
+	if(tail == NULL) 
+		return FALSE; // Is not absolute and has no separators??
 	len = (cmsUInt32Number)(tail - buffer);
-	if(len >= MaxLen) return FALSE;
-
+	if(len >= MaxLen) 
+		return FALSE;
 	// No need to assure zero terminator over here
 	strncpy(tail + 1, relPath, MaxLen - len);
-
 	return TRUE;
 }
 
 // Make sure no exploit is being even tried
-static
-const char* NoMeta(const char* str)
+static const char* NoMeta(const char* str)
 {
 	if(strchr(str, '%') != NULL)
 		return "**** CORRUPTED FORMAT STRING ***";
-
 	return str;
 }
 
 // Syntax error
-static
-cmsBool SynError(cmsIT8* it8, const char * Txt, ...)
+static cmsBool SynError(cmsIT8* it8, const char * Txt, ...)
 {
 	char Buffer[256], ErrMsg[1024];
 	va_list args;
-
 	va_start(args, Txt);
 	vsnprintf(Buffer, 255, Txt, args);
 	Buffer[255] = 0;
@@ -466,8 +452,7 @@ cmsBool SynError(cmsIT8* it8, const char * Txt, ...)
 }
 
 // Check if current symbol is same as specified. issue an error else.
-static
-cmsBool Check(cmsIT8* it8, SYMBOL sy, const char* Err)
+static cmsBool Check(cmsIT8* it8, SYMBOL sy, const char* Err)
 {
 	if(it8->sy != sy)
 		return SynError(it8, NoMeta(Err));
@@ -475,8 +460,7 @@ cmsBool Check(cmsIT8* it8, SYMBOL sy, const char* Err)
 }
 
 // Read Next character from stream
-static
-void NextCh(cmsIT8* it8)
+static void NextCh(cmsIT8* it8)
 {
 	if(it8->FileStack[it8->IncludeSP]->Stream) {
 		it8->ch = fgetc(it8->FileStack[it8->IncludeSP]->Stream);
@@ -497,13 +481,11 @@ void NextCh(cmsIT8* it8)
 }
 
 // Try to see if current identifier is a keyword, if so return the referred symbol
-static
-SYMBOL BinSrchKey(const char * id)
+static SYMBOL BinSrchKey(const char * id)
 {
 	int l = 1;
 	int r = NUMKEYS;
 	int x, res;
-
 	while(r >= l) {
 		x = (l+r)/2;
 		res = cmsstrcasecmp(id, TabKeys[x-1].id);
@@ -511,23 +493,19 @@ SYMBOL BinSrchKey(const char * id)
 		if(res < 0) r = x - 1;
 		else l = x + 1;
 	}
-
 	return SUNDEFINED;
 }
 
 // 10 ^n
-static
-cmsFloat64Number xpow10(int n)
+static cmsFloat64Number xpow10(int n)
 {
 	return pow(10, (cmsFloat64Number)n);
 }
 
 //  Reads a Real number, tries to follow from integer number
-static
-void ReadReal(cmsIT8* it8, cmsInt32Number inum)
+static void ReadReal(cmsIT8* it8, cmsInt32Number inum)
 {
 	it8->dnum = (cmsFloat64Number)inum;
-
 	while(isdigit(it8->ch)) {
 		it8->dnum = (cmsFloat64Number)it8->dnum * 10.0 + (cmsFloat64Number)(it8->ch - '0');
 		NextCh(it8);

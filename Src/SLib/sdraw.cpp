@@ -1,5 +1,5 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -2384,8 +2384,7 @@ int SImageBuffer::LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx, uint subImgSq
 		SBuffer buffer;
 		BITMAPINFO bi;
 		SETIFZ(hDc, SLS.GetTLA().GetFontDC());
-		MEMSZERO(bi);
-		bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		INITWINBITMAPINFO(bi);
 		::GetDIBits(hDc, hBmp, 0, 0, 0, &bi, DIB_RGB_COLORS);
 		{
 			BmpFileHeader fh;

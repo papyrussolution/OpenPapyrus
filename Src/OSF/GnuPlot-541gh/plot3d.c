@@ -21,14 +21,14 @@ double boxdepth = 0.0;
 
 //static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, iso_curve ** this_iso,
     //AXIS_INDEX iso_axis, double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use);
-//static int get_3ddata(struct surface_points * this_plot);
+//static int get_3ddata(GpSurfacePoints * this_plot);
 //static void eval_3dplots();
-//static void grid_nongrid_data(struct surface_points * this_plot);
-static void parametric_3dfixup(struct surface_points * start_plot, int * plot_num);
-static struct surface_points * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
-static void sp_replace(struct surface_points * sp, int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
+//static void grid_nongrid_data(GpSurfacePoints * this_plot);
+static void parametric_3dfixup(GpSurfacePoints * start_plot, int * plot_num);
+static GpSurfacePoints * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
+static void sp_replace(GpSurfacePoints * sp, int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
 
-static struct iso_curve * iso_alloc(int num);
+static iso_curve * iso_alloc(int num);
 static void iso_extend(struct iso_curve * ip, int num);
 static void iso_free(struct iso_curve * ip);
 
@@ -38,16 +38,20 @@ static void thin_plate_splines_setup(struct iso_curve * old_iso_crvs, double ** 
 static double qnorm(double dist_x, double dist_y, int q);
 static double pythag(double dx, double dy);
 // helper function to detect empty data sets 
-static void count_3dpoints(struct surface_points * plot, int * nt, int * ni, int * nu);
+static void count_3dpoints(GpSurfacePoints * plot, int * nt, int * ni, int * nu);
 // helper functions for parsing 
 static void load_contour_label_options(struct text_label * contour_label);
 
 enum splot_component {
-	SP_FUNCTION, SP_DATAFILE, SP_DATABLOCK, SP_KEYENTRY, SP_VOXELGRID
+	SP_FUNCTION, 
+	SP_DATAFILE, 
+	SP_DATABLOCK, 
+	SP_KEYENTRY, 
+	SP_VOXELGRID
 };
 
 // the curves/surfaces of the plot 
-surface_points * first_3dplot = NULL;
+GpSurfacePoints * first_3dplot = NULL;
 static udft_entry plot_func;
 int plot3d_num = 0;
 
@@ -55,11 +59,10 @@ int plot3d_num = 0;
  * Because this is global, it gets clobbered if there is more than
  * one unbounded iteration in the splot command, e.g.
  *	splot for [i=0:*] A index i, for [j=0:*] B index j
- * Moving it into (struct surface_points) would be nice but would require
+ * Moving it into (GpSurfacePoints) would be nice but would require
  * extra bookkeeping to track which plot header it is stored in.
  */
 static int last_iteration_in_first_pass = INT_MAX;
-
 /*
  * It is a common mistake to try to plot a complex-valued function
  * without reducing it to some derived real value like abs(f(z)).
@@ -70,16 +73,16 @@ static int last_iteration_in_first_pass = INT_MAX;
 static int n_complex_values = 0;
 
 /*
- * sp_alloc() allocates a surface_points structure that can hold 'num_iso_1'
+ * sp_alloc() allocates a GpSurfacePoints structure that can hold 'num_iso_1'
  * iso-curves with 'num_samp_2' samples and 'num_iso_2' iso-curves with
  * 'num_samp_1' samples.
  * If, however num_iso_2 or num_samp_1 is zero no iso curves are allocated.
  */
-static struct surface_points * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)                               
+static GpSurfacePoints * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)                               
 {
 	lp_style_type default_lp_properties; // = DEFAULT_LP_STYLE_TYPE;
-	surface_points * sp = (struct surface_points *)gp_alloc(sizeof(*sp), "surface");
-	memzero(sp, sizeof(struct surface_points));
+	GpSurfacePoints * sp = (GpSurfacePoints *)gp_alloc(sizeof(*sp), "surface");
+	memzero(sp, sizeof(GpSurfacePoints));
 	/* Initialize various fields */
 	sp->lp_properties = default_lp_properties;
 	sp->fill_properties = default_fillstyle;
@@ -102,12 +105,12 @@ static struct surface_points * sp_alloc(int num_samp_1, int num_iso_1, int num_s
 	return (sp);
 }
 /*
- * sp_replace() updates a surface_points structure so it can hold 'num_iso_1'
+ * sp_replace() updates a GpSurfacePoints structure so it can hold 'num_iso_1'
  * iso-curves with 'num_samp_2' samples and 'num_iso_2' iso-curves with
  * 'num_samp_1' samples.
  * If, however num_iso_2 or num_samp_1 is zero no iso curves are allocated.
  */
-static void sp_replace(struct surface_points * sp, int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)
+static void sp_replace(GpSurfacePoints * sp, int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)
 {
 	int i;
 	iso_curve * icrv, * icrvs = sp->iso_crvs;
@@ -139,10 +142,10 @@ static void sp_replace(struct surface_points * sp, int num_samp_1, int num_iso_1
  */
 /* HBB 20000506: don't risk stack havoc by recursion, use iterative list
  * cleanup instead */
-void sp_free(struct surface_points * sp)
+void sp_free(GpSurfacePoints * sp)
 {
 	while(sp) {
-		surface_points * next = sp->next_sp;
+		GpSurfacePoints * next = sp->next_sp;
 		SAlloc::F(sp->title);
 		ZFREE(sp->title_position);
 		while(sp->contours) {
@@ -152,14 +155,12 @@ void sp_free(struct surface_points * sp)
 			sp->contours = next_cntrs;
 		}
 		while(sp->iso_crvs) {
-			struct iso_curve * next_icrvs = sp->iso_crvs->next;
+			iso_curve * next_icrvs = sp->iso_crvs->next;
 			iso_free(sp->iso_crvs);
 			sp->iso_crvs = next_icrvs;
 		}
-		if(sp->labels) {
-			free_labels(sp->labels);
-			sp->labels = NULL;
-		}
+		free_labels(sp->labels);
+		sp->labels = NULL;
 		SAlloc::F(sp);
 		sp = next;
 	}
@@ -183,7 +184,6 @@ struct iso_curve * iso_alloc(int num)
 	ip->next = NULL;
 	return (ip);
 }
-
 /*
  * iso_extend() reallocates a iso_curve structure to hold "num"
  * points. This will either expand or shrink the storage.
@@ -207,7 +207,7 @@ void iso_extend(struct iso_curve * ip, int num)
  * iso_free() releases any memory which was previously malloc()'d to hold
  *   iso curve points.
  */
-void iso_free(struct iso_curve * ip)
+void iso_free(iso_curve * ip)
 {
 	if(ip) {
 		SAlloc::F(ip->points);
@@ -216,7 +216,7 @@ void iso_free(struct iso_curve * ip)
 }
 
 //void plot3drequest()
-void GnuPlot::Plot3DRequest(termentry * pTerm)
+void GnuPlot::Plot3DRequest(GpTermEntry * pTerm)
 {
 	// 
 	// in the parametric case we would say splot [u= -Pi:Pi] [v= 0:2*Pi] [-1:1]
@@ -312,10 +312,10 @@ void GnuPlot::Plot3DRequest(termentry * pTerm)
 // forced "set autoscale" since the previous plot or refresh, we need to reset the
 // axis limits and try to approximate the full auto-scaling behaviour.
 // 
-//void refresh_3dbounds(termentry * pTerm, surface_points * pFirstPlot, int nplots)
-void GnuPlot::Refresh3DBounds(termentry * pTerm, surface_points * pFirstPlot, int nplots)
+//void refresh_3dbounds(GpTermEntry * pTerm, GpSurfacePoints * pFirstPlot, int nplots)
+void GnuPlot::Refresh3DBounds(GpTermEntry * pTerm, GpSurfacePoints * pFirstPlot, int nplots)
 {
-	const surface_points * this_plot = pFirstPlot;
+	const GpSurfacePoints * this_plot = pFirstPlot;
 	for(int iplot = 0; iplot < nplots; iplot++, this_plot = this_plot->next_sp) {
 		int i;  /* point index */
 		GpAxis * x_axis = &AxS[FIRST_X_AXIS];
@@ -502,12 +502,13 @@ static double qnorm(double dist_x, double dist_y, int q)
 #endif
 	return dist;
 }
-
-/* This is from Numerical Recipes in C, 2nd ed, p70 */
+//
+// This is from Numerical Recipes in C, 2nd ed, p70 
+//
 static double pythag(double dx, double dy)
 {
-	double x = fabs(dx);
-	double y = fabs(dy);
+	const double x = fabs(dx);
+	const double y = fabs(dy);
 	if(x > y) {
 		return x*sqrt(1.0 + (y*y)/(x*x));
 	}
@@ -517,8 +518,8 @@ static double pythag(double dx, double dy)
 	return y*sqrt(1.0 + (x*x)/(y*y));
 }
 
-//static void grid_nongrid_data(surface_points * pPlot)
-void GnuPlot::GridNonGridData(surface_points * pPlot)
+//static void grid_nongrid_data(GpSurfacePoints * pPlot)
+void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 {
 	int i, j, k;
 	double x, y, z, w, dx, dy, xmin, xmax, ymin, ymax;
@@ -680,8 +681,8 @@ void GnuPlot::GridNonGridData(surface_points * pPlot)
 // Notice: this_plot->token is end of datafile spec, before title etc
 // will be moved past title etc after we return 
 // 
-//static int get_3ddata(surface_points * this_plot)
-int GnuPlot::Get3DData(termentry * pTerm, surface_points * pPlot)
+//static int get_3ddata(GpSurfacePoints * this_plot)
+int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
 	int xdatum = 0;
 	int ydatum = 0;
@@ -726,7 +727,7 @@ int GnuPlot::Get3DData(termentry * pTerm, surface_points * pPlot)
 		pPlot->has_grid_topology = TRUE;
 	{
 		/*{{{  read surface from text file */
-		struct iso_curve * local_this_iso = iso_alloc(samples_1);
+		struct iso_curve * local_this_iso = iso_alloc(Gg.Samples1);
 		GpCoordinate * cp;
 		GpCoordinate * cphead = NULL; /* Only for VECTOR plots */
 		double x, y, z;
@@ -740,7 +741,7 @@ int GnuPlot::Get3DData(termentry * pTerm, surface_points * pPlot)
 		if(pPlot->plot_style == LABELPOINTS)
 			expect_string(4);
 		if(pPlot->plot_style == VECTOR) {
-			local_this_iso->next = iso_alloc(samples_1);
+			local_this_iso->next = iso_alloc(Gg.Samples1);
 			local_this_iso->next->p_count = 0;
 		}
 		if(pPlot->plot_style == POLYGONS) {
@@ -1013,9 +1014,8 @@ int GnuPlot::Get3DData(termentry * pTerm, surface_points * pPlot)
 				}
 				else if(pPlot->fill_properties.border_color.type == TC_Z && j >= 4) {
 					rgb255_color rgbcolor;
-					uint rgb;
 					Rgb255MaxColorsFromGray(Cb2Gray(v[--j]), &rgbcolor);
-					rgb = (uint)rgbcolor.r << 16 | (uint)rgbcolor.g << 8 | (uint)rgbcolor.b;
+					uint rgb = (uint)rgbcolor.r << 16 | (uint)rgbcolor.g << 8 | (uint)rgbcolor.b;
 					color_from_column(TRUE);
 					color = rgb;
 				}
@@ -1170,7 +1170,7 @@ int GnuPlot::Get3DData(termentry * pTerm, surface_points * pPlot)
 			if(pPlot->plot_style == LABELPOINTS) {
 				// Aug 2018: only store INRANGE labels. This is a CHANGE. 
 				if(cp->type == INRANGE)
-					store_label(pPlot->labels, cp, xdatum, df_tokens[3], color);
+					StoreLabel(pTerm, pPlot->labels, cp, xdatum, df_tokens[3], color);
 			}
 			if(pPlot->plot_style == RGBIMAGE || pPlot->plot_style == RGBA_IMAGE) {
 				// We will autoscale the RGB components to  a total range [0:255]
@@ -1318,10 +1318,10 @@ void GnuPlot::CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curv
 // we store starting-token in the plot structure.
 // 
 //static void eval_3dplots()
-void GnuPlot::Eval3DPlots(termentry * pTerm)
+void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 {
 	int i;
-	surface_points ** tp_3d_ptr;
+	GpSurfacePoints ** tp_3d_ptr;
 	int    start_token = 0, end_token;
 	bool   eof_during_iteration = FALSE; /* set when for [n=start:*] hits NODATA */
 	int    begin_token;
@@ -1387,7 +1387,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 		}
 		else {
 			int specs = -1;
-			surface_points * this_plot;
+			GpSurfacePoints * this_plot;
 			splot_component this_component;
 			char * name_str;
 			bool duplication = FALSE;
@@ -1545,26 +1545,26 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 				    if(*tp_3d_ptr) {
 					    this_plot = *tp_3d_ptr;
 					    if(!hidden3d)
-						    sp_replace(this_plot, samples_1, iso_samples_1, samples_2, iso_samples_2);
+						    sp_replace(this_plot, Gg.Samples1, Gg.IsoSamples1, Gg.Samples2, Gg.IsoSamples2);
 					    else
-						    sp_replace(this_plot, iso_samples_1, 0, 0, iso_samples_2);
+						    sp_replace(this_plot, Gg.IsoSamples1, 0, 0, Gg.IsoSamples2);
 				    }
 				    else { /* no memory malloc()'d there yet */
 					    /* Allocate enough isosamples and samples */
 					    if(!hidden3d)
-						    this_plot = sp_alloc(samples_1, iso_samples_1, samples_2, iso_samples_2);
+						    this_plot = sp_alloc(Gg.Samples1, Gg.IsoSamples1, Gg.Samples2, Gg.IsoSamples2);
 					    else
-						    this_plot = sp_alloc(iso_samples_1, 0, 0, iso_samples_2);
+						    this_plot = sp_alloc(Gg.IsoSamples1, 0, 0, Gg.IsoSamples2);
 					    *tp_3d_ptr = this_plot;
 				    }
 				    this_plot->plot_type = FUNC3D;
 				    this_plot->has_grid_topology = TRUE;
 				    this_plot->plot_style = func_style;
-				    this_plot->num_iso_read = iso_samples_2;
-				    /* FIXME: additional fields may need to be reset */
+				    this_plot->num_iso_read = Gg.IsoSamples2;
+				    // FIXME: additional fields may need to be reset 
 				    this_plot->opt_out_of_hidden3d = FALSE;
 				    this_plot->title_is_suppressed = FALSE;
-				    /* ignore it for now */
+				    // ignore it for now 
 				    some_functions = TRUE;
 				    end_token = Pgm.GetPrevTokenIdx();
 				    break;
@@ -1632,7 +1632,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 						duplication = TRUE;
 						break;
 					}
-					this_plot->plot_style = get_style();
+					this_plot->plot_style = GetStyle();
 					if((this_plot->plot_type == FUNC3D) && ((this_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR) || 
 						(this_plot->plot_style == LABELPOINTS && !draw_contour) || (this_plot->plot_style == VECTOR))) {
 						IntWarn(Pgm.GetPrevTokenIdx(), "This style cannot be used to plot a surface defined by a function");
@@ -1923,7 +1923,7 @@ void GnuPlot::Eval3DPlots(termentry * pTerm)
 			if(this_plot->plot_type == DATA3D) {
 				/*{{{  read data */
 				/* pointer to the plot of the first dataset (surface) in the file */
-				surface_points * first_dataset = this_plot;
+				GpSurfacePoints * first_dataset = this_plot;
 				int this_token = this_plot->token;
 				// Error check to handle missing or unreadable file 
 				if(specs == DF_EOF) {
@@ -2086,7 +2086,7 @@ SKIPPED_EMPTY_FILE:
 		double u_min, u_max, u_step, v_min, v_max, v_step;
 		double u_isostep, v_isostep;
 		AXIS_INDEX u_axis, v_axis;
-		surface_points * this_plot;
+		GpSurfacePoints * this_plot;
 		// Make these point out the right 'u' and 'v' axis. In
 		// non-parametric mode, x is used as u, and y as v 
 		u_axis = Gg.Parametric ? U_AXIS : FIRST_X_AXIS;
@@ -2128,8 +2128,7 @@ SKIPPED_EMPTY_FILE:
 			v_max = AxS[v_axis].linked_to_primary->max;
 		}
 		/*}}} */
-		if(samples_1 < 2 || samples_2 < 2 || iso_samples_1 < 2 ||
-		    iso_samples_2 < 2) {
+		if(Gg.Samples1 < 2 || Gg.Samples2 < 2 || Gg.IsoSamples1 < 2 || Gg.IsoSamples2 < 2) {
 			IntError(NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
 		}
 		// start over 
@@ -2140,15 +2139,15 @@ SKIPPED_EMPTY_FILE:
 		if(forever_iteration(plot_iterator))
 			plot_iterator->iteration_end = last_iteration_in_first_pass;
 		if(hidden3d) {
-			u_step = (u_max - u_min) / (iso_samples_1 - 1);
-			v_step = (v_max - v_min) / (iso_samples_2 - 1);
+			u_step = (u_max - u_min) / (Gg.IsoSamples1 - 1);
+			v_step = (v_max - v_min) / (Gg.IsoSamples2 - 1);
 		}
 		else {
-			u_step = (u_max - u_min) / (samples_1 - 1);
-			v_step = (v_max - v_min) / (samples_2 - 1);
+			u_step = (u_max - u_min) / (Gg.Samples1 - 1);
+			v_step = (v_max - v_min) / (Gg.Samples2 - 1);
 		}
-		u_isostep = (u_max - u_min) / (iso_samples_1 - 1);
-		v_isostep = (v_max - v_min) / (iso_samples_2 - 1);
+		u_isostep = (u_max - u_min) / (Gg.IsoSamples1 - 1);
+		v_isostep = (v_max - v_min) / (Gg.IsoSamples2 - 1);
 		// Read through functions 
 		while(TRUE) {
 			if(crnt_param == 0 && !was_definition)
@@ -2180,7 +2179,7 @@ SKIPPED_EMPTY_FILE:
 				}
 				else if(!name_str) {   /* func to plot */
 					/*{{{  evaluate function */
-					struct iso_curve * this_iso = this_plot->iso_crvs;
+					iso_curve * this_iso = this_plot->iso_crvs;
 					int num_sam_to_use, num_iso_to_use;
 					// crnt_param is used as the axis number.  As the
 					// axis array indices are ordered z, y, x, we have
@@ -2190,12 +2189,12 @@ SKIPPED_EMPTY_FILE:
 					if(Gg.Parametric)
 						crnt_param = (crnt_param + 2) % 3;
 					plot_func.at = at_ptr;
-					num_iso_to_use = iso_samples_2;
-					num_sam_to_use = hidden3d ? iso_samples_1 : samples_1;
+					num_iso_to_use = Gg.IsoSamples2;
+					num_sam_to_use = hidden3d ? Gg.IsoSamples1 : Gg.Samples1;
 					CalculateSetOfIsoLines((AXIS_INDEX)crnt_param, FALSE, &this_iso, v_axis, v_min, v_isostep, num_iso_to_use, u_axis, u_min, u_step, num_sam_to_use);
 					if(!hidden3d) {
-						num_iso_to_use = iso_samples_1;
-						num_sam_to_use = samples_2;
+						num_iso_to_use = Gg.IsoSamples1;
+						num_sam_to_use = Gg.Samples2;
 						CalculateSetOfIsoLines((AXIS_INDEX)crnt_param, TRUE, &this_iso, u_axis, u_min, u_isostep, num_iso_to_use, v_axis, v_min, v_step, num_sam_to_use);
 					}
 					/*}}} */
@@ -2285,7 +2284,7 @@ SKIPPED_EMPTY_FILE:
 	}
 	// Creates contours if contours are to be plotted as well. 
 	if(draw_contour) {
-		surface_points * this_plot;
+		GpSurfacePoints * this_plot;
 		for(this_plot = first_3dplot, i = 0; i < plot_num; this_plot = this_plot->next_sp, i++) {
 			if(this_plot->contours) {
 				for(gnuplot_contours * cntrs = this_plot->contours; cntrs;) {
@@ -2311,7 +2310,7 @@ SKIPPED_EMPTY_FILE:
 			else if(this_plot->plot_type == DATA3D)
 				this_plot->contours = Contour(this_plot->num_iso_read, this_plot->iso_crvs);
 			else
-				this_plot->contours = Contour(iso_samples_2, this_plot->iso_crvs);
+				this_plot->contours = Contour(Gg.IsoSamples2, this_plot->iso_crvs);
 		}
 	} // draw_contour 
 	// Images don't fit the grid model.  (The image data correspond
@@ -2320,10 +2319,10 @@ SKIPPED_EMPTY_FILE:
 	// outlining the image.  Opt out of hidden3d for the {RGB}IMAGE
 	// to avoid processing large amounts of data.
 	if(hidden3d && plot_num) {
-		surface_points * this_plot = first_3dplot;
+		GpSurfacePoints * this_plot = first_3dplot;
 		do {
 			if(oneof2(this_plot->plot_style, IMAGE, RGBIMAGE) && (this_plot->image_properties.nrows > 0 && this_plot->image_properties.ncols > 0) && !(this_plot->opt_out_of_hidden3d)) {
-				surface_points * new_plot = sp_alloc(2, 0, 0, 2);
+				GpSurfacePoints * new_plot = sp_alloc(2, 0, 0, 2);
 				// Construct valid 2 x 2 parallelogram. 
 				new_plot->num_iso_read = 2;
 				new_plot->iso_crvs->p_count = 2;
@@ -2385,10 +2384,10 @@ SKIPPED_EMPTY_FILE:
  *
  * x and y ranges now fixed in eval_3dplots
  */
-static void parametric_3dfixup(struct surface_points * start_plot, int * plot_num)
+static void parametric_3dfixup(GpSurfacePoints * start_plot, int * plot_num)
 {
-	surface_points * xp, * new_list, * free_list = NULL;
-	surface_points ** last_pointer = &new_list;
+	GpSurfacePoints * xp, * new_list, * free_list = NULL;
+	GpSurfacePoints ** last_pointer = &new_list;
 	int i, surface;
 	/*
 	 * Ok, go through all the plots and move FUNC3D types together.  Note:
@@ -2397,7 +2396,7 @@ static void parametric_3dfixup(struct surface_points * start_plot, int * plot_nu
 	 * items in the plot list is controlled by the plot_num variable.
 	 *
 	 * Since gnuplot wants to do this sticky business, a free_list of
-	 * surface_points is kept and then tagged onto the end of the plot list
+	 * GpSurfacePoints is kept and then tagged onto the end of the plot list
 	 * as this seems more in the spirit of the original memory behavior than
 	 * simply freeing the memory.  I'm personally not convinced this sort of
 	 * concern is worth it since the time spent computing points seems to
@@ -2406,8 +2405,8 @@ static void parametric_3dfixup(struct surface_points * start_plot, int * plot_nu
 	new_list = xp = start_plot;
 	for(surface = 0; surface < *plot_num; surface++) {
 		if(xp->plot_type == FUNC3D) {
-			surface_points * yp = xp->next_sp;
-			surface_points * zp = yp->next_sp;
+			GpSurfacePoints * yp = xp->next_sp;
+			GpSurfacePoints * zp = yp->next_sp;
 			/* Here's a FUNC3D parametric function defined as three parts.
 			 * Go through all the points and assign the x's and y's from xp and
 			 * yp to zp. min/max already done
@@ -2459,9 +2458,10 @@ static void load_contour_label_options(struct text_label * contour_label)
 	lp->p_interval = clabel_interval;
 	GPO.LpParse(lp, LP_ADHOC, TRUE);
 }
-
-/* Count the number of data points but do nothing with them */
-static void count_3dpoints(struct surface_points * plot, int * ntotal, int * ninrange, int * nundefined)
+//
+// Count the number of data points but do nothing with them 
+//
+static void count_3dpoints(GpSurfacePoints * plot, int * ntotal, int * ninrange, int * nundefined)
 {
 	iso_curve * icrvs = plot->iso_crvs;
 	*ntotal = *ninrange = *nundefined = 0;

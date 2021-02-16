@@ -408,11 +408,8 @@ int main(int argc, char ** argv)
 		jbig2_arith_trace(as, cx);
 #endif
 	}
-
 	jbig2_free(ctx->allocator, as);
-
 	jbig2_ctx_free(ctx);
-
 	return 0;
 }
 

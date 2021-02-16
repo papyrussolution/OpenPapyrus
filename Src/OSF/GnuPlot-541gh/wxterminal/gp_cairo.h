@@ -1,5 +1,4 @@
 /* GNUPLOT - gp_cairo.h */
-
 /*[
  * Copyright 2005,2006   Timothee Lecomte
  *
@@ -70,15 +69,14 @@
 # define GNUPLOT_WXT_CAIRO_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif /*__cplusplus*/
+// @sobolev extern "C" {
+#endif
 
 //#include "term_api.h" // for JUSTIFY, set_encoding_id, *term definitions, color.h 
 //#include "getcolor.h" // for rgb functions 
 #include <cairo.h> // for rgb functions 
 
-/* oversampling scale */
-#define GP_CAIRO_SCALE 20
+#define GP_CAIRO_SCALE 20 // oversampling scale 
 
 typedef struct rgba_color {
 	double r;
@@ -218,28 +216,21 @@ void gp_cairo_clear_background(plot_struct *plot);
 
 /* helps to fill term->h_char, v_char, h_tic, v_tic
  * Depends on plot->fontsize and fontname */
-void gp_cairo_set_termvar(plot_struct *plot, unsigned int *v_char,
-                                             unsigned int *h_char);
-
-/* translate plot->encoding int to char* suitable for glib */
+void gp_cairo_set_termvar(plot_struct *plot, uint *v_char, uint *h_char);
+// translate plot->encoding int to char* suitable for glib 
 const char* gp_cairo_get_encoding(plot_struct *plot);
-
-/* determine default font to use */
+// determine default font to use 
 const char * gp_cairo_default_font(void);
-
-/* work-around for "bold font gets stuck" bug */
+// work-around for "bold font gets stuck" bug 
 void gp_cairo_clear_bold_font(plot_struct *plot);
-
-/* Text boxes */
+// Text boxes 
 void gp_cairo_boxed_text(plot_struct *plot, int x, int y, int option);
-
 void gp_cairo_set_dashtype(plot_struct *plot, int type, t_dashtype *custom_dash_pattern);
-
-/* explicitly set resolution */
+// explicitly set resolution 
 void gp_cairo_set_resolution(int dpi);
 
 #ifdef __cplusplus
-}
+// @sobolev }
 #endif /*__cplusplus*/
 
 #endif /* gnuplot_wxt_cairo_h */

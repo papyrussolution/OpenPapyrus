@@ -1366,22 +1366,18 @@ cmsBool CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile)
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
 	cmsBool rc = TRUE;
 	cmsUInt32Number i;
-
-	if(!Icc) return FALSE;
-
+	if(!Icc) 
+		return FALSE;
 	// Was open in write mode?
 	if(Icc->IsWrite) {
 		Icc->IsWrite = FALSE; // Assure no further writing
 		rc &= cmsSaveProfileToFile(hProfile, Icc->IOhandler->PhysicalFile);
 	}
-
 	for(i = 0; i < Icc->TagCount; i++) {
 		if(Icc->TagPtrs[i]) {
 			cmsTagTypeHandler* TypeHandler = Icc->TagTypeHandlers[i];
-
 			if(TypeHandler != NULL) {
 				cmsTagTypeHandler LocalTypeHandler = *TypeHandler;
-
 				LocalTypeHandler.ContextID = Icc->ContextID; // As an additional parameters
 				LocalTypeHandler.ICCVersion = Icc->Version;
 				LocalTypeHandler.FreePtr(&LocalTypeHandler, Icc->TagPtrs[i]);
@@ -1390,15 +1386,11 @@ cmsBool CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile)
 				_cmsFree(Icc->ContextID, Icc->TagPtrs[i]);
 		}
 	}
-
 	if(Icc->IOhandler != NULL) {
 		rc &= cmsCloseIOhandler(Icc->IOhandler);
 	}
-
 	_cmsDestroyMutex(Icc->ContextID, Icc->UsrMutex);
-
 	_cmsFree(Icc->ContextID, Icc); // Free placeholder memory
-
 	return rc;
 }
 

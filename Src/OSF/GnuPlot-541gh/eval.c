@@ -1336,7 +1336,7 @@ void GpEval::FillGpValComplex(const char * var, double areal, double aimag)
 // This allows offline mapping of pixel coordinates onto plot coordinates.
 // 
 //static void update_plot_bounds()
-void GnuPlot::UpdatePlotBounds(termentry * pTerm)
+void GnuPlot::UpdatePlotBounds(GpTermEntry * pTerm)
 {
 	Ev.FillGpValInteger("GPVAL_TERM_XMIN", static_cast<intgr_t>(AxS[FIRST_X_AXIS].term_lower / pTerm->tscale));
 	Ev.FillGpValInteger("GPVAL_TERM_XMAX", static_cast<intgr_t>(AxS[FIRST_X_AXIS].term_upper / pTerm->tscale));

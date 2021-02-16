@@ -6328,6 +6328,10 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 							temp_buf = g.GetToken_Ansi(PPHSC_RU_NODOCOFBASISFORWARETRANSFER); // @v10.6.12
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
 						}
+						// @v11.0.2 {
+						if(!isempty(rBp.Rec.Memo))
+							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER), g.EncText(temp_buf.Z().Cat(rBp.Rec.Memo)));
+						// } @v11.0.2
 					}
 					{
 						//SXml::WNode n_12(g.P_X, "—вЋицѕер");
@@ -6621,6 +6625,10 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 							temp_buf = g.GetToken_Ansi(PPHSC_RU_NODOCOFBASISFORWARETRANSFER); // @v10.6.12
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
 						}
+						// @v11.0.2 {
+						if(!isempty(rBp.Rec.Memo))
+							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER), g.EncText(temp_buf.Z().Cat(rBp.Rec.Memo)));
+						// } @v11.0.2
 					}
 					{
 						//SXml::WNode n_12(g.P_X, "—вЋицѕер");

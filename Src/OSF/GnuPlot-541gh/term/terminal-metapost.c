@@ -28,7 +28,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) termentry x {
+#define TERM_TABLE_START(x) GpTermEntry x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -38,27 +38,27 @@
 
 //#ifdef TERM_PROTO
 TERM_PUBLIC void MP_options();
-TERM_PUBLIC void MP_init(termentry * pThis);
-TERM_PUBLIC void MP_graphics();
-TERM_PUBLIC void MP_text();
-TERM_PUBLIC void MP_linetype(int linetype);
-TERM_PUBLIC void MP_move(uint x, uint y);
-TERM_PUBLIC void MP_point(uint x, uint y, int number);
+TERM_PUBLIC void MP_init(GpTermEntry * pThis);
+TERM_PUBLIC void MP_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void MP_text(GpTermEntry * pThis);
+TERM_PUBLIC void MP_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void MP_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void MP_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void MP_pointsize(double size);
-TERM_PUBLIC void MP_linewidth(double width);
-TERM_PUBLIC void MP_vector(uint ux, uint uy);
-TERM_PUBLIC void MP_arrow(uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC void MP_put_text(uint x, uint y, const char str[]);
+TERM_PUBLIC void MP_linewidth(GpTermEntry * pThis, double width);
+TERM_PUBLIC void MP_vector(GpTermEntry * pThis, uint ux, uint uy);
+TERM_PUBLIC void MP_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC void MP_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC int MP_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int MP_text_angle(int ang);
-TERM_PUBLIC void MP_reset();
-TERM_PUBLIC int MP_set_font(const char * font);
-TERM_PUBLIC void MP_boxfill(int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void MP_reset(GpTermEntry * pThis);
+TERM_PUBLIC int MP_set_font(GpTermEntry * pThis, const char * font);
+TERM_PUBLIC void MP_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC int MP_make_palette(t_sm_palette *);
 TERM_PUBLIC void MP_previous_palette();
-TERM_PUBLIC void MP_set_color(const t_colorspec *);
-TERM_PUBLIC void MP_filled_polygon(int, gpiPoint *);
-TERM_PUBLIC void MP_dashtype(int type, t_dashtype * custom_dash_type);
+TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec *);
+TERM_PUBLIC void MP_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
+TERM_PUBLIC void MP_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
 
 /* 5 inches wide by 3 inches high (default) */
 #define MP_XSIZE 5.0
@@ -184,7 +184,7 @@ static struct gen_table MP_opts[] = {
 	{ NULL, MP_OPT_OTHER }
 };
 
-TERM_PUBLIC void MP_options(TERMENTRY * pThis, GnuPlot * pGp)
+TERM_PUBLIC void MP_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	// Annoying hack to handle the case of 'set termoption' after 
 	// we have already initialized the terminal.                  
@@ -199,9 +199,8 @@ TERM_PUBLIC void MP_options(TERMENTRY * pThis, GnuPlot * pGp)
 		MP_textmag = 1.0;
 		MP_prologues = -1;
 		strcpy(MP_fontname, "cmr10");
-		term->flags |= TERM_IS_LATEX;
+		pThis->flags |= TERM_IS_LATEX;
 	}
-
 	while(!pGp->Pgm.EndOfCommand()) {
 		int option = pGp->Pgm.LookupTableForCurrentToken(&MP_opts[0]);
 		switch(option) {
@@ -224,7 +223,7 @@ TERM_PUBLIC void MP_options(TERMENTRY * pThis, GnuPlot * pGp)
 			case MP_OPT_NOTEX:
 			    MP_tex = MP_NO_TEX;
 			    strcpy(MP_fontname, "pcrr8r");
-			    term->flags &= ~TERM_IS_LATEX;
+			    pThis->flags &= ~TERM_IS_LATEX;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_TEX:
@@ -310,12 +309,12 @@ TERM_PUBLIC void MP_options(TERMENTRY * pThis, GnuPlot * pGp)
 		MP_fontsize = 5.0;
 	if(MP_fontsize > 99.99)
 		MP_fontsize = 99.99;
-	term->ChrV = (uint)(MP_DPI * MP_fontsize * MP_textmag * 11 / 720);
+	pThis->ChrV = (uint)(MP_DPI * MP_fontsize * MP_textmag * 11 / 720);
 	if(MP_tex == MP_NO_TEX) { /* Courier is a little wider than cmtt */
-		term->ChrH = (uint)(MP_DPI * MP_fontsize * MP_textmag * 6.0 / 720 + 0.5);
+		pThis->ChrH = (uint)(MP_DPI * MP_fontsize * MP_textmag * 6.0 / 720 + 0.5);
 	}
 	else {
-		term->ChrH = (uint)(MP_DPI * MP_fontsize * MP_textmag * 5.3 / 720 + 0.5);
+		pThis->ChrH = (uint)(MP_DPI * MP_fontsize * MP_textmag * 5.3 / 720 + 0.5);
 	}
 	if(MP_psnfss == MP_PSNFSS_NONE) { /* using the normal font scheme */
 		sprintf(term_options, "%s %s %stex%s%s mag %.3f font \"%s,%.2f\" %sprologues(%d)",
@@ -341,7 +340,7 @@ TERM_PUBLIC void MP_options(TERMENTRY * pThis, GnuPlot * pGp)
 	};
 }
 
-TERM_PUBLIC void MP_init(termentry * pThis)
+TERM_PUBLIC void MP_init(GpTermEntry * pThis)
 {
 	time_t now;
 	time(&now);
@@ -541,7 +540,7 @@ enddef;\n",
 	    gpoutfile);
 }
 
-TERM_PUBLIC void MP_graphics()
+TERM_PUBLIC void MP_graphics(GpTermEntry * pThis)
 {
 	/* initialize "remembered" drawing parameters */
 	MP_oldline = -2;
@@ -550,11 +549,11 @@ TERM_PUBLIC void MP_graphics()
 	fprintf(gpoutfile, "\nbeginfig(%d);\nw:=%.3fin;h:=%.3fin;\n",
 	    MP_char_code, MP_xsize, MP_ysize);
 	/* MetaPost can only handle numbers up to 4096. When MP_DPI
-	 * is larger than 819, this is exceeded by (term->MaxX). So we
+	 * is larger than 819, this is exceeded by (pThis->MaxX). So we
 	 * scale it and all coordinates down by factor of 10.0. And
 	 * compensate by scaling a and b up.
 	 */
-	fprintf(gpoutfile, "a:=w/%.1f;b:=h/%.1f;\n", (term->MaxX) / 10.0, (term->MaxY) / 10.0);
+	fprintf(gpoutfile, "a:=w/%.1f;b:=h/%.1f;\n", (pThis->MaxX) / 10.0, (pThis->MaxY) / 10.0);
 	fprintf(gpoutfile, "scalepen 1; ptsize %.3f;linetype -2;\n", GPO.Gg.PointSize);
 	MP_char_code++;
 	/* reset MP_color_changed */
@@ -563,22 +562,21 @@ TERM_PUBLIC void MP_graphics()
 	MP_dash_changed = 0;
 }
 
-TERM_PUBLIC void MP_text()
+TERM_PUBLIC void MP_text(GpTermEntry * pThis)
 {
 	if(MP_inline)
 		MP_endline();
 	fputs("endfig;\n", gpoutfile);
 }
 
-TERM_PUBLIC void MP_linetype(int lt)
+TERM_PUBLIC void MP_linetype(GpTermEntry * pThis, int lt)
 {
 	int linetype = lt;
-
 	if(linetype >= MP_LINE_TYPES)
 		linetype %= MP_LINE_TYPES;
 	if(MP_inline)
 		MP_endline();
-	/* reset the color in case it has been changed in MP_set_color() */
+	// reset the color in case it has been changed in MP_set_color() 
 	if((MP_color_changed) || (MP_dash_changed)) {
 		MP_oldline = linetype + 1;
 		MP_color_changed = 0;
@@ -590,7 +588,7 @@ TERM_PUBLIC void MP_linetype(int lt)
 	}
 }
 
-TERM_PUBLIC void MP_move(uint x, uint y)
+TERM_PUBLIC void MP_move(GpTermEntry * pThis, uint x, uint y)
 {
 	if((x != MP_posx) || (y != MP_posy)) {
 		if(MP_inline)
@@ -600,18 +598,15 @@ TERM_PUBLIC void MP_move(uint x, uint y)
 	}                       /* else we seem to be there already */
 }
 
-TERM_PUBLIC void MP_point(uint x, uint y, int pt)
+TERM_PUBLIC void MP_point(GpTermEntry * pThis, uint x, uint y, int pt)
 {
 	int pointtype = pt;
 	if(MP_inline)
 		MP_endline();
-
-	/* Print the shape defined by 'number'; number < 0 means
-	   to use a dot, otherwise one of the defined points. */
-
+	// Print the shape defined by 'number'; number < 0 means to use a dot, otherwise one of the defined points. 
 	if(pointtype >= MP_POINT_TYPES)
 		pointtype %= MP_POINT_TYPES;
-/* Change %d to %f, divide x,y by 10 */
+	// Change %d to %f, divide x,y by 10 
 	fprintf(gpoutfile, "gpdraw(%d,%.1fa,%.1fb);\n", pointtype, x / 10.0, y / 10.0);
 }
 
@@ -627,7 +622,7 @@ TERM_PUBLIC void MP_pointsize(double ps)
 	}
 }
 
-TERM_PUBLIC void MP_linewidth(double lw)
+TERM_PUBLIC void MP_linewidth(GpTermEntry * pThis, double lw)
 {
 	if(MP_oldpen != lw) {
 		if(MP_inline)
@@ -637,11 +632,10 @@ TERM_PUBLIC void MP_linewidth(double lw)
 	}
 }
 
-TERM_PUBLIC void MP_vector(uint ux, uint uy)
+TERM_PUBLIC void MP_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
 	if((ux == MP_posx) && (uy == MP_posy))
 		return;         /* Zero length line */
-
 	if(MP_inline) {
 		if(MP_linecount++ >= MP_LINEMAX) {
 			fputs("\n", gpoutfile);
@@ -664,9 +658,9 @@ static void MP_endline()
 	fprintf(gpoutfile, ";\n");
 }
 
-TERM_PUBLIC void MP_arrow(uint sx, uint sy, uint ex, uint ey, int head)
+TERM_PUBLIC void MP_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
-	MP_move(sx, sy);
+	MP_move(pThis, sx, sy);
 	if((head & HEADS_ONLY))
 		fprintf(gpoutfile, "currentdash:=lt[%d];\n", LT_NODRAW);
 	if((head & BOTH_HEADS) == BOTH_HEADS) {
@@ -687,7 +681,7 @@ TERM_PUBLIC void MP_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 	MP_posy = ey;
 }
 
-TERM_PUBLIC void MP_put_text(uint x, uint y, const char str[])
+TERM_PUBLIC void MP_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
 	int i, j = 0;
 	char * text;
@@ -750,7 +744,7 @@ TERM_PUBLIC int MP_text_angle(int ang)
 	return (TRUE);
 }
 
-TERM_PUBLIC int MP_set_font(const char * font)
+TERM_PUBLIC int MP_set_font(GpTermEntry * pThis, const char * font)
 {
 	if(*font) {
 		size_t sep = strcspn(font, ",");
@@ -770,7 +764,7 @@ TERM_PUBLIC int MP_set_font(const char * font)
 	return TRUE;
 }
 
-TERM_PUBLIC void MP_reset()
+TERM_PUBLIC void MP_reset(GpTermEntry * pThis)
 {
 	if(MP_tex == MP_LATEX) {
 		fputs("% BEGPOST\n", gpoutfile);
@@ -783,7 +777,7 @@ TERM_PUBLIC void MP_reset()
 	fputs("end.\n", gpoutfile);
 }
 
-TERM_PUBLIC void MP_boxfill(int style, uint x1, uint y1, uint wd, uint ht)
+TERM_PUBLIC void MP_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint wd, uint ht)
 {
 	/* fillpar:
 	 * - solid   : 0 - 100% intensity
@@ -838,7 +832,7 @@ TERM_PUBLIC int MP_make_palette(t_sm_palette * palette)
 	return 0; // metapost can do continuous number of colours 
 }
 
-TERM_PUBLIC void MP_set_color(const t_colorspec * colorspec)
+TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
 	double gray = colorspec->value;
 	rgb_color color;
@@ -881,15 +875,13 @@ TERM_PUBLIC void MP_set_color(const t_colorspec * colorspec)
 	}
 }
 
-TERM_PUBLIC void MP_filled_polygon(int points, gpiPoint * corners)
+TERM_PUBLIC void MP_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	int i;
 	int fillpar = corners->style >> 4;
 	int style = corners->style & 0xf;
-
 	if(MP_inline)
 		MP_endline();
-
 	switch(style) {
 		case FS_EMPTY: /* fill with background color */
 		    fprintf(gpoutfile, "fillcolor:=background;\n");
@@ -919,7 +911,7 @@ TERM_PUBLIC void MP_filled_polygon(int points, gpiPoint * corners)
 	fprintf(gpoutfile, "cycle withcolor fillcolor;\n");
 }
 
-TERM_PUBLIC void MP_dashtype(int type, t_dashtype * custom_dash_type)
+TERM_PUBLIC void MP_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
 {
 	switch(type) {
 		case DASHTYPE_SOLID:
@@ -954,7 +946,7 @@ TERM_PUBLIC void MP_dashtype(int type, t_dashtype * custom_dash_type)
 		default:
 		    fprintf(gpoutfile, "%%MP_dashtype%% type = %i\n", type);
 		    if(type>0)
-			    MP_linetype(type);
+			    MP_linetype(pThis, type);
 		    break;
 	}
 }

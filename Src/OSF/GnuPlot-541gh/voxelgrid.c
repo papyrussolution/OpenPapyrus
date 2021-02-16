@@ -48,20 +48,19 @@ static void modify_voxels(t_voxel * grid, double x, double y, double z, double r
 // Purely local bookkeeping 
 static int nvoxels_modified;
 static at_type * density_function = NULL;
-
-/*
- * called on program entry and by "reset session"
- */
-void init_voxelsupport()
+//
+// called on program entry and by "reset session"
+//
+//void init_voxelsupport()
+void GnuPlot::InitVoxelSupport()
 {
-	/* Make sure there are user variables that can be used as a parameter
-	 * to the function in the 5th spec of "vfill".
-	 * Scripts can test if (exists("VoxelDistance")) to check for voxel support.
-	 */
-	udv_VoxelDistance = GPO.Ev.AddUdvByName("VoxelDistance");
+	// Make sure there are user variables that can be used as a parameter
+	// to the function in the 5th spec of "vfill".
+	// Scripts can test if (exists("VoxelDistance")) to check for voxel support.
+	udv_VoxelDistance = Ev.AddUdvByName("VoxelDistance");
 	udv_VoxelDistance->udv_value.type = CMPLX;
 	Gcomplex(&udv_VoxelDistance->udv_value, 0.0, 0.0);
-	udv_GridDistance = GPO.Ev.AddUdvByName("GridDistance");
+	udv_GridDistance = Ev.AddUdvByName("GridDistance");
 	udv_GridDistance->udv_value.type = CMPLX;
 	Gcomplex(&udv_GridDistance->udv_value, 0.0, 0.0);
 	// default state of other voxel-related structures 
@@ -279,15 +278,16 @@ udvt_entry * get_vgrid_by_name(const char * name)
 // 
 // initialize content of voxel grid to all zero
 // 
-void vclear_command()
+//void vclear_command()
+void GnuPlot::VClearCommand()
 {
 	vgrid * vgrid = current_vgrid;
-	GPO.Pgm.Shift();
-	if(!GPO.Pgm.EndOfCommand() && GPO.Pgm.EqualsCur("$")) {
-		char * name = GPO.Pgm.ParseDatablockName();
+	Pgm.Shift();
+	if(!Pgm.EndOfCommand() && Pgm.EqualsCur("$")) {
+		char * name = Pgm.ParseDatablockName();
 		udvt_entry * vgrid_udv = get_vgrid_by_name(name);
 		if(!vgrid_udv)
-			GPO.IntErrorCurToken("no such voxel grid");
+			IntErrorCurToken("no such voxel grid");
 		vgrid = vgrid_udv->udv_value.v.vgrid;
 	}
 	if(vgrid && vgrid->size && vgrid->vdata) {
@@ -309,20 +309,21 @@ void gpfree_vgrid(struct udvt_entry * grid)
 		grid->udv_value.SetNotDefined();
 	}
 }
-/*
- * 'unset $vgrid' command
- */
-void unset_vgrid()
+//
+// 'unset $vgrid' command
+//
+//void unset_vgrid()
+void GnuPlot::UnsetVGrid()
 {
 	udvt_entry * grid = NULL;
 	char * name;
-	if(GPO.Pgm.EndOfCommand() || !GPO.Pgm.EqualsCur("$"))
-		GPO.IntErrorCurToken("syntax: unset vgrid $<gridname>");
+	if(Pgm.EndOfCommand() || !Pgm.EqualsCur("$"))
+		IntErrorCurToken("syntax: unset vgrid $<gridname>");
 	// Look for a datablock with the requested name 
-	name = GPO.Pgm.ParseDatablockName();
+	name = Pgm.ParseDatablockName();
 	grid = get_vgrid_by_name(name);
 	if(!grid)
-		GPO.IntErrorCurToken("no such vgrid");
+		IntErrorCurToken("no such vgrid");
 	gpfree_vgrid(grid);
 }
 //
@@ -733,9 +734,18 @@ void show_isosurface()    { NO_SUPPORT; }
 void GnuPlot::VoxelCommand() { NO_SUPPORT; }
 //void vfill_command()      { NO_SUPPORT; }
 void GnuPlot::VFillCommand() { NO_SUPPORT; }
-void vclear_command()     {}
-void unset_vgrid()        {}
-void init_voxelsupport()  {}
+//void vclear_command()     
+void GnuPlot::VClearCommand()
+{
+}
+//void unset_vgrid()  
+void GnuPlot::UnsetVGrid()
+{
+}
+//void init_voxelsupport()  
+void GnuPlot::InitVoxelSupport()
+{
+}
 //void set_isosurface()     {}
 void GnuPlot::SetIsoSurface() {}
 udvt_entry * get_vgrid_by_name(char * c) { return NULL; }

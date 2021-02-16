@@ -42,9 +42,9 @@
 //#include <windows.h>
 #include "screenbuf.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 /* ================================== */
 /* symbols for the two icons          */
@@ -463,7 +463,7 @@ extern enhstate_struct enhstate;
 
 #define WINGRAPHTITLE TEXT("gnuplot graph")
 
-extern termentry * WIN_term;
+extern GpTermEntry * WIN_term;
 extern TCHAR WIN_inifontname[MAXFONTNAME];
 extern int WIN_inifontsize;
 
@@ -501,8 +501,8 @@ void WIN_update_options();
 
 /* ================================== */
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif

@@ -85,7 +85,7 @@ static GpSplineCoeff * cp_approx_spline(GpCoordinate * first_point, int num_poin
 static GpSplineCoeff * cp_tridiag(GpCoordinate * first_point, int num_points, int path_dim, int spline_dim);
 //static void do_cubic(curve_points * plot, GpSplineCoeff * sc, GpSplineCoeff * sc2,
     //int first_point, int num_points, GpCoordinate * dest);
-static void do_freq(curve_points * plot,  int first_point, int num_points);
+//static void do_freq(curve_points * plot,  int first_point, int num_points);
 static int do_curve_cleanup(GpCoordinate * point, int npoints);
 static int compare_points(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static int compare_z(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
@@ -204,9 +204,9 @@ void GnuPlot::DoKDensity(curve_points * cp, int firstPoint/* where to start in p
 		IntWarn(NO_CARET, "kdensity components are Gaussian on x, not log(x)");
 	sxmin = AxS.__X().min;
 	sxmax = AxS.__X().max;
-	step = (sxmax - sxmin) / (samples_1 - 1);
+	step = (sxmax - sxmin) / (Gg.Samples1 - 1);
 	stats_kdensity(cp, firstPoint, num_points);
-	for(i = 0; i < samples_1; i++) {
+	for(i = 0; i < Gg.Samples1; i++) {
 		double x = sxmin + i * step;
 		double y = eval_kdensity(cp, firstPoint, num_points, x);
 		// now we have to store the points and adjust the ranges 
@@ -314,8 +314,8 @@ void GnuPlot::DoBezier(curve_points * cp, double * bc/* Bezier coefficient array
 	coordval x, y, yhigh;
 	AxS.Idx_X = cp->AxIdx_X;
 	AxS.Idx_Y = cp->AxIdx_Y;
-	for(int i = 0; i < samples_1; i++) {
-		eval_bezier(cp, firstPoint, numPoints, (double)i / (double)(samples_1 - 1), &x, &y, &yhigh, bc);
+	for(int i = 0; i < Gg.Samples1; i++) {
+		eval_bezier(cp, firstPoint, numPoints, (double)i / (double)(Gg.Samples1 - 1), &x, &y, &yhigh, bc);
 		pDest[i].type = INRANGE;
 		store_and_update_range(&pDest[i].x, x, &pDest[i].type, &AxS.__X(), AxS.__X().autoscale);
 		store_and_update_range(&pDest[i].y, y, &pDest[i].type, &AxS.__Y(), AxS.__Y().autoscale);
@@ -616,18 +616,19 @@ static int solve_tri_diag(tri_diag m[], double r[], double x[], int n)
 	return TRUE;
 }
 
-void gen_interp_unwrap(curve_points * plot)
+//void gen_interp_unwrap(curve_points * plot)
+void GnuPlot::GenInterpUnwrap(curve_points * pPlot)
 {
 	double y, diff;
-	int curves = num_curves(plot);
+	int curves = num_curves(pPlot);
 	int first_point = 0;
 	for(int i = 0; i < curves; i++) {
-		int num_points = next_curve(plot, &first_point);
+		int num_points = next_curve(pPlot, &first_point);
 		double lasty = 0; /* make all plots start the same place */
 		for(int j = first_point; j < first_point + num_points; j++) {
-			if(plot->points[j].type == UNDEFINED)
+			if(pPlot->points[j].type == UNDEFINED)
 				continue;
-			y = plot->points[j].y;
+			y = pPlot->points[j].y;
 			do {
 				diff = y - lasty;
 				if(diff >  M_PI) 
@@ -635,11 +636,10 @@ void gen_interp_unwrap(curve_points * plot)
 				if(diff < -M_PI) 
 					y += 2*M_PI;
 			} while(fabs(diff) > M_PI);
-			plot->points[j].y = y;
-
+			pPlot->points[j].y = y;
 			lasty = y;
 		}
-		do_freq(plot, first_point, num_points);
+		DoFreq(pPlot, first_point, num_points);
 		first_point += num_points + 1;
 	}
 }
@@ -670,13 +670,13 @@ void GnuPlot::DoCubic(curve_points * pPlot/* still contains old plot->points */,
 	xend = MIN(this_points[num_points - 1].x, AxS.__X().max);
 	if(xstart >= xend) {
 		// This entire segment lies outside the current x range. 
-		for(i = 0; i < samples_1; i++)
+		for(i = 0; i < Gg.Samples1; i++)
 			dest[i].type = OUTRANGE;
 		return;
 	}
 #endif
-	xdiff = (xend - xstart) / (samples_1 - 1);
-	for(i = 0; i < samples_1; i++) {
+	xdiff = (xend - xstart) / (Gg.Samples1 - 1);
+	for(i = 0; i < Gg.Samples1; i++) {
 		x = xstart + i * xdiff;
 		// Move forward to the spline interval this point is in 
 		while((x >= this_points[l + 1].x) && (l < num_points - 2))
@@ -702,7 +702,8 @@ void GnuPlot::DoCubic(curve_points * pPlot/* still contains old plot->points */,
 // needs to adjust the plot ranges. We don't have to copy
 // approximated curves or anything like that.
 //
-static void do_freq(curve_points * pPlot/* still contains old plot->points */, int first_point/* where to start in plot->points */, int num_points/* to determine end in plot->points */)
+//static void do_freq(curve_points * pPlot/* still contains old plot->points */, int first_point/* where to start in plot->points */, int num_points/* to determine end in plot->points */)
+void GnuPlot::DoFreq(curve_points * pPlot/* still contains old plot->points */, int first_point/* where to start in plot->points */, int num_points/* to determine end in plot->points */)
 {
 	int x_axis = pPlot->AxIdx_X;
 	int y_axis = pPlot->AxIdx_Y;
@@ -712,8 +713,8 @@ static void do_freq(curve_points * pPlot/* still contains old plot->points */, i
 		const double y = p_this[i].y;
 		p_this[i].type = INRANGE;
 		// Overkill.  All we really want to do is update the x and y range 
-		store_and_update_range(&p_this[i].x, x, &p_this[i].type, &GPO.AxS.__X(), GPO.AxS.__X().autoscale);
-		store_and_update_range(&p_this[i].y, y, &p_this[i].type, &GPO.AxS.__Y(), GPO.AxS.__Y().autoscale);
+		store_and_update_range(&p_this[i].x, x, &p_this[i].type, &AxS.__X(), AxS.__X().autoscale);
+		store_and_update_range(&p_this[i].y, y, &p_this[i].type, &AxS.__Y(), AxS.__Y().autoscale);
 		p_this[i].xlow = p_this[i].xhigh = p_this[i].x;
 		p_this[i].ylow = p_this[i].yhigh = p_this[i].y;
 		p_this[i].z = -1;
@@ -724,7 +725,8 @@ static void do_freq(curve_points * pPlot/* still contains old plot->points */, i
 // to adjust the plot ranges. Wedging this into gen_interp() would
 // make that code even harder to read.
 //
-void gen_interp_frequency(curve_points * pPlot)
+//void gen_interp_frequency(curve_points * pPlot)
+void GnuPlot::GenInterpFrequency(curve_points * pPlot)
 {
 	int i, j;
 	int first_point, num_points;
@@ -782,7 +784,7 @@ void gen_interp_frequency(curve_points * pPlot)
 				pPlot->points[j].y /= y_total;
 			}
 		}
-		do_freq(pPlot, first_point, num_points);
+		DoFreq(pPlot, first_point, num_points);
 		first_point += num_points + 1;
 	}
 }
@@ -799,7 +801,7 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 	int i;
 	int num_points;
 	int curves = num_curves(pPlot);
-	GpCoordinate * new_points = (GpCoordinate *)gp_alloc((samples_1 + 1) * curves * sizeof(GpCoordinate), "interpolation table");
+	GpCoordinate * new_points = (GpCoordinate *)gp_alloc((Gg.Samples1 + 1) * curves * sizeof(GpCoordinate), "interpolation table");
 	int first_point = 0;
 	for(i = 0; i < curves; i++) {
 		num_points = next_curve(pPlot, &first_point);
@@ -811,7 +813,7 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 			    if(pPlot->plot_style == FILLEDCURVES && oneof3(pPlot->filledcurves_options.closeto, FILLEDCURVES_BETWEEN, FILLEDCURVES_ABOVE, FILLEDCURVES_BELOW))
 				    sc2 = cp_tridiag(&pPlot->points[first_point], num_points, 0, 4);
 			    DoCubic(pPlot, sc, sc2, first_point, num_points,
-				new_points + i * (samples_1 + 1));
+				new_points + i * (Gg.Samples1 + 1));
 			    SAlloc::F(sc);
 			    SAlloc::F(sc2);
 			    break;
@@ -821,7 +823,7 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 			    if(pPlot->plot_style == FILLEDCURVES && oneof3(pPlot->filledcurves_options.closeto, FILLEDCURVES_BETWEEN, FILLEDCURVES_ABOVE, FILLEDCURVES_BELOW))
 				    sc2 = cp_approx_spline(&pPlot->points[first_point], num_points, 0, 4, 2);
 			    DoCubic(pPlot, sc, sc2, first_point, num_points,
-				new_points + i * (samples_1 + 1));
+				new_points + i * (Gg.Samples1 + 1));
 			    SAlloc::F(sc);
 			    SAlloc::F(sc2);
 			    break;
@@ -829,22 +831,22 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 			case SMOOTH_SBEZIER:
 			    bc = cp_binomial(num_points);
 			    DoBezier(pPlot, bc, first_point, num_points,
-				new_points + i * (samples_1 + 1));
+				new_points + i * (Gg.Samples1 + 1));
 			    SAlloc::F((char*)bc);
 			    break;
 			case SMOOTH_KDENSITY:
 			    DoKDensity(pPlot, first_point, num_points,
-				new_points + i * (samples_1 + 1));
+				new_points + i * (Gg.Samples1 + 1));
 			    break;
-			default: /* keep gcc -Wall quiet */
+			default: // keep gcc -Wall quiet 
 			    ;
 		}
-		new_points[(i + 1) * (samples_1 + 1) - 1].type = UNDEFINED;
+		new_points[(i + 1) * (Gg.Samples1 + 1) - 1].type = UNDEFINED;
 		first_point += num_points;
 	}
 	SAlloc::F(pPlot->points);
 	pPlot->points = new_points;
-	pPlot->p_max = curves * (samples_1 + 1);
+	pPlot->p_max = curves * (Gg.Samples1 + 1);
 	pPlot->p_count = pPlot->p_max - 1;
 }
 // 
@@ -1018,7 +1020,7 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 	int i;
 	// These will track the resulting smoothed curve (>= 3X original count) 
 	// Larger number of samples gives smoother curve (no surprise!) 
-	int Nsamp = (samples_1 > 2*N) ? samples_1 : 2*N;
+	int Nsamp = (Gg.Samples1 > 2*N) ? Gg.Samples1 : 2*N;
 	int Ntot = N + Nsamp;
 	GpCoordinate * new_points = (GpCoordinate *)gp_alloc((Ntot) * sizeof(GpCoordinate), "mcs");
 	double xstart = MAX(p[0].x, AxS.__X().min);
@@ -1249,7 +1251,7 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 {
 	int i, l;
-	int nseg = samples_1;
+	int nseg = Gg.Samples1;
 	GpCoordinate * new_points;
 	double xrange, yrange, zrange;
 	double dx, dy, dz;
@@ -1419,9 +1421,9 @@ void gen_2d_path_splines(curve_points * plot)
 	const double xrange = fabs(GPO.AxS[plot->AxIdx_X].max - GPO.AxS[plot->AxIdx_X].min);
 	const double yrange = fabs(GPO.AxS[plot->AxIdx_Y].max - GPO.AxS[plot->AxIdx_Y].min);
 	const int curves = num_curves(plot);
-	/* Allocate space to hold the interpolated points */
-	splined_points = (GpCoordinate *)gp_alloc( (samples_1 * curves) * sizeof(GpCoordinate), NULL);
-	memzero(splined_points, (samples_1 * curves) * sizeof(GpCoordinate));
+	// Allocate space to hold the interpolated points 
+	splined_points = (GpCoordinate *)gp_alloc((GPO.Gg.Samples1 * curves) * sizeof(GpCoordinate), NULL);
+	memzero(splined_points, (GPO.Gg.Samples1 * curves) * sizeof(GpCoordinate));
 	first_point = 0;
 	for(ic = 0; ic < curves; ic++) {
 		double t, tstep, tsum;
@@ -1483,7 +1485,7 @@ void gen_2d_path_splines(curve_points * plot)
 		/* Normalize so that the path fraction always runs from 0 to 1 */
 		for(i = 1; i < nold; i++)
 			old_points[i].CRD_PATH /= tsum;
-		tstep = 1.0 / (double)(samples_1 - 1);
+		tstep = 1.0 / (double)(GPO.Gg.Samples1 - 1);
 
 		/* Calculate spline coefficients for x and for y as a function of path */
 		sc_x = cp_tridiag(old_points, nold, PATHCOORD, 0);
@@ -1494,8 +1496,8 @@ void gen_2d_path_splines(curve_points * plot)
 		/* Skip the points in the overlap region */
 		for(i = 0; i * tstep < old_points[1].CRD_PATH; i++)
 			;
-		/* Use spline coefficients to generate a new point at each sample interval. */
-		for(l = 0; i < samples_1; i++) {
+		// Use spline coefficients to generate a new point at each sample interval. 
+		for(l = 0; i < GPO.Gg.Samples1; i++) {
 			double temp;
 			t = i * tstep;
 			/* Stop before wrapping around. Copy the original end point. */
@@ -1518,18 +1520,18 @@ void gen_2d_path_splines(curve_points * plot)
 		splined_points[is++].type = UNDEFINED;
 		first_point += num_points;
 	}
-	/* Replace original data with splined approximation */
+	// Replace original data with splined approximation 
 	SAlloc::F(old_points);
 	SAlloc::F(plot->points);
 	plot->points = splined_points;
-	plot->p_max = curves * samples_1;
+	plot->p_max = curves * GPO.Gg.Samples1;
 	plot->p_count = is;
 }
 //
 // Externally callable interface to 3D spline routines
 //
-//void gen_3d_splines(surface_points * pPlot)
-void GnuPlot::Gen3DSplines(surface_points * pPlot)
+//void gen_3d_splines(GpSurfacePoints * pPlot)
+void GnuPlot::Gen3DSplines(GpSurfacePoints * pPlot)
 {
 	for(iso_curve * curve = pPlot->iso_crvs; curve; curve = curve->next) {
 		// Remove any unusable points before fitting a spline 

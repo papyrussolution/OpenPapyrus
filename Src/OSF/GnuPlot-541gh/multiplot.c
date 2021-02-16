@@ -129,7 +129,7 @@ int GnuPlot::GetMultiplotCurrentPanel() const
 }
 
 //void multiplot_start()
-void GnuPlot::MultiplotStart(termentry * pTerm)
+void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 {
 	bool set_spacing = FALSE;
 	bool set_margins = FALSE;
@@ -351,10 +351,10 @@ void GnuPlot::MultiplotStart(termentry * pTerm)
 				y++;
 		// Oct 2012 - ChrV depends on the font used 
 		if(MpLo.title.font && *MpLo.title.font)
-			pTerm->set_font(MpLo.title.font);
+			pTerm->set_font(pTerm, MpLo.title.font);
 		MpLo.title_height = (double)(y * pTerm->ChrV) / (double)pTerm->MaxY;
 		if(MpLo.title.font && *MpLo.title.font)
-			pTerm->set_font("");
+			pTerm->set_font(pTerm, "");
 		if(MpLo.title_height > 0.9)
 			MpLo.title_height = 0.05;
 	}
@@ -438,7 +438,7 @@ void GnuPlot::MpLayoutSizeAndOffset()
 // if requested with 'margins' and 'spacing' options. 
 // 
 //static void mp_layout_margins_and_spacing()
-void GnuPlot::MpLayoutMarginsAndSpacing(termentry * pTerm)
+void GnuPlot::MpLayoutMarginsAndSpacing(GpTermEntry * pTerm)
 {
 	// width and height of a single sub plot. 
 	double tmp_width, tmp_height;

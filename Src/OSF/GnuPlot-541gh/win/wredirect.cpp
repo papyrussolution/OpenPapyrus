@@ -22,7 +22,7 @@ public:
 	}
 };
 
-extern "C" void RedirectOutputStreams(int init)
+void RedirectOutputStreams(int init)
 {
 	static outbuf ob;
 	static streambuf * sb_cout;

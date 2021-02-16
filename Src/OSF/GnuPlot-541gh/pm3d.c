@@ -39,7 +39,7 @@ static double geomean4(double, double, double, double);
 static double harmean4(double, double, double, double);
 static double median4(double, double, double, double);
 static double rms4(double, double, double, double);
-//static void pm3d_plot(struct surface_points *, int);
+//static void pm3d_plot(GpSurfacePoints *, int);
 //static void pm3d_option_at_error();
 static void pm3d_rearrange_part(struct iso_curve *, const int, struct iso_curve ***, int *);
 static int apply_lighting_model(GpCoordinate *, GpCoordinate *, GpCoordinate *, GpCoordinate *, double gray, bool gray_is_rgb);
@@ -240,7 +240,7 @@ static void pm3d_rearrange_part(struct iso_curve * src, const int len, struct is
  * Allocates *first_ptr (and eventually *second_ptr)
  * which must be freed by the caller
  */
-void pm3d_rearrange_scan_array(struct surface_points * this_plot, iso_curve *** first_ptr, int * first_n, int * first_invert,
+void pm3d_rearrange_scan_array(GpSurfacePoints * this_plot, iso_curve *** first_ptr, int * first_n, int * first_invert,
     iso_curve *** second_ptr, int * second_n, int * second_invert)
 {
 	if(first_ptr) {
@@ -287,11 +287,11 @@ void pm3d_depth_queue_clear()
 }
 
 //void pm3d_depth_queue_flush()
-void GnuPlot::Pm3DDepthQueueFlush(termentry * pTerm)
+void GnuPlot::Pm3DDepthQueueFlush(GpTermEntry * pTerm)
 {
 	if(pm3d.direction != PM3D_DEPTH && !track_pm3d_quadrangles)
 		return;
-	pTerm->layer(TERM_LAYER_BEGIN_PM3D_FLUSH);
+	pTerm->layer(pTerm, TERM_LAYER_BEGIN_PM3D_FLUSH);
 	if(current_quadrangle > 0 && quadrangles) {
 		Quadrangle * qp;
 		Quadrangle * qe;
@@ -333,7 +333,7 @@ void GnuPlot::Pm3DDepthQueueFlush(termentry * pTerm)
 			if(qp->gray == PM3D_USE_COLORSPEC_INSTEAD_OF_GRAY)
 				ApplyPm3DColor(pTerm, qp->qcolor.colorspec);
 			else if(qp->gray == PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY)
-				pTerm->linetype(LT_BACKGROUND);
+				pTerm->linetype(pTerm, LT_BACKGROUND);
 			else if(qp->gray == PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY)
 				SetRgbColorVar(pTerm, qp->qcolor.rgb_color);
 			else if(pm3d_shade.strength > 0)
@@ -352,13 +352,13 @@ void GnuPlot::Pm3DDepthQueueFlush(termentry * pTerm)
 	}
 	pm3d_depth_queue_clear();
 	free_polygonlist();
-	pTerm->layer(TERM_LAYER_END_PM3D_FLUSH);
+	pTerm->layer(pTerm, TERM_LAYER_END_PM3D_FLUSH);
 }
 // 
 // Now the implementation of the pm3d (s)plotting mode
 // 
-//static void pm3d_plot(surface_points * this_plot, int at_which_z)
-void GnuPlot::Pm3DPlot(termentry * pTerm, surface_points * pPlot, int at_which_z)
+//static void pm3d_plot(GpSurfacePoints * this_plot, int at_which_z)
+void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_which_z)
 {
 	int j, i, i1, ii, ii1, from, scan, up_to, up_to_minus, invert = 0;
 	int go_over_pts, max_pts;
@@ -402,7 +402,7 @@ void GnuPlot::Pm3DPlot(termentry * pTerm, surface_points * pPlot, int at_which_z
 		return;
 	// for pm3dCompress.awk and pm3dConvertToImage.awk 
 	if(pm3d.direction != PM3D_DEPTH)
-		pTerm->layer(TERM_LAYER_BEGIN_PM3D_MAP);
+		pTerm->layer(pTerm, TERM_LAYER_BEGIN_PM3D_MAP);
 	switch(at_which_z) {
 		case PM3D_AT_BASE:
 		    corners[0].z = corners[1].z = corners[2].z = corners[3].z = base_z;
@@ -618,7 +618,7 @@ void GnuPlot::Pm3DPlot(termentry * pTerm, surface_points * pPlot, int at_which_z
 						// top/bottom color difference as with hidden3d
 						if(pPlot->fill_properties.border_color.type == TC_LINESTYLE) {
 							lp_style_type style;
-							int side = pm3d_side(&pointsA[i], &pointsA[i1], &pointsB[ii]);
+							int side = Pm3DSide(&pointsA[i], &pointsA[i1], &pointsB[ii]);
 							lp_use_properties(pTerm, &style, side < 0 ? cb1 + 1 : cb1);
 							cb1 = cb2 = cb3 = cb4 = style.pm3d_color.lt;
 						}
@@ -823,7 +823,7 @@ void GnuPlot::Pm3DPlot(termentry * pTerm, surface_points * pPlot, int at_which_z
 							// top/bottom color difference as with hidden3d
 							if(pPlot->fill_properties.border_color.type == TC_LINESTYLE) {
 								lp_style_type style;
-								int side = pm3d_side(&pointsA[i], &pointsB[ii], &pointsB[ii1]);
+								int side = Pm3DSide(&pointsA[i], &pointsB[ii], &pointsB[ii1]);
 								lp_use_properties(pTerm, &style, side < 0 ? gray + 1 : gray);
 								gray = style.pm3d_color.lt;
 							}
@@ -940,7 +940,7 @@ void GnuPlot::Pm3DPlot(termentry * pTerm, surface_points * pPlot, int at_which_z
 	pm3d_plot_at = 0;
 	// for pm3dCompress.awk and pm3dConvertToImage.awk 
 	if(pm3d.direction != PM3D_DEPTH)
-		pTerm->layer(TERM_LAYER_END_PM3D_MAP);
+		pTerm->layer(pTerm, TERM_LAYER_END_PM3D_MAP);
 }
 //
 // unset pm3d for the reset command
@@ -970,8 +970,8 @@ void pm3d_reset()
 // 
 // Draw (one) PM3D color surface.
 // 
-//void pm3d_draw_one(surface_points * plot)
-void GnuPlot::Pm3DDrawOne(termentry * pTerm, surface_points * pPlot)
+//void pm3d_draw_one(GpSurfacePoints * plot)
+void GnuPlot::Pm3DDrawOne(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
 	int i = 0;
 	char * where = pPlot->pm3d_where[0] ? pPlot->pm3d_where : pm3d.where;
@@ -990,15 +990,17 @@ void GnuPlot::Pm3DDrawOne(termentry * pTerm, surface_points * pPlot)
 // Called by zerrorfill() and by plot3d_boxes().
 // Also called by vplot_isosurface().
 // 
-void pm3d_add_quadrangle(surface_points * pPlot, gpdPoint corners[4])
+//void pm3d_add_quadrangle(GpSurfacePoints * pPlot, gpdPoint corners[4])
+void GnuPlot::Pm3DAddQuadrangle(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gpdPoint corners[4])
 {
-	pm3d_add_polygon(pPlot, corners, 4);
+	Pm3DAddPolygon(pTerm, pPlot, corners, 4);
 }
 // 
 // The general case.
 // (plot == NULL) if we were called from do_polygon().
 // 
-void pm3d_add_polygon(surface_points * pPlot, gpdPoint corners[4], int vertices)
+//void pm3d_add_polygon(GpSurfacePoints * pPlot, gpdPoint corners[4], int vertices)
+void GnuPlot::Pm3DAddPolygon(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gpdPoint corners[4], int vertices)
 {
 	Quadrangle * q;
 	// FIXME: I have no idea how to estimate the number of facets for an isosurface 
@@ -1037,7 +1039,7 @@ void pm3d_add_polygon(surface_points * pPlot, gpdPoint corners[4], int vertices)
 			q->qcolor.rgb_color = static_cast<uint>(corners[0].c);
 			q->gray = PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY;
 		}
-		q->fillstyle = corners[1].c;
+		q->fillstyle = static_cast<short>(corners[1].c);
 	}
 	else if(pPlot->pm3d_color_from_column && !(pPlot->plot_style == POLYGONS)) {
 		// FIXME: color_from_rgbvar need only be set once per plot 
@@ -1045,7 +1047,7 @@ void pm3d_add_polygon(surface_points * pPlot, gpdPoint corners[4], int vertices)
 		color_from_rgbvar = TRUE;
 		if(pm3d_shade.strength > 0) {
 			q->gray = pPlot->lp_properties.pm3d_color.lt;
-			GPO.IlluminateOneQuadrangle(q);
+			IlluminateOneQuadrangle(q);
 		}
 		else {
 			q->qcolor.rgb_color = pPlot->lp_properties.pm3d_color.lt;
@@ -1054,10 +1056,10 @@ void pm3d_add_polygon(surface_points * pPlot, gpdPoint corners[4], int vertices)
 	}
 	else if(pPlot->lp_properties.pm3d_color.type == TC_Z) {
 		// This is a special case for 'splot with boxes lc palette z' 
-		q->gray = GPO.Cb2Gray(corners[1].z);
+		q->gray = Cb2Gray(corners[1].z);
 		color_from_rgbvar = FALSE;
 		if(pm3d_shade.strength > 0)
-			GPO.IlluminateOneQuadrangle(q);
+			IlluminateOneQuadrangle(q);
 	}
 	else if(oneof2(pPlot->plot_style, ISOSURFACE, POLYGONS)) {
 		int rgb_color = static_cast<int>(corners[0].c);
@@ -1075,16 +1077,16 @@ void pm3d_add_polygon(surface_points * pPlot, gpdPoint corners[4], int vertices)
 				v[i].z = corners[i].z;
 			}
 			i = pPlot->hidden3d_top_linetype + 1;
-			if(pm3d_side(&v[0], &v[1], &v[2]) < 0)
+			if(Pm3DSide(&v[0], &v[1], &v[2]) < 0)
 				i += isosurface_options.inside_offset;
-			lp_use_properties(term, &style, i);
+			lp_use_properties(pTerm, &style, i);
 			rgb_color = style.pm3d_color.lt;
 		}
 		q->qcolor.rgb_color = rgb_color;
 		if(pm3d_shade.strength > 0) {
 			q->gray = rgb_color;
 			color_from_rgbvar = TRUE;
-			GPO.IlluminateOneQuadrangle(q);
+			IlluminateOneQuadrangle(q);
 		}
 	}
 	else {
@@ -1111,22 +1113,23 @@ void GnuPlot::Pm3DOptionAtError()
 //int get_pm3d_at_option(char * pm3d_where)
 int GnuPlot::GetPm3DAtOption(char * pm3d_where)
 {
-	char * c;
 	if(Pgm.EndOfCommand() || Pgm.GetCurTokenLength() >= sizeof(pm3d.where)) {
 		Pm3DOptionAtError();
 		return 1;
 	}
-	memcpy(pm3d_where, gp_input_line + Pgm.GetCurTokenStartIndex(), Pgm.GetCurTokenLength());
-	pm3d_where[Pgm.GetCurTokenLength()] = 0;
-	// verify the parameter 
-	for(c = pm3d_where; *c; c++) {
-		if(*c != PM3D_AT_BASE && *c != PM3D_AT_TOP && *c != PM3D_AT_SURFACE) {
-			Pm3DOptionAtError();
-			return 1;
+	else {
+		memcpy(pm3d_where, gp_input_line + Pgm.GetCurTokenStartIndex(), Pgm.GetCurTokenLength());
+		pm3d_where[Pgm.GetCurTokenLength()] = 0;
+		// verify the parameter 
+		for(const char * c = pm3d_where; *c; c++) {
+			if(*c != PM3D_AT_BASE && *c != PM3D_AT_TOP && *c != PM3D_AT_SURFACE) {
+				Pm3DOptionAtError();
+				return 1;
+			}
 		}
+		Pgm.Shift();
+		return 0;
 	}
-	Pgm.Shift();
-	return 0;
 }
 // 
 // Set flag plot_has_palette to TRUE if there is any element on the graph
@@ -1135,7 +1138,7 @@ int GnuPlot::GetPm3DAtOption(char * pm3d_where)
 //void set_plot_with_palette(int plot_num, int plot_mode)
 void GnuPlot::SetPlotWithPalette(int plotNum, int plotMode)
 {
-	surface_points * this_3dplot = first_3dplot;
+	GpSurfacePoints * this_3dplot = first_3dplot;
 	curve_points * this_2dplot = P_FirstPlot;
 	int surface = 0;
 	text_label * this_label = Gg.P_FirstLabel;
@@ -1291,7 +1294,7 @@ int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2
 	 */
 	if(t < 1.e-12) {
 		if(v2 == v3) /* 2nd try; give up and return original color */
-			return (gray_is_rgb) ? gray : ((uchar)(r*255.) << 16) + ((uchar)(g*255.) << 8) + ((uchar)(b*255.));
+			return (gray_is_rgb) ? gray : ((uchar)(r*255.0) << 16) + ((uchar)(g*255.0) << 8) + ((uchar)(b*255.0));
 		else
 			return apply_lighting_model(v0, v1, v3, v3, gray, gray_is_rgb);
 	}
@@ -1355,7 +1358,7 @@ int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2
 // This routine converts from gpdPoint to gpiPoint
 //
 //static void filled_polygon(gpdPoint * corners, int fillstyle, int nv)
-void GnuPlot::FilledPolygon(termentry * pTerm, gpdPoint * corners, int fillstyle, int nv)
+void GnuPlot::FilledPolygon(GpTermEntry * pTerm, gpdPoint * corners, int fillstyle, int nv)
 {
 	int i;
 	double x, y;
@@ -1401,15 +1404,15 @@ void GnuPlot::FilledPolygon(termentry * pTerm, gpdPoint * corners, int fillstyle
 		icorners[0].style = FS_OPAQUE;
 	else
 		icorners[0].style = style_from_fill(&default_fillstyle);
-	pTerm->filled_polygon(nv, icorners);
+	pTerm->filled_polygon(pTerm, nv, icorners);
 	if(pm3d.border.l_type != LT_NODRAW) {
 		// LT_DEFAULT means draw border in current color 
 		// FIXME: currently there is no obvious way to set LT_DEFAULT  
 		if(pm3d.border.l_type != LT_DEFAULT)
 			TermApplyLpProperties(pTerm, &pm3d.border);
-		pTerm->move(icorners[0].x, icorners[0].y);
+		pTerm->move(pTerm, icorners[0].x, icorners[0].y);
 		for(i = nv-1; i >= 0; i--) {
-			pTerm->vector(icorners[i].x, icorners[i].y);
+			pTerm->vector(pTerm, icorners[i].x, icorners[i].y);
 		}
 	}
 }
@@ -1505,22 +1508,22 @@ int clip_filled_polygon(gpdPoint * inpts, gpdPoint * outpts, int nv)
 		return -1;
 	return nvo;
 }
-
-/* EXPERIMENTAL
- * returns 1 for top of pm3d surface towards the viewer
- *        -1 for bottom of pm3d surface towards the viewer
- * NB: the ordering of the quadrangle vertices depends on the scan direction.
- *     In the case of depth ordering, the user does not have good control
- *     over this.
- */
-int pm3d_side(GpCoordinate * p0, GpCoordinate * p1, GpCoordinate * p2)
+// 
+// EXPERIMENTAL
+// returns 1 for top of pm3d surface towards the viewer
+//   -1 for bottom of pm3d surface towards the viewer
+// NB: the ordering of the quadrangle vertices depends on the scan direction.
+//   In the case of depth ordering, the user does not have good control over this.
+// 
+//int pm3d_side(const GpCoordinate * p0, const GpCoordinate * p1, const GpCoordinate * p2)
+int GnuPlot::Pm3DSide(const GpCoordinate * p0, const GpCoordinate * p1, const GpCoordinate * p2)
 {
 	GpVertex v[3];
 	double u0, u1, v0, v1;
 	// Apply current view rotation to corners of this quadrangle 
-	GPO.Map3D_XYZ(p0->x, p0->y, p0->z, &v[0]);
-	GPO.Map3D_XYZ(p1->x, p1->y, p1->z, &v[1]);
-	GPO.Map3D_XYZ(p2->x, p2->y, p2->z, &v[2]);
+	Map3D_XYZ(p0->x, p0->y, p0->z, &v[0]);
+	Map3D_XYZ(p1->x, p1->y, p1->z, &v[1]);
+	Map3D_XYZ(p2->x, p2->y, p2->z, &v[2]);
 	// projection of two adjacent edges 
 	u0 = v[1].x - v[0].x;
 	u1 = v[1].y - v[0].y;

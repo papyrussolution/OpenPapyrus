@@ -70,7 +70,7 @@ register_term(excl)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void EXCL_init(termentry * pThis);
+TERM_PUBLIC void EXCL_init(GpTermEntry * pThis);
 TERM_PUBLIC void EXCL_graphics();
 TERM_PUBLIC void EXCL_text();
 TERM_PUBLIC void EXCL_linetype(int linetype);
@@ -156,7 +156,7 @@ TERM_PUBLIC void EXCL_reset();
 
 #define TALPYL  "\033P5;1}"
 
-TERM_PUBLIC void EXCL_init(termentry * pThis)
+TERM_PUBLIC void EXCL_init(GpTermEntry * pThis)
 {
 	fprintf(gpoutfile, "%s%s%s%s%s%s",
 	    TALPSH, TALAMS, TALMOD, TALCCNT, TALFCTL, TALASF);
