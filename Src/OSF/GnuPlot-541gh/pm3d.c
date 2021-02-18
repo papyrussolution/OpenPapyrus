@@ -41,11 +41,11 @@ static double median4(double, double, double, double);
 static double rms4(double, double, double, double);
 //static void pm3d_plot(GpSurfacePoints *, int);
 //static void pm3d_option_at_error();
-static void pm3d_rearrange_part(struct iso_curve *, const int, struct iso_curve ***, int *);
-static int apply_lighting_model(GpCoordinate *, GpCoordinate *, GpCoordinate *, GpCoordinate *, double gray, bool gray_is_rgb);
+//static void pm3d_rearrange_part(struct iso_curve *, const int, struct iso_curve ***, int *);
+//static int apply_lighting_model(GpCoordinate *, GpCoordinate *, GpCoordinate *, GpCoordinate *, double gray, bool gray_is_rgb);
 //static void illuminate_one_quadrangle(quadrangle * q);
 //static void filled_polygon(gpdPoint * corners, int fillstyle, int nv);
-static int clip_filled_polygon(gpdPoint * inpts, gpdPoint * outpts, int nv);
+//static int clip_filled_polygon(const gpdPoint * inpts, gpdPoint * outpts, int nv);
 static bool color_from_rgbvar = FALSE;
 static double light[3];
 static gpdPoint * get_polygon(int size);
@@ -147,10 +147,11 @@ double GnuPlot::Cb2Gray(double cb)
 		return (SmPltt.Positive == SMPAL_POSITIVE) ? cb : 1-cb;
 	}
 }
-/*
- * Rearrange...
- */
-static void pm3d_rearrange_part(struct iso_curve * src, const int len, struct iso_curve *** dest, int * invert)
+//
+// Rearrange...
+//
+//static void pm3d_rearrange_part(iso_curve * pSrc, const int len, struct iso_curve *** pppDest, int * invert)
+void GnuPlot::Pm3DRearrangePart(iso_curve * pSrc, const int len, struct iso_curve *** pppDest, int * invert)
 {
 	iso_curve * scanA;
 	iso_curve * scanB;
@@ -164,12 +165,12 @@ static void pm3d_rearrange_part(struct iso_curve * src, const int len, struct is
 	   Scans are sorted in scan_array according to pm3d.direction (this can
 	   be PM3D_SCANS_FORWARD or PM3D_SCANS_BACKWARD).
 	 */
-	scan_array = *dest = (struct iso_curve **)gp_alloc(len * sizeof(scanA), "pm3d scan array");
+	scan_array = *pppDest = (iso_curve **)gp_alloc(len * sizeof(scanA), "pm3d scan array");
 	if(pm3d.direction == PM3D_SCANS_AUTOMATIC) {
 		int cnt;
 		int len2 = len;
 		bool exit_outer_loop = 0;
-		for(scanA = src; scanA && 0 == exit_outer_loop; scanA = scanA->next, len2--) {
+		for(scanA = pSrc; scanA && 0 == exit_outer_loop; scanA = scanA->next, len2--) {
 			int from, i;
 			GpVertex vA, vA2;
 			if((cnt = scanA->p_count - 1) <= 0)
@@ -177,12 +178,12 @@ static void pm3d_rearrange_part(struct iso_curve * src, const int len, struct is
 			// ordering within one scan 
 			for(from = 0; from<=cnt; from++) /* find 1st non-undefined point */
 				if(scanA->points[from].type != UNDEFINED) {
-					GPO.Map3D_XYZ(scanA->points[from].x, scanA->points[from].y, 0, &vA);
+					Map3D_XYZ(scanA->points[from].x, scanA->points[from].y, 0, &vA);
 					break;
 				}
 			for(i = cnt; i>from; i--) /* find the last non-undefined point */
 				if(scanA->points[i].type != UNDEFINED) {
-					GPO.Map3D_XYZ(scanA->points[i].x, scanA->points[i].y, 0, &vA2);
+					Map3D_XYZ(scanA->points[i].x, scanA->points[i].y, 0, &vA2);
 					break;
 				}
 			if(i - from > cnt * 0.1)
@@ -203,7 +204,7 @@ static void pm3d_rearrange_part(struct iso_curve * src, const int len, struct is
 					for(i = from /* we compare vA.z with vB.z */; i<scanB->p_count; i++) {
 						// find 1st non-undefined point 
 						if(scanB->points[i].type != UNDEFINED) {
-							GPO.Map3D_XYZ(scanB->points[i].x, scanB->points[i].y, 0, &vB);
+							Map3D_XYZ(scanB->points[i].x, scanB->points[i].y, 0, &vB);
 							invert_order = (vB.z > vA.z) ? 0 : 1;
 							exit_outer_loop = 1;
 							break;
@@ -215,7 +216,7 @@ static void pm3d_rearrange_part(struct iso_curve * src, const int len, struct is
 	}
 	FPRINTF((stderr, "(pm3d_rearrange_part) invert       = %d\n", *invert));
 	FPRINTF((stderr, "(pm3d_rearrange_part) invert_order = %d\n", invert_order));
-	for(scanA = src, scan = len - 1, i = 0; scan >= 0; --scan, i++) {
+	for(scanA = pSrc, scan = len - 1, i = 0; scan >= 0; --scan, i++) {
 		if(pm3d.direction == PM3D_SCANS_AUTOMATIC) {
 			switch(invert_order) {
 				case 1:
@@ -234,35 +235,37 @@ static void pm3d_rearrange_part(struct iso_curve * src, const int len, struct is
 		scanA = scanA->next;
 	}
 }
-/*
- * Rearrange scan array
- *
- * Allocates *first_ptr (and eventually *second_ptr)
- * which must be freed by the caller
- */
-void pm3d_rearrange_scan_array(GpSurfacePoints * this_plot, iso_curve *** first_ptr, int * first_n, int * first_invert,
-    iso_curve *** second_ptr, int * second_n, int * second_invert)
+// 
+// Rearrange scan array
+// 
+// Allocates *first_ptr (and eventually *second_ptr)
+// which must be freed by the caller
+// 
+//void pm3d_rearrange_scan_array(GpSurfacePoints * pPlot, iso_curve *** pppFirstPtr, int * pFirstN, int * pFirstInvert,
+    //iso_curve *** pppSecondPtr, int * pSecondN, int * pSecondInvert)
+void GnuPlot::Pm3DRearrangeScanArray(GpSurfacePoints * pPlot, iso_curve *** pppFirstPtr, int * pFirstN, int * pFirstInvert,
+		iso_curve *** pppSecondPtr, int * pSecondN, int * pSecondInvert)
 {
-	if(first_ptr) {
-		pm3d_rearrange_part(this_plot->iso_crvs, this_plot->num_iso_read, first_ptr, first_invert);
-		*first_n = this_plot->num_iso_read;
+	if(pppFirstPtr) {
+		Pm3DRearrangePart(pPlot->iso_crvs, pPlot->num_iso_read, pppFirstPtr, pFirstInvert);
+		*pFirstN = pPlot->num_iso_read;
 	}
-	if(second_ptr) {
-		iso_curve * icrvs = this_plot->iso_crvs;
+	if(pppSecondPtr) {
+		iso_curve * icrvs = pPlot->iso_crvs;
 		iso_curve * icrvs2;
 		int i;
 		// advance until second part 
-		for(i = 0; i < this_plot->num_iso_read; i++)
+		for(i = 0; i < pPlot->num_iso_read; i++)
 			icrvs = icrvs->next;
 		// count the number of scans of second part 
 		for(i = 0, icrvs2 = icrvs; icrvs2; icrvs2 = icrvs2->next)
 			i++;
 		if(i > 0) {
-			*second_n = i;
-			pm3d_rearrange_part(icrvs, i, second_ptr, second_invert);
+			*pSecondN = i;
+			Pm3DRearrangePart(icrvs, i, pppSecondPtr, pSecondInvert);
 		}
 		else {
-			*second_ptr = (iso_curve **)0;
+			*pppSecondPtr = (iso_curve **)0;
 		}
 	}
 }
@@ -385,7 +388,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 	color_from_rgbvar = FALSE;
 	if(pPlot->lp_properties.pm3d_color.type == TC_RGB && pPlot->lp_properties.pm3d_color.value == -1)
 		color_from_rgbvar = TRUE;
-	if(pPlot->fill_properties.border_color.type == TC_RGB || pPlot->fill_properties.border_color.type == TC_LINESTYLE) {
+	if(oneof2(pPlot->fill_properties.border_color.type, TC_RGB, TC_LINESTYLE)) {
 		color_from_rgbvar = TRUE;
 		color_from_fillcolor = TRUE;
 	}
@@ -413,7 +416,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 		    /* the 3rd possibility is surface, PM3D_AT_SURFACE, coded below */
 	}
 	scanA = pPlot->iso_crvs;
-	pm3d_rearrange_scan_array(pPlot, &scan_array, &scan_array_n, &invert, (struct iso_curve ***)0, (int*)0, (int*)0);
+	Pm3DRearrangeScanArray(pPlot, &scan_array, &scan_array_n, &invert, (struct iso_curve ***)0, (int *)0, (int *)0);
 	interp_i = pm3d.interp_i;
 	interp_j = pm3d.interp_j;
 	if(interp_i <= 0 || interp_j <= 0) {
@@ -479,7 +482,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 			}
 		}
 	}
-	/* pm3d_rearrange_scan_array(pPlot, (struct iso_curve***)0, (int*)0, &scan_array, &invert); */
+	// Pm3DRearrangeScanArray(pPlot, (struct iso_curve***)0, (int *)0, &scan_array, &invert); 
 #if 0
 	/* debugging: print scan_array */
 	for(scan = 0; scan < pPlot->num_iso_read; scan++) {
@@ -619,7 +622,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 						if(pPlot->fill_properties.border_color.type == TC_LINESTYLE) {
 							lp_style_type style;
 							int side = Pm3DSide(&pointsA[i], &pointsA[i1], &pointsB[ii]);
-							lp_use_properties(pTerm, &style, side < 0 ? cb1 + 1 : cb1);
+							lp_use_properties(pTerm, &style, static_cast<int>(side < 0 ? (cb1 + 1) : cb1));
 							cb1 = cb2 = cb3 = cb4 = style.pm3d_color.lt;
 						}
 					}
@@ -689,7 +692,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 								gray = rgb_from_colormap(gray, private_colormap);
 								gray_is_rgb = TRUE;
 							}
-							gray = apply_lighting_model(&pointsA[i], &pointsA[i1], &pointsB[ii], &pointsB[ii1], gray, gray_is_rgb);
+							gray = ApplyLightingModel(&pointsA[i], &pointsA[i1], &pointsB[ii], &pointsB[ii1], gray, gray_is_rgb);
 						}
 						// Don't apply lighting model to TOP/BOTTOM projections  
 						// but convert from floating point 0<gray<1 to RGB color 
@@ -824,7 +827,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 							if(pPlot->fill_properties.border_color.type == TC_LINESTYLE) {
 								lp_style_type style;
 								int side = Pm3DSide(&pointsA[i], &pointsB[ii], &pointsB[ii1]);
-								lp_use_properties(pTerm, &style, side < 0 ? gray + 1 : gray);
+								lp_use_properties(pTerm, &style, static_cast<int>(side < 0 ? (gray + 1) : gray));
 								gray = style.pm3d_color.lt;
 							}
 						}
@@ -851,10 +854,10 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 							if(private_colormap) {
 								gray = rgb_from_colormap(gray, private_colormap);
 								if(at_which_z == PM3D_AT_SURFACE)
-									gray = apply_lighting_model(&corcorners[0], &corcorners[1], &corcorners[2], &corcorners[3], gray, TRUE);
+									gray = ApplyLightingModel(&corcorners[0], &corcorners[1], &corcorners[2], &corcorners[3], gray, TRUE);
 							}
 							else if(at_which_z == PM3D_AT_SURFACE) {
-								gray = apply_lighting_model(&corcorners[0], &corcorners[1], &corcorners[2], &corcorners[3], gray, color_from_rgbvar);
+								gray = ApplyLightingModel(&corcorners[0], &corcorners[1], &corcorners[2], &corcorners[3], gray, color_from_rgbvar);
 								// Don't apply lighting model to TOP/BOTTOM projections
 								// but convert from floating point 0<gray<1 to RGB color
 								// since that is what would have been returned from the
@@ -1006,7 +1009,7 @@ void GnuPlot::Pm3DAddPolygon(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gpdPo
 	// FIXME: I have no idea how to estimate the number of facets for an isosurface 
 	if(!pPlot || (pPlot->plot_style == ISOSURFACE)) {
 		if(allocated_quadrangles < current_quadrangle + 100) {
-			allocated_quadrangles += 1000.;
+			allocated_quadrangles += 1000;
 			quadrangles = (Quadrangle *)gp_realloc(quadrangles, allocated_quadrangles * sizeof(Quadrangle), "pm3d_add_quadrangle");
 		}
 	}
@@ -1067,7 +1070,7 @@ void GnuPlot::Pm3DAddPolygon(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gpdPo
 			q->gray = PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY;
 		else
 			q->gray = PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY;
-		if(pPlot->plot_style == ISOSURFACE && isosurface_options.inside_offset > 0) {
+		if(pPlot->plot_style == ISOSURFACE && _VG.IsoSurfaceOptions.inside_offset > 0) {
 			lp_style_type style;
 			GpCoordinate v[3];
 			int i;
@@ -1078,7 +1081,7 @@ void GnuPlot::Pm3DAddPolygon(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gpdPo
 			}
 			i = pPlot->hidden3d_top_linetype + 1;
 			if(Pm3DSide(&v[0], &v[1], &v[2]) < 0)
-				i += isosurface_options.inside_offset;
+				i += _VG.IsoSurfaceOptions.inside_offset;
 			lp_use_properties(pTerm, &style, i);
 			rgb_color = style.pm3d_color.lt;
 		}
@@ -1245,16 +1248,16 @@ void GnuPlot::IlluminateOneQuadrangle(Quadrangle * q)
 	c3.x = vtmp.x; c3.y = vtmp.y; c3.z = vtmp.z;
 	Map3D_XYZ(q->vertex.corners[3].x, q->vertex.corners[3].y, q->vertex.corners[3].z, &vtmp);
 	c4.x = vtmp.x; c4.y = vtmp.y; c4.z = vtmp.z;
-	q->gray = apply_lighting_model(&c1, &c2, &c3, &c4, q->gray, color_from_rgbvar);
+	q->gray = ApplyLightingModel(&c1, &c2, &c3, &c4, q->gray, color_from_rgbvar);
 }
-
-/*
- * Adjust current RGB color based on pm3d lighting model.
- * Jan 2019: preserve alpha channel
- *	     This isn't quite right because specular highlights should
- *	     not be affected by transparency.
- */
-int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2, GpCoordinate * v3, double gray, bool gray_is_rgb)
+// 
+// Adjust current RGB color based on pm3d lighting model.
+// Jan 2019: preserve alpha channel
+//   This isn't quite right because specular highlights should
+//   not be affected by transparency.
+// 
+//int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2, GpCoordinate * v3, double gray, bool gray_is_rgb)
+int GnuPlot::ApplyLightingModel(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2, GpCoordinate * v3, double gray, bool grayIsRgb)
 {
 	double normal[3];
 	double normal1[3];
@@ -1267,7 +1270,7 @@ int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2
 	rgb_color color;
 	double r, g, b, tmp_r, tmp_g, tmp_b;
 	double dot_prod, shade_fact, spec_fact;
-	if(gray_is_rgb) {
+	if(grayIsRgb) {
 		rgb = static_cast<uint>(gray);
 		r = (double)((rgb >> 16) & 0xFF) / 255.0;
 		g = (double)((rgb >>  8) & 0xFF) / 255.0;
@@ -1275,16 +1278,16 @@ int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2
 		alpha = rgb & 0xff000000;
 	}
 	else {
-		GPO.Rgb1FromGray(gray, &color);
+		Rgb1FromGray(gray, &color);
 		r = color.r;
 		g = color.g;
 		b = color.b;
 	}
-	psi = -DEG2RAD*(surface_rot_z);
-	phi = -DEG2RAD*(surface_rot_x);
-	normal[0] = (v1->y-v0->y)*(v2->z-v0->z)*Scale3D.y*Scale3D.z - (v1->z-v0->z)*(v2->y-v0->y)*Scale3D.y*Scale3D.z;
-	normal[1] = (v1->z-v0->z)*(v2->x-v0->x)*Scale3D.x*Scale3D.z - (v1->x-v0->x)*(v2->z-v0->z)*Scale3D.x*Scale3D.z;
-	normal[2] = (v1->x-v0->x)*(v2->y-v0->y)*Scale3D.x*Scale3D.y - (v1->y-v0->y)*(v2->x-v0->x)*Scale3D.x*Scale3D.y;
+	psi = -DEG2RAD*(_3DBlk.SurfaceRotZ);
+	phi = -DEG2RAD*(_3DBlk.SurfaceRotX);
+	normal[0] = (v1->y-v0->y)*(v2->z-v0->z) * _3DBlk.Scale3D.y * _3DBlk.Scale3D.z - (v1->z-v0->z)*(v2->y-v0->y) * _3DBlk.Scale3D.y * _3DBlk.Scale3D.z;
+	normal[1] = (v1->z-v0->z)*(v2->x-v0->x) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.z - (v1->x-v0->x)*(v2->z-v0->z) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.z;
+	normal[2] = (v1->x-v0->x)*(v2->y-v0->y) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.y - (v1->y-v0->y)*(v2->x-v0->x) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.y;
 	t = sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
 	/* Trap and handle degenerate case of two identical vertices.
 	 * Aug 2020
@@ -1294,9 +1297,9 @@ int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2
 	 */
 	if(t < 1.e-12) {
 		if(v2 == v3) /* 2nd try; give up and return original color */
-			return (gray_is_rgb) ? gray : ((uchar)(r*255.0) << 16) + ((uchar)(g*255.0) << 8) + ((uchar)(b*255.0));
+			return static_cast<int>(grayIsRgb ? gray : ((uchar)(r*255.0) << 16) + ((uchar)(g*255.0) << 8) + ((uchar)(b*255.0)));
 		else
-			return apply_lighting_model(v0, v1, v3, v3, gray, gray_is_rgb);
+			return ApplyLightingModel(v0, v1, v3, v3, gray, grayIsRgb); // @recursion
 	}
 	normal[0] /= t;
 	normal[1] /= t;
@@ -1347,7 +1350,7 @@ int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2
 	tmp_r = clip_to_01(tmp_r);
 	tmp_g = clip_to_01(tmp_g);
 	tmp_b = clip_to_01(tmp_b);
-	rgb = ((uchar)((tmp_r)*255.) << 16) + ((uchar)((tmp_g)*255.) <<  8) + ((uchar)((tmp_b)*255.));
+	rgb = ((uchar)((tmp_r)*255.0) << 16) + ((uchar)((tmp_g)*255.) <<  8) + ((uchar)((tmp_b)*255.));
 	/* restore alpha value if there was one */
 	rgb |= alpha;
 	return rgb;
@@ -1379,8 +1382,8 @@ void GnuPlot::FilledPolygon(GpTermEntry * pTerm, gpdPoint * corners, int fillsty
 		clipcorners = (gpdPoint *)gp_realloc(clipcorners, (2*max_vertices) * sizeof(gpdPoint), "filled_polygon");
 	}
 	if((pm3d.clip == PM3D_CLIP_Z) && (pm3d_plot_at != PM3D_AT_BASE && pm3d_plot_at != PM3D_AT_TOP)) {
-		const int cfpr = clip_filled_polygon(corners, clipcorners, nv);
-		if(cfpr < 0) /* All vertices out of range */
+		const int cfpr = ClipFilledPolygon(corners, clipcorners, nv);
+		if(cfpr < 0) // All vertices out of range 
 			return;
 		if(cfpr > 0) { /* Some got clipped */
 			nv = cfpr;
@@ -1422,7 +1425,8 @@ void GnuPlot::FilledPolygon(GpTermEntry * pTerm, gpdPoint * corners, int fillsty
 // The clipped polygon may have as few as 3 vertices or as many as n+2.
 // Returns the new number of vertices after clipping.
 // 
-int clip_filled_polygon(gpdPoint * inpts, gpdPoint * outpts, int nv)
+//int clip_filled_polygon(const gpdPoint * pInpts, gpdPoint * pOutpts, int nv)
+int GnuPlot::ClipFilledPolygon(const gpdPoint * pInpts, gpdPoint * pOutpts, int nv)
 {
 	int current = 0; // The vertex we are now considering 
 	int next = 0;   // The next vertex 
@@ -1431,8 +1435,8 @@ int clip_filled_polygon(gpdPoint * inpts, gpdPoint * outpts, int nv)
 	int nover = 0;
 	int nunder = 0;
 	double fraction;
-	double zmin = GPO.AxS[FIRST_Z_AXIS].min;
-	double zmax = GPO.AxS[FIRST_Z_AXIS].max;
+	double zmin = AxS[FIRST_Z_AXIS].min;
+	double zmax = AxS[FIRST_Z_AXIS].max;
 	// classify inrange/outrange vertices 
 	static int * outrange = NULL;
 	static int maxvert = 0;
@@ -1441,15 +1445,15 @@ int clip_filled_polygon(gpdPoint * inpts, gpdPoint * outpts, int nv)
 		outrange = (int *)gp_realloc(outrange, maxvert * sizeof(int), NULL);
 	}
 	for(current = 0; current < nv; current++) {
-		if(inrange(inpts[current].z, zmin, zmax)) {
+		if(inrange(pInpts[current].z, zmin, zmax)) {
 			outrange[current] = 0;
 		}
-		else if(inpts[current].z > zmax) {
+		else if(pInpts[current].z > zmax) {
 			outrange[current] = 1;
 			noutrange++;
 			nover++;
 		}
-		else if(inpts[current].z < zmin) {
+		else if(pInpts[current].z < zmin) {
 			outrange[current] = -1;
 			noutrange++;
 			nunder++;
@@ -1468,37 +1472,37 @@ int clip_filled_polygon(gpdPoint * inpts, gpdPoint * outpts, int nv)
 			if(!outrange[next]) {
 				// Current point is out-range but next point is in-range.
 				// Clip line segment from current-to-next and store as new vertex.
-				fraction = ((inpts[current].z >= zmax ? zmax : zmin) - inpts[next].z) / (inpts[current].z - inpts[next].z);
-				outpts[nvo].x = inpts[next].x + fraction * (inpts[current].x - inpts[next].x);
-				outpts[nvo].y = inpts[next].y + fraction * (inpts[current].y - inpts[next].y);
-				outpts[nvo].z = inpts[current].z >= zmax ? zmax : zmin;
+				fraction = ((pInpts[current].z >= zmax ? zmax : zmin) - pInpts[next].z) / (pInpts[current].z - pInpts[next].z);
+				pOutpts[nvo].x = pInpts[next].x + fraction * (pInpts[current].x - pInpts[next].x);
+				pOutpts[nvo].y = pInpts[next].y + fraction * (pInpts[current].y - pInpts[next].y);
+				pOutpts[nvo].z = pInpts[current].z >= zmax ? zmax : zmin;
 				nvo++;
 			}
 			else if(/* Gg.ClipLines2 && */ (outrange[current] * outrange[next] < 0)) {
 				// Current point and next point are out of range on opposite
 				// sides of the z range.  Clip both ends of the segment.
-				fraction = ((inpts[current].z >= zmax ? zmax : zmin) - inpts[next].z) / (inpts[current].z - inpts[next].z);
-				outpts[nvo].x = inpts[next].x + fraction * (inpts[current].x - inpts[next].x);
-				outpts[nvo].y = inpts[next].y + fraction * (inpts[current].y - inpts[next].y);
-				outpts[nvo].z = inpts[current].z >= zmax ? zmax : zmin;
+				fraction = ((pInpts[current].z >= zmax ? zmax : zmin) - pInpts[next].z) / (pInpts[current].z - pInpts[next].z);
+				pOutpts[nvo].x = pInpts[next].x + fraction * (pInpts[current].x - pInpts[next].x);
+				pOutpts[nvo].y = pInpts[next].y + fraction * (pInpts[current].y - pInpts[next].y);
+				pOutpts[nvo].z = pInpts[current].z >= zmax ? zmax : zmin;
 				nvo++;
-				fraction = ((inpts[next].z >= zmax ? zmax : zmin) - outpts[nvo-1].z) / (inpts[next].z - outpts[nvo-1].z);
-				outpts[nvo].x = outpts[nvo-1].x + fraction * (inpts[next].x - outpts[nvo-1].x);
-				outpts[nvo].y = outpts[nvo-1].y + fraction * (inpts[next].y - outpts[nvo-1].y);
-				outpts[nvo].z = inpts[next].z >= zmax ? zmax : zmin;
+				fraction = ((pInpts[next].z >= zmax ? zmax : zmin) - pOutpts[nvo-1].z) / (pInpts[next].z - pOutpts[nvo-1].z);
+				pOutpts[nvo].x = pOutpts[nvo-1].x + fraction * (pInpts[next].x - pOutpts[nvo-1].x);
+				pOutpts[nvo].y = pOutpts[nvo-1].y + fraction * (pInpts[next].y - pOutpts[nvo-1].y);
+				pOutpts[nvo].z = pInpts[next].z >= zmax ? zmax : zmin;
 				nvo++;
 			}
 			// Current point is in range 
 		}
 		else {
-			outpts[nvo++] = inpts[current];
+			pOutpts[nvo++] = pInpts[current];
 			if(outrange[next]) {
 				// Current point is in-range but next point is out-range.
 				// Clip line segment from current-to-next and store as new vertex.
-				fraction = ((inpts[next].z >= zmax ? zmax : zmin) - inpts[current].z) / (inpts[next].z - inpts[current].z);
-				outpts[nvo].x = inpts[current].x + fraction * (inpts[next].x - inpts[current].x);
-				outpts[nvo].y = inpts[current].y + fraction * (inpts[next].y - inpts[current].y);
-				outpts[nvo].z = inpts[next].z >= zmax ? zmax : zmin;
+				fraction = ((pInpts[next].z >= zmax ? zmax : zmin) - pInpts[current].z) / (pInpts[next].z - pInpts[current].z);
+				pOutpts[nvo].x = pInpts[current].x + fraction * (pInpts[next].x - pInpts[current].x);
+				pOutpts[nvo].y = pInpts[current].y + fraction * (pInpts[next].y - pInpts[current].y);
+				pOutpts[nvo].z = pInpts[next].z >= zmax ? zmax : zmin;
 				nvo++;
 			}
 		}

@@ -95,7 +95,7 @@ TERM_PUBLIC void FIG_linewidth(GpTermEntry * pThis, double linewidth);
 TERM_PUBLIC void FIG_reset(GpTermEntry * pThis);
 TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void FIG_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h);
-TERM_PUBLIC int FIG_make_palette(t_sm_palette *);
+TERM_PUBLIC int FIG_make_palette(GpTermEntry * pThis, t_sm_palette *);
 TERM_PUBLIC void FIG_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void FIG_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void FIG_layer(GpTermEntry * pThis, t_termlayer syncpoint);
@@ -706,8 +706,8 @@ TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	int text_depth = FIG_linedepth;
 	if(strlen(str) == 0)
 		return;
-	output_string = (char*)gp_alloc(2*strlen(str)+1, "FIG text");
-	s1 = (char*)str;
+	output_string = (char *)gp_alloc(2*strlen(str)+1, "FIG text");
+	s1 = (char *)str;
 	s2 = output_string;
 	do {
 		if(*s1 == '\\') *(s2++) = *s1;
@@ -895,7 +895,7 @@ TERM_PUBLIC void FIG_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uin
 	    x, y, x+w, y, x+w, y-h, x, y-h, x, y);
 }
 
-TERM_PUBLIC int FIG_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int FIG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	int i;
 	// Query to determine palette size 

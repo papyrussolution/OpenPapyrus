@@ -79,7 +79,7 @@ static int pbm_getc(FILE * infile)
 /* Read next char, skipping over any comments */
 /* A comment/newline sequence is returned as a newline */
 {
-	register int ch = getc(infile);
+	int ch = getc(infile);
 	if(ch == '#') {
 		do {
 			ch = getc(infile);

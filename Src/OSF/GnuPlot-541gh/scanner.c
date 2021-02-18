@@ -4,8 +4,6 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-int curly_brace_count;
-
 //static int get_num(char str[]);
 static void substitute(char ** strp, size_t * str_lenp, int current);
 
@@ -14,7 +12,8 @@ static void substitute(char ** strp, size_t * str_lenp, int current);
 #define LBRACE '{'
 #define RBRACE '}'
 
-static int __TNum; // @global number of token I'm working on 
+//int curly_brace_count;
+//static int __TNum; // @global number of token I'm working on 
 
 bool legal_identifier(char * p)
 {
@@ -70,7 +69,7 @@ int GpProgram::Scanner(char ** ppExpression, size_t * pExpressionLen)
 	char * p_expression = *ppExpression;
 	int quote;
 	char brace;
-	curly_brace_count = 0;
+	CurlyBraceCount = 0;
 	for(current = __TNum = 0; p_expression[current] != NUL; current++) {
 		if((__TNum + 1) >= TokenTableSize) {
 			ExtendTokenTable(); // leave space for dummy end token 
@@ -111,7 +110,7 @@ int GpProgram::Scanner(char ** ppExpression, size_t * pExpressionLen)
 			P_Token[__TNum].l_val.type = CMPLX;
 			partial = sscanf(&p_expression[++current], "%lf , %lf %c", &P_Token[__TNum].l_val.v.cmplx_val.real, &P_Token[__TNum].l_val.v.cmplx_val.imag, &brace);
 			if(partial <= 0) {
-				curly_brace_count++;
+				CurlyBraceCount++;
 				P_Token[__TNum++].is_token = TRUE;
 				current--;
 				continue;
@@ -174,8 +173,8 @@ int GpProgram::Scanner(char ** ppExpression, size_t * pExpressionLen)
 				case ',':
 				case '$':
 				    break;
-				case '}': /* complex constants will not end up here */
-				    curly_brace_count--;
+				case '}': // complex constants will not end up here 
+				    CurlyBraceCount--;
 				    break;
 				case '&':
 				case '|':
@@ -269,29 +268,29 @@ int FASTCALL GpProgram::GetNum(char pStr[])
 	count = endptr - pStr;
 	return (count);
 }
-
-/* substitute output from ` `
- * *strp points to the input string.  (*strp)[current] is expected to
- * be the initial back tic.  Characters through the following back tic
- * are replaced by the output of the command.  extend_input_line()
- * is called to extend *strp array if needed.
- */
-static void substitute(char ** strp, size_t * str_lenp, int current)
+// 
+// substitute output from ` `
+// *strp points to the input string.  (*strp)[current] is expected to
+// be the initial back tic.  Characters through the following back tic
+// are replaced by the output of the command.  extend_input_line()
+// is called to extend *strp array if needed.
+// 
+static void substitute(char ** ppStr, size_t * pStrLen, int current)
 {
 	char c;
 	char * pgm, * rest = NULL;
 	char * output;
 	size_t pgm_len, rest_len = 0;
 	int output_pos;
-	/* forgive missing closing backquote at end of line */
-	char * str = *strp + current;
+	// forgive missing closing backquote at end of line 
+	char * str = *ppStr + current;
 	char * last = str;
 	while(*++last) {
 		if(*last == '`')
 			break;
 	}
 	pgm_len = last - str;
-	pgm = (char*)gp_alloc(pgm_len, "command string");
+	pgm = (char *)gp_alloc(pgm_len, "command string");
 	safe_strncpy(pgm, str + 1, pgm_len); /* omit ` to leave room for NUL */
 	// save rest of line, if any 
 	if(*last) {
@@ -309,17 +308,17 @@ static void substitute(char ** strp, size_t * str_lenp, int current)
 	output_pos = 0;
 	while((c = output[output_pos++])) {
 		if((output[output_pos] != '\0') || (c != '\n'))
-			(*strp)[current++] = c;
-		if(current == *str_lenp)
+			(*ppStr)[current++] = c;
+		if(current == *pStrLen)
 			extend_input_line();
 	}
-	(*strp)[current] = 0;
+	(*ppStr)[current] = 0;
 	SAlloc::F(output);
 	// tack on rest of line to output
 	if(rest) {
-		while(current + rest_len > *str_lenp)
+		while(current + rest_len > *pStrLen)
 			extend_input_line();
-		strcpy(*strp + current, rest);
+		strcpy(*ppStr + current, rest);
 		SAlloc::F(rest);
 	}
 	screen_ok = FALSE;

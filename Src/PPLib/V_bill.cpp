@@ -2961,6 +2961,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 					{
 						assert(op_type_id == PPOPT_DRAFTRECEIPT);
 						if(op_type_id == PPOPT_DRAFTRECEIPT) {
+							ok = P_BObj->AddDraftBySample(&bill_id, sampleBillID, &param);
 						}
 					}
 					break;
@@ -2968,6 +2969,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 					{
 						assert(op_type_id == PPOPT_DRAFTEXPEND);
 						if(op_type_id == PPOPT_DRAFTEXPEND) {
+							ok = P_BObj->AddDraftBySample(&bill_id, sampleBillID, &param);
 						}
 					}
 					break;

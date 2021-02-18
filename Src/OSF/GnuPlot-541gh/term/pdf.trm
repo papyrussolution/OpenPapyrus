@@ -487,10 +487,10 @@ TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 	// Have to start the first page now, in order to know the actual size of the selected font 
 	PDF_graphics();
 	// set ChrH, ChrV
-	term->ChrH = PDF_fontAvWidth;
-	term->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
+	pThis->ChrH = PDF_fontAvWidth;
+	pThis->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
 	// set TicH, TicV
-	term->TicH = term->TicV = 3 * PDF_RESOLUTION;
+	pThis->TicH = pThis->TicV = 3 * PDF_RESOLUTION;
 	// initialize terminal's pointsize from "set pointsize" value 
 	GPO.TermPointSize = pointsize;
 	// Initialize other default settings 
@@ -1269,7 +1269,7 @@ TERM_PUBLIC void PDF_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 		}
 	}
 	/* Describe this image to PDF library */
-	im = PDF_open_image(myPDF, "raw", "memory", (char*)rawrgb, (long)(M*N*3), (int)M, (int)N, 3, 8/* 3 colors, 8 bits each */, "");
+	im = PDF_open_image(myPDF, "raw", "memory", (char *)rawrgb, (long)(M*N*3), (int)M, (int)N, 3, 8/* 3 colors, 8 bits each */, "");
 	/* Clip to bounding box requested */
 	PDF_save(myPDF);
 	PDF_moveto(myPDF, corner[2].x, corner[2].y);
@@ -1402,7 +1402,7 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 
 TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 {
-	char * original_string = (char*)str;
+	char * original_string = (char *)str;
 	if(GPO.Enht.Ignore) {
 		PDF_put_text(x, y, str);
 		return;
@@ -1436,7 +1436,7 @@ TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE, PDF_fontNameCur, PDF_fontSizeCur * PDF_fontscale, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char *)str, TRUE, PDF_fontNameCur, PDF_fontSizeCur * PDF_fontscale, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);

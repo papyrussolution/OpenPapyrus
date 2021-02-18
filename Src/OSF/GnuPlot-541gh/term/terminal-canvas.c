@@ -77,7 +77,7 @@ TERM_PUBLIC void CANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char
 TERM_PUBLIC int  CANVAS_text_angle(int ang);
 TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
-TERM_PUBLIC int  CANVAS_make_palette(t_sm_palette * palette);
+TERM_PUBLIC int  CANVAS_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer);
 TERM_PUBLIC void CANVAS_path(int);
 TERM_PUBLIC void CANVAS_hypertext(GpTermEntry * pThis, int, const char *);
@@ -403,7 +403,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	len = strlen(CANVAS_scriptdir);
 #if defined(_WIN32)
 	if(*CANVAS_scriptdir && CANVAS_scriptdir[len-1] != '\\' && CANVAS_scriptdir[len-1] != '/') {
-		CANVAS_scriptdir = (char*)gp_realloc(CANVAS_scriptdir, len+2, "jsdir");
+		CANVAS_scriptdir = (char *)gp_realloc(CANVAS_scriptdir, len+2, "jsdir");
 		if(CANVAS_scriptdir[len-1] == '\\') /* use backslash if used in jsdir, otherwise slash */
 			strcat(CANVAS_scriptdir, "\\");
 		else
@@ -457,7 +457,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 		    CANVAS_name);
 		fprintf(gpoutfile,
 		    "// Reinitialize mouse tracking and zoom for this particular plot\n"
-		    "if ((typeof(gnuplot.active_plot) == \"undefined\" || gnuplot.active_plot != %s)  &&  typeof(gnuplot.mouse_update) != \"undefined\") {\n"
+		    "if ((typeof(gnuplot.active_plot) == \"undefined\" || gnuplot.active_plot != %s) && typeof(gnuplot.mouse_update) != \"undefined\") {\n"
 		    "  gnuplot.active_plot_name = \"%s\";\n"
 		    "  gnuplot.active_plot = %s;\n"
 		    "  canvas.onmousemove = gnuplot.mouse_update;\n"
@@ -981,7 +981,7 @@ TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * color
 	canvas_line_type = LT_UNDEFINED;
 }
 
-TERM_PUBLIC int CANVAS_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int CANVAS_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	return 0; // We can do full RGB color 
 }
@@ -1275,7 +1275,7 @@ TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry * pThis)
 
 TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
-	char * original_string = (char*)str;
+	char * original_string = (char *)str;
 	// Save starting font properties 
 	double fontsize = canvas_font_size;
 	char * fontname = "";
@@ -1298,7 +1298,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	ENHCANVAS_fontsize = canvas_font_size;
 	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center"))
 		ENHCANVAS_sizeonly = TRUE;
-	while(*(str = enhanced_recursion(term, (char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(term, (char *)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(pThis->enhanced_flush)(pThis);
 		enh_err_check(str);
 		if(!*++str)

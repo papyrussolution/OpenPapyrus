@@ -77,18 +77,15 @@ METHODDEF(void) forward_DCT(j_compress_ptr cinfo, jpeg_component_info * compptr,
 	DCTELEM * divisors = (DCTELEM*)compptr->dct_table;
 	DCTELEM workspace[DCTSIZE2]; /* work area for FDCT subroutine */
 	JDIMENSION bi;
-
 	sample_data += start_row; /* fold in the vertical offset once */
-
 	for(bi = 0; bi < num_blocks; bi++, start_col += compptr->DCT_h_scaled_size) {
 		/* Perform the DCT */
 		(*do_dct)(workspace, sample_data, start_col);
-
 		/* Quantize/descale the coefficients, and store into coef_blocks[] */
-		{ register DCTELEM temp, qval;
-		  register int i;
-		  register JCOEFPTR output_ptr = coef_blocks[bi];
-
+		{ 
+			DCTELEM temp, qval;
+		  int i;
+		  JCOEFPTR output_ptr = coef_blocks[bi];
 		  for(i = 0; i < DCTSIZE2; i++) {
 			  qval = divisors[i];
 			  temp = workspace[i];
@@ -139,18 +136,15 @@ METHODDEF(void) forward_DCT_float(j_compress_ptr cinfo, jpeg_component_info * co
 	FAST_FLOAT * divisors = (FAST_FLOAT*)compptr->dct_table;
 	FAST_FLOAT workspace[DCTSIZE2]; /* work area for FDCT subroutine */
 	JDIMENSION bi;
-
 	sample_data += start_row; /* fold in the vertical offset once */
-
 	for(bi = 0; bi < num_blocks; bi++, start_col += compptr->DCT_h_scaled_size) {
 		/* Perform the DCT */
 		(*do_dct)(workspace, sample_data, start_col);
-
 		/* Quantize/descale the coefficients, and store into coef_blocks[] */
-		{ register FAST_FLOAT temp;
-		  register int i;
-		  register JCOEFPTR output_ptr = coef_blocks[bi];
-
+		{ 
+			FAST_FLOAT temp;
+		  int i;
+		  JCOEFPTR output_ptr = coef_blocks[bi];
 		  for(i = 0; i < DCTSIZE2; i++) {
 			  /* Apply the quantization and scaling factor */
 			  temp = workspace[i] * divisors[i];

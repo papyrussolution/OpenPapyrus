@@ -36,14 +36,13 @@ typedef struct codegen_t codegen_t;
 	if(!context_object || !context_object->IsFunction()) { report_error(self, node, "Invalid code context."); return;} \
 	gravity_function_t * context_function = reinterpret_cast<gravity_function_t *>(context_object);
 #define DECLARE_CLASS_CONTEXT()         DECLARE_CONTEXT();                                                                      \
-	assert(context_object->IsClass());                                               \
+	assert(context_object->IsClass()); \
 	gravity_class_t * context_class = reinterpret_cast<gravity_class_t *>(context_object);
 #define DECLARE_CODE()                  DECLARE_FUNCTION_CONTEXT(); ircode_t * code = (ircode_t *)context_function->U.Nf.bytecode;
 
-#define IS_IMPLICIT_SELF(_expr)         (gnode_t::IsA(_expr, NODE_IDENTIFIER_EXPR) &&                                               \
-	(((gnode_identifier_expr_t*)_expr)->location.type == LOCATION_CLASS_IVAR_SAME) &&      \
-	(((gnode_identifier_expr_t*)_expr)->location.nup == 0) &&                              \
-	(((gnode_identifier_expr_t*)_expr)->location.index == UINT16_MAX))
+#define IS_IMPLICIT_SELF(_expr)         (gnode_t::IsA(_expr, NODE_IDENTIFIER_EXPR) && \
+	(((gnode_identifier_expr_t*)_expr)->location.type == LOCATION_CLASS_IVAR_SAME) && \
+	(((gnode_identifier_expr_t*)_expr)->location.nup == 0) && (((gnode_identifier_expr_t*)_expr)->location.index == UINT16_MAX))
 
 #define IS_SUPER(_expr)                 (gnode_t::IsA(_expr, NODE_KEYWORD_EXPR) && (((gnode_keyword_expr_t*)_expr)->Token.type == TOK_KEY_SUPER))
 #define GET_VM()                        (static_cast<codegen_t *>(self->data)->vm)

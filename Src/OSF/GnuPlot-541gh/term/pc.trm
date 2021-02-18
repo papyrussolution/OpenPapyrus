@@ -443,7 +443,7 @@ static void PC_save_text()
 	if(pc_text_image != NULL) {
 		union REGS regs;
 		// make a copy of the text memory 
-		char * video = (char*)(int)0xB8000;
+		char * video = (char *)(int)0xB8000;
 		int size = 2 * pc_text_cols * pc_text_rows;
 		memcpy(pc_text_image, video, size);
 		// save text cursor position 
@@ -462,7 +462,7 @@ static void PC_restore_text()
 	if(pc_text_image) {
 		union REGS regs;
 		// restore text memory -
-		char * video = (char*)(int)0xB8000;
+		char * video = (char *)(int)0xB8000;
 		int size = 2 * pc_text_cols * pc_text_rows;
 		memcpy(video, pc_text_image, size);
 		// restore text cursor position 
@@ -639,7 +639,7 @@ static int pc_alt_key_table [][2] = {
 
 static int PC_int_compare(const void * elem1, const void * elem2)
 {
-	int val = *(int*)elem1 - *(int*)elem2;
+	int val = *(int *)elem1 - *(int *)elem2;
 	return (0 < val) - (val < 0);
 }
 
@@ -856,12 +856,12 @@ TERM_PUBLIC void PC_put_text(uint x, uint y, const char * str)
 {
 	_settextang(pc_text_dir);
 	_settextalign(pc_hjustify, pc_vjustify);
-	_grtext(x, pc_lasty - y, (char*)str);
+	_grtext(x, pc_lasty - y, (char *)str);
 	if(pc_boxing) {
 		struct xycoord extent[4];
 		int i;
 
-		_gettextextent(x, pc_lasty - y, (char*)str, NULL, extent);
+		_gettextextent(x, pc_lasty - y, (char *)str, NULL, extent);
 		// In contrast to the documentation, we find the sequence to be clockwise.
 		pc_boxed_extent[0].xcoord = MIN(pc_boxed_extent[0].xcoord, extent[0].xcoord);
 		pc_boxed_extent[1].xcoord = MAX(pc_boxed_extent[1].xcoord, extent[1].xcoord);
@@ -957,7 +957,7 @@ TERM_PUBLIC void PC_enhanced_flush()
 		int base_x = -pc_enhanced_base * pc_text_sin;
 		int base_y = pc_enhanced_base * pc_text_cos;
 
-		_grtext(pc_x + base_x, pc_lasty - (pc_y + base_y), (char*)str);
+		_grtext(pc_x + base_x, pc_lasty - (pc_y + base_y), (char *)str);
 	}
 
 	if(!pc_enhanced_widthflag) {

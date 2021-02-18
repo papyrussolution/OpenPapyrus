@@ -179,14 +179,14 @@ int GnuPlot::MakePalette(GpTermEntry * pTerm)
 		return 1;
 	else {
 		// ask for suitable number of colours in the palette 
-		int i = pTerm->make_palette(NULL);
+		int i = pTerm->make_palette(pTerm, NULL);
 		SmPltt.Colors = i;
 		if(i == 0) {
 			// terminal with its own mapping (PostScript, for instance)
 			// It will not change palette passed below, but non-NULL has to be
 			// passed there to create the header or force its initialization
 			if(memcmp(&prev_palette, &SmPltt, sizeof(t_sm_palette))) {
-				pTerm->make_palette(&SmPltt);
+				pTerm->make_palette(pTerm, &SmPltt);
 				prev_palette = SmPltt;
 				FPRINTF((stderr, "make_palette: calling term->make_palette for term with ncolors == 0\n"));
 			}
@@ -220,7 +220,7 @@ int GnuPlot::MakePalette(GpTermEntry * pTerm)
 				Rgb1FromGray(gray, &(SmPltt.P_Color[i]) );
 			}
 			// let the terminal make the palette from the supplied RGB triplets 
-			pTerm->make_palette(&SmPltt);
+			pTerm->make_palette(pTerm, &SmPltt);
 			return 0;
 		}
 	}
@@ -529,7 +529,7 @@ void GnuPlot::DrawInsideColorBoxBitmapSmooth(GpTermEntry * pTerm)
 //static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid/* linetype or -2 for no grid */, ticmark * userlabels)
 void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for no grid */, ticmark * userlabels)
 {
-	int len = tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1) * (pTerm->TicH);
+	int len = static_cast<int>(tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1) * (pTerm->TicH));
 	uint x1, y1, x2, y2;
 	double cb_place;
 	// position of tic as a fraction of the full palette range 
@@ -593,7 +593,7 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 	}
 	// draw label 
 	if(text) {
-		int just;
+		JUSTIFY just;
 		int offsetx, offsety;
 		// Skip label if we've already written a user-specified one here 
 #define MINIMUM_SEPARATION 0.001
@@ -620,7 +620,7 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 			just = hrotate ? LEFT : CENTRE;
 			if(pAx->manual_justify)
 				just = pAx->tic_pos;
-			write_multiline(pTerm, x2+offsetx, y3+offsety, text, (JUSTIFY)just, JUST_CENTRE, hrotate, pAx->ticdef.font);
+			write_multiline(pTerm, x2+offsetx, y3+offsety, text, just, JUST_CENTRE, hrotate, pAx->ticdef.font);
 			if(hrotate)
 				(pTerm->text_angle)(0);
 		}
@@ -631,9 +631,9 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 			just = LEFT;
 			if(pAx->manual_justify)
 				just = pAx->tic_pos;
-			write_multiline(pTerm, x3+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0.0, pAx->ticdef.font);
+			write_multiline(pTerm, x3+offsetx, y2+offsety, text, just, JUST_CENTRE, 0, pAx->ticdef.font);
 		}
-		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
+		TermApplyLpProperties(pTerm, &border_lp); // border linetype 
 	}
 }
 // 

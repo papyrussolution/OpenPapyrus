@@ -11,7 +11,7 @@
  * but better than mixing internal status and the user interface as we
  * used to have it, in set.c and setshow.h */
 
-legend_key keyT;// = DEFAULT_KEY_PROPS;
+//legend_key keyT;// = DEFAULT_KEY_PROPS;
 //
 // Description of the color box associated with GPO.AxS.__CB() 
 //
@@ -535,7 +535,7 @@ void GnuPlot::DrawPolarClipLine(GpTermEntry * pTerm, double xbeg, double ybeg, d
 	beg_inrange = (xbeg*xbeg + ybeg*ybeg) <= R*R;
 	end_inrange = (xend*xend + yend*yend) <= R*R;
 	if(beg_inrange && end_inrange) {
-		DrawClipLine(pTerm, AxS.MapiX(xbeg), AxS.MapiY(ybeg), AxS.MapiX(xend), AxS.MapiY(yend));
+		DrawClipLine(pTerm, MapiX(xbeg), MapiY(ybeg), MapiX(xend), MapiY(yend));
 	}
 	else {
 		// FIXME:  logscale and other odd cases are not covered by this equation 
@@ -598,12 +598,12 @@ void GnuPlot::DrawPolarClipLine(GpTermEntry * pTerm, double xbeg, double ybeg, d
 				goto outside;
 		}
 		// Draw the part of the line inside the bounding circle 
-		(pTerm->move)(pTerm, AxS.MapiX(x1), AxS.MapiY(y1));
-		(pTerm->vector)(pTerm, AxS.MapiX(x2), AxS.MapiY(y2));
+		(pTerm->move)(pTerm, MapiX(x1), MapiY(y1));
+		(pTerm->vector)(pTerm, MapiX(x2), MapiY(y2));
 		// fall through 
 outside:
 		// Leave current position at unclipped endpoint 
-		(pTerm->move)(pTerm, AxS.MapiX(xend), AxS.MapiY(yend));
+		(pTerm->move)(pTerm, MapiX(xend), MapiY(yend));
 	}
 }
 //
@@ -729,7 +729,7 @@ void free_labels(text_label * pLabel)
 //void get_offsets(text_label * pLabel, int * pHTic, int * pVTic)
 void GnuPlot::GetOffsets(GpTermEntry * pTerm, text_label * pLabel, int * pHTic, int * pVTic)
 {
-	if((pLabel->lp_properties.flags & LP_SHOW_POINTS)) {
+	if(pLabel->lp_properties.flags & LP_SHOW_POINTS) {
 		*pHTic = static_cast<int>(Gg.PointSize * pTerm->TicH * 0.5);
 		*pVTic = static_cast<int>(Gg.PointSize * pTerm->TicV * 0.5);
 	}
@@ -848,7 +848,7 @@ int label_width(const char * str, int * lines)
 		strcpy(lab, str);
 		strcat(lab, "\n");
 		s = lab;
-		while((e = (char*)strchr(s, '\n')) != NULL) {
+		while((e = (char *)strchr(s, '\n')) != NULL) {
 			*e = '\0';
 			len = estimate_strlen(s, NULL); /* = e-s ? */
 			if(len > mlen)

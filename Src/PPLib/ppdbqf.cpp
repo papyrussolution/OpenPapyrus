@@ -17,7 +17,7 @@
 }
 #endif // } 0
 
-static int FASTCALL DbeInitSize(int option, DBConst * result, size_t s)
+int FASTCALL DbeInitSize(int option, DBConst * result, size_t s)
 {
 	if(option == CALC_SIZE) {
 		result->init(s);

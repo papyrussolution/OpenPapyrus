@@ -453,14 +453,14 @@ static uchar * IMAGEN_cvts(uchar * str, int * width, int * height)
 	/* all transformations shorten the string, get a buffer that is     */
 	/* the same size as the input string.                               */
 	SAlloc::F(buf);
-	buf = (uchar*)gp_alloc(strlen((char*)str)+2, "converted label string");
+	buf = (uchar*)gp_alloc(strlen((char *)str)+2, "converted label string");
 	/* Do the transformations. */
 	cp1 = str;
 	cp2 = buf;
 	h = 1;
 	maxw = 0;
 	w = 0;
-	while(strlen((char*)cp1) > 0) {
+	while(strlen((char *)cp1) > 0) {
 		switch(*cp1) {
 			case ' ': /* Space character. */
 			    *cp2++ = imP_SP;
@@ -526,7 +526,7 @@ TERM_PUBLIC void IMAGEN_put_text(uint x, uint y, const char str[])
 	else                    /* horizontal */
 		y += height / 2 - IMAGEN_hchar;
 
-	while((p = (uchar*)strchr((char*)cvstr, '\n'))) {
+	while((p = (uchar*)strchr((char *)cvstr, '\n'))) {
 		*p = '\0';
 		sx = x;
 		sy = y;
@@ -535,7 +535,7 @@ TERM_PUBLIC void IMAGEN_put_text(uint x, uint y, const char str[])
 		else
 			sy = y + IMAGEN_blofs;
 
-		width = strlen((char*)cvstr) * IMAGEN_wchar;
+		width = strlen((char *)cvstr) * IMAGEN_wchar;
 
 		switch(IMAGEN_justify) {
 			case LEFT:
@@ -561,7 +561,7 @@ TERM_PUBLIC void IMAGEN_put_text(uint x, uint y, const char str[])
 		}
 
 		IMAGEN_setpos(sx, sy);
-		fputs((char*)cvstr, gpoutfile);
+		fputs((char *)cvstr, gpoutfile);
 		cvstr = ++p;
 		if(IMAGEN_angle) { /* vertical */
 			x += IMAGEN_hchar;

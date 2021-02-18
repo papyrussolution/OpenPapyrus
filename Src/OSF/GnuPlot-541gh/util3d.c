@@ -681,7 +681,7 @@ double GnuPlot::MapX3D(double x)
 		xaxis = xaxis->linked_to_primary;
 		x = EvalLinkFunction(xaxis, x);
 	}
-	return ((x - xaxis->min)*Scale3D.x + Center3D.x - 1.0);
+	return ((x - xaxis->min) * _3DBlk.Scale3D.x + _3DBlk.Center3D.x - 1.0);
 }
 
 double GnuPlot::MapY3D(double y)
@@ -691,7 +691,7 @@ double GnuPlot::MapY3D(double y)
 		yaxis = yaxis->linked_to_primary;
 		y = EvalLinkFunction(yaxis, y);
 	}
-	return ((y - yaxis->min) * Scale3D.y + Center3D.y - 1.0);
+	return ((y - yaxis->min) * _3DBlk.Scale3D.y + _3DBlk.Center3D.y - 1.0);
 }
 
 double GnuPlot::MapZ3D(double z)
@@ -701,7 +701,7 @@ double GnuPlot::MapZ3D(double z)
 		zaxis = zaxis->linked_to_primary;
 		z = EvalLinkFunction(zaxis, z);
 	}
-	return ((z - floor_z1) * Scale3D.z + Center3D.z - 1.0);
+	return ((z - floor_z1) * _3DBlk.Scale3D.z + _3DBlk.Center3D.z - 1.0);
 }
 // 
 // Performs transformation from 'user coordinates' to a normalized

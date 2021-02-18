@@ -54,12 +54,13 @@ extern void zbesy_(double * zr, double * zi, double * nu, int32_t * kode, int32_
 extern void cexint_(double complex * z, int32_t * norder, int32_t * kode, double * tol, int32_t * length, double complex * cy, int32_t * ierr);
 #endif
 
-void f_amos_Ai(union argument * arg)
+//void f_amos_Ai(union argument * arg)
+void GnuPlot::F_amos_Ai(union argument * arg)
 {
 	GpValue a;
 	struct cmplx z, ai;
 	int32_t id, kode, underflow, ierr;
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	id = 0; /* 0 = Ai  1 = delAi/delZ */
 	kode = 1; /* 1 = unscaled   2 = scaled */
 	if(a.type == INTGR) {
@@ -74,21 +75,22 @@ void f_amos_Ai(union argument * arg)
 	zairy_(&z.real, &z.imag, &id, &kode, &ai.real, &ai.imag, &underflow, &ierr);
 	if(underflow != 0 || ierr != 0) {
 		FPRINTF((stderr, "zairy( {%.3f, %.3f} ): underflow = %d   ierr = %d\n", z.real, z.imag, underflow, ierr));
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, ai.real, ai.imag);
 	}
-	GPO.EvStk.Push(&a);
+	EvStk.Push(&a);
 }
 
-void f_amos_Bi(union argument * arg)
+//void f_amos_Bi(union argument * arg)
+void GnuPlot::F_amos_Bi(union argument * arg)
 {
 	GpValue a;
 	struct cmplx z, bi;
 	int32_t id, kode, ierr;
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	id = 0; /* 0 = Bi  1 = delBi/delZ */
 	kode = 1; /* 1 = unscaled   2 = scaled */
 	if(a.type == INTGR) {
@@ -103,13 +105,13 @@ void f_amos_Bi(union argument * arg)
 	zbiry_(&z.real, &z.imag, &id, &kode, &bi.real, &bi.imag, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbiry( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, bi.real, bi.imag);
 	}
-	GPO.EvStk.Push(&a);
+	EvStk.Push(&a);
 }
 /*
  * Modified Bessel function of the second kind K_nu(z)
@@ -119,7 +121,8 @@ void f_amos_Bi(union argument * arg)
  * but we ask for only the j=0 case.
  */
 #define NJ 1
-void f_amos_BesselK(union argument * arg)
+//void f_amos_BesselK(union argument * arg)
+void GnuPlot::F_amos_BesselK(union argument * arg)
 {
 	GpValue a;
 	struct cmplx z;
@@ -127,7 +130,7 @@ void f_amos_BesselK(union argument * arg)
 	double nu;
 	int32_t kode, length, underflow, ierr;
 	/* ... unpack arguments ... */
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	if(a.type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -136,20 +139,20 @@ void f_amos_BesselK(union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(GPO.EvStk.Pop(&a));
+	nu = real(EvStk.Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
 	zbesk_(&z.real, &z.imag, &nu, &kode, &length, &Bk[0].real, &Bk[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesk( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, Bk[0].real, Bk[0].imag);
 	}
-	GPO.EvStk.Push(&a);
+	EvStk.Push(&a);
 }
 /*
  * Hankel functions of the first and second kinds
@@ -159,7 +162,8 @@ void f_amos_BesselK(union argument * arg)
  * val[j] corresponding to a sequence functions Hankel( kind, nu+j, z )
  * but we ask for only the j=0 case.
  */
-void f_amos_Hankel(int k, union argument * arg)
+//void f_amos_Hankel(int k, union argument * arg)
+void GnuPlot::F_amos_Hankel(int k, union argument * arg)
 {
 	GpValue a;
 	struct cmplx z;
@@ -167,7 +171,7 @@ void f_amos_Hankel(int k, union argument * arg)
 	double nu;
 	int32_t kode, kind, length, underflow, ierr;
 	/* ... unpack arguments ... */
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	if(a.type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -176,7 +180,7 @@ void f_amos_Hankel(int k, union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(GPO.EvStk.Pop(&a));
+	nu = real(EvStk.Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	kind = k;       /* 1 = first kind, 2 = second kind */
 	length = NJ;    /* number of members in the returned sequence of functions */
@@ -184,17 +188,17 @@ void f_amos_Hankel(int k, union argument * arg)
 	zbesh_(&z.real, &z.imag, &nu, &kode, &kind, &length, &H[0].real, &H[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesh( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, H[0].real, H[0].imag);
 	}
-	GPO.EvStk.Push(&a);
+	EvStk.Push(&a);
 }
 
-void f_Hankel1(union argument * arg) { f_amos_Hankel(1, arg); }
-void f_Hankel2(union argument * arg) { f_amos_Hankel(2, arg); }
+void GnuPlot::F_Hankel1(union argument * arg) { F_amos_Hankel(1, arg); }
+void GnuPlot::F_Hankel2(union argument * arg) { F_amos_Hankel(2, arg); }
 /*
  * Modified Bessel function of the first kind I_nu(z)
  * with complex argument z.
@@ -203,7 +207,8 @@ void f_Hankel2(union argument * arg) { f_amos_Hankel(2, arg); }
  * val[j] corresponding to a sequence functions BesselI( nu+j, z )
  * but we ask for only the j=0 case.
  */
-void f_amos_BesselI(union argument * arg)
+//void f_amos_BesselI(union argument * arg)
+void GnuPlot::F_amos_BesselI(union argument * arg)
 {
 	GpValue a;
 	struct cmplx z;
@@ -211,7 +216,7 @@ void f_amos_BesselI(union argument * arg)
 	double nu;
 	int32_t kode, length, underflow, ierr;
 	// ... unpack arguments ... 
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	if(a.type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -220,20 +225,20 @@ void f_amos_BesselI(union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(GPO.EvStk.Pop(&a));
+	nu = real(EvStk.Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	// Fortran calling conventions! 
 	zbesi_(&z.real, &z.imag, &nu, &kode, &length, &Bi[0].real, &Bi[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesi( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, Bi[0].real, Bi[0].imag);
 	}
-	GPO.EvStk.Push(&a);
+	EvStk.Push(&a);
 }
 /*
  * Modified Bessel function of the first kind J_nu(z)
@@ -243,7 +248,8 @@ void f_amos_BesselI(union argument * arg)
  * val[j] corresponding to a sequence functions BesselJ( nu+j, z )
  * but we ask for only the j=0 case.
  */
-void f_amos_BesselJ(union argument * arg)
+//void f_amos_BesselJ(union argument * arg)
+void GnuPlot::F_amos_BesselJ(union argument * arg)
 {
 	GpValue a;
 	struct cmplx z;
@@ -251,7 +257,7 @@ void f_amos_BesselJ(union argument * arg)
 	double nu;
 	int32_t kode, length, underflow, ierr;
 	/* ... unpack arguments ... */
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	if(a.type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -260,20 +266,20 @@ void f_amos_BesselJ(union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(GPO.EvStk.Pop(&a));
+	nu = real(EvStk.Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
 	zbesj_(&z.real, &z.imag, &nu, &kode, &length, &Bj[0].real, &Bj[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
 		FPRINTF((stderr, "zbesj( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr));
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, Bj[0].real, Bj[0].imag);
 	}
-	GPO.EvStk.Push(&a);
+	EvStk.Push(&a);
 }
 /*
  * Modified Bessel function of the second kind Y_nu(z)
@@ -283,7 +289,8 @@ void f_amos_BesselJ(union argument * arg)
  * val[j] corresponding to a sequence functions BesselJ( nu+j, z )
  * but we ask for only the j=0 case.
  */
-void f_amos_BesselY(union argument * arg)
+//void f_amos_BesselY(union argument * arg)
+void GnuPlot::F_amos_BesselY(union argument * arg)
 {
 	GpValue a;
 	struct cmplx z;
@@ -292,7 +299,7 @@ void f_amos_BesselY(union argument * arg)
 	double nu;
 	int32_t kode, length, underflow, ierr;
 	/* ... unpack arguments ... */
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	if(a.type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -301,20 +308,20 @@ void f_amos_BesselY(union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(GPO.EvStk.Pop(&a));
+	nu = real(EvStk.Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
 	zbesy_(&z.real, &z.imag, &nu, &kode, &length, &By[0].real, &By[0].imag, &underflow, &WorkR[0],  &WorkI[0], &ierr);
 	if(ierr != 0) {
 		fprintf(stderr, "zbesy( {%.3f, %.3f} ): ierr = %d\n", z.real, z.imag, ierr);
-		GPO.Ev.IsUndefined_ = true;
+		Ev.IsUndefined_ = true;
 		Gcomplex(&a, fgetnan(), 0.0);
 	}
 	else {
 		Gcomplex(&a, By[0].real, By[0].imag);
 	}
-	GPO.EvStk.Push(&a);
+	EvStk.Push(&a);
 }
 
 #if defined(HAVE_CEXINT) && defined(HAVE_COMPLEX_H)

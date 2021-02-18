@@ -101,7 +101,7 @@ TERM_PUBLIC void HPGL2_linewidth(GpTermEntry * pThis, double linewidth);
 TERM_PUBLIC void HPGL2_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
 TERM_PUBLIC void HPGL2_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
-TERM_PUBLIC int HPGL2_make_palette(t_sm_palette * palette);
+TERM_PUBLIC int HPGL2_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC void HPGL2_enh_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry * pThis);
@@ -1411,10 +1411,7 @@ TERM_PUBLIC void HPGL2_vector(GpTermEntry * pThis, uint x, uint y)
 		HPGL2_in_pe = TRUE;
 	}
 #if HPGL2_EXPLICIT_PD
-/*
- * Put the pen down in the current position,
- * relative vector of 0,0.
- */
+	// Put the pen down in the current position, relative vector of 0,0.
 	if(HPGL_penstate == UP) {
 		fputc((char)HPGL2_HIGH_OFFS, gpoutfile);
 		fputc((char)HPGL2_HIGH_OFFS, gpoutfile);
@@ -1471,7 +1468,6 @@ TERM_PUBLIC int HPGL_text_angle(int ang)
 TERM_PUBLIC int HPGL2_text_angle(int ang)
 {
 	HPGL2_end_poly();
-
 	while(ang < 0) {
 		ang += 360;
 	}
@@ -1583,7 +1579,7 @@ static int HPGL2_set_font_size(GpTermEntry * pThis, const char * font, double si
 	HPGL2_point_size_current = size;
 	HPGL2_is_italic = italic;
 	HPGL2_is_bold = bold;
-	pThis->ChrV = (int)HPGL_PUPI * HPGL2_point_size_current * scale / 72;
+	pThis->ChrV = static_cast<uint>(HPGL_PUPI * HPGL2_point_size_current * scale / 72);
 	pThis->ChrH = pThis->ChrV * 2 / 3;
 	fprintf(gpoutfile, "SD1,%d,2,%d,", HPGL2_map_encoding(), HPGL2_font->spacing);
 	if(HPGL2_font->spacing) {
@@ -2878,7 +2874,7 @@ TERM_PUBLIC void HPGL2_set_color(GpTermEntry * pThis, const t_colorspec * colors
 	}
 }
 
-TERM_PUBLIC int HPGL2_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int HPGL2_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	if(palette == NULL)
 		return 0;
@@ -2889,7 +2885,7 @@ TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const c
 {
 	enum JUSTIFY just = HPGL2_justification;
 	int angle = HPGL_ang;
-	char * fontname = (char*)HPGL2_font->name;
+	char * fontname = (char *)HPGL2_font->name;
 	double fontsize = HPGL2_point_size_current;
 	int pass, num_passes;
 	const char * original_str = str;
@@ -3130,7 +3126,8 @@ TERM_TABLE_START(pcl5_driver)
 	0, 
 	0,
 	#endif
-	HPGL2_make_palette, 0,     /* previous_palette */
+	HPGL2_make_palette, 
+	0, // previous_palette 
 	HPGL2_set_color,
 	HPGL2_filled_polygon,
 	NULL,     /* image */

@@ -130,7 +130,7 @@ TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	else {
 		ENHest_x = x;
 		ENHest_y = y;
-		while(*(str = enhanced_recursion(term, (char*)str, TRUE, ENHest_font, ENHest_fontsize, 0.0, TRUE, TRUE, 0))) {
+		while(*(str = enhanced_recursion(term, (char *)str, TRUE, ENHest_font, ENHest_fontsize, 0.0, TRUE, TRUE, 0))) {
 			(term->enhanced_flush)(pThis);
 			enh_err_check(str);
 			if(!*++str)
@@ -139,8 +139,8 @@ TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		ENHest_plaintext[ENHest_plaintext_pos] = '\0';
 		if(ENHest_x > 0.0 && ENHest_x < 1.0)
 			ENHest_x = 1;
-		term->MaxX = ENHest_total_width;
-		term->MaxY = 10. * (ENHest_max_height - ENHest_min_height)/ENHest_ORIG_FONTSIZE + 0.5;
+		term->MaxX = static_cast<uint>(ENHest_total_width);
+		term->MaxY = static_cast<uint>(10.0 * (ENHest_max_height - ENHest_min_height)/ENHest_ORIG_FONTSIZE + 0.5);
 	}
 }
 

@@ -387,16 +387,16 @@ static inline void byteswap(char* data, int datalen)
 char byteswap_char;
 #define byteswap1(x)
 #define byteswap2(x) \
-	byteswap_char = ((char*)x)[0]; \
-	((char*)x)[0] = ((char*)x)[1]; \
-	((char*)x)[1] = byteswap_char;
+	byteswap_char = ((char *)x)[0]; \
+	((char *)x)[0] = ((char *)x)[1]; \
+	((char *)x)[1] = byteswap_char;
 #define byteswap4(x) \
-	byteswap_char = ((char*)x)[0]; \
-	((char*)x)[0] = ((char*)x)[3]; \
-	((char*)x)[3] = byteswap_char; \
-	byteswap_char = ((char*)x)[1]; \
-	((char*)x)[1] = ((char*)x)[2]; \
-	((char*)x)[2] = byteswap_char
+	byteswap_char = ((char *)x)[0]; \
+	((char *)x)[0] = ((char *)x)[3]; \
+	((char *)x)[3] = byteswap_char; \
+	byteswap_char = ((char *)x)[1]; \
+	((char *)x)[1] = ((char *)x)[2]; \
+	((char *)x)[2] = byteswap_char
 
 static void store_command(char *, plot_struct *);
 static void prepare_plot(plot_struct *);
@@ -533,7 +533,7 @@ static char * visual_name[] = {
 	"PseudoColor",
 	"TrueColor",
 	"DirectColor",
-	(char*)0
+	(char *)0
 };
 
 static Display * dpy;
@@ -1088,7 +1088,7 @@ static void store_command(char * buffer, plot_struct * plot)
 		    ? (char**)realloc(plot->commands, plot->max_commands * sizeof(char *))
 		    : (char**)malloc(sizeof(char *));
 	}
-	p = (char*)malloc(strlen(buffer) + 1);
+	p = (char *)malloc(strlen(buffer) + 1);
 	if(!plot->commands || !p) {
 		fputs("gnuplot: can't get memory. X11 aborted.\n", stderr);
 		EXIT(1);
@@ -1305,7 +1305,7 @@ static int record()
 				    char * msg;
 				    char * added_text = " drawing ...";
 				    int orig_len = (plot->titlestring ? strlen(plot->titlestring) : 0);
-				    if(msg = (char*)malloc(orig_len + strlen(added_text) + 1)) {
+				    if(msg = (char *)malloc(orig_len + strlen(added_text) + 1)) {
 					    strcpy(msg, plot->titlestring);
 					    strcat(msg, added_text);
 					    gpXStoreName(dpy, plot->window, msg);
@@ -1445,7 +1445,7 @@ static int record()
 				    char * cp;
 				    if(current_plot->titlestring)
 					    SAlloc::F(current_plot->titlestring);
-				    if((current_plot->titlestring = (char*)malloc(strlen(buf+1) + 1) )) {
+				    if((current_plot->titlestring = (char *)malloc(strlen(buf+1) + 1) )) {
 					    strcpy(current_plot->titlestring, buf+1);
 					    cp = current_plot->titlestring;
 				    }
@@ -1493,8 +1493,8 @@ static int record()
 		    {
 			    /* Initialize variable in case short happens to be longer than two bytes. */
 			    ushort tmp = (ushort)ENDIAN_VALUE;
-			    ((char*)&tmp)[0] = buf[1];
-			    ((char*)&tmp)[1] = buf[2];
+			    ((char *)&tmp)[0] = buf[1];
+			    ((char *)&tmp)[1] = buf[2];
 			    if(tmp == (ushort)ENDIAN_VALUE) swap_endian = 0;
 			    else swap_endian = 1;
 		    }
@@ -1875,7 +1875,7 @@ static void DrawRotated(plot_struct * plot, Display * dpy, GC gc, int xdest, int
 	int dest_height = (double)width * fabs(sa) + (double)height * fabs(ca) + 2;
 	double dest_cen_x = (double)dest_width * 0.5;
 	double dest_cen_y = (double)dest_height * 0.5;
-	char* data = (char*)malloc(dest_width * dest_height * sizeof(char));
+	char* data = (char *)malloc(dest_width * dest_height * sizeof(char));
 	Pixmap pixmap_src = XCreatePixmap(dpy, root, (uint)width, (uint)height, 1);
 	XImage * image_src;
 	XImage * image_dest;
@@ -2041,44 +2041,27 @@ static void DrawRotated(plot_struct * plot, Display * dpy, GC gc, int xdest, int
 static void exec_cmd(plot_struct * plot, char * command)
 {
 	int x, y, sw, sl, sj;
-	char * buffer, * str;
-	char * strx, * stry;
-
-	buffer = command;
-	strx = buffer+1;
-
-	/* Skip the plot commands, but not the key sample commands,
-	 * if the plot was toggled off by a mouse click in the GUI
-	 */
-	if(x11_in_plot && !x11_in_key_sample
-	    &&  *command != 'Y'
-	    &&  x11_cur_plotno < plot->x11_max_key_boxes
-	    &&  plot->x11_key_boxes[x11_cur_plotno].hidden
-	    )
+	char * str;
+	char * stry;
+	char * buffer = command;
+	char * strx = buffer+1;
+	// Skip the plot commands, but not the key sample commands, if the plot was toggled off by a mouse click in the GUI
+	if(x11_in_plot && !x11_in_key_sample && *command != 'Y' && x11_cur_plotno < plot->x11_max_key_boxes && plot->x11_key_boxes[x11_cur_plotno].hidden)
 		return;
-
-	if(x11_in_key_sample &&  *command == 'Y'/* Catches TERM_LAYER_END_KEYSAMPLE */
-	    &&  x11_cur_plotno < plot->x11_max_key_boxes
-	    &&  plot->x11_key_boxes[x11_cur_plotno].hidden
-	    ) {
+	if(x11_in_key_sample && *command == 'Y'/* Catches TERM_LAYER_END_KEYSAMPLE */&& x11_cur_plotno < plot->x11_max_key_boxes && plot->x11_key_boxes[x11_cur_plotno].hidden) {
 		x11BoundingBox * box = &plot->x11_key_boxes[x11_cur_plotno];
-		/* Grey out key box */
-		if(!fill_gc)
-			fill_gc = XCreateGC(dpy, plot->window, 0, 0);
+		// Grey out key box 
+		SETIFZ(fill_gc, XCreateGC(dpy, plot->window, 0, 0));
 		XCopyGC(dpy, *current_gc, ~0, fill_gc);
 		XSetForeground(dpy, fill_gc, plot->cmap->colors[1]);
 		XSetStipple(dpy, fill_gc, stipple_dots);
 		XSetFillStyle(dpy, fill_gc, FillStippled);
-		XFillRectangle(dpy, plot->pixmap, fill_gc,
-		    box->left, box->ybot,
-		    box->right - box->left, box->ytop - box->ybot);
+		XFillRectangle(dpy, plot->pixmap, fill_gc, box->left, box->ybot, box->right - box->left, box->ytop - box->ybot);
 	}
-
 	/*   X11_vector(x, y) - draw vector  */
 	if(*buffer == 'V') {
 		x = strtol(strx, &stry, 0);
 		y = strtol(stry, NULL, 0);
-
 		if(polyline_size == 0) {
 			polyline[polyline_size].x = X(cx);
 			polyline[polyline_size].y = Y(cy);
@@ -2095,8 +2078,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 		/* Limit the number of vertices in any single polyline */
 		if(polyline_size > max_request_size) {
 			FPRINTF((stderr, "(display) dumping polyline size %d\n", polyline_size));
-			XDrawLines(dpy, plot->pixmap, *current_gc,
-			    polyline, polyline_size+1, CoordModeOrigin);
+			XDrawLines(dpy, plot->pixmap, *current_gc, polyline, polyline_size+1, CoordModeOrigin);
 			polyline_size = 0;
 		}
 		/* Toggle mechanism */
@@ -2359,7 +2341,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 	}
 	/*   X11_justify_text(mode) - set text justification mode  */
 	else if(*buffer == 'J')
-		sscanf(buffer, "J%d", (int*)&plot->jmode);
+		sscanf(buffer, "J%d", (int *)&plot->jmode);
 
 	else if(*buffer == 'A')
 		sscanf(buffer + 1, "%lf", &plot->angle);
@@ -2654,7 +2636,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 			}
 
 			if(swap_endian) {
-				byteswap((char*)&gray, sizeof(gray));
+				byteswap((char *)&gray, sizeof(gray));
 			}
 
 			PaletteSetColor(plot, (double)gray);
@@ -2703,8 +2685,8 @@ static void exec_cmd(plot_struct * plot, char * command)
 				if(!i_remaining && !transferring) {
 					/* The number of points was just read.  Now set up points array and continue. */
 					if(swap_endian) {
-						byteswap((char*)&int_cache[0], sizeof(int));
-						byteswap((char*)&int_cache[1], sizeof(int));
+						byteswap((char *)&int_cache[0], sizeof(int));
+						byteswap((char *)&int_cache[1], sizeof(int));
 					}
 					npoints = int_cache[0];
 					style = int_cache[1];
@@ -2727,14 +2709,14 @@ static void exec_cmd(plot_struct * plot, char * command)
 				int i;
 				/* points is defined as (XPoint *), but has been abused until this
 				 * point to hold raw integers.  Make a type-correct pointer to clarify this */
-				int * int_points = (int*)points;
+				int * int_points = (int *)points;
 
 				transferring = 0;
 
 				/* If the byte order needs to be swapped, do so. */
 				if(swap_endian) {
 					for(i = 2 * npoints - 1; i >= 0; i--) {
-						byteswap((char*)(int_points + i), sizeof(int));
+						byteswap((char *)(int_points + i), sizeof(int));
 					}
 				}
 
@@ -3118,7 +3100,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 
 						/* Expand or compress the original image to the pixels it will occupy on
 						   the screen. */
-						sample_data = (char*)malloc(M_view*N_view*sample_data_size);
+						sample_data = (char *)malloc(M_view*N_view*sample_data_size);
 
 						if(sample_data) {
 							XImage * image_src = NULL;
@@ -3566,7 +3548,7 @@ static void ReleaseColormap(cmap_t * cmp)
 		if(cmp->colormap && cmp->colormap != current_cmap->colormap) {
 			XFreeColormap(dpy, cmp->colormap);
 		}
-		SAlloc::F((char*)cmp);
+		SAlloc::F((char *)cmp);
 	}
 }
 
@@ -3626,7 +3608,7 @@ static void PaletteMake(t_sm_palette * tpal)
 	int max_colors;
 	int min_colors;
 #ifdef TITLE_BAR_DRAWING_MSG
-	char * save_title = (char*)0;
+	char * save_title = (char *)0;
 #endif
 	/* The information retained in a linked list is the cmap_t structure.
 	 * That colormap structure doesn't contain the palette specifications
@@ -3695,7 +3677,7 @@ static void PaletteMake(t_sm_palette * tpal)
 				char * added_text = " allocating colors ...";
 				int orig_len = (current_plot->titlestring ? strlen(current_plot->titlestring) : 0);
 				XFetchName(dpy, current_plot->window, &save_title);
-				if((msg = (char*)malloc(orig_len + strlen(added_text) + 1))) {
+				if((msg = (char *)malloc(orig_len + strlen(added_text) + 1))) {
 					if(current_plot->titlestring)
 						strcpy(msg, current_plot->titlestring);
 					else
@@ -5089,7 +5071,7 @@ gnuplot: X11 aborted.\n", Argv[1]);
 #endif
 	}
 	if(pr_GetR(dbCmd, ".display"))
-		ldisplay = (char*)value.addr;
+		ldisplay = (char *)value.addr;
 
 /*---open display---------------------------------------------------------*/
 
@@ -5175,7 +5157,7 @@ gnuplot: X11 aborted.\n", ldisplay);
 /*---set geometry, font, colors, line widths, dash styles, point size-----*/
 
 	/* a specific visual can be forced by the X resource visual */
-	db_string = pr_GetR(db, ".visual") ? (char*)value.addr : (char*)0;
+	db_string = pr_GetR(db, ".visual") ? (char *)value.addr : (char *)0;
 	if(db_string) {
 		Visual * visual = (Visual*)0;
 		int depth = (int)0;
@@ -5223,7 +5205,7 @@ gnuplot: X11 aborted.\n", ldisplay);
 	}
 
 	/* check database for maxcolors */
-	db_string = pr_GetR(db, ".maxcolors") ? (char*)value.addr : (char*)0;
+	db_string = pr_GetR(db, ".maxcolors") ? (char *)value.addr : (char *)0;
 	if(db_string) {
 		int itmp;
 		if(sscanf(db_string, "%d", &itmp)) {
@@ -5245,7 +5227,7 @@ gnuplot: X11 aborted.\n", ldisplay);
 	/* setting a default for minimal_possible_colors */
 	minimal_possible_colors = maximal_possible_colors / (num_colormaps > 1 ? 2 : 8); /* 0x20 / 30 */
 	/* check database for mincolors */
-	db_string = pr_GetR(db, ".mincolors") ? (char*)value.addr : (char*)0;
+	db_string = pr_GetR(db, ".mincolors") ? (char *)value.addr : (char *)0;
 	if(db_string) {
 		int itmp;
 		if(sscanf(db_string, "%d", &itmp)) {
@@ -5295,7 +5277,7 @@ static char * pr_GetR(XrmDatabase xrdb, char * resource)
 	strcat(name, resource);
 	strcpy(class, X_Class);
 	strcat(class, resource);
-	rc = XrmGetResource(xrdb, name, class, type, &value) ? (char*)value.addr : (char*)0;
+	rc = XrmGetResource(xrdb, name, class, type, &value) ? (char *)value.addr : (char *)0;
 	return (rc);
 }
 
@@ -5359,7 +5341,7 @@ static void pr_color(cmap_t * cmap_ptr)
 			strcat(option, color_keys[n]);
 			if(n > 1)
 				strcat(option, ctype);
-			v = pr_GetR(db, option) ? (char*)value.addr
+			v = pr_GetR(db, option) ? (char *)value.addr
 			    : ((Gray) ? gray_values[n]
 			    : (Rv ? color_values_rv[n] : color_values[n]));
 
@@ -5446,7 +5428,7 @@ static void pr_dashes()
 		strcat(option, dash_keys[n]);
 		strcat(option, "Dashes");
 		v = pr_GetR(db, option)
-		    ? (char*)value.addr : ((Mono) ? dash_mono[n] : dash_color[n]);
+		    ? (char *)value.addr : ((Mono) ? dash_mono[n] : dash_color[n]);
 		l = MIN(strlen(v), DASHPATTERN_LENGTH);
 		if(l == 1 && *v == '0') {
 			/* "0" solid line */
@@ -6068,7 +6050,7 @@ static void pr_geometry(char * instr)
 static void pr_pointsize()
 {
 	if(pr_GetR(db, ".pointsize")) {
-		if(sscanf((char*)value.addr, "%lf", &pointsize) == 1) {
+		if(sscanf((char *)value.addr, "%lf", &pointsize) == 1) {
 			if(pointsize <= 0 || pointsize > 10) {
 				fprintf(stderr, "\ngnuplot: invalid pointsize '%s'\n", value.addr);
 				pointsize = 1;
@@ -6246,7 +6228,7 @@ static void pr_window(plot_struct * plot)
 			orig_len = strlen(title);
 			/* memory for text, white space, number and terminating \0 */
 			if((plot->titlestring =
-			    (char*)malloc(orig_len +
+			    (char *)malloc(orig_len +
 			    ((orig_len && (plot->plot_number > 0)) ? 1 : 0) + strlen(numstr) - strlen(ICON_TEXT) + 1))) {
 				strcpy(plot->titlestring, title);
 				if(orig_len && (plot->plot_number > 0))
@@ -6320,7 +6302,7 @@ static void pr_exportselection()
 {
 	/* Allow export selection to be turned on or off using X resource *exportselection */
 	if(pr_GetR(db, ".exportselection")) {
-		if(!strncmp((char*)value.addr, "off", 3) || !strncmp((char*)value.addr, "false", 5)) {
+		if(!strncmp((char *)value.addr, "off", 3) || !strncmp((char *)value.addr, "false", 5)) {
 			exportselection = FALSE;
 			FPRINTF((stderr, "gnuplot_x11: exportselection is disabled\n"));
 		}

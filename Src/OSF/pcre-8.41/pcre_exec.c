@@ -155,10 +155,10 @@ static void pchars(const pcre_uchar * p, int length, BOOL is_subject, match_data
               -2 partial match; always given if at end subject
  */
 
-static int match_ref(int offset, register PCRE_PUCHAR eptr, int length, match_data * md, BOOL caseless)
+static int match_ref(int offset, PCRE_PUCHAR eptr, int length, match_data * md, BOOL caseless)
 {
 	PCRE_PUCHAR eptr_start = eptr;
-	register PCRE_PUCHAR p = md->start_subject + md->offset_vector[offset];
+	PCRE_PUCHAR p = md->start_subject + md->offset_vector[offset];
 #if defined SUPPORT_UTF && defined SUPPORT_UCP
 	BOOL utf = md->utf;
 #endif
@@ -298,7 +298,7 @@ enum { RM1 = 1, RM2,  RM3,  RM4,  RM5,  RM6,  RM7,  RM8,  RM9,  RM10,
    actually used in this definition. */
 
 #ifndef NO_RECURSE
-#define REGISTER register
+#define REGISTER // register
 
 #ifdef PCRE_DEBUG
 #define RMATCH(ra, rb, rc, rd, re, rw) \
@@ -476,11 +476,10 @@ static int match(REGISTER PCRE_PUCHAR eptr, REGISTER const pcre_uchar * ecode,
    so they can be ordinary variables in all cases. Mark some of them with
    "register" because they are used a lot in loops. */
 
-	register int rrc;  /* Returns from recursive calls */
-	register int i;    /* Used for loops not involving calls to RMATCH() */
-	register uint32 c; /* Character values not kept over RMATCH() calls */
-	register BOOL utf; /* Local copy of UTF flag for speed */
-
+	int rrc;  /* Returns from recursive calls */
+	int i;    /* Used for loops not involving calls to RMATCH() */
+	uint32 c; /* Character values not kept over RMATCH() calls */
+	BOOL utf; /* Local copy of UTF flag for speed */
 	BOOL minimize, possessive; /* Quantifier options */
 	BOOL caseless;
 	int condcode;
@@ -1373,9 +1372,10 @@ POSSESSIVE_NON_CAPTURE:
 			               unset and then update the high water mark. */
 
 				    if(offset >= offset_top) {
-					    register int * iptr = md->offset_vector + offset_top;
-					    register int * iend = md->offset_vector + offset;
-					    while(iptr < iend) *iptr++ = -1;
+					    int * iptr = md->offset_vector + offset_top;
+					    int * iend = md->offset_vector + offset;
+					    while(iptr < iend) 
+							*iptr++ = -1;
 					    offset_top = offset + 2;
 				    }
 			    }
@@ -1861,13 +1861,12 @@ RECURSION_MATCHED:
 			                       problem, because offset_top will then be 2, indicating no capture.) */
 
 					    if(offset > offset_top) {
-						    register int * iptr = md->offset_vector + offset_top;
-						    register int * iend = md->offset_vector + offset;
-						    while(iptr < iend) *iptr++ = -1;
+						    int * iptr = md->offset_vector + offset_top;
+						    int * iend = md->offset_vector + offset;
+						    while(iptr < iend) 
+								*iptr++ = -1;
 					    }
-
 			                    /* Now make the extraction */
-
 					    md->offset_vector[offset] =
 					    md->offset_vector[md->offset_end - number];
 					    md->offset_vector[offset+1] = (int)(eptr - md->start_subject);
@@ -2614,7 +2613,6 @@ REF_REPEAT:
 			    /* First, ensure the minimum number of matches are present. We get back
 			       the length of the reference string explicitly rather than passing the
 			       address of eptr, so that eptr can be a register variable. */
-
 			    for(i = 1; i <= min; i++) {
 				    int slength;
 				    if((slength = match_ref(offset, eptr, length, md, caseless)) < 0) {
@@ -3404,12 +3402,10 @@ REPEATCHAR:
 			    }
 #ifdef SUPPORT_UTF
 			    if(utf) {
-				    register uint32 ch, och;
-
+				    uint32 ch, och;
 				    ecode++;
 				    GETCHARINC(ch, ecode);
 				    GETCHARINC(c, eptr);
-
 				    if(op == OP_NOT) {
 					    if(ch == c) RRETURN(MATCH_NOMATCH);
 				    }
@@ -3429,7 +3425,7 @@ REPEATCHAR:
 			    else
 #endif
 			    {
-				    register uint32 ch = ecode[1];
+				    uint32 ch = ecode[1];
 				    c = *eptr++;
 				    if(ch == c || (op == OP_NOTI && TABLE_GET(ch, md->fcc, ch) == c))
 					    RRETURN(MATCH_NOMATCH);
@@ -3541,7 +3537,7 @@ REPEATNOTCHAR:
 
 #ifdef SUPPORT_UTF
 				    if(utf) {
-					    register uint32 d;
+					    uint32 d;
 					    for(i = 1; i <= min; i++) {
 						    if(eptr >= md->end_subject) {
 							    SCHECK_PARTIAL();
@@ -3570,7 +3566,7 @@ REPEATNOTCHAR:
 				    if(minimize) {
 #ifdef SUPPORT_UTF
 					    if(utf) {
-						    register uint32 d;
+						    uint32 d;
 						    for(fi = min;; fi++) {
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM28);
 							    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -3609,7 +3605,7 @@ REPEATNOTCHAR:
 
 #ifdef SUPPORT_UTF
 					    if(utf) {
-						    register uint32 d;
+						    uint32 d;
 						    for(i = min; i < max; i++) {
 							    int len = 1;
 							    if(eptr >= md->end_subject) {
@@ -3658,7 +3654,7 @@ REPEATNOTCHAR:
 			    else {
 #ifdef SUPPORT_UTF
 				    if(utf) {
-					    register uint32 d;
+					    uint32 d;
 					    for(i = 1; i <= min; i++) {
 						    if(eptr >= md->end_subject) {
 							    SCHECK_PARTIAL();
@@ -3686,7 +3682,7 @@ REPEATNOTCHAR:
 				    if(minimize) {
 #ifdef SUPPORT_UTF
 					    if(utf) {
-						    register uint32 d;
+						    uint32 d;
 						    for(fi = min;; fi++) {
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM32);
 							    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -3724,7 +3720,7 @@ REPEATNOTCHAR:
 
 #ifdef SUPPORT_UTF
 					    if(utf) {
-						    register uint32 d;
+						    uint32 d;
 						    for(i = min; i < max; i++) {
 							    int len = 1;
 							    if(eptr >= md->end_subject) {
@@ -6101,8 +6097,8 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_exec(const pcre32 * argument_re, c
 	   offsets for the matched string. This is really just for tidiness with callouts,
 	   in case they inspect these fields. */
 	if(md->offset_vector) {
-		register int * iptr = md->offset_vector + ocount;
-		register int * iend = iptr - re->top_bracket;
+		int * iptr = md->offset_vector + ocount;
+		int * iend = iptr - re->top_bracket;
 		if(iend < md->offset_vector + 2) iend = md->offset_vector + 2;
 		while(--iptr >= iend) *iptr = -1;
 		if(offsetcount > 0) md->offset_vector[0] = -1;
@@ -6218,7 +6214,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_exec(const pcre32 * argument_re, c
 			// Or to a non-unique first byte after study 
 			else if(start_bits) {
 				while(start_match < end_subject) {
-					register uint32 c = UCHAR21TEST(start_match);
+					uint32 c = UCHAR21TEST(start_match);
 #ifndef COMPILE_PCRE8
 					if(c > 255) c = 255;
 #endif
@@ -6252,12 +6248,12 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_exec(const pcre32 * argument_re, c
                 This showed up when somebody was matching something like /^\d+C/ on a
                 32-megabyte string... so we don't do this when the string is sufficiently long. */
 			if(has_req_char && end_subject - start_match < REQ_BYTE_MAX) {
-				register PCRE_PUCHAR p = start_match + (has_first_char ? 1 : 0);
+				PCRE_PUCHAR p = start_match + (has_first_char ? 1 : 0);
 				// We don't need to repeat the search if we haven't yet reached the place we found it at last time. 
 				if(p > req_char_ptr) {
 					if(req_char != req_char2) {
 						while(p < end_subject) {
-							register uint32 pp = UCHAR21INCTEST(p);
+							uint32 pp = UCHAR21INCTEST(p);
 							if(pp == req_char || pp == req_char2) {
 								p--; break;
 							}
@@ -6421,7 +6417,7 @@ ENDLOOP:
             the start of the whole thing because they may get set in one branch that is
             not the final matching branch. */
 		if(md->end_offset_top/2 <= re->top_bracket && offsets) {
-			register int * iptr, * iend;
+			int * iptr, * iend;
 			int resetcount = 2 + re->top_bracket * 2;
 			if(resetcount > offsetcount) 
 				resetcount = offsetcount;

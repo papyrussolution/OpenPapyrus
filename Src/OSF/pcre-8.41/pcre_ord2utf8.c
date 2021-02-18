@@ -61,7 +61,7 @@
 uint PRIV(ord2utf) (uint32 cvalue, pcre_uchar *buffer)
 {
 #ifdef SUPPORT_UTF
-	register int i, j;
+	int i, j;
 	for(i = 0; i < PRIV(utf8_table1_size); i++)
 		if((int)cvalue <= PRIV(utf8_table1)[i]) break;
 	buffer += i;

@@ -756,9 +756,7 @@ public:
 					HereDoc.Indent = false;
 				}
 			}
-			else if(sc.ch == '-' &&         // one-char file test operators
-			    setSingleCharOp.Contains(sc.chNext) && !setWord.Contains(sc.GetRelative(2)) &&
-			    IsASpace(sc.chPrev)) {
+			else if(sc.ch == '-' && setSingleCharOp.Contains(sc.chNext) && !setWord.Contains(sc.GetRelative(2)) && IsASpace(sc.chPrev)) { // one-char file test operators
 				sc.SetState(SCE_SH_WORD);
 				sc.Forward();
 			}

@@ -59,7 +59,7 @@ void DUMB_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int hea
 	#define ENHdumb_put_text NULL
 #endif
 #ifndef NO_DUMB_COLOR_SUPPORT
-	int  DUMB_make_palette(t_sm_palette * palette);
+	int  DUMB_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 	void DUMB_set_color(GpTermEntry * pThis, const t_colorspec *);
 #endif
 //#endif // TERM_PROTO 
@@ -82,8 +82,8 @@ int  PS_set_font(GpTermEntry * pThis, const char * font);
 void PS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 void PS_linewidth(GpTermEntry * pThis, double linewidth); /* JFi [linewidth] */
 void PS_pointsize(double ptsize); /* JFi [pointsize] */
-int  PS_make_palette(t_sm_palette *);
-void PS_previous_palette();
+int  PS_make_palette(GpTermEntry * pThis, t_sm_palette *);
+void PS_previous_palette(GpTermEntry * pThis);
 void PS_set_color(GpTermEntry * pThis, const t_colorspec *);
 void PS_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 void PS_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);

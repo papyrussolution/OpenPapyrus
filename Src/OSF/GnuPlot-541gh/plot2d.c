@@ -6,24 +6,10 @@
 //
 // static prototypes 
 //
-//static int get_data(curve_points *);
-//static void store2d_point(curve_points *, int i, double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width);
-//static void eval_plots();
-//static void parametric_fixup(curve_points * start_plot, int * plot_num);
-//static void box_range_fiddling(const curve_points * pPlot);
-//static void boxplot_range_fiddling(curve_points * plot);
-//static void spiderplot_range_fiddling(curve_points * plot);
-//static void histogram_range_fiddling(curve_points * plot);
-//static void impulse_range_fiddling(const curve_points * plot);
-//static void parallel_range_fiddling(curve_points * plot);
 static int check_or_add_boxplot_factor(curve_points * plot, char* string, double x);
 static void add_tics_boxplot_factors(curve_points * plot);
-//static void parse_kdensity_options(curve_points * this_plot);
 
-/* internal and external variables */
-
-/* the curves/surfaces of the plot */
-curve_points * P_FirstPlot = NULL;
+curve_points * P_FirstPlot = NULL; // the curves/surfaces of the plot 
 static udft_entry plot_func;
 static double histogram_rightmost = 0.0; // Highest x-coord of histogram so far 
 static text_label histogram_title;       // Subtitle for this histogram 
@@ -47,23 +33,23 @@ static int n_complex_values = 0;
  */
 void cp_extend(curve_points * cp, int num)
 {
-	if(num == cp->p_max)
-		return;
-	if(num > 0) {
-		cp->points = (GpCoordinate *)gp_realloc(cp->points, num * sizeof(cp->points[0]), "expanding 2D points");
-		if(cp->varcolor)
-			cp->varcolor = (double *)gp_realloc(cp->varcolor, num * sizeof(double), "expanding curve variable colors");
-		cp->p_max = num;
-		cp->p_max -= 1; // Set trigger point for reallocation ahead of	
-			// true end in case two slots are used at once (e.g. redundant final point of closed curve)	
-	}
-	else {
-		// FIXME: Does this ever happen?  Should it call cp_free() instead? 
-		ZFREE(cp->points);
-		cp->p_max = 0;
-		ZFREE(cp->varcolor);
-		free_labels(cp->labels);
-		cp->labels = NULL;
+	if(num != cp->p_max) {
+		if(num > 0) {
+			cp->points = (GpCoordinate *)gp_realloc(cp->points, num * sizeof(cp->points[0]), "expanding 2D points");
+			if(cp->varcolor)
+				cp->varcolor = (double *)gp_realloc(cp->varcolor, num * sizeof(double), "expanding curve variable colors");
+			cp->p_max = num;
+			cp->p_max -= 1; // Set trigger point for reallocation ahead of	
+				// true end in case two slots are used at once (e.g. redundant final point of closed curve)	
+		}
+		else {
+			// FIXME: Does this ever happen?  Should it call cp_free() instead? 
+			ZFREE(cp->points);
+			cp->p_max = 0;
+			ZFREE(cp->varcolor);
+			free_labels(cp->labels);
+			cp->labels = NULL;
+		}
 	}
 }
 // 
@@ -104,7 +90,7 @@ void GnuPlot::PlotRequest(GpTermEntry * pTerm)
 		GpAxis * secondary = &AxS[axis];
 		if(axis == SAMPLE_AXIS)
 			continue;
-		if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -secondary->index) {
+		if(secondary->linked_to_primary && secondary->linked_to_primary->index == -secondary->index) {
 			GpAxis * primary = secondary->linked_to_primary;
 			primary->set_autoscale = secondary->set_autoscale;
 			axis_init(primary, 1);
@@ -652,8 +638,8 @@ int GnuPlot::GetData(curve_points * pPlot)
 				    weight = v[var++];
 			    if(var_pt == PT_VARIABLE) {
 				    if(isnan(v[var]) && df_tokens[var]) {
-					    safe_strncpy( (char*)(&var_char), df_tokens[var], sizeof(coordval));
-					    truncate_to_one_utf8_char((char*)(&var_char));
+					    safe_strncpy( (char *)(&var_char), df_tokens[var], sizeof(coordval));
+					    truncate_to_one_utf8_char((char *)(&var_char));
 				    }
 				    var_pt = v[var++];
 			    }
@@ -1632,7 +1618,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 	char * xtitle = NULL;
 	int    begin_token = Pgm.GetCurTokenIdx(); /* so we can rewind for second pass */
 	int    start_token = 0, end_token;
-	legend_key * key = &keyT;
+	legend_key * key = &Gg.KeyT;
 	char   orig_dummy_var[MAX_ID_LEN+1];
 	int    nbins = 0;
 	double binlow = 0.0;
@@ -1795,7 +1781,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					IntErrorCurToken("previous parametric function not fully specified");
 				if(sample_range_token !=0 && *name_str != '+')
 					IntWarn(sample_range_token, "Ignoring sample range in non-sampled data plot");
-				if(*name_str == '$' && !get_datablock(name_str))
+				if(*name_str == '$' && !GetDatablock(name_str))
 					IntError(Pgm.GetPrevTokenIdx(), "cannot plot voxel data");
 				if(*tp_ptr)
 					p_plot = *tp_ptr;
@@ -2291,14 +2277,11 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 			// If we got this far without initializing the fill style, do it now 
 			if(p_plot->plot_style & PLOT_STYLE_HAS_FILL) {
 				if(!set_fillstyle) {
-					if(p_plot->plot_style == SPIDERPLOT)
-						p_plot->fill_properties = Gg.SpiderPlotStyle.fillstyle;
-					else
-						p_plot->fill_properties = default_fillstyle;
+					p_plot->fill_properties = (p_plot->plot_style == SPIDERPLOT) ? Gg.SpiderPlotStyle.fillstyle : default_fillstyle;
 					p_plot->fill_properties.fillpattern = pattern_num;
 					ParseFillStyle(&p_plot->fill_properties);
 				}
-				if((p_plot->fill_properties.fillstyle == FS_PATTERN) ||(p_plot->fill_properties.fillstyle == FS_TRANSPARENT_PATTERN))
+				if(oneof2(p_plot->fill_properties.fillstyle, FS_PATTERN, FS_TRANSPARENT_PATTERN))
 					pattern_num = p_plot->fill_properties.fillpattern + 1;
 				if(p_plot->plot_style == FILLEDCURVES && p_plot->fill_properties.fillstyle == FS_EMPTY)
 					p_plot->fill_properties.fillstyle = FS_SOLID;
@@ -3129,7 +3112,7 @@ void GnuPlot::ParseKDensityOptions(curve_points * pPlot)
 //void parse_plot_title(curve_points * this_plot, char * xtitle, char * ytitle, bool * set_title)
 void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitle, bool * pSetTitle)
 {
-	legend_key * key = &keyT;
+	legend_key * key = &Gg.KeyT;
 	if(Pgm.AlmostEqualsCur("t$itle") || Pgm.AlmostEqualsCur("not$itle")) {
 		if(*pSetTitle)
 			IntErrorCurToken("duplicate title");
@@ -3257,7 +3240,7 @@ void reevaluate_plot_title(curve_points * pPlot)
 			SAlloc::F(pPlot->title);
 			pPlot->title = a.v.string_val;
 			// Special case where the "title" is used as a tic label 
-			if(pPlot->plot_style == HISTOGRAMS &&  histogram_opts.type == HT_STACKED_IN_TOWERS) {
+			if(pPlot->plot_style == HISTOGRAMS && histogram_opts.type == HT_STACKED_IN_TOWERS) {
 				double xpos = pPlot->histogram_sequence + pPlot->histogram->start;
 				add_tic_user(&GPO.AxS[FIRST_X_AXIS], pPlot->title, xpos, -1);
 			}

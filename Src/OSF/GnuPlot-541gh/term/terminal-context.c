@@ -108,7 +108,7 @@ TERM_PUBLIC void CONTEXT_pointsize(double pointsize);
 TERM_PUBLIC void CONTEXT_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height); // clear part of multiplot
 TERM_PUBLIC void CONTEXT_fill(int style);
 TERM_PUBLIC void CONTEXT_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC int CONTEXT_make_palette(t_sm_palette * palette);
+TERM_PUBLIC int CONTEXT_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 /* TERM_PUBLIC void CONTEXT_previous_palette(); do we need it? */
 TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
@@ -689,7 +689,7 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 			/* it would also be very nice to do some sanity checks on filenames */
 
 			/* <name>.xx.png; must be at least 7 characters long */
-			CONTEXT_image_filename = (char*)gp_alloc(CONTEXT_image_filename_length + 10, "ConTeXt image filename");
+			CONTEXT_image_filename = (char *)gp_alloc(CONTEXT_image_filename_length + 10, "ConTeXt image filename");
 			strncpy(CONTEXT_image_filename, outstr, CONTEXT_image_filename_length);
 			CONTEXT_image_filename[CONTEXT_image_filename_length] = 0;
 		}
@@ -697,7 +697,7 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 			CONTEXT_image_filename_length = strlen("gp_image");
 			CONTEXT_image_filename_start  = 0;
 			/* <name>.xx.png; must be at least 7 characters long */
-			CONTEXT_image_filename = (char*)gp_alloc(CONTEXT_image_filename_length + 10, "ConTeXt image filename");
+			CONTEXT_image_filename = (char *)gp_alloc(CONTEXT_image_filename_length + 10, "ConTeXt image filename");
 			strncpy(CONTEXT_image_filename, "gp_image", CONTEXT_image_filename_length);
 			CONTEXT_image_filename[CONTEXT_image_filename_length] = 0;
 		}
@@ -1236,7 +1236,7 @@ TERM_PUBLIC int CONTEXT_set_font(GpTermEntry * pThis, const char * font)
 {
 	char tmp_fontstring[MAX_ID_LEN+1] = "";
 	// saves font name & family to CONTEXT_font 
-	CONTEXT_fontstring_parse((char*)font, CONTEXT_font, sizeof(CONTEXT_font), &CONTEXT_fontsize_explicit);
+	CONTEXT_fontstring_parse((char *)font, CONTEXT_font, sizeof(CONTEXT_font), &CONTEXT_fontsize_explicit);
 	safe_strncpy(CONTEXT_font_explicit, CONTEXT_font, sizeof(CONTEXT_font_explicit));
 	// valid fontsize has been provided 
 	if(CONTEXT_fontsize_explicit > 0.) {  /* XXX: if valid */
@@ -1479,14 +1479,12 @@ static void CONTEXT_write_palette(t_sm_palette * palette)
  * 3. available: some negative values of max_colors for whatever
  *    can be useful
  */
-TERM_PUBLIC int CONTEXT_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int CONTEXT_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	if(palette == NULL)
-		return 0;  /* ConTeXt can do continuous colors */
-
-	/* save the palette */
+		return 0; // ConTeXt can do continuous colors 
+	// save the palette 
 	CONTEXT_old_palette = palette;
-
 	return 0;
 }
 

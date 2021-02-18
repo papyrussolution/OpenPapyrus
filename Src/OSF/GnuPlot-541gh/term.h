@@ -186,11 +186,11 @@
 	#define EMTEX
 	#define EEPIC
 	#define OLD_LATEX_TERMINAL
-	#include "latex.trm"    /* latex and emtex */
-	#include "eepic.trm"    /* EEPIC-extended LaTeX driver */
-	#include "tpic.trm"     /* TPIC specials for TeX */
+	#include "latex.trm" // latex and emtex 
+	#include "eepic.trm" // EEPIC-extended LaTeX driver 
+	#include "tpic.trm"  // TPIC specials for TeX 
 #else
-	//#include "latex_old.h" /* deprecation notice for docs */
+	//#include "latex_old.h" // deprecation notice for docs 
 	// 
 	// This section is added to the user manual in place of the 
 	// terminal descriptions for latex emtex eepic and tpic if these
@@ -249,7 +249,7 @@
 	//#include "cairo.trm"
 #endif
 #ifdef HAVE_WEBP
-	#include "webp.trm" /* webp must come after cairo */
+	#include "webp.trm" // webp must come after cairo 
 #endif
 #ifdef HAVE_LUA
 	//#include "lua.trm"

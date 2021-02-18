@@ -110,8 +110,8 @@ static HP26_Buffer_Node * BN_create(int index, int size, int linetype)
 		the_node->linetype = linetype;
 		the_node->size = size;
 		the_node->next = 0;
-		the_node->x = (int*)gp_alloc(size*sizeof(int), "HP26");
-		the_node->y = (int*)gp_alloc(size*sizeof(int), "HP26");
+		the_node->x = (int *)gp_alloc(size*sizeof(int), "HP26");
+		the_node->y = (int *)gp_alloc(size*sizeof(int), "HP26");
 		the_node->isa_move = (bool*)gp_alloc(size*sizeof(bool), "HP26");
 		if(the_node->x == NULL || the_node->y == NULL || the_node->isa_move == NULL)
 			return (NULL);

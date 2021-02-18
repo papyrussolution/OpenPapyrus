@@ -9,7 +9,6 @@
 #ifdef HAVE_FENV_H
 	#include <fenv.h>
 #endif
-
 /*
  * Various complex functions like cexp may set errno on underflow
  * We would prefer to return 0.0 rather than NaN
@@ -62,25 +61,25 @@ double igamma(double a, double z)
  * Complex Sign function
  * Sign(z) = z/|z| for z non-zero
  */
-void f_Sign(union argument * arg)
+//void f_Sign(union argument * arg)
+void GnuPlot::F_Sign(union argument * arg)
 {
 	GpValue result;
 	GpValue a;
 	_Dcomplex z;
-	GPO.EvStk.Pop(&a); /* Complex argument z */
+	EvStk.Pop(&a); /* Complex argument z */
 	if(a.type == INTGR) {
-		GPO.EvStk.Push(Gcomplex(&result, sgn(a.v.int_val), 0.0));
+		EvStk.Push(Gcomplex(&result, sgn(a.v.int_val), 0.0));
 	}
 	else if(a.type == CMPLX) {
 		z = a.v.cmplx_val.real + I*a.v.cmplx_val.imag;
 		if(z != 0.0)
 			z = z/cabs(z);
-		GPO.EvStk.Push(Gcomplex(&result, creal(z), cimag(z)));
+		EvStk.Push(Gcomplex(&result, creal(z), cimag(z)));
 	}
 	else
-		GPO.IntError(NO_CARET, "z must be numeric");
+		IntError(NO_CARET, "z must be numeric");
 }
-
 /*
  * Lambert W function for complex numbers
  *
@@ -101,26 +100,26 @@ void f_Sign(union argument * arg)
 _Dcomplex lambert_initial(_Dcomplex z, int k);
 _Dcomplex LambertW(_Dcomplex z, int k);
 
-void f_LambertW(union argument * arg)
+//void f_LambertW(union argument * arg)
+void GnuPlot::F_LambertW(union argument * arg)
 {
 	GpValue result;
 	GpValue a;
 	struct cmplx z; /* gnuplot complex parameter z */
 	int k;          /* gnuplot integer parameter k */
 	_Dcomplex w; /* C99 _Complex representation */
-	GPO.EvStk.Pop(&a);        /* Integer argument k */
+	EvStk.Pop(&a);        /* Integer argument k */
 	if(a.type != INTGR)
-		GPO.IntError(NO_CARET, "k must be integer");
+		IntError(NO_CARET, "k must be integer");
 	k = a.v.int_val;
-	GPO.EvStk.Pop(&a);        /* Complex argument z */
+	EvStk.Pop(&a);        /* Complex argument z */
 	if(a.type != CMPLX)
-		GPO.IntError(NO_CARET, "z must be real or complex");
+		IntError(NO_CARET, "z must be real or complex");
 	z = a.v.cmplx_val;
 	w = z.real + I*z.imag;
 	w = LambertW(w, k);
-	GPO.EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
+	EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
 }
-
 /*
  * First and second derivatives for z * e^z
  * dzexpz( z )  = first derivative of ze^z = e^z + ze^z
@@ -128,7 +127,6 @@ void f_LambertW(union argument * arg)
  */
 #define dzexpz(z)  (cexp(z) + z * cexp(z))
 #define ddzexpz(z) (2. * cexp(z) + z * cexp(z))
-
 /*
  * The hard part is choosing a starting point
  * since Halley's method does not have a large radius of convergence
@@ -146,10 +144,8 @@ _Dcomplex lambert_initial(_Dcomplex z, int k)
 	double case1_window = 1.2; /* see note above, was 1.0 */
 	double case2_window = 0.9; /* see note above, was 1.0 */
 	double case3_window = 0.5; /* see note above, was 0.5 */
-
-	/* Initial term of Eq (4.20) from Corless et al */
+	// Initial term of Eq (4.20) from Corless et al 
 	ip = clog(z) + branch - clog(clog(z) + branch);
-
 	/* Close to a branch point use (4.22) from Corless et al */
 	close = cabs(z - (-1/e));
 	if(close <= case1_window) {
@@ -196,7 +192,7 @@ _Dcomplex LambertW(_Dcomplex z, int k)
 	int i;          /* iteration variable */
 	double residual; /* target for convergence */
 	_Dcomplex w;
-	/* Special cases */
+	// Special cases 
 	if(z == 0) {
 		return (k == 0) ? 0.0 : fgetnan();
 	}
@@ -240,23 +236,22 @@ _Dcomplex LambertW(_Dcomplex z, int k)
  * J. Spouge,  SIAM JNA 31, 1994. pp. 931.
  * W. Press et al, "Numerical Recipes" Section 6.1.
  */
-
-void f_lnGamma(union argument * arg)
+//void f_lnGamma(union argument * arg)
+void GnuPlot::F_lnGamma(union argument * arg)
 {
 	GpValue result;
 	GpValue a;
 	struct cmplx z; /* gnuplot complex parameter z */
 	_Dcomplex w; /* C99 _Complex representation of z */
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	if(a.type != CMPLX)
-		GPO.IntError(NO_CARET, "z must be real or complex");
+		IntError(NO_CARET, "z must be real or complex");
 	z = a.v.cmplx_val;
 	/* Negative integers are pole points */
-	if(z.real < 0 && fabs(z.imag) < FLT_EPSILON &&  fabs(z.real - round(z.real)) < FLT_EPSILON) {
-		GPO.EvStk.Push(Gcomplex(&result, VERYLARGE, 0.0));
+	if(z.real < 0 && fabs(z.imag) < FLT_EPSILON && fabs(z.real - round(z.real)) < FLT_EPSILON) {
+		EvStk.Push(Gcomplex(&result, VERYLARGE, 0.0));
 		return;
 	}
-
 	/* The Lancosz approximation is valid on the half-plane with Real(z) > 0.
 	 * To deal with z for which Real(z) < 0 we use the equivalence
 	 *     Gamma(1-z) = (pi*z) / ( Gamma(1+z) * sin(pi*z) )
@@ -275,12 +270,12 @@ void f_lnGamma(union argument * arg)
 		 * other than the discontinuity at the negative real axis
 		 */
 		timag += sgn(z.imag) * 2 * M_PI * floor((z.real+0.5)/2.);
-		GPO.EvStk.Push(Gcomplex(&result, treal, timag));
+		EvStk.Push(Gcomplex(&result, treal, timag));
 	}
 	else {
 		w = z.real + I*z.imag;
 		w = lnGamma(w);
-		GPO.EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
+		EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
 	}
 }
 
@@ -321,21 +316,22 @@ static _Dcomplex lnGamma(_Dcomplex z)
 #define IGAMMA_PRECISION 1.E-14
 #define MAXLOG 708.396418532264106224   /* log(2**1022) */
 
-void f_Igamma(union argument * arg)
+//void f_Igamma(union argument * arg)
+void GnuPlot::F_IGamma(union argument * arg)
 {
 	GpValue result;
 	GpValue tmp;
 	struct cmplx a; // gnuplot complex parameter a 
 	struct cmplx z; // gnuplot complex parameter z 
 	_Dcomplex w; // C99 _Complex representation 
-	GPO.EvStk.Pop(&tmp);              /* Complex argument z */
+	EvStk.Pop(&tmp);              /* Complex argument z */
 	if(tmp.type == CMPLX)
 		z = tmp.v.cmplx_val;
 	else {
 		z.real = real(&tmp);
 		z.imag = 0;
 	}
-	GPO.EvStk.Pop(&tmp);              /* Complex argument a */
+	EvStk.Pop(&tmp);              /* Complex argument a */
 	if(tmp.type == CMPLX)
 		a = tmp.v.cmplx_val;
 	else {
@@ -345,12 +341,11 @@ void f_Igamma(union argument * arg)
 	w = Igamma(a.real + I * a.imag, z.real + I * z.imag);
 	if(w == -1) {
 		/* Failed to converge or other error */
-		GPO.EvStk.Push(Gcomplex(&result, fgetnan(), 0));
+		EvStk.Push(Gcomplex(&result, fgetnan(), 0));
 		return;
 	}
-	GPO.EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
+	EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
 }
-
 /*   Igamma(a, z)
  *   lower incomplete gamma function P(a, z).
  *

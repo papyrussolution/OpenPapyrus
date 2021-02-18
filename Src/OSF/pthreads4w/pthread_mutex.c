@@ -355,10 +355,7 @@ int pthread_mutex_lock(pthread_mutex_t * mutex)
 		 * The mutex is added to a per thread list when ownership is acquired.
 		 */
 		__ptw32_robust_state_t* statePtr = &mx->robustNode->stateInconsistent;
-
-		if((__PTW32_INTERLOCKED_LONG)__PTW32_ROBUST_NOTRECOVERABLE ==  __PTW32_INTERLOCKED_EXCHANGE_ADD_LONG(
-			    (__PTW32_INTERLOCKED_LONGPTR)statePtr,
-			    (__PTW32_INTERLOCKED_LONG)0)) {
+		if((__PTW32_INTERLOCKED_LONG)__PTW32_ROBUST_NOTRECOVERABLE ==  __PTW32_INTERLOCKED_EXCHANGE_ADD_LONG((__PTW32_INTERLOCKED_LONGPTR)statePtr, (__PTW32_INTERLOCKED_LONG)0)) {
 			result = ENOTRECOVERABLE;
 		}
 		else {
@@ -366,8 +363,8 @@ int pthread_mutex_lock(pthread_mutex_t * mutex)
 			kind = -kind - 1; /* Convert to non-robust range */
 			if(PTHREAD_MUTEX_NORMAL == kind) {
 				if((__PTW32_INTERLOCKED_LONG)__PTW32_INTERLOCKED_EXCHANGE_LONG((__PTW32_INTERLOCKED_LONGPTR)&mx->lock_idx, (__PTW32_INTERLOCKED_LONG)1) != 0) {
-					while(0 == (result = __ptw32_robust_mutex_inherit(mutex))
-					    &&  (__PTW32_INTERLOCKED_LONG)__PTW32_INTERLOCKED_EXCHANGE_LONG((__PTW32_INTERLOCKED_LONGPTR)&mx->lock_idx, (__PTW32_INTERLOCKED_LONG)-1) != 0) {
+					while(0 == (result = __ptw32_robust_mutex_inherit(mutex)) && 
+						(__PTW32_INTERLOCKED_LONG)__PTW32_INTERLOCKED_EXCHANGE_LONG((__PTW32_INTERLOCKED_LONGPTR)&mx->lock_idx, (__PTW32_INTERLOCKED_LONG)-1) != 0) {
 						if(WAIT_OBJECT_0 != WaitForSingleObject(mx->event, INFINITE)) {
 							result = EINVAL;
 							break;

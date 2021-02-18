@@ -77,7 +77,7 @@ static const uint8 c5to8bits[32] = {
 static int FASTCALL read_byte(tga_source_ptr sinfo)
 {
 	FILE * infile = sinfo->pub.input_file;
-	register int c;
+	int c;
 	if((c = getc(infile)) == EOF)
 		ERREXIT(sinfo->cinfo, JERR_INPUT_EOF);
 	return c;
@@ -113,8 +113,8 @@ METHODDEF(void) read_non_rle_pixel(tga_source_ptr sinfo)
 METHODDEF(void) read_rle_pixel(tga_source_ptr sinfo)
 /* Read one Targa pixel from the input file, expanding RLE data as needed */
 {
-	register FILE * infile = sinfo->pub.input_file;
-	register int i;
+	FILE * infile = sinfo->pub.input_file;
+	int i;
 	/* Duplicate previously read pixel? */
 	if(sinfo->dup_pixel_count > 0) {
 		sinfo->dup_pixel_count--;
@@ -148,7 +148,7 @@ METHODDEF(JDIMENSION) get_8bit_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr s
 /* This version is for reading 8-bit grayscale pixels */
 {
 	tga_source_ptr source = (tga_source_ptr)sinfo;
-	register JSAMPROW ptr = source->pub.buffer[0];
+	JSAMPROW ptr = source->pub.buffer[0];
 	for(JDIMENSION col = cinfo->image_width; col > 0; col--) {
 		(*source->read_pixel)(source); /* Load next pixel into tga_pixel */
 		*ptr++ = (JSAMPLE)UCH(source->tga_pixel[0]);

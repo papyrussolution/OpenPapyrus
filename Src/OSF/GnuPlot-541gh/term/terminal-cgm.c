@@ -102,7 +102,7 @@ TERM_PUBLIC int CGM_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int CGM_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void CGM_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void CGM_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC int CGM_make_palette(t_sm_palette * palette);
+TERM_PUBLIC int CGM_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void CGM_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void CGM_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corner);
 TERM_PUBLIC void CGM_set_pointsize(double size);
@@ -178,7 +178,7 @@ static struct cgm_properties
 static int cgm_user_color_count = 0;
 static int cgm_user_color_max = 0;
 static int cgm_smooth_colors = 0;
-static int * cgm_user_color_table = (int*)0;
+static int * cgm_user_color_table = (int *)0;
 static int cgm_maximum_color_index = 255;       /* Size of color table we will write */
 
 struct fontdata {
@@ -699,8 +699,8 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
 		CGM_write_int_record(5, 34, (cgm_user_color_count*3+1)* sizeof(cgm_user_color_table[0])/CGM_ADJ, cgm_user_color_table);
 	CGM_write_int_record(5, 2, sizeof(line_type_data) / CGM_ADJ, line_type_data); /* line type 1=SOLID */
 	cgm_linewidth = cgm_linewidth_pt * CGM_PT;
-	CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int*)&cgm_linewidth);                /* line width */
-	CGM_write_int_record(5, 28, sizeof(cgm_linewidth) / CGM_ADJ, (int*)&cgm_linewidth);                /* edge width */
+	CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int *)&cgm_linewidth);                /* line width */
+	CGM_write_int_record(5, 28, sizeof(cgm_linewidth) / CGM_ADJ, (int *)&cgm_linewidth);                /* edge width */
 	CGM_write_int_record(5, 27,  sizeof(line_type_data) / CGM_ADJ, line_type_data);              /* edge type 1=SOLID */
 	CGM_linecolor(0);
 	cgm_current = cgm_reset;
@@ -817,8 +817,8 @@ TERM_PUBLIC void CGM_linecolor(int linecolor)
 	cgm_color = linecolor;
 	cgm_next.fill_color = linecolor;
 	CGM_flush_polyline();
-	CGM_write_int_record(5,  4, 2, (int*)&cgm_color);/* line color */
-	CGM_write_int_record(5, 14, 2, (int*)&cgm_color); /* text color */
+	CGM_write_int_record(5,  4, 2, (int *)&cgm_color);/* line color */
+	CGM_write_int_record(5, 14, 2, (int *)&cgm_color); /* text color */
 }
 
 TERM_PUBLIC void CGM_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
@@ -841,7 +841,7 @@ TERM_PUBLIC void CGM_linewidth(GpTermEntry * pThis, double width)
 	if(new_linewidth != cgm_linewidth) {
 		CGM_flush_polyline();
 		cgm_linewidth = new_linewidth;
-		CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int*)&cgm_linewidth);
+		CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int *)&cgm_linewidth);
 		CGM_dashtype(cgm_dashtype); /* have dash lengths recalculated */
 	}
 }
@@ -901,7 +901,7 @@ TERM_PUBLIC void CGM_move(GpTermEntry * pThis, uint x, uint y)
 	cgm_posy = y;
 }
 
-TERM_PUBLIC int CGM_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int CGM_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	if(palette) {
 		int i, k;
@@ -953,8 +953,8 @@ TERM_PUBLIC void CGM_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 		cgm_color = cgm_next.fill_color;
 		cgm_linetype = cgm_color;
 		CGM_flush_polyline();
-		CGM_write_int_record(5,  4, 2, (int*)&cgm_color);/* line color */
-		CGM_write_int_record(5, 14, 2, (int*)&cgm_color); /* text color */
+		CGM_write_int_record(5,  4, 2, (int *)&cgm_color);/* line color */
+		CGM_write_int_record(5, 14, 2, (int *)&cgm_color); /* text color */
 	}
 }
 

@@ -35,31 +35,23 @@ static int rc4_hmac_md5_init_key(EVP_CIPHER_CTX * ctx,
     const uchar * iv, int enc)
 {
 	EVP_RC4_HMAC_MD5 * key = data(ctx);
-
 	RC4_set_key(&key->ks, EVP_CIPHER_CTX_key_length(ctx), inkey);
-
 	MD5_Init(&key->head);   /* handy when benchmarking */
 	key->tail = key->head;
 	key->md = key->head;
-
 	key->payload_length = NO_PAYLOAD_LENGTH;
-
 	return 1;
 }
 
-#if     defined(RC4_ASM) && defined(MD5_ASM) &&     (     \
-	defined(__x86_64)       || defined(__x86_64__)  || \
-	defined(_M_AMD64)       || defined(_M_X64)      )
-#define STITCHED_CALL
+#if defined(RC4_ASM) && defined(MD5_ASM) && (defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64))
+	#define STITCHED_CALL
 #endif
-
 #if !defined(STITCHED_CALL)
-#define rc4_off 0
-#define md5_off 0
+	#define rc4_off 0
+	#define md5_off 0
 #endif
 
-static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len)
+static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len)
 {
 	EVP_RC4_HMAC_MD5 * key = data(ctx);
 #if defined(STITCHED_CALL)

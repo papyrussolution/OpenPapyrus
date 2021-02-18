@@ -176,20 +176,15 @@
  * LibreSSL: unsupported in at least 2.7.2 (explicitly check for it since it
  *           lies and pretends to be OpenSSL 2.0.0).
  */
-#if (OPENSSL_VERSION_NUMBER >= 0x10101000L && \
-	!defined(LIBRESSL_VERSION_NUMBER)) || \
-	defined(OPENSSL_IS_BORINGSSL)
-#define HAVE_KEYLOG_CALLBACK
+#if (OPENSSL_VERSION_NUMBER >= 0x10101000L && !defined(LIBRESSL_VERSION_NUMBER)) || defined(OPENSSL_IS_BORINGSSL)
+	#define HAVE_KEYLOG_CALLBACK
 #endif
-
 /* Whether SSL_CTX_set_ciphersuites is available.
  * OpenSSL: supported since 1.1.1 (commit a53b5be6a05)
  * BoringSSL: no
  * LibreSSL: no
  */
-#if ((OPENSSL_VERSION_NUMBER >= 0x10101000L) && \
-	!defined(LIBRESSL_VERSION_NUMBER) &&       \
-	!defined(OPENSSL_IS_BORINGSSL))
+#if ((OPENSSL_VERSION_NUMBER >= 0x10101000L) && !defined(LIBRESSL_VERSION_NUMBER) && !defined(OPENSSL_IS_BORINGSSL))
 #define HAVE_SSL_CTX_SET_CIPHERSUITES
 #define HAVE_SSL_CTX_SET_POST_HANDSHAKE_AUTH
 /* SET_EC_CURVES available under the same preconditions: see

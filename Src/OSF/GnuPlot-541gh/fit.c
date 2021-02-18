@@ -128,7 +128,10 @@ static void Dblfn();
 
 /* type definitions */
 enum marq_res {
-	OK, ML_ERROR, BETTER, WORSE
+	OK, 
+	ML_ERROR, 
+	BETTER, 
+	WORSE
 };
 
 typedef enum marq_res marq_res_t;
@@ -177,10 +180,7 @@ static int num_indep;    /* # independent variables in fit function */
 static int num_errors;   /* #error columns */
 static bool err_cols[MAX_NUM_VAR+1];    /* TRUE if variable has an associated error */
 static int columns;      /* # values read from data file for each point */
-static double * fit_x = 0;       /* all independent variable values,
-                                    e.g. value of the ith variable from
-                                    the jth data point is in
-                                    fit_x[j*num_indep+i] */
+static double * fit_x = 0; // all independent variable values, e.g. value of the ith variable from the jth data point is in fit_x[j*num_indep+i] 
 static double * fit_z = 0;       /* dependent data values */
 static double * err_data = 0;    /* standard deviations of indep. and dependent data */
 static double * a = 0;           /* array of fitting parameters */
@@ -191,7 +191,6 @@ static double * scale_params = 0; /* scaling values for parameters */
 static struct udft_entry func;
 static fixstr * par_name;
 static GpValue ** par_udv;       /* array of pointers to the "via" variables */
-
 static fixstr * last_par_name = NULL;
 static int last_num_params = 0;
 static char * last_dummy_var[MAX_NUM_VAR];
@@ -801,7 +800,7 @@ void GnuPlot::RegressFinalize(int iter, double chisq, double lastChisq, double l
 	}
 	if(fit_errorscaling || (num_errors == 0)) {
 		// scale parameter errors based on chisq 
-		double temp = sqrt(chisq / (num_data - num_params));
+		const double temp = sqrt(chisq / (num_data - num_params));
 		for(i = 0; i < num_params; i++)
 			dpar[i] *= temp;
 	}
@@ -812,11 +811,11 @@ void GnuPlot::RegressFinalize(int iter, double chisq, double lastChisq, double l
 	}
 	// fill covariance variables if needed 
 	if(fit_covarvariables && ppCovar && !covar_invalid) {
-		double scale = (fit_errorscaling || (num_errors == 0)) ? (chisq / (num_data - num_params)) : 1.0;
+		const double scale = (fit_errorscaling || (num_errors == 0)) ? (chisq / (num_data - num_params)) : 1.0;
 		for(i = 0; i < num_params; i++) {
 			// only lower triangle needs to be handled 
 			for(j = 0; j <= i; j++) {
-				double temp = scale * scale_params[i] * scale_params[j];
+				const double temp = scale * scale_params[i] * scale_params[j];
 				setvarcovar(par_name[i], par_name[j], ppCovar[i][j] * temp);
 				setvarcovar(par_name[j], par_name[i], ppCovar[i][j] * temp);
 			}
@@ -852,10 +851,9 @@ bool regress_check_stop(int iter, double chisq, double last_chisq, double lambda
 //
 static void internal_cleanup()
 {
-	double lambda;
 	free_matr(regress_C);
 	regress_C = NULL;
-	lambda = -2;            /* flag value, meaning 'destruct!' */
+	double lambda = -2.0; // flag value, meaning 'destruct!' 
 	marquardt(NULL, NULL, NULL, &lambda);
 }
 //
@@ -953,8 +951,7 @@ static void show_results(double chisq, double last_chisq, double * a, double * d
 	else {
 		int ndf          = num_data - num_params;
 		double stdfit    = sqrt(chisq/ndf);
-		double pvalue    = 1. - chisq_cdf(ndf, chisq);
-
+		double pvalue    = 1.0 - chisq_cdf(ndf, chisq);
 		Dblf2("degrees of freedom    (FIT_NDF)                        : %d\n", ndf);
 		Dblf2("rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : %g\n", stdfit);
 		Dblf2("variance of residuals (reduced chisquare) = WSSR/ndf   : %g\n", chisq / ndf);
@@ -1007,7 +1004,6 @@ void fit_progress(int i, double chisq, double last_chisq, double* a, double lamb
 static void fit_show(int i, double chisq, double last_chisq, double* a, double lambda, FILE * device)
 {
 	int k;
-
 	fprintf(device,
 	    "\n\n\
  Iteration %d\n\
@@ -1255,7 +1251,6 @@ static void log_axis_restriction(FILE * log_f, int param, double min, double max
 	else {
 		fprintf(log_f, "%#g", min);
 	}
-
 	fputs(" : ", log_f);
 	if(autoscale & AUTOSCALE_MAX) {
 		putc('*', log_f);
@@ -1279,33 +1274,29 @@ static int print_function_definitions_recursion(struct at_type * at, int * count
 {
 	int i, k;
 	int rc = 0;
-
 	if(at->a_count == 0)
 		return 0;
-	if(*count == maxfun) /* limit the maximum number of unique function definitions  */
+	else if(*count == maxfun) // limit the maximum number of unique function definitions  
 		return 1;
-	if(depth >= maxdepth) /* limit the maximum recursion depth */
+	else if(depth >= maxdepth) // limit the maximum recursion depth 
 		return 2;
-
-	for(i = 0; (i < at->a_count) && (*count < maxfun); i++) {
-		if(((at->actions[i].index == CALL) || (at->actions[i].index == CALLN)) &&
-		    (at->actions[i].arg.udf_arg->definition != NULL)) {
-			for(k = 0; k < maxfun; k++) {
-				if(definitions[k] == at->actions[i].arg.udf_arg->definition)
-					break; /* duplicate definition already in list */
-				if(definitions[k] == NULL) {
-					*count += 1; /* increment counter */
-					definitions[k] = at->actions[i].arg.udf_arg->definition;
-					break;
+	else {
+		for(i = 0; (i < at->a_count) && (*count < maxfun); i++) {
+			if(((at->actions[i].index == CALL) || (at->actions[i].index == CALLN)) && at->actions[i].arg.udf_arg->definition) {
+				for(k = 0; k < maxfun; k++) {
+					if(definitions[k] == at->actions[i].arg.udf_arg->definition)
+						break; // duplicate definition already in list 
+					if(definitions[k] == NULL) {
+						*count += 1; // increment counter 
+						definitions[k] = at->actions[i].arg.udf_arg->definition;
+						break;
+					}
 				}
+				rc |= print_function_definitions_recursion(at->actions[i].arg.udf_arg->at, count, maxfun, definitions, depth + 1, maxdepth);
 			}
-			rc |= print_function_definitions_recursion(at->actions[i].arg.udf_arg->at,
-				count, maxfun, definitions,
-				depth + 1, maxdepth);
 		}
+		return rc;
 	}
-
-	return rc;
 }
 
 static void print_function_definitions(struct at_type * at, FILE * device)
@@ -1429,7 +1420,7 @@ void GnuPlot::FitCommand()
 	else
 		Eexc(token2, "missing filename or datablock");
 	// We accept a datablock but not a voxel grid 
-	if(*file_name == '$' && !get_datablock(file_name))
+	if(*file_name == '$' && !GetDatablock(file_name))
 		IntError(Pgm.GetPrevTokenIdx(), "cannot fit voxel data");
 	// use datafile module to parse the datafile and qualifiers 
 	df_set_plot_mode(MODE_QUERY); /* Does nothing except for binary datafiles */
@@ -1722,33 +1713,27 @@ void GnuPlot::FitCommand()
 			skipped[iz]++;
 			goto out_of_range;
 		}
-
 		fit_z[num_data] = v[i++];     /* save dependent variable data */
-
 		/* only use error from data file if _explicitly_ asked for by a using spec */
-
 		if(num_errors == 0)
 			err_data[num_data] = 1.0; /* constant weight */
 		else if(num_errors == 1)
 			err_data[num_data] = v[i++]; /* z-error */
 		else {
-			int k, idx;
-			for(k = 0, idx = 0; k < MAX_NUM_VAR; k++) {
+			int idx = 0;
+			for(int k = 0; k < MAX_NUM_VAR; k++) {
 				if(err_cols[k])
 					err_data[num_errors * num_data + idx++] = v[i++];
 			}
 			if(err_cols[iz])
 				err_data[num_errors * num_data + idx] = v[i++]; /* z-error */
 			else
-				/* This case is not currently allowed. We always require z-errors. */
-				Eexc(NO_CARET, "z errors are always required");
+				Eexc(NO_CARET, "z errors are always required"); // This case is not currently allowed. We always require z-errors. 
 		}
-
 		/* Increment index into stored values.
 		 * Note that out-of-range or NaN values bypass this operation.
 		 */
 		num_data++;
-
 out_of_range:
 		;
 	}
@@ -1839,9 +1824,7 @@ out_of_range:
 		if(!fit_suppress_log)
 			fprintf(log_f, "fitted parameters and initial values from file: %s\n\n", viafile);
 		SAlloc::F(viafile);          /* Free previous name, if any */
-
-		/* get parameters and values out of file and ignore fixed ones */
-
+		// get parameters and values out of file and ignore fixed ones 
 		while(TRUE) {
 			if(!fgets(s = sstr, sizeof(sstr), via_f)) /* EOF found */
 				break;
@@ -1893,7 +1876,6 @@ out_of_range:
 					Eex("too many fit parameters");
 				a[num_params++] = tmp_par;
 			}
-
 			if((tmp = get_next_word(&s, &c)) != NULL)
 				Eex("syntax error in parameter file");
 		}
@@ -2010,7 +1992,6 @@ static void Dblfn(const char * fmt, va_dcl)
 {
 #ifdef VA_START
 	va_list args;
-
 	VA_START(args, fmt);
 #if defined(HAVE_VFPRINTF) || _LIBC
 	if(fit_verbosity != QUIET)
@@ -2053,7 +2034,7 @@ char * getfitlogfile()
 			char * tmp2 = tmp + (strlen(tmp) - 1);
 			// if given log file name ends in path separator, treat it as a directory to store the default "fit.log" in 
 			if(oneof2(*tmp2, '/', '\\')) {
-				logfile = (char*)gp_alloc(strlen(tmp) + strlen(fitlogfile_default) + 1, "logfile");
+				logfile = (char *)gp_alloc(strlen(tmp) + strlen(fitlogfile_default) + 1, "logfile");
 				strcpy(logfile, tmp);
 				strcat(logfile, fitlogfile_default);
 			}
@@ -2086,6 +2067,6 @@ void GnuPlot::SaveFit(FILE * fp)
 		if(udv)
 			fprintf(fp, "# final sum of squares of residuals : %g\n", udv->udv_value.v.cmplx_val.real);
 		for(int k = 0; k < last_num_params; k++)
-			fprintf(fp, "%-15s = %-22s\n", last_par_name[k], value_to_str(par_udv[k], FALSE));
+			fprintf(fp, "%-15s = %-22s\n", last_par_name[k], ValueToStr(par_udv[k], FALSE));
 	}
 }

@@ -223,7 +223,7 @@ static int LoadHelp(char * path)
 			key->pos = 0; /* fill in with real value later */
 			primary = FALSE;
 			pos = ftell(helpfp);
-			if(fgets(buf, MAX_LINE_LEN - 1, helpfp) == (char*)NULL)
+			if(fgets(buf, MAX_LINE_LEN - 1, helpfp) == (char *)NULL)
 				break;
 		}
 		/*
@@ -232,7 +232,7 @@ static int LoadHelp(char * path)
 		*/
 		firsthead = storeline(buf);
 		head = firsthead;
-		while((fgets(buf, MAX_LINE_LEN - 1, helpfp) != (char*)NULL)
+		while((fgets(buf, MAX_LINE_LEN - 1, helpfp) != (char *)NULL)
 		    && (buf[0] != KEYFLAG)) {
 			/* save text line */
 			head->next = storeline(buf);
@@ -297,7 +297,7 @@ static void sortkeys()
 		keys[i].text = p->text;
 		keys[i].primary = p->primary;
 		n = p->next;
-		SAlloc::F((char*)p);
+		SAlloc::F((char *)p);
 	}
 
 	/* a null entry to terminate subtopic searches */
@@ -330,15 +330,15 @@ void FreeHelp()
 	if(keys == NULL)
 		return;
 	for(i = 0; i < keycount; i++) {
-		SAlloc::F((char*)keys[i].key);
+		SAlloc::F((char *)keys[i].key);
 		if(keys[i].primary) /* only try to release text once! */
 			for(t = keys[i].text; t != NULL; t = next) {
-				SAlloc::F((char*)t->line);
+				SAlloc::F((char *)t->line);
 				next = t->next;
-				SAlloc::F((char*)t);
+				SAlloc::F((char *)t);
 			}
 	}
-	SAlloc::F((char*)keys);
+	SAlloc::F((char *)keys);
 	keys = NULL;
 	keycount = 0;
 }

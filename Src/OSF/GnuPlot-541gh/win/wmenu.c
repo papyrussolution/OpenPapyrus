@@ -492,7 +492,7 @@ void LoadMacros(LPTW lptw)
 		goto errorcleanup;
 
 	/* allocate buffers */
-	if((buf = (char*)LocalAllocPtr(LHND, MAXSTR)) == NULL)
+	if((buf = (char *)LocalAllocPtr(LHND, MAXSTR)) == NULL)
 		goto nomemory;
 	if((wbuf = (LPWSTR)LocalAllocPtr(LHND, MAXSTR * sizeof(WCHAR))) == NULL)
 		goto nomemory;
@@ -582,7 +582,7 @@ void LoadMacros(LPTW lptw)
 			}
 			LeftJustify(buf, buf);
 			if(strlen(buf) + 1 < MACROLEN - (macroptr - lpmw->macrobuf)) {
-				strcpy((char*)macroptr, buf);
+				strcpy((char *)macroptr, buf);
 			}
 			else {
 				swprintf_s(wbuf,
@@ -593,9 +593,9 @@ void LoadMacros(LPTW lptw)
 				MessageBoxW(lptw->hWndParent, wbuf, MBOXTITLE, MB_ICONEXCLAMATION);
 				goto errorcleanup;
 			}
-			ButtonText[lpmw->nButton] = (char*)macroptr;
+			ButtonText[lpmw->nButton] = (char *)macroptr;
 			ButtonIcon[lpmw->nButton] = I_IMAGENONE; /* comctl 5.81, Win 2000 */
-			if((icon = strchr((char*)macroptr, ';'))) {
+			if((icon = strchr((char *)macroptr, ';'))) {
 				int inumber;
 
 				*icon = NUL;
@@ -618,7 +618,7 @@ void LoadMacros(LPTW lptw)
 					ButtonIndex++;
 				}
 			}
-			macroptr += strlen((char*)macroptr)  + 1;
+			macroptr += strlen((char *)macroptr)  + 1;
 			*macroptr = '\0';
 			if(!(nInc = GetLine(buf, MAXSTR, menufile))) {
 				nLine += nInc;
@@ -629,7 +629,7 @@ void LoadMacros(LPTW lptw)
 			LeftJustify(buf, buf);
 			TranslateMacro(buf);
 			if(strlen(buf) + 1 < MACROLEN - (macroptr - lpmw->macrobuf))
-				strcpy((char*)macroptr, buf);
+				strcpy((char *)macroptr, buf);
 			else {
 				swprintf_s(wbuf,
 				    MAXSTR,
@@ -641,7 +641,7 @@ void LoadMacros(LPTW lptw)
 			}
 			lpmw->hButtonID[lpmw->nButton] = lpmw->nCountMenu;
 			lpmw->macro[lpmw->nCountMenu] = macroptr;
-			macroptr += strlen((char*)macroptr) + 1;
+			macroptr += strlen((char *)macroptr) + 1;
 			*macroptr = '\0';
 			lpmw->nCountMenu++;
 			lpmw->nButton++;
@@ -679,7 +679,7 @@ void LoadMacros(LPTW lptw)
 				LeftJustify(buf, buf);
 				TranslateMacro(buf);
 				if(strlen(buf) + 1 < MACROLEN - (macroptr - lpmw->macrobuf))
-					strcpy((char*)macroptr, buf);
+					strcpy((char *)macroptr, buf);
 				else {
 					swprintf_s(wbuf,
 					    MAXSTR,
@@ -690,7 +690,7 @@ void LoadMacros(LPTW lptw)
 					goto errorcleanup;
 				}
 				lpmw->macro[lpmw->nCountMenu] = macroptr;
-				macroptr += strlen((char*)macroptr) + 1;
+				macroptr += strlen((char *)macroptr) + 1;
 				*macroptr = '\0';
 				lpmw->nCountMenu++;
 			}
@@ -752,7 +752,7 @@ void LoadMacros(LPTW lptw)
 #else
 			fname = RelativePathToGnuplot("images");
 #endif
-			fname = (char*)realloc(fname, strlen(fname) + strlen(ButtonIconFile[i]) + 2);
+			fname = (char *)realloc(fname, strlen(fname) + strlen(ButtonIconFile[i]) + 2);
 			PATH_CONCAT(fname, ButtonIconFile[i]);
 			if(bLoadStandardButtons)
 				button.iBitmap += ButtonExtra;

@@ -55,7 +55,7 @@ TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry * pThis, uint x, uint y, const cha
 TERM_PUBLIC int TEXDRAW_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int TEXDRAW_text_angle(int ang);
 TERM_PUBLIC void TEXDRAW_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
-TERM_PUBLIC int TEXDRAW_make_palette(t_sm_palette *);
+TERM_PUBLIC int TEXDRAW_make_palette(GpTermEntry * pThis, t_sm_palette *);
 TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
 
@@ -365,10 +365,10 @@ TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry * pThis)
 	fprintf(gpoutfile, tdg1, TEXDRAW_scalefactor, TEXDRAW_lines[2], TEXDRAW_rounded ? 1 : 0, TEXDRAW_rounded ? 1 : 0);
 	if(TEXDRAW_background == 1.) {
 		/* enforce bounding box */
-		fprintf(gpoutfile, "\\move (0 0) \\rmove (%d %d)\n", term->MaxX, term->MaxY);
+		fprintf(gpoutfile, "\\move (0 0) \\rmove (%d %d)\n", pThis->MaxX, pThis->MaxY);
 	}
 	else {
-		fprintf(gpoutfile, "\\move (0 0) \\rlvec (%d 0) \\rlvec (0 %d) \\rlvec (%d 0) \\ifill f:%0.2f\n", term->MaxX, term->MaxY, -term->MaxX, TEXDRAW_background);
+		fprintf(gpoutfile, "\\move (0 0) \\rlvec (%d 0) \\rlvec (0 %d) \\rlvec (%d 0) \\ifill f:%0.2f\n", pThis->MaxX, pThis->MaxY, -pThis->MaxX, TEXDRAW_background);
 	}
 	TEXDRAW_last_type = 0;
 	TEXDRAW_type = 0;
@@ -628,9 +628,9 @@ TERM_PUBLIC int TEXDRAW_text_angle(int ang)
 	return (TRUE);
 }
 
-TERM_PUBLIC int TEXDRAW_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int TEXDRAW_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
-	return 0; /* claim continuous colors */
+	return 0; // claim continuous colors 
 }
 
 TERM_PUBLIC void TEXDRAW_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
@@ -740,7 +740,8 @@ TERM_TABLE_START(texdraw_driver)
 	set_font_null,
 	TEXDRAW_pointsize,
 	TERM_IS_LATEX | TERM_LINEWIDTH | TERM_POINTSCALE | TERM_MONOCHROME,
-	0 /*suspend*/, 0 /*resume*/,
+	0 /*suspend*/, 
+	0 /*resume*/,
 	TEXDRAW_fillbox,
 	TEXDRAW_linewidth,
 	#ifdef USE_MOUSE

@@ -40,8 +40,8 @@ TERM_PUBLIC int  LUA_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void LUA_pointsize(double ptsize);
 TERM_PUBLIC void LUA_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void LUA_linewidth(GpTermEntry * pThis, double width);
-TERM_PUBLIC int  LUA_make_palette(t_sm_palette *);
-TERM_PUBLIC void LUA_previous_palette();
+TERM_PUBLIC int  LUA_make_palette(GpTermEntry * pThis, t_sm_palette *);
+TERM_PUBLIC void LUA_previous_palette(GpTermEntry * pThis);
 TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void LUA_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
@@ -264,7 +264,7 @@ static int LUA_GP_term_out(lua_State * L)
 		    break;
 	}
 
-	last = (char*)msg;
+	last = (char *)msg;
 	while((line = strchr(last, '\n'))) {
 		*line = '\0';
 		if(pagelines >= 22) {
@@ -1014,7 +1014,7 @@ TERM_PUBLIC void LUA_linewidth(GpTermEntry * pThis, double width)
 	}
 }
 
-TERM_PUBLIC void LUA_previous_palette(void)
+TERM_PUBLIC void LUA_previous_palette(GpTermEntry * pThis)
 {
 	if(LUA_init_luaterm_function("previous_palette")) {
 		LUA_call_report(lua_pcall(L, 0, 1, tb));
@@ -1032,7 +1032,7 @@ TERM_PUBLIC void LUA_reset(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC int LUA_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int LUA_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	if(LUA_init_luaterm_function("make_palette")) {
 		LUA_call_report(lua_pcall(L, 0, 1, tb));
@@ -1040,7 +1040,7 @@ TERM_PUBLIC int LUA_make_palette(t_sm_palette * palette)
 		lua_pop(L, 1);
 		return(lua_term_result);
 	}
-	return 0; /* continuous number of colours */
+	return 0; // continuous number of colours 
 }
 
 TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
@@ -1165,7 +1165,7 @@ TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image
 			// cairo based png images with alpha channel 
 			if((idx = strrchr(outstr, '.')) == NULL)
 				idx = strchr(outstr, '\0');
-			image_file = (char*)gp_alloc((idx-outstr)+10, "LUA_image");
+			image_file = (char *)gp_alloc((idx-outstr)+10, "LUA_image");
 			strncpy(image_file, outstr, (idx-outstr) + 1);
 			snprintf(image_file+(idx-outstr), 9, ".%03d.png", (uchar)(++image_cnt));
 			write_png_image(m, n, image, color_mode, image_file);

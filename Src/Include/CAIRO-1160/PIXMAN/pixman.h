@@ -770,11 +770,8 @@ struct pixman_triangle {
 	pixman_point_fixed_t p1, p2, p3;
 };
 
-/* whether 't' is a well defined not obviously empty trapezoid */
-#define pixman_trapezoid_valid(t)                                  \
-	((t)->left.p1.y != (t)->left.p2.y &&                           \
-	(t)->right.p1.y != (t)->right.p2.y &&                         \
-	((t)->bottom > (t)->top))
+// whether 't' is a well defined not obviously empty trapezoid 
+#define pixman_trapezoid_valid(t) ((t)->left.p1.y != (t)->left.p2.y && (t)->right.p1.y != (t)->right.p2.y && ((t)->bottom > (t)->top))
 
 struct pixman_span_fix {
 	pixman_fixed_t l, r, y;

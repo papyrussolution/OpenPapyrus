@@ -22,7 +22,7 @@ char mouse_fmt_default[] = "% #g";
 udft_entry mouse_readout_function = {NULL, "mouse_readout_function", NULL, NULL, 2 /*dummy_values[]*/};
 
 long mouse_mode = MOUSE_COORDINATES_REAL;
-char* mouse_alt_string = (char*)0;
+char* mouse_alt_string = (char *)0;
 mouse_setting_t default_mouse_setting = DEFAULT_MOUSE_SETTING;
 mouse_setting_t mouse_setting = DEFAULT_MOUSE_SETTING;
 
@@ -100,7 +100,7 @@ static char* special_keys[] = {
 	"Button2",
 	"Button3",
 	"GP_LAST_KEY",
-	(char*)0 /* must be the last line */
+	(char *)0 /* must be the last line */
 };
 
 /* "usual well-known" keycodes, i.e. those not listed in special_keys in mouse.h
@@ -150,16 +150,17 @@ static bool needreplot = FALSE; // did we already postpone a replot because allo
 static int start_x, start_y; // mouse position when dragging started 
 static int motion = 0; // ButtonPress sets this to 0, ButtonMotion to 1 
 static float zero_rot_x, zero_rot_z; // values for rot_x and rot_z corresponding to zero position of mouse 
-
-/* bind related stuff */
-
+//
+// bind related stuff 
+//
 struct bind_t {
 	bind_t * prev;
-	int key;
-	char modifier;
+	int    key;
+	char   modifier;
 	char * command;
-	char *(*builtin)(GpEvent * ge);
-	bool allwindows;
+	//char *(*builtin)(GpEvent * ge);
+	BuiltinEventHandler HandlerFunc;
+	bool   allwindows;
 	bind_t * next;
 };
 
@@ -195,13 +196,13 @@ static void ZoomUnzoom();
 static void incr_mousemode(const int amount);
 //static void UpdateStatuslineWithMouseSetting(mouse_setting_t * ms);
 static bind_t * get_binding(GpEvent * ge, bool current);
-static void event_keypress(GpEvent * ge, bool current);
-static void ChangeView(int x, int z);
-static void ChangeAzimuth(int x);
+//static void event_keypress(GpEvent * ge, bool current);
+//static void ChangeView(int x, int z);
+//static void ChangeAzimuth(int x);
 //static void event_buttonpress(GpEvent * ge);
 //static void event_buttonrelease(GpEvent * ge);
 //static void event_motion(GpEvent * ge);
-static void event_modifier(GpEvent * ge);
+//static void event_modifier(GpEvent * ge);
 //static void do_save_3dplot(GpSurfacePoints *, int, REPLOT_TYPE);
 //static void load_mouse_variables(double, double, bool, int);
 static void do_zoom_in_around_mouse();
@@ -212,37 +213,9 @@ static void do_zoom_scroll_up();
 static void do_zoom_scroll_down();
 static void do_zoom_scroll_left();
 static void do_zoom_scroll_right();
-
-/* builtins */
-static char * builtin_autoscale(GpEvent * ge);
-static char * builtin_toggle_border(GpEvent * ge);
-static char * builtin_replot(GpEvent * ge);
-static char * builtin_toggle_grid(GpEvent * ge);
-static char * builtin_help(GpEvent * ge);
-static char * builtin_set_plots_visible(GpEvent * ge);
-static char * builtin_set_plots_invisible(GpEvent * ge);
-static char * builtin_invert_plot_visibilities(GpEvent * ge);
-static char * builtin_toggle_log(GpEvent * ge);
-static char * builtin_nearest_log(GpEvent * ge);
-static char * builtin_toggle_mouse(GpEvent * ge);
-static char * builtin_toggle_ruler(GpEvent * ge);
-static char * builtin_decrement_mousemode(GpEvent * ge);
-static char * builtin_increment_mousemode(GpEvent * ge);
-static char * builtin_toggle_polardistance(GpEvent * ge);
-static char * builtin_toggle_verbose(GpEvent * ge);
-static char * builtin_toggle_ratio(GpEvent * ge);
-static char * builtin_zoom_next(GpEvent * ge);
-static char * builtin_zoom_previous(GpEvent * ge);
-static char * builtin_unzoom(GpEvent * ge);
-static char * builtin_rotate_right(GpEvent * ge);
-static char * builtin_rotate_up(GpEvent * ge);
-static char * builtin_rotate_left(GpEvent * ge);
-static char * builtin_rotate_down(GpEvent * ge);
-static char * builtin_azimuth_left(GpEvent * ge);
-static char * builtin_azimuth_right(GpEvent * ge);
-static char * builtin_cancel_zoom(GpEvent * ge);
-static char * builtin_zoom_in_around_mouse(GpEvent * ge);
-static char * builtin_zoom_out_around_mouse(GpEvent * ge);
+//
+// builtins 
+//
 #if (0) /* Not currently used */
 static char * builtin_zoom_scroll_left(GpEvent * ge);
 static char * builtin_zoom_scroll_right(GpEvent * ge);
@@ -266,10 +239,10 @@ static void bind_all(char * lhs);
 static void bind_remove(bind_t * b);
 //static void bind_append(char * lhs, char * rhs, char * (*builtin)(GpEvent * ge));
 //static void recalc_ruler_pos();
-static void turn_ruler_off();
+//static void turn_ruler_off();
 //static int nearest_label_tag(int x, int y);
 //static void remove_label(int x, int y);
-static void put_label(char * label, double x, double y);
+//static void put_label(char * label, double x, double y);
 
 /********* functions ********************************************/
 //
@@ -307,7 +280,7 @@ void GnuPlot::MousePosToGraphPosReal(int xx, int yy, double * x, double * y, dou
 		// for 3D plots, we treat the mouse position as if it is
 		// in the bottom plane, i.e., the plane of the x and y axis 
 		// note: at present, this projection is only correct if
-		// surface_rot_z is a multiple of 90 degrees! 
+		// _3DBlk.SurfaceRotZ is a multiple of 90 degrees! 
 		// HBB 20010522: added protection against division by zero
 		// for cases like 'set view 90,0' 
 		xx -= axis3d_o_x;
@@ -364,22 +337,22 @@ void GnuPlot::MousePosToGraphPosReal(int xx, int yy, double * x, double * y, dou
 		*y2 = EvalLinkFunction(secondary, *y);
 	// If x or y is linked to a (hidden) primary axis, it's a bit more complicated 
 	secondary = &AxS[FIRST_X_AXIS];
-	if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -FIRST_X_AXIS) {
+	if(secondary->linked_to_primary && secondary->linked_to_primary->index == -FIRST_X_AXIS) {
 		*x = secondary->linked_to_primary->MapBack(xx);
 		*x = EvalLinkFunction(secondary, *x);
 	}
 	secondary = &AxS[FIRST_Y_AXIS];
-	if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -FIRST_Y_AXIS) {
+	if(secondary->linked_to_primary && secondary->linked_to_primary->index == -FIRST_Y_AXIS) {
 		*y = secondary->linked_to_primary->MapBack(yy);
 		*y = EvalLinkFunction(secondary, *y);
 	}
 	secondary = &AxS[SECOND_X_AXIS];
-	if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -SECOND_X_AXIS) {
+	if(secondary->linked_to_primary && secondary->linked_to_primary->index == -SECOND_X_AXIS) {
 		*x2 = secondary->linked_to_primary->MapBack(xx);
 		*x2 = EvalLinkFunction(secondary, *x2);
 	}
 	secondary = &AxS[SECOND_Y_AXIS];
-	if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -SECOND_Y_AXIS) {
+	if(secondary->linked_to_primary && secondary->linked_to_primary->index == -SECOND_Y_AXIS) {
 		*y2 = secondary->linked_to_primary->MapBack(yy);
 		*y2 = EvalLinkFunction(secondary, *y2);
 	}
@@ -834,7 +807,7 @@ void GnuPlot::UpdateStatusLineWithMouseSetting(GpTermEntry * pTerm, mouse_settin
 			strcat(format, ms->fmt);
 			strcat(format, ", ");
 			strcat(format, ms->fmt);
-			sprintf(s0, format, surface_rot_x, surface_rot_z, surface_scale, surface_zscale);
+			sprintf(s0, format, _3DBlk.SurfaceRotX, _3DBlk.SurfaceRotZ, _3DBlk.SurfaceScale, _3DBlk.SurfaceZScale);
 		}
 		else if(!TICS_ON(AxS[SECOND_X_AXIS].ticmode) && !TICS_ON(AxS[SECOND_Y_AXIS].ticmode)) {
 			// only first X and Y axis are in use 
@@ -900,141 +873,150 @@ void recalc_statusline()
 	GPO.MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
 	GPO.UpdateStatusLine();
 }
-
-/****************** handlers for user's actions ******************/
-
-static char * builtin_autoscale(GpEvent * ge)
+//
+// handlers for user's actions
+//
+//static char * builtin_autoscale(GpEvent * ge)
+char * GnuPlot::BuiltinAutoscale(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-autoscale` (set autoscale keepfix; replot)";
 	}
 	else {
-		GPO.DoStringReplot(term, "set autoscale keepfix");
-		return (char*)0;
+		DoStringReplot(term, "set autoscale keepfix");
+		return (char *)0;
 	}
 }
 
-static char * builtin_toggle_border(GpEvent * ge)
+//static char * builtin_toggle_border(GpEvent * ge)
+char * GnuPlot::BuiltinToggleBorder(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-toggle-border`";
 	else {
-		/* EAM July 2009  Cycle through border settings
-		 * - no border
-		 * - last border requested by the user
-		 * - default border
-		 * - (3D only) full border
-		 */
+		// EAM July 2009  Cycle through border settings
+		// - no border
+		// - last border requested by the user
+		// - default border
+		// - (3D only) full border
 		if(draw_border == 0 && draw_border != user_border)
 			draw_border = user_border;
 		else if(draw_border == user_border && draw_border != 31)
 			draw_border = 31;
-		else if(GPO.Gg.Is3DPlot && draw_border == 31)
+		else if(Gg.Is3DPlot && draw_border == 31)
 			draw_border = 4095;
 		else
 			draw_border = 0;
-		GPO.DoStringReplot(term, "");
-		return (char*)0;
+		DoStringReplot(term, "");
+		return (char *)0;
 	}
 }
 
-static char * builtin_replot(GpEvent * ge)
+//static char * builtin_replot(GpEvent * ge)
+char * GnuPlot::BuiltinReplot(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-replot`";
 	else {
-		GPO.DoStringReplot(term, "");
-		return (char*)0;
+		DoStringReplot(term, "");
+		return (char *)0;
 	}
 }
 
-static char * builtin_toggle_grid(GpEvent * ge)
+//static char * builtin_toggle_grid(GpEvent * ge)
+char * GnuPlot::BuiltinToggleGrid(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-toggle-grid`";
 	}
 	else {
 		if(!some_grid_selected())
-			GPO.DoStringReplot(term, "set grid");
+			DoStringReplot(term, "set grid");
 		else
-			GPO.DoStringReplot(term, "unset grid");
-		return (char*)0;
+			DoStringReplot(term, "unset grid");
+		return (char *)0;
 	}
 }
 
-static char * builtin_help(GpEvent * ge)
+//static char * builtin_help(GpEvent * ge)
+char * GnuPlot::BuiltinHelp(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-help`";
 	}
 	else {
 		fprintf(stderr, "\n");
-		bind_display((char*)0); /* display all bindings */
+		bind_display((char *)0); /* display all bindings */
 		restore_prompt();
-		return (char*)0;
+		return (char *)0;
 	}
 }
 
-static char * builtin_set_plots_visible(GpEvent * ge)
+//static char * builtin_set_plots_visible(GpEvent * ge)
+char * GnuPlot::BuiltinSetPlotsVisible(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-set-plots-visible`";
 	}
 	else {
-		if(term->modify_plots)
-			term->modify_plots(MODPLOTS_SET_VISIBLE, -1);
-		return (char*)0;
+		if(pTerm->modify_plots)
+			pTerm->modify_plots(MODPLOTS_SET_VISIBLE, -1);
+		return (char *)0;
 	}
 }
 
-static char * builtin_set_plots_invisible(GpEvent * ge)
+//static char * builtin_set_plots_invisible(GpEvent * ge)
+char * GnuPlot::BuiltinSetPlotsInvisible(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-set-plots-invisible`";
 	}
 	else {
-		if(term->modify_plots)
-			term->modify_plots(MODPLOTS_SET_INVISIBLE, -1);
-		return (char*)0;
+		if(pTerm->modify_plots)
+			pTerm->modify_plots(MODPLOTS_SET_INVISIBLE, -1);
+		return (char *)0;
 	}
 }
 
-static char * builtin_invert_plot_visibilities(GpEvent * ge)
+//static char * builtin_invert_plot_visibilities(GpEvent * ge)
+char * GnuPlot::BuiltinInvertPlotVisibilities(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-invert-plot-visibilities`";
 	}
 	else {
-		if(term->modify_plots)
-			term->modify_plots(MODPLOTS_INVERT_VISIBILITIES, -1);
-		return (char*)0;
+		if(pTerm->modify_plots)
+			pTerm->modify_plots(MODPLOTS_INVERT_VISIBILITIES, -1);
+		return (char *)0;
 	}
 }
 
-static char * builtin_toggle_log(GpEvent * ge)
+//static char * builtin_toggle_log(GpEvent * ge)
+char * GnuPlot::BuiltinToggleLog(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-toggle-log` y logscale for plots, z and cb for splots";
-	if(GPO.Gg.VolatileData)
-		GPO.IntWarn(NO_CARET, "Cannot toggle log scale for volatile data");
-	else if((GPO.Gg.ColorBox.bounds.xleft < mouse_x && mouse_x < GPO.Gg.ColorBox.bounds.xright) && (GPO.Gg.ColorBox.bounds.ybot  < mouse_y && mouse_y < GPO.Gg.ColorBox.bounds.ytop))
-		GPO.DoStringReplot(term, GPO.AxS.__CB().log ? "unset log cb" : "set log cb");
-	else if(GPO.Gg.Is3DPlot && !splot_map)
-		GPO.DoStringReplot(term, GPO.AxS.__Z().log ? "unset log z" : "set log z");
+	if(Gg.VolatileData)
+		IntWarn(NO_CARET, "Cannot toggle log scale for volatile data");
+	else if((Gg.ColorBox.bounds.xleft < mouse_x && mouse_x < Gg.ColorBox.bounds.xright) && (Gg.ColorBox.bounds.ybot  < mouse_y && mouse_y < Gg.ColorBox.bounds.ytop))
+		DoStringReplot(term, AxS.__CB().log ? "unset log cb" : "set log cb");
+	else if(Gg.Is3DPlot && !splot_map)
+		DoStringReplot(term, AxS.__Z().log ? "unset log z" : "set log z");
 	else
-		GPO.DoStringReplot(term, GPO.AxS[FIRST_Y_AXIS].log ? "unset log y" : "set log y");
-	return (char*)0;
+		DoStringReplot(term, AxS[FIRST_Y_AXIS].log ? "unset log y" : "set log y");
+	return (char *)0;
 }
 
-static char * builtin_nearest_log(GpEvent * ge)
+//static char * builtin_nearest_log(GpEvent * ge)
+char * GnuPlot::BuiltinNearestLog(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-nearest-log` toggle logscale of axis nearest cursor";
-	if((GPO.Gg.ColorBox.bounds.xleft < mouse_x && mouse_x < GPO.Gg.ColorBox.bounds.xright) && (GPO.Gg.ColorBox.bounds.ybot < mouse_y && mouse_y < GPO.Gg.ColorBox.bounds.ytop)) {
-		GPO.DoStringReplot(term, GPO.AxS.__CB().log ? "unset log cb" : "set log cb");
+	if((Gg.ColorBox.bounds.xleft < mouse_x && mouse_x < Gg.ColorBox.bounds.xright) && (Gg.ColorBox.bounds.ybot < mouse_y && mouse_y < Gg.ColorBox.bounds.ytop)) {
+		DoStringReplot(term, AxS.__CB().log ? "unset log cb" : "set log cb");
 	}
-	else if(GPO.Gg.Is3DPlot && !splot_map) {
-		GPO.DoStringReplot(term, GPO.AxS.__Z().log ? "unset log z" : "set log z");
+	else if(Gg.Is3DPlot && !splot_map) {
+		DoStringReplot(term, AxS.__Z().log ? "unset log z" : "set log z");
 	}
 	else {
 		/* 2D-plot: figure out which axis/axes is/are
@@ -1046,31 +1028,32 @@ static char * builtin_nearest_log(GpEvent * ge)
 		bool change_y1 = FALSE;
 		bool change_x2 = FALSE;
 		bool change_y2 = FALSE;
-		if(mouse_y < GPO.V.BbPlot.ybot + (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / 4 &&  mouse_x > GPO.V.BbPlot.xleft && mouse_x < GPO.V.BbPlot.xright)
+		if(mouse_y < V.BbPlot.ybot + (V.BbPlot.ytop - V.BbPlot.ybot) / 4 && mouse_x > V.BbPlot.xleft && mouse_x < V.BbPlot.xright)
 			change_x1 = TRUE;
-		if(mouse_x < GPO.V.BbPlot.xleft + (GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / 4 &&  mouse_y > GPO.V.BbPlot.ybot && mouse_y < GPO.V.BbPlot.ytop)
+		if(mouse_x < V.BbPlot.xleft + (V.BbPlot.xright - V.BbPlot.xleft) / 4 && mouse_y > V.BbPlot.ybot && mouse_y < V.BbPlot.ytop)
 			change_y1 = TRUE;
-		if(mouse_y > GPO.V.BbPlot.ytop - (GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / 4 &&  mouse_x > GPO.V.BbPlot.xleft && mouse_x < GPO.V.BbPlot.xright)
+		if(mouse_y > V.BbPlot.ytop - (V.BbPlot.ytop - V.BbPlot.ybot) / 4 && mouse_x > V.BbPlot.xleft && mouse_x < V.BbPlot.xright)
 			change_x2 = TRUE;
-		if(mouse_x > GPO.V.BbPlot.xright - (GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / 4 &&  mouse_y > GPO.V.BbPlot.ybot && mouse_y < GPO.V.BbPlot.ytop)
+		if(mouse_x > V.BbPlot.xright - (V.BbPlot.xright - V.BbPlot.xleft) / 4 && mouse_y > V.BbPlot.ybot && mouse_y < V.BbPlot.ytop)
 			change_y2 = TRUE;
 		if(change_x1)
-			GPO.DoString(GPO.AxS[FIRST_X_AXIS].log ? "unset log x" : "set log x");
+			DoString(AxS[FIRST_X_AXIS].log ? "unset log x" : "set log x");
 		if(change_y1)
-			GPO.DoString(GPO.AxS[FIRST_Y_AXIS].log ? "unset log y" : "set log y");
+			DoString(AxS[FIRST_Y_AXIS].log ? "unset log y" : "set log y");
 		if(change_x2 && !splot_map)
-			GPO.DoString(GPO.AxS[SECOND_X_AXIS].log ? "unset log x2" : "set log x2");
+			DoString(AxS[SECOND_X_AXIS].log ? "unset log x2" : "set log x2");
 		if(change_y2 && !splot_map)
-			GPO.DoString(GPO.AxS[SECOND_Y_AXIS].log ? "unset log y2" : "set log y2");
+			DoString(AxS[SECOND_Y_AXIS].log ? "unset log y2" : "set log y2");
 		if(!change_x1 && !change_y1 && splot_map)
-			GPO.DoStringReplot(term, GPO.AxS.__Z().log ? "unset log z" : "set log z");
+			DoStringReplot(term, AxS.__Z().log ? "unset log z" : "set log z");
 		if(change_x1 || change_y1 || change_x2 || change_y2)
-			GPO.DoStringReplot(term, "");
+			DoStringReplot(term, "");
 	}
-	return (char*)0;
+	return (char *)0;
 }
 
-static char * builtin_toggle_mouse(GpEvent * ge)
+//static char * builtin_toggle_mouse(GpEvent * ge)
+char * GnuPlot::BuiltinToggleMouse(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-toggle-mouse`";
@@ -1087,22 +1070,23 @@ static char * builtin_toggle_mouse(GpEvent * ge)
 			fprintf(stderr, "turning mouse off.\n");
 		}
 	}
-	if(term->set_cursor)
-		term->set_cursor(0, 0, 0);
-	GPO.UpdateStatusLine();
-	return (char*)0;
+	if(pTerm->set_cursor)
+		pTerm->set_cursor(0, 0, 0);
+	UpdateStatusLine();
+	return (char *)0;
 }
 
-static char * builtin_toggle_ruler(GpEvent * ge)
+//static char * builtin_toggle_ruler(GpEvent * ge)
+char * GnuPlot::BuiltinToggleRuler(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-toggle-ruler`";
 	}
-	else if(!term->set_ruler)
-		return (char*)0;
+	else if(!pTerm->set_ruler)
+		return (char *)0;
 	else {
 		if(ruler.on) {
-			turn_ruler_off();
+			TurnRulerOff(pTerm);
 			if(display_ipc_commands())
 				fprintf(stderr, "turning ruler off.\n");
 		}
@@ -1112,206 +1096,242 @@ static char * builtin_toggle_ruler(GpEvent * ge)
 			ruler.on = TRUE;
 			ruler.px = ge->mx;
 			ruler.py = ge->my;
-			GPO.MousePosToGraphPosReal(ruler.px, ruler.py, &ruler.x, &ruler.y, &ruler.x2, &ruler.y2);
-			(*term->set_ruler)(ruler.px, ruler.py);
-			if((u = GPO.Ev.AddUdvByName("MOUSE_RULER_X"))) {
+			MousePosToGraphPosReal(ruler.px, ruler.py, &ruler.x, &ruler.y, &ruler.x2, &ruler.y2);
+			(pTerm->set_ruler)(ruler.px, ruler.py);
+			if((u = Ev.AddUdvByName("MOUSE_RULER_X"))) {
 				Gcomplex(&u->udv_value, ruler.x, 0);
 			}
-			if((u = GPO.Ev.AddUdvByName("MOUSE_RULER_Y"))) {
+			if((u = Ev.AddUdvByName("MOUSE_RULER_Y"))) {
 				Gcomplex(&u->udv_value, ruler.y, 0);
 			}
 			if(display_ipc_commands()) {
 				fprintf(stderr, "turning ruler on.\n");
 			}
 		}
-		GPO.UpdateStatusLine();
-		return (char*)0;
+		UpdateStatusLine();
+		return (char *)0;
 	}
 }
 
-static char * builtin_decrement_mousemode(GpEvent * ge)
+//static char * builtin_decrement_mousemode(GpEvent * ge)
+char * GnuPlot::BuiltinDecrementMouseMode(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-previous-mouse-format`";
 	}
-	incr_mousemode(-1);
-	return (char*)0;
+	else {
+		incr_mousemode(-1);
+		return (char *)0;
+	}
 }
 
-static char * builtin_increment_mousemode(GpEvent * ge)
+//static char * builtin_increment_mousemode(GpEvent * ge)
+char * GnuPlot::BuiltinIncrementMouseMode(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-next-mouse-format`";
 	}
-	incr_mousemode(1);
-	return (char*)0;
+	else {
+		incr_mousemode(1);
+		return (char *)0;
+	}
 }
 
-static char * builtin_toggle_polardistance(GpEvent * ge)
+//static char * builtin_toggle_polardistance(GpEvent * ge)
+char * GnuPlot::BuiltinTogglePolarDistance(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-toggle-polardistance`";
 	}
-	if(++mouse_setting.polardistance > 2) 
-		mouse_setting.polardistance = 0;
-	// values: 0 (no polar coordinates), 1 (polar coordinates), 2 (tangent instead of angle) 
-	term->set_cursor((mouse_setting.polardistance ? -3 : -4), ge->mx, ge->my); /* change cursor type */
-	GPO.UpdateStatusLine();
-	if(display_ipc_commands()) {
-		fprintf(stderr, "distance to ruler will %s be shown in polar coordinates.\n", mouse_setting.polardistance ? "" : "not");
+	else {
+		if(++mouse_setting.polardistance > 2) 
+			mouse_setting.polardistance = 0;
+		// values: 0 (no polar coordinates), 1 (polar coordinates), 2 (tangent instead of angle) 
+		pTerm->set_cursor((mouse_setting.polardistance ? -3 : -4), ge->mx, ge->my); /* change cursor type */
+		UpdateStatusLine();
+		if(display_ipc_commands()) {
+			fprintf(stderr, "distance to ruler will %s be shown in polar coordinates.\n", mouse_setting.polardistance ? "" : "not");
+		}
+		return (char *)0;
 	}
-	return (char*)0;
 }
 
-static char * builtin_toggle_verbose(GpEvent * ge)
+//static char * builtin_toggle_verbose(GpEvent * ge)
+char * GnuPlot::BuiltinToggleVerbose(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-toggle-verbose`";
 	}
-	/* this is tricky as the command itself modifies
-	 * the state of display_ipc_commands() */
-	if(display_ipc_commands()) {
-		fprintf(stderr, "echoing of communication commands is turned off.\n");
+	else {
+		// this is tricky as the command itself modifies the state of display_ipc_commands() 
+		if(display_ipc_commands()) {
+			fprintf(stderr, "echoing of communication commands is turned off.\n");
+		}
+		toggle_display_of_ipc_commands();
+		if(display_ipc_commands()) {
+			fprintf(stderr, "communication commands will be echoed.\n");
+		}
+		return (char *)0;
 	}
-	toggle_display_of_ipc_commands();
-	if(display_ipc_commands()) {
-		fprintf(stderr, "communication commands will be echoed.\n");
-	}
-	return (char*)0;
 }
 
-static char * builtin_toggle_ratio(GpEvent * ge)
+//static char * builtin_toggle_ratio(GpEvent * ge)
+char * GnuPlot::BuiltinToggleRatio(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-toggle-ratio`";
 	else {
-		if(GPO.V.AspectRatio == 0.0f)
-			GPO.DoStringReplot(term, "set size ratio -1");
-		else if(GPO.V.AspectRatio == 1.0f)
-			GPO.DoStringReplot(term, "set size nosquare");
+		if(V.AspectRatio == 0.0f)
+			DoStringReplot(term, "set size ratio -1");
+		else if(V.AspectRatio == 1.0f)
+			DoStringReplot(term, "set size nosquare");
 		else
-			GPO.DoStringReplot(term, "set size square");
-		return (char*)0;
+			DoStringReplot(term, "set size square");
+		return (char *)0;
 	}
 }
 
-static char * builtin_zoom_next(GpEvent * ge)
+//static char * builtin_zoom_next(GpEvent * ge)
+char * GnuPlot::BuiltinZoomNext(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-next` go to next zoom in the zoom stack";
 	else {
 		ZoomNext();
-		return (char*)0;
+		return (char *)0;
 	}
 }
 
-static char * builtin_zoom_previous(GpEvent * ge)
+//static char * builtin_zoom_previous(GpEvent * ge)
+char * GnuPlot::BuiltinZoomPrevious(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-previous` go to previous zoom in the zoom stack";
 	else {
 		ZoomPrevious();
-		return (char*)0;
+		return (char *)0;
 	}
 }
 
-static char * builtin_unzoom(GpEvent * ge)
+//static char * builtin_unzoom(GpEvent * ge)
+char * GnuPlot::BuiltinUnzoom(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-unzoom`";
 	}
-	ZoomUnzoom();
-	return (char*)0;
+	else {
+		ZoomUnzoom();
+		return (char *)0;
+	}
 }
 
-static char * builtin_rotate_right(GpEvent * ge)
+//static char * builtin_rotate_right(GpEvent * ge)
+char * GnuPlot::BuiltinRotateRight(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`scroll right in 2d, rotate right in 3d`; <Shift> faster";
-	if(GPO.Gg.Is3DPlot)
-		ChangeView(0, -1);
 	else {
-		int k = (modifier_mask & Mod_Shift) ? 3 : 1;
-		while(k-- > 0)
-			do_zoom_scroll_right();
+		if(Gg.Is3DPlot)
+			ChangeView(pTerm, 0, -1);
+		else {
+			int k = (modifier_mask & Mod_Shift) ? 3 : 1;
+			while(k-- > 0)
+				do_zoom_scroll_right();
+		}
+		return (char *)0;
 	}
-	return (char*)0;
 }
 
-static char * builtin_rotate_left(GpEvent * ge)
+//static char * builtin_rotate_left(GpEvent * ge)
+char * GnuPlot::BuiltinRotateLeft(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`scroll left in 2d, rotate left in 3d`; <Shift> faster";
-	if(GPO.Gg.Is3DPlot)
-		ChangeView(0, 1);
 	else {
-		int k = (modifier_mask & Mod_Shift) ? 3 : 1;
-		while(k-- > 0)
-			do_zoom_scroll_left();
+		if(Gg.Is3DPlot)
+			ChangeView(pTerm, 0, 1);
+		else {
+			int k = (modifier_mask & Mod_Shift) ? 3 : 1;
+			while(k-- > 0)
+				do_zoom_scroll_left();
+		}
+		return (char *)0;
 	}
-	return (char*)0;
 }
 
-static char * builtin_rotate_up(GpEvent * ge)
+//static char * builtin_rotate_up(GpEvent * ge)
+char * GnuPlot::BuiltinRotateUp(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`scroll up in 2d, rotate up in 3d`; <Shift> faster";
-	if(GPO.Gg.Is3DPlot)
-		ChangeView(1, 0);
+	if(Gg.Is3DPlot)
+		ChangeView(pTerm, 1, 0);
 	else {
 		int k = (modifier_mask & Mod_Shift) ? 3 : 1;
 		while(k-- > 0)
 			do_zoom_scroll_up();
 	}
-	return (char*)0;
+	return (char *)0;
 }
 
-static char * builtin_rotate_down(GpEvent * ge)
+//static char * builtin_rotate_down(GpEvent * ge)
+char * GnuPlot::BuiltinRotateDown(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`scroll down in 2d, rotate down in 3d`; <Shift> faster";
-	if(GPO.Gg.Is3DPlot)
-		ChangeView(-1, 0);
 	else {
-		int k = (modifier_mask & Mod_Shift) ? 3 : 1;
-		while(k-- > 0)
-			do_zoom_scroll_down();
+		if(Gg.Is3DPlot)
+			ChangeView(pTerm, -1, 0);
+		else {
+			int k = (modifier_mask & Mod_Shift) ? 3 : 1;
+			while(k-- > 0)
+				do_zoom_scroll_down();
+		}
+		return (char *)0;
 	}
-	return (char*)0;
 }
 
-static char * builtin_azimuth_left(GpEvent * ge)
+//static char * builtin_azimuth_left(GpEvent * ge)
+char * GnuPlot::BuiltinAzimuthLeft(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`rotate azimuth left in 3d`; <ctrl> faster";
-	if(GPO.Gg.Is3DPlot)
-		ChangeAzimuth(-1);
-	return (char*)0;
+	else {
+		if(Gg.Is3DPlot)
+			ChangeAzimuth(pTerm, -1);
+		return (char *)0;
+	}
 }
 
-static char * builtin_azimuth_right(GpEvent * ge)
+//static char * builtin_azimuth_right(GpEvent * ge)
+char * GnuPlot::BuiltinAzimuthRight(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`rotate azimuth right in 3d`; <ctrl> faster";
-	if(GPO.Gg.Is3DPlot)
-		ChangeAzimuth(1);
-	return (char*)0;
+	else {
+		if(Gg.Is3DPlot)
+			ChangeAzimuth(pTerm, 1);
+		return (char *)0;
+	}
 }
 
-static char * builtin_cancel_zoom(GpEvent * ge)
+//static char * builtin_cancel_zoom(GpEvent * ge)
+char * GnuPlot::BuiltinCancelZoom(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
 		return "`builtin-cancel-zoom` cancel zoom region";
 	}
-	if(!setting_zoom_region)
-		return (char*)0;
-	if(term->set_cursor)
-		term->set_cursor(0, 0, 0);
-	setting_zoom_region = FALSE;
-	if(display_ipc_commands()) {
-		fprintf(stderr, "zooming cancelled.\n");
+	else if(!setting_zoom_region)
+		return (char *)0;
+	else {
+		if(pTerm->set_cursor)
+			pTerm->set_cursor(0, 0, 0);
+		setting_zoom_region = FALSE;
+		if(display_ipc_commands()) {
+			fprintf(stderr, "zooming cancelled.\n");
+		}
+		return (char *)0;
 	}
-	return (char*)0;
 }
 //
 // Check whether this event is bound to a command.
@@ -1340,16 +1360,16 @@ static bind_t * get_binding(GpEvent * ge, bool current)
 	keypress.modifier = modifier_mask;
 	for(ptr = bindings; ptr; ptr = ptr->next) {
 		if(bind_matches(&keypress, ptr)) {
-			/* Always honor keys set with "bind all" */
+			// Always honor keys set with "bind all" 
 			if(ptr->allwindows && ptr->command)
 				return ptr;
-			/* But otherwise ignore inactive windows */
+			// But otherwise ignore inactive windows 
 			else if(!current)
 				break;
-			/* Let user defined bindings overwrite the builtin bindings */
+			// Let user defined bindings overwrite the builtin bindings 
 			else if((par2 & 1) == 0 && ptr->command)
 				return ptr;
-			else if(ptr->builtin)
+			else if(ptr->HandlerFunc) //else if(ptr->builtin)
 				return ptr;
 			else
 				FPRINTF((stderr, "%s:%d protocol error\n", __FILE__, __LINE__));
@@ -1358,7 +1378,8 @@ static bind_t * get_binding(GpEvent * ge, bool current)
 	return NULL;
 }
 
-static void event_keypress(GpEvent * ge, bool current)
+//static void event_keypress(GpEvent * ge, bool current)
+void GnuPlot::EventKeyPress(GpEvent * ge, GpTermEntry * pTerm, bool current)
 {
 	int x, y;
 	int par2;
@@ -1374,92 +1395,96 @@ static void event_keypress(GpEvent * ge, bool current)
 	bind_clear(&keypress);
 	keypress.key = c;
 	keypress.modifier = modifier_mask;
-	/*
-	 * On 'pause mouse keypress' in active window export current keypress
-	 * and mouse coords to user variables. A key with 'bind all' terminates
-	 * a pause even from non-active windows.
-	 * Ignore NULL keypress.
-	 *
-	 * If we are paused for a keystroke, this takes precendence over normal
-	 * key bindings. Otherwise, for example typing 'm' would turn off mousing,
-	 * which is a bad thing if you are in the  middle of a mousing operation.
-	 */
+	// 
+	// On 'pause mouse keypress' in active window export current keypress
+	// and mouse coords to user variables. A key with 'bind all' terminates
+	// a pause even from non-active windows.
+	// Ignore NULL keypress.
+	// 
+	// If we are paused for a keystroke, this takes precendence over normal
+	// key bindings. Otherwise, for example typing 'm' would turn off mousing,
+	// which is a bad thing if you are in the  middle of a mousing operation.
+	// 
 	if((paused_for_mouse & PAUSE_KEYSTROKE) && (c > '\0') && current) {
-		GPO.LoadMouseVariables(x, y, FALSE, c);
+		LoadMouseVariables(x, y, FALSE, c);
 		return;
 	}
 	if(!(ptr = get_binding(ge, current)))
 		return;
-	if((keywin = GPO.Ev.AddUdvByName("MOUSE_KEY_WINDOW")))
+	if((keywin = Ev.AddUdvByName("MOUSE_KEY_WINDOW")))
 		Ginteger(&keywin->udv_value, ge->winid);
 	if(current)
-		GPO.LoadMouseVariables(x, y, FALSE, c);
+		LoadMouseVariables(x, y, FALSE, c);
 	else
-		GPO.LoadMouseVariables(0, 0, FALSE, c);
+		LoadMouseVariables(0, 0, FALSE, c);
 	if(ptr->allwindows && ptr->command)
-		GPO.DoString(ptr->command);
+		DoString(ptr->command);
 	else if((par2 & 1) == 0 && ptr->command)
-		GPO.DoString(ptr->command);
-	else if(ptr->builtin)
-		ptr->builtin(ge);
+		DoString(ptr->command);
+	//else if(ptr->builtin)
+		//ptr->builtin(ge);
+	else if(ptr->HandlerFunc) {
+		(this->*ptr->HandlerFunc)(ge, pTerm);
+	}
 }
 
-static void ChangeView(int x, int z)
+//static void ChangeView(int x, int z)
+void GnuPlot::ChangeView(GpTermEntry * pTerm, int x, int z)
 {
 	if(modifier_mask & Mod_Shift) {
 		x *= 10;
 		z *= 10;
 	}
 	if(x) {
-		surface_rot_x += x;
-		if(surface_rot_x < 0.0f)
-			surface_rot_x += 360.0f;
-		if(surface_rot_x > 360.0f)
-			surface_rot_x -= 360.0f;
+		_3DBlk.SurfaceRotX += x;
+		if(_3DBlk.SurfaceRotX < 0.0f)
+			_3DBlk.SurfaceRotX += 360.0f;
+		if(_3DBlk.SurfaceRotX > 360.0f)
+			_3DBlk.SurfaceRotX -= 360.0f;
 	}
 	if(z) {
-		surface_rot_z += z;
-		if(surface_rot_z < 0.0f)
-			surface_rot_z += 360.0f;
-		if(surface_rot_z > 360.0f)
-			surface_rot_z -= 360.0f;
+		_3DBlk.SurfaceRotZ += z;
+		if(_3DBlk.SurfaceRotZ < 0.0f)
+			_3DBlk.SurfaceRotZ += 360.0f;
+		if(_3DBlk.SurfaceRotZ > 360.0f)
+			_3DBlk.SurfaceRotZ -= 360.0f;
 	}
 	if(x || z) {
-		GPO.Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", surface_rot_x);
-		GPO.Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", surface_rot_z);
+		Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", _3DBlk.SurfaceRotX);
+		Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", _3DBlk.SurfaceRotZ);
 	}
 	if(display_ipc_commands()) {
-		fprintf(stderr, "changing view to %f, %f.\n", surface_rot_x, surface_rot_z);
+		fprintf(stderr, "changing view to %f, %f.\n", _3DBlk.SurfaceRotX, _3DBlk.SurfaceRotZ);
 	}
-	GPO.DoSave3DPlot(term, first_3dplot, plot3d_num, NORMAL_REPLOT);
+	DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
 	if(ALMOST2D) {
 		// 2D plot, or suitably aligned 3D plot: update statusline 
-		if(!term->put_tmptext)
+		if(!pTerm->put_tmptext)
 			return;
 		recalc_statusline();
 	}
 }
 
-static void ChangeAzimuth(int x)
+//static void ChangeAzimuth(int x)
+void GnuPlot::ChangeAzimuth(GpTermEntry * pTerm, int x)
 {
-	/* Disable for 2D projections */
+	// Disable for 2D projections 
 	if(xz_projection || yz_projection)
 		return;
-	/* Can't use Mod_Shift because keyboards differ on the */
-	/* shift status of the < and > keys. */
+	// Can't use Mod_Shift because keyboards differ on the  shift status of the < and > keys. 
 	if(modifier_mask & Mod_Ctrl)
 		x *= 10;
 	if(x) {
-		azimuth += x;
-		if(azimuth < 0)
-			azimuth += 360;
-		if(azimuth > 360)
-			azimuth -= 360;
-		GPO.Ev.FillGpValFoat("GPVAL_VIEW_AZIMUTH", azimuth);
+		_3DBlk.Azimuth += x;
+		if(_3DBlk.Azimuth < 0.0f)
+			_3DBlk.Azimuth += 360.0f;
+		if(_3DBlk.Azimuth > 360.0f)
+			_3DBlk.Azimuth -= 360.0f;
+		Ev.FillGpValFoat("GPVAL_VIEW_AZIMUTH", _3DBlk.Azimuth);
 	}
 	if(display_ipc_commands())
-		fprintf(stderr, "changing azimuth to %f.\n", azimuth);
-	GPO.DoSave3DPlot(term, first_3dplot, plot3d_num, NORMAL_REPLOT);
+		fprintf(stderr, "changing azimuth to %f.\n", _3DBlk.Azimuth);
+	DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
 }
 
 int is_mouse_outside_plot(void)
@@ -1512,61 +1537,33 @@ void GnuPlot::ZoomRescale_XYX2Y2(double a0, double a1, double a2, double a3, dou
 		fputs(msg, stderr); fputs("\n", stderr);
 	}
 }
-
-/* Scroll left. */
+//
+// Scroll left. 
+//
 static void do_zoom_scroll_left()
 {
-	GPO.ZoomRescale_XYX2Y2(1.1, -0.1,
-	    1,   0,
-	    1.1, -0.1,
-	    1,   0,
-	    0.1, 0.9,
-	    0,   1,
-	    0.1, 0.9,
-	    0,   1,
-	    "scroll left.\n");
+	GPO.ZoomRescale_XYX2Y2(1.1, -0.1, 1,   0, 1.1, -0.1, 1,   0, 0.1, 0.9, 0,   1, 0.1, 0.9, 0,   1, "scroll left.\n");
 }
-
-/* Scroll right. */
+//
+// Scroll right. 
+//
 static void do_zoom_scroll_right()
 {
-	GPO.ZoomRescale_XYX2Y2(0.9,  0.1,
-	    1,    0,
-	    0.9,  0.1,
-	    1,    0,
-	    -0.1, 1.1,
-	    0,    1,
-	    -0.1, 1.1,
-	    0,    1,
-	    "scroll right");
+	GPO.ZoomRescale_XYX2Y2(0.9,  0.1, 1,    0, 0.9,  0.1, 1,    0, -0.1, 1.1, 0,    1, -0.1, 1.1, 0,    1, "scroll right");
 }
-
-/* Scroll up. */
+//
+// Scroll up. 
+//
 static void do_zoom_scroll_up()
 {
-	GPO.ZoomRescale_XYX2Y2(1,    0,
-	    0.9,  0.1,
-	    1,    0,
-	    0.9,  0.1,
-	    0,    1,
-	    -0.1, 1.1,
-	    0,    1,
-	    -0.1, 1.1,
-	    "scroll up");
+	GPO.ZoomRescale_XYX2Y2(1,    0, 0.9,  0.1, 1,    0, 0.9,  0.1, 0,    1, -0.1, 1.1, 0,    1, -0.1, 1.1, "scroll up");
 }
-
-/* Scroll down. */
+//
+// Scroll down. 
+//
 static void do_zoom_scroll_down()
 {
-	GPO.ZoomRescale_XYX2Y2(1,   0,
-	    1.1, -0.1,
-	    1,   0,
-	    1.1, -0.1,
-	    0,   1,
-	    0.1, 0.9,
-	    0,   1,
-	    0.1, 0.9,
-	    "scroll down");
+	GPO.ZoomRescale_XYX2Y2(1,   0, 1.1, -0.1, 1,   0, 1.1, -0.1, 0,   1, 0.1, 0.9, 0,   1, 0.1, 0.9, "scroll down");
 }
 //
 // Return new lower and upper axis limits from expanding current limits
@@ -1660,23 +1657,25 @@ void GnuPlot::ZoomAroundMouse(int zoom_key)
 static void do_zoom_in_around_mouse() { GPO.ZoomAroundMouse('+'); }
 static void do_zoom_out_around_mouse() { GPO.ZoomAroundMouse('-'); }
 
-static char * builtin_zoom_in_around_mouse(GpEvent * ge)
+//static char * builtin_zoom_in_around_mouse(GpEvent * ge)
+char * GnuPlot::BuiltinZoomInAroundMouse(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-in` zoom in";
 	else {
 		do_zoom_in_around_mouse();
-		return (char*)0;
+		return (char *)0;
 	}
 }
 
-static char * builtin_zoom_out_around_mouse(GpEvent * ge)
+//static char * builtin_zoom_out_around_mouse(GpEvent * ge)
+char * GnuPlot::BuiltinZoomOutAroundMouse(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-out` zoom out";
 	else {
 		do_zoom_out_around_mouse();
-		return (char*)0;
+		return (char *)0;
 	}
 }
 
@@ -1687,7 +1686,7 @@ static char * builtin_zoom_scroll_left(GpEvent * ge)
 		return "`builtin-zoom-scroll-left` scroll left";
 	else {
 		do_zoom_scroll_left();
-		return (char*)0;
+		return (char *)0;
 	}
 }
 
@@ -1695,42 +1694,51 @@ static char * builtin_zoom_scroll_right(GpEvent * ge)
 {
 	if(!ge)
 		return "`builtin-zoom-scroll-right` scroll right";
-	do_zoom_scroll_right();
-	return (char*)0;
+	else {
+		do_zoom_scroll_right();
+		return (char *)0;
+	}
 }
 
 static char * builtin_zoom_scroll_up(GpEvent * ge)
 {
 	if(!ge)
 		return "`builtin-zoom-scroll-up` scroll up";
-	do_zoom_scroll_up();
-	return (char*)0;
+	else {
+		do_zoom_scroll_up();
+		return (char *)0;
+	}
 }
 
 static char * builtin_zoom_scroll_down(GpEvent * ge)
 {
 	if(!ge)
 		return "`builtin-zoom-scroll-down` scroll down";
-	do_zoom_scroll_down();
-	return (char*)0;
+	else {
+		do_zoom_scroll_down();
+		return (char *)0;
+	}
 }
 
 static char * builtin_zoom_in_X(GpEvent * ge)
 {
 	if(!ge)
 		return "`builtin-zoom-in-X` zoom in X axis";
-	do_zoom_in_X();
-	return (char*)0;
+	else {
+		do_zoom_in_X();
+		return (char *)0;
+	}
 }
 
 static char * builtin_zoom_out_X(GpEvent * ge)
 {
 	if(!ge)
 		return "`builtin-zoom-out-X` zoom out X axis";
-	do_zoom_out_X();
-	return (char*)0;
+	else {
+		do_zoom_out_X();
+		return (char *)0;
+	}
 }
-
 #endif /* Not currently used */
 
 //static void event_buttonpress(GpEvent * ge)
@@ -1786,7 +1794,7 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 		// In 2D mouse buttons 1-3 are available for "bind" commands 
 		if(oneof3(b, 1, 2, 3)) {
 			if(get_binding(pGe, TRUE)) {
-				event_keypress(pGe, TRUE);
+				EventKeyPress(pGe, pTerm, TRUE);
 				return;
 			}
 		}
@@ -1890,9 +1898,9 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 	}
 	start_x = mouse_x;
 	start_y = mouse_y;
-	zero_rot_z = surface_rot_z + (360.0f * mouse_x) / pTerm->MaxX;
-	// zero_rot_x = surface_rot_x - 180.0 * mouse_y / pTerm->MaxY; 
-	zero_rot_x = surface_rot_x - (360.0f * mouse_y) / pTerm->MaxY;
+	zero_rot_z = _3DBlk.SurfaceRotZ + (360.0f * mouse_x) / pTerm->MaxX;
+	// zero_rot_x = _3DBlk.SurfaceRotX - 180.0 * mouse_y / pTerm->MaxY; 
+	zero_rot_x = _3DBlk.SurfaceRotX - (360.0f * mouse_y) / pTerm->MaxY;
 }
 
 //static void event_buttonrelease(GpEvent * ge)
@@ -1941,7 +1949,7 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 							RemoveLabel(pTerm, mouse_x, mouse_y);
 						}
 						else {
-							put_label(s0, real_x, real_y);
+							PutLabel(pTerm, s0, real_x, real_y);
 						}
 					}
 					else {
@@ -1990,15 +1998,15 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 		bool redraw = FALSE;
 		if(button & (1 << 1)) {
 			// dragging with button 1 -> rotate 
-			//surface_rot_x = floor(0.5 + zero_rot_x + 180.0 * mouse_y / pTerm->MaxY);
-			surface_rot_x = floorf(0.5f + fmodf(zero_rot_x + 360.0f * mouse_y / pTerm->MaxY, 360));
-			if(surface_rot_x < 0.0f)
-				surface_rot_x += 360.0f;
-			if(surface_rot_x > 360.0f)
-				surface_rot_x -= 360.0f;
-			surface_rot_z = floorf(0.5f + fmodf(zero_rot_z - 360.0f * mouse_x / pTerm->MaxX, 360));
-			if(surface_rot_z < 0)
-				surface_rot_z += 360;
+			//_3DBlk.SurfaceRotX = floor(0.5 + zero_rot_x + 180.0 * mouse_y / pTerm->MaxY);
+			_3DBlk.SurfaceRotX = floorf(0.5f + fmodf(zero_rot_x + 360.0f * mouse_y / pTerm->MaxY, 360));
+			if(_3DBlk.SurfaceRotX < 0.0f)
+				_3DBlk.SurfaceRotX += 360.0f;
+			if(_3DBlk.SurfaceRotX > 360.0f)
+				_3DBlk.SurfaceRotX -= 360.0f;
+			_3DBlk.SurfaceRotZ = floorf(0.5f + fmodf(zero_rot_z - 360.0f * mouse_x / pTerm->MaxX, 360));
+			if(_3DBlk.SurfaceRotZ < 0.0f)
+				_3DBlk.SurfaceRotZ += 360.0f;
 			redraw = TRUE;
 		}
 		else if(button & (1 << 2)) {
@@ -2012,18 +2020,18 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 			}
 			else {
 				if(relx > rely) {
-					surface_lscale += (mouse_x - start_x) * 2.0f / pTerm->MaxX;
-					surface_scale = static_cast<float>(exp(surface_lscale));
-					SETMAX(surface_scale, 0.0f);
+					_3DBlk.SurfaceLScale += (mouse_x - start_x) * 2.0f / pTerm->MaxX;
+					_3DBlk.SurfaceScale = static_cast<float>(exp(_3DBlk.SurfaceLScale));
+					SETMAX(_3DBlk.SurfaceScale, 0.0f);
 				}
 				else {
 					if(disable_mouse_z && (mouse_y-start_y > 0))
 						;
 					else {
-						surface_zscale += (mouse_y - start_y) * 2.0f / pTerm->MaxY;
+						_3DBlk.SurfaceZScale += (mouse_y - start_y) * 2.0f / pTerm->MaxY;
 						disable_mouse_z = FALSE;
 					}
-					SETMAX(surface_zscale, 0.0f);
+					SETMAX(_3DBlk.SurfaceZScale, 0.0f);
 				}
 			}
 			// reset the start values 
@@ -2033,12 +2041,12 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 		}
 		else if(button & (1 << 3)) {
 			// dragging with button 3 -> change azimuth 
-			ChangeAzimuth(static_cast<int>((mouse_x - start_x) * 90.0 / pTerm->MaxX));
+			ChangeAzimuth(pTerm, static_cast<int>((mouse_x - start_x) * 90.0 / pTerm->MaxX));
 			start_x = mouse_x;
 			redraw = TRUE;
 		}
 		if(!ALMOST2D) {
-			turn_ruler_off();
+			TurnRulerOff(pTerm);
 		}
 		if(redraw) {
 			if(allowmotion) {
@@ -2047,11 +2055,11 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 				// disabling further replots until it completes 
 				allowmotion = FALSE;
 				DoSave3DPlot(pTerm, first_3dplot, plot3d_num, ((modifier_mask & Mod_Ctrl) != 0) ? AXIS_ONLY_ROTATE : QUICK_REFRESH);
-				Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", surface_rot_x);
-				Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", surface_rot_z);
-				Ev.FillGpValFoat("GPVAL_VIEW_SCALE", surface_scale);
-				Ev.FillGpValFoat("GPVAL_VIEW_ZSCALE", surface_zscale);
-				Ev.FillGpValFoat("GPVAL_VIEW_AZIMUTH", azimuth);
+				Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", _3DBlk.SurfaceRotX);
+				Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", _3DBlk.SurfaceRotZ);
+				Ev.FillGpValFoat("GPVAL_VIEW_SCALE", _3DBlk.SurfaceScale);
+				Ev.FillGpValFoat("GPVAL_VIEW_ZSCALE", _3DBlk.SurfaceZScale);
+				Ev.FillGpValFoat("GPVAL_VIEW_AZIMUTH", _3DBlk.Azimuth);
 			}
 			else {
 				needreplot = TRUE; // postpone the replotting 
@@ -2075,12 +2083,13 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 	}
 }
 
-static void event_modifier(GpEvent * ge)
+//static void event_modifier(GpEvent * ge)
+void GnuPlot::EventModifier(GpEvent * ge, GpTermEntry * pTerm)
 {
 	modifier_mask = ge->par1;
-	if(modifier_mask == 0 && GPO.Gg.Is3DPlot && (button & ((1 << 1) | (1 << 2))) && !needreplot) {
+	if(modifier_mask == 0 && Gg.Is3DPlot && (button & ((1 << 1) | (1 << 2))) && !needreplot) {
 		// redraw the 3d plot if modifier key released 
-		GPO.DoSave3DPlot(term, first_3dplot, plot3d_num, NORMAL_REPLOT);
+		DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
 	}
 }
 
@@ -2095,23 +2104,24 @@ void GnuPlot::EventPlotDone(GpTermEntry * pTerm)
 		allowmotion = TRUE;
 }
 
-void event_reset(GpEvent * ge)
+//void event_reset(GpEvent * ge)
+void GnuPlot::EventReset(GpEvent * ge, GpTermEntry * pTerm)
 {
 	modifier_mask = 0;
 	button = 0;
-	builtin_cancel_zoom(ge);
-	if(term && GPO.TermInitialised && term->set_cursor) {
-		term->set_cursor(0, 0, 0);
-		if(mouse_setting.annotate_zoom_box && term->put_tmptext) {
-			term->put_tmptext(1, "");
-			term->put_tmptext(2, "");
+	BuiltinCancelZoom(ge, pTerm);
+	if(pTerm && TermInitialised && pTerm->set_cursor) {
+		pTerm->set_cursor(0, 0, 0);
+		if(mouse_setting.annotate_zoom_box && pTerm->put_tmptext) {
+			pTerm->put_tmptext(1, "");
+			pTerm->put_tmptext(2, "");
 		}
 	}
 	// This hack is necessary on some systems in order to prevent one
 	// character of input from being swallowed when the plot window is
 	// closed. But which systems, exactly, and in what circumstances?
 	if(paused_for_mouse || !interactive) {
-		if(term && GPO.TermInitialised && (!strncmp("x11", term->name, 3) || !strncmp("wxt", term->name, 3) || !strncmp("qt", term->name, 2)))
+		if(pTerm && TermInitialised && (!strncmp("x11", pTerm->name, 3) || !strncmp("wxt", pTerm->name, 3) || !strncmp("qt", pTerm->name, 2)))
 			ungetc('\n', stdin);
 	}
 	if(paused_for_mouse) {
@@ -2124,9 +2134,9 @@ void event_reset(GpEvent * ge)
 	// Dummy up a keystroke event so that we can conveniently check for a  
 	// binding to "Close". We only get these for the current window. 
 	if(ge != (void*)1) {
-		ge->par1 = GP_Cancel; /* Dummy keystroke */
-		ge->par2 = 0;   /* Not used; could pass window id here? */
-		event_keypress(ge, TRUE);
+		ge->par1 = GP_Cancel; // Dummy keystroke 
+		ge->par2 = 0; // Not used; could pass window id here? 
+		EventKeyPress(ge, pTerm, true);
 	}
 }
 
@@ -2149,15 +2159,9 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 					UpdateGpvalVariables(6); // fill GPVAL_TERM_WINDOWID 
 				}
 				break;
-			case GE_keypress:
-				event_keypress(pGe, TRUE);
-				break;
-			case GE_keypress_old:
-				event_keypress(pGe, FALSE);
-				break;
-			case GE_modifier:
-				event_modifier(pGe);
-				break;
+			case GE_keypress: EventKeyPress(pGe, pTerm, true); break;
+			case GE_keypress_old: EventKeyPress(pGe, pTerm, false); break;
+			case GE_modifier: EventModifier(pGe, pTerm); break;
 			case GE_motion:
 				if(!mouse_setting.on)
 					break;
@@ -2185,7 +2189,7 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 				DoStringReplot(pTerm, "");
 				break;
 			case GE_reset:
-				event_reset(pGe);
+				EventReset(pGe, pTerm);
 				break;
 			case GE_fontprops:
 	#ifdef X11
@@ -2289,44 +2293,45 @@ void GnuPlot::DoSave3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlots, int pc
 void GnuPlot::BindInstallDefaultBindings()
 {
 	bind_remove_all();
-	BindAppend("a", (char*)0, builtin_autoscale);
-	BindAppend("b", (char*)0, builtin_toggle_border);
-	BindAppend("e", (char*)0, builtin_replot);
-	BindAppend("g", (char*)0, builtin_toggle_grid);
-	BindAppend("h", (char*)0, builtin_help);
-	BindAppend("i", (char*)0, builtin_invert_plot_visibilities);
-	BindAppend("l", (char*)0, builtin_toggle_log);
-	BindAppend("L", (char*)0, builtin_nearest_log);
-	BindAppend("m", (char*)0, builtin_toggle_mouse);
-	BindAppend("r", (char*)0, builtin_toggle_ruler);
-	BindAppend("V", (char*)0, builtin_set_plots_invisible);
-	BindAppend("v", (char*)0, builtin_set_plots_visible);
-	BindAppend("1", (char*)0, builtin_decrement_mousemode);
-	BindAppend("2", (char*)0, builtin_increment_mousemode);
-	BindAppend("5", (char*)0, builtin_toggle_polardistance);
-	BindAppend("6", (char*)0, builtin_toggle_verbose);
-	BindAppend("7", (char*)0, builtin_toggle_ratio);
-	BindAppend("n", (char*)0, builtin_zoom_next);
-	BindAppend("p", (char*)0, builtin_zoom_previous);
-	BindAppend("u", (char*)0, builtin_unzoom);
-	BindAppend("+", (char*)0, builtin_zoom_in_around_mouse);
-	BindAppend("=", (char*)0, builtin_zoom_in_around_mouse); /* same key as + but no need for Shift */
-	BindAppend("-", (char*)0, builtin_zoom_out_around_mouse);
-	BindAppend("Right", (char*)0, builtin_rotate_right);
-	BindAppend("Up", (char*)0, builtin_rotate_up);
-	BindAppend("Left", (char*)0, builtin_rotate_left);
-	BindAppend("Down", (char*)0, builtin_rotate_down);
-	BindAppend("Opt-<", (char*)0, builtin_azimuth_left);
-	BindAppend("Opt->", (char*)0, builtin_azimuth_right);
-	BindAppend("Escape", (char*)0, builtin_cancel_zoom);
+	BindAppend("a",      0, &GnuPlot::BuiltinAutoscale);
+	BindAppend("b", 	 0, &GnuPlot::BuiltinToggleBorder);
+	BindAppend("e", 	 0, &GnuPlot::BuiltinReplot);
+	BindAppend("g", 	 0, &GnuPlot::BuiltinToggleGrid);
+	BindAppend("h", 	 0, &GnuPlot::BuiltinHelp);
+	BindAppend("i", 	 0, &GnuPlot::BuiltinInvertPlotVisibilities);
+	BindAppend("l", 	 0, &GnuPlot::BuiltinToggleLog);
+	BindAppend("L", 	 0, &GnuPlot::BuiltinNearestLog);
+	BindAppend("m", 	 0, &GnuPlot::BuiltinToggleMouse);
+	BindAppend("r", 	 0, &GnuPlot::BuiltinToggleRuler);
+	BindAppend("V", 	 0, &GnuPlot::BuiltinSetPlotsInvisible);
+	BindAppend("v", 	 0, &GnuPlot::BuiltinSetPlotsVisible);
+	BindAppend("1", 	 0, &GnuPlot::BuiltinDecrementMouseMode);
+	BindAppend("2", 	 0, &GnuPlot::BuiltinIncrementMouseMode);
+	BindAppend("5", 	 0, &GnuPlot::BuiltinTogglePolarDistance);
+	BindAppend("6", 	 0, &GnuPlot::BuiltinToggleVerbose);
+	BindAppend("7", 	 0, &GnuPlot::BuiltinToggleRatio);
+	BindAppend("n", 	 0, &GnuPlot::BuiltinZoomNext);
+	BindAppend("p", 	 0, &GnuPlot::BuiltinZoomPrevious);
+	BindAppend("u", 	 0, &GnuPlot::BuiltinUnzoom);
+	BindAppend("+", 	 0, &GnuPlot::BuiltinZoomInAroundMouse);
+	BindAppend("=", 	 0, &GnuPlot::BuiltinZoomInAroundMouse); // same key as + but no need for Shift 
+	BindAppend("-", 	 0, &GnuPlot::BuiltinZoomOutAroundMouse);
+	BindAppend("Right",  0, &GnuPlot::BuiltinRotateRight);
+	BindAppend("Up",     0, &GnuPlot::BuiltinRotateUp);
+	BindAppend("Left",   0, &GnuPlot::BuiltinRotateLeft);
+	BindAppend("Down",   0, &GnuPlot::BuiltinRotateDown);
+	BindAppend("Opt-<",  0, &GnuPlot::BuiltinAzimuthLeft);
+	BindAppend("Opt->",  0, &GnuPlot::BuiltinAzimuthRight);
+	BindAppend("Escape", 0, &GnuPlot::BuiltinCancelZoom);
 }
 
 static void bind_clear(bind_t * b)
 {
 	b->key = NO_KEY;
 	b->modifier = 0;
-	b->command = (char*)0;
-	b->builtin = 0;
+	b->command = (char *)0;
+	//b->builtin = 0;
+	b->HandlerFunc = 0;
 	b->prev = (struct bind_t *)0;
 	b->next = (struct bind_t *)0;
 }
@@ -2352,8 +2357,9 @@ static int lookup_key(char * ptr, int * len)
 	}
 	return NO_KEY;
 }
-
-/* returns 1 on success, else 0. */
+//
+// returns 1 on success, else 0. 
+//
 static int bind_scan_lhs(bind_t * out, const char * in)
 {
 	static const char DELIM = '-';
@@ -2364,7 +2370,7 @@ static int bind_scan_lhs(bind_t * out, const char * in)
 	if(!in) {
 		return 0;
 	}
-	for(ptr = (char*)in; ptr && *ptr; /* EMPTY */) {
+	for(ptr = (char *)in; ptr && *ptr; /* EMPTY */) {
 		if(!strncasecmp(ptr, "alt-", 4)) {
 			out->modifier |= Mod_Alt;
 			ptr += 4;
@@ -2461,8 +2467,11 @@ static void bind_display_one(bind_t * ptr)
 	if(ptr->command) {
 		fprintf(stderr, "`%s`\n", ptr->command);
 	}
-	else if(ptr->builtin) {
+	/*else if(ptr->builtin) {
 		fprintf(stderr, "%s\n", ptr->builtin(0));
+	}*/
+	else if(ptr->HandlerFunc) {
+		fprintf(stderr, "%s\n", (GPO.*ptr->HandlerFunc)(0, term));
 	}
 	else {
 		fprintf(stderr, "`%s:%d oops.'\n", __FILE__, __LINE__);
@@ -2531,7 +2540,8 @@ static void bind_display(char * lhs)
 static void bind_remove(bind_t * b)
 {
 	if(b) {
-		if(b->builtin) {
+		//if(b->builtin) {
+		if(b->HandlerFunc) {
 			// don't remove builtins, just remove the overriding command 
 			ZFREE(b->command); 
 		}
@@ -2554,49 +2564,8 @@ static void bind_remove(bind_t * b)
 }
 
 //static void bind_append(char * lhs, char * rhs, char * (*builtin)(GpEvent * ge))
-void GnuPlot::BindAppend(char * lhs, char * rhs, char * (*builtin)(GpEvent * ge))
-{
-	bind_t * p_new = (bind_t *)gp_alloc(sizeof(bind_t), "bind_append->p_new");
-	if(!bind_scan_lhs(p_new, lhs)) {
-		SAlloc::F(p_new);
-	}
-	else {
-		if(!bindings)
-			bindings = p_new; // first binding 
-		else {
-			for(bind_t * ptr = bindings; ptr; ptr = ptr->next) {
-				if(bind_matches(p_new, ptr)) {
-					// overwriting existing binding 
-					if(!rhs)
-						ptr->builtin = builtin;
-					else if(*rhs) {
-						ZFREE(ptr->command);
-						ptr->command = rhs;
-					}
-					else // rhs is an empty string, so remove the binding 
-						bind_remove(ptr);
-					SAlloc::F(p_new); // don't need it any more 
-					return;
-				}
-			}
-			// if we're here, the binding does not exist yet 
-			// append binding ... 
-			bindings->prev->next = p_new;
-			p_new->prev = bindings->prev;
-		}
-		bindings->prev = p_new;
-		p_new->next = (struct bind_t *)0;
-		p_new->allwindows = FALSE; // Can be explicitly set later 
-		if(!rhs)
-			p_new->builtin = builtin;
-		else if(*rhs)
-			p_new->command = rhs; // was allocated in command.c 
-		else
-			bind_remove(p_new);
-	}
-}
-
-void GnuPlot::BindAppend2(char * lhs, char * rhs, BuiltinEventHandler handlerFunc) // @construction 
+//void GnuPlot::BindAppend(char * lhs, char * rhs, char * (*builtin)(GpEvent * ge)) // @todo char * (*builtin)(GpEvent * ge) --> BuiltinEventHandler
+void GnuPlot::BindAppend(char * lhs, char * rhs, BuiltinEventHandler handlerFunc)
 {
 	bind_t * p_new = (bind_t *)gp_alloc(sizeof(bind_t), "bind_append->p_new");
 	if(!bind_scan_lhs(p_new, lhs)) {
@@ -2610,7 +2579,8 @@ void GnuPlot::BindAppend2(char * lhs, char * rhs, BuiltinEventHandler handlerFun
 				if(bind_matches(p_new, ptr)) {
 					// overwriting existing binding 
 					if(!rhs) {
-						// @construction ptr->builtin = handlerFunc;
+						//ptr->builtin = builtin;
+						ptr->HandlerFunc = handlerFunc;
 					}
 					else if(*rhs) {
 						ZFREE(ptr->command);
@@ -2631,7 +2601,8 @@ void GnuPlot::BindAppend2(char * lhs, char * rhs, BuiltinEventHandler handlerFun
 		p_new->next = (struct bind_t *)0;
 		p_new->allwindows = FALSE; // Can be explicitly set later 
 		if(!rhs) {
-			// @construction p_new->builtin = handlerFunc;
+			//p_new->builtin = builtin;
+			p_new->HandlerFunc = handlerFunc;
 		}
 		else if(*rhs)
 			p_new->command = rhs; // was allocated in command.c 
@@ -2724,7 +2695,8 @@ void GnuPlot::UpdateRuler(GpTermEntry * pTerm)
 // Set ruler on/off, and set its position.
 // Called from set.c for 'set mouse ruler ...' command.
 //
-void set_ruler(bool on, int mx, int my)
+//void set_ruler(bool on, int mx, int my)
+void GnuPlot::SetRuler(GpTermEntry * pTerm, bool on, int mx, int my)
 {
 	GpEvent ge;
 	if(!ruler.on && !on)
@@ -2733,7 +2705,7 @@ void set_ruler(bool on, int mx, int my)
 		return;
 	else {
 		if(ruler.on) // ruler is on => switch it off 
-			builtin_toggle_ruler(&ge);
+			BuiltinToggleRuler(&ge, pTerm);
 		// now the ruler is off 
 		if(on) { // want ruler off 
 			if(mx>=0 && my>=0) { // change ruler position 
@@ -2744,35 +2716,38 @@ void set_ruler(bool on, int mx, int my)
 				ge.mx = ruler.px;
 				ge.my = ruler.py;
 			}
-			builtin_toggle_ruler(&ge);
+			BuiltinToggleRuler(&ge, pTerm);
 		}
 	}
 }
-
-/* for checking if we change from plot to splot (or vice versa) */
-int plot_mode(int set)
+//
+// for checking if we change from plot to splot (or vice versa) 
+//
+//int plot_mode(int set)
+int GnuPlot::PlotMode(GpTermEntry * pTerm, int set)
 {
 	static int mode = MODE_PLOT;
 	if(oneof2(set, MODE_PLOT, MODE_SPLOT)) {
 		if(mode != set) {
-			turn_ruler_off();
+			TurnRulerOff(pTerm);
 		}
 		mode = set;
 	}
 	return mode;
 }
 
-static void turn_ruler_off()
+//static void turn_ruler_off()
+void GnuPlot::TurnRulerOff(GpTermEntry * pTerm)
 {
 	if(ruler.on) {
 		udvt_entry * u;
 		ruler.on = FALSE;
-		if(term && term->set_ruler) {
-			(*term->set_ruler)(-1, -1);
+		if(pTerm && pTerm->set_ruler) {
+			(pTerm->set_ruler)(-1, -1);
 		}
-		if((u = GPO.Ev.AddUdvByName("MOUSE_RULER_X")))
+		if((u = Ev.AddUdvByName("MOUSE_RULER_X")))
 			u->udv_value.SetNotDefined();
-		if((u = GPO.Ev.AddUdvByName("MOUSE_RULER_Y")))
+		if((u = Ev.AddUdvByName("MOUSE_RULER_Y")))
 			u->udv_value.SetNotDefined();
 		if(display_ipc_commands()) {
 			fprintf(stderr, "turning ruler off.\n");
@@ -2827,11 +2802,12 @@ void GnuPlot::RemoveLabel(GpTermEntry * pTerm, int x, int y)
 	}
 }
 
-static void put_label(char * label, double x, double y)
+//static void put_label(const char * pLabel, double x, double y)
+void GnuPlot::PutLabel(GpTermEntry * pTerm, const char * pLabel, double x, double y)
 {
 	char cmd[512];
-	sprintf(cmd, "set label \"%s\" at %g,%g %s", label, x, y, mouse_setting.labelopts ? mouse_setting.labelopts : "point pt 1");
-	GPO.DoStringReplot(term, cmd);
+	sprintf(cmd, "set label \"%s\" at %g,%g %s", pLabel, x, y, mouse_setting.labelopts ? mouse_setting.labelopts : "point pt 1");
+	DoStringReplot(pTerm, cmd);
 }
 //
 // Save current mouse position to user-accessible variables.

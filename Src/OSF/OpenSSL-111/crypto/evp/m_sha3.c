@@ -130,30 +130,12 @@ static int shake_ctrl(EVP_MD_CTX * evp_ctx, int cmd, int p1, void * p2)
 
 #define S390X_SHA3_FC(ctx)     ((ctx)->pad)
 
-#define S390X_sha3_224_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
-	S390X_CAPBIT(S390X_SHA3_224)) &&  \
-	(OPENSSL_s390xcap_P.klmd[0] &      \
-	S390X_CAPBIT(S390X_SHA3_224)))
-#define S390X_sha3_256_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
-	S390X_CAPBIT(S390X_SHA3_256)) &&  \
-	(OPENSSL_s390xcap_P.klmd[0] &      \
-	S390X_CAPBIT(S390X_SHA3_256)))
-#define S390X_sha3_384_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
-	S390X_CAPBIT(S390X_SHA3_384)) &&  \
-	(OPENSSL_s390xcap_P.klmd[0] &      \
-	S390X_CAPBIT(S390X_SHA3_384)))
-#define S390X_sha3_512_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
-	S390X_CAPBIT(S390X_SHA3_512)) &&  \
-	(OPENSSL_s390xcap_P.klmd[0] &      \
-	S390X_CAPBIT(S390X_SHA3_512)))
-#define S390X_shake128_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
-	S390X_CAPBIT(S390X_SHAKE_128)) && \
-	(OPENSSL_s390xcap_P.klmd[0] &      \
-	S390X_CAPBIT(S390X_SHAKE_128)))
-#define S390X_shake256_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] &      \
-	S390X_CAPBIT(S390X_SHAKE_256)) && \
-	(OPENSSL_s390xcap_P.klmd[0] &      \
-	S390X_CAPBIT(S390X_SHAKE_256)))
+#define S390X_sha3_224_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] & S390X_CAPBIT(S390X_SHA3_224)) && (OPENSSL_s390xcap_P.klmd[0] & S390X_CAPBIT(S390X_SHA3_224)))
+#define S390X_sha3_256_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] & S390X_CAPBIT(S390X_SHA3_256)) && (OPENSSL_s390xcap_P.klmd[0] & S390X_CAPBIT(S390X_SHA3_256)))
+#define S390X_sha3_384_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] & S390X_CAPBIT(S390X_SHA3_384)) && (OPENSSL_s390xcap_P.klmd[0] & S390X_CAPBIT(S390X_SHA3_384)))
+#define S390X_sha3_512_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] & S390X_CAPBIT(S390X_SHA3_512)) && (OPENSSL_s390xcap_P.klmd[0] & S390X_CAPBIT(S390X_SHA3_512)))
+#define S390X_shake128_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] & S390X_CAPBIT(S390X_SHAKE_128)) && (OPENSSL_s390xcap_P.klmd[0] & S390X_CAPBIT(S390X_SHAKE_128)))
+#define S390X_shake256_CAPABLE ((OPENSSL_s390xcap_P.kimd[0] & S390X_CAPBIT(S390X_SHAKE_256)) && (OPENSSL_s390xcap_P.klmd[0] & S390X_CAPBIT(S390X_SHAKE_256)))
 
 /* Convert md-size to block-size. */
 #define S390X_KECCAK1600_BSZ(n) ((KECCAK1600_WIDTH - ((n) << 1)) >> 3)
@@ -162,26 +144,16 @@ static int s390x_sha3_init(EVP_MD_CTX * evp_ctx)
 {
 	KECCAK1600_CTX * ctx = evp_ctx->md_data;
 	const size_t bsz = evp_ctx->digest->block_size;
-
 	/*-
 	 * KECCAK1600_CTX structure's pad field is used to store the KIMD/KLMD
 	 * function code.
 	 */
 	switch(bsz) {
-		case S390X_KECCAK1600_BSZ(224):
-		    ctx->pad = S390X_SHA3_224;
-		    break;
-		case S390X_KECCAK1600_BSZ(256):
-		    ctx->pad = S390X_SHA3_256;
-		    break;
-		case S390X_KECCAK1600_BSZ(384):
-		    ctx->pad = S390X_SHA3_384;
-		    break;
-		case S390X_KECCAK1600_BSZ(512):
-		    ctx->pad = S390X_SHA3_512;
-		    break;
-		default:
-		    return 0;
+		case S390X_KECCAK1600_BSZ(224): ctx->pad = S390X_SHA3_224; break;
+		case S390X_KECCAK1600_BSZ(256): ctx->pad = S390X_SHA3_256; break;
+		case S390X_KECCAK1600_BSZ(384): ctx->pad = S390X_SHA3_384; break;
+		case S390X_KECCAK1600_BSZ(512): ctx->pad = S390X_SHA3_512; break;
+		default: return 0;
 	}
 	memzero(ctx->A, sizeof(ctx->A));
 	ctx->num = 0;
@@ -194,7 +166,6 @@ static int s390x_shake_init(EVP_MD_CTX * evp_ctx)
 {
 	KECCAK1600_CTX * ctx = evp_ctx->md_data;
 	const size_t bsz = evp_ctx->digest->block_size;
-
 	/*-
 	 * KECCAK1600_CTX structure's pad field is used to store the KIMD/KLMD
 	 * function code.

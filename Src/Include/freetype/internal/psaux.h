@@ -1237,79 +1237,29 @@ typedef struct  PSAux_ServiceRec_ {
 	(* t1_decrypt)(FT_Byte*   buffer,
 	    FT_Offset length,
 	    FT_UShort seed);
-
-	FT_UInt32
-	(* cff_random)(FT_UInt32 r);
-
-	void
-	(* ps_decoder_init)(PS_Decoder*  ps_decoder,
-	    void*        decoder,
-	    FT_Bool is_t1);
-
-	void
-	(* t1_make_subfont)(FT_Face face,
-	    PS_Private priv,
-	    CFF_SubFont subfont);
-
+	FT_UInt32 (* cff_random)(FT_UInt32 r);
+	void (* ps_decoder_init)(PS_Decoder*  ps_decoder, void*        decoder, FT_Bool is_t1);
+	void (* t1_make_subfont)(FT_Face face, PS_Private priv, CFF_SubFont subfont);
 	T1_CMap_Classes t1_cmap_classes;
-
 	/* fields after this comment line were added after version 2.1.10 */
 	const AFM_Parser_FuncsRec*  afm_parser_funcs;
-
 	const CFF_Decoder_FuncsRec*  cff_decoder_funcs;
 } PSAux_ServiceRec, * PSAux_Service;
 
 /* backward compatible type definition */
 typedef PSAux_ServiceRec PSAux_Interface;
-
-/*************************************************************************/
-/*************************************************************************/
-/*****                                                               *****/
-/*****                 Some convenience functions                    *****/
-/*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
-
-#define IS_PS_NEWLINE(ch) \
-	( (ch) == '\r' ||         \
-	(ch) == '\n' )
-
-#define IS_PS_SPACE(ch)  \
-	( (ch) == ' '         || \
-	IS_PS_NEWLINE(ch) || \
-	(ch) == '\t'        || \
-	(ch) == '\f'        || \
-	(ch) == '\0' )
-
-#define IS_PS_SPECIAL(ch)       \
-	( (ch) == '/'                || \
-	(ch) == '(' || (ch) == ')' || \
-	(ch) == '<' || (ch) == '>' || \
-	(ch) == '[' || (ch) == ']' || \
-	(ch) == '{' || (ch) == '}' || \
-	(ch) == '%'                )
-
-#define IS_PS_DELIM(ch)  \
-	( IS_PS_SPACE(ch)   || \
-	IS_PS_SPECIAL(ch) )
-
-#define IS_PS_DIGIT(ch)        \
-	( (ch) >= '0' && (ch) <= '9' )
-
-#define IS_PS_XDIGIT(ch)            \
-	( IS_PS_DIGIT(ch)              || \
-	( (ch) >= 'A' && (ch) <= 'F' ) || \
-	( (ch) >= 'a' && (ch) <= 'f' ) )
-
-#define IS_PS_BASE85(ch)       \
-	( (ch) >= '!' && (ch) <= 'u' )
-
-#define IS_PS_TOKEN(cur, limit, token)                                \
-	( (char)(cur)[0] == (token)[0]                                     && \
-	( (cur) + sizeof( (token) ) == (limit) ||                          \
-	( (cur) + sizeof( (token) ) < (limit)          &&                 \
-	IS_PS_DELIM( (cur)[sizeof( (token) ) - 1]) ) )             && \
-	ft_strncmp( (char*)(cur), (token), sizeof( (token) ) - 1) == 0 )
+//
+// Some convenience functions
+//
+#define IS_PS_NEWLINE(ch) ((ch) == '\r' || (ch) == '\n')
+#define IS_PS_SPACE(ch)   ((ch) == ' ' || IS_PS_NEWLINE(ch) || (ch) == '\t' || (ch) == '\f' || (ch) == '\0')
+#define IS_PS_SPECIAL(ch) ((ch) == '/' || (ch) == '(' || (ch) == ')' || (ch) == '<' || (ch) == '>' || (ch) == '[' || (ch) == ']' || (ch) == '{' || (ch) == '}' || (ch) == '%')
+#define IS_PS_DELIM(ch)  (IS_PS_SPACE(ch) || IS_PS_SPECIAL(ch) )
+#define IS_PS_DIGIT(ch) ((ch) >= '0' && (ch) <= '9')
+#define IS_PS_XDIGIT(ch) (IS_PS_DIGIT(ch) || ((ch) >= 'A' && (ch) <= 'F' ) || ((ch) >= 'a' && (ch) <= 'f' ))
+#define IS_PS_BASE85(ch) ( (ch) >= '!' && (ch) <= 'u' )
+#define IS_PS_TOKEN(cur, limit, token) ((char)(cur)[0] == (token)[0] && ((cur) + sizeof( (token) ) == (limit) || \
+	((cur) + sizeof( (token) ) < (limit) && IS_PS_DELIM( (cur)[sizeof( (token) ) - 1]) ) ) && ft_strncmp( (char*)(cur), (token), sizeof( (token) ) - 1) == 0)
 
 FT_END_HEADER
 

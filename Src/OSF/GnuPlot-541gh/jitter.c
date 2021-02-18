@@ -33,10 +33,10 @@ static int compare_xypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 // The jittering algorithm is inspired by the beeswarm plot variant in R.
 // 
 //static double jdist(const GpCoordinate * pi, const GpCoordinate * pj)
-double GnuPlot::JDist(const GpCoordinate * pi, const GpCoordinate * pj) const
+double GnuPlot::JDist(const GpCoordinate * pi, const GpCoordinate * pj)
 {
-	int delx = AxS.MapiX(pi->x) - AxS.MapiX(pj->x);
-	int dely = AxS.MapiY(pi->y) - AxS.MapiY(pj->y);
+	int delx = MapiX(pi->x) - MapiX(pj->x);
+	int dely = MapiY(pi->y) - MapiY(pj->y);
 	return sqrt(delx*delx + dely*dely);
 }
 

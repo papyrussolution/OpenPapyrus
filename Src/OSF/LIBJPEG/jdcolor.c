@@ -324,9 +324,9 @@ METHODDEF(void) rgb1_gray_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, 
  */
 METHODDEF(void) rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
-	register JSAMPROW outptr;
-	register JSAMPROW inptr0, inptr1, inptr2;
-	register JDIMENSION col;
+	JSAMPROW outptr;
+	JSAMPROW inptr0, inptr1, inptr2;
+	JDIMENSION col;
 	JDIMENSION num_cols = cinfo->output_width;
 	while(--num_rows >= 0) {
 		inptr0 = input_buf[0][input_row];
@@ -350,10 +350,10 @@ METHODDEF(void) rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMEN
 METHODDEF(void) null_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
 	int ci;
-	register int nc = cinfo->num_components;
-	register JSAMPROW outptr;
-	register JSAMPROW inptr;
-	register JDIMENSION col;
+	int nc = cinfo->num_components;
+	JSAMPROW outptr;
+	JSAMPROW inptr;
+	JDIMENSION col;
 	JDIMENSION num_cols = cinfo->output_width;
 	while(--num_rows >= 0) {
 		for(ci = 0; ci < nc; ci++) {

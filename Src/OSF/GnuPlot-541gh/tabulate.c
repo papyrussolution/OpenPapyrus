@@ -15,15 +15,7 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-// File or datablock for output during 'set table' mode 
-//FILE * table_outfile = NULL;
-//udvt_entry * GPO.Tab.P_Var = NULL;
-//bool   table_mode = FALSE;
-//char * GPO.Tab.P_Sep = NULL;
-//at_type * GPO.Tab.P_FilterAt = NULL;
-//static FILE * GPO.Tab.P_OutFile;
-
-#define OUTPUT_NUMBER(x, y) { /*GPO.*/OutputNumber(x, y, buffer); len = strappend(&line, &size, len, buffer); }
+#define OUTPUT_NUMBER(x, y) { OutputNumber(x, y, buffer); len = strappend(&line, &size, len, buffer); }
 #define BUFFERSIZE 128
 
 static char * expand_newline(const char * in)
@@ -113,9 +105,9 @@ static bool imploded(const curve_points * pPlot)
 void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 {
 	int i;
-	char * buffer = (char*)gp_alloc(BUFFERSIZE, "print_table: output buffer");
+	char * buffer = (char *)gp_alloc(BUFFERSIZE, "print_table: output buffer");
 	size_t size = 2*BUFFERSIZE;
-	char * line = (char*)gp_alloc(size, "print_table: line buffer");
+	char * line = (char *)gp_alloc(size, "print_table: line buffer");
 	size_t len = 0;
 	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
 	for(int curve = 0; curve < plotNum; curve++, pPlot = pPlot->next) {
@@ -318,9 +310,9 @@ void GnuPlot::Print3DTable(int pcount)
 	int i, surface;
 	GpCoordinate * point;
 	GpCoordinate * tail;
-	char * buffer = (char*)gp_alloc(BUFFERSIZE, "print_3dtable: output buffer");
+	char * buffer = (char *)gp_alloc(BUFFERSIZE, "print_3dtable: output buffer");
 	size_t size = 2*BUFFERSIZE;
-	char * line = (char*)gp_alloc(size, "print_3dtable: line buffer");
+	char * line = (char *)gp_alloc(size, "print_3dtable: line buffer");
 	size_t len = 0;
 	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
 	for(surface = 0, this_plot = first_3dplot; surface < pcount; this_plot = this_plot->next_sp, surface++) {
@@ -486,7 +478,7 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 		char buf[64]; /* buffer large enough to hold %g + 2 extra chars */
 		char sep = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';
 		size_t size = sizeof(buf);
-		char * line = (char*)gp_alloc(size, "");
+		char * line = (char *)gp_alloc(size, "");
 		size_t len = 0;
 		line[0] = NUL;
 		for(col = 0; col < ncols; col++) {

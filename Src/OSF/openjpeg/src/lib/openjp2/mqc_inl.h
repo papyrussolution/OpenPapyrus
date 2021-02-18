@@ -157,10 +157,10 @@ static INLINE OPJ_UINT32 opj_mqc_raw_decode(opj_mqc_t *mqc)
 }
 
 #define DOWNLOAD_MQC_VARIABLES(mqc, curctx, a, c, ct) \
-        register const opj_mqc_state_t **curctx = mqc->curctx; \
-        register OPJ_UINT32 c = mqc->c; \
-        register OPJ_UINT32 a = mqc->a; \
-        register OPJ_UINT32 ct = mqc->ct
+        const opj_mqc_state_t **curctx = mqc->curctx; \
+        OPJ_UINT32 c = mqc->c; \
+        OPJ_UINT32 a = mqc->a; \
+        OPJ_UINT32 ct = mqc->ct
 
 #define UPLOAD_MQC_VARIABLES(mqc, curctx, a, c, ct) \
         mqc->curctx = curctx; \

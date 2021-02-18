@@ -771,7 +771,7 @@ static GP_INLINE void DJSVGA_trim_font_string(const char * fontspec, char * font
 
 GrFont * DJSVGA_LoadFont(const char * name)
 {
-	GrFont * font = GrLoadFont((char*)name);
+	GrFont * font = GrLoadFont((char *)name);
 	if(dj_fontscale != 1. && font != NULL) {
 		GrFont * scaled;
 		int w, h;
@@ -1436,7 +1436,7 @@ TERM_PUBLIC void DJSVGA_image(uint M, uint N, coordval * image, gpiPoint * corne
 			    colors[n + 1] = GrAllocColorID(rgb255.r, rgb255.g, rgb255.b);
 		    }
 		    /* create image */
-		    im = GrImageBuild((char*)data, M, N, colors);
+		    im = GrImageBuild((char *)data, M, N, colors);
 		    SAlloc::F(colors);
 		    SAlloc::F(data);
 		    break;
@@ -1695,7 +1695,7 @@ static int grx_alt_key_table [][2] = {
 
 static int grx_int_compare(const void * elem1, const void * elem2)
 {
-	int val = *(int*)elem1 - *(int*)elem2;
+	int val = *(int *)elem1 - *(int *)elem2;
 	return (0 < val) - (val < 0);
 }
 

@@ -309,28 +309,28 @@ TERM_PUBLIC void CACA_options(GpTermEntry * pThis, GnuPlot * pGp)
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch((enum CACA_id)pGp->Pgm.LookupTableForCurrentToken(&CACA_opts[0])) {
 			case CACA_DEFAULTOPTIONS:
-			    term->put_text = CACA_enhanced_put_text;
-			    term->flags |= TERM_ENHANCED_TEXT;
-			    term->flags |= TERM_NO_OUTPUTFILE;
-			    term->flags &= ~TERM_MONOCHROME;
+			    pThis->put_text = CACA_enhanced_put_text;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->flags |= TERM_NO_OUTPUTFILE;
+			    pThis->flags &= ~TERM_MONOCHROME;
 			    ZFREE(CACA_driver);
 			    ZFREE(CACA_title);
 			    CACA_background = CACA_WHITE;
 			    CACA_charset = CACA_BLOCKS;
-			    term->MaxX = CACA_xmax = CACA_XMAX;
-			    term->MaxY = CACA_ymax = CACA_YMAX;
+			    pThis->MaxX = CACA_xmax = CACA_XMAX;
+			    pThis->MaxY = CACA_ymax = CACA_YMAX;
 			    CACA_mono = FALSE;
 			    CACA_inverted = FALSE;
 			    break;
 			case CACA_ENH:
 			    pGp->Pgm.Shift();
-			    term->put_text = CACA_enhanced_put_text;
-			    term->flags |= TERM_ENHANCED_TEXT;
+			    pThis->put_text = CACA_enhanced_put_text;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case CACA_NOENH:
 			    pGp->Pgm.Shift();
-			    term->put_text = CACA_put_text;
-			    term->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->put_text = CACA_put_text;
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case CACA_CHARSET: {
 			    pGp->Pgm.Shift();
@@ -435,20 +435,20 @@ TERM_PUBLIC void CACA_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    CACA_nosuspend = FALSE;
 
 			    if(CACA_exportonly)
-				    term->flags &= ~TERM_NO_OUTPUTFILE;
+				    pThis->flags &= ~TERM_NO_OUTPUTFILE;
 			    else
-				    term->flags |= TERM_NO_OUTPUTFILE;
+				    pThis->flags |= TERM_NO_OUTPUTFILE;
 			    break;
 		    }
 			case CACA_COLOR:
 			    pGp->Pgm.Shift();
 			    CACA_mono = FALSE;
-			    term->flags &= ~TERM_MONOCHROME;
+			    pThis->flags &= ~TERM_MONOCHROME;
 			    break;
 			case CACA_MONOCHROME:
 			    pGp->Pgm.Shift();
 			    CACA_mono = TRUE;
-			    term->flags |= TERM_MONOCHROME;
+			    pThis->flags |= TERM_MONOCHROME;
 			    break;
 			case CACA_INVERTED:
 			    pGp->Pgm.Shift();
@@ -472,8 +472,8 @@ TERM_PUBLIC void CACA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    float width, height;
 			    pGp->Pgm.Shift();
 			    pGp->ParseTermSize(&width, &height, PIXELS);
-			    term->MaxX = CACA_xmax = width - 1;
-			    term->MaxY = CACA_ymax = height - 1;
+			    pThis->MaxX = CACA_xmax = width - 1;
+			    pThis->MaxY = CACA_ymax = height - 1;
 			    break;
 		    }
 			case CACA_TITLE:
@@ -488,7 +488,7 @@ TERM_PUBLIC void CACA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case CACA_OTHER:
 			default:
-			    pGp->IntErrorCurToken("extraneous argument in set terminal %s", term->name);
+			    pGp->IntErrorCurToken("extraneous argument in set terminal %s", pThis->name);
 			    break;
 		}
 	}
@@ -1348,8 +1348,8 @@ static void CACA_add_path_point(int x, int y)
 {
 	if(CACA_polygon_points >= CACA_maxpath) {
 		CACA_maxpath += 10;
-		CACA_path_x = (int*)gp_realloc(CACA_path_x, CACA_maxpath * sizeof(int), "path_x");
-		CACA_path_y = (int*)gp_realloc(CACA_path_y, CACA_maxpath * sizeof(int), "path_y");
+		CACA_path_x = (int *)gp_realloc(CACA_path_x, CACA_maxpath * sizeof(int), "path_x");
+		CACA_path_y = (int *)gp_realloc(CACA_path_y, CACA_maxpath * sizeof(int), "path_y");
 	}
 	CACA_path_x[CACA_polygon_points] = x;
 	CACA_path_y[CACA_polygon_points] = CACA_ymax - y;
@@ -1391,7 +1391,7 @@ static void CACA_init_angles()
 
 static char * CACA_encode_text(const char * str)
 {
-	char * text = (char*)str;
+	char * text = (char *)str;
 	int i;
 	if(text == NULL)
 		return NULL;
@@ -1399,7 +1399,7 @@ static char * CACA_encode_text(const char * str)
 		/* convert from utf8 to ascii */
 		char const * s = str;
 		size_t len = strlen_utf8(str);
-		text = (char*)malloc(len + 1);
+		text = (char *)malloc(len + 1);
 		i = 0;
 		while((*s != NUL) && (i < len)) {
 			size_t bytes;
@@ -1416,7 +1416,7 @@ static char * CACA_encode_text(const char * str)
 	}
 	else if((encoding == S_ENC_CP437) && (CACA_charset == CACA_ASCII)) {
 		/* convert from cp437 to ascii */
-		text = (char*)gp_alloc(strlen(str) + 1, "text");
+		text = (char *)gp_alloc(strlen(str) + 1, "text");
 		for(i = 0; i < strlen(str); i++) {
 			uint32_t c = caca_cp437_to_utf32(str[i]);
 			text[i] = caca_utf32_to_ascii(c);
@@ -1425,14 +1425,13 @@ static char * CACA_encode_text(const char * str)
 	}
 	else if(encoding == S_ENC_CP437) {
 		/* convert from cp437 to utf8 */
-		char * s = text = (char*)gp_alloc(4 * strlen(str) + 1, "text");
+		char * s = text = (char *)gp_alloc(4 * strlen(str) + 1, "text");
 		for(i = 0; i < strlen(str); i++) {
 			uint32_t c = caca_cp437_to_utf32(str[i]);
 			s += caca_utf32_to_utf8(s, c);
 		}
 		*s = NUL;
 	}
-
 	return text;
 }
 
@@ -2559,7 +2558,7 @@ TERM_PUBLIC void CACA_enhanced_put_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE, "" /* font */, 1 /* size */, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char *)str, TRUE, "" /* font */, 1 /* size */, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);

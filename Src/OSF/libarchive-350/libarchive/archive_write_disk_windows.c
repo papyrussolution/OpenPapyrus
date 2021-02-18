@@ -567,12 +567,8 @@ static int la_CreateHardLinkW(wchar_t * linkname, wchar_t * target)
 	}
 	ret = (*f)(linkname, target, NULL);
 	if(!ret) {
-		/* Under windows 2000, it is necessary to remove
-		 * the "\\?\" prefix. */
-#define IS_UNC(name)    ((name[0] == L'U' || name[0] == L'u') &&        \
-	(name[1] == L'N' || name[1] == L'n') &&        \
-	(name[2] == L'C' || name[2] == L'c') &&        \
-	name[3] == L'\\')
+		// Under windows 2000, it is necessary to remove the "\\?\" prefix. 
+#define IS_UNC(name)    ((name[0] == L'U' || name[0] == L'u') && (name[1] == L'N' || name[1] == L'n') && (name[2] == L'C' || name[2] == L'c') && name[3] == L'\\')
 		if(!wcsncmp(linkname, L"\\\\?\\", 4)) {
 			linkname += 4;
 			if(IS_UNC(linkname))
@@ -588,7 +584,6 @@ static int la_CreateHardLinkW(wchar_t * linkname, wchar_t * target)
 	}
 	return (ret);
 }
-
 /*
  * Create file or directory symolic link
  *

@@ -275,22 +275,14 @@ cairo_private void _cairo_xlib_font_close(cairo_xlib_font_t * font);
 #define CAIRO_RENDER_HAS_TRIANGLES(surface)             CAIRO_RENDER_AT_LEAST((surface), 0, 4)
 #define CAIRO_RENDER_HAS_TRISTRIP(surface)                      CAIRO_RENDER_AT_LEAST((surface), 0, 4)
 #define CAIRO_RENDER_HAS_TRIFAN(surface)                        CAIRO_RENDER_AT_LEAST((surface), 0, 4)
-
 #define CAIRO_RENDER_HAS_PICTURE_TRANSFORM(surface)     CAIRO_RENDER_AT_LEAST((surface), 0, 6)
 #define CAIRO_RENDER_HAS_FILTERS(surface)       CAIRO_RENDER_AT_LEAST((surface), 0, 6)
 #define CAIRO_RENDER_HAS_FILTER_GOOD(surface) FALSE
 #define CAIRO_RENDER_HAS_FILTER_BEST(surface) FALSE
-
 #define CAIRO_RENDER_HAS_EXTENDED_REPEAT(surface)       CAIRO_RENDER_AT_LEAST((surface), 0, 10)
 #define CAIRO_RENDER_HAS_GRADIENTS(surface)     CAIRO_RENDER_AT_LEAST((surface), 0, 10)
-
 #define CAIRO_RENDER_HAS_PDF_OPERATORS(surface) CAIRO_RENDER_AT_LEAST((surface), 0, 11)
-
-#define CAIRO_RENDER_SUPPORTS_OPERATOR(surface, op)     \
-	((op) <= CAIRO_OPERATOR_SATURATE ||                        \
-	(CAIRO_RENDER_HAS_PDF_OPERATORS(surface) &&       \
-	(op) <= CAIRO_OPERATOR_HSL_LUMINOSITY))
-
+#define CAIRO_RENDER_SUPPORTS_OPERATOR(surface, op) ((op) <= CAIRO_OPERATOR_SATURATE || (CAIRO_RENDER_HAS_PDF_OPERATORS(surface) && (op) <= CAIRO_OPERATOR_HSL_LUMINOSITY))
 /*
  * Return whether two xlib surfaces share the same
  * screen.  Both core and Render drawing require this

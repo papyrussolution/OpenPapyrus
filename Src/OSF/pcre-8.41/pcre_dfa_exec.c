@@ -3103,7 +3103,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_dfa_exec(const pcre32 * argument_r
 				// Advance to a non-unique first pcre_uchar after study */
 				else if(start_bits) {
 					while(current_subject < end_subject) {
-						register uint32 c = UCHAR21TEST(current_subject);
+						uint32 c = UCHAR21TEST(current_subject);
 #ifndef COMPILE_PCRE8
 						if(c > 255) c = 255;
 #endif
@@ -3144,7 +3144,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_dfa_exec(const pcre32 * argument_r
                                    string... so we don't do this when the string is sufficiently long. */
 
 				if(has_req_char && end_subject - current_subject < REQ_BYTE_MAX) {
-					register PCRE_PUCHAR p = current_subject + (has_first_char ? 1 : 0);
+					PCRE_PUCHAR p = current_subject + (has_first_char ? 1 : 0);
 
                                         /* We don't need to repeat the search if we haven't yet reached the
                                            place we found it at last time. */
@@ -3152,7 +3152,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_dfa_exec(const pcre32 * argument_r
 					if(p > req_char_ptr) {
 						if(req_char != req_char2) {
 							while(p < end_subject) {
-								register uint32 pp = UCHAR21INCTEST(p);
+								uint32 pp = UCHAR21INCTEST(p);
 								if(pp == req_char || pp == req_char2) {
 									p--; break;
 								}

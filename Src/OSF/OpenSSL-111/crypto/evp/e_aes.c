@@ -182,11 +182,8 @@ static void ctr64_inc(uchar * counter)
 #define HWAES_xts_decrypt aes_p8_xts_decrypt
 #endif
 
-#if     !defined(OPENSSL_NO_ASM) &&                     (  \
-	((defined(__i386)       || defined(__i386__)    || \
-	defined(_M_IX86)) && defined(OPENSSL_IA32_SSE2))|| \
-	defined(__x86_64)       || defined(__x86_64__)  || \
-	defined(_M_AMD64)       || defined(_M_X64)      )
+#if !defined(OPENSSL_NO_ASM) && (((defined(__i386) || defined(__i386__) || defined(_M_IX86)) && defined(OPENSSL_IA32_SSE2))|| \
+	defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64))
 
 extern uint OPENSSL_ia32cap_P[];
 
@@ -908,12 +905,10 @@ static int aes_t4_ccm_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 }
 
 #define aes_t4_ccm_cipher aes_ccm_cipher
-static int aes_t4_ccm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len);
+static int aes_t4_ccm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len);
 
 #ifndef OPENSSL_NO_OCB
-static int aes_t4_ocb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
-    const uchar * iv, int enc)
+static int aes_t4_ocb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 	EVP_AES_OCB_CTX * octx = EVP_C_DATA(EVP_AES_OCB_CTX, ctx);
 	if(!iv && !key)
@@ -925,19 +920,11 @@ static int aes_t4_ocb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 			 * needs both. We could possibly optimise to remove setting the
 			 * decrypt for an encryption operation.
 			 */
-			aes_t4_set_encrypt_key(key, EVP_CIPHER_CTX_key_length(ctx) * 8,
-			    &octx->ksenc.ks);
-			aes_t4_set_decrypt_key(key, EVP_CIPHER_CTX_key_length(ctx) * 8,
-			    &octx->ksdec.ks);
-			if(!CRYPTO_ocb128_init(&octx->ocb,
-			    &octx->ksenc.ks, &octx->ksdec.ks,
-			    (block128_f)aes_t4_encrypt,
-			    (block128_f)aes_t4_decrypt,
-			    NULL))
+			aes_t4_set_encrypt_key(key, EVP_CIPHER_CTX_key_length(ctx) * 8, &octx->ksenc.ks);
+			aes_t4_set_decrypt_key(key, EVP_CIPHER_CTX_key_length(ctx) * 8, &octx->ksdec.ks);
+			if(!CRYPTO_ocb128_init(&octx->ocb, &octx->ksenc.ks, &octx->ksdec.ks, (block128_f)aes_t4_encrypt, (block128_f)aes_t4_decrypt, NULL))
 				return 0;
-		}
-		while(0);
-
+		} while(0);
 		/*
 		 * If we have an iv we can set it directly, otherwise use saved IV.
 		 */
@@ -1185,16 +1172,12 @@ typedef struct {
 #define S390X_AES_FC(keylen)  (S390X_AES_128 + ((((keylen) << 3) - 128) >> 6))
 
 /* Most modes of operation need km for partial block processing. */
-#define S390X_aes_128_CAPABLE (OPENSSL_s390xcap_P.km[0] &      \
-	S390X_CAPBIT(S390X_AES_128))
-#define S390X_aes_192_CAPABLE (OPENSSL_s390xcap_P.km[0] &      \
-	S390X_CAPBIT(S390X_AES_192))
-#define S390X_aes_256_CAPABLE (OPENSSL_s390xcap_P.km[0] &      \
-	S390X_CAPBIT(S390X_AES_256))
+#define S390X_aes_128_CAPABLE (OPENSSL_s390xcap_P.km[0] & S390X_CAPBIT(S390X_AES_128))
+#define S390X_aes_192_CAPABLE (OPENSSL_s390xcap_P.km[0] & S390X_CAPBIT(S390X_AES_192))
+#define S390X_aes_256_CAPABLE (OPENSSL_s390xcap_P.km[0] & S390X_CAPBIT(S390X_AES_256))
 
 #define s390x_aes_init_key aes_init_key
-static int s390x_aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
-    const uchar * iv, int enc);
+static int s390x_aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
 
 #define S390X_aes_128_cbc_CAPABLE      1       /* checked by callee */
 #define S390X_aes_192_cbc_CAPABLE      1
@@ -1204,56 +1187,40 @@ static int s390x_aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 #define s390x_aes_cbc_init_key aes_init_key
 
 #define s390x_aes_cbc_cipher aes_cbc_cipher
-static int s390x_aes_cbc_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len);
+static int s390x_aes_cbc_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len);
 
 #define S390X_aes_128_ecb_CAPABLE      S390X_aes_128_CAPABLE
 #define S390X_aes_192_ecb_CAPABLE      S390X_aes_192_CAPABLE
 #define S390X_aes_256_ecb_CAPABLE      S390X_aes_256_CAPABLE
 
-static int s390x_aes_ecb_init_key(EVP_CIPHER_CTX * ctx,
-    const uchar * key,
-    const uchar * iv, int enc)
+static int s390x_aes_ecb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 	S390X_AES_ECB_CTX * cctx = EVP_C_DATA(S390X_AES_ECB_CTX, ctx);
 	const int keylen = EVP_CIPHER_CTX_key_length(ctx);
-
 	cctx->fc = S390X_AES_FC(keylen);
 	if(!enc)
 		cctx->fc |= S390X_DECRYPT;
-
 	memcpy(cctx->km.param.k, key, keylen);
 	return 1;
 }
 
-static int s390x_aes_ecb_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len)
+static int s390x_aes_ecb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len)
 {
 	S390X_AES_ECB_CTX * cctx = EVP_C_DATA(S390X_AES_ECB_CTX, ctx);
-
 	s390x_km(in, len, out, cctx->fc, &cctx->km.param);
 	return 1;
 }
 
-#define S390X_aes_128_ofb_CAPABLE (S390X_aes_128_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kmo[0] &        \
-	S390X_CAPBIT(S390X_AES_128)))
-#define S390X_aes_192_ofb_CAPABLE (S390X_aes_192_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kmo[0] &        \
-	S390X_CAPBIT(S390X_AES_192)))
-#define S390X_aes_256_ofb_CAPABLE (S390X_aes_256_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kmo[0] &        \
-	S390X_CAPBIT(S390X_AES_256)))
+#define S390X_aes_128_ofb_CAPABLE (S390X_aes_128_CAPABLE && (OPENSSL_s390xcap_P.kmo[0] & S390X_CAPBIT(S390X_AES_128)))
+#define S390X_aes_192_ofb_CAPABLE (S390X_aes_192_CAPABLE && (OPENSSL_s390xcap_P.kmo[0] & S390X_CAPBIT(S390X_AES_192)))
+#define S390X_aes_256_ofb_CAPABLE (S390X_aes_256_CAPABLE && (OPENSSL_s390xcap_P.kmo[0] & S390X_CAPBIT(S390X_AES_256)))
 
-static int s390x_aes_ofb_init_key(EVP_CIPHER_CTX * ctx,
-    const uchar * key,
-    const uchar * ivec, int enc)
+static int s390x_aes_ofb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * ivec, int enc)
 {
 	S390X_AES_OFB_CTX * cctx = EVP_C_DATA(S390X_AES_OFB_CTX, ctx);
 	const uchar * iv = EVP_CIPHER_CTX_original_iv(ctx);
 	const int keylen = EVP_CIPHER_CTX_key_length(ctx);
 	const int ivlen = EVP_CIPHER_CTX_iv_length(ctx);
-
 	memcpy(cctx->kmo.param.cv, iv, ivlen);
 	memcpy(cctx->kmo.param.k, key, keylen);
 	cctx->fc = S390X_AES_FC(keylen);
@@ -1300,30 +1267,20 @@ static int s390x_aes_ofb_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	return 1;
 }
 
-#define S390X_aes_128_cfb_CAPABLE (S390X_aes_128_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kmf[0] &        \
-	S390X_CAPBIT(S390X_AES_128)))
-#define S390X_aes_192_cfb_CAPABLE (S390X_aes_192_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kmf[0] &        \
-	S390X_CAPBIT(S390X_AES_192)))
-#define S390X_aes_256_cfb_CAPABLE (S390X_aes_256_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kmf[0] &        \
-	S390X_CAPBIT(S390X_AES_256)))
+#define S390X_aes_128_cfb_CAPABLE (S390X_aes_128_CAPABLE && (OPENSSL_s390xcap_P.kmf[0] & S390X_CAPBIT(S390X_AES_128)))
+#define S390X_aes_192_cfb_CAPABLE (S390X_aes_192_CAPABLE && (OPENSSL_s390xcap_P.kmf[0] & S390X_CAPBIT(S390X_AES_192)))
+#define S390X_aes_256_cfb_CAPABLE (S390X_aes_256_CAPABLE && (OPENSSL_s390xcap_P.kmf[0] & S390X_CAPBIT(S390X_AES_256)))
 
-static int s390x_aes_cfb_init_key(EVP_CIPHER_CTX * ctx,
-    const uchar * key,
-    const uchar * ivec, int enc)
+static int s390x_aes_cfb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * ivec, int enc)
 {
 	S390X_AES_CFB_CTX * cctx = EVP_C_DATA(S390X_AES_CFB_CTX, ctx);
 	const uchar * iv = EVP_CIPHER_CTX_original_iv(ctx);
 	const int keylen = EVP_CIPHER_CTX_key_length(ctx);
 	const int ivlen = EVP_CIPHER_CTX_iv_length(ctx);
-
 	cctx->fc = S390X_AES_FC(keylen);
 	cctx->fc |= 16 << 24; /* 16 bytes cipher feedback */
 	if(!enc)
 		cctx->fc |= S390X_DECRYPT;
-
 	cctx->res = 0;
 	memcpy(cctx->kmf.param.cv, iv, ivlen);
 	memcpy(cctx->kmf.param.k, key, keylen);
@@ -1429,18 +1386,11 @@ static int s390x_aes_cfb1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 #define s390x_aes_ctr_init_key aes_init_key
 
 #define s390x_aes_ctr_cipher aes_ctr_cipher
-static int s390x_aes_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len);
+static int s390x_aes_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len);
 
-#define S390X_aes_128_gcm_CAPABLE (S390X_aes_128_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kma[0] &        \
-	S390X_CAPBIT(S390X_AES_128)))
-#define S390X_aes_192_gcm_CAPABLE (S390X_aes_192_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kma[0] &        \
-	S390X_CAPBIT(S390X_AES_192)))
-#define S390X_aes_256_gcm_CAPABLE (S390X_aes_256_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kma[0] &        \
-	S390X_CAPBIT(S390X_AES_256)))
+#define S390X_aes_128_gcm_CAPABLE (S390X_aes_128_CAPABLE && (OPENSSL_s390xcap_P.kma[0] & S390X_CAPBIT(S390X_AES_128)))
+#define S390X_aes_192_gcm_CAPABLE (S390X_aes_192_CAPABLE && (OPENSSL_s390xcap_P.kma[0] & S390X_CAPBIT(S390X_AES_192)))
+#define S390X_aes_256_gcm_CAPABLE (S390X_aes_256_CAPABLE && (OPENSSL_s390xcap_P.kma[0] & S390X_CAPBIT(S390X_AES_256)))
 
 /* iv + padding length for iv lenghts != 12 */
 #define S390X_gcm_ivpadlen(i)  ((((i) + 15) >> 4 << 4) + 16)
@@ -1449,15 +1399,12 @@ static int s390x_aes_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
  * Process additional authenticated data. Returns 0 on success. Code is
  * big-endian.
  */
-static int s390x_aes_gcm_aad(S390X_AES_GCM_CTX * ctx, const uchar * aad,
-    size_t len)
+static int s390x_aes_gcm_aad(S390X_AES_GCM_CTX * ctx, const uchar * aad, size_t len)
 {
 	ulong long alen;
 	int n, rem;
-
 	if(ctx->kma.param.tpcl)
 		return -2;
-
 	alen = ctx->kma.param.taadl + len;
 	if(alen > (U64(1) << 61) || (sizeof(len) == 8 && alen < len))
 		return -1;
@@ -1979,15 +1926,9 @@ static int s390x_aes_xts_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 static int s390x_aes_xts_ctrl(EVP_CIPHER_CTX *, int type, int arg, void * ptr);
 #define s390x_aes_xts_cleanup aes_xts_cleanup
 
-#define S390X_aes_128_ccm_CAPABLE (S390X_aes_128_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kmac[0] &       \
-	S390X_CAPBIT(S390X_AES_128)))
-#define S390X_aes_192_ccm_CAPABLE (S390X_aes_192_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kmac[0] &       \
-	S390X_CAPBIT(S390X_AES_192)))
-#define S390X_aes_256_ccm_CAPABLE (S390X_aes_256_CAPABLE &&            \
-	(OPENSSL_s390xcap_P.kmac[0] &       \
-	S390X_CAPBIT(S390X_AES_256)))
+#define S390X_aes_128_ccm_CAPABLE (S390X_aes_128_CAPABLE && (OPENSSL_s390xcap_P.kmac[0] & S390X_CAPBIT(S390X_AES_128)))
+#define S390X_aes_192_ccm_CAPABLE (S390X_aes_192_CAPABLE && (OPENSSL_s390xcap_P.kmac[0] & S390X_CAPBIT(S390X_AES_192)))
+#define S390X_aes_256_ccm_CAPABLE (S390X_aes_256_CAPABLE && (OPENSSL_s390xcap_P.kmac[0] & S390X_CAPBIT(S390X_AES_256)))
 
 #define S390X_CCM_AAD_FLAG     0x40
 

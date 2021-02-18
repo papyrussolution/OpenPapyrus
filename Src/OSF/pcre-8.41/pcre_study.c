@@ -79,8 +79,8 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 	BOOL utf = (options & PCRE_UTF8) != 0;
 	BOOL had_recurse = FALSE;
 	recurse_check this_recurse;
-	register int branchlength = 0;
-	register pcre_uchar * cc = (pcre_uchar*)code + 1 + LINK_SIZE;
+	int branchlength = 0;
+	pcre_uchar * cc = (pcre_uchar*)code + 1 + LINK_SIZE;
 	if((*countptr)++ > 1000) 
 		return -1;  /* too complex */
 	if(oneof4(*code, OP_CBRA, OP_SCBRA, OP_CBRAPOS, OP_SCBRAPOS))
@@ -90,7 +90,7 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 	for(;; ) {
 		int d, min;
 		pcre_uchar * cs, * ce;
-		register pcre_uchar op = *cc;
+		pcre_uchar op = *cc;
 		switch(op) {
 			case OP_COND:
 			case OP_SCOND:
@@ -670,7 +670,7 @@ static const pcre_uchar * set_table_bit(pcre_uint8 * start_bits, const pcre_ucha
  */
 static void set_type_bits(pcre_uint8 * start_bits, int cbit_type, uint table_limit, compile_data * cd)
 {
-	register uint32 c;
+	uint32 c;
 	for(c = 0; c < table_limit; c++) start_bits[c] |= cd->cbits[c+cbit_type];
 #if defined SUPPORT_UTF && defined COMPILE_PCRE8
 	if(table_limit == 32) 
@@ -739,7 +739,7 @@ static void set_nottype_bits(pcre_uint8 * start_bits, int cbit_type, uint table_
  */
 static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL utf, compile_data * cd)
 {
-	register uint32 c;
+	uint32 c;
 	int yield = SSB_DONE;
 #if defined SUPPORT_UTF && defined COMPILE_PCRE8
 	int table_limit = utf ? 16 : 32;

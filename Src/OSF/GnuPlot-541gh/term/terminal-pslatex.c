@@ -286,7 +286,7 @@ TERM_PUBLIC void PSTEX_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	tc = (struct pstex_text_command *)gp_alloc(sizeof(struct pstex_text_command), pThis->name);
 	tc->x = x;
 	tc->y = y;
-	tc->label = (char*)gp_alloc(strlen(str) + 1, pThis->name);
+	tc->label = (char *)gp_alloc(strlen(str) + 1, pThis->name);
 	strcpy(tc->label, str);
 	tc->justify = GPO.TPsB.Justify;
 	tc->angle = GPO.TPsB.Ang;

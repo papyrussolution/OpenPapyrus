@@ -826,8 +826,7 @@ enum connect_t {
 	CONNECT_DONE /* 17 connected fine to the remote or the SOCKS proxy */
 };
 
-#define SOCKS_STATE(x) (((x) >= CONNECT_SOCKS_INIT) &&  \
-	((x) < CONNECT_DONE))
+#define SOCKS_STATE(x) (((x) >= CONNECT_SOCKS_INIT) && ((x) < CONNECT_DONE))
 #define SOCKS_REQUEST_BUFSIZE 600  /* room for large user/pw (255 max each) */
 
 struct connstate {

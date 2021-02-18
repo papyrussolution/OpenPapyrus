@@ -15,25 +15,14 @@ static void set_contour();
 static void set_cornerpoles();
 static void set_decimalsign();
 static int  assign_label_tag();
-static void set_loadpath();
-static void set_locale();
 static void set_minus_sign();
 static void set_micro();
-//static void set_parametric();
-//static void set_pointsize();
-//static void set_pointintervalbox();
 static void set_psdir();
-//static void set_rgbmax();
-//static void set_samples();
-static void set_timefmt();
 static void set_zero();
 static void set_raxis();
-static void set_xyplane();
-static void set_ticslevel();
 
 /******** Local functions ********/
 
-//static void load_tic_series(GpAxis * axis);
 static int assign_arrowstyle_tag();
 static void set_mttics(GpAxis * this_axis);
 
@@ -130,17 +119,11 @@ ITERATE:
 			case S_LABEL: SetLabel(); break;
 			case S_LINK:
 			case S_NONLINEAR: LinkCommand(); break;
-			case S_LOADPATH:
-			    set_loadpath();
-			    break;
-			case S_LOCALE:
-			    set_locale();
-			    break;
-			case S_LOGSCALE:
-			    SetLogScale();
-			    break;
+			case S_LOADPATH:  SetLoadPath(); break;
+			case S_LOCALE: SetLocale(); break;
+			case S_LOGSCALE: SetLogScale(); break;
 			case S_MACROS:
-			    /* Aug 2013 - macros are always enabled */
+			    // Aug 2013 - macros are always enabled 
 			    Pgm.Shift();
 			    break;
 			case S_MAPPING: SetMapping(); break;
@@ -215,9 +198,7 @@ ITERATE:
 			case S_THETA: SetTheta(); break;
 			case S_TICS: SetTics(); break;
 			case S_TICSCALE: SetTicScale(); break;
-			case S_TIMEFMT:
-			    set_timefmt();
-			    break;
+			case S_TIMEFMT:  SetTimeFmt(); break;
 			case S_TIMESTAMP: SetTimeStamp(); break;
 			case S_TITLE:
 			    SetXYZLabel(&Gg.LblTitle);
@@ -354,12 +335,8 @@ ITERATE:
 			case S_X2ZEROAXIS: SetZeroAxis(SECOND_X_AXIS); break;
 			case S_Y2ZEROAXIS: SetZeroAxis(SECOND_Y_AXIS); break;
 			case S_ZEROAXIS: SetAllZeroAxis(); break;
-			case S_XYPLANE:
-			    set_xyplane();
-			    break;
-			case S_TICSLEVEL:
-			    set_ticslevel();
-			    break;
+			case S_XYPLANE:  SetXyPlane(); break;
+			case S_TICSLEVEL: SetTicsLevel(); break;
 			default:
 			    IntErrorCurToken("unrecognized option - see 'help set'.");
 			    break;
@@ -536,7 +513,7 @@ static int assign_arrow_tag()
 bool GnuPlot::SetAutoscaleAxis(GpAxis * pThis)
 {
 	char keyword[16];
-	char * name = (char*)&(axis_name((AXIS_INDEX)pThis->index)[0]);
+	char * name = (char *)&(axis_name((AXIS_INDEX)pThis->index)[0]);
 	if(Pgm.EqualsCur(name)) {
 		pThis->set_autoscale = AUTOSCALE_BOTH;
 		pThis->min_constraint = CONSTRAINT_NONE;
@@ -656,42 +633,42 @@ void GnuPlot::SetBars()
 	int save_token;
 	Pgm.Shift();
 	if(Pgm.EndOfCommand())
-		reset_bars();
+		ResetBars();
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.EqualsCur("default")) {
-			reset_bars();
+			ResetBars();
 			Pgm.Shift();
 			return;
 		}
 		/* Jul 2015 - allow a separate line type for error bars */
 		save_token = Pgm.GetCurTokenIdx();
-		LpParse(&bar_lp, LP_ADHOC, FALSE);
+		LpParse(&Gr.BarLp, LP_ADHOC, FALSE);
 		if(Pgm.GetCurTokenIdx() != save_token) {
-			bar_lp.flags = LP_ERRORBAR_SET;
+			Gr.BarLp.flags = LP_ERRORBAR_SET;
 			continue;
 		}
 		if(Pgm.AlmostEqualsCur("s$mall")) {
-			bar_size = 0.0;
+			Gr.BarSize = 0.0;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("l$arge")) {
-			bar_size = 1.0;
+			Gr.BarSize = 1.0;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("full$width")) {
-			bar_size = -1.0;
+			Gr.BarSize = -1.0;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("front")) {
-			bar_layer = LAYER_FRONT;
+			Gr.BarLayer = LAYER_FRONT;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("back")) {
-			bar_layer = LAYER_BACK;
+			Gr.BarLayer = LAYER_BACK;
 			Pgm.Shift();
 		}
 		else
-			bar_size = RealExpression();
+			Gr.BarSize = RealExpression();
 	}
 }
 //
@@ -1440,7 +1417,7 @@ void GnuPlot::SetFit()
 			else
 				value = RealExpression();
 			if(value > 0.0 && value < 1.0) {
-				udvt_entry * v = Ev.AddUdvByName((char*)FITLIMIT);
+				udvt_entry * v = Ev.AddUdvByName((char *)FITLIMIT);
 				Gcomplex(&v->udv_value, value, 0);
 			}
 			else {
@@ -1938,7 +1915,7 @@ void GnuPlot::SetKey()
 	char * hpos_warn = "Multiple horizontal position settings";
 	char * reg_warn = "Multiple location region settings";
 	char * sdir_warn = "Multiple stack direction settings";
-	legend_key * key = &keyT;
+	legend_key * key = &Gg.KeyT;
 	/* Only for backward compatibility with deprecated "set keytitle foo" */
 	if(Pgm.AlmostEqualsCur("keyt$itle"))
 		goto S_KEYTITLE;
@@ -1952,9 +1929,7 @@ void GnuPlot::SetKey()
 			case S_KEY_OFF:
 			    key->visible = FALSE;
 			    break;
-			case S_KEY_DEFAULT:
-			    reset_key();
-			    break;
+			case S_KEY_DEFAULT: ResetKey(); break;
 			case S_KEY_TOP:
 			    if(vpos_set)
 				    IntWarnCurToken(vpos_warn);
@@ -2295,21 +2270,22 @@ static int assign_label_tag()
 			break;
 	return (last + 1);
 }
-
-/* process 'set loadpath' command */
-static void set_loadpath()
+//
+// process 'set loadpath' command 
+//
+//static void set_loadpath()
+void GnuPlot::SetLoadPath()
 {
-	/* We pick up all loadpath elements here before passing
-	 * them on to set_var_loadpath()
-	 */
+	// We pick up all loadpath elements here before passing
+	// them on to set_var_loadpath()
 	char * collect = NULL;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
 		clear_loadpath();
 	}
-	else while(!GPO.Pgm.EndOfCommand()) {
+	else while(!Pgm.EndOfCommand()) {
 			char * ss;
-			if((ss = GPO.TryToGetString())) {
+			if((ss = TryToGetString())) {
 				int len = (collect ? strlen(collect) : 0);
 				gp_expand_tilde(&ss);
 				collect = (char *)gp_realloc(collect, len+1+strlen(ss)+1, "tmp loadpath");
@@ -2322,7 +2298,7 @@ static void set_loadpath()
 				SAlloc::F(ss);
 			}
 			else {
-				GPO.IntErrorCurToken("expected string");
+				IntErrorCurToken("expected string");
 			}
 		}
 	if(collect) {
@@ -2344,19 +2320,20 @@ void GnuPlot::SetFontPath()
 //
 // process 'set locale' command 
 //
-static void set_locale()
+//static void set_locale()
+void GnuPlot::SetLocale()
 {
 	char * s;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
 		init_locale();
 	}
-	else if((s = GPO.TryToGetString())) {
+	else if((s = TryToGetString())) {
 		set_var_locale(s);
 		SAlloc::F(s);
 	}
 	else
-		GPO.IntErrorCurToken("expected string");
+		IntErrorCurToken("expected string");
 }
 //
 // process 'set logscale' command 
@@ -2687,7 +2664,7 @@ void GnuPlot::SetMouse()
 			}
 			else {
 				int itmp = IntExpression();
-				if(itmp >= MOUSE_COORDINATES_REAL &&  itmp <= MOUSE_COORDINATES_FUNCTION) {
+				if(itmp >= MOUSE_COORDINATES_REAL && itmp <= MOUSE_COORDINATES_FUNCTION) {
 					if(MOUSE_COORDINATES_ALT == itmp && !mouse_alt_string)
 						fprintf(stderr, "please 'set mouse mouseformat <fmt>' first.\n");
 					else if(MOUSE_COORDINATES_FUNCTION == itmp && mouse_readout_function.at == NULL)
@@ -2701,12 +2678,12 @@ void GnuPlot::SetMouse()
 		}
 		else if(Pgm.AlmostEqualsCur("noru$ler")) {
 			Pgm.Shift();
-			set_ruler(FALSE, -1, -1);
+			SetRuler(term, FALSE, -1, -1);
 		}
 		else if(Pgm.AlmostEqualsCur("ru$ler")) {
 			Pgm.Shift();
 			if(Pgm.EndOfCommand() || !Pgm.EqualsCur("at")) {
-				set_ruler(TRUE, -1, -1);
+				SetRuler(term, TRUE, -1, -1);
 			}
 			else { // set mouse ruler at ... 
 				GpPosition where;
@@ -2716,7 +2693,7 @@ void GnuPlot::SetMouse()
 					IntErrorCurToken("expecting ruler coordinates");
 				GetPosition(&where);
 				MapPosition(term, &where, &x, &y, "ruler at");
-				set_ruler(TRUE, x, y);
+				SetRuler(term, TRUE, x, y);
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("zoomfac$tors")) {
@@ -4280,9 +4257,9 @@ void GnuPlot::SetWall()
 void GnuPlot::SetRgbMax()
 {
 	Pgm.Shift();
-	rgbmax = Pgm.EndOfCommand() ? 255 : RealExpression();
-	if(rgbmax <= 0)
-		rgbmax = 255;
+	Gr.RgbMax = Pgm.EndOfCommand() ? 255.0 : RealExpression();
+	if(Gr.RgbMax <= 0.0)
+		Gr.RgbMax = 255.0;
 }
 //
 // process 'set samples' command 
@@ -4617,43 +4594,43 @@ void GnuPlot::SetTerminal()
 	if(Pgm.EndOfCommand()) {
 		list_terms();
 		screen_ok = FALSE;
-		return;
 	}
-	if(Pgm.EqualsCur("push")) { // `set term push' 
+	else if(Pgm.EqualsCur("push")) { // `set term push' 
 		push_terminal(interactive);
-		Pgm.Shift();
-		return;
-	}
-#ifdef USE_MOUSE
-	event_reset(reinterpret_cast<GpEvent *>(1)); /* cancel zoombox etc. */
-#endif
-	TermReset(term);
-	if(Pgm.EqualsCur("pop")) { // `set term pop' 
-		pop_terminal();
 		Pgm.Shift();
 	}
 	else {
-		// `set term <normal terminal>' 
-		// NB: if set_term() exits via IntError() then term will not be changed 
-		term = SetTerm();
-		// get optional mode parameters
-		// not all drivers reset the option string before
-		// strcat-ing to it, so we reset it for them
-		*term_options = 0;
-		term->options(term, this);
-		if(interactive && *term_options)
-			fprintf(stderr, "Options are '%s'\n", term_options);
-		if(term->flags & TERM_MONOCHROME)
-			init_monochrome();
-		// Sanity check:
-		// The most common failure mode found by fuzzing is a divide-by-zero
-		// caused by initializing the basic unit of the current terminal character
-		// size to zero.  I keep patching the individual terminals, but a generic
-		// sanity check may at least prevent a crash due to mistyping.
-		if(term->ChrH <= 0 || term->ChrV <= 0) {
-			IntWarn(NO_CARET, "invalid terminal font size");
-			term->ChrH = 10;
-			term->ChrV = 10;
+#ifdef USE_MOUSE
+		EventReset(reinterpret_cast<GpEvent *>(1), term); // cancel zoombox etc. 
+#endif
+		TermReset(term);
+		if(Pgm.EqualsCur("pop")) { // `set term pop' 
+			pop_terminal();
+			Pgm.Shift();
+		}
+		else {
+			// `set term <normal terminal>' 
+			// NB: if set_term() exits via IntError() then term will not be changed 
+			term = SetTerm();
+			// get optional mode parameters
+			// not all drivers reset the option string before
+			// strcat-ing to it, so we reset it for them
+			*term_options = 0;
+			term->options(term, this);
+			if(interactive && *term_options)
+				fprintf(stderr, "Options are '%s'\n", term_options);
+			if(term->flags & TERM_MONOCHROME)
+				init_monochrome();
+			// Sanity check:
+			// The most common failure mode found by fuzzing is a divide-by-zero
+			// caused by initializing the basic unit of the current terminal character
+			// size to zero.  I keep patching the individual terminals, but a generic
+			// sanity check may at least prevent a crash due to mistyping.
+			if(term->ChrH <= 0 || term->ChrV <= 0) {
+				IntWarn(NO_CARET, "invalid terminal font size");
+				term->ChrH = 10;
+				term->ChrV = 10;
+			}
 		}
 	}
 }
@@ -4848,40 +4825,43 @@ void GnuPlot::SetTicScale()
 // process 'set ticslevel' command 
 // is datatype 'time' relevant here ? 
 // 
-static void set_ticslevel()
+//static void set_ticslevel()
+void GnuPlot::SetTicsLevel()
 {
-	GPO.Pgm.Shift();
-	xyplane.z = GPO.RealExpression();
+	Pgm.Shift();
+	xyplane.z = RealExpression();
 	xyplane.absolute = FALSE;
 }
 // 
 // process 'set xyplane' command 
 // is datatype 'time' relevant here ? 
 // 
-static void set_xyplane()
+//static void set_xyplane()
+void GnuPlot::SetXyPlane()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EqualsCur("at")) {
-		GPO.Pgm.Shift();
-		xyplane.z = GPO.RealExpression();
+	Pgm.Shift();
+	if(Pgm.EqualsCur("at")) {
+		Pgm.Shift();
+		xyplane.z = RealExpression();
 		xyplane.absolute = TRUE;
 		return;
 	}
-	else if(!GPO.Pgm.AlmostEqualsCur("rel$ative")) { // deprecated syntax 
-		GPO.Pgm.Rollback();
+	else if(!Pgm.AlmostEqualsCur("rel$ative")) { // deprecated syntax 
+		Pgm.Rollback();
 	}
-	set_ticslevel();
+	SetTicsLevel();
 }
 //
-// Process 'set P_TimeFormat' command */
+// Process 'set timeformat' command */
 // V5: fallback default if timecolumn(N,"format") not used during input.
 // Use "set {axis}tics format" to control the output format.
 //
-static void set_timefmt()
+//static void set_timefmt()
+void GnuPlot::SetTimeFmt()
 {
-	char * ctmp;
-	GPO.Pgm.Shift();
-	if((ctmp = GPO.TryToGetString())) {
+	Pgm.Shift();
+	char * ctmp = TryToGetString();
+	if(ctmp) {
 		SAlloc::F(P_TimeFormat);
 		P_TimeFormat = ctmp;
 	}
@@ -4964,14 +4944,14 @@ void GnuPlot::SetView()
 	if(Pgm.EqualsCur("map") || (Pgm.AlmostEqualsCur("proj$ection") && Pgm.EqualsNext("xy"))) {
 		splot_map = TRUE;
 		xz_projection = yz_projection = FALSE;
-		mapview_scale = 1.0;
-		azimuth = 0;
+		_3DBlk.MapviewScale = 1.0f;
+		_3DBlk.Azimuth = 0.0f;
 		if(Pgm.AlmostEqualsCur("proj$ection"))
 			Pgm.Shift();
 		Pgm.Shift();
 		if(Pgm.EqualsCur("scale")) {
 			Pgm.Shift();
-			mapview_scale = static_cast<float>(RealExpression());
+			_3DBlk.MapviewScale = static_cast<float>(RealExpression());
 		}
 		if(V.AspectRatio3D != 0) {
 			V.AspectRatio = -1.0f;
@@ -4995,7 +4975,7 @@ void GnuPlot::SetView()
 		// FIXME: should these be deferred to do_3dplot()? 
 		xyplane.z = 0.0;
 		xyplane.absolute = FALSE;
-		azimuth = -90;
+		_3DBlk.Azimuth = -90.0f;
 		AxS[FIRST_Z_AXIS].tic_pos = CENTRE;
 		AxS[FIRST_Z_AXIS].manual_justify = TRUE;
 		return;
@@ -5020,13 +5000,13 @@ void GnuPlot::SetView()
 	}
 	if(Pgm.EqualsCur("azimuth")) {
 		Pgm.Shift();
-		azimuth = static_cast<float>(RealExpression());
+		_3DBlk.Azimuth = static_cast<float>(RealExpression());
 		return;
 	}
-	local_vals[0] = surface_rot_x;
-	local_vals[1] = surface_rot_z;
-	local_vals[2] = surface_scale;
-	local_vals[3] = surface_zscale;
+	local_vals[0] = _3DBlk.SurfaceRotX;
+	local_vals[1] = _3DBlk.SurfaceRotZ;
+	local_vals[2] = _3DBlk.SurfaceScale;
+	local_vals[3] = _3DBlk.SurfaceZScale;
 	for(i = 0; i < 4 && !(Pgm.EndOfCommand());) {
 		if(Pgm.EqualsCur(",")) {
 			if(was_comma) i++;
@@ -5050,11 +5030,11 @@ void GnuPlot::SetView()
 	if(local_vals[3] < 1e-6)
 		IntErrorCurToken(errmsg2, "z");
 	xz_projection = yz_projection = FALSE;
-	surface_rot_x = static_cast<float>(local_vals[0]);
-	surface_rot_z = static_cast<float>(local_vals[1]);
-	surface_scale = static_cast<float>(local_vals[2]);
-	surface_zscale = static_cast<float>(local_vals[3]);
-	surface_lscale = logf(surface_scale);
+	_3DBlk.SurfaceRotX = static_cast<float>(local_vals[0]);
+	_3DBlk.SurfaceRotZ = static_cast<float>(local_vals[1]);
+	_3DBlk.SurfaceScale = static_cast<float>(local_vals[2]);
+	_3DBlk.SurfaceZScale = static_cast<float>(local_vals[3]);
+	_3DBlk.SurfaceLScale = logf(_3DBlk.SurfaceScale);
 }
 //
 // process 'set zero' command 
@@ -5720,8 +5700,8 @@ void GnuPlot::LoadTicUser(GpAxis * pAx)
 			Pgm.SetTokenIdx(save_token);
 			ZFREE(ticlabel);
 		}
-		/* in any case get the value */
-		ticposition = get_num_or_time(pAx);
+		// in any case get the value 
+		ticposition = GetNumOrTime(pAx);
 		if(!Pgm.EndOfCommand() && !Pgm.EqualsCur(",") && !Pgm.EqualsCur(")")) {
 			ticlevel = IntExpression(); /* tic level */
 		}
@@ -5786,7 +5766,7 @@ void GnuPlot::LoadTicSeries(GpAxis * pAx)
 	double incr, end;
 	int incr_token;
 	t_ticdef * tdef = &(pAx->ticdef);
-	double start = get_num_or_time(pAx);
+	double start = GetNumOrTime(pAx);
 	if(!Pgm.EqualsCur(",")) {
 		// only step specified 
 		incr_token = Pgm.GetCurTokenIdx();
@@ -5797,14 +5777,14 @@ void GnuPlot::LoadTicSeries(GpAxis * pAx)
 	else {
 		Pgm.Shift();
 		incr_token = Pgm.GetCurTokenIdx();
-		incr = get_num_or_time(pAx);
+		incr = GetNumOrTime(pAx);
 		if(!Pgm.EqualsCur(",")) {
 			// only step and increment specified 
 			end = VERYLARGE;
 		}
 		else {
 			Pgm.Shift();
-			end = get_num_or_time(pAx);
+			end = GetNumOrTime(pAx);
 		}
 	}
 	if(start < end && incr <= 0)
@@ -6198,7 +6178,7 @@ void GnuPlot::SetSpiderPlot()
 	UnsetAllTics();
 	V.AspectRatio = 1.0f;
 	Gg.Polar = false;
-	keyT.auto_titles = NOAUTO_KEYTITLES;
+	Gg.KeyT.auto_titles = NOAUTO_KEYTITLES;
 	data_style = SPIDERPLOT;
 	Gg.SpiderPlot = true;
 }

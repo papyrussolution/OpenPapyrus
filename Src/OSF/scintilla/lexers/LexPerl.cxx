@@ -1721,16 +1721,14 @@ public:
 					}
 				}
 			}
-			else if(sc.ch == '='            // POD
-			    && setPOD.Contains(sc.chNext)
-			    && sc.atLineStart) {
+			else if(sc.ch == '=' && setPOD.Contains(sc.chNext) && sc.atLineStart) { // POD
 				sc.SetState(SCE_PL_POD);
 				backFlag = BACK_NONE;
 			}
-			else if(sc.ch == '-' && setWordStart.Contains(sc.chNext)) {     // extended '-' cases
+			else if(sc.ch == '-' && setWordStart.Contains(sc.chNext)) { // extended '-' cases
 				Sci_PositionU bk = sc.currentPos;
 				Sci_PositionU fw = 2;
-				if(setSingleCharOp.Contains(sc.chNext) &&       // file test operators
+				if(setSingleCharOp.Contains(sc.chNext) && // file test operators
 				    !setWord.Contains(sc.GetRelative(2))) {
 					sc.SetState(SCE_PL_WORD);
 				}

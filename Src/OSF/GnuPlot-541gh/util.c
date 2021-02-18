@@ -3,28 +3,29 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
-
-/* Exported (set-table) variables */
-char * decimalsign = NULL; /* decimal sign */
-char degree_sign[8] = "°"; /* degree sign.  Defaults to UTF-8 but will be changed to match encoding */
-/* encoding-specific characters used by gprintf() */
+//
+// Exported (set-table) variables 
+//
+char * decimalsign = NULL; // decimal sign 
+char degree_sign[8] = "°"; // degree sign.  Defaults to UTF-8 but will be changed to match encoding 
+// encoding-specific characters used by gprintf() 
 const char * micro = NULL;
 const char * minus_sign = NULL;
 bool use_micro = false;
 bool use_minus_sign = false;
-char * numeric_locale = NULL; /* Holds the name of the current LC_NUMERIC as set by "set decimal locale" */
-char * time_locale = NULL; /* Holds the name of the current LC_TIME as set by "set locale" */
-const char * current_prompt = NULL; /* to be set by read_line() */
-
-/* TRUE if command just typed; becomes FALSE whenever we
- * send some other output to screen.  If FALSE, the command line
- * will be echoed to the screen before the ^ error message.
- */
+char * numeric_locale = NULL; // Holds the name of the current LC_NUMERIC as set by "set decimal locale" 
+char * time_locale = NULL;    // Holds the name of the current LC_TIME as set by "set locale" 
+const char * current_prompt = NULL; // to be set by read_line() 
+//
+// TRUE if command just typed; becomes FALSE whenever we
+// send some other output to screen.  If FALSE, the command line
+// will be echoed to the screen before the ^ error message.
+// 
 bool screen_ok;
 int debug = 0;
-
-/* internal prototypes */
-
+//
+// internal prototypes 
+//
 static void mant_exp(double, double, bool, double *, int *, const char *);
 static void parse_sq(char *);
 static char * utf8_strchrn(const char * s, int N);
@@ -300,11 +301,9 @@ char * FASTCALL gp_strdup(const char * s)
 #endif
 	return d;
 }
-
-/*
- * Allocate a new string and initialize it by concatenating two
- * existing strings.
- */
+//
+// Allocate a new string and initialize it by concatenating two existing strings.
+//
 char * gp_stradd(const char * a, const char * b)
 {
 	char * p_new = (char *)gp_alloc(strlen(a)+strlen(b)+1, "gp_stradd");
@@ -1203,15 +1202,15 @@ static char * utf8_strchrn(const char * s, int N)
 {
 	int i = 0, j = 0;
 	if(N <= 0)
-		return (char*)s;
+		return (char *)s;
 	while(s[i]) {
 		if((s[i] & 0xc0) != 0x80) {
 			if(j++ == N) 
-				return (char*)&s[i];
+				return (char *)&s[i];
 		}
 		i++;
 	}
-	return (char*)&s[i];
+	return (char *)&s[i];
 }
 
 char * gp_strchrn(const char * s, int N)
@@ -1219,7 +1218,7 @@ char * gp_strchrn(const char * s, int N)
 	if(encoding == S_ENC_UTF8)
 		return utf8_strchrn(s, N);
 	else
-		return (char*)&s[N];
+		return (char *)&s[N];
 }
 
 // TRUE if strings a and b are identical save for leading or trailing whitespace 
@@ -1250,14 +1249,16 @@ size_t strappend(char ** dest, size_t * size, size_t len, const char * src)
 	if(destlen + srclen + 1 > *size) {
 		while(destlen + srclen + 1 > *size)
 			*size *= 2;
-		*dest = (char*)gp_realloc(*dest, *size, "strappend");
+		*dest = (char *)gp_realloc(*dest, *size, "strappend");
 	}
 	memcpy(*dest + destlen, src, srclen + 1);
 	return destlen + srclen;
 }
-
-/* convert a GpValue to a string */
-char * value_to_str(GpValue * val, bool need_quotes)
+//
+// convert a GpValue to a string 
+//
+//char * value_to_str(const GpValue * val, bool need_quotes)
+char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 {
 	static int i = 0;
 	static char * s[4] = {NULL, NULL, NULL, NULL};
@@ -1266,38 +1267,38 @@ char * value_to_str(GpValue * val, bool need_quotes)
 	int j = i;
 	i = (i + 1) % 4;
 	if(s[j] == NULL) {
-		s[j] = (char*)gp_alloc(minbufsize, "value_to_str");
+		s[j] = (char *)gp_alloc(minbufsize, "value_to_str");
 		c[j] = minbufsize;
 	}
-	switch(val->type) {
+	switch(pVal->type) {
 		case INTGR:
-		    sprintf(s[j], PLD, val->v.int_val);
+		    sprintf(s[j], PLD, pVal->v.int_val);
 		    break;
 		case CMPLX:
-		    if(isnan(val->v.cmplx_val.real))
+		    if(isnan(pVal->v.cmplx_val.real))
 			    sprintf(s[j], "NaN");
-		    else if(val->v.cmplx_val.imag != 0.0)
-			    sprintf(s[j], "{%s, %s}", num_to_str(val->v.cmplx_val.real), num_to_str(val->v.cmplx_val.imag));
+		    else if(pVal->v.cmplx_val.imag != 0.0)
+			    sprintf(s[j], "{%s, %s}", num_to_str(pVal->v.cmplx_val.real), num_to_str(pVal->v.cmplx_val.imag));
 		    else
-			    return num_to_str(val->v.cmplx_val.real);
+			    return num_to_str(pVal->v.cmplx_val.real);
 		    break;
 		case STRING:
-		    if(val->v.string_val) {
-			    if(!need_quotes) {
-				    return val->v.string_val;
+		    if(pVal->v.string_val) {
+			    if(!needQuotes) {
+				    return pVal->v.string_val;
 			    }
 			    else {
-				    const char * cstr = conv_text(val->v.string_val);
+				    const char * cstr = conv_text(pVal->v.string_val);
 				    size_t reqsize = strlen(cstr) + 3;
 				    if(reqsize > c[j]) {
 					    // Don't leave c[j[ non-zero if realloc fails 
-					    s[j] = (char*)gp_realloc(s[j], reqsize + 20, NULL);
+					    s[j] = (char *)gp_realloc(s[j], reqsize + 20, NULL);
 					    if(s[j] != NULL) {
 						    c[j] = reqsize + 20;
 					    }
 					    else {
 						    c[j] = 0;
-						    GPO.IntError(NO_CARET, "out of memory");
+						    IntError(NO_CARET, "out of memory");
 					    }
 				    }
 				    sprintf(s[j], "\"%s\"", cstr);
@@ -1308,16 +1309,16 @@ char * value_to_str(GpValue * val, bool need_quotes)
 		    }
 		    break;
 		case DATABLOCK:
-		    sprintf(s[j], "<%d line data block>", datablock_size(val));
+		    sprintf(s[j], "<%d line data block>", pVal->GetDatablockSize());
 		    break;
 		case ARRAY:
-		    sprintf(s[j], "<%d element array>", (int)(val->v.value_array->v.int_val));
-		    if(val->v.value_array->type == COLORMAP_ARRAY)
+		    sprintf(s[j], "<%d element array>", (int)(pVal->v.value_array->v.int_val));
+		    if(pVal->v.value_array->type == COLORMAP_ARRAY)
 			    strcat(s[j], " (colormap)");
 		    break;
 		case VOXELGRID:
 	    {
-		    int N = val->v.vgrid->size;
+		    int N = pVal->v.vgrid->size;
 		    sprintf(s[j], "%d x %d x %d voxel grid", N, N, N);
 		    break;
 	    }
@@ -1325,15 +1326,16 @@ char * value_to_str(GpValue * val, bool need_quotes)
 		    sprintf(s[j], "<undefined>");
 		    break;
 		default:
-		    GPO.IntError(NO_CARET, "unknown type in value_to_str()");
+		    IntError(NO_CARET, "unknown type in value_to_str()");
 	}
 	return s[j];
 }
-
-/* Helper for value_to_str(): convert a single number to decimal
- * format. Rotates through 4 buffers 's[j]', and returns pointers to
- * them, to avoid execution ordering problems if this function is
- * called more than once between sequence points. */
+// 
+// Helper for value_to_str(): convert a single number to decimal
+// format. Rotates through 4 buffers 's[j]', and returns pointers to
+// them, to avoid execution ordering problems if this function is
+// called more than once between sequence points. 
+// 
 static char * num_to_str(double r)
 {
 	static int i = 0;

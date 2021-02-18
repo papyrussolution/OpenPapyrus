@@ -47,35 +47,30 @@ static int gdysize(int yr)
  *
  * parameters and return values revised for gnuplot version 5.3
  */
-
-td_type gstrptime(char * s, char * fmt, struct tm * tm, double * usec, double * reltime)
+//td_type gstrptime(char * s, char * fmt, struct tm * tm, double * usec, double * reltime)
+td_type GnuPlot::GStrPTime(char * s, char * fmt, struct tm * tm, double * usec, double * reltime)
 {
-	int yday = 0;
-	bool sanity_check_date = FALSE;
-	bool reltime_formats = FALSE;
-	bool explicit_pm = FALSE;
-	bool explicit_am = FALSE;
-	bool leading_minus_sign = FALSE;
+	int    yday = 0;
+	bool   sanity_check_date = FALSE;
+	bool   reltime_formats = FALSE;
+	bool   explicit_pm = FALSE;
+	bool   explicit_am = FALSE;
+	bool   leading_minus_sign = FALSE;
 	tm->tm_mday = 1;
 	tm->tm_mon = tm->tm_hour = tm->tm_min = tm->tm_sec = 0;
-	/* make relative times work (user-defined tic step) */
+	// make relative times work (user-defined tic step) 
 	tm->tm_year = ZERO_YEAR;
 	init_timezone(tm);
-	/* Fractional seconds will be returned separately, since
-	 * there is no slot for the fraction in struct tm.
-	 */
+	// Fractional seconds will be returned separately, since
+	// there is no slot for the fraction in struct tm.
 	*usec = 0.0;
-	/* we do not yet calculate wday or yday, so make them illegal
-	 * [but yday will be read by %j]
-	 */
+	// we do not yet calculate wday or yday, so make them illegal [but yday will be read by %j]
 	tm->tm_yday = tm->tm_wday = -1;
-
-	/* If the format requests explicit day, month, or year, then we will
-	 * do sanity checking to make sure the input makes sense.
-	 * For backward compatibility with gnuplot versions through 4.6.6
-	 * hour, minute, seconds default to zero with no error return
-	 * if the corresponding field cannot be found or interpreted.
-	 */
+	// If the format requests explicit day, month, or year, then we will
+	// do sanity checking to make sure the input makes sense.
+	// For backward compatibility with gnuplot versions through 4.6.6
+	// hour, minute, seconds default to zero with no error return
+	// if the corresponding field cannot be found or interpreted.
 	if(strstr(fmt, "%d")) {
 		tm->tm_mday = -1;
 		sanity_check_date = TRUE;
@@ -88,7 +83,7 @@ td_type gstrptime(char * s, char * fmt, struct tm * tm, double * usec, double * 
 		tm->tm_mon = -1;
 		sanity_check_date = TRUE;
 	}
-	/* Relative time formats tD tH tM tS cannot be mixed with date formats */
+	// Relative time formats tD tH tM tS cannot be mixed with date formats 
 	if(strstr(fmt, "%t")) {
 		reltime_formats = TRUE;
 		*reltime = 0.0;
@@ -109,29 +104,26 @@ td_type gstrptime(char * s, char * fmt, struct tm * tm, double * usec, double * 
 				continue;
 			}
 			else
-				break; /* literal match has failed */
+				break; // literal match has failed 
 		}
-		/* we are processing a percent escape */
-
+		// we are processing a percent escape 
 		switch(*++fmt) {
-			case 'b': /* abbreviated month name */
+			case 'b': // abbreviated month name 
 		    {
 			    int m;
-
 			    for(m = 0; m < 12; ++m)
 				    if(strncasecmp(s, abbrev_month_names[m], strlen(abbrev_month_names[m])) == 0) {
 					    s += strlen(abbrev_month_names[m]);
 					    goto found_abbrev_mon;
 				    }
-			    /* get here => not found */
-			    GPO.IntWarn(DATAFILE, "Bad abbreviated month name");
+			    // get here => not found 
+			    IntWarn(DATAFILE, "Bad abbreviated month name");
 			    m = 0;
 found_abbrev_mon:
 			    tm->tm_mon = m;
 			    break;
 		    }
-
-			case 'B': /* full month name */
+			case 'B': // full month name 
 		    {
 			    int m;
 			    for(m = 0; m < 12; ++m)
@@ -139,48 +131,42 @@ found_abbrev_mon:
 					    s += strlen(full_month_names[m]);
 					    goto found_full_mon;
 				    }
-			    /* get here => not found */
-			    GPO.IntWarn(DATAFILE, "Bad full month name");
+			    // get here => not found 
+			    IntWarn(DATAFILE, "Bad full month name");
 			    m = 0;
 found_full_mon:
 			    tm->tm_mon = m;
 			    break;
 		    }
-			case 'd': /* read a day of month */
+			case 'd': // read a day of month 
 			    s = read_int(s, 2, &tm->tm_mday);
 			    break;
-			case 'm': /* month number */
+			case 'm': // month number 
 			    s = read_int(s, 2, &tm->tm_mon);
 			    --tm->tm_mon;
 			    break;
-
-			case 'y': /* year number */
+			case 'y': // year number 
 			    s = read_int(s, 2, &tm->tm_year);
-			    /* In line with the current UNIX98 specification by
-			     * The Open Group and major Unix vendors,
-			     * two-digit years 69-99 refer to the 20th century, and
-			     * values in the range 00-68 refer to the 21st century.
-			     */
+			    // In line with the current UNIX98 specification by
+			    // The Open Group and major Unix vendors,
+			    // two-digit years 69-99 refer to the 20th century, and
+			    // values in the range 00-68 refer to the 21st century.
 			    if(tm->tm_year <= 68)
 				    tm->tm_year += 100;
 			    tm->tm_year += 1900;
 			    break;
-
 			case 'Y':
 			    s = read_int(s, 4, &tm->tm_year);
 			    break;
-
 			case 'j':
 			    s = read_int(s, 3, &tm->tm_yday);
 			    tm->tm_yday--;
 			    sanity_check_date = TRUE;
 			    yday++;
 			    break;
-
 			case 'H':
 			    s = read_int(s, 2, &tm->tm_hour);
 			    break;
-
 			case 'M':
 			    s = read_int(s, 2, &tm->tm_min);
 			    break;
@@ -190,64 +176,60 @@ found_full_mon:
 				    *usec = satof(s);
 			    break;
 			case 's':
-			    /* read EPOCH data
-			     * EPOCH is the std. unix timeformat seconds since 01.01.1970 UTC
-			     */
-		    {
-			    char  * fraction = strchr(s, decimalsign ? *decimalsign : '.');
-			    double ufraction = 0;
-			    double when = strtod(s, &s) - SEC_OFFS_SYS;
-			    ggmtime(tm, when);
-			    if(fraction && fraction < s)
-				    ufraction = satof(fraction);
-			    if(ufraction < 1.) /* Filter out e.g. 123.456e7 */
-				    *usec = ufraction;
-			    *reltime = when; /* not used unless we return DT_DMS ... */
-			    if(when < 0) /* ... which we force for negative times */
-				    reltime_formats = TRUE;
-			    break;
-		    }
-
+			    // read EPOCH data
+			    // EPOCH is the std. unix timeformat seconds since 01.01.1970 UTC
+				{
+					char  * fraction = strchr(s, decimalsign ? *decimalsign : '.');
+					double ufraction = 0;
+					double when = strtod(s, &s) - SEC_OFFS_SYS;
+					ggmtime(tm, when);
+					if(fraction && fraction < s)
+						ufraction = satof(fraction);
+					if(ufraction < 1.) /* Filter out e.g. 123.456e7 */
+						*usec = ufraction;
+					*reltime = when; /* not used unless we return DT_DMS ... */
+					if(when < 0) /* ... which we force for negative times */
+						reltime_formats = TRUE;
+				}
+				break;
 			case 't':
-			    /* Relative time formats tD tH tM tS */
-		    {
-			    double cont = 0;
-			    /* Special case of negative time with first field 0,
-			     * e.g.  -00:12:34
-			     */
-			    if(*reltime == 0) {
-				    while(isspace(*s)) 
-						s++;
-				    if(*s == '-')
-					    leading_minus_sign = TRUE;
-			    }
-			    fmt++;
-			    if(*fmt == 'D') {
-				    cont = 86400. * strtod(s, &s);
-			    }
-			    else if(*fmt == 'H') {
-				    cont = 3600. * strtod(s, &s);
-			    }
-			    else if(*fmt == 'M') {
-				    cont = 60. * strtod(s, &s);
-			    }
-			    else if(*fmt == 'S') {
-				    cont = strtod(s, &s);
-			    }
-			    else {
-				    return DT_BAD;
-			    }
-			    if(*reltime < 0)
-				    *reltime -= fabs(cont);
-			    else if(*reltime > 0)
-				    *reltime += fabs(cont);
-			    else if(leading_minus_sign)
-				    *reltime -= fabs(cont);
-			    else
-				    *reltime = cont;
-			    /* FIXME:  leading precision field should be accepted but ignored */
-			    break;
-		    }
+			    // Relative time formats tD tH tM tS 
+				{
+					double cont = 0;
+					// Special case of negative time with first field 0, e.g.  -00:12:34
+					if(*reltime == 0) {
+						while(isspace(*s)) 
+							s++;
+						if(*s == '-')
+							leading_minus_sign = TRUE;
+					}
+					fmt++;
+					if(*fmt == 'D') {
+						cont = 86400. * strtod(s, &s);
+					}
+					else if(*fmt == 'H') {
+						cont = 3600. * strtod(s, &s);
+					}
+					else if(*fmt == 'M') {
+						cont = 60. * strtod(s, &s);
+					}
+					else if(*fmt == 'S') {
+						cont = strtod(s, &s);
+					}
+					else {
+						return DT_BAD;
+					}
+					if(*reltime < 0)
+						*reltime -= fabs(cont);
+					else if(*reltime > 0)
+						*reltime += fabs(cont);
+					else if(leading_minus_sign)
+						*reltime -= fabs(cont);
+					else
+						*reltime = cont;
+					// FIXME:  leading precision field should be accepted but ignored 
+				}
+				break;
 			case 'a': /* weekday name (ignored) */
 			case 'A': /* weekday name (ignored) */
 			    while(isalpha(*s))
@@ -267,58 +249,47 @@ found_full_mon:
 				    explicit_am = TRUE;
 			    s += 2;
 			    break;
-
 #ifdef HAVE_STRUCT_TM_TM_GMTOFF
 			case 'z': /* timezone offset  */
-		    {
-			    int neg = (*s == '-') ? -1 : 1;
-			    int off_h, off_m;
-			    if(*s == '-' || *s == '+')
-				    s++;
-			    s = read_int(s, 2, &off_h);
-			    if(*s == ':')
-				    s++;
-			    s = read_int(s, 2, &off_m);
-			    tm->tm_gmtoff = 3600*off_h + 60*off_m;
-			    tm->tm_gmtoff *= neg;
-
-			    break;
-		    }
+				{
+					int neg = (*s == '-') ? -1 : 1;
+					int off_h, off_m;
+					if(*s == '-' || *s == '+')
+						s++;
+					s = read_int(s, 2, &off_h);
+					if(*s == ':')
+						s++;
+					s = read_int(s, 2, &off_m);
+					tm->tm_gmtoff = 3600*off_h + 60*off_m;
+					tm->tm_gmtoff *= neg;
+				}
+				break;
 			case 'Z': /* timezone name (ignored) */
 			    while(*s && !isspace(*s))
 				    s++;
 			    break;
 #endif
-
 			default:
-			    GPO.IntWarn(DATAFILE, "Bad time format %%%c", *fmt);
+			    IntWarn(DATAFILE, "Bad time format %%%c", *fmt);
 		}
 		fmt++;
 	}
-
-	/* Relative times are easy.  Just return the value in reltime */
+	// Relative times are easy.  Just return the value in reltime 
 	if(reltime_formats) {
 		return DT_DMS;
 	}
-
 	FPRINTF((stderr, "read date-time : %02d/%02d/%d:%02d:%02d:%02d\n", tm->tm_mday, tm->tm_mon + 1, tm->tm_year, tm->tm_hour,
 	    tm->tm_min, tm->tm_sec));
-
-	/* apply AM/PM correction */
+	// apply AM/PM correction 
 	if((tm->tm_hour < 12) && explicit_pm)
 		tm->tm_hour += 12;
 	if((tm->tm_hour == 12) && explicit_am)
 		tm->tm_hour = 0;
-
-	/* now sanity check the date/time entered, normalising if necessary
-	 * read_int cannot read a -ve number, but can read %m=0 then decrement
-	 * it to -1
-	 */
-
+	// now sanity check the date/time entered, normalising if necessary
+	// read_int cannot read a -ve number, but can read %m=0 then decrement it to -1
 #define S (tm->tm_sec)
 #define M (tm->tm_min)
 #define H (tm->tm_hour)
-
 	if(S >= 60) {
 		M += S / 60;
 		S %= 60;
@@ -343,12 +314,10 @@ found_full_mon:
 			if(tm->tm_yday < 0) {
 				return DT_BAD;
 			}
-			/* we just set month to jan, day to yday, and let the
-			 * normalising code do the work.
-			 */
-
+			// we just set month to jan, day to yday, and let the
+			// normalising code do the work.
 			tm->tm_mon = 0;
-			/* yday is 0->365, day is 1->31 */
+			// yday is 0->365, day is 1->31 
 			tm->tm_mday = tm->tm_yday + 1;
 		}
 		if(tm->tm_mon < 0) {

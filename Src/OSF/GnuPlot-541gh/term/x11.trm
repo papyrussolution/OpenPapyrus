@@ -922,7 +922,7 @@ TERM_PUBLIC int X11_waitforinput(int options)
 		}
 		// got some ipc_back_fd data. Process all of it before moving on to stdin
 		have_any_ipc_back_fd_data = true;
-		n = read(ipc_back_fd, (void*)(l + (char*)&ge), sizeof(ge) - l);
+		n = read(ipc_back_fd, (void*)(l + (char *)&ge), sizeof(ge) - l);
 		if(n == 0) {
 			close(ipc_back_fd);
 			ipc_back_fd = -1;
@@ -1011,7 +1011,7 @@ TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 				/* tell the driver not to supply any events by
 				* appending "-noevents" to the optvec list. */
 				*ptr = noevents;
-				*++ptr = (char*)0; /* terminate */
+				*++ptr = (char *)0; /* terminate */
 			}
 #endif  /* PIPE_IPC */
 			/* Add user-specified background to list of command options */
@@ -1021,7 +1021,7 @@ TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 					; /* do nothing: skip over set arguments */
 				*ptr++ = "-bg";
 				*ptr++ = x11_userbkg;
-				*ptr = (char*)0; /* terminate */
+				*ptr = (char *)0; /* terminate */
 			}
 			/* close the write side of the child's forward fd */
 			close(fdes[1]);
@@ -1639,7 +1639,7 @@ TERM_PUBLIC int X11_make_palette(t_sm_palette * palette)
 		case SMPAL_COLOR_MODE_FUNCTIONS: {
 		    int cnt = 0;
 		    gradient_struct * gradient;
-		    gradient = approximate_palette(palette, -1, -1, &cnt);
+		    gradient = GPO.ApproximatePalette(palette, -1, -1, &cnt);
 		    transmit_gradient(gradient, cnt);
 		    SAlloc::F(gradient);
 		    break;
@@ -1704,7 +1704,7 @@ TERM_PUBLIC void X11_set_color(t_colorspec * colorspec)
 		float fgray = colorspec->value;
 		fputc(X11_GR_BINARY_COLOR, X11_ipc);
 		byte_remaining = sizeof(fgray);
-		c_ptr = (char*)&fgray;
+		c_ptr = (char *)&fgray;
 		while(byte_remaining) {
 			char c_tmp = *c_ptr++ - SET_COLOR_TRANSLATION_CHAR;
 			byte_remaining--;
@@ -1899,7 +1899,7 @@ TERM_PUBLIC void ENHX11_FLUSH()
 
 TERM_PUBLIC void ENHX11_put_text(uint x, uint y, const char * str)
 {
-	char * original_string = (char*)str;
+	char * original_string = (char *)str;
 	static char * initial_font = NULL;
 	double firstpass_fontsize = X11_default_fontsize;
 	int pass = 1;
@@ -1950,7 +1950,7 @@ PASS2:
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE, ENHx11_font, firstpass_fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char *)str, TRUE, ENHx11_font, firstpass_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
@@ -2009,8 +2009,8 @@ TERM_PUBLIC void X11_send_endianess(void)
 	 */
 	ushort tmp = (ushort)ENDIAN_VALUE;
 	fputc(X11_GR_CHECK_ENDIANESS, X11_ipc);
-	fputc(((char*)&tmp)[0], X11_ipc);
-	fputc(((char*)&tmp)[1], X11_ipc);
+	fputc(((char *)&tmp)[0], X11_ipc);
+	fputc(((char *)&tmp)[1], X11_ipc);
 	fputc('\n', X11_ipc);
 	fflush(X11_ipc);
 }

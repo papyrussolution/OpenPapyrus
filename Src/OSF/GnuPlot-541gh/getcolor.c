@@ -389,7 +389,7 @@ static int is_extremum(rgb_color left, rgb_color mid, rgb_color right)
 #define GROW_GRADIENT(n) do {                                           \
 		if(cnt == gradient_size) {                                          \
 			gradient_size += (n);                                           \
-			gradient = (gradient_struct *)realloc(gradient, gradient_size * sizeof(* gradient)); \
+			gradient = (gradient_struct *)SAlloc::R(gradient, gradient_size * sizeof(* gradient)); \
 		}                                                                   \
 } while(0)
 
@@ -407,7 +407,8 @@ static int is_extremum(rgb_color left, rgb_color mid, rgb_color right)
  *  Most probably it's useless to approximate a gradient- or rgbformulae-
  *  palette.  Use it to build gradients from function palettes.
  */
-gradient_struct * approximate_palette(t_sm_palette * palette, int samples, double allowed_deviation, int * gradient_num)
+//gradient_struct * approximate_palette(t_sm_palette * pPalette, int samples, double allowedDeviation, int * pGradientNum)
+gradient_struct * GnuPlot::ApproximatePalette(t_sm_palette * pPalette, int samples, double allowedDeviation, int * pGradientNum)
 {
 	int i = 0, j = 0;
 	double gray = 0;
@@ -422,35 +423,35 @@ gradient_struct * approximate_palette(t_sm_palette * palette, int samples, doubl
 	/* useful defaults */
 	if(samples <= 0)
 		samples = 2000;
-	if(allowed_deviation <= 0)
-		allowed_deviation = 0.003;
-	gradient = (gradient_struct*)malloc(gradient_size * sizeof(gradient_struct));
-	colors = (rgb_color*)malloc(colors_size * sizeof(rgb_color));
+	if(allowedDeviation <= 0)
+		allowedDeviation = 0.003;
+	gradient = (gradient_struct *)SAlloc::M(gradient_size * sizeof(gradient_struct));
+	colors = (rgb_color *)SAlloc::M(colors_size * sizeof(rgb_color));
 	/* start (gray=0.0) is needed */
 	cnt = 0;
-	GPO.SmPltt.ColorComponentsFromGray(0.0, colors + 0);
+	SmPltt.ColorComponentsFromGray(0.0, colors + 0);
 	gradient[0].pos = 0.0;
 	gradient[0].col = colors[0];
 	++cnt;
-	GPO.SmPltt.ColorComponentsFromGray(1.0 / samples, colors + 1);
+	SmPltt.ColorComponentsFromGray(1.0 / samples, colors + 1);
 	for(i = 0; i < samples; ++i) {
 		for(j = 2; i + j <= samples; ++j) {
 			gray = ((double)(i + j)) / samples;
 			if(j == colors_size) {
 				colors_size += 50;
-				colors = (rgb_color *)realloc(colors, colors_size*sizeof(*colors));
+				colors = (rgb_color *)SAlloc::R(colors, colors_size*sizeof(*colors));
 			}
-			GPO.SmPltt.ColorComponentsFromGray(gray, colors + j);
+			SmPltt.ColorComponentsFromGray(gray, colors + j);
 			// test for extremum 
 			if(is_extremum(colors[j - 2], colors[j - 1], colors[j])) {
 				/* fprintf(stderr,"Extremum at %g\n", gray); */
 				/* ++extrema; */
 				break;
 			}
-			/* to big deviation */
-			max_dev = get_max_dev(colors, j, allowed_deviation);
-			if(max_dev > allowed_deviation) {
-				/* fprintf(stderr,"Control Point at %.3g\n",gray); */
+			// to big deviation 
+			max_dev = get_max_dev(colors, j, allowedDeviation);
+			if(max_dev > allowedDeviation) {
+				// fprintf(stderr,"Control Point at %.3g\n",gray); 
 				break;
 			}
 		}
@@ -466,7 +467,7 @@ gradient_struct * approximate_palette(t_sm_palette * palette, int samples, doubl
 		colors[1] = colors[j];
 		i += j - 1;
 	}
-	GPO.SmPltt.ColorComponentsFromGray(1.0, &color);
+	SmPltt.ColorComponentsFromGray(1.0, &color);
 	GROW_GRADIENT(1);
 	gradient[cnt].pos = 1.0;
 	gradient[cnt].col = color;
@@ -480,7 +481,7 @@ gradient_struct * approximate_palette(t_sm_palette * palette, int samples, doubl
 	         cnt, extrema, maximum_j);
 	 ************/
 	SAlloc::F(colors);
-	*gradient_num = cnt;
+	*pGradientNum = cnt;
 	return gradient; /* don't forget to SAlloc::F() it once you'r done with it */
 }
 

@@ -1385,6 +1385,10 @@ public:
 	static PPID FASTCALL helper_dbq_name(const DBConst * params, char * pNameBuf);
 };
 //
+// Descr: Утилита, используемая для инициализации размера строки, возвращаемой динамической функцией.
+//
+int FASTCALL DbeInitSize(int option, DBConst * result, size_t s); 
+//
 //
 //
 #define MONEYTOLDBL(m)         dectobin((m),sizeof(m),2)
@@ -42908,6 +42912,7 @@ private:
 	static int   DynFuncGetRest;
 	static int   DynFuncGetAvgRest;
 	static int   DynFuncGetTrnovr;
+	static int   DynFuncExtFactor;
 
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw); // @<<PPView::Browse
@@ -42942,6 +42947,8 @@ private:
 	TagrCacheItem & FASTCALL GetCacheItem(uint pos) const;
 	int    FlashCacheItems(uint count);
 	int    FlashCacheItem(BExtInsert * pBei, const TagrCacheItem & rItem);
+	bool   IsExtFactorEmpty() const;
+	int    GetExtFactorTitle(SString & rTitle) const;
 
 	TrfrAnlzFilt Filt; // @viewstatefilt
 	enum {

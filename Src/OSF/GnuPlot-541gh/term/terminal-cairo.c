@@ -1120,7 +1120,7 @@ void cairotrm_put_text(GpTermEntry * pThis, uint x, uint y, const char * string)
 		 * an unmatched closing brace in the string. We increment past it (else
 		 * we get stuck in an infinite loop) and try again.
 		 */
-		while(*(string = enhanced_recursion(pThis, (char*)string, TRUE, cairo_enhanced_fontname, plot.fontsize, 0.0, TRUE, TRUE, 0))) {
+		while(*(string = enhanced_recursion(pThis, (char *)string, TRUE, cairo_enhanced_fontname, plot.fontsize, 0.0, TRUE, TRUE, 0))) {
 			cairotrm_enhanced_flush(pThis);
 			// we can only get here if *str == '}' 
 			enh_err_check(string);

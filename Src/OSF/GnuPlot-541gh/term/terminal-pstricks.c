@@ -73,7 +73,7 @@ TERM_PUBLIC int PSTRICKS_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int PSTRICKS_text_angle(int ang);
 TERM_PUBLIC void PSTRICKS_reset(GpTermEntry * pThis);
 TERM_PUBLIC void PSTRICKS_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC int PSTRICKS_make_palette(t_sm_palette *);
+TERM_PUBLIC int PSTRICKS_make_palette(GpTermEntry * pThis, t_sm_palette *);
 TERM_PUBLIC void PSTRICKS_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void PSTRICKS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void PSTRICKS_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
@@ -766,7 +766,7 @@ TERM_PUBLIC void PSTRICKS_linewidth(GpTermEntry * pThis, double linewidth)
 	}
 }
 
-TERM_PUBLIC int PSTRICKS_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int PSTRICKS_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	// Query to determine palette size 
 	if(palette == NULL) {
@@ -795,7 +795,7 @@ TERM_PUBLIC int PSTRICKS_make_palette(t_sm_palette * palette)
 			}
 		}
 	}
-	/* use the following macro to shorten the file size */
+	// use the following macro to shorten the file size 
 	fputs("\\def\\polypmIIId#1{\\pspolygon[linestyle=none,fillstyle=solid,fillcolor=PST@COLOR#1]}\n\n", gpoutfile);
 	return 0;
 }
@@ -907,7 +907,7 @@ TERM_PUBLIC void PSTRICKS_fillbox(GpTermEntry * pThis, int style, uint x1, uint 
 		    break;
 		case FS_PATTERN:
 		case FS_TRANSPARENT_PATTERN:
-		    stylestr = (char*)PSTRICKS_patterns[pattern % PSTRICKS_NUMPATTERN];
+		    stylestr = (char *)PSTRICKS_patterns[pattern % PSTRICKS_NUMPATTERN];
 		    if(pattern != 0)
 			    colorstr = "hatchcolor";
 		    snprintf(patfill, sizeof(patfill), stylestr, (style & 0x0f) == FS_PATTERN ? "*" : "");
@@ -971,7 +971,7 @@ TERM_PUBLIC void PSTRICKS_filled_polygon(GpTermEntry * pThis, int points, gpiPoi
 		    break;
 		case FS_PATTERN:
 		case FS_TRANSPARENT_PATTERN:
-		    stylestr = (char*)PSTRICKS_patterns[pattern % PSTRICKS_NUMPATTERN];
+		    stylestr = (char *)PSTRICKS_patterns[pattern % PSTRICKS_NUMPATTERN];
 		    if(pattern != 0)
 			    colorstr = "hatchcolor";
 		    snprintf(patfill, sizeof(patfill), stylestr, (style & 0x0f) == FS_PATTERN ? "*" : "");

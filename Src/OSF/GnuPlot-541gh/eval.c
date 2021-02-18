@@ -470,7 +470,7 @@ const GpFuncEntry _FuncTab2[] = {
 	{ gpfunc_JTERN      , "jtern",        0/*f_jtern*/      	   },
 	{ gpfunc_NONE_      , "",             NULL              },             // Placeholder for SF_START 
 #ifdef HAVE_EXTERNAL_FUNCTIONS
-	{ gpfunc_CALLE, "", f_calle },
+	{ gpfunc_CALLE, "", 0/*f_calle*/ },
 #endif
 	// legal in using spec only 
 	{ gpfunc_COLUMN      , "column",        0/*f_column*/ },
@@ -839,7 +839,7 @@ GpValue * FASTCALL GnuPlot::PopOrConvertFromString(GpValue * v)
 		IntError(NO_CARET, "invalid dummy variable name");
 	if(v->type == STRING) {
 		char * eov;
-		if(*(v->v.string_val) &&  strspn(v->v.string_val, "0123456789 ") == strlen(v->v.string_val)) {
+		if(*(v->v.string_val) && strspn(v->v.string_val, "0123456789 ") == strlen(v->v.string_val)) {
 			int64 li = atoll(v->v.string_val);
 			gpfree_string(v);
 			Ginteger(v, static_cast<intgr_t>(li));
@@ -990,7 +990,7 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_JUMPNZ:			 F_Jumpnz(p_arg); break;
 			case gpfunc_JTERN:			 F_Jtern(p_arg); break;
 #ifdef HAVE_EXTERNAL_FUNCTIONS
-			case gpfunc_CALLE:			 f_calle(p_arg); break;
+			case gpfunc_CALLE:			 F_Calle(p_arg); break;
 #endif
 			case gpfunc_COLUMN:			 F_Column(p_arg); break;
 			case gpfunc_STRINGCOLUMN: 	 F_StringColumn(p_arg); break; 
@@ -1051,14 +1051,14 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_LAMBERTW:     	 F_Lambertw(p_arg); break;
 			case gpfunc_AIRY:         	 F_Airy(p_arg); break;
 #ifdef HAVE_AMOS
-			case gpfunc_AMOS_AI:      	 f_amos_ai(p_arg); break;      
-			case gpfunc_AMOS_BI:      	 f_amos_bi(p_arg); break;      
-			case gpfunc_AMOS_BESSELI: 	 f_amos_besseli(p_arg); break; 
-			case gpfunc_AMOS_BESSELJ: 	 f_amos_besselj(p_arg); break; 
-			case gpfunc_AMOS_BESSELK: 	 f_amos_besselk(p_arg); break; 
-			case gpfunc_AMOS_BESSELY: 	 f_amos_bessely(p_arg); break; 
-			case gpfunc_HANKEL1:      	 f_hankel1(p_arg); break;      
-			case gpfunc_HANKEL2:      	 f_hankel2(p_arg); break;      
+			case gpfunc_AMOS_AI:      	 F_amos_Ai(p_arg); break;      
+			case gpfunc_AMOS_BI:      	 F_amos_Bi(p_arg); break;      
+			case gpfunc_AMOS_BESSELI: 	 F_amos_BesselI(p_arg); break; 
+			case gpfunc_AMOS_BESSELJ: 	 F_amos_BesselJ(p_arg); break; 
+			case gpfunc_AMOS_BESSELK: 	 F_amos_BesselK(p_arg); break; 
+			case gpfunc_AMOS_BESSELY: 	 F_amos_BesselY(p_arg); break; 
+			case gpfunc_HANKEL1:      	 F_Hankel1(p_arg); break;      
+			case gpfunc_HANKEL2:      	 F_Hankel2(p_arg); break;      
 #endif
 #ifdef HAVE_CEXINT
 			case gpfunc_AMOS_CEXINT:  	 f_amos_cexint(p_arg); break;  
@@ -1066,10 +1066,10 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_EXPINT:       	 F_ExpInt(p_arg); break;       
 #endif
 #ifdef HAVE_COMPLEX_FUNCS
-			case gpfunc_IGAMMA:       	 f_Igamma(p_arg); break;       
-			case gpfunc_LAMBERTW:     	 f_LambertW(p_arg); break;
-			case gpfunc_LNGAMMA:      	 f_lnGamma(p_arg); break;      
-			case gpfunc_SIGN:         	 f_Sign(p_arg); break;         
+			case gpfunc_IGAMMA:       	 F_IGamma(p_arg); break;       
+			case gpfunc_LAMBERTW:     	 F_LambertW(p_arg); break; 
+			case gpfunc_LNGAMMA:      	 F_lnGamma(p_arg); break;      
+			case gpfunc_SIGN:         	 F_Sign(p_arg); break;         
 #else
 			case gpfunc_IGAMMA:          F_IGamma(p_arg); break;
 #endif
@@ -1227,14 +1227,14 @@ void GpEval::DelUdvByName(const char * pKey, bool wildcard)
 			;
 		// exact match 
 		else if(!wildcard && sstreq(pKey, udv_ptr->udv_name)) {
-			gpfree_vgrid(udv_ptr);
+			GPO._VG.FreeGrid(udv_ptr);
 			udv_ptr->udv_value.Destroy();
 			udv_ptr->udv_value.SetNotDefined();
 			break;
 		}
 		// wildcard match: prefix matches 
 		else if(wildcard && !strncmp(pKey, udv_ptr->udv_name, strlen(pKey)) ) {
-			gpfree_vgrid(udv_ptr);
+			GPO._VG.FreeGrid(udv_ptr);
 			udv_ptr->udv_value.Destroy();
 			udv_ptr->udv_value.SetNotDefined();
 			// no break - keep looking! 
@@ -1381,16 +1381,16 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		Ev.FillGpValInteger("GPVAL_PLOT", Gg.Is3DPlot ? 0 : 1);
 		Ev.FillGpValInteger("GPVAL_SPLOT", Gg.Is3DPlot ? 1 : 0);
 		Ev.FillGpValInteger("GPVAL_VIEW_MAP", splot_map ? 1 : 0);
-		Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", surface_rot_x);
-		Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", surface_rot_z);
-		Ev.FillGpValFoat("GPVAL_VIEW_SCALE", surface_scale);
-		Ev.FillGpValFoat("GPVAL_VIEW_ZSCALE", surface_zscale);
-		Ev.FillGpValFoat("GPVAL_VIEW_AZIMUTH", azimuth);
+		Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", _3DBlk.SurfaceRotX);
+		Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", _3DBlk.SurfaceRotZ);
+		Ev.FillGpValFoat("GPVAL_VIEW_SCALE", _3DBlk.SurfaceScale);
+		Ev.FillGpValFoat("GPVAL_VIEW_ZSCALE", _3DBlk.SurfaceZScale);
+		Ev.FillGpValFoat("GPVAL_VIEW_AZIMUTH", _3DBlk.Azimuth);
 		// Screen coordinates of 3D rotational center and radius of the sphere */
 		// in which x/y axes are drawn after 'set view equal xy[z]' */
 		Ev.FillGpValFoat("GPVAL_VIEW_XCENT", (double)(V.BbCanvas.xright+1 - xmiddle)/(double)(V.BbCanvas.xright+1));
 		Ev.FillGpValFoat("GPVAL_VIEW_YCENT", 1.0 - (double)(V.BbCanvas.ytop+1 - ymiddle)/(double)(V.BbCanvas.ytop+1));
-		Ev.FillGpValFoat("GPVAL_VIEW_RADIUS", 0.5 * surface_scale * xscaler/(double)(V.BbCanvas.xright+1));
+		Ev.FillGpValFoat("GPVAL_VIEW_RADIUS", 0.5 * _3DBlk.SurfaceScale * xscaler/(double)(V.BbCanvas.xright+1));
 		return;
 	}
 	// These are set after every "set" command, which is kind of silly

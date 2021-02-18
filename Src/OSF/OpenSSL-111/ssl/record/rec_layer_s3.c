@@ -14,13 +14,9 @@
 #include "record_locl.h"
 #include "../packet_locl.h"
 
-#if     defined(OPENSSL_SMALL_FOOTPRINT) || \
-	!(      defined(AES_ASM) &&     ( \
-	defined(__x86_64)       || defined(__x86_64__)  || \
-	defined(_M_AMD64)       || defined(_M_X64)      ) \
-)
-#undef EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK
-#define EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK 0
+#if defined(OPENSSL_SMALL_FOOTPRINT) || !(defined(AES_ASM) && (defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)))
+	#undef EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK
+	#define EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK 0
 #endif
 
 void RECORD_LAYER_init(RECORD_LAYER * rl, SSL * s)

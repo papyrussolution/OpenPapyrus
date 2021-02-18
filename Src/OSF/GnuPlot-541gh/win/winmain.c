@@ -209,13 +209,13 @@ LPSTR RelativePathToGnuplot(const char * path)
 {
 #ifdef UNICODE
 	LPSTR ansi_dir = AnsiText(szPackageDir, encoding);
-	LPSTR rel_path = (char*)gp_realloc(ansi_dir, strlen(ansi_dir) + strlen(path) + 1, "RelativePathToGnuplot");
+	LPSTR rel_path = (char *)gp_realloc(ansi_dir, strlen(ansi_dir) + strlen(path) + 1, "RelativePathToGnuplot");
 	if(rel_path == NULL) {
 		SAlloc::F(ansi_dir);
 		return (LPSTR)path;
 	}
 #else
-	char * rel_path = (char*)gp_alloc(strlen(szPackageDir) + strlen(path) + 1, "RelativePathToGnuplot");
+	char * rel_path = (char *)gp_alloc(strlen(szPackageDir) + strlen(path) + 1, "RelativePathToGnuplot");
 	strcpy(rel_path, szPackageDir);
 #endif
 	// szPackageDir is guaranteed to have a trailing backslash 
@@ -610,7 +610,7 @@ void MultiByteAccumulate(BYTE ch, LPWSTR wstr, int * count)
 #ifndef WGP_CONSOLE
 	#define TEXTMESSAGE TextMessage()
 	#define GETCH() TextGetChE(&textwin)
-	#define PUTS(s) TextPutS(&textwin, (char*)s)
+	#define PUTS(s) TextPutS(&textwin, (char *)s)
 	#define PUTCH(c) TextPutCh(&textwin, (BYTE)c)
 	#define isterm(f) oneof3(f, stdin, stdout, stderr)
 #else
@@ -703,7 +703,7 @@ int MyFPrintF(FILE * file, const char * fmt, ...)
 		SETIFZ(count, MAXPRINTF);
 		va_end(args);
 		va_start(args, fmt);
-		buf = (char*)malloc(count * sizeof(char));
+		buf = (char *)malloc(count * sizeof(char));
 		count = vsnprintf(buf, count, fmt, args);
 		PUTS(buf);
 		SAlloc::F(buf);
@@ -725,7 +725,7 @@ int MyVFPrintF(FILE * file, const char * fmt, va_list args)
 		count = vsnprintf(NULL, 0U, fmt, args) + 1;
 		SETIFZ(count, MAXPRINTF);
 		va_end(args_copied);
-		buf = (char*)malloc(count * sizeof(char));
+		buf = (char *)malloc(count * sizeof(char));
 		count = vsnprintf(buf, count, fmt, args);
 		PUTS(buf);
 		SAlloc::F(buf);
@@ -746,7 +746,7 @@ int MyPrintF(const char * fmt, ...)
 	SETIFZ(count, MAXPRINTF);
 	va_end(args);
 	va_start(args, fmt);
-	buf = (char*)malloc(count * sizeof(char));
+	buf = (char *)malloc(count * sizeof(char));
 	count = vsnprintf(buf, count, fmt, args);
 	PUTS(buf);
 	SAlloc::F(buf);
@@ -810,13 +810,13 @@ FILE * fake_popen(const char * command, const char * type)
 		pipe_type = *type;
 		/* Execute command with redirection of stdout to temporary file. */
 #ifndef HAVE_BROKEN_WSYSTEM
-		cmd = (char*)malloc(strlen(command) + strlen(pipe_filename) + 5);
+		cmd = (char *)malloc(strlen(command) + strlen(pipe_filename) + 5);
 		sprintf(cmd, "%s > %s", command, pipe_filename);
 		wcmd = UnicodeText(cmd, encoding);
 		rc = _wsystem(wcmd);
 		SAlloc::F(wcmd);
 #else
-		cmd = (char*)malloc(strlen(command) + strlen(pipe_filename) + 15);
+		cmd = (char *)malloc(strlen(command) + strlen(pipe_filename) + 15);
 		sprintf(cmd, "cmd /c %s > %s", command, pipe_filename);
 		rc = system(cmd);
 #endif
@@ -859,14 +859,14 @@ int fake_pclose(FILE * stream)
 		LPWSTR wcmd;
 
 #ifndef HAVE_BROKEN_WSYSTEM
-		cmd = (char*)gp_alloc(strlen(pipe_command) + strlen(pipe_filename) + 10, "fake_pclose");
+		cmd = (char *)gp_alloc(strlen(pipe_command) + strlen(pipe_filename) + 10, "fake_pclose");
 		/* FIXME: this won't work for binary data. We need a proper `cat` replacement. */
 		sprintf(cmd, "type %s | %s", pipe_filename, pipe_command);
 		wcmd = UnicodeText(cmd, encoding);
 		rc = _wsystem(wcmd);
 		SAlloc::F(wcmd);
 #else
-		cmd = (char*)gp_alloc(strlen(pipe_command) + strlen(pipe_filename) + 20, "fake_pclose");
+		cmd = (char *)gp_alloc(strlen(pipe_command) + strlen(pipe_filename) + 20, "fake_pclose");
 		sprintf(cmd, "cmd/c type %s | %s", pipe_filename, pipe_command);
 		rc = system(cmd);
 #endif

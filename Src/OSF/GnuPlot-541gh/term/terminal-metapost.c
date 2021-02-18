@@ -54,8 +54,8 @@ TERM_PUBLIC int MP_text_angle(int ang);
 TERM_PUBLIC void MP_reset(GpTermEntry * pThis);
 TERM_PUBLIC int MP_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void MP_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC int MP_make_palette(t_sm_palette *);
-TERM_PUBLIC void MP_previous_palette();
+TERM_PUBLIC int MP_make_palette(GpTermEntry * pThis, t_sm_palette *);
+TERM_PUBLIC void MP_previous_palette(GpTermEntry * pThis);
 TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void MP_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void MP_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
@@ -827,7 +827,7 @@ fill (%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--cycle withpen (
 	}
 }
 
-TERM_PUBLIC int MP_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int MP_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	return 0; // metapost can do continuous number of colours 
 }
@@ -951,9 +951,8 @@ TERM_PUBLIC void MP_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_
 	}
 }
 
-TERM_PUBLIC void MP_previous_palette()
+TERM_PUBLIC void MP_previous_palette(GpTermEntry * pThis)
 {
-	return;
 }
 
 #endif /* TERM_BODY */

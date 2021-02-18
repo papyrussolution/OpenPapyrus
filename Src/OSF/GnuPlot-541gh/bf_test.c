@@ -57,14 +57,14 @@ int fwrite_matrix(FILE * fout, float ** m, int xsize, int ysize, float * rt, flo
 	int j;
 	int status;
 	float length = (float)ysize;
-	if((status = fwrite((char*)&length, sizeof(float), 1, fout)) != 1) {
+	if((status = fwrite((char *)&length, sizeof(float), 1, fout)) != 1) {
 		fprintf(stderr, "fwrite 1 returned %d\n", status);
 		return (0);
 	}
-	fwrite((char*)ct, sizeof(float), ysize, fout);
+	fwrite((char *)ct, sizeof(float), ysize, fout);
 	for(j = 0; j < xsize; j++) {
-		fwrite((char*)&rt[j], sizeof(float), 1, fout);
-		fwrite((char*)(m[j]), sizeof(float), ysize, fout);
+		fwrite((char *)&rt[j], sizeof(float), 1, fout);
+		fwrite((char *)(m[j]), sizeof(float), ysize, fout);
 	}
 
 	return (1);

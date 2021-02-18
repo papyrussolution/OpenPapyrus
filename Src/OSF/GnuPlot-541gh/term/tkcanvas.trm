@@ -592,7 +592,7 @@ TERM_PUBLIC void TK_color(t_colorspec * colorspec)
 		    if(color == NULL) {
 			    if(linetype < LT_BLACK)
 				    linetype = LT_BLACK;
-			    color = (char*)tk_colors[(linetype + 2) % 8];
+			    color = (char *)tk_colors[(linetype + 2) % 8];
 		    }
 		    safe_strncpy(tmp_color, color, sizeof(tmp_color));
 		    break;
@@ -1059,7 +1059,7 @@ static char * tk_create_text_end[TK_LANG_MAX] = {
 
 static void TK_put_noenhanced_text(uint x, uint y, const char * str)
 {
-	char * quoted_str = (char*)str;
+	char * quoted_str = (char *)str;
 	int i, newsize = 0;
 
 	TK_flush_line();
@@ -1075,7 +1075,7 @@ static void TK_put_noenhanced_text(uint x, uint y, const char * str)
 				newsize++;
 			newsize++;
 		}
-		quoted_str = (char*)gp_alloc(newsize + 1, "TK_put_text: quoted string");
+		quoted_str = (char *)gp_alloc(newsize + 1, "TK_put_text: quoted string");
 
 		for(i = 0, newsize = 0; str[i] != '\0'; i++) {
 			if(str[i] == '\'')
@@ -1207,7 +1207,7 @@ TERM_PUBLIC int TK_set_font(const char * font)
 		bool isbold, isitalic;
 
 		/* extract font name */
-		name = (char*)gp_alloc(sep + 1, "TK_set_font");
+		name = (char *)gp_alloc(sep + 1, "TK_set_font");
 		if(!name)
 			return FALSE;
 		strncpy(name, font, sep);
@@ -1382,7 +1382,7 @@ static void TK_put_enhanced_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char*)str, TRUE, "" /* font */, 10 /* size */, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char *)str, TRUE, "" /* font */, 10 /* size */, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
@@ -1786,7 +1786,7 @@ TERM_PUBLIC void TK_fillbox(int style, uint x, uint y, uint w, uint h)
 		case FS_TRANSPARENT_PATTERN: {
 		    const char * patterns[] = {"gray50", "gray25", "gray12", "gray75", ""};
 		    int pattern = style >> 4;
-		    stipple = (char*)patterns[pattern % 5];
+		    stipple = (char *)patterns[pattern % 5];
 		    break;
 	    }
 		case FS_EMPTY:
@@ -1876,8 +1876,8 @@ static void TK_add_path_point(int x, int y)
 {
 	if(tk_polygon_points >= tk_maxpath) {
 		tk_maxpath += 10;
-		tk_path_x = (int*)gp_realloc(tk_path_x, tk_maxpath * sizeof(int), "path_x");
-		tk_path_y = (int*)gp_realloc(tk_path_y, tk_maxpath * sizeof(int), "path_y");
+		tk_path_x = (int *)gp_realloc(tk_path_x, tk_maxpath * sizeof(int), "path_x");
+		tk_path_y = (int *)gp_realloc(tk_path_y, tk_maxpath * sizeof(int), "path_y");
 	}
 	tk_path_x[tk_polygon_points] = x;
 	tk_path_y[tk_polygon_points] = y;
@@ -1896,7 +1896,7 @@ TERM_PUBLIC void TK_image(uint m, uint n, coordval * image, gpiPoint * corner, t
 	TK_flush_line();
 
 	/* Write the image to a png file */
-	fname = (char*)gp_alloc(strlen(basename) + 16, "TK_image");
+	fname = (char *)gp_alloc(strlen(basename) + 16, "TK_image");
 	sprintf(fname, "%s_image_%02d.png", basename, ++tk_image_counter);
 	write_png_image(m, n, image, color_mode, fname);
 

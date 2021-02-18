@@ -347,7 +347,7 @@ bool df_read_pixmap(t_pixmap * pixmap)
 	// Create a blank record that gd_filetype_function can write into 
 	df_add_binary_records(1, DF_CURRENT_RECORDS);
 	// Open file and allocate space for image data 
-	df_filename = (char*)pixmap->filename;
+	df_filename = (char *)pixmap->filename;
 	gd_filetype_function(filetype);
 	df_filename = NULL;
 	pixmap->ncols = df_bin_record[0].scan_dim[0];

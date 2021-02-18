@@ -107,8 +107,8 @@ GLOBAL(void) end_progress_monitor(j_common_ptr cinfo)
  */
 GLOBAL(boolean) keymatch(char * arg, const char * keyword, int minchars)
 {
-	register int ca, ck;
-	register int nmatched = 0;
+	int ca, ck;
+	int nmatched = 0;
 	while((ca = *arg++) != '\0') {
 		if((ck = *keyword++) == '\0')
 			return FALSE;  /* arg longer than keyword, no good */

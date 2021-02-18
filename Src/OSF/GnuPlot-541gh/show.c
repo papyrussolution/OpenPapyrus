@@ -16,98 +16,58 @@
 
 /******** Local functions ********/
 
-//static void show_at();
 static void disp_at(struct at_type *, int);
-//static void show_all();
 static void show_autoscale();
 static void show_border();
-static void show_boxwidth();
+//static void show_boxwidth();
 static void show_boxplot();
 static void show_fillstyle();
-//static void show_clip();
 static void show_contour();
-static void show_dashtype(int);
+//static void show_dashtype(int);
 static void show_dgrid3d();
 static void show_mapping();
 static void show_dummy();
-//static void show_format();
 static void show_styles(const char * name, enum PLOT_STYLE style);
-//static void show_style();
 static void show_style_rectangle();
-static void show_style_circle();
-static void show_style_ellipse();
-//static void show_grid();
 static void show_raxis();
-//static void show_paxis();
-//static void show_zeroaxis(AXIS_INDEX);
-static void show_label(int tag);
 static void show_keytitle();
-static void show_key();
-//static void show_logscale();
-//static void show_offsets();
-//static void show_margin();
 static void show_output();
 static void show_overflow();
 static void show_parametric();
 static void show_pm3d();
-//static void show_palette();
-//static void show_palette_rgbformulae();
-//static void show_palette_fit2rgbformulae();
-//static void show_palette_palette();
-//static void show_palette_gradient();
 static void show_palette_colornames();
-//static void show_colorbox();
 static void show_pointsize();
 static void show_pointintervalbox();
 static void show_rgbmax();
 static void show_encoding();
 static void show_decimalsign();
-//static void show_fit();
 static void show_polar();
 static void show_print();
 static void show_psdir();
 static void show_angles();
-static void show_samples();
-static void show_isosamples();
-static void show_view();
+//static void show_samples();
+//static void show_isosamples();
+//static void show_view();
 static void show_surface();
 static void show_hidden3d();
 static void show_increment();
-static void show_histogram();
 static void show_history();
 static void show_textbox();
-static void show_size();
 static void show_origin();
 static void show_term();
-static void show_tics(bool showx, bool showy, bool showz, bool showx2, bool showy2, bool showcb);
 static void show_mtics(GpAxis *);
-static void show_timestamp();
-static void show_range(AXIS_INDEX axis);
-//static void show_link();
 static void show_nonlinear();
-static void show_xyzlabel(const char * name, const char * suffix, text_label * label);
-static void show_title();
-static void show_axislabel(AXIS_INDEX);
 static void show_data_is_timedate(AXIS_INDEX);
 static void show_timefmt();
 static void show_locale();
 static void show_loadpath();
 static void show_fontpath();
 static void show_zero();
-//static void show_datafile();
-//static void show_table();
 static void show_micro();
 static void show_minus_sign();
 static void show_mouse();
 static void show_plot();
-//static void show_variables();
 static void show_linestyle(int tag);
-//static void show_linetype(struct linestyle_def * listhead, int tag);
-//static void show_arrowstyle(int tag);
-static void show_arrow(int tag);
-static void show_ticdef(AXIS_INDEX);
-static void show_ticdefp(const GpAxis *);
-void show_position(const GpPosition * pPos, int ndim);
 static void show_functions();
 
 static int var_show_all = 0;
@@ -139,9 +99,7 @@ void GnuPlot::ShowCommand()
 		case S_AUTOSCALE:
 		    show_autoscale();
 		    break;
-		case S_BARS:
-		    save_bars(stderr);
-		    break;
+		case S_BARS: SaveBars(stderr); break;
 		case S_BIND:
 		    while(!Pgm.EndOfCommand()) 
 				Pgm.Shift();
@@ -152,9 +110,7 @@ void GnuPlot::ShowCommand()
 		    show_border();
 		    break;
 		case S_BOXWIDTH:
-		case S_BOXDEPTH:
-		    show_boxwidth();
-		    break;
+		case S_BOXDEPTH: ShowBoxWidth(); break;
 		case S_CLIP: ShowClip(); break;
 		case S_CLABEL:
 		// contour labels are shown with 'show contour' 
@@ -212,11 +168,11 @@ void GnuPlot::ShowCommand()
 
 		case S_LABEL:
 		    CHECK_TAG_GT_ZERO;
-		    show_label(tag);
+		    ShowLabel(tag);
 		    break;
 		case S_ARROW:
 		    CHECK_TAG_GT_ZERO;
-		    show_arrow(tag);
+		    ShowArrow(tag);
 		    break;
 		case S_LINESTYLE:
 		    CHECK_TAG_GT_ZERO;
@@ -236,15 +192,13 @@ void GnuPlot::ShowCommand()
 		    break;
 		case S_DASHTYPE:
 		    CHECK_TAG_GT_ZERO;
-		    show_dashtype(tag);
+		    ShowDashType(tag);
 		    break;
 		case S_LINK: ShowLink(); break;
 		case S_NONLINEAR:
 		    show_nonlinear();
 		    break;
-		case S_KEY:
-		    show_key();
-		    break;
+		case S_KEY: ShowKey(); break;
 		case S_LOGSCALE: ShowLogScale(); break;
 		case S_MICRO:
 		    show_micro();
@@ -313,7 +267,7 @@ void GnuPlot::ShowCommand()
 		    if(Pgm.AlmostEqualsCur("rect$angle"))
 			    Pgm.Shift();
 		    CHECK_TAG_GT_ZERO;
-		    save_object(stderr, tag);
+		    SaveObject(stderr, tag);
 		    break;
 		case S_WALL:
 		    save_walls(stderr);
@@ -321,24 +275,14 @@ void GnuPlot::ShowCommand()
 		case S_ANGLES:
 		    show_angles();
 		    break;
-		case S_SAMPLES:
-		    show_samples();
-		    break;
-		case S_PIXMAP:
-		    save_pixmaps(stderr);
-		    break;
-		case S_ISOSAMPLES:
-		    show_isosamples();
-		    break;
-		case S_ISOSURFACE:
-		    show_isosurface();
-		    break;
+		case S_SAMPLES: ShowSamples(); break;
+		case S_PIXMAP: SavePixmaps(stderr); break;
+		case S_ISOSAMPLES: ShowIsoSamples(); break;
+		case S_ISOSURFACE: ShowIsoSurface(); break;
 		case S_JITTER:
 		    show_jitter();
 		    break;
-		case S_VIEW:
-		    show_view();
-		    break;
+		case S_VIEW: ShowView(); break;
 		case S_DATA:
 		    error_message = "keyword 'data' deprecated, use 'show style data'";
 		    break;
@@ -353,9 +297,7 @@ void GnuPlot::ShowCommand()
 		case S_HISTORY:
 		    show_history();
 		    break;
-		case S_SIZE:
-		    show_size();
-		    break;
+		case S_SIZE: ShowSize(); break;
 		case S_ORIGIN:
 		    show_origin();
 		    break;
@@ -365,7 +307,7 @@ void GnuPlot::ShowCommand()
 		case S_TICS:
 		case S_TICSLEVEL:
 		case S_TICSCALE:
-		    show_tics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+		    ShowTics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 		    break;
 		case S_MXTICS:
 		    show_mtics(&AxS[FIRST_X_AXIS]);
@@ -397,63 +339,25 @@ void GnuPlot::ShowCommand()
 		    else
 			    fprintf(stderr, "\txyplane %g\n", xyplane.z);
 		    break;
-		case S_TIMESTAMP:
-		    show_timestamp();
-		    break;
-		case S_RRANGE:
-		    show_range(POLAR_AXIS);
-		    break;
-		case S_TRANGE:
-		    show_range(T_AXIS);
-		    break;
-		case S_URANGE:
-		    show_range(U_AXIS);
-		    break;
-		case S_VRANGE:
-		    show_range(V_AXIS);
-		    break;
-		case S_XRANGE:
-		    show_range(FIRST_X_AXIS);
-		    break;
-		case S_YRANGE:
-		    show_range(FIRST_Y_AXIS);
-		    break;
-		case S_X2RANGE:
-		    show_range(SECOND_X_AXIS);
-		    break;
-		case S_Y2RANGE:
-		    show_range(SECOND_Y_AXIS);
-		    break;
-		case S_ZRANGE:
-		    show_range(FIRST_Z_AXIS);
-		    break;
-		case S_CBRANGE:
-		    show_range(COLOR_AXIS);
-		    break;
-		case S_TITLE:
-		    show_title();
-		    break;
-		case S_XLABEL:
-		    show_axislabel(FIRST_X_AXIS);
-		    break;
-		case S_YLABEL:
-		    show_axislabel(FIRST_Y_AXIS);
-		    break;
-		case S_ZLABEL:
-		    show_axislabel(FIRST_Z_AXIS);
-		    break;
-		case S_CBLABEL:
-		    show_axislabel(COLOR_AXIS);
-		    break;
-		case S_RLABEL:
-		    show_axislabel(POLAR_AXIS);
-		    break;
-		case S_X2LABEL:
-		    show_axislabel(SECOND_X_AXIS);
-		    break;
-		case S_Y2LABEL:
-		    show_axislabel(SECOND_Y_AXIS);
-		    break;
+		case S_TIMESTAMP: ShowTimeStamp(); break;
+		case S_RRANGE: ShowRange(POLAR_AXIS); break;
+		case S_TRANGE: ShowRange(T_AXIS); break;
+		case S_URANGE: ShowRange(U_AXIS); break;
+		case S_VRANGE: ShowRange(V_AXIS); break;
+		case S_XRANGE: ShowRange(FIRST_X_AXIS); break;
+		case S_YRANGE: ShowRange(FIRST_Y_AXIS); break;
+		case S_X2RANGE: ShowRange(SECOND_X_AXIS); break;
+		case S_Y2RANGE: ShowRange(SECOND_Y_AXIS); break;
+		case S_ZRANGE: ShowRange(FIRST_Z_AXIS); break;
+		case S_CBRANGE: ShowRange(COLOR_AXIS); break;
+		case S_TITLE: ShowTitle(); break;
+		case S_XLABEL: ShowAxisLabel(FIRST_X_AXIS); break;
+		case S_YLABEL: ShowAxisLabel(FIRST_Y_AXIS); break;
+		case S_ZLABEL: ShowAxisLabel(FIRST_Z_AXIS); break;
+		case S_CBLABEL: ShowAxisLabel(COLOR_AXIS); break;
+		case S_RLABEL: ShowAxisLabel(POLAR_AXIS); break;
+		case S_X2LABEL: ShowAxisLabel(SECOND_X_AXIS); break;
+		case S_Y2LABEL: ShowAxisLabel(SECOND_Y_AXIS); break;
 		case S_XDATA:
 		    show_data_is_timedate(FIRST_X_AXIS);
 		    break;
@@ -481,9 +385,7 @@ void GnuPlot::ShowCommand()
 		case S_LOADPATH:
 		    show_loadpath();
 		    break;
-		case S_VGRID:
-		    show_vgrid();
-		    break;
+		case S_VGRID: ShowVGrid(); break;
 		case S_ZERO:
 		    show_zero();
 		    break;
@@ -507,55 +409,33 @@ void GnuPlot::ShowCommand()
 /* FIXME: get rid of S_*DTICS, S_*MTICS cases */
 		case S_XTICS:
 		case S_XDTICS:
-		case S_XMTICS:
-		    show_tics(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE);
-		    break;
+		case S_XMTICS: ShowTics(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE); break;
 		case S_YTICS:
 		case S_YDTICS:
-		case S_YMTICS:
-		    show_tics(FALSE, TRUE, FALSE, FALSE, TRUE, FALSE);
-		    break;
+		case S_YMTICS: ShowTics(FALSE, TRUE, FALSE, FALSE, TRUE, FALSE); break;
 		case S_ZTICS:
 		case S_ZDTICS:
-		case S_ZMTICS:
-		    show_tics(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE);
-		    break;
+		case S_ZMTICS: ShowTics(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE); break;
 		case S_CBTICS:
 		case S_CBDTICS:
-		case S_CBMTICS:
-		    show_tics(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE);
-		    break;
-		case S_RTICS:
-		    show_ticdef(POLAR_AXIS);
-		    break;
-		case S_TTICS:
-		    show_ticdefp(&AxS.Theta());
-		    break;
+		case S_CBMTICS: ShowTics(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE); break;
+		case S_RTICS: ShowTicdef(POLAR_AXIS); break;
+		case S_TTICS: ShowTicDefp(&AxS.Theta()); break;
 		case S_X2TICS:
 		case S_X2DTICS:
-		case S_X2MTICS:
-		    show_tics(FALSE, FALSE, FALSE, TRUE, FALSE, FALSE);
-		    break;
+		case S_X2MTICS: ShowTics(FALSE, FALSE, FALSE, TRUE, FALSE, FALSE); break;
 		case S_Y2TICS:
 		case S_Y2DTICS:
-		case S_Y2MTICS:
-		    show_tics(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE);
-		    break;
-
+		case S_Y2MTICS: ShowTics(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE); break;
 		case S_MULTIPLOT:
 		    fprintf(stderr, "multiplot mode is %s\n", multiplot ? "on" : "off");
 		    break;
-
 		case S_TERMOPTIONS:
-		    fprintf(stderr, "Terminal options are '%s'\n",
-			(*term_options) ? term_options : "[none]");
+		    fprintf(stderr, "Terminal options are '%s'\n", (*term_options) ? term_options : "[none]");
 		    break;
-
 		case S_THETA:
 		    fprintf(stderr, "Theta increases %s with origin at %s of plot\n",
-			theta_direction > 0 ? "counterclockwise" : "clockwise",
-			theta_origin == 180 ? "left" : theta_origin ==  90 ? "top" :
-			theta_origin == -90 ? "bottom" : "right");
+				theta_direction > 0 ? "counterclockwise" : "clockwise", theta_origin == 180 ? "left" : theta_origin ==  90 ? "top" : theta_origin == -90 ? "bottom" : "right");
 		    break;
 		/* HBB 20010525: 'set commands' that don't have an
 		 * accompanying 'show' version, for no particular reason: */
@@ -605,7 +485,7 @@ static void disp_at(struct at_type * curr_at, int level)
 			    break;
 			case PUSHC:
 			    putc(' ', stderr);
-			    disp_value(stderr, &(arg->v_arg), TRUE);
+			    GPO.DispValue(stderr, &(arg->v_arg), TRUE);
 			    putc('\n', stderr);
 			    break;
 			case PUSHD1:
@@ -664,9 +544,9 @@ void GnuPlot::ShowAll()
 	var_show_all = 1;
 	show_version(stderr);
 	show_autoscale();
-	save_bars(stderr);
+	SaveBars(stderr);
 	show_border();
-	show_boxwidth();
+	ShowBoxWidth();
 	ShowClip();
 	show_contour();
 	show_dgrid3d();
@@ -679,9 +559,9 @@ void GnuPlot::ShowAll()
 	ShowZeroAxis(FIRST_X_AXIS);
 	ShowZeroAxis(FIRST_Y_AXIS);
 	ShowZeroAxis(FIRST_Z_AXIS);
-	show_label(0);
-	show_arrow(0);
-	show_key();
+	ShowLabel(0);
+	ShowArrow(0);
+	ShowKey();
 	ShowLogScale();
 	ShowOffsets();
 	ShowMargin();
@@ -701,43 +581,43 @@ void GnuPlot::ShowAll()
 	ShowFit();
 	show_polar();
 	show_angles();
-	save_object(stderr, 0);
-	show_samples();
-	show_isosamples();
-	show_view();
+	SaveObject(stderr, 0);
+	ShowSamples();
+	ShowIsoSamples();
+	ShowView();
 	show_surface();
 	show_hidden3d();
 	show_history();
-	show_size();
+	ShowSize();
 	show_origin();
 	show_term();
-	show_tics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+	ShowTics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 	show_mtics(&AxS[FIRST_X_AXIS]);
 	show_mtics(&AxS[FIRST_Y_AXIS]);
 	show_mtics(&AxS[FIRST_Z_AXIS]);
 	show_mtics(&AxS[SECOND_X_AXIS]);
 	show_mtics(&AxS[SECOND_Y_AXIS]);
-	show_xyzlabel("", "time", &Gg.LblTime);
+	ShowXyzLabel("", "time", &Gg.LblTime);
 	if(Gg.Parametric || Gg.Polar) {
 		if(!Gg.Is3DPlot)
-			show_range(T_AXIS);
+			ShowRange(T_AXIS);
 		else {
-			show_range(U_AXIS);
-			show_range(V_AXIS);
+			ShowRange(U_AXIS);
+			ShowRange(V_AXIS);
 		}
 	}
-	show_range(FIRST_X_AXIS);
-	show_range(FIRST_Y_AXIS);
-	show_range(SECOND_X_AXIS);
-	show_range(SECOND_Y_AXIS);
-	show_range(FIRST_Z_AXIS);
+	ShowRange(FIRST_X_AXIS);
+	ShowRange(FIRST_Y_AXIS);
+	ShowRange(SECOND_X_AXIS);
+	ShowRange(SECOND_Y_AXIS);
+	ShowRange(FIRST_Z_AXIS);
 	show_jitter();
-	show_title();
-	show_axislabel(FIRST_X_AXIS);
-	show_axislabel(FIRST_Y_AXIS);
-	show_axislabel(FIRST_Z_AXIS);
-	show_axislabel(SECOND_X_AXIS);
-	show_axislabel(SECOND_Y_AXIS);
+	ShowTitle();
+	ShowAxisLabel(FIRST_X_AXIS);
+	ShowAxisLabel(FIRST_Y_AXIS);
+	ShowAxisLabel(FIRST_Z_AXIS);
+	ShowAxisLabel(SECOND_X_AXIS);
+	ShowAxisLabel(SECOND_Y_AXIS);
 	show_data_is_timedate(FIRST_X_AXIS);
 	show_data_is_timedate(FIRST_Y_AXIS);
 	show_data_is_timedate(SECOND_X_AXIS);
@@ -1059,13 +939,14 @@ static void show_border()
 //
 // process 'show boxwidth' command 
 //
-static void show_boxwidth()
+//static void show_boxwidth()
+void GnuPlot::ShowBoxWidth()
 {
 	SHOW_ALL_NL;
-	if(GPO.V.BoxWidth < 0.0)
+	if(V.BoxWidth < 0.0)
 		fputs("\tboxwidth is auto\n", stderr);
 	else {
-		fprintf(stderr, "\tboxwidth is %g %s\n", GPO.V.BoxWidth, (GPO.V.BoxWidthIsAbsolute) ? "absolute" : "relative");
+		fprintf(stderr, "\tboxwidth is %g %s\n", V.BoxWidth, (V.BoxWidthIsAbsolute) ? "absolute" : "relative");
 	}
 	fprintf(stderr, "\tboxdepth is %g\n", boxdepth);
 }
@@ -1176,13 +1057,9 @@ static void show_contour()
 			    break;
 		    }
 			case LEVELS_INCREMENTAL:
-			    fprintf(stderr,
-				"\t\t%d incremental levels starting at %g, step %g, end %g\n",
-				contour_levels,
-				contour_levels_list[0],
-				contour_levels_list[1],
-				contour_levels_list[0] + (contour_levels - 1) * contour_levels_list[1]);
-			    /* contour-levels counts both ends */
+			    fprintf(stderr, "\t\t%d incremental levels starting at %g, step %g, end %g\n",
+					contour_levels, contour_levels_list[0], contour_levels_list[1], contour_levels_list[0] + (contour_levels - 1) * contour_levels_list[1]);
+			    // contour-levels counts both ends 
 			    break;
 		}
 		/* Show contour label options */
@@ -1196,12 +1073,14 @@ static void show_contour()
 		fprintf(stderr, "\tcontour levels will be %ssorted\n", contour_sortlevels ? "" : "un");
 	}
 }
-
-/* process 'show dashtype' command (tag 0 means show all) */
-static void show_dashtype(int tag)
+//
+// process 'show dashtype' command (tag 0 means show all) 
+//
+//static void show_dashtype(int tag)
+void GnuPlot::ShowDashType(int tag)
 {
 	bool showed = FALSE;
-	for(custom_dashtype_def * this_dashtype = GPO.Gg.P_FirstCustomDashtype; this_dashtype; this_dashtype = this_dashtype->next) {
+	for(custom_dashtype_def * this_dashtype = Gg.P_FirstCustomDashtype; this_dashtype; this_dashtype = this_dashtype->next) {
 		if(tag == 0 || tag == this_dashtype->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tdashtype %d, ", this_dashtype->tag);
@@ -1210,7 +1089,7 @@ static void show_dashtype(int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		GPO.IntErrorCurToken("dashtype not found");
+		IntErrorCurToken("dashtype not found");
 }
 
 /* process 'show dgrid3d' command */
@@ -1226,12 +1105,8 @@ static void show_dgrid3d()
 		}
 		else {
 			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, kernel=%s,\n\tscale factors x=%f, y=%f%s\n",
-			    dgrid3d_row_fineness,
-			    dgrid3d_col_fineness,
-			    reverse_table_lookup(dgrid3d_mode_tbl, dgrid3d_mode),
-			    dgrid3d_x_scale,
-			    dgrid3d_y_scale,
-			    dgrid3d_kdensity ? ", kdensity2d mode" : "");
+			    dgrid3d_row_fineness, dgrid3d_col_fineness, reverse_table_lookup(dgrid3d_mode_tbl, dgrid3d_mode),
+			    dgrid3d_x_scale, dgrid3d_y_scale, dgrid3d_kdensity ? ", kdensity2d mode" : "");
 		}
 	else
 		fputs("\tdata grid3d is disabled\n", stderr);
@@ -1252,10 +1127,9 @@ static void show_mapping()
 /* process 'show dummy' command */
 static void show_dummy()
 {
-	int i;
 	SHOW_ALL_NL;
 	fputs("\tdummy variables are ", stderr);
-	for(i = 0; i<MAX_NUM_VAR; i++) {
+	for(int i = 0; i < MAX_NUM_VAR; i++) {
 		if(*set_dummy_var[i] == '\0') {
 			fputs("\n", stderr);
 			break;
@@ -1319,7 +1193,7 @@ void GnuPlot::ShowStyle()
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_HISTOGRAM:
-		    show_histogram();
+		    ShowHistogram();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_TEXTBOX:
@@ -1348,11 +1222,11 @@ void GnuPlot::ShowStyle()
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_CIRCLE:
-		    show_style_circle();
+		    ShowStyleCircle();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_ELLIPSE:
-		    show_style_ellipse();
+		    ShowStyleEllipse();
 		    Pgm.Shift();
 		    break;
 		default:
@@ -1362,14 +1236,14 @@ void GnuPlot::ShowStyle()
 		    show_linestyle(0);
 		    show_fillstyle();
 		    show_increment();
-		    show_histogram();
+		    ShowHistogram();
 		    show_textbox();
 		    save_style_parallel(stderr);
 		    ShowArrowStyle(0);
 		    show_boxplot();
 		    show_style_rectangle();
-		    show_style_circle();
-		    show_style_ellipse();
+		    ShowStyleCircle();
+		    ShowStyleEllipse();
 		    break;
 	}
 #undef CHECK_TAG_GT_ZERO
@@ -1386,20 +1260,22 @@ static void show_style_rectangle()
 	save_fillstyle(stderr, &default_rectangle.fillstyle);
 }
 
-static void show_style_circle()
+//static void show_style_circle()
+void GnuPlot::ShowStyleCircle()
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tCircle style has default radius ");
-	show_position(&default_circle.o.circle.extent, 1);
+	ShowPosition(&default_circle.o.circle.extent, 1);
 	fprintf(stderr, " [%s]", default_circle.o.circle.wedge ? "wedge" : "nowedge");
 	fputs("\n", stderr);
 }
 
-static void show_style_ellipse()
+//static void show_style_ellipse()
+void GnuPlot::ShowStyleEllipse()
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tEllipse style has default size ");
-	show_position(&default_ellipse.o.ellipse.extent, 2);
+	ShowPosition(&default_ellipse.o.ellipse.extent, 2);
 	fprintf(stderr, ", default angle is %.1f degrees", default_ellipse.o.ellipse.orientation);
 	switch(default_ellipse.o.ellipse.type) {
 		case ELLIPSEAXES_XY:
@@ -1494,10 +1370,10 @@ void GnuPlot::ShowPAxis()
 	if(Pgm.EndOfCommand() || Pgm.EqualsCur("range"))
 		save_prange(stderr, paxis);
 	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("tic$s"))
-		show_ticdefp(paxis);
+		ShowTicDefp(paxis);
 	if(Pgm.EndOfCommand() || Pgm.EqualsCur("label")) {
 		fprintf(stderr, "\t");
-		save_axis_label_or_title(stderr, axis_name((AXIS_INDEX)paxis->index), "label", &paxis->label, TRUE);
+		SaveAxisLabelOrTitle(stderr, axis_name((AXIS_INDEX)paxis->index), "label", &paxis->label, TRUE);
 	}
 	if(paxis->zeroaxis)
 		save_linetype(stderr, paxis->zeroaxis, FALSE);
@@ -1518,16 +1394,18 @@ void GnuPlot::ShowZeroAxis(AXIS_INDEX axis)
 	else
 		fprintf(stderr, "\t%szeroaxis is OFF\n", axis_name(axis));
 }
-
-/* Show label number <tag> (0 means show all) */
-static void show_label(int tag)
+//
+// Show label number <tag> (0 means show all) 
+//
+//static void show_label(int tag)
+void GnuPlot::ShowLabel(int tag)
 {
 	bool showed = FALSE;
-	for(text_label * this_label = GPO.Gg.P_FirstLabel; this_label; this_label = this_label->next) {
+	for(text_label * this_label = Gg.P_FirstLabel; this_label; this_label = this_label->next) {
 		if(tag == 0 || tag == this_label->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tlabel %d \"%s\" at ", this_label->tag, (this_label->text==NULL) ? "" : conv_text(this_label->text));
-			show_position(&this_label->place, 3);
+			ShowPosition(&this_label->place, 3);
 			if(this_label->hypertext)
 				fprintf(stderr, " hypertext");
 			switch(this_label->pos) {
@@ -1552,7 +1430,7 @@ static void show_label(int tag)
 				fprintf(stderr, " point with color of");
 				save_linetype(stderr, &(this_label->lp_properties), TRUE);
 				fprintf(stderr, " offset ");
-				show_position(&this_label->offset, 3);
+				ShowPosition(&this_label->offset, 3);
 			}
 
 			if(this_label->boxed) {
@@ -1565,14 +1443,16 @@ static void show_label(int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		GPO.IntErrorCurToken("label not found");
+		IntErrorCurToken("label not found");
 }
-
-/* Show arrow number <tag> (0 means show all) */
-static void show_arrow(int tag)
+//
+// Show arrow number <tag> (0 means show all) 
+//
+//static void show_arrow(int tag)
+void GnuPlot::ShowArrow(int tag)
 {
 	bool showed = FALSE;
-	for(arrow_def * this_arrow = GPO.Gg.P_FirstArrow; this_arrow != NULL; this_arrow = this_arrow->next) {
+	for(arrow_def * this_arrow = Gg.P_FirstArrow; this_arrow != NULL; this_arrow = this_arrow->next) {
 		if(tag == 0 || tag == this_arrow->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tarrow %d, %s %s %s", this_arrow->tag,
@@ -1584,53 +1464,52 @@ static void show_arrow(int tag)
 			    this_arrow->arrow_properties.layer ? "front" : "back");
 			save_linetype(stderr, &(this_arrow->arrow_properties.lp_properties), FALSE);
 			fprintf(stderr, "\n\t  from ");
-			show_position(&this_arrow->start, 3);
+			ShowPosition(&this_arrow->start, 3);
 			if(this_arrow->type == arrow_end_absolute) {
 				fputs(" to ", stderr);
-				show_position(&this_arrow->end, 3);
+				ShowPosition(&this_arrow->end, 3);
 			}
 			else if(this_arrow->type == arrow_end_relative) {
 				fputs(" rto ", stderr);
-				show_position(&this_arrow->end, 3);
+				ShowPosition(&this_arrow->end, 3);
 			}
 			else { /* arrow_end_oriented */
 				fputs(" length ", stderr);
-				show_position(&this_arrow->end, 1);
+				ShowPosition(&this_arrow->end, 1);
 				fprintf(stderr, " angle %g deg", this_arrow->angle);
 			}
 			if(this_arrow->arrow_properties.head_length > 0) {
-				static char * msg[] =
-				{"(first x axis) ", "(second x axis) ", "(graph units) ", "(screen units) "};
+				static char * msg[] = {"(first x axis) ", "(second x axis) ", "(graph units) ", "(screen units) "};
 				fprintf(stderr, "\n\t  arrow head: length %s%g, angle %g deg",
-				    this_arrow->arrow_properties.head_lengthunit ==
-				    first_axes ? "" : msg[this_arrow->arrow_properties.head_lengthunit],
-				    this_arrow->arrow_properties.head_length,
-				    this_arrow->arrow_properties.head_angle);
+				    this_arrow->arrow_properties.head_lengthunit == first_axes ? "" : msg[this_arrow->arrow_properties.head_lengthunit],
+				    this_arrow->arrow_properties.head_length, this_arrow->arrow_properties.head_angle);
 				if(this_arrow->arrow_properties.headfill != AS_NOFILL)
-					fprintf(stderr, ", backangle %g deg",
-					    this_arrow->arrow_properties.head_backangle);
+					fprintf(stderr, ", backangle %g deg", this_arrow->arrow_properties.head_backangle);
 			}
 			putc('\n', stderr);
 		}
 	}
 	if(tag > 0 && !showed)
-		GPO.IntErrorCurToken("arrow not found");
+		IntErrorCurToken("arrow not found");
 }
-
-/* process 'show keytitle' command */
+//
+// process 'show keytitle' command 
+//
 static void show_keytitle()
 {
-	legend_key * key = &keyT;
+	legend_key * key = &GPO.Gg.KeyT;
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tkey title is \"%s\"\n", conv_text(key->title.text));
 	if(key->title.font && *(key->title.font))
 		fprintf(stderr, "\t  font \"%s\"\n", key->title.font);
 }
-
-/* process 'show key' command */
-static void show_key()
+//
+// process 'show key' command 
+//
+//static void show_key()
+void GnuPlot::ShowKey()
 {
-	legend_key * key = &keyT;
+	legend_key * key = &Gg.KeyT;
 	SHOW_ALL_NL;
 	if(!(key->visible)) {
 		fputs("\tkey is OFF\n", stderr);
@@ -1685,7 +1564,7 @@ static void show_key()
 			key->vpos == JUST_BOT ? "bottom" : key->vpos == JUST_CENTRE ? "center" : "top",
 			key->hpos == RIGHT ? "right" : key->hpos == LEFT ? "left" : "center");
 		    fputs("key is at ", stderr);
-		    show_position(&key->user_pos, 2);
+		    ShowPosition(&key->user_pos, 2);
 		    putc('\n', stderr);
 		    break;
 	}
@@ -1748,10 +1627,11 @@ static void show_key()
 	show_keytitle();
 }
 
-void show_position(const GpPosition * pPos, int ndim)
+//void show_position(const GpPosition * pPos, int ndim)
+void GnuPlot::ShowPosition(const GpPosition * pPos, int ndim)
 {
 	fprintf(stderr, "(");
-	save_position(stderr, pPos, ndim, FALSE);
+	SavePosition(stderr, pPos, ndim, FALSE);
 	fprintf(stderr, ")");
 }
 
@@ -2198,9 +2078,9 @@ void GnuPlot::ShowColorBox()
 		    break;
 		case SMCOLOR_BOX_USER:
 		    fputs("at USER origin: ", stderr);
-		    show_position(&Gg.ColorBox.origin, 2);
+		    ShowPosition(&Gg.ColorBox.origin, 2);
 		    fputs("\n\t          size: ", stderr);
-		    show_position(&Gg.ColorBox.size, 2);
+		    ShowPosition(&Gg.ColorBox.size, 2);
 		    fputs("\n", stderr);
 		    break;
 		default: /* should *never* happen */
@@ -2215,20 +2095,20 @@ void GnuPlot::ShowColorBox()
 static void show_pm3d()
 {
 	GPO.Pgm.Shift();
-	fprintf(stderr,
-	    "\tpm3d style is %s\n",
-	    PM3D_IMPLICIT == pm3d.implicit ? "implicit (pm3d draw for all surfaces)" : "explicit (draw pm3d surface according to style)");
+	fprintf(stderr, "\tpm3d style is %s\n", PM3D_IMPLICIT == pm3d.implicit ? "implicit (pm3d draw for all surfaces)" : "explicit (draw pm3d surface according to style)");
 	fputs("\tpm3d plotted at ", stderr);
-	{ int i = 0;
-	  for(; pm3d.where[i]; i++) {
-		  if(i>0) fputs(", then ", stderr);
-		  switch(pm3d.where[i]) {
-			  case PM3D_AT_BASE: fputs("BOTTOM", stderr); break;
-			  case PM3D_AT_SURFACE: fputs("SURFACE", stderr); break;
-			  case PM3D_AT_TOP: fputs("TOP", stderr); break;
-		  }
-	  }
-	  fputs("\n", stderr);}
+	{ 
+		for(int i = 0; pm3d.where[i]; i++) {
+			if(i > 0) 
+				fputs(", then ", stderr);
+			switch(pm3d.where[i]) {
+				case PM3D_AT_BASE: fputs("BOTTOM", stderr); break;
+				case PM3D_AT_SURFACE: fputs("SURFACE", stderr); break;
+				case PM3D_AT_TOP: fputs("TOP", stderr); break;
+			}
+		}
+		fputs("\n", stderr);
+	}
 	if(pm3d.direction == PM3D_DEPTH) {
 		fprintf(stderr, "\ttrue depth ordering\n");
 	}
@@ -2262,13 +2142,10 @@ static void show_pm3d()
 		fprintf(stderr, "\n");
 	}
 	if(pm3d_shade.strength > 0) {
-		fprintf(stderr, "\tlighting primary component %g specular component %g",
-		    pm3d_shade.strength, pm3d_shade.spec);
-		fprintf(stderr, " second spot contribution %g\n",
-		    pm3d_shade.spec2);
+		fprintf(stderr, "\tlighting primary component %g specular component %g", pm3d_shade.strength, pm3d_shade.spec);
+		fprintf(stderr, " second spot contribution %g\n", pm3d_shade.spec2);
 	}
-	fprintf(stderr, "\tsteps for bilinear interpolation: %d,%d\n",
-	    pm3d.interp_i, pm3d.interp_j);
+	fprintf(stderr, "\tsteps for bilinear interpolation: %d,%d\n", pm3d.interp_i, pm3d.interp_j);
 	fprintf(stderr, "\tquadrangle color according to ");
 	switch(pm3d.which_corner_color) {
 		case PM3D_WHICHCORNER_MEAN: fputs("averaged 4 corners\n", stderr); break;
@@ -2302,7 +2179,7 @@ static void show_pointintervalbox()
 static void show_rgbmax()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tRGB image color components are in range [0:%g]\n", rgbmax);
+	fprintf(stderr, "\tRGB image color components are in range [0:%g]\n", GPO.Gr.RgbMax);
 }
 
 /* process 'show encoding' command */
@@ -2322,7 +2199,7 @@ static void show_decimalsign()
 	set_numeric_locale();
 	fprintf(stderr, "\tdecimalsign for input is  %s \n", get_decimal_locale());
 	reset_numeric_locale();
-	if(decimalsign!=NULL)
+	if(decimalsign)
 		fprintf(stderr, "\tdecimalsign for output is %s \n", decimalsign);
 	else
 		fprintf(stderr, "\tdecimalsign for output has default value (normally '.')\n");
@@ -2390,22 +2267,22 @@ void GnuPlot::ShowFit()
 			SAlloc::F(logfile);
 		}
 	}
-	v = Ev.GetUdvByName((char*)FITLIMIT);
+	v = Ev.GetUdvByName((char *)FITLIMIT);
 	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	fprintf(stderr, "\tfits will be considered to have converged if  delta chisq < chisq * %g", ((d > 0.) && (d < 1.)) ? d : DEF_FIT_LIMIT);
 	if(epsilon_abs > 0.)
 		fprintf(stderr, " + %g", epsilon_abs);
 	fprintf(stderr, "\n");
-	v = Ev.GetUdvByName((char*)FITMAXITER);
+	v = Ev.GetUdvByName((char *)FITMAXITER);
 	if(v  && (v->udv_value.type != NOTDEFINED) && (real(&(v->udv_value)) > 0))
 		fprintf(stderr, "\tfit will stop after a maximum of %i iterations\n", (int)real(&(v->udv_value)));
 	else
 		fprintf(stderr, "\tfit has no limit in the number of iterations\n");
-	v = Ev.GetUdvByName((char*)FITSTARTLAMBDA);
+	v = Ev.GetUdvByName((char *)FITSTARTLAMBDA);
 	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will start with lambda = %g\n", d);
-	v = Ev.GetUdvByName((char*)FITLAMBDAFACTOR);
+	v = Ev.GetUdvByName((char *)FITLAMBDAFACTOR);
 	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will change lambda by a factor of %g\n", d);
@@ -2441,28 +2318,31 @@ static void show_angles()
 //
 // process 'show samples' command 
 //
-static void show_samples()
+//static void show_samples()
+void GnuPlot::ShowSamples()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tsampling rate is %d, %d\n", GPO.Gg.Samples1, GPO.Gg.Samples2);
+	fprintf(stderr, "\tsampling rate is %d, %d\n", Gg.Samples1, Gg.Samples2);
 }
 //
 // process 'show isosamples' command
 //
-static void show_isosamples()
+//static void show_isosamples()
+void GnuPlot::ShowIsoSamples()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tiso sampling rate is %d, %d\n", GPO.Gg.IsoSamples1, GPO.Gg.IsoSamples2);
+	fprintf(stderr, "\tiso sampling rate is %d, %d\n", Gg.IsoSamples1, Gg.IsoSamples2);
 }
 //
 // process 'show view' command 
 //
-static void show_view()
+//static void show_view()
+void GnuPlot::ShowView()
 {
 	SHOW_ALL_NL;
 	fputs("\tview is ", stderr);
 	if(splot_map == TRUE) {
-		fprintf(stderr, "map scale %g\n", mapview_scale);
+		fprintf(stderr, "map scale %g\n", _3DBlk.MapviewScale);
 		return;
 	}
 	else if(xz_projection) {
@@ -2472,11 +2352,11 @@ static void show_view()
 		fprintf(stderr, "yz projection\n");
 	}
 	else {
-		fprintf(stderr, "%g rot_x, %g rot_z, %g scale, %g scale_z\n", surface_rot_x, surface_rot_z, surface_scale, surface_zscale);
+		fprintf(stderr, "%g rot_x, %g rot_z, %g scale, %g scale_z\n", _3DBlk.SurfaceRotX, _3DBlk.SurfaceRotZ, _3DBlk.SurfaceScale, _3DBlk.SurfaceZScale);
 	}
-	fprintf(stderr, "\t\t%s axes are %s\n", (GPO.V.AspectRatio3D == 2) ? "x/y" : ((GPO.V.AspectRatio3D == 3) ? "x/y/z" : ""),
-	    (GPO.V.AspectRatio3D >= 2) ? "on the same scale" : "independently scaled");
-	fprintf(stderr, "\t\t azimuth %g\n", azimuth);
+	fprintf(stderr, "\t\t%s axes are %s\n", (V.AspectRatio3D == 2) ? "x/y" : ((V.AspectRatio3D == 3) ? "x/y/z" : ""),
+	    (V.AspectRatio3D >= 2) ? "on the same scale" : "independently scaled");
+	fprintf(stderr, "\t\t azimuth %g\n", _3DBlk.Azimuth);
 }
 //
 // process 'show surface' command 
@@ -2504,10 +2384,11 @@ static void show_increment()
 		fprintf(stderr, "default linetypes\n");
 }
 
-static void show_histogram()
+//static void show_histogram()
+void GnuPlot::ShowHistogram()
 {
 	fprintf(stderr, "\tHistogram style is ");
-	save_histogram_opts(stderr);
+	SaveHistogramOpts(stderr);
 }
 
 static void show_textbox()
@@ -2527,16 +2408,17 @@ static void show_history()
 //
 // process 'show size' command 
 //
-static void show_size()
+//static void show_size()
+void GnuPlot::ShowSize()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tsize is scaled by %g,%g\n", GPO.V.Size.x, GPO.V.Size.y);
-	if(GPO.V.AspectRatio > 0.0f)
-		fprintf(stderr, "\tTry to set aspect ratio to %g:1.0\n", GPO.V.AspectRatio);
-	else if(GPO.V.AspectRatio == 0.0f)
+	fprintf(stderr, "\tsize is scaled by %g,%g\n", V.Size.x, V.Size.y);
+	if(V.AspectRatio > 0.0f)
+		fprintf(stderr, "\tTry to set aspect ratio to %g:1.0\n", V.AspectRatio);
+	else if(V.AspectRatio == 0.0f)
 		fputs("\tNo attempt to control aspect ratio\n", stderr);
 	else
-		fprintf(stderr, "\tTry to set LOCKED aspect ratio to %g:1.0\n", -GPO.V.AspectRatio);
+		fprintf(stderr, "\tTry to set LOCKED aspect ratio to %g:1.0\n", -V.AspectRatio);
 }
 //
 // process 'show origin' command 
@@ -2560,23 +2442,24 @@ static void show_term()
 //
 // process 'show tics|[xyzx2y2cb]tics' commands 
 //
-static void show_tics(bool showx, bool showy, bool showz, bool showx2, bool showy2, bool showcb)
+//static void show_tics(bool showx, bool showy, bool showz, bool showx2, bool showy2, bool showcb)
+void GnuPlot::ShowTics(bool showx, bool showy, bool showz, bool showx2, bool showy2, bool showcb)
 {
 	int i;
 	SHOW_ALL_NL;
 	fprintf(stderr, "\ttics are in %s of plot\n", (grid_tics_in_front) ? "front" : "back");
 	if(showx)
-		show_ticdef(FIRST_X_AXIS);
+		ShowTicdef(FIRST_X_AXIS);
 	if(showx2)
-		show_ticdef(SECOND_X_AXIS);
+		ShowTicdef(SECOND_X_AXIS);
 	if(showy)
-		show_ticdef(FIRST_Y_AXIS);
+		ShowTicdef(FIRST_Y_AXIS);
 	if(showy2)
-		show_ticdef(SECOND_Y_AXIS);
+		ShowTicdef(SECOND_Y_AXIS);
 	if(showz)
-		show_ticdef(FIRST_Z_AXIS);
+		ShowTicdef(FIRST_Z_AXIS);
 	if(showcb)
-		show_ticdef(COLOR_AXIS);
+		ShowTicdef(COLOR_AXIS);
 	fprintf(stderr, "\tScales for user tic levels 2-%d are: ", MAX_TICLEVEL-1);
 	for(i = 2; i<MAX_TICLEVEL; i++)
 		fprintf(stderr, " %g%c", ticscale[i], i<MAX_TICLEVEL-1 ? ',' : '\n');
@@ -2611,74 +2494,83 @@ static void show_mtics(GpAxis * axis)
 		    GPO.IntError(NO_CARET, "Unknown minitic type in show_mtics()");
 	}
 }
-
-/* process 'show timestamp' command */
-static void show_timestamp()
+//
+// process 'show timestamp' command 
+//
+//static void show_timestamp()
+void GnuPlot::ShowTimeStamp()
 {
 	SHOW_ALL_NL;
-	show_xyzlabel("", "timestamp", &GPO.Gg.LblTime);
-	fprintf(stderr, "\twritten in %s corner\n", (GPO.Gg.TimeLabelBottom ? "bottom" : "top"));
+	ShowXyzLabel("", "timestamp", &Gg.LblTime);
+	fprintf(stderr, "\twritten in %s corner\n", (Gg.TimeLabelBottom ? "bottom" : "top"));
 }
-
-/* process 'show [xyzx2y2rtuv]range' commands */
-static void show_range(AXIS_INDEX axis)
+//
+// process 'show [xyzx2y2rtuv]range' commands 
+//
+//static void show_range(AXIS_INDEX axis)
+void GnuPlot::ShowRange(AXIS_INDEX axis)
 {
 	SHOW_ALL_NL;
-	if(GPO.AxS[axis].datatype == DT_TIMEDATE)
+	if(AxS[axis].datatype == DT_TIMEDATE)
 		fprintf(stderr, "\tset %sdata time\n", axis_name(axis));
 	fprintf(stderr, "\t");
-	save_prange(stderr, &GPO.AxS[axis]);
+	save_prange(stderr, &AxS[axis]);
 }
-
-/* called by the functions below */
-static void show_xyzlabel(const char * name, const char * suffix, text_label * label)
+//
+// called by the functions below 
+//
+//static void show_xyzlabel(const char * name, const char * suffix, text_label * label)
+void GnuPlot::ShowXyzLabel(const char * pName, const char * pSuffix, text_label * pLabel)
 {
-	if(label) {
-		fprintf(stderr, "\t%s%s is \"%s\", offset at ", name, suffix, label->text ? conv_text(label->text) : "");
-		show_position(&label->offset, 3);
-		fprintf(stderr, label->pos == LEFT ? " left justified" : label->pos == RIGHT ? " right justified" : "");
+	if(pLabel) {
+		fprintf(stderr, "\t%s%s is \"%s\", offset at ", pName, pSuffix, pLabel->text ? conv_text(pLabel->text) : "");
+		ShowPosition(&pLabel->offset, 3);
+		fprintf(stderr, pLabel->pos == LEFT ? " left justified" : pLabel->pos == RIGHT ? " right justified" : "");
 	}
 	else
 		return;
-	if(label->font)
-		fprintf(stderr, ", using font \"%s\"", conv_text(label->font));
-	if(label->tag == ROTATE_IN_3D_LABEL_TAG)
+	if(pLabel->font)
+		fprintf(stderr, ", using font \"%s\"", conv_text(pLabel->font));
+	if(pLabel->tag == ROTATE_IN_3D_LABEL_TAG)
 		fprintf(stderr, ", parallel to axis in 3D plots");
-	else if(label->rotate)
-		fprintf(stderr, ", rotated by %d degrees in 2D plots", label->rotate);
-
-	if(label->textcolor.type)
-		save_textcolor(stderr, &label->textcolor);
-
-	if(label->noenhanced)
+	else if(pLabel->rotate)
+		fprintf(stderr, ", rotated by %d degrees in 2D plots", pLabel->rotate);
+	if(pLabel->textcolor.type)
+		save_textcolor(stderr, &pLabel->textcolor);
+	if(pLabel->noenhanced)
 		fprintf(stderr, " noenhanced");
-
 	putc('\n', stderr);
 }
-
-/* process 'show title' command */
-static void show_title()
+//
+// process 'show title' command 
+//
+//static void show_title()
+void GnuPlot::ShowTitle()
 {
 	SHOW_ALL_NL;
-	show_xyzlabel("", "title", &GPO.Gg.LblTitle);
+	ShowXyzLabel("", "title", &Gg.LblTitle);
 }
-
-/* process 'show {x|y|z|x2|y2}label' command */
-static void show_axislabel(AXIS_INDEX axis)
+//
+// process 'show {x|y|z|x2|y2}label' command 
+//
+//static void show_axislabel(AXIS_INDEX axis)
+void GnuPlot::ShowAxisLabel(AXIS_INDEX axIdx)
 {
 	SHOW_ALL_NL;
-	show_xyzlabel(axis_name(axis), "label", &GPO.AxS[axis].label);
+	ShowXyzLabel(axis_name(axIdx), "label", &AxS[axIdx].label);
 }
-
-/* process 'show [xyzx2y2]data' commands */
+//
+// process 'show [xyzx2y2]data' commands 
+//
 static void show_data_is_timedate(AXIS_INDEX axis)
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\t%s is set to %s\n", axis_name(axis), GPO.AxS[axis].datatype == DT_TIMEDATE ? "time" :
 	    GPO.AxS[axis].datatype == DT_DMS ? "geographic" :  /* obsolete */ "numerical");
 }
-
-/* process 'show P_TimeFormat' command */
+//
+// process 'show timeformat' command 
+//
 static void show_timefmt()
 {
 	SHOW_ALL_NL;
@@ -2697,29 +2589,33 @@ void GnuPlot::ShowLink()
 	if(!Pgm.EndOfCommand())
 		Pgm.Shift();
 }
-
-/* process 'show link' command */
+//
+// process 'show link' command 
+//
 static void show_nonlinear()
 {
 	for(int axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++)
 		save_nonlinear(stderr, &GPO.AxS[axis]);
 }
-
-/* process 'show locale' command */
+//
+// process 'show locale' command 
+//
 static void show_locale()
 {
 	SHOW_ALL_NL;
 	dump_locale();
 }
-
-/* process 'show loadpath' command */
+//
+// process 'show loadpath' command 
+//
 static void show_loadpath()
 {
 	SHOW_ALL_NL;
 	dump_loadpath();
 }
-
-/* process 'show fontpath' command */
+//
+// process 'show fontpath' command 
+//
 static void show_fontpath()
 {
 	const char * env_fontpath = getenv("GNUPLOT_FONTPATH");
@@ -2904,7 +2800,7 @@ void GnuPlot::ShowVariables()
 		else {
 			fprintf(stderr, "\t%-*s ", len, udv->udv_name);
 			fputs("= ", stderr);
-			disp_value(stderr, &(udv->udv_value), TRUE);
+			DispValue(stderr, &(udv->udv_value), TRUE);
 			putc('\n', stderr);
 		}
 		udv = udv->next_udv;
@@ -2921,7 +2817,7 @@ static void show_linestyle(int tag)
 		if(tag == 0 || tag == this_linestyle->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tlinestyle %d, ", this_linestyle->tag);
-			save_linetype(stderr, &(this_linestyle->lp_properties), TRUE);
+			save_linetype(stderr, &this_linestyle->lp_properties, TRUE);
 			fputc('\n', stderr);
 		}
 	}
@@ -2992,9 +2888,10 @@ void GnuPlot::ShowArrowStyle(int tag)
 //
 // called by show_tics 
 //
-static void show_ticdefp(const GpAxis * pAx)
+//static void show_ticdefp(const GpAxis * pAx)
+void GnuPlot::ShowTicDefp(const GpAxis * pAx)
 {
-	struct ticmark * t;
+	ticmark * t;
 	const char * ticfmt = conv_text(pAx->formatstring);
 	fprintf(stderr, "\t%s-axis tics are %s, \tmajor ticscale is %g and minor ticscale is %g\n",
 	    axis_name((AXIS_INDEX)pAx->index), (pAx->TicIn ? "IN" : "OUT"), pAx->ticscale, pAx->miniticscale);
@@ -3014,7 +2911,7 @@ static void show_ticdefp(const GpAxis * pAx)
 			    fputs(" and mirrored on opposite border", stderr);
 		    break;
 	}
-	if(pAx->ticdef.rangelimited && !GPO.Gg.SpiderPlot)
+	if(pAx->ticdef.rangelimited && !Gg.SpiderPlot)
 		fprintf(stderr, "\n\t  tics are limited to data range");
 	fputs("\n\t  labels are ", stderr);
 	if(pAx->manual_justify) {
@@ -3038,7 +2935,7 @@ static void show_ticdefp(const GpAxis * pAx)
 	else
 		fputs(" and are not rotated,\n\t", stderr);
 	fputs("    offset ", stderr);
-	show_position(&pAx->ticdef.offset, 3);
+	ShowPosition(&pAx->ticdef.offset, 3);
 	fputs("\n\t", stderr);
 	switch(pAx->ticdef.type) {
 		case TIC_COMPUTED: fputs("  intervals computed automatically\n", stderr); break;
@@ -3062,7 +2959,7 @@ static void show_ticdefp(const GpAxis * pAx)
 			break;
 		case TIC_USER: fputs("  no auto-generated tics\n", stderr); break;
 		default: {
-		    GPO.IntError(NO_CARET, "unknown ticdef type in show_ticdef()");
+		    IntError(NO_CARET, "unknown ticdef type in show_ticdef()");
 		    /* NOTREACHED */
 	    }
 	}
@@ -3091,16 +2988,18 @@ static void show_ticdefp(const GpAxis * pAx)
 //
 // called by show_tics 
 //
-static void show_ticdef(AXIS_INDEX axis)
+//static void show_ticdef(AXIS_INDEX axis)
+void GnuPlot::ShowTicdef(AXIS_INDEX axis)
 {
-	show_ticdefp(&GPO.AxS[axis]);
+	ShowTicDefp(&AxS[axis]);
 }
 //
 // Display a value in human-readable form. 
 //
-void disp_value(FILE * fp, GpValue * val, bool need_quotes)
+//void disp_value(FILE * fp, GpValue * val, bool need_quotes)
+void GnuPlot::DispValue(FILE * fp, const GpValue * pVal, bool needQuotes)
 {
-	fprintf(fp, "%s", value_to_str(val, need_quotes));
+	fprintf(fp, "%s", GPO.ValueToStr(pVal, needQuotes));
 }
 //
 // convert unprintable characters as \okt, tab as \t, newline \n .. 

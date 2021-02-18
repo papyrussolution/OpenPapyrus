@@ -203,19 +203,19 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		argc -= n;
 	}
 #endif
-	setbuf(stderr, (char*)NULL);
+	setbuf(stderr, (char *)NULL);
 #ifdef HAVE_SETVBUF
 	// This was once setlinebuf(). Docs say this is
 	// identical to setvbuf(,NULL,_IOLBF,0), but MS C
 	// faults this (size out of range), so we try with
 	// size of 1024 instead. [SAS/C does that, too. -lh]
-	if(setvbuf(stdout, (char*)NULL, _IOLBF, (size_t)1024) != 0)
+	if(setvbuf(stdout, (char *)NULL, _IOLBF, (size_t)1024) != 0)
 		fputs("Could not linebuffer stdout\n", stderr);
 	// Switching to unbuffered mode causes all characters in the input
 	// buffer to be lost. So the only safe time to do it is on program entry.
 	// Do any non-X platforms suffer from this problem?
 	// EAM - Jan 2013 YES.
-	setvbuf(stdin, (char*)NULL, _IONBF, 0);
+	setvbuf(stdin, (char *)NULL, _IONBF, 0);
 #endif
 	gpoutfile = stdout;
 	// Initialize pre-loaded user variables 
@@ -409,7 +409,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 	// take commands from stdin 
 	if(noinputfiles) {
 		while(!ComLine())
-			ctrlc_flag = FALSE; /* reset asynchronous Ctrl-C flag */
+			ctrlc_flag = false; // reset asynchronous Ctrl-C flag 
 	}
 #ifdef _WIN32
 	// On Windows, handle 'persist' by keeping the main input loop running (windows/wxt), 
@@ -508,7 +508,7 @@ void GnuPlot::LoadRcFile(int where)
 #if defined(_WIN32)
 		rcfile = RelativePathToGnuplot(GNUPLOT_SHARE_DIR "\\gnuplotrc");
 #else
-		rcfile = (char*)gp_alloc(strlen(GNUPLOT_SHARE_DIR) + 1 + strlen("gnuplotrc") + 1, "rcfile");
+		rcfile = (char *)gp_alloc(strlen(GNUPLOT_SHARE_DIR) + 1 + strlen("gnuplotrc") + 1, "rcfile");
 		strcpy(rcfile, GNUPLOT_SHARE_DIR);
 		PATH_CONCAT(rcfile, "gnuplotrc");
 #endif
@@ -526,7 +526,7 @@ void GnuPlot::LoadRcFile(int where)
 	else if(where == 2 && user_homedir) {
 		// length of homedir + directory separator + length of file name + \0 
 		int len = (user_homedir ? strlen(user_homedir) : 0) + 1 + strlen(PLOTRC) + 1;
-		rcfile = (char*)gp_alloc(len, "rcfile");
+		rcfile = (char *)gp_alloc(len, "rcfile");
 		strcpy(rcfile, user_homedir);
 		PATH_CONCAT(rcfile, PLOTRC);
 		plotrc = fopen(rcfile, "r");

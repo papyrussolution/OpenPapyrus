@@ -16,18 +16,12 @@ double dgrid3d_y_scale = 1.0;
 bool   dgrid3d = FALSE;
 bool   dgrid3d_kdensity = FALSE;
 double boxdepth = 0.0;
-
-/* static prototypes */
-
-//static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, iso_curve ** this_iso,
-    //AXIS_INDEX iso_axis, double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use);
-//static int get_3ddata(GpSurfacePoints * this_plot);
-//static void eval_3dplots();
-//static void grid_nongrid_data(GpSurfacePoints * this_plot);
+//
+// static prototypes 
+//
 static void parametric_3dfixup(GpSurfacePoints * start_plot, int * plot_num);
 static GpSurfacePoints * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
 static void sp_replace(GpSurfacePoints * sp, int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
-
 static iso_curve * iso_alloc(int num);
 static void iso_extend(struct iso_curve * ip, int num);
 static void iso_free(struct iso_curve * ip);
@@ -256,7 +250,7 @@ void GnuPlot::Plot3DRequest(GpTermEntry * pTerm)
 		GpAxis * secondary = &AxS[axis];
 		if(axis == SAMPLE_AXIS)
 			continue;
-		if(secondary->linked_to_primary &&  secondary->linked_to_primary->index == -secondary->index) {
+		if(secondary->linked_to_primary && secondary->linked_to_primary->index == -secondary->index) {
 			GpAxis * primary = secondary->linked_to_primary;
 			primary->set_autoscale = secondary->set_autoscale;
 			axis_init(primary, 1);
@@ -713,7 +707,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 	// we ought to keep old memory - most likely case
 	// is a replot, so it will probably exactly fit into
 	// memory already allocated ?
-	if(pPlot->iso_crvs != NULL) {
+	if(pPlot->iso_crvs) {
 		iso_curve * icrv, * icrvs = pPlot->iso_crvs;
 		while(icrvs) {
 			icrv = icrvs;
@@ -727,7 +721,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 		pPlot->has_grid_topology = TRUE;
 	{
 		/*{{{  read surface from text file */
-		struct iso_curve * local_this_iso = iso_alloc(Gg.Samples1);
+		iso_curve * local_this_iso = iso_alloc(Gg.Samples1);
 		GpCoordinate * cp;
 		GpCoordinate * cphead = NULL; /* Only for VECTOR plots */
 		double x, y, z;
@@ -922,8 +916,8 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					cp->CRD_PTSIZE = v[varcol++];
 				if(pPlot->lp_properties.PtType == PT_VARIABLE) {
 					if(isnan(v[varcol]) && df_tokens[varcol]) {
-						safe_strncpy((char*)(&var_char), df_tokens[varcol], sizeof(coordval));
-						truncate_to_one_utf8_char((char*)(&var_char));
+						safe_strncpy((char *)(&var_char), df_tokens[varcol], sizeof(coordval));
+						truncate_to_one_utf8_char((char *)(&var_char));
 						cp->CRD_PTCHAR = var_char;
 					}
 					cp->CRD_PTTYPE = v[varcol++];
@@ -1008,7 +1002,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			}
 			else if(pPlot->plot_style == BOXES) {
 				// Pop last using value to use as variable color 
-				if(pPlot->fill_properties.border_color.type == TC_RGB &&  pPlot->fill_properties.border_color.value < 0) {
+				if(pPlot->fill_properties.border_color.type == TC_RGB && pPlot->fill_properties.border_color.value < 0) {
 					color_from_column(TRUE);
 					color = v[--j];
 				}
@@ -1054,7 +1048,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				 * 5 column:	x (y) z zlow zhigh
 				 */
 				/* Optional variable color in last column */
-				if((pPlot->lp_properties.pm3d_color.type == TC_RGB &&  pPlot->lp_properties.pm3d_color.value < 0) || pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
+				if((pPlot->lp_properties.pm3d_color.type == TC_RGB && pPlot->lp_properties.pm3d_color.value < 0) || pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 					color_from_column(TRUE);
 					color = v[--j];
 				}
@@ -1333,7 +1327,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 	int    crnt_param = 0;
 	char * xtitle;
 	char * ytitle;
-	legend_key * key = &keyT;
+	legend_key * key = &Gg.KeyT;
 	char orig_dummy_u_var[MAX_ID_LEN+1], orig_dummy_v_var[MAX_ID_LEN+1];
 	// Free memory from previous splot.
 	// If there is an error within this function, the memory is left allocated,
@@ -1448,7 +1442,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				this_component = SP_KEYENTRY;
 			else if(!name_str)
 				this_component = SP_FUNCTION;
-			else if((*name_str == '$') && get_vgrid_by_name(name_str))
+			else if((*name_str == '$') && GetVGridByName(name_str))
 				this_component = SP_VOXELGRID;
 			else if(*name_str == '$')
 				this_component = SP_DATABLOCK;
@@ -1577,7 +1571,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					    this_plot = sp_alloc(0, 0, 0, 0);
 					    *tp_3d_ptr = this_plot;
 				    }
-				    this_plot->vgrid = get_vgrid_by_name(name_str)->udv_value.v.vgrid;
+				    this_plot->vgrid = GetVGridByName(name_str)->udv_value.v.vgrid;
 				    this_plot->plot_type = VOXELDATA;
 				    this_plot->opt_out_of_hidden3d = TRUE;
 				    this_plot->token = end_token = Pgm.GetPrevTokenIdx();
@@ -2423,10 +2417,8 @@ static void parametric_3dfixup(GpSurfacePoints * start_plot, int * plot_num)
 				for(i = 0; i < zicrvs->p_count; ++i) {
 					zpoints[i].x = xpoints[i].z;
 					zpoints[i].y = ypoints[i].z;
-					if(zpoints[i].type < xpoints[i].type)
-						zpoints[i].type = xpoints[i].type;
-					if(zpoints[i].type < ypoints[i].type)
-						zpoints[i].type = ypoints[i].type;
+					SETMAX(zpoints[i].type, xpoints[i].type);
+					SETMAX(zpoints[i].type, ypoints[i].type);
 				}
 				xicrvs = xicrvs->next;
 				yicrvs = yicrvs->next;

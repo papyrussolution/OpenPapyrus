@@ -416,7 +416,7 @@ static void two_column_output(SglColumnStats x, SglColumnStats y, TwoColumnStats
 void GnuPlot::ClearOneVar(const char * pPrefix, const char * pBase)
 {
 	int len = strlen(pPrefix) + strlen(pBase) + 2;
-	char * varname = (char*)gp_alloc(len, "create_and_set_var");
+	char * varname = (char *)gp_alloc(len, "create_and_set_var");
 	sprintf(varname, "%s_%s", pPrefix, pBase);
 	Ev.DelUdvByName(varname, TRUE);
 	SAlloc::F(varname);
@@ -497,7 +497,7 @@ void GnuPlot::CreateAndStoreVar(const GpValue * pData, const char * pPrefix, con
 	SETIFZ(pPrefix, "");
 	SETIFZ(pSuffix, "");
 	int len = strlen(pPrefix) + strlen(pBase) + strlen(pSuffix) + 1;
-	char * varname = (char*)gp_alloc(len, "create_and_set_var");
+	char * varname = (char *)gp_alloc(len, "create_and_set_var");
 	sprintf(varname, "%s%s%s", pPrefix, pBase, pSuffix);
 	// Note that add_udv_by_name() checks if the name already exists, and
 	// returns the existing ptr if found. It also allocates memory for
@@ -732,7 +732,7 @@ void GnuPlot::StatsRequest()
 		ClearStatsVariables(prefix ? prefix : "STATS");
 		// Special case for voxel grid stats: "stats $vgrid {name <prefix>} 
 		if(df_voxelgrid) {
-			vgrid * vgrid = get_vgrid_by_name(file_name)->udv_value.v.vgrid;
+			vgrid * vgrid = GetVGridByName(file_name)->udv_value.v.vgrid;
 			int N, nonzero;
 			vgrid_stats(vgrid);
 			N = vgrid->size;
@@ -845,7 +845,7 @@ void GnuPlot::StatsRequest()
 	SETIFZ(prefix, gp_strdup("STATS_"));
 	i = strlen(prefix);
 	if(prefix[i-1] != '_') {
-		prefix = (char*)gp_realloc(prefix, i+2, "prefix");
+		prefix = (char *)gp_realloc(prefix, i+2, "prefix");
 		strcat(prefix, "_");
 	}
 	// Do the actual analysis 

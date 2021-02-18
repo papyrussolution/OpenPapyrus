@@ -97,13 +97,13 @@
 int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 {
 #ifdef SUPPORT_UTF
-	register PCRE_PUCHAR p;
+	PCRE_PUCHAR p;
 	if(length < 0) {
 		for(p = string; *p != 0; p++) ;
 		length = static_cast<int>(p - string);
 	}
 	for(p = string; length-- > 0; p++) {
-		register pcre_uchar ab, c, d;
+		pcre_uchar ab, c, d;
 		c = *p;
 		if(c < 128) continue;   /* ASCII character */
 

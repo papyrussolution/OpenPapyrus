@@ -238,9 +238,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\dxy.trm">
       <Filter>Term</Filter>
     </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\eepic.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\emxvga.trm">
       <Filter>Term</Filter>
     </None>
@@ -269,9 +266,6 @@
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\kyo.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\latex.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\linux.trm">
@@ -308,9 +302,6 @@
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\tkcanvas.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\tpic.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\vgagl.trm">

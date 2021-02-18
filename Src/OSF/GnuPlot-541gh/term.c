@@ -120,29 +120,18 @@ int    mono_recycle_count = 0;
 //static double term_pointsize = 1.0; // internal pointsize for DoPoint 
 
 // Internal prototypes: 
-static void term_suspend();
+//static void term_suspend();
 static void term_close_output();
 static void null_linewidth(GpTermEntry * pTerm, double);
-//static void do_point(uint x, uint y, int number);
-//static void do_pointsize(double size);
-//static void line_and_point(uint x, uint y, int number);
-//static void GnuPlot::DoArrow(uint sx, uint sy, uint ex, uint ey, int headstyle);
 static void null_dashtype(GpTermEntry * pTerm, int type, t_dashtype * custom_dash_pattern);
-//static int  null_text_angle(int ang);
-//static int  null_justify_text(enum JUSTIFY just);
-//static int  null_scale(double x, double y);
 static void null_layer(GpTermEntry * pThis, t_termlayer layer);
 static int  null_set_font(GpTermEntry * pThis, const char * font);
-//static void null_set_color(t_colorspec * colorspec);
-//static void options_null();
 static void graphics_null(GpTermEntry * pThis);
 static void UNKNOWN_null(GpTermEntry * pThis);
 static void MOVE_null(GpTermEntry * pThis, uint, uint);
 static void LINETYPE_null(GpTermEntry * pThis, int);
 static void PUTTEXT_null(GpTermEntry * pThis, uint, uint, const char *);
 static int strlen_tex(const char *);
-//static char * stylefont(const char * fontname, bool isbold, bool isitalic);
-//static GpSizeUnits parse_term_size(float * xsize, float * ysize, GpSizeUnits def_units);
 
 #define FOPEN_BINARY(file) fopen(file, "wb")
 #if defined(MSDOS) || defined(_WIN32)
@@ -331,7 +320,7 @@ void GnuPlot::TermInitialise(GpTermEntry * pTerm)
 #endif
 	if(!TermInitialised || TermForceInit) {
 		FPRINTF((stderr, "- calling term->init()\n"));
-		(pTerm->init)(term);
+		(pTerm->init)(pTerm);
 		TermInitialised = true;
 #ifdef HAVE_LOCALE_H
 		// This is here only from an abundance of caution (a.k.a. paranoia).
@@ -400,13 +389,14 @@ void GnuPlot::TermEndPlot(GpTermEntry * pTerm)
 	}
 }
 
-static void term_suspend()
+//static void term_suspend()
+void GnuPlot::TermSuspend(GpTermEntry * pTerm)
 {
 	FPRINTF((stderr, "term_suspend()\n"));
-	if(GPO.TermInitialised && !GPO.TermSuspended && term->suspend) {
+	if(TermInitialised && !TermSuspended && pTerm->suspend) {
 		FPRINTF((stderr, "- calling term->suspend()\n"));
-		(term->suspend)(term);
-		GPO.TermSuspended = true;
+		(pTerm->suspend)(pTerm);
+		TermSuspended = true;
 	}
 }
 
@@ -547,7 +537,7 @@ void GnuPlot::TermCheckMultiplotOkay(bool fInteractive)
 		//   refuse multiplot outright
 		if(!fInteractive || (term->flags & TERM_CAN_MULTIPLOT) || ((gpoutfile != stdout) && !(term->flags & TERM_CANNOT_MULTIPLOT))) {
 			// it's okay to use multiplot here, but suspend first 
-			term_suspend();
+			TermSuspend(term);
 		}
 		else {
 			// uh oh: they're not allowed to be in multiplot here 
@@ -918,7 +908,7 @@ void GnuPlot::DoArc(GpTermEntry * pTerm, int cx, int cy/* Center */, double radi
 #undef INC
 	vertex[segments].x = static_cast<int>(cx + cos(DEG2RAD * arc_end) * radius);
 	vertex[segments].y = static_cast<int>(cy + sin(DEG2RAD * arc_end) * radius * aspect);
-	if(fabs(arc_end - arc_start) > 0.1 &&  fabs(arc_end - arc_start) < 359.9) {
+	if(fabs(arc_end - arc_start) > 0.1 && fabs(arc_end - arc_start) < 359.9) {
 		vertex[++segments].x = cx;
 		vertex[segments].y = cy;
 		vertex[++segments].x = vertex[0].x;
@@ -1176,7 +1166,7 @@ static struct GpTermEntry term_tbl[] = {
 void list_terms()
 {
 	int i;
-	char * line_buffer = (char*)gp_alloc(BUFSIZ, "list_terms");
+	char * line_buffer = (char *)gp_alloc(BUFSIZ, "list_terms");
 	int sort_idxs[TERMCOUNT];
 	// sort terminal types alphabetically 
 	for(i = 0; i < TERMCOUNT; i++)
@@ -1201,7 +1191,7 @@ void list_terms()
 char* get_terminals_names()
 {
 	int i;
-	char * buf = (char*)gp_alloc(TERMCOUNT*15, "all_term_names"); /* max 15 chars per name */
+	char * buf = (char *)gp_alloc(TERMCOUNT*15, "all_term_names"); /* max 15 chars per name */
 	int sort_idxs[TERMCOUNT];
 	// sort terminal types alphabetically 
 	for(i = 0; i < TERMCOUNT; i++)
@@ -1212,7 +1202,7 @@ char* get_terminals_names()
 	for(i = 0; i < TERMCOUNT; i++)
 		sprintf(buf+strlen(buf), "%s ", term_tbl[sort_idxs[i]].name);
 	{
-		char * names = (char*)gp_alloc(strlen(buf)+1, "all_term_names2");
+		char * names = (char *)gp_alloc(strlen(buf)+1, "all_term_names2");
 		strcpy(names, buf);
 		SAlloc::F(buf);
 		return names;
@@ -1343,10 +1333,10 @@ void GnuPlot::InitTerminal()
 #endif
 	// GNUTERM environment variable is primary 
 	char * gnuterm = getenv("GNUTERM");
-	if(gnuterm != (char*)NULL) {
+	if(gnuterm != (char *)NULL) {
 		// April 2017 - allow GNUTERM to include terminal options 
 		char * set_term = "set term ";
-		char * set_term_command = (char*)gp_alloc(strlen(set_term) + strlen(gnuterm) + 4, NULL);
+		char * set_term_command = (char *)gp_alloc(strlen(set_term) + strlen(gnuterm) + 4, NULL);
 		strcpy(set_term_command, set_term);
 		strcat(set_term_command, gnuterm);
 		DoString(set_term_command);
@@ -1360,7 +1350,7 @@ void GnuPlot::InitTerminal()
 			term_name = "domterm";
 #ifdef __BEOS__
 		env_term = getenv("TERM");
-		if(term_name == (char*)NULL && env_term != (char*)NULL && strcmp(env_term, "beterm") == 0)
+		if(term_name == (char *)NULL && env_term != (char *)NULL && strcmp(env_term, "beterm") == 0)
 			term_name = "be";
 #endif
 #ifdef QTTERM
@@ -1377,10 +1367,10 @@ void GnuPlot::InitTerminal()
 #endif
 #ifdef X11
 		env_term = getenv("TERM"); /* try $TERM */
-		if(term_name == (char*)NULL && env_term != (char*)NULL && strcmp(env_term, "xterm") == 0)
+		if(term_name == (char *)NULL && env_term != (char *)NULL && strcmp(env_term, "xterm") == 0)
 			term_name = "x11";
 		display = getenv("DISPLAY");
-		if(term_name == (char*)NULL && display != (char*)NULL)
+		if(term_name == (char *)NULL && display != (char *)NULL)
 			term_name = "x11";
 		if(X11_Display)
 			term_name = "x11";
@@ -1921,7 +1911,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 					    else {
 						    /* We found a new font name {/Font ...} */
 						    int len = end_of_fontname - start_of_fontname;
-						    localfontname = (char*)gp_alloc(len+1, "localfontname");
+						    localfontname = (char *)gp_alloc(len+1, "localfontname");
 						    strncpy(localfontname, start_of_fontname, len);
 						    localfontname[len] = '\0';
 					    }
@@ -2097,7 +2087,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 /*static*/char * GnuPlot::_StyleFont(const char * pFontName, bool isBold, bool isItalic)
 {
 	int    div;
-	char * markup = (char*)gp_alloc(strlen(pFontName) + 16, "font markup");
+	char * markup = (char *)gp_alloc(strlen(pFontName) + 16, "font markup");
 	strcpy(markup, pFontName);
 	// base font name can be followed by ,<size> or :Variant 
 	if((div = strcspn(markup, ",:")))
@@ -2500,7 +2490,7 @@ char * escape_reserved_chars(const char * str, const char * reserved)
 		if(strchr(reserved, str[i]))
 			newsize++;
 	}
-	char * escaped_str = (char*)gp_alloc(newsize + 1, NULL);
+	char * escaped_str = (char *)gp_alloc(newsize + 1, NULL);
 	/* Prefix each reserved character with a backslash */
 	for(i = 0, newsize = 0; str[i] != '\0'; i++) {
 		if(strchr(reserved, str[i]))

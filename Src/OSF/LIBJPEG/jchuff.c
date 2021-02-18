@@ -426,8 +426,8 @@ static void FASTCALL emit_restart_e(huff_entropy_ptr entropy, int restart_num)
 METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
-	register int temp, temp2;
-	register int nbits;
+	int temp, temp2;
+	int nbits;
 	int blkn, ci, tbl;
 	ISHIFT_TEMPS
 	entropy->next_output_byte = cinfo->dest->next_output_byte;

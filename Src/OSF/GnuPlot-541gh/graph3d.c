@@ -12,77 +12,18 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-struct GpGraph3DBlock {
-	GpGraph3DBlock();
-	int    KeyEntryHeight; // bigger of t->ChrV, pointsize*t->v_tick 
-	int    KeyTitleHeight;
-	int    KeyTitleExtra;  // allow room for subscript/superscript 
-	int    KeyTitleWidth;
-	// 
-	// we precalculate features of the key, to save lots of nested
-	// ifs in code - x,y = user supplied or computed position of key
-	// taken to be inner edge of a line sample
-	// 
-	int    KeySampleLeft;  // offset from x for left of line sample 
-	int    KeySampleRight; // offset from x for right of line sample 
-	int    KeyPointOffset; // offset from x for point sample 
-	int    KeyTextLeft;    // offset from x for left-justified text 
-	int    KeyTextRight;   // offset from x for right-justified text 
-	int    KeySizeLeft;    // distance from x to left edge of box 
-	int    KeySizeRight;   // distance from x to right edge of box 
-	int    SPlotMapActive;
-	float  SPlotMapSurfaceRotX;
-	float  SPlotMapSurfaceRotZ;
-	float  SPlotMapSurfaceScale;
-	//
-	// x and y input range endpoints where the three axes are to be
-	// displayed (left, front-left, and front-right edges of the cube) 
-	//
-	double XAxisY;
-	double YAxisX;
-	double ZAxisX;
-	double ZAxisY;
-	// 
-	// ... and the same for the back, right, and front corners 
-	// 
-	SPoint2R Back;
-	SPoint2R Right;
-	SPoint2R Front;
-	SPoint3R TicUnit; // unit vector (terminal coords) 
-	// 
-	// The global flags splot_map, xz_projection, and yz_projection are specific views.
-	// These flag the more general case of looking down the x or y axis
-	// 
-	bool   XzPlane;
-	bool   YzPlane;
-	bool   CanPm3D;
-	//
-	int    PTitlCnt;
-	int    MaxPTitlLen;
-	int    TitleLin;
-	int    KeySampleWidth;
-	int    KeyRows;
-	int    KeyCols;
-	int    KeyColWth;
-	int    YlRef;
-	double KTitleLines;
-	double CeilingZ1;
-	double BaseZ1;
-};
-
 GpGraph3DBlock::GpGraph3DBlock() : KeyEntryHeight(0), KeyTitleHeight(0), KeyTitleExtra(0), KeyTitleWidth(0),
 	KeySampleLeft(0), KeySampleRight(0), KeyPointOffset(0), KeyTextLeft(0), KeyTextRight(0), KeySizeLeft(0), KeySizeRight(0),
 	SPlotMapActive(0), SPlotMapSurfaceRotX(0.0f), SPlotMapSurfaceRotZ(0.0f), SPlotMapSurfaceScale(0.0f),
 	XAxisY(0.0), YAxisX(0.0), ZAxisX(0.0), ZAxisY(0.0), XzPlane(false), YzPlane(false), CanPm3D(false),
 	PTitlCnt(0), MaxPTitlLen(0), TitleLin(0), KeySampleWidth(0), KeyRows(0), KeyCols(0), KeyColWth(0), YlRef(0), KTitleLines(0.0),
-	CeilingZ1(0.0), BaseZ1(0.0)
+	CeilingZ1(0.0), BaseZ1(0.0), SurfaceRotZ(30.0f), SurfaceRotX(60.0f), SurfaceScale(1.0f), SurfaceZScale(1.0f), SurfaceLScale(0.0f),
+	MapviewScale(1.0f), Azimuth(0.0f)
 {
 	Back.Set(0.0);
 	Right.Set(0.0);
 	Front.Set(0.0);
 }
-
-GpGraph3DBlock _3DBlk;
 
 //static double ceiling_z1;
 //static double base_z1;
@@ -132,13 +73,13 @@ int    hidden3d_layer = LAYER_BACK;
 // 
 // Rotation and scale of the 3d view, as controlled by 'set view': 
 // 
-float  surface_rot_z = 30.0f;
-float  surface_rot_x = 60.0f;
-float  surface_scale = 1.0f;
-float  surface_zscale = 1.0f;
-float  surface_lscale = 0.0f;
-float  mapview_scale = 1.0f;
-float  azimuth = 0.0f;
+//float  surface_rot_z = 30.0f;
+//float  surface_rot_x = 60.0f;
+//float  surface_scale = 1.0f;
+//float  surface_zscale = 1.0f;
+//float  surface_lscale = 0.0f;
+//float  mapview_scale = 1.0f;
+//float  azimuth = 0.0f;
 // 
 // These flags indicate projection onto the xy, xz or yz plane
 // as requested by 'set view map' or 'set view projection'.
@@ -157,20 +98,12 @@ t_xyplane xyplane = { 0.5, FALSE }; // position of the base plane, as given by '
 //double xcenter3d = 0.0;
 //double ycenter3d = 0.0;
 //double zcenter3d = 0.0;
-SPoint3R Scale3D;
-SPoint3R Center3D;
+//SPoint3R Scale3D;
+//SPoint3R Center3D;
 
-static void do_3dkey_layout(GpTermEntry * pTerm, legend_key * key, int * xinkey, int * yinkey);
-static void get_surface_cbminmax(const GpSurfacePoints * plot, double * cbmin, double * cbmax);
 static int  find_maxl_cntr(gnuplot_contours * contours, int * count);
 static int  find_maxl_keys3d(const GpSurfacePoints * plots, int count, int * kcnt);
-static void key_text(GpTermEntry * pTerm, int xl, int yl, char * text);
-//static bool get_arrow3d(arrow_def*, double*, double*, double*, double*);
-//static void place_arrows3d(int);
-//static void place_labels3d(text_label * listhead, int layer);
-//static void flip_projection_axis(GpAxis * axis);
-static void splot_map_activate();
-static void splot_map_deactivate();
+//static void key_text(GpTermEntry * pTerm, int xl, int yl, char * text);
 
 #define i_inrange(z, a, b) inrange((z), (a), (b))
 
@@ -278,7 +211,7 @@ static int find_maxl_cntr(struct gnuplot_contours * contours, int * count)
 //static void boundary3d(const GpSurfacePoints * plots, int count)
 void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int count)
 {
-	legend_key * key = &keyT;
+	legend_key * key = &Gg.KeyT;
 	int i;
 	_3DBlk.TitleLin = 0;
 	_3DBlk.KeySampleWidth = (key->swidth >= 0.0) ? static_cast<int>(key->swidth * pTerm->ChrH + pTerm->TicH) : 0;
@@ -406,9 +339,9 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 	yscaler = ((V.BbPlot.ytop - V.BbPlot.ybot) * 4L) / 7L;
 	// Allow explicit control via set {}margin screen 
 	if(V.MarginT.scalex == screen || V.MarginB.scalex == screen)
-		yscaler = static_cast<int>((V.BbPlot.ytop - V.BbPlot.ybot) / surface_scale);
+		yscaler = static_cast<int>((V.BbPlot.ytop - V.BbPlot.ybot) / _3DBlk.SurfaceScale);
 	if(V.MarginR.scalex == screen || V.MarginL.scalex == screen)
-		xscaler = static_cast<int>((V.BbPlot.xright - V.BbPlot.xleft) / surface_scale);
+		xscaler = static_cast<int>((V.BbPlot.xright - V.BbPlot.xleft) / _3DBlk.SurfaceScale);
 	// prevent infinite loop or divide-by-zero if scaling is bad 
 	if(yscaler == 0) yscaler = 1;
 	if(xscaler == 0) xscaler = 1;
@@ -431,7 +364,7 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 		}
 	}
 	xyscaler = sqrt(xscaler*yscaler); // For anything that really wants to be the same on x and y 
-	radius_scaler = xscaler * surface_scale / (AxS.__X().max - AxS.__X().min); // This one is used to scale circles in 3D plots 
+	radius_scaler = xscaler * _3DBlk.SurfaceScale / (AxS.__X().max - AxS.__X().min); // This one is used to scale circles in 3D plots 
 	// Set default clipping 
 	if(splot_map)
 		V.P_ClipArea = &V.BbPlot;
@@ -519,43 +452,47 @@ void GnuPlot::PlaceArrows3D(GpTermEntry * pTerm, int layer)
 //void do_3dplot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/* count of plots in linked list */, REPLOT_TYPE replot_mode/* replot/refresh/axes-only/quick-refresh */)
 void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/* count of plots in linked list */, REPLOT_TYPE replot_mode/* replot/refresh/axes-only/quick-refresh */)
 {
-	int surface;
+	int    surface;
 	GpSurfacePoints * this_plot = NULL;
-	int xl = 0, yl = 0;
-	int xl_save, yl_save;
-	int xl_prev = 0, yl_prev = 0;
-	int title_x = 0;
-	int title_y = 0;
+	int    xl = 0;
+	int    yl = 0;
+	int    xl_save;
+	int    yl_save;
+	int    xl_prev = 0;
+	int    yl_prev = 0;
+	//int    title_x = 0;
+	//int    title_y = 0;
+	SPoint2I title_pos;
 	transform_matrix mat;
-	int key_count;
-	bool key_pass = FALSE;
-	legend_key * key = &keyT;
-	bool pm3d_order_depth = FALSE;
+	int    key_count;
+	bool   key_pass = FALSE;
+	legend_key * key = &Gg.KeyT;
+	bool   pm3d_order_depth = FALSE;
 	GpAxis * primary_z;
 	// Initiate transformation matrix using the global view variables. 
 	if(splot_map) {
-		splot_map_activate();
+		SPlotMapActivate();
 	}
 	else if(xz_projection) {
-		surface_rot_x = 270.0f;
-		surface_rot_z = 0.0f;
-		surface_scale = 1.425f * mapview_scale;
+		_3DBlk.SurfaceRotX = 270.0f;
+		_3DBlk.SurfaceRotZ = 0.0f;
+		_3DBlk.SurfaceScale = 1.425f * _3DBlk.MapviewScale;
 	}
 	else if(yz_projection) {
-		surface_rot_x = 90.0f;
-		surface_rot_z = 90.0f;
-		surface_scale = 1.425f * mapview_scale;
+		_3DBlk.SurfaceRotX = 90.0f;
+		_3DBlk.SurfaceRotZ = 90.0f;
+		_3DBlk.SurfaceScale = 1.425f * _3DBlk.MapviewScale;
 		AxS[FIRST_Z_AXIS].FlipProjection();
 	}
 	in_3d_polygon = FALSE;  /* protects polygons from xz, yz projections */
-	mat_rot_z(surface_rot_z, trans_mat);
-	mat_rot_x(surface_rot_x, mat);
+	mat_rot_z(_3DBlk.SurfaceRotZ, trans_mat);
+	mat_rot_x(_3DBlk.SurfaceRotX, mat);
 	mat_mult(trans_mat, trans_mat, mat);
-	mat_scale(surface_scale / 2.0, surface_scale / 2.0, surface_scale / 2.0, mat);
+	mat_scale(_3DBlk.SurfaceScale / 2.0f, _3DBlk.SurfaceScale / 2.0f, _3DBlk.SurfaceScale / 2.0f, mat);
 	mat_mult(trans_mat, trans_mat, mat);
 	// The azimuth is applied as a rotation about the line of sight 
-	if(azimuth != 0.0f && !splot_map) {
-		mat_rot_z(azimuth, mat);
+	if(_3DBlk.Azimuth != 0.0f && !splot_map) {
+		mat_rot_z(_3DBlk.Azimuth, mat);
 		mat_mult(trans_mat, trans_mat, mat);
 	}
 	if(Gg.Polar)
@@ -614,14 +551,14 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	// Special case projections of the xz or yz plane 
 	// Place x or y axis to the left of the plot 
 	_3DBlk.XzPlane = _3DBlk.YzPlane = false;
-	if(!splot_map && (surface_rot_x == 90 || surface_rot_x == 270)) {
-		if(surface_rot_z ==  0 || surface_rot_z == 180) {
+	if(!splot_map && (_3DBlk.SurfaceRotX == 90.0f || _3DBlk.SurfaceRotX == 270.0f)) {
+		if(_3DBlk.SurfaceRotZ == 0.0f || _3DBlk.SurfaceRotZ == 180.0f) {
 			_3DBlk.XzPlane = true;
 			base_z = floor_z;
 		}
-		if(surface_rot_z == 90 || surface_rot_z == 270) {
+		if(_3DBlk.SurfaceRotZ == 90.0f || _3DBlk.SurfaceRotZ == 270.0f) {
 			_3DBlk.YzPlane = true;
-			if(surface_rot_x == 270 || yz_projection)
+			if(_3DBlk.SurfaceRotX == 270.0f || yz_projection)
 				base_z = ceiling_z;
 		}
 	}
@@ -634,38 +571,38 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	axis_set_scale_and_range(&AxS[FIRST_Y_AXIS], V.BbPlot.ybot, V.BbPlot.ytop);
 	axis_set_scale_and_range(&AxS[FIRST_Z_AXIS], static_cast<int>(floor_z), static_cast<int>(ceiling_z));
 	// SCALE FACTORS 
-	Scale3D.z = 2.0 / (ceiling_z - floor_z) * surface_zscale;
-	Scale3D.y = 2.0 / (AxS.__Y().max - AxS.__Y().min);
-	Scale3D.x = 2.0 / (AxS.__X().max - AxS.__X().min);
+	_3DBlk.Scale3D.z = 2.0 / (ceiling_z - floor_z) * _3DBlk.SurfaceZScale;
+	_3DBlk.Scale3D.y = 2.0 / (AxS.__Y().max - AxS.__Y().min);
+	_3DBlk.Scale3D.x = 2.0 / (AxS.__X().max - AxS.__X().min);
 	if(AxS.__X().IsNonLinear())
-		Scale3D.x = 2.0 / (AxS.__X().linked_to_primary->max - AxS.__X().linked_to_primary->min);
+		_3DBlk.Scale3D.x = 2.0 / (AxS.__X().linked_to_primary->max - AxS.__X().linked_to_primary->min);
 	if(AxS.__Y().IsNonLinear())
-		Scale3D.y = 2.0 / (AxS.__Y().linked_to_primary->max - AxS.__Y().linked_to_primary->min);
+		_3DBlk.Scale3D.y = 2.0 / (AxS.__Y().linked_to_primary->max - AxS.__Y().linked_to_primary->min);
 	if(AxS.__Z().IsNonLinear())
-		Scale3D.z = 2.0 / (_3DBlk.CeilingZ1 - floor_z1) * surface_zscale;
+		_3DBlk.Scale3D.z = 2.0 / (_3DBlk.CeilingZ1 - floor_z1) * _3DBlk.SurfaceZScale;
 	// Allow 'set view equal xy' to adjust rendered length of the X and/or Y axes.
 	// NB: only works correctly for terminals whose coordinate system is isotropic. 
 	//xcenter3d = ycenter3d = zcenter3d = 0.0;
-	Center3D.Set(0.0, 0.0, 0.0);
+	_3DBlk.Center3D.Set(0.0, 0.0, 0.0);
 	if(V.AspectRatio3D >= 2) {
-		if(Scale3D.y > Scale3D.x) {
-			Center3D.y = 1.0 - Scale3D.x/Scale3D.y;
-			Scale3D.y = Scale3D.x;
+		if(_3DBlk.Scale3D.y > _3DBlk.Scale3D.x) {
+			_3DBlk.Center3D.y = 1.0 - _3DBlk.Scale3D.x/_3DBlk.Scale3D.y;
+			_3DBlk.Scale3D.y = _3DBlk.Scale3D.x;
 		}
-		else if(Scale3D.x > Scale3D.y) {
-			Center3D.x = 1.0 - Scale3D.y/Scale3D.x;
-			Scale3D.x = Scale3D.y;
+		else if(_3DBlk.Scale3D.x > _3DBlk.Scale3D.y) {
+			_3DBlk.Center3D.x = 1.0 - _3DBlk.Scale3D.y/_3DBlk.Scale3D.x;
+			_3DBlk.Scale3D.x = _3DBlk.Scale3D.y;
 		}
 		if(V.AspectRatio3D >= 3)
-			Scale3D.z = Scale3D.x;
+			_3DBlk.Scale3D.z = _3DBlk.Scale3D.x;
 	}
 	// FIXME: I do not understand why this is correct 
 	if(AxS.__Z().IsNonLinear())
-		Center3D.z = 0.0;
+		_3DBlk.Center3D.z = 0.0;
 	// Without this the rotation center would be located at 
 	// the bottom of the plot. This places it in the middle.
 	else
-		Center3D.z =  -(ceiling_z - floor_z) / 2.0 * Scale3D.z + 1.0;
+		_3DBlk.Center3D.z =  -(ceiling_z - floor_z) / 2.0 * _3DBlk.Scale3D.z + 1.0;
 	// Needed for mousing by outboard terminal drivers 
 	if(splot_map) {
 		GpAxis * p_ax_x = &AxS[FIRST_X_AXIS];
@@ -719,7 +656,7 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	// zooming in the canvas terminal.  It may or may not make any practical
 	// difference for other terminals.  If it causes problems, then we will need
 	// a separate BoundingBox structure to track the actual 3D graph box.
-	else if(azimuth == 0) {
+	else if(_3DBlk.Azimuth == 0.0f) {
 		int xl, xb, xr, xf, yl, yb, yr, yf;
 		Map3D_XY(_3DBlk.ZAxisX, _3DBlk.ZAxisY, base_z, &xl, &yl);
 		Map3D_XY(_3DBlk.Back.x,  _3DBlk.Back.y,  base_z, &xb, &yb);
@@ -750,8 +687,8 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 			y = (V.BbPlot.ytop + _3DBlk.TitleLin * (pTerm->ChrH));
 		}
 		// Save title position for later 
-		title_x = x;
-		title_y = y;
+		title_pos.x = x;
+		title_pos.y = y;
 	}
 	// PLACE TIMELABEL 
 	if(Gg.LblTime.text) {
@@ -773,9 +710,10 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 		reset_hidden_line_removal();
 	}
 	// WORK OUT KEY POSITION AND SIZE 
-	do_3dkey_layout(pTerm, key, &xl, &yl);
+	Do3DKeyLayout(pTerm, key, &xl, &yl);
 	// "set key opaque" requires two passes, with the key drawn in the second pass 
-	xl_save = xl; yl_save = yl;
+	xl_save = xl; 
+	yl_save = yl;
 SECOND_KEY_PASS:
 	// This tells the canvas, qt, and svg terminals to restart the plot   
 	// count so that key titles are in sync with the plots they describe. 
@@ -789,7 +727,7 @@ SECOND_KEY_PASS:
 			(pTerm->set_color)(pTerm, &key->fillcolor);
 			(pTerm->fillbox)(pTerm, FS_OPAQUE, key->bounds.xleft, key->bounds.ybot, key->bounds.xright - key->bounds.xleft, key->bounds.ytop - key->bounds.ybot);
 		}
-		if(key->box.l_type > LT_NODRAW &&  key->bounds.ytop != key->bounds.ybot) {
+		if(key->box.l_type > LT_NODRAW && key->bounds.ytop != key->bounds.ybot) {
 			TermApplyLpProperties(pTerm, &key->box);
 			newpath(pTerm);
 			clip_move(key->bounds.xleft, key->bounds.ybot);
@@ -885,7 +823,7 @@ SECOND_KEY_PASS:
 				else
 					(pTerm->linetype)(pTerm, LT_BLACK); /* Draw key text in black */
 				ignore_enhanced(this_plot->title_no_enhanced);
-				key_text(pTerm, xl, yl, title);
+				KeyText(pTerm, xl, yl, title);
 				ignore_enhanced(FALSE);
 			}
 			TermApplyLpProperties(pTerm, &(this_plot->lp_properties));
@@ -1133,7 +1071,7 @@ SECOND_KEY_PASS:
 					if(!clabel_onecolor && cntrs->isNewLevel) {
 						if(key->visible && !this_plot->title_is_suppressed && this_plot->plot_style != LABELPOINTS) {
 							(pTerm->linetype)(pTerm, LT_BLACK);
-							key_text(pTerm, xl, yl, cntrs->label);
+							KeyText(pTerm, xl, yl, cntrs->label);
 						}
 						if(thiscontour_lp_properties.pm3d_color.type == TC_Z)
 							set_color(pTerm, Cb2Gray(cntrs->z) );
@@ -1264,7 +1202,7 @@ SECOND_KEY_PASS:
 	PlaceArrows3D(pTerm, LAYER_FRONT); // PLACE ARROWS 
 	// PLACE TITLE LAST 
 	if(Gg.LblTitle.text)
-		PlaceTitle(pTerm, title_x, title_y);
+		PlaceTitle(pTerm, title_pos.x, title_pos.y);
 #ifdef USE_MOUSE
 	// finally, store the 2d projection of the x and y axis, to enable zooming by mouse 
 	{
@@ -1280,15 +1218,15 @@ SECOND_KEY_PASS:
 #endif
 	// Release the palette if we have used one (PostScript only?) 
 	if(is_plot_with_palette() && pTerm->previous_palette)
-		pTerm->previous_palette();
+		pTerm->previous_palette(pTerm);
 	TermEndPlot(pTerm);
 	if(hidden3d && draw_surface) {
 		term_hidden_line_removal();
 	}
 	if(splot_map)
-		splot_map_deactivate();
+		SPlotMapDeactivate();
 	else if(xz_projection || yz_projection)
-		surface_scale = 1.0;
+		_3DBlk.SurfaceScale = 1.0f;
 	else if(yz_projection)
 		AxS[FIRST_Z_AXIS].FlipProjection();
 }
@@ -1499,7 +1437,7 @@ void GnuPlot::Plot3DLinesPm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 		return;
 	// split the bunch of scans in two sets in
 	// which the scans are already depth ordered 
-	pm3d_rearrange_scan_array(pPlot, icrvs_pair, &n[0], &invert[0], icrvs_pair + 1, &n[1], &invert[1]);
+	Pm3DRearrangeScanArray(pPlot, icrvs_pair, &n[0], &invert[0], icrvs_pair + 1, &n[1], &invert[1]);
 	for(set = 0; set < 2; set++) {
 		int begin = 0;
 		int step;
@@ -1675,7 +1613,7 @@ void GnuPlot::Plot3DPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					if(pPlot->lp_properties.PtType == PT_CHARACTER)
 						ptchar = pPlot->lp_properties.p_char;
 					else if(pPlot->lp_properties.PtType == PT_VARIABLE && isnan(point->CRD_PTTYPE))
-						ptchar = (char*)(&point->CRD_PTCHAR);
+						ptchar = (char *)(&point->CRD_PTCHAR);
 					else
 						ptchar = NULL;
 					if(ptchar) {
@@ -1860,7 +1798,7 @@ void GnuPlot::CheckCornerHeight(GpCoordinate * p, double height[2][2], double de
 //static void setup_3d_box_corners()
 void GnuPlot::Setup3DBoxCorners()
 {
-	int quadrant = static_cast<int>(surface_rot_z / 90.0f);
+	int quadrant = static_cast<int>(_3DBlk.SurfaceRotZ / 90.0f);
 	if((quadrant + 1) & 2) {
 		_3DBlk.ZAxisX = AxS.__X().max;
 		_3DBlk.Right.x = AxS.__X().min;
@@ -1885,7 +1823,7 @@ void GnuPlot::Setup3DBoxCorners()
 		_3DBlk.Back.x  = AxS.__X().min;
 		_3DBlk.Front.x  = AxS.__X().max;
 	}
-	quadrant = static_cast<int>(surface_rot_x / 90.0f);
+	quadrant = static_cast<int>(_3DBlk.SurfaceRotX / 90.0f);
 	if((quadrant & 2) && !splot_map) {
 		Exchange(&_3DBlk.Front.y, &_3DBlk.Back.y);
 		Exchange(&_3DBlk.Front.x, &_3DBlk.Back.x);
@@ -2182,11 +2120,11 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 		_3DBlk.TicUnit.Set((v1.x - v0.x) / xyscaler, (v1.y - v0.y) / xyscaler, (v1.z - v0.z) / xyscaler);
 		// Don't output tics and grids if this is the front part of a
 		// two-part grid drawing process: 
-		if((surface_rot_x <= 90 && FRONTGRID != whichgrid) || (surface_rot_x > 90 && BACKGRID != whichgrid))
+		if((_3DBlk.SurfaceRotX <= 90.0f && FRONTGRID != whichgrid) || (_3DBlk.SurfaceRotX > 90.0f && BACKGRID != whichgrid))
 			if(AxS.__X().ticmode)
 				GenTics(pTerm, &AxS[FIRST_X_AXIS], &GnuPlot::XTickCallback);
 		if(AxS.__X().label.text) {
-			if((surface_rot_x <= 90 && BACKGRID != whichgrid) || (surface_rot_x > 90 && FRONTGRID != whichgrid) || splot_map) {
+			if((_3DBlk.SurfaceRotX <= 90.0f && BACKGRID != whichgrid) || (_3DBlk.SurfaceRotX > 90.0f && FRONTGRID != whichgrid) || splot_map) {
 				int x1, y1;
 				if(splot_map) { /* case 'set view map' */
 					// copied from xtick_callback(): baseline of tics labels 
@@ -2265,11 +2203,11 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 		//_3DBlk.TicUnit.z = (v1.z - v0.z) / xyscaler;
 		_3DBlk.TicUnit.Set((v1.x - v0.x) / xyscaler, (v1.y - v0.y) / xyscaler, (v1.z - v0.z) / xyscaler);
 		// Don't output tics and grids if this is the front part of a two-part grid drawing process: 
-		if((surface_rot_x <= 90 && FRONTGRID != whichgrid) || (surface_rot_x > 90 && BACKGRID != whichgrid))
+		if((_3DBlk.SurfaceRotX <= 90.0f && FRONTGRID != whichgrid) || (_3DBlk.SurfaceRotX > 90.0f && BACKGRID != whichgrid))
 			if(AxS.__Y().ticmode)
 				GenTics(pTerm, &AxS[FIRST_Y_AXIS], &GnuPlot::YTickCallback);
 		if(AxS.__Y().label.text) {
-			if((surface_rot_x <= 90 && BACKGRID != whichgrid) || (surface_rot_x > 90 && FRONTGRID != whichgrid) || splot_map) {
+			if((_3DBlk.SurfaceRotX <= 90.0f && BACKGRID != whichgrid) || (_3DBlk.SurfaceRotX > 90.0f && FRONTGRID != whichgrid) || splot_map) {
 				int x1, y1;
 				int save_rotate = AxS.__Y().label.rotate;
 				if(splot_map) { /* case 'set view map' */
@@ -2344,7 +2282,7 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 	// do z tics 
 	if(AxS.__Z().ticmode &&
 	    // Don't output tics and grids if this is the front part of a two-part grid drawing process: 
-	    (FRONTGRID != whichgrid) && (splot_map == FALSE) && (surface_rot_x != 0) && (draw_surface || (draw_contour & CONTOUR_SRF) || strchr(pm3d.where, 's'))) {
+	    (FRONTGRID != whichgrid) && (splot_map == FALSE) && (_3DBlk.SurfaceRotX != 0.0f) && (draw_surface || (draw_contour & CONTOUR_SRF) || strchr(pm3d.where, 's'))) {
 		GenTics(pTerm, &AxS[FIRST_Z_AXIS], &GnuPlot::ZTickCallback);
 	}
 	if((AxS.__Y().zeroaxis) && !AxS.__X().log && AxS.__X().InRange(0.0)) {
@@ -2387,8 +2325,8 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 		else {
 			Map3D_XYZ(_3DBlk.ZAxisX, _3DBlk.ZAxisY, mid_z, &v1);
 			TERMCOORD(&v1, x, y);
-			if(fabs(azimuth) > 80)
-				y += 2 * sgn(azimuth) * pTerm->ChrV;
+			if(fabs(_3DBlk.Azimuth) > 80.0f)
+				y += 2 * sgn(_3DBlk.Azimuth) * pTerm->ChrV;
 			else
 				x -= 7 * pTerm->ChrH;
 		}
@@ -2426,7 +2364,7 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 	// Vertical grid lines (in yz plane) 
 	if(grid_vertical_lines && rGrid.l_type > LT_NODRAW) {
 		GpVertex v4, v5;
-		double which_face = (surface_rot_x > 90 && surface_rot_x < 270) ? _3DBlk.XAxisY : other_end;
+		double which_face = (_3DBlk.SurfaceRotX > 90.0f && _3DBlk.SurfaceRotX < 270.0f) ? _3DBlk.XAxisY : other_end;
 		(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_GRID);
 		Map3D_XYZ(place, which_face, AxS.__Z().min, &v4);
 		Map3D_XYZ(place, which_face, ceiling_z, &v5);
@@ -2437,7 +2375,7 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		Map3D_XYZ(place, 0.0, base_z, &v1);
 	}
 	// NB: secondary axis must be linked to primary 
-	if(pAx->index == SECOND_X_AXIS &&  pAx->linked_to_primary && pAx->link_udf->at != NULL) {
+	if(pAx->index == SECOND_X_AXIS && pAx->linked_to_primary && pAx->link_udf->at != NULL) {
 		place = EvalLinkFunction(&AxS[FIRST_X_AXIS], place);
 	}
 	// Draw bottom tic mark 
@@ -2537,7 +2475,7 @@ void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 	// Vertical grid lines (in xz plane) 
 	if(grid_vertical_lines && rGrid.l_type > LT_NODRAW) {
 		GpVertex v4, v5;
-		double which_face = (surface_rot_x > 90 && surface_rot_x < 270) ? _3DBlk.YAxisX : other_end;
+		double which_face = (_3DBlk.SurfaceRotX > 90.0f && _3DBlk.SurfaceRotX < 270.0f) ? _3DBlk.YAxisX : other_end;
 		(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_GRID);
 		Map3D_XYZ(which_face, place, AxS.__Z().min, &v4);
 		Map3D_XYZ(which_face, place, ceiling_z, &v5);
@@ -2649,7 +2587,7 @@ void GnuPlot::ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		Draw3DLine(pTerm, &v2, &v3, const_cast<lp_style_type *>(&rGrid)); // @badcast
 		(pTerm->layer)(pTerm, TERM_LAYER_END_GRID);
 	}
-	if(azimuth != 0) {
+	if(_3DBlk.Azimuth != 0.0f) {
 		v2.x = v1.x + (v3.x - v1.x) * len / xyscaler;
 		v2.y = v1.y + (v3.y - v1.y) * len / xyscaler;
 		v2.z = v1.z + (v3.z - v1.z) * len / xyscaler;
@@ -2679,9 +2617,9 @@ void GnuPlot::ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		// get offset 
 		Map3DPositionR(pTerm, &pAx->ticdef.offset, &offsetx, &offsety, "ztics");
 		TERMCOORD(&v1, x1, y1);
-		if(fabs(azimuth) > 80) {
-			/* Z axis is (nearly) horizontal */
-			y1 += sgn(azimuth) * (pTerm->TicV) * 2;
+		if(fabs(_3DBlk.Azimuth) > 80.0f) {
+			// Z axis is (nearly) horizontal 
+			y1 += sgn(_3DBlk.Azimuth) * (pTerm->TicV) * 2;
 		}
 		else {
 			// the normal case 
@@ -2705,7 +2643,7 @@ void GnuPlot::ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		TermApplyLpProperties(pTerm, &border_lp);
 	}
 	if(AxS.__Z().ticmode & TICS_MIRROR) {
-		if(azimuth != 0) {
+		if(_3DBlk.Azimuth != 0.0f) {
 			v2.x = v3.x + (v1.x - v3.x) * len / xyscaler;
 			v2.y = v3.y + (v1.y - v3.y) * len / xyscaler;
 			v2.z = v3.z + (v1.z - v3.z) * len / xyscaler;
@@ -2892,9 +2830,10 @@ void GnuPlot::Map3DPositionRDouble(const GpTermEntry * pTerm, GpPosition * pPos,
 // 
 // these code blocks were moved to functions, to make the code simpler
 // 
-static void key_text(GpTermEntry * pTerm, int xl, int yl, char * pText)
+//static void key_text(GpTermEntry * pTerm, int xl, int yl, char * pText)
+void GnuPlot::KeyText(GpTermEntry * pTerm, int xl, int yl, char * pText)
 {
-	legend_key * key = &keyT;
+	legend_key * key = &Gg.KeyT;
 	(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_KEYSAMPLE);
 	if(key->just == GPKEY_LEFT) {
 		write_multiline(pTerm, xl + _3DBlk.KeyTextLeft, yl, pText, LEFT, JUST_TOP, 0, key->font);
@@ -3423,16 +3362,17 @@ void GnuPlot::Check3DForVariableColor(GpTermEntry * pTerm, GpSurfacePoints * pPl
 	}
 }
 
-void do_3dkey_layout(GpTermEntry * pTerm, legend_key * key, int * xinkey, int * yinkey)
+//void do_3dkey_layout(GpTermEntry * pTerm, legend_key * key, int * xinkey, int * yinkey)
+void GnuPlot::Do3DKeyLayout(GpTermEntry * pTerm, legend_key * pKey, int * xinkey, int * yinkey)
 {
 	int key_height, key_width;
 	// NOTE: All of these had better not change after being calculated here! 
-	if(key->reverse) {
+	if(pKey->reverse) {
 		_3DBlk.KeySampleLeft = -_3DBlk.KeySampleWidth;
 		_3DBlk.KeySampleRight = 0;
 		_3DBlk.KeyTextLeft  = pTerm->ChrH;
 		_3DBlk.KeyTextRight = pTerm->ChrH * (_3DBlk.MaxPTitlLen + 1);
-		_3DBlk.KeySizeRight = static_cast<int>(pTerm->ChrH * (_3DBlk.MaxPTitlLen + 2 + key->width_fix));
+		_3DBlk.KeySizeRight = static_cast<int>(pTerm->ChrH * (_3DBlk.MaxPTitlLen + 2 + pKey->width_fix));
 		_3DBlk.KeySizeLeft  = pTerm->ChrH + _3DBlk.KeySampleWidth;
 	}
 	else {
@@ -3440,128 +3380,130 @@ void do_3dkey_layout(GpTermEntry * pTerm, legend_key * key, int * xinkey, int * 
 		_3DBlk.KeySampleRight = _3DBlk.KeySampleWidth;
 		_3DBlk.KeyTextLeft = -(int)(pTerm->ChrH * (_3DBlk.MaxPTitlLen + 1));
 		_3DBlk.KeyTextRight = -(int)pTerm->ChrH;
-		_3DBlk.KeySizeLeft  = static_cast<int>(pTerm->ChrH * (_3DBlk.MaxPTitlLen + 2 + key->width_fix));
+		_3DBlk.KeySizeLeft  = static_cast<int>(pTerm->ChrH * (_3DBlk.MaxPTitlLen + 2 + pKey->width_fix));
 		_3DBlk.KeySizeRight = pTerm->ChrH + _3DBlk.KeySampleWidth;
 	}
 	_3DBlk.KeyPointOffset = (_3DBlk.KeySampleLeft + _3DBlk.KeySampleRight) / 2;
 	// Key title width and height, adjusted for font size and markup 
 	_3DBlk.KeyTitleExtra = 0;
 	_3DBlk.KeyTitleHeight = 0;
-	if(key->title.text) {
+	if(pKey->title.text) {
 		double est_height;
-		if(key->title.font)
-			pTerm->set_font(pTerm, key->title.font);
-		estimate_strlen(key->title.text, &est_height);
+		if(pKey->title.font)
+			pTerm->set_font(pTerm, pKey->title.font);
+		estimate_strlen(pKey->title.text, &est_height);
 		_3DBlk.KeyTitleHeight = static_cast<int>(est_height * pTerm->ChrV);
-		if(key->title.font)
+		if(pKey->title.font)
 			pTerm->set_font(pTerm, "");
 		// Allow a little extra clearance for markup 
-		if((pTerm->flags & TERM_ENHANCED_TEXT) && (strchr(key->title.text, '^') || strchr(key->title.text, '_')))
+		if((pTerm->flags & TERM_ENHANCED_TEXT) && (strchr(pKey->title.text, '^') || strchr(pKey->title.text, '_')))
 			_3DBlk.KeyTitleExtra = pTerm->ChrV/2;
 	}
 	key_width = _3DBlk.KeyColWth * (_3DBlk.KeyCols - 1) + _3DBlk.KeySizeRight + _3DBlk.KeySizeLeft;
-	key_height = static_cast<int>(_3DBlk.KeyTitleHeight + _3DBlk.KeyTitleExtra + _3DBlk.KeyEntryHeight * _3DBlk.KeyRows + key->height_fix * pTerm->ChrV);
+	key_height = static_cast<int>(_3DBlk.KeyTitleHeight + _3DBlk.KeyTitleExtra + _3DBlk.KeyEntryHeight * _3DBlk.KeyRows + pKey->height_fix * pTerm->ChrV);
 	// Make room for extra long title 
 	SETMAX(key_width, _3DBlk.KeyTitleWidth);
 	// Now that we know the size of the key, we can position it as requested 
-	if(key->region == GPKEY_USER_PLACEMENT) {
+	if(pKey->region == GPKEY_USER_PLACEMENT) {
 		int corner_x, corner_y;
-		GPO.Map3DPosition(pTerm, &key->user_pos, &corner_x, &corner_y, "key");
-		if(key->hpos == CENTRE)
-			key->bounds.xleft = corner_x - key_width / 2;
-		else if(key->hpos == RIGHT)
-			key->bounds.xleft = corner_x - key_width;
+		Map3DPosition(pTerm, &pKey->user_pos, &corner_x, &corner_y, "key");
+		if(pKey->hpos == CENTRE)
+			pKey->bounds.xleft = corner_x - key_width / 2;
+		else if(pKey->hpos == RIGHT)
+			pKey->bounds.xleft = corner_x - key_width;
 		else
-			key->bounds.xleft = corner_x;
-		key->bounds.xright = key->bounds.xleft + key_width;
-		key->bounds.ytop = corner_y;
-		key->bounds.ybot = corner_y - key_height;
-		*xinkey = key->bounds.xleft + _3DBlk.KeySizeLeft;
-		*yinkey = key->bounds.ytop - _3DBlk.KeyTitleHeight - _3DBlk.KeyTitleExtra;
+			pKey->bounds.xleft = corner_x;
+		pKey->bounds.xright = pKey->bounds.xleft + key_width;
+		pKey->bounds.ytop = corner_y;
+		pKey->bounds.ybot = corner_y - key_height;
+		*xinkey = pKey->bounds.xleft + _3DBlk.KeySizeLeft;
+		*yinkey = pKey->bounds.ytop - _3DBlk.KeyTitleHeight - _3DBlk.KeyTitleExtra;
 	}
 	else {
-		const BoundingBox * p_bounds = (key->fixed && !splot_map) ? &GPO.V.BbPage : &GPO.V.BbPlot;
-		if(key->region != GPKEY_AUTO_INTERIOR_LRTBC && key->margin == GPKEY_BMARGIN) {
+		const BoundingBox * p_bounds = (pKey->fixed && !splot_map) ? &V.BbPage : &V.BbPlot;
+		if(pKey->region != GPKEY_AUTO_INTERIOR_LRTBC && pKey->margin == GPKEY_BMARGIN) {
 			if(_3DBlk.PTitlCnt > 0) {
 				// we divide into columns, then centre in column by considering
 				// ratio of key_left_size to key_right_size
 				// key_size_left / (key_size_left+_3DBlk.KeySizeRight) * (bounds->xright-bounds->xleft)/_3DBlk.KeyCols
 				// do one integer division to maximise accuracy (hope we dont overflow!)
 				*xinkey = p_bounds->xleft + ((p_bounds->xright - p_bounds->xleft) * _3DBlk.KeySizeLeft) / (_3DBlk.KeyCols * (_3DBlk.KeySizeLeft + _3DBlk.KeySizeRight));
-				key->bounds.xleft = *xinkey - _3DBlk.KeySizeLeft;
-				key->bounds.xright = key->bounds.xleft + key_width;
-				key->bounds.ytop = p_bounds->ybot;
-				key->bounds.ybot = p_bounds->ybot - key_height;
-				*yinkey = key->bounds.ytop - _3DBlk.KeyTitleHeight - _3DBlk.KeyTitleExtra;
+				pKey->bounds.xleft = *xinkey - _3DBlk.KeySizeLeft;
+				pKey->bounds.xright = pKey->bounds.xleft + key_width;
+				pKey->bounds.ytop = p_bounds->ybot;
+				pKey->bounds.ybot = p_bounds->ybot - key_height;
+				*yinkey = pKey->bounds.ytop - _3DBlk.KeyTitleHeight - _3DBlk.KeyTitleExtra;
 			}
 		}
 		else {
-			if(key->vpos == JUST_TOP) {
-				key->bounds.ytop = p_bounds->ytop - pTerm->TicV;
-				key->bounds.ybot = key->bounds.ytop - key_height;
-				*yinkey = key->bounds.ytop - _3DBlk.KeyTitleHeight - _3DBlk.KeyTitleExtra;
+			if(pKey->vpos == JUST_TOP) {
+				pKey->bounds.ytop = p_bounds->ytop - pTerm->TicV;
+				pKey->bounds.ybot = pKey->bounds.ytop - key_height;
+				*yinkey = pKey->bounds.ytop - _3DBlk.KeyTitleHeight - _3DBlk.KeyTitleExtra;
 			}
 			else {
-				key->bounds.ybot = p_bounds->ybot + pTerm->TicV;
-				key->bounds.ytop = key->bounds.ybot + key_height;
-				*yinkey = key->bounds.ytop - _3DBlk.KeyTitleHeight - _3DBlk.KeyTitleExtra;
+				pKey->bounds.ybot = p_bounds->ybot + pTerm->TicV;
+				pKey->bounds.ytop = pKey->bounds.ybot + key_height;
+				*yinkey = pKey->bounds.ytop - _3DBlk.KeyTitleHeight - _3DBlk.KeyTitleExtra;
 			}
-			if(key->region != GPKEY_AUTO_INTERIOR_LRTBC && key->margin == GPKEY_RMARGIN) {
+			if(pKey->region != GPKEY_AUTO_INTERIOR_LRTBC && pKey->margin == GPKEY_RMARGIN) {
 				// keys outside plot border (right) 
-				key->bounds.xleft = p_bounds->xright + pTerm->TicH;
-				key->bounds.xright = key->bounds.xleft + key_width;
-				*xinkey = key->bounds.xleft + _3DBlk.KeySizeLeft;
+				pKey->bounds.xleft = p_bounds->xright + pTerm->TicH;
+				pKey->bounds.xright = pKey->bounds.xleft + key_width;
+				*xinkey = pKey->bounds.xleft + _3DBlk.KeySizeLeft;
 			}
-			else if(key->region != GPKEY_AUTO_INTERIOR_LRTBC && key->margin == GPKEY_LMARGIN) {
+			else if(pKey->region != GPKEY_AUTO_INTERIOR_LRTBC && pKey->margin == GPKEY_LMARGIN) {
 				// keys outside plot border (left) 
-				key->bounds.xright = p_bounds->xleft - pTerm->TicH;
-				key->bounds.xleft = key->bounds.xright - key_width;
-				*xinkey = key->bounds.xleft + _3DBlk.KeySizeLeft;
+				pKey->bounds.xright = p_bounds->xleft - pTerm->TicH;
+				pKey->bounds.xleft = pKey->bounds.xright - key_width;
+				*xinkey = pKey->bounds.xleft + _3DBlk.KeySizeLeft;
 			}
-			else if(key->hpos == LEFT) {
-				key->bounds.xleft = p_bounds->xleft + pTerm->TicH;
-				key->bounds.xright = key->bounds.xleft + key_width;
-				*xinkey = key->bounds.xleft + _3DBlk.KeySizeLeft;
+			else if(pKey->hpos == LEFT) {
+				pKey->bounds.xleft = p_bounds->xleft + pTerm->TicH;
+				pKey->bounds.xright = pKey->bounds.xleft + key_width;
+				*xinkey = pKey->bounds.xleft + _3DBlk.KeySizeLeft;
 			}
 			else {
-				key->bounds.xright = p_bounds->xright - pTerm->TicH;
-				key->bounds.xleft = key->bounds.xright - key_width;
-				*xinkey = key->bounds.xleft + _3DBlk.KeySizeLeft;
+				pKey->bounds.xright = p_bounds->xright - pTerm->TicH;
+				pKey->bounds.xleft = pKey->bounds.xright - key_width;
+				*xinkey = pKey->bounds.xleft + _3DBlk.KeySizeLeft;
 			}
 		}
 		_3DBlk.YlRef = *yinkey - _3DBlk.KeyTitleHeight - _3DBlk.KeyTitleExtra;
 	}
-	*yinkey -= (key->height_fix * pTerm->ChrV) / 2; // Center the key entries vertically, allowing for requested extra space 
+	*yinkey -= (pKey->height_fix * pTerm->ChrV) / 2; // Center the key entries vertically, allowing for requested extra space 
 }
 
-void splot_map_activate()
+//void splot_map_activate()
+void GnuPlot::SPlotMapActivate()
 {
 	if(!_3DBlk.SPlotMapActive) {
 		_3DBlk.SPlotMapActive = 1;
 		// save current values 
-		_3DBlk.SPlotMapSurfaceRotX = surface_rot_x;
-		_3DBlk.SPlotMapSurfaceRotZ = surface_rot_z;
-		_3DBlk.SPlotMapSurfaceScale = surface_scale;
+		_3DBlk.SPlotMapSurfaceRotX = _3DBlk.SurfaceRotX;
+		_3DBlk.SPlotMapSurfaceRotZ = _3DBlk.SurfaceRotZ;
+		_3DBlk.SPlotMapSurfaceScale = _3DBlk.SurfaceScale;
 		// set new values 
-		surface_rot_x = 180.0f;
-		surface_rot_z = 0.0f;
-		// version 4 had constant value surface_scale = 1.3 
-		surface_scale = 1.425f * mapview_scale;
+		_3DBlk.SurfaceRotX = 180.0f;
+		_3DBlk.SurfaceRotZ = 0.0f;
+		// version 4 had constant value _3DBlk.SurfaceScale = 1.3 
+		_3DBlk.SurfaceScale = 1.425f * _3DBlk.MapviewScale;
 		// The Y axis runs backwards from a normal 2D plot 
-		GPO.AxS[FIRST_Y_AXIS].FlipProjection();
+		AxS[FIRST_Y_AXIS].FlipProjection();
 	}
 }
 
-void splot_map_deactivate()
+//void splot_map_deactivate()
+void GnuPlot::SPlotMapDeactivate()
 {
 	if(_3DBlk.SPlotMapActive) {
 		_3DBlk.SPlotMapActive = 0;
 		// restore the original values 
-		surface_rot_x = _3DBlk.SPlotMapSurfaceRotX;
-		surface_rot_z = _3DBlk.SPlotMapSurfaceRotZ;
-		surface_scale = _3DBlk.SPlotMapSurfaceScale;
+		_3DBlk.SurfaceRotX = _3DBlk.SPlotMapSurfaceRotX;
+		_3DBlk.SurfaceRotZ = _3DBlk.SPlotMapSurfaceRotZ;
+		_3DBlk.SurfaceScale = _3DBlk.SPlotMapSurfaceScale;
 		// The Y axis runs backwards from a normal 2D plot 
-		GPO.AxS[FIRST_Y_AXIS].FlipProjection();
+		AxS[FIRST_Y_AXIS].FlipProjection();
 	}
 }
 
@@ -3597,8 +3539,8 @@ void GnuPlot::Plot3DBoxErrorBars(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 		}
 		if(pass == 2) {
 			// Errorbar line style from "set bars" 
-			if((bar_lp.flags & LP_ERRORBAR_SET) != 0)
-				TermApplyLpProperties(pTerm, &bar_lp);
+			if(Gr.BarLp.flags & LP_ERRORBAR_SET)
+				TermApplyLpProperties(pTerm, &Gr.BarLp);
 			else {
 				TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 				NeedFillBorder(pTerm, &pPlot->fill_properties);
@@ -3661,9 +3603,9 @@ void GnuPlot::Plot3DBoxErrorBars(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					(pTerm->move)(pTerm, x0, y0);
 					(pTerm->vector)(pTerm, x1, y1);
 					// Draw the whiskers perpendicular to the main bar 
-					if(bar_size >= 0.0) {
-						vl = static_cast<int>(y0 + bar_size * (y0 - vl));
-						vh = static_cast<int>(y0 + bar_size * (y0 - vh));
+					if(Gr.BarSize >= 0.0) {
+						vl = static_cast<int>(y0 + Gr.BarSize * (y0 - vl));
+						vh = static_cast<int>(y0 + Gr.BarSize * (y0 - vh));
 					}
 					DrawClipLine(pTerm, x0, vl, x0, vh);
 					DrawClipLine(pTerm, x1, vl, x1, vh);

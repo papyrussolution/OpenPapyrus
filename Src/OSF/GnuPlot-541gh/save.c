@@ -6,10 +6,7 @@
 
 static void save_functions__sub(FILE *);
 static void save_variables__sub(FILE *);
-static void save_tics(FILE *, const GpAxis * pAx);
 static void save_mtics(FILE *, const GpAxis * pAx);
-//static void save_zeroaxis(FILE *, AXIS_INDEX);
-//static void save_set_all(FILE *);
 static void save_justification(int just, FILE * fp);
 
 const char * coord_msg[] = {"first ", "second ", "graph ", "screen ", "character ", "polar "};
@@ -46,7 +43,7 @@ void GnuPlot::SaveAll(FILE * fp)
 	save_functions__sub(fp);
 	save_variables__sub(fp);
 	save_colormaps(fp);
-	save_pixmaps(fp);
+	SavePixmaps(fp);
 	if(df_filename)
 		fprintf(fp, "## Last datafile plotted: \"%s\"\n", df_filename);
 	fprintf(fp, "%s\n", replot_line);
@@ -103,7 +100,7 @@ static void save_variables__sub(FILE * fp)
 			else if(strncmp(udv->udv_name, "GPVAL_", 6) && strncmp(udv->udv_name, "GPFUN_", 6) && strncmp(udv->udv_name, "MOUSE_", 6) && 
 				strncmp(udv->udv_name, "$", 1) && (strncmp(udv->udv_name, "ARG", 3) || (strlen(udv->udv_name) != 4)) && strncmp(udv->udv_name, "NaN", 4)) {
 				fprintf(fp, "%s = ", udv->udv_name);
-				disp_value(fp, &(udv->udv_value), TRUE);
+				GPO.DispValue(fp, &(udv->udv_value), TRUE);
 				putc('\n', fp);
 			}
 		}
@@ -138,7 +135,7 @@ void save_array_content(FILE * fp, GpValue * array)
 		if(array[0].type == COLORMAP_ARRAY)
 			fprintf(fp, "0x%08x", (uint)(array[i].v.int_val));
 		else if(array[i].type != NOTDEFINED)
-			disp_value(fp, &(array[i]), TRUE);
+			GPO.DispValue(fp, &(array[i]), TRUE);
 		if(i < size)
 			fprintf(fp, ",");
 	}
@@ -171,29 +168,30 @@ void save_term(FILE * fp)
 //
 // helper function 
 //
-void save_axis_label_or_title(FILE * fp, char * name, char * suffix, text_label * label, bool savejust)
+//void save_axis_label_or_title(FILE * fp, char * name, char * suffix, text_label * label, bool savejust)
+void GnuPlot::SaveAxisLabelOrTitle(FILE * fp, char * pName, char * pSuffix, text_label * pLabel, bool savejust)
 {
-	fprintf(fp, "set %s%s \"%s\" ", name, suffix, label->text ? conv_text(label->text) : "");
-	fprintf(fp, "\nset %s%s ", name, suffix);
-	save_position(fp, &(label->offset), 3, TRUE);
-	fprintf(fp, " font \"%s\"", label->font ? conv_text(label->font) : "");
-	save_textcolor(fp, &(label->textcolor));
-	if(savejust && (label->pos != CENTRE)) 
-		save_justification(label->pos, fp);
-	if(label->tag == ROTATE_IN_3D_LABEL_TAG)
+	fprintf(fp, "set %s%s \"%s\" ", pName, pSuffix, pLabel->text ? conv_text(pLabel->text) : "");
+	fprintf(fp, "\nset %s%s ", pName, pSuffix);
+	SavePosition(fp, &pLabel->offset, 3, TRUE);
+	fprintf(fp, " font \"%s\"", pLabel->font ? conv_text(pLabel->font) : "");
+	save_textcolor(fp, &pLabel->textcolor);
+	if(savejust && pLabel->pos != CENTRE) 
+		save_justification(pLabel->pos, fp);
+	if(pLabel->tag == ROTATE_IN_3D_LABEL_TAG)
 		fprintf(fp, " rotate parallel");
-	else if(label->rotate == TEXT_VERTICAL)
+	else if(pLabel->rotate == TEXT_VERTICAL)
 		fprintf(fp, " rotate");
-	else if(label->rotate)
-		fprintf(fp, " rotate by %d", label->rotate);
+	else if(pLabel->rotate)
+		fprintf(fp, " rotate by %d", pLabel->rotate);
 	else
 		fprintf(fp, " norotate");
-	if(label == &GPO.Gg.LblTitle && label->boxed) {
+	if(pLabel == &Gg.LblTitle && pLabel->boxed) {
 		fprintf(fp, " boxed ");
-		if(label->boxed > 0)
-			fprintf(fp, "bs %d ", label->boxed);
+		if(pLabel->boxed > 0)
+			fprintf(fp, "bs %d ", pLabel->boxed);
 	}
-	fprintf(fp, "%s\n", (label->noenhanced) ? " noenhanced" : "");
+	fprintf(fp, "%s\n", (pLabel->noenhanced) ? " noenhanced" : "");
 }
 
 static void save_justification(int just, FILE * fp)
@@ -212,7 +210,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	arrow_def * this_arrow;
 	linestyle_def * this_linestyle;
 	arrowstyle_def * this_arrowstyle;
-	legend_key * key = &keyT;
+	legend_key * key = &Gg.KeyT;
 	int axis;
 	// opinions are split as to whether we save term and outfile
 	// as a compromise, we output them as comments !
@@ -226,7 +224,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fputs("# set output\n", fp);
 	fprintf(fp, "%sset clip points\n%sset clip one\n%sset clip two\n%sset clip radial\n", (Gg.ClipPoints ? "" : "un"), (Gg.ClipLines1 ? "" : "un"),
 	    (Gg.ClipLines2 ? "" : "un"), (Gg.ClipRadial ? "" : "un"));
-	save_bars(fp);
+	SaveBars(fp);
 	if(draw_border) {
 		fprintf(fp, "set border %d %s", draw_border, border_layer == LAYER_BEHIND ? "behind" : border_layer == LAYER_BACK ? "back" : "front");
 		save_linetype(fp, &border_lp, FALSE);
@@ -255,11 +253,11 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	save_fillstyle(fp, &default_rectangle.fillstyle);
 	// Default circle properties 
 	fprintf(fp, "set style circle radius ");
-	save_position(fp, &default_circle.o.circle.extent, 1, FALSE);
+	SavePosition(fp, &default_circle.o.circle.extent, 1, FALSE);
 	fputs(" \n", fp);
 	// Default ellipse properties 
 	fprintf(fp, "set style ellipse size ");
-	save_position(fp, &default_ellipse.o.ellipse.extent, 2, FALSE);
+	SavePosition(fp, &default_ellipse.o.ellipse.extent, 2, FALSE);
 	fprintf(fp, " angle %g ", default_ellipse.o.ellipse.orientation);
 	fputs("units ", fp);
 	switch(default_ellipse.o.ellipse.type) {
@@ -295,7 +293,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	AxS.SaveAxisFormat(fp, COLOR_AXIS);
 	AxS.SaveAxisFormat(fp, POLAR_AXIS);
 	fprintf(fp, "set ttics format \"%s\"\n", AxS.Theta().formatstring);
-	fprintf(fp, "set P_TimeFormat \"%s\"\n", P_TimeFormat);
+	fprintf(fp, "set timefmt \"%s\"\n", P_TimeFormat);
 	fprintf(fp, "set angles %s\n", (ang2rad == 1.0) ? "radians" : "degrees");
 	fprintf(fp, "set tics %s\n", grid_tics_in_front ? "front" : "back");
 	if(!some_grid_selected())
@@ -305,10 +303,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 			fprintf(fp, "set grid polar %f\n", polar_grid_angle / ang2rad);
 		else
 			fputs("set grid nopolar\n", fp);
-#define SAVE_GRID(axis)                                 \
-	fprintf(fp, " %s%stics %sm%stics",              \
-	    AxS[axis].gridmajor ? "" : "no", axis_name(axis), \
-	    AxS[axis].gridminor ? "" : "no", axis_name(axis));
+#define SAVE_GRID(axis) fprintf(fp, " %s%stics %sm%stics", AxS[axis].gridmajor ? "" : "no", axis_name(axis), AxS[axis].gridminor ? "" : "no", axis_name(axis));
 		fputs("set grid", fp);
 		SAVE_GRID(FIRST_X_AXIS);
 		SAVE_GRID(FIRST_Y_AXIS);
@@ -355,7 +350,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		    break;
 		case GPKEY_USER_PLACEMENT:
 		    fputs("at ", fp);
-		    save_position(fp, &key->user_pos, 2, FALSE);
+		    SavePosition(fp, &key->user_pos, 2, FALSE);
 		    break;
 	}
 	if(!(key->region == GPKEY_AUTO_EXTERIOR_MARGIN && (key->margin == GPKEY_LMARGIN || key->margin == GPKEY_RMARGIN))) {
@@ -406,7 +401,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fputs("unset label\n", fp);
 	for(this_label = Gg.P_FirstLabel; this_label; this_label = this_label->next) {
 		fprintf(fp, "set label %d \"%s\" at ", this_label->tag, conv_text(this_label->text));
-		save_position(fp, &this_label->place, 3, FALSE);
+		SavePosition(fp, &this_label->place, 3, FALSE);
 		if(this_label->hypertext)
 			fprintf(fp, " hypertext");
 		save_justification(this_label->pos, fp);
@@ -426,7 +421,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 			fprintf(fp, " point");
 			save_linetype(fp, &(this_label->lp_properties), TRUE);
 		}
-		save_position(fp, &this_label->offset, 3, TRUE);
+		SavePosition(fp, &this_label->offset, 3, TRUE);
 		if(this_label->boxed) {
 			fprintf(fp, " boxed ");
 			if(this_label->boxed > 0)
@@ -437,14 +432,14 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fputs("unset arrow\n", fp);
 	for(this_arrow = Gg.P_FirstArrow; this_arrow; this_arrow = this_arrow->next) {
 		fprintf(fp, "set arrow %d from ", this_arrow->tag);
-		save_position(fp, &this_arrow->start, 3, FALSE);
+		SavePosition(fp, &this_arrow->start, 3, FALSE);
 		if(this_arrow->type == arrow_end_absolute) {
 			fputs(" to ", fp);
-			save_position(fp, &this_arrow->end, 3, FALSE);
+			SavePosition(fp, &this_arrow->end, 3, FALSE);
 		}
 		else if(this_arrow->type == arrow_end_absolute) {
 			fputs(" rto ", fp);
-			save_position(fp, &this_arrow->end, 3, FALSE);
+			SavePosition(fp, &this_arrow->end, 3, FALSE);
 		}
 		else { /* type arrow_end_oriented */
 			GpPosition * e = &this_arrow->end;
@@ -489,9 +484,9 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fprintf(fp, "\n");
 	}
 	fprintf(fp, "set style histogram ");
-	save_histogram_opts(fp);
+	SaveHistogramOpts(fp);
 	fprintf(fp, "unset object\n");
-	save_object(fp, 0);
+	SaveObject(fp, 0);
 	fprintf(fp, "unset walls\n");
 	save_walls(fp);
 	save_style_textbox(fp);
@@ -514,18 +509,18 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, "%sset minussign\n", use_minus_sign ? "" : "un");
 	fputs("set view ", fp);
 	if(splot_map == TRUE)
-		fprintf(fp, "map scale %g", mapview_scale);
+		fprintf(fp, "map scale %g", _3DBlk.MapviewScale);
 	else if(xz_projection)
 		fprintf(fp, "projection xz");
 	else if(yz_projection)
 		fprintf(fp, "projection yz");
 	else {
-		fprintf(fp, "%g, %g, %g, %g", surface_rot_x, surface_rot_z, surface_scale, surface_zscale);
-		fprintf(fp, "\nset view azimuth %g", azimuth);
+		fprintf(fp, "%g, %g, %g, %g", _3DBlk.SurfaceRotX, _3DBlk.SurfaceRotZ, _3DBlk.SurfaceScale, _3DBlk.SurfaceZScale);
+		fprintf(fp, "\nset view azimuth %g", _3DBlk.Azimuth);
 	}
 	if(V.AspectRatio3D)
 		fprintf(fp, "\nset view  %s", (V.AspectRatio3D == 2) ? "equal xy" : ((V.AspectRatio3D == 3) ? "equal xyz" : ""));
-	fprintf(fp, "\nset rgbmax %g", rgbmax);
+	fprintf(fp, "\nset rgbmax %g", Gr.RgbMax);
 	fprintf(fp, "\nset samples %d, %d\nset isosamples %d, %d\n%sset surface %s", Gg.Samples1, Gg.Samples2, Gg.IsoSamples1, Gg.IsoSamples2,
 	    (draw_surface) ? "" : "un", (implicit_surface) ? "" : "explicit");
 	fprintf(fp, "\n%sset contour", (draw_contour) ? "" : "un");
@@ -611,23 +606,23 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	save_mtics(fp, &AxS[COLOR_AXIS]);
 	save_mtics(fp, &AxS.__R());
 	save_mtics(fp, &AxS.Theta());
-	save_tics(fp, &AxS[FIRST_X_AXIS]);
-	save_tics(fp, &AxS[FIRST_Y_AXIS]);
-	save_tics(fp, &AxS[FIRST_Z_AXIS]);
-	save_tics(fp, &AxS[SECOND_X_AXIS]);
-	save_tics(fp, &AxS[SECOND_Y_AXIS]);
-	save_tics(fp, &AxS[COLOR_AXIS]);
-	save_tics(fp, &AxS.__R());
-	save_tics(fp, &AxS.Theta());
+	SaveTics(fp, &AxS[FIRST_X_AXIS]);
+	SaveTics(fp, &AxS[FIRST_Y_AXIS]);
+	SaveTics(fp, &AxS[FIRST_Z_AXIS]);
+	SaveTics(fp, &AxS[SECOND_X_AXIS]);
+	SaveTics(fp, &AxS[SECOND_Y_AXIS]);
+	SaveTics(fp, &AxS[COLOR_AXIS]);
+	SaveTics(fp, &AxS.__R());
+	SaveTics(fp, &AxS.Theta());
 	for(axis = 0; axis < AxS.GetParallelAxisCount(); axis++)
-		save_tics(fp, &AxS.Parallel(axis));
-	save_axis_label_or_title(fp, "", "title", &Gg.LblTitle, TRUE);
+		SaveTics(fp, &AxS.Parallel(axis));
+	SaveAxisLabelOrTitle(fp, "", "title", &Gg.LblTitle, TRUE);
 	fprintf(fp, "set timestamp %s \n", Gg.TimeLabelBottom ? "bottom" : "top");
-	save_axis_label_or_title(fp, "", "timestamp", &Gg.LblTime, FALSE);
+	SaveAxisLabelOrTitle(fp, "", "timestamp", &Gg.LblTime, FALSE);
 	save_prange(fp, &AxS[T_AXIS]);
 	save_prange(fp, &AxS[U_AXIS]);
 	save_prange(fp, &AxS[V_AXIS]);
-#define SAVE_AXISLABEL(axis) save_axis_label_or_title(fp, axis_name(axis), "label", &AxS[axis].label, TRUE)
+#define SAVE_AXISLABEL(axis) SaveAxisLabelOrTitle(fp, axis_name(axis), "label", &AxS[axis].label, TRUE)
 	SAVE_AXISLABEL(FIRST_X_AXIS);
 	SAVE_AXISLABEL(SECOND_X_AXIS);
 	save_prange(fp, &AxS[FIRST_X_AXIS]);
@@ -646,7 +641,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		GpAxis * paxis = &AxS.Parallel(axis);
 		save_prange(fp, paxis);
 		if(paxis->label.text)
-			save_axis_label_or_title(fp, axis_name((AXIS_INDEX)paxis->index), "label", &paxis->label, TRUE);
+			SaveAxisLabelOrTitle(fp, axis_name((AXIS_INDEX)paxis->index), "label", &paxis->label, TRUE);
 		if(paxis->zeroaxis) {
 			fprintf(fp, "set paxis %d", axis+1);
 			save_linetype(fp, paxis->zeroaxis, FALSE);
@@ -774,9 +769,9 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	if(Gg.ColorBox.where != SMCOLOR_BOX_NO)
 		fprintf(fp, "set colorbox %s\n", Gg.ColorBox.where==SMCOLOR_BOX_DEFAULT ? "default" : "user");
 	fprintf(fp, "set colorbox %sal origin ", Gg.ColorBox.rotation ==  'v' ? "vertic" : "horizont");
-	save_position(fp, &Gg.ColorBox.origin, 2, FALSE);
+	SavePosition(fp, &Gg.ColorBox.origin, 2, FALSE);
 	fputs(" size ", fp);
-	save_position(fp, &Gg.ColorBox.size, 2, FALSE);
+	SavePosition(fp, &Gg.ColorBox.size, 2, FALSE);
 	fprintf(fp, " %s ", Gg.ColorBox.layer ==  LAYER_FRONT ? "front" : "back");
 	fprintf(fp, " %sinvert ", Gg.ColorBox.invert ? "" : "no");
 	if(Gg.ColorBox.border == 0)
@@ -827,21 +822,21 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, " %sprescale", fit_prescale ? "" : "no");
 	{
 		int i;
-		udvt_entry * v = Ev.GetUdvByName((char*)FITLIMIT);
+		udvt_entry * v = Ev.GetUdvByName((char *)FITLIMIT);
 		double d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 		if(d > 0.0 && d < 1.0)
 			fprintf(fp, " limit %g", d);
 		if(epsilon_abs > 0.)
 			fprintf(fp, " limit_abs %g", epsilon_abs);
-		v = Ev.GetUdvByName((char*)FITMAXITER);
+		v = Ev.GetUdvByName((char *)FITMAXITER);
 		i = (v && (v->udv_value.type != NOTDEFINED)) ? static_cast<int>(real(&(v->udv_value))) : -1;
 		if(i > 0)
 			fprintf(fp, " maxiter %i", i);
-		v = Ev.GetUdvByName((char*)FITSTARTLAMBDA);
+		v = Ev.GetUdvByName((char *)FITSTARTLAMBDA);
 		d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " start_lambda %g", d);
-		v = Ev.GetUdvByName((char*)FITLAMBDAFACTOR);
+		v = Ev.GetUdvByName((char *)FITLAMBDAFACTOR);
 		d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " lambda_factor %g", d);
@@ -856,21 +851,19 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fputc('\n', fp);
 }
 
-static void save_tics(FILE * fp, const GpAxis * pAx)
+//static void save_tics(FILE * fp, const GpAxis * pAx)
+void GnuPlot::SaveTics(FILE * fp, const GpAxis * pAx)
 {
 	if((pAx->ticmode & TICS_MASK) == NO_TICS) {
 		fprintf(fp, "unset %stics\n", axis_name((AXIS_INDEX)pAx->index));
 		return;
 	}
 	fprintf(fp, "set %stics %s %s scale %g,%g %smirror %s ", axis_name((AXIS_INDEX)pAx->index), 
-		((pAx->ticmode & TICS_MASK) == TICS_ON_AXIS) ? "axis" : "border",
-	    (pAx->TicIn) ? "in" : "out",
-	    pAx->ticscale, pAx->miniticscale,
-	    (pAx->ticmode & TICS_MIRROR) ? "" : "no",
-	    pAx->tic_rotate ? "rotate" : "norotate");
+		((pAx->ticmode & TICS_MASK) == TICS_ON_AXIS) ? "axis" : "border", (pAx->TicIn) ? "in" : "out",
+	    pAx->ticscale, pAx->miniticscale, (pAx->ticmode & TICS_MIRROR) ? "" : "no", pAx->tic_rotate ? "rotate" : "norotate");
 	if(pAx->tic_rotate)
 		fprintf(fp, "by %d ", pAx->tic_rotate);
-	save_position(fp, &pAx->ticdef.offset, 3, TRUE);
+	SavePosition(fp, &pAx->ticdef.offset, 3, TRUE);
 	if(pAx->manual_justify)
 		save_justification(pAx->tic_pos, fp);
 	else
@@ -905,7 +898,7 @@ static void save_tics(FILE * fp, const GpAxis * pAx)
 		save_textcolor(fp, &pAx->ticdef.textcolor);
 	putc('\n', fp);
 	if(pAx->ticdef.def.user) {
-		struct ticmark * t;
+		ticmark * t;
 		fprintf(fp, "set %stics %s ", axis_name((AXIS_INDEX)pAx->index), (pAx->ticdef.type == TIC_USER) ? "" : "add");
 		fputs(" (", fp);
 		for(t = pAx->ticdef.def.user; t != NULL; t = t->next) {
@@ -998,7 +991,8 @@ void save_style_textbox(FILE * fp)
 	}
 }
 
-void save_position(FILE * fp, const GpPosition * pPos, int ndim, bool offset)
+//void save_position(FILE * fp, const GpPosition * pPos, int ndim, bool offset)
+void GnuPlot::SavePosition(FILE * fp, const GpPosition * pPos, int ndim, bool offset)
 {
 	if(offset) {
 		if(pPos->x == 0.0 && pPos->y == 0.0 && pPos->z == 0.0)
@@ -1007,7 +1001,7 @@ void save_position(FILE * fp, const GpPosition * pPos, int ndim, bool offset)
 	}
 	// Save in time coordinates if appropriate 
 	if(pPos->scalex == first_axes) {
-		save_num_or_time_input(fp, pPos->x, &GPO.AxS[FIRST_X_AXIS]);
+		save_num_or_time_input(fp, pPos->x, &AxS[FIRST_X_AXIS]);
 	}
 	else {
 		fprintf(fp, "%s%g", coord_msg[pPos->scalex], pPos->x);
@@ -1019,7 +1013,7 @@ void save_position(FILE * fp, const GpPosition * pPos, int ndim, bool offset)
 	if(pPos->scaley == first_axes || pPos->scalex == polar_axes) {
 		if(pPos->scaley != pPos->scalex) 
 			fprintf(fp, "first ");
-		save_num_or_time_input(fp, pPos->y, &GPO.AxS[FIRST_Y_AXIS]);
+		save_num_or_time_input(fp, pPos->y, &AxS[FIRST_Y_AXIS]);
 	}
 	else {
 		fprintf(fp, "%s%g", (pPos->scaley == pPos->scalex) ? "" : coord_msg[pPos->scaley], pPos->y);
@@ -1031,7 +1025,7 @@ void save_position(FILE * fp, const GpPosition * pPos, int ndim, bool offset)
 	if(pPos->scalez == first_axes) {
 		if(pPos->scalez != pPos->scaley) 
 			fprintf(fp, "first ");
-		save_num_or_time_input(fp, pPos->z, &GPO.AxS[FIRST_Z_AXIS]);
+		save_num_or_time_input(fp, pPos->z, &AxS[FIRST_Z_AXIS]);
 	}
 	else {
 		fprintf(fp, "%s%g", (pPos->scalez == pPos->scaley) ? "" : coord_msg[pPos->scalez], pPos->z);
@@ -1100,7 +1094,7 @@ void save_prange(FILE * fp, GpAxis * this_axis)
 
 void save_link(FILE * fp, GpAxis * this_axis)
 {
-	if(this_axis->linked_to_primary &&  this_axis->index != -this_axis->linked_to_primary->index) {
+	if(this_axis->linked_to_primary && this_axis->index != -this_axis->linked_to_primary->index) {
 		fprintf(fp, "set link %s ", axis_name((AXIS_INDEX)this_axis->index));
 		if(this_axis->link_udf->at)
 			fprintf(fp, "via %s ", this_axis->link_udf->definition);
@@ -1113,7 +1107,7 @@ void save_link(FILE * fp, GpAxis * this_axis)
 void save_nonlinear(FILE * fp, GpAxis * this_axis)
 {
 	GpAxis * primary = this_axis->linked_to_primary;
-	if(primary &&  this_axis->index == -primary->index) {
+	if(primary && this_axis->index == -primary->index) {
 		fprintf(fp, "set nonlinear %s ", axis_name((AXIS_INDEX)this_axis->index));
 		if(primary->link_udf->at)
 			fprintf(fp, "via %s ", primary->link_udf->definition);
@@ -1318,25 +1312,26 @@ void GnuPlot::SaveOffsets(FILE * fp, char * lead)
 	    Gr.BOff.scaley == graph ? "graph " : "", Gr.BOff.y);
 }
 
-void save_bars(FILE * fp)
+//void save_bars(FILE * fp)
+void GnuPlot::SaveBars(FILE * fp)
 {
-	if(bar_size == 0.0) {
+	if(Gr.BarSize == 0.0) {
 		fprintf(fp, "unset errorbars\n");
-		return;
 	}
 	else {
-		fprintf(fp, "set errorbars %s", (bar_layer == LAYER_BACK) ? "back" : "front");
-		if(bar_size > 0.0)
-			fprintf(fp, " %f ", bar_size);
+		fprintf(fp, "set errorbars %s", (Gr.BarLayer == LAYER_BACK) ? "back" : "front");
+		if(Gr.BarSize > 0.0)
+			fprintf(fp, " %f ", Gr.BarSize);
 		else
 			fprintf(fp, " fullwidth ");
-		if((bar_lp.flags & LP_ERRORBAR_SET) != 0)
-			save_linetype(fp, &bar_lp, FALSE);
+		if(Gr.BarLp.flags & LP_ERRORBAR_SET)
+			save_linetype(fp, &Gr.BarLp, FALSE);
 		fputs("\n", fp);
 	}
 }
 
-void save_histogram_opts(FILE * fp)
+//void save_histogram_opts(FILE * fp)
+void GnuPlot::SaveHistogramOpts(FILE * fp)
 {
 	switch(histogram_opts.type) {
 		default:
@@ -1351,49 +1346,52 @@ void save_histogram_opts(FILE * fp)
 	save_textcolor(fp, &histogram_opts.title.textcolor);
 	if(histogram_opts.title.font)
 		fprintf(fp, " font \"%s\" ", histogram_opts.title.font);
-	save_position(fp, &histogram_opts.title.offset, 2, TRUE);
+	SavePosition(fp, &histogram_opts.title.offset, 2, TRUE);
 	fprintf(fp, "\n");
 }
 
-void save_pixmaps(FILE * fp)
+//void save_pixmaps(FILE * fp)
+void GnuPlot::SavePixmaps(FILE * fp)
 {
-	for(t_pixmap * pixmap = GPO.Gg.P_PixmapListHead; pixmap; pixmap = pixmap->next) {
+	for(t_pixmap * pixmap = Gg.P_PixmapListHead; pixmap; pixmap = pixmap->next) {
 		if(pixmap->filename)
 			fprintf(fp, "set pixmap %d '%s' # (%d x %d pixmap)\n", pixmap->tag, pixmap->filename, pixmap->ncols, pixmap->nrows);
 		if(pixmap->colormapname)
 			fprintf(fp, "set pixmap %d colormap %s # (%d x %d pixmap)\n", pixmap->tag, pixmap->colormapname, pixmap->ncols, pixmap->nrows);
 		fprintf(fp, "set pixmap %d at ", pixmap->tag);
-		save_position(fp, &pixmap->pin, 3, FALSE);
+		SavePosition(fp, &pixmap->pin, 3, FALSE);
 		fprintf(fp, "  size ");
-		save_position(fp, &pixmap->extent, 2, FALSE);
+		SavePosition(fp, &pixmap->extent, 2, FALSE);
 		fprintf(fp, " %s %s\n", pixmap->layer == LAYER_FRONT ? "front" : pixmap->layer == LAYER_BACK ? "back" : "behind", pixmap->center ? "center" : "");
 	}
 }
-
-/* Save/show rectangle <tag> (0 means show all) */
-void save_object(FILE * fp, int tag)
+//
+// Save/show rectangle <tag> (0 means show all) 
+//
+//void save_object(FILE * fp, int tag)
+void GnuPlot::SaveObject(FILE * fp, int tag)
 {
 	t_object * this_object;
 	t_rectangle * this_rect;
 	t_circle * this_circle;
 	t_ellipse * this_ellipse;
 	bool showed = FALSE;
-	for(this_object = GPO.Gg.P_FirstObject; this_object != NULL; this_object = this_object->next) {
+	for(this_object = Gg.P_FirstObject; this_object != NULL; this_object = this_object->next) {
 		if((this_object->object_type == OBJ_RECTANGLE) && (tag == 0 || tag == this_object->tag)) {
 			this_rect = &this_object->o.rectangle;
 			showed = TRUE;
 			fprintf(fp, "%sobject %2d rect ", (fp==stderr) ? "\t" : "set ", this_object->tag);
 			if(this_rect->type == 1) {
 				fprintf(fp, "center ");
-				save_position(fp, &this_rect->center, 2, FALSE);
+				SavePosition(fp, &this_rect->center, 2, FALSE);
 				fprintf(fp, " size ");
-				save_position(fp, &this_rect->extent, 2, FALSE);
+				SavePosition(fp, &this_rect->extent, 2, FALSE);
 			}
 			else {
 				fprintf(fp, "from ");
-				save_position(fp, &this_rect->bl, 2, FALSE);
+				SavePosition(fp, &this_rect->bl, 2, FALSE);
 				fprintf(fp, " to ");
-				save_position(fp, &this_rect->tr, 2, FALSE);
+				SavePosition(fp, &this_rect->tr, 2, FALSE);
 			}
 		}
 		else if((this_object->object_type == OBJ_CIRCLE) && (tag == 0 || tag == this_object->tag)) {
@@ -1402,7 +1400,7 @@ void save_object(FILE * fp, int tag)
 			showed = TRUE;
 			fprintf(fp, "%sobject %2d circle ", (fp==stderr) ? "\t" : "set ", this_object->tag);
 			fprintf(fp, "center ");
-			save_position(fp, &this_circle->center, 3, FALSE);
+			SavePosition(fp, &this_circle->center, 3, FALSE);
 			fprintf(fp, " size ");
 			fprintf(fp, "%s%g", e->scalex == first_axes ? "" : coord_msg[e->scalex], e->x);
 			fprintf(fp, " arc [%g:%g] ", this_circle->arc_begin, this_circle->arc_end);
@@ -1414,7 +1412,7 @@ void save_object(FILE * fp, int tag)
 			showed = TRUE;
 			fprintf(fp, "%sobject %2d ellipse ", (fp==stderr) ? "\t" : "set ", this_object->tag);
 			fprintf(fp, "center ");
-			save_position(fp, &this_ellipse->center, 3, FALSE);
+			SavePosition(fp, &this_ellipse->center, 3, FALSE);
 			fprintf(fp, " size ");
 			fprintf(fp, "%s%g", e->scalex == first_axes ? "" : coord_msg[e->scalex], e->x);
 			fprintf(fp, ", %s%g", e->scaley == e->scalex ? "" : coord_msg[e->scaley], e->y);
@@ -1433,15 +1431,14 @@ void save_object(FILE * fp, int tag)
 			fprintf(fp, "%sobject %2d polygon ", (fp==stderr) ? "\t" : "set ", this_object->tag);
 			if(this_polygon->vertex) {
 				fprintf(fp, "from ");
-				save_position(fp, &this_polygon->vertex[0], 3, FALSE);
+				SavePosition(fp, &this_polygon->vertex[0], 3, FALSE);
 			}
 			for(nv = 1; nv < this_polygon->type; nv++) {
 				fprintf(fp, (fp==stderr) ? "\n\t\t\t    to " : " to ");
-				save_position(fp, &this_polygon->vertex[nv], 3, FALSE);
+				SavePosition(fp, &this_polygon->vertex[nv], 3, FALSE);
 			}
 		}
-
-		/* Properties common to all objects */
+		// Properties common to all objects 
 		if(tag == 0 || tag == this_object->tag) {
 			fprintf(fp, "\n%sobject %2d ", (fp==stderr) ? "\t" : "set ", this_object->tag);
 			fprintf(fp, "%s ", this_object->layer == LAYER_FRONT ? "front" : this_object->layer == LAYER_DEPTHORDER ? "depthorder" : this_object->layer == LAYER_BEHIND ? "behind" : "back");
@@ -1463,10 +1460,11 @@ void save_object(FILE * fp, int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		GPO.IntErrorCurToken("object not found");
+		IntErrorCurToken("object not found");
 }
-
-/* Save/show special polygon objects created by "set wall" */
+//
+// Save/show special polygon objects created by "set wall" 
+//
 void save_walls(FILE * fp)
 {
 	static const char * wall_name[5] = {"y0", "x0", "y1", "x1", "z0"};

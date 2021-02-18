@@ -1806,12 +1806,10 @@ static const char * ae_strtofflags(const char * s, unsigned long * setp, unsigne
 {
 	const char * start, * end;
 	const struct flag * flag;
-	unsigned long set, clear;
-	const char * failed;
-
-	set = clear = 0;
+	unsigned long set = 0;
+	unsigned long clear = 0;
+	const char * failed = 0;
 	start = s;
-	failed = NULL;
 	/* Find start of first token. */
 	while(*start == '\t'  ||  *start == ' '  ||  *start == ',')
 		start++;
@@ -1819,14 +1817,12 @@ static const char * ae_strtofflags(const char * s, unsigned long * setp, unsigne
 		size_t length;
 		/* Locate end of token. */
 		end = start;
-		while(*end != '\0'  &&  *end != '\t'  &&
-		    *end != ' '  &&  *end != ',')
+		while(*end != '\0'  &&  *end != '\t' && *end != ' '  &&  *end != ',')
 			end++;
 		length = end - start;
 		for(flag = fileflags; flag->name != NULL; flag++) {
 			size_t flag_length = strlen(flag->name);
-			if(length == flag_length
-			    && memcmp(start, flag->name, length) == 0) {
+			if(length == flag_length && memcmp(start, flag->name, length) == 0) {
 				/* Matched "noXXXX", so reverse the sense. */
 				clear |= flag->set;
 				set |= flag->clear;
@@ -1886,8 +1882,7 @@ static const wchar_t * ae_wcstofflags(const wchar_t * s, unsigned long * setp, u
 		size_t length;
 		/* Locate end of token. */
 		end = start;
-		while(*end != L'\0'  &&  *end != L'\t'  &&
-		    *end != L' '  &&  *end != L',')
+		while(*end != L'\0'  &&  *end != L'\t' && *end != L' '  &&  *end != L',')
 			end++;
 		length = end - start;
 		for(flag = fileflags; flag->wname != NULL; flag++) {

@@ -1639,9 +1639,10 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 	const  PPID preserve_loc = LConfig.Location;
 	PPID   loc_id = preserve_loc;
 	PPID   op_type = 0;
+	SString temp_buf;
 	PPOprKind    op_rec;
-	PPBillPacket pack, sample_pack;
-
+	PPBillPacket pack;
+	PPBillPacket sample_pack;
 	ASSIGN_PTR(pBillID, 0L);
 	THROW_INVARG(pParam);
 	THROW(CheckRights(PPR_INS));
@@ -1662,6 +1663,7 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 			loc_id = LConfig.Location;
 	}
 	if(loc_id) {
+		const int is_src_draft = IsDraftOp(sample_pack.Rec.OpID);
 		PPBillPacket::SetupObjectBlock sob;
 		if(pParam->Flags & SelAddBySampleParam::fCopyBillCode) {
 			THROW(pack.CreateBlank_WithoutCode(pParam->OpID, 0, loc_id, 1));
@@ -1693,7 +1695,7 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 				ReceiptTbl::Rec lot_rec;
 				PPTransferItem new_ti(&pack.Rec, TISIGN_UNDEF);
 				THROW(new_ti.SetupGoods(labs(p_ti->GoodsID)));
-				if(p_ti->LotID && (op_type == PPOPT_DRAFTRECEIPT || (op_type == PPOPT_DRAFTEXPEND && pParam->Action == pParam->acnDraftExpRestByOrder)))
+				if(!is_src_draft && p_ti->LotID && (op_type == PPOPT_DRAFTRECEIPT || (op_type == PPOPT_DRAFTEXPEND && pParam->Action == pParam->acnDraftExpRestByOrder)))
 					trfr->GetRest(p_ti->LotID, pack.Rec.Dt, &qtty);
 				else
 					qtty = p_ti->Quantity_;
@@ -1706,7 +1708,29 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 						new_ti.Cost = lot_rec.Cost;
 					}
 					new_ti.SetupSign(pack.Rec.OpID); // @v10.0.08
-					THROW(pack.InsertRow(&new_ti, 0));
+					// @v11.0.2 {
+					{
+						LongArray row_idx_list;
+						THROW(pack.InsertRow(&new_ti, &row_idx_list));
+						if(is_src_draft && row_idx_list.getCount() == 1) {
+							const uint ti_pos = row_idx_list.get(0);
+							ObjTagList row_tag_list;
+							const PPID _tag_id_list[] = { PPTAG_LOT_SN, PPTAG_LOT_CLB, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB, PPTAG_LOT_FSRARLOTGOODSCODE };
+							for(uint tagidx = 0; tagidx < SIZEOFARRAY(_tag_id_list); tagidx++) {
+								const PPID row_tag_id = _tag_id_list[tagidx];
+								if(sample_pack.LTagL.GetTagStr(i, row_tag_id, temp_buf) > 0)
+									row_tag_list.PutItemStr(row_tag_id, temp_buf);
+							}
+							pack.LTagL.Set(ti_pos, &row_tag_list);
+							{
+								PPLotExtCodeContainer::MarkSet lotxcode_set;
+								sample_pack.XcL.Get(i, 0, lotxcode_set);
+								if(lotxcode_set.GetCount())
+									pack.XcL.Set_2(ti_pos+1, &lotxcode_set);
+							}
+						}
+					}
+					// } @v11.0.2 
 				}
 			}
 		}

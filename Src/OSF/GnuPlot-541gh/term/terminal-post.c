@@ -1612,13 +1612,13 @@ void PS_init(GpTermEntry * pThis)
 
 void PS_graphics(GpTermEntry * pThis)
 {
-	struct GpTermEntry * t = term;
+	//struct GpTermEntry * t = term;
 	GPO.TPsB.Page++;
 	// if (GPO.TPsB.P_Params->psformat != PSTERM_EPS) 
 	fprintf(gppsfile, "%%%%Page: %d %d\n", GPO.TPsB.Page, GPO.TPsB.Page);
 	// If we are about to use enhanced text mode for the first time in a plot that 
 	// was initialized previously without it, we need to write out the macros now 
-	if(term->put_text == ENHPS_put_text && GPO.TPsB.EnsPsInitialized == 1) {
+	if(pThis->put_text == ENHPS_put_text && GPO.TPsB.EnsPsInitialized == 1) {
 		const char ** dict = ENHPS_header;
 		while(*dict)
 			fputs(*(dict++), gppsfile);
@@ -1634,11 +1634,11 @@ doclip\n\
 	    (GPO.TPsB.P_Params->psformat == PSTERM_EPS ? 0.5 : 1.0)/PS_SC,
 	    (GPO.TPsB.P_Params->psformat == PSTERM_EPS ? 0.5 : 1.0)/PS_SC);
 	if(GPO.TPsB.P_Params->psformat == PSTERM_LANDSCAPE)
-		fprintf(gppsfile, "90 rotate\n0 %d translate\n", -(int)(term->MaxY));
+		fprintf(gppsfile, "90 rotate\n0 %d translate\n", -(int)(pThis->MaxY));
 	fprintf(gppsfile, "0 setgray\nnewpath\n");
 	if(ps_common_uses_fonts)
 		fprintf(gppsfile, "(%s) findfont %d scalefont setfont\n",
-		    GPO.TPsB.P_Params->font, (t->ChrV));
+		    GPO.TPsB.P_Params->font, pThis->ChrV);
 	GPO.TPsB.PathCount = 0;
 	PS_relative_ok = FALSE;
 	PS_pen_x = PS_pen_y = -4000;
@@ -1651,7 +1651,7 @@ doclip\n\
 		fputs("BackgroundColor 0 lt 3 1 roll 0 lt exch 0 lt or or not {", gppsfile);
 		if(GPO.TPsB.P_Params->psformat == PSTERM_EPS) {
 			/* for eps files set the color only for the graphics area */
-			fprintf(gppsfile, "BackgroundColor C 1.000 0 0 %.2f %.2f BoxColFill", term->MaxX * GPO.V.Size.x, term->MaxY * GPO.V.Size.y);
+			fprintf(gppsfile, "BackgroundColor C 1.000 0 0 %.2f %.2f BoxColFill", pThis->MaxX * GPO.V.Size.x, pThis->MaxY * GPO.V.Size.y);
 		}
 		else {
 			/* otherwise set the page background color, the code is taken from the
@@ -1923,7 +1923,7 @@ TERM_PUBLIC void PS_put_text(GpTermEntry * pThis, uint x, uint y, const char * s
 					*c++ = '(';
 				if(ch == '(' || ch == ')' || ch == '\\')
 					*c++ = '\\';
-				*c++ = ch;
+				*c++ = static_cast<char>(ch);
 				mode = PS_TEXT;
 			}
 			else {
@@ -2095,8 +2095,8 @@ static int PS_common_set_font(GpTermEntry * pThis, const char * font, int caller
 		}
 	}
 	SAlloc::F(name);
-	term->ChrV = (uint)(size*PS_SCF);
-	term->ChrH = (uint)(size*PS_SCF*6/10);
+	pThis->ChrV = (uint)(size*PS_SCF);
+	pThis->ChrH = (uint)(size*PS_SCF*6/10);
 	return TRUE;
 }
 
@@ -2422,7 +2422,7 @@ TERM_PUBLIC void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	 * "font,size". That is to say, GPO.TPsB.P_Params->font is used only
 	 * at startup and by ENHPS_set_font
 	 */
-	while(*(str = enhanced_recursion(term, (char*)str, TRUE, GPO.TPsB.EnhFont, (double)(GPO.TPsB.EnhFontSize*PS_SCF), 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(pThis, str, TRUE, GPO.TPsB.EnhFont, (double)(GPO.TPsB.EnhFontSize*PS_SCF), 0.0, TRUE, TRUE, 0))) {
 		ENHPS_FLUSH(pThis);
 		// I think we can only get here if *str == '}' 
 		enh_err_check(str);
@@ -2612,7 +2612,7 @@ static void write_component_array(const char * text, gradient_struct * grad, int
 	fprintf(gppsfile, "/%s [", text);
 	len = strlen(text) + 4;
 	for(i = 0; i<cnt; ++i) {
-		char * ref = (char*)(&(grad[i]));
+		char * ref = (char *)(&(grad[i]));
 		ref += offset;
 		val = GpPostscriptBlock::SaveSpace(*((double*)(ref)));
 		len += strlen(val) + 1;
@@ -2628,11 +2628,11 @@ static void write_component_array(const char * text, gradient_struct * grad, int
 static void write_gradient_definition(gradient_struct * gradient, int cnt)
 {
 	/* some strange pointer acrobatic here, but it seems to work... */
-	char * ref = (char*)(gradient);
-	int p = (char*)(&(gradient[0].pos)) - ref;
-	int r = (char*)(&(gradient[0].col.r)) - ref;
-	int g = (char*)(&(gradient[0].col.g)) - ref;
-	int b = (char*)(&(gradient[0].col.b)) - ref;
+	char * ref = (char *)(gradient);
+	int p = (char *)(&(gradient[0].pos)) - ref;
+	int r = (char *)(&(gradient[0].col.r)) - ref;
+	int g = (char *)(&(gradient[0].col.g)) - ref;
+	int b = (char *)(&(gradient[0].col.b)) - ref;
 	write_component_array("GrayA", gradient, cnt, p);
 	write_component_array("RedA", gradient, cnt, r);
 	write_component_array("GreenA", gradient, cnt, g);
@@ -2641,7 +2641,7 @@ static void write_gradient_definition(gradient_struct * gradient, int cnt)
 
 static void PS_make_header(t_sm_palette * palette)
 {
-	/* write header for smooth colors */
+	// write header for smooth colors 
 	fputs("gsave % colour palette begin\n", gppsfile);
 	fprintf(gppsfile, "/maxcolors %i def\n", GPO.SmPltt.UseMaxColors);
 	make_color_model_code();
@@ -2659,7 +2659,7 @@ static void PS_make_header(t_sm_palette * palette)
 				gradient_struct * p_gradient;
 				fputs("/InterpolatedColor true def\n", gppsfile);
 				make_interpolation_code();
-				p_gradient = approximate_palette(palette, GPO.TPsB.P_Params->palfunc_samples, GPO.TPsB.P_Params->palfunc_deviation, &cnt);
+				p_gradient = GPO.ApproximatePalette(palette, GPO.TPsB.P_Params->palfunc_samples, GPO.TPsB.P_Params->palfunc_deviation, &cnt);
 				write_gradient_definition(p_gradient, cnt);
 				SAlloc::F(p_gradient);
 			}
@@ -2722,13 +2722,13 @@ static void PS_make_header(t_sm_palette * palette)
 #undef B
 }
 
-int PS_make_palette(t_sm_palette * palette)
+int PS_make_palette(GpTermEntry * pThis, t_sm_palette * pPalette)
 {
-	if(palette == NULL) {
+	if(!pPalette) {
 		return 0; // postscript can do continuous colors 
 	}
 	else {
-		PS_make_header(palette);
+		PS_make_header(pPalette);
 		return 0;
 	}
 }
@@ -2847,7 +2847,7 @@ void PS_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 
 #undef MAX_REL_PATHLEN
 
-void PS_previous_palette()
+void PS_previous_palette(GpTermEntry * pThis)
 {
 	// Needed to stroke the previous graphic element. 
 	PS_FLUSH_PATH;
@@ -2875,15 +2875,15 @@ static void PS_encode85(ulong tuple4, uchar * tuple5)
 	/* The compiler should know to carry out the powers of
 	 * 85 computation at compilation time.
 	 */
-	tuple5[0] = tuple4/(85*85*85*85);
+	tuple5[0] = static_cast<uchar>(tuple4/(85*85*85*85));
 	tuple4 -= ((ulong)tuple5[0])*(85*85*85*85);
-	tuple5[1] = tuple4/(85*85*85);
+	tuple5[1] = static_cast<uchar>(tuple4/(85*85*85));
 	tuple4 -= ((ulong)tuple5[1])*(85*85*85);
-	tuple5[2] = tuple4/(85*85);
+	tuple5[2] = static_cast<uchar>(tuple4/(85*85));
 	tuple4 -= ((ulong)tuple5[2])*(85*85);
-	tuple5[3] = tuple4/(85);
+	tuple5[3] = static_cast<uchar>(tuple4/(85));
 	tuple4 -= ((ulong)tuple5[3])*(85);
-	tuple5[4] = tuple4;
+	tuple5[4] = static_cast<uchar>(tuple4);
 }
 
 /* Use libgd2 or libcairo to save bitmap images with deflate compression
@@ -3024,7 +3024,7 @@ static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagec
 	{
 		char * png_buffer_tmp;
 		int size;
-		png_buffer_tmp = (char*)gdImagePngPtr(png_img, &size);
+		png_buffer_tmp = (char *)gdImagePngPtr(png_img, &size);
 		png_buffer->size = size;
 		png_buffer->buffer = gp_alloc(png_buffer->size, "PNG image buffer");
 		memcpy(png_buffer->buffer, png_buffer_tmp, png_buffer->size);
@@ -3168,7 +3168,7 @@ static uchar * PS_encode_png_image(uint M, uint N, coordval * image, t_imagecolo
 		j += 4;
 		PS_encode85(tuple4, tuple5);
 		for(i = 0; i < 5; i++) {
-			sprintf((char*)(encoded_image_ptr++), "%c", tuple5[i]+'!');
+			sprintf((char *)(encoded_image_ptr++), "%c", tuple5[i]+'!');
 			i_line--;
 			if(!i_line) {
 				i_line = ASCII_PER_LINE;
@@ -3187,7 +3187,7 @@ static uchar * PS_encode_png_image(uint M, uint N, coordval * image, t_imagecolo
 		}
 		PS_encode85(tuple4, tuple5);
 		for(i = 0; i <= n; i++) {
-			sprintf((char*)(encoded_image_ptr++), "%c", tuple5[i]+'!');
+			sprintf((char *)(encoded_image_ptr++), "%c", tuple5[i]+'!');
 			i_line--;
 			if(!i_line) {
 				i_line = ASCII_PER_LINE;
@@ -3196,7 +3196,7 @@ static uchar * PS_encode_png_image(uint M, uint N, coordval * image, t_imagecolo
 		}
 	}
 	SAlloc::F(encoded_image_tmp);
-	sprintf((char*)(encoded_image_ptr), "~>");
+	sprintf((char *)(encoded_image_ptr), "~>");
 	encoded_image_ptr += 2;
 	*return_num_bytes = encoded_image_ptr - encoded_image;
 	return encoded_image;
@@ -3282,12 +3282,11 @@ static char * PS_encode_image(uint M, uint N, coordval * image, t_imagecolor col
 		}
 		else
 			us_tmp = (ushort)((*coord_ptr++) * max_colors);
+		if(us_tmp > (max_colors-1)) 
+			us_tmp = max_colors-1;
 
-		if(us_tmp > (max_colors-1)) us_tmp = max_colors-1;
-
-		/* Rescale to accommodate a mismatch between max_colors and # of bits */
+		// Rescale to accommodate a mismatch between max_colors and # of bits 
 		us_tmp *= cscale;
-
 		if(bits_remaining < bits_per_component) {
 			tuple4 <<= bits_remaining;
 			bits_start = bits_per_component - bits_remaining;
@@ -3765,7 +3764,7 @@ static void PS_load_glyphlist()
 		strncpy(glyph_name, next, len);
 		glyph_name[len] = '\0';
 		FPRINTF((stderr, "%04X   %s\n", code, glyph_name));
-		if(aglist_size + sizeof(ps_glyph) > aglist_alloc) {
+		if((aglist_size + static_cast<int>(sizeof(ps_glyph))) > aglist_alloc) {
 			aglist_alloc += 2048;
 			aglist = (ps_glyph *)gp_realloc(aglist, aglist_alloc, "aglist");
 		}
@@ -3871,11 +3870,15 @@ TERM_TABLE_START(post_driver)
 	0 /*suspend*/, 
 	0 /*resume*/, 
 	PS_fillbox, 
-	PS_linewidth
+	PS_linewidth,
 	#ifdef USE_MOUSE
-	, 0, 0, 0, 0, 0     /* no mouse support for postscript */
+	0, 
+	0, 
+	0, 
+	0, 
+	0,     /* no mouse support for postscript */
 	#endif
-	, PS_make_palette,
+	PS_make_palette,
 	PS_previous_palette,     /* write grestore */
 	PS_set_color,
 	PS_filled_polygon,

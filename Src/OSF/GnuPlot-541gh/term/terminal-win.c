@@ -61,7 +61,7 @@ TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth);
 		TERM_PUBLIC int WIN_waitforinput(int);
 	#endif
 #endif
-TERM_PUBLIC int WIN_make_palette(t_sm_palette * palette);
+TERM_PUBLIC int WIN_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void WIN_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void WIN_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
 TERM_PUBLIC void WIN_boxfill(GpTermEntry * pThis, int, uint, uint, uint, uint);
@@ -576,7 +576,7 @@ void WIN_update_options()
 	set_fontsize = (graphwin->deffontsize != WIN_inifontsize);
 	set_font = (_tcscmp(graphwin->deffontname, WIN_inifontname) != 0);
 	if(set_font || set_fontsize) {
-		char * fontstring = (char*)gp_alloc(_tcslen(graphwin->deffontname) + 24, "win font");
+		char * fontstring = (char *)gp_alloc(_tcslen(graphwin->deffontname) + 24, "win font");
 		if(!set_fontsize) {
 			sprintf(fontstring, " font \"" TCHARFMT "\"", graphwin->deffontname);
 		}
@@ -630,10 +630,10 @@ TERM_PUBLIC void WIN_graphics(GpTermEntry * pThis)
 {
 	GraphStart(graphwin, GPO.Gg.PointSize);
 	// Fix up the text size if the user has resized the window. 
-	term->ChrH = graphwin->hchar;
-	term->ChrV = graphwin->vchar;
-	term->TicH = graphwin->htic;
-	term->TicV = graphwin->vtic;
+	pThis->ChrH = graphwin->hchar;
+	pThis->ChrV = graphwin->vchar;
+	pThis->TicH = graphwin->htic;
+	pThis->TicV = graphwin->vtic;
 	WIN_last_linetype = LT_NODRAW; // HBB 20000813: linetype caching 
 	// Save current text encoding 
 	GraphOp(graphwin, W_text_encoding, encoding, 0, NULL);
@@ -672,7 +672,7 @@ TERM_PUBLIC void WIN_linetype(GpTermEntry * pThis, int lt)
 TERM_PUBLIC void WIN_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern)
 {
 	WIN_flush_line(&WIN_poly);
-	GraphOpSize(graphwin, W_dash_type, dt, 0, (char*)custom_dash_pattern, sizeof(t_dashtype));
+	GraphOpSize(graphwin, W_dash_type, dt, 0, (char *)custom_dash_pattern, sizeof(t_dashtype));
 }
 
 TERM_PUBLIC void WIN_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
@@ -681,7 +681,7 @@ TERM_PUBLIC void WIN_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	if(!isempty(str)) {
 		// If no enhanced text processing is needed, we can use the plain  
 		// vanilla put_text() routine instead of this fancy recursive one. 
-		if(!(term->flags & TERM_ENHANCED_TEXT) || GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str)))
+		if(!(pThis->flags & TERM_ENHANCED_TEXT) || GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str)))
 			GraphOp(graphwin, W_put_text, x, y, str);
 		else
 			GraphOp(graphwin, W_enhanced_text, x, y, str);
@@ -859,14 +859,13 @@ TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint M, uint N, coordval * image
 	SAlloc::F(rgb_image);
 }
 
-TERM_PUBLIC int WIN_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int WIN_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
-	/* Win can do continuous colors. However, we round them only to WIN_PAL_COLORS levels
-	 * in order to pass an integer to GraphOp; it also reasonably limits
-	 * the number of colors if "copy to clipboard" is used.
-	 * EAM: Would it be better to use the approximate_palette() mechanism instead,
-	 * like the x11 terminal?
-	 */
+	// Win can do continuous colors. However, we round them only to WIN_PAL_COLORS levels
+	// in order to pass an integer to GraphOp; it also reasonably limits
+	// the number of colors if "copy to clipboard" is used.
+	// EAM: Would it be better to use the approximate_palette() mechanism instead,
+	// like the x11 terminal?
 	return WIN_PAL_COLORS;
 }
 

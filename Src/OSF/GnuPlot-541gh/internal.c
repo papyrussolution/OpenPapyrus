@@ -947,7 +947,7 @@ void GnuPlot::F_Concatenate(union argument * /*arg*/)
 	if(b.type == INTGR) {
 		int i = b.v.int_val;
 		b.type = STRING;
-		b.v.string_val = (char*)gp_alloc(32, "str_const");
+		b.v.string_val = (char *)gp_alloc(32, "str_const");
 		snprintf(b.v.string_val, 32, "%d", i);
 	}
 	if(a.type != STRING || b.type != STRING)
@@ -1091,7 +1091,7 @@ void GnuPlot::F_Index(union argument * arg)
 	}
 	else if(array.type == DATABLOCK) {
 		i--; /* line numbers run from 1 to nlines */
-		if(i < 0 || i >= datablock_size(&array))
+		if(i < 0 || i >= array.GetDatablockSize())
 			IntError(NO_CARET, "datablock index out of range");
 		EvStk.Push(Gstring(&array, array.v.data_array[i]) );
 	}
@@ -1110,7 +1110,7 @@ void GnuPlot::F_Cardinality(union argument * arg)
 	if(array.type == ARRAY)
 		size = array.v.value_array[0].v.int_val;
 	else if(array.type == DATABLOCK)
-		size = datablock_size(&array);
+		size = array.GetDatablockSize();
 	else
 		IntError(NO_CARET, "internal error: cardinality of a scalar variable");
 	EvStk.Push(Ginteger(&array, size));
@@ -1457,7 +1457,7 @@ void GnuPlot::F_StrPTime(union argument * arg)
 	if(!fmt.v.string_val || !val.v.string_val)
 		IntError(NO_CARET, "Internal error: string not allocated");
 	// string -> time_tm  plus extra fractional second 
-	if(gstrptime(val.v.string_val, fmt.v.string_val, &time_tm, &usec, &result) == DT_TIMEDATE) {
+	if(GStrPTime(val.v.string_val, fmt.v.string_val, &time_tm, &usec, &result) == DT_TIMEDATE) {
 		// time_tm -> result 
 		result = gtimegm(&time_tm);
 		// Add back any extra fractional second 

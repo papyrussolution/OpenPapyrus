@@ -190,11 +190,11 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case WXT_ENHANCED:
 			    wxt_enhanced_enabled = TRUE;
-			    term->flags |= TERM_ENHANCED_TEXT;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
 			    break;
 			case WXT_NOENHANCED:
 			    wxt_enhanced_enabled = FALSE;
-			    term->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
 			case WXT_SIZE:
 		    {
@@ -364,8 +364,7 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 
 	if(set_size) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
-		snprintf(tmp_term_options, sizeof(tmp_term_options),
-		    " size %d, %d", wxt_width, wxt_height);
+		snprintf(tmp_term_options, sizeof(tmp_term_options), " size %d, %d", wxt_width, wxt_height);
 		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
 		wxt_update_size(wxt_window_number);
 	}

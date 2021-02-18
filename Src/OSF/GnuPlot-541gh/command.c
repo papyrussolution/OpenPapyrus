@@ -137,22 +137,22 @@ void GpProgram::ExtendTokenTable()
 //int com_line()
 int GnuPlot::ComLine()
 {
+	const char * p_prompt = PROMPT;
 	if(multiplot) {
 		TermCheckMultiplotOkay(interactive); // calls IntError() if it is not happy 
-		if(Pgm.ReadLine("multiplot> ", 0))
-			return 1;
+		p_prompt = "multiplot> ";
 	}
+	if(Pgm.ReadLine(p_prompt, 0))
+		return 1;
 	else {
-		if(Pgm.ReadLine(PROMPT, 0))
-			return 1;
+		// So we can flag any new output: if false at time of error,
+		// we reprint the command line before printing caret.
+		// TRUE for interactive terminals, since the command line is typed.
+		// FALSE for non-terminal stdin, so command line is printed anyway.
+		// (DFK 11/89)
+		screen_ok = interactive;
+		return BIN(DoLine());
 	}
-	// So we can flag any new output: if false at time of error,
-	// we reprint the command line before printing caret.
-	// TRUE for interactive terminals, since the command line is typed.
-	// FALSE for non-terminal stdin, so command line is printed anyway.
-	// (DFK 11/89)
-	screen_ok = interactive;
-	return BIN(DoLine());
 }
 
 //int do_line()
@@ -192,9 +192,9 @@ int GnuPlot::DoLine()
 		// Insert a ';' after current line and append the next input line.
 		// NB: This may leave an "else" condition on the next line.
 		// 
-		if(curly_brace_count < 0)
+		if(Pgm.CurlyBraceCount < 0)
 			IntError(NO_CARET, "Unexpected }");
-		while(curly_brace_count > 0) {
+		while(Pgm.CurlyBraceCount > 0) {
 			if(lf_head && lf_head->depth > 0) {
 				// This catches the case that we are inside a "load foo" operation
 				// and therefore requesting interactive input is not an option.
@@ -223,7 +223,7 @@ int GnuPlot::DoLine()
 			}
 			else {
 				// Non-interactive mode here means that we got a string from -e.
-				// Having curly_brace_count > 0 means that there are at least one
+				// Having Pgm.CurlyBraceCount > 0 means that there are at least one
 				// unterminated blocks in the string.
 				// Likely user error, so we die with an error message. 
 				IntError(NO_CARET, "Syntax error: missing block terminator }");
@@ -467,7 +467,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "do"))
 				DoCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "eval$uate"))
-				eval_command();
+				EvalCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "ex$it"))
 				ExitCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "f$it"))
@@ -549,7 +549,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, ";"))
 				null_command();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "$"))
-				Pgm.DatablockCommand();
+				DatablockCommand();
 			else
 				InvalidCommand();
 		}
@@ -921,13 +921,14 @@ void GnuPlot::ClearCommand(GpTermEntry * pTerm)
 // 
 // process the 'evaluate' command 
 // 
-void eval_command()
+//void eval_command()
+void GnuPlot::EvalCommand()
 {
-	GPO.Pgm.Shift();
-	char * command = GPO.TryToGetString();
+	Pgm.Shift();
+	char * command = TryToGetString();
 	if(!command)
-		GPO.IntErrorCurToken("Expected command string");
-	GPO.DoStringAndFree(command);
+		IntErrorCurToken("Expected command string");
+	DoStringAndFree(command);
 }
 //
 // process the 'exit' and 'quit' commands 
@@ -992,7 +993,7 @@ void GnuPlot::HistoryCommand()
 			IntErrorCurToken("not in history");
 		// Add the command to the history.
 		// Note that history commands themselves are no longer added to the history. 
-		add_history((char*)line_to_do);
+		add_history((char *)line_to_do);
 		printf("  Executing:\n\t%s\n", line_to_do);
 		DoString(line_to_do);
 		Pgm.Shift();
@@ -1646,7 +1647,7 @@ void GnuPlot::PlotCommand(GpTermEntry * pTerm)
 	refresh_nplots = 0;
 	SET_CURSOR_WAIT;
 #ifdef USE_MOUSE
-	plot_mode(MODE_PLOT);
+	PlotMode(pTerm, MODE_PLOT);
 	Ev.AddUdvByName("MOUSE_X")->udv_value.SetNotDefined();
 	Ev.AddUdvByName("MOUSE_Y")->udv_value.SetNotDefined();
 	Ev.AddUdvByName("MOUSE_X2")->udv_value.SetNotDefined();
@@ -1763,7 +1764,7 @@ void GnuPlot::PrintCommand()
 		Pgm.Shift();
 		if(Pgm.EqualsCur("$") && Pgm.IsLetter(Pgm.GetCurTokenIdx()+1) && !Pgm.Equals(Pgm.GetCurTokenIdx()+2, "[")) {
 			char * datablock_name = Pgm.ParseDatablockName();
-			char ** line = get_datablock(datablock_name);
+			char ** line = GetDatablock(datablock_name);
 			// Printing a datablock into itself would cause infinite recursion 
 			if(print_out_var && !strcmp(datablock_name, print_out_name))
 				continue;
@@ -1797,9 +1798,9 @@ void GnuPlot::PrintCommand()
 					putc(' ', print_out);
 			}
 			if(dataline != NULL)
-				len = strappend(&dataline, &size, len, value_to_str(&a, FALSE));
+				len = strappend(&dataline, &size, len, ValueToStr(&a, FALSE));
 			else
-				disp_value(print_out, &a, FALSE);
+				DispValue(print_out, &a, FALSE);
 			need_space = TRUE;
 		}
 		a.Destroy();
@@ -2020,7 +2021,7 @@ void GnuPlot::SPlotCommand(GpTermEntry * pTerm)
 	refresh_nplots = 0;
 	SET_CURSOR_WAIT;
 #ifdef USE_MOUSE
-	plot_mode(MODE_SPLOT);
+	PlotMode(pTerm, MODE_SPLOT);
 	Ev.AddUdvByName("MOUSE_X")->udv_value.SetNotDefined();
 	Ev.AddUdvByName("MOUSE_Y")->udv_value.SetNotDefined();
 	Ev.AddUdvByName("MOUSE_X2")->udv_value.SetNotDefined();
@@ -2143,7 +2144,7 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	// save current gnuplot 'set' status because of the tricky sets
 	// for our temporary testing plot.
 	save_set(f);
-	save_pixmaps(f);
+	SavePixmaps(f);
 	// execute all commands from the temporary file 
 	rewind(f);
 	LoadFile(f, NULL, 1); /* note: it does fclose(f) */
@@ -2256,8 +2257,8 @@ void GnuPlot::ImportCommand()
 	Pgm.Shift();
 	udf = dummy_func = AddUdf(start_token+1);
 	udf->dummy_num = dummy_num;
-	free_at(udf->at); /* In case there was a previous function by this name */
-	udf->at = external_at(udf->udf_name);
+	free_at(udf->at); // In case there was a previous function by this name 
+	udf->at = ExternalAt(udf->udf_name);
 	memcpy(c_dummy_var, save_dummy, sizeof(save_dummy));
 	dummy_func = NULL; /* dont let anyone else use our workspace */
 	if(!udf->at)
@@ -2451,7 +2452,7 @@ void GpProgram::HelpCommand()
 #if defined(SHELFIND)
 	static char help_fname[256] = ""; /* keep helpfilename across calls */
 #endif
-	if((help_ptr = getenv("GNUHELP")) == (char*)NULL)
+	if((help_ptr = getenv("GNUHELP")) == (char *)NULL)
 #ifndef SHELFIND
 		// if can't find environment variable then just use HELPFILE 
 		help_ptr = HELPFILE;
@@ -2616,7 +2617,7 @@ static bool is_history_command(const char * line)
 #ifdef USE_READLINE
 static char * rlgets(char * s, size_t n, const char * prompt)
 {
-	static char * line = (char*)NULL;
+	static char * line = (char *)NULL;
 	static int leftover = -1; /* index of 1st char leftover from last call */
 	if(leftover == -1) {
 		ZFREE(line); // If we already have a line, first free it 
@@ -2743,7 +2744,7 @@ static char* fgets_ipc(char * dest/* string to fill */, int len/* size of it */)
 			}
 			else if(EOF == c) {
 				dest[i] = '\0';
-				return (char*)0;
+				return (char *)0;
 			}
 			else {
 				dest[i] = c;
@@ -2792,13 +2793,13 @@ int GpProgram::ReadLine(const char * pPrompt, int start)
 	}
 	do {
 		// grab some input 
-		if(gp_get_string(gp_input_line + start, gp_input_line_len - start, ((more) ? ">" : pPrompt)) == (char*)NULL) {
+		if(gp_get_string(gp_input_line + start, gp_input_line_len - start, ((more) ? ">" : pPrompt)) == (char *)NULL) {
 			// end-of-file 
 			if(interactive)
 				putc('\n', stderr);
 			gp_input_line[start] = NUL;
 			inline_num++;
-			if(start > 0 && curly_brace_count == 0) /* don't quit yet - process what we have */
+			if(start > 0 && CurlyBraceCount == 0) // don't quit yet - process what we have 
 				more = FALSE;
 			else
 				return 1; // exit gnuplot 

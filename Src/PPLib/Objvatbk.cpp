@@ -914,6 +914,7 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 			AddClusterAssoc(CTL_VATBL_FLAGS, 3, VATBCfg::fVATFromReckon);
 			AddClusterAssoc(CTL_VATBL_FLAGS, 4, VATBCfg::fVATFree);
 			AddClusterAssoc(CTL_VATBL_FLAGS, 5, VATBCfg::fAsPayment);
+			AddClusterAssoc(CTL_VATBL_FLAGS, 6, VATBCfg::fExcludeNegative); // @v11.0.2
 			SetClusterData(CTL_VATBL_FLAGS, Data.Flags);
 			{
 				long   exp_by_fact = 0;

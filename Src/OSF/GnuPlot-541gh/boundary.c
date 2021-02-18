@@ -6,82 +6,7 @@
 
 #define ERRORBARTIC(terminalPtr) MAX(((terminalPtr)->TicH/2), 1)
 
-struct GpBoundary {
-	GpBoundary() :
-		xlablin(0),
-		x2lablin(0),
-		ylablin(0),
-		y2lablin(0),
-		titlelin(0),
-		xticlin(0),
-		x2ticlin(0),
-		key_sample_width(0),
-		key_sample_height(0),
-		key_sample_left(0),
-		key_sample_right(0),
-		key_text_left(0),
-		key_text_right(0),
-		key_size_left(0),
-		key_size_right(0),
-		key_xleft(0),
-		max_ptitl_len(0),
-		ptitl_cnt(0),
-		key_width(0),
-		key_height(0),
-		key_title_height(0),
-		key_title_extra(0),
-		key_title_ypos(0),
-		time_y(0),
-		time_x(0),
-		key_col_wth(0),
-		yl_ref(0),
-		xl(0),
-		yl(0)
-	{
-	}
-	//
-	// stupid test used in only one place but it refers to our local variables 
-	//
-	bool AtLeftOfKey() const
-	{
-		return (yl == yl_ref);
-	}
-	int xlablin;
-	int x2lablin;
-	int ylablin;
-	int y2lablin;
-	int titlelin;
-	int xticlin;
-	int x2ticlin;
-	//
-	int key_sample_width;    // width of line sample 
-	int key_sample_height;   // sample itself; does not scale with "set key spacing" 
-	int key_sample_left;     // offset from x for left of line sample 
-	int key_sample_right;    // offset from x for right of line sample 
-	int key_text_left;       // offset from x for left-justified text 
-	int key_text_right;      // offset from x for right-justified text 
-	int key_size_left;       // size of left bit of key (text or sample, depends on key->reverse) 
-	int key_size_right;      // size of right part of key (including padding) 
-	int key_xleft;           // Amount of space on the left required by the key 
-	int max_ptitl_len;       // max length of plot-titles (keys) 
-	int ptitl_cnt;           // count keys with len > 0  
-	int key_width;           // calculate once, then everyone uses it 
-	int key_height;          // ditto 
-	int key_title_height;    // nominal number of lines * character height 
-	int key_title_extra;     // allow room for subscript/superscript 
-	int key_title_ypos;      // offset from key->bounds.ytop 
-	int time_y;
-	int time_x;
-	//
-	int key_col_wth;
-	int yl_ref;
-	int xl;
-	int yl;
-};
-
-static GpBoundary _Bry; // @global
-
-bool at_left_of_key() { return _Bry.AtLeftOfKey(); }
+//bool at_left_of_key() { return GPO._Bry.AtLeftOfKey(); }
 
 //  local variables 
 //static int xlablin;
@@ -111,27 +36,28 @@ bool at_left_of_key() { return _Bry.AtLeftOfKey(); }
 //static int time_y;
 //static int time_x;
 
-int title_x; // Used by boundary and by 2D graphics 
-int title_y; 
+//int title_x; // Used by boundary and by 2D graphics 
+//int title_y; 
+//SPoint2I TitlePos;
 //
 // These quantities are needed in do_plot() e.g. for histogtram title layout
 //
-int key_entry_height; // bigger of t->ChrV, t->TicV 
-int key_point_offset; // offset from x for point sample 
-int ylabel_x;
-int xlabel_y;
-int y2label_x;
-int x2label_y;
-int x2label_yoffset;
-int ylabel_y;
-int y2label_y;
-int xtic_y;
-int x2tic_y;
-int ytic_x;
-int y2tic_x;
-int key_rows;
-int key_cols;
-int key_count;
+//int key_entry_height; // bigger of t->ChrV, t->TicV 
+//int key_point_offset; // offset from x for point sample 
+//int ylabel_x;
+//int xlabel_y;
+//int y2label_x;
+//int x2label_y;
+//int x2label_yoffset;
+//int ylabel_y;
+//int y2label_y;
+//int xtic_y;
+//int x2tic_y;
+//int ytic_x;
+//int y2tic_x;
+//int key_rows;
+//int key_cols;
+//int key_count;
 
 /*{{{  boundary() */
 /* borders of plotting area
@@ -158,7 +84,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 {
 	int    yticlin = 0;
 	int    y2ticlin = 0;
-	legend_key * key = &keyT;
+	legend_key * key = &Gg.KeyT;
 	const  int can_rotate = (pTerm->text_angle)(TEXT_VERTICAL);
 	int    xtic_textheight = 0; /* height of xtic labels */
 	int    x2tic_textheight = 0; /* height of x2tic labels */
@@ -236,12 +162,12 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		title_textheight = pTerm->ChrV; /* Gap of one normal line height */
 		if(Gg.LblTitle.font)
 			pTerm->set_font(pTerm, Gg.LblTitle.font);
-		title_y = _Bry.titlelin * pTerm->ChrV;
+		_Bry.TitlePos.y = _Bry.titlelin * pTerm->ChrV;
 		if((_Bry.titlelin + Gg.LblTitle.offset.y) > 0)
 			title_textheight += _Bry.titlelin * pTerm->ChrV;
 		if(Gg.LblTitle.font)
 			pTerm->set_font(pTerm, "");
-		title_y += 0.5 * pTerm->ChrV; /* Approximate same placement as version 5.2 */
+		_Bry.TitlePos.y += 0.5 * pTerm->ChrV; /* Approximate same placement as version 5.2 */
 	}
 	// Extra space at the top for spiderplot axis label 
 	if(Gg.SpiderPlot)
@@ -253,7 +179,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		if(AxS[SECOND_X_AXIS].label.font)
 			pTerm->set_font(pTerm, AxS[SECOND_X_AXIS].label.font);
 		x2label_textheight = (int)(_Bry.x2lablin * pTerm->ChrV);
-		x2label_yoffset = static_cast<int>(tmpy);
+		_Bry.x2label_yoffset = static_cast<int>(tmpy);
 		if(AxS[SECOND_X_AXIS].label.font)
 			pTerm->set_font(pTerm, "");
 	}
@@ -335,7 +261,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	else {
 		// Auto-calculation of space required 
 		int top_margin = title_textheight;
-		if(x2label_textheight + x2label_yoffset > 0)
+		if(x2label_textheight + _Bry.x2label_yoffset > 0)
 			top_margin += x2label_textheight;
 		if(timelabel_textheight > top_margin && !Gg.TimeLabelBottom && !vertical_timelabel)
 			top_margin = timelabel_textheight;
@@ -538,7 +464,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 				int length = static_cast<int>(estimate_strlen(tic->label, NULL) * cos(DEG2RAD * (double)(AxS[FIRST_X_AXIS].tic_rotate)) * pTerm->ChrH);
 				if(inrange(tic->position, AxS[FIRST_X_AXIS].set_min, AxS[FIRST_X_AXIS].set_max)) {
 					xx = AxisLogValueChecked(FIRST_X_AXIS, tic->position, "xtic");
-					xx = AxS.MapiX(xx);
+					xx = MapiX(xx);
 					xx += (AxS[FIRST_X_AXIS].tic_rotate) ? length : length /2;
 					if(maxrightlabel < xx)
 						maxrightlabel = static_cast<int>(xx);
@@ -700,33 +626,33 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		FPRINTF((stderr, "boundary: Big problems! V.BbPlot.ybot > V.BbPlot.ytop\n"));
 	}
 	// compute coordinates for axis labels, title etc 
-	x2label_y = V.BbPlot.ytop + x2label_textheight;
-	x2label_y += 0.5 * pTerm->ChrV;
-	if(x2label_textheight + x2label_yoffset >= 0) {
-		x2label_y += 1.5 * x2tic_textheight;
+	_Bry.x2label_y = V.BbPlot.ytop + x2label_textheight;
+	_Bry.x2label_y += 0.5 * pTerm->ChrV;
+	if(x2label_textheight + _Bry.x2label_yoffset >= 0) {
+		_Bry.x2label_y += 1.5 * x2tic_textheight;
 		// Adjust for the tics themselves 
 		if(x2tic_height > 0)
-			x2label_y += x2tic_height;
+			_Bry.x2label_y += x2tic_height;
 	}
-	title_x = (V.BbPlot.xleft + V.BbPlot.xright) / 2;
+	_Bry.TitlePos.x = (V.BbPlot.xleft + V.BbPlot.xright) / 2;
 	// title_y was previously set to the actual title height.
 	// Further corrections to this placement only if it is above the plot
-	title_y += V.BbPlot.ytop;
+	_Bry.TitlePos.y += V.BbPlot.ytop;
 	if(_Bry.titlelin + Gg.LblTitle.offset.y > 0) {
-		title_y += x2tic_textheight;
-		title_y += ttic_textheight;
-		if(x2label_y + x2label_yoffset > V.BbPlot.ytop)
-			title_y += x2label_textheight;
+		_Bry.TitlePos.y += x2tic_textheight;
+		_Bry.TitlePos.y += ttic_textheight;
+		if(_Bry.x2label_y + _Bry.x2label_yoffset > V.BbPlot.ytop)
+			_Bry.TitlePos.y += x2label_textheight;
 		if(x2tic_height > 0)
-			title_y += x2tic_height;
+			_Bry.TitlePos.y += x2tic_height;
 	}
 	// Shift upward by 0.2 line to allow for descenders in xlabel text 
-	xlabel_y  = static_cast<int>(V.BbPlot.ybot - xtic_height - xtic_textheight - xlabel_textheight + (_Bry.xlablin+0.2f) * pTerm->ChrV);
-	xlabel_y -= ttic_textheight;
-	ylabel_x = V.BbPlot.xleft - ytic_width - ytic_textwidth;
-	ylabel_x -= ylabel_textwidth/2;
-	y2label_x = V.BbPlot.xright + y2tic_width + y2tic_textwidth;
-	y2label_x += y2label_textwidth/2;
+	_Bry.xlabel_y  = static_cast<int>(V.BbPlot.ybot - xtic_height - xtic_textheight - xlabel_textheight + (_Bry.xlablin+0.2f) * pTerm->ChrV);
+	_Bry.xlabel_y -= ttic_textheight;
+	_Bry.ylabel_x = V.BbPlot.xleft - ytic_width - ytic_textwidth;
+	_Bry.ylabel_x -= ylabel_textwidth/2;
+	_Bry.y2label_x = V.BbPlot.xright + y2tic_width + y2tic_textwidth;
+	_Bry.y2label_x += y2label_textwidth/2;
 	// Nov 2016  - simplify placement of timestamp
 	// Stamp the same place on the page regardless of plot margins
 	if(vertical_timelabel) {
@@ -743,10 +669,10 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		else
 			_Bry.time_y = pTerm->MaxY;
 	}
-	xtic_y = V.BbPlot.ybot - xtic_height - (int)(vertical_xtics ? pTerm->ChrH : pTerm->ChrV);
-	x2tic_y = V.BbPlot.ytop + (x2tic_height > 0 ? x2tic_height : 0) + (vertical_x2tics ? (int)pTerm->ChrH : pTerm->ChrV);
-	ytic_x = V.BbPlot.xleft - ytic_width - (vertical_ytics ? (ytic_textwidth - (int)pTerm->ChrV) : (int)pTerm->ChrH);
-	y2tic_x = V.BbPlot.xright + y2tic_width + (int)(vertical_y2tics ? pTerm->ChrV : pTerm->ChrH);
+	_Bry.xtic_y = V.BbPlot.ybot - xtic_height - (int)(vertical_xtics ? pTerm->ChrH : pTerm->ChrV);
+	_Bry.x2tic_y = V.BbPlot.ytop + (x2tic_height > 0 ? x2tic_height : 0) + (vertical_x2tics ? (int)pTerm->ChrH : pTerm->ChrV);
+	_Bry.ytic_x = V.BbPlot.xleft - ytic_width - (vertical_ytics ? (ytic_textwidth - (int)pTerm->ChrV) : (int)pTerm->ChrH);
+	_Bry.y2tic_x = V.BbPlot.xright + y2tic_width + (int)(vertical_y2tics ? pTerm->ChrV : pTerm->ChrH);
 	// restore text to horizontal [we tested rotation above] 
 	(pTerm->text_angle)(0);
 	// needed for map_position() below 
@@ -766,8 +692,8 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 //void do_key_bounds(GpTermEntry * pTerm, legend_key * key)
 void GnuPlot::DoKeyBounds(GpTermEntry * pTerm, legend_key * pKey)
 {
-	_Bry.key_height = static_cast<int>(_Bry.key_title_height + _Bry.key_title_extra + key_rows * key_entry_height + pKey->height_fix * key_entry_height);
-	_Bry.key_width = _Bry.key_col_wth * key_cols;
+	_Bry.key_height = static_cast<int>(_Bry.key_title_height + _Bry.key_title_extra + _Bry.key_rows * _Bry.key_entry_height + pKey->height_fix * _Bry.key_entry_height);
+	_Bry.key_width = _Bry.key_col_wth * _Bry.key_cols;
 	// Key inside plot boundaries 
 	if(pKey->region == GPKEY_AUTO_INTERIOR_LRTBC || (pKey->region == GPKEY_AUTO_EXTERIOR_LRTBC && pKey->vpos == JUST_CENTRE && pKey->hpos == CENTRE)) {
 		if(pKey->vpos == JUST_TOP) {
@@ -889,14 +815,14 @@ void GnuPlot::DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey)
 	if(pKey->font)
 		pTerm->set_font(pTerm, pKey->font);
 	// Is it OK to initialize these here rather than in do_plot? 
-	key_count = 0;
+	_Bry.key_count = 0;
 	_Bry.key_xleft = 0;
 	_Bry.xl = _Bry.yl = 0;
 	_Bry.key_sample_width = static_cast<int>((pKey->swidth >= 0) ? (pKey->swidth * pTerm->ChrH + pTerm->TicH) : 0.0);
 	_Bry.key_sample_height = static_cast<int>(MAX(1.25 * pTerm->TicV, pTerm->ChrV));
-	key_entry_height = static_cast<int>(_Bry.key_sample_height * pKey->vert_factor);
+	_Bry.key_entry_height = static_cast<int>(_Bry.key_sample_height * pKey->vert_factor);
 	// HBB 20020122: safeguard to prevent division by zero later 
-	SETIFZ(key_entry_height, 1);
+	SETIFZ(_Bry.key_entry_height, 1);
 	// Key title length and height, adjusted for font size and markup 
 	_Bry.key_title_height = 0;
 	_Bry.key_title_extra = 0;
@@ -933,31 +859,31 @@ void GnuPlot::DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey)
 		_Bry.key_size_left = -_Bry.key_text_left;
 		_Bry.key_size_right = _Bry.key_sample_right + pTerm->ChrH;
 	}
-	key_point_offset = (_Bry.key_sample_left + _Bry.key_sample_right) / 2;
+	_Bry.key_point_offset = (_Bry.key_sample_left + _Bry.key_sample_right) / 2;
 	// advance width for cols 
 	_Bry.key_col_wth = _Bry.key_size_left + _Bry.key_size_right;
-	key_rows = _Bry.ptitl_cnt;
-	key_cols = 1;
+	_Bry.key_rows = _Bry.ptitl_cnt;
+	_Bry.key_cols = 1;
 	// calculate rows and cols for key 
 	if(pKey->stack_dir == GPKEY_HORIZONTAL) {
 		// maximise no cols, limited by label-length 
-		key_cols = (int)(V.BbPlot.xright - V.BbPlot.xleft) / _Bry.key_col_wth;
-		if(pKey->maxcols > 0 && key_cols > pKey->maxcols)
-			key_cols = pKey->maxcols;
+		_Bry.key_cols = (int)(V.BbPlot.xright - V.BbPlot.xleft) / _Bry.key_col_wth;
+		if(pKey->maxcols > 0 && _Bry.key_cols > pKey->maxcols)
+			_Bry.key_cols = pKey->maxcols;
 		// EAM Dec 2004 - Rather than turn off the key, try to squeeze 
-		if(key_cols == 0) {
-			key_cols = 1;
+		if(_Bry.key_cols == 0) {
+			_Bry.key_cols = 1;
 			key_panic = TRUE;
 			_Bry.key_col_wth = (V.BbPlot.xright - V.BbPlot.xleft);
 		}
-		key_rows = (_Bry.ptitl_cnt + key_cols - 1) / key_cols;
+		_Bry.key_rows = (_Bry.ptitl_cnt + _Bry.key_cols - 1) / _Bry.key_cols;
 		// now calculate actual no cols depending on no rows 
-		key_cols = (key_rows == 0) ? 1 : (_Bry.ptitl_cnt + key_rows - 1) / key_rows;
-		SETIFZ(key_cols, 1);
+		_Bry.key_cols = (_Bry.key_rows == 0) ? 1 : (_Bry.ptitl_cnt + _Bry.key_rows - 1) / _Bry.key_rows;
+		SETIFZ(_Bry.key_cols, 1);
 	}
 	else {
 		// maximise no rows, limited by V.BbPlot.ytop-V.BbPlot.ybot 
-		int i = static_cast<int>((V.BbPlot.ytop - V.BbPlot.ybot - pKey->height_fix * key_entry_height - _Bry.key_title_height - _Bry.key_title_extra) / key_entry_height);
+		int i = static_cast<int>((V.BbPlot.ytop - V.BbPlot.ybot - pKey->height_fix * _Bry.key_entry_height - _Bry.key_title_height - _Bry.key_title_extra) / _Bry.key_entry_height);
 		if(pKey->maxrows > 0 && i > pKey->maxrows)
 			i = pKey->maxrows;
 		if(i == 0) {
@@ -965,13 +891,13 @@ void GnuPlot::DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey)
 			key_panic = TRUE;
 		}
 		if(_Bry.ptitl_cnt > i) {
-			key_cols = (_Bry.ptitl_cnt + i - 1) / i;
+			_Bry.key_cols = (_Bry.ptitl_cnt + i - 1) / i;
 			// now calculate actual no rows depending on no cols 
-			if(key_cols == 0) {
-				key_cols = 1;
+			if(_Bry.key_cols == 0) {
+				_Bry.key_cols = 1;
 				key_panic = TRUE;
 			}
-			key_rows = (_Bry.ptitl_cnt + key_cols - 1) / key_cols;
+			_Bry.key_rows = (_Bry.ptitl_cnt + _Bry.key_cols - 1) / _Bry.key_cols;
 		}
 	}
 	// If the key title is wider than the contents, try to make room for it 
@@ -980,8 +906,8 @@ void GnuPlot::DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey)
 		if(pKey->title.font)
 			pTerm->set_font(pTerm, pKey->title.font);
 		ytlen *= pTerm->ChrH;
-		if(ytlen > key_cols * _Bry.key_col_wth)
-			_Bry.key_col_wth = ytlen / key_cols;
+		if(ytlen > _Bry.key_cols * _Bry.key_col_wth)
+			_Bry.key_col_wth = ytlen / _Bry.key_cols;
 		if(pKey->title.font)
 			pTerm->set_font(pTerm, "");
 	}
@@ -989,21 +915,21 @@ void GnuPlot::DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey)
 	if((pKey->region == GPKEY_AUTO_EXTERIOR_LRTBC && (pKey->vpos != JUST_CENTRE || pKey->hpos != CENTRE)) || pKey->region == GPKEY_AUTO_EXTERIOR_MARGIN) {
 		int more = 0;
 		if(pKey->margin == GPKEY_BMARGIN && V.MarginB.x < 0) {
-			more = static_cast<int>(key_rows * key_entry_height + _Bry.key_title_height + _Bry.key_title_extra + pKey->height_fix * key_entry_height);
+			more = static_cast<int>(_Bry.key_rows * _Bry.key_entry_height + _Bry.key_title_height + _Bry.key_title_extra + pKey->height_fix * _Bry.key_entry_height);
 			if(V.BbPlot.ybot + more > V.BbPlot.ytop)
 				key_panic = TRUE;
 			else
 				V.BbPlot.ybot += more;
 		}
 		else if(pKey->margin == GPKEY_TMARGIN && V.MarginT.x < 0) {
-			more = static_cast<int>(key_rows * key_entry_height + _Bry.key_title_height + _Bry.key_title_extra + pKey->height_fix * key_entry_height);
+			more = static_cast<int>(_Bry.key_rows * _Bry.key_entry_height + _Bry.key_title_height + _Bry.key_title_extra + pKey->height_fix * _Bry.key_entry_height);
 			if(V.BbPlot.ytop - more < V.BbPlot.ybot)
 				key_panic = TRUE;
 			else
 				V.BbPlot.ytop -= more;
 		}
 		else if(pKey->margin == GPKEY_LMARGIN && V.MarginL.x < 0) {
-			more = _Bry.key_col_wth * key_cols;
+			more = _Bry.key_col_wth * _Bry.key_cols;
 			if(V.BbPlot.xleft + more > V.BbPlot.xright)
 				key_panic = TRUE;
 			else
@@ -1011,7 +937,7 @@ void GnuPlot::DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey)
 			V.BbPlot.xleft += _Bry.key_xleft;
 		}
 		else if(pKey->margin == GPKEY_RMARGIN && V.MarginR.x < 0) {
-			more = _Bry.key_col_wth * key_cols;
+			more = _Bry.key_col_wth * _Bry.key_cols;
 			if(V.BbPlot.xright - more < V.BbPlot.xleft)
 				key_panic = TRUE;
 			else
@@ -1037,7 +963,7 @@ int find_maxl_keys(const curve_points * pPlots, int count, int * kcnt)
 	for(curve = 0; curve < count; p_plot = p_plot->next, curve++) {
 		if(p_plot->plot_style == PARALLELPLOT)
 			continue;
-		if(p_plot->title && !p_plot->title_is_suppressed &&  !p_plot->title_position) {
+		if(p_plot->title && !p_plot->title_is_suppressed && !p_plot->title_position) {
 			if(p_plot->plot_style == SPIDERPLOT && p_plot->plot_type != KEYENTRY)
 				; /* Nothing */
 			else {
@@ -1052,7 +978,7 @@ int find_maxl_keys(const curve_points * pPlots, int count, int * kcnt)
 			}
 		}
 		/* Check for new histogram here and save space for divider */
-		if(p_plot->plot_style == HISTOGRAMS &&  previous_plot_style == HISTOGRAMS && p_plot->histogram_sequence == 0 && cnt > 1)
+		if(p_plot->plot_style == HISTOGRAMS && previous_plot_style == HISTOGRAMS && p_plot->histogram_sequence == 0 && cnt > 1)
 			cnt++;
 		// Check for column-stacked histogram with key entries.
 		// Same thing for spiderplots.
@@ -1082,7 +1008,7 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 	int yl_save = _Bry.yl;
 	// Clip key box against canvas 
 	BoundingBox * clip_save = V.P_ClipArea;
-	V.P_ClipArea = (term->flags & TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
+	V.P_ClipArea = (pTerm->flags & TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
 	// If the plot this title belongs to specified a non-standard place 
 	// for the key sample to appear, use that to override xl, yl.       
 	if(pPlot->title_position && pPlot->title_position->scalex != character) {
@@ -1125,14 +1051,14 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 		int w = _Bry.key_sample_right - _Bry.key_sample_left;
 		int h = _Bry.key_sample_height/2;
 		if(pPlot->plot_style == CIRCLES && w > 0) {
-			DoArc(pTerm, _Bry.xl + key_point_offset, _Bry.yl, _Bry.key_sample_height/4, 0.0, 360.0, style, FALSE);
+			DoArc(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, _Bry.key_sample_height/4, 0.0, 360.0, style, FALSE);
 			// Retrace the border if the style requests it 
 			if(NeedFillBorder(pTerm, fs))
-				DoArc(pTerm, _Bry.xl + key_point_offset, _Bry.yl, _Bry.key_sample_height/4, 0.0, 360.0, 0, FALSE);
+				DoArc(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, _Bry.key_sample_height/4, 0.0, 360.0, 0, FALSE);
 		}
 		else if(pPlot->plot_style == ELLIPSES && w > 0) {
 			t_ellipse * key_ellipse = (t_ellipse *)gp_alloc(sizeof(t_ellipse), "cute little ellipse for the key sample");
-			key_ellipse->center.x = _Bry.xl + key_point_offset;
+			key_ellipse->center.x = _Bry.xl + _Bry.key_point_offset;
 			key_ellipse->center.y = _Bry.yl;
 			key_ellipse->extent.x = w * 2/3;
 			key_ellipse->extent.y = h;
@@ -1176,17 +1102,17 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 	}
 	else if((pPlot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && pPlot->plot_type != FUNC) {
 		// errors for data plots only 
-		if((bar_lp.flags & LP_ERRORBAR_SET) != 0)
-			TermApplyLpProperties(pTerm, &bar_lp);
+		if(Gr.BarLp.flags & LP_ERRORBAR_SET)
+			TermApplyLpProperties(pTerm, &Gr.BarLp);
 		DrawClipLine(pTerm, _Bry.xl + _Bry.key_sample_left, _Bry.yl, _Bry.xl + _Bry.key_sample_right, _Bry.yl);
 		// Even if error bars are dotted, the end lines are always solid 
-		if((bar_lp.flags & LP_ERRORBAR_SET) != 0)
+		if(Gr.BarLp.flags & LP_ERRORBAR_SET)
 			pTerm->dashtype(pTerm, DASHTYPE_SOLID, NULL);
 	}
 	else if((pPlot->plot_style & PLOT_STYLE_HAS_LINE)) {
 		DrawClipLine(pTerm, _Bry.xl + _Bry.key_sample_left, _Bry.yl, _Bry.xl + _Bry.key_sample_right, _Bry.yl);
 	}
-	if((pPlot->plot_type == DATA || pPlot->plot_type == KEYENTRY) && (pPlot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && (pPlot->plot_style != CANDLESTICKS) && (bar_size > 0.0)) {
+	if((pPlot->plot_type == DATA || pPlot->plot_type == KEYENTRY) && (pPlot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && (pPlot->plot_style != CANDLESTICKS) && (Gr.BarSize > 0.0)) {
 		const uint error_bar_tic = ERRORBARTIC(pTerm);
 		DrawClipLine(pTerm, _Bry.xl + _Bry.key_sample_left,  _Bry.yl + error_bar_tic, _Bry.xl + _Bry.key_sample_left, _Bry.yl - error_bar_tic);
 		DrawClipLine(pTerm, _Bry.xl + _Bry.key_sample_right, _Bry.yl + error_bar_tic, _Bry.xl + _Bry.key_sample_right, _Bry.yl - error_bar_tic);
@@ -1198,7 +1124,7 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 	 */
 	(pTerm->layer)(pTerm, TERM_LAYER_END_KEYSAMPLE);
 	// Restore original linetype for the main plot if we changed it 
-	if(pPlot->plot_type != FUNC && (pPlot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && (bar_lp.flags & LP_ERRORBAR_SET) != 0) {
+	if(pPlot->plot_type != FUNC && (pPlot->plot_style & PLOT_STYLE_HAS_ERRORBAR) && (Gr.BarLp.flags & LP_ERRORBAR_SET)) {
 		TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 	}
 	// Restore previous clipping area 
@@ -1222,32 +1148,32 @@ void GnuPlot::DoKeySamplePoint(GpTermEntry * pTerm, curve_points * pPlot, legend
 		_Bry.xl -=  (pKey->just == GPKEY_LEFT) ? _Bry.key_text_left : _Bry.key_text_right;
 	}
 	(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_KEYSAMPLE);
-	if(pPlot->plot_style == LINESPOINTS &&  pPlot->lp_properties.p_interval < 0) {
+	if(pPlot->plot_style == LINESPOINTS && pPlot->lp_properties.p_interval < 0) {
 		t_colorspec background_fill = BACKGROUND_COLORSPEC;
 		(pTerm->set_color)(pTerm, &background_fill);
 		(pTerm->pointsize)(Gg.PointSize * Gg.PointIntervalBox);
-		(pTerm->point)(pTerm, _Bry.xl + key_point_offset, _Bry.yl, 6);
+		(pTerm->point)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, 6);
 		TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 	}
 	if(pPlot->plot_style == BOXPLOT) {
 		; // Don't draw a sample point in the key 
 	}
 	else if(pPlot->plot_style == DOTS) {
-		if(on_page(pTerm, _Bry.xl + key_point_offset, _Bry.yl))
-			(pTerm->point)(pTerm, _Bry.xl + key_point_offset, _Bry.yl, -1);
+		if(on_page(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl))
+			(pTerm->point)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, -1);
 	}
 	else if(pPlot->plot_style & PLOT_STYLE_HAS_POINT) {
 		if(pPlot->lp_properties.PtSize == PTSZ_VARIABLE)
 			(pTerm->pointsize)(Gg.PointSize);
-		if(on_page(pTerm, _Bry.xl + key_point_offset, _Bry.yl)) {
+		if(on_page(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl)) {
 			if(pPlot->lp_properties.PtType == PT_CHARACTER) {
 				if(pPlot->labels->textcolor.type != TC_DEFAULT)
 					ApplyPm3DColor(pTerm, &(pPlot->labels->textcolor));
-				(pTerm->put_text)(pTerm, _Bry.xl + key_point_offset, _Bry.yl, pPlot->lp_properties.p_char);
+				(pTerm->put_text)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, pPlot->lp_properties.p_char);
 				ApplyPm3DColor(pTerm, &(pPlot->lp_properties.pm3d_color));
 			}
 			else {
-				(pTerm->point)(pTerm, _Bry.xl + key_point_offset, _Bry.yl, pPlot->lp_properties.PtType);
+				(pTerm->point)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, pPlot->lp_properties.PtType);
 			}
 		}
 	}
@@ -1255,7 +1181,7 @@ void GnuPlot::DoKeySamplePoint(GpTermEntry * pTerm, curve_points * pPlot, legend
 		text_label * label = pPlot->labels;
 		if(label->lp_properties.flags & LP_SHOW_POINTS) {
 			TermApplyLpProperties(pTerm, &label->lp_properties);
-			(pTerm->point)(pTerm, _Bry.xl + key_point_offset, _Bry.yl, label->lp_properties.PtType);
+			(pTerm->point)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, label->lp_properties.PtType);
 		}
 	}
 	_Bry.xl = xl_save;
@@ -1308,7 +1234,7 @@ void GnuPlot::DrawKey(GpTermEntry * pTerm, legend_key * pKey, bool keyPass)
 		V.P_ClipArea = clip_save;
 	}
 	_Bry.yl_ref = pKey->bounds.ytop - (_Bry.key_title_height + _Bry.key_title_extra);
-	_Bry.yl_ref -= ((pKey->height_fix + 1) * key_entry_height) / 2;
+	_Bry.yl_ref -= ((pKey->height_fix + 1) * _Bry.key_entry_height) / 2;
 	_Bry.xl = pKey->bounds.xleft + _Bry.key_size_left;
 	_Bry.yl = _Bry.yl_ref;
 }
@@ -1320,7 +1246,7 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 {
 	// YLABEL 
 	if(AxS[FIRST_Y_AXIS].label.text) {
-		int x = ylabel_x;
+		int x = _Bry.ylabel_x;
 		int y = (V.BbPlot.ytop + V.BbPlot.ybot) / 2;
 		// There has been much argument about the optimal ylabel position 
 		x += pTerm->ChrH / 4.0;
@@ -1329,7 +1255,7 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 	}
 	// Y2LABEL 
 	if(AxS[SECOND_Y_AXIS].label.text) {
-		int x = y2label_x;
+		int x = _Bry.y2label_x;
 		int y = (V.BbPlot.ytop + V.BbPlot.ybot) / 2;
 		WriteLabel(pTerm, x, y, &(AxS[SECOND_Y_AXIS].label));
 		ResetTextColor(pTerm, &(AxS[SECOND_Y_AXIS].label.textcolor));
@@ -1340,7 +1266,7 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 		double tmpx, tmpy;
 		MapPositionR(pTerm, &(label->offset), &tmpx, &tmpy, "xlabel");
 		int x = (V.BbPlot.xright + V.BbPlot.xleft) / 2;
-		int y = xlabel_y - pTerm->ChrV / 2;
+		int y = _Bry.xlabel_y - pTerm->ChrV / 2;
 		y -= tmpy; // xlabel_y already contained tmpy 
 		WriteLabel(pTerm, x, y, label);
 		ResetTextColor(pTerm, &(label->textcolor));
@@ -1349,15 +1275,15 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 	if(AxS[SECOND_X_AXIS].label.text) {
 		// we worked out y-coordinate in boundary() 
 		int x = (V.BbPlot.xright + V.BbPlot.xleft) / 2;
-		int y = x2label_y - pTerm->ChrV / 2;
+		int y = _Bry.x2label_y - pTerm->ChrV / 2;
 		WriteLabel(pTerm, x, y, &(AxS[SECOND_X_AXIS].label));
 		ResetTextColor(pTerm, &(AxS[SECOND_X_AXIS].label.textcolor));
 	}
 	// RLABEL 
 	if(AxS[POLAR_AXIS].label.text) {
 		// This assumes we always have a horizontal R axis 
-		int x = AxS.MapiX(PolarRadius(AxS.__R().max) / 2.0);
-		int y = AxS.MapiY(0.0) + pTerm->ChrV;
+		int x = MapiX(PolarRadius(AxS.__R().max) / 2.0);
+		int y = MapiY(0.0) + pTerm->ChrV;
 		WriteLabel(pTerm, x, y, &(AxS[POLAR_AXIS].label));
 		ResetTextColor(pTerm, &(AxS[POLAR_AXIS].label.textcolor));
 	}
@@ -1368,19 +1294,20 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 //
 // advance current position in the key in preparation for next key entry 
 //
-void advance_key(bool only_invert)
+//void advance_key(bool onlyInvert)
+void GnuPlot::AdvanceKey(bool onlyInvert)
 {
-	legend_key * p_key = &keyT;
+	legend_key * p_key = &Gg.KeyT;
 	if(p_key->invert)
-		_Bry.yl = p_key->bounds.ybot + _Bry.yl_ref + key_entry_height/2 - _Bry.yl;
-	if(!only_invert) {
-		if(key_count >= key_rows) {
+		_Bry.yl = p_key->bounds.ybot + _Bry.yl_ref + _Bry.key_entry_height/2 - _Bry.yl;
+	if(!onlyInvert) {
+		if(_Bry.key_count >= _Bry.key_rows) {
 			_Bry.yl = _Bry.yl_ref;
 			_Bry.xl += _Bry.key_col_wth;
-			key_count = 0;
+			_Bry.key_count = 0;
 		}
 		else
-			_Bry.yl = _Bry.yl - key_entry_height;
+			_Bry.yl = _Bry.yl - _Bry.key_entry_height;
 	}
 }
 

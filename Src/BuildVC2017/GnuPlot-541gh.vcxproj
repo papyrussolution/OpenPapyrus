@@ -356,7 +356,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\caca.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\djsvga.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\dxy.trm" />
-    <None Include="..\OSF\GnuPlot-541gh\term\eepic.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\emxvga.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\excl.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\gd.trm" />
@@ -367,7 +366,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\hp2648.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\imagen.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\kyo.trm" />
-    <None Include="..\OSF\GnuPlot-541gh\term\latex.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\linux-vgagl.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\linux.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\metapost.trm" />
@@ -381,7 +379,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\tek.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\tgif.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\tkcanvas.trm" />
-    <None Include="..\OSF\GnuPlot-541gh\term\tpic.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\vgagl.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\vws.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\webp.trm" />

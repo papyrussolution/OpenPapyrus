@@ -470,7 +470,7 @@ TERM_PUBLIC void GGI_init(GpTermEntry * pThis)
 	GGI_miGC = miNewGC(GGIvisual, 2,
 		GGI_miPixels, GGI_numblendstages, GGI_blendstages);
 #endif
-	setvbuf(stdin, (char*)0, _IONBF, 0);
+	setvbuf(stdin, (char *)0, _IONBF, 0);
 }
 
 TERM_PUBLIC void GGI_linetype(int linetype)
@@ -1133,7 +1133,7 @@ TERM_PUBLIC void GGI_abort_zooming()
 	GGI_clear_zoombox();
 	for(int i = 0; i < 2; i++) {
 		for(int j = 0; j < 2; j++) {
-			GGI_set_vertex(&(GGI_zoom[i][j]), 0, 0, (char*)0, GGI_saved_canvas);
+			GGI_set_vertex(&(GGI_zoom[i][j]), 0, 0, (char *)0, GGI_saved_canvas);
 		}
 		GGI_zoombox[i].x = -1;
 	}
@@ -1231,13 +1231,13 @@ TERM_PUBLIC void GGI_put_tmptext(int i, const char str[])
 		case 1: /* coordinate text for first  corner of zoombox */
 		case 2: /* coordinate text for second corner of zoombox */
 		    GGI_save_frame_canvas();
-		    second = (char*)strchr(str, '\r');
+		    second = (char *)strchr(str, '\r');
 		    --i; /* transform to [0, 1] */
 		    GGI_clear_zoombox();
 		    if(second == NULL) {
 			    /* remove box and / or coordinates */
-			    GGI_set_vertex(&(GGI_zoom[i][0]), 0, 0, (char*)0, GGI_saved_canvas);
-			    GGI_set_vertex(&(GGI_zoom[i][1]), 0, 0, (char*)0, GGI_saved_canvas);
+			    GGI_set_vertex(&(GGI_zoom[i][0]), 0, 0, (char *)0, GGI_saved_canvas);
+			    GGI_set_vertex(&(GGI_zoom[i][1]), 0, 0, (char *)0, GGI_saved_canvas);
 			    break;
 		    }
 		    else {

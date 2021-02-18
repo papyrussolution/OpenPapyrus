@@ -93,12 +93,11 @@ static int get_byte(j_decompress_ptr cinfo)
  */
 static int arith_decode(j_decompress_ptr cinfo, uchar * st)
 {
-	register arith_entropy_ptr e = (arith_entropy_ptr)cinfo->entropy;
-	register uchar nl, nm;
-	register INT32 qe, temp;
-	register int sv, data;
-
-	/* Renormalization & data input per section D.2.6 */
+	arith_entropy_ptr e = (arith_entropy_ptr)cinfo->entropy;
+	uchar nl, nm;
+	INT32 qe, temp;
+	int sv, data;
+	// Renormalization & data input per section D.2.6 
 	while(e->a < 0x8000L) {
 		if(--e->ct < 0) {
 			/* Need to fetch next data byte */

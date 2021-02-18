@@ -98,17 +98,18 @@ static void b_wline(uint x1, uint y1, uint x2, uint y2);
 //
 // file-scope variables 
 //
-static uint b_value = 1; /* colour of lines */
+static uint   b_value = 1; /* colour of lines */
 static double b_lw = 1.0;         /* line width */
-static uint b_currx, b_curry; /* the current coordinates */
-static uint b_hchar;    /* width of characters */
-static uint b_hbits;    /* actual bits in char horizontally */
-static uint b_vchar;    /* height of characters */
-static uint b_vbits;    /* actual bits in char vertically */
+static uint   b_currx, b_curry; /* the current coordinates */
+static uint   b_hchar;    /* width of characters */
+static uint   b_hbits;    /* actual bits in char horizontally */
+static uint   b_vchar;    /* height of characters */
+static uint   b_vbits;    /* actual bits in char vertically */
 static char_box b_font[FNT_CHARS]; /* the current font */
-static const uint b_pattern[] = { 0xffff, 0x1111, 0xffff, 0x5555, 0x3333, 0x7777, 0x3f3f, 0x0f0f, 0x5f5f };
-static uint b_lastx;
-static uint b_lasty;    /* last pixel set - used by b_line */
+static uint   b_lastx;
+static uint   b_lasty;    /* last pixel set - used by b_line */
+
+static const  uint b_pattern[] = { 0xffff, 0x1111, 0xffff, 0x5555, 0x3333, 0x7777, 0x3f3f, 0x0f0f, 0x5f5f };
 
 /* 5x9 font, bottom row first, left pixel in lsb */
 const char_row fnt5x9[FNT_CHARS][FNT5X9_VBITS] = {
@@ -844,7 +845,7 @@ void b_makebitmap(uint x, uint y, uint planes)
 	memzero(b_p, rows * sizeof(pixels *));
 	for(j = 0; j < rows; j++) {
 		/* allocate bitmap buffers */
-		(*b_p)[j] = (pixels*)gp_alloc(x * sizeof(pixels), (char*)NULL);
+		(*b_p)[j] = (pixels*)gp_alloc(x * sizeof(pixels), (char *)NULL);
 		if((*b_p)[j] == (pixels*)NULL) {
 			b_freebitmap(); /* free what we have already allocated */
 			GPO.IntError(NO_CARET, "out of memory for bitmap buffer");
@@ -860,9 +861,9 @@ void b_freebitmap()
 	uint j;
 	uint rows = b_psize * b_planes; /* total number of rows of 8 pixels high */
 	for(j = 0; j < rows; j++) {
-		SAlloc::F((char*)(*b_p)[j]);
+		SAlloc::F((char *)(*b_p)[j]);
 	}
-	SAlloc::F((char*)b_p);
+	SAlloc::F((char *)b_p);
 	b_p = (bitmap*)(NULL);
 }
 /*
@@ -1127,7 +1128,7 @@ void b_move(GpTermEntry * pThis, uint x, uint y)
 void b_vector(GpTermEntry * pThis, uint x, uint y)
 {
 	// We can't clip properly, but we can refuse to draw out of bounds 
-	if(x < term->MaxX && y < term->MaxY && b_currx < term->MaxX && b_curry < term->MaxY)
+	if(x < pThis->MaxX && y < pThis->MaxY && b_currx < pThis->MaxX && b_curry < pThis->MaxY)
 		b_wline(b_currx, b_curry, x, y);
 	b_currx = x;
 	b_curry = y;
@@ -1264,7 +1265,7 @@ void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 		    fillbitmap = fill_halftone_bitmaps[0];
 		    pixcolor = 0;
 	}
-	nodex = (int*)malloc(sizeof(int) * points);
+	nodex = (int *)malloc(sizeof(int) * points);
 	for(py = 0; py < static_cast<int>(b_ysize); py++) {
 		bitoffs = py % fill_bitmap_width;
 		pat = fillbitmap[bitoffs];

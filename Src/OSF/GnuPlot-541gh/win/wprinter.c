@@ -75,7 +75,7 @@ static ULONG STDMETHODCALLTYPE Release(IPrintDialogCallback * This)
 static HRESULT STDMETHODCALLTYPE InitDone(IPrintDialogCallback * This)
 {
 	/* the general page is initialised, but not shown yet */
-	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char*)This - offsetof(PrintingCallbackHandler, callback));
+	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char *)This - offsetof(PrintingCallbackHandler, callback));
 #if 0
 	IPrintDialogServices * services = Base->services_;
 	if(services != NULL) {
@@ -89,7 +89,7 @@ static HRESULT STDMETHODCALLTYPE InitDone(IPrintDialogCallback * This)
 static HRESULT STDMETHODCALLTYPE SelectionChange(IPrintDialogCallback * This)
 {
 	/* the user has selected a different printer */
-	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char*)This - offsetof(PrintingCallbackHandler, callback));
+	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char *)This - offsetof(PrintingCallbackHandler, callback));
 #if 0
 	IPrintDialogServices * services = Base->services_;
 	if(services != NULL) {
@@ -109,7 +109,7 @@ static HRESULT STDMETHODCALLTYPE HandleMessage(IPrintDialogCallback * This, HWND
 
 static HRESULT STDMETHODCALLTYPE SetSite(IObjectWithSite * This, IUnknown * pUnkSite)
 {
-	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char*)This - offsetof(PrintingCallbackHandler, site));
+	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char *)This - offsetof(PrintingCallbackHandler, site));
 #ifdef __cplusplus
 	if(Base->pUnkSite_) {
 		Base->pUnkSite_->Release();
@@ -155,7 +155,7 @@ static HRESULT STDMETHODCALLTYPE SetSite(IObjectWithSite * This, IUnknown * pUnk
 static HRESULT STDMETHODCALLTYPE GetSite(IObjectWithSite * This, REFIID riid, void ** ppvSite)
 {
 	/* according to documentation this _must_ be implemented */
-	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char*)This - offsetof(PrintingCallbackHandler, site));
+	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char *)This - offsetof(PrintingCallbackHandler, site));
 	*ppvSite = Base->pUnkSite_;
 	return (Base->pUnkSite_ != NULL) ? S_OK : E_FAIL;
 }

@@ -5,10 +5,8 @@
 #pragma hdrstop
 
 static void unset_angles();
-//static void unset_arrowstyles();
 static void free_arrowstyle(struct arrowstyle_def *);
-//static void delete_arrow(struct arrow_def *, struct arrow_def *);
-static void unset_bars();
+//static void unset_bars();
 static void unset_border();
 static void unset_boxplot();
 static void unset_boxdepth();
@@ -17,7 +15,6 @@ static void unset_fillstyle();
 static void unset_cntrparam();
 static void unset_cntrlabel();
 static void unset_contour();
-//static void unset_dashtype();
 static void unset_dgrid3d();
 static void unset_encoding();
 static void unset_decimalsign();
@@ -26,14 +23,9 @@ static void unset_hidden3d();
 static void unset_histogram();
 static void unset_textbox_style();
 static void unset_historysize();
-//static void unset_pixmaps();
-//static void unset_pixmap(int);
-static void unset_isosamples();
+//static void unset_isosamples();
 static void unset_key();
-static void delete_label(struct text_label * prev, struct text_label * pThis);
 static void unset_linestyle(struct linestyle_def ** head);
-//static void unset_object();
-static void delete_object(struct GpObject * prev, struct GpObject * pThis);
 static void unset_style_rectangle();
 static void unset_style_circle();
 static void unset_style_ellipse();
@@ -47,26 +39,14 @@ static void unset_missing();
 static void unset_micro();
 static void unset_minus_sign();
 static void unset_mouse();
-//static void unset_month_day_tics(AXIS_INDEX);
 static void unset_minitics(GpAxis *);
-//static void unset_offsets();
-//static void unset_origin();
-//static void unset_output();
 static void unset_pm3d();
-//static void unset_palette();
-//static void reset_colorbox();
-//static void unset_colorbox();
-//static void unset_pointsize();
-//static void unset_pointintervalbox();
 static void unset_print();
 static void unset_psdir();
-static void unset_samples();
 static void unset_surface();
-//static void unset_table();
 static void unset_ticslevel();
 static void unset_timefmt();
-//static void unset_timestamp();
-static void unset_view();
+//static void unset_view();
 static void unset_zero();
 static void reset_mouse();
 //
@@ -102,7 +82,7 @@ ITERATE:
 		case S_ANGLES: unset_angles(); break;
 		case S_ARROW:  UnsetArrow(); break;
 		case S_AUTOSCALE: UnsetAutoScale(); break;
-		case S_BARS: unset_bars(); break;
+		case S_BARS: UnsetBars(); break;
 		case S_BORDER: unset_border(); break;
 		case S_BOXDEPTH: unset_boxdepth(); break;
 		case S_BOXWIDTH: unset_boxwidth(); break;
@@ -135,7 +115,7 @@ ITERATE:
 			    UnsetPixmap(i);
 		    }
 		    break;
-		case S_ISOSAMPLES: unset_isosamples(); break;
+		case S_ISOSAMPLES: UnsetIsoSamples(); break;
 		case S_JITTER: unset_jitter(); break;
 		case S_KEY: unset_key(); break;
 		case S_LABEL: UnsetLabel(); break;
@@ -238,8 +218,8 @@ ITERATE:
 			    Pgm.Shift();
 		    }
 		    break;
-		case S_RGBMAX: rgbmax = 255; break;
-		case S_SAMPLES: unset_samples(); break;
+		case S_RGBMAX: Gr.RgbMax = 255.0; break;
+		case S_SAMPLES: UnsetSamples(); break;
 		case S_SIZE: UnsetSize(); break;
 		case S_SPIDERPLOT: UnsetSpiderPlot(); break;
 		case S_STYLE: UnsetStyle(); break;
@@ -253,7 +233,7 @@ ITERATE:
 		case S_TIMEFMT: unset_timefmt(); break;
 		case S_TIMESTAMP: UnsetTimeStamp(); break;
 		case S_TITLE: GpAxis::UnsetLabelOrTitle(&Gg.LblTitle); break;
-		case S_VIEW: unset_view(); break;
+		case S_VIEW: UnsetView(); break;
 		case S_VGRID: UnsetVGrid(); break;
 		case S_ZERO: unset_zero(); break;
 		/* FIXME - are the tics correct? */
@@ -464,23 +444,26 @@ void GnuPlot::UnsetAutoScale()
 //
 // process 'unset bars' command 
 //
-static void unset_bars()
+//static void unset_bars()
+void GnuPlot::UnsetBars()
 {
-	bar_size = 0.0;
-	bar_lp.flags &= ~LP_ERRORBAR_SET;
+	Gr.BarSize = 0.0;
+	Gr.BarLp.flags &= ~LP_ERRORBAR_SET;
 }
-
-/* reset is different from unset */
-/* This gets called from 'set bars default' also */
-void reset_bars()
+//
+// reset is different from unset 
+// This gets called from 'set bars default' also 
+//
+//void reset_bars()
+void GnuPlot::ResetBars()
 {
 	lp_style_type def(lp_style_type::defCommon);// = DEFAULT_LP_STYLE_TYPE;
-	bar_lp = def;
-	bar_lp.l_type = LT_DEFAULT;
-	bar_lp.pm3d_color.type = TC_VARIABLE;
-	bar_size = 1.0;
-	bar_layer = LAYER_FRONT;
-	bar_lp.flags = 0;
+	Gr.BarLp = def;
+	Gr.BarLp.l_type = LT_DEFAULT;
+	Gr.BarLp.pm3d_color.type = TC_VARIABLE;
+	Gr.BarSize = 1.0;
+	Gr.BarLayer = LAYER_FRONT;
+	Gr.BarLp.flags = 0;
 }
 //
 // process 'unset border' command 
@@ -692,7 +675,7 @@ static void unset_histogram()
 static void unset_textbox_style()
 {
 	textbox_style foo = DEFAULT_TEXTBOX_STYLE;
-	for(int i = 0; i<NUM_TEXTBOX_STYLES; i++) {
+	for(int i = 0; i < NUM_TEXTBOX_STYLES; i++) {
 		textbox_opts[i] = foo;
 		if(i > 0)
 			textbox_opts[i].linewidth = 0.;
@@ -708,30 +691,32 @@ static void unset_historysize()
 //
 // process 'unset isosamples' command 
 //
-static void unset_isosamples()
+//static void unset_isosamples()
+void GnuPlot::UnsetIsoSamples()
 {
 	// HBB 20000506: was freeing 2D data structures although
 	// isosamples are only used by 3D plots. 
 	sp_free(first_3dplot);
 	first_3dplot = NULL;
-	GPO.Gg.IsoSamples1 = ISO_SAMPLES;
-	GPO.Gg.IsoSamples2 = ISO_SAMPLES;
+	Gg.IsoSamples1 = ISO_SAMPLES;
+	Gg.IsoSamples2 = ISO_SAMPLES;
 }
 
-void reset_key()
+//void reset_key()
+void GnuPlot::ResetKey()
 {
 	legend_key temp_key;// = DEFAULT_KEY_PROPS;
-	SAlloc::F(keyT.font);
-	SAlloc::F(keyT.title.text);
-	SAlloc::F(keyT.title.font);
-	memcpy(&keyT, &temp_key, sizeof(keyT));
+	ZFREE(Gg.KeyT.font);
+	ZFREE(Gg.KeyT.title.text);
+	ZFREE(Gg.KeyT.title.font);
+	memcpy(&Gg.KeyT, &temp_key, sizeof(Gg.KeyT));
 }
 //
 // process 'unset key' command 
 //
 static void unset_key()
 {
-	legend_key * key = &keyT;
+	legend_key * key = &GPO.Gg.KeyT;
 	key->visible = FALSE;
 }
 //
@@ -743,7 +728,7 @@ void GnuPlot::UnsetLabel()
 	if(Pgm.EndOfCommand()) {
 		// delete all labels 
 		while(Gg.P_FirstLabel)
-			delete_label((struct text_label *)NULL, Gg.P_FirstLabel);
+			DeleteLabel(0, Gg.P_FirstLabel);
 	}
 	else {
 		// get tag 
@@ -754,8 +739,8 @@ void GnuPlot::UnsetLabel()
 			IntErrorCurToken("extraneous arguments to unset label");
 		for(this_label = Gg.P_FirstLabel, prev_label = NULL; this_label; prev_label = this_label, this_label = this_label->next) {
 			if(this_label->tag == tag) {
-				delete_label(prev_label, this_label);
-				return; /* exit, our job is done */
+				DeleteLabel(prev_label, this_label);
+				return; // exit, our job is done 
 			}
 		}
 	}
@@ -767,13 +752,14 @@ void GnuPlot::UnsetLabel()
 // If there is no previous label (the label to delete is
 // first_label) then call with prev = NULL.
 // 
-static void delete_label(struct text_label * prev, struct text_label * pThis)
+//static void delete_label(text_label * pPrev, struct text_label * pThis)
+void GnuPlot::DeleteLabel(text_label * pPrev, struct text_label * pThis)
 {
 	if(pThis) { // there really is something to delete 
-		if(prev) // there is a previous label
-			prev->next = pThis->next;
+		if(pPrev) // there is a previous label
+			pPrev->next = pThis->next;
 		else // pThis = first_label so change first_label 
-			GPO.Gg.P_FirstLabel = pThis->next;
+			Gg.P_FirstLabel = pThis->next;
 		SAlloc::F(pThis->text);
 		SAlloc::F(pThis->font);
 		SAlloc::F(pThis);
@@ -809,7 +795,7 @@ void GnuPlot::UnsetObject()
 	if(Pgm.EndOfCommand()) {
 		// delete all objects 
 		while(Gg.P_FirstObject)
-			delete_object((GpObject *)NULL, Gg.P_FirstObject);
+			DeleteObject(0, Gg.P_FirstObject);
 	}
 	else {
 		// get tag 
@@ -818,7 +804,7 @@ void GnuPlot::UnsetObject()
 			IntErrorCurToken("extraneous arguments to unset rectangle");
 		for(GpObject * this_object = Gg.P_FirstObject, * prev_object = NULL; this_object; prev_object = this_object, this_object = this_object->next) {
 			if(this_object->tag == tag) {
-				delete_object(prev_object, this_object);
+				DeleteObject(prev_object, this_object);
 				return; // exit, our job is done 
 			}
 		}
@@ -831,13 +817,14 @@ void GnuPlot::UnsetObject()
 // If there is no previous object (the object to delete is
 // first_object) then call with prev = NULL.
 // 
-static void delete_object(struct GpObject * prev, struct GpObject * pThis)
+//static void delete_object(GpObject * prev, GpObject * pThis)
+void GnuPlot::DeleteObject(GpObject * pPrev, GpObject * pThis)
 {
 	if(pThis) { // there really is something to delete 
-		if(prev) // there is a previous rectangle 
-			prev->next = pThis->next;
+		if(pPrev) // there is a previous rectangle 
+			pPrev->next = pThis->next;
 		else // pThis = first_object so change first_object 
-			GPO.Gg.P_FirstObject = pThis->next;
+			Gg.P_FirstObject = pThis->next;
 		// NOTE:  Must free contents as well 
 		if(pThis->object_type == OBJ_POLYGON)
 			SAlloc::F(pThis->o.polygon.vertex);
@@ -1166,15 +1153,16 @@ void GnuPlot::UnsetPolar()
 //
 // process 'unset samples' command 
 //
-static void unset_samples()
+//static void unset_samples()
+void GnuPlot::UnsetSamples()
 {
 	// HBB 20000506: unlike unset_isosamples(), pThis one *has* to clear 2D data structures! 
 	GnuPlot::CpFree(P_FirstPlot);
 	P_FirstPlot = NULL;
 	sp_free(first_3dplot);
 	first_3dplot = NULL;
-	GPO.Gg.Samples1 = SAMPLES;
-	GPO.Gg.Samples2 = SAMPLES;
+	Gg.Samples1 = SAMPLES;
+	Gg.Samples2 = SAMPLES;
 }
 //
 // process 'unset size' command 
@@ -1332,7 +1320,7 @@ static void unset_ticslevel()
 	xyplane.absolute = FALSE;
 }
 
-/* Process 'unset P_TimeFormat' command */
+/* Process 'unset timeformat' command */
 static void unset_timefmt()
 {
 	SAlloc::F(P_TimeFormat);
@@ -1351,19 +1339,20 @@ void GnuPlot::UnsetTimeStamp()
 //
 // process 'unset view' command 
 //
-static void unset_view()
+//static void unset_view()
+void GnuPlot::UnsetView()
 {
-	splot_map = FALSE;
-	xz_projection = FALSE;
-	yz_projection = FALSE;
-	in_3d_polygon = FALSE;
-	GPO.V.AspectRatio3D = 0;
-	surface_rot_z = 30.0;
-	surface_rot_x = 60.0;
-	surface_scale = 1.0;
-	surface_lscale = 0.0;
-	surface_zscale = 1.0;
-	azimuth = 0.0;
+	splot_map = false;
+	xz_projection = false;
+	yz_projection = false;
+	in_3d_polygon = false;
+	V.AspectRatio3D = 0;
+	_3DBlk.SurfaceRotZ = 30.0f;
+	_3DBlk.SurfaceRotX = 60.0f;
+	_3DBlk.SurfaceScale = 1.0f;
+	_3DBlk.SurfaceLScale = 0.0f;
+	_3DBlk.SurfaceZScale = 1.0f;
+	_3DBlk.Azimuth = 0.0f;
 }
 //
 // process 'unset zero' command 
@@ -1490,8 +1479,8 @@ void GnuPlot::ResetCommand()
 			// suppress some of the commentary output by the individual
 			// unset_...() routines. 
 			interactive = FALSE;
-			unset_samples();
-			unset_isosamples();
+			UnsetSamples();
+			UnsetIsoSamples();
 			unset_jitter();
 			// delete arrows 
 			while(Gg.P_FirstArrow)
@@ -1499,13 +1488,13 @@ void GnuPlot::ResetCommand()
 			UnsetArrowStyles();
 			// delete labels 
 			while(Gg.P_FirstLabel)
-				delete_label((text_label *)NULL, Gg.P_FirstLabel);
+				DeleteLabel(0, Gg.P_FirstLabel);
 			// delete linestyles 
 			while(Gg.P_FirstLineStyle)
 				delete_linestyle(&Gg.P_FirstLineStyle, NULL, Gg.P_FirstLineStyle);
 			// delete objects 
 			while(Gg.P_FirstObject)
-				delete_object((GpObject *)NULL, Gg.P_FirstObject);
+				DeleteObject(0, Gg.P_FirstObject);
 			unset_style_rectangle();
 			unset_style_circle();
 			unset_style_ellipse();
@@ -1517,8 +1506,8 @@ void GnuPlot::ResetCommand()
 			UnsetSpiderPlot();
 			unset_style_spiderplot();
 			GpAxis::UnsetLabelOrTitle(&Gg.LblTitle);
-			reset_key();
-			unset_view();
+			ResetKey();
+			UnsetView();
 			for(axis = (AXIS_INDEX)0; axis<AXIS_ARRAY_SIZE; axis++) {
 				GpAxis * this_axis = &AxS[axis];
 				// Free contents before overwriting with default values 
@@ -1579,11 +1568,11 @@ void GnuPlot::ResetCommand()
 			reset_hidden3doptions();
 			hidden3d = FALSE;
 			unset_angles();
-			reset_bars();
+			ResetBars();
 			unset_mapping();
 			UnsetSize();
 			V.AspectRatio = 0.0f; // don't force it 
-			rgbmax = 255;
+			Gr.RgbMax = 255.0;
 			UnsetOrigin();
 			UnsetTimeStamp();
 			UnsetOffsets();

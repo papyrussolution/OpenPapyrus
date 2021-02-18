@@ -857,7 +857,7 @@ TERM_PUBLIC void ENHAQUA_put_text(uint x, uint y, const char str[])
 	enhString = [[NSMutableAttributedString alloc] init];
 	[enhString setAttributedString:[[NSAttributedString alloc] initWithString: @ ""]];
 
-	while(*(str = enhanced_recursion((char*)str, TRUE, AQUA_fontNameCur,
+	while(*(str = enhanced_recursion((char *)str, TRUE, AQUA_fontNameCur,
 	    (double)(AQUA_fontSizeCur), 0.0, TRUE, TRUE, 0))) {
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);

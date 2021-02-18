@@ -832,7 +832,7 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 			    bc = cp_binomial(num_points);
 			    DoBezier(pPlot, bc, first_point, num_points,
 				new_points + i * (Gg.Samples1 + 1));
-			    SAlloc::F((char*)bc);
+			    SAlloc::F((char *)bc);
 			    break;
 			case SMOOTH_KDENSITY:
 			    DoKDensity(pPlot, first_point, num_points,
@@ -1451,7 +1451,7 @@ void gen_2d_path_splines(curve_points * plot)
 		 * For plot style "with filledcurves closed" we add an extra
 		 * point at the end if it is not already there.
 		 */
-		if(old_points[1].x == old_points[nold].x &&  old_points[1].y == old_points[nold].y)
+		if(old_points[1].x == old_points[nold].x && old_points[1].y == old_points[nold].y)
 			closed = TRUE;
 		if((plot->plot_style == FILLEDCURVES) && !closed) {
 			old_points[++nold] = old_points[1];

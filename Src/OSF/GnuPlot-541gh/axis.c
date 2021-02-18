@@ -237,7 +237,7 @@ char * FASTCALL axis_name(AXIS_INDEX axis)
 		sprintf(name, "primary %2s", axis_defaults[-axis].name);
 		return name;
 	}
-	return (char*)axis_defaults[axis].name;
+	return (char *)axis_defaults[axis].name;
 }
 
 //void init_sample_range(const GpAxis * axis, enum PLOT_TYPE plot_type)
@@ -1529,20 +1529,21 @@ void GnuPlot::SetExplicitRange(GpAxis * pAx, double newmin, double newmax)
 		CloneLinkedAxes(pAx, pAx->linked_to_primary);
 }
 
-double FASTCALL get_num_or_time(const GpAxis * axis)
+//double FASTCALL get_num_or_time(const GpAxis * axis)
+double FASTCALL GnuPlot::GetNumOrTime(const GpAxis * pAx)
 {
 	double value = 0;
-	if(axis && (axis->datatype == DT_TIMEDATE) && GPO.Pgm.IsStringValue(GPO.Pgm.GetCurTokenIdx())) {
+	if(pAx && (pAx->datatype == DT_TIMEDATE) && Pgm.IsStringValue(Pgm.GetCurTokenIdx())) {
 		struct tm tm;
 		double usec;
 		char * ss;
-		if((ss = GPO.TryToGetString()))
-			if(gstrptime(ss, P_TimeFormat, &tm, &usec, &value) == DT_TIMEDATE)
+		if((ss = TryToGetString()))
+			if(GStrPTime(ss, P_TimeFormat, &tm, &usec, &value) == DT_TIMEDATE)
 				value = (double)gtimegm(&tm) + usec;
 		SAlloc::F(ss);
 	}
 	else {
-		value = GPO.RealExpression();
+		value = RealExpression();
 	}
 	return value;
 }
@@ -1573,7 +1574,7 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 		    trying to build an action table if he finds '<' followed by '*'
 		    (which would normally trigger a 'invalid expression'),  */
 		scanning_range_in_progress = TRUE;
-		number = get_num_or_time(pAx);
+		number = GetNumOrTime(pAx);
 		scanning_range_in_progress = FALSE;
 		if(Pgm.EndOfCommand())
 			IntErrorCurToken("unfinished range");
@@ -1626,7 +1627,7 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 			Pgm.Shift();
 			if(Pgm.EndOfCommand()) 
 				IntErrorCurToken("unfinished range with constraint");
-			number = get_num_or_time(pAx);
+			number = GetNumOrTime(pAx);
 			// this autoscaling has an upper bound: 
 			if(which==AUTOSCALE_MIN) {
 				pAx->min_constraint |= CONSTRAINT_UPPER;
@@ -1846,6 +1847,19 @@ void GnuPlot::GetPosition(GpPosition * pos)
 {
 	GetPositionDefault(pos, first_axes, 3);
 }
+
+//
+// parse a position of the form
+//   [coords] x, [coords] y {,[coords] z}
+// where coords is one of first,second.graph,screen,character
+// if first or second, we need to take axis.datatype into account
+// FIXME: Cannot handle parallel axes
+// 
+#define GET_NUMBER_OR_TIME(store, axes, axis)                             \
+	do {                                                                    \
+		const GpAxis * p_this_axis_ = (axes == NO_AXIS) ? NULL : &(AxS[(axes)+(axis)]); \
+		(store) = GetNumOrTime(p_this_axis_);                               \
+	} while(0)
 // 
 // get_position() - reads a position for label,arrow,key,...
 // with given default coordinate system
@@ -1912,7 +1926,7 @@ void add_tic_user(GpAxis * this_axis, char * label, double position, int level)
 	}
 	if((tic->next == NULL) || (position < tic->next->position)) {
 		/* Make a new ticmark */
-		newtic = (struct ticmark *)gp_alloc(sizeof(struct ticmark), (char*)NULL);
+		newtic = (struct ticmark *)gp_alloc(sizeof(struct ticmark), (char *)NULL);
 		newtic->position = position;
 		/* Insert it in the list */
 		newtic->next = tic->next;
@@ -2141,13 +2155,13 @@ void GnuPlot::CloneLinkedAxes(GpAxis * pAx1, GpAxis * pAx2)
 		scale = (fabs(pAx1->set_min) + fabs(pAx1->set_max))/2.0;
 		if(isnan(testmin) || isnan(testmax))
 			suspect = TRUE;
-		if(fabs(testmin - pAx1->set_min) != 0 &&  fabs((testmin - pAx1->set_min) / scale) > 1.e-6)
+		if(fabs(testmin - pAx1->set_min) != 0 && fabs((testmin - pAx1->set_min) / scale) > 1.e-6)
 			suspect = TRUE;
-		if(fabs(testmax - pAx1->set_max) != 0 &&  fabs((testmax - pAx1->set_max) / scale) > 1.e-6)
+		if(fabs(testmax - pAx1->set_max) != 0 && fabs((testmax - pAx1->set_max) / scale) > 1.e-6)
 			suspect = TRUE;
 		if(suspect) {
 			// Give it one chance to ignore a bad default range [-10:10] 
-			if(((pAx1->autoscale & AUTOSCALE_MIN) == AUTOSCALE_MIN) &&  pAx1->set_min <= 0 && pAx1->set_max > 0.1) {
+			if(((pAx1->autoscale & AUTOSCALE_MIN) == AUTOSCALE_MIN) && pAx1->set_min <= 0 && pAx1->set_max > 0.1) {
 				pAx1->set_min = 0.1;
 				suspect = FALSE;
 				goto inverse_function_sanity_check;
@@ -2329,40 +2343,40 @@ void GnuPlot::ReconcileLinkedAxes(GpAxis * pAxPrimary, GpAxis * pAxSecondary)
 // transform to get back to the primary coordinate system before mapping.
 // 
 //double map_x_double(double value)
-double GpAxisSet::MapX(double value) const
+double GnuPlot::MapX(double value)
 {
-	if(AxArray[Idx_X].linked_to_primary) {
-		GpAxis * primary = AxArray[Idx_X].linked_to_primary;
+	if(AxS[AxS.Idx_X].linked_to_primary) {
+		GpAxis * primary = AxS[AxS.Idx_X].linked_to_primary;
 		if(primary->link_udf->at) {
-			value = GPO.EvalLinkFunction(primary, value);
-			return GPO.Ev.IsUndefined_ ? fgetnan() : primary->Map(value);
+			value = EvalLinkFunction(primary, value);
+			return Ev.IsUndefined_ ? fgetnan() : primary->Map(value);
 		}
 	}
-	return AxArray[Idx_X].Map(value);
+	return AxS[AxS.Idx_X].Map(value);
 }
 
 //int map_x(double value)
-int GpAxisSet::MapiX(double value) const
+int GnuPlot::MapiX(double value)
 {
 	const double x = MapX(value);
 	return isnan(x) ? intNaN : GpAxis::MapRealToInt(x);
 }
 
 //double map_y_double(double value)
-double GpAxisSet::MapY(double value) const
+double GnuPlot::MapY(double value)
 {
-	if(AxArray[Idx_Y].linked_to_primary) {
-		GpAxis * primary = AxArray[Idx_Y].linked_to_primary;
+	if(AxS[AxS.Idx_Y].linked_to_primary) {
+		GpAxis * primary = AxS[AxS.Idx_Y].linked_to_primary;
 		if(primary->link_udf->at) {
-			value = GPO.EvalLinkFunction(primary, value);
-			return GPO.Ev.IsUndefined_ ? fgetnan() : primary->Map(value);
+			value = EvalLinkFunction(primary, value);
+			return Ev.IsUndefined_ ? fgetnan() : primary->Map(value);
 		}
 	}
-	return AxArray[Idx_Y].Map(value);
+	return AxS[AxS.Idx_Y].Map(value);
 }
 
 //int map_y(double value)
-int GpAxisSet::MapiY(double value) const
+int GnuPlot::MapiY(double value)
 {
 	const double y = MapY(value);
 	return isnan(y) ? intNaN : GpAxis::MapRealToInt(y);
@@ -2426,7 +2440,7 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 	}
 	else if(r < -AxS.__R().min) {
 		// If (r < AxS.__R().min < 0) we already flagged OUTRANGE above 
-		// That leaves the case (r < 0  &&  AxS.__R().min >= 0) 
+		// That leaves the case (r < 0 && AxS.__R().min >= 0) 
 		r = r + AxS.__R().min;
 	}
 	else {

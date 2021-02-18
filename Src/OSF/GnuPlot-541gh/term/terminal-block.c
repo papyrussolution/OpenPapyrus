@@ -440,7 +440,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 	// printf("vvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
 	// FIXME: last row and column not handled properly!
 	bufsiz = (pThis->MaxX + 1) * 8;
-	line = (char*)gp_alloc(bufsiz, "line buffer");
+	line = (char *)gp_alloc(bufsiz, "line buffer");
 	for(y = pThis->MaxY - celly + 1; y >= 0; y -= celly) {
 		int yd = y / celly; // character cell coordinate
 		s = (uchar *)line;
@@ -451,11 +451,11 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 			const char * c;
 			t_colorspec color;
 			// increase buffer size if necessary
-			if(((char*)s - line) > (bufsiz - 50)) {
+			if(((char *)s - line) > (bufsiz - 50)) {
 				char * l;
 				bufsiz += (pThis->MaxX + 1) * 8;
 				l = (char *)realloc(line, bufsiz);
-				s = (uchar*)(l + ((char*)s - line));
+				s = (uchar*)(l + ((char *)s - line));
 				line = l;
 			}
 			if(*reinterpret_cast<const char *>(&GPO.TDumbB.Pixel(xd, yd)) != ' ') {
@@ -467,7 +467,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 				t_colorspec * color = &GPO.TDumbB.P_Colors[GPO.TDumbB.XMax * yd + xd];
 				c = GPO.AnsiColorString(color, &GPO.TDumbB.PrevColor);
 				if(c[0] != NUL) {
-					strcpy((char*)s, c);
+					strcpy((char *)s, c);
 					s += strlen(c);
 				}
 				memcpy(&GPO.TDumbB.PrevColor, color, sizeof(t_colorspec));
@@ -576,7 +576,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 						color.lt = ((uint)sqrt(r2 / m) << 16) + ((uint)sqrt(g2 / m) <<  8) + ((uint)sqrt(b2 / m));
 						c = ansi_bg_colorstring(&color);
 						if(c) {
-							strcpy((char*)s, c);
+							strcpy((char *)s, c);
 							s += strlen(c);
 							resetbg = TRUE;
 						}
@@ -590,7 +590,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 					color.lt = ((uint)sqrt(r / n) << 16) + ((uint)sqrt(g / n) <<  8) + ((uint)sqrt(b / n));
 					c = GPO.AnsiColorString(&color, &GPO.TDumbB.PrevColor);
 					if(c[0] != NUL) {
-						strcpy((char*)s, c);
+						strcpy((char *)s, c);
 						s += strlen(c);
 					}
 					memcpy(&GPO.TDumbB.PrevColor, &color, sizeof(t_colorspec));
@@ -624,8 +624,8 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 #ifndef NO_DUMB_COLOR_SUPPORT
 				// turn bg color off again
 				if(resetbg) {
-					sprintf((char*)s, "\033[49m"); s += 5;
-					sprintf((char*)s, "\033[49m"); s += 5;
+					sprintf((char *)s, "\033[49m"); s += 5;
+					sprintf((char *)s, "\033[49m"); s += 5;
 				}
 #endif
 			}
@@ -655,8 +655,10 @@ TERM_PUBLIC void BLOCK_graphics(GpTermEntry * pThis)
 	b_boxfill(pThis, FS_EMPTY, 0, 0, pThis->MaxX, pThis->MaxY);
 	DUMB_graphics(pThis);
 	// kludge: fix keybox size 
-	if(keyT.width_fix == 0) keyT.width_fix = 1;
-	if(keyT.height_fix == 0) keyT.height_fix = 1;
+	if(GPO.Gg.KeyT.width_fix == 0) 
+		GPO.Gg.KeyT.width_fix = 1;
+	if(GPO.Gg.KeyT.height_fix == 0) 
+		GPO.Gg.KeyT.height_fix = 1;
 }
 
 TERM_PUBLIC void BLOCK_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)

@@ -60,11 +60,11 @@ static void write_colormap(j_decompress_ptr cinfo, bmp_dest_ptr dest, int map_co
  */
 
 METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-/* This version is for writing 24-bit pixels */
+// This version is for writing 24-bit pixels 
 {
 	bmp_dest_ptr dest = (bmp_dest_ptr)dinfo;
-	register JSAMPROW inptr, outptr;
-	register JDIMENSION col;
+	JSAMPROW inptr, outptr;
+	JDIMENSION col;
 	int pad;
 	/* Access next row in virtual array */
 	JSAMPARRAY image_ptr = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
@@ -91,8 +91,8 @@ METHODDEF(void) put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIM
 {
 	bmp_dest_ptr dest = (bmp_dest_ptr)dinfo;
 	JSAMPARRAY image_ptr;
-	register JSAMPROW inptr, outptr;
-	register JDIMENSION col;
+	JSAMPROW inptr, outptr;
+	JDIMENSION col;
 	int pad;
 	/* Access next row in virtual array */
 	image_ptr = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
@@ -309,7 +309,7 @@ static void write_colormap(j_decompress_ptr cinfo, bmp_dest_ptr dest, int map_co
 METHODDEF(void) finish_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	bmp_dest_ptr dest = (bmp_dest_ptr)dinfo;
-	register FILE * outfile = dest->pub.output_file;
+	FILE * outfile = dest->pub.output_file;
 	JSAMPARRAY image_ptr;
 	JSAMPROW data_ptr;
 	JDIMENSION row;

@@ -39,7 +39,7 @@ TERM_PUBLIC void PICT2E_reset(GpTermEntry * pThis);
 TERM_PUBLIC int PICT2E_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC int PICT2E_text_angle(int ang);
 TERM_PUBLIC void PICT2E_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int PICT2E_make_palette(t_sm_palette * palette);
+TERM_PUBLIC int PICT2E_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void PICT2E_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC void PICT2E_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void PICT2E_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern);
@@ -621,9 +621,9 @@ TERM_PUBLIC int PICT2E_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int PICT2E_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int PICT2E_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
-	return 0; /* we can do continuous colors */
+	return 0; // we can do continuous colors 
 }
 
 static void PICT2E_apply_color()

@@ -140,7 +140,7 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 	char ** datablock_input_line = NULL;
 	// Support for "load $datablock" 
 	if(calltype == 6)
-		datablock_input_line = get_datablock(pName);
+		datablock_input_line = GetDatablock(pName);
 	if(!fp && !datablock_input_line)
 		IntError(NO_CARET, "Cannot load input from '%s'", pName);
 	// Provide a user-visible copy of the current line number in the input file 
@@ -169,7 +169,7 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 			more = TRUE;
 			// read one logical line 
 			while(more) {
-				if(fp && fgets(&(gp_input_line[start]), left, fp) == (char*)NULL) {
+				if(fp && fgets(&(gp_input_line[start]), left, fp) == (char *)NULL) {
 					// EOF in input file 
 					stop = TRUE;
 					gp_input_line[start] = '\0';
@@ -235,9 +235,9 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 							left = gp_input_line_len - start;
 						}
 						// Read additional lines if necessary to complete a bracketed clause {...}
-						if(curly_brace_count < 0)
+						if(Pgm.CurlyBraceCount < 0)
 							IntError(NO_CARET, "Unexpected }");
-						if(curly_brace_count > 0) {
+						if(Pgm.CurlyBraceCount > 0) {
 							if((len + 4) > static_cast<int>(gp_input_line_len))
 								extend_input_line();
 							strcat(gp_input_line, ";\n");
@@ -353,7 +353,7 @@ bool GnuPlot::LfPop()
 void GnuPlot::LfPush(FILE * fp, char * pName, char * pCmdLine)
 {
 	int    argindex;
-	LFS  * lf = (LFS *)gp_alloc(sizeof(LFS), (char*)NULL);
+	LFS  * lf = (LFS *)gp_alloc(sizeof(LFS), (char *)NULL);
 	if(!lf) {
 		SFile::ZClose(&fp); // it won't be otherwise 
 		IntErrorCurToken("not enough memory to load file");

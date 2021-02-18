@@ -30,7 +30,7 @@ HLOCAL hwid = 0;
 void * LocalAllocPtr(UINT flags, UINT size)
 {
 	HLOCAL hlocal = LocalAlloc(flags, size+1);
-	return (char*)LocalLock(hlocal);
+	return (char *)LocalLock(hlocal);
 }
 
 void * LocalReAllocPtr(void * ptr, UINT flags, UINT size)
@@ -38,7 +38,7 @@ void * LocalReAllocPtr(void * ptr, UINT flags, UINT size)
 	HLOCAL hlocal = LocalHandle(ptr);
 	LocalUnlock(hlocal);
 	hlocal = LocalReAlloc(hlocal, size+1, flags);
-	return (char*)LocalLock(hlocal);
+	return (char *)LocalLock(hlocal);
 }
 
 void LocalFreePtr(void * ptr)

@@ -19,7 +19,7 @@ static int enlarge_datablock(GpValue * datablock_value, int extra);
  * No attempt is made to parse the data at the time it is read in.
  */
 //void datablock_command()
-void GpProgram::DatablockCommand()
+void GnuPlot::DatablockCommand()
 {
 	FILE * fin;
 	char * name, * eod;
@@ -27,25 +27,25 @@ void GpProgram::DatablockCommand()
 	int nsize = 4;
 	udvt_entry * datablock;
 	char * dataline = NULL;
-	if(!IsLetter(GetCurTokenIdx()+1))
-		GPO.IntErrorCurToken("illegal datablock name");
+	if(!Pgm.IsLetter(Pgm.GetCurTokenIdx()+1))
+		IntErrorCurToken("illegal datablock name");
 	// Create or recycle a datablock with the requested name 
-	name = ParseDatablockName();
-	datablock = GPO.Ev.AddUdvByName(name);
-	if(!EqualsCur("<<") || !IsLetter(GetCurTokenIdx()+1))
-		GPO.IntErrorCurToken("data block name must be followed by << EODmarker");
+	name = Pgm.ParseDatablockName();
+	datablock = Ev.AddUdvByName(name);
+	if(!Pgm.EqualsCur("<<") || !Pgm.IsLetter(Pgm.GetCurTokenIdx()+1))
+		IntErrorCurToken("data block name must be followed by << EODmarker");
 	if(datablock->udv_value.type != NOTDEFINED)
 		gpfree_datablock(&datablock->udv_value);
 	datablock->udv_value.type = DATABLOCK;
 	datablock->udv_value.v.data_array = NULL;
-	Shift();
-	eod = (char *)gp_alloc(P_Token[CToken].length +2, "datablock");
-	CopyStr(&eod[0], CToken, P_Token[CToken].length+2);
-	Shift();
+	Pgm.Shift();
+	eod = (char *)gp_alloc(Pgm.P_Token[Pgm.CToken].length +2, "datablock");
+	Pgm.CopyStr(&eod[0], Pgm.CToken, Pgm.P_Token[Pgm.CToken].length+2);
+	Pgm.Shift();
 	// Read in and store data lines until EOD 
 	fin = lf_head ? lf_head->fp : stdin;
 	if(!fin)
-		GPO.IntError(NO_CARET, "attempt to define data block from invalid context");
+		IntError(NO_CARET, "attempt to define data block from invalid context");
 	for(nlines = 0; (dataline = df_fgets(fin)); nlines++) {
 		int n;
 		if(!strncmp(eod, dataline, strlen(eod)))
@@ -84,12 +84,13 @@ char * GpProgram::ParseDatablockName()
 	return name;
 }
 
-char ** get_datablock(const char * pName)
+//char ** get_datablock(const char * pName)
+char ** GnuPlot::GetDatablock(const char * pName)
 {
-	udvt_entry * datablock = GPO.Ev.GetUdvByName(pName);
-	if(!datablock || datablock->udv_value.type != DATABLOCK || datablock->udv_value.v.data_array == NULL)
-		GPO.IntError(NO_CARET, "no datablock named %s", pName);
-	return datablock->udv_value.v.data_array;
+	udvt_entry * p_datablock = Ev.GetUdvByName(pName);
+	if(!p_datablock || p_datablock->udv_value.type != DATABLOCK || p_datablock->udv_value.v.data_array == NULL)
+		IntError(NO_CARET, "no datablock named %s", pName);
+	return p_datablock->udv_value.v.data_array;
 }
 
 void gpfree_datablock(GpValue * datablock_value)
@@ -107,12 +108,13 @@ void gpfree_datablock(GpValue * datablock_value)
 //
 // count number of lines in a datablock 
 //
-int datablock_size(GpValue * datablock_value)
+//int datablock_size(const GpValue * pDatablockValue)
+int GpValue::GetDatablockSize() const
 {
 	int nlines = 0;
-	char ** dataline = datablock_value->v.data_array;
-	if(dataline) {
-		while(*dataline++)
+	const char * const * pp_dataline = v.data_array;
+	if(pp_dataline) {
+		while(*pp_dataline++)
 			nlines++;
 	}
 	return nlines;
@@ -123,7 +125,7 @@ int datablock_size(GpValue * datablock_value)
 static int enlarge_datablock(GpValue * datablock_value, int extra)
 {
 	const int blocksize = 512;
-	int nlines = datablock_size(datablock_value);
+	int nlines = datablock_value->GetDatablockSize();
 	// reserve space in multiples of blocksize 
 	int osize = ((nlines+1 + blocksize-1) / blocksize) * blocksize;
 	int nsize = ((nlines+1 + extra + blocksize-1) / blocksize) * blocksize;
@@ -140,7 +142,7 @@ static int enlarge_datablock(GpValue * datablock_value, int extra)
 void append_to_datablock(GpValue * datablock_value, const char * line)
 {
 	int nlines = enlarge_datablock(datablock_value, 1);
-	datablock_value->v.data_array[nlines] = (char*)line;
+	datablock_value->v.data_array[nlines] = (char *)line;
 	datablock_value->v.data_array[nlines + 1] = NULL;
 }
 //
@@ -148,7 +150,7 @@ void append_to_datablock(GpValue * datablock_value, const char * line)
 //
 void append_multiline_to_datablock(GpValue * datablock_value, const char * lines)
 {
-	char * l = (char*)lines;
+	char * l = (char *)lines;
 	bool inquote = FALSE;
 	bool escaped = FALSE;
 	// handle lines with line-breaks, one at a time; take care of quoted strings
@@ -175,6 +177,6 @@ void append_multiline_to_datablock(GpValue * datablock_value, const char * lines
 		if(strlen(l) > 0) /* remainder after last line-break */
 			append_to_datablock(datablock_value, sstrdup(l));
 		// we allocated new sub-strings, free the original 
-		SAlloc::F((char*)lines);
+		SAlloc::F((char *)lines);
 	}
 }

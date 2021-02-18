@@ -605,12 +605,12 @@ static void opj_t1_dec_sigpass_raw(opj_t1_t * t1,
 	{ \
 		OPJ_INT32 one, half, oneplushalf; \
 		OPJ_UINT32 i, j, k; \
-		register OPJ_INT32 * data = t1->data; \
-		register opj_flag_t * flagsp = &t1->flags[(flags_stride) + 1]; \
+		OPJ_INT32 * data = t1->data; \
+		opj_flag_t * flagsp = &t1->flags[(flags_stride) + 1]; \
 		const OPJ_UINT32 l_w = w; \
 		opj_mqc_t* mqc = &(t1->mqc); \
 		DOWNLOAD_MQC_VARIABLES(mqc, curctx, a, c, ct); \
-		register OPJ_UINT32 v; \
+		OPJ_UINT32 v; \
 		one = 1 << bpno; \
 		half = one >> 1; \
 		oneplushalf = one | half; \
@@ -932,12 +932,12 @@ static void opj_t1_dec_refpass_raw(opj_t1_t * t1,
 	{ \
 		OPJ_INT32 one, poshalf; \
 		OPJ_UINT32 i, j, k; \
-		register OPJ_INT32 * data = t1->data; \
-		register opj_flag_t * flagsp = &t1->flags[flags_stride + 1]; \
+		OPJ_INT32 * data = t1->data; \
+		opj_flag_t * flagsp = &t1->flags[flags_stride + 1]; \
 		const OPJ_UINT32 l_w = w; \
 		opj_mqc_t* mqc = &(t1->mqc); \
 		DOWNLOAD_MQC_VARIABLES(mqc, curctx, a, c, ct); \
-		register OPJ_UINT32 v; \
+		OPJ_UINT32 v; \
 		one = 1 << bpno; \
 		poshalf = one >> 1; \
 		for(k = 0; k < (h & ~3u); k += 4, data += 3*l_w, flagsp += 2) { \
@@ -1205,10 +1205,10 @@ static void opj_t1_enc_clnpass(opj_t1_t * t1,
 		OPJ_UINT32 i, j, k; \
 		const OPJ_UINT32 l_w = w; \
 		opj_mqc_t* mqc = &(t1->mqc); \
-		register OPJ_INT32 * data = t1->data; \
-		register opj_flag_t * flagsp = &t1->flags[flags_stride + 1]; \
+		OPJ_INT32 * data = t1->data; \
+		opj_flag_t * flagsp = &t1->flags[flags_stride + 1]; \
 		DOWNLOAD_MQC_VARIABLES(mqc, curctx, a, c, ct); \
-		register OPJ_UINT32 v; \
+		OPJ_UINT32 v; \
 		one = 1 << bpno; \
 		half = one >> 1; \
 		oneplushalf = one | half; \

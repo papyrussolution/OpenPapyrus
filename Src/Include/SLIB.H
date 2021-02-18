@@ -11891,6 +11891,15 @@ private:
 //
 class SPoint2I { 
 public:
+	SPoint2I() : x(0), y(0)
+	{
+	}
+	SPoint2I & Set(int _x, int _y)
+	{
+		x = _x;
+		y = _y;
+		return *this;
+	}
 	operator POINT() const;
 	SPoint2I & Z();
 	int    x;

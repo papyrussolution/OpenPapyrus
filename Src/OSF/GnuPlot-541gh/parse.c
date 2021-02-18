@@ -914,7 +914,7 @@ void GnuPlot::ParseUnaryExpression()
 		if(previous->index == PUSHC && previous->arg.v_arg.type == INTGR) {
 			previous->arg.v_arg.v.int_val = -previous->arg.v_arg.v.int_val;
 		}
-		else if(previous->index == PUSHC &&  previous->arg.v_arg.type == CMPLX) {
+		else if(previous->index == PUSHC && previous->arg.v_arg.type == CMPLX) {
 			previous->arg.v_arg.v.cmplx_val.real = -previous->arg.v_arg.v.cmplx_val.real;
 			previous->arg.v_arg.v.cmplx_val.imag = -previous->arg.v_arg.v.cmplx_val.imag;
 		}
@@ -1320,9 +1320,9 @@ bool GnuPlot::NextIteration(GpIterator * iter)
 		Ginteger(&(iter->iteration_udv->udv_value), iter->iteration_current);
 	}
 	// If this runs off the end, leave the value out-of-range and return FALSE 
-	if(iter->iteration_increment > 0 &&  iter->iteration_end - iter->iteration_current < 0)
+	if(iter->iteration_increment > 0 && iter->iteration_end - iter->iteration_current < 0)
 		return FALSE;
-	if(iter->iteration_increment < 0 &&  iter->iteration_end - iter->iteration_current > 0)
+	if(iter->iteration_increment < 0 && iter->iteration_end - iter->iteration_current > 0)
 		return FALSE;
 	if(iter->next == NULL)
 		return TRUE;
@@ -1392,7 +1392,7 @@ static void set_up_columnheader_parsing(struct at_entry * previous)
 {
 	/* column("string") means we expect the first row of */
 	/* a data file to contain headers rather than data.  */
-	if(previous->index == PUSHC &&  previous->arg.v_arg.type == STRING)
+	if(previous->index == PUSHC && previous->arg.v_arg.type == STRING)
 		parse_1st_row_as_headers = TRUE;
 
 	/* This allows plot ... using (column(<const>)) title columnhead */

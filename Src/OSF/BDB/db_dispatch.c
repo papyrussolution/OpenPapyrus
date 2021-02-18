@@ -394,7 +394,6 @@ int __db_txnlist_init(ENV * env, DB_THREAD_INFO * ip, uint32 low_txn, uint32 hi_
 		ZERO_LSN(headp->maxlsn);
 	}
 	ZERO_LSN(headp->ckplsn);
-
 	*retp = headp;
 	return 0;
 }
@@ -403,12 +402,8 @@ int __db_txnlist_init(ENV * env, DB_THREAD_INFO * ip, uint32 low_txn, uint32 hi_
 		uint32 __i;                                                  \
 		for(__i = 0; __i <= (hp)->generation; __i++)                   \
 			/* The range may wrap around the end. */                \
-			if((hp)->gen_array[__i].txn_min <                      \
-			   (hp)->gen_array[__i].txn_max ?                      \
-			   ((txnid) >= (hp)->gen_array[__i].txn_min &&         \
-			    (txnid) <= (hp)->gen_array[__i].txn_max) :          \
-			   ((txnid) >= (hp)->gen_array[__i].txn_min ||         \
-			    (txnid) <= (hp)->gen_array[__i].txn_max))           \
+			if((hp)->gen_array[__i].txn_min < (hp)->gen_array[__i].txn_max ? ((txnid) >= (hp)->gen_array[__i].txn_min && \
+			    (txnid) <= (hp)->gen_array[__i].txn_max) : ((txnid) >= (hp)->gen_array[__i].txn_min || (txnid) <= (hp)->gen_array[__i].txn_max)) \
 				break;                                          \
 		DB_ASSERT(env, __i <= (hp)->generation);                        \
 		gen = (hp)->gen_array[__i].generation;                          \

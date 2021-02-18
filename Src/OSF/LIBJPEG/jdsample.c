@@ -147,9 +147,9 @@ METHODDEF(void) int_upsample(j_decompress_ptr cinfo, jpeg_component_info * compp
 {
 	my_upsample_ptr upsample = (my_upsample_ptr)cinfo->upsample;
 	JSAMPARRAY output_data = *output_data_ptr;
-	register JSAMPROW inptr, outptr;
-	register JSAMPLE invalue;
-	register int h;
+	JSAMPROW inptr, outptr;
+	JSAMPLE invalue;
+	int h;
 	JSAMPROW outend;
 	int inrow = 0;
 	int outrow = 0;
@@ -182,11 +182,11 @@ METHODDEF(void) int_upsample(j_decompress_ptr cinfo, jpeg_component_info * compp
 METHODDEF(void) h2v1_upsample(j_decompress_ptr cinfo, jpeg_component_info * compptr, JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr)
 {
 	JSAMPARRAY output_data = *output_data_ptr;
-	register JSAMPLE invalue;
+	JSAMPLE invalue;
 	JSAMPROW outend;
 	for(int outrow = 0; outrow < cinfo->max_v_samp_factor; outrow++) {
-		register JSAMPROW inptr = input_data[outrow];
-		register JSAMPROW outptr = output_data[outrow];
+		JSAMPROW inptr = input_data[outrow];
+		JSAMPROW outptr = output_data[outrow];
 		outend = outptr + cinfo->output_width;
 		while(outptr < outend) {
 			invalue = *inptr++; /* don't need GETJSAMPLE() here */
@@ -199,12 +199,11 @@ METHODDEF(void) h2v1_upsample(j_decompress_ptr cinfo, jpeg_component_info * comp
  * Fast processing for the common case of 2:1 horizontal and 2:1 vertical.
  * It's still a box filter.
  */
-METHODDEF(void) h2v2_upsample(j_decompress_ptr cinfo, jpeg_component_info * compptr,
-    JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr)
+METHODDEF(void) h2v2_upsample(j_decompress_ptr cinfo, jpeg_component_info * compptr, JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr)
 {
 	JSAMPARRAY output_data = *output_data_ptr;
-	register JSAMPROW inptr, outptr;
-	register JSAMPLE invalue;
+	JSAMPROW inptr, outptr;
+	JSAMPLE invalue;
 	JSAMPROW outend;
 	int inrow = 0;
 	int outrow = 0;

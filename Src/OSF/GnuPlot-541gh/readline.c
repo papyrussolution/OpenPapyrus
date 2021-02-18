@@ -501,7 +501,7 @@ static void delete_backward()
 static void extend_cur_line()
 {
 	// extend input line length 
-	char * new_line = (char*)gp_realloc(RlB_.P_CurLine, RlB_.LineLen + MAXBUF, NULL);
+	char * new_line = (char *)gp_realloc(RlB_.P_CurLine, RlB_.LineLen + MAXBUF, NULL);
 	if(!new_line) {
 		reset_termio();
 		GPO.IntError(NO_CARET, "Can't extend readline length");
@@ -812,7 +812,7 @@ char * readline(const char * prompt)
 			else if(cur_char == term_chars[VEOF]) { /* ^D? */
 				if(RlB_.MaxPos == 0) {
 					reset_termio();
-					return ((char*)NULL);
+					return ((char *)NULL);
 				}
 				delete_forward();
 #endif /* VEOF */
@@ -853,7 +853,7 @@ char * readline(const char * prompt)
 				switch(cur_char) {
 					case EOF:
 					    reset_termio();
-					    return ((char*)NULL);
+					    return ((char *)NULL);
 					case 001: /* ^A */
 					    while(RlB_.CurPos > 0)
 						    backspace();
@@ -952,7 +952,7 @@ char * readline(const char * prompt)
 						// if the alloc fails, we still own block at cur_line,
 						// but this shouldn't really fail.
 						// 
-					    new_line = (char*)gp_realloc(RlB_.P_CurLine, strlen(RlB_.P_CurLine) + 1, "line resize");
+					    new_line = (char *)gp_realloc(RlB_.P_CurLine, strlen(RlB_.P_CurLine) + 1, "line resize");
 					    if(new_line)
 						    RlB_.P_CurLine = new_line;
 					    // else we just hang on to what we had - it's not a problem 

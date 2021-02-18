@@ -244,8 +244,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				if((chPrev == '.' || chPrev == ':' || chPrev == '}' ||
 					    (chPrev_3 == 'e' && chPrev_2 == 'l' && chPrev_1 == 's' &&  chPrev == 'e') ||
 					    (chPrev_3 == 't' && chPrev_2 == 'h' && chPrev_1 == 'e' &&  chPrev == 'n')) &&
-				    (IsASpace(ch) || (ch == '/' && styler.SafeGetCharAt(back+1) == '*'))
-				    ) {
+				    (IsASpace(ch) || (ch == '/' && styler.SafeGetCharAt(back+1) == '*'))) {
 					checkIsSentenceStart = false;
 					isSentenceStart = true;
 				}

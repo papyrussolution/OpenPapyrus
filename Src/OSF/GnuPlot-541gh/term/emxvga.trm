@@ -356,7 +356,7 @@ TERM_PUBLIC void EMXVGA_put_text(uint x, uint y, const char * str)
 TERM_PUBLIC void EMXVGA_suspend()
 {
 	SAlloc::F(EMXVGA_buf); /* do this just for safety */
-	EMXVGA_buf = (char*)malloc(g_memsize);
+	EMXVGA_buf = (char *)malloc(g_memsize);
 	g_save(EMXVGA_buf);
 	emx_getch();
 	g_mode(GTEXT);

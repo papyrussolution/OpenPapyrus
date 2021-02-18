@@ -171,7 +171,7 @@ static void dumb_set_pixel(int x, int y, int v)
 {
 	char * charpixel;
 	if((uint)x <= GPO.TDumbB.XMax /* ie x>=0 && x<=GPO.TDumbB.XMax */ && (uint)y <= GPO.TDumbB.YMax) {
-		charpixel = (char*)(&GPO.TDumbB.P_Matrix[GPO.TDumbB.XMax * y + x]);
+		charpixel = (char *)(&GPO.TDumbB.P_Matrix[GPO.TDumbB.XMax * y + x]);
 		/* null-terminate single ascii character (needed for UTF-8) */
 		GPO.TDumbB.P_Matrix[GPO.TDumbB.XMax * y + x] = 0;
 		*charpixel = v;
@@ -199,7 +199,7 @@ void DUMB_graphics(GpTermEntry * pThis)
 	memzero(GPO.TDumbB.P_Colors, size * sizeof(t_colorspec));
 #endif
 	for(int i = 0; i<size; i++) {
-		char * c = (char*)pm++;
+		char * c = (char *)pm++;
 		*c = ' ';
 	}
 }
@@ -225,7 +225,7 @@ void DUMB_text(GpTermEntry * pThis)
 			memcpy(&GPO.TDumbB.PrevColor, color, sizeof(t_colorspec));
 #endif
 
-			c = (char*)(&GPO.TDumbB.P_Matrix[GPO.TDumbB.XMax*y + x]);
+			c = (char *)(&GPO.TDumbB.P_Matrix[GPO.TDumbB.XMax*y + x]);
 			/* The UTF-8 character might be four bytes long and so there's
 			   no guarantee that the charcell ends in a NUL. */
 			for(i = 0; i < sizeof(charcell) && *c != NUL; i++, c++)
@@ -545,7 +545,7 @@ void ENHdumb_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion(term, (char*)str, TRUE, ENHdumb_font, ENHdumb_fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(term, (char *)str, TRUE, ENHdumb_font, ENHdumb_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)(pThis);
 		// I think we can only get here if *str == '}' 
 		enh_err_check(str);
@@ -557,7 +557,7 @@ void ENHdumb_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 #endif /* NO_DUMB_ENHANCED_SUPPORT */
 
 #ifndef NO_DUMB_COLOR_SUPPORT
-	int DUMB_make_palette(t_sm_palette * palette)
+	int DUMB_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 	{
 		return 0; // report continuous colors 
 	}

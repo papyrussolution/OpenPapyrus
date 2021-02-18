@@ -156,7 +156,7 @@ int gp_strnicmp(const char * s1, const char * s2, size_t n)
 #ifndef HAVE_STRNLEN
 size_t strnlen(const char * str, size_t n)
 {
-	const char * stop = (char*)memchr(str, '\0', n);
+	const char * stop = (char *)memchr(str, '\0', n);
 	return stop ? stop - str : n;
 }
 #endif
@@ -166,10 +166,10 @@ char * strndup(const char * str, size_t n)
 {
 	char * ret = NULL;
 	size_t len = strnlen(str, n);
-	ret = (char*)malloc(len + 1);
+	ret = (char *)malloc(len + 1);
 	if(ret == NULL) return NULL;
 	ret[len] = '\0';
-	return (char*)memcpy(ret, str, len);
+	return (char *)memcpy(ret, str, len);
 }
 #endif
 
@@ -396,7 +396,7 @@ DIR * gp_opendir(const char * name)
 		const char * all = strchr("/\\", name[base_length - 1]) ? "*" : "/*";
 
 		if((dir = (DIR*)malloc(sizeof *dir)) != NULL &&
-		    (mbname = (char*)malloc(base_length + strlen(all) + 1)) != NULL) {
+		    (mbname = (char *)malloc(base_length + strlen(all) + 1)) != NULL) {
 			strcat(strcpy(mbname, name), all);
 			dir->name = UnicodeText(mbname, encoding);
 			SAlloc::F(mbname);

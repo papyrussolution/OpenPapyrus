@@ -294,8 +294,8 @@ static char df_byte_read_order_map[4][4] = {
 };
 
 static long long_0x2468 = 0x2468;
-#define TEST_BIG_PDP         ( (((char*)&long_0x2468)[0] < 3) ? DF_BIG_ENDIAN : DF_PDP_ENDIAN )
-#define THIS_COMPILER_ENDIAN ( (((char*)&long_0x2468)[0] < 5) ? TEST_BIG_PDP : DF_LITTLE_ENDIAN )
+#define TEST_BIG_PDP         ( (((char *)&long_0x2468)[0] < 3) ? DF_BIG_ENDIAN : DF_PDP_ENDIAN )
+#define THIS_COMPILER_ENDIAN ( (((char *)&long_0x2468)[0] < 5) ? TEST_BIG_PDP : DF_LITTLE_ENDIAN )
 
 /* Argument is file's endianess type. */
 static df_byte_read_order_type byte_read_order(df_endianess_type);
@@ -946,7 +946,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	// or from 'fit' rather than plot.
 	column_for_key_title = NO_COLUMN_HEADER;
 	df_already_got_headers = FALSE;
-	if((&keyT)->auto_titles == COLUMNHEAD_KEYTITLES)
+	if(Gg.KeyT.auto_titles == COLUMNHEAD_KEYTITLES)
 		parse_1st_row_as_headers = TRUE;
 	else if(df_columnheaders)
 		parse_1st_row_as_headers = TRUE;
@@ -963,7 +963,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 				IntError(Pgm.GetPrevTokenIdx(), "Array %s invalid", df_arrayname);
 		}
 	}
-	else if(pCmdFileName[0] == '$' && get_vgrid_by_name(pCmdFileName)) {
+	else if(pCmdFileName[0] == '$' && GetVGridByName(pCmdFileName)) {
 		// The rest of the df_open() processing is not relevant 
 		df_voxelgrid = TRUE;
 		return(1);
@@ -1104,7 +1104,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	if(duplication)
 		IntErrorCurToken("duplicated or contradicting arguments in datafile options");
 	// Check for auto-generation of key title from column header  
-	if((&keyT)->auto_titles == COLUMNHEAD_KEYTITLES) {
+	if(Gg.KeyT.auto_titles == COLUMNHEAD_KEYTITLES) {
 		if(df_no_use_specs == 1)
 			column_for_key_title = use_spec[0].column;
 		else if(pPlot && pPlot->plot_style == HISTOGRAMS)
@@ -1185,7 +1185,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	}
 	else if(df_filename[0] == '$') {
 		df_datablock = TRUE;
-		df_datablock_line = get_datablock(df_filename);
+		df_datablock_line = GetDatablock(df_filename);
 		// Better safe than sorry. Check for inblock != outblock 
 		if(pPlot && GPO.Tab.P_Var && GPO.Tab.P_Var->udv_value.v.data_array == df_datablock_line)
 			IntError(NO_CARET, "input and output datablock are the same");
@@ -1706,7 +1706,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 		/*}}} */
 
 		/* Bookkeeping for the plot ... every N:M:etc option */
-		if((parse_1st_row_as_headers || column_for_key_title > 0) &&  !df_already_got_headers) {
+		if((parse_1st_row_as_headers || column_for_key_title > 0) && !df_already_got_headers) {
 			FPRINTF((stderr, "skipping 'every' test in order to read column headers\n"));
 		}
 		else {
@@ -1926,7 +1926,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 							struct tm tm;
 							double reltime;
 							double usec = 0.0;
-							td_type status = gstrptime(a.v.string_val, P_TimeFormat, &tm, &usec, &reltime);
+							td_type status = GStrPTime(a.v.string_val, P_TimeFormat, &tm, &usec, &reltime);
 							if(status == DT_TIMEDATE)
 								v[output] = (double)gtimegm(&tm) + usec;
 							else if(status == DT_DMS)
@@ -1967,8 +1967,8 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					double reltime;
 					int status;
 					if(column > df_no_cols || df_column[column - 1].good == DF_MISSING || !df_column[column - 1].position ||
-					    (status = gstrptime(df_column[column - 1].position, P_TimeFormat, &tm, &usec, &reltime), status == DT_BAD)) {
-						/* line bad only if user explicitly asked for this column */
+					    (status = GStrPTime(df_column[column - 1].position, P_TimeFormat, &tm, &usec, &reltime), status == DT_BAD)) {
+						// line bad only if user explicitly asked for this column 
 						if(df_no_use_specs) {
 							line_okay = FALSE;
 							if(df_bad_returns_NaN) {
@@ -1976,8 +1976,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 								return DF_UNDEFINED;
 							}
 						}
-
-						/* return or ignore line depending on line_okay */
+						// return or ignore line depending on line_okay 
 						break;
 					}
 					if(status == DT_DMS)
@@ -2112,7 +2111,7 @@ static double df_read_a_float(FILE * fin)
 		else
 			GPO.IntError(NO_CARET, read_error_msg);
 	}
-	df_swap_bytes_by_endianess((char*)&fdummy, byte_read_order(df_bin_file_endianess), sizeof(fdummy));
+	df_swap_bytes_by_endianess((char *)&fdummy, byte_read_order(df_bin_file_endianess), sizeof(fdummy));
 	return (double)fdummy;
 }
 
@@ -2211,7 +2210,7 @@ void GnuPlot::DfDetermineMatrix_info(FILE * fin)
 				if(df_matrix_rowheaders)
 					nc--;
 				df_add_binary_records(1, DF_CURRENT_RECORDS);
-				df_bin_record[index].memory_data = (char*)matrix;
+				df_bin_record[index].memory_data = (char *)matrix;
 				matrix = NULL;
 				df_bin_record[index].scan_dim[0] = nc;
 				df_bin_record[index].scan_dim[1] = nr;
@@ -2491,7 +2490,7 @@ void GnuPlot::F_TimeColumn(union argument * arg)
 	}
 	else {
 		double reltime;
-		td_type status = gstrptime(df_column[column - 1].position, b.v.string_val, &tm, &usec, &reltime);
+		td_type status = GStrPTime(df_column[column - 1].position, b.v.string_val, &tm, &usec, &reltime);
 		if(status == DT_TIMEDATE)
 			Gcomplex(&a, gtimegm(&tm) + usec, 0.0);
 		else if(status == DT_DMS)
@@ -2610,7 +2609,7 @@ void require_value(const char column)
 void df_set_key_title(curve_points * pPlot)
 {
 	if(df_key_title) {
-		if(pPlot->plot_style == HISTOGRAMS &&  histogram_opts.type == HT_STACKED_IN_TOWERS) {
+		if(pPlot->plot_style == HISTOGRAMS && histogram_opts.type == HT_STACKED_IN_TOWERS) {
 			// In this case it makes no sense to treat key titles in the usual
 			// way, so we assume that it is supposed to be an xtic label.
 			// Only for "plot ... title columnhead" 
@@ -2628,7 +2627,7 @@ void df_set_key_title(curve_points * pPlot)
 			SAlloc::F(pPlot->title);
 			pPlot->title = df_key_title;
 			df_key_title = NULL;
-			pPlot->title_no_enhanced = !keyT.enhanced;
+			pPlot->title_no_enhanced = !GPO.Gg.KeyT.enhanced;
 		}
 	}
 }
@@ -2866,10 +2865,10 @@ void avs_filetype_function()
 		os_error(NO_CARET, "Can't read first dimension in data file \"%s\"", df_filename);
 	if(M > 0xFFFF)
 		read_order = DF_3210;
-	df_swap_bytes_by_endianess((char*)&M, read_order, 4);
+	df_swap_bytes_by_endianess((char *)&M, read_order, 4);
 	if(!fread(&N, 4, 1, fp))
 		os_error(NO_CARET, "Can't read second dimension in data file \"%s\"", df_filename);
-	df_swap_bytes_by_endianess((char*)&N, read_order, 4);
+	df_swap_bytes_by_endianess((char *)&N, read_order, 4);
 
 	fclose(fp);
 
@@ -3022,7 +3021,7 @@ void GnuPlot::AdjustBinaryUseSpec(curve_points * pPlot)
 	}
 	// A known default is all very well, but if there was an actual using spec
 	// that's all we need.
-	if(ps_index == sizeof(default_style_cols)/sizeof(default_style_cols[0]) &&  !df_no_use_specs)
+	if(ps_index == sizeof(default_style_cols)/sizeof(default_style_cols[0]) && !df_no_use_specs)
 		IntError(NO_CARET, nothing_known);
 	// Matrix format is interpreted as always having three columns. 
 	if(df_matrix_file) {
@@ -4059,7 +4058,7 @@ void df_show_binary(FILE * fp)
 			    bin_record[i].cart_p[1],
 			    bin_record[i].cart_p[2]);
 			for(j = 0; j < (sizeof(df_bin_scan_table_3D)/sizeof(df_bin_scan_table_3D[0])); j++) {
-				if(!strncmp((char*)bin_record[i].cart_scan, (char*)df_bin_scan_table_3D[j].scan, sizeof(bin_record[0].cart_scan))) {
+				if(!strncmp((char *)bin_record[i].cart_scan, (char *)df_bin_scan_table_3D[j].scan, sizeof(bin_record[0].cart_scan))) {
 					fprintf(fp, "\n\t    Scan: ");
 					fprintf(fp, (bin_record[i].cart_dim[2] ? "%s" : "%2.2s"), df_bin_scan_table_3D[j].string);
 					break;
@@ -4325,7 +4324,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 		// Craig DeForest Feb 2013 - Fast version of uniform binary matrix.
 		// Don't apply this to ascii input or special filetypes.
 		// Slurp all data from file or pipe in one shot to minimize fread calls.
-		if(!memory_data && !(df_bin_filetype > 0) && df_binary_file &&  df_matrix && !df_nonuniform_matrix) {
+		if(!memory_data && !(df_bin_filetype > 0) && df_binary_file && df_matrix && !df_nonuniform_matrix) {
 			int i;
 			ulong bytes_per_point = 0;
 			ulong bytes_per_line = 0;
@@ -4687,7 +4686,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 		if(!line_okay)
 			continue;
 		for(i = df_no_use_specs; i<df_no_use_specs+df_no_tic_specs; i++) {
-			if(use_spec[i].expected_type >= CT_XTICLABEL &&  use_spec[i].at != NULL) {
+			if(use_spec[i].expected_type >= CT_XTICLABEL && use_spec[i].at != NULL) {
 				GpValue a;
 				int axis, axcol;
 				evaluate_inside_using = TRUE;
@@ -4753,7 +4752,7 @@ char * GnuPlot::DfGeneratePseudodata()
 				// (hidden) axis so that the samples are evenly spaced.         
 				// The extra test allows sampling on x2 after "set link x2"     
 				// NB: This means "t" is in the hidden linear coordinate space. 
-				if(AxS.__X().linked_to_primary != NULL && AxS.__X().link_udf->at &&  AxS.__X().linked_to_primary != &AxS[FIRST_X_AXIS]) {
+				if(AxS.__X().linked_to_primary != NULL && AxS.__X().link_udf->at && AxS.__X().linked_to_primary != &AxS[FIRST_X_AXIS]) {
 					const GpAxis * primary = AxS.__X().linked_to_primary;
 					t_min = EvalLinkFunction(primary, t_min);
 					t_max = EvalLinkFunction(primary, t_max);

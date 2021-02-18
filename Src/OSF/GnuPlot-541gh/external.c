@@ -17,16 +17,17 @@ typedef void (* fifn_t)(void *);
 struct exft_entry {
 	exfn_t exfn;
 	fifn_t fifn;
-	struct udft_entry * args;
+	udft_entry * args;
 	void * P_Private;
 };
 
-void f_calle(union argument * x)
+//void f_calle(union argument * x)
+void GnuPlot::F_Calle(union argument * x)
 {
 	GpValue r = x->exf_arg->exfn(x->exf_arg->args->dummy_num, x->exf_arg->args->dummy_values, x->exf_arg->P_Private);
 	if(r.type == INVALID_VALUE)
-		r = GPO.Ev.P_UdvNaN->udv_value;
-	GPO.EvStk.Push(&r);
+		r = Ev.P_UdvNaN->udv_value;
+	EvStk.Push(&r);
 }
 
 #ifdef _WIN32
@@ -38,13 +39,14 @@ void f_calle(union argument * x)
 		return dl;
 	}
 #endif
-/*
-   Parse the string argument for a dll filename and function.  Create a
-   one-item action list that calls a plugin function.  Call the _init,
-   if present.  _init may return a pointer to private data that is
-   handed over to the external function for each call.
- */
-struct at_type * external_at(const char * func_name)                  
+// 
+// Parse the string argument for a dll filename and function.  Create a
+// one-item action list that calls a plugin function.  Call the _init,
+// if present.  _init may return a pointer to private data that is
+// handed over to the external function for each call.
+// 
+//at_type * external_at(const char * func_name)
+at_type * GnuPlot::ExternalAt(const char * func_name)
 {
 	char * file = NULL;
 	char * func;
@@ -53,12 +55,12 @@ struct at_type * external_at(const char * func_name)
 	infn_t infn;
 	fifn_t fifn;
 	at_type * at = NULL;
-	if(!GPO.Pgm.IsString(GPO.Pgm.GetCurTokenIdx()))
-		GPO.IntErrorCurToken("expecting external function filename");
-	// NB: cannot use GPO.TryToGetString() inside an expression evaluation 
-	GPO.Pgm.MQuoteCapture(&file, GPO.Pgm.GetCurTokenIdx(), GPO.Pgm.GetCurTokenIdx());
+	if(!Pgm.IsString(Pgm.GetCurTokenIdx()))
+		IntErrorCurToken("expecting external function filename");
+	// NB: cannot use TryToGetString() inside an expression evaluation 
+	Pgm.MQuoteCapture(&file, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 	if(!file)
-		GPO.IntErrorCurToken("expecting external function filename");
+		IntErrorCurToken("expecting external function filename");
 	gp_expand_tilde(&file);
 	func = strrchr(file, ':');
 	if(func) {
@@ -66,7 +68,7 @@ struct at_type * external_at(const char * func_name)
 		func++;
 	}
 	else {
-		func = (char*)func_name;
+		func = (char *)func_name;
 	}
 	/* 1st try:  "file" */
 	dl = DLL_OPEN(file);
@@ -113,7 +115,7 @@ struct at_type * external_at(const char * func_name)
 		if(!dl) {
 			if(!err || !*err)
 				err = "cannot load external function";
-			GPO.IntWarnCurToken(err);
+			IntWarnCurToken(err);
 			goto bailout;
 		}
 	}
@@ -121,7 +123,7 @@ struct at_type * external_at(const char * func_name)
 	if(!exfn) {
 		char * err = DLL_ERROR(dl);
 		SETIFZ(err, "external function not found");
-		GPO.IntWarnCurToken(err);
+		IntWarnCurToken(err);
 		goto bailout;
 	}
 	infn = (infn_t)DLL_SYM(dl, "gnuplot_init");
@@ -144,7 +146,7 @@ struct at_type * external_at(const char * func_name)
 	else
 		at->actions[0].arg.exf_arg->P_Private = (*infn)(exfn);
 bailout:
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	SAlloc::F(file);
 	return at;
 }
@@ -152,7 +154,7 @@ bailout:
    Called with the at of a UDF about to be redefined.  Test if the
    function was external, and call its _fini, if any.
  */
-void external_free(struct at_type * at)
+void external_free(at_type * at)
 {
 	if(at && at->a_count == 1 && at->actions[0].index == CALLE && at->actions[0].arg.exf_arg->fifn)
 		(*at->actions[0].arg.exf_arg->fifn)(at->actions[0].arg.exf_arg->P_Private);

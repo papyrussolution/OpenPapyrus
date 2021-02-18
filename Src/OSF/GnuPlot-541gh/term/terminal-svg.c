@@ -86,8 +86,8 @@ TERM_PUBLIC int SVG_set_font(GpTermEntry * pThis, const char * font);
 // TERM_PUBLIC void SVG_pointsize(double pointsize); 
 TERM_PUBLIC void SVG_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void SVG_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC int SVG_make_palette(t_sm_palette *);
-TERM_PUBLIC void SVG_previous_palette();
+TERM_PUBLIC int SVG_make_palette(GpTermEntry * pThis, t_sm_palette *);
+TERM_PUBLIC void SVG_previous_palette(GpTermEntry * pThis);
 TERM_PUBLIC void SVG_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void SVG_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint);
@@ -1393,10 +1393,7 @@ TERM_PUBLIC int SVG_set_font(GpTermEntry * pThis, const char * font)
 	return (TRUE);
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
-        SVG_make_palette
-   ------------------------------------------------------------------------------------------------------------------------------------*/
-TERM_PUBLIC int SVG_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int SVG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	SVG_GroupFilledClose();
 	if(palette == NULL) {
@@ -1449,7 +1446,7 @@ TERM_PUBLIC void SVG_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 	return;
 }
 
-TERM_PUBLIC void SVG_previous_palette()
+TERM_PUBLIC void SVG_previous_palette(GpTermEntry * pThis)
 {
 	SVG_GroupFilledClose();
 }
@@ -1749,7 +1746,7 @@ TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	ENHsvg_charcount = 0;
 	GPO.Enht.FontScale = 1.0;
 	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
-	while(*(str = enhanced_recursion(term, (char*)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(term, (char *)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(pThis->enhanced_flush)(pThis);
 		enh_err_check(str);
 		if(!*++str)
@@ -1827,7 +1824,7 @@ TERM_PUBLIC void SVG_hypertext(GpTermEntry * pThis, int type, const char * text)
 		case TERM_HYPERTEXT_TITLE:
 		    SAlloc::F(SVG_hypertext_text);
 		    if(text) {
-			    char * buffer = (char*)gp_alloc(2+5*strlen(text), "escape");
+			    char * buffer = (char *)gp_alloc(2+5*strlen(text), "escape");
 			    GPO.Enht.P_CurText = buffer;
 			    do {
 				    ENHsvg_writec(pThis, *text);

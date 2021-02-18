@@ -184,7 +184,7 @@ void GnuPlot::TessellateOneCube(GpTermEntry * pTerm, GpSurfacePoints * pPlot, in
 		_VP.Intersection[iedge][1] = vgrid->vymin + ((double)iy + _VP.Intersection[iedge][1]) * vgrid->vydelta;
 		_VP.Intersection[iedge][2] = vgrid->vzmin + ((double)iz + _VP.Intersection[iedge][2]) * vgrid->vzdelta;
 	}
-	if(isosurface_options.tessellation == 0) {
+	if(_VG.IsoSurfaceOptions.tessellation == 0) {
 		//
 		// Draw a mixture of quadrangles and triangles
 		//
